@@ -1,0 +1,481 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
+	<AutoSaveDataInSettings>Use</AutoSaveDataInSettings>
+	<AutoTitle>false</AutoTitle>
+	<AutoCommandBar name="FormCommandBar" id="-1">
+		<ChildItems>
+			<Button name="Save" id="27">
+				<Type>CommandBarButton</Type>
+				<DefaultButton>true</DefaultButton>
+				<CommandName>Form.Command.Save</CommandName>
+				<ExtendedTooltip name="SaveExtendedTooltip" id="28"/>
+			</Button>
+		</ChildItems>
+	</AutoCommandBar>
+	<Events>
+		<Event name="OnOpen">OnOpen</Event>
+		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
+	</Events>
+	<ChildItems>
+		<Pages name="SaveOptions" id="29">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Save options</v8:content>
+				</v8:item>
+			</Title>
+			<PagesRepresentation>None</PagesRepresentation>
+			<ExtendedTooltip name="SavingOptionsExtendedTooltip" id="30"/>
+			<ChildItems>
+				<Page name="OneReportOption" id="31">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>One report option</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="OneVersionOfReportExtendedTooltip" id="32"/>
+					<ChildItems>
+						<InputField name="FileName" id="1">
+							<DataPath>FileName</DataPath>
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<HorizontalStretch>true</HorizontalStretch>
+							<ChoiceButton>true</ChoiceButton>
+							<ContextMenu name="FileNameContextMenu" id="2"/>
+							<ExtendedTooltip name="FileNameExtendedTooltip" id="3"/>
+							<Events>
+								<Event name="OnChange">FileNameOnChange</Event>
+								<Event name="StartChoice">FileNameStartChoice</Event>
+							</Events>
+						</InputField>
+						<Table name="UserSettings" id="4">
+							<Representation>List</Representation>
+							<TitleLocation>Top</TitleLocation>
+							<ChangeRowOrder>false</ChangeRowOrder>
+							<Header>false</Header>
+							<HorizontalLines>false</HorizontalLines>
+							<VerticalLines>false</VerticalLines>
+							<AutoInsertNewRow>true</AutoInsertNewRow>
+							<DataPath>UserSettings</DataPath>
+							<RowPictureDataPath>UserSettings.Picture</RowPictureDataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>User settings</v8:content>
+								</v8:item>
+							</Title>
+							<CommandSet>
+								<ExcludedCommand>Change</ExcludedCommand>
+								<ExcludedCommand>EndEdit</ExcludedCommand>
+								<ExcludedCommand>Pickup</ExcludedCommand>
+							</CommandSet>
+							<ContextMenu name="UserSettingsContextMenu" id="5"/>
+							<AutoCommandBar name="UserSettingsCommandBar" id="6">
+								<Autofill>false</Autofill>
+								<ChildItems>
+									<ButtonGroup name="UserSettingsGroupChangeCheckboxes" id="75">
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Change check boxes</v8:content>
+											</v8:item>
+										</Title>
+										<Representation>Compact</Representation>
+										<ExtendedTooltip name="UserSettingsGroupChangeCheckboxesExtendedTooltip" id="76"/>
+										<ChildItems>
+											<Button name="UserSettingsCheckAll" id="23">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Item.UserSettings.StandardCommand.CheckAll</CommandName>
+												<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="UserSettingsCheckAllExtendedTooltip" id="24"/>
+											</Button>
+											<Button name="UserSettingsUncheckAll" id="25">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Item.UserSettings.StandardCommand.UncheckAll</CommandName>
+												<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="UserSettingsUncheckAllExtendedTooltip" id="26"/>
+											</Button>
+										</ChildItems>
+									</ButtonGroup>
+								</ChildItems>
+							</AutoCommandBar>
+							<ExtendedTooltip name="UserSettingsExtendedTooltip" id="7"/>
+							<SearchStringAddition name="UserSettingsSearchString" id="8">
+								<AdditionSource>
+									<Item>UserSettings</Item>
+									<Type>SearchStringRepresentation</Type>
+								</AdditionSource>
+								<ContextMenu name="UserSettingsSearchStringContextMenu" id="9"/>
+								<ExtendedTooltip name="UserSettingsSearchStringExtendedTooltip" id="10"/>
+							</SearchStringAddition>
+							<ViewStatusAddition name="UserSettingsViewStatus" id="11">
+								<AdditionSource>
+									<Item>UserSettings</Item>
+									<Type>ViewStatusRepresentation</Type>
+								</AdditionSource>
+								<ContextMenu name="UserSettingsViewStatusContextMenu" id="12"/>
+								<ExtendedTooltip name="UserSettingsViewStatusExtendedTooltip" id="13"/>
+							</ViewStatusAddition>
+							<SearchControlAddition name="UserSettingsSearchControl" id="14">
+								<AdditionSource>
+									<Item>UserSettings</Item>
+									<Type>SearchControl</Type>
+								</AdditionSource>
+								<ContextMenu name="UserSettingsSearchControlContextMenu" id="15"/>
+								<ExtendedTooltip name="UserSettingsSearchControlExtendedTooltip" id="16"/>
+							</SearchControlAddition>
+							<Events>
+								<Event name="OnChange">UserSettingsOnChange</Event>
+							</Events>
+							<ChildItems>
+								<CheckBoxField name="UserSettingsCheckBox" id="20">
+									<DataPath>UserSettings.Check</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Mark</v8:content>
+										</v8:item>
+									</Title>
+									<EditMode>EnterOnInput</EditMode>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="UserSettingsCheckBoxContextMenu" id="21"/>
+									<ExtendedTooltip name="UserSettingsCheckBoxExtendedTooltip" id="22"/>
+								</CheckBoxField>
+								<InputField name="UserSettingsValue" id="17">
+									<DataPath>UserSettings.Value</DataPath>
+									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Value</v8:content>
+										</v8:item>
+									</Title>
+									<EditMode>EnterOnInput</EditMode>
+									<ContextMenu name="UserSettingsValueContextMenu" id="18"/>
+									<ExtendedTooltip name="UserSettingsValueExtendedTooltip" id="19"/>
+								</InputField>
+							</ChildItems>
+						</Table>
+					</ChildItems>
+				</Page>
+				<Page name="MultipleReportsOptions" id="33">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Multiple report options</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="MultipleReportOptionsExtendedTooltip" id="34"/>
+					<ChildItems>
+						<InputField name="DirectoryName" id="35">
+							<DataPath>DirectoryName</DataPath>
+							<HorizontalStretch>true</HorizontalStretch>
+							<ChoiceButton>true</ChoiceButton>
+							<ContextMenu name="DirectoryNameContextMenu" id="36"/>
+							<ExtendedTooltip name="DirectoryNameExtendedTooltip" id="37"/>
+							<Events>
+								<Event name="OnChange">DirectoryNameOnChange</Event>
+								<Event name="StartChoice">DirectoryStartChoice</Event>
+							</Events>
+						</InputField>
+						<Table name="ReportsOptionsDetails" id="38">
+							<Representation>List</Representation>
+							<ChangeRowOrder>false</ChangeRowOrder>
+							<AutoInsertNewRow>true</AutoInsertNewRow>
+							<EnableStartDrag>true</EnableStartDrag>
+							<EnableDrag>true</EnableDrag>
+							<DataPath>ReportsOptionsDetails</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Report option details</v8:content>
+								</v8:item>
+							</Title>
+							<CommandSet>
+								<ExcludedCommand>Add</ExcludedCommand>
+								<ExcludedCommand>Change</ExcludedCommand>
+								<ExcludedCommand>Copy</ExcludedCommand>
+								<ExcludedCommand>CopyToClipboard</ExcludedCommand>
+								<ExcludedCommand>EndEdit</ExcludedCommand>
+								<ExcludedCommand>MoveDown</ExcludedCommand>
+								<ExcludedCommand>MoveUp</ExcludedCommand>
+								<ExcludedCommand>ShowRowRearrangement</ExcludedCommand>
+								<ExcludedCommand>SortListAsc</ExcludedCommand>
+								<ExcludedCommand>SortListDesc</ExcludedCommand>
+							</CommandSet>
+							<RowFilter xsi:nil="true"/>
+							<ContextMenu name="DescriptionOfReportOptionsContextMenu" id="39"/>
+							<AutoCommandBar name="DescriptionOfReportOptionsCommandBar" id="40">
+								<Autofill>false</Autofill>
+							</AutoCommandBar>
+							<ExtendedTooltip name="DescriptionOfReportOptionsExtendedTooltip" id="41"/>
+							<SearchStringAddition name="DescriptionOfReportOptionsSearchString" id="42">
+								<AdditionSource>
+									<Item>ReportsOptionsDetails</Item>
+									<Type>SearchStringRepresentation</Type>
+								</AdditionSource>
+								<ContextMenu name="DescriptionOfReportOptionsSearchStringContextMenu" id="43"/>
+								<ExtendedTooltip name="DescriptionOfReportOptionsSearchStringExtendedTooltip" id="44"/>
+							</SearchStringAddition>
+							<ViewStatusAddition name="DescriptionOfReportOptionsViewStatus" id="45">
+								<AdditionSource>
+									<Item>ReportsOptionsDetails</Item>
+									<Type>ViewStatusRepresentation</Type>
+								</AdditionSource>
+								<ContextMenu name="DescriptionOfReportOptionsViewStatusContextMenu" id="46"/>
+								<ExtendedTooltip name="DescriptionOfReportOptionsViewStatusExtendedTooltip" id="47"/>
+							</ViewStatusAddition>
+							<SearchControlAddition name="DescriptionOfReportOptionsSearchControl" id="48">
+								<AdditionSource>
+									<Item>ReportsOptionsDetails</Item>
+									<Type>SearchControl</Type>
+								</AdditionSource>
+								<ContextMenu name="DescriptionOfReportOptionsSearchControlContextMenu" id="49"/>
+								<ExtendedTooltip name="DescriptionOfReportOptionsSearchControlExtendedTooltip" id="50"/>
+							</SearchControlAddition>
+							<Events>
+								<Event name="BeforeAddRow">DescriptionOfReportOptionsBeforeAddRow</Event>
+								<Event name="AfterDeleteRow">DescriptionOfReportOptionsAfterDeleteRow</Event>
+							</Events>
+							<ChildItems>
+								<InputField name="DescriptionOfReportOptionsRef" id="51">
+									<DataPath>ReportsOptionsDetails.Ref</DataPath>
+									<ReadOnly>true</ReadOnly>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Report option</v8:content>
+										</v8:item>
+									</Title>
+									<EditMode>EnterOnInput</EditMode>
+									<ContextMenu name="DescriptionOfReportOptionsRefContextMenu" id="52"/>
+									<ExtendedTooltip name="DescriptionOfReportOptionsRefExtendedTooltip" id="53"/>
+								</InputField>
+								<InputField name="DescriptionOfReportOptionsFileNameIsShort" id="72">
+									<DataPath>ReportsOptionsDetails.ShortFileName</DataPath>
+									<ReadOnly>true</ReadOnly>
+									<EditMode>EnterOnInput</EditMode>
+									<ContextMenu name="DescriptionOfReportOptionsFileNameIsShortContextMenu" id="73"/>
+									<ExtendedTooltip name="DescriptionOfReportOptionsFileNameIsShortExtendedTooltip" id="74"/>
+								</InputField>
+							</ChildItems>
+						</Table>
+					</ChildItems>
+				</Page>
+			</ChildItems>
+		</Pages>
+	</ChildItems>
+	<Attributes>
+		<Attribute name="FileName" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>File name</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+			<Save>
+				<Field>FileName</Field>
+			</Save>
+		</Attribute>
+		<Attribute name="UserSettings" id="2">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Settings</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>v8:ValueListType</v8:Type>
+			</Type>
+			<Settings xsi:type="v8:TypeDescription">
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Settings>
+		</Attribute>
+		<Attribute name="UserSettingsStorage" id="3">
+			<Type>
+				<v8:Type>v8:ValueTable</v8:Type>
+			</Type>
+			<Columns>
+				<Column name="SettingsKey" id="1">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="Settings" id="2">
+					<Type/>
+				</Column>
+			</Columns>
+		</Attribute>
+		<Attribute name="DirectoryName" id="11">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Directory</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="ReportsOptionsDetails" id="13">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Report option details</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>v8:ValueTable</v8:Type>
+			</Type>
+			<Columns>
+				<Column name="Ref" id="3">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Reference</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>cfg:CatalogRef.ReportsOptions</v8:Type>
+					</Type>
+				</Column>
+				<Column name="ReportName" id="4">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="Settings" id="5">
+					<Type/>
+				</Column>
+				<Column name="VariantKey" id="6">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="VariantPresentation" id="7">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="UserSettingsKey" id="8">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="UserSettingsPresentation" id="9">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="FileName" id="1">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="ShortFileName" id="2">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>File name</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="ArchiveStorageAddress" id="10">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+			</Columns>
+		</Attribute>
+		<Attribute name="FileNameWithoutExtension" id="14">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="ArchiveExtension" id="15">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+	</Attributes>
+	<Commands>
+		<Command name="Save" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Save</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Save</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>Save</Action>
+		</Command>
+	</Commands>
+</Form>
