@@ -21,7 +21,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.SafeModeManagerClientOverridable</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.SafeModeManagerInternal</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.SafeModeManagerOverridable</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.ExternalResourcePermissionSetup</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.ExternalResourcesPermissionsSetup</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">FunctionalOption.UseSecurityProfiles</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.SafeMode</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">XDTOPackage.ApplicationPermissions_1_0_0_1</xr:Item>
@@ -35,9 +35,9 @@
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.RequestsForPermissionsToUseExternalResources</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.PermissionsToUseExternalResources</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.ExternalModulesAttachmentModes</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.PermissionsToUseExternalResourcesSetupServerCall</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.ExternalResourcePermissionSetupGlobal</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.ExternalResourcePermissionSetupClient</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.ExternalResourcesPermissionsSetupServerCall</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.ExternalResourcesPermissionsSetupGlobal</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.ExternalResourcesPermissionsSetupClient</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

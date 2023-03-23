@@ -183,7 +183,9 @@ EndFunction
 //        * IBBackupDirectoryName - String - a backup directory.
 //        * RestoreInfobase - Boolean - shows whether an infobase is restored from a backup in case of update errors.
 //        * ShouldExitApp - Boolean - shows that an update is installed when the application is closed.
-//        * UpdateFiles - Array - contains values of Structure type.
+//        * UpdateFiles - Array of Structure:
+//           ** UpdateFileFullName - String
+//           ** RunUpdateHandlers - Boolean -
 //        * Corrections - Structure:
 //           ** Set - Array - paths to the patch files in a temporary storage
 //                                    .
@@ -203,7 +205,19 @@ Procedure InstallUpdate(Form, Parameters, AdministrationParameters) Export
 	ConfigurationUpdateServerCall.SaveConfigurationUpdateSettings(Parameters);
 	
 	If Form <> Undefined Then
-		Form.Close();
+		If Parameters.UpdateMode = 0 Then
+			ParameterName = "StandardSubsystems.SkipEndOfSystemAfterProcessingWarnings";
+			ApplicationParameters.Insert(ParameterName, True);
+			Try
+				Form.Close();
+			Except
+				ApplicationParameters.Delete(ParameterName);
+				Raise;
+			EndTry;
+			ApplicationParameters.Delete(ParameterName);
+		Else
+			Form.Close();
+		EndIf;
 	EndIf;
 	
 	If Parameters.UpdateMode = 0 Then // 
@@ -211,7 +225,7 @@ Procedure InstallUpdate(Form, Parameters, AdministrationParameters) Export
 	ElsIf Parameters.UpdateMode = 1 Then // 
 		ParameterName = "StandardSubsystems.SuggestInfobaseUpdateOnExitSession";
 		ApplicationParameters.Insert(ParameterName, True);
-		ApplicationParameters.Insert("StandardSubsystems.UpdateFilesNames", UpdateFilesNames(Parameters));
+		ApplicationParameters.Insert("StandardSubsystems.UpdateFilesNames", UpdateFilesNames(Parameters, Undefined));
 	ElsIf Parameters.UpdateMode = 2 Then // 
 		ScheduleConfigurationUpdate(Parameters, AdministrationParameters);
 	EndIf;
@@ -439,29 +453,50 @@ Procedure InsertScriptParameter(Val ParameterName, Val ParameterValue, DoFormat,
 	
 EndProcedure
 
-Function UpdateFilesNames(Parameters)
+Function UpdateFilesNames(Parameters, OnlyFirstFile = False)
 	
 	ParameterName = "StandardSubsystems.UpdateFilesNames";
 	If ApplicationParameters.Get(ParameterName) <> Undefined Then
+		If OnlyFirstFile = True Then
+			Return ApplicationParameters[ParameterName].NameOfFirstFile;
+		ElsIf OnlyFirstFile = False Then
+			Return ApplicationParameters[ParameterName].FilesNames;
+		EndIf;
 		Return ApplicationParameters[ParameterName];
 	EndIf;
 	
 	If Parameters.Property("UpdateFileRequired") And Not Parameters.UpdateFileRequired Then
+		NameOfFirstFile = "";
 		UpdateFilesNames = "";
 	Else
+		NameOfFirstFile = Null;
 		If IsBlankString(Parameters.UpdateFileName) Then
 			FilesNames = New Array;
 			For Each UpdateFile In Parameters.UpdateFiles Do
+				If NameOfFirstFile = Null Then
+					NameOfFirstFile = UpdateFile.UpdateFileFullName;
+				EndIf;
 				UpdateFilePrefix = ?(UpdateFile.RunUpdateHandlers, "+", "");
 				FilesNames.Add(DoFormat(UpdateFilePrefix + UpdateFile.UpdateFileFullName));
 			EndDo;
 			UpdateFilesNames = StrConcat(FilesNames, ",");
 		Else
 			UpdateFilesNames = DoFormat(Parameters.UpdateFileName);
+			NameOfFirstFile = Parameters.UpdateFileName;
 		EndIf;
 	EndIf;
 	
-	Return "[" + UpdateFilesNames + "]";
+	NameOfFirstFile = ?(NameOfFirstFile = Null, "", NameOfFirstFile);
+	UpdateFilesNames = "[" + UpdateFilesNames + "]";
+	
+	If OnlyFirstFile = True Then
+		Return NameOfFirstFile;
+	ElsIf OnlyFirstFile = False Then
+		Return UpdateFilesNames;
+	EndIf;
+	
+	Return New Structure("NameOfFirstFile, FilesNames",
+		NameOfFirstFile, UpdateFilesNames);
 	
 EndFunction
 
@@ -568,8 +603,8 @@ Procedure CheckForConfigurationUpdate()
 		Return; // Update results form will be shown later.
 	EndIf;
 	
-	UpdateSettings1 = ClientRunParameters.UpdateSettings1;
-	UpdateAvailability = UpdateSettings1.CheckPreviousInfobaseUpdates;
+	SettingsOfUpdate = ClientRunParameters.SettingsOfUpdate;
+	UpdateAvailability = SettingsOfUpdate.CheckPreviousInfobaseUpdates;
 	
 	If UpdateAvailability Then
 		// The previous update must be completed.
@@ -577,7 +612,7 @@ Procedure CheckForConfigurationUpdate()
 		Return;
 	EndIf;
 	
-	If UpdateSettings1.ConfigurationChanged Then
+	If SettingsOfUpdate.ConfigurationChanged Then
 		ShowUserNotification(NStr("en = 'Configuration update';"),
 			"e1cib/app/DataProcessor.InstallUpdates",
 			NStr("en = 'The configuration is different from the main infobase configuration.';"), 
@@ -871,18 +906,10 @@ Function GenerateUpdateScriptFiles(Val InteractiveMode, Parameters, Administrati
 	TemplatesTexts.Delete("ParametersArea");
 	
 	//
-	ScriptFile = New TextDocument;
-	ScriptFile.Output = UseOutput.Enable;
-	ScriptFile.SetText(TemplatesTexts.ConfigurationUpdateFileTemplate);
+	WriteTextToFile(TempFilesDirForUpdate + "main.js", TemplatesTexts.ConfigurationUpdateFileTemplate);
 	
-	ScriptFileName = TempFilesDirForUpdate + "main.js";
-	ScriptFile.Write(ScriptFileName, UpdateProgramFilesEncoding());
-	
-	// 
-	ScriptFile = New TextDocument;
-	ScriptFile.Output = UseOutput.Enable;
-	ScriptFile.SetText(TemplatesTexts.AdditionalConfigurationUpdateFile);
-	ScriptFile.Write(TempFilesDirForUpdate + "helpers.js", UpdateProgramFilesEncoding());
+	// Auxiliary file: helpers.js.
+	WriteTextToFile(TempFilesDirForUpdate + "helpers.js", TemplatesTexts.AdditionalConfigurationUpdateFile);
 	
 	If InteractiveMode Then
 		PictureLib.ExternalOperationSplash.Write(TempFilesDirForUpdate + "splash.png");
@@ -890,16 +917,10 @@ Function GenerateUpdateScriptFiles(Val InteractiveMode, Parameters, Administrati
 		PictureLib.TimeConsumingOperation48.Write(TempFilesDirForUpdate + "progress.gif");
 
 		MainScriptFileName = TempFilesDirForUpdate + "splash.hta";
-		ScriptFile = New TextDocument;
-		ScriptFile.Output = UseOutput.Enable;
-		ScriptFile.SetText(TemplatesTexts.ConfigurationUpdateSplash);
-		ScriptFile.Write(MainScriptFileName, UpdateProgramFilesEncoding());
+		WriteTextToFile(MainScriptFileName, TemplatesTexts.ConfigurationUpdateSplash);
 	Else
 		MainScriptFileName = TempFilesDirForUpdate + "updater.js";
-		ScriptFile = New TextDocument;
-		ScriptFile.Output = UseOutput.Enable;
-		ScriptFile.SetText(TemplatesTexts.NonInteractiveConfigurationUpdate);
-		ScriptFile.Write(MainScriptFileName, UpdateProgramFilesEncoding());
+		WriteTextToFile(MainScriptFileName, TemplatesTexts.NonInteractiveConfigurationUpdate);
 	EndIf;
 	
 	If IsDeferredUpdate Then 
@@ -923,10 +944,7 @@ Function GenerateUpdateScriptFiles(Val InteractiveMode, Parameters, Administrati
 		InsertScriptParameter("TaskDetails1" , TaskDetails1, True, TaskSchedulerTaskCreationScript);
 		
 		TaskSchedulerTaskCreationScriptName = TempFilesDirForUpdate + "addsheduletask.js";
-		ScriptFile = New TextDocument;
-		ScriptFile.Output = UseOutput.Enable;
-		ScriptFile.SetText(TaskSchedulerTaskCreationScript);
-		ScriptFile.Write(TaskSchedulerTaskCreationScriptName, UpdateProgramFilesEncoding());
+		WriteTextToFile(TaskSchedulerTaskCreationScriptName, TaskSchedulerTaskCreationScript);
 		
 		Parameters.SchedulerTaskCode = TaskCode;
 		
@@ -934,25 +952,122 @@ Function GenerateUpdateScriptFiles(Val InteractiveMode, Parameters, Administrati
 		
 	EndIf;
 	
-	LogFile1 = New TextDocument;
-	LogFile1.Output = UseOutput.Enable;
-	LogFile1.SetText(StandardSubsystemsClient.SupportInformation());
-	LogFile1.Write(TempFilesDirForUpdate + "templog.txt", TextEncoding.System);
+	WriteTextToFile(TempFilesDirForUpdate + "templog.txt",
+		StandardSubsystemsClient.SupportInformation(), TextEncoding.System);
 	
-	ScriptFile = New TextDocument;
-	ScriptFile.Output = UseOutput.Enable;
-	ScriptFile.SetText(TemplatesTexts.PatchesDeletionScript);
-	ScriptFile.Write(TempFilesDirForUpdate + "add-delete-patches.js", UpdateProgramFilesEncoding());
+	WriteTextToFile(TempFilesDirForUpdate + "add-delete-patches.js",
+		TemplatesTexts.PatchesDeletionScript);
 	
 	Return MainScriptFileName;
 	
 EndFunction
 
+Procedure WriteTextToFile(FullFileName, Text, Encoding = Undefined)
+	
+	If Encoding = Undefined Then
+		Encoding = UpdateProgramFilesEncoding();
+	EndIf;
+	
+	ScriptFile = New TextWriter(FullFileName, Encoding);
+	ScriptFile.Write(Text);
+	ScriptFile.Close();
+	
+EndProcedure
+
+// Parameters:
+//  Parameters - See InstallUpdate.Parameters
+//  AdministrationParameters - See StandardSubsystemsServer.AdministrationParameters.
+//
 Procedure RunUpdateScript(Parameters, AdministrationParameters)
+	
+	Context = New Structure;
+	Context.Insert("Parameters", Parameters);
+	Context.Insert("AdministrationParameters", AdministrationParameters);
+	
+	FormParameters = New Structure("NameOfFirstUpdateFile",
+		UpdateFilesNames(Parameters, True));
+	
+	Notification = New NotifyDescription("RunUpdateScriptAfterCheckingUpdateFile",
+		ThisObject, Context);
+	
+	Form = OpenForm("CommonForm.CheckingUpdateFile", FormParameters,,,,,
+		Notification, FormWindowOpeningMode.LockWholeInterface);
+	
+	If Form = Undefined Then
+		RunUpdateScriptWhileClearingData(Context);
+	EndIf;
+	
+EndProcedure
+
+// Parameters:
+//  Context - Structure:
+//   * Parameters - See InstallUpdate.Parameters
+//   * AdministrationParameters - See StandardSubsystemsServer.AdministrationParameters.
+//  
+//
+Procedure RunUpdateScriptAfterCheckingUpdateFile(Result, Context) Export
+	
+	If Result = True Then
+		RunUpdateScriptAfterClearingOutdatedData(True, Context);
+	Else
+		RunUpdateScriptWhileClearingData(Context);
+	EndIf;
+	
+EndProcedure
+
+// Parameters:
+//  Context - See RunUpdateScriptAfterCheckingUpdateFile.Context
+//
+Procedure RunUpdateScriptWhileClearingData(Context)
+	
+	FullFormName = "DataProcessor.ApplicationUpdateResult.Form.ClearingOutdatedData";
+	
+	Windows = GetWindows();
+	For Each Window In Windows Do
+		For Each Form In Window.Content Do
+			If Form.FormName = FullFormName And Form.IsOpen() Then
+				Form.Close();
+			EndIf;
+		EndDo;
+	EndDo;
+	
+	Notification = New NotifyDescription("RunUpdateScriptAfterClearingOutdatedData",
+		ThisObject, Context);
+	
+	FormParameters = New Structure;
+	FormParameters.Insert("ClearAndClose", True);
+	
+	OpenForm(FullFormName, FormParameters,,,,,
+		Notification, FormWindowOpeningMode.LockWholeInterface);
+	
+EndProcedure
+
+// Parameters:
+//  Result - 
+//  Context - See RunUpdateScriptAfterCheckingUpdateFile.Context
+//
+Procedure RunUpdateScriptAfterClearingOutdatedData(Result, Context) Export
+	
+	If Result <> True Then
+		If Result <> False Then
+			ShowMessageBox(, NStr("en = 'Configuration update is canceled.';"));
+		EndIf;
+		Return;
+	EndIf;
+	
+	RunUpdateScriptEnd(Context.Parameters, Context.AdministrationParameters);
+	
+EndProcedure
+
+// Parameters:
+//  Parameters - See InstallUpdate.Parameters
+//  AdministrationParameters - See StandardSubsystemsServer.AdministrationParameters.
+//
+Procedure RunUpdateScriptEnd(Parameters, AdministrationParameters)
 	
 	MainScriptFileName = GenerateUpdateScriptFiles(True, Parameters, AdministrationParameters);
 	EventLogClient.AddMessageForEventLog(EventLogEvent(), "Information",
-		NStr("en = 'Running configuration update procedure:';") + " " + MainScriptFileName);
+		NStr("en = 'Updating the configuration:';") + " " + MainScriptFileName);
 	ConfigurationUpdateServerCall.WriteUpdateStatus(UserName(), True, False, False,
 		MainScriptFileName, ApplicationParameters["StandardSubsystems.MessagesForEventLog"]);
 		

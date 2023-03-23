@@ -3,7 +3,7 @@
 	<Title>
 		<v8:item>
 			<v8:lang>en</v8:lang>
-			<v8:content>Tasks by subject</v8:content>
+			<v8:content>Tasks on this subject</v8:content>
 		</v8:item>
 	</Title>
 	<AutoSaveDataInSettings>Use</AutoSaveDataInSettings>
@@ -166,7 +166,7 @@
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Priority</v8:content>
+									<v8:content>The task priority.</v8:content>
 								</v8:item>
 							</ToolTip>
 							<Shortcut>Ctrl+S</Shortcut>
@@ -189,14 +189,14 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Stopped</v8:content>
+									<v8:content>Suspended</v8:content>
 								</v8:item>
 							</Title>
 							<TitleLocation>None</TitleLocation>
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Stopped</v8:content>
+									<v8:content>Suspended</v8:content>
 								</v8:item>
 							</ToolTip>
 							<HeaderPicture>
@@ -522,7 +522,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Priority</v8:content>
+							<v8:content>The task priority.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<EditMode>EnterOnInput</EditMode>
@@ -567,7 +567,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Stopped</v8:content>
+							<v8:content>Suspended</v8:content>
 						</v8:item>
 					</ToolTip>
 					<EditMode>EnterOnInput</EditMode>
@@ -809,7 +809,7 @@ WHERE Tasks.SubjectOf = &amp;FilterParameter
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Stopped</v8:content>
+							<v8:content>Suspended</v8:content>
 						</v8:item>
 					</Title>
 					<Type>

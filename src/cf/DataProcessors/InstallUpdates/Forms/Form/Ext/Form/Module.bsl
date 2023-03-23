@@ -698,26 +698,26 @@ EndProcedure
 &AtClient
 Procedure InstallUpdate()
 	
-	UpdateParameters1 = New Structure;
-	UpdateParameters1.Insert("UpdateMode");
-	UpdateParameters1.Insert("UpdateDateTime");
-	UpdateParameters1.Insert("EmailReport");
-	UpdateParameters1.Insert("Email");
-	UpdateParameters1.Insert("SchedulerTaskCode");
-	UpdateParameters1.Insert("CreateDataBackup");
-	UpdateParameters1.Insert("IBBackupDirectoryName");
-	UpdateParameters1.Insert("RestoreInfobase");
-	UpdateParameters1.Insert("UpdateFileName");
+	ParametersOfUpdate = New Structure;
+	ParametersOfUpdate.Insert("UpdateMode");
+	ParametersOfUpdate.Insert("UpdateDateTime");
+	ParametersOfUpdate.Insert("EmailReport");
+	ParametersOfUpdate.Insert("Email");
+	ParametersOfUpdate.Insert("SchedulerTaskCode");
+	ParametersOfUpdate.Insert("CreateDataBackup");
+	ParametersOfUpdate.Insert("IBBackupDirectoryName");
+	ParametersOfUpdate.Insert("RestoreInfobase");
+	ParametersOfUpdate.Insert("UpdateFileName");
 	
-	FillPropertyValues(UpdateParameters1, Object);
-	UpdateParameters1.Insert("ShouldExitApp", Parameters.ShouldExitApp);
-	UpdateParameters1.Insert("UpdateFileRequired", Boolean(UpdateFileRequired));
-	UpdateParameters1.Insert("PatchesFiles", PatchesFilesNames());
+	FillPropertyValues(ParametersOfUpdate, Object);
+	ParametersOfUpdate.Insert("ShouldExitApp", Parameters.ShouldExitApp);
+	ParametersOfUpdate.Insert("UpdateFileRequired", Boolean(UpdateFileRequired));
+	ParametersOfUpdate.Insert("PatchesFiles", PatchesFilesNames());
 	
-	UpdateParameters1.Insert("ConfigurationChanged", ConfigurationChanged);
-	UpdateParameters1.Insert("LoadExtensions", LoadExtensions);
+	ParametersOfUpdate.Insert("ConfigurationChanged", ConfigurationChanged);
+	ParametersOfUpdate.Insert("LoadExtensions", LoadExtensions);
 	
-	ConfigurationUpdateClient.InstallUpdate(ThisObject, UpdateParameters1, AdministrationParameters);
+	ConfigurationUpdateClient.InstallUpdate(ThisObject, ParametersOfUpdate, AdministrationParameters);
 	
 EndProcedure
 

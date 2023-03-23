@@ -1397,7 +1397,7 @@ Function GenerateFormattedString(StringPattern, StyleItems,
 					ElsIf StrCompare(AttributeName, "href") = 0 And StrCompare(NameTag, "a") = 0 Then
 						CurrentRef = AttributeValue;
 					ElsIf StrCompare(AttributeName, "src") = 0 And StrCompare(NameTag, "img") = 0 Then
-						RowsSet.Add(New FormattedString(PictureLib[AttributeValue], CurrentFont, CurrentColor, CurrentBackground, CurrentRef));
+						RowsSet.Add(FormattedStringWithoutChangingFontSize(New FormattedString(PictureLib[AttributeValue], CurrentFont, CurrentColor, CurrentBackground, CurrentRef)));
 					EndIf;
 					
 					AttributesDetails = Mid(AttributesDetails, PositionSecondQuote + 1);
@@ -1423,7 +1423,7 @@ Function GenerateFormattedString(StringPattern, StyleItems,
 		
 		StringBody = StrReplace(StringBody, "&lt;", "<");
 		If StrLen(StringBody) > 0 Then
-			RowsSet.Add(New FormattedString(StringBody, CurrentFont, CurrentColor, CurrentBackground, CurrentRef));
+			RowsSet.Add(FormattedStringWithoutChangingFontSize(New FormattedString(StringBody, CurrentFont, CurrentColor, CurrentBackground, CurrentRef)));
 		EndIf; 
 		
 		FragmentFirstChar = "<" ;
@@ -1456,6 +1456,16 @@ Procedure SetStylesByAttributeValue(Val StyleDetails, StyleItems, CurrentBackgro
 	EndDo;
 	
 EndProcedure
+
+Function FormattedStringWithoutChangingFontSize(String)
+	FormattedDocument = New FormattedDocument;
+	FormattedDocument.SetFormattedString(String);
+	Text = "";
+	Attachments = New Structure;
+	FormattedDocument.GetHTML(Text,Attachments);
+	FormattedDocument.SetHTML(Text, Attachments);
+	Return FormattedDocument.GetFormattedString();
+EndFunction
 
 #EndRegion
 

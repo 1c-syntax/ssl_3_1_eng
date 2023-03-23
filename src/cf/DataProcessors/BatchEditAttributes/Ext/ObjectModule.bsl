@@ -272,20 +272,20 @@ Procedure ChangeObjects1(Parameters, ResultAddress) Export
 	Try
 		If Parameters.ChangeInTransaction Then
 			Block = New DataLock;
-			For Each ObjectData1 In ObjectsToProcess Do
-				Ref = ObjectData1.Ref;
-				LockRef(Block, ObjectData1.Ref);
+			For Each ObjectData In ObjectsToProcess Do
+				Ref = ObjectData.Ref;
+				LockRef(Block, ObjectData.Ref);
 			EndDo;
 			Block.Lock();
 		EndIf;
 		
-		For Each ObjectData1 In ObjectsToProcess Do
+		For Each ObjectData In ObjectsToProcess Do
 			
 			WriteError = True;
 			BeginTransaction(DataLockControlMode.Managed);
 			Try
 				
-				Ref = ObjectData1.Ref;
+				Ref = ObjectData.Ref;
 				If Not Parameters.ChangeInTransaction Then
 					Block = New DataLock;
 					LockRef(Block, Ref);
@@ -299,7 +299,7 @@ Procedure ChangeObjects1(Parameters, ResultAddress) Export
 					RunAlgorithmCode(ObjectToChange, Parameters.AlgorithmCode, RunAlgorithmCodeInSafeMode);
 				Else
 					// @skip-
-					Changes = MakeChanges(ObjectData1, ObjectToChange, Parameters);
+					Changes = MakeChanges(ObjectData, ObjectToChange, Parameters);
 				EndIf;
 				
 				// Write mode.
@@ -369,8 +369,8 @@ Procedure ChangeObjects1(Parameters, ResultAddress) Export
 		
 		If Parameters.ChangeInTransaction Then 
 			RollbackTransaction();
-			For Each ObjectData1 In ObjectsToProcess Do
-				UnlockDataForEdit(ObjectData1.Ref);
+			For Each ObjectData In ObjectsToProcess Do
+				UnlockDataForEdit(ObjectData.Ref);
 			EndDo;
 		EndIf;
 		
@@ -406,7 +406,7 @@ EndProcedure
 //   * AdditionalObjectInfoToChange - Map
 //   * AddInfoRecordsArray - Array of InformationRegisterRecordManager.AdditionalInfo
 //
-Function MakeChanges(Val ObjectData1, Val ObjectToChange, Val Parameters)
+Function MakeChanges(Val ObjectData, Val ObjectToChange, Val Parameters)
 	
 	Result = New Structure;
 	Result.Insert("ObjectAttributesToChange", New Array);
@@ -487,7 +487,7 @@ Function MakeChanges(Val ObjectData1, Val ObjectToChange, Val Parameters)
 	EndIf;
 	
 	If Parameters.TabularSectionsToChange.Count() > 0 Then
-		MakeChangesToTabularSections(ObjectToChange, ObjectData1, Parameters.TabularSectionsToChange);
+		MakeChangesToTabularSections(ObjectToChange, ObjectData, Parameters.TabularSectionsToChange);
 	EndIf;
 
 	Return Result;
@@ -630,13 +630,13 @@ Function AddInfoNamePrefix()
 	Return "AddlDataItem_";
 EndFunction
 
-Procedure MakeChangesToTabularSections(ObjectToChange, ObjectData1, ChangesToTabularSections)
+Procedure MakeChangesToTabularSections(ObjectToChange, ObjectData, ChangesToTabularSections)
 	
 	For Each TabularSectionChanges In ChangesToTabularSections Do
 		TableName = TabularSectionChanges.Key;
 		AttributesToChange = TabularSectionChanges.Value;
 		For Each TableRow In ObjectToChange[TableName] Do
-			If StringMatchesFilter(TableRow, ObjectData1, TableName) Then
+			If StringMatchesFilter(TableRow, ObjectData, TableName) Then
 				For Each AttributeToChange In AttributesToChange Do
 					TableRow[AttributeToChange.Name] = AttributeToChange.Value;
 				EndDo;
@@ -649,12 +649,12 @@ EndProcedure
 // Parameters:
 //   TableRow - ValueTableRow:
 //   * LineNumber - Number
-//   ObjectData1 - AnyRef
+//   ObjectData - AnyRef
 //   TableName - String
 //
-Function StringMatchesFilter(TableRow, ObjectData1, TableName)
+Function StringMatchesFilter(TableRow, ObjectData, TableName)
 	
-	Return ObjectData1.Rows.FindRows(New Structure(TableName + "LineNumber", TableRow.LineNumber)).Count() = 1;
+	Return ObjectData.Rows.FindRows(New Structure(TableName + "LineNumber", TableRow.LineNumber)).Count() = 1;
 	
 EndFunction
 
@@ -1456,8 +1456,8 @@ Function CalculateInSafeMode(Val Expression, Val Parameters = Undefined) Export
 	SetSafeMode(True);
 	
 	If SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = CommonModule("SaaSOperations");
-		SeparatorArray = ModuleSaaS.ConfigurationSeparators();
+		ModuleSaaSOperations = CommonModule("SaaSOperations");
+		SeparatorArray = ModuleSaaSOperations.ConfigurationSeparators();
 	Else
 		SeparatorArray = New Array;
 	EndIf;

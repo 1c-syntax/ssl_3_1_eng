@@ -980,7 +980,7 @@ Procedure AddTabularSectionCompositionAdditionalSets(SourceItems, AddingOptions)
 			Continue;
 		EndIf;
 		
-		// The tabular section that matches the conditions.
+		// The table that matches the conditions.
 		DataPath = Mid(FieldName, Position + 1);
 		If StrStartsWith(DataPath + ".", "Ref.") Then
 			// Redirecting to the parent table.

@@ -210,13 +210,13 @@ Procedure ExtendedModeOnChange(Item)
 		
 	EndIf;
 	
-	UpdateParameters1 = New Structure;
-	UpdateParameters1.Insert("EventName", "ExtendedModeOnChange");
-	UpdateParameters1.Insert("DCSettingsComposer", Report.SettingsComposer);
-	UpdateParameters1.Insert("UpdateOptionSettings", ExtendedMode = 1);
-	UpdateParameters1.Insert("ResetCustomSettings", ExtendedMode <> 1);
+	ParametersOfUpdate = New Structure;
+	ParametersOfUpdate.Insert("EventName", "ExtendedModeOnChange");
+	ParametersOfUpdate.Insert("DCSettingsComposer", Report.SettingsComposer);
+	ParametersOfUpdate.Insert("UpdateOptionSettings", ExtendedMode = 1);
+	ParametersOfUpdate.Insert("ResetCustomSettings", ExtendedMode <> 1);
 	
-	UpdateForm(UpdateParameters1);
+	UpdateForm(ParametersOfUpdate);
 EndProcedure
 
 &AtClient
@@ -299,10 +299,10 @@ Procedure Attachable_SettingItem_OnChange(Item)
 	If TypeOf(SettingItem) = Type("DataCompositionSettingsParameterValue")
 		And ReportSettings.ImportSettingsOnChangeParameters.Find(SettingItem.Parameter) <> Undefined Then 
 		
-		UpdateParameters1 = New Structure;
-		UpdateParameters1.Insert("DCSettingsComposer", SettingsComposer);
+		ParametersOfUpdate = New Structure;
+		ParametersOfUpdate.Insert("DCSettingsComposer", SettingsComposer);
 		
-		UpdateForm(UpdateParameters1);
+		UpdateForm(ParametersOfUpdate);
 	Else
 		RegisterList(Item, SettingItem);
 	EndIf;
@@ -1114,13 +1114,13 @@ Procedure FiltersValueOnChange(Item)
 		Report.SettingsComposer.Settings.AdditionalProperties.Insert("ReportInitialized", False);
 		VariantModified = WasOptionModified;
 		
-		UpdateParameters1 = New Structure;
-		UpdateParameters1.Insert("DCSettingsComposer", Report.SettingsComposer);
-		UpdateParameters1.Insert("VariantModified", VariantModified);
-		UpdateParameters1.Insert("UserSettingsModified", UserSettingsModified);
-		UpdateParameters1.Insert("ResetCustomSettings", True);
+		ParametersOfUpdate = New Structure;
+		ParametersOfUpdate.Insert("DCSettingsComposer", Report.SettingsComposer);
+		ParametersOfUpdate.Insert("VariantModified", VariantModified);
+		ParametersOfUpdate.Insert("UserSettingsModified", UserSettingsModified);
+		ParametersOfUpdate.Insert("ResetCustomSettings", True);
 		
-		UpdateForm(UpdateParameters1);
+		UpdateForm(ParametersOfUpdate);
 	EndIf;
 EndProcedure
 
@@ -1894,23 +1894,23 @@ Procedure EditFilterCriteriaCompletion(FiltersConditions, Context) Export
 		Return;
 	EndIf;
 	
-	UpdateParameters1 = New Structure;
-	UpdateParameters1.Insert("EventName", "EditFiltersConditions");
-	UpdateParameters1.Insert("DCSettingsComposer", Report.SettingsComposer);
-	UpdateParameters1.Insert("UserSettingsModified", True);
-	UpdateParameters1.Insert("FiltersConditions", FiltersConditions);
+	ParametersOfUpdate = New Structure;
+	ParametersOfUpdate.Insert("EventName", "EditFiltersConditions");
+	ParametersOfUpdate.Insert("DCSettingsComposer", Report.SettingsComposer);
+	ParametersOfUpdate.Insert("UserSettingsModified", True);
+	ParametersOfUpdate.Insert("FiltersConditions", FiltersConditions);
 	
-	UpdateForm(UpdateParameters1);
+	UpdateForm(ParametersOfUpdate);
 EndProcedure
 
 &AtClient
 Procedure RemoveNonexistentFieldsFromSettings(Command)
 	DeleteFiedsMarkedForDeletion();
 	
-	UpdateParameters1 = New Structure;
-	UpdateParameters1.Insert("DCSettingsComposer", Report.SettingsComposer);
+	ParametersOfUpdate = New Structure;
+	ParametersOfUpdate.Insert("DCSettingsComposer", Report.SettingsComposer);
 	
-	UpdateForm(UpdateParameters1);
+	UpdateForm(ParametersOfUpdate);
 EndProcedure
 
 &AtClient
@@ -6254,17 +6254,17 @@ EndFunction
 // 
 
 &AtServer
-Procedure UpdateForm(UpdateParameters1 = Undefined)
+Procedure UpdateForm(ParametersOfUpdate = Undefined)
 	ContainsNestedReports = False;
 	ContainsNestedFilters = False;
 	ContainsNestedFieldsOrSorting = False;
 	ContainsNestedConditionalAppearance = False;
 	ContainsUserStructureItems = False;
 	
-	ImportSettingsToComposer(UpdateParameters1);
+	ImportSettingsToComposer(ParametersOfUpdate);
 	
 	If ExtendedMode = 0 Then 
-		ReportsServer.UpdateSettingsFormItems(ThisObject, Items.IsMain, UpdateParameters1);
+		ReportsServer.UpdateSettingsFormItems(ThisObject, Items.IsMain, ParametersOfUpdate);
 		ReportsServer.RestoreFiltersValues(ThisObject);
 	EndIf;
 	

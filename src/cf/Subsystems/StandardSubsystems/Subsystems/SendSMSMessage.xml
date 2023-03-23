@@ -17,6 +17,7 @@
 			<Picture/>
 			<Content>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.SMSClient</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.SMS</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.SendSMSMessage</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.SendSMSMessageOverridable</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Constant.SMSProvider</xr:Item>

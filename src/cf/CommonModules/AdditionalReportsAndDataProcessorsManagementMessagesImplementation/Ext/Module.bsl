@@ -57,8 +57,8 @@ Procedure SetAdditionalReportOrDataProcessor(Val InstallationDetails,
 	UsersIDs = New Array;
 	For Each CommandSetting In CommandsSettings Do
 		If ValueIsFilled(CommandSetting.QuickAccess) Then
-			For Each UserID1 In CommandSetting.QuickAccess Do
-				UsersIDs.Add(UserID1);
+			For Each UserIdentificator In CommandSetting.QuickAccess Do
+				UsersIDs.Add(UserIdentificator);
 			EndDo;
 		EndIf;
 	EndDo;

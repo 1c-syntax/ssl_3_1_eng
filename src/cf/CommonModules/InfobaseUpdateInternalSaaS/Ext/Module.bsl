@@ -271,9 +271,9 @@ Function ScheduledTimeWhenTheAreaUpdateStarts() Export
 	
 	JobsFilter = New Structure;
 	JobsFilter.Insert("MethodName", "InfobaseUpdateInternalSaaS.UpdateCurrentDataArea");
-	TasksToPerformTheUpdateOfTheCurrentDataRegion = ScheduledJobsServer.FindJobs(JobsFilter);
-	If TasksToPerformTheUpdateOfTheCurrentDataRegion.Count() > 0 Then
-		ScheduledStartTime = (TasksToPerformTheUpdateOfTheCurrentDataRegion[0].ScheduledStartTime - Date(1, 1, 1)) * 1000 + TasksToPerformTheUpdateOfTheCurrentDataRegion[0].Milliseconds;
+	JobsExecuteUpdateCurrentDataArea = ScheduledJobsServer.FindJobs(JobsFilter);
+	If JobsExecuteUpdateCurrentDataArea.Count() > 0 Then
+		ScheduledStartTime = (JobsExecuteUpdateCurrentDataArea[0].ScheduledStartTime - Date(1, 1, 1)) * 1000 + JobsExecuteUpdateCurrentDataArea[0].Milliseconds;
 	Else
 		ScheduledStartTime = CurrentUniversalDateInMilliseconds();
 	EndIf;
@@ -288,13 +288,14 @@ Function AreasUpdatedToVersion(SubsystemName, Version) Export
 	Query.SetParameter("Version", Version);
 	Query.Text =
 		"SELECT
-		|	DataAreasSubsystemsVersions.DataAreaAuxiliaryData AS DataAreaAuxiliaryData
+		|	DataAreasSubsystemsVersions.DataAreaAuxiliaryData AS DataAreaAuxiliaryData,
+		|	DataAreasSubsystemsVersions.DeferredHandlersRegistrationCompleted AS
+		|		DeferredHandlersRegistrationCompleted
 		|FROM
 		|	InformationRegister.DataAreasSubsystemsVersions AS DataAreasSubsystemsVersions
 		|WHERE
 		|	DataAreasSubsystemsVersions.SubsystemName = &SubsystemName
-		|	AND DataAreasSubsystemsVersions.Version = &Version
-		|	AND DataAreasSubsystemsVersions.DeferredHandlersRegistrationCompleted";
+		|	AND DataAreasSubsystemsVersions.Version = &Version";
 	AreasUpdatedToVersion = Query.Execute().Unload();
 	
 	Return AreasUpdatedToVersion;
@@ -323,8 +324,8 @@ Procedure RegisterNewSubsystem(SubsystemName, VersionNumber, StandardProcessing)
 	If ConfigurationSubsystems.Count() > 0 Then
 		// This is not the first launch of a program
 		If ConfigurationSubsystems.Find(SubsystemName) = Undefined Then
-			ModuleSaaS = Common.CommonModule("SaaSOperations");
-			DataArea = ModuleSaaS.SessionSeparatorValue();
+			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+			DataArea = ModuleSaaSOperations.SessionSeparatorValue();
 			Record = InformationRegisters.DataAreasSubsystemsVersions.CreateRecordManager();
 			Record.SubsystemName = SubsystemName;
 			Record.DataAreaAuxiliaryData = DataArea;
@@ -358,10 +359,10 @@ Function SubsystemsVersions(StandardProcessing) Export
 	EndIf;
 	
 	StandardProcessing = False;
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
 	Query = New Query;
-	Query.SetParameter("DataAreaAuxiliaryData", ModuleSaaS.SessionSeparatorValue());
+	Query.SetParameter("DataAreaAuxiliaryData", ModuleSaaSOperations.SessionSeparatorValue());
 	Query.Text =
 	"SELECT
 	|	SubsystemsVersions.SubsystemName AS SubsystemName,
@@ -461,7 +462,7 @@ Procedure OnDetermineIBVersion(Val LibraryID, Val GetSharedDataVersion, Standard
 		
 		AllVersionsOfSubsystems = (LibraryID = Undefined);
 		
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		
 		QueryText = 
 		"SELECT
@@ -481,7 +482,7 @@ Procedure OnDetermineIBVersion(Val LibraryID, Val GetSharedDataVersion, Standard
 		
 		Query = New Query(QueryText);
 		Query.SetParameter("SubsystemName", LibraryID);
-		Query.SetParameter("DataAreaAuxiliaryData", ModuleSaaS.SessionSeparatorValue());
+		Query.SetParameter("DataAreaAuxiliaryData", ModuleSaaSOperations.SessionSeparatorValue());
 		ValueTable = Query.Execute().Unload();
 		IBVersion = "";
 		If ValueTable.Count() > 0 Then
@@ -507,7 +508,7 @@ Procedure WhenDeterminingUpdateModeDataRegion(StandardProcessing, Result) Export
 		And Common.SeparatedDataUsageAvailable() Then
 		
 		StandardProcessing = False;
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		
 		QueryText = 
 			"SELECT TOP 1
@@ -517,7 +518,7 @@ Procedure WhenDeterminingUpdateModeDataRegion(StandardProcessing, Result) Export
 			|WHERE
 			|	DataAreasSubsystemsVersions.DataAreaAuxiliaryData = &DataAreaAuxiliaryData";
 		Query = New Query(QueryText);
-		Query.SetParameter("DataAreaAuxiliaryData", ModuleSaaS.SessionSeparatorValue());
+		Query.SetParameter("DataAreaAuxiliaryData", ModuleSaaSOperations.SessionSeparatorValue());
 		If Query.Execute().IsEmpty() Then
 			Result = "InitialFilling";
 			Return;
@@ -533,7 +534,7 @@ Procedure WhenDeterminingUpdateModeDataRegion(StandardProcessing, Result) Export
 			|	DataAreasSubsystemsVersions.SubsystemName = &BaseConfigurationName
 			|	AND DataAreasSubsystemsVersions.DataAreaAuxiliaryData = &DataAreaAuxiliaryData";
 		Query.SetParameter("BaseConfigurationName", Metadata.Name);
-		Query.SetParameter("DataAreaAuxiliaryData", ModuleSaaS.SessionSeparatorValue());
+		Query.SetParameter("DataAreaAuxiliaryData", ModuleSaaSOperations.SessionSeparatorValue());
 		
 		// Making decision based on the IsMainConfiguration attribute filled earlier
 		If Query.Execute().IsEmpty() Then
@@ -553,9 +554,9 @@ Procedure OnSetIBVersion(Val LibraryID, Val VersionNumber, StandardProcessing, I
 		And Common.SeparatedDataUsageAvailable() Then
 		
 		StandardProcessing = False;
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		
-		DataArea = ModuleSaaS.SessionSeparatorValue();
+		DataArea = ModuleSaaSOperations.SessionSeparatorValue();
 		
 		RecordManager = InformationRegisters.DataAreasSubsystemsVersions.CreateRecordManager();
 		RecordManager.DataAreaAuxiliaryData = DataArea;
@@ -581,8 +582,8 @@ Procedure WhenInstallingSubsystemVersions(SubsystemsVersions, StandardProcessing
 	
 	StandardProcessing = False;
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
-	DataArea = ModuleSaaS.SessionSeparatorValue();
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+	DataArea = ModuleSaaSOperations.SessionSeparatorValue();
 	
 	RecordSet = InformationRegisters.DataAreasSubsystemsVersions.CreateRecordSet();
 	
@@ -604,7 +605,7 @@ Procedure OnCheckDeferredUpdateHandlersRegistration(RegistrationCompleted, Stand
 		And Common.SeparatedDataUsageAvailable() Then
 		
 		StandardProcessing = False;
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		
 		Query = New Query;
 		Query.Text =
@@ -616,7 +617,7 @@ Procedure OnCheckDeferredUpdateHandlersRegistration(RegistrationCompleted, Stand
 			|	NOT DataAreasSubsystemsVersions.DeferredHandlersRegistrationCompleted
 			|	AND DataAreasSubsystemsVersions.DataAreaAuxiliaryData = &DataAreaAuxiliaryData";
 			
-		Query.SetParameter("DataAreaAuxiliaryData", ModuleSaaS.SessionSeparatorValue());
+		Query.SetParameter("DataAreaAuxiliaryData", ModuleSaaSOperations.SessionSeparatorValue());
 		Result = Query.Execute().Unload();
 		RegistrationCompleted = (Result.Count() = 0);
 	EndIf;
@@ -878,11 +879,11 @@ Function SubsystemVersionsRecordKey()
 	If Common.DataSeparationEnabled()
 		And Common.SeparatedDataUsageAvailable() Then
 		
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		
-		KeyValues.Insert("DataAreaAuxiliaryData", ModuleSaaS.SessionSeparatorValue());
+		KeyValues.Insert("DataAreaAuxiliaryData", ModuleSaaSOperations.SessionSeparatorValue());
 		KeyValues.Insert("SubsystemName", "");
-		RecordKey = ModuleSaaS.CreateAuxiliaryDataInformationRegisterEntryKey(
+		RecordKey = ModuleSaaSOperations.CreateAuxiliaryDataInformationRegisterEntryKey(
 			InformationRegisters.DataAreasSubsystemsVersions, KeyValues);
 		
 	EndIf;
@@ -906,7 +907,7 @@ Procedure ScheduleDataAreaUpdate()
 	SetPrivilegedMode(True);
 	
 	ModuleJobsQueue = Common.CommonModule("JobsQueue");
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
 	MetadataVersion = Metadata.Version;
 	If IsBlankString(MetadataVersion) Then
@@ -977,7 +978,7 @@ Procedure ScheduleDataAreaUpdate()
 		KeyValues = New Structure;
 		KeyValues.Insert("DataAreaAuxiliaryData", Selection.DataArea);
 		KeyValues.Insert("SubsystemName", "");
-		RecordKey = ModuleSaaS.CreateAuxiliaryDataInformationRegisterEntryKey(
+		RecordKey = ModuleSaaSOperations.CreateAuxiliaryDataInformationRegisterEntryKey(
 			InformationRegisters.DataAreasSubsystemsVersions, KeyValues);
 		
 		LockingError = False;
@@ -1006,7 +1007,7 @@ Procedure ScheduleDataAreaUpdate()
 			
 			Block.Lock();
 			
-			AreaStatus = ModuleSaaS.DataAreaStatus(Selection.DataArea);
+			AreaStatus = ModuleSaaSOperations.DataAreaStatus(Selection.DataArea);
 			
 			Results = Query.Execute().Unload();
 			VersionString = Undefined;
@@ -1056,7 +1057,7 @@ Procedure ScheduleDataAreaUpdate()
 			JobParameters.Insert("RestartCountOnFailure", 3);
 			
 			If YouNeedToSetTheScheduledStartTime Then
-				AreaTimeZone = ModuleSaaS.GetTimeZoneOfDataArea(Selection.DataArea);
+				AreaTimeZone = ModuleSaaSOperations.GetTimeZoneOfDataArea(Selection.DataArea);
 				JobParameters.Insert("ScheduledStartTime", ToLocalTime(ScheduledStartTime, AreaTimeZone));
 				ScheduledStartTime = ScheduledStartTime + 1;
 			EndIf;

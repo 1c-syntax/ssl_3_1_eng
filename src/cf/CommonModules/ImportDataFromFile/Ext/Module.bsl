@@ -167,8 +167,27 @@ EndFunction
 
 #EndRegion
 
-#Region Private
+#Region Internal
 
+// 
+// 
+//
+// Parameters:
+//  ObjectReference - CatalogRef -
+//  TableRow - ValueTableRow: см. ЗагрузкаДанныхИзФайла.ОписаниеЗагружаемыхДанныхДляСправочников
+//
+Procedure LoadPropertyValuesFromFile(ObjectReference, TableRow) Export
+	
+	If Common.SubsystemExists("StandardSubsystems.Properties") Then
+		ModulePropertyManagerInternal = Common.CommonModule("PropertyManagerInternal");
+		ModulePropertyManagerInternal.LoadPropertyValuesFromFile(ObjectReference, TableRow);
+	EndIf;
+		
+EndProcedure
+
+#EndRegion
+
+#Region Private
 
 Procedure AddStatisticalInformation(OperationName, Value = 1, Comment = "") Export
 	

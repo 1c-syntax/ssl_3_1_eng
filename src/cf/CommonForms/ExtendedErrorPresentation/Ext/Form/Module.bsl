@@ -14,6 +14,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	AdditionalData = Parameters.AdditionalData;
 	
+	Items.SupportInformation.Title = DigitalSignatureInternal.HeaderInformationForSupport();
+	
 	DigitalSignatureInternal.ToSetTheTitleOfTheBug(ThisObject,
 		Parameters.WarningTitle);
 	
@@ -38,15 +40,23 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.FooterGroup.Visible = Parameters.ShowNeedHelp;
 	Items.SeparatorDecoration2.Visible = Parameters.ShowNeedHelp;
 	
+	VisibilityOfLinkToInstruction =
+		DigitalSignatureInternal.VisibilityOfLinkToInstructionsForTypicalProblemsWhenWorkingWithPrograms();
+	
 	If Parameters.ShowNeedHelp Then
 		Items.Instruction.Visible                     = Parameters.ShowInstruction;
+		Items.SupportInformation.Title = DigitalSignatureInternal.HeaderInformationForSupport();
 		Items.FormOpenApplicationsSettings.Visible = Parameters.ShowOpenApplicationsSettings;
 		Items.FormInstallExtension.Visible      = Parameters.ShowExtensionInstallation;
-		Items.InstructionClient.Visible = ValueIsFilled(ErrorAnchorClient);
-		Items.InstructionServer.Visible = ValueIsFilled(ErrorAnchorServer);
+		Items.InstructionClient.Visible = Items.InstructionClient.Visible And VisibilityOfLinkToInstruction 
+			And ValueIsFilled(ErrorAnchorClient);
+		Items.InstructionServer.Visible = VisibilityOfLinkToInstruction And ValueIsFilled(ErrorAnchorServer);
 		ErrorDescription = Parameters.ErrorDescription;
+	Else
+		Items.InstructionClient.Visible = Items.InstructionClient.Visible And VisibilityOfLinkToInstruction;
+		Items.InstructionServer.Visible = VisibilityOfLinkToInstruction;
 	EndIf;
-		
+	
 	StandardSubsystemsServer.ResetWindowLocationAndSize(ThisObject);
 	
 EndProcedure
@@ -74,27 +84,25 @@ Procedure InstructionClick(Item)
 EndProcedure
 
 &AtClient
-Procedure TypicalIssuesURLProcessing(Item, Var_URL, StandardProcessing)
-	
-	StandardProcessing = False;
-	DigitalSignatureClient.OpenInstructionOnTypicalProblemsOnWorkWithApplications();
-	
-EndProcedure
-
-&AtClient
 Procedure SupportInformationURLProcessing(Item, Var_URL, StandardProcessing)
 	
 	StandardProcessing = False;
 	
-	ErrorsText = "";
-	FilesDetails = New Array;
-	If ValueIsFilled(AdditionalData) Then
-		DigitalSignatureInternalServerCall.AddADescriptionOfAdditionalData(
-			AdditionalData, FilesDetails, ErrorsText);
-	EndIf;
+	If Var_URL = "TypicalIssues" Then
+		DigitalSignatureClient.OpenInstructionOnTypicalProblemsOnWorkWithApplications();
+	Else
 	
-	ErrorsText = ErrorsText + ErrorDescription;
-	DigitalSignatureInternalClient.GenerateTechnicalInformation(ErrorsText, , FilesDetails);
+		ErrorsText = "";
+		FilesDetails = New Array;
+		If ValueIsFilled(AdditionalData) Then
+			DigitalSignatureInternalServerCall.AddADescriptionOfAdditionalData(
+				AdditionalData, FilesDetails, ErrorsText);
+		EndIf;
+		
+		ErrorsText = ErrorsText + ErrorDescription;
+		DigitalSignatureInternalClient.GenerateTechnicalInformation(ErrorsText, , FilesDetails);
+	
+	EndIf;
 	
 EndProcedure
 
@@ -191,7 +199,7 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorAtServer)
 		If IsKnownError Then
 			
 			CommonClientServer.SetFormItemProperty(Items,
-			InstructionItem.Name, "Title", NStr("en = 'Details';"));
+				InstructionItem.Name, "Title", NStr("en = 'Details';"));
 			
 			If ValueIsFilled(ClassifierError.Cause) Then
 				CommonClientServer.SetFormItemProperty(Items,

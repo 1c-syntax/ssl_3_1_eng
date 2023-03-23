@@ -81,7 +81,7 @@ EndProcedure
 //     SettingProperties.ValuesForSelection.Clear();
 //     SettingProperties.SelectionValuesQuery.Text =
 //       "SELECT Reference FROM Catalog.Users
-//       |WHERE NOT DeletionMark AND NOT Invalid AND NOT Internal";
+//       |WHERE NOT DeletionMark AND NOT Invalid AND NOT IsInternal";
 //   EndIf;
 //
 //   2. Provide an additional value for selection for the Size setting.

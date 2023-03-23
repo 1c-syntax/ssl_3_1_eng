@@ -142,8 +142,8 @@ EndFunction
 Function IsExternalUserSession() Export
 	
 	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		SessionWithoutSeparators = ModuleSaaS.SessionWithoutSeparators();
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		SessionWithoutSeparators = ModuleSaaSOperations.SessionWithoutSeparators();
 	Else
 		SessionWithoutSeparators = True;
 	EndIf;
@@ -335,10 +335,10 @@ Function CurrentIBUserProperties1() Export
 	
 EndFunction
 
-// Returns empty references of the types of authorization objects
-// specified in the ExternalUser flexible type collection.
+// Returns empty references of the authorization objects types
+// specified in the ExternalUser type collection.
 //
-// If the String type or other non-node types are specified in the flexible type collection,
+// If the String type or other non-reference types are specified in the type collection,
 // it is ignored.
 //
 // Returns:

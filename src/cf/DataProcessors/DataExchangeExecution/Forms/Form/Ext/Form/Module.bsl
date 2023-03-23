@@ -1511,7 +1511,7 @@ Procedure BackgroundJobGetResultAtServer()
 	// If errors occurred during data synchronization, record them.
 	If ValueIsFilled(ErrorMessage) Then
 		
-		// If a time-consuming operation is started in the correspondent infobase, it must be completed.
+		// If a long-running operation is started in the peer infobase, it must be completed.
 		If Not TimeConsumingOperationCompleted Then
 			EndExecutingTimeConsumingOperation(TimeConsumingOperationID);
 		EndIf;

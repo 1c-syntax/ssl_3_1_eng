@@ -448,13 +448,13 @@
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Is predefined</v8:content>
+															<v8:content>Predefined</v8:content>
 														</v8:item>
 													</Title>
 													<ToolTip>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>A predefined job is a part of the application and cannot be deleted.</v8:content>
+															<v8:content>Predefined jobs are part of the application. They cannot be deleted.</v8:content>
 														</v8:item>
 													</ToolTip>
 													<CheckBoxType>Auto</CheckBoxType>
@@ -931,7 +931,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Long-running operation page</v8:content>
+											<v8:content>Page Long-running operation</v8:content>
 										</v8:item>
 									</Title>
 									<ExtendedTooltip name="TimeConsumingOperationPageExtendedTooltip" id="269"/>

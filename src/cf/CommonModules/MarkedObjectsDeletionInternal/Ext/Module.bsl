@@ -206,6 +206,14 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 
 EndProcedure
 
+// See ODataInterfaceOverridable.WhenFillingInDependentTablesForUploadingLoadingOData
+Procedure WhenFillingInDependentTablesForUploadingLoadingOData(Tables) Export
+	
+	Tables.Add(Metadata.InformationRegisters.NotDeletedObjects.FullName());
+	Tables.Add(Metadata.InformationRegisters.ObjectsToDelete.FullName());
+	
+EndProcedure
+
 #EndRegion
 
 #EndRegion
@@ -448,8 +456,8 @@ Function TypeInformation(ObjectType, ComplementableInfoAboutTypes = Undefined) E
 	If Common.DataSeparationEnabled() Then
 
 		If Common.SubsystemExists("CloudTechnology.Core") Then
-			ModuleSaaS = Common.CommonModule("SaaSOperations");
-			IsSeparatedMetadataObject = ModuleSaaS.IsSeparatedMetadataObject(MetadataObject);
+			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+			IsSeparatedMetadataObject = ModuleSaaSOperations.IsSeparatedMetadataObject(MetadataObject);
 		Else
 			IsSeparatedMetadataObject = False;
 		EndIf;

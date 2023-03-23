@@ -1594,21 +1594,21 @@ Procedure FillQuickFilters(Val HandlersDetails = Undefined)
 	RowsArray = New Array;
 	OtherQuickFilters.Clear();
 	
-	AddQuickFilter(HandlersDetails, RowsArray, "IssueStatus", AnalysisRequiredStatus, StyleColors.SpecialTextColor);
-	AddQuickFilter(HandlersDetails, RowsArray, "LowPriorityReading", LowPriorityReadingStatus, StyleColors.SpecialTextColor);
-	AddQuickFilter(HandlersDetails, RowsArray, "ChangedCheckProcedure", StatusChangedCheckProcedure, WebColors.Goldenrod);
-	AddQuickFilter(HandlersDetails, RowsArray, "ExecutionMode", NStr("en = 'Deferred';"));
-	AddQuickFilter(HandlersDetails, RowsArray, "ExecutionMode", NStr("en = 'Exclusive';"));
-	AddQuickFilter(HandlersDetails, RowsArray, "ExecutionMode", NStr("en = 'Seamless';"));
-	AddQuickFilter(HandlersDetails, RowsArray, "TechnicalDesign", NStr("en = 'Technical design';"));
+	AddQuickFilter(HandlersDetails, RowsArray, "IssueStatus", AnalysisRequiredStatus, "AnalysisRequired", StyleColors.SpecialTextColor);
+	AddQuickFilter(HandlersDetails, RowsArray, "LowPriorityReading", LowPriorityReadingStatus, "LowPriorityReading", StyleColors.SpecialTextColor);
+	AddQuickFilter(HandlersDetails, RowsArray, "ChangedCheckProcedure", StatusChangedCheckProcedure, "ChangedCheckProcedure", WebColors.Goldenrod);
+	AddQuickFilter(HandlersDetails, RowsArray, "ExecutionMode", NStr("en = 'Deferred';"), "Deferred");
+	AddQuickFilter(HandlersDetails, RowsArray, "ExecutionMode", NStr("en = 'Exclusive';"), "Exclusively");
+	AddQuickFilter(HandlersDetails, RowsArray, "ExecutionMode", NStr("en = 'Seamless';"), "Seamless");
+	AddQuickFilter(HandlersDetails, RowsArray, "TechnicalDesign", NStr("en = 'Technical design';"), "TechnicalDesign");
 	
-	AddAnotherQuickFilter(HandlersDetails, "DeferredHandlersExecutionMode", NStr("en = 'Parallel';"));
-	AddAnotherQuickFilter(HandlersDetails, "DeferredHandlersExecutionMode", NStr("en = 'Sequentially';"));
-	AddAnotherQuickFilter(HandlersDetails, "InitialFilling", NStr("en = 'Initial filling';"));
-	AddAnotherQuickFilter(HandlersDetails, "ExecuteInMandatoryGroup", NStr("en = 'Required';"));
-	AddAnotherQuickFilter(HandlersDetails, "Multithreaded", NStr("en = 'Multi-threaded';"));
-	AddAnotherQuickFilter(HandlersDetails, "DataToReadWriter", NStr("en = 'Writing of readable objects';"));
-	AddAnotherQuickFilter(HandlersDetails, "WriteAgain", NStr("en = 'Rewriting';"));
+	AddAnotherQuickFilter(HandlersDetails, "DeferredHandlersExecutionMode", NStr("en = 'Parallel';"), "Parallel");
+	AddAnotherQuickFilter(HandlersDetails, "DeferredHandlersExecutionMode", NStr("en = 'Sequentially';"), "Sequentially");
+	AddAnotherQuickFilter(HandlersDetails, "InitialFilling", NStr("en = 'Initial population';"), "InitialFilling");
+	AddAnotherQuickFilter(HandlersDetails, "ExecuteInMandatoryGroup", NStr("en = 'Required';"), "IsRequired");
+	AddAnotherQuickFilter(HandlersDetails, "Multithreaded", NStr("en = 'Multi-threaded';"), "Multithreaded");
+	AddAnotherQuickFilter(HandlersDetails, "DataToReadWriter", NStr("en = 'Writing of readable objects';"), "DataToReadWriter");
+	AddAnotherQuickFilter(HandlersDetails, "WriteAgain", NStr("en = 'Rewriting';"), "WriteAgain");
 	
 	StatusText = NStr("en = 'Other';");
 	HyperlinkString = New FormattedString(
@@ -1633,7 +1633,7 @@ Procedure FillQuickFilters(Val HandlersDetails = Undefined)
 EndProcedure
 
 &AtServer
-Procedure AddQuickFilter(HandlersDetails, RowsArray, FilterFieldName, Val FilterValue, Val Color = Undefined)
+Procedure AddQuickFilter(HandlersDetails, RowsArray, FilterFieldName, Val FilterValue, LinkID, Val Color = Undefined)
 	
 	If Color = Undefined Then
 		Color = StyleColors.ButtonTextColor;
@@ -1657,7 +1657,7 @@ Procedure AddQuickFilter(HandlersDetails, RowsArray, FilterFieldName, Val Filter
 			StatusText,
 			,
 			Color, ,
-			StrReplace(Title(FilterPresentation)," ",""));
+			LinkID);
 		
 		RowsArray.Add(HyperlinkString);
 		RowsArray.Add("  ");
@@ -1666,7 +1666,7 @@ Procedure AddQuickFilter(HandlersDetails, RowsArray, FilterFieldName, Val Filter
 EndProcedure
 
 &AtServer
-Procedure AddAnotherQuickFilter(HandlersDetails, FilterFieldName, Val FilterValue)
+Procedure AddAnotherQuickFilter(HandlersDetails, FilterFieldName, Val FilterValue, LinkID)
 	
 	FilterPresentation = FilterValue;
 	For Each FieldType In HandlersDetails.Columns[FilterFieldName].ValueType.Types() Do
@@ -1680,7 +1680,7 @@ Procedure AddAnotherQuickFilter(HandlersDetails, FilterFieldName, Val FilterValu
 	FilterRows = HandlersDetails.Copy(Filter);
 	If FilterRows.Count() > 0 Then
 		StatusText = StringFunctionsClientServer.SubstituteParametersToString("%1 (%2)", FilterPresentation, FilterRows.Count());
-		OtherQuickFilters.Add(FilterFieldName, StatusText);
+		OtherQuickFilters.Add(LinkID, StatusText);
 	EndIf;
 	
 EndProcedure
@@ -4381,25 +4381,29 @@ EndProcedure
 &AtClient
 Procedure SetQuickFilter(QuickFilterName)
 	
-	If QuickFilterName = StrReplace(Title(AnalysisRequiredStatus), " ", "") Then
+	If TypeOf(QuickFilterName) = Type("ValueListItem") Then
+		QuickFilterName = QuickFilterName.Value;
+	EndIf;
+	
+	If QuickFilterName = "AnalysisRequired" Then
 		Filter = New Structure("IssueStatus", AnalysisRequiredStatus);
 		
-	ElsIf QuickFilterName = NStr("en = 'Deferred';") Then
+	ElsIf QuickFilterName = "Deferred" Then
 		Filter = New Structure("ExecutionMode", NStr("en = 'Deferred';"));
 		
-	ElsIf QuickFilterName = NStr("en = 'Exclusive';") Then
+	ElsIf QuickFilterName = "Exclusively" Then
 		Filter = New Structure("ExecutionMode", NStr("en = 'Exclusive';"));
 		
-	ElsIf QuickFilterName = NStr("en = 'Seamless';") Then
+	ElsIf QuickFilterName = "Seamless" Then
 		Filter = New Structure("ExecutionMode", NStr("en = 'Seamless';"));
 		
-	ElsIf QuickFilterName = NStr("en = 'Sequentially';") Then
+	ElsIf QuickFilterName = "Sequentially" Then
 		Filter = New Structure("DeferredHandlersExecutionMode", NStr("en = 'Sequentially';"));
 		
-	ElsIf QuickFilterName = NStr("en = 'Parallel';") Then
+	ElsIf QuickFilterName = "Parallel" Then
 		Filter = New Structure("DeferredHandlersExecutionMode", NStr("en = 'Parallel';"));
 		
-	ElsIf StrFind(QuickFilterName, NStr("en = 'Initial filling';")) > 0 Then
+	ElsIf QuickFilterName = "InitialFilling" Then
 		Filter = New Structure("InitialFilling", True);
 		
 	ElsIf QuickFilterName = "ChangedCheckProcedure" Then
@@ -4408,19 +4412,19 @@ Procedure SetQuickFilter(QuickFilterName)
 	ElsIf QuickFilterName = "LowPriorityReading" Then
 		Filter = New Structure("LowPriorityReading", True);
 		
-	ElsIf StrFind(QuickFilterName, NStr("en = 'Required';")) > 0 Then
+	ElsIf QuickFilterName = "IsRequired" Then
 		Filter = New Structure("ExecuteInMandatoryGroup", True);
 		
-	ElsIf StrFind(QuickFilterName, NStr("en = 'Multi-threaded';")) > 0 Then
+	ElsIf QuickFilterName = "Multithreaded" Then
 		Filter = New Structure("Multithreaded", True);
 		
-	ElsIf StrFind(QuickFilterName, NStr("en = 'Writing of readable objects';")) > 0 Then
+	ElsIf QuickFilterName = "DataToReadWriter" Then
 		Filter = New Structure("DataToReadWriter", True);
 		
-	ElsIf StrFind(QuickFilterName, NStr("en = 'Rewriting';")) > 0 Then
+	ElsIf QuickFilterName = "WriteAgain" Then
 		Filter = New Structure("WriteAgain", True);
 		
-	ElsIf StrFind(QuickFilterName, NStr("en = 'Technical design';")) > 0 Then
+	ElsIf QuickFilterName = "TechnicalDesign" Then
 		Filter = New Structure("TechnicalDesign", True);
 		
 	Else

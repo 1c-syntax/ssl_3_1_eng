@@ -29,6 +29,16 @@ Procedure OnGetExtendedCertificateIssuerProperties(Val Issuer, Properties) Expor
 	
 EndProcedure
 
+Procedure WhenReceivingXMLEnvelope(Parameters, XMLEnvelope) Export
+	
+	
+EndProcedure
+
+Procedure WhenReceivingDefaultEnvelopeOption(XMLEnvelope) Export
+
+	
+EndProcedure
+
 // 
 // 
 // Parameters:
@@ -68,6 +78,17 @@ Function CertificationAuthorityData(SearchValues, AccreditedCertificationCenters
 	Return Result;
 	
 EndFunction
+
+Procedure WhenDeterminingLinkToInstructionsForWorkingWithPrograms(Section, URL) Export
+	
+	
+EndProcedure
+
+Procedure WhenDeterminingReferenceToInstructionsForTypicalProblemsWhenWorkingWithPrograms(URL, SectionName = "") Export
+	
+	
+EndProcedure
+
 
 
 #EndRegion

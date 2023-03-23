@@ -350,8 +350,8 @@ Function ExportParametersToXMLString(StandaloneWorkstationPrefix, Val InitialIma
 	
 	If Common.DataSeparationEnabled()
 		And Common.SeparatedDataUsageAvailable() Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		WriteXML(XMLWriter, ModuleSaaS.SessionSeparatorValue(), "DataArea", XMLTypeAssignment.Explicit);
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		WriteXML(XMLWriter, ModuleSaaSOperations.SessionSeparatorValue(), "DataArea", XMLTypeAssignment.Explicit);
 	Else
 		WriteXML(XMLWriter, 0, "DataArea", XMLTypeAssignment.Explicit);
 	EndIf;
@@ -418,8 +418,8 @@ Function SystemTitle()
 	
 	If IsBlankString(Result) Then
 		If Common.SubsystemExists("CloudTechnology") Then
-			ModuleSaaS = Common.CommonModule("SaaSOperations");
-			Result = ModuleSaaS.GetAppName();
+			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+			Result = ModuleSaaSOperations.GetAppName();
 		EndIf;
 	EndIf;
 	

@@ -1160,10 +1160,10 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	ProcessingCompleted = True;
 	
-	UpdateParameters1 = New Structure;
+	ParametersOfUpdate = New Structure;
 	If Parameters.Property("AccessGroups") Then
 		AccessGroups = Parameters.AccessGroups;
-		UpdateParameters1.Insert("RaiseException1");
+		ParametersOfUpdate.Insert("RaiseException1");
 	Else
 		Selection = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue, "Catalog.AccessGroups");
 		AccessGroups = New Array;
@@ -1171,20 +1171,20 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			AccessGroups.Add(Selection.Ref);
 		EndDo;
 	EndIf;
-	UpdateParameters1.Insert("AccessGroups", AccessGroups);
+	ParametersOfUpdate.Insert("AccessGroups", AccessGroups);
 	
 	If Catalogs.ExtensionsVersions.ExtensionsChangedDynamically()
 	   And (Not Common.FileInfobase()
 	      Or CurrentRunMode() <> Undefined) Then
 		
 		ResultAddress = PutToTempStorage(Undefined);
-		UpdateParameters1.Insert("ResultAddress", ResultAddress);
+		ParametersOfUpdate.Insert("ResultAddress", ResultAddress);
 		JobDescription =
 			NStr("en = 'Updating service data of access groups';",
 				Common.DefaultLanguageCode());
 		BackgroundJob = ConfigurationExtensions.ExecuteBackgroundJobWithDatabaseExtensions(
 			"AccessManagementInternal.UpdateAuxiliaryAccessGroupsData",
-			CommonClientServer.ValueInArray(UpdateParameters1),,
+			CommonClientServer.ValueInArray(ParametersOfUpdate),,
 			JobDescription);
 		BackgroundJob = BackgroundJob.WaitForExecutionCompletion();
 		If BackgroundJob.State <> BackgroundJobState.Completed Then
@@ -1207,8 +1207,8 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			Raise ErrorText;
 		EndIf;
 	Else
-		UpdateAuxiliaryAccessGroupsData(UpdateParameters1);
-		Result = UpdateParameters1.Result;
+		UpdateAuxiliaryAccessGroupsData(ParametersOfUpdate);
+		Result = ParametersOfUpdate.Result;
 	EndIf;
 	For Each AccessGroup In Result.ProcessedAccessGroups Do
 		InfobaseUpdate.MarkProcessingCompletion(AccessGroup);

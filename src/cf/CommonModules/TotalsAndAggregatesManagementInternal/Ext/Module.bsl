@@ -368,9 +368,9 @@ Function SplitCheckCache()
 	Cache.Insert("SaaSModel", Common.DataSeparationEnabled());
 	If Cache.SaaSModel Then
 		If Common.SubsystemExists("CloudTechnology.Core") Then
-			ModuleSaaS = Common.CommonModule("SaaSOperations");
-			MainDataSeparator = ModuleSaaS.MainDataSeparator();
-			AuxiliaryDataSeparator = ModuleSaaS.AuxiliaryDataSeparator();
+			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+			MainDataSeparator = ModuleSaaSOperations.MainDataSeparator();
+			AuxiliaryDataSeparator = ModuleSaaSOperations.AuxiliaryDataSeparator();
 		Else
 			MainDataSeparator = Undefined;
 			AuxiliaryDataSeparator = Undefined;
@@ -389,8 +389,8 @@ Function MetadataObjectAvailableOnSplit(Cache, MetadataObject)
 	EndIf;
 	
 	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		IsSeparatedMetadataObject = ModuleSaaS.IsSeparatedMetadataObject(MetadataObject);
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		IsSeparatedMetadataObject = ModuleSaaSOperations.IsSeparatedMetadataObject(MetadataObject);
 	Else
 		IsSeparatedMetadataObject = False;
 	EndIf;

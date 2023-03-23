@@ -132,7 +132,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'Page to be displayed is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.';");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -294,7 +294,7 @@ Procedure ExecuteTimeConsumingOperationHandler()
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'Page to be displayed is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.';");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];

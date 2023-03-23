@@ -358,8 +358,8 @@ Function InternalUserFullName(IBUserID)
 	EndIf;
 	
 	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		Return ModuleSaaS.AliasOfUserOfInformationBase(IBUserID);
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		Return ModuleSaaSOperations.AliasOfUserOfInformationBase(IBUserID);
 	EndIf;
 	
 	Return "";

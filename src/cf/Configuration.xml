@@ -1,34 +1,34 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
-	<Configuration uuid="bc586107-89a3-42b8-9562-99e17c3bb5ff">
+	<Configuration uuid="e2436cc3-fde3-463e-835e-321ec5566717">
 		<InternalInfo>
 			<xr:ContainedObject>
 				<xr:ClassId>9cd510cd-abfc-11d4-9434-004095e12fc7</xr:ClassId>
-				<xr:ObjectId>cfcb8936-ed87-49a6-b1da-550ab764d5ca</xr:ObjectId>
+				<xr:ObjectId>e7a048f0-a68a-45af-a99f-630bdf9b86f0</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>9fcd25a0-4822-11d4-9414-008048da11f9</xr:ClassId>
-				<xr:ObjectId>9259e845-f334-4248-9ada-759d3b9e5814</xr:ObjectId>
+				<xr:ObjectId>b0d59d74-401e-4765-a2d4-8c0edf73ab6a</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>e3687481-0a87-462c-a166-9f34594f9bba</xr:ClassId>
-				<xr:ObjectId>3f3cf44d-a438-4c7f-97bc-943af8d4efbb</xr:ObjectId>
+				<xr:ObjectId>3f0075d3-427a-44e5-8eed-06d3c79a973c</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>9de14907-ec23-4a07-96f0-85521cb6b53b</xr:ClassId>
-				<xr:ObjectId>546c0f7f-686e-4ba1-b9c4-c7987f752a5f</xr:ObjectId>
+				<xr:ObjectId>0fef6925-e228-4aaf-a5a1-fc9704722b89</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>51f2d5d8-ea4d-4064-8892-82951750031e</xr:ClassId>
-				<xr:ObjectId>ef5ce07e-e7e9-414d-9947-c777724d85be</xr:ObjectId>
+				<xr:ObjectId>da7caa7d-3fa7-49e6-8e1e-12af73dacb2e</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>e68182ea-4237-4383-967f-90c1e3370bc7</xr:ClassId>
-				<xr:ObjectId>7a1429dc-5ede-487f-98e8-1f44c4fcef56</xr:ObjectId>
+				<xr:ObjectId>70a58ba4-00c2-4a91-8bdc-d00eae5852bb</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>fb282519-d103-4dd3-bc12-cb271d631dfc</xr:ClassId>
-				<xr:ObjectId>4a44d889-348d-4e62-8b13-1bd99b2a313e</xr:ObjectId>
+				<xr:ObjectId>85fba1e9-b137-4bd3-9d7d-37c01ab13403</xr:ObjectId>
 			</xr:ContainedObject>
 		</InternalInfo>
 		<Properties>
@@ -53,7 +53,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">Role.InteractiveOpenExtReportsAndDataProcessors</xr:Item>
 			</DefaultRoles>
 			<Vendor>1C Company</Vendor>
-			<Version>3.1.8.225</Version>
+			<Version>3.1.8.258</Version>
 			<UpdateCatalogAddress/>
 			<IncludeHelpInContents>true</IncludeHelpInContents>
 			<UseManagedFormInOrdinaryApplication>false</UseManagedFormInOrdinaryApplication>
@@ -1141,7 +1141,6 @@
 			<CommonModule>DigitalSignatureOverridable</CommonModule>
 			<CommonModule>DocumentRecordsReportInternalClient</CommonModule>
 			<CommonModule>DocumentRecordsReportOverridable</CommonModule>
-			<CommonModule>DSLInfobaseUpdate</CommonModule>
 			<CommonModule>DuplicateObjectDetection</CommonModule>
 			<CommonModule>DuplicateObjectsDetection</CommonModule>
 			<CommonModule>DuplicateObjectsDetectionClient</CommonModule>
@@ -1160,10 +1159,11 @@
 			<CommonModule>EventLogClient</CommonModule>
 			<CommonModule>EventLogOperations</CommonModule>
 			<CommonModule>EventLogServerCall</CommonModule>
-			<CommonModule>ExternalResourcePermissionSetupClient</CommonModule>
-			<CommonModule>ExternalResourcePermissionSetupGlobal</CommonModule>
 			<CommonModule>ExternalResourcesOperationsLock</CommonModule>
 			<CommonModule>ExternalResourcesOperationsLockOverridable</CommonModule>
+			<CommonModule>ExternalResourcesPermissionsSetupClient</CommonModule>
+			<CommonModule>ExternalResourcesPermissionsSetupGlobal</CommonModule>
+			<CommonModule>ExternalResourcesPermissionsSetupServerCall</CommonModule>
 			<CommonModule>ExternalUsers</CommonModule>
 			<CommonModule>ExternalUsersClient</CommonModule>
 			<CommonModule>FilesOperations</CommonModule>
@@ -1222,6 +1222,7 @@
 			<CommonModule>InfobaseUpdate</CommonModule>
 			<CommonModule>InfobaseUpdateClient</CommonModule>
 			<CommonModule>InfobaseUpdateClientOverridable</CommonModule>
+			<CommonModule>InfobaseUpdateDSL</CommonModule>
 			<CommonModule>InfobaseUpdateGlobal</CommonModule>
 			<CommonModule>InfobaseUpdateInternal</CommonModule>
 			<CommonModule>InfobaseUpdateInternalCached</CommonModule>
@@ -1300,6 +1301,7 @@
 			<CommonModule>ObjectsVersioningOverridable</CommonModule>
 			<CommonModule>ODataInterfaceInternal</CommonModule>
 			<CommonModule>ODataInterfaceInternalCached</CommonModule>
+			<CommonModule>ODataInterfaceOverridable</CommonModule>
 			<CommonModule>PerformanceMonitor</CommonModule>
 			<CommonModule>PerformanceMonitorCached</CommonModule>
 			<CommonModule>PerformanceMonitorClient</CommonModule>
@@ -1314,7 +1316,6 @@
 			<CommonModule>PeriodClosingDatesInternalClient</CommonModule>
 			<CommonModule>PeriodClosingDatesInternalClientServer</CommonModule>
 			<CommonModule>PeriodClosingDatesOverridable</CommonModule>
-			<CommonModule>PermissionsToUseExternalResourcesSetupServerCall</CommonModule>
 			<CommonModule>PrintManagement</CommonModule>
 			<CommonModule>PrintManagementClient</CommonModule>
 			<CommonModule>PrintManagementClientOverridable</CommonModule>
@@ -1374,6 +1375,7 @@
 			<CommonModule>ServerNotificationsGlobal</CommonModule>
 			<CommonModule>ServerNotificationsInternalCached</CommonModule>
 			<CommonModule>ServerNotificationsInternalServerCall</CommonModule>
+			<CommonModule>SMS</CommonModule>
 			<CommonModule>SMSClient</CommonModule>
 			<CommonModule>SoftwareLicenseCheckClient</CommonModule>
 			<CommonModule>SourceDocumentsOriginalsRecording</CommonModule>
@@ -1582,6 +1584,7 @@
 			<ScheduledJob>AccountingCheck</ScheduledJob>
 			<ScheduledJob>CleanUpUnusedFiles</ScheduledJob>
 			<ScheduledJob>ClearingObsoleteObjectVersions</ScheduledJob>
+			<ScheduledJob>ClearingOutdatedData</ScheduledJob>
 			<ScheduledJob>ClearTimeMeasurements</ScheduledJob>
 			<ScheduledJob>DataFillingForAccessRestriction</ScheduledJob>
 			<ScheduledJob>DataSynchronization</ScheduledJob>
@@ -1612,7 +1615,6 @@
 			<ScheduledJob>SMSDeliveryStatusUpdate</ScheduledJob>
 			<ScheduledJob>StartDeferredProcesses</ScheduledJob>
 			<ScheduledJob>StartingAdditionalDataProcessors</ScheduledJob>
-			<ScheduledJob>StartThreadsOfLongRunningOperations</ScheduledJob>
 			<ScheduledJob>StatisticsDataCollectionAndSending</ScheduledJob>
 			<ScheduledJob>TaskMonitoring</ScheduledJob>
 			<ScheduledJob>TextExtraction</ScheduledJob>
@@ -1981,6 +1983,7 @@
 			<CommonForm>BlankHomePage</CommonForm>
 			<CommonForm>CannotInstallAddIn</CommonForm>
 			<CommonForm>Certificate</CommonForm>
+			<CommonForm>CheckingUpdateFile</CommonForm>
 			<CommonForm>CheckResult</CommonForm>
 			<CommonForm>ColorChoiceForm</CommonForm>
 			<CommonForm>CompareSpreadsheetDocuments</CommonForm>
@@ -2266,7 +2269,7 @@
 			<DataProcessor>ExchangeMessageTransportFTP</DataProcessor>
 			<DataProcessor>ExportImportDataCollapsingUserReferencesInSeparatedData</DataProcessor>
 			<DataProcessor>ExportImportEnterpriseData</DataProcessor>
-			<DataProcessor>ExternalResourcePermissionSetup</DataProcessor>
+			<DataProcessor>ExternalResourcesPermissionsSetup</DataProcessor>
 			<DataProcessor>FilesOperations</DataProcessor>
 			<DataProcessor>FileTransfer</DataProcessor>
 			<DataProcessor>FormulasConstructor</DataProcessor>

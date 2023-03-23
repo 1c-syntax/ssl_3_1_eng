@@ -18,9 +18,9 @@ Function SignatureFileName(BaseName, CertificateOwner, SignatureFilesExtension, 
 	SignatureFileNameWithoutExtension = StringFunctionsClientServer.SubstituteParametersToString("%1%2%3",
 		BaseName, Separator, CertificateOwner);
 	
-	If StrLen(SignatureFileNameWithoutExtension) > 200 Then
+	If StrLen(SignatureFileNameWithoutExtension) > 120 Then
 		SignatureFileNameWithoutExtension = DigitalSignatureInternalServerCall.AbbreviatedFileName(
-			CommonClientServer.ReplaceProhibitedCharsInFileName(SignatureFileNameWithoutExtension), 200);
+			CommonClientServer.ReplaceProhibitedCharsInFileName(SignatureFileNameWithoutExtension), 120);
 	EndIf;
 	
 	SignatureFileName = StringFunctionsClientServer.SubstituteParametersToString("%1.%2",
@@ -39,9 +39,9 @@ Function CertificateFileName(BaseName, CertificateOwner, CertificateFilesExtensi
 	CertificateFileNameWithoutExtension = StringFunctionsClientServer.SubstituteParametersToString("%1%2%3",
 		BaseName, Separator, CertificateOwner);
 	
-	If StrLen(CertificateFileNameWithoutExtension) > 200 Then
+	If StrLen(CertificateFileNameWithoutExtension) > 120 Then
 		CertificateFileNameWithoutExtension = DigitalSignatureInternalServerCall.AbbreviatedFileName(
-			CommonClientServer.ReplaceProhibitedCharsInFileName(CertificateFileNameWithoutExtension), 200);
+			CommonClientServer.ReplaceProhibitedCharsInFileName(CertificateFileNameWithoutExtension), 120);
 	EndIf;
 	
 	CertificateFileName = StringFunctionsClientServer.SubstituteParametersToString("%1.%2",
@@ -233,24 +233,41 @@ Function CertificatesInOrderToRoot(Certificates) Export
 	
 	By_Order = New Array;
 	CertificatesBySubjects = New Map;
-	
-	For Each CertificateDetails In Certificates Do
-		By_Order.Add(CertificateDetails);
-		CertificatesBySubjects.Insert(CertificateDetails.Subject.CN, CertificateDetails);
-	EndDo;
+	DescriptionOfCertificates = New Map;
 	
 	For Each Certificate In Certificates Do
-		IssuerCertificate = CertificatesBySubjects.Get(Certificate.Issuer.CN);
-		If IssuerCertificate = Undefined Then
-			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot find the issuer certificate
-				           |%1
-				           | of the certificate %2 in the signature certificate';"),
-				Certificate.Issuer.CN,
-				Certificate.Subject.CN);
-		EndIf;
+		DescriptionOfCertificates.Insert(Certificate, Certificate);
+		By_Order.Add(Certificate);
+		CertificatesBySubjects.Insert(Certificate.Subject.CN, Certificate);
+	EndDo;
+	
+	ArrangeCertificates(By_Order, DescriptionOfCertificates, CertificatesBySubjects);
+	
+	Return By_Order;
+	
+EndFunction
+
+Function CurrentProgramAlgorithms() Export
+	
+	Return NamesOfSignatureAlgorithmsGOST_34_10_2012_256()
+	
+EndFunction
+
+#EndRegion
+
+#Region Private
+
+Procedure ArrangeCertificates(By_Order, DescriptionOfCertificates, CertificatesBySubjects) Export
+	
+	For Each CertificateDetails In DescriptionOfCertificates Do
+		CertificateProperties = CertificateDetails.Key;
+		Certificate = CertificateDetails.Value;
+		IssuerCertificate = CertificatesBySubjects.Get(CertificateProperties.Issuer.CN);
+		
 		Position = By_Order.Find(Certificate);
-		If Certificate.Issuer.CN = Certificate.Subject.CN Then
+		If CertificateProperties.Issuer.CN = CertificateProperties.Subject.CN 
+			Or IssuerCertificate = Undefined Then
+			
 			If Position <> By_Order.UBound() Then
 				By_Order.Delete(Position);
 				By_Order.Add(Certificate);
@@ -266,13 +283,7 @@ Function CertificatesInOrderToRoot(Certificates) Export
 		By_Order.Insert(IssuerPosition, Certificate);
 	EndDo;
 	
-	Return By_Order;
-	
-EndFunction
-
-#EndRegion
-
-#Region Private
+EndProcedure
 
 Function UsersCertificateString(User1, User2, UsersCount) Export
 	
@@ -412,7 +423,8 @@ Function CertificatesChainFromAddInResponse(AddInResponse, FormIdentifier) Expor
 	
 EndFunction
 
-Function InstalledCryptoProvidersFromAddInResponse(AddInResponse, ApplicationsByNamesWithType, CheckAtCleint = True) Export
+Function InstalledCryptoProvidersFromAddInResponse(AddInResponse, ApplicationsByNamesWithType, 
+	CheckAtCleint = True) Export
 	
 	Try
 		AllCryptoProviders = ReadAddInResponce(AddInResponse);
@@ -629,7 +641,7 @@ EndFunction
 // Returns:
 //  Array of See DigitalSignatureInternalCached.ApplicationDetails
 //
-Function CryptoManagerApplicationsDetails(Application, Errors, Val ApplicationsDetailsCollection, AppsAuto = Undefined) Export
+Function CryptoManagerApplicationsDetails(Application, Errors, Val ApplicationsDetailsCollection, Val AppsAuto = Undefined) Export
 	
 	If TypeOf(Application) = Type("Structure") Or TypeOf(Application) = Type("FixedStructure") Then
 		
@@ -684,7 +696,22 @@ Function CryptoManagerApplicationsDetails(Application, Errors, Val ApplicationsD
 		For Each ApplicationDetails In ApplicationsDetailsCollection Do
 			If Not ValueIsFilled(ApplicationDetails.Id)
 				And Not AppNotUsed(ApplicationDetails.UsageMode) Then
-				AppsAuto.Add(ApplicationDetails);
+				
+				Found4 = Undefined;
+				For Each AppAuto In AppsAuto Do
+					If ApplicationDetails.ApplicationName = AppAuto.ApplicationName
+						And ApplicationDetails.ApplicationType = AppAuto.ApplicationType Then
+						Found4 = AppAuto;
+						Break;
+					EndIf;
+				EndDo;
+				
+				If Found4 = Undefined Then
+					NewDetails = NewExtendedApplicationDetails();
+					FillPropertyValues(NewDetails, ApplicationDetails);
+					NewDetails.AutoDetect = False;
+					AppsAuto.Add(NewDetails);
+				EndIf;
 			EndIf;
 		EndDo;
 		
@@ -1233,6 +1260,10 @@ EndProcedure
 Function CertificateCheckModes(IgnoreTimeValidity = False) Export
 	
 	CheckModesArray = New Array;
+	
+	#If WebClient Then
+		CheckModesArray.Add(CryptoCertificateCheckMode.AllowTestCertificates);
+	#EndIf
 	
 	If IgnoreTimeValidity Then
 		CheckModesArray.Add(CryptoCertificateCheckMode.IgnoreTimeValidity);
@@ -2561,15 +2592,13 @@ Function XMLEnvelope(Parameters) Export
 		Parameters = XMLEnvelopeParameters();
 	EndIf;
 	
-	If Parameters.Variant = "furs.mark.crpt.ru_v1" Then
-		XMLEnvelope = XMLEnvelope1();
-		
-	ElsIf Parameters.Variant = "dmdk.goznak.ru_v1" Then
-		XMLEnvelope = XMLEnvelope2();
-	Else
+	XMLEnvelope = Undefined;
+	DigitalSignatureClientServerLocalization.WhenReceivingXMLEnvelope(Parameters, XMLEnvelope);
+	
+	If XMLEnvelope = Undefined Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The %1 unknown value of the %2 parameter is specified in the %3 function';"),
-			Parameters.Variant, "Variant", "XMLEnvelope");
+				NStr("en = 'The %1 unknown value of the %2 parameter is specified in the %3 function';"),
+				Parameters.Variant, "Variant", "XMLEnvelope");
 		Raise ErrorText;
 	EndIf;
 	
@@ -2585,7 +2614,11 @@ EndFunction
 Function XMLEnvelopeParameters() Export
 	
 	Result = New Structure;
-	Result.Insert("Variant", "furs.mark.crpt.ru_v1");
+	
+	EnvelopeOption = "";
+	DigitalSignatureClientServerLocalization.WhenReceivingDefaultEnvelopeOption(EnvelopeOption);
+	
+	Result.Insert("Variant", EnvelopeOption);
 	Result.Insert("XMLMessage", "");
 	
 	Return Result;
@@ -3066,9 +3099,9 @@ Function ExtendedApplicationDetails(Cryptoprovider, ApplicationsByNamesWithType,
 	
 	If ApplicationToSupply = Undefined Then
 		Return Undefined;
+	Else
+		FillPropertyValues(ApplicationDetails, ApplicationToSupply);
 	EndIf;
-	
-	FillPropertyValues(ApplicationDetails, ApplicationToSupply);
 	
 	If Not ValueIsFilled(ApplicationDetails.Presentation) Then
 		ApplicationDetails.Presentation = Var_Key;
@@ -3088,6 +3121,88 @@ Function ExtendedApplicationDetails(Cryptoprovider, ApplicationsByNamesWithType,
 	
 EndFunction
 
+// For internal use only.
+Procedure ProcessResultOfProgramVerification(Cryptoproviders, Programs, PossibleConflict, Context, ThereAreTestablePrograms = False) Export
+	
+	InstalledPrograms = New Map;
+	
+	For Each CurCryptoProvider In Cryptoproviders Do
+		
+		Found1 = True; Presentation = Undefined;
+		
+		If ValueIsFilled(Context.SignAlgorithms) Then
+			Found1 = False;
+			For Each Algorithm In Context.SignAlgorithms Do
+				Found1 = CryptoManagerSignAlgorithmSupported(CurCryptoProvider,
+					?(Context.DataType = "Certificate","","CheckSignature"), Algorithm, Undefined, Context.IsServer, False);
+				If Found1 Then
+					Break;
+				EndIf;
+			EndDo;
+		ElsIf ValueIsFilled(Context.AppsToCheck) Then
+			Found1 = False;
+			For Each Application In Context.AppsToCheck Do
+				If Application.ApplicationName = CurCryptoProvider.ApplicationName
+					And Application.ApplicationType = CurCryptoProvider.ApplicationType Then
+					Presentation = Application.Presentation;
+					Found1 = True;
+					Break;
+				EndIf;
+			EndDo;
+		EndIf;
+		
+		If Not Found1 Then
+			Continue;
+		EndIf;
+		
+		If Context.ExtendedDescription Then
+			ProgramVerificationResult = NewExtendedApplicationDetails();
+		Else
+			ProgramVerificationResult = ProgramVerificationResult();
+		EndIf;
+		
+		FillPropertyValues(ProgramVerificationResult, CurCryptoProvider);
+		ProgramVerificationResult.Presentation = 
+			?(ValueIsFilled(Presentation), Presentation, CurCryptoProvider.Presentation);
+		
+		ProgramVerificationResult.Insert("Application", DigitalSignatureApplication(CurCryptoProvider));
+		If Not IsBlankString(ProgramVerificationResult.Application) Then
+			InstalledPrograms.Insert(ProgramVerificationResult.Application, True);
+		EndIf;
+		
+		Programs.Add(ProgramVerificationResult);
+		
+	EndDo;
+	
+	If InstalledPrograms.Count() > 0 Then
+		ThereAreTestablePrograms = True;
+		PossibleConflict = InstalledPrograms.Count() > 1;
+	EndIf;
+	
+EndProcedure
+
+Function DigitalSignatureApplication(Cryptoprovider)
+	
+	
+	Return "";
+	
+EndFunction
+
+// For internal use only.
+Function ProgramVerificationResult()
+	
+	Structure = New Structure;
+	Structure.Insert("Presentation");
+	Structure.Insert("Ref");
+	Structure.Insert("ApplicationName");
+	Structure.Insert("ApplicationType");
+	Structure.Insert("Application");
+	Structure.Insert("Version");
+	Structure.Insert("ILicenseInfo");
+
+	Return Structure;
+	
+EndFunction
 
 // For internal use only.
 Function PlacementOfTheCertificate(LocationType) Export
@@ -3139,7 +3254,7 @@ Function NewExtendedApplicationDetails() Export
 	LongDesc.Insert("PathToAppAuto", "");
 	LongDesc.Insert("AppPathAtServerAuto", "");
 	LongDesc.Insert("Version");
-	LongDesc.Insert("ILicenseInfo");
+	LongDesc.Insert("ILicenseInfo", False);
 	LongDesc.Insert("UsageMode", PredefinedValue(
 		"Enum.DigitalSignatureAppUsageModes.Automatically"));
 	LongDesc.Insert("AutoDetect", True);
@@ -3149,100 +3264,7 @@ Function NewExtendedApplicationDetails() Export
 EndFunction
 
 
-#Region XMLEnvelopeTemplates
 
-// The "furs.mark.crpt.ru_v1" option.
-Function XMLEnvelope1()
-	
-	Return
-	"<soap:Envelope
-	|    xmlns:wsse=""http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd""
-	|    xmlns:wsu=""http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd""
-	|    xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
-	|  <soap:Header>
-	|    <wsse:Security soap:actor=""http://smev.gosuslugi.ru/actors/smev"">
-	|      <ds:Signature xmlns:ds=""http://www.w3.org/2000/09/xmldsig#"">
-	|        <SignedInfo xmlns=""http://www.w3.org/2000/09/xmldsig#"">
-	|          <CanonicalizationMethod Algorithm=""http://www.w3.org/2001/10/xml-exc-c14n#""/>
-	|          <SignatureMethod Algorithm=""%SignatureMethod%""/>
-	|          <Reference URI=""#body"">
-	|            <Transforms>
-	|              <Transform Algorithm=""http://www.w3.org/2000/09/xmldsig#enveloped-signature""/>
-	|              <Transform Algorithm=""http://www.w3.org/2001/10/xml-exc-c14n#""/>
-	|            </Transforms>
-	|            <DigestMethod Algorithm=""%DigestMethod%""/>
-	|            <DigestValue>%DigestValue%</DigestValue>
-	|          </Reference>
-	|        </SignedInfo>
-	|        <SignatureValue xmlns=""http://www.w3.org/2000/09/xmldsig#"">
-	|          %SignatureValue%
-	|        </SignatureValue>
-	|        <ds:KeyInfo>
-	|          <wsse:SecurityTokenReference>
-	|            <wsse:Reference URI=""#SenderCertificate""
-	|                            ValueType=""http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3""/>
-	|          </wsse:SecurityTokenReference>
-	|        </ds:KeyInfo>
-	|      </ds:Signature>
-	|      <wsse:BinarySecurityToken
-	|              EncodingType=""http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary""
-	|              ValueType=""http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3""
-	|              wsu:Id=""SenderCertificate"">
-	|        %BinarySecurityToken%
-	|      </wsse:BinarySecurityToken>
-	|    </wsse:Security>
-	|  </soap:Header>
-	|  <soap:Body wsu:Id=""body"">
-	|    %MessageXML%
-	|  </soap:Body>
-	|</soap:Envelope>";
-	
-EndFunction
-
-// The "dmdk.goznak.ru_v1" option.
-Function XMLEnvelope2()
-	
-	Return
-	"<soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/""
-	|    xmlns:ns=""urn://xsd.dmdk.goznak.ru/exchange/1.0""
-	|    xmlns:ns1=""urn://xsd.dmdk.goznak.ru/batch/1.0""
-	|    xmlns:ns2=""urn://xsd.dmdk.goznak.ru/contractor/1.0""
-	|    xmlns:ns3=""urn://xsd.dmdk.goznak.ru/types/1.0"">
-	|  <soapenv:Header />
-	|  <soapenv:Body>
-	|    <ns:CheckBatchRequest>
-	|      <ns:CallerSignature>
-	|        <ds:Signature xmlns:ds=""http://www.w3.org/2000/09/xmldsig#"">
-	|          <ds:SignedInfo>
-	|            <ds:CanonicalizationMethod Algorithm=""http://www.w3.org/2001/10/xml-exc-c14n#"" />
-	|            <ds:SignatureMethod Algorithm=""%SignatureMethod%"" />
-	|            <ds:Reference URI=""#body"">
-	|              <ds:Transforms>
-	|                <ds:Transform Algorithm=""http://www.w3.org/2001/10/xml-exc-c14n#"" />
-	|                <ds:Transform Algorithm=""urn://smev-gov-ru/xmldsig/transform"" />
-	|              </ds:Transforms>
-	|              <ds:DigestMethod Algorithm=""%DigestMethod%"" />
-	|              <ds:DigestValue>%DigestValue%</ds:DigestValue>
-	|            </ds:Reference>
-	|          </ds:SignedInfo>
-	|          <ds:SignatureValue>%SignatureValue%</ds:SignatureValue>
-	|          <ds:KeyInfo>
-	|            <ds:X509Data>
-	|              <ds:X509Certificate>%BinarySecurityToken%</ds:X509Certificate>
-	|            </ds:X509Data>
-	|          </ds:KeyInfo>
-	|        </ds:Signature>
-	|      </ns:CallerSignature>
-	|      <ns:RequestData Id=""body"">
-	|        %MessageXML%
-	|      </ns:RequestData>
-	|    </ns:CheckBatchRequest>
-	|  </soapenv:Body>
-	|</soapenv:Envelope>";
-	
-EndFunction
-
-#EndRegion
 
 #Region XMLScope
 
@@ -3539,7 +3561,7 @@ Function CertificateSignAlgorithm(CertificateData, IncludingOID = False, OIDOnly
 	
 EndFunction
 
-Function SignAlgorithm(Data, IsCertificateData, IncludingOID = False, OIDOnly = False)
+Function SignAlgorithm(Data, IsCertificateData = Undefined, IncludingOID = False, OIDOnly = False)
 	
 	BinaryData = BinaryDataFromTheData(Data,
 		"DigitalSignatureInternalClientServer.SignAlgorithm");
@@ -3971,7 +3993,7 @@ Procedure SkipTheBeginningOfABlockOrBlock(DataAnalysis, StartOfTheBlock,
 		Else
 			OffsetOfTheFollowing = DataAnalysis.Offset + DataSize;
 			If DataAnalysis.Parents.Count() = 0
-			   And OffsetOfTheFollowing <> DataAnalysis.Buffer.Size Then
+			   And OffsetOfTheFollowing > DataAnalysis.Buffer.Size Then
 				
 				IfTheEncodingErrorIsASN1(DataAnalysis);
 				Return;

@@ -1660,8 +1660,8 @@ Procedure WriteObjectToIB(Object, Type, WriteObject = False, Val SendBack = Fals
 		And Common.SeparatedDataUsageAvailable() Then
 		
 		If Common.SubsystemExists("CloudTechnology.Core") Then
-			ModuleSaaS = Common.CommonModule("SaaSOperations");
-			IsSeparatedMetadataObject = ModuleSaaS.IsSeparatedMetadataObject(Object.Metadata().FullName());
+			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+			IsSeparatedMetadataObject = ModuleSaaSOperations.IsSeparatedMetadataObject(Object.Metadata().FullName());
 		Else
 			IsSeparatedMetadataObject = False;
 		EndIf;
@@ -4763,8 +4763,8 @@ Function WriteToExecutionProtocol(Code = "",
 	If Common.DataSeparationEnabled() 
 		And Common.SubsystemExists("StandardSubsystems.SaaSOperations") Then
 			
-		ModuleSaaS = Common.CommonModule("SaaSOperations");     
-		WriteToDataExchangeResults = ModuleSaaS.SessionSeparatorUsage();
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");     
+		WriteToDataExchangeResults = ModuleSaaSOperations.SessionSeparatorUsage();
 		
 	EndIf;
 	
@@ -9069,7 +9069,7 @@ Procedure ImportTabularSection(Object, TabularSectionName, GeneralDocumentTypeIn
 		ObjectTabularSection.Load(OrderCollection);
 	Except
 		
-		Text = NStr("en = 'Tabular section name: %1';");
+		Text = NStr("en = 'Table name: %1';");
 		
 		WP = ExchangeProtocolRecord(83, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		WP.Object     = Object;
@@ -13827,7 +13827,7 @@ Procedure InitMessages()
 	ErrorsMessages.Insert(80, NStr("en = 'Cannot set a predefined item property value.
 		|Cannot set a deletion mark for a predefined item. The deletion mark is not set.';"));
 	//
-	ErrorsMessages.Insert(83, NStr("en = 'Object tabular section access error. Cannot change the tabular section.';"));
+	ErrorsMessages.Insert(83, NStr("en = 'Object table access error. Cannot change the table.';"));
 	ErrorsMessages.Insert(84, NStr("en = 'Period-end closing dates conflict.';"));
 	
 	ErrorsMessages.Insert(173, NStr("en = 'Cannot lock the exchange node. Probably the synchronization is already running.';"));
@@ -13852,17 +13852,17 @@ Procedure SupplementManagerArrayWithReferenceType(Managers, ManagersForExchangeP
 	TextOfTheUploadRequest = StrReplace(TextOfTheUploadRequest, "&MetadataTableName", StringFunctionsClientServer.SubstituteParametersToString("%1.%2", TypeName, Name));
 	RefExportSearchString     = StrReplace(TextOfTheUploadRequest, "&SearchFieldsParameter", "#SearchFields#");
 	
-	RefType1        = Type(RefTypeString1);
+	RefType        = Type(RefTypeString1);
 	
 	Structure = ManagerParametersStructure(Name, TypeName, RefTypeString1, Manager, MetadataObjectsList);
 	Structure.Insert("SearchString",SearchString);
 	Structure.Insert("RefExportSearchString",RefExportSearchString);
 	Structure.Insert("SearchByPredefinedItemsPossible",SearchByPredefinedItemsPossible);
 
-	Managers.Insert(RefType1, Structure);
+	Managers.Insert(RefType, Structure);
 	
 	
-	StructureForExchangePlan = ExchangePlanParametersStructure(Name, RefType1, True, False);
+	StructureForExchangePlan = ExchangePlanParametersStructure(Name, RefType, True, False);
 
 	ManagersForExchangePlans.Insert(MetadataObjectsList, StructureForExchangePlan);
 	
@@ -13874,7 +13874,7 @@ Procedure SupplementManagerArrayWithRegisterType(Managers, MetadataObjectsList, 
 	
 	Name					= MetadataObjectsList.Name;
 	RefTypeString1	= TypeNamePrefixRecord + "." + Name;
-	RefType1			= Type(RefTypeString1);
+	RefType			= Type(RefTypeString1);
 	Structure = ManagerParametersStructure(Name, TypeName, RefTypeString1, Manager, MetadataObjectsList);
 
 	If TypeName = "InformationRegister" Then
@@ -13887,15 +13887,15 @@ Procedure SupplementManagerArrayWithRegisterType(Managers, MetadataObjectsList, 
 		
 	EndIf;	
 	
-	Managers.Insert(RefType1, Structure);
+	Managers.Insert(RefType, Structure);
 		
-	StructureForExchangePlan = ExchangePlanParametersStructure(Name, RefType1, False, True);
+	StructureForExchangePlan = ExchangePlanParametersStructure(Name, RefType, False, True);
 
 	ManagersForExchangePlans.Insert(MetadataObjectsList, StructureForExchangePlan);
 	
 	
 	RefTypeString1	= SelectionTypeNamePrefix + "." + Name;
-	RefType1			= Type(RefTypeString1);
+	RefType			= Type(RefTypeString1);
 	Structure = ManagerParametersStructure(Name, TypeName, RefTypeString1, Manager, MetadataObjectsList);
 
 	If Periodic3 <> Undefined Then
@@ -13905,7 +13905,7 @@ Procedure SupplementManagerArrayWithRegisterType(Managers, MetadataObjectsList, 
 		
 	EndIf;
 	
-	Managers.Insert(RefType1, Structure);
+	Managers.Insert(RefType, Structure);
 		
 EndProcedure
 
@@ -13974,12 +13974,12 @@ Procedure ManagersInitialization()
 		Manager         = BusinessProcesses[Name].RoutePoints;
 		SearchString     = "";
 		RefTypeString1 = "BusinessProcessRoutePointRef." + Name;
-		RefType1        = Type(RefTypeString1);
+		RefType        = Type(RefTypeString1);
 		Structure = ManagerParametersStructure(Name, TypeName, RefTypeString1, Manager, MetadataObjectsList);
 		Structure.Insert("EmptyRef", Undefined);
 		Structure.Insert("SearchString", SearchString);
 
-		Managers.Insert(RefType1, Structure);
+		Managers.Insert(RefType, Structure);
 				
 	EndDo;
 	
@@ -14016,11 +14016,11 @@ Procedure ManagersInitialization()
 		Name              = MetadataObjectsList.Name;
 		Manager         = Enums[Name];
 		RefTypeString1 = "EnumRef." + Name;
-		RefType1        = Type(RefTypeString1);
+		RefType        = Type(RefTypeString1);
 		Structure = ManagerParametersStructure(Name, TypeName, RefTypeString1, Manager, MetadataObjectsList);
 		Structure.Insert("EmptyRef", Enums[Name].EmptyRef());
 
-		Managers.Insert(RefType1, Structure);
+		Managers.Insert(RefType, Structure);
 		
 	EndDo;
 	
@@ -14030,10 +14030,10 @@ Procedure ManagersInitialization()
 	Name					= "Constants";
 	Manager			= Constants;
 	RefTypeString1	= "ConstantsSet";
-	RefType1			= Type(RefTypeString1);
+	RefType			= Type(RefTypeString1);
 	Structure = ManagerParametersStructure(Name, TypeName, RefTypeString1, Manager, MetadataObjectsList);
 
-	Managers.Insert(RefType1, Structure);
+	Managers.Insert(RefType, Structure);
 	
 EndProcedure
 
@@ -14291,10 +14291,10 @@ Function ManagerParametersStructure(Name, TypeName, RefTypeString1, Manager, Met
 	Return Structure;
 EndFunction
 
-Function ExchangePlanParametersStructure(Name, RefType1, IsReferenceType, IsRegister)
+Function ExchangePlanParametersStructure(Name, RefType, IsReferenceType, IsRegister)
 	Structure = New Structure();
 	Structure.Insert("Name",Name);
-	Structure.Insert("RefType1",RefType1);
+	Structure.Insert("RefType",RefType);
 	Structure.Insert("IsReferenceType",IsReferenceType);
 	Structure.Insert("IsRegister",IsRegister);
 	Return Structure;
@@ -15575,7 +15575,7 @@ Procedure ImportTypeMapForSingleType(ExchangeRules, TypeMap)
 		
 		If ExchangeRules.NodeType = XMLNodeTypeStartElement Then
 			
-			// this is a new item
+			// This is a new item.
 			NewMap = New Map;
 			TypeMap.Insert(NodeName, NewMap);
 			

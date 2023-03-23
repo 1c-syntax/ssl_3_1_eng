@@ -38,7 +38,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetConditionalAppearance();
 	
 	Items.DecorationDocumentation.Title = StringFunctions.FormattedString("<a href=""%1"">%2</a>",
-		"http://its.1c.ru/db/v83doc#bookmark:dev:ti000001358",
+		"http://its.1c.eu/db/v83doc#bookmark:dev:ti000001358",
 		NStr("en = 'Documentation on the use of an automatic REST service';"));
 	
 EndProcedure

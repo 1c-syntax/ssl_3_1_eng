@@ -17,8 +17,8 @@ Procedure BeforeWrite(Cancel)
 		Return;
 	EndIf;
 		
-	If Value < 1 Or Value > 99 Then
-		Value = 1;
+	If Value < 0 Or Value > 99 Then
+		Value = 0;
 	EndIf;
 	
 EndProcedure

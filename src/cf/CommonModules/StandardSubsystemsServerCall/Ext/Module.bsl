@@ -179,8 +179,8 @@ EndFunction
 Procedure SignInToDataArea(Val DataArea) Export
 	
 	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		ModuleSaaS.SignInToDataArea(DataArea);
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations.SignInToDataArea(DataArea);
 	EndIf;
 	
 EndProcedure

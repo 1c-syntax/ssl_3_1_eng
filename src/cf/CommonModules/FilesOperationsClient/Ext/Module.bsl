@@ -624,9 +624,9 @@ Procedure NotificationProcessing(Form, EventName) Export
 		Return;
 	EndIf;
 		
-	For ItemNumber = 0 To Form.FilesOperationsParameters.UBound() Do
+	For ItemNumber = 0 To Form.FilesOperationsParameters.DescriptionsOfFormElements.UBound() Do
 		
-		DisplayCount = Form.FilesOperationsParameters[ItemNumber].DisplayCount;
+		DisplayCount = Form.FilesOperationsParameters.DescriptionsOfFormElements[ItemNumber].DisplayCount;
 		If Not DisplayCount Then
 			Continue;
 		EndIf;
@@ -704,7 +704,7 @@ Procedure PreviewFieldClick(Form, Item, StandardProcessing, View = False) Export
 	EndIf;
 	
 	ItemNumber = Number(StrReplace(Item.Name, "AttachedFilePictureField", ""));
-	OneFileOnly = Form.FilesOperationsParameters[ItemNumber].OneFileOnly;
+	OneFileOnly = Form.FilesOperationsParameters.DescriptionsOfFormElements[ItemNumber].OneFileOnly;
 	AttachedFilesOwner = AttachedFileParameterValue(Form, Number(ItemNumber), "PathToOwnerData");
 	
 	If Not ValueIsFilled(AttachedFilesOwner) Then
@@ -743,7 +743,7 @@ Procedure PreviewFieldDrag(Form, Item, DragParameters, StandardProcessing) Expor
 	EndIf;
 	
 	ItemNumber = Number(StrReplace(Item.Name, "AttachedFilePictureField", ""));
-	OneFileOnly = Form.FilesOperationsParameters[ItemNumber].OneFileOnly;
+	OneFileOnly = Form.FilesOperationsParameters.DescriptionsOfFormElements[ItemNumber].OneFileOnly;
 	AttachedFilesOwner = AttachedFileParameterValue(Form, Number(ItemNumber), "PathToOwnerData");
 	
 	HandlerParameters = New Structure;
@@ -1016,7 +1016,7 @@ Function AttachedFileParameterValue(Form, Val ItemNumber, ParameterName)
 		ItemNumber = Number(ItemNumber);
 	EndIf;
 	
-	DataPath = Form.FilesOperationsParameters[ItemNumber][ParameterName];
+	DataPath = Form.FilesOperationsParameters.DescriptionsOfFormElements[ItemNumber][ParameterName];
 	DataPathParts = StringFunctionsClientServer.SplitStringIntoSubstringsArray(DataPath, ".", True, True);
 	If DataPathParts.Count() > 0 Then
 		
@@ -1096,9 +1096,9 @@ Procedure AttachedFilesManagementCommandCompletion(Form, Command, AttachedFilesO
 	ItemNumber = NumberType.AdjustValue(ExecutionParameters.ItemNumber);
 	FileAddingOptions = New Structure;
 	FileAddingOptions.Insert("MaximumSize",
-		Form.FilesOperationsParameters[ItemNumber].MaximumSize);
+		Form.FilesOperationsParameters.DescriptionsOfFormElements[ItemNumber].MaximumSize);
 	FileAddingOptions.Insert("SelectionDialogFilter",
-		Form.FilesOperationsParameters[ItemNumber].SelectionDialogFilter);
+		Form.FilesOperationsParameters.DescriptionsOfFormElements[ItemNumber].SelectionDialogFilter);
 	FileAddingOptions.Insert("DontOpenCard", True);
 	
 	If StrStartsWith(CommandName, "OpenList") Then
@@ -1176,7 +1176,7 @@ Procedure PreviewFieldClickCompletion(Form, AttachedFilesOwner, Item, StandardPr
 	
 	NumberType = New TypeDescription("Number");
 	ItemNumber = NumberType.AdjustValue(ExecutionParameters.ItemNumber);
-	ParametersForWorkingWithFile = Form.FilesOperationsParameters[ItemNumber];
+	ParametersForWorkingWithFile = Form.FilesOperationsParameters.DescriptionsOfFormElements[ItemNumber];
 	FileAddingOptions = New Structure;
 	FileAddingOptions.Insert("MaximumSize", ParametersForWorkingWithFile.MaximumSize);
 	FileAddingOptions.Insert("SelectionDialogFilter", ParametersForWorkingWithFile.SelectionDialogFilter);
@@ -1267,9 +1267,9 @@ Procedure PreviewFieldDragCompletion(ExtensionInstalled, AdditionalParameters) E
 		AddingOptions.Insert("DontOpenCardAfterCreateFromFIle", True);
 		AddingOptions.Insert("NameOfFileToCreate", File.BaseName);
 		AddingOptions.Insert("MaximumSize",
-			Form.FilesOperationsParameters[ItemNumber].MaximumSize);
+			Form.FilesOperationsParameters.DescriptionsOfFormElements[ItemNumber].MaximumSize);
 		AddingOptions.Insert("SelectionDialogFilter",
-			Form.FilesOperationsParameters[ItemNumber].SelectionDialogFilter);
+			Form.FilesOperationsParameters.DescriptionsOfFormElements[ItemNumber].SelectionDialogFilter);
 			
 		FilesOperationsInternalClient.AddFormFileSystemWithExtension(AddingOptions);
 		
@@ -1283,7 +1283,7 @@ Procedure UpdateAttachedFileStorageAttribute(Form, Val ItemNumber, File)
 		ItemNumber = Number(ItemNumber);
 	EndIf;
 	
-	DataPath = Form.FilesOperationsParameters[ItemNumber].PathToPlacementAttribute;
+	DataPath = Form.FilesOperationsParameters.DescriptionsOfFormElements[ItemNumber].PathToPlacementAttribute;
 	DataPathParts = StringFunctionsClientServer.SplitStringIntoSubstringsArray(DataPath, ".", True, True);
 	
 	If DataPathParts.Count() > 0 Then
@@ -1315,7 +1315,7 @@ Procedure UpdatePreviewArea(Form, ItemNumber, File)
 		ItemNumAsString = Format(ItemNumber, "NG=;");
 	EndIf;
 	
-	AttributeName = Form.FilesOperationsParameters[ItemNumAsNumber].PathToPictureData;
+	AttributeName = Form.FilesOperationsParameters.DescriptionsOfFormElements[ItemNumAsNumber].PathToPictureData;
 	PictureItem = Form.Items.Find("AttachedFilePictureField" + ItemNumAsString);
 	TitleItem = Form.Items.Find("AttachedFileTitle" + ItemNumAsString);
 	
@@ -1329,7 +1329,7 @@ Procedure UpdatePreviewArea(Form, ItemNumber, File)
 	FileData = UpdateData.FileData;
 	If PictureItem <> Undefined Then
 		
-		NonselectedPictureText = Form.FilesOperationsParameters[ItemNumAsNumber].NonselectedPictureText;
+		NonselectedPictureText = Form.FilesOperationsParameters.DescriptionsOfFormElements[ItemNumAsNumber].NonselectedPictureText;
 		If FileData = Undefined Then
 			Form[AttributeName] = Undefined;
 			PictureItem.NonselectedPictureText = NonselectedPictureText;
@@ -1452,7 +1452,7 @@ EndProcedure
 Procedure ChangeAdditionalCommandsVisibility(Form)
 	
 	Try
-		HasFileManagementParameters = TypeOf(Form["FilesOperationsParameters"]) = Type("FixedArray");
+		HasFileManagementParameters = TypeOf(Form["FilesOperationsParameters"]) = Type("FixedStructure");
 	Except
 		// 
 		HasFileManagementParameters = False;
@@ -1462,7 +1462,7 @@ Procedure ChangeAdditionalCommandsVisibility(Form)
 		Return;
 	EndIf;
 	
-	For ElementIndex = 0 To Form.FilesOperationsParameters.UBound() Do
+	For ElementIndex = 0 To Form.FilesOperationsParameters.DescriptionsOfFormElements.UBound() Do
 		
 		CommandsSubmenu                 = Form.Items.Find("AddingFileSubmenu" + ElementIndex);
 		CommandSelectButton          = Form.Items.Find("AttachedFilesManagementSelectFile" + ElementIndex);

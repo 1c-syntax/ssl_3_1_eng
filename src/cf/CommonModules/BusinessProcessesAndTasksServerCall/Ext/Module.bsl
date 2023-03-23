@@ -107,7 +107,7 @@ EndProcedure
 // Parameters:
 //  RedirectedTasks_SSLs - Array of TaskRef.PerformerTask
 //  ForwardingInfo   - Structure - new values of task addressing attributes.
-//  CheckOnly1         - Boolean    - If True, the function does not actually forward
+//  IsCheckOnly         - Boolean    - If True, the function does not actually forward
 //                                       tasks, it only checks 
 //                                       whether they can be forwarded.
 //  RedirectedTasks - Array of TaskRef.PerformerTask - forwarded tasks.
@@ -117,7 +117,7 @@ EndProcedure
 // Returns:
 //   Boolean   - 
 //
-Function ForwardTasks(Val RedirectedTasks_SSLs, Val ForwardingInfo, Val CheckOnly1 = False,
+Function ForwardTasks(Val RedirectedTasks_SSLs, Val ForwardingInfo, Val IsCheckOnly = False,
 	RedirectedTasks = Undefined) Export
 	
 	Result = True;
@@ -129,7 +129,7 @@ Function ForwardTasks(Val RedirectedTasks_SSLs, Val ForwardingInfo, Val CheckOnl
 			
 			If Task.Value.Executed Then
 				Result = False;
-				If CheckOnly1 Then
+				If IsCheckOnly Then
 					RollbackTransaction();
 					Return Result;
 				EndIf;
@@ -141,7 +141,7 @@ Function ForwardTasks(Val RedirectedTasks_SSLs, Val ForwardingInfo, Val CheckOnl
 			EndIf;
 		EndDo;
 		
-		If CheckOnly1 Then
+		If IsCheckOnly Then
 			For Each Task In TasksInfo Do
 				TaskObject = Task.Key.GetObject();
 				TaskObject.Executed = False;
@@ -204,7 +204,7 @@ Function ForwardTasks(Val RedirectedTasks_SSLs, Val ForwardingInfo, Val CheckOnl
 	Except
 		RollbackTransaction();
 		Result = False;
-		If Not CheckOnly1 Then
+		If Not IsCheckOnly Then
 			Raise;
 		EndIf;
 	EndTry;
@@ -276,7 +276,7 @@ Procedure ActivateBusinessProcess(BusinessProcess) Export
 	
 EndProcedure
 
-// Marks the specified business processes as stopped.
+// Marks the specified business processes as suspended.
 //
 // Parameters:
 //  Var_BusinessProcesses - Array of DefinedType.BusinessProcess
@@ -300,7 +300,7 @@ Procedure StopBusinessProcesses(Var_BusinessProcesses) Export
 	
 EndProcedure
 
-// Marks the specified business process as stopped.
+// Marks the specified business process as suspended.
 //
 // Parameters:
 //  BusinessProcess - DefinedType.BusinessProcess
@@ -319,14 +319,14 @@ Procedure StopBusinessProcess(BusinessProcess) Export
 		If Object.State = Enums.BusinessProcessStates.Suspended Then
 			
 			If Object.Completed Then
-				Raise NStr("en = 'Cannot stop the completed business processes.';");
+				Raise NStr("en = 'Cannot suspend the completed business processes.';");
 			EndIf;
 				
 			If Not Object.Started Then
-				Raise NStr("en = 'Cannot stop the business processes that are not started yet.';");
+				Raise NStr("en = 'Cannot suspend the business processes that are not started yet.';");
 			EndIf;
 			
-			Raise NStr("en = 'The business process is already stopped.';");
+			Raise NStr("en = 'The business process is already suspended.';");
 		EndIf;
 		
 		Object.Lock();

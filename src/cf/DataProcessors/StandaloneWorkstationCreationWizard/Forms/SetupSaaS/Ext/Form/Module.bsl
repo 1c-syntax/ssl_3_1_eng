@@ -412,7 +412,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'Page to be displayed is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.';");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -563,7 +563,7 @@ Procedure ExecuteTimeConsumingOperationHandler()
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'Page to be displayed is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.';");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -806,8 +806,8 @@ Function CancelJobExecution(Val JobID, Val ExchangeNode)
 	If ValueIsFilled(ExchangeNode) Then
 		
 		If Common.SubsystemExists("CloudTechnology.Core") Then
-			GeneralPurposeBTSModule = Common.CommonModule("CommonCTL");
-			GeneralPurposeBTSModule.Pause(2);
+			ModuleCommonCTL = Common.CommonModule("CommonCTL");
+			ModuleCommonCTL.Pause(2);
 		EndIf;
 		
 		StandaloneModeInternal.DeleteObsoleteExchangeMessages(ExchangeNode);

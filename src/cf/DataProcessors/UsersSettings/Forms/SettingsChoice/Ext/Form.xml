@@ -90,7 +90,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Long-running operation page</v8:content>
+									<v8:content>Page Long-running operation</v8:content>
 								</v8:item>
 							</Title>
 							<Group>HorizontalIfPossible</Group>
@@ -273,7 +273,7 @@
 																	<ContextMenu name="InterfacePictureContextMenu" id="37"/>
 																	<ExtendedTooltip name="InterfacePictureExtendedTooltip" id="121"/>
 																</PictureField>
-																<LabelField name="InterfaceSettings" id="32">
+																<LabelField name="InterfacePreferences" id="32">
 																	<DataPath>Interface.Setting</DataPath>
 																	<TitleLocation>None</TitleLocation>
 																	<HorizontalAlign>Left</HorizontalAlign>

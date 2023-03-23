@@ -547,13 +547,13 @@ Function HasInServiceExchangeAdministrationManage_3_0_1_1() Export
 		Return False;
 	EndIf;
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
 	ConnectionParameters = New Structure;
 	SetPrivilegedMode(True);
-	ConnectionParameters.Insert("URL", ModuleSaaS.InternalServiceManagerURL());
-	ConnectionParameters.Insert("UserName", ModuleSaaS.NameOfServiceManagerSServiceUser());
-	ConnectionParameters.Insert("Password", ModuleSaaS.PasswordOfServiceManagerSServiceUser());
+	ConnectionParameters.Insert("URL", ModuleSaaSOperations.InternalServiceManagerURL());
+	ConnectionParameters.Insert("UserName", ModuleSaaSOperations.ServiceManagerInternalUserName());
+	ConnectionParameters.Insert("Password", ModuleSaaSOperations.ServiceManagerInternalUserPassword());
 	SetPrivilegedMode(False);
 	
 	Versions = Common.GetInterfaceVersions(ConnectionParameters, "ExchangeAdministrationManage");

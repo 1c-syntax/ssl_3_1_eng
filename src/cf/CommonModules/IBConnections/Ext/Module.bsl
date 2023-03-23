@@ -261,8 +261,8 @@ Procedure SetDataAreaSessionLock(Parameters, Val LocalTime = True, Val DataArea 
 	
 	If Common.SeparatedDataUsageAvailable() Then
 		
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		SessionSeparatorValue = ModuleSaaS.SessionSeparatorValue();
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		SessionSeparatorValue = ModuleSaaSOperations.SessionSeparatorValue();
 		
 		If DataArea = -1 Then
 			DataArea = SessionSeparatorValue;
@@ -339,12 +339,12 @@ Function GetDataAreaSessionLock(Val LocalTime = True) Export
 		Raise NStr("en = 'Not enough rights to perform the operation.';");
 	EndIf;
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
 	SetPrivilegedMode(True);
 	LockSet1 = InformationRegisters.DataAreaSessionLocks.CreateRecordSet();
 	LockSet1.Filter.DataAreaAuxiliaryData.Set(
-		ModuleSaaS.SessionSeparatorValue());
+		ModuleSaaSOperations.SessionSeparatorValue());
 	LockSet1.Read();
 	If LockSet1.Count() = 0 Then
 		Return Result;
@@ -486,8 +486,8 @@ Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 	EndIf;
 	
 	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		ModuleSaaS.AddConstantToInformationSecurityParameterTable(ParametersTable, "LockMessageOnConfigurationUpdate");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "LockMessageOnConfigurationUpdate");
 	EndIf;
 	
 EndProcedure

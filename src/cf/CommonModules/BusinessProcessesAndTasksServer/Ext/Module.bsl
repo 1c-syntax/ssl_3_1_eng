@@ -439,7 +439,7 @@ Function MainTaskBusinessProcesses(TaskRef, ForChange = False) Export
 		Block.Lock();
 	EndIf;
 	
-	QueryTemplate1 = "SELECT ALLOWED
+	QueryTemplate = "SELECT ALLOWED
 		|	Table.Ref AS Ref
 		|FROM
 		|	#Table AS Table
@@ -457,7 +457,7 @@ Function MainTaskBusinessProcesses(TaskRef, ForChange = False) Export
 			Continue;
 		EndIf;
 			
-		QueryText = StrReplace(QueryTemplate1, "#Table", BusinessProcessMetadata.FullName());
+		QueryText = StrReplace(QueryTemplate, "#Table", BusinessProcessMetadata.FullName());
 		If QueriesTexts.Count() > 0 Then
 			QueryText = StrReplace(QueryText, "SELECT ALLOWED", "SELECT"); // @query-part-1, @query-part-2
 		EndIf;
@@ -502,7 +502,7 @@ Procedure ValidateRightsToChangeBusinessProcessState(BusinessProcessObject) Expo
 		
 		If Not HasRightsToStopBusinessProcess(BusinessProcessObject) Then 
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Insufficient rights to stop business process ""%1"".';"),
+				NStr("en = 'Insufficient rights to suspend business process ""%1"".';"),
 				String(BusinessProcessObject));
 			Raise MessageText;
 		EndIf;
@@ -510,11 +510,11 @@ Procedure ValidateRightsToChangeBusinessProcessState(BusinessProcessObject) Expo
 		If PreviousState = Enums.BusinessProcessStates.Running Then
 			
 			If BusinessProcessObject.Completed Then
-				Raise NStr("en = 'Cannot stop the completed business processes.';");
+				Raise NStr("en = 'Cannot suspend the completed business processes.';");
 			EndIf;
 				
 			If Not BusinessProcessObject.Started Then
-				Raise NStr("en = 'Cannot stop the business processes that are not started yet.';");
+				Raise NStr("en = 'Cannot suspend the business processes that are not started yet.';");
 			EndIf;
 			
 		ElsIf PreviousState = Enums.BusinessProcessStates.Suspended Then
@@ -994,13 +994,13 @@ Procedure StartUpdateAccessValuesSetsPortion(Parameters, BusinessProcess, Proced
 	Query.SetParameter("InitialRefForProcessing", Parameters.InitialRefForProcessing);
 	
 	QueryResult = Query.Execute().Unload();
-	ObjectsToProcess2 = QueryResult.UnloadColumn("Ref");
-	Parameters.Insert("ObjectsToProcess2", ObjectsToProcess2);
+	ObjectsToBeProcessed = QueryResult.UnloadColumn("Ref");
+	Parameters.Insert("ObjectsToBeProcessed", ObjectsToBeProcessed);
 	
-	CommonClientServer.SupplementArray(Parameters.ObjectsToProcess2, Parameters.ObjectsWithIssues);
+	CommonClientServer.SupplementArray(Parameters.ObjectsToBeProcessed, Parameters.ObjectsWithIssues);
 	Parameters.ObjectsWithIssues.Clear();
 	
-	Parameters.ProcessingCompleted = ObjectsToProcess2.Count() = 0 
+	Parameters.ProcessingCompleted = ObjectsToBeProcessed.Count() = 0 
 		Or QueryResult[0].Ref = Parameters.InitialRefForProcessing;
 	If Not Parameters.ProcessingCompleted Then
 		
@@ -1044,7 +1044,7 @@ Procedure FinishUpdateAccessValuesSetsPortions(Parameters) Export
 			Parameters.ProcedureName, Parameters.ObjectsProcessed));
 	
 	// 
-	Parameters.Delete("ObjectsToProcess2");
+	Parameters.Delete("ObjectsToBeProcessed");
 	Parameters.Delete("ProcedureName");
 	Parameters.Delete("BusinessProcess");
 	Parameters.Delete("ObjectsProcessed");
@@ -1394,7 +1394,7 @@ EndFunction
 
 Function FindPersonsResponsibleForRolesAssignment(MainAddressingObject, AdditionalAddressingObject)
 	
-	QueryTemplate1 = 
+	QueryTemplate = 
 		"SELECT DISTINCT ALLOWED
 		|	TaskPerformers.Performer
 		|FROM
@@ -1421,10 +1421,10 @@ Function FindPersonsResponsibleForRolesAssignment(MainAddressingObject, Addition
 			|		OR TaskPerformers.AdditionalAddressingObject = UNDEFINED)"; // @Query-part
 	EndIf;
 
-	QueryText = StrReplace(QueryTemplate1, "&ConditionByAddressingObjects", ConditionByAddressingObjects);
+	QueryText = StrReplace(QueryTemplate, "&ConditionByAddressingObjects", ConditionByAddressingObjects);
 	Assignees = ExportPerformers(QueryText, MainAddressingObject, AdditionalAddressingObject);
 	
-	// If the main and additional addressing objects are not specified in the task.
+	// If the main and additional business objects are not specified in the task.
 	If Not ValueIsFilled(AdditionalAddressingObject) And Not ValueIsFilled(MainAddressingObject) Then
 		Return Assignees;
 	EndIf;
@@ -1434,7 +1434,7 @@ Function FindPersonsResponsibleForRolesAssignment(MainAddressingObject, Addition
 			"TaskPerformers.MainAddressingObject = &MAO
 			|	AND (TaskPerformers.AdditionalAddressingObject = VALUE(ChartOfCharacteristicTypes.TaskAddressingObjects.EmptyRef)
 			|	OR TaskPerformers.AdditionalAddressingObject = UNDEFINED)"; // @Query-part
-		QueryText = StrReplace(QueryTemplate1, "&ConditionByAddressingObjects", ConditionByAddressingObjects);
+		QueryText = StrReplace(QueryTemplate, "&ConditionByAddressingObjects", ConditionByAddressingObjects);
 		Assignees = ExportPerformers(QueryText, MainAddressingObject);
 	EndIf;
 	
@@ -1444,7 +1444,7 @@ Function FindPersonsResponsibleForRolesAssignment(MainAddressingObject, Addition
 			|		OR TaskPerformers.MainAddressingObject = UNDEFINED)
 			|	AND (TaskPerformers.AdditionalAddressingObject = VALUE(ChartOfCharacteristicTypes.TaskAddressingObjects.EmptyRef)
 			|		OR TaskPerformers.AdditionalAddressingObject = UNDEFINED)"; // @Query-part
-		QueryText = StrReplace(QueryTemplate1, "&ConditionByAddressingObjects", ConditionByAddressingObjects);
+		QueryText = StrReplace(QueryTemplate, "&ConditionByAddressingObjects", ConditionByAddressingObjects);
 		Assignees = ExportPerformers(QueryText);
 	EndIf;
 	
@@ -2013,7 +2013,7 @@ EndFunction
 
 Function SelectHeadTaskBusinessProcesses(TaskRef, ForChange = False) Export
 	
-	QueryTemplate1 = "SELECT ALLOWED
+	QueryTemplate = "SELECT ALLOWED
 		|	Table.Ref AS Ref
 		|FROM
 		|	&TableName AS Table
@@ -2031,7 +2031,7 @@ Function SelectHeadTaskBusinessProcesses(TaskRef, ForChange = False) Export
 			Block.Lock();
 		EndIf;
 		
-		QueryText = StrReplace(QueryTemplate1, "&TableName", BusinessProcessMetadata.FullName());
+		QueryText = StrReplace(QueryTemplate, "&TableName", BusinessProcessMetadata.FullName());
 		If QueriesTexts.Count() > 0 Then
 			QueryText = StrReplace(QueryText, "SELECT ALLOWED", "SELECT"); // @Query-part-1, @Query-part-2
 		EndIf;
@@ -2118,7 +2118,7 @@ Procedure OnChangeTasksState(Var_Tasks, OldState, NewState)
 	Block.Lock();
 	
 	TasksRefs = Var_Tasks.UnloadColumn("Ref");
-	QueryTemplate1 = 
+	QueryTemplate = 
 		"SELECT ALLOWED
 		|	BusinessProcesses.Ref AS Ref
 		|FROM
@@ -2136,7 +2136,7 @@ Procedure OnChangeTasksState(Var_Tasks, OldState, NewState)
 			Continue;
 		EndIf;
 		
-		QueryText = StrReplace(QueryTemplate1, "#BusinessProcesses", BusinessProcessMetadata.FullName());
+		QueryText = StrReplace(QueryTemplate, "#BusinessProcesses", BusinessProcessMetadata.FullName());
 		If QueryTexts.Count() > 0 Then
 			QueryText = StrReplace(QueryText, "SELECT ALLOWED", "SELECT"); // @query-part-1, @query-part-2
 		EndIf;
@@ -2156,7 +2156,7 @@ Procedure OnChangeTasksState(Var_Tasks, OldState, NewState)
 		EndDo;
 	EndIf;
 	
-	QueryTemplate1 = 
+	QueryTemplate = 
 		"SELECT ALLOWED
 		|	BusinessProcesses.Ref AS Ref
 		|FROM
@@ -2176,7 +2176,7 @@ Procedure OnChangeTasksState(Var_Tasks, OldState, NewState)
 			Continue;
 		EndIf;	
 			
-		QueryText = StrReplace(QueryTemplate1, "#BusinessProcesses", BusinessProcessMetadata.FullName());
+		QueryText = StrReplace(QueryTemplate, "#BusinessProcesses", BusinessProcessMetadata.FullName());
 		If QueryTexts.Count() > 0 Then
 			QueryText = StrReplace(QueryText, "SELECT ALLOWED", "SELECT"); // @query-part-1, @query-part-2
 		EndIf;
@@ -2307,7 +2307,7 @@ Procedure OnMarkTaskForDeletion(TaskRef, DeletionMarkNewValue) Export
 EndProcedure
 
 // Checks whether the user has sufficient rights to mark a business process
-// as stopped or active.
+// as suspended or active.
 // 
 // Parameters:
 //  BusinessProcess - DefinedType.BusinessProcessObject
@@ -2564,7 +2564,7 @@ Procedure UpdateScheduledJobUsage() Export
 	
 EndProcedure
 
-// Called upon migration to configuration version 3.0.2.131 and initial filling.
+// Runs when a configuration is updated to v.3.0.2.131 and during the initial data population.
 // 
 Procedure FillPredefinedItemDescriptionAllAddressingObjects() Export
 	

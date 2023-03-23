@@ -989,15 +989,15 @@ Procedure SignInToDataArea(DataArea)
 		Return;
 	EndIf;
 		
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 
 	ModuleSaaSTechnology = Common.CommonModule("CloudTechnology");
 	CTLVersion = ModuleSaaSTechnology.LibraryVersion();
 
 	If CommonClientServer.CompareVersions(CTLVersion, "2.0.7.46") >= 0 Then
-		ModuleSaaS.SignInToDataArea(DataArea); //
+		ModuleSaaSOperations.SignInToDataArea(DataArea); //
 	Else
-		ModuleSaaS.SetSessionSeparation(True, DataArea);
+		ModuleSaaSOperations.SetSessionSeparation(True, DataArea);
 	EndIf;
 	
 EndProcedure
@@ -1009,15 +1009,15 @@ Procedure SignOutOfDataArea(DataArea)
 		Return;
 	EndIf;
 		
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 
 	ModuleSaaSTechnology = Common.CommonModule("CloudTechnology");
 	CTLVersion = ModuleSaaSTechnology.LibraryVersion();
 
 	If CommonClientServer.CompareVersions(CTLVersion, "2.0.7.46") >= 0 Then
-		ModuleSaaS.SignOutOfDataArea(); //
+		ModuleSaaSOperations.SignOutOfDataArea(); //
 	Else
-		ModuleSaaS.SetSessionSeparation(False);
+		ModuleSaaSOperations.SetSessionSeparation(False);
 	EndIf;
 	
 EndProcedure

@@ -19,7 +19,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	SetPrivilegedMode(True);
-	AuthorString = String(Object.Author);
+	AuthorAsString = String(Object.Author);
 	
 EndProcedure
 
@@ -144,7 +144,7 @@ Procedure InitializeTheForm()
 		
 	If Users.IsExternalUserSession() Then
 		Items.Author.Visible = False;
-		Items.AuthorString.Visible = True;
+		Items.AuthorAsString.Visible = True;
 		Items.Performer.OpenButton = False;
 	EndIf;
 	

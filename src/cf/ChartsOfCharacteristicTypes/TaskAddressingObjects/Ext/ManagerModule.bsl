@@ -133,7 +133,7 @@ EndProcedure
 //  Object                  - the object to fill in.
 //  Data                  - ValueTableRow - object filling data.
 //  AdditionalParameters - Structure:
-//   * PredefinedData - ValueTable - data filled in the OnInitialItemsFilling procedure.
+//   * PredefinedData - ValueTable - Data filled in the OnInitialItemsFilling procedure.
 //
 Procedure OnInitialItemFilling(Object, Data, AdditionalParameters) Export
 	

@@ -61,7 +61,7 @@ Procedure BeforeWrite(Cancel)
 	If Not InitialAttributes.Executed And Executed Then
 		
 		If BusinessProcessState = Enums.BusinessProcessStates.Suspended Then
-			Raise NStr("en = 'Cannot perform tasks of terminated business processes.';");
+			Raise NStr("en = 'Cannot perform tasks of suspended business processes.';");
 		EndIf;
 		
 		// 

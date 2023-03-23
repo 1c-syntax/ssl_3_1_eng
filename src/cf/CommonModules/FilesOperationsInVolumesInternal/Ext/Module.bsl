@@ -532,15 +532,15 @@ Function FullVolumePath(Volume) Export
 		?(Common.IsWindowsServer(), "FullPathWindows", "FullPathLinux"));
 	
 	If Common.DataSeparationEnabled() Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		SeparatorValue = "";
 		If VolumePathIgnoreRegionalSettings() Then
-			SeparatorValue = ?(ModuleSaaS.SessionSeparatorUsage(),
-									Format(ModuleSaaS.SessionSeparatorValue(), "NG=;"),
+			SeparatorValue = ?(ModuleSaaSOperations.SessionSeparatorUsage(),
+									Format(ModuleSaaSOperations.SessionSeparatorValue(), "NG=;"),
 									"");
 		Else
-			SeparatorValue = ?(ModuleSaaS.SessionSeparatorUsage(),
-									ModuleSaaS.SessionSeparatorValue(),
+			SeparatorValue = ?(ModuleSaaSOperations.SessionSeparatorUsage(),
+									ModuleSaaSOperations.SessionSeparatorValue(),
 									"");
 		EndIf;
 	Else
@@ -650,9 +650,9 @@ Procedure ReferenceToNonexistingFilesInVolumeCheck(Validation, CheckParameters) 
 		Return;
 	EndIf;
 	
-	ModuleSaaS = Undefined;
+	ModuleSaaSOperations = Undefined;
 	If Common.SubsystemExists("StandardSubsystems.SaaSOperations") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	EndIf;
 	
 	MetadataObjectsKinds = New Array;
@@ -664,8 +664,8 @@ Procedure ReferenceToNonexistingFilesInVolumeCheck(Validation, CheckParameters) 
 	
 	For Each MetadataObjectKind In MetadataObjectsKinds Do
 		For Each MetadataObject In MetadataObjectKind Do
-			If ModuleSaaS <> Undefined 
-				And Not ModuleSaaS.IsSeparatedMetadataObject(MetadataObject.FullName()) Then
+			If ModuleSaaSOperations <> Undefined 
+				And Not ModuleSaaSOperations.IsSeparatedMetadataObject(MetadataObject.FullName()) Then
 				Continue;
 			EndIf;
 			If Not CheckAttachedFilesObject(MetadataObject) Then
@@ -1116,7 +1116,7 @@ Function RequestToVerifyTheExistenceOfFiles(Val TableFiles)
 	|	FALSE";
 	QueryParts.Add(RequestHeader);
 	
-	QueryTemplate1 = "
+	QueryTemplate = "
 	|SELECT
 	|	Files.Path AS Path
 	|FROM
@@ -1128,7 +1128,7 @@ Function RequestToVerifyTheExistenceOfFiles(Val TableFiles)
 	AttachedFilesTypes = Metadata.DefinedTypes.AttachedFile.Type.Types();
 	For Each Type In AttachedFilesTypes Do
 		MetadataAttachedFiles = Metadata.FindByType(Type);
-		QueryText = StrReplace(QueryTemplate1, "&AttachedFilesCatalog", MetadataAttachedFiles.FullName());
+		QueryText = StrReplace(QueryTemplate, "&AttachedFilesCatalog", MetadataAttachedFiles.FullName());
 		QueryParts.Add(QueryText);
 	EndDo;
 	

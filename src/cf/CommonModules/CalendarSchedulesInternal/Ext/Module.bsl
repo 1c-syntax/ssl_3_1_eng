@@ -89,19 +89,19 @@ Procedure DistributeBusinessCalendarsDataToDependentData(Val UpdateConditions,
 	EndIf;
 	
 	ModuleSuppliedData = Common.CommonModule("SuppliedData");
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	UpdateConditions.GroupBy("BusinessCalendarCode, Year");
 	
 	For Each DataArea In AreasForUpdate Do
 		Try
 			SetPrivilegedMode(True);
-			ModuleSaaS.SignInToDataArea(DataArea);
+			ModuleSaaSOperations.SignInToDataArea(DataArea);
 			SetPrivilegedMode(False);
 		Except
 			// 
 			// 
 			SetPrivilegedMode(True);
-			ModuleSaaS.SignOutOfDataArea();
+			ModuleSaaSOperations.SignOutOfDataArea();
 			SetPrivilegedMode(False);
 			Continue;
 		EndTry;
@@ -117,7 +117,7 @@ Procedure DistributeBusinessCalendarsDataToDependentData(Val UpdateConditions,
 									ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
 		SetPrivilegedMode(True);
-		ModuleSaaS.SignOutOfDataArea();
+		ModuleSaaSOperations.SignOutOfDataArea();
 		SetPrivilegedMode(False);
 	EndDo;
 	

@@ -39,7 +39,7 @@ Function LayoutDiagramOfDataFromTheValueTable(ValueTable) Export
 			EndIf;
 		EndIf;
 		
-		AdditionalParameters = New Structure("Order,IsFunction");
+		AdditionalParameters = New Structure("Order,IsFunction,Hidden,ExpressionToInsert");
 		FillPropertyValues(AdditionalParameters, TableRow);
 		
 		AdditionalParameters.Insert("Picture",  Base64String(TableRow.Picture.GetBinaryData()));
@@ -905,6 +905,8 @@ Function FieldTable() Export
 	Result.Columns.Add("Order", New TypeDescription("Number"));
 	Result.Columns.Add("Format", New TypeDescription("String"));
 	Result.Columns.Add("IsFunction", New TypeDescription("Boolean"));
+	Result.Columns.Add("Hidden", New TypeDescription("Boolean"));
+	Result.Columns.Add("ExpressionToInsert", New TypeDescription("String"));
 	
 	Return Result;
 	
@@ -922,6 +924,8 @@ Function FieldTree() Export
 	Result.Columns.Add("Table", New TypeDescription("Boolean"));
 	Result.Columns.Add("Format", New TypeDescription("String"));
 	Result.Columns.Add("IsFunction", New TypeDescription("Boolean"));
+	Result.Columns.Add("Hidden", New TypeDescription("Boolean"));
+	Result.Columns.Add("ExpressionToInsert", New TypeDescription("String"));
 	
 	Return Result;
 	
@@ -1049,6 +1053,8 @@ Procedure FillInTheListOfAvailableDetails(Val CurrentAttribute, SourcesOfAvailab
 			EndIf;
 			
 			Attribute.IsFunction = AdditionalParameters["IsFunction"];
+			Attribute.Hidden = AdditionalParameters["Hidden"];
+			Attribute.ExpressionToInsert = AdditionalParameters["ExpressionToInsert"];
 			
 			If Not ValueIsFilled(Attribute.Picture) Then
 				Attribute.Picture = ImageOfType(FieldDetails.Type);
@@ -1163,6 +1169,8 @@ EndProcedure
 //   * MatchesFilter - Boolean
 //   * TheSubordinateElementCorrespondsToTheSelection - Boolean
 //   * IsFolder - Boolean
+//   * Hidden - Boolean
+//   * ExpressionToInsert - String
 //
 Function NewCollectionOfAvailableProps() 
 	
@@ -2298,6 +2306,25 @@ Procedure SetConditionalAppearance(Form, NameOfTheFieldList)
 	
 	AppearanceItem.Appearance.SetParameterValue("Visible", False);
 	AppearanceItem.Appearance.SetParameterValue("Show", False);
+
+	//
+	
+	AppearanceItem = ConditionalAppearance.Items.Add();
+	
+	FormattedField = AppearanceItem.Fields.Items.Add();
+	FormattedField.Field = New DataCompositionField(NameOfTheFieldList + "Picture");
+	FormattedField = AppearanceItem.Fields.Items.Add();
+	FormattedField.Field = New DataCompositionField(NameOfTheFieldList + "Presentation");
+	FormattedField = AppearanceItem.Fields.Items.Add();
+	FormattedField.Field = New DataCompositionField(NameOfTheFieldList + "RepresentationOfTheDataPath");
+	
+	FilterElement = AppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	FilterElement.LeftValue = New DataCompositionField(NameOfTheFieldList + ".Hidden");
+	FilterElement.ComparisonType = DataCompositionComparisonType.Equal;
+	FilterElement.RightValue = True;
+	
+	AppearanceItem.Appearance.SetParameterValue("Visible", False);
+	AppearanceItem.Appearance.SetParameterValue("Show", False);
 	
 EndProcedure
 
@@ -2348,7 +2375,7 @@ Procedure AddAGroupOfItemsToADataset(ItemsCollection, DataSet, Parent = Undefine
 			Field.Field = Item.Id;
 			IsFolder = Item.Rows.Count() > 0 And Not ValueIsFilled(Item.ValueType);			
 			
-			AdditionalParameters = New Structure("Order,IsFolder,IsFunction");
+			AdditionalParameters = New Structure("Order,IsFolder,IsFunction,Hidden,ExpressionToInsert");
 			FillPropertyValues(AdditionalParameters, Item);
 			AdditionalParameters.IsFolder = IsFolder;
 			AdditionalParameters.Insert("Picture", Base64String(Item.Picture.GetBinaryData()));			
@@ -2380,7 +2407,7 @@ EndProcedure
 
 #Region ReadingTheFormula
 
-Function TheFormulaFromTheView(Form, FormulaPresentation) Export
+Function TheFormulaFromTheView(Form, FormulaPresentation, EscapeUnknownFunctions = True) Export
 	
 	FormulaElements = FormulaElements(FormulaPresentation);
 	Expression = FormulaPresentation;
@@ -2411,7 +2438,7 @@ Function TheFormulaFromTheView(Form, FormulaPresentation) Export
 		EndDo;
 	EndDo;
 	
-	ReplaceFormulaElements(Expression, FormulaElements, ReplacedItems);
+	ReplaceFormulaElements(Expression, FormulaElements, ReplacedItems, EscapeUnknownFunctions);
 	Return Expression;
 	
 EndFunction
@@ -2453,7 +2480,7 @@ Function FormulaPresentation(Form, Formula) Export
 		EndDo;
 	EndDo;
 	
-	ReplaceFormulaElements(Expression, FormulaElements, ReplacedItems);
+	ReplaceFormulaElements(Expression, FormulaElements, ReplacedItems, False);
 	Return Expression;
 	
 EndFunction
@@ -2578,14 +2605,14 @@ Function ExpressionToCheck(Form, FormulaPresentation, NameOfTheListOfOperands) E
 	
 EndFunction
 
-Procedure ReplaceFormulaElements(Expression, FormulaElements, Values)
+Procedure ReplaceFormulaElements(Expression, FormulaElements, Values, EscapeUnknownFunctions = True)
 	
 	For Each ItemDetails In FormulaElements.OperandsAndFunctions Do
 		Operand = FormulaElements.AllItems[ItemDetails.Key];
 		IsFunction = ItemDetails.Value;
 		Value = Values[ItemDetails.Key];
 		If Value = Undefined Then
-			If IsFunction
+			If IsFunction And EscapeUnknownFunctions
 				And Not StrEndsWith(Operand, SuffixDisabledFunctions()) Then
 				Value = Operand + SuffixDisabledFunctions();
 			Else
@@ -2725,6 +2752,8 @@ Function DetailsOfTheConnectedList()
 	Result.Insert("TheSubordinateElementCorrespondsToTheSelection", New TypeDescription("Boolean"));
 	Result.Insert("IsFolder", New TypeDescription("Boolean"));
 	Result.Insert("IsFunction", New TypeDescription("Boolean"));
+	Result.Insert("Hidden", New TypeDescription("Boolean"));
+	Result.Insert("ExpressionToInsert", New TypeDescription("String"));
 	
 	Return Result;
 	
@@ -2989,6 +3018,7 @@ Procedure AddAGroupOfComparisonOperationOperators(ListOfOperators)
 	Type = New TypeDescription("Boolean");
 	
 	AddAnOperatorToAGroup(Group, "In", NStr("en = 'IN';"), Type, True);
+	AddAnOperatorToAGroup(Group, "ValueIsFilled", NStr("en = 'Value is filled';"), Type, True);
 	
 EndProcedure
 
@@ -3004,6 +3034,68 @@ Procedure AddAGroupOfLogicalOperationsOperators(ListOfOperators)
 	AddAnOperatorToAGroup(Group, "NOT", NStr("en = 'NOT';"), Type);
 	AddAnOperatorToAGroup(Group, "And", NStr("en = 'AND';"), Type);
 	AddAnOperatorToAGroup(Group, "OR", NStr("en = 'OR';"), Type);
+	
+	Operator = Group.Rows.Add();
+	Operator.Id = "ELECTIONDATOGDAINACHOEND";
+	Operator.Presentation = StrTemplate(
+		NStr("en = '%1 %2 ... %3 ...';"),
+		NStr("en = 'CASE';"),
+		NStr("en = 'WHEN';"),
+		NStr("en = 'THEN';"));
+	Operator.Picture = PictureLib.IsEmpty;
+	Operator.ExpressionToInsert = StrTemplate(NStr(
+		"en = '%1
+		|	%2 <%6> %3 <%6>
+		|	%4 <%6>
+		|%5';"),
+		NStr("en = 'CASE';"),
+		NStr("en = 'WHEN';"),
+		NStr("en = 'THEN';"),
+		NStr("en = 'ELSE';"),
+		NStr("en = 'END';"),
+		NStr("en = 'Expression';"));
+	
+	Operator = Group.Rows.Add();
+	Operator.Id = "SELECTION";
+	Operator.Presentation = NStr("en = 'CASE';");
+	Operator.Picture = PictureLib.IsEmpty;
+	Operator.Hidden = True;
+	
+	Operator = Group.Rows.Add();
+	Operator.Id = "WHEN";
+	Operator.Presentation = NStr("en = 'WHEN';");
+	Operator.Picture = PictureLib.IsEmpty;
+	Operator.Hidden = True;
+
+	Operator = Group.Rows.Add();
+	Operator.Id = "THEN";
+	Operator.Presentation = NStr("en = 'THEN';");
+	Operator.Picture = PictureLib.IsEmpty;
+	Operator.Hidden = True;
+	
+	Operator = Group.Rows.Add();
+	Operator.Id = "ELSE";
+	Operator.Presentation = NStr("en = 'ELSE';");
+	Operator.Picture = PictureLib.IsEmpty;
+	Operator.Hidden = True;
+	
+	Operator = Group.Rows.Add();
+	Operator.Id = "END";
+	Operator.Presentation = NStr("en = 'END';");
+	Operator.Picture = PictureLib.IsEmpty;
+	Operator.Hidden = True;
+	
+	Operator = Group.Rows.Add();
+	Operator.Id = "TRUE";
+	Operator.Presentation = NStr("en = 'TRUE';");
+	Operator.Picture = PictureLib.IsEmpty;
+	Operator.Hidden = True;
+
+	Operator = Group.Rows.Add();
+	Operator.Id = "FALSE";
+	Operator.Presentation = NStr("en = 'FALSE';");
+	Operator.Picture = PictureLib.IsEmpty;
+	Operator.Hidden = True;		
 	
 EndProcedure
 
@@ -3034,6 +3126,7 @@ Procedure AddGroupOfOperatorsOtherDCSFunctions(ListOfOperators)
 	Group.Picture = PictureLib.TypeFunction;
 	
 	AddAnOperatorToAGroup(Group, "STRING", NStr("en = 'STRING';"), New TypeDescription("String"), True);
+	AddAnOperatorToAGroup(Group, "VALUE", NStr("en = 'VALUE';"), New TypeDescription, True);
 	
 EndProcedure
 

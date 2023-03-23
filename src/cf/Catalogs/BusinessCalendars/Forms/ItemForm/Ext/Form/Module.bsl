@@ -65,7 +65,7 @@ EndProcedure
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
 	If HasBasicCalendar And Not ValueIsFilled(Object.BasicCalendar) Then
-		MessageText = NStr("en = 'The federal calendar is blank.';");
+		MessageText = NStr("en = 'The official calendar is blank.';");
 		Common.MessageToUser(MessageText, , , "Object.BasicCalendar", Cancel);
 	EndIf;
 	

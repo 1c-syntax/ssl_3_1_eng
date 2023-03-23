@@ -23,49 +23,7 @@ Procedure UpdateRegisterData(HasChanges = Undefined) Export
 	StandardSubsystemsServer.CheckApplicationVersionDynamicUpdate();
 	SetPrivilegedMode(True);
 	
-	AccessRightsDependencies = CreateRecordSet();
-	
-	Table = New ValueTable;
-	Table.Columns.Add("SubordinateTable", New TypeDescription("String"));
-	Table.Columns.Add("LeadingTable",     New TypeDescription("String"));
-	
-	SSLSubsystemsIntegration.OnFillAccessRightsDependencies(Table);
-	AccessManagementOverridable.OnFillAccessRightsDependencies(Table);
-	
-	AccessRightsDependencies = CreateRecordSet().Unload();
-	For Each String In Table Do
-		NewRow = AccessRightsDependencies.Add();
-		
-		MetadataObject = Common.MetadataObjectByFullName(String.SubordinateTable);
-		If MetadataObject = Undefined Then
-			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Error in procedure ""%1""
-				           |of common module ""%2"".
-				           |
-				           |Cannot find subordinate table ""%3"".';"),
-				"OnFillAccessRightsDependencies",
-				"AccessManagementOverridable",
-				String.SubordinateTable);
-			Raise ErrorText;
-		EndIf;
-		NewRow.SubordinateTable = Common.MetadataObjectID(
-			String.SubordinateTable);
-		
-		MetadataObject = Common.MetadataObjectByFullName(String.LeadingTable);
-		If MetadataObject = Undefined Then
-			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Error in procedure ""%1""
-				           |of common module ""%2"".
-				           |
-				           |Cannot find master table ""%3"".';"),
-				"OnFillAccessRightsDependencies",
-				"AccessManagementOverridable",
-				String.LeadingTable);
-			Raise ErrorText;
-		EndIf;
-		NewRow.LeadingTableType = Common.ObjectManagerByFullName(
-			String.LeadingTable).EmptyRef();
-	EndDo;
+	AccessRightsDependencies = AccessRightsDependencies();
 	
 	TemporaryTablesQueriesText =
 	"SELECT
@@ -115,6 +73,65 @@ Procedure UpdateRegisterData(HasChanges = Undefined) Export
 	EndTry;
 	
 EndProcedure
+
+#EndRegion
+
+#Region Private
+
+// Returns:
+//  ValueTable:
+//   * SubordinateTable - CatalogRef.MetadataObjectIDs
+//   * LeadingTableType  - AnyRef
+//
+Function AccessRightsDependencies() Export
+	
+	AccessRightsDependencies = CreateRecordSet();
+	
+	Table = New ValueTable;
+	Table.Columns.Add("SubordinateTable", New TypeDescription("String"));
+	Table.Columns.Add("LeadingTable",     New TypeDescription("String"));
+	
+	SSLSubsystemsIntegration.OnFillAccessRightsDependencies(Table);
+	AccessManagementOverridable.OnFillAccessRightsDependencies(Table);
+	
+	AccessRightsDependencies = CreateRecordSet().Unload();
+	For Each String In Table Do
+		NewRow = AccessRightsDependencies.Add();
+		
+		MetadataObject = Common.MetadataObjectByFullName(String.SubordinateTable);
+		If MetadataObject = Undefined Then
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Error in the ""%1"" procedure
+				           |of the ""%2"" common module.
+				           |
+				           |Cannot find the ""%3"" subordinate table.';"),
+				"OnFillAccessRightsDependencies",
+				"AccessManagementOverridable",
+				String.SubordinateTable);
+			Raise ErrorText;
+		EndIf;
+		NewRow.SubordinateTable = Common.MetadataObjectID(
+			String.SubordinateTable);
+		
+		MetadataObject = Common.MetadataObjectByFullName(String.LeadingTable);
+		If MetadataObject = Undefined Then
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Error in the ""%1"" procedure
+				           |of the ""%2"" common module.
+				           |
+				           |Cannot find the ""%3"" master table.';"),
+				"OnFillAccessRightsDependencies",
+				"AccessManagementOverridable",
+				String.LeadingTable);
+			Raise ErrorText;
+		EndIf;
+		NewRow.LeadingTableType = Common.ObjectManagerByFullName(
+			String.LeadingTable).EmptyRef();
+	EndDo;
+	
+	Return AccessRightsDependencies;
+	
+EndFunction
 
 #EndRegion
 

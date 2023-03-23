@@ -251,7 +251,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Tabular section 1</v8:content>
+							<v8:content>Table 1</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="TabularSection1GroupExtendedTooltip" id="67"/>
@@ -266,7 +266,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Tabular section 1</v8:content>
+									<v8:content>Table 1</v8:content>
 								</v8:item>
 							</Title>
 							<RowFilter xsi:nil="true"/>
@@ -342,7 +342,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Tabular section 2</v8:content>
+							<v8:content>Table 2</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="TabularSection2GroupExtendedTooltip" id="100"/>
@@ -357,7 +357,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Tabular section 2</v8:content>
+									<v8:content>Table 2</v8:content>
 								</v8:item>
 							</Title>
 							<RowFilter xsi:nil="true"/>
@@ -433,7 +433,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Tabular section 3</v8:content>
+							<v8:content>Table 3</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="TabularSection3GroupExtendedTooltip" id="133"/>
@@ -448,7 +448,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Tabular section 3</v8:content>
+									<v8:content>Table 3</v8:content>
 								</v8:item>
 							</Title>
 							<RowFilter xsi:nil="true"/>
@@ -524,7 +524,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Tabular section 4</v8:content>
+							<v8:content>Table 4</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="TabularSection4GroupExtendedTooltip" id="166"/>
@@ -539,7 +539,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Tabular section 4</v8:content>
+									<v8:content>Table 4</v8:content>
 								</v8:item>
 							</Title>
 							<RowFilter xsi:nil="true"/>

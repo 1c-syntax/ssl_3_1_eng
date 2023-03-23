@@ -1356,9 +1356,9 @@ Procedure MinimizeInterfaceAtServer()
 	PanelsSettingAddress = PutToTempStorage(InterfaceCurrentSettings, UUID);
 	
 	CompositionSettings1 = New ClientApplicationInterfaceContentSettings;
-	InterfaceSettings3 = New ClientApplicationInterfaceSettings;
-	InterfaceSettings3.SetContent(CompositionSettings1);
-	SystemSettingsStorage.Save("Common/ClientApplicationInterfaceSettings", , InterfaceSettings3);
+	InterfaceSettings = New ClientApplicationInterfaceSettings;
+	InterfaceSettings.SetContent(CompositionSettings1);
+	SystemSettingsStorage.Save("Common/ClientApplicationInterfaceSettings", , InterfaceSettings);
 	
 EndProcedure
 
@@ -1373,8 +1373,8 @@ EndProcedure
 Procedure ReturnInterfaceAtServer()
 	
 	If IsTempStorageURL(PanelsSettingAddress) Then
-		InterfaceSettings3 = GetFromTempStorage(PanelsSettingAddress);
-		SystemSettingsStorage.Save("Common/ClientApplicationInterfaceSettings", , InterfaceSettings3);
+		InterfaceSettings = GetFromTempStorage(PanelsSettingAddress);
+		SystemSettingsStorage.Save("Common/ClientApplicationInterfaceSettings", , InterfaceSettings);
 	EndIf;
 	
 EndProcedure
@@ -1729,53 +1729,31 @@ EndFunction
 &AtServer
 Procedure SetExamplesValues(FieldsCollection = Undefined, PrintData = Undefined)
 	
+	If Not Common.SubsystemExists("StandardSubsystems.Print") Then
+		Return;
+	EndIf;
+	
+	ModulePrintManager = Common.CommonModule("PrintManagement");
+
 	If FieldsCollection = Undefined Then
 		FieldsCollection = ThisObject[NameOfTheFieldList()];
 	EndIf;
 	
 	If PrintData = Undefined Then
+		If Not ValueIsFilled(Pattern) Then
+			Return;
+		EndIf;
 		Objects = CommonClientServer.ValueInArray(Pattern);
 		DisplayedFields = FillListDisplayedFields(FieldsCollection);
-		PrintData = PrintManagement.PrintData(Objects, DisplayedFields, CurrentLanguage);
-		GetUserMessages(True);
+		If Common.SubsystemExists("StandardSubsystems.Print") Then
+			PrintData = ModulePrintManager.PrintData(Objects, DisplayedFields, CurrentLanguage);
+			GetUserMessages(True);
+		Else
+			Return;
+		EndIf;
 	EndIf;
 	
-	ExampleValues = PrintData[Pattern];
-	FieldFormatSettings = PrintData["FieldFormatSettings"];
-	
-	For Each Item In FieldsCollection.GetItems() Do
-		If Not ValueIsFilled(Item.DataPath) Then
-			Continue;
-		EndIf;
-
-		If Not Item.Folder And Not Item.Table Then
-			Item.DefaultFormat = FieldFormatSettings[Item.DataPath];
-			
-			FieldDataPath = Item.DataPath;
-			PathToDataOfTablePart = "";
-			
-			ThisTableSectionField = PrintManagement.ThisTableSectionField(Item.DataPath, PrintData);
-			If ThisTableSectionField Then
-				PathToDataOfTablePart = PrintManagement.PathToDataOfTablePart(FieldDataPath, PrintData);
-				FieldDataPath = PrintManagement.PathToFieldDataInTablePart(FieldDataPath, PrintData);
-			EndIf;
-
-			If ThisTableSectionField Then
-				If ExampleValues[PathToDataOfTablePart] <> Undefined And ExampleValues[PathToDataOfTablePart].Count() > 0 Then
-					Item.Value = ExampleValues[PathToDataOfTablePart][1][FieldDataPath];
-				EndIf;
-			Else
-				Item.Value = ExampleValues[FieldDataPath]
-			EndIf;
-			Item.Pattern = Item.Value;
-		EndIf;
-		
-		If ValueIsFilled(Item.Format) Then
-			Item.Pattern = Format(Item.Pattern, Item.Format);
-		EndIf;
-	
-		SetExamplesValues(Item, PrintData);
-	EndDo;
+	ModulePrintManager.SetExamplesValues(FieldsCollection, PrintData, Pattern);
 	
 EndProcedure
 

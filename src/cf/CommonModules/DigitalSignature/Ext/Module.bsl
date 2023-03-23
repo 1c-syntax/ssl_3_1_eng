@@ -909,7 +909,14 @@ Procedure AddStampsToSpreadsheetDocument(Document, StampsDetails, CellSize = Und
 	EndIf;
 	
 	If TypeOf(StampsDetails) = Type("Array") Then
-		StampIndex = 1;
+		
+		StampIndex = 1; 
+		
+		WidthOfStampColumns = 3 + CellSize.LeftColumn + CellSize.RightColumn;
+		
+		NumberOfStampsByWidth = Undefined;
+		StampNumberInLine = 0; WidthOfStampRow = 0; TableWidth = 0;
+		
 		For Each Stamp In StampsDetails Do
 			AreaName = "DSStamp" + String(StampIndex);
 			AreaFound = Document.Areas.Find(AreaName) <> Undefined;
@@ -919,26 +926,67 @@ Procedure AddStampsToSpreadsheetDocument(Document, StampsDetails, CellSize = Und
 				Document.Areas.StampLeftColumn.ColumnWidth  = CellSize.LeftColumn;
 				Document.Areas.StampRightColumn.ColumnWidth = CellSize.RightColumn;
 			Else
-				Document.Put(Stamp.GetArea("Indent"));
+				StampNumberInLine = StampNumberInLine + 1;
 				
 				StampWidth = Stamp.Areas.Stamp.Right;
 				StampTop = Stamp.Areas.Stamp.Top;
 				BottomStamp = Stamp.Areas.Stamp.Bottom;
 				StampHeight = BottomStamp - StampTop;
-				HeightStart = Document.TableHeight;
-				HeightEnd = Document.TableHeight + StampHeight;
 				
-				Document.Area(HeightStart, 1, HeightEnd, StampWidth).UndoMerge();
+				If StampNumberInLine = 1 Or StampNumberInLine > NumberOfStampsByWidth Then
+					
+					If NumberOfStampsByWidth = Undefined Then
+						For TableWidth = 1 To Document.TableWidth Do
+							Area = Document.Area(, TableWidth, ,TableWidth);
+							WidthOfStampRow = WidthOfStampRow + Area.ColumnWidth;
+							If Area.PageBottom Then
+								Break;
+							EndIf;
+						EndDo;
+						NumberOfStampsByWidth = Max(1, Int(WidthOfStampRow/WidthOfStampColumns));
+					EndIf;
+						
+					WidthStart = 1; StampNumberInLine = 1;
+					
+					AreasToCheckForHeight = New Array;
+					AreasToCheckForHeight.Add(Stamp.GetArea("Indent"));
+					AreasToCheckForHeight.Add(Stamp.GetArea("RowsAreaStamp"));
+					If Not Common.SpreadsheetDocumentFitsPage(Document, AreasToCheckForHeight, True) Then
+						Document.PutHorizontalPageBreak();
+					EndIf;
+					
+					Document.Put(Stamp.GetArea("Indent"));
+					
+					HeightStart = Document.TableHeight;
+					HeightEnd = Document.TableHeight + StampHeight;
+					
+					Document.Area(HeightStart, WidthStart, HeightEnd, TableWidth).UndoMerge();
+					// 
+					Document.Area(HeightStart, , HeightEnd).CreateFormatOfRows();
+					
+					WidthBalance = WidthOfStampRow;
+					
+				EndIf;
+				
+				WidthEnd = WidthStart - 1 + StampWidth;
+				
 				// Insert the area from the stamp layout in the gap.
 				SourceArea = Stamp.Area(StampTop, 1, BottomStamp, StampWidth);
-				ReceivingArea = Document.Area(HeightStart, 1, HeightEnd, StampWidth);
+				ReceivingArea = Document.Area(HeightStart, WidthStart, HeightEnd, WidthEnd);
 				Document.InsertArea(SourceArea, ReceivingArea, , True);
-				// 
-				Document.Area(HeightStart, , HeightEnd).CreateFormatOfRows();
 				
 				Document.Areas.StampLeftColumn.ColumnWidth  = CellSize.LeftColumn;
 				Document.Areas.StampRightColumn.ColumnWidth = CellSize.RightColumn;
 				Document.Areas.StampIndent.ColumnWidth       = 3;
+					
+				WidthStart = WidthEnd + 1;
+				
+				If WidthBalance > WidthOfStampColumns Then
+					WidthBalance = WidthBalance - WidthOfStampColumns;
+					Document.Area(HeightStart, WidthStart, HeightEnd, TableWidth).ColumnWidth = 0;
+					Document.Area(HeightStart, TableWidth, HeightEnd, TableWidth).ColumnWidth = WidthBalance;
+				EndIf;
+			
 			EndIf;
 			
 			StampIndex = StampIndex + 1;
@@ -1289,6 +1337,85 @@ Function CryptoManager(Operation, ShowError = True, ErrorDescription = "", Appli
 	EndIf;
 	
 	Return Result;
+	
+EndFunction
+
+// 
+// 
+// Parameters:
+//  CheckParameters - 
+//   
+//                          See DigitalSignatureInternalClientServer.CurrentProgramAlgorithms
+//                          
+//                          
+//                               
+//                          
+//  Returns:
+//    Structure:
+//     * CheckCompleted - Boolean -
+//                 
+//     * Error - String - error text.
+//     * Programs - Array of Structure:
+//        ** ApplicationName  - String  -
+//        ** ApplicationType  - Number  -
+//        ** Name           - String  -
+//             
+//        ** Version        - String -
+//        ** ILicenseInfo      - Boolean -
+//       - 
+//     * PossibleConflict - Boolean -
+//             
+//
+Function CheckCryptographyAppsInstallation(CheckParameters = Undefined) Export
+	
+	Context = New Structure;
+	Context.Insert("AppsToCheck", Undefined);
+	Context.Insert("ExtendedDescription", False);
+	Context.Insert("SignAlgorithms", New Array);
+	Context.Insert("DataType", Undefined);
+	Context.Insert("IsServer", True);
+	
+	If TypeOf(CheckParameters) = Type("Structure") Then
+		FillPropertyValues(Context, CheckParameters);
+	EndIf;
+	
+	If Context.AppsToCheck <> Undefined Then
+		If Context.AppsToCheck = True Then
+			Context.AppsToCheck = Undefined;
+			Context.SignAlgorithms = DigitalSignatureInternalClientServer.CurrentProgramAlgorithms();
+			Context.DataType = "Certificate";
+		ElsIf TypeOf(Context.AppsToCheck) = Type("BinaryData")
+			Or TypeOf(Context.AppsToCheck) = Type("String") Then
+			BinaryData = DigitalSignatureInternalClientServer.BinaryDataFromTheData(
+				Context.AppsToCheck, "DigitalSignature.CheckCryptographyAppsInstallation");
+			Context.AppsToCheck = Undefined;
+			Context.DataType = DigitalSignatureInternalClientServer.DefineDataType(BinaryData);
+			If Context.DataType = "Certificate" Then
+				SignAlgorithm = DigitalSignatureInternalClientServer.CertificateSignAlgorithm(BinaryData);
+			ElsIf Context.DataType = "Signature" Then
+				SignAlgorithm = DigitalSignatureInternalClientServer.GeneratedSignAlgorithm(BinaryData);
+			Else
+				Raise StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Данные для поиска программы криптографии не являются сертификатом или подписью.';"), );
+			EndIf;
+			Context.SignAlgorithms.Add(SignAlgorithm);
+		EndIf;
+	EndIf;
+	
+	Result = DigitalSignatureInternalCached.InstalledCryptoProviders();
+	
+	CheckResult = New Structure("Error, CheckCompleted");
+	CheckResult.Insert("Programs", New Array);
+	CheckResult.Insert("PossibleConflict", False);
+	FillPropertyValues(CheckResult, Result);
+	If Not CheckResult.CheckCompleted Then
+		Return CheckResult;
+	EndIf;
+	
+	DigitalSignatureInternalClientServer.ProcessResultOfProgramVerification(Result.Cryptoproviders,
+		CheckResult.Programs, CheckResult.PossibleConflict, Context);
+		
+	Return CheckResult;
 	
 EndFunction
 

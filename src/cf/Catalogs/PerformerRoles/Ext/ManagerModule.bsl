@@ -58,22 +58,21 @@ Procedure ChoiceDataGetProcessing(ChoiceData, Parameters, StandardProcessing)
 		AuthorizationObject = Catalogs.Users.EmptyRef();
 	EndIf;
 	
-	SearchTextForAdditionalLanguages = "";
+	TextFragmentsSearchForAdditionalLanguages = New Array;
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-	
+		
 		If ModuleNativeLanguagesSupportServer.FirstAdditionalLanguageUsed() Then
-			SearchTextForAdditionalLanguages  = "PerformerRoles.DescriptionLanguage1 LIKE &SearchString ESCAPE ""~""";
+			TextFragmentsSearchForAdditionalLanguages.Add(
+				"PerformerRoles.DescriptionLanguage1 LIKE &SearchString ESCAPE ""~""");
 		EndIf;
 		
 		If ModuleNativeLanguagesSupportServer.SecondAdditionalLanguageUsed() Then
-			If Not IsBlankString(SearchTextForAdditionalLanguages) Then
-				SearchTextForAdditionalLanguages = SearchTextForAdditionalLanguages + " " + "OR" + " ";
-			EndIf;
-			SearchTextForAdditionalLanguages  = SearchTextForAdditionalLanguages 
-				+ " OR PerformerRoles.DescriptionLanguage2 LIKE &SearchString ESCAPE ""~""";
+			TextFragmentsSearchForAdditionalLanguages.Add(
+				"PerformerRoles.DescriptionLanguage2 LIKE &SearchString ESCAPE ""~""");
 		EndIf;
+		
 	EndIf;
 	
 	QueryText = "SELECT ALLOWED TOP 20
@@ -89,11 +88,12 @@ Procedure ChoiceDataGetProcessing(ChoiceData, Parameters, StandardProcessing)
 		|			OR PerformerRoles.Code LIKE &SearchString ESCAPE ""~"")
 		|	AND NOT PerformerRoles.Ref IS NULL";
 	
-	If IsBlankString(SearchTextForAdditionalLanguages) Then
-		SearchTextForAdditionalLanguages = "FALSE";
+	If TextFragmentsSearchForAdditionalLanguages.Count() > 0 Then
+		QueryText = StrReplace(QueryText, "&SearchForAdditionalLanguages", StrConcat(TextFragmentsSearchForAdditionalLanguages, " OR "));
+	Else
+		QueryText = StrReplace(QueryText, "&SearchForAdditionalLanguages", "FALSE");
 	EndIf;
-	QueryText = StrReplace(QueryText, "&SearchForAdditionalLanguages", SearchTextForAdditionalLanguages);
-		
+	
 	Query = New Query(QueryText);
 	Query.SetParameter("Type",          AuthorizationObject);
 	Query.SetParameter("SearchString", "%" + Common.GenerateSearchQueryString(Parameters.SearchString) + "%");
@@ -199,7 +199,7 @@ EndProcedure
 //  Object                  - CatalogObject.PerformerRoles - the object to be filled in.
 //  Data                  - ValueTableRow - object filling data.
 //  AdditionalParameters - Structure:
-//   * PredefinedData - ValueTable - data filled in the OnInitialItemsFilling procedure.
+//   * PredefinedData - ValueTable - Data filled in the OnInitialItemsFilling procedure.
 //
 Procedure OnInitialItemFilling(Object, Data, AdditionalParameters) Export
 	

@@ -639,7 +639,7 @@ to display in value edit forms. </v8:content>
 												<Presentation>
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>Additional information</v8:content>
+														<v8:content>Additional information record</v8:content>
 													</v8:item>
 												</Presentation>
 												<Value xsi:type="xs:decimal">1</Value>
@@ -1731,7 +1731,7 @@ Unless specified, the name is generated automatically. </v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Is additional information record</v8:content>
+					<v8:content>This is an additional information record</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2295,7 +2295,7 @@ WHERE
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Command Next</v8:content>
+					<v8:content>Next command</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>NextCommand</Action>
@@ -2311,7 +2311,7 @@ WHERE
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Command Back</v8:content>
+					<v8:content>Back command</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>BackCommand</Action>

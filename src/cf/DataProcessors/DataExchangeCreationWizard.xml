@@ -2023,7 +2023,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>It is distributed infobase setup</v8:content>
+							<v8:content>This is distributed infobase setup</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -2057,7 +2057,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>It is standard data exchange setup</v8:content>
+							<v8:content>This is standard data exchange setup</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>

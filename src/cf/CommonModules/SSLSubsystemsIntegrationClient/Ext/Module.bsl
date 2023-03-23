@@ -18,9 +18,9 @@
 // Defines events, to which this library is subscribed.
 //
 // Parameters:
-//  Subscriptions - See CTLSubsystemsIntegration.BTSEvents.
+//  Subscriptions - See CTLSubsystemsIntegration.EventsCTL.
 //
-Procedure OnDefineSubscriptionsToCTLEvents(Subscriptions) Export
+Procedure OnDefineEventsSubscriptionsCTL(Subscriptions) Export
 	
 	
 EndProcedure
@@ -37,7 +37,7 @@ EndProcedure
 //  Subscriptions - Structure - structure property keys are names of events, to which
 //           this library is subscribed.
 //
-Procedure OnDefineOSLEventsSubscriptions(Subscriptions) Export
+Procedure OnDefineEventsSubscriptionsOSL(Subscriptions) Export
 
 EndProcedure
 
@@ -251,7 +251,7 @@ Procedure AfterStart() Export
 	UsersInternalClient.AfterStart();
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
-		ModuleExternalResourcePermissionsClient = CommonClient.CommonModule("ExternalResourcePermissionSetupClient");
+		ModuleExternalResourcePermissionsClient = CommonClient.CommonModule("ExternalResourcesPermissionsSetupClient");
 		ModuleExternalResourcePermissionsClient.AfterStart();
 	EndIf;
 	

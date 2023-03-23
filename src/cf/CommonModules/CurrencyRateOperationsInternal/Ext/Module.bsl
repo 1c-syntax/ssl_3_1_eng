@@ -502,7 +502,7 @@ Procedure DistributeRatesByDataAreas(Val RatesDate, Val RateTable, Val AreasForU
 	EndIf;
 	
 	ModuleSuppliedData = Common.CommonModule("SuppliedData");
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
 	AreaCurrencies = New Map();
 	
@@ -516,9 +516,9 @@ Procedure DistributeRatesByDataAreas(Val RatesDate, Val RateTable, Val AreasForU
 	For Each DataArea In AreasForUpdate Do
 		
 		Try
-			ModuleSaaS.SignInToDataArea(DataArea);
+			ModuleSaaSOperations.SignInToDataArea(DataArea);
 		Except
-			ModuleSaaS.SignOutOfDataArea();
+			ModuleSaaSOperations.SignOutOfDataArea();
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Couldn''t set session separation for %1. Reason:
 				|%2';", Common.DefaultLanguageCode()),
 				Format(DataArea, "NZ=0; NG=0"),
@@ -539,7 +539,7 @@ Procedure DistributeRatesByDataAreas(Val RatesDate, Val RateTable, Val AreasForU
 		Try
 			// 
 			ProcessTransactionedAreaRates(CommonQuery, AreaCurrencies, RateTable);
-			ModuleSaaS.SignOutOfDataArea();
+			ModuleSaaSOperations.SignOutOfDataArea();
 			ModuleSuppliedData.AreaProcessed(FileID, HandlerCode, DataArea);
 
 			CommitTransaction();
@@ -549,7 +549,7 @@ Procedure DistributeRatesByDataAreas(Val RatesDate, Val RateTable, Val AreasForU
 			RollbackTransaction();
 			
 			AreaCurrencies = Common.ValueFromXMLString(AreaCurrenciesString);
-			ModuleSaaS.SignOutOfDataArea();
+			ModuleSaaSOperations.SignOutOfDataArea();
 			
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot update the exchange rates in data area ""%1"". Reason:
 				|%2';", Common.DefaultLanguageCode()),

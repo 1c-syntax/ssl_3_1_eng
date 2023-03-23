@@ -119,7 +119,7 @@ During this operation:
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Long-running operation page</v8:content>
+							<v8:content>Page Long-running operation</v8:content>
 						</v8:item>
 					</Title>
 					<Group>AlwaysHorizontal</Group>
@@ -129,7 +129,7 @@ During this operation:
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Long-running operation picture</v8:content>
+									<v8:content>Picture Long-running operation</v8:content>
 								</v8:item>
 							</Title>
 							<Picture>

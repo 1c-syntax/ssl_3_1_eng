@@ -147,10 +147,10 @@ Procedure ReadEventLogEvents(ReportParameters, StorageAddress) Export
 	   And Common.SeparatedDataUsageAvailable()
 	   And Common.SubsystemExists("CloudTechnology.Core") Then
 		
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		UserAliases    = New Map();
 	Else
-		ModuleSaaS = Undefined;
+		ModuleSaaSOperations = Undefined;
 		UserAliases    = Undefined;
 	EndIf;
 	
@@ -271,9 +271,9 @@ Procedure ReadEventLogEvents(ReportParameters, StorageAddress) Export
 			LogEvent.UserName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 <Deleted>';"), LogEvent.UserName);
 		EndIf;
 		
-		If ModuleSaaS <> Undefined Then
+		If ModuleSaaSOperations <> Undefined Then
 			If UserAliases.Get(LogEvent.User) = Undefined Then
-				UserAlias = ModuleSaaS.AliasOfUserOfInformationBase(LogEvent.User);
+				UserAlias = ModuleSaaSOperations.AliasOfUserOfInformationBase(LogEvent.User);
 				UserAliases.Insert(LogEvent.User, UserAlias);
 			Else
 				UserAlias = UserAliases.Get(LogEvent.User);

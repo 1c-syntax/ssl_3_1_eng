@@ -13,7 +13,7 @@
 			<Location>Constant.UseSecurityProfiles</Location>
 			<PrivilegedGetMode>true</PrivilegedGetMode>
 			<Content>
-				<xr:Object>DataProcessor.ExternalResourcePermissionSetup</xr:Object>
+				<xr:Object>DataProcessor.ExternalResourcesPermissionsSetup</xr:Object>
 				<xr:Object>Enum.SecurityProfileAdministrativeOperations</xr:Object>
 				<xr:Object>Enum.RequestsToUseExternalResourcesStates</xr:Object>
 				<xr:Object>InformationRegister.PermissionsToUseExternalResources</xr:Object>

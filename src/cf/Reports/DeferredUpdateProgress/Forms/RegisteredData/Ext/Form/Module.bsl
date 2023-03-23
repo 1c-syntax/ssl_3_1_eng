@@ -82,7 +82,7 @@ Procedure SetListRequest()
 	
 	AddedItems.Clear();
 	
-	QueryTemplate1 =
+	QueryTemplate =
 		"SELECT
 		|	*
 		|FROM
@@ -91,7 +91,7 @@ Procedure SetListRequest()
 		|	ChangesTable1.Node = &Node";
 	ChangeTableName = TableName + ".Changes";
 	
-	QueryText = StrReplace(QueryTemplate1, "&TableName", ChangeTableName);
+	QueryText = StrReplace(QueryTemplate, "&TableName", ChangeTableName);
 	Node = ExchangePlans.InfobaseUpdate.NodeInQueue(Queue);
 	
 	Properties = Common.DynamicListPropertiesStructure();

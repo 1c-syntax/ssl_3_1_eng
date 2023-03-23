@@ -165,23 +165,50 @@ Procedure SetApplicationNameForTemplateOpening()
 		TemplateOpeningApplicationAddress = "";
 	EndIf;
 	
-	ActionDetails = ?(Parameters.OpenOnly, NStr("en = 'view';"), NStr("en = 'edit';"));
+	GoToProgramPage = NStr("en = 'Open the %1 installation page';");
+	GoToProgramPage = StringFunctionsClientServer.SubstituteParametersToString(GoToProgramPage, ApplicationNameForTemplateOpening);
+	Items.LinkToApplicationPageBeforeDownloadWebClient.Title = GoToProgramPage;
+	Items.LinkToApplicationPageBeforeDownloadNotWebClient.Title = GoToProgramPage;
+	Items.LinkToApplyChangesApplicationPageWebClient.Title = GoToProgramPage;
+	Items.LinkToApplyChangesApplicationPageNotWebClient.Title = GoToProgramPage;
 	
-	ItemsToFill = New Array; // Array of FormDecoration
-	ItemsToFill.Add(Items.LinkToApplicationPageBeforeDownloadWebClient);
-	ItemsToFill.Add(Items.LinkToApplicationPageBeforeDownloadNotWebClient);
-	ItemsToFill.Add(Items.LinkToApplyChangesApplicationPageWebClient);
-	ItemsToFill.Add(Items.LinkToApplyChangesApplicationPageNotWebClient);
-	ItemsToFill.Add(Items.BeforeDownloadTemplateApplicationWebClientLabel);
-	ItemsToFill.Add(Items.BeforeDownloadTemplateApplicationNotWebClientLabel);
-	ItemsToFill.Add(Items.ApplyChangesLabelWebClient);
-	ItemsToFill.Add(Items.ApplyChangesLabelNotWebClient);
+	Items.BeforeDownloadTemplateInstructionWebClientLabel.Title = 
+		NStr("en = 'Click Continue to import.';");
+	Items.BeforeDownloadTemplateInstructionNotWebClientLabel.Title = 
+		NStr("en = 'Click Continue to open the template in another application. Modify the template, close it, and follow further instructions.';");
 	
-	For Each Item In ItemsToFill Do
-		Item.Title = StringFunctionsClientServer.SubstituteParametersToString(Item.Title, TemplatePresentation,
-			ApplicationNameForTemplateOpening, ActionDetails);
-	EndDo;
+	If Parameters.OpenOnly Then
+		Items.BeforeDownloadTemplateApplicationWebClientLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'The ""%1"" template file is prepared to be imported to the computer and opened using another application.
+				 |
+				 |If the editor is not installed yet, we recommend that you install %2.';"), TemplatePresentation,
+				ApplicationNameForTemplateOpening);
+	Else
+		Items.BeforeDownloadTemplateApplicationWebClientLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'The ""%1"" template file is prepared to be imported to the computer and edited using another application.
+				 |
+				 |If the editor is not installed yet, we recommend that you install %2.';"), TemplatePresentation,
+				ApplicationNameForTemplateOpening);
+	EndIf;
 	
+	Items.BeforeDownloadTemplateApplicationNotWebClientLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'The ""%1"" template file is prepared to be edited using another application. If the editor is not installed yet, we recommend that you install %2.';"), 
+		TemplatePresentation, ApplicationNameForTemplateOpening);
+	
+	Items.ApplyChangesLabelWebClient.Title = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Please wait until the template file is imported, then open and edit it.
+			 |
+			 |Once you complete editing, confirm the changes and close the template file. Then click ""Apply changes"" and select this file in the next dialog box.
+			 |
+			 |If the editor is not installed yet, we recommend that you install %1.';"), ApplicationNameForTemplateOpening);
+	
+	Items.ApplyChangesLabelNotWebClient.Title = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Please wait until the template is opened in the editor.
+	    	 |
+			 |Once you complete editing, confirm the changes and close the template. Then click ""Apply changes"".
+			 |
+			 |If the editor is not installed yet, we recommend that you install %1.';"), ApplicationNameForTemplateOpening);
+		
 	LinkToAplicationPageVisibility = (Common.IsWebClient() Or FileType <> "mxl") And FileType <> "docx";
 	Items.LinkToApplicationPageBeforeDownloadWebClient.Visible = LinkToAplicationPageVisibility;
 	Items.LinkToApplicationPageBeforeDownloadNotWebClient.Visible = LinkToAplicationPageVisibility;

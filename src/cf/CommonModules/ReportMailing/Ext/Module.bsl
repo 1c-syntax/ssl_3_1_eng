@@ -344,6 +344,10 @@ Function ExecuteBulkEmail(Var_Reports, DeliveryParameters, MailingDescription = 
 		EndIf;
 	EndIf;
 	
+	LogRecord(LogParameters,
+		EventLogLevel.Note,
+		NStr("en = 'Start report distribution to recipients.';"));
+	
 	// Send personal reports (personalized).
 	For Each RecipientRow In ReportsTree.Rows Do
 		If RecipientRow = DeliveryParameters.GeneralReportsRow Then
@@ -1896,7 +1900,7 @@ EndFunction
 //
 // Returns: 
 //   Structure - 
-//       * TabDoc - SpreadsheetDocument - spreadsheet document.
+//       * TabDoc - SpreadsheetDocument - Spreadsheet document.
 //       * IsEmpty - Boolean - True if the report did not contain any parameters values.
 //
 Function GenerateReport(LogParameters, ReportParameters, Recipient = Undefined)
@@ -3299,7 +3303,7 @@ Procedure ArchiveAttachments(Attachments, DeliveryParameters, TempFilesDir)
 	
 	If ValueIsFilled(DeliveryParameters.CertificateToEncrypt) Then
 		ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
-		ArchiveBinaryData = ModuleDigitalSignature.Encrypt(ZipFileWriter.GetBinaryData(),
+		ArchiveBinaryData = ModuleDigitalSignature.Encrypt(New BinaryData(FullFileName),
 			DeliveryParameters.CertificateToEncrypt);
 		ArchiveBinaryData.Write(FullFileName);
 	EndIf;

@@ -125,13 +125,13 @@ EndFunction
 //                   True if a catalog item was marked
 //                   for deletion. Otherwise, not modified.
 //
-//  CheckOnly1 - Boolean - make no changes, just set
+//  IsCheckOnly - Boolean - make no changes, just set
 //                   the HasChanges and HasDeleted flags.
 //
-Procedure UpdateCatalogData(HasChanges = False, HasDeletedItems = False, CheckOnly1 = False) Export
+Procedure UpdateCatalogData(HasChanges = False, HasDeletedItems = False, IsCheckOnly = False) Export
 	
 	Catalogs.MetadataObjectIDs.RunDataUpdate(HasChanges,
-		HasDeletedItems, CheckOnly1, , , True);
+		HasDeletedItems, IsCheckOnly, , , True);
 	
 EndProcedure
 

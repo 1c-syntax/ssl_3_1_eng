@@ -46,6 +46,14 @@
 					</Button>
 				</ChildItems>
 			</ButtonGroup>
+			<SearchStringAddition name="SearchString" id="85">
+				<AdditionSource>
+					<Item>ObjectsViewSettings</Item>
+					<Type>SearchStringRepresentation</Type>
+				</AdditionSource>
+				<ContextMenu name="SearchStringContextMenu" id="86"/>
+				<ExtendedTooltip name="SearchStringExtendedTooltip" id="87"/>
+			</SearchStringAddition>
 		</ChildItems>
 	</AutoCommandBar>
 	<Events>

@@ -12,13 +12,13 @@
 // For description of this function, see the InfobaseUpdateInternal module.
 Function UpdateInfobase(OnClientStart = False, Restart = False, ExecuteDeferredHandlers1 = False) Export
 	
-	UpdateParameters1 = InfobaseUpdateInternal.UpdateParameters1();
-	UpdateParameters1.OnClientStart = OnClientStart;
-	UpdateParameters1.Restart = Restart;
-	UpdateParameters1.ExecuteDeferredHandlers1 = ExecuteDeferredHandlers1;
+	ParametersOfUpdate = InfobaseUpdateInternal.ParametersOfUpdate();
+	ParametersOfUpdate.OnClientStart = OnClientStart;
+	ParametersOfUpdate.Restart = Restart;
+	ParametersOfUpdate.ExecuteDeferredHandlers1 = ExecuteDeferredHandlers1;
 	
 	Try
-		Result = InfobaseUpdateInternal.UpdateInfobase(UpdateParameters1);
+		Result = InfobaseUpdateInternal.UpdateInfobase(ParametersOfUpdate);
 	Except
 		// 
 		// 
@@ -30,7 +30,7 @@ Function UpdateInfobase(OnClientStart = False, Restart = False, ExecuteDeferredH
 		Raise;
 	EndTry;
 	
-	Restart = UpdateParameters1.Restart;
+	Restart = ParametersOfUpdate.Restart;
 	Return Result;
 	
 EndFunction

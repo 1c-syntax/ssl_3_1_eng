@@ -226,10 +226,10 @@ EndProcedure
 Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	WorldCountryRef = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue, "Catalog.WorldCountries");
-	UpdateSettings1 = Undefined;
+	SettingsOfUpdate = Undefined;
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		UpdateSettings1 = ModuleNativeLanguagesSupportServer.SettingsPredefinedDataUpdate(Metadata.Catalogs.WorldCountries);
+		SettingsOfUpdate = ModuleNativeLanguagesSupportServer.SettingsPredefinedDataUpdate(Metadata.Catalogs.WorldCountries);
 	EndIf;
 	
 	ObjectsWithIssuesCount = 0;
@@ -268,9 +268,9 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			
 			// Update descriptions.
 			If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-				If UpdateSettings1.ObjectAttributesToLocalize.Count() > 0 Then
+				If SettingsOfUpdate.ObjectAttributesToLocalize.Count() > 0 Then
 					ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-					ModuleNativeLanguagesSupportServer.UpdateMultilanguageStringsOfPredefinedItem(WorldCountryRef, UpdateSettings1);
+					ModuleNativeLanguagesSupportServer.UpdateMultilanguageStringsOfPredefinedItem(WorldCountryRef, SettingsOfUpdate);
 				EndIf;
 			EndIf;
 			

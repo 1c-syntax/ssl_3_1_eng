@@ -103,7 +103,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Serial number</v8:content>
+					<v8:content>Sequence number</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -131,7 +131,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Initial filling</v8:content>
+					<v8:content>Initial population</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -766,7 +766,7 @@ End, "Number(12, 0)") Asc</dcscom:expression>
 						<dcsset:presentation xsi:type="v8:LocalStringType">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>// Initial filling</v8:content>
+								<v8:content>// Initial population</v8:content>
 							</v8:item>
 						</dcsset:presentation>
 					</dcsset:item>

@@ -297,7 +297,7 @@
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Click "Next" to analyze the data.</v8:content>
+									<v8:content>Click Next to analyze the data.</v8:content>
 								</v8:item>
 							</Title>
 							<VerticalAlign>Bottom</VerticalAlign>
@@ -872,7 +872,7 @@ data mapping was performed correctly.</v8:content>
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Click "Next" to synchronize data.</v8:content>
+									<v8:content>Click Next to synchronize data.</v8:content>
 								</v8:item>
 							</Title>
 							<VerticalAlign>Top</VerticalAlign>
@@ -1493,7 +1493,7 @@ data mapping was performed correctly.</v8:content>
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Click "Next" to synchronize data.</v8:content>
+									<v8:content>Click Next to synchronize data.</v8:content>
 								</v8:item>
 							</Title>
 							<VerticalAlign>Bottom</VerticalAlign>
@@ -2378,7 +2378,7 @@ data synchronization.</v8:content>
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Click "Finish" to complete the wizard.</v8:content>
+									<v8:content>Click Finish to complete the wizard.</v8:content>
 								</v8:item>
 							</Title>
 							<VerticalAlign>Bottom</VerticalAlign>

@@ -495,7 +495,7 @@ EndProcedure
 // 
 //
 // Parameters:
-//  Owner  - String -
+//  Owner  - String - Additional attribute's name.
 //            - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo -  
 //                
 //  Parameters - See PropertyValAdditionParameters.
@@ -1782,13 +1782,13 @@ Procedure RestoreSettingsOfFormsWithAdditionalAttributes() Export
 	
 	Sets = New Map;
 	NamesOfPredefinedSets = Metadata.Catalogs.AdditionalAttributesAndInfoSets.GetPredefinedNames();
-	MarkedForDeletionPredefinedItems = New Array;
+	ObsoletePredefinedElements = New Array;
 	For Each PredefinedSetName In NamesOfPredefinedSets Do
 		If Not StrStartsWith(PredefinedSetName, "Delete") Then
 			Continue;
 		EndIf;
 		
-		MarkedForDeletionPredefinedItems.Add(PredefinedSetName);
+		ObsoletePredefinedElements.Add(PredefinedSetName);
 	EndDo;
 	
 	ChildSetsQuery = New Query;
@@ -1804,9 +1804,9 @@ Procedure RestoreSettingsOfFormsWithAdditionalAttributes() Export
 	AllChildSets = ChildSetsQuery.Execute().Unload();
 	AllChildSets.Indexes.Add("Ref");
 	
-	PredefinedItemsQuery = New Query;
-	PredefinedItemsQuery.SetParameter("PredefinedDataName", MarkedForDeletionPredefinedItems);
-	PredefinedItemsQuery.Text =
+	RequestingPredefinedSets = New Query;
+	RequestingPredefinedSets.SetParameter("PredefinedDataName", ObsoletePredefinedElements);
+	RequestingPredefinedSets.Text =
 		"SELECT
 		|	AdditionalAttributesAndInfoSets.Ref AS Ref,
 		|	AdditionalAttributesAndInfoSets.PredefinedDataName AS PredefinedDataName
@@ -1815,7 +1815,7 @@ Procedure RestoreSettingsOfFormsWithAdditionalAttributes() Export
 		|WHERE
 		|	AdditionalAttributesAndInfoSets.IsFolder = FALSE
 		|	AND AdditionalAttributesAndInfoSets.PredefinedDataName IN(&PredefinedDataName)";
-	PredefinedDataTable = PredefinedItemsQuery.Execute().Unload();
+	PredefinedDataTable = RequestingPredefinedSets.Execute().Unload();
 	For Each String In PredefinedDataTable Do
 		Try
 			PrefixLength = StrLen("Delete");

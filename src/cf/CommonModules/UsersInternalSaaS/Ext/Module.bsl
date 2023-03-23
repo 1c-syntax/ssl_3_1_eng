@@ -17,8 +17,8 @@
 Function CanChangeUsers() Export
 	
 	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		Return ModuleSaaS.CanChangeUsers();
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		Return ModuleSaaSOperations.CanChangeUsers();
 	EndIf;
 	Return False;
 	
@@ -81,10 +81,10 @@ Procedure CreateEmailAddressChangeRequest(Val NewEmailAddress, Val User, Val Ser
 		Return;
 	EndIf;
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
 	SetPrivilegedMode(True);
-	Proxy = ModuleSaaS.GetProxyServiceManager(ServiceUserPassword);
+	Proxy = ModuleSaaSOperations.GetProxyServiceManager(ServiceUserPassword);
 	SetPrivilegedMode(False);
 	
 	ErrorInfo = Undefined;
@@ -121,10 +121,10 @@ Procedure WriteSaaSUser(Val User, Val CreateServiceUser, Val ServiceUserPassword
 		UserObject = User;
 	EndIf;
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
 	SetPrivilegedMode(True);
-	Proxy = ModuleSaaS.GetProxyServiceManager(ServiceUserPassword);
+	Proxy = ModuleSaaSOperations.GetProxyServiceManager(ServiceUserPassword);
 	SetPrivilegedMode(False);
 	
 	If ValueIsFilled(UserObject.IBUserID) Then
@@ -136,7 +136,7 @@ Procedure WriteSaaSUser(Val User, Val CreateServiceUser, Val ServiceUserPassword
 	
 	SaaSUser = Proxy.XDTOFactory.Create(
 		Proxy.XDTOFactory.Type("http://www.1c.ru/SaaS/ApplicationUsers", "User"));
-	SaaSUser.Zone = ModuleSaaS.SessionSeparatorValue();
+	SaaSUser.Zone = ModuleSaaSOperations.SessionSeparatorValue();
 	SaaSUser.UserServiceID = UserObject.ServiceUserID;
 	SaaSUser.FullName = UserObject.Description;
 	SaaSUser.Name = IBUser.Name;
@@ -150,7 +150,7 @@ Procedure WriteSaaSUser(Val User, Val CreateServiceUser, Val ServiceUserPassword
 		
 	CIWriterType = Proxy.XDTOFactory.Type("http://www.1c.ru/SaaS/ApplicationUsers", "ContactsItem");
 	
-	CIKindsMap = ModuleSaaS.MatchingUserSAITypesToXDTO();
+	CIKindsMap = ModuleSaaSOperations.MatchingUserSAITypesToXDTO();
 	For Each CIRow In UserObject.ContactInformation Do
 		CIKindXDTO = CIKindsMap.Get(CIRow.Kind);
 		If CIKindXDTO = Undefined Then
@@ -196,11 +196,11 @@ Procedure NotifyHasRightsToLogIn(User, HasRights) Export
 	Attributes = Common.ObjectAttributesValues(User,
 		"IBUserID, ServiceUserID");
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	ModuleMessagesExchange = Common.CommonModule("MessagesExchange");
 	
 	User_Info = New Structure;
-	User_Info.Insert("DataArea", ModuleSaaS.SessionSeparatorValue());
+	User_Info.Insert("DataArea", ModuleSaaSOperations.SessionSeparatorValue());
 	User_Info.Insert("IBUserID", Attributes.IBUserID);
 	User_Info.Insert("ServiceUserID", Attributes.ServiceUserID);
 	User_Info.Insert("HasRights", HasRights);
@@ -209,7 +209,7 @@ Procedure NotifyHasRightsToLogIn(User, HasRights) Export
 	BeginTransaction();
 	Try
 		ModuleMessagesExchange.SendMessage("UserHandler/LaunchSwitch", Common.ValueToXMLString(
-			User_Info), ModuleSaaS.ServiceManagerEndpoint());
+			User_Info), ModuleSaaSOperations.ServiceManagerEndpoint());
 		CommitTransaction();
 	Except
 		RollbackTransaction();
@@ -413,8 +413,8 @@ Procedure BeforeStartIBUserProcessing(Val UserObject, ProcessingParameters) Expo
 	
 	If AdditionalProperties.Property("RemoteAdministrationChannelMessageProcessing") Then
 		
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		If Not ModuleSaaS.SessionWithoutSeparators() Then
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		If Not ModuleSaaSOperations.SessionWithoutSeparators() Then
 			ErrorText =
 				NStr("en = 'Only shared users can edit
 				           |user information via remote administration.';");
@@ -562,10 +562,10 @@ EndProcedure
 // Event handlers of the "SaaS" SSL subsystem
 
 // See SSLSubsystemsIntegration.OnDefineUserAlias
-Procedure OnDefineUserAlias(UserID1, Alias) Export
+Procedure OnDefineUserAlias(UserIdentificator, Alias) Export
 	
-	If UserRegisteredAsShared(UserID1) Then
-		Alias = InternalUserFullName(UserID1);
+	If UserRegisteredAsShared(UserIdentificator) Then
+		Alias = InternalUserFullName(UserIdentificator);
 	EndIf;
 	
 EndProcedure
@@ -697,8 +697,8 @@ Function ActionsWithSaaSUserWhenUserSetupUnavailable()
 	ActionsWithContactInformation = ActionsWithSaaSUser.ContactInformation;
 	If Common.SubsystemExists("CloudTechnology.Core") Then
 		
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		For Each KeyAndValue In ModuleSaaS.MatchingUserSAITypesToXDTO() Do
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		For Each KeyAndValue In ModuleSaaSOperations.MatchingUserSAITypesToXDTO() Do
 			ActionsWithContactInformation[KeyAndValue.Key].Update = False;
 		EndDo;
 		
@@ -723,10 +723,10 @@ Function ActionsWithExsistingSaaSUser(Val User)
 		Raise ErrorText;
 	EndIf;
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
 	SetPrivilegedMode(True);
-	Proxy = ModuleSaaS.GetProxyServiceManager();
+	Proxy = ModuleSaaSOperations.GetProxyServiceManager();
 	SetPrivilegedMode(False);
 	
 	AccessObjects = PrepareUserAccessObjects(Proxy.XDTOFactory, User);
@@ -757,8 +757,8 @@ Function ActionsWithNewSaaSUser()
 	ActionsWithCI = ActionsWithSaaSUser.ContactInformation;
 	If Common.SubsystemExists("CloudTechnology.Core") Then
 		
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		For Each KeyAndValue In ModuleSaaS.MatchingUserSAITypesToXDTO() Do
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		For Each KeyAndValue In ModuleSaaSOperations.MatchingUserSAITypesToXDTO() Do
 			ActionsWithCI[KeyAndValue.Key].Update = True;
 		EndDo;
 		
@@ -780,15 +780,15 @@ Function HasRightToAddUsers()
 		Raise ErrorText;
 	EndIf;
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
 	SetPrivilegedMode(True);
-	Proxy = ModuleSaaS.GetProxyServiceManager();
+	Proxy = ModuleSaaSOperations.GetProxyServiceManager();
 	SetPrivilegedMode(False);
 	
 	DataArea = Proxy.XDTOFactory.Create(
 		Proxy.XDTOFactory.Type("http://www.1c.ru/SaaS/ApplicationAccess", "Zone"));
-	DataArea.Zone = ModuleSaaS.SessionSeparatorValue();
+	DataArea.Zone = ModuleSaaSOperations.SessionSeparatorValue();
 	
 	ErrorInfo = Undefined;
 	AccessRightsXDTO = Proxy.GetAccessRights(DataArea, 
@@ -814,8 +814,8 @@ Procedure UpdateDetailsSaasManagerWebService()
 	
 	SetPrivilegedMode(True);
 	// The cache must be filled before writing a user to the infobase.
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
-	ModuleSaaS.GetProxyServiceManager();
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations.GetProxyServiceManager();
 	SetPrivilegedMode(False);
 	
 EndProcedure
@@ -857,15 +857,15 @@ Function GetSaaSUsers(ServiceUserPassword) Export
 		Raise ErrorText;
 	EndIf;
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
 	SetPrivilegedMode(True);
-	Proxy = ModuleSaaS.GetProxyServiceManager(ServiceUserPassword);
+	Proxy = ModuleSaaSOperations.GetProxyServiceManager(ServiceUserPassword);
 	SetPrivilegedMode(False);
 	
 	ErrorInfo = Undefined;
 	Try
-		UsersList = Proxy.GetUsersList(ModuleSaaS.SessionSeparatorValue(), );
+		UsersList = Proxy.GetUsersList(ModuleSaaSOperations.SessionSeparatorValue(), );
 	Except
 		ServiceUserPassword = Undefined;
 		Raise;
@@ -899,15 +899,15 @@ Procedure GrantSaaSUserAccess(Val ServiceUserID, Val ServiceUserPassword) Export
 		Raise ErrorText;
 	EndIf;
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
 	SetPrivilegedMode(True);
-	Proxy = ModuleSaaS.GetProxyServiceManager(ServiceUserPassword);
+	Proxy = ModuleSaaSOperations.GetProxyServiceManager(ServiceUserPassword);
 	SetPrivilegedMode(False);
 	
 	ErrorInfo = Undefined;
 	Proxy.GrantUserAccess(
-		ModuleSaaS.SessionSeparatorValue(),
+		ModuleSaaSOperations.SessionSeparatorValue(),
 		ServiceUserID, 
 		ErrorInfo);
 	HandleWebServiceErrorInfo(ErrorInfo, "GrantUserAccess"); 
@@ -923,7 +923,7 @@ Procedure CancelSaaSUserAccess(UserObject)
 		Return;
 	EndIf;
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
 	
 	BeginTransaction();
@@ -932,12 +932,12 @@ Procedure CancelSaaSUserAccess(UserObject)
 		Message = ModuleMessagesSaaS.NewMessage(
 			ApplicationManagementMessageModuleInterface.RevokeUserAccessMessage());
 		
-		Message.Body.Zone = ModuleSaaS.SessionSeparatorValue();
+		Message.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
 		Message.Body.UserServiceID = UserObject.ServiceUserID;
 		
 		ModuleMessagesSaaS.SendMessage(
 			Message,
-			ModuleSaaS.ServiceManagerEndpoint());
+			ModuleSaaSOperations.ServiceManagerEndpoint());
 			
 		CommitTransaction();
 	Except
@@ -1004,8 +1004,8 @@ Function NewActionsWithSaaSUser()
 	ActionsWithContactInformation = New Map;
 	If Common.SubsystemExists("CloudTechnology.Core") Then
 		
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		For Each KeyAndValue In ModuleSaaS.MatchingUserSAITypesToXDTO() Do
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		For Each KeyAndValue In ModuleSaaSOperations.MatchingUserSAITypesToXDTO() Do
 			ActionsWithContactInformation.Insert(KeyAndValue.Key, New Structure("Update", False));
 		EndDo;
 		
@@ -1023,11 +1023,11 @@ Function PrepareUserAccessObjects(Factory, User)
 		Raise ErrorText;
 	EndIf;
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
 	UserInformation1 = Factory.Create(
 		Factory.Type("http://www.1c.ru/SaaS/ApplicationAccess", "User"));
-	UserInformation1.Zone = ModuleSaaS.SessionSeparatorValue();
+	UserInformation1.Zone = ModuleSaaSOperations.SessionSeparatorValue();
 	UserInformation1.UserServiceID = Common.ObjectAttributeValue(User, "ServiceUserID");
 	
 	ListOfObjects = Factory.Create(
@@ -1038,7 +1038,7 @@ Function PrepareUserAccessObjects(Factory, User)
 	
 	UserCIType = Factory.Type("http://www.1c.ru/SaaS/ApplicationAccess", "UserContact");
 	
-	For Each KeyAndValue In ModuleSaaS.MatchingUserSAITypesToXDTO() Do
+	For Each KeyAndValue In ModuleSaaSOperations.MatchingUserSAITypesToXDTO() Do
 		CIKind = Factory.Create(UserCIType);
 		CIKind.UserServiceID = Common.ObjectAttributeValue(User, "ServiceUserID");
 		CIKind.ContactType = KeyAndValue.Value;
@@ -1062,9 +1062,9 @@ Function ObjectsAccessRightsXDTOInActionsWithSaaSUser(Factory, ObjectsAccessRigh
 	ActionsWithSaaSUser = NewActionsWithSaaSUser();
 	ActionsWithContactInformation = ActionsWithSaaSUser.ContactInformation;
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
-	RightsMap = ModuleSaaS.ComplianceOfXDTORightsWithActionsWithServiceUser();
-	CIKindsMap = ModuleSaaS.ComplianceOfKixdtoTypesWithUserKiTypes();
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+	RightsMap = ModuleSaaSOperations.ComplianceOfXDTORightsWithActionsWithServiceUser();
+	CIKindsMap = ModuleSaaSOperations.ComplianceOfKixdtoTypesWithUserKiTypes();
 	
 	For Each ObjectAccessRightsXDTO In ObjectsAccessRightsXDTO.Item Do
 		
@@ -1125,8 +1125,8 @@ Procedure HandleWebServiceErrorInfo(Val ErrorInfo, Val OperationName)
 		
 		Subsystem = Metadata.Subsystems.StandardSubsystems.Subsystems.SaaSOperations.Subsystems.UsersSaaS; // MetadataObjectSubsystem
 		
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		ModuleSaaS.HandleWebServiceErrorInfo(
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations.HandleWebServiceErrorInfo(
 			ErrorInfo,
 			Subsystem.Name,
 			"ManageApplication", // 
@@ -1139,12 +1139,12 @@ EndProcedure
 // 
 Function MessagesSupportedHasRightsToLogIn()
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	ModuleMessagesExchangeTransportSettings = Common.CommonModule(
 		"InformationRegisters.MessageExchangeTransportSettings");
 	
 	SettingsStructure = ModuleMessagesExchangeTransportSettings.TransportSettingsWS(
-		ModuleSaaS.ServiceManagerEndpoint());
+		ModuleSaaSOperations.ServiceManagerEndpoint());
 	
 	ConnectionParametersToSM = New Structure;
 	ConnectionParametersToSM.Insert("URL", SettingsStructure.WSWebServiceURL);
@@ -1176,7 +1176,7 @@ EndFunction
 //
 Function InternalUserFullName(Val Id = Undefined) Export
 	
-	Result = "<" + NStr("en = 'Internal user ""%1""';") + ">";
+	Result = "<" + NStr("en = 'Utility user ""%1""';") + ">";
 	
 	If ValueIsFilled(Id) Then
 		
@@ -1213,11 +1213,11 @@ Function IsSharedIBUser()
 	EndIf;
 		
 	If Common.SeparatedDataUsageAvailable() Then
-		UserID1 = InfoBaseUsers.CurrentUser().UUID;
-		If Not UserRegisteredAsShared(UserID1) Then
+		UserIdentificator = InfoBaseUsers.CurrentUser().UUID;
+		If Not UserRegisteredAsShared(UserIdentificator) Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'User with ID %1 is not a shared user.';"),
-				String(UserID1));
+				String(UserIdentificator));
 			Raise ErrorText;
 		EndIf;
 	EndIf;

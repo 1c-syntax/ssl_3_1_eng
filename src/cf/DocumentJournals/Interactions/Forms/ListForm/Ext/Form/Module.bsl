@@ -3543,31 +3543,21 @@ Function AddToTabsServer(Val DataForProcessing, FormItemName)
 		    InteractionsClientServer.DynamicListFilter(List).Items,
 		    "FIlterNavigationPanel");
 		If FilterGroupByNavigationPanel = Undefined Then
-				Result.ErrorMessageText1 = NStr("en = 'Select an item you want to add to bookmarks.';");
-				Return Result;
+			Result.ErrorMessageText1 = NStr("en = 'Select an item you want to add to bookmarks.';");
+			Return Result;
 		EndIf;
 		
 		CopyFilter(SettingsComposer.Settings.Filter, FilterGroupByNavigationPanel, True);
 		If FormItemName = "NavigationPanelSubjects" Then
 			
 			If Common.RefTypeValue(DataForProcessing.Value) Then
-				
 				TabDescription       = NStr("en = 'Topic';") + " = " + String(DataForProcessing.Value); 
 				Text = ?(OnlyEmail, NStr("en = 'Mails on topic %1';"), NStr("en = 'Interactions on topic %1';"));
 				Result.ItemPresentation = StringFunctionsClientServer.SubstituteParametersToString(Text, Common.SubjectString(DataForProcessing.Value));
 				Result.ItemURL = GetURL(DataForProcessing.Value);
-				
-			ElsIf DataForProcessing.Value = "NotSpecified" Then
-				
-				TabDescription       = NStr("en = 'Topic not specified';");
-				Result.ItemPresentation = ?(OnlyEmail, NStr("en = 'No-topic mails';"), NStr("en = 'No-topic interactions';"));
-				
 			Else
-				
-				TabDescription       = NStr("en = 'Topic category';") + " " + String(DataForProcessing.TypeDescription.Types()[0]);
-				Result.ItemPresentation = ?(OnlyEmail, NStr("en = 'Mail messages on: %1';"), NStr("en = 'Interactions on: %1';"));
-				Result.ItemPresentation = StringFunctionsClientServer.SubstituteParametersToString(Result.ItemPresentation, DataForProcessing.TypeDescription.Types()[0]);
-				
+				Result.ErrorMessageText1 = NStr("en = 'Select an item you want to add to bookmarks.';");
+				Return Result;
 			EndIf;
 			
 		ElsIf FormItemName = "Properties" Then
@@ -3595,24 +3585,14 @@ Function AddToTabsServer(Val DataForProcessing, FormItemName)
 		ElsIf FormItemName = "NavigationPanelContacts" Then
 			
 			If Common.RefTypeValue(DataForProcessing.Value) Then
-				
 				TabDescription       = NStr("en = 'Contact';") + " = " + String(DataForProcessing.Value); 
 				Text = ?(OnlyEmail, NStr("en = 'Email conversations with: %1';"), NStr("en = 'Interactions with: %1';"));
 				Result.ItemPresentation = 
 					StringFunctionsClientServer.SubstituteParametersToString(Text, Common.SubjectString(DataForProcessing.Value));
 				Result.ItemURL = GetURL(DataForProcessing.Value);
-				
-			ElsIf DataForProcessing.Value = NStr("en = 'Contact required';") Then
-				
-				TabDescription       = NStr("en = 'Contact not specified';");
-				Result.ItemPresentation = ?(OnlyEmail, NStr("en = 'Mail messages with no contact specified';"), NStr("en = 'Interactions with no contact specified';"));
-				
 			Else
-				
-				TabDescription       = NStr("en = 'Contact type';") + " " + String(DataForProcessing.TypeDescription.Types()[0]);
-				Result.ItemPresentation = ?(OnlyEmail, NStr("en = 'Email conversations with: %1';"), NStr("en = 'Interactions with: %1';"));
-				Result.ItemPresentation = StringFunctionsClientServer.SubstituteParametersToString(Result.ItemPresentation, DataForProcessing.TypeDescription.Types()[0]);
-				
+				Result.ErrorMessageText1 = NStr("en = 'Select an item you want to add to bookmarks.';");
+				Return Result;
 			EndIf;
 
 		ElsIf FormItemName = "Folders" Then

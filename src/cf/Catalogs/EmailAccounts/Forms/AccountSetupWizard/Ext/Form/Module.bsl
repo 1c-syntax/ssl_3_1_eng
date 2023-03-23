@@ -905,12 +905,6 @@ Procedure SetUpConnectionParametersAutomatically()
 	ErrorsMessages = NStr("en = 'Couldn''t configure email server settings.
 	|Please provide settings manually.';");
 	
-	If StrFind(Lower(Email), "@gmail.com") > 0 Then
-		ErrorsMessages = ErrorsMessages + Chars.LF
-			+ NStr("en = 'See also: http://buh.ru/articles/documents/42429/#briefly_43166
-					|(Gmail account setup, in Russian).';");
-	EndIf;
-	
 	ValidationCompletedWithErrors = False;
 	
 	TimeConsumingOperation = StartSearchAccountSettings();

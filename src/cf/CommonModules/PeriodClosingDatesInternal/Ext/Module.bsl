@@ -808,10 +808,10 @@ Function DataSourcesForPeriodClosingCheck() Export
 EndFunction
 
 // Returns a null reference of the specified type.
-Function EmptyRef(RefType1)
+Function EmptyRef(RefType)
 	
 	Types = New Array;
-	Types.Add(RefType1);
+	Types.Add(RefType);
 	TypeDescription = New TypeDescription(Types);
 	
 	Return TypeDescription.AdjustValue(Undefined);

@@ -590,7 +590,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Duty description.</v8:content>
+							<v8:content>Brief duty description</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -1078,7 +1078,7 @@
 			</Attribute>
 			<Attribute uuid="bd5940d5-13fd-4f59-bb6c-614f93f9c8e4">
 				<Properties>
-					<Name>AuthorString</Name>
+					<Name>AuthorAsString</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -1231,7 +1231,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Subject content in HTML or MXL.</v8:content>
+							<v8:content>Subject content in HTML or MXL</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -1275,7 +1275,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Refines the assignee's role</v8:content>
+							<v8:content>Refines the assignee's role.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -1319,7 +1319,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Refines the supervisor's role</v8:content>
+							<v8:content>Refines the supervisor's role.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -1363,7 +1363,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Refines the assignee's role</v8:content>
+							<v8:content>Refines the assignee's role.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -1407,7 +1407,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Refines the supervisor's role</v8:content>
+							<v8:content>Refines the supervisor's role.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -1438,7 +1438,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Assignees group</v8:content>
+							<v8:content>Task assignees group</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -1453,7 +1453,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Access restrictions data. An internal attribute.</v8:content>
+							<v8:content>Access restriction data. An internal attribute.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -1499,7 +1499,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Access restrictions data. An internal attribute.</v8:content>
+							<v8:content>Access restriction data. An internal attribute.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

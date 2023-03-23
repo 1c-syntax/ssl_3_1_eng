@@ -501,7 +501,7 @@ Function MessageConstructor(TemplateParameters = Undefined) Export
 	Message = New Structure();
 	Message.Insert("Subject",       "");
 	Message.Insert("Text",      "");
-	Message.Insert("Recipient", Undefined);
+	Message.Insert("Recipient", New ValueList);
 	Message.Insert("AdditionalParameters",
 		?(TemplateParameters <> Undefined, TemplateParameters, New Structure()));
 	Message.Insert("UserMessages", New FixedArray(New Array()));
@@ -2712,8 +2712,12 @@ Procedure FillMessageRecipients(SendOptions, TemplateParameters, Result, ObjectM
 			Result.Recipient = New Array;
 			For Each Recipient In Recipients Do
 				If ValueIsFilled(Recipient.Address) Then
-					RecipientValue = New Structure("Address, Presentation, ContactInformationSource", 
-						Recipient.Address, Recipient.Presentation, Recipient.Contact);
+					
+					RecipientValue = MessageTemplates.NewEmailRecipients();
+					RecipientValue.Address                        = Recipient.Address;
+					RecipientValue.Presentation                = Recipient.Presentation;
+					RecipientValue.ContactInformationSource = Recipient.Contact;
+				
 					RecipientValue.Insert("SendingOption", Recipient.SendingOption);
 					Result.Recipient.Add(RecipientValue);
 				EndIf;

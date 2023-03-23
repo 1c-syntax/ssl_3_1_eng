@@ -942,6 +942,10 @@ Procedure CheckPerformDeferredUpdate(UpdateInfo)
 		Return;
 	EndIf;
 	
+	If Not Users.IsFullUser(, True) Then
+		Return;
+	EndIf;
+	
 	Job = ScheduledJobsServer.Job(Metadata.ScheduledJobs.DeferredIBUpdate);
 	TaskIsRunning = False;
 	Messages = New Array;

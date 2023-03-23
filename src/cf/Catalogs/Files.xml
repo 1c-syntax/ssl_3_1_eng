@@ -858,7 +858,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Is internal</v8:content>
+							<v8:content>Internal</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -871,7 +871,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Flag that indicates whether this file is intended for application functionality.</v8:content>
+							<v8:content>Indicates that the file is an internal one.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -1679,7 +1679,7 @@
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>An additional attribute.</v8:content>
+									<v8:content>Additional attribute</v8:content>
 								</v8:item>
 							</ToolTip>
 							<MarkNegatives>false</MarkNegatives>
@@ -1721,7 +1721,7 @@
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Additional attribute. value.</v8:content>
+									<v8:content>Additional attribute's value.</v8:content>
 								</v8:item>
 							</ToolTip>
 							<MarkNegatives>false</MarkNegatives>

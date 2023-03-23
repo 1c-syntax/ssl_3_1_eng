@@ -391,7 +391,7 @@ Procedure HighlightInRed(Form, Command, TitleProperties = Undefined, Value = Und
 	
 	ColorizeTheReportSection(Form, ColoringOptions, TitleProperties);
 	
-	NotifyAboutTheCompletionOfTheContextSetting(Form, CommandAction(Command), TitleProperties.Text);
+	NotifyAboutTheCompletionOfTheContextSetting(Form, CommandAction, TitleProperties.Text);
 	
 EndProcedure
 
@@ -446,7 +446,7 @@ Procedure HighlightInGreen(Form, Command, TitleProperties = Undefined, Value = U
 	
 	ColorizeTheReportSection(Form, ColoringOptions, TitleProperties);
 	
-	NotifyAboutTheCompletionOfTheContextSetting(Form, CommandAction(Command), TitleProperties.Text);
+	NotifyAboutTheCompletionOfTheContextSetting(Form, CommandAction, TitleProperties.Text);
 	
 EndProcedure
 
@@ -2929,6 +2929,7 @@ EndProcedure
 // Parameters:
 //  Form - ClientApplicationForm
 //  Area - SpreadsheetDocumentRange
+//          - SpreadsheetDocumentDrawing
 //  FieldName - String
 //
 // Returns:
@@ -2945,7 +2946,7 @@ Function PropertiesOfTheDecryptionArea(Form, Area, FieldName)
 	AreaProperties.Insert("ThisIsTheTitle", TypeOf(TitleProperties) = Type("Structure"));
 	AreaProperties.Insert("TitleProperties", TitleProperties);
 	
-	If AreaProperties.ThisIsTheTitle Then 
+	If AreaProperties.ThisIsTheTitle Or TypeOf(Area) = Type("SpreadsheetDocumentDrawing") Then
 		Return AreaProperties;
 	EndIf;
 	
@@ -3163,6 +3164,10 @@ Procedure ExecuteDecryption(ExecutedAction, ChosenActionParameter, AdditionalPar
 		Or ExecutedAction = "ApplyAppearanceMore") Then 
 		
 		Command = Form.Commands.Find(ExecutedAction);
+		
+		If Command = Undefined Then
+			Command = ExecutedAction;
+		EndIf;
 		
 		If ExecutedAction = "HighlightInRed"
 			Or ExecutedAction = "FormatNegativeValues" Then 
@@ -3395,6 +3400,10 @@ Function CommandAction(Command)
 	
 	If Command = Undefined Then 
 		Return Undefined;
+	EndIf;
+	
+	If TypeOf(Command) = Type("String") Then
+		Return Command;
 	EndIf;
 	
 	Return ?(ValueIsFilled(Command.Action), Command.Action, Command.Name);

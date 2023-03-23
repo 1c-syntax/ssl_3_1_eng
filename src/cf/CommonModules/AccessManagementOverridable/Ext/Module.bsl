@@ -87,7 +87,7 @@ EndProcedure
 // Parameters:
 //  ProfilesDetails - Array of See AccessManagement.NewAccessGroupProfileDescription,
 //                               See AccessManagement.NewDescriptionOfTheAccessGroupProfilesFolder
-//  UpdateParameters1 - Structure:
+//  ParametersOfUpdate - Structure:
 //   * UpdateModifiedProfiles - Boolean - an initial value is True.
 //   * DenyProfilesChange - Boolean - an initial value is True.
 //        If False, the built-in profiles can not only be viewed but also edited.
@@ -125,7 +125,7 @@ EndProcedure
 //  ProfileDetails.Roles.Add("PrintFormsEdit");
 //  ProfilesDetails.Add(ProfileDetails);
 //
-Procedure OnFillSuppliedAccessGroupProfiles(ProfilesDetails, UpdateParameters1) Export
+Procedure OnFillSuppliedAccessGroupProfiles(ProfilesDetails, ParametersOfUpdate) Export
 	
 	
 	

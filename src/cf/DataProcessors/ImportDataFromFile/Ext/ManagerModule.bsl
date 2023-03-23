@@ -791,14 +791,14 @@ Procedure DetermineColumnsInformation(ImportParameters, ColumnsInformation, Name
 			
 			If MetadataObject = Undefined Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot import data from a file to a tabular section for object of %1 type';"),
+					NStr("en = 'Cannot import data from a file to a table for object of the %1 type';"),
 					ImportParameters.FullObjectName);
 				Raise ErrorText;
 			EndIf;
 			
 			If MetadataObject.Parent().Templates.Find(ImportParameters.Template) = Undefined Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot import data from a file to a table since there is no %1 template for the object of the following type: %2';"),
+					NStr("en = 'Cannot import data from a file to a table since there is no %1 template for object of the %2 type';"),
 					ImportParameters.Template, ImportParameters.FullObjectName);
 				Raise ErrorText;
 			EndIf;
@@ -851,7 +851,7 @@ Procedure DetermineColumnsInformationTabularSection(Val ColumnsInformation, Temp
 	MetadataObject = Common.MetadataObjectByFullName(MetadataObjectName);
 	If MetadataObject = Undefined Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot import data from a file to a tabular section for objects of %1 type.';"),
+			NStr("en = 'Cannot import data from a file to a table for objects of the %1 type';"),
 				MetadataObjectName);
 		Raise ErrorText;
 	EndIf;
@@ -1177,6 +1177,9 @@ Procedure SpreadsheetDocumentIntoValuesTable(TemplateWithData, ColumnsInformatio
 	HeaderHeight = ?(ImportDataFromFileClientServer.ColumnsHaveGroup(TableColumnsInformation), 2, 1);
 	
 	InitializeColumns(TableColumnsInformation, TemplateWithData, HeaderHeight);
+	If Not ColumnsAreInitialized(TableColumnsInformation) Then
+		InitializeColumns(TableColumnsInformation, TemplateWithData, ?(HeaderHeight = 1, 2, 1));
+	EndIf;
 	
 	For LineNumber = HeaderHeight + 1 To TemplateWithData.TableHeight Do
 		EmptyTableRow = True;
@@ -1204,7 +1207,20 @@ Procedure SpreadsheetDocumentIntoValuesTable(TemplateWithData, ColumnsInformatio
 	EndDo;
 	
 	ImportedDataAddress = PutToTempStorage(DataToImport);
+	
 EndProcedure
+
+Function ColumnsAreInitialized(ColumnsInformation)
+	
+	For Each ColumnInformation In ColumnsInformation Do
+		If ColumnInformation.Position >=0 Then
+			Return True;
+		EndIf;
+	EndDo;
+	
+	Return False;
+	
+EndFunction
 
 Function AdjustValueToType(Value, TypeDescription)
 	

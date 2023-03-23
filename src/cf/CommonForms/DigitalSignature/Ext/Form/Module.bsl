@@ -24,6 +24,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ErrorDescription.Visible = False;
 	Else
 		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, "ErrorDescription");
+		Items.Instruction.Visible     = 
+			DigitalSignatureInternal.VisibilityOfLinkToInstructionsForTypicalProblemsWhenWorkingWithPrograms();
 	EndIf;
 	
 	If Not IsTempStorageURL(SignatureAddress) Then

@@ -21,7 +21,7 @@
 			</Synonym>
 			<Comment/>
 			<UseStandardCommands>false</UseStandardCommands>
-			<DefaultForm>CommonForm.ReportForm</DefaultForm>
+			<DefaultForm/>
 			<AuxiliaryForm/>
 			<MainDataCompositionSchema>Report.RenewDigitalSignatures.Template.Template</MainDataCompositionSchema>
 			<DefaultSettingsForm/>

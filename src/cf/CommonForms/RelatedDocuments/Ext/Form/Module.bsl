@@ -765,7 +765,7 @@ EndProcedure
 &AtServer
 Function ObjectsByFilterCriteria(FilterCriteriaValue)
 
-	QueryTemplate1 = "SELECT ALLOWED
+	QueryTemplate = "SELECT ALLOWED
 	|	TablePresentation.Ref AS Ref
 	|FROM
 	|	TableName AS TablePresentation
@@ -809,8 +809,8 @@ Function ObjectsByFilterCriteria(FilterCriteriaValue)
 		Point = StrFind(TableName, ".", SearchDirection.FromEnd);
 		TablePresentation = Mid(TableName, Point + 1);
 
-		TextOfRequestPart = ?(TextOfRequestPart = "", QueryTemplate1, MergeQueryTemplate);
-		TextOfRequestPart = StrReplace(MergeQueryTemplate, "TableName", TableName);
+		TextOfRequestPart = ?(TextOfRequestPart = "", QueryTemplate, MergeQueryTemplate);
+		TextOfRequestPart = StrReplace(TextOfRequestPart, "TableName", TableName);
 		TextOfRequestPart = StrReplace(TextOfRequestPart, "TablePresentation", TablePresentation);
 		TextOfRequestPart = StrReplace(TextOfRequestPart, "AttributeName", AttributeName);
 
@@ -1229,7 +1229,7 @@ Function DeletionMarkEditScenario(SelectedItems, StatisticsBySelectedItems)
 			
 			Scenario.DoQueryBox = NStr("en = 'Clear marks for deletion of the selected items?';");
 			Scenario.Notification = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Deletion mark removed (%1)';"), SelectedItemsCount);
+				NStr("en = 'Deletion mark cleared (%1)';"), SelectedItemsCount);
 			
 		Else
 			

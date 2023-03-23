@@ -274,9 +274,10 @@ Procedure ImportAddInOnErrorDisplay(ErrorDescription = "")
 		Notification = New NotifyDescription("ImportAddInAfterErrorDisplay", ThisObject);
 		
 		StringWithWarning = NStr("en = '%1
-			|Specify a zip archive with an add-in.
-			|For more information, see <a href = ""https://its.1c.ru/db/metod8dev/content/3221"">Creating add-ins</a>';");
-		StringWithWarning = StringFunctionsClient.FormattedString(StringWithWarning, ErrorDescription);
+			|Укажите zip-архив с внешней компонентой.
+			|Подробнее см. <a href = ""%2"">Технология создания внешних компонент</a>';");
+		StringWithWarning = StringFunctionsClient.FormattedString(StringWithWarning, ErrorDescription,
+			"https://its.1c.eu/db/metod8dev/content/3221");
 		
 		ShowMessageBox(Notification, StringWithWarning);
 	EndIf;

@@ -1005,7 +1005,7 @@ Function CheckByScheduledJobIDParameters(ScheduledJobID)
 	
 EndFunction
 
-// Returns text and importance of the accounting issue.
+// Returns text and severity of the data integrity issue.
 //
 Function ObjectIssueInfo(ObjectReference) Export
 	Query = New Query;
@@ -1690,7 +1690,7 @@ Function GenerateCommonStringIndicator(Form, ObjectReference, Settings) Export
 EndFunction
 
 // See AccountingAuditOverridable.OnDetermineIndicationGroupParameters.
-Procedure OnDetermineIndicationGroupParameters(IndicationGroupParameters, RefType1) Export
+Procedure OnDetermineIndicationGroupParameters(IndicationGroupParameters, RefType) Export
 	
 	IndicationGroupParameters.Insert("GroupParentName", Undefined);
 	IndicationGroupParameters.Insert("OutputAtBottom",     False);
@@ -2164,7 +2164,7 @@ Procedure FindDeadRefs(MetadataObject, CheckParameters, CheckedRefs)
 								EndIf;
 								IssueSummary = IssueSummary + ?(ValueIsFilled(IssueSummary), Chars.LF, "")
 									+ StringFunctionsClientServer.SubstituteParametersToString(
-										NStr("en = 'The ""%2"" attribute of the ""%3"" tabular section of the ""%1"" object (line #%4) refers to an item that does not exist: ""%5"".';"),
+										NStr("en = 'Attribute ""%2"" of ""%3"" table (row #%4) in ""%1"" object refers to an item that does not exist: ""%5"".';"),
 										ObjectReference, TSAttributeName, StrReplace(TabularSectionAttributes.Key, TSAttributeName, ""), 
 										CurrentRowNumber1, DataToCheck1);
 								IssuesLimit = IssuesLimit - 1;
@@ -2313,6 +2313,10 @@ Function IsDeadRef(DataToCheck1, CheckedRefs)
 	
 	If TypeOf(DataToCheck1) = Type("CatalogRef.MetadataObjectIDs")
 		Or TypeOf(DataToCheck1) = Type("CatalogRef.ExtensionObjectIDs") Then
+		Return False;
+	EndIf;
+	
+	If BusinessProcesses.RoutePointsAllRefsType().ContainsType(TypeOf(DataToCheck1)) Then
 		Return False;
 	EndIf;
 	
@@ -2778,7 +2782,9 @@ Procedure FindDeadRefsInAccountingRegisters(MetadataObject, CheckParameters, Ext
 	RefAttributes = New Array;
 	
 	If Not MetadataObject.Correspondence Then
-		RefAttributes.Add("Account");
+		If MetadataObject.ChartOfAccounts <> Undefined Then
+			RefAttributes.Add("Account");
+		EndIf;
 	Else
 		RefAttributes.Add("AccountDr");
 		RefAttributes.Add("AccountCr");
@@ -3034,6 +3040,10 @@ Function ContainsRefType(Attribute)
 EndFunction
 
 Function ExtDimensionTypes(MetadataObject)
+	
+	If MetadataObject.ChartOfAccounts = Undefined Then
+		Return New Array;
+	EndIf;
 	
 	ExtDimensionTypesMetadataObject = MetadataObject.ChartOfAccounts.ExtDimensionTypes;
 	If ExtDimensionTypesMetadataObject = Undefined Or Not ContainsRefType(ExtDimensionTypesMetadataObject) Then
@@ -3868,20 +3878,20 @@ Procedure CorrectCircularRefsProblem(Validation)
 	Query = New Query(
 	"SELECT
 	|	AccountingCheckResults.ObjectWithIssue AS ObjectWithIssue,
-	|	VALUETYPE(AccountingCheckResults.ObjectWithIssue) AS RefType1
+	|	VALUETYPE(AccountingCheckResults.ObjectWithIssue) AS RefType
 	|FROM
 	|	InformationRegister.AccountingCheckResults AS AccountingCheckResults
 	|WHERE
 	|	NOT AccountingCheckResults.IgnoreIssue
 	|	AND AccountingCheckResults.CheckRule = &CheckRule
 	|TOTALS BY
-	|	RefType1");
+	|	RefType");
 	
 	Query.SetParameter("CheckRule", Validation);
 	Result = Query.Execute().Unload(QueryResultIteration.ByGroups);
 	
 	For Each ObjectTypeString In Result.Rows Do
-		FullTableName = Metadata.FindByType(ObjectTypeString.RefType1).FullName();
+		FullTableName = Metadata.FindByType(ObjectTypeString.RefType).FullName();
 		For Each StringObject In ObjectTypeString.Rows Do
 			BeginTransaction();
 			Try
@@ -4233,8 +4243,8 @@ Function IsSharedMetadataObject(FullName)
 	
 	If Common.SubsystemExists("CloudTechnology.Core") Then
 		
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		Return Not ModuleSaaS.IsSeparatedMetadataObject(FullName);
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		Return Not ModuleSaaSOperations.IsSeparatedMetadataObject(FullName);
 		
 	EndIf;
 	

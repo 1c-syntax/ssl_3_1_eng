@@ -19,9 +19,9 @@ Procedure WriteBusinessStatisticsOperation(OperationName, Value, Comment = Undef
 	DeletionIDPeriod = MonitoringCenterInternal.GetMonitoringCenterParameters("AggregationPeriodMinor");
 
 	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		If ModuleSaaS.SessionSeparatorUsage() Then
-			DataArea = Format(ModuleSaaS.SessionSeparatorValue(), "NZ=0; NG=0");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		If ModuleSaaSOperations.SessionSeparatorUsage() Then
+			DataArea = Format(ModuleSaaSOperations.SessionSeparatorValue(), "NZ=0; NG=0");
 		Else
 			DataArea = Format(0, "NZ=0; NG=0");
 		EndIf;

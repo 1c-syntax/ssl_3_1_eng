@@ -392,7 +392,7 @@ Function AvailableTables(MetadataObjectType, MetadataObjectName)
 		If MetadataObject.Correspondence Then
 			AvailableValues.Add("DrCrTurnovers", NStr("en = 'Dr/Cr turnovers';"));
 		EndIf;
-		AvailableValues.Add("RecordsWithExtDimensions", NStr("en = 'Movements with extra dimension';"));
+		AvailableValues.Add("RecordsWithExtDimensions", NStr("en = 'Records with extra dimensions';"));
 	ElsIf MetadataObjectType = "CalculationRegisters" Then 
 		If MetadataObject.ActionPeriod Then
 			AvailableValues.Add("ScheduleData", NStr("en = 'Chart data';"));

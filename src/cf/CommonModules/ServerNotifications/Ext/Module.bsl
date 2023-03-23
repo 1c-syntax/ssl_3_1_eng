@@ -1764,8 +1764,8 @@ Function ServiceAdministratorSession()
 	EndIf;
 	
 	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		Return ModuleSaaS.SessionWithoutSeparators();
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		Return ModuleSaaSOperations.SessionWithoutSeparators();
 	EndIf;
 	
 	Return False;

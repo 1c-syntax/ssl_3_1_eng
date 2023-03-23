@@ -237,11 +237,11 @@ EndProcedure
 //  Items   - ValueTable - filling data. Columns match the object attributes set.
 //  TabularSections - Structure - object table details where:
 //   * Key - String - tabular section name;
-//   * Value - ValueTable - a table as the value table whose structure
-//                                  must be copied before filling. For example:
+//   * Value - ValueTable - Value table.
+//                                  Its structure must be copied before population. For example:
 //                                  Item.Keys = TabularSections.Keys.Copy();
 //                                  TSItem = Item.Keys.Add();
-//                                  TSItem.KeyName = "Natural";
+//                                  TSItem.KeyName = "Primary";
 //
 Procedure OnInitialItemsFilling(FullObjectName, LanguagesCodes, Items, TabularSections) Export
 	
@@ -259,6 +259,42 @@ EndProcedure
 //   * PredefinedData - ValueTable - data filled in the OnInitialItemFilling procedure.
 //
 Procedure OnInitialItemFilling(FullObjectName, Object, Data, AdditionalParameters) Export
+	
+EndProcedure
+
+// 
+// 
+//
+// 
+// 
+// 
+// 
+// 
+//
+// Parameters:
+//  Objects - See InfobaseUpdate.AddItemToBeDeleted.Objects
+//
+// Example:
+//  
+//		
+//	
+//  
+//		
+//	
+//  
+//		
+//	
+//  
+//		
+//	
+//  
+//		
+//		
+//			
+//
+Procedure WhenFillingInItemsThatArePlannedToBeDeleted(Objects) Export
+	
+	
 	
 EndProcedure
 

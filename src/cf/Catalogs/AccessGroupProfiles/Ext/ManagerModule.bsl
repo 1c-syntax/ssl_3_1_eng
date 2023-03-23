@@ -945,7 +945,7 @@ Function ProfileChangeProhibition(Val Profile, ParentViewOnly = False) Export
 		String(Profile.SuppliedDataID));
 	
 	ForbiddingChanges = ProfileProperties <> Undefined
-	      And (SuppliedProfiles.UpdateParameters1.DenyProfilesChange
+	      And (SuppliedProfiles.ParametersOfUpdate.DenyProfilesChange
 	         Or ProfileProperties.IsFolder);
 	
 	If ForbiddingChanges And ValueIsFilled(ProfileProperties.Parent) Then
@@ -1751,7 +1751,7 @@ Procedure UpdateAuxiliaryProfilesDataChangedOnImport() Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Initial population.
 
 // See also updating the information base undefined.customizingmachine infillingelements
 // 
@@ -1764,7 +1764,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	
 EndProcedure
 
-// See also updating the information base undefined.At firstfillingelements
+// See also InfobaseUpdateOverridable.OnInitialItemsFilling
 // 
 // Parameters:
 //   LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes
@@ -1786,13 +1786,13 @@ EndProcedure
 
 Function FilledSuppliedProfiles()
 	
-	UpdateParameters1 = New Structure;
+	ParametersOfUpdate = New Structure;
 	// 
-	UpdateParameters1.Insert("UpdateModifiedProfiles", True);
-	UpdateParameters1.Insert("DenyProfilesChange", True);
+	ParametersOfUpdate.Insert("UpdateModifiedProfiles", True);
+	ParametersOfUpdate.Insert("DenyProfilesChange", True);
 	// 
-	UpdateParameters1.Insert("UpdatingAccessGroups", True);
-	UpdateParameters1.Insert("UpdatingAccessGroupsWithObsoleteSettings", False);
+	ParametersOfUpdate.Insert("UpdatingAccessGroups", True);
+	ParametersOfUpdate.Insert("UpdatingAccessGroupsWithObsoleteSettings", False);
 	
 	ProfilesDetails = New Array;
 	
@@ -1806,10 +1806,10 @@ Function FilledSuppliedProfiles()
 	ProfilesDetails.Add(DescriptionOfTheProfileFolder);
 	
 	SSLSubsystemsIntegration.OnFillSuppliedAccessGroupProfiles(
-		ProfilesDetails, UpdateParameters1);
+		ProfilesDetails, ParametersOfUpdate);
 	
 	AccessManagementOverridable.OnFillSuppliedAccessGroupProfiles(
-		ProfilesDetails, UpdateParameters1);
+		ProfilesDetails, ParametersOfUpdate);
 	
 	If ProfilesDetails.Find(AdministratorProfileDetails) = Undefined Then
 		ProfilesDetails.Add(AdministratorProfileDetails);
@@ -1822,7 +1822,7 @@ Function FilledSuppliedProfiles()
 			AccessManagementInternal.OpenExternalReportsAndDataProcessorsProfileDetails());
 	EndIf;
 	
-	Return New Structure("ProfilesDetails, UpdateParameters1", ProfilesDetails, UpdateParameters1);
+	Return New Structure("ProfilesDetails, ParametersOfUpdate", ProfilesDetails, ParametersOfUpdate);
 	
 EndFunction
 
@@ -1885,7 +1885,7 @@ EndProcedure
 Function VerifiedSuppliedSessionProfiles(AccessKindsProperties = Undefined) Export
 	
 	FilledSuppliedProfiles = FilledSuppliedProfiles();
-	UpdateParameters1 = FilledSuppliedProfiles.UpdateParameters1;
+	ParametersOfUpdate = FilledSuppliedProfiles.ParametersOfUpdate;
 	ProfilesDetails    = FilledSuppliedProfiles.ProfilesDetails; // Array of See AccessManagement.NewAccessGroupProfileDescription
 	
 	ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
@@ -1896,15 +1896,15 @@ Function VerifiedSuppliedSessionProfiles(AccessKindsProperties = Undefined) Expo
 		+ Chars.LF
 		+ Chars.LF;
 	
-	If UpdateParameters1.DenyProfilesChange
-	   And Not UpdateParameters1.UpdateModifiedProfiles Then
+	If ParametersOfUpdate.DenyProfilesChange
+	   And Not ParametersOfUpdate.UpdateModifiedProfiles Then
 		
 		ErrorText = ErrorTitle +  StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'In parameter ""%1"", 
 			           |property ""%2"" is set to ""False"".
 			           |Property ""%3""
 			           |must be ""False"", too.';"),
-			"UpdateParameters1",
+			"ParametersOfUpdate",
 			"UpdateModifiedProfiles",
 			"DenyProfilesChange");
 		Raise ErrorText;
@@ -2058,7 +2058,7 @@ Function VerifiedSuppliedSessionProfiles(AccessKindsProperties = Undefined) Expo
 	EndDo;
 	
 	SuppliedProfiles = New Structure;
-	SuppliedProfiles.Insert("UpdateParameters1",    UpdateParameters1);
+	SuppliedProfiles.Insert("ParametersOfUpdate",    ParametersOfUpdate);
 	SuppliedProfiles.Insert("ProfilesDetails",       ProfilesProperties);
 	SuppliedProfiles.Insert("ProfilesDetailsArray", ProfilesDetailsArray);
 	SuppliedProfiles.Insert("FoldersByParents",       FoldersByParents);
@@ -2521,7 +2521,7 @@ Procedure UpdateTheSuppliedProfilesWithoutFolders(UpdatedProfiles, CurrentProfil
 			CurrentProfileFolders, SuppliedProfiles, Trash, HasChanges)
 	
 	ProfilesDetails    = SuppliedProfiles.ProfilesDetailsArray;
-	UpdateParameters1 = SuppliedProfiles.UpdateParameters1;
+	ParametersOfUpdate = SuppliedProfiles.ParametersOfUpdate;
 	
 	For Each ProfileProperties In ProfilesDetails Do
 		ProfileProperties = ProfileProperties; // See Catalogs.AccessGroupProfiles.SuppliedProfileProperties
@@ -2548,16 +2548,16 @@ Procedure UpdateTheSuppliedProfilesWithoutFolders(UpdatedProfiles, CurrentProfil
 			
 			Profile = CurrentProfileRow.Ref;
 			If Not CurrentProfileRow.SuppliedProfileChanged
-			 Or UpdateParameters1.UpdateModifiedProfiles Then
+			 Or ParametersOfUpdate.UpdateModifiedProfiles Then
 				// 
 				// 
 				ProfileUpdated = UpdateTheProfileOrProfileFolder(ProfileProperties, Trash, True);
 			EndIf;
 		EndIf;
 		
-		If UpdateParameters1.UpdatingAccessGroups Then
+		If ParametersOfUpdate.UpdatingAccessGroups Then
 			ProfileAccessGroupsUpdated = Catalogs.AccessGroups.UpdateProfileAccessGroups(
-				Profile, UpdateParameters1.UpdatingAccessGroupsWithObsoleteSettings);
+				Profile, ParametersOfUpdate.UpdatingAccessGroupsWithObsoleteSettings);
 			
 			ProfileUpdated = ProfileUpdated Or ProfileAccessGroupsUpdated;
 		EndIf;

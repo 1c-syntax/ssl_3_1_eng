@@ -11,6 +11,8 @@
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
+	Items.Instruction.Visible =
+		DigitalSignatureInternal.VisibilityOfLinkToInstructionsForTypicalProblemsWhenWorkingWithPrograms();
 	Items.WarningTitle.Title = Parameters.WarningTitle;
 	WarningText = Parameters.WarningText;
 EndProcedure

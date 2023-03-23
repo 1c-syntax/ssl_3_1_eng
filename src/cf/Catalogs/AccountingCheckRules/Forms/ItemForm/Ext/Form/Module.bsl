@@ -30,9 +30,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	SetInitialScheduleSettings();
 	IsSystemAdministrator = Users.IsFullUser(, True);
-	If Not Common.DataSeparationEnabled() Or IsSystemAdministrator Then
+	If IsSystemAdministrator Then
 		GenerateSchedules();
-	ElsIf Common.DataSeparationEnabled() And Not IsSystemAdministrator Then
+	Else
 		Items.ScheduleGroup.Visible = False;
 	EndIf;
 		

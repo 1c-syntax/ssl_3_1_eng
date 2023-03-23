@@ -28,7 +28,7 @@ EndProcedure
 //  Cancel - Boolean - if security profiles cannot be used for the infobase,
 //    set the value of this parameter to True.
 //
-Procedure CanSetupSecurityProfilesOnCheck(Cancel) Export
+Procedure OnCheckCanSetupSecurityProfiles(Cancel) Export
 	
 	
 	

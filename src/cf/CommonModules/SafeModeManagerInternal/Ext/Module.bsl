@@ -20,9 +20,9 @@ Function CanSetUpSecurityProfiles() Export
 		
 		Cancel = False;
 		
-		SSLSubsystemsIntegration.CanSetupSecurityProfilesOnCheck(Cancel);
+		SSLSubsystemsIntegration.OnCheckCanSetupSecurityProfiles(Cancel);
 		If Not Cancel Then
-			SafeModeManagerOverridable.CanSetupSecurityProfilesOnCheck(Cancel);
+			SafeModeManagerOverridable.OnCheckCanSetupSecurityProfiles(Cancel);
 		EndIf;
 		
 		Return Not Cancel;
@@ -176,7 +176,7 @@ Function PermissionsToUseExternalResourcesPresentation(Val ProgramModuleType,
 	
 	BeginTransaction();
 	Try
-		Manager = DataProcessors.ExternalResourcePermissionSetup.Create();
+		Manager = DataProcessors.ExternalResourcesPermissionsSetup.Create();
 		
 		Manager.AddRequestForPermissionsToUseExternalResources(
 			ProgramModuleType,
@@ -223,7 +223,7 @@ Procedure OnAddClientParametersOnStart(Parameters, BeforeUpdateApplicationRunPar
 		Return;
 	EndIf;	
 			
-	Validation = PermissionsToUseExternalResourcesSetupServerCall.CheckApplyPermissionsToUseExternalResources();
+	Validation = ExternalResourcesPermissionsSetupServerCall.CheckApplyPermissionsToUseExternalResources();
 	If Validation.CheckResult Then
 		Parameters.Insert("CheckExternalResourceUsagePermissionsApplication", False);
 	Else
@@ -599,7 +599,7 @@ EndFunction
 // Must be called when recording any internal data that cannot
 // be changed in the safe mode.
 //
-Procedure InternalDataOnWrite(Object) Export
+Procedure OnSaveInternalData(Object) Export
 	
 	If SafeModeManager.SafeModeSet() Then
 		

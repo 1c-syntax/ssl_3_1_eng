@@ -676,7 +676,7 @@ Function GenerateMatches(LeftTable, RightTable, ByRows)
 			|FROM
 			|	ComplianceWithConflicts AS ComplianceWithConflicts";
 			
-		Selection = Query.Execute().Select();
+		Selection = Query.Execute().Select(); //@skip-
 		Selection.Next();
 		LevelOfConflicts = Selection.NumberOfConflicts;
 		
@@ -690,7 +690,7 @@ Function GenerateMatches(LeftTable, RightTable, ByRows)
 		TemporaryTablesToDelete.Add("MaximumReplacementWeight");
 		TemporaryTablesToDelete.Add("FoundConflictsOfOptions");
 		
-		DeleteTemporaryTables(Query, TemporaryTablesToDelete);
+		DeleteTemporaryTables(Query, TemporaryTablesToDelete); //
 
 	EndDo;
 	

@@ -60,7 +60,7 @@
 			<Title formatted="false">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>If you are not a technical specialist, report this issue to your administrator, and then click "Cancel".</v8:content>
+					<v8:content>If you are not a technical specialist, report this issue to your administrator, and then click Cancel.</v8:content>
 				</v8:item>
 			</Title>
 			<ContextMenu name="RedirectionContextMenu" id="18"/>

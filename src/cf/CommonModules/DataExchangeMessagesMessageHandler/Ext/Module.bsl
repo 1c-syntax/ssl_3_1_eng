@@ -16,9 +16,9 @@
 // 
 Procedure GetMessagesChannelsHandlers(Handlers) Export
 	
-	AddMessageChannelHandler("DataExchange\Application3\ExchangeCreation",                 DataExchangeMessagesMessageHandler, Handlers);
-	AddMessageChannelHandler("DataExchange\Application3\DeleteExchange",                 DataExchangeMessagesMessageHandler, Handlers);
-	AddMessageChannelHandler("DataExchange\Application3\SetDataAreaPrefix", DataExchangeMessagesMessageHandler, Handlers);
+	AddMessageChannelHandler("DataExchange\ApplicationSoftware\ExchangeCreation",                 DataExchangeMessagesMessageHandler, Handlers);
+	AddMessageChannelHandler("DataExchange\ApplicationSoftware\DeleteExchange",                 DataExchangeMessagesMessageHandler, Handlers);
+	AddMessageChannelHandler("DataExchange\ApplicationSoftware\SetDataAreaPrefix", DataExchangeMessagesMessageHandler, Handlers);
 	
 EndProcedure
 
@@ -35,7 +35,7 @@ Procedure ProcessMessage(MessagesChannel, Body, Sender) Export
 		
 		SetDataArea(Body.DataArea);
 		
-		If MessagesChannel = "DataExchange\Application3\ExchangeCreation" Then
+		If MessagesChannel = "DataExchange\ApplicationSoftware\ExchangeCreation" Then
 			
 			CreateDataExchangeInInfobase(
 									Sender,
@@ -45,11 +45,11 @@ Procedure ProcessMessage(MessagesChannel, Body, Sender) Export
 									Body.ThisNodeCode,
 									Body.NewNodeCode);
 			
-		ElsIf MessagesChannel = "DataExchange\Application3\DeleteExchange" Then
+		ElsIf MessagesChannel = "DataExchange\ApplicationSoftware\DeleteExchange" Then
 			
 			DeleteDataExchangeFromInfobase(Sender, Body.ExchangePlanName, Body.NodeCode, Body.DataArea);
 			
-		ElsIf MessagesChannel = "DataExchange\Application3\SetDataAreaPrefix" Then
+		ElsIf MessagesChannel = "DataExchange\ApplicationSoftware\SetDataAreaPrefix" Then
 			
 			SetDataAreaPrefix(Body.Prefix);
 			
@@ -186,11 +186,11 @@ Procedure SetDataArea(Val DataArea)
 		Return;
 	EndIf;
 		
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
 	SetPrivilegedMode(True);
 	
-	ModuleSaaS.SetSessionSeparation(True, DataArea);
+	ModuleSaaSOperations.SetSessionSeparation(True, DataArea);
 	
 EndProcedure
 
@@ -200,11 +200,11 @@ Procedure CancelDataAreaSetup()
 		Return;
 	EndIf;
 		
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
 	SetPrivilegedMode(True);
 	
-	ModuleSaaS.SetSessionSeparation(False);
+	ModuleSaaSOperations.SetSessionSeparation(False);
 	
 EndProcedure
 
@@ -221,7 +221,7 @@ Procedure SendMessageOperationSuccessful(Code1, Code2, Endpoint)
 		
 		Body = New Structure("Code1, Code2", Code1, Code2);
 		
-		ModuleMessagesExchange.SendMessage("DataExchange\Application3\Response\ActionSuccessful", Body, Endpoint);
+		ModuleMessagesExchange.SendMessage("DataExchange\ApplicationSoftware\Response\ActionSuccessful", Body, Endpoint);
 		
 		CommitTransaction();
 	Except
@@ -246,7 +246,7 @@ Procedure SendMessageExchangeCreationError(Code1, Code2, ErrorString, Endpoint)
 		
 		Body = New Structure("Code1, Code2, ErrorString", Code1, Code2, ErrorString);
 		
-		ModuleMessagesExchange.SendMessage("DataExchange\Application3\Response\ExchangeCreationError", Body, Endpoint);
+		ModuleMessagesExchange.SendMessage("DataExchange\ApplicationSoftware\Response\ExchangeCreationError", Body, Endpoint);
 		
 		CommitTransaction();
 	Except

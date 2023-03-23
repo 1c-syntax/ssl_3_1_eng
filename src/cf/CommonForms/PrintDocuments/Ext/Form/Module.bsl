@@ -403,11 +403,13 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	ElsIf (EventName = "CancelTemplateChange"
 		Or EventName = "CancelEditSpreadsheetDocument"
 		And Source.FormOwner = ThisObject
+		And ValueIsFilled(Parameter.TemplateMetadataObjectName)
 		And StrEndsWith(PrintFormSetting.TemplatePath, Parameter.TemplateMetadataObjectName)) Then
 			DisplayCurrentPrintFormState();
 	ElsIf EventName = "Write_SpreadsheetDocument" 
-		And StrEndsWith(PrintFormSetting.TemplatePath, Parameter.TemplateMetadataObjectName)
-		And Source.FormOwner = ThisObject Then
+		And Source.FormOwner = ThisObject
+		And ValueIsFilled(Parameter.TemplateMetadataObjectName)
+		And StrEndsWith(PrintFormSetting.TemplatePath, Parameter.TemplateMetadataObjectName) Then
 			AttachIdleHandler("RefreshCurrentPrintForm",0.1, True);
 	EndIf;
 	

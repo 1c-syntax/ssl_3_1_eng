@@ -19,6 +19,8 @@ Var InternalData, PasswordProperties;
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
+	DigitalSignatureInternal.SetVisibilityOfLinkToInstructionsForWorkingWithPrograms(Items.Instruction);
+	
 	HaveRightToAddInDirectory = AccessRight("Insert",
 		Metadata.Catalogs.DigitalSignatureAndEncryptionKeysCertificates);
 	IsFullUser = Users.IsFullUser(Users.CurrentUser());

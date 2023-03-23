@@ -11550,7 +11550,7 @@ Procedure GetExportRulesRowByExchangeObject(Data, LastObjectMetadata, ExportObje
 		
 		If LastObjectMetadata <> ExportObjectMetadata Then
 		
-			CurrentExportRuleRow = FindExportRulesTreeRowByExportType(TempConversionRulesArray, StructureOfData.RefType1);
+			CurrentExportRuleRow = FindExportRulesTreeRowByExportType(TempConversionRulesArray, StructureOfData.RefType);
 			
 		Else
 			
@@ -11564,7 +11564,7 @@ Procedure GetExportRulesRowByExchangeObject(Data, LastObjectMetadata, ExportObje
 		
 		If LastObjectMetadata <> ExportObjectMetadata Then
 		
-			CurrentExportRuleRow = FindExportRulesTreeRowByExportType(TempConversionRulesArray, StructureOfData.RefType1);
+			CurrentExportRuleRow = FindExportRulesTreeRowByExportType(TempConversionRulesArray, StructureOfData.RefType);
 			
 		Else
 			
@@ -12259,7 +12259,7 @@ Procedure ImportTypeMapForSingleType(ExchangeRules, TypeMap)
 		
 		If ExchangeRules.NodeType = deXMLNodeTypeStartElement Then
 			
-			// this is a new item
+			// This is a new item.
 			NewMap = New Map;
 			TypeMap.Insert(NodeName, NewMap);
 			
@@ -13899,13 +13899,13 @@ Procedure SupplementManagerArrayWithReferenceType(Managers, ManagersForExchangeP
 	QueryText = StrReplace(QueryText, "&AutocorrectParameterForZeroingTheConditionSection", "");
 	
 	SearchString     = QueryText;
-	RefType1        = Type(RefTypeString1);
+	RefType        = Type(RefTypeString1);
 	Structure = ManagerParametersStructure(Name, TypeName, RefTypeString1, Manager, MetadataObjectsList);
 	Structure.Insert("SearchByPredefinedItemsPossible", SearchByPredefinedItemsPossible);
 	Structure.Insert("SearchString", SearchString);
-	Managers.Insert(RefType1, Structure);
+	Managers.Insert(RefType, Structure);
 	
-	StructureForExchangePlan = ExchangePlanParametersStructure(Name, RefType1, True, False);
+	StructureForExchangePlan = ExchangePlanParametersStructure(Name, RefType, True, False);
 	ManagersForExchangePlans.Insert(MetadataObjectsList, StructureForExchangePlan);
 	
 EndProcedure
@@ -13916,7 +13916,7 @@ Procedure SupplementManagerArrayWithRegisterType(Managers, MetadataObjectsList, 
 	
 	Name					= MetadataObjectsList.Name;
 	RefTypeString1	= TypeNamePrefixRecord + "." + Name;
-	RefType1			= Type(RefTypeString1);
+	RefType			= Type(RefTypeString1);
 	Structure = ManagerParametersStructure(Name, TypeName, RefTypeString1, Manager, MetadataObjectsList);
 	
 	If TypeName = "InformationRegister" Then
@@ -13929,16 +13929,16 @@ Procedure SupplementManagerArrayWithRegisterType(Managers, MetadataObjectsList, 
 		
 	EndIf;	
 	
-	Managers.Insert(RefType1, Structure);
+	Managers.Insert(RefType, Structure);
 		
 
-	StructureForExchangePlan = ExchangePlanParametersStructure(Name, RefType1, False, True);
+	StructureForExchangePlan = ExchangePlanParametersStructure(Name, RefType, False, True);
 
 	ManagersForExchangePlans.Insert(MetadataObjectsList, StructureForExchangePlan);
 	
 	
 	RefTypeString1	= SelectionTypeNamePrefix + "." + Name;
-	RefType1			= Type(RefTypeString1);
+	RefType			= Type(RefTypeString1);
 	Structure = ManagerParametersStructure(Name, TypeName, RefTypeString1, Manager, MetadataObjectsList);
 
 	If Periodic3 <> Undefined Then
@@ -13948,7 +13948,7 @@ Procedure SupplementManagerArrayWithRegisterType(Managers, MetadataObjectsList, 
 		
 	EndIf;
 	
-	Managers.Insert(RefType1, Structure);	
+	Managers.Insert(RefType, Structure);	
 		
 EndProcedure
 
@@ -14017,11 +14017,11 @@ Procedure ManagersInitialization()
 		Manager         = BusinessProcesses[Name].RoutePoints;
 		SearchString     = "";
 		RefTypeString1 = "BusinessProcessRoutePointRef." + Name;
-		RefType1        = Type(RefTypeString1);
+		RefType        = Type(RefTypeString1);
 		Structure = ManagerParametersStructure(Name, TypeName, RefTypeString1, Manager, MetadataObjectsList);
 		Structure.Insert("EmptyRef", Undefined);
 		Structure.Insert("SearchString", SearchString);
-		Managers.Insert(RefType1, Structure);
+		Managers.Insert(RefType, Structure);
 				
 	EndDo;
 	
@@ -14058,11 +14058,11 @@ Procedure ManagersInitialization()
 		Name              = MetadataObjectsList.Name;
 		Manager         = Enums[Name];
 		RefTypeString1 = "EnumRef." + Name;
-		RefType1        = Type(RefTypeString1);
+		RefType        = Type(RefTypeString1);
 		Structure = ManagerParametersStructure(Name, TypeName, RefTypeString1, Manager, MetadataObjectsList);
 		Structure.Insert("EmptyRef", Enums[Name].EmptyRef());
 
-		Managers.Insert(RefType1, Structure);
+		Managers.Insert(RefType, Structure);
 		
 	EndDo;	
 	
@@ -14072,9 +14072,9 @@ Procedure ManagersInitialization()
 	Name					= "Constants";
 	Manager			= Constants;
 	RefTypeString1	= "ConstantsSet";
-	RefType1			= Type(RefTypeString1);
+	RefType			= Type(RefTypeString1);
 	Structure = ManagerParametersStructure(Name, TypeName, RefTypeString1, Manager, MetadataObjectsList);
-	Managers.Insert(RefType1, Structure);
+	Managers.Insert(RefType, Structure);
 	
 EndProcedure
 
@@ -14647,10 +14647,10 @@ Function ManagerParametersStructure(Name, TypeName, RefTypeString1, Manager, Met
 	Return Structure;
 EndFunction
 
-Function ExchangePlanParametersStructure(Name, RefType1, IsReferenceType, IsRegister)
+Function ExchangePlanParametersStructure(Name, RefType, IsReferenceType, IsRegister)
 	Structure = New Structure();
 	Structure.Insert("Name",Name);
-	Structure.Insert("RefType1",RefType1);
+	Structure.Insert("RefType",RefType);
 	Structure.Insert("IsReferenceType",IsReferenceType);
 	Structure.Insert("IsRegister",IsRegister);
 	Return Structure;

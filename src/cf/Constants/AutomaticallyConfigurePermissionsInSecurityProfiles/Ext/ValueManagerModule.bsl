@@ -15,7 +15,7 @@ Procedure OnWrite(Cancel)
 	
 	// 
 	// 
-	SafeModeManagerInternal.InternalDataOnWrite(ThisObject);
+	SafeModeManagerInternal.OnSaveInternalData(ThisObject);
 	
 	If DataExchange.Load Then
 		Return;
@@ -23,7 +23,7 @@ Procedure OnWrite(Cancel)
 	
 	If Not Value Then
 		
-		DataProcessors.ExternalResourcePermissionSetup.ClearPermissions();
+		DataProcessors.ExternalResourcesPermissionsSetup.ClearPermissions();
 		
 	EndIf;
 	

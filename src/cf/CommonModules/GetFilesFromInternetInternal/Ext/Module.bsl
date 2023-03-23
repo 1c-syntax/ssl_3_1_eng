@@ -847,11 +847,6 @@ EndFunction
 //
 Function NewInternetProxy(ProxyServerSetting, URLOrProtocol) Export
 	
-	Protocol = "http";
-	If ValueIsFilled(URLOrProtocol) Then
-		Protocol = TheProtocolForTheProxy(URLOrProtocol);
-	EndIf;
-	
 	If ProxyServerSetting = Undefined Then
 		// Системные установки прокси-
 		Return Undefined;
@@ -869,26 +864,35 @@ Function NewInternetProxy(ProxyServerSetting, URLOrProtocol) Export
 		Return New InternetProxy(True);
 	EndIf;
 	
+	UseOSAuthentication = ProxyServerSetting.Get("UseOSAuthentication");
+	UseOSAuthentication = ?(UseOSAuthentication = True, True, False);
+
+	AdditionalSettings = ProxyServerSetting.Get("AdditionalProxySettings");
+	If TypeOf(AdditionalSettings) <> Type("Map") Then
+		AdditionalSettings = New Map;
+	EndIf;
+	
 	// Manually configured proxy settings.
 	Proxy = New InternetProxy;
 	
-	// Detecting a proxy server address and port.
-	AdditionalSettings = ProxyServerSetting.Get("AdditionalProxySettings");
-	ProxyByProtocol = Undefined;
-	If TypeOf(AdditionalSettings) = Type("Map") Then
-		ProxyByProtocol = AdditionalSettings.Get(Protocol);
-	EndIf;
-	
-	UseOSAuthentication = ProxyServerSetting.Get("UseOSAuthentication");
-	UseOSAuthentication = ?(UseOSAuthentication = True, True, False);
-	
-	If TypeOf(ProxyByProtocol) = Type("Structure") Then
-		Proxy.Set(Protocol, ProxyByProtocol.Address, ProxyByProtocol.Port,
+	Protocols = StrSplit("http,https,ftp,ftps", ",", False);
+	For Each Protocol In Protocols Do
+		ServerAddress = ProxyServerSetting["Server"];
+		Port = ProxyServerSetting["Port"];
+		
+		ProxyByProtocol = AdditionalSettings[Protocol];
+		If TypeOf(ProxyByProtocol) = Type("Structure") Then
+			ServerAddress = ProxyByProtocol.Address;
+			Port = ProxyByProtocol.Port;
+		EndIf;
+		
+		If Not ValueIsFilled(Port) Then
+			Port = Undefined;
+		EndIf;
+		
+		Proxy.Set(Protocol, ServerAddress, Port, 
 			ProxyServerSetting["User"], ProxyServerSetting["Password"], UseOSAuthentication);
-	Else
-		Proxy.Set(Protocol, ProxyServerSetting["Server"], ProxyServerSetting["Port"], 
-			ProxyServerSetting["User"], ProxyServerSetting["Password"], UseOSAuthentication);
-	EndIf;
+	EndDo;
 	
 	Proxy.BypassProxyOnLocal = ProxyServerSetting["BypassProxyOnLocal"];
 	

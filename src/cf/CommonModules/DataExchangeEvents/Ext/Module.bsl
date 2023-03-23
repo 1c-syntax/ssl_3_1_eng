@@ -759,16 +759,16 @@ Procedure CheckDataExchangeSettingsEditability(Source, Cancel) Export
 	If Common.DataSeparationEnabled() Then
 		FullMetadataName = Source.Metadata().FullName();
 		
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		
-		MainDataSeparator        = ModuleSaaS.MainDataSeparator();
-		AuxiliaryDataSeparator = ModuleSaaS.AuxiliaryDataSeparator();
+		MainDataSeparator        = ModuleSaaSOperations.MainDataSeparator();
+		AuxiliaryDataSeparator = ModuleSaaSOperations.AuxiliaryDataSeparator();
 		
-		If ModuleSaaS.IsSeparatedMetadataObject(FullMetadataName, MainDataSeparator) Then
+		If ModuleSaaSOperations.IsSeparatedMetadataObject(FullMetadataName, MainDataSeparator) Then
 			PropertiesToExclude.Add(MainDataSeparator);
 		EndIf;
 		
-		If ModuleSaaS.IsSeparatedMetadataObject(FullMetadataName, AuxiliaryDataSeparator) Then
+		If ModuleSaaSOperations.IsSeparatedMetadataObject(FullMetadataName, AuxiliaryDataSeparator) Then
 			PropertiesToExclude.Add(AuxiliaryDataSeparator);
 		EndIf;
 		
@@ -786,8 +786,8 @@ Procedure CheckDataExchangeSettingsEditability(Source, Cancel) Export
 	EndIf;
 	
 	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		SessionWithoutSeparators = ModuleSaaS.SessionWithoutSeparators();
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		SessionWithoutSeparators = ModuleSaaSOperations.SessionWithoutSeparators();
 	Else
 		SessionWithoutSeparators = True;
 	EndIf;
@@ -975,14 +975,14 @@ Procedure CancelSendNodeDataInDistributedInfobase(Source, DataElement, Ignore) E
 			// 
 			// 
 			// 
-			ModuleSaaS = Common.CommonModule("SaaSOperations");
-			If ModuleSaaS.IsSeparatedMetadataObject(Source.Metadata().FullName(),
-				ModuleSaaS.MainDataSeparator()) Then
-				DataElement[ModuleSaaS.MainDataSeparator()] = 0;
+			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+			If ModuleSaaSOperations.IsSeparatedMetadataObject(Source.Metadata().FullName(),
+				ModuleSaaSOperations.MainDataSeparator()) Then
+				DataElement[ModuleSaaSOperations.MainDataSeparator()] = 0;
 			EndIf;
-			If ModuleSaaS.IsSeparatedMetadataObject(Source.Metadata().FullName(),
-				ModuleSaaS.AuxiliaryDataSeparator()) Then
-				DataElement[ModuleSaaS.AuxiliaryDataSeparator()] = 0;
+			If ModuleSaaSOperations.IsSeparatedMetadataObject(Source.Metadata().FullName(),
+				ModuleSaaSOperations.AuxiliaryDataSeparator()) Then
+				DataElement[ModuleSaaSOperations.AuxiliaryDataSeparator()] = 0;
 			EndIf;
 		EndIf;
 		
@@ -1046,14 +1046,14 @@ Procedure ClearRefsToInfobaseNode(Source, Cancel) Export
 			And Not Source.AdditionalProperties.Property("IsSWPMasterNode") Then
 			
 			ModuleJobsQueue = Common.CommonModule("JobsQueue");
-			ModuleSaaS = Common.CommonModule("SaaSOperations");
+			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 			
 			JobKey = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Data exchange with external system (%1)';"),
 				Source.Code);
 				
 			Filter = New Structure;
-			Filter.Insert("DataArea", ModuleSaaS.SessionSeparatorValue());
+			Filter.Insert("DataArea", ModuleSaaSOperations.SessionSeparatorValue());
 			Filter.Insert("Key",          JobKey);
 			
 			JobTable = ModuleJobsQueue.GetTasks(Filter);
@@ -1192,9 +1192,9 @@ Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParam
 			EndIf;
 			
 			If Common.SubsystemExists("CloudTechnology.Core") Then
-				ModuleSaaS = Common.CommonModule("SaaSOperations");
-				IsSeparatedData = ModuleSaaS.IsSeparatedMetadataObject(
-					MetadataObject.FullName(), ModuleSaaS.MainDataSeparator());
+				ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+				IsSeparatedData = ModuleSaaSOperations.IsSeparatedMetadataObject(
+					MetadataObject.FullName(), ModuleSaaSOperations.MainDataSeparator());
 			Else
 				IsSeparatedData = False;
 			EndIf;
@@ -1202,9 +1202,9 @@ Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParam
 			If Common.SeparatedDataUsageAvailable() Then
 				
 				If Common.SubsystemExists("CloudTechnology.Core") Then
-					ModuleSaaS = Common.CommonModule("SaaSOperations");
-					IsMutuallySeparatedData = ModuleSaaS.IsSeparatedMetadataObject(
-						MetadataObject.FullName(), ModuleSaaS.AuxiliaryDataSeparator());
+					ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+					IsMutuallySeparatedData = ModuleSaaSOperations.IsSeparatedMetadataObject(
+						MetadataObject.FullName(), ModuleSaaSOperations.AuxiliaryDataSeparator());
 				Else
 					IsMutuallySeparatedData = False;
 				EndIf;
@@ -2133,9 +2133,9 @@ EndFunction
 Function SeparatedExchangePlan(Val ExchangePlanName)
 	
 	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		IsSeparatedData = ModuleSaaS.IsSeparatedMetadataObject(
-			"ExchangePlan." + ExchangePlanName, ModuleSaaS.MainDataSeparator());
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		IsSeparatedData = ModuleSaaSOperations.IsSeparatedMetadataObject(
+			"ExchangePlan." + ExchangePlanName, ModuleSaaSOperations.MainDataSeparator());
 	Else
 		IsSeparatedData = False;
 	EndIf;

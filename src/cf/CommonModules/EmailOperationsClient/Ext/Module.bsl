@@ -147,7 +147,7 @@ EndProcedure
 
 Procedure GoToEmailAccountInputDocumentation() Export
 	
-	FileSystemClient.OpenURL("https://its.1c.ru/bmk/bsp_email_account");
+	FileSystemClient.OpenURL("https://its.1c.eu/bmk/bsp_email_account");
 	
 EndProcedure
 

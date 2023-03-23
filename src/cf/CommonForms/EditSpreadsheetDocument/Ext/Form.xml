@@ -1157,7 +1157,7 @@
 				</Button>
 			</ChildItems>
 		</CommandBar>
-		<UsualGroup name="GroupTemplateAssignment" id="635">
+		<UsualGroup name="GroupTemplateAssignment" id="735">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -1167,19 +1167,19 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupTemplateAssignmentExtendedTooltip" id="636"/>
+			<ExtendedTooltip name="GroupTemplateAssignmentExtendedTooltip" id="736"/>
 			<ChildItems>
-				<LabelDecoration name="AssignmentTitle" id="637">
+				<LabelDecoration name="AssignmentTitle" id="737">
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>Assignment:</v8:content>
 						</v8:item>
 					</Title>
-					<ContextMenu name="AssignmentTitleContextMenu" id="638"/>
-					<ExtendedTooltip name="AssignmentTitleExtendedTooltip" id="639"/>
+					<ContextMenu name="AssignmentTitleContextMenu" id="738"/>
+					<ExtendedTooltip name="AssignmentTitleExtendedTooltip" id="739"/>
 				</LabelDecoration>
-				<LabelDecoration name="TextAssignment" id="640">
+				<LabelDecoration name="TextAssignment" id="740">
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<HorizontalStretch>true</HorizontalStretch>
 					<Title formatted="false">
@@ -1189,8 +1189,8 @@
 						</v8:item>
 					</Title>
 					<Hyperlink>true</Hyperlink>
-					<ContextMenu name="TextAssignmentContextMenu" id="641"/>
-					<ExtendedTooltip name="TextAssignmentExtendedTooltip" id="642"/>
+					<ContextMenu name="TextAssignmentContextMenu" id="741"/>
+					<ExtendedTooltip name="TextAssignmentExtendedTooltip" id="742"/>
 					<Events>
 						<Event name="Click">TemplateOwnersClick</Event>
 					</Events>

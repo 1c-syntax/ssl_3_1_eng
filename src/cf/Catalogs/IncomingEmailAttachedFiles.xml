@@ -1333,7 +1333,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Is attached mail</v8:content>
+							<v8:content>This is an attached mail</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -1544,7 +1544,7 @@
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Free text about the signature.</v8:content>
+									<v8:content>Signature comment</v8:content>
 								</v8:item>
 							</ToolTip>
 							<MarkNegatives>false</MarkNegatives>
@@ -1836,7 +1836,7 @@
 							<Synonym>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Is valid signature</v8:content>
+									<v8:content>Valid signature</v8:content>
 								</v8:item>
 							</Synonym>
 							<Comment/>

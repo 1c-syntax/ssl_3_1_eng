@@ -674,6 +674,7 @@ Procedure SetObjectsMarkedForDeletionSelectionState()
 	Items.SearchFilterSettingsGroup.Enabled = True;
 	Items.ProgressPresentation.Visible = False;
 	Items.MarkedForDeletionItemsTreeDeleteSelectedItems.DefaultButton = True;
+	Items.DeleteSearchBar.Visible = True;
 EndProcedure
 
 &AtServer
@@ -693,6 +694,7 @@ Procedure SetObjectsMarkedForDeletionSelectionStateWithStatePanel()
 	Items.ProgressPresentation.Visible = False;
 	Items.MarkedForDeletionItemsTreeDeleteSelectedItems.DefaultButton = True;
 	Items.ActiveAfterSearchMarkedObjectsGroup.Enabled = MarkedForDeletionItemsTree.GetItems().Count() > 0;;
+	Items.DeleteSearchBar.Visible = False;
 EndProcedure
 
 &AtServer
@@ -715,6 +717,7 @@ Procedure SetStateUnsuccessfulDeletion()
 	Items.CommandBarForm.Visible = True;
 	Items.ExecuteActionsAndDelete.DefaultButton = True;
 	Items.DetailsRef.Visible = False;
+	Items.DeleteSearchBar.Visible = False;
 EndProcedure
 
 &AtServer
@@ -741,6 +744,7 @@ Procedure SetStateUnsuccessfulDeletionWithStatePanel()
 		Items.NotDeletedItemsGroup.Visible = False;
 	EndIf;
 	Items.DetailsRef.Visible = False;
+	Items.DeleteSearchBar.Visible = False;
 EndProcedure
 
 #EndRegion
@@ -969,8 +973,7 @@ Procedure OnConfirmationDelete(Result, AdditionalParameters) Export
 		Return;
 	EndIf;
 	ActionParameter = ?(AdditionalParameters.TotalCount1 = AdditionalParameters.SelectedCount,
-							"CompleteRemoval",
-							"");
+		"CompleteRemoval", "");
 	AddJob(FormJobs().DeleteMarkedObjects, ActionParameter);
 	RunJob();
 EndProcedure

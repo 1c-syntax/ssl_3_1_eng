@@ -93,7 +93,7 @@ EndProcedure
 &AtClient
 Procedure ServiceStartChoice(Item, ChoiceData, StandardProcessing)
 	ChoiceData = New ValueList();
-	ChoiceData.Add("https://webdav.yandex.ru", NStr("en = 'Yandex.Disk';"));
+	ChoiceData.Add("https://webdav.yandex.com", NStr("en = 'Yandex.Disk';"));
 	ChoiceData.Add("https://dav.box.com/dav", NStr("en = 'Box';"));
 	ChoiceData.Add("https://dav.dropdav.com", NStr("en = 'DropBox (via dropdav.com)';"));
 	StandardProcessing = False;

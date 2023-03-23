@@ -681,7 +681,7 @@ Function LinksAddedWhenTheObjectWasChanged(ReferencesDetails, LinksMarkedForDele
 	
 	TheSeparatorPackageRequests = Chars.LF + "UNION ALL" + Chars.LF;
 	
-	QueryTemplate1 = "
+	QueryTemplate = "
 	|SELECT
 	|	&RefValue AS Ref,
 	|	PRESENTATION(&RefValue) AS Presentation
@@ -709,7 +709,7 @@ Function LinksAddedWhenTheObjectWasChanged(ReferencesDetails, LinksMarkedForDele
 		DescriptionOfTheLink = ReferencesDetails.FindRows(New Structure("Ref", RefValue));
 		For Each RefToDelete In DescriptionOfTheLink Do
 			ReferenceParameter = "RefValue" + XMLString(OtherLinkParameters);
-			QueryText = StrReplace(QueryTemplate1, "&RefValue", "&" + ReferenceParameter);
+			QueryText = StrReplace(QueryTemplate, "&RefValue", "&" + ReferenceParameter);
 			QueryText = StrReplace(QueryText, "#TableName", RefToDelete.Table);
 			Query.Parameters.Insert(ReferenceParameter, RefValue);
 			

@@ -21,14 +21,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	IsSystemAdministrator = Users.IsFullUser(, True);
 	
-	If Not ( (Not Common.DataSeparationEnabled() And AccountingCheckRulesSettingAllowed)
-		Or (Common.DataSeparationEnabled() And IsSystemAdministrator) ) Then
-		
-		Items.PresentationOfCommonSchedule.Visible    = False;
-		Items.ScheduledJobPresentation.Visible = False;
-		
-	Else
-		
+	If IsSystemAdministrator Then
 		CommonScheduledJob = ScheduledJobsServer.Job(Metadata.ScheduledJobs.AccountingCheck);
 		If CommonScheduledJob <> Undefined Then
 			If Not Common.DataSeparationEnabled() Then
@@ -71,7 +64,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		List.SettingsComposer.Settings.AdditionalProperties.Insert("PresentationOfCommonSchedule", CommonSchedulePresentation);
 		
 		Items.PresentationOfCommonSchedule.Title = GenerateRowWithSchedule();
-		
+	Else
+		Items.PresentationOfCommonSchedule.Visible    = False;
+		Items.ScheduledJobPresentation.Visible = False;
 	EndIf;
 	
 	Items.PresentationOfCommonSchedule.Enabled = InfobaseUpdate.ObjectProcessed(

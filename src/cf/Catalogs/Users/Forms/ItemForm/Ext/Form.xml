@@ -121,7 +121,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Internal user</v8:content>
+					<v8:content>Utility user</v8:content>
 				</v8:item>
 			</Title>
 			<Behavior>Usual</Behavior>
@@ -133,7 +133,7 @@
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Internal user picture</v8:content>
+							<v8:content>Utility user picture</v8:content>
 						</v8:item>
 					</Title>
 					<Picture>
@@ -150,13 +150,13 @@
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>This is an internal user intended for automation of some operations.</v8:content>
+							<v8:content>This is an utility user intended for automation of some operations.</v8:content>
 						</v8:item>
 					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Internal users are created and modified automatically.
+							<v8:content>Utility users are created and modified automatically.
 They are not displayed in any user lists, including the lists where one can select users.</v8:content>
 						</v8:item>
 					</ToolTip>

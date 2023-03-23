@@ -1749,7 +1749,7 @@ EndFunction
 Function Permissions() Export
 	
 	Protocol = "HTTPS";
-	Address = "downloads.v8.1c.ru";
+	Address = AddressOfExternalResource();
 	Port = Undefined;
 	LongDesc = NStr("en = 'Search for email settings and run connection error troubleshooting.';");
 	
@@ -1798,7 +1798,7 @@ Function ExplanationOnError(ErrorText, Val LanguageCode = Undefined, ForSetupAss
 	
 	If Common.SubsystemExists("StandardSubsystems.GetFilesFromInternet") Then
 		ModuleNetworkDownload = Common.CommonModule("GetFilesFromInternet");
-		FileAddress = "https://downloads.v8.1c.ru/content/common/settings/mailerrors.json";
+		FileAddress = AddressOfFileWithDescriptionOfErrors();
 		ImportedFile = ModuleNetworkDownload.DownloadFileAtServer(FileAddress);
 		If ImportedFile.Status Then
 			JSONReader = New JSONReader();
@@ -2707,6 +2707,45 @@ Function DNSServerAddresses() Export
 	Result.Add("8.8.4.4"); // dns.google
 	
 	Return Result;
+	
+EndFunction
+
+Function AddressOfSettingsFile() Export
+	
+	FileAddress = "https://downloads.v8.1c.eu/content/common/settings/mailservers.json";
+	
+	If Metadata.CommonModules.Find("EmailOperationsInternalLocalization") <> Undefined Then
+		ModuleEmailOperationsInternalLocalization = Common.CommonModule("EmailOperationsInternalLocalization");
+		ModuleEmailOperationsInternalLocalization.OnGettingFileAddressWithSettings(FileAddress);
+	EndIf;
+
+	Return FileAddress;
+		
+EndFunction
+
+Function AddressOfFileWithDescriptionOfErrors()
+	
+	FileAddress = "https://downloads.v8.1c.eu/content/common/settings/mailerrors.json";
+	
+	If Metadata.CommonModules.Find("EmailOperationsInternalLocalization") <> Undefined Then
+		ModuleEmailOperationsInternalLocalization = Common.CommonModule("EmailOperationsInternalLocalization");
+		ModuleEmailOperationsInternalLocalization.OnReceivingFileAddressWithErrorDescriptions(FileAddress);
+	EndIf;
+
+	Return FileAddress;
+	
+EndFunction
+
+Function AddressOfExternalResource()
+	
+	AddressOfExternalResource = "downloads.v8.1c.eu";
+	
+	If Metadata.CommonModules.Find("EmailOperationsInternalLocalization") <> Undefined Then
+		ModuleEmailOperationsInternalLocalization = Common.CommonModule("EmailOperationsInternalLocalization");
+		ModuleEmailOperationsInternalLocalization.OnGettingAddressExternalResource(AddressOfExternalResource);
+	EndIf;
+	
+	Return AddressOfExternalResource;
 	
 EndFunction
 

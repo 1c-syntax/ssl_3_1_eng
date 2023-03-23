@@ -910,7 +910,7 @@ EndFunction
 //                               in the "<CatalogName>.<PredefinedItemName>" format.
 //        ** Value - String - a full name of the relevant metadata object.
 //
-//    * AccessKeysValuesOwners - Structure - for the group of flexible type collections:
+//    * AccessKeysValuesOwners - Structure - For the group of type collections:
 //        ** References    - Array of String - full names of the reference types (collection name in English).
 //        ** Documents - Array of String - full names of the object types (collection name in English).
 //        ** Objects                      - Array of String - the same as in the previous paragraph.
@@ -1073,12 +1073,12 @@ EndFunction
 //
 //   * ForExternalUsers - Structure - with properties like ForUsers.
 //
-//   * AccessKeysValuesOwner                            - String - types for the same flexible type collection.
-//   * AccessKeysValuesOwnerObject                      - String - types for the same flexible type collection.
-//   * AccessKeysValuesOwnerRecordSet                - String - types for the same flexible type collection.
-//   * AccessKeysValuesOwnerCalculationRegisterRecordSet - String - types for the same flexible type collection.
-//   * RegisterAccessKeysRegisterField                      - String - types for the same flexible type collection.
-//   * AccessValue                                          - String - types for the same flexible type collection.
+//   * AccessKeysValuesOwner                            - String - Types for the same type collection.
+//   * AccessKeysValuesOwnerObject                      - String - Types for the same type collection.
+//   * AccessKeysValuesOwnerRecordSet                - String - Types for the same type collection.
+//   * AccessKeysValuesOwnerCalculationRegisterRecordSet - String - Types for the same type collection.
+//   * RegisterAccessKeysRegisterField                      - String - Types for the same type collection.
+//   * AccessValue                                          - String - Types for the same type collection.
 //
 //   * DimensionTypesForSeparateKeyRegister - Undefined
 //                                           - Structure:
@@ -1137,7 +1137,7 @@ Procedure ScheduleAccessUpdate(Lists = Undefined, PlanningParameters = Undefined
 			AccessManagementInternalCached.AllowedAccessKey());
 		Query.Text =
 		"SELECT DISTINCT
-		|	VALUETYPE(DataAccessKeys.Object) AS RefType1
+		|	VALUETYPE(DataAccessKeys.Object) AS RefType
 		|FROM
 		|	InformationRegister.AccessKeysForObjects AS DataAccessKeys
 		|;
@@ -1164,14 +1164,14 @@ Procedure ScheduleAccessUpdate(Lists = Undefined, PlanningParameters = Undefined
 		AllowedTypes = AccessManagementInternalCached.AllowedObjectsRefsTypesDetails();
 		HasInvalidType = False;
 		While Selection.Next() Do
-			If TypeOf(Selection.RefType1) <> Type("Type") Then
+			If TypeOf(Selection.RefType) <> Type("Type") Then
 				Continue;
-			ElsIf Selection.RefType1 = Type("Undefined")
-			      Or Not AllowedTypes.ContainsType(Selection.RefType1) Then
+			ElsIf Selection.RefType = Type("Undefined")
+			      Or Not AllowedTypes.ContainsType(Selection.RefType) Then
 				HasInvalidType = True;
 				Continue;
 			EndIf;
-			MetadataObject = Metadata.FindByType(Selection.RefType1);
+			MetadataObject = Metadata.FindByType(Selection.RefType);
 			If MetadataObject = Undefined Then
 				Continue;
 			EndIf;
@@ -1783,6 +1783,110 @@ Procedure AfterUpdateInfobase(Val PreviousVersion, Val CurrentVersion,
 		InformationRegisters.UsedAccessKinds.UpdateRegisterData();
 		SetAccessUpdate(True, True);
 	EndIf;
+	
+EndProcedure
+
+// See InfobaseUpdateOverridable.WhenFillingInItemsThatArePlannedToBeDeleted.
+Procedure WhenFillingInItemsThatArePlannedToBeDeleted(Objects) Export
+	
+	// 
+	AccessRightsDependencies = InformationRegisters.AccessRightsDependencies.AccessRightsDependencies();
+	TypesOfLeadingTables = New Array;
+	For Each String In AccessRightsDependencies Do
+		TypesOfLeadingTables.Add(TypeOf(String.LeadingTableType));
+	EndDo;
+	RequiredTypeOfMasterTable = New TypeDescription(TypesOfLeadingTables);
+	
+	AddItemToBeDeleted(Objects, RequiredTypeOfMasterTable,
+		Metadata.InformationRegisters.AccessRightsDependencies.Dimensions.LeadingTableType);
+	
+	If Not Common.SeparatedDataUsageAvailable() Then
+		Return;
+	EndIf;
+	
+	ImplementationSettings = ImplementationSettings();
+	AccessKindsProperties = AccessKindsProperties();
+	
+	// 
+	TypesOfGroupsAndValues = New Array;
+	For Each KeyAndValue In AccessKindsProperties.ByGroupsAndValuesTypes Do
+		TypesOfGroupsAndValues.Add(KeyAndValue.Key);
+	EndDo;
+	RequiredTypeOfAccessValue = New TypeDescription(
+		StrConcat(ImplementationSettings.AccessValues, ","));
+	RequiredTypeOfAccessValue = New TypeDescription(RequiredTypeOfAccessValue, TypesOfGroupsAndValues);
+	
+	AddItemToBeDeleted(Objects, RequiredTypeOfAccessValue,
+		Metadata.InformationRegisters.AccessGroupsValues.Dimensions.AccessValue);
+	
+	AddItemToBeDeleted(Objects, RequiredTypeOfAccessValue,
+		Metadata.InformationRegisters.DefaultAccessGroupsValues.Dimensions.AccessValuesType);
+	
+	AddItemToBeDeleted(Objects, RequiredTypeOfAccessValue,
+		Metadata.InformationRegisters.AccessValuesGroups.Dimensions.AccessValue);
+	
+	AddItemToBeDeleted(Objects, RequiredTypeOfAccessValue,
+		Metadata.InformationRegisters.AccessValuesGroups.Dimensions.AccessValuesGroup);
+	
+	AddItemToBeDeleted(Objects, RequiredTypeOfAccessValue,
+		Metadata.InformationRegisters.UsedAccessKinds.Dimensions.AccessValuesType);
+	
+	AddItemToBeDeleted(Objects, RequiredTypeOfAccessValue,
+		Metadata.InformationRegisters.UsedAccessKindsByTables.Dimensions.AccessValuesType);
+	
+	// 
+	AvailableRights = RightsForObjectsRightsSettingsAvailable();
+	RightsSettingsOwnersTypes = New Array;
+	For Each RightsOwner In AvailableRights.OwnersTypes Do
+		RightsSettingsOwnersTypes.Add(TypeOf(RightsOwner));
+	EndDo;
+	RequiredTypeOfRightsSettingsOwner = New TypeDescription(RightsSettingsOwnersTypes);
+	
+	AddItemToBeDeleted(Objects, RequiredTypeOfRightsSettingsOwner,
+		Metadata.InformationRegisters.ObjectsRightsSettings.Dimensions.Object);
+	
+	AddItemToBeDeleted(Objects, RequiredTypeOfRightsSettingsOwner,
+		Metadata.InformationRegisters.ObjectRightsSettingsInheritance.Dimensions.Object);
+	
+	AddItemToBeDeleted(Objects, RequiredTypeOfRightsSettingsOwner,
+		Metadata.InformationRegisters.ObjectRightsSettingsInheritance.Dimensions.Parent);
+	
+	// 
+	AddItemToBeDeleted(Objects,
+		New TypeDescription(StrConcat(ImplementationSettings.AccessKeysValuesOwners.References, ",")),
+		Metadata.InformationRegisters.AccessKeysForObjects.Dimensions.Object);
+	
+	// 
+	For Each DescriptionOfKeyRegisters In ImplementationSettings.KeysRegistersDimensionsTypes Do
+		KeysRegisterName = DescriptionOfKeyRegisters.Key;
+		KeyRegisterMetadata = Metadata.InformationRegisters[KeysRegisterName];
+		FieldsCount = AccessManagementInternalCached.BasicRegisterFieldsCount(KeysRegisterName);
+		RequiredFieldType = New TypeDescription(StrConcat(DescriptionOfKeyRegisters.Value.TypesNames, ","));
+		For FieldNumber = 1 To FieldsCount Do
+			FieldName = "Field" + FieldNumber;
+			AddItemToBeDeleted(Objects, RequiredFieldType,
+				KeyRegisterMetadata.Dimensions[FieldName]);
+		EndDo;
+	EndDo;
+	
+	// 
+	TypesOfSubscriptionObjects = AccessManagementInternalCached.ObjectsTypesInSubscriptionsToEvents(
+		"WriteAccessValuesSets");
+	TypesOfLinksForSubscriptionObjects = New Array;
+	For Each KeyAndValue In TypesOfSubscriptionObjects Do
+		ObjectMetadata = Metadata.FindByType(KeyAndValue.Key);
+		ObjectManager = Common.ObjectManagerByFullName(ObjectMetadata.FullName());
+		EmptyRef = ObjectManager.EmptyRef();
+		TypesOfLinksForSubscriptionObjects.Add(TypeOf(EmptyRef));
+	EndDo;
+	RequiredTypeOfTablesWithRecordOfSetsOfAccessValues = New TypeDescription(TypesOfLinksForSubscriptionObjects);
+	
+	AddItemToBeDeleted(Objects, RequiredTypeOfTablesWithRecordOfSetsOfAccessValues,
+		Metadata.InformationRegisters.AccessValuesSets.Dimensions.Object);
+	
+	// 
+	AddItemToBeDeleted(Objects, RequiredTypeOfAccessValue,
+		Metadata.InformationRegisters.AccessValuesSets.Dimensions.AccessValue);
 	
 EndProcedure
 
@@ -3229,6 +3333,32 @@ Function HasTableRestrictionByAccessKind(Table, AccessKind, AllAccessKinds) Expo
 	
 EndFunction
 
+// Parameters:
+//  Objects            - See InfobaseUpdate.AddItemToBeDeleted.Objects
+//  See InfobaseUpdate.AddItemToBeDeleted.Object
+//  RequiredTypes      - TypeDescription
+//  
+//
+Procedure AddItemToBeDeleted(Objects, RequiredTypes, MetadataDimensions)
+	
+	If RequiredTypes.Types().Count() = 0 Then
+		ExcessiveTypes = MetadataDimensions.Type;
+	Else
+		ExcessiveTypes = New TypeDescription(MetadataDimensions.Type,, RequiredTypes.Types());
+	EndIf;
+	
+	If ExcessiveTypes.Types().Count() = 0 Then
+		Return;
+	EndIf;
+	
+	NameParts = StrSplit(MetadataDimensions.FullName(), ".");
+	NameParts.Delete(2);
+	
+	InfobaseUpdate.AddItemToBeDeleted(Objects,
+		StrConcat(NameParts, "."), ExcessiveTypes);
+	
+EndProcedure
+
 ////////////////////////////////////////////////////////////////////////////////
 // Event subscription handlers.
 
@@ -4279,7 +4409,7 @@ EndProcedure
 //                               the read records. Data lock of these records is set and
 //                               transaction is open.
 //
-//    * CheckOnly1         - Boolean - if True, do not write,
+//    * IsCheckOnly         - Boolean - if True, do not write,
 //                               only find out if writing is required and set
 //                               the HasChanges property.
 //
@@ -4312,7 +4442,7 @@ Procedure UpdateRecordSet(Val Data, HasChanges = Undefined, ModifiedRecords = Un
 	AllParameters.Insert("FilterValue");
 	AllParameters.Insert("RecordSetRead", False);
 	AllParameters.Insert("NoOverwriting", False);
-	AllParameters.Insert("CheckOnly1", False);
+	AllParameters.Insert("IsCheckOnly", False);
 	AllParameters.Insert("AdditionalProperties");
 	AllParameters.Insert("IBUpdate",
 		    InfobaseUpdate.InfobaseUpdateInProgress()
@@ -4427,7 +4557,7 @@ Procedure UpdateRecordSet(Val Data, HasChanges = Undefined, ModifiedRecords = Un
 	EndIf;
 	
 	If HasCurrentChanges Then
-		If Data.CheckOnly1 Then
+		If Data.IsCheckOnly Then
 			Return;
 		EndIf;
 		If Data.NoOverwriting Then
@@ -4498,7 +4628,7 @@ EndProcedure
 //                                - AnyRef
 //                                - Array - 
 //
-//    * CheckOnly1            - Boolean - if True, do not write,
+//    * IsCheckOnly            - Boolean - if True, do not write,
 //                                  only find out if writing is required and set
 //                                  the HasChanges property.
 //
@@ -4531,7 +4661,7 @@ Procedure UpdateRecordSets(Val Data, HasChanges) Export
 	AllParameters.Insert("ThirdDimensionValues");
 	AllParameters.Insert("NewRecordsContainOnlyDifferences", False);
 	AllParameters.Insert("FixedFilter");
-	AllParameters.Insert("CheckOnly1", False);
+	AllParameters.Insert("IsCheckOnly", False);
 	AllParameters.Insert("AdditionalProperties");
 	AllParameters.Insert("IBUpdate",
 		    InfobaseUpdate.InfobaseUpdateInProgress()
@@ -4630,7 +4760,7 @@ Procedure UpdateRecordSets(Val Data, HasChanges) Export
 			// Update all records.
 			
 			CurrentData = New Structure("RecordSet, NewRecords, ComparisonFields,
-				|CheckOnly1, AdditionalProperties, IBUpdate");
+				|IsCheckOnly, AdditionalProperties, IBUpdate");
 			FillPropertyValues(CurrentData, Data);
 			UpdateRecordSet(CurrentData, HasChanges);
 			
@@ -4649,7 +4779,7 @@ Procedure UpdateRecordSets(Val Data, HasChanges) Export
 				EndIf;
 				
 				CurrentData = New Structure("RecordSet, ComparisonFields,
-					|CheckOnly1, AdditionalProperties, IBUpdate");
+					|IsCheckOnly, AdditionalProperties, IBUpdate");
 				FillPropertyValues(CurrentData, Data);
 				CurrentData.Insert("NewRecords", NewSetRecords);
 				
@@ -4727,7 +4857,7 @@ EndProcedure
 //                             dimensions will be converted to a fixed filter
 //                             if all their values match.
 //
-//  * CheckOnly1         - Boolean - if True, do not write,
+//  * IsCheckOnly         - Boolean - if True, do not write,
 //                             only find out if writing is required and set
 //                             the HasChanges property.
 //
@@ -4757,7 +4887,7 @@ Procedure UpdateInformationRegister(Val Data, HasChanges = Undefined) Export
 	AllParameters.Insert("EditStringContent");
 	AllParameters.Insert("FixedFilter", New Structure);
 	AllParameters.Insert("FilterDimensions");
-	AllParameters.Insert("CheckOnly1", False);
+	AllParameters.Insert("IsCheckOnly", False);
 	AllParameters.Insert("AdditionalProperties");
 	AllParameters.Insert("IBUpdate",
 		    InfobaseUpdate.InfobaseUpdateInProgress()
@@ -5277,16 +5407,16 @@ Procedure UpdateAccessGroupsTablesForEnabledExtensions(ExtensionsRolesRights = U
 	
 	// Checking whether it is required to update the AccessGroupsTables register.
 	ParameterName = "StandardSubsystems.AccessManagement.AccessGroupTablesUpdateParameters";
-	UpdateParameters1 = StandardSubsystemsServer.ExtensionParameter(ParameterName, True);
+	ParametersOfUpdate = StandardSubsystemsServer.ExtensionParameter(ParameterName, True);
 	
-	If TypeOf(UpdateParameters1) <> Type("Structure")
-	 Or Not UpdateParameters1.Property("LastExtensionsRolesRights")
-	 Or Not IsExtensionsRolesRights(UpdateParameters1.LastExtensionsRolesRights, BlankExtensionsRolesRights) Then
+	If TypeOf(ParametersOfUpdate) <> Type("Structure")
+	 Or Not ParametersOfUpdate.Property("LastExtensionsRolesRights")
+	 Or Not IsExtensionsRolesRights(ParametersOfUpdate.LastExtensionsRolesRights, BlankExtensionsRolesRights) Then
 		
 		UpdateRequired = True;
 		LastExtensionsRolesRights = Undefined;
 	Else
-		LastExtensionsRolesRights = UpdateParameters1.LastExtensionsRolesRights;
+		LastExtensionsRolesRights = ParametersOfUpdate.LastExtensionsRolesRights;
 		UpdateRequired = ExtensionsRolesRightsChanged(ExtensionsRolesRights, LastExtensionsRolesRights);
 	EndIf;
 	
@@ -6690,8 +6820,8 @@ Procedure WriteUserOnRolesUpdate(UserRef, IBUser,
 	If HasFullRights <> HadFullRights Then
 		If ServiceUserPassword = Undefined Then
 			If Common.SubsystemExists("CloudTechnology.Core") Then
-				ModuleSaaS = Common.CommonModule("SaaSOperations");
-				SessionWithoutSeparators = ModuleSaaS.SessionWithoutSeparators();
+				ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+				SessionWithoutSeparators = ModuleSaaSOperations.SessionWithoutSeparators();
 			Else
 				SessionWithoutSeparators = True;
 			EndIf;
@@ -6848,7 +6978,7 @@ Procedure UpdateNewSetRecordsByAllNewRecords(Val Data, Val Filter, Val FieldList
 	EndDo;
 	
 	CurrentData = New Structure("RecordSet, ComparisonFields,
-		|CheckOnly1, AdditionalProperties, IBUpdate");
+		|IsCheckOnly, AdditionalProperties, IBUpdate");
 	FillPropertyValues(CurrentData, Data);
 	CurrentData.Insert("NewRecords", NewSetRecords);
 	CurrentData.Insert("RecordSetRead", True);
@@ -6920,7 +7050,7 @@ Procedure RefreshNewSetRecordsByVariousNewRecords(Val Data, Val Filter, HasChang
 		EndIf;
 		
 		CurrentData = New Structure("RecordSet, ComparisonFields,
-			|CheckOnly1, AdditionalProperties, IBUpdate");
+			|IsCheckOnly, AdditionalProperties, IBUpdate");
 		FillPropertyValues(CurrentData, Data);
 		CurrentData.Insert("NewRecords", NewSetRecords);
 		CurrentData.Insert("RecordSetRead", True);
@@ -6949,7 +7079,7 @@ Procedure RefreshNewSetRecordsByVariousNewRecords(Val Data, Val Filter, HasChang
 				FillPropertyValues(Data.SetForSingleRecord.Add(), NewRecord);
 			EndIf;
 			HasChanges = True;
-			If Data.CheckOnly1 Then
+			If Data.IsCheckOnly Then
 				Return;
 			EndIf;
 			WriteObjectOrRecordSet(Data, Data.SetForSingleRecord);
@@ -8121,18 +8251,18 @@ Procedure FillAccessValuesWithGroups(String, AccessValuesWithGroups, Properties,
 		Return;
 	EndIf;
 	
-	RefType1 = String.ValuesType;
+	RefType = String.ValuesType;
 	
 	ValuesTypeMetadata = Metadata.FindByType(String.ValuesType);
 	If Common.IsEnum(ValuesTypeMetadata) Then
-		ObjectType = RefType1;
+		ObjectType = RefType;
 	Else
 		ObjectType = StandardSubsystemsServer.MetadataObjectOrMetadataObjectRecordSetType(
 			ValuesTypeMetadata);
 	EndIf;
 	
 	If String.ValuesGroupsType = Type("Undefined") Then
-		AddSubscriptionTypesUpdateAccessValuesGroups(RefType1,
+		AddSubscriptionTypesUpdateAccessValuesGroups(RefType,
 			ObjectType, ValuesTypeMetadata, AccessValuesWithGroups, Properties, Undefined);
 		AddToArray(Properties.TypesOfValuesToSelect, String.ValuesType);
 		Return;
@@ -8142,19 +8272,19 @@ Procedure FillAccessValuesWithGroups(String, AccessValuesWithGroups, Properties,
 		AddToArray(Properties.TypesOfValuesToSelect, String.ValuesGroupsType);
 	EndIf;
 	
-	AccessValuesWithGroups.ByTypes.Insert(RefType1,  Properties);
+	AccessValuesWithGroups.ByTypes.Insert(RefType,  Properties);
 	AccessValuesWithGroups.ByTypes.Insert(ObjectType, Properties);
-	AccessValuesWithGroups.ByRefsTypes.Insert(RefType1, Properties);
+	AccessValuesWithGroups.ByRefsTypes.Insert(RefType, Properties);
 	
 	MetadataOfValuesGroupsType = Metadata.FindByType(String.ValuesGroupsType);
 	
-	AddSubscriptionTypesUpdateAccessValuesGroups(RefType1,
+	AddSubscriptionTypesUpdateAccessValuesGroups(RefType,
 		ObjectType, ValuesTypeMetadata, AccessValuesWithGroups, Properties, MetadataOfValuesGroupsType);
 	
 EndProcedure
 
 // For the AccessKindsProperties function and the FillAccessValuesWithGroups procedure.
-Procedure AddSubscriptionTypesUpdateAccessValuesGroups(RefType1, ObjectType,
+Procedure AddSubscriptionTypesUpdateAccessValuesGroups(RefType, ObjectType,
 			ValuesTypeMetadata, AccessValuesWithGroups, Properties, MetadataOfValuesGroupsType)
 	
 	ValueTypeBlankRef = PredefinedValue(ValuesTypeMetadata.FullName() + ".EmptyRef");
@@ -8167,14 +8297,14 @@ Procedure AddSubscriptionTypesUpdateAccessValuesGroups(RefType1, ObjectType,
 	
 	AccessValuesWithGroups.NamesOfTablesToUpdate.Add(ValuesTypeMetadata.FullName());
 	
-	AccessValuesWithGroups.ValueGroupTypesForUpdate.Insert(RefType1,
+	AccessValuesWithGroups.ValueGroupTypesForUpdate.Insert(RefType,
 		BlankValuesGroupsTypeRef);
 	
 	AccessValuesWithGroups.ValueGroupTypesForUpdate.Insert(ValueTypeBlankRef,
 		BlankValuesGroupsTypeRef);
 	
-	AccessValuesWithGroups.ByRefTypesForUpdate.Insert(RefType1, Properties);
-	AccessValuesWithGroups.ByTypesForUpdate.Insert(RefType1, Properties);
+	AccessValuesWithGroups.ByRefTypesForUpdate.Insert(RefType, Properties);
+	AccessValuesWithGroups.ByTypesForUpdate.Insert(RefType, Properties);
 	AccessValuesWithGroups.ByTypesForUpdate.Insert(ObjectType, Properties);
 	
 EndProcedure
@@ -8948,7 +9078,7 @@ EndFunction
 //         ** Value - See Catalogs.AccessGroupProfiles.SuppliedProfileProperties
 //     * ProfilesDetailsArray - FixedArray of See Catalogs.AccessGroupProfiles.SuppliedProfileProperties
 //     * FoldersByParents - FixedMap
-//     * UpdateParameters1 - FixedStructure:
+//     * ParametersOfUpdate - FixedStructure:
 //         ** UpdateModifiedProfiles - Boolean
 //         ** DenyProfilesChange - Boolean
 //         ** UpdatingAccessGroups - Boolean
@@ -9368,12 +9498,12 @@ Function AccessAllowed(DataDetails, RightUpdate, RaiseException1 = False,
 					Query.SetParameter("Owner", ObjectFieldValue);
 				Else
 					InMemoryObjectsModel = InMemoryObjectsModel(DataDetails, RestrictionParameters);
-					UpdateParameters1 = New Structure(RestrictionParameters);
-					UpdateParameters1.Insert("InMemoryObjectsModel", InMemoryObjectsModel);
-					UpdateParameters1.Insert("TransactionID", TransactionID);
-					UpdateParameters1.Insert("ListID",
+					ParametersOfUpdate = New Structure(RestrictionParameters);
+					ParametersOfUpdate.Insert("InMemoryObjectsModel", InMemoryObjectsModel);
+					ParametersOfUpdate.Insert("TransactionID", TransactionID);
+					ParametersOfUpdate.Insert("ListID",
 						Common.MetadataObjectID(RestrictionParameters.List));
-					UpdateAccessKeysOfListDataItemsBatch(InMemoryObjectsModel.DataItems, UpdateParameters1);
+					UpdateAccessKeysOfListDataItemsBatch(InMemoryObjectsModel.DataItems, ParametersOfUpdate);
 					Query.SetParameter("AccessKeysForObjects", InMemoryObjectsModel.AccessKeysForObjects);
 					Query.SetParameter("Object", InMemoryObjectsModel.DataItems[0].CurrentRef);
 					QueryText =
@@ -10555,26 +10685,26 @@ Procedure UpdateAccessKeysOfDataItemsOnWrite(DataItemsDetails, RestrictionParame
 	UsersKindPropertyName = ?(RestrictionParameters.ForExternalUsers,
 		"ForExternalUsers", "ForUsers");
 	
-	UpdateParameters1 = New Structure(RestrictionParameters);
-	UpdateParameters1.Insert("HasRightsChanges",       HasRightsChanges);
-	UpdateParameters1.Insert("UpdateRightsToKeys",    UpdateRightsToKeys);
-	UpdateParameters1.Insert("TransactionID", TransactionID);
-	UpdateParameters1.Insert("ListID",
+	ParametersOfUpdate = New Structure(RestrictionParameters);
+	ParametersOfUpdate.Insert("HasRightsChanges",       HasRightsChanges);
+	ParametersOfUpdate.Insert("UpdateRightsToKeys",    UpdateRightsToKeys);
+	ParametersOfUpdate.Insert("TransactionID", TransactionID);
+	ParametersOfUpdate.Insert("ListID",
 		Common.MetadataObjectID(RestrictionParameters.List));
 	
 	If ListPropertiesAsLeadingOne = Undefined
 	 Or ListPropertiesAsLeadingOne.ByAccessKeys = Undefined
 	 Or ListPropertiesAsLeadingOne.ByAccessKeys[UsersKindPropertyName] = Undefined Then
 		
-		UpdateParameters1.Insert("DependentListsByAccessKeys", New Array);
+		ParametersOfUpdate.Insert("DependentListsByAccessKeys", New Array);
 	Else
-		UpdateParameters1.Insert("DependentListsByAccessKeys",
+		ParametersOfUpdate.Insert("DependentListsByAccessKeys",
 			ListPropertiesAsLeadingOne.ByAccessKeys[UsersKindPropertyName]);
 	EndIf;
 	
-	UpdateAccessKeysOfListDataItemsBatch(DataItems, UpdateParameters1);
+	UpdateAccessKeysOfListDataItemsBatch(DataItems, ParametersOfUpdate);
 	
-	HasRightsChanges = UpdateParameters1.HasRightsChanges;
+	HasRightsChanges = ParametersOfUpdate.HasRightsChanges;
 	
 EndProcedure
 
@@ -15416,95 +15546,95 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 		DeleteObjectsOfInvalidTypesInAccessKeysToObjectsRegister();
 	EndIf;
 	
-	UpdateParameters1 = UpdateParameters1(CommonUpdateParameters, MetadataObject);
+	ParametersOfUpdate = ParametersOfUpdate(CommonUpdateParameters, MetadataObject);
 	
 	// Processing a batch prepared earlier.
 	If CommonUpdateParameters.Property("BatchFromSet") Then
 		BatchFromSet = CommonUpdateParameters.BatchFromSet; // See BatchFromSet
 		BatchItems = BatchFromSet.Items.Get();
-		UpdateParameters1.Insert("LastUpdatedItem",
+		ParametersOfUpdate.Insert("LastUpdatedItem",
 			BatchFromSet.LastBatchItem);
 		
-		UpdateItemsBatch(BatchItems, UpdateParameters1);
+		UpdateItemsBatch(BatchItems, ParametersOfUpdate);
 		
 		CommonUpdateParameters.Insert("NewLastUpdatedItem",
-			UpdateParameters1.NewLastUpdatedItem);
+			ParametersOfUpdate.NewLastUpdatedItem);
 		
 		If BatchItems <> Undefined Then
 			CommonUpdateParameters.ProcessingCompleted = False;
 			SelectedAllItems = BatchFromSet.LastBatchItem.DataKey = Null;
 			CommonUpdateParameters.Insert("BatchesSet", ItemsBatchesSet(
-				UpdateParameters1, BatchItems, SelectedAllItems));
+				ParametersOfUpdate, BatchItems, SelectedAllItems));
 		EndIf;
 		Return;
 	EndIf;
 	
 	// Preparing a processing plan for data items.
 	PreparationCompleted = False;
-	UpdateParameters1.Insert("UpdateRestart", False);
+	ParametersOfUpdate.Insert("UpdateRestart", False);
 	
 	While Not PreparationCompleted Do
 		PreparationCompleted = True;
-		UpdateParameters1.Insert("HasJobs", True);
-		UpdateParameters1.Insert("SpotJob", Undefined);
-		UpdateParameters1.Insert("LastUpdatedItem", InitialItem(UpdateParameters1));
+		ParametersOfUpdate.Insert("HasJobs", True);
+		ParametersOfUpdate.Insert("SpotJob", Undefined);
+		ParametersOfUpdate.Insert("LastUpdatedItem", InitialItem(ParametersOfUpdate));
 		// 
-		PrepareUpdatePlan(UpdateParameters1, PreparationCompleted);
+		PrepareUpdatePlan(ParametersOfUpdate, PreparationCompleted);
 	EndDo;
 	
-	If Not UpdateParameters1.HasJobs Then
+	If Not ParametersOfUpdate.HasJobs Then
 		CommonUpdateParameters.Insert("NoJobs");
 		Return;
 	EndIf;
 	
-	If UpdateParameters1.SpotJob <> Undefined Then
+	If ParametersOfUpdate.SpotJob <> Undefined Then
 		SelectedAllItems = False;
-		Items = SpotJobItemsForUpdate(UpdateParameters1,
+		Items = SpotJobItemsForUpdate(ParametersOfUpdate,
 			ItemsInQueryCount(IsRightsUpdate), SelectedAllItems);
 		
 		If Items <> Undefined Then
 			MaxMilliseconds = SpotJobExecutionMinSecondsCount() * 1000;
-			If UpdateParameters1.ProcessingTimeBoundary - CurrentUniversalDateInMilliseconds() < MaxMilliseconds Then
-				UpdateParameters1.ProcessingTimeBoundary = CurrentUniversalDateInMilliseconds() + MaxMilliseconds;
+			If ParametersOfUpdate.ProcessingTimeBoundary - CurrentUniversalDateInMilliseconds() < MaxMilliseconds Then
+				ParametersOfUpdate.ProcessingTimeBoundary = CurrentUniversalDateInMilliseconds() + MaxMilliseconds;
 			EndIf;
-			UpdateItemsBatch(Items, UpdateParameters1, True);
+			UpdateItemsBatch(Items, ParametersOfUpdate, True);
 		EndIf;
 		If Items <> Undefined Or Not SelectedAllItems Then
-			RestartUpdateAtNotCompletedSpotUpdate(UpdateParameters1);
+			RestartUpdateAtNotCompletedSpotUpdate(ParametersOfUpdate);
 		EndIf;
 	EndIf;
 	
-	ClarifyLastUpdatedItem(UpdateParameters1);
+	ClarifyLastUpdatedItem(ParametersOfUpdate);
 	
-	If UpdateParameters1.LastUpdatedItem.DataKeyKind = "NoData1" Then
-		UpdateParameters1.LastUpdatedItem.DataKey = Null;
+	If ParametersOfUpdate.LastUpdatedItem.DataKeyKind = "NoData1" Then
+		ParametersOfUpdate.LastUpdatedItem.DataKey = Null;
 		WriteLastUpdatedItem(CommonUpdateParameters,
-			UpdateParameters1.LastUpdatedItem);
+			ParametersOfUpdate.LastUpdatedItem);
 		CommonUpdateParameters.Insert("NoJobs");
 		Return;
 	EndIf;
 	
-	If UpdateParameters1.SpotJob <> Undefined Then
-		UpdateParameters1.LastUpdatedItem.Insert("ClearSpotJob");
+	If ParametersOfUpdate.SpotJob <> Undefined Then
+		ParametersOfUpdate.LastUpdatedItem.Insert("ClearSpotJob");
 		WriteLastUpdatedItem(CommonUpdateParameters,
-			UpdateParameters1.LastUpdatedItem);
-		UpdateParameters1.LastUpdatedItem.Delete("ClearSpotJob");
+			ParametersOfUpdate.LastUpdatedItem);
+		ParametersOfUpdate.LastUpdatedItem.Delete("ClearSpotJob");
 	EndIf;
 	
-	If UpdateParameters1.UpdateRestart Then
+	If ParametersOfUpdate.UpdateRestart Then
 		CommonUpdateParameters.Insert("UpdateRestart");
 		If CommonUpdateParameters.Property("NewLastBatchItem") Then
 			CommonUpdateParameters.Delete("NewLastBatchItem");
 		EndIf;
 	EndIf;
 	
-	If IsObsoleteItemsDataProcessor(UpdateParameters1)
+	If IsObsoleteItemsDataProcessor(ParametersOfUpdate)
 	   And Not CommonUpdateParameters.IsObsoleteItemsDataProcessor Then
 		
 		WriteLastUpdatedItem(CommonUpdateParameters,
-			UpdateParameters1.LastUpdatedItem);
+			ParametersOfUpdate.LastUpdatedItem);
 		CommonUpdateParameters.Insert("NewLastUpdatedItem",
-			UpdateParameters1.LastUpdatedItem);
+			ParametersOfUpdate.LastUpdatedItem);
 		CommonUpdateParameters.Insert("InitialUpdateCompleted");
 		Return;
 	EndIf;
@@ -15512,17 +15642,17 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 	If CommonUpdateParameters.GetBatches > 0
 	   And CommonUpdateParameters.Property("NewLastBatchItem") Then
 		
-		UpdateParameters1.LastUpdatedItem = InitialItem(UpdateParameters1);
-		FillPropertyValues(UpdateParameters1.LastUpdatedItem,
+		ParametersOfUpdate.LastUpdatedItem = InitialItem(ParametersOfUpdate);
+		FillPropertyValues(ParametersOfUpdate.LastUpdatedItem,
 			CommonUpdateParameters.NewLastBatchItem);
 	EndIf;
 	
 	If Not IsRightsUpdate
 	   And UpdatePeriodToDataPeriod(CommonUpdateParameters.StartDate,
-	         UpdateParameters1.LastUpdatedItem.Date) Then
+	         ParametersOfUpdate.LastUpdatedItem.Date) Then
 		
 		CommonUpdateParameters.Insert("NewLastUpdatedItem",
-			UpdateParameters1.LastUpdatedItem);
+			ParametersOfUpdate.LastUpdatedItem);
 		
 		CommonUpdateParameters.ProcessingCompleted = False;
 		Return;
@@ -15530,23 +15660,23 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 	
 	// Single thread update of some access group sets.
 	If Not IsRightsUpdate
-	   And IsCatalogAccessGroupsSets(UpdateParameters1)
-	   And UpdateParameters1.LastUpdatedItem.DataKey = Undefined Then
+	   And IsCatalogAccessGroupsSets(ParametersOfUpdate)
+	   And ParametersOfUpdate.LastUpdatedItem.DataKey = Undefined Then
 		
-		If UpdateParameters1.LastUpdatedItem.DataKeyKind = "NewSingleUserSets" Then
-			EliminateSetsDuplicatesFromOneUserInCatalog(UpdateParameters1);
+		If ParametersOfUpdate.LastUpdatedItem.DataKeyKind = "NewSingleUserSets" Then
+			EliminateSetsDuplicatesFromOneUserInCatalog(ParametersOfUpdate);
 			
-		ElsIf UpdateParameters1.LastUpdatedItem.DataKeyKind = "AccessGroupsSetsAssignedToUsers" Then
-			FillBlankGroupsSetsHashes(UpdateParameters1);
+		ElsIf ParametersOfUpdate.LastUpdatedItem.DataKeyKind = "AccessGroupsSetsAssignedToUsers" Then
+			FillBlankGroupsSetsHashes(ParametersOfUpdate);
 			
-		ElsIf UpdateParameters1.LastUpdatedItem.DataKeyKind = "NewGroupsSetsWithObsoleteRights" Then
-			If Not UpdateParameters1.ForExternalUsers Then
+		ElsIf ParametersOfUpdate.LastUpdatedItem.DataKeyKind = "NewGroupsSetsWithObsoleteRights" Then
+			If Not ParametersOfUpdate.ForExternalUsers Then
 				UpdateRightsToAllowedAccessKey();
 			EndIf;
-			ClearBlankAccessGroupsSetRights(UpdateParameters1);
+			ClearBlankAccessGroupsSetRights(ParametersOfUpdate);
 			
-		ElsIf IsObsoleteItemsDataProcessor(UpdateParameters1) Then
-			ClearNonExistentAccessGroupsSetsRights(UpdateParameters1);
+		ElsIf IsObsoleteItemsDataProcessor(ParametersOfUpdate) Then
+			ClearNonExistentAccessGroupsSetsRights(ParametersOfUpdate);
 		EndIf;
 	EndIf;
 	
@@ -15554,9 +15684,9 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 	SelectedAllItems = False;
 	
 	If CommonUpdateParameters.GetBatches > 0 Then
-		CountInBatch = ItemsInBatchCount(UpdateParameters1);
+		CountInBatch = ItemsInBatchCount(ParametersOfUpdate);
 		CountInQuery = CountInBatch * CommonUpdateParameters.GetBatches;
-		Items = ItemsForUpdate(UpdateParameters1, CountInQuery, SelectedAllItems);
+		Items = ItemsForUpdate(ParametersOfUpdate, CountInQuery, SelectedAllItems);
 		
 		If CommonUpdateParameters.Property("NewLastBatchItem")
 		 Or Items <> Undefined
@@ -15564,7 +15694,7 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 			
 			CommonUpdateParameters.ProcessingCompleted = False;
 			CommonUpdateParameters.Insert("BatchesSet", ItemsBatchesSet(
-				UpdateParameters1, Items, SelectedAllItems, CountInBatch));
+				ParametersOfUpdate, Items, SelectedAllItems, CountInBatch));
 			Return;
 		EndIf;
 	Else
@@ -15572,49 +15702,49 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 	EndIf;
 	
 	// 
-	UpdateParameters1.Insert("NewLastUpdatedItem",
-		InitialItem(UpdateParameters1, , True));
+	ParametersOfUpdate.Insert("NewLastUpdatedItem",
+		InitialItem(ParametersOfUpdate, , True));
 	
 	CommonUpdateParameters.Insert("InitialUpdateCompleted");
 	
 	If Items <> Undefined Then
-		UpdateItemsBatch(Items, UpdateParameters1);
+		UpdateItemsBatch(Items, ParametersOfUpdate);
 	EndIf;
 	
 	// Clarifying new last item.
 	If Items = Undefined And SelectedAllItems Then
-		SetLastBlankItem(UpdateParameters1.NewLastUpdatedItem,
-			UpdateParameters1);
+		SetLastBlankItem(ParametersOfUpdate.NewLastUpdatedItem,
+			ParametersOfUpdate);
 	EndIf;
 	
 	// Writing new last item.
 	WriteLastUpdatedItem(CommonUpdateParameters,
-		UpdateParameters1.NewLastUpdatedItem);
+		ParametersOfUpdate.NewLastUpdatedItem);
 	
-	If UpdateParameters1.NewLastUpdatedItem.DataKey = Null Then
+	If ParametersOfUpdate.NewLastUpdatedItem.DataKey = Null Then
 		CommonUpdateParameters.Insert("NoJobs");
 		Return;
 	EndIf;
 	
 	CommonUpdateParameters.Insert("NewLastUpdatedItem",
-		UpdateParameters1.NewLastUpdatedItem);
+		ParametersOfUpdate.NewLastUpdatedItem);
 	
 	// Preparing the rest of items to continue update.
 	If Items <> Undefined Then
 		CommonUpdateParameters.Insert("BatchesSet",
-			ItemsBatchesSet(UpdateParameters1, Items, SelectedAllItems));
+			ItemsBatchesSet(ParametersOfUpdate, Items, SelectedAllItems));
 	EndIf;
 	
 EndProcedure
 
-Function IsCatalogAccessGroupsSets(UpdateParameters1)
+Function IsCatalogAccessGroupsSets(ParametersOfUpdate)
 	
-	If UpdateParameters1.Property("List") Then
-		Return UpdateParameters1.List = "Catalog.SetsOfAccessGroups";
+	If ParametersOfUpdate.Property("List") Then
+		Return ParametersOfUpdate.List = "Catalog.SetsOfAccessGroups";
 	EndIf;
 	
-	Return UpdateParameters1.ListID
-		= UpdateParameters1.AccessGroupsSetsCatalogID;
+	Return ParametersOfUpdate.ListID
+		= ParametersOfUpdate.AccessGroupsSetsCatalogID;
 	
 EndFunction
 
@@ -15722,7 +15852,7 @@ EndFunction
 //                       *** Key - String
 //                       *** Value - Map
 //                    - Structure:
-//                       *** RefType1 - ValueStorage
+//                       *** RefType - ValueStorage
 //                       *** QueryKeysByTypes - Map
 //                       *** QueriesTextsByKeys - Map
 //                       *** ParametersQueryText - String
@@ -15738,63 +15868,63 @@ EndFunction
 //     * ValueFromAccessKeysForRightsCalculationQueryText - String
 //     * ObsoleteAccessKeysQueryText - String
 //
-Function UpdateParameters1(CommonUpdateParameters, MetadataObject)
+Function ParametersOfUpdate(CommonUpdateParameters, MetadataObject)
 	
-	UpdateParameters1 = New Structure("IsRightsUpdate,
+	ParametersOfUpdate = New Structure("IsRightsUpdate,
 		|ListID, ForExternalUsers, Cache,
 		|StartDate, EndDate, MaxBatchesFromOriginalItem,
 		|IsBackgroundAccessUpdate, AccessGroupsSetsCatalogID");
 	
-	FillPropertyValues(UpdateParameters1, CommonUpdateParameters);
+	FillPropertyValues(ParametersOfUpdate, CommonUpdateParameters);
 	
 	If TypeOf(MetadataObject) = Type("MetadataObject") Then
-		UpdateParameters1.Insert("List", MetadataObject.FullName());
+		ParametersOfUpdate.Insert("List", MetadataObject.FullName());
 	EndIf;
 
-	UpdateParameters1.Insert("ProcessingTimeBoundary",
+	ParametersOfUpdate.Insert("ProcessingTimeBoundary",
 		CurrentUniversalDateInMilliseconds()
 		+ CommonUpdateParameters.MaxProcessingMilliseconds);
 	
-	AddRestrictionParameters(UpdateParameters1);
+	AddRestrictionParameters(ParametersOfUpdate);
 	
-	Return UpdateParameters1;
+	Return ParametersOfUpdate;
 	
 EndFunction
 
 // For the RunListAccessUpdate procedure.
-Procedure AddRestrictionParameters(UpdateParameters1)
+Procedure AddRestrictionParameters(ParametersOfUpdate)
 	
-	If IsCatalogAccessGroupsSets(UpdateParameters1) Then
-		UpdateParameters1.Insert("ListWithDate", False);
-		UpdateParameters1.Insert("ListWithPeriod", False);
-		UpdateParameters1.Insert("IsReferenceType", True);
-		UpdateParameters1.Insert("BlankAccessGroupsSet", Catalogs.SetsOfAccessGroups.EmptyRef());
+	If IsCatalogAccessGroupsSets(ParametersOfUpdate) Then
+		ParametersOfUpdate.Insert("ListWithDate", False);
+		ParametersOfUpdate.Insert("ListWithPeriod", False);
+		ParametersOfUpdate.Insert("IsReferenceType", True);
+		ParametersOfUpdate.Insert("BlankAccessGroupsSet", Catalogs.SetsOfAccessGroups.EmptyRef());
 		Return;
 	EndIf;
 	
 	TransactionID = New UUID;
-	List = ?(UpdateParameters1.Property("List"), UpdateParameters1.List, "");
+	List = ?(ParametersOfUpdate.Property("List"), ParametersOfUpdate.List, "");
 	ListPropertiesAsLeadingOne = ListPropertiesAsLeadingOne(List, TransactionID);
 	RestrictionParameters = RestrictionParameters(List,
-		TransactionID, UpdateParameters1.ForExternalUsers);
+		TransactionID, ParametersOfUpdate.ForExternalUsers);
 	
 	RestrictionParameters = New Structure(RestrictionParameters);
-	For Each KeyAndValue In UpdateParameters1 Do
+	For Each KeyAndValue In ParametersOfUpdate Do
 		RestrictionParameters.Insert(KeyAndValue.Key, KeyAndValue.Value);
 	EndDo;
-	UpdateParameters1 = RestrictionParameters;
-	UpdateParameters1.Insert("TransactionID", TransactionID);
+	ParametersOfUpdate = RestrictionParameters;
+	ParametersOfUpdate.Insert("TransactionID", TransactionID);
 	
-	UsersKindPropertyName = ?(UpdateParameters1.ForExternalUsers,
+	UsersKindPropertyName = ?(ParametersOfUpdate.ForExternalUsers,
 		"ForExternalUsers", "ForUsers");
 	
 	If ListPropertiesAsLeadingOne = Undefined
 	 Or ListPropertiesAsLeadingOne.ByAccessKeys = Undefined
 	 Or ListPropertiesAsLeadingOne.ByAccessKeys[UsersKindPropertyName] = Undefined Then
 		
-		UpdateParameters1.Insert("DependentListsByAccessKeys", New Array);
+		ParametersOfUpdate.Insert("DependentListsByAccessKeys", New Array);
 	Else
-		UpdateParameters1.Insert("DependentListsByAccessKeys",
+		ParametersOfUpdate.Insert("DependentListsByAccessKeys",
 			ListPropertiesAsLeadingOne.ByAccessKeys[UsersKindPropertyName]);
 	EndIf;
 	
@@ -15811,7 +15941,7 @@ EndProcedure
 //    * ProcessGroupsSetsWithObsoleteRights - Boolean
 //    * Date                                     - Date
 //
-Function InitialItem(UpdateParameters1, DataKeyKind = Undefined,
+Function InitialItem(ParametersOfUpdate, DataKeyKind = Undefined,
 			SaveDataKeyKind = False, RestartUpdateFromBeginning = False)
 	
 	InitialItem = New Structure;
@@ -15822,32 +15952,32 @@ Function InitialItem(UpdateParameters1, DataKeyKind = Undefined,
 	
 	If DataKeyKind = Undefined Then
 		If SaveDataKeyKind Then
-			DataKeyKind = UpdateParameters1.LastUpdatedItem.DataKeyKind;
+			DataKeyKind = ParametersOfUpdate.LastUpdatedItem.DataKeyKind;
 			SaveProperties = True;
 			
-		ElsIf IsCatalogAccessGroupsSets(UpdateParameters1) Then
+		ElsIf IsCatalogAccessGroupsSets(ParametersOfUpdate) Then
 			DataKeyKind = "NewSingleUserSets";
 			
-		ElsIf UpdateParameters1.IsRightsUpdate Then
+		ElsIf ParametersOfUpdate.IsRightsUpdate Then
 			DataKeyKind = "ItemsWithObsoleteRights";
 		Else
 			DataKeyKind = "ItemsWithObsoleteKeys";
 		EndIf;
 	ElsIf DataKeyKind <> "NoData1"
-	        And UpdateParameters1.Property("LastUpdatedItem") Then
+	        And ParametersOfUpdate.Property("LastUpdatedItem") Then
 		SaveProperties = True;
 	EndIf;
 	If SaveProperties Then
-		If UpdateParameters1.LastUpdatedItem.ProcessObsoleteItems Then
+		If ParametersOfUpdate.LastUpdatedItem.ProcessObsoleteItems Then
 			InitialItem.ProcessObsoleteItems = True;
 		EndIf;
-		If UpdateParameters1.LastUpdatedItem.ProcessGroupsSetsWithObsoleteRights Then
+		If ParametersOfUpdate.LastUpdatedItem.ProcessGroupsSetsWithObsoleteRights Then
 			InitialItem.ProcessGroupsSetsWithObsoleteRights = True;
 		EndIf;
 	EndIf;
 	SetDataKeyKind(InitialItem, DataKeyKind);
 	
-	If Not UpdateParameters1.IsRightsUpdate Then
+	If Not ParametersOfUpdate.IsRightsUpdate Then
 		InitialItem.Insert("Date", ?(RestartUpdateFromBeginning,
 			MaxDate(), MaxDateOnContinue()));
 	EndIf;
@@ -15857,11 +15987,11 @@ Function InitialItem(UpdateParameters1, DataKeyKind = Undefined,
 EndFunction
 
 // For the RunListAccessUpdate procedure.
-Procedure PrepareUpdatePlan(UpdateParameters1, PreparationCompleted)
+Procedure PrepareUpdatePlan(ParametersOfUpdate, PreparationCompleted)
 	
-	ListID     = UpdateParameters1.ListID;
-	ForExternalUsers = UpdateParameters1.ForExternalUsers;
-	IsRightsUpdate       = UpdateParameters1.IsRightsUpdate;
+	ListID     = ParametersOfUpdate.ListID;
+	ForExternalUsers = ParametersOfUpdate.ForExternalUsers;
+	IsRightsUpdate       = ParametersOfUpdate.IsRightsUpdate;
 	
 	Query = New Query;
 	Query.SetParameter("List", ListID);
@@ -15895,7 +16025,7 @@ Procedure PrepareUpdatePlan(UpdateParameters1, PreparationCompleted)
 	QueryResult = Query.Execute();
 	
 	If QueryResult.IsEmpty() Then
-		UpdateParameters1.HasJobs = False;
+		ParametersOfUpdate.HasJobs = False;
 		Return;
 	EndIf;
 	
@@ -15911,23 +16041,23 @@ Procedure PrepareUpdatePlan(UpdateParameters1, PreparationCompleted)
 		UpdatePlan = ServiceRecordSet(InformationRegisters.DataAccessKeysUpdate);
 	EndIf;
 	
-	If UpdateParameters1.List = ListForPlanningTheUpdateOfTheRightsCalculationCache() Then
+	If ParametersOfUpdate.List = ListForPlanningTheUpdateOfTheRightsCalculationCache() Then
 		ProcessAPlanForUpdatingTheRightsCalculationCache(Upload0);
 		ClearDownloadedRecords(UpdatePlan, Upload0);
-		UpdateParameters1.HasJobs = False;
+		ParametersOfUpdate.HasJobs = False;
 		Return;
 	EndIf;
 	
 	UpdateRestart = False;
 	RestartUpdateFromBeginning = False;
-	JobParametersToSave = JobParametersToSave(IsRightsUpdate, UpdateParameters1);
+	JobParametersToSave = JobParametersToSave(IsRightsUpdate, ParametersOfUpdate);
 	
 	If Not ValueIsFilled(Upload0[0].UniqueKey) Then
 		CurrentTotal = Upload0[0];
 		JobParameters = CurrentTotal.JobParameters.Get();
 		If TypeOf(JobParameters) = Type("Structure") Then
 			JobParametersToSave = JobParametersToSave(IsRightsUpdate,
-				UpdateParameters1, JobParameters, UpdateRestart);
+				ParametersOfUpdate, JobParameters, UpdateRestart);
 		Else
 			UpdateRestart = True;
 		EndIf;
@@ -15941,7 +16071,7 @@ Procedure PrepareUpdatePlan(UpdateParameters1, PreparationCompleted)
 		EndIf;
 		Upload0.Delete(0);
 		If Not UpdateRestart Then
-			UpdateParameters1.LastUpdatedItem =
+			ParametersOfUpdate.LastUpdatedItem =
 				JobParametersToSave.LastUpdatedItem;
 		EndIf;
 	EndIf;
@@ -15950,7 +16080,7 @@ Procedure PrepareUpdatePlan(UpdateParameters1, PreparationCompleted)
 	   And CurrentTotal <> Undefined
 	   And Upload0.Count() = 0 Then
 		
-		UpdateParameters1.SpotJob = PreparedSpotJob(
+		ParametersOfUpdate.SpotJob = PreparedSpotJob(
 			IsRightsUpdate, JobParametersToSave.SpotJob, UpdateRestart);
 		If Not UpdateRestart Then
 			Return;
@@ -15976,7 +16106,7 @@ Procedure PrepareUpdatePlan(UpdateParameters1, PreparationCompleted)
 	EndDo;
 	
 	MaxDate = MaxDate();
-	DataKeyProperties = InitialItem(UpdateParameters1, "NoData1");
+	DataKeyProperties = InitialItem(ParametersOfUpdate, "NoData1");
 	DataKeyKindSet = True;
 	For Each String In Upload0 Do
 		JobParameters = String.JobParameters.Get();
@@ -16002,7 +16132,7 @@ Procedure PrepareUpdatePlan(UpdateParameters1, PreparationCompleted)
 				EndIf;
 			Else
 				DataKeyKindSet = False;
-				If IsCatalogAccessGroupsSets(UpdateParameters1) Then
+				If IsCatalogAccessGroupsSets(ParametersOfUpdate) Then
 					DataKeyProperties.ProcessGroupsSetsWithObsoleteRights = True;
 				EndIf;
 				If IsRightsUpdate Or RestartUpdateFromBeginning Then
@@ -16012,19 +16142,19 @@ Procedure PrepareUpdatePlan(UpdateParameters1, PreparationCompleted)
 		EndIf;
 	EndDo;
 	
-	UpdateParameters1.SpotJob = PreparedSpotJob(
+	ParametersOfUpdate.SpotJob = PreparedSpotJob(
 		IsRightsUpdate, JobParametersToSave.SpotJob, UpdateRestart);
 	
 	If UpdateRestart Then
-		UpdateParameters1.UpdateRestart = True;
+		ParametersOfUpdate.UpdateRestart = True;
 		If RestartUpdateFromBeginning Then
-			UpdateParameters1.Insert("RestartUpdateFromBeginning");
+			ParametersOfUpdate.Insert("RestartUpdateFromBeginning");
 		EndIf;
-		UpdateParameters1.LastUpdatedItem =
-			InitialItem(UpdateParameters1, , , RestartUpdateFromBeginning);
+		ParametersOfUpdate.LastUpdatedItem =
+			InitialItem(ParametersOfUpdate, , , RestartUpdateFromBeginning);
 	EndIf;
 	
-	LastUpdatedItem = UpdateParameters1.LastUpdatedItem;
+	LastUpdatedItem = ParametersOfUpdate.LastUpdatedItem;
 	If DataKeyKindSet Then
 		If CurrentTotal = Undefined Then
 			SetDataKeyKind(LastUpdatedItem, DataKeyProperties.DataKeyKind);
@@ -16042,7 +16172,7 @@ Procedure PrepareUpdatePlan(UpdateParameters1, PreparationCompleted)
 	EndIf;
 	JobParametersToSave.LastUpdatedItem = LastUpdatedItem;
 	
-	If UpdateParameters1.LastUpdatedItem.DataKeyKind = "NoData1" Then
+	If ParametersOfUpdate.LastUpdatedItem.DataKeyKind = "NoData1" Then
 		JobSize = 1;
 	ElsIf IsObsoleteItemsDataProcessor(New Structure("LastUpdatedItem",
 					LastUpdatedItem)) Then
@@ -16068,12 +16198,12 @@ Procedure PrepareUpdatePlan(UpdateParameters1, PreparationCompleted)
 			Record = UpdatePlan.Add();
 			Record.List                  = ListID;
 			Record.ForExternalUsers = ForExternalUsers;
-			Record.SpotJob         = UpdateParameters1.SpotJob <> Undefined;
+			Record.SpotJob         = ParametersOfUpdate.SpotJob <> Undefined;
 			Record.JobParameters        = New ValueStorage(JobParametersToSave);
 			Record.JobSize           = JobSize;
 			If Not IsRightsUpdate Then
 				Record.LatestUpdatedItemDate =
-					UpdateParameters1.LastUpdatedItem.Date;
+					ParametersOfUpdate.LastUpdatedItem.Date;
 			EndIf;
 			Record.RegisterRecordChangeDate = CurrentSessionDate();
 			UpdatePlan.Write();
@@ -16085,9 +16215,9 @@ Procedure PrepareUpdatePlan(UpdateParameters1, PreparationCompleted)
 	EndTry;
 	
 	If JobsDeleted Then
-		UpdateParameters1.HasJobs = False;
-		UpdateParameters1.SpotJob = Undefined;
-		UpdateParameters1.LastUpdatedItem = InitialItem(UpdateParameters1);
+		ParametersOfUpdate.HasJobs = False;
+		ParametersOfUpdate.SpotJob = Undefined;
+		ParametersOfUpdate.LastUpdatedItem = InitialItem(ParametersOfUpdate);
 		Return;
 	EndIf;
 	
@@ -16253,7 +16383,7 @@ EndFunction
 //        ** ByFieldsValues - Map
 //        ** ByValuesWithGroups - Map
 //
-Function JobParametersToSave(IsRightsUpdate, UpdateParameters1, JobParameters = Undefined,
+Function JobParametersToSave(IsRightsUpdate, ParametersOfUpdate, JobParameters = Undefined,
 			UpdateRestart = False, ClearSpotJob = False)
 	
 	SpotJob = New Structure;
@@ -16265,7 +16395,7 @@ Function JobParametersToSave(IsRightsUpdate, UpdateParameters1, JobParameters = 
 	
 	ParametersToSave1 = New Structure;
 	ParametersToSave1.Insert("SpotJob", SpotJob);
-	ParametersToSave1.Insert("LastUpdatedItem", InitialItem(UpdateParameters1));
+	ParametersToSave1.Insert("LastUpdatedItem", InitialItem(ParametersOfUpdate));
 	
 	If TypeOf(JobParameters) <> Type("Structure") Then
 		Return ParametersToSave1;
@@ -16399,9 +16529,9 @@ EndFunction
 // SetQueryTextAndLastDataItemUpdateParameters, UpdateAccessGroupsSets procedures and
 // the ItemsToUpdate, LastItem, DataKey, AccessGroupsSetsToUpdate functions.
 //
-Function IsObsoleteItemsDataProcessor(UpdateParameters1)
+Function IsObsoleteItemsDataProcessor(ParametersOfUpdate)
 	
-	Order = DataKeyKindOrder(UpdateParameters1.LastUpdatedItem.DataKeyKind);
+	Order = DataKeyKindOrder(ParametersOfUpdate.LastUpdatedItem.DataKeyKind);
 	
 	Return Order >= DataKeyKindOrder("ObsoleteItems")
 	      And Order < DataKeyKindOrder("NoData1");
@@ -16531,11 +16661,11 @@ Function PreparedSpotJob(IsRightsUpdate, SpotJobToSave, UpdateRestart)
 EndFunction
 
 // For the RunListAccessUpdate procedure.
-Function ItemsInBatchCount(UpdateParameters1)
+Function ItemsInBatchCount(ParametersOfUpdate)
 	
-	If IsCatalogAccessGroupsSets(UpdateParameters1) Then
+	If IsCatalogAccessGroupsSets(ParametersOfUpdate) Then
 		Return 25;
-	ElsIf UpdateParameters1.IsRightsUpdate Then
+	ElsIf ParametersOfUpdate.IsRightsUpdate Then
 		Return AccessKeysInBatchCount();
 	Else
 		Return DataItemsInBatchCount();
@@ -16555,42 +16685,42 @@ Function ItemsInQueryCount(IsRightsUpdate)
 EndFunction
 
 // For the RunListAccessUpdate procedure.
-Procedure UpdateItemsBatch(Items, UpdateParameters1, IsSpotJob = False)
+Procedure UpdateItemsBatch(Items, ParametersOfUpdate, IsSpotJob = False)
 	
-	UpdateParameters1.Insert("ProcessedItemsCount", 0);
+	ParametersOfUpdate.Insert("ProcessedItemsCount", 0);
 	
 	If IsSpotJob Then
-		If UpdateParameters1.IsRightsUpdate Then
-			UpdateRightsOfListAccessKeysBatch(Items, UpdateParameters1);
+		If ParametersOfUpdate.IsRightsUpdate Then
+			UpdateRightsOfListAccessKeysBatch(Items, ParametersOfUpdate);
 		Else
-			UpdateListDataItemsWithObsoleteKeys(Items, UpdateParameters1);
+			UpdateListDataItemsWithObsoleteKeys(Items, ParametersOfUpdate);
 		EndIf;
 		
-	ElsIf UpdateParameters1.IsRightsUpdate Then
-		If IsObsoleteItemsDataProcessor(UpdateParameters1) Then
-			ProcessObsoleteListAccessKeys(Items, UpdateParameters1);
+	ElsIf ParametersOfUpdate.IsRightsUpdate Then
+		If IsObsoleteItemsDataProcessor(ParametersOfUpdate) Then
+			ProcessObsoleteListAccessKeys(Items, ParametersOfUpdate);
 		Else
-			UpdateRightsOfListAccessKeysBatch(Items, UpdateParameters1);
+			UpdateRightsOfListAccessKeysBatch(Items, ParametersOfUpdate);
 		EndIf;
 		
-	ElsIf IsCatalogAccessGroupsSets(UpdateParameters1) Then
-		UpdateAccessGroupsSets(Items, UpdateParameters1);
+	ElsIf IsCatalogAccessGroupsSets(ParametersOfUpdate) Then
+		UpdateAccessGroupsSets(Items, ParametersOfUpdate);
 		
-	ElsIf IsObsoleteItemsDataProcessor(UpdateParameters1) Then
-		DeleteObsoleteListDataItems(Items, UpdateParameters1);
+	ElsIf IsObsoleteItemsDataProcessor(ParametersOfUpdate) Then
+		DeleteObsoleteListDataItems(Items, ParametersOfUpdate);
 	Else
-		UpdateListDataItemsWithObsoleteKeys(Items, UpdateParameters1);
+		UpdateListDataItemsWithObsoleteKeys(Items, ParametersOfUpdate);
 	EndIf;
 	
 	If Not IsSpotJob And Items.Count() > 0 Then
-		UpdateParameters1.Insert("NewLastUpdatedItem",
-			LastItem(Items, UpdateParameters1, True));
+		ParametersOfUpdate.Insert("NewLastUpdatedItem",
+			LastItem(Items, ParametersOfUpdate, True));
 	EndIf;
 	
-	If Items.Count() = UpdateParameters1.ProcessedItemsCount Then
+	If Items.Count() = ParametersOfUpdate.ProcessedItemsCount Then
 		Items = Undefined;
 	Else
-		For Counter = 1 To UpdateParameters1.ProcessedItemsCount Do
+		For Counter = 1 To ParametersOfUpdate.ProcessedItemsCount Do
 			Items.Delete(0);
 		EndDo;
 	EndIf;
@@ -16602,17 +16732,17 @@ EndProcedure
 // UpdateListAccessKeysBatchRights, DeleteListAccessKeysBatch,
 // DeleteCurrentListAccessKeysBatch procedures.
 //
-Function ItemsProcessingAbortRequired(UpdateParameters1, ProcessedItemsOnStepCount = 1)
+Function ItemsProcessingAbortRequired(ParametersOfUpdate, ProcessedItemsOnStepCount = 1)
 	
-	If Not UpdateParameters1.Property("ProcessedItemsCount")
-	 Or Not UpdateParameters1.Property("ProcessingTimeBoundary") Then
+	If Not ParametersOfUpdate.Property("ProcessedItemsCount")
+	 Or Not ParametersOfUpdate.Property("ProcessingTimeBoundary") Then
 		Return False;
 	EndIf;
 	
-	UpdateParameters1.ProcessedItemsCount =
-		UpdateParameters1.ProcessedItemsCount + ProcessedItemsOnStepCount;
+	ParametersOfUpdate.ProcessedItemsCount =
+		ParametersOfUpdate.ProcessedItemsCount + ProcessedItemsOnStepCount;
 	
-	If CurrentUniversalDateInMilliseconds() > UpdateParameters1.ProcessingTimeBoundary Then
+	If CurrentUniversalDateInMilliseconds() > ParametersOfUpdate.ProcessingTimeBoundary Then
 		Return True;
 	EndIf;
 	
@@ -16687,27 +16817,27 @@ Procedure WriteLastUpdatedItem(CommonUpdateParameters, LastUpdatedItem)
 EndProcedure
 
 // For the RunListAccessUpdate procedure.
-Function ItemsForUpdate(UpdateParameters1, CountInQuery, SelectedAllItems)
+Function ItemsForUpdate(ParametersOfUpdate, CountInQuery, SelectedAllItems)
 	
-	If IsCatalogAccessGroupsSets(UpdateParameters1) Then
-		If UpdateParameters1.IsRightsUpdate Then
+	If IsCatalogAccessGroupsSets(ParametersOfUpdate) Then
+		If ParametersOfUpdate.IsRightsUpdate Then
 			SelectedAllItems = True;
 			Return Undefined;
 		EndIf;
-		Items = AccessGroupsSetsForUpdate(UpdateParameters1, CountInQuery);
+		Items = AccessGroupsSetsForUpdate(ParametersOfUpdate, CountInQuery);
 	Else
 		Query = New Query;
-		If UpdateParameters1.IsRightsUpdate Then
-			Query.SetParameter("List", UpdateParameters1.ListID);
-			Query.SetParameter("ForExternalUsers", UpdateParameters1.ForExternalUsers);
+		If ParametersOfUpdate.IsRightsUpdate Then
+			Query.SetParameter("List", ParametersOfUpdate.ListID);
+			Query.SetParameter("ForExternalUsers", ParametersOfUpdate.ForExternalUsers);
 			
-			LastAccessKey = UpdateParameters1.LastUpdatedItem.DataKey;
+			LastAccessKey = ParametersOfUpdate.LastUpdatedItem.DataKey;
 			If TypeOf(LastAccessKey) <> Type("CatalogRef.AccessKeys") Then
 				LastAccessKey = Undefined;
 			EndIf;
 			Query.SetParameter("LastAccessKey", LastAccessKey);
 			
-			If UpdateParameters1.DoNotWriteAccessKeys Then
+			If ParametersOfUpdate.DoNotWriteAccessKeys Then
 				// 
 				// 
 				Query.Text =
@@ -16724,8 +16854,8 @@ Function ItemsForUpdate(UpdateParameters1, CountInQuery, SelectedAllItems)
 				|ORDER BY
 				|	AccessKeys.Ref";
 				
-			ElsIf IsObsoleteItemsDataProcessor(UpdateParameters1) Then
-				If UpdateParameters1.WithAccessKeyEntryForDependentListsWithoutKeys Then
+			ElsIf IsObsoleteItemsDataProcessor(ParametersOfUpdate) Then
+				If ParametersOfUpdate.WithAccessKeyEntryForDependentListsWithoutKeys Then
 					// 
 					Query.Text =
 					"SELECT TOP 995
@@ -16743,22 +16873,22 @@ Function ItemsForUpdate(UpdateParameters1, CountInQuery, SelectedAllItems)
 					|	AccessKeys.Ref";
 				Else
 					Query.SetParameter("ExpirationDate", ExpirationDate());
-					Query.Text = UpdateParameters1.ObsoleteAccessKeysQueryText;
+					Query.Text = ParametersOfUpdate.ObsoleteAccessKeysQueryText;
 				EndIf;
 			Else
-				Query.Text = UpdateParameters1.AccessKeysQueryTextToUpdateRights;
+				Query.Text = ParametersOfUpdate.AccessKeysQueryTextToUpdateRights;
 			EndIf;
 			
-		ElsIf UpdateParameters1.IsReferenceType
-		        And UpdateParameters1.ForExternalUsers
-		        And IsObsoleteItemsDataProcessor(UpdateParameters1)
-		        And (Not UpdateParameters1.DoNotWriteAccessKeys
-		           Or UpdateParameters1.DoNotWriteAccessKeysForUsersAndExternalUsers) Then
+		ElsIf ParametersOfUpdate.IsReferenceType
+		        And ParametersOfUpdate.ForExternalUsers
+		        And IsObsoleteItemsDataProcessor(ParametersOfUpdate)
+		        And (Not ParametersOfUpdate.DoNotWriteAccessKeys
+		           Or ParametersOfUpdate.DoNotWriteAccessKeysForUsersAndExternalUsers) Then
 			
 			SelectedAllItems = True;
 			Return Undefined;
 		Else
-			SetQueryTextAndLastUpdatedDataItemParameters(Query, UpdateParameters1);
+			SetQueryTextAndLastUpdatedDataItemParameters(Query, ParametersOfUpdate);
 		EndIf;
 		
 		CountInQuery = ?(CountInQuery < 1000, 1000, ?(CountInQuery > 10000, 10000, CountInQuery));
@@ -16803,36 +16933,36 @@ Procedure SetQueryPlanClarification(QueryText, UniquePlan = False)
 EndProcedure
 
 // For the RunListAccessUpdate procedure.
-Function SpotJobItemsForUpdate(UpdateParameters1, CountInQuery, SelectedAllItems)
+Function SpotJobItemsForUpdate(ParametersOfUpdate, CountInQuery, SelectedAllItems)
 	
-	If IsCatalogAccessGroupsSets(UpdateParameters1)
-	 Or UpdateParameters1.DoNotWriteAccessKeys
-	 Or UpdateParameters1.WithAccessKeyEntryForDependentListsWithoutKeys Then
+	If IsCatalogAccessGroupsSets(ParametersOfUpdate)
+	 Or ParametersOfUpdate.DoNotWriteAccessKeys
+	 Or ParametersOfUpdate.WithAccessKeyEntryForDependentListsWithoutKeys Then
 		
 		Return Undefined;
 	EndIf;
 	
 	Query = New Query;
-	If UpdateParameters1.IsRightsUpdate Then
-		Query.Text = UpdateParameters1.KeysQueryTextByLeadingKeysToUpdateRights;
+	If ParametersOfUpdate.IsRightsUpdate Then
+		Query.Text = ParametersOfUpdate.KeysQueryTextByLeadingKeysToUpdateRights;
 		If Not ValueIsFilled(Query.Text) Then
 			Return Undefined;
 		EndIf;
-		Query.SetParameter("List", UpdateParameters1.ListID);
-		Query.SetParameter("LeadingAccessKeys", UpdateParameters1.SpotJob.ByAccessKeys);
+		Query.SetParameter("List", ParametersOfUpdate.ListID);
+		Query.SetParameter("LeadingAccessKeys", ParametersOfUpdate.SpotJob.ByAccessKeys);
 	Else
-		If Not UpdateParameters1.IsReferenceType Then
-			Query.SetParameter("RegisterID", UpdateParameters1.ListID);
+		If Not ParametersOfUpdate.IsReferenceType Then
+			Query.SetParameter("RegisterID", ParametersOfUpdate.ListID);
 		EndIf;
-		QueriesDetails = UpdateParameters1.DetailsOfObsoleteAccessKeysForLeadingObjects;
+		QueriesDetails = ParametersOfUpdate.DetailsOfObsoleteAccessKeysForLeadingObjects;
 		PackageQueries = New Array;
 		DataQueries = New Array;
-		If ValueIsFilled(UpdateParameters1.SpotJob.ByFieldsValues) Then
+		If ValueIsFilled(ParametersOfUpdate.SpotJob.ByFieldsValues) Then
 			QueriesDetailsByFieldsValues = QueriesDetails.Get("ByFieldsValues");
 			If QueriesDetailsByFieldsValues = Undefined Then
 				Return Undefined;
 			EndIf;
-			For Each ChangesDetails In UpdateParameters1.SpotJob.ByFieldsValues Do
+			For Each ChangesDetails In ParametersOfUpdate.SpotJob.ByFieldsValues Do
 				QueryDetails = QueriesDetailsByFieldsValues.Get(ChangesDetails.Key);
 				If QueryDetails = Undefined Then
 					Return Undefined;
@@ -16860,9 +16990,9 @@ Function SpotJobItemsForUpdate(UpdateParameters1, CountInQuery, SelectedAllItems
 			EndDo;
 		EndIf;
 		If Not AddSpotJobQueries("ByAccessKeys",
-		            Query, PackageQueries, DataQueries, UpdateParameters1)
+		            Query, PackageQueries, DataQueries, ParametersOfUpdate)
 		 Or Not AddSpotJobQueries("ByValuesWithGroups",
-		            Query, PackageQueries, DataQueries, UpdateParameters1)
+		            Query, PackageQueries, DataQueries, ParametersOfUpdate)
 		 Or DataQueries.Count() = 0 Then
 			Return Undefined;
 		EndIf;
@@ -16893,7 +17023,7 @@ Function SpotJobItemsForUpdate(UpdateParameters1, CountInQuery, SelectedAllItems
 	Query.Text = StrReplace(Query.Text, "995", Format(CountInQuery, "NG="));
 	SetQueryPlanClarification(Query.Text);
 	
-	If UpdateParameters1.IsRightsUpdate Then
+	If ParametersOfUpdate.IsRightsUpdate Then
 		Items = Query.Execute().Unload();
 		SelectedCount = Items.Count();
 	Else
@@ -16913,23 +17043,23 @@ Function SpotJobItemsForUpdate(UpdateParameters1, CountInQuery, SelectedAllItems
 EndFunction
 
 // For the SpotJobItemsForUpdate function.
-Function AddSpotJobQueries(JobKind, Query, PackageQueries, DataQueries, UpdateParameters1)
+Function AddSpotJobQueries(JobKind, Query, PackageQueries, DataQueries, ParametersOfUpdate)
 	
 	Data = SpotJobTable();
-	Data = UpdateParameters1.SpotJob[JobKind]; // See SpotJobTable
+	Data = ParametersOfUpdate.SpotJob[JobKind]; // See SpotJobTable
 	If Not ValueIsFilled(Data) Then
 		Return True;
 	EndIf;
 	
 	QueriesDetails =
-		UpdateParameters1.DetailsOfObsoleteAccessKeysForLeadingObjects.Get(JobKind);
+		ParametersOfUpdate.DetailsOfObsoleteAccessKeysForLeadingObjects.Get(JobKind);
 	
 	If QueriesDetails = Undefined Then
 		Return False;
 	EndIf;
 	
 	ColumnType = Data.Columns.Ref.ValueType;
-	MissingTypes = New TypeDescription(ColumnType, , QueriesDetails.RefType1.Get().Types());
+	MissingTypes = New TypeDescription(ColumnType, , QueriesDetails.RefType.Get().Types());
 	If MissingTypes.Types().Count() > 0 Then
 		Return False;
 	EndIf;
@@ -16971,28 +17101,28 @@ Function SpotJobTable()
 EndFunction
 
 // For the RunListAccessUpdate procedure.
-Procedure RestartUpdateAtNotCompletedSpotUpdate(UpdateParameters1)
+Procedure RestartUpdateAtNotCompletedSpotUpdate(ParametersOfUpdate)
 	
-	UpdateParameters1.UpdateRestart = True;
-	UpdateParameters1.LastUpdatedItem = InitialItem(UpdateParameters1);
+	ParametersOfUpdate.UpdateRestart = True;
+	ParametersOfUpdate.LastUpdatedItem = InitialItem(ParametersOfUpdate);
 	
 	// Register indirect planning of access update.
 	PlanningParameters = AccessUpdatePlanningParameters(False);
-	PlanningParameters.AllowedAccessKeys  =    UpdateParameters1.IsRightsUpdate;
-	PlanningParameters.ForUsers         = Not UpdateParameters1.ForExternalUsers;
-	PlanningParameters.ForExternalUsers  =    UpdateParameters1.ForExternalUsers;
+	PlanningParameters.AllowedAccessKeys  =    ParametersOfUpdate.IsRightsUpdate;
+	PlanningParameters.ForUsers         = Not ParametersOfUpdate.ForExternalUsers;
+	PlanningParameters.ForExternalUsers  =    ParametersOfUpdate.ForExternalUsers;
 	PlanningParameters.IsUpdateContinuation = True;
 	PlanningParameters.LongDesc = "RestartUpdateAtNotCompletedSpotUpdate";
 	
 	ListsByIDs = New Map;
-	ListsByIDs.Insert(UpdateParameters1.ListID, UpdateParameters1.List);
+	ListsByIDs.Insert(ParametersOfUpdate.ListID, ParametersOfUpdate.List);
 	
 	RegisterAccessUpdatePlanning(ListsByIDs, PlanningParameters);
 	
 EndProcedure
 
 // For the RunListAccessUpdate procedure.
-Function ItemsBatchesSet(UpdateParameters1, Items, SelectedAllItems, PortionSize = Undefined)
+Function ItemsBatchesSet(ParametersOfUpdate, Items, SelectedAllItems, PortionSize = Undefined)
 	
 	BatchesSet = New Array;
 	
@@ -17002,7 +17132,7 @@ Function ItemsBatchesSet(UpdateParameters1, Items, SelectedAllItems, PortionSize
 		BatchFromSet.Insert("InProcessing", False);
 		BatchFromSet.Insert("Items", New ValueStorage(New ValueTable));
 		BatchFromSet.Insert("LatestBatchItemDate", '00010101');
-		BatchFromSet.Insert("LastBatchItem", InitialItem(UpdateParameters1,, True));
+		BatchFromSet.Insert("LastBatchItem", InitialItem(ParametersOfUpdate,, True));
 		BatchFromSet.Insert("NewLastBatchItem");
 		BatchesSet.Add(BatchFromSet);
 		BatchFromSet.LastBatchItem.DataKey = Null;
@@ -17010,13 +17140,13 @@ Function ItemsBatchesSet(UpdateParameters1, Items, SelectedAllItems, PortionSize
 			BatchFromSet.LastBatchItem.Date = '00010101';
 		EndIf;
 		SetLastBlankItem(BatchFromSet.NewLastBatchItem,
-			UpdateParameters1, '00010101');
+			ParametersOfUpdate, '00010101');
 		Return BatchesSet;
 	EndIf;
 	
 	If PortionSize = Undefined Then
-		PortionSize = UpdateParameters1.ProcessedItemsCount;
-		MaxNewBatches = UpdateParameters1.MaxBatchesFromOriginalItem;
+		PortionSize = ParametersOfUpdate.ProcessedItemsCount;
+		MaxNewBatches = ParametersOfUpdate.MaxBatchesFromOriginalItem;
 		If Items.Count() / PortionSize > MaxNewBatches Then
 			PortionSize = Items.Count() / MaxNewBatches;
 			If PortionSize <> Int(PortionSize) Then
@@ -17025,7 +17155,7 @@ Function ItemsBatchesSet(UpdateParameters1, Items, SelectedAllItems, PortionSize
 		EndIf;
 	EndIf;
 	
-	UpdateParameters1.Insert("BatchesSet", BatchesSet);
+	ParametersOfUpdate.Insert("BatchesSet", BatchesSet);
 	IndexOf = 0;
 	For Each Item In Items Do
 		If IndexOf / PortionSize = Int(IndexOf / PortionSize) Then
@@ -17044,18 +17174,18 @@ Function ItemsBatchesSet(UpdateParameters1, Items, SelectedAllItems, PortionSize
 		BatchesSet[IndexOf] = BatchFromSet;
 		BatchFromSet.Insert("Items", New ValueStorage(BatchItems));
 		BatchFromSet.Insert("LastBatchItem",
-			LastItem(BatchItems, UpdateParameters1));
+			LastItem(BatchItems, ParametersOfUpdate));
 		BatchFromSet.Insert("LatestBatchItemDate",
 			?(BatchFromSet.LastBatchItem.Property("Date"),
 				BatchFromSet.LastBatchItem.Date, '00010101'));
 		BatchFromSet.Insert("NewLastBatchItem",
-			LastItem(BatchItems, UpdateParameters1));
+			LastItem(BatchItems, ParametersOfUpdate));
 	EndDo;
 	
 	If SelectedAllItems Then
 		BatchFromSet.LastBatchItem.DataKey = Null;
 		SetLastBlankItem(BatchFromSet.NewLastBatchItem,
-			UpdateParameters1, '00010101');
+			ParametersOfUpdate, '00010101');
 	EndIf;
 	
 	Return BatchesSet;
@@ -17078,32 +17208,32 @@ Function BatchFromSet()
 EndFunction
 
 // For the ExecuteListAccessUpdate, UpdateItemsBatch, and ItemsBatchesSet procedures.
-Function LastItem(Items, UpdateParameters1, LastProcessedItem = False)
+Function LastItem(Items, ParametersOfUpdate, LastProcessedItem = False)
 	
 	LastItemNumber = ?(LastProcessedItem,
-		UpdateParameters1.ProcessedItemsCount, Items.Count());
+		ParametersOfUpdate.ProcessedItemsCount, Items.Count());
 	
 	LastItem = Items[LastItemNumber - 1];
 	
-	DataElement = InitialItem(UpdateParameters1, , True);
+	DataElement = InitialItem(ParametersOfUpdate, , True);
 	
-	If UpdateParameters1.IsRightsUpdate Then
+	If ParametersOfUpdate.IsRightsUpdate Then
 		DataElement.DataKey = LastItem.Ref;
 		Return DataElement;
 	EndIf;
 	
-	If UpdateParameters1.ListWithDate
-	   And Not IsObsoleteItemsDataProcessor(UpdateParameters1) Then
+	If ParametersOfUpdate.ListWithDate
+	   And Not IsObsoleteItemsDataProcessor(ParametersOfUpdate) Then
 		
 		DataElement.Date = LastItem.Date;
 		
-	ElsIf UpdateParameters1.IsReferenceType Then
+	ElsIf ParametersOfUpdate.IsReferenceType Then
 		DataElement.DataKey = LastItem.CurrentRef;
 	Else
-		DataElement.DataKey = DataKey(UpdateParameters1);
+		DataElement.DataKey = DataKey(ParametersOfUpdate);
 		FillPropertyValues(DataElement.DataKey, LastItem);
 		
-		If UpdateParameters1.ListWithPeriod
+		If ParametersOfUpdate.ListWithPeriod
 		   And DataElement.DataKeyKind = "ItemsWithoutKeysByPeriod" Then
 			
 			DataElement.Date = LastItem.Period;
@@ -17115,36 +17245,36 @@ Function LastItem(Items, UpdateParameters1, LastProcessedItem = False)
 EndFunction
 
 // For the RunListAccessUpdate procedure.
-Procedure ClarifyLastUpdatedItem(UpdateParameters1)
+Procedure ClarifyLastUpdatedItem(ParametersOfUpdate)
 	
-	If UpdateParameters1.List = "Catalog.SetsOfAccessGroups"
-	 Or UpdateParameters1.LastUpdatedItem.DataKeyKind = "NoData1" Then
+	If ParametersOfUpdate.List = "Catalog.SetsOfAccessGroups"
+	 Or ParametersOfUpdate.LastUpdatedItem.DataKeyKind = "NoData1" Then
 		Return;
 	EndIf;
 	
-	If UpdateParameters1.DoNotWriteAccessKeys Then
-		If Not UpdateParameters1.LastUpdatedItem.ProcessObsoleteItems Then
-			UpdateParameters1.LastUpdatedItem =
-				InitialItem(UpdateParameters1, "NoData1");
+	If ParametersOfUpdate.DoNotWriteAccessKeys Then
+		If Not ParametersOfUpdate.LastUpdatedItem.ProcessObsoleteItems Then
+			ParametersOfUpdate.LastUpdatedItem =
+				InitialItem(ParametersOfUpdate, "NoData1");
 			
-		ElsIf Not IsObsoleteItemsDataProcessor(UpdateParameters1) Then
-			UpdateParameters1.LastUpdatedItem =
-				InitialItem(UpdateParameters1, "ObsoleteItems");
+		ElsIf Not IsObsoleteItemsDataProcessor(ParametersOfUpdate) Then
+			ParametersOfUpdate.LastUpdatedItem =
+				InitialItem(ParametersOfUpdate, "ObsoleteItems");
 		EndIf;
 	EndIf;
 	
 EndProcedure
 
 // For the RunListAccessUpdate, UpdateItemsBatch procedures.
-Procedure SetLastBlankItem(Item, UpdateParameters1, ItemDate = '00010101')
+Procedure SetLastBlankItem(Item, ParametersOfUpdate, ItemDate = '00010101')
 	
 	ItemDate = '00010101';
-	Item = InitialItem(UpdateParameters1, , True);
+	Item = InitialItem(ParametersOfUpdate, , True);
 	Item.DataKey = Null;
 	
 	// Clarifying new last item.
-	If IsCatalogAccessGroupsSets(UpdateParameters1) Then
-		If UpdateParameters1.IsRightsUpdate Then
+	If IsCatalogAccessGroupsSets(ParametersOfUpdate) Then
+		If ParametersOfUpdate.IsRightsUpdate Then
 			Return;
 		EndIf;
 		NewDataKeyKind = "";
@@ -17172,16 +17302,16 @@ Procedure SetLastBlankItem(Item, UpdateParameters1, ItemDate = '00010101')
 			NewDataKeyKind = "ObsoleteItems";
 		EndIf;
 		If ValueIsFilled(NewDataKeyKind) Then
-			Item = InitialItem(UpdateParameters1, NewDataKeyKind);
+			Item = InitialItem(ParametersOfUpdate, NewDataKeyKind);
 		EndIf;
 		Return;
 	EndIf;
 	
-	If UpdateParameters1.IsRightsUpdate Then
+	If ParametersOfUpdate.IsRightsUpdate Then
 		If Item.DataKeyKind = "ItemsWithObsoleteRights"
 		   And Item.ProcessObsoleteItems Then
 			
-			Item = InitialItem(UpdateParameters1, "ObsoleteItems");
+			Item = InitialItem(ParametersOfUpdate, "ObsoleteItems");
 		EndIf;
 		Return;
 	EndIf;
@@ -17191,83 +17321,83 @@ Procedure SetLastBlankItem(Item, UpdateParameters1, ItemDate = '00010101')
 	EndIf;
 	
 	If Item.DataKeyKind = "ObsoleteItems" Then
-		If Not UpdateParameters1.IsReferenceType
-		   And ValueIsFilled(UpdateParameters1.SeparateKeysRegisterName) Then
+		If Not ParametersOfUpdate.IsReferenceType
+		   And ValueIsFilled(ParametersOfUpdate.SeparateKeysRegisterName) Then
 		
-			Item = InitialItem(UpdateParameters1, "ObsoleteCommonRegisterItems");
+			Item = InitialItem(ParametersOfUpdate, "ObsoleteCommonRegisterItems");
 		EndIf;
 		Return;
 	EndIf;
 	
-	If UpdateParameters1.ListWithDate Then
-		SetNextPeriodItem(UpdateParameters1, Item, ItemDate);
+	If ParametersOfUpdate.ListWithDate Then
+		SetNextPeriodItem(ParametersOfUpdate, Item, ItemDate);
 		Return;
 	EndIf;
 	
-	If UpdateParameters1.IsReferenceType Then
+	If ParametersOfUpdate.IsReferenceType Then
 		If Item.DataKeyKind = "ItemsWithObsoleteKeys"
 		   And Item.ProcessObsoleteItems
-		   And (UpdateParameters1.DoNotWriteAccessKeys
-		      Or Not UpdateParameters1.ForExternalUsers) Then
+		   And (ParametersOfUpdate.DoNotWriteAccessKeys
+		      Or Not ParametersOfUpdate.ForExternalUsers) Then
 			
-			Item = InitialItem(UpdateParameters1, "ObsoleteItems");
+			Item = InitialItem(ParametersOfUpdate, "ObsoleteItems");
 		EndIf;
 		Return;
 	EndIf;
 	
-	If UpdateParameters1.DoNotWriteAccessKeys Then
+	If ParametersOfUpdate.DoNotWriteAccessKeys Then
 		If Item.DataKeyKind = "ItemsWithObsoleteKeys"
 		   And Item.ProcessObsoleteItems Then
 			
-			Item = InitialItem(UpdateParameters1, "ObsoleteItems");
+			Item = InitialItem(ParametersOfUpdate, "ObsoleteItems");
 		EndIf;
 		Return;
 	EndIf;
 	
 	If Item.DataKeyKind = "ItemsWithoutKeysByFieldValues" Then
 		If Item.ProcessObsoleteItems Then
-			Item = InitialItem(UpdateParameters1, "ObsoleteItems");
+			Item = InitialItem(ParametersOfUpdate, "ObsoleteItems");
 		EndIf;
 		Return;
 	EndIf;
 	
 	If Item.DataKeyKind = "ItemsWithoutKeysByPeriod" Then
-		SetNextPeriodItem(UpdateParameters1, Item, ItemDate);
+		SetNextPeriodItem(ParametersOfUpdate, Item, ItemDate);
 		If Item.DataKey = Null And Item.ProcessObsoleteItems Then
-			Item = InitialItem(UpdateParameters1, "ObsoleteItems");
+			Item = InitialItem(ParametersOfUpdate, "ObsoleteItems");
 		EndIf;
 		Return;
 	EndIf;
 	
-	If Not UpdateParameters1.ListWithPeriod Then
-		Item = InitialItem(UpdateParameters1, "ItemsWithoutKeysByFieldValues");
+	If Not ParametersOfUpdate.ListWithPeriod Then
+		Item = InitialItem(ParametersOfUpdate, "ItemsWithoutKeysByFieldValues");
 		Return;
 	EndIf;
 	
-	Item = InitialItem(UpdateParameters1, "ItemsWithoutKeysByPeriod");
-	LastUpdatedItem = UpdateParameters1.LastUpdatedItem;
-	UpdateParameters1.LastUpdatedItem = Item;
-	SetNextPeriodItem(UpdateParameters1, Item, ItemDate, MaxDate());
-	UpdateParameters1.LastUpdatedItem = LastUpdatedItem;
+	Item = InitialItem(ParametersOfUpdate, "ItemsWithoutKeysByPeriod");
+	LastUpdatedItem = ParametersOfUpdate.LastUpdatedItem;
+	ParametersOfUpdate.LastUpdatedItem = Item;
+	SetNextPeriodItem(ParametersOfUpdate, Item, ItemDate, MaxDate());
+	ParametersOfUpdate.LastUpdatedItem = LastUpdatedItem;
 	
 	If Item.DataKey = Null And Item.ProcessObsoleteItems Then
-		Item = InitialItem(UpdateParameters1, "ObsoleteItems");
+		Item = InitialItem(ParametersOfUpdate, "ObsoleteItems");
 	EndIf;
 	
 EndProcedure
 
 // For the ClarifyBlankLastItem procedure.
-Procedure SetNextPeriodItem(UpdateParameters1, Item, ItemDate,
+Procedure SetNextPeriodItem(ParametersOfUpdate, Item, ItemDate,
 			CurrentPeriodStartDate = Undefined)
 	
 	If CurrentPeriodStartDate = Undefined Then
-		CurrentPeriodStartDate = UpdateParameters1.StartDate;
+		CurrentPeriodStartDate = ParametersOfUpdate.StartDate;
 	EndIf;
 	
 	Query = New Query;
 	Query.SetParameter("StartDate", CurrentPeriodStartDate);
 	
-	Query.Text = UpdateParameters1.NextDataItemDateQueryText;
+	Query.Text = ParametersOfUpdate.NextDataItemDateQueryText;
 	
 	QueryResult = Query.Execute();
 	
@@ -17276,61 +17406,61 @@ Procedure SetNextPeriodItem(UpdateParameters1, Item, ItemDate,
 		Return;
 	EndIf;
 	
-	Item = LastItem(QueryResult.Unload(), UpdateParameters1);
+	Item = LastItem(QueryResult.Unload(), ParametersOfUpdate);
 	ItemDate = ?(Item.Property("Date"), Item.Date, '00010101');
 	
 EndProcedure
 
 // For the ItemsToUpdate function.
-Procedure SetQueryTextAndLastUpdatedDataItemParameters(Query, UpdateParameters1)
+Procedure SetQueryTextAndLastUpdatedDataItemParameters(Query, ParametersOfUpdate)
 	
-	If IsObsoleteItemsDataProcessor(UpdateParameters1) Then
-		If UpdateParameters1.LastUpdatedItem.DataKeyKind = "ObsoleteItems" Then
-			Query.Text = UpdateParameters1.ObsoleteDataItemsQueryText;
+	If IsObsoleteItemsDataProcessor(ParametersOfUpdate) Then
+		If ParametersOfUpdate.LastUpdatedItem.DataKeyKind = "ObsoleteItems" Then
+			Query.Text = ParametersOfUpdate.ObsoleteDataItemsQueryText;
 		Else
-			Query.Text = UpdateParameters1.ObsoleteDataItemsFromCommonRegisterQueryText;
+			Query.Text = ParametersOfUpdate.ObsoleteDataItemsFromCommonRegisterQueryText;
 		EndIf;
 	Else
-		Query.Text = UpdateParameters1.DataItemWithObsoleteKeysQueryText;
-		If Not ValueIsFilled(UpdateParameters1.FieldsComposition) Then
-			Query.SetParameter("List", UpdateParameters1.ListID);
+		Query.Text = ParametersOfUpdate.DataItemWithObsoleteKeysQueryText;
+		If Not ValueIsFilled(ParametersOfUpdate.FieldsComposition) Then
+			Query.SetParameter("List", ParametersOfUpdate.ListID);
 		EndIf;
-		If UpdateParameters1.ListWithDate Then
-			Query.SetParameter("StartDate",    UpdateParameters1.StartDate);
-			Query.SetParameter("EndDate", UpdateParameters1.LastUpdatedItem.Date);
+		If ParametersOfUpdate.ListWithDate Then
+			Query.SetParameter("StartDate",    ParametersOfUpdate.StartDate);
+			Query.SetParameter("EndDate", ParametersOfUpdate.LastUpdatedItem.Date);
 			Return;
 		EndIf;
 	EndIf;
 	
-	DataKey = UpdateParameters1.LastUpdatedItem.DataKey;
+	DataKey = ParametersOfUpdate.LastUpdatedItem.DataKey;
 	
-	If UpdateParameters1.IsReferenceType Then
+	If ParametersOfUpdate.IsReferenceType Then
 		SetDataKey = ?(Common.IsReference(TypeOf(DataKey)), DataKey, Undefined);
 		Query.SetParameter("LastProcessedRef", SetDataKey);
 		Return;
 	EndIf;
 	
-	Query.SetParameter("RegisterID", UpdateParameters1.ListID);
-	SetDataKey = DataKey(UpdateParameters1, DataKey);
-	DataKeyKind = UpdateParameters1.LastUpdatedItem.DataKeyKind;
+	Query.SetParameter("RegisterID", ParametersOfUpdate.ListID);
+	SetDataKey = DataKey(ParametersOfUpdate, DataKey);
+	DataKeyKind = ParametersOfUpdate.LastUpdatedItem.DataKeyKind;
 	
-	If UpdateParameters1.ListWithPeriod
+	If ParametersOfUpdate.ListWithPeriod
 	   And StrStartsWith(DataKeyKind, "ItemsWithoutKeys") Then
 		
 		If DataKeyKind <> "ItemsWithoutKeysByPeriod" Then
-			SetDataKeyKind(UpdateParameters1.LastUpdatedItem,
+			SetDataKeyKind(ParametersOfUpdate.LastUpdatedItem,
 				"ItemsWithoutKeysByPeriod");
 		EndIf;
-		Query.Text = UpdateParameters1.DataItemsWithoutAccessKeysQueryText;
-		Query.SetParameter("StartDate",    UpdateParameters1.StartDate);
-		Query.SetParameter("EndDate", UpdateParameters1.LastUpdatedItem.Date);
+		Query.Text = ParametersOfUpdate.DataItemsWithoutAccessKeysQueryText;
+		Query.SetParameter("StartDate",    ParametersOfUpdate.StartDate);
+		Query.SetParameter("EndDate", ParametersOfUpdate.LastUpdatedItem.Date);
 		
 	ElsIf StrStartsWith(DataKeyKind, "ItemsWithoutKeys") Then
 		If DataKeyKind <> "ItemsWithoutKeysByFieldValues" Then
-			SetDataKeyKind(UpdateParameters1.LastUpdatedItem,
+			SetDataKeyKind(ParametersOfUpdate.LastUpdatedItem,
 				"ItemsWithoutKeysByFieldValues");
 		EndIf;
-		Query.Text = UpdateParameters1.DataItemsWithoutAccessKeysQueryText;
+		Query.Text = ParametersOfUpdate.DataItemsWithoutAccessKeysQueryText;
 	EndIf;
 	
 	For Each KeyAndValue In SetDataKey Do
@@ -17354,15 +17484,15 @@ EndProcedure
 //     * Field4 - AnyRef
 //     * Field5 - AnyRef
 //
-Function DataKey(UpdateParameters1, InitialDataKey = Undefined)
+Function DataKey(ParametersOfUpdate, InitialDataKey = Undefined)
 	
-	FieldsCount = UpdateParameters1.BasicFields.UsedItems.Count();
+	FieldsCount = ParametersOfUpdate.BasicFields.UsedItems.Count();
 	
 	If FieldsCount = 0
-	 Or UpdateParameters1.UsesRestrictionByOwner
-	 Or IsObsoleteItemsDataProcessor(UpdateParameters1) Then
+	 Or ParametersOfUpdate.UsesRestrictionByOwner
+	 Or IsObsoleteItemsDataProcessor(ParametersOfUpdate) Then
 		
-		FieldsCount = UpdateParameters1.BasicFields.MaxCount;
+		FieldsCount = ParametersOfUpdate.BasicFields.MaxCount;
 	EndIf;
 	
 	If TypeOf(InitialDataKey) = Type("Structure")
@@ -17389,13 +17519,13 @@ Function DataKey(UpdateParameters1, InitialDataKey = Undefined)
 EndFunction
 
 // For the ItemsForUpdate procedure.
-Function AccessGroupsSetsForUpdate(UpdateParameters1, CountInQuery)
+Function AccessGroupsSetsForUpdate(ParametersOfUpdate, CountInQuery)
 	
-	LastUpdatedItem = UpdateParameters1.LastUpdatedItem;
+	LastUpdatedItem = ParametersOfUpdate.LastUpdatedItem;
 	DataKeyKind = LastUpdatedItem.DataKeyKind;
 	
 	Query = New Query;
-	Query.SetParameter("ForExternalUsers", UpdateParameters1.ForExternalUsers);
+	Query.SetParameter("ForExternalUsers", ParametersOfUpdate.ForExternalUsers);
 	Query.SetParameter("LastProcessedRef", LastUpdatedItem.DataKey);
 	
 	If DataKeyKind = "GroupsSetsWithObsoleteRights" Then
@@ -17414,7 +17544,7 @@ Function AccessGroupsSetsForUpdate(UpdateParameters1, CountInQuery)
 		|ORDER BY
 		|	CurrentList.Ref";
 		
-		If UpdateParameters1.ForExternalUsers Then
+		If ParametersOfUpdate.ForExternalUsers Then
 			Query.Text = StrReplace(Query.Text,
 				"Catalog.UserGroups", "Catalog.ExternalUsersGroups");
 		EndIf;
@@ -17457,18 +17587,18 @@ Function AccessGroupsSetsForUpdate(UpdateParameters1, CountInQuery)
 		|ORDER BY
 		|	UserGroupCompositions.User";
 		
-		If UpdateParameters1.ForExternalUsers Then
+		If ParametersOfUpdate.ForExternalUsers Then
 			Query.Text = StrReplace(Query.Text,
 				"Catalog.Users", "Catalog.ExternalUsers");
 		EndIf;
 		
 	ElsIf DataKeyKind = "AccessGroupsSetsAssignedToUsers" Then
 		Return OneUserSetsToUpdateAssignedAccessGroupsSets(
-			UpdateParameters1, CountInQuery);
+			ParametersOfUpdate, CountInQuery);
 		
 	ElsIf DataKeyKind = "UserGroupSetsAssignedToUsers" Then
 		Return OneUserSetsToUpdateAssignedUsersGroupsSets(
-			UpdateParameters1, CountInQuery);
+			ParametersOfUpdate, CountInQuery);
 		
 	ElsIf DataKeyKind = "NewGroupsSetsWithObsoleteRights" Then
 		Query.Text =
@@ -17499,7 +17629,7 @@ Function AccessGroupsSetsForUpdate(UpdateParameters1, CountInQuery)
 		|
 		|ORDER BY
 		|	CurrentList.Ref";
-		If UpdateParameters1.ForExternalUsers Then
+		If ParametersOfUpdate.ForExternalUsers Then
 			Query.Text = StrReplace(Query.Text,
 				"Catalog.UserGroups", "Catalog.ExternalUsersGroups");
 		EndIf;
@@ -17536,13 +17666,13 @@ Function AccessGroupsSetsForUpdate(UpdateParameters1, CountInQuery)
 		|
 		|ORDER BY
 		|	CurrentList.Ref";
-		If UpdateParameters1.ForExternalUsers Then
+		If ParametersOfUpdate.ForExternalUsers Then
 			Query.Text = StrReplace(Query.Text,
 				"Catalog.Users", "Catalog.ExternalUsers");
 		EndIf;
 		
-	ElsIf IsObsoleteItemsDataProcessor(UpdateParameters1) Then
-		Return ObsoleteAccessGroupsSetsInCatalog(UpdateParameters1, CountInQuery);
+	ElsIf IsObsoleteItemsDataProcessor(ParametersOfUpdate) Then
+		Return ObsoleteAccessGroupsSetsInCatalog(ParametersOfUpdate, CountInQuery);
 	EndIf;
 	
 	CountInQuery = ?(CountInQuery < 25, 25, ?(CountInQuery > 10000, 10000, CountInQuery));
@@ -17556,38 +17686,38 @@ Function AccessGroupsSetsForUpdate(UpdateParameters1, CountInQuery)
 EndFunction
 
 // For the UpdateItemsBatch procedure.
-Procedure UpdateAccessGroupsSets(DataItems, UpdateParameters1)
+Procedure UpdateAccessGroupsSets(DataItems, ParametersOfUpdate)
 	
-	DataKeyKind = UpdateParameters1.LastUpdatedItem.DataKeyKind;
+	DataKeyKind = ParametersOfUpdate.LastUpdatedItem.DataKeyKind;
 	
 	If DataKeyKind = "GroupsSetsWithObsoleteRights" Then
-		UpdateGroupsSetsWithObsoleteParameters(DataItems, UpdateParameters1);
+		UpdateGroupsSetsWithObsoleteParameters(DataItems, ParametersOfUpdate);
 		
 	ElsIf DataKeyKind = "NewSingleUserSets" Then
-		UpdateSetsOfOneUserInCatalog(DataItems, UpdateParameters1);
+		UpdateSetsOfOneUserInCatalog(DataItems, ParametersOfUpdate);
 		
 	ElsIf DataKeyKind = "AccessGroupsSetsAssignedToUsers" Then
-		UpdateGroupsSetsAssingedToUsersInCatalog(DataItems, UpdateParameters1, True);
+		UpdateGroupsSetsAssingedToUsersInCatalog(DataItems, ParametersOfUpdate, True);
 		
 	ElsIf DataKeyKind = "UserGroupSetsAssignedToUsers" Then
-		UpdateGroupsSetsAssingedToUsersInCatalog(DataItems, UpdateParameters1, False);
+		UpdateGroupsSetsAssingedToUsersInCatalog(DataItems, ParametersOfUpdate, False);
 		
 	ElsIf DataKeyKind = "NewGroupsSetsWithObsoleteRights" Then
-		UpdateGroupsSetsWithObsoleteParameters(DataItems, UpdateParameters1, True);
+		UpdateGroupsSetsWithObsoleteParameters(DataItems, ParametersOfUpdate, True);
 		
 	ElsIf DataKeyKind = "GroupSetsAllowedForUsers" Then
-		UpdateGroupsSetsAllowedForUsersInCatalog(DataItems, UpdateParameters1);
+		UpdateGroupsSetsAllowedForUsersInCatalog(DataItems, ParametersOfUpdate);
 		
-	ElsIf IsObsoleteItemsDataProcessor(UpdateParameters1) Then
-		ProcessObsoleteSetsInCatalog(DataItems, UpdateParameters1);
+	ElsIf IsObsoleteItemsDataProcessor(ParametersOfUpdate) Then
+		ProcessObsoleteSetsInCatalog(DataItems, ParametersOfUpdate);
 	EndIf;
 	
 EndProcedure
 
 // For the RunListAccessUpdate procedure.
-Procedure ClearBlankAccessGroupsSetRights(UpdateParameters1)
+Procedure ClearBlankAccessGroupsSetRights(ParametersOfUpdate)
 	
-	If UpdateParameters1.ForExternalUsers Then
+	If ParametersOfUpdate.ForExternalUsers Then
 		Return;
 	EndIf;
 	
@@ -17641,7 +17771,7 @@ Procedure ClearBlankAccessGroupsSetRights(UpdateParameters1)
 EndProcedure
 
 // For the UpdateAccessGroupsSets procedure.
-Procedure UpdateGroupsSetsWithObsoleteParameters(DataItems, UpdateParameters1, IsNewSets = False)
+Procedure UpdateGroupsSetsWithObsoleteParameters(DataItems, ParametersOfUpdate, IsNewSets = False)
 	
 	If IsNewSets Then
 		Block = New DataLock;
@@ -17651,16 +17781,16 @@ Procedure UpdateGroupsSetsWithObsoleteParameters(DataItems, UpdateParameters1, I
 	For Each DataElement In DataItems Do
 		If DataElement.IsAccessGroupsSet Then
 			// 
-			UpdateGroupsSetsAccessKeys(UpdateParameters1, DataElement.CurrentRef,
+			UpdateGroupsSetsAccessKeys(ParametersOfUpdate, DataElement.CurrentRef,
 				"AccessGroupSetsAccessKeys", "AccessGroups", "AccessGroupsSet");
 			
-		ElsIf Not UpdateParameters1.ForExternalUsers Then
+		ElsIf Not ParametersOfUpdate.ForExternalUsers Then
 			// 
-			UpdateGroupsSetsAccessKeys(UpdateParameters1, DataElement.CurrentRef,
+			UpdateGroupsSetsAccessKeys(ParametersOfUpdate, DataElement.CurrentRef,
 				"UsersAccessKeys", "UserGroups", "User");
 		Else
 			// 
-			UpdateGroupsSetsAccessKeys(UpdateParameters1, DataElement.CurrentRef,
+			UpdateGroupsSetsAccessKeys(ParametersOfUpdate, DataElement.CurrentRef,
 				"ExternalUsersAccessKeys", "ExternalUsersGroups", "ExternalUser");
 		EndIf;
 		
@@ -17674,7 +17804,7 @@ Procedure UpdateGroupsSetsWithObsoleteParameters(DataItems, UpdateParameters1, I
 					AttributeName = ?(DataElement.IsAccessGroupsSet,
 						"NewAccessGroupsSet", "NewUserGroupsSet");
 					If ValueIsFilled(Object[AttributeName]) Then
-						Object[AttributeName] = UpdateParameters1.BlankAccessGroupsSet;
+						Object[AttributeName] = ParametersOfUpdate.BlankAccessGroupsSet;
 						Object.Write();
 					EndIf;
 				EndIf;
@@ -17685,7 +17815,7 @@ Procedure UpdateGroupsSetsWithObsoleteParameters(DataItems, UpdateParameters1, I
 			EndTry;
 		EndIf;
 		
-		If ItemsProcessingAbortRequired(UpdateParameters1, 1) Then
+		If ItemsProcessingAbortRequired(ParametersOfUpdate, 1) Then
 			Break;
 		EndIf;
 	EndDo;
@@ -17693,7 +17823,7 @@ Procedure UpdateGroupsSetsWithObsoleteParameters(DataItems, UpdateParameters1, I
 EndProcedure
 
 // For the UpdateGroupsSetsWithObsoleteParameters procedure.
-Procedure UpdateGroupsSetsAccessKeys(UpdateParameters1, AccessGroupsSet, RightsRegisterName,
+Procedure UpdateGroupsSetsAccessKeys(ParametersOfUpdate, AccessGroupsSet, RightsRegisterName,
 				GroupsCatalogName, GroupsSetFieldName)
 	
 	If AccessGroupsSet = AccessManagementInternalCached.AllowedBlankAccessGroupsSet() Then
@@ -17984,10 +18114,10 @@ Procedure UpdateGroupsSetsAccessKeys(UpdateParameters1, AccessGroupsSet, RightsR
 EndProcedure
 
 // For the RunListAccessUpdate procedure.
-Procedure EliminateSetsDuplicatesFromOneUserInCatalog(UpdateParameters1)
+Procedure EliminateSetsDuplicatesFromOneUserInCatalog(ParametersOfUpdate)
 	
 	Query = New Query;
-	Query.SetParameter("ForExternalUsers", UpdateParameters1.ForExternalUsers);
+	Query.SetParameter("ForExternalUsers", ParametersOfUpdate.ForExternalUsers);
 	Query.Text =
 	"SELECT
 	|	SetsOfAccessGroups.User AS User,
@@ -18010,7 +18140,7 @@ Procedure EliminateSetsDuplicatesFromOneUserInCatalog(UpdateParameters1)
 	|			HAVING
 	|				COUNT(SetsOfAccessGroups.User) > 1)";
 	
-	If UpdateParameters1.ForExternalUsers Then
+	If ParametersOfUpdate.ForExternalUsers Then
 		Query.Text = StrReplace(Query.Text, "Catalog.Users", "Catalog.ExternalUsers");
 	EndIf;
 	
@@ -18040,9 +18170,9 @@ Procedure EliminateSetsDuplicatesFromOneUserInCatalog(UpdateParameters1)
 EndProcedure
 
 // For the UpdateAccessGroupsSets procedure.
-Procedure UpdateSetsOfOneUserInCatalog(DataItems, UpdateParameters1)
+Procedure UpdateSetsOfOneUserInCatalog(DataItems, ParametersOfUpdate)
 	
-	If UpdateParameters1.ForExternalUsers Then
+	If ParametersOfUpdate.ForExternalUsers Then
 		SetItemsType = Catalogs.ExternalUsers.EmptyRef();
 		ItemPresentation = NStr("en = 'External user';", Common.DefaultLanguageCode());
 	Else
@@ -18072,7 +18202,7 @@ Procedure UpdateSetsOfOneUserInCatalog(DataItems, UpdateParameters1)
 			ElsIf Not ValueIsFilled(String.NotUsedSince) Then
 				Object.NotUsedSince = CurrentSessionDate();
 			EndIf;
-			Object.ForExternalUsers = UpdateParameters1.ForExternalUsers;
+			Object.ForExternalUsers = ParametersOfUpdate.ForExternalUsers;
 			Object.SetItemsType = SetItemsType;
 			Object.User = String.CurrentRef;
 			ObjectDetails = String; // CatalogObject.Users
@@ -18085,7 +18215,7 @@ Procedure UpdateSetsOfOneUserInCatalog(DataItems, UpdateParameters1)
 			Raise;
 		EndTry;
 		
-		If ItemsProcessingAbortRequired(UpdateParameters1, 1) Then
+		If ItemsProcessingAbortRequired(ParametersOfUpdate, 1) Then
 			Break;
 		EndIf;
 	EndDo;
@@ -18093,10 +18223,10 @@ Procedure UpdateSetsOfOneUserInCatalog(DataItems, UpdateParameters1)
 EndProcedure
 
 // For the RunListAccessUpdate procedure.
-Procedure FillBlankGroupsSetsHashes(UpdateParameters1)
+Procedure FillBlankGroupsSetsHashes(ParametersOfUpdate)
 	
 	Query = New Query;
-	Query.SetParameter("ForExternalUsers", UpdateParameters1.ForExternalUsers);
+	Query.SetParameter("ForExternalUsers", ParametersOfUpdate.ForExternalUsers);
 	Query.SetParameter("AllowedBlankSet",
 		AccessManagementInternalCached.AllowedBlankAccessGroupsSet());
 	Query.Text =
@@ -18110,7 +18240,7 @@ Procedure FillBlankGroupsSetsHashes(UpdateParameters1)
 	|	AND SetsOfAccessGroups.Hash = 0
 	|	AND SetsOfAccessGroups.Ref <> &AllowedBlankSet";
 	
-	If UpdateParameters1.ForExternalUsers Then
+	If ParametersOfUpdate.ForExternalUsers Then
 		Query.Text = StrReplace(Query.Text, "Catalog.UserGroups", "Catalog.ExternalUsersGroups");
 	EndIf;
 	
@@ -18137,10 +18267,10 @@ Procedure FillBlankGroupsSetsHashes(UpdateParameters1)
 EndProcedure
 
 // For the AccessGroupsSetsToUpdate function.
-Function OneUserSetsToUpdateAssignedAccessGroupsSets(UpdateParameters1,
+Function OneUserSetsToUpdateAssignedAccessGroupsSets(ParametersOfUpdate,
 			CountInQuery)
 	
-	If Not UpdateParameters1.ForExternalUsers Then
+	If Not ParametersOfUpdate.ForExternalUsers Then
 		GroupsQueryText =
 		"SELECT
 		|	AccessGroups.Ref AS GroupReference
@@ -18236,7 +18366,7 @@ Function OneUserSetsToUpdateAssignedAccessGroupsSets(UpdateParameters1,
 	|INDEX BY
 	|	UserAccessGroups.User";
 	
-	DataItems = OneUserSetsToUpdateAssignedGroupsSets(UpdateParameters1,
+	DataItems = OneUserSetsToUpdateAssignedGroupsSets(ParametersOfUpdate,
 		GroupsQueryText, NewGroupsSetsQueryText, "AccessGroupsSet", "AccessGroups");
 	
 	CountInQuery = DataItems.Count();
@@ -18245,7 +18375,7 @@ Function OneUserSetsToUpdateAssignedAccessGroupsSets(UpdateParameters1,
 EndFunction
 
 // For the AccessGroupsSetsToUpdate function.
-Function OneUserSetsToUpdateAssignedUsersGroupsSets(UpdateParameters1,
+Function OneUserSetsToUpdateAssignedUsersGroupsSets(ParametersOfUpdate,
 			CountInQuery)
 	
 	GroupsQueryText =
@@ -18260,7 +18390,7 @@ Function OneUserSetsToUpdateAssignedUsersGroupsSets(UpdateParameters1,
 	|ORDER BY
 	|	UserGroupCompositions.UsersGroup";
 	
-	If UpdateParameters1.ForExternalUsers Then
+	If ParametersOfUpdate.ForExternalUsers Then
 		GroupsQueryText = StrReplace(GroupsQueryText,
 			"Catalog.UserGroups", "Catalog.ExternalUsersGroups");
 	EndIf;
@@ -18284,13 +18414,13 @@ Function OneUserSetsToUpdateAssignedUsersGroupsSets(UpdateParameters1,
 	|INDEX BY
 	|	UserGroupCompositions.User";
 	
-	If UpdateParameters1.ForExternalUsers Then
+	If ParametersOfUpdate.ForExternalUsers Then
 		GroupsCatalogName = "ExternalUsersGroups";
 	Else
 		GroupsCatalogName = "UserGroups";
 	EndIf;
 	
-	DataItems = OneUserSetsToUpdateAssignedGroupsSets(UpdateParameters1,
+	DataItems = OneUserSetsToUpdateAssignedGroupsSets(ParametersOfUpdate,
 		GroupsQueryText, NewGroupsSetsQueryText, "UserGroupsSet", GroupsCatalogName);
 	
 	CountInQuery = DataItems.Count();
@@ -18301,7 +18431,7 @@ EndFunction
 // For the SetsOfOneUserToUpdateAssignedAccessGroupsSets,
 // SetsOfOneUserToUpdateAssignedUsersGroupsSets functions.
 //
-Function OneUserSetsToUpdateAssignedGroupsSets(UpdateParameters1,
+Function OneUserSetsToUpdateAssignedGroupsSets(ParametersOfUpdate,
 			GroupsQueryText, NewGroupsSetsQueryText, SetFieldName, GroupsCatalogName)
 	
 	Query = New Query;
@@ -18315,7 +18445,7 @@ Function OneUserSetsToUpdateAssignedGroupsSets(UpdateParameters1,
 	
 	Query = New Query;
 	Query.SetParameter("GroupsNumbers", GroupsNumbers);
-	Query.SetParameter("ForExternalUsers", UpdateParameters1.ForExternalUsers);
+	Query.SetParameter("ForExternalUsers", ParametersOfUpdate.ForExternalUsers);
 	Query.SetParameter("BlankUUID",
 		CommonClientServer.BlankUUID());
 	
@@ -18460,7 +18590,7 @@ Function OneUserSetsToUpdateAssignedGroupsSets(UpdateParameters1,
 		|	GroupsNumbers AS GroupsNumbers",
 		NewGroupsSetsQueryText);
 	
-	If UpdateParameters1.ForExternalUsers Then
+	If ParametersOfUpdate.ForExternalUsers Then
 		Query.Text = StrReplace(Query.Text, "Catalog.Users", "Catalog.ExternalUsers");
 	EndIf;
 	
@@ -18560,9 +18690,9 @@ EndFunction
 
 // For the UpdateItemsBatch procedure.
 Procedure UpdateGroupsSetsAssingedToUsersInCatalog(DataItems,
-			UpdateParameters1, IsAssignedAccessGroupsSetsUpdate)
+			ParametersOfUpdate, IsAssignedAccessGroupsSetsUpdate)
 	
-	ForExternalUsers = UpdateParameters1.ForExternalUsers;
+	ForExternalUsers = ParametersOfUpdate.ForExternalUsers;
 	
 	If IsAssignedAccessGroupsSetsUpdate Then
 		SetFieldName = "AccessGroupsSet";
@@ -18591,7 +18721,7 @@ Procedure UpdateGroupsSetsAssingedToUsersInCatalog(DataItems,
 			If GroupsSet = Undefined Then
 				// @skip-
 				String.GroupsSet = NewGroupsSet(String.SetGroups,
-					UpdateParameters1.ForExternalUsers,
+					ParametersOfUpdate.ForExternalUsers,
 					SetItemsType,
 					SetFieldName,
 					GroupsItemsPresentation,
@@ -18616,7 +18746,7 @@ Procedure UpdateGroupsSetsAssingedToUsersInCatalog(DataItems,
 				Object["New" + SetFieldName] = String.GroupsSet;
 			Else
 				Object["Allowed" + SetFieldName] = String.GroupsSet;
-				Object["New" + SetFieldName] = UpdateParameters1.BlankAccessGroupsSet;
+				Object["New" + SetFieldName] = ParametersOfUpdate.BlankAccessGroupsSet;
 			EndIf;
 			Object.Write();
 			
@@ -18626,7 +18756,7 @@ Procedure UpdateGroupsSetsAssingedToUsersInCatalog(DataItems,
 			Raise;
 		EndTry;
 		
-		If ItemsProcessingAbortRequired(UpdateParameters1, 1) Then
+		If ItemsProcessingAbortRequired(ParametersOfUpdate, 1) Then
 			Break;
 		EndIf;
 	EndDo;
@@ -18808,7 +18938,7 @@ Function GroupsSetExists(Object)
 EndFunction
 
 // For the UpdateAccessGroupsSets procedure.
-Procedure UpdateGroupsSetsAllowedForUsersInCatalog(DataItems, UpdateParameters1)
+Procedure UpdateGroupsSetsAllowedForUsersInCatalog(DataItems, ParametersOfUpdate)
 	
 	Block = New DataLock;
 	LockItem = Block.Add("Catalog.SetsOfAccessGroups");
@@ -18824,11 +18954,11 @@ Procedure UpdateGroupsSetsAllowedForUsersInCatalog(DataItems, UpdateParameters1)
 			If Object <> Undefined Then
 				If ValueIsFilled(Object.NewAccessGroupsSet) Then
 					Object.AllowedAccessGroupsSet = Object.NewAccessGroupsSet;
-					Object.NewAccessGroupsSet = UpdateParameters1.BlankAccessGroupsSet;
+					Object.NewAccessGroupsSet = ParametersOfUpdate.BlankAccessGroupsSet;
 				EndIf;
 				If ValueIsFilled(Object.NewUserGroupsSet) Then
 					Object.AllowedUserGroupsSet = Object.NewUserGroupsSet;
-					Object.NewUserGroupsSet = UpdateParameters1.BlankAccessGroupsSet;
+					Object.NewUserGroupsSet = ParametersOfUpdate.BlankAccessGroupsSet;
 				EndIf;
 				If Object.Modified() Then
 					Object.Write();
@@ -18841,7 +18971,7 @@ Procedure UpdateGroupsSetsAllowedForUsersInCatalog(DataItems, UpdateParameters1)
 			Raise;
 		EndTry;
 		
-		If ItemsProcessingAbortRequired(UpdateParameters1, 1) Then
+		If ItemsProcessingAbortRequired(ParametersOfUpdate, 1) Then
 			Break;
 		EndIf;
 	EndDo;
@@ -18849,9 +18979,9 @@ Procedure UpdateGroupsSetsAllowedForUsersInCatalog(DataItems, UpdateParameters1)
 EndProcedure
 
 // For the RunListAccessUpdate procedure.
-Procedure ClearNonExistentAccessGroupsSetsRights(UpdateParameters1)
+Procedure ClearNonExistentAccessGroupsSetsRights(ParametersOfUpdate)
 	
-	If UpdateParameters1.ForExternalUsers Then
+	If ParametersOfUpdate.ForExternalUsers Then
 		Return;
 	EndIf;
 	
@@ -18908,10 +19038,10 @@ Procedure ClearNonExistentAccessGroupsSetsRights(UpdateParameters1)
 EndProcedure
 
 // For the AccessGroupsSetsToUpdate function.
-Function ObsoleteAccessGroupsSetsInCatalog(UpdateParameters1, CountInQuery)
+Function ObsoleteAccessGroupsSetsInCatalog(ParametersOfUpdate, CountInQuery)
 	
 	Query = New Query;
-	Query.SetParameter("ForExternalUsers", UpdateParameters1.ForExternalUsers);
+	Query.SetParameter("ForExternalUsers", ParametersOfUpdate.ForExternalUsers);
 	Query.SetParameter("ExpirationDate", ExpirationDate());
 	Query.SetParameter("AllowedBlankSet",
 		AccessManagementInternalCached.AllowedBlankAccessGroupsSet());
@@ -19003,7 +19133,7 @@ Function ObsoleteAccessGroupsSetsInCatalog(UpdateParameters1, CountInQuery)
 	|			AND (NOT MIN(SetsWithSingleUser.Ref IS NULL)
 	|				OR UsersGroupsSets.NotUsedSince < &ExpirationDate))";
 	
-	If UpdateParameters1.ForExternalUsers Then
+	If ParametersOfUpdate.ForExternalUsers Then
 		Query.Text = StrReplace(Query.Text, "Catalog.Users", "Catalog.ExternalUsers");
 		Query.Text = StrReplace(Query.Text, "Catalog.UserGroups", "Catalog.ExternalUsersGroups");
 	EndIf;
@@ -19024,7 +19154,7 @@ Function ExpirationDate()
 EndFunction
 
 // For the UpdateItemsBatch procedure.
-Procedure ProcessObsoleteSetsInCatalog(DataItems, UpdateParameters1)
+Procedure ProcessObsoleteSetsInCatalog(DataItems, ParametersOfUpdate)
 	
 	Block = New DataLock;
 	LockItem = Block.Add("Catalog.SetsOfAccessGroups");
@@ -19076,7 +19206,7 @@ Procedure ProcessObsoleteSetsInCatalog(DataItems, UpdateParameters1)
 			EndTry;
 		EndIf;
 		
-		If ItemsProcessingAbortRequired(UpdateParameters1, 1) Then
+		If ItemsProcessingAbortRequired(ParametersOfUpdate, 1) Then
 			Break;
 		EndIf;
 	EndDo;
@@ -19266,13 +19396,13 @@ Function SelectionQueryTextOfAllowedKeyAccessGroupsDifferences()
 EndFunction
 
 // For the UpdateItemsBatch procedure.
-Procedure DeleteObsoleteListDataItems(DataItems, UpdateParameters1)
+Procedure DeleteObsoleteListDataItems(DataItems, ParametersOfUpdate)
 	
 	PortionSize = 100; // 
 	DataItemsBatch = Undefined;
 	ItemCount = DataItems.Count();
 	
-	If UpdateParameters1.IsReferenceType Then
+	If ParametersOfUpdate.IsReferenceType Then
 		SetOfOneRecord = ServiceRecordSet(InformationRegisters.AccessKeysForObjects);
 		IndexOf = 0;
 		While IndexOf < ItemCount Do
@@ -19299,15 +19429,15 @@ Procedure DeleteObsoleteListDataItems(DataItems, UpdateParameters1)
 				LockSet = True;
 				For Each String In DataItemsBatch Do
 					SetOfOneRecord.Filter.Object.Set(String.CurrentRef);
-					If Not UpdateParameters1.ForExternalUsers
-					   And (UpdateParameters1.DoNotWriteAccessKeysForUsersAndExternalUsers
+					If Not ParametersOfUpdate.ForExternalUsers
+					   And (ParametersOfUpdate.DoNotWriteAccessKeysForUsersAndExternalUsers
 					      Or String.Delete) Then
 						SetOfOneRecord.Clear();
 						SetOfOneRecord.Write();
 					Else
 						SetOfOneRecord.Read();
 						If SetOfOneRecord.Count() > 0 Then
-							If UpdateParameters1.ForExternalUsers Then
+							If ParametersOfUpdate.ForExternalUsers Then
 								SetOfOneRecord[0].ExternalUsersAccessKey = Undefined;
 							Else
 								SetOfOneRecord[0].UsersAccessKey = Undefined;
@@ -19329,7 +19459,7 @@ Procedure DeleteObsoleteListDataItems(DataItems, UpdateParameters1)
 			EndTry;
 			ProcessedItemsCount = 0;
 			
-			If ItemsProcessingAbortRequired(UpdateParameters1) Then
+			If ItemsProcessingAbortRequired(ParametersOfUpdate) Then
 				Break;
 			EndIf;
 		EndDo;
@@ -19337,17 +19467,17 @@ Procedure DeleteObsoleteListDataItems(DataItems, UpdateParameters1)
 		Return;
 	EndIf;
 	
-	If ValueIsFilled(UpdateParameters1.SeparateKeysRegisterName)
-	   And UpdateParameters1.LastUpdatedItem.DataKeyKind <> "ObsoleteCommonRegisterItems" Then
+	If ValueIsFilled(ParametersOfUpdate.SeparateKeysRegisterName)
+	   And ParametersOfUpdate.LastUpdatedItem.DataKeyKind <> "ObsoleteCommonRegisterItems" Then
 		
-		RegisterName = UpdateParameters1.SeparateKeysRegisterName;
+		RegisterName = ParametersOfUpdate.SeparateKeysRegisterName;
 	Else
 		RegisterName = "AccessKeysForRegisters";
 	EndIf;
 	SetOfOneRecord = ServiceRecordSet(InformationRegisters[RegisterName]);
 	
 	If RegisterName = "AccessKeysForRegisters" Then
-		SetOfOneRecord.Filter.Register.Set(UpdateParameters1.ListID);
+		SetOfOneRecord.Filter.Register.Set(ParametersOfUpdate.ListID);
 	EndIf;
 	
 	DimensionsNames = New Array;
@@ -19368,13 +19498,13 @@ Procedure DeleteObsoleteListDataItems(DataItems, UpdateParameters1)
 		EndIf;
 		DataElement = DataItems[IndexOf];
 		FillPropertyValues(DataItemsBatch.Add(), DataElement);
-		If Not UpdateParameters1.DoNotWriteAccessKeys And Not DataElement.Delete Then
+		If Not ParametersOfUpdate.DoNotWriteAccessKeys And Not DataElement.Delete Then
 			CheckRequired2 = True;
 		EndIf;
 		
 		LockItem = Block.Add("InformationRegister." + RegisterName);
 		If RegisterName = "AccessKeysForRegisters" Then
-			LockItem.SetValue("Register", UpdateParameters1.ListID);
+			LockItem.SetValue("Register", ParametersOfUpdate.ListID);
 		EndIf;
 		For Each DimensionName In DimensionsNames Do
 			LockItem.SetValue(DimensionName, DataElement[DimensionName]);
@@ -19386,10 +19516,10 @@ Procedure DeleteObsoleteListDataItems(DataItems, UpdateParameters1)
 		EndIf;
 		
 		If CheckRequired2 Then
-			LockItem = Block.Add(UpdateParameters1.List);
+			LockItem = Block.Add(ParametersOfUpdate.List);
 			LockItem.Mode = DataLockMode.Shared;
 			Query = New Query;
-			Query.Text = UpdateParameters1.ObsoleteDataItemsCheckQueryText;
+			Query.Text = ParametersOfUpdate.ObsoleteDataItemsCheckQueryText;
 			Query.SetParameter("AccessKeysForRegisters", DataItemsBatch);
 			SetQueryPlanClarification(Query.Text);
 		EndIf;
@@ -19439,7 +19569,7 @@ Procedure DeleteObsoleteListDataItems(DataItems, UpdateParameters1)
 		EndTry;
 		DataItemsBatch = Undefined;
 		
-		If ItemsProcessingAbortRequired(UpdateParameters1, ProcessedItemsCount) Then
+		If ItemsProcessingAbortRequired(ParametersOfUpdate, ProcessedItemsCount) Then
 			Break;
 		EndIf;
 	EndDo;
@@ -19452,7 +19582,7 @@ Procedure DeleteObjectsOfInvalidTypesInAccessKeysToObjectsRegister()
 	Query = New Query;
 	Query.Text =
 	"SELECT DISTINCT
-	|	VALUETYPE(DataAccessKeys.Object) AS RefType1
+	|	VALUETYPE(DataAccessKeys.Object) AS RefType
 	|FROM
 	|	InformationRegister.AccessKeysForObjects AS DataAccessKeys";
 	
@@ -19469,14 +19599,14 @@ Procedure DeleteObjectsOfInvalidTypesInAccessKeysToObjectsRegister()
 	|	VALUETYPE(DataAccessKeys.Object) = &Type";
 	
 	While Selection.Next() Do
-		If Selection.RefType1 = Type("Undefined") Then
+		If Selection.RefType = Type("Undefined") Then
 			RecordSet.Filter.Object.Set(Undefined);
 			RecordSet.Write();
 			Continue;
-		ElsIf AllowedTypes.ContainsType(Selection.RefType1) Then
+		ElsIf AllowedTypes.ContainsType(Selection.RefType) Then
 			Continue;
 		EndIf;
-		Query.SetParameter("Type", Selection.RefType1);
+		Query.SetParameter("Type", Selection.RefType);
 		// 
 		Objects = Query.Execute().Unload().UnloadColumn("Object");
 		For Each Object In Objects Do
@@ -19505,31 +19635,31 @@ Procedure DeleteObjectsOfInvalidTypesInAccessKeysToObjectsRegister()
 EndProcedure
 
 // For the UpdateItemsBatch procedure.
-Procedure UpdateListDataItemsWithObsoleteKeys(DataItems, UpdateParameters1)
+Procedure UpdateListDataItemsWithObsoleteKeys(DataItems, ParametersOfUpdate)
 	
 	PortionSize = 100; // 
 	
-	IsExistingCombinationsProcessing = Not UpdateParameters1.IsReferenceType
-		And UpdateParameters1.LastUpdatedItem.DataKeyKind = "ItemsWithObsoleteKeys";
+	IsExistingCombinationsProcessing = Not ParametersOfUpdate.IsReferenceType
+		And ParametersOfUpdate.LastUpdatedItem.DataKeyKind = "ItemsWithObsoleteKeys";
 	
 	IndexOf = 0;
 	While IndexOf < DataItems.Count() Do
 		
 		DataItemsBatch = DataItems.Copy(New Array);
-		If Not UpdateParameters1.IsReferenceType Then
+		If Not ParametersOfUpdate.IsReferenceType Then
 			DataItemsBatch.Columns.Add("CurrentRef", New TypeDescription("Number"));
 			DeletedDataItemsBatch = New Array;
 		EndIf;
 		
 		While IndexOf < DataItems.Count()
 		   And DataItemsBatch.Count() < PortionSize
-		   And (UpdateParameters1.IsReferenceType
+		   And (ParametersOfUpdate.IsReferenceType
 		      Or DeletedDataItemsBatch.Count() < PortionSize) Do
 			
 			DataElement = DataItems[IndexOf];
 			
 			If IsExistingCombinationsProcessing
-			   And IncorrectCombinationOfBasicFieldsValues(DataElement, UpdateParameters1) Then
+			   And IncorrectCombinationOfBasicFieldsValues(DataElement, ParametersOfUpdate) Then
 				
 				If DataItemsBatch.Count() > 0 Then
 					Break;
@@ -19542,7 +19672,7 @@ Procedure UpdateListDataItemsWithObsoleteKeys(DataItems, UpdateParameters1)
 			Else
 				NewRow = DataItemsBatch.Add();
 				FillPropertyValues(NewRow, DataElement);
-				If Not UpdateParameters1.IsReferenceType Then
+				If Not ParametersOfUpdate.IsReferenceType Then
 					NewRow.CurrentRef = DataItemsBatch.IndexOf(NewRow) + 1;
 				EndIf;
 			EndIf;
@@ -19552,18 +19682,18 @@ Procedure UpdateListDataItemsWithObsoleteKeys(DataItems, UpdateParameters1)
 		If IsExistingCombinationsProcessing
 		   And DeletedDataItemsBatch.Count() > 0 Then
 			
-			DeleteIncorrectBasicFieldsValuesCombinations(DeletedDataItemsBatch, UpdateParameters1);
-			If ItemsProcessingAbortRequired(UpdateParameters1, DeletedDataItemsBatch.Count()) Then
+			DeleteIncorrectBasicFieldsValuesCombinations(DeletedDataItemsBatch, ParametersOfUpdate);
+			If ItemsProcessingAbortRequired(ParametersOfUpdate, DeletedDataItemsBatch.Count()) Then
 				Break;
 			EndIf;
 		EndIf;
 		
 		If DataItemsBatch.Count() > 0 Then
 			// 
-			UpdateAccessKeysOfListDataItemsBatch(DataItemsBatch, UpdateParameters1);
+			UpdateAccessKeysOfListDataItemsBatch(DataItemsBatch, ParametersOfUpdate);
 		EndIf;
 		
-		If ItemsProcessingAbortRequired(UpdateParameters1, 0) Then
+		If ItemsProcessingAbortRequired(ParametersOfUpdate, 0) Then
 			Break;
 		EndIf;
 	EndDo;
@@ -19571,10 +19701,10 @@ Procedure UpdateListDataItemsWithObsoleteKeys(DataItems, UpdateParameters1)
 EndProcedure
 
 // For the UpdateListDataItemsWithObsoleteKeys function.
-Function IncorrectCombinationOfBasicFieldsValues(DataElement, UpdateParameters1)
+Function IncorrectCombinationOfBasicFieldsValues(DataElement, ParametersOfUpdate)
 	
 	Number = 1;
-	For Each FieldTypesStorage In UpdateParameters1.BasicFields.UsedItemsTypes Do
+	For Each FieldTypesStorage In ParametersOfUpdate.BasicFields.UsedItemsTypes Do
 		FieldTypes = FieldTypesStorage.Get();
 		
 		If Not FieldTypes.ContainsType(TypeOf(DataElement["Field" + Number]))
@@ -19645,10 +19775,10 @@ Function InMemoryObjectsModel(DataDetails, RestrictionParameters)
 EndFunction
 
 // For the UpdateListDataItemsWithObsoleteKeys and UpdateAccessKeysOfDataItemsOnWrite function.
-Procedure UpdateAccessKeysOfListDataItemsBatch(DataItemsBatch, UpdateParameters1)
+Procedure UpdateAccessKeysOfListDataItemsBatch(DataItemsBatch, ParametersOfUpdate)
 	
-	IsReferenceType     = UpdateParameters1.IsReferenceType;
-	ListID = UpdateParameters1.ListID;
+	IsReferenceType     = ParametersOfUpdate.IsReferenceType;
+	ListID = ParametersOfUpdate.ListID;
 	
 	Context = New Structure;
 	Context.Insert("DataItemsBatch", DataItemsBatch);
@@ -19657,19 +19787,19 @@ Procedure UpdateAccessKeysOfListDataItemsBatch(DataItemsBatch, UpdateParameters1
 	If IsReferenceType Then
 		Context.Insert("ObjectsRefs", DataItemsBatch.UnloadColumn("CurrentRef"));
 	EndIf;
-	If ValueIsFilled(UpdateParameters1.FieldsComposition) Then
+	If ValueIsFilled(ParametersOfUpdate.FieldsComposition) Then
 		If IsReferenceType Then
 			DataItemsValuesQuery.SetParameter("ObjectsRefs", Context.ObjectsRefs);
 			TableIndex = 0;
 		EndIf;
-		If UpdateParameters1.Property("InMemoryObjectsModel") Then
-			DataItemsValuesQuery.Text = UpdateParameters1.TextOfQueryForInMemoryObjectsValuesForAccessKeys;
-			For Each Table In UpdateParameters1.InMemoryObjectsModel.Tables Do
+		If ParametersOfUpdate.Property("InMemoryObjectsModel") Then
+			DataItemsValuesQuery.Text = ParametersOfUpdate.TextOfQueryForInMemoryObjectsValuesForAccessKeys;
+			For Each Table In ParametersOfUpdate.InMemoryObjectsModel.Tables Do
 				DataItemsValuesQuery.SetParameter(Table.Key, Table.Value);
 			EndDo;
-			TableIndex = UpdateParameters1.InMemoryObjectsModel.Tables.Count();
+			TableIndex = ParametersOfUpdate.InMemoryObjectsModel.Tables.Count();
 		Else
-			DataItemsValuesQuery.Text = UpdateParameters1.DataItemValueForAccessKeysQueryText;
+			DataItemsValuesQuery.Text = ParametersOfUpdate.DataItemValueForAccessKeysQueryText;
 			If Not IsReferenceType Then
 				DataItemsValuesQuery.SetParameter("RegisterID", ListID);
 				DataItemsValuesQuery.SetParameter("BasicFieldsValues",  DataItemsBatch);
@@ -19683,7 +19813,7 @@ Procedure UpdateAccessKeysOfListDataItemsBatch(DataItemsBatch, UpdateParameters1
 	EndIf;
 	
 	StringAccessKeysData = New Map;
-	KeyTables = UpdateParameters1.KeyTables;
+	KeyTables = ParametersOfUpdate.KeyTables;
 	
 	TablesRowsValues = New Map;
 	ObjectsRowsValuesKeys = ObjectsRowsValuesKeys(ItemsValuesQueryResults,
@@ -19724,14 +19854,14 @@ Procedure UpdateAccessKeysOfListDataItemsBatch(DataItemsBatch, UpdateParameters1
 	
 	// Receiving data of existing access keys by hash of required access keys.
 	KeysValuesQuery = New Query;
-	KeysValuesQuery.Text = UpdateParameters1.ValueFromAccessKeysInUseForComparisonQueryText;
+	KeysValuesQuery.Text = ParametersOfUpdate.ValueFromAccessKeysInUseForComparisonQueryText;
 	KeysValuesQuery.SetParameter("Hashes",   RequiredAccessKeysHash);
 	KeysValuesQuery.SetParameter("List", ListID);
 	SetQueryPlanClarification(KeysValuesQuery.Text);
 	KeysValuesQueryResults = KeysValuesQuery.ExecuteBatch();
 	
 	KeysRowsValuesKeys = ObjectsRowsValuesKeys(KeysValuesQueryResults,
-		?(Not ValueIsFilled(UpdateParameters1.FieldsComposition)
+		?(Not ValueIsFilled(ParametersOfUpdate.FieldsComposition)
 			Or StrStartsWith(KeyTables[0], "Header"), 0, 1),
 		KeyTables);
 	Selection = KeysValuesQueryResults[0].Select();
@@ -19754,7 +19884,7 @@ Procedure UpdateAccessKeysOfListDataItemsBatch(DataItemsBatch, UpdateParameters1
 		NewKeysDetails.Add(KeyDetails);
 	EndDo;
 	If NewKeysDetails.Count() > 0 Then
-		UpdateAccessKeysRights(NewKeysDetails, UpdateParameters1, True, Context);
+		UpdateAccessKeysRights(NewKeysDetails, ParametersOfUpdate, True, Context);
 		For Each KeyDetails In NewKeysDetails Do
 			AccessKeyObject = KeyDetails.AccessKeyObject; // CatalogObject.AccessKeys
 			If ValueIsFilled(AccessKeyObject.Ref) Then
@@ -19765,25 +19895,25 @@ Procedure UpdateAccessKeysOfListDataItemsBatch(DataItemsBatch, UpdateParameters1
 	
 	// Updating access keys of data items.
 	If IsReferenceType Then
-		If UpdateParameters1.Property("InMemoryObjectsModel") Then
-			KeyFieldName1 = ?(UpdateParameters1.ForExternalUsers,
+		If ParametersOfUpdate.Property("InMemoryObjectsModel") Then
+			KeyFieldName1 = ?(ParametersOfUpdate.ForExternalUsers,
 				"ExternalUsersAccessKey", "UsersAccessKey");
-			AccessKeysForObjects = UpdateParameters1.InMemoryObjectsModel.AccessKeysForObjects; // InformationRegisterRecordSet
+			AccessKeysForObjects = ParametersOfUpdate.InMemoryObjectsModel.AccessKeysForObjects; // InformationRegisterRecordSet
 			For Each ObjectAccessKeyDetails In ObjectsAccessKeysDetails Do
 				NewRow = AccessKeysForObjects.Add();
 				NewRow.Object = ObjectAccessKeyDetails.CurrentRef;
 				NewRow[KeyFieldName1] = ObjectAccessKeyDetails.KeyProperties1.AccessKey;
 			EndDo;
 		Else
-			WriteObjectsAccessKeys(UpdateParameters1, Context);
+			WriteObjectsAccessKeys(ParametersOfUpdate, Context);
 		EndIf;
 	Else
-		WriteRegistersAccessKeys(UpdateParameters1, Context);
+		WriteRegistersAccessKeys(ParametersOfUpdate, Context);
 	EndIf;
 	
 	// Forced manual update of rights.
-	If UpdateParameters1.Property("UpdateRightsToKeys")
-	   And UpdateParameters1.UpdateRightsToKeys Then
+	If ParametersOfUpdate.Property("UpdateRightsToKeys")
+	   And ParametersOfUpdate.UpdateRightsToKeys Then
 		
 		ExistingAccessKeys = New Array;
 		For Each KeyDetails In RequiredAccessKeys Do
@@ -19793,18 +19923,18 @@ Procedure UpdateAccessKeysOfListDataItemsBatch(DataItemsBatch, UpdateParameters1
 			ExistingAccessKeys.Add(KeyDetails.AccessKey);
 		EndDo;
 		If ExistingAccessKeys.Count() > 0 Then
-			UpdateAccessKeysRights(ExistingAccessKeys, UpdateParameters1);
+			UpdateAccessKeysRights(ExistingAccessKeys, ParametersOfUpdate);
 		EndIf;
 	EndIf;
 	
 EndProcedure
 
 // For the UpdateAccessKeysOfListDataItemsBatch procedure.
-Procedure UpdateAccessKeysRights(KeysDetails, UpdateParameters1, IsNewKeys = False, Context = Undefined)
+Procedure UpdateAccessKeysRights(KeysDetails, ParametersOfUpdate, IsNewKeys = False, Context = Undefined)
 	
-	If UpdateParameters1.Property("ProcessedItemsCount") Then
-		ProcessedItemsCount = UpdateParameters1.ProcessedItemsCount;
-		UpdateParameters1.ProcessedItemsCount = 0;
+	If ParametersOfUpdate.Property("ProcessedItemsCount") Then
+		ProcessedItemsCount = ParametersOfUpdate.ProcessedItemsCount;
+		ParametersOfUpdate.ProcessedItemsCount = 0;
 	EndIf;
 	
 	If IsNewKeys Then
@@ -19812,13 +19942,13 @@ Procedure UpdateAccessKeysRights(KeysDetails, UpdateParameters1, IsNewKeys = Fal
 		AccessKeys.Columns.Add("Ref", New TypeDescription("CatalogRef.AccessKeys"));
 		
 		KeysValuesQuery = New Query;
-		KeysValuesQuery.Text = UpdateParameters1.ValueFromAllAccessKeysForComparisonQueryText;
-		KeysValuesQuery.SetParameter("List", UpdateParameters1.ListID);
+		KeysValuesQuery.Text = ParametersOfUpdate.ValueFromAllAccessKeysForComparisonQueryText;
+		KeysValuesQuery.SetParameter("List", ParametersOfUpdate.ListID);
 		SetQueryPlanClarification(KeysValuesQuery.Text);
 		
 		KeysExistenceQuery = New Query;
-		KeysExistenceQuery.Text = UpdateParameters1.KeysForComparisonExistenceQueryText;
-		KeysExistenceQuery.SetParameter("List", UpdateParameters1.ListID);
+		KeysExistenceQuery.Text = ParametersOfUpdate.KeysForComparisonExistenceQueryText;
+		KeysExistenceQuery.SetParameter("List", ParametersOfUpdate.ListID);
 		SetQueryPlanClarification(KeysExistenceQuery.Text);
 		
 		NewKeysDetails = New Structure;
@@ -19832,10 +19962,10 @@ Procedure UpdateAccessKeysRights(KeysDetails, UpdateParameters1, IsNewKeys = Fal
 		AllowedValuesTypes = AccessManagementInternalCached.AllowedAccessKeysValuesTypes();
 		TablesValues = NewKeysDetails.TablesValues;
 		
-		For Each KeyTable In UpdateParameters1.KeyTables Do
+		For Each KeyTable In ParametersOfUpdate.KeyTables Do
 			ValueTable = KeyTableValues();
 			ValueTable.Columns.Add("Ref", New TypeDescription("CatalogRef.AccessKeys"));
-			TableFields = UpdateParameters1.KeyTablesAttributes.Get(KeyTable);
+			TableFields = ParametersOfUpdate.KeyTablesAttributes.Get(KeyTable);
 			If StrStartsWith(KeyTable, "Header") And KeyTable <> "Header0" Then
 				ValueTable.Columns.Add("LineNumber", New TypeDescription("Number"));
 			EndIf;
@@ -19846,8 +19976,8 @@ Procedure UpdateAccessKeysRights(KeysDetails, UpdateParameters1, IsNewKeys = Fal
 		EndDo;
 		
 		For Each KeyDetails In KeysDetails Do
-			CheckAccessKeyValueType(KeyDetails, AllowedValuesTypes, UpdateParameters1);
-			PrepareNewAccessKey(KeyDetails, NewKeysDetails, UpdateParameters1);
+			CheckAccessKeyValueType(KeyDetails, AllowedValuesTypes, ParametersOfUpdate);
+			PrepareNewAccessKey(KeyDetails, NewKeysDetails, ParametersOfUpdate);
 		EndDo;
 		AccessKeysDetails = NewKeysDetails;
 	Else
@@ -19858,10 +19988,10 @@ Procedure UpdateAccessKeysRights(KeysDetails, UpdateParameters1, IsNewKeys = Fal
 		EndDo;
 	EndIf;
 	
-	UpdateRightsOfListAccessKeysBatch(AccessKeysDetails, UpdateParameters1, IsNewKeys);
+	UpdateRightsOfListAccessKeysBatch(AccessKeysDetails, ParametersOfUpdate, IsNewKeys);
 	
-	If UpdateParameters1.Property("ProcessedItemsCount") Then
-		UpdateParameters1.ProcessedItemsCount = ProcessedItemsCount;
+	If ParametersOfUpdate.Property("ProcessedItemsCount") Then
+		ParametersOfUpdate.ProcessedItemsCount = ProcessedItemsCount;
 	EndIf;
 	
 EndProcedure
@@ -19869,7 +19999,7 @@ EndProcedure
 // Returns:
 //  ValueTable:
 //    * Ref      - CatalogRef.AccessKeys
-//    * LineNumber - Number - a table part row number
+//    * LineNumber - Number - Table row number.
 //
 Function KeyTableValues()
 	
@@ -19907,11 +20037,11 @@ Function StringForAccessKeyHash(ValuesKeysDetails, KeyTables)
 EndFunction
 
 // For the UpdateAccessKeysOfDataItemsBatch procedure.
-Procedure WriteObjectsAccessKeys(UpdateParameters1, Context)
+Procedure WriteObjectsAccessKeys(ParametersOfUpdate, Context)
 	
 	WriteOnlyChangedOnes = WriteOnlyChangedDataItemsAccessKeys();
 	
-	If UpdateParameters1.WriteAccessKeysForUsersAndExternalUsers
+	If ParametersOfUpdate.WriteAccessKeysForUsersAndExternalUsers
 	 Or WriteOnlyChangedOnes Then
 		
 		CurrentKeysQuery = New Query;
@@ -19927,7 +20057,7 @@ Procedure WriteObjectsAccessKeys(UpdateParameters1, Context)
 		CurrentKeysQuery.SetParameter("ObjectsRefs", Context.ObjectsRefs);
 	EndIf;
 	
-	If UpdateParameters1.ForExternalUsers Then
+	If ParametersOfUpdate.ForExternalUsers Then
 		KeyToSaveAttributeName = "UsersAccessKey";
 		KeyToUpdateAttributeName = "ExternalUsersAccessKey";
 	Else
@@ -19949,9 +20079,9 @@ Procedure WriteObjectsAccessKeys(UpdateParameters1, Context)
 	EndIf;
 	
 	If WriteOnlyChangedOnes Then
-		BeforeCurrentAccessKeysQuery(UpdateParameters1);
+		BeforeCurrentAccessKeysQuery(ParametersOfUpdate);
 		CurrentKeysBeforeLock = CurrentKeysQuery.Execute().Unload();
-		AfterCurrentAccessKeysQuery(UpdateParameters1);
+		AfterCurrentAccessKeysQuery(ParametersOfUpdate);
 	EndIf;
 	
 	ProcessedItemsCount = 0;
@@ -19976,35 +20106,35 @@ Procedure WriteObjectsAccessKeys(UpdateParameters1, Context)
 	EndDo;
 	
 	If ObjectsAccessKeysDetails.Count() = 0 Then
-		ItemsProcessingAbortRequired(UpdateParameters1, ProcessedItemsCount);
+		ItemsProcessingAbortRequired(ParametersOfUpdate, ProcessedItemsCount);
 		Return;
 	EndIf;
 	
 	ListsToUpdate = New Structure("ListsNames, ForExternalUsers",
-		UpdateParameters1.DependentListsByAccessKeys,
-		UpdateParameters1.ForExternalUsers);
+		ParametersOfUpdate.DependentListsByAccessKeys,
+		ParametersOfUpdate.ForExternalUsers);
 	
 	If Common.FileInfobase() Then
 		ScheduleUpdateOfObsoleteAccessKeys(ListsToUpdate,
-			UpdateParameters1.TransactionID, "FillAccessRestrictionParametersCache");
+			ParametersOfUpdate.TransactionID, "FillAccessRestrictionParametersCache");
 	EndIf;
 	
 	BeginTransaction();
 	Try
-		BeforeDataLock(UpdateParameters1);
+		BeforeDataLock(ParametersOfUpdate);
 		Block.Lock();
 		If Common.FileInfobase() Then
 			LockRegistersSchedulingUpdateAccessKeysInFileIB();
 		EndIf;
-		AfterDataLock(UpdateParameters1);
+		AfterDataLock(ParametersOfUpdate);
 		
-		If UpdateParameters1.WriteAccessKeysForUsersAndExternalUsers Then
-			BeforeCurrentAccessKeysQuery(UpdateParameters1);
+		If ParametersOfUpdate.WriteAccessKeysForUsersAndExternalUsers Then
+			BeforeCurrentAccessKeysQuery(ParametersOfUpdate);
 			CurrentKeys = CurrentKeysQuery.Execute().Unload();
-			AfterCurrentAccessKeysQuery(UpdateParameters1);
+			AfterCurrentAccessKeysQuery(ParametersOfUpdate);
 		EndIf;
 		
-		BeforeWriteRows(UpdateParameters1);
+		BeforeWriteRows(ParametersOfUpdate);
 		ObjectsRefs = New Array;
 		For Each ObjectAccessKeyDetails In ObjectsAccessKeysDetails Do
 			ObjectsRefs.Add(ObjectAccessKeyDetails.CurrentRef);
@@ -20012,7 +20142,7 @@ Procedure WriteObjectsAccessKeys(UpdateParameters1, Context)
 			Record.Object = ObjectAccessKeyDetails.CurrentRef;
 			Record[KeyToUpdateAttributeName] = ObjectAccessKeyDetails.KeyProperties1.AccessKey;
 			
-			If UpdateParameters1.WriteAccessKeysForUsersAndExternalUsers Then
+			If ParametersOfUpdate.WriteAccessKeysForUsersAndExternalUsers Then
 				String = CurrentKeys.Find(ObjectAccessKeyDetails.CurrentRef, "Object");
 				If String <> Undefined Then
 					Record[KeyToSaveAttributeName] = String[KeyToSaveAttributeName];
@@ -20020,23 +20150,23 @@ Procedure WriteObjectsAccessKeys(UpdateParameters1, Context)
 			EndIf;
 			SetOfOneRecord.Write();
 		EndDo;
-		AfterWriteRows(UpdateParameters1, ObjectsAccessKeysDetails.Count());
+		AfterWriteRows(ParametersOfUpdate, ObjectsAccessKeysDetails.Count());
 		
-		BeforePlanUpdate(UpdateParameters1);
+		BeforePlanUpdate(ParametersOfUpdate);
 		ScheduleUpdateOfObsoleteAccessKeys(ListsToUpdate,
-			UpdateParameters1.TransactionID,
+			ParametersOfUpdate.TransactionID,
 			"WriteObjectsAccessKeys",
 			?(ObjectsRefs.Count() > 25, Undefined,
 				New Structure("ByAccessKeys", ObjectsRefs)),
-			UpdateParameters1.Property("IsBackgroundAccessUpdate"));
-		AfterPlanUpdate(UpdateParameters1);
+			ParametersOfUpdate.Property("IsBackgroundAccessUpdate"));
+		AfterPlanUpdate(ParametersOfUpdate);
 		
 		// 
 		// 
 		// 
-		BeforeCommitTransaction(UpdateParameters1);
+		BeforeCommitTransaction(ParametersOfUpdate);
 		CommitTransaction();
-		AfterCommitTransaction(UpdateParameters1);
+		AfterCommitTransaction(ParametersOfUpdate);
 		// ACC:330-on
 	Except
 		RollbackTransaction();
@@ -20044,38 +20174,38 @@ Procedure WriteObjectsAccessKeys(UpdateParameters1, Context)
 	EndTry;
 	
 	ProcessedItemsCount = ProcessedItemsCount + ObjectsAccessKeysDetails.Count();
-	If ItemsProcessingAbortRequired(UpdateParameters1, ProcessedItemsCount) Then
+	If ItemsProcessingAbortRequired(ParametersOfUpdate, ProcessedItemsCount) Then
 		Return;
 	EndIf;
 	
 EndProcedure
 
 // For the UpdateAccessKeysOfDataItemsBatch procedure.
-Procedure WriteRegistersAccessKeys(UpdateParameters1, Context)
+Procedure WriteRegistersAccessKeys(ParametersOfUpdate, Context)
 	
-	If Not ValueIsFilled(UpdateParameters1.SeparateKeysRegisterName) Then
+	If Not ValueIsFilled(ParametersOfUpdate.SeparateKeysRegisterName) Then
 		KeysRegisterName = "AccessKeysForRegisters";
 	Else
-		KeysRegisterName = UpdateParameters1.SeparateKeysRegisterName;
+		KeysRegisterName = ParametersOfUpdate.SeparateKeysRegisterName;
 	EndIf;
 	SetOfOneRecord = ServiceRecordSet(InformationRegisters[KeysRegisterName]);
 	Record = SetOfOneRecord.Add();
 	
 	DataItemsBatch = Context.DataItemsBatch;
 	BlankBasicFieldsValues = AccessManagementInternalCached.BlankBasicFieldsValues(
-		UpdateParameters1.BasicFields.MaxCount);
+		ParametersOfUpdate.BasicFields.MaxCount);
 	
 	WriteOnlyChangedOnes = WriteOnlyChangedDataItemsAccessKeys();
 	If WriteOnlyChangedOnes Then
 		Query = New Query;
-		Query.SetParameter("RegisterID", UpdateParameters1.ListID);
-		QueryText = UpdateParameters1.CurrentRegisterAccessKeysQueryText;
+		Query.SetParameter("RegisterID", ParametersOfUpdate.ListID);
+		QueryText = ParametersOfUpdate.CurrentRegisterAccessKeysQueryText;
 		PackageTexts = New Array;
 		LineNumber = 1;
 		For Each ObjectAccessKeyDetails In Context.ObjectsAccessKeysDetails Do
 			CurrentNumber = "_" + Format(LineNumber, "NG=");
 			PackageTexts.Add(StrReplace(QueryText, "_%1", CurrentNumber));
-			For FieldNumber = 1 To UpdateParameters1.BasicFields.UsedItems.Count() Do
+			For FieldNumber = 1 To ParametersOfUpdate.BasicFields.UsedItems.Count() Do
 				FieldName = "Field" + FieldNumber;
 				DataElement = DataItemsBatch.Find(ObjectAccessKeyDetails.CurrentRef, "CurrentRef");
 				Query.SetParameter(FieldName + CurrentNumber, DataElement[FieldName]);
@@ -20083,14 +20213,14 @@ Procedure WriteRegistersAccessKeys(UpdateParameters1, Context)
 			LineNumber = LineNumber + 1;
 		EndDo;
 		Query.Text = StrConcat(PackageTexts, Common.QueryBatchSeparator());
-		BeforeCurrentAccessKeysQuery(UpdateParameters1);
+		BeforeCurrentAccessKeysQuery(ParametersOfUpdate);
 		If PackageTexts.Count() > 1 Then
 			QueryResults = Query.ExecuteBatch();
 		Else
 			QueryResults = New Array;
 			QueryResults.Add(Query.Execute());
 		EndIf;
-		AfterCurrentAccessKeysQuery(UpdateParameters1);
+		AfterCurrentAccessKeysQuery(ParametersOfUpdate);
 	EndIf;
 	
 	ProcessedItemsCount = 0;
@@ -20116,40 +20246,40 @@ Procedure WriteRegistersAccessKeys(UpdateParameters1, Context)
 		EndIf;
 		ObjectsAccessKeysDetails.Add(ObjectAccessKeyDetails);
 		LockItem = Block.Add("InformationRegister." + KeysRegisterName);
-		If Not ValueIsFilled(UpdateParameters1.SeparateKeysRegisterName) Then
-			LockItem.SetValue("Register", UpdateParameters1.ListID);
+		If Not ValueIsFilled(ParametersOfUpdate.SeparateKeysRegisterName) Then
+			LockItem.SetValue("Register", ParametersOfUpdate.ListID);
 		EndIf;
-		LockItem.SetValue("AccessOption", UpdateParameters1.AccessOption);
+		LockItem.SetValue("AccessOption", ParametersOfUpdate.AccessOption);
 		DataElement = DataItemsBatch.Find(ObjectAccessKeyDetails.CurrentRef, "CurrentRef");
-		For FieldNumber = 1 To UpdateParameters1.BasicFields.UsedItems.Count() Do
+		For FieldNumber = 1 To ParametersOfUpdate.BasicFields.UsedItems.Count() Do
 			FieldName = "Field" + FieldNumber;
 			LockItem.SetValue(FieldName, DataElement[FieldName]);
 		EndDo;
 	EndDo;
 	
 	If ObjectsAccessKeysDetails.Count() = 0 Then
-		ItemsProcessingAbortRequired(UpdateParameters1, ProcessedItemsCount);
+		ItemsProcessingAbortRequired(ParametersOfUpdate, ProcessedItemsCount);
 		Return;
 	EndIf;
 	
 	BeginTransaction();
 	Try
-		BeforeDataLock(UpdateParameters1);
+		BeforeDataLock(ParametersOfUpdate);
 		Block.Lock();
-		AfterDataLock(UpdateParameters1);
+		AfterDataLock(ParametersOfUpdate);
 		
-		BeforeWriteRows(UpdateParameters1);
+		BeforeWriteRows(ParametersOfUpdate);
 		For Each ObjectAccessKeyDetails In ObjectsAccessKeysDetails Do
-			If Not ValueIsFilled(UpdateParameters1.SeparateKeysRegisterName) Then
-				SetOfOneRecord.Filter.Register.Set(UpdateParameters1.ListID);
-				Record.Register = UpdateParameters1.ListID;
+			If Not ValueIsFilled(ParametersOfUpdate.SeparateKeysRegisterName) Then
+				SetOfOneRecord.Filter.Register.Set(ParametersOfUpdate.ListID);
+				Record.Register = ParametersOfUpdate.ListID;
 			EndIf;
-			SetOfOneRecord.Filter.AccessOption.Set(UpdateParameters1.AccessOption);
-			Record.AccessOption = UpdateParameters1.AccessOption;
+			SetOfOneRecord.Filter.AccessOption.Set(ParametersOfUpdate.AccessOption);
+			Record.AccessOption = ParametersOfUpdate.AccessOption;
 			
 			DataElement = DataItemsBatch.Find(ObjectAccessKeyDetails.CurrentRef, "CurrentRef");
 			FillPropertyValues(Record, BlankBasicFieldsValues);
-			For FieldNumber = 1 To UpdateParameters1.BasicFields.UsedItems.Count() Do
+			For FieldNumber = 1 To ParametersOfUpdate.BasicFields.UsedItems.Count() Do
 				FieldName = "Field" + FieldNumber;
 				FilterElement = SetOfOneRecord.Filter[FieldName]; // FilterItem
 				If DataElement[FieldName] = Undefined Then
@@ -20164,14 +20294,14 @@ Procedure WriteRegistersAccessKeys(UpdateParameters1, Context)
 			Record.AccessKey = ObjectAccessKeyDetails.KeyProperties1.AccessKey;
 			SetOfOneRecord.Write();
 		EndDo;
-		AfterWriteRows(UpdateParameters1, ObjectsAccessKeysDetails.Count());
+		AfterWriteRows(ParametersOfUpdate, ObjectsAccessKeysDetails.Count());
 		
 		// 
 		// 
 		// 
-		BeforeCommitTransaction(UpdateParameters1);
+		BeforeCommitTransaction(ParametersOfUpdate);
 		CommitTransaction();
-		AfterCommitTransaction(UpdateParameters1);
+		AfterCommitTransaction(ParametersOfUpdate);
 		// ACC:330-on
 	Except
 		RollbackTransaction();
@@ -20179,30 +20309,30 @@ Procedure WriteRegistersAccessKeys(UpdateParameters1, Context)
 	EndTry;
 	
 	ProcessedItemsCount = ProcessedItemsCount + ObjectsAccessKeysDetails.Count();
-	If ItemsProcessingAbortRequired(UpdateParameters1, ProcessedItemsCount) Then
+	If ItemsProcessingAbortRequired(ParametersOfUpdate, ProcessedItemsCount) Then
 		Return;
 	EndIf;
 	
 EndProcedure
 
 // For the UpdateListDataItemsWithObsoleteKeys function.
-Procedure DeleteIncorrectBasicFieldsValuesCombinations(DataItemsBatch, UpdateParameters1)
+Procedure DeleteIncorrectBasicFieldsValuesCombinations(DataItemsBatch, ParametersOfUpdate)
 	
-	If Not ValueIsFilled(UpdateParameters1.SeparateKeysRegisterName) Then
+	If Not ValueIsFilled(ParametersOfUpdate.SeparateKeysRegisterName) Then
 		KeysRegisterName = "AccessKeysForRegisters";
 	Else
-		KeysRegisterName = UpdateParameters1.SeparateKeysRegisterName;
+		KeysRegisterName = ParametersOfUpdate.SeparateKeysRegisterName;
 	EndIf;
 	SetOfOneRecord = ServiceRecordSet(InformationRegisters[KeysRegisterName]);
-	FieldsToUseCount = UpdateParameters1.BasicFields.UsedItems.Count();
+	FieldsToUseCount = ParametersOfUpdate.BasicFields.UsedItems.Count();
 	
 	Block = New DataLock;
 	For Each DataElement In DataItemsBatch Do
 		LockItem = Block.Add("InformationRegister." + KeysRegisterName);
-		If Not ValueIsFilled(UpdateParameters1.SeparateKeysRegisterName) Then
-			LockItem.SetValue("Register", UpdateParameters1.ListID);
+		If Not ValueIsFilled(ParametersOfUpdate.SeparateKeysRegisterName) Then
+			LockItem.SetValue("Register", ParametersOfUpdate.ListID);
 		EndIf;
-		LockItem.SetValue("AccessOption", UpdateParameters1.AccessOption);
+		LockItem.SetValue("AccessOption", ParametersOfUpdate.AccessOption);
 		For FieldNumber = 1 To FieldsToUseCount Do
 			FieldName = "Field" + FieldNumber;
 			LockItem.SetValue(FieldName, DataElement[FieldName]);
@@ -20213,10 +20343,10 @@ Procedure DeleteIncorrectBasicFieldsValuesCombinations(DataItemsBatch, UpdatePar
 	Try
 		Block.Lock();
 		For Each DataElement In DataItemsBatch Do
-			If Not ValueIsFilled(UpdateParameters1.SeparateKeysRegisterName) Then
-				SetOfOneRecord.Filter.Register.Set(UpdateParameters1.ListID);
+			If Not ValueIsFilled(ParametersOfUpdate.SeparateKeysRegisterName) Then
+				SetOfOneRecord.Filter.Register.Set(ParametersOfUpdate.ListID);
 			EndIf;
-			SetOfOneRecord.Filter.AccessOption.Set(UpdateParameters1.AccessOption);
+			SetOfOneRecord.Filter.AccessOption.Set(ParametersOfUpdate.AccessOption);
 			For FieldNumber = 1 To FieldsToUseCount Do
 				FieldName = "Field" + FieldNumber;
 				FilterElement = SetOfOneRecord.Filter[FieldName]; // FilterItem
@@ -20299,7 +20429,7 @@ Function DataStringForHashing(Data)
 EndFunction
 
 // For the UpdateAccessKeysOfDataItemsBatch procedure.
-Procedure CheckAccessKeyValueType(KeyDetails, AllowedValuesTypes, UpdateParameters1)
+Procedure CheckAccessKeyValueType(KeyDetails, AllowedValuesTypes, ParametersOfUpdate)
 	
 	TablesColumnsValues = KeyDetails.TablesColumnsValues;
 	
@@ -20313,7 +20443,7 @@ Procedure CheckAccessKeyValueType(KeyDetails, AllowedValuesTypes, UpdateParamete
 						           |is not specified in flexible type collection ""%4"".';"),
 						String(Value),
 						String(TypeOf(Value)),
-						UpdateParameters1.List,
+						ParametersOfUpdate.List,
 						"AccessValue");
 					Raise ErrorText;
 				EndIf;
@@ -20324,16 +20454,16 @@ Procedure CheckAccessKeyValueType(KeyDetails, AllowedValuesTypes, UpdateParamete
 EndProcedure
 
 // For the UpdateAccessKeysOfDataItemsBatch procedure.
-Procedure PrepareNewAccessKey(KeyDetails, NewKeysDetails, UpdateParameters1)
+Procedure PrepareNewAccessKey(KeyDetails, NewKeysDetails, ParametersOfUpdate)
 	
 	NewRef = Catalogs.AccessKeys.GetRef();
 	NewKey = ServiceItem(Catalogs.AccessKeys); // CatalogObject.AccessKeys
 	
 	NewKey.SetNewObjectRef(NewRef);
 	NewKey.Description            = String(NewRef.UUID());
-	NewKey.List                  = UpdateParameters1.ListID;
-	NewKey.FieldsComposition             = UpdateParameters1.FieldsComposition;
-	NewKey.ForExternalUsers = UpdateParameters1.ForExternalUsers;
+	NewKey.List                  = ParametersOfUpdate.ListID;
+	NewKey.FieldsComposition             = ParametersOfUpdate.FieldsComposition;
+	NewKey.ForExternalUsers = ParametersOfUpdate.ForExternalUsers;
 	NewKey.Hash                     = KeyDetails.Hash;
 	
 	AllTablesValues = NewKeysDetails.TablesValues;
@@ -20372,28 +20502,28 @@ Procedure PrepareNewAccessKey(KeyDetails, NewKeysDetails, UpdateParameters1)
 EndProcedure
 
 // For the UpdateItemsBatch and UpdateRightsToAccessKeys procedures.
-Procedure UpdateRightsOfListAccessKeysBatch(AccessKeysDetails, UpdateParameters1, IsNewKeys = False)
+Procedure UpdateRightsOfListAccessKeysBatch(AccessKeysDetails, ParametersOfUpdate, IsNewKeys = False)
 	
-	If Not UpdateParameters1.Property("Cache") Then
-		UpdateParameters1.Insert("Cache", New Structure);
+	If Not ParametersOfUpdate.Property("Cache") Then
+		ParametersOfUpdate.Insert("Cache", New Structure);
 	EndIf;
 	AccessKeys = ?(IsNewKeys, AccessKeysDetails.AccessKeys, AccessKeysDetails);
 	
-	If ValueIsFilled(UpdateParameters1.FieldsComposition) Then
+	If ValueIsFilled(ParametersOfUpdate.FieldsComposition) Then
 		Query = New Query;
-		Query.Text = UpdateParameters1.ValueFromAccessKeysForRightsCalculationQueryText;
+		Query.Text = ParametersOfUpdate.ValueFromAccessKeysForRightsCalculationQueryText;
 		TableNumber = 0;
 		
 		If IsNewKeys Then
 			QueryTexts = New Array;
-			KeyTablesAttributes = UpdateParameters1.KeyTablesAttributes;
+			KeyTablesAttributes = ParametersOfUpdate.KeyTablesAttributes;
 			Template =
 			"SELECT
 			|	&Fields
 			|INTO Table
 			|FROM
 			|	&Table AS Table";
-			For Each KeyTable In UpdateParameters1.KeyTables Do
+			For Each KeyTable In ParametersOfUpdate.KeyTables Do
 				FieldLIneNumber = "";
 				If StrStartsWith(KeyTable, "Header") Then
 					If StrEndsWith(KeyTable, "0") Then
@@ -20428,7 +20558,7 @@ Procedure UpdateRightsOfListAccessKeysBatch(AccessKeysDetails, UpdateParameters1
 		Query.SetParameter("AccessKeys", AccessKeys);
 		
 		Query.SetParameter("RightSettingsTableID",
-			UpdateParameters1.RightSettingsTableID);
+			ParametersOfUpdate.RightSettingsTableID);
 		
 		Query.SetParameter("BlankUUID",
 			CommonClientServer.BlankUUID());
@@ -20439,47 +20569,47 @@ Procedure UpdateRightsOfListAccessKeysBatch(AccessKeysDetails, UpdateParameters1
 		QueryResults = New Array;
 	EndIf;
 	
-	UpdateParameters1.Insert("UserType", ?(UpdateParameters1.ForExternalUsers,
+	ParametersOfUpdate.Insert("UserType", ?(ParametersOfUpdate.ForExternalUsers,
 		Type("CatalogRef.ExternalUsers"), Type("CatalogRef.Users")));
 	
-	UpdateParameters1.Insert("UserGroupType", ?(UpdateParameters1.ForExternalUsers,
+	ParametersOfUpdate.Insert("UserGroupType", ?(ParametersOfUpdate.ForExternalUsers,
 		Type("CatalogRef.ExternalUsersGroups"), Type("CatalogRef.UserGroups")));
 	
-	UpdateParameters1.Insert("AccessGroupType",    Type("CatalogRef.AccessGroups"));
-	UpdateParameters1.Insert("BlankAccessGroup", Catalogs.AccessGroups.EmptyRef());
+	ParametersOfUpdate.Insert("AccessGroupType",    Type("CatalogRef.AccessGroups"));
+	ParametersOfUpdate.Insert("BlankAccessGroup", Catalogs.AccessGroups.EmptyRef());
 	
 	KeysTablesValues = KeysTableNewVals();
-	For Each KeyTable In UpdateParameters1.KeyTables Do
+	For Each KeyTable In ParametersOfUpdate.KeyTables Do
 		TableNumber = TableNumber + 1;
 		KeysTablesValues.Insert(KeyTable,
 			QueryResults[TableNumber].Unload(QueryResultIteration.ByGroups));
 	EndDo;
-	FillRightsToLeadingAccessKeysAndLeadingLists(QueryResults, TableNumber, UpdateParameters1);
-	FillRightsByRightsSettingsOwners(QueryResults, TableNumber, UpdateParameters1);
+	FillRightsToLeadingAccessKeysAndLeadingLists(QueryResults, TableNumber, ParametersOfUpdate);
+	FillRightsByRightsSettingsOwners(QueryResults, TableNumber, ParametersOfUpdate);
 	
-	RightsCalculationCache = CacheForCalculatingRightsForTheUserType(UpdateParameters1.ForExternalUsers);
-	If Not UpdateParameters1.Cache.Property("RoleRightsFunctionsAccessRights")
+	RightsCalculationCache = CacheForCalculatingRightsForTheUserType(ParametersOfUpdate.ForExternalUsers);
+	If Not ParametersOfUpdate.Cache.Property("RoleRightsFunctionsAccessRights")
 	 Or RightsCalculationCache.RolesOfAccessGroupProfiles = Undefined Then
-		UpdateParameters1.Cache.Insert("RoleRightsFunctionsAccessRights",        New Map);
-		UpdateParameters1.Cache.Insert("MetadataObjectsFunctionsAccessRights", New Map);
-		UpdateParameters1.Cache.Insert("ProfileRightsFunctionsAccessRights",     New Map);
+		ParametersOfUpdate.Cache.Insert("RoleRightsFunctionsAccessRights",        New Map);
+		ParametersOfUpdate.Cache.Insert("MetadataObjectsFunctionsAccessRights", New Map);
+		ParametersOfUpdate.Cache.Insert("ProfileRightsFunctionsAccessRights",     New Map);
 	EndIf;
 	
-	FillInTheRightsOfTheListAccessGroups(UpdateParameters1, RightsCalculationCache);
-	FillAccessGroupsValuesToCalculateRights(UpdateParameters1, RightsCalculationCache);
-	FillUsersGroupsUsers(UpdateParameters1, RightsCalculationCache);
-	FillInTheListOfAccessGroupMembers(UpdateParameters1, RightsCalculationCache);
-	FillInUserGroupsAsAccessValues(UpdateParameters1, RightsCalculationCache);
-	FillInTheRolesAndAccessGroupsOfProfiles(UpdateParameters1, RightsCalculationCache);
+	FillInTheRightsOfTheListAccessGroups(ParametersOfUpdate, RightsCalculationCache);
+	FillAccessGroupsValuesToCalculateRights(ParametersOfUpdate, RightsCalculationCache);
+	FillUsersGroupsUsers(ParametersOfUpdate, RightsCalculationCache);
+	FillInTheListOfAccessGroupMembers(ParametersOfUpdate, RightsCalculationCache);
+	FillInUserGroupsAsAccessValues(ParametersOfUpdate, RightsCalculationCache);
+	FillInTheRolesAndAccessGroupsOfProfiles(ParametersOfUpdate, RightsCalculationCache);
 	
-	FirstTableValues = ?(ValueIsFilled(UpdateParameters1.FieldsComposition),
-		KeysTablesValues.Get(UpdateParameters1.KeyTables[0]),
+	FirstTableValues = ?(ValueIsFilled(ParametersOfUpdate.FieldsComposition),
+		KeysTablesValues.Get(ParametersOfUpdate.KeyTables[0]),
 		New Structure("Rows", AccessKeys));
 	LastKeyIndex = FirstTableValues.Rows.Count() - 1;
 	
 	For KeyIndex = 0 To LastKeyIndex Do
 		KeyTablesValues = NewValuesOfKeyTables();
-		For Each KeyTable In UpdateParameters1.KeyTables Do
+		For Each KeyTable In ParametersOfUpdate.KeyTables Do
 			TableValues = KeysTablesValues.Get(KeyTable).Rows[KeyIndex].Rows;
 			If StrStartsWith(KeyTable, "Header") Then
 				TableValues = TableValues[0];
@@ -20489,12 +20619,12 @@ Procedure UpdateRightsOfListAccessKeysBatch(AccessKeysDetails, UpdateParameters1
 		ValuesRow = FirstTableValues.Rows[KeyIndex]; // CatalogObject.AccessKeys
 		AccessKey = ValuesRow.Ref;
 		
-		RightsToKey = RightsToListAccessKey(KeyTablesValues, UpdateParameters1);
+		RightsToKey = RightsToListAccessKey(KeyTablesValues, ParametersOfUpdate);
 		// 
 		UpdateRightsToListAccessKey(AccessKey, RightsToKey,
-			?(IsNewKeys, AccessKeysDetails, Undefined), UpdateParameters1);
+			?(IsNewKeys, AccessKeysDetails, Undefined), ParametersOfUpdate);
 		
-		If ItemsProcessingAbortRequired(UpdateParameters1) Then
+		If ItemsProcessingAbortRequired(ParametersOfUpdate) Then
 			Break;
 		EndIf;
 	EndDo;
@@ -20529,7 +20659,7 @@ Function TableOfKeyNewValues()
 EndFunction
 
 // For the UpdateItemsBatch procedure.
-Procedure ProcessObsoleteListAccessKeys(DataItems, UpdateParameters1)
+Procedure ProcessObsoleteListAccessKeys(DataItems, ParametersOfUpdate)
 	
 	Query = New Query;
 	Query.Text =
@@ -20567,8 +20697,8 @@ Procedure ProcessObsoleteListAccessKeys(DataItems, UpdateParameters1)
 	|WHERE
 	|	ExternalUsersAccessKeys.AccessKey = &AccessKey";
 	
-	ThisIsClearingSelectedKeys = UpdateParameters1.DoNotWriteAccessKeys
-		Or UpdateParameters1.WithAccessKeyEntryForDependentListsWithoutKeys;
+	ThisIsClearingSelectedKeys = ParametersOfUpdate.DoNotWriteAccessKeys
+		Or ParametersOfUpdate.WithAccessKeyEntryForDependentListsWithoutKeys;
 	
 	If Not ThisIsClearingSelectedKeys Then
 		KeyUsageQuery = New Query;
@@ -20594,7 +20724,7 @@ Procedure ProcessObsoleteListAccessKeys(DataItems, UpdateParameters1)
 			KeyUsageQuery.SetParameter("Ref", Ref);
 			// 
 			If Not KeyUsageQuery.Execute().IsEmpty() Then
-				If ItemsProcessingAbortRequired(UpdateParameters1, 1) Then
+				If ItemsProcessingAbortRequired(ParametersOfUpdate, 1) Then
 					Break;
 				EndIf;
 				Continue;
@@ -20608,7 +20738,7 @@ Procedure ProcessObsoleteListAccessKeys(DataItems, UpdateParameters1)
 			LockItem.SetValue("Hash",         String.Hash);
 			LockItem.SetValue("FieldsComposition", String.FieldsComposition);
 			LockItem.SetValue("ForExternalUsers",
-				UpdateParameters1.ForExternalUsers);
+				ParametersOfUpdate.ForExternalUsers);
 		EndIf;
 		LockItem = Block.Add("Catalog.AccessKeys");
 		LockItem.SetValue("Ref", Ref);
@@ -20669,7 +20799,7 @@ Procedure ProcessObsoleteListAccessKeys(DataItems, UpdateParameters1)
 			Raise;
 		EndTry;
 		
-		If ItemsProcessingAbortRequired(UpdateParameters1, 1) Then
+		If ItemsProcessingAbortRequired(ParametersOfUpdate, 1) Then
 			Break;
 		EndIf;
 	EndDo;
@@ -20800,12 +20930,12 @@ Function ListAccessGroupNewRights(Rights)
 EndFunction
 
 // For the UpdateRightsOfListAccessKeysBatch procedure.
-Procedure FillInTheRightsOfTheListAccessGroups(UpdateParameters1, Cache)
+Procedure FillInTheRightsOfTheListAccessGroups(ParametersOfUpdate, Cache)
 	
-	ListID = UpdateParameters1.ListID;
+	ListID = ParametersOfUpdate.ListID;
 	ListAccessGroupsRights = Cache.ListAccessGroupPermissions.Get(ListID);
 	If ListAccessGroupsRights <> Undefined Then
-		UpdateParameters1.Insert("ListAccessGroupsRights", ListAccessGroupsRights);
+		ParametersOfUpdate.Insert("ListAccessGroupsRights", ListAccessGroupsRights);
 		Return;
 	EndIf;
 	
@@ -20828,7 +20958,7 @@ Procedure FillInTheRightsOfTheListAccessGroups(UpdateParameters1, Cache)
 	|		ON (ProfilesPurpose.Profile = AccessGroups.Profile)
 	|			AND (ProfilesPurpose.ForUsers)";
 	
-	If UpdateParameters1.ForExternalUsers Then
+	If ParametersOfUpdate.ForExternalUsers Then
 		Query.Text = StrReplace(Query.Text,
 			"ProfilesPurpose.ForUsers", "ProfilesPurpose.ForExternalUsers");
 	EndIf;
@@ -20838,7 +20968,7 @@ Procedure FillInTheRightsOfTheListAccessGroups(UpdateParameters1, Cache)
 	
 	ListAccessGroupsRights = ListAccessGroupNewRights(Query.Execute().Unload());
 	Cache.ListAccessGroupPermissions.Insert(ListID, ListAccessGroupsRights);
-	UpdateParameters1.Insert("ListAccessGroupsRights", ListAccessGroupsRights);
+	ParametersOfUpdate.Insert("ListAccessGroupsRights", ListAccessGroupsRights);
 	
 EndProcedure
 
@@ -20858,16 +20988,16 @@ Function NewUsersInUserGroups()
 EndFunction
 
 // For the UpdateRightsOfListAccessKeysBatch procedure.
-Procedure FillUsersGroupsUsers(UpdateParameters1, Cache)
+Procedure FillUsersGroupsUsers(ParametersOfUpdate, Cache)
 	
-	UpdateParameters1.Insert("UserGroupsUsers", NewUsersInUserGroups());
+	ParametersOfUpdate.Insert("UserGroupsUsers", NewUsersInUserGroups());
 	
-	If Not UpdateParameters1.CalculateUserRights Then
+	If Not ParametersOfUpdate.CalculateUserRights Then
 		Return;
 	EndIf;
 	
 	If Cache.UserGroupsUsers <> Undefined Then
-		UpdateParameters1.UserGroupsUsers = Cache.UserGroupsUsers;
+		ParametersOfUpdate.UserGroupsUsers = Cache.UserGroupsUsers;
 		Return;
 	EndIf;
 	
@@ -20886,7 +21016,7 @@ Procedure FillUsersGroupsUsers(UpdateParameters1, Cache)
 	|TOTALS BY
 	|	UsersGroup";
 	
-	If UpdateParameters1.ForExternalUsers Then
+	If ParametersOfUpdate.ForExternalUsers Then
 		Query.Text = StrReplace(Query.Text,
 			"Catalog.Users", "Catalog.ExternalUsers");
 		Query.Text = StrReplace(Query.Text,
@@ -20896,7 +21026,7 @@ Procedure FillUsersGroupsUsers(UpdateParameters1, Cache)
 	Query.SetParameter("BlankUUID",
 		CommonClientServer.BlankUUID());
 	
-	UserGroupsUsers = UpdateParameters1.UserGroupsUsers;
+	UserGroupsUsers = ParametersOfUpdate.UserGroupsUsers;
 	
 	QueryResult = Query.Execute();
 	FillInTheUsersOfTheGroups(UserGroupsUsers, QueryResult);
@@ -20919,17 +21049,17 @@ Function NewUserGroupsAsAccessVals()
 EndFunction
 
 // For the UpdateRightsOfListAccessKeysBatch procedure.
-Procedure FillInUserGroupsAsAccessValues(UpdateParameters1, Cache)
+Procedure FillInUserGroupsAsAccessValues(ParametersOfUpdate, Cache)
 	
-	UpdateParameters1.Insert("UserGroupsAsAccessValues",
+	ParametersOfUpdate.Insert("UserGroupsAsAccessValues",
 		NewUserGroupsAsAccessVals());
 	
-	If Not UpdateParameters1.CalculateUserRights Then
+	If Not ParametersOfUpdate.CalculateUserRights Then
 		Return;
 	EndIf;
 	
 	If Cache.UserGroupsAsAccessValues <> Undefined Then
-		UpdateParameters1.UserGroupsAsAccessValues = Cache.UserGroupsAsAccessValues;
+		ParametersOfUpdate.UserGroupsAsAccessValues = Cache.UserGroupsAsAccessValues;
 		Return;
 	EndIf;
 	
@@ -20947,12 +21077,12 @@ Procedure FillInUserGroupsAsAccessValues(UpdateParameters1, Cache)
 	|TOTALS BY
 	|	UsersGroup";
 	
-	If UpdateParameters1.ForExternalUsers Then
+	If ParametersOfUpdate.ForExternalUsers Then
 		Query.Text = StrReplace(Query.Text,
 			"Catalog.UserGroups", "Catalog.ExternalUsersGroups");
 	EndIf;
 	
-	UserGroupsAsAccessValues = UpdateParameters1.UserGroupsAsAccessValues;
+	UserGroupsAsAccessValues = ParametersOfUpdate.UserGroupsAsAccessValues;
 	
 	QueryResult = Query.Execute();
 	FillInTheUsersOfTheGroups(UserGroupsAsAccessValues, QueryResult);
@@ -20991,18 +21121,18 @@ Function AccessGroupsNewUsersGroups()
 EndFunction
 
 // For the UpdateRightsOfListAccessKeysBatch procedure.
-Procedure FillInTheListOfAccessGroupMembers(UpdateParameters1, Cache)
+Procedure FillInTheListOfAccessGroupMembers(ParametersOfUpdate, Cache)
 	
-	UpdateParameters1.Insert("AccessGroupsMembers",           AccessGroupsNewMembers());
-	UpdateParameters1.Insert("AccessGroupsUserGroups", AccessGroupsNewUsersGroups());
+	ParametersOfUpdate.Insert("AccessGroupsMembers",           AccessGroupsNewMembers());
+	ParametersOfUpdate.Insert("AccessGroupsUserGroups", AccessGroupsNewUsersGroups());
 	
-	If Not UpdateParameters1.CalculateUserRights Then
+	If Not ParametersOfUpdate.CalculateUserRights Then
 		Return;
 	EndIf;
 	
 	If Cache.AccessGroupsMembers <> Undefined Then
-		UpdateParameters1.AccessGroupsMembers           = Cache.AccessGroupsMembers;
-		UpdateParameters1.AccessGroupsUserGroups = Cache.AccessGroupsUserGroups;
+		ParametersOfUpdate.AccessGroupsMembers           = Cache.AccessGroupsMembers;
+		ParametersOfUpdate.AccessGroupsUserGroups = Cache.AccessGroupsUserGroups;
 		Return;
 	EndIf;
 	
@@ -21033,7 +21163,7 @@ Procedure FillInTheListOfAccessGroupMembers(UpdateParameters1, Cache)
 	|TOTALS BY
 	|	AccessGroup";
 	
-	If UpdateParameters1.ForExternalUsers Then
+	If ParametersOfUpdate.ForExternalUsers Then
 		Query.Text = StrReplace(Query.Text,
 			"ProfilesPurpose.ForUsers", "ProfilesPurpose.ForExternalUsers");
 		Query.Text = StrReplace(Query.Text,
@@ -21048,10 +21178,10 @@ Procedure FillInTheListOfAccessGroupMembers(UpdateParameters1, Cache)
 	Query.SetParameter("BlankUUID",
 		CommonClientServer.BlankUUID());
 	
-	AccessGroupsMembers           = UpdateParameters1.AccessGroupsMembers;
-	AccessGroupsUserGroups = UpdateParameters1.AccessGroupsUserGroups;
-	UserGroupType          = UpdateParameters1.UserGroupType;
-	UserGroupsUsers  = UpdateParameters1.UserGroupsUsers;
+	AccessGroupsMembers           = ParametersOfUpdate.AccessGroupsMembers;
+	AccessGroupsUserGroups = ParametersOfUpdate.AccessGroupsUserGroups;
+	UserGroupType          = ParametersOfUpdate.UserGroupType;
+	UserGroupsUsers  = ParametersOfUpdate.UserGroupsUsers;
 	
 	Tree = Query.Execute().Unload(QueryResultIteration.ByGroups);
 	
@@ -21119,10 +21249,10 @@ Function AccessGroupsNewValues()
 EndFunction
 
 // For the UpdateRightsOfListAccessKeysBatch procedure.
-Procedure FillAccessGroupsValuesToCalculateRights(UpdateParameters1, Cache)
+Procedure FillAccessGroupsValuesToCalculateRights(ParametersOfUpdate, Cache)
 	
 	If Cache.AccessGroupsValues <> Undefined Then
-		UpdateParameters1.Insert("AccessGroupsValues", Cache.AccessGroupsValues);
+		ParametersOfUpdate.Insert("AccessGroupsValues", Cache.AccessGroupsValues);
 		Return;
 	EndIf;
 	
@@ -21184,7 +21314,7 @@ Procedure FillAccessGroupsValuesToCalculateRights(UpdateParameters1, Cache)
 		EndDo;
 	EndDo;
 	
-	UpdateParameters1.Insert("AccessGroupsValues", AccessGroupsValues);
+	ParametersOfUpdate.Insert("AccessGroupsValues", AccessGroupsValues);
 	Cache.AccessGroupsValues = AccessGroupsValues;
 	
 EndProcedure
@@ -21211,18 +21341,18 @@ Function ProfilesNewAccessGroups()
 EndFunction
 
 // For the UpdateRightsOfListAccessKeysBatch procedure.
-Procedure FillInTheRolesAndAccessGroupsOfProfiles(UpdateParameters1, Cache)
+Procedure FillInTheRolesAndAccessGroupsOfProfiles(ParametersOfUpdate, Cache)
 	
-	UpdateParameters1.Insert("RolesOfAccessGroupProfiles", NewRolesOfAccessGroupProfiles());
-	UpdateParameters1.Insert("ProfilesAccessGroups",    ProfilesNewAccessGroups());
+	ParametersOfUpdate.Insert("RolesOfAccessGroupProfiles", NewRolesOfAccessGroupProfiles());
+	ParametersOfUpdate.Insert("ProfilesAccessGroups",    ProfilesNewAccessGroups());
 	
-	If Not UpdateParameters1.ThereIsAFunctionAccessRightOrRoleAvailable Then
+	If Not ParametersOfUpdate.ThereIsAFunctionAccessRightOrRoleAvailable Then
 		Return;
 	EndIf;
 	
 	If Cache.RolesOfAccessGroupProfiles <> Undefined Then
-		UpdateParameters1.RolesOfAccessGroupProfiles = Cache.RolesOfAccessGroupProfiles;
-		UpdateParameters1.ProfilesAccessGroups    = Cache.ProfilesAccessGroups;
+		ParametersOfUpdate.RolesOfAccessGroupProfiles = Cache.RolesOfAccessGroupProfiles;
+		ParametersOfUpdate.ProfilesAccessGroups    = Cache.ProfilesAccessGroups;
 		Return;
 	EndIf;
 	
@@ -21258,7 +21388,7 @@ Procedure FillInTheRolesAndAccessGroupsOfProfiles(UpdateParameters1, Cache)
 	|		ON ProfilesPurpose.Profile = AccessGroups.Profile
 	|			AND (ProfilesPurpose.ForUsers)";
 	
-	If UpdateParameters1.ForExternalUsers Then
+	If ParametersOfUpdate.ForExternalUsers Then
 		Query.Text = StrReplace(Query.Text,
 			"ProfilesPurpose.ForUsers", "ProfilesPurpose.ForExternalUsers");
 	EndIf;
@@ -21301,8 +21431,8 @@ Procedure FillInTheRolesAndAccessGroupsOfProfiles(UpdateParameters1, Cache)
 	ProfilesAccessGroups = QueryResults[3].Unload();
 	ProfilesAccessGroups.Indexes.Add("AccessGroup");
 	
-	UpdateParameters1.RolesOfAccessGroupProfiles = RolesOfAccessGroupProfiles;
-	UpdateParameters1.ProfilesAccessGroups    = ProfilesAccessGroups;
+	ParametersOfUpdate.RolesOfAccessGroupProfiles = RolesOfAccessGroupProfiles;
+	ParametersOfUpdate.ProfilesAccessGroups    = ProfilesAccessGroups;
 	Cache.RolesOfAccessGroupProfiles = RolesOfAccessGroupProfiles;
 	Cache.ProfilesAccessGroups    = ProfilesAccessGroups;
 	
@@ -21351,13 +21481,13 @@ Function NewRightsToMasterLists()
 EndFunction
 
 // For the UpdateRightsOfListAccessKeysBatch procedure.
-Procedure FillRightsToLeadingAccessKeysAndLeadingLists(QueryResults, TableNumber, UpdateParameters1)
+Procedure FillRightsToLeadingAccessKeysAndLeadingLists(QueryResults, TableNumber, ParametersOfUpdate)
 	
 	RightsToLeadingAccessKeysLists = NewRightsForListsOfMasterAccessKeys();
 	RightsToLeadingAccessKeys = NewRightsToMasterAccessKeys();
-	If UpdateParameters1.HasMasterAccessKeys Then
-		ActiveParameters = ActiveAccessRestrictionParameters(UpdateParameters1.TransactionID, Undefined, False);
-		If UpdateParameters1.ForExternalUsers Then
+	If ParametersOfUpdate.HasMasterAccessKeys Then
+		ActiveParameters = ActiveAccessRestrictionParameters(ParametersOfUpdate.TransactionID, Undefined, False);
+		If ParametersOfUpdate.ForExternalUsers Then
 			AdditionalContext = ActiveParameters.AdditionalContext.ForExternalUsers;
 		Else
 			AdditionalContext = ActiveParameters.AdditionalContext.ForUsers;
@@ -21366,8 +21496,8 @@ Procedure FillRightsToLeadingAccessKeysAndLeadingLists(QueryResults, TableNumber
 		RightsToLists = New Map;
 		Tree = QueryResults[TableNumber].Unload(QueryResultIteration.ByGroups);
 		ListsIDs = Tree.Rows.UnloadColumn("List");
-		If UpdateParameters1.Cache.Property("MetadataObjectsByIDs") Then
-			MetadataObjectsByIDs = UpdateParameters1.Cache.MetadataObjectsByIDs;
+		If ParametersOfUpdate.Cache.Property("MetadataObjectsByIDs") Then
+			MetadataObjectsByIDs = ParametersOfUpdate.Cache.MetadataObjectsByIDs;
 			NotFoundListsIDs = New Array;
 			For Each ListID In ListsIDs Do
 				If MetadataObjectsByIDs.Get(ListID) = Undefined Then
@@ -21418,13 +21548,13 @@ Procedure FillRightsToLeadingAccessKeysAndLeadingLists(QueryResults, TableNumber
 				New FixedMap(RightsToLeadingKey));
 		EndDo;
 	EndIf;
-	UpdateParameters1.Insert("RightsToLeadingAccessKeysLists",
+	ParametersOfUpdate.Insert("RightsToLeadingAccessKeysLists",
 		New FixedMap(RightsToLeadingAccessKeysLists));
-	UpdateParameters1.Insert("RightsToLeadingAccessKeys",
+	ParametersOfUpdate.Insert("RightsToLeadingAccessKeys",
 		New FixedMap(RightsToLeadingAccessKeys));
 	
 	RightsToLeadingLists = NewRightsToMasterLists();
-	If UpdateParameters1.HasHeadRightsLists Then
+	If ParametersOfUpdate.HasHeadRightsLists Then
 		TableNumber = TableNumber + 1;
 		Tree = QueryResults[TableNumber].Unload(QueryResultIteration.ByGroups);
 		AddRightsByTypes = Tree.Columns.Find("ValueType") <> Undefined;
@@ -21444,7 +21574,7 @@ Procedure FillRightsToLeadingAccessKeysAndLeadingLists(QueryResults, TableNumber
 			EndIf;
 		EndDo;
 	EndIf;
-	UpdateParameters1.Insert("RightsToLeadingLists",
+	ParametersOfUpdate.Insert("RightsToLeadingLists",
 		New FixedMap(RightsToLeadingLists));
 	
 EndProcedure
@@ -21464,10 +21594,10 @@ Function NewRightsByRightSetupOwners()
 EndFunction
 
 // For the UpdateRightsOfListAccessKeysBatch procedure.
-Procedure FillRightsByRightsSettingsOwners(QueryResults, TableNumber, UpdateParameters1)
+Procedure FillRightsByRightsSettingsOwners(QueryResults, TableNumber, ParametersOfUpdate)
 	
 	RightsByRightsSettingsOwners = NewRightsByRightSetupOwners();
-	If UpdateParameters1.HasRightsSettingsOwners Then
+	If ParametersOfUpdate.HasRightsSettingsOwners Then
 		TableNumber = TableNumber + 5;
 		Tree = QueryResults[TableNumber].Unload(QueryResultIteration.ByGroups);
 		For Each String In Tree.Rows Do
@@ -21479,7 +21609,7 @@ Procedure FillRightsByRightsSettingsOwners(QueryResults, TableNumber, UpdatePara
 				New FixedMap(RightsByRightsSettingsOwner));
 		EndDo;
 	EndIf;
-	UpdateParameters1.Insert("RightsByRightsSettingsOwners",
+	ParametersOfUpdate.Insert("RightsByRightsSettingsOwners",
 		New FixedMap(RightsByRightsSettingsOwners));
 	
 EndProcedure
@@ -21522,58 +21652,58 @@ Function RightsCalculationNewContext()
 EndFunction
 
 // For the UpdateRightsToListAccessKeys procedure.
-Function RightsToListAccessKey(KeyTablesValues, UpdateParameters1)
+Function RightsToListAccessKey(KeyTablesValues, ParametersOfUpdate)
 	
 	RightsToKey = New Structure("ForGroups, ForUsers", New Map, New Map);
 	
-	If UpdateParameters1.RestrictionDisabled Then
-		If Not UpdateParameters1.HasDependantListsWithoutAccessKeysRecords Then
+	If ParametersOfUpdate.RestrictionDisabled Then
+		If Not ParametersOfUpdate.HasDependantListsWithoutAccessKeysRecords Then
 			Return RightsToKey;
-		ElsIf UpdateParameters1.EditionAllowedForAllUsers Then
-			RightsToKey.ForGroups.Insert(UpdateParameters1.BlankAccessGroup,
+		ElsIf ParametersOfUpdate.EditionAllowedForAllUsers Then
+			RightsToKey.ForGroups.Insert(ParametersOfUpdate.BlankAccessGroup,
 				New Structure("RightUpdate, AddRight", True, True));
 			Return RightsToKey;
 		EndIf;
 	EndIf;
 	
-	WithoutWriteReadRight = UpdateParameters1.RightToWriteRestrictionDisabled
-		And Not UpdateParameters1.HasDependantListsWithoutAccessKeysRecords;
+	WithoutWriteReadRight = ParametersOfUpdate.RightToWriteRestrictionDisabled
+		And Not ParametersOfUpdate.HasDependantListsWithoutAccessKeysRecords;
 	
 	Context = RightsCalculationNewContext();
 	Context.Insert("KeyTablesValues",                   KeyTablesValues);
 	Context.Insert("WithoutWriteReadRight",                  WithoutWriteReadRight);
-	Context.Insert("KeyTablesAttributes",                  UpdateParameters1.KeyTablesAttributes);
-	Context.Insert("AccessGroupsMembers",                 UpdateParameters1.AccessGroupsMembers);
-	Context.Insert("AccessGroupsUserGroups",       UpdateParameters1.AccessGroupsUserGroups);
-	Context.Insert("UserGroupsAsAccessValues", UpdateParameters1.UserGroupsAsAccessValues);
-	Context.Insert("UserGroupsUsers",        UpdateParameters1.UserGroupsUsers);
-	Context.Insert("RightsToLeadingAccessKeysLists",     UpdateParameters1.RightsToLeadingAccessKeysLists);
-	Context.Insert("RightsToLeadingAccessKeys",            UpdateParameters1.RightsToLeadingAccessKeys);
-	Context.Insert("RightsToLeadingLists",                  UpdateParameters1.RightsToLeadingLists);
-	Context.Insert("RightsByRightsSettingsOwners",         UpdateParameters1.RightsByRightsSettingsOwners);
-	Context.Insert("CalculateUserRights",        UpdateParameters1.CalculateUserRights);
-	Context.Insert("AccessGroupType",                      UpdateParameters1.AccessGroupType);
-	Context.Insert("BlankAccessGroup",                   UpdateParameters1.BlankAccessGroup);
-	Context.Insert("UserType",                       UpdateParameters1.UserType);
-	Context.Insert("UserGroupType",                UpdateParameters1.UserGroupType);
-	Context.Insert("RightsSettingsOwnersTypes",            UpdateParameters1.RightsSettingsOwnersTypes);
-	Context.Insert("RoleRightsFunctionsAccessRights",         UpdateParameters1.Cache.RoleRightsFunctionsAccessRights);
-	Context.Insert("MetadataObjectsFunctionsAccessRights",  UpdateParameters1.Cache.MetadataObjectsFunctionsAccessRights);
-	Context.Insert("ProfileRightsFunctionsAccessRights",      UpdateParameters1.Cache.ProfileRightsFunctionsAccessRights);
-	Context.Insert("RolesOfAccessGroupProfiles",              UpdateParameters1.RolesOfAccessGroupProfiles);
-	Context.Insert("ProfilesAccessGroups",                 UpdateParameters1.ProfilesAccessGroups);
+	Context.Insert("KeyTablesAttributes",                  ParametersOfUpdate.KeyTablesAttributes);
+	Context.Insert("AccessGroupsMembers",                 ParametersOfUpdate.AccessGroupsMembers);
+	Context.Insert("AccessGroupsUserGroups",       ParametersOfUpdate.AccessGroupsUserGroups);
+	Context.Insert("UserGroupsAsAccessValues", ParametersOfUpdate.UserGroupsAsAccessValues);
+	Context.Insert("UserGroupsUsers",        ParametersOfUpdate.UserGroupsUsers);
+	Context.Insert("RightsToLeadingAccessKeysLists",     ParametersOfUpdate.RightsToLeadingAccessKeysLists);
+	Context.Insert("RightsToLeadingAccessKeys",            ParametersOfUpdate.RightsToLeadingAccessKeys);
+	Context.Insert("RightsToLeadingLists",                  ParametersOfUpdate.RightsToLeadingLists);
+	Context.Insert("RightsByRightsSettingsOwners",         ParametersOfUpdate.RightsByRightsSettingsOwners);
+	Context.Insert("CalculateUserRights",        ParametersOfUpdate.CalculateUserRights);
+	Context.Insert("AccessGroupType",                      ParametersOfUpdate.AccessGroupType);
+	Context.Insert("BlankAccessGroup",                   ParametersOfUpdate.BlankAccessGroup);
+	Context.Insert("UserType",                       ParametersOfUpdate.UserType);
+	Context.Insert("UserGroupType",                ParametersOfUpdate.UserGroupType);
+	Context.Insert("RightsSettingsOwnersTypes",            ParametersOfUpdate.RightsSettingsOwnersTypes);
+	Context.Insert("RoleRightsFunctionsAccessRights",         ParametersOfUpdate.Cache.RoleRightsFunctionsAccessRights);
+	Context.Insert("MetadataObjectsFunctionsAccessRights",  ParametersOfUpdate.Cache.MetadataObjectsFunctionsAccessRights);
+	Context.Insert("ProfileRightsFunctionsAccessRights",      ParametersOfUpdate.Cache.ProfileRightsFunctionsAccessRights);
+	Context.Insert("RolesOfAccessGroupProfiles",              ParametersOfUpdate.RolesOfAccessGroupProfiles);
+	Context.Insert("ProfilesAccessGroups",                 ParametersOfUpdate.ProfilesAccessGroups);
 	
 	ReadAllowedForAllAccessGroups = True;
 	ChangeAllowedForAllAccessGroups = True;
 	AddAllowedForAllAccessGroups = True;
 	
-	For Each RightsDetails In UpdateParameters1.ListAccessGroupsRights Do
+	For Each RightsDetails In ParametersOfUpdate.ListAccessGroupsRights Do
 		AccessGroup      = RightsDetails.AccessGroup;
 		AccessGroupRights1 = RightsDetails; // ValueTableRow
 		
 		Context.Insert("AccessGroup", AccessGroup);
 		Context.Insert("AccessGroupValues",
-			UpdateParameters1.AccessGroupsValues.Get(AccessGroup));
+			ParametersOfUpdate.AccessGroupsValues.Get(AccessGroup));
 		
 		If WithoutWriteReadRight
 		 Or AccessGroupRights1.UnrestrictedReadRight Then
@@ -21581,7 +21711,7 @@ Function RightsToListAccessKey(KeyTablesValues, UpdateParameters1)
 			ReadRight = "True";
 		Else
 			ReadRight = CalculatedConditionForRows(Context,
-				UpdateParameters1.ReadRightCalculationStructure);
+				ParametersOfUpdate.ReadRightCalculationStructure);
 		EndIf;
 		
 		If ReadRight <> "True" Then
@@ -21605,15 +21735,15 @@ Function RightsToListAccessKey(KeyTablesValues, UpdateParameters1)
 		ElsIf Not AccessGroupRights1.RightUpdate Then
 			RightUpdate = "False";
 			
-		ElsIf UpdateParameters1.HasLimitChanges Then
+		ElsIf ParametersOfUpdate.HasLimitChanges Then
 			RightUpdate = CalculatedConditionForRows(Context,
-				UpdateParameters1.EditRightCalculationStructure);
+				ParametersOfUpdate.EditRightCalculationStructure);
 			
 		ElsIf WithoutWriteReadRight
 		      Or AccessGroupRights1.UnrestrictedReadRight Then
 			
 			RightUpdate = CalculatedConditionForRows(Context,
-				UpdateParameters1.ReadRightCalculationStructure);
+				ParametersOfUpdate.ReadRightCalculationStructure);
 		Else
 			RightUpdate = "True";
 		EndIf;
@@ -21642,25 +21772,25 @@ Function RightsToListAccessKey(KeyTablesValues, UpdateParameters1)
 	EndDo;
 	
 	If Not ReadAllowedForAllAccessGroups
-	 Or UpdateParameters1.HasDependantListsWithoutAccessKeysRecords
-	   And Not UpdateParameters1.ReadingAllowedForAllUsers Then
+	 Or ParametersOfUpdate.HasDependantListsWithoutAccessKeysRecords
+	   And Not ParametersOfUpdate.ReadingAllowedForAllUsers Then
 		
 		Return RightsToKey;
 	EndIf;
 	
 	If AddAllowedForAllAccessGroups
-	   And ( Not UpdateParameters1.HasDependantListsWithoutAccessKeysRecords
-	      Or UpdateParameters1.EditionAllowedForAllUsers) Then
+	   And ( Not ParametersOfUpdate.HasDependantListsWithoutAccessKeysRecords
+	      Or ParametersOfUpdate.EditionAllowedForAllUsers) Then
 		
 		RightsToKey = New Structure("ForGroups, ForUsers", New Map, New Map);
-		RightsToKey.ForGroups.Insert(UpdateParameters1.BlankAccessGroup,
+		RightsToKey.ForGroups.Insert(ParametersOfUpdate.BlankAccessGroup,
 			New Structure("RightUpdate, AddRight", True, True));
 		
 	Else // ReadAllowedForAllAccessGroups.
 		CurrentRightsToKey = RightsToKey;
 		RightsToKey = New Structure("ForGroups, ForUsers", New Map, New Map);
 		If Not WithoutWriteReadRight Or ChangeAllowedForAllAccessGroups Then
-			RightsToKey.ForGroups.Insert(UpdateParameters1.BlankAccessGroup,
+			RightsToKey.ForGroups.Insert(ParametersOfUpdate.BlankAccessGroup,
 				New Structure("RightUpdate, AddRight", ChangeAllowedForAllAccessGroups, False));
 		EndIf;
 		NameOfRight = ?(ChangeAllowedForAllAccessGroups, "AddRight", "RightUpdate");
@@ -22572,11 +22702,11 @@ Function ThereIsARoleInTheAccessGroupProfile(Condition, Context)
 EndFunction
 
 // For the UpdateRightsOfListAccessKeysBatch procedure.
-Procedure UpdateRightsToListAccessKey(AccessKey, RightsToKey, NewKeysDetails, UpdateParameters1)
+Procedure UpdateRightsToListAccessKey(AccessKey, RightsToKey, NewKeysDetails, ParametersOfUpdate)
 	
-	If UpdateParameters1.CalculateUserRights Then
+	If ParametersOfUpdate.CalculateUserRights Then
 		RightsToAccessKeyForUsers = New Map;
-		UserType = UpdateParameters1.UserType;
+		UserType = ParametersOfUpdate.UserType;
 		For Each KeyAndValue In RightsToKey.ForUsers Do
 			If TypeOf(KeyAndValue.Key) = UserType Then
 				Set = Catalogs.SetsOfAccessGroups.GetRef(KeyAndValue.Key.UUID());
@@ -22619,11 +22749,11 @@ Procedure UpdateRightsToListAccessKey(AccessKey, RightsToKey, NewKeysDetails, Up
 	AccessGroupsSetsRecordSet = ServiceRecordSet(InformationRegisters.AccessGroupSetsAccessKeys);
 	AccessGroupsSetsRecordSet.Filter.AccessKey.Set(AccessKey);
 	
-	If UpdateParameters1.CalculateUserRights Then
+	If ParametersOfUpdate.CalculateUserRights Then
 		Query = New Query;
 		Query.SetParameter("AccessKey", AccessKey);
 		
-		If Not UpdateParameters1.ForExternalUsers Then
+		If Not ParametersOfUpdate.ForExternalUsers Then
 			Query.Text = DifferencesSelectionOfDerivedRightsQueryTextForUsers();
 			RightsOwnerFieldName = "User";
 			LockItem = Block.Add("InformationRegister.UsersAccessKeys");
@@ -22648,8 +22778,8 @@ Procedure UpdateRightsToListAccessKey(AccessKey, RightsToKey, NewKeysDetails, Up
 		KeyLockItem.SetValue("FieldsComposition",             AccessKeyObject.FieldsComposition);
 	EndIf;
 	
-	UpdateManually = UpdateParameters1.Property("UpdateRightsToKeys")
-		And UpdateParameters1.UpdateRightsToKeys;
+	UpdateManually = ParametersOfUpdate.Property("UpdateRightsToKeys")
+		And ParametersOfUpdate.UpdateRightsToKeys;
 	
 	If Common.FileInfobase() Then
 		If NewKeysDetails <> Undefined Then
@@ -22661,89 +22791,89 @@ Procedure UpdateRightsToListAccessKey(AccessKey, RightsToKey, NewKeysDetails, Up
 	
 	BeginTransaction();
 	Try
-		BeforeDataLock(UpdateParameters1);
+		BeforeDataLock(ParametersOfUpdate);
 		Block.Lock();
 		If Common.FileInfobase() Then
 			LockRegistersSchedulingUpdateAccessKeysInFileIB();
 		EndIf;
-		AfterDataLock(UpdateParameters1);
+		AfterDataLock(ParametersOfUpdate);
 		
 		HasRightsChanges = False;
 		
 		If NewKeysDetails = Undefined
-		 Or Not NewAccessKeyAlreadyExists(NewKeysDetails, NewKeyDetails, UpdateParameters1) Then
+		 Or Not NewAccessKeyAlreadyExists(NewKeysDetails, NewKeyDetails, ParametersOfUpdate) Then
 			
 			If NewKeysDetails <> Undefined Then
-				BeforeWriteNewKey(UpdateParameters1);
+				BeforeWriteNewKey(ParametersOfUpdate);
 				AccessKeyObject.Write();
-				AfterWriteNewKey(UpdateParameters1);
+				AfterWriteNewKey(ParametersOfUpdate);
 			EndIf;
 			
-			BeforeAccessGroupsRightsQuery(UpdateParameters1);
+			BeforeAccessGroupsRightsQuery(ParametersOfUpdate);
 			GroupsRequestResult = GroupsQuery.Execute();
-			AfterAccessGroupsRightsQuery(UpdateParameters1);
+			AfterAccessGroupsRightsQuery(ParametersOfUpdate);
 			
 			HasChanges = New Structure("AccessGroupRights, UserGroupRights", False, False);
 			UpdateInitialGroupsRightsToAccessKey(GroupsRequestResult, GroupsRecordSet, "AccessGroup",
-				AccessKey, RightsToKey.ForGroups, UpdateParameters1, HasChanges);
+				AccessKey, RightsToKey.ForGroups, ParametersOfUpdate, HasChanges);
 			
 			HasRightsChanges = HasChanges.AccessGroupRights Or HasChanges.UserGroupRights;
 			
 			If HasChanges.AccessGroupRights Or UpdateManually Then
-				BeforeDerivedRightsChangesQuery(UpdateParameters1);
+				BeforeDerivedRightsChangesQuery(ParametersOfUpdate);
 				AccessGroupsSetsQueryResult = AccessGroupsSetsQuery.Execute();
-				AfterDerivedRightsChangesQuery(UpdateParameters1);
+				AfterDerivedRightsChangesQuery(ParametersOfUpdate);
 				UpdateDerivedRightsToAccessKey(AccessGroupsSetsQueryResult,
-					AccessGroupsSetsRecordSet, "AccessGroupsSet", AccessKey, , UpdateParameters1);
+					AccessGroupsSetsRecordSet, "AccessGroupsSet", AccessKey, , ParametersOfUpdate);
 			EndIf;
 			
-			If UpdateParameters1.CalculateUserRights Then
+			If ParametersOfUpdate.CalculateUserRights Then
 				PackageQueries = StrSplit(Query.Text, ";", False);
 				If HasChanges.UserGroupRights Or UpdateManually Then
 					Query.Text = PackageQueries[1];
-					BeforeDerivedRightsChangesQuery(UpdateParameters1);
+					BeforeDerivedRightsChangesQuery(ParametersOfUpdate);
 					QueryResult = Query.Execute();
-					AfterDerivedRightsChangesQuery(UpdateParameters1);
+					AfterDerivedRightsChangesQuery(ParametersOfUpdate);
 					UpdateDerivedRightsToAccessKey(QueryResult,
-						RecordSet, RightsOwnerFieldName, AccessKey, , UpdateParameters1);
+						RecordSet, RightsOwnerFieldName, AccessKey, , ParametersOfUpdate);
 					RecordSet.Clear();
 				EndIf;
 				Query.Text = PackageQueries[0];
-				BeforeUsersRightsQuery(UpdateParameters1);
+				BeforeUsersRightsQuery(ParametersOfUpdate);
 				UsersQueryResult = Query.Execute();
-				AfterUsersRightsQuery(UpdateParameters1);
+				AfterUsersRightsQuery(ParametersOfUpdate);
 				UpdateInitialUsersRightsToAccessKey(UsersQueryResult, RecordSet,
-					RightsOwnerFieldName, AccessKey, RightsToAccessKeyForUsers, HasRightsChanges, UpdateParameters1);
+					RightsOwnerFieldName, AccessKey, RightsToAccessKeyForUsers, HasRightsChanges, ParametersOfUpdate);
 			EndIf;
 			
 			If NewKeysDetails = Undefined
 			   And HasRightsChanges
-			   And UpdateParameters1.DependentListsByAccessKeys.Count() > 0 Then
+			   And ParametersOfUpdate.DependentListsByAccessKeys.Count() > 0 Then
 				
-				BeforePlanUpdate(UpdateParameters1);
-				ScheduleAccessKeysUsersUpdate(UpdateParameters1.DependentListsByAccessKeys,
+				BeforePlanUpdate(ParametersOfUpdate);
+				ScheduleAccessKeysUsersUpdate(ParametersOfUpdate.DependentListsByAccessKeys,
 					"UpdateRightsToListAccessKey",
-					Not UpdateParameters1.ForExternalUsers,
-					UpdateParameters1.ForExternalUsers, ,
+					Not ParametersOfUpdate.ForExternalUsers,
+					ParametersOfUpdate.ForExternalUsers, ,
 					New Structure("ByAccessKeys", AccessKey));
-				AfterPlanUpdate(UpdateParameters1);
+				AfterPlanUpdate(ParametersOfUpdate);
 			EndIf;
 		EndIf;
 		
 		// 
 		// 
 		// 
-		BeforeCommitTransaction(UpdateParameters1);
+		BeforeCommitTransaction(ParametersOfUpdate);
 		CommitTransaction();
-		AfterCommitTransaction(UpdateParameters1);
+		AfterCommitTransaction(ParametersOfUpdate);
 		// ACC:330-on
 	Except
 		RollbackTransaction();
 		Raise;
 	EndTry;
 	
-	If HasRightsChanges And UpdateParameters1.Property("HasRightsChanges") Then
-		UpdateParameters1.HasRightsChanges = True;
+	If HasRightsChanges And ParametersOfUpdate.Property("HasRightsChanges") Then
+		ParametersOfUpdate.HasRightsChanges = True;
 	EndIf;
 	
 EndProcedure
@@ -22962,7 +23092,7 @@ Function DifferencesSelectionOfDerivedRightsQueryTextForExternalUsers()
 EndFunction
 
 // For the UpdateRightsToListAccessKey procedure.
-Function NewAccessKeyAlreadyExists(NewKeysDetails, NewKeyDetails, UpdateParameters1)
+Function NewAccessKeyAlreadyExists(NewKeysDetails, NewKeyDetails, ParametersOfUpdate)
 	
 	KeysExistenceQuery = NewKeysDetails.KeysExistenceQuery;
 	KeysExistenceQuery.SetParameter("Hash", NewKeyDetails.AccessKeyObject.Hash);
@@ -22976,9 +23106,9 @@ Function NewAccessKeyAlreadyExists(NewKeysDetails, NewKeyDetails, UpdateParamete
 	
 	KeysValuesQueryResults = KeysValuesQuery.ExecuteBatch();
 	
-	KeyTables = UpdateParameters1.KeyTables;
+	KeyTables = ParametersOfUpdate.KeyTables;
 	KeysRowsValuesKeys = ObjectsRowsValuesKeys(KeysValuesQueryResults,
-		?(Not ValueIsFilled(UpdateParameters1.FieldsComposition)
+		?(Not ValueIsFilled(ParametersOfUpdate.FieldsComposition)
 			Or StrStartsWith(KeyTables[0], "Header"), 0, 1),
 		KeyTables);
 	
@@ -23006,15 +23136,15 @@ EndFunction
 
 // For the UpdateRightsToListAccessKey procedure.
 Procedure UpdateInitialGroupsRightsToAccessKey(QueryResult, RecordSet, RightsOwnerFieldName,
-			 AccessKey, RightsToKey, UpdateParameters1, HasChanges)
+			 AccessKey, RightsToKey, ParametersOfUpdate, HasChanges)
 	
 	Selection = QueryResult.Select();
-	AccessGroupType = UpdateParameters1.AccessGroupType;
+	AccessGroupType = ParametersOfUpdate.AccessGroupType;
 	HasAccessGroupsRightsChanges = False;
 	HasUsersGroupsRightsChanges = False;
 	
 	WrittenItemsCount = 0;
-	BeforeWriteRows(UpdateParameters1);
+	BeforeWriteRows(ParametersOfUpdate);
 	While Selection.Next() Do
 		RightsOwner = Selection[RightsOwnerFieldName];
 		Rights = RightsToKey.Get(RightsOwner); // See NewRights
@@ -23054,7 +23184,7 @@ Procedure UpdateInitialGroupsRightsToAccessKey(QueryResult, RecordSet, RightsOwn
 		EndIf;
 		WrittenItemsCount = WrittenItemsCount + 1;
 	EndDo;
-	AfterWriteRows(UpdateParameters1, WrittenItemsCount);
+	AfterWriteRows(ParametersOfUpdate, WrittenItemsCount);
 	
 	HasChanges.AccessGroupRights       = HasAccessGroupsRightsChanges;
 	HasChanges.UserGroupRights = HasUsersGroupsRightsChanges;
@@ -23063,12 +23193,12 @@ EndProcedure
 
 // For the UpdateRightsToListAccessKey procedure.
 Procedure UpdateInitialUsersRightsToAccessKey(QueryResult, RecordSet,
-			RightsOwnerFieldName, AccessKey, RightsToKey, HasRightsChanges, UpdateParameters1)
+			RightsOwnerFieldName, AccessKey, RightsToKey, HasRightsChanges, ParametersOfUpdate)
 	
 	Selection = QueryResult.Select();
 	
 	WrittenItemsCount = 0;
-	BeforeWriteRows(UpdateParameters1);
+	BeforeWriteRows(ParametersOfUpdate);
 	While Selection.Next() Do
 		RightsOwner = Selection[RightsOwnerFieldName];
 		Rights = RightsToKey.Get(RightsOwner); // See NewRights
@@ -23102,19 +23232,19 @@ Procedure UpdateInitialUsersRightsToAccessKey(QueryResult, RecordSet,
 		HasRightsChanges = True;
 		WrittenItemsCount = WrittenItemsCount + 1;
 	EndDo;
-	AfterWriteRows(UpdateParameters1, WrittenItemsCount);
+	AfterWriteRows(ParametersOfUpdate, WrittenItemsCount);
 	
 EndProcedure
 
 // For the UpdateRightsToListAccessKey procedure.
 Procedure UpdateDerivedRightsToAccessKey(QueryResult, RecordSet, RightsOwnerFieldName,
-			AccessKey, HasChanges = False, UpdateParameters1 = Undefined)
+			AccessKey, HasChanges = False, ParametersOfUpdate = Undefined)
 	
 	Selection = QueryResult.Select();
 	DeletionCompleted = False;
 	
 	WrittenItemsCount = 0;
-	BeforeWriteRows(UpdateParameters1);
+	BeforeWriteRows(ParametersOfUpdate);
 	While Selection.Next() Do
 		FilterElement = RecordSet.Filter[RightsOwnerFieldName]; // FilterItem
 		FilterElement.Set(Selection[RightsOwnerFieldName]);
@@ -23130,7 +23260,7 @@ Procedure UpdateDerivedRightsToAccessKey(QueryResult, RecordSet, RightsOwnerFiel
 		HasChanges = True;
 		WrittenItemsCount = WrittenItemsCount + 1;
 	EndDo;
-	AfterWriteRows(UpdateParameters1, WrittenItemsCount);
+	AfterWriteRows(ParametersOfUpdate, WrittenItemsCount);
 	
 EndProcedure
 
@@ -23541,75 +23671,75 @@ EndFunction
 
 #Region AttachmentPointsToAnalyzeProductivityUsingConfigurationExtension
 
-Procedure BeforeDataLock(UpdateParameters1)
+Procedure BeforeDataLock(ParametersOfUpdate)
 	Return;
 EndProcedure
 
-Procedure AfterDataLock(UpdateParameters1)
+Procedure AfterDataLock(ParametersOfUpdate)
 	Return;
 EndProcedure
 
-Procedure BeforeCurrentAccessKeysQuery(UpdateParameters1)
+Procedure BeforeCurrentAccessKeysQuery(ParametersOfUpdate)
 	Return;
 EndProcedure
 
-Procedure AfterCurrentAccessKeysQuery(UpdateParameters1)
+Procedure AfterCurrentAccessKeysQuery(ParametersOfUpdate)
 	Return;
 EndProcedure
 
-Procedure BeforeWriteRows(UpdateParameters1)
+Procedure BeforeWriteRows(ParametersOfUpdate)
 	Return;
 EndProcedure
 
-Procedure AfterWriteRows(UpdateParameters1, WrittenItemsCount)
+Procedure AfterWriteRows(ParametersOfUpdate, WrittenItemsCount)
 	Return;
 EndProcedure
 
-Procedure BeforeCommitTransaction(UpdateParameters1)
+Procedure BeforeCommitTransaction(ParametersOfUpdate)
 	Return;
 EndProcedure
 
-Procedure AfterCommitTransaction(UpdateParameters1)
+Procedure AfterCommitTransaction(ParametersOfUpdate)
 	Return;
 EndProcedure
 
-Procedure BeforePlanUpdate(UpdateParameters1)
+Procedure BeforePlanUpdate(ParametersOfUpdate)
 	Return;
 EndProcedure
 
-Procedure AfterPlanUpdate(UpdateParameters1)
+Procedure AfterPlanUpdate(ParametersOfUpdate)
 	Return;
 EndProcedure
 
-Procedure BeforeWriteNewKey(UpdateParameters1)
+Procedure BeforeWriteNewKey(ParametersOfUpdate)
 	Return;
 EndProcedure
 
-Procedure AfterWriteNewKey(UpdateParameters1)
+Procedure AfterWriteNewKey(ParametersOfUpdate)
 	Return;
 EndProcedure
 
-Procedure BeforeAccessGroupsRightsQuery(UpdateParameters1)
+Procedure BeforeAccessGroupsRightsQuery(ParametersOfUpdate)
 	Return;
 EndProcedure
 
-Procedure AfterAccessGroupsRightsQuery(UpdateParameters1)
+Procedure AfterAccessGroupsRightsQuery(ParametersOfUpdate)
 	Return;
 EndProcedure
 
-Procedure BeforeDerivedRightsChangesQuery(UpdateParameters1)
+Procedure BeforeDerivedRightsChangesQuery(ParametersOfUpdate)
 	Return;
 EndProcedure
 
-Procedure AfterDerivedRightsChangesQuery(UpdateParameters1)
+Procedure AfterDerivedRightsChangesQuery(ParametersOfUpdate)
 	Return;
 EndProcedure
 
-Procedure BeforeUsersRightsQuery(UpdateParameters1)
+Procedure BeforeUsersRightsQuery(ParametersOfUpdate)
 	Return;
 EndProcedure
 
-Procedure AfterUsersRightsQuery(UpdateParameters1)
+Procedure AfterUsersRightsQuery(ParametersOfUpdate)
 	Return;
 EndProcedure
 
@@ -26685,7 +26815,9 @@ Procedure AddStoredRestrictionParametersForUsersKind(Context)
 			
 			If ListProperties.RestrictionByOwnerEnabled
 			   And AllLeadingListsWithRestriction
-			   And Not CalculateUsersRightsPropertyChanged Then
+			   And Not CalculateUsersRightsPropertyChanged
+			   And ListsWithKeysRecordForDependentListsWithoutKeys.Get(ListProperties.FullName) = Undefined
+			    Then
 				Continue;
 			EndIf;
 			
@@ -30660,7 +30792,7 @@ Procedure FinishPreparingObjectTablesFields(Context)
 	EndIf;
 	
 	FullNameOfMainTable = StrReplace(Context.List, ".", "_");
-	RefType1 = New TypeDescription(CommonClientServer.ValueInArray(
+	RefType = New TypeDescription(CommonClientServer.ValueInArray(
 		Type(RefTypeName1(Context.List, Context.RestrictionStructure.InternalData.TablesTypesByNames))));
 	
 	For Each TableDetails In ObjectTablesFields.Content Do
@@ -30684,7 +30816,7 @@ Procedure FinishPreparingObjectTablesFields(Context)
 		EndIf;
 		TableFields.FieldList = StrConcat(TableFields.Fields, ", ");
 		TableFields.Fields.Insert(0, "Ref");
-		ValueTable.Columns.Add("Ref", RefType1);
+		ValueTable.Columns.Add("Ref", RefType);
 		TableFields.TableWithFields = New ValueStorage(ValueTable);
 		If TableFields.FullTableName <> FullNameOfMainTable Then
 			TableFields.TabularSection = Mid(TableFields.FullTableName,
@@ -32105,9 +32237,9 @@ Procedure AddLeadingListFieldByFieldsValues(Context, Table, Field, FieldType, Ad
 			NameContent = StrSplit(Table, ".");
 			TableType = Context.RestrictionStructure.InternalData.TablesTypesByNames.Get(Upper(NameContent[0]));
 		EndIf;
-		RefType1 = New TypeDescription(TableType.LanguageRussian + "Ссылка." + NameContent[1]); // @Non-NLS
-		InsertLeadingListFieldByFieldsValues(FieldsDetails.ForTracking, "", "Ref", RefType1);
-		InsertLeadingListFieldByFieldsValues(FieldsDetails.ForFilter,       "", "Ref", RefType1);
+		RefType = New TypeDescription(TableType.LanguageRussian + "Ссылка." + NameContent[1]); // @Non-NLS
+		InsertLeadingListFieldByFieldsValues(FieldsDetails.ForTracking, "", "Ref", RefType);
+		InsertLeadingListFieldByFieldsValues(FieldsDetails.ForFilter,       "", "Ref", RefType);
 		FieldNameForQuery = AdditionalContext.ParentFieldProperties.FieldNameForQuery;
 		FilterConnection = FiltersConnections.Get(Upper(FieldNameForQuery));
 		If FilterConnection = Undefined Then
@@ -32168,7 +32300,7 @@ EndProcedure
 //     * Lists               - Map
 //     * QueryKeysByTypes - Map
 //     * FiltersConnections    - Map
-//     * RefType1            - TypeDescription
+//     * RefType            - TypeDescription
 //
 Function LeadingListsDetailsByFieldsRef()
 	
@@ -32176,7 +32308,7 @@ Function LeadingListsDetailsByFieldsRef()
 	LongDesc.Insert("Lists",               New Map);
 	LongDesc.Insert("QueryKeysByTypes", New Map);
 	LongDesc.Insert("FiltersConnections",    New Map);
-	LongDesc.Insert("RefType1",            New TypeDescription);
+	LongDesc.Insert("RefType",            New TypeDescription);
 	
 	Return LongDesc;
 	
@@ -32189,13 +32321,13 @@ Procedure AddLeadingListByFieldRef(LeadingLists, LeadingList, FieldNode, FieldPr
 	TableType = Context.RestrictionStructure.InternalData.TablesTypesByNames.Get(Upper(NameContent[0]));
 	RefTypeName1 = TableType.LanguageRussian + "Ссылка." + NameContent[1]; // @Non-NLS
 	
-	LeadingLists.RefType1 = New TypeDescription(LeadingLists.RefType1, RefTypeName1);
-	RefType1 = Type(RefTypeName1);
+	LeadingLists.RefType = New TypeDescription(LeadingLists.RefType, RefTypeName1);
+	RefType = Type(RefTypeName1);
 	
-	Keys = LeadingLists.QueryKeysByTypes.Get(RefType1);
+	Keys = LeadingLists.QueryKeysByTypes.Get(RefType);
 	If Keys = Undefined Then
 		Keys = New Array;
-		LeadingLists.QueryKeysByTypes.Insert(RefType1, Keys);
+		LeadingLists.QueryKeysByTypes.Insert(RefType, Keys);
 		LeadingLists.Lists.Insert(LeadingList, True);
 	EndIf;
 	
@@ -32879,12 +33011,12 @@ EndProcedure
 Procedure AddQueryTextOfObsoleteDataItems(Result, Context)
 	
 	If Result.IsReferenceType Then
-		RefType1 = ?(ValueIsFilled(Result.Version)
+		RefType = ?(ValueIsFilled(Result.Version)
 				Or Common.MetadataObjectByFullName(Result.List) <> Undefined,
 			RefTypeByFullMetadataName(Result.List), Undefined);
 		RefsTypes = AccessManagementInternalCached.TableFieldTypes("DefinedType.AccessKeysValuesOwner");
 		
-		If RefsTypes.Get(RefType1) = Undefined Then
+		If RefsTypes.Get(RefType) = Undefined Then
 			QueryText =
 			"SELECT TOP 0
 			|	AccessKeysForObjects.Object AS CurrentRef
@@ -33261,12 +33393,12 @@ Procedure FillTemplatesOfObjectCheckQueryParts(Context)
 	Context.DetailsOfValidationRequestsOnLeadingObjects.Insert("DataSelectionWrapQueryText",
 		DataChoiceForSpotCheckWrapperQueryText);
 	
-	QueryTemplate1 =
+	QueryTemplate =
 	"SELECT DISTINCT TOP 995
 	|	CurrentList.Ref AS Ref
 	|FROM
 	|	"; // @query-part-1
-	AddCheckQueriesByLeadingLists(QueryTemplate1, Context);
+	AddCheckQueriesByLeadingLists(QueryTemplate, Context);
 	
 EndProcedure
 
@@ -33421,14 +33553,14 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 	Context.DetailsOfValidationRequestsOnLeadingObjects.Insert("DataSelectionWrapQueryText",
 		DataChoiceWrapperForSpotCombinationsCheckQueryText);
 	
-	QueryTemplate1 =
+	QueryTemplate =
 	"SELECT DISTINCT TOP 995
 	|	&BasicFieldsForSelection,
 	|	CurrentList.AccessKey AS AccessKey
 	|FROM
 	|	"; // @query-part-1
-	QueryTemplate1 = StrReplace(QueryTemplate1, "&BasicFieldsForSelection", BasicFields.ForSelection);
-	AddCheckQueriesByLeadingLists(QueryTemplate1, Context);
+	QueryTemplate = StrReplace(QueryTemplate, "&BasicFieldsForSelection", BasicFields.ForSelection);
+	AddCheckQueriesByLeadingLists(QueryTemplate, Context);
 	
 	If Context.ListWithPeriod Then
 		NewCombinationsQueryText = 
@@ -33504,7 +33636,7 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 EndProcedure
 
 // For the FillObjectCheckQueryPartsTemplates and FillRegisterCheckQueryPartsTemplates procedures.
-Procedure AddCheckQueriesByLeadingLists(QueryTemplate1, Context)
+Procedure AddCheckQueriesByLeadingLists(QueryTemplate, Context)
 	
 	QueriesDetails = New Map;
 	For Each FilterConnection In Context.LeadingListsByFieldsValues.FiltersConnections Do
@@ -33514,26 +33646,26 @@ Procedure AddCheckQueriesByLeadingLists(QueryTemplate1, Context)
 		If IConnectionShort.HeaderFields.Count() > 0 Then
 			QueriesDetails.Insert(LeadingTable,
 				CheckQueriesByLeadingListsDetails(IConnectionShort.HeaderFields,
-					Fields.ForFilter.HeaderFields, LeadingTable, QueryTemplate1, Context));
+					Fields.ForFilter.HeaderFields, LeadingTable, QueryTemplate, Context));
 		EndIf;
 		For Each TabularSectionDetails In IConnectionShort.TabularSections Do
 			LeadingTable = FilterConnection.Key + "." + TabularSectionDetails.Key;
 			FieldsTypes = Fields.ForFilter.TabularSections.Get(TabularSectionDetails.Key);
 			QueriesDetails.Insert(LeadingTable,
 				CheckQueriesByLeadingListsDetails(TabularSectionDetails.Value,
-					FieldsTypes, LeadingTable, QueryTemplate1, Context));
+					FieldsTypes, LeadingTable, QueryTemplate, Context));
 		EndDo;
 	EndDo;
 	Context.DetailsOfValidationRequestsOnLeadingObjects.Insert("ByFieldsValues", QueriesDetails);
 	
-	AddCheckQueriesByLeadingListsRefField("ByValuesWithGroups", QueryTemplate1, Context);
-	AddCheckQueriesByLeadingListsRefField("ByAccessKeys", QueryTemplate1, Context);
+	AddCheckQueriesByLeadingListsRefField("ByValuesWithGroups", QueryTemplate, Context);
+	AddCheckQueriesByLeadingListsRefField("ByAccessKeys", QueryTemplate, Context);
 	
 EndProcedure
 
 // For the AddCheckQueriesByLeadingLists procedure.
 Function CheckQueriesByLeadingListsDetails(FiltersConnections, FieldsTypes,
-			LeadingTable, QueryTemplate1, Context)
+			LeadingTable, QueryTemplate, Context)
 	
 	LeadingTableWithoutDots = StrReplace(LeadingTable, ".", "_");
 	
@@ -33560,7 +33692,7 @@ Function CheckQueriesByLeadingListsDetails(FiltersConnections, FieldsTypes,
 	QueriesDetails.Insert("DataQueryTexts", New Array);
 	
 	For Each FilterConnection In FiltersConnections Do
-		QueryText = QueryTemplate1 + TextWithIndent(FilterConnection, "	");
+		QueryText = QueryTemplate + TextWithIndent(FilterConnection, "	");
 		QueryText = StrReplace(QueryText, "#CurrentDataForFilter", LeadingTableWithoutDots);
 		InsertCommonParametersIntoQuery(QueryText, Context);
 		QueriesDetails.DataQueryTexts.Add(QueryText);
@@ -33571,7 +33703,7 @@ Function CheckQueriesByLeadingListsDetails(FiltersConnections, FieldsTypes,
 EndFunction
 
 // For the AddCheckQueriesByLeadingLists procedure.
-Procedure AddCheckQueriesByLeadingListsRefField(LaedingListKind, QueryTemplate1, Context)
+Procedure AddCheckQueriesByLeadingListsRefField(LaedingListKind, QueryTemplate, Context)
 	
 	Properties = ?(LaedingListKind = "ByAccessKeys",
 		Context.LeadingListsByAccessKeys, Context.LeadingListsByValuesWithGroups);
@@ -33593,14 +33725,14 @@ Procedure AddCheckQueriesByLeadingListsRefField(LaedingListKind, QueryTemplate1,
 
 	QueriesTextsByKeys = New Map;
 	For Each FilterConnection In Properties.FiltersConnections Do
-		QueryText = QueryTemplate1 + TextWithIndent(FilterConnection.Value, "	");
+		QueryText = QueryTemplate + TextWithIndent(FilterConnection.Value, "	");
 		QueryText = StrReplace(QueryText, "#CurrentDataForFilter", TempTableName);
 		InsertCommonParametersIntoQuery(QueryText, Context);
 		QueriesTextsByKeys.Insert(FilterConnection.Key, QueryText);
 	EndDo;
 	
 	QueriesDetails = New Structure;
-	QueriesDetails.Insert("RefType1",              New ValueStorage(Properties.RefType1));
+	QueriesDetails.Insert("RefType",              New ValueStorage(Properties.RefType));
 	QueriesDetails.Insert("QueryKeysByTypes",   Properties.QueryKeysByTypes);
 	QueriesDetails.Insert("QueriesTextsByKeys", QueriesTextsByKeys);
 	QueriesDetails.Insert("ParametersQueryText", ParametersQueryText);

@@ -823,7 +823,7 @@ Function CheckDocumentsPosting(Val Var_Documents) Export
 	
 	Result = New Array;
 	
-	QueryTemplate1 = 	
+	QueryTemplate = 	
 		"SELECT
 		|	SpecifiedTableAlias.Ref AS Ref
 		|FROM
@@ -854,7 +854,7 @@ Function CheckDocumentsPosting(Val Var_Documents) Export
 		If Not IsBlankString(QueryText) Then
 			QueryText = QueryText + UnionAllText;
 		EndIf;
-		SubqueryText = StrReplace(QueryTemplate1, "&DocumentName", DocumentName);
+		SubqueryText = StrReplace(QueryTemplate, "&DocumentName", DocumentName);
 		QueryText = QueryText + SubqueryText;
 	EndDo;
 		
@@ -1030,7 +1030,7 @@ Function InternalDataLinks(Val UsageInstances, Val RefSearchExclusions = Undefin
 
 		// 
 		If UsageInstance1.Count() > 1 Then
-			QueryTemplate1 = 
+			QueryTemplate = 
 				"SELECT
 				|	References.Data AS Ref,
 				|	References.Ref AS RefToCheck
@@ -1049,7 +1049,7 @@ Function InternalDataLinks(Val UsageInstances, Val RefSearchExclusions = Undefin
 				|WHERE
 				|	&Condition";
 
-			QueryText = StrReplace(QueryTemplate1, "#FullMetadataObjectName", TableName);
+			QueryText = StrReplace(QueryTemplate, "#FullMetadataObjectName", TableName);
 			QueryText = StrReplace(QueryText, "TTRefTable", "TTRefTable" + Format(IndexOf, "NG=;NZ="));
 
 			ParameterName = "References" + Format(IndexOf, "NG=;NZ=");
@@ -1061,7 +1061,7 @@ Function InternalDataLinks(Val UsageInstances, Val RefSearchExclusions = Undefin
 			QueryText = QueryParts[1];
 
 		Else
-			QueryTemplate1 = 
+			QueryTemplate = 
 				"SELECT
 				|	&Ref AS Ref,
 				|	&RefToCheck AS RefToCheck
@@ -1071,7 +1071,7 @@ Function InternalDataLinks(Val UsageInstances, Val RefSearchExclusions = Undefin
 				|	Table.Ref = &Ref
 				|	AND (&Condition)";
 
-			QueryText = StrReplace(QueryTemplate1, "#FullMetadataObjectName", TableName);
+			QueryText = StrReplace(QueryTemplate, "#FullMetadataObjectName", TableName);
 
 			ParameterName = "Ref" + Format(IndexOf, "NG=;NZ=");
 			QueryText = StrReplace(QueryText, "&Ref", "&" + ParameterName);
@@ -1353,7 +1353,7 @@ EndFunction
 //       * Data - Arbitrary - the data that contains the reference to analyze.
 //       * Metadata - MetadataObject - metadata for the found data.
 //       * DataPresentation - String - presentation of the data containing the reference.
-//       * RefType1 - Type - the type of reference to analyze.
+//       * RefType - Type - the type of reference to analyze.
 //       * AuxiliaryData - Boolean - True if the data is used by the reference as
 //           auxiliary data (leading dimension, or covered by the OnAddReferenceSearchExceptions exception).
 //       * IsInternalData - Boolean - the data is covered by the OnAddReferenceSearchExceptions exception
@@ -1372,7 +1372,7 @@ Function UsageInstances(Val RefSet, Val ResultAddress = "", AdditionalParameters
 	// * Метаданные - MetadataObject -
 	
 	UsageInstances.Columns.Add("DataPresentation", New TypeDescription("String"));
-	UsageInstances.Columns.Add("RefType1");
+	UsageInstances.Columns.Add("RefType");
 	UsageInstances.Columns.Add("UsageInstanceInfo");
 	UsageInstances.Columns.Add("AuxiliaryData", New TypeDescription("Boolean"));
 	UsageInstances.Columns.Add("IsInternalData", New TypeDescription("Boolean"));
@@ -1484,7 +1484,7 @@ Function UsageInstances(Val RefSet, Val ResultAddress = "", AdditionalParameters
 		UsageInstance1.DataPresentation = Presentation;
 		UsageInstance1.AuxiliaryData = IsAuxiliaryData;
 		UsageInstance1.IsInternalData = IsInternalData;
-		UsageInstance1.RefType1 = TypeOf(UsageInstance1.Ref);
+		UsageInstance1.RefType = TypeOf(UsageInstance1.Ref);
 	EndDo;
 	
 	If Not IsBlankString(ResultAddress) Then
@@ -2241,17 +2241,17 @@ Function CommonCoreParameters() Export
 						ModuleGetApplicationUpdates.DeletePlatformVersionInformation();
 						
 						MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'Минимальная и рекомендуемая версия платформы ""1С:Предприятие"", полученная с Портала 1С:ИТС, не соответствуют следующим требованиям:
-								| - минимальная версия Портала 1С:ИТС должна быть заполнена;
-								| - минимальная версия Портала 1С:ИТС не должна быть меньше минимальной версии БСП (см. %1);
-								| - минимальная версия Портала 1С:ИТС не должна быть меньше рекомендуемой версии Портала 1С:ИТС.
-								|Минимальная версия Портала 1С:ИТС: %2
-								|Минимальная версия БСП: %3
-								|Рекомендуемая версия Портала 1С:ИТС: %4
+							NStr("en = 'The minimum and recommended 1C:Enterprise platform versions received from the application update service do not meet the following requirements:
+								| - The minimum version must be filled.
+								| - The minimum version cannot be earlier than the minimum SSL version (see %1).
+								| - The minimum version cannot be earlier than the recommended version.
+								|Minimum version of the application update service: %2
+								|Minimum SSL version: %3
+								|Recommended version of the application update service: %4
 								|
-								|Минимальная и рекомендуемая версия платформы ""1С:Предприятие"" установлена по данным см. %5.
-								|Минимальная версия: %6
-								|Рекомендуемая версия: %7';",
+								|The minimum and recommended 1C:Enterprise platform versions are set in %5.
+								|Minimum version: %6
+								|Recommended version: %7';",
 								DefaultLanguageCode()),
 							"Common.MinPlatformVersion",
 							Min,
@@ -2278,7 +2278,7 @@ Function CommonCoreParameters() Export
 			Except
 				
 				MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Не удалось изменить минимальную и рекомендуемую версию платформы ""1С:Предприятие"", полученную с Портала 1С:ИТС, по причине:
+					NStr("en = 'Cannot change the minimum and recommended 1C:Enterprise platform versions received from the application update service. Reason:
 						|%1';",
 						DefaultLanguageCode()),
 					ErrorProcessing.DetailErrorDescription(
@@ -2306,13 +2306,13 @@ Function CommonCoreParameters() Export
 	Min   = CommonParameters.MinPlatformVersion;
 	Recommended = CommonParameters.RecommendedPlatformVersion;
 	If MinimumAndRecommendedVersionOfPlatformIsFilledOutIncorrectly(Min, Recommended) Then
-		MessageText = NStr("en = 'Указанные в %1 минимальная и рекомендуемая версии платформы не соответствуют следующим требованиям:
-			| - минимальная версия должна быть заполнена;
-			| - минимальная версия не должна быть меньше минимальной версии БСП (см. %2);
-			| - минимальная версия не должна быть меньше рекомендуемой версии.
-			|Минимальная версия: %3
-			|Минимальная версия БСП: %4
-			|Рекомендуемая версия: %5';",
+		MessageText = NStr("en = 'The minimum and recommended platform versions specified in %1 do not meet the following requirements:
+			| - The minimum version must be filled.
+			| - The minimum version cannot be earlier than the minimum SSL version (see %2).
+			| - The minimum version cannot be earlier than the recommended version.
+			|Minimum version: %3
+			|Minimum SSL version: %4
+			|Recommended version: %5';",
 			DefaultLanguageCode());
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			MessageText,
@@ -4039,33 +4039,33 @@ EndFunction
 Function ObjectManagerByRef(Ref) Export
 	
 	ObjectName = Ref.Metadata().Name;
-	RefType1 = TypeOf(Ref);
+	RefType = TypeOf(Ref);
 	
-	If Catalogs.AllRefsType().ContainsType(RefType1) Then
+	If Catalogs.AllRefsType().ContainsType(RefType) Then
 		Return Catalogs[ObjectName];
 		
-	ElsIf Documents.AllRefsType().ContainsType(RefType1) Then
+	ElsIf Documents.AllRefsType().ContainsType(RefType) Then
 		Return Documents[ObjectName];
 		
-	ElsIf BusinessProcesses.AllRefsType().ContainsType(RefType1) Then
+	ElsIf BusinessProcesses.AllRefsType().ContainsType(RefType) Then
 		Return BusinessProcesses[ObjectName];
 		
-	ElsIf ChartsOfCharacteristicTypes.AllRefsType().ContainsType(RefType1) Then
+	ElsIf ChartsOfCharacteristicTypes.AllRefsType().ContainsType(RefType) Then
 		Return ChartsOfCharacteristicTypes[ObjectName];
 		
-	ElsIf ChartsOfAccounts.AllRefsType().ContainsType(RefType1) Then
+	ElsIf ChartsOfAccounts.AllRefsType().ContainsType(RefType) Then
 		Return ChartsOfAccounts[ObjectName];
 		
-	ElsIf ChartsOfCalculationTypes.AllRefsType().ContainsType(RefType1) Then
+	ElsIf ChartsOfCalculationTypes.AllRefsType().ContainsType(RefType) Then
 		Return ChartsOfCalculationTypes[ObjectName];
 		
-	ElsIf Tasks.AllRefsType().ContainsType(RefType1) Then
+	ElsIf Tasks.AllRefsType().ContainsType(RefType) Then
 		Return Tasks[ObjectName];
 		
-	ElsIf ExchangePlans.AllRefsType().ContainsType(RefType1) Then
+	ElsIf ExchangePlans.AllRefsType().ContainsType(RefType) Then
 		Return ExchangePlans[ObjectName];
 		
-	ElsIf Enums.AllRefsType().ContainsType(RefType1) Then
+	ElsIf Enums.AllRefsType().ContainsType(RefType) Then
 		Return Enums[ObjectName];
 	Else
 		Return Undefined;
@@ -4547,6 +4547,9 @@ Function TypePresentationString(Type) Export
 		
 		ElsIf BusinessProcesses.AllRefsType().ContainsType(Type) Then
 			Presentation = "BusinessProcessRef";
+		
+		ElsIf BusinessProcesses.RoutePointsAllRefsType().ContainsType(Type) Then
+			Presentation = "BusinessProcessRoutePointRef";
 		
 		ElsIf ChartsOfCharacteristicTypes.AllRefsType().ContainsType(Type) Then
 			Presentation = "ChartOfCharacteristicTypesRef";
@@ -6010,8 +6013,8 @@ Procedure ExecuteInSafeMode(Val Algorithm, Val Parameters = Undefined) Export
 	SetSafeMode(True);
 	
 	If SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = CommonModule("SaaSOperations");
-		SeparatorArray = ModuleSaaS.ConfigurationSeparators();
+		ModuleSaaSOperations = CommonModule("SaaSOperations");
+		SeparatorArray = ModuleSaaSOperations.ConfigurationSeparators();
 	Else
 		SeparatorArray = New Array;
 	EndIf;
@@ -6055,8 +6058,8 @@ Function CalculateInSafeMode(Val Expression, Val Parameters = Undefined) Export
 	SetSafeMode(True);
 	
 	If SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = CommonModule("SaaSOperations");
-		SeparatorArray = ModuleSaaS.ConfigurationSeparators();
+		ModuleSaaSOperations = CommonModule("SaaSOperations");
+		SeparatorArray = ModuleSaaSOperations.ConfigurationSeparators();
 	Else
 		SeparatorArray = New Array;
 	EndIf;
@@ -6374,7 +6377,7 @@ EndProcedure
 //          
 //          
 //          
-//          See https://its.1c.ru/db/v83doc#bookmark:dev:TI000001866
+//          See https://its.1c.eu/db/v83doc#bookmark:dev:TI000001866
 //
 //
 // Returns:
@@ -6430,8 +6433,8 @@ Function SessionSeparatorUsage() Export
 	EndIf;
 	
 	If SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = CommonModule("SaaSOperations");
-		Return ModuleSaaS.SessionSeparatorUsage();
+		ModuleSaaSOperations = CommonModule("SaaSOperations");
+		Return ModuleSaaSOperations.SessionSeparatorUsage();
 	EndIf;
 	
 EndFunction
@@ -6757,6 +6760,61 @@ Procedure ShortenFileName(FileName) Export
 	ShortenedString = TrimStringUsingChecksum(BaseName, NumberOfCharsUsed+32);
 	
 	FileName = ShortenedString+File.Extension;
+	
+EndProcedure
+
+// 
+// 
+//
+// 
+// 
+// 
+// 
+//
+// 
+// 
+// 
+// 
+// 
+// 
+//   
+//
+// 
+// 
+// 
+//
+// 
+// 
+// 
+//
+// Parameters:
+//  Object - ExchangePlanObject
+//         - ConstantValueManager
+//         - CatalogObject
+//         - DocumentObject
+//         - SequenceRecordSet
+//         - ChartOfCharacteristicTypesObject
+//         - ChartOfAccountsObject
+//         - ChartOfCalculationTypesObject
+//         - BusinessProcessObject
+//         - TaskObject
+//         - ObjectDeletion
+//         - InformationRegisterRecordSet
+//         - AccumulationRegisterRecordSet
+//         - AccountingRegisterRecordSet
+//         - CalculationRegisterRecordSet
+//         - RecalculationRecordSet
+//
+// ThisIsExchangePlanNode - Boolean
+//
+Procedure DisableRecordingControl(Object, ThisIsExchangePlanNode = False) Export
+	
+	Object.AdditionalProperties.Insert("DontControlObjectsToDelete");
+	Object.AdditionalProperties.Insert("DisableObjectChangeRecordMechanism");
+	Object.DataExchange.Load = True;
+	If Not ThisIsExchangePlanNode Then
+		Object.DataExchange.Recipients.AutoFill = False;
+	EndIf;
 	
 EndProcedure
 
@@ -7779,7 +7837,7 @@ Procedure LockUsageInstance(ExecutionParameters, Block, UsageInstance1)
 		Or UsageInstance1.ReplacementKey = "InformationRegister" Then
 		
 		Information = TypeInformation(UsageInstance1.Metadata, ExecutionParameters);
-		DuplicateType = UsageInstance1.RefType1;
+		DuplicateType = UsageInstance1.RefType;
 		OriginalType = TypeOf(UsageInstance1.DestinationRef);
 		
 		For Each KeyValue In Information.Dimensions Do
@@ -8385,7 +8443,7 @@ Procedure RegisterErrorInTable(Result, Duplicate1, Original, Data, Information, 
 		NewTemplate = NStr("en = 'Cannot clear duplicate''s details in %1: %2';");
 		Error.ErrorType = "WritingError";
 	ElsIf ErrorType = "WriteOriginalSet" Then
-		NewTemplate = NStr("en = 'Cannot update additional data in %1: %2';");
+		NewTemplate = NStr("en = 'Cannot update information in %1: %2';");
 		Error.ErrorType = "WritingError";
 	Else
 		NewTemplate = ErrorType + " (%1): %2";
@@ -8491,9 +8549,9 @@ Function TypeInformation(FullNameOrMetadataOrType, Cache)
 			If Cache.SaaSModel Then
 				
 				If SubsystemExists("CloudTechnology.Core") Then
-					ModuleSaaS = CommonModule("SaaSOperations");
-					MainDataSeparator = ModuleSaaS.MainDataSeparator();
-					AuxiliaryDataSeparator = ModuleSaaS.AuxiliaryDataSeparator();
+					ModuleSaaSOperations = CommonModule("SaaSOperations");
+					MainDataSeparator = ModuleSaaSOperations.MainDataSeparator();
+					AuxiliaryDataSeparator = ModuleSaaSOperations.AuxiliaryDataSeparator();
 				Else
 					MainDataSeparator = Undefined;
 					AuxiliaryDataSeparator = Undefined;
@@ -8506,8 +8564,8 @@ Function TypeInformation(FullNameOrMetadataOrType, Cache)
 		EndIf;
 		If Cache.SaaSModel Then
 			If SubsystemExists("CloudTechnology.Core") Then
-				ModuleSaaS = CommonModule("SaaSOperations");
-				IsSeparatedMetadataObject = ModuleSaaS.IsSeparatedMetadataObject(MetadataObject);
+				ModuleSaaSOperations = CommonModule("SaaSOperations");
+				IsSeparatedMetadataObject = ModuleSaaSOperations.IsSeparatedMetadataObject(MetadataObject);
 			Else
 				IsSeparatedMetadataObject = True;
 			EndIf;
@@ -8775,7 +8833,7 @@ Function RecordSetDimensionsDetails(Val RegisterMetadata, RegisterDimensionCache
 		ElsIf MetaPeriod = Periodicity.Day Then
 			DimensionData.Type           = New TypeDescription("Date");
 			DimensionData.Presentation = NStr("en = 'Period';");
-			DimensionData.Format        = NStr("en = 'DLF=D; DE=''No date set''';");
+			DimensionData.Format        = NStr("en = 'DLF=D; DE=''No date''';");
 			DimensionsDetails.Insert("Period", DimensionData);
 			
 		ElsIf MetaPeriod = Periodicity.Quarter Then
@@ -8793,7 +8851,7 @@ Function RecordSetDimensionsDetails(Val RegisterMetadata, RegisterDimensionCache
 		ElsIf MetaPeriod = Periodicity.Second Then
 			DimensionData.Type           = New TypeDescription("Date");
 			DimensionData.Presentation = NStr("en = 'Period';");
-			DimensionData.Format        = NStr("en = 'DLF=DT; DE=''No Date''';");
+			DimensionData.Format        = NStr("en = 'DLF=DT; DE=''No date''';");
 			DimensionsDetails.Insert("Period", DimensionData);
 			
 		EndIf;
@@ -9907,18 +9965,16 @@ Procedure ClarifyPlatformVersion(CommonParameters)
 	SystemInfo = New SystemInfo;
 	NewBuild = NewBuild(SystemInfo.AppVersion);
 	If Not ValueIsFilled(NewBuild) Then
-		NewBuild = NewBuild(CommonParameters.MinPlatformVersion);
-		If ValueIsFilled(NewBuild)
-		   And Users.IsFullUser(, True, False) Then
-			CommonParameters.MinPlatformVersion = NewBuild;
-			CommonParameters.MinPlatformVersion1 = NewBuild;
-			If CommonClientServer.CompareVersions(CommonParameters.RecommendedPlatformVersion, NewBuild) < 0 Then
-				CommonParameters.RecommendedPlatformVersion = NewBuild;
+		NewRecommendedBuild = NewBuild(CommonParameters.MinPlatformVersion);
+		If ValueIsFilled(NewRecommendedBuild) Then
+			MinimalAssembly = BuildNumberForTheCurrentPlatformVersion(MinPlatformVersion());
+			CommonParameters.MinPlatformVersion = MinimalAssembly;
+			CommonParameters.MinPlatformVersion1 = MinimalAssembly;
+			If CommonClientServer.CompareVersions(CommonParameters.RecommendedPlatformVersion, NewRecommendedBuild) < 0 Then
+				CommonParameters.RecommendedPlatformVersion = NewRecommendedBuild;
 			EndIf;
 		EndIf;
-	EndIf;
-	
-	If CommonClientServer.CompareVersions(CommonParameters.MinPlatformVersion, NewBuild) < 0 Then
+	ElsIf CommonClientServer.CompareVersions(CommonParameters.MinPlatformVersion, NewBuild) < 0 Then
 		CommonParameters.RecommendedPlatformVersion = NewBuild;
 		CommonParameters.MinPlatformVersion = NewBuild;
 		CommonParameters.MinPlatformVersion1 = NewBuild;

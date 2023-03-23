@@ -569,21 +569,20 @@ Procedure ProcessingNavigationLinkOpeningSettingsES(Item, FormattedStringURL, St
 	
 	StandardProcessing = False;
 	
+	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
+	
 	If FormattedStringURL = "Programs" Then
-		ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
 		ModuleDigitalSignatureClient.OpenDigitalSignatureAndEncryptionSettings("Programs");
 	ElsIf FormattedStringURL = "CheckCryptographyAppsInstallation" Then
-		ModuleDigitalSignatureInternalClient = CommonClient.CommonModule("DigitalSignatureInternalClient");
 		
 		CheckParameters = New Structure;
 		CheckParameters.Insert("ShouldInstallExtension", True);
 		CheckParameters.Insert("SetComponent", True);
 		CheckParameters.Insert("ShouldPromptToInstallApp", True);
-		ModuleDigitalSignatureInternalClient.CheckCryptographyAppsInstallation(ThisObject, CheckParameters,
+		ModuleDigitalSignatureClient.CheckCryptographyAppsInstallation(ThisObject, CheckParameters,
 			New NotifyDescription("AfterCryptographyAppsChecked", ThisObject));
 		
 	Else
-		ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
 		ModuleDigitalSignatureClient.OpenDigitalSignatureAndEncryptionSettings("Certificates");
 	EndIf;
 	
@@ -592,7 +591,7 @@ EndProcedure
 &AtClient
 Function AddressOfArticleAboutDSSService()
 	
-	Return "https://its.1c.ru/db/translate?db=bspdoc&path=src/5.66 электронная signature сервиса dss.htm&anchor=issogl2_Requirement_To_Digital_Signature_CryptoPro_DSS";
+	Return "https://its.1c.ru/bmk/bsp_dss_reqs";
 	
 EndFunction
 
@@ -740,8 +739,7 @@ Procedure SetVisibilityAtClient(ConstantName)
 				CheckParameters.Insert("SetComponent", False);
 				CheckParameters.Insert("ShouldPromptToInstallApp", False);
 				
-				ModuleDigitalSignatureInternalClient = CommonClient.CommonModule("DigitalSignatureInternalClient");
-				ModuleDigitalSignatureInternalClient.CheckCryptographyAppsInstallation(ThisObject, CheckParameters,
+				ModuleDigitalSignatureClient.CheckCryptographyAppsInstallation(ThisObject, CheckParameters,
 					New NotifyDescription("AfterCryptographyAppsChecked", ThisObject));
 			Else
 				Items.GroupCryptoProvidersHint.Visible = False;

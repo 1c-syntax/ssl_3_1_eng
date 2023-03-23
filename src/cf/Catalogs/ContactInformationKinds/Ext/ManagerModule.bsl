@@ -247,7 +247,7 @@ EndProcedure
 //  Object                  - CatalogObject.ContactInformationKinds - the object to be filled in.
 //  Data                  - ValueTableRow - object filling data.
 //  AdditionalParameters - Structure:
-//   * PredefinedData - ValueTable - data filled in the OnInitialItemsFilling procedure.
+//   * PredefinedData - ValueTable - Data filled in the OnInitialItemsFilling procedure.
 //
 Procedure OnInitialItemFilling(Object, Data, AdditionalParameters) Export
 	

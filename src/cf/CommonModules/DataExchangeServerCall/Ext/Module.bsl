@@ -307,16 +307,16 @@ Function CheckTheNeedForADeferredNodeEntry(Val ObjectNode) Export
 	If Common.DataSeparationEnabled() Then
 		FullMetadataName = ObjectNode.Ref.Metadata().FullName();
 		
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		
-		MainDataSeparator        = ModuleSaaS.MainDataSeparator();
-		AuxiliaryDataSeparator = ModuleSaaS.AuxiliaryDataSeparator();
+		MainDataSeparator        = ModuleSaaSOperations.MainDataSeparator();
+		AuxiliaryDataSeparator = ModuleSaaSOperations.AuxiliaryDataSeparator();
 		
-		If ModuleSaaS.IsSeparatedMetadataObject(FullMetadataName, MainDataSeparator) Then
+		If ModuleSaaSOperations.IsSeparatedMetadataObject(FullMetadataName, MainDataSeparator) Then
 			PropertiesToExclude.Add(MainDataSeparator);
 		EndIf;
 		
-		If ModuleSaaS.IsSeparatedMetadataObject(FullMetadataName, AuxiliaryDataSeparator) Then
+		If ModuleSaaSOperations.IsSeparatedMetadataObject(FullMetadataName, AuxiliaryDataSeparator) Then
 			PropertiesToExclude.Add(AuxiliaryDataSeparator);
 		EndIf;
 		

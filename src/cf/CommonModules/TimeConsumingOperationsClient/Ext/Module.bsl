@@ -53,9 +53,6 @@ Procedure WaitCompletion(Val TimeConsumingOperation, Val CompletionNotification2
 	If TimeConsumingOperation.Property("AdditionalResultAddress") Then
 		AdvancedOptions_.Insert("AdditionalResultAddress", TimeConsumingOperation.AdditionalResultAddress);
 	EndIf;
-	If TimeConsumingOperation.Property("MultiThreadOperation") Then
-		AdvancedOptions_.Insert("MultiThreadOperation", TimeConsumingOperation.MultiThreadOperation);
-	EndIf;
 	AdvancedOptions_.Insert("JobID", TimeConsumingOperation.JobID);
 	
 	If TimeConsumingOperation.Status <> "Running" Then
@@ -159,7 +156,6 @@ Function IdleParameters(OwnerForm1) Export
 	Result.Insert("MessageText", "");
 	Result.Insert("Title", ""); 
 	Result.Insert("AttemptNumber", 1);
-	Result.Insert("MultiThreadOperation", False);
 	Result.Insert("OutputIdleWindow", True);
 	Result.Insert("OutputProgressBar", False);
 	Result.Insert("ExecutionProgressNotification", Undefined);
@@ -495,14 +491,6 @@ EndProcedure
 //  Result - See TimeConsumingOperations.OperationNewRuntimeResult
 //
 Function ProcessActiveOperationResult(TimeConsumingOperation, Result)
-	
-	If Result.Status = "Error"
-		And TimeConsumingOperation.MultiThreadOperation
-		And TimeConsumingOperation.AttemptNumber <=3 Then
-			TimeConsumingOperation.AttemptNumber = TimeConsumingOperation.AttemptNumber + 1;
-			TimeConsumingOperation.Control = CurrentDate() + 60; // 
-			Return False;
-	EndIf;
 	
 	If Result.Status <> "Canceled" Then
 		If TimeConsumingOperation.ExecutionProgressNotification <> Undefined Then

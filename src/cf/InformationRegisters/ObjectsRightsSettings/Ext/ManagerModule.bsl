@@ -858,22 +858,22 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined) Ex
 			OwnerRights = OwnerRights();
 			OwnerRightsArray = New Array;
 			
-			RefType1 = StandardSubsystemsServer.MetadataObjectReferenceOrMetadataObjectRecordKeyType(
+			RefType = StandardSubsystemsServer.MetadataObjectReferenceOrMetadataObjectRecordKeyType(
 				OwnerMetadataObject);
 			
 			ObjectType = StandardSubsystemsServer.MetadataObjectOrMetadataObjectRecordSetType(
 				OwnerMetadataObject);
 			
-			If TypeOfRightsOwnersToDefine.Get(RefType1) = Undefined Then
+			If TypeOfRightsOwnersToDefine.Get(RefType) = Undefined Then
 				ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'The rights owner type ""%1""
 					           |is missing from the flexible type collection ""%2"".';"),
-					String(RefType1),
+					String(RefType),
 					"RightsSettingsOwner");
 				Raise ErrorText;
 			EndIf;
 			
-			If TypeOfAccessValuesToDefine.Get(RefType1) = Undefined Then
+			If TypeOfAccessValuesToDefine.Get(RefType) = Undefined Then
 				If SubscriptionTypesWriteAccessValuesSets = Undefined Then
 					SubscriptionTypesWriteAccessValuesSets = AccessManagementInternalCached.ObjectsTypesInSubscriptionsToEvents(
 						"WriteAccessValuesSets");
@@ -892,7 +892,7 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined) Ex
 						           |- %4
 						           |Specify a type in defined type ""%5""
 						           |for correct filling of register ""%6"".';"),
-						String(RefType1),
+						String(RefType),
 						"AccessValue",
 						"WriteDependentAccessValuesSets" + "*",
 						"WriteAccessValuesSets" + "*",
@@ -902,23 +902,23 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined) Ex
 				EndIf;
 			EndIf;
 			
-			AccessKindProperties = AccessKindsProperties.ByValuesTypes.Get(RefType1); // See AccessManagementInternal.AccessKindProperties
+			AccessKindProperties = AccessKindsProperties.ByValuesTypes.Get(RefType); // See AccessManagementInternal.AccessKindProperties
 			If AccessKindProperties <> Undefined Then
 				ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = '""%1"" rights owner type
 					           |cannot be used as an access value type
 					           |but it is detected in description of access kind ""%2"".';"),
-					String(RefType1),
+					String(RefType),
 					AccessKindProperties.Name);
 				Raise ErrorText;
 			EndIf;
 			
-			If AccessKindsProperties.ByGroupsAndValuesTypes.Get(RefType1) <> Undefined Then
+			If AccessKindsProperties.ByGroupsAndValuesTypes.Get(RefType) <> Undefined Then
 				ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = '""%1"" rights owner type
 					           |cannot be used as a type of access value groups but 
 					           |it is detected in description of access kind ""%2"".';"),
-					String(RefType1),
+					String(RefType),
 					AccessKindProperties.Name);
 				Raise ErrorText;
 			EndIf;
@@ -932,11 +932,11 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined) Ex
 			EndIf;
 			
 			ByFullNames.Insert(AvailableRight.RightsOwner, OwnerRights);
-			ByRefsTypes.Insert(RefType1,  OwnerRightsArray);
-			ByTypes.Insert(RefType1,  OwnerRights);
+			ByRefsTypes.Insert(RefType,  OwnerRightsArray);
+			ByTypes.Insert(RefType,  OwnerRights);
 			ByTypes.Insert(ObjectType, OwnerRights);
 			If HierarchicalMetadataObject(OwnerMetadataObject) Then
-				HierarchicalTables.Insert(RefType1,  True);
+				HierarchicalTables.Insert(RefType,  True);
 				HierarchicalTables.Insert(ObjectType, True);
 			EndIf;
 			

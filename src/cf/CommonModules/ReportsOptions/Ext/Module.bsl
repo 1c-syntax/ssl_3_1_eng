@@ -615,12 +615,13 @@ Procedure ResetCustomSettings(Var_Key, SettingsTypes1 = Undefined) Export
 		Var_Key,
 		New TypeDescription("String, MetadataObject, CatalogRef.ReportsOptions"));
 	
-	OptionsKeys = New Array; // 
+	ObjectKeys = New Array; // 
 	
 	// The list of keys can be filled from the query or you can pass one specific key from the outside.
 	Query = New Query(
 	"SELECT
 	|	&ReportName AS ReportName,
+	|	&IsExternalReport AS IsExternalReport,
 	|	ReportsOptions.VariantKey
 	|FROM
 	|	Catalog.ReportsOptions AS ReportsOptions
@@ -635,6 +636,8 @@ Procedure ResetCustomSettings(Var_Key, SettingsTypes1 = Undefined) Export
 	|		ELSE CAST(ReportsOptions.Report AS STRING(150))
 	|	END";
 	
+	IsExternalReport = "False";
+	
 	If Common.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then 
 		ModuleAdditionalReportsAndDataProcessors = Common.CommonModule("AdditionalReportsAndDataProcessors");
 		AdditionalReportTableName = ModuleAdditionalReportsAndDataProcessors.AdditionalReportTableName();
@@ -648,9 +651,17 @@ Procedure ResetCustomSettings(Var_Key, SettingsTypes1 = Undefined) Export
 			|			THEN CAST(ReportsOptions.Report AS %1).ObjectName
 			|		ELSE CAST(ReportsOptions.Report AS STRING(150))
 			|	END", AdditionalReportTableName);
+			
+		IsExternalReport = StringFunctionsClientServer.SubstituteParametersToString("CASE
+			|		WHEN VALUETYPE(ReportsOptions.Report) = TYPE(%1)
+			|			THEN TRUE
+			|		ELSE FALSE
+			|	END", AdditionalReportTableName);
+	
 	EndIf;
 	
 	Query.Text = StrReplace(Query.Text, "&ReportName", ReportName);
+	Query.Text = StrReplace(Query.Text, "&IsExternalReport", IsExternalReport);
 	
 	If Var_Key = "*" Then
 		Query.Text = StrReplace(Query.Text, "&Condition", "ReportType = VALUE(Enum.ReportsTypes.BuiltIn)");
@@ -667,7 +678,9 @@ Procedure ResetCustomSettings(Var_Key, SettingsTypes1 = Undefined) Export
 		
 	ElsIf TypeOf(Var_Key) = Type("String") Then
 		
-		OptionsKeys.Add(Var_Key);
+		ObjectKey = "Report." + Var_Key + "/CurrentUserSettings";
+		ObjectKeys.Add(ObjectKey);
+		
 	Else
 		Raise NStr("en = 'Invalid type of Report parameter';");
 	EndIf;
@@ -676,7 +689,9 @@ Procedure ResetCustomSettings(Var_Key, SettingsTypes1 = Undefined) Export
 		Selection = Query.Execute().Select();
 		
 		While Selection.Next() Do
-			OptionsKeys.Add(Selection.ReportName +"/"+ Selection.VariantKey);
+			ReportKind = ?(Selection.IsExternalReport, "ExternalReport.", "Report.");
+			ObjectKey = ReportKind + Selection.ReportName +"/"+ Selection.VariantKey + "/CurrentUserSettings";
+			ObjectKeys.Add(ObjectKey);
 		EndDo;
 	EndIf;
 	
@@ -690,8 +705,7 @@ Procedure ResetCustomSettings(Var_Key, SettingsTypes1 = Undefined) Export
 	
 	SetPrivilegedMode(True);
 	
-	For Each OptionFullName In OptionsKeys Do
-		ObjectKey = "Report." + OptionFullName + "/CurrentUserSettings";
+	For Each ObjectKey In ObjectKeys Do
 		StorageSelection = SystemSettingsStorage.Select(New Structure("ObjectKey", ObjectKey));
 		
 		SuccessiveReadingErrors = 0;
@@ -835,9 +849,9 @@ Procedure MoveUsersOptionsFromStandardStorage(ReportsNames = "") Export
 			If Not ValueIsFilled(User) Then
 				Continue;
 			EndIf;
-			UserID1 = User.IBUserID;
+			UserIdentificator = User.IBUserID;
 		Else
-			UserID1 = IBUser.UUID;
+			UserIdentificator = IBUser.UUID;
 		EndIf;
 		
 		TableRow = VariantsTable.Add();
@@ -846,7 +860,7 @@ Procedure MoveUsersOptionsFromStandardStorage(ReportsNames = "") Export
 		TableRow.Author     = StorageSelection.User;
 		TableRow.Setting = New ValueStorage(StorageSelection.Settings, New Deflation(9));
 		TableRow.VariantPresentation = StorageSelection.Presentation;
-		TableRow.AuthorID   = UserID1;
+		TableRow.AuthorID   = UserIdentificator;
 		If ReportMetadata = Undefined Then
 			TableRow.ReportPresentation = StorageSelection.ObjectKey;
 		Else
@@ -1035,7 +1049,7 @@ EndProcedure
 //       * VariantKey - String           - Predefined report option name or a user report option ID.
 //       * SchemaURL   - String           - Address in the temporary storage where the report schema is placed.
 //       * Success        - Boolean           - True if the report is attached.
-//       * ErrorText  - String           - Error text
+//       * ErrorText  - String           - Error text.
 //
 // Usage locations:
 //   ReportMailing.InitializeReport().
@@ -1221,7 +1235,7 @@ EndFunction
 // Parameters:
 //  CurrentObject - CatalogObject.AdditionalReportsAndDataProcessors - Object of the additional report storage. 
 //  Cancel - Boolean - indicates whether handler execution is canceled.
-//  ExternalObject - ExternalReport - indicates whether handler execution is canceled.
+//  ExternalObject - ExternalReport - Indicates whether handler execution is canceled.
 //  
 // Usage locations:
 //   Catalog.AdditionalReportsAndDataProcessors.OnWriteGlobalReport().
@@ -2144,9 +2158,9 @@ Function PredefinedReportsOptions(ReportsType = "BuiltIn", ConnectedToTheStorage
 					SettingVariants = DCSchema.SettingVariants;
 				Except
 					If Common.DataSeparationEnabled() Then
-						ErrorTextTemplate = NStr("en = 'Cannot read the %1 report option list in a separated session,
-							|as the settings include links to separated predefined objects.
-							|For more information, see ITS: https://its.1c.ru/bmk/bsp_reports_service_model
+						ErrorTextTemplate = NStr("en = 'Не удалось прочитать список вариантов отчета %1 в неразделенном сеансе,
+							|так как его настройки содержат ссылки на разделенные предопределенные значения.
+							|См. подробнее на ИТС: https://its.1c.eu/bmk/bsp_reports_service_mode
 							|%2';");
 						
 						ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -2737,7 +2751,7 @@ EndFunction
 //       * Metadata  - MetadataObject - Report metadata object.
 //       * Ref      - Arbitrary     - Report reference.
 //       * Success       - Boolean           - True if the report is attached.
-//       * ErrorText - String           - Error text
+//       * ErrorText - String           - Error text.
 //
 // Usage locations:
 //   ReportMailing.InitializeReport().
@@ -2878,8 +2892,8 @@ Function SectionsList() Export
 	ReportsOptionsOverridable.DefineSectionsWithReportOptions(SectionsList);
 	
 	If Common.SubsystemExists("StandardSubsystems.ApplicationSettings") Then
-		TheModuleAdministrationPanelBSP = Common.CommonModule("DataProcessors.SSLAdministrationPanel");
-		TheModuleAdministrationPanelBSP.OnDefineSectionsWithReportOptions(SectionsList);
+		ModuleAdministrationPanelSSL = Common.CommonModule("DataProcessors.SSLAdministrationPanel");
+		ModuleAdministrationPanelSSL.OnDefineSectionsWithReportOptions(SectionsList);
 	EndIf;
 	
 	Return SectionsList;
@@ -3395,11 +3409,11 @@ EndProcedure
 // [*] Updates cache of configuration metadata: the PredefinedReportOptions catalog
 //     and report option parameters in the register.
 //
-Procedure ConfigurationCommonDataNonexclusiveUpdate(UpdateParameters1) Export
+Procedure ConfigurationCommonDataNonexclusiveUpdate(ParametersOfUpdate) Export
 	
 	Mode = "ConfigurationCommonData";
 	StartPresentationsFilling(Mode, True);
-	CommonDataNonexclusiveUpdate(Mode, UpdateParameters1.SeparatedHandlers);
+	CommonDataNonexclusiveUpdate(Mode, ParametersOfUpdate.SeparatedHandlers);
 	
 	SchedulePresentationsFilling();
 	
@@ -3475,7 +3489,7 @@ Procedure UpdateUserReportOptionsSearchIndex(Parameters = Undefined) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Updating an infobase / Initial filling and update of catalogs.
+// Infobase update / Initial population and update of catalogs.
 
 // Updates cache of configuration metadata/applied extensions.
 Function CommonDataNonexclusiveUpdate(Mode, SeparatedHandlers)
@@ -4675,11 +4689,11 @@ Procedure FillPredefinedReportsOptionsPresentations(Languages, CurrentLanguageIn
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
-	UpdateParameters1 = SettingsUpdateParameters();
-	UpdateParameters1.Deferred2 = True;
-	UpdateParameters1.FillPresentations1 = False;
+	ParametersOfUpdate = SettingsUpdateParameters();
+	ParametersOfUpdate.Deferred2 = True;
+	ParametersOfUpdate.FillPresentations1 = False;
 	
-	Refresh(UpdateParameters1);
+	Refresh(ParametersOfUpdate);
 	
 	If CurrentLanguageIndex < Languages.UBound() Then
 		
@@ -5103,29 +5117,29 @@ EndFunction
 
 // The function converts a report type into a string ID.
 Function ReportType(ReportRef) Export
-	RefType1 = TypeOf(ReportRef);
-	If RefType1 = Type("CatalogRef.MetadataObjectIDs") Then
+	RefType = TypeOf(ReportRef);
+	If RefType = Type("CatalogRef.MetadataObjectIDs") Then
 		Return Enums.ReportsTypes.BuiltIn;
-	ElsIf RefType1 = Type("CatalogRef.ExtensionObjectIDs") Then
+	ElsIf RefType = Type("CatalogRef.ExtensionObjectIDs") Then
 		Return Enums.ReportsTypes.Extension;
-	ElsIf RefType1 = Type("String") Then
+	ElsIf RefType = Type("String") Then
 		Return Enums.ReportsTypes.External;
-	ElsIf RefType1 = AdditionalReportRefType() Then
+	ElsIf RefType = AdditionalReportRefType() Then
 		Return Enums.ReportsTypes.Additional;
 	EndIf;
 	Return Enums.ReportsTypes.EmptyRef();
 EndFunction
 
 Function ReportByStringType(ReportRef) Export
-	RefType1 = TypeOf(ReportRef);
+	RefType = TypeOf(ReportRef);
 	
-	If RefType1 = Type("CatalogRef.MetadataObjectIDs") Then
+	If RefType = Type("CatalogRef.MetadataObjectIDs") Then
 		Return "BuiltIn";
-	ElsIf RefType1 = Type("CatalogRef.ExtensionObjectIDs") Then
+	ElsIf RefType = Type("CatalogRef.ExtensionObjectIDs") Then
 		Return "Extension";
-	ElsIf RefType1 = Type("String") Then
+	ElsIf RefType = Type("String") Then
 		Return "External";
-	ElsIf RefType1 = AdditionalReportRefType() Then
+	ElsIf RefType = AdditionalReportRefType() Then
 		Return "Additional";
 	EndIf;
 	
@@ -6777,8 +6791,7 @@ Function ReportsWithSimpleFiltersQueryText()
 		|		OR ReportsOptions.Author = &CurrentUser)
 		|	AND ISNULL(AvailableReportsOptions.Visible, TRUE)
 		|	AND (&HasFilterByContext
-		|			AND (UserReportOptions.Ref IS NULL
-		|			OR NOT UserReportOptions.Ref IS NULL
+		|			AND (NOT UserReportOptions.Ref IS NULL
 		|				AND ReportsOptions.Context = &Context)
 		|		OR NOT &HasFilterByContext)";
 	
@@ -6877,8 +6890,7 @@ Function ReportsWithSimpleFiltersQueryText()
 		|		OR ReportsOptions.Author = &CurrentUser)
 		|	AND ISNULL(AvailableReportsOptions.Visible, TRUE)
 		|	AND (&HasFilterByContext
-		|			AND (UserReportOptions.Ref IS NULL
-		|			OR NOT UserReportOptions.Ref IS NULL
+		|			AND (NOT UserReportOptions.Ref IS NULL
 		|				AND ReportsOptions.Context = &Context)
 		|		OR NOT &HasFilterByContext)";
 			

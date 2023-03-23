@@ -401,8 +401,8 @@ Procedure OnUpdateUserSettingSetAtServer(StandardProcessing)
 		RestoreTheStateOfTheOutputSettingsHeadersOption(SettingsKey, OutputSettingsTitles, DetailsMode);
 	EndIf;
 	
-	UpdateParameters1 = New Structure("EventName", "OnUpdateUserSettingSetAtServer");
- 	UpdateSettingsFormItemsAtServer(UpdateParameters1);
+	ParametersOfUpdate = New Structure("EventName", "OnUpdateUserSettingSetAtServer");
+ 	UpdateSettingsFormItemsAtServer(ParametersOfUpdate);
 EndProcedure
 
 &AtServer
@@ -530,10 +530,10 @@ Procedure Attachable_SettingItem_OnChange(Item)
 		ParametersChanged = True;
 		ParametersForm.Insert("ResetSettings", False); 
 		
-		UpdateParameters1 = New Structure;
-		UpdateParameters1.Insert("DCSettingsComposer", SettingsComposer);
-		UpdateParameters1.Insert("UserSettingsModified", True);
-		UpdateSettingsFormItems(UpdateParameters1);
+		ParametersOfUpdate = New Structure;
+		ParametersOfUpdate.Insert("DCSettingsComposer", SettingsComposer);
+		ParametersOfUpdate.Insert("UserSettingsModified", True);
+		UpdateSettingsFormItems(ParametersOfUpdate);
 		
 	EndIf;
 	
@@ -1306,10 +1306,10 @@ Procedure DefineTheBehaviorOnTheHomePage()
 EndProcedure
 
 &AtClient
-Procedure UpdateSettingsFormItems(UpdateParameters1)
-	UpdateSettingsFormItemsAtServer(UpdateParameters1);
+Procedure UpdateSettingsFormItems(ParametersOfUpdate)
+	UpdateSettingsFormItemsAtServer(ParametersOfUpdate);
 	
-	If CommonClientServer.StructureProperty(UpdateParameters1, "Regenerate", False) Then
+	If CommonClientServer.StructureProperty(ParametersOfUpdate, "Regenerate", False) Then
 		ClearMessages();
 		Generate();
 	EndIf;
@@ -2678,7 +2678,7 @@ Function UniversalSearchCondition(SearchValue, ControlCharacters)
 		
 	ElsIf ControlCharacters = "<=" Then 
 		
-		Condition = DataCompositionComparisonType.Less;
+		Condition = DataCompositionComparisonType.LessOrEqual;
 		
 	Else
 		
@@ -3972,6 +3972,9 @@ Procedure SetCurrentOptionKey(ReportFullName, ReportObject)
 	
 	If ValueIsFilled(CurrentVariantKeyDetail) Then
 		CurrentVariantKey = CurrentVariantKeyDetail;
+		If Not ValueIsFilled(PurposeUseKey) Then
+			PurposeUseKey = "Details";
+		EndIf;
 	Else
 		If ValueIsFilled(PurposeUseKey) Then 
 			ObjectKey = ReportFullName + "/" + PurposeUseKey + "/CurrentVariantKey";
@@ -4198,19 +4201,19 @@ Function DataOfTheDecryptionElement(Details)
 EndFunction
 
 &AtServer
-Procedure UpdateSettingsFormItemsAtServer(UpdateParameters1 = Undefined)
-	ImportSettingsToComposer(UpdateParameters1);
+Procedure UpdateSettingsFormItemsAtServer(ParametersOfUpdate = Undefined)
+	ImportSettingsToComposer(ParametersOfUpdate);
 	
 	ReportsServer.UpdateSettingsFormItems(
-		ThisObject, Items.SettingsComposerUserSettings, UpdateParameters1);
+		ThisObject, Items.SettingsComposerUserSettings, ParametersOfUpdate);
 	
-	If UpdateParameters1.EventName <> "AfterGenerate" Then
-		Regenerate = CommonClientServer.StructureProperty(UpdateParameters1, "Regenerate", False);
+	If ParametersOfUpdate.EventName <> "AfterGenerate" Then
+		Regenerate = CommonClientServer.StructureProperty(ParametersOfUpdate, "Regenerate", False);
 		
 		If Regenerate
 			And Not CheckFilling() Then 
 			
-			UpdateParameters1.Regenerate = False;
+			ParametersOfUpdate.Regenerate = False;
 			
 		ElsIf Regenerate Then
 			
@@ -4218,8 +4221,8 @@ Procedure UpdateSettingsFormItemsAtServer(UpdateParameters1 = Undefined)
 				ThisObject, NStr("en = 'Generating report…';"), PictureLib.TimeConsumingOperation48);
 			
 		ElsIf Not ReportCreated
-			And (UpdateParameters1.VariantModified
-			Or UpdateParameters1.UserSettingsModified) Then
+			And (ParametersOfUpdate.VariantModified
+			Or ParametersOfUpdate.UserSettingsModified) Then
 			
 			ReportsClientServer.NotifyOfSettingsChange(ThisObject);
 		EndIf;
@@ -5091,12 +5094,12 @@ EndFunction
 #EndRegion
 
 &AtClient
-Procedure RefineReportAutoGenerationSign(UpdateParameters1)
+Procedure RefineReportAutoGenerationSign(ParametersOfUpdate)
 	
-	If Not CommonClientServer.StructureProperty(UpdateParameters1, "Regenerate", False) Then
+	If Not CommonClientServer.StructureProperty(ParametersOfUpdate, "Regenerate", False) Then
 		AllowableTimeForReportAutoGeneration = 5; // секунд
 		ReportGenerationTime = ReportSettings.ResultProperties.FormationTime;
-		UpdateParameters1.Insert("Regenerate", ReportGenerationTime <= AllowableTimeForReportAutoGeneration);
+		ParametersOfUpdate.Insert("Regenerate", ReportGenerationTime <= AllowableTimeForReportAutoGeneration);
 	EndIf;
 	 
 EndProcedure

@@ -171,7 +171,10 @@
 					<Events>
 						<Event name="OnEditEnd">SettingsComposerSettingsFilterOnEditEnd</Event>
 						<Event name="BeforeAddRow">SettingsComposerSettingsFilterBeforeAddRow</Event>
+						<Event name="OnActivateRow">SettingsComposerSettingsFilterOnActivateRow</Event>
+						<Event name="OnStartEdit">SettingsComposerSettingsFilterOnStartEdit</Event>
 						<Event name="AfterDeleteRow">SettingsComposerSettingsFilterAfterDeleteRow</Event>
+						<Event name="OnChange">SettingsComposerSettingsFilterOnChange</Event>
 					</Events>
 				</Table>
 			</ChildItems>
@@ -295,7 +298,6 @@
 					</SearchControlAddition>
 					<Events>
 						<Event name="Selection">ListSelection</Event>
-						<Event name="OnActivateRow">ListOnActivateRow</Event>
 					</Events>
 					<ChildItems>
 						<InputField name="ListRef" id="87">
@@ -404,6 +406,21 @@ FROM
 					<v8:Digits>10</v8:Digits>
 					<v8:FractionDigits>0</v8:FractionDigits>
 					<v8:AllowedSign>Any</v8:AllowedSign>
+				</v8:NumberQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="SelectionsAreBeingEdited" id="9">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="NumberOfConditions" id="10">
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>10</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 				</v8:NumberQualifiers>
 			</Type>
 		</Attribute>

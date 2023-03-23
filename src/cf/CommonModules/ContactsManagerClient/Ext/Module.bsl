@@ -392,24 +392,31 @@ Procedure CreateSMSMessage(Val FieldValues, Val Presentation = "", ExpectedKind 
 		Raise NStr("en = 'Text messaging is not available.';");
 	EndIf;
 	
-	ContactInformation = ContactsManagerInternalServerCall.TransformContactInformationXML(
-		New Structure("FieldValues, Presentation, ContactInformationKind", FieldValues, Presentation, ExpectedKind));
+	RecipientNumber = "";
+	
+	If IsBlankString(Presentation) Then
 		
-	InformationType = ContactInformation.ContactInformationType;
-	If InformationType <> PredefinedValue("Enum.ContactInformationTypes.Phone") Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot send a text message from contact information of the ""%1"" type.';"), InformationType);
+		ContactInformation = ContactsManagerInternalServerCall.TransformContactInformationXML(
+			New Structure("FieldValues, Presentation, ContactInformationKind", FieldValues, Presentation, ExpectedKind));
+		
+		InformationType = ContactInformation.ContactInformationType;
+		If InformationType <> PredefinedValue("Enum.ContactInformationTypes.Phone") Then
+			Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot send a text message from contact information of the ""%1"" type.';"), InformationType);
+		EndIf;
+		
+		If FieldValues = "" And IsBlankString(Presentation) Then
+			ShowMessageBox(, NStr("en = 'To send a text message, enter a phone number.';"));
+			Return;
+		EndIf;
+		
+		XMLData = ContactInformation.XMLData1;
+		If ValueIsFilled(XMLData) Then
+			RecipientNumber = ContactsManagerInternalServerCall.ContactInformationCompositionString(XMLData);
+		EndIf;
+	
 	EndIf;
 	
-	If FieldValues = "" And IsBlankString(Presentation) Then
-		ShowMessageBox(,NStr("en = 'To send a text message, enter a phone number.';"));
-		Return;
-	EndIf;
-	
-	XMLData = ContactInformation.XMLData1;
-	If ValueIsFilled(XMLData) Then
-		RecipientNumber = ContactsManagerInternalServerCall.ContactInformationCompositionString(XMLData);
-	EndIf;
-	If Not ValueIsFilled(RecipientNumber) Then
+	If IsBlankString(RecipientNumber) Then
 		RecipientNumber = TrimAll(Presentation);
 	EndIf;
 	
@@ -544,9 +551,9 @@ EndProcedure
 Procedure ShowAddressOnMap(Address, MapServiceName) Export
 	CodedAddress = StringDecoding(Address);
 	If MapServiceName = "GoogleMaps" Then
-		CommandLine1 = "https://maps.google.ru/?q=" + CodedAddress;
+		CommandLine1 = "https://maps.google.com/?q=" + CodedAddress;
 	Else
-		CommandLine1 = "https://maps.yandex.ru/?text=" + CodedAddress;
+		CommandLine1 = "https://maps.yandex.com/?text=" + CodedAddress;
 	EndIf;
 	
 	FileSystemClient.OpenURL(CommandLine1);
@@ -747,7 +754,7 @@ Procedure AfterClosingHistoryForm(Result, AdditionalParameters) Export
 		ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form).Delete(ContactInformationRow);
 	EndDo;
 	
-	UpdateParameters1 = New Structure;
+	ParametersOfUpdate = New Structure;
 	For Each ContactInformationRow In Result.History Do
 		RowData = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form).Add();
 		FillPropertyValues(RowData, ContactInformationRow);
@@ -763,16 +770,16 @@ Procedure AfterClosingHistoryForm(Result, AdditionalParameters) Export
 			RowData.AttributeName = AdditionalParameters.TagName;
 			RowData.ItemForPlacementName = AdditionalParameters.ItemForPlacementName;
 			If RowData.Comment <> OldComment Then
-				UpdateParameters1.Insert("IsCommentAddition", True);
-				UpdateParameters1.Insert("ItemForPlacementName", AdditionalParameters.ItemForPlacementName);
-				UpdateParameters1.Insert("AttributeName", AdditionalParameters.TagName);
+				ParametersOfUpdate.Insert("IsCommentAddition", True);
+				ParametersOfUpdate.Insert("ItemForPlacementName", AdditionalParameters.ItemForPlacementName);
+				ParametersOfUpdate.Insert("AttributeName", AdditionalParameters.TagName);
 			EndIf;
 		EndIf;
 	EndDo;
 	
 	Form.Modified = True;
-	If ValueIsFilled(UpdateParameters1) Then
-		UpdateFormContactInformation(Form, UpdateParameters1, AdditionalParameters.AsynchronousCall);
+	If ValueIsFilled(ParametersOfUpdate) Then
+		UpdateFormContactInformation(Form, ParametersOfUpdate, AdditionalParameters.AsynchronousCall);
 	EndIf;
 EndProcedure
 
@@ -789,10 +796,10 @@ EndProcedure
 Procedure AfterCloseListFormContactInfoKinds(Result, AdditionalParameters) Export
 
 	Form = AdditionalParameters.Form;
-	UpdateParameters1 = New Structure;
-	UpdateParameters1.Insert("Reread", True);
-	UpdateParameters1.Insert("ItemForPlacementName", AdditionalParameters.ItemForPlacementName);
-	UpdateFormContactInformation(Form, UpdateParameters1, AdditionalParameters.AsynchronousCall);
+	ParametersOfUpdate = New Structure;
+	ParametersOfUpdate.Insert("Reread", True);
+	ParametersOfUpdate.Insert("ItemForPlacementName", AdditionalParameters.ItemForPlacementName);
+	UpdateFormContactInformation(Form, ParametersOfUpdate, AdditionalParameters.AsynchronousCall);
 	
 EndProcedure
 

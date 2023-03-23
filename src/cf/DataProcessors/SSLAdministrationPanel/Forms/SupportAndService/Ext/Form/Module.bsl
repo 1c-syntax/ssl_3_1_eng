@@ -96,6 +96,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ConfigureUpdateThreadsCountUsage(DataProcessingPriority);
 	EndIf;
 	
+	If Not Users.IsFullUser(, True) Then
+		Items.ClearingOutdatedData.Visible = False;
+	EndIf;
+	
 	// Update items states.
 	SetAvailability();
 
@@ -241,6 +245,13 @@ EndProcedure
 Procedure DeferredDataProcessing(Command)
 	FormParameters = New Structure("OpenedFromAdministrationPanel", True);
 	OpenForm("DataProcessor.ApplicationUpdateResult.Form.ApplicationUpdateResult", FormParameters);
+EndProcedure
+
+&AtClient
+Procedure ClearingOutdatedData(Command)
+	
+	OpenForm("DataProcessor.ApplicationUpdateResult.Form.ClearingOutdatedData");
+	
 EndProcedure
 
 #EndRegion

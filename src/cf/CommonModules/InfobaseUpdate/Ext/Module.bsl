@@ -2286,9 +2286,10 @@ Function CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, FullOb
 	Query.TempTablesManager = TempTablesManager;
 	ObjectMetadata = Common.MetadataObjectByFullName(FullObjectName); // 
 	NameOfTheDimensionToSelect = AdditionalParameters.NameOfTheDimensionToSelect;
+	DeferredUpdateCompletedSuccessfully = GetFunctionalOption("DeferredUpdateCompletedSuccessfully");
 	
 	If Common.IsRefTypeObject(ObjectMetadata) Then
-		If GetFunctionalOption("DeferredUpdateCompletedSuccessfully") Then
+		If DeferredUpdateCompletedSuccessfully Then
 			QueryText =
 			"SELECT
 			|	&EmptyValue AS Ref
@@ -2316,7 +2317,7 @@ Function CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, FullOb
 		DimensionsNames = New Array;
 		AliasesOfMeasurements = New Array;
 		
-		If GetFunctionalOption("DeferredUpdateCompletedSuccessfully") Then
+		If DeferredUpdateCompletedSuccessfully Then
 			QueryText =
 			"SELECT
 			|	&DimensionSelectionText
@@ -2375,7 +2376,7 @@ Function CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, FullOb
 		
 	ElsIf Common.IsRegister(ObjectMetadata) Then
 		
-		If GetFunctionalOption("DeferredUpdateCompletedSuccessfully") Then
+		If DeferredUpdateCompletedSuccessfully Then
 			QueryText =
 			"SELECT
 			|	&EmptyValue AS Recorder
@@ -2409,7 +2410,7 @@ Function CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, FullOb
 		Raise ExceptionText;
 	EndIf;
 	
-	If Not GetFunctionalOption("DeferredUpdateCompletedSuccessfully") Then
+	If Not DeferredUpdateCompletedSuccessfully Then
 		
 		If Queue = Undefined Then
 			NodeFilterCriterion = " ChangesTable.Node REFS ExchangePlan.InfobaseUpdate ";
@@ -2569,7 +2570,7 @@ Function CreateTemporaryTableOfRefsProhibitedFromReadingAndEditing(Queue, FullNa
 		QueryText = StrConcat(QueryTextArray, Connector); 
 		
 		If HasRegisters And QueryTextArray.Count() > 1 Then
-			QueryTemplate1 =
+			QueryTemplate =
 			"SELECT DISTINCT
 			|	NestedQuery.Ref AS Ref
 			|INTO #TempTableName
@@ -2578,7 +2579,7 @@ Function CreateTemporaryTableOfRefsProhibitedFromReadingAndEditing(Queue, FullNa
 			|
 			|INDEX BY
 			|	Ref";
-			QueryText = StrReplace(QueryTemplate1, "#QueryText", "(" + QueryText + ")");
+			QueryText = StrReplace(QueryTemplate, "#QueryText", "(" + QueryText + ")");
 			QueryText = StrReplace(QueryText, "INTO #NameOfTheTemporaryTableOfTheFirstQuery", "");
 		Else
 			QueryText = QueryText + "
@@ -3146,9 +3147,9 @@ Function SubsystemsVersions() Export
 	StandardProcessing = True;
 	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.IBVersionUpdateSaaS") Then
 		ModuleInfobaseUpdateInternalSaaS = Common.CommonModule("InfobaseUpdateInternalSaaS");
-		VersionsOfSubsystemsOfRegions = ModuleInfobaseUpdateInternalSaaS.SubsystemsVersions(StandardProcessing);
+		AreaSubsystemVersions = ModuleInfobaseUpdateInternalSaaS.SubsystemsVersions(StandardProcessing);
 		If Not StandardProcessing Then
-			Return VersionsOfSubsystemsOfRegions;
+			Return AreaSubsystemVersions;
 		EndIf;
 	EndIf;
 	
@@ -3444,8 +3445,9 @@ EndFunction
 //
 Function DataAreasUpdateProgress(UpdateMode) Export
 	
-	If Not Common.DataSeparationEnabled()
-		Or Not Common.SubsystemExists("CloudTechnology.Core") Then
+	If Not Common.DataSeparationEnabled() 
+		Or Not Common.SubsystemExists("CloudTechnology.Core") 
+		Or Not Common.SubsystemExists("StandardSubsystems.SaaSOperations.IBVersionUpdateSaaS") Then
 		Return Undefined;
 	EndIf;
 	
@@ -3482,14 +3484,11 @@ Function DataAreasUpdateProgress(UpdateMode) Export
 	Query.SetParameter("TheStateOrderIsPending", TheStateOrderIsPending);
 	Query.SetParameter("ErrorStatusOrder", ErrorStatusOrder);
 	
-	AreasUpdatedToVersion = New Array;
-	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.IBVersionUpdateSaaS") Then
-		ModuleInfobaseUpdateInternalSaaS = Common.CommonModule("InfobaseUpdateInternalSaaS");
-		AreasUpdatedToVersion = ModuleInfobaseUpdateInternalSaaS.AreasUpdatedToVersion(Metadata.Name, Metadata.Version);
-	EndIf;
+	ModuleInfobaseUpdateInternalSaaS = Common.CommonModule("InfobaseUpdateInternalSaaS");
+	AreasUpdatedToVersion = ModuleInfobaseUpdateInternalSaaS.AreasUpdatedToVersion(Metadata.Name, Metadata.Version);
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
-	Query.SetParameter("AreasUsed", ModuleSaaS.DataAreasUsed().Unload());
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+	Query.SetParameter("AreasUsed", ModuleSaaSOperations.DataAreasUsed().Unload());
 	Query.SetParameter("UpdatedAreas", AreasUpdatedToVersion);
 	
 	Query.Text =
@@ -3502,8 +3501,9 @@ Function DataAreasUpdateProgress(UpdateMode) Export
 	|
 	|////////////////////////////////////////////////////////////////////////////////
 	|SELECT
-	|	UpdatedAreas.DataAreaAuxiliaryData AS DataAreaAuxiliaryData
-	|INTO DataAreasSubsystemsVersions
+	|	UpdatedAreas.DataAreaAuxiliaryData AS DataAreaAuxiliaryData,
+	|	UpdatedAreas.DeferredHandlersRegistrationCompleted AS DeferredHandlersRegistrationCompleted
+	|INTO UpdatedAreas
 	|FROM
 	|	&UpdatedAreas AS UpdatedAreas
 	|;
@@ -3511,16 +3511,14 @@ Function DataAreasUpdateProgress(UpdateMode) Export
 	|////////////////////////////////////////////////////////////////////////////////
 	|SELECT
 	|	AreasUsed.DataArea AS DataArea,
-	|	CASE
-	|		WHEN DataAreasSubsystemsVersions.DataAreaAuxiliaryData IS NULL
-	|			THEN FALSE
-	|		ELSE TRUE
-	|	END AS OperationalUpdateCompleted
+	|	NOT UpdatedAreas.DataAreaAuxiliaryData IS NULL AS OperationalUpdateCompleted,
+	|	NOT UpdatedAreas.DataAreaAuxiliaryData IS NULL
+	|		AND NOT UpdatedAreas.DeferredHandlersRegistrationCompleted AS PendingHandlersAreBeingRegistered
 	|INTO DataAreas
 	|FROM
 	|	AreasUsed AS AreasUsed
-	|		LEFT JOIN DataAreasSubsystemsVersions AS DataAreasSubsystemsVersions
-	|		ON (DataAreasSubsystemsVersions.DataAreaAuxiliaryData = AreasUsed.DataArea)
+	|		LEFT JOIN UpdatedAreas AS UpdatedAreas
+	|		ON (UpdatedAreas.DataAreaAuxiliaryData = AreasUsed.DataArea)
 	|;
 	|
 	|////////////////////////////////////////////////////////////////////////////////
@@ -3529,7 +3527,11 @@ Function DataAreasUpdateProgress(UpdateMode) Export
 	|	MIN(CASE
 	|			WHEN &UpdateMode = &UpdateModeOnline
 	|					AND DataAreas.OperationalUpdateCompleted
-	|				THEN &StatusOrderUpdated
+	|				THEN CASE
+	|						WHEN DataAreas.PendingHandlersAreBeingRegistered
+	|							THEN &TheStateOrderIsInProgress
+	|						ELSE &StatusOrderUpdated
+	|					END
 	|			WHEN &UpdateMode = &UpdateModeDeferred
 	|					AND NOT DataAreas.OperationalUpdateCompleted
 	|				THEN &TheStateOrderIsPending
@@ -3665,21 +3667,32 @@ Function UpdateHandlers(Filter = Undefined) Export
 	
 	QueryConditions = New Array;
 	
+	ThereIsOnlineUpdateFilter = False;
 	If Filter.Property("ExecutionModes") Then
 		ExecutionModes = New Array;
 		For Each EnumValueName In Filter.ExecutionModes Do
-			ExecutionModes.Add(InfobaseUpdateInternal.TheValueOfTheEnumerationByName(EnumValueName,
-				Metadata.Enums.HandlersExecutionModes));
+			ExecutionMode = InfobaseUpdateInternal.TheValueOfTheEnumerationByName(EnumValueName,
+				Metadata.Enums.HandlersExecutionModes);
+			ExecutionModes.Add(ExecutionMode);
+			If ExecutionMode = Enums.HandlersExecutionModes.Seamless
+				Or ExecutionMode = Enums.HandlersExecutionModes.Exclusively Then
+				ThereIsOnlineUpdateFilter = True;
+			EndIf;
 		EndDo;
 		QueryConditions.Add("UpdateHandlers.ExecutionMode IN (&ExecutionModes)");
 		Query.SetParameter("ExecutionModes", ExecutionModes);
 	EndIf;
 	
+	ThereIsFilterRunning = False;
 	If Filter.Property("Statuses") Then
 		Statuses = New Array;
 		For Each EnumValueName In Filter.Statuses Do
-			Statuses.Add(InfobaseUpdateInternal.TheValueOfTheEnumerationByName(EnumValueName,
-				Metadata.Enums.UpdateHandlersStatuses));
+			Status = InfobaseUpdateInternal.TheValueOfTheEnumerationByName(EnumValueName,
+				Metadata.Enums.UpdateHandlersStatuses);
+			Statuses.Add(Status);
+			If Status = Enums.UpdateHandlersStatuses.Running Then
+				ThereIsFilterRunning = True;
+			EndIf;
 		EndDo;
 		QueryConditions.Add("UpdateHandlers.Status IN (&Statuses)");
 		Query.SetParameter("Statuses", Statuses);
@@ -3694,8 +3707,8 @@ Function UpdateHandlers(Filter = Undefined) Export
 	If Filter.Property("DataAreas") Then
 		DataAreas = Filter.DataAreas;
 	ElsIf Common.DataSeparationEnabled() Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		DataAreas = ModuleSaaS.DataAreasUsed().Unload().UnloadColumn(
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		DataAreas = ModuleSaaSOperations.DataAreasUsed().Unload().UnloadColumn(
 			"DataArea");
 	Else
 		DataAreas = Undefined;
@@ -3731,6 +3744,26 @@ Function UpdateHandlers(Filter = Undefined) Export
 		String.Status = NamesOfStatusesByValue[Selection.StatusLink];
 		
 	EndDo;
+	
+	If ThereIsOnlineUpdateFilter And ThereIsFilterRunning 
+		And Common.SubsystemExists("StandardSubsystems.SaaSOperations.IBVersionUpdateSaaS") Then
+		ModuleInfobaseUpdateInternalSaaS = Common.CommonModule("InfobaseUpdateInternalSaaS");
+		UpdatedAreas = ModuleInfobaseUpdateInternalSaaS.AreasUpdatedToVersion(Metadata.Name, Metadata.Version);
+		AreasRunningRegistration = UpdatedAreas.FindRows(
+			New Structure("DeferredHandlersRegistrationCompleted", False));
+		For Each ElementIsBeingRegistered In AreasRunningRegistration Do
+			AreaNumber = ElementIsBeingRegistered.DataAreaAuxiliaryData;
+			If DataAreas <> Undefined And DataAreas.Find(AreaNumber) = Undefined Then
+				Continue;
+			EndIf;
+			String = HandlersInformation.Add();
+			String.HandlerName = NStr("en = 'Internal procedures to register deferred handlers';");
+			String.ExecutionMode = ModeNamesByValue[Enums.HandlersExecutionModes.Seamless];
+			String.LibraryName = "StandardSubsystemsLibrary";
+			String.Status = NamesOfStatusesByValue[Enums.UpdateHandlersStatuses.Running];
+			String.DataArea = AreaNumber;
+		EndDo;
+	EndIf;
 	
 	Return HandlersInformation;
 	
@@ -3773,6 +3806,51 @@ Function UpdatedObjects() Export
 	Return UpdatedObjects;
 	
 EndFunction
+
+// 
+// 
+//
+// Parameters:
+//  Objects - Map of KeyAndValue:
+//   * Key - String -
+//   * Value - Boolean, Map -
+//
+//  Object - String -
+//     
+//     
+//     
+//     
+//     
+//     
+//
+//  Refinement - Boolean -
+//               
+//               
+//            - TypeDescription, Type, EnumRef, BusinessProcessRoutePointRef - 
+//               
+//               
+//               
+//
+Procedure AddItemToBeDeleted(Objects, Object, Refinement = False) Export
+	
+	If TypeOf(Refinement) = Type("Boolean") Then
+		Objects.Insert(Object, Refinement);
+	Else
+		AbbreviatedTypesAndValues = Objects.Get(Object);
+		If AbbreviatedTypesAndValues = Undefined Then
+			AbbreviatedTypesAndValues = New Map;
+			Objects.Insert(Object, AbbreviatedTypesAndValues);
+		EndIf;
+		If TypeOf(Refinement) = Type("TypeDescription") Then
+			For Each Type In Refinement.Types() Do
+				AbbreviatedTypesAndValues.Insert(Type, True);
+			EndDo;
+		Else
+			AbbreviatedTypesAndValues.Insert(Refinement, True);
+		EndIf;
+	EndIf;
+	
+EndProcedure
 
 #Region ForCallsFromOtherSubsystems
 
@@ -6149,12 +6227,12 @@ EndFunction
 //
 Procedure AddRequestsToDeleteTUES(Queries, TemporaryTable)
 	
-	QueryTemplate1 =
+	QueryTemplate =
 		"DROP
 		|	%1";
 	
 	For Each TempTable In TemporaryTable Do
-		QueryText = StringFunctionsClientServer.SubstituteParametersToString(QueryTemplate1, TempTable.Value);
+		QueryText = StringFunctionsClientServer.SubstituteParametersToString(QueryTemplate, TempTable.Value);
 		Queries.Add(QueryText);
 	EndDo;
 	
@@ -6257,7 +6335,7 @@ EndFunction
 //
 Function RequestTextInTBlockedByPM(TSAttributes, FullObjectName, FullRegisterName, TemporaryTable)
 	
-	QueryTemplate1 =
+	QueryTemplate =
 		"SELECT
 		|	&Attribute AS Ref
 		|INTO LockedByTabularSection
@@ -6342,7 +6420,7 @@ Function RequestTextInTBlockedByPM(TSAttributes, FullObjectName, FullRegisterNam
 	
 	ConditionsText = StrConcat(Conditions, ConditionSeparator);
 	
-	QueryText = StrReplace(QueryTemplate1, "&Attribute", TableField);
+	QueryText = StrReplace(QueryTemplate, "&Attribute", TableField);
 	QueryText = StrReplace(QueryText, "&ChangesTable", Table + ".Changes");
 	QueryText = StrReplace(QueryText, "&Condition", ConditionsText);
 	

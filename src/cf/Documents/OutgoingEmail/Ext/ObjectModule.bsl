@@ -503,9 +503,9 @@ EndProcedure
 
 Function TheDataObjectToWrite()
 	
-	ObjectData1 = New Structure;
-	ObjectData1.Insert("DeletionMark", False);
-	ObjectData1.Insert("EmailStatus",    Enums.OutgoingEmailStatuses.EmptyRef());
+	ObjectData = New Structure;
+	ObjectData.Insert("DeletionMark", False);
+	ObjectData.Insert("EmailStatus",    Enums.OutgoingEmailStatuses.EmptyRef());
 	
 	If Not IsNew() Then
 		
@@ -528,13 +528,13 @@ Function TheDataObjectToWrite()
 			Selection = Result.Select();
 			Selection.Next();
 			
-			FillPropertyValues(ObjectData1, Selection);
+			FillPropertyValues(ObjectData, Selection);
 			
 		EndIf;
 		
 	EndIf;
 	
-	Return ObjectData1;
+	Return ObjectData;
 	
 EndFunction
 

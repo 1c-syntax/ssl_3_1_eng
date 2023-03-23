@@ -376,7 +376,6 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.PhoneCall</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.ReviewPicture</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Constant.DeliverServerNotificationsWithoutCollaborationSystem</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">ScheduledJob.StartThreadsOfLongRunningOperations</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonForm.FontChoiceForm</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonForm.ColorChoiceForm</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.PlaceForQRCode</xr:Item>

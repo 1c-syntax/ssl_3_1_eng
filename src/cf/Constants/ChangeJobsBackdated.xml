@@ -33,7 +33,7 @@
 			<Explanation>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Allow users to change the task completion date and when the author, deadline, importance, or description of the duty is changed, change them in the current tasks</v8:content>
+					<v8:content>Allow users to change the task completion date and when the author, deadline, priority, or description of the duty is changed, change them in the current tasks.</v8:content>
 				</v8:item>
 			</Explanation>
 			<PasswordMode>false</PasswordMode>

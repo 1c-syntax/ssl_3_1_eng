@@ -733,7 +733,7 @@ EndFunction
 
 Function ObjectsForReplacementQueryText(SubordinateObjectDetails, Links)
 
-	QueryText = QueryTemplate1();
+	QueryText = QueryTemplate();
 
 	KeyName = StrReplace(SubordinateObjectDetails.Key, ".", "");
 	KeyTable = SubordinateObjectDetails.Key;
@@ -808,7 +808,7 @@ Function ObjectsForReplacementQueryText(SubordinateObjectDetails, Links)
 
 EndFunction
 
-Function QueryTemplate1()
+Function QueryTemplate()
 	
 	Return "
 	|SELECT

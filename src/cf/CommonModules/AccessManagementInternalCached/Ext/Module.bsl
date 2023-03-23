@@ -775,7 +775,7 @@ EndFunction
 
 Function BasicRegisterFieldsCount(Val RegisterName = "") Export
 	
-	If RegisterName = "" Then
+	If RegisterName = "" Or RegisterName = "AccessKeysForRegisters" Then
 		RegisterName = "AccessKeysForRegisters";
 		Dimensions = Metadata.InformationRegisters.AccessKeysForRegisters.Dimensions;
 		If Dimensions.Count() < 1 Or Dimensions[0].Name <> "Register" Then

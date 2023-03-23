@@ -230,10 +230,10 @@ Function MetadataUsingPrefixesDetails(DiagnosticsMode = False) Export
 	
 	Result = NewMetadataUsingPrefixesDetails();
 	
-	ModuleSaaS = Undefined;
+	ModuleSaaSOperations = Undefined;
 	IsSAASSubsystem = Common.SubsystemExists("CloudTechnology.Core");
 	If IsSAASSubsystem Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	EndIf;
 
 	// Populate a metadata table.
@@ -261,7 +261,7 @@ Function MetadataUsingPrefixesDetails(DiagnosticsMode = False) Export
 			
 			IsSeparatedMetadataObject = False;
 			If IsSAASSubsystem Then
-				IsSeparatedMetadataObject = ModuleSaaS.IsSeparatedMetadataObject(FullObjectName);
+				IsSeparatedMetadataObject = ModuleSaaSOperations.IsSeparatedMetadataObject(FullObjectName);
 			EndIf;
 			
 			// 

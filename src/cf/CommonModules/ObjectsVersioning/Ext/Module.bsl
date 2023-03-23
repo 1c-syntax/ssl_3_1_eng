@@ -1639,13 +1639,13 @@ EndFunction
 // Returns:
 //  Arbitrary - 
 //
-Function RestoreObjectByXML(ObjectData1, ErrorMessageText = "")
+Function RestoreObjectByXML(ObjectData, ErrorMessageText = "")
 	
 	SetPrivilegedMode(True);
 	
-	BinaryData = ObjectData1;
-	If TypeOf(ObjectData1) = Type("Structure") Then
-		BinaryData = ObjectData1.Object;
+	BinaryData = ObjectData;
+	If TypeOf(ObjectData) = Type("Structure") Then
+		BinaryData = ObjectData.Object;
 	EndIf;
 	
 	FastInfosetReader = New FastInfosetReader;
@@ -2696,7 +2696,7 @@ Procedure OutputParsedObjectTabularSections(Result, ObjectVersion, OutputRowNumb
 			TSSynonym = TSMetadata.Presentation();
 		EndIf;
 		
-		Section3 = Result.GetArea("R" + XMLString(OutputRowNumber));
+		Section3 = Result.GetArea("R" + XMLString(Result.TableHeight + 1));
 		OutputTextToReport(Result, Section3, "R1C1:R1C" + Format(TabularSection.Columns.Count(), "NG=0"), " ");
 		OutputArea2 = OutputTextToReport(Result, Section3, "R1C2", TSSynonym, StyleFonts.LargeTextFont);
 		Result.Area("R" + Format(OutputArea2.Top, "NG=0") + "C2").CreateFormatOfRows();
@@ -2974,7 +2974,7 @@ Function DataToStore(Val Object)
 		ObjectReference = Object.Ref;
 	EndIf;
 	
-	ObjectData1 = SerializeObject(Object);
+	ObjectData = SerializeObject(Object);
 	
 	SpreadsheetDocuments = ObjectSpreadsheetDocuments(ObjectReference);
 	
@@ -3025,9 +3025,9 @@ Function DataToStore(Val Object)
 	EndIf;
 	
 	If Result.Count() > 0 Then
-		Result.Insert("Object", ObjectData1);
+		Result.Insert("Object", ObjectData);
 	Else
-		Result = ObjectData1;
+		Result = ObjectData;
 	EndIf;
 	
 	Return Result;

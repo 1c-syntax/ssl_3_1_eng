@@ -105,9 +105,9 @@ EndProcedure
 //
 // Parameters:
 //  Object                  - CatalogObject.PerformerRoles - Object to populate.
-//  Data                  - ValueTableRow - object filling data.
+//  Data                  - ValueTableRow - Object fill data.
 //  AdditionalParameters - Structure:
-//   * PredefinedData - ValueTable - data filled in the OnInitialItemFilling procedure.
+//   * PredefinedData - ValueTable - Data filled in the OnInitialItemsFilling procedure.
 //
 Procedure OnInitialItemFilling(Object, Data, AdditionalParameters) Export
 	

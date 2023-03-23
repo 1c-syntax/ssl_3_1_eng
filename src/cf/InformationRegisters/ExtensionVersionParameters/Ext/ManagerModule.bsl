@@ -627,7 +627,7 @@ EndProcedure
 //   * AccountingAudit - Structure:
 //      ** AccountingCheckRules - See UpdateParameterProperties.
 //
-Function UpdateParameters1(ShouldUpdate = False) Export
+Function ParametersOfUpdate(ShouldUpdate = False) Export
 	
 	Parameters = New Structure;
 	
@@ -675,7 +675,7 @@ Function UpdateParameters1(ShouldUpdate = False) Export
 EndFunction
 
 // Parameters:
-//  Parameters - See UpdateParameters1
+//  Parameters - See ParametersOfUpdate
 //  FormIdentifier - UUID
 //
 Procedure ExecuteUpdateSplitDataInBackground(Parameters, FormIdentifier) Export
@@ -714,7 +714,7 @@ Procedure ExecuteUpdateSplitDataInBackground(Parameters, FormIdentifier) Export
 EndProcedure
 
 // Parameters:
-//  Parameters - See UpdateParameters1
+//  Parameters - See ParametersOfUpdate
 //  ResultAddress - String
 //
 Procedure LongOperationHandlerPerformUpdateSplitData(Parameters, ResultAddress) Export

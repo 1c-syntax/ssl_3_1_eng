@@ -498,6 +498,31 @@ Procedure ApplySetsAndPropertiesAppearance()
 	AppearanceFieldItem.Field = New DataCompositionField("PropertiesTitle");
 	AppearanceFieldItem.Use = True;
 	
+	// 
+	ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
+	VisibilityItem = ConditionalAppearanceItem.Appearance.Items.Find("Visible");
+	VisibilityItem.Value = False;
+	VisibilityItem.Use = True; 
+	
+	DataFilterItemsGroup = ConditionalAppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItemGroup"));
+	DataFilterItemsGroup.GroupType = DataCompositionFilterItemsGroupType.AndGroup;
+	DataFilterItemsGroup.Use = True;
+	
+	DataFilterItem = DataFilterItemsGroup.Items.Add(Type("DataCompositionFilterItem"));
+	DataFilterItem.LeftValue  = New DataCompositionField("FieldForSearch");
+	DataFilterItem.ComparisonType   = DataCompositionComparisonType.Filled;
+	DataFilterItem.Use  = True;
+	
+	DataFilterItem = DataFilterItemsGroup.Items.Add(Type("DataCompositionFilterItem"));
+	DataFilterItem.LeftValue  = New DataCompositionField("PropertiesSets.Presentation");
+	DataFilterItem.ComparisonType   = DataCompositionComparisonType.NotContains;
+	DataFilterItem.RightValue = New DataCompositionField("FieldForSearch");
+	DataFilterItem.Use  = True; 
+	
+	AppearanceFieldItem = ConditionalAppearanceItem.Fields.Items.Add();
+	AppearanceFieldItem.Field = New DataCompositionField("Presentation");
+	AppearanceFieldItem.Use = True;
+	
 EndProcedure
 
 &AtClient

@@ -1296,21 +1296,21 @@ Procedure AttachArea(PrintForm, TemplateArea, Val GoToNextRow1 = False) Export
 		
 		AreaDetails = TemplateArea.AreaDetails;
 	
-		OutputArea = Undefined;
+		DerivedArea = Undefined;
 		
 		If AreaDetails.AreaType = "Header" Or AreaDetails.AreaType = "EvenHeader" Or AreaDetails.AreaType = "FirstHeader" Then
-				OutputArea = PrintManagementInternal.AddHeader(PrintForm, TemplateArea);
+				DerivedArea = PrintManagementInternal.AddHeader(PrintForm, TemplateArea);
 		ElsIf AreaDetails.AreaType = "Footer"  Or AreaDetails.AreaType = "EvenFooter"  Or AreaDetails.AreaType = "FirstFooter" Then
-			OutputArea = PrintManagementInternal.AddFooter(PrintForm, TemplateArea);
+			DerivedArea = PrintManagementInternal.AddFooter(PrintForm, TemplateArea);
 		ElsIf AreaDetails.AreaType = "Shared3" Then
-			OutputArea = PrintManagementInternal.AttachArea(PrintForm, TemplateArea, GoToNextRow1);
+			DerivedArea = PrintManagementInternal.AttachArea(PrintForm, TemplateArea, GoToNextRow1);
 		ElsIf AreaDetails.AreaType = "List" Or AreaDetails.AreaType = "TableRow" Then
-			OutputArea = PrintManagementInternal.AttachArea(PrintForm, TemplateArea, GoToNextRow1);
+			DerivedArea = PrintManagementInternal.AttachArea(PrintForm, TemplateArea, GoToNextRow1);
 		Else
 			Raise AreaTypeSpecifiedIncorrectlyText();
 		EndIf;
 		
-		AreaDetails.Insert("Area", OutputArea);
+		AreaDetails.Insert("Area", DerivedArea);
 		AreaDetails.Insert("GoToNextRow1", GoToNextRow1);
 		
 		// 
@@ -1435,7 +1435,7 @@ EndProcedure
 //     * RecipientTIN       - String - a payee TIN, up to 12 characters;
 //     * TINOfPayer      - String - a payer TIN, up to 12 characters;
 //     * AuthorStatus   - String - a status of a payment document author, up to 2 characters;
-//     * RecipientCRTR       - String - a payee CRTR, up to 9 characters.
+//     * RecipientCRTR       - String - a payee KPP, up to 9 characters.
 //     * BCCode               - String - BCC, up to 20 characters;
 //     * RNCMTCode            - String - RNCMT, up to 11 characters;
 //     * BasisIndicator - String - a tax payment reason, up to 2 characters;
@@ -1450,7 +1450,7 @@ EndProcedure
 //     * PayerAddress                 - String - payer's address.
 //     * BudgetPayeeAccount  - String - a budget payee account.
 //     * PaymentDocumentIndex        - String - a payment document index.
-//     * SNILS                            - String - a PF individual account number (IIAN).
+//     * SNILS                            - String - an individual insurance account number (SNILS) issued by the Pension Fund.
 //     * ContractNumber                    - String - contract number.
 //     * PayerAccountNumber    - String - a payer account number in the company (in the personal accounting system).
 //     * ApartmentNumber                    - String - an apartment number.
@@ -1488,7 +1488,7 @@ EndProcedure
 //          03              State Traffic Safety Inspectorate, taxes, duties, budgetary payments.
 //          04              Security services
 //          05              Services provided by FMS.
-//          06              PF
+//          06              Pension Fund
 //          07              Loan repayments
 //          08              Educational institutions.
 //          09              Internet and TV
@@ -3096,7 +3096,7 @@ Function GenerateOfficeDoc(Template, ObjectsArray, PrintObjects, LanguageCode, P
 		TemplateTreeForPopulation = CopyOfTemplateTree(TreeOfTemplate);
 		ParameterValues = GetObjectParametersValues(PrintData, PrintObject, TemplateTreeForPopulation, LanguageCode, PrintParameters, ParametersForFillingInHeader);
 		DocumentTree = TemplateTreeForPopulation.DocumentStructure.DocumentTree; 
-		ObjectData1 = PrintData[PrintObject];
+		ObjectData = PrintData[PrintObject];
 		FieldFormatSettings = PrintData["FieldFormatSettings"];
 		FillHeadersAndFooters = True;
 		
@@ -3105,7 +3105,7 @@ Function GenerateOfficeDoc(Template, ObjectsArray, PrintObjects, LanguageCode, P
 			If ValueIsFilled(CurrentArea.AreaCondition) Then
 				SafeModeSet = SafeMode();
 				SetSafeMode(True);
-				OutputRegion = EvalExpression(CurrentArea.AreaCondition, ObjectData1, FieldFormatSettings, LanguageCode, False);
+				OutputRegion = EvalExpression(CurrentArea.AreaCondition, ObjectData, FieldFormatSettings, LanguageCode, False);
 				
 				If Not SafeModeSet Then
 					SetSafeMode(False);
@@ -4938,7 +4938,7 @@ Function PathToFieldOwnerSData(FieldDataPath, FieldsDetails)
 	
 EndFunction
 
-Function PathToFieldDataInTablePart(FieldDataPath, PrintData) Export
+Function PathToFieldDataInTablePart(FieldDataPath, PrintData)
 	
 	PathToDataOfTablePart = PathToDataOfTablePart(FieldDataPath, PrintData);
 	
@@ -4950,7 +4950,7 @@ Function PathToFieldDataInTablePart(FieldDataPath, PrintData) Export
 	
 EndFunction
 
-Function PathToDataOfTablePart(FieldDataPath, PrintData) Export
+Function PathToDataOfTablePart(FieldDataPath, PrintData)
 	
 	PathToParentSData = PathToParentSData(FieldDataPath);
 	
@@ -4966,7 +4966,7 @@ Function PathToDataOfTablePart(FieldDataPath, PrintData) Export
 	
 EndFunction
 
-Function ThisTableSectionField(FieldDataPath, PrintData) Export
+Function ThisTableSectionField(FieldDataPath, PrintData)
 	
 	PathToParentSData = PathToParentSData(FieldDataPath);
 	
@@ -6817,13 +6817,13 @@ EndFunction
 
 Function GetObjectParametersValues(PrintData, PrintObject, TreeOfTemplate, LanguageCode, PrintParameters, TextParameters)
 	
-	ObjectData1 = PrintData[PrintObject];
+	ObjectData = PrintData[PrintObject];
 	FieldFormatSettings = PrintData["FieldFormatSettings"];
 	DocumentStructure = TreeOfTemplate.DocumentStructure;
 	
 	MatchingOfString = New Map();
 	For Each AreaParameter In TextParameters Do
-		Presentation = SetPresentationPicture(LanguageCode, AreaParameter, FieldFormatSettings, ObjectData1, PrintParameters);
+		Presentation = SetPresentationPicture(LanguageCode, AreaParameter, FieldFormatSettings, ObjectData, PrintParameters);
 		MatchingOfString.Insert(AreaParameter, Presentation);
 	EndDo;
 	Return MatchingOfString;

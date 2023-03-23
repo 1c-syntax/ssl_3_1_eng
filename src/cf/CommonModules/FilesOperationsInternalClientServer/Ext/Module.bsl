@@ -328,9 +328,7 @@ Function AddressInCloudService(Service, Href) Export
 	ObjectAddress = Href;
 	
 	If Not IsBlankString(Service) Then
-		If Service = "https://webdav.yandex.ru" Then
-			ObjectAddress = StrReplace(Href, "https://webdav.yandex.ru", "https://disk.yandex.ru/client/disk");
-		ElsIf Service = "https://webdav.yandex.com" Then
+		If Service = "https://webdav.yandex.com" Then
 			ObjectAddress = StrReplace(Href, "https://webdav.yandex.com", "https://disk.yandex.com/client/disk");
 		ElsIf Service = "https://dav.box.com/dav" Then
 			ObjectAddress = "https://app.box.com/files/0/";

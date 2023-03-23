@@ -24,19 +24,19 @@ Procedure UpdateTextExtractionQueueState(TextSource, TextExtractionState) Export
 		Return;
 	EndIf;
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
 	SetPrivilegedMode(True);
 	
 	RecordSet = InformationRegisters.TextExtractionQueue.CreateRecordSet();
-	RecordSet.Filter.DataAreaAuxiliaryData.Set(ModuleSaaS.SessionSeparatorValue());
+	RecordSet.Filter.DataAreaAuxiliaryData.Set(ModuleSaaSOperations.SessionSeparatorValue());
 	RecordSet.Filter.TextSource.Set(TextSource);
 	
 	If TextExtractionState = Enums.FileTextExtractionStatuses.NotExtracted
 			Or TextExtractionState = Enums.FileTextExtractionStatuses.EmptyRef() Then
 			
 		Record = RecordSet.Add();
-		Record.DataAreaAuxiliaryData = ModuleSaaS.SessionSeparatorValue();
+		Record.DataAreaAuxiliaryData = ModuleSaaSOperations.SessionSeparatorValue();
 		Record.TextSource = TextSource;
 			
 	EndIf;
@@ -306,8 +306,8 @@ Procedure FillTextExtractionQueue() Export
 	
 	IsSeparatedConfiguration = False;
 	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		IsSeparatedConfiguration = ModuleSaaS.IsSeparatedConfiguration();
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		IsSeparatedConfiguration = ModuleSaaSOperations.IsSeparatedConfiguration();
 	EndIf;
 	
 	If Not IsSeparatedConfiguration Then
@@ -344,7 +344,7 @@ Procedure HandleTextExtractionQueue() Export
 	EndIf;
 	
 	ModuleJobsQueue = Common.CommonModule("JobsQueue");
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
 	SetPrivilegedMode(True);
 	
@@ -395,7 +395,7 @@ Procedure HandleTextExtractionQueue() Export
 	Selection = Result.Select();
 	While Selection.Next() Do
 		// Check for data area lock.
-		If ModuleSaaS.DataAreaLocked(Selection.DataArea) Then
+		If ModuleSaaSOperations.DataAreaLocked(Selection.DataArea) Then
 			// The area is locked, proceeding to the next record.
 			Continue;
 		EndIf;

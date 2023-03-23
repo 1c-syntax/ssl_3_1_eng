@@ -71,9 +71,9 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 		
 		FullPathFieldName = ?(Common.IsWindowsServer(), "FullPathWindows", "FullPathLinux");
 		If Common.DataSeparationEnabled() Then
-			ModuleSaaS = Common.CommonModule("SaaSOperations");
-			SeparatorValue = ?(ModuleSaaS.SessionSeparatorUsage(),
-				ModuleSaaS.SessionSeparatorValue(), "");
+			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+			SeparatorValue = ?(ModuleSaaSOperations.SessionSeparatorUsage(),
+				ModuleSaaSOperations.SessionSeparatorValue(), "");
 		Else
 			SeparatorValue = "";
 		EndIf;

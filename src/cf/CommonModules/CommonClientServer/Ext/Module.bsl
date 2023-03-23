@@ -1010,7 +1010,6 @@ EndFunction
 //
 // Parameters:
 //  SearchArea - DataCompositionFilter
-//                - DataCompositionFilterItemCollection
 //                - DataCompositionFilterItemGroup    - a container with selection items and groups,
 //                                                             such as a List.Selection or group in the selection.
 //  FieldName       - String - a composition field name. Not applicable to groups.
@@ -1043,7 +1042,6 @@ EndFunction
 //
 // Parameters:
 //  ItemsCollection - DataCompositionFilter
-//                     - DataCompositionFilterItemCollection
 //                     - DataCompositionFilterItemGroup    - a container with selection items and groups,
 //                                                                  such as a List.Selection or group in the selection.
 //  Presentation      - String - group presentation.
@@ -1080,8 +1078,9 @@ EndFunction
 // Adds a composition item into a composition item container.
 //
 // Parameters:
-//  AreaToAddTo - DataCompositionFilterItemCollection - a container with items and filter groups.
-//                                                                 For example, List.Filter or a group in a filter.
+//  AreaToAddTo - DataCompositionFilter
+//                    - DataCompositionFilterItemGroup - a container with selection elements and groups,
+//                                                              such as a List.Selection or group in the selection.
 //  FieldName                 - String - a data composition field name. Required.
 //  Var_ComparisonType            - DataCompositionComparisonType - comparison type.
 //  RightValue          - Arbitrary - the value to compare to.
@@ -1140,8 +1139,9 @@ EndFunction
 // Changes the filter item with the specified field name or presentation.
 //
 // Parameters:
-//  SearchArea - DataCompositionFilterItemCollection - a container of items and filter groups.
-//                                                             For example, List.Filter or a group in a filer.
+//  SearchArea - DataCompositionFilter
+//                - DataCompositionFilterItemGroup - a container with selection items and groups,
+//                                                          such as a List.Selection or group in the selection.
 //  FieldName                 - String - a data composition field name. Required.
 //  Presentation           - String - presentation of the data composition item.
 //  RightValue          - Arbitrary - the value to compare to.
@@ -1238,8 +1238,9 @@ EndProcedure
 // Adds or replaces the existing filter item.
 //
 // Parameters:
-//  WhereToAdd - DataCompositionFilterItemCollection - a container with items and filter groups.
-//                                     For example, List.Filter or a group in a filter.
+//  WhereToAdd - DataCompositionFilter
+//                          - DataCompositionFilterItemGroup - a container with selection elements and groups,
+//                                     such as a List.Selection or group in the selection.
 //  FieldName                 - String - a data composition field name. Required.
 //  RightValue          - Arbitrary - the value to compare to.
 //  Var_ComparisonType            - DataCompositionComparisonType - comparison type.
@@ -1259,7 +1260,7 @@ Procedure SetFilterItem(WhereToAdd,
 								Val UserSettingID = Undefined) Export
 	
 	ModifiedCount = ChangeFilterItems(WhereToAdd, FieldName, Presentation,
-							RightValue, Var_ComparisonType, Use, ViewMode, UserSettingID);
+		RightValue, Var_ComparisonType, Use, ViewMode, UserSettingID);
 	
 	If ModifiedCount = 0 Then
 		If Var_ComparisonType = Undefined Then
@@ -1275,7 +1276,7 @@ Procedure SetFilterItem(WhereToAdd,
 			ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 		EndIf;
 		AddCompositionItem(WhereToAdd, FieldName, Var_ComparisonType,
-								RightValue, Presentation, Use, ViewMode, UserSettingID);
+			RightValue, Presentation, Use, ViewMode, UserSettingID);
 	EndIf;
 	
 EndProcedure

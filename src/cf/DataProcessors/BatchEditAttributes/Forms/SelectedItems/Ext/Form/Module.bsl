@@ -46,19 +46,52 @@ EndProcedure
 #Region SettingsComposerSettingsFilterFormTableItemEventHandlers
 
 &AtClient
+Procedure SettingsComposerSettingsFilterOnStartEdit(Item, NewRow, Copy)
+	
+	DetachIdleHandler("UpdateSelectedCount");
+	DetachIdleHandler("UpdateSelectedList");
+	SelectionsAreBeingEdited = True;
+	
+EndProcedure
+
+&AtClient
 Procedure SettingsComposerSettingsFilterOnEditEnd(Item, NewRow, CancelEdit)
+	
+	SelectionsAreBeingEdited = False;
 	InitializeSelectedListUpdate();
+	
 EndProcedure
 
 &AtClient
 Procedure SettingsComposerSettingsFilterAfterDeleteRow(Item)
+	
 	InitializeSelectedListUpdate();
+	
 EndProcedure
 
 &AtClient
 Procedure SettingsComposerSettingsFilterBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group)
+	
 	DetachIdleHandler("UpdateSelectedCount");
 	DetachIdleHandler("UpdateSelectedList");
+	
+EndProcedure
+
+&AtClient
+Procedure SettingsComposerSettingsFilterOnActivateRow(Item)
+	
+	NumberOfSelectionElements = NumberOfSelectionElements(SettingsComposer.Settings.Filter.Items);
+	If NumberOfConditions <> NumberOfSelectionElements Then
+		InitializeSelectedListUpdate();
+	EndIf; 
+	
+EndProcedure
+
+&AtClient
+Procedure SettingsComposerSettingsFilterOnChange(Item)
+	
+	InitializeSelectedListUpdate();
+	
 EndProcedure
 
 #EndRegion
@@ -69,14 +102,6 @@ EndProcedure
 Procedure ListSelection(Item, RowSelected, Field, StandardProcessing)
 	If Item.CurrentData <> Undefined Then 
 		ShowValue(, Item.CurrentData.Ref);
-	EndIf;
-EndProcedure
-
-&AtClient
-Procedure ListOnActivateRow(Item)
-	DetachIdleHandler("UpdateSelectedCount");
-	If Items.SelectedObjectsGroup.Visible Then
-		AttachIdleHandler("UpdateSelectedCount", 0.1, True);
 	EndIf;
 EndProcedure
 
@@ -176,10 +201,19 @@ EndProcedure
 
 &AtClient
 Procedure InitializeSelectedListUpdate()
+	
 	DetachIdleHandler("UpdateSelectedList");
+
+	If SelectionsAreBeingEdited Then
+		Return;
+	EndIf;
+	
+	NumberOfConditions = NumberOfSelectionElements(SettingsComposer.Settings.Filter.Items);
+	
 	If Items.SelectedObjectsGroup.Visible Then
 		AttachIdleHandler("UpdateSelectedList", 1, True);
 	EndIf;
+	
 EndProcedure
 
 &AtClient
@@ -236,6 +270,22 @@ Function TrimStringUsingChecksum(String, MaxLength)
 		Result = Result + StrReplace(DataHashing.HashSum, " ", "");
 	EndIf;
 	Return Result;
+EndFunction
+
+&AtClient
+Function NumberOfSelectionElements(CollectionOfSelectionElements)
+	
+	Result = 0;
+	
+	For Each Item In CollectionOfSelectionElements Do
+		Result = Result + 1;
+		If TypeOf(Item) = Type("DataCompositionFilterItemGroup") Then
+			Result = Result + NumberOfSelectionElements(Item.Items);
+		EndIf;
+	EndDo;
+	
+	Return Result;
+	
 EndFunction
 
 #EndRegion

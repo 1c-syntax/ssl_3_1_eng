@@ -59,13 +59,13 @@ Procedure UpdateRegisterDataAtServer(HasChanges)
 	
 	SetPrivilegedMode(True);
 	
-	UpdateParameters1 = InformationRegisters.ApplicationRuntimeParameters.UpdateParameters1();
-	UpdateParameters1.AccessManagement.RolesRights.ShouldUpdate = True;
+	ParametersOfUpdate = InformationRegisters.ApplicationRuntimeParameters.ParametersOfUpdate();
+	ParametersOfUpdate.AccessManagement.RolesRights.ShouldUpdate = True;
 	
 	InformationRegisters.ApplicationRuntimeParameters.ExecuteUpdateUnsharedDataInBackground(
-		UpdateParameters1, UUID);
+		ParametersOfUpdate, UUID);
 	
-	If UpdateParameters1.AccessManagement.RolesRights.HasChanges Then
+	If ParametersOfUpdate.AccessManagement.RolesRights.HasChanges Then
 		HasChanges = True;
 	EndIf;
 	

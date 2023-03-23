@@ -15,7 +15,7 @@ Procedure OnWrite(Cancel)
 	
 	// 
 	// 
-	SafeModeManagerInternal.InternalDataOnWrite(ThisObject);
+	SafeModeManagerInternal.OnSaveInternalData(ThisObject);
 	
 	If DataExchange.Load Then
 		Return;

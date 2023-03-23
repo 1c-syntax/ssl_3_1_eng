@@ -120,8 +120,29 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
 EndProcedure
 
+&AtServer
+Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
+	
+	ConvertSectionFillingResultsToTabularSection();
+	CurrentObject.Content.Clear();
+	For Each CompositionRow In Object.Content Do
+		NewRow = CurrentObject.Content.Add();
+		FillPropertyValues(NewRow, CompositionRow);
+	EndDo;
+	CurrentObject.SectionToEdit = Object.SectionToEdit;
+	CurrentObject.EditDate = CurrentSessionDate();
+	
+EndProcedure
+
 &AtClient
 Procedure AfterWrite(WriteParameters)
+	
+	ShowUserNotification(NStr("en = 'Изменение';"),
+	,
+	String(Object.Ref),
+	PictureLib.Information32);
+	
+	Notify("Write_Questionnaire",New Structure,Object.Ref);
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");

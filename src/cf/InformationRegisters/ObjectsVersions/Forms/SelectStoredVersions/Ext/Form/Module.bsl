@@ -426,19 +426,19 @@ Function VersionNumbersWithChangesInSelectedAttributes()
 	Result = New Array;
 	Result.Add(StoredVersions[StoredVersions.Count() - 1].VersionNumber);
 	
-	ObjectData1 = StoredVersions[0].Data.Get();
-	If TypeOf(ObjectData1) = Type("Structure") Then
-		ObjectData1 = ObjectData1.Object;
+	ObjectData = StoredVersions[0].Data.Get();
+	If TypeOf(ObjectData) = Type("Structure") Then
+		ObjectData = ObjectData.Object;
 	EndIf;
-	CurrentVersion = ObjectsVersioning.XMLObjectPresentationParsing(ObjectData1, Ref);
+	CurrentVersion = ObjectsVersioning.XMLObjectPresentationParsing(ObjectData, Ref);
 	For LineNumber = 1 To StoredVersions.Count() - 1 Do
 		VersionDetails = StoredVersions[LineNumber];
 		
-		ObjectData1 = VersionDetails.Data.Get();
-		If TypeOf(ObjectData1) = Type("Structure") Then
-			ObjectData1 = ObjectData1.Object;
+		ObjectData = VersionDetails.Data.Get();
+		If TypeOf(ObjectData) = Type("Structure") Then
+			ObjectData = ObjectData.Object;
 		EndIf;
-		PreviousVersion = ObjectsVersioning.XMLObjectPresentationParsing(ObjectData1, Ref);
+		PreviousVersion = ObjectsVersioning.XMLObjectPresentationParsing(ObjectData, Ref);
 		
 		If AttributesChanged(CurrentVersion, PreviousVersion, Filter.UnloadValues()) Then
 			Result.Add(StoredVersions[LineNumber - 1].VersionNumber);

@@ -347,7 +347,7 @@ Function AuthorReportsOptions(ReportKey, Author)
 		Query.Text = StrReplace(Query.Text, "AND Variants.Author.IBUserID = &GUID", ""); // @query-part-1
 	Else
 		If TypeOf(Author) = Type("UUID") Then
-			UserID1 = Author;
+			UserIdentificator = Author;
 		Else
 			If TypeOf(Author) = Type("String") Then
 				
@@ -366,10 +366,10 @@ Function AuthorReportsOptions(ReportKey, Author)
 				Return Undefined;
 			EndIf;
 			
-			UserID1 = IBUser.UUID;
+			UserIdentificator = IBUser.UUID;
 		EndIf;
 		
-		Query.SetParameter("GUID", UserID1);
+		Query.SetParameter("GUID", UserIdentificator);
 		Query.Text = StrReplace(Query.Text, "AND Variants.Author = &Author", ""); // @query-part-1
 	EndIf;
 	
@@ -424,7 +424,7 @@ Procedure Delete(ReportKey, VariantKey, Val User) Export
 		
 	Else
 		If TypeOf(User) = Type("UUID") Then
-			UserID1 = User;
+			UserIdentificator = User;
 		Else
 			If TypeOf(User) = Type("String") Then
 				SetPrivilegedMode(True);
@@ -438,9 +438,9 @@ Procedure Delete(ReportKey, VariantKey, Val User) Export
 			Else
 				Return;
 			EndIf;
-			UserID1 = IBUser.UUID;
+			UserIdentificator = IBUser.UUID;
 		EndIf;
-		Query.SetParameter("GUID", UserID1);
+		Query.SetParameter("GUID", UserIdentificator);
 		QueryText = StrReplace(QueryText, "AND Variants.Author = &Author", "");
 	EndIf;
 	

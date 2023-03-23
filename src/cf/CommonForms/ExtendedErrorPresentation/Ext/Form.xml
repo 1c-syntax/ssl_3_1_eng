@@ -343,26 +343,8 @@
 					<Behavior>PopUp</Behavior>
 					<ExtendedTooltip name="InstructionExtendedTooltip" id="63"/>
 					<ChildItems>
-						<LabelDecoration name="TypicalIssues" id="64">
-							<Title formatted="true">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>If you face any issues, read the &lt;link TypicalIssues&gt;digital signature&lt;/&gt; &lt;link InstructionClick&gt;app&lt;/&gt; &lt;link TypicalIssues&gt;troubleshooting&lt;/&gt;.</v8:content>
-								</v8:item>
-							</Title>
-							<ContextMenu name="TypicalIssuesContextMenu" id="65"/>
-							<ExtendedTooltip name="TypicalIssuesExtendedTooltip" id="66"/>
-							<Events>
-								<Event name="URLProcessing">TypicalIssuesURLProcessing</Event>
-							</Events>
-						</LabelDecoration>
 						<LabelDecoration name="SupportInformation" id="67">
-							<Title formatted="true">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>In other cases, contact the 1C Company technical support and provide them with &lt;link Ref&gt;technical information about the issue&lt;/&gt;.</v8:content>
-								</v8:item>
-							</Title>
+							<Title formatted="true"/>
 							<ContextMenu name="SupportInformationContextMenu" id="68"/>
 							<ExtendedTooltip name="SupportInformationExtendedTooltip" id="69"/>
 							<Events>

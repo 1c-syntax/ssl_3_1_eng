@@ -266,7 +266,13 @@ Procedure TransformToDoListTable(ToDoList, ViewSettings)
 				SectionPresentation = ToDoItem.Owner;
 			EndIf;
 			ToDoItem.Owner      = StrConcat(StrSplit(ToDoItem.Owner, InvalidChars, True));
+			If StartsWithNumber(ToDoItem.Owner) Then
+				ToDoItem.Owner = "_" + ToDoItem.Owner;
+			EndIf;
 			ToDoItem.Id = StrConcat(StrSplit(ToDoItem.Id, InvalidChars, True));
+			If StartsWithNumber(ToDoItem.Id) Then
+				ToDoItem.Id = "_" + ToDoItem.Id;
+			EndIf;
 			
 			IsUserTaskID = (ToDoList.Find(ToDoItem.Owner, "Id") <> Undefined);
 			If Not IsUserTaskID Then
@@ -275,6 +281,9 @@ Procedure TransformToDoListTable(ToDoList, ViewSettings)
 			
 			ToDoItem.OwnerID = StrReplace(ToDoItem.Owner, " ", "");
 			ToDoItem.OwnerID = StrConcat(StrSplit(ToDoItem.OwnerID, InvalidChars, True));
+			If StartsWithNumber(ToDoItem.OwnerID) Then
+				ToDoItem.OwnerID = "_" + ToDoItem.OwnerID;
+			EndIf;
 			If Not IsUserTaskID Then
 				ToDoItem.IsSection              = True;
 				ToDoItem.SectionPresentation   = SectionPresentation;
@@ -294,6 +303,11 @@ Procedure TransformToDoListTable(ToDoList, ViewSettings)
 			EndIf;
 		EndIf;
 		
+		// 
+		If TypeOf(ToDoItem.HasUserTasks) = Type("Boolean") Then
+			ToDoItem.HasToDoItems = ToDoItem.HasUserTasks;
+		EndIf;
+		
 	EndDo;
 	
 	If DisabledObjects.Count() > 0 Then
@@ -307,6 +321,19 @@ Procedure TransformToDoListTable(ToDoList, ViewSettings)
 	ToDoList.Columns.Delete("Owner");
 	
 EndProcedure
+
+Function StartsWithNumber(Name)
+	
+	FirstChar = Left(Name, 1);
+	StringToCheck = "0123456789";
+	
+	If StrFind(StringToCheck, FirstChar) > 0 Then
+		Return True
+	EndIf;
+	
+	Return False;
+	
+EndFunction
 
 Procedure AddUserTask(ToDoList, Manager, UserTasksCount)
 	

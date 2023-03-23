@@ -19,6 +19,7 @@
 //
 // 
 // 
+// 
 //
 // Parameters:
 //  ExecutionParameters - ClientApplicationForm -
@@ -109,6 +110,7 @@ EndFunction
 //
 // 
 // 
+// 
 //
 // Parameters:
 //
@@ -197,6 +199,7 @@ EndFunction
 //
 // 
 // 
+// 
 //
 // Parameters:
 //  FunctionName - String - the name of the export function in a common module, object manager module, 
@@ -226,7 +229,9 @@ EndFunction
 //
 Function ExecuteFunctionInMultipleThreads(FunctionName, Val ExecutionParameters, Val FunctionSettings = Undefined) Export
 	
-	If FunctionSettings <> Undefined And TypeOf(FunctionSettings) <> Type("Map") Then
+	If FunctionSettings <> Undefined
+	   And TypeOf(FunctionSettings) <> Type("Map")
+	   And TypeOf(FunctionSettings) <> Type("Structure") Then
 		Raise NStr("en = 'Invalid type of parameter set is passed';");
 	EndIf;
 	
@@ -234,40 +239,43 @@ Function ExecuteFunctionInMultipleThreads(FunctionName, Val ExecutionParameters,
 		Raise NStr("en = 'Multi-threaded long-running operations in a shared session are not supported.';");
 	EndIf;
 
-	ProcessID = ?(ValueIsFilled(ExecutionParameters.FormIdentifier),
-		ExecutionParameters.FormIdentifier,
-		New UUID);
-		
-	ExecutionParametersChildThreads = BackgroundExecutionParameters(ProcessID);
-	ExecutionParametersChildThreads.WaitCompletion = 0;
-	ExecutionParametersChildThreads.ResultAddress = PutToTempStorage(Undefined, New UUID);
-	ExecutionParametersChildThreads.MultiThreadOperation = True;
+	If ExecutionParameters.WaitCompletion = CommonBackgroundExecutionParameters().WaitCompletion Then
+		ExecutionParameters.WaitCompletion = 0;
+	EndIf;
 	
 	AddressResults = New Map;
 	
-	If FunctionSettings <> Undefined Then
+	If TypeOf(FunctionSettings) = Type("Map") Then
 		For Each ParameterFunctions In FunctionSettings Do
 			StreamResultAddr = PutToTempStorage(Undefined, New UUID);
 			AddressResults.Insert(ParameterFunctions.Key, StreamResultAddr);
 		EndDo;
+		MethodParameters = FunctionSettings.Count();
+	Else
+		MethodParameters = FunctionSettings; // Structure
+		FunctionSettings = New Map;
 	EndIf;
 	
+	ProcessID = New UUID;
 	MultithreadOperationParameters = MultithreadOperationParameters(ProcessID);
 	MultithreadOperationParameters.MethodName = FunctionName;
 	MultithreadOperationParameters.ForFunction = True;
-	MultithreadOperationParameters.OperationParametersList = ExecutionParameters;
-	MultithreadOperationParameters.MethodParameters = FunctionSettings;
-	MultithreadOperationParameters.ResultAddress = ExecutionParametersChildThreads.ResultAddress;
-	MultithreadOperationParameters.AbortExecutionIfError = ExecutionParameters.AbortExecutionIfError;
+	MultithreadOperationParameters.ExecutionParameters = ExecutionParameters;
+	MultithreadOperationParameters.MethodParameters = MethodParameters;
 	MultithreadOperationParameters.AddressResults = AddressResults;
-	MultithreadOperationParameters.MultiThreadOperation = True;
 	
-	PrepareMultiThreadOperationForStartup(FunctionName, MultithreadOperationParameters, ProcessID, FunctionSettings);
+	PrepareMultiThreadOperationForStartup(FunctionName,
+		AddressResults, ProcessID, FunctionSettings);
 	
-	RunResult = ExecuteFunction(ExecutionParametersChildThreads, MultithreadProcessMethodName(), MultithreadOperationParameters);
+	RunResult = New Structure("Status, JobID, ResultAddress",
+		TimeConsumingOperationStatus().Running);
+	ScheduleStartOfLongRunningOperationThreads(RunResult, MultithreadOperationParameters);
 	
-	If RunResult.Status = TimeConsumingOperationStatus().Running Then
-		ScheduleStartOfLongRunningOperationThreads(RunResult.JobID, RunResult, MultithreadOperationParameters);
+	RunResult = ExecuteFunction(ExecutionParameters,
+		MultithreadProcessMethodName(), MultithreadOperationParameters);
+	
+	If RunResult.Status <> TimeConsumingOperationStatus().Running Then
+		DeleteDataAboutThreads(ProcessID);
 	EndIf;
 	
 	Return RunResult;
@@ -280,6 +288,7 @@ EndFunction
 // 
 // 
 //
+// 
 // 
 // 
 //
@@ -309,7 +318,9 @@ EndFunction
 //
 Function ExecuteProcedureinMultipleThreads(ProcedureName, Val ExecutionParameters, Val ProcedureSettings = Undefined) Export
 	
-	If ProcedureSettings <> Undefined And TypeOf(ProcedureSettings) <> Type("Map") Then
+	If ProcedureSettings <> Undefined
+	   And TypeOf(ProcedureSettings) <> Type("Map")
+	   And TypeOf(ProcedureSettings) <> Type("Structure") Then
 		Raise NStr("en = 'Invalid type of parameter set is passed';");
 	EndIf;
 	
@@ -317,39 +328,47 @@ Function ExecuteProcedureinMultipleThreads(ProcedureName, Val ExecutionParameter
 		Raise NStr("en = 'Multi-threaded long-running operations in a shared session are not supported.';");
 	EndIf;
 	
-	ProcessID = ?(ValueIsFilled(ExecutionParameters.FormIdentifier),
-		ExecutionParameters.FormIdentifier,
-		New UUID);
-		
-	ExecutionParametersChildThreads = BackgroundExecutionParameters(ProcessID);
-	ExecutionParametersChildThreads.WaitCompletion = 0;
-	ExecutionParametersChildThreads.ResultAddress = PutToTempStorage(Undefined, New UUID);
-	ExecutionParametersChildThreads.MultiThreadOperation = True;
+	NewExecutionParameters = FunctionExecutionParameters(Undefined);
+	FillPropertyValues(NewExecutionParameters, ExecutionParameters);
+	ExecutionParameters = NewExecutionParameters;
+	
+	If ExecutionParameters.WaitCompletion = CommonBackgroundExecutionParameters().WaitCompletion Then
+		ExecutionParameters.WaitCompletion = 0;
+	EndIf;
 	
 	AddressResults = New Map;
 	
-	If ProcedureSettings <> Undefined Then
+	If TypeOf(ProcedureSettings) = Type("Map") Then
 		For Each ParameterFunctions In ProcedureSettings Do
 			StreamResultAddr = PutToTempStorage(Undefined, New UUID);
 			AddressResults.Insert(ParameterFunctions.Key, StreamResultAddr);
 		EndDo;
+		MethodParameters = ProcedureSettings.Count();
+	Else
+		MethodParameters = ProcedureSettings; // Structure
+		ProcedureSettings = New Map;
 	EndIf;
 	
+	ProcessID = New UUID;
 	MultithreadOperationParameters = MultithreadOperationParameters(ProcessID);
 	MultithreadOperationParameters.MethodName = ProcedureName;
 	MultithreadOperationParameters.ForFunction = False;
-	MultithreadOperationParameters.OperationParametersList = ExecutionParameters;
-	MultithreadOperationParameters.MethodParameters = ProcedureSettings;
-	MultithreadOperationParameters.ResultAddress = ExecutionParametersChildThreads.ResultAddress;
-	MultithreadOperationParameters.AbortExecutionIfError = ExecutionParameters.AbortExecutionIfError;
+	MultithreadOperationParameters.ExecutionParameters = ExecutionParameters;
+	MultithreadOperationParameters.MethodParameters = MethodParameters;
 	MultithreadOperationParameters.AddressResults = AddressResults;
 	
-	PrepareMultiThreadOperationForStartup(ProcedureName, MultithreadOperationParameters, ProcessID, ProcedureSettings);
+	PrepareMultiThreadOperationForStartup(ProcedureName,
+		AddressResults, ProcessID, ProcedureSettings);
 	
-	RunResult = ExecuteFunction(ExecutionParametersChildThreads, MultithreadProcessMethodName(), MultithreadOperationParameters);
+	RunResult = New Structure("Status, JobID, ResultAddress",
+		TimeConsumingOperationStatus().Running);
+	ScheduleStartOfLongRunningOperationThreads(RunResult, MultithreadOperationParameters);
 	
-	If RunResult.Status = TimeConsumingOperationStatus().Running Then
-		ScheduleStartOfLongRunningOperationThreads(RunResult.JobID, RunResult, MultithreadOperationParameters);
+	RunResult = ExecuteFunction(ExecutionParameters,
+		MultithreadProcessMethodName(), MultithreadOperationParameters);
+	
+	If RunResult.Status <> TimeConsumingOperationStatus().Running Then
+		DeleteDataAboutThreads(ProcessID);
 	EndIf;
 	
 	Return RunResult;
@@ -451,6 +470,7 @@ Function ProcedureExecutionParameters() Export
 	
 EndFunction
 
+// 
 // 
 // 
 // 
@@ -568,10 +588,10 @@ Function ExecuteInBackground(Val ProcedureName, Val ProcedureParameters, Val Exe
 #EndIf
 	
 	Result = New Structure;
-	Result.Insert("MultiThreadOperation", ExecutionParameters.MultiThreadOperation);
 	Result.Insert("Status", "Running");
 	Result.Insert("JobID", Undefined);
-	If ExecutionParameters.Property("ResultAddress") Then
+	If ExecutionParameters.Property("ResultAddress")
+	   And Not ExecutionParameters.Property("PropertiesOfExecutingThreadOfMultithreadedLongRunningOperation") Then
 		If ExecutionParameters.ResultAddress = Undefined Then
 			If Not ValueIsFilled(ExecutionParameters.FormIdentifier) And Common.DebugMode() Then
 				Try
@@ -643,7 +663,7 @@ Function ExecuteInBackground(Val ProcedureName, Val ProcedureParameters, Val Exe
 	If ExecuteWithoutBackgroundJob Then
 		Try
 			If ExecutionParameters.Property("IsFunction") And ExecutionParameters.IsFunction Then
-				CallFunction(ProcedureName, ExportProcedureParameters, ExecutionParameters.ResultAddress);
+				CallFunction(ProcedureName, ExportProcedureParameters, ExecutionParameters);
 			Else
 				CallProcedure(ProcedureName, ExportProcedureParameters);
 			EndIf;
@@ -686,25 +706,39 @@ Function ExecuteInBackground(Val ProcedureName, Val ProcedureParameters, Val Exe
 	EndIf;
 	
 	Result.JobID = Job.UUID;
+	If ProcedureName = MultithreadProcessMethodName()
+	   And Not ExecutionParameters.Property("ThisIsRestartOfControlThread") Then
+		ScheduleStartOfLongRunningOperationThreads(Result, ExportProcedureParameters[0]);
+	EndIf;
 	JobCompleted = False;
 	
+	Messages = New Array;
 	If ExecutionParameters.WaitCompletion <> 0 Then
-		Job = Job.WaitForExecutionCompletion(ExecutionParameters.WaitCompletion);
-		If Job.State <> BackgroundJobState.Active Then
-			JobCompleted = True;
-		EndIf;
+		While True Do
+			Job = Job.WaitForExecutionCompletion(ExecutionParameters.WaitCompletion);
+			If Job.State = BackgroundJobState.Active Then
+				Break;
+			EndIf;
+			If ExecutionParameters.WaitCompletion = Undefined Then
+				CommonClientServer.SupplementArray(Messages,
+					Job.GetUserMessages(True));
+			EndIf;
+			CurrentResult = ActionCompleted(Result.JobID, Job);
+			If CurrentResult.Status <> "Running" Then
+				JobCompleted = True;
+				Break;
+			EndIf;
+		EndDo;
 	EndIf;
 	
 	If JobCompleted Then
 		If ExecutionParameters.WaitCompletion <> Undefined Then
-			Messages = GetFromNotifications(True, Job.UUID, "Messages");
-		Else
-			Messages = Job.GetUserMessages(True);
+			Messages = GetFromNotifications(True, Result.JobID, "Messages");
 		EndIf;
 		Result.Messages = Messages;
 	EndIf;
 	
-	FillPropertyValues(Result, ActionCompleted(Job.UUID), , "Messages");
+	FillPropertyValues(Result, ActionCompleted(Result.JobID), , "Messages");
 	Return Result;
 	
 EndFunction
@@ -886,25 +920,53 @@ Procedure CancelJobExecution(Val JobID) Export
 	
 EndProcedure
 
-// Checks background job state by the passed ID.
-// If the job terminates abnormally, raises the exception that was generated
-// or a common exception "Cannot perform the operation. See the event log for details". 
+// 
+// 
+// 
 //
 // Parameters:
-//  JobID - UUID - a background job ID. 
+//  JobID - UUID - a background job ID.
+//  ExtendedResult - Boolean -
 //
 // Returns:
 //  Boolean - 
-// 
-Function JobCompleted(Val JobID) Export
+//  
+//   * Status      - String - "In progress" if the task hasn't finished yet;
+//                            "Completed" if the task was completed successfully;
+//                            " Error "if the task was completed with an error;
+//                            " Canceled " if the task was canceled by the user or administrator.
+//
+//   * ErrorText - String -
+//                            
+//
+//   * BriefErrorDescription   - String - brief information about the exception if the Status = "Error".
+//   * DetailErrorDescription - String - detailed information about the exception if the Status = "Error".
+//   * JobID         - UUID -
+//                                      
+//                                      
+//
+//   * Job - Undefined   -
+//             - BackgroundJob - 
+//
+Function JobCompleted(Val JobID, ExtendedResult = False) Export
 	
 	Job = Undefined;
 	Result = ActionCompleted(JobID, Job);
 	
+	If ExtendedResult Then
+		Properties = New Structure;
+		Properties.Insert("Status",                       Result.Status);
+		Properties.Insert("ErrorText",                  "");
+		Properties.Insert("BriefErrorDescription",   Result.BriefErrorDescription);
+		Properties.Insert("DetailErrorDescription", Result.DetailErrorDescription);
+		Properties.Insert("JobID",         LastID_(JobID));
+		Properties.Insert("Job",                      Job);
+	EndIf;
+	
 	If Result.Status = "Running" Then
-		Return False;
+		Return ?(ExtendedResult, Properties, False);
 	ElsIf Result.Status = "Completed2" Then
-		Return True;
+		Return ?(ExtendedResult, Properties, True);
 	EndIf;
 	
 	If Result.Status = "Canceled" Then
@@ -933,6 +995,11 @@ Function JobCompleted(Val JobID) Export
 			Job.MethodName,
 			String(JobID),
 			Result.DetailErrorDescription);
+	EndIf;
+	
+	If ExtendedResult Then
+		Properties.ErrorText = ErrorText;
+		Return Properties;
 	EndIf;
 	
 	Raise ErrorText;
@@ -1076,8 +1143,9 @@ EndFunction
 Function ActionCompleted(Val JobID, Job = Undefined) Export
 	
 	Result = OperationNewRuntimeResult();
+	LastID_ = LastID_(JobID);
 	
-	Job = FindJobByID(JobID);
+	Job = FindJobByID(LastID_);
 	If Job = Undefined Then
 		ResultFromNotification = GetFromNotifications(False,
 			JobID, "TimeConsumingOperationCompleted");
@@ -1085,25 +1153,29 @@ Function ActionCompleted(Val JobID, Job = Undefined) Export
 			FillPropertyValues(Result, ResultFromNotification);
 			Return Result;
 		EndIf;
+		If ControlFlowHasBeenRestarted(JobID, Job) Then
+			Return Result;
+		EndIf;
 		Result.BriefErrorDescription =
 			NStr("en = 'Cannot perform the operation due to abnormal termination of a background job.';");
 		Result.DetailErrorDescription = Result.BriefErrorDescription + Chars.LF
-			+ NStr("en = 'The background job does not exist';") + ": " + String(JobID);
+			+ NStr("en = 'The background job does not exist';") + ": " + String(LastID_);
 		WriteLogEvent(NStr("en = 'Long-running operations.Background job not found';", Common.DefaultLanguageCode()),
 			EventLogLevel.Error, , , Result.DetailErrorDescription);
 		Result.Status = "Error";
 		Return Result;
 	EndIf;
 	
-	WritePendingUserMessages(Job.UUID);
+	WritePendingUserMessages(JobID);
 	
-	If Job.State = BackgroundJobState.Active Then
+	If Job.State = BackgroundJobState.Active
+	 Or ControlFlowHasBeenRestarted(JobID, Job) Then
 		Return Result;
 	EndIf;
 	
 	If Job.State = BackgroundJobState.Canceled Then
 		SetPrivilegedMode(True);
-		If SessionParameters.TimeConsumingOperations.CanceledJobs.Find(JobID) = Undefined Then
+		If SessionParameters.TimeConsumingOperations.CanceledJobs.Find(LastID_) = Undefined Then
 			Result.Status = "Error";
 			If Job.ErrorInfo <> Undefined Then
 				Result.BriefErrorDescription   = NStr("en = 'Operation canceled by administrator.';");
@@ -1221,6 +1293,8 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 	If ParameterName = "TimeConsumingOperations" Then
 		Properties = New Structure;
 		Properties.Insert("CanceledJobs", New FixedArray(New Array));
+		Properties.Insert("Restarted", New FixedMap(New Map));
+		Properties.Insert("MainJobID");
 		Properties.Insert("ReceivedNotifications", New FixedMap(New Map));
 		Properties.Insert("ProgressMessageSendDate", '00010101');
 		SessionParameters.TimeConsumingOperations = New FixedStructure(Properties);
@@ -1235,19 +1309,12 @@ Procedure OnAddServerNotifications(Notifications) Export
 	Notification = ServerNotifications.NewServerNotification(NameOfAlert());
 	Notification.NotificationSendModuleName  = "";
 	Notification.NotificationReceiptModuleName = "TimeConsumingOperationsClient";
-	
 	Notifications.Insert(Notification.Name, Notification);
 	
-EndProcedure
-
-////////////////////////////////////////////////////////////////////////////////
-// 
-
-// See JobsQueueOverridable.OnDefineHandlerAliases
-Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
-	
-	NamesAndAliasesMap.Insert(
-		Metadata.ScheduledJobs.StartThreadsOfLongRunningOperations.MethodName);
+	Notification = ServerNotifications.NewServerNotification(NameOfAdditionalNotification());
+	Notification.NotificationSendModuleName  = "TimeConsumingOperations";
+	Notification.NotificationReceiptModuleName = "TimeConsumingOperationsClient";
+	Notifications.Insert(Notification.Name, Notification);
 	
 EndProcedure
 
@@ -1255,12 +1322,23 @@ EndProcedure
 
 #Region Private
 
+// See StandardSubsystemsServer.OnSendServerNotification
+Procedure OnSendServerNotification(NameOfAlert, ParametersVariants) Export
+	
+	If NameOfAlert <> NameOfAdditionalNotification() Then
+		Return;
+	EndIf;
+	
+	DeleteNonExistingThreads();
+	
+EndProcedure
+
 Function OperationNewRuntimeResult() Export
 	
 	Result = New Structure;
 	Result.Insert("Status", "Running");
-	Result.Insert("BriefErrorDescription", Undefined);
-	Result.Insert("DetailErrorDescription", Undefined);
+	Result.Insert("BriefErrorDescription", "");
+	Result.Insert("DetailErrorDescription", "");
 	Result.Insert("Progress", Undefined);
 	Result.Insert("Messages", Undefined);
 	
@@ -1268,29 +1346,78 @@ Function OperationNewRuntimeResult() Export
 	
 EndFunction
 
+// Parameters:
+//  JobID - UUID
+//
+// Returns:
+//  UUID
+//
+Function LastID_(JobID)
+	
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+	
+	Last_3 = SessionParameters.TimeConsumingOperations.Restarted.Get(JobID);
+	
+	SetPrivilegedMode(False);
+	SetSafeModeDisabled(False);
+	
+	If Last_3 = Undefined Then
+		Return JobID;
+	EndIf;
+	
+	Return Last_3;
+	
+EndFunction
+
+Function MainJobID(BackgroundJob, ProcessID = Undefined)
+	
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+	
+	If ValueIsFilled(ProcessID) Then
+		Id = FirstIdOfControlFlowJob(ProcessID);
+		Properties = New Structure(SessionParameters.TimeConsumingOperations);
+		Properties.MainJobID = Id;
+		SessionParameters.TimeConsumingOperations = New FixedStructure(Properties);
+	Else
+		Id = SessionParameters.TimeConsumingOperations.MainJobID;
+		If Not ValueIsFilled(Id) Then
+			Id = BackgroundJob.UUID;
+		EndIf;
+	EndIf;
+	
+	SetPrivilegedMode(False);
+	SetSafeModeDisabled(False);
+	
+	Return Id;
+	
+EndFunction
+
 // 
+// 
+// Parameters:
+//   ProcessID - UUID
+//   SavedParameters1 - 
 // 
 // Returns:
 //  Structure:
+//   * ProcessID - UUID
 //   * MethodName - String
 //   * ForFunction - Boolean
-//   * OperationParametersList -  See FunctionExecutionParameters
-//   * MethodParameters - Map
-//   * ResultAddress - String
-//   * AbortExecutionIfError - Boolean
+//   * ExecutionParameters - See FunctionExecutionParameters
+//   * MethodParameters - 
 //   * AddressResults - String
 //
 Function MultithreadOperationParameters(ProcessID, SavedParameters1 = Undefined) 
 	
 	MultithreadOperationParameters = New Structure;
-	MultithreadOperationParameters.Insert("MethodName",                    "");
-	MultithreadOperationParameters.Insert("ForFunction",                   False);
-	MultithreadOperationParameters.Insert("OperationParametersList",            FunctionExecutionParameters(ProcessID));
-	MultithreadOperationParameters.Insert("MethodParameters",              New Map());
-	MultithreadOperationParameters.Insert("ResultAddress",              "");
-	MultithreadOperationParameters.Insert("AbortExecutionIfError", False);
-	MultithreadOperationParameters.Insert("AddressResults",             "");
-	MultithreadOperationParameters.Insert("MultiThreadOperation",        False);
+	MultithreadOperationParameters.Insert("ProcessID", ProcessID);
+	MultithreadOperationParameters.Insert("MethodName",             "");
+	MultithreadOperationParameters.Insert("ForFunction",            False);
+	MultithreadOperationParameters.Insert("ExecutionParameters",   FunctionExecutionParameters(Undefined));
+	MultithreadOperationParameters.Insert("MethodParameters",       0);
+	MultithreadOperationParameters.Insert("AddressResults",      "");
 	
 	If TypeOf(SavedParameters1) = Type("Structure") Then
 		FillPropertyValues(MultithreadOperationParameters, SavedParameters1);
@@ -1327,6 +1454,7 @@ Function LongRunningOperationCheckResult(Parameters) Export
 	
 	Result = New Map;
 	For Each JobID In Parameters.JobsToCheck Do
+		// @skip-
 		Result.Insert(JobID, ActionCompleted(JobID));
 	EndDo;
 	
@@ -1455,8 +1583,9 @@ Procedure ExecuteWithClientContext(AllParameters) Export
 		If BackgroundJob <> Undefined
 		   And AllParameters.ProcedureName = MultithreadProcessMethodName() Then
 			ClientParameters = New Map(ClientParameters);
+			ProcessID = AllParameters.ProcedureParameters[0].ProcessID;
 			ClientParameters.Insert("MultithreadProcessJobID",
-				BackgroundJob.UUID);
+				MainJobID(BackgroundJob, ProcessID));
 			ClientParameters = New FixedMap(ClientParameters);
 		EndIf;
 	EndIf;
@@ -1480,8 +1609,9 @@ Procedure ExecuteWithClientContext(AllParameters) Export
 	SetFullNameOfAppliedProcedure(AllParameters.ProcedureName);
 	Result = OperationNewRuntimeResult();
 	Try
-		If AllParameters.ExecutionParameters.Property("IsFunction") And AllParameters.ExecutionParameters.IsFunction Then
-			CallFunction(AllParameters.ProcedureName, AllParameters.ProcedureParameters, AllParameters.ExecutionParameters.ResultAddress);
+		ExecutionParameters = AllParameters.ExecutionParameters;
+		If ExecutionParameters.Property("IsFunction") And ExecutionParameters.IsFunction Then
+			CallFunction(AllParameters.ProcedureName, AllParameters.ProcedureParameters, ExecutionParameters);
 		Else
 			CallProcedure(AllParameters.ProcedureName, AllParameters.ProcedureParameters);
 		EndIf;
@@ -1534,13 +1664,13 @@ Procedure CallProcedure(ProcedureName, CallParameters)
 	
 EndProcedure
 
-Procedure CallFunction(FunctionName, ProcedureParameters, ResultAddress)
+Procedure CallFunction(FunctionName, ProcedureParameters, ExecutionParameters)
 	
 	NameParts = StrSplit(FunctionName, ".");
 	IsDataProcessorModuleProcedure = (NameParts.Count() = 4) And Upper(NameParts[2]) = "OBJECTMODULE";
 	If Not IsDataProcessorModuleProcedure Then
 		Result = Common.CallConfigurationFunction(FunctionName, ProcedureParameters);
-		PutToTempStorage(Result, ResultAddress);
+		SetResultOfFunctionCall(Result, ExecutionParameters);
 		Return;
 	EndIf;
 	
@@ -1550,7 +1680,7 @@ Procedure CallFunction(FunctionName, ProcedureParameters, ResultAddress)
 		ObjectManager = ?(IsReport, Reports, DataProcessors);
 		DataProcessorReportObject = ObjectManager[NameParts[1]].Create();
 		Result = Common.CallObjectFunction(DataProcessorReportObject, NameParts[3], ProcedureParameters);
-		PutToTempStorage(Result, ResultAddress);
+		SetResultOfFunctionCall(Result, ExecutionParameters);
 		Return;
 	EndIf;
 	
@@ -1561,7 +1691,7 @@ Procedure CallFunction(FunctionName, ProcedureParameters, ResultAddress)
 		ObjectManager = ?(IsExternalReport, ExternalReports, ExternalDataProcessors);
 		DataProcessorReportObject = ObjectManager.Create(NameParts[1], SafeMode());
 		Result = Common.CallObjectFunction(DataProcessorReportObject, NameParts[3], ProcedureParameters);
-		PutToTempStorage(Result, ResultAddress);
+		SetResultOfFunctionCall(Result, ExecutionParameters);
 		Return;
 	EndIf;
 	
@@ -1570,6 +1700,29 @@ Procedure CallFunction(FunctionName, ProcedureParameters, ResultAddress)
 	
 EndProcedure
 
+Procedure SetResultOfFunctionCall(Result, ExecutionParameters)
+	
+	If Not ExecutionParameters.Property("PropertiesOfExecutingThreadOfMultithreadedLongRunningOperation") Then
+		PutToTempStorage(Result, ExecutionParameters.ResultAddress);
+		Return;
+	EndIf;
+	
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+	
+	SetResultOfStream(ExecutionParameters.PropertiesOfExecutingThreadOfMultithreadedLongRunningOperation, Result);
+	
+	SetPrivilegedMode(False);
+	SetSafeModeDisabled(False);
+	
+EndProcedure
+
+// Parameters:
+//  JobID - 
+//
+// Returns:
+//  Background Task, Undefined
+//
 Function FindJobByID(Val JobID)
 	
 	If TypeOf(JobID) = Type("String") Then
@@ -1672,9 +1825,11 @@ Function GetFromNotifications(ShouldSkipReceivedNotifications, JobID, Notificati
 EndFunction
 
 Function NameOfAlert()
-	
 	Return "StandardSubsystems.Core.TimeConsumingOperations";
-	
+EndFunction
+
+Function NameOfAdditionalNotification()
+	Return "StandardSubsystems.Core.TimeConsumingOperations.RemovingNonExistentThreads";
 EndFunction
 
 // Parameters:
@@ -1700,7 +1855,8 @@ Function ShouldSkipNotification(Data) Export
 	
 EndFunction
 
-Procedure SendClientNotification(NotificationKind, ValueToPass, BackgroundJob = Undefined) Export
+Procedure SendClientNotification(NotificationKind, ValueToPass,
+			BackgroundJob = Undefined, MainJobID = Undefined) Export
 	
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
@@ -1708,7 +1864,6 @@ Procedure SendClientNotification(NotificationKind, ValueToPass, BackgroundJob = 
 	WriteUserMessages = BackgroundJob <> Undefined And NotificationKind = "UserMessage";
 	If WriteUserMessages Then
 		ParentSessionKey = ServerNotifications.SessionKey();
-		MainJobID = BackgroundJob.UUID;
 	Else
 		ParentSessionKey = StandardSubsystemsServer.ClientParametersAtServer(False).Get(
 			"ParentSessionKey");
@@ -1723,12 +1878,15 @@ Procedure SendClientNotification(NotificationKind, ValueToPass, BackgroundJob = 
 			StandardSubsystemsServer.ClientParametersAtServer(False).Get(
 				"MultithreadProcessJobID");
 		MainJobID = ?(ValueIsFilled(MultithreadProcessJobID),
-			MultithreadProcessJobID, BackgroundJob.UUID);
+			MultithreadProcessJobID, MainJobID(BackgroundJob));
 	EndIf;
 	
 	If NotificationKind = "TimeConsumingOperationCompleted" Then
 		If ValueIsFilled(MultithreadProcessJobID) Then
-			Return;
+			If MultithreadProcessJobID <> MainJobID(BackgroundJob)
+			 Or ValueToPass.Status = "Error" Then
+				Return;
+			EndIf;
 		EndIf;
 		Result = ValueToPass;
 	Else
@@ -1740,6 +1898,7 @@ Procedure SendClientNotification(NotificationKind, ValueToPass, BackgroundJob = 
 	ElsIf NotificationKind = "Progress" Then
 		Messages = BackgroundJob.GetUserMessages(True);
 		For Each Message In Messages Do
+			// 
 			SendClientNotification("UserMessage", Message);
 		EndDo;
 		Result.Messages = New FixedArray(New Array);
@@ -1747,6 +1906,7 @@ Procedure SendClientNotification(NotificationKind, ValueToPass, BackgroundJob = 
 	ElsIf NotificationKind = "TimeConsumingOperationCompleted" Then
 		Messages = BackgroundJob.GetUserMessages(True);
 		For Each Message In Messages Do
+			// 
 			SendClientNotification("UserMessage", Message);
 		EndDo;
 	EndIf;
@@ -1774,11 +1934,13 @@ EndProcedure
 //
 Procedure WritePendingUserMessages(JobID)
 	
-	BackgroundJob = BackgroundJobs.FindByUUID(JobID);
+	LastID_ = LastID_(JobID);
+	BackgroundJob = BackgroundJobs.FindByUUID(LastID_);
 	If BackgroundJob <> Undefined Then
 		Messages = BackgroundJob.GetUserMessages(True);
 		For Each Message In Messages Do
-			SendClientNotification("UserMessage", Message, BackgroundJob);
+			// 
+			SendClientNotification("UserMessage", Message, BackgroundJob, JobID);
 		EndDo;
 	EndIf;
 	
@@ -1787,7 +1949,7 @@ EndProcedure
 Function BackgroundJobsExistInFileIB()
 	
 	JobsRunningInFileIB = 0;
-	If Common.FileInfobase() And Not InfobaseUpdate.InfobaseUpdateRequired() Then
+	If Common.FileInfobase() Then
 		Filter = New Structure;
 		Filter.Insert("State", BackgroundJobState.Active);
 		JobsRunningInFileIB = BackgroundJobs.GetBackgroundJobs(Filter).Count();
@@ -1893,7 +2055,6 @@ Function CommonBackgroundExecutionParameters()
 	Result.Insert("NoExtensions", False);
 	Result.Insert("WithDatabaseExtensions", False);
 	Result.Insert("AbortExecutionIfError", False);
-	Result.Insert("MultiThreadOperation", False);
 	Result.Insert("WaitForCompletion", -1); // 
 	
 	Return Result;
@@ -1917,84 +2078,114 @@ Function ExecuteMultithreadedProcess(OperationParametersList) Export
 	
 	DeleteNonExistingThreads();
 	
-	ProcessID = OperationParametersList.OperationParametersList.FormIdentifier;
+	ProcessID = OperationParametersList.ProcessID;
+	AbortExecutionIfError = OperationParametersList.ExecutionParameters.AbortExecutionIfError;
 	
-	Portions = OperationParametersList.MethodParameters;
-	Results = New Map();
+	DynamicReceiptOfPortions = TypeOf(OperationParametersList.MethodParameters) = Type("Structure");
+	Percent = 0;
+	
+	If DynamicReceiptOfPortions Then
+		NameOfMethodForGettingPortions = OperationParametersList.MethodParameters.NameOfMethodForGettingPortions;
+		ContextOfReceivingAndProcessingPortions = OperationParametersList.MethodParameters.Context;
+		If Not ContextOfReceivingAndProcessingPortions.Property("Percent") Then
+			ContextOfReceivingAndProcessingPortions.Insert("Percent", 0);
+		EndIf;
+		ContextOfReceivingAndProcessingPortions.Insert("Cache", Undefined);
+	Else
+		BatchesCount = OperationParametersList.MethodParameters;
+		NumberofPortionsProcessed = Undefined;
+	EndIf;
 	
 	FinishEarly = False;
 	
-	Threads = TreadsPendingProcessing(ProcessID);
-	HasThreadsToHandle = Threads.Count() > 0;
-	
-	NumberofPortionsProcessed = Portions.Count() - Threads.Count();
-	
-	Try
+	While True Do
 		
-		While HasThreadsToHandle Do
+		If DynamicReceiptOfPortions Then
+			NewPortions = New Map;
+			ParametersForReceivingPortions = New Array;
+			ParametersForReceivingPortions.Add(NewPortions);
+			ParametersForReceivingPortions.Add(ContextOfReceivingAndProcessingPortions);
+			Common.ExecuteConfigurationMethod(NameOfMethodForGettingPortions, ParametersForReceivingPortions);
+			AddressesOfNewResults = New Map;
+			For Each KeyAndValue In NewPortions Do
+				AddressesOfNewResults.Insert(KeyAndValue.Key,
+					PutToTempStorage(Undefined, New UUID));
+			EndDo;
+			PrepareMultiThreadOperationForStartup(OperationParametersList.MethodName,
+				AddressesOfNewResults, ProcessID, NewPortions, OperationParametersList);
+		EndIf;
+		
+		// 
+		Threads = TreadsPendingProcessing(ProcessID);
+		If Threads.Count() = 0 Then
+			Break;
+		EndIf;
+		
+		If Not DynamicReceiptOfPortions
+		   And NumberofPortionsProcessed = Undefined Then
+			NumberofPortionsProcessed = BatchesCount - Threads.Count();
+		EndIf;
+		
+		For Each Stream In Threads Do
 			
-			For Each Stream In Threads Do
-				
-				ThreadKey        = Stream.ThreadKey.Get();
- 				OperationParametersList = MultithreadOperationParameters(ProcessID, Stream.ExecutionParameters.Get());
-				
-				Result = ExecuteThread(Stream);
-				
-				If Result.Status = TimeConsumingOperationStatus().Error Then
-					
-					UpdateInfoAboutThread(Stream, Result);
-					If OperationParametersList.AbortExecutionIfError Then
-						FinishEarly = True;
-						Break;
-					EndIf; 
-					
-				EndIf;
-				
-				JobID = Result.JobID;
-				SendThreadMessages(JobID);
-				
-				// 
-				StatusWaiting = WaitForAvailableThread(ProcessID, JobID, OperationParametersList.AbortExecutionIfError);
-				
-				If StatusWaiting = Undefined Then
+			If Stream.Status <> TimeConsumingOperationStatus().CreatedOn Then
+				If AbortExecutionIfError Then
 					FinishEarly = True;
 					Break;
-				EndIf;
-				
-				NumberofPortionsProcessed = NumberofPortionsProcessed + 1;
-				Percent = Round(NumberofPortionsProcessed * 100 / Portions.Count());
-				Percent = ?(Percent < 100, Percent, 99);
-				ReportProgress(Percent, String(ThreadKey), "ProgressofMultithreadedProcess");
+				EndIf; 
+				// 
+				SendThreadMessages(Stream.JobID);
+			EndIf;
 			
-			EndDo;
-			
-			If FinishEarly Then
-				Break;
-			EndIf; 
-
 			// 
-			WaitForAllThreadsCompletion(ProcessID, OperationParametersList.AbortExecutionIfError);
+			ExecuteInBackground = WaitForAvailableThread(ProcessID, AbortExecutionIfError);
+			If ExecuteInBackground = Undefined Then
+				FinishEarly = True;
+				Break;
+			EndIf;
 			
-			// @skip-
-			Threads = TreadsPendingProcessing(ProcessID);
-			HasThreadsToHandle = Threads.Count() > 0;
+			Result = ExecuteThread(Stream, OperationParametersList, ExecuteInBackground);
+			If Result.Status = TimeConsumingOperationStatus().Error Then
+				If AbortExecutionIfError Then
+					FinishEarly = True;
+					Break;
+				EndIf; 
+			EndIf;
+			
+			If DynamicReceiptOfPortions Then
+				Percent = ContextOfReceivingAndProcessingPortions.Percent;
+			Else
+				NumberofPortionsProcessed = NumberofPortionsProcessed + 1;
+				Percent = Round(NumberofPortionsProcessed * 100 / BatchesCount);
+			EndIf;
+			Percent = ?(Percent < 100, Percent, 99);
+			If Percent > 0 Then
+				ThreadKey = Stream.ThreadKey.Get();
+				ReportProgress(Percent, String(ThreadKey), "ProgressofMultithreadedProcess");
+			EndIf;
 			
 		EndDo;
 		
-	Except
+		If FinishEarly Then
+			Break;
+		EndIf;
 		
-		CancelAllThreadsExecution(ProcessID);
+		// 
+		WaitForAllThreadsCompletion(ProcessID, AbortExecutionIfError, FinishEarly);
 		
-		Raise;
+		If FinishEarly Then
+			Break;
+		EndIf;
 		
-	EndTry;
+	EndDo;
 	
 	If FinishEarly Then
 		CancelAllThreadsExecution(ProcessID);
 	EndIf;
 	
-	ReportProgress(100, "", "ProgressofMultithreadedProcess");
-	
+	If Percent > 0 Then
+		ReportProgress(100, "", "ProgressofMultithreadedProcess");
+	EndIf;
 	//  
 	
 	ThreadsProcess = ThreadsLongOperations(ProcessID); 
@@ -2009,7 +2200,9 @@ Function ExecuteMultithreadedProcess(OperationParametersList) Export
 		
 		FillPropertyValues(Results[Var_Key], Stream, 
 			"Status, DetailErrorDescription, BriefErrorDescription, JobID");
-		DeleteThread(Stream);
+		
+		// 
+		SendThreadMessages(Stream.JobID);
 	EndDo;
 	
 	Return Results;
@@ -2019,29 +2212,25 @@ EndFunction
 // Run the given thread.
 //
 // Parameters:
-//  
 //  Stream - InformationRegisterRecordSet.TimeConsumingOperations
-//  
+//  OperationParametersList - See MultithreadOperationParameters
+//  ExecuteInBackground - Boolean
 // 
 // Returns:
 //   See ExecuteInBackground
 //
-Function ExecuteThread(Stream)
+Function ExecuteThread(Stream, OperationParametersList, ExecuteInBackground)
 	
-	StreamParameters = MultithreadOperationParameters(Stream.ProcessID, Stream.ExecutionParameters.Get());
-	
-	ExecutionParameters = BackgroundExecutionParameters(StreamParameters.OperationParametersList.FormIdentifier);
+	ExecutionParameters = BackgroundExecutionParameters();
 	ExecutionParameters.BackgroundJobDescription = Stream.Description;
-	ExecutionParameters.WaitCompletion = 0; 
-	If Common.FileInfobase() Then
-		ExecutionParameters.ResultAddress = PutToTempStorage(Undefined);
-	Else
-		ExecutionParameters.ResultAddress = Stream.ResultAddress;
-	EndIf;
-		
-	If TypeOf(Stream.ThreadKey) = Type("ValueStorage") Then
-		ExecutionParameters.BackgroundJobKey = Stream.ThreadKey.Get();
-	EndIf;
+	ExecutionParameters.WaitCompletion = 0;
+	ExecutionParameters.RunNotInBackground1 = OperationParametersList.ExecutionParameters.RunNotInBackground1
+		Or ExclusiveMode() Or Not ExecuteInBackground;
+	
+	FlowProperties = New Structure;
+	FlowProperties.Insert("ProcessID", Stream.ProcessID);
+	FlowProperties.Insert("ThreadID",   Stream.ThreadID);
+	ExecutionParameters.Insert("PropertiesOfExecutingThreadOfMultithreadedLongRunningOperation", FlowProperties);
 	
 	If TypeOf(Stream.StreamParameters) = Type("ValueStorage") Then
 		MethodParameters = Stream.StreamParameters.Get();
@@ -2049,10 +2238,10 @@ Function ExecuteThread(Stream)
 		MethodParameters = New Array;
 	EndIf;
 	
-	ExecutionParameters = PrepareExecutionParameters(ExecutionParameters, StreamParameters.ForFunction);
+	ExecutionParameters = PrepareExecutionParameters(ExecutionParameters, OperationParametersList.ForFunction);
 	
-	SetFullNameOfAppliedProcedure(StreamParameters.MethodName);
-	RunResult = ExecuteInBackground(StreamParameters.MethodName, MethodParameters, ExecutionParameters);
+	SetFullNameOfAppliedProcedure(OperationParametersList.MethodName);
+	RunResult = ExecuteInBackground(OperationParametersList.MethodName, MethodParameters, ExecutionParameters);
 	SetFullNameOfAppliedProcedure(MultithreadProcessMethodName());
 	UpdateInfoAboutThread(Stream, RunResult);
 	
@@ -2076,44 +2265,42 @@ EndFunction
 
 Procedure UpdateInfoAboutThread(Stream, RunResult = Undefined)
 	
+	LaunchResultIsSpecified = RunResult <> Undefined;
+	
 	If RunResult = Undefined Then
-		
 		RunResult = NewResultLongOperation(); 
-		RunResult.ResultAddress = Stream.ResultAddress;
-		RunResult.JobID = Stream.JobID;
 		
 		If ValueIsFilled(Stream.JobID) Then
-			Job = FindJobByID(Stream.JobID);
+			LastID_ = LastIdOfControlFlowJob(Stream);
+			Job = FindJobByID(LastID_);
 			
 			If Job <> Undefined Then
-				
 				RunResult.Status = StatusFromState(Job.State);
-				If Job.ErrorInfo  <> Undefined Then
-					RunResult.BriefErrorDescription   = ErrorProcessing.BriefErrorDescription(Job.ErrorInfo);
-					RunResult.DetailErrorDescription = ErrorProcessing.DetailErrorDescription(Job.ErrorInfo);
-				EndIf;
 				
+				If Job.ErrorInfo  <> Undefined Then
+					RunResult.BriefErrorDescription =
+						ErrorProcessing.BriefErrorDescription(Job.ErrorInfo);
+					RunResult.DetailErrorDescription =
+						ErrorProcessing.DetailErrorDescription(Job.ErrorInfo);
+				EndIf;
 			Else
 				RunResult.Status = TimeConsumingOperationStatus().Error;
 			EndIf;
 		Else
 			RunResult.Status = TimeConsumingOperationStatus().CreatedOn;
 		EndIf;
-	
 	EndIf;
 	
-	ThreadID = Stream.ThreadID;
+	ThreadID   = Stream.ThreadID;
 	ProcessID = Stream.ProcessID;
 	
 	Block = New DataLock;
 	LockItem = Block.Add("InformationRegister.TimeConsumingOperations"); 
 	LockItem.SetValue("ProcessID", ProcessID);
-	LockItem.SetValue("ThreadID", ThreadID);
+	LockItem.SetValue("ThreadID",   ThreadID);
 	
 	BeginTransaction();
-	
 	Try
-		
 		Block.Lock();
 		
 		SetPrivilegedMode(True);
@@ -2125,32 +2312,117 @@ Procedure UpdateInfoAboutThread(Stream, RunResult = Undefined)
 		RecordSet.Read();
 		
 		If RecordSet.Count() > 0 Then
-			
 			Record = RecordSet.Get(0);
+			
+			If LaunchResultIsSpecified Then
+				Record.JobID = RunResult.JobID;
+				Record.AttemptNumber = Stream.AttemptNumber + 1;
+				Record.ThreadKey   = Stream.ThreadKey;
+			EndIf;
 			Record.Status = RunResult.Status;
-			Record.JobID = RunResult.JobID;
 			If RunResult.Status = TimeConsumingOperationStatus().Error Then
 				Record.DetailErrorDescription = RunResult.DetailErrorDescription;
-				Record.BriefErrorDescription = RunResult.BriefErrorDescription; 
-				Record.AttemptNumber = Record.AttemptNumber + 1;
-			ElsIf RunResult.Status = TimeConsumingOperationStatus().Running Then
-				Record.AttemptNumber = Record.AttemptNumber + 1;
-			ElsIf RunResult.Status = "Completed2" Then
-				Record.Result = New ValueStorage(GetFromTempStorage(RunResult.ResultAddress));
-			EndIf; 
+				Record.BriefErrorDescription   = RunResult.BriefErrorDescription; 
+			EndIf;
 			
 			FillPropertyValues(Stream, Record);
 			
 			RecordSet.Write();
-			
 		EndIf;
+		
 		CommitTransaction();
-		
 	Except
-		
 		RollbackTransaction();
 		Raise;
+	EndTry;
+	
+EndProcedure
+
+Function FirstIdOfControlFlowJob(ProcessID)
+	
+	Query = New Query;
+	Query.Text =
+	"SELECT
+	|	TimeConsumingOperations.JobID AS JobID
+	|FROM
+	|	InformationRegister.TimeConsumingOperations AS TimeConsumingOperations
+	|WHERE
+	|	TimeConsumingOperations.ProcessID = &ProcessID
+	|	AND TimeConsumingOperations.ThreadID = &BlankUUID";
+	
+	Query.SetParameter("ProcessID", ProcessID);
+	Query.SetParameter("BlankUUID",
+		CommonClientServer.BlankUUID());
+	
+	Selection = Query.Execute().Select();
+	If Selection.Next() Then
+		Return Selection.JobID;
+	EndIf;
+	
+	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Cannot find a record for the thread of control of the %1 multithreaded long-running operation';"),
+		String(ProcessID));
+	
+	Raise ErrorText;
+	
+EndFunction
+
+Function LastIdOfControlFlowJob(Stream)
+	
+	LastID_ = Stream.JobID;
+	
+	If ValueIsFilled(Stream.ThreadID) Then
+		Return LastID_;
+	EndIf;
+	
+	JobID = Stream.ThreadKey.Get();
+	
+	If TypeOf(JobID) = Type("UUID") Then
+		LastID_ = JobID;
+	EndIf;
+	
+	Return LastID_;
+	
+EndFunction
+
+// Parameters:
+//  FlowProperties - Structure:
+//   * ProcessID - UUID
+//   * ThreadID - UUID
+//
+//  Result - Arbitrary -
+//
+Procedure SetResultOfStream(FlowProperties, Result)
+	
+	Result = New ValueStorage(Result);
+	
+	Block = New DataLock;
+	LockItem = Block.Add("InformationRegister.TimeConsumingOperations"); 
+	LockItem.SetValue("ProcessID", FlowProperties.ProcessID);
+	LockItem.SetValue("ThreadID",   FlowProperties.ThreadID);
+	
+	BeginTransaction();
+	Try
+		Block.Lock();
 		
+		SetPrivilegedMode(True);
+		
+		RecordSet = InformationRegisters.TimeConsumingOperations.CreateRecordSet();
+		RecordSet.Filter.ProcessID.Set(FlowProperties.ProcessID);
+		RecordSet.Filter.ThreadID.Set(FlowProperties.ThreadID);
+		
+		RecordSet.Read();
+		
+		If RecordSet.Count() > 0 Then
+			Record = RecordSet.Get(0);
+			Record.Result = Result;
+			RecordSet.Write();
+		EndIf;
+		
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
 	EndTry;
 	
 EndProcedure
@@ -2158,40 +2430,57 @@ EndProcedure
 // Waits until the number of active threads drops below the maximum limit.
 //
 // Parameters:
-//  Groups - Map
+//  
+//  ProcessID - UUID
+//  EndEarlyIfError - Boolean
+//  
 //
-Function WaitForAvailableThread(ProcessID, JobID, EndEarlyIfError)
+// Returns:
+//  Boolean
+//
+Function WaitForAvailableThread(ProcessID, EndEarlyIfError)
 	
-	Threads = ActiveThreads();
 	MaxThreads = AllowedNumberofThreads();
+	ExecuteInBackground = MaxThreads > 1;
 	
-	If Threads.Count() >= MaxThreads Then
-		WaitForFreeThread = True;
-		While WaitForFreeThread Do
-			
-			HasCompletedThreads = HasCompletedThreads(Threads, EndEarlyIfError);
-			
-			If EndEarlyIfError And HasCompletedThreads = Undefined Then
-				Return Undefined; // 
-			EndIf;
-			
-			If HasCompletedThreads Then
-				Return False;
-			EndIf;
-			
-			SendThreadMessages(JobID);
-			
-			WaitForFreeThread = Not WaitForThreadCompletion(Threads[0]);
-			If Not WaitForFreeThread Then
-				UpdateInfoAboutThread(Threads[0]);
-				Return False;
-			EndIf;
-			
-		EndDo;
+	While True Do
+		Threads = ActiveThreads();
 		
-	EndIf;
+		If Threads.Count() < MaxThreads Then
+			Break;
+		EndIf;
+		
+		HasCompletedThreads = HasCompletedThreads(Threads,
+			EndEarlyIfError, ProcessID);
+		
+		If EndEarlyIfError And HasCompletedThreads = Undefined Then
+			ExecuteInBackground = Undefined; // 
+			Break;
+		EndIf;
+		
+		If HasCompletedThreads Or Not ExecuteInBackground Then
+			Break;
+		EndIf;
+		
+		Filter = New Structure;
+		Filter.Insert("ThreadID", CommonClientServer.BlankUUID());
+		ControlFlows = Threads.FindRows(Filter);
+		For Each ControlFlow In ControlFlows Do
+			Threads.Delete(ControlFlow);
+		EndDo;
+		If Threads.Find(ProcessID, "ProcessID") = Undefined Then
+			// 
+			ExecuteInBackground = False;
+			Break;
+		EndIf;
+		
+		If WaitForThreadCompletion(Threads[0]) Then // 
+			UpdateInfoAboutThread(Threads[0]);
+			Break;
+		EndIf;
+	EndDo;
 	
-	Return False;
+	Return ExecuteInBackground;
 	
 EndFunction
 
@@ -2214,6 +2503,7 @@ Procedure SendThreadMessages(Val JobID)
 	
 	Messages = BackgroundJob.GetUserMessages(True);
 	For Each Message In Messages Do
+		// 
 		SendClientNotification("UserMessage", Message);
 	EndDo;
 
@@ -2224,28 +2514,23 @@ EndProcedure
 // Parameters:
 //  Groups - Map
 //
-Procedure WaitForAllThreadsCompletion(ProcessID, EndEarlyIfError)
+Procedure WaitForAllThreadsCompletion(ProcessID, EndEarlyIfError, FinishEarly)
 	
 	Threads = ActiveThreads(ProcessID);
 	
-	CancelAllThreads = False;
 	While Threads.Count() > 0 Do
-		HasCompletedThreads = HasCompletedThreads(Threads, EndEarlyIfError);
+		HasCompletedThreads = HasCompletedThreads(Threads,
+			EndEarlyIfError, ProcessID);
 		
 		If HasCompletedThreads = Undefined Then
-			CancelAllThreads = True;
+			FinishEarly = True;
 			Break;
 		EndIf;
 		
 		If Not HasCompletedThreads Then
 			WaitForThreadCompletion(Threads[0]);
 		EndIf;
-		
 	EndDo;
-	
-	If CancelAllThreads Then
-		CancelAllThreadsExecution(ProcessID);
-	EndIf;
 	
 EndProcedure
 
@@ -2262,8 +2547,6 @@ Function WaitForThreadCompletion(Stream, Duration = 1)
 	
 	If ValueIsFilled(Stream.JobID) Then
 		
-		SendThreadMessages(Stream.JobID);
-		
 		Job = BackgroundJobs.FindByUUID(Stream.JobID);
 		
 		If Job <> Undefined Then
@@ -2278,54 +2561,43 @@ Function WaitForThreadCompletion(Stream, Duration = 1)
 	
 EndFunction
 
-Function HasCompletedThreads(Threads, EndEarlyIfError)
+Function HasCompletedThreads(Threads, EndEarlyIfError, ProcessID)
 	
 	HasCompletedThreads = False;
-	
 	IndexOf = Threads.Count() - 1;
 	
 	While IndexOf >= 0 Do
 		Stream = Threads[IndexOf];
+		IndexOf = IndexOf - 1;
 		
-		JobID = Stream.JobID;
-		
-		If ValueIsFilled(JobID) Then
-			
-			Try
-				
-				JobCompleted = JobCompleted(JobID);
-				
-			Except
-				
-				ErrorInfo = ErrorInfo();
-				WriteError(ErrorProcessing.DetailErrorDescription(ErrorInfo));
-				
-				JobCompleted = Undefined;
-				
-			EndTry;
-			
-			If JobCompleted = True Then
-		
-				UpdateInfoAboutThread(Stream);
-				Threads.Delete(Stream);
-				HasCompletedThreads = True;
-				
-			ElsIf JobCompleted = Undefined Then
-				
-				UpdateInfoAboutThread(Stream);
-				
-				If EndEarlyIfError = True Then
-					Return Undefined;
-				EndIf;
-				
-				Threads.Delete(Stream);
-				HasCompletedThreads = True;
-				
-			EndIf;
-			
+		If Not ValueIsFilled(Stream.JobID) Then
+			Continue;
 		EndIf;
 		
-		IndexOf = IndexOf - 1;
+		LastID_ = LastIdOfControlFlowJob(Stream);
+		Result = JobCompleted(LastID_, True);
+		
+		If Result.Status = "Running" Then
+			Continue;
+		EndIf;
+		
+		UpdateInfoAboutThread(Stream);
+		Threads.Delete(Stream);
+		HasCompletedThreads = True;
+		
+		If Result.Status = "Completed2" Then
+			Continue;
+		EndIf;
+		
+		If Result.Status = "Error" Then
+			WriteError(Result.ErrorText);
+		EndIf;
+		
+		If EndEarlyIfError = True
+		   And Stream.ProcessID = ProcessID Then
+			Return Undefined;
+		EndIf;
+		
 	EndDo;
 	
 	Return HasCompletedThreads;
@@ -2335,36 +2607,20 @@ EndFunction
 // Terminates active threads.
 // 
 // Parameters:
-//  
-//  
+//  ProcessID - UUID
 // 
-Procedure CancelAllThreadsExecution(FormIdentifier) Export
+Procedure CancelAllThreadsExecution(ProcessID)
 	
 	SetPrivilegedMode(True);
 	
-	Threads = ThreadsLongOperations(FormIdentifier);
-	
-	StreamIndex = Threads.Count() - 1;
-	While StreamIndex >= 0 Do
-		Stream = Threads[StreamIndex];
-		
+	Threads = ActiveThreads(ProcessID);
+	For Each Stream In Threads Do
 		If ValueIsFilled(Stream.JobID) Then
 			CancelJobExecution(Stream.JobID);
 		EndIf;
-		
-		ThreadKey = Stream.ThreadKey.Get();
-		
-		If ThreadKey <> Undefined Then
-		
-			UpdateInfoAboutThread(Stream);
-		
-		EndIf;
-		
-		DeleteThread(Stream);
-		Threads.Delete(StreamIndex);
-		StreamIndex = StreamIndex -1;
-		
 	EndDo;
+	
+	WaitForAllThreadsCompletion(ProcessID, False, False)
 	
 EndProcedure
 
@@ -2374,90 +2630,108 @@ Procedure DeleteNonExistingThreads()
 	
 	SetPrivilegedMode(True);
 	
-	Threads = ThreadsLongOperations();
-	TimeoutDate = CurrentSessionDate() - 86400; // 
+	AllStreams = ThreadsLongOperations();
 	
-	StreamIndex = Threads.Count() - 1;
-	While StreamIndex >= 0 Do
+	Processes = AllStreams.Copy(, "ProcessID");
+	Processes.GroupBy("ProcessID");
+	ProcessesIDs = Processes.UnloadColumn("ProcessID");
+	
+	SelectionOfControlFlow = New Structure;
+	SelectionOfControlFlow.Insert("ProcessID");
+	SelectionOfControlFlow.Insert("ThreadID",
+		CommonClientServer.BlankUUID());
+	
+	CurrentSessionDate = CurrentSessionDate();
+	CancellationPeriod = 24*60*60; // 
+	DateOfObsolescence = 15*60; // 
+	
+	For Each ProcessID In ProcessesIDs Do
+		SelectionOfControlFlow.ProcessID = ProcessID;
+		FoundRows = AllStreams.FindRows(SelectionOfControlFlow);
+		ControlFlow = ?(FoundRows.Count() > 0, FoundRows[0], Undefined);
 		
-		Stream = Threads[StreamIndex];
-		
-		If Stream.CreationDate <= TimeoutDate Then
+		If ControlFlow <> Undefined
+		   And ControlFlow.CreationDate + CancellationPeriod > CurrentSessionDate Then
 			
-			Job = FindJobByID(Stream.JobID);
-			If Job <> Undefined And Job.Status = TimeConsumingOperationStatus().Running Then
-				CancelJobExecution(Stream.JobID);
+			If Not ValueIsFilled(ControlFlow.JobID)
+			   And ControlFlow.CreationDate + DateOfObsolescence > CurrentSessionDate Then
+				Continue;
 			EndIf;
-			DeleteThread(Stream);
-			StreamIndex = StreamIndex -1;
-			Continue;
-			
+			JobID = LastIdOfControlFlowJob(ControlFlow);
+			Job = FindJobByID(JobID);
+			If Job <> Undefined
+			   And (Job.State = BackgroundJobState.Active
+			      Or Job.State = BackgroundJobState.Failed
+			        And ControlFlow.AttemptNumber < AttemptsNumber()
+			        And ControlFlow.CreationDate + DateOfObsolescence > CurrentSessionDate) Then
+				Continue;
+			EndIf;
 		EndIf;
 		
-		If Stream.Status = TimeConsumingOperationStatus().Completed2 And Not ValueIsFilled(Stream.JobID) Then
-			DeleteThread(Stream);
-		ElsIf Stream.Status = TimeConsumingOperationStatus().Running And ValueIsFilled(Stream.MethodName) Then
-			Job = FindJobByID(Stream.JobID);
-			
-			If Job = Undefined
-				 Or Job.State <> BackgroundJobState.Active Then
-					DeleteThread(Stream);
+		Filter = New Structure("ProcessID", ProcessID);
+		ThreadsProcess = AllStreams.Copy(Filter);
+		ThreadsProcess.Sort("ThreadID");
+		For Each ProcessFlow In ThreadsProcess Do
+			JobID = LastIdOfControlFlowJob(ProcessFlow);
+			Job = FindJobByID(JobID);
+			If Job <> Undefined
+			   And Job.State = BackgroundJobState.Active Then
+				CancelJobExecution(ProcessFlow.JobID);
 			EndIf;
-			
-		EndIf;
-		
-		StreamIndex = StreamIndex -1;
+		EndDo;
+		DeleteDataAboutThreads(ProcessID);
 		
 	EndDo;
 	
 EndProcedure
 
-Procedure DeleteThread(Stream)
-
-	SetPrivilegedMode(True);
-	
-	RecordSet = InformationRegisters.TimeConsumingOperations.CreateRecordSet();
-	RecordSet.Filter.ProcessID.Set(Stream.ProcessID);
-	RecordSet.Filter.ThreadID.Set(Stream.ThreadID);
-	RecordSet.Write();
-	
-EndProcedure
-
-// Returns the thread count for a multithread long-running operation.
+// 
+// 
+//
+// 
+// 
+//
+// 
+// 
+// 
+//
+// 
+// 
+// 
+//
+// 
+// 
+// 
 //
 // Returns:
 //  Number - 
 //
 Function AllowedNumberofThreads()
 	
-	If Common.DataSeparationEnabled() 
-		Or Common.FileInfobase() Then
-			Return 1;
+	If Common.DataSeparationEnabled()
+	 Or Common.FileInfobase() Then
+		Return 1;
 	EndIf;
 	
 	AllowedNumberofThreads = Constants.LongRunningOperationsThreadCount.Get();
 	
-	Return NumberofThreadsincludingtheControlThread(AllowedNumberofThreads);
-	
-EndFunction
-
-Function NumberofThreadsincludingtheControlThread(AllowedNumberofThreads)
-	
-	If AllowedNumberofThreads > 1 Then
-		Return AllowedNumberofThreads - 1;
-	ElsIf AllowedNumberofThreads = 1 Then
+	If AllowedNumberofThreads > 0 Then
 		Return AllowedNumberofThreads;
 	EndIf;
 	
 	// 
-	Return 3;
+	Return 4;
 	
 EndFunction
 
 // 
 //
+// Parameters:
+//  ProcessID - UUID
+//                        - Undefined - 
+//
 // Returns:
-//    ValueTable - description of streams with the following columns:
+//    ValueTable:
 //      * Description - String - custom thread name (used in the name of the background task).
 //      * JobID - UUID - unique ID of the background task.
 //      * ProcessID - UUID - 
@@ -2466,45 +2740,44 @@ EndFunction
 //      * ResultAddress - String - address of the temporary storage to save the result of the background task.
 //      * MethodName - String -
 //      * ThreadKey - Arbitrary -
-//      * ExecutionParameters - ValueStorage
 //      * Result - ValueStorage
 //      * AttemptNumber - Number
 //      * DetailErrorDescription - String
 //      * BriefErrorDescription - String
-//      * StreamParameters - ValueStorage
 //      * CreationDate - Date
-//      * Status- String
+//      * Status - String
 //
 Function ThreadsLongOperations(ProcessID = Undefined)
 	
 	Query = New Query;
 	Query.Text =
-		"SELECT
-		|	TimeConsumingOperations.ResultAddress AS ResultAddress,
-		|	TimeConsumingOperations.Description AS Description,
-		|	TimeConsumingOperations.ExecutionParameters AS ExecutionParameters,
-		|	TimeConsumingOperations.JobID AS JobID,
-		|	TimeConsumingOperations.ProcessID AS ProcessID,
-		|	TimeConsumingOperations.ThreadID AS ThreadID,
-		|	TimeConsumingOperations.ThreadKey AS ThreadKey,
-		|	TimeConsumingOperations.MethodName AS MethodName,
-		|	TimeConsumingOperations.Result AS Result,
-		|	TimeConsumingOperations.AttemptNumber AS AttemptNumber,
-		|	TimeConsumingOperations.DetailErrorDescription AS DetailErrorDescription,
-		|	TimeConsumingOperations.BriefErrorDescription AS BriefErrorDescription,
-		|	TimeConsumingOperations.StreamParameters AS StreamParameters,
-		|	TimeConsumingOperations.CreationDate AS CreationDate,
-		|	TimeConsumingOperations.Status AS Status
-		|FROM
-		|	InformationRegister.TimeConsumingOperations AS TimeConsumingOperations";
+	"SELECT
+	|	TimeConsumingOperations.ResultAddress AS ResultAddress,
+	|	TimeConsumingOperations.Description AS Description,
+	|	TimeConsumingOperations.JobID AS JobID,
+	|	TimeConsumingOperations.ProcessID AS ProcessID,
+	|	TimeConsumingOperations.ThreadID AS ThreadID,
+	|	TimeConsumingOperations.ThreadKey AS ThreadKey,
+	|	TimeConsumingOperations.MethodName AS MethodName,
+	|	TimeConsumingOperations.Result AS Result,
+	|	TimeConsumingOperations.AttemptNumber AS AttemptNumber,
+	|	TimeConsumingOperations.DetailErrorDescription AS DetailErrorDescription,
+	|	TimeConsumingOperations.BriefErrorDescription AS BriefErrorDescription,
+	|	TimeConsumingOperations.CreationDate AS CreationDate,
+	|	TimeConsumingOperations.Status AS Status
+	|FROM
+	|	InformationRegister.TimeConsumingOperations AS TimeConsumingOperations";
 	
 	If ValueIsFilled(ProcessID) Then
 		
 		Query.Text = Query.Text + "
 		|WHERE
-		|	TimeConsumingOperations.ProcessID = &ProcessID";
+		|	TimeConsumingOperations.ProcessID = &ProcessID
+		|	AND TimeConsumingOperations.ThreadID <> &BlankUUID";
 		
-		Query.Parameters.Insert("ProcessID", ProcessID);
+		Query.SetParameter("ProcessID", ProcessID);
+		Query.SetParameter("BlankUUID",
+			CommonClientServer.BlankUUID());
 		
 	EndIf;
 	
@@ -2551,31 +2824,31 @@ Function ActiveThreads(ProcessID = Undefined)
 	SetPrivilegedMode(True);
 	
 	Query = New Query;
-	QueryText = "SELECT
-		|	TimeConsumingOperations.ThreadID,
-		|	TimeConsumingOperations.ResultAddress,
-		|	TimeConsumingOperations.JobID,
-		|	TimeConsumingOperations.ProcessID,
-		|	TimeConsumingOperations.MethodName,
-		|	TimeConsumingOperations.UserName,
-		|	TimeConsumingOperations.ThreadKey,
-		|	TimeConsumingOperations.Description,
-		|	TimeConsumingOperations.AttemptNumber,
-		|	TimeConsumingOperations.ExecutionParameters,
-		|	TimeConsumingOperations.StreamParameters,
-		|	TimeConsumingOperations.Status
-		|FROM
-		|	InformationRegister.TimeConsumingOperations AS TimeConsumingOperations
-		|WHERE
-		|	TimeConsumingOperations.Status = &Running AND TimeConsumingOperations.MethodName <> """"";
+	QueryText =
+	"SELECT
+	|	TimeConsumingOperations.ThreadID AS ThreadID,
+	|	TimeConsumingOperations.ResultAddress AS ResultAddress,
+	|	TimeConsumingOperations.JobID AS JobID,
+	|	TimeConsumingOperations.ProcessID AS ProcessID,
+	|	TimeConsumingOperations.MethodName AS MethodName,
+	|	TimeConsumingOperations.UserName AS UserName,
+	|	TimeConsumingOperations.ThreadKey AS ThreadKey,
+	|	TimeConsumingOperations.Description AS Description,
+	|	TimeConsumingOperations.AttemptNumber AS AttemptNumber,
+	|	TimeConsumingOperations.Status AS Status
+	|FROM
+	|	InformationRegister.TimeConsumingOperations AS TimeConsumingOperations
+	|WHERE
+	|	TimeConsumingOperations.Status = &Running";
 		
 	If ValueIsFilled(ProcessID) Then
-		
 		QueryText = QueryText + "
-		|AND 	TimeConsumingOperations.ProcessID = &ProcessID"; 
+		|	AND TimeConsumingOperations.ProcessID = &ProcessID
+		|	AND TimeConsumingOperations.ThreadID <> &BlankUUID";
 		
-		Query.Parameters.Insert("ProcessID", ProcessID);
-		
+		Query.SetParameter("ProcessID", ProcessID);
+		Query.SetParameter("BlankUUID",
+			CommonClientServer.BlankUUID());
 	EndIf;
 	
 	Query.Text = QueryText;
@@ -2585,60 +2858,67 @@ Function ActiveThreads(ProcessID = Undefined)
 	
 EndFunction
 
-Function TreadsPendingProcessing(ProcessID = Undefined)
+// Parameters:
+//   ProcessID - UUID
+//
+// Returns:
+//  ValueTable:
+//   * ThreadID   - UUID
+//   * ResultAddress       - String
+//   * JobID  - UUID
+//   * ProcessID - UUID
+//   * MethodName             - String
+//   * ThreadKey            - ValueStorage
+//   * Description          - String
+//   * AttemptNumber          - Number
+//   * StreamParameters       - ValueStorage
+//   * Status                - String
+//  
+Function TreadsPendingProcessing(ProcessID)
 	
 	SetPrivilegedMode(True);
 	
 	Query = New Query;
+	Query.Text =
+	"SELECT
+	|	TimeConsumingOperations.ThreadID AS ThreadID,
+	|	TimeConsumingOperations.ResultAddress AS ResultAddress,
+	|	TimeConsumingOperations.JobID AS JobID,
+	|	TimeConsumingOperations.ProcessID AS ProcessID,
+	|	TimeConsumingOperations.MethodName AS MethodName,
+	|	TimeConsumingOperations.UserName AS UserName,
+	|	TimeConsumingOperations.ThreadKey AS ThreadKey,
+	|	TimeConsumingOperations.Description AS Description,
+	|	TimeConsumingOperations.AttemptNumber AS AttemptNumber,
+	|	TimeConsumingOperations.StreamParameters AS StreamParameters,
+	|	TimeConsumingOperations.Status AS Status
+	|FROM
+	|	InformationRegister.TimeConsumingOperations AS TimeConsumingOperations
+	|WHERE
+	|	TimeConsumingOperations.ProcessID = &ProcessID
+	|	AND TimeConsumingOperations.ThreadID <> &BlankUUID
+	|	AND (TimeConsumingOperations.Status = &Created
+	|			OR TimeConsumingOperations.Status = &Error
+	|				AND TimeConsumingOperations.AttemptNumber < &AttemptsNumber)";
 	
-	QueryText = "SELECT
-		|	TimeConsumingOperations.ThreadID,
-		|	TimeConsumingOperations.ResultAddress,
-		|	TimeConsumingOperations.JobID,
-		|	TimeConsumingOperations.ProcessID,
-		|	TimeConsumingOperations.MethodName,
-		|	TimeConsumingOperations.UserName,
-		|	TimeConsumingOperations.ThreadKey,
-		|	TimeConsumingOperations.Description,
-		|	TimeConsumingOperations.AttemptNumber,
-		|	TimeConsumingOperations.ExecutionParameters,
-		|	TimeConsumingOperations.StreamParameters,
-		|	TimeConsumingOperations.Status
-		|FROM
-		|	InformationRegister.TimeConsumingOperations AS TimeConsumingOperations
-		|WHERE
-		|	TimeConsumingOperations.Status = &Created OR 
-		|	(TimeConsumingOperations.Status = &Error 
-		|	 AND TimeConsumingOperations.AttemptNumber < &AttemptsNumber)";
-			
-	If ValueIsFilled(ProcessID) Then
-		
-		QueryText = QueryText + "
-		|AND TimeConsumingOperations.ProcessID = &ProcessID";
-		
-		Query.Parameters.Insert("ProcessID", ProcessID);
-		
-	EndIf;
-		
-	Query.Text = QueryText;
-	
-	Query.SetParameter("Created",            TimeConsumingOperationStatus().CreatedOn);
-	Query.SetParameter("Error",            TimeConsumingOperationStatus().Error);
-	Query.SetParameter("AttemptsNumber", AttemptsNumber());
+	Query.SetParameter("ProcessID", ProcessID);
+	Query.SetParameter("AttemptsNumber",     AttemptsNumber());
+	Query.SetParameter("Created", TimeConsumingOperationStatus().CreatedOn);
+	Query.SetParameter("Error", TimeConsumingOperationStatus().Error);
+	Query.SetParameter("BlankUUID",
+		CommonClientServer.BlankUUID());
 	
 	Return Query.Execute().Unload();
 	
-	
 EndFunction
 
-Procedure PrepareMultiThreadOperationForStartup(Val MethodName, MultithreadOperationParameters, Val ProcessID, Val Portions)
+Procedure PrepareMultiThreadOperationForStartup(Val MethodName, AddressResults,
+			Val ProcessID, Val Portions, UpdatedOperationParameters = Undefined)
 	
 	UserName =  "";
 	If Not Users.IsFullUser() Then
 		UserName = InfoBaseUsers.CurrentUser().Name;
 	EndIf;
-	
-	DeleteNonExistingThreads();
 	
 	SetPrivilegedMode(True);
 	
@@ -2653,18 +2933,49 @@ Procedure PrepareMultiThreadOperationForStartup(Val MethodName, MultithreadOpera
 		Record.ThreadID   = New UUID;
 		Record.MethodName             = MethodName;
 		Record.ThreadKey            = New ValueStorage(KeyValue.Key);
-		Record.ResultAddress       = MultithreadOperationParameters.AddressResults[KeyValue.Key];
+		Record.ResultAddress       = AddressResults[KeyValue.Key];
 		Record.Status                = TimeConsumingOperationStatus().CreatedOn;
 		Record.AttemptNumber          = 0;
 		Record.Description          = String(KeyValue.Key);
 		Record.CreationDate          = CurrentSessionDate();
 		Record.UserName       = UserName;
-		Record.ExecutionParameters   = New ValueStorage(MultithreadOperationParameters);
 		Record.StreamParameters       = New ValueStorage(KeyValue.Value);
 		
 	EndDo;
 	
-	RecordSet.Write();
+	If UpdatedOperationParameters = Undefined Then
+		RecordSet.Write();
+	Else
+		ThreadID = CommonClientServer.BlankUUID();
+		Block = New DataLock;
+		LockItem = Block.Add("InformationRegister.TimeConsumingOperations");
+		LockItem.SetValue("ProcessID", ProcessID);
+		LockItem.SetValue("ThreadID", ThreadID);
+		BeginTransaction();
+		Try
+			Block.Lock();
+			SetOfOneRecord = InformationRegisters.TimeConsumingOperations.CreateRecordSet();
+			SetOfOneRecord.Filter.ProcessID.Set(ProcessID);
+			SetOfOneRecord.Filter.ThreadID.Set(ThreadID);
+			SetOfOneRecord.Read();
+			If SetOfOneRecord.Count() <> 1 Then
+				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Cannot find a record for the thread of control of the %1 multithreaded long-running operation';"),
+					String(ProcessID));
+				Raise ErrorText;
+			EndIf;
+			CurCurrentCache = UpdatedOperationParameters.MethodParameters.Context.Cache;
+			UpdatedOperationParameters.MethodParameters.Context.Cache = Undefined;
+			SetOfOneRecord[0].ExecutionParameters = New ValueStorage(UpdatedOperationParameters);
+			UpdatedOperationParameters.MethodParameters.Context.Cache = CurCurrentCache;
+			SetOfOneRecord.Write();
+			RecordSet.Write(False);
+			CommitTransaction();
+		Except
+			RollbackTransaction();
+			Raise;
+		EndTry;
+	EndIf;
 	
 EndProcedure
 
@@ -2693,286 +3004,153 @@ Function AttemptsNumber()
 	Return 3;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// 
-
-// 
-//
-Procedure StartThreadsOfLongRunningOperations() Export
+Function ControlFlowHasBeenRestarted(JobID, Job)
 	
-	Common.OnStartExecuteScheduledJob(
-			Metadata.ScheduledJobs.StartThreadsOfLongRunningOperations);
-	
-	RestartManagingThreads();
-	
-EndProcedure
-
-Procedure RestartManagingThreads()
-	
-	Threads = ActiveManagingThreads();
-	
-	If Threads.Count() = 0 Then
-		Return;
+	If Job <> Undefined
+	   And Job.State <> BackgroundJobState.Failed Then
+		Return False;
 	EndIf;
 	
-	For Each Stream In Threads Do
-
-		Job = FindJobByID(Stream.JobID);
-
-		If Job <> Undefined Then
-
-			If Job.State = BackgroundJobState.Active Then
-				ScheduleStartOfLongRunningOperationThreads(Stream.JobID);
-
-			ElsIf Job.State = BackgroundJobState.Failed And Stream.AttemptNumber
-				<= AttemptsNumber() Then
-				
-				RestartManagingThread(Stream);
-				
-			Else
-				
-				DeleteDataAboutThreads(Stream.ProcessID, Stream.ThreadID);
-				
-			EndIf;
-		Else
-			
-			DeleteDataAboutThreads(Stream.ProcessID);
-			
-		EndIf;
-		
-	EndDo;
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
 	
-EndProcedure
-
-Procedure DeleteDataAboutThreads(ProcessID, ThreadID = Undefined)
-
-	Block = New DataLock;
-	LockItem = Block.Add("InformationRegister.TimeConsumingOperations");
-	LockItem.SetValue("ProcessID", ProcessID);
+	BlankID = CommonClientServer.BlankUUID();
 	
-	If ValueIsFilled(ThreadID) Then
-		LockItem.SetValue("ThreadID", ThreadID);
+	Query = New Query;
+	Query.SetParameter("JobID", JobID);
+	Query.SetParameter("ThreadID", BlankID);
+	Query.Text =
+	"SELECT
+	|	TimeConsumingOperations.ProcessID AS ProcessID,
+	|	TimeConsumingOperations.ThreadID AS ThreadID,
+	|	TimeConsumingOperations.AttemptNumber AS AttemptNumber,
+	|	TimeConsumingOperations.Status AS Status,
+	|	TimeConsumingOperations.ThreadKey AS ThreadKey,
+	|	TimeConsumingOperations.ExecutionParameters AS ExecutionParameters
+	|FROM
+	|	InformationRegister.TimeConsumingOperations AS TimeConsumingOperations
+	|WHERE
+	|	TimeConsumingOperations.ThreadID = &ThreadID
+	|	AND TimeConsumingOperations.JobID = &JobID";
+	
+	QueryResult = Query.Execute();
+	If QueryResult.IsEmpty() Then
+		Return False;
 	EndIf;
 	
-	BeginTransaction();
+	Stream = QueryResult.Unload()[0];
+	
+	If Stream.AttemptNumber >= AttemptsNumber() Then
+		Return False;
+	EndIf;
 	
 	Try
-	
-		Block.Lock();
+		OperationParametersList = MultithreadOperationParameters(Stream.ProcessID,
+			Stream.ExecutionParameters.Get());
 		
-		SetPrivilegedMode(True);
+		ExecutionParameters = OperationParametersList.ExecutionParameters;
+		ExecutionParameters.WaitCompletion = 0;
+		ExecutionParameters.RunInBackground = True;
+		ExecutionParameters.Insert("ThisIsRestartOfControlThread");
 		
-		RecordSet = InformationRegisters.TimeConsumingOperations.CreateRecordSet();
-		RecordSet.Filter.ProcessID.Set(ProcessID);
+		RunResult = ExecuteFunction(ExecutionParameters,
+			MultithreadProcessMethodName(), OperationParametersList);
 		
-		If ValueIsFilled(ThreadID) Then
-			RecordSet.Filter.ThreadID.Set(ThreadID);
+		If Not ValueIsFilled(RunResult.JobID) Then
+			ErrorText = NStr("en = 'An empty background job ID is received';");
+			Raise ErrorText;
 		EndIf;
+		NewJob = FindJobByID(RunResult.JobID);
+		If NewJob = Undefined Then
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Cannot find a new background job by the %1 ID';"),
+				RunResult.JobID);
+			Raise ErrorText;
+		EndIf;
+		Job = NewJob;
 		
-		RecordSet.Write();
-
-		CommitTransaction();
-
+		Properties = New Structure(SessionParameters.TimeConsumingOperations);
+		Restarted = New Map(Properties.Restarted);
+		Restarted.Insert(JobID, RunResult.JobID);
+		Properties.Restarted = New FixedMap(Restarted);
+		SessionParameters.TimeConsumingOperations = New FixedStructure(Properties);
+		
+		Stream.ThreadKey = New ValueStorage(RunResult.JobID);
+		RunResult.JobID = JobID;
+		UpdateInfoAboutThread(Stream, RunResult);
 	Except
-
-		RollbackTransaction();
-		Raise;
-
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'An error occurred while restarting the %1 background job
+			           |of the %2 thread of control:
+			           |
+			           |%3';"),
+			String(JobID),
+			String(Stream.ProcessID),
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		WriteError(ErrorText);
+		Return False;
 	EndTry;
 	
-EndProcedure
-
-Function RestartManagingThread(Stream)
+	Return True;
 	
-	RunResult = Undefined;
-	
-	ExecutionParameters = MultithreadOperationParameters(Stream.ProcessID, Stream.ExecutionParameters.Get());
-	
-	FormIdentifier = ExecutionParameters.OperationParametersList.FormIdentifier;
-	
-	ExecutionParametersChildThreads = BackgroundExecutionParameters(FormIdentifier);
-	ExecutionParametersChildThreads.WaitCompletion = 0;
-	ExecutionParametersChildThreads.ResultAddress   = PutToTempStorage(Undefined, Stream.ResultAddress);
-	
-	RunResult = ExecuteFunction(ExecutionParametersChildThreads, MultithreadProcessMethodName(), ExecutionParameters);
-	
-	If RunResult <> Undefined Then
-		
-		Block = New DataLock;
-		LockItem = Block.Add("InformationRegister.TimeConsumingOperations"); 
-		LockItem.SetValue("ProcessID", Stream.ProcessID);
-		LockItem.SetValue("ThreadID", Stream.ThreadID);
-		
-		BeginTransaction();
-		
-		Try
-			
-			Block.Lock();
-			
-			SetPrivilegedMode(True);
-			
-			RecordSet = InformationRegisters.TimeConsumingOperations.CreateRecordSet();
-			RecordSet.Filter.ProcessID.Set(Stream.ProcessID);
-			RecordSet.Filter.ThreadID.Set(Stream.ThreadID);
-			RecordSet.Read();
-			
-			If RecordSet.Count() > 0 Then
-				Record                      = RecordSet.Get(0);
-				Record.JobID = RunResult.JobID;
-				Record.Status               = RunResult.Status;
-				Record.AttemptNumber         = Record.AttemptNumber + 1;
-				RecordSet.Write();
-			EndIf;
-			
-			CommitTransaction();
-			
-		Except
-			
-			RollbackTransaction();
-			Raise;
-			
-		EndTry;
-		
-		If RunResult.Status = TimeConsumingOperationStatus().Running Then
-			ScheduleStartOfLongRunningOperationThreads(RunResult.JobID);
-		EndIf;
-		
-	EndIf;
-	
-	Return RunResult;
-
 EndFunction
 
-Procedure ScheduleStartOfLongRunningOperationThreads(JobID, RunResult = Undefined, MultithreadOperationParameters = Undefined)
-	
-	UserName = "";
-	If Not Users.IsFullUser() Then
-		UserName = InfoBaseUsers.CurrentUser().Name;
-	EndIf;
+Procedure DeleteDataAboutThreads(ProcessID)
 	
 	SetPrivilegedMode(True);
 	
-	If RunResult <> Undefined Then
-		
-		ThreadID   = New UUID;
-		ProcessID = MultithreadOperationParameters.OperationParametersList.FormIdentifier;
-		
-		SetPrivilegedMode(True);
-		
-		RecordSet = InformationRegisters.TimeConsumingOperations.CreateRecordSet();
-		RecordSet.Filter.ProcessID.Set(ProcessID);
-		RecordSet.Filter.ThreadID.Set(ThreadID);
-		
-		Record                       = RecordSet.Add();
-		Record.ResultAddress       = RunResult.ResultAddress;
-		Record.JobID  = RunResult.JobID;
-		Record.ThreadID   = ThreadID;
-		Record.Status                = RunResult.Status;
-		Record.AttemptNumber          = 1;
-		Record.CreationDate          = CurrentSessionDate();
-		Record.UserName       = UserName;
-		Record.ProcessID = ProcessID;
-		Record.ExecutionParameters   = New ValueStorage(MultithreadOperationParameters);
-		RecordSet.Write();
-			
-	EndIf;
+	RecordSet = InformationRegisters.TimeConsumingOperations.CreateRecordSet();
+	RecordSet.Filter.ProcessID.Set(ProcessID);
 	
-	JobMetadata = Metadata.ScheduledJobs.StartThreadsOfLongRunningOperations;
-	
-	Filter = New Structure;
-	Filter.Insert("Metadata", JobMetadata);
-	
-	Var_Key = "";
-	If ValueIsFilled(UserName) Then
-		Var_Key = InfoBaseUsers.CurrentUser().UUID;
-		Filter.Insert("Key", Var_Key);
-	EndIf;
-	
-	Jobs = ScheduledJobsServer.FindJobs(Filter);
-	
-	Schedule = New JobSchedule;
-	Schedule.DaysRepeatPeriod = 0;
-	Schedule.BeginDate  = CurrentSessionDate();
-	Schedule.BeginTime = CurrentSessionDate() + 60; // 
-	
-	JobParameters = New Structure;
-	JobParameters.Insert("Schedule",                               Schedule);
-	
-	If ValueIsFilled(UserName) Then
-		JobParameters.Insert("UserName", UserName);
-	EndIf;
-	
-	If Jobs.Count() > 0 Then
-		
-		ScheduledJobsServer.ChangeJob(JobMetadata, JobParameters);
-		
-	Else
-		
-		JobParameters.Insert("Use",                            True);
-		JobParameters.Insert("RestartIntervalOnFailure",    60);
-		JobParameters.Insert("RestartCountOnFailure", 3);
-		JobParameters.Insert("Key",                                     Var_Key);
-		JobParameters.Insert("Metadata",                               JobMetadata);
-		
-		ScheduledJobsServer.AddJob(JobParameters);
-		
-	EndIf;
+	RecordSet.Write();
 	
 EndProcedure
 
-Function ActiveManagingThreads()
+Procedure ScheduleStartOfLongRunningOperationThreads(RunResult, OperationParametersList)
+	
+	SetPrivilegedMode(True);
+	
+	ThreadID   = CommonClientServer.BlankUUID();
+	ProcessID = OperationParametersList.ProcessID;
 	
 	Block = New DataLock;
-	Block.Add("InformationRegister.TimeConsumingOperations");
+	LockItem = Block.Add("InformationRegister.TimeConsumingOperations"); 
+	LockItem.SetValue("ProcessID", ProcessID);
+	LockItem.SetValue("ThreadID", ThreadID);
+	
+	RecordSet = InformationRegisters.TimeConsumingOperations.CreateRecordSet();
+	RecordSet.Filter.ProcessID.Set(ProcessID);
+	RecordSet.Filter.ThreadID.Set(ThreadID);
 	
 	BeginTransaction();
-	
 	Try
-		
 		Block.Lock();
+		RecordSet.Read();
 		
-		SetPrivilegedMode(True);
-		
-		Query = New Query;
-		QueryText = "SELECT
-		|	TimeConsumingOperations.ThreadID,
-		|	TimeConsumingOperations.ResultAddress,
-		|	TimeConsumingOperations.JobID,
-		|	TimeConsumingOperations.ProcessID,
-		|	TimeConsumingOperations.ThreadKey,
-		|	TimeConsumingOperations.Description,
-		|	TimeConsumingOperations.AttemptNumber,
-		|	TimeConsumingOperations.ExecutionParameters
-		|FROM
-		|	InformationRegister.TimeConsumingOperations AS TimeConsumingOperations
-		|WHERE
-		|	TimeConsumingOperations.MethodName = """" AND
-		|	TimeConsumingOperations.Status = &Running";
-		
-		Query.Text = QueryText;
-		Query.SetParameter("Running", TimeConsumingOperationStatus().Running);
-		
-		ActiveManagingThreads = Query.Execute().Unload();
-		
-		If ActiveManagingThreads.Count() = 0 Then
-			
-			RecordSet = InformationRegisters.TimeConsumingOperations.CreateRecordSet();
-			RecordSet.Write();
-			
+		If RecordSet.Count() > 0 Then
+			Record = RecordSet[0];
+		Else
+			Record                       = RecordSet.Add();
+			Record.ThreadID   = ThreadID;
+			Record.AttemptNumber          = 0;
+			Record.CreationDate          = CurrentSessionDate();
+			Record.UserName       = UserName();
+			Record.ProcessID = ProcessID;
 		EndIf;
+		Record.ResultAddress       = RunResult.ResultAddress;
+		Record.JobID  = RunResult.JobID;
+		Record.Status                = RunResult.Status;
+		Record.ExecutionParameters   = New ValueStorage(OperationParametersList);
+		
+		RecordSet.Write();
 		
 		CommitTransaction();
-		
 	Except
-		
 		RollbackTransaction();
 		Raise;
-		
 	EndTry;
 	
-	Return ActiveManagingThreads;
-	
-EndFunction
+EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
 // 

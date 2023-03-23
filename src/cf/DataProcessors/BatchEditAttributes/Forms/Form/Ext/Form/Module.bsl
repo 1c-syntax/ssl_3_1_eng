@@ -585,7 +585,7 @@ EndFunction
 &AtServer
 Procedure ExecuteActionsOnContextOpen()
 	
-	TitleTemplate1 = NStr("en = 'Edit selected %1 items (%2)';");
+	TitleTemplate1 = NStr("en = 'Edit selected %1 elements (%2)';");
 	
 	ObjectsTypes = New ValueList;
 	For Each PassedObject In Parameters.ObjectsArray Do
@@ -742,13 +742,13 @@ Procedure AskForAttributeUnlockConfirmation(SelectedAttribute)
 	Buttons = New ValueList;
 	Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Allow editing';"));
 	QueryText = SubstituteParametersToString(
-		NStr("en = 'Attribute %1 is locked from editing
-			|to prevent data inconsistency.
+		NStr("en = 'To prevent data inconsistency, attribute %1 is locked .
 			|
-			|It is recommended that you consider possible consequences before you allow editing.
-			|Please view the locations where selected items are used.
+			|Before you allow editing, view the occurrences of the selected items
+			|and consider possible data implications.
 			|
-			|Do you want to allow editing of %1?';"),
+			|Do you want to allow editing of %1?
+			|';"),
 		SelectedAttribute.Presentation);
 	
 	Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
@@ -1394,12 +1394,12 @@ EndFunction
 &AtServer
 Procedure ChangeAtServer(Val StopChangeOnError)
 	
-	ObjectsToProcess1 = NextBatchOfObjectsForChange();
+	ObjectsForProcessing = NextBatchOfObjectsForChange();
 	
 	DataProcessorObject = FormAttributeToValue("Object");
 	
 	JobParameters = New Structure;
-	JobParameters.Insert("ObjectsToProcess", New ValueStorage(ObjectsToProcess1));
+	JobParameters.Insert("ObjectsToProcess", New ValueStorage(ObjectsForProcessing));
 	JobParameters.Insert("StopChangeOnError", StopChangeOnError);
 	JobParameters.Insert("ChangeInTransaction", DataProcessorObject.ChangeInTransaction);
 	JobParameters.Insert("InterruptOnError", DataProcessorObject.InterruptOnError);
@@ -2447,8 +2447,8 @@ Procedure AddAdditionalAttributesAndInfoToSet()
 		Filter_Settings = Filter_Settings();
 		Filter_Settings.UpdateList = True;
 		SelectedObjects = SelectedObjects(Filter_Settings).Rows;
-		For Each ObjectData1 In SelectedObjects Do
-			ObjectToChange1 = ObjectData1.Ref;
+		For Each ObjectData In SelectedObjects Do
+			ObjectToChange1 = ObjectData.Ref;
 			
 			ObjectKindByRef = ObjectKindByRef(ObjectToChange1);
 			If (ObjectKindByRef = "Catalog" Or ObjectKindByRef = "ChartOfCharacteristicTypes") And ObjectIsFolder(ObjectToChange1) Then
@@ -2873,7 +2873,7 @@ Procedure GenerateNoteOnConfiguredChanges()
 		If AttributesToChange.Count() = 1 Then
 			NoteTemplate = NStr("en = 'Change the %1 attribute for the selected items';") // 
 		ElsIf AttributesToChange.Count() > 3 Then
-			NoteTemplate = NStr("en = 'Change %1 attributes for the selected items';"); // 
+			NoteTemplate = NStr("en = 'Change attributes (%1) for the selected items';"); // 
 		ElsIf AttributesToChange.Count() > 1 Then
 			NoteTemplate = NStr("en = 'Change the %1 attributes for the selected items';"); // 
 		Else	
@@ -2897,16 +2897,16 @@ Procedure GenerateNoteOnConfiguredChanges()
 			
 			If AttributesToChange.Count() = 1 Then
 				NoteTemplate = ?(IsBlankString(Explanation),
-					NStr("en = 'Change the attribute %1 in tabular section ""%2""';"),
-					NStr("en = 'the %1 attribute in tabular section ""%2""';")); 
+					NStr("en = 'Change the %1 attribute in table ""%2""';"),
+					NStr("en = 'the %1 attribute in table ""%2""';")); 
 			ElsIf AttributesToChange.Count() > 3 Then
 				NoteTemplate = ?(IsBlankString(Explanation),
-					NStr("en = 'Change %1 attributes in tabular section ""%2""';"),
-					NStr("en = '%1 attributes in tabular section ""%2""';")); 
+					NStr("en = 'Change attributes (%1) in table ""%2""';"),
+					NStr("en = '%1 attributes in table ""%2""';")); 
 			Else 
 				NoteTemplate = ?(IsBlankString(Explanation),
-					NStr("en = 'Change the %1 attributes in tabular section ""%2""';"),
-					NStr("en = 'the %1 attributes in tabular section ""%2""';")); 
+					NStr("en = 'Change the %1 attributes in table ""%2""';"),
+					NStr("en = 'the %1 attributes in table ""%2""';")); 
 			EndIf;
 			
 			If Not IsBlankString(Explanation) Then
@@ -3204,7 +3204,7 @@ Function ChoiceParameterLinksPresentation(ChoiceParameterLinks, MetadataObject)
 	If LinkedAttributes.Count() > 0 Then
 		LinkPresentationPattern = NStr("en = 'Dependency to attributes: %1.';");
 		If LinkedAttributes.Count() = 1 Then
-			LinkPresentationPattern = NStr("en = 'Depends on attribute %1.';");
+			LinkPresentationPattern = NStr("en = 'Depends on the %1 attribute.';");
 		EndIf;
 		Result = SubstituteParametersToString(LinkPresentationPattern, StrConcat(LinkedAttributes, ", "));
 	EndIf;

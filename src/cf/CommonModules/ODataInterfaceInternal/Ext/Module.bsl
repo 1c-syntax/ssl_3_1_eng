@@ -12,16 +12,16 @@
 // Returns a metadata object by reference type.
 //
 // Parameters:
-//  RefType1 - Type,
+//  RefType - Type,
 //
 // Returns:
 //   MetadataObject
 //
-Function MetadataObjectByRefType(Val RefType1) Export
+Function MetadataObjectByRefType(Val RefType) Export
 	
-	BusinessProcess = BusinessProcessesRoutePointsRefs().Get(RefType1);
+	BusinessProcess = BusinessProcessesRoutePointsRefs().Get(RefType);
 	If BusinessProcess = Undefined Then
-		Ref = New(RefType1);
+		Ref = New(RefType);
 		RefMetadata = Ref.Metadata();
 	Else
 		RefMetadata = Metadata.BusinessProcesses[BusinessProcess];

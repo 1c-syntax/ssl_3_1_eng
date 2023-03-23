@@ -656,15 +656,15 @@ Procedure DefineDataChangeCapability(MetadataObject, ReadOnly) Export
 		Return;
 	EndIf;
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
 	SetPrivilegedMode(True);
 	
 	ReadOnly = IsStandaloneWorkplace()
-		And (Not ModuleSaaS.IsSeparatedMetadataObject(MetadataObject.FullName(),
-			ModuleSaaS.MainDataSeparator())
-			And Not ModuleSaaS.IsSeparatedMetadataObject(MetadataObject.FullName(),
-				ModuleSaaS.AuxiliaryDataSeparator()))
+		And (Not ModuleSaaSOperations.IsSeparatedMetadataObject(MetadataObject.FullName(),
+			ModuleSaaSOperations.MainDataSeparator())
+			And Not ModuleSaaSOperations.IsSeparatedMetadataObject(MetadataObject.FullName(),
+				ModuleSaaSOperations.AuxiliaryDataSeparator()))
 		And Not MetadataObjectIsException(MetadataObject)
 		And Metadata.ExchangePlans[StandaloneModeExchangePlan()].Content.Contains(MetadataObject);
 	

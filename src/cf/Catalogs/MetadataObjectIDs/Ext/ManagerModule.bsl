@@ -62,6 +62,7 @@ Procedure PresentationFieldsGetProcessing(Fields, StandardProcessing) Export
 	StandardProcessing = False;
 	
 	Fields.Add("Ref");
+	Fields.Add("Description");
 	
 EndProcedure
 
@@ -534,12 +535,12 @@ EndFunction
 //                   True if a catalog item was marked
 //                   for deletion. Otherwise, not modified.
 //
-//  CheckOnly1 - Boolean - make no changes, just set
+//  IsCheckOnly - Boolean - make no changes, just set
 //                   the HasChanges and HasDeleted flags.
 //
-Procedure UpdateCatalogData(HasChanges = False, HasDeletedItems = False, CheckOnly1 = False) Export
+Procedure UpdateCatalogData(HasChanges = False, HasDeletedItems = False, IsCheckOnly = False) Export
 	
-	RunDataUpdate(HasChanges, HasDeletedItems, CheckOnly1);
+	RunDataUpdate(HasChanges, HasDeletedItems, IsCheckOnly);
 	
 EndProcedure
 
@@ -589,7 +590,7 @@ EndProcedure
 //                  True if at least one catalog item was marked
 //                  for deletion. Otherwise, not modified.
 //
-//  CheckOnly1 - Boolean - make no changes,
+//  IsCheckOnly - Boolean - make no changes,
 //                   just set the HasChanges, HasDeleted, HasCriticalChanges, and ListOfCriticalChanges flags.
 //
 //  HasCriticalChanges - Boolean - a return value. Receives
@@ -604,7 +605,7 @@ EndProcedure
 //
 //  ExtensionsObjects - Boolean
 //
-Procedure RunDataUpdate(HasChanges, HasDeletedItems, CheckOnly1,
+Procedure RunDataUpdate(HasChanges, HasDeletedItems, IsCheckOnly,
 			HasCriticalChanges = False, ListOfCriticalChanges = "", ExtensionsObjects = False) Export
 	
 	If ExtensionsObjects
@@ -622,10 +623,10 @@ Procedure RunDataUpdate(HasChanges, HasDeletedItems, CheckOnly1,
 	
 	HasCurrentChanges = False;
 	If Not ExtensionsObjects Then
-		ReplaceSubordinateNodeDuplicatesFoundOnImport(CheckOnly1, HasCurrentChanges);
+		ReplaceSubordinateNodeDuplicatesFoundOnImport(IsCheckOnly, HasCurrentChanges);
 	EndIf;
 	
-	UpdateData1(HasCurrentChanges, HasDeletedItems, CheckOnly1,
+	UpdateData1(HasCurrentChanges, HasDeletedItems, IsCheckOnly,
 		HasCriticalChanges, ListOfCriticalChanges, ExtensionsObjects);
 	
 	If HasCurrentChanges Then
@@ -639,7 +640,7 @@ Procedure RunDataUpdate(HasChanges, HasDeletedItems, CheckOnly1,
 			"StandardSubsystems.Core.MetadataObjectIDs", True);
 	EndIf;
 	
-	If Not CheckOnly1 And Not TransactionActive() Then
+	If Not IsCheckOnly And Not TransactionActive() Then
 		UpdateIsCompleted = New Structure(SessionParameters.UpdateIDCatalogs);
 		If ExtensionsObjects Then
 			UpdateIsCompleted.ExtensionObjectIDs = True;
@@ -1450,7 +1451,7 @@ Procedure FindDuplicatesOnImportDataToSubordinateNode(Upload0, Filter, ObjectToI
 	
 EndProcedure
 
-Procedure UpdateData1(HasChanges, HasDeletedItems, CheckOnly1,
+Procedure UpdateData1(HasChanges, HasDeletedItems, IsCheckOnly,
 			HasCriticalChanges, ListOfCriticalChanges, ExtensionsObjects)
 	
 	If ExtensionsObjects Then
@@ -1526,7 +1527,7 @@ Procedure UpdateData1(HasChanges, HasDeletedItems, CheckOnly1,
 				+ Chars.LF + NewMetadataObjectsList + Chars.LF;
 		EndIf;
 		
-		If Not CheckOnly1
+		If Not IsCheckOnly
 		   And Not ExtensionsObjects
 		   And ValueIsFilled(ListOfCriticalChanges)
 		   And Common.IsSubordinateDIBNode() Then
@@ -1544,13 +1545,13 @@ Procedure UpdateData1(HasChanges, HasDeletedItems, CheckOnly1,
 		
 		HasCurrentChanges = False;
 		UpdateMetadataObjectIDs(Upload0, MetadataObjectProperties1, ExtensionsObjects,
-			ExtensionProperties, ExtensionsVersion, HasCurrentChanges, CheckOnly1);
+			ExtensionProperties, ExtensionsVersion, HasCurrentChanges, IsCheckOnly);
 		
 		If HasCurrentChanges Then
 			HasChanges = True;
 		EndIf;
 		
-		If Not CheckOnly1 Then
+		If Not IsCheckOnly Then
 			If Not ExtensionsObjects And HasCurrentChanges Then
 				StandardSubsystemsServer.CheckApplicationVersionDynamicUpdate();
 			EndIf;
@@ -1946,7 +1947,7 @@ Procedure AddNewMetadataObjectsIDs(Upload0, MetadataObjectProperties1, Extension
 EndProcedure
 
 Procedure UpdateMetadataObjectIDs(Upload0, MetadataObjectProperties1, ExtensionsObjects,
-			ExtensionProperties, ExtensionsVersion, HasChanges, CheckOnly1)
+			ExtensionProperties, ExtensionsVersion, HasChanges, IsCheckOnly)
 		
 	// ACC:1327-off #783.1.4.1 Managed lock is set in the calling code.
 	If ExtensionsObjects Then
@@ -2016,7 +2017,7 @@ Procedure UpdateMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extensions
 		EndIf;
 		
 		HasChanges = True;
-		If CheckOnly1 Then
+		If IsCheckOnly Then
 			Return;
 		EndIf;
 		
@@ -2049,7 +2050,7 @@ Procedure UpdateMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extensions
 		EndIf;
 		If UpdateRecordSet Then
 			HasChanges = True;
-			If CheckOnly1 Then
+			If IsCheckOnly Then
 				Return;
 			EndIf;
 			RecordSet.Load(RecordsTable);
@@ -3916,7 +3917,7 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Procedures and functions for replacing IDs in databases.
 
-Procedure ReplaceSubordinateNodeDuplicatesFoundOnImport(CheckOnly1, HasChanges)
+Procedure ReplaceSubordinateNodeDuplicatesFoundOnImport(IsCheckOnly, HasChanges)
 	
 	If Common.DataSeparationEnabled() Then
 		// 
@@ -3944,7 +3945,7 @@ Procedure ReplaceSubordinateNodeDuplicatesFoundOnImport(CheckOnly1, HasChanges)
 		Return;
 	EndIf;
 	
-	If CheckOnly1 Then
+	If IsCheckOnly Then
 		HasChanges = True;
 		Return;
 	EndIf;

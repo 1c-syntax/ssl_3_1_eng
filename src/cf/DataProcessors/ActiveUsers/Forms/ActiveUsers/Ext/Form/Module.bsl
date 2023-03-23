@@ -24,8 +24,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	NotifyOnClose = Parameters.NotifyOnClose;
 	
 	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		SessionWithoutSeparators = ModuleSaaS.SessionWithoutSeparators();
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		SessionWithoutSeparators = ModuleSaaSOperations.SessionWithoutSeparators();
 	Else
 		SessionWithoutSeparators = True;
 	EndIf;

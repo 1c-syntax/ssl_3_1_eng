@@ -584,7 +584,10 @@ Function MailServersSettings()
 	
 	If Common.SubsystemExists("StandardSubsystems.GetFilesFromInternet") Then
 		ModuleNetworkDownload = Common.CommonModule("GetFilesFromInternet");
-		ImportedFile = ModuleNetworkDownload.DownloadFileAtServer("https://downloads.v8.1c.ru/content/common/settings/mailservers.json");
+		
+		AddressOfSettingsFile = EmailOperationsInternal.AddressOfSettingsFile();
+		ImportedFile = ModuleNetworkDownload.DownloadFileAtServer(AddressOfSettingsFile);
+		
 		If ImportedFile.Status Then
 			JSONReader = New JSONReader();
 			JSONReader.OpenFile(ImportedFile.Path);

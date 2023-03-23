@@ -202,8 +202,8 @@ EndProcedure
 &AtServer
 Procedure SetFilterByContactInfoOwner(ContactInformationOwner)
 
-	RefType1 = TypeOf(ContactInformationOwner);
-	CatalogMetadata = Metadata.FindByType(RefType1);
+	RefType = TypeOf(ContactInformationOwner);
+	CatalogMetadata = Metadata.FindByType(RefType);
 	If CatalogMetadata = Undefined Then
 		Return;
 	EndIf;

@@ -1484,11 +1484,15 @@ Procedure AddAttachmentExecute(Id = Undefined)
 	DescriptionOfTheAlert = New NotifyDescription("FileSelectionDialogAfterChoice1", ThisObject, AdditionalParameters);
 	
 	FileImportParameters = FileSystemClient.FileImportParameters();
-	FileImportParameters.FormIdentifier = ThisObject.UUID;
+	FileImportParameters.FormIdentifier = UUID;
 	FileSystemClient.ImportFiles(DescriptionOfTheAlert, FileImportParameters);
 	
 EndProcedure
 
+// Parameters:
+//  SelectedFiles - Array of TransferredFileDescription
+//  AdditionalParameters - Structure
+//
 &AtClient
 Procedure FileSelectionDialogAfterChoice1(SelectedFiles, AdditionalParameters) Export
 	

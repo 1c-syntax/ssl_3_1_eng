@@ -360,9 +360,11 @@ Function CompositionSchema(FilesCatalogsOnly = True, FilesOwner = "")
 				And OwnerMetadata.Attributes.FileOwner.Type.ContainsType(Type(OwnerTypeAsString)) Then
 				
 				FilterByOwnerSet = True;
-				QueryText = QueryText + "
+				AdditionalCondition = "
 					|WHERE
-					|	FilesVersions.Owner.FileOwner Ref " + FilesOwner; // @query-part
+					|	FilesVersions.Owner.FileOwner REFS Catalog.Files"; // @query-part
+				AdditionalCondition = StrReplace(AdditionalCondition, "Catalog.Files", FilesOwner);
+				QueryText = QueryText + AdditionalCondition;
 				
 			EndIf;
 			

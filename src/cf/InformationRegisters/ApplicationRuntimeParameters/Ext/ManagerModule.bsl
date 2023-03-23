@@ -355,6 +355,7 @@ Function ImportApplicationParametersInBackground(WaitCompletion, FormIdentifier,
 	
 	OperationParametersList = TimeConsumingOperations.BackgroundExecutionParameters(FormIdentifier);
 	OperationParametersList.BackgroundJobDescription = NStr("en = 'Background import of application parameters';");
+	OperationParametersList.RunInBackground = True;
 	OperationParametersList.WaitCompletion = WaitCompletion;
 	
 	If Common.DebugMode() Then
@@ -377,8 +378,9 @@ Function UpdateApplicationParametersInBackground(WaitCompletion, FormIdentifier,
 	
 	OperationParametersList = TimeConsumingOperations.BackgroundExecutionParameters(FormIdentifier);
 	OperationParametersList.BackgroundJobDescription = NStr("en = 'Update application parameters in background';");
-	OperationParametersList.WaitCompletion = WaitCompletion;
 	OperationParametersList.NoExtensions = True;
+	OperationParametersList.RunInBackground = True;
+	OperationParametersList.WaitCompletion = WaitCompletion;
 	
 	If Common.DebugMode()
 	   And Not ValueIsFilled(SessionParameters.AttachedExtensions) Then
@@ -415,6 +417,7 @@ Function UpdateExtensionVersionParametersInBackground(WaitCompletion, FormIdenti
 	
 	OperationParametersList = TimeConsumingOperations.BackgroundExecutionParameters(FormIdentifier);
 	OperationParametersList.BackgroundJobDescription = NStr("en = 'Update extension version parameters in background';");
+	OperationParametersList.RunInBackground = True;
 	OperationParametersList.WaitCompletion = WaitCompletion;
 	
 	If Common.DebugMode()
@@ -541,7 +544,7 @@ EndFunction
 //   * AccountingAudit - Structure:
 //      ** SystemChecksAccounting - See UpdateParameterProperties.
 //
-Function UpdateParameters1(ShouldUpdate = False) Export
+Function ParametersOfUpdate(ShouldUpdate = False) Export
 	
 	Parameters = New Structure;
 	
@@ -587,7 +590,7 @@ Function UpdateParameters1(ShouldUpdate = False) Export
 EndFunction
 
 // Parameters:
-//  Parameters - See UpdateParameters1
+//  Parameters - See ParametersOfUpdate
 //  FormIdentifier - UUID
 //
 Procedure ExecuteUpdateUnsharedDataInBackground(Parameters, FormIdentifier) Export
@@ -626,7 +629,7 @@ Procedure ExecuteUpdateUnsharedDataInBackground(Parameters, FormIdentifier) Expo
 EndProcedure
 
 // Parameters:
-//  Parameters - See UpdateParameters1
+//  Parameters - See ParametersOfUpdate
 //  ResultAddress - String
 //
 Procedure LongOperationHandlerPerformUpdateUnsharedData(Parameters, ResultAddress) Export

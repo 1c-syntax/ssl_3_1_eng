@@ -30,7 +30,10 @@
 //  Structure - 
 //    * Subject - String - an email subject.
 //    * Text - String - an email text.
-//    * Recipient - ValueList - a list of email recipients.
+//    * Recipient - ValueList -
+//                                    
+//                 - Array of See NewEmailRecipients -  
+//                   
 //    * AdditionalParameters - Structure - message template parameters.
 //    * Attachments - ValueTable:
 //       ** Presentation - String - an attachment file name.
@@ -576,6 +579,24 @@ Function GenerateSendOptions(Template, SubjectOf, UUID, AdditionalParameters = U
 	EndIf;
 	
 	Return SendOptions;
+	
+EndFunction
+
+// Returns:
+//  Structure:
+//    * Address - String -
+//    * Presentation - String -
+//    * ContactInformationSource - DefinedType.MessageTemplateSubject - owner of the contact information.
+//                                   - Undefined
+//
+Function NewEmailRecipients() Export
+	
+	Result = New Structure;
+	Result.Insert("Address",                        "");
+	Result.Insert("Presentation",                "");
+	Result.Insert("ContactInformationSource", Undefined);
+	
+	Return Result;
 	
 EndFunction
 

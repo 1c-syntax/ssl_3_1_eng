@@ -276,6 +276,13 @@ Function ReferenceRoleCompositionForStandardODataInterface() Export
 		EndIf;
 	EndDo;
 	
+	For Each TableName In DependentTablesForUploadingLoadingOData() Do
+		RightsKinds = RightsKindsForStandardODataInterface(TableName, True, True);
+		If RightsKinds.Count() > 0 Then
+			Result.Insert(TableName, RightsKinds);
+		EndIf;
+	EndDo;
+	
 	Model = ModelOfDataToProvideForStandardODataInterface();
 	For Each ModelItem In Model Do
 		
@@ -299,7 +306,7 @@ EndFunction
 // OData interface (SaaS).
 //
 // Returns:
-//   Array - Errors found in the role.
+//   Array - 
 //
 Function ODataRoleCompositionErrors(ErrorsByObjects = Undefined) Export
 	
@@ -376,8 +383,8 @@ Function IsSeparatedObject(ObjectDetails)
 	IsSeparatedMetadataObject = False;
 	
 	If Common.SubsystemExists("CloudTechnology") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		IsSeparatedMetadataObject = ObjectDetails.DataSeparation.Property(ModuleSaaS.MainDataSeparator());
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		IsSeparatedMetadataObject = ObjectDetails.DataSeparation.Property(ModuleSaaSOperations.MainDataSeparator());
 	Else
 		MetadataObject = Common.MetadataObjectByFullName(ObjectDetails.FullName);
 		If IsRefData(MetadataObject) 
@@ -636,6 +643,16 @@ Procedure CheckCanCreateUserForStandardODataInterfaceCalls()
 	EndIf;
 	
 EndProcedure
+
+Function DependentTablesForUploadingLoadingOData()
+	
+	Tables = New Array;
+	ODataInterfaceOverridable.WhenFillingInDependentTablesForUploadingLoadingOData(Tables);
+	SSLSubsystemsIntegration.WhenFillingInDependentTablesForUploadingLoadingOData(Tables);
+	
+	Return Tables;
+	
+EndFunction
 
 #Region Metadata
 

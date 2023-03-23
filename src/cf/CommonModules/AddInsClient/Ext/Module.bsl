@@ -25,7 +25,7 @@
 //                
 //                
 //                
-//                See https://its.1c.ru/db/v83doc#bookmark:dev:TI000001866
+//                See https://its.1c.eu/db/v83doc#bookmark:dev:TI000001866
 //
 // Example:
 //

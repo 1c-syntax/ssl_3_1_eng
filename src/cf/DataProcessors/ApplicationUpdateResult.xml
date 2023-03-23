@@ -35,6 +35,7 @@
 			<Form>DeferredUpdateNotCompleted</Form>
 			<Form>SecurityWarning</Form>
 			<Form>MessageToLimitedAccessUser</Form>
+			<Form>ClearingOutdatedData</Form>
 		</ChildObjects>
 	</DataProcessor>
 </MetaDataObject>

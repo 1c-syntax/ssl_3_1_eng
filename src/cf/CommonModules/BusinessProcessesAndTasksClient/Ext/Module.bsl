@@ -12,7 +12,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Commands for business processes.
 
-// Marks the specified business processes as stopped.
+// Marks the specified business processes as suspended.
 //
 // Parameters:
 //  CommandParameter  - Array of DefinedType.BusinessProcess
@@ -39,16 +39,16 @@ Procedure Stop(Val CommandParameter) Export
 		If CommandParameter.Count() = 1 Then
 			If TaskCount1 > 0 Then
 				QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Business process ""%1"" and all its unfinished tasks (%2) will be stopped. Continue?';"), 
+					NStr("en = 'Business process ""%1"" and all its unfinished tasks (%2) will be suspended. Continue?';"), 
 					String(CommandParameter[0]), TaskCount1);
 			Else
 				QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Business process ""%1"" will be stopped. Continue?';"), 
+					NStr("en = 'Business process ""%1"" will be suspended. Continue?';"), 
 					String(CommandParameter[0]));
 			EndIf;
 		Else
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Business processes (%1) and all their unfinished tasks (%2) will be stopped. Continue?';"), 
+				NStr("en = 'Business processes (%1) and all their unfinished tasks (%2) will be suspended. Continue?';"), 
 				CommandParameter.Count(), TaskCount1);
 		EndIf;
 		
@@ -62,23 +62,23 @@ Procedure Stop(Val CommandParameter) Export
 		TaskCount1 = BusinessProcessesAndTasksServerCall.UncompletedBusinessProcessTasksCount(CommandParameter);
 		If TaskCount1 > 0 Then
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Business process ""%1"" and all its unfinished tasks (%2) will be stopped. Continue?';"), 
+				NStr("en = 'Business process ""%1"" and all its unfinished tasks (%2) will be suspended. Continue?';"), 
 				String(CommandParameter), TaskCount1);
 		Else
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Business process ""%1"" will be stopped. Continue?';"), 
+				NStr("en = 'Business process ""%1"" will be suspended. Continue?';"), 
 				String(CommandParameter));
 		EndIf;
 		
 	EndIf;
 	
 	Notification = New NotifyDescription("StopCompletion", ThisObject, CommandParameter);
-	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No, NStr("en = 'Stop business process';"));
+	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No, NStr("en = 'Suspend business process';"));
 	
 EndProcedure
 
-// Marks the specified business process as stopped.
-//  The procedure is intended for calling from a business process form.
+// Marks the specified business process as suspended.
+//  The procedure is called from a business process form.
 //
 // Parameters:
 //  Form - ClientApplicationForm
@@ -90,7 +90,7 @@ Procedure StopBusinessProcessFromObjectForm(Form) Export
 	ClearMessages();
 	Form.Write();
 	ShowUserNotification(
-		NStr("en = 'The business process is stopped';"),
+		NStr("en = 'The business process is suspended.';"),
 		GetURL(Form.Object.Ref),
 		String(Form.Object.Ref),
 		PictureLib.Information32);
@@ -148,7 +148,7 @@ Procedure Activate(Val CommandParameter) Export
 	EndIf;
 	
 	Notification = New NotifyDescription("ActivateCompletion", ThisObject, CommandParameter);
-	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No, NStr("en = 'Stop business process';"));
+	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No, NStr("en = 'Suspend business process';"));
 	
 EndProcedure
 

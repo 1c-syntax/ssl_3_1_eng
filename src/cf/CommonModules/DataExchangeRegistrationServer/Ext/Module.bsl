@@ -551,7 +551,7 @@ Procedure CheckObjectChangeRecordAttributes(RegistrationAttributesTable)
 			MetaTables = ObjectRegistrationAttributesTableMetadata(MetadataObjectsList, TableRow.TabularSectionName);
 			If MetaTables = Undefined Then
 				
-				MessageString = NStr("en = 'The ""%1"" tabular section (or a standard tabular section, or a list of register records) of the ""%2"" object does not exist.';");
+				MessageString = NStr("en = 'The ""%1"" table (or a standard table, or a list of register records) of the ""%2"" object does not exist.';");
 				WriteToExecutionProtocol(StrTemplate(MessageString, TableRow.TabularSectionName, MetadataObjectsList));
 				Continue;
 				
@@ -570,7 +570,7 @@ Procedure CheckObjectChangeRecordAttributes(RegistrationAttributesTable)
 				
 				If Not PropsFound Then
 					
-					MessageString = NStr("en = 'The ""%3"" attribute is not found in the tabular section (or a standard tabular section, or a list of register records) ""%1"" of the ""%2"" object.';");
+					MessageString = NStr("en = 'The ""%3"" attribute is not found in the ""%1"" table (or a standard table, or a list of register records) of the ""%2"" object.';");
 					WriteToExecutionProtocol(StrTemplate(MessageString, TableRow.TabularSectionName, MetadataObjectsList, Attribute.Key));
 					Break;
 					

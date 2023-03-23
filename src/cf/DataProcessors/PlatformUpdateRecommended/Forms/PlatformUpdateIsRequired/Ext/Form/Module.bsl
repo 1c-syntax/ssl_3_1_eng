@@ -53,19 +53,19 @@ EndProcedure
 
 &AtClient
 Procedure UpdateInstructionClick(Item) 
-	UpdateParameters1 = New Structure;
-	UpdateParameters1.Insert("IsInstructionForFileInfobase", True);
+	ParametersOfUpdate = New Structure;
+	ParametersOfUpdate.Insert("IsInstructionForFileInfobase", True);
 	
-	OpenForm("DataProcessor.PlatformUpdateRecommended.Form.PlatformUpdateOrder", UpdateParameters1, ThisObject);
+	OpenForm("DataProcessor.PlatformUpdateRecommended.Form.PlatformUpdateOrder", ParametersOfUpdate, ThisObject);
 EndProcedure
 
 &AtClient
 Procedure PlatformUninstallInstructionClick(Item)
-	UpdateParameters1 = New Structure;
-	UpdateParameters1.Insert("IsApplicationUninstallation", True);
-	UpdateParameters1.Insert("PlatformVersion", CurrentVersion);
+	ParametersOfUpdate = New Structure;
+	ParametersOfUpdate.Insert("IsApplicationUninstallation", True);
+	ParametersOfUpdate.Insert("PlatformVersion", CurrentVersion);
 	
-	OpenForm("DataProcessor.PlatformUpdateRecommended.Form.PlatformUpdateOrder", UpdateParameters1, ThisObject);
+	OpenForm("DataProcessor.PlatformUpdateRecommended.Form.PlatformUpdateOrder", ParametersOfUpdate, ThisObject);
 EndProcedure
 
 #EndRegion

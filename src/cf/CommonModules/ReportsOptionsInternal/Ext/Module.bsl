@@ -89,7 +89,9 @@ Procedure InitializeReportHeaders(Form) Export
 				Continue;
 			EndIf;
 			
-			Cell.Hyperlink = True;
+			If Form.GetCurrentResultViewMode() = ReportResultViewMode.Default Then
+				Cell.Hyperlink = True;
+			EndIf;
 			
 			FillPropertyValues(HeaderPropertiesSection.Add(), Cell);
 			
@@ -318,6 +320,12 @@ Function PresentationOfTheConditionalDesign(ConditionalAppearance) Export
 	
 EndFunction
 
+// Parameters:
+//  Sort - DataCompositionOrder
+// 
+// Returns:
+//  String 
+//
 Function SortingView(Sort) Export 
 	
 	SortingView = New Array;
@@ -328,7 +336,7 @@ Function SortingView(Sort) Export
 			Continue;
 		EndIf;
 		
-		ItemPresentation = RepresentationOfTheSortingElement(Item);
+		ItemPresentation = RepresentationOfTheSortingElement(Item, Sort);
 		
 		If ValueIsFilled(ItemPresentation) Then 
 			SortingView.Add(ItemPresentation);
@@ -344,21 +352,41 @@ Function SortingView(Sort) Export
 	
 EndFunction
 
-Function RepresentationOfTheSortingElement(Item) Export 
+// Parameters:
+//  Item - 
+//  Sort - 
+// 
+// Returns:
+//  String
+//
+Function RepresentationOfTheSortingElement(Item, Sort = Undefined) Export 
+	
+	Title = "";
 	
 	If Not Item.Use Then 
-		Return "";
+		Return Title;
 	EndIf;
 	
 	If TypeOf(Item) = Type("DataCompositionAutoOrderItem") Then 
 		Return NStr("en = 'Auto';");
 	EndIf;
 	
-	If Item.OrderType = DataCompositionSortDirection.Asc Then 
-		Return String(Item.Field);
+	If TypeOf(Sort) = Type("DataCompositionOrder") Then
+		SettingDetails = Sort.OrderAvailableFields.FindField(Item.Field);
+		If SettingDetails <> Undefined Then
+			Title = SettingDetails.Title;
+		EndIf;
 	EndIf;
 	
-	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (desc)';"), Item.Field);
+	If IsBlankString(Title) Then
+		Title = String(Item.Field);
+	EndIf;
+	
+	If Item.OrderType = DataCompositionSortDirection.Asc Then 
+		Return Title;
+	EndIf;
+	
+	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (desc)';"), Title);
 	
 EndFunction
 
@@ -1591,7 +1619,9 @@ Procedure AddPropertiesToReportHeaders(Form, ReportResult, Headers, HeaderProper
 				TitleProperties.FormatNegativeValues = IsNumber;
 				TitleProperties.FormatPositiveValues = IsNumber;
 				
-				InsertSortingIndicator(FieldIndex, TitleProperties, ReportResult.Area(Record.Name));
+				If Form.GetCurrentResultViewMode() = ReportResultViewMode.Default Then
+					InsertSortingIndicator(FieldIndex, TitleProperties, ReportResult.Area(Record.Name));
+				EndIf;
 				
 			EndIf;
 			

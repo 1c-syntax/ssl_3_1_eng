@@ -18,6 +18,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		PassedFormatArray = Parameters.FormatSettings.SaveFormats;
 		PackToArchive = Parameters.FormatSettings.PackToArchive;
 		TransliterateFilesNames = Parameters.FormatSettings.TransliterateFilesNames;
+		Sign = Parameters.FormatSettings.Sign;
 	EndIf;
 	
 	ArrayOfSaveFormatsRestrictions = StrSplit(Parameters.RestrictionOfSaveFormats, ",", False);

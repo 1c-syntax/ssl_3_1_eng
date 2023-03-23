@@ -14,7 +14,7 @@ Function SubscriptionsCTL() Export
 	Subscriptions = SSLSubsystemsIntegration.SSLEvents();
 	If Common.SubsystemExists("CloudTechnology") Then
 		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
-		ModuleCTLSubsystemsIntegration.WhenDefiningSubscriptionsToBSPEvents(Subscriptions);
+		ModuleCTLSubsystemsIntegration.OnDefineEventSubscriptionsSSL(Subscriptions);
 	EndIf;
 	
 	Return Subscriptions;
@@ -26,7 +26,7 @@ Function SubscriptionsOSL() Export
 	Subscriptions = SSLSubsystemsIntegration.SSLEvents();
 	If Common.SubsystemExists("OnlineUserSupport") Then
 		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
-		ModuleOSLSubsystemsIntegration.WhenDefiningSubscriptionsToBSPEvents(Subscriptions);
+		ModuleOSLSubsystemsIntegration.OnDefineEventSubscriptionsSSL(Subscriptions);
 	EndIf;
 	
 	Return Subscriptions;

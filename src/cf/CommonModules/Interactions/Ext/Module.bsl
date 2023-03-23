@@ -2066,14 +2066,19 @@ EndFunction
 //
 Function ConditionTemplateForRefsToContactsForQuery()
 	
-	Result =  "InteractionContacts.%FieldName% Ref Catalog.Users"; // @query-part
+	Result =  "InteractionContacts.FieldName REFS Catalog.Users"; // @query-part
 	For Each ContactDescription In InteractionsClientServer.ContactsDetails() Do
 		If ContactDescription.Name = "Users" Then
 			Continue;
 		EndIf;
-		Result = Result + "
-			|OR InteractionContacts.%FieldName% Ref Catalog." + ContactDescription.Name; // @query-part
+		
+		ConditionTemplate = "OR InteractionContacts.FieldName REFS Catalog.Users"; // @query-part
+		ConditionTemplate = StrReplace(ConditionTemplate, "Users", ContactDescription.Name);
+		
+		Result = Result + Chars.LF + ConditionTemplate;
 	EndDo;
+	
+	Result = StrReplace(Result, "FieldName", "%FieldName%");
 	Return Result;
 	
 EndFunction
@@ -7515,7 +7520,11 @@ Function InteractionsListQueryText(FilterValue = Undefined) Export
 	|	&SubjectAttribute AS SubjectOf,
 	|	VALUETYPE(InteractionsSubjects.SubjectOf) AS SubjectType,
 	|	ISNULL(InteractionsSubjects.EmailMessageFolder, VALUE(Catalog.EmailMessageFolders.EmptyRef)) AS Folder,
-	|	InteractionDocumentsLog.SentReceived,
+	|	CASE
+	|		WHEN InteractionDocumentsLog.Ref REFS Document.IncomingEmail
+	|			THEN InteractionDocumentsLog.Date
+	|		ELSE InteractionDocumentsLog.SentReceived
+	|	END AS SentReceived,
 	|	InteractionDocumentsLog.Size,
 	|	InteractionDocumentsLog.OutgoingEmailStatus
 	|FROM

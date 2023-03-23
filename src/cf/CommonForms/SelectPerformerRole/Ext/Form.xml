@@ -41,7 +41,7 @@
 				<Title formatted="false">
 					<v8:item>
 						<v8:lang>en</v8:lang>
-						<v8:content>In some cases, the business role is not enough to precisely define the task assignees. You can specify main and additional business objects to refine.</v8:content>
+						<v8:content>Sometimes, a business role is not enough to precisely define the task assignees. To refine the role, you can specify main and additional business objects.</v8:content>
 					</v8:item>
 				</Title>
 			</ExtendedTooltip>

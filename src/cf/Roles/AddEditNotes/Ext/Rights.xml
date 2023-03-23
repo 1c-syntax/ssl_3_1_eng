@@ -71,6 +71,13 @@ WHERE Author = &amp;CurrentUser
 		</right>
 	</object>
 	<object>
+		<name>CommonCommand.MyNotesOnSubject</name>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>Configuration.StandardSubsystemsLibrary</name>
 		<right>
 			<name>MainWindowModeNormal</name>
@@ -94,13 +101,6 @@ WHERE Author = &amp;CurrentUser
 		</right>
 		<right>
 			<name>AnalyticsSystemClient</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>CommonCommand.MyNotesOnSubject</name>
-		<right>
-			<name>View</name>
 			<value>true</value>
 		</right>
 	</object>

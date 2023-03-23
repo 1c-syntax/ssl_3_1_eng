@@ -257,7 +257,7 @@ Note that the data added by the extensions will be permanently deleted along wit
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Click Next to set up standalone mode parameters.</v8:content>
+											<v8:content>Click Next to configure standalone mode parameters.</v8:content>
 										</v8:item>
 									</Title>
 									<VerticalAlign>Bottom</VerticalAlign>

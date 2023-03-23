@@ -197,7 +197,7 @@ Function ParametersOnExit1()
 	
 EndFunction
 
-// Returns the initial filling of automatic backup settings.
+// Returns the default automatic backup settings.
 //
 Function NewBackupSettings()
 	

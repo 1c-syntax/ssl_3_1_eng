@@ -132,7 +132,7 @@ Procedure OnFillRecipientsEmailsInMessage(EmailRecipients, TemplateAssignment, M
 	
 EndProcedure
 
-// 
+// Initial population of predefined message templates.
 
 // See also updating the information base undefined.customizingmachine infillingelements
 // 
@@ -143,7 +143,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	
 EndProcedure
 
-// See also updating the information base undefined.At firstfillingelements
+// See also InfobaseUpdateOverridable.OnInitialItemsFilling
 //
 // Parameters:
 //  LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes
@@ -159,10 +159,10 @@ EndProcedure
 // See also updating the information base undefined.customizingmachine infillingelements
 //
 // Parameters:
-//  Object                  - CatalogObject.PerformerRoles - the object to fill in.
-//  Data                  - ValueTableRow - data for filling in the object.
+//  Object                  - CatalogObject.PerformerRoles - Object to populate.
+//  Data                  - ValueTableRow - Object fill data.
 //  AdditionalParameters - Structure:
-//   * PredefinedData - ValueTable - the data filled in in the procedure for the initial filling of the elements.
+//   * PredefinedData - ValueTable - Data filled in the OnInitialItemsFilling procedure.
 //
 Procedure OnInitialItemFilling(Object, Data, AdditionalParameters) Export
 	

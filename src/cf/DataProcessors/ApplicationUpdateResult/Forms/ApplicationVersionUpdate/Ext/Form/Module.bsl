@@ -41,7 +41,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.RunMode.CurrentPage = Items.ApplicationParametersUpdate;
 		
 	ElsIf DataUpdateMode = "InitialFilling" Then
-		Title = NStr("en = 'Initial data filling';");
+		Title = NStr("en = 'Initial data population';");
 		Items.RunMode.CurrentPage = Items.InitialFilling;
 		
 	ElsIf DataUpdateMode = "MigrationFromAnotherApplication" Then

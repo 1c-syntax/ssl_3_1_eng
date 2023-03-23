@@ -12,6 +12,8 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
+	Items.SupportInformation.Title = DigitalSignatureInternal.HeaderInformationForSupport();
+	
 	DigitalSignatureInternal.ToSetTheTitleOfTheBug(ThisObject,
 		Parameters.FormCaption);
 	
@@ -93,27 +95,25 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure TypicalIssuesURLProcessing(Item, Var_URL, StandardProcessing)
-	
-	StandardProcessing = False;
-	DigitalSignatureClient.OpenInstructionOnTypicalProblemsOnWorkWithApplications();
-	
-EndProcedure
-
-&AtClient
 Procedure SupportInformationURLProcessing(Item, Var_URL, StandardProcessing)
 	
 	StandardProcessing = False;
 	
-	ErrorsText = "";
-	FilesDetails = New Array;
-	If ValueIsFilled(AdditionalData) Then
-		DigitalSignatureInternalServerCall.AddADescriptionOfAdditionalData(
-			AdditionalData, FilesDetails, ErrorsText);
-	EndIf;
+	If Var_URL = "TypicalIssues" Then
+		DigitalSignatureClient.OpenInstructionOnTypicalProblemsOnWorkWithApplications();
+	Else
 	
-	ErrorsText = ErrorsText + ErrorDescription;
-	DigitalSignatureInternalClient.GenerateTechnicalInformation(ErrorsText, , FilesDetails);
+		ErrorsText = "";
+		FilesDetails = New Array;
+		If ValueIsFilled(AdditionalData) Then
+			DigitalSignatureInternalServerCall.AddADescriptionOfAdditionalData(
+				AdditionalData, FilesDetails, ErrorsText);
+		EndIf;
+		
+		ErrorsText = ErrorsText + ErrorDescription;
+		DigitalSignatureInternalClient.GenerateTechnicalInformation(ErrorsText, , FilesDetails);
+		
+	EndIf;
 	
 EndProcedure
 

@@ -195,8 +195,8 @@ Function SeparateConfigurationByAreas(Tables, MetadataNamesMap, MetadataNamesMap
 		
 	CoreSaaSAvailable = Common.SubsystemExists("CloudTechnology.Core");
 	If CoreSaaSAvailable Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		DataAreaMainDataContent = ModuleSaaS.CommonAttributeContent(ModuleSaaS.MainDataSeparator());
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		DataAreaMainDataContent = ModuleSaaSOperations.CommonAttributeContent(ModuleSaaSOperations.MainDataSeparator());
 	EndIf;
 	
 	For Each CurRow In Tables Do
@@ -281,8 +281,8 @@ Function BooleanFunctionalOptions()
 				FullConstantName = FunctionalOption.Location.FullName();
 				
 				If Common.SubsystemExists("CloudTechnology.Core") Then
-					ModuleSaaS = Common.CommonModule("SaaSOperations");
-					IsSeparatedMetadataObject = ModuleSaaS.IsSeparatedMetadataObject(FullConstantName);
+					ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+					IsSeparatedMetadataObject = ModuleSaaSOperations.IsSeparatedMetadataObject(FullConstantName);
 				Else
 					IsSeparatedMetadataObject = False;
 				EndIf;      
@@ -374,10 +374,10 @@ EndProcedure
 
 Procedure WriteSeparated(ConfigurationStatistics)
 	
-	ModuleSaaS = Undefined;
+	ModuleSaaSOperations = Undefined;
 	CoreSaaSAvailable = Common.SubsystemExists("CloudTechnology.Core");
 	If CoreSaaSAvailable Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	EndIf;
 	
 	DataAreasResult = GetDataAreasQueryResult();
@@ -390,7 +390,7 @@ Procedure WriteSeparated(ConfigurationStatistics)
 			Try
 				
 				If CoreSaaSAvailable Then
-					ModuleSaaS.SignInToDataArea(Selection.DataArea);
+					ModuleSaaSOperations.SignInToDataArea(Selection.DataArea);
 				EndIf;
 				
 			Except
@@ -402,7 +402,7 @@ Procedure WriteSeparated(ConfigurationStatistics)
 						+ Chars.LF + ErrorProcessing.DetailErrorDescription(Info));
 				
 				If CoreSaaSAvailable Then
-					ModuleSaaS.SignOutOfDataArea();
+					ModuleSaaSOperations.SignOutOfDataArea();
 				EndIf;
 				
 				Continue;
@@ -412,7 +412,7 @@ Procedure WriteSeparated(ConfigurationStatistics)
 			Write(ConfigurationStatistics, DataAreaRef); // 
 			
 			If CoreSaaSAvailable Then
-				ModuleSaaS.SignOutOfDataArea();
+				ModuleSaaSOperations.SignOutOfDataArea();
 			EndIf;
 			
 		EndIf;
@@ -427,8 +427,8 @@ EndProcedure
 Function GetDataAreasQueryResult() Export
 	
 	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		Result = ModuleSaaS.DataAreasUsed();
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		Result = ModuleSaaSOperations.DataAreasUsed();
 	EndIf;
 	
 	Return Result;

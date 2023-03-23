@@ -1066,7 +1066,7 @@ Procedure UpdateTooltipTitleOfStatisticsInformationMove()
 		If EndDataMapping Then
 			If LoadMessageAfterMapping Then
 				Items.StatisticsDataNavigationTooltipDecoration.Title =
-					NStr("en = 'Click ""Next"" to confirm the mapping and import the exchange message.';");
+					NStr("en = 'Click Next to confirm the mapping and import the exchange message.';");
 			Else
 				Items.StatisticsDataNavigationTooltipDecoration.Title =
 					NStr("en = 'Click ""Save and close"" to confirm the mapping and exit the wizard.';");
@@ -1078,7 +1078,7 @@ Procedure UpdateTooltipTitleOfStatisticsInformationMove()
 		EndIf;
 	Else
 		Items.StatisticsDataNavigationTooltipDecoration.Title =
-			NStr("en = 'Click ""Next"" to synchronize data.';");
+			NStr("en = 'Click Next to synchronize data.';");
 	EndIf;
 	
 EndProcedure
@@ -3208,7 +3208,7 @@ Procedure FillNavigationTable()
 				DataExportResult = "";
 				NavigationTableNewRow("QuestionAboutExportCompositionPage", "NavigationPageFollowUp", "Attachable_QuestionAboutExportCompositionPageOnOpen");
 				
-				// The time-consuming operation of registering additional data to export.
+				// The long-running operation of registering additional data to export.
 				NavigationTableNewRowTimeConsumingOperation("DataRegistrationPage", "NavigationWaitPage", True,
 					"Attachable_DataRegistrationPageTimeConsumingOperationProcessing",
 					"Attachable_DataRegistrationPageOnOpen");

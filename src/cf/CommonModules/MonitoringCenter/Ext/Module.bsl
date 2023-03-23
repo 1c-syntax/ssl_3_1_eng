@@ -177,8 +177,8 @@ Procedure WriteConfigurationStatistics(MetadataNamesMap) Export
 	EndDo;
 	
     If Common.DataSeparationEnabled() And Common.SubsystemExists("CloudTechnology.Core") Then
-        ModuleSaaS = Common.CommonModule("SaaSOperations");
-        DataAreaRow = Format(ModuleSaaS.SessionSeparatorValue(), "NG=0");
+        ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+        DataAreaRow = Format(ModuleSaaSOperations.SessionSeparatorValue(), "NG=0");
     Else
         DataAreaRow = "0";
     EndIf;
@@ -200,8 +200,8 @@ Procedure WriteConfigurationObjectStatistics(ObjectName, Value) Export
         StatisticsOperation = MonitoringCenterCached.GetStatisticsOperationRef(ObjectName);
         
         If Common.DataSeparationEnabled() And Common.SubsystemExists("CloudTechnology.Core") Then
-            ModuleSaaS = Common.CommonModule("SaaSOperations");
-            DataAreaRow = Format(ModuleSaaS.SessionSeparatorValue(), "NG=0");
+            ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+            DataAreaRow = Format(ModuleSaaSOperations.SessionSeparatorValue(), "NG=0");
         Else
             DataAreaRow = "0";
         EndIf;

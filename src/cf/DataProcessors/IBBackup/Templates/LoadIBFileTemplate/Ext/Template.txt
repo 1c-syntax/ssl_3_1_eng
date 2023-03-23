@@ -329,7 +329,7 @@ function restoreDB () {
     retryCount++
     CollectGarbage() //
     if (retryCount > 5) {
-      log(format('TheMessageFailureToTransferTheDatabaseFileToATemporaryDirectory', e.name, e.message), true)
+      log(format('[TheMessageFailureToTransferTheDatabaseFileToATemporaryDirectory]', e.name, e.message), true)
       return 1
     } else {
       log(format('[MessageAttemptToTransferADatabaseFileToATemporaryDirectory]', retryCount, e.name, e.message))

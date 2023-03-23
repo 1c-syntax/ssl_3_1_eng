@@ -26,7 +26,7 @@ Procedure ApplyExternalResourceRequests(Val IDs, OwnerForm1, ClosingNotification
 		
 	SafeModeManagerClientOverridable.OnConfirmRequestsToUseExternalResources(
 		IDs, OwnerForm1, ClosingNotification1, StandardProcessing);
-	ExternalResourcePermissionSetupClient.StartInitializingRequestForPermissionsToUseExternalResources(
+	ExternalResourcesPermissionsSetupClient.StartInitializingRequestForPermissionsToUseExternalResources(
 		IDs, OwnerForm1, ClosingNotification1);
 	
 EndProcedure
@@ -37,10 +37,10 @@ EndProcedure
 Procedure OpenSecurityProfileSetupDialog() Export
 	
 	OpenForm(
-		"DataProcessor.ExternalResourcePermissionSetup.Form.SecurityProfileSetup",
+		"DataProcessor.ExternalResourcesPermissionsSetup.Form.SecurityProfileSetup",
 		,
 		,
-		"DataProcessor.ExternalResourcePermissionSetup.Form.SecurityProfileSetup",
+		"DataProcessor.ExternalResourcesPermissionsSetup.Form.SecurityProfileSetup",
 		,
 		,
 		,
@@ -55,7 +55,7 @@ EndProcedure
 //
 Procedure OpenExternalDataProcessorOrReport(Owner) Export
 	
-	OpenForm("DataProcessor.ExternalResourcePermissionSetup.Form.OpenExternalDataProcessorOrReportWithSafeModeSelection",,
+	OpenForm("DataProcessor.ExternalResourcesPermissionsSetup.Form.OpenExternalDataProcessorOrReportWithSafeModeSelection",,
 		Owner);
 	
 EndProcedure

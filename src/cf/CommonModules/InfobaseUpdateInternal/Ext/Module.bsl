@@ -40,11 +40,34 @@ Function SharedInfobaseDataUpdateRequired() Export
 	
 EndFunction
 
+// 
+// 
+// 
+//
+// Parameters:
+//  UpdateProgress - Structure -
+//                         
+//
+// Returns:
+//  Boolean
+//
+Function DeferredUpdateCompleted(UpdateProgress = Undefined) Export
+	
+	If Not Common.SeparatedDataUsageAvailable() Then
+		UpdateProgress = InfobaseUpdate.DataAreasUpdateProgress("Deferred2");
+		Return UpdateProgress = Undefined Or UpdateProgress.Running = 0
+			And UpdateProgress.Waiting1 = 0 And UpdateProgress.Issues = 0;
+	EndIf;
+	
+	Return GetFunctionalOption("DeferredUpdateCompletedSuccessfully");
+	
+EndFunction
+
 // Runs noninteractive infobase update.
 //
 // Parameters:
 // 
-//  UpdateParameters1 - Structure:
+//  ParametersOfUpdate - Structure:
 //    * ExceptionOnCannotLockIB - Boolean - if False, then in case of unsuccessful
 //                 attempt to set an exclusive mode, an exception is not called
 //                 and a "ExclusiveModeSettingError" string returns.
@@ -71,23 +94,23 @@ EndFunction
 //  String -  
 //           
 //
-Function UpdateInfobase(UpdateParameters1) Export
+Function UpdateInfobase(ParametersOfUpdate) Export
 	
-	AdditionalParameters = ActionsBeforeUpdateInfobase(UpdateParameters1);
+	AdditionalParameters = ActionsBeforeUpdateInfobase(ParametersOfUpdate);
 	If ValueIsFilled(AdditionalParameters.Return) Then
 		Return AdditionalParameters.Return;
 	EndIf;
 	
 	ClientLaunchParameter       = StandardSubsystemsServer.ClientParametersAtServer().Get("LaunchParameter");
 	DeferredUpdateDebug = StrFind(Lower(ClientLaunchParameter), Lower("DeferredUpdateDebug")) > 0;
-	DeferredUpdateMode = DeferredUpdateMode(UpdateParameters1);
+	DeferredUpdateMode = DeferredUpdateMode(ParametersOfUpdate);
 	ExecuteDeferredUpdateNow  = Not DeferredUpdateDebug And DeferredUpdateMode = "Exclusively";
 	
 	AdditionalParameters.Insert("ExecuteDeferredUpdateNow", ExecuteDeferredUpdateNow);
 	AdditionalParameters.Insert("DeferredUpdateMode", DeferredUpdateMode);
 	
-	ExecuteActionsOnUpdateInfobase(UpdateParameters1, AdditionalParameters);
-	ExecuteActionsAfterUpdateInfobase(UpdateParameters1, AdditionalParameters);
+	ExecuteActionsOnUpdateInfobase(ParametersOfUpdate, AdditionalParameters);
+	ExecuteActionsAfterUpdateInfobase(ParametersOfUpdate, AdditionalParameters);
 	
 	Return "Success";
 	
@@ -532,11 +555,20 @@ EndFunction
 
 // Executes all deferred update procedures in a single-call cycle.
 //
-Procedure ExecuteDeferredUpdateNow(UpdateParameters1 = Undefined) Export
+Procedure ExecuteDeferredUpdateNow(ParametersOfUpdate = Undefined) Export
 	
 	UpdateInfo = InfobaseUpdateInfo();
 	
+	// 
+	// 
+	// 
+	StartupParameters = StandardSubsystemsServer.ClientParametersAtServer().Get("LaunchParameter");
+	SynchronousUpdate = ParametersOfUpdate <> Undefined
+		And (Not ParametersOfUpdate.OnClientStart
+			Or StrFind(StartupParameters, "UpdateAndExit") > 0);
+	
 	If UpdateInfo.DeferredUpdatesEndTime <> Undefined Then
+		PerformActionsAfterDelayedUpdateOfInformationBase(SynchronousUpdate);
 		Return;
 	EndIf;
 
@@ -553,7 +585,7 @@ Procedure ExecuteDeferredUpdateNow(UpdateParameters1 = Undefined) Export
 	HandlersExecutedEarlier = True;
 	ProcessedItems = New Array;
 	While HandlersExecutedEarlier Do
-		HandlersExecutedEarlier = ExecuteDeferredUpdateHandler(UpdateParameters1); // @skip-
+		HandlersExecutedEarlier = ExecuteDeferredUpdateHandler(ParametersOfUpdate); // @skip-
 		
 		QueuesToClear = QueuesToClear(ProcessedItems); // @skip-
 		CommonClientServer.ArraysDifference(QueuesToClear, ProcessedItems);
@@ -567,6 +599,8 @@ Procedure ExecuteDeferredUpdateNow(UpdateParameters1 = Undefined) Export
 			EndIf;
 		EndIf;
 	EndDo;
+	
+	PerformActionsAfterDelayedUpdateOfInformationBase(SynchronousUpdate);
 	
 EndProcedure
 
@@ -981,17 +1015,23 @@ Procedure ReregisterDataForDeferredUpdate() Export
 				CorrectFullNamesInTheSelectionParameters(HandlerParametersStructure.SelectionParameters);
 			EndIf;
 		Except
-			WriteError(StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Error while calling data population procedure
-						   |%1
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'An error occurred while calling data population procedure
+						   |""%1""
 						   |of deferred update handler
-						   |%2.
-						   |Error:
-						   |%3.';"),
+						   |""%2"":
+						   |%3.
+						   |';"),
 				Handler.UpdateDataFillingProcedure,
 				Handler.HandlerName,
-				ErrorProcessing.DetailErrorDescription(ErrorInfo())));
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+			WriteError(ErrorText);
 			
+			Properties = New Structure;
+			Properties.Insert("Status", Enums.UpdateHandlersStatuses.Error);
+			Properties.Insert("ErrorInfo", ErrorText);
+			SetHandlerProperties(Handler.HandlerName, Properties);
+
 			Raise;
 		EndTry;
 		
@@ -1163,9 +1203,8 @@ Function UpdateIterations() Export
 	EndDo;
 	
 	If MainSubsystemUpdateIteration = Undefined And BaseConfigurationName = "StandardSubsystemsLibrary" Then
-		MessageText = NStr("en = 'The 1C:Standard Subsystems Library distribution file is not intended
-			|for template-based infobase creation. Before you start using it, 
-			|read the documentation available on ITS (http://its.1c.ru/db/bspdoc, in Russian).';");
+		MessageText = NStr("en = 'Файл поставки 1С:Библиотека стандартных подсистем не предназначен для создания информационных баз по шаблону. 
+			|Перед использованием необходимо ознакомиться с документацией на ИТС (https://its.1c.eu/db/bspdoc)';");
 		Raise MessageText;
 	EndIf;
 	
@@ -1822,6 +1861,7 @@ EndProcedure
 Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 	
 	NamesAndAliasesMap.Insert("InfobaseUpdate.RelaunchDeferredUpdate");
+	NamesAndAliasesMap.Insert(Metadata.ScheduledJobs.ClearingOutdatedData.MethodName);
 	
 EndProcedure
 
@@ -2322,9 +2362,9 @@ Function DefineTheFillingData(Val PredefinedData, Val TableRow, Val ExceptionFie
 	
 EndFunction
 
-Function ActionsBeforeUpdateInfobase(UpdateParameters1)
+Function ActionsBeforeUpdateInfobase(ParametersOfUpdate)
 	
-	If Not UpdateParameters1.OnClientStart Then
+	If Not ParametersOfUpdate.OnClientStart Then
 		If Not Common.DataSeparationEnabled()
 			And Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate") Then
 			ModuleConfigurationUpdate = Common.CommonModule("ConfigurationUpdate");
@@ -2338,6 +2378,8 @@ Function ActionsBeforeUpdateInfobase(UpdateParameters1)
 			Raise;
 		EndTry;
 	EndIf;
+	
+	ConfigureTaskClearingOutdatedData(False);
 	
 	Result = New Structure;
 	Result.Insert("Return", "");
@@ -2368,7 +2410,7 @@ Function ActionsBeforeUpdateInfobase(UpdateParameters1)
 	// Importing and exporting exchange messages after restart, as configuration changes are received.
 	If Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 		ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
-		ModuleDataExchangeServer.BeforeUpdateInfobase(UpdateParameters1.OnClientStart, UpdateParameters1.Restart);
+		ModuleDataExchangeServer.BeforeUpdateInfobase(ParametersOfUpdate.OnClientStart, ParametersOfUpdate.Restart);
 	EndIf;
 	
 	If Not InfobaseUpdate.InfobaseUpdateRequired() Then
@@ -2376,7 +2418,7 @@ Function ActionsBeforeUpdateInfobase(UpdateParameters1)
 		Return Result;
 	EndIf;
 	
-	If UpdateParameters1.InBackground Then
+	If ParametersOfUpdate.InBackground Then
 		TimeConsumingOperations.ReportProgress(1);
 	EndIf;
 	
@@ -2416,14 +2458,14 @@ Function ActionsBeforeUpdateInfobase(UpdateParameters1)
 	WriteInformation(Message);
 	
 	// Locking the infobase.
-	LockAlreadySet = UpdateParameters1.IBLockSet <> Undefined 
-		And UpdateParameters1.IBLockSet.Use;
+	LockAlreadySet = ParametersOfUpdate.IBLockSet <> Undefined 
+		And ParametersOfUpdate.IBLockSet.Use;
 	If LockAlreadySet Then
 		UpdateIterations = UpdateIterations();
-		IBLock = UpdateParameters1.IBLockSet;
+		IBLock = ParametersOfUpdate.IBLockSet;
 	Else
 		IBLock = Undefined;
-		UpdateIterations = LockIB(IBLock, UpdateParameters1.ExceptionOnCannotLockIB);
+		UpdateIterations = LockIB(IBLock, ParametersOfUpdate.ExceptionOnCannotLockIB);
 		If IBLock.Error <> Undefined Then
 			Result.Return = IBLock.Error;
 			Return Result;
@@ -2441,7 +2483,7 @@ Function ActionsBeforeUpdateInfobase(UpdateParameters1)
 	
 EndFunction
 
-Procedure ExecuteActionsOnUpdateInfobase(UpdateParameters1, AdditionalParameters)
+Procedure ExecuteActionsOnUpdateInfobase(ParametersOfUpdate, AdditionalParameters)
 	
 	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.IBVersionUpdateSaaS") Then
 		// 
@@ -2483,15 +2525,15 @@ Procedure ExecuteActionsOnUpdateInfobase(UpdateParameters1, AdditionalParameters
 	ResetProgressProgressHandlers();
 	ClearRegisteredProblemsWithData();
 	
-	If UpdateParameters1.InBackground Then
+	If ParametersOfUpdate.InBackground Then
 		TimeConsumingOperations.ReportProgress(10);
 	EndIf;
 	
 	Parameters = New Structure;
 	Parameters.Insert("HandlerExecutionProgress", HandlerCountForCurrentVersion(UpdateIterations, DeferredUpdateMode));
 	Parameters.Insert("SeamlessUpdate", SeamlessUpdate);
-	Parameters.Insert("InBackground", UpdateParameters1.InBackground);
-	Parameters.Insert("OnClientStart", UpdateParameters1.OnClientStart);
+	Parameters.Insert("InBackground", ParametersOfUpdate.InBackground);
+	Parameters.Insert("OnClientStart", ParametersOfUpdate.OnClientStart);
 	Parameters.Insert("DeferredUpdateMode", DeferredUpdateMode);
 	
 	Message = NStr("en = 'The following handlers will be executed during the application update: %1';");
@@ -2512,7 +2554,8 @@ Procedure ExecuteActionsOnUpdateInfobase(UpdateParameters1, AdditionalParameters
 		FillDataForParallelDeferredUpdate1(Parameters);
 		WriteInfobaseUpdateInfo(UpdateInfo);
 		
-		// During file infobase updates, the deferred handlers are executed in the primary update cycle.
+		// 
+		// 
 		If ExecuteDeferredUpdateNow Then
 			ExecuteDeferredUpdateNow(Parameters);
 		EndIf;
@@ -2526,7 +2569,7 @@ Procedure ExecuteActionsOnUpdateInfobase(UpdateParameters1, AdditionalParameters
 
 EndProcedure
 
-Procedure ExecuteActionsAfterUpdateInfobase(UpdateParameters1, AdditionalParameters)
+Procedure ExecuteActionsAfterUpdateInfobase(ParametersOfUpdate, AdditionalParameters)
 	
 	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.IBVersionUpdateSaaS") Then
 		// 
@@ -2616,9 +2659,27 @@ Procedure ExecuteActionsAfterUpdateInfobase(UpdateParameters1, AdditionalParamet
 		ExecuteDeferredUpdateNow);
 	EndIf;
 	
-	If Not UpdateParameters1.OnClientStart Then
+	If Not ParametersOfUpdate.OnClientStart Then
 		SetInfobaseUpdateStartup(False);
 		SessionParameters.IBUpdateInProgress = False;
+	EndIf;
+	
+	If Not Common.SeparatedDataUsageAvailable() Then
+		ConfigureTaskClearingOutdatedData(True);
+	EndIf;
+	
+EndProcedure
+
+Procedure PerformActionsAfterDelayedUpdateOfInformationBase(SynchronousUpdate = False)
+	
+	If Not DeferredUpdateCompleted() Then
+		Return;
+	EndIf;
+	
+	If SynchronousUpdate Then
+		ClearCompletelyAfterSuccessfulDelayedUpdate();
+	Else
+		ConfigureTaskClearingOutdatedData(True);
 	EndIf;
 	
 EndProcedure
@@ -2796,6 +2857,7 @@ Function UpdateInfobaseInBackground(FormUniqueID, IBLock) Export
 	EndIf;
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(FormUniqueID);
+	ExecutionParameters.RunInBackground = True;
 	ExecutionParameters.WaitCompletion = 0;
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update infobase in background';");
 	
@@ -2818,14 +2880,14 @@ Procedure RunInfobaseUpdateInBackground(IBUpdateParameters, StorageAddress) Expo
 	
 	ErrorInfo = Undefined;
 	Try
-		UpdateParameters1 = UpdateParameters1();
-		UpdateParameters1.ExceptionOnCannotLockIB = IBUpdateParameters.ExceptionOnCannotLockIB;
-		UpdateParameters1.OnClientStart = True;
-		UpdateParameters1.Restart = False;
-		UpdateParameters1.IBLockSet = IBUpdateParameters.IBLock;
-		UpdateParameters1.InBackground = IBUpdateParameters.InBackground;
+		ParametersOfUpdate = ParametersOfUpdate();
+		ParametersOfUpdate.ExceptionOnCannotLockIB = IBUpdateParameters.ExceptionOnCannotLockIB;
+		ParametersOfUpdate.OnClientStart = True;
+		ParametersOfUpdate.Restart = False;
+		ParametersOfUpdate.IBLockSet = IBUpdateParameters.IBLock;
+		ParametersOfUpdate.InBackground = IBUpdateParameters.InBackground;
 		
-		Result = UpdateInfobase(UpdateParameters1);
+		Result = UpdateInfobase(ParametersOfUpdate);
 	Except
 		ErrorInfo = ErrorInfo();
 		// 
@@ -2857,15 +2919,15 @@ Function UpdateUnderRestrictedRights(IBLock) Export
 		Return False;
 	EndIf;
 	
-	UpdateParameters1 = UpdateParameters1();
-	UpdateParameters1.ExceptionOnCannotLockIB = False;
-	UpdateParameters1.IBLockSet = IBLock;
+	ParametersOfUpdate = ParametersOfUpdate();
+	ParametersOfUpdate.ExceptionOnCannotLockIB = False;
+	ParametersOfUpdate.IBLockSet = IBLock;
 	
 	Result = "";
 	// ACC:280-off Errors are written to the event log and are not shown to the user.
 	Try
 		SetPrivilegedMode(True);
-		Result = UpdateInfobase(UpdateParameters1);
+		Result = UpdateInfobase(ParametersOfUpdate);
 		SetPrivilegedMode(False);
 	Except
 		// No exception processing required.
@@ -2990,7 +3052,7 @@ EndFunction
 
 // For internal use.
 //
-Function UpdateParameters1() Export
+Function ParametersOfUpdate() Export
 	
 	Result = New Structure;
 	Result.Insert("ExceptionOnCannotLockIB", True);
@@ -3599,6 +3661,7 @@ Procedure ExecuteDeferredUpdate() Export
 	
 	If UpdateInfo.DeferredUpdatesEndTime <> Undefined Then
 		CancelDeferredUpdate();
+		PerformActionsAfterDelayedUpdateOfInformationBase();
 		Return;
 	EndIf;
 	
@@ -3679,6 +3742,7 @@ Procedure ExecuteDeferredUpdate() Export
 		DeleteAllUpdateThreads();
 		CancelDeferredUpdate();
 		ClearHandlersLaunchTransactions();
+		PerformActionsAfterDelayedUpdateOfInformationBase();
 	EndIf;
 	
 EndProcedure
@@ -3763,7 +3827,7 @@ Function HandlersForDeferredDataRegistration(NoFilter1 = False, UpdateRestart = 
 	
 EndFunction
 
-Function FindUpdateHandler(HandlerContext, UpdateParameters1 = Undefined)
+Function FindUpdateHandler(HandlerContext, ParametersOfUpdate = Undefined)
 	
 	UpdateInfo = InfobaseUpdateInfo();
 	CurrOrder       = CurrentUpdatingProcedure();
@@ -3911,23 +3975,23 @@ Function FindUpdateHandler(HandlerContext, UpdateParameters1 = Undefined)
 	EndIf;
 	
 	ParallelMode = (HandlerForExecution.DeferredHandlerExecutionMode = Enums.DeferredHandlersExecutionModes.Parallel);
-	UpdateParameters1 = ?(UpdateParameters1 = Undefined, New Structure, UpdateParameters1);
-	UpdateParameters1.Insert("ParallelMode", ParallelMode);
+	ParametersOfUpdate = ?(ParametersOfUpdate = Undefined, New Structure, ParametersOfUpdate);
+	ParametersOfUpdate.Insert("ParallelMode", ParallelMode);
 	If ParallelMode Then
-		UpdateParameters1.Insert("HandlersQueue", UpdateGroupHandlersQueue(HandlerForExecution.UpdateGroup));
-		UpdateParameters1.Insert("HasMasterNodeHandlers", HasMasterNodeHandlersOnly());
+		ParametersOfUpdate.Insert("HandlersQueue", UpdateGroupHandlersQueue(HandlerForExecution.UpdateGroup));
+		ParametersOfUpdate.Insert("HasMasterNodeHandlers", HasMasterNodeHandlersOnly());
 	EndIf;
 	
 	SetUpdateHandlerParameters(HandlerForExecution, True, ParallelMode);
 	BeforeStartDataProcessingProcedure(HandlerContext,
 		HandlerForExecution,
-		UpdateParameters1,
+		ParametersOfUpdate,
 		UpdateInfo);
 	
 	HandlerContext.HandlerID = HandlerForExecution.Id;
 	HandlerContext.HandlerName = HandlerForExecution.HandlerName;
 	HandlerContext.ParallelMode = ParallelMode;
-	HandlerContext.UpdateParameters1 = UpdateParameters1;
+	HandlerContext.ParametersOfUpdate = ParametersOfUpdate;
 	HandlerContext.UpdateHandlerParameters = SessionParameters.UpdateHandlerParameters;
 	HandlerContext.CurrentUpdateIteration = UpdateInfo.CurrentUpdateIteration;
 	
@@ -5087,7 +5151,7 @@ EndProcedure
 //   * ParallelMode - Boolean - indicates whether the update handler runs in parallel mode.
 //   * Parameters - Structure - update handler parameters with the following properties:
 //      ** DataToUpdate - See NewBatchForUpdate
-//   * UpdateParameters1 - Structure - description of the update parameters.
+//   * ParametersOfUpdate - Structure - description of the update parameters.
 //   * UpdateHandlerParameters - see SessionParameters.UpdateHandlerParameters
 //   * SkipProcessedDataCheck - Boolean - skip check in a subordinate DIB node.
 //   * CurrentUpdateIteration - Number - number of the current update iteration.
@@ -5115,7 +5179,7 @@ Function NewHandlerContext()
 	HandlerContext.Insert("TotalObjectsPassedForProcessing");
 	HandlerContext.Insert("ParallelMode");
 	HandlerContext.Insert("Parameters");
-	HandlerContext.Insert("UpdateParameters1");
+	HandlerContext.Insert("ParametersOfUpdate");
 	HandlerContext.Insert("UpdateHandlerParameters");
 	HandlerContext.Insert("SkipProcessedDataCheck", False);
 	HandlerContext.Insert("CurrentUpdateIteration");
@@ -6633,7 +6697,7 @@ Procedure RegisterPredefinedItemsToUpdate(Parameters, MetadataObject = Undefined
 		CommonClientServer.ValueInArray(MetadataObject),
 		ObjectsWithInitialFilling());
 	
-	ObjectsToProcess2 = New Array;
+	ObjectsToBeProcessed = New Array;
 	
 	QueryTemplate = "SELECT
 		|	&Fields
@@ -6696,11 +6760,11 @@ Procedure RegisterPredefinedItemsToUpdate(Parameters, MetadataObject = Undefined
 			If SuppliedInformationRecords <> Undefined Then
 				
 				If RegistrationParameters.UpdateMode = "All" Then
-					ObjectsToProcess2.Add(QueryData.Ref);
+					ObjectsToBeProcessed.Add(QueryData.Ref);
 				ElsIf RegistrationParameters.UpdateMode = "NewAndChanged" Then
 					
 					If DataContainsDifferences(QueryData, ObjectAttributesNames, SuppliedInformationRecords, ObjectAttributesToLocalize, RegistrationParameters) Then
-						ObjectsToProcess2.Add(QueryData.Ref);
+						ObjectsToBeProcessed.Add(QueryData.Ref);
 					EndIf;
 					
 				ElsIf RegistrationParameters.UpdateMode = "MultilingualStrings" Then
@@ -6709,7 +6773,7 @@ Procedure RegisterPredefinedItemsToUpdate(Parameters, MetadataObject = Undefined
 						ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 						If ModuleNativeLanguagesSupportServer.MultilingualAttributesStringsChanged(
 							SuppliedInformationRecords, QueryData, ObjectAttributesToLocalize, RegistrationParameters) Then
-							ObjectsToProcess2.Add(QueryData.Ref);
+							ObjectsToBeProcessed.Add(QueryData.Ref);
 						EndIf;
 					EndIf;
 					
@@ -6720,8 +6784,8 @@ Procedure RegisterPredefinedItemsToUpdate(Parameters, MetadataObject = Undefined
 		
 	EndDo;
 	
-	If ObjectsToProcess2.Count() > 0 Then
-		InfobaseUpdate.MarkForProcessing(Parameters, ObjectsToProcess2);
+	If ObjectsToBeProcessed.Count() > 0 Then
+		InfobaseUpdate.MarkForProcessing(Parameters, ObjectsToBeProcessed);
 	EndIf;
 	
 EndProcedure
@@ -7234,6 +7298,1743 @@ Procedure InstallScheduledJobKey() Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
+// 
+// 
+
+// 
+Procedure ClearingOutdatedData() Export
+	
+	Common.OnStartExecuteScheduledJob(
+		Metadata.ScheduledJobs.ClearingOutdatedData);
+	
+	If TransactionActive() Then
+		ErrorText = NStr("en = 'You cannot clear obsolete data in an external transaction.';");
+		Raise ErrorText;
+	EndIf;
+	
+	JobMetadata = Metadata.ScheduledJobs.ClearingOutdatedData;
+	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'You can run the %1 procedure only in a background job.';"),
+		JobMetadata.MethodName);
+	
+	CurrentSession = GetCurrentInfoBaseSession();
+	If CurrentSession.ApplicationName <> "BackgroundJob" Then
+		Raise ErrorText;
+	EndIf;
+	
+	CurrentBackgroundJob = CurrentSession.GetBackgroundJob();
+	If CurrentBackgroundJob = Undefined Then
+		Raise ErrorText;
+	EndIf;
+	
+	If Not Common.SeparatedDataUsageAvailable() Then
+		UpdateProgress = Undefined; // See InfobaseUpdate.DataAreasUpdateProgress
+		If Not DeferredUpdateCompleted(UpdateProgress) Then
+			Comment = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Obsolete shared data cleanup is deferred as some
+				           |data areas have not completed the deferred infobase update yet.
+				           |Areas with update in progress: %1
+				           |Areas pending update: %2
+				           |Areas with update issues: %3';"),
+				Format(UpdateProgress.Running, "NZ=0; NG="),
+				Format(UpdateProgress.Waiting1, "NZ=0; NG="),
+				Format(UpdateProgress.Issues, "NZ=0; NG="));
+			WriteLogEvent(
+				NStr("en = 'Clear obsolete data.Wait for the update to complete';",
+					Common.DefaultLanguageCode()),
+				EventLogLevel.Information,,, Comment);
+			Return;
+		EndIf;
+	ElsIf Not DeferredUpdateCompleted() Then
+		ConfigureTaskClearingOutdatedDataWithoutTrying(False);
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'You cannot clear obsolete data before the deferred
+			           |infobase update is completed.
+			           |1. To view the update results, click %1
+			           |2. To manually clear the data, click %2';"),
+			"e1cib/app/DataProcessor.ApplicationUpdateResult",
+			"e1cib/app/DataProcessor.ApplicationUpdateResult.Form.ClearingOutdatedData");
+		Raise ErrorText;
+	EndIf;
+	
+	JobID = CurrentBackgroundJob.UUID;
+	FoundJob = Undefined;
+	If TaskIsAlreadyBeingCompleted(JobMetadata.MethodName, JobID,, FoundJob)
+	 Or TaskIsAlreadyBeingCompleted("",, TaskKeyForClearingOutdatedData(), FoundJob) Then
+		ConfigureTaskClearingOutdatedDataWithoutTrying(True);
+		Comment = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Obsolete data cleanup is already in progress
+			           |in the ""%1"" background job dated %2';"),
+			FoundJob.Description,
+			Format(FoundJob.Begin, "DLF=DT"));
+		WriteLogEvent(
+			NStr("en = 'Clear obsolete data.Startup denied';",
+				Common.DefaultLanguageCode()),
+			EventLogLevel.Information,,, Comment);
+		Return;
+	EndIf;
+	
+	ExecutionBoundary = CurrentSessionDate() + NumberOfMinutesOfContinuousCleaningOfOutdatedData() * 60;
+	AllPortionsAreProcessed = True;
+	AnyProgress = False;
+	Errors = New Array;
+	
+	Context = New Structure("CleanWhatIsBeingRemoved, IsScheduledJob", True);
+	While True Do
+		NewPortions = New Map;
+		OutdatedDataWhenRequestingPortionsInBackground(NewPortions, Context);
+		If Not ValueIsFilled(NewPortions) Then
+			Break;
+		EndIf;
+		For Each KeyAndValue In NewPortions Do
+			If ExecutionBoundary < CurrentSessionDate() Then
+				AllPortionsAreProcessed = False;
+				Break;
+			EndIf;
+			Batch = KeyAndValue.Value[0];
+			Batch.Insert("ExecutionBoundary", ExecutionBoundary);
+			Batch.Insert("AllPortionsAreProcessed", True);
+			Try
+				OutdatedDataWhenClearingPortionInBackground(Batch);
+				AnyProgress = True;
+			Except
+				ErrorInfo = ErrorInfo();
+				Errors.Add(ErrorProcessing.DetailErrorDescription(ErrorInfo));
+			EndTry;
+			If Not Batch.AllPortionsAreProcessed Then
+				AllPortionsAreProcessed = False;
+				Break;
+			EndIf;
+		EndDo;
+		If Not AllPortionsAreProcessed Then
+			Break;
+		EndIf;
+	EndDo;
+	
+	If Not AllPortionsAreProcessed
+	 Or ValueIsFilled(Errors) And AnyProgress Then
+		ConfigureTaskClearingOutdatedDataWithoutTrying(True);
+		Return;
+	EndIf;
+	
+	If ValueIsFilled(Errors) Then
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Cannot clear some data due to errors:
+			           |
+			           |%1';"),
+			StrConcat(Errors, "
+			|--------------------------------------------------------------------------------
+			|
+			|"));
+		WriteLogEvent(
+			NStr("en = 'Clear obsolete data.Deletion errors';",
+				Common.DefaultLanguageCode()),
+			EventLogLevel.Error,,, ErrorText);
+	EndIf;
+	
+	ConfigureTaskClearingOutdatedDataWithoutTrying(False);
+	
+EndProcedure
+
+// 
+Function NumberOfMinutesOfContinuousCleaningOfOutdatedData()
+	Return 15;
+EndFunction
+
+// 
+Function TaskIsAlreadyBeingCompleted(MethodName, IDOfJobToExclude = Undefined,
+			Var_Key = Undefined, FoundJob = Undefined)
+	
+	Filter = New Structure("State", BackgroundJobState.Active);
+	If ValueIsFilled(MethodName) Then
+		Filter.Insert("MethodName", MethodName);
+	Else
+		Filter.Insert("Key", Var_Key);
+	EndIf;
+	
+	FoundJobs = BackgroundJobs.GetBackgroundJobs(Filter);
+	For Each FoundJob In FoundJobs Do
+		If FoundJob.UUID <> IDOfJobToExclude Then
+			Return True;
+		EndIf;
+	EndDo;
+	
+	Return False;
+	
+EndFunction
+
+// 
+Procedure ConfigureTaskClearingOutdatedData(Enable)
+	
+	Try
+		ConfigureTaskClearingOutdatedDataWithoutTrying(Enable);
+	Except
+		ErrorInfo = ErrorInfo();
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Cannot set up scheduled job
+			           |""%1"" due to:
+			           |%2';"),
+			Metadata.ScheduledJobs.ClearingOutdatedData.Name,
+			ErrorProcessing.DetailErrorDescription(ErrorInfo));
+		WriteLogEvent(
+			NStr("en = 'Clear obsolete data.Scheduled job setup error';",
+				Common.DefaultLanguageCode()),
+			EventLogLevel.Error,,, ErrorText);
+	EndTry;
+	
+EndProcedure
+
+// 
+Procedure ConfigureTaskClearingOutdatedDataWithoutTrying(Enable)
+	
+	JobMetadata = Metadata.ScheduledJobs.ClearingOutdatedData;
+	
+	If Common.DataSeparationEnabled() Then
+		Filter = New Structure("MethodName", JobMetadata.MethodName);
+	Else
+		Filter = New Structure("Metadata", JobMetadata);
+	EndIf;
+	FoundJobs = ScheduledJobsServer.FindJobs(Filter);
+	
+	If FoundJobs.Count() > 1 Then
+		For Each FoundJob In FoundJobs Do
+			If FoundJob = FoundJobs[0] Then
+				Continue;
+			EndIf;
+			ScheduledJobsServer.DeleteJob(FoundJob);
+		EndDo;
+	EndIf;
+	
+	If FoundJobs.Count() = 0 Then
+		BeginTransaction();
+		Try
+			ScheduledJobsServer.BlockARoutineTask(JobMetadata);
+			FoundJobs = ScheduledJobsServer.FindJobs(Filter);
+			If FoundJobs.Count() = 0 Then
+				// 
+				NewJob = ScheduledJobs.CreateScheduledJob(JobMetadata);
+				// 
+				ParametersOfNewJob = New Structure("Key, RestartIntervalOnFailure,
+				|RestartCountOnFailure, Schedule, Metadata");
+				FillPropertyValues(ParametersOfNewJob, NewJob);
+				ParametersOfNewJob.Insert("Use", Enable);
+				ScheduledJobsServer.AddJob(ParametersOfNewJob);
+			EndIf;
+			CommitTransaction();
+		Except
+			RollbackTransaction();
+			Raise;
+		EndTry
+	EndIf;
+	
+	If FoundJobs.Count() = 0 Then
+		Return;
+	EndIf;
+	
+	Job = FoundJobs[0];
+	If Job.Use = Enable Then
+		Return;
+	EndIf;
+	
+	JobParameters = New Structure("Use", Enable);
+	
+	BeginTransaction();
+	Try
+		ScheduledJobsServer.BlockARoutineTask(Job.UUID);
+		FoundJobs = ScheduledJobsServer.FindJobs(Filter);
+		If FoundJobs.Count() = 0
+		 Or FoundJobs[0].UUID <> Job.UUID Then
+			ConfigureTaskClearingOutdatedDataWithoutTrying(Enable);
+		ElsIf FoundJobs[0].Use <> Enable Then
+			ScheduledJobsServer.ChangeJob(FoundJobs[0].UUID, JobParameters);
+		EndIf;
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry
+	
+EndProcedure
+
+// 
+Function TaskKeyForClearingOutdatedData() Export
+	Return New UUID("f5104cf5-6251-438c-8557-e8bde0faec3e");
+EndFunction
+
+// 
+Procedure CancelRoutineTaskClearingOutdatedData(CancelControlTask = False) Export
+	
+	Filter = New Structure("State, MethodName", BackgroundJobState.Active,
+		Metadata.ScheduledJobs.ClearingOutdatedData.MethodName);
+	
+	FoundJobs = BackgroundJobs.GetBackgroundJobs(Filter);
+	For Each FoundJob In FoundJobs Do
+		FoundJob.Cancel();
+		FoundJob.WaitForExecutionCompletion(7);
+	EndDo;
+	
+	If Not CancelControlTask Then
+		Return;
+	EndIf;
+	
+	Filter = New Structure("State, Key", BackgroundJobState.Active,
+		TaskKeyForClearingOutdatedData());
+	
+	FoundJobs = BackgroundJobs.GetBackgroundJobs(Filter);
+	For Each FoundJob In FoundJobs Do
+		FoundJob.Cancel();
+		FoundJob.WaitForExecutionCompletion(7);
+	EndDo;
+	
+EndProcedure
+
+// 
+Procedure ClearCompletelyAfterSuccessfulDelayedUpdate()
+	
+	ErrorTitle = NStr("en = 'Cannot clear obsolete data.';")
+		+ Chars.LF + Chars.LF;
+	
+	If Not Common.SeparatedDataUsageAvailable() Then
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'You cannot call the %1 procedure in shared mode.';"),
+			"ClearCompletelyAfterSuccessfulDelayedUpdate");
+		Raise ErrorTitle + ErrorText;
+	EndIf;
+	
+	CancelRoutineTaskClearingOutdatedData(True);
+	
+	AddressOfCleanupResult = PutToTempStorage(Undefined, New UUID);
+	
+	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters();
+	ExecutionParameters.WaitCompletion = Undefined;
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Clear obsolete data (synchronously)';");
+	ExecutionParameters.ResultAddress = AddressOfCleanupResult;
+	ExecutionParameters.BackgroundJobKey = TaskKeyForClearingOutdatedData();
+	ExecutionParameters.RunNotInBackground1 = ExclusiveMode();
+	
+	ProcedureSettings = New Structure;
+	ProcedureSettings.Insert("Context",
+		New Structure("CleanWhatIsBeingRemoved, SynchronousUpdate", False, True));
+	ProcedureSettings.Insert("NameOfMethodForGettingPortions",
+		"InfobaseUpdateInternal.OutdatedDataWhenRequestingPortionsInBackground");
+	
+	Try
+		Result = TimeConsumingOperations.ExecuteProcedureinMultipleThreads(
+			"InfobaseUpdateInternal.OutdatedDataWhenClearingPortionInBackground",
+			ExecutionParameters, ProcedureSettings);
+		
+		If Result.Status = "Error" Then
+			ErrorText = Result.DetailErrorDescription;
+		ElsIf Result.Status = "Canceled" Then
+			ErrorText = NStr("en = 'Job is canceled';");
+		ElsIf Result.Status = "Running" Then
+			ErrorText = NStr("en = 'The application did not wait for the job to be completed';");
+		EndIf;
+		If Result.Status <> "Completed2" Then
+			Raise ErrorTitle + ErrorText;
+		EndIf;
+		
+		Results = GetFromTempStorage(AddressOfCleanupResult);
+		ErrorText = ErrorTextForClearingOutdatedData(Results);
+		If ErrorText <> Undefined Then
+			Raise ErrorTitle + ErrorText;
+		EndIf;
+		
+	Except
+		DeleteFromTempStorage(AddressOfCleanupResult);
+		Raise;
+	EndTry;
+	
+	DeleteFromTempStorage(AddressOfCleanupResult);
+	
+EndProcedure
+
+// 
+Function ErrorTextForClearingOutdatedData(Results) Export
+	
+	If TypeOf(Results) <> Type("Map") Then
+		If Common.DataSeparationEnabled() Then
+			Return NStr("en = 'The background job did not return a result';");
+		Else
+			Return NStr("en = 'The managing background job did not return a result';");
+		EndIf;
+	EndIf;
+	
+	HasError = False;
+	ErrorsTexts = New Array;
+	
+	For Each KeyAndValue In Results Do
+		CurrentResult = KeyAndValue.Value;
+		If CurrentResult.Status = "Error" Then
+			ErrorsTexts.Add(CurrentResult.BriefErrorDescription);
+		ElsIf CurrentResult.Status <> "Completed2" Then
+			HasError = True;
+		EndIf;
+	EndDo;
+	
+	ErrorText = Undefined;
+	
+	If HasError And Not ValueIsFilled(ErrorsTexts) Then
+		ErrorText = NStr("en = 'Some jobs are not completed. Repeat the operation.';");
+	ElsIf ValueIsFilled(ErrorsTexts) Then
+		ErrorText = StrConcat(ErrorsTexts, "
+		|--------------------------------------------------------------------------------
+		|
+		|");
+	EndIf;
+	
+	Return ErrorText;
+	
+EndFunction
+
+// 
+// 
+//
+// Parameters:
+//  NewPortions - Map of KeyAndValue:
+//   * Key - UUID -
+//   * Value - Arbitrary -
+//
+//  Context - Structure -
+//                
+//                
+//
+Procedure OutdatedDataWhenRequestingPortionsInBackground(NewPortions, Context) Export
+	
+	If Not Context.Property("TablesBeingCleared") Then
+		If Not Context.Property("IsScheduledJob") Then
+			RoutineTaskIsBeingPerformedToCleanUpOutdatedData(True);
+		EndIf;
+		Context.Insert("CurTableIndex", -1);
+		Context.Insert("TablesBeingCleared", TablesBeingCleared(Not Context.CleanWhatIsBeingRemoved));
+		SetOrderOfClearingTables(Context.TablesBeingCleared);
+		RecordCleaningPlanInLog(Context);
+		Context.Insert("PortionSize", 10000);
+		Context.Insert("MaximumNumberOfServings",
+			?(Context.Property("Percent") And Not Common.FileInfobase(), 5, 1));
+		Properties = New Array;
+		For Each Column In Context.TablesBeingCleared.Columns Do
+			Properties.Add(Column.Name);
+		EndDo;
+		Context.Insert("PropertiesOfTableBeingCleared", StrConcat(Properties, ","));
+		If Context.MaximumNumberOfServings = 1 Then
+			Context.TablesBeingCleared.FillValues(Null, "LastRef");
+		EndIf;
+	EndIf;
+	
+	While True Do
+		Context.CurTableIndex = Context.CurTableIndex + 1;
+		If Context.CurTableIndex >= Context.TablesBeingCleared.Count() Then
+			Break;
+		EndIf;
+		TableBeingCleared = Context.TablesBeingCleared.Get(Context.CurTableIndex);
+		If TypeOf(TableBeingCleared.Nodes) <> Type("Array") Then
+			TableBeingCleared.Nodes = TableNodes(TableBeingCleared);
+		EndIf;
+		If TableBeingCleared.IsRegister
+		   And (TableBeingCleared.ClearAll
+		      Or TableBeingCleared.Independent) Then
+			If Not ContinueAddingCleaningPortions(Context, NewPortions, TableBeingCleared) Then
+				Break;
+			EndIf;
+			Continue;
+		EndIf;
+		BreakOuterLoop = False;
+		While True Do
+			Query = DataRequest(TableBeingCleared, False, False, Context.PortionSize);
+			QueryResult = Query.Execute();
+			If QueryResult.IsEmpty() Then
+				Break;
+			EndIf;
+			PortionOfLinks = QueryResult.Unload().UnloadColumn("Ref");
+			If Not ContinueAddingCleaningPortions(Context, NewPortions, TableBeingCleared, PortionOfLinks) Then
+				BreakOuterLoop = True;
+				If PortionOfLinks.Count() = Context.PortionSize Then
+					Context.CurTableIndex = Context.CurTableIndex - 1;
+				EndIf;
+				Break;
+			EndIf;
+		EndDo;
+		If BreakOuterLoop Then
+			Break;
+		EndIf;
+	EndDo;
+	
+	If Context.Property("Percent")
+	   And Not Context.Property("SynchronousUpdate") Then
+		Context.Percent = ?(Context.TablesBeingCleared.Count() = 0, 100,
+			Round((Context.CurTableIndex + 1) * 100 / Context.TablesBeingCleared.Count()));
+	EndIf;
+	
+EndProcedure
+
+// 
+Function RoutineTaskIsBeingPerformedToCleanUpOutdatedData(RaiseException1 = False)
+	
+	JobMetadata = Metadata.ScheduledJobs.ClearingOutdatedData;
+	If Not TaskIsAlreadyBeingCompleted(JobMetadata.MethodName) Then
+		Return False;
+	EndIf;
+	
+	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Cannot start as the ""%1"" scheduled job is running.';"),
+		JobMetadata.Presentation());
+	
+	If RaiseException1 Then
+		Raise ErrorText;
+	EndIf;
+	
+	Return True;
+	
+EndFunction
+
+// 
+Procedure SetOrderOfClearingTables(TablesBeingCleared)
+	
+	TablesBeingCleared.Sort("IsRegister Desc, ClearAll Desc, IsExchangePlan Asc");
+	
+EndProcedure
+
+// 
+Function TableNodes(TableBeingCleared)
+	
+	If Not TableBeingCleared.InTermsOfExchange Then
+		Return New Array;
+	EndIf;
+	
+	Query = New Query;
+	Query.Text =
+	"SELECT DISTINCT
+	|	CurrentTable.Node AS Node
+	|FROM
+	|	&CurrentTable AS CurrentTable";
+	
+	Query.Text = StrReplace(Query.Text,
+		"&CurrentTable", TableBeingCleared.FullName + ".Changes");
+	
+	Return Query.Execute().Unload().UnloadColumn("Node");
+	
+EndFunction
+
+// 
+Function ContinueAddingCleaningPortions(Context, NewPortions, TableBeingCleared, PortionOfLinks = Undefined)
+	
+	If TableBeingCleared.LastRef <> Null
+	   And ValueIsFilled(PortionOfLinks) Then
+		TableBeingCleared.LastRef = PortionOfLinks[PortionOfLinks.UBound()];
+	EndIf;
+	
+	Properties = New Structure(Context.PropertiesOfTableBeingCleared);
+	FillPropertyValues(Properties, TableBeingCleared);
+	
+	NewBatch = New Structure;
+	NewBatch.Insert("TableBeingCleared", Properties);
+	NewBatch.Insert("PortionSize", Context.PortionSize);
+	NewBatch.Insert("PortionOfLinks", PortionOfLinks);
+	
+	NewPortions.Insert(New UUID,
+		CommonClientServer.ValueInArray(NewBatch));
+	
+	Return NewPortions.Count() < Context.MaximumNumberOfServings;
+	
+EndFunction
+
+
+// 
+Procedure OutdatedDataWhenClearingPortionInBackground(Parameters) Export
+	
+	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		ModuleAccessManagement = Common.CommonModule("AccessManagement");
+		ModuleAccessManagement.DisableAccessKeysUpdate(True, False);
+		Try
+			OutdatedDataWhenClearingPortion(Parameters);
+		Except
+			ModuleAccessManagement.DisableAccessKeysUpdate(False, False);
+			Raise;
+		EndTry;
+		ModuleAccessManagement.DisableAccessKeysUpdate(False, False);
+	Else
+		OutdatedDataWhenClearingPortion(Parameters);
+	EndIf;
+	
+EndProcedure
+
+// 
+Procedure OutdatedDataWhenClearingPortion(Parameters)
+	
+	TableBeingCleared = Parameters.TableBeingCleared;
+	PortionOfLinks     = Parameters.PortionOfLinks;
+	PortionSize     = Parameters.PortionSize;
+	
+	If TableBeingCleared.IsRegister Then
+		RegisterManager = Common.ObjectManagerByFullName(TableBeingCleared.FullName);
+		RecordSet = RegisterManager.CreateRecordSet();
+		Common.DisableRecordingControl(RecordSet);
+	EndIf;
+	
+	TableNodes = TableBeingCleared.Nodes;
+	
+	If TableBeingCleared.ClearAll
+	   And TableBeingCleared.IsRegister Then
+		RecordWithAttempt(,, TableNodes,
+			Common.MetadataObjectByFullName(TableBeingCleared.FullName));
+		RecordWithAttempt(RecordSet);
+		Return;
+	EndIf;
+	
+	If TableBeingCleared.Independent Then
+		Query = DataRequest(TableBeingCleared, False, False, PortionSize);
+		For Each QueryDetails In Query Do
+			RequestingMeasurementValues = QueryDetails.Value;
+			DimensionName = QueryDetails.Presentation;
+			While True Do
+				QueryResult = RequestingMeasurementValues.Execute();
+				If QueryResult.IsEmpty() Then
+					Break;
+				EndIf;
+				Selection = QueryResult.Select();
+				RecordSet = RegisterManager.CreateRecordSet();
+				Common.DisableRecordingControl(RecordSet);
+				While Selection.Next() Do
+					FilterElement = RecordSet.Filter[DimensionName]; // FilterItem
+					FilterElement.Set(Selection[DimensionName]);
+					RecordWithAttempt(RecordSet);
+				EndDo;
+				If Parameters.Property("ExecutionBoundary")
+				   And Parameters.ExecutionBoundary < CurrentSessionDate() Then
+					Parameters.AllPortionsAreProcessed = False;
+					Return;
+				EndIf;
+			EndDo;
+		EndDo;
+		
+		Return;
+	EndIf;
+	
+	If TableBeingCleared.IsExchangePlan Then
+		MetadataTables = Common.MetadataObjectByFullName(TableBeingCleared.FullName);
+	EndIf;
+	
+	For Each Ref In PortionOfLinks Do
+		If TableBeingCleared.IsRegister Then
+			FilterElement = RecordSet.Filter.Recorder; // FilterItem
+			FilterElement.Set(Ref);
+			RecordWithAttempt(,, TableNodes, RecordSet);
+			RecordWithAttempt(RecordSet);
+		Else
+			If Not TableBeingCleared.IsExchangePlan Then
+				RecordWithAttempt(,, TableNodes, Ref);
+			ElsIf Ref.ThisNode <> True Then
+				For Each CompositionItem In MetadataTables.Content Do
+					RecordWithAttempt(,, Ref, CompositionItem.Metadata);
+				EndDo;
+			EndIf;
+			RecordWithAttempt(Ref, True,, TableBeingCleared.IsExchangePlan);
+		EndIf;
+	EndDo;
+	
+EndProcedure
+
+// 
+Procedure RecordWithAttempt(Data, Delete = False, TableNodes = "", NodeData = Undefined)
+	
+	AttemptNumber = 1;
+	While True Do
+		Try
+			If TableNodes <> "" Then
+				TableNodes = TableNodes; // Array
+				ExchangePlans.DeleteChangeRecords(TableNodes, NodeData);
+			ElsIf Delete Then
+				Data = Data; // CatalogRef
+				CurrentObject = Data.GetObject();
+				If CurrentObject <> Undefined Then
+					Common.DisableRecordingControl(CurrentObject, NodeData);
+					// АПК:1327-
+					CurrentObject.Delete();
+					// 
+				EndIf;
+			Else
+				Data = Data; // CatalogObject
+				Data.Write();
+			EndIf;
+		Except
+			AttemptNumber = AttemptNumber + 1;
+			BackgroundJob = GetCurrentInfoBaseSession().GetBackgroundJob();
+			If BackgroundJob = Undefined
+			 Or AttemptNumber > 10 Then
+				Raise;
+			EndIf;
+			BackgroundJob.WaitForExecutionCompletion(AttemptNumber * 3);
+			Continue;
+		EndTry;
+		Break;
+	EndDo;
+	
+EndProcedure
+
+// 
+Procedure RecordCleaningPlanInLog(Context)
+	
+	CleaningPlan = PlanToCleanUpOutdatedData(Context.CleanWhatIsBeingRemoved, Context.TablesBeingCleared);
+	
+	WriteLogEvent(
+		NStr("en = 'Clear obsolete data.Cleanup plan';",
+			Common.DefaultLanguageCode()),
+		EventLogLevel.Information,,, CleaningPlan);
+	
+EndProcedure
+
+// 
+Function PlanToCleanUpOutdatedData(CleanWhatIsBeingRemoved, TablesBeingCleared = Undefined, ConsiderDataSeparation = True) Export
+	
+	Rows = New Array;
+	SeparatedDataUsageAvailable = Common.SeparatedDataUsageAvailable();
+	
+	If ConsiderDataSeparation Or SeparatedDataUsageAvailable Then
+		If TablesBeingCleared = Undefined Then
+			TablesBeingCleared = TablesBeingCleared(Not CleanWhatIsBeingRemoved);
+			SetOrderOfClearingTables(TablesBeingCleared);
+		EndIf;
+		If Not Common.DataSeparationEnabled() Then
+			Rows.Add(NStr("en = 'The following tables will be processed';"));
+		ElsIf Not SeparatedDataUsageAvailable Then
+			Rows.Add(NStr("en = 'The following shared tables will be processed (shared data)';"));
+		Else
+			Rows.Add(NStr("en = 'The following separated tables will be processed';"));
+		EndIf;
+		AddDescriptionOfTablesToCleaningPlan(Rows, TablesBeingCleared);
+	Else
+		AllTables = TablesBeingCleared(Not CleanWhatIsBeingRemoved, False);
+		
+		Filter = New Structure("Shared2", True);
+		UndividedTables = AllTables.Copy(AllTables.FindRows(Filter));
+		SetOrderOfClearingTables(UndividedTables);
+		Rows.Add(NStr("en = '1. The following shared tables will be processed (shared data).';"));
+		AddDescriptionOfTablesToCleaningPlan(Rows, UndividedTables);
+		
+		Rows.Add("");
+		
+		Filter = New Structure("Shared2", True);
+		SplitTables = AllTables.Copy(AllTables.FindRows(Filter));
+		SetOrderOfClearingTables(SplitTables);
+		Rows.Add(NStr("en = '2. The following separated tables will be processed in data areas
+		                           |   (the full cleanup plan is available only when you sign in to a data area).';"));
+		AddDescriptionOfTablesToCleaningPlan(Rows, SplitTables);
+	EndIf;
+	
+	Return StrConcat(Rows, Chars.LF);
+	
+EndFunction
+
+// 
+Procedure AddDescriptionOfTablesToCleaningPlan(Rows, TablesBeingCleared)
+	
+	For Each TableBeingCleared In TablesBeingCleared Do
+		Rows.Add("");
+		Rows.Add(TableBeingCleared.Presentation + " (" + TableBeingCleared.FullName + ")");
+		If TableBeingCleared.ClearAll Then
+			Rows.Add("	" + NStr("en = 'Full cleanup';"));
+			Continue;
+		ElsIf TableBeingCleared.Independent Then
+			Rows.Add("	" + NStr("en = 'Delete records by values in dimensions:';"));
+			AddDescriptionOfFieldsToCleanupPlan(Rows, TableBeingCleared.RegisterFields);
+			Continue;
+		EndIf;
+		If ValueIsFilled(TableBeingCleared.RegisterFields) Then
+			Rows.Add("	" + NStr("en = 'Delete records by recorders if the main table dimensions contain values:';"));
+			AddDescriptionOfFieldsToCleanupPlan(Rows, TableBeingCleared.RegisterFields);
+		EndIf;
+		If ValueIsFilled(TableBeingCleared.ExtdimensionFields) Then
+			Rows.Add("	" + NStr("en = 'Delete records by recorders if dimensions of the extra dimension table contain values:';"));
+			AddDescriptionOfFieldsToCleanupPlan(Rows, TableBeingCleared.ExtdimensionFields);
+		EndIf;
+	EndDo;
+	
+EndProcedure
+
+// 
+Procedure AddDescriptionOfFieldsToCleanupPlan(Rows, FieldsDetails)
+	
+	For Each FieldDetails In FieldsDetails Do
+		Rows.Add("		""" + FieldDetails.Key + """ " + NStr("en = 'contains values of the following types';") + ":");
+		For Each TypeDetails In FieldDetails.Value Do
+			If TypeOf(TypeDetails.Value) = Type("Array") Then
+				Rows.Add("			""" + String(TypeDetails.Key) + """ " + NStr("en = 'only the following values';") + ":
+					|				" + StrConcat(TypeDetails.Value, "
+					|				"));
+			Else
+				Rows.Add("			""" + String(TypeDetails.Key) + """ (" + TypeDetails.Value + ")");
+			EndIf;
+		EndDo;
+	EndDo;
+	
+EndProcedure
+
+
+// 
+Procedure ClearOutdatedDataInBackground(Parameters, ResultAddress) Export
+	
+	LastShipment = CurrentSessionDate();
+	LastPercentage = 0;
+	
+	ModuleSaaSOperations = Undefined;
+	Parameters.ShouldProcessDataAreas = Parameters.ShouldProcessDataAreas
+		And Not Common.SeparatedDataUsageAvailable();
+	
+	Try
+		ClearOutdatedDataInBackgroundWithoutTrying(Parameters);
+		If Parameters.ShouldProcessDataAreas Then
+			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+			DataAreas = ModuleSaaSOperations.DataAreasUsed().Unload().UnloadColumn(
+				"DataArea");
+			For Each DataArea In DataAreas Do
+				ModuleSaaSOperations.SignInToDataArea(DataArea);
+				ClearOutdatedDataInBackgroundWithoutTrying(Parameters); // @skip-
+				ModuleSaaSOperations.SignOutOfDataArea();
+				If LastShipment + 5 < CurrentSessionDate() Then
+					NewPercentage = Int(DataAreas.Find(DataArea) / DataAreas.Count() * 100);
+					If NewPercentage > LastPercentage Then
+						TimeConsumingOperations.ReportProgress(NewPercentage);
+						LastPercentage = NewPercentage;
+					EndIf;
+					LastShipment = CurrentSessionDate();
+				EndIf;
+			EndDo;
+		EndIf;
+		Result = New Map;
+	Except
+		ErrorInfo = ErrorInfo();
+		Result = ErrorProcessing.DetailErrorDescription(ErrorInfo);
+		If Parameters.ShouldProcessDataAreas
+		   And ModuleSaaSOperations <> Undefined Then
+			ModuleSaaSOperations.SignOutOfDataArea();
+		EndIf;
+	EndTry;
+	
+	PutToTempStorage(Result, ResultAddress);
+	
+EndProcedure
+
+// 
+Procedure ClearOutdatedDataInBackgroundWithoutTrying(Parameters)
+
+	ShouldProcessDataAreas = Parameters.ShouldProcessDataAreas;
+	
+	LastShipment = CurrentSessionDate();
+	LastPercentage = 0;
+	
+	Context = New Structure("CleanWhatIsBeingRemoved", Parameters.CleanWhatIsBeingRemoved);
+	While True Do
+		NewPortions = New Map;
+		OutdatedDataWhenRequestingPortionsInBackground(NewPortions, Context);
+		If Not ValueIsFilled(NewPortions) Then
+			Break;
+		EndIf;
+		For Each KeyAndValue In NewPortions Do
+			OutdatedDataWhenClearingPortionInBackground(KeyAndValue.Value[0]);
+		EndDo;
+		If Not ShouldProcessDataAreas
+		   And LastShipment + 5 < CurrentSessionDate() Then
+			NewPercentage = Int(Context.CurTableIndex / Context.TablesBeingCleared.Count() * 100);
+			If NewPercentage > LastPercentage Then
+				TimeConsumingOperations.ReportProgress(NewPercentage);
+				LastPercentage = NewPercentage;
+			EndIf;
+			LastShipment = CurrentSessionDate();
+		EndIf;
+	EndDo;
+	
+EndProcedure
+
+
+// 
+Procedure CreateListOfOutdatedDataInBackground(Parameters, ResultAddress) Export
+	
+	OutdatedData = New ValueTable;
+	OutdatedData.Columns.Add("FullTableName",     New TypeDescription("String"));
+	OutdatedData.Columns.Add("TablePresentation", New TypeDescription("String"));
+	OutdatedData.Columns.Add("Count",           New TypeDescription("Number"));
+	OutdatedData.Columns.Add("DataArea",        New TypeDescription("Number"));
+	
+	ModuleSaaSOperations = Undefined;
+	Parameters.ShouldProcessDataAreas = Parameters.ShouldProcessDataAreas
+		And Not Common.SeparatedDataUsageAvailable();
+	
+	LastShipment = CurrentSessionDate();
+	LastPercentage = 0;
+	
+	Try
+		GenerateListOfOutdatedDataInBackgroundWithoutTrying(OutdatedData, Parameters);
+		If Parameters.ShouldProcessDataAreas Then
+			OutdatedData.FillValues(-1, "DataArea");
+			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+			DataAreas = ModuleSaaSOperations.DataAreasUsed().Unload().UnloadColumn(
+				"DataArea");
+			For Each DataArea In DataAreas Do
+				OutdatedAreaData = OutdatedData.Copy(New Array);
+				ModuleSaaSOperations.SignInToDataArea(DataArea);
+				GenerateListOfOutdatedDataInBackgroundWithoutTrying(OutdatedAreaData, Parameters); // @skip-
+				ModuleSaaSOperations.SignOutOfDataArea();
+				If ValueIsFilled(OutdatedAreaData) Then
+					NewRow = OutdatedData.Add();
+					FillPropertyValues(NewRow, OutdatedAreaData[0]);
+					NewRow.DataArea = DataArea;
+				EndIf;
+				If LastShipment + 5 < CurrentSessionDate() Then
+					NewPercentage = Int(DataAreas.Find(DataArea) / DataAreas.Count() * 100);
+					If NewPercentage > LastPercentage Then
+						TimeConsumingOperations.ReportProgress(NewPercentage);
+						LastPercentage = NewPercentage;
+					EndIf;
+					LastShipment = CurrentSessionDate();
+				EndIf;
+			EndDo;
+		EndIf;
+		Result = OutdatedData;
+	Except
+		ErrorInfo = ErrorInfo();
+		Result = ErrorProcessing.DetailErrorDescription(ErrorInfo);
+		If Parameters.ShouldProcessDataAreas
+		   And ModuleSaaSOperations <> Undefined Then
+			ModuleSaaSOperations.SignOutOfDataArea();
+		EndIf;
+	EndTry;
+	
+	PutToTempStorage(Result, ResultAddress);
+	
+EndProcedure
+
+// 
+Procedure GenerateListOfOutdatedDataInBackgroundWithoutTrying(OutdatedData, Parameters)
+	
+	TablesBeingCleared = TablesBeingCleared(Not Parameters.CleanWhatIsBeingRemoved);
+	CommonCount = 0;
+	OutputQuantity = Parameters.OutputQuantity;
+	ShouldProcessDataAreas = Parameters.ShouldProcessDataAreas;
+	
+	LastShipment = CurrentSessionDate();
+	LastPercentage = 0;
+	
+	For Each TableBeingCleared In TablesBeingCleared Do
+		Query = DataRequest(TableBeingCleared, True, OutputQuantity);
+		QueryResult = Query.Execute(); // @skip-
+		Count = 0;
+		If OutputQuantity Then
+			Selection = QueryResult.Select();
+			If Selection.Next()
+			   And TypeOf(Selection.Count) = Type("Number") Then
+				Count = Selection.Count;
+			EndIf;
+		ElsIf Not QueryResult.IsEmpty() Then
+			Count = 1;
+		EndIf;
+		If Not ShouldProcessDataAreas
+		   And LastShipment + 5 < CurrentSessionDate() Then
+			NewPercentage = Int(TablesBeingCleared.IndexOf(TableBeingCleared) / TablesBeingCleared.Count() * 100);
+			If NewPercentage > LastPercentage Then
+				TimeConsumingOperations.ReportProgress(NewPercentage);
+				LastPercentage = NewPercentage;
+			EndIf;
+			LastShipment = CurrentSessionDate();
+		EndIf;
+		If Not ValueIsFilled(Count) Then
+			Continue;
+		EndIf;
+		CommonCount = CommonCount + Count;
+		If Not ShouldProcessDataAreas Then
+			NewRow = OutdatedData.Add();
+			NewRow.FullTableName     = TableBeingCleared.FullName;
+			NewRow.TablePresentation = TableBeingCleared.Presentation;
+			NewRow.Count = Count;
+		ElsIf Not OutputQuantity Then
+			Break;
+		EndIf;
+	EndDo;
+	
+	If ShouldProcessDataAreas
+	   And CommonCount > 0
+	 Or OutputQuantity
+	   And OutdatedData.Count() > 1 Then
+		
+		If Not ShouldProcessDataAreas Then
+			Presentation = NStr("en = 'Total number for all tables';");
+		ElsIf OutputQuantity Then
+			Presentation = NStr("en = 'Total number for all area tables';");
+		Else
+			Presentation = NStr("en = 'There are tables to clear';");
+		EndIf;
+		
+		NewRow = OutdatedData.Insert(0);
+		NewRow.TablePresentation = "<" + Presentation + ">";
+		NewRow.Count = CommonCount;
+	EndIf;
+	
+EndProcedure
+
+
+// 
+// 
+//
+// Parameters:
+//  TableBeingCleared - ValueTableRow: см. ОчищаемыеТаблицы
+//
+// Returns:
+//  Query - 
+//  
+//    
+//    
+//
+Function DataRequest(TableBeingCleared, OnlyAvailability = True, Count = False, PortionSize = 10000)
+	
+	QueryText =
+	"SELECT DISTINCT TOP 10000
+	|	&Field
+	|FROM
+	|	&CurrentTable AS CurrentTable
+	|WHERE
+	|	&Filter";
+	
+	Query = New Query;
+	ParameterNamePrefix = StrReplace(TableBeingCleared.FullName, ".", "_") + "_";
+	Field = "";
+	HasRecorder = TableBeingCleared.IsRegister And Not TableBeingCleared.Independent;
+	If OnlyAvailability And Count Then
+		QueryText = StrReplace(QueryText, "TOP 10000", "");
+		If HasRecorder Then
+			Field = "COUNT(DISTINCT CurrentTable.Recorder) AS Count";
+		Else
+			Field = "COUNT(*) AS Count";
+		EndIf;
+	ElsIf OnlyAvailability Then
+		QueryText = StrReplace(QueryText, "10000", "1");
+		Field = "TRUE";
+	ElsIf TableBeingCleared.Independent Then
+		Field = "";
+	Else
+		FieldName = ?(TableBeingCleared.IsRegister, "Recorder", "Ref");
+		Field = StrReplace("CurrentTable.FieldName AS Ref", "FieldName", FieldName);
+		If TableBeingCleared.LastRef <> Null Then
+			QueryText = QueryText + StrReplace("
+			|
+			|ORDER BY
+			|	CurrentTable.FieldName", "FieldName", FieldName);
+			If ValueIsFilled(TableBeingCleared.LastRef) Then
+				ParameterName = ParameterNamePrefix + "LastRef";
+				QueryText = StrReplace(QueryText, "&Filter", StrReplace(
+				"CurrentTable.FieldName > &" + ParameterName + "
+				|	AND (&Filter)", "FieldName", FieldName));
+				Query.SetParameter(ParameterName, TableBeingCleared.LastRef);
+			EndIf;
+		EndIf;
+	EndIf;
+	
+	QueryText = StrReplace(QueryText, "10000", Format(PortionSize, "NG="));
+	
+	If Not OnlyAvailability
+	   And TableBeingCleared.Independent
+	   And TableBeingCleared.RegisterFields.Count() > 0 Then
+		
+		QueryText = StrReplace(QueryText,
+			"&CurrentTable", TableBeingCleared.FullName);
+		
+		Queries = New ValueList;
+		For Each FieldDetails In TableBeingCleared.RegisterFields Do
+			RegisterFields = New Map;
+			RegisterFields.Insert(FieldDetails.Key, FieldDetails.Value);
+			Query = New Query;
+			Query.Text = StrReplace(QueryText, "&Field",
+				"CurrentTable." + FieldDetails.Key + " AS " + FieldDetails.Key);
+			SetSelectionToQueryText(RegisterFields, Query.Text, Query, ParameterNamePrefix);
+			Queries.Add(Query, FieldDetails.Key);
+		EndDo;
+		
+		Return Queries;
+	EndIf;
+	
+	If TableBeingCleared.IsRegister
+	   And ValueIsFilled(TableBeingCleared.RegisterFields)
+	   And ValueIsFilled(TableBeingCleared.ExtdimensionFields) Then
+	
+		QueryText = StrReplace(QueryText, "&Field",
+			"CurrentTable.Recorder AS Recorder");
+		If OnlyAvailability And Not Count Then
+			QueryText = StrReplace(QueryText, "DISTINCT", "");
+		EndIf;
+		QueryText1 = StrReplace(QueryText,
+			"&CurrentTable", TableBeingCleared.FullName);
+		QueryText2 = StrReplace(QueryText,
+			"&CurrentTable", TableBeingCleared.FullName + ".ExtDimension");
+		SetSelectionToQueryText(TableBeingCleared.RegisterFields,
+			QueryText1, Query, ParameterNamePrefix);
+		SetSelectionToQueryText(TableBeingCleared.ExtdimensionFields,
+			QueryText2, Query, ParameterNamePrefix + "2_");
+		QueryText =
+		"SELECT DISTINCT TOP 10000
+		|	&Field
+		|FROM
+		|	(SELECT &CurrentTable1
+		|	
+		|	UNION ALL
+		|	
+		|	SELECT &CurrentTable2) AS CurrentTable";
+		If OnlyAvailability And Count Then
+			QueryText = StrReplace(QueryText, "DISTINCT TOP 10000", "");
+		ElsIf OnlyAvailability Then
+			QueryText = StrReplace(QueryText, "DISTINCT TOP 10000", "TOP 1");
+		EndIf;
+		If OnlyAvailability Or TableBeingCleared.LastRef = Null Then
+			QueryText = StrReplace(QueryText, "&Field", Field);
+			QueryText = StrReplace(QueryText, "SELECT &CurrentTable1",
+				StrReplace(QueryText1, Chars.LF, Chars.LF + Chars.Tab));
+			QueryText = StrReplace(QueryText, "SELECT &CurrentTable2",
+				StrReplace(QueryText2, Chars.LF, Chars.LF + Chars.Tab));
+		Else
+			QueryText =
+			"SELECT DISTINCT TOP 10000
+			|	CurrentTable.Recorder AS Ref
+			|FROM
+			|	(SELECT
+			|		CurrentTable1.Recorder AS Recorder
+			|	FROM
+			|		CurrentTable1 AS CurrentTable1
+			|	
+			|	UNION ALL
+			|	
+			|	SELECT
+			|		CurrentTable2.Recorder
+			|	FROM
+			|		CurrentTable2 AS CurrentTable2) AS CurrentTable
+			|
+			|ORDER BY
+			|	CurrentTable.Recorder";
+			QueryText = StrReplace(QueryText1,
+				"CurrentTable.Recorder AS Recorder",
+				"CurrentTable.Recorder AS Recorder
+				|INTO CurrentTable1")
+				+ Common.QueryBatchSeparator()
+				+ StrReplace(QueryText2,
+				"CurrentTable.Recorder AS Recorder",
+				"CurrentTable.Recorder AS Recorder
+				|INTO CurrentTable2")
+				+ Common.QueryBatchSeparator()
+				+ QueryText;
+		EndIf;
+		QueryText = StrReplace(QueryText, "10000", Format(PortionSize, "NG="));
+	Else
+		If Not HasRecorder Or OnlyAvailability Then
+			QueryText = StrReplace(QueryText, "DISTINCT", "");
+		EndIf;
+		QueryText = StrReplace(QueryText,
+			"&CurrentTable", TableBeingCleared.FullName
+			+ ?(ValueIsFilled(TableBeingCleared.ExtdimensionFields), ".ExtDimension", ""));
+		QueryText = StrReplace(QueryText, "&Field", Field);
+		If TableBeingCleared.IsRegister Then
+			SetSelectionToQueryText(?(ValueIsFilled(TableBeingCleared.ExtdimensionFields),
+				TableBeingCleared.ExtdimensionFields, TableBeingCleared.RegisterFields),
+				QueryText, Query, ParameterNamePrefix);
+		Else
+			QueryText = StrReplace(QueryText, "&Filter", "TRUE");
+		EndIf;
+	EndIf;
+	
+	Query.Text = Query.Text + QueryText;
+	
+	Return Query;
+	
+EndFunction
+
+// 
+Procedure SetSelectionToQueryText(FieldsDetails, QueryText, Query, ParameterNamePrefix)
+	
+	Filter = "";
+	SelectionConnections = "";
+	
+	For Each FieldDetails In FieldsDetails Do
+		TypesToCleanUp = New Map;
+		ValuesToClear = New Map;
+		For Each TypeDetails In FieldDetails.Value Do
+			If TypeOf(TypeDetails.Value) = Type("Array") Then
+				ValuesToClear.Insert(TypeDetails.Key, TypeDetails.Value);
+			Else
+				TypesToCleanUp.Insert(TypeDetails.Key, TypeDetails.Value);
+			EndIf;
+		EndDo;
+		
+		If FieldDetails.Value.Count() > 100
+		   And ValueIsFilled(TypesToCleanUp) Then
+			
+			ParameterName = ParameterNamePrefix + FieldDetails.Key;
+			TemporaryTableQueryText =
+			"SELECT
+			|	CurrentTable.EmptyRef AS EmptyRef
+			|INTO TempTable
+			|FROM
+			|	&TempTable AS CurrentTable
+			|
+			|INDEX BY
+			|	EmptyRef";
+			TemporaryTableQueryText = StrReplace(TemporaryTableQueryText,
+				"TempTable", ParameterName);
+			Query.Text = TemporaryTableQueryText
+				+ Common.QueryBatchSeparator() + Query.Text;
+			SelectionConnections = SelectionConnections + ?(SelectionConnections = "", "", Chars.LF);
+			SelectionConnections = SelectionConnections + StringFunctionsClientServer.SubstituteParametersToString(
+			"		LEFT JOIN %1 AS %1
+			|		ON (VALUETYPE(%1.EmptyRef) = VALUETYPE(CurrentTable.%2))
+			|", ParameterName, FieldDetails.Key);
+			Filter = Filter + ?(Filter = "", "", "
+			|	OR ");
+			Filter = Filter + StringFunctionsClientServer.SubstituteParametersToString(
+				"NOT %1.EmptyRef IS NULL", ParameterName);
+			BlankRefs = New Array;
+			RefsTypes = New Array;
+			For Each TypeDetails In TypesToCleanUp Do
+				BlankRefs.Add(PredefinedValue(TypeDetails.Value + ".EmptyRef"));
+				RefsTypes.Add(TypeDetails.Key);
+			EndDo;
+			ParameterValue = New ValueTable;
+			ParameterValue.Columns.Add("EmptyRef", New TypeDescription(RefsTypes));
+			ParameterValue.LoadColumn(BlankRefs, "EmptyRef");
+			Query.SetParameter(ParameterName, ParameterValue);
+		Else
+			For Each TypeDetails In TypesToCleanUp Do
+				Filter = Filter + ?(Filter = "", "", "
+				|	OR ");
+				Filter = Filter + StringFunctionsClientServer.SubstituteParametersToString(
+					"VALUETYPE(CurrentTable.%1) = TYPE(%2)",
+					FieldDetails.Key, TypeDetails.Value);
+			EndDo;
+		EndIf;
+		For Each TypeDetails In ValuesToClear Do
+			Filter = Filter + ?(Filter = "", "", "
+			|	OR ");
+			Filter = Filter + StringFunctionsClientServer.SubstituteParametersToString(
+				"CurrentTable.%1 IN (%2)",
+				FieldDetails.Key,
+				"VALUE(" + StrConcat(TypeDetails.Value, "), VALUE(") + ")");
+		EndDo;
+	EndDo;
+	
+	QueryText = StrReplace(QueryText, "&Filter", Filter);
+	QueryText = StrReplace(QueryText, "WHERE", SelectionConnections + "WHERE");
+	
+EndProcedure
+
+// 
+// 
+// 
+//
+// Parameters:
+//  RegistersOnly - Boolean
+//  ConsiderDataSeparation - Boolean
+//
+// Returns:
+//  ValueTable:
+//   * Order       - Number
+//   * FullName     - String
+//   * Presentation - String
+//   * ClearAll   - Boolean
+//   * IsRegister    - Boolean
+//   * Independent   - Boolean -
+//   * RegisterFields  - See NewRegisterFields
+//   * ExtdimensionFields  - See NewRegisterFields
+//   * IsExchangePlan - Boolean
+//   * InTermsOfExchange  - Boolean -
+//   * Shared2 - Boolean
+//
+Function TablesBeingCleared(RegistersOnly, ConsiderDataSeparation = True)
+	
+	Objects = New Map;
+	SSLSubsystemsIntegration.WhenFillingInItemsThatArePlannedToBeDeleted(Objects);
+	InfobaseUpdateOverridable.WhenFillingInItemsThatArePlannedToBeDeleted(Objects);
+	
+	Result = New ValueTable;
+	Result.Columns.Add("Order",       New TypeDescription("Number"));
+	Result.Columns.Add("FullName",     New TypeDescription("String"));
+	Result.Columns.Add("Presentation", New TypeDescription("String"));
+	Result.Columns.Add("ClearAll",   New TypeDescription("Boolean"));
+	Result.Columns.Add("IsRegister",    New TypeDescription("Boolean"));
+	Result.Columns.Add("Independent",   New TypeDescription("Boolean"));
+	Result.Columns.Add("RegisterFields",  New TypeDescription("Map"));
+	Result.Columns.Add("ExtdimensionFields",  New TypeDescription("Map"));
+	Result.Columns.Add("IsExchangePlan", New TypeDescription("Boolean"));
+	Result.Columns.Add("InTermsOfExchange",  New TypeDescription("Boolean"));
+	Result.Columns.Add("Shared2", New TypeDescription("Boolean"));
+	Result.Columns.Add("Nodes");
+	Result.Columns.Add("LastRef");
+	
+	OrderOfObjectTypes = OrderOfObjectTypes();
+	ChangeRecords = ChangeRecords();
+	TablesBeingEmptied  = New Map;
+	DeletedTypes        = New Map;
+	FieldTypesToDelete   = New Map;
+	
+	ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Error in the %1 procedure of the %2 common module.';"),
+		"WhenFillingInItemsThatArePlannedToBeDeleted",
+		"InfobaseUpdateOverridable")
+		+ Chars.LF + Chars.LF;
+	
+	For Each ObjectDetails In Objects Do
+		NameParts = StrSplit(ObjectDetails.Key, ".");
+		If NameParts.Count() = 2 Then
+			FullName = ObjectDetails.Key;
+			FieldName = Undefined;
+		Else
+			FieldName = NameParts[2];
+			FullName = NameParts[0] + "." + NameParts[1];
+			NameParts.Delete(0);
+			NameParts.Delete(0);
+			FieldName = StrConcat(NameParts, ".");
+		EndIf;
+		MetadataObject = Common.MetadataObjectByFullName(FullName);
+		If MetadataObject = Undefined Then
+			ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'The ""%1"" metadata object does not exist.';"), FullName);
+			Raise ErrorText;
+		ElsIf FieldName = Undefined And Not StrStartsWith(MetadataObject.Name, "Delete") Then
+			ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'The ""%1"" metadata object name must begin with ""%2"".';"), FullName, "Delete");
+			Raise ErrorText;
+		EndIf;
+		FullName = MetadataObject.FullName();
+		IsEnum = Common.IsEnum(MetadataObject);
+		IsBusinessProcess = Common.IsBusinessProcess(MetadataObject);
+		If FieldName = Undefined Or IsEnum Or IsBusinessProcess Then
+			If Common.IsRefTypeObject(MetadataObject) Or IsEnum Then
+				RefType = Type(StrReplace(FullName, ".", "Ref."));
+				If FieldName = Undefined Then
+					DeletedTypes.Insert(RefType, FullName);
+					If IsBusinessProcess Then
+						TypeOfRoutePoints = TypeOf(PredefinedValue(FullName + ".RoutePoint.EmptyRef"));
+						DeletedTypes.Insert(TypeOfRoutePoints, FullName + ".Points");
+					EndIf;
+				ElsIf IsEnum Then
+					ValueMetadata = MetadataObject.EnumValues.Find(FieldName); // MetadataObject
+					If ValueMetadata = Undefined Then
+						ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
+							NStr("en = 'The ""%1"" value does not exist.';"), ObjectDetails.Key);
+						Raise ErrorText;
+					ElsIf Not StrStartsWith(ValueMetadata.Name, "Delete") Then
+						ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
+							NStr("en = 'The ""%1"" value name must begin with ""%2"".';"), ObjectDetails.Key, "Delete");
+						Raise ErrorText;
+					EndIf;
+					EnumValues = DeletedTypes.Get(RefType);
+					If EnumValues = Undefined Then
+						EnumValues = New Map;
+						DeletedTypes.Insert(RefType, EnumValues);
+					EndIf;
+					If TypeOf(EnumValues) = Type("Map") Then
+						EnumValues.Insert(FullName + "." + ValueMetadata.Name, True);
+					EndIf;
+					Continue;
+				ElsIf Upper(FieldName) = Upper("Points") Then
+					TypeOfRoutePoints = TypeOf(PredefinedValue(FullName + ".RoutePoint.EmptyRef"));
+					DeletedTypes.Insert(TypeOfRoutePoints, FullName + ".Points");
+				Else // 
+					PartsOfField = StrSplit(FieldName, ".", True);
+					RoutePoint = Undefined;
+					If PartsOfField.Count() = 2 Then
+						BusinessProcessManager = Common.ObjectManagerByFullName(FullName);
+						SoughtName = Upper(PartsOfField[1]);
+						For Each CurCurrentPointOfRoute In BusinessProcessManager.RoutePoints Do
+							If Upper(CurCurrentPointOfRoute.Name) = SoughtName Then
+								RoutePoint = CurCurrentPointOfRoute;
+								Break;
+							EndIf;
+						EndDo;
+					EndIf;
+					If RoutePoint = Undefined
+					 Or Upper(PartsOfField[0]) <> Upper("RoutePoint") Then
+						ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
+							NStr("en = 'The ""%1"" value is not an existing route point.';"), ObjectDetails.Key);
+						Raise ErrorText;
+					ElsIf Not StrStartsWith(RoutePoint.Name, "Delete") Then
+						ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
+							NStr("en = 'The ""%1"" route point name must begin with ""%2"".';"), ObjectDetails.Key, "Delete");
+						Raise ErrorText;
+					EndIf;
+					TypeOfRoutePoints = TypeOf(PredefinedValue(FullName + ".RoutePoint.EmptyRef"));
+					ValuesOfRoutePoints = DeletedTypes.Get(TypeOfRoutePoints);
+					If ValuesOfRoutePoints = Undefined Then
+						ValuesOfRoutePoints = New Map;
+						DeletedTypes.Insert(TypeOfRoutePoints, ValuesOfRoutePoints);
+					EndIf;
+					If TypeOf(ValuesOfRoutePoints) = Type("Map") Then
+						ValuesOfRoutePoints.Insert(FullName + ".RoutePoint." + RoutePoint.Name, True);
+					EndIf;
+					Continue;
+				EndIf;
+			EndIf;
+			If ObjectDetails.Value = True And Not IsEnum Then
+				IsRegister = Common.IsRegister(MetadataObject);
+				If Not RegistersOnly Or IsRegister Then
+					TablesBeingEmptied.Insert(FullName, True);
+					NewRow = Result.Add();
+					NewRow.Order       = OrderOfObjectTypes.Get(StrSplit(FullName, ".")[0]);
+					NewRow.FullName     = FullName;
+					NewRow.Presentation = MetadataObject.Presentation();
+					NewRow.ClearAll   = True;
+					NewRow.IsRegister    = IsRegister;
+					NewRow.Independent   = IsRegister
+						And Common.IsInformationRegister(MetadataObject)
+						And MetadataObject.WriteMode = Metadata.ObjectProperties.RegisterWriteMode.Independent;
+					NewRow.IsExchangePlan = Common.IsExchangePlan(MetadataObject);
+					NewRow.InTermsOfExchange  = ChangeRecords.Get(MetadataObject) <> Undefined;
+					NewRow.Shared2 = ItIsUndividedObject(MetadataObject);
+				EndIf;
+			EndIf;
+		Else
+			FieldTypesToDelete.Insert(FullName + "." + FieldName, ObjectDetails.Value);
+		EndIf;
+	EndDo;
+	
+	TypesOfRegistersToCleanUp = TypesOfRegistersToCleanUp();
+	SpecifyTypesOfRegistersToCleanUp(TypesOfRegistersToCleanUp);
+	
+	Context = New Structure;
+	Context.Insert("TablesBeingCleared",        Result);
+	Context.Insert("ErrorTitle",         ErrorTitle);
+	Context.Insert("DeletedTypes",           DeletedTypes);
+	Context.Insert("FieldTypesToDelete",      FieldTypesToDelete);
+	Context.Insert("TableNamesByType",      TableNamesByType());
+	Context.Insert("TablesBeingEmptied",     TablesBeingEmptied);
+	Context.Insert("OrderOfObjectTypes",    OrderOfObjectTypes);
+	Context.Insert("ChangeRecords",    ChangeRecords);
+	Context.Insert("TypesOfRegistersToCleanUp", TypesOfRegistersToCleanUp);
+	
+	AddDeletedTypesOfRegisterFields(Context, "InformationRegisters");
+	AddDeletedTypesOfRegisterFields(Context, "AccumulationRegisters");
+	AddDeletedTypesOfRegisterFields(Context, "AccountingRegisters");
+	AddDeletedTypesOfRegisterFields(Context, "CalculationRegisters");
+	
+	RedundantFieldTypes = New Array;
+	For Each FieldTypesToDelete_ In FieldTypesToDelete Do
+		FieldTypeNames = New Array;
+		For Each KeyAndValue In FieldTypesToDelete_.Value Do
+			FieldTypeNames.Add(Common.TypePresentationString(KeyAndValue.Key));
+		EndDo;
+		RedundantFieldTypes.Add(FieldTypesToDelete_.Key + " (" + StrConcat(FieldTypeNames, ", ") + ")");
+	EndDo;
+	If ValueIsFilled(RedundantFieldTypes) Then
+		ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'You cannot use the following field types to clear obsolete data:
+			           |%1';"),
+			"- " + StrConcat(RedundantFieldTypes, ";" + Chars.LF + "- ") + ".");
+		Raise ErrorText;
+	EndIf;
+	
+	If ConsiderDataSeparation And Common.DataSeparationEnabled() Then
+		Filter = New Structure("Shared2", Not Common.SeparatedDataUsageAvailable());
+		Result = Result.Copy(Result.FindRows(Filter));
+	EndIf;
+	
+	Result.Sort("Order, FullName");
+	
+	Return Result;
+	
+EndFunction
+
+// 
+Function ChangeRecords()
+	
+	Result = New Map;
+	
+	For Each ExchangePlan In Metadata.ExchangePlans Do
+		For Each CompositionItem In ExchangePlan.Content Do
+			Result.Insert(CompositionItem.Metadata, True);
+		EndDo;
+	EndDo;
+	
+	Return Result;
+	
+EndFunction
+
+// 
+Function OrderOfObjectTypes()
+	
+	Result = New Map;
+	Result.Insert("ExchangePlan", 1);
+	Result.Insert("Catalog", 2);
+	Result.Insert("Document", 3);
+	Result.Insert("Enum", 4);
+	Result.Insert("ChartOfCharacteristicTypes", 5);
+	Result.Insert("ChartOfAccounts", 6);
+	Result.Insert("ChartOfCalculationTypes", 7);
+	Result.Insert("InformationRegister", 8);
+	Result.Insert("AccumulationRegister", 9);
+	Result.Insert("AccountingRegister", 10);
+	Result.Insert("CalculationRegister", 11);
+	Result.Insert("BusinessProcess", 12);
+	Result.Insert("Task", 13);
+	
+	Return Result;
+	
+EndFunction
+
+// 
+// 
+//
+// 
+// 
+// 
+//
+// Returns:
+//  Structure:
+//   * InformationRegisters - Boolean
+//   * AccumulationRegisters - Boolean
+//   * AccountingRegisters - Boolean
+//   * ExtDimensionAccountingRegisters - Boolean
+//   * CalculationRegisters - Boolean
+//
+Function TypesOfRegistersToCleanUp()
+	
+	Result = New Structure;
+	Result.Insert("InformationRegisters", True);
+	Result.Insert("AccumulationRegisters", False);
+	Result.Insert("AccountingRegisters", False);
+	Result.Insert("ExtDimensionAccountingRegisters", False);
+	Result.Insert("CalculationRegisters", False);
+	
+	Return Result;
+	
+EndFunction
+
+Function TableNamesByType()
+	
+	Result = New Map;
+	For Each BusinessProcessMetadata In Metadata.BusinessProcesses Do
+		FullName = BusinessProcessMetadata.FullName();
+		TypeOfRoutePoints = TypeOf(PredefinedValue(FullName + ".RoutePoint.EmptyRef"));
+		Result.Insert(TypeOfRoutePoints, FullName + ".Points");
+	EndDo;
+	
+	Return Result;
+	
+EndFunction
+
+// 
+//
+// Parameters:
+//  TypesOfCleaning - See TypesOfRegistersToCleanUp
+//
+Procedure SpecifyTypesOfRegistersToCleanUp(TypesOfCleaning)
+	Return;
+EndProcedure
+
+// 
+Function ItIsUndividedObject(MetadataObject)
+	
+	If Not Common.DataSeparationEnabled() Then
+		Return False;
+	EndIf;
+	
+	Separated1 = False;
+	If Common.SubsystemExists("CloudTechnology.Core") Then
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		Separated1 = ModuleSaaSOperations.IsSeparatedMetadataObject(MetadataObject);
+	EndIf;
+	
+	Return Not Separated1;
+	
+EndFunction
+
+// 
+Procedure AddDeletedTypesOfRegisterFields(Context, TypeOfRegisters)
+	
+	Registers = Metadata[TypeOfRegisters]; // MetadataObjectCollection
+	
+	For Each Register In Registers Do
+		FullName = Register.FullName();
+		RegisterFields = NewRegisterFields();
+		ExtdimensionFields = NewRegisterFields();
+		If Registers <> Metadata.InformationRegisters
+		 Or Register.WriteMode = Metadata.ObjectProperties.RegisterWriteMode.RecorderSubordinate Then
+			For Each StandardAttribute In Register.StandardAttributes Do
+				StandardAttribute = StandardAttribute; // StandardAttributeDescription
+				If StandardAttribute.Name = "Recorder" Then
+					AddFieldTypesToDelete(RegisterFields, StandardAttribute, FullName, Context, TypeOfRegisters);
+				EndIf;
+			EndDo;
+			Independent = False;
+		Else
+			Independent = True;
+		EndIf;
+		For Each Dimension In Register.Dimensions Do
+			If Registers = Metadata.AccountingRegisters
+			   And Not Dimension.Balance
+			   And Register.ChartOfAccounts <> Undefined
+			   And Register.Correspondence Then
+				Field = New Structure("Name, Type",, Dimension.Type);
+				Field.Name = Dimension.Name + "Dr";
+				AddFieldTypesToDelete(RegisterFields, Field, FullName, Context, TypeOfRegisters);
+				Field.Name = Dimension.Name + "Cr";
+				AddFieldTypesToDelete(RegisterFields, Field, FullName, Context, TypeOfRegisters);
+				Continue;
+			EndIf;
+			AddFieldTypesToDelete(RegisterFields, Dimension, FullName, Context, TypeOfRegisters);
+		EndDo;
+		If Registers = Metadata.AccountingRegisters
+		   And Register.ChartOfAccounts <> Undefined Then
+			NameOfChartOfAccountsLinkType = StrReplace(Register.ChartOfAccounts.FullName(), ".", "Ref.");
+			Field = New Structure("Name, Type", "Account", New TypeDescription(NameOfChartOfAccountsLinkType));
+			If Register.Correspondence Then
+				Field.Name = "AccountDr";
+				AddFieldTypesToDelete(RegisterFields, Field, FullName, Context, TypeOfRegisters);
+				Field.Name = "AccountCr";
+				AddFieldTypesToDelete(RegisterFields, Field, FullName, Context, TypeOfRegisters);
+			Else
+				AddFieldTypesToDelete(RegisterFields, Field, FullName, Context, TypeOfRegisters);
+			EndIf;
+			If Register.ChartOfAccounts.MaxExtDimensionCount > 0
+			   And Register.ChartOfAccounts.ExtDimensionTypes <> Undefined Then
+				NameOfLinkTypeInExtDimensionView = StrReplace(Register.ChartOfAccounts.ExtDimensionTypes.FullName(), ".", "Ref.");
+				Field = New Structure("Name, Type", "Kind", New TypeDescription(NameOfLinkTypeInExtDimensionView));
+				AddFieldTypesToDelete(ExtdimensionFields, Field, FullName, Context, "ExtDimensionAccountingRegisters");
+				Field = New Structure("Name, Type", "Value", Register.ChartOfAccounts.ExtDimensionTypes.Type);
+				AddFieldTypesToDelete(ExtdimensionFields, Field, FullName, Context, "ExtDimensionAccountingRegisters");
+			EndIf;
+		EndIf;
+		If Context.TablesBeingEmptied.Get(FullName) = Undefined
+		   And (ValueIsFilled(RegisterFields)
+		      Or ValueIsFilled(ExtdimensionFields)) Then
+			NewRow = Context.TablesBeingCleared.Add();
+			NewRow.Order       = Context.OrderOfObjectTypes.Get(StrSplit(FullName, ".")[0]);
+			NewRow.FullName     = FullName;
+			NewRow.Presentation = Register.Presentation();
+			NewRow.IsRegister    = True;
+			NewRow.Independent   = Independent;
+			NewRow.RegisterFields  = RegisterFields;
+			NewRow.ExtdimensionFields  = ExtdimensionFields;
+			NewRow.InTermsOfExchange  = Context.ChangeRecords.Get(Register) <> Undefined;
+			NewRow.Shared2 = ItIsUndividedObject(Register);
+		EndIf;
+	EndDo;
+	
+EndProcedure
+
+// 
+//
+// Returns:
+//  Map of KeyAndValue:
+//   * Key     - field name.
+//   * Value - Map of KeyAndValue:
+//      ** Key     - Type - link type.
+//      ** Value - String -
+//                  - Array of String - 
+//
+Function NewRegisterFields()
+	
+	Return New Map;
+	
+EndFunction
+
+// 
+Procedure AddFieldTypesToDelete(Fields, Field, FullRegisterName, Context, TypeOfRegisters)
+	
+	AllDeletedFieldTypes = Fields.Get(Field.Name);
+	If AllDeletedFieldTypes = Undefined Then
+		AllDeletedFieldTypes = New Map;
+	EndIf;
+	FieldTypes = Field.Type;
+	
+	If Context.TypesOfRegistersToCleanUp[TypeOfRegisters] Then
+		DeletedTypes = Context.DeletedTypes;
+		For Each Type In FieldTypes.Types() Do
+			TableName = DeletedTypes.Get(Type);
+			If TableName = Undefined Then
+				Continue;
+			EndIf;
+			If TypeOf(TableName) = Type("String") Then
+				AllDeletedFieldTypes.Insert(Type, TableName);
+			Else
+				AddEnumerationValues(AllDeletedFieldTypes, Type, TableName);
+			EndIf;
+		EndDo;
+	EndIf;
+	
+	FullFieldName1 = FullRegisterName + "." + Field.Name;
+	FieldTypesToDelete_ = Context.FieldTypesToDelete.Get(FullFieldName1);
+	If FieldTypesToDelete_ <> Undefined Then
+		TableNamesByType = Context.TableNamesByType;
+		For Each KeyAndValue In FieldTypesToDelete_ Do
+			TypeOrValue = KeyAndValue.Key;
+			If TypeOf(TypeOrValue) = Type("Type") Then
+				Type = TypeOrValue;
+			Else
+				Type = TypeOf(TypeOrValue);
+			EndIf;
+			If Not FieldTypes.ContainsType(Type) Then
+				ErrorText = Context.ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'The ""%1"" field does not contain the ""%2"" type.';"),
+					FullFieldName1, Common.TypePresentationString(Type));
+				Raise ErrorText;
+			Else
+				TableName = TableNamesByType.Get(Type);
+				If TableName = Undefined Then
+					TableName = Metadata.FindByType(Type).FullName();
+					TableNamesByType.Insert(Type, TableName);
+				EndIf;
+				If Type = TypeOrValue Then
+					AllDeletedFieldTypes.Insert(Type, TableName);
+				Else
+					ThisIsEnumerationValue = Enums.AllRefsType().ContainsType(Type);
+					If Not ThisIsEnumerationValue
+					   And Not BusinessProcesses.RoutePointsAllRefsType().ContainsType(Type) Then
+						ErrorText = Context.ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
+							NStr("en = 'The ""%1""field
+							           |contains a value of the ""%2"" type,
+							           |which is not an enumeration value
+							           |or a business process route point.';"),
+							FullFieldName1,
+							Common.TypePresentationString(Type));
+						Raise ErrorText;
+					EndIf;
+					ValuesToDelete = New Map;
+					If ThisIsEnumerationValue Then
+						ValuesToDelete.Insert(TableName + "." + XMLString(TypeOrValue), True);
+					Else
+						RoutePoint = TypeOrValue; // BusinessProcessRoutePointRefBusinessProcessName
+						NameParts = StrSplit(TableName, ".");
+						NameParts[2] = "RoutePoint";
+						ValuesToDelete.Insert(StrConcat(NameParts, ".") + "." + RoutePoint.Name, True);
+					EndIf;
+					AddEnumerationValues(AllDeletedFieldTypes, Type, ValuesToDelete);
+				EndIf;
+			EndIf;
+		EndDo;
+		Context.FieldTypesToDelete.Delete(FullFieldName1);
+	EndIf;
+	
+	If ValueIsFilled(AllDeletedFieldTypes) Then
+		Fields.Insert(Field.Name, AllDeletedFieldTypes);
+	EndIf;
+	
+EndProcedure
+
+// 
+Procedure AddEnumerationValues(AllDeletedFieldTypes, Type, ValuesToDelete)
+	
+	AllValues = AllDeletedFieldTypes.Get(Type);
+	If TypeOf(AllValues) = Type("String") Then
+		Return;
+	EndIf;
+	
+	If AllValues = Undefined Then
+		AllValues = New Array;
+		AllDeletedFieldTypes.Insert(Type, AllValues);
+	EndIf;
+	
+	For Each KeyAndValue In ValuesToDelete Do
+		If AllValues.Find(KeyAndValue.Key) = Undefined Then
+			AllValues.Add(KeyAndValue.Key);
+		EndIf;
+	EndDo;
+	
+EndProcedure
+
+////////////////////////////////////////////////////////////////////////////////
 // AUXILIARY PROCEDURES AND FUNCTIONS
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -7692,10 +9493,10 @@ Function PrepareUpdateProgressDetails(Handler, Parameters, LibraryID, HandlerDef
 	If Common.DataSeparationEnabled()
 	   And Common.SeparatedDataUsageAvailable() Then
 		
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		
 		HandlerDetails.Insert("DataAreaValue",
-			ModuleSaaS.SessionSeparatorValue());
+			ModuleSaaSOperations.SessionSeparatorValue());
 		HandlerDetails.Insert("DataAreaUsage", True);
 		
 	Else
@@ -8478,10 +10279,10 @@ EndProcedure
 
 // For internal use only.
 //
-Function ExecuteDeferredUpdateHandler(UpdateParameters1 = Undefined)
+Function ExecuteDeferredUpdateHandler(ParametersOfUpdate = Undefined)
 	
 	HandlerContext = NewHandlerContext();
-	HandlerUpdates = FindUpdateHandler(HandlerContext, UpdateParameters1);
+	HandlerUpdates = FindUpdateHandler(HandlerContext, ParametersOfUpdate);
 	
 	If HandlerUpdates = "AbortExecution" Then
 		Return True;
@@ -8753,12 +10554,12 @@ Function NewUpdateInfo(PreviousInfo = Undefined)
 	
 EndFunction
 
-Function DeferredUpdateMode(UpdateParameters1)
+Function DeferredUpdateMode(ParametersOfUpdate)
 	
 	FileInfobase             = Common.FileInfobase();
 	DataSeparationEnabled                     = Common.DataSeparationEnabled();
 	SeparatedDataUsageAvailable = Common.SeparatedDataUsageAvailable();
-	ExecuteDeferredHandlers1         = UpdateParameters1.ExecuteDeferredHandlers1;
+	ExecuteDeferredHandlers1         = ParametersOfUpdate.ExecuteDeferredHandlers1;
 	ClientLaunchParameter                 = StandardSubsystemsServer.ClientParametersAtServer().Get("LaunchParameter");
 	
 	If Not DataSeparationEnabled Or SeparatedDataUsageAvailable Then
@@ -8802,12 +10603,12 @@ EndFunction
 // Parameters:
 //  HandlerContext - See NewHandlerContext
 //  HandlerUpdates - ValueTreeRow - the update handler represented as a row of the handler tree.
-//  UpdateParameters1 - See UpdateInfobase
+//  ParametersOfUpdate - See UpdateInfobase
 //  UpdateInfo - See InfobaseUpdateInfo
 //
 Procedure BeforeStartDataProcessingProcedure(HandlerContext,
                                                 HandlerUpdates,
-                                                UpdateParameters1,
+                                                ParametersOfUpdate,
                                                 UpdateInfo)
 	
 	HandlerContext.WriteToLog1 = Constants.WriteIBUpdateDetailsToEventLog.Get();
@@ -8841,7 +10642,7 @@ Procedure BeforeStartDataProcessingProcedure(HandlerContext,
 		
 		HandlerContext.Parameters = Parameters;
 		
-		If UpdateParameters1.ParallelMode Then
+		If ParametersOfUpdate.ParallelMode Then
 			Parameters.Insert("ProcessingCompleted", Undefined);
 		Else
 			Parameters.Insert("ProcessingCompleted", True);
@@ -8865,9 +10666,9 @@ Procedure BeforeStartDataProcessingProcedure(HandlerContext,
 		MaximumNumberOfLaunches        = UpdateThreadsCount1 * 10000;
 		
 		If UpdateProcedureStartCount > MaximumNumberOfLaunches Then // 
-			If UpdateParameters1.ParallelMode
+			If ParametersOfUpdate.ParallelMode
 				And Common.IsSubordinateDIBNode()
-				And UpdateParameters1.HasMasterNodeHandlers Then
+				And ParametersOfUpdate.HasMasterNodeHandlers Then
 				ErrorText = NStr("en = 'The maximum number of update handler execution attempts is exceeded.
 					|Ensure that all additional update handlers in the main node
 					|are completed, synchronize the data,
@@ -8879,7 +10680,7 @@ Procedure BeforeStartDataProcessingProcedure(HandlerContext,
 			
 			MinQueue = MinDeferredDataProcessorQueue();
 			
-			If Not UpdateParameters1.ParallelMode
+			If Not ParametersOfUpdate.ParallelMode
 				Or HandlerUpdates.DeferredProcessingQueue <= MinQueue Then
 				AttemptCount = MaxUpdateAttempts(HandlerUpdates);
 				HandlerProperty(HandlerUpdates.HandlerName, "AttemptCount", AttemptCount);
@@ -8899,7 +10700,7 @@ Procedure BeforeStartDataProcessingProcedure(HandlerContext,
 		SetHandlerProperties(HandlerUpdates.HandlerName, Properties);
 		
 		HandlerContext.DataProcessingStart = CurrentUniversalDateInMilliseconds();
-		If UpdateParameters1.ParallelMode
+		If ParametersOfUpdate.ParallelMode
 			And Common.IsSubordinateDIBNode()
 			And HandlerUpdates.ExecuteInMasterNodeOnly Then
 			// 
@@ -8943,7 +10744,7 @@ Procedure AfterStartDataProcessingProcedure(HandlerContext, HandlerName)
 	
 	HandlerUpdates = HandlerUpdates(HandlerName);
 	Parameters = HandlerContext.Parameters;
-	UpdateParameters1 = HandlerContext.UpdateParameters1;
+	ParametersOfUpdate = HandlerContext.ParametersOfUpdate;
 	PropertiesToSet = New Structure;
 	
 	Try
@@ -8972,14 +10773,14 @@ Procedure AfterStartDataProcessingProcedure(HandlerContext, HandlerName)
 			PropertiesToSet.Insert("Priority","OnSchedule");
 			
 			// Write the update progress.
-			If UpdateParameters1.Property("InBackground")
-				And UpdateParameters1.InBackground Then
-				HandlerExecutionProgress = UpdateParameters1.HandlerExecutionProgress;
+			If ParametersOfUpdate.Property("InBackground")
+				And ParametersOfUpdate.InBackground Then
+				HandlerExecutionProgress = ParametersOfUpdate.HandlerExecutionProgress;
 				HandlerExecutionProgress.CompletedHandlersCount = HandlerExecutionProgress.CompletedHandlersCount + 1;
 				Progress = 10 + HandlerExecutionProgress.CompletedHandlersCount / HandlerExecutionProgress.TotalHandlerCount * 90;
 				TimeConsumingOperations.ReportProgress(Progress);
 			EndIf;
-		ElsIf UpdateParameters1.ParallelMode And Not HandlerContext.SkipProcessedDataCheck Then
+		ElsIf ParametersOfUpdate.ParallelMode And Not HandlerContext.SkipProcessedDataCheck Then
 			HasProcessedObjects = SessionParameters.UpdateHandlerParameters.HasProcessedObjects;
 			HandlerQueue = HandlerUpdates.DeferredProcessingQueue;
 			
@@ -9298,17 +11099,24 @@ Procedure FillDataForParallelDeferredUpdate1(Parameters) Export
 				CanlcelDeferredUpdateHandlersRegistration(Handler.LibraryName, False);
 			EndIf;
 			
-			WriteError(StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Error while calling data population procedure
-						   |%1
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'An error occurred while calling data population procedure
+						   |""%1""
 						   |of deferred update handler
-						   |%2.
-						   |Error:
-						   |%3.';"),
+						   |""%2"":
+						   |%3.
+						   |';"),
 				Handler.UpdateDataFillingProcedure,
 				Handler.HandlerName,
-				ErrorProcessing.DetailErrorDescription(ErrorInfo())));
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			
+			WriteError(ErrorText);
+
+			Properties = New Structure;
+			Properties.Insert("Status", Enums.UpdateHandlersStatuses.Error);
+			Properties.Insert("ErrorInfo", ErrorText);
+			SetHandlerProperties(Handler.HandlerName, Properties);
+
 			Raise;
 		EndTry;
 		
@@ -9443,11 +11251,17 @@ Procedure FillDeferredHandlerData(DataToProcessDetails, ResultAddress) Export
 			|%2.
 			|Error:
 			|%3.';");
-		MessageText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
 			DataToProcessDetails.FillingProcedure,
 			DataToProcessDetails.HandlerName,
 			ErrorInfo);
-		WriteError(MessageText);
+		WriteError(ErrorText);
+
+		Properties = New Structure;
+		Properties.Insert("Status", Enums.UpdateHandlersStatuses.Error);
+		Properties.Insert("ErrorInfo", ErrorText);
+		SetHandlerProperties(DataToProcessDetails.HandlerName, Properties);
+
 		Raise;
 	EndTry;
 	
@@ -10055,15 +11869,15 @@ Procedure ClearProcessedQueues(QueuesToClear, ProcessedItems, UpdateInfo)
 	EndIf;
 	
 	TablesToReadAndChange = UpdateInfo.TablesToReadAndChange;
-	AllItemsToReadAndChange = New Array;
+	AllReadableAndMutableTables = New Array;
 	For Each KeyAndValue In TablesToReadAndChange Do
-		CommonClientServer.SupplementArray(AllItemsToReadAndChange, KeyAndValue.Value, True);
+		CommonClientServer.SupplementArray(AllReadableAndMutableTables, KeyAndValue.Value, True);
 	EndDo;
 	
 	For Each QueueToClear In QueuesToClear Do
 		QueueObjects = TablesToReadAndChange[QueueToClear];
 		Node = ExchangePlans.InfobaseUpdate.NodeInQueue(QueueToClear);
-		For Each FullTableName In AllItemsToReadAndChange Do
+		For Each FullTableName In AllReadableAndMutableTables Do
 			If QueueObjects.Find(FullTableName) <> Undefined Then
 				// 
 				Continue;

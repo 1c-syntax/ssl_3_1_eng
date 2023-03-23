@@ -23,8 +23,8 @@ Procedure CheckSharedObjectsOnWrite(Source, Cancel) Export
 		Return;
 	EndIf;
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
-	ModuleSaaS.CheckSharedObjectsOnWrite(Source, Cancel);
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations.CheckSharedObjectsOnWrite(Source, Cancel);
 	
 EndProcedure
 
@@ -45,8 +45,8 @@ Procedure CheckSharedRecordsSetsOnWrite(Source, Cancel, Replacing) Export
 		Return;
 	EndIf;
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
-	ModuleSaaS.CheckSharedRecordsSetsOnWrite(Source, Cancel, Replacing);
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations.CheckSharedRecordsSetsOnWrite(Source, Cancel, Replacing);
 	
 EndProcedure
 

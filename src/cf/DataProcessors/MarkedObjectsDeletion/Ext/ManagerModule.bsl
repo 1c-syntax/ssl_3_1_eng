@@ -627,7 +627,7 @@ Function ChildSubordinateItemsTable()
 EndFunction
 
 Function SubordinateItemsQueryText(MetadataInformation)
-	QueryTemplate1 = "SELECT
+	QueryTemplate = "SELECT
 	|	Tab.Ref AS Item,
 	|	Tab.DeletionMark AS DeletionMark,
 	|	""Subsidiary"" AS ElementType
@@ -639,7 +639,7 @@ Function SubordinateItemsQueryText(MetadataInformation)
 	|	Item HIERARCHY";
 	
 	Table = MetadataInformation.Metadata.FullName();
-	QueryText = StrReplace(QueryTemplate1, "&TableName", Table);
+	QueryText = StrReplace(QueryTemplate, "&TableName", Table);
 	
 	Return QueryText;
 EndFunction
@@ -654,7 +654,7 @@ Function QueryTextSubordinateElements(MetadataInformation)
 	QueriesTexts = New Array;// Array of String
 	
 	LinkConditionTemplate = "Tab.%1 = &Ref";
-	QueryTemplate1 = "SELECT
+	QueryTemplate = "SELECT
 	|	Tab.Ref AS Item,
 	|	Tab.DeletionMark AS DeletionMark,
 	|	""Subordinate"" AS ElementType
@@ -667,7 +667,7 @@ Function QueryTextSubordinateElements(MetadataInformation)
 	LinkConditionExpression = "FALSE";
 	For Each SubordinateObject In MetadataInformation.SubordinateObjectsDetails Do
 		LinkConditionExpression = StringFunctionsClientServer.SubstituteParametersToString(LinkConditionTemplate, SubordinateObject.AttributeName);
-		QueryText = StrReplace(QueryTemplate1, "&TableName", SubordinateObject.Metadata.FullName());
+		QueryText = StrReplace(QueryTemplate, "&TableName", SubordinateObject.Metadata.FullName());
 		QueryText = StrReplace(QueryText, "&LinkConditionExpression", LinkConditionExpression);
 		QueriesTexts.Add(QueryText);
 	EndDo;

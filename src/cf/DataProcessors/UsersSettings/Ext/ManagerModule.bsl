@@ -29,27 +29,33 @@ Function AllFormSettings(UserName)
 	
 	// 
 	FormsList.Add("ExternalDataProcessor.StandardEventLog.Form.EventsJournal", 
-		NStr("en = 'Standard.Event Log';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'Event log';") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardEventLog.Form.EventForm", 
-		NStr("en = 'Standard.Event Log, Event';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'Event log, Event';") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardEventLog.Form.EventsJournalFilter", 
-		NStr("en = 'Standard.Event Log, Event filter settings';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'Event log, Event filter settings';") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardFindByRef.Form.MainForm", 
-		NStr("en = 'Standard.Find references to objects';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'Find references to object';") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardFullTextSearchManagement.Form.MainForm", 
-		NStr("en = 'Standard.Manage Full Text Search';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'Full-text search management';") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardDocumentsPosting.Form.MainForm", 
-		NStr("en = 'Standard.Document Posting';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'Post documents';") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardDeleteMarkedObjects.Form.Form", 
-		NStr("en = 'Standard.Delete Marked Objects';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'Marked object deletion';") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardExternalDataSourceManagement.Form.Form", 
-		NStr("en = 'Standard.Management of external data sources';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'Management of external data sources';") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardTotalsManagement.Form.MainForm", 
-		NStr("en = 'Standard.Totals management';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'Totals management';") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardActiveUsers.Form.ActiveUsersListForm", 
-		NStr("en = 'Standard.Active users';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'Active users';") , False, PictureLib.Form);
 		
 	Return FormSettingsList(FormsList, UserName);
+	
+EndFunction
+
+Function PrefixOfStandardForms()
+	
+	Return NStr("en = 'Standard';");
 	
 EndFunction
 
@@ -2185,7 +2191,11 @@ Procedure FillInterfaceSettingsList(Parameters)
 			MergeValueLists(NewRowSettingsStorage.Keys, FormSettingsItem.KeysList);
 			NewRowSettingsStorage.RowType = "SettingsStorage" + MetadataObjectName[2];
 			NewRowSettingsStorage.Type = "InterfaceSettings1";
-		ElsIf MetadataObjectPresentation[0] = NStr("en = 'Standard';") Then
+		ElsIf StrStartsWith(FormSettingsItem.Value, "ExternalDataProcessor.Standard") Then
+			
+			If MetadataObjectPresentation.Count() = 1 Then
+				MetadataObjectPresentation = StrSplit(FormSettingsItem.Presentation, ".", False);
+			EndIf;
 			
 			// Settings tree group.
 			If CurrentObject <> MetadataObjectPresentation[0] Then

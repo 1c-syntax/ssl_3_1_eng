@@ -807,8 +807,8 @@ Function HTMLWrappedText(Text)
 		ItemBlock = HTMLDocument.CreateElement("p");
 		ItemBody.AppendChild(ItemBlock);
 		
-		ItemText1 = HTMLDocument.CreateTextNode(String);
-		ItemBlock.AppendChild(ItemText1);
+		Item_Text = HTMLDocument.CreateTextNode(String);
+		ItemBlock.AppendChild(Item_Text);
 	EndDo;
 	
 	DOMWriter = New DOMWriter;

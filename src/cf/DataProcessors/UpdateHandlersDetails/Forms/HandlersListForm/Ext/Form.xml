@@ -588,7 +588,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Initial filling</v8:content>
+							<v8:content>Initial population</v8:content>
 						</v8:item>
 					</ToolTip>
 					<EditMode>EnterOnInput</EditMode>
@@ -1230,7 +1230,7 @@ or other handlers modify objects readable by this handler.</v8:content>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show tabular sections</v8:content>
+					<v8:content>Show tables</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ShowTabularSections</Action>

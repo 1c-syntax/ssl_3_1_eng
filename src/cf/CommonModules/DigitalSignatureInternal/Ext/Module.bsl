@@ -197,12 +197,13 @@ Function EncryptInCloudSignatureService(Data, Certificate, Account = Undefined) 
 		TheDSSCryptographyServiceModule = Common.CommonModule("DSSCryptographyService");
 		
 		If Account = Undefined Then
-			DSSAccount = TheDSSCryptographyServiceModule.ServiceAccountConnectionSettings();
-			If Not DSSAccount.Completed2 Then
+			DSSAccountResult = TheDSSCryptographyServiceModule.ServiceAccountConnectionSettings();
+			If Not DSSAccountResult.Completed2 Then
 				Raise  StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'DSS service:
-					|%1';"), DSSAccount.Error);
+					|%1';"), DSSAccountResult.Error);
 			EndIf;
+			DSSAccount = DSSAccountResult.Result;
 		Else
 			DSSAccount = Account;
 		EndIf;
@@ -429,48 +430,28 @@ Function SignaturesFilesNamesOfDataFilesNames(FilesNames) Export
 EndFunction
 
 // For internal use only.
+// 
+// Parameters:
+//  CertificatesData - Array of BinaryData
+// 
+// Returns:
+//  Array of BinaryData - 
+//
 Function CertificatesInOrderToRoot(CertificatesData) Export
 	
 	By_Order = New Array;
-	Certificates = New Map;
-	For Each CertificateData In CertificatesData Do
-		By_Order.Add(CertificateData);
-		Certificates.Insert(New CryptoCertificate(CertificateData), CertificateData);
-	EndDo;
-	
+	DescriptionOfCertificates = New Map;
 	CertificatesBySubjects = New Map;
-	For Each CertificateDetails In Certificates Do
-		CertificatesBySubjects.Insert(CertificateDetails.Key.Subject.CN, CertificateDetails.Key);
+	
+	For Each CertificateData In CertificatesData Do
+		Certificate = New CryptoCertificate(CertificateData);
+		By_Order.Add(CertificateData);
+		DescriptionOfCertificates.Insert(Certificate, CertificateData);
+		CertificatesBySubjects.Insert(Certificate.Subject.CN, CertificateData);
 	EndDo;
 	
-	For Each CertificateDetails In Certificates Do
-		Certificate         = CertificateDetails.Key;
-		CertificateData  = CertificateDetails.Value;
-		IssuerCertificate = CertificatesBySubjects.Get(Certificate.Issuer.CN);
-		If IssuerCertificate = Undefined Then
-			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot find the issuer certificate
-				           |%1
-				           | of the certificate %2 in the signature certificate';"),
-				Certificate.Issuer.CN,
-				Certificate.Subject.CN);
-		EndIf;
-		Position = By_Order.Find(CertificateData);
-		If Certificate.Issuer.CN = Certificate.Subject.CN Then
-			If Position <> By_Order.Count() - 1 Then
-				By_Order.Delete(Position);
-				By_Order.Add(CertificateData);
-			EndIf;
-			Continue;
-		EndIf;
-		IssuerPosition = By_Order.Find(Certificates.Get(IssuerCertificate));
-		If Position + 1 = IssuerPosition Then
-			Continue;
-		EndIf;
-		By_Order.Delete(Position);
-		IssuerPosition = By_Order.Find(Certificates.Get(IssuerCertificate));
-		By_Order.Insert(IssuerPosition, CertificateData);
-	EndDo;
+	DigitalSignatureInternalClientServer.ArrangeCertificates(
+		By_Order, DescriptionOfCertificates, CertificatesBySubjects);
 	
 	Return By_Order;
 	
@@ -761,6 +742,21 @@ Function CertificatesOfIndividualsUsers(Users) Export
 
 EndFunction
 
+//  
+// 
+// 
+// Returns:
+//  Boolean
+//
+Function VisibilityOfLinkToInstructionsForTypicalProblemsWhenWorkingWithPrograms() Export
+	
+	URL = "";
+	DigitalSignatureClientServerLocalization.WhenDeterminingReferenceToInstructionsForTypicalProblemsWhenWorkingWithPrograms(
+		URL);
+	Return Not IsBlankString(URL);
+	
+EndFunction
+
 #Region SuppliedData
 
 // See SuppliedDataOverridable.GetHandlersForSuppliedData
@@ -1027,7 +1023,7 @@ EndProcedure
 // Parameters:
 //  Exceptions - Array of MetadataObject - exceptions.
 //
-Procedure WhenDefiningUnsharedDataExceptions(Exceptions) Export
+Procedure OnDefineSharedDataExceptions(Exceptions) Export
 
 	Exceptions.Add(Metadata.InformationRegisters.CertificateRevocationLists);
 	
@@ -1233,6 +1229,32 @@ EndProcedure
 #EndRegion
 
 #Region Private
+
+Procedure SetVisibilityOfLinkToInstructionsForWorkingWithPrograms(InstructionItem) Export
+	
+	URL = "";
+	DigitalSignatureClientServerLocalization.WhenDeterminingLinkToInstructionsForWorkingWithPrograms("", URL);
+	InstructionItem.Visible = Not IsBlankString(URL);
+	
+EndProcedure
+
+Function HeaderInformationForSupport() Export
+	
+	If VisibilityOfLinkToInstructionsForTypicalProblemsWhenWorkingWithPrograms() Then
+		Title = StringFunctions.FormattedString(
+			NStr("en = 'При возникновении затруднений ознакомьтесь со списком <a href = %1>типичных проблем при работе с программой электронной подписи и их решений</a>.
+				|
+				|В иных случаях обратитесь в службу поддержки фирмы ""1С"", предоставив <a href = %2>техническую информацию о возникшей проблеме</a>';"),
+				"TypicalIssues", "TechnicalInformation");
+	Else
+		Title = StringFunctions.FormattedString(
+			NStr("en = 'Обратитесь в службу поддержки фирмы ""1С"", предоставив <a href = %1>техническую информацию о возникшей проблеме</a>';"),
+				"TechnicalInformation");
+	EndIf;
+	
+	Return Title;
+	
+EndFunction
 
 // Defines the internal classifier ID for the classifier subsystem.
 //
@@ -3439,6 +3461,7 @@ Function InstalledCryptoProviders(ComponentObject = Undefined) Export
 	Result = New Structure;
 	Result.Insert("CheckCompleted", False);
 	Result.Insert("Cryptoproviders", New Array);
+	Result.Insert("Error", "");
 	
 	Settings = DigitalSignature.CommonSettings();
 	
@@ -3454,7 +3477,7 @@ Function InstalledCryptoProviders(ComponentObject = Undefined) Export
 		Result.Cryptoproviders = InstalledCryptoProviders;
 	Except
 		Result.CheckCompleted = False;
-		Result.Insert("Error", ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+		Result.Error = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 	EndTry;
 	
 	Return Result;
@@ -4432,7 +4455,7 @@ Function AppForCertificate(Val Certificate, IsPrivateKeyRequied = Undefined,  Co
 	If IsPrivateKeyRequied <> False Then
 		
 		Try
-			CryptoProviderProperties = ComponentObject.ПолучитьСвойстваКриптопровайдера(Certificate);
+			CryptoProviderProperties = ComponentObject.GetCryptoProviderProperties(Certificate);
 			CurCryptoProvider = DigitalSignatureInternalServerCall.ReadAddInResponce(
 				CryptoProviderProperties);
 		Except
@@ -4670,7 +4693,7 @@ Function SupplyThePathToTheProgramModules() Export
 	
 EndFunction
 
-// Called upon migration to configuration version 3.1.5.220 and initial filling.
+// Runs when a configuration is updated to v.3.1.5.220 and during the initial data population.
 // 
 Procedure AddAnExtraCryptoAPIComponent() Export
 	
@@ -6465,7 +6488,7 @@ Function DownloadRevocationListFileAtServer(Val Addresses, InternalAddress = Und
 					ErrorProcessing.BriefErrorDescription(ErrorInfo));
 					
 				WriteLogEvent(
-					NStr("en = 'Digital signature.Revocation list update';",
+					NStr("en = 'Digital signature.Update revocation list';",
 					Common.DefaultLanguageCode()),
 					EventLogLevel.Error, , ,
 					ErrorProcessing.DetailErrorDescription(ErrorInfo()));

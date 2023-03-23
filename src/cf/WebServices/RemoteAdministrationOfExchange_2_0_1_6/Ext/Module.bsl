@@ -81,10 +81,10 @@ Function ExecuteDataExchangeScenarioActionInFirstInfobase(ScenarioRowIndex, Data
 		Parameters.Add(ScenarioRowIndex);
 		Parameters.Add(DataExchangeScenario);
 		
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		
 		SetPrivilegedMode(True);
-		ModuleSaaS.SetSessionSeparation(True, ScenarioRow.ValueOfSeparatorOfFirstInformationBase);
+		ModuleSaaSOperations.SetSessionSeparation(True, ScenarioRow.ValueOfSeparatorOfFirstInformationBase);
 		SetPrivilegedMode(False);
 		
 		ConfigurationExtensions.ExecuteBackgroundJobWithDatabaseExtensions(
@@ -93,7 +93,7 @@ Function ExecuteDataExchangeScenarioActionInFirstInfobase(ScenarioRowIndex, Data
 			Var_Key);
 			
 		SetPrivilegedMode(True);
-		ModuleSaaS.SetSessionSeparation(False);
+		ModuleSaaSOperations.SetSessionSeparation(False);
 		SetPrivilegedMode(False);
 		
 	ElsIf ExchangeMode = "Automatic" Then
@@ -149,10 +149,10 @@ Function ExecuteDataExchangeScenarioActionInSecondInfobase(ScenarioRowIndex, Dat
 		Parameters.Add(ScenarioRowIndex);
 		Parameters.Add(DataExchangeScenario);
 		
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		
 		SetPrivilegedMode(True);
-		ModuleSaaS.SetSessionSeparation(True, ScenarioRow.ValueOfSeparatorOfSecondInformationBase);
+		ModuleSaaSOperations.SetSessionSeparation(True, ScenarioRow.ValueOfSeparatorOfSecondInformationBase);
 		SetPrivilegedMode(False);
 		
 		ConfigurationExtensions.ExecuteBackgroundJobWithDatabaseExtensions(
@@ -161,7 +161,7 @@ Function ExecuteDataExchangeScenarioActionInSecondInfobase(ScenarioRowIndex, Dat
 			Var_Key);
 			
 		SetPrivilegedMode(True);
-		ModuleSaaS.SetSessionSeparation(False);
+		ModuleSaaSOperations.SetSessionSeparation(False);
 		SetPrivilegedMode(False);
 		
 	ElsIf ExchangeMode = "Automatic" Then

@@ -251,7 +251,7 @@
 					<xr:ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The bank description.</v8:content>
+							<v8:content>Bank name</v8:content>
 						</v8:item>
 					</xr:ToolTip>
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
@@ -287,7 +287,7 @@
 					<xr:ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The bank identifier code.</v8:content>
+							<v8:content>Bank identifier code</v8:content>
 						</v8:item>
 					</xr:ToolTip>
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
@@ -381,7 +381,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The bank's correspondent account.</v8:content>
+							<v8:content>The bank's correspondent account</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -413,7 +413,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>SWIFT</v8:content>
+							<v8:content>SWIFT BIC</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>

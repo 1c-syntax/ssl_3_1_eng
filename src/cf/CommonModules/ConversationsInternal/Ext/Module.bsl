@@ -220,10 +220,10 @@ Procedure UsersToBlockInteractionsInTheSystem(Parameters) Export
 
 EndProcedure
 
-Procedure LockInvalidUsersInCollaborationSystem(UpdateParameters1) Export
+Procedure LockInvalidUsersInCollaborationSystem(ParametersOfUpdate) Export
 
 	FullMetadataObjectName = "Catalog.Users";
-	Users_Selection = InfobaseUpdate.SelectRefsToProcess(UpdateParameters1.Queue, FullMetadataObjectName);
+	Users_Selection = InfobaseUpdate.SelectRefsToProcess(ParametersOfUpdate.Queue, FullMetadataObjectName);
 			
 	ObjectsWithErrors = 0;
 	TextOfTheLastError = "";
@@ -253,7 +253,7 @@ Procedure LockInvalidUsersInCollaborationSystem(UpdateParameters1) Export
 	
 	EndIf;
 	
-	UpdateParameters1.ProcessingCompleted = True;
+	ParametersOfUpdate.ProcessingCompleted = True;
 
 EndProcedure
 

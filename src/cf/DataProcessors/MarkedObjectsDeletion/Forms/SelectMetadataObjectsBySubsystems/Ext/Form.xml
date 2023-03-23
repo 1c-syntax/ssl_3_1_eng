@@ -85,6 +85,14 @@
 						<Event name="OnChange">SearchAreaOnChange</Event>
 					</Events>
 				</RadioButtonField>
+				<SearchStringAddition name="SearchString" id="48">
+					<AdditionSource>
+						<Item>SearchSectionsTree</Item>
+						<Type>SearchStringRepresentation</Type>
+					</AdditionSource>
+					<ContextMenu name="SearchStringContextMenu" id="49"/>
+					<ExtendedTooltip name="SearchStringExtendedTooltip" id="50"/>
+				</SearchStringAddition>
 				<CommandBar name="CommandBar" id="31">
 					<Title>
 						<v8:item>

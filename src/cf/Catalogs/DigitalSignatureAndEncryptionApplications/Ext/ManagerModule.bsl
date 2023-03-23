@@ -194,27 +194,6 @@ Procedure FillInitialSettings(Programs = Undefined, WithoutEmbeddedCryptoprovide
 	
 EndProcedure
 
-// 
-// 
-// Returns:
-//  Map of KeyAndValue:
-//   * Key - String -
-//   * Value - Undefined
-//
-Function AppListForInstallationCheck() Export
-	
-	AppListForInstallationCheck = New Map;
-	
-	If Metadata.DataProcessors.Find("DigitalSignatureAndEncryptionApplications") <> Undefined Then
-		DigitalSignatureAndEncryptionApplicationProcessing = Common.ObjectManagerByFullName(
-			"DataProcessor.DigitalSignatureAndEncryptionApplications");
-		DigitalSignatureAndEncryptionApplicationProcessing.AppListForInstallationCheck(AppListForInstallationCheck);
-	EndIf;
-	
-	Return AppListForInstallationCheck;
-	
-EndFunction
-
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
 	Query = New Query;

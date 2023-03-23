@@ -19,6 +19,8 @@ Var ApplicationsCheckPerformed;
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
+	DigitalSignatureInternal.SetVisibilityOfLinkToInstructionsForWorkingWithPrograms(Items.Instruction);
+	
 	SetConditionalAppearance();
 	DigitalSignatureInternal.SetCertificateListConditionalAppearance(Certificates, True);
 	
@@ -339,6 +341,7 @@ Procedure DecorationCheckCryptoProviderInstallationURLProcessing(
 	CheckParameters.Insert("ShouldInstallExtension", True);
 	CheckParameters.Insert("SetComponent", True);
 	CheckParameters.Insert("ShouldPromptToInstallApp", True);
+	CheckParameters.Insert("ExtendedDescription", True);
 	
 	NotificationAfterAppsCheckCompleted = New NotifyDescription(
 		"DetectInstalledAppsAfterCryptoAppsChecked", ThisObject);
@@ -1035,6 +1038,7 @@ Procedure DefineInstalledApplicationsOnAttachExtension(Attached, Context) Export
 	CheckParameters.Insert("SetComponent", False);
 	CheckParameters.Insert("ShouldPromptToInstallApp", False);
 	CheckParameters.Insert("CheckAtServer1", False);
+	CheckParameters.Insert("ExtendedDescription", True);
 	
 	NotificationAfterAppsCheckCompleted = New NotifyDescription(
 		"DetectInstalledAppsAfterCryptoAppsChecked", ThisObject, Context);
@@ -1250,7 +1254,12 @@ Procedure AfterCryptographyAppsChecked(Result, Notification) Export
 	EndIf;
 		
 	If Result.CheckCompleted Then
-		For Each Cryptoprovider In Result.Cryptoproviders Do
+		
+		For Each Cryptoprovider In Result.Programs Do
+			
+			If ValueIsFilled(Cryptoprovider.Application) And Not ThereAreTestablePrograms Then
+				ThereAreTestablePrograms = True;
+			EndIf;
 			
 			Found4 = Programs.FindRows(New Structure("ApplicationName, ApplicationType",
 				Cryptoprovider.ApplicationName, Cryptoprovider.ApplicationType));
@@ -1273,6 +1282,13 @@ Procedure AfterCryptographyAppsChecked(Result, Notification) Export
 			EndIf;
 			
 		EndDo;
+		
+		If Not ThereAreTestablePrograms Then
+			Items.GroupCryptoProvidersHint.Visible = True;
+			Items.DecorationCheckCryptoProviderInstallation.Title = StringFunctionsClient.FormattedString(
+				NStr("en = 'If you plan to use an advanced qualified digital signature, install a certified application (a cryptographic information protection tool) on your computer.
+					|<a href = ""%1"">Install.</a>';"), "CheckCryptographyAppsInstallation");
+		EndIf;
 	EndIf;
 	
 	If Notification <> Undefined Then
@@ -1355,13 +1371,21 @@ Procedure FillApplicationsAndSettings(RefreshCached = False)
 	
 	Settings = DigitalSignature.CommonSettings();
 	If Settings.VerifyDigitalSignaturesOnTheServer Or Settings.GenerateDigitalSignaturesAtServer Then
-		ResultCryptoProviders = DigitalSignatureInternal.InstalledCryptoProviders();
+		
+		CheckParameters = New Structure;
+		CheckParameters.Insert("ExtendedDescription", True);
+		ResultCryptoProviders = DigitalSignature.CheckCryptographyAppsInstallation(CheckParameters);
+		
 		If ResultCryptoProviders.CheckCompleted Then
 			
-			For Each Cryptoprovider In ResultCryptoProviders.Cryptoproviders Do
+			For Each Cryptoprovider In ResultCryptoProviders.Programs Do
+				
+				If ValueIsFilled(Cryptoprovider.Application) And Not ThereAreTestablePrograms Then
+					ThereAreTestablePrograms = True;
+				EndIf;
 				
 				Found4 = TheSampleTable.FindRows(New Structure("ApplicationName, ApplicationType",
-					Cryptoprovider.ApplicationName, Cryptoprovider.ApplicationType)); 
+					Cryptoprovider.ApplicationName, Cryptoprovider.ApplicationType));
 				
 				If Found4.Count() = 0
 					Or DigitalSignatureInternalClientServer.AreAutomaticSettingsUsed(Found4[0].UsageMode) Then
@@ -1381,6 +1405,7 @@ Procedure FillApplicationsAndSettings(RefreshCached = False)
 			EndDo;
 			
 		EndIf;
+		
 		Items.ProgramsCheckResultAtServer.Visible = IsFullUser;
 	Else
 		Items.ProgramsCheckResultAtServer.Visible = False;

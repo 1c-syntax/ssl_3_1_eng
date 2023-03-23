@@ -1270,14 +1270,14 @@ Procedure OnSaveExternalSystemConnectionSettings(Context, ConnectionParameters, 
 			If Common.DataSeparationEnabled() Then
 				If Common.SubsystemExists("CloudTechnology.JobsQueue") Then
 					ModuleJobsQueue = Common.CommonModule("JobsQueue");
-					ModuleSaaS = Common.CommonModule("SaaSOperations");
+					ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 					
 					JobKey = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Data exchange with external system (%1)';"),
 						Common.ObjectAttributeValue(Peer, "Code"));
 						
 					JobParameters = New Structure;
-					JobParameters.Insert("DataArea", ModuleSaaS.SessionSeparatorValue());
+					JobParameters.Insert("DataArea", ModuleSaaSOperations.SessionSeparatorValue());
 					JobParameters.Insert("Use", UseScheduledJob);
 					JobParameters.Insert("MethodName",     "DataExchangeServer.ExecuteDataExchangeWithExternalSystem");
 					
@@ -3948,12 +3948,12 @@ Procedure CheckCanSynchronizeData(OnlineApplication = False) Export
 		
 		If Common.SubsystemExists("CloudTechnology.Core") Then
 			
-			ModuleSaaS = Common.CommonModule("SaaSOperations");
-			DataRegionNumber = ModuleSaaS.SessionSeparatorValue();
+			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+			DataAreaNumber = ModuleSaaSOperations.SessionSeparatorValue();
 			
 			SetPrivilegedMode(True);
 			
-			If ModuleSaaS.DataAreaStatus(DataRegionNumber) <> Enums["DataAreaStatuses"]["Used"] Then
+			If ModuleSaaSOperations.DataAreaStatus(DataAreaNumber) <> Enums["DataAreaStatuses"]["Used"] Then
 				
 				ExceptionText = NStr("en = 'Cannot sync as the data area is marked as inactive.
 					|Contact the administrator or technical service.';", Common.DefaultLanguageCode());
@@ -4492,7 +4492,7 @@ Procedure OnAddClientParameters(Parameters) Export
 EndProcedure
 
 // See AccessManagementOverridable.OnFillSuppliedAccessGroupProfiles
-Procedure OnFillSuppliedAccessGroupProfiles(ProfilesDetails, UpdateParameters1) Export
+Procedure OnFillSuppliedAccessGroupProfiles(ProfilesDetails, ParametersOfUpdate) Export
 	
 	// "Data synchronization with other applications" profile.
 	ProfileDetails = Common.CommonModule("AccessManagement").NewAccessGroupProfileDescription();
@@ -4936,7 +4936,7 @@ Procedure WriteMessageWithNodeChanges(ExchangeSettingsStructure, Val ExchangeMes
 			
 			Handlers = New Array;
 			If Common.SubsystemExists("CloudTechnology.MessagesExchange") Then
-			    ModuleMessagesExchangeInternal = Common.CommonModule("MessagesExchangeInternal");
+			    ModuleMessagesExchangeInternal = Common.CommonModule("MessagesExchangeInner");
 			    Handlers.Add(ModuleMessagesExchangeInternal);
 			EndIf;
 			Handlers.Add(DataExchangeOverridable);
@@ -5085,7 +5085,7 @@ Procedure ReadMessageWithNodeChanges(ExchangeSettingsStructure,
 			
 			Handlers = New Array;
 			If Common.SubsystemExists("CloudTechnology.MessagesExchange") Then
-				ModuleMessagesExchangeInternal = Common.CommonModule("MessagesExchangeInternal");
+				ModuleMessagesExchangeInternal = Common.CommonModule("MessagesExchangeInner");
 				Handlers.Add(ModuleMessagesExchangeInternal);
 			EndIf;
 			Handlers.Add(DataExchangeOverridable);
@@ -5829,10 +5829,10 @@ Procedure SetPredefinedNodeCodes() Export
 		And Common.SeparatedDataUsageAvailable()
 		And Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then
 		
-		ModuleSaaS       = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations       = Common.CommonModule("SaaSOperations");
 		ModuleDataExchangeSaaS = Common.CommonModule("DataExchangeSaaS");
 		
-		CodeFromSaaSMode = TrimAll(ModuleDataExchangeSaaS.ExchangePlanNodeCodeInService(ModuleSaaS.SessionSeparatorValue()));
+		CodeFromSaaSMode = TrimAll(ModuleDataExchangeSaaS.ExchangePlanNodeCodeInService(ModuleSaaSOperations.SessionSeparatorValue()));
 	EndIf;
 	
 	NodesCollection = New Array;
@@ -6876,7 +6876,7 @@ EndFunction
 //
 Function UnlimitedLengthString() Export
 	
-	Return "(stringofunlimitedlength)";
+	Return "(odb)";
 	
 EndFunction
 
@@ -7635,8 +7635,8 @@ Function IsSeparatedObject(Val Object)
 	FullName = Object.Metadata().FullName();
 	
 	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		IsSeparatedMetadataObject = ModuleSaaS.IsSeparatedMetadataObject(FullName);
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		IsSeparatedMetadataObject = ModuleSaaSOperations.IsSeparatedMetadataObject(FullName);
 	Else
 		IsSeparatedMetadataObject = False;
 	EndIf;
@@ -10882,8 +10882,8 @@ Function ExchangePlansFilterByDataSeparationFlag(ExchangePlansArray1)
 			For Each ExchangePlanName In ExchangePlansArray1 Do
 				
 				If Common.SubsystemExists("CloudTechnology.Core") Then
-					ModuleSaaS = Common.CommonModule("SaaSOperations");
-					IsSeparatedMetadataObject = ModuleSaaS.IsSeparatedMetadataObject("ExchangePlan." + ExchangePlanName);
+					ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+					IsSeparatedMetadataObject = ModuleSaaSOperations.IsSeparatedMetadataObject("ExchangePlan." + ExchangePlanName);
 				Else
 					IsSeparatedMetadataObject = False;
 				EndIf;
@@ -10901,8 +10901,8 @@ Function ExchangePlansFilterByDataSeparationFlag(ExchangePlansArray1)
 			For Each ExchangePlanName In ExchangePlansArray1 Do
 				
 				If Common.SubsystemExists("CloudTechnology.Core") Then
-					ModuleSaaS = Common.CommonModule("SaaSOperations");
-					IsSeparatedMetadataObject = ModuleSaaS.IsSeparatedMetadataObject("ExchangePlan." + ExchangePlanName);
+					ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+					IsSeparatedMetadataObject = ModuleSaaSOperations.IsSeparatedMetadataObject("ExchangePlan." + ExchangePlanName);
 				Else
 					IsSeparatedMetadataObject = False;
 				EndIf;
@@ -11051,7 +11051,7 @@ Function ExchangePlansForMonitorQueryText(QueryOptions = Undefined, ExcludeStand
 	|UNION ALL
 	|";
 	
-	QueryTemplate1 = AssociationSection + 
+	QueryTemplate = AssociationSection + 
 	"//////////////////////////////////////////////////////// {&ИмяТаблицыПланаОбмена}
 	|SELECT
 	|
@@ -11077,7 +11077,7 @@ Function ExchangePlansForMonitorQueryText(QueryOptions = Undefined, ExcludeStand
 			
 			ExchangePlanTableName = StringFunctionsClientServer.SubstituteParametersToString(TemplateForTheNameOfTheExchangePlanTable, ExchangePlanName);
 			
-			ExchangePlanQueryText = StrReplace(QueryTemplate1,              "&ExchangePlanTableName", ExchangePlanTableName);
+			ExchangePlanQueryText = StrReplace(QueryTemplate,              "&ExchangePlanTableName", ExchangePlanTableName);
 			ExchangePlanQueryText = StrReplace(ExchangePlanQueryText, "&ExchangePlanNameSynonym", Metadata.ExchangePlans[ExchangePlanName].Synonym);
 			ExchangePlanQueryText = StrReplace(ExchangePlanQueryText, "&AdditionalExchangePlanProperties,", AdditionalExchangePlanPropertiesAsString);
 			

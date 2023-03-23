@@ -48,8 +48,8 @@
 			</valueType>
 		</field>
 		<field xsi:type="DataSetFieldField">
-			<dataPath>RefType1</dataPath>
-			<field>RefType1</field>
+			<dataPath>RefType</dataPath>
+			<field>RefType</field>
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -190,7 +190,7 @@
 				<dcsset:filter>
 					<dcsset:item xsi:type="dcsset:FilterItemComparison">
 						<dcsset:use>false</dcsset:use>
-						<dcsset:left xsi:type="dcscor:Field">RefType1</dcsset:left>
+						<dcsset:left xsi:type="dcscor:Field">RefType</dcsset:left>
 						<dcsset:comparisonType>Equal</dcsset:comparisonType>
 						<dcsset:right xsi:type="dcscor:Field"/>
 					</dcsset:item>

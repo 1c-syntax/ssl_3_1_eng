@@ -108,6 +108,10 @@ EndProcedure
 &AtClient
 Procedure SelectRole(CurrentData)
 	
+	If CurrentData = Undefined Then
+		Return;
+	EndIf;
+	
 	If CurrentData.UsedByAddressingObjects Then 
 		FormParameters = New Structure;
 		FormParameters.Insert("PerformerRole",               CurrentData.Ref);

@@ -229,8 +229,8 @@ Procedure SetInitialSettings(Val UserName, IsExternalUser = False) Export
 	ClientSettings.ApplicationFormsOpenningMode = ApplicationFormsOpenningMode.Tabs;
 	ClientSettings.ClientApplicationInterfaceVariant = ClientApplicationInterfaceVariant.Taxi;
 	
-	InterfaceSettings3 = New CommandInterfaceSettings;
-	InterfaceSettings3.SectionsPanelRepresentation = SectionsPanelRepresentation.PictureAndText;
+	InterfaceSettings = New CommandInterfaceSettings;
+	InterfaceSettings.SectionsPanelRepresentation = SectionsPanelRepresentation.PictureAndText;
 	
 	TaxiSettings = New ClientApplicationInterfaceSettings;
 	CompositionSettings1 = New ClientApplicationInterfaceContentSettings;
@@ -242,7 +242,7 @@ Procedure SetInitialSettings(Val UserName, IsExternalUser = False) Export
 
 	InitialSettings1 = New Structure;
 	InitialSettings1.Insert("ClientSettings",    ClientSettings);
-	InitialSettings1.Insert("InterfaceSettings3", InterfaceSettings3);
+	InitialSettings1.Insert("InterfaceSettings", InterfaceSettings);
 	InitialSettings1.Insert("TaxiSettings",      TaxiSettings);
 	InitialSettings1.Insert("IsExternalUser", IsExternalUser);
 	
@@ -253,9 +253,9 @@ Procedure SetInitialSettings(Val UserName, IsExternalUser = False) Export
 			InitialSettings1.ClientSettings, , UserName);
 	EndIf;
 	
-	If InitialSettings1.InterfaceSettings3 <> Undefined Then
+	If InitialSettings1.InterfaceSettings <> Undefined Then
 		SystemSettingsStorage.Save("Common/SectionsPanel/CommandInterfaceSettings", "",
-			InitialSettings1.InterfaceSettings3, , UserName);
+			InitialSettings1.InterfaceSettings, , UserName);
 	EndIf;
 		
 	If InitialSettings1.TaxiSettings <> Undefined Then
@@ -1168,8 +1168,8 @@ Procedure OnAddServerNotifications(Notifications) Export
 	If Common.DataSeparationEnabled()
 	   And Common.SubsystemExists("CloudTechnology.Core") Then
 		
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		If ModuleSaaS.SessionWithoutSeparators() Then
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		If ModuleSaaSOperations.SessionWithoutSeparators() Then
 			Return;
 		EndIf;
 	EndIf;
@@ -1579,9 +1579,9 @@ Procedure OnFillToDoList(ToDoList) Export
 	For Each Section In Sections Do
 		
 		If AddCaseInvalidUsersInfo Then
-			UserID = "InvalidUsersInfo" + StrReplace(Section.FullName(), ".", "");
+			IDUsers = "InvalidUsersInfo" + StrReplace(Section.FullName(), ".", "");
 			ToDoItem = ToDoList.Add();
-			ToDoItem.Id  = UserID;
+			ToDoItem.Id  = IDUsers;
 			ToDoItem.HasToDoItems       = OfInvalidUsers > 0;
 			ToDoItem.Count     = OfInvalidUsers;
 			ToDoItem.Presentation  = NStr("en = 'Invalid users data';");
@@ -1628,7 +1628,7 @@ Procedure OnDefineSupportedInterfaceVersions(SupportedVersionsStructure) Export
 	VersionsArray.Add("1.0.0.1");
 	
 	SupportedVersionsStructure.Insert(
-		"ServiceModelLoginSettings",
+		"LoginSettingsSaaS",
 		VersionsArray);
 	
 EndProcedure
@@ -2467,7 +2467,7 @@ Function CanChangePassword(User, AdditionalParameters = Undefined) Export
 	EndIf;
 	
 	RemainingMinPasswordLifetime = PasswordMinEffectivePeriod
-		- (CurrentUniversalDate() - IBUser.ДатаУстановкиПароля);
+		- (CurrentUniversalDate() - IBUser.PasswordSettingDate);
 	
 	If RemainingMinPasswordLifetime <= 0 Then
 		Return True;
@@ -4857,7 +4857,7 @@ Function UsersToEnablePasswordRecoveryBasedOnExternalUsers(IBSUsersByMail)
 	
 	ModuleContactsManager = Common.CommonModule("ContactsManager");
 	
-	QueryTemplate1 = "SELECT
+	QueryTemplate = "SELECT
 		|	ExternalUserContactInformation.Presentation AS Mail
 		|INTO TempTable
 		|FROM
@@ -4877,9 +4877,9 @@ Function UsersToEnablePasswordRecoveryBasedOnExternalUsers(IBSUsersByMail)
 		EndIf;
 		
 		TableName = Metadata.FindByType(ExternalUserType).FullName() + ".ContactInformation";
-		QueriesSet.Add(StrReplace(QueryTemplate1, "#ContactInformation", TableName));
+		QueriesSet.Add(StrReplace(QueryTemplate, "#ContactInformation", TableName));
 		
-		QueryTemplate1 = StrReplace(QueryTemplate1, "INTO TempTable", "");
+		QueryTemplate = StrReplace(QueryTemplate, "INTO TempTable", "");
 	EndDo;
 	
 	If QueriesSet.Count() = 0 Then
@@ -4996,7 +4996,7 @@ Function ExternalUsersToEnablePasswordRecovery() Export
 	
 	QueriesSet.Add(QueryText);
 	
-	QueryTemplate1 = "SELECT
+	QueryTemplate = "SELECT
 	|	ExternalUsers.Ref AS Ref,
 	|	ExternalUserContactInformation.Presentation, 
 	|	ExternalUsers.IBUserID AS IBUserID
@@ -5015,7 +5015,7 @@ Function ExternalUsersToEnablePasswordRecovery() Export
 		EndIf;
 		
 		TableName = Metadata.FindByType(ExternalUserType).FullName() + ".ContactInformation";
-		QueriesSet.Add(StrReplace(QueryTemplate1, "#ContactInformation", TableName));
+		QueriesSet.Add(StrReplace(QueryTemplate, "#ContactInformation", TableName));
 		
 	EndDo;
 	
@@ -5541,7 +5541,7 @@ Procedure RenameExternalReportAndDataProcessorOpeningDecisionStorageKey() Export
 	
 EndProcedure
 
-// The procedure is called on update to SSL version 3.0.2.124 and during the initial filling.
+// Runs when a configuration is updated to v.3.0.2.124 and during the initial data population.
 Procedure FillPredefinedUserGroupsDescription() Export
 	
 	SetTheName(Catalogs.UserGroups.AllUsers,
@@ -7091,8 +7091,8 @@ Function Shared_Data()
 	
 	SetPrivilegedMode(True);
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
-	DataModel = ModuleSaaS.GetAreaDataModel();
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+	DataModel = ModuleSaaSOperations.GetAreaDataModel();
 	
 	SeparatedMetadataObjects = New Map;
 	For Each DataModelItem In DataModel Do
@@ -7833,19 +7833,19 @@ Procedure WriteIBUser(UserObject, ProcessingParameters)
 	EndIf;
 	
 	// Trying to write an infobase user
-	UpdateParameters1 = New Map(SessionParameters.UsersCatalogsUpdate);
-	UpdateParameters1.Insert("IBUserID", IBUserID);
-	SessionParameters.UsersCatalogsUpdate = New FixedMap(UpdateParameters1);
-	UpdateParameters1.Delete("IBUserID");
+	ParametersOfUpdate = New Map(SessionParameters.UsersCatalogsUpdate);
+	ParametersOfUpdate.Insert("IBUserID", IBUserID);
+	SessionParameters.UsersCatalogsUpdate = New FixedMap(ParametersOfUpdate);
+	ParametersOfUpdate.Delete("IBUserID");
 	Try
 		Users.SetIBUserProperies(IBUserID, IBUserDetails, 
 			CreateNewIBUser, TypeOf(UserObject) = Type("CatalogObject.ExternalUsers"));
 		IBUser = IBUserDetails.IBUser;
 	Except
-		SessionParameters.UsersCatalogsUpdate = New FixedMap(UpdateParameters1);
+		SessionParameters.UsersCatalogsUpdate = New FixedMap(ParametersOfUpdate);
 		Raise;
 	EndTry;
-	SessionParameters.UsersCatalogsUpdate = New FixedMap(UpdateParameters1);
+	SessionParameters.UsersCatalogsUpdate = New FixedMap(ParametersOfUpdate);
 	
 	If UserObject.AdditionalProperties.Property("CreateAdministrator")
 	   And ValueIsFilled(UserObject.AdditionalProperties.CreateAdministrator)
@@ -7948,7 +7948,7 @@ Procedure CheckUserAttributeChanges(UserObject, ProcessingParameters)
 		
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Couldn''t save user ""%1"".
-			           |Cannot modify attribute ""Internal"" in event subscriptions.';"),
+			           |Cannot modify attribute ""IsInternal"" in event subscriptions.';"),
 			UserObject.Ref);
 		Raise ErrorText;
 	EndIf;

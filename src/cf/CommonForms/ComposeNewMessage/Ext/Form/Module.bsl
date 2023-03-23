@@ -74,6 +74,7 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 			SetFormatSelection(ValueSelected.SaveFormats);
 			PackToArchive = ValueSelected.PackToArchive;
 			TransliterateFilesNames = ValueSelected.TransliterateFilesNames;
+			Sign = ValueSelected.Sign;
 			GeneratePresentationForSelectedFormats();
 		EndIf;
 		

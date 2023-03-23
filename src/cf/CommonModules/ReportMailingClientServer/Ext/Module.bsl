@@ -44,14 +44,14 @@ Function FillTemplate(Template, Parameters) Export
 			EndIf;
 			FormatString = Mid(Result, Position1 + LengthLeftFormat, Position2 - Position1 - LengthLeftFormat);
 			Try
-				WhatToReplace = ?(CutBorders, "", ParameterStart) + Format(KeyAndValue.Value, FormatString) + ?(CutBorders, "", ParameterEnd);
+				ReplacedWith = ?(CutBorders, "", ParameterStart) + Format(KeyAndValue.Value, FormatString) + ?(CutBorders, "", ParameterEnd);
 			Except
-				WhatToReplace = ?(CutBorders, "", ParameterStart) + KeyAndValue.Value + ?(CutBorders, "", ParameterEnd);
+				ReplacedWith = ?(CutBorders, "", ParameterStart) + KeyAndValue.Value + ?(CutBorders, "", ParameterEnd);
 			EndTry;
 			Result = StrReplace(
 				Result,
 				ParameterStart + KeyAndValue.Key + StartOfFormat + FormatString + EndOfFormat + ParameterEnd, 
-				WhatToReplace);
+				ReplacedWith);
 			Position1 = StrFind(Result, ParameterStart + KeyAndValue.Key + StartOfFormat);
 		EndDo;
 	EndDo;

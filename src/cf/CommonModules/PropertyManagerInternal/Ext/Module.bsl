@@ -185,6 +185,53 @@ Procedure ColumnsForDataImport(CatalogMetadata, ColumnsInformation) Export
 
 EndProcedure
 
+Procedure LoadPropertyValuesFromFile(ObjectReference, TableRow) Export
+	
+	Properties = New Map();
+	
+	If PropertyManager.UseAddlAttributes(ObjectReference)
+		 Or PropertyManager.UseAddlInfo(ObjectReference) Then
+			ListOfProperties = PropertyManager.ObjectProperties(ObjectReference);
+			For Each Property In ListOfProperties Do
+				Properties.Insert(String(Property), Property);
+			EndDo;
+	EndIf;
+	
+	PropertiesTable = New ValueTable;
+	PropertiesTable.Columns.Add("Property");
+	PropertiesTable.Columns.Add("Value");
+	
+	For Each Column In TableRow.Owner().Columns Do
+		
+		Prefix = "";
+		
+		If StrStartsWith(Column.Name, "AdditionalAttribute_") Then
+			Prefix = "AdditionalAttribute_";
+		ElsIf StrStartsWith(Column.Name, "Property_") Then
+			Prefix = "Property_";
+		EndIf;
+		
+		If IsBlankString(Prefix) Then
+			Continue;
+		EndIf;
+		
+		PropertyName = TrimAll(StandardSubsystemsServer.TransformAdaptedColumnDescriptionToString(Mid(Column.Name, 
+			StrLen(Prefix) + 1)));
+		Property = Properties.Get(PropertyName); // ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo
+		If Property <> Undefined Then
+			NewPropertiesRow = PropertiesTable.Add();
+			NewPropertiesRow.Property = Property.Ref;
+			NewPropertiesRow.Value = TableRow[Column.Name];
+		EndIf;
+		
+	EndDo;
+	
+	If PropertiesTable.Count() > 0 Then
+		PropertyManager.WriteObjectProperties(ObjectReference, PropertiesTable);
+	EndIf;
+
+EndProcedure
+
 ////////////////////////////////////////////////////////////////////////////////
 // Configuration subsystems event handlers.
 
@@ -818,11 +865,11 @@ EndProcedure
 Function GetObjectPropertySets(Val PropertiesOwner, AssignmentKey = Undefined) Export
 	
 	If TypeOf(PropertiesOwner) = Type("FormDataStructure") Then
-		RefType1 = TypeOf(PropertiesOwner.Ref);
+		RefType = TypeOf(PropertiesOwner.Ref);
 	ElsIf Common.IsReference(TypeOf(PropertiesOwner)) Then
-		RefType1 = TypeOf(PropertiesOwner);
+		RefType = TypeOf(PropertiesOwner);
 	Else
-		RefType1 = TypeOf(PropertiesOwner.Ref)
+		RefType = TypeOf(PropertiesOwner.Ref)
 	EndIf;
 	
 	GetDefaultSet = True;
@@ -847,7 +894,7 @@ Function GetObjectPropertySets(Val PropertiesOwner, AssignmentKey = Undefined) E
 	PropertiesSets.Columns.Add("SlaveItemsWidth");
 	
 	PropertyManagerOverridable.FillObjectPropertiesSets(
-		PropertiesOwner, RefType1, PropertiesSets, GetDefaultSet, AssignmentKey);
+		PropertiesOwner, RefType, PropertiesSets, GetDefaultSet, AssignmentKey);
 	
 	If PropertiesSets.Count() = 0
 	   And GetDefaultSet = True Then
@@ -1165,7 +1212,7 @@ EndFunction
 // Parameters:
 //  Ref - AnyRef
 //
-Function SetPropertiesValuesOwnerMetadata(Ref, ConsiderDeletionMark = True, RefType1 = Undefined) Export
+Function SetPropertiesValuesOwnerMetadata(Ref, ConsiderDeletionMark = True, RefType = Undefined) Export
 	
 	If Not ValueIsFilled(Ref) Then
 		Return Undefined;
@@ -1222,7 +1269,7 @@ Function SetPropertiesValuesOwnerMetadata(Ref, ConsiderDeletionMark = True, RefT
 	OwnerMetadata = Common.MetadataObjectByFullName(FullTableName);
 	
 	If OwnerMetadata <> Undefined Then
-		RefType1 = Type(FirstNamePart + "Ref." + SecondNamePart);
+		RefType = Type(FirstNamePart + "Ref." + SecondNamePart);
 	EndIf;
 	
 	Return OwnerMetadata;
@@ -1251,8 +1298,8 @@ Procedure FillSetsWithAdditionalAttributes(AllSets, SetsWithAttributes) Export
 		References, "DeletionMark, IsFolder, Predefined, Parent, PredefinedDataName, PredefinedSetName");
 	
 	For Each ReferenceProperties In ReferencesProperties Do
-		RefType1 = Undefined;
-		OwnerMetadata = SetPropertiesValuesOwnerMetadata(ReferenceProperties.Value, True, RefType1);
+		RefType = Undefined;
+		OwnerMetadata = SetPropertiesValuesOwnerMetadata(ReferenceProperties.Value, True, RefType);
 		
 		If OwnerMetadata = Undefined Then
 			Return;

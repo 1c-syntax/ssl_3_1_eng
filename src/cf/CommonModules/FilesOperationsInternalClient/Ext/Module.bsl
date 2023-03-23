@@ -1357,7 +1357,7 @@ Procedure OutputNotificationOnEdit(ResultHandler)
 			ReminderText = 
 				NStr("en = 'You will be prompted to open or save the file.
 				|
-				|1. Click ""Save"".
+				|1. Click Save.
 				|
 				|2. Select a directory to save the file and remember its name 
 				|(you will need it to edit and put the file back to the application).

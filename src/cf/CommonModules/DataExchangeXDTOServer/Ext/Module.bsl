@@ -335,7 +335,7 @@ EndProcedure
 //                       
 //                         * BriefErrorDescription - 
 //                         * DetailErrorDescription - 
-//                         * Level - EventLogLevel - an error importance level.
+//                         * Level - EventLogLevel - Error severity level.
 //  RecordStructure   - Structure - protocol record structure.
 //  SetErrorFlag1 - Boolean - if true, then it is an error message. Setting ErrorFlag.
 //  Level           - Number - a left indent, a number of tabs.
@@ -6993,8 +6993,8 @@ Function WriteObjectAllowed(Object, ExchangeComponents)
 		And Common.SeparatedDataUsageAvailable() Then
 		
 		If Common.SubsystemExists("StandardSubsystems.SaaSOperations") Then
-			ModuleSaaS = Common.CommonModule("SaaSOperations");
-			IsSeparatedMetadataObject = ModuleSaaS.IsSeparatedMetadataObject(Object.Metadata());
+			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+			IsSeparatedMetadataObject = ModuleSaaSOperations.IsSeparatedMetadataObject(Object.Metadata());
 		Else
 			IsSeparatedMetadataObject = False;
 		EndIf;

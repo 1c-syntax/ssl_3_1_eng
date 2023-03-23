@@ -395,10 +395,10 @@ Procedure ExecuteExchangeActionForInfobaseNodeUsingWebService(Cancel,
 			
 			Try
 				
-				IDOfTheUIDFile = PutFileInStorageInService(Proxy, ProxyParameters.CurrentVersion,
+				UIDFileID = PutFileInStorageInService(Proxy, ProxyParameters.CurrentVersion,
 					ExchangeSettingsStructure, FileExchangeMessages, InfobaseNode, 1024);
 				
-				FileIDAsString = String(IDOfTheUIDFile);
+				FileIDAsString = String(UIDFileID);
 				
 				Try
 					DeleteFiles(TempDirectory);

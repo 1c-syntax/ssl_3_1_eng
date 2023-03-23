@@ -1799,7 +1799,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Waiting for a long-running operation completion.</v8:content>
+							<v8:content>Waiting for a long-running operation to complete.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Group>Horizontal</Group>

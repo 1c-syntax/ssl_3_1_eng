@@ -326,7 +326,7 @@ Function ErrorsMessages() Export
 	ErrorsMessages.Insert(82, NStr("en = 'Object version conflict.
 		|An object version from the source infobase is rejected. The object in the destination infobase is not changed.';"));
 	//
-	ErrorsMessages.Insert(83, NStr("en = 'Object tabular section access error. Cannot change the tabular section.';"));
+	ErrorsMessages.Insert(83, NStr("en = 'Object table access error. Cannot change the table.';"));
 	ErrorsMessages.Insert(84, NStr("en = 'Period-end closing dates conflict.';"));
 	
 	ErrorsMessages.Insert(174, NStr("en = 'The exchange message was received earlier';"));
@@ -455,16 +455,16 @@ Function SeparatedSSLExchangePlans() Export
 	For Each ExchangePlanName In SSLExchangePlans() Do
 		
 		If Common.SubsystemExists("CloudTechnology.Core") Then
-			ModuleSaaS = Common.CommonModule("SaaSOperations");
-			IsSeparatedConfiguration = ModuleSaaS.IsSeparatedConfiguration();
+			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+			IsSeparatedConfiguration = ModuleSaaSOperations.IsSeparatedConfiguration();
 		Else
 			IsSeparatedConfiguration = False;
 		EndIf;
 		
 		If IsSeparatedConfiguration Then
 			
-			If ModuleSaaS.IsSeparatedMetadataObject("ExchangePlan." + ExchangePlanName,
-					ModuleSaaS.MainDataSeparator()) Then
+			If ModuleSaaSOperations.IsSeparatedMetadataObject("ExchangePlan." + ExchangePlanName,
+					ModuleSaaSOperations.MainDataSeparator()) Then
 				
 				Result.Add(ExchangePlanName);
 				

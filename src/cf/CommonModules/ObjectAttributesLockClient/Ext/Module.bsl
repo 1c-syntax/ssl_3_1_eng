@@ -327,31 +327,31 @@ Procedure CheckObjectRefs(Val ContinuationHandler, Val ReferencesArrray, Val Att
 	
 	If AttributesSynonyms.Count() > 1 Then
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'To prevent data inconsistency, the following attributes are locked for editing:
+			NStr("en = 'To prevent data inconsistency, the following attributes are locked:
 			           |%1.
 			           |
-			           |It is recommended that you consider possible consequences before you allow editing.
-			           |Please view the locations where the attributes are used.
-			           |Generating the list of locations might take a while.
+			           |Before you allow editing, view the occurrences of these attributes
+			           |and consider possible data implications.
+			           |Generating the list of occurrences might take a while.
 			           |';"),
 			AttributesPresentation);
 	Else
 		If ReferencesArrray.Count() = 1 Then
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'To prevent data inconsistency, attribute %1 is locked for editing.
+				NStr("en = 'To prevent data inconsistency, attribute %1 is locked.
 				           |
-				           |It is recommended that you consider possible consequences before you allow editing.
-				           |Please view the locations where the %2 is used.
-				           |Generating the list of locations might take a while.
+				           |Before you allow editing, view the occurrences of %2
+				           |and consider possible data implications.
+				           |Generating the list of occurrences might take a while.
 				           |';"),
 				AttributesPresentation, ReferencesArrray[0]);
 		Else
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'To prevent data inconsistency, attribute %1 is locked for editing.
+				NStr("en = 'To prevent data inconsistency, attribute %1 is locked.
 				           |
-				           |It is recommended that you consider possible consequences before you allow editing.
-				           |Please view the locations where selected items (%2) are used.
-				           |Generating the list of locations might take a while.
+				           |Before you allow editing, view the occurrences of the selected items (%2)
+				           |and consider possible data implications.
+				           |Generating the list of occurrences might take a while.
 				           |';"),
 				AttributesPresentation, ReferencesArrray.Count());
 		EndIf;

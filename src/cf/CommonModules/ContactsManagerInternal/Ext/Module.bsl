@@ -363,7 +363,7 @@ Function ContainsBlankJSONFields(ObjectToCheck)
 		Return True;
 	EndIf;
 	
-	QueryTemplate1 = "SELECT TOP 1
+	QueryTemplate = "SELECT TOP 1
 		|	TableWithContactInformation.Ref AS Ref
 		|FROM
 		|	&FullNameOfObjectWithContactInformation AS TableWithContactInformation
@@ -371,7 +371,7 @@ Function ContainsBlankJSONFields(ObjectToCheck)
 		|	(CAST(TableWithContactInformation.Value AS STRING(1))) = """"
 		|	AND TableWithContactInformation.Ref = &Ref";
 	
-	QueryTextSet = StrReplace(QueryTemplate1, "&FullNameOfObjectWithContactInformation",
+	QueryTextSet = StrReplace(QueryTemplate, "&FullNameOfObjectWithContactInformation",
 			MetadataObject.FullName() + ".ContactInformation");
 			
 	Query = New Query(QueryTextSet);
@@ -579,7 +579,7 @@ Function CorrectContactInformationKindsBatch(Val ObjectsWithIssues, Validation)
 	MetadataObjects = ObjectsWithContactInformation1();
 	QueryTextSet = New Array;
 	
-	QueryTemplate1 = "SELECT
+	QueryTemplate = "SELECT
 	|	MAX(ContactInformation.Ref) AS Ref,
 	|	ContactInformation.Kind AS Kind
 	|FROM
@@ -593,7 +593,7 @@ Function CorrectContactInformationKindsBatch(Val ObjectsWithIssues, Validation)
 	|	ContactInformation.Kind";
 	
 	For Each MetadataObject In MetadataObjects Do
-		QueryTextSet.Add(StrReplace(QueryTemplate1, "&FullNameOfObjectWithContactInformation", 
+		QueryTextSet.Add(StrReplace(QueryTemplate, "&FullNameOfObjectWithContactInformation", 
 		MetadataObject.Metadata().FullName() + ".ContactInformation"));
 	EndDo;
 	
@@ -1239,7 +1239,7 @@ Function GenerateAddressByPresentation(Presentation, SplitByFields = False)
 		
 	EndIf;
 	
-	If IsBlankString(Address.ZIPcode) Then
+	If IsBlankString(Address.ZIPcode) And Address.AddressType <> ContactsManagerClientServer.CustomFormatAddress() Then
 		RowIndex2 = AnalysisData.Find(-1, "Level");
 		If RowIndex2 <> Undefined Then
 			Address.ZIPcode = TrimAll(RowIndex2.Value);
@@ -1258,16 +1258,16 @@ Procedure UpdateAddressPresentation(Address, IncludeCountryInPresentation)
 	
 	FilledLevelsList = New Array;
 	
-	If IncludeCountryInPresentation And Address.Property("Country") And Not IsBlankString(Address.Country) Then
+	If IncludeCountryInPresentation And Address.Property("country") And Not IsBlankString(Address.Country) Then
 		FilledLevelsList.Add(Address.Country);
 	EndIf;
 	
-	If Address.Property("ZipCode") And Not IsBlankString(Address.ZIPcode) Then
+	If Address.Property("zipCode") And Not IsBlankString(Address.ZIPcode) Then
 		FilledLevelsList.Add(Address.ZIPcode);
 	EndIf;
 	
-	FilledLevelsList.Add(TrimAll(Address["Area"] + " " + Address["AreaType"]));
-	FilledLevelsList.Add(TrimAll(Address["City"] + " " + Address["CityType"]));
+	FilledLevelsList.Add(TrimAll(Address["area"] + " " + Address["areaType"]));
+	FilledLevelsList.Add(TrimAll(Address["city"] + " " + Address["cityType"]));
 	
 	Address.value = StrConcat(FilledLevelsList, ", ");
 	
@@ -1276,19 +1276,33 @@ EndProcedure
 Procedure DistributeAddressToFieldsWithoutClassifier(Address, AnalysisData)
 	
 	PresentationByAnalysisData = New Array;
+	
 	For Each AddressPart In AnalysisData Do
 		If AddressPart.Level >= 0 Then
-			PresentationByAnalysisData.Add(TrimAll(AddressPart.Description + " " + AddressPart.Abbr));
+			
+			If AddressPart.Level = 1 Then
+				Address.areaValue = AddressPart.Value;
+				Address.Area      = AddressPart.Description;
+				Address.AreaType  = AddressPart.ObjectType;
+				Address.munLevels.Add("area");
+				Address.admLevels.Add("area");
+			Else
+				PresentationByAnalysisData.Add(
+					ContactsManagerClientServer.ConnectTheNameAndTypeOfTheAddressObject(
+					AddressPart.Description, AddressPart.ObjectType));
+			EndIf;
 		EndIf;
 	EndDo;
 	
 	Address.Street = StrConcat(PresentationByAnalysisData, ", ");
+	Address.munLevels.Add("street");
+	Address.admLevels.Add("street");
 	
 EndProcedure
 
 Function AddressPartsAsTable(Val Text)
 	
-	BusinessObjectsTypes = BusinessObjectsTypes();	
+	BusinessObjectsTypes = BusinessObjectsTypes();
 	Result            = AddressParts();
 	RegionCode           = Undefined;
 	
@@ -1954,7 +1968,7 @@ Function ObjectsContainingKindForList()
 	EndDo;
 	
 	QueryTextSet = New Array;
-	QueryTemplate1 = "SELECT
+	QueryTemplate = "SELECT
 		|	ContactInformation.Ref AS Ref
 		|FROM
 		|	#ContactInformationOfTheMetadataObject AS ContactInformation
@@ -1968,7 +1982,7 @@ Function ObjectsContainingKindForList()
 		|	COUNT(ContactInformation.Kind) > 0 ";
 	
 	For Each Object In MetadataObjects Do
-		QueryTextSet.Add(StrReplace(QueryTemplate1, 
+		QueryTextSet.Add(StrReplace(QueryTemplate, 
 			"#ContactInformationOfTheMetadataObject",
 			"Catalog." +  Object.Metadata().Name + ".ContactInformation"));
 	EndDo;
@@ -3018,6 +3032,13 @@ Function JSONToContactInformationByFields(Val Value, ContactInformationType) Exp
 		Result = ContactsManagerClientServer.NewContactInformationDetails(ContactInformationType);
 	EndIf;
 	
+	If ContactInformation.Property("area") And ContactsManagerInternalCached.AreAddressManagementModulesAvailable() Then
+		
+		ModuleAddressManager = Common.CommonModule("AddressManager");
+		ModuleAddressManager.KemerovoRegionTypeInstallation(ContactInformation);
+		
+	EndIf;
+		
 	FillPropertyValues(Result, ContactInformation);
 	
 	Return Result;
@@ -3056,13 +3077,6 @@ Function JSONStringToStructure1(Value) Export
 	EndTry;
 	
 	JSONReader.Close();
-	
-	If Result.Property("area") And ContactsManagerInternalCached.AreAddressManagementModulesAvailable() Then
-		
-		ModuleAddressManager = Common.CommonModule("AddressManager");
-		ModuleAddressManager.InstallationTypeKuzbassKemerovoRegion(Result);
-		
-	EndIf;
 	
 	Return Result;
 	

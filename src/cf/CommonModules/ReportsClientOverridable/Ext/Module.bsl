@@ -47,7 +47,7 @@ EndProcedure
 //               - ManagedFormExtensionForReports - 
 //                   * Report - ReportObject - Form data structure similar to the report object.
 //
-//   Item     - FormField        - spreadsheet document.
+//   Item     - FormField        - Spreadsheet document.
 //   Details - Arbitrary     - details value of a point, series, or a chart value.
 //   StandardProcessing - Boolean  - indicates whether standard (system) event processing is executed.
 //
@@ -123,7 +123,7 @@ EndProcedure
 //               - ManagedFormExtensionForReports - 
 //                   * Report - ReportObject - Form data structure similar to the report object.
 //
-//   Item     - FormField        - spreadsheet document.
+//   Item     - FormField        - Spreadsheet document.
 //   Area     - SpreadsheetDocumentRange - Selected value.
 //   StandardProcessing - Boolean - indicates whether standard event processing is executed.
 //

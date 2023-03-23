@@ -266,6 +266,9 @@ Function AllFieldsOfMetadataObjectAccessRestriction(MetadataObject,
 		If CollectionName = "TabularSections"
 		 Or CollectionName = "StandardTabularSections" Then
 			For Each TabularSection In MetadataObject[CollectionName] Do
+				If TypeName = "ChartOfAccounts" And CollectionName = "StandardTabularSections" And TabularSection.Name = "ExtDimensionTypes" Then
+					Continue;
+				EndIf;
 				AddFieldOfMetadataObjectAccessRestriction(MetadataObject, TabularSection.Name, FieldsNames, IBObject);
 				Attributes = ?(CollectionName = "TabularSections", TabularSection.Attributes, TabularSection.StandardAttributes);
 				For Each Field In Attributes Do
@@ -302,6 +305,7 @@ Function AllFieldsOfMetadataObjectAccessRestriction(MetadataObject,
 				If (CollectionName = "Dimensions" Or CollectionName = "Resources")
 				   And ?(IBObject = Undefined, Metadata,
 				           IBObject.Metadata).AccountingRegisters.Contains(MetadataObject)
+				   And MetadataObject.Correspondence
 				   And Not Field.Balance Then
 					AddFieldOfMetadataObjectAccessRestriction(MetadataObject,
 						Field.Name + "Dr", FieldsNames, IBObject);

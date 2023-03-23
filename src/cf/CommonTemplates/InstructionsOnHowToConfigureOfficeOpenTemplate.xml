@@ -3,8 +3,13 @@
 	<CommonTemplate uuid="3002d5d8-1b7d-4252-9e5d-9a533bf03ca8">
 		<Properties>
 			<Name>InstructionsOnHowToConfigureOfficeOpenTemplate</Name>
-			<Synonym/>
-			<Comment/>
+			<Synonym>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Instruction on how to set up Office Open template</v8:content>
+				</v8:item>
+			</Synonym>
+			<Comment>АПК:497 - содержание макета html-страница</Comment>
 			<TemplateType>HTMLDocument</TemplateType>
 		</Properties>
 	</CommonTemplate>

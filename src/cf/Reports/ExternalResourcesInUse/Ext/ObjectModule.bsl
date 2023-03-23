@@ -51,7 +51,7 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 		Constants.UseSecurityProfiles.Set(True);
 		Constants.AutomaticallyConfigurePermissionsInSecurityProfiles.Set(True);
 		
-		DataProcessors.ExternalResourcePermissionSetup.ClearPermissions();
+		DataProcessors.ExternalResourcesPermissionsSetup.ClearPermissions();
 		PermissionsRequests = SafeModeManagerInternal.RequestsToUpdateApplicationPermissions();
 		Manager = InformationRegisters.RequestsForPermissionsToUseExternalResources.PermissionsApplicationManager(PermissionsRequests);
 		

@@ -910,7 +910,7 @@ Function SupportInformation() Export
 	Text = StrReplace(Text, "[IsTrainingPlatform]", 
 		?(Parameters.Property("IsTrainingPlatform"), Parameters.IsTrainingPlatform, TextUnavailable));
 	Text = StrReplace(Text, "[ConfigurationChanged]", 
-		?(Parameters.Property("UpdateSettings1"), Parameters.UpdateSettings1.ConfigurationChanged, TextUnavailable));
+		?(Parameters.Property("SettingsOfUpdate"), Parameters.SettingsOfUpdate.ConfigurationChanged, TextUnavailable));
 	
 	Return Text;
 	
@@ -1645,9 +1645,11 @@ Procedure ActionsBeforeExitCompletionHandler(NotDefined, Parameters) Export
 	
 	Parameters.ContinuationHandler = Undefined;
 	Parameters.CompletionProcessing  = Undefined;
+	ParameterName = "StandardSubsystems.SkipEndOfSystemAfterProcessingWarnings";
 	
 	If Not Parameters.Cancel
-	   And Not Parameters.ContinuousExecution Then
+	   And Not Parameters.ContinuousExecution
+	   And ApplicationParameters.Get(ParameterName) = Undefined Then
 		
 		ParameterName = "StandardSubsystems.SkipExitConfirmation";
 		ApplicationParameters.Insert(ParameterName, True);

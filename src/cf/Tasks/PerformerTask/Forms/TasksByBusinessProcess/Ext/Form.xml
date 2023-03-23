@@ -275,7 +275,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Priority</v8:content>
+							<v8:content>The task priority.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<EditMode>EnterOnInput</EditMode>
@@ -320,7 +320,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Stopped</v8:content>
+							<v8:content>Suspended</v8:content>
 						</v8:item>
 					</ToolTip>
 					<EditMode>EnterOnInput</EditMode>
@@ -522,7 +522,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Stopped</v8:content>
+							<v8:content>Suspended</v8:content>
 						</v8:item>
 					</Title>
 					<Type>

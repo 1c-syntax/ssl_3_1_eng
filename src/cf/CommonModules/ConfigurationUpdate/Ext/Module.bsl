@@ -16,14 +16,14 @@
 // Important: The executed actions will be applied after session restart.
 //
 // Parameters:
-//  CheckOnly1 - Boolean - if True, obsolete patches will not be deleted.
+//  IsCheckOnly - Boolean - if True, obsolete patches will not be deleted.
 //
 // Returns:
 //  Structure:
 //   * HasChanges     - Boolean - True if patches include changes.
 //   * ChangesDetails - String - information on deleted and changed patches.
 //
-Function PatchesChanged(CheckOnly1 = False) Export
+Function PatchesChanged(IsCheckOnly = False) Export
 	
 	Result = New Structure;
 	Result.Insert("HasChanges", False);
@@ -114,7 +114,7 @@ Function PatchesChanged(CheckOnly1 = False) Export
 				EndDo;
 			EndIf;
 			
-			If CheckOnly1 And DeletePatch Then
+			If IsCheckOnly And DeletePatch Then
 				Result.HasChanges = True;
 				Return Result;
 			EndIf;
@@ -807,7 +807,7 @@ Procedure OnAddClientParameters(Parameters) Export
 		Return;
 	EndIf;
 	
-	Parameters.Insert("UpdateSettings1", New FixedStructure(UpdateSettings1()));
+	Parameters.Insert("SettingsOfUpdate", New FixedStructure(SettingsOfUpdate()));
 
 EndProcedure
 
@@ -827,7 +827,7 @@ EndProcedure
 
 // Gets global update settings for a 1C:Enterprise session.
 //
-Function UpdateSettings1()
+Function SettingsOfUpdate()
 	
 	Settings = New Structure;
 	Settings.Insert("ConfigurationChanged",?(HasRightsToInstallUpdate(), ConfigurationChanged(), False));

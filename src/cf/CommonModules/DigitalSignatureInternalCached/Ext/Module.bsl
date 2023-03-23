@@ -171,8 +171,6 @@ Function CommonSettings() Export
 	CommonSettings.Insert("YouCanCheckTheCertificateInTheCloudServiceWithTheFollowingParameters", 
 		YouCanCheckTheCertificateInTheCloudServiceWithTheFollowingParameters());
 	
-	AppListForInstallationCheck = Catalogs.DigitalSignatureAndEncryptionApplications.AppListForInstallationCheck();
-	CommonSettings.Insert("AppListForInstallationCheck", New FixedMap(AppListForInstallationCheck));
 	CommonSettings.Insert("ApplicationsByNamesWithType", New FixedMap(ApplicationsByNamesWithType));
 	CommonSettings.Insert("ApplicationsByPublicKeyAlgorithmsIDs",
 		New FixedMap(ApplicationsByPublicKeyAlgorithmsIDs));
@@ -299,7 +297,7 @@ Procedure SupplementSolutionWithAutomaticActions(Decision, RemedyActions)
 		
 		If Action = "SetListOfCertificateRevocation" Then
 			Decision = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '- <a href=%1>Set a revocation list</a> of a certificate authority automatically.
+				NStr("en = '- <a href=%1>Install a revocation list</a> of a certificate authority automatically.
 				|%2';"), Action, Decision);
 		ElsIf Action = "InstallRootCertificate" Then
 			Decision = StringFunctionsClientServer.SubstituteParametersToString(
@@ -330,7 +328,7 @@ Function ActionsToFixErrorsRead(Remedy)
 	JSONReader.SetString(Remedy);
 	Remedy = ReadJSON(JSONReader); // Map
 	
-	Return Remedy.МетодикиУстранения;
+	Return Remedy.EliminationTechniques;
 	
 EndFunction
 
@@ -511,11 +509,12 @@ Function ThisistheServiceModelwithEnhancementAvailable()
 	
 	If Common.DataSeparationEnabled() Then
 		If DigitalSignatureInternal.UseCloudSignatureService() Then
+			
 			TheDSSCryptographyServiceModule = Common.CommonModule("DSSCryptographyService");
 			ConnectionSettings = TheDSSCryptographyServiceModule.ServiceAccountConnectionSettings();
-			If ConnectionSettings.Property("ServerAddress") And ValueIsFilled(ConnectionSettings.ServerAddress) Then
-				Return True;
-			EndIf;
+			
+			Return ConnectionSettings.Completed2;
+			
 		EndIf;
 	EndIf;
 	

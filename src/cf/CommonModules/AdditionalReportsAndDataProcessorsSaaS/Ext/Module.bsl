@@ -140,8 +140,8 @@ Procedure BeforeWriteAdditionalDataProcessor(Source, Cancel) Export
 		Return;
 	EndIf;
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
-	If ModuleSaaS.SessionWithoutSeparators() Then
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+	If ModuleSaaSOperations.SessionWithoutSeparators() Then
 		Return;
 	EndIf;
 	
@@ -610,20 +610,20 @@ Procedure InstallSuppliedDataProcessorToDataArea(Val InstallationDetails, Val Qu
 				EndDo;
 			EndIf;
 			
-			ModuleSaaS = Common.CommonModule("SaaSOperations");
+			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 			ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
 			
 			// Sending a message about the successful installation of data processor to data area to SaaS
 			Message = ModuleMessagesSaaS.NewMessage(
 				MessagesAdditionalReportsAndDataProcessorsControlInterface.AdditionalReportOrDataProcessorInstalledMessage());
 			
-			Message.Body.Zone = ModuleSaaS.SessionSeparatorValue();
+			Message.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
 			Message.Body.Extension = SuppliedDataProcessor.UUID();
 			Message.Body.Installation = InstallationDetails.Installation;
 			
-			WorkingInServiceModelCTLModuleCached = Common.CommonModule("SaaSOperationsCTLCached");
+			ModuleSaaSOperationsCTLCached = Common.CommonModule("SaaSOperationsCTLCached");
 			ModuleMessagesSaaS.SendMessage(Message,
-				WorkingInServiceModelCTLModuleCached.ServiceManagerEndpoint(),  True);
+				ModuleSaaSOperationsCTLCached.ServiceManagerEndpoint(),  True);
 			
 			WriteLogEvent(NStr("en = 'Additional built-in reports and data processors.Installation to the data area';",
 				Common.DefaultLanguageCode()),
@@ -716,22 +716,22 @@ Procedure DeleteSuppliedDataProcessorFromDataArea(Val SuppliedDataProcessor, Val
 		
 		RecordSet.Write();
 		
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
 		
 		// Sending a message about deleting a data processor from the data area to SaaS
 		Message = ModuleMessagesSaaS.NewMessage(
 			MessagesAdditionalReportsAndDataProcessorsControlInterface.AdditionalReportOrDataProcessorDeletedMessage());
 		
-		Message.Body.Zone = ModuleSaaS.SessionSeparatorValue();
+		Message.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
 		Message.Body.Extension = SuppliedDataProcessor.UUID();
 		Message.Body.Installation = IDOfDataProcessorToUse;
 		
-		WorkingInServiceModelCTLModuleCached = Common.CommonModule("SaaSOperationsCTLCached");
+		ModuleSaaSOperationsCTLCached = Common.CommonModule("SaaSOperationsCTLCached");
 		
 		ModuleMessagesSaaS.SendMessage(
 			Message,
-			WorkingInServiceModelCTLModuleCached.ServiceManagerEndpoint());
+			ModuleSaaSOperationsCTLCached.ServiceManagerEndpoint());
 		
 		WriteLogEvent(NStr("en = 'Built-in additional reports and data processors.Delete from the data area';",
 			Common.DefaultLanguageCode()),
@@ -755,20 +755,20 @@ Procedure DeleteSuppliedDataProcessorFromDataArea(Val SuppliedDataProcessor, Val
 			SuppliedDataProcessor,
 			String(IDOfDataProcessorToUse) + Chars.LF + Chars.CR + ExceptionText);
 			
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
-		WorkingInServiceModelCTLModuleCached = Common.CommonModule("SaaSOperationsCTLCached");
+		ModuleSaaSOperationsCTLCached = Common.CommonModule("SaaSOperationsCTLCached");
 		
 		// 
 		Message = ModuleMessagesSaaS.NewMessage(
 			MessagesAdditionalReportsAndDataProcessorsControlInterface.ErrorOfAdditionalReportOrDataProcessorDeletionMessage());
 		
-		Message.Body.Zone = ModuleSaaS.SessionSeparatorValue();
+		Message.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
 		Message.Body.Extension = SuppliedDataProcessor.UUID();
 		Message.Body.Installation = IDOfDataProcessorToUse;
 		Message.Body.ErrorDescription = ExceptionText;
 		
-		ModuleMessagesSaaS.SendMessage(Message, WorkingInServiceModelCTLModuleCached.ServiceManagerEndpoint());
+		ModuleMessagesSaaS.SendMessage(Message, ModuleSaaSOperationsCTLCached.ServiceManagerEndpoint());
 	EndIf;	
 	
 EndProcedure
@@ -845,22 +845,22 @@ Procedure ProcessErrorOfInstallingAdditionalDataProcessorToDataArea(Val Supplied
 	BeginTransaction();		
 	Try
 		
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
 		
 		// A message about the installation error of data processor to data area is being sent to SaaS
 		Message = ModuleMessagesSaaS.NewMessage(
 			MessagesAdditionalReportsAndDataProcessorsControlInterface.ErrorOfAdditionalReportOrDataProcessorInstallationMessage());
 			
-		Message.Body.Zone = ModuleSaaS.SessionSeparatorValue();
+		Message.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
 		Message.Body.Extension = SuppliedDataProcessor.UUID();
 		Message.Body.Installation = InstallationID;
 		Message.Body.ErrorDescription = ExceptionText;
 		
-		WorkingInServiceModelCTLModuleCached = Common.CommonModule("SaaSOperationsCTLCached");
+		ModuleSaaSOperationsCTLCached = Common.CommonModule("SaaSOperationsCTLCached");
 		ModuleMessagesSaaS.SendMessage(
 			Message,
-			WorkingInServiceModelCTLModuleCached.ServiceManagerEndpoint(),
+			ModuleSaaSOperationsCTLCached.ServiceManagerEndpoint(),
 			True);
 	
 		CommitTransaction();
@@ -911,20 +911,20 @@ Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 	
 	If Common.SubsystemExists("CloudTechnology.Core") Then
 		
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		ModuleSaaS.AddConstantToInformationSecurityParameterTable(ParametersTable, "AdditionalReportAndDataProcessorFolderUsageSaaS");
-		ModuleSaaS.AddConstantToInformationSecurityParameterTable(ParametersTable, "UseSecurityProfilesForARDP");
-		ModuleSaaS.AddConstantToInformationSecurityParameterTable(ParametersTable, "MinimalARADPScheduledJobIntervalSaaS");
-		ModuleSaaS.AddConstantToInformationSecurityParameterTable(ParametersTable, "IndependentUsageOfAdditionalReportsAndDataProcessorsSaaS");
-		ModuleSaaS.AddConstantToInformationSecurityParameterTable(ParametersTable, "AllowScheduledJobsExecutionSaaS");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "AdditionalReportAndDataProcessorFolderUsageSaaS");
+		ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "UseSecurityProfilesForARDP");
+		ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "MinimalARADPScheduledJobIntervalSaaS");
+		ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "IndependentUsageOfAdditionalReportsAndDataProcessorsSaaS");
+		ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "AllowScheduledJobsExecutionSaaS");
 		
 		// 
 		// 
-		ParameterString = ModuleSaaS.AddConstantToInformationSecurityParameterTable(ParametersTable, "AllowScheduledJobsExecutionSaaS");
+		ParameterString = ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "AllowScheduledJobsExecutionSaaS");
 		ParameterString.Name = "AllowUseAdditionalReportsAndDataProcessorsByScheduledJobsInSaaSMode";
-		ParameterString = ModuleSaaS.AddConstantToInformationSecurityParameterTable(ParametersTable, "MinimalARADPScheduledJobIntervalSaaS");
-		ParameterString.Name = "MinAdditionalReportsAndDataProcessorsScheduledJobIntervalInSaaSMode";
-		ParameterString = ModuleSaaS.AddConstantToInformationSecurityParameterTable(ParametersTable, "UseSecurityProfilesForARDP");
+		ParameterString = ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "MinimalARADPScheduledJobIntervalSaaS");
+		ParameterString.Name = "AdditionalReportsAndDataProcessorsScheduledJobMinIntervalSaaS";
+		ParameterString = ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "UseSecurityProfilesForARDP");
 		ParameterString.Name = "UseSecurityProfilesForARAndDP";
 		
 	EndIf;
@@ -963,11 +963,11 @@ Procedure OnSetIBParametersValues(Val ParameterValues) Export
 		
 	EndIf;
 	
-	If ParameterValues.Property("MinAdditionalReportsAndDataProcessorsScheduledJobIntervalInSaaSMode",
+	If ParameterValues.Property("AdditionalReportsAndDataProcessorsScheduledJobMinIntervalSaaS",
 		MinimalARADPScheduledJobIntervalSaaS) Then
 		
 		ParameterValues.Insert("MinimalARADPScheduledJobIntervalSaaS", MinimalARADPScheduledJobIntervalSaaS);
-		ParameterValues.Delete("MinAdditionalReportsAndDataProcessorsScheduledJobIntervalInSaaSMode");
+		ParameterValues.Delete("AdditionalReportsAndDataProcessorsScheduledJobMinIntervalSaaS");
 		
 	EndIf;
 	

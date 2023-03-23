@@ -380,9 +380,9 @@ EndProcedure
 Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 	
 	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		ModuleSaaS.AddConstantToInformationSecurityParameterTable(ParametersTable, "MaxActiveBackgroundJobExecutionTime");
-		ModuleSaaS.AddConstantToInformationSecurityParameterTable(ParametersTable, "MaxActiveBackgroundJobCount");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "MaxActiveBackgroundJobExecutionTime");
+		ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "MaxActiveBackgroundJobCount");
 	EndIf;
 	
 EndProcedure
@@ -491,7 +491,7 @@ Procedure GenerateScheduledJobsTable(Parameters, StorageAddress) Export
 		ParameterizedJobs.Add(ResultString1.ScheduledJob);
 	EndDo;
 	
-	SaaSSubsystem1 = Metadata.Subsystems.StandardSubsystems.Subsystems.Find("SaaSOperations");
+	SubsystemSaaSOperations = Metadata.Subsystems.StandardSubsystems.Subsystems.Find("SaaSOperations");
 	For Each MetadataObject In Metadata.ScheduledJobs Do
 		If Not ScheduledJobAvailableByFunctionalOptions(MetadataObject, ScheduledJobsParameters) Then
 			DisabledJobs.Add(MetadataObject.Name);
@@ -499,7 +499,7 @@ Procedure GenerateScheduledJobsTable(Parameters, StorageAddress) Export
 		EndIf;
 		
 		If Not Common.DataSeparationEnabled()
-			And SaaSSubsystem1 <> Undefined Then
+			And SubsystemSaaSOperations <> Undefined Then
 			
 			JobParameters = ScheduledJobsParameters.Find(MetadataObject, "ScheduledJob");
 			
@@ -509,12 +509,12 @@ Procedure GenerateScheduledJobsTable(Parameters, StorageAddress) Export
 				Continue;
 			EndIf;
 			
-			If SaaSSubsystem1.Content.Contains(MetadataObject) Then
+			If SubsystemSaaSOperations.Content.Contains(MetadataObject) Then
 				DisabledJobs.Add(MetadataObject.Name);
 				Continue;
 			EndIf;
 			
-			For Each Subsystem In SaaSSubsystem1.Subsystems Do
+			For Each Subsystem In SubsystemSaaSOperations.Subsystems Do
 				If Subsystem.Content.Contains(MetadataObject) Then
 					DisabledJobs.Add(MetadataObject.Name);
 					Continue;
@@ -653,7 +653,7 @@ Function ExecuteScheduledJobManually(Val Job) Export
 		EndIf;
 	Else
 		BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Manual start: %1';"), ScheduledJobPresentation(Job));
-		// Time-consuming operations are not used, because the method of the scheduled job is called.
+		// Long-running operations are not used because the scheduled job method is called.
 		BackgroundJob = ConfigurationExtensions.ExecuteBackgroundJobWithDatabaseExtensions(Job.Metadata.MethodName, Job.Parameters, String(Job.UUID), BackgroundJobDescription);
 		ExecutionParameters.BackgroundJobIdentifier = String(BackgroundJob.UUID);
 		ExecutionParameters.StartedAt = BackgroundJobs.FindByUUID(BackgroundJob.UUID).Begin;

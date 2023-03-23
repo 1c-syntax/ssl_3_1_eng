@@ -108,7 +108,7 @@ Function PermissionsSlice(Val ByOwners = True, Val NoDetails1 = False) Export
 		EndIf;
 		FilterByTable.Insert("Type", Resolution.Type().Name);
 		
-		String = DataProcessors.ExternalResourcePermissionSetup.PermissionsTableRow(
+		String = DataProcessors.ExternalResourcesPermissionsSetup.PermissionsTableRow(
 			Result, FilterByTable);
 		
 		PermissionBody = Selection.PermissionBody;

@@ -102,7 +102,7 @@ Procedure ConfigureExchangeStep1(Message, Sender) Export
 		Return;
 	EndIf;
 		
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
 	
 	Body = Message.Body;
@@ -111,7 +111,7 @@ Procedure ConfigureExchangeStep1(Message, Sender) Export
 	ThisNodeAlias = "";
 	
 	If Not IsBlankString(ThisNodeCode) And ThisNodeCode <> Body.Code Then
-		ThisNodeAlias = DataExchangeSaaS.ExchangePlanNodeCodeInService(ModuleSaaS.SessionSeparatorValue());
+		ThisNodeAlias = DataExchangeSaaS.ExchangePlanNodeCodeInService(ModuleSaaSOperations.SessionSeparatorValue());
 	
 		If ThisNodeAlias <> Body.Code Then
 			MessageString = StringFunctionsClientServer.SubstituteParametersToString(
@@ -185,7 +185,7 @@ Procedure ConfigureExchangeStep1(Message, Sender) Export
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.ExchangeSetupStep1CompletedMessage());
 			
-		ResponseMessage.Body.Zone = ModuleSaaS.SessionSeparatorValue();
+		ResponseMessage.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
 		ResponseMessage.Body.SessionId = Body.SessionId;
 		
 		ResponseMessage.Body.CorrespondentZone = Body.CorrespondentZone;
@@ -207,7 +207,7 @@ Procedure ConfigureExchangeStep1(Message, Sender) Export
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.ExchangeSetupErrorStep1Message());
 			
-		ResponseMessage.Body.Zone = ModuleSaaS.SessionSeparatorValue();
+		ResponseMessage.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
 		ResponseMessage.Body.SessionId = Body.SessionId;		
 		
 		ResponseMessage.Body.CorrespondentZone = Body.CorrespondentZone;
@@ -227,7 +227,7 @@ Procedure ImportExchangeMessage(Message, Sender) Export
 		Return;
 	EndIf;
 		
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
 	
 	MessageForDataMapping = False;
@@ -262,7 +262,7 @@ Procedure ImportExchangeMessage(Message, Sender) Export
 		// 
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.ExchangeMessageImportCompletedMessage());
-		ResponseMessage.Body.Zone = ModuleSaaS.SessionSeparatorValue();
+		ResponseMessage.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
 		ResponseMessage.Body.CorrespondentZone = Body.CorrespondentZone;
 		ResponseMessage.Body.SessionId = Body.SessionId;
 	Except
@@ -274,7 +274,7 @@ Procedure ImportExchangeMessage(Message, Sender) Export
 		// 
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.ExchangeMessageImportErrorMessage());
-		ResponseMessage.Body.Zone = ModuleSaaS.SessionSeparatorValue();
+		ResponseMessage.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
 		ResponseMessage.Body.CorrespondentZone = Body.CorrespondentZone;
 		ResponseMessage.Body.SessionId = Body.SessionId;
 		
@@ -302,7 +302,7 @@ Procedure GetCorrespondentData(Message, Sender)
 		Return;
 	EndIf;
 		
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
 	
 	Body = Message.Body;
@@ -316,7 +316,7 @@ Procedure GetCorrespondentData(Message, Sender)
 		// Sending a response message that notifies about successful setup
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.CorrespondentDataGettingCompletedMessage());
-		ResponseMessage.Body.Zone = ModuleSaaS.SessionSeparatorValue();
+		ResponseMessage.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
 		ResponseMessage.Body.CorrespondentZone = Body.CorrespondentZone;
 		ResponseMessage.Body.SessionId = Body.SessionId;
 		
@@ -335,7 +335,7 @@ Procedure GetCorrespondentData(Message, Sender)
 		// 
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.CorrespondentDataGettingErrorMessage());
-		ResponseMessage.Body.Zone = ModuleSaaS.SessionSeparatorValue();
+		ResponseMessage.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
 		ResponseMessage.Body.CorrespondentZone = Body.CorrespondentZone;
 		ResponseMessage.Body.SessionId = Body.SessionId;
 		
@@ -356,7 +356,7 @@ Procedure GetCommonDataOfCorrespondentNodes1(Message, Sender) Export
 		Return;
 	EndIf;
 		
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
 	
 	Body = Message.Body;
@@ -367,7 +367,7 @@ Procedure GetCommonDataOfCorrespondentNodes1(Message, Sender) Export
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.GettingCommonDataOfCorrespondentNodeCompletedMessage());
 			
-		ResponseMessage.Body.Zone = ModuleSaaS.SessionSeparatorValue();
+		ResponseMessage.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
 		ResponseMessage.Body.CorrespondentZone = Body.CorrespondentZone;
 		ResponseMessage.Body.SessionId = Body.SessionId;
 		
@@ -394,7 +394,7 @@ Procedure GetCommonDataOfCorrespondentNodes1(Message, Sender) Export
 		// 
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.CorrespondentNodeCommonDataGettingErrorMessage());
-		ResponseMessage.Body.Zone = ModuleSaaS.SessionSeparatorValue();
+		ResponseMessage.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
 		ResponseMessage.Body.CorrespondentZone = Body.CorrespondentZone;
 		ResponseMessage.Body.SessionId = Body.SessionId;
 		
@@ -415,7 +415,7 @@ Procedure GetCorrespondentAccountingParameters(Message, Sender) Export
 		Return;
 	EndIf;
 		
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
 	
 	Body = Message.Body;
@@ -439,7 +439,7 @@ Procedure GetCorrespondentAccountingParameters(Message, Sender) Export
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.GettingCorrespondentAccountingParametersCompletedMessage());
 			
-		ResponseMessage.Body.Zone = ModuleSaaS.SessionSeparatorValue();
+		ResponseMessage.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
 		ResponseMessage.Body.SessionId = Body.SessionId;
 		
 		ResponseMessage.Body.CorrespondentZone = Body.CorrespondentZone;
@@ -461,7 +461,7 @@ Procedure GetCorrespondentAccountingParameters(Message, Sender) Export
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.CorrespondentAccountingParametersGettingErrorMessage());
 			
-		ResponseMessage.Body.Zone = ModuleSaaS.SessionSeparatorValue();
+		ResponseMessage.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
 		ResponseMessage.Body.SessionId = Body.SessionId;
 		
 		ResponseMessage.Body.CorrespondentZone = Body.CorrespondentZone;

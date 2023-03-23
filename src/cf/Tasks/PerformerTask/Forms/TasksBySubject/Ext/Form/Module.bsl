@@ -30,7 +30,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	List.Parameters.Items[0].Value = Parameters.FilterValue;
 	List.Parameters.Items[0].Use = True;
-	Title = NStr("en = 'Tasks by subject';");
+	Title = NStr("en = 'Tasks on this subject';");
 	UseDateAndTimeInTaskDeadlines = GetFunctionalOption("UseDateAndTimeInTaskDeadlines");
 	Items.TaskDueDate.Format = ?(UseDateAndTimeInTaskDeadlines, "DLF=DT", "DLF=D");
 	SetFilter(New Structure("ShowExecuted", ShowExecuted));

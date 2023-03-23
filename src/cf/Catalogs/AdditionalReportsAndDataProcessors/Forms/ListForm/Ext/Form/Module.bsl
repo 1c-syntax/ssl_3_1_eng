@@ -266,7 +266,18 @@ EndProcedure
 
 &AtServer
 Procedure EditingPublication(PublicationOption)
-	SelectedRows = Items.List.SelectedRows;
+	
+	Query = New Query;
+	Query.SetParameter("SelectedRows", Items.List.SelectedRows);
+	Query.Text =
+		"SELECT
+		|	AdditionalReportsAndDataProcessors.Ref
+		|FROM
+		|	Catalog.AdditionalReportsAndDataProcessors AS AdditionalReportsAndDataProcessors
+		|WHERE
+		|	AdditionalReportsAndDataProcessors.Ref IN (&SelectedRows)
+		|	AND NOT AdditionalReportsAndDataProcessors.IsFolder";
+	SelectedRows = Query.Execute().Unload().UnloadColumn("Ref");
 	
 	BeginTransaction();
 	Try

@@ -815,7 +815,7 @@ Invalid external users are hidden from the user lists.
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>An additional attribute.</v8:content>
+									<v8:content>Additional attribute</v8:content>
 								</v8:item>
 							</ToolTip>
 							<MarkNegatives>false</MarkNegatives>

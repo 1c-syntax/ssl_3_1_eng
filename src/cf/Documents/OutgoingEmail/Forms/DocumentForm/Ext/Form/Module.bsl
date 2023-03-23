@@ -1846,9 +1846,12 @@ Procedure DetermineEmailEditMethod()
 				AttachmentsStructure  = New Structure;
 				HTMLText = "";
 				EmailTextFormattedDocument.GetHTML(HTMLText, AttachmentsStructure);
-			
-				If ValueIsFilled(Object.HTMLText) Then
-					Object.HTMLText   = Interactions.ProcessHTMLTextForFormattedDocument(
+				
+				// 
+				// 
+				HTMLTextToCheck = EmailTextFormattedDocument.GetText();
+				If IsBlankString(HTMLTextToCheck) And ValueIsFilled(Object.HTMLText) Then
+					Object.HTMLText = Interactions.ProcessHTMLTextForFormattedDocument(
 						Object.Ref, Object.HTMLText, AttachmentsStructure);
 					EmailTextFormattedDocument.SetHTML(Object.HTMLText, AttachmentsStructure);
 				EndIf;

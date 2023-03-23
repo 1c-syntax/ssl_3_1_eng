@@ -75,6 +75,7 @@ Function SSLEvents() Export
 	
 	// ИнтерфейсOData
 	Events.Insert("OnFillTypesExcludedFromExportImportOData", False);
+	Events.Insert("WhenFillingInDependentTablesForUploadingLoadingOData", False);
 	
 	// КонтрольВеденияУчета
 	Events.Insert("OnDefineChecks", False);
@@ -89,6 +90,7 @@ Function SSLEvents() Export
 	Events.Insert("OnAddUpdateHandlers", False); // 
 	Events.Insert("AfterUpdateInfobase", False);
 	Events.Insert("OnGetUpdatePriority", False);
+	Events.Insert("WhenFillingInItemsThatArePlannedToBeDeleted", False);
 	
 	// Печать
 	Events.Insert("OnDefinePrintSettings", False);
@@ -124,7 +126,7 @@ Function SSLEvents() Export
 	Events.Insert("OnEndIBUserProcessing", False);
 	
 	//ПрофилиБезопасности
-	Events.Insert("CanSetupSecurityProfilesOnCheck", False);
+	Events.Insert("OnCheckCanSetupSecurityProfiles", False);
 	Events.Insert("OnRequestPermissionsToUseExternalResources", False);
 	Events.Insert("OnRequestToCreateSecurityProfile", False);
 	Events.Insert("OnRequestToDeleteSecurityProfile", False);
@@ -179,9 +181,9 @@ EndFunction
 // Defines events, to which this library is subscribed.
 //
 // Parameters:
-//  Subscriptions - See CTLSubsystemsIntegration.BTSEvents.
+//  Subscriptions - See CTLSubsystemsIntegration.EventsCTL.
 //
-Procedure OnDefineSubscriptionsToCTLEvents(Subscriptions) Export
+Procedure OnDefineEventsSubscriptionsCTL(Subscriptions) Export
 	
 	// БазоваяФункциональность
 	Subscriptions.OnAddCTLUpdateHandlers = True;
@@ -202,11 +204,11 @@ Procedure OnDefineSubscriptionsToCTLEvents(Subscriptions) Export
 	
 	// РаботаВМоделиСервиса_БазоваяФункциональностьВМоделиСервиса
 	Subscriptions.OnFillIIBParametersTable = True;
-	Subscriptions.WhenDefiningUnsharedDataExceptions = True;
+	Subscriptions.OnDefineSharedDataExceptions = True;
 	Subscriptions.OnDefineUserAlias = True;
 
 	// РаботаВМоделиСервиса_ОбменСообщениями
-	Subscriptions.MessageChannelHandlersOnDefine  = True;
+	Subscriptions.OnDefineMessagesChannelsHandlers  = True;
 	Subscriptions.RecordingIncomingMessageInterfaces  = True;
 	Subscriptions.RecordingOutgoingMessageInterfaces = True;
 	
@@ -514,7 +516,7 @@ EndProcedure
 
 #EndRegion
 
-#Region SaaSCoreSaaS
+#Region SaaSOperations_CoreSaaS
 
 // See SaaSOperationsOverridable.OnFillIIBParametersTable.
 Procedure OnFillIIBParametersTable(Val ParametersTable) Export
@@ -546,11 +548,11 @@ EndProcedure
 // Parameters:
 //  Exceptions - Array of MetadataObject - exceptions.
 //
-Procedure WhenDefiningUnsharedDataExceptions(Exceptions) Export
+Procedure OnDefineSharedDataExceptions(Exceptions) Export
 
 	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
 		ModuleDigitalSignatureInternal = Common.CommonModule("DigitalSignatureInternal");
-		ModuleDigitalSignatureInternal.WhenDefiningUnsharedDataExceptions(Exceptions);
+		ModuleDigitalSignatureInternal.OnDefineSharedDataExceptions(Exceptions);
 	EndIf;
 
 EndProcedure
@@ -558,14 +560,14 @@ EndProcedure
 // Allows to override the result of the SaaS.InfobaseUserAlias function.
 //
 // Parameters:
-//   UserID1 - UUID - user ID.
+//   UserIdentificator - UUID - user ID.
 //   Alias - String - Infobase user alias to be shown in interface.
 //
-Procedure OnDefineUserAlias(UserID1, Alias) Export
+Procedure OnDefineUserAlias(UserIdentificator, Alias) Export
 
 	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.UsersSaaS") Then
 		ModuleUsersInternalSaaS = Common.CommonModule("UsersInternalSaaS");
-		ModuleUsersInternalSaaS.OnDefineUserAlias(UserID1,
+		ModuleUsersInternalSaaS.OnDefineUserAlias(UserIdentificator,
 			Alias);
 	EndIf;
 
@@ -573,14 +575,14 @@ EndProcedure
 
 #EndRegion
 
-#Region SaaSMessagesExchange
+#Region SaaSOperations_MessagesExchange
 
 // See MessagesExchangeOverridable.GetMessagesChannelsHandlers.
-Procedure MessageChannelHandlersOnDefine(Handlers) Export
+Procedure OnDefineMessagesChannelsHandlers(Handlers) Export
 
 	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then
 		ModuleDataExchangeSaaS = Common.CommonModule("DataExchangeSaaS");
-		ModuleDataExchangeSaaS.MessageChannelHandlersOnDefine(Handlers);
+		ModuleDataExchangeSaaS.OnDefineMessagesChannelsHandlers(Handlers);
 	EndIf;
 
 EndProcedure
@@ -607,7 +609,7 @@ EndProcedure
 
 #EndRegion
 
-#Region SaaSJobsQueue
+#Region SaaSOperations_JobsQueue
 
 // See JobsQueueOverridable.OnGetTemplateList.
 Procedure OnGetTemplateList(JobTemplates) Export
@@ -679,7 +681,6 @@ EndProcedure
 // See JobsQueueOverridable.OnDefineHandlerAliases.
 Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 	
-	TimeConsumingOperations.OnDefineHandlerAliases(NamesAndAliasesMap);
 	ServerNotifications.OnDefineHandlerAliases(NamesAndAliasesMap);
 	
 	If Common.SubsystemExists("StandardSubsystems.BusinessProcessesAndTasks") Then
@@ -780,7 +781,7 @@ EndProcedure
 
 #EndRegion
 
-#Region SaaSSuppliedData
+#Region SaaSOperations_SuppliedData
 
 // See SuppliedDataOverridable.GetHandlersForSuppliedData.
 Procedure OnDefineSuppliedDataHandlers(Handlers) Export
@@ -828,7 +829,7 @@ EndProcedure
 //  Subscriptions - Structure - structure property keys are names of events, to which
 //           this library is subscribed.
 //
-Procedure OnDefineOSLEventsSubscriptions(Subscriptions) Export
+Procedure OnDefineEventsSubscriptionsOSL(Subscriptions) Export
 	
 	// БазоваяФункциональность
 	Subscriptions.OnChangeOnlineSupportAuthenticationData = True;
@@ -898,13 +899,15 @@ EndProcedure
 // See ClassifiersOperationsOverridable.OnImportClassifier.
 Procedure OnImportClassifier(Id, Version, Address, Processed, AdditionalParameters) Export
 
-	If Common.SubsystemExists("StandardSubsystems.Banks") Then
+	If Common.SubsystemExists("StandardSubsystems.Banks")
+		And Metadata.DataProcessors.Find("ImportBankClassifier") <> Undefined Then
 		ModuleImportBankClassifier = Common.CommonModule("DataProcessors.ImportBankClassifier");
 		ModuleImportBankClassifier.OnImportClassifier(Id, Version, Address, Processed,
 			AdditionalParameters);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.Currencies") Then
+	If Common.SubsystemExists("StandardSubsystems.Currencies")
+		And Metadata.DataProcessors.Find("CurrenciesRatesImport") <> Undefined Then
 		ModuleImportCurrenciesRates = Common.CommonModule("DataProcessors.CurrenciesRatesImport");
 		ModuleImportCurrenciesRates.OnImportClassifier(Id, Version, Address, Processed,
 			AdditionalParameters);
@@ -950,9 +953,9 @@ Procedure OnProcessDataArea(Id, Version, AdditionalParameters) Export
 		Return;
 	EndIf;
 
-	UpdateParameters1 = AdditionalParameters[Id];
+	ParametersOfUpdate = AdditionalParameters[Id];
 
-	ModuleCalendarSchedules.FillDataDependentOnBusinessCalendars(UpdateParameters1.ChangesTable);
+	ModuleCalendarSchedules.FillDataDependentOnBusinessCalendars(ParametersOfUpdate.ChangesTable);
 
 EndProcedure
 
@@ -1218,8 +1221,8 @@ Procedure OnAddMetadataObjectsRenaming(Total) Export
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.ApplicationSettings") Then
-		TheModuleAdministrationPanelBSP = Common.CommonModule("DataProcessors.SSLAdministrationPanel");
-		TheModuleAdministrationPanelBSP.OnAddMetadataObjectsRenaming(Total);
+		ModuleAdministrationPanelSSL = Common.CommonModule("DataProcessors.SSLAdministrationPanel");
+		ModuleAdministrationPanelSSL.OnAddMetadataObjectsRenaming(Total);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.DataExchange") Then
@@ -2816,6 +2819,26 @@ Procedure OnFillTypesExcludedFromExportImportOData(TypesToExclude) Export
 
 EndProcedure
 
+// See ODataInterfaceOverridable.WhenFillingInDependentTablesForUploadingLoadingOData
+Procedure WhenFillingInDependentTablesForUploadingLoadingOData(Tables) Export
+	
+	If Common.SubsystemExists("StandardSubsystems.MarkedObjectsDeletion") Then
+		ModuleMarkedObjectsDeletionInternal = Common.CommonModule("MarkedObjectsDeletionInternal");
+		ModuleMarkedObjectsDeletionInternal.WhenFillingInDependentTablesForUploadingLoadingOData(Tables);
+	EndIf;
+	
+	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().WhenFillingInDependentTablesForUploadingLoadingOData Then
+		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
+		ModuleCTLSubsystemsIntegration.WhenFillingInDependentTablesForUploadingLoadingOData(Tables);
+	EndIf;
+
+	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().WhenFillingInDependentTablesForUploadingLoadingOData Then
+		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
+		ModuleOSLSubsystemsIntegration.WhenFillingInDependentTablesForUploadingLoadingOData(Tables);
+	EndIf;
+	
+EndProcedure
+
 #EndRegion
 
 #Region AccountingAudit
@@ -3217,6 +3240,26 @@ Procedure OnGetUpdatePriority(Priority) Export
 		ModuleOSLSubsystemsIntegration.OnGetUpdatePriority(Priority);
 	EndIf;
 
+EndProcedure
+
+// See InfobaseUpdateOverridable.WhenFillingInItemsThatArePlannedToBeDeleted.
+Procedure WhenFillingInItemsThatArePlannedToBeDeleted(Objects) Export
+	
+	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
+		ModuleAccessManagementInternal.WhenFillingInItemsThatArePlannedToBeDeleted(Objects);
+	EndIf;
+
+	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().WhenFillingInItemsThatArePlannedToBeDeleted Then
+		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
+		ModuleCTLSubsystemsIntegration.WhenFillingInItemsThatArePlannedToBeDeleted(Objects);
+	EndIf;
+	
+	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().WhenFillingInItemsThatArePlannedToBeDeleted Then
+		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
+		ModuleOSLSubsystemsIntegration.WhenFillingInItemsThatArePlannedToBeDeleted(Objects);
+	EndIf;
+	
 EndProcedure
 
 #EndRegion
@@ -3853,6 +3896,8 @@ EndProcedure
 // See UsersOverridable.OnGetOtherSettings.
 Procedure OnGetOtherSettings(UserInfo, Settings) Export
 	
+	StandardSubsystemsServer.OnGetOtherSettings(UserInfo, Settings);
+	
 	// Adding additional report and data processor settings.
 	If Common.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then
 		ModuleAdditionalReportsAndDataProcessors = Common.CommonModule("AdditionalReportsAndDataProcessors");
@@ -3873,7 +3918,9 @@ EndProcedure
 
 // See UsersOverridable.OnSaveOtherSetings.
 Procedure OnSaveOtherSetings(UserInfo, Settings) Export
-
+	
+	StandardSubsystemsServer.OnSaveOtherSetings(UserInfo, Settings);
+	
 	If Common.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then
 		ModuleAdditionalReportsAndDataProcessors = Common.CommonModule("AdditionalReportsAndDataProcessors");
 		ModuleAdditionalReportsAndDataProcessors.OnSaveOtherSetings(UserInfo, Settings);
@@ -3893,7 +3940,9 @@ EndProcedure
 
 // See UsersOverridable.OnDeleteOtherSettings.
 Procedure OnDeleteOtherSettings(UserInfo, Settings) Export
-
+	
+	StandardSubsystemsServer.OnDeleteOtherSettings(UserInfo, Settings);
+	
 	If Common.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then
 		ModuleAdditionalReportsAndDataProcessors = Common.CommonModule("AdditionalReportsAndDataProcessors");
 		ModuleAdditionalReportsAndDataProcessors.OnDeleteOtherSettings(UserInfo, Settings);
@@ -4233,17 +4282,17 @@ EndProcedure
 
 #Region SecurityProfiles
 
-// See SafeModeManagerOverridable.CanSetupSecurityProfilesOnCheck.
-Procedure CanSetupSecurityProfilesOnCheck(Cancel) Export
+// See SafeModeManagerOverridable.OnCheckCanSetupSecurityProfiles.
+Procedure OnCheckCanSetupSecurityProfiles(Cancel) Export
 
-	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().CanSetupSecurityProfilesOnCheck Then
+	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnCheckCanSetupSecurityProfiles Then
 		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
-		ModuleCTLSubsystemsIntegration.CanSetupSecurityProfilesOnCheck(Cancel);
+		ModuleCTLSubsystemsIntegration.OnCheckCanSetupSecurityProfiles(Cancel);
 	EndIf;
 
-	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().CanSetupSecurityProfilesOnCheck Then
+	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().OnCheckCanSetupSecurityProfiles Then
 		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
-		ModuleOSLSubsystemsIntegration.CanSetupSecurityProfilesOnCheck(Cancel);
+		ModuleOSLSubsystemsIntegration.OnCheckCanSetupSecurityProfiles(Cancel);
 	EndIf;
 
 EndProcedure
@@ -5045,23 +5094,23 @@ Procedure OnFillListsWithAccessRestriction(Lists) Export
 EndProcedure
 
 // See AccessManagementOverridable.OnFillSuppliedAccessGroupProfiles.
-Procedure OnFillSuppliedAccessGroupProfiles(ProfilesDetails, UpdateParameters1) Export
+Procedure OnFillSuppliedAccessGroupProfiles(ProfilesDetails, ParametersOfUpdate) Export
 
 	If Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 		ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
-		ModuleDataExchangeServer.OnFillSuppliedAccessGroupProfiles(ProfilesDetails, UpdateParameters1);
+		ModuleDataExchangeServer.OnFillSuppliedAccessGroupProfiles(ProfilesDetails, ParametersOfUpdate);
 	EndIf;
 
 	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnFillSuppliedAccessGroupProfiles Then
 		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
 		ModuleCTLSubsystemsIntegration.OnFillSuppliedAccessGroupProfiles(ProfilesDetails,
-			UpdateParameters1);
+			ParametersOfUpdate);
 	EndIf;
 
 	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().OnFillSuppliedAccessGroupProfiles Then
 		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
 		ModuleOSLSubsystemsIntegration.OnFillSuppliedAccessGroupProfiles(ProfilesDetails,
-			UpdateParameters1);
+			ParametersOfUpdate);
 	EndIf;
 
 EndProcedure

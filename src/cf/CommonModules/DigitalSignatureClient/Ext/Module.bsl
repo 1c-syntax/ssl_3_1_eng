@@ -1043,17 +1043,21 @@ Procedure OpenInstructionOfWorkWithApplications() Export
 	
 EndProcedure
 
-// Opens the instruction with details of typical problems when working with digital signature
-// applications and how to solve them: http://its.1c.ru/bmk/dsig/errors.
+// 
+// 
 //
 // Parameters:
 //   SectionName - String - a reference to the error in the instruction.
 //
 Procedure OpenInstructionOnTypicalProblemsOnWorkWithApplications(SectionName = "") Export
 	
-	FileSystemClient.OpenURL(
-		"https://its.1c.ru/db/metod81#content:5784:hdoc"
-		+ ?(IsBlankString(SectionName), "", ":" + SectionName));
+	URL = "";
+	DigitalSignatureClientServerLocalization.WhenDeterminingReferenceToInstructionsForTypicalProblemsWhenWorkingWithPrograms(
+		URL, SectionName);
+	
+	If Not IsBlankString(URL) Then
+		FileSystemClient.OpenURL(URL);
+	EndIf;
 	
 EndProcedure
 
@@ -1211,16 +1215,16 @@ EndFunction
 //                        - Undefined - 
 //
 //     * RegistrationNumber             - String - (64) - extracted from the OGRN field.
-//                          BE - a company registration number.
+//                          LE - a company's OGRN.
 //                        - Undefined - 
 //
 //     * REGNUMIE           - String - (64) - extracted from the OGRNIP field.
-//                          IE - a registration number of an individual entrepreneur.
+//                          IE - an OGRN of an individual entrepreneur.
 //                        - Undefined - 
 //
 //     * SNILS            - String - (64) - extracted from the SNILS field.
-//                          Individual - an IIAN
-//                          LE - not required, in case of issuing the DS to official responsible - their IIAN.
+//                          Individual - a SNILS number
+//                          LE - not required, in case of issuing the DS to official responsible - their SNILS number.
 //                        - Undefined - 
 //
 //     * TIN              - String - (12) - extracted from the INN field.
@@ -1286,7 +1290,7 @@ EndFunction
 //     * Email - String - (128) - it is extracted from the E field. It is an email address of the certificate authority.
 //                        - Undefined - 
 //
-//     * RegistrationNumber             - String - (13) - it is extracted from the OGRN field - a PSRN of the certificate authority company.
+//     * RegistrationNumber             - String - (13) - extracted from the OGRN field - a certificate authority's OGRN.
 //                        - Undefined - 
 //
 //     * TIN              - String - (12) - extracted from the INN field - a TIN of the certificate authority company.
@@ -1836,6 +1840,53 @@ Procedure FindInstalledPrograms(Notification, ApplicationsDetails = Undefined, C
 		ApplicationsDetails, Type("Array"));
 	
 	DigitalSignatureInternalClient.FindInstalledPrograms(Notification, ApplicationsDetails, CheckAtServer1);
+	
+EndProcedure
+
+// 
+// 
+// Parameters:
+//  Form - ClientApplicationForm
+//  CheckParameters - 
+//    
+//      
+//       
+//      
+//   
+//      
+//      See DigitalSignatureInternalClientServer.CurrentProgramAlgorithms
+//      
+//      
+//      
+//   
+//        
+//   
+//        
+//   
+//                                                 
+//  CompletionNotification2 - NotifyDescription -
+//     
+//     
+//                           
+//     
+//     
+//          
+//          
+//          
+//             
+//          
+//          
+//       - только установленные программы, из переданных в параметре ПроверяемыеПрограммы на клиенте.
+//     
+//     
+//     
+//     
+//     
+//     
+//
+Procedure CheckCryptographyAppsInstallation(Form, CheckParameters = Undefined, CompletionNotification2 = Undefined) Export
+	
+	DigitalSignatureInternalClient.CheckCryptographyAppsInstallation(Form, CheckParameters, CompletionNotification2);
 	
 EndProcedure
 

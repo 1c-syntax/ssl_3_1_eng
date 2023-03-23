@@ -994,7 +994,7 @@ Procedure OutputAvailableForView(Val AvailableRights, Val Template, Val QueryRes
 										AccessKindDetails, RightsSettingsOwners),
 										AccessKindDetails.AccessKindPresentation);
 										
-										OutputArea1(
+										OutputArea(
 											Document,
 											Area,
 											3,
@@ -1009,7 +1009,7 @@ Procedure OutputAvailableForView(Val AvailableRights, Val Template, Val QueryRes
 											
 											Area.Parameters.AccessValue =	AccessValueDetails.AccessValue;
 											
-											OutputArea1(
+											OutputArea(
 												Document,
 												Area,
 												3,
@@ -1021,7 +1021,7 @@ Procedure OutputAvailableForView(Val AvailableRights, Val Template, Val QueryRes
 								EndIf;
 							EndIf;
 							If Area <> Undefined Then
-								OutputArea1(
+								OutputArea(
 									Document,
 									Area,
 									3,
@@ -1324,7 +1324,7 @@ Procedure OutputAvailableForEdit(Val AvailableRights, Val Template, Val QueryRes
 											AccessKindPresentationTemplate(AccessKindDetails, AvailableRights.ByRefsTypes),
 											AccessKindDetails.AccessKindPresentation);
 										
-										OutputArea1(
+										OutputArea(
 											Document,
 											Area,
 											3,
@@ -1337,7 +1337,7 @@ Procedure OutputAvailableForEdit(Val AvailableRights, Val Template, Val QueryRes
 											Area.Parameters.AccessValuePresentation = AccessValueDetails.AccessValuePresentation;
 											Area.Parameters.AccessValue = AccessValueDetails.AccessValue;
 											
-											OutputArea1(
+											OutputArea(
 												Document,
 												Area,
 												3,
@@ -1349,7 +1349,7 @@ Procedure OutputAvailableForEdit(Val AvailableRights, Val Template, Val QueryRes
 								EndIf;
 							EndIf;
 							If Area <> Undefined Then
-								OutputArea1(
+								OutputArea(
 									Document,
 									Area,
 									3,
@@ -1824,7 +1824,7 @@ Function AccessKindPresentationTemplate(AccessKindDetails, RightsSettingsOwners)
 	
 EndFunction
 
-Procedure OutputArea1(Val Document,
+Procedure OutputArea(Val Document,
                          Area,
                          Level,
                          ObjectAreaInitialString,

@@ -18,8 +18,8 @@ Procedure OnWriteBusinessProcessesList(Record) Export
 	
 EndProcedure
 
-// The procedure is called to check the rights for stopping and continuing a business process
-// for the current user.
+// The procedure is called to check whether the current user has rights
+// to suspend and resume a business process.
 //
 // Parameters:
 //  BusinessProcess        - DefinedType.BusinessProcessObject
@@ -107,12 +107,12 @@ EndProcedure
 //  Items   - ValueTable - filling data. Column content matches the attribute set 
 //                                 of the PerformerRoles catalog.
 //  TabularSections - Structure - object table details where:
-//   * Key - String - tabular section name;
-//   * Value - ValueTable - a table as the value table whose structure
-//                                  must be copied before filling. For example:
+//   * Key - String - Table name.
+//   * Value - ValueTable - Value table.
+//                                  Its structure must be copied before population. For example:
 //                                  Item.Keys = TabularSections.Keys.Copy();
 //                                  TSItem = Item.Keys.Add();
-//                                  TSItem.KeyName = "Natural";
+//                                  TSItem.KeyName = "Primary";
 //
 Procedure OnInitiallyFillPerformersRoles(LanguagesCodes, Items, TabularSections) Export
 	
@@ -134,20 +134,20 @@ Procedure AtInitialPerformerRoleFilling(Object, Data, AdditionalParameters) Expo
 	
 EndProcedure
 
-// It is called from the CCT TaskAddressingObjects manager module upon initial filling
-// of task addressing item in the application.
-// Standard attribute ValueType must be filled in the OnInitialFillingTaskAddressingObjectItem procedure.
+// Called by the CCT TaskAddressingObjects manager module on the task initial population.
+// Standard attribute ValueType must populated in the OnInitialFillingTaskAddressingObjectItem procedure.
+// 
 //
 // Parameters:
 //  LanguagesCodes - Array of String - a list of configuration languages. Relevant to multilingual configurations.
 //  Items   - ValueTable - filling data. Column content matches the attribute set of the TaskAddressingObjects CCT object.
 //  TabularSections - Structure - object table details where:
-//   * Key - String - tabular section name;
-//   * Value - ValueTable - a table as the value table whose structure
-//                                  must be copied before filling. For example:
+//   * Key - String - Table name.
+//   * Value - ValueTable - Value table.
+//                                  Its structure must be copied before population. For example:
 //                                  Item.Keys = TabularSections.Keys.Copy();
 //                                  TSItem = Item.Keys.Add();
-//                                  TSItem.KeyName = "Natural";
+//                                  TSItem.KeyName = "Primary";
 //
 Procedure OnInitialFillingTasksAddressingObjects(LanguagesCodes, Items, TabularSections) Export
 	
@@ -155,8 +155,8 @@ Procedure OnInitialFillingTasksAddressingObjects(LanguagesCodes, Items, TabularS
 	
 EndProcedure
 
-// It is called from the CCT TaskAddressingObjects manager module upon initial
-// filling of task addressing item in the application.
+// Called by the CCT TaskAddressingObjects manager module on the task initial population.
+// 
 //
 // Parameters:
 //  Object                  - ChartOfCharacteristicTypesObject.TaskAddressingObjects - the object to be filled in.

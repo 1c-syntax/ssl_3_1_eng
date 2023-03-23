@@ -998,26 +998,26 @@ Function RefBySpreadsheetDocumentBarcode(Barcode, Managers = Undefined)
 	Else
 		ObjectsManagers = New Array();
 		For Each EmptyRef In Managers Do
-			RefType1 = TypeOf(EmptyRef);
+			RefType = TypeOf(EmptyRef);
 			
-			If Documents.AllRefsType().ContainsType(RefType1) Then
+			If Documents.AllRefsType().ContainsType(RefType) Then
 				ObjectsManagers.Add(Documents[EmptyRef.Metadata().Name]);
 				
-			ElsIf Catalogs.AllRefsType().ContainsType(RefType1) Then
+			ElsIf Catalogs.AllRefsType().ContainsType(RefType) Then
 				ObjectsManagers.Add(Catalogs[EmptyRef.Metadata().Name]);
 				
-			ElsIf Tasks.AllRefsType(RefType1).ContainsType(RefType1) Then	
+			ElsIf Tasks.AllRefsType(RefType).ContainsType(RefType) Then	
 				ObjectsManagers.Add(Tasks[EmptyRef.Metadata().Name]);
 				
-			ElsIf BusinessProcesses.AllRefsType(RefType1).ContainsType(RefType1) Then	
+			ElsIf BusinessProcesses.AllRefsType(RefType).ContainsType(RefType) Then	
 				ObjectsManagers.Add(BusinessProcesses[EmptyRef.Metadata().Name]);
 				
-			ElsIf ChartsOfCharacteristicTypes.AllRefsType(RefType1).ContainsType(RefType1) Then
+			ElsIf ChartsOfCharacteristicTypes.AllRefsType(RefType).ContainsType(RefType) Then
 				ObjectsManagers.Add(ChartsOfCharacteristicTypes[EmptyRef.Metadata().Name]);
 				
 			Else
 				ExceptionText = NStr("en = 'Barcode recognition error: type ""%Type%"" is not supported.';");
-				ExceptionText = StrReplace(ExceptionText, "%Type%", RefType1);				
+				ExceptionText = StrReplace(ExceptionText, "%Type%", RefType);				
 				Raise ExceptionText;
 			EndIf;
 

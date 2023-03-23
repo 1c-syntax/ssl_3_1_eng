@@ -224,6 +224,10 @@ EndProcedure
 //
 Function ExpressionToInsert(Operator) Export
 	
+	If ValueIsFilled(Operator.ExpressionToInsert) Then
+		Return Operator.ExpressionToInsert;
+	EndIf;
+	
 	Result = Operator.Title + "()";
 	
 	If Not ValueIsFilled(Operator.Parent) Then
@@ -434,6 +438,7 @@ Function DescriptionOfTheSelectedField(Field)
 	Result.Insert("RepresentationOfTheDataPath");
 	Result.Insert("Type");
 	Result.Insert("Parent");
+	Result.Insert("ExpressionToInsert");
 	
 	FillPropertyValues(Result, Field);
 	

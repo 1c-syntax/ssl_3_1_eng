@@ -586,7 +586,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>It is a settings owner</v8:content>
+					<v8:content>This is a settings owner</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -812,7 +812,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>It is a settings owner</v8:content>
+					<v8:content>This is a settings owner</v8:content>
 				</v8:item>
 			</title>
 			<valueType>

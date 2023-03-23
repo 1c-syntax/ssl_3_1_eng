@@ -402,7 +402,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Importance and author</v8:content>
+											<v8:content>Priority and author</v8:content>
 										</v8:item>
 									</Title>
 									<Group>Horizontal</Group>
@@ -414,14 +414,14 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Importance</v8:content>
+													<v8:content>Priority</v8:content>
 												</v8:item>
 											</Title>
 											<TitleLocation>None</TitleLocation>
 											<ToolTip>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Importance</v8:content>
+													<v8:content>The task priority.</v8:content>
 												</v8:item>
 											</ToolTip>
 											<ShowInHeader>false</ShowInHeader>
@@ -650,13 +650,13 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Importance</v8:content>
+					<v8:content>Priority</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Group tasks by importance.</v8:content>
+					<v8:content>Group by priority</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>GroupByImportance</Action>

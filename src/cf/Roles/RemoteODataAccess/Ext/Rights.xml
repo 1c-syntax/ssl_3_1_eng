@@ -327,6 +327,17 @@
 		</right>
 	</object>
 	<object>
+		<name>InformationRegister.NotDeletedObjects</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Update</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>InformationRegister.OutgoingMailNotAcceptedByMailServer</name>
 		<right>
 			<name>Read</name>
@@ -606,6 +617,17 @@
 	</object>
 	<object>
 		<name>InformationRegister.SourceDocumentsOriginalsStates</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Update</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>InformationRegister.InfobaseObjectsMaps</name>
 		<right>
 			<name>Read</name>
 			<value>true</value>
@@ -1670,6 +1692,17 @@
 		</right>
 	</object>
 	<object>
+		<name>InformationRegister.SynchronizedObjectPublicIDs</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Update</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>DocumentJournal.Interactions</name>
 		<right>
 			<name>Read</name>
@@ -2498,29 +2531,13 @@
 		</right>
 	</object>
 	<object>
-		<name>Configuration.StandardSubsystemsLibrary</name>
+		<name>InformationRegister.DeleteDataExchangeResults</name>
 		<right>
-			<name>MainWindowModeNormal</name>
+			<name>Read</name>
 			<value>true</value>
 		</right>
 		<right>
-			<name>MainWindowModeWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeEmbeddedWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeFullscreenWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeKiosk</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>AnalyticsSystemClient</name>
+			<name>Update</name>
 			<value>true</value>
 		</right>
 	</object>
@@ -2617,6 +2634,17 @@
 		</right>
 	</object>
 	<object>
+		<name>InformationRegister.DataExchangeResults</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Update</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>Constant.LimitAccessAtRecordLevel</name>
 		<right>
 			<name>Read</name>
@@ -2696,6 +2724,17 @@
 	</object>
 	<object>
 		<name>InformationRegister.PeriodClosingDates</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Update</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>InformationRegister.ObjectsToDelete</name>
 		<right>
 			<name>Read</name>
 			<value>true</value>
@@ -2914,6 +2953,33 @@
 		</right>
 	</object>
 	<object>
+		<name>Configuration.StandardSubsystemsLibrary</name>
+		<right>
+			<name>MainWindowModeNormal</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeEmbeddedWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeFullscreenWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeKiosk</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>AnalyticsSystemClient</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>InformationRegister.UsersAccessKeys</name>
 		<right>
 			<name>Read</name>
@@ -2998,17 +3064,6 @@
 		</right>
 		<right>
 			<name>Delete</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>Report.ReportDistributionControl</name>
-		<right>
-			<name>Use</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>View</name>
 			<value>true</value>
 		</right>
 	</object>

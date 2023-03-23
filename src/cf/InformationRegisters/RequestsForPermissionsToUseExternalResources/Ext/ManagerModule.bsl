@@ -161,11 +161,11 @@ EndFunction
 //   which a manager is created.
 //
 // Returns:
-//   DataProcessorObject.ExternalResourcePermissionSetup
+//   DataProcessorObject.ExternalResourcesPermissionsSetup
 //
 Function PermissionsApplicationManager(Val RequestsIDs) Export
 	
-	Manager = DataProcessors.ExternalResourcePermissionSetup.Create();
+	Manager = DataProcessors.ExternalResourcesPermissionsSetup.Create();
 	
 	QueryText =
 		"SELECT

@@ -735,8 +735,8 @@ Function ThisIsSplitSessionModeWithNoDelimiters() Export
 		Return False;
 	EndIf;
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
-	Return ModuleSaaS.SessionWithoutSeparators();
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+	Return ModuleSaaSOperations.SessionWithoutSeparators();
 	
 EndFunction
 
@@ -1243,14 +1243,14 @@ Procedure RecordObjectChangesInAllNodes(Val Object, Val ExchangePlanName, Val In
 			Raise NStr("en = 'Registering changes of shared data in separated mode.';");
 		EndIf;
 		
-		ModuleSaaS = Undefined;
+		ModuleSaaSOperations = Undefined;
 		If Common.SubsystemExists("CloudTechnology.Core") Then
-			ModuleSaaS = Common.CommonModule("SaaSOperations");
+			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		EndIf;
 		
-		If ModuleSaaS <> Undefined Then
-			IsSeparatedExchangePlan = ModuleSaaS.IsSeparatedMetadataObject(
-				"ExchangePlan." + ExchangePlanName, ModuleSaaS.MainDataSeparator());
+		If ModuleSaaSOperations <> Undefined Then
+			IsSeparatedExchangePlan = ModuleSaaSOperations.IsSeparatedMetadataObject(
+				"ExchangePlan." + ExchangePlanName, ModuleSaaSOperations.MainDataSeparator());
 		Else
 			IsSeparatedExchangePlan = False;
 		EndIf;
@@ -1259,9 +1259,9 @@ Procedure RecordObjectChangesInAllNodes(Val Object, Val ExchangePlanName, Val In
 			Raise NStr("en = 'Shared exchange plans don''t support registration of changes.';");
 		EndIf;
 		
-		If ModuleSaaS <> Undefined Then
-			IsSeparatedMetadataObject = ModuleSaaS.IsSeparatedMetadataObject(
-				Object.Metadata().FullName(), ModuleSaaS.MainDataSeparator());
+		If ModuleSaaSOperations <> Undefined Then
+			IsSeparatedMetadataObject = ModuleSaaSOperations.IsSeparatedMetadataObject(
+				Object.Metadata().FullName(), ModuleSaaSOperations.MainDataSeparator());
 		Else
 			IsSeparatedMetadataObject = False;
 		EndIf;
@@ -2214,6 +2214,49 @@ Procedure OnDefineObjectsToExcludeFromCheck(Objects) Export
 	Objects.Add(Metadata.InformationRegisters.ExtensionVersionObjectIDs);
 EndProcedure
 
+// See UsersOverridable.OnGetOtherSettings.
+Procedure OnGetOtherSettings(UserInfo, Settings) Export
+	
+	CurrentSchedule = Common.SystemSettingsStorageLoad("DynamicUpdateControl",
+		"PatchCheckSchedule",,,
+		UserInfo.InfobaseUserName);
+	If CurrentSchedule <> Undefined Then
+		SettingProperties = New Structure;
+		SettingProperties.Insert("SettingName1", NStr("en = 'Schedule to check for new patches';"));
+		SettingProperties.Insert("PictureSettings", PictureLib.Calendar);
+		SettingProperties.Insert("SettingsList", New ValueList);
+		SettingProperties.SettingsList.Add(CurrentSchedule);
+		Settings.Insert("PatchCheckSchedule", SettingProperties);
+	EndIf;
+	
+EndProcedure
+
+// See UsersOverridable.OnSaveOtherSetings.
+Procedure OnSaveOtherSetings(UserInfo, Settings) Export
+	
+	If Settings.SettingID = "PatchCheckSchedule" Then
+		If Settings.SettingValue.Count() = 1 Then
+			Schedule = Settings.SettingValue[0].Value;
+			
+			Common.SystemSettingsStorageSave("DynamicUpdateControl", "PatchCheckSchedule",
+				Schedule,,
+				UserInfo.InfobaseUserName);
+		EndIf;
+	EndIf;
+	
+EndProcedure
+
+// See UsersOverridable.OnDeleteOtherSettings.
+Procedure OnDeleteOtherSettings(UserInfo, Settings) Export
+	
+	If Settings.SettingID = "PatchCheckSchedule" Then
+		Common.SystemSettingsStorageDelete("DynamicUpdateControl",
+			"PatchCheckSchedule",
+			UserInfo.InfobaseUserName);
+	EndIf;
+	
+EndProcedure
+
 // Generates the text to be displayed to the user if dynamic update is needed.
 // 
 // Parameters:
@@ -2448,8 +2491,8 @@ Function AddClientParametersOnStart(Parameters) Export
 	IsCallBeforeStart = Parameters.RetrievedClientParameters <> Undefined;
 	
 	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		IsSeparatedConfiguration = ModuleSaaS.IsSeparatedConfiguration();
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		IsSeparatedConfiguration = ModuleSaaSOperations.IsSeparatedConfiguration();
 	Else
 		IsSeparatedConfiguration = False;
 	EndIf;
@@ -2562,8 +2605,8 @@ Function AddClientParametersOnStart(Parameters) Export
 	If IsCallBeforeStart And Common.SubsystemExists("CloudTechnology") Then
 		
 		ErrorDescription = "";
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		ModuleSaaS.WhenCheckingDataAreaLockAtStartup(ErrorDescription);
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations.OnCheckDataAreaLockOnStart(ErrorDescription);
 		If Not IsBlankString(ErrorDescription) Then
 			Parameters.Insert("DataAreaLocked", ErrorDescription);
 			// 
@@ -3136,8 +3179,8 @@ Function MetadataObjectsOfAllPredefinedData()
 			
 			If DataSeparationEnabled Then 
 				
-				ModuleSaaS = Common.CommonModule("SaaSOperations");
-				IsSeparatedMetadataObject = ModuleSaaS.IsSeparatedMetadataObject(MetadataObject);
+				ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+				IsSeparatedMetadataObject = ModuleSaaSOperations.IsSeparatedMetadataObject(MetadataObject);
 				
 				If (   IsSeparatedSession And Not IsSeparatedMetadataObject)
 				 Or (Not IsSeparatedSession And    IsSeparatedMetadataObject) Then 
@@ -3507,8 +3550,8 @@ Procedure CorrectSharedUserHomePage()
 	EndIf;
 	
 	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		SessionWithoutSeparators = ModuleSaaS.SessionWithoutSeparators();
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		SessionWithoutSeparators = ModuleSaaSOperations.SessionWithoutSeparators();
 	Else
 		SessionWithoutSeparators = False;
 	EndIf;
@@ -4029,10 +4072,10 @@ Procedure SetFormWindowOptionsSaveKey(Form, Var_Key, SetSettings)
 	
 	SettingsTypes1 = New Array;
 	// 
-	SettingsTypes1.Add("/НастройкиОкнаТонкогоКлиента"); // @Non-NLS
-	SettingsTypes1.Add("/Такси/НастройкиОкнаТонкогоКлиента"); // @Non-NLS
-	SettingsTypes1.Add("/НастройкиОкнаВебКлиента"); // @Non-NLS
-	SettingsTypes1.Add("/Такси/НастройкиОкнаВебКлиента"); // @Non-
+	SettingsTypes1.Add("/ThinClientWindowSettings"); // @Non-NLS
+	SettingsTypes1.Add("/Taxi/ThinClientWindowSettings"); // @Non-NLS
+	SettingsTypes1.Add("/WebClientWindowSettings"); // @Non-NLS
+	SettingsTypes1.Add("/Taxi/WebClientWindowSettings"); // @Non-
 	// 
 	SettingsTypes1.Add("/ThinClientWindowSettings");
 	SettingsTypes1.Add("/Taxi/ThinClientWindowSettings");

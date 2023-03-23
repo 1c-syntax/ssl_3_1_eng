@@ -142,7 +142,7 @@ EndProcedure
 // Parameters:
 //  InitialSettings1 - Structure:
 //   * ClientSettings    - ClientSettings           - client application settings.
-//   * InterfaceSettings3 - CommandInterfaceSettings            - Command interface settings (for sections panel,
+//   * InterfaceSettings - CommandInterfaceSettings            - Command interface settings (for sections panel,
 //                                                                      navigation panel, and actions panel).
 //   * TaxiSettings      - ClientApplicationInterfaceSettings - client application interface settings
 //                                                                      (panel content and positions).

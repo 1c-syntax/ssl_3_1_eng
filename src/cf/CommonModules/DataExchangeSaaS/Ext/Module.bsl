@@ -28,7 +28,7 @@ Procedure AfterDetermineRecipients(Data, Recipients, ExchangePlanName) Export
 		Return;
 	EndIf;
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
 	If Common.DataSeparationEnabled() Then
 		
@@ -40,7 +40,7 @@ Procedure AfterDetermineRecipients(Data, Recipients, ExchangePlanName) Export
 			And DataExchangeSaaSCached.IsDataSynchronizationExchangePlan(ExchangePlanName)
 			And Not Constants.DataChangesRecorded.Get() Then
 			
-			If ModuleSaaS.SessionWithoutSeparators() Then
+			If ModuleSaaSOperations.SessionWithoutSeparators() Then
 				
 				SetDataChangeFlag();
 			Else
@@ -72,8 +72,8 @@ Procedure AfterDetermineRecipients(Data, Recipients, ExchangePlanName) Export
 		// 
 		// 
 		If StandaloneModeInternal.IsStandaloneWorkplace()
-			And Not ModuleSaaS.IsSeparatedMetadataObject(Data.Metadata(),
-				ModuleSaaS.MainDataSeparator()) Then
+			And Not ModuleSaaSOperations.IsSeparatedMetadataObject(Data.Metadata(),
+				ModuleSaaSOperations.MainDataSeparator()) Then
 			
 			CommonClientServer.DeleteValueFromArray(Recipients, StandaloneModeInternal.ApplicationInSaaS());
 		EndIf;
@@ -113,8 +113,8 @@ EndProcedure
 Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 	
 	If Common.SubsystemExists("StandardSubsystems.SaaSOperations") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		ModuleSaaS.AddConstantToInformationSecurityParameterTable(ParametersTable, "AccountPasswordRecoveryAddress");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "AccountPasswordRecoveryAddress");
 	EndIf;
 	
 EndProcedure
@@ -155,7 +155,7 @@ EndProcedure
 // Parameters:
 //  Handlers - ValueTable - See the field list in MessageExchange.NewMessagesHandlersTable. 
 // 
-Procedure MessageChannelHandlersOnDefine(Handlers) Export
+Procedure OnDefineMessagesChannelsHandlers(Handlers) Export
 	
 	DataExchangeMessagesMessageHandler.GetMessagesChannelsHandlers(Handlers);
 	
@@ -520,8 +520,8 @@ Procedure ChangeTheIndicationOfTheNeedForDataExchangeInTheServiceModel(ItIsNeces
 			RollbackTransaction();
 			If Common.SubsystemExists("CloudTechnology") Then
 				
-				GeneralPurposeBTSModule = Common.CommonModule("CommonCTL");
-				GeneralPurposeBTSModule.Pause(IdleInterval);
+				ModuleCommonCTL = Common.CommonModule("CommonCTL");
+				ModuleCommonCTL.Pause(IdleInterval);
 				
 			EndIf;
 			
@@ -551,19 +551,19 @@ Procedure SetDataChangeFlag() Export
 		Return;
 	EndIf;
 	
-	WorkingInServiceModelCTLModuleCached = Common.CommonModule("SaaSOperationsCTLCached");
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperationsCTLCached = Common.CommonModule("SaaSOperationsCTLCached");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	ModuleMessagesExchange = Common.CommonModule("MessagesExchange");
 	
 	SetPrivilegedMode(True);
 	
-	DataArea = ModuleSaaS.SessionSeparatorValue();
+	DataArea = ModuleSaaSOperations.SessionSeparatorValue();
 	
 	BeginTransaction();
 	Try
 		ModuleMessagesExchange.SendMessage("DataExchange\ManagingApplication\DataChangeFlag",
 						New Structure("NodeCode", DataExchangeServer.ExchangePlanNodeCodeString(DataArea)),
-						WorkingInServiceModelCTLModuleCached.ServiceManagerEndpoint());
+						ModuleSaaSOperationsCTLCached.ServiceManagerEndpoint());
 		
 		ChangeTheIndicationOfTheNeedForDataExchangeInTheServiceModel(True);
 		
@@ -680,7 +680,7 @@ Procedure SetPredefinedNodeCodes() Export
 		Return;
 	EndIf;
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
 	For Each ExchangePlan In Metadata.ExchangePlans Do
 		
@@ -700,7 +700,7 @@ Procedure SetPredefinedNodeCodes() Export
 					LockDataForEdit(ThisNode);
 					ThisNodeObject = ThisNode.GetObject();
 					
-					ThisNodeObject.Code = ExchangePlanNodeCodeInService(ModuleSaaS.SessionSeparatorValue());
+					ThisNodeObject.Code = ExchangePlanNodeCodeInService(ModuleSaaSOperations.SessionSeparatorValue());
 					ThisNodeObject.Description = TrimAll(GeneratePredefinedNodeDescription());
 					ThisNodeObject.DataExchange.Load = True;
 					ThisNodeObject.Write();
@@ -727,7 +727,7 @@ Procedure LockEndpoints() Export
 		Return;
 	EndIf;
 	
-	WorkingInServiceModelCTLModuleCached = Common.CommonModule("SaaSOperationsCTLCached");
+	ModuleSaaSOperationsCTLCached = Common.CommonModule("SaaSOperationsCTLCached");
 	
 	BeginTransaction();
 	Try
@@ -744,7 +744,7 @@ Procedure LockEndpoints() Export
 		|	NOT MessagesExchange.ThisNode
 		|	AND MessagesExchange.Ref <> &ServiceManagerEndpoint
 		|	AND NOT MessagesExchange.Locked");
-		Query.SetParameter("ServiceManagerEndpoint", WorkingInServiceModelCTLModuleCached.ServiceManagerEndpoint());
+		Query.SetParameter("ServiceManagerEndpoint", ModuleSaaSOperationsCTLCached.ServiceManagerEndpoint());
 		
 		Selection = Query.Execute().Select();
 		
@@ -844,10 +844,10 @@ Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 		
 		If Common.SubsystemExists("CloudTechnology") Then
 			
-			ModuleSaaS = Common.CommonModule("SaaSOperations");
+			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 			
-			If Not ModuleSaaS.IsSeparatedMetadataObject(MetadataObject,
-					ModuleSaaS.MainDataSeparator()) Then
+			If Not ModuleSaaSOperations.IsSeparatedMetadataObject(MetadataObject,
+					ModuleSaaSOperations.MainDataSeparator()) Then
 				
 				ItemSend = DataItemSend.Ignore;
 				
@@ -878,10 +878,10 @@ Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Sender) Exp
 		
 		If Common.SubsystemExists("CloudTechnology") Then
 			
-			ModuleSaaS = Common.CommonModule("SaaSOperations");
+			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 			
-			If Not ModuleSaaS.IsSeparatedMetadataObject(MetadataObject,
-					ModuleSaaS.MainDataSeparator()) Then
+			If Not ModuleSaaSOperations.IsSeparatedMetadataObject(MetadataObject,
+					ModuleSaaSOperations.MainDataSeparator()) Then
 				
 				ItemReceive = DataItemReceive.Ignore;
 				
@@ -904,9 +904,9 @@ Function GeneratePredefinedNodeDescription() Export
 		Return DefaultApplicationName;
 	EndIf;
 		
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
-	ApplicationName = ModuleSaaS.GetAppName();
+	ApplicationName = ModuleSaaSOperations.GetAppName();
 	
 	Return ?(IsBlankString(ApplicationName), DefaultApplicationName, ApplicationName);
 EndFunction
@@ -914,20 +914,20 @@ EndFunction
 // Generates an exchange plan node code for the specified data area.
 //
 // Parameters:
-//   DataAreaNumber - Number - a separator value. 
+//   AreaNumber - Number - a separator value. 
 //
 // Returns:
 //   String -  
 //
-Function ExchangePlanNodeCodeInService(Val DataAreaNumber) Export
+Function ExchangePlanNodeCodeInService(Val AreaNumber) Export
 	
-	If TypeOf(DataAreaNumber) <> Type("Number") Then
+	If TypeOf(AreaNumber) <> Type("Number") Then
 		Raise NStr("en = 'Invalid type in parameter number [1].';");
 	EndIf;
 	
-	Result = "S0[DataAreaNumber]";
+	Result = "S0[AreaNumber]";
 	
-	Return StrReplace(Result, "[DataAreaNumber]", Format(DataAreaNumber, "ND=7; NLZ=; NG=0"));
+	Return StrReplace(Result, "[AreaNumber]", Format(AreaNumber, "ND=7; NLZ=; NG=0"));
 	
 EndFunction
 
@@ -1628,15 +1628,15 @@ Function SendMessage(Val Message) Export
 		Raise NStr("en = 'There is no Service manager.';");
 	EndIf;
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
-	WorkingInServiceModelCTLModuleCached = Common.CommonModule("SaaSOperationsCTLCached");
+	ModuleSaaSOperationsCTLCached = Common.CommonModule("SaaSOperationsCTLCached");
 	
-	Message.Body.Zone = ModuleSaaS.SessionSeparatorValue();
+	Message.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
 	Message.Body.SessionId = InformationRegisters.SystemMessageExchangeSessions.NewSession();
 	
 	ModuleMessagesSaaS.SendMessage(Message,
-		WorkingInServiceModelCTLModuleCached.ServiceManagerEndpoint(),
+		ModuleSaaSOperationsCTLCached.ServiceManagerEndpoint(),
 		True);
 	
 	Return Message.Body.SessionId;
@@ -2387,7 +2387,7 @@ Procedure PrepareExchangePlansNodesDataForMonitor(Val TempTablesManager, Val Met
 	
 	Query = New Query;
 	
-	QueryTemplate1 = "
+	QueryTemplate = "
 	|
 	|UNION ALL
 	|
@@ -2419,7 +2419,7 @@ Procedure PrepareExchangePlansNodesDataForMonitor(Val TempTablesManager, Val Met
 			
 			NameOfTheStringExchangePlan = StrTemplate(TextTemplate1, ExchangePlanName);
 			
-			ExchangePlanQueryText = StrReplace(QueryTemplate1,              "&ExchangePlanName", NameOfTheStringExchangePlan);
+			ExchangePlanQueryText = StrReplace(QueryTemplate,              "&ExchangePlanName", NameOfTheStringExchangePlan);
 			ExchangePlanQueryText = StrReplace(ExchangePlanQueryText, "ExchangePlanNameSynonym", Metadata.ExchangePlans[ExchangePlanName].Synonym);
 			ExchangePlanQueryText = StrReplace(ExchangePlanQueryText, "&AdditionalExchangePlanProperties,", AdditionalExchangePlanPropertiesAsString);
 			
@@ -2605,16 +2605,16 @@ EndProcedure
 
 Function NewPropertiesOfStandaloneWorkstationMetadata(ItemMetadata)
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
-	AuxiliaryDataSeparator = ModuleSaaS.AuxiliaryDataSeparator();
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+	AuxiliaryDataSeparator = ModuleSaaSOperations.AuxiliaryDataSeparator();
 	
 	MetadataProperties1 = New Structure();
 	MetadataProperties1.Insert(
 		"IsSeparatedMetadataObject",
-		ModuleSaaS.IsSeparatedMetadataObject(ItemMetadata));
+		ModuleSaaSOperations.IsSeparatedMetadataObject(ItemMetadata));
 	MetadataProperties1.Insert(
 		"IsSeparatedMetadataObjectAuxiliaryData",
-		ModuleSaaS.IsSeparatedMetadataObject(ItemMetadata, AuxiliaryDataSeparator));
+		ModuleSaaSOperations.IsSeparatedMetadataObject(ItemMetadata, AuxiliaryDataSeparator));
 	MetadataProperties1.Insert(
 		"AuxiliaryDataSeparator",
 		AuxiliaryDataSeparator);

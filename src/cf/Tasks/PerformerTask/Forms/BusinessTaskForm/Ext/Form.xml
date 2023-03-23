@@ -155,7 +155,7 @@ To perform the task, go to special task form.</v8:content>
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Author assignee</v8:content>
+											<v8:content>Author &amp; Assignee</v8:content>
 										</v8:item>
 									</Title>
 									<Group>Vertical</Group>
@@ -173,8 +173,8 @@ To perform the task, go to special task form.</v8:content>
 											<ContextMenu name="AuthorContextMenu" id="79"/>
 											<ExtendedTooltip name="AuthorExtendedTooltip" id="144"/>
 										</InputField>
-										<LabelField name="AuthorString" id="165">
-											<DataPath>AuthorString</DataPath>
+										<LabelField name="AuthorAsString" id="165">
+											<DataPath>AuthorAsString</DataPath>
 											<Visible>false</Visible>
 											<ContextMenu name="AuthorStringContextMenu" id="166"/>
 											<ExtendedTooltip name="AuthorStringExtendedTooltip" id="167"/>
@@ -233,7 +233,7 @@ To perform the task, go to special task form.</v8:content>
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Number and importance</v8:content>
+											<v8:content>Number and priority</v8:content>
 										</v8:item>
 									</Title>
 									<Group>Vertical</Group>
@@ -439,7 +439,7 @@ To perform the task, go to special task form.</v8:content>
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="AuthorString" id="6">
+		<Attribute name="AuthorAsString" id="6">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>

@@ -662,29 +662,29 @@ Procedure AttachArea(Val PrintForm, Val TemplateArea, Val GoToNextRow1 = True) E
 		
 		If PrintForm.Type = "DOC" Then
 			
-			OutputArea = Undefined;
+			DerivedArea = Undefined;
 			
 			If		AreaDetails.AreaType = "Header" Then
 				PrintManagementMSWordClient.AddHeader(PrintForm, TemplateArea);
 			ElsIf	AreaDetails.AreaType = "Footer" Then
 				PrintManagementMSWordClient.AddFooter(PrintForm, TemplateArea);
 			ElsIf	AreaDetails.AreaType = "Shared3" Then
-				OutputArea = PrintManagementMSWordClient.AttachArea(PrintForm, TemplateArea, GoToNextRow1);
+				DerivedArea = PrintManagementMSWordClient.AttachArea(PrintForm, TemplateArea, GoToNextRow1);
 			ElsIf	AreaDetails.AreaType = "List" Then
-				OutputArea = PrintManagementMSWordClient.AttachArea(PrintForm, TemplateArea, GoToNextRow1);
+				DerivedArea = PrintManagementMSWordClient.AttachArea(PrintForm, TemplateArea, GoToNextRow1);
 			ElsIf	AreaDetails.AreaType = "TableRow" Then
 				If PrintForm.LastOutputArea <> Undefined
 				   And PrintForm.LastOutputArea.AreaType = "TableRow"
 				   And Not PrintForm.LastOutputArea.GoToNextRow1 Then
-					OutputArea = PrintManagementMSWordClient.AttachArea(PrintForm, TemplateArea, GoToNextRow1, True);
+					DerivedArea = PrintManagementMSWordClient.AttachArea(PrintForm, TemplateArea, GoToNextRow1, True);
 				Else
-					OutputArea = PrintManagementMSWordClient.AttachArea(PrintForm, TemplateArea, GoToNextRow1);
+					DerivedArea = PrintManagementMSWordClient.AttachArea(PrintForm, TemplateArea, GoToNextRow1);
 				EndIf;
 			Else
 				Raise AreaTypeSpecifiedIncorrectlyText();
 			EndIf;
 			
-			AreaDetails.Insert("Area", OutputArea);
+			AreaDetails.Insert("Area", DerivedArea);
 			AreaDetails.Insert("GoToNextRow1", GoToNextRow1);
 			
 			// 

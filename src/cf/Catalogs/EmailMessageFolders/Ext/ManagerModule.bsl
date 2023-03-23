@@ -110,9 +110,9 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	Query.Text = StrReplace(Query.Text, "&TTDocumentsToProcess", Result.TempTableName);
 	Query.TempTablesManager = TempTablesManager;
 	
-	ObjectsToProcess1 = Query.Execute().Select();
+	ObjectsForProcessing = Query.Execute().Select();
 	
-	While ObjectsToProcess1.Next() Do
+	While ObjectsForProcessing.Next() Do
 		
 		BeginTransaction();
 		
@@ -122,22 +122,22 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			Block = New DataLock;
 			
 			LockItem = Block.Add(FullObjectName);
-			LockItem.SetValue("Ref", ObjectsToProcess1.Ref);
+			LockItem.SetValue("Ref", ObjectsForProcessing.Ref);
 			
 			Block.Lock();
 			
-			Object = ObjectsToProcess1.Ref.GetObject();
+			Object = ObjectsForProcessing.Ref.GetObject();
 			
 			If Object = Undefined Then
-				InfobaseUpdate.MarkProcessingCompletion(ObjectsToProcess1.Ref);
+				InfobaseUpdate.MarkProcessingCompletion(ObjectsForProcessing.Ref);
 			Else
 				
 				If Object.PredefinedFolder
 					And Not ValueIsFilled(Object.PredefinedFolderType) Then
-					Object.PredefinedFolderType = EmailManagement.TheTypeOfThePredefinedFolderByName(ObjectsToProcess1.Description);
+					Object.PredefinedFolderType = EmailManagement.TheTypeOfThePredefinedFolderByName(ObjectsForProcessing.Description);
 					InfobaseUpdate.WriteData(Object);
 				Else
-					InfobaseUpdate.MarkProcessingCompletion(ObjectsToProcess1.Ref);
+					InfobaseUpdate.MarkProcessingCompletion(ObjectsForProcessing.Ref);
 				EndIf;
 				
 			EndIf;
@@ -153,12 +153,12 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Failed to process %1 %2 due to:
 					|%3';"), 
-				FullObjectName, ObjectsToProcess1.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				FullObjectName, ObjectsForProcessing.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(),
 				EventLogLevel.Warning,
 				ObjectMetadata,
-				ObjectsToProcess1.Ref,
+				ObjectsForProcessing.Ref,
 				MessageText);
 			
 		EndTry;

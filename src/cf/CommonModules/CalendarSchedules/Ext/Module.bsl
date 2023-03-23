@@ -922,19 +922,19 @@ EndProcedure
 
 // Updates data dependent on business calendars.
 //
-Procedure UpdateDataDependentOnBusinessCalendars(UpdateParameters1) Export
+Procedure UpdateDataDependentOnBusinessCalendars(ParametersOfUpdate) Export
 	
-	If Not UpdateParameters1.Property("ChangesTable") Then
-		UpdateParameters1.ProcessingCompleted = True;
+	If Not ParametersOfUpdate.Property("ChangesTable") Then
+		ParametersOfUpdate.ProcessingCompleted = True;
 		Return;
 	EndIf;
 	
-	ChangesTable = UpdateParameters1.ChangesTable; // ValueTable
+	ChangesTable = ParametersOfUpdate.ChangesTable; // ValueTable
 	ChangesTable.GroupBy("BusinessCalendarCode, Year");
 	
 	FillDataDependentOnBusinessCalendars(ChangesTable);
 	
-	UpdateParameters1.ProcessingCompleted = True;
+	ParametersOfUpdate.ProcessingCompleted = True;
 	
 EndProcedure
 
@@ -962,7 +962,7 @@ Function SingleBusinessCalendar()
 	
 EndFunction
 
-// Defines a regional business calendar by CRTR.
+// Defines a regional business calendar by KPP.
 //
 Function StateBusinessCalendar(CRTR)
 	
@@ -1001,9 +1001,9 @@ Procedure LoadBusinessCalendarsData(Version, Address, Processed, AdditionalParam
 		FillDataDependentOnBusinessCalendars(ChangesTable);
 	Else
 		// Include changes table in additional parameters to update data areas.
-		UpdateParameters1 = New Structure("ChangesTable");
-		UpdateParameters1.ChangesTable = ChangesTable;
-		AdditionalParameters.Insert(ClassifierID(), UpdateParameters1);
+		ParametersOfUpdate = New Structure("ChangesTable");
+		ParametersOfUpdate.ChangesTable = ChangesTable;
+		AdditionalParameters.Insert(ClassifierID(), ParametersOfUpdate);
 	EndIf;
 	
 	Processed = True;
@@ -1228,7 +1228,7 @@ Procedure UpdateDependentBusinessCalendarsData() Export
 	
 EndProcedure
 
-Procedure FillBusinessCalendarDependentDataUpdateData(UpdateParameters1) Export
+Procedure FillBusinessCalendarDependentDataUpdateData(ParametersOfUpdate) Export
 	
 EndProcedure
 

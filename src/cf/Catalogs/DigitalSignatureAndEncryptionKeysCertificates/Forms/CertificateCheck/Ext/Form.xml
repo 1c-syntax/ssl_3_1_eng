@@ -1946,28 +1946,10 @@ might be incorrect due to several reasons. These are the most frequent ones:
 					<Behavior>PopUp</Behavior>
 					<ExtendedTooltip name="AssistanceRequiredGroupExtendedTooltip" id="159"/>
 					<ChildItems>
-						<LabelDecoration name="TypicalIssues" id="160">
-							<Title formatted="true">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>If you face any issues, read the &lt;link TypicalIssues&gt;digital signature app troubleshooting&lt;/&gt;.</v8:content>
-								</v8:item>
-							</Title>
-							<ContextMenu name="TypicalIssuesContextMenu" id="161"/>
-							<ExtendedTooltip name="TypicalIssuesExtendedTooltip" id="162"/>
-							<Events>
-								<Event name="URLProcessing">TypicalIssuesURLProcessing</Event>
-							</Events>
-						</LabelDecoration>
-						<LabelDecoration name="SupportInformation" id="163">
-							<Title formatted="true">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>In other cases, contact the 1C Company technical support and provide them with &lt;link Ref&gt;technical information about the issue&lt;/&gt;.</v8:content>
-								</v8:item>
-							</Title>
-							<ContextMenu name="SupportInformationContextMenu" id="164"/>
-							<ExtendedTooltip name="SupportInformationExtendedTooltip" id="165"/>
+						<LabelDecoration name="SupportInformation" id="439">
+							<Title formatted="true"/>
+							<ContextMenu name="SupportInformationContextMenu" id="440"/>
+							<ExtendedTooltip name="SupportInformationExtendedTooltip" id="441"/>
 							<Events>
 								<Event name="URLProcessing">SupportInformationURLProcessing</Event>
 							</Events>

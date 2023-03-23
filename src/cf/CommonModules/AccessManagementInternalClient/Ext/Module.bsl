@@ -423,7 +423,7 @@ EndProcedure
 //
 // Parameters:
 //   ReportForm          - ClientApplicationForm - a report form.
-//   Item              - FormField        - a spreadsheet document.
+//   Item              - FormField        - Spreadsheet document.
 //   Area              - SpreadsheetDocumentRange - a selected value.
 //   StandardProcessing - Boolean - indicates whether standard event processing is executed.
 //
@@ -1054,7 +1054,7 @@ Procedure RefineUseDestinationKey(Var_Key, Filter, PropertyName)
 		Return;
 	EndIf;
 	
-	RefType1 = New TypeDescription(
+	RefType = New TypeDescription(
 		"CatalogRef.MetadataObjectIDs,
 		|CatalogRef.ExtensionObjectIDs,
 		|CatalogRef.Users,
@@ -1062,7 +1062,7 @@ Procedure RefineUseDestinationKey(Var_Key, Filter, PropertyName)
 		|CatalogRef.ExternalUsers,
 		|CatalogRef.ExternalUsersGroups");
 	
-	If RefType1.ContainsType(TypeOf(Value)) Then
+	If RefType.ContainsType(TypeOf(Value)) Then
 		Var_Key = Var_Key + "/" + String(Value.UUID());
 	ElsIf TypeOf(Value) = Type("String") Then
 		Var_Key = Var_Key + "/" + Value;

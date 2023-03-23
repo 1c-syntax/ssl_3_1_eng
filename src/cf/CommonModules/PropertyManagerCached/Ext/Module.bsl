@@ -39,8 +39,8 @@ Function SetPropertiesTypes(Ref, ConsiderDeletionMark = True) Export
 	SetPropertiesTypes.Insert("AdditionalAttributes", False);
 	SetPropertiesTypes.Insert("AdditionalInfo",  False);
 	
-	RefType1 = Undefined;
-	OwnerMetadata = PropertyManagerInternal.SetPropertiesValuesOwnerMetadata(Ref, ConsiderDeletionMark, RefType1);
+	RefType = Undefined;
+	OwnerMetadata = PropertyManagerInternal.SetPropertiesValuesOwnerMetadata(Ref, ConsiderDeletionMark, RefType);
 	
 	If OwnerMetadata = Undefined Then
 		Return SetPropertiesTypes;
@@ -56,7 +56,7 @@ Function SetPropertiesTypes(Ref, ConsiderDeletionMark = True) Export
 	SetPropertiesTypes.Insert(
 		"AdditionalInfo",
 		      Metadata.CommonCommands.Find("AdditionalInfoCommandBar") <> Undefined
-		    And Metadata.CommonCommands.AdditionalInfoCommandBar.CommandParameterType.ContainsType(RefType1));
+		    And Metadata.CommonCommands.AdditionalInfoCommandBar.CommandParameterType.ContainsType(RefType));
 	
 	Return New FixedStructure(SetPropertiesTypes);
 	

@@ -80,10 +80,10 @@ EndProcedure
 //  Cancel - Boolean - if this parameter is set to False in the event handler,
 //    roles are not updated for this infobase user.
 //
-Procedure OnUpdateIBUserRoles(Val UserID1, Cancel) Export
+Procedure OnUpdateIBUserRoles(Val UserIdentificator, Cancel) Export
 	
 	If Common.DataSeparationEnabled()
-		And UsersInternalSaaS.UserRegisteredAsShared(UserID1) Then
+		And UsersInternalSaaS.UserRegisteredAsShared(UserIdentificator) Then
 		Cancel = True;
 	EndIf;
 	

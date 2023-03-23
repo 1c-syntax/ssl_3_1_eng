@@ -48,7 +48,7 @@ Procedure BeforeWrite(Cancel)
 	EndIf;
 	
 	If Author <> Undefined And Not Author.IsEmpty() Then
-		AuthorString = String(Author);
+		AuthorAsString = String(Author);
 	EndIf;
 	
 	BusinessProcessesAndTasksServer.ValidateRightsToChangeBusinessProcessState(ThisObject);
@@ -139,7 +139,7 @@ Procedure ExecuteWhenCreatingTasks(BusinessProcessRoutePoint, TasksBeingFormed, 
 	For Each Task In TasksBeingFormed Do
 		
 		Task.Author = Author;
-		Task.AuthorString = String(Author);
+		Task.AuthorAsString = String(Author);
 		If TypeOf(Performer) = Type("CatalogRef.PerformerRoles") Then
 			Task.PerformerRole = Performer;
 			Task.MainAddressingObject = MainAddressingObject;
@@ -234,7 +234,7 @@ EndProcedure
 
 #Region Private
 
-// Updates the values of attributes of uncompleted tasks 
+// Updates attribute values of uncompleted tasks 
 // according to the Job business process attributes:
 //   Importance, TaskDueDate, Description, and Author.
 //

@@ -496,11 +496,11 @@ EndFunction
 //   Form - ClientApplicationForm
 //         - ManagedFormExtensionForSettingsComposer
 //   ItemsHierarchyNode - FormGroup
-//   UpdateParameters1 - Structure
+//   ParametersOfUpdate - Structure
 //                       - Undefined
 //
-Procedure UpdateSettingsFormItems(Form, ItemsHierarchyNode, UpdateParameters1 = Undefined) Export 
-	BeforeUpdatingTheElementsOfTheSettingsForm(Form, UpdateParameters1);
+Procedure UpdateSettingsFormItems(Form, ItemsHierarchyNode, ParametersOfUpdate = Undefined) Export 
+	BeforeUpdatingTheElementsOfTheSettingsForm(Form, ParametersOfUpdate);
 	
 	If Common.IsMobileClient() Then 
 		Form.CreateUserSettingsFormItems(ItemsHierarchyNode);
@@ -536,7 +536,7 @@ Procedure UpdateSettingsFormItems(Form, ItemsHierarchyNode, UpdateParameters1 = 
 	// Call an overridable module.
 	If ReportSettings.Events.AfterQuickSettingsBarFilled Then
 		ReportObject = ReportObject(ReportSettings.FullName);
-		ReportObject.AfterQuickSettingsBarFilled(Form, UpdateParameters1);
+		ReportObject.AfterQuickSettingsBarFilled(Form, ParametersOfUpdate);
 	EndIf;
 EndProcedure
 
@@ -1248,15 +1248,15 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Updating form items of user settings
 
-Procedure BeforeUpdatingTheElementsOfTheSettingsForm(Form, UpdateParameters1)
+Procedure BeforeUpdatingTheElementsOfTheSettingsForm(Form, ParametersOfUpdate)
 	
-	If TypeOf(UpdateParameters1) <> Type("Structure") Then 
+	If TypeOf(ParametersOfUpdate) <> Type("Structure") Then 
 		Return;
 	EndIf;
 	
 	SettingsComposer = Form.Report.SettingsComposer;
 	
-	EventName = CommonClientServer.StructureProperty(UpdateParameters1, "EventName");
+	EventName = CommonClientServer.StructureProperty(ParametersOfUpdate, "EventName");
 	
 	If EventName = "DefaultSettings" Then 
 		SettingsComposer.Settings.AdditionalProperties.Insert("TheOrderOfTheSettingsElements", New Map);

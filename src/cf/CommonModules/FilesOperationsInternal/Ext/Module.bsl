@@ -1041,7 +1041,8 @@ Procedure CryptographyOnCreateFormAtServer(Form, IsListForm = True, RowsPictureO
 	Encryption = False;
 	ViewEncrypted = False;
 	AvailableAdvancedSignature = False;
-		
+	VisibilityOfInstruction = False;
+	
 	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
 	
 		ModuleDigitalSignatureInternal = Common.CommonModule("DigitalSignatureInternal");
@@ -1051,6 +1052,7 @@ Procedure CryptographyOnCreateFormAtServer(Form, IsListForm = True, RowsPictureO
 			Encryption            = ModuleDigitalSignature.EncryptAndDecryptData();
 			ViewEncrypted = ModuleDigitalSignature.DataDecryption();
 			AvailableAdvancedSignature = ModuleDigitalSignature.AvailableAdvancedSignature();
+			VisibilityOfInstruction = ModuleDigitalSignatureInternal.VisibilityOfLinkToInstructionsForTypicalProblemsWhenWorkingWithPrograms();
 		EndIf;
 		
 	EndIf;
@@ -1090,6 +1092,7 @@ Procedure CryptographyOnCreateFormAtServer(Form, IsListForm = True, RowsPictureO
 			Items.DigitalSignaturesDelete.Visible = Signing;
 			Items.DigitalSignaturesGroup.Visible = Available;
 			Items.EncryptionCertificatesGroup.Visible = ViewEncrypted And Available;
+			Items.Instruction.Visible = Signing And VisibilityOfInstruction;
 			
 		EndIf;
 	EndIf;
@@ -2296,7 +2299,7 @@ Procedure OnFillAvailableRightsForObjectsRightsSettings(AvailableRights) Export
 	Right.Name           = "FilesDeletionMark";
 	Right.Title     = NStr("en = 'Mark for
 	                                 |deletion';");
-	Right.ToolTip     = NStr("en = 'Mark files in a folder for deletion.';");
+	Right.ToolTip     = NStr("en = 'Set deletion marks to files in a folder.';");
 	// 
 	Right.RequiredRights1.Add("FilesModification");
 	
@@ -4202,7 +4205,7 @@ Function GetNewNumberToScan(Owner) Export
 	
 EndFunction
 
-// Determines if there is optional attribute Internal in the catalog metadata.
+// Determines if there is optional attribute IsInternal in the catalog metadata.
 //
 // Parameters:
 //  CatalogName - String - a catalog name in metadata.
@@ -5950,10 +5953,10 @@ Function DetailsOfTheFileOwner(FileOwner)
 			QueryAttributes = QueryAttributes + Chars.LF + "DirectoryFileOwner." + Attribute.Name + ",";
 		EndDo;
 	ElsIf Common.IsDocument(MetadataObject) Then
-		QueryTemplate1 = "DATEDIFF(&TheNameOfThePropsDate, &CurrentDate, DAY) AS DaysBeforeDeletionFromTheDate"; // @query-part
+		QueryTemplate = "DATEDIFF(&TheNameOfThePropsDate, &CurrentDate, DAY) AS DaysBeforeDeletionFromTheDate"; // @query-part
 		For Each Attribute In MetadataObject.Attributes Do
 			If Attribute.Type = New TypeDescription("Date") Then
-				QueryFragment = StrReplace(QueryTemplate1, "&TheNameOfThePropsDate", "DirectoryFileOwner." + Attribute.Name);
+				QueryFragment = StrReplace(QueryTemplate, "&TheNameOfThePropsDate", "DirectoryFileOwner." + Attribute.Name);
 				QueryFragment = StrReplace(QueryFragment, "DaysBeforeDeletionFromTheDate", "DaysBeforeDeletionFrom" + Attribute.Name);
 				QueryAttributes = QueryAttributes + Chars.LF + QueryFragment + ",";
 			EndIf;
@@ -6248,14 +6251,14 @@ Procedure AddAvailableFilterFields(QueryText, FileOwner)
 
 	If AllCatalogs.ContainsType(TypeOf(FileOwner.EmptyRefValue)) Then
 		Catalog = Metadata.Catalogs[FileOwner.Name];
-		QueryTemplate1 = "FoldersCatalog.%1 AS %1,"; // @query-part
+		QueryTemplate = "FoldersCatalog.%1 AS %1,"; // @query-part
 		For Each Attribute In Catalog.Attributes Do
 			QueryText = QueryText + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
-				QueryTemplate1, Attribute.Name);
+				QueryTemplate, Attribute.Name);
 		EndDo;
 	ElsIf AllDocuments.ContainsType(TypeOf(FileOwner.EmptyRefValue)) Then
 		Document = Metadata.Documents[FileOwner.Name];
-		QueryTemplate1 = "FoldersCatalog.%1,"; // @query-part
+		QueryTemplate = "FoldersCatalog.%1,"; // @query-part
 		RequestTemplateDate = "DATEDIFF(FoldersCatalog.%1, &CurrentDate, DAY) AS DaysBeforeDeletionFrom%1,"; // @query-part
 		For Each Attribute In Document.Attributes Do
 			If Attribute.Type.ContainsType(Type("Date")) Then
@@ -6263,7 +6266,7 @@ Procedure AddAvailableFilterFields(QueryText, FileOwner)
 					RequestTemplateDate, Attribute.Name);
 			EndIf;
 			QueryText = QueryText + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
-				QueryTemplate1, Attribute.Name);
+				QueryTemplate, Attribute.Name);
 		EndDo;
 	EndIf;
 	
@@ -7444,7 +7447,7 @@ Procedure ImportNewAttachedFiles(FilesTreeRows, TableOfFiles, SynchronizationPar
 			
 		EndIf;
 
-		// 
+		// This is a file.
 		If OwnerObject = Undefined
 			Or TypeOf(OwnerObject) = Type("CatalogRef.MetadataObjectIDs") Then
 			// 
@@ -9759,13 +9762,13 @@ EndProcedure
 // tabular sections to the DigitalSignatures and EncryptionCertificates information registers.
 //
 // Parameters:
-//  UpdateParameters1        - Structure - structure of deferred update handler parameters.
+//  ParametersOfUpdate        - Structure - structure of deferred update handler parameters.
 //
 //  FullMetadataObjectName - String - a full name of metadata object, from which tabular section data is moved
 //                                        DeleteDigitalSignatures and DeleteEncryptionCertificates.
 //  ProcessingCompleted         - Boolean - True if all data is processed when updating the infobase.
 //
-Procedure MoveDigitalSignaturesAndEncryptionCertificatesToInformationRegistersForTable(UpdateParameters1, 
+Procedure MoveDigitalSignaturesAndEncryptionCertificatesToInformationRegistersForTable(ParametersOfUpdate, 
 	FullMetadataObjectName, ProcessingCompleted)
 	
 	MetadataObject = Common.MetadataObjectByFullName(FullMetadataObjectName);
@@ -9777,7 +9780,7 @@ Procedure MoveDigitalSignaturesAndEncryptionCertificatesToInformationRegistersFo
 	HasTabularSectionOfDigitalSignature = MetadataObject.TabularSections.Find("DeleteDigitalSignatures") <> Undefined;
 	HasTabularSectionOfEncryptionCertificate = MetadataObject.TabularSections.Find("DeleteEncryptionCertificates") <> Undefined;
 	
-	ReferencesSelection = InfobaseUpdate.SelectRefsToProcess(UpdateParameters1.Queue, FullMetadataObjectName);
+	ReferencesSelection = InfobaseUpdate.SelectRefsToProcess(ParametersOfUpdate.Queue, FullMetadataObjectName);
 	
 	ObjectsProcessed = 0;
 	ObjectsWithIssuesCount = 0;
@@ -9820,7 +9823,7 @@ Procedure MoveDigitalSignaturesAndEncryptionCertificatesToInformationRegistersFo
 			EventLogLevel.Warning, MetadataObject, , MessageText);
 	EndTry;
 	
-	If Not InfobaseUpdate.DataProcessingCompleted(UpdateParameters1.Queue, FullMetadataObjectName) Then
+	If Not InfobaseUpdate.DataProcessingCompleted(ParametersOfUpdate.Queue, FullMetadataObjectName) Then
 		ProcessingCompleted = False;
 	EndIf;
 	

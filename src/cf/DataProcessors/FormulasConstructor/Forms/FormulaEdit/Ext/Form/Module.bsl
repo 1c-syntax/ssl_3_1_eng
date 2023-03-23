@@ -146,7 +146,7 @@ EndFunction
 &AtServer
 Function TheFormulaFromTheView()
 	
-	Return FormulasConstructorInternal.TheFormulaFromTheView(ThisObject, FormulaPresentation);
+	Return FormulasConstructorInternal.TheFormulaFromTheView(ThisObject, FormulaPresentation, Not ForQuery);
 	
 EndFunction
 
@@ -330,7 +330,7 @@ EndFunction
 &AtServer
 Procedure CheckTheExpressionForTheRequest()
 	
-	Expression = FormulasConstructorInternal.TheFormulaFromTheView(ThisObject, FormulaPresentation);
+	Expression = FormulasConstructorInternal.TheFormulaFromTheView(ThisObject, FormulaPresentation, False);
 	Field = SettingsComposer.Settings.UserFields.Items.Add(Type("DataCompositionUserFieldExpression"));
 	
 	Try

@@ -128,11 +128,11 @@ Function ClosingParameters()
 	Result.Insert("MainAddressingObject", MainAddressingObject);
 	Result.Insert("AdditionalAddressingObject", AdditionalAddressingObject);
 	
-	If Result.MainAddressingObject <> Undefined And Result.MainAddressingObject.IsEmpty() Then
+	If Common.IsReference(TypeOf(Result.MainAddressingObject)) And Result.MainAddressingObject.IsEmpty() Then
 		Result.MainAddressingObject = Undefined;
 	EndIf;
 	
-	If Result.AdditionalAddressingObject <> Undefined And Result.AdditionalAddressingObject.IsEmpty() Then
+	If Common.IsReference(TypeOf(Result.AdditionalAddressingObject)) And Result.AdditionalAddressingObject.IsEmpty() Then
 		Result.AdditionalAddressingObject = Undefined;
 	EndIf;
 	

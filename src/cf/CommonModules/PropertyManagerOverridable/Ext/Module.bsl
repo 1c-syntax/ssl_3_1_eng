@@ -58,7 +58,7 @@ EndProcedure
 //               - ClientApplicationForm - 
 //               - FormDataStructure - 
 //
-//  RefType1    - Type - a type of the property owner reference.
+//  RefType    - Type - a type of the property owner reference.
 //
 //  PropertiesSets - ValueTable:
 //     * Set - CatalogRef.AdditionalAttributesAndInfoSets
@@ -111,7 +111,7 @@ EndProcedure
 //                    
 //                    
 //
-Procedure FillObjectPropertiesSets(Val Object, RefType1, PropertiesSets, StandardProcessing, AssignmentKey) Export
+Procedure FillObjectPropertiesSets(Val Object, RefType, PropertiesSets, StandardProcessing, AssignmentKey) Export
 	
 	
 	

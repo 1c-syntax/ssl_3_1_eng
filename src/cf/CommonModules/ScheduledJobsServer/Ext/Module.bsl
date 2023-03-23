@@ -68,7 +68,7 @@ Function FindJobs(Filter) Export
 	
 	If Common.DataSeparationEnabled() Then
 		
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		If Common.SubsystemExists("CloudTechnology.JobsQueue") Then
 			
 			If FilterCopy.Property("UUID") And Not FilterCopy.Property("Id") Then
@@ -77,7 +77,7 @@ Function FindJobs(Filter) Export
 			EndIf;
 			
 			If Common.SeparatedDataUsageAvailable() Then
-				DataArea = ModuleSaaS.SessionSeparatorValue();
+				DataArea = ModuleSaaSOperations.SessionSeparatorValue();
 				FilterCopy.Insert("DataArea", DataArea);
 			EndIf;
 			
@@ -161,11 +161,11 @@ Function Job(Val Id) Export
 	
 	If Common.DataSeparationEnabled() Then
 		
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		If Common.SubsystemExists("CloudTechnology.JobsQueue") Then
 			JobParameters = New Structure;
 			If Common.SeparatedDataUsageAvailable() Then
-				DataArea = ModuleSaaS.SessionSeparatorValue();
+				DataArea = ModuleSaaSOperations.SessionSeparatorValue();
 				JobParameters.Insert("DataArea", DataArea);
 			EndIf;
 			
@@ -239,13 +239,13 @@ Function AddJob(Parameters) Export
 	
 	If Common.DataSeparationEnabled() Then
 		
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		If Common.SubsystemExists("CloudTechnology.JobsQueue") Then
 			
 			JobParameters = Common.CopyRecursive(Parameters);
 			
 			If Common.SeparatedDataUsageAvailable() Then
-				DataArea = ModuleSaaS.SessionSeparatorValue();
+				DataArea = ModuleSaaSOperations.SessionSeparatorValue();
 				JobParameters.Insert("DataArea", DataArea);
 			EndIf;
 			
@@ -296,12 +296,12 @@ Procedure DeleteJob(Val Id) Export
 	Id = UpdatedTaskID(Id);
 	
 	If Common.DataSeparationEnabled() Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		If Common.SubsystemExists("CloudTechnology.JobsQueue") Then
 			
 			JobParameters = New Structure;
 			If Common.SeparatedDataUsageAvailable() Then
-				DataArea = ModuleSaaS.SessionSeparatorValue();
+				DataArea = ModuleSaaSOperations.SessionSeparatorValue();
 				JobParameters.Insert("DataArea", DataArea);
 			EndIf;
 			
@@ -372,7 +372,7 @@ Procedure ChangeJob(Val Id, Val Parameters) Export
 	Id = UpdatedTaskID(Id);
 	
 	If Common.DataSeparationEnabled() Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		If Common.SubsystemExists("CloudTechnology.JobsQueue") Then
 			JobParameters = Common.CopyRecursive(Parameters);
 			SearchParameters = New Structure;
@@ -383,7 +383,7 @@ Procedure ChangeJob(Val Id, Val Parameters) Export
 			EndIf; 
 			
 			If Common.SeparatedDataUsageAvailable() Then
-				DataArea = ModuleSaaS.SessionSeparatorValue();
+				DataArea = ModuleSaaSOperations.SessionSeparatorValue();
 				SearchParameters.Insert("DataArea", DataArea);
 			EndIf;
 			

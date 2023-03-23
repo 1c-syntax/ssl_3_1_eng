@@ -76,8 +76,8 @@ EndProcedure
 Procedure OnFillPermissionsToAccessExternalResources(PermissionsRequests) Export
 	
 	If SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = CommonModule("SaaSOperations");
-		If ModuleSaaS.DataSeparationEnabled() And ModuleSaaS.SeparatedDataUsageAvailable() Then
+		ModuleSaaSOperations = CommonModule("SaaSOperations");
+		If ModuleSaaSOperations.DataSeparationEnabled() And ModuleSaaSOperations.SeparatedDataUsageAvailable() Then
 			Return;
 		EndIf;
 	EndIf;
@@ -149,8 +149,8 @@ EndProcedure
 Procedure InitialFilling1() Export
 	
 	If SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = CommonModule("SaaSOperations");
-		If ModuleSaaS.DataSeparationEnabled() Then
+		ModuleSaaSOperations = CommonModule("SaaSOperations");
+		If ModuleSaaSOperations.DataSeparationEnabled() Then
 			Return;
 		EndIf;
 	EndIf;

@@ -409,14 +409,14 @@ Procedure ChoiceDataGetProcessing(ChoiceData, Val Parameters, StandardProcessing
 		EndIf;
 	EndDo;
 	
-	QueryTemplate1 = "SELECT TOP 20
+	QueryTemplate = "SELECT TOP 20
 	|	Table.Ref AS Ref
 	|FROM
 	|	&ObjectName AS Table
 	|WHERE
 	|	&FilterConditions";
 	
-	QueryText = StrReplace(QueryTemplate1, "&ObjectName", MetadataObject.FullName());
+	QueryText = StrReplace(QueryTemplate, "&ObjectName", MetadataObject.FullName());
 	QueryText = StrReplace(QueryText, "&FilterConditions", StrConcat(Fields, " OR "));
 	
 	Query = New Query(QueryText);	
@@ -719,9 +719,9 @@ Procedure ProcessGeneralDataToUpgradeToNewVersion() Export
 		Return;
 	EndIf;
 	
-	ObjectsToProcess2 = ListOfObjectsToBeProcessedToUpgradeToNewVersion("Overall");
+	ObjectsToBeProcessed = ListOfObjectsToBeProcessedToUpgradeToNewVersion("Overall");
 	
-	If ObjectsToProcess2.Count() = 0 Then
+	If ObjectsToBeProcessed.Count() = 0 Then
 		Return;
 	EndIf;
 	
@@ -730,7 +730,7 @@ Procedure ProcessGeneralDataToUpgradeToNewVersion() Export
 	
 	MetadataObject    = Undefined;
 	FillParameters = Undefined;
-	For Each ObjectToProcess1 In ObjectsToProcess2 Do
+	For Each ObjectToProcess1 In ObjectsToBeProcessed Do
 		
 		If MetadataObject = Undefined Or TypeOf(MetadataObject) <> TypeOf(ObjectToProcess1) Then
 			MetadataObject = Metadata.FindByType(TypeOf(ObjectToProcess1));
@@ -761,10 +761,10 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 		Return;
 	EndIf;
 	
-	ObjectsToProcess2 = ListOfObjectsToBeProcessedToUpgradeToNewVersion(VariantOfDataForProcessingTakingIntoAccountSeparation());
+	ObjectsToBeProcessed = ListOfObjectsToBeProcessedToUpgradeToNewVersion(VariantOfDataForProcessingTakingIntoAccountSeparation());
 
-	If ObjectsToProcess2.Count() > 0 Then
-		InfobaseUpdate.MarkForProcessing(Parameters, ObjectsToProcess2);
+	If ObjectsToBeProcessed.Count() > 0 Then
+		InfobaseUpdate.MarkForProcessing(Parameters, ObjectsToBeProcessed);
 	EndIf;
 	
 EndProcedure
@@ -843,19 +843,19 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Initial filling of items with data.
+// Initial data population.
 
 // Parameters:
 //  ObjectReference - CatalogRef
 //                 - ChartOfCharacteristicTypesRef
-//  UpdateSettings1 - Structure:
+//  SettingsOfUpdate - Structure:
 //   * PredefinedData - ValueTable
 //   * DefaultLanguage - String
 //   * LanguageCode2 - String
 //   * LanguageCode1 - String
 //   * ObjectAttributesToLocalize - See SettingsPredefinedDataUpdate
 // 
-Procedure UpdateMultilanguageStringsOfPredefinedItem(ObjectReference, UpdateSettings1) Export
+Procedure UpdateMultilanguageStringsOfPredefinedItem(ObjectReference, SettingsOfUpdate) Export
 	
 	PredefinedDataName = Common.ObjectAttributeValue(ObjectReference.Ref, "PredefinedDataName");
 	If Not ValueIsFilled(PredefinedDataName) Then
@@ -863,7 +863,7 @@ Procedure UpdateMultilanguageStringsOfPredefinedItem(ObjectReference, UpdateSett
 		Return;
 	EndIf;
 	
-	Item = UpdateSettings1.PredefinedData.Find(PredefinedDataName, "PredefinedDataName");
+	Item = SettingsOfUpdate.PredefinedData.Find(PredefinedDataName, "PredefinedDataName");
 	
 	If Item = Undefined Then
 		InfobaseUpdate.MarkProcessingCompletion(ObjectReference.Ref);
@@ -874,7 +874,7 @@ Procedure UpdateMultilanguageStringsOfPredefinedItem(ObjectReference, UpdateSett
 	Try
 		
 		Block = New DataLock;
-		LockItem = Block.Add(UpdateSettings1.NameMetadataObject);
+		LockItem = Block.Add(SettingsOfUpdate.NameMetadataObject);
 		LockItem.SetValue("Ref", ObjectReference.Ref);
 		Block.Lock();
 		
@@ -885,15 +885,15 @@ Procedure UpdateMultilanguageStringsOfPredefinedItem(ObjectReference, UpdateSett
 		EndIf;
 		LockDataForEdit(ObjectReference.Ref);
 		
-		For Each ObjectAttributeToLocalize In UpdateSettings1.ObjectAttributesToLocalize Do
+		For Each ObjectAttributeToLocalize In SettingsOfUpdate.ObjectAttributesToLocalize Do
 			Name = ObjectAttributeToLocalize.Key;
-			Object[Name] = Item[NameOfAttributeToLocalize(Name, UpdateSettings1.DefaultLanguage)];
+			Object[Name] = Item[NameOfAttributeToLocalize(Name, SettingsOfUpdate.DefaultLanguage)];
 			
-			If FirstAdditionalLanguageUsed() And ValueIsFilled(UpdateSettings1.LanguageCode1) Then
-				Object[Name + "Language1"] = Item[NameOfAttributeToLocalize(Name, UpdateSettings1.LanguageCode1)];
+			If FirstAdditionalLanguageUsed() And ValueIsFilled(SettingsOfUpdate.LanguageCode1) Then
+				Object[Name + "Language1"] = Item[NameOfAttributeToLocalize(Name, SettingsOfUpdate.LanguageCode1)];
 			EndIf;
-			If SecondAdditionalLanguageUsed()  And ValueIsFilled(UpdateSettings1.LanguageCode2) Then
-				Object[Name + "Language2"] = Item[NameOfAttributeToLocalize(Name, UpdateSettings1.LanguageCode2)];
+			If SecondAdditionalLanguageUsed()  And ValueIsFilled(SettingsOfUpdate.LanguageCode2) Then
+				Object[Name + "Language2"] = Item[NameOfAttributeToLocalize(Name, SettingsOfUpdate.LanguageCode2)];
 			EndIf;
 			
 		EndDo;
@@ -1161,11 +1161,11 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 			
 			ObjectsSCHRepresentations = ObjectsSCHRepresentations(VariantOfDataForProcessingTakingIntoAccountSeparation());
 			
-			ObjectsToProcess1 = ObjectsWithInitialStringFilling(ObjectsSCHRepresentations);
+			ObjectsForProcessing = ObjectsWithInitialStringFilling(ObjectsSCHRepresentations);
 			
-			Handler.ObjectsToRead    = ObjectsToProcess1;
-			Handler.ObjectsToChange  = ObjectsToProcess1;
-			Handler.ObjectsToLock = ObjectsToProcess1;
+			Handler.ObjectsToRead    = ObjectsForProcessing;
+			Handler.ObjectsToChange  = ObjectsForProcessing;
+			Handler.ObjectsToLock = ObjectsForProcessing;
 			
 		EndIf;
 
@@ -1937,7 +1937,7 @@ EndFunction
 
 Function ListOfObjectsToBeProcessedToUpgradeToNewVersion(DataVariant)
 	
-	ObjectsToProcess2 = New Array();
+	ObjectsToBeProcessed = New Array();
 	TheSeparatorQueries = Chars.LF + " UNION ALL " + Chars.LF;
 	
 	LanguagesInformationRecords = NationalLanguageSupportCached.LanguagesInformationRecords();
@@ -1946,9 +1946,9 @@ Function ListOfObjectsToBeProcessedToUpgradeToNewVersion(DataVariant)
 		ObjectsWithPredefinedItems = ObjectsWithInitialFilling(DataVariant);
 		
 		QueryTemplate = "SELECT
-			|	ObjectData1.Ref
+			|	ObjectData.Ref
 			|FROM
-			|	&Table AS ObjectData1
+			|	&Table AS ObjectData
 			|WHERE
 			|	&FilterCriterion";
 		
@@ -2005,7 +2005,7 @@ Function ListOfObjectsToBeProcessedToUpgradeToNewVersion(DataVariant)
 			Query = New Query;
 			Query.Text = StrConcat(QueriesSet, TheSeparatorQueries);
 			QueryResults = Query.Execute().Unload();
-			ObjectsToProcess2 = QueryResults.UnloadColumn("Ref");
+			ObjectsToBeProcessed = QueryResults.UnloadColumn("Ref");
 			
 		EndIf;
 		
@@ -2016,7 +2016,7 @@ Function ListOfObjectsToBeProcessedToUpgradeToNewVersion(DataVariant)
 	
 	If ObjectsSCHRepresentations.Count() > 0 Then
 		
-		QueryTemplate1 = "SELECT
+		QueryTemplate = "SELECT
 		|DirectoryofSTCHRepresentations.Ref
 		|FROM
 		|	#PresentationTable AS DirectoryofSTCHRepresentations
@@ -2058,7 +2058,7 @@ Function ListOfObjectsToBeProcessedToUpgradeToNewVersion(DataVariant)
 				EndIf;
 			EndIf;
 			
-			QueryText = StrReplace(QueryTemplate1, "#PresentationTable", 
+			QueryText = StrReplace(QueryTemplate, "#PresentationTable", 
 				MetadataObject.FullName() + "." + "Presentations");
 			QueryText = StrReplace(QueryText, "#Table", MetadataObject.FullName());
 			
@@ -2092,14 +2092,14 @@ Function ListOfObjectsToBeProcessedToUpgradeToNewVersion(DataVariant)
 			For Each QueryResult In QueryResults Do
 				
 				ObjectsTablePartViewToProcess = QueryResult.Unload().UnloadColumn("Ref");
-				CommonClientServer.SupplementArray(ObjectsToProcess2, 
+				CommonClientServer.SupplementArray(ObjectsToBeProcessed, 
 					ObjectsTablePartViewToProcess, True);
 			EndDo;
 		EndIf;
 		
 	EndIf;
 	
-	Return ObjectsToProcess2;
+	Return ObjectsToBeProcessed;
 	
 EndFunction
 
@@ -2153,8 +2153,8 @@ Procedure ChangeLanguageinMultilingualDetailsConfig(Parameters, Address) Export
 	
 	ObjectsWithInitialFilling = InfobaseUpdateInternal.ObjectsWithInitialFilling();
 	
-	For Each ObjectData1 In DataToChangeMultilanguageAttributes.Objects Do
-		FullName = ObjectData1.Key;
+	For Each ObjectData In DataToChangeMultilanguageAttributes.Objects Do
+		FullName = ObjectData.Key;
 		ObjectMetadata = Common.MetadataObjectByFullName(FullName);
 		FillParameters = New Structure;
 		
@@ -2168,18 +2168,18 @@ Procedure ChangeLanguageinMultilingualDetailsConfig(Parameters, Address) Export
 			Or StrStartsWith(FullName, "ChartOfCharacteristicTypes") Then
 			
 			// 
-			HandleReferenceObjects(FullName, ObjectData1.Value, DataToChangeMultilanguageAttributes, FillParameters);
+			HandleReferenceObjects(FullName, ObjectData.Value, DataToChangeMultilanguageAttributes, FillParameters);
 				
 		ElsIf StrStartsWith(FullName, "InformationRegister") Then
 			MetadataObject = Common.MetadataObjectByFullName(FullName);
 			
 			If MetadataObject.WriteMode = Metadata.ObjectProperties.RegisterWriteMode.RecorderSubordinate Then
 				// 
-				ChangeLanguageInSubRegistersDetails(MetadataObject, ObjectData1.Value, DataToChangeMultilanguageAttributes, FillParameters);
+				ChangeLanguageInSubRegistersDetails(MetadataObject, ObjectData.Value, DataToChangeMultilanguageAttributes, FillParameters);
 			Else
 				Periodic3 = MetadataObject.InformationRegisterPeriodicity <> Metadata.ObjectProperties.InformationRegisterPeriodicity.Nonperiodical;
 				// 
-				ChangeLanguageIncaseIndependentDetails(MetadataObject, ObjectData1.Value, DataToChangeMultilanguageAttributes, FillParameters, Periodic3);
+				ChangeLanguageIncaseIndependentDetails(MetadataObject, ObjectData.Value, DataToChangeMultilanguageAttributes, FillParameters, Periodic3);
 			EndIf;
 			
 		EndIf;
@@ -2196,16 +2196,16 @@ Procedure ChangeLanguageinMultilingualDetailsConfig(Parameters, Address) Export
 
 EndProcedure
 
-Procedure HandleReferenceObjects(FullName, ObjectData1, DataToChangeMultilanguageAttributes, FillParameters)
+Procedure HandleReferenceObjects(FullName, ObjectData, DataToChangeMultilanguageAttributes, FillParameters)
 	
-	LastRef = ?(ObjectData1.ReferenceToLastProcessedObjects <> Undefined,
-	ObjectData1.ReferenceToLastProcessedObjects,
+	LastRef = ?(ObjectData.ReferenceToLastProcessedObjects <> Undefined,
+	ObjectData.ReferenceToLastProcessedObjects,
 	Common.ObjectManagerByFullName(FullName).EmptyRef());
 	
-	RequestFieldLayout = "ObjectData1.%1%2 AS %1%2";
+	RequestFieldLayout = "ObjectData.%1%2 AS %1%2";
 	
 	ValuesLanguageConstants = DataToChangeMultilanguageAttributes.SettingsChangesLanguages;
-	MultilingualAttributes = ObjectData1.LanguageFields;
+	MultilingualAttributes = ObjectData.LanguageFields;
 	
 	HaveDataPortion = True;
 	
@@ -2232,18 +2232,18 @@ Procedure HandleReferenceObjects(FullName, ObjectData1, DataToChangeMultilanguag
 		Query = New Query;
 		QueryText =
 		"SELECT TOP 1000
-		|	ObjectData1.Ref AS Ref,
+		|	ObjectData.Ref AS Ref,
 		|	&ObjectField
 		|FROM
-		|	#ObjectData1 AS ObjectData1
+		|	#ObjectData AS ObjectData
 		|WHERE
-		|	ObjectData1.Ref > &Ref
+		|	ObjectData.Ref > &Ref
 		|
 		|ORDER BY
 		|	Ref";
 
 		QueryText = StrReplace(QueryText, "&ObjectField", StrConcat(QueryFields, "," + Chars.LF));
-		QueryText = StrReplace(QueryText, "#ObjectData1", FullName);
+		QueryText = StrReplace(QueryText, "#ObjectData", FullName);
 
 		Query.Text = QueryText;
 		Query.SetParameter("Ref", LastRef);
@@ -2341,7 +2341,7 @@ Procedure HandleReferenceObjects(FullName, ObjectData1, DataToChangeMultilanguag
 					InfobaseUpdate.WriteObject(ObjectToChange);
 					
 					LastRef = SelectionDetailRecords.Ref;
-					ObjectData1.ReferenceToLastProcessedObjects = LastRef;
+					ObjectData.ReferenceToLastProcessedObjects = LastRef;
 					
 					WriteDataToChangeMultilingualAttributes(DataToChangeMultilanguageAttributes);
 					
@@ -2473,12 +2473,12 @@ Procedure WriteDataToChangeMultilingualAttributes(DataToChangeMultilanguageAttri
 
 EndProcedure
 
-Procedure ChangeLanguageInSubRegistersDetails(MetadataObject, ObjectData1, DataToChangeMultilanguageAttributes, FillParameters, Periodic3 = False)
+Procedure ChangeLanguageInSubRegistersDetails(MetadataObject, ObjectData, DataToChangeMultilanguageAttributes, FillParameters, Periodic3 = False)
 	
 	FullName = MetadataObject.FullName(); 
 	RegisterManager = Common.ObjectManagerByFullName(FullName);
 	
-	MultilingualAttributes = ObjectData1.LanguageFields;
+	MultilingualAttributes = ObjectData.LanguageFields;
 	ValuesLanguageConstants = DataToChangeMultilanguageAttributes.SettingsChangesLanguages;
 	
 	TableName = StrReplace(FullName, ".", "");
@@ -2496,10 +2496,10 @@ Procedure ChangeLanguageInSubRegistersDetails(MetadataObject, ObjectData1, DataT
 	QueryText = StrReplace(QueryText, "TableName", TableName);
 	
 	Query = New Query(QueryText);
-	If ObjectData1.ReferenceToLastProcessedObjects = Undefined Then
+	If ObjectData.ReferenceToLastProcessedObjects = Undefined Then
 		Query.SetParameter("Recorder", Undefined);
 	Else
-		Filter = ObjectData1.ReferenceToLastProcessedObjects;
+		Filter = ObjectData.ReferenceToLastProcessedObjects;
 		Query.SetParameter("Recorder", Filter["Recorder"]);
 	EndIf;
 	
@@ -2566,7 +2566,7 @@ Procedure ChangeLanguageInSubRegistersDetails(MetadataObject, ObjectData1, DataT
 					Filter = New Structure();
 					Filter.Insert("Recorder", ResultString1.RecorderAttributeRef);
 					
-					ObjectData1.ReferenceToLastProcessedObjects = Filter;
+					ObjectData.ReferenceToLastProcessedObjects = Filter;
 					
 					WriteDataToChangeMultilingualAttributes(DataToChangeMultilanguageAttributes);
 					
@@ -2591,12 +2591,12 @@ Procedure ChangeLanguageInSubRegistersDetails(MetadataObject, ObjectData1, DataT
 	
 EndProcedure
 
-Procedure ChangeLanguageIncaseIndependentDetails(MetadataObject, ObjectData1, DataToChangeMultilanguageAttributes, FillParameters, Periodic3 = False)
+Procedure ChangeLanguageIncaseIndependentDetails(MetadataObject, ObjectData, DataToChangeMultilanguageAttributes, FillParameters, Periodic3 = False)
 	
 	FullName = MetadataObject.FullName(); 
 	RegisterManager = Common.ObjectManagerByFullName(FullName);
 	
-	MultilingualAttributes = ObjectData1.LanguageFields;
+	MultilingualAttributes = ObjectData.LanguageFields;
 	ValuesLanguageConstants = DataToChangeMultilanguageAttributes.SettingsChangesLanguages;
 	
 	TableName = StrReplace(FullName, ".", "");
@@ -2652,7 +2652,7 @@ Procedure ChangeLanguageIncaseIndependentDetails(MetadataObject, ObjectData1, Da
 	QueryText = StrReplace(QueryText, "TableName", TableName);
 		
 	Query = New Query(QueryText);
-	If ObjectData1.ReferenceToLastProcessedObjects = Undefined Then
+	If ObjectData.ReferenceToLastProcessedObjects = Undefined Then
 		
 		If Periodic3 Then
 			Query.SetParameter("Period", Date("00010101"));
@@ -2663,7 +2663,7 @@ Procedure ChangeLanguageIncaseIndependentDetails(MetadataObject, ObjectData1, Da
 		EndDo;
 		
 	Else
-		Filter = ObjectData1.ReferenceToLastProcessedObjects;
+		Filter = ObjectData.ReferenceToLastProcessedObjects;
 		
 		For Each Dimension In Dimensions Do
 			Query.SetParameter(Dimension.Name, Filter[Dimension.Name]);
@@ -2765,7 +2765,7 @@ Procedure ChangeLanguageIncaseIndependentDetails(MetadataObject, ObjectData1, Da
 						Filter.Insert("Period", ResultString1["Period"]);
 					EndIf;
 					
-					ObjectData1.ReferenceToLastProcessedObjects = Filter;
+					ObjectData.ReferenceToLastProcessedObjects = Filter;
 
 					WriteDataToChangeMultilingualAttributes(DataToChangeMultilanguageAttributes);
 					
@@ -2843,12 +2843,12 @@ Function ObjectsWithInitialFilling(DataVariant)
 		Return ObjectsWithPredefinedItems;
 	EndIf;
 	
-	ModuleSaaS = Common.CommonModule("SaaSOperations");
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
 	Position =  ObjectsWithPredefinedItems.Count() - 1;
 	While Position >= 0 Do
 		
-		IsSeparatedMetadataObject = ModuleSaaS.IsSeparatedMetadataObject(ObjectsWithPredefinedItems[Position]);
+		IsSeparatedMetadataObject = ModuleSaaSOperations.IsSeparatedMetadataObject(ObjectsWithPredefinedItems[Position]);
 		If DataVariant = "Overall" And IsSeparatedMetadataObject Then
 			If IsSeparatedMetadataObject Then
 				ObjectsWithPredefinedItems.Delete(Position);

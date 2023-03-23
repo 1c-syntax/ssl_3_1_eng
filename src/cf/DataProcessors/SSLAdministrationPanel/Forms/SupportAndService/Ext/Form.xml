@@ -1221,6 +1221,20 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 										<Event name="OnChange">WriteIBUpdateDetailsToEventLogOnChange</Event>
 									</Events>
 								</CheckBoxField>
+								<Button name="ClearingOutdatedData" id="2297">
+									<Type>Hyperlink</Type>
+									<CommandName>Form.Command.ClearingOutdatedData</CommandName>
+									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+									<ExtendedTooltip name="ClearingOutdatedDataExtendedTooltip" id="2298">
+										<AutoMaxWidth>false</AutoMaxWidth>
+										<Title formatted="false">
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Clear data manually when the "Register records are no longer unique" error occurs while restructuring.</v8:content>
+											</v8:item>
+										</Title>
+									</ExtendedTooltip>
+								</Button>
 							</ChildItems>
 						</UsualGroup>
 					</ChildItems>
@@ -1508,6 +1522,21 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 				</v8:item>
 			</Title>
 			<Action>CloudArchiveBackupSettings</Action>
+		</Command>
+		<Command name="ClearingOutdatedData" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Clear obsolete data</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Clear obsolete data before configuration update</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>ClearingOutdatedData</Action>
 		</Command>
 	</Commands>
 </Form>

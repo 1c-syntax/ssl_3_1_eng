@@ -280,15 +280,15 @@ EndProcedure
 //   PrintForm - 
 //   
 //   
-//   ObjectData1 - object data to fill in.
+//   ObjectData - object data to fill in.
 //
-Procedure FillFooterParameters(Val PrintForm, Val ObjectData1 = Undefined) Export
+Procedure FillFooterParameters(Val PrintForm, Val ObjectData = Undefined) Export
 	
-	If ObjectData1 = Undefined Then
+	If ObjectData = Undefined Then
 		Return;
 	EndIf;
 	
-	For Each ParameterValue1 In ObjectData1 Do
+	For Each ParameterValue1 In ObjectData Do
 		If TypeOf(ParameterValue1.Value) <> Type("Array") Then
 			Replace(Footer(PrintForm), ParameterValue1.Key, ParameterValue1.Value);
 		EndIf;
@@ -319,15 +319,15 @@ EndProcedure
 //   PrintForm - 
 //   
 //   
-//   ObjectData1 - object data to fill in.
+//   ObjectData - object data to fill in.
 //
-Procedure FillHeaderParameters(Val PrintForm, Val ObjectData1 = Undefined) Export
+Procedure FillHeaderParameters(Val PrintForm, Val ObjectData = Undefined) Export
 	
-	If ObjectData1 = Undefined Then
+	If ObjectData = Undefined Then
 		Return;
 	EndIf;
 	
-	For Each ParameterValue1 In ObjectData1 Do
+	For Each ParameterValue1 In ObjectData Do
 		If TypeOf(ParameterValue1.Value) <> Type("Array") Then
 			Replace(Header(PrintForm), ParameterValue1.Key, ParameterValue1.Value);
 		EndIf;
@@ -393,15 +393,15 @@ EndFunction
 //
 // Parameters:
 //   PrintFormArea - COMObject - a reference to an area in a print form.
-//   ObjectData1 - Structure
+//   ObjectData - Structure
 //
-Procedure FillParameters_(Val PrintFormArea, Val ObjectData1 = Undefined) Export
+Procedure FillParameters_(Val PrintFormArea, Val ObjectData = Undefined) Export
 	
-	If ObjectData1 = Undefined Then
+	If ObjectData = Undefined Then
 		Return;
 	EndIf;
 	
-	For Each ParameterValue1 In ObjectData1 Do
+	For Each ParameterValue1 In ObjectData Do
 		If TypeOf(ParameterValue1.Value) <> Type("Array") Then
 			Replace(PrintFormArea.Document.Content, ParameterValue1.Key, ParameterValue1.Value);
 		EndIf;
@@ -419,20 +419,20 @@ EndProcedure
 //   PrintForm - Structure - a reference to a print form.
 //   HandlerArea - COMObject - a reference to an area in the template.
 //   Parameters - String - a list of parameters to be replaced.
-//   ObjectData1 - Array of Structure
+//   ObjectData - Array of Structure
 //   GoToNextRow - Boolean - shows if it is required to add a line break after the area output.
 //
 Procedure JoinAndFillSet(Val PrintForm,
 									  Val HandlerArea,
-									  Val ObjectData1 = Undefined,
+									  Val ObjectData = Undefined,
 									  Val GoToNextRow = True) Export
 	
 	HandlerArea.Document.Range(HandlerArea.Start, HandlerArea.End).Copy();
 	
 	ActiveDocument = PrintForm.COMConnection.ActiveDocument;
 	
-	If ObjectData1 <> Undefined Then
-		For Each RowData In ObjectData1 Do
+	If ObjectData <> Undefined Then
+		For Each RowData In ObjectData Do
 			InsertPosition = ActiveDocument.Range().End;
 			InsertionArea = ActiveDocument.Range(InsertPosition-1, InsertPosition-1);
 			InsertionArea.Paste();
@@ -459,15 +459,15 @@ EndProcedure
 //   PrintForm - Structure - a reference to a print form.
 //   HandlerArea - COMObject - a reference to an area in the template.
 //   TableName - a table name (for data access).
-//   ObjectData1 - Structure
+//   ObjectData - Structure
 //   GoToNextRow - Boolean - shows if it is required to add a line break after the area output.
 //
 Procedure JoinAndFillTableArea(Val PrintForm,
 												Val HandlerArea,
-												Val ObjectData1 = Undefined,
+												Val ObjectData = Undefined,
 												Val GoToNextRow = True) Export
 	
-	If ObjectData1 = Undefined Or ObjectData1.Count() = 0 Then
+	If ObjectData = Undefined Or ObjectData.Count() = 0 Then
 		Return;
 	EndIf;
 	
@@ -485,13 +485,13 @@ Procedure JoinAndFillTableArea(Val PrintForm,
 	InsertionArea.Paste();
 	ActiveDocument.Range(InsertPosition-2, InsertPosition-2).Delete();
 	
-	If TypeOf(ObjectData1[0]) = Type("Structure") Then
-		For Each ParameterValue1 In ObjectData1[0] Do
+	If TypeOf(ObjectData[0]) = Type("Structure") Then
+		For Each ParameterValue1 In ObjectData[0] Do
 			Replace(ActiveDocument.Content, ParameterValue1.Key, ParameterValue1.Value);
 		EndDo;
 	EndIf;
 	
-	For Each TableRowData In ObjectData1 Do
+	For Each TableRowData In ObjectData Do
 		If FirstRow Then
 			FirstRow = False;
 			Continue;

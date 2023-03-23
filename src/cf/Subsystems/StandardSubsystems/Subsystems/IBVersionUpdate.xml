@@ -59,6 +59,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">Constant.OrderOfDataToProcess</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Report.DeferredUpdateDuration</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">ScheduledJob.SetDeferredUpdateProcedureInSaaS</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">ScheduledJob.ClearingOutdatedData</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

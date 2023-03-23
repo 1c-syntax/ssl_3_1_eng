@@ -1411,7 +1411,7 @@ Function UsersRights()
 	EndIf;
 	
 	Query.Text = StrReplace(Query.Text,
-		" AND (&SelectionCriteriaForUsers)", SelectionCriteriaForUsers);
+		"AND (&SelectionCriteriaForUsers)", SelectionCriteriaForUsers);
 	
 	If ValueIsFilled(FilterConditionByCanSignIn) Then
 		Query.Text = Query.Text + FilterConditionByCanSignIn;
@@ -1458,7 +1458,7 @@ EndFunction
 //  Structure:
 //    * HasHierarchy - Boolean
 //    * RightsDetails - FixedArray of See InformationRegisters.ObjectsRightsSettings.AvailableRightProperties
-//    * RefType1    - Type
+//    * RefType    - Type
 //    * EmptyRef - AnyRef
 //
 Function SettingsRightsByTableInselection()
@@ -1477,10 +1477,10 @@ Function SettingsRightsByTableInselection()
 	
 	ObjectManager = Common.ObjectManagerByFullName(MetadataTables.FullName());
 	EmptyRef = ObjectManager.EmptyRef();
-	RefType1 = TypeOf(EmptyRef);
+	RefType = TypeOf(EmptyRef);
 	AvailableRights = AccessManagementInternal.RightsForObjectsRightsSettingsAvailable();
 	
-	RightsDetails = AvailableRights.ByRefsTypes.Get(RefType1);
+	RightsDetails = AvailableRights.ByRefsTypes.Get(RefType);
 	If RightsDetails = Undefined Then
 		Return Undefined;
 	EndIf;
@@ -1491,7 +1491,7 @@ Function SettingsRightsByTableInselection()
 	Result = New Structure;
 	Result.Insert("HasHierarchy", Properties.Hierarchical);
 	Result.Insert("RightsDetails", RightsDetails);
-	Result.Insert("RefType1",    RefType1);
+	Result.Insert("RefType",    RefType);
 	Result.Insert("EmptyRef", EmptyRef);
 	
 	Return Result;
@@ -1650,7 +1650,7 @@ Function RightsSettingsOnObjects()
 	If RightsSettings = Undefined Then
 		Return Result;
 	EndIf;
-	Result.OwnerSettingsHeader = String(RightsSettings.RefType1);
+	Result.OwnerSettingsHeader = String(RightsSettings.RefType);
 	
 	UserDetails = FilterByUsers().Value;
 	If TypeOf(UserDetails) = Type("ValueList") Then
@@ -1674,7 +1674,7 @@ Function RightsSettingsOnObjects()
 	TitlesRight = TitlesRight(RightsSettings, SubfolderName);
 	
 	Query = New Query;
-	Query.SetParameter("ObjectType",    RightsSettings.RefType1);
+	Query.SetParameter("ObjectType",    RightsSettings.RefType);
 	Query.SetParameter("User",   User);
 	Query.SetParameter("SubfolderName", SubfolderName);
 	Query.SetParameter("HasHierarchy",   RightsSettings.HasHierarchy);

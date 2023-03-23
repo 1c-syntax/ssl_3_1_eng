@@ -662,7 +662,7 @@
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Edit attribute Products in Goods tabular section for the lines that meet the filter criteria.</v8:content>
+									<v8:content>Change the Products attribute in the Goods table for those lines that meet the filter criteria.</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="NoteOnConfiguredChangesContextMenu" id="197"/>

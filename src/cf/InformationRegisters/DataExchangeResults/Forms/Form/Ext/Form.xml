@@ -2734,7 +2734,7 @@ WHERE
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Change the selected documents.</v8:content>
+					<v8:content>Edit the selected documents.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>EditSelectedDocuments</Action>
@@ -2809,7 +2809,7 @@ WHERE
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Change the selected data.</v8:content>
+					<v8:content>Edit the selected items.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>EditSelectedObjects</Action>
@@ -3129,13 +3129,13 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Change selected objects</v8:content>
+					<v8:content>Edit selected items</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Change the selected XTDO errors.</v8:content>
+					<v8:content>Edit the selected XTDO errors.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ChangeSelectedCheckErrors</Action>

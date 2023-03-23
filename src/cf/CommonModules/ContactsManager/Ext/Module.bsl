@@ -2636,14 +2636,14 @@ EndProcedure
 Function ObjectContactInformationKinds(ContactInformationOwner, ContactInformationType = Undefined) Export
 	
 	If TypeOf(ContactInformationOwner) = Type("FormDataStructure") Then
-		RefType1 = TypeOf(ContactInformationOwner.Ref)
+		RefType = TypeOf(ContactInformationOwner.Ref)
 	ElsIf Common.IsReference(TypeOf(ContactInformationOwner)) Then
-		RefType1 = TypeOf(ContactInformationOwner);
+		RefType = TypeOf(ContactInformationOwner);
 	Else
-		RefType1 = TypeOf(ContactInformationOwner.Ref)
+		RefType = TypeOf(ContactInformationOwner.Ref)
 	EndIf;
 	
-	CatalogMetadata = Metadata.FindByType(RefType1);
+	CatalogMetadata = Metadata.FindByType(RefType);
 	If CatalogMetadata <> Undefined Then
 		CIKindsGroup = ContactsManagerInternalCached.ContactInformationKindGroupByObjectName(
 			CatalogMetadata.FullName());
@@ -3513,7 +3513,7 @@ Procedure UpdateContactsForListDeferred(Parameters, PortionSize = 1000) Export
 		QueryText = "";
 		Separator = "";
 		
-		QueryTemplate1 = "SELECT
+		QueryTemplate = "SELECT
 		| COUNT(TableWithContactInformation.Ref) AS Count,
 		| VALUETYPE(TableWithContactInformation.Ref) AS Ref
 		|FROM
@@ -3529,7 +3529,7 @@ Procedure UpdateContactsForListDeferred(Parameters, PortionSize = 1000) Export
 					ContactInformation = Metadata.Catalogs[ObjectName].TabularSections.ContactInformation;
 					If ContactInformation.Attributes.Find("KindForList") <> Undefined Then
 						QueryText = QueryText + Separator 
-							+ StrReplace(QueryTemplate1, "&TableWithContactInformation", "Catalog." + ObjectName);
+							+ StrReplace(QueryTemplate, "&TableWithContactInformation", "Catalog." + ObjectName);
 						Separator = " UNION ALL ";
 					EndIf;
 				EndIf;
@@ -3540,7 +3540,7 @@ Procedure UpdateContactsForListDeferred(Parameters, PortionSize = 1000) Export
 					ContactInformation = Metadata.Documents[ObjectName].TabularSections.ContactInformation;
 					If ContactInformation.Attributes.Find("KindForList") <> Undefined Then
 						QueryText = QueryText + Separator 
-							+ StrReplace(QueryTemplate1, "&TableWithContactInformation", "Document." + ObjectName);
+							+ StrReplace(QueryTemplate, "&TableWithContactInformation", "Document." + ObjectName);
 						Separator = " UNION ALL ";
 					EndIf;
 				EndIf;
@@ -5364,7 +5364,7 @@ Procedure ContactInformationConvertionToJSON(ContactInformation)
 		EndIf;
 		
 		If IsBlankString(CIRow.Description) Then
-			CIRow.Description = CIRow.PresentationInMainLanguage;
+			CIRow.Description = CIRow.PresentationInDefaultLanguage;
 		EndIf;
 		
 	EndDo;
@@ -6639,7 +6639,7 @@ Function GenerateQueryText(Val HasColumnTabularSectionRowID, Val QueryTextHistor
 	|	ContactInformationKinds.Mandatory       AS Mandatory,
 	|	ContactInformationKinds.FieldKindOther                AS FieldKindOther,
 	|	ContactInformationKinds.AllowMultipleValueInput AS AllowMultipleValueInput,
-	|	ContactInformationKinds.Description AS PresentationInMainLanguage,
+	|	ContactInformationKinds.Description AS PresentationInDefaultLanguage,
 	|	ContactInformationKinds.Description AS Description,
 	|	ContactInformationKinds.StoreChangeHistory      AS StoreChangeHistory,
 	|	ContactInformationKinds.EditingOption            AS EditingOption,

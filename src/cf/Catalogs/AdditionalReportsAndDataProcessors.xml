@@ -1970,7 +1970,7 @@ The default value is "No."</v8:content>
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Additional attribute. value.</v8:content>
+									<v8:content>Additional attribute's value.</v8:content>
 								</v8:item>
 							</ToolTip>
 							<MarkNegatives>false</MarkNegatives>

@@ -2775,8 +2775,8 @@ EndFunction
 Function SeparationByDataAreasEnabled() Export
 	
 	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		SeparationByDataAreasEnabled = ModuleSaaS.DataSeparationEnabled();
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		SeparationByDataAreasEnabled = ModuleSaaSOperations.DataSeparationEnabled();
 	Else
 		SeparationByDataAreasEnabled = False;
 	EndIf;
@@ -3005,8 +3005,8 @@ EndProcedure
 Procedure SignInToDataArea(Val DataArea)
 	
 	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		ModuleSaaS.SignInToDataArea(DataArea);
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations.SignInToDataArea(DataArea);
 	EndIf;
 	
 EndProcedure
@@ -3014,8 +3014,8 @@ EndProcedure
 Procedure SignOutOfDataArea()
 	
 	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		ModuleSaaS.SignOutOfDataArea();
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		ModuleSaaSOperations.SignOutOfDataArea();
 	EndIf;
 	
 EndProcedure
@@ -3920,8 +3920,8 @@ Procedure InstallAdditionalErrorHandlingInformation() Export
 		Return;
 	EndIf;
 	If Common.DataSeparationEnabled() And Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		DataArea = ModuleSaaS.SessionSeparatorValue();
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		DataArea = ModuleSaaSOperations.SessionSeparatorValue();
 	Else
 		DataArea = 0;
 	EndIf;

@@ -1001,8 +1001,8 @@ Function IBUserProperies(Val NameOrID) Export
 	If TypeOf(NameOrID) = Type("UUID") Then
 		
 		If Common.SubsystemExists("CloudTechnology.Core") Then
-			ModuleSaaS = Common.CommonModule("SaaSOperations");
-			SessionWithoutSeparators = ModuleSaaS.SessionWithoutSeparators();
+			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+			SessionWithoutSeparators = ModuleSaaSOperations.SessionWithoutSeparators();
 		Else
 			SessionWithoutSeparators = True;
 		EndIf;
@@ -1042,13 +1042,13 @@ EndFunction
 //                                                  
 //  PropertiesToUpdate - See Users.NewIBUserDetails.
 //
-//  CreateNew1 - Boolean - specify True to create a new infobase user called NameOrID.
+//  CreateNewOne - Boolean - specify True to create a new infobase user called NameOrID.
 //
 //  IsExternalUser - Boolean - specify True if the infobase user corresponds to an external user
 //                                    (the ExternalUsers item in the directory).
 //
 Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
-	Val CreateNew1 = False, Val IsExternalUser = False) Export
+	Val CreateNewOne = False, Val IsExternalUser = False) Export
 	
 	ProcedureName = "Users.SetIBUserProperies";
 	
@@ -1058,8 +1058,8 @@ Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
 	CommonClientServer.CheckParameter(ProcedureName, "PropertiesToUpdate",
 		PropertiesToUpdate, Type("Structure"));
 	
-	CommonClientServer.CheckParameter(ProcedureName, "CreateNew1",
-		CreateNew1, Type("Boolean"));
+	CommonClientServer.CheckParameter(ProcedureName, "CreateNewOne",
+		CreateNewOne, Type("Boolean"));
 	
 	CommonClientServer.CheckParameter(ProcedureName, "IsExternalUser",
 		IsExternalUser, Type("Boolean"));
@@ -1074,7 +1074,7 @@ Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
 	EndIf;
 		
 	If Not UserExists Then
-		If Not CreateNew1 Then
+		If Not CreateNewOne Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Infobase user ""%1"" does not exist.';"),
 				NameOrID);
@@ -1082,7 +1082,7 @@ Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
 		EndIf;
 		IBUser = InfoBaseUsers.CreateUser();
 	Else
-		If CreateNew1 Then
+		If CreateNewOne Then
 			ErrorText = ErrorDescriptionOnWriteIBUser(
 				NStr("en = 'Cannot create infobase user ""%1"". The user already exists.';"),
 				PreviousProperties.Name,
@@ -1169,7 +1169,7 @@ Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
 		UsersInternal.CopyUserSettings(PreviousProperties.Name, NewProperties.Name, True);
 	EndIf;
 	
-	If CreateNew1 Then
+	If CreateNewOne Then
 		UsersInternal.SetInitialSettings(IBUser.Name, IsExternalUser);
 	EndIf;
 	

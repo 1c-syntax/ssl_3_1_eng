@@ -322,9 +322,9 @@ Function DIBExchangePlans() Export
 			EndIf;
 			
 			If Common.SubsystemExists("CloudTechnology.Core") Then
-				ModuleSaaS = Common.CommonModule("SaaSOperations");
-				IsSeparatedData = ModuleSaaS.IsSeparatedMetadataObject(
-					ExchangePlan.FullName(), ModuleSaaS.MainDataSeparator());
+				ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+				IsSeparatedData = ModuleSaaSOperations.IsSeparatedMetadataObject(
+					ExchangePlan.FullName(), ModuleSaaSOperations.MainDataSeparator());
 			Else
 				IsSeparatedData = False;
 			EndIf;
@@ -605,8 +605,8 @@ EndFunction
 Function DataSeparationEnabled() Export
 	
 	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		Return ModuleSaaS.DataSeparationEnabled();
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		Return ModuleSaaSOperations.DataSeparationEnabled();
 	Else
 		Return False;
 	EndIf;
@@ -616,8 +616,8 @@ EndFunction
 Function SeparatedDataUsageAvailable() Export
 	
 	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaS = Common.CommonModule("SaaSOperations");
-		Return ModuleSaaS.SeparatedDataUsageAvailable();
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		Return ModuleSaaSOperations.SeparatedDataUsageAvailable();
 	Else
 		Return True;
 	EndIf;

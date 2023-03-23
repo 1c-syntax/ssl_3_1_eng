@@ -514,16 +514,16 @@ EndFunction
 // Parameters:
 //  PrintForm - See InitializePrintForm
 //  Footer    - Structure - a footer area;
-//  ObjectData1 - Structure - object data to fill in.
+//  ObjectData - Structure - object data to fill in.
 //
-Procedure FillFooterParameters(PrintForm, Footer, ObjectData1 = Undefined) Export
+Procedure FillFooterParameters(PrintForm, Footer, ObjectData = Undefined) Export
 	
-	If Not TypeOf(ObjectData1) = Type("Structure") Then
+	If Not TypeOf(ObjectData) = Type("Structure") Then
 		Return;
 	EndIf;
 	
-	FillAreaParameters(PrintForm, Footer, ObjectData1);
-	PopulateHyperlinkParameters(PrintForm, Footer, ObjectData1);
+	FillAreaParameters(PrintForm, Footer, ObjectData);
+	PopulateHyperlinkParameters(PrintForm, Footer, ObjectData);
 	
 EndProcedure
 
@@ -550,16 +550,16 @@ EndFunction
 // Parameters:
 //  PrintForm - See InitializePrintForm
 //  Header    - Structure - a header or a footer area;
-//  ObjectData1 - Structure - object data to fill in.
+//  ObjectData - Structure - object data to fill in.
 //
-Procedure FillHeaderParameters(PrintForm, Header, ObjectData1 = Undefined) Export
+Procedure FillHeaderParameters(PrintForm, Header, ObjectData = Undefined) Export
 	
-	If Not TypeOf(ObjectData1) = Type("Structure") Then
+	If Not TypeOf(ObjectData) = Type("Structure") Then
 		Return;
 	EndIf;
 	
-	FillAreaParameters(PrintForm, Header, ObjectData1);
-	PopulateHyperlinkParameters(PrintForm, Header, ObjectData1);
+	FillAreaParameters(PrintForm, Header, ObjectData);
+	PopulateHyperlinkParameters(PrintForm, Header, ObjectData);
 	
 EndProcedure
 
@@ -593,16 +593,16 @@ EndFunction
 // Parameters:
 //  PrintForm - See InitializePrintForm
 //  TemplateArea - Structure
-//  ObjectData1 - Structure - object data to fill in.
+//  ObjectData - Structure - object data to fill in.
 //
-Procedure FillParameters_(PrintForm, TemplateArea, ObjectData1 = Undefined) Export
+Procedure FillParameters_(PrintForm, TemplateArea, ObjectData = Undefined) Export
 	
-	If Not TypeOf(ObjectData1) = Type("Structure") Then
+	If Not TypeOf(ObjectData) = Type("Structure") Then
 		Return;
 	EndIf;
 	
-	PopulateHyperlinkParameters(PrintForm, TemplateArea, ObjectData1);
-	FillAreaParameters(PrintForm, TemplateArea, ObjectData1);
+	PopulateHyperlinkParameters(PrintForm, TemplateArea, ObjectData);
+	FillAreaParameters(PrintForm, TemplateArea, ObjectData);
 	
 EndProcedure
 
@@ -613,21 +613,21 @@ EndProcedure
 // Parameters:
 //  PrintForm       - Structure
 //  TemplateArea       - Structure
-//  ObjectData1       - Structure - object data to fill in.
+//  ObjectData       - Structure - object data to fill in.
 //  GoToNextRow - Boolean - determines whether you need to add a line break after the output of the whole collection areas.
 //
-Procedure JoinAndFillSet(PrintForm, TemplateArea, ObjectData1 = Undefined,
+Procedure JoinAndFillSet(PrintForm, TemplateArea, ObjectData = Undefined,
 	Val GoToNextRow = False) Export
 	
-	If Not TypeOf(ObjectData1) = Type("Array") Then
+	If Not TypeOf(ObjectData) = Type("Array") Then
 		Return;
 	EndIf;
 	
-	If ObjectData1.Count() = 0 Then
+	If ObjectData.Count() = 0 Then
 		Return;
 	EndIf;
 	
-	For Each RowData In ObjectData1 Do
+	For Each RowData In ObjectData Do
 		
 		If Not TypeOf(RowData) = Type("Structure") Then
 			Continue;
@@ -3052,7 +3052,7 @@ Procedure InitializePrintFormStructure(PrintForm, Template)
 	
 EndProcedure
 
-Procedure FillAreaParameters(PrintForm, Area, ObjectData1)
+Procedure FillAreaParameters(PrintForm, Area, ObjectData)
 	
 	ProcessText = False;
 	XMLParseStructure = InitializeMXLParsing();
@@ -3121,7 +3121,7 @@ Procedure FillAreaParameters(PrintForm, Area, ObjectData1)
 			
 			For Each ParameterText In ParametersFromText Do
 				
-				If ObjectData1.Property(ParameterText, ParameterValue) Then
+				If ObjectData.Property(ParameterText, ParameterValue) Then
 					If TypeOf(ParameterValue) = Type("Structure") Then
 						PictureDimensions = New Structure("Width,Height",0,0);
 						FillPropertyValues(PictureDimensions, ParameterValue);
@@ -3233,9 +3233,9 @@ EndProcedure
 //   * Text - String
 //   * SectionNumber - Number
 //   * Hyperlinks - Array of See HyperlinkStructure
-//  ObjectData1 - 
+//  ObjectData - 
 //
-Procedure PopulateHyperlinkParameters(PrintForm, Area, ObjectData1)
+Procedure PopulateHyperlinkParameters(PrintForm, Area, ObjectData)
 	
 	If Area.Hyperlinks.Count() = 0 Then
 		Return;
@@ -3262,7 +3262,7 @@ Procedure PopulateHyperlinkParameters(PrintForm, Area, ObjectData1)
 			LinkString_      = Hyperlink.Ref;
 			ParameterValue = "";
 			
-			If ObjectData1.Property(ParameterName, ParameterValue) Then
+			If ObjectData.Property(ParameterName, ParameterValue) Then
 				ParameterValue = EncodeString(TrimAll(ParameterValue), StringEncodingMethod.URLEncoding);
 			EndIf;
 			ValueToSet = StrReplace(LinkString_, "{v8 " + ParameterName +"}" , ParameterValue);

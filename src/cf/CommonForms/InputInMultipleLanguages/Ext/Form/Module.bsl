@@ -189,6 +189,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ModuleTranslationOfTextIntoOtherLanguages = Common.CommonModule("TextTranslationTool");
 		Items.Translate.Visible = ModuleTranslationOfTextIntoOtherLanguages.TextTranslationAvailable()
 			And Not Parameters.ReadOnly And Not ReadOnly;
+		RepresentationInTheSourceLanguage = RepresentationInTheSourceLanguage();
 	EndIf;
 	
 	If Common.IsMobileClient() Then
@@ -316,22 +317,27 @@ Procedure TranslateOnTheServer()
 		Return;
 	EndIf;
 	
-	ValueForTranslation = Languages[0];
-	SourceLanguage = StrSplit(ValueForTranslation.LanguageCode, "_", False)[0];
-	RepresentationInTheSourceLanguage = ThisObject[ValueForTranslation.Name];
+	SourceLanguage = StrSplit(Common.DefaultLanguageCode(), "_", False)[0];
+	If RepresentationInTheSourceLanguage <> RepresentationInTheSourceLanguage() Then
+		RepresentationInTheSourceLanguage = RepresentationInTheSourceLanguage();
+		RepresentationInSourceLanguageHasBeenChanged = True;
+	EndIf;
 	
 	AvailableLanguages = ModuleTranslationOfTextIntoOtherLanguages.AvailableLanguages();
 	If AvailableLanguages.FindByValue(SourceLanguage) = Undefined Then
 		Return;
 	EndIf;
 	
-	For IndexOf = 1 To Languages.Count() - 1 Do
+	For IndexOf = 0 To Languages.Count() - 1 Do
 		TableRow = Languages[IndexOf];
 		TranslationLanguage = StrSplit(TableRow.LanguageCode, "_", False)[0];
+		If SourceLanguage = TranslationLanguage Then
+			Continue;
+		EndIf;
 		If AvailableLanguages.FindByValue(TranslationLanguage) = Undefined Then
 			Continue;
 		EndIf;
-		If ValueIsFilled(ThisObject[TableRow.Name]) Then
+		If Not RepresentationInSourceLanguageHasBeenChanged And ValueIsFilled(ThisObject[TableRow.Name]) Then
 			Items[TableRow.Name].BackColor = New Color;
 		Else
 			ThisObject[TableRow.Name] = TranslateTextOnTheServer(RepresentationInTheSourceLanguage, TranslationLanguage, SourceLanguage);
@@ -339,6 +345,8 @@ Procedure TranslateOnTheServer()
 			Modified = True;
 		EndIf;
 	EndDo;
+	
+	RepresentationInSourceLanguageHasBeenChanged = False;
 	
 EndProcedure
 
@@ -349,6 +357,18 @@ Function TranslateTextOnTheServer(SourceText, TranslationLanguage, SourceLanguag
 		ModuleTranslationOfTextIntoOtherLanguages = Common.CommonModule("TextTranslationTool");
 		Return ModuleTranslationOfTextIntoOtherLanguages.TranslateText(SourceText, TranslationLanguage, SourceLanguage);
 	EndIf;
+	
+EndFunction
+
+&AtServer
+Function RepresentationInTheSourceLanguage()
+	
+	FoundRows = Languages.FindRows(New Structure("LanguageCode", Common.DefaultLanguageCode()));
+	For Each LanguageDetails In FoundRows Do
+		Return ThisObject[LanguageDetails.Name];
+	EndDo;
+	
+	Return "";
 	
 EndFunction
 

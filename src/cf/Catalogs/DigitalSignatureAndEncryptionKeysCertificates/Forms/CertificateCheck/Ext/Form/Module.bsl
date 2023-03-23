@@ -19,6 +19,8 @@ Var InternalData, ClientParameters, PasswordProperties, ContextExecutionParamete
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
+	Items.SupportInformation.Title = DigitalSignatureInternal.HeaderInformationForSupport();
+	
 	DigitalSignatureInternal.SetPasswordEntryNote(
 		ThisObject, , Items.AdvancedPasswordNote.Name);
 	
@@ -288,17 +290,14 @@ Procedure SpecifiedPasswordNoteExtendedTooltipURLProcessing(Item, Var_URL, Stand
 EndProcedure
 
 &AtClient
-Procedure TypicalIssuesURLProcessing(Item, Var_URL, StandardProcessing)
-	
-	StandardProcessing = False;
-	DigitalSignatureClient.OpenInstructionOnTypicalProblemsOnWorkWithApplications();
-	
-EndProcedure
-
-&AtClient
 Procedure SupportInformationURLProcessing(Item, Var_URL, StandardProcessing)
 	
 	StandardProcessing = False;
+
+	If Var_URL = "TypicalIssues" Then
+		DigitalSignatureClient.OpenInstructionOnTypicalProblemsOnWorkWithApplications();
+		Return;
+	EndIf;
 	
 	If Not CheckCompleted Then
 		ShowMessageBox(,

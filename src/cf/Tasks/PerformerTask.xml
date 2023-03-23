@@ -374,7 +374,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Importance</v8:content>
+							<v8:content>Priority</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment>To order the performer's tasks by priority</Comment>
@@ -387,7 +387,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Importance</v8:content>
+							<v8:content>The task priority.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -603,7 +603,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Instructions</v8:content>
+							<v8:content>Details</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment>Description of the task statement for the performer</Comment>
@@ -620,7 +620,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Instructions</v8:content>
+							<v8:content>Task details</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -925,7 +925,7 @@
 			</Attribute>
 			<Attribute uuid="5e28e22a-dd6e-4703-92bd-13f5cb0dc023">
 				<Properties>
-					<Name>AuthorString</Name>
+					<Name>AuthorAsString</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>

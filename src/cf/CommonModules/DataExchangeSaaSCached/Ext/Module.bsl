@@ -57,11 +57,11 @@ Function GetExchangeServiceWSProxy() Export
 	
 	Result = Undefined;
 	If Common.SubsystemExists("CloudTechnology") Then
-		WorkingInServiceModelCTLModuleCached = Common.CommonModule("SaaSOperationsCTLCached");
+		ModuleSaaSOperationsCTLCached = Common.CommonModule("SaaSOperationsCTLCached");
 		ModuleMessagesExchangeTransportSettings = Common.CommonModule("InformationRegisters.MessageExchangeTransportSettings");
 		
 		TransportSettings = ModuleMessagesExchangeTransportSettings.TransportSettingsWS(
-			WorkingInServiceModelCTLModuleCached.ServiceManagerEndpoint());
+			ModuleSaaSOperationsCTLCached.ServiceManagerEndpoint());
 		
 		SettingsStructure = New Structure;
 		SettingsStructure.Insert("WSWebServiceURL",   TransportSettings.WSWebServiceURL);
