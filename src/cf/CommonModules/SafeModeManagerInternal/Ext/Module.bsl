@@ -195,7 +195,7 @@ Function PermissionsToUseExternalResourcesPresentation(Val ProgramModuleType,
 		Raise;
 	EndTry;
 	
-	// АПК:326-
+	// ACC:326-
 	
 	Return Manager.Presentation(True);
 	
@@ -393,14 +393,14 @@ Function AddInBundleFilesChecksum(Val TemplateName) Export
 	Try
 		DeleteFiles(UnpackDirectory);
 	Except
-		WriteLogEvent(NStr("en = 'Safe mode.Cannot create temporary file';", Common.DefaultLanguageCode()), 
+		WriteLogEvent(NStr("en = 'Safe mode manager.Cannot create temporary file';", Common.DefaultLanguageCode()), 
 			EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	
 	Try
 		DeleteFiles(TempFile);
 	Except
-		WriteLogEvent(NStr("en = 'Safe mode.Cannot create temporary file';", Common.DefaultLanguageCode()), 
+		WriteLogEvent(NStr("en = 'Safe mode manager.Cannot create temporary file';", Common.DefaultLanguageCode()), 
 			EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	

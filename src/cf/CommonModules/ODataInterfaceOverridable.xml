@@ -3,7 +3,12 @@
 	<CommonModule uuid="e8cc4e0f-e9c2-4a24-a50e-f5be5ed21019">
 		<Properties>
 			<Name>ODataInterfaceOverridable</Name>
-			<Synonym/>
+			<Synonym>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>OData interface overridable</v8:content>
+				</v8:item>
+			</Synonym>
 			<Comment/>
 			<Global>false</Global>
 			<ClientManagedApplication>false</ClientManagedApplication>

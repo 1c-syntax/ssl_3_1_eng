@@ -12,7 +12,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	Items.SupportInformation.Title = DigitalSignatureInternal.HeaderInformationForSupport();
+	Items.SupportInformation.Title = DigitalSignatureInternal.InfoHeadingForSupport();
 	
 	DigitalSignatureInternal.ToSetTheTitleOfTheBug(ThisObject,
 		Parameters.FormCaption);

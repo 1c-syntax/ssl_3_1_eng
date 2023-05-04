@@ -1275,6 +1275,28 @@ Procedure OnRegisterDataExportHandlers(HandlersTable) Export
 	
 EndProcedure
 
+// See MarkedObjectsDeletionOverridable.BeforeDeletingAGroupOfObjects
+Procedure BeforeDeletingAGroupOfObjects(Context, ObjectsToDelete) Export
+	
+	Context.Insert("Versioning_DeletedObjects", ObjectsToDelete);
+	
+EndProcedure
+
+// See MarkedObjectsDeletionOverridable.AfterDeletingAGroupOfObjects
+Procedure AfterDeletingAGroupOfObjects(Context, Success) Export
+	
+	If Not Success Then
+		Return;
+	EndIf;
+	
+	For Each Ref In Context.Versioning_DeletedObjects Do
+		If Metadata.InformationRegisters.ObjectsVersions.Attributes.VersionAuthor.Type.ContainsType(TypeOf(Ref)) Then
+			InformationRegisters.ObjectsVersions.DeleteVersionAuthorInfo(Ref);
+		EndIf;
+	EndDo;
+	
+EndProcedure
+
 #EndRegion
 
 #Region Private

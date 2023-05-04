@@ -1027,7 +1027,7 @@ Function DocumentAttributeName(Val ObjectMetadata, Val Var_AttributeName)
 	EndIf;	
 	
 	// 
-	DocumentAttributeName = SubordinationStructureOverridable.DocumentAttributeName(ObjectMetadata.Name, Var_AttributeName); // АПК:223
+	DocumentAttributeName = SubordinationStructureOverridable.DocumentAttributeName(ObjectMetadata.Name, Var_AttributeName); // ACC:223
 	If Var_AttributeName = "DocumentAmount" Then
 		Return ?(DocumentAttributeName = Undefined, "DocumentAmount", DocumentAttributeName);
 	ElsIf Var_AttributeName = "Currency" Then

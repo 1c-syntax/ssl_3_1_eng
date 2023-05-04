@@ -203,10 +203,10 @@ Procedure CheckCanSyncWithCloudService()
 		QuestionParameters.Picture = PictureLib.Error32;
 		QuestionParameters.Title = NStr("en = 'Check the setting';");
 		
-		TextOfRecommendations = "";
+		RecommendationsText = "";
 		
 		For RecommendationIndex = 0 To Recommendations.UBound() Do
-			TextOfRecommendations = TextOfRecommendations + StringFunctionsClientServer.SubstituteParametersToString("
+			RecommendationsText = RecommendationsText + StringFunctionsClientServer.SubstituteParametersToString("
 			|    %1. %2", RecommendationIndex+1, Recommendations[RecommendationIndex]);
 		EndDo;
 			
@@ -214,7 +214,7 @@ Procedure CheckCanSyncWithCloudService()
 			Undefined,
 			 StringFunctionsClientServer.SubstituteParametersToString(
 			ErrorMessage,
-				Object.Service, ResultStructure1.ErrorCode, TextOfRecommendations, ProtocolText, 
+				Object.Service, ResultStructure1.ErrorCode, RecommendationsText, ProtocolText, 
 				?(ValueIsFilled(ErrorText),"", Chars.LF+ErrorText)),
 			QuestionDialogMode.OK,
 			QuestionParameters);

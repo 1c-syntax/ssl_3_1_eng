@@ -89,14 +89,14 @@
 						</InputField>
 					</ChildItems>
 				</Page>
-				<Page name="PageSummaryOfError" id="34">
+				<Page name="PageBriefErrorPresentation" id="34">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>Short error presentation</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="PageSummaryOfErrorExtendedTooltip" id="35"/>
+					<ExtendedTooltip name="PageBriefErrorPresentationExtendedTooltip" id="35"/>
 					<ChildItems>
 						<InputField name="BriefErrorDescription" id="13">
 							<DataPath>Record.BriefErrorDescription</DataPath>
@@ -109,14 +109,14 @@
 						</InputField>
 					</ChildItems>
 				</Page>
-				<Page name="DetailedErrorPresentationPage" id="32">
+				<Page name="PageDetailedErrorPresentation" id="32">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>Detailed error presentation</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="DetailedErrorPresentationPageExtendedTooltip" id="33"/>
+					<ExtendedTooltip name="PageDetailedErrorPresentationExtendedTooltip" id="33"/>
 					<ChildItems>
 						<InputField name="DetailErrorDescription" id="22">
 							<DataPath>Record.DetailErrorDescription</DataPath>

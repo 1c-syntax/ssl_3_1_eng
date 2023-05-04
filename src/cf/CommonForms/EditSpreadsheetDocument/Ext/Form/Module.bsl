@@ -224,7 +224,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	EndIf;
 	
 	NotifyDescription = New NotifyDescription("ConfirmAndClose", ThisObject);
-	QueryText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Do you want to save the changes you made to %1?';"), DocumentName);
+	QueryText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Do you want to save the changes to %1?';"), DocumentName);
 	CommonClient.ShowFormClosingConfirmation(NotifyDescription, Cancel, Exit, QueryText);
 	
 	If Modified Or Exit Then
@@ -378,7 +378,7 @@ Procedure IncreaseFontSize(Command)
 	For Each Area In AreaListForChangingFont() Do
 		Size = Area.Font.Size;
 		Size = Size + IncreaseFontSizeChangeStep(Size);
-		Area.Font = New Font(Area.Font,,Size); // АПК:1345 - 
+		Area.Font = New Font(Area.Font,,Size); // ACC:1345 - 
 	EndDo;
 	
 EndProcedure
@@ -392,7 +392,7 @@ Procedure DecreaseFontSize(Command)
 		If Size < 1 Then
 			Size = 1;
 		EndIf;
-		Area.Font = New Font(Area.Font,,Size); // АПК:1345 - 
+		Area.Font = New Font(Area.Font,,Size); // ACC:1345 - 
 	EndDo;
 	
 EndProcedure
@@ -405,7 +405,7 @@ Procedure Strikeout(Command)
 		If ValueToSet = Undefined Then
 			ValueToSet = Not Area.Font.Strikeout = True;
 		EndIf;
-		Area.Font = New Font(Area.Font,,,,,,ValueToSet); // АПК:1345 - 
+		Area.Font = New Font(Area.Font,,,,,,ValueToSet); // ACC:1345 - 
 	EndDo;
 	
 	UpdateCommandBarButtonMarks();
@@ -1828,7 +1828,7 @@ Procedure Attachable_ExpandTheCurrentFieldListItem()
 EndProcedure
 
 &AtClient
-Procedure Attachable_FillInTheListOfAvailableFields(FillParameters) Export // АПК:78 - 
+Procedure Attachable_FillInTheListOfAvailableFields(FillParameters) Export // ACC:78 - 
 	
 	FillInTheListOfAvailableFields(FillParameters);
 	

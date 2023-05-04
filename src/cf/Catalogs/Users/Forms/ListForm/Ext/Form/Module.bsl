@@ -434,7 +434,7 @@ Procedure UsersGroupsDrag(Item, DragParameters, StandardProcessing, String, Fiel
 	If UsersCount = 1 Then
 		If ActionExcludeUser Then
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Do you want to exclude the user ""%1"" from the group ""%2""?';"),
+				NStr("en = 'Do you want to remove user ""%1"" from group ""%2""?';"),
 				String(DragParameters.Value[0]),
 				String(Items.UserGroups.CurrentRow));
 			

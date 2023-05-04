@@ -271,8 +271,8 @@ Procedure BeforeStart(Val CompletionNotification = Undefined) Export
 	// 
 	// 
 	If CommonClientServer.CompareVersions(ISLVersion, "2.7.1.0") > 0 Then
-		ClientLicensingModuleIsClient = CommonClient.CommonModule("LicensingClientClient");
-		ClientLicensingModuleIsClient.ConnectRequestClientSettingsLicensing();
+		ModuleLicensingClientClient = CommonClient.CommonModule("LicensingClientClient");
+		ModuleLicensingClientClient.ConnectRequestClientSettingsLicensing();
 	EndIf;
 	
 EndProcedure
@@ -502,15 +502,7 @@ EndFunction
 //
 Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
 	
-	If NameOfAlert = "StandardSubsystems.Core.ConfigurationOrExtensionsWasModified" Then
-		ShowUserNotification(
-			NStr("en = 'Application update is installed';"),
-			"e1cib/app/CommonForm.DynamicUpdateControl",
-			Result, PictureLib.Warning32,
-			UserNotificationStatus.Important,
-			"TheProgramUpdateIsInstalled");
-		
-	ElsIf NameOfAlert = "StandardSubsystems.Core.FunctionalOptionsModified" Then
+	If NameOfAlert = "StandardSubsystems.Core.FunctionalOptionsModified" Then
 		DetachIdleHandler("RefreshInterfaceOnFunctionalOptionToggle");
 		AttachIdleHandler("RefreshInterfaceOnFunctionalOptionToggle", 5*60, True);
 		
@@ -581,9 +573,10 @@ Procedure FillClientParameters(ClientParameters) Export
 		ApplicationParameters[ParameterName].Insert("StandardTimeOffset");
 		ApplicationParameters[ParameterName].Insert("ClientDateOffset");
 		ApplicationParameters[ParameterName].Insert("DefaultLanguageCode");
-		If ClientParameters.Property("PerformanceMonitor") Then
-			ApplicationParameters[ParameterName].Insert("PerformanceMonitor");
-		EndIf;
+	EndIf;
+	If Not ApplicationParameters[ParameterName].Property("PerformanceMonitor")
+	   And ClientParameters.Property("PerformanceMonitor") Then
+		ApplicationParameters[ParameterName].Insert("PerformanceMonitor");
 	EndIf;
 	
 	FillPropertyValues(ApplicationParameters[ParameterName], ClientParameters);
@@ -760,6 +753,40 @@ Function NotificationWithoutResult(NotificationWithResult) Export
 	Return New NotifyDescription("NotifyWithEmptyResult", ThisObject, NotificationWithResult);
 	
 EndFunction
+
+////////////////////////////////////////////////////////////////////////////////
+// 
+
+// See SSLSubsystemsIntegrationClient.BeforeRecurringClientDataSendToServer
+Procedure BeforeRecurringClientDataSendToServer(Parameters) Export
+	
+	CounterName = "StandardSubsystems.Core";
+	If Not ServerNotificationsClient.TimeoutExpired(CounterName) Then
+		Return;
+	EndIf;
+	
+	// ИзмененаКонфигурацияИлиРасширения
+	Parameters.Insert("StandardSubsystems.Core", True);
+	
+EndProcedure
+
+// See CommonClientOverridable.AfterRecurringReceiptOfClientDataOnServer
+Procedure AfterRecurringReceiptOfClientDataOnServer(Results) Export
+	
+	Result = Results.Get("StandardSubsystems.Core");
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	// ConfigurationOrExtensionsWasModified
+	ShowUserNotification(
+		NStr("en = 'Application update is installed';"),
+		"e1cib/app/CommonForm.DynamicUpdateControl",
+		Result, PictureLib.Warning32,
+		UserNotificationStatus.Important,
+		"TheProgramUpdateIsInstalled");
+	
+EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
 // Display runtime result.
@@ -1645,7 +1672,7 @@ Procedure ActionsBeforeExitCompletionHandler(NotDefined, Parameters) Export
 	
 	Parameters.ContinuationHandler = Undefined;
 	Parameters.CompletionProcessing  = Undefined;
-	ParameterName = "StandardSubsystems.SkipEndOfSystemAfterProcessingWarnings";
+	ParameterName = "StandardSubsystems.SkipQuitSystemAfterWarningsHandled";
 	
 	If Not Parameters.Cancel
 	   And Not Parameters.ContinuousExecution
@@ -1895,10 +1922,7 @@ EndProcedure
 // For internal use only. Continues the execution of CheckReconnectToMasterNodeRequired procedure.
 Procedure ReconnectToMasterNodeAfterCloseForm(Result, Parameters) Export
 	
-	If TypeOf(Result) <> Type("Structure") Then
-		Parameters.Cancel = True;
-		
-	ElsIf Result.Cancel Then
+	If TypeOf(Result) <> Type("Structure") Or Result.Cancel Then
 		Parameters.Cancel = True;
 	Else
 		Parameters.RetrievedClientParameters.Insert("ReconnectMasterNode");
@@ -1911,10 +1935,7 @@ EndProcedure
 // For internal use only. Continuation of the BeforeStart4 procedure.
 Procedure AfterCloseInitialRegionalInfobaseSettingsChoiceForm(Result, Parameters) Export
 	
-	If TypeOf(Result) <> Type("Structure") Then
-		Parameters.Cancel = True;
-		
-	ElsIf Result.Cancel Then
+	If TypeOf(Result) <> Type("Structure") Or Result.Cancel Then
 		Parameters.Cancel = True;
 	Else
 		Parameters.RetrievedClientParameters.Insert("SelectInitialRegionalIBSettings");
@@ -2137,7 +2158,7 @@ Procedure FillInTheClientParametersOnTheServer(Parameters) Export
 	Parameters.Insert("HideDesktopOnStart", False);
 	Parameters.Insert("RAM", CommonClient.RAMAvailableForClientApplication());
 	Parameters.Insert("MainDisplayResolotion", MainDisplayResolotion());
-	Parameters.Insert("SystemInfo", CustomerSystemInformation());
+	Parameters.Insert("SystemInfo", ClientSystemInfo());
 	
 	// 
 	Parameters.Insert("CurrentDateOnClient", CurrentDate()); // 
@@ -2294,7 +2315,7 @@ Function MainDisplayResolotion()
 	
 	ClientDisplaysInformation = GetClientDisplaysInformation();
 	If ClientDisplaysInformation.Count() > 0 Then
-		DPI = ClientDisplaysInformation[0].DPI; // АПК:1353 - 
+		DPI = ClientDisplaysInformation[0].DPI; // ACC:1353 - 
 		MainDisplayResolotion = ?(DPI = 0, 72, DPI);
 	Else
 		MainDisplayResolotion = 72;
@@ -2332,9 +2353,9 @@ Function IsMobileClient()
 EndFunction
 
 // Returns:
-//   See Common.CustomerSystemInformation
+//   See Common.ClientSystemInfo
 //
-Function CustomerSystemInformation()
+Function ClientSystemInfo()
 	
 	Result = New Structure(
 		"OSVersion,

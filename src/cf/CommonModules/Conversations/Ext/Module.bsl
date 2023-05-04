@@ -341,36 +341,52 @@ EndFunction
 //  User - CatalogRef.Users
 //               - CatalogObject.Users
 //
-// Returns:
-//   CollaborationSystemUser
+//  IDOnly - Boolean -
+//                                 
 //
-Function CollaborationSystemUser(User) Export
-	Result = Undefined;
+// Returns:
+//   CollaborationSystemUser - 
+//   
+//
+Function CollaborationSystemUser(User, IDOnly = False) Export
 	
-	SetPrivilegedMode(True);
-	InfoBaseUserID = ?(TypeOf(User) = Type("CatalogObject.Users"),
-		User.IBUserID,
-		Common.ObjectAttributeValue(
-			User, "IBUserID"));
-	SetPrivilegedMode(False);
-	
-	If Not ValueIsFilled(InfoBaseUserID) Then
-		If User = Users.UnspecifiedUserRef() Then
-			InfoBaseUserID = InfoBaseUsers.FindByName("").UUID;
-		Else
-			ErrorTemplate = NStr("en = 'Cannot get user ID (%1)';");
-			ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-				ErrorTemplate,
-				String(User));
-				
-			Raise ErrorDescription;
+	IsCurrentUser = User = Users.AuthorizedUser();
+	If IsCurrentUser Then
+		InfoBaseUserID = InfoBaseUsers.CurrentUser().UUID;
+	Else
+		SetPrivilegedMode(True);
+		InfoBaseUserID = ?(TypeOf(User) = Type("CatalogObject.Users"),
+			User.IBUserID,
+			Common.ObjectAttributeValue(
+				User, "IBUserID"));
+		SetPrivilegedMode(False);
+		
+		If Not ValueIsFilled(InfoBaseUserID) Then
+			If User = Users.UnspecifiedUserRef() Then
+				InfoBaseUserID = InfoBaseUsers.FindByName("").UUID;
+			Else
+				ErrorTemplate = NStr("en = 'Cannot get user ID (%1)';");
+				ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
+					ErrorTemplate,
+					String(User));
+					
+				Raise ErrorDescription;
+			EndIf;
 		EndIf;
 	EndIf;
 	
+	Result = Undefined;
 	CollaborationSystemIDGettingError = "";
 	Try
-		UserIDCollaborationSystem = CollaborationSystem.GetUserID(
-			InfoBaseUserID);
+		If IsCurrentUser Then
+			UserIDCollaborationSystem = CollaborationSystem.CurrentUserID();
+		Else
+			UserIDCollaborationSystem = CollaborationSystem.GetUserID(
+				InfoBaseUserID);
+		EndIf;
+		If IDOnly Then
+			Return UserIDCollaborationSystem;
+		EndIf;
 		Result = CollaborationSystem.GetUser(UserIDCollaborationSystem);
 	Except
 		ErrorInfo = ErrorInfo();
@@ -421,7 +437,12 @@ Function CollaborationSystemUser(User) Export
 		
 	EndIf;
 	
+	If IDOnly Then
+		Return Result.ID;
+	EndIf;
+	
 	Return Result;
+	
 EndFunction
 
 // Updates additional information of a collaboration system user.
@@ -534,7 +555,7 @@ Function IsInteractionSystemConnectError(ErrorInfo) Export
 	
 	MultiLangStrings = New Array;
 	
-	// АПК:1297-
+	// ACC:1297-
 	// 
 	// 
 	

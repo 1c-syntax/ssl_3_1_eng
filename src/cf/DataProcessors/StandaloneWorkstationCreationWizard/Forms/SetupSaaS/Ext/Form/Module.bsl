@@ -237,7 +237,7 @@ Procedure CopyInitialImageToUserComputer(Command)
 		FileGettingParameters.BlockedForm = ThisObject;
 		
 		FileGettingParameters.TitleOfSaveDialog = NStr("en = 'Saving installation package';");
-		FileGettingParameters.FilterSaveDialog    = NStr("en = 'Zip archives (*.zip)|*.zip';");
+		FileGettingParameters.FilterSaveDialog    = NStr("en = 'ZIP archive (*.zip)|*.zip';");
 		FileGettingParameters.FileNameOfSaveDialog  = InstallPackageFileName;
 		
 		FileGettingParameters.NotifyDescriptionOnCompletion = NotifyDescriptionOnCompletion;
@@ -250,7 +250,7 @@ Procedure CopyInitialImageToUserComputer(Command)
 		FileToReceive.Insert("Location", InitialImageTempStorageAddress);
 		
 		DialogParameters = New Structure;
-		DialogParameters.Insert("Filter", NStr("en = 'Zip archives (*.zip)|*.zip';"));
+		DialogParameters.Insert("Filter", NStr("en = 'ZIP archive (*.zip)|*.zip';"));
 		
 		DataExchangeClient.SelectAndSaveFileAtClient(FileToReceive, DialogParameters);
 	EndIf;

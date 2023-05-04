@@ -13,7 +13,7 @@
 //
 Procedure CurrencyRateOperationsOutputObsoleteDataNotification() Export
 	
-	CurrencyRateOperationsClient.NotifyRatesObsolete();
+	CurrencyRateOperationsClient.NotifyRatesObsolete(True);
 	
 EndProcedure
 

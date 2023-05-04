@@ -3,7 +3,7 @@
 	<Title>
 		<v8:item>
 			<v8:lang>en</v8:lang>
-			<v8:content>Marked objects deletion</v8:content>
+			<v8:content>Marked object deletion</v8:content>
 		</v8:item>
 	</Title>
 	<AutoSaveDataInSettings>Use</AutoSaveDataInSettings>
@@ -242,13 +242,13 @@
 					<CommandName>Form.StandardCommand.Help</CommandName>
 					<ExtendedTooltip name="HelpExtendedTooltip" id="688"/>
 				</Button>
-				<SearchStringAddition name="DeleteSearchBar" id="737">
+				<SearchStringAddition name="SearchStringForDeletion" id="737">
 					<AdditionSource>
 						<Item>MarkedForDeletionItemsTree</Item>
 						<Type>SearchStringRepresentation</Type>
 					</AdditionSource>
-					<ContextMenu name="DeleteSearchBarContextMenu" id="738"/>
-					<ExtendedTooltip name="DeleteSearchBarExtendedTooltip" id="739"/>
+					<ContextMenu name="SearchStringForDeletionContextMenu" id="738"/>
+					<ExtendedTooltip name="SearchStringForDeletionExtendedTooltip" id="739"/>
 				</SearchStringAddition>
 			</ChildItems>
 		</CommandBar>
@@ -794,13 +794,13 @@ Searching for marked objects</v8:content>
 											<AutoCommandBar name="NotDeletedItemsCommandBar" id="222">
 												<Autofill>false</Autofill>
 												<ChildItems>
-													<SearchStringAddition name="SearchStringFailedToDelete" id="740">
+													<SearchStringAddition name="SearchStringUndeleted" id="740">
 														<AdditionSource>
 															<Item>NotTrash</Item>
 															<Type>SearchStringRepresentation</Type>
 														</AdditionSource>
-														<ContextMenu name="SearchStringFailedToDeleteContextMenu" id="741"/>
-														<ExtendedTooltip name="SearchStringFailedToDeleteExtendedTooltip" id="742"/>
+														<ContextMenu name="SearchStringUndeletedContextMenu" id="741"/>
+														<ExtendedTooltip name="SearchStringUndeletedExtendedTooltip" id="742"/>
 													</SearchStringAddition>
 												</ChildItems>
 											</AutoCommandBar>
@@ -952,13 +952,13 @@ Searching for marked objects</v8:content>
 															<AutoCommandBar name="NotDeletedItemsLinksCommandBar" id="237">
 																<Autofill>false</Autofill>
 																<ChildItems>
-																	<SearchStringAddition name="SearchBarForPlaceWhereFailedOnesWereUsed" id="743">
+																	<SearchStringAddition name="SearchStringInstancesOfUndeleted" id="743">
 																		<AdditionSource>
 																			<Item>NotDeletedItemsUsageInstances</Item>
 																			<Type>SearchStringRepresentation</Type>
 																		</AdditionSource>
-																		<ContextMenu name="SearchBarForPlaceWhereFailedOnesWereUsedContextMenu" id="744"/>
-																		<ExtendedTooltip name="SearchBarForPlaceWhereFailedOnesWereUsedExtendedTooltip" id="745"/>
+																		<ContextMenu name="SearchStringInstancesOfUndeletedContextMenu" id="744"/>
+																		<ExtendedTooltip name="SearchStringInstancesOfUndeletedExtendedTooltip" id="745"/>
 																	</SearchStringAddition>
 																</ChildItems>
 															</AutoCommandBar>

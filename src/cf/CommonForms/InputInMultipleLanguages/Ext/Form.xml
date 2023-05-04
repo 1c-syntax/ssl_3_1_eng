@@ -135,7 +135,7 @@
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="RepresentationInSourceLanguageHasBeenChanged" id="8">
+		<Attribute name="IsSourceLangPresentationChanged" id="8">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>

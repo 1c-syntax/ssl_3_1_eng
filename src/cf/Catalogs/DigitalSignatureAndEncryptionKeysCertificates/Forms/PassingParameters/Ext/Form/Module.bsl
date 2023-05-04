@@ -162,7 +162,7 @@ Procedure DeleteObsoleteOperationsContexts()
 EndProcedure
 
 &AtClient
-Procedure SetCertificatePassword(CertificateReference, Password, PasswordNote) Export // АПК:78 - 
+Procedure SetCertificatePassword(CertificateReference, Password, PasswordNote) Export // ACC:78 - 
 	
 	SpecifiedPasswords = CommonInternalData.Get("SpecifiedPasswords");
 	SpecifiedPasswordsNotes = CommonInternalData.Get("SpecifiedPasswordsNotes");
@@ -191,7 +191,7 @@ Procedure SetCertificatePassword(CertificateReference, Password, PasswordNote) E
 EndProcedure
 
 &AtClient
-Procedure ResetTheCertificatePassword(CertificateReference) Export // АПК:78 - 
+Procedure ResetTheCertificatePassword(CertificateReference) Export // ACC:78 - 
 	
 	PasswordStorage = CommonInternalData.Get("PasswordStorage");
 	If PasswordStorage <> Undefined Then

@@ -147,7 +147,7 @@
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Typical issues upon using a digital signature and encryption application</v8:content>
+							<v8:content>Common issues with digital signature and encryption applications</v8:content>
 						</v8:item>
 					</Title>
 					<Hyperlink>true</Hyperlink>
@@ -302,7 +302,7 @@
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Typical issues upon using a digital signature and encryption application</v8:content>
+							<v8:content>Common issues with digital signature and encryption applications</v8:content>
 						</v8:item>
 					</Title>
 					<Hyperlink>true</Hyperlink>
@@ -344,7 +344,14 @@
 					<ExtendedTooltip name="InstructionExtendedTooltip" id="63"/>
 					<ChildItems>
 						<LabelDecoration name="SupportInformation" id="67">
-							<Title formatted="true"/>
+							<Title formatted="true">
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>If there are any difficulties, learn &lt;link %1&gt;how to troubleshoot common issues with digital signature applications&lt;/&gt; (in Russian).
+
+If you cannot find a solution, contact 1C support team and provide &lt;link %2&gt;technical information about the issue&lt;/&gt;.</v8:content>
+								</v8:item>
+							</Title>
 							<ContextMenu name="SupportInformationContextMenu" id="68"/>
 							<ExtendedTooltip name="SupportInformationExtendedTooltip" id="69"/>
 							<Events>

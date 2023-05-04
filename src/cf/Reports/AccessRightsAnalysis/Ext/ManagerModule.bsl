@@ -305,7 +305,7 @@ Function AccessRestrictionKinds(ForExternalUsers = Undefined,
 		Query.SetParameter("AccessKindsValuesTypes", AccessKindsValuesTypes);
 		Query.SetParameter("UsedAccessKinds",
 			AccessTypesWithView(AccessKindsValuesTypes, True));
-		// АПК:96-
+		// ACC:96-
 		// 
 		Query.Text =
 		"SELECT

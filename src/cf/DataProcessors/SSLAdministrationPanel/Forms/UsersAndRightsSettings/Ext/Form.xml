@@ -33,7 +33,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="2037"/>
+			<ExtendedTooltip name="GroupHeaderExtendedTooltip_SSLs" id="2037"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="2023">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -619,7 +619,7 @@ will speed up viewing lists and generating reports compared to the standard mode
 							<ContextMenu name="UsePeriodClosingDatesContextMenu" id="2203"/>
 							<ExtendedTooltip name="UsePeriodClosingDatesExtendedTooltip" id="2204"/>
 							<Events>
-								<Event name="OnChange">Attachable_WhenChangingTheDetails</Event>
+								<Event name="OnChange">Attachable_OnChangeAttribute</Event>
 							</Events>
 						</CheckBoxField>
 						<Button name="ConfigurePeriodClosingDates" id="2207">
@@ -701,32 +701,14 @@ will speed up viewing lists and generating reports compared to the standard mode
 								</Button>
 							</ChildItems>
 						</UsualGroup>
-						<UsualGroup name="HidePersonalDataUsageGroup" id="2223">
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Hide personal data</v8:content>
-								</v8:item>
-							</Title>
+						<UsualGroup name="GroupDestructionOfPersonalDataUse" id="2223">
 							<Group>Vertical</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="HidePersonalDataUsageGroupExtendedTooltip" id="2224"/>
+							<ExtendedTooltip name="GroupDestructionOfPersonalDataUseExtendedTooltip" id="2224"/>
 							<ChildItems>
-								<UsualGroup name="DaysBeforeHideGroup" id="2225">
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Days before hiding</v8:content>
-										</v8:item>
-									</Title>
-									<ToolTip>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Possible reasons to hide data: subject's consent period expired or the consent is missing.</v8:content>
-										</v8:item>
-									</ToolTip>
+								<UsualGroup name="GroupOfDaysBeforeDestruction" id="2225">
 									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 									<Width>43</Width>
 									<HorizontalStretch>false</HorizontalStretch>
@@ -734,55 +716,29 @@ will speed up viewing lists and generating reports compared to the standard mode
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="DaysBeforeHideGroupExtendedTooltip" id="2226"/>
+									<ExtendedTooltip name="GroupOfDaysBeforeDestructionExtendedTooltip" id="2226"/>
 									<ChildItems>
-										<CheckBoxField name="UsePersonalDataHiding" id="2227">
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Hide personal data in</v8:content>
-												</v8:item>
-											</Title>
+										<CheckBoxField name="UseDestructionOfPersonalData" id="2227">
 											<TitleLocation>Right</TitleLocation>
 											<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 											<CheckBoxType>Auto</CheckBoxType>
-											<ContextMenu name="UsePersonalDataHidingContextMenu" id="2228"/>
-											<ExtendedTooltip name="UsePersonalDataHidingExtendedTooltip" id="2229"/>
+											<ContextMenu name="UseDestructionOfPersonalDataContextMenu" id="2228"/>
+											<ExtendedTooltip name="UseDestructionOfPersonalDataExtendedTooltip" id="2229"/>
 											<Events>
-												<Event name="OnChange">Attachable_PDHidingSettingsOnChange</Event>
+												<Event name="OnChange">PlugIn_SettingsOfDestructionOfNDaysWhenChanging</Event>
 											</Events>
 										</CheckBoxField>
-										<InputField name="DaysBeforeSubjectsPersonalDataIsHidden" id="2230">
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>days</v8:content>
-												</v8:item>
-											</Title>
-											<TitleLocation>Right</TitleLocation>
-											<ContextMenu name="DaysBeforeSubjectsPersonalDataIsHiddenContextMenu" id="2231"/>
-											<ExtendedTooltip name="DaysBeforeSubjectsPersonalDataIsHiddenExtendedTooltip" id="2232"/>
-											<Events>
-												<Event name="OnChange">Attachable_PDHidingSettingsOnChange</Event>
-											</Events>
-										</InputField>
-										<PictureDecoration name="WaitForPDHidingUsageChangeDecoration" id="2233">
+										<PictureDecoration name="DecorationWaitingForChangeOfUseDestructionOfNDays" id="2233">
 											<Visible>false</Visible>
 											<Width>2</Width>
 											<Height>1</Height>
-											<Title formatted="false">
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Wait for personal data usage option change decoration</v8:content>
-												</v8:item>
-											</Title>
 											<Picture>
 												<xr:Ref>CommonPicture.CheckInProgress</xr:Ref>
 												<xr:LoadTransparent>false</xr:LoadTransparent>
 											</Picture>
 											<FileDragMode>AsFile</FileDragMode>
-											<ContextMenu name="WaitForPDHidingUsageChangeDecorationContextMenu" id="2234"/>
-											<ExtendedTooltip name="WaitForPDHidingUsageChangeDecorationExtendedTooltip" id="2235"/>
+											<ContextMenu name="DecorationWaitingForChangeOfUseDestructionOfNDaysContextMenu" id="2234"/>
+											<ExtendedTooltip name="DecorationWaitingForChangeOfUseDestructionOfNDaysExtendedTooltip" id="2235"/>
 										</PictureDecoration>
 									</ChildItems>
 								</UsualGroup>

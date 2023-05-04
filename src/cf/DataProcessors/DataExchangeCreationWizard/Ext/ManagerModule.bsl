@@ -246,7 +246,7 @@ Procedure OnStartRecordDataForInitialExport(RegistrationSettings, HandlerParamet
 
 	If HasActiveBackgroundJobs(BackgroundJobKey) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Data registration for initial export for ""%1"" is already in progress.';"),
+			NStr("en = 'Data registration for initial export to ""%1"" is already running.';"),
 			RegistrationSettings.ExchangeNode);
 	EndIf;
 		
@@ -463,7 +463,7 @@ Procedure OnStartGetDataExchangeSettingOptions(UUID, HandlerParameters, Continue
 		ProcedureParameters.Insert("ExchangeNode",       Undefined);
 		
 		ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-		ExecutionParameters.BackgroundJobDescription = NStr("en = 'Get available setting options for data exchange with external systems';");
+		ExecutionParameters.BackgroundJobDescription = NStr("en = 'Get available setup options for data exchange with external systems';");
 		ExecutionParameters.WaitCompletion = 0;
 		ExecutionParameters.RunInBackground    = True;
 		

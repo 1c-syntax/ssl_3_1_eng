@@ -115,7 +115,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 		Handler = Handlers.Add();
 		Handler.ExecutionMode = "Deferred";
 		Handler.Version          = "2.4.4.79";
-		Handler.Comment     = NStr("en = 'Enables the option of sending information about using the application to 1С company. You can disable this option in Settings/Online user support and services/Monitoring center';");
+		Handler.Comment     = NStr("en = 'Enables sending application usage data to 1C company. You can disable this option in Administration — Online support and services — Monitoring center.';");
 		Handler.Id   = New UUID("68c8c60c-5b23-436a-9555-a6f24a6b1ffd");
 		Handler.Procedure       = "MonitoringCenterInternal.EnableSendingInfo";
 		Handler.DeferredProcessingQueue          = 1;
@@ -961,17 +961,17 @@ Function GenerateJSONStructureForSending(Parameters)
 	MonitoringCenterParameters.Insert("RegisterConfigurationSettings");
 	MonitoringCenterParameters.Insert("RegisterPerformance");
 	MonitoringCenterParameters.Insert("RegisterTechnologicalPerformance");
-	MonitoringCenterParameters.Insert("ConfigurationStatisticsNextSubmission");
+	MonitoringCenterParameters.Insert("ConfigurationStatisticsNextSending");
 	MonitoringCenterParameters.Insert("ConfigurationStatisticsSendingPeriod");
 	MonitoringCenterParameters = GetMonitoringCenterParameters(MonitoringCenterParameters);
 	
-	SendConfigurationStatistics = Parameters.StartDate2 >= MonitoringCenterParameters.ConfigurationStatisticsNextSubmission;
+	ShouldSendConfigurationStatistics = Parameters.StartDate2 >= MonitoringCenterParameters.ConfigurationStatisticsNextSending;
 	
 	If MonitoringCenterParameters.RegisterSystemInformation Then
 		Info = GetSystemInformation1();
 	EndIf;
 	
-	If MonitoringCenterParameters.RegisterSubsystemVersions And SendConfigurationStatistics Then
+	If MonitoringCenterParameters.RegisterSubsystemVersions And ShouldSendConfigurationStatistics Then
 		Subsystems = SubsystemsVersions();
 	EndIf;
 	
@@ -1053,7 +1053,7 @@ Function GenerateJSONStructureForSending(Parameters)
 	SeparationByDataAreasEnabled = SeparationByDataAreasEnabled();
 	
 	#Region StatisticsConfigurationSection
-	If MonitoringCenterParameters.RegisterConfigurationStatistics And SendConfigurationStatistics Then
+	If MonitoringCenterParameters.RegisterConfigurationStatistics And ShouldSendConfigurationStatistics Then
 		If SeparationByDataAreasEnabled Then
 			QueryResultNames = InformationRegisters.ConfigurationStatistics.GetStatisticsNames(0);
 			ValueTableNames = QueryResultNames.Unload();
@@ -1114,7 +1114,7 @@ Function GenerateJSONStructureForSending(Parameters)
 	#EndRegion
 	
 	#Region OptionsSection
-	If MonitoringCenterParameters.RegisterConfigurationSettings And SendConfigurationStatistics Then
+	If MonitoringCenterParameters.RegisterConfigurationSettings And ShouldSendConfigurationStatistics Then
 		If SeparationByDataAreasEnabled Then
 			QueryResultNames = InformationRegisters.ConfigurationStatistics.GetStatisticsNames(1);
 			ValueTableNames = QueryResultNames.Unload();
@@ -1217,7 +1217,7 @@ Function GenerateJSONStructureForSending(Parameters)
 		JSONStructure.Insert("info",  Info);
 	EndIf;
 	
-	If MonitoringCenterParameters.RegisterSubsystemVersions And SendConfigurationStatistics Then
+	If MonitoringCenterParameters.RegisterSubsystemVersions And ShouldSendConfigurationStatistics Then
 		JSONStructure.Insert("versions",  Subsystems);
 	EndIf;
 		
@@ -1240,13 +1240,13 @@ Function GenerateJSONStructureForSending(Parameters)
 		JSONStructure.Insert("business", BusinessStatistics);
 	EndIf;
 	
-		If MonitoringCenterParameters.RegisterConfigurationStatistics And SendConfigurationStatistics Then
+		If MonitoringCenterParameters.RegisterConfigurationStatistics And ShouldSendConfigurationStatistics Then
 		JSONStructure.Insert("config", ConfigurationStatisticsSection["StatisticsConfiguration"]);
 		JSONStructure.Insert("extensionsInfo", DataOnUsedExtensions);
 		JSONStructure.Insert("statisticOfRoles", DataOnRolesUsage);
 	EndIf;
 	
-	If MonitoringCenterParameters.RegisterConfigurationSettings And SendConfigurationStatistics Then
+	If MonitoringCenterParameters.RegisterConfigurationSettings And ShouldSendConfigurationStatistics Then
 		JSONStructure.Insert("options", ConfigurationSettingSection["Options"]);
 	EndIf;
 		
@@ -1271,8 +1271,8 @@ Function GenerateJSONStructureForSending(Parameters)
 		JSONStructure.Insert("contacts", ContactInformation);		
 	EndIf;
 	
-	If SendConfigurationStatistics Then		
-		SetMonitoringCenterParameter("ConfigurationStatisticsNextSubmission", Parameters.StartDate2 + MonitoringCenterParameters.ConfigurationStatisticsSendingPeriod);				
+	If ShouldSendConfigurationStatistics Then		
+		SetMonitoringCenterParameter("ConfigurationStatisticsNextSending", Parameters.StartDate2 + MonitoringCenterParameters.ConfigurationStatisticsSendingPeriod);				
 	EndIf;
 			
 	Return JSONStructure;
@@ -1779,7 +1779,7 @@ Function GetDefaultParameters()
 	ConstantParameters.Insert("SendDataNextGeneration", Date(1,1,1));
 	ConstantParameters.Insert("SendDataGenerationPeriod", 607800);
 	ConstantParameters.Insert("LastPackageDate", Date(1,1,1));
-	ConstantParameters.Insert("ConfigurationStatisticsNextSubmission", Date(2010,1,1));
+	ConstantParameters.Insert("ConfigurationStatisticsNextSending", Date(2010,1,1));
 	ConstantParameters.Insert("ConfigurationStatisticsSendingPeriod", 607800);	
 	ConstantParameters.Insert("LastPackageNumber", 0);
 	ConstantParameters.Insert("PackagesToSend", 3);
@@ -3302,9 +3302,9 @@ Procedure SendDumps(Parameters)
 		
 		If Parameters.Property("DumpInstances") And Parameters.DumpInstances.Count() Then
 	
-			TemplateRequestForSending = NStr("en = 'Error reports (%1 pcs.) are ready to be sent
+			TemplateRequestForSending = NStr("en = 'Error reports (%1) are ready to be sent.
 		                             |Total data volume: %2 MB.
-		                             |Send the specified files for analysis to 1С company?';");	
+		                             |Send the files for analysis to 1C company?';");	
 			
 			TotalSpace = 0;
 			TotalPieces = 0;
@@ -4043,7 +4043,7 @@ Function SettingErrorHandlingSettings(SavedParameters1, ReceivedParameters)
 			// Don't throw an exception.
 		EndTry;		
 	EndIf;
-	// АПК:280-
+	// ACC:280-
 	Return ProcessingResult;
 	
 EndFunction

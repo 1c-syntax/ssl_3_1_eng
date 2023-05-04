@@ -189,7 +189,7 @@ Procedure ShowCorrectionMethod(WayFix, AdditionalParameters = Undefined) Export
 		CommonClient.MessageToUser(NStr("en = 'Try clearing and entering a username again.';"),
 			Object.Ref, , "Object.User");
 	ElsIf WayFix = "RefillPassword" Then
-		CommonClient.MessageToUser(NStr("en = 'Enter password';"),
+		CommonClient.MessageToUser(NStr("en = 'Enter your password';"),
 			Object.Ref, "Password");
 	ElsIf WayFix = "FillinMailAddress" Then
 		CommonClient.MessageToUser(NStr("en = 'Check email address.';"),

@@ -292,7 +292,7 @@ Procedure FillInTheLanguageSubmenu(Form, CurrentLanguage = Undefined, Val Filter
 		FormButton.Title = LanguagePresentation;
 		FormButton.LocationInCommandBar = ?(IsMobileClient, 
 			ButtonLocationInCommandBar.InAdditionalSubmenu, ButtonLocationInCommandBar.InCommandBar);
-		FormButton.Visible = TemplateInCurrLang;
+		FormButton.Visible = TemplateInCurrLang Or Not IsEditorForm;
 		
 		If IsEditorForm Then
 			Command = Commands.Add("AddLang_" + LocalizationCode);

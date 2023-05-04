@@ -2076,7 +2076,7 @@ Procedure UpdateDataAreaTransportSettings(Parameters)
 		
 	Else
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The endpoint %2 doesn''t support the exchange message transport kind %1.';"),
+			NStr("en = 'The endpoint %2 doesn''t support the exchange message transport type %1.';"),
 			String(TransportSettings.DefaultExchangeMessagesTransportKind),
 			String(CorrespondentEndpoint));
 	EndIf;
@@ -2192,7 +2192,7 @@ EndFunction
 //
 Function EventLogEventDataSynchronizationSetup() Export
 	
-	Return NStr("en = 'Data exchange in SaaS.Data synchronization setup';",
+	Return NStr("en = 'Data exchange SaaS.Data synchronization setup';",
 		Common.DefaultLanguageCode());
 	
 EndFunction
@@ -2201,7 +2201,7 @@ EndFunction
 //
 Function EventLogEventDataSynchronizationMonitor() Export
 	
-	Return NStr("en = 'Data exchange in SaaS.Data synchronization monitor';",
+	Return NStr("en = 'Data exchange SaaS.Data synchronization monitor';",
 		Common.DefaultLanguageCode());
 	
 EndFunction
@@ -2210,14 +2210,14 @@ EndFunction
 //
 Function DataSyncronizationLogEvent() Export
 	
-	Return NStr("en = 'Data exchange in SaaS.Data synchronization';",
+	Return NStr("en = 'Data exchange SaaS.Data synchronization';",
 		Common.DefaultLanguageCode());
 	
 EndFunction
 
 Function EventLogEventSystemMessagesExchangeSessions()
 	
-	Return NStr("en = 'Data exchange in SaaS.Message exchange sessions';",
+	Return NStr("en = 'Data exchange SaaS.Message exchange sessions';",
 		Common.DefaultLanguageCode());
 	
 EndFunction

@@ -502,15 +502,4 @@ Procedure ClearUpReportDistributionHistoryCompletion(Job, Parameters) Export
 	
 EndProcedure
 
-Function CanEncryptAttachments() Export
-
-	If Not CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
-		Return False;
-	Else
-		ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
-		Return ModuleDigitalSignatureClient.UseEncryption();
-	EndIf;
-
-EndFunction	
-
 #EndRegion

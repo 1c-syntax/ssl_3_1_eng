@@ -3745,6 +3745,11 @@ Procedure SetTotalRecordExpression(Formula, FormulaDescription)
 	EndIf;
 	
 	DetailedRecordsExpression = Formula.GetDetailRecordExpression();
+	
+	If IsBlankString(DetailedRecordsExpression) Then
+		Return;
+	EndIf;
+	
 	If ExpressionContainsAggregateFunction(DetailedRecordsExpression) Then
 		TotalRecordsExpression = DetailedRecordsExpression;
 	Else

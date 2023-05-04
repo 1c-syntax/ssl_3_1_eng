@@ -176,11 +176,11 @@ EndFunction
 //  ObjectReference - CatalogRef -
 //  TableRow - ValueTableRow: см. ЗагрузкаДанныхИзФайла.ОписаниеЗагружаемыхДанныхДляСправочников
 //
-Procedure LoadPropertyValuesFromFile(ObjectReference, TableRow) Export
+Procedure ImportPropertiesValuesfromFile(ObjectReference, TableRow) Export
 	
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManagerInternal = Common.CommonModule("PropertyManagerInternal");
-		ModulePropertyManagerInternal.LoadPropertyValuesFromFile(ObjectReference, TableRow);
+		ModulePropertyManagerInternal.ImportPropertiesValuesfromFile(ObjectReference, TableRow);
 	EndIf;
 		
 EndProcedure

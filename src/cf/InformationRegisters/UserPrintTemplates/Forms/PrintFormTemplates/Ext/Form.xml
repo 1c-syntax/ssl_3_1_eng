@@ -953,7 +953,7 @@ The newly translated template is ready to go!</v8:content>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Set action on select print form template.</v8:content>
+					<v8:content>Set action on select print form template</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>SetActionOnChoosePrintFormTemplate</Action>

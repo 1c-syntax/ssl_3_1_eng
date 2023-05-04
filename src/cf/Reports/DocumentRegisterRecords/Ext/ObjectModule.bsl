@@ -48,74 +48,37 @@ Procedure DefineFormSettings(Form, VariantKey, Settings) Export
 	
 EndProcedure
 
-// Called before importing new settings. Used to change composition schema.
-//   For example, if the report schema depends on the option key or report parameters.
-//   For the schema changes to take effect, call the ReportsServer.EnableSchema() method.
+// 
 //
 // Parameters:
-//   Context - Arbitrary - 
-//       The context parameters where the report is used.
-//       Used to pass the ReportsServer.EnableSchema() method in the parameters.
-//   SchemaKey - String -
-//       An ID of the current setting composer schema.
-//       It is not filled in by default (that means, the composer is initialized according to the main schema).
-//       Used for optimization, to reinitialize composer as rarely as possible.
-//       It is possible not to use it if the initialization is running unconditionally.
+//   Context - Arbitrary
+//   SchemaKey - String
 //   VariantKey - String
-//                - Undefined -
-//       
-//       
-//   Settings - DataCompositionSettings
-//             - Undefined -
-//       
-//       
-//   UserSettings - DataCompositionUserSettings
-//                             - Undefined -
-//       
-//       
+//                - Undefined
+//   NewDCSettings - DataCompositionSettings
+//                    - Undefined
+//   NewDCUserSettings - DataCompositionUserSettings
+//                                    - Undefined
 //
-// Call options:
-//   If SchemaKey <> "1" Then
-//   	SchemaKey = "1";
-//   	DCSchema = GetCommonTemplate("MyCommonCompositionSchema");
-//   	ReportsServer.EnableSchema(ThisObject, Context, DCSchema, SchemaKey);
-//   EndIf; - a report composer is initialized based on the schema from common templates.
-//   If TypeOf(NewDCSettings) = Type("DataCompositionUserSettings") Then
-//   	FullMetadataObjectName = "";
-//   	For Each DCItem From NewDCUserSettings.Items Do
-//   		If TypeOf(DCItem) = Type("DataCompositionSettingsParameterValue") Then
-//   			ParameterName = String(DCItem.Parameter);
-//   			If ParameterName = "MetadataObject" Then
-//   				FullMetadataObjectName = DCItem.Value;
-//   			EndIf;
-//   		EndIf;
-//   	EndDo;
-//   	If SchemaKey <> FullMetadataObjectName Then
-//   		SchemaKey = FullMetadataObjectName;
-//   		DCSchema = New DataCompositionSchema;
-//   		ReportsServer.EnableSchema(ThisObject, Context, DCSchema, SchemaKey);
-//   	EndIf;
-//   EndIf; - a schema depends on the parameter value that is displayed in the report user settings.
-//
-Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, Settings, UserSettings) Export
+Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSettings, NewDCUserSettings) Export
 	
 	CurrentVariantKey = VariantKey;
 	
-	If TypeOf(Settings) <> Type("DataCompositionSettings") Then
-		Settings = SettingsComposer.Settings;
+	If TypeOf(NewDCSettings) <> Type("DataCompositionSettings") Then
+		NewDCSettings = SettingsComposer.Settings;
 	EndIf;
 	
-	If TypeOf(UserSettings) <> Type("DataCompositionUserSettings") Then
-		UserSettings = SettingsComposer.UserSettings;
+	If TypeOf(NewDCUserSettings) <> Type("DataCompositionUserSettings") Then
+		NewDCUserSettings = SettingsComposer.UserSettings;
 	EndIf;
 	
-	ReportParameters = ReportParameters(Settings, UserSettings);
+	ReportParameters = ReportParameters(NewDCSettings, NewDCUserSettings);
 	
 	If ReportParameters.OwnerDocument = Undefined Then
 		Raise NStr("en = 'You can open the document record history from the document form.';");
 	EndIf;
 	
-	ParentOptionKey = ParentOptionKey(Context, VariantKey, Settings);
+	ParentOptionKey = ParentOptionKey(Context, VariantKey, NewDCSettings);
 	
 	If SchemaKey = VariantKey Then
 		Return;
@@ -128,7 +91,7 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, Setting
 	AddRecordsCountResource(DataCompositionSchema);
 	
 	RegistersList = RegistersList();
-	SelectedRegistersList = SelectedRegistersList(RegistersList, Settings, UserSettings);
+	SelectedRegistersList = SelectedRegistersList(RegistersList, NewDCSettings, NewDCUserSettings);
 	
 	FoundParameter = DataCompositionSchema.Parameters.Find("RegistersList");
 	FoundParameter.SetAvailableValues(RegistersList);
@@ -138,23 +101,23 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, Setting
 	ParameterValues.Insert("RegistersList", SelectedRegistersList);
 	
 	RestrictOwnerType(ReportParameters.OwnerDocument);
-	SetDataParameters(Settings, ParameterValues, UserSettings);
+	SetDataParameters(NewDCSettings, ParameterValues, NewDCUserSettings);
 	
 	IsPredefinedOption = (ParentOptionKey = VariantKey);
 	
 	If ParentOptionKey = "Main" Then
-		PrepareHorizontalOption(ReportParameters.OwnerDocument, Settings, IsPredefinedOption);
+		PrepareHorizontalOption(ReportParameters.OwnerDocument, NewDCSettings, IsPredefinedOption);
 	ElsIf ParentOptionKey = "Additional" Then
-		PrepareVerticalOption(ReportParameters.OwnerDocument, Settings, IsPredefinedOption);
+		PrepareVerticalOption(ReportParameters.OwnerDocument, NewDCSettings, IsPredefinedOption);
 	EndIf;
 	
-	AdditionalProperties = Settings.AdditionalProperties;
+	AdditionalProperties = NewDCSettings.AdditionalProperties;
 	AdditionalProperties.Insert("SettingsPropertiesIDs", New Array);
 	AdditionalProperties.Insert("ParentOptionKey", ParentOptionKey);
 	
 	ReportsServer.AttachSchema(ThisObject, Context, DataCompositionSchema, SchemaKey);
 	
-	SetConditionalAppearance(Settings);
+	SetConditionalAppearance(NewDCSettings);
 	DetermineUsedTables(Context);
 	
 EndProcedure
@@ -163,7 +126,7 @@ EndProcedure
 Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
 	
 	If Form.Parameters.VariantPresentation = "Details" Then
-		Raise NStr("en = 'The selected action is not available in this report.';");
+		Raise NStr("en = 'The selected action is unavailable in this report.';");
 	EndIf;
 	
 	OwnerDocument = Undefined;

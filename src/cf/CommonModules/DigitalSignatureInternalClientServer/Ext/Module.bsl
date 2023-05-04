@@ -122,7 +122,7 @@ EndFunction
 Function CryptoProvidersSearchResult(CryptoProvidersResult, ServerName = "") Export
 	
 	If ServerName = "" Then
-		ServerName = NStr("en = 'На компьютере';");
+		ServerName = NStr("en = 'On computer';");
 	Else
 		ServerName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'On the %1 server';"), ServerName);
 	EndIf;
@@ -233,21 +233,28 @@ Function CertificatesInOrderToRoot(Certificates) Export
 	
 	By_Order = New Array;
 	CertificatesBySubjects = New Map;
-	DescriptionOfCertificates = New Map;
+	CertificatesDetails = New Map;
 	
 	For Each Certificate In Certificates Do
-		DescriptionOfCertificates.Insert(Certificate, Certificate);
+		CertificatesDetails.Insert(Certificate, Certificate);
 		By_Order.Add(Certificate);
-		CertificatesBySubjects.Insert(Certificate.Subject.CN, Certificate);
+		CertificatesBySubjects.Insert(PublisherSKey(Certificate.Subject), Certificate);
 	EndDo;
 	
-	ArrangeCertificates(By_Order, DescriptionOfCertificates, CertificatesBySubjects);
-	
+	For Counter = 1 To By_Order.Count() Do
+		HasChanges = False;
+		SortCertificates(
+			By_Order, CertificatesDetails, CertificatesBySubjects, HasChanges); 
+		If Not HasChanges Then
+			Break;
+		EndIf;
+	EndDo;
+
 	Return By_Order;
 	
 EndFunction
 
-Function CurrentProgramAlgorithms() Export
+Function AppsRelevantAlgorithms() Export
 	
 	Return NamesOfSignatureAlgorithmsGOST_34_10_2012_256()
 	
@@ -257,33 +264,54 @@ EndFunction
 
 #Region Private
 
-Procedure ArrangeCertificates(By_Order, DescriptionOfCertificates, CertificatesBySubjects) Export
+Procedure SortCertificates(By_Order, CertificatesDetails, CertificatesBySubjects, HasChanges) Export
 	
-	For Each CertificateDetails In DescriptionOfCertificates Do
+	For Each CertificateDetails In CertificatesDetails Do
+		
 		CertificateProperties = CertificateDetails.Key;
 		Certificate = CertificateDetails.Value;
-		IssuerCertificate = CertificatesBySubjects.Get(CertificateProperties.Issuer.CN);
+		
+		PublisherSKey = PublisherSKey(CertificateProperties.Issuer);
+		IssuerCertificate = CertificatesBySubjects.Get(PublisherSKey);
 		
 		Position = By_Order.Find(Certificate);
-		If CertificateProperties.Issuer.CN = CertificateProperties.Subject.CN 
+		
+		If CertificateProperties.Issuer.CN = CertificateProperties.Subject.CN
+			And PublisherSKey = PublisherSKey(CertificateProperties.Subject)
 			Or IssuerCertificate = Undefined Then
-			
+
 			If Position <> By_Order.UBound() Then
 				By_Order.Delete(Position);
 				By_Order.Add(Certificate);
+				HasChanges = True;
 			EndIf;
+
 			Continue;
+
 		EndIf;
+
 		IssuerPosition = By_Order.Find(IssuerCertificate);
 		If Position + 1 = IssuerPosition Then
 			Continue;
 		EndIf;
+		
 		By_Order.Delete(Position);
+		HasChanges = True;
 		IssuerPosition = By_Order.Find(IssuerCertificate);
 		By_Order.Insert(IssuerPosition, Certificate);
+		
 	EndDo;
 	
-EndProcedure
+EndProcedure 
+
+Function PublisherSKey(PublisherOrSubject) Export
+	Array = New Array;
+	For Each KeyAndValue In PublisherOrSubject Do
+		Array.Add(KeyAndValue.Key);
+		Array.Add(KeyAndValue.Value);
+	EndDo;
+	Return PublisherOrSubject.CN + StrConcat(Array);
+EndFunction
 
 Function UsersCertificateString(User1, User2, UsersCount) Export
 	
@@ -1077,7 +1105,7 @@ Procedure CryptoManagerFillErrorsPresentation(ErrorsDescription,
 			ErrorText = NStr("en = 'Usage of no application is possible.';");
 		Else
 			ErrorTemplate = NStr("en = 'No application
-			                          | with signing algorithm %1 is supported.';");
+			                          | with the %1 signing algorithm is supported.';");
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
 				TrimAll(StrSplit(SignAlgorithm, ",")[0]));
 		EndIf;
@@ -1536,8 +1564,9 @@ EndFunction
 //   * CertificateLastTimestamp - CryptoCertificate
 //   * DateSignedFromLabels - Date
 //   * CertificateDetails - See DigitalSignatureClient.CertificateProperties
-//   * UnverifiedSignatureDate - Date
-//   * DateLastTimestamp - Date
+//                         - Undefined - 
+//   
+//   
 //
 Function NewSettingsSignaturesCryptography() Export
 	
@@ -1584,8 +1613,18 @@ Function ParametersCryptoSignatures(ContainerSignatures, TimeAddition, SessionDa
 	SignatureParameters = NewSettingsSignaturesCryptography();
 		
 	Signature = ContainerSignatures.Signatures[0];
-	SignatureParameters.CertificateDetails = CertificateProperties(Signature.SignatureCertificate, TimeAddition);
-		
+	
+	Try
+		SerialNumber = Signature.SignatureCertificate.SerialNumber;
+		CertificateExists = True;
+	Except
+		CertificateExists = False;
+	EndTry;
+	
+	If CertificateExists Then
+		SignatureParameters.CertificateDetails = CertificateProperties(Signature.SignatureCertificate, TimeAddition);
+	EndIf;
+	
 	DateSignedFromLabels = Date(3999, 12, 31);
 	If ValueIsFilled(Signature.UnconfirmedTimeSignatures) Then
 		SignatureParameters.UnverifiedSignatureDate = Signature.UnconfirmedTimeSignatures + TimeAddition;
@@ -1618,10 +1657,10 @@ Function ParametersCryptoSignatures(ContainerSignatures, TimeAddition, SessionDa
 	If ValueIsFilled(DateActionLastTimestamp) Then
 		SignatureParameters.DateActionLastTimestamp = DateActionLastTimestamp + TimeAddition; 
 		SignatureParameters.CertificateLastTimestamp = CertificateLastTimestamp;
-	ElsIf SignatureParameters.CertificateDetails.ValidBefore < SessionDate Then
+	ElsIf CertificateExists And SignatureParameters.CertificateDetails.ValidBefore < SessionDate Then
 		SignatureParameters.DateActionLastTimestamp = SignatureParameters.CertificateDetails.ValidBefore;
 		SignatureParameters.CertificateLastTimestamp = Signature.SignatureCertificate;
-	Else
+	ElsIf CertificateExists Then
 		SignatureParameters.CertificateLastTimestamp = Signature.SignatureCertificate;
 	EndIf;
 
@@ -1638,17 +1677,11 @@ Function CryptoSignatureType(SignatureTypeValue) Export
 	
 	#If MobileClient Then
 	
-	Return Undefined
+	Return Undefined;
 	
 	#Else
 	
-	If False Then // Intended for compatibility with 1C:Enterprise versions that don't support the upgraded signature.
-		CryptoSignatureType = Undefined;
-	EndIf;
-		
-	TypeName = "CryptoSignatureType";
-	
-	If TypeOf(SignatureTypeValue) = Type(TypeName) Then
+	If TypeOf(SignatureTypeValue) = Type("CryptoSignatureType") Then
 		If SignatureTypeValue = CryptoSignatureType.CAdESBES Then
 			Return PredefinedValue("Enum.CryptographySignatureTypes.BasicCAdESBES");
 		ElsIf SignatureTypeValue = CryptoSignatureType.CAdEST Then
@@ -2593,7 +2626,7 @@ Function XMLEnvelope(Parameters) Export
 	EndIf;
 	
 	XMLEnvelope = Undefined;
-	DigitalSignatureClientServerLocalization.WhenReceivingXMLEnvelope(Parameters, XMLEnvelope);
+	DigitalSignatureClientServerLocalization.OnReceivingXMLEnvelope(Parameters, XMLEnvelope);
 	
 	If XMLEnvelope = Undefined Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -2615,10 +2648,10 @@ Function XMLEnvelopeParameters() Export
 	
 	Result = New Structure;
 	
-	EnvelopeOption = "";
-	DigitalSignatureClientServerLocalization.WhenReceivingDefaultEnvelopeOption(EnvelopeOption);
+	EnvelopVariant = "";
+	DigitalSignatureClientServerLocalization.OnGetDefaultEnvelopeVariant(EnvelopVariant);
 	
-	Result.Insert("Variant", EnvelopeOption);
+	Result.Insert("Variant", EnvelopVariant);
 	Result.Insert("XMLMessage", "");
 	
 	Return Result;
@@ -3122,7 +3155,7 @@ Function ExtendedApplicationDetails(Cryptoprovider, ApplicationsByNamesWithType,
 EndFunction
 
 // For internal use only.
-Procedure ProcessResultOfProgramVerification(Cryptoproviders, Programs, PossibleConflict, Context, ThereAreTestablePrograms = False) Export
+Procedure DoProcessAppsCheckResult(Cryptoproviders, Programs, IsConflictPossible, Context, HasAppsToCheck = False) Export
 	
 	InstalledPrograms = New Map;
 	
@@ -3175,8 +3208,8 @@ Procedure ProcessResultOfProgramVerification(Cryptoproviders, Programs, Possible
 	EndDo;
 	
 	If InstalledPrograms.Count() > 0 Then
-		ThereAreTestablePrograms = True;
-		PossibleConflict = InstalledPrograms.Count() > 1;
+		HasAppsToCheck = True;
+		IsConflictPossible = InstalledPrograms.Count() > 1;
 	EndIf;
 	
 EndProcedure

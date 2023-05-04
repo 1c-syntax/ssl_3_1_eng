@@ -101,7 +101,7 @@ EndFunction
 // See InformationRegisters.UsersInfo.ProcessAnswerOnDisconnectingOpenIDConnect
 Procedure ProcessAnswerOnDisconnectingOpenIDConnect(Disconnect) Export
 	
-	// АПК:277-
+	// ACC:277-
 	// 
 	InformationRegisters.UsersInfo.ProcessAnswerOnDisconnectingOpenIDConnect(Disconnect);
 	// 
@@ -144,11 +144,13 @@ Function ClientParametersOnStart(Parameters) Export
 	
 	SSLSubsystemsIntegration.OnAddClientParametersOnStart(Parameters);
 	
-	AppliedParameters = New Structure;
-	CommonOverridable.OnAddClientParametersOnStart(AppliedParameters);
-	For Each Parameter In AppliedParameters Do
-		Parameters.Insert(Parameter.Key, Parameter.Value);
-	EndDo;
+	If Parameters.SeparatedDataUsageAvailable Then
+		AppliedParameters = New Structure;
+		CommonOverridable.OnAddClientParametersOnStart(AppliedParameters);
+		For Each Parameter In AppliedParameters Do
+			Parameters.Insert(Parameter.Key, Parameter.Value);
+		EndDo;
+	EndIf;
 	
 	Return FixedClientParametersWithoutTemporaryParameters(Parameters);
 	

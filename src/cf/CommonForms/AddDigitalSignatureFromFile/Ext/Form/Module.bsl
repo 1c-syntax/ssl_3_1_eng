@@ -352,8 +352,10 @@ Procedure SelectFileAfterGettingContainerSignature(ContainerSignatures, Context)
 	EndIf;
 	
 	Certificates = New Array;
-	Certificates.Add(ContainerSignatures.Signatures[0].SignatureCertificate);
-	
+	If SignatureParameters.CertificateDetails <> Undefined Then
+		Certificates.Add(ContainerSignatures.Signatures[0].SignatureCertificate);
+	EndIf;
+
 	ChooseFilesAfterGetCertificatesFromSignature(Certificates, Context);
 	
 EndProcedure

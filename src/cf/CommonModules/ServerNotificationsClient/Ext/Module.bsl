@@ -7,6 +7,126 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
+#Region Public
+
+// 
+// 
+//
+// Parameters:
+//  CounterName   - String -
+//  Timeout - Number -
+//  FirstTime     - Boolean -
+//  SessionDate    - Date -
+//
+// Returns:
+//  Boolean - 
+//
+// Example:
+//	
+//	
+//		
+//	
+//
+Function TimeoutExpired(CounterName, Timeout = 1200, FirstTime = False, SessionDate = '00010101') Export
+	
+	DataReceiptStatus = DataReceiptStatus();
+	SessionDate = DataReceiptStatus.CurrentSessionDateToCheckWaitingCounter;
+	If Not ValueIsFilled(CounterName) Then
+		Return False;
+	EndIf;
+	WaitCounters = DataReceiptStatus.WaitCounters;
+	
+	LastDate = WaitCounters.Get(CounterName);
+	If LastDate = Undefined Then
+		WaitCounters.Insert(CounterName, SessionDate);
+		Return FirstTime;
+	EndIf;
+	
+	If LastDate + Timeout > SessionDate Then
+		Return False;
+	EndIf;
+	
+	WaitCounters.Insert(CounterName, SessionDate);
+	Return True;
+	
+EndFunction
+
+// 
+// 
+// 
+//
+// Parameters:
+//  ErrorInfo - ErrorInfo
+//
+// Example:
+//	
+//	
+//		
+//			
+//			
+//		
+//	
+//		
+//	
+//	
+//		
+//
+Procedure HandleError(ErrorInfo) Export
+	
+	EventLogClient.AddMessageForEventLog(
+		NStr("en = 'Server notifications.Error getting or processing notifications';",
+			CommonClient.DefaultLanguageCode()),
+		"Error",
+		ErrorProcessing.DetailErrorDescription(ErrorInfo));
+	
+EndProcedure
+
+// 
+// 
+// 
+//
+// Parameters:
+//  StartMoment - Number -
+//  ProcedureName - String -
+//
+// Example:
+//	
+//	
+//		
+//			
+//			
+//		
+//	
+//		
+//	
+//	
+//		
+//
+Procedure AddIndicator(StartMoment, ProcedureName) Export
+	
+	Indicators = ApplicationParameters.Get(NestedIndicatorsParameterName());
+	AddMainIndicator(Indicators, StartMoment, ProcedureName, , True);
+	
+EndProcedure
+
+#Region ForCallsFromOtherSubsystems
+
+// 
+// 
+//
+// Returns:
+//   See ServerNotifications.SessionKey
+//
+Function SessionKey() Export
+	
+	Return DataReceiptStatus().SessionKey;
+	
+EndFunction
+
+#EndRegion
+
+#EndRegion
+
 #Region Internal
 
 // Parameters:
@@ -20,7 +140,7 @@ Procedure AttachServerNotificationReceiptCheckHandler(Interval = 1) Export
 		Interval = 60;
 	EndIf;
 	
-	AttachIdleHandler("ServerNotificationsReceiptCheckHandler", Interval, True);
+	AttachIdleHandler("ServerNotificationsReceiptCheckHandler", Interval);
 	
 EndProcedure
 
@@ -45,7 +165,9 @@ Procedure BeforeStart(Parameters) Export
 	SessionDate = CommonClient.SessionDate();
 	DataReceiptStatus.StatusUpdateDate = SessionDate;
 	DataReceiptStatus.LastReceivedMessageDate = SessionDate;
-	DataReceiptStatus.LastRecurringDataSendDate = SessionDate;
+	DataReceiptStatus.DateOfLastServerCall = SessionDate;
+	DataReceiptStatus.WaitingCountersDateAlignmentSecondsNumber = Second(SessionDate);
+	DataReceiptStatus.CurrentSessionDateToCheckWaitingCounter = SessionDate;
 	
 	DataReceiptStatus.IsCheckAllowed = True;
 	AttachServerNotificationReceiptCheckHandler();
@@ -56,11 +178,6 @@ EndProcedure
 Procedure AfterStart() Export
 	
 	DataReceiptStatus = DataReceiptStatus();
-	
-	If DataReceiptStatus.ServiceAdministratorSession Then
-		Return;
-	EndIf;
-	
 	DataReceiptStatus.IsRecurringDataSendEnabled = True;
 	
 EndProcedure
@@ -71,40 +188,117 @@ EndProcedure
 
 Procedure CheckAndReceiveServerNotifications() Export
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	DataReceiptStatus = DataReceiptStatus();
+	Indicators = ?(DataReceiptStatus.ShouldRegisterIndicators, New Array, Undefined);
+	If Indicators <> Undefined Then
+		If ApplicationParameters = Undefined Then
+			ApplicationParameters = New Map;
+		EndIf;
+		ApplicationParameters.Insert(NestedIndicatorsParameterName(), New Array);
+	EndIf;
+	
+	CheckGetServerNotificationsWithIndicators(DataReceiptStatus, Indicators);
+	
+	AddMainIndicator(Indicators, StartMoment,
+		"ServerNotificationsClient.CheckAndReceiveServerNotifications", True);
+	
+EndProcedure
+
+Procedure CheckGetServerNotificationsWithIndicators(DataReceiptStatus, Indicators);
+	
 	If Not DataReceiptStatus.IsCheckAllowed Then
 		Return;
 	EndIf;
 	
+	AdditionalParameters = New Map;
+	CurrentSessionDate = CommonClient.SessionDate();
+	DataReceiptStatus.CurrentSessionDateToCheckWaitingCounter = BegOfMinute(CurrentSessionDate)
+		+ DataReceiptStatus.WaitingCountersDateAlignmentSecondsNumber
+		- ?(Second(CurrentSessionDate) < DataReceiptStatus.WaitingCountersDateAlignmentSecondsNumber, 60, 0);
+	
 	Interval = DataReceiptStatus.MinimumPeriod;
 	AreChatsActive = DataReceiptStatus.CollaborationSystemConnected
 		And DataReceiptStatus.IsNewPersonalMessageHandlerAttached
-		And DataReceiptStatus.LastReceivedMessageDate + 60 > CommonClient.SessionDate();
+		And DataReceiptStatus.IsRecurringDataSendEnabled
+		And DataReceiptStatus.LastReceivedMessageDate + 60 > CurrentSessionDate;
 	
-	AdditionalParameters = New Map;
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Try
+		TimeConsumingOperationsClient.BeforeRecurringClientDataSendToServer(AdditionalParameters,
+			AreChatsActive, Interval);
+	Except
+		HandleError(ErrorInfo());
+	EndTry;
+	AddMainIndicator(Indicators, StartMoment,
+		"TimeConsumingOperationsClient.BeforeRecurringClientDataSendToServer");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	AreNotificationsReceived = AreNotificationsReceived(DataReceiptStatus);
+	AddMainIndicator(Indicators, StartMoment, "ServerNotificationsClient.AreNotificationsReceived");
+	
 	ChatsParametersKeyName = "StandardSubsystems.Core.ChatsIDs";
+	ShouldSendDataRecurrently = TimeoutExpired(
+		"StandardSubsystems.Core.ServerNotifications.ShouldSendDataRecurrently",
+		DataReceiptStatus.RepeatedDateExportMinInterval * 60);
 	
-	TimeConsumingOperationsClient.BeforeRecurringClientDataSendToServer(AdditionalParameters,
-		AreChatsActive, Interval);
-	
-	CurrentSessionDate = CommonClient.SessionDate();
-	ShouldSendDataRecurrently = False;
-	
-	If DataReceiptStatus.LastRecurringDataSendDate + 60 < CurrentSessionDate Then
+	If ShouldSendDataRecurrently Then
 		If DataReceiptStatus.IsRecurringDataSendEnabled Then
-			SSLSubsystemsIntegrationClient.BeforeRecurringClientDataSendToServer(AdditionalParameters);
-			CommonClientOverridable.BeforeRecurringClientDataSendToServer(AdditionalParameters);
-			ShouldSendDataRecurrently = True;
+			StartMoment = CurrentUniversalDateInMilliseconds();
+			Try
+				SSLSubsystemsIntegrationClient.BeforeRecurringClientDataSendToServer(
+					AdditionalParameters);
+			Except
+				HandleError(ErrorInfo());
+			EndTry;
+			AddMainIndicator(Indicators, StartMoment,
+				"SSLSubsystemsIntegrationClient.BeforeRecurringClientDataSendToServer");
+			
+			StartMoment = CurrentUniversalDateInMilliseconds();
+			Try
+				CommonClientOverridable.BeforeRecurringClientDataSendToServer(
+					AdditionalParameters);
+			Except
+				HandleError(ErrorInfo());
+			EndTry;
+			AddMainIndicator(Indicators, StartMoment,
+				"CommonClientOverridable.BeforeRecurringClientDataSendToServer");
 		EndIf;
-		DataReceiptStatus.LastRecurringDataSendDate = CurrentSessionDate;
-		MessagesForEventLog = ApplicationParameters["StandardSubsystems.MessagesForEventLog"];
+		
+		StartMoment = CurrentUniversalDateInMilliseconds();
+		Try
+			If CommonClient.SubsystemExists("StandardSubsystems.UsersSessions") Then
+				ModuleIBConnectionsClient = CommonClient.CommonModule("IBConnectionsClient");
+				ModuleIBConnectionsClient.BeforeRecurringClientDataSendToServer(AdditionalParameters,
+					AreNotificationsReceived);
+			EndIf;
+		Except
+			HandleError(ErrorInfo());
+		EndTry;
+		AddMainIndicator(Indicators, StartMoment,
+			"IBConnectionsClient.BeforeRecurringClientDataSendToServer");
+		
+		ParameterName = "StandardSubsystems.Core.ServerNotifications.SessionActivityUpdate";
+		If TimeoutExpired(ParameterName) Then
+			AdditionalParameters.Insert(ParameterName, True);
+			If DataReceiptStatus.PersonalChatID = Undefined Then
+				AdditionalParameters.Insert(ChatsParametersKeyName, True);
+			EndIf;
+		EndIf;
+		
 		If DataReceiptStatus.PersonalChatID = Undefined
-		   And CollaborationSystem.InfoBaseRegistered() Then
-			AdditionalParameters.Insert(ChatsParametersKeyName, False);
+		   And DataReceiptStatus.CollaborationSystemConnected
+		   And TimeoutExpired(ChatsParametersKeyName, 300, True) Then
+			
+			AdditionalParameters.Insert(ChatsParametersKeyName, True);
 		EndIf;
 	EndIf;
 	
-	If AreNotificationsReceived(DataReceiptStatus)
+	If DataReceiptStatus.DateOfLastServerCall + 60 < CurrentSessionDate Then
+		MessagesForEventLog = ApplicationParameters["StandardSubsystems.MessagesForEventLog"];
+	EndIf;
+	
+	If AreNotificationsReceived
 	   And Not ValueIsFilled(AdditionalParameters)
 	   And Not ValueIsFilled(MessagesForEventLog) Then
 		
@@ -112,63 +306,176 @@ Procedure CheckAndReceiveServerNotifications() Export
 		Return;
 	EndIf;
 	
-	If CommonClient.SubsystemExists("StandardSubsystems.UsersSessions") Then
-		ModuleIBConnectionsClient = CommonClient.CommonModule("IBConnectionsClient");
-		ModuleIBConnectionsClient.BeforeRecurringClientDataSendToServer(AdditionalParameters);
+	CommonCallParameters = CommonServerCallNewParameters();
+	CommonCallParameters.LastNotificationDate = DataReceiptStatus.LastNotificationDate;
+	If ValueIsFilled(AdditionalParameters) Then
+		CommonCallParameters.Insert("AdditionalParameters", AdditionalParameters);
+	EndIf;
+	If ShouldSendDataRecurrently Then
+		CommonCallParameters.Insert("ShouldSendDataRecurrently",
+			DataReceiptStatus.IsRecurringDataSendEnabled);
+	EndIf;
+	MessagesNew = ApplicationParameters["StandardSubsystems.MessagesForEventLog"];
+	If ValueIsFilled(MessagesNew) Then
+		CommonCallParameters.Insert("MessagesForEventLog", MessagesNew);
+	EndIf;
+	If Indicators <> Undefined Then
+		CommonCallParameters.Insert("ShouldRegisterIndicators", True);
 	EndIf;
 	
-	CommonCallParameters = CommonServerCallNewParameters();
-	CommonCallParameters.LastNotificationDate    = DataReceiptStatus.LastNotificationDate;
-	CommonCallParameters.MinCheckInterval   = DataReceiptStatus.MinimumPeriod;
-	CommonCallParameters.AdditionalParameters     = AdditionalParameters;
-	CommonCallParameters.ShouldSendDataRecurrently = ShouldSendDataRecurrently;
-	CommonCallParameters.MessagesForEventLog =
-		ApplicationParameters["StandardSubsystems.MessagesForEventLog"];
-	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	CommonCallResult = ServerNotificationsInternalServerCall.SessionUndeliveredServerNotifications(
 		CommonCallParameters);
+	AddMainIndicator(Indicators, StartMoment,
+		"ServerNotificationsInternalServerCall.SessionUndeliveredServerNotifications");
 	
-	If CommonCallParameters.MessagesForEventLog <> Undefined Then
-		CommonCallParameters.MessagesForEventLog.Clear();
+	If MessagesNew <> Undefined Then
+		MessagesNew.Clear();
 	EndIf;
 	
-	AdditionalResults = CommonCallResult.AdditionalResults;
-	ChatsIDs = AdditionalResults.Get(ChatsParametersKeyName);
-	If ChatsIDs <> Undefined Then
-		FillPropertyValues(DataReceiptStatus, ChatsIDs);
-		AttachNewMessageHandler(DataReceiptStatus);
+	If CommonCallResult.Property("Indicators") Then
+		CommonClientServer.SupplementArray(Indicators, CommonCallResult.Indicators);
 	EndIf;
 	
-	For Each ServerNotification In CommonCallResult.ServerNotifications Do
-		ProcessServerNotificationOnClient(DataReceiptStatus, ServerNotification);
-	EndDo;
-	
-	TimeConsumingOperationsClient.AfterRecurringReceiptOfClientDataOnServer(
-		AdditionalResults, AreChatsActive, Interval);
-	
-	If CommonClient.SubsystemExists("StandardSubsystems.UsersSessions") Then
-		ModuleIBConnectionsClient = CommonClient.CommonModule("IBConnectionsClient");
-		ModuleIBConnectionsClient.AfterRecurringReceiptOfClientDataOnServer(
-			AdditionalResults);
+	If CommonCallResult.Property("ServerNotifications") Then
+		StartMoment = CurrentUniversalDateInMilliseconds();
+		For Each ServerNotification In CommonCallResult.ServerNotifications Do
+			ProcessServerNotificationOnClient(DataReceiptStatus, ServerNotification);
+		EndDo;
+		AddMainIndicator(Indicators, StartMoment,
+			"ServerNotificationsClient.ProcessServerNotificationOnClient");
 	EndIf;
+	
+	AdditionalResults = CommonClientServer.StructureProperty(CommonCallResult,
+		"AdditionalResults", New Map);
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Try
+		TimeConsumingOperationsClient.AfterRecurringReceiptOfClientDataOnServer(
+			AdditionalResults, AreChatsActive, Interval);
+	Except
+		HandleError(ErrorInfo());
+	EndTry;
+	AddMainIndicator(Indicators, StartMoment,
+		"TimeConsumingOperationsClient.AfterRecurringReceiptOfClientDataOnServer");
 	
 	If ShouldSendDataRecurrently Then
-		SSLSubsystemsIntegrationClient.AfterRecurringReceiptOfClientDataOnServer(
-			AdditionalResults);
-		CommonClientOverridable.AfterRecurringReceiptOfClientDataOnServer(
-			AdditionalResults);
+		StartMoment = CurrentUniversalDateInMilliseconds();
+		Try
+			SSLSubsystemsIntegrationClient.AfterRecurringReceiptOfClientDataOnServer(
+				AdditionalResults);
+		Except
+			HandleError(ErrorInfo());
+		EndTry;
+		AddMainIndicator(Indicators, StartMoment,
+			"SSLSubsystemsIntegrationClient.AfterRecurringReceiptOfClientDataOnServer");
+		
+		StartMoment = CurrentUniversalDateInMilliseconds();
+		Try
+			CommonClientOverridable.AfterRecurringReceiptOfClientDataOnServer(
+				AdditionalResults);
+		Except
+			HandleError(ErrorInfo());
+		EndTry;
+		AddMainIndicator(Indicators, StartMoment,
+			"CommonClientOverridable.AfterRecurringReceiptOfClientDataOnServer");
+		
+		StartMoment = CurrentUniversalDateInMilliseconds();
+		Try
+			If CommonClient.SubsystemExists("StandardSubsystems.UsersSessions") Then
+				ModuleIBConnectionsClient = CommonClient.CommonModule("IBConnectionsClient");
+				ModuleIBConnectionsClient.AfterRecurringReceiptOfClientDataOnServer(
+					AdditionalResults);
+			EndIf;
+		Except
+			HandleError(ErrorInfo());
+		EndTry;
+		AddMainIndicator(Indicators, StartMoment,
+			"IBConnectionsClient.AfterRecurringReceiptOfClientDataOnServer");
+		
+		ChatsIDs = AdditionalResults.Get(ChatsParametersKeyName);
+		If ChatsIDs <> Undefined Then
+			FillPropertyValues(DataReceiptStatus, ChatsIDs);
+			StartMoment = CurrentUniversalDateInMilliseconds();
+			AttachNewMessageHandler(DataReceiptStatus);
+			AddMainIndicator(Indicators, StartMoment,
+				"ServerNotificationsClient.AttachNewMessageHandler");
+		EndIf;
+		
+		If CommonCallResult.Property("ShouldRegisterIndicators") Then
+			DataReceiptStatus.ShouldRegisterIndicators = CommonCallResult.ShouldRegisterIndicators;
+		EndIf;
+		If CommonCallResult.Property("CollaborationSystemConnected") Then
+			DataReceiptStatus.CollaborationSystemConnected = CommonCallResult.CollaborationSystemConnected;
+		EndIf;
 	EndIf;
 	
-	DataReceiptStatus.LastNotificationDate        = CommonCallResult.LastNotificationDate;
-	DataReceiptStatus.MinimumPeriod               = CommonCallResult.MinCheckInterval;
-	DataReceiptStatus.CollaborationSystemConnected = CommonCallResult.CollaborationSystemConnected;
-	DataReceiptStatus.StatusUpdateDate         = CommonClient.SessionDate();
+	If CommonCallResult.Property("LastNotificationDate") Then
+		DataReceiptStatus.LastNotificationDate = CommonCallResult.LastNotificationDate;
+	EndIf;
+	If CommonCallResult.Property("MinCheckInterval") Then
+		DataReceiptStatus.MinimumPeriod = CommonCallResult.MinCheckInterval;
+	EndIf;
+	DataReceiptStatus.StatusUpdateDate = CommonClient.SessionDate();
+	DataReceiptStatus.DateOfLastServerCall = DataReceiptStatus.StatusUpdateDate;
 	
 	If Interval > DataReceiptStatus.MinimumPeriod Then
 		Interval = DataReceiptStatus.MinimumPeriod;
 	EndIf;
 	
 	AttachServerNotificationReceiptCheckHandler(Interval);
+	
+EndProcedure
+
+Procedure AddMainIndicator(Indicators, StartMoment, ProcedureName,
+			Shared = False, Nested = False, Duration = 0)
+	
+	If Indicators = Undefined Then
+		Return;
+	EndIf;
+	
+	Duration = CurrentUniversalDateInMilliseconds() - StartMoment;
+	If Not Shared And Not ValueIsFilled(Duration) Then
+		Return;
+	EndIf;
+	
+	Text = Format(Duration / 1000, "ND=6; NFD=3; NZ=000,000; NLZ=") + " " + ProcedureName;
+	
+	If Shared Then
+		Indicators.Insert(0, Text);
+		WriteIndicators(Indicators, Duration);
+		Return;
+	Else
+		Indicators.Add("  " + Text);
+	EndIf;
+	
+	If Nested Then
+		Return;
+	EndIf;
+	
+	NestedIndicators = ApplicationParameters.Get(NestedIndicatorsParameterName());
+	For Each NestedIndicator In NestedIndicators Do
+		Indicators.Add("  " + NestedIndicator);
+	EndDo;
+	NestedIndicators.Clear();
+	
+EndProcedure
+
+Function NestedIndicatorsParameterName()
+	Return "StandardSubsystems.Core.ServerNotifications.Indicators";
+EndFunction
+
+Procedure WriteIndicators(Indicators, TotalDuration)
+	
+	Comment = StrConcat(Indicators, Chars.LF);
+	ServerCallMethodName = "ServerNotificationsInternalServerCall.SessionUndeliveredServerNotifications";
+	
+	If TotalDuration < 50
+	   And StrFind(Comment, ServerCallMethodName) = 0 Then
+		Return;
+	EndIf;
+	
+	ServerNotificationsInternalServerCall.WritePerformanceIndicators(Comment);
 	
 EndProcedure
 
@@ -180,6 +487,14 @@ Procedure ProcessServerNotificationOnClient(DataReceiptStatus, ServerNotificatio
 	
 	NameOfAlert = ServerNotification.NameOfAlert;
 	Result     = ServerNotification.Result;
+	
+	If NameOfAlert = "StandardSubsystems.Core.ServerNotifications.IndicatorsRegistrationChanged" Then
+		DataReceiptStatus.ShouldRegisterIndicators = (Result = True);
+		Return;
+	ElsIf NameOfAlert = "StandardSubsystems.Core.ServerNotifications.DeliveryWithoutCollaborationSystemChanged" Then
+		DataReceiptStatus.CollaborationSystemConnected = (Result = True);
+		Return;
+	EndIf;
 	
 	Notification = DataReceiptStatus.Notifications.Get(NameOfAlert);
 	If Notification = Undefined Then
@@ -222,7 +537,7 @@ Function AreNotificationsReceived(DataReceiptStatus)
 EndFunction
 
 // See NewReceiptStatus
-Function DataReceiptStatus() Export
+Function DataReceiptStatus()
 	
 	AppParameterName = "StandardSubsystems.Core.ServerNotifications";
 	DataReceiptStatus = ApplicationParameters.Get(AppParameterName);
@@ -238,19 +553,15 @@ EndFunction
 // Returns:
 //  Structure:
 //   * LastNotificationDate - Date
-//   * MinCheckInterval - Number
 //   * AdditionalParameters - Map
 //   * MessagesForEventLog - 
 //   * ShouldSendDataRecurrently - Boolean
+//   * ShouldRegisterIndicators - Boolean
 //
 Function CommonServerCallNewParameters() Export
 	
 	Result = New Structure;
 	Result.Insert("LastNotificationDate",  '00010101');
-	Result.Insert("MinCheckInterval", 60);
-	Result.Insert("AdditionalParameters", New Map);
-	Result.Insert("MessagesForEventLog", Undefined);
-	Result.Insert("ShouldSendDataRecurrently", False);
 	
 	Return Result;
 	
@@ -259,9 +570,10 @@ EndFunction
 // Returns:
 //  Structure:
 //   * IsCheckAllowed - Boolean -
+//   * ShouldRegisterIndicators - Boolean
 //   * ServiceAdministratorSession - Boolean
 //   * IsRecurringDataSendEnabled - Boolean -
-//   * Checking - Boolean
+//   * RepeatedDateExportMinInterval - See ServerNotifications.МинимальныйИнтервалПериодическойОтправкиДанных
 //   * SessionKey - See ServerNotifications.SessionKey
 //   * IBUserID - UUID
 //   * StatusUpdateDate - Date
@@ -284,17 +596,21 @@ EndFunction
 //        
 //   * IsNewPersonalMessageHandlerAttached - Boolean
 //   * IsNewGlobalMessageHandlerAttached - Boolean
-//   * IsNewPersonalMessageHandlerAttachStarted - Boolean
-//   * IsNewGlobalMessageHandlerAttachStarted - Boolean
-//   * LastRecurringDataSendDate - Date
+//   * DateOfLastServerCall - Date
+//   * CurrentSessionDateToCheckWaitingCounter - Date
+//   * WaitingCountersDateAlignmentSecondsNumber - Number
+//   * WaitCounters - Map of KeyAndValue:
+//      ** Key - String -
+//      ** Value - Date -
 //
 Function NewReceiptStatus()
 	
 	State = New Structure;
 	State.Insert("IsCheckAllowed", False);
+	State.Insert("ShouldRegisterIndicators", False);
 	State.Insert("ServiceAdministratorSession", False);
 	State.Insert("IsRecurringDataSendEnabled", False);
-	State.Insert("Checking", False);
+	State.Insert("RepeatedDateExportMinInterval", 1);
 	State.Insert("SessionKey", "");
 	State.Insert("IBUserID",
 		CommonClientServer.BlankUUID());
@@ -309,9 +625,10 @@ Function NewReceiptStatus()
 	State.Insert("GlobalChatID", Undefined);
 	State.Insert("IsNewPersonalMessageHandlerAttached", False);
 	State.Insert("IsNewGlobalMessageHandlerAttached", False);
-	State.Insert("IsNewPersonalMessageHandlerAttachStarted", False);
-	State.Insert("IsNewGlobalMessageHandlerAttachStarted", False);
-	State.Insert("LastRecurringDataSendDate", '00010101');
+	State.Insert("DateOfLastServerCall", '00010101');
+	State.Insert("CurrentSessionDateToCheckWaitingCounter", '00010101');
+	State.Insert("WaitingCountersDateAlignmentSecondsNumber", 0);
+	State.Insert("WaitCounters", New Map);
 	
 	Return State;
 	
@@ -320,8 +637,7 @@ EndFunction
 Procedure AttachNewMessageHandler(DataReceiptStatus)
 	
 	If DataReceiptStatus.PersonalChatID <> Undefined
-	   And Not DataReceiptStatus.IsNewPersonalMessageHandlerAttached
-	   And Not DataReceiptStatus.IsNewPersonalMessageHandlerAttachStarted Then
+	   And Not DataReceiptStatus.IsNewPersonalMessageHandlerAttached Then
 		
 		Context = New Structure("DataReceiptStatus", DataReceiptStatus);
 		Try
@@ -338,8 +654,7 @@ Procedure AttachNewMessageHandler(DataReceiptStatus)
 	EndIf;
 	
 	If DataReceiptStatus.GlobalChatID <> Undefined
-	   And Not DataReceiptStatus.IsNewGlobalMessageHandlerAttached
-	   And Not DataReceiptStatus.IsNewGlobalMessageHandlerAttachStarted Then
+	   And Not DataReceiptStatus.IsNewGlobalMessageHandlerAttached Then
 		
 		Context = New Structure("DataReceiptStatus", DataReceiptStatus);
 		Try
@@ -359,7 +674,6 @@ EndProcedure
 
 Procedure AfterAttachingNewPersonalMessageHandler(Context) Export
 	
-	Context.DataReceiptStatus.IsNewPersonalMessageHandlerAttachStarted = False;
 	Context.DataReceiptStatus.IsNewPersonalMessageHandlerAttached = True;
 	
 EndProcedure
@@ -367,8 +681,6 @@ EndProcedure
 Procedure AfterNewPersonalMessageHandlerAttachError(ErrorInfo, StandardProcessing, Context) Export
 	
 	StandardProcessing = False;
-	
-	Context.DataReceiptStatus.IsNewPersonalMessageHandlerAttachStarted = False;
 	
 	EventLogClient.AddMessageForEventLog(
 		NStr("en = 'Server notifications.An error occurred when connecting the handler of new personal messages';",
@@ -398,7 +710,6 @@ EndProcedure
 
 Procedure AfterAttachingNewGroupMessageHandler(Context) Export
 	
-	Context.DataReceiptStatus.IsNewGlobalMessageHandlerAttachStarted = False;
 	Context.DataReceiptStatus.IsNewGlobalMessageHandlerAttached = True;
 	
 EndProcedure
@@ -406,8 +717,6 @@ EndProcedure
 Procedure AfterNewGlobalMessageHandlerAttachError(ErrorInfo, StandardProcessing, Context) Export
 	
 	StandardProcessing = False;
-	
-	Context.DataReceiptStatus.IsNewGlobalMessageHandlerAttachStarted = False;
 	
 	EventLogClient.AddMessageForEventLog(
 		NStr("en = 'Server notifications.An error occurred when connecting the handler of new common messages';",

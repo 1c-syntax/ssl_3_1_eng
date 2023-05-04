@@ -42,9 +42,9 @@
 //  // In report object handler BeforeImportSettingsToComposer, the settings composer
 //  // is initialized based on schema from the common templates:
 //  If SchemaKey <> "1" Then
-//  	SchemaKey = "1";
-//  	Schema = GetCommonTemplate("MyCommonCompositionSchema");
-//  	ReportsServer.EnableSchema(ThisObject, Context, Schema, SchemaKey);
+//  	  SchemaKey = "1";
+//  	  Schema = GetCommonTemplate("MyCommonCompositionSchema");
+//  	  ReportsServer.EnableSchema(ThisObject, Context, Schema, SchemaKey);
 //  EndIf;
 //
 Procedure AttachSchema(Report, Context, Schema, SchemaKey) Export
@@ -1034,7 +1034,7 @@ Function ThisSelectionDecipherHandlerByDetailedRecords(Filter)
 		Return False;
 	EndIf;
 	
-	SelectionProperties = ReportsOptionsInternalClientServer.DecryptionHandlerSelectionPropertiesByDetailRecords();
+	SelectionProperties = ReportsOptionsInternal.DecryptionHandlerSelectionPropertiesByDetailRecords();
 	
 	If Filter.Count() <> SelectionProperties.Count() Then 
 		Return False;
@@ -2259,7 +2259,7 @@ Function OutputSettingsTitles(Form)
 	
 EndFunction
 
-// Allocates a group for a list that refers to a setting with the following comparison kind:
+// Allocates a group for a list that refers to a setting with a comparison type:
 // InList, NotInList, and so on.
 // 
 // Parameters:

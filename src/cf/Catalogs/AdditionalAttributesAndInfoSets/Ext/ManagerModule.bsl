@@ -431,7 +431,7 @@ EndFunction
 Function SetProperties(PropertiesSets, Set, Parent = Undefined, Descriptions = Undefined) Export
 	
 	ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Error in the %1 procedure of the common module %2.';"), 
+		NStr("en = 'Error in procedure %1 of common module %2.';"), 
 		"WhenCreatingPredefinedPropertySets", "PropertyManagerOverridable")
 		+ Chars.LF + Chars.LF;
 	

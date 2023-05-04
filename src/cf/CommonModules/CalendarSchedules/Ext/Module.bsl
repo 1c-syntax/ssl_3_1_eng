@@ -777,7 +777,7 @@ Function ClassifierData() Export
 	
 	If FilesData = Undefined Then
 		MessageText = NStr("en = 'Cannot get calendar data.
-                               |Classifiers are not supported, or the ""Classifier"" subsystem is missing.';");
+                               |Classifiers are not supported, or the Classifiers subsystem is missing.';");
 		Raise MessageText;
 	EndIf;
 	

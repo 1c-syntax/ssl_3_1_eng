@@ -548,7 +548,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>An Access Value, Access Value Group, access key, list ID, or a value for a condition that is extracted using an access field (directly, or as an Access Value Group, or using dot syntax, or using a join clause).</v8:content>
+							<v8:content>An access value, access value group, access key, list ID, or a value for a condition that is extracted using an access field (directly, or as an access value group, or using dot syntax, or using a join clause).</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

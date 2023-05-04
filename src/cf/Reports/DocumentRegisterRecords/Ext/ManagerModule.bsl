@@ -29,10 +29,14 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	OptionSettingsHorizontal = ReportsOptions.OptionDetails(Settings, ReportSettings, "Main");
 	OptionSettingsHorizontal.LongDesc = NStr("en = 'Horizontal arrangement of columns with dimensions, resources, and register attributes.';");
 	OptionSettingsHorizontal.SearchSettings.Keywords = NStr("en = 'Document register records';");
+	OptionSettingsHorizontal.Enabled = False;
+	OptionSettingsHorizontal.ShouldShowInOptionsSubmenu = True;
 	
 	OptionSettingsVertical = ReportsOptions.OptionDetails(Settings, ReportSettings, "Additional");
 	OptionSettingsVertical.LongDesc = NStr("en = 'Vertical arrangement of columns with dimensions, resources, and attributes allows you to arrange data more compactly to view registers with a large number of columns.';");
 	OptionSettingsVertical.SearchSettings.Keywords = NStr("en = 'Document register records';");
+	OptionSettingsVertical.Enabled = False;
+	OptionSettingsVertical.ShouldShowInOptionsSubmenu = True;
 	
 EndProcedure
 

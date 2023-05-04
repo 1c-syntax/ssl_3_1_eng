@@ -115,7 +115,7 @@ EndProcedure
 
 &AtClient
 Procedure UseUserGroupsOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
 &AtClient
@@ -271,9 +271,9 @@ EndProcedure
 // Client
 
 &AtClient
-Procedure Attachable_WhenChangingTheDetails(Item, ShouldRefreshInterface = True)
+Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
 	
-	ConstantsNames = WhenChangingTheDetailsServer(Item.Name);
+	ConstantsNames = OnChangeAttributeServer(Item.Name);
 	RefreshReusableValues();
 	
 	If ShouldRefreshInterface Then
@@ -290,13 +290,15 @@ Procedure Attachable_WhenChangingTheDetails(Item, ShouldRefreshInterface = True)
 EndProcedure
 
 &AtClient
-Procedure Attachable_PDHidingSettingsOnChange(Item)
+Procedure PlugIn_SettingsOfDestructionOfNDaysWhenChanging(Item)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.PersonalDataProtection") Then
 		ModulePersonalDataProtectionClient = CommonClient.CommonModule("PersonalDataProtectionClient");
-		ModulePersonalDataProtectionClient.SettingsForHidingPersonalDataWhenChanging(ThisObject);
+		ModulePersonalDataProtectionClient.НастройкиУничтоженияПерсональныхДанныхПриИзменении(ThisObject);
 	EndIf;
-	
+
+	RefreshInterface = True;
+
 EndProcedure
 
 &AtClient
@@ -318,7 +320,7 @@ Procedure LimitAccessAtRecordLevelUniversallyOnChangeCompletion(Response, Item) 
 		Return;
 	EndIf;
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 	Items.AccessUpdateOnRecordsLevel.Visible =
 		ConstantsSet.LimitAccessAtRecordLevelUniversally;
@@ -333,7 +335,7 @@ Procedure UseRecordsLevelSecurityOnChangeCompletion(Response, Item) Export
 		Return;
 	EndIf;
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 	If Not ConstantsSet.LimitAccessAtRecordLevel Then
 		
@@ -347,7 +349,7 @@ Procedure UseExternalUsersOnChangeCompletion(Response, Item) Export
 	If Response = DialogReturnCode.No Then
 		ConstantsSet.UseExternalUsers = Not ConstantsSet.UseExternalUsers;
 	Else
-		Attachable_WhenChangingTheDetails(Item);
+		Attachable_OnChangeAttribute(Item);
 	EndIf;
 	
 EndProcedure
@@ -356,7 +358,7 @@ EndProcedure
 // 
 
 &AtServer
-Function WhenChangingTheDetailsServer(TagName)
+Function OnChangeAttributeServer(TagName)
 	
 	ConstantsNames = New Array;
 	DataPathAttribute = Items[TagName].DataPath;

@@ -118,7 +118,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	If Modified And Not Exit Then
 		Cancel = True;
 		ResponseHandler1 = New NotifyDescription("FormClosingCompletion", ThisObject);
-		ShowQueryBox(ResponseHandler1, NStr("en = 'The data was changed. Do you want to save the changes to the repository?';"), QuestionDialogMode.YesNoCancel);
+		ShowQueryBox(ResponseHandler1, NStr("en = 'The data has been changed. Do you want to save the changes to the repository?';"), QuestionDialogMode.YesNoCancel);
 	EndIf;
 	
 EndProcedure

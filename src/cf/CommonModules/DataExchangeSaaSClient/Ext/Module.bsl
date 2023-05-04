@@ -62,9 +62,9 @@ Procedure BeforeExit(Cancel, Warnings) Export
 		
 		WarningParameters = StandardSubsystemsClient.WarningOnExit();
 		WarningParameters.ExtendedTooltip = NStr("en = 'Data synchronization may take a while if:
-	        | • the connection is slow
-	        | • the amount of data to sync is big
-	        | • the application is downloading an update';");
+	        | • The connection is slow
+	        | • The amount of data to sync is big
+	        | • An application update is available online';");
 
 		WarningParameters.WarningText = NStr("en = 'Data is not synchronized with the web application.';");
 		WarningParameters.CheckBoxText = NStr("en = 'Synchronize data with web application';");

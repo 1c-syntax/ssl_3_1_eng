@@ -248,7 +248,7 @@ Function CheckExtentionOfFileToDownload(FileExtention, RaiseException1 = True) E
 		
 		If RaiseException1 Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Uploading files with ""%1"" extension is not allowed.
+				NStr("en = 'Uploading files with the ""%1"" extension is not allowed.
 				           |Please contact the administrator.';"),
 				FileExtention);
 		Else
@@ -1041,7 +1041,7 @@ Procedure CryptographyOnCreateFormAtServer(Form, IsListForm = True, RowsPictureO
 	Encryption = False;
 	ViewEncrypted = False;
 	AvailableAdvancedSignature = False;
-	VisibilityOfInstruction = False;
+	GuideVisibility = False;
 	
 	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
 	
@@ -1052,7 +1052,7 @@ Procedure CryptographyOnCreateFormAtServer(Form, IsListForm = True, RowsPictureO
 			Encryption            = ModuleDigitalSignature.EncryptAndDecryptData();
 			ViewEncrypted = ModuleDigitalSignature.DataDecryption();
 			AvailableAdvancedSignature = ModuleDigitalSignature.AvailableAdvancedSignature();
-			VisibilityOfInstruction = ModuleDigitalSignatureInternal.VisibilityOfLinkToInstructionsForTypicalProblemsWhenWorkingWithPrograms();
+			GuideVisibility = ModuleDigitalSignatureInternal.VisibilityOfRefToAppsTroubleshootingGuide();
 		EndIf;
 		
 	EndIf;
@@ -1092,7 +1092,7 @@ Procedure CryptographyOnCreateFormAtServer(Form, IsListForm = True, RowsPictureO
 			Items.DigitalSignaturesDelete.Visible = Signing;
 			Items.DigitalSignaturesGroup.Visible = Available;
 			Items.EncryptionCertificatesGroup.Visible = ViewEncrypted And Available;
-			Items.Instruction.Visible = Signing And VisibilityOfInstruction;
+			Items.Instruction.Visible = Signing And GuideVisibility;
 			
 		EndIf;
 	EndIf;
@@ -1282,22 +1282,28 @@ Procedure WriteEncryptionInformation(FileRef, EncryptionInformationWriteParamete
 			FilesOperationsInternalServerCall.DeleteFromRegister(VersionRef);
 			
 			If EncryptionInformationWriteParameters.FileInfo1 = Undefined Then
+				
+				VersionAttributes = Common.ObjectAttributesValues(VersionRef, "Description, Comment,
+					|Extension, CreationDate, UniversalModificationDate, Size");
+				
 				FileInfo1 = FilesOperationsClientServer.FileInfo1("FileWithVersion");
-				FileInfo1.BaseName = VersionRef.Description;
-				FileInfo1.Comment = VersionRef.Comment;
+				FileInfo1.BaseName = VersionAttributes.Description;
+				FileInfo1.Comment = VersionAttributes.Comment;
 				FileInfo1.TempFileStorageAddress = TempStorageAddress;
-				FileInfo1.ExtensionWithoutPoint = VersionRef.Extension;
-				FileInfo1.Modified = VersionRef.CreationDate;
-				FileInfo1.ModificationTimeUniversal = VersionRef.UniversalModificationDate;
+				FileInfo1.ExtensionWithoutPoint = VersionAttributes.Extension;
+				FileInfo1.Modified = VersionAttributes.CreationDate;
+				FileInfo1.ModificationTimeUniversal = VersionAttributes.UniversalModificationDate;
 				FileInfo1.Size = VersionRef.Size;
-				FileInfo1.ModificationTimeUniversal = VersionRef.UniversalModificationDate;
+				FileInfo1.ModificationTimeUniversal = VersionAttributes.UniversalModificationDate;
 				FileInfo1.NewTextExtractionStatus = Enums.FileTextExtractionStatuses.NotExtracted;
 				FileInfo1.Encrypted = EncryptionInformationWriteParameters.Encrypt;
 				FileInfo1.StoreVersions = False;
-				EncryptionInformationWriteParameters.FileInfo1 = FileInfo1;
+			Else
+				FileInfo1 = EncryptionInformationWriteParameters.FileInfo1;
 			EndIf;
+			
 			// 
-			UpdateFileVersion(FileRef, EncryptionInformationWriteParameters.FileInfo1, VersionRef, EncryptionInformationWriteParameters.UUID);
+			UpdateFileVersion(FileRef, FileInfo1, VersionRef, EncryptionInformationWriteParameters.UUID);
 			
 			// For the option of storing files on hard drive (on the server), deleting the File from the temporary storage after receiving it.
 			If Not IsBlankString(DataToWriteAtServer.FileAddress) And IsTempStorageURL(DataToWriteAtServer.FileAddress) Then
@@ -2086,7 +2092,7 @@ Procedure ClearExcessiveFiles(Parameters = Undefined, ResultAddress = Undefined)
 		CleanUpUnnecessaryFiles = FilesCleanupMode();
 	EndIf;
 	WriteToEventLogCleanupFiles(StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Scheduled cleanup of unwanted files is started (%1).';"), CleanUpUnnecessaryFiles));
+		NStr("en = 'Scheduled cleanup of unused files is started (%1).';"), CleanUpUnnecessaryFiles));
 	
 	If CleanUpUnnecessaryFiles = Enums.FilesCleanupModes.CleanUpDeletedAndUnusedFiles Then
 		CleanupSettings = InformationRegisters.FilesClearingSettings.CurrentClearSettings();
@@ -2107,7 +2113,7 @@ Procedure ClearExcessiveFiles(Parameters = Undefined, ResultAddress = Undefined)
 	EndIf;
 	
 	FilesOperationsInVolumesInternal.ClearDeletedFiles();
-	WriteToEventLogCleanupFiles(NStr("en = 'Scheduled cleanup of unwanted files is completed.';"));
+	WriteToEventLogCleanupFiles(NStr("en = 'Scheduled cleanup of unused files is completed.';"));
 	
 EndProcedure
 
@@ -3527,6 +3533,86 @@ Procedure UpdateTextExtractionQueueState(TextSource, TextExtractionState) Export
 	
 EndProcedure
 
+// Saves the folder's working directory in the information register.
+// Parameters:
+//  FolderRef  - CatalogRef.FilesFolders - file owner.
+//  Workdirectory of the owner-String - working directory of the folder.
+//
+Procedure SaveFolderWorkingDirectory(FolderRef, FolderWorkingDirectory) Export
+	
+	SetPrivilegedMode(True);
+	
+	RecordSet = InformationRegisters.FileWorkingDirectories.CreateRecordSet();
+	
+	RecordSet.Filter.Folder.Set(FolderRef);
+	RecordSet.Filter.User.Set(Users.AuthorizedUser());
+	
+	NewRecord = RecordSet.Add();
+	NewRecord.Folder = FolderRef;
+	NewRecord.User = Users.AuthorizedUser();
+	NewRecord.Path = FolderWorkingDirectory;
+	
+	RecordSet.Write();
+	
+EndProcedure
+
+// Clears the folder's working directory in the information register.
+// Parameters:
+//  FolderRef  - CatalogRef.FilesFolders - file owner.
+//
+Procedure CleanUpWorkingDirectory(FolderRef) Export
+	
+	SetPrivilegedMode(True);
+	
+	CurrentUser = Users.AuthorizedUser();
+	
+	Block = New DataLock;
+	
+	LockItem = Block.Add("Catalog.FilesFolders");
+	LockItem.SetValue("Parent", FolderRef);
+	LockItem.Mode = DataLockMode.Shared;
+	
+	LockItem = Block.Add("InformationRegister.FileWorkingDirectories");
+	LockItem.SetValue("User", CurrentUser);
+	
+	BeginTransaction();
+	Try
+		
+		Block.Lock();
+		
+		RecordSet = InformationRegisters.FileWorkingDirectories.CreateRecordSet();
+		RecordSet.Filter.Folder.Set(FolderRef);
+		RecordSet.Filter.User.Set(CurrentUser);
+		RecordSet.Write(); // 
+		
+		// 
+		Query = New Query;
+		Query.Text =
+		"SELECT
+		|	FilesFolders.Ref AS Ref
+		|FROM
+		|	Catalog.FilesFolders AS FilesFolders
+		|WHERE
+		|	FilesFolders.Parent = &Ref";
+		
+		Query.SetParameter("Ref", FolderRef);
+		
+		Result = Query.Execute();
+		Selection = Result.Select();
+		While Selection.Next() Do
+			CleanUpWorkingDirectory(Selection.Ref); // 
+		EndDo;
+		
+		CommitTransaction();
+		
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
+	
+EndProcedure
+
+
 #Region OtherProceduresAndFunctions
 
 // Returns the catalog name for the specified owner or raises an exception
@@ -3599,8 +3685,8 @@ Function FileStoringCatalogName(FilesOwner, CatalogName = "",
 	EndIf;
 	
 	ErrorReasonTemplate = 
-		NStr("en = 'File location ""%1"" of type ""%2""
-			|does not have a main file storage catalog.';") + Chars.LF;
+		NStr("en = 'The main file storage catalog is not specified
+			|for file owner ""%1"" of type ""%2"".';") + Chars.LF;
 			
 	ErrorReason = StringFunctionsClientServer.SubstituteParametersToString(
 		ErrorReasonTemplate, String(FilesOwner), String(TypeOf(FilesOwner)));
@@ -3730,7 +3816,7 @@ Function FilesVersionsStorageCatalogName(FilesOwner, CatalogName = "",
 	EndIf;
 	
 	ErrorReasonTemplate = 
-		NStr("en = 'The main version of the file storage catalog is not specified
+		NStr("en = 'The main catalog to store file versions is not specified
 			|for file owner ""%1"".';") + Chars.LF;
 			
 	ErrorReason = StringFunctionsClientServer.SubstituteParametersToString(
@@ -4472,7 +4558,7 @@ Procedure ProcessFileSendingByStorageType(DataElement)
 			WriteLogEvent(EventLogEventForExchange(), 
 				EventLogLevel.Warning,,, 
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-			// АПК:154-
+			// ACC:154-
 			DataElement.FileStorage = New ValueStorage(Undefined);
 		EndTry;
 		
@@ -5673,7 +5759,7 @@ Procedure ClearUnusedFilesData(UnusedFiles)
 		DeletionResult = ModuleMarkedObjectsDeletion.ToDeleteMarkedObjects(ItemsToDeleteAttachedFiles);
 		If Not DeletionResult.Success Then
 			WriteToEventLogCleanupFiles(StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Not all unwanted files were deleted automatically (%1) as they are being used in other parts of the application or due to other reasons.
+				NStr("en = 'Some of the files have not been deleted automatically (%1) as they are used elsewhere in the application or due to other reasons.
 				|To view the reasons why the files cannot be deleted, open ""Marked object deletion"" in the application settings.';"),
 				DeletionResult.NotTrash.Count()), EventLogLevel.Warning);
 		EndIf;
@@ -5706,7 +5792,7 @@ Function PrepareTheFileForDeletion(AttachedFile)
 	Result = Undefined;
 	
 	WriteToEventLogCleanupFiles(StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Deleting unwanted file ""%1""...';"), Common.SubjectString(AttachedFile)),,
+		NStr("en = 'Deleting unused file ""%1""...';"), Common.SubjectString(AttachedFile)),,
 		AttachedFile);
 	Block = New DataLock();
 	LockItem = Block.Add(AttachedFile.Metadata().FullName());
@@ -6276,7 +6362,7 @@ EndProcedure
 Function CheckHTTP1CException(Response, ServerAddress)
 	Result = New Structure("Success, ErrorText, ErrorCode");
 	
-	If ThisIsErrorStateCode(Response.StatusCode) Then
+	If IsErrorStateCode(Response.StatusCode) Then
 		
 		ErrorTemplate = NStr("en = 'Cannot synchronize the file at %2 as the server returned HTTP code %1. %3';");
 		ErrorInfo = Response.GetBodyAsString();
@@ -6795,7 +6881,7 @@ Procedure ReadDirectoryParameters(CheckResult, HttpAddress, ExchangeStructure)
 	
 EndProcedure
 
-Procedure CheckPossibilityOfPlacingFiles(CheckResult, HttpAddress, SynchronizationParameters)
+Procedure CheckIfCanStoreFiles(CheckResult, HttpAddress, SynchronizationParameters)
 	FileAddressHRef = EndWithoutSlash(HttpAddress) + StartWithSlash("test.txt");
 	HrefStructure = URIStructureDecoded(FileAddressHRef);
 	FileWithBinaryData = GetBinaryDataFromString("test");
@@ -6810,12 +6896,12 @@ Procedure CheckPossibilityOfPlacingFiles(CheckResult, HttpAddress, Synchronizati
 	WebdavHTTPRequest = New HTTPRequest(HrefStructure.PathAtServer, HTTPHeaders);
 	WebdavHTTPRequest.SetBodyFromBinaryData(FileWithBinaryData);
 	SynchronizationParameters.Response = Join.Put(WebdavHTTPRequest);
-	ResultOfSendingFile = CheckHTTP1CException(SynchronizationParameters.Response, FileAddressHRef);
+	FileSendingResult = CheckHTTP1CException(SynchronizationParameters.Response, FileAddressHRef);
 	
 	CheckResult.ResultProtocol = CheckResult.ResultProtocol + ?(CheckResult.ResultProtocol = "", "", Chars.LF)
 		+ "PUT" + " " + FileAddressHRef + Chars.LF;
 	
-	If ResultOfSendingFile.Success Then
+	If FileSendingResult.Success Then
 		CheckResult.ResultProtocol = CheckResult.ResultProtocol + ?(IsBlankString(CheckResult.ResultProtocol), "", Chars.LF) + "HTTP RESPONSE "
 			+ SynchronizationParameters.Response.StatusCode + Chars.LF + Chars.LF;
 		For Each ResponseTitle In SynchronizationParameters.Response.Headers Do
@@ -6839,27 +6925,27 @@ Procedure CheckPossibilityOfPlacingFiles(CheckResult, HttpAddress, Synchronizati
 				|</D:propertyupdate>";
 	XMLQuery = StringFunctionsClientServer.SubstituteParametersToString(XMLQuery, New UUID);
 	
-	ResultOfSettingProperty = PerformWebdavMethod("PROPPATCH", FileAddressHRef, HTTPHeaders, SynchronizationParameters, XMLQuery, CheckResult.ResultProtocol);
+	PropertySettingResult = PerformWebdavMethod("PROPPATCH", FileAddressHRef, HTTPHeaders, SynchronizationParameters, XMLQuery, CheckResult.ResultProtocol);
 	
-	If Not ResultOfSettingProperty.Success Then
-		WriteToEventLogOfFilesSynchronization(ResultOfSettingProperty.ErrorText, SynchronizationParameters.Account, EventLogLevel.Error);
-		CheckResult.ErrorCode = ResultOfSettingProperty.ErrorCode;
+	If Not PropertySettingResult.Success Then
+		WriteToEventLogOfFilesSynchronization(PropertySettingResult.ErrorText, SynchronizationParameters.Account, EventLogLevel.Error);
+		CheckResult.ErrorCode = PropertySettingResult.ErrorCode;
 	    CheckResult.Cancel = True;
-		CheckResult.ResultText = CheckResult.ResultText + ?(IsBlankString(CheckResult.ResultText), "", Chars.LF) + ResultOfSettingProperty.ErrorText;
+		CheckResult.ResultText = CheckResult.ResultText + ?(IsBlankString(CheckResult.ResultText), "", Chars.LF) + PropertySettingResult.ErrorText;
 		Return;
 	Else
 		XmlContext = DefineXMLContext(SynchronizationParameters.Response.GetBodyAsString());
 		ResponseNode = CalculateXPath("//*[local-name()='propstat']/*[local-name()='status']", XmlContext).IterateNext();
-		ResponseCodeForSettingProperty = Number(StrSplit(ResponseNode.FirstChild.TextContent, " ")[1]);
-		If ThisIsErrorStateCode(ResponseCodeForSettingProperty) Then
+		PropertySetResponseCode = Number(StrSplit(ResponseNode.FirstChild.TextContent, " ")[1]);
+		If IsErrorStateCode(PropertySetResponseCode) Then
 			CheckResult.Cancel = True;
-			CheckResult.ErrorCode = 10000+ResponseCodeForSettingProperty;
+			CheckResult.ErrorCode = 10000+PropertySetResponseCode;
 			
 			ErrorTemplate = NStr("en = 'Cannot set the file property at %2 as the server returned an HTTP code: %1. %3';");
 			ErrorInfo = SynchronizationParameters.Response.GetBodyAsString();
 		
 			CheckResult.ResultText = CheckResult.ResultText + ?(IsBlankString(CheckResult.ResultText), "", Chars.LF) 
-				+ StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate, ResponseCodeForSettingProperty, 
+				+ StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate, PropertySetResponseCode, 
 				DecodeString(FileAddressHRef, StringEncodingMethod.URLInURLEncoding), ErrorInfo);
 			
 			CheckResult.ResultProtocol = CheckResult.ResultProtocol + ?(IsBlankString(CheckResult.ResultProtocol), "", Chars.LF) + "HTTP RESPONSE "
@@ -6871,13 +6957,13 @@ Procedure CheckPossibilityOfPlacingFiles(CheckResult, HttpAddress, Synchronizati
 		EndIf;
 	EndIf;
 	
-	ResultOfFileDeletion = CallDELETEMethod(FileAddressHRef, SynchronizationParameters);
+	FileDeletionResult = CallDELETEMethod(FileAddressHRef, SynchronizationParameters);
 	
-	If Not ResultOfFileDeletion.Success Then
-		WriteToEventLogOfFilesSynchronization(ResultOfFileDeletion.ErrorText, SynchronizationParameters.Account, EventLogLevel.Error);
-		CheckResult.ErrorCode = ResultOfFileDeletion.ErrorCode;
+	If Not FileDeletionResult.Success Then
+		WriteToEventLogOfFilesSynchronization(FileDeletionResult.ErrorText, SynchronizationParameters.Account, EventLogLevel.Error);
+		CheckResult.ErrorCode = FileDeletionResult.ErrorCode;
 	    CheckResult.Cancel = True;
-		CheckResult.ResultText = CheckResult.ResultText + ?(IsBlankString(CheckResult.ResultText), "", Chars.LF) + ResultOfFileDeletion.ErrorText;
+		CheckResult.ResultText = CheckResult.ResultText + ?(IsBlankString(CheckResult.ResultText), "", Chars.LF) + FileDeletionResult.ErrorText;
 	EndIf;
 EndProcedure
 
@@ -7269,7 +7355,7 @@ Procedure ImportFilesTreeRecursively(CurrentRowsOfFilesTree, HttpAddress, Synchr
 						NewFilesTreeRow.Is_Directory = CalculateXPath("./*[local-name()='collection']", XMLDocumentContext, PropstatChildNode).IterateNext() <> Undefined;
 					ElsIf PropstatChildNode.LocalName = "UID1C" Then
 						NewFilesTreeRow.UID1C = PropstatChildNode.TextContent;
-						NewFilesTreeRow.UID1CIsNotSupported = False;
+						NewFilesTreeRow.IsUID1NotSupported = False;
 					ElsIf PropstatChildNode.LocalName = "getetag" Then
 						NewFilesTreeRow.Etag = PropstatChildNode.TextContent;
 					ElsIf PropstatChildNode.LocalName = "getlastmodified" Then
@@ -7285,13 +7371,13 @@ Procedure ImportFilesTreeRecursively(CurrentRowsOfFilesTree, HttpAddress, Synchr
 			If FoundPropstat <> Undefined Then
 				For Each PropstatChildNode In FoundPropstat.ChildNodes Do
 					If PropstatChildNode.NodeName = "UID1C" Then
-						NewFilesTreeRow.UID1CIsNotSupported = True;
+						NewFilesTreeRow.IsUID1NotSupported = True;
 					EndIf;
 				EndDo;
 			EndIf;
 			
 			// If there was no UID, we try to receive it separately, it is necessary, for example, for owncloud.
-			If NewFilesTreeRow.UID1CIsNotSupported = False And Not ValueIsFilled(NewFilesTreeRow.UID1C) Then
+			If NewFilesTreeRow.IsUID1NotSupported = False And Not ValueIsFilled(NewFilesTreeRow.UID1C) Then
 				NewFilesTreeRow.UID1C = GetUID1C(NewFilesTreeRow.Href, SynchronizationParameters);
 			EndIf;
 			
@@ -8105,7 +8191,7 @@ Function GenerateStructureOfServerFilesTree()
 	ServerFilesTree = New ValueTree;
 	ServerFilesTree.Columns.Add("Href");
 	ServerFilesTree.Columns.Add("UID1C");
-	ServerFilesTree.Columns.Add("UID1CIsNotSupported");
+	ServerFilesTree.Columns.Add("IsUID1NotSupported");
 	ServerFilesTree.Columns.Add("Etag");
 	ServerFilesTree.Columns.Add("FileName");
 	ServerFilesTree.Columns.Add("Is_Directory");
@@ -8740,7 +8826,7 @@ Procedure ExecuteConnectionCheck(Account, CheckResult) Export
 	WriteToEventLogOfFilesSynchronization(EventText, SynchronizationParameters.Account);
 	
 	ReadDirectoryParameters(CheckResult, ServerAddress, SynchronizationParameters);
-	CheckPossibilityOfPlacingFiles(CheckResult, ServerAddress, SynchronizationParameters);
+	CheckIfCanStoreFiles(CheckResult, ServerAddress, SynchronizationParameters);
 	
 	EventText = NStr("en = 'File synchronization check completed';") + " " + Account.Description;
 	WriteToEventLogOfFilesSynchronization(EventText, SynchronizationParameters.Account);
@@ -8792,15 +8878,8 @@ Procedure DeleteAccountUnsynchronizedFiles(Account)
 	EventText = NStr("en = 'Releasing files locked by the cloud service started.';");
 	WriteToEventLogOfFilesSynchronization(EventText, SynchronizationParameters.Account);
 	
-	ServerFilesTree = New ValueTree;
-	ServerFilesTree.Columns.Add("Href");
-	ServerFilesTree.Columns.Add("UID1C");
-	ServerFilesTree.Columns.Add("Etag");
-	ServerFilesTree.Columns.Add("FileName");
-	ServerFilesTree.Columns.Add("Is_Directory");
-	ServerFilesTree.Columns.Add("ModificationDate");
-	ServerFilesTree.Columns.Add("Length");
-	
+	ServerFilesTree = GenerateStructureOfServerFilesTree();
+		
 	Try
 		
 		Cancel = False;
@@ -8997,7 +9076,7 @@ Function IsDistributedInfobaseNode(Val InfobaseNode)
 	
 EndFunction
 
-Function ThisIsErrorStateCode(StatusCode)
+Function IsErrorStateCode(StatusCode)
 	Return (StatusCode >= 400 And StatusCode <= 599) Or StatusCode = 0; 
 EndFunction
 

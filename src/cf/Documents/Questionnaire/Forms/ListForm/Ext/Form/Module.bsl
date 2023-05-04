@@ -18,7 +18,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Cancel = True;
 	EndIf;
 	
-	// StandardSubsystems.ПодключаемыеКоманды
+	// StandardSubsystems.AttachableCommands
 	AttachableCommands.OnCreateAtServer(ThisObject);
 	// End StandardSubsystems.AttachableCommands
 	
@@ -38,7 +38,7 @@ EndProcedure
 &AtClient
 Procedure ListOnActivateRow(Item)
 	
-	// StandardSubsystems.ПодключаемыеКоманды
+	// StandardSubsystems.AttachableCommands
 	AttachableCommandsClient.StartCommandUpdate(ThisObject);
 	// End StandardSubsystems.AttachableCommands
 	

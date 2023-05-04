@@ -235,30 +235,30 @@ EndFunction
 // 
 //
 // Parameters:
-//  ValueOfPlatformType - Undefined -
+//  ValueOf1CEnterpriseType - Undefined -
 //                                         
 //                        - PlatformType - 
 // Returns:
 //  String - 
 //
-Function NameOfThePlatformType(Val ValueOfPlatformType = Undefined) Export
+Function NameOfThePlatformType(Val ValueOf1CEnterpriseType = Undefined) Export
 	
-	If TypeOf(ValueOfPlatformType) <> Type("PlatformType") Then
+	If TypeOf(ValueOf1CEnterpriseType) <> Type("PlatformType") Then
 		SystemInfo = New SystemInfo;
-		ValueOfPlatformType = SystemInfo.PlatformType;
+		ValueOf1CEnterpriseType = SystemInfo.PlatformType;
 	EndIf;
 	
-	If ValueOfPlatformType = PlatformType.Linux_x86 Then
+	If ValueOf1CEnterpriseType = PlatformType.Linux_x86 Then
 		Return "Linux_x86";
-	ElsIf ValueOfPlatformType = PlatformType.Linux_x86_64 Then
+	ElsIf ValueOf1CEnterpriseType = PlatformType.Linux_x86_64 Then
 		Return "Linux_x86_64";
-	ElsIf ValueOfPlatformType = PlatformType.MacOS_x86 Then
+	ElsIf ValueOf1CEnterpriseType = PlatformType.MacOS_x86 Then
 		Return "MacOS_x86";
-	ElsIf ValueOfPlatformType = PlatformType.MacOS_x86_64 Then
+	ElsIf ValueOf1CEnterpriseType = PlatformType.MacOS_x86_64 Then
 		Return "MacOS_x86_64";
-	ElsIf ValueOfPlatformType = PlatformType.Windows_x86 Then
+	ElsIf ValueOf1CEnterpriseType = PlatformType.Windows_x86 Then
 		Return "Windows_x86";
-	ElsIf ValueOfPlatformType = PlatformType.Windows_x86_64 Then
+	ElsIf ValueOf1CEnterpriseType = PlatformType.Windows_x86_64 Then
 		Return "Windows_x86_64";
 	EndIf;
 	
@@ -2457,7 +2457,7 @@ Function DeviceType() Export
 	
 	DisplayInformation = DeviceDisplayParameters();
 	
-	DPI    = DisplayInformation.DPI; // АПК:1353 - 
+	DPI    = DisplayInformation.DPI; // ACC:1353 - 
 	Height = DisplayInformation.Height;
 	Width = DisplayInformation.Width;
 	

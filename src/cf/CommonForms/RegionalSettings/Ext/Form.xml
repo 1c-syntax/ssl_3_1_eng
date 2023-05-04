@@ -284,7 +284,7 @@
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Refilling predefined items and classifiers. </v8:content>
+											<v8:content>Refilling predefined items and classifiers.</v8:content>
 										</v8:item>
 									</Title>
 									<VerticalAlign>Bottom</VerticalAlign>
@@ -340,7 +340,7 @@
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Filling predefined items and classifiers is completed.</v8:content>
+											<v8:content>Predefined items and classifiers have been refilled.</v8:content>
 										</v8:item>
 									</Title>
 									<VerticalAlign>Bottom</VerticalAlign>
@@ -359,7 +359,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Main language</v8:content>
+					<v8:content>Default language</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

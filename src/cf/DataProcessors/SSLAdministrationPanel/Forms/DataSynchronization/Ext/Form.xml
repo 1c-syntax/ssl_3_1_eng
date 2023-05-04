@@ -33,7 +33,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="2013"/>
+			<ExtendedTooltip name="GroupHeaderExtendedTooltip_SSLs" id="2013"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="1567">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -124,7 +124,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Data synchronization setting</v8:content>
+							<v8:content>Data synchronization settings</v8:content>
 						</v8:item>
 					</Title>
 					<Width>43</Width>
@@ -210,7 +210,7 @@ This has no effect in distributed infobases.</v8:content>
 								</Title>
 							</ExtendedTooltip>
 							<Events>
-								<Event name="OnChange">Attachable_WhenChangingTheDetails</Event>
+								<Event name="OnChange">Attachable_OnChangeAttribute</Event>
 							</Events>
 						</CheckBoxField>
 						<Button name="ConfigureImportRestrictionDates" id="2065">
@@ -382,7 +382,7 @@ This has no effect in distributed infobases.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Temporary files directory of 1C:Enterprise server cluster:</v8:content>
+					<v8:content>Temporary file directory of 1C:Enterprise server cluster:</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>

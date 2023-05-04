@@ -21,8 +21,8 @@ Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 		SuggestConversationsText = 
 			NStr("en = 'Do you want to enable conversations?
 				|
-				|With them, users will be able to send text messages to each other 
-				|and make video calls, create themed conversations, and correspond on documents.';");
+				|With them, users will be able to exchange text messages, make video calls,
+				|create themed conversations, and correspond on documents.';");
 		CompletionNotification2 = New NotifyDescription("SuggestDiscussionsCompletion", ThisObject);
 		
 		ShowQueryBox(CompletionNotification2, SuggestConversationsText, QuestionDialogMode.YesNo);

@@ -1947,7 +1947,14 @@ might be incorrect due to several reasons. These are the most frequent ones:
 					<ExtendedTooltip name="AssistanceRequiredGroupExtendedTooltip" id="159"/>
 					<ChildItems>
 						<LabelDecoration name="SupportInformation" id="439">
-							<Title formatted="true"/>
+							<Title formatted="true">
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>If there are any difficulties, learn &lt;link %1&gt;how to troubleshoot common issues with digital signature applications&lt;/&gt; (in Russian).
+
+If you cannot find a solution, contact 1C support team and provide &lt;link %2&gt;technical information about the issue&lt;/&gt;.</v8:content>
+								</v8:item>
+							</Title>
 							<ContextMenu name="SupportInformationContextMenu" id="440"/>
 							<ExtendedTooltip name="SupportInformationExtendedTooltip" id="441"/>
 							<Events>

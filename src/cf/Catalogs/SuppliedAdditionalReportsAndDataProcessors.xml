@@ -338,7 +338,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Kind</v8:content>
+							<v8:content>Type</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -351,7 +351,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Kind of additional report or data processor.</v8:content>
+							<v8:content>Additional report (data processor) type</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -1194,7 +1194,7 @@
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Command startup option (client, server, form opening)</v8:content>
+									<v8:content>Command run option (client, server, form open)</v8:content>
 								</v8:item>
 							</ToolTip>
 							<MarkNegatives>false</MarkNegatives>
@@ -1555,7 +1555,7 @@
 							<Synonym>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Permission kind</v8:content>
+									<v8:content>Permission type</v8:content>
 								</v8:item>
 							</Synonym>
 							<Comment/>
@@ -1572,7 +1572,7 @@
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Permission kind presentation</v8:content>
+									<v8:content>Permission type presentation</v8:content>
 								</v8:item>
 							</ToolTip>
 							<MarkNegatives>false</MarkNegatives>

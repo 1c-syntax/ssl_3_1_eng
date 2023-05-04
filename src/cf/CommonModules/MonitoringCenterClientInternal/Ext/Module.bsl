@@ -12,16 +12,10 @@
 // See CommonClientOverridable.BeforeRecurringClientDataSendToServer
 Procedure BeforeRecurringClientDataSendToServer(Parameters) Export
 	
-	CurrentSessionDate = CommonClient.SessionDate();
-	ParameterName = "StandardSubsystems.MonitoringCenter.LastCallDate";
-	LastCallDate = ApplicationParameters.Get(ParameterName);
-	If TypeOf(LastCallDate) <> Type("Date") Then
-		ApplicationParameters.Insert(ParameterName, CurrentSessionDate);
-		Return;
-	ElsIf LastCallDate + 20*60 > CurrentSessionDate Then
+	CounterName = "StandardSubsystems.MonitoringCenter";
+	If Not ServerNotificationsClient.TimeoutExpired(CounterName) Then
 		Return;
 	EndIf;
-	ApplicationParameters.Insert(ParameterName, CurrentSessionDate);
 	
 	Windows = GetWindows();
 	ActiveWindows = 0;

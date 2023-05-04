@@ -96,14 +96,7 @@ Procedure DeleteVersionAuthorInfo(Val VersionAuthor) Export
 	
 	Query = New Query;
 	Query.Text = "SELECT TOP 10000
-	|	ObjectsVersions.Object,
-	|	ObjectsVersions.VersionNumber,
-	|	ObjectsVersions.ObjectVersion,
-	|	UNDEFINED AS VersionAuthor,
-	|	ObjectsVersions.VersionDate,
-	|	ObjectsVersions.Comment,
-	|	ObjectsVersions.ObjectVersionType,
-	|	ObjectsVersions.VersionIgnored
+	|	*
 	|FROM
 	|	InformationRegister.ObjectsVersions AS ObjectsVersions
 	|WHERE
@@ -113,16 +106,20 @@ Procedure DeleteVersionAuthorInfo(Val VersionAuthor) Export
 	Selection = Query.Execute().Select();
 	
 	While Selection.Count() > 0 Do
-		
 		While Selection.Next() Do
-			
 			RecordSet = CreateRecordSet();
 			RecordSet.Filter["Object"].Set(Selection["Object"]);
 			RecordSet.Filter["VersionNumber"].Set(Selection["VersionNumber"]);
-			FillPropertyValues(RecordSet.Add(), Selection);
-			RecordSet.Write();
 			
+			Record = RecordSet.Add();
+			FillPropertyValues(Record, Selection);
+			Record.VersionAuthor = Undefined;
+			RecordSet.Write();
 		EndDo;
+		
+		If TransactionActive() Then
+			Break;
+		EndIf;
 		
 		Selection = Query.Execute().Select(); // @skip-
 	EndDo;

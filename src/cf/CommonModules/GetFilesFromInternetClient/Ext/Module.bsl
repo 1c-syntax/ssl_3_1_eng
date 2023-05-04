@@ -46,7 +46,7 @@ Function DownloadFileAtClient(Val URL, Val ReceivingParameters = Undefined, Val 
 	If Result.Status Then
 		// ACC:1348-off FileSystemClient.SaveFiles is not used for compatibility (synchronous call).
 		GetFile(Result.Path, PathForSaving, False); 
-		// АПК:1348-
+		// ACC:1348-
 		Result.Path = PathForSaving;
 	EndIf;
 	

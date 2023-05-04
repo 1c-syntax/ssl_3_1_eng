@@ -842,8 +842,8 @@ Function GetPropertyConditionText(Rule, ObjectProperties)
 	// A query parameter or a constant value can be used as a literal
 	//
 	// Example:
-	// ExchangePlanProperty <comparison kind> &ObjectProperty_MyProperty
-	// ExchangePlanProperty <comparison kind> DATETIME(1987,10,19,0,0,0).
+	// ExchangePlanProperty <comparison type> &ObjectProperty_MyProperty
+	// ExchangePlanProperty <comparison type> DATETIME(1987,10,19,0,0,0).
 	
 	If Rule.IsConstantString Then
 		
@@ -1244,7 +1244,7 @@ Function InitMessages()
 	Messages.Insert(0, NStr("en = 'Internal error';", DefaultLanguageCode));
 	Messages.Insert(1, NStr("en = 'Cannot open the exchange rules file.';", DefaultLanguageCode));
 	Messages.Insert(2, NStr("en = 'Cannot load the exchange rules.';", DefaultLanguageCode));
-	Messages.Insert(3, NStr("en = 'Exchange rule format error.';", DefaultLanguageCode));
+	Messages.Insert(3, NStr("en = 'Exchange rule format error';", DefaultLanguageCode));
 	Messages.Insert(4, NStr("en = 'Cannot get the exchange rules file.';", DefaultLanguageCode));
 	Messages.Insert(5, NStr("en = 'The registration rules are not intended for the current exchange plan.';", DefaultLanguageCode));
 	

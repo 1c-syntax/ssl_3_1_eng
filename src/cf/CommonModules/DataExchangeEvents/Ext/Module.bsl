@@ -1210,13 +1210,13 @@ Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParam
 				EndIf;
 				
 				If Not IsSeparatedData And Not IsMutuallySeparatedData Then
-					Raise NStr("en = 'Registration of shared data changes in separated mode.';");
+					Raise NStr("en = 'Register changes of shared data in separated mode.';");
 				EndIf;
 				
 			Else
 				
 				If IsSeparatedData Then
-					Raise NStr("en = 'Registration of separated data changes in shared mode.';");
+					Raise NStr("en = 'Register changes of separated data in shared mode.';");
 				EndIf;
 					
 				// 

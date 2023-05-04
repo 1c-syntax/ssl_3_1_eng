@@ -169,23 +169,21 @@ Procedure QuestionnaireTreeFormDragCheck(Item, DragParameters, StandardProcessin
 	AssignmentRow     = QuestionnaireTree.FindByID(String);
 	RowDrag = QuestionnaireTree.FindByID(DragParameters.Value);
 	
-	If (RowDrag.RowType = "Section") And (AssignmentRow.RowType = "DoQueryBox") Then
-		DragParameters.Action = DragAction.Cancel;
-	ElsIf (RowDrag.RowType = "DoQueryBox") And (AssignmentRow.RowType = "Root")	Then
+	If (RowDrag.RowType = "Section") And (AssignmentRow.RowType = "DoQueryBox")
+		Or (RowDrag.RowType = "DoQueryBox") And (AssignmentRow.RowType = "Root")	Then
 		DragParameters.Action = DragAction.Cancel;
 	ElsIf (RowDrag.RowType = "Section") And (AssignmentRow.RowType = "Section") Then
 		If RowDrag.TemplateQuestion = AssignmentRow.TemplateQuestion Then
-		      DragParameters.Action = DragAction.Cancel;
+			DragParameters.Action = DragAction.Cancel;
 			Return;
 		EndIf;
 		Parent = AssignmentRow.GetParent();
 		While Parent.RowType <> "Root" Do
-				If Parent = RowDrag Then
-					DragParameters.Action = DragAction.Cancel;
-					Return;
-				Else
-					Parent = Parent.GetParent();
-				EndIf;
+			If Parent = RowDrag Then
+				DragParameters.Action = DragAction.Cancel;
+				Return;
+			EndIf;
+			Parent = Parent.GetParent();
 		EndDo;
 	EndIf;
 	
@@ -446,7 +444,7 @@ Procedure AddSection(Command)
 	
 EndProcedure
 
-// Adds a simple question to the questionnaire template tree.
+// Adds a basic question to the questionnaire template tree.
 &AtClient
 Procedure AddSimpleQuestion(Command)
 	

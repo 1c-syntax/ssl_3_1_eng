@@ -1400,70 +1400,77 @@ Procedure FindAreas(DocumentStructure, ObjectTablePartNames) Export
 		EndDo;
 	EndDo;
 	
-	IndexesOfFoundAreasStart = GetIndicesOfArrayOfNodes(FoundAreasStart);
-	IndexesOfFoundAreasEnd = GetIndicesOfArrayOfNodes(FoundAreasEnd);
+	FoundAreasIndexesStart = GetIndexesOfNodesArray(FoundAreasStart);
+	FoundAreasIndexesEnd = GetIndexesOfNodesArray(FoundAreasEnd);
 	
-	For Each IndexOfFoundAreaStart In IndexesOfFoundAreasStart Do
-		StartArea = DocumentTree.Rows.Find(IndexOfFoundAreaStart, "IndexOf", True);
-		For Each IndexOfFoundAreaEnding In IndexesOfFoundAreasEnd Do
-			EndArea = DocumentTree.Rows.Find(IndexOfFoundAreaEnding, "IndexOf", True);
-			If IndexOfFoundAreaStart < IndexOfFoundAreaEnding Then
+	For Each FoundAreaIndexStart In FoundAreasIndexesStart Do
+		StartArea = DocumentTree.Rows.Find(FoundAreaIndexStart, "IndexOf", True);
+		For Each FoundAreaIndexEnd In FoundAreasIndexesEnd Do
+			EndArea = DocumentTree.Rows.Find(FoundAreaIndexEnd, "IndexOf", True);
+			If FoundAreaIndexStart < FoundAreaIndexEnd Then
 				Break;
 			EndIf;
 		EndDo;
 		
+		AreaCondition = AreaCondition(StartArea);
 		If EndArea = Undefined Then
-			Raise NStr("en = 'Cannot find the end of the conditional area';");
+			Raise StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'В макете документа нет окончания условной области ""%1"".';"), AreaCondition);
 		EndIf;
-		
-		AreaCondition = GetAreaCondition(StartArea);
 		
 		CollectionArea = Undefined;
 		ConditionalAreasEnds = New Array;
+		AreasToDelete = New Array;
 		For Each Area In Areas Do
-			If Area.IndexOf < IndexOfFoundAreaEnding And IndexOfFoundAreaStart < Area.IndexOf Then
-				If ValueIsFilled(Area.Collection) Then
-					CollectionArea = Area;
-				EndIf;
-				IsConditionEndParent = 
-					Area.DocTreeNode.Rows.Find(IndexOfFoundAreaEnding, "IndexOf", True) <> Undefined;
-				If IsConditionEndParent Then
-					If CollectionArea <> Undefined Then
-						NextAreaNode = FindBorderOfNextArea(CollectionArea.DocTreeNode, Areas);
-						If NextAreaNode <> Undefined And NextAreaNode.IndexOf < IndexOfFoundAreaEnding Then
-							EndStructure = New Structure("DocTreeNode, AreaCondition");
-							EndStructure.DocTreeNode = NextAreaNode;
-							EndStructure.AreaCondition = AreaCondition;
-							ConditionalAreasEnds.Add(EndStructure);
-						EndIf;
-					EndIf;
-					
-					NextAreaNode = FindBorderOfNextArea(EndArea, Areas);
-					If NextAreaNode = Undefined Then
-						Areas.Delete(Area);
-						Continue;
-					EndIf;
-					Area.DocTreeNode = NextAreaNode;
-					Area.IndexOf = Area.DocTreeNode.IndexOf;
-				Else
-					Area.AreaCondition = AreaCondition;
+			If Area.IndexOf >= FoundAreaIndexEnd Or FoundAreaIndexStart >= Area.IndexOf Then
+				Continue;
+			EndIf;
+			If ValueIsFilled(Area.Collection) Then
+				CollectionArea = Area;
+			EndIf;
+			IsConditionEndParent = 
+				Area.DocTreeNode.Rows.Find(FoundAreaIndexEnd, "IndexOf", True) <> Undefined;
+			If Not IsConditionEndParent Then
+				Area.AreaCondition = AreaCondition;
+				Continue;
+			EndIf;
+				
+			If CollectionArea <> Undefined Then
+				NextAreaNode = BorderOfNextArea(CollectionArea.DocTreeNode, Areas);
+				If NextAreaNode <> Undefined And NextAreaNode.IndexOf < FoundAreaIndexEnd Then
+					AreaProperties = New Structure("DocTreeNode, AreaCondition");
+					AreaProperties.DocTreeNode = NextAreaNode;
+					AreaProperties.AreaCondition = AreaCondition;
+					ConditionalAreasEnds.Add(AreaProperties);
 				EndIf;
 			EndIf;
+			
+			NextAreaNode = BorderOfNextArea(EndArea, Areas);
+			If NextAreaNode = Undefined Then
+				AreasToDelete.Add(Area);
+				Continue;
+			EndIf;
+			Area.DocTreeNode = NextAreaNode;
+			Area.IndexOf = Area.DocTreeNode.IndexOf;
 		EndDo;
 		
-		For Each EndStructure In ConditionalAreasEnds Do
+		For Each Area In AreasToDelete Do
+			Areas.Delete(Area);
+		EndDo;
+		
+		For Each AreaProperties In ConditionalAreasEnds Do
 			NewArea = Areas.Add();
-			FillPropertyValues(NewArea, EndStructure);
+			FillPropertyValues(NewArea, AreaProperties);
 			NewArea.IndexOf = NewArea.DocTreeNode.IndexOf;
 		EndDo;
 		
 		AddAreaWithCondition(Areas, StartArea);
-		EndArea = DocumentTree.Rows.Find(IndexOfFoundAreaEnding, "IndexOf", True);
+		EndArea = DocumentTree.Rows.Find(FoundAreaIndexEnd, "IndexOf", True);
 		AddAreaWithCondition(Areas, EndArea);
 	EndDo;
 	
-	DeleteConditionalAreasTags(IndexesOfFoundAreasStart, DocumentTree);
-	DeleteConditionalAreasTags(IndexesOfFoundAreasEnd, DocumentTree);
+	DeleteConditionalAreasTags(FoundAreasIndexesStart, DocumentTree);
+	DeleteConditionalAreasTags(FoundAreasIndexesEnd, DocumentTree);
 	
 	StartNode = DocumentTree.Rows[0];
 	If Areas.Find(StartNode, "DocTreeNode") = Undefined Then
@@ -1484,7 +1491,7 @@ Procedure FindAreas(DocumentStructure, ObjectTablePartNames) Export
 	
 EndProcedure
 
-Function GetIndicesOfArrayOfNodes(NodesArray)
+Function GetIndexesOfNodesArray(NodesArray)
 	Result = New Array;
 	
 	For Each Node In NodesArray Do
@@ -1886,7 +1893,7 @@ Function GetNextNode(Node)
 	EndIf;
 EndFunction
 
-Function FindBorderOfNextArea(String, Areas)
+Function BorderOfNextArea(String, Areas)
 	Parent = String.Parent;
 	If Parent = Undefined Then
 		Return Undefined;
@@ -1907,7 +1914,7 @@ Function FindBorderOfNextArea(String, Areas)
 		
 	If NavigateToParent Then
 		
-		Return FindBorderOfNextArea(Parent, Areas);
+		Return BorderOfNextArea(Parent, Areas);
 		
 	Else
 		
@@ -1917,14 +1924,14 @@ Function FindBorderOfNextArea(String, Areas)
 		If IsTableBeginning Then
 			HasPredecessorNodes = Parent.Rows.Count() > 2;
 			If HasPredecessorNodes Then
-				NodeOfPredecessor = PredecessorTable(Parent, IndexOfNextNode-1);
+				NodeOfPredecessor = TablePredecessor(Parent, IndexOfNextNode-1);
 				If NodeOfPredecessor <> Undefined Then
-					AlignGridOfColumns(AreaStartNode, NodeOfPredecessor);
+					AlignColumnsGrid(AreaStartNode, NodeOfPredecessor);
 					
 					While True Do
-						NodeForCombining = PredecessorTable(Parent, Parent.Rows.IndexOf(NodeOfPredecessor)-1);
-						If NodeForCombining <> Undefined Then
-							AlignGridOfColumns(AreaStartNode, NodeForCombining);
+						AlignmentNode = TablePredecessor(Parent, Parent.Rows.IndexOf(NodeOfPredecessor)-1);
+						If AlignmentNode <> Undefined Then
+							AlignColumnsGrid(AreaStartNode, AlignmentNode);
 						Else
 							Break;
 						EndIf;
@@ -1938,9 +1945,9 @@ Function FindBorderOfNextArea(String, Areas)
 						CreateLowerLevelNodes(NewNode, TableRow);
 						FirstAddedNode = ?(FirstAddedNode = Undefined, NewNode, FirstAddedNode);
 						
-						SubstitutionArea = Areas.Find(NewNode.IndexOf, "IndexOf");
-						If SubstitutionArea <> Undefined Then 
-							SubstitutionArea.DocTreeNode = NewNode;
+						AreaForSubstitute = Areas.Find(NewNode.IndexOf, "IndexOf");
+						If AreaForSubstitute <> Undefined Then 
+							AreaForSubstitute.DocTreeNode = NewNode;
 						EndIf;
 					EndDo;
 					
@@ -1954,10 +1961,10 @@ Function FindBorderOfNextArea(String, Areas)
 	EndIf;
 EndFunction
 
-Function PredecessorTable(Parent, CurNodeIndex)
+Function TablePredecessor(Parent, CurrentNodeIndex)
 	
-	For SearchIndex = 1 To CurNodeIndex Do
-		NodeOfPredecessor = Parent.Rows[CurNodeIndex-SearchIndex];
+	For SearchIndex = 1 To CurrentNodeIndex Do
+		NodeOfPredecessor = Parent.Rows[CurrentNodeIndex-SearchIndex];
 		If NodeOfPredecessor.NameTag = "w:tbl" Then
 			Return NodeOfPredecessor;
 		ElsIf NodeOfPredecessor.NameTag = "w:p" And StrStartsWith(NodeOfPredecessor.WholeText, "{"+TagNameCondition())
@@ -1970,7 +1977,7 @@ Function PredecessorTable(Parent, CurNodeIndex)
 
 EndFunction
 
-Procedure AlignGridOfColumns(AreaStartNode, NodeOfPredecessor)
+Procedure AlignColumnsGrid(AreaStartNode, NodeOfPredecessor)
 	
 	PredecessorColumnsGridNode = FindNodeByContent(NodeOfPredecessor, "w:tblGrid");
 	AdditionColumnsGripNode = FindNodeByContent(AreaStartNode, "w:tblGrid");
@@ -2004,41 +2011,41 @@ Procedure AlignGridOfColumns(AreaStartNode, NodeOfPredecessor)
 		EndDo;
 	EndDo;															
 	
-	ArrayOfPredecessorColumnCount = UsingColumns(PredecessorColumnsGridNode, GridArray);
-	ArrayOfAdditionalColumnCount = UsingColumns(AdditionColumnsGripNode, GridArray);
+	ArrayOfPredecessorColumnCount = ColumnsUsage(PredecessorColumnsGridNode, GridArray);
+	ArrayOfAdditionalColumnCount = ColumnsUsage(AdditionColumnsGripNode, GridArray);
 	
-	InstallGrid(NodeOfPredecessor, GridArray);
-	InstallGrid(AreaStartNode, GridArray);
+	SetGrid(NodeOfPredecessor, GridArray);
+	SetGrid(AreaStartNode, GridArray);
 	
 	SetGridUsage(NodeOfPredecessor, ArrayOfPredecessorColumnCount);
 	SetGridUsage(AreaStartNode, ArrayOfAdditionalColumnCount);
 
 EndProcedure
 
-Function UsingColumns(PredecessorColumnsGridNode, GridArray)
+Function ColumnsUsage(PredecessorColumnsGridNode, GridArray)
 	
-	UsingColumns = New Array;
+	ColumnsUsage = New Array;
 	CurrentWidth = 0;
-	GridColumnsUsed = 0;
+	GridColumnsUsedCount = 0;
 	PreviousColumnNumber = 0;	
 	For Each GripNode In PredecessorColumnsGridNode.Rows Do
 		CurrentWidth = CurrentWidth + Number(GripNode.Attributes["w:w"]);
 		ColumnsCount = GridArray.Find(CurrentWidth) - PreviousColumnNumber + 1;
 		PreviousColumnNumber = GridArray.Find(CurrentWidth)+1;
-		UsingColumns.Add(ColumnsCount);
-		GridColumnsUsed = GridColumnsUsed + ColumnsCount;
+		ColumnsUsage.Add(ColumnsCount);
+		GridColumnsUsedCount = GridColumnsUsedCount + ColumnsCount;
 	EndDo;
 	
-	If GridColumnsUsed < GridArray.Count() Then
-		UsingColumns[UsingColumns.UBound()] = UsingColumns[UsingColumns.UBound()]
-			+ GridArray.Count() - GridColumnsUsed;
+	If GridColumnsUsedCount < GridArray.Count() Then
+		ColumnsUsage[ColumnsUsage.UBound()] = ColumnsUsage[ColumnsUsage.UBound()]
+			+ GridArray.Count() - GridColumnsUsedCount;
 	EndIf;
 	
-	Return UsingColumns;
+	Return ColumnsUsage;
 
 EndFunction
 
-Procedure InstallGrid(NodeOfPredecessor, GridArray)
+Procedure SetGrid(NodeOfPredecessor, GridArray)
 	
 	GridDefiningNode = FindNodeByContent(NodeOfPredecessor, "w:tblGrid");
 	GridDefiningNode.Rows.Clear();
@@ -2063,7 +2070,7 @@ Procedure SetGridUsage(Node, Val ArrayOfColumnCount)
 		SearchParameters.IncludeSubordinates = False;
 		ArrayOfColumnsNodes = New Array;
 		FindNodesByContent(NodeOfRow, "w:tc", ArrayOfColumnsNodes, SearchParameters);
-		IndexOfPreviouslyUsed = 0;
+		IndexOfUsed = 0;
 		For ColumnIndex = 0 To ArrayOfColumnsNodes.UBound() Do
 			ColumnNode = ArrayOfColumnsNodes[ColumnIndex];
 			NodeOfColumnProperties = FindNodeByContent(ColumnNode, "w:tcPr");
@@ -2074,11 +2081,11 @@ Procedure SetGridUsage(Node, Val ArrayOfColumnCount)
 				GridColumnCount = ArrayOfColumnCount[ColumnIndex];
 			Else
 				GridColumnCount = 0;
-				PreviouslyNumberOfColumnsOfGrid = Number("0"+GridDefiningNode.Attributes["w:val"]);
-				For IndexUsedInOldGrid = IndexOfPreviouslyUsed To IndexOfPreviouslyUsed + PreviouslyNumberOfColumnsOfGrid - 1 Do
-					GridColumnCount = GridColumnCount + ArrayOfColumnCount[IndexUsedInOldGrid];
+				GridColumnsCountBefore = Number("0"+GridDefiningNode.Attributes["w:val"]);
+				For IndexOfUsedInOldGrid = IndexOfUsed To IndexOfUsed + GridColumnsCountBefore - 1 Do
+					GridColumnCount = GridColumnCount + ArrayOfColumnCount[IndexOfUsedInOldGrid];
 				EndDo;
-				IndexOfPreviouslyUsed = IndexUsedInOldGrid;
+				IndexOfUsed = IndexOfUsedInOldGrid;
 			EndIf;
 			GridDefiningNode.Attributes.Insert("w:val", Format(GridColumnCount, "NG=;"));
 		EndDo;
@@ -2089,11 +2096,11 @@ Function TagNameCondition()
 	Return PrintManagementClientServer.TagNameCondition();
 EndFunction
 
-Function GetAreaCondition(Area)
+Function AreaCondition(Area)
 	ConditionArrayStart = StrSplit(Area.WholeText, "{", False);
-	For K=0 To ConditionArrayStart.UBound() Do
-		If StrFind(ConditionArrayStart[K], TagNameCondition()+" ") Then
-			ArrayOfEndCondition = StrSplit(ConditionArrayStart[K], "}", False);
+	For IndexOf = 0 To ConditionArrayStart.UBound() Do
+		If StrFind(ConditionArrayStart[IndexOf], TagNameCondition()+" ") Then
+			ArrayOfEndCondition = StrSplit(ConditionArrayStart[IndexOf], "}", False);
 			Return TrimAll(StrReplace(ArrayOfEndCondition[0], TagNameCondition()+" ", ""));
 		EndIf;
 	EndDo;
@@ -2101,11 +2108,11 @@ Function GetAreaCondition(Area)
 EndFunction
 
 Function HasStringContainsAreaStart(Val Text, TabularSectionNames)
-	Result = StrFind(Text, "{"+TagNameCondition()+" ") Or StrFind(Text, "{/"+TagNameCondition());
 	
+	Result = StrFind(Text, "{"+TagNameCondition()+" ") Or StrFind(Text, "{/"+TagNameCondition());
 	HasStringContainsTableStart(Text, TabularSectionNames, Result);
-
 	Return Result;
+	
 EndFunction
 
 Function HasStringContainsTableStart(Text, TabularSectionNames, Result)
@@ -2553,7 +2560,7 @@ Procedure DeleteConditionalAreasTags(Indexes, DocumentTree)
 EndProcedure
 
 Procedure AddAreaWithCondition(Areas, Area)
-	NextAreaNode = FindBorderOfNextArea(Area, Areas);
+	NextAreaNode = BorderOfNextArea(Area, Areas);
 	
 	If NextAreaNode = Undefined Then
 		Return;
@@ -2567,7 +2574,7 @@ Procedure AddAreaWithCondition(Areas, Area)
 		FoundArea.IndexOf = FoundArea.DocTreeNode.IndexOf;
 	EndIf;
 	
-	FoundArea.AreaCondition = GetAreaCondition(Area);
+	FoundArea.AreaCondition = AreaCondition(Area);
 EndProcedure
 
 #EndRegion
@@ -2579,7 +2586,7 @@ Procedure ParseDOCXDocumentContainer(Val FullFileName, Val FileStructurePath)
 	Except
 		DeleteFiles(FullFileName);
 		WriteEventsToEventLog(EventLogEvent(), "Error", ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		Raise(NStr("en = 'Cannot open template file. Reason:';") + Chars.LF 
+		Raise(NStr("en = 'Не удалось открыть файл шаблона по причине:';") + Chars.LF 
 			+ ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 	EndTry;
 	
@@ -5354,7 +5361,7 @@ Function DefineDataFileExtensionBySignature(DataOrStructure) Export
 		Except
 			DeleteFiles(TempFileName);
 			WriteEventsToEventLog(EventLogEvent(), "Error", ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-			Raise(NStr("en = 'Cannot open template file. Reason:';") + Chars.LF 
+			Raise(NStr("en = 'Не удалось открыть файл шаблона по причине:';") + Chars.LF 
 				+ ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		EndTry;
 		

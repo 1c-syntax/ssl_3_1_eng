@@ -258,7 +258,9 @@ Procedure Attachable_SectionTitleClick(Item)
 	FormUniqueness = True;
 	
 	If ClientParameters.RunMeasurements Then
-		Measurement = StartMeasurement("ReportPanel.Opening", ClientParameters.MeasurementsPrefix + "; " + SubsystemPath);
+		Comment = New Map;
+		Comment.Insert("SubsystemPath", SubsystemPath);
+		Measurement = StartMeasurement("ReportPanel.Opening", Comment);
 	EndIf;
 	
 	OpenForm("CommonForm.ReportPanel", ParametersForm, OwnerForm1, FormUniqueness);
@@ -486,21 +488,21 @@ EndFunction
 &AtClient
 Function StartMeasurement(Event, Comment = Undefined)
 	If Comment = Undefined Then
-		Comment = ClientParameters.MeasurementsPrefix;
+		Comment = New Map;
 	EndIf;
 	
 	Measurement = New Structure("Name, Id, ModulePerformanceMonitorClient");
 	If Event = "ReportsList.Opening" Or Event = "ReportPanel.Opening" Then
 		Measurement.Name = Event;
-		Comment = Comment + "; " + NStr("en = 'From report panel:';") + " " + ClientParameters.SubsystemPath;
+		Comment.Insert("FromReportPanel", ClientParameters.SubsystemPath);
 	Else
 		If SetupMode Or Event = "DisableSetupMode" Then
 			Measurement.Name = "ReportPanel.SetupMode";
 		ElsIf ValueIsFilled(SearchString) Then
 			Measurement.Name = "ReportPanel.Search"; // 
 		EndIf;
-		Comment = Comment + "; " + ClientParameters.SubsystemPath;
-		Comment = Comment + "; " + NStr("en = 'Tooltips:';") + " " + String(ShowTooltips);
+		Comment.Insert("SubsystemPath", ClientParameters.SubsystemPath);
+		Comment.Insert("ShowTooltips", ShowTooltips);
 	EndIf;
 	
 	If Measurement.Name = Undefined Then
@@ -508,15 +510,15 @@ Function StartMeasurement(Event, Comment = Undefined)
 	EndIf;
 	
 	If ValueIsFilled(SearchString) Then
-		Comment = Comment
-			+ "; " + NStr("en = 'Search:';") + " " + String(SearchString)
-			+ "; " + NStr("en = 'In all sections:';") + " " + String(SearchInAllSections);
+		Comment.Insert("Search", True);
+		Comment.Insert("SearchString", String(SearchString));
+		Comment.Insert("SearchInAllSections", SearchInAllSections);
 	Else
-		Comment = Comment + "; " + NStr("en = 'No search';");
+		Comment.Insert("Search", False);
 	EndIf;
 	
 	If Event = "DisableSetupMode" Then
-		Comment = Comment + "; " + NStr("en = 'Quit setup mode';");
+		Comment.Insert("DisableSetupMode", True);
 	EndIf;
 	Measurement.ModulePerformanceMonitorClient = CommonClient.CommonModule("PerformanceMonitorClient");
 	Measurement.Id = Measurement.ModulePerformanceMonitorClient.TimeMeasurement(Measurement.Name);

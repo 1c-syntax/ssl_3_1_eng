@@ -111,289 +111,131 @@
 //           ** FitToPage - Boolean - automatically scale to page size.
 //           ** PrintScale - Number - image scale (percentage).
 //       * Events - Structure - events that have handlers defined in the report object module:
-//           ** OnCreateAtServer - Boolean - If True, then the event handler
-//               must be defined in the report object module according to the following template:
+//           ** OnCreateAtServer - Boolean -
 //               
-//               // This procedure is called in the OnLoadVariantAtServer event handler of a report form after executing the form code.
-//               //
-//               //
-//               // Parameters:
-//               //   Form - ClientApplicationForm - Report form.
-//               //      //   Cancel - Boolean - indicates that form creation was canceled.
-//               //      See description of the ClientApplicationForm.OnCreateAtServer parameter in Syntax Assistant.
-//               //      //   StandardProcessing - Boolean - Flag of standard (system) event processing execution.
-//               //
-//               // //      See description of the ClientApplicationForm.OnCreateAtServer parameter in Syntax Assistant.
-//               //
-//               // See also:
-//               //
-//               //   The procedure of outputting the added commands to the ReportsServer.OutputCommand() form.
-//               //   Global handler of this event: ReportsOverridable.OnGenerateAtServer().
-//               //
-//               // An example of adding a command:
-//               //	Form.Command.Add("<CommandName>");
-//               //	Command.Action = Attachable_Command;
-//               //
-//               //	Command.Header = NStr("en = '<Command presentation…>'");
-//               	//	ReportsServer.OutputCommand(Form, Command, "<Compositor>");
-//               // Command handler is written in the ReportsClientOverridable.CommandHandler procedure.
-//                                             //
-//                                             Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
-//                                             // Handling an event.
-//                                             EndProcedure
+//               
+//               // See ReportsOverridable.OnCreateAtServer.
+//               
+//               	
+//               
 //           
-//           ** BeforeImportSettingsToComposer - Boolean - If True, define an event handler in the report object module:
-//               Run before importing new settings. Intended to change data composition schemas.
+//           ** BeforeImportSettingsToComposer - Boolean -
 //               
-//               For example, when a report schema depends on the option key or report parameters.
-//               To apply changes, call the method ReportsServer.AttachSchema().
-//               AdditionalProperties of NewDCSettings parameter and Settings property of Settings Composer included in
-//               properties of OptionKey, PredefinedOptionKey, OptionContext, and FormParametersFilter.
-//                
-//               Parameters:
-//               //
-//               Context - Arbitrary - Report context parameters.
-//               Intended to be passed in ReportsServer.AttachSchema() method parameters. 
-//               SchemaKey - String - ID of the current schema.
-//               By default, empty. Meaning that Settings Composer is initialized with the default schema.
-//               Designed to reinitialize Setting Composer less often.
-//               Don't use it if reinitialization runs unconditionally.
-//               OptionKey - String, Undefined - Name of the predefined or UUID of custom report option.
-//               Undefined if calling a decryption option or with no context.
-//               NewDCSettings - DataCompositionSettings, Undefined - Report option settings that will be exported to Settings Composer after initialization.
-//               Undefined if settings have already been imported.
-//               NewDCUserSettings - DataCompositionUserSettings, Undefined - User settings that will be exported to Settings Composer after initialization.
-//               Undefined if settings have already been imported.
 //               
-//               Examples:
-//               1. Report Composer initializes by common template schema:
-//               	If SchemaKey <> "1" Then
-//               		SchemaKey = "1";
-//               		DCSchema = GetCommonTemplate("MyCommonCompositionSchema");
-//               //
-//               		ReportsServer.EnableSchema(ThisObject, Context, DCSchema, SchemaKey);
-//               	EndIf;
 //               
-//               2. A schema depends on the parameter set in the report user settings:
-//               	If ValueType(NewDCUserSettings) = Type("DataCompositionUserSettings") Then
-//               		FullMetadataObjectName = "";
-//               		For Each DCItem From NewDCUserSettings.Items Do
-//               //
-//               			If ValueType(DCItem) = Type("DataCompositionSettingsParameterValue") Then
-//               				ParameterName = String(DCItem.Parameter);
-//               				If ParameterName = "MetadataObject" Then
-//               					FullMetadataObjectName = DCItem.Value;
-//               				EndIf;
-//               			EndIf;
-//               		EndDo;
-//               		If SchemaKey <> FullMetadataObjectName Then
-//               			If SchemaKey = FullMetadataObjectName Then
-//               			DCSchema = New DataCompositionSchema;
-//               			// Schema population...
-//               			ReportsServer.EnableSchema(ThisObject, Context, DCSchema, SchemaKey);
-//               		EndIf;
-//               	EndIf;
 //               
-//               Procedure BeforeImportSettingsToComposer(Context, SchemaKey, OptionKey, NewDCSettings, NewDataCompositionUserSettings) Export
-//               Event handling.
-//               EndProcedure
+//               
+//               
+//               
+//               
 //               //
 //               
 //               	
 //               
 //           
-//           ** AfterLoadSettingsInLinker - Boolean - If True, in the report object module, an event handler is required with the following properties:
-//               Run after all settings have been uploaded in the Composer.
+//           ** AfterLoadSettingsInLinker - Boolean -
 //               
-//               Intended for refining, for example, search parameters dependent on imported settings of fixed filters.
-//               Structure AdditionalProperties of the Settings object of the Report Settings Composer contains
-//               OptionKey, PredefinedOptionKey, OptionContext, and FormParametersFilter populated by BeforeImportSettingsToComposer,
-//               and property DescriptionOption, which you can change for a predefined report option.
 //               
-//               Parameters:
-//               AdditionalParameters - Structure - Reserved.
+//               
+//               
 //               //
 //               
-//               AfterImportSettingsToComposer(AdditionalParameters) Export
-//               //
-//               Event handling.
-//               	EndProcedure
+//               	
 //               
 //           
-//           ** BeforeLoadVariantAtServer - Boolean - If True, then the event handler
-//               must be defined in the report object module according to the following template:
+//           ** BeforeLoadVariantAtServer - Boolean -
 //               
-//               // This procedure is called in the OnLoadVariantAtServer event handler of a report form after executing the form code.
-//               //
-//               //
-//               // Parameters:
-//               //   Form - ClientApplicationForm - Report form.
-//               //
-//               // See ReportsOverridable.ПередЗагрузкойВариантаНаСервере().
-//               //
-//               //   NewDCSettings - DataCompositionSettings - settings to import into the settings composer.
-//               	//
-//               // 
-//                                                        //
-//                                                        Procedure BeforeLoadVariantAtServer(Form, NewDCSettings) Export
-//                                                        // Handling an event.
-//                                                        EndProcedure
+//               
+//               // See ReportsOverridable.BeforeLoadVariantAtServer.
+//               
+//               	
+//               
 //           
-//           ** OnLoadVariantAtServer - Boolean - If True, then the event handler
-//               must be defined in the report object module according to the following template:
+//           ** OnLoadVariantAtServer - Boolean -
 //               
-//               // This procedure is called in the OnLoadVariantAtServer event handler of a report form after executing the form code.
+//               
+//               
+//               
+//               
+//               
+//               
+//               
 //               //
-//               //
-//               // Parameters:
-//               //   Form - ClientApplicationForm - report form.
-//               //
-//               // //   NewDCSettings - DataCompositionSettings - settings to import into the settings composer.
-//               //
-//               //
-//               	// See "Managed form extension for reports.OnLoadOptionAtServer" Syntax Assistant in Syntax Assistant.
-//               //
-//                                                     Procedure OnLoadVariantAtServer(Form, NewDCSettings) Export
-//                                                     // Handling an event.
-//                                                     EndProcedure
+//               
+//               	
+//               
 //           
-//           ** OnLoadUserSettingsAtServer - Boolean - If True, then the event handler
-//               must be defined in the report object module according to the following template:
+//           ** OnLoadUserSettingsAtServer - Boolean -
 //               
-//               // This procedure is called in the OnLoadVariantAtServer event handler of a report form after executing the form code.
+//               
+//               
+//               
+//               
 //               //
-//               //
-//               // Parameters:
-//               //   Form - ClientApplicationForm - report form.
-//               //   NewDCUserSettings - DataCompositionUserSettings -
-//               //
-//               // //       user settings to import into the settings composer.
-//               //
-//               //
-//               // See "Managed form extension for reports.OnLoadUserSettingsAtServer" Syntax Assistant
-//               	//    in Syntax Assistant.
-//               //
-//                                                                     Procedure OnLoadUserSettingsAtServer(Form, NewDCUserSettings) Export
-//                                                                     // Handling an event.
-//                                                                     EndProcedure
+//               
+//               	
+//               
 //           
-//           ** BeforeFillQuickSettingsBar - Boolean - If True, then the event handler
-//               must be defined in the report object module according to the following template:
+//           ** BeforeFillQuickSettingsBar - Boolean -
 //               
-//               // The procedure is called before refilling the report form settings panel.
+//               
+//               
+//               
+//               
 //               //
-//               //
-//               // Parameters:
-//               //   Form - ClientApplicationForm - report form.
-//               //
-//               //   FillingParameters - Structure - parameters to be loaded to the report.
-//               	//
-//               Procedure BeforeFillQuickSettingsPanel(Form, FillingParameters) Export
-//                                                              // Handling an event.
-//                                                              EndProcedure
+//               
+//               	
+//               
 //           
-//           ** AfterQuickSettingsBarFilled - Boolean - If True, then the event handler
-//               must be defined in the report object module according to the following template:
+//           ** AfterQuickSettingsBarFilled - Boolean -
 //               
-//               // The procedure is called after refilling the report form settings panel.
+//               
+//               
+//               
+//               
 //               //
-//               //
-//               // Parameters:
-//               //   Form - ClientApplicationForm - Report form.
-//               //
-//               //   FillingParameters - Structure - parameters to be loaded to the report.
-//               	//
-//               Procedure AfterFillQuickSettingsPanel(Form, FillingParameters) Export
-//                                                             // Handling an event.
-//                                                             EndProcedure
+//               
+//               	
+//               
 //           
-//           ** OnDefineSelectionParameters - Boolean - If True, then the event handler
-//               must be defined in the report object module according to the following template:
+//           ** OnDefineSelectionParameters - Boolean -
 //               
 //               
-//               This is an obsolete event. Instead, use AfterImportSettingsToComposer.
+//               // See ReportsOverridable.OnDefineSelectionParameters.
 //               
-//               The procedure is called in the report form before outputting the setting.
-//               //
+//               	
 //               
-//               Parameters:
-//               Form - ClientApplicationForm, Undefined - Report form.
-//               SettingProperties - Structure - Description of report setting that will be output as a report form.
-//               * TypesDetails - TypesDetails - Setting type.
-//               * ValuesForSelection - ValueList - objects that will be offered to a user in the choice list.
-//               The parameter adds items to the list of objects previously selected by a user.
-//               * SelectionValuesQuery - Query - Returns objects to complement ValuesForSelection.
-//               As the first column (with 0m index) select the object,
-//               that has to be added to the ValuesForSelection.Value.
-//               To disable autofilling,
-//               write a blank string to the SelectionValuesQuery.Text property.
-//               * RestrictSelectionBySpecifiedValues - Boolean - If True, user choice will be
-//               //
-//               // restricted by values specified in ValuesForSelection (its final status).
-//               
-//               //
-//               See also:
-//               	ReportsOverridable.OnDefineChoiceParameters().
-//               
-//                                                       Procedure OnDefineChoiceParameters(Form, SettingProperties) Export
-//                                                        Handling an event.
-//                                                       EndProcedure
 //           
-//           ** OnDefineUsedTables - Boolean - If True, then the event handler
-//               must be defined in the report object module according to the following template:
+//           ** OnDefineUsedTables - Boolean -
 //               
-//               // A list of registers and other metadata objects, by which report is generated.
-//               //   It is used to check if the report can contain non-updated data.
+//               
+//               
+//               
+//               
 //               //
-//               //
-//               // Parameters:
-//               //   OptionKey - String, Undefined - 
-//               //       The predefined report option name or UUID of a custom one.
-//               //       Undefined when called for a details option or without context.
-//               //   UsedTables - Array from String -
-//               //       Full metadata object names (names of registers, documents, and other tables)
-//               //
-//               //       whose data is displayed in the report.
-//               //
-//               //
-//               // Example:
-//               	//	TablesToUse.Add(Metadata.Documents.<DocumentName>.FullName());
-//               //
-//                                                         Procedure OnDefineUsedTables(OptionKey, UsedTables) Export
-//                                                         // Handling an event.
-//                                                         EndProcedure
+//               
+//               	
+//               
 //           
-//           ** WhenDefiningTheMainFields - Boolean - If True, then the event handler
-//               must be defined in the report object module according to the following template:
+//           ** WhenDefiningTheMainFields - Boolean -
+//               
 //               
 //               // See ReportsOverridable.WhenDefiningTheMainFields.
-//               //
-//               //  
-//               	//
-//               Procedure OnDefineMainFields(Form, MainFields) Export
-//                                                    // Handling an event.
-//                                                    EndProcedure
+//                
+//               	
+//               
 //           
-//           ** BeforeFormationReport - Boolean - If True, define an event handler in the report object module:
-//               Warnings the user prior to report generation.
+//           ** BeforeFormationReport - Boolean -
 //               
-//               For example, that it will take long time or consume lots of memory.
-//               It also can prompt the user with recommended filters.
 //               
-//               Parameters:
+//               
+//               
+//               
+//               
+//               
 //               //
-//               ReportForm - ClientApplicationForm - Report form.
-//               AdditionalParameters - Structure:
-//               * WarningText - String - Return value.
-//               If any value is specified, it displayed in the dialog box with "Continue" and "Cancel" buttons.
-//               * ............................................. - String - By default, empty.
-//               If any value is specified, the user can disable warnings.
-//               To re-enable warnings, set the parameter to False.
 //               
-//               Procedure ................................(ReportForm, AdditionalParameters) Export
-//               //
-//               Event handling.
-//               	EndProcedure.
+//               	
 //               
 //
 Function DefaultReportSettings() Export
@@ -936,7 +778,7 @@ Function FindAvailableDCParameter(DCSettings, DCParameter)
 	Return Undefined;
 EndFunction
 
-// Defines the FoldersAndItems type value depending on the comparison kind (preferably) or the source value.
+// Defines the FoldersAndItems type value depending on the comparison type (preferably) or the source value.
 //
 // Parameters:
 //  Condition - DataCompositionComparisonType

@@ -71,7 +71,7 @@ Procedure WaitForExchangeRatesImport()
 	If CoursesAreBeingUploaded(Currency) Then
 		AttachIdleHandler("WaitForExchangeRatesImport", 15, True);
 	Else
-		Items.Pages.CurrentPage = Items.ExchangeRates;
+		Items.Pages.CurrentPage = Items.ExRates;
 	EndIf;
 	
 EndProcedure

@@ -194,9 +194,9 @@ EndProcedure
 // Client
 
 &AtClient
-Procedure Attachable_WhenChangingTheDetails(Item, ShouldRefreshInterface = True)
+Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
 	
-	ConstantName = WhenChangingTheDetailsServer(Item.Name);
+	ConstantName = OnChangeAttributeServer(Item.Name);
 	RefreshReusableValues();
 	
 	If ShouldRefreshInterface Then
@@ -290,7 +290,7 @@ Procedure RefreshSecurityProfilesPermissionsCompletion(Result, Item) Export
 	
 	If Result = DialogReturnCode.OK Then
 	
-		Attachable_WhenChangingTheDetails(Item);
+		Attachable_OnChangeAttribute(Item);
 		
 	Else
 		
@@ -304,7 +304,7 @@ EndProcedure
 // 
 
 &AtServer
-Function WhenChangingTheDetailsServer(TagName)
+Function OnChangeAttributeServer(TagName)
 	
 	DataPathAttribute = Items[TagName].DataPath;
 	ConstantName = SaveAttributeValue(DataPathAttribute);

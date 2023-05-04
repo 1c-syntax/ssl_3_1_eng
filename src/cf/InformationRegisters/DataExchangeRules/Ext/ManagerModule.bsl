@@ -149,7 +149,7 @@ Procedure ImportSuppliedRules(ExchangePlanName, RulesFileName) Export
 		
 	Else
 		// Canceling import if unpacking the file failed.
-		Raise NStr("en = 'Error extracting rule file.';");
+		Raise NStr("en = 'Extraction failed.';");
 	EndIf;
 	
 	// 

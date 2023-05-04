@@ -1786,18 +1786,18 @@ Procedure AfterUpdateInfobase(Val PreviousVersion, Val CurrentVersion,
 	
 EndProcedure
 
-// See InfobaseUpdateOverridable.WhenFillingInItemsThatArePlannedToBeDeleted.
-Procedure WhenFillingInItemsThatArePlannedToBeDeleted(Objects) Export
+// See InfobaseUpdateOverridable.OnPopulateObjectsPlannedForDeletion.
+Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
 	
 	// 
 	AccessRightsDependencies = InformationRegisters.AccessRightsDependencies.AccessRightsDependencies();
-	TypesOfLeadingTables = New Array;
+	LeadingTablesTypes = New Array;
 	For Each String In AccessRightsDependencies Do
-		TypesOfLeadingTables.Add(TypeOf(String.LeadingTableType));
+		LeadingTablesTypes.Add(TypeOf(String.LeadingTableType));
 	EndDo;
-	RequiredTypeOfMasterTable = New TypeDescription(TypesOfLeadingTables);
+	RequiredTypeOfLeadingTable = New TypeDescription(LeadingTablesTypes);
 	
-	AddItemToBeDeleted(Objects, RequiredTypeOfMasterTable,
+	AddObjectPlannedForDeletion(Objects, RequiredTypeOfLeadingTable,
 		Metadata.InformationRegisters.AccessRightsDependencies.Dimensions.LeadingTableType);
 	
 	If Not Common.SeparatedDataUsageAvailable() Then
@@ -1812,26 +1812,26 @@ Procedure WhenFillingInItemsThatArePlannedToBeDeleted(Objects) Export
 	For Each KeyAndValue In AccessKindsProperties.ByGroupsAndValuesTypes Do
 		TypesOfGroupsAndValues.Add(KeyAndValue.Key);
 	EndDo;
-	RequiredTypeOfAccessValue = New TypeDescription(
+	RequiredAccessValueType = New TypeDescription(
 		StrConcat(ImplementationSettings.AccessValues, ","));
-	RequiredTypeOfAccessValue = New TypeDescription(RequiredTypeOfAccessValue, TypesOfGroupsAndValues);
+	RequiredAccessValueType = New TypeDescription(RequiredAccessValueType, TypesOfGroupsAndValues);
 	
-	AddItemToBeDeleted(Objects, RequiredTypeOfAccessValue,
+	AddObjectPlannedForDeletion(Objects, RequiredAccessValueType,
 		Metadata.InformationRegisters.AccessGroupsValues.Dimensions.AccessValue);
 	
-	AddItemToBeDeleted(Objects, RequiredTypeOfAccessValue,
+	AddObjectPlannedForDeletion(Objects, RequiredAccessValueType,
 		Metadata.InformationRegisters.DefaultAccessGroupsValues.Dimensions.AccessValuesType);
 	
-	AddItemToBeDeleted(Objects, RequiredTypeOfAccessValue,
+	AddObjectPlannedForDeletion(Objects, RequiredAccessValueType,
 		Metadata.InformationRegisters.AccessValuesGroups.Dimensions.AccessValue);
 	
-	AddItemToBeDeleted(Objects, RequiredTypeOfAccessValue,
+	AddObjectPlannedForDeletion(Objects, RequiredAccessValueType,
 		Metadata.InformationRegisters.AccessValuesGroups.Dimensions.AccessValuesGroup);
 	
-	AddItemToBeDeleted(Objects, RequiredTypeOfAccessValue,
+	AddObjectPlannedForDeletion(Objects, RequiredAccessValueType,
 		Metadata.InformationRegisters.UsedAccessKinds.Dimensions.AccessValuesType);
 	
-	AddItemToBeDeleted(Objects, RequiredTypeOfAccessValue,
+	AddObjectPlannedForDeletion(Objects, RequiredAccessValueType,
 		Metadata.InformationRegisters.UsedAccessKindsByTables.Dimensions.AccessValuesType);
 	
 	// 
@@ -1842,50 +1842,50 @@ Procedure WhenFillingInItemsThatArePlannedToBeDeleted(Objects) Export
 	EndDo;
 	RequiredTypeOfRightsSettingsOwner = New TypeDescription(RightsSettingsOwnersTypes);
 	
-	AddItemToBeDeleted(Objects, RequiredTypeOfRightsSettingsOwner,
+	AddObjectPlannedForDeletion(Objects, RequiredTypeOfRightsSettingsOwner,
 		Metadata.InformationRegisters.ObjectsRightsSettings.Dimensions.Object);
 	
-	AddItemToBeDeleted(Objects, RequiredTypeOfRightsSettingsOwner,
+	AddObjectPlannedForDeletion(Objects, RequiredTypeOfRightsSettingsOwner,
 		Metadata.InformationRegisters.ObjectRightsSettingsInheritance.Dimensions.Object);
 	
-	AddItemToBeDeleted(Objects, RequiredTypeOfRightsSettingsOwner,
+	AddObjectPlannedForDeletion(Objects, RequiredTypeOfRightsSettingsOwner,
 		Metadata.InformationRegisters.ObjectRightsSettingsInheritance.Dimensions.Parent);
 	
 	// 
-	AddItemToBeDeleted(Objects,
+	AddObjectPlannedForDeletion(Objects,
 		New TypeDescription(StrConcat(ImplementationSettings.AccessKeysValuesOwners.References, ",")),
 		Metadata.InformationRegisters.AccessKeysForObjects.Dimensions.Object);
 	
 	// 
-	For Each DescriptionOfKeyRegisters In ImplementationSettings.KeysRegistersDimensionsTypes Do
-		KeysRegisterName = DescriptionOfKeyRegisters.Key;
-		KeyRegisterMetadata = Metadata.InformationRegisters[KeysRegisterName];
+	For Each KeysRegistersDetails In ImplementationSettings.KeysRegistersDimensionsTypes Do
+		KeysRegisterName = KeysRegistersDetails.Key;
+		KeysRegisterMetadata = Metadata.InformationRegisters[KeysRegisterName];
 		FieldsCount = AccessManagementInternalCached.BasicRegisterFieldsCount(KeysRegisterName);
-		RequiredFieldType = New TypeDescription(StrConcat(DescriptionOfKeyRegisters.Value.TypesNames, ","));
+		RequiredFieldType = New TypeDescription(StrConcat(KeysRegistersDetails.Value.TypesNames, ","));
 		For FieldNumber = 1 To FieldsCount Do
 			FieldName = "Field" + FieldNumber;
-			AddItemToBeDeleted(Objects, RequiredFieldType,
-				KeyRegisterMetadata.Dimensions[FieldName]);
+			AddObjectPlannedForDeletion(Objects, RequiredFieldType,
+				KeysRegisterMetadata.Dimensions[FieldName]);
 		EndDo;
 	EndDo;
 	
 	// 
-	TypesOfSubscriptionObjects = AccessManagementInternalCached.ObjectsTypesInSubscriptionsToEvents(
+	SubscriptionObjectsTypes = AccessManagementInternalCached.ObjectsTypesInSubscriptionsToEvents(
 		"WriteAccessValuesSets");
-	TypesOfLinksForSubscriptionObjects = New Array;
-	For Each KeyAndValue In TypesOfSubscriptionObjects Do
+	SubscriptionsObjectsRefsTypes = New Array;
+	For Each KeyAndValue In SubscriptionObjectsTypes Do
 		ObjectMetadata = Metadata.FindByType(KeyAndValue.Key);
 		ObjectManager = Common.ObjectManagerByFullName(ObjectMetadata.FullName());
 		EmptyRef = ObjectManager.EmptyRef();
-		TypesOfLinksForSubscriptionObjects.Add(TypeOf(EmptyRef));
+		SubscriptionsObjectsRefsTypes.Add(TypeOf(EmptyRef));
 	EndDo;
-	RequiredTypeOfTablesWithRecordOfSetsOfAccessValues = New TypeDescription(TypesOfLinksForSubscriptionObjects);
+	RequiredTypeOfTablesWithWritingAccessValueSets = New TypeDescription(SubscriptionsObjectsRefsTypes);
 	
-	AddItemToBeDeleted(Objects, RequiredTypeOfTablesWithRecordOfSetsOfAccessValues,
+	AddObjectPlannedForDeletion(Objects, RequiredTypeOfTablesWithWritingAccessValueSets,
 		Metadata.InformationRegisters.AccessValuesSets.Dimensions.Object);
 	
 	// 
-	AddItemToBeDeleted(Objects, RequiredTypeOfAccessValue,
+	AddObjectPlannedForDeletion(Objects, RequiredAccessValueType,
 		Metadata.InformationRegisters.AccessValuesSets.Dimensions.AccessValue);
 	
 EndProcedure
@@ -2430,7 +2430,7 @@ Procedure OnCopyRightsToNewUser(Source, Receiver) Export
 		
 		Block = New DataLock;
 		Block.Add("Catalog.AccessGroups");
-		// АПК:1320-
+		// ACC:1320-
 		// 
 		// 
 		// 
@@ -2445,11 +2445,14 @@ Procedure OnCopyRightsToNewUser(Source, Receiver) Export
 	If SimplifiedInterface Then
 		Query.Text =
 		"SELECT DISTINCT
-		|	AccessGroupsUsers_SSLy.Ref.Profile AS Profile
+		|	AccessGroups.Profile AS Profile
 		|FROM
-		|	Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
-		|WHERE
-		|	AccessGroupsUsers_SSLy.User = &User";
+		|	Catalog.AccessGroups AS AccessGroups
+		|	INNER JOIN Catalog.AccessGroups.Users AS AccessGroupsUsers_SSLy
+		|	ON
+		|		AccessGroups.User = &User
+		|		AND AccessGroupsUsers_SSLy.Ref = AccessGroups.Ref
+		|		AND AccessGroupsUsers_SSLy.User = &User";
 	Else
 		Query.Text =
 		"SELECT DISTINCT
@@ -2477,7 +2480,7 @@ Procedure OnCopyRightsToNewUser(Source, Receiver) Export
 	Try
 		If SimplifiedInterface Then
 			While Selection.Next() Do
-				AccessManagement.EnableProfileForUser(Receiver, Selection.Profile);
+				AccessManagement.EnableDisableUserProfile(Receiver, Selection.Profile, True, Source);
 			EndDo;
 		Else
 			Block.Lock();
@@ -3334,12 +3337,12 @@ Function HasTableRestrictionByAccessKind(Table, AccessKind, AllAccessKinds) Expo
 EndFunction
 
 // Parameters:
-//  Objects            - See InfobaseUpdate.AddItemToBeDeleted.Objects
-//  See InfobaseUpdate.AddItemToBeDeleted.Object
+//  Objects            - See InfobaseUpdate.AddObjectPlannedForDeletion.Objects
+//  See InfobaseUpdate.AddObjectPlannedForDeletion.Object
 //  RequiredTypes      - TypeDescription
 //  
 //
-Procedure AddItemToBeDeleted(Objects, RequiredTypes, MetadataDimensions)
+Procedure AddObjectPlannedForDeletion(Objects, RequiredTypes, MetadataDimensions)
 	
 	If RequiredTypes.Types().Count() = 0 Then
 		ExcessiveTypes = MetadataDimensions.Type;
@@ -3354,7 +3357,7 @@ Procedure AddItemToBeDeleted(Objects, RequiredTypes, MetadataDimensions)
 	NameParts = StrSplit(MetadataDimensions.FullName(), ".");
 	NameParts.Delete(2);
 	
-	InfobaseUpdate.AddItemToBeDeleted(Objects,
+	InfobaseUpdate.AddObjectPlannedForDeletion(Objects,
 		StrConcat(NameParts, "."), ExcessiveTypes);
 	
 EndProcedure
@@ -4019,7 +4022,7 @@ Procedure UpdateAccessValuesSets(ReferenceOrObject, HasChanges = Undefined, IBUp
 				InfobaseUpdate.WriteData(Object);
 			Else
 				Object.DataExchange.Load = True;
-				// АПК:1327-
+				// ACC:1327-
 				// 
 				// 
 				Object.Write();
@@ -5571,7 +5574,7 @@ Procedure OnChangeAccessValuesSets(Val ObjectReference, IBUpdate = False)
 					InfobaseUpdate.WriteData(Object);
 				Else
 					Object.DataExchange.Load = True;
-					// АПК:1327-
+					// ACC:1327-
 					// 
 					// 
 					Object.Write();
@@ -6741,7 +6744,7 @@ Procedure ClearUseMainRolesForAllUsersCheckBoxForAllExtensions()
 		Except
 			// Processing is not required.
 		EndTry;
-		// АПК:280-
+		// ACC:280-
 	EndDo;
 	
 EndProcedure
@@ -7138,11 +7141,11 @@ Procedure ExceptionOnRecordSearchError(Parameters)
 		   And ChangesRow.LineChangeType <> -1 Then
 			
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Error in procedure ""%1""
-				           |of common module ""%2"".
+				NStr("en = 'Error in procedure %1
+				           |of common module %2.
 				           |
 				           |Invalid value of parameter ""%3"":
-				           |Column ""%4"" contains an invalid value ""%5"".
+				           |Column ""%4"" contains invalid value ""%5"".
 				           |
 				           |Valid values are ""1"" and ""-1"".';"),
 				"UpdateRecordSets",
@@ -7155,8 +7158,8 @@ Procedure ExceptionOnRecordSearchError(Parameters)
 	EndDo;
 	
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Error in procedure ""%1""
-		           |of common module ""%2"".
+		NStr("en = 'Error in procedure %1
+		           |of common module %2.
 		           |
 		           |Cannot find a mandatory string
 		           |in parameter ""%3"".';"),
@@ -8016,7 +8019,7 @@ Function CheckedSessionAccessViewProperties() Export
 		AccessManagementInternalCached.TableFieldTypes("DefinedType.AccessValue"));
 	
 	ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Error in the %1 procedure of the common module %2.';"),
+		NStr("en = 'Error in procedure %1 of common module %2.';"),
 		"OnFillAccessKinds", "AccessManagementOverridable")
 		+ Chars.LF
 		+ Chars.LF;
@@ -11862,7 +11865,7 @@ Procedure ChangeAccessUpdateScheduledJob(EnableJob)
 				If EnableJob = Job.Use Then
 					Continue;
 				EndIf;
-				ScheduledJobsServer.ChangeJob(Job.UUID,
+				ScheduledJobsServer.ChangeJob(Job,
 					New Structure("Use", EnableJob));
 			EndDo;
 			SetPrivilegedMode(False);
@@ -14356,8 +14359,9 @@ Procedure ProcessExecutedJobs(Context, LockedThreads = Undefined)
 	Context.HasLongRunningJobOfReceivingDataItemsBatches = False;
 	QueryDelay = Context.MaxSecondsCountOfQuickDataItemsBatchReceipt;
 	If QueryDelay > 0 Then
-		For Each ThreadDetails In Context.LockedThreads Do
-			Stream = ThreadDetails.Value;
+		CurCurrentBusyThreads = New Map(New FixedMap(Context.LockedThreads));
+		For Each ThreadDetails In CurCurrentBusyThreads Do
+			Stream = ThreadDetails.Value; // See NewThread
 			If Stream.BatchFromSet <> Undefined
 			 Or Stream.Job.IsRightsUpdate
 			 Or Stream.Job.IsObsoleteItemsDataProcessor Then
@@ -23819,6 +23823,35 @@ Function ListPropertiesAsLeadingOne(FullName, TransactionID = Undefined, Repeate
 	
 EndFunction
 
+// Returns:
+//  Structure:
+//   * LeadingListsChecked - Map of KeyAndValue:
+//       ** Key     - String - full name of the list
+//       ** Value - See AccessManagementInternal.ListPropertiesAsLeadingOne
+//   * ListsRestrictions - Map of KeyAndValue:
+//       ** Key     - String - full name of the list
+//       ** Value - See AccessManagementInternal.CalculatedRestrictionParameters
+//   * TransactionIDs - Map of KeyAndValue:
+//       ** Key     - UUID - an arbitrary UID.
+//       ** Value - Boolean - the value is True.
+//   * TypesRestrictionsPermissionsForUsers        - Undefined
+//                                                - String
+//   * TypesRestrictionsPermissionsForExternalUsers - Undefined
+//                                                - String
+//
+Function NewCacheOfRestrictionParameters() Export
+	
+	Store = New Structure;
+	Store.Insert("LeadingListsChecked", New Map);
+	Store.Insert("ListsRestrictions",       New Map);
+	Store.Insert("TransactionIDs", New Map);
+	Store.Insert("TypesRestrictionsPermissionsForUsers",        Undefined);
+	Store.Insert("TypesRestrictionsPermissionsForExternalUsers", Undefined);
+	
+	Return Store;
+	
+EndFunction
+
 // For the ListPropertiesAsLeadingOne function, the FillRestrictionParameters,
 // UpdateTransactionIDs, and SetParameterVersion procedures.
 //
@@ -23829,6 +23862,17 @@ Function RestrictionParametersCache()
 	Return AccessManagementInternalCached.RestrictionParametersCache(CachedDataKey);
 	
 EndFunction
+
+Procedure ResetCacheOfRestrictionParameters()
+	
+	Cache = RestrictionParametersCache();
+	NewCache = NewCacheOfRestrictionParameters();
+	
+	For Each KeyAndValue In NewCache Do
+		Cache.Insert(KeyAndValue.Key, KeyAndValue.Value);
+	EndDo;
+	
+EndProcedure
 
 // For the ListPropertiesAsLeadingOne function.
 Procedure FillPreviousValuesQueryTextToCheckLeadingListFieldsChanges(FullName, Properties, Cancel)
@@ -24253,7 +24297,7 @@ Function CalculatedRestrictionParameters(FullName, CommonContext, ActiveParamete
 	ResultForExternalUsers = RestrictionParametersByRestrictionStructure(FullName,
 		RestrictionStructureForExternalUsers, True, CommonContext, AdditionalContext);
 	
-	// Filling in parameters based on parameters of both user kinds.
+	// Filling in parameters based on parameters of both user types.
 	Version = CommonVersion(CommonContext, FullName, ResultForUsers.Version, ResultForExternalUsers.Version);
 	SetAccessKeysRecordProperties(ResultForUsers);
 	SetAccessKeysRecordProperties(ResultForExternalUsers);
@@ -25980,7 +26024,11 @@ Procedure SetParametersVersion(ParametersVersion, TransactionID, CommonContext,
 			SetSessionParametersForTemplates = False, RepeatedCall = False)
 	
 	If Not RepeatedCall Then
-		RefreshReusableValues();
+		If SetSessionParametersForTemplates Then
+			ResetCacheOfRestrictionParameters();
+		Else
+			RefreshReusableValues();
+		EndIf;
 	EndIf;
 	
 	If TransactionID <> Undefined And TransactionActive() Then
@@ -28484,13 +28532,13 @@ EndFunction
 #Region AccessRestrictionParametersForListSeparately
 
 // The main area function, which returns access restriction parameters
-// for the list user kind, without considering dependencies on other lists
+// for the list user type, without considering dependencies on other lists
 // both by access keys and by presence of the Users and ExternalUsers access kinds.
 //
 // Returns:
 //   Structure:
 //     * List                  - String - a full name of the metadata object table.
-//     * ForExternalUsers - Boolean - user kind, for which the parameters are intended.
+//     * ForExternalUsers - Boolean - user type, for which the parameters are intended.
 //     * Version                  - String - hash of access restriction parameters to track their changes.
 //     * LeadingLists           - See NewLeadingLists
 //     * AccessDenied          - Boolean - True if the restriction text is "WHERE FALSE",
@@ -43675,7 +43723,7 @@ EndFunction
 
 Function CurrentDateAtServer() Export
 	
-	// АПК:143-
+	// ACC:143-
 	// 
 	Return CurrentDate();
 	// ACC:143-on

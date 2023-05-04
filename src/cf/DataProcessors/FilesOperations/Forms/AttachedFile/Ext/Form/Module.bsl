@@ -295,7 +295,7 @@ Procedure StandardReread(Command)
 		Return;
 	EndIf;
 	
-	QueryText = NStr("en = 'The data was changed. Do you want to refresh the data?';");
+	QueryText = NStr("en = 'The data has been changed. Do you want to refresh the data?';");
 	
 	NotifyDescription = New NotifyDescription("StandardRereadAnswerReceived", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
@@ -562,6 +562,10 @@ Procedure VerifyDigitalSignature(Command)
 		ThisObject,
 		FileData.RefToBinaryFileData,
 		Items.DigitalSignatures.SelectedRows);
+		
+	If Items.FormStandardWriteAndClose.Visible And Items.FormStandardWriteAndClose.Enabled Then
+		Modified = True;
+	EndIf;
 	
 EndProcedure
 
@@ -574,6 +578,10 @@ Procedure CheckEverything(Command)
 	
 	FileData = FileData(CurrentRefToFile(), UUID);
 	FilesOperationsInternalClient.VerifySignatures(ThisObject, FileData.RefToBinaryFileData);
+	
+	If Items.FormStandardWriteAndClose.Visible And Items.FormStandardWriteAndClose.Enabled Then
+		Modified = True;
+	EndIf;
 	
 EndProcedure  
 

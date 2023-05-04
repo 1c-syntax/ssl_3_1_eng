@@ -113,11 +113,15 @@ Procedure OnAddClientParametersOnStart(Parameters) Export
 	ClientRunParameters = New Structure("RecordPeriod, RunPerformanceMeasurements");
 	
 	SetPrivilegedMode(True);
-	CurrentPeriod = Constants.PerformanceMonitorRecordPeriod.Get();
-	ClientRunParameters.RecordPeriod = ?(CurrentPeriod >= 1, CurrentPeriod, 60);
+	ClientRunParameters.RecordPeriod = PerformanceMonitor.RecordPeriod();
 	ClientRunParameters.RunPerformanceMeasurements = Constants.RunPerformanceMeasurements.Get();
 
 	Parameters.Insert("PerformanceMonitor", New FixedStructure(ClientRunParameters));
+	
+	If ClientRunParameters.RunPerformanceMeasurements
+	   And SessionParameters.TimeMeasurementComment <> Undefined Then
+		Return; // 
+	EndIf;
 	
 EndProcedure
 
@@ -125,6 +129,18 @@ EndProcedure
 Procedure OnSetUpReportsOptions(Settings) Export
 	ModuleReportsOptions = CommonModule("ReportsOptions");
 	ModuleReportsOptions.CustomizeReportInManagerModule(Settings, Metadata.Reports.PerformanceMonitor);
+EndProcedure
+
+// See CommonOverridable.OnReceiptRecurringClientDataOnServer
+Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
+	
+	MeasurementsToWrite = Parameters.Get("StandardSubsystems.PerformanceMonitor.MeasurementsToWrite");
+	If MeasurementsToWrite = Undefined Then
+		Return;
+	EndIf;
+	
+	PerformanceMonitorServerCall.RecordKeyOperationsDuration(MeasurementsToWrite);
+	
 EndProcedure
 
 #EndRegion
@@ -581,7 +597,7 @@ Function CommonModule(Name) Export
 		EndIf;
 		
 		If TypeOf(Module) <> Type("CommonModule") Then
-			ExceptionMessage = NStr("en = 'Common module %1 not found.';");
+			ExceptionMessage = NStr("en = 'Common module %1 is not found.';");
 			Raise StrReplace(ExceptionMessage, "%1", Name);
 		EndIf;
 	EndIf;
@@ -861,6 +877,53 @@ Function DefaultLanguageCode() Export
 		Return ModuleCommon.DefaultLanguageCode();
 	EndIf;	
 	Return Metadata.DefaultLanguage.LanguageCode;
+EndFunction
+
+// Parameters:
+//  CatalogManager - CatalogManager.KeyOperations
+//  Ref - CatalogRef.KeyOperations
+//
+// Returns:
+//  CatalogObject.KeyOperations
+//
+Function ServiceItem(CatalogManager, Ref = Undefined) Export
+	
+	If Ref = Undefined Then
+		CatalogItem = CatalogManager.CreateItem();
+	Else
+		CatalogItem = Ref.GetObject();
+		If CatalogItem = Undefined Then
+			Return Undefined;
+		EndIf;
+	EndIf;
+	
+	CatalogItem.AdditionalProperties.Insert("DontControlObjectsToDelete");
+	CatalogItem.AdditionalProperties.Insert("DisableObjectChangeRecordMechanism");
+	CatalogItem.DataExchange.Recipients.AutoFill = False;
+	CatalogItem.DataExchange.Load = True;
+	
+	Return CatalogItem;
+	
+EndFunction
+
+// Parameters:
+//  RegisterManager - InformationRegisterManager.TimeMeasurements
+//                   - InformationRegisterManager.TimeMeasurementsTechnological
+//
+// Returns:
+//  InformationRegisterRecordSet.TimeMeasurements
+//  
+//
+Function ServiceRecordSet(RegisterManager) Export
+	
+	RecordSet = RegisterManager.CreateRecordSet();
+	RecordSet.AdditionalProperties.Insert("DontControlObjectsToDelete");
+	RecordSet.AdditionalProperties.Insert("DisableObjectChangeRecordMechanism");
+	RecordSet.DataExchange.Recipients.AutoFill = False;
+	RecordSet.DataExchange.Load = True;
+	
+	Return RecordSet;
+	
 EndFunction
 
 #EndRegion

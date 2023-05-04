@@ -196,9 +196,9 @@ Procedure OnAddReferenceSearchExceptions(RefSearchExclusions) Export
 	
 EndProcedure
 
-// Allows setting a list of subordinate objects and their links to main objects
-// When replacing references, we recommend that you use subordinate objects if you must  
-// generate some objects or select the replacement among the existing objects
+// 
+// 
+// 
 //
 // Parameters:
 //  SubordinateObjects - See Common.SubordinateObjects
@@ -380,6 +380,19 @@ EndProcedure
 //  Results - Map of KeyAndValue:
 //    * Key     - String       -
 //    * Value - Arbitrary -
+//
+// Example:
+//	
+//	
+//		
+//			
+//			
+//		
+//	
+//		
+//	
+//	
+//		
 //
 Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
 	

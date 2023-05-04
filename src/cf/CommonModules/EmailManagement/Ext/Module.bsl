@@ -1097,7 +1097,7 @@ Procedure GetEmailByIMAPProtocol(AccountData, Mail, EmailsReceived1, EmailsRecei
 			|WHERE
 			|	IncomingEmail.Ref IS NULL
 			|	AND OutgoingEmail.Ref IS NULL";
-			// АПК:96-
+			// ACC:96-
 			
 			Query.SetParameter("MessagesToImportIDs", IDsTable);
 			Query.SetParameter("EmptyIDsOfEmailMessagesToImport", BlankIDsTable);
@@ -1168,15 +1168,6 @@ Function EmailAddressesEqual(FirstAddress, SecondAddress)
 	
 	Return (ProcessedFirstAddress = ProcessedSecondAddress);
 	
-EndFunction
-
-Function MapOfReplaceableEmailDomains()
-
-	DomainsMap = New Map;
-	DomainsMap.Insert("yandex.ru","ya.ru");
-	
-	Return DomainsMap;
-
 EndFunction
 
 Function EmailAddressStructure(Email)
@@ -2180,9 +2171,13 @@ EndFunction
 Procedure ChangeDomainInEmailAddressIfRequired(MailAddress)
 	
 	AddressStructure1 =  EmailAddressStructure(MailAddress);
-	If AddressStructure1 <> Undefined Then
-		MapOfDomainsToReplace = MapOfReplaceableEmailDomains();
-		DomainToReplaceWith = MapOfDomainsToReplace.Get(AddressStructure1.Domain);
+	If AddressStructure1 = Undefined Then
+		Return;
+	EndIf;
+	If Metadata.CommonModules.Find("InteractionsLocalization") <> Undefined Then 
+		ModuleInteractionsLocalization = Common.CommonModule("InteractionsLocalization");
+		EmailDomainsSynonyms = ModuleInteractionsLocalization.EmailDomainsSynonyms();
+		DomainToReplaceWith = EmailDomainsSynonyms[AddressStructure1.Domain];
 		If DomainToReplaceWith <> Undefined Then
 			MailAddress = AddressStructure1.MailboxName + "@" + DomainToReplaceWith;
 		EndIf;

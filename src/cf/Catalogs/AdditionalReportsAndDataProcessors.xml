@@ -475,7 +475,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Kind</v8:content>
+							<v8:content>Type</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -488,7 +488,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Kind of additional report or data processor.</v8:content>
+							<v8:content>Additional report (data processor) type</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -986,7 +986,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Uses report option storage</v8:content>
+							<v8:content>Uses option storage</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment>When the Truth is that a supplementary report is attached to the storage options of "Chroniclesofarefugee".</Comment>
@@ -1777,7 +1777,7 @@ The default value is "No."</v8:content>
 							<Synonym>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Permission kind</v8:content>
+									<v8:content>Permission type</v8:content>
 								</v8:item>
 							</Synonym>
 							<Comment/>

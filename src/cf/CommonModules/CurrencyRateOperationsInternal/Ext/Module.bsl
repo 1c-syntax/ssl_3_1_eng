@@ -26,8 +26,8 @@ Procedure ImportCurrencyRates() Export
 			"en = 'The service manager has no data of type ""%1""';"), "ExchangeRates");
 	EndIf;
 	
-	ExchangeRates = ModuleSuppliedData.ReferencesSuppliedDataFromCache("OneCurrencyRates");
-	For Each Rate In ExchangeRates Do
+	ExRates = ModuleSuppliedData.ReferencesSuppliedDataFromCache("OneCurrencyRates");
+	For Each Rate In ExRates Do
 		ModuleSuppliedData.DeleteSuppliedDataFromCache(Rate);
 	EndDo; 
 	
@@ -79,7 +79,7 @@ Procedure CopyCurrencyRates(Val CurrencyCode_) Export
 	CurrencyRef = Catalogs.Currencies.FindByCode(CurrencyCode_);
 	If CurrencyRef.IsEmpty() Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Currency with code %1 is not found in the catalog. Exchange rate import is canceled.';"), CurrencyCode_);
-		WriteLogEvent(NStr("en = 'Default master data.Distribution of exchange rates in data areas';", Common.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Default master data.Distribute exchange rates to data areas';", Common.DefaultLanguageCode()),
 			EventLogLevel.Error,,,
 			ErrorText);
 		Return;
@@ -87,17 +87,17 @@ Procedure CopyCurrencyRates(Val CurrencyCode_) Export
 	
 	Filter = New Array;
 	Filter.Add(New Structure("Code, Value", "Currency", CurrencyCode_));
-	ExchangeRates = ModuleSuppliedData.ReferencesSuppliedDataFromCache("OneCurrencyRates", Filter);
-	If ExchangeRates.Count() = 0 Then
+	ExRates = ModuleSuppliedData.ReferencesSuppliedDataFromCache("OneCurrencyRates", Filter);
+	If ExRates.Count() = 0 Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'There are no exchange rates for the currency with code %1 in the default master data.';"), CurrencyCode_);
-		WriteLogEvent(NStr("en = 'Default master data.Distribution of exchange rates in data areas';", Common.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Default master data.Distribute exchange rates to data areas';", Common.DefaultLanguageCode()),
 			EventLogLevel.Error,,,
 			ErrorText);
 		Return;
 	EndIf;
 	
 	PathToFile = GetTempFileName();
-	ModuleSuppliedData.SuppliedDataFromCache(ExchangeRates[0]).Write(PathToFile);
+	ModuleSuppliedData.SuppliedDataFromCache(ExRates[0]).Write(PathToFile);
 	RateTable = ReadRateTable(PathToFile, True);
 	DeleteFiles(PathToFile);
 	
@@ -524,7 +524,7 @@ Procedure DistributeRatesByDataAreas(Val RatesDate, Val RateTable, Val AreasForU
 				Format(DataArea, "NZ=0; NG=0"),
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			
-			WriteLogEvent(NStr("en = 'Default master data.Distribution of exchange rates in data areas';", Common.DefaultLanguageCode()),
+			WriteLogEvent(NStr("en = 'Default master data.Distribute exchange rates to data areas';", Common.DefaultLanguageCode()),
 				EventLogLevel.Error,,,
 				ErrorText);
 				
@@ -555,7 +555,7 @@ Procedure DistributeRatesByDataAreas(Val RatesDate, Val RateTable, Val AreasForU
 				|%2';", Common.DefaultLanguageCode()),
 				Format(DataArea, "NZ=0; NG=0"),
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-			WriteLogEvent(NStr("en = 'Default master data.Distribution of exchange rates in data areas';", Common.DefaultLanguageCode()),
+			WriteLogEvent(NStr("en = 'Default master data.Distribute exchange rates to data areas';", Common.DefaultLanguageCode()),
 				EventLogLevel.Error,,,
 				ErrorText);
 			
@@ -646,7 +646,7 @@ Procedure ProcessTransactionedAreaRates(CommonQuery, AreaCurrencies, RateTable)
 	|WHERE
 	|	Currencies.RateSource = VALUE(Enum.RateSources.DownloadFromInternet)";
 	
-	CurrencySelection1 = CurrencyQuery.Execute().Select(); // АПК:1328 - 
+	CurrencySelection1 = CurrencyQuery.Execute().Select(); // ACC:1328 - 
 	
 	While CurrencySelection1.Next() Do
 		

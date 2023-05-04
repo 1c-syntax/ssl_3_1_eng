@@ -63,7 +63,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Common.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormula = Common.CommonModule("FormulasConstructor");
-		FormulaPresentation = ModuleConstructorFormula.FormulaPresentation(FormulaParameters());
+		FormulaPresentation = ModuleConstructorFormula.FormulaPresentation(FormulaParameters(
+			Object.RateCalculationFormula, UUID));
 	Else
 		Items.RateCalculationFormula.ChoiceButton = False;
 	EndIf;
@@ -308,19 +309,19 @@ Procedure RateCalculationFormulaStartChoice(Item, ChoiceData, StandardProcessing
 		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
 		StandardProcessing = False;
 		NotifyDescription = New NotifyDescription("WhenFinishedEditingFormulas", ThisObject);
-		ModuleConstructorFormulaClient.StartEditingTheFormula(FormulaParameters(), NotifyDescription);
+		ModuleConstructorFormulaClient.StartEditingTheFormula(FormulaParameters(Object.RateCalculationFormula, UUID), NotifyDescription);
 	EndIf;
 	
 EndProcedure
 
-&AtServer
-Function FormulaParameters()
+&AtServerNoContext
+Function FormulaParameters(RateCalculationFormula, UUID)
 	
 	If Common.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormula = Common.CommonModule("FormulasConstructor");
 		
 		FormulaParameters = ModuleConstructorFormula.FormulaEditingOptions();
-		FormulaParameters.Formula = Object.RateCalculationFormula;
+		FormulaParameters.Formula = RateCalculationFormula;
 		FormulaParameters.BracketsOperands = False;
 		FormulaParameters.Operands = OperandsFormulasCalculationCourse(UUID);
 		FormulaParameters.Operators = OperatorsFormulasCalculationCourse(UUID);

@@ -14,7 +14,7 @@
 // Parameters:
 //  Tables - Array of String - full name of the metadata object.
 //
-Procedure WhenFillingInDependentTablesForUploadingLoadingOData(Tables) Export
+Procedure OnPopulateDependantTablesForODataImportExport(Tables) Export
 	
 	
 	

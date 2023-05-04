@@ -309,9 +309,9 @@ Procedure StartSelectedProcedureForDebug(HandlerName)
 	Handler.Status = Enums.UpdateHandlersStatuses.WasNotExecuted;
 	Handler.ExecutionStatistics = New ValueStorage(New Map);
 	
-	// АПК:1327-
+	// ACC:1327-
 	RecordSet.Write();
-	// АПК:1327-
+	// ACC:1327-
 	InfobaseUpdateInternal.ExecuteDeferredUpdateNow(Undefined);
 	
 EndProcedure

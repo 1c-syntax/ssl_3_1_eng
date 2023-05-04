@@ -197,6 +197,10 @@ EndFunction
 //
 Function FormulaPresentation(FormulaParameters) Export
 	
+	If Not ValueIsFilled(FormulaParameters.Formula) Then
+		Return FormulaParameters.Formula;
+	EndIf;
+	
 	DescriptionOfFieldLists = FormulasConstructorInternal.DescriptionOfFieldLists();
 	
 	SourcesOfAvailableFields = FormulasConstructorInternal.CollectionOfSourcesOfAvailableFields();

@@ -239,21 +239,21 @@ Function ErrorsMessages() Export
 	ErrorsMessages = New Map;
 		
 	ErrorsMessages.Insert(2,  NStr("en = 'Error extracting exchange file. File is locked.';"));
-	ErrorsMessages.Insert(3,  NStr("en = 'Exchange rules file does not exist.';"));
+	ErrorsMessages.Insert(3,  NStr("en = 'The exchange rules file does not exist.';"));
 	ErrorsMessages.Insert(4,  NStr("en = 'Cannot create COM object: Msxml2.DOMDocument';"));
 	ErrorsMessages.Insert(5,  NStr("en = 'Error opening exchange file';"));
 	ErrorsMessages.Insert(6,  NStr("en = 'Error importing exchange rules';"));
-	ErrorsMessages.Insert(7,  NStr("en = 'Invalid exchange rule format';"));
+	ErrorsMessages.Insert(7,  NStr("en = 'Exchange rule format error';"));
 	ErrorsMessages.Insert(8,  NStr("en = 'Invalid data export file name';"));
-	ErrorsMessages.Insert(9,  NStr("en = 'Invalid exchange file format';"));
-	ErrorsMessages.Insert(10, NStr("en = 'Data export file name not specified';"));
-	ErrorsMessages.Insert(11, NStr("en = 'Exchange rules contain reference to non-existing metadata object';"));
-	ErrorsMessages.Insert(12, NStr("en = 'Exchange rule file name not specified';"));
+	ErrorsMessages.Insert(9,  NStr("en = 'Exchange file format error';"));
+	ErrorsMessages.Insert(10, NStr("en = 'Data export file name is not specified';"));
+	ErrorsMessages.Insert(11, NStr("en = 'Exchange rules reference a metadata object that does not exist';"));
+	ErrorsMessages.Insert(12, NStr("en = 'Exchange rules file name is not specified';"));
 			
 	ErrorsMessages.Insert(13, NStr("en = 'Error getting value of object property by property name in source infobase';"));
 	ErrorsMessages.Insert(14, NStr("en = 'Error getting value of object property by property name in destination infobase';"));
 	
-	ErrorsMessages.Insert(15, NStr("en = 'Data import file name not specified';"));
+	ErrorsMessages.Insert(15, NStr("en = 'Data import file name is not specified';"));
 			
 	ErrorsMessages.Insert(16, NStr("en = 'Error getting value of subordinate object property by property name in source infobase';"));
 	ErrorsMessages.Insert(17, NStr("en = 'Error getting value of subordinate object property by property name in destination infobase';"));
@@ -286,8 +286,8 @@ Function ErrorsMessages() Export
 	ErrorsMessages.Insert(50, NStr("en = 'Event handler error: BeforeExport (of collection object)';"));
 	ErrorsMessages.Insert(51, NStr("en = 'Event handler error: OnExport (of collection object)';"));
 	ErrorsMessages.Insert(52, NStr("en = 'Event handler error: AfterExport (of collection object)';"));
-	ErrorsMessages.Insert(53, NStr("en = 'Event handler error (data conversion): BeforeImportObject';"));
-	ErrorsMessages.Insert(54, NStr("en = 'Event handler error (data conversion): AfterImportObject';"));
+	ErrorsMessages.Insert(53, NStr("en = 'Global event handler error (data conversion): BeforeImportObject';"));
+	ErrorsMessages.Insert(54, NStr("en = 'Global event handler error (data conversion): AfterImportObject';"));
 	ErrorsMessages.Insert(55, NStr("en = 'Event handler error: BeforeExport (of property)';"));
 	ErrorsMessages.Insert(56, NStr("en = 'Event handler error: OnExport (of property)';"));
 	ErrorsMessages.Insert(57, NStr("en = 'Event handler error: AfterExport (of property)';"));
@@ -302,7 +302,7 @@ Function ErrorsMessages() Export
 	
 	ErrorsMessages.Insert(69, NStr("en = 'Global event handler error (data conversion): AfterExportObject';"));
 	
-	ErrorsMessages.Insert(71, NStr("en = 'Mapping for source value not found';"));
+	ErrorsMessages.Insert(71, NStr("en = 'Cannot find a match for the source value';"));
 	
 	ErrorsMessages.Insert(72, NStr("en = 'Error exporting data for exchange plan node';"));
 	
@@ -313,7 +313,7 @@ Function ErrorsMessages() Export
 	ErrorsMessages.Insert(76, NStr("en = 'Event handler error (data conversion): BeforeSendDeletionInfo';"));
 	ErrorsMessages.Insert(77, NStr("en = 'Event handler error (data conversion): OnGetDeletionInfo';"));
 	
-	ErrorsMessages.Insert(78, NStr("en = 'Algorithm execution error after importing parameter values';"));
+	ErrorsMessages.Insert(78, NStr("en = 'Algorithm fails after parameter values are imported';"));
 	
 	ErrorsMessages.Insert(79, NStr("en = 'Event handler error: AfterExportObjectToFile';"));
 	

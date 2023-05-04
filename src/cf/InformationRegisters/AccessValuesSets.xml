@@ -282,7 +282,7 @@ Only one set line can be selected.</v8:content>
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>A cache attribute used in data access restriction templates. 
-If True, check whether an Access Value is in the list of allowed ones.</v8:content>
+If True, check whether an access value is in the list of allowed ones.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -327,7 +327,7 @@ If True, check whether an Access Value is in the list of allowed ones.</v8:conte
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>A cache attribute used in data access restriction templates.
-If True, check whether an Access Value is in the list of allowed ones (excluding Access Value Groups).</v8:content>
+If True, check whether an access value is in the list of allowed ones (excluding access value groups).</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -378,7 +378,7 @@ If True, check whether an Access Value is in the list of allowed ones (excluding
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>A reference to an object that owns Access value sets.</v8:content>
+							<v8:content>A reference to an object that owns access value sets.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -466,7 +466,7 @@ When verifying object's sets, the results are joined with logical OR.</v8:conten
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Access Value</v8:content>
+							<v8:content>Access value</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment>APK:1330-No. 728.2.1 it is Acceptable to use a universal reference type, since this is a universal mechanism and only for RLS in the BSP 2.x format (deprecated)</Comment>
@@ -531,9 +531,9 @@ When verifying object's sets, the results are joined with logical OR.</v8:conten
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Complements an Access Value:
+							<v8:content>Refines an access value:
  • For a metadata object ID, it specifies the verification:
-If null reference, "Change"; otherwise, "Read".
+If null reference, "Update"; otherwise, "Read".
  • For a rights owner, it specifies the table to select rights from.</v8:content>
 						</v8:item>
 					</ToolTip>

@@ -274,8 +274,8 @@ Procedure ImportAddInOnErrorDisplay(ErrorDescription = "")
 		Notification = New NotifyDescription("ImportAddInAfterErrorDisplay", ThisObject);
 		
 		StringWithWarning = NStr("en = '%1
-			|Укажите zip-архив с внешней компонентой.
-			|Подробнее см. <a href = ""%2"">Технология создания внешних компонент</a>';");
+			|Specify a ZIP archive with an add-in.
+			|For more information, see <a href = ""%2"">Add-in Development Technology</a> (in Russian).';");
 		StringWithWarning = StringFunctionsClient.FormattedString(StringWithWarning, ErrorDescription,
 			"https://its.1c.eu/db/metod8dev/content/3221");
 		

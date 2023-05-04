@@ -157,19 +157,6 @@ Function ReportOptionMode(VariantKey) Export
 	
 EndFunction
 
-Function DecryptionHandlerSelectionPropertiesByDetailRecords() Export 
-	
-	SelectionItemProperties = New Structure;
-	SelectionItemProperties.Insert("Value", Undefined);
-	SelectionItemProperties.Insert("ComparisonType", DataCompositionComparisonType.Equal);
-	SelectionItemProperties.Insert("ViewMode", DataCompositionSettingsItemViewMode.Inaccessible);
-	SelectionItemProperties.Insert("Presentation", "");
-	SelectionItemProperties.Insert("UserSettingID", "");
-	
-	Return SelectionItemProperties;
-	
-EndFunction
-	
 #EndRegion
 
 #Region Private

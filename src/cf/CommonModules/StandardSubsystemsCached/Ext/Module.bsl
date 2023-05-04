@@ -698,6 +698,28 @@ Function CurrentSessionProperties() Export
 	
 EndFunction
 
+// Returns:
+//  FixedMap of KeyAndValue:
+//    * Key - String -
+//                      
+//    * Value - Boolean - the value is True.
+//  
+Function QueueJobTemplates() Export
+	
+	Templates = New Map;
+	
+	If Common.SubsystemExists("CloudTechnology.JobsQueue") Then
+		ModuleJobsQueue = Common.CommonModule("JobsQueue");
+		QueueJobTemplates = ModuleJobsQueue.QueueJobTemplates();
+		For Each Template In QueueJobTemplates Do
+			Templates.Insert(Template, True);
+		EndDo;
+	EndIf;
+	
+	Return New FixedMap(Templates);
+	
+EndFunction
+
 ////////////////////////////////////////////////////////////////////////////////
 // For the MetadataObjectIDs catalog.
 

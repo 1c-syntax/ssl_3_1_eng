@@ -9,7 +9,7 @@
 					<v8:content>Print management Microsoft Word client</v8:content>
 				</v8:item>
 			</Synonym>
-			<Comment>АПК:566 АПК:1353 АПК:441 устаревший код, исправление не требуется.</Comment>
+			<Comment>ACC:566 ACC:1353 ACC:441 устаревший код, исправление не требуется.</Comment>
 			<Global>false</Global>
 			<ClientManagedApplication>true</ClientManagedApplication>
 			<Server>false</Server>

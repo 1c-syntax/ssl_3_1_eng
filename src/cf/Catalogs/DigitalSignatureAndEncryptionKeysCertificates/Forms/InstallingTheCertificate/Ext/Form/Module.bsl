@@ -204,6 +204,7 @@ Function CertificateInstallationOptions()
 	
 	ValueList = New ValueList;
 	ValueList.Add("MY", NStr("en = 'Personal certificate storage';"));
+	ValueList.Add("CA", NStr("en = 'Intermediate certificates';"));
 	ValueList.Add("ROOT", NStr("en = 'Trusted root certificates';"));
 	ValueList.Add("Container", NStr("en = 'Container and personal storage';"));
 	Return ValueList;

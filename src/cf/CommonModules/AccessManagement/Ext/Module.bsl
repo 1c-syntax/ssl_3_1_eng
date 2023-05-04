@@ -3102,7 +3102,7 @@ Procedure UpdateDataCompositionParameterValue(Val ParametersOwner,
 EndProcedure
 
 // For the EnableProfileForUser and DisableProfileForUser procedures.
-Procedure EnableDisableUserProfile(User, Profile, Enable)
+Procedure EnableDisableUserProfile(User, Profile, Enable, Source = Undefined) Export
 	
 	If Not AccessManagementInternal.SimplifiedAccessRightsSetupInterface() Then
 		ErrorText =
@@ -3225,7 +3225,8 @@ Procedure EnableDisableUserProfile(User, Profile, Enable)
 				AccessGroupObject.Description = ProfileProperties.Description;
 				AccessGroupObject.User = User;
 				AccessGroupObject.Profile      = CurrentProfile;
-				AccessGroupObject.AccessKinds.Load(AccessKindsForNewAccessGroup(ProfileProperties));
+				FillInAccessTypesAndValuesOfNewAccessGroup(AccessGroupObject,
+					ProfileProperties, Source);
 			Else
 				AccessGroupObject = Undefined;
 			EndIf;
@@ -3273,6 +3274,32 @@ Procedure EnableDisableUserProfile(User, Profile, Enable)
 		RollbackTransaction();
 		Raise;
 	EndTry;
+	
+EndProcedure
+
+Procedure FillInAccessTypesAndValuesOfNewAccessGroup(AccessGroupObject, ProfileProperties, Source)
+	
+	Query = New Query;
+	Query.Text =
+	"SELECT
+	|	AccessGroups.Ref AS Ref
+	|FROM
+	|	Catalog.AccessGroups AS AccessGroups
+	|WHERE
+	|	AccessGroups.Profile = &Profile
+	|	AND AccessGroups.User = &User";
+	Query.SetParameter("Profile", AccessGroupObject.Profile);
+	Query.SetParameter("User", Source);
+	
+	Selection = Query.Execute().Select();
+	If Selection.Next() And Selection.Count() = 1 Then
+		GroupProperties = Common.ObjectAttributesValues(Selection.Ref,
+			"AccessKinds, AccessValues");
+		AccessGroupObject.AccessKinds.Load(GroupProperties.AccessKinds.Unload());
+		AccessGroupObject.AccessValues.Load(GroupProperties.AccessValues.Unload());
+	Else
+		AccessGroupObject.AccessKinds.Load(AccessKindsForNewAccessGroup(ProfileProperties));
+	EndIf;
 	
 EndProcedure
 

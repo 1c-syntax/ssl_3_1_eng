@@ -171,8 +171,8 @@ If you cancel the operation, you can run it again from the list of configured da
 											<Title formatted="false">
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>An error occurred when checking connection parameters.
-The data export is canceled.</v8:content>
+													<v8:content>Error checking connection parameters.
+Data export is canceled.</v8:content>
 												</v8:item>
 											</Title>
 											<ContextMenu name="Decoration22ContextMenu" id="256"/>
@@ -874,7 +874,7 @@ The data export is canceled.</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Command bar navigation waiting right</v8:content>
+									<v8:content>Command bar navigation wait right</v8:content>
 								</v8:item>
 							</Title>
 							<HorizontalLocation>Right</HorizontalLocation>
@@ -903,7 +903,7 @@ The data export is canceled.</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Command bar navigation completion left</v8:content>
+									<v8:content>Command bar navigation end right</v8:content>
 								</v8:item>
 							</Title>
 							<HorizontalLocation>Right</HorizontalLocation>

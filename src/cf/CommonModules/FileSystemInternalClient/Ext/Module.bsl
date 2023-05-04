@@ -266,7 +266,7 @@ Procedure OpenFileInViewer(PathToFile, Val Notification = Undefined,
 	Notification = New NotifyDescription(
 		"OpenFileInViewerAfterCheckFileSystemExtension", ThisObject, Context);
 	
-	SuggestionText = NStr("en = 'To open the file, install 1C:Enterprise extension.';");
+	SuggestionText = NStr("en = 'To open the file, install 1C:Enterprise Extension.';");
 	FileSystemClient.AttachFileOperationsExtension(Notification, SuggestionText, False);
 	
 EndProcedure
@@ -529,7 +529,7 @@ Procedure OpenExplorerAfterCheckFileSystemExtension(ExtensionAttached, Context) 
 			"OpenExplorerOnProcessError", ThisObject);
 		FileInfo3.BeginCheckingExistence(Notification);
 	Else
-		ErrorDescription = NStr("en = 'To open the folder, install 1C:Enterprise extension.';");
+		ErrorDescription = NStr("en = 'To open the folder, install 1C:Enterprise Extension.';");
 		OpenExplorerNotifyOnError(ErrorDescription, Context);
 	EndIf;
 	

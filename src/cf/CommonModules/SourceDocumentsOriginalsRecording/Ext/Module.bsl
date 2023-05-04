@@ -330,7 +330,7 @@ Procedure OutputOriginalStateCommandsToForm(Form, List, OriginalsStates) Export
 		SetConfigureOriginalStateSubmenu.Representation = ButtonRepresentation.Picture; 
 		SetConfigureOriginalStateSubmenu.Picture = PictureLib.SetSourceDocumentOriginalState;
 		SetConfigureOriginalStateSubmenu.Title = NStr("en = 'Set original state';");
-		SetConfigureOriginalStateSubmenu.ToolTip = NStr("en = 'Submenu of commands used to set and change source document original states.';");
+		SetConfigureOriginalStateSubmenu.ToolTip = NStr("en = 'Use these commands to set and change states of source document originals.';");
 	EndIf;
 	SetConfigureOriginalStateSubmenu = Items.Find("SetConfigureOriginalStateSubmenu");
 	
@@ -349,7 +349,7 @@ Procedure OutputOriginalStateCommandsToForm(Form, List, OriginalsStates) Export
 	If Items.Find("SetOriginalReceivedGroup") = Undefined Then
 		SetOriginalReceivedGroup =  Items.Add("SetOriginalReceivedGroup",Type("FormGroup"),List.CommandBar); 
 		SetOriginalReceivedGroup.Type = FormGroupType.ButtonGroup;
-		SetOriginalReceivedGroup.ToolTip = NStr("en = 'The command is used to set the final source document original state ""Original received"".';");
+		SetOriginalReceivedGroup.ToolTip = NStr("en = 'The command sets the final ""Original received"" state of a source document.';");
 	EndIf;
 	SetOriginalReceivedGroup = Items.Find("SetOriginalReceivedGroup");
 	
@@ -560,7 +560,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	
 	Order = 0;
 	
-	// Original status commands.
+	// Original state commands.
 	For Each State In OriginalsStates Do		
 		Command = Commands.Add();
 		Command.Kind = "SettingOriginalState";
@@ -1164,12 +1164,12 @@ Function OriginalStateInfoByRef(DocumentRef) Export
 
 EndFunction
 
-// Update handler procedure that fills in initial items of the "Source document original states" catalog.
+// Update handler procedure that populates initial items of the "States of source document originals" catalog.
 Procedure WriteSourceDocumentOriginalState() Export
 
 	OriginalState = Catalogs.SourceDocumentsOriginalsStates.FormPrinted.GetObject();
 	LockDataForEdit(OriginalState.Ref);
-	OriginalState.Description = NStr("en = 'Form is printed';", Common.DefaultLanguageCode());
+	OriginalState.Description = NStr("en = 'Form printed';", Common.DefaultLanguageCode());
 	OriginalState.LongDesc = NStr("en = 'State that means that the print form was printed only.';", Common.DefaultLanguageCode());
 	OriginalState.AddlOrderingAttribute = 1;
 	InfobaseUpdate.WriteObject(OriginalState);
@@ -1177,7 +1177,7 @@ Procedure WriteSourceDocumentOriginalState() Export
 	OriginalState = Catalogs.SourceDocumentsOriginalsStates.OriginalsNotAll.GetObject();
 	LockDataForEdit(OriginalState.Ref);
 	OriginalState.Description = NStr("en = 'Not all originals';", Common.DefaultLanguageCode());
-	OriginalState.LongDesc = NStr("en = 'General state of a document whose print form originals are located in different places.';", Common.DefaultLanguageCode());
+	OriginalState.LongDesc = NStr("en = 'Overall state of a document whose print form originals have different states.';", Common.DefaultLanguageCode());
 	OriginalState.AddlOrderingAttribute = 99998;
 	InfobaseUpdate.WriteObject(OriginalState);
 

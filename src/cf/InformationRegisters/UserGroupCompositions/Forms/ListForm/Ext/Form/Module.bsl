@@ -37,7 +37,7 @@ Procedure UpdateRegisterData(Command)
 	If HasChanges Then
 		Text = NStr("en = 'Updated successfully.';");
 	Else
-		Text = NStr("en = 'The update is not required.';");
+		Text = NStr("en = 'No update required.';");
 	EndIf;
 	
 	ShowMessageBox(, Text);

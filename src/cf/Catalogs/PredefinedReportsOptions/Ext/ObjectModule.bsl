@@ -33,7 +33,7 @@ Procedure CheckPredefinedReportOptionFilling(Cancel)
 		Return;
 	EndIf;
 		
-	Raise NStr("en = 'Report field is required.';");
+	Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Не заполнено поле ""%1"".';"), "Report");
 	
 EndProcedure
 

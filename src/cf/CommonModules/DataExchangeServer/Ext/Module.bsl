@@ -10437,7 +10437,7 @@ Procedure SetDataImportExchangeRules(DataExchangeXMLDataProcessor, ExchangeSetti
 			Or ExchangeSettingsStructure.ConversionRulesAreRequired = True Then
 		
 			// Exchange rules must be specified.
-			NString = NStr("en = 'Conversion rules are not specified. Exchange plan: %1. The data export is canceled.';",
+			NString = NStr("en = 'Conversion rules are not specified. Exchange plan: %1. The data import is canceled.';",
 				Common.DefaultLanguageCode());
 			ErrorMessageString = StringFunctionsClientServer.SubstituteParametersToString(NString, ExchangeSettingsStructure.ExchangePlanName);
 			WriteEventLogDataExchange(ErrorMessageString, ExchangeSettingsStructure, True);
@@ -12814,7 +12814,7 @@ Procedure ImportMessageBeforeInfobaseUpdate()
 				EndIf;
 				
 				If Cancel Then
-					Raise NStr("en = 'Error receiving data from the master node.';");
+					Raise NStr("en = 'Receiving data from the master node is completed with errors.';");
 				EndIf;
 			Except
 				SetPrivilegedMode(True);

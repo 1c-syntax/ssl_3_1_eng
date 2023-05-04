@@ -39,16 +39,9 @@ EndFunction
 
 Procedure ChoiceDataGetProcessing(ChoiceData, Parameters, StandardProcessing)
 	
-	If Not StandardProcessing Then
-		// 
-		Return;
-		
-	ElsIf Not Parameters.Property("AllowClassifierData") Then
-		// 
-		Return;
-		
-	ElsIf True <> Parameters.AllowClassifierData Then
-		// 
+	If Not StandardProcessing 
+		Or Not Parameters.Property("AllowClassifierData")
+		Or Not Parameters.AllowClassifierData Then
 		Return;
 	EndIf;
 	
@@ -186,10 +179,10 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
 	NewRow                    = CountryList.Add();
 	NewRow.Code                = "807";
-	NewRow.Description       = NStr("en = 'Republic of Macedonia';");
+	NewRow.Description       = NStr("en = 'РЕСПУБЛИКА МАКЕДОНИЯ';");
 	NewRow.CodeAlpha2          = "MK";
 	NewRow.CodeAlpha3          = "MKD";
-	NewRow.DescriptionFull =  NStr("en = 'Republic of Macedonia';");
+	NewRow.DescriptionFull =  NStr("en = 'Республика Македония';");
 	
 	Query = New Query;
 	Query.Text = "SELECT

@@ -482,7 +482,7 @@ Function ExchangeCorrespondent(Val ExchangePlanName, Val Code)
 	
 	If Not ValueIsFilled(Result) Then
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Exchange plan node is not found. Exchange plan name %1. Node code %2.';"),
+			NStr("en = 'Node not found. Exchange plan: %1. Node ID: %2.';"),
 			ExchangePlanName, Code);
 		Raise MessageString;
 	EndIf;

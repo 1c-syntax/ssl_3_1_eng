@@ -674,7 +674,7 @@ Procedure SetObjectsMarkedForDeletionSelectionState()
 	Items.SearchFilterSettingsGroup.Enabled = True;
 	Items.ProgressPresentation.Visible = False;
 	Items.MarkedForDeletionItemsTreeDeleteSelectedItems.DefaultButton = True;
-	Items.DeleteSearchBar.Visible = True;
+	Items.SearchStringForDeletion.Visible = True;
 EndProcedure
 
 &AtServer
@@ -694,7 +694,7 @@ Procedure SetObjectsMarkedForDeletionSelectionStateWithStatePanel()
 	Items.ProgressPresentation.Visible = False;
 	Items.MarkedForDeletionItemsTreeDeleteSelectedItems.DefaultButton = True;
 	Items.ActiveAfterSearchMarkedObjectsGroup.Enabled = MarkedForDeletionItemsTree.GetItems().Count() > 0;;
-	Items.DeleteSearchBar.Visible = False;
+	Items.SearchStringForDeletion.Visible = False;
 EndProcedure
 
 &AtServer
@@ -717,7 +717,7 @@ Procedure SetStateUnsuccessfulDeletion()
 	Items.CommandBarForm.Visible = True;
 	Items.ExecuteActionsAndDelete.DefaultButton = True;
 	Items.DetailsRef.Visible = False;
-	Items.DeleteSearchBar.Visible = False;
+	Items.SearchStringForDeletion.Visible = False;
 EndProcedure
 
 &AtServer
@@ -744,7 +744,7 @@ Procedure SetStateUnsuccessfulDeletionWithStatePanel()
 		Items.NotDeletedItemsGroup.Visible = False;
 	EndIf;
 	Items.DetailsRef.Visible = False;
-	Items.DeleteSearchBar.Visible = False;
+	Items.SearchStringForDeletion.Visible = False;
 EndProcedure
 
 #EndRegion

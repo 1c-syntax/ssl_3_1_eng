@@ -19,7 +19,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Title = NStr("en = 'Data registered on handler ""%1""';");
 	Title = StringFunctionsClientServer.SubstituteParametersToString(Title, HandlerName);
 	
-	TextSummaryInformation = NStr("en = '%1 out of %2 objects remain to be processed, progress - %3. %4 objects have been processed for the selected period.';");
+	TextSummaryInformation = NStr("en = '%1 out of %2 objects remain to be processed, progress - %3%. %4 objects have been processed for the selected period.';");
 	If Not ValueIsFilled(Number(Parameters.ProcessedForPeriod)) Then
 		TextSummaryInformation = NStr("en = '%1 out of %2 objects remain to be processed, progress - %3. No data has been processed for the selected period.';");
 	EndIf;

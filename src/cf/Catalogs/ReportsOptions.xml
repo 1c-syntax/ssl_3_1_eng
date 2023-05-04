@@ -842,7 +842,7 @@ Looked up during the search.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The report panel tooltip text.</v8:content>
+							<v8:content>Displayed in a report panel as a tooltip.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

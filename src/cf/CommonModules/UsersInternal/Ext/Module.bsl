@@ -294,7 +294,7 @@ Function ErrorInsufficientRightsForAuthorization(RegisterInLog = True) Export
 	If IsInRole(BasicRightsRoleName) Then
 		Return "";
 	EndIf;
-	// АПК:336-
+	// ACC:336-
 	
 	Return AuthorizationErrorBriefPresentationAfterRegisterInLog(
 		NStr("en = 'Insufficient rights to sign in.
@@ -420,8 +420,8 @@ Procedure ProcessRolesInterface(Action, Parameters) Export
 		FillRoles(Parameters);
 	Else
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Error in procedure ""%1"".
-			           |Invalid value for Action parameter: ""%2"".';"),
+			NStr("en = 'Error in procedure %1.
+			           |Invalid value of parameter ""Action"": ""%2"".';"),
 			"UsersInternal.ProcessRolesInterface",
 			Action);
 		Raise ErrorText;
@@ -1426,7 +1426,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 			
 			ExecutionPriorities = Handler.ExecutionPriorities; // ValueTable
 			NewRow = ExecutionPriorities.Add();
-			NewRow.Procedure = "ConversationsInternal.LockInvalidUsersInCollaborationSystem"; // АПК:277-
+			NewRow.Procedure = "ConversationsInternal.LockInvalidUsersInCollaborationSystem"; // ACC:277-
 			NewRow.Order = "After";
 		EndIf;
 		
@@ -1474,7 +1474,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Procedure = "Constants.UseExternalUserGroups.Refresh";
 	
 	Handler = Handlers.Add();
-	Handler.Version = "3.1.8.31";
+	Handler.Version = "3.1.8.289";
 	Handler.ExecutionMode = "Seamless";
 	Handler.Procedure = "InformationRegisters.UsersInfo.UpdateUsersInfoAndDisableAuthentication";
 	Handler.Comment = StringFunctionsClientServer.SubstituteParametersToString(
@@ -2364,7 +2364,7 @@ Function CanChangePassword(User, AdditionalParameters = Undefined) Export
 		
 		If Not ActionsWithSaaSUser.EditPassword Then
 			AdditionalParameters.Insert("ErrorText", StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Service: insufficient rights to change the password for user ""%1.""';"), User));
+				NStr("en = 'Service: Insufficient rights to change password for user ""%1.""';"), User));
 			Return False;
 		EndIf;
 	EndIf;
@@ -2632,7 +2632,7 @@ Function ProcessNewPassword(Parameters) Export
 				Write = True;
 			EndIf;
 			If Common.DataSeparationEnabled() Then
-				UserInfo.DeletePasswordStartDate = BegOfDay(CurrentSessionDate());
+				UserInfo.DeletePasswordUsageStartDate = BegOfDay(CurrentSessionDate());
 				Write = True;
 			EndIf;
 			If Write Then
@@ -3486,7 +3486,7 @@ Function AdministratorRolesAvailable(IBUser = Undefined) Export
 	If IBUser = Undefined
 	 Or IBUser = InfoBaseUsers.CurrentUser() Then
 	
-		// АПК:336-
+		// ACC:336-
 		//
 		Return IsInRole(Metadata.Roles.FullAccess)
 		     //@skip-check using-isinrole
@@ -3764,7 +3764,7 @@ Procedure UpdateUserGroupCompositionUsage(Val UserOrGroup,
 	
 	Query = New Query;
 	Query.SetParameter("UserOrGroup", UserOrGroup);
-	// АПК:1377-
+	// ACC:1377-
 	// 
 	Query.Text =
 	"SELECT
@@ -4104,7 +4104,7 @@ Procedure UpdateExternalUsersRoles(Val ExternalUsersArray = Undefined) Export
 		Query.SetParameter("OldExternalUserRoles", OldExternalUserRoles);
 		Query.SetParameter("UseExternalUsers",
 			GetFunctionalOption("UseExternalUsers"));
-		// АПК:96-
+		// ACC:96-
 		// 
 		Query.Text =
 		"SELECT
@@ -4186,7 +4186,7 @@ Procedure UpdateExternalUsersRoles(Val ExternalUsersArray = Undefined) Export
 		|					AllRoles AS AllRoles
 		|				WHERE
 		|					AllRoles.Name = AllNewExternalUserRoles.Role)";
-		// АПК:96-
+		// ACC:96-
 		
 		// 
 		Selection = Query.Execute().Select();
@@ -6021,12 +6021,12 @@ Function UserNotFoundInCatalogMessageText(UserName)
 			NStr("en = 'User ""%1"" does not exist in the
 			           |""Users"" and ""External users"" catalogs.
 			           |
-			           |Contact the Administrator.';");
+			           |Contact your administrator.';");
 	Else
 		ErrorMessageTemplate =
 			NStr("en = 'User ""%1"" does not exist in the ""Users"" catalog.
 			           |
-			           |Contact the Administrator.';");
+			           |Contact your administrator.';");
 	EndIf;
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageTemplate, UserName);
@@ -7302,7 +7302,7 @@ Function PasswordChangeRequired(ErrorDescription = "", OnStart = False, Register
 	|	UsersInfo.User AS User,
 	|	UsersInfo.LastActivityDate AS LastActivityDate,
 	|	UsersInfo.LastUsedClient AS LastUsedClient,
-	|	UsersInfo.DeletePasswordStartDate AS DeletePasswordStartDate,
+	|	UsersInfo.DeletePasswordUsageStartDate AS DeletePasswordUsageStartDate,
 	|	UsersInfo.AutomaticAuthorizationProhibitionDate AS AutomaticAuthorizationProhibitionDate,
 	|	UsersInfo.UserMustChangePasswordOnAuthorization AS UserMustChangePasswordOnAuthorization
 	|FROM
@@ -7418,12 +7418,12 @@ Function PasswordChangeRequired(ErrorDescription = "", OnStart = False, Register
 		Return False;
 	EndIf;
 	
-	If Not ValueIsFilled(UserInfo.DeletePasswordStartDate) Then
+	If Not ValueIsFilled(UserInfo.DeletePasswordUsageStartDate) Then
 		Return False;
 	EndIf;
 	
 	RemainingMaxPasswordLifetime = LogonSettings.MaxPasswordLifetime
-		- (CurrentSessionDateDayStart - UserInfo.DeletePasswordStartDate) / (24*60*60);
+		- (CurrentSessionDateDayStart - UserInfo.DeletePasswordUsageStartDate) / (24*60*60);
 	
 	Return RemainingMaxPasswordLifetime <= 0;
 	
@@ -7458,15 +7458,15 @@ Procedure UpdateUserInfoRecords(UserInfo, CurrentSessionDateDayStart,
 	EndIf;
 	
 	If Not Common.DataSeparationEnabled() Then
-		If ValueIsFilled(UserInfo.DeletePasswordStartDate) Then
-			UserInfo.DeletePasswordStartDate = Undefined;
+		If ValueIsFilled(UserInfo.DeletePasswordUsageStartDate) Then
+			UserInfo.DeletePasswordUsageStartDate = Undefined;
 			HasChanges = True;
 		EndIf;
 		
-	ElsIf Not ValueIsFilled(UserInfo.DeletePasswordStartDate)
-	      Or UserInfo.DeletePasswordStartDate > CurrentSessionDateDayStart Then
+	ElsIf Not ValueIsFilled(UserInfo.DeletePasswordUsageStartDate)
+	      Or UserInfo.DeletePasswordUsageStartDate > CurrentSessionDateDayStart Then
 		
-		UserInfo.DeletePasswordStartDate = CurrentSessionDateDayStart;
+		UserInfo.DeletePasswordUsageStartDate = CurrentSessionDateDayStart;
 		HasChanges = True;
 		IsOnlyLastActivityDateNoLongerRelevant = False;
 	EndIf;

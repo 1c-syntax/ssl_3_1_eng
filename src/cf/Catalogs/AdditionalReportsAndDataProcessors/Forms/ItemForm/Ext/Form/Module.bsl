@@ -1037,7 +1037,7 @@ Procedure ExecuteCommandAfterWriteConfirmed(Response, Context) Export
 		Or CommandsTableRow.StartupOption = PredefinedValue("Enum.AdditionalDataProcessorsCallMethods.SafeModeScenario") Then
 		
 		StateHeader = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '""%1"" command is running';"),
+			NStr("en = 'Executing command ""%1""';"),
 			CommandsTableRow.Presentation);
 		ShowUserNotification(StateHeader + "...", , , PictureLib.TimeConsumingOperation48);
 		
@@ -1064,7 +1064,7 @@ Procedure AfterCompleteExecutingServerCommandInBackground(Job, CommandToExecute)
 	
 	If Job.Status = "Error" Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot run the command. Reason:
+			NStr("en = 'Cannot execute the command. Reason:
 				|%1.';"), Job.BriefErrorDescription);
 	Else
 		Result = GetFromTempStorage(Job.ResultAddress);

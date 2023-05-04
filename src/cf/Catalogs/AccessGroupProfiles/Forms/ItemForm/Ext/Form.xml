@@ -449,7 +449,7 @@ The displayed details might differ from the current profile settings.</v8:conten
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>The method used to determine allowed Access Values.</v8:content>
+											<v8:content>The method used to determine allowed access values.</v8:content>
 										</v8:item>
 									</ToolTip>
 									<AutoCellHeight>true</AutoCellHeight>
@@ -469,7 +469,7 @@ The displayed details might differ from the current profile settings.</v8:conten
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Access Values for access kinds</v8:content>
+									<v8:content>Access values for access kinds</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Vertical</Group>
@@ -523,7 +523,7 @@ The displayed details might differ from the current profile settings.</v8:conten
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Access Values</v8:content>
+															<v8:content>Access values</v8:content>
 														</v8:item>
 													</Title>
 													<CommandSet>
@@ -722,7 +722,7 @@ The displayed details might differ from the current profile settings.</v8:conten
 						<Title>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Access Values</v8:content>
+								<v8:content>Access values</v8:content>
 							</v8:item>
 						</Title>
 						<Type>

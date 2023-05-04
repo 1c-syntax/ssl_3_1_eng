@@ -457,7 +457,7 @@ Procedure SetTextsExplanationsByRegistrationApplication()
 	ExplanationByRedirectAddress = AuthorizationSettings.ExplanationByRedirectAddress;
 	ExplanationByApplicationID = AuthorizationSettings.ExplanationByApplicationID;
 	ExplanationApplicationPassword = AuthorizationSettings.ExplanationApplicationPassword;
-	AdditionalExplanation = AuthorizationSettings.AdditionalExplanation;
+	AdditionalNote = AuthorizationSettings.AdditionalNote;
 	
 	AliasRedirectAddresses = AuthorizationSettings.AliasRedirectAddresses;
 	ApplicationIDAlias = AuthorizationSettings.ApplicationIDAlias;
@@ -466,7 +466,7 @@ Procedure SetTextsExplanationsByRegistrationApplication()
 	Items.ExplanationByRedirectAddress.Title = ExplanationByRedirectAddress;
 	Items.ExplanationByApplicationID.Title = ExplanationByApplicationID;
 	Items.ExplanationApplicationPassword.Title = ExplanationApplicationPassword;
-	Items.AdditionalExplanation.Title = AdditionalExplanation;
+	Items.AdditionalNote.Title = AdditionalNote;
 	
 	Items.RedirectAddress.Title = AliasRedirectAddresses;
 	Items.AppID.Title = ApplicationIDAlias;
@@ -599,7 +599,7 @@ Procedure SetCurrentPageItems()
 				ButtonNextTitle = NStr("en = 'Create';");
 			EndIf;
 		ElsIf CurrentPage = Items.ValidatingAccountSettings Then
-			ButtonNextTitle = NStr("en = 'Skip the check';");
+			ButtonNextTitle = NStr("en = 'Skip test';");
 		Else
 			ButtonNextTitle = NStr("en = 'Next >';");
 		EndIf;

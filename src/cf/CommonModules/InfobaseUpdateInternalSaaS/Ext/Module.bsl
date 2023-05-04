@@ -844,7 +844,7 @@ EndProcedure
 
 // 
 //
-Function ReportOnProgressOfUpdatingAreas() Export
+Function AreasUpdateProgressReport() Export
 	
 	Return "Report.DataAreasUpdateProgress.Form";
 	

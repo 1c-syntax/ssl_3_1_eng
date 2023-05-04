@@ -277,7 +277,6 @@ Procedure SetConditionalAppearance()
 
 EndProcedure
 
-// Controls visibility of pages and form items.
 &AtClient
 Procedure VisibilityManagement()
 	
@@ -292,42 +291,25 @@ Procedure VisibilityManagement()
 	CommentNoteRequiredAvailable();
 	
 	If Object.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.String") Then 
-		
 		Items.DependentParameters.CurrentPage = Items.StringPage;
-		
 	ElsIf Object.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.Number") Then
-		
 		Items.DependentParameters.CurrentPage = Items.NumericAttributesPage;
-		
 	ElsIf Object.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.InfobaseValue") Then
-		
 		Items.DependentParameters.CurrentPage = Items.IsEmpty;
-	
 	ElsIf Object.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.OneVariantOf") 
 	      Or Object.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.MultipleOptionsFor") Then
-		
 		Items.DependentParameters.CurrentPage = Items.AnswersOptions; 
-		
 		AnswersOptionsTableAvailability(ThisObject);
-		
 	Else
-		
 		Items.DependentParameters.CurrentPage = Items.IsEmpty;
-		
 	EndIf;
 	
 	If Object.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.OneVariantOf") Then
-		
 		Items.RadioButtonTypeGroup.CurrentPage = Items.ShowRadioButtonType;
-		
 	ElsIf Object.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.Boolean") Then
-		
 		Items.RadioButtonTypeGroup.CurrentPage = Items.ShowRadioButtonTypeBooleanTypeGroup;
-		
 	Else
-		
 		Items.RadioButtonTypeGroup.CurrentPage = Items.HideRadioButtonTypeGroup;
-		
 	EndIf;
 	
 EndProcedure

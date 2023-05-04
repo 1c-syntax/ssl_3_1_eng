@@ -114,17 +114,19 @@ Procedure OnLoadVariantAtServer(Form, NewDCSettings) Export
 	DCParameter.Value = PutToTempStorage(Undefined, Form.UUID);
 EndProcedure
 
+// Parameters:
+//   Form - ClientApplicationForm
+//   NewDCUserSettings - DataCompositionUserSettings
+//
 Procedure OnLoadUserSettingsAtServer(Form, NewDCUserSettings) Export
-	
+
 	If Form.Report.SettingsComposer.UserSettings.AdditionalProperties.Property("FiltersValuesCache") Then
 		Form.Report.SettingsComposer.UserSettings.AdditionalProperties.FiltersValuesCache.Clear();
 	EndIf;
 	
 EndProcedure
 
-// Runs in the report form before outputting the setting.
-//   See ReportsOverridable.OnDefineSelectionParameters.
-//
+// See ReportsOverridable.OnDefineSelectionParameters
 Procedure OnDefineSelectionParameters(Form, SettingProperties) Export
 	
 	If SettingProperties.DCField = New DataCompositionField("DataParameters.ProgressProcessing") Then

@@ -384,28 +384,17 @@ Procedure AvailabilityControl()
 	
 	ElsIf CurrentPage = Items.TableQuestionTypePage Then
 				
-		Items.NextPageButton.Enabled 	= TabularQuestionType <> PredefinedValue("Enum.TabularQuestionTypes.EmptyRef");
-				
+		Items.NextPageButton.Enabled = TabularQuestionType <> PredefinedValue("Enum.TabularQuestionTypes.EmptyRef");
 		If TabularQuestionType = PredefinedValue("Enum.TabularQuestionTypes.Composite") Then
-			
 			Items.TableQuestionTypePagesPictures.CurrentPage = Items.CompositeQuestionPicturePage;
-			
 		ElsIf TabularQuestionType = PredefinedValue("Enum.TabularQuestionTypes.PredefinedAnswersInRows") Then
-			
 			Items.TableQuestionTypePagesPictures.CurrentPage = Items.AnswersInRowsPicturePage;
-	
 		ElsIf TabularQuestionType = PredefinedValue("Enum.TabularQuestionTypes.PredefinedAnswersInColumns") Then
-			
 			Items.TableQuestionTypePagesPictures.CurrentPage = Items.AnswersInColumnsPicturePage;
-			
 		ElsIf TabularQuestionType = PredefinedValue("Enum.TabularQuestionTypes.PredefinedAnswersInRowsAndColumns") Then
-			
 			Items.TableQuestionTypePagesPictures.CurrentPage = Items.AnswersInRowsAndColumnsPicturePage;
-			
 		Else
-			
 			Items.TableQuestionTypePagesPictures.CurrentPage = Items.BlankPicturePage;
-			
 		EndIf;
 		
 	ElsIf CurrentPage = Items.QuestionsPage Then
@@ -416,27 +405,16 @@ Procedure AvailabilityControl()
 		EndIf;
 		
 		If TabularQuestionType = PredefinedValue("Enum.TabularQuestionTypes.Composite") Then
-			
 			Items.NextPageButton.Enabled = (Questions.Count() > 0); 
-			
-		ElsIf TabularQuestionType = PredefinedValue("Enum.TabularQuestionTypes.PredefinedAnswersInRows") Then
-			
+		ElsIf TabularQuestionType = PredefinedValue("Enum.TabularQuestionTypes.PredefinedAnswersInRows")
+			Or TabularQuestionType = PredefinedValue("Enum.TabularQuestionTypes.PredefinedAnswersInColumns") Then
 			Items.NextPageButton.Enabled = (Questions.Count() > 1);
-			
-		ElsIf TabularQuestionType = PredefinedValue("Enum.TabularQuestionTypes.PredefinedAnswersInColumns") Then
-			
-			Items.NextPageButton.Enabled = (Questions.Count() > 1);
-			
 		ElsIf TabularQuestionType = PredefinedValue("Enum.TabularQuestionTypes.PredefinedAnswersInRowsAndColumns") Then
-			
 			Items.NextPageButton.Enabled = (Questions.Count() = 3);
-			
 		EndIf;
 		
 	ElsIf CurrentPage = Items.ResultTablePage Then
-		
 		Items.NextPageButton.Enabled =  ValueIsFilled(Wording);
-		
 	EndIf;
 	
 EndProcedure

@@ -348,9 +348,9 @@ Procedure AttachmentsBeforeDeleteRow(Item, Cancel)
 	
 	AttachmentDescription = Item.CurrentData[Item.CurrentItem.Name];
 	
-	For Each Attachment In Attachments Do
-		If Attachment.Presentation = AttachmentDescription Then
-			Attachments.Delete(Attachment);
+	For Position = -Attachments.Count() + 1 To 0 Do
+		If Attachments.Get(-Position).Presentation = AttachmentDescription Then
+			Attachments.Delete(-Position);
 		EndIf;
 	EndDo;
 	
@@ -429,10 +429,11 @@ Procedure ReplyToAddressClearing(Item, StandardProcessing)
 	StandardProcessing = False;
 	SaveReplyTo(ReplyToAddress, False);
 	
-	For Each ReplyToItem In Items.ReplyToAddress.ChoiceList Do
+	For Position = -Items.ReplyToAddress.ChoiceList.Count() + 1 To 0 Do
+		ReplyToItem = Items.ReplyToAddress.ChoiceList.Get(-Position);
 		If ReplyToItem.Value = ReplyToAddress
 		   And ReplyToItem.Presentation = ReplyToAddress Then
-			Items.ReplyToAddress.ChoiceList.Delete(ReplyToItem);
+			Items.ReplyToAddress.ChoiceList.Delete(-Position);
 		EndIf;
 	EndDo;
 	
@@ -459,7 +460,7 @@ Procedure SendMail()
 		MessageSent = SendEmailMessage(HasWrongRecipients);
 	Except
 		ErrorText = ErrorProcessing.BriefErrorDescription(ErrorInfo());
-		ErrorTitle = NStr("en = 'The message is not sent';");
+		ErrorTitle = NStr("en = 'Письмо не отправлено';");
 		EmailOperationsClient.ReportConnectionError(Account, ErrorTitle, ErrorText);
 		Return;
 	EndTry;
@@ -468,11 +469,11 @@ Procedure SendMail()
 		SaveReplyTo(ReplyToAddress);
 		FormClosingConfirmationRequired = False;
 		
-		ShowUserNotification(NStr("en = 'Message sent:';"), ,
-			?(IsBlankString(EmailSubject), NStr("en = '<No subject>';"), EmailSubject), PictureLib.Information32);
+		ShowUserNotification(NStr("en = 'Сообщение отправлено:';"), ,
+			?(IsBlankString(EmailSubject), NStr("en = '<Без темы>';"), EmailSubject), PictureLib.Information32);
 		
 		If HasWrongRecipients Then
-			ShowMessageBox(, NStr("en = 'The email is not sent to some recipients.';"));
+			ShowMessageBox(, NStr("en = 'Письмо отправлено не всем получателям.';"));
 		Else
 			Close();
 		EndIf;
@@ -486,18 +487,18 @@ Function FieldsFilledCorrectly()
 	
 	If RecipientsMailAddresses.Count() = 0 Then
 		CommonClient.MessageToUser(
-			NStr("en = 'Enter the email recipient';"), , "RecipientsMailAddresses");
+			NStr("en = 'Заполните получателя письма';"), , "RecipientsMailAddresses");
 		Result = False;
 	EndIf;
 	For Each EmailRecipient1 In RecipientsMailAddresses Do
 		Address = EmailAddressFromPresentation(EmailRecipient1.Presentation);
 		If IsBlankString(Address) Then
 			CommonClient.MessageToUser(
-				NStr("en = 'Enter the email recipient';"),, "RecipientsMailAddresses[" + Format(RecipientsMailAddresses.IndexOf(EmailRecipient1), "NG=0") + "].Presentation");
+				NStr("en = 'Заполните получателя письма';"),, "RecipientsMailAddresses[" + Format(RecipientsMailAddresses.IndexOf(EmailRecipient1), "NG=0") + "].Presentation");
 			Result = False;
 		ElsIf Not CommonClientServer.EmailAddressMeetsRequirements(Address, False) Then
 			CommonClient.MessageToUser(
-				NStr("en = 'Invalid email address.';"),, "RecipientsMailAddresses[" + Format(RecipientsMailAddresses.IndexOf(EmailRecipient1), "NG=0") + "].Presentation");
+				NStr("en = 'Неверный адрес электронной почты';"),, "RecipientsMailAddresses[" + Format(RecipientsMailAddresses.IndexOf(EmailRecipient1), "NG=0") + "].Presentation");
 			Result = False;
 		EndIf;
 	EndDo;
@@ -527,7 +528,7 @@ Procedure GenerateFromTemplate(Command)
 	
 EndProcedure
 
-// End StandardSubsystems.MessagesTemplates
+// 
 
 #EndRegion
 
@@ -661,7 +662,7 @@ Function GetSpreadsheetDocumentByBinaryData(Val BinaryData)
 	Try
 		DeleteFiles(FileName);
 	Except
-		WriteLogEvent(NStr("en = 'Get spreadsheet document';", Common.DefaultLanguageCode()), EventLogLevel.Error, , , 
+		WriteLogEvent(NStr("en = 'Получение табличного документа';", Common.DefaultLanguageCode()), EventLogLevel.Error, , , 
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	
@@ -715,7 +716,7 @@ Procedure RefreshAttachmentPresentation()
 		EndIf;
 		
 		PresentationRow["Attachment" + Format(IndexOf + 1, "NG=0")] = Attachment.Presentation;
-		If Items.Attachment2.Visible Then // For mobile client.
+		If Items.Attachment2.Visible Then // 
 			IndexOf = IndexOf + 1;
 			If IndexOf = 2 Then 
 				IndexOf = 0;
@@ -725,8 +726,8 @@ Procedure RefreshAttachmentPresentation()
 	
 EndProcedure
 
-// Checks whether it is possible to send the email.
-// If it is possible, sending parameters are generated.
+// Checks whether the message can be sent and, if
+// possible, generates the sending parameters.
 //
 &AtServer
 Function GenerateEmailParameters()
@@ -858,7 +859,7 @@ EndProcedure
 &AtServerNoContext
 Procedure SaveReplyTo(Val ReplyToAddress, Val AddAddressToList = True)
 	
-	// Getting the list of addresses that the user previously used.
+	// 
 	ReplyToList = Common.CommonSettingsStorageLoad(
 		"EditNewEmailMessage",
 		"ReplyToList");
@@ -867,10 +868,11 @@ Procedure SaveReplyTo(Val ReplyToAddress, Val AddAddressToList = True)
 		ReplyToList = New ValueList();
 	EndIf;
 	
-	For Each ItemReplyTo In ReplyToList Do
+	For Position = -ReplyToList.Count() + 1 To 0 Do
+		ItemReplyTo = ReplyToList.Get(-Position);
 		If ItemReplyTo.Value = ReplyToAddress
 		   And ItemReplyTo.Presentation = ReplyToAddress Then
-			ReplyToList.Delete(ItemReplyTo);
+			ReplyToList.Delete(-Position);
 		EndIf;
 	EndDo;
 	
@@ -893,7 +895,7 @@ Function GetNormalizedEmailInFormat(Text)
 	
 	If Addresses.Count() > 1 Then
 		CommonClient.MessageToUser(
-			NStr("en = 'Please specify a single reply-to address.';"), , "ReplyToAddress");
+			NStr("en = 'Можно указывать только один адрес для ответа.';"), , "ReplyToAddress");
 		Return Text;
 	EndIf;
 	
@@ -955,13 +957,13 @@ EndProcedure
 
 &AtClient
 Procedure ShowQueryBoxBeforeCloseForm()
-	QueryText = NStr("en = 'The message is not yet sent. Do you want to close the window?';");
+	QueryText = NStr("en = 'Сообщение еще не отправлено. Закрыть форму?';");
 	NotifyDescription = New NotifyDescription("CloseFormConfirmed", ThisObject);
 	Buttons = New ValueList;
-	Buttons.Add("Close", NStr("en = 'Close';"));
-	Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Do not close';"));
+	Buttons.Add("Close", NStr("en = 'Закрыть';"));
+	Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Не закрывать';"));
 	ShowQueryBox(NotifyDescription, QueryText, Buttons,,
-		DialogReturnCode.Cancel, NStr("en = 'Send message';"));
+		DialogReturnCode.Cancel, NStr("en = 'Отправка сообщения';"));
 EndProcedure
 
 &AtClient

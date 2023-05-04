@@ -1308,7 +1308,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Field kind is Other</v8:content>
+							<v8:content>Other field layout</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -1325,7 +1325,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Field appearance on form is "Other."</v8:content>
+							<v8:content>Choose how the Other field will appear on the form</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

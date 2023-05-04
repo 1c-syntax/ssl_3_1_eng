@@ -105,11 +105,17 @@ Function UpdateDisplayLayout(Val Parameter)
 	
 	IDsOfModifiedRows = New Map;
 	IdentifierOfTemplate = Parameter.TemplateMetadataObjectName;
-	DataSources = Parameter.DataSources;
+	DataSources = ?(Parameter.Property("DataSources"),
+		Parameter.DataSources, New Array);
 	
 	FoundTemplates = FindTemplates(IdentifierOfTemplate, Templates);
 	For Each Template In FoundTemplates Do
 		DataSource = Template.GetParent();
+		If StrStartsWith(DataSource.Id, "DataProcessor")
+			Or StrStartsWith(DataSource.Id, "Report") Then
+			DataSources.Add(DataSource.Owner);
+		EndIf;
+		
 		If DataSources.Find(DataSource.Owner) = Undefined Then
 			DataSource.GetItems().Delete(Template);
 			ClearUpCache(DataSource.Id, ObjectsWithPrintCommands);
@@ -929,6 +935,134 @@ Procedure PopulateTemplateListBySections()
 	
 	Templates.GetItems().Clear();
 	OutputCollection(Templates, Metadata.Subsystems);
+	FillPrintFormsTemplatesTable(Templates);
+	
+EndProcedure
+
+&AtServer
+Procedure FillPrintFormsTemplatesTable(Branch1)
+	
+	TemplatesList = New ValueTable();
+	TemplatesList.Columns.Add("SourceOfTemplate");
+	TemplatesList.Columns.Add("DataSources");
+	TemplatesList.Columns.Add("Id");
+	TemplatesList.Columns.Add("Presentation");
+	TemplatesList.Columns.Add("Owner");
+	TemplatesList.Columns.Add("TemplateType");
+	TemplatesList.Columns.Add("Picture");
+	TemplatesList.Columns.Add("PictureGroup");
+	TemplatesList.Columns.Add("SearchString");
+	TemplatesList.Columns.Add("AvailableLanguages");
+	TemplatesList.Columns.Add("Changed");
+	TemplatesList.Columns.Add("ChangedTemplateUsed");
+	TemplatesList.Columns.Add("UsagePicture");
+	TemplatesList.Columns.Add("AvailableTranslation");
+	TemplatesList.Columns.Add("Ref");
+	TemplatesList.Columns.Add("Used");
+	TemplatesList.Columns.Add("AvailableSettingVisibility");
+	TemplatesList.Columns.Add("Supplied");
+	TemplatesList.Columns.Add("IsPrintForm");
+	TemplatesList.Columns.Add("AvailableCreate");
+	TemplatesList.Columns.Add("TemplateMetadataObjectName");
+	
+	TemplatesList.Indexes.Add("Owner");
+	
+	ModifiedTemplates = InformationRegisters.UserPrintTemplates.ModifiedTemplates();
+	AvailableforTranslationLayouts = New Map;
+	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
+		PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
+		AvailableforTranslationLayouts = PrintManagementModuleMultilanguage.AvailableforTranslationLayouts();
+	EndIf;
+	
+	For Each TemplateDetails In PrintManagement.PrintFormTemplates(True) Do
+		
+		Owner = TemplateDetails.Value;
+		OwnerName = ?(Metadata.CommonTemplates = Owner, "CommonTemplate", Owner.FullName());
+		
+		MetadataObject = TemplateDetails.Key;
+		TemplateMetadataObjectName = OwnerName + "." + MetadataObject.Name;
+		TemplatePresentation = MetadataObject.Presentation(); 
+		TemplateType = InformationRegisters.UserPrintTemplates.TemplateType(MetadataObject.Name, OwnerName);
+		
+		Template = TemplatesList.Add();
+		Template.SourceOfTemplate = OwnerName;
+		Template.DataSources = OwnerName;
+		Template.Id = TemplateMetadataObjectName;
+		Template.Owner = ?(Owner = Metadata.CommonTemplates, Undefined, Owner);
+		Template.Presentation = TemplatePresentation;
+		Template.TemplateType = TemplateType;
+		Template.Picture = InformationRegisters.UserPrintTemplates.PictureIndex(TemplateType);
+		Template.PictureGroup = InformationRegisters.UserPrintTemplates.TemplateImage(TemplateType);
+		Template.Changed = ModifiedTemplates[TemplateMetadataObjectName] <> Undefined;
+		Template.ChangedTemplateUsed = Template.Changed And ModifiedTemplates[TemplateMetadataObjectName];
+		Template.AvailableTranslation = AvailableforTranslationLayouts[MetadataObject] = True;
+		Template.Used = True;
+		Template.Supplied = True;
+		
+	EndDo;
+	
+	MatchingTemplateOwners = Common.MetadataObjectIDs(TemplatesList.UnloadColumn("Owner"), False);
+	
+	For Each Template In TemplatesList Do
+		If Template.Owner <> Undefined And MatchingTemplateOwners[Template.Owner.FullName()] <> Undefined Then
+			Template.Owner = MatchingTemplateOwners[Template.Owner.FullName()];
+			Template.IsPrintForm = PrintManagement.IsPrintForm(Template.Id, Template.Owner);
+			Template.AvailableTranslation = Template.AvailableTranslation Or Template.IsPrintForm;
+		EndIf;
+	EndDo;
+	
+	LayoutOwners = New ValueList();
+	For Each Source In MatchingTemplateOwners Do
+		If Not ValueIsFilled(Source.Value) Then
+			Continue;
+		EndIf;
+		LayoutOwners.Add(Source.Value, Source.Value);
+	EndDo;
+	
+	MetadataObjectIDs = LayoutOwners.UnloadValues();
+	ValuesEmptyReferences = Common.ObjectsAttributeValue(MetadataObjectIDs, "EmptyRefValue");
+	
+	LayoutOwners.SortByPresentation();
+	LayoutOwners.Add(Catalogs.MetadataObjectIDs.EmptyRef(), NStr("en = 'Прочие';"));
+	
+	AddingTemplatesIsAvailable = AccessRight("Insert", Metadata.Catalogs.PrintFormTemplates); 
+	
+	LayoutGroups = New Map();
+	For Each Owner In LayoutOwners Do
+		LayoutGroup = Branch1.GetItems().Add();
+		LayoutGroup.Presentation = Owner.Presentation;
+		LayoutGroup.PictureGroup = New Picture;
+		LayoutGroup.Id = Common.ObjectAttributeValue(Owner.Value, "FullName");
+		LayoutGroup.UsagePicture = -1;
+		LayoutGroup.IsFolder = True;
+		LayoutGroup.Used = True;
+		LayoutGroup.Owner = Owner.Value;
+		LayoutGroup.SearchString = Lower(LayoutGroup.Presentation);
+		LayoutGroup.AvailableCreate = AddingTemplatesIsAvailable And ValuesEmptyReferences[Owner.Value] <> Undefined;
+		
+		LayoutGroups.Insert(Owner.Value, LayoutGroup);
+	EndDo;
+	
+	TemplatesList.Sort("Owner, Presentation");
+	LayoutGroup = Undefined;
+	For Each TemplateDetails In TemplatesList Do
+		If Not ValueIsFilled(TemplateDetails.Owner)
+			Or LayoutGroups[TemplateDetails.Owner] = Undefined Then
+			TemplateDetails.Owner = Catalogs.MetadataObjectIDs.EmptyRef();
+		EndIf;
+		
+		LayoutGroup = LayoutGroups[TemplateDetails.Owner];
+		Template = LayoutGroup.GetItems().Add();
+		FillPropertyValues(Template, TemplateDetails);
+		Template.TemplateMetadataObjectName = Template.Id;
+		Template.AvailableLanguages = InformationRegisters.UserPrintTemplates.AvailableLayoutLanguages(Template.Id);
+		Template.UsagePicture = -1;
+		If Template.Changed Then
+			Template.UsagePicture = Number(Template.Changed) + Number(Template.ChangedTemplateUsed);
+		EndIf;
+		Template.SearchString = Lower(Template.Presentation + " " + Template.TemplateType);
+		Template.AvailableCreate = Template.GetParent().AvailableCreate;
+	EndDo;
 	
 EndProcedure
 
@@ -1301,6 +1435,9 @@ EndFunction
 Procedure ClearUpCache(MetadataObjectName, ObjectsWithPrintCommands)
 	
 	FoundItem = ObjectsWithPrintCommands.FindByValue(MetadataObjectName);
+	If FoundItem = Undefined Then
+		Return;
+	EndIf;
 	FoundItem.Presentation = "";
 	
 EndProcedure

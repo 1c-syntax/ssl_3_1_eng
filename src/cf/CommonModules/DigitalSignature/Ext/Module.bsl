@@ -201,17 +201,12 @@ Procedure AddSignature(Object, Val SignatureProperties, FormIdentifier = Undefin
 		Block = New DataLock;
 		LockItem = Block.Add(DataObject.Metadata().FullName());
 		LockItem.SetValue("Ref", DataObject.Ref);
+		
 		Block.Lock();
 		
 		EventLogMessage = "";
 		
-		If TypeOf(SignatureProperties) = Type("Array") Then
-			For Each CurrentProperties In SignatureProperties Do
-				AddSignatureString(DataObject, CurrentProperties, EventLogMessage);
-			EndDo;
-		Else
-			AddSignatureString(DataObject, SignatureProperties, EventLogMessage);
-		EndIf;
+		AddSignatureLines(DataObject, SignatureProperties, EventLogMessage);
 		
 		If Not DataObject.SignedWithDS
 		   And (TypeOf(SignatureProperties) <> Type("Array")
@@ -257,8 +252,8 @@ EndProcedure
 //
 //  SignatureProperties - String - a temporary storage address that contains the structure described below.
 //                  - Structure - See DigitalSignatureClientServer.NewSignatureProperties.
-//  UpdateByOrderNumber - Boolean - Signature is updated by the sequence number.
-//                                 Because the binary data has changed following the upgrade.
+//  UpdateByOrderNumber - Boolean -
+//                                
 //
 Procedure UpdateSignature(Object, Val SignatureProperties, UpdateByOrderNumber = False) Export
 	
@@ -386,16 +381,7 @@ Procedure DeleteSignature(Object, SequenceNumber, FormIdentifier = Undefined,
 		
 		EventLogMessage = "";
 		
-		If TypeOf(SequenceNumber) = Type("Array") Then
-			List = New ValueList;
-			List.LoadValues(SequenceNumber);
-			List.SortByValue(SortDirection.Desc);
-			For Each ListItem In List Do
-				DeleteSignatureString(DataObject, ListItem.Value, EventLogMessage);
-			EndDo;
-		Else
-			DeleteSignatureString(DataObject, SequenceNumber, EventLogMessage);
-		EndIf;
+		DeleteSignatureLines(DataObject, SequenceNumber, EventLogMessage);
 		
 		RefreshSignaturesNumbering(DataObject);
 		
@@ -910,12 +896,12 @@ Procedure AddStampsToSpreadsheetDocument(Document, StampsDetails, CellSize = Und
 	
 	If TypeOf(StampsDetails) = Type("Array") Then
 		
-		StampIndex = 1; 
+		StampIndex = 1; NumberOfStamps = StampsDetails.Count();
 		
-		WidthOfStampColumns = 3 + CellSize.LeftColumn + CellSize.RightColumn;
+		StampColumnsWidth = 3 + CellSize.LeftColumn + CellSize.RightColumn;
 		
-		NumberOfStampsByWidth = Undefined;
-		StampNumberInLine = 0; WidthOfStampRow = 0; TableWidth = 0;
+		StampsCountByWidth = Undefined;
+		StampNumberInRow = 0; StampsRowWidth = 0; TableWidth = 0;
 		
 		For Each Stamp In StampsDetails Do
 			AreaName = "DSStamp" + String(StampIndex);
@@ -926,32 +912,80 @@ Procedure AddStampsToSpreadsheetDocument(Document, StampsDetails, CellSize = Und
 				Document.Areas.StampLeftColumn.ColumnWidth  = CellSize.LeftColumn;
 				Document.Areas.StampRightColumn.ColumnWidth = CellSize.RightColumn;
 			Else
-				StampNumberInLine = StampNumberInLine + 1;
+				StampNumberInRow = StampNumberInRow + 1;
 				
 				StampWidth = Stamp.Areas.Stamp.Right;
 				StampTop = Stamp.Areas.Stamp.Top;
 				BottomStamp = Stamp.Areas.Stamp.Bottom;
 				StampHeight = BottomStamp - StampTop;
 				
-				If StampNumberInLine = 1 Or StampNumberInLine > NumberOfStampsByWidth Then
+				If StampNumberInRow = 1 Or StampNumberInRow > StampsCountByWidth Then
 					
-					If NumberOfStampsByWidth = Undefined Then
+					If StampsCountByWidth = Undefined Then
+						
 						For TableWidth = 1 To Document.TableWidth Do
-							Area = Document.Area(, TableWidth, ,TableWidth);
-							WidthOfStampRow = WidthOfStampRow + Area.ColumnWidth;
+							
+							Area = Document.Area(, TableWidth,, TableWidth);
+							StampsRowWidth = StampsRowWidth + Area.ColumnWidth;
 							If Area.PageBottom Then
 								Break;
 							EndIf;
+							
+							If TableWidth = Document.TableWidth Then
+								
+								StampsRowWidth = 0;
+								TableHeight = Min(Document.TableHeight, 100);
+								
+								For ColumnNumberBackward = 1 To TableWidth Do
+									
+									ColumnNumber = TableWidth - ColumnNumberBackward + 1;
+									
+									For RowNumberBackward = 1 To TableHeight Do
+										
+										LineNumber = Document.TableHeight - RowNumberBackward + 1;
+										
+										TableCellArea = Document.Area(LineNumber, ColumnNumber);
+										
+										If IsBlankString(TableCellArea.Text)
+											And TableCellArea.Left = TableWidth
+											And TableCellArea.Top = LineNumber
+											And TableCellArea.RightBorder.LineType = SpreadsheetDocumentCellLineType.None
+											And TableCellArea.BottomBorder.LineType = SpreadsheetDocumentCellLineType.None
+											And TableCellArea.TopBorder.LineType = SpreadsheetDocumentCellLineType.None
+											Then
+											Continue;
+										EndIf;
+										
+										SpreadsheetDocument = New SpreadsheetDocument;
+										Area = Document.GetArea(LineNumber, 1, LineNumber, ColumnNumber);
+										SpreadsheetDocument.Put(Area);
+										
+										For SpreadsheetColumnNumber = 1 To ColumnNumber Do
+											Area = SpreadsheetDocument.Area(1, SpreadsheetColumnNumber, 1,
+												SpreadsheetColumnNumber);
+											StampsRowWidth = StampsRowWidth + Area.ColumnWidth;
+										EndDo;
+										
+										Break;
+									EndDo;
+									
+									If StampsRowWidth <> 0 Then
+										Break;
+									EndIf;
+								EndDo;
+								
+								Break;
+							EndIf;
 						EndDo;
-						NumberOfStampsByWidth = Max(1, Int(WidthOfStampRow/WidthOfStampColumns));
+						StampsCountByWidth = Max(1, Int(StampsRowWidth/StampColumnsWidth));
 					EndIf;
 						
-					WidthStart = 1; StampNumberInLine = 1;
+					StartingWidth = 1; StampNumberInRow = 1;
 					
-					AreasToCheckForHeight = New Array;
-					AreasToCheckForHeight.Add(Stamp.GetArea("Indent"));
-					AreasToCheckForHeight.Add(Stamp.GetArea("RowsAreaStamp"));
-					If Not Common.SpreadsheetDocumentFitsPage(Document, AreasToCheckForHeight, True) Then
+					AreasToCheckByHeight = New Array;
+					AreasToCheckByHeight.Add(Stamp.GetArea("Indent"));
+					AreasToCheckByHeight.Add(Stamp.GetArea("RowsAreaStamp"));
+					If Not Common.SpreadsheetDocumentFitsPage(Document, AreasToCheckByHeight, True) Then
 						Document.PutHorizontalPageBreak();
 					EndIf;
 					
@@ -960,37 +994,45 @@ Procedure AddStampsToSpreadsheetDocument(Document, StampsDetails, CellSize = Und
 					HeightStart = Document.TableHeight;
 					HeightEnd = Document.TableHeight + StampHeight;
 					
-					Document.Area(HeightStart, WidthStart, HeightEnd, TableWidth).UndoMerge();
+					Document.Area(HeightStart, StartingWidth, HeightEnd, TableWidth).UndoMerge();
 					// 
 					Document.Area(HeightStart, , HeightEnd).CreateFormatOfRows();
 					
-					WidthBalance = WidthOfStampRow;
+					RemainingWidth = StampsRowWidth;
 					
 				EndIf;
 				
-				WidthEnd = WidthStart - 1 + StampWidth;
+				FinalWidth = StartingWidth - 1 + StampWidth;
 				
 				// Insert the area from the stamp layout in the gap.
 				SourceArea = Stamp.Area(StampTop, 1, BottomStamp, StampWidth);
-				ReceivingArea = Document.Area(HeightStart, WidthStart, HeightEnd, WidthEnd);
+				ReceivingArea = Document.Area(HeightStart, StartingWidth, HeightEnd, FinalWidth);
 				Document.InsertArea(SourceArea, ReceivingArea, , True);
 				
 				Document.Areas.StampLeftColumn.ColumnWidth  = CellSize.LeftColumn;
 				Document.Areas.StampRightColumn.ColumnWidth = CellSize.RightColumn;
 				Document.Areas.StampIndent.ColumnWidth       = 3;
 					
-				WidthStart = WidthEnd + 1;
+				StartingWidth = FinalWidth + 1;
 				
-				If WidthBalance > WidthOfStampColumns Then
-					WidthBalance = WidthBalance - WidthOfStampColumns;
-					Document.Area(HeightStart, WidthStart, HeightEnd, TableWidth).ColumnWidth = 0;
-					Document.Area(HeightStart, TableWidth, HeightEnd, TableWidth).ColumnWidth = WidthBalance;
+				If RemainingWidth > StampColumnsWidth Or StampIndex = NumberOfStamps Then
+					
+					RemainingWidth = RemainingWidth - StampColumnsWidth;
+					
+					If RemainingWidth < StampColumnsWidth Or StampIndex = NumberOfStamps Then
+						If StartingWidth < TableWidth Then
+							Document.Area(HeightStart, StartingWidth, HeightEnd, TableWidth).ColumnWidth = 0;
+						EndIf;
+						If RemainingWidth > 0 Then
+							Document.Area(HeightStart, StartingWidth, HeightEnd, StartingWidth).ColumnWidth = RemainingWidth;
+						EndIf;
+					EndIf;
 				EndIf;
-			
 			EndIf;
 			
 			StampIndex = StampIndex + 1;
 		EndDo;
+
 	Else
 		For Each StampDetails In StampsDetails Do
 			AreaName = StampDetails.Key;
@@ -1125,6 +1167,11 @@ Function EnhanceSignature(Signature, SignatureType, AddArchiveTimestamp = False,
 	ParametersCryptoSignatures = DigitalSignatureInternalClientServer.ParametersCryptoSignatures(ContainerSignatures,
 		DigitalSignatureInternal.TimeAddition(), CurrentSessionDate());
 		
+	If ParametersCryptoSignatures.CertificateLastTimestamp = Undefined Then
+		Result.ErrorText = NStr("en = 'Не удалось получить сертификат подписи';");
+		Return Result;
+	EndIf;
+	
 	SignatureProperties.SignatureType = ParametersCryptoSignatures.SignatureType;
 	SignatureProperties.DateActionLastTimestamp = ParametersCryptoSignatures.DateActionLastTimestamp; 
 	
@@ -1189,6 +1236,7 @@ Function EnhanceSignature(Signature, SignatureType, AddArchiveTimestamp = False,
 
 	ParametersCryptoSignatures = DigitalSignatureInternalClientServer.ParametersCryptoSignatures(
 			ContainerSignatures, DigitalSignatureInternal.TimeAddition(), CurrentSessionDate());
+	
 	CertificateVerificationResult = CheckCertificate(CryptoManager,
 		ParametersCryptoSignatures.CertificateLastTimestamp, ErrorDescription);
 
@@ -1222,9 +1270,7 @@ EndFunction
 //  SignedObject - DefinedType.SignedObject - Reference to the signature for upgrade and update lock.
 //           
 //
-//  SequenceNumber - Number - a signature sequence number.
-//                  - Array - 
-//                  - Undefined - 
+//  SequenceNumber - Number - serial number of the signature.
 //
 //  SignatureType      - ПеречислениеСсылка.ТипыЭлектроннойПодписи - Signature type to upgrade to.
 //                    If the actual SignatureType is the same or higher, no actions are performed.
@@ -1345,7 +1391,7 @@ EndFunction
 // Parameters:
 //  CheckParameters - 
 //   
-//                          See DigitalSignatureInternalClientServer.CurrentProgramAlgorithms
+//                          See DigitalSignatureInternalClientServer.AppsRelevantAlgorithms
 //                          
 //                          
 //                               
@@ -1363,7 +1409,7 @@ EndFunction
 //        ** Version        - String -
 //        ** ILicenseInfo      - Boolean -
 //       - 
-//     * PossibleConflict - Boolean -
+//     * IsConflictPossible - Boolean -
 //             
 //
 Function CheckCryptographyAppsInstallation(CheckParameters = Undefined) Export
@@ -1382,7 +1428,7 @@ Function CheckCryptographyAppsInstallation(CheckParameters = Undefined) Export
 	If Context.AppsToCheck <> Undefined Then
 		If Context.AppsToCheck = True Then
 			Context.AppsToCheck = Undefined;
-			Context.SignAlgorithms = DigitalSignatureInternalClientServer.CurrentProgramAlgorithms();
+			Context.SignAlgorithms = DigitalSignatureInternalClientServer.AppsRelevantAlgorithms();
 			Context.DataType = "Certificate";
 		ElsIf TypeOf(Context.AppsToCheck) = Type("BinaryData")
 			Or TypeOf(Context.AppsToCheck) = Type("String") Then
@@ -1396,7 +1442,7 @@ Function CheckCryptographyAppsInstallation(CheckParameters = Undefined) Export
 				SignAlgorithm = DigitalSignatureInternalClientServer.GeneratedSignAlgorithm(BinaryData);
 			Else
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Данные для поиска программы криптографии не являются сертификатом или подписью.';"), );
+					NStr("en = 'Data to search for a cryptography application is not a certificate or a signature.';"), );
 			EndIf;
 			Context.SignAlgorithms.Add(SignAlgorithm);
 		EndIf;
@@ -1406,14 +1452,14 @@ Function CheckCryptographyAppsInstallation(CheckParameters = Undefined) Export
 	
 	CheckResult = New Structure("Error, CheckCompleted");
 	CheckResult.Insert("Programs", New Array);
-	CheckResult.Insert("PossibleConflict", False);
+	CheckResult.Insert("IsConflictPossible", False);
 	FillPropertyValues(CheckResult, Result);
 	If Not CheckResult.CheckCompleted Then
 		Return CheckResult;
 	EndIf;
 	
-	DigitalSignatureInternalClientServer.ProcessResultOfProgramVerification(Result.Cryptoproviders,
-		CheckResult.Programs, CheckResult.PossibleConflict, Context);
+	DigitalSignatureInternalClientServer.DoProcessAppsCheckResult(Result.Cryptoproviders,
+		CheckResult.Programs, CheckResult.IsConflictPossible, Context);
 		
 	Return CheckResult;
 	
@@ -1449,10 +1495,10 @@ EndFunction
 //   ErrorDescription       - Null - raise an exception if an error occurs during the check.
 //                        - String - 
 // 
-//   OnDate               - Date - check the certificate on the specified date
-//                          if the date cannot be extracted from the signature.
-//                          If the parameter is not filled in, check on the current session date
-//                          if the date cannot be extracted from the signature.
+//   OnDate               - Date -
+//                          
+//                          
+//                          
 //
 // Returns:
 //  Boolean - 
@@ -1894,16 +1940,18 @@ EndFunction
 //
 Function AvailabilityOfCreatingAnApplication() Export
 	
-	MoscowTime = BegOfDay(MoscowTime());
-	TheApplicationIsAvailable = CommonSettings().CertificateIssueRequestAvailable;
+	If Metadata.CommonModules.Find("DigitalSignatureInternalLocalization") = Undefined Then
+		TheApplicationIsAvailable = CommonSettings().CertificateIssueRequestAvailable;
+		AvailabilityOfCreatingAnApplication = New Structure;
+		AvailabilityOfCreatingAnApplication.Insert("ForIndividuals", TheApplicationIsAvailable);
+		AvailabilityOfCreatingAnApplication.Insert("ForHeadsLegalEntities", TheApplicationIsAvailable);
+		AvailabilityOfCreatingAnApplication.Insert("ForEmployeesLegalEntities", TheApplicationIsAvailable);
+		AvailabilityOfCreatingAnApplication.Insert("ForSoleProprietors", TheApplicationIsAvailable);
+		Return AvailabilityOfCreatingAnApplication;
+	EndIf;
 	
-	AvailabilityOfCreatingAnApplication = New Structure;
-	AvailabilityOfCreatingAnApplication.Insert("ForIndividuals", TheApplicationIsAvailable And MoscowTime >= '20210401');
-	AvailabilityOfCreatingAnApplication.Insert("ForHeadsLegalEntities", TheApplicationIsAvailable And MoscowTime < '20220101');
-	AvailabilityOfCreatingAnApplication.Insert("ForEmployeesLegalEntities", TheApplicationIsAvailable And MoscowTime < '20230901');
-	AvailabilityOfCreatingAnApplication.Insert("ForSoleProprietors", TheApplicationIsAvailable And MoscowTime < '20220101');
-	
-	Return AvailabilityOfCreatingAnApplication;
+	ModuleDigitalSignatureInternalLocalization = Common.CommonModule("DigitalSignatureInternalLocalization");
+	Return ModuleDigitalSignatureInternalLocalization.AvailabilityOfCreatingAnApplication();
 	
 EndFunction
 
@@ -1941,7 +1989,7 @@ EndFunction
 //
 Function AddEditDigitalSignatures() Export
 	
-	// АПК:515-
+	// ACC:515-
 	// 
 	Return UseDigitalSignature() And Users.RolesAvailable("AddEditDigitalSignatures");
 	// ACC:515-on
@@ -2402,25 +2450,13 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Auxiliary procedures and functions.
 
-// For the AddSignature procedure.
-Procedure AddSignatureString(DataObject, SignatureProperties, EventLogMessage)
+// For the procedure, add a Signature.
+Procedure AddSignatureLines(DataObject, PropertiesSignatures, EventLogMessage)
 	
 	SetPrivilegedMode(True);
-	
-	NewRecord = InformationRegisters.DigitalSignatures.CreateRecordManager();
-	
-	FillPropertyValues(NewRecord, SignatureProperties, , "Signature, Certificate");
-	
-	NewRecord.SignedObject = DataObject.Ref;
-	NewRecord.Signature    = New ValueStorage(SignatureProperties.Signature, New Deflation(9));
-	If TypeOf(SignatureProperties.Certificate) = Type("ValueStorage") Then
-		NewRecord.Certificate = SignatureProperties.Certificate;
-	Else
-		NewRecord.Certificate = New ValueStorage(SignatureProperties.Certificate, New Deflation(9));
-	EndIf;
-	
+
 	SequenceNumber = 1;
-	
+
 	Query = New Query;
 	Query.Text =
 	"SELECT
@@ -2429,67 +2465,93 @@ Procedure AddSignatureString(DataObject, SignatureProperties, EventLogMessage)
 	|	InformationRegister.DigitalSignatures AS DigitalSignatures
 	|WHERE
 	|	DigitalSignatures.SignedObject = &SignedObject";
-	
+
 	Query.SetParameter("SignedObject", DataObject.Ref);
-	
+
 	QueryResult = Query.Execute();
-	
+
 	SelectionDetailRecords = QueryResult.Select();
-	
+
 	While SelectionDetailRecords.Next() Do
 		SequenceNumber = SelectionDetailRecords.LastSequenceNumber + 1;
 	EndDo;
-	
-	NewRecord.SequenceNumber = SequenceNumber;
-	
-	If Not ValueIsFilled(NewRecord.SignatureSetBy) Then
-	 	NewRecord.SignatureSetBy = Users.AuthorizedUser();
-	EndIf;
-	
-	SignatureDate = Undefined;
-	If ValueIsFilled(CommonClientServer.StructureProperty(
-		SignatureProperties, "UnverifiedSignatureDate", Undefined)) Then
-		SignatureDate = SignatureProperties.UnverifiedSignatureDate;
-	ElsIf ValueIsFilled(NewRecord.SignatureType) Then
-		SignatureDate = SigningDate(SignatureProperties.Signature);
+
+	If TypeOf(PropertiesSignatures) = Type("Array") Then
+		ArrayOfSignatureProperties = PropertiesSignatures;
 	Else
-		SignatureParameters = DigitalSignatureInternalClientServer.SignaturePropertiesFromBinaryData(
-			SignatureProperties.Signature, DigitalSignatureInternal.TimeAddition());
-		If ValueIsFilled(SignatureParameters.SigningDate) Then
-			SignatureDate = SignatureParameters.SigningDate;
-		EndIf;
-		NewRecord.SignatureType = SignatureParameters.SignatureType;
+		ArrayOfSignatureProperties = CommonClientServer.ValueInArray(PropertiesSignatures);
 	EndIf;
 
-	If SignatureDate <> Undefined Then
-		NewRecord.SignatureDate = SignatureDate;
-	
-	ElsIf Not ValueIsFilled(NewRecord.SignatureDate) Then
-		NewRecord.SignatureDate = CurrentSessionDate();
-	EndIf; 
-	
-	EventLogMessage = DigitalSignatureInternal.SignatureInfoForEventLog(
-		NewRecord.SignatureDate, SignatureProperties);
-	
-	NewRecord.Write();
-	
-	WriteLogEvent(
-		NStr("en = 'Digital signature.Add signature';", Common.DefaultLanguageCode()),
-		EventLogLevel.Information,
-		DataObject.Metadata(),
-		DataObject.Ref,
-		EventLogMessage,
-		EventLogEntryTransactionMode.Transactional);
+	For Each SignatureProperties In ArrayOfSignatureProperties Do
+
+		NewRecord = InformationRegisters.DigitalSignatures.CreateRecordManager();
+
+		FillPropertyValues(NewRecord, SignatureProperties, , "Signature, Certificate");
+
+		NewRecord.SignedObject = DataObject.Ref;
+		NewRecord.Signature    = New ValueStorage(SignatureProperties.Signature, New Deflation(9));
+		If TypeOf(SignatureProperties.Certificate) = Type("ValueStorage") Then
+			NewRecord.Certificate = SignatureProperties.Certificate;
+		Else
+			NewRecord.Certificate = New ValueStorage(SignatureProperties.Certificate, New Deflation(9));
+		EndIf;
+
+		NewRecord.SequenceNumber = SequenceNumber;
+
+		If Not ValueIsFilled(NewRecord.SignatureSetBy) Then
+			NewRecord.SignatureSetBy = Users.AuthorizedUser();
+		EndIf;
+
+		SignatureDate = Undefined;
+		If ValueIsFilled(CommonClientServer.StructureProperty(
+				SignatureProperties, "UnverifiedSignatureDate", Undefined)) Then
+			SignatureDate = SignatureProperties.UnverifiedSignatureDate;
+		ElsIf ValueIsFilled(NewRecord.SignatureType) Then
+			SignatureDate = SigningDate(SignatureProperties.Signature);
+		Else
+			SignatureParameters = DigitalSignatureInternalClientServer.SignaturePropertiesFromBinaryData(
+					SignatureProperties.Signature, DigitalSignatureInternal.TimeAddition());
+			If ValueIsFilled(SignatureParameters.SigningDate) Then
+				SignatureDate = SignatureParameters.SigningDate;
+			EndIf;
+			NewRecord.SignatureType = SignatureParameters.SignatureType;
+		EndIf;
+
+		If SignatureDate <> Undefined Then
+			NewRecord.SignatureDate = SignatureDate;
+
+		ElsIf Not ValueIsFilled(NewRecord.SignatureDate) Then
+			NewRecord.SignatureDate = CurrentSessionDate();
+		EndIf;
+
+		EventLogMessage = DigitalSignatureInternal.SignatureInfoForEventLog(
+				NewRecord.SignatureDate, SignatureProperties);
+
+		NewRecord.Write();
+
+		WriteLogEvent(
+				NStr("en = 'Электронная подпись.Добавление подписи';", Common.DefaultLanguageCode()),
+			EventLogLevel.Information, DataObject.Metadata(), DataObject.Ref,
+			EventLogMessage, EventLogEntryTransactionMode.Transactional);
+
+		SequenceNumber = SequenceNumber + 1;
+	EndDo;
 	
 EndProcedure
 
-// For the DeleteSignature procedure.
-Procedure DeleteSignatureString(SignedObject, SequenceNumber, EventLogMessage)
+// For the delete Signature procedure.
+Procedure DeleteSignatureLines(SignedObject, SequenceNumbers, EventLogMessage)
 	
 	IsFullUser = Users.IsFullUser();
-	
+
 	SetPrivilegedMode(True);
-	
+
+	If TypeOf(SequenceNumbers) = Type("Array") Then
+		ArrayOfSequenceNumbers = SequenceNumbers;
+	Else
+		ArrayOfSequenceNumbers = CommonClientServer.ValueInArray(SequenceNumbers);
+	EndIf;
+
 	Query = New Query;
 	Query.Text =
 	"SELECT
@@ -2498,49 +2560,51 @@ Procedure DeleteSignatureString(SignedObject, SequenceNumber, EventLogMessage)
 	|FROM
 	|	InformationRegister.DigitalSignatures AS DigitalSignatures
 	|WHERE
-	|	DigitalSignatures.SequenceNumber = &SequenceNumber
-	|	AND DigitalSignatures.SignedObject = &SignedObject";
-	
-	Query.SetParameter("SequenceNumber",   SequenceNumber);
+	|	DigitalSignatures.SequenceNumber IN (&ArrayOfSequenceNumbers)
+	|	AND DigitalSignatures.SignedObject = &SignedObject
+	|
+	|ORDER BY
+	|	SequenceNumber DESC";
+
+	Query.SetParameter("ArrayOfSequenceNumbers", ArrayOfSequenceNumbers);
 	Query.SetParameter("SignedObject", SignedObject.Ref);
-	
+
 	QueryResult = Query.Execute();
-	
+
 	SelectionDetailRecords = QueryResult.Select();
-	
-	If SelectionDetailRecords.Count() = 0 Then
-		Raise NStr("en = 'A signature line does not exist.';");
+
+	If SelectionDetailRecords.Count() <> ArrayOfSequenceNumbers.Count() Then
+		Raise NStr("en = 'Строка с подписью не существует.';");
 	EndIf;
-	
-	RecordManager = InformationRegisters.DigitalSignatures.CreateRecordManager();
+
 	While SelectionDetailRecords.Next() Do
+		RecordManager = InformationRegisters.DigitalSignatures.CreateRecordManager();
 		FillPropertyValues(RecordManager, SelectionDetailRecords);
-	EndDo;
-	RecordManager.Read();
-	
-	HasRights = IsFullUser
-		Or RecordManager.SignatureSetBy = Users.AuthorizedUser();
-	
-	SignatureProperties = New Structure;
-	SignatureProperties.Insert("Certificate",          RecordManager.Certificate.Get());
-	SignatureProperties.Insert("CertificateOwner", RecordManager.CertificateOwner);
-	
-	EventLogMessage = DigitalSignatureInternal.SignatureInfoForEventLog(
+
+		RecordManager.Read();
+
+		HasRights = IsFullUser Or RecordManager.SignatureSetBy
+			= Users.AuthorizedUser();
+
+		SignatureProperties = New Structure;
+		SignatureProperties.Insert("Certificate", RecordManager.Certificate.Get());
+		SignatureProperties.Insert("CertificateOwner", RecordManager.CertificateOwner);
+
+		EventLogMessage = DigitalSignatureInternal.SignatureInfoForEventLog(
 		RecordManager.SignatureDate, SignatureProperties);
-	
-	If HasRights Then
-		RecordManager.Delete();
-	Else
-		Raise NStr("en = 'Insufficient rights to delete the signature.';");
-	EndIf;
-	
-	WriteLogEvent(
-		NStr("en = 'Digital signature.Delete signature';", Common.DefaultLanguageCode()),
-		EventLogLevel.Information,
-		SignedObject.Metadata(),
-		SignedObject.Ref,
-		EventLogMessage,
-		EventLogEntryTransactionMode.Transactional);
+
+		If HasRights Then
+			RecordManager.Delete();
+		Else
+			Raise NStr("en = 'Недостаточно прав на удаление подписи.';");
+		EndIf;
+
+		WriteLogEvent(
+		NStr("en = 'Электронная подпись.Удаление подписи';", Common.DefaultLanguageCode()),
+			EventLogLevel.Information, SignedObject.Metadata(), SignedObject.Ref,
+			EventLogMessage, EventLogEntryTransactionMode.Transactional);
+
+	EndDo;
 	
 EndProcedure
 
@@ -2625,18 +2689,5 @@ Procedure CheckParameterObject(Object, ProcedureName, RefsOnly = False)
 	EndIf;
 	
 EndProcedure
-
-// For the ApplicationCreationAvailability function.
-Function MoscowTime()
-	
-	If GetAvailableTimeZones().Find("Europe/Moscow") <> Undefined Then
-		MoscowTimeZone = "Europe/Moscow";
-	Else
-		MoscowTimeZone = "GMT+3";
-	EndIf;
-	
-	Return ToLocalTime(CurrentUniversalDate(), MoscowTimeZone);
-	
-EndFunction
 
 #EndRegion

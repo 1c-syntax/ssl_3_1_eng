@@ -58,18 +58,18 @@ Procedure ChoiceDataGetProcessing(ChoiceData, Parameters, StandardProcessing)
 		AuthorizationObject = Catalogs.Users.EmptyRef();
 	EndIf;
 	
-	TextFragmentsSearchForAdditionalLanguages = New Array;
+	TextFragmentsSearchForAdditionalLangs = New Array;
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 		
 		If ModuleNativeLanguagesSupportServer.FirstAdditionalLanguageUsed() Then
-			TextFragmentsSearchForAdditionalLanguages.Add(
+			TextFragmentsSearchForAdditionalLangs.Add(
 				"PerformerRoles.DescriptionLanguage1 LIKE &SearchString ESCAPE ""~""");
 		EndIf;
 		
 		If ModuleNativeLanguagesSupportServer.SecondAdditionalLanguageUsed() Then
-			TextFragmentsSearchForAdditionalLanguages.Add(
+			TextFragmentsSearchForAdditionalLangs.Add(
 				"PerformerRoles.DescriptionLanguage2 LIKE &SearchString ESCAPE ""~""");
 		EndIf;
 		
@@ -88,8 +88,8 @@ Procedure ChoiceDataGetProcessing(ChoiceData, Parameters, StandardProcessing)
 		|			OR PerformerRoles.Code LIKE &SearchString ESCAPE ""~"")
 		|	AND NOT PerformerRoles.Ref IS NULL";
 	
-	If TextFragmentsSearchForAdditionalLanguages.Count() > 0 Then
-		QueryText = StrReplace(QueryText, "&SearchForAdditionalLanguages", StrConcat(TextFragmentsSearchForAdditionalLanguages, " OR "));
+	If TextFragmentsSearchForAdditionalLangs.Count() > 0 Then
+		QueryText = StrReplace(QueryText, "&SearchForAdditionalLanguages", StrConcat(TextFragmentsSearchForAdditionalLangs, " OR "));
 	Else
 		QueryText = StrReplace(QueryText, "&SearchForAdditionalLanguages", "FALSE");
 	EndIf;

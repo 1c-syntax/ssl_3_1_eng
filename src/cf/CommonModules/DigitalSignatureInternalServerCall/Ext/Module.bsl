@@ -196,30 +196,7 @@ EndFunction
 // For internal use only.
 Function CheckCertificate(CertificateAddress, ErrorDescription, OnDate, AdditionalParameters = Undefined) Export
 	
-	If AdditionalParameters = Undefined Then
-		AdditionalParameters = DigitalSignatureInternal.AdditionalCertificateVerificationParameters();
-	EndIf;
-	
-	Result = DigitalSignatureInternal.CheckCertificate(Undefined, CertificateAddress, ErrorDescription, OnDate, AdditionalParameters);
-	
-	If Not Result Or AdditionalParameters.ToVerifySignature Then
-		Return Result;
-	EndIf;
-	
-	If ValueIsFilled(AdditionalParameters.Warning) Then
-		
-		CertificateRef = Undefined;
-		UserAlerted = UserAlertedOnCertificate(CertificateAddress, CertificateRef);
-		
-		If UserAlerted Or CertificateRef = Undefined Then
-			AdditionalParameters.Warning = Undefined;
-		Else
-			AdditionalParameters.Insert("Certificate", CertificateRef);
-		EndIf;
-		
-	EndIf;
-	
-	Return Result;
+	Return DigitalSignatureInternal.CheckCertificate(Undefined, CertificateAddress, ErrorDescription, OnDate, AdditionalParameters);
 	
 EndFunction
 
@@ -452,14 +429,21 @@ Function ExecuteAtServerSide(Val Parameters, ResultAddress, OperationStarted, Er
 				Return False;
 			EndTry;
 		Else
-			ParametersCryptoSignatures = Undefined;
+			ParametersCryptoSignatures = DigitalSignatureInternalClientServer.NewSettingsSignaturesCryptography();
+			SignaturePropertiesFromBinaryData = DigitalSignatureInternalClientServer.SignaturePropertiesFromBinaryData(
+				ResultBinaryData, DigitalSignatureInternal.TimeAddition());
+			ParametersCryptoSignatures.UnverifiedSignatureDate = SignaturePropertiesFromBinaryData.SigningDate;
+			ParametersCryptoSignatures.DateSignedFromLabels = SignaturePropertiesFromBinaryData.DateOfTimeStamp;
+			ParametersCryptoSignatures.SignatureType = SignaturePropertiesFromBinaryData.SignatureType;
 		EndIf;
 		
 		SignatureProperties = DigitalSignatureInternalClientServer.SignatureProperties(ResultBinaryData,
 			CertificateProperties, Parameters.Comment, Users.AuthorizedUser(),,ParametersCryptoSignatures);
 			
+		SignatureProperties.SignatureDate = ?(ValueIsFilled(SignatureProperties.UnverifiedSignatureDate),
+			SignatureProperties.UnverifiedSignatureDate, CurrentSessionDate());
+			
 		If Parameters.CertificateValid <> Undefined Then
-			SignatureProperties.SignatureDate = CurrentSessionDate();
 			SignatureProperties.SignatureValidationDate = SignatureProperties.SignatureDate;
 			SignatureProperties.SignatureCorrect = Parameters.CertificateValid;
 		EndIf;
@@ -526,9 +510,14 @@ Function ServiceAccountSettingsToImproveSignatures(FormIdentifier = Undefined) E
 EndFunction
 
 // For internal use only.
-Function UserAlertedOnCertificate(Certificate, CertificateRef) Export
+Function UserCertificateSettings(Certificate) Export
 	
-	If TypeOf(Certificate) = Type("BinaryData") Then
+	Result = New Structure;
+	Result.Insert("IsNotified", True);
+	Result.Insert("SigningIsAllowed", Undefined);
+	Result.Insert("CertificateRef",  Undefined);
+	
+	If TypeOf(Certificate) = Type("BinaryData") Then // Thumbprint
 		CertificateRef = CertificateRef(Base64String(Certificate), Undefined);
 	ElsIf TypeOf(Certificate) = Type("String") Then
 		CertificateRef = CertificateRef(Undefined, Certificate);
@@ -537,10 +526,15 @@ Function UserAlertedOnCertificate(Certificate, CertificateRef) Export
 	EndIf;
 	
 	If CertificateRef = Undefined Then
-		Return True;
+		Return Result;
 	EndIf;
 	
-	Return InformationRegisters.CertificateUsersNotifications.UserAlerted(CertificateRef);
+	Result.SigningIsAllowed = Common.CommonSettingsStorageLoad(
+		CertificateRef, "AllowSigning", Undefined);
+	Result.IsNotified = InformationRegisters.CertificateUsersNotifications.UserAlerted(CertificateRef);
+	Result.CertificateRef = CertificateRef;
+	
+	Return Result;
 	
 EndFunction
 

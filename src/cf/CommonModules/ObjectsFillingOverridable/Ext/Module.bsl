@@ -61,8 +61,8 @@ EndProcedure
 //                                      that is passed in the structure of parameter 2 of the command handler.
 //            "WriteNewOnly" - write only new objects.
 //            "Post"             - post documents.
-//       * FilesOperationsRequired - Boolean - if True, in the web client, users are prompted
-//             to install the extension for 1C:Enterprise operation. Default value is False.
+//       * FilesOperationsRequired - Boolean - If True, in the web client, users are prompted
+//             to install 1C:Enterprise Extension. The default value is False.
 //     
 //     Handler settings:
 //       * Manager - String - an object responsible for executing the command.

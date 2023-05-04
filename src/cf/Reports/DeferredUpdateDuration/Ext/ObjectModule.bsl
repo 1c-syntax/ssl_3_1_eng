@@ -27,11 +27,6 @@ Procedure DefineFormSettings(Form, VariantKey, Settings) Export
 	Settings.HideBulkEmailCommands                              = True;
 	Settings.GenerateImmediately                                   = False;
 	
-	Settings.Events.OnCreateAtServer = False;
-	Settings.Events.OnLoadVariantAtServer = False;
-	Settings.Events.OnLoadUserSettingsAtServer = False;
-	Settings.Events.OnDefineSelectionParameters = False;
-	
 EndProcedure
 
 #EndRegion

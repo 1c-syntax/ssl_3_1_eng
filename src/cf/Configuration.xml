@@ -1,34 +1,34 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
-	<Configuration uuid="e2436cc3-fde3-463e-835e-321ec5566717">
+	<Configuration uuid="db02fe70-d15b-4d52-a41d-801e9f6283dc">
 		<InternalInfo>
 			<xr:ContainedObject>
 				<xr:ClassId>9cd510cd-abfc-11d4-9434-004095e12fc7</xr:ClassId>
-				<xr:ObjectId>e7a048f0-a68a-45af-a99f-630bdf9b86f0</xr:ObjectId>
+				<xr:ObjectId>eb753aa1-b10f-499b-9f35-f80265353d7f</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>9fcd25a0-4822-11d4-9414-008048da11f9</xr:ClassId>
-				<xr:ObjectId>b0d59d74-401e-4765-a2d4-8c0edf73ab6a</xr:ObjectId>
+				<xr:ObjectId>56a0e96e-252f-473c-b43f-938795666bdb</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>e3687481-0a87-462c-a166-9f34594f9bba</xr:ClassId>
-				<xr:ObjectId>3f0075d3-427a-44e5-8eed-06d3c79a973c</xr:ObjectId>
+				<xr:ObjectId>6e558fdd-bae1-4fe7-ba8e-b4ec4473bea7</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>9de14907-ec23-4a07-96f0-85521cb6b53b</xr:ClassId>
-				<xr:ObjectId>0fef6925-e228-4aaf-a5a1-fc9704722b89</xr:ObjectId>
+				<xr:ObjectId>ef98d087-fb5d-4eeb-bd3f-a54ac94e4674</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>51f2d5d8-ea4d-4064-8892-82951750031e</xr:ClassId>
-				<xr:ObjectId>da7caa7d-3fa7-49e6-8e1e-12af73dacb2e</xr:ObjectId>
+				<xr:ObjectId>d90a208e-b99e-4117-92af-5593c58ea9dc</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>e68182ea-4237-4383-967f-90c1e3370bc7</xr:ClassId>
-				<xr:ObjectId>70a58ba4-00c2-4a91-8bdc-d00eae5852bb</xr:ObjectId>
+				<xr:ObjectId>fdc8eeb9-5166-4b86-985a-db58cd6e409a</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>fb282519-d103-4dd3-bc12-cb271d631dfc</xr:ClassId>
-				<xr:ObjectId>85fba1e9-b137-4bd3-9d7d-37c01ab13403</xr:ObjectId>
+				<xr:ObjectId>f4e2117b-3185-4907-aa0e-49003cccb6b4</xr:ObjectId>
 			</xr:ContainedObject>
 		</InternalInfo>
 		<Properties>
@@ -53,7 +53,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">Role.InteractiveOpenExtReportsAndDataProcessors</xr:Item>
 			</DefaultRoles>
 			<Vendor>1C Company</Vendor>
-			<Version>3.1.8.258</Version>
+			<Version>3.1.8.303</Version>
 			<UpdateCatalogAddress/>
 			<IncludeHelpInContents>true</IncludeHelpInContents>
 			<UseManagedFormInOrdinaryApplication>false</UseManagedFormInOrdinaryApplication>
@@ -435,6 +435,7 @@
 			<CommonPicture>CopyToClipboard</CommonPicture>
 			<CommonPicture>Count</CommonPicture>
 			<CommonPicture>CrossTableReport</CommonPicture>
+			<CommonPicture>DataAnalysis48</CommonPicture>
 			<CommonPicture>DataExchangeState</CommonPicture>
 			<CommonPicture>DataExchangeStateError</CommonPicture>
 			<CommonPicture>DataSynchronization</CommonPicture>
@@ -972,8 +973,8 @@
 			<CommonTemplate>BarcodePrintingAddIn</CommonTemplate>
 			<CommonTemplate>EmptyDOCXTemplate</CommonTemplate>
 			<CommonTemplate>GetUpdateHandlersTree</CommonTemplate>
+			<CommonTemplate>GuideHowToSetUpOpenOfficeTemplate</CommonTemplate>
 			<CommonTemplate>GuideToCreateFacsimileAndStamp</CommonTemplate>
-			<CommonTemplate>InstructionsOnHowToConfigureOfficeOpenTemplate</CommonTemplate>
 			<CommonTemplate>InstructionToSetCodeForPredefinedNode_en</CommonTemplate>
 			<CommonTemplate>ManualUpdateInstruction</CommonTemplate>
 			<CommonTemplate>OfficeOpenDigitalSignatureStampTemplate</CommonTemplate>
@@ -1092,6 +1093,7 @@
 			<CommonModule>ConversationsInternalClientServer</CommonModule>
 			<CommonModule>ConversationsInternalServerCall</CommonModule>
 			<CommonModule>CurrenciesExchangeRatesClientServer</CommonModule>
+			<CommonModule>CurrenciesExchangeRatesServerCall</CommonModule>
 			<CommonModule>CurrencyRateOperations</CommonModule>
 			<CommonModule>CurrencyRateOperationsClient</CommonModule>
 			<CommonModule>CurrencyRateOperationsClientServer</CommonModule>
@@ -1437,6 +1439,7 @@
 			<CommonModule>UsersInternalSaaSClientServer</CommonModule>
 			<CommonModule>UsersInternalSaaSServerCall</CommonModule>
 			<CommonModule>UsersOverridable</CommonModule>
+			<CommonModule>WorkingWithBanksCallingServer</CommonModule>
 			<CommonModule>WorkSchedules</CommonModule>
 			<CommonModule>WorkSchedulesClient</CommonModule>
 			<CommonModule>YandexTranslate</CommonModule>
@@ -1584,7 +1587,7 @@
 			<ScheduledJob>AccountingCheck</ScheduledJob>
 			<ScheduledJob>CleanUpUnusedFiles</ScheduledJob>
 			<ScheduledJob>ClearingObsoleteObjectVersions</ScheduledJob>
-			<ScheduledJob>ClearingOutdatedData</ScheduledJob>
+			<ScheduledJob>ClearObsoleteData</ScheduledJob>
 			<ScheduledJob>ClearTimeMeasurements</ScheduledJob>
 			<ScheduledJob>DataFillingForAccessRestriction</ScheduledJob>
 			<ScheduledJob>DataSynchronization</ScheduledJob>
@@ -1899,6 +1902,7 @@
 			<Constant>ProxyServerSetting</Constant>
 			<Constant>RefineSignaturesAutomatically</Constant>
 			<Constant>RefineSignaturesDates</Constant>
+			<Constant>RegisterServerNotificationsIndicators</Constant>
 			<Constant>ReportDistributionHistoryRetentionPeriodInMonths</Constant>
 			<Constant>RetainReportDistributionHistory</Constant>
 			<Constant>RetryDataExchangeMessageImportBeforeStart</Constant>
@@ -1983,8 +1987,8 @@
 			<CommonForm>BlankHomePage</CommonForm>
 			<CommonForm>CannotInstallAddIn</CommonForm>
 			<CommonForm>Certificate</CommonForm>
-			<CommonForm>CheckingUpdateFile</CommonForm>
 			<CommonForm>CheckResult</CommonForm>
+			<CommonForm>CheckUpdateFile</CommonForm>
 			<CommonForm>ColorChoiceForm</CommonForm>
 			<CommonForm>CompareSpreadsheetDocuments</CommonForm>
 			<CommonForm>ComposeNewMessage</CommonForm>

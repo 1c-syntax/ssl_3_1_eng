@@ -440,7 +440,7 @@
 							<Synonym>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Execute in required group</v8:content>
+									<v8:content>Execute in mandatory group</v8:content>
 								</v8:item>
 							</Synonym>
 							<Comment/>
@@ -872,7 +872,7 @@
 							<Synonym>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Run also in a subordinate DIB node with filters</v8:content>
+									<v8:content>Also run in subordinate DIB node with filters</v8:content>
 								</v8:item>
 							</Synonym>
 							<Comment/>
@@ -1350,7 +1350,7 @@ or other handlers modify objects readable by this handler.</v8:content>
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Handler of technical design</v8:content>
+									<v8:content>Technical design handler</v8:content>
 								</v8:item>
 							</ToolTip>
 							<MarkNegatives>false</MarkNegatives>

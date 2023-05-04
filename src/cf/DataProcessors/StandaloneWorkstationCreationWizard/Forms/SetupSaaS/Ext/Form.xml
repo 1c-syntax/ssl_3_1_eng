@@ -759,7 +759,7 @@ When contacting the technical support, attach the error text below.</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Navigation start page</v8:content>
+									<v8:content>Navigation page start</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Horizontal</Group>
@@ -888,7 +888,7 @@ When contacting the technical support, attach the error text below.</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>End navigation page</v8:content>
+									<v8:content>Navigation page end</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Horizontal</Group>

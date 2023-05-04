@@ -391,6 +391,10 @@ EndProcedure
 // For procedure OnStartExecuteScheduledJob of common module Common.
 Procedure UponSuccessfulStartoftheExecutionoftheScheduledTask() Export
 	
+	If Common.DataSeparationEnabled() Then
+		Return;
+	EndIf;
+	
 	CurrentSession = GetCurrentInfoBaseSession();
 	If CurrentSession.ApplicationName <> "BackgroundJob" Then
 		Return;
@@ -463,7 +467,8 @@ Procedure FillinAllJobParametersLatestVersionExtensions() Export
 		If LockSet Then
 			Raise;
 		EndIf;
-		StartFillingWorkParametersExtensions();
+		StartFillingWorkParametersExtensions(
+			NStr("en = 'Перезапуск из-за неудачной попытки блокировки параметра';"));
 		Return;
 	EndTry;
 	
@@ -480,7 +485,9 @@ Procedure FillinAllJobParametersLatestVersionExtensions() Export
 	 Or Catalogs.ExtensionsVersions.ExtensionsChangedDynamically() Then
 		
 		StandardSubsystemsServer.SetExtensionParameter(ParameterName, Undefined, True);
-		StartFillingWorkParametersExtensions();
+		StartFillingWorkParametersExtensions(
+			NStr("en = 'Перезапуск из-за изменения метаданных расширений или
+			           |конфигурации после запуска до начала обновления';"));
 		Return;
 	EndIf;
 	
@@ -519,7 +526,9 @@ Procedure FillinAllJobParametersLatestVersionExtensions() Export
 			EndIf;
 			If SessionRestartRequired Then
 				StandardSubsystemsServer.SetExtensionParameter(ParameterName, Undefined, True);
-				StartFillingWorkParametersExtensions();
+				StartFillingWorkParametersExtensions(
+					NStr("en = 'Перезапуск из-за изменения метаданных или
+					           |расширений в процессе заполнения параметров';"));
 				Return;
 			EndIf;
 			AttemptNumber = AttemptNumber + 1;
@@ -543,7 +552,9 @@ Procedure FillinAllJobParametersLatestVersionExtensions() Export
 	
 	If Restart Then
 		StandardSubsystemsServer.SetExtensionParameter(ParameterName, Undefined, True);
-		StartFillingWorkParametersExtensions();
+		StartFillingWorkParametersExtensions(
+			NStr("en = 'Перезапуск из-за изменения метаданных или
+			           |расширений после заполнения параметров';"));
 	EndIf;
 	
 EndProcedure
@@ -560,7 +571,7 @@ Procedure MarkFillingOptionsExtensionsWork() Export
 	ExtensionsVersion = SessionParameters.ExtensionsVersion;
 	LatestVersion1 = Catalogs.ExtensionsVersions.LastExtensionsVersion();
 	If LatestVersion1.ExtensionsVersion = ExtensionsVersion Then
-		DisableFillingExtensionsWorkParameters(LatestVersion1,, True);
+		DisableFillingExtensionsWorkParameters(LatestVersion1);
 	EndIf;
 	
 	SetPrivilegedMode(False);
@@ -586,7 +597,7 @@ Procedure LockForChangeInFileIB() Export
 	If TransactionActive() And Common.FileInfobase() Then
 		Block = New DataLock;
 		Block.Add("InformationRegister.ExtensionVersionParameters");
-		// АПК:1320-
+		// ACC:1320-
 		// 
 		// 
 		Block.Lock();
@@ -972,7 +983,8 @@ Procedure EnableFillingExtensionsWorkParameters(Run = True, EnableDefinitely = F
 	EndTry;
 	
 	If Run Then
-		StartFillingWorkParametersExtensions();
+		StartFillingWorkParametersExtensions(
+			NStr("en = 'Запуск при включении заполнения параметров работы программы';"));
 	EndIf;
 	
 EndProcedure
@@ -994,12 +1006,10 @@ EndProcedure
 // 
 //
 // Parameters:
-//  VersionOnStartup                - See Catalogs.ExtensionsVersions.LastExtensionsVersion
-//  Restart                   - Boolean - Return value.
-//  UpdateFillId - Boolean
+//  VersionOnStartup - See Catalogs.ExtensionsVersions.LastExtensionsVersion
+//  Restart    - Boolean - Return value.
 //
-Procedure DisableFillingExtensionsWorkParameters(VersionOnStartup, Restart = False,
-			UpdateFillId = False)
+Procedure DisableFillingExtensionsWorkParameters(VersionOnStartup, Restart = False)
 	
 	ParameterName = "StandardSubsystems.Core.IdFillingExtensionsJobParameters";
 	Block = New DataLock;
@@ -1016,17 +1026,14 @@ Procedure DisableFillingExtensionsWorkParameters(VersionOnStartup, Restart = Fal
 		
 		If VersionOnStartup.ExtensionsVersion = CurrentVersion.ExtensionsVersion
 		   And VersionOnStartup.UpdateDate = CurrentVersion.UpdateDate
-		   And (UpdateFillId Or Not RequiredEnableFillingExtensionsWorkParameters())
 		   And Not DataBaseConfigurationChangedDynamically()
 		   And Not Catalogs.ExtensionsVersions.ExtensionsChangedDynamically() Then
 			
-			If UpdateFillId Then
-				UpdateID = CurrentVersion.UpdateID;
-				FillId = StandardSubsystemsServer.ExtensionParameter(ParameterName, True);
-				If UpdateID <> FillId Then
-					StandardSubsystemsServer.SetExtensionParameter(ParameterName,
-						UpdateID, True);
-				EndIf;
+			UpdateID = CurrentVersion.UpdateID;
+			FillId = StandardSubsystemsServer.ExtensionParameter(ParameterName, True);
+			If UpdateID <> FillId Then
+				StandardSubsystemsServer.SetExtensionParameter(ParameterName,
+					UpdateID, True);
 			EndIf;
 			
 			Jobs = ScheduledJobsServer.FindJobs(Filter);
@@ -1053,7 +1060,7 @@ EndProcedure
 // Parameters:
 //  WaitForCompletion - Boolean -
 //
-Procedure StartFillingWorkParametersExtensions(WaitForCompletion = False) Export
+Procedure StartFillingWorkParametersExtensions(Comment, WaitForCompletion = False) Export
 	
 	If TransactionActive()
 	 Or ExclusiveMode()
@@ -1075,6 +1082,9 @@ Procedure StartFillingWorkParametersExtensions(WaitForCompletion = False) Export
 			NStr("en = 'from the %1 session started on %2';", Common.DefaultLanguageCode()),
 			Format(CurrentSession.SessionNumber, "NG="),
 			Format(CurrentSession.SessionStarted, "DLF=DT")) + ")";
+	
+	WriteLogEvent(ParameterFillingEventName(),
+		EventLogLevel.Information,,, Comment);
 	
 	BackgroundJob = ConfigurationExtensions.ExecuteBackgroundJobWithDatabaseExtensions(
 		JobMetadata.MethodName,,, JobDescription);

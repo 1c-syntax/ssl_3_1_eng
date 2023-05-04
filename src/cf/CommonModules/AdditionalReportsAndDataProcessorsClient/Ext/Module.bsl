@@ -14,7 +14,7 @@
 // Parameters:
 //   CommandParameter - Arbitrary - passed "as is" from the command handler parameters.
 //   CommandExecuteParameters - CommandExecuteParameters - passed "as is" from the command handler parameters.
-//   Kind - String - a data processor kind that can be obtained from the function series:
+//   Kind - String - A data processor type that can be obtained from the function series:
 //       AdditionalReportsAndDataProcessorsClientServer.DataProcessorKind<…>.
 //   SectionName - String - a name of the command interface section the command is called from.
 //
@@ -79,7 +79,7 @@ EndProcedure
 //      * RelatedObjects - Array - references to the objects the command is being executed for.
 //          It is used for additional data processors to assign.
 //      * CreatedObjects - Array - references to the objects created while executing the command.
-//          It is used for assignable additional data processors of the "Related object creation" kind.
+//          It is used for assignable additional data processors of the "Create related objects" kind.
 //      * OwnerForm1 - ClientApplicationForm - a list form or an object form the command is called from.
 //
 Function CommandExecuteParametersInBackground(Ref) Export
@@ -486,7 +486,7 @@ EndProcedure
 Procedure ExecutePrintFormOpening(CommandToExecute, Form, RelatedObjects) Export
 	
 	StandardProcessing = True;
-	// АПК:222-
+	// ACC:222-
 	AdditionalReportsAndDataProcessorsClientOverridable.BeforeExecuteExternalPrintFormPrintCommand(
 		RelatedObjects, StandardProcessing);
 	// 

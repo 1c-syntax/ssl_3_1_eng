@@ -180,7 +180,7 @@ Procedure RunDataProcessorByParameters()
 		
 		// 
 		Items.ExplainingDecoration.Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Executing command %1…';"),
+			NStr("en = 'Executing command ""%1""…';"),
 			DataProcessorData.Presentation);
 		Items.Pages.CurrentPage = Items.DataProcessorExecutionPage;
 		Items.CustomizeList.Visible = False;

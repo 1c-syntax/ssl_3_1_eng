@@ -2354,7 +2354,7 @@ Function FindTextInALine(Val String, Val Text)
 	EndIf;
 	
 	FormattedStrings.Add(SearchString);
-	HighlightedString = New FormattedString(FormattedStrings); // АПК:1356 - Can use a compound format string as the string array consists of the passed text.
+	HighlightedString = New FormattedString(FormattedStrings); // ACC:1356 - Can use a compound format string as the string array consists of the passed text.
 	
 	Return HighlightedString;
 	
@@ -2407,7 +2407,7 @@ EndProcedure
 
 #Region ReadingTheFormula
 
-Function TheFormulaFromTheView(Form, FormulaPresentation, EscapeUnknownFunctions = True) Export
+Function TheFormulaFromTheView(Form, FormulaPresentation, ShouldEscapeUnknownFunctions = True) Export
 	
 	FormulaElements = FormulaElements(FormulaPresentation);
 	Expression = FormulaPresentation;
@@ -2438,7 +2438,7 @@ Function TheFormulaFromTheView(Form, FormulaPresentation, EscapeUnknownFunctions
 		EndDo;
 	EndDo;
 	
-	ReplaceFormulaElements(Expression, FormulaElements, ReplacedItems, EscapeUnknownFunctions);
+	ReplaceFormulaElements(Expression, FormulaElements, ReplacedItems, ShouldEscapeUnknownFunctions);
 	Return Expression;
 	
 EndFunction
@@ -2605,14 +2605,14 @@ Function ExpressionToCheck(Form, FormulaPresentation, NameOfTheListOfOperands) E
 	
 EndFunction
 
-Procedure ReplaceFormulaElements(Expression, FormulaElements, Values, EscapeUnknownFunctions = True)
+Procedure ReplaceFormulaElements(Expression, FormulaElements, Values, ShouldEscapeUnknownFunctions = True)
 	
 	For Each ItemDetails In FormulaElements.OperandsAndFunctions Do
 		Operand = FormulaElements.AllItems[ItemDetails.Key];
 		IsFunction = ItemDetails.Value;
 		Value = Values[ItemDetails.Key];
 		If Value = Undefined Then
-			If IsFunction And EscapeUnknownFunctions
+			If IsFunction And ShouldEscapeUnknownFunctions
 				And Not StrEndsWith(Operand, SuffixDisabledFunctions()) Then
 				Value = Operand + SuffixDisabledFunctions();
 			Else
@@ -2945,22 +2945,15 @@ Procedure AddAGroupOfOperatorsOtherFunctions(ListOfOperators)
 	
 EndProcedure
 
-Procedure AddAnOperatorToAGroup(Group, Id, Val Presentation = Undefined, Type = Undefined, IsFunction = False)
-	
-	If Presentation = Undefined Then
-		Presentation = Id;
-	EndIf;
+Procedure AddAnOperatorToAGroup(Group, Id, Val Presentation, Type = Undefined, IsFunction = False, Hidden = False)
 	
 	Operator = Group.Rows.Add();
 	Operator.Id = Id;
-	If StrSplit(Presentation, " ").Count() > 1 Then
-		Operator.Presentation = StrReplace(Title(Presentation), " ", "");
-	Else
-		Operator.Presentation = Presentation;
-	EndIf;
+	Operator.Presentation = OperatorPresentation(Presentation);
 	Operator.ValueType = Type;
 	Operator.Picture = PictureLib.IsEmpty;
 	Operator.IsFunction = IsFunction;
+	Operator.Hidden = Hidden;
 
 EndProcedure
 
@@ -2990,21 +2983,21 @@ Procedure AddGroupOfOperatorsWorkingWithDates(ListOfOperators)
 	AddAnOperatorToAGroup(Group, "YEAR", NStr("en = 'YEAR';"), Type, True);
 	AddAnOperatorToAGroup(Group, "MONTH", NStr("en = 'MONTH';"), Type, True);
 	AddAnOperatorToAGroup(Group, "NUMBER", NStr("en = 'NUMBER';"), Type, True);
-	AddAnOperatorToAGroup(Group, "DAYOFYEAR", NStr("en = 'DAYOFYEAR';"), Type, True);
+	AddAnOperatorToAGroup(Group, "DAYOFYEAR", NStr("en = 'День года';"), Type, True);
 	AddAnOperatorToAGroup(Group, "DAY", NStr("en = 'DAY';"), Type, True);
 	AddAnOperatorToAGroup(Group, "WEEK", NStr("en = 'WEEK';"), Type, True);
-	AddAnOperatorToAGroup(Group, "WEEKDAY", NStr("en = 'WEEKDAY';"), Type, True);
+	AddAnOperatorToAGroup(Group, "WEEKDAY", NStr("en = 'День недели';"), Type, True);
 	AddAnOperatorToAGroup(Group, "HOUR", NStr("en = 'HOUR';"), Type, True);
 	AddAnOperatorToAGroup(Group, "MINUTE", NStr("en = 'MINUTE';"), Type, True);
 	AddAnOperatorToAGroup(Group, "SECOND", NStr("en = 'SECOND';"), Type, True);
 
-	AddAnOperatorToAGroup(Group, "BEGINOFPERIOD", NStr("en = 'BEGINOFPERIOD';"), New TypeDescription, True);
-	AddAnOperatorToAGroup(Group, "ENDOFPERIOD", NStr("en = 'ENDOFPERIOD';"), New TypeDescription, True);
-	AddAnOperatorToAGroup(Group, "ADDTODATE", NStr("en = 'DATEADD';"), New TypeDescription, True);
+	AddAnOperatorToAGroup(Group, "BEGINOFPERIOD", NStr("en = 'Начало периода';"), New TypeDescription, True);
+	AddAnOperatorToAGroup(Group, "ENDOFPERIOD", NStr("en = 'Конец периода';"), New TypeDescription, True);
+	AddAnOperatorToAGroup(Group, "ADDTODATE", NStr("en = 'Добавить к дате';"), New TypeDescription, True);
 	
-	AddAnOperatorToAGroup(Group, "DATEDIFF", NStr("en = 'DATEDIFF';"), Type, True);
+	AddAnOperatorToAGroup(Group, "DATEDIFF", NStr("en = 'Разность дат';"), Type, True);
 	
-	AddAnOperatorToAGroup(Group, "CURRENTDATE", NStr("en = 'CURRENTDATE';"), New TypeDescription, True);
+	AddAnOperatorToAGroup(Group, "CURRENTDATE", NStr("en = 'Текущая дата';"), New TypeDescription, True);
 	
 EndProcedure
 
@@ -3036,66 +3029,32 @@ Procedure AddAGroupOfLogicalOperationsOperators(ListOfOperators)
 	AddAnOperatorToAGroup(Group, "OR", NStr("en = 'OR';"), Type);
 	
 	Operator = Group.Rows.Add();
-	Operator.Id = "ELECTIONDATOGDAINACHOEND";
+	Operator.Id = "CHOICEIFTHENELSEEND";
 	Operator.Presentation = StrTemplate(
 		NStr("en = '%1 %2 ... %3 ...';"),
-		NStr("en = 'CASE';"),
-		NStr("en = 'WHEN';"),
-		NStr("en = 'THEN';"));
+		OperatorPresentation(NStr("en = 'CASE';")),
+		OperatorPresentation(NStr("en = 'WHEN';")),
+		OperatorPresentation(NStr("en = 'THEN';")));
 	Operator.Picture = PictureLib.IsEmpty;
 	Operator.ExpressionToInsert = StrTemplate(NStr(
 		"en = '%1
 		|	%2 <%6> %3 <%6>
 		|	%4 <%6>
 		|%5';"),
-		NStr("en = 'CASE';"),
-		NStr("en = 'WHEN';"),
-		NStr("en = 'THEN';"),
-		NStr("en = 'ELSE';"),
-		NStr("en = 'END';"),
+		OperatorPresentation(NStr("en = 'CASE';")),
+		OperatorPresentation(NStr("en = 'WHEN';")),
+		OperatorPresentation(NStr("en = 'THEN';")),
+		OperatorPresentation(NStr("en = 'ELSE';")),
+		OperatorPresentation(NStr("en = 'END';")),
 		NStr("en = 'Expression';"));
 	
-	Operator = Group.Rows.Add();
-	Operator.Id = "SELECTION";
-	Operator.Presentation = NStr("en = 'CASE';");
-	Operator.Picture = PictureLib.IsEmpty;
-	Operator.Hidden = True;
-	
-	Operator = Group.Rows.Add();
-	Operator.Id = "WHEN";
-	Operator.Presentation = NStr("en = 'WHEN';");
-	Operator.Picture = PictureLib.IsEmpty;
-	Operator.Hidden = True;
-
-	Operator = Group.Rows.Add();
-	Operator.Id = "THEN";
-	Operator.Presentation = NStr("en = 'THEN';");
-	Operator.Picture = PictureLib.IsEmpty;
-	Operator.Hidden = True;
-	
-	Operator = Group.Rows.Add();
-	Operator.Id = "ELSE";
-	Operator.Presentation = NStr("en = 'ELSE';");
-	Operator.Picture = PictureLib.IsEmpty;
-	Operator.Hidden = True;
-	
-	Operator = Group.Rows.Add();
-	Operator.Id = "END";
-	Operator.Presentation = NStr("en = 'END';");
-	Operator.Picture = PictureLib.IsEmpty;
-	Operator.Hidden = True;
-	
-	Operator = Group.Rows.Add();
-	Operator.Id = "TRUE";
-	Operator.Presentation = NStr("en = 'TRUE';");
-	Operator.Picture = PictureLib.IsEmpty;
-	Operator.Hidden = True;
-
-	Operator = Group.Rows.Add();
-	Operator.Id = "FALSE";
-	Operator.Presentation = NStr("en = 'FALSE';");
-	Operator.Picture = PictureLib.IsEmpty;
-	Operator.Hidden = True;		
+	AddAnOperatorToAGroup(Group, "SELECTION", NStr("en = 'ВЫБОР';"), , , True);
+	AddAnOperatorToAGroup(Group, "WHEN", NStr("en = 'КОГДА';"), , , True);
+	AddAnOperatorToAGroup(Group, "THEN", NStr("en = 'ТОГДА';"), , , True);
+	AddAnOperatorToAGroup(Group, "ELSE", NStr("en = 'ИНАЧЕ';"), , , True);
+	AddAnOperatorToAGroup(Group, "END", NStr("en = 'КОНЕЦ';"), , , True);
+	AddAnOperatorToAGroup(Group, "TRUE", NStr("en = 'ИСТИНА';"), , , True);
+	AddAnOperatorToAGroup(Group, "FALSE", NStr("en = 'ЛОЖЬ';"), , , True);
 	
 EndProcedure
 
@@ -3271,6 +3230,12 @@ Function AvailableFieldsIntoDCSContainer(AvailableFields)
 	FieldTree = FieldTree();
 	PopulateTreeByAvailableFields(FieldTree, AvailableFields);
 	Return DataLayoutSchemeFromTheValueTree(FieldTree);
+EndFunction
+
+Function OperatorPresentation(Val Operator)
+	
+	Return StrReplace(Title(Operator), " ", "")
+	
 EndFunction
 
 #EndRegion

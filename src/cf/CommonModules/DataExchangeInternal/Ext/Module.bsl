@@ -567,7 +567,7 @@ Procedure ImportXDTODateToInfobase(ProcedureParameters, StorageAddress) Export
 		Except
 			DisableAccessKeysUpdate(False);
 			Information = ErrorInfo();
-			ErrorMessage = NStr("en = 'Cannot import data: %1';");
+			ErrorMessage = NStr("en = 'Data import error: %1';");
 			ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
 				ErrorMessage, DetailErrorDescription(Information));
 			DataExchangeXDTOServer.WriteToExecutionProtocol(ExchangeComponents, ErrorMessage, , , , , True);

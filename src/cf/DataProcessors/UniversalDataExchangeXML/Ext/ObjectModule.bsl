@@ -7725,7 +7725,7 @@ Function FindObjectByRef(ObjectType,
 		Except
 			
 			WriteInfoOnOCRHandlerImportError(73, ErrorProcessing.DetailErrorDescription(ErrorInfo()), "", "",
-				ObjectType, Undefined, NStr("en = 'Sequence of search fields';"));
+				ObjectType, Undefined, NStr("en = 'Search field sequence';"));
 			
 		EndTry;
 		
@@ -12911,7 +12911,7 @@ Procedure RunReadingData(ErrorInfoResultString = "") Export
 		
 	Except
 		
-		ErrorString = SubstituteParametersToString(NStr("en = 'Cannot import data: %1';"), ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		ErrorString = SubstituteParametersToString(NStr("en = 'Data import error: %1';"), ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		
 		ErrorInfoResultString = WriteToExecutionProtocol(ErrorString, Undefined, True, , , True);
 		
@@ -13772,18 +13772,18 @@ Procedure InitMessages()
 	deMessages.Insert(6,  NStr("en = 'Error importing exchange rules';"));
 	deMessages.Insert(7,  NStr("en = 'Exchange rule format error';"));
 	deMessages.Insert(8,  NStr("en = 'Invalid data export file name';"));
-	deMessages.Insert(9,  NStr("en = 'Invalid exchange file format';"));
-	deMessages.Insert(10, NStr("en = 'Data export file name required';"));
-	deMessages.Insert(11, NStr("en = 'Exchange rules reference a non-existing metadata object';"));
-	deMessages.Insert(12, NStr("en = 'Exchange rules file name required';"));
+	deMessages.Insert(9,  NStr("en = 'Exchange file format error';"));
+	deMessages.Insert(10, NStr("en = 'Data export file name is not specified';"));
+	deMessages.Insert(11, NStr("en = 'Exchange rules reference a metadata object that does not exist';"));
+	deMessages.Insert(12, NStr("en = 'Exchange rules file name is not specified';"));
 	
-	deMessages.Insert(13, NStr("en = 'An error occurred when retrieving an object property value by a source property name';"));
-	deMessages.Insert(14, NStr("en = 'An occurred when retrieving an object property value by a destination property name';"));
+	deMessages.Insert(13, NStr("en = 'Error getting value of object property by property name in source infobase';"));
+	deMessages.Insert(14, NStr("en = 'Error getting value of object property by property name in destination infobase';"));
 	
-	deMessages.Insert(15, NStr("en = 'Data import file name required';"));
+	deMessages.Insert(15, NStr("en = 'Data import file name is not specified';"));
 	
-	deMessages.Insert(16, NStr("en = 'An error occurred when retrieving a subordinate object property value by a source property name';"));
-	deMessages.Insert(17, NStr("en = 'An error occurred when retrieving a subordinate object property value by a destination property name';"));
+	deMessages.Insert(16, NStr("en = 'Error getting value of subordinate object property by property name in source infobase';"));
+	deMessages.Insert(17, NStr("en = 'Error getting value of subordinate object property by property name in destination infobase';"));
 	
 	ErrorText = NStr("en = 'Event handler error: %1';");
 	deMessages.Insert(19, SubstituteParametersToString(ErrorText, "BeforeImportObject"));
@@ -13844,16 +13844,16 @@ Procedure InitMessages()
 	deMessages.Insert(64,  SubstituteParametersToString(ErrorText, "BeforeConvertObject"));
 	deMessages.Insert(65, SubstituteParametersToString(ErrorText, "BeforeExportObject"));
 	
-	deMessages.Insert(66, NStr("en = 'Cannot retrieve a collection of subordinate objects from incoming data';"));
-	deMessages.Insert(67, NStr("en = 'Cannot retrieve a property of a subordinate object from incoming data';"));
-	deMessages.Insert(68, NStr("en = 'Cannot retrieve an object property from incoming data';"));
+	deMessages.Insert(66, NStr("en = 'Error getting collection of subordinate objects from incoming data';"));
+	deMessages.Insert(67, NStr("en = 'Error getting property of subordinate object from incoming data';"));
+	deMessages.Insert(68, NStr("en = 'Error getting object property from incoming data';"));
 	
 	ErrorText = NStr("en = 'Global event handler error (data conversion): %1';");
 	deMessages.Insert(69, SubstituteParametersToString(ErrorText, "AfterExportObject"));
 	
 	deMessages.Insert(71, NStr("en = 'Cannot find a match for the source value';"));
 	
-	deMessages.Insert(72, NStr("en = 'Cannot export data to the exchange plan node';"));
+	deMessages.Insert(72, NStr("en = 'Error exporting data for exchange plan node';"));
 	
 	ErrorText = NStr("en = 'Event handler error: %1';");
 	deMessages.Insert(73, SubstituteParametersToString(ErrorText, "SearchFieldSequence"));

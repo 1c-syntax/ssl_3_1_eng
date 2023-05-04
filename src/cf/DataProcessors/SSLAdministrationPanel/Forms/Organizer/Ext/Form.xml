@@ -33,7 +33,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="1638"/>
+			<ExtendedTooltip name="GroupHeaderExtendedTooltip_SSLs" id="1638"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="1563">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -260,7 +260,7 @@
 													<v8:item>
 														<v8:lang>en</v8:lang>
 														<v8:content>Set the statuses to messages and interactions: 
- "Reviewed" means the interaction requires no further action. "Follow Up" highlights important messages and interactions.</v8:content>
+"Reviewed" means the interaction requires no further action. "Follow up" highlights important messages and interactions.</v8:content>
 													</v8:item>
 												</Title>
 											</ExtendedTooltip>
@@ -483,7 +483,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Use user reminders</v8:content>
+									<v8:content>Use reminders</v8:content>
 								</v8:item>
 							</Title>
 							<Width>43</Width>
@@ -793,7 +793,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Post-adjust tasks</v8:content>
+									<v8:content>Post-adjust duties</v8:content>
 								</v8:item>
 							</Title>
 							<Width>43</Width>

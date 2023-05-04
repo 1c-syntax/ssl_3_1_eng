@@ -125,7 +125,7 @@ Function CreateFilesFolder(Name, Parent, User = Undefined, FilesGroup = Undefine
 	Folder.Write();
 	
 	If ValueIsFilled(WorkingDirectory) Then
-		SaveFolderWorkingDirectory(Folder.Ref, WorkingDirectory);
+		FilesOperationsInternal.SaveFolderWorkingDirectory(Folder.Ref, WorkingDirectory);
 	EndIf;
 	
 	Return Folder.Ref;
@@ -1498,29 +1498,6 @@ Function FolderWorkingDirectory(FolderRef) Export
 	
 EndFunction
 
-// Saves a folder working directory to the information register.
-// Parameters:
-//  FolderRef  - CatalogRef.FilesFolders - file owner.
-//  OwnerWorkingDirectory - String - a working directory of the folder owner.
-//
-Procedure SaveFolderWorkingDirectory(FolderRef, FolderWorkingDirectory) Export
-	
-	SetPrivilegedMode(True);
-	
-	RecordSet = InformationRegisters.FileWorkingDirectories.CreateRecordSet();
-	
-	RecordSet.Filter.Folder.Set(FolderRef);
-	RecordSet.Filter.User.Set(Users.AuthorizedUser());
-	
-	NewRecord = RecordSet.Add();
-	NewRecord.Folder = FolderRef;
-	NewRecord.User = Users.AuthorizedUser();
-	NewRecord.Path = FolderWorkingDirectory;
-	
-	RecordSet.Write();
-	
-EndProcedure
-
 // Returns:
 //   Structure:
 //     * File                         - DefinedType.AttachedFile
@@ -1546,7 +1523,7 @@ EndFunction
 Procedure SaveFolderWorkingDirectoryAndReplacePathsInRegister(FolderRef, FolderWorkingDirectory, 
 	DirectoryNamePreviousValue) Export
 	
-	SaveFolderWorkingDirectory(FolderRef, FolderWorkingDirectory);
+	FilesOperationsInternal.SaveFolderWorkingDirectory(FolderRef, FolderWorkingDirectory);
 	
 	Query = New Query;
 	Query.Text =
@@ -1646,62 +1623,6 @@ Procedure WriteRecordStructureToRegister(File,
 	NewRecord.InOwnerWorkingDirectory = InOwnerWorkingDirectory;
 	
 	RecordSet.Write();
-	
-EndProcedure
-
-// Clears a folder working directory at the information register.
-// Parameters:
-//  FolderRef  - CatalogRef.FilesFolders - file owner.
-//
-Procedure CleanUpWorkingDirectory(FolderRef) Export
-	
-	SetPrivilegedMode(True);
-	
-	CurrentUser = Users.AuthorizedUser();
-	
-	Block = New DataLock;
-	
-	LockItem = Block.Add("Catalog.FilesFolders");
-	LockItem.SetValue("Parent", FolderRef);
-	LockItem.Mode = DataLockMode.Shared;
-	
-	LockItem = Block.Add("InformationRegister.FileWorkingDirectories");
-	LockItem.SetValue("User", CurrentUser);
-	
-	BeginTransaction();
-	Try
-		
-		Block.Lock();
-		
-		RecordSet = InformationRegisters.FileWorkingDirectories.CreateRecordSet();
-		RecordSet.Filter.Folder.Set(FolderRef);
-		RecordSet.Filter.User.Set(CurrentUser);
-		RecordSet.Write(); // 
-		
-		// Clearing working directories for child folders.
-		Query = New Query;
-		Query.Text =
-		"SELECT
-		|	FilesFolders.Ref AS Ref
-		|FROM
-		|	Catalog.FilesFolders AS FilesFolders
-		|WHERE
-		|	FilesFolders.Parent = &Ref";
-		
-		Query.SetParameter("Ref", FolderRef);
-		
-		Result = Query.Execute();
-		Selection = Result.Select();
-		While Selection.Next() Do
-			CleanUpWorkingDirectory(Selection.Ref); // 
-		EndDo;
-		
-		CommitTransaction();
-		
-	Except
-		RollbackTransaction();
-		Raise;
-	EndTry;
 	
 EndProcedure
 

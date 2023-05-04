@@ -192,8 +192,8 @@ Procedure SynchronizeAndContinueWithoutIBUpdateCompletion()
 			EnableDataExchangeMessageImportRecurrenceBeforeStart();
 		EndIf;
 		
-		WarningText = NStr("en = 'Receiving data from the main node is completed with errors.
-			|See details in the event log.';");
+		WarningText = NStr("en = 'Receiving data from the master node is completed with errors.
+			|For more information, see the event log.';");
 		
 		DataExchangeServer.SetDataExchangeMessageImportModeBeforeStart("ImportPermitted", False);
 		
@@ -385,8 +385,8 @@ Procedure SynchronizeAndContinueWithIBUpdateCompletion()
 		
 		EnableDataExchangeMessageImportRecurrenceBeforeStart();
 		
-		WarningText = NStr("en = 'Receiving data from the main node is completed with errors.
-			|See details in the event log.';");
+		WarningText = NStr("en = 'Receiving data from the master node is completed with errors.
+			|For more information, see the event log.';");
 		
 	EndIf;
 	

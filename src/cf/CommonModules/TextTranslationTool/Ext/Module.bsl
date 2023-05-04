@@ -87,13 +87,23 @@ Function TranslateTheTexts(Texts, TranslationLanguage = Undefined, SourceLanguag
 	MaxBatchSize = TextTranslationServiceModule.MaxBatchSize();
 	
 	For Each Text In TextsRequiringTranslation Do
-		If PortionSize + StrLen(Text) <= MaxBatchSize Then
-			Batch.Add(Text);
-			PortionSize = PortionSize + StrLen(Text);
-		Else
+		If PortionSize + StrLen(Text) > MaxBatchSize And ValueIsFilled(Batch) Then
 			TransferQueue.Add(Batch);
 			Batch = New Array;
 			PortionSize = 0;
+		EndIf;
+		If StrLen(Text) <= MaxBatchSize Then
+			Batch.Add(Text);
+			PortionSize = PortionSize + StrLen(Text);
+		Else
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Превышен максимально допустимый размер текста для перевода, перевод не выполнен. Разделите текст на несколько частей, не превышающих  %1 символов.
+				|Длина переданного текста: %2 символов.';",
+					Common.DefaultLanguageCode()),
+					MaxBatchSize,
+					StrLen(Text));
+			WriteLogEvent(NStr("en = 'Translator';", Common.DefaultLanguageCode()), EventLogLevel.Error,
+				Metadata.Enums.TextTranslationServices, Constants.TextTranslationService.Get(), ErrorText);
 		EndIf;
 	EndDo;
 	If ValueIsFilled(Batch) Then

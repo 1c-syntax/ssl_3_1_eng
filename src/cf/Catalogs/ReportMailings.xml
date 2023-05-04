@@ -979,7 +979,7 @@ It can be mentioned in email subject or body.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Check box of delivery to a network folder</v8:content>
+							<v8:content>Check box of delivery to a network directory</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

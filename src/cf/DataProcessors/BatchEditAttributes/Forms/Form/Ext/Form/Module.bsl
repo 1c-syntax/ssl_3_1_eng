@@ -472,7 +472,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.RightValue = True;
 
 	//@skip-check new-color
-	Item.Appearance.SetParameterValue("TextColor", New Color(192, 192, 192)); // АПК:1346 - 
+	Item.Appearance.SetParameterValue("TextColor", New Color(192, 192, 192)); // ACC:1346 - 
 	
 	// Notes for linked attributes
 	
@@ -3476,7 +3476,7 @@ Function ObjectManagerByFullName(FullName)
 				// Перерасчет
 				Manager = CalculationRegisters[MetadataObjectName1].Recalculations;
 			Else
-				Raise SubstituteParametersToString(NStr("en = 'Invalid metadata object type: %1.';"), FullName);
+				Raise SubstituteParametersToString(NStr("en = 'Unknown metadata object type: %1.';"), FullName);
 			EndIf;
 		EndIf;
 		
@@ -3501,7 +3501,7 @@ Function ObjectManagerByFullName(FullName)
 		EndTry;
 	EndIf;
 	
-	Raise SubstituteParametersToString(NStr("en = 'Invalid metadata object type: %1.';"), FullName);
+	Raise SubstituteParametersToString(NStr("en = 'Unknown metadata object type: %1.';"), FullName);
 	
 EndFunction
 
@@ -4145,7 +4145,7 @@ Function CommonModule(Name)
 		Raise SubstituteParametersToString(NStr("en = 'Common module ""%1"" does not exist.';"), Name);
 	EndIf;
 #EndIf
-// АПК:488-
+// ACC:488-
 	
 	Return Module;
 	
@@ -4378,7 +4378,7 @@ Function FormattedString(Val String)
 		
 		If RowPart.Check Then
 			//@skip-check new-font
-			RowArray.Add(New FormattedString(RowPart.Value, New Font(,,True))); // АПК:1345 - 
+			RowArray.Add(New FormattedString(RowPart.Value, New Font(,,True))); // ACC:1345 - 
 		ElsIf Not IsBlankString(RowPart.Presentation) Then
 			RowArray.Add(New FormattedString(RowPart.Value,,,, RowPart.Presentation));
 		Else
@@ -4387,7 +4387,7 @@ Function FormattedString(Val String)
 		
 	EndDo;
 	
-	Return New FormattedString(RowArray); // АПК:1356 - 
+	Return New FormattedString(RowArray); // ACC:1356 - 
 	
 EndFunction
 
@@ -4556,7 +4556,7 @@ Function ChoiceData(String, ChoiceList)
 			//@skip-check new-font
 			//@skip-check new-color
 			FormattedStrings.Add(New FormattedString(OccurenceSubstring,
-				New Font( , , True), New Color(0,128,0))); // АПК:1345 АПК:1346 - 
+				New Font( , , True), New Color(0,128,0))); // ACC:1345 ACC:1346 - 
 		EndDo;
 		
 		If Not ValueIsFilled(FormattedStrings) Then
@@ -4564,7 +4564,7 @@ Function ChoiceData(String, ChoiceList)
 		EndIf;
 		
 		FormattedStrings.Add(SearchString);
-		HighlightedString = New FormattedString(FormattedStrings); // АПК:1356 - Can use a compound format string as the string array consists of the passed text.
+		HighlightedString = New FormattedString(FormattedStrings); // ACC:1356 - Can use a compound format string as the string array consists of the passed text.
 		
 		Result.Add(Item.Value, HighlightedString);
 	EndDo;

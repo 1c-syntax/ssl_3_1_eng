@@ -25,7 +25,7 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	ModuleReportsOptions.SetOutputModeInReportPanels(Settings, ReportSettings, False);
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "IrrelevantFilesVolumeByOwners");
-	OptionSettings.LongDesc = NStr("en = 'Total size of obsolete files.';");
+	OptionSettings.LongDesc = NStr("en = 'Total size of unused files.';");
 	
 EndProcedure
 
@@ -37,7 +37,7 @@ EndProcedure
 
 #Region Private
 
-// Generates a table of obsolete files.
+// Generates a table of unused files.
 //
 // Returns:
 //   ValueTable:

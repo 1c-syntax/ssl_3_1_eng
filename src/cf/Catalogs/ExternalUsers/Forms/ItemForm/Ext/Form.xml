@@ -319,15 +319,30 @@ with the specified authentication methods.</v8:content>
 									<v8:content>No startup rights</v8:content>
 								</v8:item>
 							</Title>
-							<ToolTip>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>User does not have any startup rights (thin client, web client,
-thick client, automation, external connection)</v8:content>
-								</v8:item>
-							</ToolTip>
 							<ContextMenu name="NoStartupRightsLabelContextMenu" id="390"/>
 							<ExtendedTooltip name="NoStartupRightsLabelExtendedTooltip" id="391"/>
+						</LabelDecoration>
+					</ChildItems>
+				</UsualGroup>
+				<UsualGroup name="GroupNoLoginRights" id="397">
+					<Visible>false</Visible>
+					<Group>AlwaysHorizontal</Group>
+					<Behavior>Usual</Behavior>
+					<Representation>None</Representation>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="GroupNoLoginRightsExtendedTooltip" id="398"/>
+					<ChildItems>
+						<PictureDecoration name="NoAccessRightsToImage" id="399">
+							<Picture>
+								<xr:Ref>CommonPicture.Warning</xr:Ref>
+								<xr:LoadTransparent>false</xr:LoadTransparent>
+							</Picture>
+							<ContextMenu name="NoAccessRightsToImageContextMenu" id="400"/>
+							<ExtendedTooltip name="NoAccessRightsToImageExtendedTooltip" id="401"/>
+						</PictureDecoration>
+						<LabelDecoration name="NoSignInRights" id="402">
+							<ContextMenu name="NoSignInRightsContextMenu" id="403"/>
+							<ExtendedTooltip name="NoSignInRightsExtendedTooltip" id="404"/>
 						</LabelDecoration>
 					</ChildItems>
 				</UsualGroup>

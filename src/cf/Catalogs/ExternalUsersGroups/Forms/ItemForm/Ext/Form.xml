@@ -8,6 +8,7 @@
 		<Event name="AfterWrite">AfterWrite</Event>
 		<Event name="AfterWriteAtServer">AfterWriteAtServer</Event>
 		<Event name="OnReadAtServer">OnReadAtServer</Event>
+		<Event name="OnLoadDataFromSettingsAtServer">OnLoadDataFromSettingsAtServer</Event>
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 		<Event name="BeforeWriteAtServer">BeforeWriteAtServer</Event>
 		<Event name="FillCheckProcessingAtServer">FillCheckProcessingAtServer</Event>
@@ -952,7 +953,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Group users types</v8:content>
+					<v8:content>User types</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>SelectPurpose</Action>

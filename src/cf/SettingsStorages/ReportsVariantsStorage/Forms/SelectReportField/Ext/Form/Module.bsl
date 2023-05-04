@@ -108,8 +108,6 @@ Procedure HideUnusedCommands()
 		Item.Enabled = FormulaEditingIsAvailable;
 	EndDo;
 	
-	Items.Select.Enabled = Not ListBox.CurrentData.Folder;
-	
 EndProcedure
 
 &AtClient
@@ -391,6 +389,16 @@ EndProcedure
 
 &AtClient
 Procedure SelectAndClose()
+	
+	ClearMessages();
+	ListBox = ListOfAvailableFields(ThisObject).Field;
+	If TypeOf(ListBox.CurrentData) = Type("FormDataTreeItem") And ListBox.CurrentData.Folder Then
+		CommonClient.MessageToUser(NStr("en = 'Выберите поле отчета, а не группу.';"));
+		Return;
+	ElsIf TypeOf(ListBox.CurrentData) <> Type("FormDataTreeItem") Then
+		CommonClient.MessageToUser(NStr("en = 'Выберите поле отчета.';"));
+		Return;
+	EndIf;
 	
 	SelectedField = FormulasConstructorClient.TheSelectedFieldInTheFieldList(ThisObject);
 	

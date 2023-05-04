@@ -191,7 +191,7 @@ EndFunction
 
 Function QueryText()
 	
-	// АПК:494-
+	// ACC:494-
 	// 
 	// 
 	// 

@@ -60,7 +60,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If BackupSettings1.LatestBackupDate = Date(1, 1, 1) Then
-		TitleText = NStr("en = 'The infobase has never been backed up';");
+		TitleText = NStr("en = 'The infobase has never been backed up.';");
 	Else
 		TitleText = NStr("en = 'Most recent backup: %1';");
 		LastBackupDate = Format(BackupSettings1.LatestBackupDate, "DLF=DDT");
@@ -416,7 +416,7 @@ EndFunction
 &AtClient
 Procedure SetIdleHandlerOfBackupTimeout()
 	
-	AttachIdleHandler("Timeout2", 300, True);
+	AttachIdleHandler("Timeout2", 600, True);
 	
 EndProcedure
 

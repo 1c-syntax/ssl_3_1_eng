@@ -185,7 +185,7 @@ Procedure ColumnsForDataImport(CatalogMetadata, ColumnsInformation) Export
 
 EndProcedure
 
-Procedure LoadPropertyValuesFromFile(ObjectReference, TableRow) Export
+Procedure ImportPropertiesValuesfromFile(ObjectReference, TableRow) Export
 	
 	Properties = New Map();
 	
@@ -465,7 +465,7 @@ EndProcedure
 //  ReplacementPairs - Map - contains the value pairs original and duplicate.
 //  UnprocessedOriginalsValues - Array of Structure:
 //    * ValueToReplace - AnyRef - the original value of the object to replace.
-//    * UsedLinks - See DuplicateObjectsDetection.SubordinateObjectsLinksByTypes.
+//    * UsedLinks - See Common.SubordinateObjectsLinksByTypes.
 //    * KeyAttributesValue - Structure - Key is the attribute name. Value is the attribute value.
 //
 Procedure OnSearchForReferenceReplacement(ReplacementPairs, UnprocessedOriginalsValues) Export

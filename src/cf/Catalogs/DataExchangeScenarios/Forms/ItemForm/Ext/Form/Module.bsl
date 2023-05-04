@@ -328,9 +328,9 @@ Procedure ExecuteDataExchangeAtClient()
 	
 	MessageString = "";
 	If CurrentData.CurrentAction = PredefinedValue("Enum.ActionsOnExchange.DataImport") Then
-		MessageString = NStr("en = 'Importing data from %1.';");
+		MessageString = NStr("en = 'Receiving data from %1.';");
 	ElsIf CurrentData.CurrentAction = PredefinedValue("Enum.ActionsOnExchange.DataExport") Then
-		MessageString = NStr("en = 'Exporting data to %1.';");
+		MessageString = NStr("en = 'Sending data to %1.';");
 	EndIf;
 	
 	MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, 

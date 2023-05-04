@@ -183,7 +183,7 @@ EndProcedure
 // Parameters:
 //   Form                          - ClientApplicationForm - a report form.
 //   Details - Structure - a structure containing the data for correcting the issue
-//                 of the cell of the report on the details of accounting check results:
+//                 of the cell of the data integrity check report:
 //      * Purpose         - String - a purpose string ID of the decryption.
 //      * FullObjectName   - String - Full name of a metadata object.
 //      * Filter              - Structure - a filter as a list.
@@ -316,9 +316,9 @@ Procedure NotifyOfAccountingIssuesCases() Export
 		Return;
 	EndIf;
 	ShowUserNotification(
-		NStr("en = 'Accounting check';"),
+		NStr("en = 'Data integrity check';"),
 		"e1cib/app/Report.AccountingCheckResults",
-		NStr("en = 'Accounting issues found';") + " (" + IssuesCount + ")",
+		NStr("en = 'Data integrity issues found';") + " (" + IssuesCount + ")",
 		PictureLib.Warning32);
 EndProcedure
 

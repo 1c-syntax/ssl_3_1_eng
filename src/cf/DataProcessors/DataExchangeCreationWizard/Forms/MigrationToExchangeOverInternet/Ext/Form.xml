@@ -660,7 +660,7 @@ Please wait...</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Page navigation start</v8:content>
+									<v8:content>Navigation page start</v8:content>
 								</v8:item>
 							</Title>
 							<Group>HorizontalIfPossible</Group>
@@ -714,7 +714,7 @@ Please wait...</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Page navigation wait</v8:content>
+									<v8:content>Navigation page wait</v8:content>
 								</v8:item>
 							</Title>
 							<Group>HorizontalIfPossible</Group>
@@ -775,7 +775,7 @@ Please wait...</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Page navigation</v8:content>
+									<v8:content>Navigation page end</v8:content>
 								</v8:item>
 							</Title>
 							<Group>HorizontalIfPossible</Group>

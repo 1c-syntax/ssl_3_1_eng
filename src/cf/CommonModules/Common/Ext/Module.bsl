@@ -1426,7 +1426,7 @@ Function UsageInstances(Val RefSet, Val ResultAddress = "", AdditionalParameters
 		IsInternalData = InternalDataLinks[UsageInstance1] <> Undefined;
 		IsAuxiliaryData = IsInternalData;
 		
-		If MetadataOfDocuments.Contains(UsageInstance1.Metadata) Then
+		If DataType = Undefined Or MetadataOfDocuments.Contains(UsageInstance1.Metadata) Then
 			Presentation = String(UsageInstance1.Data);
 			
 		ElsIf ConstantMetadata.Contains(UsageInstance1.Metadata) Then
@@ -1434,9 +1434,6 @@ Function UsageInstances(Val RefSet, Val ResultAddress = "", AdditionalParameters
 			
 		ElsIf SequenceMetadata.Contains(UsageInstance1.Metadata) Then
 			Presentation = UsageInstance1.Metadata.Presentation() + " (" + NStr("en = 'sequence';") + ")";
-			
-		ElsIf DataType = Undefined Then
-			Presentation = String(UsageInstance1.Data);
 			
 		ElsIf AllRefsType.ContainsType(DataType) Then
 			ObjectMetaPresentation = New Structure("ObjectPresentation");
@@ -1595,7 +1592,7 @@ EndFunction
 //	
 //	
 //	  
-//	  See DuplicateObjectsDetection.SubordinateObjectsLinksByTypes  
+//	  See Common.SubordinateObjectsLinksByTypes  
 //	  
 //
 // Returns:
@@ -1644,6 +1641,29 @@ Function SubordinateObjects() Export
 	Return LinksDetails;
 	
 EndFunction
+
+// Returns relationships of subordinate objects with the type of relationship field specified.
+//
+// Returns:
+//   ValueTable:
+//    * Key - String
+//    * AttributeType - Type
+//    * AttributeName - String
+//    * Used - Boolean
+//    * Metadata - MetadataObject
+//
+Function SubordinateObjectsLinksByTypes() Export
+
+	Result = New ValueTable;
+	Result.Columns.Add("AttributeType", New TypeDescription("Type"));
+	Result.Columns.Add("AttributeName", StringTypeDetails(0));
+	Result.Columns.Add("Key", StringTypeDetails(0));
+	Result.Columns.Add("Used", New TypeDescription("Boolean"));
+	Result.Columns.Add("Metadata");
+	
+	Return Result;
+
+EndFunction 
 
 #EndRegion
 
@@ -1884,7 +1904,7 @@ EndFunction
 //   
 //   
 //
-Function CustomerSystemInformation() Export
+Function ClientSystemInfo() Export
 	
 	SetPrivilegedMode(True);
 	Return StandardSubsystemsServer.ClientParametersAtServer().Get("SystemInfo");
@@ -2189,10 +2209,8 @@ EndFunction
 //      * RecommendedRAM - Number - Obsolete. Gigabytes RAM recommended for the application.
 //                                                      Instead, use MinimumPlatformVersion and RecommendedPlatformVersion properties:
 //    
-//      * MinPlatformVersion1    - String - the full platform version required to start the application.
-//                                                           For example, "8.3.4.365".
-//                                                           Previously, it used to be defined in
-//                                                           CommonOverridable.GetMinRequiredPlatformVersion.
+//      * MinPlatformVersion1    - String -
+//                                                           
 //      * MustExit               - Boolean - the initial value is False.
 //
 Function CommonCoreParameters() Export
@@ -2225,18 +2243,18 @@ Function CommonCoreParameters() Export
 			Try
 				
 				ModuleGetApplicationUpdates = CommonModule("GetApplicationUpdates");
-				InformationAboutPlatformVersions        = ModuleGetApplicationUpdates.InformationAboutPlatformVersions();
+				InfoAbout1CEnterpriseVersions        = ModuleGetApplicationUpdates.InfoAbout1CEnterpriseVersions();
 				
 				// 
-				If Not IsBlankString(InformationAboutPlatformVersions.MinPlatformVersion)
-					Or Not IsBlankString(InformationAboutPlatformVersions.RecommendedPlatformVersion) Then
+				If Not IsBlankString(InfoAbout1CEnterpriseVersions.MinPlatformVersion)
+					Or Not IsBlankString(InfoAbout1CEnterpriseVersions.RecommendedPlatformVersion) Then
 					
 					Min   = BuildNumberForTheCurrentPlatformVersion(
-						InformationAboutPlatformVersions.MinPlatformVersion);
+						InfoAbout1CEnterpriseVersions.MinPlatformVersion);
 					Recommended = BuildNumberForTheCurrentPlatformVersion(
-						InformationAboutPlatformVersions.RecommendedPlatformVersion);
+						InfoAbout1CEnterpriseVersions.RecommendedPlatformVersion);
 					
-					If MinimumAndRecommendedVersionOfPlatformIsFilledOutIncorrectly(Min, Recommended) Then
+					If IsMinRecommended1CEnterpriseVersionInvalid(Min, Recommended) Then
 						
 						ModuleGetApplicationUpdates.DeletePlatformVersionInformation();
 						
@@ -2305,7 +2323,7 @@ Function CommonCoreParameters() Export
 	
 	Min   = CommonParameters.MinPlatformVersion;
 	Recommended = CommonParameters.RecommendedPlatformVersion;
-	If MinimumAndRecommendedVersionOfPlatformIsFilledOutIncorrectly(Min, Recommended) Then
+	If IsMinRecommended1CEnterpriseVersionInvalid(Min, Recommended) Then
 		MessageText = NStr("en = 'The minimum and recommended platform versions specified in %1 do not meet the following requirements:
 			| - The minimum version must be filled.
 			| - The minimum version cannot be earlier than the minimum SSL version (see %2).
@@ -5670,12 +5688,6 @@ Function ReadDataFromSecureStorage(Owner, Keys = "Password", SharedData = Undefi
 	
 	Result = OwnerData[Owner];
 	
-	If Keys <> Undefined
-		And TypeOf(Result) = Type("Structure")
-		And Result.Count() = 1 Then
-			Result = ?(Result.Property(Keys), Result[Keys], Undefined);
-	EndIf;
-	
 	Return Result;
 	
 EndFunction
@@ -6554,7 +6566,7 @@ EndFunction
 //       * Text     - String - query text.
 //       * Parameters - Structure - query parameters.
 //
-Function QueryToXMLString(Query) Export // АПК:299 - 
+Function QueryToXMLString(Query) Export // ACC:299 - 
 	Structure = New Structure("Text, Parameters");
 	FillPropertyValues(Structure, Query);
 	Return ValueToXMLString(Structure);
@@ -6805,14 +6817,14 @@ EndProcedure
 //         - CalculationRegisterRecordSet
 //         - RecalculationRecordSet
 //
-// ThisIsExchangePlanNode - Boolean
+// IsExchangePlanNode - Boolean
 //
-Procedure DisableRecordingControl(Object, ThisIsExchangePlanNode = False) Export
+Procedure DisableRecordingControl(Object, IsExchangePlanNode = False) Export
 	
 	Object.AdditionalProperties.Insert("DontControlObjectsToDelete");
 	Object.AdditionalProperties.Insert("DisableObjectChangeRecordMechanism");
 	Object.DataExchange.Load = True;
-	If Not ThisIsExchangePlanNode Then
+	If Not IsExchangePlanNode Then
 		Object.DataExchange.Recipients.AutoFill = False;
 	EndIf;
 	
@@ -8970,7 +8982,7 @@ Function ServerManagerModule(Name)
 	// ACC:488-disable CalculateInSafeMode is not used, to avoid calling CommonModule recursively.
 	SetSafeMode(True);
 	Module = Eval(Name);
-	// АПК:488-
+	// ACC:488-
 	
 	Return Module;
 EndFunction
@@ -9328,7 +9340,7 @@ Procedure CheckMetadataObjectExists(FullName)
 	
 	If MetadataObjectByFullName(FullName) = Undefined Then 
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Unknown metadata object type: ""%1"".';"), FullName);
+			NStr("en = 'Unknown metadata object type: %1.';"), FullName);
 	EndIf;
 	
 EndProcedure
@@ -9869,10 +9881,10 @@ Function TemplateExists(FullTemplateName)
 	Template = Metadata.FindByFullName(FullTemplateName);
 	If TypeOf(Template) = Type("MetadataObject") Then 
 		
-		Var_812_Template = New Structure("TemplateType");
-		FillPropertyValues(Var_812_Template, Template);
+		Var_813_Template = New Structure("TemplateType");
+		FillPropertyValues(Var_813_Template, Template);
 		TemplateType = Undefined;
-		If Var_812_Template.Property("TemplateType", TemplateType) Then 
+		If Var_813_Template.Property("TemplateType", TemplateType) Then 
 			Return TemplateType <> Undefined;
 		EndIf;
 		
@@ -9908,7 +9920,7 @@ Function BuildNumberForTheCurrentPlatformVersion(AssemblyNumbersAsAString)
 	
 EndFunction
 
-Function MinPlatformVersion() Export // АПК:581 - 
+Function MinPlatformVersion() Export // ACC:581 - 
 	
 	Return "8.3.21.1622; 8.3.22.1704";
 	
@@ -9923,7 +9935,7 @@ EndFunction
 // Returns:
 //  Boolean - 
 //
-Function MinimumAndRecommendedVersionOfPlatformIsFilledOutIncorrectly(Min, Recommended)
+Function IsMinRecommended1CEnterpriseVersionInvalid(Min, Recommended)
 	
 	// 
 	If IsBlankString(Min) Then
@@ -9932,9 +9944,9 @@ Function MinimumAndRecommendedVersionOfPlatformIsFilledOutIncorrectly(Min, Recom
 	
 	// 
 	// 
-	MinimumBSP = BuildNumberForTheCurrentPlatformVersion(
+	MinimalSSL = BuildNumberForTheCurrentPlatformVersion(
 		MinPlatformVersion());
-	If CommonClientServer.CompareVersions(MinimumBSP, Min) > 0 Then
+	If CommonClientServer.CompareVersions(MinimalSSL, Min) > 0 Then
 		Return True;
 	EndIf;
 	
@@ -9967,9 +9979,9 @@ Procedure ClarifyPlatformVersion(CommonParameters)
 	If Not ValueIsFilled(NewBuild) Then
 		NewRecommendedBuild = NewBuild(CommonParameters.MinPlatformVersion);
 		If ValueIsFilled(NewRecommendedBuild) Then
-			MinimalAssembly = BuildNumberForTheCurrentPlatformVersion(MinPlatformVersion());
-			CommonParameters.MinPlatformVersion = MinimalAssembly;
-			CommonParameters.MinPlatformVersion1 = MinimalAssembly;
+			MinBuild = BuildNumberForTheCurrentPlatformVersion(MinPlatformVersion());
+			CommonParameters.MinPlatformVersion = MinBuild;
+			CommonParameters.MinPlatformVersion1 = MinBuild;
 			If CommonClientServer.CompareVersions(CommonParameters.RecommendedPlatformVersion, NewRecommendedBuild) < 0 Then
 				CommonParameters.RecommendedPlatformVersion = NewRecommendedBuild;
 			EndIf;

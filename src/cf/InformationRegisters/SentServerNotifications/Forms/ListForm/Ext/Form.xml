@@ -42,6 +42,7 @@
 			<Representation>List</Representation>
 			<CommandBarLocation>None</CommandBarLocation>
 			<DefaultItem>true</DefaultItem>
+			<HeaderHeight>2</HeaderHeight>
 			<UseAlternationRowColor>true</UseAlternationRowColor>
 			<InitialTreeView>ExpandTopLevel</InitialTreeView>
 			<EnableStartDrag>true</EnableStartDrag>
@@ -123,34 +124,83 @@
 				</LabelField>
 				<LabelField name="AddedOn" id="19">
 					<DataPath>List.AddedOn</DataPath>
-					<DefaultItem>true</DefaultItem>
 					<ContextMenu name="AddedOnContextMenu" id="20"/>
 					<ExtendedTooltip name="AddedOnExtendedTooltip" id="21"/>
 				</LabelField>
 				<LabelField name="DateAddedMilliseconds" id="22">
 					<DataPath>List.DateAddedMilliseconds</DataPath>
 					<DefaultItem>true</DefaultItem>
-					<ContextMenu name="DateAddedMillisecondsContextMenu" id="23"/>
-					<ExtendedTooltip name="DateAddedMillisecondsExtendedTooltip" id="24"/>
-				</LabelField>
-				<CheckBoxField name="SavedToTheCollaborationSystem" id="25">
-					<DataPath>List.SavedToTheCollaborationSystem</DataPath>
-					<DefaultItem>true</DefaultItem>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Saved to the collaboration system</v8:content>
+							<v8:content>ms</v8:content>
 						</v8:item>
 					</Title>
-					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="SavedToTheCollaborationSystemContextMenu" id="26"/>
-					<ExtendedTooltip name="SavedToTheCollaborationSystemExtendedTooltip" id="27"/>
-				</CheckBoxField>
+					<ToolTip>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Date added (milliseconds)</v8:content>
+						</v8:item>
+					</ToolTip>
+					<ContextMenu name="DateAddedMillisecondsContextMenu" id="23"/>
+					<ExtendedTooltip name="DateAddedMillisecondsExtendedTooltip" id="24"/>
+				</LabelField>
+				<LabelField name="DeferralOfWritingToCollaborationSystem" id="38">
+					<DataPath>List.DeferralOfWritingToCollaborationSystem</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Delay in saving to
+the Collaboration System</v8:content>
+						</v8:item>
+					</Title>
+					<ContextMenu name="DeferralOfWritingToCollaborationSystemContextMenu" id="39"/>
+					<ExtendedTooltip name="DeferralOfWritingToCollaborationSystemExtendedTooltip" id="40"/>
+				</LabelField>
+				<LabelField name="CollaborationSystemRecordDate" id="44">
+					<DataPath>List.CollaborationSystemRecordDate</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Date when saved to
+the Collaboration System</v8:content>
+						</v8:item>
+					</Title>
+					<ContextMenu name="CollaborationSystemRecordDateContextMenu" id="45"/>
+					<ExtendedTooltip name="CollaborationSystemRecordDateExtendedTooltip" id="46"/>
+				</LabelField>
+				<LabelField name="DateWrittenToCollaborationSystemMilliseconds" id="47">
+					<DataPath>List.DateWrittenToCollaborationSystemMilliseconds</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>ms</v8:content>
+						</v8:item>
+					</Title>
+					<ToolTip>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Date when the notification is saved to the Collaboration System (milliseconds)</v8:content>
+						</v8:item>
+					</ToolTip>
+					<ContextMenu name="DateWrittenToCollaborationSystemMillisecondsContextMenu" id="48"/>
+					<ExtendedTooltip name="DateWrittenToCollaborationSystemMillisecondsExtendedTooltip" id="49"/>
+				</LabelField>
 				<LabelField name="GroupID" id="28">
 					<DataPath>List.GroupID</DataPath>
 					<DefaultItem>true</DefaultItem>
 					<ContextMenu name="GroupIDContextMenu" id="29"/>
 					<ExtendedTooltip name="GroupIDExtendedTooltip" id="30"/>
+				</LabelField>
+				<LabelField name="NotificationTypeInGroup" id="41">
+					<DataPath>List.NotificationTypeInGroup</DataPath>
+					<ContextMenu name="NotificationTypeInGroupContextMenu" id="42"/>
+					<ExtendedTooltip name="NotificationTypeInGroupExtendedTooltip" id="43"/>
+				</LabelField>
+				<LabelField name="SMSMessageRecipients" id="50">
+					<DataPath>List.SMSMessageRecipients</DataPath>
+					<ContextMenu name="SMSMessageRecipientsContextMenu" id="51"/>
+					<ExtendedTooltip name="SMSMessageRecipientsExtendedTooltip" id="52"/>
 				</LabelField>
 			</ChildItems>
 		</Table>

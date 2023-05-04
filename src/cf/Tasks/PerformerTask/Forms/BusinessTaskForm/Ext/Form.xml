@@ -204,7 +204,7 @@ To perform the task, go to special task form.</v8:content>
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Date and due date</v8:content>
+											<v8:content>Date and deadline</v8:content>
 										</v8:item>
 									</Title>
 									<Group>Vertical</Group>
@@ -358,7 +358,7 @@ To perform the task, go to special task form.</v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Result summary</v8:content>
+							<v8:content>Result</v8:content>
 						</v8:item>
 					</Title>
 					<Behavior>Usual</Behavior>

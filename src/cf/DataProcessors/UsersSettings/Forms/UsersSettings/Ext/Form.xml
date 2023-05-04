@@ -1202,7 +1202,7 @@ that are allowed to access the infobase.</v8:content>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Refresh settings list.</v8:content>
+					<v8:content>Refresh settings list</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Shortcut>F5</Shortcut>
@@ -1246,7 +1246,7 @@ that are allowed to access the infobase.</v8:content>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Clear the selected settings.</v8:content>
+					<v8:content>Clear the selected settings</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -1267,7 +1267,7 @@ that are allowed to access the infobase.</v8:content>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Open the form with the selected setting.</v8:content>
+					<v8:content>Open the form with the selected setting</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -1288,7 +1288,7 @@ that are allowed to access the infobase.</v8:content>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Clear all settings of all users.</v8:content>
+					<v8:content>Clear all settings of all users</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ClearSettingsForAllUsers</Action>
@@ -1373,7 +1373,7 @@ that are allowed to access the infobase.</v8:content>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Clear all settings.</v8:content>
+					<v8:content>Clear all settings</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ClearAllSettings</Action>
@@ -1389,7 +1389,7 @@ that are allowed to access the infobase.</v8:content>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Clear the report and interface settings.</v8:content>
+					<v8:content>Clear report and interface settings</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ClearReportAndInterfaceSettings</Action>
@@ -1426,7 +1426,7 @@ that are allowed to access the infobase.</v8:content>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Clear the selected settings for several users.</v8:content>
+					<v8:content>Clear the selected settings for several users</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ClearSettingsForSelectedUsers</Action>

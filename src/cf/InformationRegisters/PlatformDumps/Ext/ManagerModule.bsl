@@ -113,10 +113,10 @@ Function GetTopOptions(StartDate, EndDate, Count, Val PlatformVersion = Undefine
 		Query.Text = StrReplace(Query.Text, "&CondPlatformVersion", "TRUE");
 	EndIf;
 		
-	DumpTable = Query.Execute().Unload();
-	DumpTable.Columns[0].Name = "dumpVariant";
-	DumpTable.Columns[1].Name = "quantity";
-	Return DumpTable;
+	TableOfDumps = Query.Execute().Unload();
+	TableOfDumps.Columns[0].Name = "dumpVariant";
+	TableOfDumps.Columns[1].Name = "quantity";
+	Return TableOfDumps;
 EndFunction
 
 #EndRegion

@@ -34,7 +34,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="135"/>
+			<ExtendedTooltip name="GroupHeaderExtendedTooltip_SSLs" id="135"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="136">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -141,7 +141,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Limit the maximum size of indexed data to</v8:content>
+											<v8:content>Limit the maximum index size</v8:content>
 										</v8:item>
 									</Title>
 									<TitleLocation>Right</TitleLocation>

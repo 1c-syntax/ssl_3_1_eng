@@ -495,8 +495,9 @@ Procedure DefineActionsOnForm()
 	// Checking action names in the form.
 	If StrFind(", View, Edit,", ", " + ActionsOnForm.Roles + ",") = 0 Then
 		ActionsOnForm.Roles = "";
-	ElsIf UsersInternal.CannotEditRoles() Then
-		ActionsOnForm.Roles = "";
+	ElsIf ActionsOnForm.Roles = "Edit"
+	        And UsersInternal.CannotEditRoles() Then
+		ActionsOnForm.Roles = "View";
 	EndIf;
 	If StrFind(", View, Edit,", ", " + ActionsOnForm.GroupComposition1 + ",") = 0 Then
 		ActionsOnForm.IBUserProperies = "";

@@ -42,7 +42,7 @@ Procedure SessionParametersSetting(SessionParametersNames, SpecifiedParameters) 
 	If SessionParametersNames = Undefined
 	   And CurrentRunMode() <> Undefined Then
 	
-		RegisterExtensionsVersionUsage();
+		RegisterExtensionsVersionUsage(True);
 	EndIf;
 	
 EndProcedure
@@ -227,6 +227,8 @@ EndFunction
 // Parameters:
 //  InstalledExtensionsOnStartup - See InstalledExtensionsOnStartup
 //                                    - Undefined - Get for the current session.
+//  IsCheckInCurrentSession - Boolean -
+//                                    
 //
 // Returns:
 //  Structure:
@@ -237,7 +239,8 @@ EndFunction
 //          * Added2 - Number
 //          * Deleted   - Number
 //
-Function DynamicallyChangedExtensions(InstalledExtensionsOnStartup = Undefined) Export
+Function DynamicallyChangedExtensions(InstalledExtensionsOnStartup = Undefined,
+			IsCheckInCurrentSession = False) Export
 	
 	Result = New Structure;
 	Result.Insert("Extensions", Undefined);
@@ -250,8 +253,6 @@ Function DynamicallyChangedExtensions(InstalledExtensionsOnStartup = Undefined) 
 	If InstalledExtensionsOnStartup = Undefined Then
 		IsCheckInCurrentSession = True;
 		InstalledExtensionsOnStartup = InstalledExtensionsOnStartup();
-	Else
-		IsCheckInCurrentSession = False;
 	EndIf;
 	
 	Unchanged = InstalledExtensionsOnStartup.Property("ExtensionsUnavailable")
@@ -281,7 +282,7 @@ Function DynamicallyChangedExtensions(InstalledExtensionsOnStartup = Undefined) 
 EndFunction
 
 // Adds information that the session started using the metadata version.
-Procedure RegisterExtensionsVersionUsage() Export
+Procedure RegisterExtensionsVersionUsage(WhenSettingSessionParametersForFirstTime = False) Export
 	
 	If TransactionActive() Then
 		Return;
@@ -293,6 +294,10 @@ Procedure RegisterExtensionsVersionUsage() Export
 			ModuleAccessManagementInternal.OnRegisterExtensionsVersionUsageInSharedSession();
 		EndIf;
 		Return;
+	EndIf;
+	
+	If WhenSettingSessionParametersForFirstTime Then
+		SessionParameters.ExtensionsVersion = ExtensionsVersion();
 	EndIf;
 	
 	ExtensionsVersion = SessionParameters.ExtensionsVersion;

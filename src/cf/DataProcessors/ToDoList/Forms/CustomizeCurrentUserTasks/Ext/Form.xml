@@ -238,6 +238,7 @@
 								<InputField name="UpdatePeriod" id="42">
 									<DataPath>UpdatePeriod</DataPath>
 									<TitleLocation>None</TitleLocation>
+									<Shortcut>Ctrl+S</Shortcut>
 									<Width>4</Width>
 									<ListChoiceMode>true</ListChoiceMode>
 									<ChoiceList>
@@ -278,6 +279,30 @@
 													</v8:item>
 												</Presentation>
 												<Value xsi:type="xs:decimal">30</Value>
+											</xr:Value>
+										</xr:Item>
+										<xr:Item>
+											<xr:Presentation/>
+											<xr:CheckState>0</xr:CheckState>
+											<xr:Value xsi:type="FormChoiceListDesTimeValue">
+												<Presentation/>
+												<Value xsi:type="xs:decimal">60</Value>
+											</xr:Value>
+										</xr:Item>
+										<xr:Item>
+											<xr:Presentation/>
+											<xr:CheckState>0</xr:CheckState>
+											<xr:Value xsi:type="FormChoiceListDesTimeValue">
+												<Presentation/>
+												<Value xsi:type="xs:decimal">120</Value>
+											</xr:Value>
+										</xr:Item>
+										<xr:Item>
+											<xr:Presentation/>
+											<xr:CheckState>0</xr:CheckState>
+											<xr:Value xsi:type="FormChoiceListDesTimeValue">
+												<Presentation/>
+												<Value xsi:type="xs:decimal">240</Value>
 											</xr:Value>
 										</xr:Item>
 									</ChoiceList>

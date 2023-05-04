@@ -148,7 +148,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Radio button kind</v8:content>
+							<v8:content>Radio button type</v8:content>
 						</v8:item>
 					</Title>
 					<PagesRepresentation>None</PagesRepresentation>
@@ -158,7 +158,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Do not display radio button kind</v8:content>
+									<v8:content>Do not display radio button type</v8:content>
 								</v8:item>
 							</Title>
 							<ExtendedTooltip name="HideRadioButtonTypeGroupExtendedTooltip" id="151"/>
@@ -173,7 +173,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Display radio button kind</v8:content>
+									<v8:content>Display radio button type</v8:content>
 								</v8:item>
 							</Title>
 							<ExtendedTooltip name="ShowRadioButtonTypeExtendedTooltip" id="149"/>
@@ -183,7 +183,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Kind</v8:content>
+											<v8:content>View</v8:content>
 										</v8:item>
 									</Title>
 									<Width>12</Width>
@@ -198,7 +198,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Display radio button kind</v8:content>
+									<v8:content>Display radio button type</v8:content>
 								</v8:item>
 							</Title>
 							<ExtendedTooltip name="ShowRadioButtonTypeBooleanTypeGroupExtendedTooltip" id="163"/>
@@ -208,7 +208,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Kind</v8:content>
+											<v8:content>View</v8:content>
 										</v8:item>
 									</Title>
 									<Width>12</Width>

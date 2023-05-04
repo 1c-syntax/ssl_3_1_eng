@@ -327,7 +327,7 @@ Procedure ShowFileSystemExtensionRequiredMessageBox(ResultHandler, CommandPresen
 		WarningText = NStr("en = 'The ""%1"" command is not available in Google Chrome and Mozilla Firefox.';");
 	Else
 		WarningText = NStr("en = 'To run the ""%1"" command,
-			|install 1C:Enterprise extension.';");
+			|install 1C:Enterprise Extension.';");
 	EndIf;
 	If ValueIsFilled(CommandPresentation) Then
 		WarningText = StrReplace(WarningText, "%1", CommandPresentation);
@@ -1005,7 +1005,7 @@ Function CheckExtentionOfFileToDownload(FileExtention, RaiseException1 = True)
 		
 		If RaiseException1 Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Uploading files with the %1 extension is not allowed.
+				NStr("en = 'Uploading files with the ""%1"" extension is not allowed.
 				           |Please contact the administrator.';"),
 				FileExtention);
 		Else
@@ -1908,7 +1908,7 @@ Function CheckCanImportFile(File, RaiseException1 = True, FilesWithErrors = Unde
 	If Not CheckExtentionOfFileToDownload(File.Extension, False) Then
 		
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Uploading files with ""%1"" extension is not allowed.
+			NStr("en = 'Uploading files with the ""%1"" extension is not allowed.
 			           |Please contact the administrator.';"),
 			File.Extension);
 		
@@ -6272,7 +6272,7 @@ Procedure FilesImportAfterCheckSizes(Result, ExecutionParameters) Export
 	
 	ExecutionParameters.Insert("TotalFilesCount", Result.TotalFilesCount);
 	If ExecutionParameters.TotalFilesCount = 0 Then
-		ReturnResultAfterShowWarning(ExecutionParameters.ResultHandler, NStr("en = 'There are no files to add.';"), Undefined);
+		ReturnResultAfterShowWarning(ExecutionParameters.ResultHandler, NStr("en = 'No files to add';"), Undefined);
 		Return;
 	EndIf;
 	
@@ -7494,7 +7494,7 @@ Procedure FillTemporaryFormID(FormIdentifier, ExecutionParameters)
 		Return;
 	EndIf;
 	
-	ExecutionParameters.Insert("TempForm", GetForm("DataProcessor.FilesOperations.Form.QuestionForm")); // АПК:65
+	ExecutionParameters.Insert("TempForm", GetForm("DataProcessor.FilesOperations.Form.QuestionForm")); // ACC:65
 	FormIdentifier = ExecutionParameters.TempForm.UUID;
 	StandardSubsystemsClient.SetFormStorageOption(ExecutionParameters.TempForm, True);
 	
@@ -9875,7 +9875,7 @@ EndFunction
 
 // Returns the user data directory inside the standard directory of application data.
 // This directory can be used to store files locked by the current user.
-// This method requires the 1C:Enterprise extension installed to operate in the web client.
+// This method requires 1C:Enterprise Extension installed to operate in the web client.
 //
 Function UserDataDir()
 	
@@ -10487,7 +10487,7 @@ Function InitAddIn(TryInitAddIn = True) Export
 			Return InitAddIn(False); // Recursively.
 			
 		EndIf;
-		// АПК:150-
+		// ACC:150-
 		// 
 		
 		ApplicationParameters.Insert(ParameterName, New("AddIn.twain.AddInNativeExtension"));

@@ -610,7 +610,7 @@ This option is recommended if you made significant changes to the report option.
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Command bar left</v8:content>
+							<v8:content>Left command bar</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="CommandBarGroupLeftExtendedTooltip" id="148"/>
@@ -627,7 +627,7 @@ This option is recommended if you made significant changes to the report option.
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Command bar right</v8:content>
+							<v8:content>Right command bar</v8:content>
 						</v8:item>
 					</Title>
 					<HorizontalLocation>Right</HorizontalLocation>

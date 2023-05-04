@@ -18,7 +18,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		SetFilterByContactInfoOwner(Parameters.ContactInformationOwner);
 	EndIf;
 
-	// StandardSubsystems.ПодключаемыеКоманды
+	// StandardSubsystems.AttachableCommands
 	AttachableCommands.OnCreateAtServer(ThisObject);
 	// End StandardSubsystems.AttachableCommands
 	

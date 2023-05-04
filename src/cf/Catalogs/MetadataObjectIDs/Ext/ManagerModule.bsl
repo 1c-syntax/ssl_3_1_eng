@@ -1654,7 +1654,7 @@ Function ExportAllIDs(ExtensionsObjects = False)
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Data of the %1 catalog is corrupted.
 				           |In Designer, open the ""Administration"" menu
-				           |and click ""Verify and Repair…"".';"),
+				           |and click ""Verify and repair"".';"),
 				?(ExtensionsObjects, "ExtensionObjectIDs", "MetadataObjectIDs"));
 			Raise ErrorText;
 		EndIf;
@@ -2160,66 +2160,42 @@ EndProcedure
 //  FullName - String
 // 
 // Returns:
-//  Type
-//  String.
+//  - Type
+//  - String
 //
 Function MetadataObjectKey(FullName)
 	
 	PointPosition = StrFind(FullName, ".");
 	
-	MOClass = Left( FullName, PointPosition-1);
-	MetadataObjectName1   = Mid(FullName, PointPosition+1);
+	MetadataObjectClass = Upper(Left( FullName, PointPosition - 1));
+	MetadataObjectName   = Mid(FullName, PointPosition + 1);
 	
-	If Upper(MOClass) = Upper("ExchangePlan") Then
-		Return Type(MOClass + "Ref." + MetadataObjectName1);
+	If MetadataObjectClass = Upper("ExchangePlan") 
+		Or MetadataObjectClass = Upper("Catalog")
+		Or MetadataObjectClass = Upper("Document")
+		Or MetadataObjectClass = Upper("ChartOfCharacteristicTypes")
+		Or MetadataObjectClass = Upper("ChartOfAccounts")
+		Or MetadataObjectClass = Upper("ChartOfCalculationTypes")
+		Or MetadataObjectClass = Upper("BusinessProcess")
+		Or MetadataObjectClass = Upper("Task") Then
+		Return Type(MetadataObjectClass + "Ref." + MetadataObjectName);
 		
-	ElsIf Upper(MOClass) = Upper("Role") Then
-		Return KeyRole(Metadata.Roles[MetadataObjectName1]);
+	ElsIf MetadataObjectClass = Upper("Role") Then
+		Return KeyRole(Metadata.Roles[MetadataObjectName]);
 		
-	ElsIf Upper(MOClass) = Upper("Constant") Then
+	ElsIf MetadataObjectClass = Upper("Constant")
+		Or MetadataObjectClass = Upper("DocumentJournal") Then
 		Return TypeOf(Common.ObjectManagerByFullName(FullName));
 		
-	ElsIf Upper(MOClass) = Upper("Catalog") Then
-		Return Type(MOClass + "Ref." + MetadataObjectName1);
+	ElsIf MetadataObjectClass = Upper("Report")
+		Or MetadataObjectClass = Upper("DataProcessor") Then
+		Return Type(MetadataObjectClass + "Object." + MetadataObjectName);
 		
-	ElsIf Upper(MOClass) = Upper("Document") Then
-		Return Type(MOClass + "Ref." + MetadataObjectName1);
-		
-	ElsIf Upper(MOClass) = Upper("DocumentJournal") Then
-		Return TypeOf(Common.ObjectManagerByFullName(FullName));
-		
-	ElsIf Upper(MOClass) = Upper("Report") Then
-		Return Type(MOClass + "Object." + MetadataObjectName1);
-		
-	ElsIf Upper(MOClass) = Upper("DataProcessor") Then
-		Return Type(MOClass + "Object." + MetadataObjectName1);
-		
-	ElsIf Upper(MOClass) = Upper("ChartOfCharacteristicTypes") Then
-		Return Type(MOClass + "Ref." + MetadataObjectName1);
-		
-	ElsIf Upper(MOClass) = Upper("ChartOfAccounts") Then
-		Return Type(MOClass + "Ref." + MetadataObjectName1);
-		
-	ElsIf Upper(MOClass) = Upper("ChartOfCalculationTypes") Then
-		Return Type(MOClass + "Ref." + MetadataObjectName1);
-		
-	ElsIf Upper(MOClass) = Upper("InformationRegister") Then
-		Return Type(MOClass + "RecordKey." + MetadataObjectName1);
-		
-	ElsIf Upper(MOClass) = Upper("AccumulationRegister") Then
-		Return Type(MOClass + "RecordKey." + MetadataObjectName1);
-		
-	ElsIf Upper(MOClass) = Upper("AccountingRegister") Then
-		Return Type(MOClass + "RecordKey." + MetadataObjectName1);
-		
-	ElsIf Upper(MOClass) = Upper("CalculationRegister") Then
-		Return Type(MOClass + "RecordKey." + MetadataObjectName1);
-		
-	ElsIf Upper(MOClass) = Upper("BusinessProcess") Then
-		Return Type(MOClass + "Ref." + MetadataObjectName1);
-		
-	ElsIf Upper(MOClass) = Upper("Task") Then
-		Return Type(MOClass + "Ref." + MetadataObjectName1);
+	ElsIf MetadataObjectClass = Upper("InformationRegister")
+		Or MetadataObjectClass = Upper("AccumulationRegister")
+		Or MetadataObjectClass = Upper("AccountingRegister")
+		Or MetadataObjectClass = Upper("CalculationRegister") Then
+		Return Type(MetadataObjectClass + "RecordKey." + MetadataObjectName);
 	Else
 		// 
 		Return Type("Undefined");
@@ -3638,11 +3614,9 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 						InstalledExtensions = ConfigurationExtensions.Get(Filter, ConfigurationExtensionsSource.Database);
 						DetachedExtensions   = ConfigurationExtensions.Get(Filter, ConfigurationExtensionsSource.SessionDisabled);
 						ActiveExtensions      = ConfigurationExtensions.Get(Filter, ConfigurationExtensionsSource.SessionApplied);
-						If ActiveExtensions.Count() > 0 Then
-							ExtensionName = InstalledExtensions[0].Name;
-						ElsIf DetachedExtensions.Count() > 0 Then
-							ExtensionName = InstalledExtensions[0].Name;
-						ElsIf InstalledExtensions.Count() > 0 Then
+						If ActiveExtensions.Count() > 0 
+							Or DetachedExtensions.Count() > 0 
+							Or InstalledExtensions.Count() > 0 Then
 							ExtensionName = InstalledExtensions[0].Name;
 						EndIf;
 					EndIf;

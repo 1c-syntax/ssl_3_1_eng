@@ -34,7 +34,7 @@ Function DataProcessorKindObjectFilling() Export
 	
 EndFunction
 
-// Creating related objects.
+// Create related objects.
 //
 // Returns:
 //   String - 
@@ -56,7 +56,7 @@ Function DataProcessorKindReport() Export
 	
 EndFunction
 
-// Creating related objects.
+// Create related objects.
 //
 // Returns:
 //   String - 

@@ -180,8 +180,10 @@ EndProcedure
 //
 // Returns:
 //   ValueTreeRow - 
-//       * Enabled              - Boolean - If it is False, the report option is not registered in the subsystem.
+//       * Enabled              - Boolean -
 //       * DefaultVisibility - Boolean - If False, the report option is hidden from the report panel by default.
+//       * ShouldShowInOptionsSubmenu - Boolean -  
+//                                                
 //       * Location           - Map of KeyAndValue - settings describing report option placement in sections where:
 //           ** Key     - MetadataObject - Subsystem where a report or a report option is placed.
 //           ** Value - String           - settings of placement in the subsystem (group) with value options:
@@ -259,8 +261,10 @@ EndFunction
 //
 // Returns:
 //   ValueTreeRow - 
-//       * Enabled              - Boolean - If it is False, the report option is not registered in the subsystem.
+//       * Enabled              - Boolean -
 //       * DefaultVisibility - Boolean - If False, the report option is hidden from the report panel by default.
+//       * ShouldShowInOptionsSubmenu - Boolean -  
+//                                                
 //       * Description         - String - report option name.
 //       * LongDesc             - String - Report option tooltip.
 //       * Location           - Map of KeyAndValue - settings describing report option placement in sections where:
@@ -465,7 +469,7 @@ Procedure OnSaveUserSettingsAtServer(Form, Settings) Export
 			
 			// 
 			// 
-			SettingObject.Write(); // АПК:1327
+			SettingObject.Write(); // ACC:1327
 		EndIf;
 		
 		SettingsList.Delete(ListItem);
@@ -481,7 +485,7 @@ Procedure OnSaveUserSettingsAtServer(Form, Settings) Export
 		
 		// 
 		// 
-		SettingObject.Write(); // АПК:1327
+		SettingObject.Write(); // ACC:1327
 	EndDo;
 	
 EndProcedure
@@ -615,7 +619,7 @@ Procedure ResetCustomSettings(Var_Key, SettingsTypes1 = Undefined) Export
 		Var_Key,
 		New TypeDescription("String, MetadataObject, CatalogRef.ReportsOptions"));
 	
-	ObjectKeys = New Array; // 
+	ObjectsKeys = New Array; // 
 	
 	// The list of keys can be filled from the query or you can pass one specific key from the outside.
 	Query = New Query(
@@ -679,7 +683,7 @@ Procedure ResetCustomSettings(Var_Key, SettingsTypes1 = Undefined) Export
 	ElsIf TypeOf(Var_Key) = Type("String") Then
 		
 		ObjectKey = "Report." + Var_Key + "/CurrentUserSettings";
-		ObjectKeys.Add(ObjectKey);
+		ObjectsKeys.Add(ObjectKey);
 		
 	Else
 		Raise NStr("en = 'Invalid type of Report parameter';");
@@ -691,7 +695,7 @@ Procedure ResetCustomSettings(Var_Key, SettingsTypes1 = Undefined) Export
 		While Selection.Next() Do
 			ReportKind = ?(Selection.IsExternalReport, "ExternalReport.", "Report.");
 			ObjectKey = ReportKind + Selection.ReportName +"/"+ Selection.VariantKey + "/CurrentUserSettings";
-			ObjectKeys.Add(ObjectKey);
+			ObjectsKeys.Add(ObjectKey);
 		EndDo;
 	EndIf;
 	
@@ -705,7 +709,7 @@ Procedure ResetCustomSettings(Var_Key, SettingsTypes1 = Undefined) Export
 	
 	SetPrivilegedMode(True);
 	
-	For Each ObjectKey In ObjectKeys Do
+	For Each ObjectKey In ObjectsKeys Do
 		StorageSelection = SystemSettingsStorage.Select(New Structure("ObjectKey", ObjectKey));
 		
 		SuccessiveReadingErrors = 0;
@@ -1765,11 +1769,21 @@ Function GenerateReport(Val Parameters, Val CheckFilling, Val GetCheckBoxEmpty) 
 	EndTry;
 	
 	// Generating and assessing the speed.
-	
-	KeyOperationName = CommonClientServer.StructureProperty(Parameters, "KeyOperationName");
-	RunMeasurements = TypeOf(KeyOperationName) = Type("String") And Not IsBlankString(KeyOperationName) And RunMeasurements();
+	RunMeasurements = RunMeasurements();
 	If RunMeasurements Then
+		KeyOperationName = CommonClientServer.StructureProperty(Parameters, "KeyOperationName");
+		If Not ValueIsFilled(KeyOperationName) Then
+			KeyOperationName = ReportsOptionsInternal.MeasurementsKey(Result.FullName,
+				 Result.VariantKey) + ".Generation1";
+		EndIf;
 		KeyOperationComment = CommonClientServer.StructureProperty(Parameters, "KeyOperationComment");
+		If Not ValueIsFilled(KeyOperationComment)
+		   And Result.DCSettings <> Undefined
+		   And Result.DCSettings.AdditionalProperties.Property("PredefinedOptionKey") Then
+			KeyOperationComment = New Map;
+			KeyOperationComment.Insert("PredefinedOptionKey",
+				Result.DCSettings.AdditionalProperties.PredefinedOptionKey);
+		EndIf;
 		ModulePerformanceMonitor = Common.CommonModule("PerformanceMonitor");
 		BeginTime = ModulePerformanceMonitor.StartTimeMeasurement();
 	EndIf;
@@ -2158,9 +2172,9 @@ Function PredefinedReportsOptions(ReportsType = "BuiltIn", ConnectedToTheStorage
 					SettingVariants = DCSchema.SettingVariants;
 				Except
 					If Common.DataSeparationEnabled() Then
-						ErrorTextTemplate = NStr("en = 'Не удалось прочитать список вариантов отчета %1 в неразделенном сеансе,
-							|так как его настройки содержат ссылки на разделенные предопределенные значения.
-							|См. подробнее на ИТС: https://its.1c.eu/bmk/bsp_reports_service_mode
+						ErrorTextTemplate = NStr("en = 'Cannot read the %1 report option list in a separated session,
+							|as the settings include links to separated predefined objects.
+							|For more information, see ITS: https://its.1c.ru/bmk/bsp_reports_service_model
 							|%2';");
 						
 						ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -2502,11 +2516,6 @@ Procedure OnFillCommonDataTypesSupportingRefMappingOnExport(Types) Export
 	
 	Types.Add(Metadata.Catalogs.PredefinedReportsOptions);
 	
-EndProcedure
-
-// See CommonOverridable.OnAddClientParametersOnStart.
-Procedure OnAddClientParametersOnStart(Parameters) Export
-	Parameters.Insert("ReportsOptions", New FixedStructure(ClientParameters()));
 EndProcedure
 
 // See ExportImportDataOverridable.OnFillTypesExcludedFromExportImport.
@@ -2853,7 +2862,7 @@ Procedure FillOptionRowDetails(OptionDetails, DescriptionOfReport)
 	OptionDetails.DetailsReceived = True;
 	
 	// Copy report settings.
-	FillPropertyValues(OptionDetails, DescriptionOfReport, "Enabled, DefaultVisibility, GroupByReport");
+	FillPropertyValues(OptionDetails, DescriptionOfReport, "Enabled, DefaultVisibility, GroupByReport, ShouldShowInOptionsSubmenu");
 	
 	If OptionDetails.VariantKey = DescriptionOfReport.MainOption Then
 		// 
@@ -2873,8 +2882,8 @@ Procedure FillOptionRowDetails(OptionDetails, DescriptionOfReport)
 	MetadataOfReport = DescriptionOfReport.Metadata; // MetadataObjectReport
 	
 	If Common.SubsystemExists("StandardSubsystems.PerformanceMonitor") Then 
-		OptionDetails.MeasurementsKey = Common.TrimStringUsingChecksum(
-			MetadataOfReport.FullName() + "." + OptionDetails.VariantKey, 135);
+		OptionDetails.MeasurementsKey = ReportsOptionsInternal.MeasurementsKey(
+			MetadataOfReport.FullName(), OptionDetails.VariantKey);
 	EndIf;
 EndProcedure
 
@@ -3213,37 +3222,21 @@ Function SaveCommonPanelSettings(CommonSettings) Export
 	Return CommonSettings;
 EndFunction
 
-// Global client settings of a report.
-//
 // Returns:
 //  Structure:
 //   * RunMeasurements - Boolean
-//   * MeasurementsPrefix  - String
 //
 Function ClientParameters() Export
 	ClientParameters = New Structure;
 	ClientParameters.Insert("RunMeasurements", RunMeasurements());
-	ClientParameters.Insert("MeasurementsPrefix", "");
-	If ClientParameters.RunMeasurements Then
-		SetPrivilegedMode(True);
-		ClientParameters.MeasurementsPrefix = StrReplace(SessionParameters["TimeMeasurementComment"], ";", "; ");
-		SetPrivilegedMode(False);
-	EndIf;
 	
 	Return ClientParameters;
 EndFunction
 
-// Global client settings of a report.
 Function RunMeasurements()
-	If SafeMode() <> False Then
-		Return False;
-	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.PerformanceMonitor") Then
-		ModulePerformanceMonitorServerCallCached = Common.CommonModule("PerformanceMonitorServerCallCached");
-		If ModulePerformanceMonitorServerCallCached.RunPerformanceMeasurements() Then
-			Return True;
-		EndIf;
+		Return True;
 	EndIf;
 	
 	Return False;
@@ -3973,7 +3966,7 @@ Function UpdatePredefinedReportOption(Mode, OptionDetails, Result)
 		EndIf;
 		
 		FillPropertyValues(OptionObject, OptionDetails, 
-			"Report, VariantKey, Enabled, DefaultVisibility, GroupByReport");
+			"Report, VariantKey, Enabled, DefaultVisibility, GroupByReport, ShouldShowInOptionsSubmenu");
 		FieldsForSearch = FieldsForSearch(OptionObject);
 		
 		If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
@@ -4054,7 +4047,8 @@ Function SecondarySettingsOfPredefinedItemChanged(OptionDetails, OptionFromBase)
 	If OptionFromBase.Enabled <> OptionDetails.Enabled
 		Or OptionFromBase.LongDesc <> OptionDetails.LongDesc
 		Or OptionFromBase.MeasurementsKey <> OptionDetails.MeasurementsKey
-		Or OptionFromBase.GroupByReport <> OptionDetails.GroupByReport Then
+		Or OptionFromBase.GroupByReport <> OptionDetails.GroupByReport
+		Or OptionFromBase.ShouldShowInOptionsSubmenu <> OptionDetails.ShouldShowInOptionsSubmenu Then
 		Return True;
 	EndIf;
 	
@@ -5826,9 +5820,8 @@ EndFunction
 //       
 //       The further properties are taken from ReportsOptions.ClientParameters.
 //       * RunMeasurements - Boolean
-//       * MeasurementsPrefix  - String
 //       
-//       The further properties are taken from ReportsClientServer.DefaultReportSettings.
+//       
 //       * GenerateImmediately - Boolean
 //       * OutputSelectedCellsTotal - Boolean
 //       * EditStructureAllowed - Boolean
@@ -6779,7 +6772,6 @@ Function ReportsWithSimpleFiltersQueryText()
 		|	ReportsOptions.Report IN (&UserReports)
 		|	AND (NOT &HasFilterByReportTypes
 		|		OR ReportsOptions.ReportType IN (&ReportsTypes))
-		|	AND NOT ReportsOptions.PredefinedOption IN (&DIsabledApplicationOptions)
 		|	AND (NOT ReportsOptions.Custom
 		|		OR &NoFilterByDeletionMark
 		|		OR NOT ReportsOptions.InteractiveDeletionMark)
@@ -6791,9 +6783,14 @@ Function ReportsWithSimpleFiltersQueryText()
 		|		OR ReportsOptions.Author = &CurrentUser)
 		|	AND ISNULL(AvailableReportsOptions.Visible, TRUE)
 		|	AND (&HasFilterByContext
-		|			AND (NOT UserReportOptions.Ref IS NULL
-		|				AND ReportsOptions.Context = &Context)
-		|		OR NOT &HasFilterByContext)";
+		|		AND (ReportsOptions.PredefinedOption IN (&DIsabledApplicationOptions)
+		|			AND (ConfigurationOptions.ShouldShowInOptionsSubmenu = TRUE
+  		|			OR ExtensionOptions.ShouldShowInOptionsSubmenu = TRUE)
+		|			OR NOT UserReportOptions.Ref IS NULL
+		|			AND ReportsOptions.Context = &Context)
+		|			OR NOT &HasFilterByContext
+		|			AND NOT ReportsOptions.PredefinedOption IN (&DIsabledApplicationOptions))";
+
 	
 	Else
 		
@@ -6890,9 +6887,13 @@ Function ReportsWithSimpleFiltersQueryText()
 		|		OR ReportsOptions.Author = &CurrentUser)
 		|	AND ISNULL(AvailableReportsOptions.Visible, TRUE)
 		|	AND (&HasFilterByContext
-		|			AND (NOT UserReportOptions.Ref IS NULL
-		|				AND ReportsOptions.Context = &Context)
-		|		OR NOT &HasFilterByContext)";
+		|		AND (ReportsOptions.PredefinedOption IN (&DIsabledApplicationOptions)
+		|			AND (ConfigurationOptions.ShouldShowInOptionsSubmenu = TRUE
+  		|			OR ExtensionOptions.ShouldShowInOptionsSubmenu = TRUE)
+		|			OR NOT UserReportOptions.Ref IS NULL
+		|			AND ReportsOptions.Context = &Context)
+		|			OR NOT &HasFilterByContext
+		|			AND NOT ReportsOptions.PredefinedOption IN (&DIsabledApplicationOptions))";
 			
 	EndIf;
 	
@@ -8901,7 +8902,7 @@ Function SettingsUsersProperties(SelectedUsers, CurrentUser)
 	|	AND NOT Users.Invalid
 	|	AND NOT Users.IsInternal");
 	
-	// АПК:96 -
+	// ACC:96 -
 	
 	Query.SetParameter("SelectedUsers", SelectedUsers);
 	Query.SetParameter("CurrentUser", CurrentUser);
@@ -9082,7 +9083,7 @@ Procedure UpdateInternalUserSettingsInformation(User, SettingsDescription, Setti
 		Object.UserSettingKey = SettingsDescription.SettingsKey;
 		Object.Variant = SettingsDescription.ReportVariant;
 		Object.User = User;
-		Object.Write(); // АПК:1327
+		Object.Write(); // ACC:1327
 		Return;
 		
 	EndIf;
@@ -9098,7 +9099,7 @@ Procedure UpdateInternalUserSettingsInformation(User, SettingsDescription, Setti
 	Object = Item.Ref.GetObject(); // СправочникОбъект.ПользовательскиеНастройкиВариантов
 	Object.Description = SettingsDescription.Presentation;
 	Object.DeletionMark = False;
-	Object.Write(); // АПК:1327
+	Object.Write(); // ACC:1327
 	
 EndProcedure
 
@@ -9206,6 +9207,7 @@ Function PredefinedReportsOptionsCollection()
 	Result.Columns.Add("DetailsReceived", FlagDetails);
 	Result.Columns.Add("Enabled", FlagDetails);
 	Result.Columns.Add("DefaultVisibility", FlagDetails);
+	Result.Columns.Add("ShouldShowInOptionsSubmenu", FlagDetails);
 	Result.Columns.Add("Description", TypesDetailsString());
 	Result.Columns.Add("LongDesc", TypesDetailsString());
 	Result.Columns.Add("Location", MapDetails);

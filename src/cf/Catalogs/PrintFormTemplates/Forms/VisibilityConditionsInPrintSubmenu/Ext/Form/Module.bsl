@@ -284,7 +284,7 @@ Procedure SetConditionalAppearance()
 	
 	ConditionalAppearance.Items.Clear();
 	
-	// ReadOnly for comparison kind Filled and NotFilled.
+	// ReadOnly for comparison type Filled and NotFilled.
 	
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	

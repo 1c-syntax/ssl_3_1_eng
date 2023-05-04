@@ -39,7 +39,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Items.DecorationDocumentation.Title = StringFunctions.FormattedString("<a href=""%1"">%2</a>",
 		"http://its.1c.eu/db/v83doc#bookmark:dev:ti000001358",
-		NStr("en = 'Documentation on the use of an automatic REST service';"));
+		NStr("en = 'Automatic REST service documentation';"));
 	
 EndProcedure
 
@@ -80,7 +80,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		Cancel = True;
 		
 		NotifyDescription = New NotifyDescription("ContinueClosingAfterQuestion", ThisObject);
-		ShowQueryBox(NotifyDescription, NStr("en = 'The data was changed. Do you want to save the changes?';"), QuestionDialogMode.YesNoCancel);
+		ShowQueryBox(NotifyDescription, NStr("en = 'The data has been changed. Do you want to save the changes?';"), QuestionDialogMode.YesNoCancel);
 		
 	EndIf;
 	

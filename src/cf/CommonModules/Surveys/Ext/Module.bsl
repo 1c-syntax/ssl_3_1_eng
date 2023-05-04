@@ -575,63 +575,43 @@ Procedure AddAttributesForQuestion(TreeRow, AttributesToBeAdded, Form)
 	QuestionName = SurveysClientServer.GetQuestionName(TreeRow.Composite);
 	
 	RowTypeDetails = New TypeDescription("String");
-	AttributesToBeAdded.Add(New FormAttribute(QuestionName + "_Wording",RowTypeDetails));
+	AttributesToBeAdded.Add(New FormAttribute(QuestionName + "_Wording", RowTypeDetails));
 	
 	If TreeRow.QuestionType = Enums.QuestionnaireTemplateQuestionTypes.Tabular Then
-		
 		AddAttributesTabularQuestion(TreeRow,AttributesToBeAdded,Form);
-				
 	ElsIf TreeRow.QuestionType = Enums.QuestionnaireTemplateQuestionTypes.Complex Then
-		
 		AddAttributesComplexQuestion(TreeRow, AttributesToBeAdded, Form);
-		
 	Else
 		
-		If TreeRow.ReplyType = Enums.TypesOfAnswersToQuestion.String Then
+		If TreeRow.ReplyType = Enums.TypesOfAnswersToQuestion.String 
+			Or TreeRow.ReplyType = Enums.TypesOfAnswersToQuestion.Text Then
 			
-			RowTypeDetails = New TypeDescription("String",,New StringQualifiers(TreeRow.Length));
-			AttributesToBeAdded.Add(New FormAttribute(QuestionName,RowTypeDetails,,TreeRow.Wording));
-			
-		ElsIf TreeRow.ReplyType = Enums.TypesOfAnswersToQuestion.Text Then
-			
-			RowTypeDetails = New TypeDescription("String",,New StringQualifiers(TreeRow.Length));
-			AttributesToBeAdded.Add(New FormAttribute(QuestionName,RowTypeDetails,,TreeRow.Wording));
+			RowTypeDetails = New TypeDescription("String",, New StringQualifiers(TreeRow.Length));
+			AttributesToBeAdded.Add(New FormAttribute(QuestionName, RowTypeDetails,, TreeRow.Wording));
 		
 		ElsIf TreeRow.ReplyType = Enums.TypesOfAnswersToQuestion.Boolean Then
-			
 			BooleanTypeDetails = New TypeDescription("Boolean");
-			AttributesToBeAdded.Add(New FormAttribute(QuestionName,BooleanTypeDetails,,TreeRow.Wording));
-			
+			AttributesToBeAdded.Add(New FormAttribute(QuestionName,BooleanTypeDetails,, TreeRow.Wording));
 		ElsIf TreeRow.ReplyType = Enums.TypesOfAnswersToQuestion.Date Then
-			
-			DateTypeDetails = New TypeDescription("Date",New DateQualifiers(DateFractions.Date));
-			AttributesToBeAdded.Add(New FormAttribute(QuestionName,DateTypeDetails,,TreeRow.Wording));
-			
+			DateTypeDetails = New TypeDescription("Date", New DateQualifiers(DateFractions.Date));
+			AttributesToBeAdded.Add(New FormAttribute(QuestionName,DateTypeDetails,, TreeRow.Wording));
 		ElsIf TreeRow.ReplyType = Enums.TypesOfAnswersToQuestion.Number Then
-			
-			TypeDescriptionNumber = New TypeDescription("Number",,,New NumberQualifiers(TreeRow.Length,TreeRow.Accuracy));
-			AttributesToBeAdded.Add(New FormAttribute(QuestionName,TypeDescriptionNumber,,TreeRow.Wording));
-			
-		ElsIf TreeRow.ReplyType = Enums.TypesOfAnswersToQuestion.InfobaseValue Then
-			
-			AttributesToBeAdded.Add(New FormAttribute(QuestionName,TreeRow.ValueType,,TreeRow.Wording));
-			
-		ElsIf TreeRow.ReplyType = Enums.TypesOfAnswersToQuestion.OneVariantOf Then
-			
-			AttributesToBeAdded.Add(New FormAttribute(QuestionName,TreeRow.ValueType,,TreeRow.Wording));
-			
+			TypeDescriptionNumber = New TypeDescription("Number",,, New NumberQualifiers(TreeRow.Length, TreeRow.Accuracy));
+			AttributesToBeAdded.Add(New FormAttribute(QuestionName,TypeDescriptionNumber,, TreeRow.Wording));
+		ElsIf TreeRow.ReplyType = Enums.TypesOfAnswersToQuestion.InfobaseValue 
+			Or TreeRow.ReplyType = Enums.TypesOfAnswersToQuestion.OneVariantOf Then
+			AttributesToBeAdded.Add(New FormAttribute(QuestionName,TreeRow.ValueType,, TreeRow.Wording));
 		ElsIf TreeRow.ReplyType = Enums.TypesOfAnswersToQuestion.MultipleOptionsFor Then
-			
 			OptionsOfAnswersToQuestion = OptionsOfAnswersToQuestion(TreeRow.ElementaryQuestion,Form);
-			
-			RowTypeDetails = New TypeDescription("String",,New StringQualifiers(150));
+			RowTypeDetails = New TypeDescription("String",, New StringQualifiers(150));
 			BooleanTypeDetails = New TypeDescription("Boolean");
 			
 			Counter = 0;
 			
 			For Each AnswerOption In OptionsOfAnswersToQuestion Do
 				Counter = Counter + 1;
-				AttributesToBeAdded.Add(New FormAttribute(QuestionName + "_Attribute_" + Counter,BooleanTypeDetails,,AnswerOption.Presentation));
+				AttributesToBeAdded.Add(New FormAttribute(
+					QuestionName + "_Attribute_" + Counter, BooleanTypeDetails,, AnswerOption.Presentation));
 				If AnswerOption.OpenEndedQuestion Then
 					AttributesToBeAdded.Add(New FormAttribute(QuestionName + "_Comment_" + Counter,RowTypeDetails));
 				EndIf;
@@ -640,10 +620,9 @@ Procedure AddAttributesForQuestion(TreeRow, AttributesToBeAdded, Form)
 		EndIf;
 		
 		If (TreeRow.ReplyType <> Enums.TypesOfAnswersToQuestion.MultipleOptionsFor) And (TreeRow.CommentRequired) Then
-			
-			RowTypeDetails = New TypeDescription("String",,New StringQualifiers(150));
-			AttributesToBeAdded.Add(New FormAttribute(QuestionName + "_Comment",RowTypeDetails,,TreeRow.CommentNote));
-			
+			RowTypeDetails = New TypeDescription("String",, New StringQualifiers(150));
+			AttributesToBeAdded.Add(New FormAttribute(
+				QuestionName + "_Comment", RowTypeDetails,, TreeRow.CommentNote));
 		EndIf;
 		
 	EndIf;
@@ -948,7 +927,7 @@ Procedure AddQuestionItems(TableRow, GroupItem1, Form)
 		
 		If TableRow.ReplyType = Enums.TypesOfAnswersToQuestion.String Then
 			
-			Item = Form.Items.Add(QuestionName,Type("FormField"),QuestionGroupItemComment);
+			Item = Form.Items.Add(QuestionName,Type("FormField"), QuestionGroupItemComment);
 			Item.Type                        = FormFieldType.InputField;
 			Item.TitleLocation         = FormItemTitleLocation.None;
 			Item.AutoMarkIncomplete  = TableRow.IsRequired;
@@ -958,7 +937,7 @@ Procedure AddQuestionItems(TableRow, GroupItem1, Form)
 			
 		ElsIf TableRow.ReplyType = Enums.TypesOfAnswersToQuestion.Text Then
 			
-			Item = Form.Items.Add(QuestionName,Type("FormField"),QuestionGroupItemComment);
+			Item = Form.Items.Add(QuestionName,Type("FormField"), QuestionGroupItemComment);
 			Item.Type                       = FormFieldType.InputField;
 			Item.TitleLocation        = FormItemTitleLocation.None;
 			Item.AutoMarkIncomplete = TableRow.IsRequired;

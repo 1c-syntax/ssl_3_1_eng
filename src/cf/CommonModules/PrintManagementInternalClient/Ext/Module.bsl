@@ -101,7 +101,7 @@ Procedure RunAttachablePrintCommandCompletion(FileSystemExtensionAttached1, Addi
 		CommandDetails.Insert("Form", Form);
 		HandlerName = CommandDetails.Handler;
 		If StrOccurrenceCount(HandlerName, ".") = 0 And IsReportOrDataProcessor(CommandDetails.PrintManager) Then
-			DefaultForm = GetForm(CommandDetails.PrintManager + ".Form", , Form, True);// АПК:65 - 
+			DefaultForm = GetForm(CommandDetails.PrintManager + ".Form", , Form, True);// ACC:65 - 
 			HandlerName = "DefaultForm." + HandlerName;
 		EndIf;
 		PrintParameters = PrintManagementClient.DescriptionOfPrintParameters();

@@ -154,7 +154,7 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 	If ExecutionParameters.FilesOperationsRequired Then
 		ExecutionParameters.FilesOperationsRequired = False;
 		Handler = New NotifyDescription("ContinueExecutionCommandAfterSetFileExtension", ThisObject, ExecutionParameters);
-		MessageText = NStr("en = 'To continue, install 1C:Enterprise extension.';");
+		MessageText = NStr("en = 'To continue, install 1C:Enterprise Extension.';");
 		FileSystemClient.AttachFileOperationsExtension(Handler, MessageText);
 		Return;
 	EndIf;
@@ -340,7 +340,7 @@ Procedure ContinueCommandExecutionAfterConfirmPosting(Response, Context) Export
 	
 	If UnpostedDocuments.Count() > 0 Then
 		// Asking the user whether the procedure execution must be continued even if there are unposted documents.
-		DialogText = NStr("en = 'Cannot post one or several documents.';");
+		DialogText = NStr("en = 'Failed to post one or several documents.';");
 		
 		DialogButtons = New ValueList;
 		If Context.ReferencesArrray.Count() = 0 Then

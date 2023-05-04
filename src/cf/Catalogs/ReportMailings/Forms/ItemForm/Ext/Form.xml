@@ -3735,6 +3735,11 @@
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
+		<Attribute name="CanEncryptAttachments" id="54">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="AddChangeMailingDateTemplate" id="2">
@@ -3801,7 +3806,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Add a report to the distribution list.</v8:content>
+					<v8:content>Add</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>AddReport</Action>
@@ -3811,13 +3816,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Select additional report</v8:content>
+					<v8:content>Pick additional report</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Select an additional report</v8:content>
+					<v8:content>Pick additional report</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

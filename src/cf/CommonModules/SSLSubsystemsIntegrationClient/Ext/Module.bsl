@@ -330,20 +330,64 @@ EndProcedure
 // See CommonClientOverridable.BeforeRecurringClientDataSendToServer
 Procedure BeforeRecurringClientDataSendToServer(Parameters) Export
 	
-	If CommonClient.SubsystemExists("StandardSubsystems.MonitoringCenter") Then
-		ModuleMonitoringCenterClientInternal = CommonClient.CommonModule("MonitoringCenterClientInternal");
-		ModuleMonitoringCenterClientInternal.BeforeRecurringClientDataSendToServer(Parameters);
-	EndIf;
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Try
+		StandardSubsystemsClient.BeforeRecurringClientDataSendToServer(Parameters);
+	Except
+		ServerNotificationsClient.HandleError(ErrorInfo());
+	EndTry;
+	ServerNotificationsClient.AddIndicator(StartMoment,
+		"StandardSubsystemsClient.BeforeRecurringClientDataSendToServer");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Try
+		If CommonClient.SubsystemExists("StandardSubsystems.PerformanceMonitor") Then
+			ModulePerformanceMonitorClient = CommonClient.CommonModule("PerformanceMonitorClient");
+			ModulePerformanceMonitorClient.BeforeRecurringClientDataSendToServer(Parameters);
+		EndIf;
+	Except
+		ServerNotificationsClient.HandleError(ErrorInfo());
+	EndTry;
+	ServerNotificationsClient.AddIndicator(StartMoment,
+		"PerformanceMonitorClient.BeforeRecurringClientDataSendToServer");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Try
+		If CommonClient.SubsystemExists("StandardSubsystems.MonitoringCenter") Then
+			ModuleMonitoringCenterClientInternal = CommonClient.CommonModule("MonitoringCenterClientInternal");
+			ModuleMonitoringCenterClientInternal.BeforeRecurringClientDataSendToServer(Parameters);
+		EndIf;
+	Except
+		ServerNotificationsClient.HandleError(ErrorInfo());
+	EndTry;
+	ServerNotificationsClient.AddIndicator(StartMoment,
+		"MonitoringCenterClientInternal.BeforeRecurringClientDataSendToServer");
 	
 EndProcedure
 
 // See CommonClientOverridable.AfterRecurringReceiptOfClientDataOnServer
 Procedure AfterRecurringReceiptOfClientDataOnServer(Results) Export
 	
-	If CommonClient.SubsystemExists("StandardSubsystems.MonitoringCenter") Then
-		ModuleMonitoringCenterClientInternal = CommonClient.CommonModule("MonitoringCenterClientInternal");
-		ModuleMonitoringCenterClientInternal.AfterRecurringReceiptOfClientDataOnServer(Results);
-	EndIf;
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Try
+		StandardSubsystemsClient.AfterRecurringReceiptOfClientDataOnServer(Results);
+	Except
+		ServerNotificationsClient.HandleError(ErrorInfo());
+	EndTry;
+	ServerNotificationsClient.AddIndicator(StartMoment,
+		"StandardSubsystemsClient.AfterRecurringReceiptOfClientDataOnServer");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Try
+		If CommonClient.SubsystemExists("StandardSubsystems.MonitoringCenter") Then
+			ModuleMonitoringCenterClientInternal = CommonClient.CommonModule("MonitoringCenterClientInternal");
+			ModuleMonitoringCenterClientInternal.AfterRecurringReceiptOfClientDataOnServer(Results);
+		EndIf;
+	Except
+		ServerNotificationsClient.HandleError(ErrorInfo());
+	EndTry;
+	ServerNotificationsClient.AddIndicator(StartMoment,
+		"MonitoringCenterClientInternal.AfterRecurringReceiptOfClientDataOnServer");
 	
 EndProcedure
 

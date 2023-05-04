@@ -66,7 +66,7 @@ Procedure OnOpen(Cancel)
 		AdditionalParameters.Insert("UserTemplateSettings", AppDataDirectory() + "1C\1CEStart\1CEStart.cfg");
 		AdditionalParameters.Insert("FileLocation1",                 "");
 		
-		SuggestionText = NStr("en = 'To open the directory, install 1C:Enterprise extension.';");
+		SuggestionText = NStr("en = 'To open the directory, install 1C:Enterprise Extension.';");
 		Notification = New NotifyDescription("AfterCheckFileSystemExtension", ThisObject, AdditionalParameters);
 		FileSystemClient.AttachFileOperationsExtension(Notification, SuggestionText);
 	Else
@@ -370,7 +370,7 @@ Procedure UnloadRules(Command)
 	
 	DialogParameters = New Structure;
 	DialogParameters.Insert("Mode", FileDialogMode.Save);
-	DialogParameters.Insert("Title", NStr("en = 'Specify a file to export rules to';") );
+	DialogParameters.Insert("Title", NStr("en = 'Select a file to export rules to';") );
 	DialogParameters.Insert("FullFileName", FullFileName);
 	DialogParameters.Insert("Filter", NStr("en = 'ZIP archive (*.zip)';") + "|*.zip");
 	

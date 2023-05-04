@@ -24,7 +24,7 @@ EndProcedure
 // Parameters:
 //  Text - String - Reminder text;
 //  Time - Date - Reminder's due date and time.
-//  SubjectOf - AnyRef - Reminder's topic.
+//  SubjectOf - AnyRef - Reminder's subject.
 //
 Procedure RemindInSpecifiedTime(Text, Time, SubjectOf = Undefined) Export
 	
@@ -36,13 +36,13 @@ Procedure RemindInSpecifiedTime(Text, Time, SubjectOf = Undefined) Export
 	
 EndProcedure
 
-// Creates a reminder for time calculated relatively to time in the subject.
+// Creates a reminder for a time relative to the time in the subject.
 //
 // Parameters:
 //  Text - String - Reminder text;
-//  Interval - Number - time in seconds, prior to which it is necessary to remind of the date in the subject attribute;
-//  SubjectOf - AnyRef - Reminder's topic.
-//  AttributeName - String - Name of the topic attribute, for which the reminder period is set.
+//  Interval - Number - Reminder interval in seconds before the subject attribute's date.
+//  SubjectOf - AnyRef - Reminder's subject.
+//  AttributeName - String - Name of the subject attribute, for which the reminder period is set.
 //
 Procedure RemindTillSubjectTime(Text, Interval, SubjectOf, AttributeName) Export
 	
@@ -60,10 +60,10 @@ EndProcedure
 //  Text - String - Reminder text.
 //  EventTime - Date - Date and time of the event, which needs a reminder;
 //               - JobSchedule - 
-//               - String - Name of the topic's attribute that contains the event time.
+//               - String - Name of the subject's attribute that contains the event time.
 //  IntervalTillEvent - Number - time in seconds, prior to which it is necessary to remind of the event time;
-//  SubjectOf - AnyRef - Reminder's topic.
-//  Id - String - Describes the reminder's topic. For example, "Birthday".
+//  SubjectOf - AnyRef - Reminder's subject.
+//  Id - String - Describes the reminder's subject. For example, "Birthday".
 //
 Procedure Remind(Text, EventTime, IntervalTillEvent = 0, SubjectOf = Undefined, Id = Undefined) Export
 	
@@ -75,13 +75,13 @@ Procedure Remind(Text, EventTime, IntervalTillEvent = 0, SubjectOf = Undefined, 
 	
 EndProcedure
 
-// Creates an annual reminder with the topic's due date.
+// Creates an annual reminder with the subject's due date.
 //
 // Parameters:
 //  Text - String - Reminder text;
-//  Interval - Number - time in seconds, prior to which it is necessary to remind of the date in the subject attribute;
-//  SubjectOf - AnyRef - Reminder's topic.
-//  AttributeName - String - Name of the topic attribute, for which the reminder period is set.
+//  Interval - Number - Reminder interval in seconds before the subject attribute's date.
+//  SubjectOf - AnyRef - Reminder's subject.
+//  AttributeName - String - Name of the subject attribute, for which the reminder period is set.
 //
 Procedure RemindOfAnnualSubjectEvent(Text, Interval, SubjectOf, AttributeName) Export
 	

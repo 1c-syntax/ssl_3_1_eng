@@ -23,12 +23,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Raise NStr("en = 'The data processor cannot be opened manually.';");
 	EndIf;
 	
-	//  
-	// 
 	InitializeReferencesToReplace(RefArrayFromList(Parameters.RefSet));
-	If Not IsBlankString(ParametersErrorText) Then
-		Return; // A warning will be issued on opening.
-	EndIf;
 	
 	HasRightToDeletePermanently = AccessRight("DataAdministration", Metadata);
 	ReplacementNotificationEvent        = DataProcessors.ReplaceAndMergeItems.ReplacementNotificationEvent();
@@ -48,18 +43,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ItemsToReplaceList = New ValueList;
 	ItemsToReplaceList.LoadValues(RefsToReplace.Unload().UnloadColumn("Ref"));
-	CommonClientServer.SetDynamicListFilterItem(
-		List,
-		"Ref",
-		ItemsToReplaceList,
-		DataCompositionComparisonType.NotInList,
-		NStr("en = 'Do not show replaceable items.';"),
-		True,
-		DataCompositionSettingsItemViewMode.Inaccessible,
-		"5bf5cd06-c1fd-4bd3-94b9-4e9803e90fd5");
-	
+	CommonClientServer.SetDynamicListFilterItem(List, "Ref", ItemsToReplaceList,
+		DataCompositionComparisonType.NotInList, NStr("en = 'Do not show replaceable items.';"), True, 
+		DataCompositionSettingsItemViewMode.Inaccessible, "5bf5cd06-c1fd-4bd3-94b9-4e9803e90fd5");
 	If ReferencesToReplaceCommonOwner <> Undefined Then 
-		CommonClientServer.SetDynamicListFilterItem(List, "Owner", ReferencesToReplaceCommonOwner );
+		CommonClientServer.SetDynamicListFilterItem(List, "Owner", ReferencesToReplaceCommonOwner);
 	EndIf;
 	
 	If RefsToReplace.Count() > 1 Then
@@ -115,14 +103,6 @@ EndProcedure
 
 &AtClient
 Procedure OnOpen(Cancel)
-	// Checking whether an error message is required.
-	If Not IsBlankString(ParametersErrorText) Then
-		Cancel = True;
-		ShowMessageBox(, ParametersErrorText);
-		Return;
-	EndIf;
-	
-	// Run wizard.
 	OnActivateWizardStep();
 EndProcedure
 
@@ -502,20 +482,13 @@ EndProcedure
 Procedure WizardStepNext()
 	
 	CurrentPage = Items.WizardSteps.CurrentPage;
-	
 	If CurrentPage = Items.ReplacementItemSelectionStep Then
-		
 		StepReplacementItemSelectionOnClickNextButton();
-		
 	ElsIf CurrentPage = Items.RetryReplacementStep Then
-		
 		GoToWizardStep1(Items.ReplacementStep);
-		
 	Else
-		
-		CurrentStep = WizardSettings.CurrentStep;// See AddWizardStep
+		CurrentStep = WizardSettings.CurrentStep; // See AddWizardStep
 		GoToWizardStep1(CurrentStep.IndexOf + 1);
-		
 	EndIf;
 	
 EndProcedure
@@ -524,16 +497,11 @@ EndProcedure
 Procedure WizardStepBack()
 	
 	CurrentPage = Items.WizardSteps.CurrentPage;
-	
 	If CurrentPage = Items.RetryReplacementStep Then
-		
 		GoToWizardStep1(Items.ReplacementItemSelectionStep);
-		
 	Else
-		
-		Step = WizardSettings.CurrentStep;// See AddWizardStep
+		Step = WizardSettings.CurrentStep; // See AddWizardStep
 		GoToWizardStep1(Step.IndexOf - 1);
-		
 	EndIf;
 	
 EndProcedure
@@ -542,11 +510,8 @@ EndProcedure
 Procedure WizardStepCancel()
 	
 	CurrentPage = Items.WizardSteps.CurrentPage;
-	
 	If CurrentPage = Items.ReplacementStep Then
-		
 		WizardSettings.ShowDialogBeforeClose = False;
-		
 	EndIf;
 	
 	If IsOpen() Then
@@ -640,7 +605,6 @@ EndProcedure
 Procedure GenerateReplacementItemAndTooltip(Context)
 	
 	CurrentData = Context.Items.List.CurrentData;
-	// Skipping empty data and groups
 	If CurrentData = Undefined Or AttributeValue(CurrentData, "IsFolder", False) Then
 		Return;
 	EndIf;
@@ -694,6 +658,16 @@ Procedure GenerateReplacementItemAndTooltip(Context)
 	EndIf;
 	
 EndProcedure
+
+&AtServerNoContext
+Function OwnerPresentation(BasicMetadata)
+	For Each Attribute In BasicMetadata.StandardAttributes Do
+		If Attribute.Name = "Owner" Then
+			Return Attribute.Synonym;	
+		EndIf;
+	EndDo;
+	Return "";	
+EndFunction
 
 &AtClientAtServerNoContext
 Function AttributeValue(Val Data, Val AttributeName, Val ValueIfNotFound = Undefined)
@@ -785,40 +759,27 @@ Procedure InitializeReferencesToReplace(Val ReferencesArrray)
 	
 	RefsCount = ReferencesArrray.Count();
 	If RefsCount = 0 Then
-		ParametersErrorText = NStr("en = 'No items to be replaced are selected.';");
-		Return;
+		Raise NStr("en = 'Выберите хотя бы один элемент для замены.';");
 	EndIf;
 	
 	ReplacementItem = ReferencesArrray[0];
-	
 	BasicMetadata = ReplacementItem.Metadata();
+	VerifyAccessRights("Update", BasicMetadata);
+	
 	Characteristics = New Structure("Owners, Hierarchical, HierarchyType", New Array, False);
 	FillPropertyValues(Characteristics, BasicMetadata);
 	
 	HasOwners = Characteristics.Owners.Count() > 0;
 	HasGroups    = Characteristics.Hierarchical And Characteristics.HierarchyType = Metadata.ObjectProperties.HierarchyType.HierarchyFoldersAndItems;
 	
-	AdditionalFields = "";
-	If HasOwners Then
-		AdditionalFields = AdditionalFields + ", Owner AS Owner";
-	Else
-		AdditionalFields = AdditionalFields + ", UNDEFINED AS Owner";
-	EndIf;
-	
-	If HasGroups Then
-		AdditionalFields = AdditionalFields + ", IsFolder AS IsFolder";
-	Else
-		AdditionalFields = AdditionalFields + ", FALSE AS IsFolder";
-	EndIf;
-	
-	TableName = BasicMetadata.FullName();
-	Query = New Query(
+	QueryText =
 		"SELECT
-		|Ref AS Ref
-		|" + AdditionalFields + "
+		|Ref AS Ref,
+		|&ПолеВладелец AS Owner,
+		|&IsFolder AS IsFolder
 		|INTO RefsToReplace
 		|FROM
-		|	" + TableName + "
+		|	#TableName
 		|WHERE
 		|	Ref IN (&RefSet)
 		|INDEX BY
@@ -840,52 +801,56 @@ Procedure InitializeReferencesToReplace(Val ReferencesArrray)
 		|SELECT ALLOWED TOP 1
 		|	DestinationTable2.Ref
 		|FROM
-		|	" + TableName + " AS DestinationTable2
+		|	#TableName AS DestinationTable2
 		|		LEFT JOIN RefsToReplace AS RefsToReplace
 		|		ON DestinationTable2.Ref = RefsToReplace.Ref
-		|		AND DestinationTable2.Owner = RefsToReplace.Owner
 		|WHERE
 		|	RefsToReplace.Ref IS NULL
-		|	AND NOT DestinationTable2.IsFolder");
+		|	AND &ConditionGroup
+		|	AND &OwnerCondition";
+	QueryText = StrReplace(QueryText, "#TableName", BasicMetadata.FullName());
+	QueryText = StrReplace(QueryText, "&ПолеВладелец", ?(HasOwners, "Owner", "UNDEFINED"));
+	QueryText = StrReplace(QueryText, "&IsFolder", ?(HasGroups, "IsFolder", "FALSE"));
+	QueryText = StrReplace(QueryText, "&OwnerCondition", 
+		?(HasOwners, "DestinationTable2.Owner = &Owner", "TRUE")); // @query-part
+	QueryText = StrReplace(QueryText, "&ConditionGroup", 
+		?(HasGroups, "NOT DestinationTable2.IsFolder", "TRUE")); // @query-part
 		
-	If Not HasOwners Then
-		Query.Text = StrReplace(Query.Text, "AND DestinationTable2.Owner = RefsToReplace.Owner", ""); // @query-part
-	EndIf;
-	If Not HasGroups Then
-		Query.Text = StrReplace(Query.Text, "AND NOT DestinationTable2.IsFolder", ""); // @query-part
-	EndIf;
+	Query = New Query(QueryText);
 	Query.SetParameter("RefSet", ReferencesArrray);
+	If HasOwners Then
+		Query.SetParameter("Owner", ReplacementItem.Owner);
+	EndIf;
 	
 	Result = Query.ExecuteBatch();
 	Conditions = Result[1].Unload()[0];
 	If Conditions.HasGroups Then
-		ParametersErrorText = NStr("en = 'One of the items to replace is a group.
-		                                   |Groups cannot be replaced.';");
-		Return;
+		Raise NStr("en = 'Один из заменяемых элементов является группой.
+			|Группы не могут быть заменены.';");
 	ElsIf Conditions.OwnersCount > 1 Then 
-		ParametersErrorText = NStr("en = 'Items to replace have different owners.
-		                                   |They cannot be replaced.';");
-		Return;
+		Raise NStr("en = 'У заменяемых элементов разные владельцы.
+			|Такие элементы не могут быть заменены.';");
 	ElsIf Conditions.RefsCount <> RefsCount Then
-		ParametersErrorText = NStr("en = 'All items to replace must be of the same type.';");
-		Return;
+		Raise NStr("en = 'Все заменяемые элементы должны быть одного типа.';");
 	EndIf;
 	
 	If Result[2].Unload().Count() = 0 Then
 		If RefsCount > 1 Then
-			ParametersErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'No replacement item for the selected items (%1).';"), RefsCount);
+			Raise StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Выбранные элементы (%1) не на что заменить, т.к. нет других подходящих элементов для замены.';"), 
+				RefsCount);
 		Else
-			ParametersErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'No replacement item for item %1.';"), Common.SubjectString(ReplacementItem));
+			Raise StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Выбранный элемент ""%1"" не на что заменить, т.к. нет других подходящих элементов для замены.';"), 
+				Common.SubjectString(ReplacementItem));
 		EndIf;
-		Return;
 	EndIf;
 	
 	ReferencesToReplaceCommonOwner = ?(HasOwners, Conditions.CommonOwner, Undefined);
 	For Each Item In ReferencesArrray Do
 		RefsToReplace.Add().Ref = Item;
 	EndDo;
+	Items.List.Representation = ?(Conditions.HasGroups, TableRepresentation.HierarchicalList, TableRepresentation.List);
 	
 EndProcedure
 

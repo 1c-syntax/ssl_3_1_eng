@@ -20,7 +20,7 @@
 			<Synonym>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Cached ORM values refresh date</v8:content>
+					<v8:content>Cached ORM values update date</v8:content>
 				</v8:item>
 			</Synonym>
 			<Comment>Current date of updating the reused values of the object registration mechanism in the information security system</Comment>

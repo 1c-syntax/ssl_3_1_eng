@@ -141,31 +141,17 @@ Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
 	
 EndProcedure
 
-// Called before importing new settings. Used to change composition schema.
-//   For example, if the report schema depends on the option key or report parameters.
-//   For the schema changes to take effect, call the ReportsServer.EnableSchema() method.
+// 
 //
 // Parameters:
-//   Context - Arbitrary - 
-//       The context parameters where the report is used.
-//       Used to pass the ReportsServer.EnableSchema() method in the parameters.
-//   SchemaKey - String -
-//       An ID of the current setting composer schema.
-//       It is not filled in by default (that means, the composer is initialized according to the main schema).
-//       Used for optimization, to reinitialize composer as rarely as possible.
-//       It is possible not to use it if the initialization is running unconditionally.
+//   Context - Arbitrary
+//   SchemaKey - String
 //   VariantKey - String
-//                - Undefined -
-//       
-//       
+//                - Undefined
 //   NewDCSettings - DataCompositionSettings
-//                    - Undefined -
-//       
-//       
+//                    - Undefined
 //   NewDCUserSettings - DataCompositionUserSettings
-//                                    - Undefined -
-//       
-//       
+//                                    - Undefined
 //
 Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSettings, NewDCUserSettings) Export
 	
@@ -593,7 +579,7 @@ Function LocalizedParametersStructure()
 	
 	LocalizedParametersStructure = New Structure;
 	LocalizedParametersStructure.Insert("LabelError",            NStr("en = 'Error';"));
-	LocalizedParametersStructure.Insert("LabelPossibleCauses",  NStr("en = 'Possible reasons';"));
+	LocalizedParametersStructure.Insert("LabelPossibleCauses",  NStr("en = 'Possible causes';"));
 	LocalizedParametersStructure.Insert("LabelRecommendations",      NStr("en = 'Recommendations';"));
 	LocalizedParametersStructure.Insert("LabelDecision",           NStr("en = 'Solution';"));
 	LocalizedParametersStructure.Insert("ObjectsWithIssuesLabel", NStr("en = 'Objects with issues';"));

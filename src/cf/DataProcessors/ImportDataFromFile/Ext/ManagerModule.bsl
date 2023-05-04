@@ -480,7 +480,8 @@ Procedure FillMappingTableWithDataToImport(TemplateWithData, TableColumnsInforma
 				DataType = TypeOf(NewRow[ColumnName]);
 				
 				If DataType <> Type("String") And DataType <> Type("Boolean") And DataType <> Type("Number") And DataType <> Type("Date")  And DataType <> Type("UUID") Then 
-					CellData = CellValue(Column.ColumnType.Types(), Cell.Text);
+					//
+					CellData = CellValue(Column, Cell.Text);
 				Else
 					CellData = Cell.Text;
 				EndIf;
@@ -505,23 +506,24 @@ Procedure FillMappingTableWithDataToImport(TemplateWithData, TableColumnsInforma
 	
 EndProcedure
 
-Function CellValue(Types, CellValue)
+Function CellValue(Column, CellValue)
 	
 	CellData = "";
-	For Each DataType In Types Do
-		Object = Metadata.FindByType(DataType);
+	For Each DataType In Column.ColumnType.Types() Do
+		MetadataObject = Metadata.FindByType(DataType);
 		
-		If Object = Undefined Then
+		If MetadataObject = Undefined Then
 			Continue;
 		EndIf;
 		
-		ObjectDetails = SplitFullObjectName(Object.FullName());
+		ObjectDetails = SplitFullObjectName(MetadataObject.FullName());
 		If ObjectDetails.ObjectType = "Catalog" Then
-			If Not Object.Autonumbering And Object.CodeLength > 0 Then 
+			If Not MetadataObject.Autonumbering And MetadataObject.CodeLength > 0 Then 
 				CellData = Catalogs[ObjectDetails.NameOfObject].FindByCode(CellValue, True);
 			EndIf;
-			If Not ValueIsFilled(CellData) Then 
-				CellData = Catalogs[ObjectDetails.NameOfObject].FindByDescription(CellValue, True);
+			If Not ValueIsFilled(CellData) And ValueIsFilled(CellValue) Then
+				//@skip-
+				CellData = FindByDescription(CellValue, MetadataObject, Column);
 			EndIf;
 			If Not ValueIsFilled(CellData) Then 
 				CellData = Catalogs[ObjectDetails.NameOfObject].FindByCode(CellValue, True);
@@ -538,8 +540,8 @@ Function CellValue(Types, CellValue)
 				CellData = ChartsOfAccounts[ObjectDetails.NameOfObject].FindByDescription(CellValue, True);
 			EndIf;
 		ElsIf ObjectDetails.ObjectType = "ChartOfCharacteristicTypes" Then
-			If Not Object.Autonumbering And Object.CodeLength > 0 Then 
-				CellData = ChartsOfCharacteristicTypes[ObjectDetails.NameOfObject].FindByCode(CellValue, True);
+			If Not MetadataObject.Autonumbering And MetadataObject.CodeLength > 0 Then 
+				CellData = ChartsOfCharacteristicTypes[ObjectDetails.NameOfObject].FindByCode(CellValue);
 			EndIf;
 			If Not ValueIsFilled(CellData) Then 
 				CellData = ChartsOfCharacteristicTypes[ObjectDetails.NameOfObject].FindByDescription(CellValue, True);
@@ -555,6 +557,65 @@ Function CellValue(Types, CellValue)
 	Return CellData;
 	
 EndFunction
+
+Function FindByDescription(CellValue, MetadataObject, Column)
+	
+	Query = New Query;
+	
+	If MetadataObject.Hierarchical
+	   And MetadataObject.HierarchyType = Metadata.ObjectProperties.HierarchyType.HierarchyFoldersAndItems Then
+	
+		Query.Text =
+		"SELECT TOP 1
+		|	CatalogName.Ref AS Ref
+		|FROM
+		|	#CatalogName AS CatalogName
+		|WHERE
+		|	CatalogName.Description = &Description
+		|	AND CatalogName.IsFolder = &IsFolder
+		|
+		|ORDER BY
+		|	CatalogName.IsFolder";
+		
+		If Column.Use = "ForFolder" Then
+			Query.SetParameter("IsFolder", True);
+		ElsIf Column.Use = "ForItem" Then
+			Query.SetParameter("IsFolder", False);
+		Else
+			Query.Text = StrReplace(Query.Text, "AND CatalogName.IsFolder = &IsFolder", "");
+		EndIf;
+		
+	Else
+		
+		Query.Text =
+		"SELECT TOP 1
+		|	CatalogName.Ref AS Ref
+		|FROM
+		|	#CatalogName AS CatalogName
+		|WHERE
+		|	CatalogName.Description = &Description";
+		
+	EndIf;
+	
+	Query.Text = StrReplace(Query.Text, "#CatalogName", MetadataObject.FullName());
+	Query.SetParameter("Description", CellValue);
+	
+	QueryResult = Query.Execute();
+	
+	If QueryResult.IsEmpty() Then
+		Return Undefined;
+	EndIf;
+	
+	Selection = QueryResult.Select();
+	
+	If Selection.Next() Then
+		Return Selection.Ref;
+	EndIf;
+	
+	Return Undefined;
+	
+EndFunction
+
 
 Procedure DetermineColumnsPositionsInTemplate(TemplateWithData, ColumnsInformation)
 	
@@ -740,6 +801,7 @@ EndProcedure
 //   * ColumnPresentation - String
 //   * ColumnType - TypeDescription
 //   * IsRequiredInfo - Boolean
+//   * Use - String
 //   * Position - Number
 //   * Group - String
 //   * Visible - Boolean
@@ -933,6 +995,7 @@ Procedure CreateColumnsInformationFromTemplate(TableHeaderArea, ImportFromFilePa
 	EndIf;
 	
 	PredefinedLayoutAreas = PredefinedLayoutAreas();
+	MetadataObject = Common.MetadataObjectByFullName(ImportFromFileParameters.FullObjectName);
 	
 	For ColumnNumber = 1 To TableHeaderArea.TableWidth Do
 		Cell = TableHeaderArea.GetArea(HeaderHeight, ColumnNumber, HeaderHeight, ColumnNumber).CurrentArea;
@@ -948,16 +1011,15 @@ Procedure CreateColumnsInformationFromTemplate(TableHeaderArea, ImportFromFilePa
 		EndIf;
 		
 		If StrCompare(AttributeRepresentation, PredefinedLayoutAreas.AdditionalAttributes) = 0 Then
-			CatalogMetadata = Common.MetadataObjectByFullName(ImportFromFileParameters.FullObjectName);
 			If Common.SubsystemExists("StandardSubsystems.Properties") Then
 				ModulePropertyManagerInternal = Common.CommonModule("PropertyManagerInternal");
-				ModulePropertyManagerInternal.ColumnsForDataImport(CatalogMetadata, ColumnsInformation);
+				ModulePropertyManagerInternal.ColumnsForDataImport(MetadataObject, ColumnsInformation);
 			EndIf;
 		ElsIf StrCompare(AttributeRepresentation, PredefinedLayoutAreas.ContactInformation) = 0 Then
-			CatalogMetadata = Common.MetadataObjectByFullName(ImportFromFileParameters.FullObjectName);
+			
 			If Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
 				ModuleContactsManager = Common.CommonModule("ContactsManager");
-				ModuleContactsManager.ColumnsForDataImport(CatalogMetadata, ColumnsInformation);
+				ModuleContactsManager.ColumnsForDataImport(MetadataObject, ColumnsInformation);
 			EndIf;
 		Else
 			ColumnDataType = New TypeDescription("String");
@@ -990,6 +1052,21 @@ Procedure CreateColumnsInformationFromTemplate(TableHeaderArea, ImportFromFilePa
 				ColumnsInfoRow.Visible                = True;
 				ColumnsInfoRow.Note               = NoteInTheColumnHeader;
 				ColumnsInfoRow.Width                   = Cell.ColumnWidth;
+				
+				If MetadataObject <> Undefined And Common.IsCatalog(MetadataObject) Then
+					AttributeMetadata = MetadataObject.Attributes.Find(AttributeName);
+					If AttributeMetadata <> Undefined Then
+						
+						If AttributeMetadata.Use = Metadata.ObjectProperties.AttributeUse.ForFolder Then
+							ColumnsInfoRow.Use = "ForFolder";
+						ElsIf AttributeMetadata.Use = Metadata.ObjectProperties.AttributeUse.ForFolderAndItem Then
+							ColumnsInfoRow.Use = "ForFolderAndItem";
+						Else
+							ColumnsInfoRow.Use = "ForItem";
+						EndIf;
+						
+					EndIf;
+				EndIf;
 				
 				If GroupUsed Then
 					ColumnsInfoRow.Group = Groups.Get(ColumnNumber);
@@ -1177,7 +1254,7 @@ Procedure SpreadsheetDocumentIntoValuesTable(TemplateWithData, ColumnsInformatio
 	HeaderHeight = ?(ImportDataFromFileClientServer.ColumnsHaveGroup(TableColumnsInformation), 2, 1);
 	
 	InitializeColumns(TableColumnsInformation, TemplateWithData, HeaderHeight);
-	If Not ColumnsAreInitialized(TableColumnsInformation) Then
+	If Not AreColumnsInitialized(TableColumnsInformation) Then
 		InitializeColumns(TableColumnsInformation, TemplateWithData, ?(HeaderHeight = 1, 2, 1));
 	EndIf;
 	
@@ -1193,7 +1270,8 @@ Procedure SpreadsheetDocumentIntoValuesTable(TemplateWithData, ColumnsInformatio
 				ColumnName = FoundColumn.ColumnName;
 				NewRow[ColumnName] = AdjustValueToType(Cell.Text, FoundColumn.ColumnType);
 				If Not ValueIsFilled(NewRow[ColumnName]) And ValueIsFilled(Cell.Text) Then
-					NewRow[ColumnName] = CellValue( FoundColumn.ColumnType.Types(), Cell.Text);
+					//@skip-
+					NewRow[ColumnName] = CellValue(FoundColumn, Cell.Text);
 				EndIf;
 				If EmptyTableRow Then
 					EmptyTableRow = Not ValueIsFilled(Cell.Text);
@@ -1210,10 +1288,10 @@ Procedure SpreadsheetDocumentIntoValuesTable(TemplateWithData, ColumnsInformatio
 	
 EndProcedure
 
-Function ColumnsAreInitialized(ColumnsInformation)
+Function AreColumnsInitialized(ColumnsInformation)
 	
-	For Each ColumnInformation In ColumnsInformation Do
-		If ColumnInformation.Position >=0 Then
+	For Each InfoOnColumn In ColumnsInformation Do
+		If InfoOnColumn.Position >=0 Then
 			Return True;
 		EndIf;
 	EndDo;

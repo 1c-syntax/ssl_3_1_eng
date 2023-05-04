@@ -110,4 +110,16 @@ Procedure LogErrorGettingDataFromMessage(Val LongDesc) Export
 	
 EndProcedure
 
+// Parameters:
+//  Comment - String -
+//
+Procedure WritePerformanceIndicators(Val Comment) Export
+	
+	WriteLogEvent(
+		NStr("en = 'Server notifications.Performance indicators';",
+			Common.DefaultLanguageCode()),
+		EventLogLevel.Information,,, Comment);
+	
+EndProcedure
+
 #EndRegion

@@ -564,7 +564,8 @@ Function CreateKeyOperation(KeyOperationName, ResponseTimeThreshold = 1, TimeCon
 		If QueryResult.IsEmpty() Then
 			Description = SplitStringByWords(KeyOperationName);
 			
-			NewItem = Catalogs.KeyOperations.CreateItem();
+			NewItem = PerformanceMonitorInternal.ServiceItem(
+				Catalogs.KeyOperations);
 			NewItem.Name = KeyOperationName;
 			NewItem.Description = Description;
 			NewItem.ResponseTimeThreshold = ResponseTimeThreshold;
@@ -653,7 +654,7 @@ EndFunction
 //
 Function RecordPeriod() Export
 	CurrentPeriod = Constants.PerformanceMonitorRecordPeriod.Get();
-	Return ?(CurrentPeriod >= 1, CurrentPeriod, 60);
+	Return ?(CurrentPeriod > 60, CurrentPeriod, 60);
 EndFunction
 
 // Writes a single measurement
@@ -676,22 +677,15 @@ Procedure RecordKeyOperationDuration(Parameters)
 	TimeConsuming						 = Parameters.TimeConsuming;
 	CompletedWithError				 = Parameters.CompletedWithError;
 	
-	If SafeMode() <> False Then
-		WriteLogEvent(NStr("en = 'Cannot run Performance monitor in safe mode';", 
-			PerformanceMonitorInternal.DefaultLanguageCode()),
-			EventLogLevel.Information,,,String(KeyOperation));
-			
-		Return;
-	EndIf;
-	
 	If Not ValueIsFilled(KeyOperationStartDate) Then
-		WriteLogEvent(NStr("en = 'Failed to save sample. Start date required';", 
+		WriteLogEvent(NStr("en = 'Sampling error. Start date required';", 
 			PerformanceMonitorInternal.DefaultLanguageCode()),
 			EventLogLevel.Information,,,String(KeyOperation));
 			
 		Return;
 	EndIf;
 	
+	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 		
 	If TypeOf(KeyOperation) = Type("String") Then
@@ -763,13 +757,7 @@ Procedure WriteTimeMeasurements(MeasurementsArray)
 		Return;
 	EndIf;
 	
-	If SafeMode() <> False Then
-		WriteLogEvent(NStr("en = 'Cannot run Performance monitor in safe mode';", 
-			PerformanceMonitorInternal.DefaultLanguageCode()),
-			EventLogLevel.Information);
-		Return;
-	EndIf;
-	
+	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
 	RecordSet = InformationRegisters.TimeMeasurements.CreateRecordSet();
@@ -842,6 +830,7 @@ Procedure WriteTimeMeasurements(MeasurementsArray)
 	EndIf;
 	
 	SetPrivilegedMode(False);
+	SetSafeModeDisabled(False);
 	
 EndProcedure
 

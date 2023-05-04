@@ -330,8 +330,9 @@ Procedure ImportUpdateApplicationParameters() Export
 			EndIf;
 			Raise;
 		EndTry;
-		UpdateExtensionVersionParametersIncludingExecutionMode(False);
 	EndIf;
+	
+	UpdateExtensionVersionParametersIncludingExecutionMode(False);
 	
 EndProcedure
 

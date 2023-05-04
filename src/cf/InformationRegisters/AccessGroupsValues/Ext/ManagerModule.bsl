@@ -92,7 +92,7 @@ Procedure UpdateRegisterData(AccessGroups = Undefined, HasChanges = Undefined) E
 		LockItem = Block.Add("InformationRegister.UsedAccessKinds");
 		LockItem.Mode = DataLockMode.Shared;
 		If TransactionActive() Then
-			// АПК:1320-
+			// ACC:1320-
 			// 
 			// 
 			Block.Lock();

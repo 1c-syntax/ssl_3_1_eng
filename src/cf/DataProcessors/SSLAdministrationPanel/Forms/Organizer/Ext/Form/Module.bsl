@@ -86,72 +86,72 @@ EndProcedure
 
 &AtClient
 Procedure UseEmailClientOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
 &AtClient
 Procedure UseOtherInteractionsOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
 &AtClient
 Procedure SendEmailsInHTMLFormatOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
 &AtClient
 Procedure UseReviewedFlagOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
 &AtClient
 Procedure DenyDisplayingUnsafeContentInEmailsOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
 &AtClient
 Procedure UseNotesOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
 &AtClient
 Procedure UseUserRemindersOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
 &AtClient
 Procedure UseSurveyOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
 &AtClient
 Procedure UseMessageTemplatesOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
 &AtClient
 Procedure UseBusinessProcessesAndTasksOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
 &AtClient
 Procedure UseSubordinateBusinessProcessesOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
 &AtClient
 Procedure ChangeJobsBackdatedOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
 &AtClient
 Procedure UseTaskStartDateOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
 &AtClient
 Procedure UseDateAndTimeInTaskDeadlinesOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
 #EndRegion
@@ -188,9 +188,9 @@ EndProcedure
 // Client
 
 &AtClient
-Procedure Attachable_WhenChangingTheDetails(Item, ShouldRefreshInterface = True)
+Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
 	
-	ConstantName = WhenChangingTheDetailsServer(Item.Name);
+	ConstantName = OnChangeAttributeServer(Item.Name);
 	RefreshReusableValues();
 	
 	If ShouldRefreshInterface Then
@@ -293,7 +293,7 @@ EndProcedure
 // Server
 
 &AtServer
-Function WhenChangingTheDetailsServer(TagName)
+Function OnChangeAttributeServer(TagName)
 	
 	DataPathAttribute = Items[TagName].DataPath;
 	ConstantName = SaveAttributeValue(DataPathAttribute);

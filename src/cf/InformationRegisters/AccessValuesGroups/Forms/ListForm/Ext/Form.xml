@@ -125,7 +125,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Access Value type</v8:content>
+							<v8:content>Access value type</v8:content>
 						</v8:item>
 					</Title>
 					<ContextMenu name="AccessValueTypeContextMenu" id="57"/>

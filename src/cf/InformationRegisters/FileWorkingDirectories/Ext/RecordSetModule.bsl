@@ -49,7 +49,7 @@ Procedure BeforeWrite(Cancel, Replacing)
 			WorkingDirectory = WorkingDirectory + Selection.Description;
 			WorkingDirectory = CommonClientServer.AddLastPathSeparator(WorkingDirectory);
 			
-			FilesOperationsInternalServerCall.SaveFolderWorkingDirectory(
+			FilesOperationsInternal.SaveFolderWorkingDirectory(
 				Selection.Ref, WorkingDirectory);
 		EndDo;
 		

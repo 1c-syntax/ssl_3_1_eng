@@ -43,16 +43,6 @@ Procedure ShowSecurityWarningAfterStart() Export
 	UsersInternalClient.ShowSecurityWarning();
 EndProcedure
 
-// Called after starting the configuration, opens the security warning window.
-Procedure AskAboutDisablingOpenIDConnectWaitHandler() Export
-	
-	// АПК:277-
-	// 
-	UsersInternalClient.AskAboutDisablingOpenIDConnect();
-	// 
-	
-EndProcedure
-
 // Shows users a message about insufficient RAM.
 Procedure ShowRAMRecommendation() Export
 	StandardSubsystemsClient.NotifyLowMemory();

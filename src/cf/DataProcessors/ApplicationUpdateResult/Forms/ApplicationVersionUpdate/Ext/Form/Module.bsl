@@ -651,6 +651,8 @@ Function FillDataForParallelDeferredUpdate()
 	
 	TotalProcedureCount = 0;
 	Handlers = InfobaseUpdateInternal.HandlersForDeferredDataRegistration(True);
+	UpdateInfo = InfobaseUpdateInternal.InfobaseUpdateInfo();
+	SubsystemVersionsAtStartUpdates = UpdateInfo.SubsystemVersionsAtStartUpdates;
 	For Each Handler In Handlers Do
 		If ProcessedLibraries.Find(Handler.LibraryName) <> Undefined Then
 			Continue;
@@ -661,6 +663,7 @@ Function FillDataForParallelDeferredUpdate()
 			ProcessedLibraries.Add(Handler.LibraryName);
 			Continue;
 		EndIf;
+		SubsystemVersionAtStartUpdates = SubsystemVersionsAtStartUpdates[Handler.LibraryName];
 		
 		ParallelSinceVersion = LibraryDetailsList[Handler.LibraryName].ParallelDeferredUpdateFromVersion;
 		
@@ -684,6 +687,7 @@ Function FillDataForParallelDeferredUpdate()
 		DataToProcessDetails.Queue = Handler.DeferredProcessingQueue;
 		DataToProcessDetails.UpToDateData = InfobaseUpdate.UpToDateDataSelectionParameters();
 		DataToProcessDetails.FillingProcedure = Handler.UpdateDataFillingProcedure;
+		DataToProcessDetails.SubsystemVersionAtStartUpdates = SubsystemVersionAtStartUpdates;
 		
 		DataToProcessDetails = New ValueStorage(DataToProcessDetails, New Deflation(9));
 		InfobaseUpdateInternal.HandlerProperty(Handler.HandlerName, "DataToProcess", DataToProcessDetails);

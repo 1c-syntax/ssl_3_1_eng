@@ -15,7 +15,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetConditionalAppearance();
 	
 	AccountingCheckRulesSettingAllowed = AccessRight("Update", Metadata.Catalogs.AccountingCheckRules);
-	Items.FormExecuteCheck.Visible = AccountingCheckRulesSettingAllowed;
+	IsFullUser = Users.IsFullUser(, False);
+	Items.FormExecuteCheck.Visible = IsFullUser;
+	Items.FormExecuteAllChecks.Visible = IsFullUser;
 	Items.ListContextMenuExecuteCheck.Visible = AccountingCheckRulesSettingAllowed;
 	Items.FormRestoreByInitialFilling.Visible = AccountingCheckRulesSettingAllowed;
 	
@@ -72,7 +74,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.PresentationOfCommonSchedule.Enabled = InfobaseUpdate.ObjectProcessed(
 		Metadata.Catalogs.AccountingCheckRules.FullName()).Processed;
 	
-	// StandardSubsystems.ПодключаемыеКоманды
+	// StandardSubsystems.AttachableCommands
 	AttachableCommands.OnCreateAtServer(ThisObject);
 	// End StandardSubsystems.AttachableCommands
 	
@@ -106,11 +108,11 @@ Procedure ListOnGetDataAtServer(TagName, Settings, Rows)
 		If RowData.RunMethod = Enums.CheckMethod.Manually Then
 			RowData.ScheduledJobPresentation = NStr("en = 'Manually';");
 		ElsIf RowData.RunMethod = Enums.CheckMethod.ByCommonSchedule Then
-			RowData.ScheduledJobPresentation = NStr("en = 'On common schedule';")
+			RowData.ScheduledJobPresentation = NStr("en = 'On general schedule';")
 		ElsIf RowData.RunMethod = Enums.CheckMethod.OnSeparateSchedule Then
 			JobID = RowData.ScheduledJobID;
 			If Not ValueIsFilled(JobID) Then
-				RowData.ScheduledJobPresentation = NStr("en = 'The schedule is not set';");
+				RowData.ScheduledJobPresentation = NStr("en = 'No schedule';");
 			Else
 				FoundScheduledJob = ScheduledJobsServer.Job(New UUID(JobID));
 				If FoundScheduledJob <> Undefined Then
@@ -166,7 +168,7 @@ EndProcedure
 &AtClient
 Procedure ListOnActivateRow(Item)
 	
-	// StandardSubsystems.ПодключаемыеКоманды
+	// StandardSubsystems.AttachableCommands
 	AttachableCommandsClient.StartCommandUpdate(ThisObject);
 	// End StandardSubsystems.AttachableCommands
 	
@@ -191,13 +193,13 @@ Procedure ExecuteCheck(Command)
 
 	If Checks.Count() > 0 Then
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Do you want to perform the selected checks (%1)?
-				|It can take a while.';"),
+			NStr("en = 'Run the selected checks (%1)?
+				|This might take a while.';"),
 			Checks.Count());
 	Else
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Do you want to perform the selected check %1?
-				|It can take a while.';"),
+			NStr("en = 'Run selected check ""%1""?
+				|This might take a while.';"),
 			Checks[0]);
 	EndIf;
 	ShowQueryBox(New NotifyDescription("ExecuteCheckContinue", ThisObject, Checks),
@@ -213,8 +215,8 @@ Procedure ExecuteAllChecks(Command)
 	EndIf;
 	
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Perform all checks (%1)?
-			|It can take a while.';"),
+		NStr("en = 'Run all checks (%1)?
+			|This might take a while.';"),
 		Checks.Count());
 	ShowQueryBox(New NotifyDescription("ExecuteCheckContinue", ThisObject, Checks),
 		QueryText, QuestionDialogMode.YesNo);
@@ -262,7 +264,7 @@ Function ExecuteChecksAtServer(Checks)
 	EndIf;
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Checking accounting';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Run data integrity checks';");
 	Return TimeConsumingOperations.ExecuteProcedure(ExecutionParameters, "AccountingAuditInternal.ExecuteChecks", Checks);
 	
 EndFunction
@@ -294,9 +296,9 @@ Procedure ExecuteCheckCompletion(Result, AdditionalParameters) Export
 		Raise Result.BriefErrorDescription;
 	ElsIf Result.Status = "Completed2" Then
 		Notify("AccountingAuditSuccessfulCheck");
-		ShowUserNotification(NStr("en = 'Check is completed';"),
+		ShowUserNotification(NStr("en = 'Scan completed';"),
 			"e1cib/data/Report.AccountingCheckResults",
-			NStr("en = 'Accounting check is successfully completed.';"));
+			NStr("en = 'Data integrity check completed successfully.';"));
 	EndIf;
 	
 EndProcedure
@@ -385,12 +387,12 @@ Function GenerateRowWithSchedule()
 		
 		TextRef = PutToTempStorage(CommonSchedule, UUID);
 	
-		Return New FormattedString(NStr("en = 'Common checks schedule:';") + " ",
+		Return New FormattedString(NStr("en = 'General check schedule:';") + " ",
 			New FormattedString(CommonSchedulePresentation, , , , TextRef));
 			
 	Else
 			
-		Return New FormattedString(NStr("en = 'Common checks schedule:';") + " ",
+		Return New FormattedString(NStr("en = 'General check schedule:';") + " ",
 			New FormattedString(CommonSchedulePresentation, , StyleColors.HyperlinkColor));
 			
 	EndIf;

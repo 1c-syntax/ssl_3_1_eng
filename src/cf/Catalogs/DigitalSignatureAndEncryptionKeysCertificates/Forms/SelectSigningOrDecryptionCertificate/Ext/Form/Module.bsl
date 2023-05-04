@@ -19,7 +19,7 @@ Var InternalData, PasswordProperties;
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	DigitalSignatureInternal.SetVisibilityOfLinkToInstructionsForWorkingWithPrograms(Items.Instruction);
+	DigitalSignatureInternal.SetVisibilityOfRefToAppsTroubleshootingGuide(Items.Instruction);
 	
 	HaveRightToAddInDirectory = AccessRight("Insert",
 		Metadata.Catalogs.DigitalSignatureAndEncryptionKeysCertificates);
@@ -606,7 +606,7 @@ EndProcedure
 // CAC:78-off: to securely pass data between forms on the client without sending them to the server.
 &AtClient
 Procedure ContinueOpening(Notification, CommonInternalData) Export
-// АПК:78-
+// ACC:78-
 	
 	InternalData = CommonInternalData;
 	DigitalSignatureInternalClient.ProcessPasswordInForm(ThisObject, InternalData, PasswordProperties);
@@ -891,7 +891,7 @@ Procedure GoToCurrentCertificateChoiceAfterCertificateSearchInCloudService(Searc
 	EndIf;
 	
 	If Not ValueIsFilled(SearchResult.Certificate) Then
-		Context.Result.ErrorDescription = NStr("en = 'The certificate does not exist in the service (it might have been deleted).';");
+		Context.Result.ErrorDescription = NStr("en = 'The certificate does not exist in the service. It might have been deleted.';");
 		Context.Result.UpdateCertificatesList = True;
 		ExecuteNotifyProcessing(Context.Notification, Context.Result);
 		Return;

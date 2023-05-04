@@ -122,7 +122,7 @@ Procedure RefreshItemsData()
 			ListLine.PerformersString = String(BusinessProcessesAndTasksServer.SelectPerformer(MainAddressingObject, ListLine.RoleRef));
 			ListLine.Picture = -1;
 		Else
-			ListLine.PerformersString = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 users';"), String(ListLine.Assignees) );
+			ListLine.PerformersString = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 user(s)';"), String(ListLine.Assignees) );
 			ListLine.Picture = -1;
 		EndIf;
 	EndDo;

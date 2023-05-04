@@ -93,20 +93,20 @@ EndProcedure
 
 &AtClient
 Procedure ExtractFilesTextsAtServerOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item, False);
+	Attachable_OnChangeAttribute(Item, False);
 EndProcedure
 
 &AtClient
 Procedure IndexedDataMaxSizeOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
 &AtClient
 Procedure LimitMaxIndexedDataSizeOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
@@ -158,9 +158,9 @@ EndProcedure
 // Client
 
 &AtClient
-Procedure Attachable_WhenChangingTheDetails(Item, ShouldRefreshInterface = True)
+Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
 	
-	Result = WhenChangingTheDetailsServer(Item.Name);
+	Result = OnChangeAttributeServer(Item.Name);
 	
 	RefreshReusableValues();
 	
@@ -268,7 +268,7 @@ Procedure CheckIndexServer()
 EndProcedure
 
 &AtServer
-Function WhenChangingTheDetailsServer(TagName)
+Function OnChangeAttributeServer(TagName)
 	
 	DataPathAttribute = Items[TagName].DataPath;
 	Result = SaveAttributeValue(DataPathAttribute);

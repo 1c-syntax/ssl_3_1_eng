@@ -137,7 +137,7 @@ Procedure AdjustTimeFieldsFormat()
 	TimeFormat = ?(WorkSchedules.TwelveHourTimeFormat(),
 		NStr("en = 'DF=''hh:mm tt''; DE=';"), NStr("en = 'DF=hh:mm tt; DE=';"));
 	EditingTimeFormat = ?(WorkSchedules.TwelveHourTimeFormat(),
-		NStr("en = 'DF=''hh:mm tt''';"), NStr("en = 'DF=HH:mm';"));
+		NStr("en = 'DF=''hh:mm tt''';"), NStr("en = 'DF=hh:mm tt';"));
 	
 	Items.WorkScheduleBeginTime.Format = TimeFormat;
 	Items.WorkScheduleBeginTime.EditFormat = EditingTimeFormat;

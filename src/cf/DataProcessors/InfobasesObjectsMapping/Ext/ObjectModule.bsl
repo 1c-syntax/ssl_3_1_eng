@@ -2286,7 +2286,7 @@ Procedure FillListWithAdditionalParameters(TableFieldsList)
 		
 		If Attribute = Undefined Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The ""%2"" attribute is not defined for the ""%1"" metadata object.';"),
+				NStr("en = 'The %2 attribute is not defined for the %1 metadata object.';"),
 				MetadataObject.FullName(),
 				String(Item.Value));
 		EndIf;

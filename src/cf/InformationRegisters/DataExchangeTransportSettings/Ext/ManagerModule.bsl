@@ -699,9 +699,9 @@ Procedure TransferSettingsOfCorrespondentDataExchangeTransport(InfobaseNode) Exp
 			RecordSetNew = CreateRecordSet();
 			RecordSetNew.Filter.Peer.Set(InfobaseNode);
 			
-			RecordNew = RecordSetNew.Add();
-			FillPropertyValues(RecordNew, RecordSetOld[0]);
-			RecordNew.Peer = InfobaseNode;
+			Record_New = RecordSetNew.Add();
+			FillPropertyValues(Record_New, RecordSetOld[0]);
+			Record_New.Peer = InfobaseNode;
 			
 			InfobaseUpdate.WriteRecordSet(RecordSetNew);
 			

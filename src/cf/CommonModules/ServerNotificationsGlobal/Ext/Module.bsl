@@ -11,19 +11,7 @@
 
 Procedure ServerNotificationsReceiptCheckHandler() Export
 	
-	DataReceiptStatus = ServerNotificationsClient.DataReceiptStatus();
-	If DataReceiptStatus.Checking Then
-		Return;
-	EndIf;
-	
-	DataReceiptStatus.Checking = True;
-	Try
-		ServerNotificationsClient.CheckAndReceiveServerNotifications();
-		DataReceiptStatus.Checking = False;
-	Except
-		DataReceiptStatus.Checking = False;
-		Raise;
-	EndTry;
+	ServerNotificationsClient.CheckAndReceiveServerNotifications();
 	
 EndProcedure
 

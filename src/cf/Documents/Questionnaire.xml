@@ -654,7 +654,7 @@
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>A questionnaire template question.</v8:content>
+									<v8:content>Questionnaire template question</v8:content>
 								</v8:item>
 							</ToolTip>
 							<MarkNegatives>false</MarkNegatives>

@@ -22,8 +22,9 @@
 //                                         
 //                                       - CatalogRef.JobsQueue - 
 //                                            
+//                                       - ValueTableRow: см. НайтиЗадания
 //             * Metadata              - MetadataObjectScheduledJob - a scheduled job metadata.
-//                                       - String - the name of the routine task.
+//                                       - String - 
 //             * Use           - Boolean - If True, a job is enabled.
 //             * Key                    - String - an applied ID of a job.
 //          2) Allowed keys only for local mode:
@@ -68,57 +69,58 @@ Function FindJobs(Filter) Export
 	
 	If Common.DataSeparationEnabled() Then
 		
-		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		If Common.SubsystemExists("CloudTechnology.JobsQueue") Then
 			
-			If FilterCopy.Property("UUID") And Not FilterCopy.Property("Id") Then
-				FilterCopy.Insert("Id", FilterCopy.UUID);
+			If FilterCopy.Property("UUID") Then
+				If Not FilterCopy.Property("Id") Then
+					FilterCopy.Insert("Id", FilterCopy.UUID);
+				EndIf;
 				FilterCopy.Delete("UUID");
 			EndIf;
 			
 			If Common.SeparatedDataUsageAvailable() Then
+				// 
+				ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+				// 
 				DataArea = ModuleSaaSOperations.SessionSeparatorValue();
 				FilterCopy.Insert("DataArea", DataArea);
 			EndIf;
 			
 			ModuleJobsQueue  = Common.CommonModule("JobsQueue");
-			QueueJobTemplates = ModuleJobsQueue.QueueJobTemplates();
 			
 			If FilterCopy.Property("Metadata") Then
 				If TypeOf(FilterCopy.Metadata) = Type("MetadataObject") Then
-					If QueueJobTemplates.Find(FilterCopy.Metadata.Name) <> Undefined Then
+					MetadataScheduledJob = FilterCopy.Metadata;
+				Else
+					MetadataScheduledJob = Metadata.ScheduledJobs.Find(FilterCopy.Metadata);
+				EndIf;
+				FilterCopy.Delete("Metadata");
+				FilterCopy.Delete("MethodName");
+				FilterCopy.Delete("Template");
+				If MetadataScheduledJob <> Undefined Then
+					QueueJobTemplates = StandardSubsystemsCached.QueueJobTemplates();
+					If QueueJobTemplates.Get(MetadataScheduledJob.Name) <> Undefined Then
 						SetPrivilegedMode(True);
-						Template = ModuleJobsQueue.TemplateByName_(FilterCopy.Metadata.Name);
+						Template = ModuleJobsQueue.TemplateByName_(MetadataScheduledJob.Name);
 						SetPrivilegedMode(False);
 						FilterCopy.Insert("Template", Template);
 					Else
-						FilterCopy.Insert("MethodName", FilterCopy.Metadata.MethodName);
+						FilterCopy.Insert("MethodName", MetadataScheduledJob.MethodName);
 					EndIf;
 				Else
-					MetadataScheduledJob = Metadata.ScheduledJobs.Find(FilterCopy.Metadata);
-					If MetadataScheduledJob <> Undefined Then
-						If QueueJobTemplates.Find(MetadataScheduledJob.Name) <> Undefined Then
-							SetPrivilegedMode(True);
-							Template = ModuleJobsQueue.TemplateByName_(MetadataScheduledJob.Name);
-							SetPrivilegedMode(False);
-							FilterCopy.Insert("Template", Template);
-						Else
-							FilterCopy.Insert("MethodName", MetadataScheduledJob.MethodName);
-						EndIf;
-					EndIf;
+					FilterCopy.Insert("MethodName", String(New UUID));
 				EndIf;
-			ElsIf FilterCopy.Property("Id")
-				And (TypeOf(FilterCopy.Id) = Type("UUID")
-				Or TypeOf(FilterCopy.Id) = Type("String")) Then
-				
+			ElsIf FilterCopy.Property("Id") Then
 				If TypeOf(FilterCopy.Id) = Type("String") Then
 					FilterCopy.Id = New UUID(FilterCopy.Id);
 				EndIf;
-				
-				FilterCopy.Insert("Id", QueueJobLink(FilterCopy.Id, FilterCopy));
+				If TypeOf(FilterCopy.Id) = Type("UUID") Then
+					FilterCopy.Id = QueueJobLink(FilterCopy.Id, FilterCopy);
+				ElsIf TypeOf(FilterCopy.Id) = Type("ValueTableRow") Then
+					FilterCopy.Id = FilterCopy.Id.Id;
+				EndIf;
 			EndIf;
 			
-			FilterCopy.Delete("Metadata");
 			Return UpdatedTaskList(ModuleJobsQueue.GetTasks(FilterCopy));
 			
 		EndIf;
@@ -161,39 +163,18 @@ Function Job(Val Id) Export
 	
 	If Common.DataSeparationEnabled() Then
 		
-		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		If Common.SubsystemExists("CloudTechnology.JobsQueue") Then
-			JobParameters = New Structure;
-			If Common.SeparatedDataUsageAvailable() Then
-				DataArea = ModuleSaaSOperations.SessionSeparatorValue();
-				JobParameters.Insert("DataArea", DataArea);
-			EndIf;
+			Filter = ?(TypeOf(Id) = Type("MetadataObject"),
+				New Structure("Metadata", Id),
+				New Structure("UUID", Id));
 			
-			ModuleJobsQueue = Common.CommonModule("JobsQueue");
-			
-			If TypeOf(Id) = Type("MetadataObject") Then
-				If Id.Predefined Then
-					SetPrivilegedMode(True);
-					JobParameters.Insert("Template", ModuleJobsQueue.TemplateByName_(Id.Name));
-					SetPrivilegedMode(False);
-				Else
-					JobParameters.Insert("MethodName", Id.MethodName);
-				EndIf; 
-			ElsIf TypeOf(Id) = Type("UUID") Then
-				JobParameters.Insert("Id", QueueJobLink(Id, JobParameters));
-				
-			ElsIf TypeOf(Id) = Type("ValueTableRow") Then
-				JobParameters.Insert("Id", Id.Id);
-			Else
-				JobParameters.Insert("Id", Id);
-			EndIf;
-			
-			JobsList = UpdatedTaskList(ModuleJobsQueue.GetTasks(JobParameters));
+			JobsList = FindJobs(Filter);
 			For Each Job In JobsList Do
 				ScheduledJob = Job;
 				Break;
 			EndDo;
 		EndIf;
+		
 	Else
 		
 		If TypeOf(Id) = Type("MetadataObject") Then
@@ -239,12 +220,14 @@ Function AddJob(Parameters) Export
 	
 	If Common.DataSeparationEnabled() Then
 		
-		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		If Common.SubsystemExists("CloudTechnology.JobsQueue") Then
 			
 			JobParameters = Common.CopyRecursive(Parameters);
 			
 			If Common.SeparatedDataUsageAvailable() Then
+				// 
+				ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+				// 
 				DataArea = ModuleSaaSOperations.SessionSeparatorValue();
 				JobParameters.Insert("DataArea", DataArea);
 			EndIf;
@@ -296,34 +279,16 @@ Procedure DeleteJob(Val Id) Export
 	Id = UpdatedTaskID(Id);
 	
 	If Common.DataSeparationEnabled() Then
-		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		If Common.SubsystemExists("CloudTechnology.JobsQueue") Then
-			
-			JobParameters = New Structure;
-			If Common.SeparatedDataUsageAvailable() Then
-				DataArea = ModuleSaaSOperations.SessionSeparatorValue();
-				JobParameters.Insert("DataArea", DataArea);
-			EndIf;
-			
-			If TypeOf(Id) = Type("MetadataObject") Then
-				MethodName = Id.MethodName;
-				JobParameters.Insert("MethodName", MethodName);
-				
-			ElsIf TypeOf(Id) = Type("UUID") Then
-				JobParameters.Insert("Id", QueueJobLink(Id, JobParameters));
-				
-			ElsIf TypeOf(Id) = Type("ValueTableRow") Then
-				
-				ModuleJobsQueue = Common.CommonModule("JobsQueue");
-				ModuleJobsQueue.DeleteJob(Id.Id);
-				Return;
-				
+			If TypeOf(Id) = Type("ValueTableRow") Then
+				JobsList = CommonClientServer.ValueInArray(Id);
 			Else
-				JobParameters.Insert("Id", Id);
+				Filter = ?(TypeOf(Id) = Type("MetadataObject"),
+					New Structure("MethodName", Id.MethodName),
+					New Structure("UUID", Id));
+				JobsList = FindJobs(Filter);
 			EndIf;
-			
 			ModuleJobsQueue = Common.CommonModule("JobsQueue");
-			JobsList = ModuleJobsQueue.GetTasks(JobParameters);
 			For Each Job In JobsList Do
 				ModuleJobsQueue.DeleteJob(Job.Id);
 			EndDo;
@@ -344,8 +309,7 @@ EndProcedure
 // and not saved for every area separately.
 // 
 // Parameters: 
-//  Id - MetadataObject - a metadata object of a scheduled job to search for
-//                                     the non-predefined scheduled job.
+//  Id - MetadataObject -
 //                - String - 
 //                           
 //                           
@@ -372,88 +336,39 @@ Procedure ChangeJob(Val Id, Val Parameters) Export
 	Id = UpdatedTaskID(Id);
 	
 	If Common.DataSeparationEnabled() Then
-		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		If Common.SubsystemExists("CloudTechnology.JobsQueue") Then
 			JobParameters = Common.CopyRecursive(Parameters);
-			SearchParameters = New Structure;
-			
 			JobParameters.Delete("Description");
 			If JobParameters.Count() = 0 Then
 				Return;
-			EndIf; 
-			
-			If Common.SeparatedDataUsageAvailable() Then
-				DataArea = ModuleSaaSOperations.SessionSeparatorValue();
-				SearchParameters.Insert("DataArea", DataArea);
 			EndIf;
 			
-			If TypeOf(Id) = Type("MetadataObject") Then
-				MethodName = Id.MethodName;
-				SearchParameters.Insert("MethodName", MethodName);
-				
-				// If the schedule job is predefined and there is a queue template, you can only change "Usage".
-				If Id.Predefined Then
-					
-					ModuleJobsQueue = Common.CommonModule("JobsQueue");
-					Templates = ModuleJobsQueue.QueueJobTemplates();
-					
-					If Templates.Find(Id.Name) <> Undefined 
-						And (JobParameters.Count() > 1 
-						Or Not JobParameters.Property("Use")) Then
-						
-						For Each JobParameter In Common.CopyRecursive(JobParameters) Do
-							
-							If JobParameter.Key = "Use" Then
-								Continue;
-							EndIf;
-							
-							JobParameters.Delete(JobParameter.Key);
-						EndDo;
-					EndIf;
-				EndIf;
-				
-			ElsIf TypeOf(Id) = Type("UUID") Then
-				SearchParameters.Insert("Id", QueueJobLink(Id, JobParameters));
-				
-			ElsIf TypeOf(Id) = Type("ValueTableRow") Then
-				
-				If ValueIsFilled(Id.Template)
-					And (JobParameters.Count() > 1 
-					Or Not JobParameters.Property("Use")) Then
-					
-					For Each JobParameter In Common.CopyRecursive(JobParameters) Do
-						
-						If JobParameter.Key = "Use" Then
-							Continue;
-						EndIf;
-						
-						JobParameters.Delete(JobParameter.Key);
-					EndDo;
-				EndIf;
-				
-				If JobParameters.Count() = 0 Then
-					Return;
-				EndIf;
-				
-				ModuleJobsQueue = Common.CommonModule("JobsQueue");
-				ModuleJobsQueue.ChangeJob(Id.Id, JobParameters);
-				Return;
-				
+			If TypeOf(Id) = Type("ValueTableRow") Then
+				JobsList = CommonClientServer.ValueInArray(Id);
 			Else
-				SearchParameters.Insert("Id", Id);
+				Filter = ?(TypeOf(Id) = Type("MetadataObject"),
+					New Structure("Metadata", Id),
+					New Structure("UUID", Id));
+				JobsList = FindJobs(Filter);
 			EndIf;
 			
-			If JobParameters.Count() = 0 Then
-				Return;
+			// 
+			// 
+			ParametersOfPredefinedTask = New Structure;
+			If JobParameters.Property("Use") Then
+				ParametersOfPredefinedTask.Insert("Use",
+					JobParameters.Use);
 			EndIf;
 			
 			ModuleJobsQueue = Common.CommonModule("JobsQueue");
-			JobsList = ModuleJobsQueue.GetTasks(SearchParameters);
 			For Each Job In JobsList Do
-				ModuleJobsQueue.ChangeJob(Job.Id, JobParameters);
+				If Not ValueIsFilled(Job.Template) Then
+					ModuleJobsQueue.ChangeJob(Job.Id, JobParameters);
+				ElsIf ValueIsFilled(ParametersOfPredefinedTask) Then
+					ModuleJobsQueue.ChangeJob(Job.Id, ParametersOfPredefinedTask);
+				EndIf;
 			EndDo;
 		EndIf;
-		
 	Else
 		ChangeScheduledJob(Id, Parameters);
 	EndIf;
@@ -821,7 +736,7 @@ Procedure SetPredefinedScheduledJobUsage(MetadataJob, Use) Export
 		Parameters.Insert("Use", Use);
 		Jobs = FindJobs(Filter);
 		For Each Job In Jobs Do
-			ChangeJob(Job.UUID, Parameters);
+			ChangeJob(Job, Parameters);
 			Break;
 		EndDo;
 	Else
@@ -889,11 +804,7 @@ EndProcedure
 Function ScheduledJobParameter(ScheduledJob, PropertyName, DefaultValue) Export
 	
 	JobParameters = New Structure;
-	If Common.DataSeparationEnabled() Then
-		JobParameters.Insert("MethodName", ScheduledJob.MethodName);
-	Else
-		JobParameters.Insert("Metadata", ScheduledJob);
-	EndIf;
+	JobParameters.Insert("Metadata", ScheduledJob);
 	
 	SetPrivilegedMode(True);
 	
@@ -1001,7 +912,7 @@ Function AddARoutineTask(Parameters) Export
 	
 EndFunction
 
-// Deletes the scheduled job ignoring the queue of SaaS mode jobs.
+// 
 //
 // Parameters:
 //  Id - MetadataObject - a metadata object of a scheduled job to search for
@@ -1020,10 +931,9 @@ Procedure DeleteScheduledJob(Val Id) Export
 	
 	JobsList = New Array; // Array of ScheduledJob
 	
-	If TypeOf(Id) = Type("MetadataObject") And Id.Predefined Then
-		Raise( NStr("en = 'Cannot delete a predefined scheduled job.';") );
-	ElsIf TypeOf(Id) = Type("MetadataObject") And Not Id.Predefined Then
-		JobsList = ScheduledJobs.GetScheduledJobs(New Structure("Metadata", Id));
+	If TypeOf(Id) = Type("MetadataObject") Then
+		Filter = New Structure("Metadata, Predefined", Id, False);
+		JobsList = ScheduledJobs.GetScheduledJobs(Filter);
 	Else
 		ScheduledJob = ScheduledJobs.FindByUUID(Id);
 		If ScheduledJob <> Undefined Then

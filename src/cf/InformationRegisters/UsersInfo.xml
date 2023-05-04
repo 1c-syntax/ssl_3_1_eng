@@ -515,7 +515,7 @@ It is updated when authorization is allowed, and then when the user signs in.</v
 			</Resource>
 			<Resource uuid="110eff8b-aeec-4ba5-b710-fefc1bd60284">
 				<Properties>
-					<Name>DeletePasswordStartDate</Name>
+					<Name>DeletePasswordUsageStartDate</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -565,7 +565,7 @@ It is updated when the password is changed.</v8:content>
 			</Resource>
 			<Resource uuid="0a8a6bb9-8b6a-43cf-9d46-b18a8a9591d8">
 				<Properties>
-					<Name>DeleteUsedPasswords</Name>
+					<Name>DeletePreviousPasswords</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -852,12 +852,7 @@ It is updated when the password is changed.</v8:content>
 					<PasswordMode>false</PasswordMode>
 					<Format/>
 					<EditFormat/>
-					<ToolTip>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Infobase user has no roles with authorization rights</v8:content>
-						</v8:item>
-					</ToolTip>
+					<ToolTip/>
 					<MarkNegatives>false</MarkNegatives>
 					<Mask/>
 					<MultiLine>false</MultiLine>
@@ -1040,9 +1035,9 @@ username and password</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>User with insufficient rights
-cannot change their password,
-even upon authorization</v8:content>
+							<v8:content>The user cannot change their password,
+even at sign-in (applicable to limited users only).
+</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -1311,9 +1306,9 @@ It is a more advanced authentication than OpenID and OpenID-Connect</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Authentication with a username and a password
+							<v8:content>Authentication with username and password
 of the operating system user
-associated with the 1C:Enterprise user</v8:content>
+associated with the 1C:Enterprise user.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

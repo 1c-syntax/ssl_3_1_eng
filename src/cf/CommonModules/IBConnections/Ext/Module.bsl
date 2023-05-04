@@ -64,6 +64,7 @@ Function SetConnectionLock(Val MessageText = "", Val KeyCode = "KeyCode", //
 		Block.Use = True;
 		Block.Begin = CurrentSessionDate() + WaitingForTheStartOfBlocking * 60;
 		Block.KeyCode = KeyCode;
+		Block.Parameter = ServerNotifications.SessionKey();
 		Block.Message = GenerateLockMessage(MessageText, KeyCode);
 		
 		If LockDuration > 0 Then 
@@ -71,6 +72,10 @@ Function SetConnectionLock(Val MessageText = "", Val KeyCode = "KeyCode", //
 		EndIf;
 		
 		SetSessionsLock(Block);
+	
+		SetPrivilegedMode(True);
+		SendServerNotificationAboutLockSet();
+		SetPrivilegedMode(False);
 		
 		Return True;
 	EndIf;
@@ -143,8 +148,14 @@ Function AllowUserAuthorization() Export
 	LockParameters = GetSessionsLock();
 	If LockParameters.Use Then
 		LockParameters.Use = False;
+		
 		SetSessionsLock(LockParameters);
+		
+		SetPrivilegedMode(True);
+		SendServerNotificationAboutLockSet();
+		SetPrivilegedMode(False);
 	EndIf;
+	
 	Return True;
 	
 EndFunction
@@ -315,6 +326,8 @@ Procedure SetDataAreaSessionLock(Parameters, Val LocalTime = True, Val DataArea 
 		RollbackTransaction();
 		Raise;
 	EndTry;
+	
+	SendServerNotificationAboutLockSet();
 	
 EndProcedure
 
@@ -656,7 +669,7 @@ Procedure OnAddServerNotifications(Notifications) Export
 		"StandardSubsystems.UsersSessions.SessionsLock");
 	Notification.NotificationSendModuleName  = "IBConnections";
 	Notification.NotificationReceiptModuleName = "IBConnectionsClient";
-	Notification.VerificationPeriod = 60;
+	Notification.VerificationPeriod = 300;
 	
 	Notifications.Insert(Notification.Name, Notification);
 	
@@ -665,15 +678,7 @@ EndProcedure
 // See StandardSubsystemsServer.OnSendServerNotification
 Procedure OnSendServerNotification(NameOfAlert, ParametersVariants) Export
 	
-	SessionLockParameters = SessionsLockSettingsWhenSet();
-	
-	If SessionLockParameters <> Undefined
-	   And SessionLockParameters.Use Then
-		
-		ServerNotifications.SendServerNotification(
-			"StandardSubsystems.UsersSessions.SessionsLock",
-			SessionLockParameters, Undefined);
-	EndIf;
+	SendServerNotificationAboutLockSet(True);
 	
 EndProcedure
 
@@ -698,6 +703,32 @@ EndProcedure
 #EndRegion
 
 #Region Private
+
+Procedure SendServerNotificationAboutLockSet(OnSendServerNotification = False) Export
+	
+	Try
+		SessionLockParameters = SessionsLockSettingsWhenSet();
+		If SessionLockParameters = Undefined Then
+			SessionLockParameters = New Structure("Use", False);
+		EndIf;
+		
+		If SessionLockParameters.Use
+		 Or Not OnSendServerNotification Then
+			
+			ServerNotifications.SendServerNotification(
+				"StandardSubsystems.UsersSessions.SessionsLock",
+				SessionLockParameters, Undefined, Not OnSendServerNotification);
+		EndIf;
+	Except
+		If OnSendServerNotification Then
+			Raise;
+		EndIf;
+		WriteLogEvent(EventLogEvent(),
+			EventLogLevel.Error,,,
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+	EndTry;
+	
+EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
 // Miscellaneous.
@@ -800,7 +831,7 @@ EndFunction
 //   Structure:
 //   * IBConnectionLockSetForDate - Boolean
 //   * CurrentDataAreaMode - See NewConnectionLockParameters
-//   * CurrentIBMode - See NewConnectionLockParameters
+//   * CurrentIBMode - SessionsLock
 //   * CurrentDate - Date
 //
 Function CurrentConnectionLockParameters(ShouldReturnUndefinedIfUnspecified = False)
@@ -843,7 +874,12 @@ Function SessionsLockSettingsWhenSet()
 		Return Undefined;
 	EndIf;
 	
-	Return AdvancedSessionLockParameters(False, LockParameters);
+	Result = AdvancedSessionLockParameters(False, LockParameters);
+	If LockParameters.IBConnectionLockSetForDate Then
+		Result.Insert("Parameter", LockParameters.CurrentIBMode.Parameter);
+	EndIf;
+	
+	Return Result;
 	
 EndFunction
 

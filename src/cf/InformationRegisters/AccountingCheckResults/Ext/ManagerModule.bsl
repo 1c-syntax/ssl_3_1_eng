@@ -147,7 +147,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Couldn''t process accounting check results with filter %2. Reason:
+				NStr("en = 'Couldn''t process  data integrity check results with filter %2. Reason:
 				|%3';"), FilterPresentation, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
 				RegisterMetadata, , MessageText);
@@ -162,14 +162,14 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) some accounting check results: %1';"), 
+			NStr("en = 'Couldn''t process (skipped) some data integrity check results: %1';"), 
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), 
 			EventLogLevel.Information, Metadata.InformationRegisters.AccountingCheckResults, ,
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Yet another batch of accounting check results is processed: %1';"),
+				NStr("en = 'Yet another batch of data integrity check results is processed: %1';"),
 				ObjectsProcessed));
 	EndIf;
 	

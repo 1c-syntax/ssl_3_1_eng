@@ -271,7 +271,7 @@
 					<xr:ConditionalSeparation/>
 				</xr:Item>
 				<xr:Item>
-					<xr:Metadata>ScheduledJob.ClearingOutdatedData</xr:Metadata>
+					<xr:Metadata>ScheduledJob.ClearObsoleteData</xr:Metadata>
 					<xr:Use>DontUse</xr:Use>
 					<xr:ConditionalSeparation/>
 				</xr:Item>
@@ -752,6 +752,11 @@
 				</xr:Item>
 				<xr:Item>
 					<xr:Metadata>ScheduledJob.StartingAdditionalDataProcessors</xr:Metadata>
+					<xr:Use>DontUse</xr:Use>
+					<xr:ConditionalSeparation/>
+				</xr:Item>
+				<xr:Item>
+					<xr:Metadata>Constant.RegisterServerNotificationsIndicators</xr:Metadata>
 					<xr:Use>DontUse</xr:Use>
 					<xr:ConditionalSeparation/>
 				</xr:Item>

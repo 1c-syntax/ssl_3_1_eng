@@ -289,7 +289,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Submenu fill in normal</v8:content>
+									<v8:content>Submenu fill in standard</v8:content>
 								</v8:item>
 							</Title>
 							<ExtendedTooltip name="SubmenuFillNormalExtendedTooltip" id="284"/>
@@ -1146,7 +1146,7 @@
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Solving typical issues with digital signature applications</v8:content>
+									<v8:content>How to troubleshoot common issues with digital signature applications</v8:content>
 								</v8:item>
 							</Title>
 							<Hyperlink>true</Hyperlink>

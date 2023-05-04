@@ -74,8 +74,8 @@
 							<Title formatted="true">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Accounting issues are detected in the application. It is recommended that you resolve them before the update.
-&lt;link Go to the problem report&gt;View accounting issues report&lt;/&gt;</v8:content>
+									<v8:content>Data integrity issues have been identified in the application. It is recommended that you resolve them before the update.
+&lt;link Go to the problem report&gt;View the report&lt;/&gt;</v8:content>
 								</v8:item>
 							</Title>
 							<ToolTipRepresentation>Button</ToolTipRepresentation>
@@ -84,7 +84,7 @@
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>One of the common reasons of data locks during the update is accounting issues, such as dead links to objects that do not exist, blank required document attributes, and so on. In this case, it is recommended that you fix the issues before the update. To fix the issues, open the report and follow the recommendations that it provides.</v8:content>
+										<v8:content>One of the common reasons of data locks during the update is data integrity issues, such as dead links to objects that do not exist, blank required document attributes, and so on. In this case, it is recommended that you fix the issues before the update. To fix the issues, open the report and follow the recommendations that it provides.</v8:content>
 									</v8:item>
 								</Title>
 							</ExtendedTooltip>
@@ -139,7 +139,7 @@ It is recommended that you test the update on a backup.
 					<Title formatted="true">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The accounting audit has not been performed for a long time. It is recommended that you &lt;link PereitiKSpiskuProverok&gt;perform accounting audit&lt;/&gt; before the update.</v8:content>
+							<v8:content>Data integrity has not been checked for a while. It is recommended that you &lt;link PereitiKSpiskuProverok&gt;run system checks&lt;/&gt; before the update.</v8:content>
 						</v8:item>
 					</Title>
 					<ToolTipRepresentation>Button</ToolTipRepresentation>
@@ -148,7 +148,7 @@ It is recommended that you test the update on a backup.
 						<Title formatted="false">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>One of the common reasons of data locks during the update is accounting issues, such as dead links to objects that do not exist, blank required document attributes, and so on. In this case, it is recommended that you fix the issues before the update. </v8:content>
+								<v8:content>One of the common reasons of data locks during the update is data integrity issues, such as dead links to objects that do not exist, blank required document attributes, and so on. In this case, it is recommended that you fix the issues before the update. </v8:content>
 							</v8:item>
 						</Title>
 					</ExtendedTooltip>

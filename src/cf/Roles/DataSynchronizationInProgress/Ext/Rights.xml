@@ -525,20 +525,6 @@
 		</right>
 	</object>
 	<object>
-		<name>WebService.EnterpriseDataExchange_1_0_1_1.Operation.PrepareDataActionResult</name>
-		<right>
-			<name>Use</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>WebService.Exchange_3_0_1_1.Operation.TestConnection</name>
-		<right>
-			<name>Use</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
 		<name>Configuration.StandardSubsystemsLibrary</name>
 		<right>
 			<name>MainWindowModeNormal</name>
@@ -562,6 +548,20 @@
 		</right>
 		<right>
 			<name>AnalyticsSystemClient</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>WebService.EnterpriseDataExchange_1_0_1_1.Operation.PrepareDataActionResult</name>
+		<right>
+			<name>Use</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>WebService.Exchange_3_0_1_1.Operation.TestConnection</name>
+		<right>
+			<name>Use</name>
 			<value>true</value>
 		</right>
 	</object>

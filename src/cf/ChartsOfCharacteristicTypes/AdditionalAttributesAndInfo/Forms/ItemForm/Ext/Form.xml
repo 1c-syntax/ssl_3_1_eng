@@ -1682,7 +1682,7 @@ Unless specified, the name is generated automatically. </v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Left command bar</v8:content>
+							<v8:content>Command bar left</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="CommandBarLeftExtendedTooltip" id="230"/>
@@ -1698,7 +1698,7 @@ Unless specified, the name is generated automatically. </v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Right command bar</v8:content>
+							<v8:content>Command bar right</v8:content>
 						</v8:item>
 					</Title>
 					<HorizontalLocation>Right</HorizontalLocation>

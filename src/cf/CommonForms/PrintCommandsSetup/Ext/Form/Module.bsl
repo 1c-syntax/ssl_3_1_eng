@@ -56,7 +56,7 @@ Procedure ShowInList(Command)
 	
 	If Modified Then
 		Notification = New NotifyDescription("ShowInListCompletion", ThisObject, Parameters);
-		QueryText = NStr("en = 'The data was changed. Do you want to save the changes?';");
+		QueryText = NStr("en = 'The data has been changed. Do you want to save the changes?';");
 		ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNoCancel, ,
 			DialogReturnCode.Cancel);
 		Return;

@@ -232,9 +232,7 @@ EndProcedure
 
 Procedure CheckObjectNumberByDate(Object)
 	
-	If Object.DataExchange.Load Then
-		Return;
-	ElsIf Object.IsNew() Then
+	If Object.DataExchange.Load Or Object.IsNew() Then
 		Return;
 	EndIf;
 	
@@ -265,9 +263,7 @@ EndProcedure
 
 Procedure CheckObjectNumberByDateAndCompany(Object)
 	
-	If Object.DataExchange.Load Then
-		Return;
-	ElsIf Object.IsNew() Then
+	If Object.DataExchange.Load Or Object.IsNew() Then
 		Return;
 	EndIf;
 	
@@ -282,11 +278,7 @@ EndProcedure
 
 Procedure CheckObjectCodeByCompany(Object)
 	
-	If Object.DataExchange.Load Then
-		Return;
-	ElsIf Object.IsNew() Then
-		Return;
-	ElsIf Not CompanyAttributeAvailable(Object) Then
+	If Object.DataExchange.Load Or Object.IsNew() Or Not CompanyAttributeAvailable(Object) Then
 		Return;
 	EndIf;
 	
@@ -323,7 +315,7 @@ Function CompanyAttributeAvailable(Object)
 				
 			EndIf;
 			
-			MessageString = NStr("en = '%2 attribute is not defined for %1 metadata object.';");
+			MessageString = NStr("en = 'The %2 attribute is not defined for the %1 metadata object.';");
 			MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, ObjectMetadata.FullName(), CompanyAttributeName);
 			Raise MessageString;
 		EndIf;

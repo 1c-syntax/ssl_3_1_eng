@@ -546,32 +546,10 @@ Function AllowedObjectsRefsTypesDetails() Export
 	
 EndFunction
 
-// Returns:
-//  Structure:
-//   * LeadingListsChecked - Map of KeyAndValue:
-//       ** Key     - String - a full list name
-//       ** Value - See AccessManagementInternal.ListPropertiesAsLeadingOne
-//   * ListsRestrictions - Map of KeyAndValue:
-//       ** Key     - String - a full list name
-//       ** Value - See AccessManagementInternal.CalculatedRestrictionParameters
-//   * TransactionIDs - Map of KeyAndValue:
-//       ** Key     - UUID - an arbitrary UID.
-//       ** Value - Boolean - the True value.
-//   * TypesRestrictionsPermissionsForUsers        - Undefined
-//                                                - String
-//   * TypesRestrictionsPermissionsForExternalUsers - Undefined
-//                                                - String
-//
+// See AccessManagementInternal.NewCacheOfRestrictionParameters
 Function RestrictionParametersCache(CachedDataKey) Export
 	
-	Store = New Structure;
-	Store.Insert("LeadingListsChecked", New Map);
-	Store.Insert("ListsRestrictions",       New Map);
-	Store.Insert("TransactionIDs", New Map);
-	Store.Insert("TypesRestrictionsPermissionsForUsers",        Undefined);
-	Store.Insert("TypesRestrictionsPermissionsForExternalUsers", Undefined);
-	
-	Return Store;
+	Return AccessManagementInternal.NewCacheOfRestrictionParameters();
 	
 EndFunction
 

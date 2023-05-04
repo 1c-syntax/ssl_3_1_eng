@@ -35,15 +35,15 @@ Function AllFormSettings(UserName)
 	FormsList.Add("ExternalDataProcessor.StandardEventLog.Form.EventsJournalFilter", 
 		PrefixOfStandardForms() + "." + NStr("en = 'Event log, Event filter settings';") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardFindByRef.Form.MainForm", 
-		PrefixOfStandardForms() + "." + NStr("en = 'Find references to object';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'Find references to objects';") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardFullTextSearchManagement.Form.MainForm", 
 		PrefixOfStandardForms() + "." + NStr("en = 'Full-text search management';") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardDocumentsPosting.Form.MainForm", 
 		PrefixOfStandardForms() + "." + NStr("en = 'Post documents';") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardDeleteMarkedObjects.Form.Form", 
-		PrefixOfStandardForms() + "." + NStr("en = 'Marked object deletion';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'Delete marked objects';") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardExternalDataSourceManagement.Form.Form", 
-		PrefixOfStandardForms() + "." + NStr("en = 'Management of external data sources';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'External data source management';") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardTotalsManagement.Form.MainForm", 
 		PrefixOfStandardForms() + "." + NStr("en = 'Totals management';") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardActiveUsers.Form.ActiveUsersListForm", 
@@ -2270,7 +2270,7 @@ EndProcedure
 
 Procedure FillOtherSettingsList(Parameters)
 	
-	// АПК:1391-
+	// ACC:1391-
 	
 	Parameters.OtherSettingsTree.Rows.Clear();
 	Settings = ReadSettingsFromStorage(CommonSettingsStorage, Parameters.InfoBaseUser);

@@ -75,7 +75,7 @@ Function SSLEvents() Export
 	
 	// ИнтерфейсOData
 	Events.Insert("OnFillTypesExcludedFromExportImportOData", False);
-	Events.Insert("WhenFillingInDependentTablesForUploadingLoadingOData", False);
+	Events.Insert("OnPopulateDependantTablesForODataImportExport", False);
 	
 	// КонтрольВеденияУчета
 	Events.Insert("OnDefineChecks", False);
@@ -90,7 +90,7 @@ Function SSLEvents() Export
 	Events.Insert("OnAddUpdateHandlers", False); // 
 	Events.Insert("AfterUpdateInfobase", False);
 	Events.Insert("OnGetUpdatePriority", False);
-	Events.Insert("WhenFillingInItemsThatArePlannedToBeDeleted", False);
+	Events.Insert("OnPopulateObjectsPlannedForDeletion", False);
 	
 	// Печать
 	Events.Insert("OnDefinePrintSettings", False);
@@ -1684,11 +1684,6 @@ Procedure OnAddClientParametersOnStart(Parameters) Export
 		EndIf;
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
-		ModuleReportsOptions = Common.CommonModule("ReportsOptions");
-		ModuleReportsOptions.OnAddClientParametersOnStart(Parameters);
-	EndIf;
-
 	If Common.SubsystemExists("StandardSubsystems.InformationOnStart") Then
 		ModuleInformationOnStart = Common.CommonModule("InformationOnStart");
 		ModuleInformationOnStart.OnAddClientParametersOnStart(Parameters);
@@ -1970,10 +1965,38 @@ EndProcedure
 // See CommonOverridable.OnReceiptRecurringClientDataOnServer
 Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
 	
-	If Common.SubsystemExists("StandardSubsystems.MonitoringCenter") Then
-		ModuleMonitoringCenterInternal = Common.CommonModule("MonitoringCenterInternal");
-		ModuleMonitoringCenterInternal.OnReceiptRecurringClientDataOnServer(Parameters, Results);
-	EndIf;
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Try
+		StandardSubsystemsServer.OnReceiptRecurringClientDataOnServer(Parameters, Results);
+	Except
+		ServerNotifications.HandleError(ErrorInfo());
+	EndTry;
+	ServerNotifications.AddIndicator(Results, StartMoment,
+		"StandardSubsystemsServer.OnReceiptRecurringClientDataOnServer");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Try
+		If Common.SubsystemExists("StandardSubsystems.PerformanceMonitor") Then
+			ModulePerformanceMonitorInternal = Common.CommonModule("PerformanceMonitorInternal");
+			ModulePerformanceMonitorInternal.OnReceiptRecurringClientDataOnServer(Parameters, Results);
+		EndIf;
+	Except
+		ServerNotifications.HandleError(ErrorInfo());
+	EndTry;
+	ServerNotifications.AddIndicator(Results, StartMoment,
+		"PerformanceMonitorInternal.OnReceiptRecurringClientDataOnServer");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Try
+		If Common.SubsystemExists("StandardSubsystems.MonitoringCenter") Then
+			ModuleMonitoringCenterInternal = Common.CommonModule("MonitoringCenterInternal");
+			ModuleMonitoringCenterInternal.OnReceiptRecurringClientDataOnServer(Parameters, Results);
+		EndIf;
+	Except
+		ServerNotifications.HandleError(ErrorInfo());
+	EndTry;
+	ServerNotifications.AddIndicator(Results, StartMoment,
+		"MonitoringCenterInternal.OnReceiptRecurringClientDataOnServer");
 	
 EndProcedure
 
@@ -2819,22 +2842,22 @@ Procedure OnFillTypesExcludedFromExportImportOData(TypesToExclude) Export
 
 EndProcedure
 
-// See ODataInterfaceOverridable.WhenFillingInDependentTablesForUploadingLoadingOData
-Procedure WhenFillingInDependentTablesForUploadingLoadingOData(Tables) Export
+// See ODataInterfaceOverridable.OnPopulateDependantTablesForODataImportExport
+Procedure OnPopulateDependantTablesForODataImportExport(Tables) Export
 	
 	If Common.SubsystemExists("StandardSubsystems.MarkedObjectsDeletion") Then
 		ModuleMarkedObjectsDeletionInternal = Common.CommonModule("MarkedObjectsDeletionInternal");
-		ModuleMarkedObjectsDeletionInternal.WhenFillingInDependentTablesForUploadingLoadingOData(Tables);
+		ModuleMarkedObjectsDeletionInternal.OnPopulateDependantTablesForODataImportExport(Tables);
 	EndIf;
 	
-	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().WhenFillingInDependentTablesForUploadingLoadingOData Then
+	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnPopulateDependantTablesForODataImportExport Then
 		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
-		ModuleCTLSubsystemsIntegration.WhenFillingInDependentTablesForUploadingLoadingOData(Tables);
+		ModuleCTLSubsystemsIntegration.OnPopulateDependantTablesForODataImportExport(Tables);
 	EndIf;
 
-	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().WhenFillingInDependentTablesForUploadingLoadingOData Then
+	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().OnPopulateDependantTablesForODataImportExport Then
 		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
-		ModuleOSLSubsystemsIntegration.WhenFillingInDependentTablesForUploadingLoadingOData(Tables);
+		ModuleOSLSubsystemsIntegration.OnPopulateDependantTablesForODataImportExport(Tables);
 	EndIf;
 	
 EndProcedure
@@ -3242,22 +3265,22 @@ Procedure OnGetUpdatePriority(Priority) Export
 
 EndProcedure
 
-// See InfobaseUpdateOverridable.WhenFillingInItemsThatArePlannedToBeDeleted.
-Procedure WhenFillingInItemsThatArePlannedToBeDeleted(Objects) Export
+// See InfobaseUpdateOverridable.OnPopulateObjectsPlannedForDeletion.
+Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
 	
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
-		ModuleAccessManagementInternal.WhenFillingInItemsThatArePlannedToBeDeleted(Objects);
+		ModuleAccessManagementInternal.OnPopulateObjectsPlannedForDeletion(Objects);
 	EndIf;
 
-	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().WhenFillingInItemsThatArePlannedToBeDeleted Then
+	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnPopulateObjectsPlannedForDeletion Then
 		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
-		ModuleCTLSubsystemsIntegration.WhenFillingInItemsThatArePlannedToBeDeleted(Objects);
+		ModuleCTLSubsystemsIntegration.OnPopulateObjectsPlannedForDeletion(Objects);
 	EndIf;
 	
-	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().WhenFillingInItemsThatArePlannedToBeDeleted Then
+	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().OnPopulateObjectsPlannedForDeletion Then
 		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
-		ModuleOSLSubsystemsIntegration.WhenFillingInItemsThatArePlannedToBeDeleted(Objects);
+		ModuleOSLSubsystemsIntegration.OnPopulateObjectsPlannedForDeletion(Objects);
 	EndIf;
 	
 EndProcedure
@@ -3436,6 +3459,11 @@ Procedure OnDefinePrintDataSources(Object, PrintDataSources) Export
 	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().OnDefinePrintDataSources Then
 		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
 		ModuleOSLSubsystemsIntegration.OnDefinePrintDataSources(Object, PrintDataSources);
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.PersonalDataProtection") Then
+		ModulePersonalDataProtection = Common.CommonModule("PersonalDataProtection");
+		ModulePersonalDataProtection.OnDefinePrintDataSources(Object, PrintDataSources);
 	EndIf;
 	
 EndProcedure
@@ -5309,18 +5337,32 @@ EndProcedure
 
 // See MarkedObjectsDeletionOverridable.BeforeDeletingAGroupOfObjects
 Procedure BeforeDeletingAGroupOfObjects(Context, ObjectsToDelete) Export
+	
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsInternal = Common.CommonModule("FilesOperationsInternal");
 		ModuleFilesOperationsInternal.BeforeDeletingAGroupOfObjects(Context, ObjectsToDelete);
 	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
+		ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");
+		ModuleObjectsVersioning.BeforeDeletingAGroupOfObjects(Context, ObjectsToDelete);
+	EndIf;
+		
 EndProcedure
 
 // See MarkedObjectsDeletionOverridable.AfterDeletingAGroupOfObjects
 Procedure AfterDeletingAGroupOfObjects(Context, Success) Export
+	
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsInternal = Common.CommonModule("FilesOperationsInternal");
 		ModuleFilesOperationsInternal.AfterDeletingAGroupOfObjects(Context, Success);
 	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
+		ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");
+		ModuleObjectsVersioning.AfterDeletingAGroupOfObjects(Context, Success);
+	EndIf;
+	
 EndProcedure
 
 #EndRegion

@@ -79,7 +79,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Import exchange rate</v8:content>
+							<v8:content>Import exchange rates</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="ExchangeRatesImportGroupExtendedTooltip" id="88"/>

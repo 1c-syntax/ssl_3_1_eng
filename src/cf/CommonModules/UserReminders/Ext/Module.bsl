@@ -15,10 +15,10 @@
 //  Text - String - Reminder text;
 //  EventTime - Date - Date and time of the event, which needs a reminder.
 //               - JobSchedule - Repeated event schedule.
-//               - String - Name of the topic's attribute that contains the event time.
+//               - String - Name of the subject's attribute that contains the event time.
 //  IntervalTillEvent - Number - time in seconds, prior to which it is necessary to remind of the event time;
-//  SubjectOf - AnyRef - Reminder's topic.
-//  Id - String - Describes the reminder's topic. For example, "Birthday".
+//  SubjectOf - AnyRef - Reminder's subject.
+//  Id - String - Describes the reminder's subject. For example, "Birthday".
 //
 Procedure SetReminder(Text, EventTime, IntervalTillEvent = 0, SubjectOf = Undefined, Id = Undefined) Export
 	UserRemindersInternal.AttachArbitraryReminder(
@@ -29,8 +29,8 @@ EndProcedure
 //
 // Parameters:
 //  SubjectOf - AnyRef
-//          - Array - Reminder topic(s).
-//  Id - String - Describes the reminder's topic. For example, "Birthday".
+//          - Array - Reminder subject(s).
+//  Id - String - Describes the reminder's subject. For example, "Birthday".
 //
 // Returns:
 //    Array - Reminder collection as structures with fields repeating the fields of the UserReminders  information register.
@@ -80,11 +80,11 @@ Procedure DeleteReminder(Reminder) Export
 	UserRemindersInternal.DisableReminder(Reminder, False);
 EndProcedure
 
-// Checks attribute changes for the topics the user subscribed to.
+// Checks attribute changes for the subjects the user subscribed to.
 // If necessary, changes the reminder time.
 //
 // Parameters:
-//  Subjects - Array - Topics whose reminder dates must be updated.
+//  Subjects - Array - Subjects whose reminder dates must be updated.
 // 
 Procedure UpdateRemindersForSubjects(Subjects) Export
 	

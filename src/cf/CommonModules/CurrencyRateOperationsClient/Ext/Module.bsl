@@ -22,7 +22,7 @@ Procedure AfterStart() Export
 	
 	ClientParameters = StandardSubsystemsClient.ClientParametersOnStart();
 	If ClientParameters.Property("Currencies") And ClientParameters.Currencies.ExchangeRatesUpdateRequired Then
-		AttachIdleHandler("CurrencyRateOperationsOutputObsoleteDataNotification", 15, True);
+		AttachIdleHandler("CurrencyRateOperationsOutputObsoleteDataNotification", 180, True);
 	EndIf;
 	
 EndProcedure
@@ -60,7 +60,11 @@ Function SettingsOnClient()
 	
 EndFunction
 
-Procedure NotifyRatesObsolete() Export
+Procedure NotifyRatesObsolete(Val CheckRelevance = False) Export
+	
+	If CheckRelevance And CurrenciesExchangeRatesServerCall.RatesUpToDate() Then
+		Return;
+	EndIf;
 	
 	DateStartOfDay = BegOfDay(CommonClient.SessionDate());
 	Settings = SettingsOnClient();
@@ -96,7 +100,7 @@ EndProcedure
 //
 Procedure NotifyRatesUpToDate() Export
 	
-	ShowMessageBox(,NStr("en = 'The exchange rates are up-to-date.';"));
+	ShowMessageBox(,NStr("en = 'Актуальные курсы валют успешно загружены.';"));
 	
 EndProcedure
 

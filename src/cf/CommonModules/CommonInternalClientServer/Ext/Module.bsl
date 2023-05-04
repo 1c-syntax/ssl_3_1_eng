@@ -415,7 +415,7 @@ Function EstablishExternalConnectionWithInfobase(Parameters, ConnectionNotAvaila
 	If FileRunMode Then
 		
 		If IsBlankString(Parameters.InfobaseDirectory) Then
-			ErrorMessageString = NStr("en = 'The infobase directory is not specified.';");
+			ErrorMessageString = NStr("en = 'The infobase directory location is not specified.';");
 			FillingCheckError = True;
 		EndIf;
 		

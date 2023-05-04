@@ -84,45 +84,17 @@ EndProcedure
 // Sets a CCT value type depending on the answer type.
 Procedure SetCCTType()
 	
-	TypesOfAnswersToQuestion = Enums.TypesOfAnswersToQuestion;
-	
-	// Qualifiers.
-	KCH = New NumberQualifiers(?(Length = 0,15,Length),Accuracy);
-	SQ = New StringQualifiers(Length);
-	DQ = New DateQualifiers(DateFractions.Date);
-	
-	// Type details.
-	TypesDetailsNumber  = New TypeDescription("Number",,KCH);
-	TypesDetailsString = New TypeDescription("String", , SQ);
-	TypesDetailsDate   = New TypeDescription("Date",DQ , , );
-	TypesDetailsBoolean = New TypeDescription("Boolean");
-	AnswersOptionsTypesDetails     = New TypeDescription("CatalogRef.QuestionnaireAnswersOptions");
-	
-	If ReplyType = TypesOfAnswersToQuestion.String Then
-		
-		ValueType = TypesDetailsString;
-		
-	ElsIf ReplyType = TypesOfAnswersToQuestion.Text Then
-		
-		ValueType = TypesDetailsString;
-		
-	ElsIf ReplyType = TypesOfAnswersToQuestion.Number Then
-		
-		ValueType = TypesDetailsNumber;
-		
-	ElsIf ReplyType = TypesOfAnswersToQuestion.Date Then
-		
-		ValueType = TypesDetailsDate;
-		
-	ElsIf ReplyType = TypesOfAnswersToQuestion.Boolean Then
-		
-		ValueType = TypesDetailsBoolean;
-		
-	ElsIf ReplyType =TypesOfAnswersToQuestion.OneVariantOf
-		  Or ReplyType = TypesOfAnswersToQuestion.MultipleOptionsFor Then
-		
-		ValueType = AnswersOptionsTypesDetails;
-		
+	If ReplyType = Enums.TypesOfAnswersToQuestion.String Or ReplyType = Enums.TypesOfAnswersToQuestion.Text Then
+		ValueType = New TypeDescription("String", , New StringQualifiers(Length));
+	ElsIf ReplyType = Enums.TypesOfAnswersToQuestion.Number Then
+		ValueType = New TypeDescription("Number",, New NumberQualifiers(?(Length = 0, 15, Length), Accuracy));
+	ElsIf ReplyType = Enums.TypesOfAnswersToQuestion.Date Then
+		ValueType = New TypeDescription("Date", New DateQualifiers(DateFractions.Date));
+	ElsIf ReplyType = Enums.TypesOfAnswersToQuestion.Boolean Then
+		ValueType = New TypeDescription("Boolean");
+	ElsIf ReplyType = Enums.TypesOfAnswersToQuestion.OneVariantOf
+		  Or ReplyType = Enums.TypesOfAnswersToQuestion.MultipleOptionsFor Then
+		ValueType =  New TypeDescription("CatalogRef.QuestionnaireAnswersOptions");
 	EndIf;
 
 EndProcedure

@@ -105,7 +105,7 @@ Procedure OnCreateAtUserServer(Cancel, Form, Object) Export
 	Form.SuggestConversationsText = 
 		NStr("en = 'Do you want to enable conversations?
 			       |
-			       |With them, users will be able to send text messages to each other, make video calls, create themed conversations, and correspond on documents.';")
+			       |With them, users will be able to exchange text messages, make video calls, create themed conversations, and correspond on documents.';")
 			+ Chars.LF + Chars.LF + EnableLater;
 	
 EndProcedure

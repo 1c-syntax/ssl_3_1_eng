@@ -330,7 +330,7 @@
 											<ContextMenu name="PhoneWithExtensionContextMenu" id="135"/>
 											<ExtendedTooltip name="PhoneWithExtensionExtendedTooltip" id="136"/>
 											<Events>
-												<Event name="OnChange">PhoneWithExtensionOnChange</Event>
+												<Event name="OnChange">PhoneNumberWithExtensionWhenChanging</Event>
 											</Events>
 										</CheckBoxField>
 										<CheckBoxField name="CheckPhoneValidity" id="137">
@@ -442,7 +442,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Field kind</v8:content>
+													<v8:content>Field layout</v8:content>
 												</v8:item>
 											</Title>
 											<RadioButtonType>Auto</RadioButtonType>

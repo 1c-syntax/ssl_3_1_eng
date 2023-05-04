@@ -135,7 +135,7 @@ Function GetOOWriterTemplate(Val BinaryTemplateData1, TempFileName) Export
 	FilesDetails1 = New Array;
 	FilesDetails1.Add(New TransferableFileDescription(TempFileName, PutToTempStorage(BinaryTemplateData1)));
 	TempDirectory = PrintManagementInternalClient.CreateTemporaryDirectory("OOWriter");
-	If Not GetFiles(FilesDetails1, , TempDirectory, False) Then // АПК:1348 - 
+	If Not GetFiles(FilesDetails1, , TempDirectory, False) Then // ACC:1348 - 
 		Return Undefined;
 	EndIf;
 	TempFileName = CommonClientServer.AddLastPathSeparator(TempDirectory) + TempFileName;

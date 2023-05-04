@@ -27,10 +27,9 @@ EndProcedure
 Procedure CheckPredefinedReportOptionFilling(Cancel)
 	If DeletionMark Then
 		Return;
-	ElsIf Not ValueIsFilled(Report) Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Field %1 is required.';"), "Report");
-	Else
-		Return;
+	EndIf;
+	If Not ValueIsFilled(Report) Then
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Не заполнено поле ""%1"".';"), "Report");
 	EndIf;
 EndProcedure
 

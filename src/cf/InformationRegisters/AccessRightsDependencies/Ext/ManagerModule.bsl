@@ -101,10 +101,10 @@ Function AccessRightsDependencies() Export
 		MetadataObject = Common.MetadataObjectByFullName(String.SubordinateTable);
 		If MetadataObject = Undefined Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Error in the ""%1"" procedure
-				           |of the ""%2"" common module.
+				NStr("en = 'Error in procedure %1
+				           |of common module %2.
 				           |
-				           |Cannot find the ""%3"" subordinate table.';"),
+				           |Cannot find subordinate table ""%3"".';"),
 				"OnFillAccessRightsDependencies",
 				"AccessManagementOverridable",
 				String.SubordinateTable);
@@ -116,10 +116,10 @@ Function AccessRightsDependencies() Export
 		MetadataObject = Common.MetadataObjectByFullName(String.LeadingTable);
 		If MetadataObject = Undefined Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Error in the ""%1"" procedure
-				           |of the ""%2"" common module.
+				NStr("en = 'Error in procedure %1
+				           |of common module %2.
 				           |
-				           |Cannot find the ""%3"" master table.';"),
+				           |Cannot find master table ""%3"".';"),
 				"OnFillAccessRightsDependencies",
 				"AccessManagementOverridable",
 				String.LeadingTable);

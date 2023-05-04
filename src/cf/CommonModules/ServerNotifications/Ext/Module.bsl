@@ -90,6 +90,63 @@ Procedure SendServerNotification(NameOfAlert, Result, SMSMessageRecipients, Send
 	
 EndProcedure
 
+// 
+// 
+//
+// Parameters:
+//  ErrorInfo - ErrorInfo
+//
+// Example:
+//	
+//	
+//		
+//			
+//			
+//		
+//	
+//		
+//	
+//	
+//		
+//
+Procedure HandleError(ErrorInfo) Export
+	
+	WriteLogEvent(
+		NStr("en = 'Server notifications.Error getting or processing notifications';",
+			Common.DefaultLanguageCode()),
+		EventLogLevel.Error,,,
+		ErrorProcessing.DetailErrorDescription(ErrorInfo));
+	
+EndProcedure
+
+// 
+// 
+//
+// Parameters:
+//  Results - See CommonOverridable.OnReceiptRecurringClientDataOnServer.Results
+//  StartMoment - Number -
+//  ProcedureName - String -
+//
+// Example:
+//	
+//	
+//		
+//			
+//			
+//		
+//	
+//		
+//	
+//	
+//		
+//
+Procedure AddIndicator(Results, StartMoment, ProcedureName) Export
+	
+	Indicators = Results.Get(NestedIndicatorsParameterName());
+	AddMainIndicator(Indicators, StartMoment, ProcedureName);
+	
+EndProcedure
+
 #Region ForCallsFromOtherSubsystems
 
 // 
@@ -109,7 +166,7 @@ Function SessionKey(Session = Undefined) Export
 		Session = GetCurrentInfoBaseSession();
 	EndIf;
 	
-	// АПК:1367-
+	// ACC:1367-
 	// 
 	Return Format(Session.SessionStarted, "DF='yyyy.MM.dd HH:mm:ss'") + " "
 		+ Format(Session.SessionNumber, "NZ=0; NG=");
@@ -121,7 +178,7 @@ EndFunction
 
 #EndRegion
 
-#Region Private
+#Region Internal
 
 ////////////////////////////////////////////////////////////////////////////////
 // 
@@ -150,8 +207,43 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 	
 EndProcedure
 
+#EndRegion
+
+#Region Private
+
 ////////////////////////////////////////////////////////////////////////////////
 // 
+
+// Returns:
+//  Structure:
+//    * GroupID  - UUID -
+//                           - Undefined - 
+//    * NotificationTypeInGroup - UUID -
+//                           - Undefined - 
+//    * DeliveryDeferral     - Number  -
+//                                      
+//                                      
+//    * Replace             - Boolean -
+//                                      
+//                                      
+//
+//    * LogEventOnDeliveryDeferral     - String -
+//                                                
+//    * LogCommentOnDeliveryDeferral - String -
+//
+Function AdditionalSendingParameters() Export
+	
+	Result = New Structure;
+	Result.Insert("GroupID");
+	Result.Insert("NotificationTypeInGroup");
+	Result.Insert("Replace", False);
+	Result.Insert("DeliveryDeferral", 0);
+	Result.Insert("LogEventOnDeliveryDeferral", "");
+	Result.Insert("LogCommentOnDeliveryDeferral", "");
+	
+	Return Result;
+	
+EndFunction
 
 // Parameters:
 //  NameOfAlert  - See SendServerNotification.NameOfAlert
@@ -159,11 +251,10 @@ EndProcedure
 //  SMSMessageRecipients       - See SendServerNotification.SMSMessageRecipients
 //  SendImmediately - See SendServerNotification.SendImmediately
 //
-//  GroupID - UUID -
-//                      - Undefined - 
+//  See AdditionalSendingParameters
 //
 Procedure SendServerNotificationWithGroupID(NameOfAlert, Result, SMSMessageRecipients,
-			SendImmediately, GroupID = Undefined) Export
+			SendImmediately, AdditionalSendingParameters = Undefined) Export
 	
 	If SMSMessageRecipients <> Undefined And Not ValueIsFilled(SMSMessageRecipients) Then
 		Return;
@@ -178,11 +269,6 @@ Procedure SendServerNotificationWithGroupID(NameOfAlert, Result, SMSMessageRecip
 		Return;
 	EndIf;
 	
-	SavedToTheCollaborationSystem = False;
-	NotificationID = Lower(New UUID);
-	AddedOn = CurrentSessionDate();
-	DateAddedMilliseconds = Milliseconds();
-	
 	If SendImmediately
 	   And ServerNotificationsInternalCached.IsSessionSendServerNotificationsToClients() Then
 		
@@ -194,29 +280,31 @@ Procedure SendServerNotificationWithGroupID(NameOfAlert, Result, SMSMessageRecip
 			"SendImmediately",
 			"OnSendServerNotification");
 		Raise ErrorText;
-		
-	ElsIf SendImmediately
-	        And IsCurrentUserRegisteredInInteractionSystem() Then
-		
-		Data = MessageNewData();
-		Data.NameOfAlert           = NameOfAlert;
-		Data.Result               = Result;
-		Data.SMSMessageRecipients                = SMSMessageRecipients;
-		Data.NotificationID = NotificationID;
-		Data.AddedOn          = AddedOn;
-		Data.WasSentFromQueue     = False;
-		
-		If ValueIsFilled(SMSMessageRecipients) And SMSMessageRecipients.Count() = 1 Then
-			For Each KeyAndValue In SMSMessageRecipients Do
-				Break;
-			EndDo;
-			ConversationID = PersonalChatID(KeyAndValue.Key);
-		Else
-			ConversationID = GlobalChatID();
-		EndIf;
-		If ConversationID <> Undefined Then
-			SavedToTheCollaborationSystem = SendMessage(Data, ConversationID);
-		EndIf;
+	EndIf;
+	
+	NotificationID = Lower(New UUID);
+	AddedOn = CurrentSessionDate();
+	DateAddedMilliseconds = Milliseconds();
+	AdditionalParameters = ?(AdditionalSendingParameters = Undefined,
+		AdditionalSendingParameters(), AdditionalSendingParameters);
+	
+	DeliveryDeferral = AdditionalParameters.DeliveryDeferral;
+	
+	If AdditionalParameters.Replace Then
+		DeleteLastUndeliveredNotification(AdditionalParameters.GroupID,
+			AdditionalParameters.NotificationTypeInGroup, DeliveryDeferral,
+			AddedOn, DateAddedMilliseconds);
+	EndIf;
+	
+	If Not ValueIsFilled(SMSMessageRecipients)
+	 Or SMSMessageRecipients.Count() > 27 Then
+		AddresseesIDs = "";
+	Else
+		List = New Array;
+		For Each KeyAndValue In SMSMessageRecipients Do
+			List.Add(Lower(KeyAndValue.Key));
+		EndDo;
+		AddresseesIDs = StrConcat(List, Chars.LF);
 	EndIf;
 	
 	RecordSet = ServiceRecordSet(InformationRegisters.SentServerNotifications);
@@ -225,16 +313,144 @@ Procedure SendServerNotificationWithGroupID(NameOfAlert, Result, SMSMessageRecip
 	NewRecord.NotificationID = NotificationID;
 	NewRecord.AddedOn = AddedOn;
 	NewRecord.DateAddedMilliseconds = DateAddedMilliseconds;
-	NewRecord.SavedToTheCollaborationSystem = SavedToTheCollaborationSystem;
+	NewRecord.SMSMessageRecipients = AddresseesIDs;
 	NewRecord.NotificationContent = New ValueStorage(NotificationContent);
-	NewRecord.GroupID = Lower(GroupID);
+	NewRecord.GroupID = Lower(AdditionalParameters.GroupID);
+	NewRecord.NotificationTypeInGroup = Lower(AdditionalParameters.NotificationTypeInGroup);
+	
 	If Not Common.SeparatedDataUsageAvailable() Then
 		RecordSet.Filter.DataAreaAuxiliaryData.Set(0);
 		NewRecord.DataAreaAuxiliaryData = 0;
 	EndIf;
+	
+	RunDeferredDelivery = False;
+	
+	If ValueIsFilled(DeliveryDeferral) Then
+		RunDeferredDelivery = True;
+		
+		If DeliveryDeferral > 5 Then
+			NewRecord.DeferralOfWritingToCollaborationSystem = 5;
+		Else
+			NewRecord.DeferralOfWritingToCollaborationSystem = DeliveryDeferral;
+		EndIf;
+		
+	ElsIf SendImmediately
+	        And IsCurrentUserRegisteredInInteractionSystem() Then
+		
+		If SendMessageImmediately(NotificationID, AddedOn, NotificationContent) Then
+			NewRecord.CollaborationSystemRecordDate = CurrentSessionDate();
+			NewRecord.DateWrittenToCollaborationSystemMilliseconds = Milliseconds();
+		EndIf;
+		
+	ElsIf SendImmediately Then
+		NewRecord.DeferralOfWritingToCollaborationSystem = 0.1;
+	EndIf;
+	
+	If ValueIsFilled(NewRecord.DeferralOfWritingToCollaborationSystem)
+	   And Not CollaborationSystemConnected() Then
+		
+		NewRecord.DeferralOfWritingToCollaborationSystem = 0;
+		RunDeferredDelivery = False;
+	EndIf;
+	
+	RecordSet.Write();
+	
+	If RunDeferredDelivery Then
+		Launched = False;
+		StartDeliverDeferredServerNotifications(Launched);
+		If Launched And ValueIsFilled(AdditionalParameters.LogEventOnDeliveryDeferral) Then
+			Try
+				Raise NStr("en = 'Стек вызовов:';");
+			Except
+				CallStack = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+			EndTry;
+			Comment = AdditionalParameters.LogCommentOnDeliveryDeferral;
+			Comment = Comment + ?(ValueIsFilled(Comment), Chars.LF, "") + CallStack;
+			WriteLogEvent(AdditionalParameters.LogEventOnDeliveryDeferral,
+				EventLogLevel.Information,,, Comment);
+		EndIf;
+	EndIf;
+	
+EndProcedure
+
+// 
+Procedure DeleteLastUndeliveredNotification(GroupID, NotificationTypeInGroup,
+			DeliveryDeferral, AddedOn, DateAddedMilliseconds)
+	
+	Query = New Query;
+	Query.SetParameter("GroupID",  Lower(GroupID));
+	Query.SetParameter("NotificationTypeInGroup", Lower(NotificationTypeInGroup));
+	Query.Text =
+	"SELECT TOP 1
+	|	SentServerNotifications.NotificationID AS NotificationID,
+	|	SentServerNotifications.AddedOn AS AddedOn,
+	|	SentServerNotifications.DateAddedMilliseconds AS DateAddedMilliseconds,
+	|	SentServerNotifications.DeferralOfWritingToCollaborationSystem AS DeferralOfWritingToCollaborationSystem,
+	|	SentServerNotifications.CollaborationSystemRecordDate AS CollaborationSystemRecordDate,
+	|	SentServerNotifications.DateWrittenToCollaborationSystemMilliseconds AS DateWrittenToCollaborationSystemMilliseconds
+	|FROM
+	|	InformationRegister.SentServerNotifications AS SentServerNotifications
+	|WHERE
+	|	SentServerNotifications.GroupID = &GroupID
+	|	AND SentServerNotifications.NotificationTypeInGroup = &NotificationTypeInGroup
+	|
+	|ORDER BY
+	|	SentServerNotifications.AddedOn DESC,
+	|	SentServerNotifications.DateAddedMilliseconds DESC";
+	
+	Selection = Query.Execute().Select();
+	If Not Selection.Next() Then
+		DeliveryDeferral = 0;
+		Return;
+	EndIf;
+	
+	If ValueIsFilled(Selection.CollaborationSystemRecordDate) Then
+		TimePassed = AddedOn - Selection.CollaborationSystemRecordDate
+			+ (DateAddedMilliseconds - Selection.DateWrittenToCollaborationSystemMilliseconds) / 1000;
+	Else
+		TimePassed = AddedOn - Selection.AddedOn
+			+ (DateAddedMilliseconds - Selection.DateAddedMilliseconds) / 1000;
+	EndIf;
+	TimePassed = Round(TimePassed, 1, RoundMode.Round15as20);
+	DeliveryDeferral = DeliveryDeferral - TimePassed;
+	
+	If DeliveryDeferral < 0 Then
+		DeliveryDeferral = 0;
+	EndIf;
+	
+	If ValueIsFilled(Selection.CollaborationSystemRecordDate) Then
+		Return;
+	EndIf;
+	
+	RecordSet = ServiceRecordSet(InformationRegisters.SentServerNotifications);
+	RecordSet.Filter.NotificationID.Set(Selection.NotificationID);
 	RecordSet.Write();
 	
 EndProcedure
+
+// 
+Function SendMessageImmediately(NotificationID, AddedOn, NotificationContent)
+	
+	Data = MessageNewData();
+	Data.NameOfAlert           = NotificationContent.NameOfAlert;
+	Data.Result               = NotificationContent.Result;
+	Data.SMSMessageRecipients                = NotificationContent.SMSMessageRecipients;
+	Data.NotificationID = NotificationID;
+	Data.AddedOn          = AddedOn;
+	Data.WasSentFromQueue     = False;
+	
+	If ValueIsFilled(Data.SMSMessageRecipients) And Data.SMSMessageRecipients.Count() = 1 Then
+		For Each KeyAndValue In Data.SMSMessageRecipients Do
+			Break;
+		EndDo;
+		ConversationID = PersonalChatID(KeyAndValue.Key);
+	Else
+		ConversationID = GlobalChatID();
+	EndIf;
+	
+	Return SendMessage(Data, ConversationID);
+	
+EndFunction
 
 Function Milliseconds()
 	
@@ -245,20 +461,27 @@ Function Milliseconds()
 EndFunction
 
 // Parameters:
-//  NotificationsGroupID - UUID -
-//  LastAlert - See NewServerNotificationToClient
+//  GroupID  - UUID -
+//                           
+//
+//  NotificationTypeInGroup - UUID -
+//                           
+//
+//  LastAlert  - See NewServerNotificationToClient
 //
 // Returns:
 //  Array of See NewServerNotificationToClient
 //
-Function ServerNotificationForClient(NotificationsGroupID, LastAlert = Undefined) Export
+Function ServerNotificationForClient(GroupID, NotificationTypeInGroup,
+			LastAlert = Undefined) Export
 	
 	If LastAlert = Undefined Then
 		LastAlert = NewServerNotificationToClient();
 	EndIf;
 	
 	Query = New Query;
-	Query.SetParameter("GroupID",        Lower(NotificationsGroupID));
+	Query.SetParameter("GroupID",        Lower(GroupID));
+	Query.SetParameter("NotificationTypeInGroup",       Lower(NotificationTypeInGroup));
 	Query.SetParameter("AddedOn",             LastAlert.AddedOn);
 	Query.SetParameter("DateAddedMilliseconds", LastAlert.DateAddedMilliseconds);
 	Query.SetParameter("NotificationID",    LastAlert.NotificationID);
@@ -272,6 +495,7 @@ Function ServerNotificationForClient(NotificationsGroupID, LastAlert = Undefined
 	|	InformationRegister.SentServerNotifications AS SentServerNotifications
 	|WHERE
 	|	SentServerNotifications.GroupID = &GroupID
+	|	AND SentServerNotifications.NotificationTypeInGroup = &NotificationTypeInGroup
 	|	AND SentServerNotifications.NotificationID <> &NotificationID
 	|	AND (SentServerNotifications.AddedOn > &AddedOn
 	|			OR SentServerNotifications.AddedOn = &AddedOn
@@ -353,12 +577,13 @@ Procedure SendServerNotificationsToClients() Export
 	SetPrivilegedMode(True);
 	
 	If Not Common.SeparatedDataUsageAvailable() Then
-		Jobs = ScheduledJobsServer.FindJobs(New Structure("Metadata",
-			Metadata.ScheduledJobs.SendServerNotificationsToClients));
-		For Each Job In Jobs Do
-			ScheduledJobsServer.ChangeJob(Job.UUID,
-				New Structure("Use", False));
-		EndDo;
+		SetUsageOfJobSendServerNotificationsToClients(False);
+		Return;
+	EndIf;
+	
+	If IsAllSessionSleeping() Then
+		SendServerNotification(NameOfNotificationAllSessionsSleepingJobDisabled(), Undefined, Undefined);
+		SetUsageOfJobSendServerNotificationsToClients(False);
 		Return;
 	EndIf;
 	
@@ -390,62 +615,190 @@ EndProcedure
 //   * AdditionalResults - Map -
 //       
 //   * CollaborationSystemConnected - Boolean
+//   * ShouldRegisterIndicators - Boolean
 //
 Function SessionUndeliveredServerNotifications(Val Parameters) Export
 	
+	CommonStartTime = CurrentUniversalDateInMilliseconds();
+	ShouldRegisterIndicators = CommonClientServer.StructureProperty(Parameters,
+		"ShouldRegisterIndicators", False);
+	Indicators = ?(ShouldRegisterIndicators, New Array, Undefined);
+	
+	If Parameters.Property("MessagesForEventLog") Then
+		StartMoment = CurrentUniversalDateInMilliseconds();
+		EventLog.WriteEventsToEventLog(Parameters.MessagesForEventLog);
+		AddMainIndicator(Indicators, StartMoment,
+			"EventLog.WriteEventsToEventLog");
+	EndIf;
+	
+	AdditionalResults = New Map;
+	If Indicators <> Undefined Then
+		AdditionalResults.Insert(NestedIndicatorsParameterName(), New Array);
+	EndIf;
+	AdditionalParameters = CommonClientServer.StructureProperty(Parameters,
+		"AdditionalParameters", New Map);
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Try
+		TimeConsumingOperations.OnReceiptRecurringClientDataOnServer(
+			AdditionalParameters, AdditionalResults);
+	Except
+		HandleError(ErrorInfo());
+	EndTry;
+	AddMainIndicator(Indicators, StartMoment,
+		"TimeConsumingOperations.OnReceiptRecurringClientDataOnServer");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	SetPrivilegedMode(True);
+	ServiceAdministratorSession = ServiceAdministratorSession();
+	SetPrivilegedMode(False);
+	AddMainIndicator(Indicators, StartMoment,
+		"ServerNotifications.ServiceAdministratorSession");
+	
 	Result = New Structure;
-	Result.Insert("ServerNotifications",       New Array);
-	Result.Insert("LastNotificationDate",  Parameters.LastNotificationDate);
-	Result.Insert("MinCheckInterval", Parameters.MinCheckInterval);
-	Result.Insert("AdditionalResults",  New Map);
-	Result.Insert("CollaborationSystemConnected", False);
+	ShouldSendDataRecurrently = Parameters.Property("ShouldSendDataRecurrently");
+	IsRecurringDataSendEnabled = ShouldSendDataRecurrently
+		And Parameters.ShouldSendDataRecurrently;
 	
-	EventLog.WriteEventsToEventLog(Parameters.MessagesForEventLog);
-	
-	TimeConsumingOperations.OnReceiptRecurringClientDataOnServer(
-		Parameters.AdditionalParameters, Result.AdditionalResults);
-	
-	If Parameters.ShouldSendDataRecurrently Then
-		SSLSubsystemsIntegration.OnReceiptRecurringClientDataOnServer(
-			Parameters.AdditionalParameters, Result.AdditionalResults);
+	If ShouldSendDataRecurrently Then
+		If IsRecurringDataSendEnabled Then
+			StartMoment = CurrentUniversalDateInMilliseconds();
+			Try
+				SSLSubsystemsIntegration.OnReceiptRecurringClientDataOnServer(
+					AdditionalParameters, AdditionalResults);
+			Except
+				HandleError(ErrorInfo());
+			EndTry;
+			AddMainIndicator(Indicators, StartMoment,
+				"SSLSubsystemsIntegration.OnReceiptRecurringClientDataOnServer",
+				AdditionalResults);
+			
+			StartMoment = CurrentUniversalDateInMilliseconds();
+			Try
+				CommonOverridable.OnReceiptRecurringClientDataOnServer(
+					AdditionalParameters, AdditionalResults);
+			Except
+				HandleError(ErrorInfo());
+			EndTry;
+			AddMainIndicator(Indicators, StartMoment,
+				"CommonOverridable.OnReceiptRecurringClientDataOnServer",
+				AdditionalResults);
+		EndIf;
 		
-		CommonOverridable.OnReceiptRecurringClientDataOnServer(
-			Parameters.AdditionalParameters, Result.AdditionalResults);
+		StartMoment = CurrentUniversalDateInMilliseconds();
+		ParameterName = "StandardSubsystems.Core.ServerNotifications.SessionActivityUpdate";
+		SessionActivityUpdate = AdditionalParameters.Get(ParameterName) <> Undefined;
+		Try
+			If SessionActivityUpdate And Not ServiceAdministratorSession Then
+				UpdateSessionActivity();
+			EndIf;
+		Except
+			HandleError(ErrorInfo());
+		EndTry;
+		AddMainIndicator(Indicators, StartMoment,
+			"ServerNotifications.UpdateSessionActivity");
+		
+		If SessionActivityUpdate Then
+			StartMoment = CurrentUniversalDateInMilliseconds();
+			Result.Insert("ShouldRegisterIndicators", RegisterServerNotificationsIndicators());
+			AddMainIndicator(Indicators, StartMoment,
+				"ServerNotifications.RegisterServerNotificationsIndicators");
+		EndIf;
+		
+		If Not ServiceAdministratorSession Then
+			StartMoment = CurrentUniversalDateInMilliseconds();
+			Try
+				If Common.SubsystemExists("StandardSubsystems.UsersSessions") Then
+					ModuleIBConnections = Common.CommonModule("IBConnections");
+					ModuleIBConnections.OnReceiptRecurringClientDataOnServer(
+						AdditionalParameters, AdditionalResults);
+				EndIf;
+			Except
+				HandleError(ErrorInfo());
+			EndTry;
+			AddMainIndicator(Indicators, StartMoment,
+				"IBConnections.OnReceiptRecurringClientDataOnServer");
+			
+			ChatsParametersKeyName = "StandardSubsystems.Core.ChatsIDs";
+			PopulateChatsIDs = AdditionalParameters.Get(ChatsParametersKeyName) <> Undefined;
+			
+			If SessionActivityUpdate
+			 Or PopulateChatsIDs Then
+				
+				StartMoment = CurrentUniversalDateInMilliseconds();
+				CollaborationSystemConnected = CollaborationSystemConnected();
+				Result.Insert("CollaborationSystemConnected", CollaborationSystemConnected);
+				AddMainIndicator(Indicators, StartMoment,
+					"ServerNotifications.CollaborationSystemConnected");
+			EndIf;
+			
+			If PopulateChatsIDs
+			   And CollaborationSystemConnected Then
+				
+				StartMoment = CurrentUniversalDateInMilliseconds();
+				Try
+					AdditionalResults.Insert(ChatsParametersKeyName, ChatsIDs());
+				Except
+					HandleError(ErrorInfo());
+				EndTry;
+				AddMainIndicator(Indicators, StartMoment,
+					"ServerNotifications.ChatsIDs");
+			EndIf;
+		ElsIf SessionActivityUpdate Then
+			StartMoment = CurrentUniversalDateInMilliseconds();
+			Try
+				DeleteOutdatedNotifications();
+			Except
+				HandleError(ErrorInfo());
+			EndTry;
+			AddMainIndicator(Indicators, StartMoment,
+				"ServerNotifications.DeleteOutdatedNotifications");
+		EndIf;
 	EndIf;
 	
 	SetPrivilegedMode(True);
 	
-	ServiceAdministratorSession = ServiceAdministratorSession();
 	NewSendDateOfLastNotification = Parameters.LastNotificationDate;
 	If Not ServiceAdministratorSession Then
-		Result.CollaborationSystemConnected = CollaborationSystemConnected();
-		
+		StartMoment = CurrentUniversalDateInMilliseconds();
 		SendStatus = ServerNotificationsSendStatus();
-		
-		NextCheckDate = SendStatus.LastCheckDate
-			+ SendStatus.MinCheckInterval;
-		
-		If CurrentSessionDate() > NextCheckDate
-		   And Common.SubsystemExists("StandardSubsystems.UsersSessions") Then
-			
-			ModuleIBConnections = Common.CommonModule("IBConnections");
-			ModuleIBConnections.OnReceiptRecurringClientDataOnServer(
-				Parameters.AdditionalParameters, Result.AdditionalResults);
-		EndIf;
+		AddMainIndicator(Indicators, StartMoment,
+			"ServerNotifications.ServerNotificationsSendStatus");
 		
 		If NewSendDateOfLastNotification < SendStatus.LastCheckDate Then
 			NewSendDateOfLastNotification = SendStatus.LastCheckDate;
+		EndIf;
+		If ValueIsFilled(SendStatus.MinCheckInterval) Then
+			Result.Insert("MinCheckInterval", SendStatus.MinCheckInterval);
 		EndIf;
 	EndIf;
 	
 	IBUserID = InfoBaseUsers.CurrentUser().UUID;
 	ThisSessionKey = SessionKey();
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	Selection = NewServerNotifications(Parameters.LastNotificationDate);
+	AddMainIndicator(Indicators, StartMoment,
+		"ServerNotifications.NewServerNotifications");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	NameOfNotificationAllSessionsSleepingJobDisabled = NameOfNotificationAllSessionsSleepingJobDisabled();
+	NewServerNotifications = New Array;
 	While Selection.Next() Do
 		Store = Selection.NotificationContent;
 		Content = NotificationNewContent(Store);
 		If ValueIsFilled(Content.NameOfAlert) Then
+			If Content.NameOfAlert = NameOfNotificationAllSessionsSleepingJobDisabled Then
+				If Not ServiceAdministratorSession Then
+					Try
+						SetUsageOfJobSendServerNotificationsToClients(True);
+						DeleteServerNotification(Selection.NotificationID);
+					Except
+						HandleError(ErrorInfo());
+					EndTry;
+				EndIf;
+				Continue;
+			EndIf;
 			If TypeOf(Content.SMSMessageRecipients) = Type("Map") Then
 				SessionsKeys = Content.SMSMessageRecipients.Get(IBUserID);
 				If TypeOf(SessionsKeys) <> Type("Array")
@@ -460,34 +813,128 @@ Function SessionUndeliveredServerNotifications(Val Parameters) Export
 			Data.NotificationID = Selection.NotificationID;
 			Data.AddedOn          = Selection.AddedOn;
 			If Not TimeConsumingOperations.ShouldSkipNotification(Data) Then
-				Result.ServerNotifications.Add(Data);
+				NewServerNotifications.Add(Data);
 			EndIf;
 		EndIf;
 		NewSendDateOfLastNotification = Selection.AddedOn;
 	EndDo;
+	If ValueIsFilled(NewServerNotifications) Then
+		Result.Insert("ServerNotifications", NewServerNotifications);
+	EndIf;
+	AddMainIndicator(Indicators, StartMoment,
+		"ServerNotifications.NewServerNotifications.Selection.Next");
 	
 	If ValueIsFilled(NewSendDateOfLastNotification) Then
-		Result.LastNotificationDate = NewSendDateOfLastNotification;
+		Result.Insert("LastNotificationDate", NewSendDateOfLastNotification);
 	EndIf;
 	
-	If ServiceAdministratorSession Then
-		DeleteOutdatedNotifications();
-		
-	ElsIf ValueIsFilled(SendStatus.MinCheckInterval) Then
-		Result.MinCheckInterval = SendStatus.MinCheckInterval;
-	EndIf;
-	
-	ChatsParametersKeyName = "StandardSubsystems.Core.ChatsIDs";
-	If Parameters.AdditionalParameters.Get(ChatsParametersKeyName) <> Undefined
-	   And Result.CollaborationSystemConnected Then
-		Result.AdditionalResults.Insert(ChatsParametersKeyName, ChatsIDs());
+	If ValueIsFilled(AdditionalResults) Then
+		Result.Insert("AdditionalResults", AdditionalResults);
 	EndIf;
 	
 	SetPrivilegedMode(False);
 	
+	AddMainIndicator(Indicators, CommonStartTime,
+		"ServerNotifications.SessionUndeliveredServerNotifications",
+		AdditionalResults, True);
+	
+	If ShouldRegisterIndicators Then
+		Result.Insert("Indicators", Indicators);
+	EndIf;
+	
 	Return Result;
 	
 EndFunction
+
+Procedure AddMainIndicator(Indicators, StartMoment, ProcedureName,
+			AdditionalResults = Undefined, Shared = False)
+	
+	If Indicators = Undefined Then
+		Return;
+	EndIf;
+	
+	Duration = CurrentUniversalDateInMilliseconds() - StartMoment;
+	If Not Shared And Not ValueIsFilled(Duration) Then
+		Return;
+	EndIf;
+	
+	Text = Format(Duration / 1000, "ND=6; NFD=3; NZ=000,000; NLZ=") + " " + ProcedureName;
+	
+	If Shared Then
+		Indicators.Insert(0, "    " + Text);
+		AdditionalResults.Delete(NestedIndicatorsParameterName());
+	Else
+		Indicators.Add("      " + Text);
+	EndIf;
+	
+	If AdditionalResults = Undefined Then
+		Return;
+	EndIf;
+	
+	NestedIndicators = AdditionalResults.Get(NestedIndicatorsParameterName());
+	If TypeOf(NestedIndicators) <> Type("Array") Then
+		Return;
+	EndIf;
+	
+	For Each NestedIndicator In NestedIndicators Do
+		Indicators.Add("  " + NestedIndicator);
+	EndDo;
+	NestedIndicators.Clear();
+	
+EndProcedure
+
+Function NestedIndicatorsParameterName()
+	Return "StandardSubsystems.Core.ServerNotifications.Indicators";
+EndFunction
+
+Function RegisterServerNotificationsIndicators() Export
+	
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+	
+	Return Constants.RegisterServerNotificationsIndicators.Get();
+	
+EndFunction
+
+Procedure RegisterServerNotificationIndicatorsOnConstantChange(DoRegister) Export
+	
+	If Common.DataSeparationEnabled() Then
+		Return;
+	EndIf;
+	
+	SendServerNotification(
+		"StandardSubsystems.Core.ServerNotifications.IndicatorsRegistrationChanged",
+		DoRegister, Undefined, True);
+	
+EndProcedure
+
+Procedure UpdateSessionActivity()
+	
+	SetPrivilegedMode(True);
+	
+	SessionKey = SessionKey();
+	RecordSet = ServiceRecordSet(InformationRegisters.PeriodicServerNotifications);
+	RecordSet.Filter.SessionKey.Set(SessionKey);
+	
+	Block = New DataLock;
+	LockItem = Block.Add("InformationRegister.PeriodicServerNotifications");
+	LockItem.SetValue("SessionKey", SessionKey);
+	
+	BeginTransaction();
+	Try
+		Block.Lock();
+		RecordSet.Read();
+		If RecordSet.Count() = 1 Then
+			RecordSet[0].ActivityDate = CurrentSessionDate();
+			RecordSet.Write();
+		EndIf;
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
+	
+EndProcedure
 
 Procedure PrepareServerNotifications(SendStatus, MaxIntervalByUser = Undefined)
 	
@@ -552,6 +999,55 @@ Function AddedSessionNotifications()
 	EndIf;
 	
 	Return Notifications;
+	
+EndFunction
+
+// Parameters:
+//  RecurringNotifications - See CommonOverridable.OnAddServerNotifications.Notifications
+//
+// Returns:
+//  Map of KeyAndValue:
+//   ** 
+//   ** See ServerNotificationToSave
+//
+Function RepeatedNotificationToSave(RecurringNotifications)
+	
+	Result = New Map;
+	For Each KeyAndValue In RecurringNotifications Do
+		Result.Insert(KeyAndValue.Key,
+			ServerNotificationToSave(KeyAndValue.Value));
+	EndDo;
+	
+	Return Result;
+	
+EndFunction
+
+// Parameters:
+//  Notification - See NewServerNotification
+//
+// Returns:
+//  Structure:
+//   * NotificationSendModuleName - String -
+//   * Parameters         - Arbitrary -
+//                           
+//
+//   * VerificationPeriod    - Number -
+//                           
+//
+Function ServerNotificationToSave(Notification)
+	
+	Result = New Structure;
+	Result.Insert("NotificationSendModuleName", Notification.NotificationSendModuleName);
+	
+	If ValueIsFilled(Notification.Parameters) Then
+		Result.Insert("Parameters", Notification.Parameters);
+	EndIf;
+	
+	If Notification.VerificationPeriod <> 20*60 Then
+		Result.Insert("VerificationPeriod", Notification.VerificationPeriod);
+	EndIf;
+	
+	Return Result;
 	
 EndFunction
 
@@ -741,7 +1237,7 @@ EndFunction
 
 Function MessageAlreadyDelivered(SendStatus, Selection, IBUserID)
 	
-	If Selection.SavedToTheCollaborationSystem Then
+	If ValueIsFilled(Selection.CollaborationSystemRecordDate) Then
 		Return True;
 	EndIf;
 	
@@ -791,16 +1287,21 @@ Function NewServerNotifications(LastNotificationDate)
 	
 	Query = New Query;
 	Query.SetParameter("LastNotificationDate", LastNotificationDate);
+	Query.SetParameter("AddresseeSearchTemplate",
+		"%" + Lower(InfoBaseUsers.CurrentUser().UUID) + "%");
+	
 	Query.Text =
 	"SELECT
 	|	SentServerNotifications.NotificationID AS NotificationID,
 	|	SentServerNotifications.NotificationContent AS NotificationContent,
 	|	SentServerNotifications.AddedOn AS AddedOn,
-	|	SentServerNotifications.SavedToTheCollaborationSystem AS SavedToTheCollaborationSystem
+	|	SentServerNotifications.CollaborationSystemRecordDate AS CollaborationSystemRecordDate
 	|FROM
 	|	InformationRegister.SentServerNotifications AS SentServerNotifications
 	|WHERE
 	|	SentServerNotifications.AddedOn >= &LastNotificationDate
+	|	AND (SentServerNotifications.SMSMessageRecipients = """"
+	|		OR SentServerNotifications.SMSMessageRecipients LIKE &AddresseeSearchTemplate)
 	|	AND &Filter
 	|
 	|ORDER BY
@@ -829,6 +1330,22 @@ Function ServerNotificationNewParametersVariant()
 	ParametersVariant.Insert("SMSMessageRecipients", New Map);
 	
 	Return ParametersVariant;
+	
+EndFunction
+
+Function IsAllSessionSleeping()
+	
+	Query = New Query;
+	Query.SetParameter("Boundary", CurrentSessionDate() - 25*60);
+	Query.Text =
+	"SELECT TOP 1
+	|	TRUE AS TrueValue
+	|FROM
+	|	InformationRegister.PeriodicServerNotifications AS PeriodicServerNotifications
+	|WHERE
+	|	PeriodicServerNotifications.ActivityDate > &Boundary";
+	
+	Return Query.Execute().IsEmpty();
 	
 EndFunction
 
@@ -1187,6 +1704,193 @@ Procedure DeleteOutdatedNotifications()
 	
 EndProcedure
 
+// 
+Procedure StartDeliverDeferredServerNotifications(Launched = False)
+	
+	If Not IsCurrentUserRegisteredInInteractionSystem()
+	 Or Common.FileInfobase() // 
+	 Or ExclusiveMode() // 
+	 Or InfobaseUpdate.InfobaseUpdateRequired()
+	 Or IsDeferredServerAlertsDeliveryRunning() Then
+		Return;
+	EndIf;
+	
+	CurrentSession = GetCurrentInfoBaseSession();
+	JobDescription =
+		NStr("en = 'Autostart';", Common.DefaultLanguageCode()) + ": "
+		+ NStr("en = 'Delayed server notification delivery';", Common.DefaultLanguageCode()) + " ("
+		+ StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'from session %1 started on %2';", Common.DefaultLanguageCode()),
+			Format(CurrentSession.SessionNumber, "NG="),
+			Format(CurrentSession.SessionStarted, "DLF=DT")) + ")";
+	
+	BackgroundJobs.Execute(NameOfJobMethodServerNotificationsDeferredDelivery(),,, JobDescription);
+	
+	Launched = True;
+	
+EndProcedure
+
+// 
+Procedure ServerNotificationsDeferredDelivery() Export
+	
+	If Not Common.SeparatedDataUsageAvailable() Then
+		Return;
+	EndIf;
+	
+	CurrentSession = GetCurrentInfoBaseSession();
+	If CurrentSession.ApplicationName <> "BackgroundJob" Then
+		Return;
+	EndIf;
+	
+	CurrentBackgroundJob = CurrentSession.GetBackgroundJob();
+	If CurrentBackgroundJob = Undefined Then
+		Return;
+	EndIf;
+	
+	If IsDeferredServerAlertsDeliveryRunning(CurrentBackgroundJob)
+	 Or Not IsCurrentUserRegisteredInInteractionSystem() Then
+		Return;
+	EndIf;
+	
+	While True Do
+		WaitStart = CurrentSessionDate();
+		While True Do
+			Selection = UnsentDeferredNotifications();
+			If Selection.Count() > 0
+			 Or CurrentSessionDate() - WaitStart > 20 Then
+				Break;
+			EndIf;
+			CurrentBackgroundJob.WaitForExecutionCompletion(1);
+		EndDo;
+		If Selection.Count() = 0 Then
+			Break;
+		EndIf;
+		StartOfDelivery = CurrentSessionDate();
+		While Selection.Next() Do
+			DeliverNotification(Selection);
+			If CurrentSessionDate() - StartOfDelivery > 5 Then
+				Break;
+			EndIf;
+		EndDo;
+	EndDo;
+	
+EndProcedure
+
+// 
+Procedure DeliverNotification(Selection)
+	
+	AdditionDeferredDate = Selection.AddedOn + Selection.DeferralOfWritingToCollaborationSystem;
+	If CurrentSessionDate() <= AdditionDeferredDate Then
+		Return;
+	EndIf;
+	
+	NotificationContent = NotificationNewContent(Selection.NotificationContent);
+	If ValueIsFilled(NotificationContent.NameOfAlert) Then
+		Sent = SendMessageImmediately(Selection.NotificationID,
+			Selection.AddedOn, NotificationContent);
+	Else
+		Sent = False;
+	EndIf;
+	
+	Block = New DataLock;
+	LockItem = Block.Add("InformationRegister.SentServerNotifications");
+	LockItem.SetValue("NotificationID", Selection.NotificationID);
+	
+	BeginTransaction();
+	Try
+		Block.Lock();
+		RecordSet = InformationRegisters.SentServerNotifications.CreateRecordSet();
+		RecordSet.Filter.NotificationID.Set(Selection.NotificationID);
+		RecordSet.Read();
+		If RecordSet.Count() = 1
+		   And (Not ValueIsFilled(RecordSet[0].CollaborationSystemRecordDate)
+		      Or RecordSet[0].DeferralOfWritingToCollaborationSystem <> 0 ) Then
+			
+			If Sent Then
+				RecordSet[0].CollaborationSystemRecordDate = CurrentSessionDate();
+				RecordSet[0].DateWrittenToCollaborationSystemMilliseconds = Milliseconds();
+			Else
+				RecordSet[0].DeferralOfWritingToCollaborationSystem = 0;
+			EndIf;
+			RecordSet.Write();
+		EndIf;
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
+	
+EndProcedure
+
+// 
+Function IsDeferredServerAlertsDeliveryRunning(CurrentBackgroundJob = Undefined)
+	
+	Filter = New Structure;
+	Filter.Insert("State", BackgroundJobState.Active);
+	Filter.Insert("MethodName", NameOfJobMethodServerNotificationsDeferredDelivery());
+	
+	FoundJobs = BackgroundJobs.GetBackgroundJobs(Filter);
+	
+	If FoundJobs.Count() = 0 Then
+		Return False;
+	EndIf;
+	If CurrentBackgroundJob = Undefined Then
+		Return True;
+	EndIf;
+	
+	IDOfCurrent = CurrentBackgroundJob.UUID;
+	
+	For Each FoundJob In FoundJobs Do
+		If FoundJob.UUID = IDOfCurrent Then
+			Continue;
+		EndIf;
+		Return True;
+	EndDo;
+	
+	Return False;
+	
+EndFunction
+
+// 
+// 
+//
+Function NameOfJobMethodServerNotificationsDeferredDelivery()
+	
+	Return "ServerNotifications.ServerNotificationsDeferredDelivery";
+	
+EndFunction
+
+// 
+Function UnsentDeferredNotifications()
+	
+	SendStatus = ServerNotificationsSendStatus();
+	LastNotificationDate = ?(ValueIsFilled(SendStatus.FailedNotificationDate),
+		SendStatus.FailedNotificationDate, SendStatus.LastNotificationDate);
+	
+	Query = New Query;
+	Query.SetParameter("LastNotificationDate", LastNotificationDate);
+	Query.SetParameter("DateEmpty", '00010101');
+	Query.Text =
+	"SELECT
+	|	SentServerNotifications.NotificationID AS NotificationID,
+	|	SentServerNotifications.NotificationContent AS NotificationContent,
+	|	SentServerNotifications.AddedOn AS AddedOn,
+	|	SentServerNotifications.DeferralOfWritingToCollaborationSystem AS DeferralOfWritingToCollaborationSystem
+	|FROM
+	|	InformationRegister.SentServerNotifications AS SentServerNotifications
+	|WHERE
+	|	SentServerNotifications.AddedOn >= &LastNotificationDate
+	|	AND SentServerNotifications.CollaborationSystemRecordDate = &DateEmpty
+	|	AND SentServerNotifications.DeferralOfWritingToCollaborationSystem > 0
+	|
+	|ORDER BY
+	|	SentServerNotifications.AddedOn,
+	|	SentServerNotifications.DateAddedMilliseconds";
+	
+	Return Query.Execute().Select();
+	
+EndFunction
+
 // Returns:
 //  Structure:
 //   * SessionKey - See SessionKey
@@ -1218,6 +1922,9 @@ Function ServerNotificationsParametersThisSession() Export
 	Parameters.Insert("PersonalChatID", Undefined);
 	Parameters.Insert("GlobalChatID", Undefined);
 	Parameters.Insert("ServiceAdministratorSession", ServiceAdministratorSession());
+	Parameters.Insert("ShouldRegisterIndicators", RegisterServerNotificationsIndicators());
+	Parameters.Insert("RepeatedDateExportMinInterval",
+		RepeatedDateExportMinInterval());
 	
 	RecurringNotifications = New Map;
 	For Each KeyAndValue In Notifications Do
@@ -1288,8 +1995,9 @@ Function ServerNotificationsParametersThisSession() Export
 		NewRecord.SessionKey = Parameters.SessionKey;
 		NewRecord.IBUserID =
 			InfoBaseUsers.CurrentUser().UUID;
-		NewRecord.Notifications = New ValueStorage(RecurringNotifications);
+		NewRecord.Notifications = New ValueStorage(RepeatedNotificationToSave(RecurringNotifications));
 		NewRecord.AddedOn = CurrentSessionDate();
+		NewRecord.ActivityDate = NewRecord.AddedOn;
 		RecordSet.Write();
 		ConfigureJobSendServerNotificationsToClients(True, Parameters.MinimumPeriod, True);
 		SetPrivilegedMode(False);
@@ -1311,7 +2019,7 @@ Function CurrSessionStartInCurrSessionDateTimeZone()
 	// 
 	// 
 	TimeShift = CurrentSessionDate() - CurrentDate();
-	// АПК:143-
+	// ACC:143-
 	
 	Return GetCurrentInfoBaseSession().SessionStarted + TimeShift;
 	
@@ -1332,12 +2040,8 @@ Function ChatsIDs()
 	Result.Insert("PersonalChatID");
 	Result.Insert("GlobalChatID");
 	
-	If Not IsCurrentUserRegisteredInInteractionSystem() Then
-		Return Result;
-	EndIf;
-	
-	PersonalChatID = PersonalChatID();
-	If PersonalChatID = Undefined Then
+	UserIDCollaborationSystem = Undefined;
+	If Not IsCurrentUserRegisteredInInteractionSystem(UserIDCollaborationSystem) Then
 		Return Result;
 	EndIf;
 	
@@ -1346,8 +2050,13 @@ Function ChatsIDs()
 		Return Result;
 	EndIf;
 	
-	Result.PersonalChatID = PersonalChatID;
+	PersonalChatID = PersonalChatID(, UserIDCollaborationSystem);
+	If PersonalChatID = Undefined Then
+		Return Result;
+	EndIf;
+	
 	Result.GlobalChatID  = GlobalChatID;
+	Result.PersonalChatID = PersonalChatID;
 	
 	Return Result;
 	
@@ -1361,7 +2070,30 @@ Procedure ReviseMinCheckInterval(MinCheckInterval)
 		MinCheckInterval = LowerBound;
 	EndIf;
 	
+	MinInterval = RepeatedDateExportMinInterval() * 60;
+	
+	If MinCheckInterval < MinInterval Then
+		MinCheckInterval = MinInterval;
+	EndIf;
+	
 EndProcedure
+
+// 
+// 
+// 
+// 
+// 
+// 
+// 
+//
+// Returns:
+//  Number - 
+//          
+//          
+//
+Function RepeatedDateExportMinInterval()
+	Return 1;
+EndFunction
 
 Procedure ConfigureJobSendServerNotificationsToClients(Enable, RepeatPeriod = 0, OnStart = False)
 	
@@ -1505,6 +2237,50 @@ Procedure ConfigureJobSendServerNotificationsToClientsNoAttempt(Enable, RepeatPe
 	
 EndProcedure
 
+Function NameOfNotificationAllSessionsSleepingJobDisabled()
+	Return "StandardSubsystems.Core.ServerNotifications.AllSessionsSleepingJobDisabled";
+EndFunction
+
+Procedure DeleteServerNotification(NotificationID)
+	
+	RecordSet = ServiceRecordSet(InformationRegisters.SentServerNotifications);
+	RecordSet.Filter.NotificationID.Set(NotificationID);
+	RecordSet.Write();
+	
+EndProcedure
+
+Procedure SetUsageOfJobSendServerNotificationsToClients(Use)
+	
+	Try
+		SetUsageOfJobSendServerNotificationsToClientsNoAttempt(Use);
+	Except
+		ErrorInfo = ErrorInfo();
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Cannot change the usage of
+			           |the ""%1"" scheduled job due to:
+			           |%2';"),
+			Metadata.ScheduledJobs.SendServerNotificationsToClients.Name,
+			ErrorProcessing.DetailErrorDescription(ErrorInfo));
+		WriteLogEvent(
+			NStr("en = 'Server notifications.Scheduled job setup error';",
+				Common.DefaultLanguageCode()),
+			EventLogLevel.Error,,, ErrorText);
+	EndTry;
+	
+EndProcedure
+
+Procedure SetUsageOfJobSendServerNotificationsToClientsNoAttempt(Use)
+	
+	Jobs = ScheduledJobsServer.FindJobs(New Structure("Metadata",
+		Metadata.ScheduledJobs.SendServerNotificationsToClients));
+	
+	For Each Job In Jobs Do
+		ScheduledJobsServer.ChangeJob(Job.UUID,
+			New Structure("Use", Use));
+	EndDo;
+	
+EndProcedure
+
 Function AreJobParametersMatch(Job, JobParameters, OnStart)
 	
 	For Each KeyAndValue In JobParameters Do
@@ -1558,7 +2334,7 @@ EndFunction
 // Returns:
 //  Boolean
 //
-Function IsCurrentUserRegisteredInInteractionSystem()
+Function IsCurrentUserRegisteredInInteractionSystem(UserIDCollaborationSystem = Undefined)
 	
 	If Not CollaborationSystemConnected() Then
 		Return False;
@@ -1574,7 +2350,8 @@ Function IsCurrentUserRegisteredInInteractionSystem()
 	ModuleConversations = Common.CommonModule("Conversations");
 	AuthorizedUser = Users.AuthorizedUser();
 	Try
-		ModuleConversations.CollaborationSystemUser(AuthorizedUser);
+		UserIDCollaborationSystem = ModuleConversations.CollaborationSystemUser(
+			AuthorizedUser, True);
 	Except
 		ErrorInfo = ErrorInfo();
 		If IsInteractionSystemTemporarilyUnavailable(True) Then
@@ -1772,11 +2549,17 @@ Function ServiceAdministratorSession()
 	
 EndFunction
 
-Function CollaborationSystemConnected() Export
+Function UseCollaborationSystemInFileInfobase()
+	
+	Return False;
+	
+EndFunction
+
+Function CollaborationSystemConnected(RefreshCache = False, DeliverWithoutCS = Undefined) Export
 	
 	LastCheck = ServerNotificationsInternalCached.LastCheckOfInteractionSystemConnection();
 	
-	If LastCheck.Date + 60 > CurrentSessionDate() Then
+	If LastCheck.Date + 300 > CurrentSessionDate() And Not RefreshCache Then
 		Return LastCheck.Connected;
 	EndIf;
 	
@@ -1785,7 +2568,10 @@ Function CollaborationSystemConnected() Export
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
-	If ServiceAdministratorSession() Then
+	If ServiceAdministratorSession()
+	 Or Not UseCollaborationSystemInFileInfobase()
+	   And Common.FileInfobase() Then
+		
 		LastCheck.Connected = False;
 	
 	ElsIf Common.SubsystemExists("StandardSubsystems.Conversations") Then
@@ -1795,10 +2581,13 @@ Function CollaborationSystemConnected() Export
 		LastCheck.Connected = False;
 	EndIf;
 	
-	If LastCheck.Connected
-	   And Constants.DeliverServerNotificationsWithoutCollaborationSystem.Get() Then
-		
-		LastCheck.Connected = False;
+	If LastCheck.Connected Then
+		If DeliverWithoutCS = Undefined Then
+			DeliverWithoutCS = Constants.DeliverServerNotificationsWithoutCollaborationSystem.Get();
+		EndIf;
+		If DeliverWithoutCS Then
+			LastCheck.Connected = False;
+		EndIf;
 	EndIf;
 	
 	SetPrivilegedMode(False);
@@ -1808,7 +2597,30 @@ Function CollaborationSystemConnected() Export
 	
 EndFunction
 
-Function PersonalChatID(IBUserID = Undefined)
+Procedure OnChangeConstantDeliverServerNotificationsWithoutCollaborationSystem(DeliverWithoutCS) Export
+	
+	If Common.DataSeparationEnabled() Then
+		Return;
+	EndIf;
+	
+	CollaborationSystemConnected = CollaborationSystemConnected(True);
+	
+	If Not CollaborationSystemConnected And DeliverWithoutCS Then
+		CollaborationSystemConnected(True, False);
+	EndIf;
+	
+	SendServerNotification(
+		"StandardSubsystems.Core.ServerNotifications.DeliveryWithoutCollaborationSystemChanged",
+		CollaborationSystemConnected, Undefined, True);
+	
+	If Not CollaborationSystemConnected And DeliverWithoutCS Then
+		CollaborationSystemConnected(True);
+	EndIf;
+	
+EndProcedure
+
+Function PersonalChatID(IBUserID = Undefined,
+			UserIDCollaborationSystem = Undefined)
 	
 	SetPrivilegedMode(True);
 	If IBUserID = Undefined Then
@@ -1819,18 +2631,7 @@ Function PersonalChatID(IBUserID = Undefined)
 	PersonalChatKey = "ServerNotifications" + "_" + Lower(UUID);
 	
 	Try
-		ShouldUpdateChatMembers = False;
-		If IBUserID = Undefined Then
-			CurrentUserID = CollaborationSystem.CurrentUserID();
-			ShouldUpdateChatMembers = True;
-		Else
-			Try
-				CurrentUserID = CollaborationSystem.GetUserID(UUID);
-				ShouldUpdateChatMembers = True;
-			Except
-				CurrentUserID = CollaborationSystem.CurrentUserID();
-			EndTry;
-		EndIf;
+		ShouldUpdateChatMembers = UserIDCollaborationSystem <> Undefined;
 		AttemptNumber = 1;
 		CreatedOn = False;
 		While True Do
@@ -1838,10 +2639,21 @@ Function PersonalChatID(IBUserID = Undefined)
 			If Conversation <> Undefined Then
 				Break;
 			EndIf;
+			If UserIDCollaborationSystem = Undefined Then
+				If IBUserID = Undefined Then
+					UserIDCollaborationSystem = CollaborationSystem.CurrentUserID();
+				Else
+					Try
+						UserIDCollaborationSystem = CollaborationSystem.GetUserID(UUID);
+					Except
+						UserIDCollaborationSystem = CollaborationSystem.CurrentUserID();
+					EndTry;
+				EndIf;
+			EndIf;
 			NewConversation = CollaborationSystem.CreateConversation();
 			NewConversation.Displayed = False;
 			NewConversation.Key = PersonalChatKey;
-			NewConversation.Members.Add(CurrentUserID);
+			NewConversation.Members.Add(UserIDCollaborationSystem);
 			Try
 				NewConversation.Write();
 				Conversation = NewConversation;
@@ -1858,11 +2670,11 @@ Function PersonalChatID(IBUserID = Undefined)
 		   And (Conversation.Displayed
 		      Or ShouldUpdateChatMembers
 		        And (Conversation.Members.Count() <> 1
-		           Or Not Conversation.Members.Contains(CurrentUserID))) Then
+		           Or Not Conversation.Members.Contains(UserIDCollaborationSystem))) Then
 			Conversation.Displayed = False;
 			If ShouldUpdateChatMembers Then
 				Conversation.Members.Clear();
-				Conversation.Members.Add(CurrentUserID);
+				Conversation.Members.Add(UserIDCollaborationSystem);
 			EndIf;
 			Conversation.Write();
 		EndIf;

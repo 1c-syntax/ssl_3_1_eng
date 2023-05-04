@@ -12,6 +12,9 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
+	Items.DataAreaAuxiliaryData.Visible =
+		Common.DataSeparationEnabled();
+	
 	ReadOnly = True;
 	
 EndProcedure

@@ -97,7 +97,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If Not Users.IsFullUser(, True) Then
-		Items.ClearingOutdatedData.Visible = False;
+		Items.ClearObsoleteData.Visible = False;
 	EndIf;
 	
 	// Update items states.
@@ -197,12 +197,12 @@ EndProcedure
 
 &AtClient
 Procedure RunPerformanceMeasurementsOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
 &AtClient
 Procedure WriteIBUpdateDetailsToEventLogOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
 &AtClient
@@ -248,9 +248,9 @@ Procedure DeferredDataProcessing(Command)
 EndProcedure
 
 &AtClient
-Procedure ClearingOutdatedData(Command)
+Procedure ClearObsoleteData(Command)
 	
-	OpenForm("DataProcessor.ApplicationUpdateResult.Form.ClearingOutdatedData");
+	OpenForm("DataProcessor.ApplicationUpdateResult.Form.ClearObsoleteData");
 	
 EndProcedure
 
@@ -262,9 +262,9 @@ EndProcedure
 // Client
 
 &AtClient
-Procedure Attachable_WhenChangingTheDetails(Item, InterfaceUpdateIsRequired = True)
+Procedure Attachable_OnChangeAttribute(Item, InterfaceUpdateIsRequired = True)
 
-	ConstantName = WhenChangingTheDetailsServer(Item.Name);
+	ConstantName = OnChangeAttributeServer(Item.Name);
 	RefreshReusableValues();
 
 	If InterfaceUpdateIsRequired Then
@@ -292,7 +292,7 @@ EndProcedure
 // 
 
 &AtServer
-Function WhenChangingTheDetailsServer(TagName)
+Function OnChangeAttributeServer(TagName)
 
 	DataPathAttribute = Items[TagName].DataPath;
 	ConstantName = SaveAttributeValue(DataPathAttribute);

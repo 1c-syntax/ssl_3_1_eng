@@ -153,8 +153,8 @@ EndProcedure
 //             "Post"             - post documents.
 //             Before writing or posting the object, users are asked for confirmation.
 //             Optional. Default value is "Write".
-//       * FilesOperationsRequired - Boolean - if True, in the web client, users are prompted to
-//             install the extension for 1C:Enterprise operation. Optional. Default value is False.
+//       * FilesOperationsRequired - Boolean - If True, in the web client, users are prompted to
+//             install 1C:Enterprise Extension. Optional. The default value is False.
 //     
 //       4) Handler settings.
 //       * Manager - String - an object responsible for executing the command.

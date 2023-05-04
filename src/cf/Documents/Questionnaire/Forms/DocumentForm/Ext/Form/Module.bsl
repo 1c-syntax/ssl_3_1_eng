@@ -80,7 +80,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ChangeFormItemsVisibility(ThisObject);
 		
-	// StandardSubsystems.ПодключаемыеКоманды
+	// StandardSubsystems.AttachableCommands
 	AttachableCommands.OnCreateAtServer(ThisObject);
 	// End StandardSubsystems.AttachableCommands
 	
@@ -89,7 +89,7 @@ EndProcedure
 &AtServer
 Procedure OnReadAtServer(CurrentObject)
 		
-	// StandardSubsystems.ПодключаемыеКоманды
+	// StandardSubsystems.AttachableCommands
 	AttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
 	// End StandardSubsystems.AttachableCommands
 	
@@ -105,7 +105,7 @@ Procedure OnOpen(Cancel)
 		AvailabilityControlSubordinateQuestions(False);
 	EndIf;
 	
-	// StandardSubsystems.ПодключаемыеКоманды
+	// StandardSubsystems.AttachableCommands
 	AttachableCommandsClient.StartCommandUpdate(ThisObject);
 	// End StandardSubsystems.AttachableCommands
 	
@@ -137,7 +137,7 @@ EndProcedure
 &AtClient
 Procedure AfterWrite(WriteParameters)
 	
-	ShowUserNotification(NStr("en = 'Изменение';"),
+	ShowUserNotification(NStr("en = 'Edited';"),
 	,
 	String(Object.Ref),
 	PictureLib.Information32);
@@ -229,7 +229,7 @@ Procedure ResponseFormWrite(Command)
 	
 	If Not Cancel Then
 		
-		ShowUserNotification(NStr("en = 'Update';"),
+		ShowUserNotification(NStr("en = 'Edited';"),
 		,
 		String(Object.Ref),
 		PictureLib.Information32);
@@ -959,8 +959,8 @@ Procedure FillAnswersTabularQuestionAnswersInColumns(TreeRow,Table)
 	
 EndProcedure
 
-// Gets answers given by the respondent to a simple question 
-// and accumulates them in the general answers table.
+// Gets answers to a basic question and appends them to the main table of answers. 
+// 
 //
 // Parameters:
 //  TreeRow   - ValueTreeRow - a row of the questionnaire template tree.
@@ -1582,7 +1582,7 @@ Procedure PromptForAcceptingQuestionnaireAfterCompletion(QuestionResult, Additio
 	
 	If Not Cancel Then
 		
-		ShowUserNotification(NStr("en = 'Update';"),
+		ShowUserNotification(NStr("en = 'Edited';"),
 		,
 		String(Object.Ref),
 		PictureLib.Information32);

@@ -288,13 +288,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Select</v8:content>
+					<v8:content>Pick</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Select</v8:content>
+					<v8:content>Pick</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>Pick</Action>
@@ -304,13 +304,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Select and close</v8:content>
+					<v8:content>Pick and close</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Save and close</v8:content>
+					<v8:content>Pick and close</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>PickAndClose</Action>

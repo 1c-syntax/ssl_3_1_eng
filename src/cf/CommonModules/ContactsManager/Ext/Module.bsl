@@ -2796,209 +2796,6 @@ Function ContactInformationParameters() Export
 
 EndFunction 
 
-// 
-//  
-//
-// Returns:
-//   Map of KeyAndValue:
-//     * Key     - EnumRef.ContactInformationTypes
-//     * Value - See CommandsOfContactInfoType
-//
-Function DetailsOfCommands() Export
-	
-	DetailsOfCommands = New Map;
-	DetailsOfCommands.Insert(Enums.ContactInformationTypes.Address, CommandsOfContactInfoType(
-		Enums.ContactInformationTypes.Address));
-	DetailsOfCommands.Insert(Enums.ContactInformationTypes.Phone, CommandsOfContactInfoType(
-		Enums.ContactInformationTypes.Phone));
-	DetailsOfCommands.Insert(Enums.ContactInformationTypes.Email,
-		CommandsOfContactInfoType(Enums.ContactInformationTypes.Email));
-	DetailsOfCommands.Insert(Enums.ContactInformationTypes.Skype, CommandsOfContactInfoType(
-		Enums.ContactInformationTypes.Skype));
-	DetailsOfCommands.Insert(Enums.ContactInformationTypes.WebPage, CommandsOfContactInfoType(
-		Enums.ContactInformationTypes.WebPage));
-	DetailsOfCommands.Insert(Enums.ContactInformationTypes.Fax, CommandsOfContactInfoType(
-		Enums.ContactInformationTypes.Fax));
-	DetailsOfCommands.Insert(Enums.ContactInformationTypes.Other, CommandsOfContactInfoType(
-		Enums.ContactInformationTypes.Other));
-
-	Return DetailsOfCommands;
-	
-EndFunction
-
-// 
-//  
-//
-// Parameters:
-//   Type - EnumRef.ContactInformationTypes
-//
-// Returns:
-//   Structure - 
-//    
-//     
-//     
-//     
-//     
-//     
-//     
-//     
-//     * AddCommentToAddress  - See CommandDetailsByName
-//     * ShowOnYandexMaps     - See CommandDetailsByName
-//     * ShowOnGoogleMap     - See CommandDetailsByName
-//     * PlanMeeting      - See CommandDetailsByName
-//     * ShowChangeHistory  - See CommandDetailsByName
-//     * Telephone       - See CommandDetailsByName
-//     * SendSMS              - See CommandDetailsByName
-//     * SendFax             - See CommandDetailsByName
-//     * WriteEmail2 - See CommandDetailsByName
-//     * SkypeCall            - See CommandDetailsByName
-//     * StartSkypeChat            - See CommandDetailsByName
-//     * OpenWebPage        - See CommandDetailsByName
-//     * OpenWindowOther         - See CommandDetailsByName
-//
-Function CommandsOfContactInfoType(Type) Export
-
-	Return ContactsManagerInternalCached.CommandsOfContactInfoType(Type);
-
-EndFunction
-
-// 
-//  
-//
-// Parameters:
-//   CommandName - String -
-//
-// Returns:
-//   See CommandProperties 
-//
-Function CommandDetailsByName(CommandName) Export
-	
-	// 
-	If CommandName = "ShowChangeHistory" Then
-		Return CommandProperties(
-				NStr("en = 'Change history…';"),
-				NStr("en = 'View contact information change history.';"),
-				PictureLib.ChangeHistory,
-				"ContactsManagerClient.BeforeOpenChangeHistoryForm",
-				True);
-	EndIf;
-	
-	// 
-	If CommandName = "AddCommentToAddress" Then
-		Return CommandProperties(
-				NStr("en = 'Type comment';"),
-				NStr("en = 'Type comment';"),
-				PictureLib.Comment,
-				"ContactsManagerClient.BeforeEnterComment",
-				True);
-	ElsIf CommandName = "ShowOnYandexMaps" Then
-		Return CommandProperties(
-				NStr("en = 'Address on Yandex.Maps';"),
-				NStr("en = 'Show the address on Yandex.Maps.';"),
-				PictureLib.YandexMaps,
-				"ContactsManagerClient.BeforeShowAddressOnYandexMaps");
-	ElsIf CommandName = "ShowOnGoogleMap" Then
-		Return CommandProperties(
-				NStr("en = 'Address on Google Maps';"),
-				NStr("en = 'Show the address on Google Maps.';"),
-				PictureLib.GoogleMaps,
-				"ContactsManagerClient.BeforeShowAddressOnGoogleMaps");
-	ElsIf CommandName = "PlanMeeting" Then
-		Return CommandProperties("", "");
-	EndIf;
-	
-	// 
-	If CommandName = "Telephone" Then
-		Return CommandProperties(
-				NStr("en = 'Make a call';"),
-				NStr("en = 'Make a phone call.';"),
-				PictureLib.Call,
-				"ContactsManagerClient.BeforePhoneCall");
-	ElsIf CommandName = "SendSMS" Then
-		Return CommandProperties(
-				NStr("en = 'Send text message';"),
-				NStr("en = 'Send text message';"),
-				PictureLib.SendSMS,
-				"ContactsManagerClient.BeforeCreateSMS");
-	EndIf;
-	
-	// 
-	If CommandName = "SendFax" Then
-		Return CommandProperties("", "");
-	EndIf;
-	
-	// 
-	If CommandName = "WriteEmail2" Then
-		Return CommandProperties(
-				NStr("en = 'Create mail';"),
-				NStr("en = 'Send an email to the specified address';"),
-				PictureLib.SendEmail,
-				"ContactsManagerClient.BeforeCreateEmailMessage");
-	EndIf;
-	
-	// 
-	If CommandName = "SkypeCall" Then
-		Return CommandProperties(
-				NStr("en = 'Make a call';"),
-				NStr("en = 'Make a Skype call';"),
-				PictureLib.Call,
-				"ContactsManagerClient.BeforeSkypeCall");
-	ElsIf CommandName = "StartSkypeChat" Then
-		Return CommandProperties(
-				NStr("en = 'Start a chat';"),
-				NStr("en = 'Start a Skype chat';"),
-				PictureLib.SendSMS,
-				"ContactsManagerClient.BeforeStartSkypeChat");
-	EndIf;
-	
-	// 
-	If CommandName = "OpenWebPage" Then
-		Return CommandProperties(
-				NStr("en = 'Follow';"),
-				NStr("en = 'Follow the link';"),
-				PictureLib.ContactInformationGoToURL,
-				"ContactsManagerClient.BeforeNavigateWebLink");
-	EndIf;
-
-	// 
-	If CommandName = "OpenWindowOther" Then
-		Return CommandProperties("", "");
-	EndIf;
-		
-EndFunction
-
-// 
-// 
-//
-// Parameters:
-//   Title - String   -
-//   ToolTip - String   -
-//   Picture  - Picture - picture of the team.
-//   Action  - String   -
-//                            
-//   ModifiesStoredData - Boolean 
-//
-// Returns:
-//   Structure:
-//     * Title - String
-//     * ToolTip - String
-//     * Picture  - Picture
-//     * Action  - String
-//     * ModifiesStoredData - Boolean
-//
-Function CommandProperties(Title, ToolTip, Picture = "", Action = "", ModifiesStoredData = False) Export
-	
-	Properties = New Structure;
-	Properties.Insert("Title", Title);
-	Properties.Insert("ToolTip", ToolTip);
-	Properties.Insert("Picture",  ?(Picture="", New Picture(), Picture)); 
-	Properties.Insert("Action",  Action);
-	Properties.Insert("ModifiesStoredData", ModifiesStoredData);
-	
-	Return Properties;
-	
-EndFunction
-
 ////////////////////////////////////////////////////////////////////////////////
 // Check and information about the address
 
@@ -3132,7 +2929,7 @@ EndFunction
 //                                                                      Default value is False.
 //      * Used - Boolean -                                     indicates whether a contact information kind is used.
 //                                                                      Default value is True.
-//      * FieldKindOther - String -                                    appearance of the Other type field. Possible values:
+//      * FieldKindOther - String -                                    The Other field layout on the form. Possible values:
 //                                                                      MultilineWide, SingleLineWide, SingleLineNarrow.
 //                                                                      The default value is SingleLineWide.
 //      * EditInDialogOnly - Boolean - obsolete. Use EditingOption instead.
@@ -3360,7 +3157,7 @@ EndFunction
 //     * InternationalAddressFormat          - Boolean - indicates that an address format is international. 
 //                                                     If True, all addresses can be entered in international format only.
 //                                                     The default value is False.
-//     * FieldKindOther                        - String - defines the appearance of the Other type field on the form.
+//     * FieldKindOther                        - String - Defines the Other field layout on the form.
 //                                            Available options: MultilineWide, SingleLineWide, and SingleLineNarrow.
 //                                            The property is applicable only for contact information with the type: Other.
 //                                            The default value for a contact information kind with the Other type is SingleLineWide,
@@ -3722,6 +3519,209 @@ EndFunction
 
 #EndRegion
 
+// 
+//  
+//
+// Returns:
+//   Map of KeyAndValue:
+//     * Key     - EnumRef.ContactInformationTypes
+//     * Value - See CommandsOfContactInfoType
+//
+Function DetailsOfCommands() Export
+	
+	DetailsOfCommands = New Map;
+	DetailsOfCommands.Insert(Enums.ContactInformationTypes.Address, CommandsOfContactInfoType(
+		Enums.ContactInformationTypes.Address));
+	DetailsOfCommands.Insert(Enums.ContactInformationTypes.Phone, CommandsOfContactInfoType(
+		Enums.ContactInformationTypes.Phone));
+	DetailsOfCommands.Insert(Enums.ContactInformationTypes.Email,
+		CommandsOfContactInfoType(Enums.ContactInformationTypes.Email));
+	DetailsOfCommands.Insert(Enums.ContactInformationTypes.Skype, CommandsOfContactInfoType(
+		Enums.ContactInformationTypes.Skype));
+	DetailsOfCommands.Insert(Enums.ContactInformationTypes.WebPage, CommandsOfContactInfoType(
+		Enums.ContactInformationTypes.WebPage));
+	DetailsOfCommands.Insert(Enums.ContactInformationTypes.Fax, CommandsOfContactInfoType(
+		Enums.ContactInformationTypes.Fax));
+	DetailsOfCommands.Insert(Enums.ContactInformationTypes.Other, CommandsOfContactInfoType(
+		Enums.ContactInformationTypes.Other));
+
+	Return DetailsOfCommands;
+	
+EndFunction
+
+// 
+//  
+//
+// Parameters:
+//   Type - EnumRef.ContactInformationTypes
+//
+// Returns:
+//   Structure - 
+//    
+//     
+//     
+//     
+//     
+//     
+//     
+//     
+//     * AddCommentToAddress  - See CommandDetailsByName
+//     * ShowOnYandexMaps     - See CommandDetailsByName
+//     * ShowOnGoogleMap     - See CommandDetailsByName
+//     * PlanMeeting      - See CommandDetailsByName
+//     * ShowChangeHistory  - See CommandDetailsByName
+//     * Telephone       - See CommandDetailsByName
+//     * SendSMS              - See CommandDetailsByName
+//     * SendFax             - See CommandDetailsByName
+//     * WriteEmail2 - See CommandDetailsByName
+//     * SkypeCall            - See CommandDetailsByName
+//     * StartSkypeChat            - See CommandDetailsByName
+//     * OpenWebPage        - See CommandDetailsByName
+//     * OpenWindowOther         - See CommandDetailsByName
+//
+Function CommandsOfContactInfoType(Type) Export
+
+	Return ContactsManagerInternalCached.CommandsOfContactInfoType(Type);
+
+EndFunction
+
+// 
+//  
+//
+// Parameters:
+//   CommandName - String -
+//
+// Returns:
+//   See CommandProperties 
+//
+Function CommandDetailsByName(CommandName) Export
+	
+	// 
+	If CommandName = "ShowChangeHistory" Then
+		Return CommandProperties(
+				NStr("en = 'Change history…';"),
+				NStr("en = 'View contact information change history.';"),
+				PictureLib.ChangeHistory,
+				"ContactsManagerClient.BeforeOpenChangeHistoryForm",
+				True);
+	EndIf;
+	
+	// 
+	If CommandName = "AddCommentToAddress" Then
+		Return CommandProperties(
+				NStr("en = 'Type comment';"),
+				NStr("en = 'Type comment';"),
+				PictureLib.Comment,
+				"ContactsManagerClient.BeforeEnterComment",
+				True);
+	ElsIf CommandName = "ShowOnYandexMaps" Then
+		Return CommandProperties(
+				NStr("en = 'Address on Yandex.Maps';"),
+				NStr("en = 'Show the address on Yandex.Maps.';"),
+				PictureLib.YandexMaps,
+				"ContactsManagerClient.BeforeShowAddressOnYandexMaps");
+	ElsIf CommandName = "ShowOnGoogleMap" Then
+		Return CommandProperties(
+				NStr("en = 'Address on Google Maps';"),
+				NStr("en = 'Show the address on Google Maps.';"),
+				PictureLib.GoogleMaps,
+				"ContactsManagerClient.BeforeShowAddressOnGoogleMaps");
+	ElsIf CommandName = "PlanMeeting" Then
+		Return CommandProperties("", "");
+	EndIf;
+	
+	// 
+	If CommandName = "Telephone" Then
+		Return CommandProperties(
+				NStr("en = 'Make a call';"),
+				NStr("en = 'Make a phone call.';"),
+				PictureLib.Call,
+				"ContactsManagerClient.BeforePhoneCall");
+	ElsIf CommandName = "SendSMS" Then
+		Return CommandProperties(
+				NStr("en = 'Send text message';"),
+				NStr("en = 'Send text message';"),
+				PictureLib.SendSMS,
+				"ContactsManagerClient.BeforeCreateSMS");
+	EndIf;
+	
+	// 
+	If CommandName = "SendFax" Then
+		Return CommandProperties("", "");
+	EndIf;
+	
+	// 
+	If CommandName = "WriteEmail2" Then
+		Return CommandProperties(
+				NStr("en = 'Create mail';"),
+				NStr("en = 'Send an email to the specified address';"),
+				PictureLib.SendEmail,
+				"ContactsManagerClient.BeforeCreateEmailMessage");
+	EndIf;
+	
+	// 
+	If CommandName = "SkypeCall" Then
+		Return CommandProperties(
+				NStr("en = 'Make a call';"),
+				NStr("en = 'Make a Skype call';"),
+				PictureLib.Call,
+				"ContactsManagerClient.BeforeSkypeCall");
+	ElsIf CommandName = "StartSkypeChat" Then
+		Return CommandProperties(
+				NStr("en = 'Start a chat';"),
+				NStr("en = 'Start a Skype chat';"),
+				PictureLib.SendSMS,
+				"ContactsManagerClient.BeforeStartSkypeChat");
+	EndIf;
+	
+	// 
+	If CommandName = "OpenWebPage" Then
+		Return CommandProperties(
+				NStr("en = 'Follow';"),
+				NStr("en = 'Follow the link';"),
+				PictureLib.ContactInformationGoToURL,
+				"ContactsManagerClient.BeforeNavigateWebLink");
+	EndIf;
+
+	// 
+	If CommandName = "OpenWindowOther" Then
+		Return CommandProperties("", "");
+	EndIf;
+		
+EndFunction
+
+// 
+// 
+//
+// Parameters:
+//   Title - String   -
+//   ToolTip - String   -
+//   Picture  - Picture - picture of the team.
+//   Action  - String   -
+//                            
+//   ModifiesStoredData - Boolean 
+//
+// Returns:
+//   Structure:
+//     * Title - String
+//     * ToolTip - String
+//     * Picture  - Picture
+//     * Action  - String
+//     * ModifiesStoredData - Boolean
+//
+Function CommandProperties(Title, ToolTip, Picture = "", Action = "", ModifiesStoredData = False) Export
+	
+	Properties = New Structure;
+	Properties.Insert("Title", Title);
+	Properties.Insert("ToolTip", ToolTip);
+	Properties.Insert("Picture",  ?(Picture="", New Picture(), Picture)); 
+	Properties.Insert("Action",  Action);
+	Properties.Insert("ModifiesStoredData", ModifiesStoredData);
+	
+	Return Properties;
+	
+EndFunction
+
 #EndRegion
 
 #Region Internal
@@ -3748,10 +3748,11 @@ Procedure SetContactInformationItemAvailability(Form, Items, ItemForPlacementNam
 			// If an item can only be viewed, remove the option to add this item to the form.
 			ContactInformationParameters = FormContactInformationParameters(Form.ContactInformationParameters, ItemForPlacementName);
 			If Not Item.Value Then
-				For Each ContextMenuItem In ContactInformationParameters.ItemsToAddList Do
-				Value = ContextMenuItem.Value; // CatalogRef.ContactInformationKinds 
+				For Position = -ContactInformationParameters.ItemsToAddList.Count() + 1 To 0 Do
+					ContextMenuItem = ContactInformationParameters.ItemsToAddList.Get(-Position);
+					Value = ContextMenuItem.Value; // CatalogRef.ContactInformationKinds 
 					If Value.Ref = Item.Key Then
-						ContactInformationParameters.ItemsToAddList.Delete(ContextMenuItem);
+						ContactInformationParameters.ItemsToAddList.Delete(-Position);
 						Continue;
 					EndIf;
 				EndDo;
@@ -3819,6 +3820,11 @@ EndFunction
 
 Procedure OnHideAttributeValue(FullName, Value, StandardProcessing) Export
 	
+	TabularSectionName = StringFunctionsClientServer.SubstituteParametersToString(".%1.", "ContactInformation");
+	If StrFind(FullName, TabularSectionName) = 0 Then
+		Return;
+	EndIf;
+	
 	If StrEndsWith(FullName, "ContactInformation.FieldValues") And ValueIsFilled(Value) Then
 	
 		StandardProcessing = False;
@@ -3829,11 +3835,18 @@ Procedure OnHideAttributeValue(FullName, Value, StandardProcessing) Export
 		
 		ContactInformationFields = ContactsManagerInternal.JSONStringToStructure1(Value);
 		
+		FieldsNotProcessed = New Array;
+		FieldsNotProcessed.Add("type");
+		FieldsNotProcessed.Add("apartments");
+		FieldsNotProcessed.Add("buildings");
+		
 		If ContactInformationFields.Count() > 0 Then
 		
 			For Each ContactInformationField1 In ContactInformationFields Do
-				If StrCompare(ContactInformationField1.Key, "type") <> 0 And ValueIsFilled(ContactInformationField1.Value) Then
-					ContactInformationFields[ContactInformationField1.Key] = StrReplace(String(New UUID), "-", "");
+				If FieldsNotProcessed.Find(ContactInformationField1.Key) = Undefined
+					And ValueIsFilled(ContactInformationField1.Value) Then
+					ContactInformationFields[ContactInformationField1.Key] =
+						StrReplace(String(New UUID), "-", "");
 				EndIf;
 			EndDo;
 			
@@ -4226,8 +4239,8 @@ Procedure AddNoteOnFormSettingsReset(Val Form, Val ItemForPlacementName, Val Def
 		PlacementWarning = StringFunctionsClientServer.SubstituteParametersToString(PlacementWarning,
 		PageHeader, PageGroupHeader1);
 		ToolTipText = NStr("en = 'To restore a form to the default settings, do the following:
-		| • Select More—Change form.
-		| • In the Customize form window that opens, select More actions—Use standard settings.';");
+		| • Select More — Change form.
+		| • In the Customize form window that opens, select More actions — Restore default settings.';");
 		
 		Decoration = Form.Items.Add("ContactInformationStub", Type("FormDecoration"), GroupForPlacement);
 		Decoration.Title              = PlacementWarning;
@@ -4826,83 +4839,6 @@ Procedure PrepareStaticItem(Form, CIRow, CreatedItems, CreatedElement, ShouldSho
 	
 EndProcedure
 
-Procedure SetActionsForStaticItems(Form, CIRow, ItemForPlacementName)
-
-	Item = Form.Items[CIRow.AttributeName];
-	Type = CIRow.Type;
-
-	ContactInformationParameters = FormContactInformationParameters(Form.ContactInformationParameters,
-		ItemForPlacementName);
-	URLProcessing = ContactInformationParameters.URLProcessing;
-
-	If CIRow.EditingOption = "Dialog" And CIRow.Type = Enums.ContactInformationTypes.Address 
-		And Item.Type = FormFieldType.LabelField Then
-
-	If Not ValueIsFilled(Item.GetAction("Click")) Then
-		Item.SetAction("Click", "Attachable_ContactInformationOnClick");
-	EndIf;
-
-	ElsIf Type = Enums.ContactInformationTypes.WebPage And URLProcessing And Item.Type = FormFieldType.LabelField Then
-
-		If Not ValueIsFilled(Item.GetAction("URLProcessing")) Then
-			Item.SetAction("URLProcessing", "Attachable_ContactInformationURLProcessing");
-		EndIf;
-
-	ElsIf Item.Type = FormFieldType.InputField Then 
-
-		If Not ValueIsFilled(Item.GetAction("Clearing")) Then
-			Item.SetAction("Clearing", "Attachable_ContactInformationClearing");
-		EndIf;
-
-		If Type = Enums.ContactInformationTypes.Address Then
-			If Not ValueIsFilled(Item.GetAction("AutoComplete")) Then
-				Item.SetAction("AutoComplete", "Attachable_ContactInformationAutoComplete");
-			EndIf;
-			If Not ValueIsFilled(Item.GetAction("ChoiceProcessing")) Then
-				Item.SetAction("ChoiceProcessing", "Attachable_ContactInformationChoiceProcessing");
-			EndIf;
-		EndIf;
-
-	EndIf;
-	
-	// 
-	If CanEditContactInformationTypeInDialog(Type) And Item.Type = FormFieldType.InputField
-		And Not CIRow.EditingOption = "InputField" Then
-
-		ChoiceAvailable = Not CIRow.DeletionMark And CIRow.EditingOption <> "InputField";
-
-		If ChoiceAvailable And Not Form.ReadOnly Then
-			Item.ChoiceButton = True;
-			If Not ValueIsFilled(Item.GetAction("StartChoice")) Then
-				Item.SetAction("StartChoice", "Attachable_ContactInformationStartChoice");
-			EndIf;
-		Else
-			Item.ChoiceButton   = False;
-			If ValueIsFilled(Form[CIRow.AttributeName]) Then
-				Item.OpenButton = True;
-				If Not ValueIsFilled(Item.GetAction("Opening")) Then
-					Item.SetAction("Opening", "Attachable_ContactInformationOnClick");
-				EndIf;
-			EndIf;
-		EndIf;
-
-	EndIf;
-
-	If Not ValueIsFilled(Item.GetAction("OnChange")) Then
-		Item.SetAction("OnChange", "Attachable_ContactInformationOnChange");
-	EndIf;
-	
-	If HasCommentFieldForContactInfoType(Type, URLProcessing) Then
-		ItemNameComment = "Comment" + CIRow.AttributeName;
-		If Form.Items.Find(ItemNameComment) <> Undefined Then
-			If Not ValueIsFilled(Form.Items[ItemNameComment].GetAction("OnChange")) Then
-				Form.Items[ItemNameComment].SetAction("OnChange", "Attachable_ContactInformationOnChange");
-			EndIf;
-		EndIf;
-	EndIf;
-
-EndProcedure
-
 Procedure MoveContextMenuItem(PreviousItem, Form, Direction, ItemForPlacementName)
 	
 	If Direction > 0 Then
@@ -5152,25 +5088,19 @@ Procedure DeleteFormItemsAndCommands(Form, ItemForPlacementName)
 	
 EndProcedure
 
-// Returns the flag specifying whether contact information can be edited in a dialog.
+// 
 //
 // Parameters:
 //    Type - EnumRef.ContactInformationTypes - contact information type.
 //
 // Returns:
-//    Boolean - 
+//    Boolean
 //
 Function CanEditContactInformationTypeInDialog(Type)
 	
-	If Type = Enums.ContactInformationTypes.Address Then
-		Return True;
-	ElsIf Type = Enums.ContactInformationTypes.Phone Then
-		Return True;
-	ElsIf Type = Enums.ContactInformationTypes.Fax Then
-		Return True;
-	Else
-		Return False;
-	EndIf;
+	Return Type = Enums.ContactInformationTypes.Address 
+		Or Type = Enums.ContactInformationTypes.Phone
+		Or Type = Enums.ContactInformationTypes.Fax;
 	
 EndFunction
 
@@ -5517,15 +5447,13 @@ Function CheckContactInformationFilling(Presentation, Value, InformationKind, In
 		ErrorsLevel = EmailFIllingErrors(Value, InformationKind, AttributeName, AttributePath1);
 	ElsIf InformationType = Enums.ContactInformationTypes.Address Then
 		ErrorsLevel = AddressFIllErrors(Value, InformationKind, AttributeName, AttributePath1);
-	ElsIf InformationType = Enums.ContactInformationTypes.Phone Then
-		ErrorsLevel = PhoneFillingErrors(Value, InformationKind, AttributeName);
-	ElsIf InformationType = Enums.ContactInformationTypes.Fax Then
+	ElsIf InformationType = Enums.ContactInformationTypes.Phone 
+		Or InformationType = Enums.ContactInformationTypes.Fax Then
 		ErrorsLevel = PhoneFillingErrors(Value, InformationKind, AttributeName);
 	ElsIf InformationType = Enums.ContactInformationTypes.WebPage Then
 		ErrorsLevel = WebPageFillingErrors(Value, InformationKind, AttributeName);
 	Else
-		// 
-		ErrorsLevel = 0;
+		ErrorsLevel = 0; // 
 	EndIf;
 	
 	Return ErrorsLevel;
@@ -5789,50 +5717,6 @@ Function ContactInformationOutputParameters(Form, ItemForPlacementName, CITitleL
 	Form.ContactInformationParameters.Insert(ItemForPlacementName, ContactInformationParameters);
 	Return Form.ContactInformationParameters[ItemForPlacementName];
 	
-EndFunction
-
-// 
-// 
-// Parameters:             
-//   DetailsOfCommands   - See DetailsOfCommands 
-//   ShouldShowIcons - Boolean
-//   ItemsPlacedOnForm - Map of KeyAndValue:
-//     * Key - CatalogRef.ContactInformationKinds
-//     * Value - Boolean
-//                - Undefined
-//   AllowAddingFields - Boolean
-//   ExcludedKinds  - Array
-//                    - Undefined
-//   HiddenKinds   - Array
-//                    - Undefined
-// 	
-// Returns:
-//  Structure:
-//    * DetailsOfCommands   - See DetailsOfCommands 
-//    * ShouldShowIcons - Boolean
-//    * ItemsPlacedOnForm - Map of KeyAndValue:
-//        ** Key - CatalogRef.ContactInformationKinds
-//        ** Value - Boolean
-//                    - Undefined
-//    * AllowAddingFields - Boolean
-//    * ExcludedKinds  - Array
-//                       - Undefined
-//    * HiddenKinds   - Array
-//                       - Undefined
-//
-Function AdditionalParametersOfContactInfoOutput(DetailsOfCommands, ShouldShowIcons, ItemsPlacedOnForm,
-	AllowAddingFields, ExcludedKinds, HiddenKinds) 
-
-	AdditionalParameters = New Structure;
-	AdditionalParameters.Insert("DetailsOfCommands",           DetailsOfCommands);
-	AdditionalParameters.Insert("ShouldShowIcons",         ShouldShowIcons);
-	AdditionalParameters.Insert("ItemsPlacedOnForm",         ItemsPlacedOnForm);
-	AdditionalParameters.Insert("AllowAddingFields", AllowAddingFields);
-	AdditionalParameters.Insert("ExcludedKinds",          ExcludedKinds);
-	AdditionalParameters.Insert("HiddenKinds",           HiddenKinds);
-	
-	Return AdditionalParameters;
-
 EndFunction
 
 Function ObjectContactInformationKindsGroup(Val FullMetadataObjectName)
@@ -6468,7 +6352,7 @@ EndFunction
 //     * InternationalAddressFormat - Boolean - indicates that an address format is international. 
 //                                   If True, all addresses can be entered in international format only.
 //                                   The default value is False.
-//     * FieldKindOther             - String - defines the appearance of the Other type field on the form. Available options:
+//     * FieldKindOther             - String - Defines the Other field layout on the form. Available options:
 //                                            MultilineWide, SingleLineWide, SingleLineNarrow. The property
 //                                            is applicable only for contact information with the type: Other. The default value for a contact information kind with
 //                                            the Other type is SingleLineWide, otherwise, a blank string.
@@ -6743,6 +6627,127 @@ Function TheNameOfTheDetailsForPasswordRecovery(Form, Email, TypeOrTypeOfUserSEm
 	
 	Return NameOfThePasswordRecoveryAccount;
 	
+EndFunction
+
+Procedure SetActionsForStaticItems(Form, CIRow, ItemForPlacementName)
+
+	Item = Form.Items[CIRow.AttributeName];
+	Type = CIRow.Type;
+
+	ContactInformationParameters = FormContactInformationParameters(Form.ContactInformationParameters,
+		ItemForPlacementName);
+	URLProcessing = ContactInformationParameters.URLProcessing;
+
+	If CIRow.EditingOption = "Dialog" And CIRow.Type = Enums.ContactInformationTypes.Address 
+		And Item.Type = FormFieldType.LabelField Then
+
+	If Not ValueIsFilled(Item.GetAction("Click")) Then
+		Item.SetAction("Click", "Attachable_ContactInformationOnClick");
+	EndIf;
+
+	ElsIf Type = Enums.ContactInformationTypes.WebPage And URLProcessing And Item.Type = FormFieldType.LabelField Then
+
+		If Not ValueIsFilled(Item.GetAction("URLProcessing")) Then
+			Item.SetAction("URLProcessing", "Attachable_ContactInformationURLProcessing");
+		EndIf;
+
+	ElsIf Item.Type = FormFieldType.InputField Then 
+
+		If Not ValueIsFilled(Item.GetAction("Clearing")) Then
+			Item.SetAction("Clearing", "Attachable_ContactInformationClearing");
+		EndIf;
+
+		If Type = Enums.ContactInformationTypes.Address Then
+			If Not ValueIsFilled(Item.GetAction("AutoComplete")) Then
+				Item.SetAction("AutoComplete", "Attachable_ContactInformationAutoComplete");
+			EndIf;
+			If Not ValueIsFilled(Item.GetAction("ChoiceProcessing")) Then
+				Item.SetAction("ChoiceProcessing", "Attachable_ContactInformationChoiceProcessing");
+			EndIf;
+		EndIf;
+
+	EndIf;
+	
+	// 
+	If CanEditContactInformationTypeInDialog(Type) And Item.Type = FormFieldType.InputField
+		And Not CIRow.EditingOption = "InputField" Then
+
+		ChoiceAvailable = Not CIRow.DeletionMark And CIRow.EditingOption <> "InputField";
+
+		If ChoiceAvailable And Not Form.ReadOnly Then
+			Item.ChoiceButton = True;
+			If Not ValueIsFilled(Item.GetAction("StartChoice")) Then
+				Item.SetAction("StartChoice", "Attachable_ContactInformationStartChoice");
+			EndIf;
+		Else
+			Item.ChoiceButton   = False;
+			If ValueIsFilled(Form[CIRow.AttributeName]) Then
+				Item.OpenButton = True;
+				If Not ValueIsFilled(Item.GetAction("Opening")) Then
+					Item.SetAction("Opening", "Attachable_ContactInformationOnClick");
+				EndIf;
+			EndIf;
+		EndIf;
+
+	EndIf;
+
+	If Not ValueIsFilled(Item.GetAction("OnChange")) Then
+		Item.SetAction("OnChange", "Attachable_ContactInformationOnChange");
+	EndIf;
+	
+	If HasCommentFieldForContactInfoType(Type, URLProcessing) Then
+		ItemNameComment = "Comment" + CIRow.AttributeName;
+		If Form.Items.Find(ItemNameComment) <> Undefined Then
+			If Not ValueIsFilled(Form.Items[ItemNameComment].GetAction("OnChange")) Then
+				Form.Items[ItemNameComment].SetAction("OnChange", "Attachable_ContactInformationOnChange");
+			EndIf;
+		EndIf;
+	EndIf;
+
+EndProcedure
+
+// 
+// 
+// Parameters:             
+//   DetailsOfCommands   - See DetailsOfCommands 
+//   ShouldShowIcons - Boolean
+//   ItemsPlacedOnForm - Map of KeyAndValue:
+//     * Key - CatalogRef.ContactInformationKinds
+//     * Value - Boolean
+//                - Undefined
+//   AllowAddingFields - Boolean
+//   ExcludedKinds  - Array
+//                    - Undefined
+//   HiddenKinds   - Array
+//                    - Undefined
+// 	
+// Returns:
+//  Structure:
+//    * DetailsOfCommands   - See DetailsOfCommands 
+//    * ShouldShowIcons - Boolean
+//    * ItemsPlacedOnForm - Map of KeyAndValue:
+//        ** Key - CatalogRef.ContactInformationKinds
+//        ** Value - Boolean
+//                    - Undefined
+//    * AllowAddingFields - Boolean
+//    * ExcludedKinds  - Array
+//                       - Undefined
+//    * HiddenKinds   - Array
+//                       - Undefined
+//
+Function AdditionalParametersOfContactInfoOutput(DetailsOfCommands, ShouldShowIcons, ItemsPlacedOnForm,
+	AllowAddingFields, ExcludedKinds, HiddenKinds) 
+
+	AdditionalParameters = New Structure;
+	AdditionalParameters.Insert("DetailsOfCommands",           DetailsOfCommands);
+	AdditionalParameters.Insert("ShouldShowIcons",         ShouldShowIcons);
+	AdditionalParameters.Insert("ItemsPlacedOnForm",         ItemsPlacedOnForm);
+	AdditionalParameters.Insert("AllowAddingFields", AllowAddingFields);
+	AdditionalParameters.Insert("ExcludedKinds",          ExcludedKinds);
+	AdditionalParameters.Insert("HiddenKinds",           HiddenKinds);
+	
+	Return AdditionalParameters;
+
 EndFunction
 
 Function SubsystemSettings(ContactInformationOwner)

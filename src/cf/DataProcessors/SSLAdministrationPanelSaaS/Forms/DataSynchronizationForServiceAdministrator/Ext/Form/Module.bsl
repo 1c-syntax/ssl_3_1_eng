@@ -66,12 +66,12 @@ EndProcedure
 
 &AtClient
 Procedure DataExchangeMessageDirectoryForWindowsOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
 &AtClient
 Procedure DataExchangeMessageDirectoryForLinuxOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
 #EndRegion
@@ -120,28 +120,28 @@ Procedure UseDataSynchronizationOnChange(Item)
 		ConstantsSet.UseDataSynchronizationSaaSWithWebApplication = False;
 	EndIf;
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
 &AtClient
 Procedure UseOfflineModeSaaSOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
 &AtClient
 Procedure UseDataSynchronizationSaaSWithWebApplicationOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
 &AtClient
 Procedure UseDataSynchronizationSaaSWithLocalApplicationOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
@@ -153,9 +153,9 @@ EndProcedure
 // Client
 
 &AtClient
-Procedure Attachable_WhenChangingTheDetails(Item, InterfaceUpdateIsRequired = True)
+Procedure Attachable_OnChangeAttribute(Item, InterfaceUpdateIsRequired = True)
 	
-	ConstantName = WhenChangingTheDetailsServer(Item.Name);
+	ConstantName = OnChangeAttributeServer(Item.Name);
 	RefreshReusableValues();
 	
 	If InterfaceUpdateIsRequired Then
@@ -183,7 +183,7 @@ EndProcedure
 // 
 
 &AtServer
-Function WhenChangingTheDetailsServer(TagName)
+Function OnChangeAttributeServer(TagName)
 	
 	DataPathAttribute = Items[TagName].DataPath;
 	ConstantName = SaveAttributeValue(DataPathAttribute);

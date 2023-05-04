@@ -67,7 +67,7 @@ Procedure AddExecute()
 	
 	If SelectedFiles.Count() = 0 Then
 		CommonClient.MessageToUser(
-			NStr("en = 'There are no files to add.';"), , "SelectedFiles");
+			NStr("en = 'No files to add.';"), , "SelectedFiles");
 		FieldsNotFilled = True;
 	EndIf;
 	

@@ -164,7 +164,12 @@ Procedure AfterStart() Export
 	EndIf;
 	
 	If ClientRunParameters.Property("AskAboutDisablingOpenIDConnect") Then
-		AttachIdleHandler("AskAboutDisablingOpenIDConnectWaitHandler", 1, True);
+		ClickNotification = New NotifyDescription("AskAboutDisablingOpenIDConnect", ThisObject);
+		MessageTitle = NStr("en = 'Предупреждение безопасности';");
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Отключите аутентификацию %1, если не используется.';"), "OpenID-Connect");
+		ShowUserNotification(MessageTitle, ClickNotification,
+			MessageText, PictureLib.Warning32, UserNotificationStatus.Important);
 	EndIf;
 	
 EndProcedure
@@ -234,7 +239,7 @@ Procedure InteractiveDataProcessorOnChangePasswordOnStartCompletion(Result, Para
 EndProcedure
 
 // 
-Procedure AskAboutDisablingOpenIDConnect() Export
+Procedure AskAboutDisablingOpenIDConnect(Context) Export
 	
 	CompletionProcessing = New NotifyDescription(
 		"AskAboutDisablingOpenIDConnectCompletion", ThisObject);
@@ -250,8 +255,7 @@ Procedure AskAboutDisablingOpenIDConnect() Export
 	Buttons.Add("RemindLater",              NStr("en = 'Remind me later';"));
 	
 	AdditionalParameters = StandardSubsystemsClient.QuestionToUserParameters();
-	AdditionalParameters.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = '%1 protocol authentication';"), "OpenID-Connect");
+	AdditionalParameters.Title = NStr("en = 'Предупреждение безопасности';");
 	AdditionalParameters.PromptDontAskAgain = False;
 	
 	StandardSubsystemsClient.ShowQuestionToUser(CompletionProcessing,

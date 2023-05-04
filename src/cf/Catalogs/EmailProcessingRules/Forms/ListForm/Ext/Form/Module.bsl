@@ -25,7 +25,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ItemOrderSetup.Visible = False;
 	EndIf;
 	
-	// StandardSubsystems.ПодключаемыеКоманды
+	// StandardSubsystems.AttachableCommands
 	AttachableCommands.OnCreateAtServer(ThisObject);
 	// End StandardSubsystems.AttachableCommands
 

@@ -316,7 +316,7 @@ Please wait…</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Command bar navigation waiting right</v8:content>
+									<v8:content>Command bar navigation wait right</v8:content>
 								</v8:item>
 							</Title>
 							<HorizontalLocation>Right</HorizontalLocation>
@@ -344,7 +344,7 @@ Please wait…</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Command bar navigation completion right</v8:content>
+									<v8:content>Command bar navigation end right</v8:content>
 								</v8:item>
 							</Title>
 							<HorizontalLocation>Right</HorizontalLocation>

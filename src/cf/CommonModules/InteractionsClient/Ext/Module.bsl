@@ -300,7 +300,7 @@ Procedure SelectContactTypeOnCompletion(SelectionResult, AdditionalParameters) E
 		If InteractionsClientOverridable.CreateContactNonstandardForm(SelectionResult.Value, FormParameter) Then
 			Return;
 		EndIf;
-		// АПК:223-
+		// ACC:223-
 		NewContactFormName = "Catalog." + SelectionResult.Value + ".ObjectForm";
 	EndIf;
 	

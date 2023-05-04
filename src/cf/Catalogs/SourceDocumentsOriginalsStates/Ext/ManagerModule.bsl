@@ -33,7 +33,7 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 
 	Item = Items.Add();
 	Item.PredefinedDataName = "FormPrinted";
-	Item.Description = NStr("en = 'Form is printed';", Common.DefaultLanguageCode());
+	Item.Description = NStr("en = 'Form printed';", Common.DefaultLanguageCode());
 	Item.LongDesc = NStr("en = 'State that means that the print form was printed only.';", Common.DefaultLanguageCode());
 	Item.Code = "000000001";
 	Item.AddlOrderingAttribute = "1";
@@ -41,7 +41,7 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	Item = Items.Add();
 	Item.PredefinedDataName = "OriginalsNotAll";
 	Item.Description = NStr("en = 'Not all originals';", Common.DefaultLanguageCode());
-	Item.LongDesc = NStr("en = 'General state of a document whose print form originals are located in different places.';", Common.DefaultLanguageCode());
+	Item.LongDesc = NStr("en = 'Overall state of a document whose print form originals have different states.';", Common.DefaultLanguageCode());
 	Item.Code = "000000002";
 	Item.AddlOrderingAttribute = "99998";
 
@@ -139,14 +139,14 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	Parameters.ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue, "Catalog.SourceDocumentsOriginalsStates");
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) some statuses of primary documents: %1';"), 
+			NStr("en = 'Couldn''t process (skipped) some states of source document originals: %1';"), 
 				ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
 			Metadata.Catalogs.SourceDocumentsOriginalsStates,,
 				StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Yet another batch of statuses of primary documents is processed: %1';"),
+					NStr("en = 'Yet another batch of states of source document originals is processed: %1';"),
 					ObjectsProcessed));
 	EndIf;
 	

@@ -657,8 +657,7 @@ EndFunction
 //                 *** AddressInTempStorage - String - address of the attachment's binary data in temporary storage.
 //                 *** Encoding - String - encoding of the attachment (used if it differs from the encoding of the message).
 //                 *** Id - String - (optional) used to mark images displayed in the message body.
-//            ** ReplyToAddress - Map
-//                           - String - see the description of the To field.
+//            ** ReplyToAddress - String -
 //            ** BasisIDs - String - IDs of the bases of this message.
 //            ** ProcessTexts  - Boolean - the need to process the message texts when sending.
 //            ** RequestDeliveryReceipt  - Boolean - need to request a delivery notification.
@@ -1561,6 +1560,12 @@ Function GenerateArrayOfDistributionRecipients(BulkEmail, LogParameters)
 		RecipientsType = BulkEmail.MailingRecipientType.MetadataObjectKey.Get();
 		TableOfRecipients = BulkEmail.Recipients.Unload();
 	EndIf;
+	
+	ArrayOfRecipients_ = New Array;
+	
+	If RecipientsMetadata = Undefined Or RecipientsMetadata = Null Then
+		Return ArrayOfRecipients_;
+	EndIf;
 
 	Query = New Query;
 	If RecipientsType = Type("CatalogRef.Users") Then
@@ -1646,9 +1651,6 @@ Function GenerateArrayOfDistributionRecipients(BulkEmail, LogParameters)
 	
 	ErrorMessageTextForEventLog = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Cannot generate recipient list ""%1"" due to:';"), String(RecipientsType));
-	
-	ArrayOfRecipients_ = New Array;
-	
 	
 	// 
 	RecipientsList = New Map;
@@ -1819,9 +1821,8 @@ Function InitializeReport(LogParameters, ReportParameters, PersonalizationAvaila
 	// Define whether the report is based on Data Composition System.
 	If TypeOf(ReportParameters.Settings) = Type("DataCompositionUserSettings") Then
 		ReportParameters.DCS = True;
-	ElsIf TypeOf(ReportParameters.Settings) = Type("ValueTable") Then
-		ReportParameters.DCS = False;
-	ElsIf TypeOf(ReportParameters.Settings) = Type("Structure") Then
+	ElsIf TypeOf(ReportParameters.Settings) = Type("ValueTable") 
+		Or TypeOf(ReportParameters.Settings) = Type("Structure") Then
 		ReportParameters.DCS = False;
 	Else
 		ReportParameters.DCS = (ReportParameters.Object.DataCompositionSchema <> Undefined);
@@ -3003,7 +3004,7 @@ Procedure SendReportsToRecipient(Attachments, DeliveryParameters, LogParameters,
 EndProcedure
 
 Procedure SendEmailMessage(DeliveryParameters, EmailParameters, RecipientRow, LogParameters)
-
+	
 	If EmailClientUsed() And GetFunctionalOption("RetainReportDistributionHistory") Then
 		SendEmailMessageInteraction(DeliveryParameters, EmailParameters, RecipientRow, LogParameters);
 	Else
@@ -3015,20 +3016,26 @@ Procedure SendEmailMessage(DeliveryParameters, EmailParameters, RecipientRow, Lo
 			
 			If DeliveryParameters.Recipient <> Undefined Then
 				
-				For Each Whom In EmailParameters.Whom Do				
-					RecipientPresentation1 = String(DeliveryParameters.Recipient) + " (" + Whom.Address + ")";	
+				For Each Whom In EmailParameters.Whom Do
+					RecipientPresentation1 = String(DeliveryParameters.Recipient) + " (" + Whom.Address + ")";
 					
 					HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, DeliveryParameters.Recipient, DeliveryParameters.ExecutionDate);  
-					HistoryFields.Account = DeliveryParameters.Account;    
+					HistoryFields.Account = DeliveryParameters.Account;
 					HistoryFields.EMAddress = Whom.Address;
-					HistoryFields.Comment = TestOfSuccessfulReportDistribution(DeliveryParameters, RecipientRow, RecipientPresentation1, SenderSRepresentation);
-					HistoryFields.Executed = True;
+					RecipientErrorText = SendingResult.WrongRecipients.Get(Whom.Address); 
+					If RecipientErrorText <> Undefined Then
+						HistoryFields.Comment = RecipientErrorText;
+						HistoryFields.Executed = False;
+					Else
+						HistoryFields.Comment = TestOfSuccessfulReportDistribution(DeliveryParameters, RecipientRow, RecipientPresentation1, SenderSRepresentation);
+						HistoryFields.Executed = True;
+					EndIf;
 					HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, DeliveryParameters.Recipient,
-					Whom.Address);   
+					Whom.Address);
 					HistoryFields.EmailID = SendingResult.SMTPEmailID;	
-					
+
 					InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(HistoryFields);
-				EndDo; 
+				EndDo;
 			ElsIf DeliveryParameters.Recipients <> Undefined Then
 				For Each Recipient In DeliveryParameters.Recipients Do
 					If DeliveryParameters.NotifyOnly Then
@@ -3037,20 +3044,25 @@ Procedure SendEmailMessage(DeliveryParameters, EmailParameters, RecipientRow, Lo
 						SenderSRepresentation);
 					Else
 						MessageText = TestOfSuccessfulReportDistribution(DeliveryParameters, RecipientRow, RecipientPresentation1, SenderSRepresentation);
-					EndIf;  
+					EndIf;
 					RecipientAddresses = CommonClientServer.ParseStringWithEmailAddresses(Recipient.Value);
 					For Each Whom In RecipientAddresses Do
 						RecipientPresentation1 = String(Recipient.Key) + " (" + Whom.Address + ")";
-						HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, Recipient.Key, DeliveryParameters.ExecutionDate);  
+						HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, Recipient.Key, DeliveryParameters.ExecutionDate);
 						HistoryFields.Account = DeliveryParameters.Account;    
 						HistoryFields.EMAddress = Whom.Address;
-						HistoryFields.Comment = MessageText;
-						HistoryFields.Executed = True;
+						RecipientErrorText = SendingResult.WrongRecipients.Get(Whom.Address); 
+						If RecipientErrorText <> Undefined Then
+							HistoryFields.Comment = RecipientErrorText;
+							HistoryFields.Executed = False;
+						Else
+							HistoryFields.Comment = MessageText;
+							HistoryFields.Executed = True;
+						EndIf;
 						HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, Recipient.Key, Whom.Address);
-						HistoryFields.EmailID = SendingResult.SMTPEmailID;	
-						
+						HistoryFields.EmailID = SendingResult.SMTPEmailID;
 						InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(HistoryFields);
-					EndDo;				
+					EndDo;
 				EndDo;
 			EndIf;
 		EndIf;
@@ -3084,16 +3096,27 @@ Procedure SendEmailMessageInteraction(DeliveryParameters, EmailParameters, Recip
 		EndIf;
 
 		If DeliveryParameters.Recipient <> Undefined Then
-			
-			RecipientAddresses = CommonClientServer.ParseStringWithEmailAddresses(EmailParameters.Whom);
+			If DeliveryParameters.BCCs Then
+				RecipientAddresses = ?(TypeOf(EmailParameters.BCCs) = Type("String"),
+					CommonClientServer.ParseStringWithEmailAddresses(EmailParameters.BCCs), EmailParameters.BCCs);
+			Else
+				RecipientAddresses = ?(TypeOf(EmailParameters.Whom) = Type("String"),
+					CommonClientServer.ParseStringWithEmailAddresses(EmailParameters.Whom), EmailParameters.Whom);
+			EndIf;
 			For Each Whom In RecipientAddresses Do
 				RecipientPresentation1 = String(DeliveryParameters.Recipient) + " (" + Whom.Address + ")";
 				
 				HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, DeliveryParameters.Recipient, DeliveryParameters.ExecutionDate); 
 				HistoryFields.Account = DeliveryParameters.Account;    
 				HistoryFields.EMAddress = Whom.Address;
-				HistoryFields.Comment = TestOfSuccessfulReportDistribution(DeliveryParameters, RecipientRow, RecipientPresentation1, SenderSRepresentation, AdditionalInfo);
-				HistoryFields.Executed = True;
+				RecipientErrorText = SendingResult.WrongRecipients.Get(Whom.Address); 
+				If RecipientErrorText <> Undefined Then
+					HistoryFields.Comment = RecipientErrorText;
+					HistoryFields.Executed = False;
+				Else
+					HistoryFields.Comment = TestOfSuccessfulReportDistribution(DeliveryParameters, RecipientRow, RecipientPresentation1, SenderSRepresentation, AdditionalInfo);
+					HistoryFields.Executed = True;
+				EndIf;
 				HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, DeliveryParameters.Recipient, Whom.Address);   
 				HistoryFields.OutgoingEmail = SendingResult.LinkToTheEmail;
 				HistoryFields.EmailID = SendingResult.EmailID;	
@@ -3101,7 +3124,7 @@ Procedure SendEmailMessageInteraction(DeliveryParameters, EmailParameters, Recip
 				InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(HistoryFields);
 			EndDo;
 		ElsIf DeliveryParameters.Recipients <> Undefined Then
-			For Each Recipient In DeliveryParameters.Recipients Do    
+			For Each Recipient In DeliveryParameters.Recipients Do
 				RecipientAddresses = CommonClientServer.ParseStringWithEmailAddresses(Recipient.Value);
 				For Each Whom In RecipientAddresses Do
 					
@@ -3116,8 +3139,14 @@ Procedure SendEmailMessageInteraction(DeliveryParameters, EmailParameters, Recip
 					HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, Recipient.Key, DeliveryParameters.ExecutionDate); 
 					HistoryFields.Account = DeliveryParameters.Account;    
 					HistoryFields.EMAddress = Whom.Address;
-					HistoryFields.Comment = MessageText;
-					HistoryFields.Executed = True;
+					RecipientErrorText = SendingResult.WrongRecipients.Get(Whom.Address);
+					If RecipientErrorText <> Undefined Then
+						HistoryFields.Comment = RecipientErrorText;
+						HistoryFields.Executed = False;
+					Else
+						HistoryFields.Comment = MessageText;
+						HistoryFields.Executed = True;
+					EndIf;
 					HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, Recipient.Key, Whom.Address);
 					HistoryFields.OutgoingEmail = SendingResult.LinkToTheEmail;
 					HistoryFields.EmailID = SendingResult.EmailID;	
@@ -3132,8 +3161,8 @@ Procedure SendEmailMessageInteraction(DeliveryParameters, EmailParameters, Recip
 			RecipientAddresses = CommonClientServer.ParseStringWithEmailAddresses(EmailParameters.Whom);
 			For Each Whom In RecipientAddresses Do
 				
-				HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, DeliveryParameters.Recipient, DeliveryParameters.ExecutionDate);  
-				HistoryFields.Account = DeliveryParameters.Account;    
+				HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, DeliveryParameters.Recipient, DeliveryParameters.ExecutionDate);
+				HistoryFields.Account = DeliveryParameters.Account;
 				HistoryFields.EMAddress = Whom.Address;
 				HistoryFields.Comment = SendingResult.ErrorDescription;
 				HistoryFields.Executed = False;
@@ -3149,7 +3178,7 @@ Procedure SendEmailMessageInteraction(DeliveryParameters, EmailParameters, Recip
 				For Each Whom In RecipientAddresses Do
 					
 					HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, Recipient.Key, DeliveryParameters.ExecutionDate); 
-					HistoryFields.Account = DeliveryParameters.Account;    
+					HistoryFields.Account = DeliveryParameters.Account;
 					HistoryFields.EMAddress = Whom.Address;
 					HistoryFields.Comment = SendingResult.ErrorDescription;
 					HistoryFields.Executed = False;
@@ -3181,30 +3210,52 @@ Function MessageParametersForInteractionSystem(DeliveryParameters, EmailParamete
 		Message.AdditionalParameters.EmailFormat1 = Enums.EmailEditingMethods.NormalText;
 	Else
 		Message.AdditionalParameters.EmailFormat1 = Enums.EmailEditingMethods.HTML;
-	EndIf;  
+	EndIf;
 	
 	If ValueIsFilled(DeliveryParameters.Recipient) Then
 		RecipientPresentation1 = String(DeliveryParameters.Recipient);
-		RecipientAddresses = CommonClientServer.ParseStringWithEmailAddresses(EmailParameters.Whom);
+		If DeliveryParameters.BCCs Then
+			RecipientAddresses = ?(TypeOf(EmailParameters.BCCs) = Type("String"),
+				CommonClientServer.ParseStringWithEmailAddresses(EmailParameters.BCCs), EmailParameters.BCCs);
+			RecipientTableName = "BccRecipients";
+		Else
+			RecipientAddresses = ?(TypeOf(EmailParameters.Whom) = Type("String"),
+				CommonClientServer.ParseStringWithEmailAddresses(EmailParameters.Whom), EmailParameters.Whom);
+			RecipientTableName = "Recipients";
+		EndIf;
+		
 		For Each Whom In RecipientAddresses Do
-			NewRow = Message.Recipients.Add();
+			NewRow = Message[RecipientTableName].Add();
 			NewRow.Address         = Whom.Address;
 			NewRow.Presentation = RecipientPresentation1 + " (" + Whom.Address + ")";
 			NewRow.ContactInformationSource = DeliveryParameters.Recipient;
 		EndDo;
-	Else
+		
+	Else 
+		If DeliveryParameters.BCCs Then
+			RecipientTableName = "BccRecipients";
+		Else
+			RecipientTableName = "Recipients";
+		EndIf;
+
 		For Each Recipient In DeliveryParameters.Recipients Do
 			RecipientPresentation1 = String(Recipient.Key);
 			RecipientAddresses = CommonClientServer.ParseStringWithEmailAddresses(Recipient.Value);
 			For Each Whom In RecipientAddresses Do
-				NewRow = Message.Recipients.Add();
+				NewRow = Message[RecipientTableName].Add();
 				NewRow.Address         = Whom.Address;
 				NewRow.Presentation = RecipientPresentation1 + " (" + Whom.Address + ")";
 				NewRow.ContactInformationSource = Recipient.Key;
 			EndDo;
 		EndDo;
 	EndIf;
-
+	
+	If ValueIsFilled(EmailParameters.ReplyToAddress) Then
+		NewRow = Message.ReplyRecipients.Add();
+		NewRow.Address         = EmailParameters.ReplyToAddress;
+		NewRow.Presentation = EmailParameters.ReplyToAddress;
+	EndIf;
+		
 	For Each Picture In DeliveryParameters.Images Do
 		StringAttachment = Message.Attachments.Add();
 		PicFile = Picture.Value.GetBinaryData();

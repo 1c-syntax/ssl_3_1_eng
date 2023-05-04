@@ -857,7 +857,7 @@ Procedure RunTaskByScenario(Scenario, FirstTask = Undefined)
 	
 	Query.SetParameter("Ref", Scenario);
 	
-	Selection = Query.Execute().Select(); // АПК:1328 - 
+	Selection = Query.Execute().Select(); // ACC:1328 - 
 	
 	TaskNumber = 1;
 	

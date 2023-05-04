@@ -31,9 +31,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Items.DecorationAddingTimestamps.Visible = True; 
 			Items.DecorationAddingTimestamps.Title = NStr("en = 'Archive timestamps will be added to the signatures';");
 			Items.SignatureType.Visible = False;
-		ElsIf Parameters.ExtensionMode = "rawsignatures" Then
-			Items.AddArchiveTimestamp.Visible = True;
-			Items.SignatureType.Visible = True;
 		Else
 			Items.AddArchiveTimestamp.Visible = True;
 			Items.SignatureType.Visible = True;

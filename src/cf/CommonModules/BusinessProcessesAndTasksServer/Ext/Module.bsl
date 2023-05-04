@@ -218,7 +218,7 @@ Procedure SetBusinessProcessesAppearance(Val BusinessProcessesConditionalAppeara
 	DataFilterItem.ComparisonType = DataCompositionComparisonType.NotFilled;
 	
 	ConditionalAppearanceItem.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
-	ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'No description';"));
+	ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'No details';"));
 	
 	// Завершенный бизнес-Process_
 	ConditionalAppearanceItem = BusinessProcessesConditionalAppearance.Items.Add();

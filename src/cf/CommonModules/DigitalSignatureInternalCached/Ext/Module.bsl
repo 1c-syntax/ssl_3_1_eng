@@ -328,7 +328,7 @@ Function ActionsToFixErrorsRead(Remedy)
 	JSONReader.SetString(Remedy);
 	Remedy = ReadJSON(JSONReader); // Map
 	
-	Return Remedy.EliminationTechniques;
+	Return Remedy.МетодикиУстранения;
 	
 EndFunction
 

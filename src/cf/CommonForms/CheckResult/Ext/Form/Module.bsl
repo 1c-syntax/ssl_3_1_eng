@@ -12,7 +12,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.Instruction.Visible =
-		DigitalSignatureInternal.VisibilityOfLinkToInstructionsForTypicalProblemsWhenWorkingWithPrograms();
+		DigitalSignatureInternal.VisibilityOfRefToAppsTroubleshootingGuide();
 	Items.WarningTitle.Title = Parameters.WarningTitle;
 	WarningText = Parameters.WarningText;
 EndProcedure

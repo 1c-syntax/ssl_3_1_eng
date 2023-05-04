@@ -393,7 +393,7 @@ EndProcedure
 //  Form  - ClientApplicationForm - a task execution form, where:
 //   * Object - TaskObject - a business process task.
 //  ExecuteTask  - Boolean - a task is written in the execution mode.
-//  NotificationParameters - Structure - additional notification parameters.
+//  NotificationParameters - Structure - Additional notification parameters.
 //
 // Returns:
 //   Boolean   - 

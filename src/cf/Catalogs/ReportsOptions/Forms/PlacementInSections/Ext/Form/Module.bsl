@@ -298,7 +298,7 @@ Function SectionsFillingQueryText()
 		|	END AS Importance
 		|FROM
 		|	CommonSettings AS CommonSettings
-		|	FULL JOIN SeparatedSettings AS SeparatedSettings // АПК:70 - существенно не замедляет запрос, так как в соединяемых таблицах малое количество записей.
+		|	FULL JOIN SeparatedSettings AS SeparatedSettings // ACC:70 - существенно не замедляет запрос, так как в соединяемых таблицах малое количество записей.
 		|		ON CommonSettings.Ref = SeparatedSettings.Ref
 		|		AND CommonSettings.Subsystem = SeparatedSettings.Subsystem
 		|WHERE

@@ -77,11 +77,11 @@ Procedure OnFillListsWithAccessRestriction(Lists) Export
 	
 EndProcedure
 
-// Change the reminder text for this topic.
+// Change the reminder text for this subject.
 // 
 // Parameters:
-//  SubjectOf - AnyRef - Reminder's topic.
-//  Id - String - Describes the reminder's topic. For example, "Birthday".
+//  SubjectOf - AnyRef - Reminder's subject.
+//  Id - String - Describes the reminder's subject. For example, "Birthday".
 //  NewText - String - Reminder text.
 //
 Procedure EditReminderTextOnSubject(SubjectOf, Id, NewText) Export
@@ -560,7 +560,7 @@ Function EventSchedule(Schedule, BeginOfPeriod, EndOfPeriod)
 	
 EndFunction
 
-// Checks attribute changes for the topics the user subscribed to.
+// Checks attribute changes for the subjects the user subscribed to.
 // If necessary, changes the reminder time.
 //
 Procedure UpdateRemindersForSubjects(Subjects) Export

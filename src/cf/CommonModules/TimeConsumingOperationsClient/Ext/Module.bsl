@@ -77,6 +77,7 @@ Procedure WaitCompletion(Val TimeConsumingOperation, Val CompletionNotification2
 		
 		Context = New Structure;
 		Context.Insert("Result");
+		Context.Insert("JobID", AdvancedOptions_.JobID);
 		Context.Insert("CompletionNotification2", CompletionNotification2);
 		ClosingNotification1 = New NotifyDescription("OnFormClosureLongRunningOperation",
 			ThisObject, Context);
@@ -89,6 +90,7 @@ Procedure WaitCompletion(Val TimeConsumingOperation, Val CompletionNotification2
 		AdvancedOptions_.Insert("CompletionNotification2", CompletionNotification2);
 		AdvancedOptions_.Insert("CurrentInterval", ?(AdvancedOptions_.Interval <> 0, AdvancedOptions_.Interval, 1));
 		AdvancedOptions_.Insert("Control", CurrentDate() + AdvancedOptions_.CurrentInterval); // 
+		AdvancedOptions_.Insert("LastProgressSendTime", 0);
 		
 		Operations = TimeConsumingOperationsInProgress();
 		Operations.List.Insert(AdvancedOptions_.JobID, AdvancedOptions_);
@@ -314,13 +316,16 @@ EndProcedure
 //  Context - Structure:
 //   * Result - Structure
 //               - Undefined
+//   * JobID  - UUID
+//                           - Undefined
 //   * CompletionNotification2 - NotifyDescription
 //                           - Undefined
 //
 Procedure OnFormClosureLongRunningOperation(Result, Context) Export
 	
 	If Context.CompletionNotification2 <> Undefined Then
-		ExecuteNotifyProcessing(Context.CompletionNotification2, Context.Result);
+		NotifyOfLongRunningOperationEnd(Context.CompletionNotification2,
+			Context.Result, Context.JobID);
 	EndIf;
 	
 EndProcedure
@@ -454,6 +459,15 @@ Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
 	 Or IsLongRunningOperationCanceled(Operation) Then
 		Return;
 	EndIf;
+	
+	If Result.NotificationKind = "Progress" Then
+		If Operation.LastProgressSendTime < Result.TimeSentOn Then
+			Operation.LastProgressSendTime = Result.TimeSentOn;
+		Else
+			Return; // 
+		EndIf;
+	EndIf;
+	
 	ProcessOperationResult(TimeConsumingOperationsInProgress, Operation, Result.Result);
 	
 EndProcedure
@@ -487,6 +501,8 @@ EndProcedure
 //                           - Undefined
 //   * CurrentInterval       - Number
 //   * Control              - Date
+//    
+//   * LastProgressSendTime - Number -
 //
 //  Result - See TimeConsumingOperations.OperationNewRuntimeResult
 //
@@ -499,7 +515,22 @@ Function ProcessActiveOperationResult(TimeConsumingOperation, Result)
 			Progress.Insert("JobID", TimeConsumingOperation.JobID);
 			Progress.Insert("Progress", Result.Progress);
 			Progress.Insert("Messages", Result.Messages);
-			ExecuteNotifyProcessing(TimeConsumingOperation.ExecutionProgressNotification, Progress);
+			Try
+				ExecuteNotifyProcessing(TimeConsumingOperation.ExecutionProgressNotification, Progress);
+			Except
+				ErrorInfo = ErrorInfo();
+				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'An error occurred when calling a notification about the progress of
+					           |the ""%1"" long-running operation:
+					           |%2';"),
+					String(TimeConsumingOperation.JobID),
+					ErrorProcessing.DetailErrorDescription(ErrorInfo));
+				EventLogClient.AddMessageForEventLog(
+					NStr("en = 'Long-running operations.Error calling the event handler';",
+						CommonClient.DefaultLanguageCode()),
+					"Error",
+					ErrorText);
+			EndTry;
 		ElsIf Result.Messages <> Undefined Then
 			For Each Message In Result.Messages Do
 				TimeConsumingOperation.AccumulatedMessages.Add(Message);
@@ -580,8 +611,30 @@ Procedure FinishLongRunningOperation(Val TimeConsumingOperation, Val Status)
 		Result.Insert("Messages", New FixedArray(TimeConsumingOperation.AccumulatedMessages));
 	EndIf;
 	
-	ExecuteNotifyProcessing(TimeConsumingOperation.CompletionNotification2, Result);
+	NotifyOfLongRunningOperationEnd(TimeConsumingOperation.CompletionNotification2,
+		Result, TimeConsumingOperation.JobID);
+	
+EndProcedure
 
+Procedure NotifyOfLongRunningOperationEnd(CompletionNotification2, Result, JobID)
+	
+	Try
+		ExecuteNotifyProcessing(CompletionNotification2, Result);
+	Except
+		ErrorInfo = ErrorInfo();
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'An error occurred when calling a notification about the completion of
+			           |the ""%1"" long-running operation:
+			           |%2';"),
+			String(JobID),
+			ErrorProcessing.DetailErrorDescription(ErrorInfo));
+		EventLogClient.AddMessageForEventLog(
+			NStr("en = 'Long-running operations.Error calling the event handler';",
+				CommonClient.DefaultLanguageCode()),
+			"Error", ErrorText,, True);
+		ErrorProcessing.ShowErrorInfo(ErrorInfo);
+	EndTry;
+	
 EndProcedure
 
 // Returns:

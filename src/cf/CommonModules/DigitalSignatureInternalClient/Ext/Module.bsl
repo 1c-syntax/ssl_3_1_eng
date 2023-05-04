@@ -555,7 +555,7 @@ Procedure CheckCryptographyAppsInstallation(Form, CheckParameters = Undefined, C
 	If Context.AppsToCheck <> Undefined Then
 		If Context.AppsToCheck = True Then
 			Context.AppsToCheck = Undefined;
-			Context.SignAlgorithms = DigitalSignatureInternalClientServer.CurrentProgramAlgorithms();
+			Context.SignAlgorithms = DigitalSignatureInternalClientServer.AppsRelevantAlgorithms();
 			Context.DataType = "Certificate";
 		ElsIf TypeOf(Context.AppsToCheck) = Type("BinaryData")
 			Or TypeOf(Context.AppsToCheck) = Type("String") Then
@@ -569,7 +569,7 @@ Procedure CheckCryptographyAppsInstallation(Form, CheckParameters = Undefined, C
 				SignAlgorithm = DigitalSignatureInternalClientServer.GeneratedSignAlgorithm(BinaryData);
 			Else
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Данные для поиска программы криптографии не являются сертификатом или подписью.';"), );
+					NStr("en = 'Data to search for a cryptography application is not a certificate or a signature.';"), );
 			EndIf;
 			Context.SignAlgorithms.Add(SignAlgorithm);
 		EndIf;
@@ -1738,7 +1738,7 @@ Procedure VerifyCertificateOnClientAfterEnablingCryptographyExtension(Attached, 
 			Context.CertificateToCheck);
 	Else
 		CheckCertificateAtClientAfterCheckError(
-			NStr("en = 'Cryptography operation extension is not installed.';"), False, Context);
+			NStr("en = 'Cryptography extension is not installed.';"), False, Context);
 	EndIf;
 	
 EndProcedure
@@ -1896,37 +1896,45 @@ Procedure AdditionalVerificationCertificate(CryptoCertificate, CheckAtServer, Co
 		
 		ResultofCertificateAuthorityVerification = ResultofCertificateAuthorityVerification(
 			CryptoCertificate, Context.OnDate, Context.ToVerifySignature);
-				
-		If Not ResultofCertificateAuthorityVerification.Valid_SSLyf Then
 			
-			If CheckAtServer Then
-				Context.ErrorDescriptionAtServer = ResultofCertificateAuthorityVerification.Warning.ErrorText;
-				Context.AdditionalDataChecksAtServer = ResultofCertificateAuthorityVerification.Warning;
-			Else
-				Context.ErrorDetailsAtClient = ResultofCertificateAuthorityVerification.Warning.ErrorText;
-				Context.AdditionalDataChecksAtClient = ResultofCertificateAuthorityVerification.Warning;
+		If Not ResultofCertificateAuthorityVerification.Valid_SSLyf Or ValueIsFilled(
+			ResultofCertificateAuthorityVerification.Warning.ErrorText)
+			And Not Context.ToVerifySignature Then
+			
+			UserCertificateSettings = DigitalSignatureInternalServerCall.UserCertificateSettings(
+					CryptoCertificate.Thumbprint);
+			
+			If Not ResultofCertificateAuthorityVerification.Valid_SSLyf
+				And UserCertificateSettings.SigningIsAllowed <> True Then
+			
+				If CheckAtServer Then
+					Context.ErrorDescriptionAtServer = ResultofCertificateAuthorityVerification.Warning.ErrorText;
+					Context.AdditionalDataChecksAtServer = ResultofCertificateAuthorityVerification.Warning;
+				Else
+					Context.ErrorDetailsAtClient = ResultofCertificateAuthorityVerification.Warning.ErrorText;
+					Context.AdditionalDataChecksAtClient = ResultofCertificateAuthorityVerification.Warning;
+				EndIf;
+
+				CheckCertificateAfterFailedCheck(Context);
+				Return;
+
 			EndIf;
-			
-			CheckCertificateAfterFailedCheck(Context);
-			Return;
-			
-		EndIf;
-			
-		If ValueIsFilled(ResultofCertificateAuthorityVerification.Warning.ErrorText) And Not Context.ToVerifySignature Then
-			CertificateRef = Undefined;
-			If Not DigitalSignatureInternalServerCall.UserAlertedOnCertificate(CryptoCertificate.Thumbprint, CertificateRef)
-				And CertificateRef <> Undefined Then
+
+			If ValueIsFilled(ResultofCertificateAuthorityVerification.Warning.ErrorText)
+				And Not Context.ToVerifySignature Then
 				
-				FormOpenParameters = New Structure("Certificate, AdditionalDataChecks",
-					CertificateRef, ResultofCertificateAuthorityVerification.Warning);
-				ActionOnClick = New NotifyDescription("OpenNotificationFormNeedReplaceCertificate",
-					DigitalSignatureInternalClient, FormOpenParameters);
-				
-				ShowUserNotification(
-					NStr("en = 'You need to reissue the certificate';"), ActionOnClick,
-					CertificateRef,
-					PictureLib.Warning32, UserNotificationStatus.Important,
-					CertificateRef);
+				CertificateRef = UserCertificateSettings.CertificateRef;
+				If Not UserCertificateSettings.IsNotified And CertificateRef <> Undefined Then
+
+					FormOpenParameters = New Structure("Certificate, AdditionalDataChecks",
+						CertificateRef, ResultofCertificateAuthorityVerification.Warning);
+					ActionOnClick = New NotifyDescription("OpenNotificationFormNeedReplaceCertificate",
+						DigitalSignatureInternalClient, FormOpenParameters);
+
+					ShowUserNotification(
+					NStr("en = 'You need to reissue the certificate';"), ActionOnClick, CertificateRef,
+						PictureLib.Warning32, UserNotificationStatus.Important, CertificateRef);
+				EndIf;
 			EndIf;
 		EndIf;
 		
@@ -1976,7 +1984,7 @@ Procedure CheckCertificateSaaSAfterExportCertificate(Certificate, Context) Expor
 		DigitalSignatureClient.CommonSettings(), Context.CertificateCheckModes);
 	
 	If CheckParameters <> Undefined Then
-		// АПК:287-
+		// ACC:287-
 		// 
 		ModuleCryptographyServiceClient.VerifyCertificateWithParameters(New NotifyDescription(
 			"CheckCertificateAfterSaaSCheck", ThisObject, Context), CertificateData, CheckParameters);
@@ -2642,7 +2650,7 @@ Async Function AppForCertificate(Certificate,
 	If IsPrivateKeyRequied <> False Then
 		
 		Try
-			CryptoProviderPropertyResult = Await ComponentObject.GetCryptoProviderPropertiesАсинх(Certificate);
+			CryptoProviderPropertyResult = Await ComponentObject.GetCryptoProviderPropertiesAsync(Certificate);
 			CurCryptoProvider = CryptoProviderFromAddInResponse(CryptoProviderPropertyResult.Value);
 		Except
 			Result.Error = ErrorProcessing.BriefErrorDescription(ErrorInfo());
@@ -4215,7 +4223,7 @@ Procedure OpenInstructionOfWorkWithApplications() Export
 	DigitalSignatureClientOverridable.OnDetermineArticleSectionAtITS(Section);
 	
 	URL = "";
-	DigitalSignatureClientServerLocalization.WhenDeterminingLinkToInstructionsForWorkingWithPrograms(
+	DigitalSignatureClientServerLocalization.OnDefineRefToAppsGuide(
 		Section, URL);
 	
 	If Not IsBlankString(URL) Then
@@ -4896,7 +4904,6 @@ Procedure RunAStartContinueLoopOnTheSide(Result, Context) Export
 	
 EndProcedure
 
-
 // Continues the ExecuteAtSide procedure.
 Procedure ExecuteAtSideLoopAfterOperationAtClientXMLDSig(XMLEnvelope, Context) Export
 	
@@ -5259,15 +5266,13 @@ Async Procedure ExecuteAtSideCycleAfterOPerationAtClient(BinaryData, Context) Ex
 					"RunOnSideLoopAfterErrorGettingContainerSignaturesOnClient", ThisObject);
 				Context.CryptoManager.BeginGettingCryptoSignaturesContainer(Notification, BinaryData);
 				Return;
-				
-			ElsIf Context.Property("CryptoManager")
-				And DigitalSignatureClient.CommonSettings().AvailableAdvancedSignature
-				And (Context.CryptoManager = "CloudSignature" Or Context.CryptoManager = "CryptographyService") Then
-					
-				ParametersCryptoSignatures = DigitalSignatureInternalClientServer.NewSettingsSignaturesCryptography();
-				ParametersCryptoSignatures.SignatureType = Context.DataDetails.SignatureType;
 			Else
-				ParametersCryptoSignatures = Undefined;
+				ParametersCryptoSignatures = DigitalSignatureInternalClientServer.NewSettingsSignaturesCryptography();
+				SignaturePropertiesFromBinaryData = DigitalSignatureInternalClientServer.SignaturePropertiesFromBinaryData(
+					BinaryData, TimeAddition());
+				ParametersCryptoSignatures.UnverifiedSignatureDate = SignaturePropertiesFromBinaryData.SigningDate;
+				ParametersCryptoSignatures.DateSignedFromLabels = SignaturePropertiesFromBinaryData.DateOfTimeStamp;
+				ParametersCryptoSignatures.SignatureType = SignaturePropertiesFromBinaryData.SignatureType;
 			EndIf;
 			
 			SignatureProperties = GetSignaturePropertiesAfterSigning(BinaryData, Context, ParametersCryptoSignatures);
@@ -5283,10 +5288,8 @@ EndProcedure
 
 Procedure ExecuteAfterGettingContainerSignatures(ContainerSignatures, AdditionalParameters) Export
 	
-	SessionDate = CommonClient.SessionDate();
-	TimeAddition = SessionDate - CommonClient.UniversalDate();
 	SignatureParameters = DigitalSignatureInternalClientServer.ParametersCryptoSignatures(
-		ContainerSignatures, TimeAddition, SessionDate);
+		ContainerSignatures, TimeAddition(), CommonClient.SessionDate());
 	SignatureProperties = GetSignaturePropertiesAfterSigning(AdditionalParameters.SignatureBinaryData, 
 		AdditionalParameters.Context, SignatureParameters);
 	
@@ -5320,9 +5323,11 @@ Function GetSignaturePropertiesAfterSigning(BinaryData, Context, SignatureParame
 		Context.CertificateProperties,
 		Context.Form.Comment,
 		UsersClient.AuthorizedUser(),, SignatureParameters);
+		
+	SignatureProperties.SignatureDate = ?(ValueIsFilled(SignatureProperties.UnverifiedSignatureDate),
+		SignatureProperties.UnverifiedSignatureDate, CommonClient.SessionDate());
 	
 	If Context.CertificateValid <> Undefined Then
-		SignatureProperties.SignatureDate = CommonClient.SessionDate();
 		SignatureProperties.SignatureValidationDate = SignatureProperties.SignatureDate;
 		SignatureProperties.SignatureCorrect = Context.CertificateValid;
 	EndIf;
@@ -5618,7 +5623,7 @@ Procedure GetDataFromDataDetailsFollowUp(Result, Context) Export
 	   And Not IsCMS Then
 		
 		If TypeOf(Result) <> Type("Structure") Or Not Result.Property("ErrorDescription") Then
-			Error = New Structure("ErrorDescription", NStr("en = 'Incorrect data type.';"));
+			Error = New Structure("ErrorDescription", NStr("en = 'Invalid data type.';"));
 		Else
 			Error = New Structure("ErrorDescription", Result.ErrorDescription);
 		EndIf;
@@ -6022,11 +6027,18 @@ Procedure Refineonthesideafterreceivingthecontainersignature(ContainerSignatures
 	
 	Context.DataElement.Insert("SignatureParameters", SignatureParameters);
 	
+	If SignatureParameters.CertificateLastTimestamp = Undefined Then
+		ErrorDescription = NStr("en = 'Не удалось получить сертификат подписи';");
+		Context.DataElement.Insert("Error", ErrorDescription);
+		RefineSideLoopAfterOperationClient(SignatureParameters, Context);
+		Return;
+	EndIf;
+	
 	If ValueIsFilled(SignatureParameters.DateActionLastTimestamp)
 		And SignatureParameters.DateActionLastTimestamp < SessionDate Then 
 		
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The signature certificate expired:%1';"),
+			NStr("en = 'Certificate expired:%1';"),
 			PropertiesCertificateString(SignatureParameters.CertificateLastTimestamp));
 		Context.DataElement.Insert("Error", ErrorDescription);
 		RefineSideLoopAfterOperationClient(SignatureParameters, Context);
@@ -7138,11 +7150,7 @@ Procedure CheckAfterExecuteHashTagToSign(HashValue, Parameters, Context) Export
 		Return;
 	EndIf;
 	
-	BinaryData = Base64Value(Context.Base64CryptoCertificate);
-	
-	DigitalSignatureClient.SigningDate(New NotifyDescription(
-			"CheckAfterExecuteHashTagToSignAfterGetSigningDate", ThisObject, Context),
-		BinaryData);
+	CheckAfterExecuteHashTagToSignAfterGetSigningDate(Undefined, Context);
 	
 EndProcedure
 
@@ -7276,7 +7284,7 @@ Procedure CanonizeTheXMLTextCycleStart(Context)
 				"C14N_bodyAfterCall", ThisObject, Context,
 				"C14N_bodyAfterCallError", ThisObject);
 			Try
-				// АПК:216-
+				// ACC:216-
 				// 
 				Context.ComponentObject.StartACallWith14nBody(Notification,
 					XMLText, Algorithm.Version, Algorithm.WithComments);
@@ -7768,7 +7776,7 @@ Procedure ExecuteAtSideAfterExportCertificateInSaaSMode(SearchResult, Context) E
 	EndIf;
 	If Not ValueIsFilled(SearchResult.Certificate) Then
 		Error = New Structure("ErrorDescription",
-			NStr("en = 'The certificate does not exist in the service (it might have been deleted).';"));
+			NStr("en = 'The certificate does not exist in the service. It might have been deleted.';"));
 		ExecuteAtSideAfterLoop(Error, Context);
 		Return;
 	EndIf;
@@ -8359,18 +8367,18 @@ EndProcedure
 Procedure RunALoopOnTheSideAfterSigningThePackage(SignaturesArray, Context)
 	
 	ErrorAtClient = Undefined;
-	
-	If Context.Property("CryptoManager") And Context.CryptoManager = "CloudSignature"
-		And DigitalSignatureClient.CommonSettings().AvailableAdvancedSignature Then
-		ParametersCryptoSignatures = DigitalSignatureInternalClientServer.NewSettingsSignaturesCryptography();
-		ParametersCryptoSignatures.SignatureType = Context.DataDetails.SignatureType;
-	Else
-		ParametersCryptoSignatures = Undefined;
-	EndIf; 
+	TimeAddition = TimeAddition();
 	
 	For Counter = 0 To SignaturesArray.Count() - 1 Do
 		
 		BinaryData = SignaturesArray[Counter];
+		
+		ParametersCryptoSignatures = DigitalSignatureInternalClientServer.NewSettingsSignaturesCryptography();
+		SignaturePropertiesFromBinaryData = DigitalSignatureInternalClientServer.SignaturePropertiesFromBinaryData(
+			BinaryData, TimeAddition);
+		ParametersCryptoSignatures.UnverifiedSignatureDate = SignaturePropertiesFromBinaryData.SigningDate;
+		ParametersCryptoSignatures.DateSignedFromLabels = SignaturePropertiesFromBinaryData.DateOfTimeStamp;
+		ParametersCryptoSignatures.SignatureType = SignaturePropertiesFromBinaryData.SignatureType;
 		
 		SignatureProperties = GetSignaturePropertiesAfterSigning(BinaryData, Context, ParametersCryptoSignatures);
 
@@ -8951,7 +8959,7 @@ Procedure GetTheVersionAfterConnectingTheComponents(Result, Notification) Export
 			Return;
 		Except
 			VersionComponents = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot determine the add-in version. %1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+				NStr("en = 'Couldn''t determine the add-in version. %1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		EndTry;
 	Else
 		If IsBlankString(Result.ErrorDescription) Then 
@@ -9041,7 +9049,7 @@ EndProcedure
 
 Function ErrorTextExtensionNotInstalled()
 	
-	Return NStr("en = 'Cryptography operation extension is not installed.';");
+	Return NStr("en = 'Cryptography extension is not installed.';");
 	
 EndFunction
 
@@ -9225,7 +9233,7 @@ Procedure ResumeSettingRevocationListAfterDownloaded(ExecutionResult, Context) E
 		Return;
 	EndIf;
 	
-	// 
+	// Background job result.
 	Result = GetFromTempStorage(ExecutionResult.ResultAddress); 
 	DeleteFromTempStorage(ExecutionResult.ResultAddress);
 	
@@ -9672,7 +9680,7 @@ Async Function InstalledCryptoProviders(ComponentObject = Undefined, SuggestInst
 	EndTry;
 	
 	Result.Cryptoproviders = Cryptoproviders;
-	WriteInstalledCryptoprovidersToCache(Result);
+	WriteInstalledCryptoProvidersToCache(Result);
 	
 	Return Result; 
 	
@@ -9690,7 +9698,7 @@ Async Function InstalledCryptoProvidersFromCache(SuggestInstall = False)
 		CheckResult = Await InstalledCryptoProviders(Undefined, SuggestInstall);
 		
 		If Not CheckResult.CheckCompleted Then
-			WriteInstalledCryptoprovidersToCache(CheckResult);
+			WriteInstalledCryptoProvidersToCache(CheckResult);
 		EndIf;
 		
 		Return CheckResult;
@@ -9720,7 +9728,7 @@ Procedure ClearInstalledCryptoProvidersCache() Export
 	
 EndProcedure
 
-Procedure WriteInstalledCryptoprovidersToCache(Result)
+Procedure WriteInstalledCryptoProvidersToCache(Result)
 	
 	ResultForCache = New Structure;
 	ResultForCache.Insert("CheckCompleted", Result.CheckCompleted);
@@ -9747,8 +9755,8 @@ Procedure CheckCryptographyAppsInstallationAfterInstalledObtained(Result, Contex
 	FillPropertyValues(CheckResult, Result);
 	CheckResult.Insert("Programs", New Array);
 	CheckResult.Insert("ServerApplications", New Array);
-	CheckResult.Insert("PossibleConflict", False);
-	CheckResult.Insert("ThereMayBeConflictOnServer", False);
+	CheckResult.Insert("IsConflictPossible", False);
+	CheckResult.Insert("IsConflictPossibleAtServer", False);
 	
 	If Not CheckResult.CheckCompleted Then
 		ExecuteNotifyProcessing(Context.Notification, CheckResult);
@@ -9759,14 +9767,14 @@ Procedure CheckCryptographyAppsInstallationAfterInstalledObtained(Result, Contex
 	FillPropertyValues(ProcessingParameters, Context);
 	ProcessingParameters.Insert("IsServer", False);
 	
-	ThereAreTestablePrograms = False;
+	HasAppsToCheck = False;
 	
-	DigitalSignatureInternalClientServer.ProcessResultOfProgramVerification(Result.Cryptoproviders,
-		CheckResult.Programs, CheckResult.PossibleConflict, ProcessingParameters, ThereAreTestablePrograms);
+	DigitalSignatureInternalClientServer.DoProcessAppsCheckResult(Result.Cryptoproviders,
+		CheckResult.Programs, CheckResult.IsConflictPossible, ProcessingParameters, HasAppsToCheck);
 		
 	ProcessingParameters.Insert("IsServer", True);
-	DigitalSignatureInternalClientServer.ProcessResultOfProgramVerification(Result.CryptoProvidersAtServer,
-		CheckResult.ServerApplications, CheckResult.ThereMayBeConflictOnServer, ProcessingParameters, ThereAreTestablePrograms);
+	DigitalSignatureInternalClientServer.DoProcessAppsCheckResult(Result.CryptoProvidersAtServer,
+		CheckResult.ServerApplications, CheckResult.IsConflictPossibleAtServer, ProcessingParameters, HasAppsToCheck);
 		
 	
 	ExecuteNotifyProcessing(Context.Notification, CheckResult);

@@ -462,7 +462,7 @@ EndFunction
 // Creates a connection to the output print form.
 // Call this function before performing any actions on the form.
 // The function does not work in any other browsers except for Internet Explorer.
-// This function requires the 1C:Enterprise extension installed to operate in the web client.
+// This function requires 1C:Enterprise Extension installed to operate in the web client.
 //
 // Parameters:
 //  DocumentType            - String - a print form type: DOC or ODT;
@@ -495,7 +495,7 @@ EndFunction
 // Creates a COM connection with a template. This connection is used later for getting template areas (tags and
 // tables).
 // The function does not work in any other browsers except for Internet Explorer.
-// This function requires the 1C:Enterprise extension installed to operate in the web client.
+// This function requires 1C:Enterprise Extension installed to operate in the web client.
 //
 // Parameters:
 //  BinaryTemplateData - BinaryData - a binary template data;

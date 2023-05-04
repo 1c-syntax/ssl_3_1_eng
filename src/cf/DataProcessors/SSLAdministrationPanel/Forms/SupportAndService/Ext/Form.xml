@@ -34,7 +34,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="1632"/>
+			<ExtendedTooltip name="GroupHeaderExtendedTooltip_SSLs" id="1632"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="1575">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -637,7 +637,7 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 																		<Title formatted="false">
 																			<v8:item>
 																				<v8:lang>en</v8:lang>
-																				<v8:content>Start backup creation procedure.</v8:content>
+																				<v8:content>Start the backup creation procedure.</v8:content>
 																			</v8:item>
 																		</Title>
 																	</ExtendedTooltip>
@@ -1066,7 +1066,7 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Application update result third line</v8:content>
+							<v8:content>Application update results third line</v8:content>
 						</v8:item>
 					</Title>
 					<Behavior>Usual</Behavior>
@@ -1185,7 +1185,7 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Write infobase update details to event log</v8:content>
+									<v8:content>Log update details</v8:content>
 								</v8:item>
 							</Title>
 							<Width>43</Width>
@@ -1221,11 +1221,11 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 										<Event name="OnChange">WriteIBUpdateDetailsToEventLogOnChange</Event>
 									</Events>
 								</CheckBoxField>
-								<Button name="ClearingOutdatedData" id="2297">
+								<Button name="ClearObsoleteData" id="2297">
 									<Type>Hyperlink</Type>
-									<CommandName>Form.Command.ClearingOutdatedData</CommandName>
+									<CommandName>Form.Command.ClearObsoleteData</CommandName>
 									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
-									<ExtendedTooltip name="ClearingOutdatedDataExtendedTooltip" id="2298">
+									<ExtendedTooltip name="ClearObsoleteDataExtendedTooltip" id="2298">
 										<AutoMaxWidth>false</AutoMaxWidth>
 										<Title formatted="false">
 											<v8:item>
@@ -1523,7 +1523,7 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 			</Title>
 			<Action>CloudArchiveBackupSettings</Action>
 		</Command>
-		<Command name="ClearingOutdatedData" id="1">
+		<Command name="ClearObsoleteData" id="1">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -1536,7 +1536,7 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 					<v8:content>Clear obsolete data before configuration update</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>ClearingOutdatedData</Action>
+			<Action>ClearObsoleteData</Action>
 		</Command>
 	</Commands>
 </Form>

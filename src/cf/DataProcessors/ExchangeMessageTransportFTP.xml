@@ -261,7 +261,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Path to directory</v8:content>
+							<v8:content>Directory path</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>

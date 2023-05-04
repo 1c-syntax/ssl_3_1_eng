@@ -28,7 +28,7 @@
 			<Synonym>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Source document original states</v8:content>
+					<v8:content>States of source document originals</v8:content>
 				</v8:item>
 			</Synonym>
 			<Comment/>
@@ -320,7 +320,7 @@
 			<ExtendedObjectPresentation>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Source document original state</v8:content>
+					<v8:content>State of source document original</v8:content>
 				</v8:item>
 			</ExtendedObjectPresentation>
 			<ListPresentation>
@@ -332,7 +332,7 @@
 			<ExtendedListPresentation>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Source document original states</v8:content>
+					<v8:content>States of source document originals</v8:content>
 				</v8:item>
 			</ExtendedListPresentation>
 			<Explanation/>
@@ -366,7 +366,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Full description of original state assignment</v8:content>
+							<v8:content>Original state details</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

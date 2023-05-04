@@ -276,7 +276,7 @@ Function ProxyServerSetting()
 	ProxyServerSetting = StandardSubsystemsClient.ClientRunParameters().ProxyServerSettings;
 #EndIf
 	
-	// АПК:547-
+	// ACC:547-
 	
 	Return ProxyServerSetting;
 	

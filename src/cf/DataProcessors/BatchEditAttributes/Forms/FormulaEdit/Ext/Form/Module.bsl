@@ -50,7 +50,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		Return;
 	EndIf;
 	
-	ShowQueryBox(New NotifyDescription("BeforeCloseCompletion", ThisObject), NStr("en = 'The data was changed. Do you want to save the changes?';"), QuestionDialogMode.YesNoCancel);
+	ShowQueryBox(New NotifyDescription("BeforeCloseCompletion", ThisObject), NStr("en = 'The data has been changed. Do you want to save the changes?';"), QuestionDialogMode.YesNoCancel);
 	
 EndProcedure
 

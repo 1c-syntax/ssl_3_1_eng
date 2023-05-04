@@ -88,7 +88,7 @@ This might take a while.</v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Errors found</v8:content>
+							<v8:content>Errors found during the test</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="ErrorsFoundOnCheckExtendedTooltip" id="4"/>
@@ -110,7 +110,7 @@ This might take a while.</v8:content>
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Question picture</v8:content>
+											<v8:content>Picture Question</v8:content>
 										</v8:item>
 									</Title>
 									<Picture>
@@ -269,7 +269,7 @@ This might take a while.</v8:content>
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Success picture</v8:content>
+									<v8:content>Picture Success</v8:content>
 								</v8:item>
 							</Title>
 							<Picture>
@@ -323,7 +323,7 @@ This might take a while.</v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Errors found during the check</v8:content>
+							<v8:content>Errors found during the test</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="PageInformationForSupportExtendedTooltip" id="216"/>
@@ -345,7 +345,7 @@ This might take a while.</v8:content>
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Question picture</v8:content>
+											<v8:content>Picture Question</v8:content>
 										</v8:item>
 									</Title>
 									<Picture>
@@ -483,7 +483,7 @@ This might take a while.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Go to settings</v8:content>
+					<v8:content>Settings</v8:content>
 				</v8:item>
 			</Title>
 			<Action>GoToSettings</Action>

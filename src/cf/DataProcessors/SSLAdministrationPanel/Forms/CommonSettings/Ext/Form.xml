@@ -34,7 +34,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="1829"/>
+			<ExtendedTooltip name="GroupHeaderExtendedTooltip_SSLs" id="1829"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="1763">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -679,7 +679,7 @@ These information records are displayed in new forms.</v8:content>
 									<ContextMenu name="UseDigitalSignatureContextMenu" id="1956"/>
 									<ExtendedTooltip name="UseDigitalSignatureExtendedTooltip" id="1957"/>
 									<Events>
-										<Event name="OnChange">Attachable_WhenChangingTheDetails</Event>
+										<Event name="OnChange">Attachable_OnChangeAttribute</Event>
 									</Events>
 								</CheckBoxField>
 								<CheckBoxField name="UseEncryption" id="1958">
@@ -695,7 +695,7 @@ These information records are displayed in new forms.</v8:content>
 									<ContextMenu name="UseEncryptionContextMenu" id="1959"/>
 									<ExtendedTooltip name="UseEncryptionExtendedTooltip" id="1960"/>
 									<Events>
-										<Event name="OnChange">Attachable_WhenChangingTheDetails</Event>
+										<Event name="OnChange">Attachable_OnChangeAttribute</Event>
 									</Events>
 								</CheckBoxField>
 							</ChildItems>
@@ -1533,7 +1533,7 @@ See also &lt;link http://1c.ru/news/info.jsp?id=25491&gt;restriction of 12 cores
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Temporary files directory of 1C:Enterprise server cluster</v8:content>
+					<v8:content>Temporary file directory of 1C:Enterprise server cluster</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
@@ -1562,7 +1562,7 @@ See also &lt;link http://1c.ru/news/info.jsp?id=25491&gt;restriction of 12 cores
 						<Title formatted="false">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>For multithreaded long-running operations, a path to a single network directory for common temporary files of 1C:Enterprise servers running in the same cluster.</v8:content>
+								<v8:content>For multithreaded long-running operations, a path to a network directory for temporary files of all 1C:Enterprise servers running in a single cluster.</v8:content>
 							</v8:item>
 						</Title>
 					</ExtendedTooltip>

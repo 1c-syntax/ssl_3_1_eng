@@ -1798,7 +1798,7 @@ Function ExplanationOnError(ErrorText, Val LanguageCode = Undefined, ForSetupAss
 	
 	If Common.SubsystemExists("StandardSubsystems.GetFilesFromInternet") Then
 		ModuleNetworkDownload = Common.CommonModule("GetFilesFromInternet");
-		FileAddress = AddressOfFileWithDescriptionOfErrors();
+		FileAddress = AddressOfFIleWithErrorsDetails();
 		ImportedFile = ModuleNetworkDownload.DownloadFileAtServer(FileAddress);
 		If ImportedFile.Status Then
 			JSONReader = New JSONReader();
@@ -2710,7 +2710,7 @@ Function DNSServerAddresses() Export
 	
 EndFunction
 
-Function AddressOfSettingsFile() Export
+Function AddressOfFileWithSettings() Export
 	
 	FileAddress = "https://downloads.v8.1c.eu/content/common/settings/mailservers.json";
 	
@@ -2723,7 +2723,7 @@ Function AddressOfSettingsFile() Export
 		
 EndFunction
 
-Function AddressOfFileWithDescriptionOfErrors()
+Function AddressOfFIleWithErrorsDetails()
 	
 	FileAddress = "https://downloads.v8.1c.eu/content/common/settings/mailerrors.json";
 	

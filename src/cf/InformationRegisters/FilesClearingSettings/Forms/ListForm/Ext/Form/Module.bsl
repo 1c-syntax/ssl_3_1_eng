@@ -273,10 +273,10 @@ EndProcedure
 &AtClient
 Procedure Clear(Command)
 	Notification = New NotifyDescription("ClearCompletion", ThisObject);
-	ShowQueryBox(Notification, NStr("en = 'Clean up unwanted files?
+	ShowQueryBox(Notification, NStr("en = 'Clean up unused files?
 		|
-		|Unwanted files will be permanently deleted according to the specified settings.
-		|It is recommended that you create a backup of the infobase and network volumes for file storage (if they are used).';"), 
+		|Unused files will be permanently deleted based on the settings you''ve configured.
+		|You might want to create a backup of the infobase and network file storage volumes before deleting.';"), 
 		QuestionDialogMode.OKCancel);
 EndProcedure
 
@@ -1009,7 +1009,7 @@ Procedure ConfigureFilePurgeModes()
 	Items.DeletedFilesVolume.Visible = UseVolumes;
 	Items.FilesCleanupMode.Visible = UseVolumes;
 	Items.AutomaticallyCleanUpUnusedFiles.Title = ?(UseVolumes, 
-		NStr("en = 'Clean up automatically:';"), NStr("en = 'Clean up obsolete files automatically:';"));
+		NStr("en = 'Clean up automatically:';"), NStr("en = 'Clean up unused files automatically:';"));
 	
 EndProcedure
 

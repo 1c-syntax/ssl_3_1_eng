@@ -602,7 +602,7 @@ Procedure ShowFormClosingConfirmation(
 	
 	If Exit Then
 		If WarningTextOnExit = "" Then // 
-			WarningTextOnExit = NStr("en = 'The data was changed. All changes will be lost.';");
+			WarningTextOnExit = NStr("en = 'The data has been changed. All changes will be lost.';");
 		EndIf;
 		Return;
 	EndIf;

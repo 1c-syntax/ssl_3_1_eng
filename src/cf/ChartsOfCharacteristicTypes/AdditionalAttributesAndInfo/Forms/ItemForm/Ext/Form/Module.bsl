@@ -1603,13 +1603,13 @@ Procedure SetWizardSettings(CurrentPage = Undefined)
 		CurrentPage = Items.WIzardCardPages.CurrentPage;
 	EndIf;
 	
-	ListHeaderTemplate        = NStr("en = 'Select %1 to include in the ""%2"" set';");
-	RadioButtonHeaderTemplate = NStr("en = 'Select an option of adding additional %1 ""%2"" to the ""%3"" set';");
+	ListHeaderTemplate        = NStr("en = 'Select an %1 to include in the ""%2"" set';");
+	RadioButtonHeaderTemplate = NStr("en = 'Select an option to add the ""%2"" additional %1 to the ""%3"" set';");
 	
 	If CurrentPage = Items.SelectAttribute Then
 		
 		If PassedFormParameters.IsAdditionalInfo Then
-			Title = NStr("en = 'Add additional information records';");
+			Title = NStr("en = 'Add additional information record';");
 		Else
 			Title = NStr("en = 'Add additional attribute';");
 		EndIf;
@@ -1619,7 +1619,7 @@ Procedure SetWizardSettings(CurrentPage = Undefined)
 		
 		Items.TitleDecoration.Title = StringFunctionsClientServer.SubstituteParametersToString(
 			ListHeaderTemplate,
-			?(PassedFormParameters.IsAdditionalInfo, NStr("en = 'an additional information record';"), NStr("en = 'an additional attribute';")),
+			?(PassedFormParameters.IsAdditionalInfo, NStr("en = 'additional information record';"), NStr("en = 'additional attribute';")),
 			String(PassedFormParameters.CurrentPropertiesSet));
 		
 	ElsIf CurrentPage = Items.ActionChoice Then
@@ -1645,7 +1645,7 @@ Procedure SetWizardSettings(CurrentPage = Undefined)
 			String(PassedFormParameters.CurrentPropertiesSet));
 		
 		If PassedFormParameters.IsAdditionalInfo Then
-			Title = NStr("en = 'Add additional information records';");
+			Title = NStr("en = 'Add additional information record';");
 		Else
 			Title = NStr("en = 'Add additional attribute';");
 		EndIf;
@@ -1978,17 +1978,8 @@ Procedure RefreshFormItemsContent(WarningText = "")
 		Items.SetsAdjustmentComment.Hyperlink = True;
 		
 		Items.SetsAdjustmentChange.Enabled = ValueIsFilled(Object.Ref);
-		
-		If SetsList.Count() < 2 Then
-			
-			Items.SetsAdjustmentChange.Visible = False;
-		
-		ElsIf ValueIsFilled(CurrentPropertiesSet) Then
-			Items.SetsAdjustmentChange.Visible = True;
-		Else
-			Items.SetsAdjustmentChange.Visible = False;
-		EndIf;
-		
+		Items.SetsAdjustmentChange.Visible = SetsList.Count() >= 2 And ValueIsFilled(CurrentPropertiesSet);
+
 		If SetsList.Count() = 0 Then
 			Items.SetsAdjustmentComment.Hyperlink = False;
 			Items.SetsAdjustmentChange.Visible = False;
@@ -2172,38 +2163,43 @@ Procedure FillActionListOnAddAttribute()
 	If PassedFormParameters.IsAdditionalInfo Then
 		AddCommon = NStr("en = 'Add information record ""as is"" (recommended)
 			|
-			|You will have the option to filter lists and reports by the information record.';");
-		MakeBySample = NStr("en = 'Copy information record from a master record (shared list of values)
+			|You can use this information record to filter data of different types in lists and reports.';");
+		MakeBySample = NStr("en = 'Copy information record from a master record (with a shared value list)
 			|
-			|The new record and the master record will share a list of values.
-			|It is handy for configuring values for similar information records.
-			|You can edit the record''s description and some other properties.';");
-		CreateByCopying = NStr("en = 'Copy information record
-			|
-			|Copy the ""%1"" information record';");
+			|Both records will share a value list.
+			|This option is recommended to configure values for similar information records.
+			|You can edit the record description and some other properties.';");
+		If AttributeWithAdditionalValuesList Then
+			CreateByCopying = NStr("en = 'Сделать копию сведения
+				|
+				|Будет создана копия сведения и всех его значений.';")
+		Else
+			CreateByCopying = NStr("en = 'Сделать копию сведения
+				|
+				|Будет создана копия сведения.';");
+		EndIf;
 	Else
 		AddCommon = NStr("en = 'Add attribute ""as is"" (recommended)
 			|
-			|You will have the option to filter lists and reports by the attribute.';");
-		MakeBySample = NStr("en = 'Copy attribute from a master attribute (shared list of values)
+			|You can use this attribute to filter data of different types in lists and reports.';");
+		MakeBySample = NStr("en = 'Copy attribute from a master attribute (with a shared value list)
 			|
-			|The new attribute and the master attribute will share a list of values.
-			|It is handy for configuring values for similar attributes.
-			|You can edit the attribute''s description and some other properties.';");
-		CreateByCopying = NStr("en = 'Copy attribute
-			|
-			|Copy the ""%1"" attribute';");
+			|Both attributes will share a value list.
+			|This option is recommended to configure values for similar attributes.
+			|You can edit the attribute description and some other properties.';");
+		If AttributeWithAdditionalValuesList Then
+			CreateByCopying = NStr("en = 'Сделать копию реквизита
+				|
+				|Будет создана копия реквизита и всех его значений.';");
+		Else
+			CreateByCopying = NStr("en = 'Сделать копию реквизита
+				|
+				|Будет создана копия реквизита.';");
+		EndIf;
 	EndIf;
 	
 	ChoiceList = Items.AttributeAddMode.ChoiceList;
 	ChoiceList.Clear();
-	
-	If AttributeWithAdditionalValuesList Then
-		PasteTemplate = " " + NStr("en = 'and all values.';");
-	Else
-		PasteTemplate = ".";
-	EndIf;
-	CreateByCopying = StringFunctionsClientServer.SubstituteParametersToString(CreateByCopying, PasteTemplate);
 	
 	ChoiceList.Add("AddCommonAttributeToSet", AddCommon);
 	If AttributeWithAdditionalValuesList Then

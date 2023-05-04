@@ -287,7 +287,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 			Cancel                = True;
 			StandardProcessing = False;
 			
-			QueryText = NStr("en = 'Data has been changed. Do you want to save the changes?';");
+			QueryText = NStr("en = 'The data has been changed. Save the changes?';");
 			AdditionalParameters = New Structure;
 			AdditionalParameters.Insert("FilesToEditArray", FilesToEditArray);
 			NotificationAfterClosingPrompt = New NotifyDescription("AfterQuestionOnClose", ThisObject, AdditionalParameters);

@@ -45,7 +45,7 @@ Function Dictionary_ru_en() Export
 
 	Dictionary = New Map;
 
-	// АПК:1036-
+	// ACC:1036-
 	Dictionary.Insert("skuконтрагента", "SKUCounterparty_"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("аванс", "Prepayment_"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("авансы", "Prepayments"); // @NON-NLS-1 @NON-NLS-2
@@ -1194,7 +1194,7 @@ Function Dictionary_en_ru() Export
 
 	Dictionary = New Map;
 
-	// АПК:1036-
+	// ACC:1036-
 	Dictionary.Insert("skucounterparty_", "SKUКонтрагента"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("prepayment_", "Аванс"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("prepayments", "Авансы"); // @NON-NLS-1 @NON-NLS-2
@@ -2345,7 +2345,7 @@ Function Dictionary_en_ru() Export
 	Array.Add("Эквайер"); // @NON-NLS-1
 	Array.Add("Эквайрер"); // @NON-NLS-1
 	Dictionary.Insert("acquirer", Array);
-	// АПК:1036-
+	// ACC:1036-
 
 	Return Dictionary;
 

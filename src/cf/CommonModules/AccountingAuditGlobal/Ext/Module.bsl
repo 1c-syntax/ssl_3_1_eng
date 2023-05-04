@@ -9,7 +9,7 @@
 
 #Region Private
 
-// Outputs messages about existing accounting issues
+// Outputs messages about existing data integrity issues
 // when the ToDoList subsystem is missing.
 //
 Procedure NotifyOfAccountingIssues() Export

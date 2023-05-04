@@ -448,10 +448,10 @@ EndProcedure
 //   CryptoManager - Undefined - get crypto manager by default
 //                          (manager of the first application in the list, as configured by the administrator).
 //                        - CryptoManager - 
-//   OnDate               - Date - check the certificate on the specified date
-//                          if the date cannot be extracted from the signature.
-//                          If the parameter is not filled in, check on the current session date
-//                          if the date cannot be extracted from the signature.
+//   OnDate               - Date -
+//                          
+//                          
+//                          
 //   ShowError       - Boolean - show the crypto manager creation error (when it is not specified).
 //
 Procedure VerifySignature(Notification, RawData, Signature,
@@ -1052,7 +1052,7 @@ EndProcedure
 Procedure OpenInstructionOnTypicalProblemsOnWorkWithApplications(SectionName = "") Export
 	
 	URL = "";
-	DigitalSignatureClientServerLocalization.WhenDeterminingReferenceToInstructionsForTypicalProblemsWhenWorkingWithPrograms(
+	DigitalSignatureClientServerLocalization.OnDefiningRefToAppsTroubleshootingGuide(
 		URL, SectionName);
 	
 	If Not IsBlankString(URL) Then
@@ -1854,7 +1854,7 @@ EndProcedure
 //      
 //   
 //      
-//      See DigitalSignatureInternalClientServer.CurrentProgramAlgorithms
+//      See DigitalSignatureInternalClientServer.AppsRelevantAlgorithms
 //      
 //      
 //      

@@ -390,7 +390,7 @@ Procedure ExportDataForMapping(Parameters, ResultAddress) Export
 	
 	If Not Result.DataExported1
 		And IsBlankString(Result.ErrorMessage) Then
-		Result.ErrorMessage = NStr("en = 'Errors occurred while exporting mapping data (see the event log).';");
+		Result.ErrorMessage = NStr("en = 'Errors occurred while exporting mapping data. See the event log.';");
 	EndIf;
 	
 	PutToTempStorage(Result, ResultAddress);

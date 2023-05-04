@@ -409,7 +409,7 @@ FROM
 				</v8:NumberQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="SelectionsAreBeingEdited" id="9">
+		<Attribute name="IsFiltersBeingEdited" id="9">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>

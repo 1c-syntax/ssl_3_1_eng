@@ -299,13 +299,22 @@ Procedure PrintDocumentsOnExecuteCommand(Form, AdditionalParameters) Export
 	
 EndProcedure
 
-// Determines the used template of metadata object print data and their fields.
+// 
+// 
+// 
+// 
 //
 // Parameters:
 //  Object - String - Full name of a metadata object.
 //                      Or the name of the field from the PrintData template in the format "FullMetadataName.FieldName".
 //  PrintDataSources - ValueList:
-//    * Value - DataCompositionSchema - Print data schema.
+//    * Value - DataCompositionSchema -
+//                                         
+//                                         
+//                                         
+//                                         
+//                                         
+//      
 //    * Presentation - String - Schema ID. Intended to export data.
 //    * Check -Boolean - True if the key field is the data source owner.
 //

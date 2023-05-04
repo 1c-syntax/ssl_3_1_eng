@@ -9,7 +9,7 @@
 
 #Region EventsHandlers
 
-// Opens the form of the journal that records source document originals.
+// Opens the form of the log that records source document originals.
 &AtClient
 Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 

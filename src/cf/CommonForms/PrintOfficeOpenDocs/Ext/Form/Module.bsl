@@ -181,13 +181,12 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 	NotificationChoiceFollowUp = New NotifyDescription("SelectionProcessingFollowUp", ThisObject, ChoiceParameters);
 	Notification = New NotifyDescription("OnCompleteGeneratingPrintForms", ThisObject, NotificationChoiceFollowUp);
 	
-	If ValueSelected.Property("Join") And ValueSelected.SavingOption = "Join" And ValueSelected.Sign Then
-		ExecuteNotifyProcessing(NotificationChoiceFollowUp);
-	ElsIf IsReGenerationRequired Then
-		StartGettingPrintForms(CombinedDocStructure, Notification)
+	If IsReGenerationRequired Then
+		StartGettingPrintForms(CombinedDocStructure, Notification);
 	Else
 		ExecuteNotifyProcessing(NotificationChoiceFollowUp);
 	EndIf;
+	
 EndProcedure
 
 &AtClient
@@ -751,19 +750,17 @@ Procedure SelectionProcessingFollowUp(Result, ChoiceParameters) Export
 	ValueSelected.Property("SavingOption", SavingOption);
 	AttachmentsList = Undefined;
 	If MergeDocs And SavingOption <> "Join" Then  
-		Attachment = New Structure("AddressInTempStorage, Name1, Print, Presentation, PrintObject");
+		Attachment = FileDetails(CombinedDocStructure.PrintFormFileName);
 		Attachment.AddressInTempStorage = CombinedDocStructure.PrintFormAddress;
-		Attachment.Name1 		= CombinedDocStructure.PrintFormFileName;
-		Attachment.Print 		= True;
-		Attachment.Presentation 	= CombinedDocStructure.PrintFormFileName;
-		Attachment.PrintObject = ValueSelected.PrintObject;
+		Attachment.PrintObject	= ValueSelected.PrintObject;
 		AttachmentsList = New Array;
 		AttachmentsList.Add(Attachment);
 	EndIf;
 	ValueSelected.Insert("AttachmentsList", AttachmentsList);
 	
+	FilesInTempStorage = PutOfficeDocsToTempStorage(ValueSelected,,True);
+	
 	If ValueSelected.Sign Then
-		FilesInTempStorage = PutOfficeDocsToTempStorage(ValueSelected,,True);
 		
 		If Upper(ChoiceSource.FormName) = Upper("CommonForm.SavePrintForm") Then
 			If ValueSelected.SavingOption = "Join" Then
@@ -778,6 +775,8 @@ Procedure SelectionProcessingFollowUp(Result, ChoiceParameters) Export
 		
 		SIgnFiles(FilesInTempStorage, ChoiceParameters);
 	Else
+		ChoiceParameters.ValueSelected.Insert("AttachmentsList",
+			PutFilesToArchive(FilesInTempStorage, ValueSelected));
 		SelectionProcessingCompletion(True, ChoiceParameters);
 	EndIf;
 
@@ -831,9 +830,8 @@ EndProcedure
 
 &AtClient
 Procedure SelectionProcessingCompletion(Result, ChoiceParameters) Export	
-	If Result = False Then
-		Return;
-	ElsIf TypeOf(Result) = Type("Structure") And Result.Property("Success") And Not Result.Success Then
+	If Result = False 
+		Or (TypeOf(Result) = Type("Structure") And Result.Property("Success") And Not Result.Success) Then
 		Return;
 	EndIf;
 	
@@ -849,8 +847,7 @@ Procedure SelectionProcessingCompletion(Result, ChoiceParameters) Export
 					FilesInTempStorage = PutFilesToArchive(FilesInTempStorage, ValueSelected);
 					SavePrintFormsToDirectory(FilesInTempStorage, ValueSelected.FolderForSaving);
 				Else
-					FilesInTempStorage = PutOfficeDocsToTempStorage(ValueSelected);
-					SavePrintFormsToDirectory(FilesInTempStorage, ValueSelected.FolderForSaving);
+					SavePrintFormsToDirectory(ValueSelected.AttachmentsList, ValueSelected.FolderForSaving);
 				EndIf;
 				
 			Else
@@ -1289,9 +1286,7 @@ Function PutFilesToArchive(DocsPrintForms, PassedSettings)
 		ZipFileWriter.Write();
 		BinaryData = New BinaryData(ArchiveName);
 		PathInTempStorage = PutToTempStorage(BinaryData, StorageUUID);
-		FileDetails = New Structure;
-		FileDetails.Insert("Presentation", ObjectArchive.Value.Presentation);
-		
+		FileDetails = FileDetails(ObjectArchive.Value.Presentation);
 		FileDetails.Insert("PrintObject", ObjectArchive.Key);
 		FileDetails.Insert("AddressInTempStorage", PathInTempStorage);
 		Result.Add(FileDetails);
@@ -1359,10 +1354,8 @@ Function PutOfficeDocsToTempStorage(PassedSettings, UseIndividualPrintForms = Fa
 					BinaryData.Write(FullFileName);
 					ZipFileWriter.Add(FullFileName);
 				Else
-					FileDetails = New Structure;
-					FileDetails.Insert("Presentation", FileName);
+					FileDetails = FileDetails(FileName);
 					FileDetails.Insert("AddressInTempStorage", OfficeDocumentFile.Key);
-					FileDetails.Insert("IsOfficeDocument", True);
 					FileDetails.Insert("PrintObject", PrintObject);
 					Result.Add(FileDetails);
 				EndIf;
@@ -1388,10 +1381,8 @@ Function PutOfficeDocsToTempStorage(PassedSettings, UseIndividualPrintForms = Fa
 				BinaryData.Write(FullFileName);
 				ZipFileWriter.Add(FullFileName);
 			Else
-				FileDetails = New Structure;
-				FileDetails.Insert("Presentation", FileName);
+				FileDetails = FileDetails(FileName);
 				FileDetails.Insert("AddressInTempStorage", PrintFormSetting.AddressInTempStorage);
-				FileDetails.Insert("IsOfficeDocument", True);
 				FileDetails.Insert("PrintObject", PrintFormSetting.PrintObject);
 				Result.Add(FileDetails);
 			EndIf;
@@ -1404,8 +1395,7 @@ Function PutOfficeDocsToTempStorage(PassedSettings, UseIndividualPrintForms = Fa
 		ZipFileWriter.Write();
 		BinaryData = New BinaryData(ArchiveName);
 		PathInTempStorage = PutToTempStorage(BinaryData, StorageUUID);
-		FileDetails = New Structure;
-		FileDetails.Insert("Presentation", GetFileNameForArchive(TransliterateFilesNames, PrintFormsSettingsTemp));
+		FileDetails = FileDetails(GetFileNameForArchive(TransliterateFilesNames, PrintFormsSettingsTemp));
 		FileDetails.Insert("AddressInTempStorage", PathInTempStorage);
 		If PassedSettings.Property("PrintObject") Then
 			FileDetails.Insert("PrintObject", PassedSettings.PrintObject);
@@ -1566,6 +1556,17 @@ Procedure StartGettingPrintForms(CombinedDocStructure, Notification)
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, Notification, IdleParameters());
 EndProcedure
 
+&AtServerNoContext
+Function FileDetails(FileDescription = "")
+	FileDetails = New Structure;
+	FileDetails.Insert("AddressInTempStorage", "");
+	FileDetails.Insert("Name1", FileDescription);
+	FileDetails.Insert("Print", True);
+	FileDetails.Insert("Presentation", FileDescription);
+	FileDetails.Insert("PrintObject", Undefined);
+	FileDetails.Insert("IsOfficeDocument", True);
+	Return FileDetails; 
+EndFunction
 #EndRegion
 
 

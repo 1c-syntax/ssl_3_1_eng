@@ -222,6 +222,12 @@
 			</ChildItems>
 		</Table>
 		<UsualGroup name="ScheduleGroup" id="156">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Schedule group</v8:content>
+				</v8:item>
+			</Title>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="ScheduleGroupExtendedTooltip" id="157"/>

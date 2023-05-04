@@ -131,7 +131,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Use this account</v8:content>
+					<v8:content>Use this account to</v8:content>
 				</v8:item>
 			</Title>
 			<Behavior>Usual</Behavior>
@@ -143,7 +143,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>To send mail</v8:content>
+							<v8:content>Send mail</v8:content>
 						</v8:item>
 					</Title>
 					<TitleLocation>Right</TitleLocation>
@@ -159,7 +159,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>To receive mail</v8:content>
+							<v8:content>Receive mail</v8:content>
 						</v8:item>
 					</Title>
 					<TitleLocation>Right</TitleLocation>

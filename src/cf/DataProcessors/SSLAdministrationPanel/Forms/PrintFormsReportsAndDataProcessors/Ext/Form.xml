@@ -32,7 +32,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="1600"/>
+			<ExtendedTooltip name="GroupHeaderExtendedTooltip_SSLs" id="1600"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="1581">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -607,7 +607,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Source document originals state</v8:content>
+					<v8:content>State of source document originals</v8:content>
 				</v8:item>
 			</Title>
 			<HorizontalStretch>false</HorizontalStretch>
@@ -620,7 +620,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Source document original states usage</v8:content>
+							<v8:content>States of source document originals usage</v8:content>
 						</v8:item>
 					</Title>
 					<Width>43</Width>
@@ -645,7 +645,7 @@
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>Record availability of signed source document originals.</v8:content>
+										<v8:content>Keep records of signed source document originals.</v8:content>
 									</v8:item>
 								</Title>
 							</ExtendedTooltip>
@@ -659,7 +659,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Source document original states setting</v8:content>
+							<v8:content>States of source document originals setup</v8:content>
 						</v8:item>
 					</Title>
 					<Width>43</Width>
@@ -674,7 +674,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Source document original states</v8:content>
+									<v8:content>States of source document originals</v8:content>
 								</v8:item>
 							</Title>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
@@ -682,7 +682,7 @@
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>Configure states that will be used upon tracking source document originals.</v8:content>
+										<v8:content>Configure states that will be used when tracking source document originals.</v8:content>
 									</v8:item>
 								</Title>
 							</ExtendedTooltip>

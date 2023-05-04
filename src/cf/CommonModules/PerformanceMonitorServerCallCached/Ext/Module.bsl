@@ -16,6 +16,7 @@
 //
 Function RunPerformanceMeasurements() Export
 	
+	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	Return Constants.RunPerformanceMeasurements.Get();
 	

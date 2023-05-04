@@ -81,7 +81,7 @@ Procedure OnFillToDoList(ToDoList) Export
 			ToDoItem.HasToDoItems       = AllIssues.HasErrors;
 			ToDoItem.Important         = False;
 			ToDoItem.Owner       = Section;
-			ToDoItem.Presentation  = NStr("en = 'Accounting issues';");
+			ToDoItem.Presentation  = NStr("en = 'Data integrity issues';");
 			ToDoItem.Count     = AllIssues.Count;
 			ToDoItem.FormParameters = New Structure;
 			ToDoItem.Form          = "Report.AccountingCheckResults.Form";
@@ -111,7 +111,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		ToDoItem.HasToDoItems       = LastCheckInformation.WarnSecondCheckRequired;
 		ToDoItem.Important         = False;
 		ToDoItem.Owner       = Section;
-		ToDoItem.Presentation  = NStr("en = 'Accounting has not been checked for a while';");
+		ToDoItem.Presentation  = NStr("en = 'Data integrity has not been checked for a while';");
 		ToDoItem.ToolTip      = ToolTip;
 		ToDoItem.Form          = "Catalog.AccountingCheckRules.ListForm";
 	EndDo;
@@ -157,7 +157,7 @@ Procedure OnAddClientParametersOnStart(Parameters) Export
 	
 EndProcedure
 
-// Updates components of the systematic accounting checks upon configuration change.
+// Updates components of the system data integrity checks upon configuration change.
 // 
 // Parameters:
 //  HasChanges - Boolean - return value. If recorded, True if data is changed; 
@@ -1075,9 +1075,9 @@ Procedure AddChecksGroups(ChecksGroups)
 			ChecksGroupObject.AccountingChecksContext = ChecksGroup.AccountingChecksContext;
 		EndIf;
 		
-		// АПК:1327-
+		// ACC:1327-
 		InfobaseUpdate.WriteData(ChecksGroupObject);
-		// АПК:1327-
+		// ACC:1327-
 	EndDo;
 	
 	Query = New Query(
@@ -1164,9 +1164,9 @@ Procedure AddChecks(Checks)
 			CheckObject1.CheckStartDate = Validation.CheckStartDate;
 		EndIf;
 		
-		// АПК:1327-
+		// ACC:1327-
 		InfobaseUpdate.WriteData(CheckObject1);
-		// АПК:1327-
+		// ACC:1327-
 	EndDo;
 	
 	Query = New Query(
@@ -4527,8 +4527,8 @@ EndFunction
 //        * IssueSummary        - String - a string summary of the found issue.
 //        * UniqueKey         - UUID - an issue unique key. 
 //                                     It is returned if IssueFullDetails = True.
-//        * IssueSeverity         - EnumRef.AccountingIssueSeverity - an accounting issue severity
-//                                     "Information", "Warning", "Error", and "UsefulTip".
+//        * IssueSeverity         - EnumRef.AccountingIssueSeverity - Severity level of a data integrity issue 
+//                                     Information, Warning, Error, and UsefulTip.
 //                                     It is returned if IssueFullDetails = True.
 //        * EmployeeResponsible            - CatalogRef.Users - it is filled in if it is possible
 //                                     to identify a person responsible for the problematic object.

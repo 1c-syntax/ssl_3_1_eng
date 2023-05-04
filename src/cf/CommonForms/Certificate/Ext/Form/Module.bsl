@@ -248,13 +248,23 @@ Procedure InstallCertificate(Command)
 	CertificateInstallationParameters = DigitalSignatureInternalClient.CertificateInstallationParameters(
 		PutToTempStorage(BinaryData, UUID));
 		
-	If CertificationPath.Count() > 1 
-		And CurrentData.GetID() = CertificationPath[0].GetID() Then
-		InstallationOptions = New ValueList;
-		InstallationOptions.Add("ROOT", NStr("en = 'Trusted root certificates';"));
-		InstallationOptions.Add("MY", NStr("en = 'Personal certificate storage';"));
-		InstallationOptions.Add("Container", NStr("en = 'Container and personal storage';"));
-		CertificateInstallationParameters.InstallationOptions = InstallationOptions;
+	If CertificationPath.Count() > 1 Then
+		
+		If CurrentData.GetID() = CertificationPath[0].GetID() Then
+			InstallationOptions = New ValueList;
+			InstallationOptions.Add("ROOT", NStr("en = 'Trusted root certificates';"));
+			InstallationOptions.Add("CA", NStr("en = 'Intermediate certificates';"));
+			InstallationOptions.Add("MY", NStr("en = 'Personal certificate storage';"));
+			InstallationOptions.Add("Container", NStr("en = 'Container and personal storage';"));
+			CertificateInstallationParameters.InstallationOptions = InstallationOptions;
+		ElsIf CurrentData.GetID() <> CertificationPath[CertificationPath.Count() - 1].GetID() Then
+			InstallationOptions = New ValueList;
+			InstallationOptions.Add("CA", NStr("en = 'Intermediate certificates';"));
+			InstallationOptions.Add("ROOT", NStr("en = 'Trusted root certificates';"));
+			InstallationOptions.Add("MY", NStr("en = 'Personal certificate storage';"));
+			InstallationOptions.Add("Container", NStr("en = 'Container and personal storage';"));
+			CertificateInstallationParameters.InstallationOptions = InstallationOptions;
+		EndIf;
 	EndIf;
 	
 	DigitalSignatureInternalClient.InstallCertificate(CertificateInstallationParameters);

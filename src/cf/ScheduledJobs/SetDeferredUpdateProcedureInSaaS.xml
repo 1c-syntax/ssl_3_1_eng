@@ -9,7 +9,7 @@
 					<v8:content>Set deferred update order in SaaS mode</v8:content>
 				</v8:item>
 			</Synonym>
-			<Comment>АПК:302 вызов метода выполняется после служебного кода</Comment>
+			<Comment>ACC:302 вызов метода выполняется после служебного кода</Comment>
 			<MethodName>CommonModule.InfobaseUpdateInternal.SetProcedureForDeferredUpdate</MethodName>
 			<Description/>
 			<Key/>

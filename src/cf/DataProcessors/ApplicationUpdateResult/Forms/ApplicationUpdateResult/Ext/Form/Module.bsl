@@ -144,11 +144,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.IBVersionUpdateSaaS") Then
 		ModuleInfobaseUpdateInternalSaaS = Common.CommonModule("InfobaseUpdateInternalSaaS");
-		ReportOnProgressOfUpdatingAreas = ModuleInfobaseUpdateInternalSaaS.ReportOnProgressOfUpdatingAreas();
+		AreasUpdateProgressReport = ModuleInfobaseUpdateInternalSaaS.AreasUpdateProgressReport();
 		
-		Items.HyperlinkProgressOfUpdatingAreas.Visible = Not SeparatedDataUsageAvailable;
+		Items.HyperlinkAreasUpdateProgress.Visible = Not SeparatedDataUsageAvailable;
 	Else
-		Items.HyperlinkProgressOfUpdatingAreas.Visible = False;
+		Items.HyperlinkAreasUpdateProgress.Visible = False;
 	EndIf;
 	
 EndProcedure
@@ -273,8 +273,8 @@ Procedure ExplanationUpdateNotRunningURLProcessing(Item, FormattedStringURL, Sta
 EndProcedure
 
 &AtClient
-Procedure HyperlinkProgressOfUpdatingAreasClick(Item)
-	OpenForm(ReportOnProgressOfUpdatingAreas);
+Procedure HyperlinkAreasUpdateProgressClick(Item)
+	OpenForm(AreasUpdateProgressReport);
 EndProcedure
 
 #EndRegion

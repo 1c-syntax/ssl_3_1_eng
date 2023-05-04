@@ -372,6 +372,9 @@ EndProcedure
 &AtClient
 Procedure ConstantsSetPerformanceMonitorRecordPeriodOnChange(Item)
 	Modified = True;
+	If ConstantsSet.PerformanceMonitorRecordPeriod < 60 Then
+		ConstantsSet.PerformanceMonitorRecordPeriod = 60;
+	EndIf;
 EndProcedure
 
 &AtClient

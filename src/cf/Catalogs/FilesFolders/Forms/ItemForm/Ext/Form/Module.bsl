@@ -90,6 +90,8 @@ EndProcedure
 &AtServer
 Procedure BeforeWriteAtServer(Cancel, CurrentObject)
 	
+	CurrentObject.AdditionalProperties.Insert("WorkingDirectory", ThisObject.WorkingDirectory);
+	
 	// StandardSubsystems.Properties
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
@@ -149,24 +151,8 @@ EndProcedure
 Procedure OwnerWorkingDirectoryClearing(Item, StandardProcessing)
 	
 	StandardProcessing = False;
-	
-	ParentReference = Object.Parent;
-	ParentWorkingDirectory = FilesOperationsInternalServerCall.FolderWorkingDirectory(ParentReference);
-	FolderWorkingDirectory    = FilesOperationsInternalServerCall.FolderWorkingDirectory(Object.Ref);
-	
-	InheritedFolderWorkingDirectory = ParentWorkingDirectory
-		+ Object.Description + GetPathSeparator();
-	
-	If IsBlankString(ParentWorkingDirectory) Then
-		
-		WorkingDirectory = ""; // 
-		FilesOperationsInternalServerCall.CleanUpWorkingDirectory(Object.Ref);
-		
-	ElsIf InheritedFolderWorkingDirectory <> FolderWorkingDirectory Then
-		
-		WorkingDirectory = InheritedFolderWorkingDirectory; // 
-		FilesOperationsInternalServerCall.SaveFolderWorkingDirectory(Object.Ref, WorkingDirectory);
-	EndIf;
+	WorkingDirectory = OwnerSWorkingDirectoryIsBeingCleanedUpOnServer(Object.Ref, Object.Parent, Object.Description);
+	Modified = True;
 	
 EndProcedure
 
@@ -223,12 +209,6 @@ Procedure FileSystemExtensionAttachedOwnerWorkingDirectorySelectionStartFollowUp
 		Return;
 	EndIf;
 	
-	If Object.Ref.IsEmpty() Then
-		If Write()= False Then
-			Return;
-		EndIf;
-	EndIf;
-	
 	ClearMessages();
 	
 	Mode = FileDialogMode.ChooseDirectory;
@@ -262,8 +242,7 @@ Procedure FileSystemExtensionAttachedOwnerWorkingDirectorySelectionStartFollowUp
 		EndTry;
 		
 		WorkingDirectory = DirectoryName;
-		FilesOperationsInternalServerCall.SaveFolderWorkingDirectory(Object.Ref, WorkingDirectory);
-		
+		Modified = True;
 	EndIf;
 	
 EndProcedure
@@ -438,5 +417,27 @@ Procedure UpdateCloudServiceNote()
 	Items.CloudServiceNoteGroup.Visible = NoteVisibility;
 	
 EndProcedure
+
+&AtServerNoContext
+Function OwnerSWorkingDirectoryIsBeingCleanedUpOnServer(Ref, ParentReference, Description)
+	
+	ParentWorkingDirectory = FilesOperationsInternalServerCall.FolderWorkingDirectory(ParentReference);
+	
+	InheritedFolderWorkingDirectory = ParentWorkingDirectory
+		+ Description + GetPathSeparator();
+	
+	If IsBlankString(ParentWorkingDirectory) Then
+		
+		WorkingDirectory = ""; // 
+		
+	Else
+		
+		WorkingDirectory = InheritedFolderWorkingDirectory; // 
+		
+	EndIf;
+	
+	Return WorkingDirectory;
+	
+EndFunction
 
 #EndRegion

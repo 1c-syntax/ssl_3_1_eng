@@ -206,7 +206,7 @@ Procedure InstallUpdate(Form, Parameters, AdministrationParameters) Export
 	
 	If Form <> Undefined Then
 		If Parameters.UpdateMode = 0 Then
-			ParameterName = "StandardSubsystems.SkipEndOfSystemAfterProcessingWarnings";
+			ParameterName = "StandardSubsystems.SkipQuitSystemAfterWarningsHandled";
 			ApplicationParameters.Insert(ParameterName, True);
 			Try
 				Form.Close();
@@ -293,7 +293,7 @@ Procedure WriteErrorLogFileAndExit(Val DirectoryName, Val DetailErrorDescription
 	If StrFind(LaunchParameter, "UpdateAndExit") > 0 Then
 		
 		Directory = New File(DirectoryName);
-		If Directory.Exists() And Directory.IsDirectory() Then // АПК:566 синхронные вызовы не в веб-
+		If Directory.Exists() And Directory.IsDirectory() Then // ACC:566 синхронные вызовы не в веб-
 			
 			ErrorRegistrationFile = New TextWriter(DirectoryName + "error.txt");
 			ErrorRegistrationFile.Close();
@@ -382,7 +382,7 @@ Function UpdateInstallationPossible(Parameters, AdministrationParameters)
 	
 	If IsFileInfobase And Parameters.CreateDataBackup = 2 Then
 		File = New File(Parameters.IBBackupDirectoryName);
-		If Not File.Exists() Or Not File.IsDirectory() Then // АПК:566 синхронные вызовы вне веб-
+		If Not File.Exists() Or Not File.IsDirectory() Then // ACC:566 синхронные вызовы вне веб-
 			ShowMessageBox(,
 				NStr("en = 'Please specify an existing folder for storing the infobase backup.';"));
 			Return False;
@@ -453,13 +453,13 @@ Procedure InsertScriptParameter(Val ParameterName, Val ParameterValue, DoFormat,
 	
 EndProcedure
 
-Function UpdateFilesNames(Parameters, OnlyFirstFile = False)
+Function UpdateFilesNames(Parameters, FirstFileOnly = False)
 	
 	ParameterName = "StandardSubsystems.UpdateFilesNames";
 	If ApplicationParameters.Get(ParameterName) <> Undefined Then
-		If OnlyFirstFile = True Then
+		If FirstFileOnly = True Then
 			Return ApplicationParameters[ParameterName].NameOfFirstFile;
-		ElsIf OnlyFirstFile = False Then
+		ElsIf FirstFileOnly = False Then
 			Return ApplicationParameters[ParameterName].FilesNames;
 		EndIf;
 		Return ApplicationParameters[ParameterName];
@@ -489,9 +489,9 @@ Function UpdateFilesNames(Parameters, OnlyFirstFile = False)
 	NameOfFirstFile = ?(NameOfFirstFile = Null, "", NameOfFirstFile);
 	UpdateFilesNames = "[" + UpdateFilesNames + "]";
 	
-	If OnlyFirstFile = True Then
+	If FirstFileOnly = True Then
 		Return NameOfFirstFile;
-	ElsIf OnlyFirstFile = False Then
+	ElsIf FirstFileOnly = False Then
 		Return UpdateFilesNames;
 	EndIf;
 	
@@ -987,14 +987,14 @@ Procedure RunUpdateScript(Parameters, AdministrationParameters)
 	FormParameters = New Structure("NameOfFirstUpdateFile",
 		UpdateFilesNames(Parameters, True));
 	
-	Notification = New NotifyDescription("RunUpdateScriptAfterCheckingUpdateFile",
+	Notification = New NotifyDescription("RunUpdateScriptAfterUpdateFileChecked",
 		ThisObject, Context);
 	
-	Form = OpenForm("CommonForm.CheckingUpdateFile", FormParameters,,,,,
+	Form = OpenForm("CommonForm.CheckUpdateFile", FormParameters,,,,,
 		Notification, FormWindowOpeningMode.LockWholeInterface);
 	
 	If Form = Undefined Then
-		RunUpdateScriptWhileClearingData(Context);
+		RunUpdateScriptOnDataCleanUp(Context);
 	EndIf;
 	
 EndProcedure
@@ -1005,22 +1005,22 @@ EndProcedure
 //   * AdministrationParameters - See StandardSubsystemsServer.AdministrationParameters.
 //  
 //
-Procedure RunUpdateScriptAfterCheckingUpdateFile(Result, Context) Export
+Procedure RunUpdateScriptAfterUpdateFileChecked(Result, Context) Export
 	
 	If Result = True Then
-		RunUpdateScriptAfterClearingOutdatedData(True, Context);
+		RunUpdateScriptAfterObsoleteDataPurge(True, Context);
 	Else
-		RunUpdateScriptWhileClearingData(Context);
+		RunUpdateScriptOnDataCleanUp(Context);
 	EndIf;
 	
 EndProcedure
 
 // Parameters:
-//  Context - See RunUpdateScriptAfterCheckingUpdateFile.Context
+//  Context - See RunUpdateScriptAfterUpdateFileChecked.Context
 //
-Procedure RunUpdateScriptWhileClearingData(Context)
+Procedure RunUpdateScriptOnDataCleanUp(Context)
 	
-	FullFormName = "DataProcessor.ApplicationUpdateResult.Form.ClearingOutdatedData";
+	FullFormName = "DataProcessor.ApplicationUpdateResult.Form.ClearObsoleteData";
 	
 	Windows = GetWindows();
 	For Each Window In Windows Do
@@ -1031,7 +1031,7 @@ Procedure RunUpdateScriptWhileClearingData(Context)
 		EndDo;
 	EndDo;
 	
-	Notification = New NotifyDescription("RunUpdateScriptAfterClearingOutdatedData",
+	Notification = New NotifyDescription("RunUpdateScriptAfterObsoleteDataPurge",
 		ThisObject, Context);
 	
 	FormParameters = New Structure;
@@ -1044,9 +1044,9 @@ EndProcedure
 
 // Parameters:
 //  Result - 
-//  Context - See RunUpdateScriptAfterCheckingUpdateFile.Context
+//  Context - See RunUpdateScriptAfterUpdateFileChecked.Context
 //
-Procedure RunUpdateScriptAfterClearingOutdatedData(Result, Context) Export
+Procedure RunUpdateScriptAfterObsoleteDataPurge(Result, Context) Export
 	
 	If Result <> True Then
 		If Result <> False Then
@@ -1055,7 +1055,7 @@ Procedure RunUpdateScriptAfterClearingOutdatedData(Result, Context) Export
 		Return;
 	EndIf;
 	
-	RunUpdateScriptEnd(Context.Parameters, Context.AdministrationParameters);
+	RunUpdateScriptCompletion(Context.Parameters, Context.AdministrationParameters);
 	
 EndProcedure
 
@@ -1063,7 +1063,7 @@ EndProcedure
 //  Parameters - See InstallUpdate.Parameters
 //  AdministrationParameters - See StandardSubsystemsServer.AdministrationParameters.
 //
-Procedure RunUpdateScriptEnd(Parameters, AdministrationParameters)
+Procedure RunUpdateScriptCompletion(Parameters, AdministrationParameters)
 	
 	MainScriptFileName = GenerateUpdateScriptFiles(True, Parameters, AdministrationParameters);
 	EventLogClient.AddMessageForEventLog(EventLogEvent(), "Information",
@@ -1133,7 +1133,7 @@ Function DesignerBatchModeSupported()
 #Else
 	Designer1 = BinDir() + StandardSubsystemsClient.ApplicationExecutableFileName(True);
 	DesignerFile = New File(Designer1);
-	Return DesignerFile.Exists(); // АПК:566 синхронные вызовы вне веб-
+	Return DesignerFile.Exists(); // ACC:566 синхронные вызовы вне веб-
 #EndIf
 	
 EndFunction

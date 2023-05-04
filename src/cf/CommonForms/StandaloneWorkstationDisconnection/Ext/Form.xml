@@ -182,7 +182,7 @@ Please wait…</v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Navigation start page</v8:content>
+							<v8:content>Navigation page start</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="NavigationStartPageExtendedTooltip" id="45"/>
@@ -239,7 +239,7 @@ Please wait…</v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>End navigation page</v8:content>
+							<v8:content>Navigation page end</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="NavigationEndPageExtendedTooltip" id="52"/>

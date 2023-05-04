@@ -52,6 +52,7 @@
 				<v8:Type>cfg:ConstantValueManager.AccountPasswordRecoveryAddress</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.UseDataSynchronizationSaaSWithWebApplication</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.BackupParameters</v8:Type>
+				<v8:Type>cfg:ConstantValueManager.RegisterServerNotificationsIndicators</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.UseAlternativeServerToImportCurrencyRates</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.IBAdministrationParameters</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.UseOfflineModeSaaS</v8:Type>

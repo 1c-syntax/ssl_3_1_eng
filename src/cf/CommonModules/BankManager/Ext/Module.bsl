@@ -239,11 +239,15 @@ Procedure OnFillToDoList(ToDoList) Export
 	For Each Section In Sections Do
 		
 		IdentifierBanks = "BankClassifier" + StrReplace(Section.FullName(), ".", "");
+		
+		HasToDoItems = Result.ClassifierIsExpired 
+			Or Result.UpdateAvailable <> Undefined And Result.UpdateAvailable;
+		
 		ToDoItem = ToDoList.Add();
 		ToDoItem.Id  = IdentifierBanks;
-		ToDoItem.HasToDoItems       = Result.ClassifierIsOutdated;
+		ToDoItem.HasToDoItems       = HasToDoItems;
 		ToDoItem.Important         = Result.ClassifierIsExpired;
-		ToDoItem.Presentation  = NStr("en = 'Bank classifier is outdated';");
+		ToDoItem.Presentation  = NStr("en = 'Справочник БИК устарел';");
 		ToDoItem.ToolTip      = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The last update was %1 ago.';"), Result.AmountOfDelayByLine);
 		ToDoItem.Form          = "DataProcessor.ImportBankClassifier.Form";
 		ToDoItem.Owner       = Section;

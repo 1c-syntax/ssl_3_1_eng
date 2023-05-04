@@ -51,7 +51,7 @@
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Document original state is set according to print forms.</v8:content>
+							<v8:content>The document original state is set according to print forms.</v8:content>
 						</v8:item>
 					</Title>
 					<GroupVerticalAlign>Center</GroupVerticalAlign>
@@ -114,7 +114,7 @@
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Submenu of commands used to set and change source document original states.</v8:content>
+											<v8:content>Use these commands to set and change states of source document originals.</v8:content>
 										</v8:item>
 									</ToolTip>
 									<Picture>
@@ -166,7 +166,7 @@
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>The command is used to set the final source document original state "Original received".</v8:content>
+											<v8:content>The command sets the final "Original received" state of a source document.</v8:content>
 										</v8:item>
 									</ToolTip>
 									<ExtendedTooltip name="SetOriginalReceivedGroupExtendedTooltip" id="146"/>

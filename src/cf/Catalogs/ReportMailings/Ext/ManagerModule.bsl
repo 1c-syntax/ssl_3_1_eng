@@ -249,7 +249,7 @@ Function RecipientsCountIncludingGroups(Val Recipients, Val MetadataObjectID) Ex
 
 	RecipientsMetadata = Common.MetadataObjectByID(MetadataObjectID, False);
 	
-	If RecipientsMetadata = Undefined Then
+	If RecipientsMetadata = Undefined Or RecipientsMetadata = Null Then
 		Return NumberOfRecipients;
 	EndIf;
 	

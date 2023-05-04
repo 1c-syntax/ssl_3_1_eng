@@ -1782,13 +1782,13 @@ Procedure RestoreSettingsOfFormsWithAdditionalAttributes() Export
 	
 	Sets = New Map;
 	NamesOfPredefinedSets = Metadata.Catalogs.AdditionalAttributesAndInfoSets.GetPredefinedNames();
-	ObsoletePredefinedElements = New Array;
+	ObsoletePredefinedItems = New Array;
 	For Each PredefinedSetName In NamesOfPredefinedSets Do
 		If Not StrStartsWith(PredefinedSetName, "Delete") Then
 			Continue;
 		EndIf;
 		
-		ObsoletePredefinedElements.Add(PredefinedSetName);
+		ObsoletePredefinedItems.Add(PredefinedSetName);
 	EndDo;
 	
 	ChildSetsQuery = New Query;
@@ -1804,9 +1804,9 @@ Procedure RestoreSettingsOfFormsWithAdditionalAttributes() Export
 	AllChildSets = ChildSetsQuery.Execute().Unload();
 	AllChildSets.Indexes.Add("Ref");
 	
-	RequestingPredefinedSets = New Query;
-	RequestingPredefinedSets.SetParameter("PredefinedDataName", ObsoletePredefinedElements);
-	RequestingPredefinedSets.Text =
+	RequestPredefinedSets = New Query;
+	RequestPredefinedSets.SetParameter("PredefinedDataName", ObsoletePredefinedItems);
+	RequestPredefinedSets.Text =
 		"SELECT
 		|	AdditionalAttributesAndInfoSets.Ref AS Ref,
 		|	AdditionalAttributesAndInfoSets.PredefinedDataName AS PredefinedDataName
@@ -1815,7 +1815,7 @@ Procedure RestoreSettingsOfFormsWithAdditionalAttributes() Export
 		|WHERE
 		|	AdditionalAttributesAndInfoSets.IsFolder = FALSE
 		|	AND AdditionalAttributesAndInfoSets.PredefinedDataName IN(&PredefinedDataName)";
-	PredefinedDataTable = RequestingPredefinedSets.Execute().Unload();
+	PredefinedDataTable = RequestPredefinedSets.Execute().Unload();
 	For Each String In PredefinedDataTable Do
 		Try
 			PrefixLength = StrLen("Delete");
@@ -2169,9 +2169,9 @@ Procedure PrepareFormForDeferredInitialization(Form, ItemForPlacementName, Index
 		PlacementWarning = NStr("en = 'To show additional attributes, display the ""%1"" group under any other item in the ""%2"" group. To do so, click More — Change form.';");
 		PlacementWarning = StringFunctionsClientServer.SubstituteParametersToString(PlacementWarning,
 			PageHeader, PageGroupHeader1);
-		ToolTipText = NStr("en = 'You can also revert to the default form view:
-			| 1. On the ""More actions"" menu, click ""Change form"".
-			| 2. In the ""Customize form"" window, on the ""More actions"" menu, click ""Restore default settings"".';");
+		ToolTipText = NStr("en = 'To restore a form to the default settings, do the following:
+			| • Select More — Change form.
+			| • In the Customize form window that opens, select More actions — Restore default settings.';");
 			
 		Decoration.ToolTipRepresentation = ToolTipRepresentation.Button;
 		Decoration.Title  = PlacementWarning;

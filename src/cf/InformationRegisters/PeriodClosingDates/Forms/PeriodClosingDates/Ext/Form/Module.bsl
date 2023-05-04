@@ -2262,7 +2262,7 @@ Function ReadUserDataWithoutSections(Val User, Val SingleSection)
 		Query.SetParameter("User",           User);
 		Query.SetParameter("SingleSection",     SingleSection);
 		Query.SetParameter("CommonDatePresentation", CommonDatePresentationText());
-		// АПК:494-
+		// ACC:494-
 		// 
 		Query.Text =
 		"SELECT ALLOWED
@@ -2333,7 +2333,7 @@ Function HasInvalidObjectsByUsers(DataImportRestrictionDates)
 	
 	Query = New Query;
 	Query.SetParameter("DataImportRestrictionDates", DataImportRestrictionDates);
-	// АПК:1377-
+	// ACC:1377-
 	// 
 	Query.Text =
 	"SELECT ALLOWED

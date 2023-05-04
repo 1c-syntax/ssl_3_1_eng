@@ -382,8 +382,7 @@ EndFunction
 //       ** Encoding - String - encoding of the attachment (used if it differs from the encoding of the message).
 //       ** Id - String - (optional) used to mark images displayed in the message body.
 //
-//     * ReplyToAddress - Map
-//                   - String - see the description of the To field.
+//     * ReplyToAddress - String -
 //     * BasisIDs - String - IDs of the bases of this message.
 //     * ProcessTexts  - Boolean - the need to process the message texts when sending.
 //     * RequestDeliveryReceipt  - Boolean - need to request a delivery notification.

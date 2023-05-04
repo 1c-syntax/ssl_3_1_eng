@@ -236,7 +236,7 @@
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>The percentage to be added to the primary currency.</v8:content>
+											<v8:content>The percentage to be added to the base currency exchange rate.</v8:content>
 										</v8:item>
 									</ToolTip>
 									<ToolTipRepresentation>Button</ToolTipRepresentation>

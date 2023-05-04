@@ -9,7 +9,7 @@
 
 #Region Private
 
-// Creates a reminder for a time relative to the time in the topic.
+// Creates a reminder for a time relative to the time in the subject.
 Function AttachReminderTillSubjectTime(Text, Interval, SubjectOf, AttributeName, RepeatAnnually = False) Export
 	
 	Return UserRemindersInternal.AttachReminderTillSubjectTime(

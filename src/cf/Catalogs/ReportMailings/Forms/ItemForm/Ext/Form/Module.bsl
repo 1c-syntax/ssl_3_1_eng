@@ -39,6 +39,9 @@ Procedure OnReadAtServer(CurrentObject)
 		String.DoNotSendIfEmpty = Not String.SendIfEmpty;
 	EndDo;
 	
+	CreateAttributeItemEncryptionCertificate();
+	VisibilityAvailabilityOfCertificatesPasswords(ThisObject);
+	
 	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
@@ -91,8 +94,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.MailingEvents.Visible = False;
 	EndIf;
 	
-	CreateAttributeItemEncryptionCertificate();
-	
 	MailingBasis = Parameters.CopyingValue;
 	
 	// Used on import and write selected report settings.
@@ -101,6 +102,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Check cache.
 	IsNew = Object.Ref.IsEmpty();
 	CreatedByCopying = Not MailingBasis.IsEmpty();
+	
+	If IsNew Then
+		CreateAttributeItemEncryptionCertificate();
+	EndIf;
 	
 	// Add reports to tabular section.
 	If Parameters.Property("ReportsToAttach") And TypeOf(Parameters.ReportsToAttach) = Type("Array") Then
@@ -163,7 +168,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 					FTPPassword = PasswordHidden();
 					FTPPasswordChanged = True; // See this parameter processing in the OnWriteAtServer.
 				EndIf;
-				If Object.Personal And ReportMailing.CanEncryptAttachments() Then
+				If Object.Personal And CanEncryptAttachments Then
 					RecipientsCertificates = ReportMailing.GetEncryptionCertificatesForDistributionRecipients(Object.Author);
 					If RecipientsCertificates.Count() > 0 Then
 						ThisObject["CertificateToEncrypt"] = RecipientsCertificates[0].CertificateToEncrypt;
@@ -189,7 +194,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		SetPrivilegedMode(False);
 		ArchivePassword = ?(ValueIsFilled(Passwords.ArchivePassword), Passwords.ArchivePassword, "");
 		FTPPassword = ?(ValueIsFilled(Passwords.FTPPassword), PasswordHidden(), "");
-		If Object.Personal And ReportMailing.CanEncryptAttachments() Then
+		If Object.Personal And CanEncryptAttachments Then
 			RecipientsCertificates = ReportMailing.GetEncryptionCertificatesForDistributionRecipients(Object.Author);
 			If RecipientsCertificates.Count() > 0 Then
 				ThisObject["CertificateToEncrypt"] = RecipientsCertificates[0].CertificateToEncrypt;
@@ -615,7 +620,7 @@ Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		SetPrivilegedMode(False);
 	EndIf;
 	
-	If ReportMailing.CanEncryptAttachments() And EncryptionCertificateChanged Then
+	If CanEncryptAttachments And EncryptionCertificateChanged Then
 		InformationRegisters.CertificatesOfReportDistributionRecipients.SaveCertificateForDistributionRecipient(
 			Object.Author, ThisObject["CertificateToEncrypt"]);
 	EndIf;
@@ -2089,7 +2094,7 @@ Procedure CheckMailingAfterResponseToQuestion(Response, DeliveryParameters) Expo
 		DeliveryParameters.Folder = Object.Folder;
 	EndIf;
 	
-	// Network folder.
+	// Network directory.
 	If DeliveryParameters.UseNetworkDirectory Then
 		DeliveryParameters.NetworkDirectoryWindows = Object.NetworkDirectoryWindows;
 		DeliveryParameters.NetworkDirectoryLinux = Object.NetworkDirectoryLinux;
@@ -2530,15 +2535,7 @@ Procedure VisibilityAvailabilityCorrectness(Form, Changes = "")
 		Items.Account.AutoMarkIncomplete = Object.IsPrepared And Object.UseEmail;
 		
 	EndIf;
-	
-	If Changes = "" Or Changes = "BulkEmailType" Or Changes = "Archive" Then
-		#If Server Then
-			CanEncryptAttachments = ReportMailing.CanEncryptAttachments();
-		#Else
-			CanEncryptAttachments = ReportMailingClient.CanEncryptAttachments();
-		#EndIf	
-	EndIf;
-	
+		
 	If Changes = "" Or Changes = "BulkEmailType" Then
 		// Valid.
 		If Object.Personal And Object.Personalized Then
@@ -2608,7 +2605,7 @@ Procedure VisibilityAvailabilityCorrectness(Form, Changes = "")
 		Items.UseMailingRecipientInReport3Setting.Visible = Object.Personalized;
 		Items.UseMailingRecipientInReport4Setting.Visible = Object.Personalized;
 		
-		VisibilityAvailabilityOfCertificatesPasswords(Form, CanEncryptAttachments);		
+		VisibilityAvailabilityOfCertificatesPasswords(Form);
 	EndIf;
 	
 	If Changes = "" Or Changes = "Reports" Then
@@ -2688,7 +2685,7 @@ Procedure VisibilityAvailabilityCorrectness(Form, Changes = "")
 		Items.ArchiveName.Enabled           = Object.Archive;
 		Items.ArchivePassword.Enabled        = Object.Archive;
 		Items.CreateArchivePassword.Enabled = Object.Archive;
-		VisibilityAvailabilityOfCertificatesPasswords(Form, CanEncryptAttachments);
+		VisibilityAvailabilityOfCertificatesPasswords(Form);
 	EndIf;
 	
 	If Changes = "" Or Changes = "ExecuteOnSchedule" Then
@@ -2806,11 +2803,11 @@ Procedure VisibilityAvailabilityCorrectness(Form, Changes = "")
 EndProcedure
 
 &AtClientAtServerNoContext
-Procedure VisibilityAvailabilityOfCertificatesPasswords(Form, CanEncryptAttachments)
+Procedure VisibilityAvailabilityOfCertificatesPasswords(Form)
 	Object = Form.Object;
 	Items = Form.Items;
 
-	If CanEncryptAttachments Then
+	If Form.CanEncryptAttachments Then
 		If Object.Personalized Then
 			Items["GroupEncryptionCertificates"].Visible = False;
 			If Object.Archive Then
@@ -2820,6 +2817,10 @@ Procedure VisibilityAvailabilityOfCertificatesPasswords(Form, CanEncryptAttachme
 			EndIf;
 			Items.PasswordsEncryption.Visible   = True;
 			Items.GroupArchivePassword.Visible = False;
+			Items.PasswordsEncryption.ToolTipRepresentation = ToolTipRepresentation.Button;
+			Items.PasswordsEncryption.ExtendedTooltip.Title = NStr("en = 'Установка и настройка паролей и шифрования.
+				|При рассылке отчетов по электронной почте необходимо учитывать,
+				|что некоторые почтовые сервера могут не принимать зашифрованные файлы.';");
 		Else
 			Items["GroupEncryptionCertificates"].Visible = ?(Form.Object.Personal, True, False);
 			Items.GroupArchivePassword.Visible = True;
@@ -2831,9 +2832,14 @@ Procedure VisibilityAvailabilityOfCertificatesPasswords(Form, CanEncryptAttachme
 			Items.PasswordsEncryption.Visible   = True;
 			Items.GroupArchivePassword.Visible = False;
 			Items.PasswordsEncryption.Enabled = Object.Archive;
+			Items.PasswordsEncryption.ToolTipRepresentation = ToolTipRepresentation.Auto;
+			Items.PasswordsEncryption.ExtendedTooltip.Title = NStr("en = 'Установка и настройка паролей.';");
 		Else
 			Items.GroupArchivePassword.Visible = True;
 			Items.PasswordsEncryption.Visible = False;
+			If Items.Find("GroupEncryptionCertificates") <> Undefined Then
+				Items["GroupEncryptionCertificates"].Visible = False;
+			EndIf;
 		EndIf;
 	EndIf;
 
@@ -3163,15 +3169,11 @@ Procedure FillScheduleByOption(Variant, RefreshVisibility = False)
 	EndDo;
 	Schedule.Months = AllMonths;
 	
-	If Variant = 1 Then // 
-		Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.Daily;
-		
-	ElsIf Variant = 2 Then // 
-		Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.Daily;
+	Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.Daily; // Every day.
+	If Variant = 2 Then // 
 		Schedule.DaysRepeatPeriod = 2;
 		
 	ElsIf Variant = 3 Then // 
-		Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.Daily;
 		Schedule.DaysRepeatPeriod = 4;
 		
 	ElsIf Variant = 4 Then // 
@@ -3221,10 +3223,6 @@ Procedure FillScheduleByOption(Variant, RefreshVisibility = False)
 		
 	ElsIf Variant = 12 Then // "Другое..."
 		Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.CustomValue;
-	
-	Else
-		Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.Daily;
-		
 	EndIf;
 	
 	// On weekly basis.
@@ -3770,6 +3768,13 @@ EndProcedure
 Procedure CreateAttributeItemEncryptionCertificate()
 	
 	If Not ReportMailing.CanEncryptAttachments() Then
+		CanEncryptAttachments = False;
+		Return;
+	EndIf;
+	
+	CanEncryptAttachments = True;
+	
+	If Items.Find("GroupEncryptionCertificates") <> Undefined Then
 		Return;
 	EndIf;
 	
@@ -3796,6 +3801,9 @@ Procedure CreateAttributeItemEncryptionCertificate()
 	Item.Width = 70;
 	Item.Type = FormFieldType.InputField;
 	Item.SetAction("OnChange", "Attachable_EncryptionCertificateOnChange");
+	Item.ToolTipRepresentation = ToolTipRepresentation.Button;
+	Item.ExtendedTooltip.Title = NStr("en = 'При рассылке отчетов по электронной почте необходимо учитывать,
+		|что некоторые почтовые сервера могут не принимать зашифрованные файлы.';");
 
 EndProcedure
 

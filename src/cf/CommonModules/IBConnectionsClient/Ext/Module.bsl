@@ -66,12 +66,7 @@ EndProcedure
 //
 Procedure SetTerminateAllSessionsExceptCurrentFlag(Value) Export
 	
-	ParameterName = "StandardSubsystems.UserSessionTerminationParameters";
-	If ApplicationParameters[ParameterName] = Undefined Then
-		ApplicationParameters.Insert(ParameterName, New Structure);
-	EndIf;
-	
-	ApplicationParameters["StandardSubsystems.UserSessionTerminationParameters"].Insert("TerminateAllSessionsExceptCurrent", Value);
+	ClientParameters().TerminateAllSessionsExceptCurrent = Value;
 	
 EndProcedure
 
@@ -86,12 +81,7 @@ EndProcedure
 //
 Procedure SetUserTerminationInProgressFlag(Value) Export
 	
-	ParameterName = "StandardSubsystems.UserSessionTerminationParameters";
-	If ApplicationParameters[ParameterName] = Undefined Then
-		ApplicationParameters.Insert(ParameterName, New Structure);
-	EndIf;
-	
-	ApplicationParameters["StandardSubsystems.UserSessionTerminationParameters"].Insert("SessionTerminationInProgress", Value);
+	ClientParameters().SessionTerminationInProgress = Value;
 	
 EndProcedure
 
@@ -215,6 +205,18 @@ EndProcedure
 // See StandardSubsystemsClient.OnReceiptServerNotification
 Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
 	
+	CurrentSessionDate = CommonClient.SessionDate();
+	ClientParameters = ClientParameters();
+	ClientParameters.LockCheckLastDate = CurrentSessionDate;
+	
+	If Result.Use Then
+		ClientParameters.DateOfLastLockMessage = CurrentSessionDate;
+	Else
+		ClientParameters.DateOfLastLockMessage = '00010101';
+		ClearUserNotifications();
+		Return;
+	EndIf;
+	
 	If SessionTerminationInProgress() Then
 		If Not IsProcedureEndUserSessionsRunning() Then
 			CurrentMode = IBConnectionsServerCall.SessionLockParameters(True);
@@ -227,33 +229,46 @@ Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
 	
 EndProcedure
 
-// See CommonClientOverridable.BeforeRecurringClientDataSendToServer
-Procedure BeforeRecurringClientDataSendToServer(Parameters) Export
+// Parameters:
+//  Parameters - See CommonOverridable.ПередПериодическойОтправкойДанныхКлиентаНаСервер.Параметры
+//  AreNotificationsReceived - Boolean -
+//                                
+//
+Procedure BeforeRecurringClientDataSendToServer(Parameters, AreNotificationsReceived) Export
 	
-	AppParameterName = "StandardSubsystems.UserSessionTerminationParameters";
-	ClientParameters = ApplicationParameters[AppParameterName];
-	If ClientParameters = Undefined Then
-		ClientParameters = New Structure;
-		ApplicationParameters.Insert(AppParameterName, ClientParameters);
-	EndIf;
-	CurrentSessionDate = CommonClient.SessionDate();
-	If Not ClientParameters.Property("LastRepeatedCheckDate") Then
-		ClientParameters.Insert("LastRepeatedCheckDate", '00010101');
-	EndIf;
+	CurrentSessionDate = '00010101';
+	ServerNotificationsClient.TimeoutExpired("",,, CurrentSessionDate);
 	
-	If ClientParameters.LastRepeatedCheckDate + 60 > CurrentSessionDate Then
+	ClientParameters = ClientParameters();
+	
+	If Not ValueIsFilled(ClientParameters.LockCheckLastDate) Then
+		ClientParameters.LockCheckLastDate = CurrentSessionDate;
 		Return;
 	EndIf;
-	ClientParameters.LastRepeatedCheckDate = CurrentSessionDate;
-	
-	ParameterName = "StandardSubsystems.UsersSessions.SessionsLock";
 	
 	If SessionTerminationInProgress() Then
-		Parameters.Insert(ParameterName, True);
-		
+		Interval = 60;
 	ElsIf IsUserExitControlEnabled() Then
-		Parameters.Insert(ParameterName, False);
+		If ClientParameters.DateOfLastLockMessage + 300 > CurrentSessionDate Then
+			Interval = 60;
+		ElsIf AreNotificationsReceived Then
+			ClientParameters.LockCheckLastDate = CurrentSessionDate;
+			Return;
+		Else
+			Interval = 300;
+		EndIf;
+	Else
+		ClientParameters.LockCheckLastDate = CurrentSessionDate;
+		Return;
 	EndIf;
+	
+	If ClientParameters.LockCheckLastDate + Interval > CurrentSessionDate Then
+		Return;
+	EndIf;
+	ClientParameters.LockCheckLastDate = CurrentSessionDate;
+	
+	ParameterName = "StandardSubsystems.UsersSessions.SessionsLock";
+	Parameters.Insert(ParameterName, True);
 	
 EndProcedure
 
@@ -281,45 +296,59 @@ Function IsSubsystemUsed()
 	
 EndFunction
 
-Procedure SetUserExitControl(Value = True)
+// Returns:
+//  Structure:
+//   * TerminateAllSessionsExceptCurrent - Boolean
+//   * SessionTerminationInProgress - Boolean
+//   * ShouldControlUserExit - Boolean
+//   * AdministrationParameters - See StandardSubsystemsServer.AdministrationParameters
+//   * IsProcedureEndUserSessionsRunning - Boolean
+//   * LockCheckLastDate - Date
+//   * DateOfLastLockMessage - Date
+//
+Function ClientParameters()
 	
 	ParameterName = "StandardSubsystems.UserSessionTerminationParameters";
-	If ApplicationParameters[ParameterName] = Undefined Then
-		ApplicationParameters.Insert(ParameterName, New Structure);
+	ClientParameters = ApplicationParameters[ParameterName];
+	If ClientParameters <> Undefined Then
+		Return ClientParameters;
 	EndIf;
 	
-	ApplicationParameters["StandardSubsystems.UserSessionTerminationParameters"].Insert("ShouldControlUserExit", Value);
+	ClientParameters = New Structure;
+	ClientParameters.Insert("TerminateAllSessionsExceptCurrent", False);
+	ClientParameters.Insert("SessionTerminationInProgress", False);
+	ClientParameters.Insert("ShouldControlUserExit", False);
+	ClientParameters.Insert("AdministrationParameters", Undefined);
+	ClientParameters.Insert("IsProcedureEndUserSessionsRunning", False);
+	ClientParameters.Insert("LockCheckLastDate",    '00010101');
+	ClientParameters.Insert("DateOfLastLockMessage", '00010101');
+	
+	ApplicationParameters.Insert(ParameterName, ClientParameters);
+	Return ClientParameters;
+	
+EndFunction
+
+Procedure SetUserExitControl(Value = True)
+	
+	ClientParameters().ShouldControlUserExit = Value;
 	
 EndProcedure
 
 Function IsUserExitControlEnabled()
 	
-	UserSessionTerminationParameters = ApplicationParameters["StandardSubsystems.UserSessionTerminationParameters"];
-	
-	Return TypeOf(UserSessionTerminationParameters) = Type("Structure")
-		And UserSessionTerminationParameters.Property("ShouldControlUserExit")
-		And UserSessionTerminationParameters.ShouldControlUserExit;
+	Return ClientParameters().ShouldControlUserExit;
 	
 EndFunction
 
 Procedure SetIsProcedureEndUserSessionsRunning(Value = True)
 	
-	ParameterName = "StandardSubsystems.UserSessionTerminationParameters";
-	If ApplicationParameters[ParameterName] = Undefined Then
-		ApplicationParameters.Insert(ParameterName, New Structure);
-	EndIf;
-	
-	ApplicationParameters["StandardSubsystems.UserSessionTerminationParameters"].Insert("IsProcedureEndUserSessionsRunning", Value);
+	ClientParameters().IsProcedureEndUserSessionsRunning = Value;
 	
 EndProcedure
 
 Function IsProcedureEndUserSessionsRunning()
 	
-	UserSessionTerminationParameters = ApplicationParameters["StandardSubsystems.UserSessionTerminationParameters"];
-	
-	Return TypeOf(UserSessionTerminationParameters) = Type("Structure")
-		And UserSessionTerminationParameters.Property("IsProcedureEndUserSessionsRunning")
-		And UserSessionTerminationParameters.IsProcedureEndUserSessionsRunning;
+	Return ClientParameters().IsProcedureEndUserSessionsRunning;
 	
 EndFunction
 
@@ -330,7 +359,9 @@ Procedure SessionTerminationModeManagement(CurrentMode)
 
 	LockSet = CurrentMode.Use;
 	
-	If Not LockSet Then
+	If Not LockSet
+	 Or CurrentMode.Property("Parameter")
+	   And CurrentMode.Parameter = ServerNotificationsClient.SessionKey() Then
 		Return;
 	EndIf;
 		
@@ -392,12 +423,13 @@ Procedure EndUserSessions(CurrentMode)
 	CurrentMoment = CurrentMode.CurrentSessionDate;
 	SessionCount = CurrentMode.SessionCount;
 	
+	ClickNotification = New NotifyDescription("OpeningHandlerOfAppWorkBlockForm", ThisObject);
+	
 	If CurrentMoment < LockBeginTime Then
 		MessageText = NStr("en = 'The application will be temporarily unavailable since %1.';");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, LockBeginTime);
 		ShowUserNotification(NStr("en = 'Closing user sessions';"), 
-			"e1cib/app/DataProcessor.ApplicationLock", 
-			MessageText, PictureLib.Information32);
+			ClickNotification, MessageText, PictureLib.Information32);
 		Notify("UsersSessions",
 			New Structure("Status, SessionCount", "RefreshEnabled", SessionCount));
 		Return;
@@ -440,7 +472,7 @@ Procedure EndUserSessions(CurrentMode)
 	Except
 		SetUserTerminationInProgressFlag(False);
 			ShowUserNotification(NStr("en = 'Closing user sessions';"),
-			"e1cib/app/DataProcessor.ApplicationLock", 
+			ClickNotification,
 			NStr("en = 'Cannot close sessions. For more information, see the event log.';"),
 			PictureLib.Warning32);
 		EventLogClient.AddMessageForEventLog(EventLogEvent(),
@@ -452,7 +484,7 @@ Procedure EndUserSessions(CurrentMode)
 	
 	SetUserTerminationInProgressFlag(False);
 	ShowUserNotification(NStr("en = 'Closing user sessions';"),
-		"e1cib/app/DataProcessor.ApplicationLock", 
+		ClickNotification,
 		NStr("en = 'All user sessions are closed.';"),
 		PictureLib.Information32);
 	Notify("UsersSessions",
@@ -485,54 +517,49 @@ Procedure TerminateThisSession(OutputQuestion1 = True)
 	
 EndProcedure
 
+Procedure OpeningHandlerOfAppWorkBlockForm(Context) Export
+	
+	FullFormName = "DataProcessor.ApplicationLock.Form.InfobaseConnectionsLock";
+	
+	Windows = GetWindows();
+	For Each Window In Windows Do
+		For Each Form In Window.Content Do
+			If Form.FormName = FullFormName And Form.IsOpen() Then
+				Form.Activate();
+				Return;
+			EndIf;
+		EndDo;
+	EndDo;
+	
+	OpenForm(FullFormName);
+	
+EndProcedure
+
 ///////////////////////////////////////////////////////////////////////////////
 // Core subsystem event handlers.
 
 Function SessionTerminationInProgress() Export
 	
-	UserSessionTerminationParameters = ApplicationParameters["StandardSubsystems.UserSessionTerminationParameters"];
-	
-	Return TypeOf(UserSessionTerminationParameters) = Type("Structure")
-		And UserSessionTerminationParameters.Property("SessionTerminationInProgress")
-		And UserSessionTerminationParameters.SessionTerminationInProgress;
+	Return ClientParameters().SessionTerminationInProgress;
 	
 EndFunction
 
 Function TerminateAllSessionsExceptCurrent()
 	
-	UserSessionTerminationParameters = ApplicationParameters["StandardSubsystems.UserSessionTerminationParameters"];
-	
-	Return TypeOf(UserSessionTerminationParameters) = Type("Structure")
-		And UserSessionTerminationParameters.Property("TerminateAllSessionsExceptCurrent")
-		And UserSessionTerminationParameters.TerminateAllSessionsExceptCurrent;
+	Return ClientParameters().TerminateAllSessionsExceptCurrent;
 	
 EndFunction
 
 Function SavedAdministrationParameters()
 	
-	UserSessionTerminationParameters = ApplicationParameters["StandardSubsystems.UserSessionTerminationParameters"];
-	AdministrationParameters = Undefined;
-	
-	If TypeOf(UserSessionTerminationParameters) = Type("Structure")
-		And UserSessionTerminationParameters.Property("AdministrationParameters") Then
-		
-		AdministrationParameters = UserSessionTerminationParameters.AdministrationParameters;
-		
-	EndIf;
-		
-	Return AdministrationParameters;
+	Return ClientParameters().AdministrationParameters;
 	
 EndFunction
 
 Procedure SaveAdministrationParameters(Value) Export
 	
-	ParameterName = "StandardSubsystems.UserSessionTerminationParameters";
-	If ApplicationParameters[ParameterName] = Undefined Then
-		ApplicationParameters.Insert(ParameterName, New Structure);
-	EndIf;
+	ClientParameters().AdministrationParameters = Value;
 	
-	ApplicationParameters["StandardSubsystems.UserSessionTerminationParameters"].Insert("AdministrationParameters", Value);
-
 EndProcedure
 
 Procedure FillInClusterAdministrationParameters(StartupParameters)
@@ -607,7 +634,8 @@ Procedure ShowWarningOnExit(MessageText, LockBeginTime)
 	InformParameters = InformParameters(LockBeginTime);
 	If Not InformParameters.IsNotificationDisplayed Then
 		ShowUserNotification(NStr("en = 'The application will be closed';"),, MessageText,, 
-			UserNotificationStatus.Important);
+			UserNotificationStatus.Important, "UserSessionsEndControl");
+		InformParameters.IsNotificationDisplayed = True;
 	EndIf;
 	
 	If Not InformParameters.ShowWarningOrQuestion Then
@@ -634,8 +662,6 @@ Function InformParameters(LockBeginTime)
 		Properties.Insert("LastQuestionOrWarningDate", '00010101');
 		Properties.Insert("LockBeginTime", LockBeginTime);
 		ApplicationParameters.Insert(ParameterName, Properties);
-	Else
-		Properties.IsNotificationDisplayed = True;
 	EndIf;
 	
 	SessionDate = CommonClient.SessionDate();
@@ -650,12 +676,28 @@ Function InformParameters(LockBeginTime)
 	
 EndFunction
 
+Procedure ClearUserNotifications()
+	
+	ParameterName = "StandardSubsystems.WarningShownBeforeExit";
+	InformParameters = ApplicationParameters[ParameterName];
+	If InformParameters = Undefined
+	 Or Not InformParameters.IsNotificationDisplayed Then
+		Return;
+	EndIf;
+	InformParameters.IsNotificationDisplayed = False;
+	
+	ShowUserNotification(NStr("en = 'Closing the application is canceled';"),, ,,
+		UserNotificationStatus.Important, "UserSessionsEndControl");
+	
+EndProcedure
+
 Procedure AskOnTermination(MessageText, LockBeginTime)
 	
 	InformParameters = InformParameters(LockBeginTime);
 	If Not InformParameters.IsNotificationDisplayed Then
 		ShowUserNotification(NStr("en = 'The application will be closed';"),, MessageText,,
-			UserNotificationStatus.Important);
+			UserNotificationStatus.Important, "UserSessionsEndControl");
+		InformParameters.IsNotificationDisplayed = True;
 	EndIf;
 	
 	If Not InformParameters.ShowWarningOrQuestion Then

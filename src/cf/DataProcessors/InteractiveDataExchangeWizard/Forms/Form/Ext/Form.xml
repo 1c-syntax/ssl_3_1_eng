@@ -117,7 +117,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Select from available transport kinds</v8:content>
+											<v8:content>Select from available transport types</v8:content>
 										</v8:item>
 									</Title>
 									<Behavior>Usual</Behavior>
@@ -319,7 +319,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Get data</v8:content>
+									<v8:content>Receiving data</v8:content>
 								</v8:item>
 							</Title>
 							<Group>AlwaysHorizontal</Group>
@@ -2416,7 +2416,7 @@ data synchronization.</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Navigation start page</v8:content>
+									<v8:content>Navigation page start</v8:content>
 								</v8:item>
 							</Title>
 							<Group>AlwaysHorizontal</Group>
@@ -2499,7 +2499,7 @@ data synchronization.</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>End navigation page</v8:content>
+									<v8:content>Navigation page end</v8:content>
 								</v8:item>
 							</Title>
 							<Group>AlwaysHorizontal</Group>
@@ -3132,7 +3132,7 @@ data synchronization.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Additional information running</v8:content>
+					<v8:content>Additional progress details</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

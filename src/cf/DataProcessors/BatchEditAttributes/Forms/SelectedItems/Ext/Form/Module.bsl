@@ -50,14 +50,14 @@ Procedure SettingsComposerSettingsFilterOnStartEdit(Item, NewRow, Copy)
 	
 	DetachIdleHandler("UpdateSelectedCount");
 	DetachIdleHandler("UpdateSelectedList");
-	SelectionsAreBeingEdited = True;
+	IsFiltersBeingEdited = True;
 	
 EndProcedure
 
 &AtClient
 Procedure SettingsComposerSettingsFilterOnEditEnd(Item, NewRow, CancelEdit)
 	
-	SelectionsAreBeingEdited = False;
+	IsFiltersBeingEdited = False;
 	InitializeSelectedListUpdate();
 	
 EndProcedure
@@ -80,8 +80,8 @@ EndProcedure
 &AtClient
 Procedure SettingsComposerSettingsFilterOnActivateRow(Item)
 	
-	NumberOfSelectionElements = NumberOfSelectionElements(SettingsComposer.Settings.Filter.Items);
-	If NumberOfConditions <> NumberOfSelectionElements Then
+	FilterItemsCount = FilterItemsCount(SettingsComposer.Settings.Filter.Items);
+	If NumberOfConditions <> FilterItemsCount Then
 		InitializeSelectedListUpdate();
 	EndIf; 
 	
@@ -204,11 +204,11 @@ Procedure InitializeSelectedListUpdate()
 	
 	DetachIdleHandler("UpdateSelectedList");
 
-	If SelectionsAreBeingEdited Then
+	If IsFiltersBeingEdited Then
 		Return;
 	EndIf;
 	
-	NumberOfConditions = NumberOfSelectionElements(SettingsComposer.Settings.Filter.Items);
+	NumberOfConditions = FilterItemsCount(SettingsComposer.Settings.Filter.Items);
 	
 	If Items.SelectedObjectsGroup.Visible Then
 		AttachIdleHandler("UpdateSelectedList", 1, True);
@@ -273,14 +273,14 @@ Function TrimStringUsingChecksum(String, MaxLength)
 EndFunction
 
 &AtClient
-Function NumberOfSelectionElements(CollectionOfSelectionElements)
+Function FilterItemsCount(CollectionOfSelectionElements)
 	
 	Result = 0;
 	
 	For Each Item In CollectionOfSelectionElements Do
 		Result = Result + 1;
 		If TypeOf(Item) = Type("DataCompositionFilterItemGroup") Then
-			Result = Result + NumberOfSelectionElements(Item.Items);
+			Result = Result + FilterItemsCount(Item.Items);
 		EndIf;
 	EndDo;
 	

@@ -288,13 +288,16 @@ EndFunction
 // 
 //
 // Parameters:
-//  IBUser - InfoBaseUser
-//  Interactively   - Boolean -
+//  IBUser      - InfoBaseUser
+//  Interactively        - Boolean -
+//                          
+//  LaunchRightsOnly - Boolean -
+//                          
 //
 // Returns:
 //  Boolean
 //
-Function HasRightsToLogIn(IBUser, Interactively = True) Export
+Function HasRightsToLogIn(IBUser, Interactively = True, LaunchRightsOnly = True) Export
 	
 	Result =
 		    AccessRight("ThinClient",    Metadata, IBUser)
@@ -306,6 +309,13 @@ Function HasRightsToLogIn(IBUser, Interactively = True) Export
 		Result = Result
 			Or AccessRight("Automation",        Metadata, IBUser)
 			Or AccessRight("ExternalConnection", Metadata, IBUser);
+	EndIf;
+	
+	If Not LaunchRightsOnly Then
+		// ACC:515-
+		Result = Result And RolesAvailable("BasicSSLRights,
+			|BasicSSLRightsForExternalUsers", IBUser, False);
+		// 
 	EndIf;
 	
 	Return Result;

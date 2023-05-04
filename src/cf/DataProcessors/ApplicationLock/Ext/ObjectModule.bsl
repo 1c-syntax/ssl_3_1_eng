@@ -51,7 +51,7 @@ Procedure GetLockParameters() Export
 		// 
 		// 
 		// 
-		LockEffectiveFrom     = BegOfMinute(CurrentSessionDate() + 5 * 60);
+		LockEffectiveFrom     = BegOfMinute(CurrentSessionDate() + 15 * 60);
 	EndIf;
 	
 EndProcedure
@@ -61,6 +61,7 @@ Procedure ExecuteSetLock(Value)
 	If Users.IsFullUser(, True) Then
 		Block = New SessionsLock;
 		Block.KeyCode    = UnlockCode;
+		Block.Parameter = ServerNotifications.SessionKey();
 	Else
 		Block = IBConnections.NewConnectionLockParameters();
 	EndIf;
@@ -73,6 +74,10 @@ Procedure ExecuteSetLock(Value)
 	
 	If Users.IsFullUser(, True) Then
 		SetSessionsLock(Block);
+		
+		SetPrivilegedMode(True);
+		IBConnections.SendServerNotificationAboutLockSet();
+		SetPrivilegedMode(False);
 	Else
 		IBConnections.SetDataAreaSessionLock(Block);
 	EndIf;

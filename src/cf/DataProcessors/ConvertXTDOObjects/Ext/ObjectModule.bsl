@@ -388,7 +388,7 @@ Procedure RunDataImport(ImportParameters = Undefined) Export
 	Except
 		DataExchangeInternal.DisableAccessKeysUpdate(False);
 		Information = ErrorInfo();
-		MessageString = NStr("en = 'Cannot import data: %1';");
+		MessageString = NStr("en = 'Data import error: %1';");
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(
 			MessageString, ErrorProcessing.DetailErrorDescription(Information));
 		DataExchangeXDTOServer.WriteToExecutionProtocol(ExchangeComponents, MessageString, , , , , True);
@@ -489,7 +489,7 @@ Procedure ExecuteDataImportForInfobase(TablesToImport) Export
 		DataExchangeXDTOServer.RunReadingData(ExchangeComponents, TablesToImport);
 	Except
 		Information = ErrorInfo();
-		MessageString = NStr("en = 'Cannot import data: %1';");
+		MessageString = NStr("en = 'Data import error: %1';");
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(
 			MessageString, ErrorProcessing.DetailErrorDescription(Information));
 		DataExchangeXDTOServer.WriteEventLogDataExchange1(MessageString, ExchangeComponents, EventLogLevel.Error);

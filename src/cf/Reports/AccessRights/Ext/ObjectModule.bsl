@@ -35,58 +35,17 @@ Procedure DefineFormSettings(Form, VariantKey, Settings) Export
 	
 EndProcedure
 
-// Called before importing new settings. Used to change composition schema.
-//   For example, if the report schema depends on the option key or report parameters.
-//   For the schema changes to take effect, call the ReportsServer.AttachSchema() method.
+// 
 //
 // Parameters:
-//   Context - Arbitrary - 
-//       The context parameters where the report is used.
-//       Used to pass the ReportsServer.AttachSchema() method in the parameters.
-//   SchemaKey - String -
-//       An ID of the current setting composer schema.
-//       It is not filled in by default (that means, the composer is initialized according to the main schema).
-//       Used for optimization, to reinitialize composer as rarely as possible.
-//       It is possible not to use it if the initialization is running unconditionally.
+//   Context - Arbitrary
+//   SchemaKey - String
 //   VariantKey - String
-//                - Undefined -
-//       
-//       
+//                - Undefined
 //   NewDCSettings - DataCompositionSettings
-//                    - Undefined -
-//       
-//       
+//                    - Undefined
 //   NewDCUserSettings - DataCompositionUserSettings
-//                                    - Undefined -
-//       
-//       
-//
-// Example:
-//  // The report composer is initialized based on the schema from common templates:
-//	If SchemaKey <> "1" Then
-//		SchemaKey = "1";
-//		DCSchema = GetCommonTemplate("MyCommonCompositionSchema");
-//		ReportsServer.EnableSchema(ThisObject, Context, DCSchema, SchemaKey);
-//	EndIf;
-//
-//  // The schema depends on the parameter value that is displayed in the report user settings:
-//	If TypeOf(NewDCSettings) = Type("DataCompositionUserSettings") Then
-//		FullMetadataObjectName = "";
-//		For Each DCItem From NewDCUserSettings.Items Do
-//			If TypeOf(DCItem) = Type("DataCompositionSettingsParameterValue") Then
-//				ParameterName = String(DCItem.Parameter);
-//				If ParameterName = "MetadataObject" Then
-//					FullMetadataObjectName = DCItem.Value;
-//				EndIf;
-//			EndIf;
-//		EndDo;
-//		If SchemaKey <> FullMetadataObjectName Then
-//			SchemaKey = FullMetadataObjectName;
-//			DCSchema = New DataCompositionSchema;
-//			// Filling the schema…
-//			ReportsServer.EnableSchema(ThisObject, Context, DCSchema, SchemaKey);
-//		EndIf;
-//	EndIf;
+//                                    - Undefined
 //
 Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSettings, NewDCUserSettings) Export
 	
@@ -106,20 +65,10 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 	
 EndProcedure
 
-// The list of registers and other metadata objects, by which the report is generated.
-//   It is used to check if the report can contain non-updated data.
-//
 // Parameters:
 //   VariantKey - String
-//                - Undefined -
-//       
-//       
-//   TablesToUse - Array - 
-//       Full metadata object names (names of registers, documents, and other tables)
-//       whose data is displayed in the report.
-//
-// Example:
-//	TablesToUse.Add(Metadata.Documents._DemoSalesOrder.FullName());
+//                - Undefined
+//   TablesToUse - Array of String
 //
 Procedure OnDefineUsedTables(VariantKey, TablesToUse) Export
 	
@@ -257,7 +206,7 @@ Function SelectInfoOnAccessRights(Val AvailableRights, Val OutputGroupRights, Va
 	Query.SetParameter("RightsSettingsOwnersTypes", AvailableRights.OwnersTypes);
 	Query.SetParameter("ExtensionsRolesRights", AccessManagementInternal.ExtensionsRolesRights());
 	
-	// АПК:96-
+	// ACC:96-
 	// 
 	Query.Text =
 	"SELECT
@@ -806,7 +755,7 @@ Function SelectInfoOnAccessRights(Val AvailableRights, Val OutputGroupRights, Va
 	|	AccessKindsAndValues.AccessValue AS AccessValue
 	|FROM
 	|	AccessKindsAndValues AS AccessKindsAndValues";
-	// АПК:96-
+	// ACC:96-
 	
 	Return Query.ExecuteBatch();
 

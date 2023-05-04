@@ -2142,7 +2142,7 @@ Please wait…</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Command bar navigation waiting left</v8:content>
+									<v8:content>Command bar navigation end left</v8:content>
 								</v8:item>
 							</Title>
 							<ExtendedTooltip name="EndNavigationLeftCommandBarExtendedTooltip" id="59"/>
@@ -2158,7 +2158,7 @@ Please wait…</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Command bar navigation waiting right</v8:content>
+									<v8:content>Command bar navigation end right</v8:content>
 								</v8:item>
 							</Title>
 							<HorizontalLocation>Right</HorizontalLocation>

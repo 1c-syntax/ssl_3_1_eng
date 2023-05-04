@@ -165,7 +165,7 @@ Function EmailsSendingReceivingResult(ExecutionResult)
 	ElsIf ExecutionResult.EmailsReceived1 > 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Received: %1';"), 
 			ExecutionResult.EmailsReceived1);
-	ElsIf ExecutionResult.EmailsReceived1 > 0 Then
+	ElsIf ExecutionResult.SentEmails1 > 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Sent: %1';"), 
 			ExecutionResult.SentEmails1);
 	Else

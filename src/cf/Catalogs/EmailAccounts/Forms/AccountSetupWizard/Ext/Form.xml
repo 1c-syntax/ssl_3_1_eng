@@ -72,7 +72,7 @@
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Question picture</v8:content>
+											<v8:content>Picture Question</v8:content>
 										</v8:item>
 									</Title>
 									<Picture>
@@ -821,7 +821,7 @@ Fill in the following fields from the application registration settings:
 							<ContextMenu name="ApplicationPasswordContextMenu" id="319"/>
 							<ExtendedTooltip name="ApplicationPasswordExtendedTooltip" id="320"/>
 						</InputField>
-						<LabelDecoration name="AdditionalExplanation" id="420">
+						<LabelDecoration name="AdditionalNote" id="420">
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<MaxWidth>50</MaxWidth>
 							<AutoMaxHeight>false</AutoMaxHeight>
@@ -831,8 +831,8 @@ Fill in the following fields from the application registration settings:
 									<v8:content>In some services, a new registered application does not become available immediately. Before you continue the setup after registration, wait a few minutes.</v8:content>
 								</v8:item>
 							</Title>
-							<ContextMenu name="AdditionalExplanationContextMenu" id="421"/>
-							<ExtendedTooltip name="AdditionalExplanationExtendedTooltip" id="422"/>
+							<ContextMenu name="AdditionalNoteContextMenu" id="421"/>
+							<ExtendedTooltip name="AdditionalNoteExtendedTooltip" id="422"/>
 						</LabelDecoration>
 					</ChildItems>
 				</Page>
@@ -966,7 +966,7 @@ This might take a while.</v8:content>
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Picture question</v8:content>
+									<v8:content>Picture Question</v8:content>
 								</v8:item>
 							</Title>
 							<Picture>
@@ -981,7 +981,7 @@ This might take a while.</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Errors found</v8:content>
+									<v8:content>Errors found during the test</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Vertical</Group>
@@ -1066,7 +1066,7 @@ This might take a while.</v8:content>
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Success picture</v8:content>
+											<v8:content>Picture Success</v8:content>
 										</v8:item>
 									</Title>
 									<Picture>
@@ -1099,7 +1099,7 @@ jdoe@example.com is completed.</v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Test failed</v8:content>
+							<v8:content>Errors found during the test</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="ErrorsFoundOnCheckExtendedTooltip" id="394"/>
@@ -1121,7 +1121,7 @@ jdoe@example.com is completed.</v8:content>
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Picture errors found</v8:content>
+											<v8:content>Picture Errors found during the test</v8:content>
 										</v8:item>
 									</Title>
 									<Picture>

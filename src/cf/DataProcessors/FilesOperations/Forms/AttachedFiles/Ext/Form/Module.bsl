@@ -105,34 +105,15 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		HasRightToAdd = False;
 	EndIf;
 	
+	FormButtonItemNames = DefineNamesOfFormButtonElements(); 
 	ReadOnly = Not AccessRight("Edit", MetadataOfCatalogWithFiles);
-	
 	If ReadOnly Then
 		HideChangeButtons();
 	EndIf;
 	
-	NamesOfFormCommands = NamesOfFormCommands();
-	ItemsNames = New Array;
-	
-	For Each FormItem In Items Do
-		
-		If TypeOf(FormItem) <> Type("FormButton") Then
-			Continue;
-		EndIf;
-		
-		If NamesOfFormCommands.Find(FormItem.CommandName) <> Undefined
-			Or NamesOfFormCommands.Find(FormItem.Name) <> Undefined Then
-				ItemsNames.Add(FormItem.Name);
-		EndIf;
-		
-	EndDo;
-	
-	FormButtonItemNames = New FixedArray(ItemsNames);
-	
 	OnChangeUseOfSigningOrEncryptionAtServer();
 	
-	UsePreview1 = Common.CommonSettingsStorageLoad(
-		FileCatalogType, "Preview");
+	UsePreview1 = Common.CommonSettingsStorageLoad(FileCatalogType, "Preview");
 	If UsePreview1 <> Undefined Then
 		Preview = UsePreview1;
 	EndIf;
@@ -1368,15 +1349,11 @@ EndProcedure
 &AtServer
 Procedure HideChangeButtons()
 	
-	CommandsNames = GetCommandsNamesOfObjectsChange();
-	
-	For Each FormItem In Items Do
+	CommandsNames = NamesOfObjectModificationCommands();
+	For Each FormItemName In FormButtonItemNames Do
 		
-		If TypeOf(FormItem) <> Type("FormButton") Then
-			Continue;
-		EndIf;
-		
-		If CommandsNames.Find(FormItem.CommandName) <> Undefined Then
+		FormItem = Items.Find(FormItemName);
+		If CommandsNames[FormItem.CommandName] <> Undefined Then
 			FormItem.Visible = False;
 		EndIf;
 		
@@ -1384,20 +1361,41 @@ Procedure HideChangeButtons()
 	
 EndProcedure
 
+&AtServer
+Function DefineNamesOfFormButtonElements()
+	
+	NamesOfFormCommands = NamesOfFormCommands();
+	ItemsNames = New Array;
+	
+	For Each FormItem In Items Do
+		
+		If TypeOf(FormItem) <> Type("FormButton") Then
+			Continue;
+		EndIf;
+		
+		If NamesOfFormCommands[FormItem.CommandName] <> Undefined 
+			Or NamesOfFormCommands[FormItem.Name] <> Undefined Then
+			ItemsNames.Add(FormItem.Name);
+		EndIf;
+		
+	EndDo;
+	Return New FixedArray(ItemsNames);
+	
+EndFunction
+
 &AtClient
 Procedure SetFileCommandsAvailability(Result = Undefined, ExecutionParameters = Undefined) Export
 	
 	CurrentData = CurrentData();
 	
-	CommandsNames = New Array;
-	If CurrentData = Undefined
-		And Not FilesBeingEditedInCloudService Then
+	CommandsNames = New Map;
+	If CurrentData = Undefined And Not FilesBeingEditedInCloudService Then
 		
-		CommandsNames.Add("Add");
-		CommandsNames.Add("AddFileFromScanner");
-		CommandsNames.Add("AddFileByTemplate");
-		CommandsNames.Add("ImportFiles");
-		CommandsNames.Add("ImportFolder");
+		CommandsNames.Insert("Add", True);
+		CommandsNames.Insert("AddFileFromScanner", True);
+		CommandsNames.Insert("AddFileByTemplate", True);
+		CommandsNames.Insert("ImportFiles", True);
+		CommandsNames.Insert("ImportFolder", True);
 		
 	ElsIf CurrentData <> Undefined And TypeOf(Items.List.CurrentRow) = FileCatalogType Then
 		
@@ -1406,7 +1404,7 @@ Procedure SetFileCommandsAvailability(Result = Undefined, ExecutionParameters = 
 			CurrentData.CurrentUserEditsFile,
 			CurrentData.EditedByUser);
 			
-		CommandsNames = GetAvailableCommands(CurrentData, FilesBeingEditedInCloudService,
+		CommandsNames = AvailableCommands(CurrentData, FilesBeingEditedInCloudService,
 			AbilityToUnlockFile, UsersClient.AuthorizedUser());
 			
 	EndIf;
@@ -1420,9 +1418,7 @@ Procedure SetFileCommandsAvailability(Result = Undefined, ExecutionParameters = 
 	For Each FormItemName In FormButtonItemNames Do
 		
 		FormItem = Items.Find(FormItemName);
-		
-		If CommandsNames.Find(FormItem.CommandName) <> Undefined
-			Or CommandsNames.Find(FormItem.Name) <> Undefined Then
+		If CommandsNames[FormItem.CommandName] = True Or CommandsNames[FormItem.Name] = True Then
 			
 			If Not FormItem.Enabled Then
 				FormItem.Enabled = True;
@@ -1551,75 +1547,64 @@ EndProcedure
 &AtClientAtServerNoContext
 Function NamesOfFormCommands()
 	
-	CommandsNames = GetCommandsNamesOfObjectsChange();
-	For Each CommandName In GetSimpleObjectCommandNames() Do
-		CommandsNames.Add(CommandName);
-	EndDo;
+	Result = NamesOfObjectModificationCommands();
+
+	// 
+	Result.Insert("OpenFileDirectory", True);
+	Result.Insert("OpenFileForViewing", True);
+	Result.Insert("SaveAs", True);
 	
-	Return CommandsNames;
+	Return Result;
 	
 EndFunction
 
 &AtClientAtServerNoContext
-Function GetCommandsNamesOfObjectsChange()
+Function NamesOfObjectModificationCommands()
 	
-	CommandsNames = New Array;
-	
-	// 
-	CommandsNames.Add("EndEdit");
-	CommandsNames.Add("Lock");
-	CommandsNames.Add("Release");
-	CommandsNames.Add("Edit");
-	CommandsNames.Add("SetDeletionMark");
-	CommandsNames.Add("Delete");
-	CommandsNames.Add("ContextMenuMarkForDeletion");
-	
-	CommandsNames.Add("Sign");
-	CommandsNames.Add("AddDSFromFile");
-	CommandsNames.Add("SaveWithDigitalSignature");
-	
-	CommandsNames.Add("Encrypt");
-	CommandsNames.Add("Decrypt");
-	
-	CommandsNames.Add("Print");
-	CommandsNames.Add("PrintWithStamp");
-	
-	CommandsNames.Add("Send");
-	
-	CommandsNames.Add("UpdateFromFileOnHardDrive");
+	Result = New Map;
 	
 	// 
-	CommandsNames.Add("Add");
-	CommandsNames.Add("AddFromFileOnHardDrive");
-	CommandsNames.Add("AddFileByTemplate");
-	CommandsNames.Add("AddFileFromScanner");
-	CommandsNames.Add("OpenFileProperties");
-	CommandsNames.Add("Copy");
-	CommandsNames.Add("ImportFiles");
-	CommandsNames.Add("ImportFolder");
+	Result.Insert("EndEdit", True);
+	Result.Insert("Lock", True);
+	Result.Insert("Release", True);
+	Result.Insert("Edit", True);
+	Result.Insert("SetDeletionMark", True);
+	Result.Insert("Delete", True);
+	Result.Insert("ContextMenuMarkForDeletion", True);
 	
-	CommandsNames.Add("MoveToGroup");
+	Result.Insert("Sign", True);
+	Result.Insert("AddDSFromFile", True);
+	Result.Insert("SaveWithDigitalSignature", True);
 	
-	Return CommandsNames;
+	Result.Insert("Encrypt", True);
+	Result.Insert("Decrypt", True);
+	
+	Result.Insert("Print", True);
+	Result.Insert("PrintWithStamp", True);
+	
+	Result.Insert("Send", True);
+	
+	Result.Insert("UpdateFromFileOnHardDrive", True);
+	
+	// 
+	Result.Insert("Add", True);
+	Result.Insert("AddFromFileOnHardDrive", True);
+	Result.Insert("AddFileByTemplate", True);
+	Result.Insert("AddFileFromScanner", True);
+	Result.Insert("OpenFileProperties", True);
+	Result.Insert("Copy", True);
+	Result.Insert("ImportFiles", True);
+	Result.Insert("ImportFolder", True);
+	
+	Result.Insert("MoveToGroup", True);
+	
+	Return Result;
 	
 EndFunction
 
 &AtClientAtServerNoContext
-Function GetSimpleObjectCommandNames()
-	
-	CommandsNames = New Array;
-	
-	// 
-	CommandsNames.Add("OpenFileDirectory");
-	CommandsNames.Add("OpenFileForViewing");
-	CommandsNames.Add("SaveAs");
-	
-	Return CommandsNames;
-	
-EndFunction
-
-&AtClientAtServerNoContext
-Function GetAvailableCommands(CurrentFileData, FilesBeingEditedInCloudService, AbilityToUnlockFile, AuthorizedUser)
+Function AvailableCommands(CurrentFileData, FilesBeingEditedInCloudService, AbilityToUnlockFile, 
+	AuthorizedUser)
 	
 	CommandsNames = NamesOfFormCommands();
 	
@@ -1632,134 +1617,118 @@ Function GetAvailableCommands(CurrentFileData, FilesBeingEditedInCloudService, A
 	If FileBeingEdited Then
 		
 		If CurrentUserEditsFile Then
-			DeleteCommandFromArray(CommandsNames, "UpdateFromFileOnHardDrive");
+			CommandsNames["UpdateFromFileOnHardDrive"] = False;
 		Else
-			DeleteCommandFromArray(CommandsNames, "EndEdit");
+			CommandsNames["EndEdit"] = False;
 			If Not AbilityToUnlockFile Then
-				DeleteCommandFromArray(CommandsNames, "Release");
+				CommandsNames["Release"] = False;
 			EndIf;
-			DeleteCommandFromArray(CommandsNames, "Edit");
+			CommandsNames["Edit"] = False;
 		EndIf;
 		
-		DeleteCommandFromArray(CommandsNames, "Lock");
-		DeleteCommandFromArray(CommandsNames, "SetDeletionMark");
-		DeleteCommandFromArray(CommandsNames, "ContextMenuMarkForDeletion");
-		DeleteDSCommands(CommandsNames);
+		CommandsNames["Lock"] = False;
+		CommandsNames["SetDeletionMark"] = False;
+		CommandsNames["ContextMenuMarkForDeletion"] = False;
+
+		CommandsNames["Sign"] = False;
+		CommandsNames["AddDSFromFile"] = False;
+		CommandsNames["SaveWithDigitalSignature"] = False;
 		
-		DeleteCommandFromArray(CommandsNames, "UpdateFromFileOnHardDrive");
-		DeleteCommandFromArray(CommandsNames, "SaveAs");
+		CommandsNames["UpdateFromFileOnHardDrive"] = False;
+		CommandsNames["SaveAs"] = False;
 		
-		DeleteCommandFromArray(CommandsNames, "Encrypt");
-		DeleteCommandFromArray(CommandsNames, "Decrypt");
+		CommandsNames["Encrypt"] = False;
+		CommandsNames["Decrypt"] = False;
 		
-		DeleteCommandFromArray(CommandsNames, "Delete");
+		CommandsNames["Delete"] = False;
 		
 	Else
-		DeleteCommandFromArray(CommandsNames, "EndEdit");
-		DeleteCommandFromArray(CommandsNames, "Release");
+		CommandsNames["EndEdit"] = False;
+		CommandsNames["Release"] = False;
 	EndIf;
 	
 	If CurrentFileData.IsFolder Then
-		DeleteCommandFromArray(CommandsNames, "Edit");
-		DeleteCommandFromArray(CommandsNames, "Sign");
-		DeleteCommandFromArray(CommandsNames, "AddDSFromFile");
-		DeleteCommandFromArray(CommandsNames, "SaveWithDigitalSignature");
-		DeleteCommandFromArray(CommandsNames, "Encrypt");
-		DeleteCommandFromArray(CommandsNames, "Decrypt");
-		DeleteCommandFromArray(CommandsNames, "UpdateFromFileOnHardDrive");
-		DeleteCommandFromArray(CommandsNames, "Copy");
-		DeleteCommandFromArray(CommandsNames, "OpenFileDirectory");
-		DeleteCommandFromArray(CommandsNames, "OpenFileForViewing");
-		DeleteCommandFromArray(CommandsNames, "SaveAs");
-		DeleteCommandFromArray(CommandsNames, "Lock");
-		DeleteCommandFromArray(CommandsNames, "Send");
-		DeleteCommandFromArray(CommandsNames, "PrintWithStamp");
-		DeleteCommandFromArray(CommandsNames, "Print");
-		DeleteCommandFromArray(CommandsNames, "Delete");
+		CommandsNames["Edit"] = False;
+		CommandsNames["Sign"] = False;
+		CommandsNames["AddDSFromFile"] = False;
+		CommandsNames["SaveWithDigitalSignature"] = False;
+		CommandsNames["Encrypt"] = False;
+		CommandsNames["Decrypt"] = False;
+		CommandsNames["UpdateFromFileOnHardDrive"] = False;
+		CommandsNames["Copy"] = False;
+		CommandsNames["OpenFileDirectory"] = False;
+		CommandsNames["OpenFileForViewing"] = False;
+		CommandsNames["SaveAs"] = False;
+		CommandsNames["Lock"] = False;
+		CommandsNames["Send"] = False;
+		CommandsNames["PrintWithStamp"] = False;
+		CommandsNames["Print"] = False;
+		CommandsNames["Delete"] = False;
 	EndIf;
 	
 	If FileSigned Then
-		DeleteCommandFromArray(CommandsNames, "EndEdit");
-		DeleteCommandFromArray(CommandsNames, "Release");
-		DeleteCommandFromArray(CommandsNames, "Edit");
-		DeleteCommandFromArray(CommandsNames, "UpdateFromFileOnHardDrive");
-		DeleteCommandFromArray(CommandsNames, "Lock");
+		CommandsNames["EndEdit"] = False;
+		CommandsNames["Release"] = False;
+		CommandsNames["Edit"] = False;
+		CommandsNames["UpdateFromFileOnHardDrive"] = False;
+		CommandsNames["Lock"] = False;
 	EndIf;
 	
 	If FileEncrypted Then
-		DeleteDSCommands(CommandsNames);
-		DeleteCommandFromArray(CommandsNames, "EndEdit");
-		DeleteCommandFromArray(CommandsNames, "Release");
-		DeleteCommandFromArray(CommandsNames, "Edit");
-		DeleteCommandFromArray(CommandsNames, "Lock");
+		CommandsNames["Sign"] = False;
+		CommandsNames["AddDSFromFile"] = False;
+		CommandsNames["SaveWithDigitalSignature"] = False;
 		
-		DeleteCommandFromArray(CommandsNames, "UpdateFromFileOnHardDrive");
+		CommandsNames["EndEdit"] = False;
+		CommandsNames["Release"] = False;
+		CommandsNames["Edit"] = False;
+		CommandsNames["Lock"] = False;
 		
-		DeleteCommandFromArray(CommandsNames, "Encrypt");
+		CommandsNames["UpdateFromFileOnHardDrive"] = False;
 		
-		DeleteCommandFromArray(CommandsNames, "OpenFileDirectory");
-		DeleteCommandFromArray(CommandsNames, "OpenFileForViewing");
-		DeleteCommandFromArray(CommandsNames, "SaveAs");
+		CommandsNames["Encrypt"] = False;
+		
+		CommandsNames["OpenFileDirectory"] = False;
+		CommandsNames["OpenFileForViewing"] = False;
+		CommandsNames["SaveAs"] = False;
 	Else
-		DeleteCommandFromArray(CommandsNames, "Decrypt");
+		CommandsNames["Decrypt"] = False;
 	EndIf;
 	
 	If FilesBeingEditedInCloudService Then
 		
-		DeleteCommandFromArray(CommandsNames, "Add");
-		DeleteCommandFromArray(CommandsNames, "AddFromFileOnHardDrive");
-		DeleteCommandFromArray(CommandsNames, "AddFileByTemplate");
-		DeleteCommandFromArray(CommandsNames, "AddFileFromScanner");
-		DeleteCommandFromArray(CommandsNames, "Copy");
+		CommandsNames["Add"] = False;
+		CommandsNames["AddFromFileOnHardDrive"] = False;
+		CommandsNames["AddFileByTemplate"] = False;
+		CommandsNames["AddFileFromScanner"] = False;
+		CommandsNames["Copy"] = False;
 		
-		DeleteCommandFromArray(CommandsNames, "CreateFolder");
-		DeleteCommandFromArray(CommandsNames, "MoveToGroup");
-		DeleteCommandFromArray(CommandsNames, "SetDeletionMark");
-		DeleteCommandFromArray(CommandsNames, "ContextMenuMarkForDeletion");
-		DeleteCommandFromArray(CommandsNames, "Lock");
-		DeleteCommandFromArray(CommandsNames, "Release");
+		CommandsNames["CreateFolder"] = False;
+		CommandsNames["MoveToGroup"] = False;
+		CommandsNames["SetDeletionMark"] = False;
+		CommandsNames["ContextMenuMarkForDeletion"] = False;
+		CommandsNames["Lock"] = False;
+		CommandsNames["Release"] = False;
 		
-		DeleteCommandFromArray(CommandsNames, "ImportFiles");
-		DeleteCommandFromArray(CommandsNames, "ImportFolder");
+		CommandsNames["ImportFiles"] = False;
+		CommandsNames["ImportFolder"] = False;
 		
-		DeleteCommandFromArray(CommandsNames, "Delete");
+		CommandsNames["Delete"] = False;
 		
-		DeleteCommandFromArray(CommandsNames, "Sign");
-		DeleteCommandFromArray(CommandsNames, "AddDSFromFile");
-		DeleteCommandFromArray(CommandsNames, "Encrypt");
-		DeleteCommandFromArray(CommandsNames, "Decrypt");
+		CommandsNames["Sign"] = False;
+		CommandsNames["AddDSFromFile"] = False;
+		CommandsNames["Encrypt"] = False;
+		CommandsNames["Decrypt"] = False;
 		
 	EndIf;
 	
 	If Not CurrentUserIsAuthor Then
-		DeleteCommandFromArray(CommandsNames, "Delete");
+		CommandsNames["Delete"] = False;
 	EndIf;
 	
 	Return CommandsNames;
 	
 EndFunction
-
-&AtClientAtServerNoContext
-Procedure DeleteDSCommands(CommandsNames)
-	
-	DeleteCommandFromArray(CommandsNames, "Sign");
-	DeleteCommandFromArray(CommandsNames, "AddDSFromFile");
-	DeleteCommandFromArray(CommandsNames, "SaveWithDigitalSignature");
-	
-EndProcedure
-
-&AtClientAtServerNoContext
-Procedure DeleteCommandFromArray(Array, CommandName)
-	
-	Position = Array.Find(CommandName);
-	
-	If Position = Undefined Then
-		Return;
-	EndIf;
-	
-	Array.Delete(Position);
-	
-EndProcedure
 
 &AtClient
 Procedure SigningOrEncryptionUsageOnChange()

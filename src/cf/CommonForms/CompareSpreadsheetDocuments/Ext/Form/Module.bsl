@@ -414,7 +414,7 @@ Function GenerateMatches(LeftTable, RightTable, ByRows)
 	                              |SELECT
 	                              |	DataWithDistances.ItemNumberLeft AS ItemNumberLeft,
 	                              |	DataWithDistances.ItemNumberRight AS ItemNumberRight,
-	                              |	DataWithDistances.ValueMatchesCount * ParameterMaxima.TotalMatchesCount * ParameterMaxima.MinDistance + DataWithDistances.TotalMatchesCount * ParameterMaxima.MinDistance + (ParameterMaxima.MinDistance - DataWithDistances.MinDistance) AS Weight
+	                              |	DataWithDistances.ValueMatchesCount * ParametersMaximums.TotalMatchesCount * ParametersMaximums.MinDistance + DataWithDistances.TotalMatchesCount * ParametersMaximums.MinDistance + (ParametersMaximums.MinDistance - DataWithDistances.MinDistance) AS Weight
 	                              |INTO WeightedMatches
 	                              |FROM
 	                              |	DataWithDistances AS DataWithDistances,
@@ -422,7 +422,7 @@ Function GenerateMatches(LeftTable, RightTable, ByRows)
 	                              |		MAX(DataWithDistances.TotalMatchesCount) AS TotalMatchesCount,
 	                              |		MAX(DataWithDistances.MinDistance) AS MinDistance
 	                              |	FROM
-	                              |		DataWithDistances AS DataWithDistances) AS ParameterMaxima
+	                              |		DataWithDistances AS DataWithDistances) AS ParametersMaximums
 	                              |;
 	                              |
 	                              |////////////////////////////////////////////////////////////////////////////////
@@ -452,14 +452,14 @@ Function GenerateMatches(LeftTable, RightTable, ByRows)
 		Query.SetParameter("RowCountRight", RightTable.Count());
 		Query.Execute();
 		
-		LevelOfConflicts = 2;
+		ConflictsLevel = 2;
 		
-		While LevelOfConflicts > 0 Do
+		While ConflictsLevel > 0 Do
 			Query.Text = "SELECT
 			|	AllConflicts.ItemNumberLeft AS ItemNumberLeft,
 			|	AllConflicts.ItemNumberRight AS ItemNumberRight,
 			|	SUM(AllConflicts.NumberOfConflicts) AS NumberOfConflicts
-			|INTO ConflictsFound
+			|INTO FoundConflicts
 			|FROM
 			|	(SELECT
 			|		Maps1.ItemNumberLeft AS ItemNumberLeft,
@@ -512,13 +512,13 @@ Function GenerateMatches(LeftTable, RightTable, ByRows)
 			|	Maps1.ItemNumberLeft AS ItemNumberLeft,
 			|	Maps1.ItemNumberRight AS ItemNumberRight,
 			|	Maps1.Weight AS Weight,
-			|	ISNULL(ConflictsFound.NumberOfConflicts, 0) AS NumberOfConflicts
-			|INTO ComplianceWithConflicts
+			|	ISNULL(FoundConflicts.NumberOfConflicts, 0) AS NumberOfConflicts
+			|INTO MapsWithConflict
 			|FROM
 			|	Maps1 AS Maps1
-			|		LEFT JOIN ConflictsFound AS ConflictsFound
-			|		ON Maps1.ItemNumberLeft = ConflictsFound.ItemNumberLeft
-			|		AND Maps1.ItemNumberRight = ConflictsFound.ItemNumberRight
+			|		LEFT JOIN FoundConflicts AS FoundConflicts
+			|		ON Maps1.ItemNumberLeft = FoundConflicts.ItemNumberLeft
+			|		AND Maps1.ItemNumberRight = FoundConflicts.ItemNumberRight
 			|;
 			|
 			|////////////////////////////////////////////////////////////////////////////////
@@ -527,170 +527,170 @@ Function GenerateMatches(LeftTable, RightTable, ByRows)
 			|
 			|////////////////////////////////////////////////////////////////////////////////
 			|SELECT
-			|	ComplianceWithConflicts.ItemNumberLeft AS ItemNumberLeft,
-			|	ComplianceWithConflicts.ItemNumberRight AS ItemNumberRight,
-			|	ComplianceWithConflicts.Weight AS Weight,
-			|	ComplianceWithConflicts.NumberOfConflicts AS NumberOfConflicts
-			|INTO ReplaceableMatches
+			|	MapsWithConflict.ItemNumberLeft AS ItemNumberLeft,
+			|	MapsWithConflict.ItemNumberRight AS ItemNumberRight,
+			|	MapsWithConflict.Weight AS Weight,
+			|	MapsWithConflict.NumberOfConflicts AS NumberOfConflicts
+			|INTO ReplaceableMaps
 			|FROM
 			|	(SELECT
-			|		MAX(ComplianceWithConflicts.NumberOfConflicts) AS NumberOfConflicts
+			|		MAX(MapsWithConflict.NumberOfConflicts) AS NumberOfConflicts
 			|	FROM
-			|		ComplianceWithConflicts AS ComplianceWithConflicts) AS MaximumNumberOfConflicts
-			|		LEFT JOIN ComplianceWithConflicts AS ComplianceWithConflicts
-			|		ON MaximumNumberOfConflicts.NumberOfConflicts <> 0
-			|		AND ComplianceWithConflicts.NumberOfConflicts = MaximumNumberOfConflicts.NumberOfConflicts
+			|		MapsWithConflict AS MapsWithConflict) AS ConflictsMaxNumber
+			|		LEFT JOIN MapsWithConflict AS MapsWithConflict
+			|		ON ConflictsMaxNumber.NumberOfConflicts <> 0
+			|		AND MapsWithConflict.NumberOfConflicts = ConflictsMaxNumber.NumberOfConflicts
 			|;
 			|
 			|////////////////////////////////////////////////////////////////////////////////
 			|SELECT
-			|	ComplianceWithConflicts.ItemNumberLeft AS ItemNumberLeft,
-			|	ComplianceWithConflicts.ItemNumberRight AS KeyElementNumberRight,
-			|	ComplianceWithConflicts.NumberOfConflicts AS NumberOfConflicts,
+			|	MapsWithConflict.ItemNumberLeft AS ItemNumberLeft,
+			|	MapsWithConflict.ItemNumberRight AS KeyItemNumberRight,
+			|	MapsWithConflict.NumberOfConflicts AS NumberOfConflicts,
 			|	ReplacementOptions.ItemNumberRight AS ItemNumberRight,
 			|	ReplacementOptions.Weight AS Weight
-			|INTO MatchingOptionsForReplacement
+			|INTO MapsOptionsForReplacement
 			|FROM
-			|	ReplaceableMatches AS ComplianceWithConflicts
+			|	ReplaceableMaps AS MapsWithConflict
 			|		LEFT JOIN WeightedMatches AS ReplacementOptions
-			|		ON ComplianceWithConflicts.ItemNumberLeft = ReplacementOptions.ItemNumberLeft
-			|		AND ComplianceWithConflicts.Weight > ReplacementOptions.Weight
+			|		ON MapsWithConflict.ItemNumberLeft = ReplacementOptions.ItemNumberLeft
+			|		AND MapsWithConflict.Weight > ReplacementOptions.Weight
 			|;
 			|
 			|////////////////////////////////////////////////////////////////////////////////
 			|SELECT
-			|	MatchingOptionsForReplacement.ItemNumberLeft AS ItemNumberLeft,
-			|	MatchingOptionsForReplacement.ItemNumberRight AS ItemNumberRight,
+			|	MapsOptionsForReplacement.ItemNumberLeft AS ItemNumberLeft,
+			|	MapsOptionsForReplacement.ItemNumberRight AS ItemNumberRight,
 			|	1 AS NumberOfConflicts
-			|INTO FoundConflictsOfOptions
+			|INTO FoundOptionsConflicts
 			|FROM
-			|	MatchingOptionsForReplacement AS MatchingOptionsForReplacement
-			|		INNER JOIN ComplianceWithConflicts AS ComplianceWithConflicts
-			|		ON MatchingOptionsForReplacement.ItemNumberRight < ComplianceWithConflicts.ItemNumberRight
-			|		AND MatchingOptionsForReplacement.ItemNumberLeft > ComplianceWithConflicts.ItemNumberLeft
+			|	MapsOptionsForReplacement AS MapsOptionsForReplacement
+			|		INNER JOIN MapsWithConflict AS MapsWithConflict
+			|		ON MapsOptionsForReplacement.ItemNumberRight < MapsWithConflict.ItemNumberRight
+			|		AND MapsOptionsForReplacement.ItemNumberLeft > MapsWithConflict.ItemNumberLeft
 			|
 			|UNION ALL
 			|
 			|SELECT
-			|	MatchingOptionsForReplacement.ItemNumberLeft,
-			|	MatchingOptionsForReplacement.ItemNumberRight,
+			|	MapsOptionsForReplacement.ItemNumberLeft,
+			|	MapsOptionsForReplacement.ItemNumberRight,
 			|	1
 			|FROM
-			|	MatchingOptionsForReplacement AS MatchingOptionsForReplacement
-			|		INNER JOIN ComplianceWithConflicts AS ComplianceWithConflicts
-			|		ON MatchingOptionsForReplacement.ItemNumberRight > ComplianceWithConflicts.ItemNumberRight
-			|		AND MatchingOptionsForReplacement.ItemNumberLeft < ComplianceWithConflicts.ItemNumberLeft
+			|	MapsOptionsForReplacement AS MapsOptionsForReplacement
+			|		INNER JOIN MapsWithConflict AS MapsWithConflict
+			|		ON MapsOptionsForReplacement.ItemNumberRight > MapsWithConflict.ItemNumberRight
+			|		AND MapsOptionsForReplacement.ItemNumberLeft < MapsWithConflict.ItemNumberLeft
 			|
 			|UNION ALL
 			|
 			|SELECT
-			|	ComplianceWithConflicts.ItemNumberLeft,
-			|	ComplianceWithConflicts.ItemNumberRight,
+			|	MapsWithConflict.ItemNumberLeft,
+			|	MapsWithConflict.ItemNumberRight,
 			|	1
 			|FROM
 			|	(SELECT
-			|		MatchingOptionsForReplacement.ItemNumberRight AS ItemNumberRight,
-			|		MAX(ComplianceWithConflicts.Weight) AS Weight
+			|		MapsOptionsForReplacement.ItemNumberRight AS ItemNumberRight,
+			|		MAX(MapsWithConflict.Weight) AS Weight
 			|	FROM
-			|		MatchingOptionsForReplacement AS MatchingOptionsForReplacement
-			|			LEFT JOIN ComplianceWithConflicts AS ComplianceWithConflicts
-			|			ON MatchingOptionsForReplacement.ItemNumberRight = ComplianceWithConflicts.ItemNumberRight
+			|		MapsOptionsForReplacement AS MapsOptionsForReplacement
+			|			LEFT JOIN MapsWithConflict AS MapsWithConflict
+			|			ON MapsOptionsForReplacement.ItemNumberRight = MapsWithConflict.ItemNumberRight
 			|	GROUP BY
-			|		MatchingOptionsForReplacement.ItemNumberRight) AS Duplicates
-			|		LEFT JOIN ComplianceWithConflicts AS ComplianceWithConflicts
-			|		ON Duplicates.ItemNumberRight = ComplianceWithConflicts.ItemNumberRight
-			|		AND Duplicates.Weight > ComplianceWithConflicts.Weight
+			|		MapsOptionsForReplacement.ItemNumberRight) AS Duplicates
+			|		LEFT JOIN MapsWithConflict AS MapsWithConflict
+			|		ON Duplicates.ItemNumberRight = MapsWithConflict.ItemNumberRight
+			|		AND Duplicates.Weight > MapsWithConflict.Weight
 			|;
 			|
 			|////////////////////////////////////////////////////////////////////////////////
 			|SELECT
-			|	MatchingOptionsForReplacement.ItemNumberLeft AS ItemNumberLeft,
-			|	MatchingOptionsForReplacement.KeyElementNumberRight AS KeyElementNumberRight,
-			|	MatchingOptionsForReplacement.ItemNumberRight AS ItemNumberRight,
-			|	MatchingOptionsForReplacement.Weight AS Weight,
+			|	MapsOptionsForReplacement.ItemNumberLeft AS ItemNumberLeft,
+			|	MapsOptionsForReplacement.KeyItemNumberRight AS KeyItemNumberRight,
+			|	MapsOptionsForReplacement.ItemNumberRight AS ItemNumberRight,
+			|	MapsOptionsForReplacement.Weight AS Weight,
 			|	ISNULL(SUM(Conflicts1.NumberOfConflicts), 0) AS NumberOfConflicts
-			|INTO MatchingOptionsForReplacementsWithConflicts
+			|INTO MapsVariantsForReplacingConflicts
 			|FROM
-			|	MatchingOptionsForReplacement AS MatchingOptionsForReplacement
-			|		LEFT JOIN FoundConflictsOfOptions AS Conflicts1
-			|		ON MatchingOptionsForReplacement.ItemNumberLeft = Conflicts1.ItemNumberLeft
-			|		AND MatchingOptionsForReplacement.ItemNumberRight = Conflicts1.ItemNumberRight
+			|	MapsOptionsForReplacement AS MapsOptionsForReplacement
+			|		LEFT JOIN FoundOptionsConflicts AS Conflicts1
+			|		ON MapsOptionsForReplacement.ItemNumberLeft = Conflicts1.ItemNumberLeft
+			|		AND MapsOptionsForReplacement.ItemNumberRight = Conflicts1.ItemNumberRight
 			|GROUP BY
-			|	MatchingOptionsForReplacement.ItemNumberLeft,
-			|	MatchingOptionsForReplacement.KeyElementNumberRight,
-			|	MatchingOptionsForReplacement.ItemNumberRight,
-			|	MatchingOptionsForReplacement.Weight,
-			|	MatchingOptionsForReplacement.NumberOfConflicts
+			|	MapsOptionsForReplacement.ItemNumberLeft,
+			|	MapsOptionsForReplacement.KeyItemNumberRight,
+			|	MapsOptionsForReplacement.ItemNumberRight,
+			|	MapsOptionsForReplacement.Weight,
+			|	MapsOptionsForReplacement.NumberOfConflicts
 			|HAVING
-			|	MatchingOptionsForReplacement.NumberOfConflicts > ISNULL(SUM(Conflicts1.NumberOfConflicts), 0)
+			|	MapsOptionsForReplacement.NumberOfConflicts > ISNULL(SUM(Conflicts1.NumberOfConflicts), 0)
 			|;
 			|
 			|////////////////////////////////////////////////////////////////////////////////
 			|SELECT
-			|	MatchingOptionsForReplacementsWithConflicts.ItemNumberLeft AS ItemNumberLeft,
-			|	MAX(MatchingOptionsForReplacementsWithConflicts.Weight) AS Weight
-			|INTO MaximumReplacementWeight
+			|	MapsVariantsForReplacingConflicts.ItemNumberLeft AS ItemNumberLeft,
+			|	MAX(MapsVariantsForReplacingConflicts.Weight) AS Weight
+			|INTO ReplacementMaxWeight
 			|FROM
-			|	MatchingOptionsForReplacementsWithConflicts AS MatchingOptionsForReplacementsWithConflicts
+			|	MapsVariantsForReplacingConflicts AS MapsVariantsForReplacingConflicts
 			|GROUP BY
-			|	MatchingOptionsForReplacementsWithConflicts.ItemNumberLeft
+			|	MapsVariantsForReplacingConflicts.ItemNumberLeft
 			|;
 			|
 			|////////////////////////////////////////////////////////////////////////////////
 			|SELECT
-			|	ReplaceableMatches.ItemNumberLeft AS ItemNumberLeft,
-			|	ReplaceableMatches.ItemNumberRight AS KeyElementNumberRight,
-			|	ISNULL(MatchingOptionsForReplacementsWithConflicts.ItemNumberRight, UNDEFINED) AS ItemNumberRight,
-			|	MatchingOptionsForReplacementsWithConflicts.Weight AS Weight
-			|INTO MatchesToReplace
+			|	ReplaceableMaps.ItemNumberLeft AS ItemNumberLeft,
+			|	ReplaceableMaps.ItemNumberRight AS KeyItemNumberRight,
+			|	ISNULL(MapsVariantsForReplacingConflicts.ItemNumberRight, UNDEFINED) AS ItemNumberRight,
+			|	MapsVariantsForReplacingConflicts.Weight AS Weight
+			|INTO MapsForReplacement
 			|FROM
-			|	ReplaceableMatches AS ReplaceableMatches
-			|		LEFT JOIN MaximumReplacementWeight AS MaximumReplacementWeight
-			|		ON ReplaceableMatches.ItemNumberLeft = MaximumReplacementWeight.ItemNumberLeft
-			|		LEFT JOIN MatchingOptionsForReplacementsWithConflicts AS MatchingOptionsForReplacementsWithConflicts
-			|		ON MatchingOptionsForReplacementsWithConflicts.Weight = MaximumReplacementWeight.Weight
-			|		AND MatchingOptionsForReplacementsWithConflicts.ItemNumberLeft = MaximumReplacementWeight.ItemNumberLeft
+			|	ReplaceableMaps AS ReplaceableMaps
+			|		LEFT JOIN ReplacementMaxWeight AS ReplacementMaxWeight
+			|		ON ReplaceableMaps.ItemNumberLeft = ReplacementMaxWeight.ItemNumberLeft
+			|		LEFT JOIN MapsVariantsForReplacingConflicts AS MapsVariantsForReplacingConflicts
+			|		ON MapsVariantsForReplacingConflicts.Weight = ReplacementMaxWeight.Weight
+			|		AND MapsVariantsForReplacingConflicts.ItemNumberLeft = ReplacementMaxWeight.ItemNumberLeft
 			|;
 			|
 			|////////////////////////////////////////////////////////////////////////////////
 			|SELECT
-			|	ComplianceWithConflicts.ItemNumberLeft AS ItemNumberLeft,
-			|	ISNULL(MatchesToReplace.ItemNumberRight, ComplianceWithConflicts.ItemNumberRight) AS
+			|	MapsWithConflict.ItemNumberLeft AS ItemNumberLeft,
+			|	ISNULL(MapsForReplacement.ItemNumberRight, MapsWithConflict.ItemNumberRight) AS
 			|		ItemNumberRight,
-			|	ISNULL(MatchesToReplace.Weight, ComplianceWithConflicts.Weight) AS Weight,
-			|	ComplianceWithConflicts.NumberOfConflicts AS NumberOfConflicts
+			|	ISNULL(MapsForReplacement.Weight, MapsWithConflict.Weight) AS Weight,
+			|	MapsWithConflict.NumberOfConflicts AS NumberOfConflicts
 			|INTO Maps1
 			|FROM
-			|	ComplianceWithConflicts AS ComplianceWithConflicts
-			|		LEFT JOIN MatchesToReplace AS MatchesToReplace
-			|		ON ComplianceWithConflicts.ItemNumberLeft = MatchesToReplace.ItemNumberLeft
-			|		AND ComplianceWithConflicts.ItemNumberRight = MatchesToReplace.KeyElementNumberRight
+			|	MapsWithConflict AS MapsWithConflict
+			|		LEFT JOIN MapsForReplacement AS MapsForReplacement
+			|		ON MapsWithConflict.ItemNumberLeft = MapsForReplacement.ItemNumberLeft
+			|		AND MapsWithConflict.ItemNumberRight = MapsForReplacement.KeyItemNumberRight
 			|WHERE
-			|	MatchesToReplace.ItemNumberRight IS NULL
-			|	OR MatchesToReplace.ItemNumberRight <> UNDEFINED
+			|	MapsForReplacement.ItemNumberRight IS NULL
+			|	OR MapsForReplacement.ItemNumberRight <> UNDEFINED
 			|;
 			|
 			|////////////////////////////////////////////////////////////////////////////////
 			|SELECT
-			|	ISNULL(MAX(ComplianceWithConflicts.NumberOfConflicts), 0) AS NumberOfConflicts
+			|	ISNULL(MAX(MapsWithConflict.NumberOfConflicts), 0) AS NumberOfConflicts
 			|FROM
-			|	ComplianceWithConflicts AS ComplianceWithConflicts";
+			|	MapsWithConflict AS MapsWithConflict";
 			
 		Selection = Query.Execute().Select(); //@skip-
 		Selection.Next();
-		LevelOfConflicts = Selection.NumberOfConflicts;
+		ConflictsLevel = Selection.NumberOfConflicts;
 		
-		TemporaryTablesToDelete = New Array;
-		TemporaryTablesToDelete.Add("MatchesToReplace");
-		TemporaryTablesToDelete.Add("MatchingOptionsForReplacementsWithConflicts");
-		TemporaryTablesToDelete.Add("MatchingOptionsForReplacement");
-		TemporaryTablesToDelete.Add("ComplianceWithConflicts");
-		TemporaryTablesToDelete.Add("ReplaceableMatches");
-		TemporaryTablesToDelete.Add("ConflictsFound");
-		TemporaryTablesToDelete.Add("MaximumReplacementWeight");
-		TemporaryTablesToDelete.Add("FoundConflictsOfOptions");
+		TempTablesToDelete = New Array;
+		TempTablesToDelete.Add("MapsForReplacement");
+		TempTablesToDelete.Add("MapsVariantsForReplacingConflicts");
+		TempTablesToDelete.Add("MapsOptionsForReplacement");
+		TempTablesToDelete.Add("MapsWithConflict");
+		TempTablesToDelete.Add("ReplaceableMaps");
+		TempTablesToDelete.Add("FoundConflicts");
+		TempTablesToDelete.Add("ReplacementMaxWeight");
+		TempTablesToDelete.Add("FoundOptionsConflicts");
 		
-		DeleteTemporaryTables(Query, TemporaryTablesToDelete); //
+		DeleteTemporaryTables(Query, TempTablesToDelete); //
 
 	EndDo;
 	

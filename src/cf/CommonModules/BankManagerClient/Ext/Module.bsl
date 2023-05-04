@@ -41,7 +41,7 @@ Procedure AfterStart() Export
 	
 	ClientParameters = StandardSubsystemsClient.ClientParametersOnStart();
 	If ClientParameters.Property("Banks") And ClientParameters.Banks.OutputMessageOnInvalidity Then
-		AttachIdleHandler("BankManagerOutputObsoleteDataNotification", 45, True);
+		AttachIdleHandler("BankManagerOutputObsoleteDataNotification", 180, True);
 	EndIf;
 	
 EndProcedure
@@ -56,6 +56,10 @@ EndProcedure
 // Displays the update notification.
 //
 Procedure NotifyClassifierObsolete() Export
+	
+	If WorkingWithBanksCallingServer.ClassifierUpToDate() Then
+		Return;
+	EndIf;
 	
 	ShowUserNotification(
 		NStr("en = 'The bank classifier is outdated';"),

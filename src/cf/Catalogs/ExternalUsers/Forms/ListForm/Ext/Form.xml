@@ -823,13 +823,6 @@ the maximum inactivity period is set</v8:content>
 									<v8:content>No authorization</v8:content>
 								</v8:item>
 							</Title>
-							<ToolTip>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Authorization is disabled, no access rights or
-no startup rights (thin client, web client)</v8:content>
-								</v8:item>
-							</ToolTip>
 							<ContextMenu name="LabelLogonForbiddenContextMenu" id="274"/>
 							<ExtendedTooltip name="LabelLogonForbiddenExtendedTooltip" id="275"/>
 						</LabelDecoration>

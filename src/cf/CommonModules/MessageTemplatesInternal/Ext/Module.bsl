@@ -2346,6 +2346,8 @@ EndFunction
 
 Procedure ProcessDefineAttributesForMetadataQuery(BasisParameters, ObjectMetadata)
 	
+	KeysOfParametersToBeDeleted = New Array;
+	
 	For Each BasisParameter In BasisParameters Do
 		Position = StrFind(BasisParameter.Key, "{");
 		If Position > 0 Then
@@ -2360,7 +2362,7 @@ Procedure ProcessDefineAttributesForMetadataQuery(BasisParameters, ObjectMetadat
 					ProcessDefineAttributesForMetadataQuery(BasisParameter.Value, Metadata.FindByType(Type));
 				EndDo;
 			Else
-				BasisParameters.Delete(BasisParameter.Key);
+				KeysOfParametersToBeDeleted.Add(BasisParameter.Key);
 			EndIf;
 		ElsIf ObjectMetadata.Attributes.Find(ParameterName) = Undefined Then
 			AttributeNotFound = True;
@@ -2372,9 +2374,13 @@ Procedure ProcessDefineAttributesForMetadataQuery(BasisParameters, ObjectMetadat
 			EndDo;
 			
 			If AttributeNotFound Then
-				BasisParameters.Delete(BasisParameter.Key);
+				KeysOfParametersToBeDeleted.Add(BasisParameter.Key);
 			EndIf;
 		EndIf;
+	EndDo;
+	
+	For Each ParameterKey In KeysOfParametersToBeDeleted Do
+		BasisParameters.Delete(ParameterKey);
 	EndDo;
 	
 EndProcedure

@@ -34,6 +34,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.ImportCurrenciesRates</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">XDTOPackage.CurrencyRates</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.CurrencyExchangeRate</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.CurrenciesExchangeRatesServerCall</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

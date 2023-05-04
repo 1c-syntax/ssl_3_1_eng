@@ -225,6 +225,14 @@ Procedure WarningURLProcessing(Item, FormattedStringURL, StandardProcessing)
 EndProcedure
 
 &AtClient
+Procedure SigningIsAllowedOnChange(Item)
+	
+	CommonServerCall.CommonSettingsStorageSave(
+			Object.Ref, "AllowSigning", SigningIsAllowed);
+	
+EndProcedure
+
+&AtClient
 Async Procedure ApplicationOpening(Item, StandardProcessing)
 	
 	If ValueIsFilled(Object.Application) Then
@@ -474,14 +482,21 @@ Procedure OnCreateAtServerOnReadAtServer()
 		Return; // Certificate = Undefined.
 	EndIf;
 	
+	EditFirstNameAndPatronymic = False;
 	SubjectProperties = DigitalSignature.CertificateSubjectProperties(Certificate);
 	If SubjectProperties.LastName <> Undefined Then
 		Items.LastName.ReadOnly = True;
 	EndIf;
 	If SubjectProperties.Name <> Undefined Then
+		If StrFind(SubjectProperties.Name, " ") <> 0 Then
+			EditFirstNameAndPatronymic = True;
+		EndIf;
 		Items.Name.ReadOnly = True;
 	EndIf;
 	If SubjectProperties.Property("MiddleName") And SubjectProperties.MiddleName <> Undefined Then
+		If StrFind(SubjectProperties.MiddleName, " ") <> 0 Then
+			EditFirstNameAndPatronymic = True;
+		EndIf;
 		Items.MiddleName.ReadOnly = True;
 	EndIf;
 	If SubjectProperties.Organization <> Undefined Then
@@ -513,7 +528,8 @@ Procedure OnCreateAtServerOnReadAtServer()
 	Items.FieldsAutoPopulatedFromCertificateData.Visible =
 		    Not Items.LastName.ReadOnly   And Not ValueIsFilled(Object.LastName)
 		Or Not Items.Name.ReadOnly       And Not ValueIsFilled(Object.Name)
-		Or Not Items.MiddleName.ReadOnly  And Not ValueIsFilled(Object.MiddleName);
+		Or Not Items.MiddleName.ReadOnly  And Not ValueIsFilled(Object.MiddleName)
+		Or EditFirstNameAndPatronymic And Items.EditFirstNameAndPatronymic.Visible;
 	
 	Items.FormShowAutoPopulatedAttributes.Check =
 		Items.FieldsAutoPopulatedFromCertificateData.Visible;
@@ -617,6 +633,7 @@ Procedure RefreshVisibilityWarnings(Val CryptoCertificate = Undefined)
 		
 		Items.GroupWarning.Visible = True;
 		Items.Warning.Title = NStr("en = 'The certificate is marked in the application as revoked';");
+		Items.SigningIsAllowed.Visible = False;
 	
 	ElsIf Object.ValidBefore > CurrentSessionDate() Then
 	
@@ -650,6 +667,15 @@ Procedure RefreshVisibilityWarnings(Val CryptoCertificate = Undefined)
 					RowsArray.Add(DataWarnings.Decision);
 				EndIf;
 				Items.Warning.Title = New FormattedString(RowsArray);
+				
+				If DigitalSignature.AddEditDigitalSignatures() Then
+					AllowSigningSettings = Common.CommonSettingsStorageLoad(
+						Object.Ref, "AllowSigning", Undefined);
+					Items.SigningIsAllowed.Visible = True;
+					SigningIsAllowed = AllowSigningSettings;
+				Else
+					Items.SigningIsAllowed.Visible = False;
+				EndIf;
 			EndIf;
 			
 		Else

@@ -214,7 +214,7 @@ Procedure ImportRules(Command)
 	
 	DialogParameters = New Structure;
 	DialogParameters.Insert("Title", NStr("en = 'Select an exchange rule archive';"));
-	DialogParameters.Insert("Filter", NStr("en = 'ZIP archives (*.zip)';") + "|*.zip");
+	DialogParameters.Insert("Filter", NStr("en = 'ZIP archive (*.zip)';") + "|*.zip");
 	DialogParameters.Insert("FullFileName", NameParts.FullName);
 	
 	Notification = New NotifyDescription("ImportRulesCompletion", ThisObject);
@@ -242,9 +242,9 @@ Procedure UnloadRules(Command)
 	
 	DialogParameters = New Structure;
 	DialogParameters.Insert("Mode", FileDialogMode.Save);
-	DialogParameters.Insert("Title", NStr("en = 'Specify a file to export rules';") );
+	DialogParameters.Insert("Title", NStr("en = 'Select a file to export rules to';") );
 	DialogParameters.Insert("FullFileName", FullFileName);
-	DialogParameters.Insert("Filter", NStr("en = 'ZIP archives (*.zip)';") + "|*.zip");
+	DialogParameters.Insert("Filter", NStr("en = 'ZIP archive (*.zip)';") + "|*.zip");
 	
 	FileToReceive = New Structure("Name, Location", FullFileName, StorageAddress);
 	

@@ -86,7 +86,7 @@ Procedure MoveToTemplate(Command)
 	
 	If TreeRowType = "DoQueryBox" And (Not ValueIsFilled(ElementaryQuestion)) Then
 		Cancel = True;
-		CommonClient.MessageToUser(NStr("en = 'Basic question is not specified';"),,"ElementaryQuestion");
+		CommonClient.MessageToUser(NStr("en = 'General question is not specified';"),,"ElementaryQuestion");
 	EndIf; 
 		
 	If Cancel Then

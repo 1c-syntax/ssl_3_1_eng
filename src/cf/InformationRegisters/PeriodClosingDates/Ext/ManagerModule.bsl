@@ -20,7 +20,7 @@
 //
 Procedure OnFillAccessRestriction(Restriction) Export
 	
-	// АПК:336-
+	// ACC:336-
 	Restriction.Text =
 	"AllowRead
 	|WHERE

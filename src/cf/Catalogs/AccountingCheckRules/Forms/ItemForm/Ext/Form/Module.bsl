@@ -25,7 +25,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetPathToHandlerProcedure(ThisObject, CurrentCheckMetadata);
 	
 	AccountingCheckRulesSettingAllowed = AccessRight("Update", Metadata.Catalogs.AccountingCheckRules);
-	Items.FormExecuteCheck.Visible              = AccountingCheckRulesSettingAllowed;
+	Items.FormExecuteCheck.Visible              = Users.IsFullUser(, False);
 	Items.FormCustomizeStandardSettings.Visible = AccountingCheckRulesSettingAllowed;
 	
 	SetInitialScheduleSettings();
@@ -36,7 +36,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ScheduleGroup.Visible = False;
 	EndIf;
 		
-	// StandardSubsystems.ПодключаемыеКоманды
+	// StandardSubsystems.AttachableCommands
 	AttachableCommands.OnCreateAtServer(ThisObject);
 	// End StandardSubsystems.AttachableCommands
 	
@@ -45,7 +45,7 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	// StandardSubsystems.ПодключаемыеКоманды
+	// StandardSubsystems.AttachableCommands
 	AttachableCommandsClient.StartCommandUpdate(ThisObject);
 	// End StandardSubsystems.AttachableCommands
 	
@@ -54,7 +54,7 @@ EndProcedure
 &AtServer
 Procedure OnReadAtServer(CurrentObject)
 	
-	// StandardSubsystems.ПодключаемыеКоманды
+	// StandardSubsystems.AttachableCommands
 	AttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
 	// End StandardSubsystems.AttachableCommands
 	
@@ -173,7 +173,7 @@ Function RunCheckAtServer()
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Checking accounting ""%1""';"), Object.Description);
+		NStr("en = 'Run data integrity check ""%1""';"), Object.Description);
 	
 	Checks = New Array;
 	Checks.Add(Object.Ref);
@@ -207,8 +207,8 @@ Procedure ExecuteCheckCompletion(Result, AdditionalParameters) Export
 	If Result.Status = "Error" Then
 		Raise Result.BriefErrorDescription;
 	ElsIf Result.Status = "Completed2" Then
-		ShowUserNotification(NStr("en = 'Check is completed';"),,
-			NStr("en = 'Accounting check is successfully completed.';"));
+		ShowUserNotification(NStr("en = 'Scan completed';"),,
+			NStr("en = 'Data integrity check completed successfully.';"));
 	EndIf;
 	
 EndProcedure
@@ -400,7 +400,7 @@ Procedure SetStandardSettingsAtServer()
 	CurrentCheckMetadata = CheckMetadata(Object.Id);
 	If CurrentCheckMetadata = Undefined Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The accounting check with ID ""%1"" does not exist.';"), Object.Id);
+			NStr("en = 'Data integrity check with ID %1 does not exist.';"), Object.Id);
 	EndIf;
 		
 	FillPropertyValues(Object, CurrentCheckMetadata, , "Id");

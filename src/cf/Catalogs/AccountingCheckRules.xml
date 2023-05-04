@@ -28,7 +28,7 @@
 			<Synonym>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Data integrity check rules</v8:content>
+					<v8:content>Data integrity checks</v8:content>
 				</v8:item>
 			</Synonym>
 			<Comment/>
@@ -502,7 +502,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Possible reasons</v8:content>
+							<v8:content>Possible causes</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -519,7 +519,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Specify reasons that might caused this issue to display to the users.</v8:content>
+							<v8:content>Specify possible causes of this issue to display to the users.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -971,7 +971,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Data integrity check context refiner</v8:content>
+							<v8:content>Data check context refiner</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>

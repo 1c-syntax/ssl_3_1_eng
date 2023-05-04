@@ -118,7 +118,7 @@ Procedure BeforeWrite(Cancel)
 	// Preliminary checks.
 	If Not IsNew() And Kind <> Common.ObjectAttributeValue(Ref, "Kind") Then
 		Common.MessageToUser(
-			NStr("en = 'Cannot change the kind of additional report or data processor.';"),,,,
+			NStr("en = 'Cannot change the type of additional report or data processor.';"),,,,
 			Cancel);
 		Return;
 	EndIf;

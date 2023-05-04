@@ -588,8 +588,8 @@ Procedure ErrorMessageInitialization()
 	ErrorsMessages.Insert(6, NStr("en = 'An error occurred when creating a temporary directory';"));
 	ErrorsMessages.Insert(7, NStr("en = 'The archive does not contain the exchange message file';"));
 	
-	ErrorsMessages.Insert(8, NStr("en = 'An error occurred when writing the file to the information exchange directory. Check if the user is authorized to access the directory.';"));
-	ErrorsMessages.Insert(9, NStr("en = 'An error occurred when removing a file from the information exchange directory. Check user access rights to the directory.';"));
+	ErrorsMessages.Insert(8, NStr("en = 'An error occurred when saving the file to the data exchange directory. Check if the user is authorized to access the directory.';"));
+	ErrorsMessages.Insert(9, NStr("en = 'An error occurred when removing the file from the data exchange directory. Check if the user is authorized to access the directory.';"));
 	
 EndProcedure
 

@@ -30,15 +30,12 @@ Procedure DefineFormSettings(Form, VariantKey, Settings) Export
 	Settings.EditOptionsAllowed = False;
 EndProcedure
 
-// This procedure is called in the OnLoadVariantAtServer event handler of a report form after executing the form code.
-// See "Client application form extension for reports.OnLoadVariantAtServer" in Syntax Assistant.
-//
 // Parameters:
 //   Form - ClientApplicationForm
-//         - ManagedFormExtensionForReports - 
+//         - ManagedFormExtensionForReports:
 //     * Report - FormDataStructure
 //             - ReportObject
-//   NewDCSettings - DataCompositionSettings - settings to load into the settings composer.
+//   NewDCSettings - DataCompositionSettings
 //
 Procedure OnLoadVariantAtServer(Form, NewDCSettings) Export
 	If EventLog.ServerTimeOffset() = 0 Then
@@ -49,13 +46,7 @@ Procedure OnLoadVariantAtServer(Form, NewDCSettings) Export
 	EndIf;
 EndProcedure
 
-// Parameters:
-//  Form - ClientApplicationForm
-//        - ManagedFormExtensionForReports:
-//    * Report - FormDataStructure
-//            - ReportObject
-//  SettingProperties - See ReportsOverridable.OnDefineSelectionParameters.SettingProperties
-//
+// See ReportsOverridable.OnDefineSelectionParameters.SettingProperties
 Procedure OnDefineSelectionParameters(Form, SettingProperties) Export
 	FieldName = String(SettingProperties.DCField);
 	If FieldName = "DataParameters.HideScheduledJobs" Then
@@ -127,13 +118,10 @@ Procedure OnComposeResult(ResultDocument, ObjectDetailsData, StandardProcessing,
 		OutputProcessor = New DataCompositionResultSpreadsheetDocumentOutputProcessor;
 		OutputProcessor.SetDocument(ResultDocument);
 		OutputProcessor.BeginOutput();
-		While True Do
+		ResultItem = CompositionProcessor.Next();
+		While ResultItem <> Undefined Do
+			OutputProcessor.OutputItem(ResultItem);
 			ResultItem = CompositionProcessor.Next();
-			If ResultItem = Undefined Then
-				Break;
-			Else
-				OutputProcessor.OutputItem(ResultItem);
-			EndIf;
 		EndDo;
 		ResultDocument.ShowRowGroupLevel(1);
 		OutputProcessor.EndOutput();

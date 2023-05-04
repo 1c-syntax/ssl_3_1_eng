@@ -830,14 +830,13 @@ Function StartMeasurement(Event)
 		Return Undefined;
 	EndIf;
 	
-	Comment = ClientParameters.MeasurementsPrefix;
-	
+	Comment = New Map;
 	If ValueIsFilled(SearchString) Then
-		Comment = Comment
-			+ "; " + NStr("en = 'Search:';") + " " + String(SearchString)
-			+ "; " + NStr("en = 'Include subordinate reports:';") + " " + String(IncludingSubordinates);
+		Comment.Insert("Search", True);
+		Comment.Insert("SearchString", String(SearchString));
+		Comment.Insert("IncludingSubordinates", IncludingSubordinates);
 	Else
-		Comment = Comment + "; " + NStr("en = 'No search';");
+		Comment.Insert("Search", False);
 	EndIf;
 	
 	Measurement = New Structure("ModulePerformanceMonitorClient, Id");

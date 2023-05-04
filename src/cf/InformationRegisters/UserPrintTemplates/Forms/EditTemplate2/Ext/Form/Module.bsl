@@ -165,12 +165,12 @@ Procedure SetApplicationNameForTemplateOpening()
 		TemplateOpeningApplicationAddress = "";
 	EndIf;
 	
-	GoToProgramPage = NStr("en = 'Open the %1 installation page';");
-	GoToProgramPage = StringFunctionsClientServer.SubstituteParametersToString(GoToProgramPage, ApplicationNameForTemplateOpening);
-	Items.LinkToApplicationPageBeforeDownloadWebClient.Title = GoToProgramPage;
-	Items.LinkToApplicationPageBeforeDownloadNotWebClient.Title = GoToProgramPage;
-	Items.LinkToApplyChangesApplicationPageWebClient.Title = GoToProgramPage;
-	Items.LinkToApplyChangesApplicationPageNotWebClient.Title = GoToProgramPage;
+	NavigateToAppPage = NStr("en = 'Open the %1 installation page';");
+	NavigateToAppPage = StringFunctionsClientServer.SubstituteParametersToString(NavigateToAppPage, ApplicationNameForTemplateOpening);
+	Items.LinkToApplicationPageBeforeDownloadWebClient.Title = NavigateToAppPage;
+	Items.LinkToApplicationPageBeforeDownloadNotWebClient.Title = NavigateToAppPage;
+	Items.LinkToApplyChangesApplicationPageWebClient.Title = NavigateToAppPage;
+	Items.LinkToApplyChangesApplicationPageNotWebClient.Title = NavigateToAppPage;
 	
 	Items.BeforeDownloadTemplateInstructionWebClientLabel.Title = 
 		NStr("en = 'Click Continue to import.';");

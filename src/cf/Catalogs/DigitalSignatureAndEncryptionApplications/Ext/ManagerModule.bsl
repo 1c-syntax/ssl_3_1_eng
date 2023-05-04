@@ -128,28 +128,6 @@ Procedure AddMicrosoftEnhancedCSPSettings(Settings) Export
 	Setting.NotOnLinux = True;
 	Setting.NotInMacOS = True;
 	
-	// Microsoft Strong Cryptographic Provider
-	Setting = Settings.Add();
-	Setting.Presentation       = NStr("en = 'Microsoft Strong CSP';");
-	Setting.ApplicationName        = "Microsoft Strong Cryptographic Provider";
-	Setting.ApplicationType        = 1;
-	Setting.SignAlgorithm     = "RSA_SIGN"; // 
-	Setting.HashAlgorithm = "MD5";      // Варианты: SHA-1, MD2, MD4, MD5.
-	Setting.EncryptAlgorithm  = "RC2";      // 
-	Setting.Id       = "MicrosoftStrong";
-	
-	Setting.SignAlgorithms.Add("RSA_SIGN");
-	Setting.HashAlgorithms.Add("SHA-1");
-	Setting.HashAlgorithms.Add("MD2");
-	Setting.HashAlgorithms.Add("MD4");
-	Setting.HashAlgorithms.Add("MD5");
-	Setting.EncryptAlgorithms.Add("RC2");
-	Setting.EncryptAlgorithms.Add("RC4");
-	Setting.EncryptAlgorithms.Add("DES");
-	Setting.EncryptAlgorithms.Add("3DES");
-	Setting.NotOnLinux = True;
-	Setting.NotInMacOS = True;
-	
 EndProcedure
 
 Function SupplyThePathToTheProgramModules() Export

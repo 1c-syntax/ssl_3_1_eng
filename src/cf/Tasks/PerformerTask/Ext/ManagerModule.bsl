@@ -154,7 +154,7 @@ EndProcedure
 
 Procedure PresentationGetProcessing(Data, Presentation, StandardProcessing)
 	
-	Description = ?(IsBlankString(Data.Description), NStr("en = 'No description';"), Data.Description);
+	Description = ?(IsBlankString(Data.Description), NStr("en = 'No details';"), Data.Description);
 	Date = Format(Data.Date, ?(GetFunctionalOption("UseDateAndTimeInTaskDeadlines"), "DLF=DT", "DLF=D"));
 	Presentation = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1, created on %2';"), Description, Date);
 	StandardProcessing = False;

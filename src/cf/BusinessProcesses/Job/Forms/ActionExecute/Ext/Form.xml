@@ -225,7 +225,7 @@
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Started</v8:content>
+											<v8:content>The date when the assignee started carrying out the task.</v8:content>
 										</v8:item>
 									</ToolTip>
 									<Width>10</Width>
@@ -248,7 +248,7 @@
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Started</v8:content>
+											<v8:content>The date when the assignee started carrying out the task.</v8:content>
 										</v8:item>
 									</ToolTip>
 									<Width>8</Width>
@@ -461,7 +461,7 @@
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Started</v8:content>
+											<v8:content>The date when the assignee started carrying out the task.</v8:content>
 										</v8:item>
 									</ToolTip>
 									<Width>8</Width>
@@ -633,7 +633,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Task details.</v8:content>
+					<v8:content>Additional task information</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>More</Action>
@@ -643,13 +643,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Accept task</v8:content>
+					<v8:content>Accept</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Accept task assignment</v8:content>
+					<v8:content>Accept</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>AcceptForExecution</Action>
@@ -659,13 +659,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Undo accept task</v8:content>
+					<v8:content>Decline</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Cancel task assignment</v8:content>
+					<v8:content>Decline</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>CancelAcceptForExecution</Action>
@@ -675,13 +675,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Change duty</v8:content>
+					<v8:content>Edit task</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Edit duty</v8:content>
+					<v8:content>Edit task</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ChangeJob</Action>

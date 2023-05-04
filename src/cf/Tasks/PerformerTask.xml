@@ -556,7 +556,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Date of acceptance for execution</v8:content>
+							<v8:content>Date accepted</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -572,7 +572,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Date of task acceptance for execution</v8:content>
+							<v8:content>Date accepted</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -746,7 +746,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Accepted for execution</v8:content>
+							<v8:content>Accepted</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -759,7 +759,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Note that the task was accepted for execution</v8:content>
+							<v8:content>Accept flag</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -790,7 +790,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Result summary</v8:content>
+							<v8:content>Result</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment>Description of the execution result</Comment>

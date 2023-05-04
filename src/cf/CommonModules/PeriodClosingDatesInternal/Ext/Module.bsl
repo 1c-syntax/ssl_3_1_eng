@@ -2172,7 +2172,7 @@ Function PeriodClosingDatesRequest()
 	|TOTALS BY
 	|	User,
 	|	Section";
-	// АПК:1377-
+	// ACC:1377-
 	
 	Return Query;
 	

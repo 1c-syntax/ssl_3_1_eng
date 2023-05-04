@@ -698,7 +698,7 @@ EndProcedure
 &AtServer
 Procedure DisplayInstruction()
 	 
-	Template = GetCommonTemplate("InstructionsOnHowToConfigureOfficeOpenTemplate");
+	Template = GetCommonTemplate("GuideHowToSetUpOpenOfficeTemplate");
 	InstructionDocumentField = Template.GetText();
 		
 EndProcedure
@@ -1932,7 +1932,7 @@ Procedure Attachable_ExpandTheCurrentFieldListItem()
 EndProcedure
 
 &AtClient
-Procedure Attachable_FillInTheListOfAvailableFields(FillParameters) Export // АПК:78 - 
+Procedure Attachable_FillInTheListOfAvailableFields(FillParameters) Export // ACC:78 - 
 	
 	FillInTheListOfAvailableFields(FillParameters);
 	

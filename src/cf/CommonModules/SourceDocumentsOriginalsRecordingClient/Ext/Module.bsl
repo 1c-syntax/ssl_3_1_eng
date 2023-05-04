@@ -161,7 +161,7 @@ Procedure OpenStateSelectionMenu(Val Form, Val Source = Undefined) Export
 			ClarifyByPrintForms = Form.OriginalStatesChoiceList.FindByValue("ClarifyByPrintForms");
 			If ClarifyByPrintForms = Undefined Then
 				Form.OriginalStatesChoiceList.Add("ClarifyByPrintForms",
-					NStr("en = 'Specify by print forms…';"),,
+					NStr("en = 'Specify for print forms…';"),,
 					PictureLib.SetSourceDocumentOriginalStateByPrintForms);
 			EndIf;
 			Form.ShowChooseFromMenu(NotifyDescription, Form.OriginalStatesChoiceList,
@@ -194,7 +194,7 @@ Procedure OpenStateSelectionMenu(Val Form, Val Source = Undefined) Export
 		ClarifyByPrintForms = Form.OriginalStatesChoiceList.FindByValue("ClarifyByPrintForms");
 		If ClarifyByPrintForms = Undefined Then
 			Form.OriginalStatesChoiceList.Add("ClarifyByPrintForms",
-				NStr("en = 'Specify by print forms…';"),,
+				NStr("en = 'Specify for print forms…';"),,
 				PictureLib.SetSourceDocumentOriginalStateByPrintForms);
 		EndIf;
 
@@ -203,7 +203,7 @@ Procedure OpenStateSelectionMenu(Val Form, Val Source = Undefined) Export
 
 EndProcedure
 
-// A notification handler of the "Source document originals recording" subsystem events for the document form.
+// A notification handler of the "Source document tracking" subsystem events for the document form.
 //
 //	Parameters:
 //  EventName - String - a name of the event that occurred.
@@ -219,7 +219,7 @@ Procedure NotificationHandlerDocumentForm(EventName, Form) Export
 		
 EndProcedure
 
-// A notification handler of the "Source document originals recording" subsystem events for the list form.
+// A notification handler of the "Source document tracking" subsystem events for the list form.
 //
 //	Parameters:
 //  EventName - String - a name of the event that occurred.
@@ -310,7 +310,7 @@ Procedure NotifyUserOfStatesSetting(ProcessedItemsCount, DocumentRef = Undefined
 		ShowUserNotification(TitleText,, MessageText, PictureLib.Information32,UserNotificationStatus.Important);
 	Else
 		NotifyDescription = New NotifyDescription("ProcessNotificationClick",ThisObject,DocumentRef);
-		ShowUserNotification(NStr("en = 'Change original state:';"),NotifyDescription,DocumentRef,PictureLib.Information32,UserNotificationStatus.Important);
+		ShowUserNotification(NStr("en = 'Original state changed:';"),NotifyDescription,DocumentRef,PictureLib.Information32,UserNotificationStatus.Important);
 	EndIf;
 
 EndProcedure

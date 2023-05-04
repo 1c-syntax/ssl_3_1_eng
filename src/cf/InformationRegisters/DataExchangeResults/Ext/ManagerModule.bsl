@@ -1023,10 +1023,10 @@ Procedure TransferRegisterRecords(RegisterRecord)
 			RecordSetNew.Filter.MetadataObject.Set(MetadataObjectID);
 			RecordSetNew.Filter.ObjectWithIssue.Set(RegisterRecord.ObjectWithIssue);
 			
-			RecordNew = RecordSetNew.Add();
-			FillPropertyValues(RecordNew, RecordSetOld[0]);
+			Record_New = RecordSetNew.Add();
+			FillPropertyValues(Record_New, RecordSetOld[0]);
 			
-			RecordNew.MetadataObject = MetadataObjectID;
+			Record_New.MetadataObject = MetadataObjectID;
 			
 			InfobaseUpdate.WriteRecordSet(RecordSetNew);
 			

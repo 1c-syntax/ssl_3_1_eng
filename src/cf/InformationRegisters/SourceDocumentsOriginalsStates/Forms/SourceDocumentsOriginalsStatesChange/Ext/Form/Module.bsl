@@ -20,11 +20,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Parameters.Property("DocumentRef") Then
 		Record.Owner = Parameters.DocumentRef;
 		PrintFormsFilter = "All";
-		Items.WarningLabel.Title = NStr("en = 'Document original state will be set according to print forms';");
+		Items.WarningLabel.Title = NStr("en = 'The document original state will be set according to print forms.';");
 	ElsIf PrintFormsSet.Count()= 0 Then
 		FillAllPrintForms();
 		PrintFormsFilter = "All";
-		Items.WarningLabel.Title = NStr("en = 'Document original state will be set according to print forms';");
+		Items.WarningLabel.Title = NStr("en = 'The document original state will be set according to print forms.';");
 	Else
 		PrintFormsFilter = "Tracked";
 	EndIf;	
@@ -524,25 +524,23 @@ EndProcedure
 &AtServer
 Procedure DeleteFormsDuplicates()
 
+	RemovablePrintedForms = New Array;
 	For Each String In PrintFormsSet Do
 		TS = SourceDocumentsOriginalsRecording.TableOfEmployees(Record.Owner); 
 		If TS <> "" Then
-			Filter = New Structure("Presentation",String.Presentation);
+			Filter = New Structure("Presentation", String.Presentation);
 		Else
-			Filter = New Structure("TemplateName",String.TemplateName);
+			Filter = New Structure("TemplateName", String.TemplateName);
 		EndIf;
-		FoundRows = PrintFormsSet.FindRows(Filter);
-		If FoundRows.Count()> 1 Then
-			Counter = FoundRows.Count();
-			While Counter > FoundRows.Count()-1 Do
-				PrintFormsSet.Delete(FoundRows[Counter-1]);
-				If Not Counter = 0 Then
-					Counter = Counter-1;
-				Else
-					Continue;
-				EndIf;
-			EndDo;
+		FoundDuplicates = PrintFormsSet.FindRows(Filter);
+		If FoundDuplicates.Count() > 1 Then
+			FoundDuplicates.Delete(0);
+			CommonClientServer.SupplementArray(RemovablePrintedForms, FoundDuplicates, True);
 		EndIf;
+	EndDo;
+	
+	For Each PrintForm In RemovablePrintedForms Do
+		PrintFormsSet.Delete(PrintForm);
 	EndDo;
 
 EndProcedure

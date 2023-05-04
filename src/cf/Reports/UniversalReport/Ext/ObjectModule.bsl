@@ -114,69 +114,28 @@ Procedure BeforeLoadVariantAtServer(Form, Settings) Export
 	EndIf;
 EndProcedure
 
-// Called before importing new settings. Used to change composition schema.
-//   For example, if the report schema depends on the option key or report parameters.
-//   For the schema changes to take effect, call the ReportsServer.EnableSchema() method.
+// 
 //
 // Parameters:
-//   Context - Arbitrary - 
-//       The context parameters where the report is used.
-//       Used to pass the ReportsServer.EnableSchema() method in the parameters.
-//   SchemaKey - String -
-//       An ID of the current setting composer schema.
-//       It is not filled in by default (that means, the composer is initialized according to the main schema).
-//       Used for optimization, to reinitialize composer as rarely as possible.
-//       It is possible not to use it if the initialization is running unconditionally.
+//   Context - Arbitrary
+//   SchemaKey - String
 //   VariantKey - String
-//                - Undefined -
-//       
-//       
-//   Settings - DataCompositionSettings
-//             - Undefined -
-//       
-//       
-//   UserSettings - DataCompositionUserSettings
-//                             - Undefined -
-//       
-//       
+//                - Undefined
+//   NewDCSettings - DataCompositionSettings
+//                    - Undefined
+//   NewDCUserSettings - DataCompositionUserSettings
+//                                    - Undefined
 //
-// Example:
-//  // The report composer is initialized based on the schema from common templates:
-//	If SchemaKey <> "1" Then
-//		SchemaKey = "1";
-//		DCSchema = GetCommonTemplate("MyCommonCompositionSchema");
-//		ReportsServer.EnableSchema(ThisObject, Context, DCSchema, SchemaKey);
-//	EndIf;
-//
-//  // The schema depends on the parameter value that is displayed in the report user settings:
-//	If TypeOf(NewDCSettings) = Type("DataCompositionUserSettings") Then
-//		MetadataObjectName = "";
-//		For Each DCItem From NewDCUserSettings.Items Do
-//			If TypeOf(DCItem) = Type("DataCompositionSettingsParameterValue") Then
-//				ParameterName = String(DCItem.Parameter);
-//				If ParameterName = "MetadataObject" Then
-//					MetadataObjectName = DCItem.Value;
-//				EndIf;
-//			EndIf;
-//		EndDo;
-//		If SchemaKey <> MetadataObjectName Then
-//			SchemaKey = MetadataObjectName;
-//			DCSchema = New DataCompositionSchema;
-//			// Filling the schema…
-//			ReportsServer.EnableSchema(ThisObject, Context, DCSchema, SchemaKey);
-//		EndIf;
-//	EndIf;
-//
-Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, Settings, UserSettings) Export
+Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSettings, NewDCUserSettings) Export
 	CurrentSchemaKey = Undefined;
 	
-	If Settings = Undefined Then 
-		Settings = SettingsComposer.Settings;
+	If NewDCSettings = Undefined Then 
+		NewDCSettings = SettingsComposer.Settings;
 	EndIf;
 	
 	IsImportedSchema = False;
 	SchemaBinaryData = CommonClientServer.StructureProperty(
-		Settings.AdditionalProperties, "DataCompositionSchema");
+		NewDCSettings.AdditionalProperties, "DataCompositionSchema");
 	
 	If TypeOf(SchemaBinaryData) = Type("BinaryData") Then
 		CurrentSchemaKey = BinaryDataHash(SchemaBinaryData);
@@ -186,11 +145,11 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, Setting
 		EndIf;
 	EndIf;
 	
-	ResetSettings = CommonClientServer.StructureProperty(Settings.AdditionalProperties, "ResetSettings", False); 
+	ResetSettings = CommonClientServer.StructureProperty(NewDCSettings.AdditionalProperties, "ResetSettings", False);
 		
 	AvailableValues = Undefined;
 	FixedParameters = Reports.UniversalReport.FixedParameters(
-		Settings, UserSettings, AvailableValues);    	
+		NewDCSettings, NewDCUserSettings, AvailableValues);
 	
 	If CurrentSchemaKey = Undefined Then 
 		CurrentSchemaKey = FixedParameters.MetadataObjectType
@@ -214,17 +173,17 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, Setting
 		
 		If IsImportedSchema Then
 			Reports.UniversalReport.SetStandardImportedSchemaSettings(
-				ThisObject, SchemaBinaryData, Settings, UserSettings);
+				ThisObject, SchemaBinaryData, NewDCSettings, NewDCUserSettings);
 		Else
 			Reports.UniversalReport.CustomizeStandardSettings(
-				ThisObject, FixedParameters, Settings, UserSettings);
+				ThisObject, FixedParameters, NewDCSettings, NewDCUserSettings);
 		EndIf;
 		
 		If TypeOf(Context) = Type("ClientApplicationForm") Then
 			// Переопределение.
-			SSLSubsystemsIntegration.BeforeLoadVariantAtServer(Context, Settings);
-			ReportsOverridable.BeforeLoadVariantAtServer(Context, Settings);
-			BeforeLoadVariantAtServer(Context, Settings);
+			SSLSubsystemsIntegration.BeforeLoadVariantAtServer(Context, NewDCSettings);
+			ReportsOverridable.BeforeLoadVariantAtServer(Context, NewDCSettings);
+			BeforeLoadVariantAtServer(Context, NewDCSettings);
 			
 			TablesToUse = ReportsOptions.TablesToUse(DataCompositionSchema);
 			TablesToUse.Add(Metadata().FullName());
@@ -237,13 +196,13 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, Setting
 		EndIf;
 	Else
 		Reports.UniversalReport.SetFixedParameters(
-			ThisObject, FixedParameters, Settings, UserSettings);
+			ThisObject, FixedParameters, NewDCSettings, NewDCUserSettings);
 	EndIf;
 			
 	SettingsComposer.Settings.AdditionalProperties.Insert("AvailableValues", AvailableValues);
 	
 	Reports.UniversalReport.SetStandardReportHeader(
-		Context, Settings, FixedParameters, AvailableValues);
+		Context, NewDCSettings, FixedParameters, AvailableValues);
 EndProcedure
 
 // It is called after defining form item properties connected to user settings.

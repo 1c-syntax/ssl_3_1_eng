@@ -282,7 +282,7 @@
 					<tl>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Calendar for year [Year]: [BusinessCalendar]</v8:content>
+							<v8:content>Business calendar [BusinessCalendar] for [Year]</v8:content>
 						</v8:item>
 					</tl>
 				</c>

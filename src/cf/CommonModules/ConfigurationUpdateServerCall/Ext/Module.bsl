@@ -97,7 +97,7 @@ EndFunction
 Function GenerateSplashText(Val TextTemplate1)
 	
 	TextParameters = New Map;
-	TextParameters["[SplashTitle]"] = NStr("en = 'Updating 1C:Enterprise application…';");
+	TextParameters["[SplashTitle]"] = NStr("en = 'Updating 1C:Enterprise configuration…';");
 	TextParameters["[SplashText]"] = NStr("en = 'Please wait.
 		|<br/> Application update is in progress.';");
 	
@@ -105,7 +105,7 @@ Function GenerateSplashText(Val TextTemplate1)
 	TextParameters["[Step2ClosingUserSessions]"] = NStr("en = 'Closing user sessions';");
 	TextParameters["[Step3BackupCreation]"] = NStr("en = 'Creating infobase backup';");
 	TextParameters["[Step4ConfigurationUpdate]"] = NStr("en = 'Updating infobase configuration';");
-	TextParameters["[Step4DownloadExtensions]"] = NStr("en = 'Infobase extension update';");
+	TextParameters["[Step4DownloadExtensions]"] = NStr("en = 'Updating infobase extensions';");
 	TextParameters["[Step5IBUpdate]"] = NStr("en = 'Running update handlers';");
 	TextParameters["[Step6DeferredUpdate]"] = NStr("en = 'Running deferred update handlers';");
 	TextParameters["[Step7CompressTables]"] = NStr("en = 'Compressing infobase tables';");
@@ -172,7 +172,7 @@ Procedure DeletePatchesFromScript() Export
 		Except
 			ErrorInfo = ErrorInfo();
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot delete patch ""%1"" due to:
+				NStr("en = 'Cannot delete patch ""%1."" Reason:
 				           |
 				           |%2';"), Extension.Name, ErrorProcessing.BriefErrorDescription(ErrorInfo));
 			WriteLogEvent(NStr("en = 'Patch.Delete';", Common.DefaultLanguageCode())
@@ -193,7 +193,7 @@ Function ScriptMessages()
 		
 	// 
 	Messages["[TheStartOfStartupMessage]"] = NStr("en = 'Starting: {0}; parameters: {1}; window: {2}; waiting: {3}';");
-	Messages["[ExceptionDetailsMessage]"] = NStr("en = 'Exception when starting the application: {0}, {1}';");
+	Messages["[ExceptionDetailsMessage]"] = NStr("en = 'Exception at the application start: {0}, {1}';");
 	Messages["[MessageLaunchResult]"] = NStr("en = 'Return code: {0}';");
 	Messages["[TheMessageIsThePathToTheScriptFile]"] = NStr("en = 'Script file: {0}';");
 	Messages["[UpdateFileCounterMessage]"] = NStr("en = 'Number of update files: {0}';");

@@ -989,7 +989,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Refresh settings list.</v8:content>
+					<v8:content>Refresh settings list</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Shortcut>F5</Shortcut>
@@ -1011,7 +1011,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Open setting.</v8:content>
+					<v8:content>Open setting</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -1032,7 +1032,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Select settings.</v8:content>
+					<v8:content>Select settings</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -1053,7 +1053,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Select all settings.</v8:content>
+					<v8:content>Select all settings</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -1073,7 +1073,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Clear all settings.</v8:content>
+					<v8:content>Clear all settings</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

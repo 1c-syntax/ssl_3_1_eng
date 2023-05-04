@@ -59,7 +59,6 @@ Procedure OpenReportForm(Val OwnerForm1, Val Variant, Val AdditionalParameters =
 			If ClientParameters.RunMeasurements Then
 				OpeningParameters.RunMeasurements = True;
 				OpeningParameters.Insert("OperationName", MeasurementsKey + ".Opening");
-				OpeningParameters.Insert("OperationComment", ClientParameters.MeasurementsPrefix);
 			EndIf;
 		EndIf;
 	ElsIf OpeningParameters.ReportType = "Additional" Then
@@ -90,12 +89,10 @@ Procedure OpenReportForm(Val OwnerForm1, Val Variant, Val AdditionalParameters =
 	OpeningParameters.Insert("WindowOptionsKey", UniqueKey);
 	
 	If OpeningParameters.RunMeasurements Then
-		ReportsOptionsClientServer.AddKeyToStructure(OpeningParameters, "OperationComment");
 		ModulePerformanceMonitorClient = CommonClient.CommonModule("PerformanceMonitorClient");
 		MeasurementID = ModulePerformanceMonitorClient.TimeMeasurement(
 			OpeningParameters.OperationName,,
 			False);
-		ModulePerformanceMonitorClient.SetMeasurementComment(MeasurementID, OpeningParameters.OperationComment);
 	EndIf;
 	
 	OpenForm(FullReportName + ".Form", OpeningParameters, Undefined, True);
@@ -125,7 +122,9 @@ Procedure ShowReportBar(SubsystemPath, CommandExecuteParameters) Export
 		MeasurementID = ModulePerformanceMonitorClient.TimeMeasurement(
 			"ReportPanel.Opening",,
 			False);
-		ModulePerformanceMonitorClient.SetMeasurementComment(MeasurementID, ClientParameters.MeasurementsPrefix + "; " + SubsystemPath);
+		Comment = New Map;
+		Comment.Insert("SubsystemPath", SubsystemPath);
+		ModulePerformanceMonitorClient.SetMeasurementComment(MeasurementID, Comment);
 	EndIf;
 	
 	OpenForm("CommonForm.ReportPanel", ParametersForm, , SubsystemPath, WindowForm, RefForm);
@@ -287,10 +286,13 @@ Procedure SubsystemsTreeImportanceOnChange(Form, Item) Export
 	TreeRow.Modified = True;
 EndProcedure
 
+// See ReportsOptions.ClientParameters
 Function ClientParameters()
-	Return CommonClientServer.StructureProperty(
-		StandardSubsystemsClient.ClientParametersOnStart(),
-		"ReportsOptions");
+	ClientParameters = New Structure;
+	ClientParameters.Insert("RunMeasurements",
+		CommonClient.SubsystemExists("StandardSubsystems.PerformanceMonitor"));
+	
+	Return ClientParameters;
 EndFunction
 
 // Notification event name to change a report option.

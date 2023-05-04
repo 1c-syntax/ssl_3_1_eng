@@ -319,7 +319,7 @@ Function CurrentIBUserProperties1() Export
 		AccessRight("Administration", Metadata, IBUser),
 		AccessRight("Administration", Metadata)));
 	
-	// АПК:336-
+	// ACC:336-
 	
 	//@skip-check using-isinrole
 	Properties.Insert("SystemAdministratorRoleAvailable",
@@ -329,7 +329,7 @@ Function CurrentIBUserProperties1() Export
 	Properties.Insert("RoleAvailableFullAccess",
 		IsInRole(Metadata.Roles.FullAccess));
 	
-	// АПК:336-
+	// ACC:336-
 	
 	Return New FixedStructure(Properties);
 	

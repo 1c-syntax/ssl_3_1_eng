@@ -543,7 +543,8 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	|WHERE
 	|	ContactInformationKinds.IsFolder = FALSE
 	|	AND (ISNULL(ContactInformationKinds.IDForFormulas, """") = """"
-	|			OR ISNULL(ContactInformationKinds.EditingOption, """") = """")";
+	|			OR ISNULL(ContactInformationKinds.EditingOption, """") = """"
+	|			OR ContactInformationKinds.IsAlwaysDisplayed = FALSE)";
 	
 	If MoreThanOneLanguage Then
 		Query.Text = Query.Text + "
@@ -574,7 +575,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	ObjectsWithIssuesCount = 0;
 	ObjectsProcessed = 0;
 	
-	AreSetAttributesAlwaysShown = AreSetAttributesAlwaysShown();
+	SetToDisplayAlways = CommonClientServer.CompareVersions("3.1.8.270", Parameters.SubsystemVersionAtStartUpdates) > 0;
 	
 	While ContactInformationKindRef.Next() Do
 		
@@ -599,15 +600,14 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 				EndIf;
 			EndIf;
 			
-			If Not ContactInformationKind.IsFolder Then
-				If ContactInformationKind.DeleteEditInDialogOnly Then
+			If Not ContactInformationKind.IsFolder And IsBlankString(ContactInformationKind.EditingOption) Then
+				If ContactInformationKind.Type = Enums.ContactInformationTypes.WebPage 
+					Or ContactInformationKind.DeleteEditInDialogOnly Then
 					ContactInformationKind.EditingOption = "Dialog";
 				ElsIf ContactInformationKind.Type = Enums.ContactInformationTypes.Email
-						Or ContactInformationKind.Type = Enums.ContactInformationTypes.Skype
-						Or ContactInformationKind.Type = Enums.ContactInformationTypes.Other Then
-						ContactInformationKind.EditingOption = "InputField";
-				ElsIf ContactInformationKind.Type = Enums.ContactInformationTypes.WebPage Then
-					ContactInformationKind.EditingOption = "Dialog";
+					Or ContactInformationKind.Type = Enums.ContactInformationTypes.Skype
+					Or ContactInformationKind.Type = Enums.ContactInformationTypes.Other Then
+					ContactInformationKind.EditingOption = "InputField";
 				Else
 					ContactInformationKind.EditingOption = "InputFieldAndDialog";
 				EndIf;
@@ -621,7 +621,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 					ContactInformationKind.Ref, ContactInformationKind.Parent);
 			EndIf;
 				
-			If Not AreSetAttributesAlwaysShown And Not ContactInformationKind.IsFolder Then
+			If Not ContactInformationKind.IsFolder And SetToDisplayAlways Then
 				ContactInformationKind.IsAlwaysDisplayed = True;
 			EndIf;
 							
@@ -693,23 +693,6 @@ Procedure SetContactInformationKindsDescriptions(ContactInformationKind, KindNam
 	EndDo;
 
 EndProcedure
-
-Function AreSetAttributesAlwaysShown()
-		
-	Query = New Query;
-	Query.Text = 
-		"SELECT TOP 1
-		|	ContactInformationKinds.Ref AS Ref
-		|FROM
-		|	Catalog.ContactInformationKinds AS ContactInformationKinds
-		|WHERE
-		|	ContactInformationKinds.IsAlwaysDisplayed";
-	
-	QueryResult = Query.Execute();
-	
-	Return Not QueryResult.IsEmpty();	
-	
-EndFunction
 
 #EndRegion
 

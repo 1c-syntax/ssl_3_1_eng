@@ -900,7 +900,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Add simple question</v8:content>
+					<v8:content>Add basic question</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Shortcut>Shift+F6</Shortcut>

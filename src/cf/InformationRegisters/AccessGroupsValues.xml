@@ -228,8 +228,8 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>An access group from the Access groups catalog
-that contains Access Value records.</v8:content>
+							<v8:content>An access group from the "Access groups" catalog
+that contains access value records.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -263,7 +263,7 @@ that contains Access Value records.</v8:content>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Access Value</v8:content>
+							<v8:content>Access value</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -276,8 +276,8 @@ that contains Access Value records.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>An Access Value specified in the access group by the access kind
-that matches the Access Value type.</v8:content>
+							<v8:content>An access value specified in the access group by the access kind
+that matches the access value type.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

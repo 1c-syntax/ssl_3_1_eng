@@ -329,7 +329,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Network folder</v8:content>
+							<v8:content>Network directory</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="FILETransportSettingsExtendedTooltip" id="148"/>
@@ -500,7 +500,7 @@ If you select the check box, also select it in the peer application.</v8:content
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>KB (type 0 to remove the size restriction)</v8:content>
+											<v8:content>KB (0 for no restriction)</v8:content>
 										</v8:item>
 									</Title>
 									<ContextMenu name="Decoration1ContextMenu" id="115"/>
@@ -621,7 +621,7 @@ If you select the check box, also select it in the peer application.</v8:content
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>KB (type 0 to remove the size restriction)</v8:content>
+											<v8:content>KB (0 for no restriction)</v8:content>
 										</v8:item>
 									</Title>
 									<ContextMenu name="Decoration2ContextMenu" id="118"/>

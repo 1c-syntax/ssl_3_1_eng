@@ -403,7 +403,7 @@ Procedure ListOnActivateRow(Item)
 		
 	EndIf;
 	
-	// StandardSubsystems.ПодключаемыеКоманды
+	// StandardSubsystems.AttachableCommands
 	AttachableCommandsClient.StartCommandUpdate(ThisObject);
 	// End StandardSubsystems.AttachableCommands
 	
@@ -3332,46 +3332,46 @@ Procedure RestoreExpandedTreeNodes()
 	
 	Settings = GetSavedSettingsOfNavigationPanelTree(Items.NavigationPanelPages.CurrentPage.Name,
 		CurrentPropertyOfNavigationPanel,NavigationPanelTreesSettings);
-		
-	If Settings = Undefined Then
+	If Settings = Undefined Or Settings.TreeName = "Categories" Then
 		Return;
 	EndIf;
 	
-	SettingsValue = Settings.SettingsValue;
-	
-	If Settings.TreeName <> "Categories" Then
-		ExpandedNodesIDsMap = New Map;
-		
-		If SettingsValue.ExpandedNodes.Count() Then
-			DetermineExpandedNodesIDs(SettingsValue.ExpandedNodes, 
-				ExpandedNodesIDsMap, ThisObject[Settings.TreeName].GetItems());
-		EndIf;
-		
-		For Each MapItem In ExpandedNodesIDsMap Do
-			Items[Settings.TreeName].Expand(MapItem.Value);
-		EndDo;
-		
-		For Each ListItem In SettingsValue.ExpandedNodes Do
-			If ExpandedNodesIDsMap.Get(ListItem.Value) = Undefined Then
-				SettingsValue.ExpandedNodes.Delete(ListItem);
-			EndIf;
-		EndDo;
-		
+	ExpandedNodes = Settings.SettingsValue.ExpandedNodes;
+	If ExpandedNodes.Count() = 0 Then
+		Return;
 	EndIf;
+
+	IdsOfDeployedNodes = New Map;
+	DetermineExpandedNodesIDs(ExpandedNodes, ThisObject[Settings.TreeName].GetItems(),
+		IdsOfDeployedNodes);
+
+	For Each NodeID In IdsOfDeployedNodes Do
+		Items[Settings.TreeName].Expand(NodeID.Value);
+	EndDo;
 	
+	DeletedNodes = New Array;
+	For Each ListItem In ExpandedNodes Do
+		If IdsOfDeployedNodes[ListItem.Value] = Undefined Then
+			DeletedNodes.Add(ListItem);
+		EndIf;
+	EndDo;
+	For Each ListItem In DeletedNodes Do
+		ExpandedNodes.Delete(ListItem);
+	EndDo;
+
 EndProcedure
 
 &AtClient
-Procedure DetermineExpandedNodesIDs(ExpandedNodesList, IDsMap, TreeRows)
+Procedure DetermineExpandedNodesIDs(ExpandedNodesList, TreeRows, NodesIDs)
 
 	For Each Item In TreeRows Do
 		If ExpandedNodesList.FindByValue(Item.Value) <> Undefined Then
 			ParentElement = Item.GetParent();
-			If ParentElement = Undefined Or IDsMap.Get(ParentElement.Value) <> Undefined Then
-				IDsMap.Insert(Item.Value,Item.GetID());
+			If ParentElement = Undefined Or NodesIDs[ParentElement.Value] <> Undefined Then
+				NodesIDs[Item.Value] = Item.GetID();
 			EndIf;
 		EndIf;
-		DetermineExpandedNodesIDs(ExpandedNodesList, IDsMap, Item.GetItems());
+		DetermineExpandedNodesIDs(ExpandedNodesList, Item.GetItems(), NodesIDs);
 	EndDo;
 		
 EndProcedure
@@ -3760,7 +3760,7 @@ Function GetInteractionsByListFilter(AdditionalFilterAttributeValue = Undefined,
 	
 	CopyFilter(SettingsComposer.Settings.Filter, InteractionsClientServer.DynamicListFilter(List));
 	
-	// Adding a filter with a comparison kind NOT for group commands.
+	// Add a filter with comparison type NOT for group commands.
 	If AdditionalFilterAttributeValue <> Undefined Then
 		FilterElement = SettingsComposer.Settings.Filter.Items.Add(Type("DataCompositionFilterItem"));
 		FilterElement.LeftValue = New DataCompositionField(AdditionalFilterAttributeName);

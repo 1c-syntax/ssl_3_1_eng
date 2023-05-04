@@ -161,7 +161,7 @@ Procedure GenerateToDoList(ToDoList)
 	
 	CollapsedSections = CollapsedSections();
 	
-	ToDoList.Sort("IsSection Desc, SectionPresentation Asc, Important Desc");
+	ToDoList.Sort("IsSection Desc, SectionPresentation Asc, Important Desc, Presentation");
 	
 	PutToTempStorage(ToDoList, UserTasksToStorage);
 	

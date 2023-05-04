@@ -182,6 +182,19 @@ EndProcedure
 //    * Key     - String       -
 //    * Value - Arbitrary -
 //
+// Example:
+//	
+//	
+//		
+//			
+//			
+//		
+//	
+//		
+//	
+//	
+//		
+//
 Procedure BeforeRecurringClientDataSendToServer(Parameters) Export
 	
 EndProcedure
@@ -198,6 +211,19 @@ EndProcedure
 //  Results - Map of KeyAndValue:
 //    * Key     - String       -
 //    * Value - Arbitrary -
+//
+// Example:
+//	
+//	
+//		
+//			
+//			
+//		
+//	
+//		
+//	
+//	
+//		
 //
 Procedure AfterRecurringReceiptOfClientDataOnServer(Results) Export
 	

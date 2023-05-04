@@ -850,7 +850,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Radio button kind</v8:content>
+							<v8:content>Radio button type</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -863,7 +863,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Radio button kind to select one response option from the provided ones</v8:content>
+							<v8:content>Radio button type to select one response option from the provided ones</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -895,7 +895,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Check box kind</v8:content>
+							<v8:content>Check box type</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>

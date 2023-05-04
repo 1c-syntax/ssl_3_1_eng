@@ -37,20 +37,16 @@
 //
 Function TimeMeasurement(KeyOperation = Undefined, RecordWithError = False, AutoCompletion = True) Export
 	
-	MeasurementUUID = New UUID("00000000-0000-0000-0000-000000000000");
-	
-	If RunPerformanceMeasurements() Then
-		MeasurementUUID = New UUID();
-		Parameters = New Structure;
-		Parameters.Insert("KeyOperation", KeyOperation);
-		Parameters.Insert("MeasurementUUID", MeasurementUUID);
-		Parameters.Insert("AutoCompletion", AutoCompletion);
-		Parameters.Insert("IsFailed", RecordWithError);
-				
-		StartTimeMeasurementAtClientInternal(Parameters);
+	If Not RunPerformanceMeasurements() Then
+		Return New UUID("00000000-0000-0000-0000-000000000000");
 	EndIf;
-		
-	Return MeasurementUUID;
+	
+	Parameters = TimeMeasurementParametersOnClient(KeyOperation);
+	Parameters.AutoCompletion = AutoCompletion;
+	Parameters.IsFailed = RecordWithError;
+
+	StartTimeMeasurementAtClientInternal(Parameters);
+	Return Parameters.MeasurementUUID;
 	
 EndFunction
 
@@ -72,21 +68,17 @@ EndFunction
 //
 Function StartTechologicalTimeMeasurement(AutoCompletion = True, KeyOperation = Undefined) Export
 	
-	MeasurementUUID = New UUID("00000000-0000-0000-0000-000000000000");
-	
-	If RunPerformanceMeasurements() Then
-		MeasurementUUID = New UUID();
-		Parameters = New Structure;
-		Parameters.Insert("KeyOperation", KeyOperation);
-		Parameters.Insert("MeasurementUUID", MeasurementUUID);
-		Parameters.Insert("AutoCompletion", AutoCompletion);
-		Parameters.Insert("Technological", True);
-		Parameters.Insert("IsFailed", False);
-		
-		StartTimeMeasurementAtClientInternal(Parameters);
+	If Not RunPerformanceMeasurements() Then
+		Return New UUID("00000000-0000-0000-0000-000000000000");
 	EndIf;
+
+	Parameters = TimeMeasurementParametersOnClient(KeyOperation);
+	Parameters.AutoCompletion = AutoCompletion;
+	Parameters.Technological = True;
+	Parameters.IsFailed = False;
 		
-	Return MeasurementUUID;
+	StartTimeMeasurementAtClientInternal(Parameters);
+	Return Parameters.MeasurementUUID;
 	
 EndFunction
 
@@ -99,23 +91,26 @@ EndFunction
 //
 Procedure StopTimeMeasurement(MeasurementUUID, CompletedWithError = False) Export
 	
-	If RunPerformanceMeasurements() Then
-		EndTime = CurrentUniversalDateInMilliseconds();
-		StopTimeMeasurementInternal(MeasurementUUID, EndTime);
-		
-		PerformanceMonitorTimeMeasurement = ApplicationParameters["StandardSubsystems.PerformanceMonitorTimeMeasurement"];
-		If PerformanceMonitorTimeMeasurement <> Undefined Then
-			Measurements = PerformanceMonitorTimeMeasurement["Measurements"];
-			Measurement = Measurements[MeasurementUUID];
-			If Measurement <> Undefined Then
-				Measurement["IsFailed"] = CompletedWithError;
-				CompletedMeasurements = ApplicationParameters["StandardSubsystems.PerformanceMonitorTimeMeasurement"]["CompletedMeasurements"];
-				CompletedMeasurements.Insert(MeasurementUUID, Measurement);
-				Measurements.Delete(MeasurementUUID);
-			EndIf;
-		EndIf;   
-		
+	If Not RunPerformanceMeasurements() Then
+		Return;
 	EndIf;
+
+	EndTime = CurrentUniversalDateInMilliseconds();
+	StopTimeMeasurementInternal(MeasurementUUID, EndTime);
+	
+	TimeMeasurements = PerformanceMonitorTimeMeasurement();
+	If TimeMeasurements = Undefined Then
+		Return;
+	EndIf;
+
+	Measurement = TimeMeasurements.Measurements[MeasurementUUID];
+	If Measurement = Undefined Then
+		Return;
+	EndIf;
+
+	Measurement["IsFailed"] = CompletedWithError;
+	TimeMeasurements.CompletedMeasurements.Insert(MeasurementUUID, Measurement);
+	TimeMeasurements.Measurements.Delete(MeasurementUUID);
 	
 EndProcedure
 
@@ -124,22 +119,23 @@ EndProcedure
 // Parameters:
 //  MeasurementUUID	- UUID - a measurement UUID.
 //  MeasurementParameters	- Structure:
-//    * KeyOperation 	- String					- name of the key operation.
-//    * MeasurementWeight			- Number						- measurement complexity indicator
+//    * KeyOperation - String		- name of the key operation.
+//    * MeasurementWeight		- Number			-
 //    * Comment		- String
-//		             		- Map - 
-//    * IsFailed - Boolean					- indicates whether the measurement was completed with an error,
-//														  see SetMeasurementErrorFlag.
+//						- Map - 
+//    * IsFailed - Boolean			- indicates whether the measurement was completed with an error,
+//											see SetMeasurementErrorFlag.
 //
 Procedure SetMeasurementParameters(MeasurementUUID, MeasurementParameters) Export
 	
-	If RunPerformanceMeasurements() Then
-		ParameterName = "StandardSubsystems.PerformanceMonitorTimeMeasurement";
-		Measurements = ApplicationParameters[ParameterName]["Measurements"];
-		For Each Parameter In MeasurementParameters Do
-			Measurements[MeasurementUUID][Parameter.Key] = Parameter.Value;
-		EndDo;
+	If Not RunPerformanceMeasurements() Then
+		Return;
 	EndIf;
+
+	Measurements = PerformanceMonitorTimeMeasurement().Measurements;
+	For Each Parameter In MeasurementParameters Do
+		Measurements[MeasurementUUID][Parameter.Key] = Parameter.Value;
+	EndDo;
 	
 EndProcedure
 
@@ -171,11 +167,11 @@ EndProcedure
 //
 Procedure SetMeasurementKeyOperation(MeasurementUUID, KeyOperation) Export
 	
-	If RunPerformanceMeasurements() Then
-		ParameterName = "StandardSubsystems.PerformanceMonitorTimeMeasurement";
-		Measurements = ApplicationParameters[ParameterName]["Measurements"];	
-		Measurements[MeasurementUUID]["KeyOperation"] = KeyOperation;
+	If Not RunPerformanceMeasurements() Then
+		Return;
 	EndIf;
+
+	PerformanceMonitorTimeMeasurement().Measurements[MeasurementUUID]["KeyOperation"] = KeyOperation;
 	
 EndProcedure
 
@@ -188,11 +184,10 @@ EndProcedure
 //
 Procedure SetMeasurementWeight(MeasurementUUID, MeasurementWeight) Export
 	
-	If RunPerformanceMeasurements() Then
-		ParameterName = "StandardSubsystems.PerformanceMonitorTimeMeasurement";
-		Measurements = ApplicationParameters[ParameterName]["Measurements"];	
-		Measurements[MeasurementUUID]["MeasurementWeight"] = MeasurementWeight;
+	If Not RunPerformanceMeasurements() Then
+		Return;
 	EndIf;
+	PerformanceMonitorTimeMeasurement().Measurements[MeasurementUUID]["MeasurementWeight"] = MeasurementWeight;
 	
 EndProcedure
 
@@ -210,11 +205,10 @@ EndProcedure
 //
 Procedure SetMeasurementComment(MeasurementUUID, Comment) Export
 		
-	If RunPerformanceMeasurements() Then
-		ParameterName = "StandardSubsystems.PerformanceMonitorTimeMeasurement";
-		Measurements = ApplicationParameters[ParameterName]["Measurements"];	
-		Measurements[MeasurementUUID]["Comment"] = Comment;
+	If Not RunPerformanceMeasurements() Then
+		Return;
 	EndIf;
+	PerformanceMonitorTimeMeasurement().Measurements[MeasurementUUID]["Comment"] = Comment;
 	
 EndProcedure
 
@@ -227,11 +221,10 @@ EndProcedure
 //
 Procedure SetMeasurementErrorFlag(MeasurementUUID, Flag) Export
 	
-	If RunPerformanceMeasurements() Then
-		ParameterName = "StandardSubsystems.PerformanceMonitorTimeMeasurement";
-		Measurements = ApplicationParameters[ParameterName]["Measurements"];	
-		Measurements[MeasurementUUID]["IsFailed"] = Flag;
+	If Not RunPerformanceMeasurements() Then
+		Return;
 	EndIf;
+	PerformanceMonitorTimeMeasurement().Measurements[MeasurementUUID]["IsFailed"] = Flag;
 	
 EndProcedure
 
@@ -269,33 +262,26 @@ EndProcedure
 //
 Function StartTimeConsumingOperationMeasurement(KeyOperation, RecordWithError = False, AutoCompletion = False, LastStepName = "LastStep") Export
 	
-	MeasurementUUID = New UUID("00000000-0000-0000-0000-000000000000");
-	Measurement = New Map;
-	
-	If RunPerformanceMeasurements() Then
-		MeasurementUUID = New UUID();
-		Parameters = New Structure;
-		Parameters.Insert("KeyOperation", KeyOperation);
-		Parameters.Insert("MeasurementUUID", MeasurementUUID);
-		Parameters.Insert("IsFailed", RecordWithError);
-		Parameters.Insert("AutoCompletion", AutoCompletion);
-				
-		StartTimeMeasurementAtClientInternal(Parameters);
-		
-		ParameterName = "StandardSubsystems.PerformanceMonitorTimeMeasurement";
-		Measurements = ApplicationParameters[ParameterName]["Measurements"];
-		Measurement = Measurements[MeasurementUUID]; 		
-		Measurement.Insert("LastMeasurementTime", Measurement["BeginTime"]);
-		Measurement.Insert("WeightedTime", 0.0);
-		Measurement.Insert("MeasurementWeight", 0);
-		Measurement.Insert("NestedMeasurements", New Map);
-		Measurement.Insert("MeasurementUUID", MeasurementUUID);
-		Measurement.Insert("Client", True);
-		Measurement.Insert("LastStepName", LastStepName);
-		
+	If Not RunPerformanceMeasurements() Then
+		Return New Map;
 	EndIf;
-		
-	Return Measurement;
+	
+	Parameters = TimeMeasurementParametersOnClient(KeyOperation);
+	Parameters.IsFailed = RecordWithError;
+	Parameters.AutoCompletion = AutoCompletion;
+			
+	StartTimeMeasurementAtClientInternal(Parameters);
+	
+	TimeMeasurements = PerformanceMonitorTimeMeasurement().Measurements;
+	TimeMeasurement = TimeMeasurements[Parameters.MeasurementUUID];
+	TimeMeasurement.Insert("LastMeasurementTime", TimeMeasurement["BeginTime"]);
+	TimeMeasurement.Insert("WeightedTime", 0.0);
+	TimeMeasurement.Insert("MeasurementWeight", 0);
+	TimeMeasurement.Insert("NestedMeasurements", New Map);
+	TimeMeasurement.Insert("MeasurementUUID", Parameters.MeasurementUUID);
+	TimeMeasurement.Insert("Client", True);
+	TimeMeasurement.Insert("LastStepName", LastStepName);
+	Return TimeMeasurement;
 	
 EndFunction
 
@@ -348,28 +334,33 @@ EndProcedure
 //
 Procedure EndTimeConsumingOperationMeasurement(MeasurementDetails, DataVolume, StepName = "", Comment = "") Export
 	
-	If RunPerformanceMeasurements() Then
+	If Not RunPerformanceMeasurements() Then
+		Return;
+	EndIf;
 		
-		If MeasurementDetails["NestedMeasurements"].Count() > 0 Then
-			DataVolumeInStep = ?(DataVolume = 0, 1, DataVolume);
-			FixTimeConsumingOperationMeasure(MeasurementDetails, DataVolumeInStep, ?(IsBlankString(StepName), "LastStep", StepName), Comment);
-		EndIf;
-		
-		MeasurementUUID = MeasurementDetails["MeasurementUUID"];
-		EndTime = CurrentUniversalDateInMilliseconds();
-		StopTimeMeasurementInternal(MeasurementUUID, EndTime);
-		
-		Measurements = ApplicationParameters["StandardSubsystems.PerformanceMonitorTimeMeasurement"]["Measurements"];
-		Measurement = Measurements[MeasurementUUID];
-		
-		If Measurement <> Undefined Then
-			CompletedMeasurements = ApplicationParameters["StandardSubsystems.PerformanceMonitorTimeMeasurement"]["CompletedMeasurements"];
-			MeasurementDetails.Insert("EndTime", Measurement["EndTime"]);
-			CompletedMeasurements.Insert(MeasurementUUID, MeasurementDetails);
-			Measurements.Delete(MeasurementUUID);
-		EndIf;
+	If MeasurementDetails["NestedMeasurements"].Count() > 0 Then
+		DataVolumeInStep = ?(DataVolume = 0, 1, DataVolume);
+		FixTimeConsumingOperationMeasure(MeasurementDetails, DataVolumeInStep, 
+			?(IsBlankString(StepName), "LastStep", StepName), Comment);
 	EndIf;
 	
+	MeasurementUUID = MeasurementDetails["MeasurementUUID"];
+	EndTime = CurrentUniversalDateInMilliseconds();
+	StopTimeMeasurementInternal(MeasurementUUID, EndTime);
+	
+	TimeMeasurements = PerformanceMonitorTimeMeasurement();
+	If TimeMeasurements = Undefined Then
+		Return;
+	EndIf;
+
+	Measurement = TimeMeasurements.Measurements[MeasurementUUID];
+	If Measurement <> Undefined Then
+		CompletedMeasurements = TimeMeasurements.CompletedMeasurements;
+		MeasurementDetails.Insert("EndTime", Measurement["EndTime"]);
+		CompletedMeasurements.Insert(MeasurementUUID, MeasurementDetails);
+		TimeMeasurements.Measurements.Delete(MeasurementUUID);
+	EndIf;
+
 EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
@@ -398,24 +389,21 @@ EndProcedure
 //
 Function StartTimeMeasurement(AutoCompletion = True, KeyOperation = Undefined) Export
 	
-	MeasurementUUID = New UUID("00000000-0000-0000-0000-000000000000");
-	
-	If RunPerformanceMeasurements() Then
-		MeasurementUUID = New UUID();
-		Parameters = New Structure;
-		Parameters.Insert("KeyOperation", KeyOperation);
-		Parameters.Insert("MeasurementUUID", MeasurementUUID);
-		Parameters.Insert("AutoCompletion", AutoCompletion);
-		Parameters.Insert("IsFailed", False);
-				
-		StartTimeMeasurementAtClientInternal(Parameters);
+	If Not RunPerformanceMeasurements() Then
+		Return New UUID("00000000-0000-0000-0000-000000000000");
 	EndIf;
-		
-	Return MeasurementUUID;
+
+	Parameters = TimeMeasurementParametersOnClient(KeyOperation);
+	Parameters.AutoCompletion = AutoCompletion;
+	Parameters.IsFailed = False;
+
+	StartTimeMeasurementAtClientInternal(Parameters);
+	Return Parameters.MeasurementUUID;
 	
 EndFunction
 
 #EndRegion
+
 #EndRegion
 
 #Region Internal
@@ -431,6 +419,30 @@ Procedure BeforeStart(Parameters) Export
 	ApplicationParameters.Delete(ParameterName);
 	
 	StartTimeMeasurementWithOffset(BeginTime, True, "TotalApplicationStartTime");
+	
+EndProcedure
+
+// See CommonClientOverridable.BeforeRecurringClientDataSendToServer
+Procedure BeforeRecurringClientDataSendToServer(Parameters) Export
+	
+	ClientParameters = ApplicationParameters["StandardSubsystems.ClientParameters"];
+	If ClientParameters = Undefined
+	 Or Not ClientParameters.Property("PerformanceMonitor") Then
+		Return;
+	EndIf;
+	RecordPeriod = ClientParameters.PerformanceMonitor.RecordPeriod;
+	
+	If Not ServerNotificationsClient.TimeoutExpired("StandardSubsystems.PerformanceMonitor", RecordPeriod, True) Then
+		Return;
+	EndIf;
+	
+	MeasurementsToWrite = MeasurementsToWrite();
+	If MeasurementsToWrite = Undefined
+	 Or Not ValueIsFilled(MeasurementsToWrite.CompletedMeasurements) Then
+		Return;
+	EndIf;
+	
+	Parameters.Insert("StandardSubsystems.PerformanceMonitor.MeasurementsToWrite", MeasurementsToWrite);
 	
 EndProcedure
 
@@ -457,21 +469,17 @@ EndProcedure
 //
 Function StartTimeMeasurementWithOffset(Offset, AutoCompletion = True, KeyOperation = Undefined)
 	
-	MeasurementUUID = New UUID("00000000-0000-0000-0000-000000000000");
-	
-	If RunPerformanceMeasurements() Then
-		MeasurementUUID = New UUID();
-		Parameters = New Structure;
-		Parameters.Insert("KeyOperation", KeyOperation);
-		Parameters.Insert("MeasurementUUID", MeasurementUUID);
-		Parameters.Insert("AutoCompletion", AutoCompletion);
-		Parameters.Insert("IsFailed", False);
-		Parameters.Insert("Offset", Offset);
-				
-		StartTimeMeasurementAtClientInternal(Parameters);
+	If Not RunPerformanceMeasurements() Then
+		Return New UUID("00000000-0000-0000-0000-000000000000");
 	EndIf;
-		
-	Return MeasurementUUID;
+
+	Parameters = TimeMeasurementParametersOnClient(KeyOperation);
+	Parameters.AutoCompletion = AutoCompletion;
+	Parameters.IsFailed = False;
+	Parameters.Offset = Offset;
+
+	StartTimeMeasurementAtClientInternal(Parameters);
+	Return Parameters.MeasurementUUID;
 	
 EndFunction
 
@@ -495,21 +503,61 @@ Function RunPerformanceMeasurements()
 	
 EndFunction
 
+// Returns:
+//  Structure:
+//   * KeyOperation - String
+//   * MeasurementUUID - UUID
+//   * AutoCompletion - Boolean
+//   * Technological - Boolean
+//   * IsFailed - Boolean
+//   * Offset - Number
+//   * Comment - 
+//
+Function TimeMeasurementParametersOnClient(KeyOperation)
+
+	Parameters = New Structure;
+	Parameters.Insert("KeyOperation", KeyOperation);
+	Parameters.Insert("MeasurementUUID", New UUID());
+	Parameters.Insert("AutoCompletion", True);
+	Parameters.Insert("Technological", False);
+	Parameters.Insert("IsFailed", False);
+	Parameters.Insert("Offset", 0);
+	Parameters.Insert("Comment", Undefined);
+	Return Parameters;
+
+EndFunction
+
+// Returns:
+//  Structure:
+//   * Measurements - Map
+//   * CompletedMeasurements - Map
+//   * HasHandler - Boolean
+//   * HandlerAttachmentTime - Date 
+//   * ClientDateOffset - Number
+//
+Function PerformanceMonitorTimeMeasurement()
+	Return ApplicationParameters["StandardSubsystems.PerformanceMonitorTimeMeasurement"];
+EndFunction
+
+// Parameters:
+//  Parameters - See TimeMeasurementParametersOnClient
+//
 Procedure StartTimeMeasurementAtClientInternal(Parameters)
     
     BeginTime = CurrentUniversalDateInMilliseconds();
-    
 	If ApplicationParameters = Undefined Then
 		ApplicationParameters = New Map;
 	EndIf;
 		
-	ParameterName = "StandardSubsystems.PerformanceMonitorTimeMeasurement";
-	If ApplicationParameters[ParameterName] = Undefined Then
-		ApplicationParameters.Insert(ParameterName, New Structure);
-		ApplicationParameters[ParameterName].Insert("Measurements", New Map);
-		ApplicationParameters[ParameterName].Insert("CompletedMeasurements", New Map);
-		ApplicationParameters[ParameterName].Insert("HasHandler", False);
-		ApplicationParameters[ParameterName].Insert("HandlerAttachmentTime", BeginTime);
+	TimeMeasurements = PerformanceMonitorTimeMeasurement();
+	If TimeMeasurements = Undefined Then
+		TimeMeasurements = New Structure;
+		TimeMeasurements.Insert("Measurements", New Map);
+		TimeMeasurements.Insert("CompletedMeasurements", New Map);
+		TimeMeasurements.Insert("HasHandler", False);
+		TimeMeasurements.Insert("HandlerAttachmentTime", BeginTime);
+		TimeMeasurements.Insert("ClientDateOffset", 0);
+		ApplicationParameters["StandardSubsystems.PerformanceMonitorTimeMeasurement"] = TimeMeasurements;
 		
 		StandardSubsystemsParameterName = "StandardSubsystems.ClientParameters";
 		If ApplicationParameters[StandardSubsystemsParameterName] = Undefined Then
@@ -517,162 +565,131 @@ Procedure StartTimeMeasurementAtClientInternal(Parameters)
 			CurrentRecordingPeriod = PerformanceMonitorParameters.RecordPeriod;
 			DateAndTimeAtServer = PerformanceMonitorParameters.DateAndTimeAtServer;
 		
-			// Getting the date in UTC
 			DateAndTimeAtClient = CurrentUniversalDateInMilliseconds();
-			ApplicationParameters[ParameterName].Insert("ClientDateOffset", DateAndTimeAtServer - DateAndTimeAtClient);
+			TimeMeasurements.ClientDateOffset = DateAndTimeAtServer - DateAndTimeAtClient;
 		Else
+			CurrentRecordingPeriod = Undefined; // 
 			StandardSubsystemsApplicationParameters = ApplicationParameters[StandardSubsystemsParameterName];
 			If StandardSubsystemsApplicationParameters.Property("PerformanceMonitor") Then
-				CurrentRecordingPeriod = StandardSubsystemsApplicationParameters["PerformanceMonitor"]["RecordPeriod"];
-				ApplicationParameters[ParameterName].Insert("ClientDateOffset", StandardSubsystemsApplicationParameters["ClientDateOffset"]);
+				TimeMeasurements.ClientDateOffset = StandardSubsystemsApplicationParameters["ClientDateOffset"];
 			Else
 				PerformanceMonitorParameters = PerformanceMonitorServerCall.GetParametersAtServer();
-				CurrentRecordingPeriod = PerformanceMonitorParameters.RecordPeriod;
 				DateAndTimeAtServer = PerformanceMonitorParameters.DateAndTimeAtServer;
 				
-				// 
 				DateAndTimeAtClient = CurrentUniversalDateInMilliseconds();
-				ApplicationParameters[ParameterName].Insert("ClientDateOffset", DateAndTimeAtServer - DateAndTimeAtClient);
+				TimeMeasurements.ClientDateOffset = DateAndTimeAtServer - DateAndTimeAtClient;
 			EndIf;
 		EndIf;
 				
 		UserAgentInformation = "";
-		#If ThickClientManagedApplication Then
-			UserAgentInformation = "ThickClientManagedApplication";
-		#ElsIf ThickClientOrdinaryApplication Then
-			UserAgentInformation = "ThickClient";
-		#ElsIf ThinClient Then
-			UserAgentInformation = "ThinClient";
-		#ElsIf WebClient Then
-			ClientInfo = New SystemInfo();
-			UserAgentInformation = ClientInfo.UserAgentInformation;
-		#EndIf
-		ApplicationParameters[ParameterName].Insert("UserAgentInformation", UserAgentInformation);
-						
-		AttachIdleHandler("WriteResultsAuto", CurrentRecordingPeriod, True);
+#If ThickClientManagedApplication Then
+		UserAgentInformation = "ThickClientManagedApplication";
+#ElsIf ThickClientOrdinaryApplication Then
+		UserAgentInformation = "ThickClient";
+#ElsIf ThinClient Then
+		UserAgentInformation = "ThinClient";
+#ElsIf WebClient Then
+		ClientInfo = New SystemInfo();
+		UserAgentInformation = ClientInfo.UserAgentInformation;
+#EndIf
+		TimeMeasurements.Insert("UserAgentInformation", UserAgentInformation);
+		If CurrentRecordingPeriod <> Undefined Then
+			AttachIdleHandler("WriteResultsAuto", CurrentRecordingPeriod, True);
+		EndIf;
 	EndIf;
 	
 	// 
-	// 
-	// 
-	//
-	
-	If Parameters.Property("Offset") Then
-		BeginTime = Parameters.Offset + ApplicationParameters[ParameterName]["ClientDateOffset"];;
+	If Parameters.Offset > 0 Then
+		BeginTime = Parameters.Offset + TimeMeasurements.ClientDateOffset;
 	Else
-		BeginTime = BeginTime + ApplicationParameters[ParameterName]["ClientDateOffset"];
+		BeginTime = BeginTime + TimeMeasurements.ClientDateOffset;
 	EndIf;
 		
-	KeyOperation = Parameters.KeyOperation;
-	MeasurementUUID = Parameters.MeasurementUUID;
-	AutoCompletion = Parameters.AutoCompletion;
-	
-	If Parameters.Property("Comment") Then
-		Comment = Parameters.Comment;
-	Else
-		Comment = Undefined;
-	EndIf;
-	
-	If Parameters.Property("Technological") Then
-		Technological = Parameters.Technological;
-	Else
-		Technological = False;
-	EndIf;
-	
-	If Parameters.Property("IsFailed") Then
-		IsFailed = Parameters.IsFailed;
-	Else
-		IsFailed = False;
-	EndIf;
-	
-	Measurements = ApplicationParameters[ParameterName]["Measurements"]; 
-	Measurements.Insert(MeasurementUUID, New Map);
-	Measurement = Measurements[MeasurementUUID];
-	Measurement.Insert("KeyOperation", KeyOperation);
-	Measurement.Insert("AutoCompletion", AutoCompletion);
+	Measurement = New Map;
+	Measurement.Insert("KeyOperation", Parameters.KeyOperation);
+	Measurement.Insert("AutoCompletion", Parameters.AutoCompletion);
 	Measurement.Insert("BeginTime", BeginTime);
-	Measurement.Insert("Comment", Comment);
-	Measurement.Insert("IsFailed", IsFailed);
-	Measurement.Insert("Technological", Technological);
+	Measurement.Insert("Comment", Parameters.Comment);
+	Measurement.Insert("IsFailed", Parameters.IsFailed);
+	Measurement.Insert("Technological", Parameters.Technological);
 	Measurement.Insert("MeasurementWeight", 1);
-	
-	If AutoCompletion Then
-		If Not ApplicationParameters[ParameterName]["HasHandler"] Then
+	TimeMeasurements.Measurements.Insert(Parameters.MeasurementUUID, Measurement);
+
+	If Parameters.AutoCompletion Then
+		If Not TimeMeasurements.HasHandler Then
 			AttachIdleHandler("EndTimeMeasurementAuto", 0.1, True);
-			ApplicationParameters[ParameterName]["HasHandler"] = True;
-			ApplicationParameters[ParameterName]["HandlerAttachmentTime"] = CurrentUniversalDateInMilliseconds() + ApplicationParameters[ParameterName]["ClientDateOffset"];
+			TimeMeasurements.HasHandler = True;
+			TimeMeasurements.HandlerAttachmentTime = CurrentUniversalDateInMilliseconds() + TimeMeasurements.ClientDateOffset;
 		EndIf;	
 	EndIf;	
 	
 EndProcedure
 
-// Automatically completes a time measurement on the client.
-//
 Procedure StopTimeMeasurementAtClientAuto() Export
 	
 	EndTime = CurrentUniversalDateInMilliseconds();
+
+	TimeMeasurements = PerformanceMonitorTimeMeasurement();
+	If TimeMeasurements = Undefined Then
+		Return;
+	EndIf;	
+
+	ToDelete = New Array;
+
+	IncompleteAutoMeasurementsCount = 0;
+	For Each TimeMeasurement In TimeMeasurements.Measurements Do
+		MeasurementValue = TimeMeasurement.Value;
+		If MeasurementValue["AutoCompletion"] Then 
+			If MeasurementValue["BeginTime"] <= TimeMeasurements.HandlerAttachmentTime 
+				And MeasurementValue["EndTime"] = Undefined Then
+				// If there are nested measurements, record the last step.
+				If MeasurementValue["NestedMeasurements"] <> Undefined
+					And MeasurementValue["NestedMeasurements"].Count() > 0 Then
+					FixTimeConsumingOperationMeasure(MeasurementValue, 1, MeasurementValue["LastStepName"]);
+				EndIf;
+				
+				// The client's date offset is calculated within the procedure.
+				StopTimeMeasurementInternal(TimeMeasurement.Key, EndTime);
+				If ValueIsFilled(TimeMeasurement.Value["KeyOperation"]) Then
+					TimeMeasurements.CompletedMeasurements.Insert(TimeMeasurement.Key, TimeMeasurement.Value);
+				EndIf;
+				ToDelete.Add(TimeMeasurement.Key);
+			Else
+				IncompleteAutoMeasurementsCount = IncompleteAutoMeasurementsCount + 1;
+			EndIf;
+		EndIf;
+	EndDo;
 	
-	PerformanceMonitorTimeMeasurement = ApplicationParameters["StandardSubsystems.PerformanceMonitorTimeMeasurement"];
-	HandlerAttachmentTime = PerformanceMonitorTimeMeasurement["HandlerAttachmentTime"];
-		
-    If PerformanceMonitorTimeMeasurement <> Undefined Then
-        
-        Measurements = ApplicationParameters["StandardSubsystems.PerformanceMonitorTimeMeasurement"]["Measurements"];
-		CompletedMeasurements = ApplicationParameters["StandardSubsystems.PerformanceMonitorTimeMeasurement"]["CompletedMeasurements"];
-		
-		ToDelete = New Array;
-        
-        IncompleteAutoMeasurementsCount = 0;
-		For Each Measurement In Measurements Do
-			MeasurementValue = Measurement.Value;
-            If MeasurementValue["AutoCompletion"] Then 
-				If MeasurementValue["BeginTime"] <= HandlerAttachmentTime And MeasurementValue["EndTime"] = Undefined Then
-					// If there are nested measurements, record the last step.
-					If MeasurementValue["NestedMeasurements"] <> Undefined
-						And MeasurementValue["NestedMeasurements"].Count() > 0 Then
-						FixTimeConsumingOperationMeasure(MeasurementValue, 1, MeasurementValue["LastStepName"]);
-					EndIf;
-					
-                    // The client's date offset is calculated within the procedure.
-                    StopTimeMeasurementInternal(Measurement.Key, EndTime);
-                    If ValueIsFilled(Measurement.Value["KeyOperation"]) Then
-                        CompletedMeasurements.Insert(Measurement.Key, Measurement.Value);
-                    EndIf;
-                    ToDelete.Add(Measurement.Key);
-                Else
-                    IncompleteAutoMeasurementsCount = IncompleteAutoMeasurementsCount + 1;
-                EndIf;
-            EndIf;
-		EndDo;
-		
-		For Each CurMeasurement In ToDelete Do
-			Measurements.Delete(CurMeasurement);
-		EndDo;
-	EndIf;
+	For Each TimeMeasurement In ToDelete Do
+		TimeMeasurements.Measurements.Delete(TimeMeasurement);
+	EndDo;
 	
 	If IncompleteAutoMeasurementsCount = 0 Then
-		PerformanceMonitorTimeMeasurement["HasHandler"] = False;
+		TimeMeasurements.HasHandler = False;
 	Else
 		AttachIdleHandler("EndTimeMeasurementAuto", 0.1, True);
-		PerformanceMonitorTimeMeasurement["HasHandler"] = True;
-		PerformanceMonitorTimeMeasurement["HandlerAttachmentTime"] = CurrentUniversalDateInMilliseconds() + PerformanceMonitorTimeMeasurement["ClientDateOffset"];
+		TimeMeasurements.HasHandler = True;
+		TimeMeasurements.HandlerAttachmentTime = CurrentUniversalDateInMilliseconds() + TimeMeasurements.ClientDateOffset;
 	EndIf;
 EndProcedure
 
 Procedure StopTimeMeasurementInternal(MeasurementUUID, Val EndTime)
 		
-	If RunPerformanceMeasurements() Then
-		PerformanceMonitorTimeMeasurement = ApplicationParameters["StandardSubsystems.PerformanceMonitorTimeMeasurement"];
-		If PerformanceMonitorTimeMeasurement <> Undefined Then
-			ClientDateOffset = ApplicationParameters["StandardSubsystems.PerformanceMonitorTimeMeasurement"]["ClientDateOffset"];
-			EndTime = EndTime + ClientDateOffset;
-			
-			Measurements = ApplicationParameters["StandardSubsystems.PerformanceMonitorTimeMeasurement"]["Measurements"];
-			Measurement = Measurements[MeasurementUUID];
-			If Measurement <> Undefined Then
-				Measurement.Insert("EndTime", EndTime);
-			EndIf;
-		EndIf;
+	If Not RunPerformanceMeasurements() Then
+		Return;
+	EndIf;
+
+	TimeMeasurements = PerformanceMonitorTimeMeasurement();
+	If TimeMeasurements = Undefined Then
+		Return;
+	EndIf;
+
+	ClientDateOffset = TimeMeasurements.ClientDateOffset;
+	EndTime = EndTime + ClientDateOffset;
+
+	Measurement = TimeMeasurements.Measurements[MeasurementUUID];
+	If Measurement <> Undefined Then
+		Measurement.Insert("EndTime", EndTime);
 	EndIf;
 	
 EndProcedure
@@ -684,20 +701,36 @@ EndProcedure
 //
 Procedure WriteResultsAutoNotGlobal(BeforeCompletion = False) Export
 	
-	PerformanceMonitorTimeMeasurement = ApplicationParameters["StandardSubsystems.PerformanceMonitorTimeMeasurement"];
+	MeasurementsToWrite = MeasurementsToWrite();
+	If MeasurementsToWrite = Undefined Then
+		Return;
+	EndIf;
+
+	NewRecordingPeriod = PerformanceMonitorServerCall.RecordKeyOperationsDuration(MeasurementsToWrite);
 	
-	If PerformanceMonitorTimeMeasurement <> Undefined Then
-		CompletedMeasurements = PerformanceMonitorTimeMeasurement["CompletedMeasurements"];
-		PerformanceMonitorTimeMeasurement["CompletedMeasurements"] = New Map;
-		
-		MeasurementsToWrite = New Structure;
-		MeasurementsToWrite.Insert("CompletedMeasurements", CompletedMeasurements);
-		MeasurementsToWrite.Insert("UserAgentInformation", PerformanceMonitorTimeMeasurement["UserAgentInformation"]);
-		NewRecordingPeriod = PerformanceMonitorServerCall.RecordKeyOperationsDuration(MeasurementsToWrite);
-				
+	StandardSubsystemsParameterName = "StandardSubsystems.ClientParameters";
+	If ApplicationParameters[StandardSubsystemsParameterName] = Undefined Then
+		// 
 		AttachIdleHandler("WriteResultsAuto", NewRecordingPeriod, True);
 	EndIf;
 	
 EndProcedure
+
+Function MeasurementsToWrite()
+	
+	TimeMeasurements = PerformanceMonitorTimeMeasurement();
+	If TimeMeasurements = Undefined Then
+		Return Undefined;
+	EndIf;
+
+	CompletedMeasurements = TimeMeasurements.CompletedMeasurements;
+	TimeMeasurements.CompletedMeasurements = New Map;
+	
+	MeasurementsToWrite = New Structure;
+	MeasurementsToWrite.Insert("CompletedMeasurements", CompletedMeasurements);
+	MeasurementsToWrite.Insert("UserAgentInformation", TimeMeasurements.UserAgentInformation);
+	Return MeasurementsToWrite;
+	
+EndFunction
 
 #EndRegion

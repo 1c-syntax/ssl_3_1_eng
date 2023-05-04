@@ -541,10 +541,7 @@ EndFunction
 //
 Procedure OnSendServerNotification(NameOfAlert, ParametersVariants) Export
 	
-	If NameOfAlert = "StandardSubsystems.Core.ConfigurationOrExtensionsWasModified" Then
-		OnSendServerNotificationConfigurationOrExtensionsWasModified(NameOfAlert, ParametersVariants);
-		
-	ElsIf NameOfAlert = "StandardSubsystems.Core.FunctionalOptionsModified" Then
+	If NameOfAlert = "StandardSubsystems.Core.FunctionalOptionsModified" Then
 		OnSendServerNotificationFunctionalOptionsModified(NameOfAlert, ParametersVariants);
 	EndIf;
 	
@@ -1240,7 +1237,7 @@ Procedure RecordObjectChangesInAllNodes(Val Object, Val ExchangePlanName, Val In
 	If Common.DataSeparationEnabled() Then
 		
 		If Common.SeparatedDataUsageAvailable() Then
-			Raise NStr("en = 'Registering changes of shared data in separated mode.';");
+			Raise NStr("en = 'Register changes of shared data in separated mode.';");
 		EndIf;
 		
 		ModuleSaaSOperations = Undefined;
@@ -1638,7 +1635,8 @@ Procedure ResetWindowLocationAndSize(Form) Export
 		SettingsNames.Add("/MobileClientWindowSettings");
 		SettingsNames.Add("/Taxi/WebClientWindowSettings");
 		SettingsNames.Add("/Taxi/MobileClientWindowSettings");
-		For Each KeyAndValue In Keys Do
+		CurrentKeys = New Map(New FixedMap(Keys));
+		For Each KeyAndValue In CurrentKeys Do
 			CurrentDay = KeyAndValue.Key;
 			If TypeOf(CurrentDay) <> Type("Date") Then
 				Keys = Undefined;
@@ -1997,17 +1995,7 @@ EndProcedure
 // See CommonOverridable.OnAddServerNotifications
 Procedure OnAddServerNotifications(Notifications) Export
 	
-	// ConfigurationOrExtensionsWasModified
-	Notification = ServerNotifications.NewServerNotification(
-		"StandardSubsystems.Core.ConfigurationOrExtensionsWasModified");
-	
-	Notification.NotificationSendModuleName  = "StandardSubsystemsServer";
-	Notification.NotificationReceiptModuleName = "StandardSubsystemsClient";
-	Notification.Parameters = CheckParametersOfNotificationConfigurationOrExtensionsWasModified();
-	
-	Notifications.Insert(Notification.Name, Notification);
-	
-	// ФункциональныеОпцииИзменены
+	// FunctionalOptionsModified
 	Notification = ServerNotifications.NewServerNotification(
 		"StandardSubsystems.Core.FunctionalOptionsModified");
 	
@@ -2039,6 +2027,8 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 	Types.Add(Metadata.Constants.InfobasePublicationURL);
 	Types.Add(Metadata.Constants.LocalInfobasePublishingURL);
 	Types.Add(Metadata.Constants.InfoBaseID);
+	Types.Add(Metadata.Constants.DeliverServerNotificationsWithoutCollaborationSystem);
+	Types.Add(Metadata.Constants.RegisterServerNotificationsIndicators);
 	ModuleExportImportData = Common.CommonModule("ExportImportData");
 	ModuleExportImportData.AddTypeExcludedFromUploadingUploads(Types,
 		Metadata.Catalogs.ExtensionsVersions,
@@ -2165,7 +2155,9 @@ Procedure AfterImportData(Container) Export
 	// 
 	InformationRegisters.ExtensionVersionParameters.EnableFillingExtensionsWorkParameters(False, True);
 	If Common.DataSeparationEnabled() Then
-		InformationRegisters.ExtensionVersionParameters.StartFillingWorkParametersExtensions(True);
+		InformationRegisters.ExtensionVersionParameters.StartFillingWorkParametersExtensions(
+			NStr("en = 'Запуск с ожиданием после загрузки данных области';"),
+			True);
 	EndIf;
 	
 EndProcedure
@@ -2212,6 +2204,25 @@ EndProcedure
 // See SSLSubsystemsIntegration.OnDefineObjectsToExcludeFromCheck
 Procedure OnDefineObjectsToExcludeFromCheck(Objects) Export
 	Objects.Add(Metadata.InformationRegisters.ExtensionVersionObjectIDs);
+EndProcedure
+
+// See CommonOverridable.OnReceiptRecurringClientDataOnServer
+Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
+	
+	CheckParameters = Parameters.Get("StandardSubsystems.Core");
+	If CheckParameters = Undefined Then
+		Return;
+	EndIf;
+	
+	// ConfigurationOrExtensionsWasModified
+	UserMessage = Undefined;
+	ConfigurationOrExtensionModifiedDuringRepeatedCheck(UserMessage);
+	If UserMessage = Undefined Then
+		Return;
+	EndIf;
+	
+	Results.Insert("StandardSubsystems.Core", UserMessage);
+	
 EndProcedure
 
 // See UsersOverridable.OnGetOtherSettings.
@@ -3250,7 +3261,7 @@ Procedure CreateMissingPredefinedData(MetadataObjects)
 		// 
 		// 
 		NameTable = Query.Execute().Unload();
-		// АПК:1328-
+		// ACC:1328-
 		NameTable.Indexes.Add("Name");
 		Names = MetadataObject.GetPredefinedNames();
 		SaveExistingPredefinedObjectsBeforeCreateMissingOnes(MetadataObject,
@@ -3264,10 +3275,10 @@ Procedure CreateMissingPredefinedData(MetadataObjects)
 		InitializePredefinedData();
 		
 		Query.Text = SavedItemsDescription.QueryText;
-		// АПК:1328-
+		// ACC:1328-
 		// 
 		NameTable = Query.Execute().Unload();
-		// АПК:1328-
+		// ACC:1328-
 		NameTable.Indexes.Add("Name");
 		For Each SavedItemDescription In SavedItemsDescription.NameTable Do
 			If Not SavedItemDescription.ObjectExist Then
@@ -3282,14 +3293,14 @@ Procedure CreateMissingPredefinedData(MetadataObjects)
 					EndIf;
 					AddNewExtraAccountDimensionTypes(SavedItemDescription.Object, NewObject);
 				EndIf;
-				// АПК:1327-
+				// ACC:1327-
 				InfobaseUpdate.DeleteData(NewObject);
-				// АПК:1327-
+				// ACC:1327-
 				String.Name = "";
 			EndIf;
-			// АПК:1327-
+			// ACC:1327-
 			InfobaseUpdate.WriteData(SavedItemDescription.Object);
-			// АПК:1327-
+			// ACC:1327-
 		EndDo;
 		For Each String In NameTable Do
 			If Not ValueIsFilled(String.Name)
@@ -3300,7 +3311,7 @@ Procedure CreateMissingPredefinedData(MetadataObjects)
 			If ParentLevelRow <> Undefined Then
 				NewObject = String.Ref.GetObject();
 				NewObject.Parent = ParentLevelRow.Ref;
-				// АПК:1327-
+				// ACC:1327-
 				InfobaseUpdate.WriteData(NewObject);
 				// ACC:1327-off.
 			EndIf;
@@ -3415,7 +3426,7 @@ Procedure SaveExistingPredefinedObjectsBeforeCreateMissingOnes(
 					EndIf;
 				EndDo;
 			EndIf;
-			// АПК:1327-
+			// ACC:1327-
 			InfobaseUpdate.WriteData(Object);
 			// ACC:1327-off.
 			If IsChartOfAccounts Then
@@ -4132,85 +4143,71 @@ EndProcedure
 
 // 
 
-// Returns:
-//  Structure:
-//   * ConfigurationVersion - String
-//   * InstalledExtensionsOnStartup - See Catalogs.ExtensionsVersions.InstalledExtensionsOnStartup
-//
-Function CheckParametersOfNotificationConfigurationOrExtensionsWasModified()
+// See OnReceiptRecurringClientDataOnServer
+Procedure ConfigurationOrExtensionModifiedDuringRepeatedCheck(UserMessage)
 	
-	Result = New Structure;
-	Result.Insert("ConfigurationVersion", Metadata.Version);
-	Result.Insert("InstalledExtensionsOnStartup",
-		Catalogs.ExtensionsVersions.InstalledExtensionsOnStartup());
 	
-	Return Result;
+	SetPrivilegedMode(True);
 	
-EndFunction
-
-// See OnSendServerNotification
-Procedure OnSendServerNotificationConfigurationOrExtensionsWasModified(NameOfAlert, ParametersVariants)
+	UserName = InfoBaseUsers.CurrentUser().Name;
 	
-	For Each ParametersVariant In ParametersVariants Do
-		ParametersVariant = ParametersVariant; // Structure
-		DataBaseConfigurationChangedDynamically = ParametersVariant.Parameters.ConfigurationVersion <> Metadata.Version;
-		DynamicChanges = Catalogs.ExtensionsVersions.DynamicallyChangedExtensions(
-			ParametersVariant.Parameters.InstalledExtensionsOnStartup);
-		If Not DataBaseConfigurationChangedDynamically
-		   And Not ValueIsFilled(DynamicChanges.Extensions)
-		   And Not ValueIsFilled(DynamicChanges.Corrections) Then
-			Continue;
-		EndIf;
-		SMSMessageRecipients = New Map;
-		For Each Addressee In ParametersVariant.SMSMessageRecipients Do
-			IBUser = InfoBaseUsers.FindByUUID(Addressee.Key);
-			If IBUser = Undefined Then
-				Continue;
-			EndIf;
-			UserName = IBUser.Name;
-			YouCanNotify = ShowWarningAboutInstalledUpdatesForUser(UserName);
-			If Not YouCanNotify Then
-				Continue;
-			EndIf;
-			DateRemindTomorrow = Common.SystemSettingsStorageLoad(
-				"DynamicUpdateControl", "DateRemindTomorrow",,, UserName);
-			If TypeOf(DateRemindTomorrow) = Type("Date")
-			   And CurrentSessionDate() < DateRemindTomorrow Then
-				Continue;
-			EndIf;
-			If DynamicChanges.Corrections <> Undefined
-				And DynamicChanges.Extensions = Undefined
-				And Not DataBaseConfigurationChangedDynamically
-				// 
-				And DynamicChanges.Corrections.Added2 <> 0
-				And DynamicChanges.Corrections.Deleted = 0 Then
+	YouCanNotify = ShowWarningAboutInstalledUpdatesForUser(UserName);
+	If Not YouCanNotify Then
+		Return;
+	EndIf;
+	
+	DateRemindTomorrow = Common.SystemSettingsStorageLoad(
+		"DynamicUpdateControl", "DateRemindTomorrow",,, UserName);
+	
+	If TypeOf(DateRemindTomorrow) = Type("Date")
+	   And CurrentSessionDate() < DateRemindTomorrow Then
+		Return;
+	EndIf;
+	
+	DataBaseConfigurationChangedDynamically = DataBaseConfigurationChangedDynamically();
+	DynamicChanges = Catalogs.ExtensionsVersions.DynamicallyChangedExtensions(
+		Catalogs.ExtensionsVersions.InstalledExtensionsOnStartup(), True);
+	
+	If Not DataBaseConfigurationChangedDynamically
+	   And Not ValueIsFilled(DynamicChanges.Extensions)
+	   And Not ValueIsFilled(DynamicChanges.Corrections) Then
+		Return;
+	EndIf;
+	
+	If DynamicChanges.Corrections <> Undefined
+		And DynamicChanges.Extensions = Undefined
+		And Not DataBaseConfigurationChangedDynamically
+		// 
+		And DynamicChanges.Corrections.Added2 <> 0
+		And DynamicChanges.Corrections.Deleted = 0 Then
+	
+		NotificationSchedule = Common.SystemSettingsStorageLoad(
+			"DynamicUpdateControl", "PatchCheckSchedule",,, UserName);
+		
+		If TypeOf(NotificationSchedule) = Type("Structure")
+			And NotificationSchedule.Property("Schedule")
+			And TypeOf(NotificationSchedule.Schedule) = Type("JobSchedule") Then
 			
-				NotificationSchedule = Common.SystemSettingsStorageLoad(
-					"DynamicUpdateControl", "PatchCheckSchedule",,, UserName);
-				If TypeOf(NotificationSchedule) = Type("Structure")
-					And NotificationSchedule.Property("Schedule")
-					And TypeOf(NotificationSchedule.Schedule) = Type("JobSchedule") Then
-					CurrentSessionDate = CurrentSessionDate();
-					YouCanNotify = NotificationSchedule.Schedule.ExecutionRequired(CurrentSessionDate, NotificationSchedule.LastAlert);
-					If YouCanNotify Then
-						NotificationSchedule.LastAlert = CurrentSessionDate;
-						Common.SystemSettingsStorageSave("DynamicUpdateControl",
-							"PatchCheckSchedule", NotificationSchedule,, UserName);
-					EndIf;
-				EndIf;
+			CurrentSessionDate = CurrentSessionDate();
+			YouCanNotify = NotificationSchedule.Schedule.ExecutionRequired(CurrentSessionDate,
+				NotificationSchedule.LastAlert);
+			
+			If YouCanNotify Then
+				NotificationSchedule.LastAlert = CurrentSessionDate;
+				Common.SystemSettingsStorageSave("DynamicUpdateControl",
+					"PatchCheckSchedule", NotificationSchedule,, UserName);
 			EndIf;
-			If Not YouCanNotify Then
-				Continue;
-			EndIf;
-			SMSMessageRecipients.Insert(Addressee.Key, Addressee.Value);
-		EndDo;
-		If Not ValueIsFilled(SMSMessageRecipients) Then
-			Continue;
 		EndIf;
-		DynamicChanges.Insert("DataBaseConfigurationChangedDynamically", DataBaseConfigurationChangedDynamically);
-		UserMessage = MessageTextOnDynamicUpdate(DynamicChanges);
-		ServerNotifications.SendServerNotification(NameOfAlert, UserMessage, SMSMessageRecipients);
-	EndDo;
+	EndIf;
+	
+	If Not YouCanNotify Then
+		Return;
+	EndIf;
+	
+	DynamicChanges.Insert("DataBaseConfigurationChangedDynamically",
+		DataBaseConfigurationChangedDynamically);
+	
+	UserMessage = MessageTextOnDynamicUpdate(DynamicChanges);
 	
 EndProcedure
 

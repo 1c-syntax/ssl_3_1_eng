@@ -640,7 +640,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>External role assignees of which are defined in another infobase</v8:content>
+							<v8:content>An external role whose assignees are defined in another infobase.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

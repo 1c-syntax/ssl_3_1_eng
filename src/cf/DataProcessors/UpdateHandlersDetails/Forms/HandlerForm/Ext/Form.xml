@@ -430,7 +430,7 @@
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Run also in a subordinate DIB node with filters:</v8:content>
+															<v8:content>Also run in subordinate DIB node with filters:</v8:content>
 														</v8:item>
 													</Title>
 													<ContextMenu name="RunAlsoInSubordinateDIBNodeWithFiltersTitleContextMenu" id="54"/>

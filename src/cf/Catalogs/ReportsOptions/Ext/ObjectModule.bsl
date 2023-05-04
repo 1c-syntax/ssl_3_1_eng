@@ -30,9 +30,9 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	If Description <> "" And ReportsOptions.DescriptionIsUsed(Report, Ref, Description) Then
 		Cancel = True;
 		Common.MessageToUser(
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '""%1"" is taken. Enter another description.';"), Description),
-			,
-			"Description");
+			StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = '""%1"" is taken. Enter another description.';"), Description),
+			,"Description");
 		EndIf;
 		
 EndProcedure
@@ -342,21 +342,19 @@ Procedure CheckPredefinedReportOptionFilling(Cancel)
 	
 	If DeletionMark Or Not Predefined Then
 		Return;
-	ElsIf Not ValueIsFilled(Report) Then
-		ErrorText = FieldIsRequired("Report");
-	ElsIf Not ValueIsFilled(ReportType) Then
-		ErrorText = FieldIsRequired("ReportType");
-	ElsIf ReportType <> ReportsOptions.ReportType(Report) Then
-		ErrorText = NStr("en = 'Fields ""%1"" and ""%2"" contains inconsistent values.';");
-		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText, "ReportType", "Report");
-	ElsIf Not ValueIsFilled(PredefinedOption)
-		And (ReportType = Enums.ReportsTypes.BuiltIn Or ReportType = Enums.ReportsTypes.Extension) Then
-		ErrorText = FieldIsRequired("PredefinedOption");
-	Else
-		Return;
 	EndIf;
 	
-	Raise ErrorText;
+	If Not ValueIsFilled(Report) Then
+		Raise FieldIsRequired("Report");
+	ElsIf Not ValueIsFilled(ReportType) Then
+		Raise FieldIsRequired("ReportType");
+	ElsIf ReportType <> ReportsOptions.ReportType(Report) Then
+		ErrorText = NStr("en = 'Fields ""%1"" and ""%2"" contains inconsistent values.';");
+		Raise StringFunctionsClientServer.SubstituteParametersToString(ErrorText, "ReportType", "Report");
+	ElsIf Not ValueIsFilled(PredefinedOption)
+		And (ReportType = Enums.ReportsTypes.BuiltIn Or ReportType = Enums.ReportsTypes.Extension) Then
+		Raise FieldIsRequired("PredefinedOption");
+	EndIf;
 	
 EndProcedure
 

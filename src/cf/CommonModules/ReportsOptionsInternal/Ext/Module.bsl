@@ -396,6 +396,11 @@ EndFunction
 
 #Region Private
 
+Function MeasurementsKey(FullReportName, VariantKey) Export
+	Return Common.TrimStringUsingChecksum(
+		FullReportName + "." + VariantKey, 135);
+EndFunction
+
 #Region IndexingSectionsOfTheReport
 
 Function IndexOfTheReportStructure(Form) Export
@@ -2552,6 +2557,19 @@ Procedure PrepareReportSectionStructureToDecipher(Settings)
 	Group.GroupFields.Items.Clear();
 	
 EndProcedure
+
+Function DecryptionHandlerSelectionPropertiesByDetailRecords() Export
+	
+	SelectionItemProperties = New Structure;
+	SelectionItemProperties.Insert("Value", Undefined);
+	SelectionItemProperties.Insert("ComparisonType", DataCompositionComparisonType.Equal);
+	SelectionItemProperties.Insert("ViewMode", DataCompositionSettingsItemViewMode.Inaccessible);
+	SelectionItemProperties.Insert("Presentation", "");
+	SelectionItemProperties.Insert("UserSettingID", "");
+	
+	Return SelectionItemProperties;
+	
+EndFunction
 
 #EndRegion
 

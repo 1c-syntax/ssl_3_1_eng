@@ -132,6 +132,11 @@
 					<ContextMenu name="AddedOnContextMenu" id="20"/>
 					<ExtendedTooltip name="AddedOnExtendedTooltip" id="21"/>
 				</LabelField>
+				<LabelField name="ActivityDate" id="32">
+					<DataPath>List.ActivityDate</DataPath>
+					<ContextMenu name="ActivityDateContextMenu" id="33"/>
+					<ExtendedTooltip name="ActivityDateExtendedTooltip" id="34"/>
+				</LabelField>
 			</ChildItems>
 		</Table>
 	</ChildItems>

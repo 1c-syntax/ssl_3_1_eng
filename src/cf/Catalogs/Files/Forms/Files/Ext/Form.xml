@@ -832,7 +832,7 @@
 											<Title formatted="true">
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Synchronized: %2</v8:content>
+													<v8:content>Synchronized on: %2</v8:content>
 												</v8:item>
 											</Title>
 											<ToolTip>

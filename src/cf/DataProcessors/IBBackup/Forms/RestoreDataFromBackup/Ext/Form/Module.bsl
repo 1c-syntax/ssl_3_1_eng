@@ -215,7 +215,7 @@ EndFunction
 &AtClient
 Procedure SetIdleHandlerOfBackupTimeout()
 	
-	AttachIdleHandler("Timeout2", 300, True);
+	AttachIdleHandler("Timeout2", 600, True);
 	
 EndProcedure
 
@@ -503,9 +503,9 @@ Function InsertScriptParameters(Val Text, Val ScriptParameters)
 	
 	TextParameters = IBBackupServer.PrepareCommonScriptParameters(ScriptParameters);
 	TextParameters["[BackupFile]"] = IBBackupServer.PrepareText(Object.BackupImportFile);
-	// АПК:495-
+	// ACC:495-
 	TextParameters["[TempFilesDir]"] = IBBackupServer.PrepareText(TempFilesDir()); 
-	// АПК:495-
+	// ACC:495-
 	Return IBBackupServer.SubstituteParametersToText(Text, TextParameters);
 	
 EndFunction

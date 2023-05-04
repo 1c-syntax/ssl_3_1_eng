@@ -48,7 +48,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Business process kind</v8:content>
+					<v8:content>Business process type</v8:content>
 				</v8:item>
 			</title>
 		</field>
@@ -397,7 +397,7 @@ FROM
 		<dcsset:presentation xsi:type="v8:LocalStringType">
 			<v8:item>
 				<v8:lang>en</v8:lang>
-				<v8:content>Statistics by business process kinds</v8:content>
+				<v8:content>Statistics by business process types</v8:content>
 			</v8:item>
 		</dcsset:presentation>
 		<dcsset:settings xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows">
@@ -527,7 +527,7 @@ FROM
 					<dcscor:value xsi:type="v8:LocalStringType">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Statistics by business process kinds</v8:content>
+							<v8:content>Statistics by business process types</v8:content>
 						</v8:item>
 					</dcscor:value>
 				</dcscor:item>

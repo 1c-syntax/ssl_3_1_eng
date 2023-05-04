@@ -975,7 +975,7 @@ Function ObjectManagerByFullName(FullName) Export
 		EndTry;
 	EndIf;
 	
-	Raise SubstituteParametersToString(NStr("en = 'Invalid metadata object type: %1.';"), FullName);
+	Raise SubstituteParametersToString(NStr("en = 'Unknown metadata object type: %1.';"), FullName);
 	
 EndFunction
 

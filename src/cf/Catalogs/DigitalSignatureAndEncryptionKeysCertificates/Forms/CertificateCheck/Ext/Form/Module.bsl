@@ -19,7 +19,7 @@ Var InternalData, ClientParameters, PasswordProperties, ContextExecutionParamete
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	Items.SupportInformation.Title = DigitalSignatureInternal.HeaderInformationForSupport();
+	Items.SupportInformation.Title = DigitalSignatureInternal.InfoHeadingForSupport();
 	
 	DigitalSignatureInternal.SetPasswordEntryNote(
 		ThisObject, , Items.AdvancedPasswordNote.Name);
@@ -160,11 +160,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ModuleCryptographyServiceDSSConfirmationServer.PrepareGroupConfirmation(ThisObject, "Validation", "", "");
 		ModuleCryptographyServiceDSSConfirmationServer.ConfirmationWhenChangingCertificate(ThisObject, Certificate);
 		
-	ElsIf IsBuiltInCryptoProvider Then
-		Items.PasswordEntryGroup.Visible = False;
-		
-	ElsIf Not StandardChecks
-		And Not EnterPassword Then
+	ElsIf IsBuiltInCryptoProvider 
+		Or (Not StandardChecks And Not EnterPassword) Then
 		Items.PasswordEntryGroup.Visible = False;
 		
 	EndIf;
@@ -367,7 +364,7 @@ EndProcedure
 // CAC:78-off: to securely pass data between forms on the client without sending them to the server.
 &AtClient
 Procedure ContinueOpening(Notification, CommonInternalData, IncomingClientParameters) Export
-// АПК:78-
+// ACC:78-
 	
 	InternalData = CommonInternalData;
 	ClientParameters = IncomingClientParameters;
@@ -781,7 +778,7 @@ Procedure CheckAtClientSideAfterCertificateSearchInSaaSMode(Result, Context) Exp
 	If Not Result.Completed2 Then
 		ErrorDescription = Result.ErrorDescription.LongDesc;
 	ElsIf Not ValueIsFilled(Result.Certificate) Then
-		ErrorDescription = NStr("en = 'The certificate does not exist in the service (it might have been deleted).';");
+		ErrorDescription = NStr("en = 'The certificate does not exist in the service. It might have been deleted.';");
 	EndIf;
 	If Not IsBlankString(ErrorDescription) Then
 		ErrorDescription = ErrorDescription + Chars.LF
@@ -1350,7 +1347,7 @@ Procedure CheckOnTheClientSideAfterSearchingForTheCloudSignatureCertificate(Call
 	ElsIf Not CallResult.Completed2 Then
 		ErrorDescription = CallResult.Error;
 	ElsIf Not ValueIsFilled(CallResult.CertificateData) Then
-		ErrorDescription = NStr("en = 'The certificate does not exist in the service. Probably, it has been deleted.';");
+		ErrorDescription = NStr("en = 'The certificate does not exist in the service. It might have been deleted.';");
 	EndIf;
 	
 	If Not IsBlankString(ErrorDescription) Then
@@ -1709,9 +1706,13 @@ Procedure CheckAtServerSide(Val PasswordValue)
 		ResultCheckCA = DigitalSignatureInternal.ResultofCertificateAuthorityVerification(
 			CryptoCertificate);
 		If Not ResultCheckCA.Valid_SSLyf Then
-			ErrorDescription = ResultCheckCA.Warning.ErrorText;
-			SetItem(ThisObject, "Signing", True, ResultCheckCA.Warning, True,
-				MergeResults);
+			SigningIsAllowed = Common.CommonSettingsStorageLoad(
+				Certificate, "AllowSigning", Undefined);
+			If SigningIsAllowed = Undefined Or Not SigningIsAllowed Then
+				ErrorDescription = ResultCheckCA.Warning.ErrorText;
+				SetItem(ThisObject, "Signing", True, ResultCheckCA.Warning, True,
+					MergeResults);
+			EndIf;
 		EndIf;
 	EndIf;
 	
@@ -2247,11 +2248,17 @@ Procedure AdditionalCheckOnthePossibilityofSigning(CryptoCertificate, ExecutionS
 	Else
 		
 		ResultofCertificateAuthorityVerification = DigitalSignatureInternalClient.ResultofCertificateAuthorityVerification(CryptoCertificate);
-				
+		
 		If Not ResultofCertificateAuthorityVerification.Valid_SSLyf Then
-			ErrorDescription = ResultofCertificateAuthorityVerification.Warning.ErrorText;
-			SetItem(ThisObject, "Signing", ExecutionSide, ResultofCertificateAuthorityVerification.Warning, True,
-				MergeResults);
+			
+			SigningIsAllowed = CommonServerCall.CommonSettingsStorageLoad(
+				Certificate, "AllowSigning", Undefined);
+		
+			If SigningIsAllowed = Undefined Or Not SigningIsAllowed Then
+				ErrorDescription = ResultofCertificateAuthorityVerification.Warning.ErrorText;
+				SetItem(ThisObject, "Signing", ExecutionSide, ResultofCertificateAuthorityVerification.Warning, True,
+					MergeResults);
+			EndIf;
 		EndIf;
 	EndIf;
 	

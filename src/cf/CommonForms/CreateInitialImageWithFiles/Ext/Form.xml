@@ -78,7 +78,7 @@
 										<Presentation>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>On this computer or on a computer in the local network</v8:content>
+												<v8:content>On this computer or LAN computer</v8:content>
 											</v8:item>
 										</Presentation>
 										<Value xsi:type="xs:decimal">0</Value>

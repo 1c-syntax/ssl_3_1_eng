@@ -17,7 +17,7 @@
 			<PagesRepresentation>None</PagesRepresentation>
 			<ExtendedTooltip name="PagesExtendedTooltip" id="31"/>
 			<ChildItems>
-				<Page name="ExchangeRates" id="34">
+				<Page name="ExRates" id="34">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>

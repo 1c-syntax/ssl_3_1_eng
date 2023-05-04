@@ -188,13 +188,13 @@ Procedure OnStartExecuteScheduledJob(ScheduledJob) Export
 	
 	If Common.DataSeparationEnabled() Then
 		ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The application is transferred.
+			NStr("en = 'The application has been moved.
 			           |The ""%1"" scheduled job, which requires online activities, is disabled.';"), 
 			ScheduledJob.Synonym);
 	Else 
 		ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Infobase connection string was changed.
-			           |The infobase might have been transferred.
+			NStr("en = 'The infobase connection string has changed.
+			           |The infobase might have been moved.
 			           |The ""%1"" scheduled job is disabled.';"), 
 			ScheduledJob.Synonym);
 	EndIf;
@@ -460,10 +460,11 @@ Function SetExternalResourcesOperationsLock()
 	
 	LockParameters = SavedLockParameters();
 	
-	If LockParameters.OperationsWithExternalResourcesLocked = Undefined Then
-		Return True; // Flag shows necessity of lock is set.
-	ElsIf LockParameters.OperationsWithExternalResourcesLocked = True Then
-		Return True; // Lock of operations with external resources is confirmed by the administrator.
+	// 
+	// 
+	If LockParameters.OperationsWithExternalResourcesLocked = Undefined 
+		Or LockParameters.OperationsWithExternalResourcesLocked = True Then
+		Return True; 
 	EndIf;
 	
 	DataSeparationEnabled = Common.DataSeparationEnabled();
@@ -476,7 +477,7 @@ Function SetExternalResourcesOperationsLock()
 	DataSeparationChanged = LockParameters.DataSeparationEnabled <> DataSeparationEnabled;
 	
 	If DataSeparationChanged Then
-		MessageText = NStr("en = 'The infobase was transferred from an online application.';");
+		MessageText = NStr("en = 'The infobase has been moved from a web application.';");
 		SetFlagShowsNecessityOfLock(LockParameters, MessageText);
 		Return True;
 	EndIf;
@@ -493,8 +494,8 @@ Function SetExternalResourcesOperationsLock()
 	If MovedBetweenFileAndClientServerMode Then
 		MessageText = 
 			?(IsFileInfobase, 
-				NStr("en = 'The infobase was transferred from the client/server mode to the file mode.';"),
-				NStr("en = 'The infobase was transferred from the file mode to the client/server mode.';"));
+				NStr("en = 'The infobase has been moved from the client/server mode to the file mode.';"),
+				NStr("en = 'The infobase has been moved from the file mode to the client/server mode.';"));
 		SetFlagShowsNecessityOfLock(LockParameters, MessageText);
 		Return True;
 	EndIf;

@@ -132,7 +132,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	DefaultLanguage = Common.DefaultLanguageCode();
-	
+	LocalizableHeaderAttributes = NationalLanguageSupportServer.TheNamesOfTheLocalizedDetailsOfTheObjectInTheHeader(MetadataObject);
+
 	If StorageInTabularSection Then
 		
 		For Each Presentation In Parameters.Presentations Do
@@ -148,20 +149,27 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			
 		EndDo;
 		
-		LanguageDetails = LanguageDetails(DefaultLanguage);
-		If ValueIsFilled(MainLanguageSuffix) Then
-			ThisObject[LanguageDetails.Name] = Parameters.Object[Parameters.AttributeName + MainLanguageSuffix];
+		If LocalizableHeaderAttributes[Parameters.AttributeName] <> Undefined Then
+			LanguageDetails = LanguageDetails(DefaultLanguage);
+			If ValueIsFilled(MainLanguageSuffix) And Parameters.Object <> Undefined Then
+				ThisObject[LanguageDetails.Name] = Parameters.Object[Parameters.AttributeName + MainLanguageSuffix];
+			EndIf;
 		EndIf;
 		
-	ElsIf MultilanguageStringsInAttributes 
+	EndIf;
+	
+	If MultilanguageStringsInAttributes
+		And LocalizableHeaderAttributes[Parameters.AttributeName] <> Undefined
 		And (FirstAdditionalLanguageUsed
 		Or SecondAdditionalLanguageUsed) Then
 		
 		LanguageDetails = LanguageDetails(DefaultLanguage);
 		If IsBlankString(MainLanguageSuffix) Then
 			ThisObject[LanguageDetails.Name] = Parameters.ValueCurrent;
-		Else
-			ThisObject[LanguageDetails.Name] = Parameters.AttributesValues[Parameters.AttributeName + MainLanguageSuffix];
+		ElsIf Parameters.AttributesValues <> Undefined Then
+			ThisObject[LanguageDetails.Name] = Parameters.AttributesValues[Parameters.AttributeName + MainLanguageSuffix]; 
+		ElsIf Parameters.Object <> Undefined Then
+			ThisObject[LanguageDetails.Name] = Parameters.Object[Parameters.AttributeName + MainLanguageSuffix];
 		EndIf;
 		
 		If FirstAdditionalLanguageUsed Then
@@ -170,6 +178,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				ThisObject[LanguageDetails.Name] = Parameters.ValueCurrent;
 			ElsIf Parameters.AttributesValues <> Undefined Then
 				ThisObject[LanguageDetails.Name] = Parameters.AttributesValues[Parameters.AttributeName + AdditionalLanguage1Suffix];
+			ElsIf Parameters.Object <> Undefined Then
+				ThisObject[LanguageDetails.Name] = Parameters.Object[Parameters.AttributeName + AdditionalLanguage1Suffix];
 			EndIf;
 		EndIf;
 		
@@ -179,6 +189,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				ThisObject[LanguageDetails.Name] = Parameters.ValueCurrent;
 			ElsIf Parameters.AttributesValues <> Undefined Then
 				ThisObject[LanguageDetails.Name] = Parameters.AttributesValues[Parameters.AttributeName + AdditionalLanguage2Suffix];
+			ElsIf Parameters.Object <> Undefined Then
+				ThisObject[LanguageDetails.Name] = Parameters.Object[Parameters.AttributeName + AdditionalLanguage2Suffix];
 			EndIf;
 		EndIf;
 		
@@ -219,14 +231,16 @@ Procedure OK(Command)
 	Result.Insert("Modified",      Modified);
 	Result.Insert("ValuesInDifferentLanguages",  New Array);
 	
+	CurrentCodeLanguage = ?(TypeOf(CurrentLanguage()) = Type("String"), CurrentLanguage(), CurrentLanguage().LanguageCode); 
+	
 	For Each Language In Languages Do
 		
-		CurrentCodeLanguage = ?(TypeOf(CurrentLanguage()) = Type("String"), CurrentLanguage(), CurrentLanguage().LanguageCode);
-		
-		If StrCompare(Language.LanguageCode, CurrentCodeLanguage) = 0 Then
+		If StrCompare(Language.LanguageCode, CurrentCodeLanguage) = 0 
+		   Or (StrCompare(Language.LanguageCode, DefaultLanguage) = 0 
+		   And Not Result.Property("StringInCurrentLanguage")) Then
 			Result.Insert("StringInCurrentLanguage", ThisObject[Language.Name]);
 		EndIf;
-
+		
 		If CurrentCodeLanguage = DefaultLanguage And Language.LanguageCode = DefaultLanguage Then
 			Continue;
 		EndIf;
@@ -320,7 +334,7 @@ Procedure TranslateOnTheServer()
 	SourceLanguage = StrSplit(Common.DefaultLanguageCode(), "_", False)[0];
 	If RepresentationInTheSourceLanguage <> RepresentationInTheSourceLanguage() Then
 		RepresentationInTheSourceLanguage = RepresentationInTheSourceLanguage();
-		RepresentationInSourceLanguageHasBeenChanged = True;
+		IsSourceLangPresentationChanged = True;
 	EndIf;
 	
 	AvailableLanguages = ModuleTranslationOfTextIntoOtherLanguages.AvailableLanguages();
@@ -337,7 +351,7 @@ Procedure TranslateOnTheServer()
 		If AvailableLanguages.FindByValue(TranslationLanguage) = Undefined Then
 			Continue;
 		EndIf;
-		If Not RepresentationInSourceLanguageHasBeenChanged And ValueIsFilled(ThisObject[TableRow.Name]) Then
+		If Not IsSourceLangPresentationChanged And ValueIsFilled(ThisObject[TableRow.Name]) Then
 			Items[TableRow.Name].BackColor = New Color;
 		Else
 			ThisObject[TableRow.Name] = TranslateTextOnTheServer(RepresentationInTheSourceLanguage, TranslationLanguage, SourceLanguage);
@@ -346,7 +360,7 @@ Procedure TranslateOnTheServer()
 		EndIf;
 	EndDo;
 	
-	RepresentationInSourceLanguageHasBeenChanged = False;
+	IsSourceLangPresentationChanged = False;
 	
 EndProcedure
 

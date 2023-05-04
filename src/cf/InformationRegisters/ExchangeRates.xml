@@ -173,7 +173,7 @@
 			<RecordPresentation>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>The currency exchange rate.</v8:content>
+					<v8:content>Currency exchange rate</v8:content>
 				</v8:item>
 			</RecordPresentation>
 			<ExtendedRecordPresentation/>
@@ -204,7 +204,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The currency exchange rate.</v8:content>
+							<v8:content>Exchange rate</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

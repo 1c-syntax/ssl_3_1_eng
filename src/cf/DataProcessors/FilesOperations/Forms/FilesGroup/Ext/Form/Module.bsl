@@ -92,7 +92,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		
 		Cancel = True;
 		ResponseNotification = New NotifyDescription("CloseFormAfterAnswerQuestion", ThisObject);
-		ShowQueryBox(ResponseNotification, NStr("en = 'The data was changed. Do you want to save the changes?';"), QuestionDialogMode.YesNoCancel);
+		ShowQueryBox(ResponseNotification, NStr("en = 'The data has been changed. Do you want to save the changes?';"), QuestionDialogMode.YesNoCancel);
 		
 	EndIf;
 	
@@ -128,7 +128,7 @@ Procedure StandardReread(Command)
 		Return;
 	EndIf;
 	
-	QueryText = NStr("en = 'The data was changed. Do you want to refresh the data?';");
+	QueryText = NStr("en = 'The data has been changed. Do you want to refresh the data?';");
 	
 	NotifyDescription = New NotifyDescription("StandardRereadAnswerReceived", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.Yes);

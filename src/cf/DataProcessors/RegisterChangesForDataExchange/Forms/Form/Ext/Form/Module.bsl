@@ -182,7 +182,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	If TimeConsumingOperationStarted Then
 		Cancel = True;
 		Notification = New NotifyDescription("ConfirmFormClosingCompletion", ThisObject);
-		ShowQueryBox(Notification, NStr("en = 'Abort stating?';"), QuestionDialogMode.YesNo);
+		ShowQueryBox(Notification, NStr("en = 'Abort staging?';"), QuestionDialogMode.YesNo);
 	EndIf;
 	
 EndProcedure
@@ -1704,7 +1704,7 @@ Procedure DataChoiceProcessing(FormTable, ValueSelected)
 	EndIf;
 	
 	If Ref = Undefined Then
-		Text = NStr("en = 'Do you want to unstage selected items
+		Text = NStr("en = 'Do you want to unstage the selected items
 		                 |at node ""%1""?';"); 
 	Else
 		Text = NStr("en = 'Do you want to unstage ""%2""

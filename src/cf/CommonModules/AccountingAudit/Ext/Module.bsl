@@ -10,7 +10,7 @@
 #Region Public
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions to perform accounting checks and get their results.
+// Procedures and functions to perform data integrity checks and get their results.
 
 // Executes the indicated data integrity check with the specified parameters.
 //
@@ -62,7 +62,7 @@ Procedure ExecuteCheck(Val Validation, Val CheckExecutionParameters = Undefined,
 		CheckToExecute = CheckByID(Validation);
 		If CheckToExecute.IsEmpty() Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The accounting check with ID %1 does not exist (see %2).';"),
+				NStr("en = 'Data integrity check with ID %1 does not exist (see %2).';"),
 				Validation,
 				"AccountingAuditOverridable.OnDefineChecks");
 		EndIf;
@@ -369,7 +369,7 @@ Procedure ClearPreviousCheckResults(Val Validation, Val CheckExecutionParameters
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions to register accounting issues.
+// Procedures and functions to register data integrity issues.
 
 // Generates an issue description for the subsequent registration
 // using the AccountingAudit.WriteIssue procedure in the check handler procedure.
@@ -381,8 +381,8 @@ EndProcedure
 //     * Validation         - CatalogRef.AccountingCheckRules - Completed check.
 //     * CheckKind      - CatalogRef.ChecksKinds - a reference to
 //                                                          a check kind.
-//     * IssueSeverity   - EnumRef.AccountingIssueSeverity - a level of severity, with which you need
-//                            to register the found accounting issue:
+//     * IssueSeverity   - EnumRef.AccountingIssueSeverity - Severity level that you need to assign to
+//                            the found data integrity issue:
 //                            Information, Warning, Error, UsefulTip, or ImportantInformation.
 //     * Id      - String - Check string ID.
 //     * CheckStartDate - Date - a threshold date that indicates the boundary of the checked
@@ -452,7 +452,7 @@ Procedure WriteIssue(Issue1, CheckParameters = Undefined) Export
 	
 EndProcedure
 
-// Sets or clears the flag of ignoring an accounting issue. 
+// Sets or clears the flag of ignoring a data integrity issue. 
 // When setting the Ignore parameter to True, an issue is no longer displayed to users in object forms 
 // and report on the check results. For example, this is useful if a user has decided that 
 // the detected issue is not significant or a user does not plan to tackle it.
@@ -788,7 +788,7 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Other procedures and functions.
 
-// Returns True if you have the rights to view accounting issues.
+// Returns True if you have the rights to view data integrity issues.
 //
 // Returns:
 //   Boolean
@@ -826,7 +826,7 @@ Function ChecksKinds(ChecksKind, SearchByExactMap = True) Export
 EndFunction
 
 // Returns an existing ChecksKinds catalog item or creates a new one 
-// to register or filter accounting result records.
+// to register or filter records of data check results.
 //
 // Parameters:
 //     CheckExecutionParameters - String - a string ID of a check kind (Property1)

@@ -1875,7 +1875,7 @@ EndProcedure
 &AtServer
 Function EventNameMessageTemplates()
 	
-	Return NStr("en = 'Message Templates';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Message templates';", Common.DefaultLanguageCode());
 	
 EndFunction
 
@@ -1919,7 +1919,7 @@ Procedure FillTemplateByExternalDataProcessor()
 			
 		Else
 			
-			ErrorDescription = NStr("en = 'Topic ""%1"" specified in the external data processor is not found. Cannot attach the external data processor.';");
+			ErrorDescription = NStr("en = 'Subject ""%1"" specified in the external data processor is not found. Cannot attach the external data processor.';");
 			Raise StringFunctionsClientServer.SubstituteParametersToString(ErrorDescription, ExternalDataProcessorDataStructure.InputOnBasisParameterTypeFullName);
 			
 		EndIf;

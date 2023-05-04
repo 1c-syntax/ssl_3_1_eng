@@ -109,7 +109,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Possible issue reasons</v8:content>
+											<v8:content>Possible issue causes</v8:content>
 										</v8:item>
 									</Title>
 									<TitleLocation>Left</TitleLocation>
@@ -300,7 +300,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Information for developer</v8:content>
+									<v8:content>Details for developers</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Vertical</Group>

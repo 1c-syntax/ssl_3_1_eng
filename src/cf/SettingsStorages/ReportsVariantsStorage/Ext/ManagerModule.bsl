@@ -115,8 +115,10 @@ Procedure SaveProcessing(ReportKey, VariantKey, Settings, SettingsDescription, U
 		If TypeOf(Settings) = Type("DataCompositionSettings") Then
 			Address = CommonClientServer.StructureProperty(Settings.AdditionalProperties, "Address");
 			If TypeOf(Address) = Type("String") And IsTempStorageURL(Address) Then
-				Settings = GetFromTempStorage(Address);
+				SettingsFromStorage = GetFromTempStorage(Address);
 			EndIf;
+			Settings.AdditionalProperties.Delete("Address");
+			Settings = ?(SettingsFromStorage = Undefined, Settings, SettingsFromStorage);
 			
 			Context = CommonClientServer.StructureProperty(Settings.AdditionalProperties, "OptionContext");
 			If ValueIsFilled(Context) Then 

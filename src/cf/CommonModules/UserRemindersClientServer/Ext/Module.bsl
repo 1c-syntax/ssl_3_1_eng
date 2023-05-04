@@ -112,36 +112,29 @@ Function TimePresentation(Val Time, FullPresentation = True, OutputSeconds = Tru
 		SecondsCount = 0;
 	EndIf;
 	
-	LanguageCode = CurrentLanguage();
-	If TypeOf(LanguageCode) <> Type("String") Then
-		LanguageCode = CurrentLanguage().LanguageCode;
-	EndIf;
-	
-	FormatString = StringFunctionsClientServer.SubstituteParametersToString("L=%1", LanguageCode);
-	
 	If WeeksCount > 0 And DaysCount+HoursCount+MinutesCount+SecondsCount=0 Then
-		Result = StringFunctionsClientServer.StringWithNumberForAnyLanguage(WeeksPresentation, WeeksCount,, FormatString);
+		Result = StringFunctionsClientServer.StringWithNumberForAnyLanguage(WeeksPresentation, WeeksCount);
 	Else
 		DaysCount = DaysCount + WeeksCount * 7;
 		
 		Counter = 0;
 		If DaysCount > 0 Then
-			Result = Result + StringFunctionsClientServer.StringWithNumberForAnyLanguage(DaysPresentation, DaysCount,, FormatString) + " ";
+			Result = Result + StringFunctionsClientServer.StringWithNumberForAnyLanguage(DaysPresentation, DaysCount) + " ";
 			Counter = Counter + 1;
 		EndIf;
 		
 		If HoursCount > 0 Then
-			Result = Result + StringFunctionsClientServer.StringWithNumberForAnyLanguage(HoursPresentation, HoursCount,, FormatString) + " ";
+			Result = Result + StringFunctionsClientServer.StringWithNumberForAnyLanguage(HoursPresentation, HoursCount) + " ";
 			Counter = Counter + 1;
 		EndIf;
 		
 		If (FullPresentation Or Counter < 2) And MinutesCount > 0 Or Time = 0 And Not OutputSeconds Then
-			Result = Result + StringFunctionsClientServer.StringWithNumberForAnyLanguage(MinutesPresentation, MinutesCount,, FormatString) + " ";
+			Result = Result + StringFunctionsClientServer.StringWithNumberForAnyLanguage(MinutesPresentation, MinutesCount) + " ";
 			Counter = Counter + 1;
 		EndIf;
 		
 		If OutputSeconds And (FullPresentation Or Counter < 2) And (SecondsCount > 0 Or WeeksCount+DaysCount+HoursCount+MinutesCount = 0) Then
-			Result = Result + StringFunctionsClientServer.StringWithNumberForAnyLanguage(SecondsPresentation, SecondsCount,, FormatString);
+			Result = Result + StringFunctionsClientServer.StringWithNumberForAnyLanguage(SecondsPresentation, SecondsCount);
 		EndIf;
 		
 	EndIf;

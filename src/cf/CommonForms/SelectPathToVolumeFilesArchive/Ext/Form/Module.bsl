@@ -45,7 +45,7 @@ Procedure WindowsArchivePathStartChoice(Item, ChoiceData, StandardProcessing)
 	Dialog.Multiselect           = False;
 	Dialog.Preview      = False;
 	Dialog.CheckFileExist  = True;
-	Dialog.Filter                       = NStr("en = 'ZIP archives (*.zip)|*.zip';");
+	Dialog.Filter                       = NStr("en = 'ZIP archive (*.zip)|*.zip';");
 	
 	If Dialog.Choose() Then
 		

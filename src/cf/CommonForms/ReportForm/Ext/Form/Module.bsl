@@ -1453,11 +1453,12 @@ Procedure StartMeasurement()
 	
 	RunMeasurements = ReportSettings.RunMeasurements And ValueIsFilled(ReportSettings.MeasurementsKey);
 	If RunMeasurements Then
-		Comment = ReportSettings.MeasurementsPrefix + "; " + NStr("en = 'Directly:';") + " " + String(Directly);
 		ModulePerformanceMonitorClient = CommonClient.CommonModule("PerformanceMonitorClient");
 		MeasurementID = ModulePerformanceMonitorClient.TimeMeasurement(
 			ReportSettings.MeasurementsKey + ".Generation1",
 			False, False);
+		Comment = New Map;
+		Comment.Insert("Directly", Directly);
 		ModulePerformanceMonitorClient.SetMeasurementComment(MeasurementID, Comment);
 	EndIf;
 	
@@ -2011,7 +2012,6 @@ Procedure GoToSettings(ExtendedMode = Undefined)
 		MeasurementID = ModulePerformanceMonitorClient.TimeMeasurement(
 			ReportSettings.MeasurementsKey + ".Settings",
 			False, False);
-		ModulePerformanceMonitorClient.SetMeasurementComment(MeasurementID, ReportSettings.MeasurementsPrefix);
 	EndIf;
 	
 	FormParameters = New Structure;
@@ -4671,9 +4671,9 @@ Procedure UpdateInfoOnReportOption()
 	EndIf;
 	
 	MeasurementsKey = Selection.MeasurementsKey;
-	If Not ValueIsFilled(MeasurementsKey) Then 
-		MeasurementsKey = Common.TrimStringUsingChecksum(
-			ReportSettings.FullName + "." + CurrentVariantKey, 135);
+	If Not ValueIsFilled(MeasurementsKey) Then
+		MeasurementsKey = ReportsOptionsInternal.MeasurementsKey(ReportSettings.FullName,
+			CurrentVariantKey);
 	EndIf;
 	
 	FillPropertyValues(ReportSettings, Selection);
@@ -4818,7 +4818,8 @@ Function NameOfTheCurrentCellArea()
 	
 	Area = Items.ReportSpreadsheetDocument.CurrentArea;
 	
-	If Area.AreaType = SpreadsheetDocumentCellAreaType.Rectangle Then 
+	If TypeOf(Area) = Type("SpreadsheetDocumentRange") 
+	   And Area.AreaType = SpreadsheetDocumentCellAreaType.Rectangle Then
 		Return Area.Name;
 	EndIf;
 	
@@ -4834,7 +4835,8 @@ Procedure ResetTheCurrentArea()
 	DocumentField = Items.ReportSpreadsheetDocument;
 	Area = DocumentField.CurrentArea;
 	
-	If Area.AreaType <> SpreadsheetDocumentCellAreaType.Rectangle Then 
+	If TypeOf(Area) <> Type("SpreadsheetDocumentRange") 
+	   Or Area.AreaType <> SpreadsheetDocumentCellAreaType.Rectangle Then
 		Return;
 	EndIf;
 	

@@ -19,7 +19,7 @@ Var ApplicationsCheckPerformed;
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	DigitalSignatureInternal.SetVisibilityOfLinkToInstructionsForWorkingWithPrograms(Items.Instruction);
+	DigitalSignatureInternal.SetVisibilityOfRefToAppsTroubleshootingGuide(Items.Instruction);
 	
 	SetConditionalAppearance();
 	DigitalSignatureInternal.SetCertificateListConditionalAppearance(Certificates, True);
@@ -1113,12 +1113,9 @@ Procedure TheHandlerIsWaitingToDetermineTheCurrentlyInstalledProgramsCycleAfterO
 		UpdateValue(ApplicationDetails.IsInstalledOnServer, "");
 		IdleHandlerDefineInstalledApplicationsLoopStart(Context);
 		Return;
-	ElsIf ApplicationDetails.IsBuiltInCryptoProvider Then
-		UpdateValue(ApplicationDetails.CheckResult, NStr("en = 'Available.';"));
-		UpdateValue(ApplicationDetails.Use, True);
-		IdleHandlerDefineInstalledApplicationsLoopStart(Context);
-		Return;
-	ElsIf DigitalSignatureInternalClientServer.PlacementOfTheCertificate(ApplicationDetails.LocationType) = "CloudSignature" Then
+	ElsIf ApplicationDetails.IsBuiltInCryptoProvider
+		Or DigitalSignatureInternalClientServer.PlacementOfTheCertificate(ApplicationDetails.LocationType) = "CloudSignature" Then
+		
 		UpdateValue(ApplicationDetails.CheckResult, NStr("en = 'Available.';"));
 		UpdateValue(ApplicationDetails.Use, True);
 		IdleHandlerDefineInstalledApplicationsLoopStart(Context);
@@ -1257,8 +1254,8 @@ Procedure AfterCryptographyAppsChecked(Result, Notification) Export
 		
 		For Each Cryptoprovider In Result.Programs Do
 			
-			If ValueIsFilled(Cryptoprovider.Application) And Not ThereAreTestablePrograms Then
-				ThereAreTestablePrograms = True;
+			If ValueIsFilled(Cryptoprovider.Application) And Not HasAppsToCheck Then
+				HasAppsToCheck = True;
 			EndIf;
 			
 			Found4 = Programs.FindRows(New Structure("ApplicationName, ApplicationType",
@@ -1283,7 +1280,7 @@ Procedure AfterCryptographyAppsChecked(Result, Notification) Export
 			
 		EndDo;
 		
-		If Not ThereAreTestablePrograms Then
+		If Not HasAppsToCheck Then
 			Items.GroupCryptoProvidersHint.Visible = True;
 			Items.DecorationCheckCryptoProviderInstallation.Title = StringFunctionsClient.FormattedString(
 				NStr("en = 'If you plan to use an advanced qualified digital signature, install a certified application (a cryptographic information protection tool) on your computer.
@@ -1380,8 +1377,8 @@ Procedure FillApplicationsAndSettings(RefreshCached = False)
 			
 			For Each Cryptoprovider In ResultCryptoProviders.Programs Do
 				
-				If ValueIsFilled(Cryptoprovider.Application) And Not ThereAreTestablePrograms Then
-					ThereAreTestablePrograms = True;
+				If ValueIsFilled(Cryptoprovider.Application) And Not HasAppsToCheck Then
+					HasAppsToCheck = True;
 				EndIf;
 				
 				Found4 = TheSampleTable.FindRows(New Structure("ApplicationName, ApplicationType",
@@ -1475,10 +1472,7 @@ Procedure FillApplicationsAndSettings(RefreshCached = False)
 			UpdateValue(String.CheckResult, NStr("en = 'Available.';"));
 			UpdateValue(String.Use, True);
 		ElsIf DigitalSignatureInternalClientServer.PlacementOfTheCertificate(SelectionString.LocationType) = "CloudSignature"
-				And Not String.DeletionMark Then
-			UpdateValue(String.CheckResult, NStr("en = 'Available.';"));
-			UpdateValue(String.Use, True);
-		ElsIf SelectionString.LocationType = 5 Then
+				And Not String.DeletionMark Or SelectionString.LocationType = 5 Then
 			UpdateValue(String.CheckResult, NStr("en = 'Available.';"));
 			UpdateValue(String.Use, True);
 		ElsIf String.LocationType = 1 And (Settings.VerifyDigitalSignaturesOnTheServer Or Settings.GenerateDigitalSignaturesAtServer) Then

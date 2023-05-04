@@ -1437,7 +1437,7 @@ Function BusinessCalendarPrintForm(PrintFormPreparationParameters)
 				CumulateColumn(ForYear, ForMonth);
 				MonthColumn = Template.GetArea("MonthColumn");
 				FillAreaParameters(MonthColumn.Parameters, ForMonth);
-				MonthColumn.Parameters.MonthName = Format(Date(YearNumber, SelectionByMonth.CalendarMonth, 1), "DF='MMMM'"); // АПК:1367
+				MonthColumn.Parameters.MonthName = Format(Date(YearNumber, SelectionByMonth.CalendarMonth, 1), "DF='MMMM'"); // ACC:1367
 				SpreadsheetDocument.Join(MonthColumn);
 			EndDo;
 			MonthColumn = Template.GetArea("MonthColumn");

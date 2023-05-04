@@ -333,7 +333,7 @@ Function ObjectProcessed(Data) Export
 		ElsIf TypeOf(Data) = Type("String") Then
 			Processed = False;
 		Else
-			// АПК:488-
+			// ACC:488-
 			Processed = Eval(HandlerProperties.CheckProcedure + "(MetadataAndFilter)");
 			// ACC:488-on
 		EndIf;
@@ -462,13 +462,10 @@ Procedure MarkProcessingCompletion(Data, AdditionalParameters = Undefined, Queue
 					Set.Filter[FilterElement.Name].Use = FilterElement.Use;
 				EndDo;
 				SetMissingFiltersInSet(Set, ObjectMetadata, Data.Filter);
-			ElsIf Common.IsRefTypeObject(ObjectMetadata)
-				And Not Common.IsReference(ObjectValueType)
-				And Data.IsNew() Then
-				
-				Return;
-			ElsIf Common.IsConstant(ObjectMetadata) Then
-				
+			ElsIf (Common.IsRefTypeObject(ObjectMetadata)
+					And Not Common.IsReference(ObjectValueType)
+					And Data.IsNew())
+				Or Common.IsConstant(ObjectMetadata) Then
 				Return;
 			Else
 				Set = Data;
@@ -536,6 +533,7 @@ Function MainProcessingMarkParameters() Export
 	Parameters.Insert("SelectionParameters");
 	Parameters.Insert("UpToDateData", UpToDateDataSelectionParameters());
 	Parameters.Insert("RegisteredRecordersTables", New Map);
+	Parameters.Insert("SubsystemVersionAtStartUpdates", Undefined);
 	
 	If Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 		
@@ -3513,7 +3511,7 @@ Function DataAreasUpdateProgress(UpdateMode) Export
 	|	AreasUsed.DataArea AS DataArea,
 	|	NOT UpdatedAreas.DataAreaAuxiliaryData IS NULL AS OperationalUpdateCompleted,
 	|	NOT UpdatedAreas.DataAreaAuxiliaryData IS NULL
-	|		AND NOT UpdatedAreas.DeferredHandlersRegistrationCompleted AS PendingHandlersAreBeingRegistered
+	|		AND NOT UpdatedAreas.DeferredHandlersRegistrationCompleted AS DeferredUpdateHandlersRegistrationRunnin
 	|INTO DataAreas
 	|FROM
 	|	AreasUsed AS AreasUsed
@@ -3528,7 +3526,7 @@ Function DataAreasUpdateProgress(UpdateMode) Export
 	|			WHEN &UpdateMode = &UpdateModeOnline
 	|					AND DataAreas.OperationalUpdateCompleted
 	|				THEN CASE
-	|						WHEN DataAreas.PendingHandlersAreBeingRegistered
+	|						WHEN DataAreas.DeferredUpdateHandlersRegistrationRunnin
 	|							THEN &TheStateOrderIsInProgress
 	|						ELSE &StatusOrderUpdated
 	|					END
@@ -3667,7 +3665,7 @@ Function UpdateHandlers(Filter = Undefined) Export
 	
 	QueryConditions = New Array;
 	
-	ThereIsOnlineUpdateFilter = False;
+	HasFilterRealTimeUpdate = False;
 	If Filter.Property("ExecutionModes") Then
 		ExecutionModes = New Array;
 		For Each EnumValueName In Filter.ExecutionModes Do
@@ -3676,14 +3674,14 @@ Function UpdateHandlers(Filter = Undefined) Export
 			ExecutionModes.Add(ExecutionMode);
 			If ExecutionMode = Enums.HandlersExecutionModes.Seamless
 				Or ExecutionMode = Enums.HandlersExecutionModes.Exclusively Then
-				ThereIsOnlineUpdateFilter = True;
+				HasFilterRealTimeUpdate = True;
 			EndIf;
 		EndDo;
 		QueryConditions.Add("UpdateHandlers.ExecutionMode IN (&ExecutionModes)");
 		Query.SetParameter("ExecutionModes", ExecutionModes);
 	EndIf;
 	
-	ThereIsFilterRunning = False;
+	HasFilterRunning = False;
 	If Filter.Property("Statuses") Then
 		Statuses = New Array;
 		For Each EnumValueName In Filter.Statuses Do
@@ -3691,7 +3689,7 @@ Function UpdateHandlers(Filter = Undefined) Export
 				Metadata.Enums.UpdateHandlersStatuses);
 			Statuses.Add(Status);
 			If Status = Enums.UpdateHandlersStatuses.Running Then
-				ThereIsFilterRunning = True;
+				HasFilterRunning = True;
 			EndIf;
 		EndDo;
 		QueryConditions.Add("UpdateHandlers.Status IN (&Statuses)");
@@ -3745,14 +3743,14 @@ Function UpdateHandlers(Filter = Undefined) Export
 		
 	EndDo;
 	
-	If ThereIsOnlineUpdateFilter And ThereIsFilterRunning 
+	If HasFilterRealTimeUpdate And HasFilterRunning 
 		And Common.SubsystemExists("StandardSubsystems.SaaSOperations.IBVersionUpdateSaaS") Then
 		ModuleInfobaseUpdateInternalSaaS = Common.CommonModule("InfobaseUpdateInternalSaaS");
 		UpdatedAreas = ModuleInfobaseUpdateInternalSaaS.AreasUpdatedToVersion(Metadata.Name, Metadata.Version);
 		AreasRunningRegistration = UpdatedAreas.FindRows(
 			New Structure("DeferredHandlersRegistrationCompleted", False));
-		For Each ElementIsBeingRegistered In AreasRunningRegistration Do
-			AreaNumber = ElementIsBeingRegistered.DataAreaAuxiliaryData;
+		For Each ItemBeingRegistered In AreasRunningRegistration Do
+			AreaNumber = ItemBeingRegistered.DataAreaAuxiliaryData;
 			If DataAreas <> Undefined And DataAreas.Find(AreaNumber) = Undefined Then
 				Continue;
 			EndIf;
@@ -3831,22 +3829,22 @@ EndFunction
 //               
 //               
 //
-Procedure AddItemToBeDeleted(Objects, Object, Refinement = False) Export
+Procedure AddObjectPlannedForDeletion(Objects, Object, Refinement = False) Export
 	
 	If TypeOf(Refinement) = Type("Boolean") Then
 		Objects.Insert(Object, Refinement);
 	Else
-		AbbreviatedTypesAndValues = Objects.Get(Object);
-		If AbbreviatedTypesAndValues = Undefined Then
-			AbbreviatedTypesAndValues = New Map;
-			Objects.Insert(Object, AbbreviatedTypesAndValues);
+		ReducedTypesAndValues = Objects.Get(Object);
+		If ReducedTypesAndValues = Undefined Then
+			ReducedTypesAndValues = New Map;
+			Objects.Insert(Object, ReducedTypesAndValues);
 		EndIf;
 		If TypeOf(Refinement) = Type("TypeDescription") Then
 			For Each Type In Refinement.Types() Do
-				AbbreviatedTypesAndValues.Insert(Type, True);
+				ReducedTypesAndValues.Insert(Type, True);
 			EndDo;
 		Else
-			AbbreviatedTypesAndValues.Insert(Refinement, True);
+			ReducedTypesAndValues.Insert(Refinement, True);
 		EndIf;
 	EndIf;
 	

@@ -206,8 +206,8 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 
 EndProcedure
 
-// See ODataInterfaceOverridable.WhenFillingInDependentTablesForUploadingLoadingOData
-Procedure WhenFillingInDependentTablesForUploadingLoadingOData(Tables) Export
+// See ODataInterfaceOverridable.OnPopulateDependantTablesForODataImportExport
+Procedure OnPopulateDependantTablesForODataImportExport(Tables) Export
 	
 	Tables.Add(Metadata.InformationRegisters.NotDeletedObjects.FullName());
 	Tables.Add(Metadata.InformationRegisters.ObjectsToDelete.FullName());

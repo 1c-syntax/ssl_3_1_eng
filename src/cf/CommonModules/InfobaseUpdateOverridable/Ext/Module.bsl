@@ -15,7 +15,7 @@
 // Parameters:
 //  Parameters - Structure:
 //    * UpdateResultNotes - String - tooltip text that indicates the path to
-//                                          the "Application change log" form.
+//                                          the "Application update results" form.
 //    * UncompletedDeferredHandlersMessageParameters - Structure - message on
 //                                          availability of uncompleted deferred handlers that perform an update
 //                                          to a previous version; displayed on attempting migration:
@@ -272,7 +272,7 @@ EndProcedure
 // 
 //
 // Parameters:
-//  Objects - See InfobaseUpdate.AddItemToBeDeleted.Objects
+//  Objects - See InfobaseUpdate.AddObjectPlannedForDeletion.Objects
 //
 // Example:
 //  
@@ -292,7 +292,7 @@ EndProcedure
 //		
 //			
 //
-Procedure WhenFillingInItemsThatArePlannedToBeDeleted(Objects) Export
+Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
 	
 	
 	

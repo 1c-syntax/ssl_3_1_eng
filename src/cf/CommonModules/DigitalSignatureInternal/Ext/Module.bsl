@@ -133,18 +133,41 @@ Function CheckCertificate(CryptoManager, Certificate, ErrorDescription = Null, O
 	EndIf;
 	
 	If AdditionalParameters.PerformCAVerification Then
+		
 		Result = ResultofCertificateAuthorityVerification(CertificateToCheck, OnDate,
 			AdditionalParameters.ToVerifySignature);
-		If Not Result.Valid_SSLyf Then
-			ErrorDescription = Result.Warning.ErrorText;
-			AdditionalParameters.Warning = Result.Warning;
-			If RaiseException1 Then
-				Raise ErrorDescription;
+		
+		If Not Result.Valid_SSLyf Or AdditionalParameters.Property("Certificate") And ValueIsFilled(Result.Warning.ErrorText)
+				And Not AdditionalParameters.ToVerifySignature Then
+			
+			UserCertificateSettings = DigitalSignatureInternalServerCall.UserCertificateSettings(
+					CertificateToCheck.Thumbprint);
+
+			If Not Result.Valid_SSLyf Then
+				
+				If UserCertificateSettings.SigningIsAllowed <> True Then
+					ErrorDescription = Result.Warning.ErrorText;
+					AdditionalParameters.Warning = Result.Warning;
+					If RaiseException1 Then
+						Raise ErrorDescription;
+					EndIf;
+					Return False;
+				EndIf;
+				
 			EndIf;
-			Return False;
-		EndIf;
-		If ValueIsFilled(Result.Warning.ErrorText) Then
-			AdditionalParameters.Warning = Result.Warning;
+
+			If AdditionalParameters.Property("Certificate") And ValueIsFilled(Result.Warning.ErrorText)
+				And Not AdditionalParameters.ToVerifySignature Then
+				
+				If UserCertificateSettings.IsNotified
+					Or UserCertificateSettings.CertificateRef = Undefined Then
+					AdditionalParameters.Warning = Undefined;
+				Else
+					AdditionalParameters.Warning = Result.Warning;
+					AdditionalParameters.Certificate = UserCertificateSettings.CertificateRef;
+				EndIf;
+			EndIf;
+			
 		EndIf;
 	EndIf;
 	
@@ -440,20 +463,29 @@ EndFunction
 Function CertificatesInOrderToRoot(CertificatesData) Export
 	
 	By_Order = New Array;
-	DescriptionOfCertificates = New Map;
+	CertificatesDetails = New Map;
 	CertificatesBySubjects = New Map;
 	
 	For Each CertificateData In CertificatesData Do
 		Certificate = New CryptoCertificate(CertificateData);
 		By_Order.Add(CertificateData);
-		DescriptionOfCertificates.Insert(Certificate, CertificateData);
-		CertificatesBySubjects.Insert(Certificate.Subject.CN, CertificateData);
+		CertificatesDetails.Insert(Certificate, CertificateData);
+		CertificatesBySubjects.Insert(
+			DigitalSignatureInternalClientServer.PublisherSKey(Certificate.Subject),
+			CertificateData);
 	EndDo;
 	
-	DigitalSignatureInternalClientServer.ArrangeCertificates(
-		By_Order, DescriptionOfCertificates, CertificatesBySubjects);
-	
+	For Counter = 1 To By_Order.Count() Do
+		HasChanges = False;
+		DigitalSignatureInternalClientServer.SortCertificates(
+			By_Order, CertificatesDetails, CertificatesBySubjects, HasChanges); 
+		If Not HasChanges Then
+			Break;
+		EndIf;
+	EndDo;
+		
 	Return By_Order;
+
 	
 EndFunction
 
@@ -748,10 +780,10 @@ EndFunction
 // Returns:
 //  Boolean
 //
-Function VisibilityOfLinkToInstructionsForTypicalProblemsWhenWorkingWithPrograms() Export
+Function VisibilityOfRefToAppsTroubleshootingGuide() Export
 	
 	URL = "";
-	DigitalSignatureClientServerLocalization.WhenDeterminingReferenceToInstructionsForTypicalProblemsWhenWorkingWithPrograms(
+	DigitalSignatureClientServerLocalization.OnDefiningRefToAppsTroubleshootingGuide(
 		URL);
 	Return Not IsBlankString(URL);
 	
@@ -1230,25 +1262,25 @@ EndProcedure
 
 #Region Private
 
-Procedure SetVisibilityOfLinkToInstructionsForWorkingWithPrograms(InstructionItem) Export
+Procedure SetVisibilityOfRefToAppsTroubleshootingGuide(InstructionItem) Export
 	
 	URL = "";
-	DigitalSignatureClientServerLocalization.WhenDeterminingLinkToInstructionsForWorkingWithPrograms("", URL);
+	DigitalSignatureClientServerLocalization.OnDefineRefToAppsGuide("", URL);
 	InstructionItem.Visible = Not IsBlankString(URL);
 	
 EndProcedure
 
-Function HeaderInformationForSupport() Export
+Function InfoHeadingForSupport() Export
 	
-	If VisibilityOfLinkToInstructionsForTypicalProblemsWhenWorkingWithPrograms() Then
+	If VisibilityOfRefToAppsTroubleshootingGuide() Then
 		Title = StringFunctions.FormattedString(
-			NStr("en = 'При возникновении затруднений ознакомьтесь со списком <a href = %1>типичных проблем при работе с программой электронной подписи и их решений</a>.
+			NStr("en = 'If there are any difficulties, learn <a href = %1>how to troubleshoot common issues with digital signature applications</a> (in Russian).
 				|
-				|В иных случаях обратитесь в службу поддержки фирмы ""1С"", предоставив <a href = %2>техническую информацию о возникшей проблеме</a>';"),
+				|If you cannot find a solution, contact 1C support team and provide <a href = %2>technical information about the issue</a>.';"),
 				"TypicalIssues", "TechnicalInformation");
 	Else
 		Title = StringFunctions.FormattedString(
-			NStr("en = 'Обратитесь в службу поддержки фирмы ""1С"", предоставив <a href = %1>техническую информацию о возникшей проблеме</a>';"),
+			NStr("en = 'Contact 1C support team and provide <a href = %1>technical information about the issue</a>.';"),
 				"TechnicalInformation");
 	EndIf;
 	
@@ -2799,7 +2831,7 @@ Function RefineSignatureInService(Signature, ExecutionParameters)
 	
 		Result.SignatureProperties.DateActionLastTimestamp = CertificateProperties.EndDate;
 		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The certificate expired:
+			NStr("en = 'Certificate expired:
 			|%1';"), InformationAboutCertificate);
 			
 		Return Result;
@@ -3165,14 +3197,9 @@ Function VerifySignature(Val XMLEnvelope, XMLDSigParameters, CryptoManager, XMLE
 		
 		BinaryData = Base64Value(Base64CryptoCertificate);
 		
-		SigningDate = DigitalSignature.SigningDate(BinaryData);
-		If Not ValueIsFilled(SigningDate) Then
-			SigningDate = Undefined;
-		EndIf;
-		
 		ReturnValue = New Structure;
 		ReturnValue.Insert("Certificate", New CryptoCertificate(BinaryData));
-		ReturnValue.Insert("SigningDate", SigningDate);
+		ReturnValue.Insert("SigningDate", Undefined);
 		
 		Return ReturnValue;
 	Else
@@ -3464,6 +3491,13 @@ Function InstalledCryptoProviders(ComponentObject = Undefined) Export
 	Result.Insert("Error", "");
 	
 	Settings = DigitalSignature.CommonSettings();
+	
+	If (Not Common.FileInfobase() Or Common.ClientConnectedOverWebServer())
+		And Not DigitalSignature.VerifyDigitalSignaturesOnTheServer()
+		And Not DigitalSignature.GenerateDigitalSignaturesAtServer() Then
+			Result.Error = NStr("en = 'Не настроена криптография на сервере.';");
+			Return Result;
+	EndIf;
 	
 	Try
 		If ComponentObject = Undefined Then
@@ -4227,6 +4261,8 @@ Procedure FillCertificateAdditionalProperties(Form)
 				CertificateApplicationResult.Error);
 			Form.CertificateAtServerErrorDescription.Insert("ErrorDescription", ErrorText);
 			Return;
+		ElsIf CommonClientServer.HasAttributeOrObjectProperty(Form, "AppAutoAtServer") Then
+			Form.AppAutoAtServer = CertificateApplicationResult.Application;
 		EndIf;
 		Application = CertificateApplicationResult.Application;
 	Else

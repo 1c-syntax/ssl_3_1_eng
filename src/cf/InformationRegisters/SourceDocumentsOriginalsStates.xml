@@ -36,7 +36,7 @@
 			<Synonym>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Source document original states</v8:content>
+					<v8:content>States of source document originals</v8:content>
 				</v8:item>
 			</Synonym>
 			<Comment/>
@@ -189,7 +189,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Current state of the source document original or print form</v8:content>
+							<v8:content>Current state of a source document original or print form</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

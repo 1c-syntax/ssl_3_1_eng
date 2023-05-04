@@ -18,11 +18,11 @@
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 	</Events>
 	<ChildItems>
-		<UsualGroup name="Group3" id="487">
+		<UsualGroup name="CommandBarGroup" id="487">
 			<HorizontalStretch>true</HorizontalStretch>
 			<Behavior>Usual</Behavior>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="Group3ExtendedTooltip" id="488"/>
+			<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="488"/>
 			<ChildItems>
 				<CommandBar name="CommandBar" id="3">
 					<Title>
@@ -63,9 +63,9 @@
 								</Button>
 							</ChildItems>
 						</ButtonGroup>
-						<ButtonGroup name="Group5" id="470">
+						<ButtonGroup name="CancelReturnGroup" id="470">
 							<Representation>Compact</Representation>
-							<ExtendedTooltip name="Group5ExtendedTooltip" id="471"/>
+							<ExtendedTooltip name="CancelReturnGroupExtendedTooltip" id="471"/>
 							<ChildItems>
 								<Button name="Cancel" id="472">
 									<Type>CommandBarButton</Type>
@@ -183,17 +183,11 @@
 						</ButtonGroup>
 					</ChildItems>
 				</CommandBar>
-				<CommandBar name="Group7" id="685">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Group7</v8:content>
-						</v8:item>
-					</Title>
+				<CommandBar name="GroupCommandPanelButtonsOnRight" id="685">
 					<HorizontalStretch>false</HorizontalStretch>
 					<GroupHorizontalAlign>Right</GroupHorizontalAlign>
 					<HorizontalLocation>Right</HorizontalLocation>
-					<ExtendedTooltip name="Group7ExtendedTooltip" id="686"/>
+					<ExtendedTooltip name="GroupCommandPanelButtonsOnRightExtendedTooltip" id="686"/>
 					<ChildItems>
 						<Button name="ButtonAvailableFields" id="480">
 							<Type>CommandBarButton</Type>
@@ -208,12 +202,6 @@
 			</ChildItems>
 		</UsualGroup>
 		<CommandBar name="CommandBar2" id="392">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Command bar 2</v8:content>
-				</v8:item>
-			</Title>
 			<ExtendedTooltip name="CommandBar2ExtendedTooltip" id="393"/>
 			<ChildItems>
 				<ButtonGroup name="EditingCommands" id="85">
@@ -833,12 +821,6 @@
 									</ChildItems>
 								</ButtonGroup>
 								<Popup name="SpreadsheetDocumentGroup5" id="432">
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Clear</v8:content>
-										</v8:item>
-									</Title>
 									<ExtendedTooltip name="SpreadsheetDocumentGroup5ExtendedTooltip" id="433"/>
 									<ChildItems>
 										<Button name="SpreadsheetDocumentClearAll" id="412">
@@ -943,8 +925,8 @@
 									<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="EllipseExtendedTooltip" id="449"/>
 								</Button>
-								<ButtonGroup name="Group6" id="454">
-									<ExtendedTooltip name="Group6ExtendedTooltip" id="455"/>
+								<ButtonGroup name="GroupingTeamGroup" id="454">
+									<ExtendedTooltip name="GroupingTeamGroupExtendedTooltip" id="455"/>
 									<ChildItems>
 										<Button name="Group" id="450">
 											<Type>CommandBarButton</Type>
@@ -1087,13 +1069,13 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Print group</v8:content>
+									<v8:content>Group Print</v8:content>
 								</v8:item>
 							</Title>
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Group print</v8:content>
+									<v8:content>Group Print</v8:content>
 								</v8:item>
 							</ToolTip>
 							<ExtendedTooltip name="PrintGroupExtendedTooltip" id="334"/>
@@ -1252,12 +1234,12 @@
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="TemplatesExtendedTooltip" id="273"/>
 			<ChildItems>
-				<UsualGroup name="Group2" id="294">
+				<UsualGroup name="EditTemplateGroup" id="294">
 					<Group>Vertical</Group>
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="Group2ExtendedTooltip" id="295"/>
+					<ExtendedTooltip name="EditTemplateGroupExtendedTooltip" id="295"/>
 					<ChildItems>
 						<UsualGroup name="Header" id="355">
 							<Title>

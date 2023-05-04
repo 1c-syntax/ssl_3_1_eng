@@ -212,7 +212,7 @@
 											<Title formatted="false">
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>All user sessions will be closed within 2 minutes. 
+													<v8:content>All user sessions will be closed within 7 minutes. 
 The users will be prompted to save their data before signing out.</v8:content>
 												</v8:item>
 											</Title>

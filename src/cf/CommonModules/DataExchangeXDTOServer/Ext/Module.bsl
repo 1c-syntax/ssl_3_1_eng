@@ -6600,7 +6600,7 @@ Procedure ApplyObjectsDeletion(ExchangeComponents, ArrayOfObjectsToDelete, Array
 		If ExchangeComponents.DataImportToInfobaseMode Then
 			If ExchangeComponents.IsExchangeViaExchangePlan
 				And DataExchangeEvents.ImportRestricted(Object, ExchangeComponents.CorrespondentNodeObject) Then
-				Return;
+				Continue;
 			EndIf;
 			ObjectMetadata = Object.Metadata();
 			If Metadata.Documents.Contains(ObjectMetadata) Then

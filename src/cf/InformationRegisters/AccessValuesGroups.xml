@@ -36,7 +36,7 @@
 			<Synonym>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Access Value Groups</v8:content>
+					<v8:content>Access value groups</v8:content>
 				</v8:item>
 			</Synonym>
 			<Comment/>
@@ -176,7 +176,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Access Value</v8:content>
+							<v8:content>Access value</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -190,7 +190,7 @@
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>An item of a catalog or another metadata object that is used
-as an Access Value ("Products" catalog).</v8:content>
+as an access value ("Products" catalog).</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -224,7 +224,7 @@ as an Access Value ("Products" catalog).</v8:content>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Access Value Group</v8:content>
+							<v8:content>Access value group</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -238,7 +238,7 @@ as an Access Value ("Products" catalog).</v8:content>
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>An item of a catalog or another metadata object that is used 
-as an Access Value ("Product access groups" catalog).</v8:content>
+as an access value group ("Product access groups" catalog).</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

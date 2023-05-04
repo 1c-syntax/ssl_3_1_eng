@@ -56,7 +56,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.PlaceForPicture</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.RepeatAtEndPage</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.RepeatAtTopofPage</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">CommonTemplate.InstructionsOnHowToConfigureOfficeOpenTemplate</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonTemplate.GuideHowToSetUpOpenOfficeTemplate</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonTemplate.OfficeOpenDigitalSignatureStampTemplate</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonTemplate.EmptyDOCXTemplate</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonForm.PrintOfficeOpenDocs</xr:Item>

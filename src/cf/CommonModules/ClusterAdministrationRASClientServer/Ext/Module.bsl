@@ -470,7 +470,7 @@ Function SecurityProfile(Val ClusterAdministrationParameters, Val ProfileName) E
 	SecurityProfiles = GetSecurityProfiles(ClusterID, ClusterAdministrationParameters, Filter);
 	
 	If SecurityProfiles.Count() <> 1 Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The security profile %2 is not registered in the server cluster %1.';"), ClusterID, ProfileName);
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Security profile %2 is not registered in server cluster %1.';"), ClusterID, ProfileName);
 	EndIf;
 	
 	Result = SecurityProfiles[0];
@@ -521,7 +521,7 @@ Procedure CreateSecurityProfile(Val ClusterAdministrationParameters, Val Securit
 	SecurityProfiles = GetSecurityProfiles(ClusterID, ClusterAdministrationParameters, Filter);
 	
 	If SecurityProfiles.Count() = 1 Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The security profile %2 is already registered in the server cluster %1.';"), ClusterID, ProfileName);
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Security profile %2 is already registered in server cluster %1.';"), ClusterID, ProfileName);
 	EndIf;
 	
 	UpdateSecurityProfileProperties(ClusterAdministrationParameters, SecurityProfileProperties, False);
@@ -545,7 +545,7 @@ Procedure SetSecurityProfileProperties(Val ClusterAdministrationParameters, Val 
 	SecurityProfiles = GetSecurityProfiles(ClusterID, ClusterAdministrationParameters, Filter);
 	
 	If SecurityProfiles.Count() <> 1 Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The security profile %2 is not registered in the server cluster %1.';"), ClusterID, ProfileName);
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Security profile %2 is not registered in server cluster %1.';"), ClusterID, ProfileName);
 	EndIf;
 	
 	UpdateSecurityProfileProperties(ClusterAdministrationParameters, SecurityProfileProperties, True);
@@ -597,7 +597,7 @@ Function InfoBaseID(Val ClusterID, Val ClusterAdministrationParameters, Val Info
 	If Infobases.Count() = 1 Then
 		Return Infobases[0].Get("infobase");
 	Else
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The infobase %2 is not registered in the server cluster %1.';"), ClusterID, InfobaseAdministrationParameters.NameInCluster);
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Infobase %2 is not registered in server cluster %1.';"), ClusterID, InfobaseAdministrationParameters.NameInCluster);
 	EndIf;
 	
 EndFunction
@@ -648,7 +648,7 @@ Function ClusterID(Val ClusterAdministrationParameters) Export
 	If Clusters.Count() = 1 Then
 		Return Clusters[0].Get("cluster");
 	Else
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The server cluster with port %1 is not found.';"), ClusterAdministrationParameters.ClusterPort);
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot find a server cluster with port %1.';"), ClusterAdministrationParameters.ClusterPort);
 	EndIf;
 	
 EndFunction

@@ -289,7 +289,7 @@ Procedure Sign(Command)
 		If ModuleCryptographyServiceDSSConfirmationClient.CheckingBeforePerformingOperation(ThisObject, PasswordProperties.Value) Then 
 			ModuleCryptographyServiceDSSConfirmationClient.PerformInitialServiceOperation(ThisObject, DataDetails, PasswordProperties.Value);
 		EndIf;
-	Else	
+	Else
 		If Not Items.Sign.Enabled Then
 			Return;
 		EndIf;
@@ -519,7 +519,7 @@ EndFunction
 // CAC:78-off: to securely pass data between forms on the client without sending them to the server.
 &AtClient
 Procedure PerformSigning(ClientParameters, CompletionProcessing) Export
-// АПК:78-
+// ACC:78-
 	
 	DigitalSignatureInternalClient.RefreshFormBeforeSecondUse(ThisObject, ClientParameters);
 	
@@ -621,10 +621,58 @@ Procedure SignData(Notification)
 	
 	If ValueIsFilled(CertificationAuthorityAuditResult)
 		And Not CertificationAuthorityAuditResult.Valid_SSLyf Then
+			
+		SigningIsAllowed = CommonServerCall.CommonSettingsStorageLoad(
+			Certificate, "AllowSigning", Undefined);
+		
+		If SigningIsAllowed = Undefined Then
+			Notification = New NotifyDescription("SignDataAfterAnsweringQuestion", ThisObject, Context);
+			
+			QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
+			QuestionParameters.Picture = PictureLib.Warning32;
+			QuestionParameters.Title = NStr("en = 'Request for permission to sign';");
+			QuestionParameters.CheckBoxText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Remember my choice for certificate ""%1""';"), Certificate);
+			
+			Buttons = New ValueList;
+			Buttons.Add(True, NStr("en = 'Allow signing';"));
+			Buttons.Add(False,   NStr("en = 'Cancel signing';"));
+			
+			ErrorWarning = CertificationAuthorityAuditResult.Warning; // See DigitalSignatureInternalClientServer.WarningWhileVerifyingCertificateAuthorityCertificate
+			StandardSubsystemsClient.ShowQuestionToUser(Notification, ErrorWarning.ErrorText, Buttons, QuestionParameters);
+			Return;
+		EndIf;
+		
+		SignDataAfterAnsweringQuestion(SigningIsAllowed, Context);
+		Return;
+	EndIf;
+	
+	SignDataAfterAnsweringQuestion(True, Context)
+	
+EndProcedure
+
+// Continue the sign Data procedure.
+&AtClient
+Procedure SignDataAfterAnsweringQuestion(Result, Context) Export
+	
+	If TypeOf(Result) = Type("Structure") Then
+		
+		NeverAskAgain = Result.NeverAskAgain;
+		Result = Result.Value;
+		
+		If NeverAskAgain Then
+			CommonServerCall.CommonSettingsStorageSave(
+				Certificate, "AllowSigning", Result);
+		EndIf;
+		
+	EndIf;
+	
+	If Result = Undefined Or Not Result Then
 		ErrorWarning = CertificationAuthorityAuditResult.Warning; // See DigitalSignatureInternalClientServer.WarningWhileVerifyingCertificateAuthorityCertificate
 		Context.ErrorAtClient.Insert("ErrorDescription", ErrorWarning.ErrorText);
 		AdditionalErrorData = New Structure("AdditionalDataChecksOnClient", ErrorWarning);
-		HandleError(Context.Notification, Context.ErrorAtClient, Context.ErrorAtServer,,AdditionalErrorData);
+		HandleError(Context.Notification, Context.ErrorAtClient, Context.ErrorAtServer, ,
+			AdditionalErrorData);
 		Return;
 	EndIf;
 	

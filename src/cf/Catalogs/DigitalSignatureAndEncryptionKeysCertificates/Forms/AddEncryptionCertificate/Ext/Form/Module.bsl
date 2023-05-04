@@ -12,7 +12,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	DigitalSignatureInternal.SetVisibilityOfLinkToInstructionsForWorkingWithPrograms(Items.Instruction);
+	DigitalSignatureInternal.SetVisibilityOfRefToAppsTroubleshootingGuide(Items.Instruction);
 	
 	HaveRightToAddInDirectory = AccessRight("Insert",
 		Metadata.Catalogs.DigitalSignatureAndEncryptionKeysCertificates);
@@ -330,7 +330,7 @@ Procedure NextAfterSearchingForTheCertificateTheCloudSignature(Result, Context) 
 		
 	If Not ValueIsFilled(Result.CertificateData) Then
 		Context = New Structure;
-		Context.Insert("ErrorDescription", NStr("en = 'The certificate does not exist in the service (it might have been deleted).';"));
+		Context.Insert("ErrorDescription", NStr("en = 'The certificate does not exist in the service. It might have been deleted.';"));
 		UpdateCertificatesList(New NotifyDescription(
 			"NextAfterCertificatesListUpdate", ThisObject, Context));
 		Return;
@@ -381,7 +381,7 @@ Procedure NextAfterCertificateSearchInCloudService(Result, Context) Export
 		
 	If Not ValueIsFilled(Result.Certificate) Then
 		Context = New Structure;
-		Context.Insert("ErrorDescription", NStr("en = 'The certificate does not exist in the service (it might have been deleted).';"));
+		Context.Insert("ErrorDescription", NStr("en = 'The certificate does not exist in the service. It might have been deleted.';"));
 		UpdateCertificatesList(New NotifyDescription(
 			"NextAfterCertificatesListUpdate", ThisObject, Context));
 		Return;

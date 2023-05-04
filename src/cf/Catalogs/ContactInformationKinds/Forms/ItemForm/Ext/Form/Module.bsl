@@ -320,14 +320,14 @@ Procedure InternationalAddressFormatOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure PhoneWithExtensionOnChange(Item) 
+Procedure PhoneNumberWithExtensionWhenChanging(Item)
 	
 	UpdatePhoneFaxItemsAvailability(ThisObject);
 	
 EndProcedure
 
 &AtClient
-Procedure MaskOnEnterPhoneNumberOnChange(Item)       
+Procedure MaskOnEnterPhoneNumberOnChange(Item)
 
 	UpdatePhoneFaxItemsAvailability(ThisObject);
 	

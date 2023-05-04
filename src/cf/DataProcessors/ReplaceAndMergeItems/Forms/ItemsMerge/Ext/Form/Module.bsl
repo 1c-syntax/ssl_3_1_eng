@@ -17,13 +17,7 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetConditionalAppearance();
 	
-	// 
-	// 
 	InitializeReferencesToMerge(Parameters.RefSet);
-	If Not IsBlankString(ParametersErrorText) Then
-		// 
-		Return;
-	EndIf;
 	
 	ObjectMetadata = MainItem.Ref.Metadata();
 	HasRightToDeletePermanently = AccessRight("DataAdministration", Metadata) 
@@ -89,14 +83,6 @@ EndProcedure
 
 &AtClient
 Procedure OnOpen(Cancel)
-	// Checking whether an error message is required.
-	If Not IsBlankString(ParametersErrorText) Then
-		Cancel = True;
-		ShowMessageBox(, ParametersErrorText);
-		Return;
-	EndIf;
-	
-	// Run wizard.
 	OnActivateWizardStep();
 EndProcedure
 
@@ -513,7 +499,7 @@ EndProcedure
 Procedure WizardStepNext()
 	
 	CurrentPage = Items.WizardSteps.CurrentPage;
-	Step = WizardSettings.CurrentStep;// See AddWizardStep
+	Step = WizardSettings.CurrentStep; // See AddWizardStep
 	If CurrentPage = Items.MainItemSelectionStep Then
 		
 		ErrorText = CheckCanReplaceReferences();
@@ -680,14 +666,8 @@ EndProcedure
 &AtServer
 Procedure InitializeReferencesToMerge(Val ReferencesArrray)
 	
-	CheckResult = CheckReferencesToMerge(ReferencesArrray);
-	ParametersErrorText = CheckResult.Error;
-	If Not IsBlankString(ParametersErrorText) Then
-		Return;
-	EndIf;
-	
+	ReferencesToReplaceCommonOwner = CheckReferencesToMerge(ReferencesArrray);
 	MainItem = ReferencesArrray[0];
-	ReferencesToReplaceCommonOwner = CheckResult.CommonOwner;
 	
 	UsageInstances.Clear();
 	For Each Item In ReferencesArrray Do
@@ -698,17 +678,15 @@ EndProcedure
 &AtServerNoContext
 Function CheckReferencesToMerge(Val RefSet)
 	
-	Result = New Structure("Error, CommonOwner");
-	
 	RefsCount = RefSet.Count();
 	If RefsCount < 2 Then
-		Result.Error = NStr("en = 'Select more than one item to merge.';");
-		Return Result;
+		Raise NStr("en = 'Для объединения укажите несколько элементов.';");
 	EndIf;
 	
-	TheFirstControl = RefSet[0];
-	
+	TheFirstControl = RefSet[0];	
 	BasicMetadata = TheFirstControl.Metadata();
+	VerifyAccessRights("Update", BasicMetadata);
+	
 	Characteristics = New Structure("Owners, Hierarchical, HierarchyType", New Array, False);
 	FillPropertyValues(Characteristics, BasicMetadata);
 	
@@ -739,19 +717,17 @@ Function CheckReferencesToMerge(Val RefSet)
 	
 	Control = Query.Execute().Unload()[0];
 	If Control.HasGroups Then
-		Result.Error = NStr("en = 'One of the items to merge is a group.
-			|Groups cannot be merged.';");
+		Raise NStr("en = 'Один из объединяемых элементов является группой.
+			|Группы не могут быть объединены.';");
 	ElsIf Control.OwnersCount > 1 Then 
-		Result.Error = NStr("en = 'Items to merge have different owners. 
-			|They cannot be merged.';");
+		Raise NStr("en = 'У объединяемых элементов различные владельцы.
+			|Такие элементы не могут быть объединены.';");
 	ElsIf Control.RefsCount <> RefsCount Then
-		Result.Error = NStr("en = 'All items to merge must be of the same type.';");
-	Else 
-		// 
-		Result.CommonOwner = ?(HasOwners, Control.CommonOwner, Undefined);
+		Raise NStr("en = 'Все объединяемые элементы должны быть одного типа.';");
 	EndIf;
+
+	Return ?(HasOwners, Control.CommonOwner, Undefined);
 	
-	Return Result;
 EndFunction
 
 // Parameters:
@@ -943,11 +919,11 @@ Function CheckCanReplaceReferences()
 		ReplacementPairs.Insert(String.Ref, MainItem);
 	EndDo;
 	
-	// Checking once again, the set might be modified.
-	Control = CheckReferencesToMerge(RefSet);
-	If Not IsBlankString(Control.Error) Then
-		Return Control.Error;
-	EndIf;
+	Try
+		CheckReferencesToMerge(RefSet);
+	Except
+		Return ErrorProcessing.BriefErrorDescription(ErrorInfo());
+	EndTry;
 	
 	ReplacementParameters = New Structure("DeletionMethod", CurrentDeletionOption);
 	Return DuplicateObjectsDetection.CheckCanReplaceItemsString(ReplacementPairs, ReplacementParameters);

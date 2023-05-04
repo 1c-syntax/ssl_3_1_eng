@@ -751,7 +751,7 @@
 									<CommandName>Form.Item.Programs.StandardCommand.OutputList</CommandName>
 									<ExtendedTooltip name="ApplicationsOutputListExtendedTooltip" id="256"/>
 								</Button>
-								<SearchStringAddition name="ProgramsSearch" id="467">
+								<SearchStringAddition name="AppsSearch" id="467">
 									<AdditionSource>
 										<Item>Programs</Item>
 										<Type>SearchStringRepresentation</Type>
@@ -762,10 +762,10 @@
 											<v8:content>Applications search</v8:content>
 										</v8:item>
 									</Title>
-									<ContextMenu name="ProgramsSearchContextMenu" id="468"/>
-									<ExtendedTooltip name="ProgramsSearchExtendedTooltip" id="469"/>
+									<ContextMenu name="AppsSearchContextMenu" id="468"/>
+									<ExtendedTooltip name="AppsSearchExtendedTooltip" id="469"/>
 								</SearchStringAddition>
-								<SearchControlAddition name="ProgramsSearchManagement" id="470">
+								<SearchControlAddition name="AppsSearchManagement" id="470">
 									<AdditionSource>
 										<Item>Programs</Item>
 										<Type>SearchControl</Type>
@@ -776,8 +776,8 @@
 											<v8:content>Applications search management</v8:content>
 										</v8:item>
 									</Title>
-									<ContextMenu name="ProgramsSearchManagementContextMenu" id="471"/>
-									<ExtendedTooltip name="ProgramsSearchManagementExtendedTooltip" id="472"/>
+									<ContextMenu name="AppsSearchManagementContextMenu" id="471"/>
+									<ExtendedTooltip name="AppsSearchManagementExtendedTooltip" id="472"/>
 								</SearchControlAddition>
 							</ChildItems>
 						</CommandBar>
@@ -1742,7 +1742,7 @@ WHERE
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="ThereAreTestablePrograms" id="39">
+		<Attribute name="HasAppsToCheck" id="39">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>

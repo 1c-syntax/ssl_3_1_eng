@@ -559,26 +559,10 @@ EndFunction
 
 #Region ReplaceDuplicatesInDimensionKeys
 
-// Returns subordinate object links specifying a linking field type.
-//
-// Returns:
-//   ValueTable:
-//    * Key - String
-//    * AttributeType - Type
-//    * AttributeName - String
-//    * Used - Boolean
-//    * Metadata - MetadataObject
-//
+// See Common.SubordinateObjectsLinksByTypes.
 Function SubordinateObjectsLinksByTypes() Export
 
-	SubordinateObjectsLinksByTypes = New ValueTable;
-	SubordinateObjectsLinksByTypes.Columns.Add("AttributeType", New TypeDescription("Type"));
-	SubordinateObjectsLinksByTypes.Columns.Add("AttributeName", Common.StringTypeDetails(0));
-	SubordinateObjectsLinksByTypes.Columns.Add("Key", Common.StringTypeDetails(0));
-	SubordinateObjectsLinksByTypes.Columns.Add("Used", New TypeDescription("Boolean"));
-	SubordinateObjectsLinksByTypes.Columns.Add("Metadata");
-	
-	Return SubordinateObjectsLinksByTypes;
+	Return Common.SubordinateObjectsLinksByTypes();
 
 EndFunction 
 

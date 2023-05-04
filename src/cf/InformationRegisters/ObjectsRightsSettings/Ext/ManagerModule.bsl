@@ -128,7 +128,7 @@ Function Read(Val ObjectReference) Export
 	
 	If RightsDetails = Undefined Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Error in procedure ""%1"".
+			NStr("en = 'Error in procedure %1.
 			           |
 			           |Parameter ""%2"" has invalid value ""%3"".
 			           |Table ""%4"" doesn''t support access rights.';"),
@@ -284,7 +284,7 @@ Procedure Write(Val ObjectReference, Val Settings, Val Inherit) Export
 	
 	If RightsDetails = Undefined Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Error in procedure ""%1"".
+			NStr("en = 'Error in procedure %1.
 			           |
 			           |Parameter ""%2"" has invalid value ""%3"".
 			           |Table ""%4"" doesn''t support access rights.';"),
@@ -463,8 +463,8 @@ Procedure UpdateAuxiliaryRegisterData(HasChanges = Undefined) Export
 		
 		If BlankRefsRightsOwner.Get(RightsOwnerType) = Undefined Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Error in procedure ""%1""
-				           |of information register ""%2"" manager module.
+				NStr("en = 'Error in procedure %1
+				           |of the %2 information register manager module.
 				           |
 				           |Dimension ""%4"" is missing right owner type ""%3"".';"),
 				"UpdateAuxiliaryRegisterData",

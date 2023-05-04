@@ -100,18 +100,14 @@ Procedure FillDefaultAttributes(Object, FillingData) Export
 	
 	Contacts = Undefined;
 	
+	// Based on contact
 	If IsContact(FillingData) And Not FillingData.IsFolder Then
-		// 
 		Contacts = New Array;
 		Contacts.Add(FillingData);
 		
-	ElsIf InteractionsClientServer.IsSubject(FillingData) Then
-		// Based on subject
-		ObjectManager = Common.ObjectManagerByRef(FillingData);
-		Contacts = ObjectManager.GetContacts(FillingData);
-		
-	ElsIf InteractionsClientServer.IsInteraction(FillingData) Then
-		// 
+	// 
+	ElsIf InteractionsClientServer.IsSubject(FillingData) 
+		Or InteractionsClientServer.IsInteraction(FillingData) Then
 		ObjectManager = Common.ObjectManagerByRef(FillingData);
 		Contacts = ObjectManager.GetContacts(FillingData);
 		
@@ -612,6 +608,20 @@ Function CreateEmail(Message, Account, SendImmediately = True) Export
 			NewRow.Contact       = EmailRecipient.ContactInformationSource;
 		EndDo;
 		
+		For Each RecipientOfResponse In Message.ReplyRecipients Do
+			NewRow = MailMessage["ReplyRecipients"].Add();
+			NewRow.Address         = RecipientOfResponse.Address;
+			NewRow.Presentation = RecipientOfResponse.Presentation;
+			NewRow.Contact       = RecipientOfResponse.ContactInformationSource;
+		EndDo;
+		
+		For Each RecipientOfHiddenCopies In Message.BccRecipients Do
+			NewRow = MailMessage["BccRecipients"].Add();
+			NewRow.Address         = RecipientOfHiddenCopies.Address;
+			NewRow.Presentation = RecipientOfHiddenCopies.Presentation;
+			NewRow.Contact       = RecipientOfHiddenCopies.ContactInformationSource;
+		EndDo;
+		
 		MailMessage.EmailRecipientsList    = InteractionsClientServer.GetAddressesListPresentation(MailMessage.EmailRecipients, False);
 		MailMessage.EmailStatus = ?(Common.FileInfobase(),
 			Enums.OutgoingEmailStatuses.Draft,
@@ -704,7 +714,9 @@ Function CreateEmail(Message, Account, SendImmediately = True) Export
 	EndIf;
 		
 	Try
-		EmailID = ExecuteEmailSending(MailMessage);
+		SendingResult = ExecuteEmailSending(MailMessage);
+		EmailID =  SendingResult.SMTPEmailID;
+		EmailSendingResult.WrongRecipients = SendingResult.WrongRecipients;
 		EmailSendingResult.EmailID = EmailID;
 	Except
 		
@@ -773,8 +785,16 @@ EndFunction
 //    * UserMessages - FixedArray
 //    * Recipients - ValueTable:
 //      ** Presentation - String
-//      ** AddressInTempStorage - String
+//      ** Address - String -
 //      ** ContactInformationSource - ОпределяемыеТип.ВладелецКонтактнойИнформации
+//    * ReplyRecipients
+//      ** 
+//      ** 
+//      ** 
+//    * BccRecipients
+//      ** 
+//      ** 
+//      ** 
 //    * Attachments - ValueTable:
 //      ** Presentation - String
 //      ** AddressInTempStorage - String
@@ -802,6 +822,20 @@ Function EmailParameters() Export
 	Recipients.Columns.Add("ContactInformationSource", Metadata.DefinedTypes.ContactInformationOwner.Type);
 
 	Message.Insert("Recipients", Recipients);
+	
+	ReplyRecipients = New ValueTable;
+	ReplyRecipients.Columns.Add("Address", StringType);
+	ReplyRecipients.Columns.Add("Presentation", StringType);
+	ReplyRecipients.Columns.Add("ContactInformationSource", Metadata.DefinedTypes.ContactInformationOwner.Type);
+
+	Message.Insert("ReplyRecipients", ReplyRecipients); 
+	
+	BccRecipients = New ValueTable;
+	BccRecipients.Columns.Add("Address", StringType);
+	BccRecipients.Columns.Add("Presentation", StringType);
+	BccRecipients.Columns.Add("ContactInformationSource", Metadata.DefinedTypes.ContactInformationOwner.Type);
+	
+	Message.Insert("BccRecipients", BccRecipients);
 
 	Attachments = New ValueTable;
 	Attachments.Columns.Add("Presentation", StringType);
@@ -1306,7 +1340,7 @@ EndProcedure
 //  ReplacementPairs - Map - contains the value pairs original and duplicate.
 //  UnprocessedOriginalsValues - Array of Structure:
 //    * ValueToReplace - AnyRef - the original value of the object to replace.
-//    * UsedLinks - See DuplicateObjectsDetection.SubordinateObjectsLinksByTypes.
+//    * UsedLinks - See Common.SubordinateObjectsLinksByTypes.
 //    * KeyAttributesValue - Structure - Key is the attribute name. Value is the attribute value.
 //
 Procedure OnSearchForReferenceReplacement(ReplacementPairs, UnprocessedOriginalsValues) Export
@@ -1328,15 +1362,11 @@ Procedure OnSearchForReferenceReplacement(ReplacementPairs, UnprocessedOriginals
 			CommitTransaction();
 		
 		Except
-			
-			If TransactionActive() Then
-				RollbackTransaction();
-			EndIf;
-			WriteLogEvent(NStr("en = 'Find and replace references';", Common.DefaultLanguageCode())
-				,EventLogLevel.Error
-				,UnprocessedDuplicate.ValueToReplace.Metadata
-				,,ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-
+			RollbackTransaction();
+			WriteLogEvent(NStr("en = 'Find and replace references';", Common.DefaultLanguageCode()),
+				EventLogLevel.Error,
+				UnprocessedDuplicate.ValueToReplace.Metadata,,
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
 		
 	EndDo;	
@@ -1412,7 +1442,7 @@ Function AvailableSearchesList(FTSEnabled, Parameters, FormItems, ForAddressBook
 	Else
 		Address = Parameters.Address;
 		DomainAddress = GetDomainAddressForSearch(Parameters.Address);
-		SearchByStringOptions = GetSearchOptionsByString(Parameters.Presentation, Parameters.Address);
+		SearchByStringOptions = SearchByStringOptions(Parameters.Presentation, Parameters.Address);
 		Presentation = Parameters.Presentation;
 	EndIf;
 	
@@ -1526,20 +1556,20 @@ Function GetDomainAddressForSearch(Address)
 	
 EndFunction
 
-// Generates search options by the string.
+// Generates search options for the string.
 //
 // Parameters:
-//  Presentation - String - contact presentation.
-//  Address         - String - a contact address.
+//  Presentation - String - the performance of the contact.
+//  Address         - String - the address of the contact.
 //
 // Returns:
 //   ValueList
 //
-Function GetSearchOptionsByString(Presentation, Address)
+Function SearchByStringOptions(Presentation, Address)
 	
 	If IsBlankString(Presentation) Then
 		Return Address;
-	ElsIf  IsBlankString(Address) Then
+	ElsIf IsBlankString(Address) Then
 		Return Presentation;
 	ElsIf TrimAll(Presentation) = TrimAll(Address) Then
 		Return Address;
@@ -1670,7 +1700,7 @@ Function ContactsBySubjectOrChain(SubjectOf, IncludeEmail)
 		InteractionsOverridable.OnSearchForContacts(ContactsTableName, SearchQueryText);
 		
 		If IsBlankString(SearchQueryText) Then
-			// АПК:223-
+			// ACC:223-
 			SearchQueryText = InteractionsOverridable.QueryTextContactsSearchBySubject(False, 
 				ContactsTableName, True);
 			// ACC:223-on
@@ -2747,9 +2777,8 @@ EndFunction
 //
 Procedure FinishFillingContactsFields(Contact, Presentation, Address, ContactInformationType = Undefined) Export
 	
-	If Not ValueIsFilled(Contact) Then
-		Return;
-	ElsIf Not IsBlankString(Presentation) And Not IsBlankString(Address) Then
+	If Not ValueIsFilled(Contact) 
+		Or (Not IsBlankString(Presentation) And Not IsBlankString(Address)) Then
 		Return;
 	EndIf;
 	
@@ -3169,7 +3198,7 @@ EndProcedure
 //  Object - DocumentObject.OutgoingEmail - an email to be sent.
 //
 // Returns:
-//   String   - Email message ID.
+//   See EmailOperations.SendMail
 //
 Function ExecuteEmailSending(Object, Join = Undefined, EmailParameters = Undefined, MailProtocol = "")
 	
@@ -3181,7 +3210,7 @@ Function ExecuteEmailSending(Object, Join = Undefined, EmailParameters = Undefin
 	EmailParameters.Insert("MessageID", SendingResult.SMTPEmailID);
 	EmailParameters.Insert("WrongRecipients", SendingResult.WrongRecipients);
 	
-	Return Object.MessageID;
+	Return SendingResult;
 	
 EndFunction
 
@@ -3819,7 +3848,7 @@ Function DataStoredInAttachmentsEmailsDatabase(MailMessage) Export
 		|		ON EmailOutgoingEmailsAttachments.MailMessage = OutgoingEmail.Ref
 		|WHERE
 		|	EmailOutgoingEmailsAttachments.Ref = &MailMessage");
-	// АПК:96-
+	// ACC:96-
 	
 	Query.SetParameter("MailMessage", MailMessage);
 	Return Query.Execute().Unload();
@@ -7876,7 +7905,7 @@ Procedure FillInteractionsArrayContacts(InteractionsArray, CalculateReviewedItem
 	|		ON UniqueContactsOfInteractionOfRepresentation.ContactPresentation = StringContactInteractions.Description
 	|TOTALS BY
 	|	Interaction";
-	// АПК:96-
+	// ACC:96-
 	Query.SetParameter("InteractionsArray", InteractionsArray);
 	
 	QueryResult = Query.Execute();
@@ -8170,6 +8199,9 @@ EndFunction
 //   * LinkToTheEmail - Undefined - email message was not created.
 //                    - DocumentRef.OutgoingEmail - Reference to the created outgoing email.
 //   * EmailID - String
+//   * WrongRecipients - Map of KeyAndValue - recipient addresses with errors:
+//     ** Key     - String - recipient address;
+//     ** Value - String - error text.
 //
 Function EmailSendingResult()
 	
@@ -8177,8 +8209,10 @@ Function EmailSendingResult()
 	
 	EmailSendingResult.Insert("Sent", False);
 	EmailSendingResult.Insert("ErrorDescription", "");
-	EmailSendingResult.Insert("LinkToTheEmail", Undefined);   
+	EmailSendingResult.Insert("LinkToTheEmail", Undefined);
 	EmailSendingResult.Insert("EmailID", "");
+	EmailSendingResult.Insert("WrongRecipients", New Map);
+	
 	
 	Return EmailSendingResult;
 	
@@ -8645,11 +8679,11 @@ Function HasDelayInExecutionOfJobOfReceivingAndSendingEmails()
 	
 	Schedule = ScheduledJob.Schedule;
 	
-	If CurrentDate() - Schedule.RepeatPeriodInDay < BackgroundJob.Begin Then // АПК:143 - 
+	If CurrentDate() - Schedule.RepeatPeriodInDay < BackgroundJob.Begin Then // ACC:143 - 
 		Return False;
 	EndIf;
 	
-	Return Schedule.ExecutionRequired(CurrentDate() - Schedule.RepeatPeriodInDay, // АПК:143 - 
+	Return Schedule.ExecutionRequired(CurrentDate() - Schedule.RepeatPeriodInDay, // ACC:143 - 
 		BackgroundJob.Begin, BackgroundJob.End);
 	
 EndFunction

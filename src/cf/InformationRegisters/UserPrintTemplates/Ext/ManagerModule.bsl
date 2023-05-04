@@ -375,7 +375,7 @@ Function AttachedTemplates(MetadataObjectID)
 	
 EndFunction
 
-Function ModifiedTemplates(MetadataObjects = Undefined)
+Function ModifiedTemplates(MetadataObjects = Undefined) Export
 	
 	QueryText =
 	"SELECT
@@ -528,7 +528,7 @@ Function AvailableLayoutLanguages(Val TemplateMetadataObjectName) Export
 	
 EndFunction
 
-Function TemplateType(TemplateMetadataObjectName, ObjectName = "CommonTemplate")
+Function TemplateType(TemplateMetadataObjectName, ObjectName = "CommonTemplate") Export
 	
 	Position = StrFind(TemplateMetadataObjectName, "PF_");
 	If Position = 0 Then
@@ -559,7 +559,7 @@ Function TemplateType(TemplateMetadataObjectName, ObjectName = "CommonTemplate")
 	
 EndFunction
 
-Function PictureIndex(Val TemplateType)
+Function PictureIndex(Val TemplateType) Export
 	
 	TemplateTypes = New Map;
 	TemplateTypes.Insert("DOC", 0);
@@ -572,7 +572,7 @@ Function PictureIndex(Val TemplateType)
 	
 EndFunction 
 
-Function TemplateImage(Val TemplateType)
+Function TemplateImage(Val TemplateType) Export
 	
 	TemplateTypes = New Map;
 	TemplateTypes.Insert("DOC", PictureLib.WordFormat);

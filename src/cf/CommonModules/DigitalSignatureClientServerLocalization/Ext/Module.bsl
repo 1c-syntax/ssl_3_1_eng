@@ -29,12 +29,12 @@ Procedure OnGetExtendedCertificateIssuerProperties(Val Issuer, Properties) Expor
 	
 EndProcedure
 
-Procedure WhenReceivingXMLEnvelope(Parameters, XMLEnvelope) Export
+Procedure OnReceivingXMLEnvelope(Parameters, XMLEnvelope) Export
 	
 	
 EndProcedure
 
-Procedure WhenReceivingDefaultEnvelopeOption(XMLEnvelope) Export
+Procedure OnGetDefaultEnvelopeVariant(XMLEnvelope) Export
 
 	
 EndProcedure
@@ -68,7 +68,8 @@ EndFunction
 //     **DateFrom - Date
 //     **DateBy - 
 //   * ValidityEndDate - 
-//   * UpdateDate - 
+//   * UpdateDate  - 
+//   * FurtherSettings - Map
 //
 Function CertificationAuthorityData(SearchValues, AccreditedCertificationCenters) Export
 	
@@ -79,12 +80,12 @@ Function CertificationAuthorityData(SearchValues, AccreditedCertificationCenters
 	
 EndFunction
 
-Procedure WhenDeterminingLinkToInstructionsForWorkingWithPrograms(Section, URL) Export
+Procedure OnDefineRefToAppsGuide(Section, URL) Export
 	
 	
 EndProcedure
 
-Procedure WhenDeterminingReferenceToInstructionsForTypicalProblemsWhenWorkingWithPrograms(URL, SectionName = "") Export
+Procedure OnDefiningRefToAppsTroubleshootingGuide(URL, SectionName = "") Export
 	
 	
 EndProcedure

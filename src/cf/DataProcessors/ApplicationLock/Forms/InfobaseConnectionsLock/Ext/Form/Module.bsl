@@ -133,17 +133,19 @@ Procedure Apply(Command)
 			Return;
 		EndTry;
 		
+		CurrentSessionDate = CommonClient.SessionDate();
+		
 		QuestionTitle = NStr("en = 'Deny user access';");
-		If SessionCount > 1 And Object.LockEffectiveFrom < CommonClient.SessionDate() + 5 * 60 Then
+		If SessionCount > 1 And Object.LockEffectiveFrom < CurrentSessionDate + 10 * 60 Then
 			QueryText = NStr("en = 'The period before applying the lock is too short. Users might not have enough time to save their data.
-				|It is recommended that you give them at least 5 minutes.';");
+				|It is recommended that you give them at least 10 minutes.';");
 			Buttons = New ValueList;
-			Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Lock in 5 minutes';"));
+			Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Lock in 10 minutes';"));
 			Buttons.Add(DialogReturnCode.No, NStr("en = 'Lock now';"));
 			Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
 			Notification = New NotifyDescription("ApplyCompletion", ThisObject, "LockTimeTooSoon");
 			ShowQueryBox(Notification, QueryText, Buttons,,, QuestionTitle);
-		ElsIf Object.LockEffectiveFrom > CommonClient.SessionDate() + 60 * 60 Then
+		ElsIf Object.LockEffectiveFrom > CurrentSessionDate + 60 * 60 Then
 			QueryText = NStr("en = 'The user lock is deferred for more than one hour.
 				|Do you want to schedule the user lock for the specified time?';");
 			Buttons = New ValueList;
@@ -153,7 +155,7 @@ Procedure Apply(Command)
 			Notification = New NotifyDescription("ApplyCompletion", ThisObject, "LockTimeTooLate");
 			ShowQueryBox(Notification, QueryText, Buttons,,, QuestionTitle);
 		Else
-			If Object.LockEffectiveFrom - CommonClient.SessionDate() > 15*60 Then
+			If Object.LockEffectiveFrom - CurrentSessionDate > 15*60 Then
 				QueryText = NStr("en = 'All active user sessions will be closed from %1 to %2.
 					|Do you want to continue?';");
 			Else
@@ -177,15 +179,17 @@ EndProcedure
 &AtClient
 Procedure ApplyCompletion(Response, Variant) Export
 	
+	CurrentSessionDate = CommonClient.SessionDate();
+	
 	If Variant = "LockTimeTooSoon" Then
 		If Response = DialogReturnCode.Yes Then
-			Object.LockEffectiveFrom = CommonClient.SessionDate() + 5 * 60;
+			Object.LockEffectiveFrom = CurrentSessionDate + 10 * 60;
 		ElsIf Response <> DialogReturnCode.No Then
 			Return;
 		EndIf;
 	ElsIf Variant = "LockTimeTooLate" Then
 		If Response = DialogReturnCode.Yes Then
-			Object.LockEffectiveFrom = CommonClient.SessionDate() + 5 * 60;
+			Object.LockEffectiveFrom = CurrentSessionDate + 10 * 60;
 		ElsIf Response <> DialogReturnCode.No Then
 			Return;
 		EndIf;
@@ -509,7 +513,7 @@ Procedure AfterGetAdministrationParametersOnLock(Result, AdditionalParameters) E
 	EndIf;
 	
 	ShowUserNotification(NStr("en = 'User access';"),
-		"e1cib/app/DataProcessor.ApplicationLock",
+		New NotifyDescription("OpeningHandlerOfAppWorkBlockForm", IBConnectionsClient),
 		?(Object.DisableUserAuthorisation, NStr("en = 'User access is denied.';"), NStr("en = 'User access is allowed.';")),
 		PictureLib.Information32);
 	IBConnectionsClient.SetTheUserShutdownMode(Object.DisableUserAuthorisation);

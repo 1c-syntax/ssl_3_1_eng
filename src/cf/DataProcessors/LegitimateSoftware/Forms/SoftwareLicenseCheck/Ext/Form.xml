@@ -72,7 +72,7 @@
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>Collected data contains only technical information.
-Anonymous statistics will help us improve the application and to understand what features are the most expected. You can turn off sending statistics at any moment.</v8:content>
+Anonymous statistics will help us improve the application and understand what features are the most expected. You can turn off sending statistics at any moment.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<ToolTipRepresentation>Button</ToolTipRepresentation>
@@ -100,7 +100,7 @@ Anonymous statistics will help us improve the application and to understand wh
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Collected data contains only technical information. It anonymous and does not contain any user-related or business-related information.</v8:content>
+									<v8:content>Collected data contains only technical information. It is anonymous and does not contain any user-related or business-related information.</v8:content>
 								</v8:item>
 							</Title>
 							<VerticalAlign>Top</VerticalAlign>

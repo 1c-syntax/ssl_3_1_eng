@@ -95,13 +95,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			NStr("en = 'Additional data processing skipped';");
 	EndIf;
 	
-	If Not ValueIsFilled(UpdateStartTime) And Not ValueIsFilled(UpdateEndTime) Then
-		Items.TechnicalInformationOnUpdateResult.Visible = False;
-	ElsIf Users.IsFullUser() And Not Common.DataSeparationEnabled() Then
-		Items.TechnicalInformationOnUpdateResult.Visible = True;
-	Else
-		Items.TechnicalInformationOnUpdateResult.Visible = False;
-	EndIf;
+	Items.TechnicalInformationOnUpdateResult.Visible = 
+		(Users.IsFullUser() And Not Common.DataSeparationEnabled())
+		And (ValueIsFilled(UpdateStartTime) Or ValueIsFilled(UpdateEndTime));
 	
 	ClientServerInfobase = Not Common.FileInfobase();
 	

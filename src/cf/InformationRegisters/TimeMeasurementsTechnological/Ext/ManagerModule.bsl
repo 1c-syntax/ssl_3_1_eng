@@ -280,7 +280,7 @@ Function QueryTextSubstringForIntervals(IntervalsTable, SourceTableName, SourceC
 	// @query-
 	// 
 	QueryText = "CASE " + QueryText + ?(IsBlankString(QueryText), "", Chars.LF) + " Else 0 End" + ?(WithName, " AS ExecutionTime, ", ",");
-	// АПК:1297-
+	// ACC:1297-
 	
 	Return QueryText;
 	

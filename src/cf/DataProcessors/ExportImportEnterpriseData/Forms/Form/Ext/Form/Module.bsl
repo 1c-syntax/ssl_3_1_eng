@@ -938,7 +938,7 @@ Procedure ReportOperationEnd(Load = False)
 	If Load Then
 		Message.Text = NStr("en = 'Data import completed.';");
 	Else
-		Message.Text = NStr("en = 'Data export completed.';");
+		Message.Text = NStr("en = 'Data has been exported.';");
 	EndIf;
 	Message.Message();
 EndProcedure

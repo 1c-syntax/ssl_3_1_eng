@@ -91,12 +91,14 @@ EndProcedure
 // Returns:
 //  Structure:
 //   * HasNoRights - Boolean
+//   * NotEnoughPermissionsToLaunch - Boolean
 //   * HasInsufficientRightForLogon - Boolean
 //
 Function WhetherRightsAreAssigned(UserDetails) Export
 	
 	Result = New Structure;
 	Result.Insert("HasNoRights", False);
+	Result.Insert("NotEnoughPermissionsToLaunch", False);
 	Result.Insert("HasInsufficientRightForLogon", False);
 	
 	If TypeOf(UserDetails) = Type("UUID") Then
@@ -116,8 +118,11 @@ Function WhetherRightsAreAssigned(UserDetails) Export
 	
 	Result.HasNoRights = (Role = Undefined);
 	
-	Result.HasInsufficientRightForLogon =
-		Not Users.HasRightsToLogIn(IBUser, False);
+	Result.NotEnoughPermissionsToLaunch = Result.HasNoRights
+		Or Not Users.HasRightsToLogIn(IBUser, False, True);
+	
+	Result.HasInsufficientRightForLogon = Result.NotEnoughPermissionsToLaunch
+		Or Not Users.HasRightsToLogIn(IBUser, False, False);
 	
 	Return Result;
 	
@@ -622,7 +627,7 @@ Procedure UpdateUsersInfoAndDisableAuthentication() Export
 					// 
 					UpdateUserInfoRecords(User, UserObject);
 					If UserObject.Modified() Then
-						// АПК:1363-
+						// ACC:1363-
 						UserObject.Write();
 						// 
 					EndIf;
@@ -636,7 +641,9 @@ Procedure UpdateUsersInfoAndDisableAuthentication() Export
 		
 	EndDo;
 	
-	If StandardSubsystemsServer.IsBaseConfigurationVersion() Then
+	If StandardSubsystemsServer.IsBaseConfigurationVersion()
+	 Or Common.FileInfobase() Then
+		
 		ResetOpenIDConnectAuthenticationForAllUsers();
 		
 	ElsIf AskAboutDisablingOpenIDConnect(Undefined)

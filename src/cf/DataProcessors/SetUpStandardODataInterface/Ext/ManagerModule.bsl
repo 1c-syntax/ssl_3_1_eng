@@ -276,7 +276,7 @@ Function ReferenceRoleCompositionForStandardODataInterface() Export
 		EndIf;
 	EndDo;
 	
-	For Each TableName In DependentTablesForUploadingLoadingOData() Do
+	For Each TableName In DependantTablesForODataImportExport() Do
 		RightsKinds = RightsKindsForStandardODataInterface(TableName, True, True);
 		If RightsKinds.Count() > 0 Then
 			Result.Insert(TableName, RightsKinds);
@@ -644,11 +644,11 @@ Procedure CheckCanCreateUserForStandardODataInterfaceCalls()
 	
 EndProcedure
 
-Function DependentTablesForUploadingLoadingOData()
+Function DependantTablesForODataImportExport()
 	
 	Tables = New Array;
-	ODataInterfaceOverridable.WhenFillingInDependentTablesForUploadingLoadingOData(Tables);
-	SSLSubsystemsIntegration.WhenFillingInDependentTablesForUploadingLoadingOData(Tables);
+	ODataInterfaceOverridable.OnPopulateDependantTablesForODataImportExport(Tables);
+	SSLSubsystemsIntegration.OnPopulateDependantTablesForODataImportExport(Tables);
 	
 	Return Tables;
 	

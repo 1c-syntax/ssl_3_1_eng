@@ -515,7 +515,7 @@ Procedure AddRegisterTotals(Val ReportParameters, Val DataCompositionSchema)
 	If ReportParameters.MetadataObjectType = "AccountingRegisters" Then
 		
 		AccountField = AddDataSetField(DataCompositionSchema.DataSets[0], "Account", NStr("en = 'Account';"));
-		AccountField.Role.AccountTypeExpression = "Account.Kind";
+		AccountField.Role.AccountTypeExpression = "Account.Type";
 		AccountField.Role.Account = True;
 		
 		ExtDimensionCount = 0;

@@ -227,8 +227,8 @@ denied on</v8:content>
 					<ContextMenu name="LastUsedClientContextMenu" id="45"/>
 					<ExtendedTooltip name="LastUsedClientExtendedTooltip" id="46"/>
 				</InputField>
-				<LabelField name="DeletePasswordStartDate" id="58">
-					<DataPath>List.DeletePasswordStartDate</DataPath>
+				<LabelField name="DeletePasswordUsageStartDate" id="58">
+					<DataPath>List.DeletePasswordUsageStartDate</DataPath>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -237,8 +237,8 @@ Password
 activated on</v8:content>
 						</v8:item>
 					</Title>
-					<ContextMenu name="DeletePasswordStartDateContextMenu" id="59"/>
-					<ExtendedTooltip name="DeletePasswordStartDateExtendedTooltip" id="60"/>
+					<ContextMenu name="DeletePasswordUsageStartDateContextMenu" id="59"/>
+					<ExtendedTooltip name="DeletePasswordUsageStartDateExtendedTooltip" id="60"/>
 				</LabelField>
 			</ChildItems>
 		</Table>
@@ -262,7 +262,7 @@ activated on</v8:content>
 	InformationRecords.AuthorizationAllowedDate AS AuthorizationAllowedDate,
 	InformationRecords.LastActivityDate AS LastActivityDate,
 	InformationRecords.AutomaticAuthorizationProhibitionDate AS AutomaticAuthorizationProhibitionDate,
-	InformationRecords.DeletePasswordStartDate AS DeletePasswordStartDate,
+	InformationRecords.DeletePasswordUsageStartDate AS DeletePasswordUsageStartDate,
 	InformationRecords.LastUsedClient AS LastUsedClient,
 	InformationRecords.NumberOfStatePicture AS NumberOfStatePicture,
 	InformationRecords.CanSignIn AS CanSignIn,

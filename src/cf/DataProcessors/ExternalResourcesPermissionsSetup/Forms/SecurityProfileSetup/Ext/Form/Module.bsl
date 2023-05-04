@@ -97,7 +97,7 @@ EndProcedure
 
 &AtClient
 Procedure InfobaseSecurityProfileOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
 #EndRegion
@@ -232,9 +232,9 @@ Procedure EndApplyingSecurityProfilesSettings()
 EndProcedure
 
 &AtClient
-Procedure Attachable_WhenChangingTheDetails(Item, ShouldRefreshInterface = True)
+Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
 	
-	ConstantName = WhenChangingTheDetailsServer(Item.Name);
+	ConstantName = OnChangeAttributeServer(Item.Name);
 	RefreshReusableValues();
 	
 	If ShouldRefreshInterface Then
@@ -259,7 +259,7 @@ Procedure RefreshApplicationInterface()
 EndProcedure
 
 &AtServer
-Function WhenChangingTheDetailsServer(TagName)
+Function OnChangeAttributeServer(TagName)
 	
 	DataPathAttribute = Items[TagName].DataPath;
 	ConstantName = SaveAttributeValue(DataPathAttribute);

@@ -372,7 +372,7 @@ Function SaveFileFromParts(TransferId, PartQuantity, FileId)
 			WriteLogEvent(DataExchangeServer.TempFileDeletionEventLogEvent(),
 				EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
-		Raise(NStr("en = 'The archive file does not contain data.';"));
+		Raise(NStr("en = 'The archive file is empty.';"));
 	EndIf;
 	
 	DumpDirectory = DataExchangeServer.TempFilesStorageDirectory();
@@ -485,7 +485,7 @@ Procedure RunExportDataInClientServerMode(ExchangePlanName,
 		TimeConsumingOperation = False;
 		Return;
 	Else
-		Message = NStr("en = 'An error occurred upon data export using a web service.';");
+		Message = NStr("en = 'Error exporting data via web service.';");
 		If ValueIsFilled(BackgroundJob.DetailErrorDescription) Then
 			Message = BackgroundJob.DetailErrorDescription;
 		EndIf;
@@ -539,7 +539,7 @@ Procedure RunImportDataInClientServerMode(ExchangePlanName,
 		Return;
 	Else
 		
-		Message = NStr("en = 'An error occurred upon data import using a web service.';");
+		Message = NStr("en = 'Error importing data via web service.';");
 		If ValueIsFilled(BackgroundJob.DetailErrorDescription) Then
 			Message = BackgroundJob.DetailErrorDescription;
 		EndIf;
@@ -581,7 +581,7 @@ Procedure RegisterDataForInitialExport(Val ExchangePlanName, Val NodeCode, TimeC
 	InfobaseNode = DataExchangeServer.ExchangePlanNodeByCode(ExchangePlanName, NodeCode);
 	
 	If Not ValueIsFilled(InfobaseNode) Then
-		Message = NStr("en = 'Exchange plan node not found. Node name: %1, node code: %2';");
+		Message = NStr("en = 'Node not found. Exchange plan: %1. Node ID: %2';");
 		Message = StringFunctionsClientServer.SubstituteParametersToString(Message, ExchangePlanName, NodeCode);
 		Raise Message;
 	EndIf;

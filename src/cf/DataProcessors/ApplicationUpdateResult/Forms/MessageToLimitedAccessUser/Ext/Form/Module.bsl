@@ -121,7 +121,7 @@ Procedure ContinueCountdown()
 		NewTitle = (
 			NStr("en = 'End session';")
 			+ " ("
-			+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 sec. left';"), String(TimeoutCounter))
+			+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 seconds remaining';"), String(TimeoutCounter))
 			+ ")");
 			
 		Items.FormExitApplication.Title = NewTitle;

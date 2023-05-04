@@ -169,15 +169,15 @@ Procedure BeforeWriteAtServer(CurrentObject) Export
 	MetadataObject = MetadataObject(CurrentObject);
 	CurrentLanguageSuffix = CurrentLanguageSuffix();
 	
-	NamesOfMultilingualAttributes = New Map;
+	NamesOfMultiLangAttributesInHeader = New Map;
 	
 	If MultilanguageStringsInAttributes(MetadataObject) Then
 		
 		If Not Common.IsRegister(MetadataObject) And CurrentObject.IsNew()  Then
 			
-			NamesOfMultilingualAttributes = TheNamesOfTheLocalizedDetailsOfTheObjectInTheHeader(MetadataObject);
+			NamesOfMultiLangAttributesInHeader = TheNamesOfTheLocalizedDetailsOfTheObjectInTheHeader(MetadataObject);
 			
-			For Each Attribute In NamesOfMultilingualAttributes Do
+			For Each Attribute In NamesOfMultiLangAttributesInHeader Do
 				
 				AttributeValue = CurrentObject[Attribute.Key];
 				If IsBlankString(AttributeValue) Then
@@ -200,9 +200,9 @@ Procedure BeforeWriteAtServer(CurrentObject) Export
 			Return;
 		EndIf;
 		
-		NamesOfMultilingualAttributes = TheNamesOfTheLocalizedDetailsOfTheObjectInTheHeader(MetadataObject);
+		NamesOfMultiLangAttributesInHeader = TheNamesOfTheLocalizedDetailsOfTheObjectInTheHeader(MetadataObject);
 		
-		For Each Attribute In NamesOfMultilingualAttributes Do
+		For Each Attribute In NamesOfMultiLangAttributesInHeader Do
 			
 			Value = CurrentObject[Attribute.Key];
 			CurrentObject[Attribute.Key] = CurrentObject[Attribute.Key + CurrentLanguageSuffix];
@@ -239,9 +239,9 @@ Procedure BeforeWriteAtServer(CurrentObject) Export
 	
 	For Each AttributeName In Attributes Do
 		
-		If NamesOfMultilingualAttributes[AttributeName] <> Undefined Then
+		If NamesOfMultiLangAttributesInHeader[AttributeName] <> Undefined Then
 			
-			ValueInCurrentLanguage = CurrentObject[AttributeName + CurrentLanguageSuffix()];
+			ValueInCurrentLanguage = CurrentObject[AttributeName + CurrentLanguageSuffix];
 			If IsBlankString(ValueInCurrentLanguage) Then
 				Presentation[AttributeName] = CurrentObject[AttributeName];
 			Else
@@ -259,17 +259,21 @@ Procedure BeforeWriteAtServer(CurrentObject) Export
 	Filter.LanguageCode = Common.DefaultLanguageCode();
 	FoundRows = Presentations.FindRows(Filter);
 	If FoundRows.Count() > 0 Then
-		For Each AttributeName In Attributes Do
-			CurrentObject[AttributeName] = FoundRows[0][AttributeName];
+		For Each AttributeName In Attributes Do  
+			If NamesOfMultiLangAttributesInHeader[AttributeName] = Undefined
+			   Or (CurrentLanguage().LanguageCode <> Common.DefaultLanguageCode()
+			   And IsBlankString(CurrentLanguageSuffix)) Then
+				CurrentObject[AttributeName] = FoundRows[0][AttributeName]; 
+			EndIf;
 		EndDo;
 		Presentations.Delete(FoundRows[0]);
 	EndIf;
 	
 	Presentations.GroupBy("LanguageCode", StrConcat(Attributes, ","));
 	
-	If NamesOfMultilingualAttributes.Count() > 0 Then
-		CopyMultilingualValuesInDetailsCaps(CurrentObject, NamesOfMultilingualAttributes, FirstAdditionalInfobaseLanguageCode());
-		CopyMultilingualValuesInDetailsCaps(CurrentObject, NamesOfMultilingualAttributes, SecondAdditionalInfobaseLanguageCode());
+	If NamesOfMultiLangAttributesInHeader.Count() > 0 Then
+		CopyMultilingualValuesInDetailsCaps(CurrentObject, NamesOfMultiLangAttributesInHeader, FirstAdditionalInfobaseLanguageCode());
+		CopyMultilingualValuesInDetailsCaps(CurrentObject, NamesOfMultiLangAttributesInHeader, SecondAdditionalInfobaseLanguageCode());
 	EndIf;
 	
 EndProcedure
@@ -297,9 +301,9 @@ Procedure OnReadPresentationsAtServer(Object) Export
 	
 	CurrentLanguageSuffix = CurrentLanguageSuffix();
 
+	NamesOfAttributesToLocalize = TheNamesOfTheLocalizedDetailsOfTheObjectInTheHeader(MetadataObject);
+	
 	If MultilanguageStringsInAttributes(MetadataObject) And ValueIsFilled(CurrentLanguageSuffix) Then
-		
-		NamesOfAttributesToLocalize = TheNamesOfTheLocalizedDetailsOfTheObjectInTheHeader(MetadataObject);
 		
 		For Each Attribute In NamesOfAttributesToLocalize Do
 			
@@ -312,8 +316,6 @@ Procedure OnReadPresentationsAtServer(Object) Export
 			EndIf;
 			
 		EndDo;
-		
-		Return;
 		
 	EndIf;
 	
@@ -1514,7 +1516,7 @@ Function DescriptionsOfObjectAttributesToLocalize(MetadataObject, Prefix = "") E
 	
 EndFunction
 
-Function TheNamesOfTheLocalizedDetailsOfTheObjectInTheHeader(MetadataObject, Prefix = "")
+Function TheNamesOfTheLocalizedDetailsOfTheObjectInTheHeader(MetadataObject, Prefix = "") Export
 	
 	ObjectAttributesList = New Map;
 	If MultilanguageStringsInAttributes(MetadataObject) Then

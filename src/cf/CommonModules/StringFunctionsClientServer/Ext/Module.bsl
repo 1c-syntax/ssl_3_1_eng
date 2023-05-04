@@ -1147,7 +1147,7 @@ Function FormattedString(Val StringWithTags) Export
 	For Each RowPart In StringsWithLinks Do
 		
 		If RowPart.Check Then
-			RowArray.Add(New FormattedString(RowPart.Value, New Font(,,True))); // АПК:1345 - 
+			RowArray.Add(New FormattedString(RowPart.Value, New Font(,,True))); // ACC:1345 - 
 		ElsIf Not IsBlankString(RowPart.Presentation) Then
 			RowArray.Add(New FormattedString(RowPart.Value,,,, RowPart.Presentation));
 		Else
@@ -1156,7 +1156,7 @@ Function FormattedString(Val StringWithTags) Export
 		
 	EndDo;
 	
-	Return New FormattedString(RowArray);	// АПК:1356 - 
+	Return New FormattedString(RowArray);	// ACC:1356 - 
 														// 
 	
 EndFunction
@@ -1327,7 +1327,15 @@ EndFunction
 Function GenerateFormattedString(StringPattern, StyleItems,
 		Val Parameter1, Val Parameter2, Val Parameter3, Val Parameter4, Val Parameter5) Export
 	
-	HTMLString = SubstituteParametersToString(StringPattern, Parameter1, Parameter2, Parameter3, Parameter4, Parameter5);
+	RowParameters = New Array;
+	RowParameters.Add(Parameter1);
+	RowParameters.Add(Parameter2);
+	RowParameters.Add(Parameter3);
+	RowParameters.Add(Parameter4);
+	RowParameters.Add(Parameter5);
+	
+	HTMLString = ?(RowParameters.Count() > 0,
+		SubstituteParametersToStringFromArray(StringPattern, RowParameters), StringPattern);
 	
 	RowsSet = New Array;
 	
@@ -1397,7 +1405,7 @@ Function GenerateFormattedString(StringPattern, StyleItems,
 					ElsIf StrCompare(AttributeName, "href") = 0 And StrCompare(NameTag, "a") = 0 Then
 						CurrentRef = AttributeValue;
 					ElsIf StrCompare(AttributeName, "src") = 0 And StrCompare(NameTag, "img") = 0 Then
-						RowsSet.Add(FormattedStringWithoutChangingFontSize(New FormattedString(PictureLib[AttributeValue], CurrentFont, CurrentColor, CurrentBackground, CurrentRef)));
+						RowsSet.Add(FormattedStringNoChangeOfFontSize(New FormattedString(PictureLib[AttributeValue], CurrentFont, CurrentColor, CurrentBackground, CurrentRef)));
 					EndIf;
 					
 					AttributesDetails = Mid(AttributesDetails, PositionSecondQuote + 1);
@@ -1423,14 +1431,14 @@ Function GenerateFormattedString(StringPattern, StyleItems,
 		
 		StringBody = StrReplace(StringBody, "&lt;", "<");
 		If StrLen(StringBody) > 0 Then
-			RowsSet.Add(FormattedStringWithoutChangingFontSize(New FormattedString(StringBody, CurrentFont, CurrentColor, CurrentBackground, CurrentRef)));
+			RowsSet.Add(FormattedStringNoChangeOfFontSize(New FormattedString(StringBody, CurrentFont, CurrentColor, CurrentBackground, CurrentRef)));
 		EndIf; 
 		
 		FragmentFirstChar = "<" ;
 		
 	EndDo;
 	
-	Return New FormattedString(RowsSet);	// АПК:1356 - 
+	Return New FormattedString(RowsSet);	// ACC:1356 - 
 														// 
 
 EndFunction
@@ -1457,13 +1465,9 @@ Procedure SetStylesByAttributeValue(Val StyleDetails, StyleItems, CurrentBackgro
 	
 EndProcedure
 
-Function FormattedStringWithoutChangingFontSize(String)
+Function FormattedStringNoChangeOfFontSize(String)
 	FormattedDocument = New FormattedDocument;
 	FormattedDocument.SetFormattedString(String);
-	Text = "";
-	Attachments = New Structure;
-	FormattedDocument.GetHTML(Text,Attachments);
-	FormattedDocument.SetHTML(Text, Attachments);
 	Return FormattedDocument.GetFormattedString();
 EndFunction
 

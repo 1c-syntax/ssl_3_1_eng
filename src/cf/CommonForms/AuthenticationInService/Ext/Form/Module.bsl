@@ -47,6 +47,7 @@ Procedure OK(Command)
 			ErrorText = ErrorProcessing.BriefErrorDescription(ErrorInfo) + Chars.LF
 				+ NStr("en = 'Password may be incorrect. Retype the password.';");
 		EndTry;
+		ThisObject.OnCloseNotifyDescription = Undefined;
 	EndIf;
 	
 	Close();

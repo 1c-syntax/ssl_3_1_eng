@@ -536,7 +536,7 @@ Function ServerAuthorizationSettings(FoundSettings, MailServerName, MailDomain)
 	AuthorizationSettings.ExplanationApplicationPassword = StringFunctions.FormattedString(
 		StringForCurrentLanguage(SettingsFromClassifier["ClientSecretDescription"]));
 	
-	AuthorizationSettings.AdditionalExplanation = StringFunctions.FormattedString(
+	AuthorizationSettings.AdditionalNote = StringFunctions.FormattedString(
 		StringForCurrentLanguage(SettingsFromClassifier["AdditionalDescription"]));
 	
 	AuthorizationSettings.AliasRedirectAddresses = StringForCurrentLanguage(SettingsFromClassifier["RedirectURICaption"]);
@@ -585,8 +585,8 @@ Function MailServersSettings()
 	If Common.SubsystemExists("StandardSubsystems.GetFilesFromInternet") Then
 		ModuleNetworkDownload = Common.CommonModule("GetFilesFromInternet");
 		
-		AddressOfSettingsFile = EmailOperationsInternal.AddressOfSettingsFile();
-		ImportedFile = ModuleNetworkDownload.DownloadFileAtServer(AddressOfSettingsFile);
+		AddressOfFileWithSettings = EmailOperationsInternal.AddressOfFileWithSettings();
+		ImportedFile = ModuleNetworkDownload.DownloadFileAtServer(AddressOfFileWithSettings);
 		
 		If ImportedFile.Status Then
 			JSONReader = New JSONReader();

@@ -987,7 +987,7 @@ When verifying object's sets, the results are joined with logical OR.</v8:conten
 									<v8:lang>en</v8:lang>
 									<v8:content>Refines an Access value:
  • For a metadata object ID, it specifies the verification:
-If null reference, "Change"; otherwise, "Read".
+If null reference, "Update"; otherwise, "Read".
  • For a rights owner, it specifies the table to select rights from.</v8:content>
 								</v8:item>
 							</ToolTip>

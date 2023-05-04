@@ -34,7 +34,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Display progress details</v8:content>
+							<v8:content>Display the progress details</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -68,7 +68,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Write informational messages to the log.</v8:content>
+							<v8:content>Log the progress details</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -102,7 +102,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Write error messages to the log</v8:content>
+							<v8:content>Log the error details</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -136,7 +136,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Export only allowed items</v8:content>
+							<v8:content>Export only allowed objects</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -170,7 +170,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Append data to the data exchange log</v8:content>
+							<v8:content>Append to an existing exchange log</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -534,7 +534,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Number of objects processed between status updates</v8:content>
+							<v8:content>Number of objects processed before status update</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -573,7 +573,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Number of objects in a transaction</v8:content>
+							<v8:content>Objects per transaction</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -612,7 +612,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Comment on data export</v8:content>
+							<v8:content>Data export comment</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -650,7 +650,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Comment on data import</v8:content>
+							<v8:content>Data import comment</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -722,7 +722,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Data processors that configure export settings</v8:content>
+							<v8:content>Export setup data processors</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -756,7 +756,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Data processors that configure import settings</v8:content>
+							<v8:content>Import setup data processors</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>

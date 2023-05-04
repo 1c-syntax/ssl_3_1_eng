@@ -223,7 +223,7 @@ Function SettingItemInfo(SettingsComposer, Id) Export
 	Return InformationRecords;
 EndFunction
 
-// Defines the FoldersAndItemsUse type value depending on comparison kind (preferably) or on the source value.
+// Defines the FoldersAndItemsUse type value depending on the comparison type (preferably) or the source value.
 //
 // Parameters:
 //  Condition - DataCompositionComparisonType

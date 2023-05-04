@@ -144,6 +144,8 @@ Procedure SelectCheckBoxes(Command)
 		Recipient.Excluded = True;
 	EndDo;
 	
+	RefreshRecipientCount(ThisObject);
+	
 EndProcedure
 
 &AtClient
@@ -152,6 +154,8 @@ Procedure ClearCheckBoxes(Command)
 	For Each Recipient In Recipients Do
 		Recipient.Excluded = False;
 	EndDo;
+	
+	RefreshRecipientCount(ThisObject);
 	
 EndProcedure
 

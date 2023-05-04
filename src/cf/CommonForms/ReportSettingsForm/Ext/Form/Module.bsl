@@ -4494,12 +4494,10 @@ Procedure AddOptionStructureGrouping(NextLevel = True)
 		EndIf;
 		
 		If NextLevel Then
-			If String.Type = "DataCompositionSettings" And Not String.AvailableFlag Then
-				ExecutionParameters.Wrap = False;
-			ElsIf String.GetItems().Count() > 1 Then
-				ExecutionParameters.Wrap = False;
-			ElsIf String.Type = "DataCompositionTableStructureItemCollection"
-				And String.Subtype = "ColumnsTable" Then 
+			If (String.Type = "DataCompositionSettings" And Not String.AvailableFlag) 
+				Or String.GetItems().Count() > 1 
+				Or (String.Type = "DataCompositionTableStructureItemCollection"
+					And String.Subtype = "ColumnsTable") Then 
 				ExecutionParameters.Wrap = False;
 			EndIf;
 		EndIf;
@@ -4930,9 +4928,8 @@ Procedure ChangeStructureItem(String, PageName = Undefined, UseOptionForm = Unde
 	RunMeasurements = ReportSettings.RunMeasurements And ValueIsFilled(ReportSettings.MeasurementsKey);
 	If RunMeasurements Then
 		ModulePerformanceMonitorClient = CommonClient.CommonModule("PerformanceMonitorClient");
-		MeasurementID = ModulePerformanceMonitorClient.TimeMeasurement(
+		ModulePerformanceMonitorClient.TimeMeasurement(
 			ReportSettings.MeasurementsKey + ".Settings", False, False);
-		ModulePerformanceMonitorClient.SetMeasurementComment(MeasurementID, ReportSettings.MeasurementsPrefix);
 	EndIf;
 	
 	NameOfFormToOpen_ = ReportSettings.FullName + ?(UseOptionForm, ".VariantForm", ".SettingsForm");
@@ -7594,7 +7591,7 @@ Function RepresentationOfACollectionOfAStructureElement(CollectionName)
 	
 	PresentationOfCollections = New Map;
 	PresentationOfCollections.Insert("Structure", NStr("en = 'Structure';"));
-	PresentationOfCollections.Insert("Rows", NStr("en = 'Lines';"));
+	PresentationOfCollections.Insert("Rows", NStr("en = 'Rows';"));
 	PresentationOfCollections.Insert("Columns", NStr("en = 'Columns';"));
 	PresentationOfCollections.Insert("Points", NStr("en = 'Dots';"));
 	PresentationOfCollections.Insert("Series", NStr("en = 'Series';"));

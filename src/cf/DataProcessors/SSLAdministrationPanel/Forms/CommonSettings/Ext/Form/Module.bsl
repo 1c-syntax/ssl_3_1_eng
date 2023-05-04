@@ -152,40 +152,40 @@ EndProcedure
 
 &AtClient
 Procedure ApplicationTitleOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	StandardSubsystemsClient.SetAdvancedApplicationCaption();
 EndProcedure
 
 &AtClient
 Procedure UseAdditionalAttributesAndInfoOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
 &AtClient
 Procedure InfobasePublicationURLOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
 &AtClient
 Procedure WindowsTemporaryFilesDerectoryOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
 &AtClient
 Procedure LinuxTemporaryFilesDerectoryOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 
 EndProcedure
 
 &AtClient
 Procedure LongRunningOperationsThreadCountOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
@@ -252,49 +252,49 @@ EndProcedure
 &AtClient
 Procedure SignatureTypeOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
 &AtClient
 Procedure TimestampServersAddressesOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 
 EndProcedure
 
 &AtClient
 Procedure AddTimestampsAutomaticallyOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
 &AtClient
 Procedure RefineSignaturesOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
 &AtClient
 Procedure RefineSignaturesDatesOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
 &AtClient
 Procedure VerifyDigitalSignaturesOnTheServerOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
 &AtClient
 Procedure GenerateDigitalSignaturesAtServerOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
@@ -393,7 +393,7 @@ Procedure UseCloudSignatureServiceOnChange(Item)
 			NStr("en = 'Additional settings are required';"));
 			
 	Else
-		Attachable_WhenChangingTheDetails(Item);
+		Attachable_OnChangeAttribute(Item);
 		
 	EndIf;
 
@@ -511,7 +511,7 @@ Procedure InfobasePublicationURLStartChoiceCompletion(Var_AttributeName)
 	
 	If CommonClient.ClientConnectedOverWebServer() Then
 		InfobasePublicationURLStartChoiceAtServer(Var_AttributeName, InfoBaseConnectionString());
-		Attachable_WhenChangingTheDetails(Items[Var_AttributeName]);
+		Attachable_OnChangeAttribute(Items[Var_AttributeName]);
 	Else
 		ShowMessageBox(, NStr("en = 'Cannot populate the field. The client application is not connected over the web server.';"));
 	EndIf;
@@ -532,9 +532,9 @@ EndProcedure
 // Client
 
 &AtClient
-Procedure Attachable_WhenChangingTheDetails(Item, ShouldRefreshInterface = True)
+Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
 	
-	ConstantName = WhenChangingTheDetailsServer(Item.Name);
+	ConstantName = OnChangeAttributeServer(Item.Name);
 	RefreshReusableValues();
 	
 	If ShouldRefreshInterface Then
@@ -599,7 +599,7 @@ EndFunction
 Procedure CheckIfDSSUsageEnabled(SelectionResult, CycleParameters) Export
 
 	If SelectionResult.Completed2 And SelectionResult.Result = "OK" Then
-		Attachable_WhenChangingTheDetails(CycleParameters.Item);
+		Attachable_OnChangeAttribute(CycleParameters.Item);
 	Else
 		ConstantsSet.UseDSSService = False;
 	EndIf;
@@ -610,7 +610,7 @@ EndProcedure
 // 
 
 &AtServer
-Function WhenChangingTheDetailsServer(TagName)
+Function OnChangeAttributeServer(TagName)
 	
 	DataPathAttribute = Items[TagName].DataPath;
 	ConstantName = SaveAttributeValue(DataPathAttribute);

@@ -409,7 +409,7 @@ Procedure CheckSuppliedDataUniqueness(Var_FillChecking = False, Cancel = False)
 	If Selection.Count() > 1 Then
 		
 		BriefErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '1С-supplied profile ""%1"" already exists:';"),
+			NStr("en = '1C-supplied profile ""%1"" already exists:';"),
 			Description);
 		
 		DetailErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(

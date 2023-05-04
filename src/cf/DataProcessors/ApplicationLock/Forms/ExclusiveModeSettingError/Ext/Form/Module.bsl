@@ -192,7 +192,7 @@ EndProcedure
 Procedure WaitForUserSessionTermination()
 	
 	UserSessionsTerminationDuration = UserSessionsTerminationDuration + 1;
-	If UserSessionsTerminationDuration < 3 Then
+	If UserSessionsTerminationDuration < 8 Then
 		Return;
 	EndIf;
 	

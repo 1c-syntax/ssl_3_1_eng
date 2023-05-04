@@ -9,15 +9,20 @@
 
 #Region Private
 
-// Records an array of measurements 
-//
 // Parameters:
-//  Measurements - Array Of Structure
+//  MeasurementsToWrite - Structure:
+//   * CompletedMeasurements - Map of КлючЗначение:
+//      ** Key - UUID - the unique identifier of the measurement.
+//      ** Value - Map
+//   * UserAgentInformation - String
 //
 // Returns:
 //   Number - 
 //
 Function RecordKeyOperationsDuration(MeasurementsToWrite) Export
+	
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
 	
 	RecordPeriod = PerformanceMonitor.RecordPeriod();
 	
@@ -32,10 +37,10 @@ Function RecordKeyOperationsDuration(MeasurementsToWrite) Export
 	Measurements = MeasurementsToWrite.CompletedMeasurements;
 	UserAgentInformation = MeasurementsToWrite.UserAgentInformation;	
 	
-	SetPrivilegedMode(True);
-	
-	RecordSet = InformationRegisters.TimeMeasurements.CreateRecordSet();
-	TechnologicalRecordSet = InformationRegisters.TimeMeasurementsTechnological.CreateRecordSet();
+	RecordSet = PerformanceMonitorInternal.ServiceRecordSet(
+		InformationRegisters.TimeMeasurements);
+	TechnologicalRecordSet = PerformanceMonitorInternal.ServiceRecordSet(
+		InformationRegisters.TimeMeasurementsTechnological);
 	SessionNumber = InfoBaseSessionNumber();
 	RecordDate = Date(1,1,1) + CurrentUniversalDateInMilliseconds()/1000;
 	RecordDateBegOfHour = BegOfHour(RecordDate);
@@ -178,7 +183,7 @@ Function RecordKeyOperationsDuration(MeasurementsToWrite) Export
 				PerformanceMonitorInternal.DefaultLanguageCode()),
 				EventLogLevel.Error,,,ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
-    EndIf;
+	EndIf;
 	
 	Return RecordPeriod;
 	
@@ -195,8 +200,7 @@ Function GetParametersAtServer() Export
 	Parameters.DateAndTimeAtServer = CurrentUniversalDateInMilliseconds();
 	
 	SetPrivilegedMode(True);
-	CurrentPeriod = Constants.PerformanceMonitorRecordPeriod.Get();
-	Parameters.RecordPeriod = ?(CurrentPeriod >= 1, CurrentPeriod, 60);
+	Parameters.RecordPeriod = PerformanceMonitor.RecordPeriod();
 	
 	Return Parameters;
 	

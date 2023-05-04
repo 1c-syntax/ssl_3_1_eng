@@ -329,7 +329,7 @@
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>The method used to determine allowed Access Values.</v8:content>
+											<v8:content>The method used to determine allowed access values.</v8:content>
 										</v8:item>
 									</ToolTip>
 									<Width>23</Width>
@@ -349,7 +349,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Access Values for access kinds</v8:content>
+									<v8:content>Access values for access kinds</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Vertical</Group>
@@ -383,7 +383,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Access Values</v8:content>
+											<v8:content>Access values</v8:content>
 										</v8:item>
 									</Title>
 									<CommandSet>
@@ -578,7 +578,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Access Values</v8:content>
+							<v8:content>Access values</v8:content>
 						</v8:item>
 					</Title>
 					<Type>
@@ -595,7 +595,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Access Values</v8:content>
+					<v8:content>Access values</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -618,7 +618,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Access Value</v8:content>
+							<v8:content>Access value</v8:content>
 						</v8:item>
 					</Title>
 					<Type>

@@ -226,7 +226,7 @@ Function FormattedString(Text)
 		EndIf;
 	EndDo;
 	
-	Return New FormattedString(FormattedStrings); // АПК:1356 - 
+	Return New FormattedString(FormattedStrings); // ACC:1356 - 
 	
 EndFunction
 

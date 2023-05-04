@@ -347,7 +347,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Data kind</v8:content>
+													<v8:content>Data type</v8:content>
 												</v8:item>
 											</Title>
 											<ContextMenu name="XDTOObjectErrorsObjectPresentationContextMenu" id="747"/>
@@ -994,7 +994,7 @@ It is recommended that you open the catalog item and fill in the attributes.</v8
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Data kind</v8:content>
+													<v8:content>Data type</v8:content>
 												</v8:item>
 											</Title>
 											<ContextMenu name="BlankAttributesTypeAsStringContextMenu" id="83"/>

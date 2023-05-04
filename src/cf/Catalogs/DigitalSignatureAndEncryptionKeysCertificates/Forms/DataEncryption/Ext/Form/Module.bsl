@@ -840,7 +840,7 @@ EndFunction
 // CAC:78-off: to securely pass data between forms on the client without sending them to the server.
 &AtClient
 Procedure ExecuteEncryption(ClientParameters, CompletionProcessing) Export
-// АПК:78-
+// ACC:78-
 	
 	DigitalSignatureInternalClient.RefreshFormBeforeSecondUse(ThisObject, ClientParameters);
 	

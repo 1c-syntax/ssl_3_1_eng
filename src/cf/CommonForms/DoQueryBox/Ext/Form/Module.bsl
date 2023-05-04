@@ -140,7 +140,7 @@ Procedure ContinueCountdown()
 	Else
 		If TimeoutButtonName <> "" Then
 			NewTitle = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 (%2 sec remaining)';"),
+				NStr("en = '%1 (%2 seconds remaining)';"),
 				TimeoutButtonTitle,
 				String(TimeoutCounter));
 				

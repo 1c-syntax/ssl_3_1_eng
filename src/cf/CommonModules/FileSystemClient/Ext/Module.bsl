@@ -419,7 +419,7 @@ Procedure OpenExplorer(PathToDirectoryOrFile) Export
 	Notification = New NotifyDescription(
 		"OpenExplorerAfterCheckFileSystemExtension", FileSystemInternalClient, Context);
 		
-	SuggestionText = NStr("en = 'To open the folder, install 1C:Enterprise extension.';");
+	SuggestionText = NStr("en = 'To open the folder, install 1C:Enterprise Extension.';");
 	AttachFileOperationsExtension(Notification, SuggestionText, False);
 	
 EndProcedure
@@ -498,7 +498,7 @@ Procedure OpenURL(URL, Val Notification = Undefined) Export
 			"OpenURLAfterCheckFileSystemExtension", FileSystemInternalClient, Context);
 		
 		SuggestionText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'To open link %1, install 1C:Enterprise extension.';"),
+			NStr("en = 'To open link %1, install 1C:Enterprise Extension.';"),
 			URL);
 		AttachFileOperationsExtension(Notification, SuggestionText, False);
 		
@@ -749,7 +749,7 @@ Procedure CreateTemporaryDirectory(Val Notification, Extension = "") Export
 	Notification = New NotifyDescription("CreateTemporaryDirectoryAfterCheckFileSystemExtension",
 		FileSystemInternalClient, Context);
 	AttachFileOperationsExtension(Notification, 
-		NStr("en = 'To create a temporary folder, install 1C:Enterprise extension.';"), False);
+		NStr("en = 'To create a temporary folder, install 1C:Enterprise Extension.';"), False);
 	
 EndProcedure
 
@@ -1061,7 +1061,7 @@ Procedure GetTheFullNameOfTheTemporaryFile(Val Notification, Extension = "")
 	Notification = New NotifyDescription("GetTheNameOfATemporaryFileAfterCheckingTheFileExtension",
 		ThisObject, Context);
 	AttachFileOperationsExtension(Notification, 
-		NStr("en = 'To get a temporary file name, install 1C:Enterprise extension.';"), False);
+		NStr("en = 'To get a temporary file name, install 1C:Enterprise Extension.';"), False);
 	
 EndProcedure
 

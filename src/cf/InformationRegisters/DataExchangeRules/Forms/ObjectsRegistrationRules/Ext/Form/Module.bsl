@@ -85,10 +85,10 @@ Procedure ImportRules(Command)
 	NameParts = CommonClientServer.ParseFullFileName(Record.RulesFileName);
 	
 	DialogParameters = New Structure;
-	DialogParameters.Insert("Title", NStr("en = 'Specify a file to import the rules from';"));
+	DialogParameters.Insert("Title", NStr("en = 'Select a file to import rules from';"));
 	DialogParameters.Insert("Filter",
 		  NStr("en = 'Registration rule files (*.xml)';") + "|*.xml|"
-		+ NStr("en = 'ZIP archives (*.zip)';")   + "|*.zip");
+		+ NStr("en = 'ZIP archive (*.zip)';")   + "|*.zip");
 	
 	DialogParameters.Insert("FullFileName", NameParts.FullName);
 	DialogParameters.Insert("FilterIndex", ?( Lower(NameParts.Extension) = ".zip", 1, 0) ); 
@@ -125,7 +125,7 @@ Procedure UnloadRules(Command)
 	
 	DialogParameters = New Structure;
 	DialogParameters.Insert("Mode", FileDialogMode.Save);
-	DialogParameters.Insert("Title", NStr("en = 'Specify a file to export rules';") );
+	DialogParameters.Insert("Title", NStr("en = 'Select a file to export rules to';") );
 	DialogParameters.Insert("FullFileName", FullFileName);
 	DialogParameters.Insert("Filter", NameFilter);
 	
@@ -187,7 +187,7 @@ Procedure SaveRegistrationRulesFromTemplateCompletion(TemplateName)
 	FileAddress = PrepareFileOnServer(TemplateName);
 	
 	SavingParameters = FileSystemClient.FileSavingParameters();
-	SavingParameters.Dialog.Title = NStr("en = 'Specify a file to export rules to';");
+	SavingParameters.Dialog.Title = NStr("en = 'Select a file to export rules to';");
 	SavingParameters.Dialog.Filter = NStr("en = 'Rule files (*.xml)';") + "|*.xml";
 	
 	FileSystemClient.SaveFile(Undefined, FileAddress, FullFileName, SavingParameters);

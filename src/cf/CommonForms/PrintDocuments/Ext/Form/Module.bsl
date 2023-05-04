@@ -396,21 +396,19 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	
 	PrintFormSetting = CurrentPrintFormSetup();
 	
-	If EventName = "Write_UserPrintTemplates" 
+	If (EventName = "Write_UserPrintTemplates" 
 		And Source.FormOwner = ThisObject
-		And Parameter.TemplateMetadataObjectName = PrintFormSetting.TemplatePath Then
-			AttachIdleHandler("RefreshCurrentPrintForm",0.1, True);
-	ElsIf (EventName = "CancelTemplateChange"
-		Or EventName = "CancelEditSpreadsheetDocument"
+		And Parameter.TemplateMetadataObjectName = PrintFormSetting.TemplatePath)
+		Or 	(EventName = "Write_SpreadsheetDocument" 
+		And Source.FormOwner = ThisObject
+		And ValueIsFilled(Parameter.TemplateMetadataObjectName)
+		And StrEndsWith(PrintFormSetting.TemplatePath, Parameter.TemplateMetadataObjectName)) Then
+			AttachIdleHandler("RefreshCurrentPrintForm", 0.1, True);
+	ElsIf (EventName = "CancelTemplateChange" Or EventName = "CancelEditSpreadsheetDocument"
 		And Source.FormOwner = ThisObject
 		And ValueIsFilled(Parameter.TemplateMetadataObjectName)
 		And StrEndsWith(PrintFormSetting.TemplatePath, Parameter.TemplateMetadataObjectName)) Then
 			DisplayCurrentPrintFormState();
-	ElsIf EventName = "Write_SpreadsheetDocument" 
-		And Source.FormOwner = ThisObject
-		And ValueIsFilled(Parameter.TemplateMetadataObjectName)
-		And StrEndsWith(PrintFormSetting.TemplatePath, Parameter.TemplateMetadataObjectName) Then
-			AttachIdleHandler("RefreshCurrentPrintForm",0.1, True);
 	EndIf;
 	
 	PrintManagementClientOverridable.PrintDocumentsNotificationProcessing(ThisObject, EventName, Parameter, Source);
@@ -738,6 +736,9 @@ Function StartGeneratingPrintForms(TemplatesNames)
 	For Each Parameter In ParametersStructure Do
 		ParametersStructure.Insert(Parameter.Key, Common.CopyRecursive(Parameters[Parameter.Key]));
 	EndDo;
+	ParametersStructure.PrintParameters.AdditionalParameters.Insert("SignatureAndSeal",	
+		Common.CommonSettingsStorageLoad("PrintOfficeOpenDocs", "SignatureAndSeal", False));
+	
 	
 	ParametersStructure.Insert("TemplatesNames", TemplatesNames);
 	

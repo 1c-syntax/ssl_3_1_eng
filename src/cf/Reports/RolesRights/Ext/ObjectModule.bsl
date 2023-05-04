@@ -73,61 +73,17 @@ Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
 	
 EndProcedure
 
-// Runs before importing new settings. Intended for changing the composition schema.
-//   For example, if a report schema depends on a key variant or report parameters.
-//   For changes to apply, call the method ReportsServer.AttachSchema().
-//   AdditionalProperties (parameter NewDCSettings) and Settings (Settings Composer) contain  the following properties:
-//   OptionKey, PredefinedOptionKey, OptionContext, and FormParametersFilter.
-//   
+// 
 //
 // Parameters:
-//   Context - Arbitrary - 
-//       The context parameters where the report is used.
-//       Used to pass the ReportsServer.AttachSchema() method in the parameters.
-//   SchemaKey - String -
-//       An ID of the current setting composer schema.
-//       It is not filled in by default (that means, the composer is initialized according to the main schema).
-//       Used for optimization, to reinitialize composer as rarely as possible.
-//       It is possible not to use it if the initialization is running unconditionally.
+//   Context - Arbitrary
+//   SchemaKey - String
 //   VariantKey - String
-//                - Undefined -
-//       
-//       
+//                - Undefined
 //   NewDCSettings - DataCompositionSettings
-//                    - Undefined -
-//       
-//       
+//                    - Undefined
 //   NewDCUserSettings - DataCompositionUserSettings
-//                                    - Undefined -
-//       
-//       
-//
-// Example:
-//  // The report composer is initialized based on the schema from common templates:
-//	If SchemaKey <> "1" Then
-//		SchemaKey = "1";
-//		DCSchema = GetCommonTemplate("MyCommonCompositionSchema");
-//		ReportsServer.EnableSchema(ThisObject, Context, DCSchema, SchemaKey);
-//	EndIf;
-//
-//  // The schema depends on the parameter value that is displayed in the report user settings:
-//	If TypeOf(NewDCSettings) = Type("DataCompositionUserSettings") Then
-//		FullMetadataObjectName = "";
-//		For Each DCItem From NewDCUserSettings.Items Do
-//			If TypeOf(DCItem) = Type("DataCompositionSettingsParameterValue") Then
-//				ParameterName = String(DCItem.Parameter);
-//				If ParameterName = "MetadataObject" Then
-//					FullMetadataObjectName = DCItem.Value;
-//				EndIf;
-//			EndIf;
-//		EndDo;
-//		If SchemaKey <> FullMetadataObjectName Then
-//			SchemaKey = FullMetadataObjectName;
-//			DCSchema = New DataCompositionSchema;
-//			// Filling the schema…
-//			ReportsServer.EnableSchema(ThisObject, Context, DCSchema, SchemaKey);
-//		EndIf;
-//	EndIf;
+//                                    - Undefined
 //
 Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSettings, NewDCUserSettings) Export
 	
@@ -234,16 +190,8 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 	
 EndProcedure
 
-// Runs after all settings are uploaded to the composer. Intended for refining settings.
-//  For example, selection settings that depend on fixed filter values.
-//  Structure AdditionalProperties of Settings object of Settings Composer report object contains properties:
-//  OptionKey, PredefinedOptionKey, OptionContext, FormParametersFilter
-//  populated by BeforeImportSettingsToComposer, and property DescriptionOption,
-//  which you can change for the predefined report option.
-//  
-//
 //  Parameters:
-//    AdditionalParameters - Structure - Reserve.
+//    AdditionalParameters - Structure
 //
 Procedure AfterLoadSettingsInLinker(AdditionalParameters) Export
 	
@@ -282,20 +230,10 @@ Procedure AfterLoadSettingsInLinker(AdditionalParameters) Export
 	
 EndProcedure
 
-// The list of registers and other metadata objects, by which the report is generated.
-//   It is used to check if the report can contain non-updated data.
-//
 // Parameters:
 //   VariantKey - String
-//                - Undefined -
-//       
-//       
-//   TablesToUse - Array - 
-//       Full metadata object names (names of registers, documents, and other tables)
-//       whose data is displayed in the report.
-//
-// Example:
-//	TablesToUse.Add(Metadata.Documents._DemoSalesOrder.FullName());
+//                - Undefined
+//   TablesToUse - Array of String
 //
 Procedure OnDefineUsedTables(VariantKey, TablesToUse) Export
 	
@@ -304,20 +242,11 @@ Procedure OnDefineUsedTables(VariantKey, TablesToUse) Export
 	
 EndProcedure
 
-// Warns the user before a report generation.
-// For example, that the generation will take a long time and require a lot of memory.
-// Also, can prompt the user with report filters.
-// 
-//
 // Parameters:
-//   ReportForm - ClientApplicationForm - Report form.
+//   ReportForm - ClientApplicationForm
 //   AdditionalParameters - Structure:
-//     * WarningText - String - Returnable value.
-//         If a value is specified, the user will be shown a dialog box with buttons "Continue" and "Cancel".
-//         
-//     * StorageParameterNameWarningDisclaimer - String - By default, empty.
-//         If specified, the user can mute warnings.
-//         To force-show warnings, set it to False.
+//     * WarningText - String
+//     * StorageParameterNameWarningDisclaimer - String
 //
 Procedure BeforeFormationReport(ReportForm, AdditionalParameters) Export
 	
@@ -2530,19 +2459,19 @@ Function ConfigRights()
 	RightsList.Add("AllFunctionsMode",
 		NStr("en = '""All functions"" mode';"));
 	
-	RightsList.Add("RegistrationInformationBaseSystemInteractions",
+	RightsList.Add("CollaborationSystemInfoBaseRegistration",
 		NStr("en = 'Collaboration system registration';"));
 	
 	RightsList.Add("MainWindowModeNormal",
 		NStr("en = 'Main window ""Standard"" mode';"));
 	
-	RightsList.Add("MainWindowModeWorkspace",
+	RightsList.Add("MainWindowModeWorkplace",
 		NStr("en = 'Main window ""Workspace"" mode';"));
 	
-	RightsList.Add("MainWindowModeEmbeddedWorkspace",
+	RightsList.Add("MainWindowModeEmbeddedWorkplace",
 		NStr("en = 'Main window ""Embedded workspace"" mode';"));
 	
-	RightsList.Add("MainWindowModeFullScreenWorkspace",
+	RightsList.Add("MainWindowModeFullscreenWorkplace",
 		NStr("en = 'Main window ""Fullscreen workspace"" mode';"));
 	
 	RightsList.Add("MainWindowModeKiosk",
@@ -2611,23 +2540,26 @@ Function SessionSettingRights()
 	RightsDetails = RightsDetails();
 	RightsList = RightsDetails.RightsList;
 	
-	RightsList.Add("Receive",
+	// @Access-right-1
+	RightsList.Add("Get",
 		NStr("en = 'Get';"));
 	
+	// @Access-right-1
 	RightsList.Add("Set",
 		NStr("en = 'Install';"));
 	
 	NewRow = RightsDetails.AccessLevels.Add();
-	NewRow.Right   = "Receive,Set";
+	// @Access-right-1, @Access-right-2
+	NewRow.Right   = "Get" + "," + "Set";
 	NewRow.Level = 11;
 	NewRow.ThisPermissionSet = True;
 	
 	NewRow = RightsDetails.AccessLevels.Add();
-	NewRow.Right   = "Set";
+	NewRow.Right   = "Set"; // @Access-right-1
 	NewRow.Level = 10;
 	
 	NewRow = RightsDetails.AccessLevels.Add();
-	NewRow.Right   = "Receive";
+	NewRow.Right   = "Get"; // @Access-right-1
 	NewRow.Level = 9;
 	
 	Return RightsDetails;
@@ -3013,7 +2945,8 @@ Procedure AddPermissionsProgrammingWorkWithObjects(RightsList, Un_changed = Fals
 		Return;
 	EndIf;
 	
-	RightsList.Add("Create",
+	// @Access-right-1
+	RightsList.Add("Insert",
 		NStr("en = 'Add';"), withlimit);
 	
 	RightsList.Add("Delete",
@@ -3076,35 +3009,35 @@ EndProcedure
 
 Procedure AddJobPermissionsWithHistory(RightsList, RightsOnMissingData = True)
 	
-	RightsList.Add("ReadHistoryData",
+	RightsList.Add("ReadDataHistory",
 		NStr("en = 'Read data history';"));
 	
 	If RightsOnMissingData Then
-		RightsList.Add("ReadHistoryDataMissingData",
+		RightsList.Add("ReadDataHistoryOfMissingData",
 			NStr("en = 'Read data history of missing data';"));
 	EndIf;
 	
-	RightsList.Add("ChangeDataHistory",
+	RightsList.Add("UpdateDataHistory",
 		NStr("en = 'Modify data history';"));
 	
 	If RightsOnMissingData Then
-		RightsList.Add("ChangingDataHistoryMissingData",
+		RightsList.Add("UpdateDataHistoryOfMissingData",
 			NStr("en = 'Modify data history of missing data';"));
 	EndIf;
 	
-	RightsList.Add("ChangeDataHistorySettings",
+	RightsList.Add("UpdateDataHistorySettings",
 		NStr("en = 'Change data history settings';"));
 	
-	RightsList.Add("ChangeCommentVersionDataHistory",
+	RightsList.Add("UpdateDataHistoryVersionComment",
 		NStr("en = 'Change data history version comment';"));
 	
-	RightsList.Add("ViewHistoryData",
+	RightsList.Add("ViewDataHistory",
 		NStr("en = 'View data history';"));
 	
-	RightsList.Add("EditingCommentVersionDataHistory",
+	RightsList.Add("EditDataHistoryVersionComment",
 		NStr("en = 'Edit data history version comment';"));
 	
-	RightsList.Add("TransitionToVersionHistoryData",
+	RightsList.Add("SwitchToDataHistoryVersion",
 		NStr("en = 'Rollback to data history version';"));
 
 EndProcedure
@@ -3118,14 +3051,14 @@ Procedure FillAccessLevels(RightsDetails, Un_changed = False, Referential = True
 		NewRow.Right   = "InteractiveInsert";
 		NewRow.Level = 8;
 		If withlimit Then
-			NewRow.RightWithRestriction = "Create";
+			NewRow.RightWithRestriction = "Insert"; // @Access-right-1
 		EndIf;
 		
 		NewRow = AccessLevels.Add();
-		NewRow.Right   = "Create";
+		NewRow.Right   = "Insert"; // @Access-right-1
 		NewRow.Level = 7;
 		If withlimit Then
-			NewRow.RightWithRestriction = "Create";
+			NewRow.RightWithRestriction = "Insert"; // @Access-right-1
 		EndIf;
 	EndIf;
 	

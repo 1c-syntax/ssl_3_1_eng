@@ -303,7 +303,7 @@ Please wait…</v8:content>
 												<Title formatted="false">
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>To add a report to this group, right-click the report and click "Move to Quick access."
+														<v8:content>To add a report to this group, right-click the report and click "Add to Quick access."
 It is recommended that you add frequently used reports to Quick access.
 Quick access reports are displayed at the top of the report panel.
 This only affects your report view and does not affect the reports of other users.</v8:content>
@@ -332,7 +332,7 @@ This only affects your report view and does not affect the reports of other user
 											<Title formatted="false">
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>To add a report to the group, right-click the report and click "Move to Quick access."
+													<v8:content>To add a report to the group, right-click the report and click "Add to Quick access".
 </v8:content>
 												</v8:item>
 											</Title>

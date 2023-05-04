@@ -228,8 +228,14 @@ EndProcedure
 // See CommonOverridable.OnAddClientParametersOnStart.
 Procedure OnAddClientParametersOnStart(Parameters) Export
 	
+	ShouldNotifyWhenExchageRatesOutdated = ShouldNotifyWhenExchageRatesOutdated();
+	
 	Parameters.Insert("Currencies", New FixedStructure("ExchangeRatesUpdateRequired",
-		ShouldNotifyWhenExchageRatesOutdated() And Not RatesUpToDate()));
+		ShouldNotifyWhenExchageRatesOutdated And Not RatesUpToDate()));
+	
+	If ShouldNotifyWhenExchageRatesOutdated Then
+		SetDateOfNextNotification();
+	EndIf;
 	
 EndProcedure
 
@@ -253,11 +259,10 @@ EndProcedure
 // See StandardSubsystemsServer.OnSendServerNotification
 Procedure OnSendServerNotification(NameOfAlert, ParametersVariants) Export
 	
-	CurrentSessionDate = CurrentSessionDate();
 	NextNotificationDate = Common.SystemSettingsStorageLoad(
 		"StandardSubsystems.Currencies", "NextNotificationDate", '00010101',, "");
 	
-	If NextNotificationDate > CurrentSessionDate Then
+	If Not ValueIsFilled(NextNotificationDate) Or NextNotificationDate > CurrentSessionDate() Then
 		Return;
 	EndIf;
 	
@@ -265,8 +270,7 @@ Procedure OnSendServerNotification(NameOfAlert, ParametersVariants) Export
 		ServerNotifications.SendServerNotification(NameOfAlert, "", ParametersVariants[0].SMSMessageRecipients);
 	EndIf;
 	
-	Common.SystemSettingsStorageSave(
-		"StandardSubsystems.Currencies", "NextNotificationDate", EndOfDay(CurrentSessionDate) + 1,, "");
+	SetDateOfNextNotification();
 	
 EndProcedure
 
@@ -583,14 +587,13 @@ Function RatesUpToDate() Export
 EndFunction
 
 // 
-// 
 //
 Function ShouldNotifyWhenExchageRatesOutdated()
 	
-	If Common.DataSeparationEnabled() Or Common.IsStandaloneWorkplace() Then
-		Return False; // 
-	ElsIf Not AccessRight("Update", Metadata.InformationRegisters.ExchangeRates) Then
-		Return False; // 
+	// 
+	If Common.DataSeparationEnabled() Or Common.IsStandaloneWorkplace() 
+		Or Not AccessRight("Update", Metadata.InformationRegisters.ExchangeRates) Then
+		Return False;
 	EndIf;
 	
 	EnableNotifications = Not Common.SubsystemExists("StandardSubsystems.ToDoList");
@@ -656,5 +659,12 @@ Function DataPrintAmountWords(DataSourceDescriptions, LanguageCode)
 	Return PrintData;
 	
 EndFunction
+
+Procedure SetDateOfNextNotification()
+	
+	Common.SystemSettingsStorageSave(
+		"StandardSubsystems.Currencies", "NextNotificationDate", EndOfDay(CurrentSessionDate()) + 1 + 7*60*60,, "");
+	
+EndProcedure
 
 #EndRegion

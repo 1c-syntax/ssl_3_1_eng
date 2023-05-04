@@ -724,7 +724,7 @@ Procedure ConfirmFormClosing() Export
 	
 	Notification = New NotifyDescription("ConfirmFormClosingCompletion", ThisObject, Parameters);
 	If IsBlankString(Parameters.WarningText) Then
-		QueryText = NStr("en = 'The data was changed. Do you want to save the changes?';");
+		QueryText = NStr("en = 'The data has been changed. Do you want to save the changes?';");
 	Else
 		QueryText = Parameters.WarningText;
 	EndIf;

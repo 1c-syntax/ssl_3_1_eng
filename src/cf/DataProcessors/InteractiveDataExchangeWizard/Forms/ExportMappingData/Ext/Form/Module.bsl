@@ -510,7 +510,7 @@ Procedure CheckCanUseForm(Cancel = False)
 	
 	// It is required to pass the parameters of data export execution.
 	If Not Parameters.Property("ExchangeNode") Then
-		MessageText = NStr("en = 'The form cannot not be opened manually.';");
+		MessageText = NStr("en = 'The form cannot be opened manually.';");
 		Common.MessageToUser(MessageText, , , , Cancel);
 		Return;
 	EndIf;

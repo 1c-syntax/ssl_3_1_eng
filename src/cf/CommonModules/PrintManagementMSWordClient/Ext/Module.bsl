@@ -110,7 +110,7 @@ Function GetMSWordTemplate(Val BinaryTemplateData, Val TempFileName) Export
 	FilesDetails1 = New Array;
 	FilesDetails1.Add(New TransferableFileDescription(TempFileName, PutToTempStorage(BinaryTemplateData)));
 	TempDirectory = PrintManagementInternalClient.CreateTemporaryDirectory("MSWord");
-	If Not GetFiles(FilesDetails1, , TempDirectory, False) Then // АПК:1348 - 
+	If Not GetFiles(FilesDetails1, , TempDirectory, False) Then // ACC:1348 - 
 		Return Undefined;
 	EndIf;
 	TempFileName = CommonClientServer.AddLastPathSeparator(TempDirectory) + TempFileName;
@@ -649,7 +649,7 @@ Procedure Replace(Object, Val SearchString, Val ReplacementString)
 			
 			FilesDetails1 = New Array;
 			FilesDetails1.Add(New TransferableFileDescription(TempFileName, ReplacementString));
-			If GetFiles(FilesDetails1, , TempDirectory, False) Then // АПК:1348 - 
+			If GetFiles(FilesDetails1, , TempDirectory, False) Then // ACC:1348 - 
 				Selection.Range.InlineShapes.AddPicture(TempFileName);
 			Else
 				Selection.TypeText("");

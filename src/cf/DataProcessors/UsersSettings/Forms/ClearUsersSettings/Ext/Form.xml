@@ -315,7 +315,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Clear the settings.</v8:content>
+					<v8:content>Clear</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>Clear</Action>
@@ -331,7 +331,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Clear the settings and close the form.</v8:content>
+					<v8:content>Clear and close</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ClearAndClose</Action>

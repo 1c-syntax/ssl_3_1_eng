@@ -50,9 +50,10 @@ Procedure BeforeLoadVariantAtServer(Form, NewDCSettings) Export
 	
 EndProcedure
 
-// It is called in the report form and in the report setting form before outputting a setting 
-// to specify additional selection parameters.
-//
+//  
+// 
+// 
+// 
 // Parameters:
 //  Form - ClientApplicationForm
 //        - ManagedFormExtensionForReports

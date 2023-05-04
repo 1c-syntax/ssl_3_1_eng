@@ -70,7 +70,7 @@
 										<Presentation>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Full line</v8:content>
+												<v8:content>Full row</v8:content>
 											</v8:item>
 										</Presentation>
 										<Value xsi:type="xs:string">EntireLine</Value>
@@ -83,7 +83,7 @@
 										<Presentation>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Fields</v8:content>
+												<v8:content>Field</v8:content>
 											</v8:item>
 										</Presentation>
 										<Value xsi:type="xs:string">Fields</Value>
@@ -1303,7 +1303,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show "Select all."</v8:content>
+					<v8:content>Show "Select all"</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

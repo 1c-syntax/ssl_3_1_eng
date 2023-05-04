@@ -128,7 +128,7 @@ Function PrepareEmail(Account, EmailParameters) Export
 	BCCs = CommonClientServer.StructureProperty(EmailParameters, "BCCs");
 	
 	If RecipientValType = Undefined And CcType = Undefined And BCCs = Undefined Then
-		Raise NStr("en = 'No recipients are selected.';");
+		Raise NStr("en = 'No recipient is selected.';");
 	EndIf;
 	
 	If RecipientValType = Type("String") Then

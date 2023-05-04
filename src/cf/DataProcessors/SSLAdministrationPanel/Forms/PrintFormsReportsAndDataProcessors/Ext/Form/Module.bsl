@@ -75,20 +75,20 @@ EndProcedure
 
 &AtClient
 Procedure UseAdditionalReportsAndDataProcessorsOnChange(Item)
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
 &AtClient
 Procedure UseSourceDocumentsOriginalsAccountingOnChange(Item)
 
-	Attachable_WhenChangingTheDetails(Item)
+	Attachable_OnChangeAttribute(Item)
 
 EndProcedure
 
 &AtClient
 Procedure UseTheTextTranslationServiceOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	If ConstantsSet["UseTextTranslationService"] And Not ValueIsFilled(ConstantsSet["TextTranslationService"]) Then
 		GoToTheTranslatorSettings();
 	EndIf;
@@ -108,7 +108,7 @@ EndProcedure
 &AtClient
 Procedure RetainReportDistributionHistoryOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);   
+	Attachable_OnChangeAttribute(Item);   
 		
 	If CommonClient.SubsystemExists("StandardSubsystems.ReportMailing") Then
 		ModuleReportDistributionServerCall = CommonClient.CommonModule("ReportMailingServerCall");
@@ -120,7 +120,7 @@ EndProcedure
 &AtClient
 Procedure ReportDistributionHistoryRetentionPeriodInMonthsOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
@@ -173,7 +173,7 @@ Procedure WhenYouFinishSettingUpTheTranslationService(Val SelectedTranslator, Ad
 	Items.TextTranslationServiceSetting.Title = TitleOfTheTextTranslationServiceSettings(SelectedTranslator);
 	If Not ValueIsFilled(SelectedTranslator) Then
 		ConstantsSet["UseTextTranslationService"] = False;
-		Attachable_WhenChangingTheDetails(Items.UseTextTranslationService);
+		Attachable_OnChangeAttribute(Items.UseTextTranslationService);
 	EndIf;
 	
 	ConstantsSet["TextTranslationService"] = SelectedTranslator;
@@ -211,9 +211,9 @@ EndFunction
 // Client
 
 &AtClient
-Procedure Attachable_WhenChangingTheDetails(Item, ShouldRefreshInterface = True)
+Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
 	
-	ConstantName = WhenChangingTheDetailsServer(Item.Name);
+	ConstantName = OnChangeAttributeServer(Item.Name);
 	RefreshReusableValues();
 	
 	If ShouldRefreshInterface Then
@@ -241,7 +241,7 @@ EndProcedure
 // 
 
 &AtServer
-Function WhenChangingTheDetailsServer(TagName)
+Function OnChangeAttributeServer(TagName)
 	
 	DataPathAttribute = Items[TagName].DataPath;
 	ConstantName = SaveAttributeValue(DataPathAttribute);

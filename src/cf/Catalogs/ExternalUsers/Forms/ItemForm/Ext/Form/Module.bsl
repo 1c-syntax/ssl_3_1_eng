@@ -1822,10 +1822,14 @@ Procedure SetPropertiesAvailability(Form)
 	If Form.CanSignIn Then
 		Items.GroupNoRights.Visible         = Form.WhetherRightsAreAssigned.HasNoRights;
 		Items.GroupNoStartupRights.Visible = Not Form.WhetherRightsAreAssigned.HasNoRights
+			And Form.WhetherRightsAreAssigned.NotEnoughPermissionsToLaunch;
+		Items.GroupNoLoginRights.Visible   = Not Form.WhetherRightsAreAssigned.HasNoRights
+			And Not Form.WhetherRightsAreAssigned.NotEnoughPermissionsToLaunch
 			And Form.WhetherRightsAreAssigned.HasInsufficientRightForLogon;
 	Else
 		Items.GroupNoRights.Visible         = False;
 		Items.GroupNoStartupRights.Visible = False;
+		Items.GroupNoLoginRights.Visible   = False;
 	EndIf;
 	
 	// 

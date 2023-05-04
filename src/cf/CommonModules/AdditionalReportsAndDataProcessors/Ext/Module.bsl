@@ -380,7 +380,7 @@ Function AdditionalReportSections() Export
 		ModuleDataProcessorsControlPanelSSL = Common.CommonModule("DataProcessors.SSLAdministrationPanel");
 		ModuleDataProcessorsControlPanelSSL.OnDefineSectionsWithAdditionalReports(MetadataSections);
 	EndIf;
-	// АПК:1383-
+	// ACC:1383-
 	
 	Return MetadataSections;
 EndFunction
@@ -399,7 +399,7 @@ Function AdditionalDataProcessorSections() Export
 		ModuleDataProcessorsControlPanelSSL = Common.CommonModule("DataProcessors.SSLAdministrationPanel");
 		ModuleDataProcessorsControlPanelSSL.OnDefineSectionsWithAdditionalDataProcessors(MetadataSections);
 	EndIf;
-	// АПК:1383-
+	// ACC:1383-
 	
 	AdditionalReportsAndDataProcessorsOverridable.GetSectionsWithAdditionalDataProcessors(MetadataSections);
 	
@@ -413,7 +413,7 @@ EndFunction
 // Determines a list of metadata objects to which an assignable data processor of the passed kind can be applied.
 //
 // Parameters:
-//   Kind - EnumRef.AdditionalReportsAndDataProcessorsKinds - a kind of an external data processor.
+//   Kind - EnumRef.AdditionalReportsAndDataProcessorsKinds - External data processor type.
 //
 // Returns:
 //   ValueTable - 
@@ -512,7 +512,7 @@ EndFunction
 // Generates a new query used to get a command table for additional reports or data processors.
 //
 // Parameters:
-//   DataProcessorsKind - EnumRef.AdditionalReportsAndDataProcessorsKinds - a data processor kind.
+//   DataProcessorsKind - EnumRef.AdditionalReportsAndDataProcessorsKinds - Data processor type.
 //   Location - CatalogRef.MetadataObjectIDs
 //              - String - 
 //       
@@ -1260,7 +1260,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 		Else
 			Command = Commands.Add();
 			Command.Kind                = ?(SetFOParameters, "CommandBar", "GenerateFrom");
-			Command.Presentation      = NStr("en = 'Creating related objects…';");
+			Command.Presentation      = NStr("en = 'Create related objects…';");
 			Command.Picture           = PictureLib.InputOnBasis;
 			Command.Order            = 50;
 			Command.Handler         = "AdditionalReportsAndDataProcessorsClient.OpenCommandList";
@@ -1764,7 +1764,7 @@ EndProcedure
 // Returns True when the specified additional report (data processor) kind is global.
 //
 // Parameters:
-//   Kind - EnumRef.AdditionalReportsAndDataProcessorsKinds - a kind of an external data processor.
+//   Kind - EnumRef.AdditionalReportsAndDataProcessorsKinds - External data processor type.
 //
 // Returns:
 //     Boolean - 
@@ -1777,10 +1777,10 @@ Function CheckGlobalDataProcessor(Kind) Export
 	
 EndFunction
 
-// Transforms an additional report (data processor) kind from a string constant to an enumeration reference.
+// Transforms an additional report (data processor) type from a string constant to an enumeration reference.
 //
 // Parameters:
-//   StringPresentation - String - a string presentation of the kind.
+//   StringPresentation - String - String presentation of the type.
 //
 // Returns: 
 //   EnumRef.AdditionalReportsAndDataProcessorsKinds - 
@@ -2679,10 +2679,10 @@ Procedure RegisterReportsAndDataProcessors(ReportsAndDataProcessors)
 			EndDo;
 		EndIf;
 		
-		// АПК:1327-
+		// ACC:1327-
 		// 
 		InfobaseUpdate.WriteObject(CatalogObject, , True);
-		// АПК:1327-
+		// ACC:1327-
 	EndDo;
 	
 EndProcedure
@@ -2778,7 +2778,7 @@ Function RegisterDataProcessor(Val Object, Val RegistrationParameters) Export
 			String(Object.Kind));
 		Return Result;
 	ElsIf RegistrationParameters.IsReport <> IsExternalReport Then
-		Result.ErrorText = NStr("en = 'The kind of the data processor specified in the data processor details does not match the actual extension.';");
+		Result.ErrorText = NStr("en = 'The data processor type specified in the data processor details does not match the actual extension.';");
 		Return Result;
 	EndIf;
 	
@@ -2807,7 +2807,7 @@ Function RegisterDataProcessor(Val Object, Val RegistrationParameters) Export
 		RegistrationData.Property("DefineFormSettings", Object.DeepIntegrationWithReportForm);
 	EndIf;
 	
-	// A different data processor is imported (an object name or a data processor kind was changed).
+	// A different data processor is imported (an object name or a data processor type was changed).
 	If Object.IsNew() Or Object.ObjectName <> Result.ObjectName Or Object.Kind <> RegistrationData.Kind Then
 		Object.Purpose.Clear();
 		Object.Sections.Clear();
@@ -3103,7 +3103,7 @@ EndProcedure
 
 // Returns:
 //   Structure:
-//   * Kind      - String - a data processor kind that can be obtained from the
+//   * Kind      - String - A data processor type that can be obtained from the
 //                        AdditionalReportsAndDataProcessorsClientServer.DataProcessorKind<…> function.
 //   * IsReport - Boolean
 //

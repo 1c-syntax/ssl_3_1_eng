@@ -423,6 +423,8 @@ Procedure SetConditionalAppearance()
 	ItemField.Field = New DataCompositionField(Items.DisplayedUserTasksTreeCheck.Name);
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.DisplayedUserTasksTreePresentation.Name);
+	ItemField = Item.Fields.Items.Add();
+	ItemField.Field = New DataCompositionField(Items.DisplayedUserTasksTreePicture.Name);
 	
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("DisplayedUserTasksTree.IsHidden");

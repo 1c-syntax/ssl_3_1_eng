@@ -199,7 +199,6 @@
 				<Field>CompletedSurveys.PictureCode</Field>
 				<Field>CompletedSurveys.Ref</Field>
 				<Field>CompletedSurveys.SurveyDescription</Field>
-				<Field>~CompletedSurveys.Анкета</Field>
 			</UseAlways>
 			<Settings xsi:type="DynamicList">
 				<ManualQuery>true</ManualQuery>

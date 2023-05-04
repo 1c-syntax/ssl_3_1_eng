@@ -403,7 +403,7 @@ and other information systems.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Temporary file directory of 1C:Enterprise server cluster: </v8:content>
+					<v8:content>Temporary file directory of 1C:Enterprise server cluster:</v8:content>
 				</v8:item>
 			</Title>
 			<Width>86</Width>
@@ -449,7 +449,7 @@ and other information systems.</v8:content>
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Path to a single network directory for common temporary files of 1C:Enterprise servers of a single cluster.</v8:content>
+							<v8:content>Path to a network directory for temporary files of all 1C:Enterprise servers running in a single cluster.</v8:content>
 						</v8:item>
 					</Title>
 					<ContextMenu name="TemporaryDirectoriesNoteContextMenu" id="2103"/>

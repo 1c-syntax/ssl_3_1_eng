@@ -118,14 +118,21 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 		|• Clear references to deleted data (if this is no longer needed).';");
 	If Not Common.DataSeparationEnabled() Then
 		Validation.Recommendation = Validation.Recommendation + Chars.LF + Chars.LF 
-			+ NStr("en = 'Для очистки ссылок на удаленные данные следует:
-			|• Завершить работу всех пользователей, установить блокировку входа в программу и сделать резервную копию информационной базы;
-			|• Запустить конфигуратор, меню Администрирование - Тестирования и исправление, включить два флажка для проверки логической и ссылочной целостности
-			|  См. подробнее на ИТС: https://its.1c.eu/db/v83doc#bookmark:adm:TI000000142
-			|• Дождаться завершения тестирования и исправления, снять блокировку входа в программу.
+			+ NStr("en = 'To clear references to deleted data, do the following:
+			|• Terminate all user sessions, lock the application, and create an infobase backup.
+			|• Open Designer, open Administration – Verify and Repair menu, select the check boxes for logical integrity check and referential integrity check.
+			| For more information, see ITS: https://its.1c.ru/db/v83doc#bookmark:adm:TI000000142.
+			|• Wait for verification and repair to complete, and unlock the application.
 			|
-			|Если работа ведется в распределенной информационной базе (РИБ), то исправление следует запускать только в главном узле.
-			|Затем выполнить синхронизацию с подчиненными узлами.';");
+			|For distributed infobases, run the repair procedure for the master node only.
+			|After that, perform synchronization with subordinate nodes.To clear references to deleted data, do the following:
+			|• Terminate all user sessions, lock the application, and create an infobase backup.
+			|• Open Designer, open Administration – Verify and Repair menu, select the check boxes for logical integrity check and referential integrity check.
+			| For more information, see ITS: https://its.1c.eu/db/v83doc#bookmark:adm:TI000000142.
+			|• Wait for verification and repair to complete, and unlock the application.
+			|
+			|For distributed infobases, run the repair procedure for the master node only.
+			|After that, perform synchronization with subordinate nodes.';");
 	
 	EndIf;
 	Validation.Recommendation = Validation.Recommendation + Chars.LF
@@ -191,14 +198,14 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 	If Common.DataSeparationEnabled() Then
 		Validation.Recommendation             = NStr("en = 'Contact technical service support.';");
 	Else	
-		Validation.Recommendation             = NStr("en = '• Перейти на версию платформы 1С:Предприятие 8.3.9.2033 или выше;
-			|• Завершить работу всех пользователей, установить блокировку входа в программу и сделать резервную копию информационной базы;
-			|• Запустить конфигуратор, меню Администрирование - Тестирования и исправление, включить два флажка для проверки логической и ссылочной целостности
-			|  См. подробнее на ИТС: https://its.1c.eu/db/v83doc#bookmark:adm:TI000000142
-			|• Дождаться завершения тестирования и исправления, снять блокировку входа в программу.
+		Validation.Recommendation             = NStr("en = '• Upgrade 1C:Enterprise to 8.3.9.2033 or later
+			|• Terminate all user sessions, lock the application, and create an infobase backup
+			|• Open Designer, open Administration – Verify and Repair menu, select the check boxes for logical integrity check and referential integrity check
+			| For more details, refer to ITS: https://its.1c.eu/db/v83doc#bookmark:adm:TI000000142
+			|• Wait for verification and repair to complete, and unlock the application
 			|
-			|Если работа ведется в распределенной информационной базе (РИБ), то исправление следует запускать только в главном узле.
-			|Затем выполнить синхронизацию с подчиненными узлами.';");
+			|For distributed infobases, run the repair procedure for the master node only.
+			|After that, perform synchronization with subordinate nodes.';");
 	EndIf;
 	Validation.Id                = "StandardSubsystems.CheckNoPredefinedExchangePlansNodes";
 	Validation.CheckHandler           = "AccountingAuditInternal.CheckPredefinedExchangePlanNodeAvailability";
@@ -220,7 +227,7 @@ EndProcedure
 //                                       <Software name>.<Check ID>.For example:
 //                                       StandardSubsystems.SystemChecks.
 //      * AccountingChecksContext - DefinedType.AccountingChecksContext - a value that additionally
-//                                       specifies the belonging of an accounting check group to a certain category.
+//                                       specifies the belonging of a data integrity check group to a certain category.
 //      * Comment                  - String - a comment to a check group.
 //
 Function ChecksGroupsNewTable() Export
@@ -266,10 +273,10 @@ EndFunction
 //      * ImportanceChangeDenied             - Boolean - if True, the administrator cannot change 
 //                                                 the importance of this check.
 //      * AccountingChecksContext           - DefinedType.AccountingChecksContext - a value that additionally 
-//                                                 specifies the belonging of an accounting check to a certain group 
+//                                                 specifies the belonging of a data integrity check to a certain group 
 //                                                 or category.
 //      * AccountingCheckContextClarification - DefinedType.AccountingCheckContextClarification - a value 
-//                                                 that additionally specifies the belonging of an accounting check 
+//                                                 that additionally specifies the belonging of a data integrity check 
 //                                                 to a certain group or category.
 //      * AdditionalParameters                - ValueStorage - an additional check information for program
 //                                                 use.

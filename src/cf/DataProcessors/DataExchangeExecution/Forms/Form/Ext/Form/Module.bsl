@@ -1164,7 +1164,7 @@ Function Attachable_UserPasswordRequestOnGoNext(Cancel)
 	
 	If Not SynchronizationPasswordSpecified
 		And IsBlankString(WSPassword) Then
-		CommonClient.MessageToUser(NStr("en = 'The password is blank.';"), , "WSPassword", , Cancel);
+		CommonClient.MessageToUser(NStr("en = 'Please enter the password.';"), , "WSPassword", , Cancel);
 		Return Undefined;
 	EndIf;
 	

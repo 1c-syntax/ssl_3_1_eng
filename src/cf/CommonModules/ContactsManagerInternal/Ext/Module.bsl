@@ -235,7 +235,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.InitialFilling = True;
 	
 	Handler = Handlers.Add();
-	Handler.Version          = "3.1.8.12";
+	Handler.Version          = "3.1.8.270";
 	Handler.Id   = New UUID("22f43dca-ac4f-3289-81a9-e110cd56f8b2");
 	Handler.Procedure       = "Catalogs.ContactInformationKinds.ProcessDataForMigrationToNewVersion";
 	Handler.ExecutionMode = "Deferred";
@@ -1331,14 +1331,14 @@ Function AddressPartsAsTable(Val Text)
 		ValueInUpperCase = Upper(Value);
 		For Each BusinessObjectsType In BusinessObjectsTypes Do
 			
-			If StrStartsWith(ValueInUpperCase, BusinessObjectsType.ObjectTypeAtBeginning) Then
+			If StrStartsWith(ValueInUpperCase, BusinessObjectsType.ObjectTypeInBeginning) Then
 				
 				String.Description = TrimAll(Mid(Value, BusinessObjectsType.Length + 1));
 				String.ObjectType   = TrimAll(Left(Value, BusinessObjectsType.Length));
 				String.Value     = ContactsManagerClientServer.ConnectTheNameAndTypeOfTheAddressObject(String.Description, String.ObjectType);
 				Break;
 				
-			ElsIf StrEndsWith(ValueInUpperCase, BusinessObjectsType.ObjectTypeAtEnd) Then
+			ElsIf StrEndsWith(ValueInUpperCase, BusinessObjectsType.ObjectTypeInEnd) Then
 				
 				String.Description = TrimAll(Mid(Value, 1, StrLen(Value) - BusinessObjectsType.Length));
 				String.ObjectType   = TrimAll(Right(Value, BusinessObjectsType.Length));
@@ -1380,8 +1380,8 @@ Function BusinessObjectsTypes()
 	AbbreviationList = New ValueTable();
 	AbbreviationList.Columns.Add("ObjectType",        Common.StringTypeDetails(50));
 	AbbreviationList.Columns.Add("Length",             Common.TypeDescriptionNumber(3));
-	AbbreviationList.Columns.Add("ObjectTypeAtBeginning", Common.StringTypeDetails(20));
-	AbbreviationList.Columns.Add("ObjectTypeAtEnd",  Common.StringTypeDetails(20));
+	AbbreviationList.Columns.Add("ObjectTypeInBeginning", Common.StringTypeDetails(20));
+	AbbreviationList.Columns.Add("ObjectTypeInEnd",  Common.StringTypeDetails(20));
 
 	Return AbbreviationList;
 	
@@ -2014,7 +2014,7 @@ Function CheckContactsKindParameters(ContactInformationKind) Export
 	
 	If Not ValueIsFilled(ContactInformationKind.Description) Then
 		Result.HasErrors = True;
-		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Field ""Description"" of the ""%1"" contact information kind is empty. The field if required.';"),
+		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Field ""Description"" of the ""%1"" contact information kind is empty. The field is required.';"),
 			String(ContactInformationKind.PredefinedKindName));
 		Return Result;
 	EndIf;
@@ -2025,7 +2025,7 @@ Function CheckContactsKindParameters(ContactInformationKind) Export
 	
 	If Not ValueIsFilled(ContactInformationKind.Type) Then
 		Result.HasErrors = True;
-		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Field ""Type"" of the ""%1"" contact information kind is empty. The field if required.';"),
+		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Field ""Type"" of the ""%1"" contact information kind is empty. The field is required.';"),
 			String(ContactInformationKind.Description));
 		Return Result;
 	EndIf;
@@ -2387,10 +2387,8 @@ Procedure FillContactInformationTechnicalFields(ContactInformationRow, Object, C
 	ElsIf ContactInformationType = Enums.ContactInformationTypes.Address Then
 		FillTabularSectionAttributesForAddress(ContactInformationRow, Object);
 		
-	ElsIf ContactInformationType = Enums.ContactInformationTypes.Phone Then
-		FillTabularSectionAttributesForPhone(ContactInformationRow, Object);
-		
-	ElsIf ContactInformationType = Enums.ContactInformationTypes.Fax Then
+	ElsIf ContactInformationType = Enums.ContactInformationTypes.Phone 
+		Or ContactInformationType = Enums.ContactInformationTypes.Fax Then
 		FillTabularSectionAttributesForPhone(ContactInformationRow, Object);
 		
 	ElsIf ContactInformationType = Enums.ContactInformationTypes.WebPage Then

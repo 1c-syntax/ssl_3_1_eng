@@ -18,7 +18,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	FillInTheDescriptionOfTheReportOptions();
 	ReadUserSettings();
 	
-	SetConditionalAppearance();
+	SetConditionalAppearance(); 
+	
+	If ReportsOptionsDetails.Count() = 0 Then
+		Items.Save.Enabled = False;
+	EndIf;
 	
 EndProcedure
 
@@ -124,6 +128,10 @@ EndProcedure
 &AtClient
 Procedure UserSettingsOnChange(Item)
 	
+	If ReportsOptionsDetails.Count() = 0 Then
+		Return;
+	EndIf;
+	
 	CurrentUserSettings = UserSettings.FindByValue(
 		ReportsOptionsDetails[0].UserSettingsKey);
 	
@@ -156,7 +164,11 @@ EndProcedure
 #Region FormCommandHandlers
 
 &AtClient
-Procedure Save(Command)
+Procedure Save(Command) 
+	
+	If ReportsOptionsDetails.Count() = 0 Then
+		Return;
+	EndIf;
 	
 	PackageReportOptionsSettings();
 	
@@ -204,8 +216,10 @@ Procedure SetConditionalAppearance()
 	ItemFilter.RightValue = "[IsCurrentSettings]";
 	
 	FontImportantLabel = Metadata.StyleItems.ImportantLabelFont;
-	Item.Appearance.SetParameterValue("Font", FontImportantLabel.Value);
-	Item.Appearance.SetParameterValue("Text", ReportsOptionsDetails[0].UserSettingsPresentation);
+	Item.Appearance.SetParameterValue("Font", FontImportantLabel.Value);     
+	If ReportsOptionsDetails.Count() > 0 Then
+		Item.Appearance.SetParameterValue("Text", ReportsOptionsDetails[0].UserSettingsPresentation);
+	EndIf;
 	
 	//
 	Item = ConditionalAppearance.Items.Add();
@@ -256,12 +270,12 @@ Procedure FillInTheDescriptionOfTheReportOptions()
 		
 	EndIf;
 	
-	If ReportsOptionsDetails.Count() > 1 Then 
+	If ReportsOptionsDetails.Count() > 1 Then
 		
 		Items.SaveOptions.CurrentPage = Items.MultipleReportsOptions;
 		Title = NStr("en = 'Save report options to file';");
 		
-	Else
+	ElsIf ReportsOptionsDetails.Count() = 1 Then
 		
 		Items.SaveOptions.CurrentPage = Items.OneReportOption;
 		Title = NStr("en = 'Save report option to file';");
@@ -316,6 +330,13 @@ Procedure FillReportOptionDetails(ReportVariant, DataOfTheReportVariant,
 		Report = ModuleAdditionalReportsAndDataProcessors.ExternalDataProcessorObject(DataOfTheReportVariant.Report);
 	Else
 		Report = ReportsServer.ReportObject(ReportOptionDetails.ReportName);
+	EndIf;
+	
+	If Report.DataCompositionSchema = Undefined Then 
+		ReportsOptionsDetails.Delete(ReportOptionDetails);
+		Common.MessageToUser(StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Вариант отчета ""%1"" не предназначен для сохранения.';"), DataOfTheReportVariant.Presentation));
+		Return;
 	EndIf;
 	
 	ReportOptionDetails.Settings =
@@ -498,8 +519,10 @@ Procedure AddSettingsDetailsToArchive(Archive, TempDirectoryName, ReportOptionDe
 				Continue;
 			EndIf;
 			
-			SettingPresentation = TrimAll(StrReplace(ListItem.Presentation, "[IsCurrentSettings]", ""));
-			IsCurrentSettings = SettingPresentation = ReportsOptionsDetails[0].UserSettingsPresentation;
+			SettingPresentation = TrimAll(StrReplace(ListItem.Presentation, "[IsCurrentSettings]", ""));   
+			If ReportsOptionsDetails.Count() > 0 Then
+				IsCurrentSettings = SettingPresentation = ReportsOptionsDetails[0].UserSettingsPresentation;
+			EndIf;
 			
 			XMLWriter.WriteStartElement("UserSettings");
 			
@@ -581,7 +604,9 @@ Procedure SetFileNames()
 		
 	EndDo;
 	
-	FileName = ReportsOptionsDetails[0].FileName;
+	If NumberOfReportOptions > 0 Then
+		FileName = ReportsOptionsDetails[0].FileName;
+	EndIf;
 	
 EndProcedure
 

@@ -105,7 +105,7 @@ EndProcedure
 //    * MessageKind - String - a kind of a message being generated: Email or SMSMessage.
 //    * ArbitraryParameters - Map - a filled list of arbitrary parameters.
 //    * SendImmediately - Boolean - indicates whether to send a text message immediately.
-//    * MessageParameters - Structure - additional message parameters.
+//    * MessageParameters - Structure - Additional message parameters.
 //
 Procedure OnFillRecipientsPhonesInMessage(SMSMessageRecipients, MessageSubject) Export
 	
@@ -125,7 +125,7 @@ EndProcedure
 //    * MessageKind - String - a kind of a message being generated: Email or SMSMessage.
 //    * ArbitraryParameters - Map - a filled list of arbitrary parameters.
 //    * SendImmediately - Boolean - a kind of a message being generated: Email or SMSMessage.
-//    * MessageParameters - Structure - additional message parameters.
+//    * MessageParameters - Structure - Additional message parameters.
 //    * ConvertHTMLForFormattedDocument - Boolean - indicates whether to convert an HTML text
 //             of a message that contains pictures in an email text because of specifics of displaying pictures
 //             in a formatted document.

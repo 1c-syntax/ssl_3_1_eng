@@ -189,7 +189,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The matter of the interaction.</v8:content>
+							<v8:content>A system object the interaction is based on.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

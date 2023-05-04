@@ -519,7 +519,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>String that contains a full path name of the FTP resource</v8:content>
+							<v8:content>FTP directory path</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -550,7 +550,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Default exchange message transport kind</v8:content>
+							<v8:content>Default exchange message transport type</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -563,7 +563,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Default kind of exchange message transport.</v8:content>
+							<v8:content>Default exchange message transport type</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -611,7 +611,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Password to access FTP resource.</v8:content>
+							<v8:content>FTP password</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

@@ -298,7 +298,7 @@ Function StartBackgroundRefillingAtServer(Val Var_UUID)
 	EndIf;
 
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(Var_UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Refill predefined item strings and classifier strings.';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Refill predefined items and classifiers.';");
 	
 	BackgroundJob = TimeConsumingOperations.ExecuteInBackground("NationalLanguageSupportServer.ChangeLanguageinMultilingualDetailsConfig",
 		New Structure, ExecutionParameters);
@@ -350,7 +350,7 @@ Procedure AfterRefillInBackground(Job, AdditionalParameters) Export
 		CurrentItem = Items.Close;
 	ElsIf Job.Status = "Error" Then
 		Items.Pages.CurrentPage = Items.RegionalSettings;
-		ErrorText = NStr("en = 'Cannot refill predefined item strings and classifier strings.';");
+		ErrorText = NStr("en = 'Cannot refill predefined items and classifiers.';");
 		ErrorText = ErrorText + Chars.LF + NStr("en = 'Technical details:';") + Job.DetailErrorDescription;
 		CommonClient.MessageToUser(ErrorText);
 	EndIf;
@@ -552,7 +552,7 @@ EndProcedure
 &AtClient
 Function CurrentTimeOnTheClient()
 
-	// АПК:143-
+	// ACC:143-
 	Return CurrentDate();
 	// ACC:143-on 
 	

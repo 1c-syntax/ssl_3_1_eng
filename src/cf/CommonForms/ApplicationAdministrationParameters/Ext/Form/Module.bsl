@@ -112,7 +112,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 		IBUser = Undefined;
 		GetIBAdministrator(IBUser);
 		If IBUser = Undefined Then
-			Common.MessageToUser(NStr("en = 'The user is not allowed to access the infobase.';"),,
+			Common.MessageToUser(NStr("en = 'This user is not allowed to access the infobase.';"),,
 				FieldName,,Cancel);
 			Return;
 		EndIf;

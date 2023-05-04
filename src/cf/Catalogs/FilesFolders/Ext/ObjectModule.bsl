@@ -102,7 +102,7 @@ Procedure BeforeWrite(Cancel)
 					NewFolderWorkingDirectory = FolerParentWorkingDirectory
 						+ Description + GetPathSeparator();
 					
-					FilesOperationsInternalServerCall.SaveFolderWorkingDirectory(Ref, NewFolderWorkingDirectory);
+					FilesOperationsInternal.SaveFolderWorkingDirectory(Ref, NewFolderWorkingDirectory);
 				EndIf;
 			EndIf;
 		EndIf;
@@ -128,9 +128,9 @@ Procedure BeforeWrite(Cancel)
 						NewFolderWorkingDirectory = NewFolderParentWorkingDirectory
 							+ Description + GetPathSeparator();
 						
-						FilesOperationsInternalServerCall.SaveFolderWorkingDirectory(Ref, NewFolderWorkingDirectory);
+						FilesOperationsInternal.SaveFolderWorkingDirectory(Ref, NewFolderWorkingDirectory);
 					Else
-						FilesOperationsInternalServerCall.CleanUpWorkingDirectory(Ref);
+						FilesOperationsInternal.CleanUpWorkingDirectory(Ref);
 					EndIf;
 				EndIf;
 			EndIf;
@@ -146,18 +146,27 @@ Procedure OnWrite(Cancel)
 		Return;
 	EndIf;
 	
-	If AdditionalProperties.PreviousIsNew Then
-		FolderWorkingDirectory = FilesOperationsInternalServerCall.FolderWorkingDirectory(Parent);
-		If FolderWorkingDirectory <> "" Then
-			
-			// 
-			FolderWorkingDirectory = CommonClientServer.AddLastPathSeparator(
-				FolderWorkingDirectory);
-			
-			FolderWorkingDirectory = FolderWorkingDirectory
-				+ Description + GetPathSeparator();
-			
-			FilesOperationsInternalServerCall.SaveFolderWorkingDirectory(Ref, FolderWorkingDirectory);
+	WorkingDirectory = Undefined;
+	
+	If AdditionalProperties.Property("WorkingDirectory", WorkingDirectory) Or AdditionalProperties.PreviousIsNew Then
+		
+		If WorkingDirectory = "" Then
+			FilesOperationsInternal.CleanUpWorkingDirectory(Ref);
+		ElsIf WorkingDirectory <> Undefined Then
+			FilesOperationsInternal.SaveFolderWorkingDirectory(Ref, WorkingDirectory);
+		Else
+			FolderWorkingDirectory = FilesOperationsInternalServerCall.FolderWorkingDirectory(Parent);
+			If FolderWorkingDirectory <> "" Then
+				
+				// 
+				FolderWorkingDirectory = CommonClientServer.AddLastPathSeparator(
+					FolderWorkingDirectory);
+				
+				FolderWorkingDirectory = FolderWorkingDirectory
+					+ Description + GetPathSeparator();
+				
+				FilesOperationsInternal.SaveFolderWorkingDirectory(Ref, FolderWorkingDirectory);
+			EndIf;
 		EndIf;
 	EndIf;
 	

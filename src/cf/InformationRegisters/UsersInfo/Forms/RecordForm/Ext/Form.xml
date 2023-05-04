@@ -135,10 +135,10 @@
 							<ContextMenu name="LastUsedClientContextMenu" id="47"/>
 							<ExtendedTooltip name="LastUsedClientExtendedTooltip" id="48"/>
 						</InputField>
-						<InputField name="DeletePasswordStartDate" id="116">
-							<DataPath>Record.DeletePasswordStartDate</DataPath>
-							<ContextMenu name="DeletePasswordStartDateContextMenu" id="117"/>
-							<ExtendedTooltip name="DeletePasswordStartDateExtendedTooltip" id="118"/>
+						<InputField name="DeletePasswordUsageStartDate" id="116">
+							<DataPath>Record.DeletePasswordUsageStartDate</DataPath>
+							<ContextMenu name="DeletePasswordUsageStartDateContextMenu" id="117"/>
+							<ExtendedTooltip name="DeletePasswordUsageStartDateExtendedTooltip" id="118"/>
 						</InputField>
 					</ChildItems>
 				</Page>

@@ -86,8 +86,8 @@ Procedure UpdateUsersGroups(Parameters = Undefined, HasChanges = Undefined) Expo
 		UpdateKind = "AuthorizationObjects";
 	Else
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Error in procedure ""%1""
-			           |of manager module of information register ""%2"".
+			NStr("en = 'Error in procedure %1
+			           |of the %2 information register manager module.
 			           |
 			           |Some parameters are invalid.';"),
 			"UpdateUsersGroups",
@@ -1006,8 +1006,8 @@ Procedure UpdatePerformersGroups(PerformersGroups = Undefined,
 		ParameterValue   = Assignees;
 	Else
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Error in procedure ""%1""
-			           |of manager module of information register ""%2"".
+			NStr("en = 'Error in procedure %1
+			           |of the %2 information register manager module.
 			           |
 			           |Some parameters are invalid.';"),
 			"UpdatePerformersGroups",
@@ -1105,7 +1105,7 @@ Procedure UpdatePerformersGroups(PerformersGroups = Undefined,
 		|	ExternalPerformerGroupUsers.PerformersGroup
 		|FROM
 		|	ExternalPerformerGroupUsers AS ExternalPerformerGroupUsers";
-		// АПК:96-
+		// ACC:96-
 		
 		Query.Text = TemporaryTablesQueriesText + "
 		|;

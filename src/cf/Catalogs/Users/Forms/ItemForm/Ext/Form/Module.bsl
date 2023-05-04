@@ -388,18 +388,6 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 		Return;
 	EndIf;
 	
-	If CommonClient.DataSeparationEnabled()
-		And SynchronizationWithServiceRequired
-		And ServiceUserPassword = Undefined Then
-		
-		Cancel = True;
-		UsersInternalClient.RequestPasswordForAuthenticationInService(
-			New NotifyDescription("AfterServiceAuthenticationPasswordRequestBeforeWrite", ThisObject, WriteParameters),
-			ThisObject,
-			ServiceUserPassword);
-		Return;
-	EndIf;
-	
 	If Not WriteParameters.Property("WithAnEmptyEmail")
 	   And Not ValueIsFilled(Object.Ref)
 	   And SynchronizationWithServiceRequired
@@ -414,6 +402,19 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 			,
 			,
 			NStr("en = 'Record new service user';"));
+		Return;
+	EndIf;
+	
+	// 
+	If CommonClient.DataSeparationEnabled()
+		And SynchronizationWithServiceRequired
+		And ServiceUserPassword = Undefined Then
+		
+		Cancel = True;
+		UsersInternalClient.RequestPasswordForAuthenticationInService(
+			New NotifyDescription("AfterServiceAuthenticationPasswordRequestBeforeWrite", ThisObject, WriteParameters),
+			ThisObject,
+			ServiceUserPassword);
 		Return;
 	EndIf;
 	
@@ -965,17 +966,19 @@ Procedure PhotoClickCompletion(Result, AdditionalParameters) Export
 		Return;
 	EndIf;
 	
-	Picture = New Picture(GetFromTempStorage(Result.Location));
-	If Picture.Format() = PictureFormat.UnknownFormat Then
-		ShowMessageBox(, NStr("en = 'Select a file with a picture.';"));
-		Return;
-	EndIf;
+	#If Not WebClient Then
+		Picture = New Picture(GetFromTempStorage(Result.Location));
+		If Picture.Format() = PictureFormat.UnknownFormat Then
+			ShowMessageBox(, NStr("en = 'Select a file with a picture.';"));
+			Return;
+		EndIf;
+		
+		If Picture.FileSize() > 2 * 1024 * 1024 Then
+			ShowMessageBox(, NStr("en = 'The picture size must be less than 2 MB.';"));
+			Return;
+		EndIf;
+	#EndIf
 	
-	If Picture.FileSize() > 2 * 1024 * 1024 Then
-		ShowMessageBox(, NStr("en = 'The picture size must be less than 2 MB.';"));
-		Return;
-	EndIf;
-
 	If IsTempStorageURL(PhotoAddress) Then
 		DeleteFromTempStorage(PhotoAddress);
 	EndIf;
@@ -2535,10 +2538,14 @@ Procedure SetPropertiesAvailability(Form)
 	If Form.CanSignIn Then
 		Items.GroupNoRights.Visible         = Form.WhetherRightsAreAssigned.HasNoRights;
 		Items.GroupNoStartupRights.Visible = Not Form.WhetherRightsAreAssigned.HasNoRights
+			And Form.WhetherRightsAreAssigned.NotEnoughPermissionsToLaunch;
+		Items.GroupNoLoginRights.Visible   = Not Form.WhetherRightsAreAssigned.HasNoRights
+			And Not Form.WhetherRightsAreAssigned.NotEnoughPermissionsToLaunch
 			And Form.WhetherRightsAreAssigned.HasInsufficientRightForLogon;
 	Else
 		Items.GroupNoRights.Visible         = False;
 		Items.GroupNoStartupRights.Visible = False;
+		Items.GroupNoLoginRights.Visible   = False;
 	EndIf;
 	
 	// 

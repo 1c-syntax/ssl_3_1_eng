@@ -101,20 +101,16 @@ EndFunction
 //
 // Parameters:
 //   AttachedFile  - DefinedType.AttachedFileObject
-//                       - Structure - 
+//                       - см. См. РаботаСФайламиВТомахСлужебный.ПараметрыДобавленияФайла - 
 //                                     
 //                                     
-//                                     
-//                                     See FilesOperationsInVolumesInternal.FileAddingOptions.
 //   BinaryDataOrPath - BinaryData
 //                         - String - 
-//                                    
 //   FileDateInVolume - Date - if not specified, set it so the current session date.
 //   FillInternalStorageAttribute - Boolean - if the parameter is True, also store
 //                                       the binary file data to the FileStorage internal attribute.
 //   VolumeForPlacement - CatalogRef.FileStorageVolumes
 //                    - Undefined - 
-//                                     
 //                                     
 //
 Procedure AppendFile(AttachedFile, BinaryDataOrPath,
@@ -138,20 +134,16 @@ EndProcedure
 // 
 // Parameters:
 //   AttachedFile  - DefinedType.AttachedFileObject
-//                       - Structure - 
+//                       - см. РаботаСФайламиВТомахСлужебный.ПараметрыДобавленияФайла -  
 //                                     
 //                                     
-//                                     
-//                                     See FilesOperationsInVolumesInternal.FileAddingOptions.
 //   BinaryDataOrPath - BinaryData
 //                         - String - 
-//                                    
 //   FileDateInVolume - Date - if it is not specified, the current session time is used.
 //   FillInternalStorageAttribute - Boolean - if the parameter is True, binary data of the file
 //                                        will be additionally placed in the FileStorage internal attribute.
 //   VolumeToPlace - CatalogRef.FileStorageVolumes
 //                    - Undefined - 
-//                                     
 //                                     
 //
 Procedure FillInTheFileDetails(AttachedFile, BinaryDataOrPath, 
@@ -197,7 +189,6 @@ Procedure FillInTheFileDetails(AttachedFile, BinaryDataOrPath,
 		AttachedFile.Extension = StrReplace(AttachedFile.Extension, ".", "");
 	EndIf;
 	
-	FileSize = AttachedFile.Size;
 	FileStorageType = AttachedFile.FileStorageType;
 	If Not ValueIsFilled(FileStorageType) Then
 		FileStorageType = FilesOperationsInternal.FileStorageType(AttachedFile.Size, AttachedFile.Extension);
@@ -225,18 +216,7 @@ Procedure FillInTheFileDetails(AttachedFile, BinaryDataOrPath,
 
 	Else
 		
-		StorageVolume = FreeVolume(FileSize);
-		If StorageVolume = Undefined Then
-			
-			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot add file ""%1"" to any of the volumes as they do not have enough space.';"),
-				AttachedFile.Description + "." + AttachedFile.Extension);
-				
-			Raise ErrorText;
-			
-		EndIf;
-		
-		AttachedFile.Volume = StorageVolume;
+		AttachedFile.Volume = FreeVolume(AttachedFile);
 		AttachedFile.FileStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive;
 		
 		FileProperties = FilePropertiesInVolume();
@@ -246,7 +226,7 @@ Procedure FillInTheFileDetails(AttachedFile, BinaryDataOrPath,
 				AttachedFile.Owner, "FileOwner");
 		EndIf;
 		
-		VolumePath = FullVolumePath(StorageVolume);
+		VolumePath = FullVolumePath(AttachedFile.Volume);
 		PathToFile = FullFileNameInVolume(FileProperties, FileDateInVolume);
 		
 		AttachedFile.PathToFile = Mid(PathToFile, StrLen(VolumePath) + 1);
@@ -738,16 +718,18 @@ EndProcedure
 // 
 //
 // Parameters:
-//   Volumes - Array of CatalogRef.FileStorageVolumes - the volume to calculate the size of.
+//   Volumes - Array of CatalogRef.FileStorageVolumes
 //
 // Returns:
-//   Map - 
+//   Map of КлючЗначение:
+//     * Key - CatalogRef.FileStorageVolumes
+//     * Value - Number
 //
 Function SizesOfVolumes(Volumes)
 	
 	Result = New Map;
 	For Each Volume In Volumes Do
-		Result.Insert(Volume, 0);
+		Result[Volume] = 0;
 	EndDo; 
 	
 	If Not Common.SeparatedDataUsageAvailable() Then
@@ -755,8 +737,9 @@ Function SizesOfVolumes(Volumes)
 	EndIf;
 	
 	AttachedFilesTypes = Metadata.DefinedTypes.AttachedFile.Type.Types();
+	QueriesTexts = New Array;
 	
-	AttachmentsQueryText = 
+	QueryText = 
 	"SELECT
 	|	Versions.Volume AS Volume,
 	|	ISNULL(Versions.Size, 0) AS FilesSize
@@ -764,6 +747,15 @@ Function SizesOfVolumes(Volumes)
 	|	Catalog.FilesVersions AS Versions
 	|WHERE
 	|	Versions.Volume IN (&Volumes)";
+	QueriesTexts.Add(QueryText);
+	
+	RequestTextTemplate = "SELECT
+	|	AttachedFiles.Volume,
+	|	ISNULL(AttachedFiles.Size, 0)
+	|FROM
+	|	&CatalogName AS AttachedFiles
+	|WHERE
+	|	AttachedFiles.Volume IN (&Volumes)";
 	
 	For Each Type In AttachedFilesTypes Do
 		
@@ -778,38 +770,26 @@ Function SizesOfVolumes(Volumes)
 			Continue;
 		EndIf;
 		
-		QueryTextByDirectory = "SELECT
-		|	AttachedFiles.Volume,
-		|	ISNULL(AttachedFiles.Size, 0)
-		|FROM
-		|	&CatalogName AS AttachedFiles
-		|WHERE
-		|	AttachedFiles.Volume IN (&Volumes)";
-		
-		AttachmentsQueryText = AttachmentsQueryText + "
-		|
-		|UNION ALL
-		|
-		|" + StrReplace(QueryTextByDirectory, "&CatalogName",
-			Metadata.FindByType(Type).FullName());
-		
+		QueriesTexts.Add(StrReplace(RequestTextTemplate, "&CatalogName", 
+			Metadata.FindByType(Type).FullName()));
 	EndDo;
 	
-	Query = New Query;
-	Query.Text = "SELECT
-	|	NestedQuery.Volume,
-	|	SUM(NestedQuery.FilesSize) AS FilesSize
-	|FROM
-	|	&AttachmentsQueryText AS NestedQuery
-	|GROUP BY
-	|	NestedQuery.Volume";
+	QueryText = 
+		"SELECT
+		|	NestedQuery.Volume,
+		|	SUM(NestedQuery.FilesSize) AS FilesSize
+		|FROM
+		|	&AttachmentsQueryText AS NestedQuery
+		|GROUP BY
+		|	NestedQuery.Volume";
+	QueryText = StrReplace(QueryText, "&AttachmentsQueryText", 
+		"(" + StrConcat(QueriesTexts, Chars.LF + "UNION ALL" + Chars.LF) + ")"); // @query-part
 	
-	Query.Text = StrReplace(Query.Text, "AttachmentsQueryText", AttachmentsQueryText);
-	
+	Query = New Query(QueryText); 
 	Query.Parameters.Insert("Volumes", Volumes);
 	Selection = Query.Execute().Select();
 	While Selection.Next() Do
-		Result.Insert(Selection.Volume, Selection.FilesSize);
+		Result[Selection.Volume] = Selection.FilesSize;
 	EndDo;
 			
 	Return Result;
@@ -837,7 +817,6 @@ EndFunction
 //   AttachedFile - DefinedType.AttachedFileObject
 //   BinaryDataOrPath - BinaryData
 //                         - String - 
-//                                  
 //
 Procedure WriteTheFileDataToTheVolume(AttachedFile, BinaryDataOrPath)
 	
@@ -1936,15 +1915,16 @@ Function FileStorageType(Val FileSize, Val FileExtention) Export
 	
 EndFunction
 
-// Returns the first volume in filling order, into which a file of the specified size can be placed.
+// 
 //
 // Parameters:
-//   FileSize - Number - a size of the file to be placed, in bytes.
+//   AttachedFile - DefinedType.AttachedFileObject
+//                      - See FilesOperationsInVolumesInternal.FileAddingOptions
 //
 // Returns:
-//   CatalogRef.FileStorageVolumes - 
+//   CatalogRef.FileStorageVolumes
 //
-Function FreeVolume(FileSize)
+Function FreeVolume(AttachedFile)
 	
 	SetPrivilegedMode(True);
 	
@@ -1961,33 +1941,40 @@ Function FreeVolume(FileSize)
 	|ORDER BY
 	|	FileStorageVolumes.FillOrder";
 	Result = Query.Execute();
-	
 	If Result.IsEmpty() Then
-		Raise NStr("en = 'There is no volume available for storing the file.';");
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Не удалось добавить файл ""%1"", 
+				|т.к. не настроено ни одного тома для хранения файлов.
+				|Обратитесь к администратору.';"),
+			AttachedFile.Description + "." + AttachedFile.Extension);
 	EndIf;
 	
-	ArrayOfVolumes = Result.Unload().UnloadColumn("Ref"); 
+	FileStorageVolumes = Result.Unload();
 	SizesOfVolumes = Undefined;
 	
-	VolumesSelection = Result.Select();
-	While VolumesSelection.Next() Do
+	For Each FileStorageVolume In FileStorageVolumes Do
 		
-		If VolumesSelection.MaximumSize = 0 Then
-			Return VolumesSelection.Ref;
-		Else
-			If SizesOfVolumes = Undefined Then
-				// @skip-
-				SizesOfVolumes = SizesOfVolumes(ArrayOfVolumes);
-			EndIf;
-			VolumeSize = SizesOfVolumes[VolumesSelection.Ref];
-			If VolumeSize + FileSize <= VolumesSelection.MaximumSize * 1024 * 1024 Then
-				Return VolumesSelection.Ref;
-			EndIf;
+		If FileStorageVolume.MaximumSize = 0 Then
+			Return FileStorageVolume.Ref;
+		EndIf;
+
+		If SizesOfVolumes = Undefined Then
+			// @skip-
+			SizesOfVolumes = SizesOfVolumes(FileStorageVolumes.UnloadColumn("Ref"));
+		EndIf;
+		VolumeSize = SizesOfVolumes[FileStorageVolume.Ref];
+		If VolumeSize + AttachedFile.Size <= FileStorageVolume.MaximumSize * 1024 * 1024 Then
+			Return FileStorageVolume.Ref;
 		EndIf;
 		
 	EndDo;
 	
-	Return Undefined;
+	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+	NStr("en = 'Не удалось добавить файл ""%1"", 
+		|т.к. в томах хранения файлов недостаточно места.
+		|Обратитесь к администратору.';"),
+		AttachedFile.Description + "." + AttachedFile.Extension);
+	Raise ErrorText;	
 	
 EndFunction
 

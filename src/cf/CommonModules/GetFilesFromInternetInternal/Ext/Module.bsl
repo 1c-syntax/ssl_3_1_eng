@@ -875,8 +875,8 @@ Function NewInternetProxy(ProxyServerSetting, URLOrProtocol) Export
 	// Manually configured proxy settings.
 	Proxy = New InternetProxy;
 	
-	Protocols = StrSplit("http,https,ftp,ftps", ",", False);
-	For Each Protocol In Protocols Do
+	Logs = StrSplit("http,https,ftp,ftps", ",", False);
+	For Each Protocol In Logs Do
 		ServerAddress = ProxyServerSetting["Server"];
 		Port = ProxyServerSetting["Port"];
 		

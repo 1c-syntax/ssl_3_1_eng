@@ -43,13 +43,13 @@ Function ExchangeComponents(ExchangeDirection, ExchangeFormatVersionOnImport1 = 
 	ElsIf ValueIsFilled(PathToExportExchangeManager)
 		Or ValueIsFilled(PathToImportExchangeManager) Then
 		Raise
-			NStr("en = 'The external data processor for debugging loaded from a file is not supported.';");
+			NStr("en = 'The external data processor (debugger) is not supported.';");
 	ElsIf ValueIsFilled(ExchangeNode)
 		And Common.HasObjectAttribute("ExchangeManagerPath", ExchangeNode.Metadata()) Then
 		ExchangeManagerPath = Common.ObjectAttributeValue(ExchangeNode, "ExchangeManagerPath");
 		If ValueIsFilled(ExchangeManagerPath) Then
 			Raise
-				NStr("en = 'The external data processor for debugging loaded from a file is not supported.';");
+				NStr("en = 'The external data processor (debugger) is not supported.';");
 		Else
 			ExchangeManagerInternal = True;
 		EndIf;
@@ -1101,7 +1101,7 @@ Function ParseExchangeFormat(Val ExchangeFormat)
 	Versions = StrSplit(Result.Version, ".");
 	
 	If Versions.Count() = 0 Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Noncanonical presentation of the exchange format version: %1.';"), Result.Version);
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Non-canonical presentation of the exchange format v.%1.';"), Result.Version);
 	EndIf;
 	
 	FormatItems.Delete(FormatItems.UBound());

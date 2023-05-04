@@ -16,7 +16,7 @@
 			<Synonym>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Universal data exchange in XML format</v8:content>
+					<v8:content>Conversion Rule Data Exchange in XML format</v8:content>
 				</v8:item>
 			</Synonym>
 			<Comment>APK: 700 connecting the extension to work with files via the filesystem Client is not performed, because processing is Autonomous and does not depend on the basic functionality of the BSP</Comment>
@@ -685,7 +685,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Append exchange details an existing exchange log.</v8:content>
+							<v8:content>Append exchange details to an existing exchange log.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -1632,7 +1632,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Comment</v8:content>
+							<v8:content>Data export comment</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -2074,7 +2074,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Optimized object writing</v8:content>
+							<v8:content>Optimize object saving</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -2087,7 +2087,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Optimize object writing to reduce infobase calls.</v8:content>
+							<v8:content>Optimize object saving to reduce infobase calls.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -2524,7 +2524,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Settings table</v8:content>
+							<v8:content>Parameter configuration table</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -2537,7 +2537,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Data exchange settings table.</v8:content>
+							<v8:content>Data exchange parameters table.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -2641,7 +2641,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Cleansing rules table</v8:content>
+							<v8:content>Cleanup rules table</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -2654,7 +2654,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Data cleansing rules table.</v8:content>
+							<v8:content>Data cleanup rules table.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

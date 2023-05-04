@@ -30,7 +30,7 @@
 //   * ExplanationByRedirectAddress - String
 //   * ExplanationByApplicationID - String
 //   * ExplanationApplicationPassword - String
-//   * AdditionalExplanation - String
+//   * AdditionalNote - String
 //   * AliasRedirectAddresses - String
 //   * ApplicationIDAlias - String
 //   * ApplicationPasswordAlias - String
@@ -58,7 +58,7 @@ Function SettingsAuthorizationInternetService(InternetServiceName, DataOwner) Ex
 	AuthorizationSettings.Insert("ExplanationByRedirectAddress", "");
 	AuthorizationSettings.Insert("ExplanationByApplicationID", "");
 	AuthorizationSettings.Insert("ExplanationApplicationPassword", "");
-	AuthorizationSettings.Insert("AdditionalExplanation", "");
+	AuthorizationSettings.Insert("AdditionalNote", "");
 	AuthorizationSettings.Insert("AliasRedirectAddresses", "");
 	AuthorizationSettings.Insert("ApplicationIDAlias", "");
 	AuthorizationSettings.Insert("ApplicationPasswordAlias", "");

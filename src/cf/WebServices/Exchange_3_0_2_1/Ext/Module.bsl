@@ -757,7 +757,7 @@ Procedure RunExportDataInClientServerMode(ExchangePlanName,
 		TimeConsumingOperation = False;
 		Return;
 	Else
-		Message = NStr("en = 'An error occurred upon data export using a web service.';");
+		Message = NStr("en = 'Error exporting data via web service.';");
 		If ValueIsFilled(BackgroundJob.DetailErrorDescription) Then
 			Message = BackgroundJob.DetailErrorDescription;
 		EndIf;
@@ -835,7 +835,7 @@ Procedure RunImportDataInClientServerMode(ExchangePlanName,
 		Return;
 	Else
 		
-		Message = NStr("en = 'An error occurred upon data import using a web service.';");
+		Message = NStr("en = 'Error importing data via web service.';");
 		If ValueIsFilled(BackgroundJob.DetailErrorDescription) Then
 			Message = BackgroundJob.DetailErrorDescription;
 		EndIf;

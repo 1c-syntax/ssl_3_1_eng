@@ -110,8 +110,10 @@ EndProcedure
 //       * UsesDCS - Boolean - indicates whether the main DCS is used in the report.
 //       * VariantKey - String - Report option ID.
 //       * DetailsReceived - Boolean - Flag indicating that the string description is already received.
-//       * Enabled - Boolean - If it is False, the report option is not registered in the subsystem
+//       * Enabled              - Boolean -
 //       * DefaultVisibility - Boolean - If False, the report option is hidden from the report panel by default.
+//       * ShouldShowInOptionsSubmenu - Boolean -  
+//                                                
 //       * Description - String - report option name.
 //       * LongDesc - String - clarifies a report purpose.
 //       * Location - Map of KeyAndValue - settings describing report option placement in sections (subsystems), where:
@@ -269,7 +271,7 @@ EndProcedure
 //                 Before writing or posting the object, users are asked for confirmation.
 //                 Optional. Default value is "Write".
 //   * FilesOperationsRequired - Boolean - If True, in the web client, users are prompted
-//                                        to install the extension for 1C:Enterprise operation.
+//                                        to install 1C:Enterprise Extension.
 //                                        Optional. The default value is False.
 //   * Manager - String - Full name of the metadata object where the command was indicated.
 //                         For example, "Report._DemoPurchaseLedger".

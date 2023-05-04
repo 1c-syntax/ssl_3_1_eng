@@ -12,7 +12,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
-	// StandardSubsystems.ПодключаемыеКоманды
+	// StandardSubsystems.AttachableCommands
 	AttachableCommands.OnCreateAtServer(ThisObject);
 	// End StandardSubsystems.AttachableCommands
 	
@@ -45,15 +45,15 @@ Procedure Attachable_ExecuteCommand(Command)
 
 	CurrentData = Items.List.CurrentData;
 
-	If Command.Name = "AdjustingOrderOfElementsIsNormal__Down" Or Command.Name = "AdjustingOrderOfElementsIsNormal__Up" Then
+	If Command.Name = "ItemsOrderSetupCommon__Down" Or Command.Name = "ItemsOrderSetupCommon__Up" Then
 		If CurrentData.Ref = PredefinedValue("Catalog.SourceDocumentsOriginalsStates.FormPrinted")
 			Or CurrentData.Ref = PredefinedValue("Catalog.SourceDocumentsOriginalsStates.OriginalReceived") Then
 			ShowMessageBox(,NStr("en = 'Cannot move the initial and final state.';"));
 		Else
 
-			If Command.Name = "AdjustingOrderOfElementsIsNormal__Down" Then
+			If Command.Name = "ItemsOrderSetupCommon__Down" Then
 				Move = CanMove("Down",CurrentData.AddlOrderingAttribute);
-			ElsIf Command.Name = "AdjustingOrderOfElementsIsNormal__Up" Then
+			ElsIf Command.Name = "ItemsOrderSetupCommon__Up" Then
 				Move = CanMove("Up",CurrentData.AddlOrderingAttribute);
 			EndIf;
 

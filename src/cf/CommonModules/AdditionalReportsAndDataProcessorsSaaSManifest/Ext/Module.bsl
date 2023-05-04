@@ -72,7 +72,7 @@ Function GenerateManifest(Val DataProcessorObject2, Val VersionObject1, Val Repo
 	EndDo;
 	If Not ValueIsFilled(XDTOKind) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Type of additional reports and data processors %1 is not supported in SaaS.';"),
+			NStr("en = 'Additional report (data processor) type %1 is not supported in SaaS.';"),
 			VersionObject1.Kind);
 	EndIf;
 	Manifest.Category = XDTOKind;

@@ -150,15 +150,12 @@ Function GlobalSettings()
 	Settings = New Structure;
 	Settings.Insert("Show", True);
 	
-	If Metadata.DataProcessors.InformationOnStart.Templates.Count() = 0 Then
-		Settings.Show = False;
-	ElsIf Not StandardSubsystemsServer.IsBaseConfigurationVersion() And Not ShowAtStartup() Then
-		// 
-		Settings.Show = False;
-	EndIf;
+	// 
+	Settings.Show = (Metadata.DataProcessors.InformationOnStart.Templates.Count() > 0)
+		And (StandardSubsystemsServer.IsBaseConfigurationVersion() Or ShowAtStartup());
 	
 	If Settings.Show Then
-		// Disable information if changes details are displayed.
+		// 
 		If Common.SubsystemExists("StandardSubsystems.IBVersionUpdate") Then
 			ModuleUpdatingInfobaseInternal = Common.CommonModule("InfobaseUpdateInternal");
 			If ModuleUpdatingInfobaseInternal.ShowChangeHistory1() Then
@@ -168,7 +165,7 @@ Function GlobalSettings()
 	EndIf;
 	
 	If Settings.Show Then
-		// Disable information if the assistant of setting completion of the subordinate DIB node is displayed.
+		// 
 		If Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 			ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
 			If ModuleDataExchangeServer.OpenDataExchangeCreationWizardForSubordinateNodeSetup() Then
@@ -193,7 +190,6 @@ Function GlobalSettings()
 		EndIf;
 	EndIf;
 	
-	// Переопределение.
 	InformationOnStartOverridable.DefineSettings(Settings);
 	
 	Return Settings;

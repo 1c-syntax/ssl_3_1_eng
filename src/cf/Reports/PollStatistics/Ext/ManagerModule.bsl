@@ -34,7 +34,7 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 		|Response';");
 	OptionSettings.SearchSettings.FilterParameterDescriptions = 
 		NStr("en = 'Survey
-		|Report kind';");
+		|Report type';");
 EndProcedure
 
 // End StandardSubsystems.ReportsOptions

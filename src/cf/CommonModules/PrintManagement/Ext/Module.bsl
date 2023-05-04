@@ -551,7 +551,7 @@ EndFunction
 //   * VisibilityConditions - Array - a list of visibility conditions;
 //  Attribute       - String                - an object attribute name;
 //  Value       - Arbitrary          - an object attribute value;
-//  ComparisonMethod - ComparisonType          - a value comparison kind. Possible kinds: 
+//  ComparisonMethod - ComparisonType          - A value comparison type. Possible types: 
 //                                           Equal, NotEqual, Greater, GreaterOrEqual, Less, LessOrEqual, InList, and NotInList.
 //                                           The default value is Equal.
 //
@@ -1066,10 +1066,11 @@ EndFunction
 //  Structure:
 //   * OnSpecifyingRecipients - Boolean -
 //                                          
-//											 
-//   * OnAddPrintCommands - Boolean, Undefined -
-//                                                        
-//   										
+//                                          
+//                                           
+//   * OnAddPrintCommands - Boolean -
+//                                          
+//                                           
 //
 Function ObjectPrintingSettings(ObjectManager) Export
 	
@@ -1256,18 +1257,19 @@ Function TemplateArea(RefToTemplate, AreaDetails) Export
 	
 	Area = Undefined;
 	
-	If AreaDetails.AreaType = "Header" Or AreaDetails.AreaType = "EvenHeader" Or AreaDetails.AreaType = "FirstHeader" Then
+	If AreaDetails.AreaType = "Header" Or AreaDetails.AreaType = "EvenHeader" 
+		Or AreaDetails.AreaType = "FirstHeader" Then
 		Area = PrintManagementInternal.GetHeaderArea(RefToTemplate, AreaDetails.AreaName);
-	ElsIf AreaDetails.AreaType = "Footer"  Or AreaDetails.AreaType = "EvenFooter"  Or AreaDetails.AreaType = "FirstFooter" Then
+	ElsIf AreaDetails.AreaType = "Footer"  Or AreaDetails.AreaType = "EvenFooter"  
+		Or AreaDetails.AreaType = "FirstFooter" Then
 		Area = PrintManagementInternal.GetFooterArea(RefToTemplate, AreaDetails.AreaName);
-	ElsIf AreaDetails.AreaType = "Shared3" Then
-		Area = PrintManagementInternal.GetTemplateArea(RefToTemplate, AreaDetails.AreaName);
-	ElsIf AreaDetails.AreaType = "TableRow" Then
-		Area = PrintManagementInternal.GetTemplateArea(RefToTemplate, AreaDetails.AreaName);
-	ElsIf AreaDetails.AreaType = "List" Then
+	ElsIf AreaDetails.AreaType = "Shared3" 
+		Or AreaDetails.AreaType = "TableRow"
+		Or AreaDetails.AreaType = "List" Then
 		Area = PrintManagementInternal.GetTemplateArea(RefToTemplate, AreaDetails.AreaName);
 	Else
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Area type is not specified or invalid: %1.';"), AreaDetails.AreaType);
+		Raise StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Area type is not specified or invalid: %1.';"), AreaDetails.AreaType);
 	EndIf;
 	
 	If Area <> Undefined Then
@@ -1295,16 +1297,16 @@ Procedure AttachArea(PrintForm, TemplateArea, Val GoToNextRow1 = False) Export
 	Try
 		
 		AreaDetails = TemplateArea.AreaDetails;
-	
 		DerivedArea = Undefined;
 		
-		If AreaDetails.AreaType = "Header" Or AreaDetails.AreaType = "EvenHeader" Or AreaDetails.AreaType = "FirstHeader" Then
+		If AreaDetails.AreaType = "Header" Or AreaDetails.AreaType = "EvenHeader" 
+			Or AreaDetails.AreaType = "FirstHeader" Then
 				DerivedArea = PrintManagementInternal.AddHeader(PrintForm, TemplateArea);
-		ElsIf AreaDetails.AreaType = "Footer"  Or AreaDetails.AreaType = "EvenFooter"  Or AreaDetails.AreaType = "FirstFooter" Then
+		ElsIf AreaDetails.AreaType = "Footer"  Or AreaDetails.AreaType = "EvenFooter"
+			Or AreaDetails.AreaType = "FirstFooter" Then
 			DerivedArea = PrintManagementInternal.AddFooter(PrintForm, TemplateArea);
-		ElsIf AreaDetails.AreaType = "Shared3" Then
-			DerivedArea = PrintManagementInternal.AttachArea(PrintForm, TemplateArea, GoToNextRow1);
-		ElsIf AreaDetails.AreaType = "List" Or AreaDetails.AreaType = "TableRow" Then
+		ElsIf AreaDetails.AreaType = "Shared3" Or AreaDetails.AreaType = "List" 
+			Or AreaDetails.AreaType = "TableRow" Then
 			DerivedArea = PrintManagementInternal.AttachArea(PrintForm, TemplateArea, GoToNextRow1);
 		Else
 			Raise AreaTypeSpecifiedIncorrectlyText();
@@ -2921,7 +2923,7 @@ Procedure DeleteTemplate(TemplatePath, LanguageCode = Undefined) Export
 	
 EndProcedure
 
-Function FindParametersInText(Val Text, Parameters = Undefined, Val StartPosition = 0, OpeningParentheses = 1, ClosingParentheses = 0) Export // АПК:142 - 
+Function FindParametersInText(Val Text, Parameters = Undefined, Val StartPosition = 0, OpeningParentheses = 1, ClosingParentheses = 0) Export // ACC:142 - 
 	
 	If Parameters = Undefined Then
 		Parameters = New Array;
@@ -3065,7 +3067,7 @@ Function GenerateOfficeDoc(Template, ObjectsArray, PrintObjects, LanguageCode, P
 	PrintManagementInternal.RunIndexNodes(DocumentStructure.DocumentTree);
 	PrintManagementInternal.FindAreas(DocumentStructure, ObjectTablePartNames);
 	
-	ParametersForFillingInHeader = New Array;
+	HeaderPopulationParameters = New Array;
 		For Each Area In DocumentStructure.Areas Do
 			If Not ValueIsFilled(Area.Collection) Then
 				ParametersToSupplement = Area.Parameters;
@@ -3075,26 +3077,26 @@ Function GenerateOfficeDoc(Template, ObjectsArray, PrintObjects, LanguageCode, P
 					FormulaElements = FormulasConstructorInternal.FormulaElements(Parameter);
 					For Each FormulaElement In FormulaElements.AllItems Do
 						If StrOccurrenceCount(FormulaElement, Area.Collection+".") = 0 Then
-						CommonClientServer.SupplementArray(ParametersForFillingInHeader, 
+						CommonClientServer.SupplementArray(HeaderPopulationParameters, 
 							     CommonClientServer.ValueInArray(FormulaElement), True);
 						EndIf;
 					EndDo;
 				EndDo;
 			EndIf;
-		CommonClientServer.SupplementArray(ParametersForFillingInHeader, ParametersToSupplement, True);
+		CommonClientServer.SupplementArray(HeaderPopulationParameters, ParametersToSupplement, True);
 	EndDo;
 				
 	For Each HeaderOrFooter In DocumentStructure.HeaderFooter Do
-		For Each HeaderAndFooterLine In HeaderOrFooter.Value.Rows Do
-			HeaderAndFooterParameters = FindParametersInText(HeaderAndFooterLine.WholeText);
-			CommonClientServer.SupplementArray(ParametersForFillingInHeader, HeaderAndFooterParameters, True);
+		For Each FooterHeaderRow In HeaderOrFooter.Value.Rows Do
+			HeaderFooterParameters = FindParametersInText(FooterHeaderRow.WholeText);
+			CommonClientServer.SupplementArray(HeaderPopulationParameters, HeaderFooterParameters, True);
 		EndDo;
 		EndDo;
 		 
 	OfficeDocuments = New Map;
 	For Each PrintObject In ObjectsArray Do
 		TemplateTreeForPopulation = CopyOfTemplateTree(TreeOfTemplate);
-		ParameterValues = GetObjectParametersValues(PrintData, PrintObject, TemplateTreeForPopulation, LanguageCode, PrintParameters, ParametersForFillingInHeader);
+		ParameterValues = GetObjectParametersValues(PrintData, PrintObject, TemplateTreeForPopulation, LanguageCode, PrintParameters, HeaderPopulationParameters);
 		DocumentTree = TemplateTreeForPopulation.DocumentStructure.DocumentTree; 
 		ObjectData = PrintData[PrintObject];
 		FieldFormatSettings = PrintData["FieldFormatSettings"];
@@ -4481,18 +4483,20 @@ Function TheTypeOfTheFileTableOfTheDocument(FileType)
 	
 EndFunction
 
-Function PrintFormTemplates() Export
+Function PrintFormTemplates(ProcessingAndReportingOnly = False) Export
 	
 	Result = New Map;
 	
 	MetadataObjectsCollections = New Array; // Array of MetadataObjectCollection -
-	MetadataObjectsCollections.Add(Metadata.Catalogs);
-	MetadataObjectsCollections.Add(Metadata.Documents);
 	MetadataObjectsCollections.Add(Metadata.DataProcessors);
-	MetadataObjectsCollections.Add(Metadata.BusinessProcesses);
-	MetadataObjectsCollections.Add(Metadata.Tasks);
-	MetadataObjectsCollections.Add(Metadata.DocumentJournals);
 	MetadataObjectsCollections.Add(Metadata.Reports);
+	If Not ProcessingAndReportingOnly Then
+		MetadataObjectsCollections.Add(Metadata.Catalogs);
+		MetadataObjectsCollections.Add(Metadata.Documents);
+		MetadataObjectsCollections.Add(Metadata.BusinessProcesses);
+		MetadataObjectsCollections.Add(Metadata.Tasks);
+		MetadataObjectsCollections.Add(Metadata.DocumentJournals);
+	EndIf;
 	
 	For Each MetadataObjectCollection In MetadataObjectsCollections Do
 		For Each CollectionMetadataObject In MetadataObjectCollection Do
@@ -5289,7 +5293,13 @@ Function ComposeData(Parameters)
 	EndDo;
 	
 	If KeyField_SSLy = Undefined Then
-		Raise NStr("en = 'The ""Reference"" key field is not found in the list of print data schema fields.';");
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr(
+			"en = 'The ""%1"" key field is not found in the list of fields of the data composition schema for printing ""%2"".
+			|See the ""%3"" parameter details in the ""%4"" procedure.';"),
+			"Ref",
+			DataCompositionSchemaId,
+			"PrintDataSources",
+			"PrintManagementOverridable.OnDefinePrintDataSources");
 	EndIf;
 	
 	Group = ComposerSettings.Structure.Add(Type("DataCompositionGroup"));
@@ -5825,7 +5835,7 @@ Function RowsCount(Table, ColumnName = Undefined) Export
 	
 EndFunction
 
-Function SumByColumn(Table, ColumnName = Undefined) Export // АПК:299 - 
+Function SumByColumn(Table, ColumnName = Undefined) Export // ACC:299 - 
 	
 	If TypeOf(Table) = Type("Map") Then
 		Value = 0;
@@ -5842,7 +5852,7 @@ Function SumByColumn(Table, ColumnName = Undefined) Export // АПК:299 -
 	
 EndFunction
 
-Function ColumnMax(Table, ColumnName = Undefined) Export // АПК:299 - 
+Function ColumnMax(Table, ColumnName = Undefined) Export // ACC:299 - 
 	
 	If TypeOf(Table) = Type("Map") Then
 		Value = Undefined;
@@ -5861,7 +5871,7 @@ Function ColumnMax(Table, ColumnName = Undefined) Export // АПК:299 -
 	
 EndFunction
 
-Function ColumnMin(Table, ColumnName = Undefined) Export // АПК:299 - 
+Function ColumnMin(Table, ColumnName = Undefined) Export // ACC:299 - 
 	
 	If TypeOf(Table) = Type("Map") Then
 		Value = Undefined;
@@ -5880,7 +5890,7 @@ Function ColumnMin(Table, ColumnName = Undefined) Export // АПК:299 -
 	
 EndFunction
 
-Function ColumnAverage(Table, ColumnName = Undefined) Export // АПК:299 - 
+Function ColumnAverage(Table, ColumnName = Undefined) Export // ACC:299 - 
 	
 	If TypeOf(Table) = Type("Map") Then
 		Value = 0;

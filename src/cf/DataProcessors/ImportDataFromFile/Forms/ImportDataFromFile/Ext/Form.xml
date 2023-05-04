@@ -34,7 +34,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Select catalog to import data</v8:content>
+							<v8:content>Select catalog to import data to</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="SelectCatalogToImportExtendedTooltip" id="4"/>
@@ -1607,6 +1607,15 @@ Also, you can save skipped lines to a file, revise them, and import them later.<
 						</v8:StringQualifiers>
 					</Type>
 				</Column>
+				<Column name="Use" id="32">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>30</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
 			</Columns>
 		</Attribute>
 		<Attribute name="ExternalDataProcessorRef" id="5">
@@ -1754,7 +1763,7 @@ Also, you can save skipped lines to a file, revise them, and import them later.<
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Progress</v8:content>
+					<v8:content>Background job progress</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

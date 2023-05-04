@@ -190,6 +190,7 @@ Function FileData(Val AttachedFile, Val AdditionalParameters = Undefined,
 		FilesOperationsInternal.BorrowFileToEditServer(FileObject1);
 	EndIf;
 	
+	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
 	RefToBinaryFileData = Undefined;
@@ -408,7 +409,7 @@ EndFunction
 Function AddFileFromHardDrive(FilesOwner, FilePathOnHardDrive) Export
 	
 	If Not ValueIsFilled(FilesOwner) Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Parameter value %1 is not set in %2.';"), 
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The %1 parameter value is not set in %2.';"), 
 			"FilesOwner","FilesOperations.AddFileFromHardDrive");
 	EndIf;
 	
@@ -551,7 +552,7 @@ Function AppendFile(FileParameters,
 	
 	If Not ValueIsFilled(FilesOwner) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Parameter value %1 is not set in %2.';"), "FileParameters.FilesOwner", "FilesOperations.AppendFile");
+			NStr("en = 'The %1 parameter value is not set in %2.';"), "FileParameters.FilesOwner", "FilesOperations.AppendFile");
 	EndIf;
 	
 	BinaryData = GetFromTempStorage(FileAddressInTempStorage); // BinaryData
@@ -897,7 +898,7 @@ Function ConvertFilesToAttachedFiles(Val FilesOwner, CatalogName = Undefined) Ex
 	
 	If Not ValueIsFilled(FilesOwner) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Parameter value %1 is not set in %2.';"), 
+			NStr("en = 'The %1 parameter value is not set in %2.';"), 
 			"FilesOwner","FilesOperations.ConvertFilesToAttachedFiles");
 	EndIf;
 	
@@ -979,20 +980,20 @@ Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters, Form) Export
 	
 	If TypeOf(Form) = Type("ClientApplicationForm") Then
 		FilesOperationsParameters = Form.FilesOperationsParameters;
-		SettingsForWorkingWithFilesInForm = FilesOperationsParameters.SettingsForWorkingWithFilesInForm;
+		SettingsOfFileManagementInForm = FilesOperationsParameters.SettingsOfFileManagementInForm;
 	Else
-		SettingsForWorkingWithFilesInForm = SettingsForWorkingWithFilesInForm();
-		SettingsForWorkingWithFilesInForm.DuplicateAttachedFiles = Not ValueIsFilled(Form.Key) 
+		SettingsOfFileManagementInForm = SettingsOfFileManagementInForm();
+		SettingsOfFileManagementInForm.DuplicateAttachedFiles = Not ValueIsFilled(Form.Key) 
 			And Form.Property("CopyingValue") And ValueIsFilled(Form.CopyingValue);
-		If SettingsForWorkingWithFilesInForm.DuplicateAttachedFiles Then
-			SettingsForWorkingWithFilesInForm.Insert("CopyingValue", Form.CopyingValue);
+		If SettingsOfFileManagementInForm.DuplicateAttachedFiles Then
+			SettingsOfFileManagementInForm.Insert("CopyingValue", Form.CopyingValue);
 		EndIf;
 	EndIf;
 		
-	If SettingsForWorkingWithFilesInForm.DuplicateAttachedFiles Then
+	If SettingsOfFileManagementInForm.DuplicateAttachedFiles Then
 		
 		FilesOperationsInternal.CopyAttachedFiles(
-			SettingsForWorkingWithFilesInForm.CopyingValue, CurrentObject);
+			SettingsOfFileManagementInForm.CopyingValue, CurrentObject);
 	EndIf;
 	
 EndProcedure
@@ -1006,7 +1007,7 @@ EndProcedure
 //                      
 //                      See FilesOperations.FilesHyperlink
 //                      
-//  SettingsForWorkingWithFilesInForm - See FilesOperations.SettingsForWorkingWithFilesInForm.
+//  SettingsOfFileManagementInForm - See FilesOperations.SettingsOfFileManagementInForm.
 //                      
 //
 // Example:
@@ -1027,23 +1028,23 @@ EndProcedure
 //   ItemsToAdd.Add(FieldParameters);
 //   StoredFiles.OnCreateAtServer(ThisObject, ItemsToAdd);
 //
-Procedure OnCreateAtServer(Form, ItemsToAdd1 = Undefined, SettingsForWorkingWithFilesInForm = Undefined) Export
+Procedure OnCreateAtServer(Form, ItemsToAdd1 = Undefined, SettingsOfFileManagementInForm = Undefined) Export
 	
 	If ItemsToAdd1 = Undefined Then
 		Return;
 	EndIf;
 	
-	If SettingsForWorkingWithFilesInForm = Undefined Then
-		SettingsForWorkingWithFilesInAdvancedForm = SettingsForWorkingWithFilesInForm();
+	If SettingsOfFileManagementInForm = Undefined Then
+		SettingsOfFileManagementInFormAdvanced = SettingsOfFileManagementInForm();
 	Else
-		SettingsForWorkingWithFilesInAdvancedForm = Common.CopyRecursive(SettingsForWorkingWithFilesInForm); 
+		SettingsOfFileManagementInFormAdvanced = Common.CopyRecursive(SettingsOfFileManagementInForm); 
 	EndIf;
 	
 	If Not Form.Parameters.Property("CopyingValue") And (Not Form.Parameters.Property("Key") 
 		Or Not ValueIsFilled(Form.Parameters.Key)) Then
-		SettingsForWorkingWithFilesInAdvancedForm.DuplicateAttachedFiles = False;
+		SettingsOfFileManagementInFormAdvanced.DuplicateAttachedFiles = False;
 	Else
-		SettingsForWorkingWithFilesInAdvancedForm.Insert("CopyingValue", Form.Parameters.CopyingValue);
+		SettingsOfFileManagementInFormAdvanced.Insert("CopyingValue", Form.Parameters.CopyingValue);
 	EndIf;
 		
 	If TypeOf(ItemsToAdd1) = Type("Structure") Then
@@ -1138,7 +1139,7 @@ Procedure OnCreateAtServer(Form, ItemsToAdd1 = Undefined, SettingsForWorkingWith
 		Form.ChangeAttributes(AttributesToBeAdded);
 	EndIf;
 	
-	DescriptionsOfFormElements = New Array;
+	FormElementsDetails = New Array;
 	For IndexOf = 0 To ItemsToAdd1.UBound() Do
 		
 		ItemNumber = Format(IndexOf, "NZ=0; NG=");
@@ -1205,9 +1206,9 @@ Procedure OnCreateAtServer(Form, ItemsToAdd1 = Undefined, SettingsForWorkingWith
 		FormItemParameters.Insert("UpdateAvailable",  UpdateAvailable);
 		FormItemParameters.Insert("AdditionAvailable", AdditionAvailable);
 		
-		If SettingsForWorkingWithFilesInAdvancedForm.DuplicateAttachedFiles 
-			 And ValueIsFilled(SettingsForWorkingWithFilesInAdvancedForm.CopyingValue) Then
-			 AttachedFilesOwner = SettingsForWorkingWithFilesInAdvancedForm.CopyingValue;
+		If SettingsOfFileManagementInFormAdvanced.DuplicateAttachedFiles 
+			 And ValueIsFilled(SettingsOfFileManagementInFormAdvanced.CopyingValue) Then
+			 AttachedFilesOwner = SettingsOfFileManagementInFormAdvanced.CopyingValue;
 		EndIf;
 		
 		If ItemToAdd.Property("DataPath") Then
@@ -1220,11 +1221,11 @@ Procedure OnCreateAtServer(Form, ItemsToAdd1 = Undefined, SettingsForWorkingWith
 		EndIf;
 		
 		ItemParameters.Insert("PathToOwnerData", ItemToAdd.Owner);
-		DescriptionsOfFormElements.Add(ItemParameters);
+		FormElementsDetails.Add(ItemParameters);
 		
 	EndDo;
-	FilesOperationsParameters = New Structure("DescriptionsOfFormElements", New FixedArray(DescriptionsOfFormElements));
-	FilesOperationsParameters.Insert("SettingsForWorkingWithFilesInForm", New FixedStructure(SettingsForWorkingWithFilesInAdvancedForm));
+	FilesOperationsParameters = New Structure("FormElementsDetails", New FixedArray(FormElementsDetails));
+	FilesOperationsParameters.Insert("SettingsOfFileManagementInForm", New FixedStructure(SettingsOfFileManagementInFormAdvanced));
 	
 	Form["FilesOperationsParameters"] = New FixedStructure(FilesOperationsParameters);
 	
@@ -1451,12 +1452,12 @@ EndProcedure
 //    * DuplicateAttachedFiles - Boolean -
 //                                   
 //
-Function SettingsForWorkingWithFilesInForm() Export
+Function SettingsOfFileManagementInForm() Export
 	
-	SettingsForWorkingWithFilesInForm = New Structure;
-	SettingsForWorkingWithFilesInForm.Insert("DuplicateAttachedFiles", False);
+	SettingsOfFileManagementInForm = New Structure;
+	SettingsOfFileManagementInForm.Insert("DuplicateAttachedFiles", False);
 	
-	Return SettingsForWorkingWithFilesInForm;
+	Return SettingsOfFileManagementInForm;
 	
 EndFunction
 
@@ -1816,7 +1817,7 @@ Procedure MarkToDeleteAttachedFiles(Val Source, CatalogName = Undefined)
 		
 	EndDo;
 	
-	Query = New Query(StrConcat(QueryTexts, "UNION ALL" + Chars.LF + Chars.LF)); // @query-part
+	Query = New Query(StrConcat(QueryTexts, Chars.LF + "UNION ALL" + Chars.LF + Chars.LF)); // @query-part
 	Query.SetParameter("FileOwner", Source.Ref);
 	
 	Selection = Query.Execute().Select();

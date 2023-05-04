@@ -129,7 +129,7 @@ EndProcedure
 &AtClient
 Procedure CreateSubdirectoriesWithOwnersNamesOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
@@ -169,21 +169,21 @@ Procedure DenyUploadFilesByExtensionOnChange(Item)
 		
 	EndIf;
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
 &AtClient
 Procedure SynchronizeFilesOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
 &AtClient
 Procedure DeniedDataAreaExtensionsListOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
@@ -198,21 +198,21 @@ Procedure MaxDataAreaFileSizeOnChange(Item)
 		
 	EndIf;
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
 &AtClient
 Procedure FilesExtensionsListDocumentDataAreasOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
 &AtClient
 Procedure TestFilesExtensionsListOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
@@ -230,21 +230,21 @@ Procedure MaxFileSizeOnChange(Item)
 		
 	EndIf;
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
 &AtClient
 Procedure DeniedExtensionsListOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
 &AtClient
 Procedure FilesExtensionsListOpenDocumentOnChange(Item)
 	
-	Attachable_WhenChangingTheDetails(Item);
+	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
 
@@ -322,7 +322,7 @@ Procedure ProhibitFilesImportByExtensionAfterConfirm(Result, AdditionalParameter
 	If Result <> Undefined
 		And Result = "Continue" Then
 		
-		Attachable_WhenChangingTheDetails(AdditionalParameters.Item);
+		Attachable_OnChangeAttribute(AdditionalParameters.Item);
 	Else
 		DenyUploadFilesByExtension = True;
 	EndIf;
@@ -342,9 +342,9 @@ Procedure OnChangeSettingsOfFilesStorageInIB()
 EndProcedure
 
 &AtClient
-Procedure Attachable_WhenChangingTheDetails(Item, ShouldRefreshInterface = True)
+Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
 	
-	NameOfConstant = WhenChangingTheDetailsServer(Item.Name);
+	NameOfConstant = OnChangeAttributeServer(Item.Name);
 	RefreshReusableValues();
 	AfterChangeAttribute(NameOfConstant, ShouldRefreshInterface);
 	
@@ -375,7 +375,7 @@ Procedure RefreshApplicationInterface()
 EndProcedure
 
 &AtServer
-Function WhenChangingTheDetailsServer(TagName)
+Function OnChangeAttributeServer(TagName)
 	
 	DataPathAttribute = Items[TagName].DataPath;
 	

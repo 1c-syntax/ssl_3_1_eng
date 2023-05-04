@@ -14,7 +14,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	AdditionalData = Parameters.AdditionalData;
 	
-	Items.SupportInformation.Title = DigitalSignatureInternal.HeaderInformationForSupport();
+	Items.SupportInformation.Title = DigitalSignatureInternal.InfoHeadingForSupport();
 	
 	DigitalSignatureInternal.ToSetTheTitleOfTheBug(ThisObject,
 		Parameters.WarningTitle);
@@ -40,21 +40,21 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.FooterGroup.Visible = Parameters.ShowNeedHelp;
 	Items.SeparatorDecoration2.Visible = Parameters.ShowNeedHelp;
 	
-	VisibilityOfLinkToInstruction =
-		DigitalSignatureInternal.VisibilityOfLinkToInstructionsForTypicalProblemsWhenWorkingWithPrograms();
+	GuideRefVisibility =
+		DigitalSignatureInternal.VisibilityOfRefToAppsTroubleshootingGuide();
 	
 	If Parameters.ShowNeedHelp Then
 		Items.Instruction.Visible                     = Parameters.ShowInstruction;
-		Items.SupportInformation.Title = DigitalSignatureInternal.HeaderInformationForSupport();
+		Items.SupportInformation.Title = DigitalSignatureInternal.InfoHeadingForSupport();
 		Items.FormOpenApplicationsSettings.Visible = Parameters.ShowOpenApplicationsSettings;
 		Items.FormInstallExtension.Visible      = Parameters.ShowExtensionInstallation;
-		Items.InstructionClient.Visible = Items.InstructionClient.Visible And VisibilityOfLinkToInstruction 
+		Items.InstructionClient.Visible = Items.InstructionClient.Visible And GuideRefVisibility 
 			And ValueIsFilled(ErrorAnchorClient);
-		Items.InstructionServer.Visible = VisibilityOfLinkToInstruction And ValueIsFilled(ErrorAnchorServer);
+		Items.InstructionServer.Visible = GuideRefVisibility And ValueIsFilled(ErrorAnchorServer);
 		ErrorDescription = Parameters.ErrorDescription;
 	Else
-		Items.InstructionClient.Visible = Items.InstructionClient.Visible And VisibilityOfLinkToInstruction;
-		Items.InstructionServer.Visible = VisibilityOfLinkToInstruction;
+		Items.InstructionClient.Visible = Items.InstructionClient.Visible And GuideRefVisibility;
+		Items.InstructionServer.Visible = GuideRefVisibility;
 	EndIf;
 	
 	StandardSubsystemsServer.ResetWindowLocationAndSize(ThisObject);
