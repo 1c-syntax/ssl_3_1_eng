@@ -1,0 +1,768 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+	<Customizable>false</Customizable>
+	<CommandBarLocation>None</CommandBarLocation>
+	<VerticalScroll>useIfNecessary</VerticalScroll>
+	<AutoCommandBar name="FormCommandBar" id="-1"/>
+	<Events>
+		<Event name="NotificationProcessing">NotificationProcessing</Event>
+		<Event name="OnOpen">OnOpen</Event>
+		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
+	</Events>
+	<ChildItems>
+		<Pages name="StandaloneMode" id="3">
+			<EnableContentChange>true</EnableContentChange>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Standalone mode</v8:content>
+				</v8:item>
+			</Title>
+			<PagesRepresentation>None</PagesRepresentation>
+			<ExtendedTooltip name="StandaloneModeExtendedTooltip" id="116"/>
+			<ChildItems>
+				<Page name="StandaloneModeNotConfigured" id="52">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Standalone mode is not set up</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="StandaloneModeNotConfiguredExtendedTooltip" id="117"/>
+					<ChildItems>
+						<UsualGroup name="Group1" id="53">
+							<Group>Horizontal</Group>
+							<Behavior>Usual</Behavior>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="Group1ExtendedTooltip" id="118"/>
+							<ChildItems>
+								<PictureDecoration name="Decoration2" id="54">
+									<Width>5</Width>
+									<Height>2</Height>
+									<Picture>
+										<xr:Ref>CommonPicture.Information32</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<FileDragMode>AsFile</FileDragMode>
+									<ContextMenu name="Decoration2ContextMenu" id="55"/>
+									<ExtendedTooltip name="Decoration2ExtendedTooltip" id="119"/>
+								</PictureDecoration>
+								<UsualGroup name="Group4" id="100">
+									<Group>Vertical</Group>
+									<Behavior>Usual</Behavior>
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="Group4ExtendedTooltip" id="120"/>
+									<ChildItems>
+										<LabelDecoration name="Decoration1" id="56">
+											<Width>75</Width>
+											<Title formatted="false">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Standalone workstation is not configured.
+If you have no stable Internet connection (for example, in a business trip), you can download data to your computer and work offline. You can synchronize your data any time you gain access to the Internet.</v8:content>
+												</v8:item>
+											</Title>
+											<ContextMenu name="Decoration1ContextMenu" id="57"/>
+											<ExtendedTooltip name="Decoration1ExtendedTooltip" id="121"/>
+										</LabelDecoration>
+										<LabelDecoration name="Decoration4" id="101">
+											<AutoMaxWidth>false</AutoMaxWidth>
+											<Title formatted="false">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>1C:Enterprise platform must be installed on the computer to run the application in the standalone mode.</v8:content>
+												</v8:item>
+											</Title>
+											<ContextMenu name="Decoration4ContextMenu" id="102"/>
+											<ExtendedTooltip name="Decoration4ExtendedTooltip" id="122"/>
+										</LabelDecoration>
+										<Button name="HowToInstallOrUpdate1CEnterprisePlatfomVersion" id="99">
+											<Type>Hyperlink</Type>
+											<AutoMaxWidth>false</AutoMaxWidth>
+											<CommandName>Form.Command.HowToInstallOrUpdate1CEnterprisePlatfomVersion</CommandName>
+											<ExtendedTooltip name="HowToInstallOrUpdate1CEnterprisePlatfomVersionExtendedTooltip" id="123"/>
+										</Button>
+									</ChildItems>
+								</UsualGroup>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="Group8" id="58">
+							<Group>Horizontal</Group>
+							<Behavior>Usual</Behavior>
+							<Representation>NormalSeparation</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="Group8ExtendedTooltip" id="124"/>
+							<ChildItems>
+								<Button name="CreateStandaloneWorkstation" id="59">
+									<Type>UsualButton</Type>
+									<CommandName>Form.Command.CreateStandaloneWorkstation</CommandName>
+									<ExtendedTooltip name="CreateStandaloneWorkstation2ExtendedTooltip" id="125"/>
+								</Button>
+								<LabelDecoration name="Decoration3" id="60">
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Create a standalone workstation to operate without the Internet connection.</v8:content>
+										</v8:item>
+									</Title>
+									<ContextMenu name="Decoration3ContextMenu" id="61"/>
+									<ExtendedTooltip name="Decoration3ExtendedTooltip" id="126"/>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
+						<Button name="HowToConfigureStandaloneWorkstation" id="110">
+							<Type>Hyperlink</Type>
+							<CommandName>Form.Command.HowToConfigureStandaloneWorkstation</CommandName>
+							<ExtendedTooltip name="HowToConfigureStandaloneWorkstationExtendedTooltip" id="127"/>
+						</Button>
+					</ChildItems>
+				</Page>
+				<Page name="SingleStandaloneWorkstation" id="4">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Single standalone workstation</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="SingleStandaloneWorkstationExtendedTooltip" id="128"/>
+					<ChildItems>
+						<UsualGroup name="Group9" id="113">
+							<Group>Vertical</Group>
+							<Behavior>Usual</Behavior>
+							<Representation>NormalSeparation</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="Group9ExtendedTooltip" id="129"/>
+							<ChildItems>
+								<UsualGroup name="Group5" id="5">
+									<Group>Horizontal</Group>
+									<Behavior>Usual</Behavior>
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="Group5ExtendedTooltip" id="130"/>
+									<ChildItems>
+										<LabelDecoration name="Decoration5" id="72">
+											<Title formatted="false">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Standalone workstation:</v8:content>
+												</v8:item>
+											</Title>
+											<ContextMenu name="Decoration5ContextMenu" id="73"/>
+											<ExtendedTooltip name="Decoration5ExtendedTooltip" id="131"/>
+										</LabelDecoration>
+										<LabelField name="StandaloneWorkstation" id="67">
+											<DataPath>StandaloneWorkstation</DataPath>
+											<TitleLocation>None</TitleLocation>
+											<HorizontalAlign>Left</HorizontalAlign>
+											<AutoMaxWidth>false</AutoMaxWidth>
+											<ContextMenu name="StandaloneWorkstationContextMenu" id="68"/>
+											<ExtendedTooltip name="StandaloneWorkstationExtendedTooltip" id="132"/>
+										</LabelField>
+									</ChildItems>
+								</UsualGroup>
+								<UsualGroup name="Group3" id="76">
+									<Group>Horizontal</Group>
+									<Behavior>Usual</Behavior>
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="Group3ExtendedTooltip" id="133"/>
+									<ChildItems>
+										<LabelDecoration name="LastSynchronizationInfo" id="10">
+											<TextColor>style:NoteText</TextColor>
+											<Title formatted="false">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Last synchronization date: &lt;Date&gt;.</v8:content>
+												</v8:item>
+											</Title>
+											<ContextMenu name="LastSynchronizationInfoContextMenu" id="11"/>
+											<ExtendedTooltip name="LastSynchronizationInfoExtendedTooltip" id="134"/>
+										</LabelDecoration>
+										<Button name="GoToConflicts" id="114">
+											<Type>Hyperlink</Type>
+											<CommandName>Form.Command.GoToConflicts</CommandName>
+											<ExtendedTooltip name="GoToConflictsExtendedTooltip" id="135"/>
+										</Button>
+									</ChildItems>
+								</UsualGroup>
+								<UsualGroup name="Group2" id="14">
+									<Group>Horizontal</Group>
+									<Behavior>Usual</Behavior>
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="Group2ExtendedTooltip" id="136"/>
+									<ChildItems>
+										<UsualGroup name="Group10" id="183">
+											<Group>Horizontal</Group>
+											<Behavior>Usual</Behavior>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="Group10ExtendedTooltip" id="184"/>
+											<ChildItems>
+												<Button name="ChangeStandaloneWorkstation" id="15">
+													<Type>UsualButton</Type>
+													<Width>12</Width>
+													<CommandName>Form.Command.ChangeStandaloneWorkstation</CommandName>
+													<ExtendedTooltip name="ChangeStandaloneWorkstationExtendedTooltip" id="137"/>
+												</Button>
+												<Button name="DataToSendComposition" id="181">
+													<Type>UsualButton</Type>
+													<Representation>Picture</Representation>
+													<Width>3</Width>
+													<CommandName>Form.Command.DataToSendComposition</CommandName>
+													<ExtendedTooltip name="CompositionOfDataToSendExtendedTooltip" id="182"/>
+												</Button>
+											</ChildItems>
+										</UsualGroup>
+										<LabelDecoration name="DataTransferRestrictionsDetails" id="74">
+											<Title formatted="false">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>&lt;Data transmission restriction details&gt;</v8:content>
+												</v8:item>
+											</Title>
+											<ContextMenu name="DataTransferRestrictionsDetailsContextMenu" id="75"/>
+											<ExtendedTooltip name="DataTransferRestrictionsDetailsExtendedTooltip" id="138"/>
+										</LabelDecoration>
+									</ChildItems>
+								</UsualGroup>
+								<UsualGroup name="Group6" id="16">
+									<Group>Horizontal</Group>
+									<Behavior>Usual</Behavior>
+									<Representation>NormalSeparation</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="Group6ExtendedTooltip" id="139"/>
+									<ChildItems>
+										<Button name="StopSynchronizationWithStandaloneWorkstation" id="69">
+											<Type>UsualButton</Type>
+											<Width>16</Width>
+											<CommandName>Form.Command.StopSynchronizationWithStandaloneWorkstation</CommandName>
+											<ExtendedTooltip name="StopSynchronizationWithStandaloneWorkstationExtendedTooltip" id="140"/>
+										</Button>
+										<LabelDecoration name="Decoration8" id="18">
+											<Title formatted="false">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Stop synchronization with this standalone workstation.</v8:content>
+												</v8:item>
+											</Title>
+											<ContextMenu name="Decoration8ContextMenu" id="19"/>
+											<ExtendedTooltip name="Decoration8ExtendedTooltip" id="141"/>
+										</LabelDecoration>
+									</ChildItems>
+								</UsualGroup>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="Group7" id="20">
+							<Group>Horizontal</Group>
+							<Behavior>Usual</Behavior>
+							<Representation>NormalSeparation</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="Group7ExtendedTooltip" id="142"/>
+							<ChildItems>
+								<Button name="CreateStandaloneWorkstation1" id="21">
+									<Type>UsualButton</Type>
+									<CommandName>Form.Command.CreateStandaloneWorkstation</CommandName>
+									<ExtendedTooltip name="CreateStandaloneWorkstation21ExtendedTooltip" id="143"/>
+								</Button>
+								<LabelDecoration name="Decoration7" id="22">
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Create another standalone workstation to operate without an Internet connection.</v8:content>
+										</v8:item>
+									</Title>
+									<ContextMenu name="Decoration7ContextMenu" id="23"/>
+									<ExtendedTooltip name="Decoration7ExtendedTooltip" id="144"/>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
+						<Button name="HowToConfigureStandaloneWorkstation1" id="111">
+							<Type>Hyperlink</Type>
+							<CommandName>Form.Command.HowToConfigureStandaloneWorkstation</CommandName>
+							<ExtendedTooltip name="HowToConfigureStandaloneWorkstation1ExtendedTooltip" id="145"/>
+						</Button>
+					</ChildItems>
+				</Page>
+				<Page name="MultipleStandaloneWorkstations" id="24">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Multiple standalone workstations</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="MultipleStandaloneWorkstationsExtendedTooltip" id="146"/>
+					<ChildItems>
+						<Button name="GoToConflicts1" id="115">
+							<Type>Hyperlink</Type>
+							<CommandName>Form.Command.GoToConflicts</CommandName>
+							<ExtendedTooltip name="GoToConflicts1ExtendedTooltip" id="147"/>
+						</Button>
+						<Table name="StandaloneWorkstationsList" id="78">
+							<Representation>List</Representation>
+							<ReadOnly>true</ReadOnly>
+							<ChangeRowSet>false</ChangeRowSet>
+							<ChangeRowOrder>false</ChangeRowOrder>
+							<SelectionMode>SingleRow</SelectionMode>
+							<RowSelectionMode>Row</RowSelectionMode>
+							<AutoInsertNewRow>true</AutoInsertNewRow>
+							<EnableStartDrag>true</EnableStartDrag>
+							<EnableDrag>true</EnableDrag>
+							<FileDragMode>AsFile</FileDragMode>
+							<DataPath>StandaloneWorkstationsList</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Standalone workstations</v8:content>
+								</v8:item>
+							</Title>
+							<CommandSet>
+								<ExcludedCommand>Add</ExcludedCommand>
+								<ExcludedCommand>Change</ExcludedCommand>
+								<ExcludedCommand>Copy</ExcludedCommand>
+								<ExcludedCommand>Delete</ExcludedCommand>
+								<ExcludedCommand>EndEdit</ExcludedCommand>
+								<ExcludedCommand>MoveDown</ExcludedCommand>
+								<ExcludedCommand>MoveUp</ExcludedCommand>
+								<ExcludedCommand>SortListAsc</ExcludedCommand>
+								<ExcludedCommand>SortListDesc</ExcludedCommand>
+							</CommandSet>
+							<SearchStringLocation>None</SearchStringLocation>
+							<ViewStatusLocation>None</ViewStatusLocation>
+							<SearchControlLocation>None</SearchControlLocation>
+							<RowFilter xsi:nil="true"/>
+							<ContextMenu name="StandaloneWorkstationsListContextMenu" id="79">
+								<Autofill>false</Autofill>
+								<ChildItems>
+									<Button name="StandaloneWorkstationsListCreateStandaloneWorkstation21" id="103">
+										<Type>CommandBarButton</Type>
+										<CommandName>Form.Command.CreateStandaloneWorkstation</CommandName>
+										<ExtendedTooltip name="StandaloneWorkstationsListCreateStandaloneWorkstation21ExtendedTooltip" id="148"/>
+									</Button>
+									<Button name="StandaloneWorkstationsListChangeStandaloneWorkstationInList1" id="104">
+										<Type>CommandBarButton</Type>
+										<CommandName>Form.Command.ChangeStandaloneWorkstationInList</CommandName>
+										<ExtendedTooltip name="StandaloneWorkstationsListChangeStandaloneWorkstationInList1ExtendedTooltip" id="149"/>
+									</Button>
+									<Button name="StandaloneWorkstationListStopSynchronizationWithStandaloneWorkstation1" id="105">
+										<Type>CommandBarButton</Type>
+										<CommandName>Form.Command.StopSynchronizationWithStandaloneWorkstationInList</CommandName>
+										<Picture>
+											<xr:Ref>StdPicture.Delete</xr:Ref>
+											<xr:LoadTransparent>true</xr:LoadTransparent>
+										</Picture>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Stop synchronization</v8:content>
+											</v8:item>
+										</Title>
+										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+										<ExtendedTooltip name="StandaloneWorkstationListStopSynchronizationWithStandaloneWorkstation1ExtendedTooltip" id="150"/>
+									</Button>
+									<Button name="StandaloneWorkstationsListContextMenuCompositionOfDataToSend" id="172">
+										<Type>CommandBarButton</Type>
+										<CommandName>Form.Command.DataToSendComposition</CommandName>
+										<ExtendedTooltip name="StandaloneWorkstationsListContextMenuCompositionOfDataToSendExtendedTooltip" id="173"/>
+									</Button>
+									<ButtonGroup name="StandaloneWorkstationListGroup4" id="106">
+										<ExtendedTooltip name="StandaloneWorkstationListGroup4ExtendedTooltip" id="151"/>
+										<ChildItems>
+											<Button name="StandaloneWorkstationsListCopyToClipboard1" id="107">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Item.StandaloneWorkstationsList.StandardCommand.CopyToClipboard</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="StandaloneWorkstationListCopyToClipboard1ExtendedTooltip" id="152"/>
+											</Button>
+											<Button name="StandaloneWorkstationsListOutputList1" id="108">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Item.StandaloneWorkstationsList.StandardCommand.OutputList</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="StandaloneWorkstationListOutputList1ExtendedTooltip" id="153"/>
+											</Button>
+										</ChildItems>
+									</ButtonGroup>
+								</ChildItems>
+							</ContextMenu>
+							<AutoCommandBar name="StandaloneWorkstationsListCommandBar" id="80">
+								<Autofill>false</Autofill>
+								<ChildItems>
+									<Button name="StandaloneWorkstationsListCreateStandaloneWorkstation2" id="85">
+										<Type>CommandBarButton</Type>
+										<CommandName>Form.Command.CreateStandaloneWorkstation</CommandName>
+										<ExtendedTooltip name="StandaloneWorkstationsListCreateStandaloneWorkstation2ExtendedTooltip" id="154"/>
+									</Button>
+									<Button name="StandaloneWorkstationsListChangeStandaloneWorkstationInList" id="98">
+										<Type>CommandBarButton</Type>
+										<CommandName>Form.Command.ChangeStandaloneWorkstationInList</CommandName>
+										<ExtendedTooltip name="StandaloneWorkstationsListChangeStandaloneWorkstationInListExtendedTooltip" id="155"/>
+									</Button>
+									<Button name="StandaloneWorkstationListStopSynchronizationWithStandaloneWorkstation" id="87">
+										<Type>CommandBarButton</Type>
+										<CommandName>Form.Command.StopSynchronizationWithStandaloneWorkstationInList</CommandName>
+										<Picture>
+											<xr:Ref>StdPicture.Delete</xr:Ref>
+											<xr:LoadTransparent>true</xr:LoadTransparent>
+										</Picture>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Stop synchronization</v8:content>
+											</v8:item>
+										</Title>
+										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+										<ExtendedTooltip name="StandaloneWorkstationListStopSynchronizationWithStandaloneWorkstationExtendedTooltip" id="156"/>
+									</Button>
+									<Button name="StandaloneWorkstationsListCompositionOfDataToSend" id="170">
+										<Type>CommandBarButton</Type>
+										<CommandName>Form.Command.DataToSendComposition</CommandName>
+										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+										<ExtendedTooltip name="StandaloneWorkstationsListCompositionOfDataToSendExtendedTooltip" id="171"/>
+									</Button>
+									<ButtonGroup name="StandaloneWorkstationListGroup3" id="95">
+										<ExtendedTooltip name="StandaloneWorkstationListGroup3ExtendedTooltip" id="157"/>
+										<ChildItems>
+											<Button name="StandaloneWorkstationsListRefresh" id="88">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.Refresh</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="StandaloneWorkstationListRefreshExtendedTooltip" id="158"/>
+											</Button>
+										</ChildItems>
+									</ButtonGroup>
+									<ButtonGroup name="StandaloneWorkstationListGroup1" id="93">
+										<ExtendedTooltip name="StandaloneWorkstationListGroup1ExtendedTooltip" id="159"/>
+										<ChildItems>
+											<Button name="StandaloneWorkstationsListFind" id="89">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Item.StandaloneWorkstationsList.StandardCommand.Find</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="StandaloneWorkstationListFindExtendedTooltip" id="160"/>
+											</Button>
+											<Button name="StandaloneWorkstationsListCancelSearch" id="90">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Item.StandaloneWorkstationsList.StandardCommand.CancelSearch</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="StandaloneWorkstationListCancelSearchExtendedTooltip" id="161"/>
+											</Button>
+										</ChildItems>
+									</ButtonGroup>
+									<ButtonGroup name="StandaloneWorkstationListGroup2" id="94">
+										<ExtendedTooltip name="StandaloneWorkstationListGroup2ExtendedTooltip" id="162"/>
+										<ChildItems>
+											<Button name="StandaloneWorkstationsListCopyToClipboard" id="92">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Item.StandaloneWorkstationsList.StandardCommand.CopyToClipboard</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="StandaloneWorkstationListCopyToClipboardExtendedTooltip" id="163"/>
+											</Button>
+											<Button name="StandaloneWorkstationsListOutputList" id="91">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Item.StandaloneWorkstationsList.StandardCommand.OutputList</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="StandaloneWorkstationListOutputListExtendedTooltip" id="164"/>
+											</Button>
+										</ChildItems>
+									</ButtonGroup>
+									<Button name="StandaloneWorkstationListButton1" id="109">
+										<Type>CommandBarButton</Type>
+										<CommandName>Form.StandardCommand.Help</CommandName>
+										<ExtendedTooltip name="StandaloneWorkstationListButton1ExtendedTooltip" id="165"/>
+									</Button>
+								</ChildItems>
+							</AutoCommandBar>
+							<ExtendedTooltip name="StandaloneWorkstationsListExtendedTooltip" id="166"/>
+							<SearchStringAddition name="StandaloneWorkstationsListSearchString" id="185">
+								<AdditionSource>
+									<Item>StandaloneWorkstationsList</Item>
+									<Type>SearchStringRepresentation</Type>
+								</AdditionSource>
+								<ContextMenu name="StandaloneWorkstationsListSearchStringContextMenu" id="186"/>
+								<ExtendedTooltip name="StandaloneWorkstationsListSearchStringExtendedTooltip" id="187"/>
+							</SearchStringAddition>
+							<ViewStatusAddition name="StandaloneWorkstationsListViewStatus" id="188">
+								<AdditionSource>
+									<Item>StandaloneWorkstationsList</Item>
+									<Type>ViewStatusRepresentation</Type>
+								</AdditionSource>
+								<ContextMenu name="StandaloneWorkstationsListViewStatusContextMenu" id="189"/>
+								<ExtendedTooltip name="StandaloneWorkstationsListViewStatusExtendedTooltip" id="190"/>
+							</ViewStatusAddition>
+							<SearchControlAddition name="StandaloneWorkstationsListSearchControl" id="191">
+								<AdditionSource>
+									<Item>StandaloneWorkstationsList</Item>
+									<Type>SearchControl</Type>
+								</AdditionSource>
+								<ContextMenu name="StandaloneWorkstationsListSearchControlContextMenu" id="192"/>
+								<ExtendedTooltip name="StandaloneWorkstationsListSearchControlExtendedTooltip" id="193"/>
+							</SearchControlAddition>
+							<Events>
+								<Event name="Selection">StandaloneWorkstationsListSelection</Event>
+							</Events>
+							<ChildItems>
+								<InputField name="StandaloneWorkstationsListStandaloneWorkstation" id="81">
+									<DataPath>StandaloneWorkstationsList.StandaloneWorkstation</DataPath>
+									<EditMode>EnterOnInput</EditMode>
+									<ContextMenu name="StandaloneWorkstationsListStandaloneWorkstationContextMenu" id="82"/>
+									<ExtendedTooltip name="StandaloneWorkstationsListStandaloneWorkstationExtendedTooltip" id="167"/>
+								</InputField>
+								<InputField name="StandaloneWorkstationsListSynchronizationDatePresentation" id="96">
+									<DataPath>StandaloneWorkstationsList.SynchronizationDatePresentation</DataPath>
+									<EditMode>EnterOnInput</EditMode>
+									<Format>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>DLF=DDT</v8:content>
+										</v8:item>
+									</Format>
+									<EditFormat>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>DLF=DDT</v8:content>
+										</v8:item>
+									</EditFormat>
+									<ContextMenu name="StandaloneWorkstationsListSynchronizationDatePresentationContextMenu" id="97"/>
+									<ExtendedTooltip name="StandaloneWorkstationsListSynchronizationDatePresentationExtendedTooltip" id="168"/>
+								</InputField>
+							</ChildItems>
+						</Table>
+						<Button name="HowToConfigureStandaloneWorkstation2" id="112">
+							<Type>Hyperlink</Type>
+							<CommandName>Form.Command.HowToConfigureStandaloneWorkstation</CommandName>
+							<ExtendedTooltip name="HowToConfigureStandaloneWorkstation2ExtendedTooltip" id="169"/>
+						</Button>
+					</ChildItems>
+				</Page>
+			</ChildItems>
+		</Pages>
+	</ChildItems>
+	<Attributes>
+		<Attribute name="StandaloneWorkstation" id="2">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Standalone workstation</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:TypeSet>cfg:ExchangePlanRef</v8:TypeSet>
+			</Type>
+		</Attribute>
+		<Attribute name="StandaloneWorkstationsList" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Standalone workstation list</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>v8:ValueTable</v8:Type>
+			</Type>
+			<Columns>
+				<Column name="StandaloneWorkstation" id="1">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Standalone workstation</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:TypeSet>cfg:ExchangePlanRef</v8:TypeSet>
+					</Type>
+				</Column>
+				<Column name="SynchronizationDatePresentation" id="2">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Last synchronization</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+			</Columns>
+		</Attribute>
+		<Attribute name="BigFilesTransferSupported" id="3">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+	</Attributes>
+	<Commands>
+		<Command name="ChangeStandaloneWorkstation" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Set up…</v8:content>
+				</v8:item>
+			</Title>
+			<Picture>
+				<xr:Ref>StdPicture.Change</xr:Ref>
+				<xr:LoadTransparent>true</xr:LoadTransparent>
+			</Picture>
+			<Action>ChangeStandaloneWorkstation</Action>
+			<Representation>TextPicture</Representation>
+			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="StopSynchronizationWithStandaloneWorkstation" id="2">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Stop</v8:content>
+				</v8:item>
+			</Title>
+			<Picture>
+				<xr:Ref>StdPicture.Stop</xr:Ref>
+				<xr:LoadTransparent>true</xr:LoadTransparent>
+			</Picture>
+			<Action>StopSynchronizationWithStandaloneWorkstation</Action>
+			<Representation>TextPicture</Representation>
+			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="CreateStandaloneWorkstation" id="3">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Create…</v8:content>
+				</v8:item>
+			</Title>
+			<Picture>
+				<xr:Ref>StdPicture.CreateListItem</xr:Ref>
+				<xr:LoadTransparent>true</xr:LoadTransparent>
+			</Picture>
+			<Action>CreateStandaloneWorkstation</Action>
+			<Representation>TextPicture</Representation>
+			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="Refresh" id="4">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Update</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Update</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Shortcut>F5</Shortcut>
+			<Picture>
+				<xr:Ref>StdPicture.Refresh</xr:Ref>
+				<xr:LoadTransparent>true</xr:LoadTransparent>
+			</Picture>
+			<Action>Refresh</Action>
+			<Representation>Picture</Representation>
+			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="ChangeStandaloneWorkstationInList" id="5">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Change</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Change standalone workstation in list</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Picture>
+				<xr:Ref>StdPicture.Change</xr:Ref>
+				<xr:LoadTransparent>true</xr:LoadTransparent>
+			</Picture>
+			<Action>ChangeStandaloneWorkstationInList</Action>
+			<Representation>TextPicture</Representation>
+			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="StopSynchronizationWithStandaloneWorkstationInList" id="6">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Stop synchronization</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Stop synchronization with the standalone workstation in list.</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>StopSynchronizationWithStandaloneWorkstationInList</Action>
+			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="HowToInstallOrUpdate1CEnterprisePlatfomVersion" id="7">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>How to install or update 1C:Enterprise platform</v8:content>
+				</v8:item>
+			</Title>
+			<Action>HowToInstallOrUpdate1CEnterprisePlatfomVersion</Action>
+			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="HowToConfigureStandaloneWorkstation" id="8">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>How to set up a standalone workstation</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>How to set up a standalone workstation</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>HowToConfigureStandaloneWorkstation</Action>
+			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="GoToConflicts" id="9">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>No warnings</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Go to data synchronization conflicts</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>GoToConflicts</Action>
+			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="DataToSendComposition" id="10">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>View data before sending</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Data to be sent</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Picture>
+				<xr:Ref>StdPicture.InputFieldOpen</xr:Ref>
+				<xr:LoadTransparent>true</xr:LoadTransparent>
+			</Picture>
+			<Action>DataToSendComposition</Action>
+			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+	</Commands>
+</Form>

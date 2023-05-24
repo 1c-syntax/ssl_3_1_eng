@@ -1,0 +1,869 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
+	<AutoSaveDataInSettings>Use</AutoSaveDataInSettings>
+	<Customizable>false</Customizable>
+	<CommandBarLocation>Bottom</CommandBarLocation>
+	<AutoCommandBar name="FormCommandBar" id="-1">
+		<HorizontalAlign>Right</HorizontalAlign>
+		<Autofill>false</Autofill>
+	</AutoCommandBar>
+	<Events>
+		<Event name="OnOpen">OnOpen</Event>
+		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
+		<Event name="OnClose">OnClose</Event>
+	</Events>
+	<ChildItems>
+		<Pages name="WizardPages" id="3">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Wizard pages</v8:content>
+				</v8:item>
+			</Title>
+			<PagesRepresentation>None</PagesRepresentation>
+			<ExtendedTooltip name="WizardPagesExtendedTooltip" id="268"/>
+			<ChildItems>
+				<Page name="BackupParametersSetupPage" id="6">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Backup parameters setup page</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="BackupParametersSetupPageExtendedTooltip" id="283"/>
+					<ChildItems>
+						<Pages name="Modes" id="434">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Modes</v8:content>
+								</v8:item>
+							</Title>
+							<PagesRepresentation>None</PagesRepresentation>
+							<ExtendedTooltip name="Modes1ExtendedTooltip" id="435"/>
+							<ChildItems>
+								<Page name="Normal" id="436">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Normal</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="NormalExtendedTooltip" id="437"/>
+									<ChildItems>
+										<CheckBoxField name="CreateBackupAutomatically" id="405">
+											<DataPath>Object.CreateBackupAutomatically</DataPath>
+											<TitleLocation>Right</TitleLocation>
+											<ToolTipRepresentation>Button</ToolTipRepresentation>
+											<CheckBoxType>Auto</CheckBoxType>
+											<ContextMenu name="CreateBackupAutomaticallyContextMenu" id="406"/>
+											<ExtendedTooltip name="CreateBackupAutomaticallyExtendedTooltip" id="407">
+												<Title formatted="false">
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>It is recommended that you disable backup
+only if you use third-party backup tools.</v8:content>
+													</v8:item>
+												</Title>
+											</ExtendedTooltip>
+											<Events>
+												<Event name="OnChange">CreateBackupAutomaticallyOnChange</Event>
+											</Events>
+										</CheckBoxField>
+										<UsualGroup name="SelectAutomaticBackupOption" id="47">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Automatic backup options</v8:content>
+												</v8:item>
+											</Title>
+											<Behavior>Usual</Behavior>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="SelectAutomaticBackupOptionExtendedTooltip" id="284"/>
+											<ChildItems>
+												<LabelDecoration name="Decoration1" id="410">
+													<Width>1</Width>
+													<ContextMenu name="Decoration1ContextMenu" id="411"/>
+													<ExtendedTooltip name="Decoration1ExtendedTooltip" id="412"/>
+												</LabelDecoration>
+												<UsualGroup name="Group1" id="424">
+													<Group>Vertical</Group>
+													<Behavior>Usual</Behavior>
+													<Representation>None</Representation>
+													<ShowTitle>false</ShowTitle>
+													<ExtendedTooltip name="Group1ExtendedTooltip" id="425"/>
+													<ChildItems>
+														<UsualGroup name="Group3" id="432">
+															<Behavior>Usual</Behavior>
+															<Representation>None</Representation>
+															<ShowTitle>false</ShowTitle>
+															<ExtendedTooltip name="Group3ExtendedTooltip" id="433"/>
+															<ChildItems>
+																<RadioButtonField name="OptionScheduled" id="421">
+																	<DataPath>Object.ExecutionOption</DataPath>
+																	<TitleLocation>None</TitleLocation>
+																	<RadioButtonType>Auto</RadioButtonType>
+																	<ColumnsCount>1</ColumnsCount>
+																	<ChoiceList>
+																		<xr:Item>
+																			<xr:Presentation/>
+																			<xr:CheckState>0</xr:CheckState>
+																			<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																				<Presentation>
+																					<v8:item>
+																						<v8:lang>en</v8:lang>
+																						<v8:content>Scheduled:</v8:content>
+																					</v8:item>
+																				</Presentation>
+																				<Value xsi:type="xs:string">Schedule3</Value>
+																			</xr:Value>
+																		</xr:Item>
+																	</ChoiceList>
+																	<ContextMenu name="ScheduleOptionContextMenu" id="422"/>
+																	<ExtendedTooltip name="ScheduleOptionExtendedTooltip" id="423"/>
+																	<Events>
+																		<Event name="OnChange">BackupOptionOnChange</Event>
+																	</Events>
+																</RadioButtonField>
+																<Button name="ModifySchedule" id="238">
+																	<Type>Hyperlink</Type>
+																	<CommandName>Form.Command.ModifySchedule</CommandName>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Schedule not set</v8:content>
+																		</v8:item>
+																	</Title>
+																	<ExtendedTooltip name="EditScheduleExtendedTooltip" id="289"/>
+																</Button>
+															</ChildItems>
+														</UsualGroup>
+														<LabelDecoration name="ScheduleOptionDecoration" id="426">
+															<AutoMaxWidth>false</AutoMaxWidth>
+															<TextColor>style:NoteText</TextColor>
+															<Title formatted="false">
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>When you schedule a backup, ensure that the application will be running at the backup
+start. Otherwise, the backup fails. All user sessions are terminated during
+backup.</v8:content>
+																</v8:item>
+															</Title>
+															<TitleHeight>3</TitleHeight>
+															<ContextMenu name="ScheduleOptionDecorationContextMenu" id="427"/>
+															<ExtendedTooltip name="ScheduleOptionDecorationExtendedTooltip" id="428"/>
+														</LabelDecoration>
+														<RadioButtonField name="OnExitOption" id="245">
+															<DataPath>Object.ExecutionOption</DataPath>
+															<TitleLocation>None</TitleLocation>
+															<RadioButtonType>Auto</RadioButtonType>
+															<ColumnsCount>1</ColumnsCount>
+															<ChoiceList>
+																<xr:Item>
+																	<xr:Presentation/>
+																	<xr:CheckState>0</xr:CheckState>
+																	<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																		<Presentation>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>On exit</v8:content>
+																			</v8:item>
+																		</Presentation>
+																		<Value xsi:type="xs:string">OnExit</Value>
+																	</xr:Value>
+																</xr:Item>
+															</ChoiceList>
+															<ContextMenu name="OnExitOptionContextMenu" id="246"/>
+															<ExtendedTooltip name="OnExitOptionExtendedTooltip" id="285"/>
+															<Events>
+																<Event name="OnChange">BackupOptionOnChange</Event>
+															</Events>
+														</RadioButtonField>
+														<LabelDecoration name="OnExitOptionDecoration" id="429">
+															<AutoMaxWidth>false</AutoMaxWidth>
+															<TextColor>style:NoteText</TextColor>
+															<Title formatted="false">
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>On exit, the administrator is prompted to back up data.All user sessions are terminated during backup.</v8:content>
+																</v8:item>
+															</Title>
+															<TitleHeight>2</TitleHeight>
+															<ContextMenu name="OnExitOptionDecorationContextMenu" id="430"/>
+															<ExtendedTooltip name="OnExitOptionDecorationExtendedTooltip" id="431"/>
+														</LabelDecoration>
+													</ChildItems>
+												</UsualGroup>
+											</ChildItems>
+										</UsualGroup>
+									</ChildItems>
+								</Page>
+								<Page name="Basic" id="438">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Basic</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="BasicExtendedTooltip" id="439"/>
+									<ChildItems>
+										<CheckBoxField name="CreateBackupAutomatically1" id="440">
+											<DataPath>Object.CreateBackupAutomatically</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Prompt for backup on exit</v8:content>
+												</v8:item>
+											</Title>
+											<TitleLocation>Right</TitleLocation>
+											<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+											<CheckBoxType>Auto</CheckBoxType>
+											<ContextMenu name="CreateBackupAutomatically1ContextMenu" id="441"/>
+											<ExtendedTooltip name="CreateBackupAutomatically1ExtendedTooltip" id="442">
+												<AutoMaxWidth>false</AutoMaxWidth>
+												<Title formatted="false">
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>It is recommended that you disable backup
+only if you use third-party backup tools.</v8:content>
+													</v8:item>
+												</Title>
+											</ExtendedTooltip>
+											<Events>
+												<Event name="OnChange">CreateBackupAutomaticallyOnChange</Event>
+											</Events>
+										</CheckBoxField>
+									</ChildItems>
+								</Page>
+							</ChildItems>
+						</Pages>
+						<UsualGroup name="GroupParameters" id="377">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Parameters</v8:content>
+								</v8:item>
+							</Title>
+							<Group>Vertical</Group>
+							<Behavior>Usual</Behavior>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="ParametersGroupExtendedTooltip" id="378"/>
+							<ChildItems>
+								<UsualGroup name="BackupDirectoryGroup" id="52">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Create copy path</v8:content>
+										</v8:item>
+									</Title>
+									<Group>Vertical</Group>
+									<Behavior>Usual</Behavior>
+									<Representation>NormalSeparation</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="BackupDirectoryGroupExtendedTooltip" id="290"/>
+									<ChildItems>
+										<InputField name="PathToBackupDirectory" id="55">
+											<DataPath>Object.BackupDirectory</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Folder to store backups</v8:content>
+												</v8:item>
+											</Title>
+											<TitleLocation>Top</TitleLocation>
+											<ToolTipRepresentation>Button</ToolTipRepresentation>
+											<HorizontalAlign>Left</HorizontalAlign>
+											<AutoMaxWidth>false</AutoMaxWidth>
+											<ChoiceButton>true</ChoiceButton>
+											<ContextMenu name="BackupDirectory2ContextMenu" id="56"/>
+											<ExtendedTooltip name="BackupDirectory2ExtendedTooltip" id="292">
+												<Title formatted="false">
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>It is recommended that you back up to another computer or an external storage media.</v8:content>
+													</v8:item>
+												</Title>
+											</ExtendedTooltip>
+											<Events>
+												<Event name="StartChoice">BackupDirectory2StartChoice</Event>
+											</Events>
+										</InputField>
+									</ChildItems>
+								</UsualGroup>
+								<UsualGroup name="AuthorizationGroup" id="254">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Authorization</v8:content>
+										</v8:item>
+									</Title>
+									<Group>Vertical</Group>
+									<Behavior>Usual</Behavior>
+									<Representation>NormalSeparation</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="AuthorizationGroupExtendedTooltip" id="294"/>
+									<ChildItems>
+										<InputField name="IBAdministrator1" id="255">
+											<DataPath>IBAdministrator</DataPath>
+											<Enabled>false</Enabled>
+											<HorizontalStretch>false</HorizontalStretch>
+											<ContextMenu name="IBAdministrator1ContextMenu" id="256"/>
+											<ExtendedTooltip name="IBAdministrator1ExtendedTooltip" id="295"/>
+										</InputField>
+										<UsualGroup name="Group2" id="396">
+											<Behavior>Usual</Behavior>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="Group2ExtendedTooltip" id="397"/>
+											<ChildItems>
+												<InputField name="IBAdministratorPassword1" id="257">
+													<DataPath>IBAdministratorPassword</DataPath>
+													<HorizontalStretch>false</HorizontalStretch>
+													<PasswordMode>true</PasswordMode>
+													<ContextMenu name="IBAdministratorPassword1ContextMenu" id="258"/>
+													<ExtendedTooltip name="IBAdministratorPassword1ExtendedTooltip" id="296"/>
+												</InputField>
+											</ChildItems>
+										</UsualGroup>
+									</ChildItems>
+								</UsualGroup>
+								<UsualGroup name="SelectOldFilesDeletionModeGroup" id="62">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Store backups:</v8:content>
+										</v8:item>
+									</Title>
+									<Behavior>Usual</Behavior>
+									<Representation>None</Representation>
+									<ExtendedTooltip name="SelectOldFilesDeletionModeGroupExtendedTooltip" id="297"/>
+									<ChildItems>
+										<LabelDecoration name="Decoration3" id="418">
+											<Width>1</Width>
+											<ContextMenu name="Decoration3ContextMenu" id="419"/>
+											<ExtendedTooltip name="Decoration3ExtendedTooltip" id="420"/>
+										</LabelDecoration>
+										<UsualGroup name="Group5" id="416">
+											<Group>Vertical</Group>
+											<Behavior>Usual</Behavior>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="Group5ExtendedTooltip" id="417"/>
+											<ChildItems>
+												<RadioButtonField name="BackupDirectoryRestrictionType" id="66">
+													<DataPath>Object.RestrictionType</DataPath>
+													<TitleLocation>None</TitleLocation>
+													<VerticalAlign>Top</VerticalAlign>
+													<RadioButtonType>Auto</RadioButtonType>
+													<ColumnsCount>1</ColumnsCount>
+													<ChoiceList>
+														<xr:Item>
+															<xr:Presentation/>
+															<xr:CheckState>0</xr:CheckState>
+															<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																<Presentation>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>All</v8:content>
+																	</v8:item>
+																</Presentation>
+																<Value xsi:type="xs:string">StoreAll</Value>
+															</xr:Value>
+														</xr:Item>
+													</ChoiceList>
+													<ContextMenu name="BackupDirectoryRestrictionTypeContextMenu" id="67"/>
+													<ExtendedTooltip name="BackupDirectoryRestrictionTypeExtendedTooltip" id="300"/>
+													<Events>
+														<Event name="OnChange">BackupDirectoryRestrictionTypeOnChange</Event>
+													</Events>
+												</RadioButtonField>
+												<UsualGroup name="Group6" id="448">
+													<Behavior>Usual</Behavior>
+													<Representation>None</Representation>
+													<United>false</United>
+													<ShowTitle>false</ShowTitle>
+													<ExtendedTooltip name="Group6ExtendedTooltip" id="449"/>
+													<ChildItems>
+														<RadioButtonField name="BackupDirectoryRestrictionType1" id="443">
+															<DataPath>Object.RestrictionType</DataPath>
+															<TitleLocation>None</TitleLocation>
+															<VerticalAlign>Top</VerticalAlign>
+															<RadioButtonType>Auto</RadioButtonType>
+															<ColumnsCount>1</ColumnsCount>
+															<ChoiceList>
+																<xr:Item>
+																	<xr:Presentation/>
+																	<xr:CheckState>0</xr:CheckState>
+																	<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																		<Presentation>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>For the last</v8:content>
+																			</v8:item>
+																		</Presentation>
+																		<Value xsi:type="xs:string">ByPeriod</Value>
+																	</xr:Value>
+																</xr:Item>
+															</ChoiceList>
+															<ContextMenu name="BackupDirectoryRestrictionType1ContextMenu" id="444"/>
+															<ExtendedTooltip name="BackupDirectoryRestrictionType1ExtendedTooltip" id="445"/>
+															<Events>
+																<Event name="OnChange">BackupDirectoryRestrictionTypeOnChange</Event>
+															</Events>
+														</RadioButtonField>
+														<UsualGroup name="GroupStoreLastBackupsForPeriod" id="69">
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Store backups for the period</v8:content>
+																</v8:item>
+															</Title>
+															<Behavior>Usual</Behavior>
+															<Representation>None</Representation>
+															<ShowTitle>false</ShowTitle>
+															<ExtendedTooltip name="GroupStoreLastBackupsForPeriodExtendedTooltip" id="302"/>
+															<ChildItems>
+																<InputField name="LastRelevantArchiveDate" id="70">
+																	<DataPath>Object.ValueInUOMs</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Store backups for the period</v8:content>
+																		</v8:item>
+																	</Title>
+																	<TitleLocation>None</TitleLocation>
+																	<Width>6</Width>
+																	<SpinButton>true</SpinButton>
+																	<MinValue xsi:type="xs:decimal">1</MinValue>
+																	<ContextMenu name="LastRelevantArchiveDateContextMenu" id="71"/>
+																	<ExtendedTooltip name="LastRelevantArchiveDateExtendedTooltip" id="303"/>
+																</InputField>
+																<InputField name="BackupRetentionPeriodUnitOfMeasurement" id="72">
+																	<DataPath>Object.PeriodUOM</DataPath>
+																	<TitleLocation>None</TitleLocation>
+																	<Width>7</Width>
+																	<ExtendedEdit>false</ExtendedEdit>
+																	<ListChoiceMode>true</ListChoiceMode>
+																	<ChooseType>false</ChooseType>
+																	<TextEdit>false</TextEdit>
+																	<ChoiceList>
+																		<xr:Item>
+																			<xr:Presentation/>
+																			<xr:CheckState>0</xr:CheckState>
+																			<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																				<Presentation>
+																					<v8:item>
+																						<v8:lang>en</v8:lang>
+																						<v8:content>days</v8:content>
+																					</v8:item>
+																				</Presentation>
+																				<Value xsi:type="xs:string">Day</Value>
+																			</xr:Value>
+																		</xr:Item>
+																		<xr:Item>
+																			<xr:Presentation/>
+																			<xr:CheckState>0</xr:CheckState>
+																			<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																				<Presentation>
+																					<v8:item>
+																						<v8:lang>en</v8:lang>
+																						<v8:content>weeks</v8:content>
+																					</v8:item>
+																				</Presentation>
+																				<Value xsi:type="xs:string">Week</Value>
+																			</xr:Value>
+																		</xr:Item>
+																		<xr:Item>
+																			<xr:Presentation/>
+																			<xr:CheckState>0</xr:CheckState>
+																			<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																				<Presentation>
+																					<v8:item>
+																						<v8:lang>en</v8:lang>
+																						<v8:content>months</v8:content>
+																					</v8:item>
+																				</Presentation>
+																				<Value xsi:type="xs:string">Month</Value>
+																			</xr:Value>
+																		</xr:Item>
+																		<xr:Item>
+																			<xr:Presentation/>
+																			<xr:CheckState>0</xr:CheckState>
+																			<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																				<Presentation>
+																					<v8:item>
+																						<v8:lang>en</v8:lang>
+																						<v8:content>years</v8:content>
+																					</v8:item>
+																				</Presentation>
+																				<Value xsi:type="xs:string">Year</Value>
+																			</xr:Value>
+																		</xr:Item>
+																	</ChoiceList>
+																	<DropListWidth>7</DropListWidth>
+																	<ContextMenu name="BackupRetentionPeriodUnitOfMeasurementContextMenu" id="73"/>
+																	<ExtendedTooltip name="BackupRetentionPeriodUnitOfMeasurementExtendedTooltip" id="304"/>
+																	<Events>
+																		<Event name="Clearing">BackupRetentionPeriodUnitOfMeasurementClearing</Event>
+																	</Events>
+																</InputField>
+															</ChildItems>
+														</UsualGroup>
+													</ChildItems>
+												</UsualGroup>
+												<UsualGroup name="Group7" id="450">
+													<Behavior>Usual</Behavior>
+													<Representation>None</Representation>
+													<United>false</United>
+													<ShowTitle>false</ShowTitle>
+													<ExtendedTooltip name="Group7ExtendedTooltip" id="451"/>
+													<ChildItems>
+														<RadioButtonField name="BackupDirectoryRestrictionType2" id="452">
+															<DataPath>Object.RestrictionType</DataPath>
+															<TitleLocation>None</TitleLocation>
+															<VerticalAlign>Top</VerticalAlign>
+															<RadioButtonType>Auto</RadioButtonType>
+															<ColumnsCount>1</ColumnsCount>
+															<ChoiceList>
+																<xr:Item>
+																	<xr:Presentation/>
+																	<xr:CheckState>0</xr:CheckState>
+																	<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																		<Presentation>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Recent</v8:content>
+																			</v8:item>
+																		</Presentation>
+																		<Value xsi:type="xs:string">ByCount</Value>
+																	</xr:Value>
+																</xr:Item>
+															</ChoiceList>
+															<ContextMenu name="BackupDirectoryRestrictionType2ContextMenu" id="453"/>
+															<ExtendedTooltip name="BackupDirectoryRestrictionType2ExtendedTooltip" id="454"/>
+															<Events>
+																<Event name="OnChange">BackupDirectoryRestrictionTypeOnChange</Event>
+															</Events>
+														</RadioButtonField>
+														<UsualGroup name="BackupsCountInDirectoryGroup" id="356">
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Backups in the directory</v8:content>
+																</v8:item>
+															</Title>
+															<Behavior>Usual</Behavior>
+															<Representation>None</Representation>
+															<ShowTitle>false</ShowTitle>
+															<ExtendedTooltip name="BackupsCountInDirectoryGroupExtendedTooltip" id="357"/>
+															<ChildItems>
+																<InputField name="BackupsCountInDirectory" id="74">
+																	<DataPath>Object.CopiesCount</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Max number of backups</v8:content>
+																		</v8:item>
+																	</Title>
+																	<TitleLocation>None</TitleLocation>
+																	<Width>6</Width>
+																	<SpinButton>true</SpinButton>
+																	<MinValue xsi:type="xs:decimal">2</MinValue>
+																	<ContextMenu name="BackupsCountInDirectoryContextMenu" id="75"/>
+																	<ExtendedTooltip name="BackupsCountInDirectoryExtendedTooltip" id="305"/>
+																</InputField>
+																<LabelDecoration name="PiecesDecoration" id="353">
+																	<AutoMaxWidth>false</AutoMaxWidth>
+																	<Title formatted="false">
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>backups</v8:content>
+																		</v8:item>
+																	</Title>
+																	<ContextMenu name="PiecesDecorationContextMenu" id="354"/>
+																	<ExtendedTooltip name="PiecesDecorationExtendedTooltip" id="355"/>
+																</LabelDecoration>
+															</ChildItems>
+														</UsualGroup>
+													</ChildItems>
+												</UsualGroup>
+											</ChildItems>
+										</UsualGroup>
+									</ChildItems>
+								</UsualGroup>
+							</ChildItems>
+						</UsualGroup>
+					</ChildItems>
+				</Page>
+				<Page name="AdditionalSettings" id="204">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Advanced settings</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="AdditionalSettingsExtendedTooltip" id="330"/>
+					<ChildItems>
+						<UsualGroup name="ConnectionErrorHorizontalGroup" id="207">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Connection error horizontal group</v8:content>
+								</v8:item>
+							</Title>
+							<Behavior>Usual</Behavior>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="ConnectionErrorHorizontalGroupExtendedTooltip" id="332"/>
+							<ChildItems>
+								<PictureDecoration name="Picture12" id="208">
+									<SkipOnInput>false</SkipOnInput>
+									<Picture>
+										<xr:Ref>CommonPicture.Warning32</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<FileDragMode>AsFile</FileDragMode>
+									<ContextMenu name="Picture12ContextMenu" id="209"/>
+									<ExtendedTooltip name="Picture12ExtendedTooltip" id="333"/>
+								</PictureDecoration>
+								<UsualGroup name="ErrorsGroup" id="259">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Errors</v8:content>
+										</v8:item>
+									</Title>
+									<Group>Vertical</Group>
+									<Behavior>Usual</Behavior>
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="ErrorsGroupExtendedTooltip" id="334"/>
+									<ChildItems>
+										<InputField name="ConnectionErrorFound" id="210">
+											<DataPath>ConnectionErrorFound</DataPath>
+											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Connection check error</v8:content>
+												</v8:item>
+											</Title>
+											<TitleLocation>None</TitleLocation>
+											<VerticalAlign>Center</VerticalAlign>
+											<Width>30</Width>
+											<Height>5</Height>
+											<VerticalStretch>false</VerticalStretch>
+											<MultiLine>true</MultiLine>
+											<BorderColor>style:FormBackColor</BorderColor>
+											<ContextMenu name="ConnectionErrorFoundContextMenu" id="211"/>
+											<ExtendedTooltip name="ConnectionErrorFoundExtendedTooltip" id="335"/>
+										</InputField>
+										<LabelDecoration name="GoToEventLogLabel" id="234">
+											<AutoMaxWidth>false</AutoMaxWidth>
+											<SkipOnInput>false</SkipOnInput>
+											<Title formatted="false">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>View error details</v8:content>
+												</v8:item>
+											</Title>
+											<Hyperlink>true</Hyperlink>
+											<ContextMenu name="GoToEventLogLabelContextMenu" id="235"/>
+											<ExtendedTooltip name="GoToEventLogLabelExtendedTooltip" id="336"/>
+											<Events>
+												<Event name="Click">GoToEventLogLabelClick</Event>
+											</Events>
+										</LabelDecoration>
+										<LabelDecoration name="UpdateComponentVersionLabel" id="455">
+											<Width>60</Width>
+											<SkipOnInput>false</SkipOnInput>
+											<Title formatted="true">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>If you get comcntr version errors, such as "the procedure is not found" or "the class is not registered," &lt;link Re_Registration&gt;register the comcntr component&lt;/&gt; again and then restart the session.</v8:content>
+												</v8:item>
+											</Title>
+											<TitleHeight>2</TitleHeight>
+											<ContextMenu name="UpdateComponentVersionLabelContextMenu" id="456"/>
+											<ExtendedTooltip name="UpdateComponentVersionLabelExtendedTooltip" id="457"/>
+											<Events>
+												<Event name="URLProcessing">UpdateComponentVersionLabelURLProcessing</Event>
+											</Events>
+										</LabelDecoration>
+									</ChildItems>
+								</UsualGroup>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="InfobaseAdministratorAuthorization" id="249">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Wrong administrator password. Reenter the password.</v8:content>
+								</v8:item>
+							</Title>
+							<Group>Vertical</Group>
+							<Behavior>Usual</Behavior>
+							<Representation>NormalSeparation</Representation>
+							<ExtendedTooltip name="InfobaseAdministratorAuthorizationExtendedTooltip" id="337"/>
+							<ChildItems>
+								<InputField name="IBAdministrator" id="250">
+									<DataPath>IBAdministrator</DataPath>
+									<Enabled>false</Enabled>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Name</v8:content>
+										</v8:item>
+									</Title>
+									<HorizontalStretch>false</HorizontalStretch>
+									<ContextMenu name="IBAdministratorContextMenu" id="251"/>
+									<ExtendedTooltip name="IBAdministratorExtendedTooltip" id="338"/>
+								</InputField>
+								<InputField name="IBAdministratorPassword" id="252">
+									<DataPath>IBAdministratorPassword</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Password</v8:content>
+										</v8:item>
+									</Title>
+									<HorizontalStretch>false</HorizontalStretch>
+									<PasswordMode>true</PasswordMode>
+									<ContextMenu name="IBAdministratorPasswordContextMenu" id="253"/>
+									<ExtendedTooltip name="IBAdministratorPasswordExtendedTooltip" id="339"/>
+								</InputField>
+							</ChildItems>
+						</UsualGroup>
+					</ChildItems>
+				</Page>
+			</ChildItems>
+		</Pages>
+		<CommandBar name="CommandBar" id="370">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Command bar</v8:content>
+				</v8:item>
+			</Title>
+			<HorizontalLocation>Right</HorizontalLocation>
+			<ExtendedTooltip name="CommandBarExtendedTooltip" id="371"/>
+			<ChildItems>
+				<Button name="Next" id="1">
+					<Type>CommandBarButton</Type>
+					<DefaultButton>true</DefaultButton>
+					<CommandName>Form.Command.Done</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Finish</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="NextExtendedTooltip" id="266"/>
+				</Button>
+				<Button name="Help" id="375">
+					<Type>CommandBarButton</Type>
+					<CommandName>Form.StandardCommand.Help</CommandName>
+					<ExtendedTooltip name="HelpExtendedTooltip" id="376"/>
+				</Button>
+				<Button name="Cancel" id="403">
+					<Type>CommandBarButton</Type>
+					<CommandName>Form.StandardCommand.Cancel</CommandName>
+					<ExtendedTooltip name="CancelExtendedTooltip" id="404"/>
+				</Button>
+			</ChildItems>
+		</CommandBar>
+	</ChildItems>
+	<Attributes>
+		<Attribute name="Object" id="1">
+			<Type>
+				<v8:Type>cfg:DataProcessorObject.IBBackupSetup</v8:Type>
+			</Type>
+			<MainAttribute>true</MainAttribute>
+		</Attribute>
+		<Attribute name="IBAdministrator" id="2">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Administrator</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="ConnectionErrorFound" id="3">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Reported connection error</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="IBAdministratorPassword" id="4">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Password</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+			<FillCheck>ShowError</FillCheck>
+		</Attribute>
+		<Attribute name="PasswordRequired" id="5">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="Schedule" id="6">
+			<Type/>
+		</Attribute>
+	</Attributes>
+	<Commands>
+		<Command name="Done" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Finish</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Next</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>Done</Action>
+			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="ModifySchedule" id="5">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Edit</v8:content>
+				</v8:item>
+			</Title>
+			<Action>ModifySchedule</Action>
+			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+	</Commands>
+</Form>
