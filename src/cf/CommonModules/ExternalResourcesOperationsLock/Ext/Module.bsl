@@ -600,15 +600,18 @@ EndProcedure
 
 Function LockReasonPresentation(LockParameters)
 	
+	CurrentDate = CurrentDate(); // 
+	
 	Return StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Lock was initiated on server <b>%1</b> at <b>%2</b> %3.
+		NStr("en = 'The lock was set on server <b>%1</b> on <b>%2</b> at <b>%3</b> %4.
 		           |
-		           |Infobase location was changed from
-		           |<b>%4</b>
-		           |to 
-		           |<b>%5</b>';"),
+		           |The infobase location has been changed. Old location: 
+		           |<b>%5</b>
+		           |New location: 
+		           |<b>%6</b>';"),
 		ComputerName(),
-		CurrentDate(), // CAC:143 Lock information is required in server date.
+		Format(CurrentDate, "DLF=D"),
+		Format(CurrentDate, "DLF=T"),
 		CurrentOperationPresentation(),
 		ConnectionStringPresentation(LockParameters.ConnectionString),
 		ConnectionStringPresentation(InfoBaseConnectionString()));

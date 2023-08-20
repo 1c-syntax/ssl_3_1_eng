@@ -1901,7 +1901,6 @@ This operation is not recommended for running synchronizations.</v8:content>
 														<v8:item>
 															<v8:lang>en</v8:lang>
 															<v8:content>&lt;colorstyle -16&gt;Warning.&lt;/&gt;
-
 If you continue the setup, the exchange node code for this infobase will change. If there are already configured exchanges in the infobase, they might malfunction.</v8:content>
 														</v8:item>
 													</Title>
@@ -2168,6 +2167,56 @@ Please wait…</v8:content>
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.DoneCommand</CommandName>
 									<ExtendedTooltip name="EndNavigationDoneCommandExtendedTooltip" id="65"/>
+								</Button>
+							</ChildItems>
+						</CommandBar>
+					</ChildItems>
+				</Page>
+				<Page name="PageNavigationWaysToSetUpConnection" id="866">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Page navigation continue</v8:content>
+						</v8:item>
+					</Title>
+					<Group>AlwaysHorizontal</Group>
+					<ExtendedTooltip name="PageNavigationWaysToSetUpConnectionExtendedTooltip" id="867"/>
+					<ChildItems>
+						<CommandBar name="ContinueNavigationLeftCommandBar1" id="868">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Command bar navigation continue left</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="ContinueNavigationLeftCommandBar1ExtendedTooltip" id="869"/>
+							<ChildItems>
+								<Button name="BackCommandIsConnectionSetupMethod" id="880">
+									<Type>CommandBarButton</Type>
+									<CommandName>Form.Command.BackCommandIsConnectionSetupMethod</CommandName>
+									<ExtendedTooltip name="BackCommandIsConnectionSetupMethodExtendedTooltip" id="881"/>
+								</Button>
+							</ChildItems>
+						</CommandBar>
+						<CommandBar name="ContinueNavigationRightCommandBar1" id="872">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Command bar navigation continue right</v8:content>
+								</v8:item>
+							</Title>
+							<HorizontalLocation>Right</HorizontalLocation>
+							<ExtendedTooltip name="ContinueNavigationRightCommandBar1ExtendedTooltip" id="873"/>
+							<ChildItems>
+								<Button name="NextConnectionSetupMethodCommand" id="878">
+									<Type>CommandBarButton</Type>
+									<CommandName>Form.Command.NextConnectionSetupMethodCommand</CommandName>
+									<ExtendedTooltip name="NextConnectionSetupMethodCommandExtendedTooltip" id="879"/>
+								</Button>
+								<Button name="ContinueNavigationCancelCommand1" id="876">
+									<Type>CommandBarButton</Type>
+									<CommandName>Form.Command.CancelCommand</CommandName>
+									<ExtendedTooltip name="ContinueNavigationCancelCommand1ExtendedTooltip" id="877"/>
 								</Button>
 							</ChildItems>
 						</CommandBar>
@@ -3524,6 +3573,36 @@ Please wait…</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ConfigureManually</Action>
+		</Command>
+		<Command name="NextConnectionSetupMethodCommand" id="12">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Next &gt;</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Command next Connection setup method</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>NextConnectionSetupMethodCommand</Action>
+		</Command>
+		<Command name="BackCommandIsConnectionSetupMethod" id="13">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>&lt; Back</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Command back Connection setup method</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>BackCommandIsConnectionSetupMethod</Action>
 		</Command>
 	</Commands>
 </Form>

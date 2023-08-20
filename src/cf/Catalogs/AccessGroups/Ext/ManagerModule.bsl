@@ -1263,7 +1263,7 @@ Procedure UpdateAuxiliaryAccessGroupsData(Parameters) Export
 	
 	For Each AccessGroup In Parameters.AccessGroups Do
 		LockItem.SetValue("Ref", AccessGroup);
-		
+		RepresentationOfTheReference = String(AccessGroup);
 		BeginTransaction();
 		Try
 			ErrorTemplate = AccessGroupProcessingErrorTemplate;
@@ -1286,7 +1286,7 @@ Procedure UpdateAuxiliaryAccessGroupsData(Parameters) Export
 			EndIf;
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
-				String(AccessGroup),
+				RepresentationOfTheReference,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo));
 			
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(),

@@ -47,6 +47,29 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		WindowOpeningMode = FormWindowOpeningMode.Independent;
 	EndIf;
 	
+	// 
+	DataProcessorObject  = FormAttributeToValue("Object");
+	ObjectStructure = New Structure("UsedFileName", Undefined);
+	FillPropertyValues(ObjectStructure, DataProcessorObject);
+	
+	// 
+	If Not ValueIsFilled(AdditionalDataProcessorRef)
+	   And ValueIsFilled(ObjectStructure.UsedFileName)
+	   And Not StrStartsWith(ObjectStructure.UsedFileName, "e1cib/")
+	   And Not StrStartsWith(ObjectStructure.UsedFileName, "e1cib\") Then
+		ExternalProcessorFilePathAtClient = ObjectStructure.UsedFileName;
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure OnOpen(Cancel)
+#If WebClient Then
+	If ValueIsFilled(ExternalProcessorFilePathAtClient) Then
+		ErrorText = NStr("en = 'For this action, start the client application';");
+		Raise ErrorText;
+	EndIf;
+#EndIf
 EndProcedure
 
 &AtClient
@@ -138,12 +161,19 @@ Procedure OperationKindOnChange(Item)
 		Items.FormChange.Title = NStr("en = 'Run';");
 		Items.PreviouslyChangedAttributes.Visible = False;
 		Items.Algorithms.Visible = True;
+		Items.AttributesSearchString.Visible = False;
 	Else
 		Items.OperationKindPages.CurrentPage = Items.AttributesToChange;
 		Items.FormChange.Title = NStr("en = 'Edit attributes';");
 		Items.PreviouslyChangedAttributes.Visible = True;
 		Items.Algorithms.Visible = False;
+		Items.AttributesSearchString.Visible = True;
 	EndIf;
+EndProcedure
+
+&AtClient
+Procedure ObjectCompositionOnCurrentPageChange(Item, CurrentPage)
+	Items.AttributesSearchString.Visible = (CurrentPage = Items.Attributes);
 EndProcedure
 
 #EndRegion
@@ -216,9 +246,7 @@ Procedure ObjectAttributesValueStartChoice(Item, ChoiceData, StandardProcessing)
 	CurrentData = Items.ObjectAttributes.CurrentData;
 	If CurrentData.AllowedTypes.Types().Count() = 1 And CurrentData.AllowedTypes.ContainsType(Type("String")) Then
 		StandardProcessing = False;
-		NotifyDescription = New NotifyDescription("ObjectAttributesValueChoiceCompletion", ThisObject, CurrentData);
-		OpenForm(FullFormName("FormulaEdit"), ComposerParameters(CurrentData.Value), , , , ,
-			NotifyDescription);
+		AttachIdleHandler("EditFormula", 0.1, True);
 	EndIf;
 EndProcedure
 
@@ -328,16 +356,15 @@ Procedure ConfigureChangeParameters(Command)
 	
 	FormParameters = New Structure;
 	
-	FormParameters.Insert("ChangeInTransaction",    Object.ChangeInTransaction);
-	FormParameters.Insert("ProcessRecursively", ProcessRecursively);
-	FormParameters.Insert("InterruptOnError",     Object.InterruptOnError);
-	FormParameters.Insert("IncludeHierarchy",      IncludeHierarchy);
-	FormParameters.Insert("ShowInternalAttributes",     Object.ShowInternalAttributes);
-	FormParameters.Insert("ContextCall", ContextCall);
-	FormParameters.Insert("DeveloperMode", Object.DeveloperMode);
+	FormParameters.Insert("ChangeInTransaction",            Object.ChangeInTransaction);
+	FormParameters.Insert("ProcessRecursively",         ProcessRecursively);
+	FormParameters.Insert("InterruptOnError",             Object.InterruptOnError);
+	FormParameters.Insert("IncludeHierarchy",              IncludeHierarchy);
+	FormParameters.Insert("ShowInternalAttributes",   Object.ShowInternalAttributes);
+	FormParameters.Insert("ContextCall",               ContextCall);
+	FormParameters.Insert("DeveloperMode",              Object.DeveloperMode);
 	FormParameters.Insert("DisableSelectionParameterConnections", DisableSelectionParameterConnections);
-	
-	
+		
 	OpenForm(FullFormName("AdditionalParameters"), FormParameters, ThisObject);
 	
 EndProcedure
@@ -628,8 +655,6 @@ Procedure ExecuteActionsOnContextOpen()
 	
 	Items.PresentationOfObjectsToChange.ReadOnly = True;
 	
-	// 
-	Items.OperationType.Visible = False;
 EndProcedure
 
 &AtClient
@@ -803,9 +828,9 @@ Procedure SaveDataProcessorSettings(ChangeInTransaction, InterruptOnError, Proce
 	EndIf;
 	
 	SettingsStructure = SettingsStructure();
-	SettingsStructure.ChangeInTransaction		= ChangeInTransaction;
-	SettingsStructure.InterruptOnError		= InterruptOnError;
-	SettingsStructure.ProcessRecursively	= ProcessRecursively;
+	SettingsStructure.ChangeInTransaction    = ChangeInTransaction;
+	SettingsStructure.InterruptOnError     = InterruptOnError;
+	SettingsStructure.ProcessRecursively = ProcessRecursively;
 	CommonSettingsStorageSave("DataProcessor.BatchEditObjects", "", SettingsStructure);
 	
 EndProcedure
@@ -826,9 +851,10 @@ EndProcedure
 Function SettingsStructure()
 	
 	SettingsStructure = New Structure;
-	SettingsStructure.Insert("ChangeInTransaction",		True);
-	SettingsStructure.Insert("InterruptOnError",		True);
-	SettingsStructure.Insert("ProcessRecursively",	False);
+	SettingsStructure.Insert("ChangeInTransaction",    False);
+	SettingsStructure.Insert("InterruptOnError",     False);
+	SettingsStructure.Insert("ProcessRecursively", False);
+	
 	Return SettingsStructure;
 	
 EndFunction
@@ -859,9 +885,9 @@ Procedure LoadProcessingSettings()
 		Object.ShowInternalAttributes = False;
 	EndIf;
 	
-	CodeExecutionAvailable                    = CodeExecutionAvailable();
+	CodeExecutionAvailable                    = CodeExecutionAvailable() And Not ContextCall;
 	Items.ArbitraryAlgorithm.Visible   = CodeExecutionAvailable;
-	Items.OperationType.Visible            = CodeExecutionAvailable;
+	Items.GroupOperationType.Visible      = CodeExecutionAvailable;
 
 	UnsafeModeCodeExecutionAvailable = UnsafeModeCodeExecutionAvailable();
 	Items.ExecutionMode.Visible        = UnsafeModeCodeExecutionAvailable;
@@ -994,50 +1020,55 @@ Procedure ChangeObjects1()
 	CurrentChangeStatus = New Structure;
 	ObjectsCountForProcessing = SelectedObjectsCount(True, True);
 	
-	If Object.ChangeInTransaction Then
-		ShowUserNotification(NStr("en = 'Edit selected items';"), ,NStr("en = 'Please wait. Processing may take some time…';"));
-		ShowProcessedItemsPercentage = False;
-		PortionSize = ObjectsCountForProcessing;
-	Else
-		If ObjectsCountForProcessing >= NontransactionalBatchLimit() Then
-			// Число объектов - 
-			PortionSize = GetDataAsNontransactionalBatchObjects();
-		Else
-			// Число объектов - 
-			PortionSize = Round(ObjectsCountForProcessing * GetDataAsNontransactionalBatchPercentage() / 100);
-			If PortionSize = 0 Then
-				PortionSize = 1;
-			EndIf;
-		EndIf;
-		
-		Status(NStr("en = 'Processing in progress…';"), 0, NStr("en = 'Edit selected items';"));
-		
-		ShowProcessedItemsPercentage = True;
-	EndIf;
+	ShowUserNotification(NStr("en = 'Edit selected items';"), ,NStr("en = 'Please wait. Processing may take some time…';"));
+	ShowProcessedItemsPercentage = False;
 	
 	CurrentChangeStatus.Insert("ItemsAvailableForProcessing", True);
+	
 	// Позиция последнего обработанного элемента. 1 - 
 	CurrentChangeStatus.Insert("CurrentPosition", 0);
-	CurrentChangeStatus.Insert("ErrorsCount", 0);			// 
-	CurrentChangeStatus.Insert("ChangedCount", 0);		// 
+	
+	// 
+	CurrentChangeStatus.Insert("PortionSize", ObjectsCountForProcessing);
+	
+	CurrentChangeStatus.Insert("ErrorsCount", 0);            // 
+	CurrentChangeStatus.Insert("ChangedCount", 0);        // 
+	CurrentChangeStatus.Insert("ObjectsCountForProcessing",  ObjectsCountForProcessing);
 	CurrentChangeStatus.Insert("StopChangeOnError", Object.InterruptOnError);
-	CurrentChangeStatus.Insert("ObjectsCountForProcessing", ObjectsCountForProcessing);
-	CurrentChangeStatus.Insert("PortionSize", PortionSize);
-	CurrentChangeStatus.Insert("ShowProcessedItemsPercentage", ShowProcessedItemsPercentage);
+	CurrentChangeStatus.Insert("ShowProcessedItemsPercentage",   ShowProcessedItemsPercentage);
 	CurrentChangeStatus.Insert("AbortChange", False);
 	
 	AttachIdleHandler("ChangeObjectsBatch", 0.1, True);
 	
 	Items.Pages.CurrentPage = Items.WaitingForProcessing;
+	
 EndProcedure
 
 &AtClient
-Procedure ChangeObjectsBatch()
+Async Procedure ChangeObjectsBatch()
+	
+	If ValueIsFilled(ExternalProcessorFilePathAtClient)
+	   And Not ValueIsFilled(Object.ExternalDataProcessorBinaryDataAddress) Then
+		
+		Result = Await PutFileToServerAsync(,,,
+			ExternalProcessorFilePathAtClient, UUID);
+		
+		If TypeOf(Result) = Type("PlacedFileDescription")
+		   And Not Result.FilePuttingCanceled Then
+			Object.ExternalDataProcessorBinaryDataAddress = Result.Address;
+		EndIf;
+		
+	EndIf;
 	
 	ChangeAtServer(CurrentChangeStatus.StopChangeOnError);
 	
 	If TimeConsumingOperation.Status = "Completed2" Then
-		ProcessChangeResult(GetFromTempStorage(TimeConsumingOperation.ResultAddress));
+		ChangeResult = GetFromTempStorage(TimeConsumingOperation.ResultAddress);
+		If TypeOf(ChangeResult) = Type("Structure") Then
+			ProcessChangeResult(ChangeResult);
+		Else
+			OnCompleteChange(TimeConsumingOperation, Undefined);
+		EndIf;
 	Else
 		ModuleTimeConsumingOperationsClient = CommonModule("TimeConsumingOperationsClient");
 		IdleParameters = ModuleTimeConsumingOperationsClient.IdleParameters(ThisObject);
@@ -1051,18 +1082,49 @@ EndProcedure
 
 &AtClient
 Procedure OnCompleteChange(Result, AdditionalParameters) Export
+	
 	If Result = Undefined Then
 		BackServer();
 		Return;
 	EndIf;
 	
-	If Result.Status = "Error" Then
+	If Result.Status <> "Completed2" Then
 		BackServer();
 		Raise Result.BriefErrorDescription;
 	EndIf;
 	
-	ProcessChangeResult(GetFromTempStorage(Result.ResultAddress));
-EndProcedure
+	ResultsOfChanges = GetFromTempStorage(Result.ResultAddress);
+	
+	If TypeOf(ResultsOfChanges) <> Type("Map") Then
+		ErrorText = NStr("en = 'The background job did not return a result';");
+		Raise ErrorText;
+	EndIf;
+	
+	StatusError         = "Error";
+	
+	For Each ChangeResult In ResultsOfChanges Do
+		
+		ResultOfPortionExecution = ChangeResult.Value;
+		If ResultOfPortionExecution.Status = StatusError Then
+			ErrorText = SubstituteParametersToString(
+				NStr("en = 'The thread background job completed with error:
+				           |%1';"),
+				ResultOfPortionExecution.DetailErrorDescription);
+			Raise ErrorText;
+		Else
+			
+			ResultOfBatchChange = GetFromTempStorage(ResultOfPortionExecution.ResultAddress);
+			If TypeOf(ResultOfBatchChange) <> Type("Structure") Then
+				ErrorText = NStr("en = 'The thread background job did not return a result';");
+				Raise ErrorText;
+			EndIf;
+		
+			ProcessChangeResult(ResultOfBatchChange);
+		EndIf;
+		
+	EndDo;
+	
+EndProcedure 
 
 &AtClient
 Procedure ProcessChangeResult(ChangeResult = Undefined, ContinueProcessing = Undefined)
@@ -1101,7 +1163,7 @@ Procedure ProcessChangeResult(ChangeResult = Undefined, ContinueProcessing = Und
 		Return;
 	EndDo;
 	
-	CurrentChangeStatus.CurrentPosition = CurrentChangeStatus.CurrentPosition + CurrentChangeStatus.PortionSize;
+	CurrentChangeStatus.CurrentPosition = CurrentChangeStatus.CurrentPosition + ChangeResult.ProcessingState.Count();
 	
 	If CurrentChangeStatus.ShowProcessedItemsPercentage Then
 		// Calculating the current percentage of processed objects.
@@ -1213,6 +1275,39 @@ Procedure GoToCompletedPage()
 			|Total items edited: %1.';"), CurrentChangeStatus.ChangedCount);
 	Items.FormChange.Title = NStr("en = 'Finish';");
 	Items.FormBack.Visible = True;
+	
+	AddMessagePossibleToEditAttributesFaster();
+	
+EndProcedure
+
+// 
+// 
+// 
+// 
+//
+&AtServer
+Procedure AddMessagePossibleToEditAttributesFaster()
+	
+	If Not Object.ChangeInTransaction Then
+		Return;
+	EndIf;
+	
+	DataProcessorObject = FormAttributeToValue("Object");
+	If Not DataProcessorObject.IsLongRunningOperationsAvailable() Then
+		Return;
+	EndIf;
+	
+	ModuleTimeConsumingOperations = CommonModule("TimeConsumingOperations");
+	
+	LongRunningOperationsThreadCount = ModuleTimeConsumingOperations.AllowedNumberofThreads();
+	If LongRunningOperationsThreadCount <= 1 Then
+		Return;
+	EndIf;
+	
+	Items.DoneLabel.Title = Items.DoneLabel.Title
+		+ Chars.LF + Chars.LF
+		+ NStr("en = 'You can edit attributes faster.
+		|To do it, clear the ""Edit in transaction"" check box in the additional parameters.';");
 	
 EndProcedure
 
@@ -1414,18 +1509,15 @@ Procedure ChangeAtServer(Val StopChangeOnError)
 	JobParameters.Insert("TabularSectionsToChange", TabularSectionsToChange());
 	JobParameters.Insert("ObjectsForChanging", New ValueStorage(SelectedObjects()));
 	JobParameters.Insert("DeveloperMode", DataProcessorObject.DeveloperMode);
+	JobParameters.Insert("ExternalReportDataProcessor", Undefined);
 	
-	IsExternalDataProcessor = Not Metadata.DataProcessors.Contains(DataProcessorObject.Metadata());
-	If Not Object.ChangeInTransaction Or Not SubsystemExists("StandardSubsystems.Core") Then
-		StorageAddress = PutToTempStorage(Undefined, UUID);
-		DataProcessorObject.ChangeObjects1(JobParameters, StorageAddress);
-		TimeConsumingOperation = New Structure("Status, ResultAddress", "Completed2", StorageAddress);
-	Else
-		ModuleTimeConsumingOperations = CommonModule("TimeConsumingOperations");
-		ExecutionParameters = ModuleTimeConsumingOperations.BackgroundExecutionParameters(UUID);
-		ExecutionParameters.BackgroundJobDescription = NStr("en = 'Bulk item edit';");
-		ProcedureName = DataProcessorObject.Metadata().FullName() + ".ObjectModule.ChangeObjects1";
-		TimeConsumingOperation = ModuleTimeConsumingOperations.ExecuteInBackground(ProcedureName, JobParameters, ExecutionParameters);
+	StorageAddress = PutToTempStorage(Undefined, UUID);
+	TimeConsumingOperation = DataProcessorObject.ChangeObjects1(JobParameters, StorageAddress);
+	
+	If TimeConsumingOperation = Undefined Then
+		TimeConsumingOperation = New Structure("Status, ResultAddress");
+		TimeConsumingOperation.Status          = "Completed2";
+		TimeConsumingOperation.ResultAddress = StorageAddress;
 	EndIf;
 	
 EndProcedure
@@ -1462,32 +1554,6 @@ Function HierarchyFoldersAndItems(FirstObjectReference)
 	Return (ObjectKindByRef = "Catalog" And FirstObjectReference.Metadata().Hierarchical
 		And FirstObjectReference.Metadata().HierarchyType = Metadata.ObjectProperties.HierarchyType.HierarchyFoldersAndItems)
 		Or (ObjectKindByRef = "ChartOfCharacteristicTypes" And FirstObjectReference.Metadata().Hierarchical);
-	
-EndFunction
-
-&AtClientAtServerNoContext
-Function NontransactionalBatchLimit()
-	
-	Return 100; // 
-				 // 
-				 // 
-	
-EndFunction
-
-&AtClientAtServerNoContext
-Function GetDataAsNontransactionalBatchPercentage()
-	
-	Return 10;	// 
-				// 
-	
-EndFunction
-
-&AtClientAtServerNoContext
-Function GetDataAsNontransactionalBatchObjects()
-	
-	Return 10;	// 
-				// 
-				// 
 	
 EndFunction
 
@@ -1741,6 +1807,17 @@ Procedure InitializeSettingsComposer()
 			ComposerSettings = Parameters.SettingsComposer.GetSettings();
 			SettingsComposer.LoadSettings(ComposerSettings);
 			SettingsComposer.Settings.ConditionalAppearance.Items.Clear();
+			
+			ItemsToRemove = New Array;
+			For Each Item In SettingsComposer.Settings.Order.Items Do
+				AvailableField = SettingsComposer.Settings.Order.OrderAvailableFields.FindField(Item.Field);
+				If AvailableField = Undefined Then
+					ItemsToRemove.Add(Item);
+				EndIf;
+			EndDo;
+			For Each Item In ItemsToRemove Do
+				SettingsComposer.Settings.Order.Items.Delete(Item);
+			EndDo;
 			
 			TemplateComposer = New DataCompositionTemplateComposer;
 			Try
@@ -2329,11 +2406,7 @@ Procedure RestrictSelectableTypesAndSetValueChoiceParameters(TableBox)
 			InputField.ChoiceFoldersAndItems = FoldersAndItems.FoldersAndItems;
 		ElsIf ChoiceFoldersAndItems = "Items" Then
 			InputField.ChoiceFoldersAndItems = FoldersAndItems.Items;
-		Else
-			InputField.ChoiceFoldersAndItems = FoldersAndItems.Auto;
 		EndIf;
-	Else
-		InputField.ChoiceFoldersAndItems = FoldersAndItems.Auto;
 	EndIf;
 	
 EndProcedure
@@ -2462,7 +2535,7 @@ Procedure AddAdditionalAttributesAndInfoToSet()
 					Continue;
 				EndIf;
 				
-				If ObjectAttributes.FindRows(New Structure("Property", Property)).Count() > 0 Then
+				If PropertiesToAdd.Find(Property) <> Undefined Then
 					Continue;
 				EndIf;
 				
@@ -4255,6 +4328,18 @@ Function TypePresentationString(Type)
 		
 		Result = "Undefined";
 		
+	ElsIf Type = Type("String") Then
+		Result = "String";
+
+	ElsIf Type = Type("Number") Then
+		Result = "Number";
+
+	ElsIf Type = Type("Boolean") Then
+		Result = "Boolean";
+
+	ElsIf Type = Type("Date") Then
+		Result = "Date";
+	
 	Else
 		
 		Result = String(Type);
@@ -4611,5 +4696,13 @@ Function IsFullUser()
 	Return True;
 	
 EndFunction
+
+&AtClient
+Procedure EditFormula()
+	CurrentData = Items.ObjectAttributes.CurrentData;
+	NotifyDescription = New NotifyDescription("ObjectAttributesValueChoiceCompletion", ThisObject, CurrentData);
+	OpenForm(FullFormName("FormulaEdit"), ComposerParameters(CurrentData.Value), , , , ,
+		NotifyDescription);
+EndProcedure
 
 #EndRegion

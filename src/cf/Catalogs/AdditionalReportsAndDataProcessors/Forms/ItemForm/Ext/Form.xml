@@ -1467,6 +1467,11 @@ application without setting the safe mode.</v8:content>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
+		<Attribute name="ReportOptionAssignment" id="20">
+			<Type>
+				<v8:Type>cfg:EnumRef.ReportOptionPurposes</v8:Type>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="LoadFromFile" id="1">
@@ -1479,7 +1484,7 @@ application without setting the safe mode.</v8:content>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Update from file.</v8:content>
+					<v8:content>Update from local file...</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

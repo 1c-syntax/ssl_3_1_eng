@@ -472,6 +472,52 @@ Function LimitAccessAtRecordLevelUniversallyConstant() Export
 	
 EndFunction
 
+// Parameters:
+//  User - CatalogRef.Users
+//               - CatalogRef.ExternalUsers
+//               - Undefined - 
+//
+// Returns:
+//  Boolean
+//
+Function IsUserWithUnlimitedAccess(User = Undefined) Export
+	
+	If Not Common.SubsystemExists("StandardSubsystems.ODataInterface") Then
+		Return False;
+	EndIf;
+	
+	ModuleODataInterfaceInternal = Common.CommonModule("ODataInterfaceInternal");
+	ODataInterfaceRole = ModuleODataInterfaceInternal.ODataInterfaceRole();
+	
+	If User = Undefined
+	 Or User = Users.AuthorizedUser() Then
+		Return InfoBaseUsers.CurrentUser().Roles.Contains(ODataInterfaceRole);
+	EndIf;
+	
+	If Not ValueIsFilled(User)
+	 Or TypeOf(User) <> Type("CatalogRef.Users")
+	   And TypeOf(User) <> Type("CatalogRef.ExternalUsers") Then
+		Return False;
+	EndIf;
+	
+	IBUserID = Common.ObjectAttributeValue(User,
+		"IBUserID");
+	
+	If TypeOf(IBUserID) <> Type("UUID") Then
+		Return False;
+	EndIf;
+	
+	IBUser = InfoBaseUsers.FindByUUID(
+		IBUserID);
+	
+	If IBUser = Undefined Then
+		Return False;
+	EndIf;
+	
+	Return IBUser.Roles.Contains(ODataInterfaceRole);
+	
+EndFunction
+
 // Returns:
 //   FixedMap of KeyAndValue:
 //     * Key - Type
@@ -546,10 +592,10 @@ Function AllowedObjectsRefsTypesDetails() Export
 	
 EndFunction
 
-// See AccessManagementInternal.NewCacheOfRestrictionParameters
+// See AccessManagementInternal.RestrictionParametersNewCache
 Function RestrictionParametersCache(CachedDataKey) Export
 	
-	Return AccessManagementInternal.NewCacheOfRestrictionParameters();
+	Return AccessManagementInternal.RestrictionParametersNewCache();
 	
 EndFunction
 
@@ -701,7 +747,7 @@ Function AccessKeyDimensions() Export
 	If KeyMetadata.TabularSections.Find("Header") = Undefined
 	 Or SimilarItemsInCollectionCount(KeyMetadata.TabularSections.Header.Attributes, "Value", 6) <> 5 Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Catalog ""%1"" can contain a table part ""%2"" with the maximum of 5 ""%3"" attributes.';"),
+			NStr("en = 'Catalog ""%1"" can contain tabular section ""%2"" with the maximum of 5 ""%3"" attributes.';"),
 			"AccessKeys", "Header", "Value" + "*");
 		Raise ErrorText;
 	EndIf;
@@ -709,7 +755,7 @@ Function AccessKeyDimensions() Export
 	TabularSectionsCount = SimilarItemsInCollectionCount(KeyMetadata.TabularSections, "TabularSection");
 	If TabularSectionsCount < 1 Or TabularSectionsCount > 12 Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Catalog ""%1"" can contain 1 to 12 table parts ""%2"".';"),
+			NStr("en = 'Catalog ""%1"" can contain 1 to 12 tabular sections ""%2"".';"),
 			"AccessKeys", "TabularSection" + "*");
 		Raise ErrorText;
 	EndIf;
@@ -737,7 +783,7 @@ Function AccessKeyDimensions() Export
 	
 	If TabularSectionAttributesCount = 0 Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Table parts ""%2"" of catalog ""%1""
+			NStr("en = 'Tabular sections ""%2"" of catalog ""%1""
 			           |must contain the same number of attributes ""%3"", but not more than 15.';"),
 			"AccessKeys", "TabularSection" + "*", "Value" + "*");
 		Raise ErrorText;

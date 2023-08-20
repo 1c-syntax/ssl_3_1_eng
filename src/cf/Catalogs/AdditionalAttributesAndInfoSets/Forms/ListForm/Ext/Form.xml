@@ -133,8 +133,9 @@
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 	</Events>
 	<ChildItems>
-		<InputField name="IsAdditionalInfoSets" id="71">
-			<DataPath>IsAdditionalInfoSets</DataPath>
+		<InputField name="PropertyKind" id="71">
+			<DataPath>PropertyKind</DataPath>
+			<Shortcut>Ctrl+S</Shortcut>
 			<Width>30</Width>
 			<ListChoiceMode>true</ListChoiceMode>
 			<ChoiceList>
@@ -148,7 +149,7 @@
 								<v8:content>Additional attributes</v8:content>
 							</v8:item>
 						</Presentation>
-						<Value xsi:type="xs:boolean">false</Value>
+						<Value xsi:type="xr:DesignTimeRef">Enum.PropertiesKinds.EnumValue.AdditionalAttributes</Value>
 					</xr:Value>
 				</xr:Item>
 				<xr:Item>
@@ -161,15 +162,28 @@
 								<v8:content>Additional information records</v8:content>
 							</v8:item>
 						</Presentation>
-						<Value xsi:type="xs:boolean">true</Value>
+						<Value xsi:type="xr:DesignTimeRef">Enum.PropertiesKinds.EnumValue.AdditionalInfo</Value>
+					</xr:Value>
+				</xr:Item>
+				<xr:Item>
+					<xr:Presentation/>
+					<xr:CheckState>0</xr:CheckState>
+					<xr:Value xsi:type="FormChoiceListDesTimeValue">
+						<Presentation>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Labels</v8:content>
+							</v8:item>
+						</Presentation>
+						<Value xsi:type="xr:DesignTimeRef">Enum.PropertiesKinds.EnumValue.Labels</Value>
 					</xr:Value>
 				</xr:Item>
 			</ChoiceList>
 			<BackColor>style:MasterFieldBackground</BackColor>
-			<ContextMenu name="IsAdditionalInfoSetsContextMenu" id="72"/>
-			<ExtendedTooltip name="IsAdditionalInfoSetsExtendedTooltip" id="103"/>
+			<ContextMenu name="PropertyKindContextMenu" id="72"/>
+			<ExtendedTooltip name="PropertyKindExtendedTooltip" id="103"/>
 			<Events>
-				<Event name="OnChange">IsAdditionalInfoSetsOnChange</Event>
+				<Event name="OnChange">PropertyKindOnChange</Event>
 			</Events>
 		</InputField>
 		<UsualGroup name="CustomSettingsFolder" id="145">
@@ -363,7 +377,7 @@
 									<EnableStartDrag>true</EnableStartDrag>
 									<FileDragMode>AsFile</FileDragMode>
 									<DataPath>UnusedSets</DataPath>
-									<RowPictureDataPath>~UnusedSets.DefaultPicture</RowPictureDataPath>
+									<RowPictureDataPath>UnusedSets.PictureNumber</RowPictureDataPath>
 									<RowsPicture>
 										<xr:Ref>CommonPicture.ItemIcons</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
@@ -448,7 +462,7 @@
 					<DataPath>Properties</DataPath>
 					<RowPictureDataPath>Properties.PictureNumber</RowPictureDataPath>
 					<RowsPicture>
-						<xr:Ref>CommonPicture.ItemIcons</xr:Ref>
+						<xr:Ref>CommonPicture.PropertiesIcons</xr:Ref>
 						<xr:LoadTransparent>false</xr:LoadTransparent>
 					</RowsPicture>
 					<BackColor>style:FormBackColor</BackColor>
@@ -686,9 +700,11 @@
 				<Field>PropertiesSets.AttributesCount</Field>
 				<Field>PropertiesSets.InfoCount</Field>
 				<Field>PropertiesSets.IsFolder</Field>
-				<Field>PropertiesSets.IsInfo</Field>
+				<Field>PropertiesSets.NumberOfTags</Field>
 				<Field>PropertiesSets.Parent</Field>
+				<Field>PropertiesSets.PropertyKind</Field>
 				<Field>PropertiesSets.Ref</Field>
+				<Field>~PropertiesSets.ЭтоСведения</Field>
 			</UseAlways>
 			<Settings xsi:type="DynamicList">
 				<ManualQuery>true</ManualQuery>
@@ -703,7 +719,7 @@
 	SetsOverridable.Description AS Description,
 	SetsOverridable.Used AS Used,
 	CAST("" AS STRING(150)) AS Presentation,
-	&amp;IsAdditionalInfoSets AS IsInfo,
+	&amp;PropertyKind AS PropertyKind,
 	CASE
 		WHEN SetsOverridable.DeletionMark
 			THEN 1
@@ -714,7 +730,8 @@
 		ELSE 0
 	END AS PictureNumber,
 	SetsOverridable.AttributesCount AS AttributesCount,
-	SetsOverridable.InfoCount AS InfoCount
+	SetsOverridable.InfoCount AS InfoCount,
+	SetsOverridable.NumberOfTags AS NumberOfTags
 FROM
 	Catalog.AdditionalAttributesAndInfoSets AS SetsOverridable
 WHERE
@@ -724,7 +741,102 @@ WHERE
 		ELSE SetsOverridable.Parent IN (&amp;Sets)
 	END
 	AND SetsOverridable.Used
-	AND ISNULL(SetsOverridable.Parent.Used, TRUE)</QueryText>
+	AND ISNULL(SetsOverridable.Parent.Used, TRUE)
+	AND NOT SetsOverridable.DeletionMark</QueryText>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Ref</dcssch:dataPath>
+					<dcssch:field>Ref</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DataVersion</dcssch:dataPath>
+					<dcssch:field>DataVersion</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeletionMark</dcssch:dataPath>
+					<dcssch:field>DeletionMark</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Predefined</dcssch:dataPath>
+					<dcssch:field>Predefined</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Parent</dcssch:dataPath>
+					<dcssch:field>Parent</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>IsFolder</dcssch:dataPath>
+					<dcssch:field>IsFolder</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Description</dcssch:dataPath>
+					<dcssch:field>Description</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Used</dcssch:dataPath>
+					<dcssch:field>Used</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Presentation</dcssch:dataPath>
+					<dcssch:field>Presentation</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PictureNumber</dcssch:dataPath>
+					<dcssch:field>PictureNumber</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>AttributesCount</dcssch:dataPath>
+					<dcssch:field>AttributesCount</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>InfoCount</dcssch:dataPath>
+					<dcssch:field>InfoCount</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>NumberOfTags</dcssch:dataPath>
+					<dcssch:field>NumberOfTags</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PredefinedSetName</dcssch:dataPath>
+					<dcssch:field>PredefinedSetName</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DescriptionLanguage1</dcssch:dataPath>
+					<dcssch:field>DescriptionLanguage1</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DescriptionLanguage2</dcssch:dataPath>
+					<dcssch:field>DescriptionLanguage2</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>AdditionalAttributes</dcssch:dataPath>
+					<dcssch:field>AdditionalAttributes</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>AdditionalInfo</dcssch:dataPath>
+					<dcssch:field>AdditionalInfo</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Presentations</dcssch:dataPath>
+					<dcssch:field>Presentations</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PredefinedDataName</dcssch:dataPath>
+					<dcssch:field>PredefinedDataName</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PropertyKind</dcssch:dataPath>
+					<dcssch:field>PropertyKind</dcssch:field>
+				</Field>
+				<Parameter>
+					<dcssch:name>Sets</dcssch:name>
+					<dcssch:useRestriction>true</dcssch:useRestriction>
+					<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
+				</Parameter>
+				<Parameter>
+					<dcssch:name>PropertyKind</dcssch:name>
+					<dcssch:value xsi:nil="true"/>
+					<dcssch:useRestriction>true</dcssch:useRestriction>
+				</Parameter>
 				<MainTable>Catalog.AdditionalAttributesAndInfoSets</MainTable>
 				<ListSettings>
 					<dcsset:filter>
@@ -816,7 +928,7 @@ WHERE
 					<Type>
 						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
-							<v8:Digits>1</v8:Digits>
+							<v8:Digits>2</v8:Digits>
 							<v8:FractionDigits>0</v8:FractionDigits>
 							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
@@ -861,13 +973,18 @@ WHERE
 				</Column>
 			</Columns>
 		</Attribute>
-		<Attribute name="IsAdditionalInfoSets" id="3">
+		<Attribute name="PropertyKind" id="3">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
 					<v8:content>Show</v8:content>
 				</v8:item>
 			</Title>
+			<Type>
+				<v8:Type>cfg:EnumRef.PropertiesKinds</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="IsAdditionalInfoSets" id="16">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
@@ -938,12 +1055,21 @@ WHERE
 				<ManualQuery>true</ManualQuery>
 				<DynamicDataRead>false</DynamicDataRead>
 				<QueryText>SELECT
-	CASE
-		WHEN &amp;IsAdditionalInfo
-			THEN &amp;CommonAdditionalInfo
-		ELSE &amp;CommonAdditionalAttributes
-	END AS Presentation,
+	&amp;ListPresentation AS Presentation,
 	0 AS PictureNumber</QueryText>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Presentation</dcssch:dataPath>
+					<dcssch:field>Presentation</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PictureNumber</dcssch:dataPath>
+					<dcssch:field>PictureNumber</dcssch:field>
+				</Field>
+				<Parameter>
+					<dcssch:name>ListPresentation</dcssch:name>
+					<dcssch:value xsi:nil="true"/>
+					<dcssch:useRestriction>true</dcssch:useRestriction>
+				</Parameter>
 				<ListSettings>
 					<dcsset:filter>
 						<dcsset:viewMode>Normal</dcsset:viewMode>

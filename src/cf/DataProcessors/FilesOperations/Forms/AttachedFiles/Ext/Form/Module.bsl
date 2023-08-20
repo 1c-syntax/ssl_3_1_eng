@@ -94,6 +94,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ThereArePropsInternal = FilesOperationsInternal.ThereArePropsInternal(FilesStorageCatalogName);
 	SetUpDynamicList();
+	NotifyAboutTooManyGroups(MetadataOfCatalogWithFiles);
 	
 	If Not HaveFileGroups Then
 		HideGroupCreationButtons();
@@ -105,7 +106,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		HasRightToAdd = False;
 	EndIf;
 	
-	FormButtonItemNames = DefineNamesOfFormButtonElements(); 
+	FormButtonItemNames = DetermineFormButtonItemNames(); 
 	ReadOnly = Not AccessRight("Edit", MetadataOfCatalogWithFiles);
 	If ReadOnly Then
 		HideChangeButtons();
@@ -165,14 +166,20 @@ EndProcedure
 Procedure OnOpen(Cancel)
 	
 	If HasRightToAdd Then
-		ScanCommandAvailable = FilesOperationsInternalClient.ScanCommandAvailable();
+		ScanCommandAvailable = FilesOperationsInternalClient.ScanAvailable();
 		Items.AddFileFromScanner.Visible = ScanCommandAvailable;
 		Items.ListContextMenuAddFileFromScanner.Visible = ScanCommandAvailable;
 	EndIf;
 	
 	SetFileCommandsAvailability();
 	
+	If Items.InfoMessage.Visible 
+	   And Items.List.Representation = TableRepresentation.List Then
+		 Items.InfoMessage.Visible = False;
+	EndIf;
+	
 EndProcedure
+
 
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
@@ -444,13 +451,12 @@ Procedure AddFileFromScanner(Command)
 		FileOwner = DCParameterValue.Value;
 	EndIf;
 	
-	AddingOptions = New Structure;
-	AddingOptions.Insert("ResultHandler", Undefined);
-	AddingOptions.Insert("FileOwner", FileOwner);
-	AddingOptions.Insert("OwnerForm1", ThisObject);
-	AddingOptions.Insert("DontOpenCardAfterCreateFromFIle", True);
-	AddingOptions.Insert("IsFile", False);
-	FilesOperationsInternalClient.AddFromScanner(AddingOptions);
+	AddingOptions = FilesOperationsClient.AddingFromScannerParameters();
+	AddingOptions.FileOwner = FileOwner;
+	AddingOptions.OwnerForm1 = ThisObject;
+	AddingOptions.DontOpenCardAfterCreateFromFIle = True;
+	AddingOptions.IsFile = False;
+	FilesOperationsClient.AddFromScanner(AddingOptions);
 	
 EndProcedure
 
@@ -703,7 +709,7 @@ Procedure ImportFolder(Command)
 	
 	OpenFileDialog = New FileDialog(FileDialogMode.ChooseDirectory);
 	OpenFileDialog.FullFileName = "";
-	OpenFileDialog.Filter = NStr("en = 'All files (*.*)|*.*';");
+	OpenFileDialog.Filter = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
 	OpenFileDialog.Multiselect = False;
 	OpenFileDialog.Title = NStr("en = 'Select directory';");
 	If Not OpenFileDialog.Choose() Then
@@ -1349,7 +1355,7 @@ EndProcedure
 &AtServer
 Procedure HideChangeButtons()
 	
-	CommandsNames = NamesOfObjectModificationCommands();
+	CommandsNames = ObjectChangeCommandsNames();
 	For Each FormItemName In FormButtonItemNames Do
 		
 		FormItem = Items.Find(FormItemName);
@@ -1362,7 +1368,7 @@ Procedure HideChangeButtons()
 EndProcedure
 
 &AtServer
-Function DefineNamesOfFormButtonElements()
+Function DetermineFormButtonItemNames()
 	
 	NamesOfFormCommands = NamesOfFormCommands();
 	ItemsNames = New Array;
@@ -1543,11 +1549,43 @@ Procedure SetUpDynamicList()
 	
 EndProcedure
 
+&AtServer
+Procedure NotifyAboutTooManyGroups(MetadataOfCatalogWithFiles) 
+	
+	MinGroupQtyToOutputMessage = 5000;
+	
+	If Not MetadataOfCatalogWithFiles.Hierarchical Or Items.List.Representation = TableRepresentation.List Then
+		Return;
+	EndIf;
+	
+	SetPrivilegedMode(True);
+	
+	QueryText = 
+		"SELECT 
+		|	COUNT(CatalogAttachedFiles.IsFolder) AS GroupCount
+		|FROM
+		|	#CatalogAttachedFiles AS CatalogAttachedFiles
+		|WHERE
+		|	CatalogAttachedFiles.IsFolder = TRUE";
+	
+	QueryText = StrReplace(QueryText, "#CatalogAttachedFiles", MetadataOfCatalogWithFiles.FullName());
+	
+	Query = New Query(QueryText);
+	
+	SelectionDetailRecords = Query.Execute().Select();
+	
+	If SelectionDetailRecords.Next() Then
+		If SelectionDetailRecords.GroupCount >= MinGroupQtyToOutputMessage Then
+			Items.InfoMessage.Visible = True;
+		EndIf;
+	EndIf;
+	
+EndProcedure
 
 &AtClientAtServerNoContext
 Function NamesOfFormCommands()
 	
-	Result = NamesOfObjectModificationCommands();
+	Result = ObjectChangeCommandsNames();
 
 	// 
 	Result.Insert("OpenFileDirectory", True);
@@ -1559,7 +1597,7 @@ Function NamesOfFormCommands()
 EndFunction
 
 &AtClientAtServerNoContext
-Function NamesOfObjectModificationCommands()
+Function ObjectChangeCommandsNames()
 	
 	Result = New Map;
 	

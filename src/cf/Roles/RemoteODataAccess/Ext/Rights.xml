@@ -114,6 +114,33 @@
 		</right>
 	</object>
 	<object>
+		<name>Configuration.StandardSubsystemsLibrary</name>
+		<right>
+			<name>MainWindowModeNormal</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeEmbeddedWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeFullscreenWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeKiosk</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>AnalyticsSystemClient</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>SessionParameter.AccessRestrictionParameters</name>
 		<right>
 			<name>Get</name>
@@ -194,6 +221,17 @@
 		</right>
 		<right>
 			<name>Delete</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>InformationRegister.ArchiveOfExchangeMessages</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Update</name>
 			<value>true</value>
 		</right>
 	</object>
@@ -416,6 +454,17 @@
 		</right>
 	</object>
 	<object>
+		<name>InformationRegister.ObjectsUnregisteredDuringLoop</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Update</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>SessionParameter.AccessRestrictionTemplatesVersions</name>
 		<right>
 			<name>Get</name>
@@ -424,6 +473,17 @@
 	</object>
 	<object>
 		<name>Constant.DenyUploadFilesByExtension</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Update</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>InformationRegister.DataSyncEventHandlers</name>
 		<right>
 			<name>Read</name>
 			<value>true</value>
@@ -638,6 +698,17 @@
 		</right>
 	</object>
 	<object>
+		<name>InformationRegister.DataExchangeTasksInternalPublication</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Update</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>Catalog.PlannedInteractionAttachedFiles</name>
 		<right>
 			<name>Read</name>
@@ -653,6 +724,17 @@
 		</right>
 		<right>
 			<name>Delete</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>InformationRegister.XDTODataExchangeSettings</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Update</name>
 			<value>true</value>
 		</right>
 	</object>
@@ -816,6 +898,17 @@
 		<name>SessionParameter.TablesWithIndividualRightsSettings</name>
 		<right>
 			<name>Get</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>InformationRegister.ReportsSnapshots</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Update</name>
 			<value>true</value>
 		</right>
 	</object>
@@ -1092,6 +1185,17 @@
 	</object>
 	<object>
 		<name>InformationRegister.ObjectRightsSettingsInheritance</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Update</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>InformationRegister.SystemMessageExchangeSessions</name>
 		<right>
 			<name>Read</name>
 			<value>true</value>
@@ -1787,6 +1891,17 @@
 		</right>
 	</object>
 	<object>
+		<name>InformationRegister.SynchronizationCircuit</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Update</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>InformationRegister.UserGroupCompositions</name>
 		<right>
 			<name>Read</name>
@@ -1806,17 +1921,6 @@
 	</object>
 	<object>
 		<name>InformationRegister.UserPrintTemplates</name>
-		<right>
-			<name>Read</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>Update</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>InformationRegister.SafeDataAreaDataStorage</name>
 		<right>
 			<name>Read</name>
 			<value>true</value>
@@ -1876,6 +1980,17 @@
 		</right>
 	</object>
 	<object>
+		<name>InformationRegister.CommonNodeDataChanges</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Update</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>InformationRegister.UsersAccessKeysUpdate</name>
 		<right>
 			<name>Read</name>
@@ -1929,6 +2044,17 @@
 	</object>
 	<object>
 		<name>InformationRegister.ReadReceipts</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Update</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>InformationRegister.ObjectsDataToRegisterInExchanges</name>
 		<right>
 			<name>Read</name>
 			<value>true</value>
@@ -2374,6 +2500,17 @@
 	</object>
 	<object>
 		<name>Constant.UseUserGroups</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Update</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>InformationRegister.PredefinedNodesAliases</name>
 		<right>
 			<name>Read</name>
 			<value>true</value>
@@ -2909,29 +3046,13 @@
 		</right>
 	</object>
 	<object>
-		<name>Configuration.StandardSubsystemsLibrary</name>
+		<name>InformationRegister.ExchangeMessageArchiveSettings</name>
 		<right>
-			<name>MainWindowModeNormal</name>
+			<name>Read</name>
 			<value>true</value>
 		</right>
 		<right>
-			<name>MainWindowModeWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeEmbeddedWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeFullscreenWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeKiosk</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>AnalyticsSystemClient</name>
+			<name>Update</name>
 			<value>true</value>
 		</right>
 	</object>
@@ -3119,6 +3240,17 @@
 		</right>
 	</object>
 	<object>
+		<name>InformationRegister.BinaryFilesData</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Update</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>SessionParameter.AttachedExtensions</name>
 		<right>
 			<name>Get</name>
@@ -3267,6 +3399,17 @@
 	</object>
 	<object>
 		<name>InformationRegister.InteractionsSubjectsStates</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Update</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>InformationRegister.AccountingCheckResults</name>
 		<right>
 			<name>Read</name>
 			<value>true</value>

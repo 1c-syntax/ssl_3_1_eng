@@ -60,8 +60,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	LanguagesSet.Columns.Add("Suffix",       Common.StringTypeDetails(50));
 	
 	If StorageInTabularSection And Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-		PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
-		PrintManagementModuleMultilanguage.WhenFillingInASetOfLanguages(LanguagesSet);
+		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
+		PrintManagementModuleNationalLanguageSupport.WhenFillingInASetOfLanguages(LanguagesSet);
 	EndIf;
 	
 	LanguagesUsed = New Map;

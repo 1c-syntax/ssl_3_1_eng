@@ -31,12 +31,12 @@ EndProcedure
 
 Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	
-	ErrorsList = CheckTheUniquenessOfTheElements();
+	ErrorList = CheckTheUniquenessOfTheElements();
 	
-	If ErrorsList.Count() > 0 Then
+	If ErrorList.Count() > 0 Then
 		
 		Cancel = True;
-		For Each ErrorDescription In ErrorsList Do
+		For Each ErrorDescription In ErrorList Do
 			Common.MessageToUser(ErrorDescription.MessageText,, ErrorDescription.FieldName);
 		EndDo;
 		

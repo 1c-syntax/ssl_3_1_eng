@@ -54,7 +54,6 @@ Procedure OverrideRecipientsTypesTable(TypesTable, AvailableTypes) Export
 	
 EndProcedure
 
-
 // Allows you to define a handler for saving a spreadsheet document to a format.
 // Important:
 //   If non-standard processing is used (StandardProcessing is changed to False),
@@ -131,6 +130,56 @@ EndProcedure
 //    * DCSettingsComposer - DataCompositionSettingsComposer - a report settings composer.
 //
 Procedure OnPrepareReportGenerationParameters(GenerationParameters, AdditionalParameters) Export 
+	
+	
+	
+EndProcedure
+
+// 
+// 
+// 
+// Parameters:
+//   BulkEmailType - String -
+//   MailingRecipientType        - TypeDescription
+//                                 - Undefined - 
+//   AdditionalTextParameters - Structure -
+//     * Key     - String -
+//     * Value - String - representation of the argument.
+//
+//  Example:
+//	
+//		
+//		
+//		
+//	
+//
+Procedure OnDefineEmailTextParameters(BulkEmailType, MailingRecipientType, AdditionalTextParameters) Export
+	
+	
+	
+EndProcedure
+
+// 
+// 
+// 
+// Parameters:
+//   BulkEmailType - String -
+//   MailingRecipientType - TypeDescription
+//   Recipient - DefinedType.BulkEmailRecipient -
+//              - Undefined - 
+//   AdditionalTextParameters - Structure -
+//     * Key     - String -
+//     * Value - String - representation of the argument.
+// 
+// Example:
+//	
+//		
+//		
+//		
+//		
+//	
+//
+Procedure OnReceiveEmailTextParameters(BulkEmailType, MailingRecipientType, Recipient, AdditionalTextParameters) Export
 	
 	
 	

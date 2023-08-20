@@ -764,7 +764,7 @@ Function ObjectsForReplacementQueryText(SubordinateObjectDetails, Links)
 			AttributesToChange = AttributesToChange + ?(IsBlankString(AttributesToChange),Value, ","+Value);
 			
 			Value = StringFunctionsClientServer.SubstituteParametersToString("CASE WHEN Replacement%1.Original IS NULL THEN Tab.%1 ELSE Replacement%1.Duplicate1 END AS %1", KeyAttribute);
-			ValueAttributesToChange = ValueAttributesToChange + ?(IsBlankString(ValueAttributesToChange),Value, ","+Value);;
+			ValueAttributesToChange = ValueAttributesToChange + ?(IsBlankString(ValueAttributesToChange),Value, ","+Value);
 		
 			Value = StringFunctionsClientServer.SubstituteParametersToString(" LEFT JOIN ReplacementTable AS Replacement%1
 								|ON Tab.%1 = Replacement%1.Original", KeyAttribute);

@@ -65,7 +65,6 @@ EndFunction
 //
 Function DuplicatesGroups(Val SearchParameters, Val SampleObject = Undefined) Export
 	
-	Var UsageInstances;
 	FullMetadataObjectName = SearchParameters.DuplicatesSearchArea;
 	MetadataObject = Common.MetadataObjectByFullName(FullMetadataObjectName);
 	
@@ -87,10 +86,6 @@ Function DuplicatesGroups(Val SearchParameters, Val SampleObject = Undefined) Ex
 	
 	// Call the DuplicatesSearchParameters handler.
 	HasSearchRules = False;
-	FieldsNamesToCompareForEquality = ""; // 
-	FieldsNamesToCompareForSimilarity   = ""; // 
-	AdditionalFieldsNames = ""; // 
-	ItemsCountToCompare = 0;  // 
 	AdditionalParameters = CommonClientServer.StructureProperty(SearchParameters, "AdditionalParameters");
 	SearchAreaManager = Undefined;
 	
@@ -109,6 +104,8 @@ Function DuplicatesGroups(Val SearchParameters, Val SampleObject = Undefined) Ex
 		HasSearchRules = HasSearchRules Or SearchParameters.TakeAppliedRulesIntoAccount;	
 	EndIf;		
 		
+	AdditionalFieldsNames = ""; // 
+	ItemsCountToCompare = 0;  // 
 	If HasSearchRules Then
 		AllAdditionalFields = New Map;
 		For Each Restriction In AppliedSearchParameters.ComparisonRestrictions Do
@@ -124,198 +121,13 @@ Function DuplicatesGroups(Val SearchParameters, Val SampleObject = Undefined) Ex
 		ItemsCountToCompare = AppliedSearchParameters.ItemsCountToCompare;
 	EndIf;
 	
-	For Each String In SearchParameters.SearchRules Do
-		If String.Rule = "Equal" Then
-			FieldsNamesToCompareForEquality = FieldsNamesToCompareForEquality + ", " + String.Attribute;
-		ElsIf String.Rule = "Like" Then
-			FieldsNamesToCompareForSimilarity = FieldsNamesToCompareForSimilarity + ", " + String.Attribute;
-		EndIf
-	EndDo;
-	FieldsNamesToCompareForEquality = Mid(FieldsNamesToCompareForEquality, 2);
-	FieldsNamesToCompareForSimilarity   = Mid(FieldsNamesToCompareForSimilarity, 2);
-	
-	FieldsToCompareForEquality   = New Structure(FieldsNamesToCompareForEquality);
-	FieldsToCompareForSimilarity     = New Structure(FieldsNamesToCompareForSimilarity);
-	AdditionalFields = New Structure(AdditionalFieldsNames);
-	
-	// Generate filter conditions.
-	Characteristics = New Structure;
-	Characteristics.Insert("CodeLength", 0);
-	Characteristics.Insert("NumberLength", 0);
-	Characteristics.Insert("DescriptionLength", 0);
-	Characteristics.Insert("Hierarchical", False);
-	Characteristics.Insert("HierarchyType", Undefined);
-	
-	FillPropertyValues(Characteristics, MetadataObject);
-	
-	HasDescription = Characteristics.DescriptionLength > 0;
-	HasCode          = Characteristics.CodeLength > 0;
-	HasNumber        = Characteristics.NumberLength > 0;
-	
-	// Set aliases of additional fields so that they do not overlap with other fields.
-	CandidatesTable = CandidatesTable();
-	
-	FieldsNamesInQuery = AvailableFilterAttributes(MetadataObject);
-	If Not HasCode Then
-		If HasNumber Then 
-			FieldsNamesInQuery = FieldsNamesInQuery + ", Number AS Code";
-		Else
-			FieldsNamesInQuery = FieldsNamesInQuery + ", UNDEFINED AS Code";
-		EndIf;
-	EndIf;
-	If Not HasDescription Then
-		FieldsNamesInQuery = FieldsNamesInQuery + ", Ref AS Description";
-	EndIf;
-	FieldsNamesInChoice  = StrSplit(FieldsNamesToCompareForEquality + "," + FieldsNamesToCompareForSimilarity, ",", False);
-	
-	AdditionalFieldsDetails = New Map;
-	SequenceNumber = 0;
-	For Each TableField In AdditionalFields Do
-		FieldName   = TableField.Key;
-		Alias = "Addl" + Format(SequenceNumber, "NZ=; NG=") + "_" + FieldName;
-		AdditionalFieldsDetails.Insert(Alias, FieldName);
-		
-		FieldsNamesInQuery = FieldsNamesInQuery + "," + FieldName + " AS " + Alias;
-		FieldsNamesInChoice.Add(Alias);
-		SequenceNumber = SequenceNumber + 1;
-	EndDo;
-	
-	QueryText = "SELECT ALLOWED * FROM #Table";
-	QueryText = StrReplace(QueryText, "*", FieldsNamesInQuery);
-	QueryText = StrReplace(QueryText, "#Table", FullMetadataObjectName);
-	
-	// Schema population.
-	DCSchema = New DataCompositionSchema;
-	
-	DCSchemaDataSource = DCSchema.DataSources.Add();
-	DCSchemaDataSource.Name = "DataSource1";
-	DCSchemaDataSource.DataSourceType = "Local";
-	
-	DataSet = DCSchema.DataSets.Add(Type("DataCompositionSchemaDataSetQuery"));
-	DataSet.Name = "DataSet1";
-	DataSet.DataSource = "DataSource1";
-	DataSet.Query = QueryText;
-	DataSet.AutoFillAvailableFields = True;
-	
-	// Composer initialization.
-	DCSettingsComposer = New DataCompositionSettingsComposer;
-	DCSettingsComposer.Initialize(New DataCompositionAvailableSettingsSource(DCSchema));
-	DCSettingsComposer.LoadSettings(SearchParameters.PrefilterComposer.Settings);
-	DCSettings = DCSettingsComposer.Settings;
-	
-	// Поля.
-	DCSettings.Selection.Items.Clear();
-	For Each FieldName In FieldsNamesInChoice Do
-		DCField = New DataCompositionField(TrimAll(FieldName));
-		AvailableDCField = DCSettings.SelectionAvailableFields.FindField(DCField);
-		If AvailableDCField = Undefined Then
-			WriteLogEvent(DuplicateObjectsDetection.SubsystemDescription(False),
-				EventLogLevel.Warning, MetadataObject, SampleObject,
-				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Field %1 does not exist.';"), String(DCField)));
-			Continue;
-		EndIf;
-		SelectedDCField = DCSettings.Selection.Items.Add(Type("DataCompositionSelectedField"));
-		SelectedDCField.Field = DCField;
-	EndDo;
-	SelectedDCField = DCSettings.Selection.Items.Add(Type("DataCompositionSelectedField"));
-	SelectedDCField.Field = New DataCompositionField("Ref");
-	SelectedDCField = DCSettings.Selection.Items.Add(Type("DataCompositionSelectedField"));
-	SelectedDCField.Field = New DataCompositionField("Code");
-	SelectedDCField = DCSettings.Selection.Items.Add(Type("DataCompositionSelectedField"));
-	SelectedDCField.Field = New DataCompositionField("Description");
-	SelectedDCField = DCSettings.Selection.Items.Add(Type("DataCompositionSelectedField"));
-	SelectedDCField.Field = New DataCompositionField("DeletionMark");
-	If Characteristics.Hierarchical
-			And Characteristics.HierarchyType = Metadata.ObjectProperties.HierarchyType.HierarchyFoldersAndItems Then
-		
-		SelectedDCField = DCSettings.Selection.Items.Add(Type("DataCompositionSelectedField"));
-		SelectedDCField.Field = New DataCompositionField("IsFolder");
-		
-		SelectedDCField = DCSettings.Selection.Items.Add(Type("DataCompositionSelectedField"));
-		SelectedDCField.Field = New DataCompositionField("Parent");
-	EndIf;
-	
-	// Сортировки.
-	DCSettings.Order.Items.Clear();
-	DCOrderItem = DCSettings.Order.Items.Add(Type("DataCompositionOrderItem"));
-	DCOrderItem.Field = New DataCompositionField("Ref");
-	
-	// Filters.
-	//
-	If MetadataObject = Metadata.Catalogs.Users Then
-		DCFilterItem = DCSettings.Filter.Items.Add(Type("DataCompositionFilterItem"));
-		DCFilterItem.LeftValue  = New DataCompositionField("IsInternal");
-		DCFilterItem.ComparisonType   = DataCompositionComparisonType.Equal;
-		DCFilterItem.RightValue = False;
-	EndIf;
-	
-	// Structure
-	DCSettings.Structure.Clear();
-	DCGroup = DCSettings.Structure.Add(Type("DataCompositionGroup"));
-	DCGroup.Selection.Items.Add(Type("DataCompositionAutoSelectedField"));
-	DCGroup.Order.Items.Add(Type("DataCompositionAutoOrderItem"));
-	
-	// Read original data.
-	If SampleObject = Undefined Then
-		SampleObjectsSelection = InitializeDCSelection(DCSchema, DCSettingsComposer.GetSettings());
-	Else
-		ValueTable = ObjectIntoValueTable(SampleObject, AdditionalFieldsDetails);
-		If Not HasCode And Not HasNumber Then
-			ValueTable.Columns.Add("Code", New TypeDescription("Undefined"));
-		EndIf;
-		SampleObjectsSelection = InitializeVTSelection(ValueTable);
-	EndIf;
-	
-	// Preparing DCS to read the duplicate data.
-	CandidatesFilters = New Map;
-	FieldsNames = StrSplit(FieldsNamesToCompareForEquality, ",", False);
-	For Each FieldName In FieldsNames Do
-		FieldName = TrimAll(FieldName);
-		DCFilterItem = DCSettings.Filter.Items.Add(Type("DataCompositionFilterItem"));
-		DCFilterItem.LeftValue = New DataCompositionField(FieldName);
-		DCFilterItem.ComparisonType = DataCompositionComparisonType.Equal;
-		CandidatesFilters.Insert(FieldName, DCFilterItem);
-	EndDo;
-	DCFilterItem = DCSettings.Filter.Items.Add(Type("DataCompositionFilterItem"));
-	DCFilterItem.LeftValue = New DataCompositionField("Ref");
-	DCFilterItem.ComparisonType = ?(SampleObject = Undefined, DataCompositionComparisonType.Greater, DataCompositionComparisonType.NotEqual);
-	CandidatesFilters.Insert("Ref", DCFilterItem);
-	
-	If Characteristics.Hierarchical
-			And Characteristics.HierarchyType = Metadata.ObjectProperties.HierarchyType.HierarchyFoldersAndItems Then
-		
-		DCFilterItem = DCSettings.Filter.Items.Add(Type("DataCompositionFilterItem"));
-		DCFilterItem.LeftValue = New DataCompositionField("IsFolder");
-		DCFilterItem.ComparisonType = DataCompositionComparisonType.Equal;
-		CandidatesFilters.Insert("IsFolder", DCFilterItem);
-		
-		OrGroup = DCSettings.Filter.Items.Add(Type("DataCompositionFilterItemGroup"));
-		OrGroup.GroupType = DataCompositionFilterItemsGroupType.OrGroup;
-		
-		AndGroup = OrGroup.Items.Add(Type("DataCompositionFilterItemGroup"));
-		AndGroup.GroupType = DataCompositionFilterItemsGroupType.AndGroup;
-		
-		DCFilterItem = AndGroup.Items.Add(Type("DataCompositionFilterItem"));
-		DCFilterItem.LeftValue = New DataCompositionField("IsFolder");
-		DCFilterItem.ComparisonType = DataCompositionComparisonType.Equal;
-		DCFilterItem.RightValue = False;
-		
-		AndGroup = OrGroup.Items.Add(Type("DataCompositionFilterItemGroup"));
-		AndGroup.GroupType = DataCompositionFilterItemsGroupType.AndGroup;
-		
-		DCFilterItem = AndGroup.Items.Add(Type("DataCompositionFilterItem"));
-		DCFilterItem.LeftValue = New DataCompositionField("IsFolder");
-		DCFilterItem.ComparisonType = DataCompositionComparisonType.Equal;
-		DCFilterItem.RightValue = True;
-		
-		DCFilterItem = AndGroup.Items.Add(Type("DataCompositionFilterItem"));
-		DCFilterItem.LeftValue = New DataCompositionField("Parent");
-		DCFilterItem.ComparisonType = DataCompositionComparisonType.Equal;
-		CandidatesFilters.Insert("Parent", DCFilterItem);
-	EndIf;
+	Characteristics = MetadataObjectCharacteristics(MetadataObject);
+	RequestStructure = QueryTextForDuplicatesSearch(SearchParameters, Characteristics, AdditionalFieldsNames);
+	QuerySchema = DuplicateSearchDataCompositionSchema(SearchParameters, Characteristics, RequestStructure, SampleObject);
 	
 	// Result and search cycle
-	DuplicatesCollection = DuplicatesCollection(SearchParameters, FieldsToCompareForSimilarity, FieldsToCompareForEquality);
+	DuplicatesCollection = DuplicatesCollection(SearchParameters, RequestStructure.FieldsNamesToCompareForSimilarity, 
+		RequestStructure.FieldsNamesToCompareForEquality);
 	DuplicatesTable = DuplicatesCollection.DuplicatesTable;
 
 	Result = New Structure;
@@ -324,40 +136,34 @@ Function DuplicatesGroups(Val SearchParameters, Val SampleObject = Undefined) Ex
 	Result.Insert("ReturnedLessThanFound", False);
 	Result.Insert("UsageInstances");
 	
-	FieldsStructure = New Structure;
-	FieldsStructure.Insert("AdditionalFieldsDetails", AdditionalFieldsDetails);
-	FieldsStructure.Insert("IdentityFieldsStructure",     FieldsToCompareForEquality);
-	FieldsStructure.Insert("SimilarityFieldsStructure",          FieldsToCompareForSimilarity);
-	FieldsStructure.Insert("IdentityFieldsList",        FieldsNamesToCompareForEquality);
-	FieldsStructure.Insert("SimilarityFieldsList",             FieldsNamesToCompareForSimilarity);
+	CandidatesTable = CandidatesTable();
 	
-	While NextSelectionItem(SampleObjectsSelection) Do
-		SampleItem = SampleObjectsSelection.CurrentItem;
+	While NextSelectionItem(QuerySchema.SampleObjectsSelection) Do
+		SampleItem = QuerySchema.SampleObjectsSelection.CurrentItem;
 		
 		// Setting filters for candidate selection.
-		For Each FilterElement In CandidatesFilters Do
+		For Each FilterElement In QuerySchema.CandidatesFilters Do
 			FilterElement.Value.RightValue = SampleItem[FilterElement.Key];
 		EndDo;
 		
-		// Selection of data candidates from DBMS.
-		CandidatesSelection = InitializeDCSelection(DCSchema, DCSettings);
+		// 
+		CandidatesSelection = InitializeDCSelection(QuerySchema.DCSchema, QuerySchema.DCSettings);
 		DuplicatesCandidates = CandidatesSelection.DCOutputProcessor.Output(CandidatesSelection.DCProcessor);
 		
-		If FieldsToCompareForSimilarity.Count() > 0 Then
+		If RequestStructure.FieldsNamesToCompareForSimilarity.Count() > 0 Then
 			
 			StringsComparisonForSimilarity = AppliedSearchParameters.StringsComparisonForSimilarity;
 			Try
 				ParametersOfSearchForSimilarStrings = DuplicateObjectsDetection.ParametersOfSearchForSimilarStrings();
 			Except
 				Result.ErrorDescription = 
-					NStr("en = 'Cannot attach the fuzzy search add-in. See the Event log for details.';");
+					NStr("en = 'Cannot attach the add-in for fuzzy search for duplicates. For more information, see the event log.';");
 				Return Result;
 			EndTry;
 			FillPropertyValues(ParametersOfSearchForSimilarStrings, StringsComparisonForSimilarity);
 			
-			For Each TableField In FieldsToCompareForSimilarity Do
+			For Each FieldName In RequestStructure.FieldsNamesToCompareForSimilarity Do
 				
-				FieldName = TableField.Key;       
 				ValueOfField = New Array;
 				For Each TableRow In DuplicatesCandidates Do
 					ValueOfField.Add(StrReplace(TableRow[FieldName], "~", "\u126"));
@@ -378,14 +184,14 @@ Function DuplicatesGroups(Val SearchParameters, Val SampleObject = Undefined) Ex
 					DuplicateItem1 = DuplicatesCandidates.Get(RowIndex);
 					
 					If HasSearchRules Then
-						AddCandidatesRow(CandidatesTable, SampleItem, DuplicateItem1, FieldsStructure);
+						AddCandidatesRow(CandidatesTable, SampleItem, DuplicateItem1, RequestStructure);
 						If CandidatesTable.Count() = ItemsCountToCompare Then
 							RegisterDuplicatesByAppliedRules(DuplicatesCollection, FullMetadataObjectName, SearchAreaManager, 
-								SampleItem, CandidatesTable, FieldsStructure, AdditionalParameters);
+								SampleItem, CandidatesTable, RequestStructure, AdditionalParameters);
 							CandidatesTable.Clear();
 						EndIf;
 					Else
-						RegisterDuplicate(DuplicatesCollection, SampleItem, DuplicateItem1, FieldsStructure);
+						RegisterDuplicate(DuplicatesCollection, SampleItem, DuplicateItem1, RequestStructure);
 					EndIf;
 					
 				EndDo;
@@ -395,14 +201,14 @@ Function DuplicatesGroups(Val SearchParameters, Val SampleObject = Undefined) Ex
 			For Each DuplicateItem1 In DuplicatesCandidates Do
 				
 				If HasSearchRules Then
-					AddCandidatesRow(CandidatesTable, SampleItem, DuplicateItem1, FieldsStructure);
+					AddCandidatesRow(CandidatesTable, SampleItem, DuplicateItem1, RequestStructure);
 					If CandidatesTable.Count() = ItemsCountToCompare Then
 						RegisterDuplicatesByAppliedRules(DuplicatesTable, FullMetadataObjectName, SearchAreaManager, 
-							SampleItem, CandidatesTable, FieldsStructure, AdditionalParameters);
+							SampleItem, CandidatesTable, RequestStructure, AdditionalParameters);
 						CandidatesTable.Clear();
 					EndIf;
 				Else
-					RegisterDuplicate(DuplicatesCollection, SampleItem, DuplicateItem1, FieldsStructure);
+					RegisterDuplicate(DuplicatesCollection, SampleItem, DuplicateItem1, RequestStructure);
 				EndIf;
 				
 			EndDo;
@@ -411,7 +217,7 @@ Function DuplicatesGroups(Val SearchParameters, Val SampleObject = Undefined) Ex
 		// Processing the rest of the applied rule table.
 		If HasSearchRules Then
 			RegisterDuplicatesByAppliedRules(DuplicatesCollection, FullMetadataObjectName, SearchAreaManager, 
-				SampleItem, CandidatesTable, FieldsStructure, AdditionalParameters);
+				SampleItem, CandidatesTable, RequestStructure, AdditionalParameters);
 			CandidatesTable.Clear();
 		EndIf;
 		
@@ -499,13 +305,16 @@ EndProcedure
 
 #Region Private
 
+// 
+
 // Handler of background deletion of duplicates.
 //
 // Parameters:
-//     Parameters       - Structure - data to be analyzed.
-//     ResultAddress - String    - a temporary storage address to save the result.
+//     Parameters - Structure - data to be analyzed.
+// Returns:
+//   See Common.ReplaceReferences
 //
-Procedure BackgroundDuplicateDeletion(Val Parameters, Val ResultAddress) Export
+Function BackgroundDuplicateDeletion(Val Parameters) Export
 	
 	ReplacementParameters = New Structure;
 	ReplacementParameters.Insert("IncludeBusinessLogic", False);
@@ -513,9 +322,12 @@ Procedure BackgroundDuplicateDeletion(Val Parameters, Val ResultAddress) Export
 	ReplacementParameters.Insert("ReplacePairsInTransaction", False);
 	ReplacementParameters.Insert("DeletionMethod", Parameters.DeletionMethod);
 	
-	ReplaceReferences(Parameters.ReplacementPairs, ReplacementParameters, ResultAddress);
+	Result = Common.ReplaceReferences(Parameters.ReplacementPairs, ReplacementParameters);
+	Return Result;
 	
-EndProcedure
+EndFunction
+
+// 
 
 // Converts an object to a table for adding to a query.
 Function ObjectIntoValueTable(Val DataObject, Val AdditionalFieldsDetails)
@@ -548,52 +360,49 @@ EndFunction
 
 // An additional analysis of duplicates candidates with the OnDuplicatesSearch handler.
 //
-Procedure RegisterDuplicatesByAppliedRules(ResultTreeRows, Val FullMetadataObjectName, Val SearchAreaManager, 
-	Val MainData, Val CandidatesTable, Val FieldsStructure, Val AdditionalParameters)
+Procedure RegisterDuplicatesByAppliedRules(DuplicatesCollection, Val FullMetadataObjectName, 
+	Val SearchAreaManager, Val MainData, Val ItemsDuplicates, Val RequestStructure, Val AdditionalParameters)
 	
-	If CandidatesTable.Count() = 0 Then
+	If ItemsDuplicates.Count() = 0 Then
 		Return;
 	EndIf;
 	
 	If SearchAreaManager <> Undefined Then
-		SearchAreaManager.OnSearchForDuplicates(CandidatesTable, AdditionalParameters);
+		SearchAreaManager.OnSearchForDuplicates(ItemsDuplicates, AdditionalParameters);
 	EndIf;
-	DuplicateObjectsDetectionOverridable.OnSearchForDuplicates(FullMetadataObjectName, CandidatesTable, AdditionalParameters);
+	DuplicateObjectsDetectionOverridable.OnSearchForDuplicates(FullMetadataObjectName, ItemsDuplicates, AdditionalParameters);
 	
 	Data1 = New Structure;
 	Data2 = New Structure;
 	
-	FoundItems = CandidatesTable.FindRows(New Structure("IsDuplicates", True));
-	For Each CandidatesPair In FoundItems Do
-		Data1.Insert("Ref",       CandidatesPair.Ref1);
-		Data1.Insert("Code",          CandidatesPair.Fields1.Code);
-		Description1 = CandidatesPair.Fields1.Description;// String
-		Data1.Insert("Description", Description1);
-		Data1.Insert("DeletionMark", CandidatesPair.Fields1.DeletionMark);
+	FoundDuplicates = ItemsDuplicates.FindRows(New Structure("IsDuplicates", True));
+	For Each Duplicate1 In FoundDuplicates Do
+		Data1.Insert("Ref",       Duplicate1.Ref1);
+		Data1.Insert("Code",          Duplicate1.Fields1.Code);
+		Data1.Insert("Description", Duplicate1.Fields1.Description);
+		Data1.Insert("DeletionMark", Duplicate1.Fields1.DeletionMark);
 		
-		Data2.Insert("Ref",       CandidatesPair.Ref2);
-		Data2.Insert("Code",          CandidatesPair.Fields2.Code);
-		Data2.Insert("Description", CandidatesPair.Fields2.Description);
-		Data2.Insert("DeletionMark", CandidatesPair.Fields2.DeletionMark);
+		Data2.Insert("Ref",       Duplicate1.Ref2);
+		Data2.Insert("Code",          Duplicate1.Fields2.Code);
+		Data2.Insert("Description", Duplicate1.Fields2.Description);
+		Data2.Insert("DeletionMark", Duplicate1.Fields2.DeletionMark);
 		
-		For Each KeyValue In FieldsStructure.IdentityFieldsStructure Do
-			FieldName = KeyValue.Key;
-			Data1.Insert(FieldName, CandidatesPair.Fields1[FieldName]);
-			Data2.Insert(FieldName, CandidatesPair.Fields2[FieldName]);
+		For Each FieldName In RequestStructure.FieldsNamesToCompareForEquality Do
+			Data1.Insert(FieldName, Duplicate1.Fields1[FieldName]);
+			Data2.Insert(FieldName, Duplicate1.Fields2[FieldName]);
 		EndDo;
-		For Each KeyValue In FieldsStructure.SimilarityFieldsStructure Do
-			FieldName = KeyValue.Key;
-			Data1.Insert(FieldName, CandidatesPair.Fields1[FieldName]);
-			Data2.Insert(FieldName, CandidatesPair.Fields2[FieldName]);
+		For Each FieldName In RequestStructure.FieldsNamesToCompareForSimilarity Do
+			Data1.Insert(FieldName, Duplicate1.Fields1[FieldName]);
+			Data2.Insert(FieldName, Duplicate1.Fields2[FieldName]);
 		EndDo;
 		
-		RegisterDuplicate(ResultTreeRows, Data1, Data2, FieldsStructure);
+		RegisterDuplicate(DuplicatesCollection, Data1, Data2, RequestStructure);
 	EndDo;
 EndProcedure
 
-// Add a row to the candidate table for the applied method.
+// 
 //
-// Details
+// 
 // 
 // Parameters:
 //   CandidatesTable - See CandidatesTable
@@ -607,11 +416,12 @@ EndProcedure
 //   * Description - String
 //   * Code - String
 //   * DeletionMark - Boolean
-//   FieldsStructure - Structure
+//   RequestStructure - Structure
+//
 // Returns:
 //   ValueTableRow
 //
-Function AddCandidatesRow(CandidatesTable,  Val MainItemData, Val CandidateData, Val FieldsStructure)
+Function AddCandidatesRow(CandidatesTable,  Val MainItemData, Val CandidateData, Val RequestStructure)
 	
 	String = CandidatesTable.Add();
 	String.IsDuplicates = False;
@@ -623,19 +433,17 @@ Function AddCandidatesRow(CandidatesTable,  Val MainItemData, Val CandidateData,
 	String.Fields2 = New Structure("Code, Description, DeletionMark", 
 		CandidateData.Code, CandidateData.Description, CandidateData.DeletionMark);
 	
-	For Each KeyValue In FieldsStructure.IdentityFieldsStructure Do
-		FieldName = KeyValue.Key;
+	For Each FieldName In RequestStructure.FieldsNamesToCompareForEquality Do
 		String.Fields1.Insert(FieldName, MainItemData[FieldName]);
 		String.Fields2.Insert(FieldName, CandidateData[FieldName]);
 	EndDo;
 	
-	For Each KeyValue In FieldsStructure.SimilarityFieldsStructure Do
-		FieldName = KeyValue.Key;
+	For Each FieldName In RequestStructure.FieldsNamesToCompareForSimilarity Do
 		String.Fields1.Insert(FieldName, MainItemData[FieldName]);
 		String.Fields2.Insert(FieldName, CandidateData[FieldName]);
 	EndDo;
 	
-	For Each KeyValue In FieldsStructure.AdditionalFieldsDetails Do
+	For Each KeyValue In RequestStructure.AdditionalFieldsDetails Do
 		ColumnName = KeyValue.Value;
 		FieldName    = KeyValue.Key;
 		
@@ -648,7 +456,7 @@ EndFunction
 
 // Add the found duplicate to the result tree.
 //
-Procedure RegisterDuplicate(DuplicatesCollection, Val Item1, Val Item2, Val FieldsStructure)
+Procedure RegisterDuplicate(DuplicatesCollection, Val Item1, Val Item2, Val RequestStructure)
 	
 	DuplicatesTable = DuplicatesCollection.DuplicatesTable;
 	NotSignificantDuplicates = DuplicatesCollection.NotSignificantDuplicates;
@@ -682,7 +490,9 @@ Procedure RegisterDuplicate(DuplicatesCollection, Val Item1, Val Item2, Val Fiel
 		DuplicatesGroupsRef = DuplicatesGroup.Ref;
 	EndIf;
 	
-	ListOfProperties = "Ref,Code,Description,DeletionMark," + FieldsStructure.IdentityFieldsList + "," + FieldsStructure.SimilarityFieldsList;
+	ListOfProperties = "Ref,Code,Description,DeletionMark," 
+		+ StrConcat(RequestStructure.FieldsNamesToCompareForEquality, ",") + "," 
+		+ StrConcat(RequestStructure.FieldsNamesToCompareForSimilarity, ",");
 	
 	If Not Duplicate1Registered Then
 			
@@ -714,30 +524,270 @@ Procedure RegisterDuplicate(DuplicatesCollection, Val Item1, Val Item2, Val Fiel
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// For offline work.
-
-// [ОбщегоНазначения.МестаИспользования]
 Function SearchForReferences(Val RefSet, Val ResultAddress = "")
 	
 	Return Common.UsageInstances(RefSet, ResultAddress);
 	
 EndFunction
 
-// [ОбщегоНазначения.ЗаменитьСсылки]
-Procedure ReplaceReferences(Val ReplacementPairs, Val Parameters = Undefined, Val ResultAddress = "")
-	
-	Result = Common.ReplaceReferences(ReplacementPairs, Parameters);
-	
-	If ResultAddress <> "" Then
-		PutToTempStorage(Result, ResultAddress);
-	EndIf;
-	
-EndProcedure
-
 ////////////////////////////////////////////////////////////////////////////////
 // Miscellaneous.
 
+// Parameters:
+//  MetadataObject 
+// 
+// Returns:
+//  Structure:
+//   * CodeLength - Number
+//   * NumberLength - Number
+//   * DescriptionLength - Number
+//   * Hierarchical - Boolean
+//   * HierarchyType - HierarchyType
+//   * HasDescription - Boolean
+//   * HasCode - Boolean
+//   * HasNumber - Boolean
+//
+Function MetadataObjectCharacteristics(MetadataObject)
+	
+	Result = New Structure;
+	Result.Insert("CodeLength", 0);
+	Result.Insert("NumberLength", 0);
+	Result.Insert("DescriptionLength", 0);
+	Result.Insert("Hierarchical", False);
+	Result.Insert("HierarchyType", Undefined);
+	FillPropertyValues(Result, MetadataObject);
+	Result.Insert("HasDescription", Result.DescriptionLength > 0);
+	Result.Insert("HasCode", Result.CodeLength > 0);
+	Result.Insert("HasNumber", Result.NumberLength > 0);
+	Result.Insert("FullMetadataObjectName", MetadataObject.FullName());
+	Result.Insert("MetadataObject", MetadataObject);
+	Return Result;
+	
+EndFunction
+
+// Parameters:
+//  SearchParameters - See DuplicateObjectsDetection.DuplicatesSearchParameters
+//  Characteristics - See MetadataObjectCharacteristics
+// 
+// Returns:
+//  Structure:
+//   * QueryText - String
+//   * AdditionalFieldsDetails - Map
+//   * FieldsNamesToCompareForEquality - Array of String
+//   * FieldsNamesToCompareForSimilarity - Array of String
+//   * FieldsNamesInChoice - Array of String
+//
+Function QueryTextForDuplicatesSearch(SearchParameters, Characteristics, AdditionalFieldsNames)
+	
+	FieldsNamesToCompareForEquality = New Array; // 
+	FieldsNamesToCompareForSimilarity   = New Array; // 
+	For Each String In SearchParameters.SearchRules Do
+		If String.Rule = "Equal" Then
+			FieldsNamesToCompareForEquality.Add(String.Attribute);
+		ElsIf String.Rule = "Like" Then
+			FieldsNamesToCompareForSimilarity.Add(String.Attribute);
+		EndIf
+	EndDo;
+	
+	// 
+	FieldsNamesInQuery = AvailableFilterAttributes(Characteristics.MetadataObject);
+	If Not Characteristics.HasCode Then
+		If Characteristics.HasNumber Then 
+			FieldsNamesInQuery = FieldsNamesInQuery + ", Number AS Code";
+		Else
+			FieldsNamesInQuery = FieldsNamesInQuery + ", UNDEFINED AS Code";
+		EndIf;
+	EndIf;
+	If Not Characteristics.HasDescription Then
+		FieldsNamesInQuery = FieldsNamesInQuery + ", Ref AS Description";
+	EndIf;
+	FieldsNamesInChoice = Common.CopyRecursive(FieldsNamesToCompareForEquality);
+	CommonClientServer.SupplementArray(FieldsNamesInChoice, FieldsNamesToCompareForSimilarity);
+	
+	AdditionalFieldsDetails = New Map;
+	SequenceNumber = 0;
+	For Each TableField In New Structure(AdditionalFieldsNames) Do
+		FieldName   = TableField.Key;
+		Alias = "Addl" + Format(SequenceNumber, "NZ=; NG=") + "_" + FieldName;
+		AdditionalFieldsDetails.Insert(Alias, FieldName);
+		
+		FieldsNamesInQuery = FieldsNamesInQuery + "," + FieldName + " AS " + Alias;
+		FieldsNamesInChoice.Add(Alias);
+		SequenceNumber = SequenceNumber + 1;
+	EndDo;
+	
+	QueryText = "SELECT ALLOWED * FROM #Table";
+	QueryText = StrReplace(QueryText, "*", FieldsNamesInQuery);
+	QueryText = StrReplace(QueryText, "#Table", Characteristics.FullMetadataObjectName);
+	
+	Result = New Structure;
+	Result.Insert("QueryText", QueryText);
+	Result.Insert("AdditionalFieldsDetails", AdditionalFieldsDetails);
+	Result.Insert("FieldsNamesToCompareForEquality", FieldsNamesToCompareForEquality);
+	Result.Insert("FieldsNamesToCompareForSimilarity", FieldsNamesToCompareForSimilarity);
+	Result.Insert("FieldsNamesInChoice", FieldsNamesInChoice);
+	
+	Return Result;
+	
+EndFunction
+
+// Parameters:
+//  SearchParameters - See DuplicateObjectsDetection.DuplicatesSearchParameters
+//  Characteristics - See MetadataObjectCharacteristics
+//  RequestStructure - See QueryTextForDuplicatesSearch
+//  SampleObject - 
+// 
+// Returns:
+//  Structure:
+//   * DCSchema - DataCompositionSchema
+//   * DCSettings - DataCompositionSettings
+//   * SampleObjectsSelection - Structure:
+//     ** Table 
+//     ** CurrentItem 
+//     ** IndexOf 
+//     ** UBound 
+//     ** DCProcessor 
+//     ** DCOutputProcessor 
+//   * CandidatesFilters - Map
+//
+Function DuplicateSearchDataCompositionSchema(SearchParameters, Characteristics, RequestStructure, SampleObject)
+	
+	DCSchema = New DataCompositionSchema;
+	DCSchemaDataSource = DCSchema.DataSources.Add();
+	DCSchemaDataSource.Name = "DataSource1";
+	DCSchemaDataSource.DataSourceType = "Local";
+	
+	DataSet = DCSchema.DataSets.Add(Type("DataCompositionSchemaDataSetQuery"));
+	DataSet.Name = "DataSet1";
+	DataSet.DataSource = "DataSource1";
+	DataSet.Query = RequestStructure.QueryText;
+	DataSet.AutoFillAvailableFields = True;
+	
+	DCSettingsComposer = New DataCompositionSettingsComposer;
+	DCSettingsComposer.Initialize(New DataCompositionAvailableSettingsSource(DCSchema));
+	DCSettingsComposer.LoadSettings(SearchParameters.PrefilterComposer.Settings);
+	DCSettings = DCSettingsComposer.Settings;
+	
+	// Поля.
+	DCSettings.Selection.Items.Clear();
+	For Each FieldName In RequestStructure.FieldsNamesInChoice Do
+		DCField = New DataCompositionField(TrimAll(FieldName));
+		AvailableDCField = DCSettings.SelectionAvailableFields.FindField(DCField);
+		If AvailableDCField = Undefined Then
+			WriteLogEvent(DuplicateObjectsDetection.SubsystemDescription(False),
+				EventLogLevel.Warning, Characteristics.MetadataObject, SampleObject,
+				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Field %1 does not exist.';"), String(DCField)));
+			Continue;
+		EndIf;
+		SelectedDCField = DCSettings.Selection.Items.Add(Type("DataCompositionSelectedField"));
+		SelectedDCField.Field = DCField;
+	EndDo;
+	SelectedDCField = DCSettings.Selection.Items.Add(Type("DataCompositionSelectedField"));
+	SelectedDCField.Field = New DataCompositionField("Ref");
+	SelectedDCField = DCSettings.Selection.Items.Add(Type("DataCompositionSelectedField"));
+	SelectedDCField.Field = New DataCompositionField("Code");
+	SelectedDCField = DCSettings.Selection.Items.Add(Type("DataCompositionSelectedField"));
+	SelectedDCField.Field = New DataCompositionField("Description");
+	SelectedDCField = DCSettings.Selection.Items.Add(Type("DataCompositionSelectedField"));
+	SelectedDCField.Field = New DataCompositionField("DeletionMark");
+	If Characteristics.Hierarchical
+			And Characteristics.HierarchyType = Metadata.ObjectProperties.HierarchyType.HierarchyFoldersAndItems Then
+		
+		SelectedDCField = DCSettings.Selection.Items.Add(Type("DataCompositionSelectedField"));
+		SelectedDCField.Field = New DataCompositionField("IsFolder");
+		
+		SelectedDCField = DCSettings.Selection.Items.Add(Type("DataCompositionSelectedField"));
+		SelectedDCField.Field = New DataCompositionField("Parent");
+	EndIf;
+	
+	// Сортировки.
+	DCSettings.Order.Items.Clear();
+	DCOrderItem = DCSettings.Order.Items.Add(Type("DataCompositionOrderItem"));
+	DCOrderItem.Field = New DataCompositionField("Ref");
+	
+	// 
+	//
+	If Characteristics.MetadataObject = Metadata.Catalogs.Users Then
+		DCFilterItem = DCSettings.Filter.Items.Add(Type("DataCompositionFilterItem"));
+		DCFilterItem.LeftValue  = New DataCompositionField("IsInternal");
+		DCFilterItem.ComparisonType   = DataCompositionComparisonType.Equal;
+		DCFilterItem.RightValue = False;
+	EndIf;
+	
+	// Structure
+	DCSettings.Structure.Clear();
+	DCGroup = DCSettings.Structure.Add(Type("DataCompositionGroup"));
+	DCGroup.Selection.Items.Add(Type("DataCompositionAutoSelectedField"));
+	DCGroup.Order.Items.Add(Type("DataCompositionAutoOrderItem"));
+	
+	// 
+	If SampleObject = Undefined Then
+		SampleObjectsSelection = InitializeDCSelection(DCSchema, DCSettingsComposer.GetSettings());
+	Else
+		ValueTable = ObjectIntoValueTable(SampleObject, RequestStructure.AdditionalFieldsDetails);
+		If Not Characteristics.HasCode And Not Characteristics.HasNumber Then
+			ValueTable.Columns.Add("Code", New TypeDescription("Undefined"));
+		EndIf;
+		SampleObjectsSelection = InitializeVTSelection(ValueTable);
+	EndIf;
+	
+	// 
+	CandidatesFilters = New Map;
+	For Each FieldName In RequestStructure.FieldsNamesToCompareForEquality Do
+		FieldName = TrimAll(FieldName);
+		DCFilterItem = DCSettings.Filter.Items.Add(Type("DataCompositionFilterItem"));
+		DCFilterItem.LeftValue = New DataCompositionField(FieldName);
+		DCFilterItem.ComparisonType = DataCompositionComparisonType.Equal;
+		CandidatesFilters.Insert(FieldName, DCFilterItem);
+	EndDo;
+	DCFilterItem = DCSettings.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	DCFilterItem.LeftValue = New DataCompositionField("Ref");
+	DCFilterItem.ComparisonType = ?(SampleObject = Undefined, DataCompositionComparisonType.Greater, 
+		DataCompositionComparisonType.NotEqual);
+	CandidatesFilters.Insert("Ref", DCFilterItem);
+	
+	If Characteristics.Hierarchical
+			And Characteristics.HierarchyType = Metadata.ObjectProperties.HierarchyType.HierarchyFoldersAndItems Then
+		
+		DCFilterItem = DCSettings.Filter.Items.Add(Type("DataCompositionFilterItem"));
+		DCFilterItem.LeftValue = New DataCompositionField("IsFolder");
+		DCFilterItem.ComparisonType = DataCompositionComparisonType.Equal;
+		CandidatesFilters.Insert("IsFolder", DCFilterItem);
+		
+		OrGroup = DCSettings.Filter.Items.Add(Type("DataCompositionFilterItemGroup"));
+		OrGroup.GroupType = DataCompositionFilterItemsGroupType.OrGroup;
+		
+		AndGroup = OrGroup.Items.Add(Type("DataCompositionFilterItemGroup"));
+		AndGroup.GroupType = DataCompositionFilterItemsGroupType.AndGroup;
+		
+		DCFilterItem = AndGroup.Items.Add(Type("DataCompositionFilterItem"));
+		DCFilterItem.LeftValue = New DataCompositionField("IsFolder");
+		DCFilterItem.ComparisonType = DataCompositionComparisonType.Equal;
+		DCFilterItem.RightValue = False;
+		
+		AndGroup = OrGroup.Items.Add(Type("DataCompositionFilterItemGroup"));
+		AndGroup.GroupType = DataCompositionFilterItemsGroupType.AndGroup;
+		
+		DCFilterItem = AndGroup.Items.Add(Type("DataCompositionFilterItem"));
+		DCFilterItem.LeftValue = New DataCompositionField("IsFolder");
+		DCFilterItem.ComparisonType = DataCompositionComparisonType.Equal;
+		DCFilterItem.RightValue = True;
+		
+		DCFilterItem = AndGroup.Items.Add(Type("DataCompositionFilterItem"));
+		DCFilterItem.LeftValue = New DataCompositionField("Parent");
+		DCFilterItem.ComparisonType = DataCompositionComparisonType.Equal;
+		CandidatesFilters.Insert("Parent", DCFilterItem);
+	EndIf;
+	
+	Result = New Structure;
+	Result.Insert("DCSchema", DCSchema);
+	Result.Insert("DCSettings", DCSettings);
+	Result.Insert("SampleObjectsSelection", SampleObjectsSelection);
+	Result.Insert("CandidatesFilters", CandidatesFilters);
+	Return Result;
+
+EndFunction
+	
 Function AvailableFilterAttributes(MetadataObject)
 	AttributesArray = New Array;
 	For Each AttributeMetadata1 In MetadataObject.StandardAttributes Do
@@ -894,19 +944,19 @@ EndProcedure
 //   ValueTable:
 //   * Ref - AnyRef 
 //
-Function DuplicatesTable(FieldsToCompareForSimilarity, FieldsToCompareForEquality)
+Function DuplicatesTable(FieldsNamesToCompareForSimilarity, FieldsNamesToCompareForEquality)
 	
 	DuplicatesTable = New ValueTable;
 	DuplicatesTable.Columns.Add("Ref");
-	For Each TableField In FieldsToCompareForEquality Do
-		If DuplicatesTable.Columns.Find(TableField.Key) = Undefined Then
-			DuplicatesTable.Columns.Add(TableField.Key);
+	For Each TableField In FieldsNamesToCompareForEquality Do
+		If DuplicatesTable.Columns.Find(TableField) = Undefined Then
+			DuplicatesTable.Columns.Add(TableField);
 		EndIf;
 	EndDo;
 	
-	For Each TableField In FieldsToCompareForSimilarity Do
-		If DuplicatesTable.Columns.Find(TableField.Key) = Undefined Then
-			DuplicatesTable.Columns.Add(TableField.Key);
+	For Each TableField In FieldsNamesToCompareForSimilarity Do
+		If DuplicatesTable.Columns.Find(TableField) = Undefined Then
+			DuplicatesTable.Columns.Add(TableField);
 		EndIf;
 	EndDo;
 	
@@ -938,10 +988,10 @@ EndFunction
 //                                     - Undefined
 //   * DuplicatesTable - See DuplicatesTable
 //
-Function DuplicatesCollection(Val SearchParameters, FieldsToCompareForSimilarity, FieldsToCompareForEquality)
+Function DuplicatesCollection(Val SearchParameters, FieldsNamesToCompareForSimilarity, FieldsNamesToCompareForEquality)
 	
 	DuplicatesCollection = New Structure;
-	DuplicatesCollection.Insert("DuplicatesTable", DuplicatesTable(FieldsToCompareForSimilarity, FieldsToCompareForEquality));
+	DuplicatesCollection.Insert("DuplicatesTable", DuplicatesTable(FieldsNamesToCompareForSimilarity, FieldsNamesToCompareForEquality));
 	DuplicatesCollection.Insert("ItemsCountToCompare", 
 		CommonClientServer.StructureProperty(SearchParameters, "MaxDuplicates", 0));
 	DuplicatesCollection.Insert("DuplicatesToCheck", New Array);

@@ -286,7 +286,7 @@ EndProcedure
 
 #Region Private
 
-&AtServer
+&AtServerNoContext
 Function QuestionValueType(DoQueryBox)
 	Return Common.ObjectAttributeValue(DoQueryBox,"ValueType");
 EndFunction
@@ -308,16 +308,16 @@ Procedure SetHelpTexts()
 				InformationFooter = NStr("en = 'Click Next to view the resulting table.';");
 			ElsIf TabularQuestionType = PredefinedValue("Enum.TabularQuestionTypes.PredefinedAnswersInRowsAndColumns") Then
 				InformationHeader  =NStr("en = 'Pick questions. Specify three questions:';");
-				InformationFooter =NStr("en = 'Click Next to pick predefined replies.';");
+				InformationFooter =NStr("en = 'Click Next to pick predefined responses.';");
 			Else
 				InformationHeader   =NStr("en = 'Pick questions. Specify at least two questions:';");
-				InformationFooter  =NStr("en = 'Click Next to pick predefined replies.';");
+				InformationFooter  =NStr("en = 'Click Next to pick predefined responses.';");
 			EndIf;
 		ElsIf CurrentPage = Items.TableQuestionTypePage Then
 			InformationHeader       = NStr("en = 'Select a question chart type:';");
 			InformationFooter      = NStr("en = 'Click Next to pick questions:';");
 		Else
-			InformationHeader  = NStr("en = 'Pick predefined replies:';");
+			InformationHeader  = NStr("en = 'Pick predefined responses:';");
 			InformationFooter = NStr("en = 'Click Next to view the resulting table:';");
 		EndIf;
 	EndIf;
@@ -619,25 +619,34 @@ Procedure SetFilters()
 		
 		Items.AnswersColumnsAnswersInRowsAndColumns.RowFilter = New FixedStructure("ElementaryQuestion",QuestionForColumns);
 		Items.AnswersRowsAnswersInRowsAndColumns.RowFilter  = New FixedStructure("ElementaryQuestion",QuestionForRows);
-		SetLinksOfAnswersAndQuestionsChoiceParameters();
+		SetLinksOfAnswersAndQuestionsChoiceParameters = True;
 		
 	ElsIf TabularQuestionType =  PredefinedValue("Enum.TabularQuestionTypes.PredefinedAnswersInRows") Then
 		
 		Items.AnswersRowsAnswersInRows.RowFilter = New FixedStructure("ElementaryQuestion",QuestionForRows);
-		SetLinksOfAnswersAndQuestionsChoiceParameters();
+		SetLinksOfAnswersAndQuestionsChoiceParameters = True;
 		
 	ElsIf TabularQuestionType =  PredefinedValue("Enum.TabularQuestionTypes.PredefinedAnswersInColumns") Then
 		
 		Items.AnswersColumnsAnswersInColumns.RowFilter = New FixedStructure("ElementaryQuestion",QuestionForColumns);
-		SetLinksOfAnswersAndQuestionsChoiceParameters();
-		
+		SetLinksOfAnswersAndQuestionsChoiceParameters = True;
+	Else
+		SetLinksOfAnswersAndQuestionsChoiceParameters = False;
 	EndIf;
 	
+	If SetLinksOfAnswersAndQuestionsChoiceParameters Then
+		AttachIdleHandler("SetLinksOfAnswersAndQuestionsChoiceParameters", 0.1, True);
+	EndIf;
 	
 EndProcedure
 
-&AtServer
+&AtClient
 Procedure SetLinksOfAnswersAndQuestionsChoiceParameters()
+	SetParametersRelationsForAnswersAndQuestionsChoiceAtServer();
+EndProcedure
+
+&AtServer
+Procedure SetParametersRelationsForAnswersAndQuestionsChoiceAtServer()
 
 	If TabularQuestionType = PredefinedValue("Enum.TabularQuestionTypes.PredefinedAnswersInRowsAndColumns") Then
 		
@@ -694,7 +703,7 @@ EndProcedure
 
 &AtClient
 Procedure ProcessAnswersPickingItemAfterAdd(Item,AddedRow)
-	
+
 	SetFilters();
 	Item.Refresh();
 	AvailabilityControl();

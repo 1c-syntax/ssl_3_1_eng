@@ -191,6 +191,25 @@ Procedure SetCertificatePassword(CertificateReference, Password, PasswordNote) E
 EndProcedure
 
 &AtClient
+Function CertificatePasswordIsSet(CertificateReference) Export // ACC:78 - 
+	
+	SpecifiedPasswords = CommonInternalData.Get("SpecifiedPasswords");
+	
+	If SpecifiedPasswords <> Undefined And SpecifiedPasswords.Get(CertificateReference) <> Undefined Then
+		Return True;
+	EndIf;
+	
+	PasswordStorage = CommonInternalData.Get("PasswordStorage");
+	
+	If PasswordStorage <> Undefined And PasswordStorage.Get(CertificateReference) <> Undefined Then
+		Return True;
+	EndIf;
+	
+	Return False;
+	
+EndFunction
+
+&AtClient
 Procedure ResetTheCertificatePassword(CertificateReference) Export // ACC:78 - 
 	
 	PasswordStorage = CommonInternalData.Get("PasswordStorage");

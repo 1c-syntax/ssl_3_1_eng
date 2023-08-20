@@ -48,8 +48,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.OnCreateAtServer(ThisObject, Object);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.OnCreateAtServer(ThisObject, Object);
 	EndIf;
 	
 	Items.LongDesc.ChoiceButton = Not Items.LongDesc.OpenButton;
@@ -158,8 +158,8 @@ EndProcedure
 Procedure Attachable_Opening(Item, StandardProcessing)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportClient = CommonClient.CommonModule("NationalLanguageSupportClient");
-		ModuleNativeLanguagesSupportClient.OnOpen(ThisObject, Object, Item, StandardProcessing);
+		ModuleNationalLanguageSupportClient = CommonClient.CommonModule("NationalLanguageSupportClient");
+		ModuleNationalLanguageSupportClient.OnOpen(ThisObject, Object, Item, StandardProcessing);
 	EndIf;
 	
 EndProcedure
@@ -668,11 +668,12 @@ Procedure CheckAndWriteReportOption(Package)
 		OptionObject.Description = Object.Description;
 		OptionObject.LongDesc = Object.LongDesc;
 		OptionObject.AuthorOnly = Object.AuthorOnly;
+		OptionObject.Purpose = Object.Purpose;
 		
 		If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-			ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+			ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 			
-			MultilingualObjectAttributes =  ModuleNativeLanguagesSupportServer.MultilingualObjectAttributes(OptionObject.Ref);
+			MultilingualObjectAttributes =  ModuleNationalLanguageSupportServer.MultilingualObjectAttributes(OptionObject.Ref);
 			If MultilingualObjectAttributes.Count() > 0 Then
 			
 				MultilingualPropsSet = New Array;
@@ -691,7 +692,7 @@ Procedure CheckAndWriteReportOption(Package)
 				FillPropertyValues(NewRow, TableRow);
 			EndDo;
 			
-			ModuleNativeLanguagesSupportServer.BeforeWriteAtServer(OptionObject);
+			ModuleNationalLanguageSupportServer.BeforeWriteAtServer(OptionObject);
 			
 		EndIf;
 		
@@ -762,6 +763,7 @@ Procedure FillOptionsList()
 		If Variant.VariantKey = PrototypeKey Then
 			PrototypeRef = Variant.Ref;
 			PrototypePredefined = Not Variant.Custom;
+			Object.Purpose = Variant.Purpose;
 		EndIf;
 	EndDo;
 	If Not ValueIsFilled(PrototypeRef) And ValueIsFilled(PrototypeKey) Then
@@ -771,7 +773,8 @@ Procedure FillOptionsList()
 		Query.Text =
 		"SELECT
 		|	ReportsOptions.Ref AS Ref,
-		|	ReportsOptions.Custom AS Custom
+		|	ReportsOptions.Custom AS Custom,
+		|	ReportsOptions.Purpose AS Purpose
 		|FROM
 		|	Catalog.ReportsOptions AS ReportsOptions
 		|WHERE
@@ -784,6 +787,7 @@ Procedure FillOptionsList()
 		If Selection.Next() Then
 			PrototypeRef = Selection.Ref;
 			PrototypePredefined = Not Selection.Custom;
+			Object.Purpose = Selection.Purpose;
 		EndIf;
 	EndIf;
 	
@@ -841,6 +845,7 @@ Procedure SetOptionSavingScenario(DescriptionOnChange = False)
 			ExistingObjectWillBeOverwritten = True;
 			DescriptionModified = False;
 			Object.Description = Variant.Description;
+			Object.Purpose = Variant.Purpose;
 			
 			OptionRef = Variant.Ref;
 			Object.Author = Variant.Author;

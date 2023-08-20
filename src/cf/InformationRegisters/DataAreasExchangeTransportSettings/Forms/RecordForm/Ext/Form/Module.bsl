@@ -123,7 +123,14 @@ EndProcedure
 &AtServer
 Procedure TestConnectionAtServer(Cancel, TransportKindAsString)
 	
-	DataExchangeServer.CheckExchangeMessageTransportDataProcessorAttachment(Cancel, Record, Enums.ExchangeMessagesTransportTypes[TransportKindAsString]);
+	PasswordsToCheck = Undefined;
+	
+	If FTPConnectionPasswordChanged Then
+		PasswordsToCheck = New Structure("FTPConnectionPassword", FTPConnectionPassword);
+	EndIf;
+	
+	DataExchangeServer.CheckExchangeMessageTransportDataProcessorAttachment(
+		Cancel, Record, Enums.ExchangeMessagesTransportTypes[TransportKindAsString], , PasswordsToCheck);
 	
 EndProcedure
 

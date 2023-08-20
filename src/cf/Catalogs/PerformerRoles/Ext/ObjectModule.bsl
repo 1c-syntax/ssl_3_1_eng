@@ -62,8 +62,8 @@ EndProcedure
 Procedure OnReadPresentationsAtServer() Export
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.OnReadPresentationsAtServer(ThisObject);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.OnReadPresentationsAtServer(ThisObject);
 	EndIf;
 	
 EndProcedure

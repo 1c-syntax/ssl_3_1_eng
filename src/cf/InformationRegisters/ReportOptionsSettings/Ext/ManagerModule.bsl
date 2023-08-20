@@ -531,7 +531,7 @@ Procedure NotifyReportOptionUsers(Records) Export
 		Return;
 	EndIf;
 	
-	ModuleConversations = Common.CommonModule("Conversations");;
+	ModuleConversations = Common.CommonModule("Conversations");
 	
 	SetPrivilegedMode(True);
 	Recipients = New Array;
@@ -694,7 +694,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	While Variant.Next() Do
 		
 		Data.Variant = Variant.Ref;
-		
+		RepresentationOfTheReference = String(Variant.Ref);
 		Try
 			
 			MoveReportOptionAvailabilitySettings(Data);
@@ -709,7 +709,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 				
 			Comment = StringFunctionsClientServer.SubstituteParametersToString(
 				CommentTemplate,
-				Variant.Ref,
+				RepresentationOfTheReference,
 				RegisterPresentation,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				

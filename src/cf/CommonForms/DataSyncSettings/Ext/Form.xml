@@ -395,9 +395,9 @@ Please contact the administrator.</v8:content>
 							<v8:lang>en</v8:lang>
 							<v8:content>For some synchronizations, you can configure exchange over the Internet (web service). 
 It allows you to speed up the exchange and set up a more flexible synchronization schedule. 
-To switch to exchange using a web service, use the switch to Internet connection wizard from the list: &lt;img 0:2d40609d-b56f-4082-9a6f-8216817ebd24/&gt;.
+To switch to exchange using a web service, use the switch to Internet connection wizard from the list: &lt;img 0:2d40609d-b56f-4082-9a6f-8216817ebd24:00000000-0000-0000-0000-000000000000/&gt;.
 
-&lt;link ShouldMutePromptToMigrateToWebService&gt;Do not offer to switch to a web service again&lt;/&gt;. You can call the wizard in the &lt;b&gt;More&lt;/&gt; menu of a synchronization node</v8:content>
+&lt;link ShouldMutePromptToMigrateToWebService&gt;Do not offer to switch to a web service again&lt;/&gt;. You can call the wizard in the &lt;b&gt;More actions&lt;/&gt; menu of a synchronization node.</v8:content>
 						</v8:item>
 					</Title>
 					<GroupVerticalAlign>Center</GroupVerticalAlign>
@@ -1424,6 +1424,11 @@ Please wait…</v8:content>
 							<v8:content>Switch to WS is available</v8:content>
 						</v8:item>
 					</Title>
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+				<Column name="SynchronizationIsUnavailable" id="37">
 					<Type>
 						<v8:Type>xs:boolean</v8:Type>
 					</Type>

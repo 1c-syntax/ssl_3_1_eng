@@ -3,7 +3,12 @@
 	<CommonModule uuid="56730848-3bef-4b8c-b449-fe9d09c9c374">
 		<Properties>
 			<Name>CurrenciesExchangeRatesServerCall</Name>
-			<Synonym/>
+			<Synonym>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Currency exchange rates operations server call</v8:content>
+				</v8:item>
+			</Synonym>
 			<Comment/>
 			<Global>false</Global>
 			<ClientManagedApplication>false</ClientManagedApplication>

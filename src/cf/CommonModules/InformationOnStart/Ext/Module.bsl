@@ -98,7 +98,13 @@ EndProcedure
 
 // See CommonOverridable.OnAddClientParametersOnStart.
 Procedure OnAddClientParametersOnStart(Parameters) Export
+	
+	If Not Common.SeparatedDataUsageAvailable() Then
+		Return;
+	EndIf;
+	
 	Parameters.Insert("InformationOnStart", New FixedStructure(GlobalSettings()));
+	
 EndProcedure
 
 #EndRegion

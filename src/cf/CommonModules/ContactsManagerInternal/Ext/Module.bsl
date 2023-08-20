@@ -15,7 +15,7 @@ Function ValidateAddress(Address, AddressCheckParameters = Undefined) Export
 	
 	If TypeOf(Address) <> Type("String") Then
 		CheckResult.Result = "ContainsErrors";
-		CheckResult.ErrorsList.Add("AddressFormat", NStr("en = 'Invalid address format';"));
+		CheckResult.ErrorList.Add("AddressFormat", NStr("en = 'Invalid address format';"));
 		Return CheckResult;
 	EndIf;
 	
@@ -240,7 +240,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Procedure       = "Catalogs.ContactInformationKinds.ProcessDataForMigrationToNewVersion";
 	Handler.ExecutionMode = "Deferred";
 	Handler.UpdateDataFillingProcedure = "Catalogs.ContactInformationKinds.RegisterDataToProcessForMigrationToNewVersion";
-	Handler.DeferredProcessingQueue = 1;
 	Handler.ObjectsToRead    = "Catalog.ContactInformationKinds";
 	Handler.ObjectsToChange  = "Catalog.ContactInformationKinds";
 	Handler.ObjectsToLock = "Catalog.ContactInformationKinds";
@@ -261,7 +260,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Procedure       = "Catalogs.WorldCountries.ProcessDataForMigrationToNewVersion";
 	Handler.ExecutionMode = "Deferred";
 	Handler.UpdateDataFillingProcedure = "Catalogs.WorldCountries.RegisterDataToProcessForMigrationToNewVersion";
-	Handler.DeferredProcessingQueue = 1;
 	Handler.ObjectsToRead    = "Catalog.WorldCountries";
 	Handler.ObjectsToChange  = "Catalog.WorldCountries";
 	Handler.ObjectsToLock = "Catalog.WorldCountries";
@@ -334,7 +332,7 @@ EndProcedure
 // See JobsQueueOverridable.OnGetTemplateList.
 Procedure OnGetTemplateList(JobTemplates) Export
 	
-	JobTemplates.Add("ObsoleteAddressesCorrection");
+	JobTemplates.Add(Metadata.ScheduledJobs.ObsoleteAddressesCorrection.Name);
 	
 EndProcedure
 
@@ -366,12 +364,12 @@ Function ContainsBlankJSONFields(ObjectToCheck)
 	QueryTemplate = "SELECT TOP 1
 		|	TableWithContactInformation.Ref AS Ref
 		|FROM
-		|	&FullNameOfObjectWithContactInformation AS TableWithContactInformation
+		|	&FullNAMEOFObjectWITHCONTACTDETAILS AS TableWithContactInformation
 		|WHERE
 		|	(CAST(TableWithContactInformation.Value AS STRING(1))) = """"
 		|	AND TableWithContactInformation.Ref = &Ref";
 	
-	QueryTextSet = StrReplace(QueryTemplate, "&FullNameOfObjectWithContactInformation",
+	QueryTextSet = StrReplace(QueryTemplate, "&FullNAMEOFObjectWITHCONTACTDETAILS",
 			MetadataObject.FullName() + ".ContactInformation");
 			
 	Query = New Query(QueryTextSet);
@@ -534,14 +532,14 @@ EndProcedure
 // 
 // Returns:
 //   Structure:
-//   * ErrorsList - ValueList
+//   * ErrorList - ValueList
 //   * Result - String
 // 
 Function CheckResult()
 	
 	CheckResult = New Structure;
 	CheckResult.Insert("Result", "");
-	CheckResult.Insert("ErrorsList", New ValueList);
+	CheckResult.Insert("ErrorList", New ValueList);
 	Return CheckResult
 	
 EndFunction
@@ -584,7 +582,7 @@ Function CorrectContactInformationKindsBatch(Val ObjectsWithIssues, Validation)
 	|	ContactInformation.Kind AS Kind
 	|FROM
 	|	ObjectsWithIssues AS ObjectsWithIssues
-	|		LEFT JOIN &FullNameOfObjectWithContactInformation AS ContactInformation
+	|		LEFT JOIN &FullNAMEOFObjectWITHCONTACTDETAILS AS ContactInformation
 	|		ON (ContactInformation.Kind = ObjectsWithIssues.Ref)
 	|WHERE
 	|	NOT ContactInformation.Ref IS NULL
@@ -593,7 +591,7 @@ Function CorrectContactInformationKindsBatch(Val ObjectsWithIssues, Validation)
 	|	ContactInformation.Kind";
 	
 	For Each MetadataObject In MetadataObjects Do
-		QueryTextSet.Add(StrReplace(QueryTemplate, "&FullNameOfObjectWithContactInformation", 
+		QueryTextSet.Add(StrReplace(QueryTemplate, "&FullNAMEOFObjectWITHCONTACTDETAILS", 
 		MetadataObject.Metadata().FullName() + ".ContactInformation"));
 	EndDo;
 	
@@ -869,7 +867,7 @@ EndProcedure
 
 Procedure UpdatePhoneExtensionSettings() Export
 	
-	// Sets the PhoneWithExtension flag for backward compatibility.
+	// 
 	Query = New Query;
 	Query.Text = 
 		"SELECT
@@ -891,7 +889,7 @@ Procedure UpdatePhoneExtensionSettings() Export
 	
 		While QueryResult.Next() Do
 			ContactInformationKind = QueryResult.Ref.GetObject();
-			ContactInformationKind.PhoneWithExtension = True;
+			ContactInformationKind.PhoneWithExtensionNumber = True;
 			InfobaseUpdate.WriteData(ContactInformationKind);
 		EndDo;
 		
@@ -2102,7 +2100,7 @@ Procedure AddContactInformation(Object, ValueOrPresentation, ContactInformationK
 	ObjectMetadata = Metadata.FindByType(TypeOf(Object));
 	If ObjectMetadata = Undefined
 		Or ObjectMetadata.TabularSections.Find("ContactInformation") = Undefined Then
-		Raise NStr("en = 'Cannot add contact information. The object does not have a contact information table.';");;
+		Raise NStr("en = 'Cannot add contact information. The object does not have a contact information table.';");
 	EndIf;
 	
 	If IsContactInformationInJSONStructure Then
@@ -2863,7 +2861,12 @@ Function RemoveNonDigitCharacters(Text, AllowedBesidesNumbers = "", Direction = 
 EndFunction
 
 #EndRegion
-Function ContactInformationToJSONStructure(ContactInformation, Val Type = Undefined, Presentation = "", UpdateIDs = True) Export
+
+Function ContactInformationToJSONStructure(ContactInformation, Val Type = Undefined, ConversionSettings = Undefined) Export
+	
+	If ConversionSettings = Undefined Then
+		ConversionSettings = ContactsManager.ContactInformationConversionSettings();
+	EndIf;
 	
 	If Type <> Undefined And TypeOf(Type) <> Type("EnumRef.ContactInformationTypes") Then
 		Type = ContactsManagerInternalCached.ContactInformationKindType(Type);
@@ -2888,7 +2891,7 @@ Function ContactInformationToJSONStructure(ContactInformation, Val Type = Undefi
 	If ContactsManagerInternalCached.AreAddressManagementModulesAvailable() And Type = Enums.ContactInformationTypes.Address Then
 		
 		ModuleAddressManager = Common.CommonModule("AddressManager");
-		Return ModuleAddressManager.ContactInformationToJSONStructure(ContactInformation, Type, Presentation, UpdateIDs);
+		Return ModuleAddressManager.ContactInformationToJSONStructure(ContactInformation, Type, ConversionSettings);
 		
 	EndIf;
 	
@@ -2927,7 +2930,7 @@ Function ContactInformationToJSONStructure(ContactInformation, Val Type = Undefi
 	
 	If ContactsManagerInternalCached.IsLocalizationModuleAvailable() Then
 		ModuleContactsManagerLocalization = Common.CommonModule("ContactsManagerLocalization");
-		Result = ModuleContactsManagerLocalization.ContactInformationToJSONStructure(ContactInformation, Type, Presentation);
+		Result = ModuleContactsManagerLocalization.ContactInformationToJSONStructure(ContactInformation, Type, ConversionSettings);
 	EndIf;
 	
 	Return Result;
@@ -2963,6 +2966,7 @@ Function ToJSONStringStructure(Value) Export
 					Or StrCompare(StructureItem.Key, "munLevels") = 0 Then
 						ValueToCheck = StructureItem.Value[IndexOf];
 				Else
+					IndexOf = IndexOf - 1;
 					Continue;
 				EndIf;
 				

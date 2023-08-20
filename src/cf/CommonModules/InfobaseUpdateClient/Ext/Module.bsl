@@ -280,6 +280,7 @@ Procedure UnlockObjectToEditAfterQuestion(Result, Parameters) Export
 	
 	If Parameters.Form <> Undefined Then
 		Parameters.Form.ReadOnly = False;
+		Parameters.Form.Read();
 		ClearMessages();
 	Else
 		MessageText = NStr("en = 'Data is unlocked. To start editing, reopen the object form.';");

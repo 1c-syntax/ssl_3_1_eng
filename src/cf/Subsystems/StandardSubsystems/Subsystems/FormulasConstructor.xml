@@ -22,6 +22,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.FormulasConstructorInternal</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.FormulasConstructor</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.FormulasConstructorCached</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.FormulasConstructorServerCall</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

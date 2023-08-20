@@ -1646,7 +1646,7 @@ Procedure DeleteTempExchangeMessagesDirectory(TempDirectoryName, DirectoryID)
 			EndIf;
 		Except
 			WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
-				EventLogLevel.Error, , , DetailErrorDescription(ErrorInfo()));
+				EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
 		
 	EndIf;
@@ -2090,7 +2090,7 @@ Procedure TestConnectionAndSaveSettings(Cancel)
 			
 			WSPassword = String(ThisObject.UUID);
 		Except
-			ErrorMessage = DetailErrorDescription(ErrorInfo());
+			ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 			
 			WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
 				EventLogLevel.Error, , , ErrorMessage);
@@ -2465,13 +2465,13 @@ Procedure AtalyzeDataAtServerCompletion()
 		SkipGettingData = True;
 		
 		Information = ErrorInfo();
-		ErrorMessage = BriefErrorDescription(Information);
+		ErrorMessage = ErrorProcessing.BriefErrorDescription(Information);
 		
 		DataExchangeServerCall.WriteExchangeFinishWithError(
 			Object.InfobaseNode,
 			"DataImport",
 			OperationStartDate,
-			DetailErrorDescription(Information));
+			ErrorProcessing.DetailErrorDescription(Information));
 	EndTry;
 	
 EndProcedure

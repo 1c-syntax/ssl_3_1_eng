@@ -48,6 +48,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.AdditionalDataProcessorsAdministration</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.AdditionalReportsAndDataProcessorsBeforeDeleteMetadataObjectID</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.ObjectWithAdditionalCommands</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.AdditionalReportsAndDataProcessorsGlobal</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

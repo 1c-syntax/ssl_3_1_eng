@@ -13,6 +13,13 @@
 // when the ToDoList subsystem is missing.
 //
 Procedure NotifyOfAccountingIssues() Export
+	
+#If MobileClient Then
+	If MainServerAvailable() = False Then
+		Return;
+	EndIf;
+#EndIf
+	
 	AccountingAuditInternalClient.NotifyOfAccountingIssuesCases();
 EndProcedure
 

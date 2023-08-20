@@ -323,14 +323,14 @@
 									</Title>
 									<ExtendedTooltip name="PhoneExtendedTooltip" id="133"/>
 									<ChildItems>
-										<CheckBoxField name="PhoneWithExtension" id="134">
-											<DataPath>Object.PhoneWithExtension</DataPath>
+										<CheckBoxField name="PhoneWithExtensionNumber" id="134">
+											<DataPath>Object.PhoneWithExtensionNumber</DataPath>
 											<TitleLocation>Right</TitleLocation>
 											<CheckBoxType>Auto</CheckBoxType>
-											<ContextMenu name="PhoneWithExtensionContextMenu" id="135"/>
-											<ExtendedTooltip name="PhoneWithExtensionExtendedTooltip" id="136"/>
+											<ContextMenu name="PhoneWithExtensionNumberContextMenu" id="135"/>
+											<ExtendedTooltip name="PhoneWithExtensionNumberExtendedTooltip" id="136"/>
 											<Events>
-												<Event name="OnChange">PhoneNumberWithExtensionWhenChanging</Event>
+												<Event name="OnChange">PhoneWithExtensionNumberOnChange</Event>
 											</Events>
 										</CheckBoxField>
 										<CheckBoxField name="CheckPhoneValidity" id="137">

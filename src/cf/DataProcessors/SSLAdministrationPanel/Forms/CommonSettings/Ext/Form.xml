@@ -34,7 +34,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip_SSLs" id="1829"/>
+			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="1829"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="1763">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -373,11 +373,11 @@
 				</Button>
 			</ChildItems>
 		</UsualGroup>
-		<UsualGroup name="AdditionalAttributesAndDataGroup" id="1801">
+		<UsualGroup name="PropertiesGroup" id="1801">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Additional attributes and information records</v8:content>
+					<v8:content>Properties</v8:content>
 				</v8:item>
 			</Title>
 			<Behavior>Collapsible</Behavior>
@@ -385,13 +385,13 @@
 			<ControlRepresentation>Picture</ControlRepresentation>
 			<Representation>NormalSeparation</Representation>
 			<ChildItemsWidth>Equal</ChildItemsWidth>
-			<ExtendedTooltip name="AdditionalAttributesAndDataGroupExtendedTooltip" id="1846"/>
+			<ExtendedTooltip name="PropertiesGroupExtendedTooltip" id="1846"/>
 			<ChildItems>
-				<UsualGroup name="UseAdditionalAttributesAndDataGroup" id="1802">
+				<UsualGroup name="GroupPropertiesLeft" id="1802">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Use additional attributes and information records</v8:content>
+							<v8:content>Properties left</v8:content>
 						</v8:item>
 					</Title>
 					<Width>43</Width>
@@ -400,34 +400,63 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="UseAdditionalAttributesAndDataGroupExtendedTooltip" id="1847"/>
+					<ExtendedTooltip name="GroupPropertiesLeftExtendedTooltip" id="1847"/>
 					<ChildItems>
-						<CheckBoxField name="UseAdditionalAttributesAndInfo" id="1803">
+						<CheckBoxField name="UseProperties" id="1803">
 							<DataPath>ConstantsSet.UseAdditionalAttributesAndInfo</DataPath>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Additional attributes and information records</v8:content>
+									<v8:content>Properties</v8:content>
 								</v8:item>
 							</Title>
 							<TitleLocation>Right</TitleLocation>
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Add custom attributes and information records to application objects.</v8:content>
+									<v8:content>Create and configure additional text, numeric, and other properties for your application objects such as catalogs or documents.</v8:content>
 								</v8:item>
 							</ToolTip>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="UseAdditionalAttributesAndInfoContextMenu" id="1804"/>
-							<ExtendedTooltip name="UseAdditionalAttributesAndInfoExtendedTooltip" id="1848"/>
+							<ContextMenu name="UsePropertiesContextMenu" id="1804"/>
+							<ExtendedTooltip name="UsePropertiesExtendedTooltip" id="1848"/>
 							<Events>
-								<Event name="OnChange">UseAdditionalAttributesAndInfoOnChange</Event>
+								<Event name="OnChange">UsePropertiesOnChange</Event>
 							</Events>
 						</CheckBoxField>
+						<UsualGroup name="AdditionalDataGroup" id="1825">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Additional information records</v8:content>
+								</v8:item>
+							</Title>
+							<Group>Vertical</Group>
+							<Behavior>Usual</Behavior>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="AdditionalDataGroupExtendedTooltip" id="1862"/>
+							<ChildItems>
+								<Button name="AdditionalInfo" id="2053">
+									<Type>Hyperlink</Type>
+									<CommandName>Form.Command.AdditionalInfo</CommandName>
+									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+									<ExtendedTooltip name="AdditionalInfoExtendedTooltip" id="2054">
+										<AutoMaxWidth>false</AutoMaxWidth>
+										<Title formatted="false">
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Additional information records are edited in a separate form opened from a catalog or a document. You can set up rights to edit and view the additional information records regardless of the rights to an owner object.</v8:content>
+											</v8:item>
+										</Title>
+									</ExtendedTooltip>
+								</Button>
+							</ChildItems>
+						</UsualGroup>
 					</ChildItems>
 				</UsualGroup>
-				<UsualGroup name="AdditionalAttributesOrDataGroup" id="1820">
+				<UsualGroup name="GroupPropertiesRight" id="1820">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -441,7 +470,7 @@
 					<Representation>None</Representation>
 					<ChildItemsWidth>Equal</ChildItemsWidth>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="AdditionalAttributesOrDataGroupExtendedTooltip" id="1858"/>
+					<ExtendedTooltip name="GroupPropertiesRightExtendedTooltip" id="1858"/>
 					<ChildItems>
 						<UsualGroup name="GroupAdditionalAttributes" id="1821">
 							<Title>
@@ -465,38 +494,36 @@
 										<Title formatted="false">
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Create and change attributes and their properties.
-These attributes are displayed in forms.</v8:content>
+												<v8:content>Additional attributes are placed in document and catalog forms as fields. To edit and view the additional attributes, you need to have the required rights to an owner object.</v8:content>
 											</v8:item>
 										</Title>
 									</ExtendedTooltip>
 								</Button>
 							</ChildItems>
 						</UsualGroup>
-						<UsualGroup name="AdditionalDataGroup" id="1825">
+						<UsualGroup name="GroupLabels" id="2258">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Additional information records</v8:content>
+									<v8:content>Labels</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Vertical</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="AdditionalDataGroupExtendedTooltip" id="1862"/>
+							<ExtendedTooltip name="PlacemarkGroupExtendedTooltip" id="2259"/>
 							<ChildItems>
-								<Button name="AdditionalInfo" id="2053">
+								<Button name="Labels" id="2260">
 									<Type>Hyperlink</Type>
-									<CommandName>Form.Command.AdditionalInfo</CommandName>
+									<CommandName>Form.Command.Labels</CommandName>
 									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
-									<ExtendedTooltip name="AdditionalInfoExtendedTooltip" id="2054">
+									<ExtendedTooltip name="LabelsExtendedTooltip" id="2261">
 										<AutoMaxWidth>false</AutoMaxWidth>
 										<Title formatted="false">
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Create and change information records and their properties.
-These information records are displayed in new forms.</v8:content>
+												<v8:content>Use labels to mark catalogs and documents with multi-colored label icons. To edit and view the labels, you need to have the required rights to an owner object.</v8:content>
 											</v8:item>
 										</Title>
 									</ExtendedTooltip>
@@ -1848,6 +1875,15 @@ See also &lt;link http://1c.ru/news/info.jsp?id=25491&gt;restriction of 12 cores
 				</v8:item>
 			</Title>
 			<Action>ViewObjectsMarkedForDeletion</Action>
+		</Command>
+		<Command name="Labels" id="9">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Labels</v8:content>
+				</v8:item>
+			</Title>
+			<Action>Labels</Action>
 		</Command>
 	</Commands>
 </Form>

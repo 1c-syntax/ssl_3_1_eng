@@ -357,6 +357,7 @@ Procedure Send(Command)
 	If ValueIsFilled(CurrentObjectRef)
 		Or HandleFileRecordCommand() Then
 		Files = CommonClientServer.ValueInArray(CurrentObjectRef);
+		OnSendFilesViaEmail(SendOptions, Files, ThisObject.Object.FileOwner, UUID);
 		FilesOperationsInternalClient.SendFilesViaEmail(Files, UUID, SendOptions);
 	EndIf;
 	
@@ -901,7 +902,9 @@ Function FileData(Val AttachedFile, Val FormIdentifier = Undefined, Val Mode = "
 		Return FilesOperationsInternalServerCall.FileDataToSave(
 			AttachedFile,, FormIdentifier);
 	ElsIf Mode = "ServerCall" Then
-		Return FilesOperationsInternalServerCall.FileData(AttachedFile,, FormIdentifier);
+		FileDataParameters = FilesOperationsClientServer.FileDataParameters();
+		FileDataParameters.FormIdentifier = FormIdentifier;
+		Return FilesOperationsInternalServerCall.FileData(AttachedFile,, FileDataParameters);
 	Else
 		FileDataParameters = FilesOperationsClientServer.FileDataParameters();
 		FileDataParameters.GetBinaryDataRef = True;
@@ -1663,6 +1666,11 @@ Procedure Attachable_UpdateCommands()
 	ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, ThisObject.Object);
 EndProcedure
 
-// End StandardSubsystems.AttachableCommands
+// 
+
+&AtServerNoContext
+Procedure OnSendFilesViaEmail(SendOptions, Val FilesToSend, FilesOwner, UUID)
+	FilesOperationsOverridable.OnSendFilesViaEmail(SendOptions, FilesToSend, FilesOwner, UUID);
+EndProcedure
 
 #EndRegion

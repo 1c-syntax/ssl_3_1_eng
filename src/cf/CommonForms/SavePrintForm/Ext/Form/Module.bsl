@@ -243,9 +243,16 @@ EndProcedure
 &AtServerNoContext
 Function GetObjectsToAttach(PrintObjects)
 	Result = New ValueList;
+	ModuleAccessManagement = Undefined;
+	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		ModuleAccessManagement = Common.CommonModule("AccessManagement");
+	EndIf;
+	
 	For Each PrintObject In PrintObjects Do
-		Result.Add(PrintObject.Value,,AccessManagement.EditionAllowed(PrintObject.Value)); 
+		Result.Add(PrintObject.Value,,?(ModuleAccessManagement <> Undefined, 
+			ModuleAccessManagement.EditionAllowed(PrintObject.Value), True)); 
 	EndDo;
+	
 	Return Result;
 EndFunction
 

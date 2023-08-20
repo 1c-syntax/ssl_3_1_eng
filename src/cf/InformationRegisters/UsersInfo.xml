@@ -176,7 +176,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Require password change upon authorization</v8:content>
+							<v8:content>User must change password at next sign-in</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -189,11 +189,11 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The user must change their password
-when they sign in.
+							<v8:content>Ask the user to change the password when they try to sign in.
 
-You can change this option in the user card.
-When the user changes the password, this setting is cleared.</v8:content>
+You can toggle this option in the user card.
+When the user changes the password, this setting is cleared.
+</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -224,7 +224,7 @@ When the user changes the password, this setting is cleared.</v8:content>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Password never expires</v8:content>
+							<v8:content>Access never expires</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -237,7 +237,7 @@ When the user changes the password, this setting is cleared.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Password never expires.</v8:content>
+							<v8:content>Overrides all restrictions based on expiration dates.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -268,7 +268,7 @@ When the user changes the password, this setting is cleared.</v8:content>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Expires on</v8:content>
+							<v8:content>Access expires on</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -284,8 +284,8 @@ When the user changes the password, this setting is cleared.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The date user authorization
-will be denied.</v8:content>
+							<v8:content>The date the user will be blocked
+from signing in.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -316,7 +316,7 @@ will be denied.</v8:content>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Inactivity period before denying authorization</v8:content>
+							<v8:content>Inactivity period before sign-in is denied</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -334,11 +334,11 @@ will be denied.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The period since the latest activity of the user,
-after which the user will be denied authorization.
+							<v8:content>The period since the latest activity, after which the user sign-in will be denied.
 
-When it is set, it supersedes the equivalent parameter
-applied to all users (or external users).</v8:content>
+When it is set, it overrides the equivalent parameter for all users (or external users).
+
+</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -369,7 +369,7 @@ applied to all users (or external users).</v8:content>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Authorization allowed on</v8:content>
+							<v8:content>Sign-in allowed on</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -386,7 +386,7 @@ applied to all users (or external users).</v8:content>
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>The latest date when 
-the "Can sign in" option was set.</v8:content>
+the "Sign-in allowed" check box was set.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -433,10 +433,10 @@ the "Can sign in" option was set.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The date of the latest activity
-of the user in the application.
+							<v8:content>The date when the user was last active in the application.
 
-It is updated when the user signs in, and then every 20 minutes.</v8:content>
+The date is set when the user signs in and updates every 20 minutes.
+</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -467,7 +467,7 @@ It is updated when the user signs in, and then every 20 minutes.</v8:content>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Authorization automatically denied on</v8:content>
+							<v8:content>Sign-in auto-denied on</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -483,12 +483,12 @@ It is updated when the user signs in, and then every 20 minutes.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The date when authorization was automatically denied
-due to expired password or user inactivity.
+							<v8:content>The date when the user sign-in was denied due to the expired access or user inactivity.
 
-It is set when authorization is denied.
+The date is set when sign-in is denied and cleared when sign-in is allowed.
 
-It is updated when authorization is allowed, and then when the user signs in.</v8:content>
+
+</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -519,7 +519,7 @@ It is updated when authorization is allowed, and then when the user signs in.</v
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>(not used) Password activated on</v8:content>
+							<v8:content>(not used) Password created on</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -535,10 +535,10 @@ It is updated when authorization is allowed, and then when the user signs in.</v
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The date when the user first signed in with a new password.
+							<v8:content>The date when the user creates the new password.
 
-It is set when the user signs in, if blank.
-It is updated when the password is changed.</v8:content>
+The date is set when the user creates a password and updated when the password is changed.
+</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -582,7 +582,7 @@ It is updated when the password is changed.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Hashes of the user previous passwords.</v8:content>
+							<v8:content>The hashes of the user's previous passwords.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -613,7 +613,7 @@ It is updated when the password is changed.</v8:content>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Last used client</v8:content>
+							<v8:content>Last active client</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -661,7 +661,7 @@ It is updated when the password is changed.</v8:content>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>State picture number</v8:content>
+							<v8:content>Status picture number</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -679,7 +679,7 @@ It is updated when the password is changed.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>User state picture number for the list forms of the Users and External users catalogs</v8:content>
+							<v8:content>User status picture number for the list forms of the Users and External users catalogs.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -710,7 +710,7 @@ It is updated when the password is changed.</v8:content>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Application authorization is allowed</v8:content>
+							<v8:content>Sign-in allowed</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -754,7 +754,7 @@ It is updated when the password is changed.</v8:content>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Application authorization is restricted</v8:content>
+							<v8:content>Sign-in restricted</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -767,7 +767,7 @@ It is updated when the password is changed.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Authorization validity period or authorization delay period is set</v8:content>
+							<v8:content>User will be blocked from signing in after a certain date or a period of inactivity.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -842,7 +842,7 @@ It is updated when the password is changed.</v8:content>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Insufficient rights for authorization</v8:content>
+							<v8:content>Insufficient rights to sign in</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -852,7 +852,12 @@ It is updated when the password is changed.</v8:content>
 					<PasswordMode>false</PasswordMode>
 					<Format/>
 					<EditFormat/>
-					<ToolTip/>
+					<ToolTip>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Infobase user is not assigned with any roles that grant application startup rights or the minimum access rights to use the application.</v8:content>
+						</v8:item>
+					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
 					<Mask/>
 					<MultiLine>false</MultiLine>
@@ -881,7 +886,7 @@ It is updated when the password is changed.</v8:content>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Name (for authorization)</v8:content>
+							<v8:content>Username</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -1035,8 +1040,8 @@ username and password</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The user cannot change their password,
-even at sign-in (applicable to limited users only).
+							<v8:content>Prevent limited-access user from changing
+their password, even during sign-in
 </v8:content>
 						</v8:item>
 					</ToolTip>
@@ -1068,7 +1073,7 @@ even at sign-in (applicable to limited users only).
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>User cannot restore password</v8:content>
+							<v8:content>User cannot recover password</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -1081,7 +1086,7 @@ even at sign-in (applicable to limited users only).
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>User cannot restore their password</v8:content>
+							<v8:content>Disable password recovery for this user</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -1125,7 +1130,7 @@ even at sign-in (applicable to limited users only).
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Show a name (for authorization) in the dialog box selection list of standard 1C:Enterprise authentication</v8:content>
+							<v8:content>Show a username in the dialog box selection list of standard 1C:Enterprise authentication.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

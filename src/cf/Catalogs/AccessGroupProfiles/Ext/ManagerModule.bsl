@@ -2107,8 +2107,8 @@ Procedure PrepareThePurposeOfTheSuppliedProfile(ProfileProperties, ProfileDetail
 					           |is specified in the details of profile ""%1"".
 					           |An assignment with the following properties is expected:
 					           |- The type is ""%4"".
-					           |- It is based on a value specified in flexible type collection %5.
-					           |- It is based on a value from flexible type collection %6, except for type %7.';"),
+					           |- It is based on a value specified in the %5 type collection.
+					           |- It is based on a value from the %6 type collection, except for the %7 type.';"),
 					?(ValueIsFilled(ProfileDetails.Name),
 						ProfileDetails.Name, ProfileDetails.Id),
 					String(Type),

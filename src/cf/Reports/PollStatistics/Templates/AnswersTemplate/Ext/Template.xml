@@ -154,7 +154,7 @@
 					<tl>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>How to read a report: if one number is specified in the cell, this is a number of respondents who answered the question. If there are several numbers separated by the slash in the cell, then these are MINIMUM/ MAXIMUM/AVERAGE. SUM may be indicated as well. It is denoted with the '∑' character. For questions with answers of date type, the display of the AVERAGE and SUM values is not provided.</v8:content>
+							<v8:content>How to read the report: the first number in a cell is the number of respondents who answered the question. Slash-separated numbers represent the statistical information: MINIMUM / MAXIMUM / AVERAGE. The SUM is denoted by the ∑ symbol. For questions with date answers, the AVERAGE and SUM values are not provided.</v8:content>
 						</v8:item>
 					</tl>
 				</c>

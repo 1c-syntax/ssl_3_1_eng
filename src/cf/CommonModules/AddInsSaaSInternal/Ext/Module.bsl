@@ -9,6 +9,56 @@
 
 #Region Internal
 
+// 
+//
+Procedure RemoveUnusedAddIns() Export
+	
+	Common.OnStartExecuteScheduledJob(Metadata.ScheduledJobs.RemoveUnusedAddIns);
+	If Common.DataSeparationEnabled() And Common.SeparatedDataUsageAvailable() Then
+		Return;
+	EndIf;
+	
+	SetPrivilegedMode(True);
+	
+	Query = New Query;
+	Query.Text = 
+			"SELECT
+			|	CommonAddIns.Ref AS Ref
+			|FROM
+			|	Catalog.CommonAddIns AS CommonAddIns
+			|WHERE
+			|	NOT CommonAddIns.DeletionMark
+			|	AND NOT CommonAddIns.Id IN (&IDs)";
+		
+	Query.SetParameter("IDs", AddInsInternal.SuppliedAddIns());
+		
+	Selection = Query.Execute().Select();
+	While Selection.Next() Do
+		BeginTransaction();
+		Try
+			Block = New DataLock;
+			LockItem = Block.Add("Catalog.CommonAddIns");
+			LockItem.SetValue("Ref", Selection.Ref);
+			Block.Lock();
+
+			Object = Selection.Ref.GetObject();
+			Object.DeletionMark = True;
+			Object.Write();
+			CommitTransaction();
+		Except
+			RollbackTransaction();
+			WriteLogEvent(NStr("en = 'Built-in add-ins.Delete unused add-in';",
+				Common.DefaultLanguageCode()),
+				EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(
+				ErrorInfo()));
+			Raise;
+		EndTry;
+	EndDo;
+	
+	SetPrivilegedMode(False);
+	
+EndProcedure
+
 // Parameters:
 //  ComponentDetails - See AddInsServer.SuppliedSharedAddInDetails.
 //
@@ -55,11 +105,14 @@ Procedure UpdateSharedAddIn(ComponentDetails) Export
 		Information = AddInsInternal.InformationOnAddInFromFile(ComponentBinaryData, False);
 		
 		If Not Information.Disassembled Then 
+			
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot disassemble the built-in add-in
+				NStr("en = 'Cannot parse the built-in add-in
 				           |due to:
-				           |%1';"),
-				Information.ErrorDescription);
+				           |%1 %2';"),
+				Information.ErrorDescription, 
+				?(Information.ErrorInfo = Undefined, "", 
+					": " + ErrorProcessing.BriefErrorDescription(Information.ErrorInfo)));
 		EndIf;
 		
 		FillPropertyValues(SharedAddIn, Information.Attributes); // By manifest data.
@@ -169,7 +222,7 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 	
 EndProcedure
 
-// See StandardSubsystemsServer.ПриОтправкеДанныхГлавному.
+// See StandardSubsystems.OnSendDataToMaster.
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 	If TypeOf(DataElement) = Type("CatalogObject.CommonAddIns") Then

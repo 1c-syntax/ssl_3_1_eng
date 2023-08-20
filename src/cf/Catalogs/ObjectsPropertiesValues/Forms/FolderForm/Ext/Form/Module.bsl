@@ -25,8 +25,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetHeader();
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.OnCreateAtServer(ThisObject, Object);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.OnCreateAtServer(ThisObject, Object);
 	EndIf;
 	
 EndProcedure
@@ -35,8 +35,8 @@ EndProcedure
 Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.BeforeWriteAtServer(CurrentObject);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.BeforeWriteAtServer(CurrentObject);
 	EndIf;
 	
 EndProcedure
@@ -54,8 +54,8 @@ Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	SetHeader();
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.OnReadAtServer(ThisObject, CurrentObject);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.OnReadAtServer(ThisObject, CurrentObject);
 	EndIf;
 	
 EndProcedure
@@ -70,8 +70,8 @@ Procedure OnReadAtServer(CurrentObject)
 	// End StandardSubsystems.AccessManagement
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.OnReadAtServer(ThisObject, CurrentObject);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.OnReadAtServer(ThisObject, CurrentObject);
 	EndIf;
 	
 EndProcedure
@@ -84,8 +84,8 @@ EndProcedure
 Procedure Attachable_Opening(Item, StandardProcessing)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportClient = CommonClient.CommonModule("NationalLanguageSupportClient");
-		ModuleNativeLanguagesSupportClient.OnOpen(ThisObject, Object, Item, StandardProcessing);
+		ModuleNationalLanguageSupportClient = CommonClient.CommonModule("NationalLanguageSupportClient");
+		ModuleNationalLanguageSupportClient.OnOpen(ThisObject, Object, Item, StandardProcessing);
 	EndIf;
 	
 EndProcedure

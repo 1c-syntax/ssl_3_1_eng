@@ -24,8 +24,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.ChangeListQueryTextForCurrentLanguage(ThisObject, "ListRoles");
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.ChangeListQueryTextForCurrentLanguage(ThisObject, "ListRoles");
 	EndIf;
 	
 	If TypeOf(Parameters.Performer) = Type("CatalogRef.Users") Then

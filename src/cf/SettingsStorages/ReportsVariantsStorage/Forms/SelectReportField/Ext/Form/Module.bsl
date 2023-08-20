@@ -393,10 +393,10 @@ Procedure SelectAndClose()
 	ClearMessages();
 	ListBox = ListOfAvailableFields(ThisObject).Field;
 	If TypeOf(ListBox.CurrentData) = Type("FormDataTreeItem") And ListBox.CurrentData.Folder Then
-		CommonClient.MessageToUser(NStr("en = 'Выберите поле отчета, а не группу.';"));
+		CommonClient.MessageToUser(NStr("en = 'Select a report field, not a group.';"));
 		Return;
 	ElsIf TypeOf(ListBox.CurrentData) <> Type("FormDataTreeItem") Then
-		CommonClient.MessageToUser(NStr("en = 'Выберите поле отчета.';"));
+		CommonClient.MessageToUser(NStr("en = 'Select a report field.';"));
 		Return;
 	EndIf;
 	

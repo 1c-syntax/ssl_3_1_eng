@@ -4,33 +4,6 @@
 	<setForAttributesByDefault>true</setForAttributesByDefault>
 	<independentRightsOfChildObjects>false</independentRightsOfChildObjects>
 	<object>
-		<name>InformationRegister.AdditionalInfo</name>
-		<right>
-			<name>Read</name>
-			<value>true</value>
-			<restrictionByCondition>
-				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
-#ForRegister("MetadataObjectIDs.InformationRegisterAdditionalInfo", "Property", "", "", "", "")
-#ELSE
-#ByValues( "InformationRegister.AdditionalInfo", "","",
-"AdditionalInfo", "Property",
-"","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","")
-#ENDIF</condition>
-			</restrictionByCondition>
-		</right>
-		<right>
-			<name>View</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>CommonCommand.AdditionalInfoCommandBar</name>
-		<right>
-			<name>View</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
 		<name>Configuration.StandardSubsystemsLibrary</name>
 		<right>
 			<name>MainWindowModeNormal</name>
@@ -54,6 +27,33 @@
 		</right>
 		<right>
 			<name>AnalyticsSystemClient</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>InformationRegister.AdditionalInfo</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+			<restrictionByCondition>
+				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
+#ForRegister("MetadataObjectIDs.InformationRegisterAdditionalInfo", "Property", "", "", "", "")
+#ELSE
+#ByValues( "InformationRegister.AdditionalInfo", "","",
+"AdditionalInfo", "Property",
+"","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","", "","")
+#ENDIF</condition>
+			</restrictionByCondition>
+		</right>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>CommonCommand.AdditionalInfoCommandBar</name>
+		<right>
+			<name>View</name>
 			<value>true</value>
 		</right>
 	</object>

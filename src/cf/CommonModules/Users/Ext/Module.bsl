@@ -291,13 +291,13 @@ EndFunction
 //  IBUser      - InfoBaseUser
 //  Interactively        - Boolean -
 //                          
-//  LaunchRightsOnly - Boolean -
+//  AreStartupRightsOnly - Boolean -
 //                          
 //
 // Returns:
 //  Boolean
 //
-Function HasRightsToLogIn(IBUser, Interactively = True, LaunchRightsOnly = True) Export
+Function HasRightsToLogIn(IBUser, Interactively = True, AreStartupRightsOnly = True) Export
 	
 	Result =
 		    AccessRight("ThinClient",    Metadata, IBUser)
@@ -311,7 +311,7 @@ Function HasRightsToLogIn(IBUser, Interactively = True, LaunchRightsOnly = True)
 			Or AccessRight("ExternalConnection", Metadata, IBUser);
 	EndIf;
 	
-	If Not LaunchRightsOnly Then
+	If Not AreStartupRightsOnly Then
 		// ACC:515-
 		Result = Result And RolesAvailable("BasicSSLRights,
 			|BasicSSLRightsForExternalUsers", IBUser, False);
@@ -2017,17 +2017,17 @@ EndFunction
 //                          according to the requirements of the service technologies (which is faster), otherwise
 //                          the check is performed if separation is enabled.
 //
-//  ErrorsList - Undefined   - If errors are found, the text of errors is generated and an exception is called.
+//  ErrorList - Undefined   - If errors are found, the text of errors is generated and an exception is called.
 //               - ValueList - 
 //                   * Value      - String - a role name.
 //                                   - Undefined - 
 //                   * Presentation - String - error text.
 //
-Procedure CheckRoleAssignment(CheckEverything = False, ErrorsList = Undefined) Export
+Procedure CheckRoleAssignment(CheckEverything = False, ErrorList = Undefined) Export
 	
 	RolesAssignment = UsersInternalCached.RolesAssignment();
 	
-	UsersInternal.CheckRoleAssignment(RolesAssignment, CheckEverything, ErrorsList);
+	UsersInternal.CheckRoleAssignment(RolesAssignment, CheckEverything, ErrorList);
 	
 EndProcedure
 

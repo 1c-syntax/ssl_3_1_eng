@@ -37,6 +37,13 @@
 				</InputField>
 			</ChildItems>
 		</UsualGroup>
+		<InputField name="ToolTip" id="12">
+			<DataPath>Object.ToolTip</DataPath>
+			<TitleLocation>Left</TitleLocation>
+			<MultiLine>true</MultiLine>
+			<ContextMenu name="ToolTipContextMenu" id="13"/>
+			<ExtendedTooltip name="ToolTipExtendedTooltip" id="14"/>
+		</InputField>
 		<CheckBoxField name="OpenEndedQuestion" id="5">
 			<DataPath>Object.OpenEndedQuestion</DataPath>
 			<TitleLocation>Right</TitleLocation>

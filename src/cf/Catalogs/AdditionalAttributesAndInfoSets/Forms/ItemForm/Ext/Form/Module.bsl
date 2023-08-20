@@ -17,15 +17,16 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetPropertiesTypes = PropertyManagerInternal.SetPropertiesTypes(Object.Ref);
 	UseAddlAttributes = SetPropertiesTypes.AdditionalAttributes;
 	UseAddlInfo  = SetPropertiesTypes.AdditionalInfo;
+	UseLabels        = SetPropertiesTypes.Labels;
 	
-	If UseAddlAttributes And UseAddlInfo Then
-		Title = Object.Description + " " + NStr("en = '(Set of additional attributes and information records)';")
-		
-	ElsIf UseAddlAttributes Then
-		Title = Object.Description + " " + NStr("en = '(Set of additional attributes)';")
-		
-	ElsIf UseAddlInfo Then
+	If UseAddlInfo And Not UseAddlAttributes And Not UseLabels Then
 		Title = Object.Description + " " + NStr("en = '(Set of additional information records)';")
+	ElsIf UseLabels And Not UseAddlInfo And Not UseAddlAttributes Then
+		Title = Object.Description + " " + NStr("en = '(Label set)';")
+	ElsIf UseAddlAttributes And Not UseAddlInfo And Not UseLabels Then
+		Title = Object.Description + " " + NStr("en = '(Set of additional attributes)';")
+	Else
+		Title = Object.Description + " " + NStr("en = '(Set of additional properties)';")
 	EndIf;
 	
 	If Not UseAddlAttributes And Object.AdditionalAttributes.Count() = 0 Then
@@ -37,8 +38,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.OnCreateAtServer(ThisObject, Object);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.OnCreateAtServer(ThisObject, Object);
 	EndIf;
 	
 EndProcedure
@@ -54,8 +55,8 @@ Procedure OnReadAtServer(CurrentObject)
 	// End StandardSubsystems.AccessManagement
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.OnReadAtServer(ThisObject, CurrentObject);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.OnReadAtServer(ThisObject, CurrentObject);
 	EndIf;
 	
 EndProcedure
@@ -64,8 +65,8 @@ EndProcedure
 Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.BeforeWriteAtServer(CurrentObject);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.BeforeWriteAtServer(CurrentObject);
 	EndIf;
 	
 EndProcedure
@@ -81,8 +82,8 @@ Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	// End StandardSubsystems.AccessManagement
 
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.OnReadAtServer(ThisObject, CurrentObject);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.OnReadAtServer(ThisObject, CurrentObject);
 	EndIf;
 	
 EndProcedure
@@ -95,8 +96,8 @@ EndProcedure
 Procedure Attachable_Opening(Item, StandardProcessing)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportClient = CommonClient.CommonModule("NationalLanguageSupportClient");
-		ModuleNativeLanguagesSupportClient.OnOpen(ThisObject, Object, Item, StandardProcessing);
+		ModuleNationalLanguageSupportClient = CommonClient.CommonModule("NationalLanguageSupportClient");
+		ModuleNationalLanguageSupportClient.OnOpen(ThisObject, Object, Item, StandardProcessing);
 	EndIf;
 	
 EndProcedure

@@ -94,7 +94,7 @@
 		<Event name="FillCheckProcessingAtServer">FillCheckProcessingAtServer</Event>
 	</Events>
 	<ChildItems>
-		<UsualGroup name="GroupHeader" id="325">
+		<UsualGroup name="Header_Group" id="325">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -104,7 +104,7 @@
 			<Group>Vertical</Group>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="326"/>
+			<ExtendedTooltip name="Header_GroupExtendedTooltip" id="326"/>
 			<ChildItems>
 				<UsualGroup name="GroupWarning" id="310">
 					<Title>
@@ -142,14 +142,14 @@
 								<Event name="URLProcessing">WarningURLProcessing</Event>
 							</Events>
 						</LabelDecoration>
-						<CheckBoxField name="SigningIsAllowed" id="322">
-							<DataPath>SigningIsAllowed</DataPath>
+						<CheckBoxField name="SigningAllowed" id="322">
+							<DataPath>SigningAllowed</DataPath>
 							<TitleLocation>Right</TitleLocation>
 							<ToolTipRepresentation>Button</ToolTipRepresentation>
 							<GroupHorizontalAlign>Right</GroupHorizontalAlign>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="SigningIsAllowedContextMenu" id="323"/>
-							<ExtendedTooltip name="SigningIsAllowedExtendedTooltip" id="324">
+							<ContextMenu name="SigningAllowedContextMenu" id="323"/>
+							<ExtendedTooltip name="SigningAllowedExtendedTooltip" id="324">
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
@@ -158,7 +158,7 @@
 								</Title>
 							</ExtendedTooltip>
 							<Events>
-								<Event name="OnChange">SigningIsAllowedOnChange</Event>
+								<Event name="OnChange">SigningAllowedOnChange</Event>
 							</Events>
 						</CheckBoxField>
 					</ChildItems>
@@ -410,7 +410,7 @@
 											<Width>16</Width>
 											<HorizontalStretch>false</HorizontalStretch>
 											<ContextMenu name="NameContextMenu" id="178"/>
-											<ExtendedTooltip name="NameExtendedHint" id="179"/>
+											<ExtendedTooltip name="NameExtendedTooltip" id="179"/>
 										</InputField>
 										<InputField name="MiddleName" id="180">
 											<DataPath>Object.MiddleName</DataPath>
@@ -757,7 +757,7 @@ the purpose description is used instead of the certificate presentation, for exa
 			</Type>
 			<Settings xsi:type="v8:TypeDescription"/>
 		</Attribute>
-		<Attribute name="SigningIsAllowed" id="18">
+		<Attribute name="SigningAllowed" id="18">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>

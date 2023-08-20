@@ -30,6 +30,8 @@ Function SessionParametersSetting(SessionParametersNames) Export
 	// 
 	SpecifiedParameters = New Array;
 	
+#If Not MobileStandaloneServer Then
+	
 	If SessionParametersNames <> Undefined
 	   And SessionParametersNames.Find("ClientParametersAtServer") <> Undefined Then
 		
@@ -50,8 +52,8 @@ Function SessionParametersSetting(SessionParametersNames) Export
 		Catalogs.ExtensionsVersions.SessionParametersSetting(SessionParametersNames, SpecifiedParameters);
 		
 		If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-			ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-			ModuleNativeLanguagesSupportServer.SessionParametersSetting(SessionParametersNames, SpecifiedParameters);
+			ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+			ModuleNationalLanguageSupportServer.SessionParametersSetting(SessionParametersNames, SpecifiedParameters);
 		EndIf;
 		
 		// When establishing the connections with the infobase before calling all other handlers.
@@ -72,8 +74,8 @@ Function SessionParametersSetting(SessionParametersNames) Export
 	Catalogs.ExtensionsVersions.SessionParametersSetting(SessionParametersNames, SpecifiedParameters);
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.SessionParametersSetting(SessionParametersNames, SpecifiedParameters);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.SessionParametersSetting(SessionParametersNames, SpecifiedParameters);
 	EndIf;
 	
 	If SessionParametersNames.Find("Clipboard") <> Undefined Then
@@ -94,9 +96,13 @@ Function SessionParametersSetting(SessionParametersNames) Export
 	
 	SSLSubsystemsIntegration.OnSetSessionParameters(SessionParametersNames);
 	
+#EndIf
+	
 	Return SpecifiedParameters;
 	
 EndFunction
+
+#If Not MobileStandaloneServer Then
 
 // Returns a flag that shows whether this is the basic configuration.
 // The basic configuration versions may have application restrictions that
@@ -113,6 +119,28 @@ Function IsBaseConfigurationVersion() Export
 	CommonOverridable.WhenDefiningAFeatureThisIsTheBasicVersionOfTheConfiguration(IsBaseConfigurationVersion);
 	
 	Return IsBaseConfigurationVersion;
+	
+EndFunction
+
+// 
+// 
+// 
+//
+// Returns:
+//   Boolean - 
+//
+Function IsTrainingPlatform() Export
+	
+	SetPrivilegedMode(True);
+	CurrentUser = InfoBaseUsers.CurrentUser();
+
+	Try
+		OSUser = CurrentUser.OSUser;
+	Except
+		// 
+		Return True;
+	EndTry;
+	Return False;
 	
 EndFunction
 
@@ -301,7 +329,7 @@ Procedure SetDateFieldConditionalAppearance(Form,
 	// 
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	AppearanceItem.Use = True;
-	AppearanceItem.Appearance.SetParameterValue("Format", NStr("en = 'DF=hh:mm tt';"));
+	AppearanceItem.Appearance.SetParameterValue("Format", NStr("en = 'DF=hh:mm';"));
 	
 	FormattedField = AppearanceItem.Fields.Items.Add();
 	FormattedField.Field = New DataCompositionField(FormattedFieldName);
@@ -549,7 +577,11 @@ EndProcedure
 
 #EndRegion
 
+#EndIf
+
 #EndRegion
+
+#If Not MobileStandaloneServer Then
 
 #Region Internal
 
@@ -583,9 +615,9 @@ EndProcedure
 // 
 //
 // Returns:
-//  FixedMap:
-//   * LaunchParameter                    - String
-//   * InfoBaseConnectionString - String - Connection string retrieved on the client.
+//  FixedMap of KeyAndValue:
+//   * Key - String -
+//   * Value - String
 //
 Function ClientParametersAtServer(RaiseException1 = True) Export
 	
@@ -1264,7 +1296,7 @@ Procedure RecordObjectChangesInAllNodes(Val Object, Val ExchangePlanName, Val In
 		EndIf;
 		
 		If IsSeparatedMetadataObject Then
-				Raise NStr("en = 'Separated objects don''t support change registration.';");
+				Raise NStr("en = 'Separated objects don''t support registration of changes.';");
 		EndIf;
 		
 		QueryText =
@@ -1329,26 +1361,6 @@ Procedure SaveMasterNode() Export
 	InfobaseUpdate.WriteData(MasterNodeManager);
 	
 EndProcedure
-
-// Returns:
-//   Boolean - 
-//            
-//
-Function IsTrainingPlatform() Export
-	
-	SetPrivilegedMode(True);
-	
-	CurrentUser = InfoBaseUsers.CurrentUser();
-	
-	Try
-		OSUser = CurrentUser.OSUser;
-	Except
-		OSUser = Undefined;
-	EndTry;
-	
-	Return OSUser = Undefined;
-	
-EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
 // Handlers of exchange data sending and receiving in a DIB.
@@ -2036,6 +2048,7 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 	ModuleExportImportData.AddTypeExcludedFromUploadingUploads(Types,
 		Metadata.Catalogs.ExtensionObjectIDs,
 		ModuleExportImportData.ActionWithLinksDoNotChange());
+	Types.Add(Metadata.InformationRegisters.SafeDataAreaDataStorage);
 	Types.Add(Metadata.InformationRegisters.ExtensionVersionObjectIDs);
 	Types.Add(Metadata.InformationRegisters.ExtensionVersionParameters);
 	
@@ -2156,7 +2169,7 @@ Procedure AfterImportData(Container) Export
 	InformationRegisters.ExtensionVersionParameters.EnableFillingExtensionsWorkParameters(False, True);
 	If Common.DataSeparationEnabled() Then
 		InformationRegisters.ExtensionVersionParameters.StartFillingWorkParametersExtensions(
-			NStr("en = 'Запуск с ожиданием после загрузки данных области';"),
+			NStr("en = 'Start and wait after importing area data';"),
 			True);
 	EndIf;
 	
@@ -2209,7 +2222,8 @@ EndProcedure
 // See CommonOverridable.OnReceiptRecurringClientDataOnServer
 Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
 	
-	CheckParameters = Parameters.Get("StandardSubsystems.Core");
+	ParameterName = "StandardSubsystems.Core.DynamicUpdateControl";
+	CheckParameters = Parameters.Get(ParameterName);
 	If CheckParameters = Undefined Then
 		Return;
 	EndIf;
@@ -2221,7 +2235,7 @@ Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
 		Return;
 	EndIf;
 	
-	Results.Insert("StandardSubsystems.Core", UserMessage);
+	Results.Insert(ParameterName, UserMessage);
 	
 EndProcedure
 
@@ -2513,12 +2527,14 @@ Function AddClientParametersOnStart(Parameters) Export
 	Parameters.Insert("SeparatedDataUsageAvailable", 
 		Common.SeparatedDataUsageAvailable());
 	Parameters.Insert("IsSeparatedConfiguration", IsSeparatedConfiguration);
+	// 
 	Parameters.Insert("HasAccessForUpdatingPlatformVersion", Users.IsFullUser(,True));
 	
 	Parameters.Insert("SubsystemsNames", StandardSubsystemsCached.SubsystemsNames());
 	Parameters.Insert("IsBaseConfigurationVersion", IsBaseConfigurationVersion());
 	Parameters.Insert("IsTrainingPlatform", IsTrainingPlatform());
 	Parameters.Insert("UserCurrentName", CurrentUser().Name);
+	// 
 	Parameters.Insert("COMConnectorName", CommonClientServer.COMConnectorName());
 	Parameters.Insert("DefaultLanguageCode", Common.DefaultLanguageCode());
 	
@@ -2536,6 +2552,8 @@ Function AddClientParametersOnStart(Parameters) Export
 		And Not Common.SubsystemExists("StandardSubsystems.ToDoList"));
 	
 	Parameters.Insert("IsExternalUserSession", Users.IsExternalUserSession());
+	Parameters.Insert("IsFullUser",  Users.IsFullUser());
+	Parameters.Insert("IsSystemAdministrator",      Users.IsFullUser(, True));
 	Parameters.Insert("FileInfobase",   Common.FileInfobase());
 	
 	If InvalidPlatformVersionUsed() Then
@@ -2661,9 +2679,19 @@ Function AddClientParametersOnStart(Parameters) Export
 	   And Not Parameters.RetrievedClientParameters.Property("ApplicationParametersUpdateRequired")
 	   And Not Parameters.Property("SimplifiedInfobaseUpdateForm") Then
 		
-		If InformationRegisters.ApplicationRuntimeParameters.UpdateRequired1() Then
+		SubordinateDIBNodeSetup = False;
+		If InformationRegisters.ApplicationRuntimeParameters.UpdateRequired1(SubordinateDIBNodeSetup) Then
 			// 
 			Parameters.Insert("ApplicationParametersUpdateRequired");
+			
+			If SubordinateDIBNodeSetup
+			   And Common.FileInfobase() Then
+				
+				ErrorTemplate =
+					NStr("en = 'Cannot enable exclusive mode to set up the distributed infobase node. Reason:
+					           |%1';");
+				EnableExclusiveModeAtStartup(True, ErrorTemplate);
+			EndIf;
 			Return False;
 		EndIf;
 	EndIf;
@@ -2726,6 +2754,8 @@ Function AddClientParametersOnStart(Parameters) Export
 		Return False;
 	EndIf;
 	
+	EnableExclusiveModeAtStartup(False);
+	
 	Return True;
 	
 EndFunction
@@ -2743,8 +2773,11 @@ Procedure AddClientRunParameters(Parameters)
 		Common.SeparatedDataUsageAvailable());
 	Parameters.Insert("DataSeparationEnabled", Common.DataSeparationEnabled());
 	
+	// 
 	Parameters.Insert("IsBaseConfigurationVersion", IsBaseConfigurationVersion());
+	// 
 	Parameters.Insert("IsTrainingPlatform", IsTrainingPlatform());
+	// 
 	Parameters.Insert("COMConnectorName", CommonClientServer.COMConnectorName());
 	Parameters.Insert("StyleItems", StyleElementsSet());
 	
@@ -2838,6 +2871,47 @@ Procedure SetBlankFormOnHomePage() Export
 	Settings = New HomePageSettings;
 	Settings.SetForms(FormContent);
 	SystemSettingsStorage.Save(ObjectKey, "", Settings);
+	
+EndProcedure
+
+// Parameters:
+//  Set - Boolean
+//  ErrorTemplate - String
+//
+Procedure EnableExclusiveModeAtStartup(Set, ErrorTemplate = "")
+	
+	If Set And ExclusiveMode() Then
+		Return;
+	EndIf;
+	
+	ParameterName = "IsExclusiveModeEnabledAtStartup";
+	
+	SetPrivilegedMode(True);
+	If Set Then
+		Try
+			SetExclusiveMode(True);
+		Except
+			ErrorInfo = ErrorInfo();
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
+				ErrorProcessing.BriefErrorDescription(ErrorInfo));
+			Raise ErrorText;
+		EndTry;
+		
+		CurrentParameters = New Map(SessionParameters.ClientParametersAtServer);
+		CurrentParameters.Insert(ParameterName, True);
+		SessionParameters.ClientParametersAtServer = New FixedMap(CurrentParameters);
+		
+	ElsIf SessionParameters.ClientParametersAtServer.Get(ParameterName) <> Undefined Then
+		
+		If ExclusiveMode() Then
+			SetExclusiveMode(False);
+		EndIf;
+		
+		CurrentParameters = New Map(SessionParameters.ClientParametersAtServer);
+		CurrentParameters.Insert(ParameterName, True);
+		SessionParameters.ClientParametersAtServer = New FixedMap(CurrentParameters);
+	EndIf;
+	SetPrivilegedMode(False);
 	
 EndProcedure
 
@@ -3336,10 +3410,10 @@ Procedure UpdateTheInvoiceObject(OldObject)
 	NewObject.PredefinedDataName = OldObject.PredefinedDataName;
 	For Each ExtraDimensionKindRow In OldObject.ExtDimensionTypes Do
 		If ExtraDimensionKindRow.Predefined Then
-			ANewLineOfTheSubKontoType = NewObject.ExtDimensionTypes.Find(
+			NewLineIExtDimensionType = NewObject.ExtDimensionTypes.Find(
 				ExtraDimensionKindRow.ExtDimensionType, "ExtDimensionType");
-			If ANewLineOfTheSubKontoType <> Undefined Then
-				ANewLineOfTheSubKontoType.Predefined = True;
+			If NewLineIExtDimensionType <> Undefined Then
+				NewLineIExtDimensionType.Predefined = True;
 			EndIf;
 		EndIf;
 	EndDo;
@@ -3514,7 +3588,7 @@ Procedure BeforeStartApplication()
 		Except
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The Version configuration property has invalid value: %1.
-				           |Use the following format: ""1.2.3.45"".';"),
+				           |Use the following format: 1.2.3.45.';"),
 				Metadata.Version);
 		EndTry;
 		If ZeroVersion Then
@@ -4362,8 +4436,8 @@ EndProcedure
 Function RegionalInfobaseSettingsRequired() Export
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		Return ModuleNativeLanguagesSupportServer.RegionalInfobaseSettingsRequired();
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		Return ModuleNationalLanguageSupportServer.RegionalInfobaseSettingsRequired();
 	EndIf;
 	
 	Return False;
@@ -4470,7 +4544,7 @@ Procedure IgnoreSendingDataProcessedOnMasterDIBNodeOnInfobaseUpdate(DataElement,
 		And TypeOf(DataElement) = Type("InformationRegisterRecordSet.DataProcessedInMasterDIBNode") Then
 		
 		IndexOf = DataElement.Count() - 1;
-		While IndexOf > 0 Do
+		While IndexOf >= 0 Do
 			SetRow = DataElement[IndexOf];
 			If SetRow.ExchangePlanNode <> Recipient Then
 				DataElement.Delete(SetRow);
@@ -4492,3 +4566,5 @@ Function InvalidPlatformVersionUsed()
 EndFunction
 
 #EndRegion
+
+#EndIf

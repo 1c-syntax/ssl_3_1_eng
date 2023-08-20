@@ -318,6 +318,7 @@ You can paste the data from the clipboard or upload a spreadsheet file.</v8:cont
 											<Events>
 												<Event name="OnChange">TemplateWithDataOnChange</Event>
 												<Event name="OnActivate">TemplateWithDataOnActivate</Event>
+												<Event name="Selection">TemplateWithDataSelection</Event>
 											</Events>
 										</SpreadSheetDocumentField>
 										<Button name="ChangeTemplateFillTable" id="657">

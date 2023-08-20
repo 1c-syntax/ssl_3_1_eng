@@ -187,16 +187,17 @@ EndProcedure
 //
 // Returns:
 //   Structure - 
-//       * Kind - String - a kind of the external report or data processor. To specify the kind, use functions
-//           AdditionalReportsAndDataProcessorsClientServer.DataProcessorKind<KindName>.
-//           You can also specify the kind explicitly:
-//           "PrintForm",
-//           "ObjectFilling",
-//           "RelatedObjectsCreation",
-//           "Report",
-//           "MessageTemplate",
-//           "AdditionalDataProcessor", or
-//           "AdditionalReport".
+//       * Kind - EnumRef.AdditionalReportsAndDataProcessorsKinds 
+//             - String - 
+//           
+//           
+//           
+//           
+//           
+//           
+//           
+//           
+//           
 //       
 //       * Version - String - a version of the report or data processor (later on data processor).
 //           Conforms to "<Senior number>.<Junior number>" format.
@@ -237,6 +238,9 @@ EndProcedure
 //                                              
 //                                             
 //                                             
+//       
+//       * ReportOptionAssignment - EnumRef.ReportOptionPurposes -
+//										
 //           
 //           
 //           //
@@ -290,6 +294,11 @@ Function ExternalDataProcessorInfo(SSLVersion = "") Export
 	RegistrationParameters.Insert("Information", Undefined);
 	RegistrationParameters.Insert("SSLVersion", SSLVersion);
 	RegistrationParameters.Insert("DefineFormSettings", False);
+	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
+		ModuleReportsOptionsInternal = Common.CommonModule("ReportsOptionsInternal");
+		RegistrationParameters.Insert("ReportOptionAssignment",
+			ModuleReportsOptionsInternal.ReportOptionEmptyAssignment());
+	EndIf;
 	
 	TabularSectionAttributes = Metadata.Catalogs.AdditionalReportsAndDataProcessors.TabularSections.Commands.Attributes;
 	
@@ -434,10 +443,6 @@ Function AttachedMetadataObjects(Kind) Export
 	Result.Columns.Add("Presentation", New TypeDescription("String"));
 	Result.Columns.Add("FullPresentation", New TypeDescription("String"));
 	
-	Result.Indexes.Add("Ref");
-	Result.Indexes.Add("Kind");
-	Result.Indexes.Add("FullName");
-	
 	TypesOrMetadataArray = New Array;
 	
 	If Kind = Enums.AdditionalReportsAndDataProcessorsKinds.ObjectFilling
@@ -505,6 +510,10 @@ Function AttachedMetadataObjects(Kind) Export
 		
 		TableRow.FullPresentation = TableRow.Presentation + " (" + TableRow.Kind + ")";
 	EndDo;
+	
+	Result.Indexes.Add("Ref");
+	Result.Indexes.Add("Kind");
+	Result.Indexes.Add("FullName");
 	
 	Return Result;
 EndFunction
@@ -2248,7 +2257,7 @@ Procedure MapConfigurationDataProcessorsWithCatalogDataProcessors(ReportsAndData
 			Continue; // Registering a new data processor.
 		EndIf;
 		
-		If VersionAsNumber(DataFromCatalog.Version) >= VersionAsNumber(TableRow.InformationRecords.Version)
+		If VersionAsNumber(DataFromCatalog.Version) = VersionAsNumber(TableRow.InformationRecords.Version)
 			And TableRow.InformationRecords.Version <> Metadata.Version Then
 			// 
 			ReportsAndDataProcessors.Delete(ReverseIndex);
@@ -2710,7 +2719,6 @@ Function RegisterDataProcessor(Val Object, Val RegistrationParameters) Export
 	
 	// 
 	// 
-	
 	If RegistrationParameters.DisableConflicts Then
 		For Each ListItem In RegistrationParameters.Conflicting Do
 			BeginTransaction();
@@ -2742,6 +2750,10 @@ Function RegisterDataProcessor(Val Object, Val RegistrationParameters) Export
 	Result.Insert("Conflicting", New ValueList);
 	Result.Insert("ErrorText", "");
 	Result.Insert("BriefErrorDescription", "");
+	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
+		ModuleReportsOptionsInternal = Common.CommonModule("ReportsOptionsInternal");
+		Result.Insert("ReportOptionAssignment", ModuleReportsOptionsInternal.ReportOptionEmptyAssignment());
+	EndIf;
 	Result.ObjectNameUsed = False;
 	Result.Success = False;
 	If Object.IsNew() Then
@@ -2751,16 +2763,13 @@ Function RegisterDataProcessor(Val Object, Val RegistrationParameters) Export
 	EndIf;
 	
 	RegistrationData = GetRegistrationData(Object, RegistrationParameters, Result);
-	If RegistrationData = Undefined
-		Or RegistrationData.Count() = 0
-		Or ValueIsFilled(Result.ErrorText)
-		Or ValueIsFilled(Result.BriefErrorDescription) Then
+	If ValueIsFilled(Result.ErrorText) Then
 		Return Result;
 	EndIf;
 	
 	If RegistrationData.Kind = Enums.AdditionalReportsAndDataProcessorsKinds.PrintForm
 		And Not Common.SubsystemExists("StandardSubsystems.Print") Then
-		Result.ErrorText = NStr("en = 'Print forms are not supported.';");
+		Result.ErrorText = NStr("en = 'Operations with print forms are unavailable.';");
 		Return Result;
 	EndIf;
 	
@@ -2785,26 +2794,29 @@ Function RegisterDataProcessor(Val Object, Val RegistrationParameters) Export
 	Object.Description    = RegistrationData.Description;
 	Object.Version          = RegistrationData.Version;
 	Object.PermissionsCompatibilityMode = Enums.AdditionalReportsAndDataProcessorsPermissionCompatibilityModes.Version_2_1_3;
-	If RegistrationData.Property("SSLVersion") 
+	If ValueIsFilled(RegistrationData.SSLVersion) 
 		And CommonClientServer.CompareVersions(RegistrationData.SSLVersion, "2.2.2.0") > 0 Then
 		Object.PermissionsCompatibilityMode = Enums.AdditionalReportsAndDataProcessorsPermissionCompatibilityModes.Version_2_2_2;
 	EndIf;
-	
-	If RegistrationData.Property("SafeMode") Then
-		Object.SafeMode = RegistrationData.SafeMode;
-	EndIf;
-	
+	Object.SafeMode = RegistrationData.SafeMode;
 	Object.Information      = RegistrationData.Information;
 	Object.FileName        = RegistrationParameters.FileName;
 	Object.ObjectName      = Result.ObjectName;
-	
 	Object.UseOptionStorage = False;
+
 	If IsExternalReport Then
 		Store = Metadata.ReportsVariantsStorage; // MetadataObjectSettingsStorage
 		Object.UseOptionStorage = (RegistrationData.VariantsStorage = "ReportsVariantsStorage"
-			Or (Store <> Undefined 
-				And Store.Name = "ReportsVariantsStorage"));
-		RegistrationData.Property("DefineFormSettings", Object.DeepIntegrationWithReportForm);
+			Or (Store <> Undefined And Store.Name = "ReportsVariantsStorage"));
+		Object.DeepIntegrationWithReportForm = RegistrationData.DefineFormSettings;
+		If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
+			If ValueIsFilled(RegistrationData.ReportOptionAssignment) Then
+				Result.ReportOptionAssignment = RegistrationData.ReportOptionAssignment;
+			Else
+				ModuleReportsOptionsInternal = Common.CommonModule("ReportsOptionsInternal");
+				Result.ReportOptionAssignment = ModuleReportsOptionsInternal.AssigningDefaultReportOption();
+			EndIf;
+		EndIf;
 	EndIf;
 	
 	// A different data processor is imported (an object name or a data processor type was changed).
@@ -2819,7 +2831,7 @@ Function RegisterDataProcessor(Val Object, Val RegistrationParameters) Export
 		And Object.Kind <> KindAdditionalReport
 		And Object.Kind <> KindAdditionalDataProcessor Then
 		
-		If RegistrationData.Property("Purpose") Then
+		If RegistrationData.Purpose.Count() > 0 Then
 			MetadataObjectsTable = AttachedMetadataObjects(Object.Kind);
 			
 			For Each FullMetadataObjectName In RegistrationData.Purpose Do
@@ -2857,34 +2869,30 @@ Function RegisterDataProcessor(Val Object, Val RegistrationParameters) Export
 	
 	// 
 	Object.Permissions.Clear();
-	If RegistrationData.Property("Permissions") Then
-		Permissions = RegistrationData.Permissions;
-		For Each Resolution In Permissions Do
+	For Each Resolution In RegistrationData.Permissions Do
+		
+		XDTOType = Resolution.Type();// XDTOObjectType
+		
+		TSRow = Object.Permissions.Add();
+		TSRow.PermissionKind = XDTOType.Name;
+		
+		Parameters = New Structure();
+		
+		For Each XDTOProperty In XDTOType.Properties Do
 			
-			XDTOType = Resolution.Type();// XDTOObjectType
+			Container = Resolution.GetXDTO(XDTOProperty.Name);
 			
-			TSRow = Object.Permissions.Add();
-			TSRow.PermissionKind = XDTOType.Name;
-			
-			Parameters = New Structure();
-			
-			For Each XDTOProperty In XDTOType.Properties Do
-				
-				Container = Resolution.GetXDTO(XDTOProperty.Name);
-				
-				If Container <> Undefined Then
-					Parameters.Insert(XDTOProperty.Name, Container.Value);
-				Else
-					Parameters.Insert(XDTOProperty.Name);
-				EndIf;
-				
-			EndDo;
-			
-			TSRow.Parameters = New ValueStorage(Parameters);
+			If Container <> Undefined Then
+				Parameters.Insert(XDTOProperty.Name, Container.Value);
+			Else
+				Parameters.Insert(XDTOProperty.Name);
+			EndIf;
 			
 		EndDo;
 		
-	EndIf;
+		TSRow.Parameters = New ValueStorage(Parameters);
+		
+	EndDo;
 	
 	Object.EmployeeResponsible = Users.CurrentUser();
 	Result.Success = True;
@@ -2941,7 +2949,7 @@ EndFunction
 //
 Function GetRegistrationData(Val Object, Val RegistrationParameters, Val RegistrationResult)
 
-	RegistrationData = New Structure;
+	RegistrationData = ExternalDataProcessorInfo();
 	StandardProcessing = True;
 	
 	SSLSubsystemsIntegration.OnGetRegistrationData(Object, RegistrationData, StandardProcessing);

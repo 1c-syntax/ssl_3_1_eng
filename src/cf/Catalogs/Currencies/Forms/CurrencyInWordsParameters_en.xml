@@ -9,7 +9,7 @@
 					<v8:content>Amount in words settings</v8:content>
 				</v8:item>
 			</Synonym>
-			<Comment>ACC:58</Comment>
+			<Comment>ACC58</Comment>
 			<FormType>Managed</FormType>
 			<IncludeHelpInContents>false</IncludeHelpInContents>
 			<UsePurposes>

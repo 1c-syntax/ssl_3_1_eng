@@ -40,10 +40,8 @@
 //                                                      By default, 4 GB.
 //
 //    Instead, use MinimumPlatformVersion and RecommendedPlatformVersion properties:
-//      * MinPlatformVersion1    - String - the full platform version required to start the application.
-//                                                           For example, "8.3.4.365".
-//                                                           Previously, it used to be defined in
-//                                                           CommonOverridable.GetMinRequiredPlatformVersion.
+//      * MinPlatformVersion1    - String -
+//                                                           
 //      * MustExit               - Boolean - the initial value is False.
 //
 Procedure OnDetermineCommonCoreParameters(CommonParameters) Export

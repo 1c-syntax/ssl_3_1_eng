@@ -564,7 +564,8 @@ Function ImportDataAtServer()
 		If UseDataExchangeMessageDirectory = True Then
 			
 			TempFilesStorageDirectory = DataExchangeCached.TempFilesStorageDirectory();
-			AddressOnServer = TempFilesStorageDirectory + "\" + String(New UUID) + ".xml";
+			AddressOnServer = CommonClientServer.GetFullFileName(
+				TempFilesStorageDirectory, String(New UUID) + ".xml")
 			
 		Else
 			

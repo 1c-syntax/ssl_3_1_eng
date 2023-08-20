@@ -45,7 +45,7 @@ EndProcedure
 // required header attribute Company with the CatalogRef.Company type.
 //
 // Parameters:
-//  Source - Произвольные - a subscription event source.
+//  Source - Arbitrary - a subscription event source.
 //             Any object from the set [Catalog, Document, Chart of characteristic types, Business process, or Task].
 //  StandardProcessing - Boolean - a standard subscription processing flag.
 //  Prefix - String - a prefix of an object to be changed.
@@ -161,7 +161,7 @@ EndProcedure
 // Returns a company prefix.
 //
 // Parameters:
-//  Organization - СправочникСсылка.Copmanies - a company for which a prefix is to be got.
+//  Organization - DefinedType.Organization -
 //  CompanyPrefix - String - a company prefix.
 //
 Procedure OnDetermineCompanyPrefix(Val Organization, CompanyPrefix) Export

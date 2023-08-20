@@ -193,13 +193,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Register the selected one</v8:content>
+					<v8:content>Register selected</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Register the selected one</v8:content>
+					<v8:content>Register selected</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>RegisterSelected</Action>

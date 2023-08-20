@@ -1139,7 +1139,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Authorization is restricted</v8:content>
+							<v8:content>Sign-in restricted</v8:content>
 						</v8:item>
 					</Title>
 					<Group>AlwaysHorizontal</Group>
@@ -1152,7 +1152,7 @@
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Authorization is restricted picture</v8:content>
+									<v8:content>Sign-in restricted picture</v8:content>
 								</v8:item>
 							</Title>
 							<Picture>
@@ -1166,14 +1166,14 @@
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Authorization is restricted</v8:content>
+									<v8:content>Sign-in restricted</v8:content>
 								</v8:item>
 							</Title>
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Authorization restriction is set up to a date or
-the maximum inactivity period is set</v8:content>
+									<v8:content>User will be blocked from signing in
+after a certain date or a period of inactivity</v8:content>
 								</v8:item>
 							</ToolTip>
 							<ContextMenu name="LabelLogonRestrictredContextMenu" id="343"/>
@@ -1189,7 +1189,7 @@ the maximum inactivity period is set</v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>No authorization</v8:content>
+							<v8:content>Sign-in blocked</v8:content>
 						</v8:item>
 					</Title>
 					<Group>AlwaysHorizontal</Group>
@@ -1202,7 +1202,7 @@ the maximum inactivity period is set</v8:content>
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>No authorization picture</v8:content>
+									<v8:content>Sign-in blocked picture</v8:content>
 								</v8:item>
 							</Title>
 							<Picture>
@@ -1216,9 +1216,17 @@ the maximum inactivity period is set</v8:content>
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>No authorization</v8:content>
+									<v8:content>Sign-in blocked</v8:content>
 								</v8:item>
 							</Title>
+							<ToolTip>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Authorization is disabled, no authorization rights or
+no startup rights (thin client, web client,
+thick client, automation or external connection).</v8:content>
+								</v8:item>
+							</ToolTip>
 							<ContextMenu name="LabelLogonForbiddenContextMenu" id="337"/>
 							<ExtendedTooltip name="LabelLogonForbiddenExtendedTooltip" id="338"/>
 						</LabelDecoration>
@@ -1232,7 +1240,7 @@ the maximum inactivity period is set</v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>No setting</v8:content>
+							<v8:content>Not configured</v8:content>
 						</v8:item>
 					</Title>
 					<Group>AlwaysHorizontal</Group>
@@ -1245,7 +1253,7 @@ the maximum inactivity period is set</v8:content>
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>No setting picture</v8:content>
+									<v8:content>Not configured picture</v8:content>
 								</v8:item>
 							</Title>
 							<Picture>
@@ -1259,14 +1267,14 @@ the maximum inactivity period is set</v8:content>
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>No setting</v8:content>
+									<v8:content>Not configured</v8:content>
 								</v8:item>
 							</Title>
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
 									<v8:content>No infobase user
-(empty authorization name)</v8:content>
+(empty username)</v8:content>
 								</v8:item>
 							</ToolTip>
 							<ContextMenu name="LabelNoSettingContextMenu" id="331"/>

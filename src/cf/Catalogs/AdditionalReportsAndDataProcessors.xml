@@ -394,7 +394,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Run the data processor in safe mode. The mode disables COM technology, import of external components, commands from external applications and the operating system, access to file system (except for temporary files), and Internet access.</v8:content>
+							<v8:content>Run the data processor in safe mode. The mode disables COM technology, import of add-ins, commands from external applications and the operating system, access to file system (except for temporary files), and Internet access.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

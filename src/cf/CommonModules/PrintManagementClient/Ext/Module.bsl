@@ -28,13 +28,23 @@ Procedure ExecutePrintCommand(PrintManagerName, TemplatesNames, ObjectsArray, Fo
 		Return;
 	EndIf;
 	
-	OpeningParameters = New Structure("PrintManagerName,TemplatesNames,CommandParameter,PrintParameters");
+	OpeningParameters = PrintManagementInternalClient.ParametersForOpeningPrintForm();
 	OpeningParameters.PrintManagerName = PrintManagerName;
 	OpeningParameters.TemplatesNames		 = TemplatesNames;
 	OpeningParameters.CommandParameter	 = ObjectsArray;
 	OpeningParameters.PrintParameters	 = PrintParameters;
-	OpenForm("CommonForm.PrintDocuments", OpeningParameters, FormOwner, String(New UUID));
 	
+	If FormOwner = Undefined Then
+		OpeningParameters.StorageUUID = New UUID;
+	Else
+		OpeningParameters.StorageUUID = FormOwner.UUID;
+	EndIf;
+		
+	TimeConsumingOperation = PrintManagementServerCall.StartGeneratingPrintForms(OpeningParameters);
+	OpeningParameters.FormOwner = FormOwner;
+	
+	CompletionNotification2 = New NotifyDescription("ExecutePrintCommandAfterFormationOfPrintedForms", ThisObject, OpeningParameters);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, PrintManagementInternalClient.IdleParameters(FormOwner));	
 EndProcedure
 
 // Generates and outputs print forms to the printer.
@@ -282,8 +292,14 @@ EndProcedure
 // Opens a form showing how to create a facsimile signature and a seal.
 Procedure ShowInstructionOnHowToCreateFacsimileSignatureAndSeal() Export
 	
+	ScanAvailable = False;
+	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
+		ModuleFilesOperationsClient = CommonClient.CommonModule("FilesOperationsClient");
+		ScanAvailable = ModuleFilesOperationsClient.ScanAvailable();
+	EndIf;
+	GenerationParameters = New Structure ("ScanAvailable", ScanAvailable);
 	ExecutePrintCommand("InformationRegister.CommonSuppliedPrintTemplates", "GuideToCreateFacsimileAndStamp", 
-		PredefinedValue("Catalog.MetadataObjectIDs.EmptyRef"), Undefined, New Structure);
+		PredefinedValue("Catalog.MetadataObjectIDs.EmptyRef"), Undefined, GenerationParameters);
 	
 EndProcedure
 
@@ -1067,6 +1083,42 @@ Procedure WhenCheckingTheExistenceOfAFile(Exists, PreparationParameters) Export
 	
 	PrepareFileNamesToSaveToADirectory(PreparationParameters);
 	
+EndProcedure
+
+Procedure ExecutePrintCommandAfterFormationOfPrintedForms(BackgroundOperationResult, OpeningParameters) Export
+	If BackgroundOperationResult <> Undefined Then
+		If BackgroundOperationResult.Status = "Error" Then
+			Raise BackgroundOperationResult.BriefErrorDescription;
+		EndIf;
+		ResultStructure1 = GetFromTempStorage(BackgroundOperationResult.ResultAddress);
+		
+		OpeningParameters.Insert("PrintObjects", ResultStructure1.PrintObjects);
+		OpeningParameters.Insert("OutputParameters", ResultStructure1.OutputParameters);
+		OpeningParameters.Insert("PrintParameters", ResultStructure1.PrintParameters); 
+		
+		PrintFormsCollection	 = ResultStructure1.PrintFormsCollection;
+		OfficeDocuments		 = ResultStructure1.OfficeDocuments;
+		For Each PrintForm In PrintFormsCollection Do
+			OfficeDocsNewAddresses = New Map();
+			If ValueIsFilled(PrintForm.OfficeDocuments) Then
+				For Each OfficeDocument In PrintForm.OfficeDocuments Do
+					OfficeDocsNewAddresses.Insert(PutToTempStorage(OfficeDocuments[OfficeDocument.Key], OpeningParameters.StorageUUID), OfficeDocument.Value);
+				EndDo;
+				PrintForm.OfficeDocuments = OfficeDocsNewAddresses;
+			EndIf;
+		EndDo;
+		
+		OpeningParameters.Insert("PrintFormsCollection", PrintFormsCollection);
+		
+		JobMessages = New Array(BackgroundOperationResult.Messages);
+		CommonClientServer.SupplementArray(JobMessages, ResultStructure1.Messages);
+		OpeningParameters.Insert("Messages", JobMessages);
+		
+		FormOwner = OpeningParameters.FormOwner;
+		OpeningParameters.Delete("FormOwner");
+		
+		OpenForm("CommonForm.PrintDocuments", OpeningParameters, FormOwner, String(New UUID));
+	EndIf;
 EndProcedure
 
 

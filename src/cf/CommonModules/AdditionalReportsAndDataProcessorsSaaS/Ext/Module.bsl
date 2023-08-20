@@ -206,23 +206,18 @@ Procedure BeforeDeleteAdditionalDataProcessor(Source, Cancel) Export
 		
 EndProcedure
 
-// Called to get registration data for a new additional report
-// or data processor.
+// 
 //
 Procedure OnGetRegistrationData(Object, RegistrationData, StandardProcessing) Export
 	
 	SetPrivilegedMode(True);
-	
 	If Not Object.IsNew() And Common.DataSeparationEnabled() Then
-		
 		SuppliedDataProcessor = SuppliedDataProcessor(Object.Ref);
 		If ValueIsFilled(SuppliedDataProcessor) Then
-			
-			RegistrationData = GetRegistrationData(SuppliedDataProcessor);
+			CommonClientServer.SupplementStructure(RegistrationData, 
+				GetRegistrationData(SuppliedDataProcessor), True);
 			StandardProcessing = False;
-			
 		EndIf;
-		
 	EndIf;
 	
 EndProcedure
@@ -1709,13 +1704,13 @@ Procedure FillSettingsOfDataProcessorToUse(DataProcessorToUse, SuppliedDataProce
 	
 EndProcedure
 
-// Gets registration data for the given data processor being registered by the built-in data processor.
+// 
 //
 // Parameters:
 //  SuppliedDataProcessor - CatalogRef.SuppliedAdditionalReportsAndDataProcessors
 //
 // Returns:
-//   see ExternalDataProcessorInfo() of external data processors.
+//   See AdditionalReportsAndDataProcessors.ExternalDataProcessorInfo
 //
 Function GetRegistrationData(Val SuppliedDataProcessor)
 	
@@ -1726,7 +1721,7 @@ Function GetRegistrationData(Val SuppliedDataProcessor)
 	FillPropertyValues(Result, DataProcessor);
 	
 	// Assignment.
-	Purpose = New Array();
+	Purpose = New Array;
 	For Each AssignmentItem1 In DataProcessor.Purpose Do
 		Purpose.Insert(AssignmentItem1.RelatedObject);
 	EndDo;

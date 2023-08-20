@@ -65,8 +65,8 @@ Procedure OnCreateAtServer(Form, Object = Undefined, ObjectName = Undefined) Exp
 	
 	AddtlLanguagesAreUsed = False;
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-		PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
-		AddtlLanguagesAreUsed = PrintManagementModuleMultilanguage.AdditionalLanguagesOfPrintedFormsAreUsed();
+		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
+		AddtlLanguagesAreUsed = PrintManagementModuleNationalLanguageSupport.AdditionalLanguagesOfPrintedFormsAreUsed();
 	EndIf;
 	
 	If Object <> Undefined
@@ -915,7 +915,7 @@ EndProcedure
 // 
 // Returns:
 //  Structure:
-//   * ObjectAttributesToLocalize - Map of КлючЗначение:
+//   * ObjectAttributesToLocalize - Map of KeyAndValue:
 //   ** Key - String
 //   ** Value - Boolean 
 //   * LanguageCode1 - String
@@ -1013,7 +1013,7 @@ EndFunction
 
 // Parameters:
 //  ObjectAttributesNames - Array of String
-//  ObjectAttributesToLocalize - Map of КлючЗначение:
+//  ObjectAttributesToLocalize - Map of KeyAndValue:
 //   * Key - String
 //   * Value - Boolean
 //
@@ -1197,8 +1197,8 @@ Procedure SetAttributesValues(Object, Values, Val LanguageCode = Undefined) Expo
 	
 	AvailableLanguages = StandardSubsystemsServer.ConfigurationLanguages();
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-		PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
-		AdditionalLanguages = PrintManagementModuleMultilanguage.AdditionalLanguagesOfPrintedForms();
+		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
+		AdditionalLanguages = PrintManagementModuleNationalLanguageSupport.AdditionalLanguagesOfPrintedForms();
 		CommonClientServer.SupplementArray(AvailableLanguages, AdditionalLanguages);
 	EndIf;
 	

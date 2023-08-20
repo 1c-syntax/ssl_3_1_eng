@@ -220,6 +220,9 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	FullObjectName = "Document.OutgoingEmail";
 	
+	ObjectsWithIssuesCount = 0;
+	ObjectsProcessed = 0;
+	
 	Query = New Query;
 	Query.Text = "
 	|SELECT
@@ -246,7 +249,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	ObjectsForProcessing = Query.Execute().Select();
 	
 	While ObjectsForProcessing.Next() Do
-		
+		RepresentationOfTheReference = String(ObjectsForProcessing.Ref);
 		BeginTransaction();
 		
 		Try
@@ -274,19 +277,23 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 				EndIf;
 			
 				InfobaseUpdate.WriteData(Object);
+				
 			EndIf;
 			
+			ObjectsProcessed = ObjectsProcessed + 1;
 			CommitTransaction();
 			
 		Except
 			
 			RollbackTransaction();
 			
+			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
+			
 			ObjectMetadata = Common.MetadataObjectByFullName(FullObjectName);
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Failed to process %1 %2 due to:
 				|%3';"),
-				FullObjectName, ObjectsForProcessing.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				FullObjectName, RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(),
 				EventLogLevel.Warning,
 				ObjectMetadata,
@@ -296,6 +303,20 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		EndTry;
 		
 	EndDo;
+	
+	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Couldn''t update (skipped) outgoing email data: %1';"), 
+			ObjectsWithIssuesCount);
+		Raise MessageText;
+	Else
+		WriteLogEvent(InfobaseUpdate.EventLogEvent(),
+			EventLogLevel.Information,
+			Metadata.Documents.OutgoingEmail,
+			StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Another batch of outgoing emails is processed: %1';"),
+				ObjectsProcessed));
+	EndIf;
 	
 	Parameters.ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue, FullObjectName);
 	

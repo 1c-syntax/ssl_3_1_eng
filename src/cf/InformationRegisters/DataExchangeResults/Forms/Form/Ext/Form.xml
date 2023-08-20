@@ -1452,7 +1452,6 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 							<EnableStartDrag>true</EnableStartDrag>
 							<FileDragMode>AsFile</FileDragMode>
 							<DataPath>RejectedDueToDate</DataPath>
-							<RowPictureDataPath>~RejectedDueToDate.DefaultPicture</RowPictureDataPath>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -2349,7 +2348,6 @@ WHERE
 			</Type>
 			<UseAlways>
 				<Field>Conflicts.Date</Field>
-				<Field>Conflicts.OtherVersionAccepted</Field>
 				<Field>Conflicts.OtherVersionAuthor</Field>
 				<Field>Conflicts.OtherVersionNumber</Field>
 				<Field>Conflicts.Ref</Field>
@@ -2409,7 +2407,6 @@ WHERE
 				<Field>RejectedDueToDate.ThisVersionNumber</Field>
 				<Field>RejectedDueToDate.TypeAsString</Field>
 				<Field>RejectedDueToDate.VersionIgnored</Field>
-				<Field>~RejectedDueToDate.ДругаяВерсияПринята</Field>
 			</UseAlways>
 			<Settings xsi:type="DynamicList">
 				<ManualQuery>true</ManualQuery>
@@ -2624,7 +2621,6 @@ WHERE
 				<Field>XDTOObjectErrors.ObjectPresentation</Field>
 				<Field>XDTOObjectErrors.OccurrenceDate</Field>
 				<Field>XDTOObjectErrors.Ref</Field>
-				<Field>~XDTOObjectErrors.ТипСтрокой</Field>
 			</UseAlways>
 			<Settings xsi:type="DynamicList">
 				<ManualQuery>true</ManualQuery>

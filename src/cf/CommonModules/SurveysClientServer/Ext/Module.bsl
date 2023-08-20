@@ -21,104 +21,106 @@
 // Returns:
 //   String  - 
 //
-Function DeleteLastCharsFromString(IncomingString,DeletionSubstring,Separator = Undefined) Export
-	
-	While Right(IncomingString,StrLen(DeletionSubstring)) = DeletionSubstring Do
-		
+Function DeleteLastCharsFromString(IncomingString, DeletionSubstring, Separator = Undefined) Export
+
+	While Right(IncomingString, StrLen(DeletionSubstring)) = DeletionSubstring Do
+
 		If Separator <> Undefined Then
-			If Mid(IncomingString,StrLen(IncomingString)-StrLen(DeletionSubstring)-StrLen(Separator),StrLen(Separator)) = Separator Then
+			If Mid(IncomingString, StrLen(IncomingString) - StrLen(DeletionSubstring) - StrLen(Separator),
+				StrLen(Separator)) = Separator Then
 				Return IncomingString;
 			EndIf;
 		EndIf;
-		IncomingString = Left(IncomingString,StrLen(IncomingString) - StrLen(DeletionSubstring));
-		
+		IncomingString = Left(IncomingString, StrLen(IncomingString) - StrLen(DeletionSubstring));
+
 	EndDo;
-	
+
 	Return IncomingString;
-	
+
 EndFunction
 
-// Generates a question name based on the UUID of a questionnaire tree row.
+// Generates the question name based on the unique identifier of the questionnaire tree line.
 //
 // Parameters:
-//  Var_Key  - UUID - a key, based on which a question name is generated.
+//  Var_Key  - UUID - the key that will be used to generate the question name.
 //
 // Returns:
-//  String - 
+//  String
 //
-Function GetQuestionName(Var_Key) Export
-	
-	Return "Question_" + StrReplace(Var_Key,"-","_");
+Function QuestionName(Val Var_Key) Export
+
+	Return "Question_" + StrReplace(Var_Key, "-", "_");
 
 EndFunction
 
-// Re-generates questionnaire tree numbering.
-Procedure GenerateTreeNumbering(QuestionnaireTree,ConvertFormulation = False) Export
+Procedure GenerateTreeNumbering(QuestionnaireTree, ConvertFormulation = False) Export
 
-	If QuestionnaireTree.GetItems()[0].RowType = "Root" Then 
+	If QuestionnaireTree.GetItems()[0].RowType = "Root" Then
 		KeyTreeItems = QuestionnaireTree.GetItems()[0].GetItems();
 	Else
 		KeyTreeItems = QuestionnaireTree.GetItems();
 	EndIf;
-	
-	GenerateTreeItemsNumbering(KeyTreeItems,1,New Array,ConvertFormulation);
+
+	GenerateTreeItemsNumbering(KeyTreeItems, 1, New Array, ConvertFormulation);
 
 EndProcedure 
 
-// Called recursively upon generating the full code of questionnaire tree rows.
-Procedure GenerateTreeItemsNumbering(TreeRows, RecursionLevel, ArrayFullCode, ConvertFormulation)
-	
+Procedure GenerateTreeItemsNumbering(TreeRows, RecursionLevel, ArrayFullCode,
+	ConvertFormulation)
+
 	If ArrayFullCode.Count() < RecursionLevel Then
 		ArrayFullCode.Add(0);
 	EndIf;
-	
+
 	For Each Item In TreeRows Do
-		
+
 		If Item.RowType = "Introduction" Or Item.RowType = "ClosingStatement" Then
 			Continue;
-		EndIf;	
-		
-		ArrayFullCode[RecursionLevel-1] = ArrayFullCode[RecursionLevel-1] + 1;
-		For Indus = RecursionLevel To ArrayFullCode.Count()-1 Do
+		EndIf;
+
+		ArrayFullCode[RecursionLevel - 1] = ArrayFullCode[RecursionLevel - 1] + 1;
+		For Indus = RecursionLevel To ArrayFullCode.Count() - 1 Do
 			ArrayFullCode[Indus] = 0;
 		EndDo;
-		
-		FullCode = StrConcat(ArrayFullCode,".");
-		FullCode = DeleteLastCharsFromString(FullCode,".0.",".");
-		
+
+		FullCode = StrConcat(ArrayFullCode, ".");
+		FullCode = DeleteLastCharsFromString(FullCode, ".0.", ".");
+
 		Item.FullCode = FullCode;
 		If ConvertFormulation Then
 			Item.Wording = Item.FullCode + ". " + Item.Wording;
 		EndIf;
-		
+
 		SubordinateTreeRowItems = Item.GetItems();
 		If SubordinateTreeRowItems.Count() > 0 Then
-			GenerateTreeItemsNumbering(SubordinateTreeRowItems,?(Item.RowType ="DoQueryBox",RecursionLevel,RecursionLevel + 1),ArrayFullCode,ConvertFormulation);
+			GenerateTreeItemsNumbering(SubordinateTreeRowItems, ?(Item.RowType = "DoQueryBox",
+				RecursionLevel, RecursionLevel + 1), ArrayFullCode, ConvertFormulation);
 		EndIf;
-		
+
 	EndDo;
-	
+
 EndProcedure
 
 // Finds the first row in the specified column with the specified value in the TreeFormData collection.
-Function FindStringInFormDataTree(WhereToFind,Value,Column,SearchSubordinateItems) Export
-	
+Function FindStringInFormDataTree(WhereToFind, Value, Column, SearchSubordinateItems) Export
+
 	TreeItems = WhereToFind.GetItems();
-	
+
 	For Each TreeItem In TreeItems Do
 		If TreeItem[Column] = Value Then
 			Return TreeItem.GetID();
-		ElsIf  SearchSubordinateItems Then
-			FoundRowID1 =  FindStringInFormDataTree(TreeItem,Value,Column,SearchSubordinateItems);
-			If FoundRowID1 >=0 Then
+		ElsIf SearchSubordinateItems Then
+			FoundRowID1 =  FindStringInFormDataTree(TreeItem, Value, Column,
+				SearchSubordinateItems);
+			If FoundRowID1 >= 0 Then
 				Return FoundRowID1;
 			EndIf;
 		EndIf;
-		
+
 	EndDo;
-	
+
 	Return -1;
-	
+
 EndFunction
 
 // Returns a picture code depending on question type and on whether it belongs to the section.
@@ -130,8 +132,8 @@ EndFunction
 // Returns:
 //   Number
 //
-Function GetQuestionnaireTemplatePictureCode(IsSection,QuestionType = Undefined) Export
-	
+Function GetQuestionnaireTemplatePictureCode(IsSection, QuestionType = Undefined) Export
+
 	If IsSection Then
 		Return 1;
 	ElsIf QuestionType = PredefinedValue("Enum.QuestionnaireTemplateQuestionTypes.Basic") Then
@@ -145,7 +147,7 @@ Function GetQuestionnaireTemplatePictureCode(IsSection,QuestionType = Undefined)
 	Else
 		Return 0;
 	EndIf;
-	
+
 EndFunction
 
 // Parameters:
@@ -154,22 +156,22 @@ EndFunction
 // QuestionnaireBodyVisibility - Boolean
 //
 Procedure SwitchQuestionnaireBodyGroupsVisibility(Form, QuestionnaireBodyVisibility) Export
-	
+
 	Form.Items.QuestionnaireBodyGroup.Visible = QuestionnaireBodyVisibility;
 	Form.Items.WaitGroup.Visible   = Not QuestionnaireBodyVisibility;
-	
+
 	FooterPreviousSection = Form.Items.FooterPreviousSection; // FormField
 	FooterPreviousSection.Enabled = QuestionnaireBodyVisibility;
-	
+
 	PreviousSection = Form.Items.PreviousSection; // FormField
 	PreviousSection.Enabled = QuestionnaireBodyVisibility;
-	
+
 	FooterNextSection = Form.Items.FooterNextSection; // FormField
 	FooterNextSection.Enabled = QuestionnaireBodyVisibility;
-	
+
 	NextSection = Form.Items.NextSection; // FormField
 	NextSection.Enabled = QuestionnaireBodyVisibility;
-	
+
 EndProcedure
 
 #EndRegion

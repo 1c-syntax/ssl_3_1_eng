@@ -33,7 +33,7 @@
 			<Title formatted="true">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Do you want to reset layout, visibility, and availability settings
+					<v8:content>Do you want to reset location, visibility, and availability settings
 for the selected predefined report options?</v8:content>
 				</v8:item>
 			</Title>
@@ -45,7 +45,7 @@ for the selected predefined report options?</v8:content>
 			<Title formatted="true">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Warning. The &lt;b&gt;Reset layout settings&lt;/&gt; command cannot be undone.</v8:content>
+					<v8:content>Warning. The &lt;b&gt;Reset location settings&lt;/&gt; command cannot be undone.</v8:content>
 				</v8:item>
 			</Title>
 			<ContextMenu name="Label1ContextMenu" id="2"/>
@@ -76,7 +76,7 @@ for the selected predefined report options?</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Reset layout settings</v8:content>
+					<v8:content>Reset location settings</v8:content>
 				</v8:item>
 			</Title>
 			<Action>ResetCommand</Action>

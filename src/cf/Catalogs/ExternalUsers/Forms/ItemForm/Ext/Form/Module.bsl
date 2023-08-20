@@ -138,7 +138,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		ModuleContactsManager = Common.CommonModule("ContactsManager");
 		
-		If ModuleContactsManager.ContainsContactInformation(Object.AuthorizationObject) Then
+		If ModuleContactsManager.ContainsContactInformation(Object.AuthorizationObject)
+		   And ValueIsFilled(Object.AuthorizationObject) Then
 			AccountNameAuthorizationObject = AccountNameAuthorizationObject(TypeOf(Object.AuthorizationObject));
 			
 			ModuleContactsManager.OnCreateAtServer(ThisObject, ThisObject[AccountNameAuthorizationObject]);
@@ -1681,7 +1682,7 @@ Procedure FindUserAndIBUserDifferences(WriteParameters = Undefined)
 		
 		If CanSignInOnRead And Object.Invalid Then
 			CanSignIn = False;
-			PropertiesToResolve.Insert(0, NStr("en = 'Allow sign-in';"));
+			PropertiesToResolve.Insert(0, NStr("en = 'Sign-in allowed';"));
 		EndIf;
 		
 		If ValueIsFilled(PropertiesToResolve) Then
@@ -1822,14 +1823,14 @@ Procedure SetPropertiesAvailability(Form)
 	If Form.CanSignIn Then
 		Items.GroupNoRights.Visible         = Form.WhetherRightsAreAssigned.HasNoRights;
 		Items.GroupNoStartupRights.Visible = Not Form.WhetherRightsAreAssigned.HasNoRights
-			And Form.WhetherRightsAreAssigned.NotEnoughPermissionsToLaunch;
-		Items.GroupNoLoginRights.Visible   = Not Form.WhetherRightsAreAssigned.HasNoRights
-			And Not Form.WhetherRightsAreAssigned.NotEnoughPermissionsToLaunch
+			And Form.WhetherRightsAreAssigned.HasInsufficientRightsForStartup;
+		Items.GroupNoLogonRights.Visible   = Not Form.WhetherRightsAreAssigned.HasNoRights
+			And Not Form.WhetherRightsAreAssigned.HasInsufficientRightsForStartup
 			And Form.WhetherRightsAreAssigned.HasInsufficientRightForLogon;
 	Else
 		Items.GroupNoRights.Visible         = False;
 		Items.GroupNoStartupRights.Visible = False;
-		Items.GroupNoLoginRights.Visible   = False;
+		Items.GroupNoLogonRights.Visible   = False;
 	EndIf;
 	
 	// 

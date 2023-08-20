@@ -83,8 +83,8 @@ Function HasRole(Val Role, Val ObjectReference = Undefined, Val User = Undefined
 		For Each String In ReadSetsRows Do
 			SetsNumbers.Insert(String.SetNumber, True);
 		EndDo;
-		IndexOf = AccessValuesSets.Count()-1;
-		While IndexOf > 0 Do
+		IndexOf = AccessValuesSets.Count() - 1;
+		While IndexOf >= 0 Do
 			If SetsNumbers[AccessValuesSets[IndexOf].SetNumber] = Undefined Then
 				AccessValuesSets.Delete(IndexOf);
 			EndIf;
@@ -391,7 +391,8 @@ Function HasRight(Right, ObjectReference, Val User = Undefined) Export
 		Return True;
 	EndIf;
 	
-	If Not LimitAccessAtRecordLevel() Then
+	If Not LimitAccessAtRecordLevel()
+	 Or AccessManagementInternalCached.IsUserWithUnlimitedAccess(User) Then
 		Return True;
 	EndIf;
 	
@@ -1226,7 +1227,7 @@ EndProcedure
 Function AllowedDynamicListValues(Table, ValuesType, User = Undefined, ReturnAll = False) Export
 	
 	If Not LimitAccessAtRecordLevel()
-	 Or Users.IsFullUser( , , False) Then
+	 Or Users.IsFullUser(User, , False) Then
 		Return Undefined;
 	EndIf;
 	
@@ -2384,13 +2385,12 @@ Procedure AddUpdateHandlerToEnableUniversalRestriction(Version, Handlers) Export
 	
 	Handler = Handlers.Add();
 	Handler.Version = Version;
-	Handler.Procedure = "InformationRegisters.AccessRestrictionParameters.ProcessDataForMigrationToNewVersion3";
+	Handler.Procedure = "InformationRegisters.AccessRestrictionParameters.ProcessDataForMigrationToNewVersion";
 	Handler.ExecutionMode = "Deferred";
 	Handler.RunAlsoInSubordinateDIBNodeWithFilters = True;
 	Handler.Comment = NStr("en = 'Enables universal record-level access restriction.';");
 	Handler.Id = New UUID("74cb1992-c9ac-4b46-90db-810544dee86c");
-	Handler.UpdateDataFillingProcedure = "InformationRegisters.AccessRestrictionParameters.RegisterDataToProcessForMigrationToNewVersion3";
-	Handler.DeferredProcessingQueue = 2;
+	Handler.UpdateDataFillingProcedure = "InformationRegisters.AccessRestrictionParameters.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.ObjectsToRead = "InformationRegister.AccessRestrictionParameters";
 	Handler.ObjectsToChange = "InformationRegister.AccessRestrictionParameters";
 	
@@ -2448,23 +2448,23 @@ EndFunction
 //       *** Value - Structure:
 //         **** TableExists - Boolean - False (True to fill in, if exists).
 //         **** Fields - Map of KeyAndValue:
-//           ***** Key - String - an attribute name in uppercase, including period-separated,
+//           ***** Key - String - an attribute name in uppercase, including dot-separated,
 //                                 for example, OWNER.COMPANY, GOODS.PRODUCTS.
 //           ***** Value - Structure:
 //             ****** FieldWithError - Number - 0 (for filling, if the field has an error.
 //                       If 1, then there is an error in the name of the first part of the field.
-//                       If 2, then an error is in the name of the second part of the field, i.e. after the first period).
+//                       If 2, then an error is in the name of the second part of the field, i.e. after the first dot).
 //             ****** ErrorKind - String - NotFound, TabularSectionWithoutField,
 //                       TabularSectionAfterDot.
 //             ****** Collection - String - a blank row (for filling, if the first part
-//                       of the field exists, i.e. a field part before the first period). Options: Attributes,
+//                       of the field exists, i.e. a field part before the first dot). Options: Attributes,
 //                      TabularSections, StandardAttributes, StandardTabularSections,
 //                      Dimensions, Resources, Graphs, AccountingFlags, ExtDimensionAccountingFlags,
 //                      AddressingAttributes, SpecialFields. Special fields are
 //                      Value - for the Constant.* tables,
 //                      Recorder and Period - for the Sequence.* tables,
 //                      RecalculationObject, CalculationType for the CalculationRegister.<Name>.<RecalculationName> tables.
-//                      Fields after the first period can be related only to the following collections: Attributes,
+//                      Fields after the first dot can be related only to the following collections: Attributes,
 //                      StandardAttributes, AccountingFlags, and AddressingAttributes. You do not need to specify a collection
 //                      for these parts of the field name.
 //             ****** ContainsTypes - Map of KeyAndValue:
@@ -3225,7 +3225,7 @@ Procedure EnableDisableUserProfile(User, Profile, Enable, Source = Undefined) Ex
 				AccessGroupObject.Description = ProfileProperties.Description;
 				AccessGroupObject.User = User;
 				AccessGroupObject.Profile      = CurrentProfile;
-				FillInAccessTypesAndValuesOfNewAccessGroup(AccessGroupObject,
+				FillAccessKindsAndValuesOfNewAccessGroup(AccessGroupObject,
 					ProfileProperties, Source);
 			Else
 				AccessGroupObject = Undefined;
@@ -3277,7 +3277,7 @@ Procedure EnableDisableUserProfile(User, Profile, Enable, Source = Undefined) Ex
 	
 EndProcedure
 
-Procedure FillInAccessTypesAndValuesOfNewAccessGroup(AccessGroupObject, ProfileProperties, Source)
+Procedure FillAccessKindsAndValuesOfNewAccessGroup(AccessGroupObject, ProfileProperties, Source)
 	
 	Query = New Query;
 	Query.Text =

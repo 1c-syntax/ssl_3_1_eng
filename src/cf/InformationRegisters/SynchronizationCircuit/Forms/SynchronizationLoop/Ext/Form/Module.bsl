@@ -87,7 +87,7 @@ Procedure PauseResumeRegistration(InfobaseNode, ExchangeDataRegistrationOnLoop)
 		
 	Except
 		
-		WriteLogEvent(, EventLogLevel.Error,,, DetailErrorDescription(ErrorInfo()));
+		WriteLogEvent(, EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		
 	EndTry;
 	

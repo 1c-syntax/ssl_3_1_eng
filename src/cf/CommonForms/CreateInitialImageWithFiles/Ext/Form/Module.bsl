@@ -148,6 +148,13 @@ Procedure FullFileInfobaseNameOnChange(Item)
 	
 EndProcedure
 
+&AtClient
+Procedure DBMSTypeOnChange(Item)
+	
+	DateOffset = ?(DBMSType = "MSSQLServer", 2000, 0);
+	
+EndProcedure
+
 #EndRegion
 
 #Region FormCommandHandlers
@@ -181,6 +188,8 @@ Procedure CreateInitialImage(Command)
 			// Server initial image.
 			ConnectionString =
 				"Srvr="""       + Server + """;"
+				+ ?(ValueIsFilled(ClusterAdministratorName), "SUsr=""" + ClusterAdministratorName + """;", "")
+				+ ?(ValueIsFilled(ClusterAdministratorPassword), "SPwd=""" + ClusterAdministratorPassword + """;", "")
 				+ "Ref="""      + BaseName + """;"
 				+ "DBMS="""     + DBMSType + """;"
 				+ "DBSrvr="""   + DataBaseServer + """;"
@@ -208,6 +217,18 @@ Procedure CreateInitialImage(Command)
 			EndIf;
 		EndIf;
 	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure Back(Command)
+	
+	Items.StatusError.Visible = False;
+	Items.Back.Visible = False;
+	
+	Items.StatusDone.Visible = True;
+	Items.CreateInitialImage.Visible = True;
+	Items.FormPages.CurrentPage = Items.RawData;
 	
 EndProcedure
 
@@ -362,7 +383,7 @@ Procedure StartInitialImageCreation()
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 		IdleParameters.OutputIdleWindow = False;
 		IdleParameters.OutputProgressBar = True;
-		IdleParameters.ExecutionProgressNotification = New NotifyDescription("CreateInitialImageAtServerProgress", ThisObject);;
+		IdleParameters.ExecutionProgressNotification = New NotifyDescription("CreateInitialImageAtServerProgress", ThisObject);
 		TimeConsumingOperationsClient.WaitCompletion(Result, CompletionNotification2, IdleParameters);
 	ElsIf Result.Status = "Completed2" Then
 		GoToWaitPage();
@@ -371,7 +392,10 @@ Procedure StartInitialImageCreation()
 		// Go to the page with the result with a 1 sec delay.
 		AttachIdleHandler("ExecuteGoResult", 1, True);
 	Else
-		Raise NStr("en = 'Cannot create an initial image. Reason:';") + " " + Result.BriefErrorDescription; 
+		ProgressPercent = 0;
+		Items.StatusError.Title = NStr("en = 'Cannot create an initial image. Reason:';") + "
+			|" + Result.BriefErrorDescription;
+		ExecuteGoResult();
 	EndIf;
 
 EndProcedure
@@ -410,7 +434,8 @@ Procedure CreateInitialImageAtServerCompletion(Result, AdditionalParameters) Exp
 	
 	If Result.Status = "Error" Then
 		ProgressPercent = 0;
-		Items.StatusDone.Title = NStr("en = 'Cannot create an initial image. Reason:';") + " " + Result.BriefErrorDescription;
+		Items.StatusError.Title = NStr("en = 'Cannot create an initial image. Reason:';") + "
+			|" + Result.BriefErrorDescription;
 		ExecuteGoResult();
 		Return;
 	EndIf;
@@ -443,6 +468,10 @@ Procedure ExecuteGoResult()
 	
 	If ProgressPercent = 100 Then
 		CompleteInitialImageCreation(Node);
+	Else
+		Items.StatusDone.Visible = False;
+		Items.StatusError.Visible = True;
+		Items.Back.Visible = True;
 	EndIf;
 	
 EndProcedure

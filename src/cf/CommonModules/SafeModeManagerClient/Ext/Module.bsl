@@ -61,3 +61,19 @@ Procedure OpenExternalDataProcessorOrReport(Owner) Export
 EndProcedure
 
 #EndRegion
+
+#Region Private
+
+// Checks whether you need to display the assistant for configuring permissions to use
+// external (relative to the 1C server cluster:Enterprises) resources.
+//
+// Returns:
+//   Boolean
+//
+Function DisplayPermissionSetupAssistant() Export
+	
+	Return StandardSubsystemsClient.ClientParameter("DisplayPermissionSetupAssistant");
+	
+EndFunction
+
+#EndRegion

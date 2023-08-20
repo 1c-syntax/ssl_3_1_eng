@@ -147,7 +147,7 @@ For further assistance, contact provider's technical support.</v8:content>
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>Add from file on disk…</v8:content>
+										<v8:content>Add from local file...</v8:content>
 									</v8:item>
 								</Title>
 							</ExtendedTooltip>

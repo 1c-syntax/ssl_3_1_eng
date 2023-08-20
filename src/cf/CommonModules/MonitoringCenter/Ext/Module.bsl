@@ -17,37 +17,39 @@
 //
 Function MonitoringCenterEnabled() Export
 	MonitoringCenterParameters = New Structure("EnableMonitoringCenter, ApplicationInformationProcessingCenter");
-	MonitoringCenterParameters = MonitoringCenterInternal.GetMonitoringCenterParametersExternalCall(MonitoringCenterParameters);	
-	Return MonitoringCenterParameters.EnableMonitoringCenter Or MonitoringCenterParameters.ApplicationInformationProcessingCenter;
+	MonitoringCenterParameters = MonitoringCenterInternal.GetMonitoringCenterParametersExternalCall(
+		MonitoringCenterParameters);
+	Return MonitoringCenterParameters.EnableMonitoringCenter
+		Or MonitoringCenterParameters.ApplicationInformationProcessingCenter;
 EndFunction
 
 // Enables the MonitoringCenter subsystem.
 //
 Procedure EnableSubsystem() Export
-    
-    MonitoringCenterParameters = MonitoringCenterInternal.GetMonitoringCenterParameters();
-    
-    MonitoringCenterParameters.EnableMonitoringCenter = True;
+
+	MonitoringCenterParameters = MonitoringCenterInternal.GetMonitoringCenterParameters();
+
+	MonitoringCenterParameters.EnableMonitoringCenter = True;
 	MonitoringCenterParameters.ApplicationInformationProcessingCenter = False;
-    
-    MonitoringCenterInternal.SetMonitoringCenterParametersExternalCall(MonitoringCenterParameters);
+
+	MonitoringCenterInternal.SetMonitoringCenterParametersExternalCall(MonitoringCenterParameters);
 	SchedJob = MonitoringCenterInternal.GetScheduledJobExternalCall("StatisticsDataCollectionAndSending", True);
 	MonitoringCenterInternal.SetDefaultScheduleExternalCall(SchedJob);
-    
+
 EndProcedure
 
 // Disables the MonitoringCenter subsystem.
 //
 Procedure DisableSubsystem() Export
-    
-    MonitoringCenterParameters = MonitoringCenterInternal.GetMonitoringCenterParameters();
-    
-    MonitoringCenterParameters.EnableMonitoringCenter = False;
+
+	MonitoringCenterParameters = MonitoringCenterInternal.GetMonitoringCenterParameters();
+
+	MonitoringCenterParameters.EnableMonitoringCenter = False;
 	MonitoringCenterParameters.ApplicationInformationProcessingCenter = False;
-	
-    MonitoringCenterInternal.SetMonitoringCenterParametersExternalCall(MonitoringCenterParameters);
+
+	MonitoringCenterInternal.SetMonitoringCenterParametersExternalCall(MonitoringCenterParameters);
 	MonitoringCenterInternal.DeleteScheduledJobExternalCall("StatisticsDataCollectionAndSending");
-    
+
 EndProcedure
 
 // Returns a string presentation of infobase ID in the Monitoring center.
@@ -55,7 +57,7 @@ EndProcedure
 //  String - 
 //
 Function InfoBaseID() Export
-	
+
 	ParametersToGet = New Structure;
 	ParametersToGet.Insert("EnableMonitoringCenter");
 	ParametersToGet.Insert("ApplicationInformationProcessingCenter");
@@ -63,15 +65,16 @@ Function InfoBaseID() Export
 	ParametersToGet.Insert("LastPackageNumber");
 	ParametersToGet.Insert("InfoBaseID");
 	MonitoringCenterParameters = MonitoringCenterInternal.GetMonitoringCenterParameters(ParametersToGet);
-	
-	If (MonitoringCenterParameters.EnableMonitoringCenter Or MonitoringCenterParameters.ApplicationInformationProcessingCenter) 
+
+	If (MonitoringCenterParameters.EnableMonitoringCenter
+		Or MonitoringCenterParameters.ApplicationInformationProcessingCenter)
 		And MonitoringCenterParameters.DiscoveryPackageSent Then
 		Return String(MonitoringCenterParameters.InfoBaseID);
 	EndIf;
 	
 	// 
-	Return "";	
-	
+	Return "";
+
 EndFunction
 
 #EndRegion
@@ -88,7 +91,8 @@ EndFunction
 //
 Procedure WriteBusinessStatisticsOperation(OperationName, Value, Comment = Undefined, Separator = ".") Export
 	If WriteBusinessStatisticsOperations() Then
-		InformationRegisters.StatisticsOperationsClipboard.WriteBusinessStatisticsOperation(OperationName, Value, Comment, Separator);
+		InformationRegisters.StatisticsOperationsClipboard.WriteBusinessStatisticsOperation(OperationName, Value, Comment,
+			Separator);
 	EndIf;
 EndProcedure
 
@@ -105,17 +109,17 @@ EndProcedure
 //                              The default value is False.
 //
 Procedure WriteBusinessStatisticsOperationHour(OperationName, UniqueKey, Value, Replace = False) Export
-    
-    WriteParameters = New Structure("OperationName, UniqueKey, Value, Replace, EntryType, RecordPeriod");
-    WriteParameters.OperationName = OperationName;
-    WriteParameters.UniqueKey = UniqueKey;
-    WriteParameters.Value = Value;
-    WriteParameters.Replace = Replace;
-    WriteParameters.EntryType = 1;
-    WriteParameters.RecordPeriod = BegOfHour(CurrentUniversalDate());
-    
-    MonitoringCenterInternal.WriteBusinessStatisticsOperationInternal(WriteParameters);
-    
+
+	WriteParameters = New Structure("OperationName, UniqueKey, Value, Replace, EntryType, RecordPeriod");
+	WriteParameters.OperationName = OperationName;
+	WriteParameters.UniqueKey = UniqueKey;
+	WriteParameters.Value = Value;
+	WriteParameters.Replace = Replace;
+	WriteParameters.EntryType = 1;
+	WriteParameters.RecordPeriod = BegOfHour(CurrentUniversalDate());
+
+	MonitoringCenterInternal.WriteBusinessStatisticsOperationInternal(WriteParameters);
+
 EndProcedure
 
 // Writes a unique business statistics operation by days.
@@ -131,17 +135,17 @@ EndProcedure
 //                              The default value is False.
 //
 Procedure WriteBusinessStatisticsOperationDay(OperationName, UniqueKey, Value, Replace = False) Export
-    
-    WriteParameters = New Structure("OperationName, UniqueKey, Value, Replace, EntryType, RecordPeriod");
-    WriteParameters.OperationName = OperationName;
-    WriteParameters.UniqueKey = UniqueKey;
-    WriteParameters.Value = Value;
-    WriteParameters.Replace = Replace;
-    WriteParameters.EntryType = 2;
-    WriteParameters.RecordPeriod = BegOfDay(CurrentUniversalDate());
-   
-    MonitoringCenterInternal.WriteBusinessStatisticsOperationInternal(WriteParameters);
-    
+
+	WriteParameters = New Structure("OperationName, UniqueKey, Value, Replace, EntryType, RecordPeriod");
+	WriteParameters.OperationName = OperationName;
+	WriteParameters.UniqueKey = UniqueKey;
+	WriteParameters.Value = Value;
+	WriteParameters.Replace = Replace;
+	WriteParameters.EntryType = 2;
+	WriteParameters.RecordPeriod = BegOfDay(CurrentUniversalDate());
+
+	MonitoringCenterInternal.WriteBusinessStatisticsOperationInternal(WriteParameters);
+
 EndProcedure
 
 
@@ -151,10 +155,12 @@ EndProcedure
 //
 Function WriteBusinessStatisticsOperations() Export
 	MonitoringCenterParameters = New Structure("EnableMonitoringCenter, ApplicationInformationProcessingCenter, RegisterBusinessStatistics");
-		
+
 	MonitoringCenterInternal.GetMonitoringCenterParameters(MonitoringCenterParameters);
-	
-	Return (MonitoringCenterParameters.EnableMonitoringCenter Or MonitoringCenterParameters.ApplicationInformationProcessingCenter) And MonitoringCenterParameters.RegisterBusinessStatistics;
+
+	Return (MonitoringCenterParameters.EnableMonitoringCenter
+		Or MonitoringCenterParameters.ApplicationInformationProcessingCenter)
+		And MonitoringCenterParameters.RegisterBusinessStatistics;
 EndFunction
 
 #EndRegion
@@ -173,17 +179,19 @@ EndFunction
 Procedure WriteConfigurationStatistics(MetadataNamesMap) Export
 	Parameters = New Map;
 	For Each CurMetadata In MetadataNamesMap Do
-		Parameters.Insert(CurMetadata.Key, New Structure("Query, StatisticsOperations, StatisticsKind", CurMetadata.Value,,0));
+		Parameters.Insert(CurMetadata.Key, New Structure("Query, StatisticsOperations, StatisticsKind",
+			CurMetadata.Value, , 0));
 	EndDo;
-	
-    If Common.DataSeparationEnabled() And Common.SubsystemExists("CloudTechnology.Core") Then
-        ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
-        DataAreaRow = Format(ModuleSaaSOperations.SessionSeparatorValue(), "NG=0");
-    Else
-        DataAreaRow = "0";
-    EndIf;
+
+	If Common.DataSeparationEnabled() And Common.SubsystemExists(
+		"CloudTechnology.Core") Then
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		DataAreaRow = Format(ModuleSaaSOperations.SessionSeparatorValue(), "NG=0");
+	Else
+		DataAreaRow = "0";
+	EndIf;
 	DataAreaRef = InformationRegisters.StatisticsAreas.GetRef(DataAreaRow);
-	
+
 	InformationRegisters.ConfigurationStatistics.Write(Parameters, DataAreaRef);
 EndProcedure
 
@@ -195,28 +203,29 @@ EndProcedure
 //                            is equal to zero, it is not recorded.
 //
 Procedure WriteConfigurationObjectStatistics(ObjectName, Value) Export
-    
-    If Value <> 0 Then 
-        StatisticsOperation = MonitoringCenterCached.GetStatisticsOperationRef(ObjectName);
-        
-        If Common.DataSeparationEnabled() And Common.SubsystemExists("CloudTechnology.Core") Then
-            ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
-            DataAreaRow = Format(ModuleSaaSOperations.SessionSeparatorValue(), "NG=0");
-        Else
-            DataAreaRow = "0";
-        EndIf;
-        DataAreaRef = InformationRegisters.StatisticsAreas.GetRef(DataAreaRow);
-        
-        RecordSet = InformationRegisters.ConfigurationStatistics.CreateRecordSet();
-        RecordSet.Filter.StatisticsOperation.Set(StatisticsOperation);
-        
-        NewRecord1 = RecordSet.Add();
-        NewRecord1.StatisticsAreaID = DataAreaRef;
-        NewRecord1.StatisticsOperation = StatisticsOperation;
-        NewRecord1.Value = Value;	
-        RecordSet.Write(True);
-    EndIf;
-    
+
+	If Value <> 0 Then
+		StatisticsOperation = MonitoringCenterCached.GetStatisticsOperationRef(ObjectName);
+
+		If Common.DataSeparationEnabled() And Common.SubsystemExists(
+			"CloudTechnology.Core") Then
+			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+			DataAreaRow = Format(ModuleSaaSOperations.SessionSeparatorValue(), "NG=0");
+		Else
+			DataAreaRow = "0";
+		EndIf;
+		DataAreaRef = InformationRegisters.StatisticsAreas.GetRef(DataAreaRow);
+
+		RecordSet = InformationRegisters.ConfigurationStatistics.CreateRecordSet();
+		RecordSet.Filter.StatisticsOperation.Set(StatisticsOperation);
+
+		NewRecord1 = RecordSet.Add();
+		NewRecord1.StatisticsAreaID = DataAreaRef;
+		NewRecord1.StatisticsOperation = StatisticsOperation;
+		NewRecord1.Value = Value;
+		RecordSet.Write(True);
+	EndIf;
+
 EndProcedure
 
 #EndRegion

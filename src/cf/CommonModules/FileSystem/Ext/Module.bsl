@@ -307,10 +307,7 @@ Function SharedDirectoryOfTemporaryFiles(NestedDirectory = Undefined) Export
 	
 	If Common.FileInfobase() And Not Common.DebugMode() Then
 		
-		Result = CommonClientServer.AddLastPathSeparator(GetTempFileName(NestedDirectory));
-		CreateDirectory(Result);
-		
-		Return Result;
+		Return TempFilesDirName(NestedDirectory);
 		
 	EndIf;
 	
@@ -333,14 +330,12 @@ Function SharedDirectoryOfTemporaryFiles(NestedDirectory = Undefined) Export
 	
 	If IsBlankString(Result) Then
 		
-		Result = CommonClientServer.AddLastPathSeparator(GetTempFileName(NestedDirectory));
-		CreateDirectory(Result);
+		Return TempFilesDirName(NestedDirectory);
 		
 	Else
 		
 		Result = TrimAll(Result);
 		
-		// 
 		Directory = New File(Result);
 		If Not Directory.Exists() Then
 			
@@ -357,8 +352,8 @@ Function SharedDirectoryOfTemporaryFiles(NestedDirectory = Undefined) Export
 			
 		EndIf;
 		
-		If NestedDirectory <> Undefined Then
-			Result = Result + GetServerPathSeparator() + NestedDirectory;
+		If ValueIsFilled(NestedDirectory) Then
+			Result = CommonClientServer.AddLastPathSeparator(Result) + NestedDirectory;
 			CreateDirectory(Result);
 		EndIf;
 		
@@ -428,6 +423,19 @@ Procedure CheckCurrentDirectory(CommandString, CurrentDirectory)
 	EndIf;
 	
 EndProcedure
+
+Function TempFilesDirName(NestedDirectory)
+	
+	Result = CommonClientServer.AddLastPathSeparator(TempFilesDir());
+	If ValueIsFilled(NestedDirectory) Then
+		Result = Result + CommonClientServer.AddLastPathSeparator(NestedDirectory);
+	EndIf;
+	
+	CreateDirectory(Result);
+	
+	Return Result;
+	
+EndFunction
 
 Function ReadFileIfExists(Path, Encoding)
 	

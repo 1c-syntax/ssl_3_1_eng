@@ -12,7 +12,7 @@
 &AtClient
 Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 	
-	RunParameters = StandardSubsystemsClient.ClientParametersOnStart();
+	RunParameters = StandardSubsystemsClient.ClientRunParameters();
 	BackupParameters = RunParameters.IBBackup;
 	
 	FormParameters = New Structure();

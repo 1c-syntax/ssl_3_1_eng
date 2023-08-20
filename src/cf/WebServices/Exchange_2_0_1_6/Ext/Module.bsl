@@ -647,10 +647,10 @@ Procedure RegisterDataForInitialExport(Val ExchangePlanName, Val NodeCode, TimeC
 		
 		If CatalogsOnly Then
 			MethodName = "DataExchangeServer.RegisterCatalogsOnlyForInitialBackgroundExport";
-			JobDescription = NStr("en = 'Registration of catalog changes for initial export.';");
+			JobDescription = NStr("en = 'Register catalog changes for initial export.';");
 		Else
 			MethodName = "DataExchangeServer.RegisterAllDataExceptCatalogsForInitialBackgroundExport";
-			JobDescription = NStr("en = 'Registration of all data changes for initial export, except for catalogs.';");
+			JobDescription = NStr("en = 'Register all data changes except for catalogs for initial export.';");
 		EndIf;
 		
 		ProcedureParameters = New Structure;

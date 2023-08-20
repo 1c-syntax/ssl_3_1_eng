@@ -123,9 +123,9 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>State
+							<v8:content>Status
 picture
-number</v8:content>
+No.</v8:content>
 						</v8:item>
 					</Title>
 					<ContextMenu name="NumberOfStatePictureContextMenu" id="56"/>
@@ -136,9 +136,9 @@ number</v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Require
-password change
-upon authorization</v8:content>
+							<v8:content>User must
+change password
+at next sign-in</v8:content>
 						</v8:item>
 					</Title>
 					<CheckBoxType>Auto</CheckBoxType>
@@ -150,9 +150,9 @@ upon authorization</v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>
-Validity period
-is not limited</v8:content>
+							<v8:content>Access never
+expires
+</v8:content>
 						</v8:item>
 					</Title>
 					<CheckBoxType>Auto</CheckBoxType>
@@ -170,8 +170,8 @@ is not limited</v8:content>
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>Inactivity period
-before denying
-authorization</v8:content>
+before sign-in
+is denied</v8:content>
 						</v8:item>
 					</Title>
 					<Width>15</Width>
@@ -183,7 +183,7 @@ authorization</v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Authorization
+							<v8:content>Sign-in
 allowed on
 </v8:content>
 						</v8:item>
@@ -212,9 +212,9 @@ active on
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Authorization
-automatically
-denied on</v8:content>
+							<v8:content>Sign-in
+auto-denied on
+</v8:content>
 						</v8:item>
 					</Title>
 					<Width>14</Width>
@@ -234,7 +234,7 @@ denied on</v8:content>
 							<v8:lang>en</v8:lang>
 							<v8:content>(not used)
 Password
-activated on</v8:content>
+created on</v8:content>
 						</v8:item>
 					</Title>
 					<ContextMenu name="DeletePasswordUsageStartDateContextMenu" id="59"/>

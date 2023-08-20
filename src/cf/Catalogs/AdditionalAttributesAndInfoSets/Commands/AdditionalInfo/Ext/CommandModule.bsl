@@ -12,7 +12,8 @@
 &AtClient
 Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 	FormParameters = New Structure;
-	FormParameters.Insert("ShowAdditionalInfo");
+	FormParameters.Insert("PropertyKind",
+		PredefinedValue("Enum.PropertiesKinds.AdditionalInfo"));
 	OpenForm("Catalog.AdditionalAttributesAndInfoSets.ListForm",
 		FormParameters,
 		CommandExecuteParameters.Source,

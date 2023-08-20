@@ -35,12 +35,29 @@ Function ExtensionParameter(ParameterName, IgnoreExtensionsVersion = False, IsAl
 	SetPrivilegedMode(False);
 	SetSafeModeDisabled(False);
 	
-	If Not Selection.Next()
-	 Or TypeOf(Selection.ParameterStorage) <> Type("ValueStorage") Then
+	If Not Selection.Next() Then
 		Return Undefined;
 	EndIf;
 	
-	Content = Selection.ParameterStorage.Get();
+	Try
+		Content = Selection.ParameterStorage.Get();
+	Except
+		// 
+		// 
+		ErrorInfo = ErrorInfo();
+		Comment = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'When getting extension version parameter
+			           |%1
+			           |, an error of retrieving the value from the storage occurred:
+			           |%2';"),
+			ParameterName,
+			ErrorProcessing.DetailErrorDescription(ErrorInfo));
+		EventName = NStr("en = 'Configuration extensions.Get extension parameter';",
+			Common.DefaultLanguageCode());
+		WriteLogEvent(EventName, EventLogLevel.Information,,, Comment);
+		Return Undefined;
+	EndTry;
+	
 	If Not IgnoreExtensionsVersion
 	 Or TypeOf(Content) <> Type("Structure")
 	 Or Content.Count() <> 5
@@ -80,7 +97,7 @@ Function ExtensionParameter(ParameterName, IgnoreExtensionsVersion = False, IsAl
 		ExtensionsChanged = Catalogs.ExtensionsVersions.ExtensionsChangedDynamically();
 		If ConfigurationChanged Or ExtensionsChanged Then
 			Comment = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'When receiving extension version parameter
+				NStr("en = 'When getting extension version parameter
 				           |%1
 				           |to change in the current session (with outdated metadata version: %2),
 				           |%3
@@ -97,7 +114,7 @@ Function ExtensionParameter(ParameterName, IgnoreExtensionsVersion = False, IsAl
 					+ " " + Format(Content.NumberOfSessionThatModifiedParameter, "NZ=0; NG=;")
 					+ " [" + Content.ComputerKeyForSessionThatModifiedParameter + "]"
 					+ " (" + Format(Content.RealTimeTimestampOfSessionThatModifiedParameter, "DLF=DT;") + ")");
-			EventName = NStr("en = 'Configuration extensions.Receive extension parameter';",
+			EventName = NStr("en = 'Configuration extensions.Get extension parameter';",
 				Common.DefaultLanguageCode());
 			WriteLogEvent(EventName, EventLogLevel.Information,,, Comment);
 		EndIf;
@@ -353,7 +370,7 @@ Procedure UpdateExtensionParameters(ExtensionsToCheck = Undefined, UnattachedExt
 	
 	Result = GetFromTempStorage(ExecutionParameters.ResultAddress);
 	If TypeOf(Result) <> Type("Structure") Then
-		ErrorText = NStr("en = 'The background job that prepares extensions did not return the result.';");
+		ErrorText = NStr("en = 'The background job that prepares extensions did not return a result.';");
 		Raise ErrorText;
 	EndIf;
 	
@@ -468,7 +485,7 @@ Procedure FillinAllJobParametersLatestVersionExtensions() Export
 			Raise;
 		EndIf;
 		StartFillingWorkParametersExtensions(
-			NStr("en = 'Перезапуск из-за неудачной попытки блокировки параметра';"));
+			NStr("en = 'Restart due to an unsuccessful attempt to lock the parameter';"));
 		Return;
 	EndTry;
 	
@@ -486,8 +503,8 @@ Procedure FillinAllJobParametersLatestVersionExtensions() Export
 		
 		StandardSubsystemsServer.SetExtensionParameter(ParameterName, Undefined, True);
 		StartFillingWorkParametersExtensions(
-			NStr("en = 'Перезапуск из-за изменения метаданных расширений или
-			           |конфигурации после запуска до начала обновления';"));
+			NStr("en = 'Restart due to changing metadata of extensions or
+			           |the configuration after startup before the update begins';"));
 		Return;
 	EndIf;
 	
@@ -527,8 +544,8 @@ Procedure FillinAllJobParametersLatestVersionExtensions() Export
 			If SessionRestartRequired Then
 				StandardSubsystemsServer.SetExtensionParameter(ParameterName, Undefined, True);
 				StartFillingWorkParametersExtensions(
-					NStr("en = 'Перезапуск из-за изменения метаданных или
-					           |расширений в процессе заполнения параметров';"));
+					NStr("en = 'Restart due to changing metadata or
+					           |extensions when filling the parameters';"));
 				Return;
 			EndIf;
 			AttemptNumber = AttemptNumber + 1;
@@ -553,15 +570,15 @@ Procedure FillinAllJobParametersLatestVersionExtensions() Export
 	If Restart Then
 		StandardSubsystemsServer.SetExtensionParameter(ParameterName, Undefined, True);
 		StartFillingWorkParametersExtensions(
-			NStr("en = 'Перезапуск из-за изменения метаданных или
-			           |расширений после заполнения параметров';"));
+			NStr("en = 'Restart due to changing metadata or
+			           |extensions after filling the parameters';"));
 	EndIf;
 	
 EndProcedure
 
-// For procedure UpdateExtensionVersionParametersIncludingExecutionMode
-// of the manager module of information register ApplicationParameters and
-// procedure FillAllExtensionParametersBackgroundJob of the same module.
+// 
+// 
+// 
 //
 Procedure MarkFillingOptionsExtensionsWork() Export
 	
@@ -694,19 +711,15 @@ Procedure ExecuteUpdateSplitDataInBackground(Parameters, FormIdentifier) Export
 	OperationParametersList = TimeConsumingOperations.BackgroundExecutionParameters(FormIdentifier);
 	OperationParametersList.BackgroundJobDescription = NStr("en = 'Update separated service data';");
 	OperationParametersList.WithDatabaseExtensions = True;
-	OperationParametersList.RunInBackground = True;
-	OperationParametersList.WaitCompletion = 0;
+	OperationParametersList.WaitCompletion = Undefined;
 	
 	ProcedureName = "InformationRegisters.ExtensionVersionParameters.LongOperationHandlerPerformUpdateSplitData";
 	TimeConsumingOperation = TimeConsumingOperations.ExecuteInBackground(ProcedureName, Parameters, OperationParametersList);
-	BackgroundJob = BackgroundJobs.FindByUUID(TimeConsumingOperation.JobID);
-	BackgroundJob.WaitForExecutionCompletion();
-	BackgroundJob = BackgroundJobs.FindByUUID(TimeConsumingOperation.JobID);
 	
-	If BackgroundJob.State <> BackgroundJobState.Completed Then
-		If TypeOf(BackgroundJob.ErrorInfo) = Type("ErrorInfo") Then
-			ErrorText = ErrorProcessing.DetailErrorDescription(BackgroundJob.ErrorInfo);
-		ElsIf BackgroundJob.State = BackgroundJobState.Canceled Then
+	If TimeConsumingOperation.Status <> "Completed2" Then
+		If TimeConsumingOperation.Status = "Error" Then
+			ErrorText = TimeConsumingOperation.DetailErrorDescription;
+		ElsIf TimeConsumingOperation.Status = "Canceled" Then
 			ErrorText = NStr("en = 'The background job is canceled.';");
 		Else
 			ErrorText = NStr("en = 'Background job error';");
@@ -733,7 +746,7 @@ Procedure LongOperationHandlerPerformUpdateSplitData(Parameters, ResultAddress) 
 	If Common.DataSeparationEnabled()
 	   And Not Common.SeparatedDataUsageAvailable() Then
 		ErrorText =
-			NStr("en = 'Cannot update extension parameters due to:
+			NStr("en = 'Cannot update extension parameters. Reason:
 			           |Cannot update in shared mode.';");
 		Raise ErrorText;
 	EndIf;
@@ -984,7 +997,7 @@ Procedure EnableFillingExtensionsWorkParameters(Run = True, EnableDefinitely = F
 	
 	If Run Then
 		StartFillingWorkParametersExtensions(
-			NStr("en = 'Запуск при включении заполнения параметров работы программы';"));
+			NStr("en = 'Start when filling application parameters is enabled';"));
 	EndIf;
 	
 EndProcedure

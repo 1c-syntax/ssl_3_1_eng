@@ -15,7 +15,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	FillPropertyValues(ThisObject, Parameters);
 	If TreeRowType = "Section" Then
 		
-		Items.IsRequired.Visible             = False;
+		Items.GroupMandatory.Visible       = False;
 		Items.ElementaryQuestion.Visible       = False;
 		Items.TooltipGroup.Visible          = False;
 		Items.Wording.Title             = NStr("en = 'Section name';");
@@ -32,6 +32,21 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ChoiceParameters.Add(New ChoiceParameter("Filter.ReplyType",PredefinedValue("Enum.TypesOfAnswersToQuestion.Boolean")));
 		Items.ElementaryQuestion.ChoiceParameters = New FixedArray(ChoiceParameters);
 	EndIf;
+	
+	If ShouldUseRefusalToAnswer Then
+		FlagMandatory = 2;
+	ElsIf IsRequired Then
+		FlagMandatory = 1;
+	Else
+		FlagMandatory = 0;
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure OnOpen(Cancel)
+	
+	SetAvailabilityOfAnswerRefusalStatementFlag();
 	
 EndProcedure
 
@@ -70,6 +85,24 @@ Procedure NotesStartChoice(Item, ChoiceData, StandardProcessing)
 
 EndProcedure
 
+&AtClient
+Procedure FlagMandatoryOnChange(Item)
+	
+	If FlagMandatory = 0 Then
+		IsRequired = False;
+		ShouldUseRefusalToAnswer = False;
+	ElsIf FlagMandatory = 1 Then
+		IsRequired = True;
+		ShouldUseRefusalToAnswer = False;
+	ElsIf FlagMandatory = 2 Then
+		IsRequired = True;
+		ShouldUseRefusalToAnswer = True;
+	EndIf;
+	
+	SetAvailabilityOfAnswerRefusalStatementFlag();
+	
+EndProcedure
+
 #EndRegion
 
 #Region FormCommandHandlers
@@ -88,6 +121,11 @@ Procedure MoveToTemplate(Command)
 		Cancel = True;
 		CommonClient.MessageToUser(NStr("en = 'General question is not specified';"),,"ElementaryQuestion");
 	EndIf; 
+		
+	If ShouldUseRefusalToAnswer And Not ValueIsFilled(RefusalToAnswerText) Then
+		Cancel = True;
+		CommonClient.MessageToUser(NStr("en = 'Wording not filled in';"),,"RefusalToAnswerText");
+	EndIf;
 		
 	If Cancel Then
 		Return;
@@ -115,6 +153,9 @@ Function GenerateParametersStructureToPassToOwner()
 	ReturnStructure.Insert("IsNewLine", False);
 	ReturnStructure.Insert("ToolTip", ToolTip);
 	ReturnStructure.Insert("HintPlacement", HintPlacement);
+	ReturnStructure.Insert("ShouldUseRefusalToAnswer", ShouldUseRefusalToAnswer);
+	ReturnStructure.Insert("RefusalToAnswerText", ?(ShouldUseRefusalToAnswer,
+		RefusalToAnswerText, ""));
 	
 	Return ReturnStructure;
 
@@ -134,6 +175,13 @@ Procedure NoteEditOnClose(ReturnText, AdditionalParameters) Export
 		Notes = ReturnText;
 		Modified = True;
 	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure SetAvailabilityOfAnswerRefusalStatementFlag()
+	
+	Items.RefusalToAnswerText.Enabled = ShouldUseRefusalToAnswer;
 	
 EndProcedure
 

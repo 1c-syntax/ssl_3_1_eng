@@ -26,12 +26,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Return;
 	EndIf;
 	
-  	Recipients.Load(GetFromTempStorage(Parameters.RecipientsAddress));
+	Recipients.Load(GetFromTempStorage(Parameters.RecipientsAddress));
 
 	DeleteFromTempStorage(Parameters.RecipientsAddress); 
 
 	DefineRecipientsPhoneKind();
-	PopulatePhoneNumbers();    
+	PopulatePhoneNumbers();
 	
 	If Common.IsMobileClient() Then
 		CommandBarLocation = FormCommandBarLabelLocation.Top;
@@ -56,7 +56,6 @@ EndProcedure
 Procedure FilterSentOnChange(Item)
 	SetFiltersInSMSDistributionResult();
 EndProcedure
-
 
 #EndRegion
 

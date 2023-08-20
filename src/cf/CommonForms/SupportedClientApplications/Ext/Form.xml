@@ -108,6 +108,18 @@
 									<ContextMenu name="WindowsInternetExplorerContextMenu" id="37"/>
 									<ExtendedTooltip name="WindowsInternetExplorerExtendedTooltip" id="38"/>
 								</LabelDecoration>
+								<LabelDecoration name="WindowsYandexBrowser" id="184">
+									<Width>10</Width>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Yandex Browser</v8:content>
+										</v8:item>
+									</Title>
+									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+									<ContextMenu name="WindowsYandexBrowserContextMenu" id="185"/>
+									<ExtendedTooltip name="WindowsYandexBrowserExtendedTooltip" id="186"/>
+								</LabelDecoration>
 							</ChildItems>
 						</UsualGroup>
 						<UsualGroup name="Windows_x86" id="102">
@@ -157,6 +169,21 @@
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="Windows_x86_MSIEContextMenu" id="119"/>
 									<ExtendedTooltip name="Windows_x86_MSIEExtendedTooltip" id="120"/>
+								</PictureDecoration>
+								<PictureDecoration name="Windows_x86_YandexBrowser" id="187">
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Windows x86 Yandex Browser</v8:content>
+										</v8:item>
+									</Title>
+									<Picture>
+										<xr:Ref>CommonPicture.AddInNotAvailable</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<FileDragMode>AsFile</FileDragMode>
+									<ContextMenu name="Windows_x86_YandexBrowserContextMenu" id="188"/>
+									<ExtendedTooltip name="Windows_x86_YandexBrowserExtendedTooltip" id="189"/>
 								</PictureDecoration>
 							</ChildItems>
 						</UsualGroup>
@@ -208,6 +235,21 @@
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="Windows_x86_64_MSIEContextMenu" id="122"/>
 									<ExtendedTooltip name="Windows_x86_64_MSIEExtendedTooltip" id="123"/>
+								</PictureDecoration>
+								<PictureDecoration name="Windows_x86_64_YandexBrowser" id="190">
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Windows x86 64 Yandex Browser</v8:content>
+										</v8:item>
+									</Title>
+									<Picture>
+										<xr:Ref>CommonPicture.AddInNotAvailable</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<FileDragMode>AsFile</FileDragMode>
+									<ContextMenu name="Windows_x86_64_YandexBrowserContextMenu" id="191"/>
+									<ExtendedTooltip name="Windows_x86_64_YandexBrowserExtendedTooltip" id="192"/>
 								</PictureDecoration>
 							</ChildItems>
 						</UsualGroup>
@@ -272,6 +314,17 @@
 									<ContextMenu name="LinuxFirefoxContextMenu" id="72"/>
 									<ExtendedTooltip name="LinuxFirefoxExtendedTooltip" id="73"/>
 								</LabelDecoration>
+								<LabelDecoration name="LinuxYandexBrowser" id="193">
+									<Width>10</Width>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Yandex Browser</v8:content>
+										</v8:item>
+									</Title>
+									<ContextMenu name="LinuxYandexBrowserContextMenu" id="194"/>
+									<ExtendedTooltip name="LinuxYandexBrowserExtendedTooltip" id="195"/>
+								</LabelDecoration>
 							</ChildItems>
 						</UsualGroup>
 						<UsualGroup name="Linux_x86" id="126">
@@ -312,6 +365,15 @@
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="Linux_x86_FirefoxContextMenu" id="145"/>
 									<ExtendedTooltip name="Linux_x86_FirefoxExtendedTooltip" id="146"/>
+								</PictureDecoration>
+								<PictureDecoration name="Linux_x86_YandexBrowser" id="196">
+									<Picture>
+										<xr:Ref>CommonPicture.AddInNotAvailable</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<FileDragMode>AsFile</FileDragMode>
+									<ContextMenu name="Linux_x86_YandexBrowserContextMenu" id="197"/>
+									<ExtendedTooltip name="Linux_x86_YandexBrowserExtendedTooltip" id="198"/>
 								</PictureDecoration>
 							</ChildItems>
 						</UsualGroup>
@@ -354,6 +416,15 @@
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="Linux_x86_64_FirefoxContextMenu" id="148"/>
 									<ExtendedTooltip name="Linux_x86_64_FirefoxExtendedTooltip" id="149"/>
+								</PictureDecoration>
+								<PictureDecoration name="Linux_x86_64_YandexBrowser" id="199">
+									<Picture>
+										<xr:Ref>CommonPicture.AddInNotAvailable</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<FileDragMode>AsFile</FileDragMode>
+									<ContextMenu name="Linux_x86_64_YandexBrowserContextMenu" id="200"/>
+									<ExtendedTooltip name="Linux_x86_64_YandexBrowserExtendedTooltip" id="201"/>
 								</PictureDecoration>
 							</ChildItems>
 						</UsualGroup>
@@ -426,6 +497,16 @@
 									<ContextMenu name="MacOSSafariContextMenu" id="85"/>
 									<ExtendedTooltip name="MacOSSafariExtendedTooltip" id="86"/>
 								</LabelDecoration>
+								<LabelDecoration name="MacOSYandexBrowser" id="202">
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Yandex Browser</v8:content>
+										</v8:item>
+									</Title>
+									<ContextMenu name="MacOSYandexBrowserContextMenu" id="203"/>
+									<ExtendedTooltip name="MacOSYandexBrowserExtendedTooltip" id="204"/>
+								</LabelDecoration>
 							</ChildItems>
 						</UsualGroup>
 						<UsualGroup name="MacOS_x86_64" id="164">
@@ -476,6 +557,15 @@
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="MacOS_x86_64_SafariContextMenu" id="151"/>
 									<ExtendedTooltip name="MacOS_x86_64_SafariExtendedTooltip" id="152"/>
+								</PictureDecoration>
+								<PictureDecoration name="MacOS_x86_64_YandexBrowser" id="205">
+									<Picture>
+										<xr:Ref>CommonPicture.AddInNotAvailable</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<FileDragMode>AsFile</FileDragMode>
+									<ContextMenu name="MacOS_x86_64_YandexBrowserContextMenu" id="206"/>
+									<ExtendedTooltip name="MacOS_x86_64_YandexBrowserExtendedTooltip" id="207"/>
 								</PictureDecoration>
 							</ChildItems>
 						</UsualGroup>
@@ -571,6 +661,31 @@
 			</Type>
 		</Attribute>
 		<Attribute name="MacOS_x86_64_Chrome" id="16">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="MacOS_x86_64_YandexBrowser" id="17">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="Windows_x86_YandexBrowser" id="18">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="Windows_x86_64_YandexBrowser" id="19">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="Linux_x86_YandexBrowser" id="20">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="Linux_x86_64_YandexBrowser" id="21">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>

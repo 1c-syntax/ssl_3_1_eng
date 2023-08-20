@@ -18,11 +18,58 @@
 //
 Procedure RequestPasswordForAuthenticationInService(ContinuationHandler, OwnerForm1, ServiceUserPassword) Export
 	
+	Context = New Structure;
+	Context.Insert("ContinuationHandler", ContinuationHandler);
+	Context.Insert("OwnerForm1", OwnerForm1);
+	Context.Insert("ServiceUserPassword", ServiceUserPassword);
+	
 	If ServiceUserPassword = Undefined Then
-		OpenForm("CommonForm.AuthenticationInService", , OwnerForm1, , , , ContinuationHandler);
+		Notification = New NotifyDescription("AfterAuthenticationPasswordRequestInService", ThisObject, Context);
+		OpenForm("CommonForm.AuthenticationInService", , OwnerForm1, , , , Notification);
 	Else
-		ExecuteNotifyProcessing(ContinuationHandler, ServiceUserPassword);
+		AfterAuthenticationPasswordRequestInService(ServiceUserPassword, Context)
 	EndIf;
+	
+EndProcedure
+
+#EndRegion
+
+#Region Private
+
+Procedure AfterAuthenticationPasswordRequestInService(ServiceUserPassword, Context) Export
+	
+	Context.ServiceUserPassword = ServiceUserPassword;
+	
+	Stream = New MemoryStream;
+	Stream.BeginGetSize(New NotifyDescription(
+		"AfterAuthenticationPasswordRequestInServiceFollowUp", ThisObject, Context));
+	
+EndProcedure
+
+Procedure AfterAuthenticationPasswordRequestInServiceFollowUp(Result, Context) Export
+
+	ErrorText = "";
+	Try
+		ExecuteNotifyProcessing(Context.ContinuationHandler, Context.ServiceUserPassword);
+	Except
+		ErrorInfo = ErrorInfo();
+		UsersInternalSaaSServerCall.WriteTheErrorToTheLog(
+			ErrorProcessing.DetailErrorDescription(ErrorInfo));
+		ErrorText = ErrorProcessing.BriefErrorDescription(ErrorInfo) + Chars.LF
+			+ NStr("en = 'Password may be incorrect. Retype the password.';");
+	EndTry;
+	
+	If ValueIsFilled(ErrorText) Then
+		Notification = New NotifyDescription("AfterRequestAuthenticationPasswordInServiceAndErrorWarning", ThisObject, Context);
+		ShowMessageBox(Notification, ErrorText);
+	EndIf;
+	
+EndProcedure
+
+Procedure AfterRequestAuthenticationPasswordInServiceAndErrorWarning(Context) Export
+	
+	RequestPasswordForAuthenticationInService(Context.ContinuationHandler,
+		Context.OwnerForm1, Undefined);
 	
 EndProcedure
 

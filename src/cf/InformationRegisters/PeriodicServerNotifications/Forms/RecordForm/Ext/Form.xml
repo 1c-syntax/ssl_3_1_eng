@@ -67,11 +67,6 @@
 							<ContextMenu name="AddedOnContextMenu" id="5"/>
 							<ExtendedTooltip name="AddedOnExtendedTooltip" id="6"/>
 						</InputField>
-						<InputField name="ActivityDate" id="15">
-							<DataPath>Record.ActivityDate</DataPath>
-							<ContextMenu name="ActivityDateContextMenu" id="16"/>
-							<ExtendedTooltip name="ActivityDateExtendedTooltip" id="17"/>
-						</InputField>
 					</ChildItems>
 				</Page>
 				<Page name="PageNotifications" id="22">

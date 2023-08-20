@@ -74,7 +74,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			InfobaseUpdate.MarkProcessingCompletion(Selection.Ref);
 			Continue;
 		EndIf;
-		
+		RepresentationOfTheReference = String(Selection.Ref);
 		BeginTransaction();
 		Try
 			
@@ -104,7 +104,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process information records about availability of files %1. Reason:
 					|%2';"), 
-				Selection.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
 				Selection.Ref.Metadata(), Selection.Ref, MessageText);
 		EndTry;

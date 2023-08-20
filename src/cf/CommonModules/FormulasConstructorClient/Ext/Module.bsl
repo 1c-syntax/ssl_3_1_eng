@@ -274,8 +274,32 @@ Procedure StartSearchInFieldsList(Form) Export
 	Filter = Form[Form.NameOfCurrSearchString];
 	FilterStringLength = StrLen(Filter);
 	
-	If FilterStringLength <> 0 And FilterStringLength >= AttachedFieldList.NumberOfCharsToAllowSearching Then
+	WaitStringMessage = NStr("en = 'Continue typing…';");
+	
+	NameOfTheFieldList = AttachedFieldList.NameOfTheFieldList;
+	TreeOnForm = Form[NameOfTheFieldList];
+	FieldList = Form.Items[NameOfTheFieldList];
+		
+	If FilterStringLength >= AttachedFieldList.NumberOfCharsToAllowSearching Then
 		Form.Items[NameOfTheSearchString+"Clearing"].Picture = PictureLib.TimeConsumingOperation16;
+		SetPreSelection(TreeOnForm, Filter);
+		Form.Items[NameOfTheFieldList+ "Presentation"].Visible = False;
+		Form.Items[NameOfTheFieldList+ "RepresentationOfTheDataPath"].Visible = True;
+		FieldList.Representation = TableRepresentation.List;
+	ElsIf FilterStringLength = 0 Then
+		ResetSelection(TreeOnForm);
+		DeleteWaitingLine(TreeOnForm, WaitStringMessage);
+		Form.Items[NameOfTheFieldList+ "Presentation"].Visible = True;
+		Form.Items[NameOfTheFieldList+ "RepresentationOfTheDataPath"].Visible = False;
+		FieldList.Representation = TableRepresentation.Tree;
+		Return;
+	Else
+		ResetSelection(TreeOnForm);
+		AddWaitingLine(TreeOnForm, WaitStringMessage);
+		Form.Items[NameOfTheFieldList+ "Presentation"].Visible = True;
+		Form.Items[NameOfTheFieldList+ "RepresentationOfTheDataPath"].Visible = False;
+		FieldList.Representation = TableRepresentation.List;
+		Return;
 	EndIf;
 	
 	AdditionalParameters = HandlerParameters();
@@ -298,7 +322,6 @@ Procedure StartSearchInFieldsList(Form) Export
 		IdleParameters.OutputIdleWindow = False;
 		IdleParameters.OutputMessages = False;
 		IdleParameters.ExecutionProgressNotification = ExecutionProgressNotification;
-		IdleParameters.Interval = 1;
 		
 		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification, IdleParameters);
 	EndIf;
@@ -342,7 +365,7 @@ Procedure CompletionChangeBorderColor(Result, CompletionParameters) Export
 		ProcessMessages(Form, Result.Messages, JobID);
 	EndIf;
 
-	ProcessSearchResults(Form, Result.ResultAddress, JobID);
+	ProcessResult(Form, Result.ResultAddress, JobID);
 			
 EndProcedure
 
@@ -372,25 +395,25 @@ Procedure HandleSearchInFieldsList(Result, Form) Export
 		EndIf;
 	EndDo;
 	
-	If Result.Status = "Running" Then
-		If ValueIsFilled(NameOfTheSearchString) Then
-			Form.Items[NameOfTheSearchString+"Clearing"].Picture = PictureLib.TimeConsumingOperation16;
-			AttachedFieldList = AttachedFieldListParameters(Form, NameOfTheSearchString);
-			
-			FilterStringLength = StrLen(Form[NameOfTheSearchString]);
-			
-			If FilterStringLength < AttachedFieldList.NumberOfCharsToAllowSearching Then
-				Form.Items[NameOfTheSearchString+"Clearing"].Picture = PictureLib.InputFieldClear;
-				Return;
-			Else
-				Form.Items[NameOfTheSearchString+"Clearing"].Picture = PictureLib.TimeConsumingOperation16;
-			EndIf;
-		EndIf;
+	If ValueIsFilled(NameOfTheSearchString) Then
+		Form.Items[NameOfTheSearchString+"Clearing"].Picture = PictureLib.TimeConsumingOperation16;
+		AttachedFieldList = AttachedFieldListParameters(Form, NameOfTheSearchString);
 		
-		If Result.Messages <> Undefined Then
-			ProcessMessages(Form, Result.Messages, JobID);
+		FilterStringLength = StrLen(Form[NameOfTheSearchString]);
+		
+		If FilterStringLength < AttachedFieldList.NumberOfCharsToAllowSearching Then
+			Form.Items[NameOfTheSearchString+"Clearing"].Picture = PictureLib.InputFieldClear;
+			Return;
+		Else
+			Form.Items[NameOfTheSearchString+"Clearing"].Picture = PictureLib.TimeConsumingOperation16;
 		EndIf;
-	Else
+	EndIf;
+	
+	If Result.Messages <> Undefined Then
+		ProcessMessages(Form, Result.Messages, JobID);
+	EndIf;
+	
+	If Result.Status <> "Running" Then
 		If ValueIsFilled(NameOfTheSearchString) Then
 			Form.Items[NameOfTheSearchString+"Clearing"].Picture = PictureLib.InputFieldClear;
 		EndIf;
@@ -409,6 +432,22 @@ Procedure FormulaEditorHandler(Form, Parameter, AdditionalParameters) Export
 	If AdditionalParameters = Undefined Then
 		AdditionalParameters = HandlerParameters();
 	EndIf;
+	
+	If AdditionalParameters.RunAtServer = True Then
+		Return;
+	EndIf;
+	
+	OperationKey = AdditionalParameters.OperationKey;
+	If OperationKey = "HandleSearchMessage" Then	
+		Messages = Parameter.Messages;
+		JobID = Parameter.JobID;
+		ProcessSearchMessages(Form, Messages, JobID);
+	ElsIf OperationKey = "ProcessSearchResults" Then	
+		ResultAddress = Parameter.ResultAddress;
+		JobID = Parameter.JobID;
+		ProcessSearchResults(Form, ResultAddress, JobID);
+	EndIf;
+	
 EndProcedure
 
 // 
@@ -454,7 +493,7 @@ EndFunction
 Procedure ProcessMessages(Form, Messages, JobID)
 	AdditionalParameters = HandlerParameters();
 	AdditionalParameters.OperationKey = "HandleSearchMessage";
-	AdditionalParameters.RunAtServer = True;
+	AdditionalParameters.RunAtServer = False;
 	
 	ParameterStructure = New Structure("Messages, JobID");
 	ParameterStructure.Messages = Messages;
@@ -463,10 +502,10 @@ Procedure ProcessMessages(Form, Messages, JobID)
 	Form.Attachable_FormulaEditorHandlerClient(ParameterStructure, AdditionalParameters);
 EndProcedure
 
-Procedure ProcessSearchResults(Form, ResultAddress, JobID)
+Procedure ProcessResult(Form, ResultAddress, JobID)
 	AdditionalParameters = HandlerParameters();
 	AdditionalParameters.OperationKey = "ProcessSearchResults";
-	AdditionalParameters.RunAtServer = True;
+	AdditionalParameters.RunAtServer = False;
 	
 	ParameterStructure = New Structure("ResultAddress, JobID");
 	ParameterStructure.ResultAddress = ResultAddress;
@@ -516,5 +555,216 @@ Function FieldListSettings(Form, NameOfTheFieldList)
 	Return Undefined;
 	
 EndFunction
+
+Procedure ProcessSearchMessages(Form, Messages, JobID)
+	
+	NameOfTheSearchString = SearchStringNameByTaskID(Form, JobID);
+	If NameOfTheSearchString = Undefined Then
+		Return;
+	EndIf;
+	
+	ListName = NameOfFieldsListAttribute(NameOfTheSearchString);
+	FieldTree = Form[ListName];
+	BackgroundSearchData = FormulasConstructorServerCall.BackgroundSearchData(Messages);
+	DeserializedMessages = BackgroundSearchData.DeserializedMessages;
+	
+	AdditionalData = New Structure("AllRefsTypeDetails", BackgroundSearchData.AllRefsTypeDetails);
+	For MessageIndex = 0 To Messages.UBound() Do
+	
+		Result = DeserializedMessages[MessageIndex]; 
+		
+		If TypeOf(Result) <> Type("Structure") Then
+			Return;
+		EndIf;
+						
+		If Result.Property("FoundItems1") Then
+			
+			FoundItems1 = Result.FoundItems1;
+			For Each FoundItem In FoundItems1 Do
+				ItemToAdd = AddItemByDataPath(FieldTree, FoundItem, AdditionalData);
+				FillPropertyValues(ItemToAdd, FoundItem);
+				ItemToAdd.MatchesFilter = True;
+				ItemParent = ItemToAdd.GetParent();
+				If ItemParent <> Undefined Then
+					ItemParent.TheSubordinateElementCorrespondsToTheSelection = True;
+				EndIf;
+			EndDo;
+			
+		EndIf;
+	EndDo;
+EndProcedure
+
+Procedure ProcessSearchResults(Form, ResultAddress, JobID)
+	
+	SearchResult = GetFromTempStorage(ResultAddress);
+	
+	If SearchResult = Undefined Then
+		Return;
+	EndIf;
+	
+	NameOfTheSearchString = SearchStringNameByTaskID(Form, JobID);
+	
+	If NameOfTheSearchString = Undefined Then
+		Return;
+	EndIf;
+	
+	ListName = NameOfFieldsListAttribute(NameOfTheSearchString);
+	FieldTree = Form[ListName];
+	BackgroundSearchData = FormulasConstructorServerCall.BackgroundSearchData();
+	
+	AdditionalData = New Structure("AllRefsTypeDetails", BackgroundSearchData.AllRefsTypeDetails);
+	If SearchResult.Property("AllRefsTypeDetails") Then
+		AdditionalData.AllRefsTypeDetails = SearchResult.AllRefsTypeDetails;
+	EndIf;
+			
+	FoundItems1 = SearchResult.FoundItems1;
+	For Each FoundItem In FoundItems1 Do
+		ItemToAdd = AddItemByDataPath(FieldTree, FoundItem, AdditionalData);
+		FillPropertyValues(ItemToAdd, FoundItem);
+		ItemToAdd.MatchesFilter = True;
+		ItemParent = ItemToAdd.GetParent();
+		If ItemParent <> Undefined Then
+			ItemParent.TheSubordinateElementCorrespondsToTheSelection = True;
+		EndIf;
+	EndDo;
+	Form.Items[ListName + "Presentation"].Visible = False;
+	Form.Items[ListName + "RepresentationOfTheDataPath"].Visible = True;
+	
+EndProcedure
+
+Function AddItemByDataPath(FieldTree, StringToAdd, RecursiveContext)
+	
+	If Not RecursiveContext.Property("DataPathElements") Then
+		RecursiveContext.Insert("DataPathElements", New Map);
+	EndIf;
+	
+	CurCollection = FieldTree;
+	FoundRow = FindItemWithIndexing(CurCollection, RecursiveContext.DataPathElements, StringToAdd.DataPath);
+	
+	If FoundRow <> Undefined Then
+		Return FoundRow;
+	Else
+		CurLevelLines = CurCollection.GetItems();
+		FieldsTreeNewRow = CurLevelLines.Add();
+		FillPropertyValues(FieldsTreeNewRow, StringToAdd);
+		RecursiveContext.DataPathElements.Insert(FieldsTreeNewRow.DataPath, FieldsTreeNewRow);
+			
+		HasSubordinateItems = FieldsTreeNewRow.Folder Or FieldsTreeNewRow.Table;
+	
+		If Not HasSubordinateItems Then
+			For Each Type In FieldsTreeNewRow.Type.Types() Do
+				
+				HasSubordinateItems = HasSubordinateItems Or IsReference(Type, RecursiveContext.AllRefsTypeDetails);
+				If HasSubordinateItems Then
+					Break;
+				EndIf; 
+			EndDo;
+		EndIf;
+		
+		If HasSubordinateItems Then
+			FieldsTreeNewRow.GetItems().Add();
+		EndIf;
+
+		Return FieldsTreeNewRow;
+		
+	EndIf;
+	
+EndFunction
+
+Function IsReference(TypeToCheck, AllRefsTypeDetails) Export
+	
+	Return TypeToCheck <> Type("Undefined") And AllRefsTypeDetails.ContainsType(TypeToCheck);
+	
+EndFunction
+
+Function FindItemWithIndexing(FieldTree, DataPathElements, DataPath)
+	
+	FoundRow = DataPathElements.Get(DataPath);
+	If FoundRow <> Undefined Then
+		Return FoundRow;
+	EndIf;
+	
+	Items = FieldTree.GetItems();
+	For Each Item In Items Do
+		If Item.DataPath = DataPath Then
+			Return Item;
+		ElsIf StrStartsWith(DataPath, Item.DataPath+".") Then
+			FoundItem = FindItemWithIndexing(Item, DataPathElements, DataPath);
+			If FoundItem = Undefined Then
+				FieldTree = Item;
+			EndIf;
+			Return FoundItem;			
+		EndIf;
+		If Item.DataPath <> "" Then
+			DataPathElements.Insert(Item.DataPath, Item);
+		EndIf;
+	EndDo;
+	
+	Return Undefined;
+EndFunction
+
+Function SearchStringNameByTaskID(Form, JobID)
+	MatchingTasks = GetFromTempStorage(Form.AddressOfLongRunningOperationDetails);
+	For Each Job In MatchingTasks Do
+		If Job.Value = JobID Then
+			Return Job.Key;
+		EndIf;
+	EndDo;
+EndFunction
+
+Procedure SetPreSelection(List, Filter)
+	For Each Item In List.GetItems() Do
+		MatchesFilter = StrOccurrenceCount(Lower(Item.RepresentationOfTheDataPath), Lower(Filter)) > 0;
+		Item.MatchesFilter = MatchesFilter;
+		Item.TheSubordinateElementCorrespondsToTheSelection = False;
+		If MatchesFilter And TypeOf(List) = Type("FormDataTreeItem") Then
+			 Item.GetParent().TheSubordinateElementCorrespondsToTheSelection = True; 
+		EndIf;
+		
+		SetPreSelection(Item, Filter);
+	EndDo;	
+EndProcedure
+
+Procedure ResetSelection(List)
+	For Each Item In List.GetItems() Do
+		Item.MatchesFilter = False;
+		Item.TheSubordinateElementCorrespondsToTheSelection = False;
+		ResetSelection(Item);
+	EndDo;	
+EndProcedure
+
+Procedure AddWaitingLine(List, WaitStringMessage)
+	WaitingLineIsDisplayed = False;
+	Rows = List.GetItems();
+	For Each Item In Rows Do
+		If Item.Title = WaitStringMessage Then
+			WaitingLineIsDisplayed = True;
+			Break;
+		EndIf;
+	EndDo;	
+	
+	If Not WaitingLineIsDisplayed Then
+		Item = Rows.Add();
+		Item.Title = WaitStringMessage;
+		Item.RepresentationOfTheDataPath = WaitStringMessage;
+	EndIf;
+	
+	Item.MatchesFilter = True;
+EndProcedure
+
+Procedure DeleteWaitingLine(List, WaitStringMessage)
+	WaitingString = Undefined;
+	Rows = List.GetItems();
+	For Each Item In Rows Do
+		If Item.Title = WaitStringMessage Then
+			WaitingString = Item;
+			Break;
+		EndIf;
+	EndDo;	
+	
+	If WaitingString <> Undefined Then
+		Rows.Delete(WaitingString);
+	EndIf;
+EndProcedure
 
 #EndRegion

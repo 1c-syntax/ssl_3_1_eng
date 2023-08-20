@@ -291,7 +291,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Autostage</v8:content>
+									<v8:content>Autoregistration</v8:content>
 								</v8:item>
 							</Title>
 							<TitleLocation>None</TitleLocation>
@@ -430,7 +430,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Autostage picture index</v8:content>
+							<v8:content>Autoregistration picture index</v8:content>
 						</v8:item>
 					</Title>
 					<Type>

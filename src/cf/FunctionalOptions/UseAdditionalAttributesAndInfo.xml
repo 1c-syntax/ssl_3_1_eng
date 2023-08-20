@@ -19,6 +19,8 @@
 				<xr:Object>InformationRegister.AdditionalInfo</xr:Object>
 				<xr:Object>Catalog.ObjectsPropertiesValues</xr:Object>
 				<xr:Object>Catalog.ObjectPropertyValueHierarchy</xr:Object>
+				<xr:Object>Enum.PropertiesColors</xr:Object>
+				<xr:Object>Enum.LabelsDisplayOptions</xr:Object>
 			</Content>
 		</Properties>
 	</FunctionalOption>

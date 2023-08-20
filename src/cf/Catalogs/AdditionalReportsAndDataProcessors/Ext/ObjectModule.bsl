@@ -9,6 +9,8 @@
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
+#If Not MobileStandaloneServer Then
+
 #Region Variables
 
 Var IsGlobalDataProcessor;
@@ -401,6 +403,8 @@ Procedure OnWriteReport(Cancel)
 EndProcedure
 
 #EndRegion
+
+#EndIf
 
 #Else
 Raise NStr("en = 'Invalid object call on the client.';");

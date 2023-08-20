@@ -134,7 +134,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	ObjectsWithIssuesCount = 0;
 	ObjectsProcessed = 0;
-	ErrorsList = New Array;
+	ErrorList = New Array;
 	
 	While ExternalUserLink.Next() Do
 		
@@ -143,7 +143,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		
 		If Result.Status = "Error" Then
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
-			ErrorsList.Add(Result.ErrorText);
+			ErrorList.Add(Result.ErrorText);
 		Else
 			ObjectsProcessed = ObjectsProcessed + 1;
 			InfobaseUpdate.MarkProcessingCompletion(ExternalUserLink.Ref);
@@ -156,7 +156,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Couldn''t process (skipped) some external users: %1
-				|%2';"), ObjectsWithIssuesCount, StrConcat(ErrorsList, Chars.LF));
+				|%2';"), ObjectsWithIssuesCount, StrConcat(ErrorList, Chars.LF));
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,

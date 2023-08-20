@@ -40,7 +40,7 @@
 		<InputField name="Name" id="1">
 			<DataPath>ParameterName</DataPath>
 			<ContextMenu name="NameContextMenu" id="2"/>
-			<ExtendedTooltip name="NameExtendedHint" id="3"/>
+			<ExtendedTooltip name="NameExtendedTooltip" id="3"/>
 		</InputField>
 		<CommandBar name="FormCommandBarGroup" id="10">
 			<Title>

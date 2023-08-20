@@ -9,13 +9,6 @@
 
 #Region Private
 
-// Checks whether the scanning component is installed and is there is at least one scanner.
-Function ScanCommandAvailable() Export
-	
-	Return FilesOperationsInternalClient.ScanCommandAvailable();
-	
-EndFunction
-
 // Returns PutInUserWorkingDirectory session parameter.
 Function UserWorkingDirectory() Export
 	

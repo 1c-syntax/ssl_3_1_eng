@@ -352,6 +352,13 @@
 											<ContextMenu name="SignatureAndSealContextMenu" id="116"/>
 											<ExtendedTooltip name="SignatureAndSealExtendedTooltip" id="117"/>
 										</CheckBoxField>
+										<CheckBoxField name="Sign" id="118">
+											<DataPath>Sign</DataPath>
+											<TitleLocation>Right</TitleLocation>
+											<CheckBoxType>Auto</CheckBoxType>
+											<ContextMenu name="SignContextMenu" id="119"/>
+											<ExtendedTooltip name="SignExtendedTooltip" id="120"/>
+										</CheckBoxField>
 									</ChildItems>
 								</UsualGroup>
 							</ChildItems>
@@ -597,6 +604,23 @@
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
+		</Attribute>
+		<Attribute name="Sign" id="23">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Sign</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+			<Save>
+				<Field>Sign</Field>
+			</Save>
+			<FunctionalOptions>
+				<Item>FunctionalOption.UseDigitalSignature</Item>
+			</FunctionalOptions>
 		</Attribute>
 	</Attributes>
 	<Commands>

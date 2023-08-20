@@ -58,7 +58,10 @@ Procedure MakeActiveExecute()
 	
 	NewActiveVersion = CurrentData.Ref;
 	
-	FileData = FilesOperationsInternalServerCall.FileData(CurrentData.Owner, CurrentData.Ref);
+	FileDataParameters = FilesOperationsClientServer.FileDataParameters();
+	FileDataParameters.GetBinaryDataRef = False;
+	
+	FileData = FilesOperationsInternalServerCall.FileData(CurrentData.Owner, CurrentData.Ref, FileDataParameters);
 	
 	If ValueIsFilled(FileData.BeingEditedBy) Then
 		ShowMessageBox(, NStr("en = 'Cannot change the active version because the file is locked.';"));

@@ -124,11 +124,6 @@ Procedure CompleteEditing(Command)
 		SelectionResult.Insert("VariantModified", VariantModified);
 		SelectionResult.Insert("UserSettingsModified", VariantModified Or UserSettingsModified);
 		
-		#If WebClient Then
-			SelectionResult.VariantModified = True; // 
-			SelectionResult.UserSettingsModified = True;
-		#EndIf
-		
 		If SelectionResult.UserSettingsModified Then
 			SelectionResult.Insert("ResetCustomSettings", True);
 		EndIf;

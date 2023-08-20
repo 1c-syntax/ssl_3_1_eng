@@ -354,9 +354,9 @@ Procedure ChangeJob(Val Id, Val Parameters) Export
 			
 			// 
 			// 
-			ParametersOfPredefinedTask = New Structure;
+			PredefinedJobParameters = New Structure;
 			If JobParameters.Property("Use") Then
-				ParametersOfPredefinedTask.Insert("Use",
+				PredefinedJobParameters.Insert("Use",
 					JobParameters.Use);
 			EndIf;
 			
@@ -364,8 +364,8 @@ Procedure ChangeJob(Val Id, Val Parameters) Export
 			For Each Job In JobsList Do
 				If Not ValueIsFilled(Job.Template) Then
 					ModuleJobsQueue.ChangeJob(Job.Id, JobParameters);
-				ElsIf ValueIsFilled(ParametersOfPredefinedTask) Then
-					ModuleJobsQueue.ChangeJob(Job.Id, ParametersOfPredefinedTask);
+				ElsIf ValueIsFilled(PredefinedJobParameters) Then
+					ModuleJobsQueue.ChangeJob(Job.Id, PredefinedJobParameters);
 				EndIf;
 			EndDo;
 		EndIf;

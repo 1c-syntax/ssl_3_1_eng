@@ -44,7 +44,16 @@ Function FillTemplate(Template, Parameters) Export
 			EndIf;
 			FormatString = Mid(Result, Position1 + LengthLeftFormat, Position2 - Position1 - LengthLeftFormat);
 			Try
-				ReplacedWith = ?(CutBorders, "", ParameterStart) + Format(KeyAndValue.Value, FormatString) + ?(CutBorders, "", ParameterEnd);
+				If TypeOf(KeyAndValue.Value) = Type("StandardPeriod") Then
+					ValueWithFormat = NStr("en = '%StartDate% - %EndDate%';");
+					ValueWithFormat = StrReplace(ValueWithFormat, "%StartDate%", Format(
+						KeyAndValue.Value.StartDate, FormatString));
+					ValueWithFormat = StrReplace(ValueWithFormat, "%EndDate%", Format(
+						KeyAndValue.Value.EndDate, FormatString));
+				Else
+					ValueWithFormat = Format(KeyAndValue.Value, FormatString);
+				EndIf;
+				ReplacedWith = ?(CutBorders, "", ParameterStart) + ValueWithFormat + ?(CutBorders, "", ParameterEnd);
 			Except
 				ReplacedWith = ?(CutBorders, "", ParameterStart) + KeyAndValue.Value + ?(CutBorders, "", ParameterEnd);
 			EndTry;
@@ -259,6 +268,8 @@ EndFunction
 //       * TransliterateFileNames - Boolean -
 //       * CertificateToEncrypt - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates -
 //           
+//       * MailingRecipientType - TypeDescription
+//                                - Undefined
 //
 //     
 //       * Personalized - Boolean - a mailing personalized by recipients.
@@ -278,13 +289,17 @@ EndFunction
 //                *** FileType - SpreadsheetDocumentFileType
 //                *** Name - String
 //       * EmailParameters - See EmailSendOptions
+//       * ShouldInsertReportsIntoEmailBody - Boolean
+//       * ShouldAttachReports - Boolean
+//       * ShouldSetPasswordsAndEncrypt - Boolean
+//       * ReportsForEmailText - Array of Map
 //
 Function DeliveryParameters() Export
 	
 	DeliveryParameters = New Structure;
 	DeliveryParameters.Insert("ExecutionDate", Undefined);
 	DeliveryParameters.Insert("Join", Undefined);
-	DeliveryParameters.Insert("StartCommitted", True);
+	DeliveryParameters.Insert("StartCommitted", False);
 	DeliveryParameters.Insert("Author", Undefined);
 	DeliveryParameters.Insert("EmailParameters", EmailSendOptions());
 	
@@ -308,7 +323,6 @@ Function DeliveryParameters() Export
 	DeliveryParameters.Insert("NetworkDirectoryWindows", Undefined);
 	DeliveryParameters.Insert("NetworkDirectoryLinux", Undefined);
 	DeliveryParameters.Insert("TempFilesDir", "");
-	DeliveryParameters.Insert("IncludeDateInFileName", False);
 	
 	DeliveryParameters.Insert("Owner", Undefined);
 	DeliveryParameters.Insert("Server", Undefined);
@@ -347,6 +361,12 @@ Function DeliveryParameters() Export
 	DeliveryParameters.Insert("Recipient", Undefined);
 	DeliveryParameters.Insert("Images", New Structure);
 	DeliveryParameters.Insert("Personal", False);
+	DeliveryParameters.Insert("MailingRecipientType", Undefined);
+	DeliveryParameters.Insert("ShouldInsertReportsIntoEmailBody", True);
+	DeliveryParameters.Insert("ShouldAttachReports", False);
+	DeliveryParameters.Insert("ShouldSetPasswordsAndEncrypt", False);
+	DeliveryParameters.Insert("ReportsForEmailText", New Map);
+	DeliveryParameters.Insert("ReportsTree", Undefined);
 	
 	Return DeliveryParameters;
 	
@@ -396,6 +416,7 @@ EndFunction
 //                                                 
 //                   
 //                                                 
+//     * Importance  - InternetMailMessageImportance
 //
 Function EmailSendOptions() Export
 	
@@ -413,6 +434,7 @@ Function EmailSendOptions() Export
 	EmailParameters.Insert("RequestDeliveryReceipt", False);
 	EmailParameters.Insert("RequestReadReceipt", False);
 	EmailParameters.Insert("TextType", "PlainText");
+	EmailParameters.Insert("Importance", "");
 	
 	Return EmailParameters;
 	

@@ -15,6 +15,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetConditionalAppearance();
 	
 	BusinessProcessesAndTasksServer.SetBusinessProcessesAppearance(List.ConditionalAppearance);
+	InfobaseUpdate.CheckObjectProcessed(Metadata.InformationRegisters.BusinessProcessesData.FullName(), 
+		ThisObject);
 	
 EndProcedure
 
@@ -34,7 +36,7 @@ Procedure ListSelection(Item, RowSelected, Field, StandardProcessing)
 	
 	StandardProcessing = False;
 	If Items.List.CurrentData <> Undefined Then
-		ShowValue(,Items.List.CurrentData.BusinessProcess);
+		ShowValue(, Items.List.CurrentData.BusinessProcess);
 	EndIf;
 	
 EndProcedure

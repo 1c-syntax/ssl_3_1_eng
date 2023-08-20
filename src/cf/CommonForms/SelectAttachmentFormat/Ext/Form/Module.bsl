@@ -14,11 +14,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	// Import passed parameters.
 	PassedFormatArray = New Array;
-	If Parameters.FormatSettings <> Undefined Then
-		PassedFormatArray = Parameters.FormatSettings.SaveFormats;
-		PackToArchive = Parameters.FormatSettings.PackToArchive;
-		TransliterateFilesNames = Parameters.FormatSettings.TransliterateFilesNames;
-		Sign = Parameters.FormatSettings.Sign;
+	FormatSettingsParameters = Parameters.FormatSettings;
+	If FormatSettingsParameters <> Undefined Then
+		PassedFormatArray = FormatSettingsParameters.SaveFormats;
+		PackToArchive = FormatSettingsParameters.PackToArchive;
+		TransliterateFilesNames = FormatSettingsParameters.TransliterateFilesNames;
+		Items.Sign.Visible = FormatSettingsParameters.Sign <> Undefined;
+		Sign = FormatSettingsParameters.Sign;
 	EndIf;
 	
 	ArrayOfSaveFormatsRestrictions = StrSplit(Parameters.RestrictionOfSaveFormats, ",", False);
@@ -26,7 +28,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Populate format list.
 	For Each SaveFormat In StandardSubsystemsServer.SpreadsheetDocumentSaveFormatsSettings() Do
 		Check = False;
-		If Parameters.FormatSettings <> Undefined Then 
+		If FormatSettingsParameters <> Undefined Then 
 			PassedFormat = PassedFormatArray.Find(String(SaveFormat.SpreadsheetDocumentFileType));
 			If PassedFormat <> Undefined Then
 				Check = True;
@@ -67,6 +69,9 @@ Procedure BeforeLoadDataFromSettingsAtServer(Settings)
 		EndIf;
 		If Parameters.FormatSettings.Property("TransliterateFilesNames") Then
 			Settings.Delete("TransliterateFilesNames");
+		EndIf;
+		If Parameters.FormatSettings.Property("Sign") Then
+			Settings.Delete("Sign");
 		EndIf;
 		Return;
 	EndIf;

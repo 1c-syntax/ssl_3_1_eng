@@ -102,11 +102,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	AvailableTranslationLayout = False;
 	If IsTemplate Then
 		If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-			PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
-			AvailableTranslationLayout = PrintManagementModuleMultilanguage.AvailableTranslationLayout(IdentifierOfTemplate);
-			If IsPrintForm Or PrintManagementModuleMultilanguage.AvailableTranslationLayout(IdentifierOfTemplate) Then
-				PrintManagementModuleMultilanguage.FillInTheLanguageSubmenu(ThisObject, Parameters.LanguageCode);
-				AutomaticTranslationAvailable = PrintManagementModuleMultilanguage.AutomaticTranslationAvailable(CurrentLanguage);
+			PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
+			AvailableTranslationLayout = PrintManagementModuleNationalLanguageSupport.AvailableTranslationLayout(IdentifierOfTemplate);
+			If IsPrintForm Or PrintManagementModuleNationalLanguageSupport.AvailableTranslationLayout(IdentifierOfTemplate) Then
+				PrintManagementModuleNationalLanguageSupport.FillInTheLanguageSubmenu(ThisObject, Parameters.LanguageCode);
+				AutomaticTranslationAvailable = PrintManagementModuleNationalLanguageSupport.AutomaticTranslationAvailable(CurrentLanguage);
 			EndIf;
 		EndIf;
 	EndIf;
@@ -569,18 +569,18 @@ Procedure LoadSpreadsheetDocumentFromMetadata(Val LanguageCode = Undefined)
 		EndIf;
 	EndIf;
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-		PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
+		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
 		If ValueIsFilled(LanguageCode) Then
-			AvailableTabularDocumentLanguages = PrintManagementModuleMultilanguage.LayoutLanguages(IdentifierOfTemplate);
+			AvailableTabularDocumentLanguages = PrintManagementModuleNationalLanguageSupport.LayoutLanguages(IdentifierOfTemplate);
 			TranslationRequired = AvailableTabularDocumentLanguages.Find(LanguageCode) = Undefined;
 		EndIf;
 		
 		If LanguageCode <> "" Then
-			LayoutLanguages = PrintManagementModuleMultilanguage.LayoutLanguages(IdentifierOfTemplate);
+			LayoutLanguages = PrintManagementModuleNationalLanguageSupport.LayoutLanguages(IdentifierOfTemplate);
 			Modified = Modified Or (LayoutLanguages.Find(LanguageCode) = Undefined);
 		EndIf;
 		
-		AutomaticTranslationAvailable = PrintManagementModuleMultilanguage.AutomaticTranslationAvailable(CurrentLanguage);
+		AutomaticTranslationAvailable = PrintManagementModuleNationalLanguageSupport.AutomaticTranslationAvailable(CurrentLanguage);
 		Items.Translate.Visible = AutomaticTranslationAvailable;
 		Items.ButtonShowHideOriginal.Visible = Items.Translate.Visible;
 	EndIf;
@@ -1497,7 +1497,8 @@ Procedure UpdateInputFieldCurrentCellValue()
 		AreaName = ViewArea;
 	EndIf;
 	
-	Items.DeleteStampEP.Enabled = StrStartsWith(CurrentArea.Name, "DSStamp");
+	Items.DeleteStampEP.Enabled = TypeOf(CurrentArea) = Type("SpreadsheetDocumentRange")
+		And StrStartsWith(CurrentArea.Name, "DSStamp");
 	
 	If TypeOf(CurrentArea) = Type("SpreadsheetDocumentRange")
 		And CurrentArea.AreaType = SpreadsheetDocumentCellAreaType.Rows Then
@@ -1523,7 +1524,7 @@ Procedure PickupSample(MetadataObject)
 	|	Ref DESC";
 	
 	QueryText = StrReplace(QueryText, "&Table", MetadataObject.FullName());
-	Query = New Query(QueryText);;
+	Query = New Query(QueryText);
 	Selection = Query.Execute().Select();
 	If Selection.Next() Then
 		Pattern = Selection.Ref;

@@ -147,6 +147,11 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	
 	StandardProcessing = False;
 	
+	If Not Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
+		ErrorText = NStr("en = 'To use the report, deploy the Report options subsystem.';");
+		Raise ErrorText;
+	EndIf;
+	
 	ComposerSettings = SettingsComposer.GetSettings();
 	
 	ParameterUserType = ComposerSettings.DataParameters.Items.Find("UsersKind");

@@ -72,7 +72,7 @@ Procedure WarningAboutUnsafeContentURLProcessing(Item, FormattedStringURL, Stand
 	If FormattedStringURL = "EnableUnsafeContent" Then
 		StandardProcessing = False;
 		EnableUnsafeContent = True;
-		SetHTMLEmailText();;
+		SetHTMLEmailText();
 	EndIf;
 EndProcedure
 

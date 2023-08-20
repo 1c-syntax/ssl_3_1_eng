@@ -7,114 +7,41 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
+#Region Variables
+
+&AtClient
+Var Attachable_Module;
+
+#EndRegion
+
 #Region EventHandlersForm
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
-	
 	ClientID = Parameters.ClientID;
-	
-	ShowScannerDialog = Common.CommonSettingsStorageLoad(
-		"ScanningSettings1/ShowScannerDialog", 
-		ClientID, True);
-	
-	DeviceName = Common.CommonSettingsStorageLoad(
-		"ScanningSettings1/DeviceName", 
-		ClientID, "");
-	
-	ScannedImageFormat = Common.CommonSettingsStorageLoad(
-		"ScanningSettings1/ScannedImageFormat", 
-		ClientID, Enums.ScannedImageFormats.PNG);
-	
-	SinglePageStorageFormat = Common.CommonSettingsStorageLoad(
-		"ScanningSettings1/SinglePageStorageFormat", 
-		ClientID, Enums.SinglePageFileStorageFormats.PNG);
-	
-	MultipageStorageFormat = Common.CommonSettingsStorageLoad(
-		"ScanningSettings1/MultipageStorageFormat", 
-		ClientID, Enums.MultipageFileStorageFormats.TIF);
-	
-	Resolution = Common.CommonSettingsStorageLoad(
-		"ScanningSettings1/Resolution", 
-		ClientID);
-	
-	Chromaticity = Common.CommonSettingsStorageLoad(
-		"ScanningSettings1/Chromaticity", 
-		ClientID);
-	
-	Rotation = Common.CommonSettingsStorageLoad(
-		"ScanningSettings1/Rotation", 
-		ClientID);
-	
-	PaperSize = Common.CommonSettingsStorageLoad(
-		"ScanningSettings1/PaperSize", 
-		ClientID);
-	
-	DuplexScanning = Common.CommonSettingsStorageLoad(
-		"ScanningSettings1/DuplexScanning", 
-		ClientID);
-	
-	UseImageMagickToConvertToPDF =  Common.CommonSettingsStorageLoad(
-		"ScanningSettings1/UseImageMagickToConvertToPDF", 
-		ClientID);
-	
-	JPGQuality = Common.CommonSettingsStorageLoad(
-		"ScanningSettings1/JPGQuality", 
-		ClientID, 100);
-	
-	TIFFDeflation = Common.CommonSettingsStorageLoad(
-		"ScanningSettings1/TIFFDeflation", 
-		ClientID, Enums.TIFFCompressionTypes.NoCompression);
-	
-	PathToConverterApplication = Common.CommonSettingsStorageLoad(
-		"ScanningSettings1/PathToConverterApplication", 
-		ClientID, "convert.exe"); // ImageMagick
-	
+	UserScanSettings = FilesOperations.GetUserScanSettings(ClientID);
+	FillPropertyValues(ThisObject, UserScanSettings);
+			
+	MethodOfConversionToPDF = ?(UseImageMagickToConvertToPDF, 1, 0);
+		
 	JPGFormat = Enums.ScannedImageFormats.JPG;
 	TIFFormat = Enums.ScannedImageFormats.TIF;
 	
 	MultiPageTIFFormat = Enums.MultipageFileStorageFormats.TIF;
-	SinglePagePDFFormat = Enums.SinglePageFileStorageFormats.PDF;
-	SinglePageJPGFormat = Enums.SinglePageFileStorageFormats.JPG;
-	SinglePageTIFFormat = Enums.SinglePageFileStorageFormats.TIF;
-	SinglePagePNGFormat = Enums.SinglePageFileStorageFormats.PNG;
 	
-	If Not UseImageMagickToConvertToPDF Then
-		MultipageStorageFormat = MultiPageTIFFormat;
-	EndIf;
-	
-	Items.StorageFormatGroup.Visible = UseImageMagickToConvertToPDF;
-	
-	If UseImageMagickToConvertToPDF Then
-		If SinglePageStorageFormat = SinglePagePDFFormat Then
-			Items.JPGQuality.Visible = (ScannedImageFormat = JPGFormat);
-			Items.TIFFDeflation.Visible = (ScannedImageFormat = TIFFormat);
-		Else	
-			Items.JPGQuality.Visible = (SinglePageStorageFormat = SinglePageJPGFormat);
-			Items.TIFFDeflation.Visible = (SinglePageStorageFormat = SinglePageTIFFormat);
-		EndIf;
-	Else	
-		Items.JPGQuality.Visible = (ScannedImageFormat = JPGFormat);
-		Items.TIFFDeflation.Visible = (ScannedImageFormat = TIFFormat);
-	EndIf;
-	
-	DecorationsVisible = (UseImageMagickToConvertToPDF And (SinglePageStorageFormat = SinglePagePDFFormat));
-	Items.SinglePageStorageFormatDecoration.Visible = DecorationsVisible;
-	Items.ScannedImageFormatDecoration.Visible = DecorationsVisible;
-	
-	ScanningFormatVisibility = (UseImageMagickToConvertToPDF And (SinglePageStorageFormat = SinglePagePDFFormat)) Or (Not UseImageMagickToConvertToPDF);
-	Items.ScanningFormatGroup.Visible = ScanningFormatVisibility;
+	Items.GroupJPGQuantity.Visible = (ScannedImageFormat = JPGFormat);
+	Items.TIFFDeflation.Visible = (ScannedImageFormat = TIFFormat);
 	
 	Items.PathToConverterApplication.Enabled = UseImageMagickToConvertToPDF;
 	
-	Items.MultipageStorageFormat.Enabled = UseImageMagickToConvertToPDF;
-	
 	SinglePageStorageFormatPrevious = SinglePageStorageFormat;
 	
-	If Not UseImageMagickToConvertToPDF Then
-		Items.ScannedImageFormat.Title = NStr("en = 'Format';");
-	Else
-		Items.ScannedImageFormat.Title = NStr("en = 'Type';");
+	InstallHints();
+	
+	Rescanning = Parameters.Rescanning;
+	
+	If Parameters.Rescanning Then
+		Items.OK.Title = NStr("en = 'Scan';");
 	EndIf;
 	
 EndProcedure
@@ -143,18 +70,9 @@ EndProcedure
 &AtClient
 Procedure ScannedImageFormatOnChange(Item)
 	
-	If UseImageMagickToConvertToPDF Then
-		If SinglePageStorageFormat = SinglePagePDFFormat Then
-			Items.JPGQuality.Visible = (ScannedImageFormat = JPGFormat);
-			Items.TIFFDeflation.Visible = (ScannedImageFormat = TIFFormat);
-		Else	
-			Items.JPGQuality.Visible = (SinglePageStorageFormat = SinglePageJPGFormat);
-			Items.TIFFDeflation.Visible = (SinglePageStorageFormat = SinglePageTIFFormat);
-		EndIf;
-	Else	
-		Items.JPGQuality.Visible = (ScannedImageFormat = JPGFormat);
-		Items.TIFFDeflation.Visible = (ScannedImageFormat = TIFFormat);
-	EndIf;
+	Items.GroupJPGQuantity.Visible = (ScannedImageFormat = JPGFormat);
+	Items.TIFFDeflation.Visible = (ScannedImageFormat = TIFFormat);
+	InstallHints();
 	
 EndProcedure
 
@@ -180,17 +98,37 @@ Procedure PathToConverterApplicationStartChoice(Item, ChoiceData, StandardProces
 EndProcedure
 
 &AtClient
-Procedure SinglePageStorageFormatOnChange(Item)
+Procedure MethodOfConversionToPDFOnChange(Item)
 	
-	ProcessChangesSinglePageStorageFormat();
+	UseImageMagickToConvertToPDF = MethodOfConversionToPDF = 1;
+	ProcessChangesUseImageMagick();
 	
 EndProcedure
 
 &AtClient
-Procedure UseImageMagickToConvertToPDFOnChange(Item)
+Procedure JPGQualityOnChange(Item)
+	Items.JPGQuality.Title = StrTemplate(NStr("en = 'Quality (%1)';"), JPGQuality);
+EndProcedure
+
+&AtClient
+Procedure DeviceNameStartChoice(Item, StandardProcessing)
+	StandardProcessing = False;
+	Try
+		DeviceArray = FilesOperationsInternalClient.EnumDevices(Attachable_Module);
+	Except
+		DeviceArray = New Array;
+	EndTry;
+	If DeviceArray.Count() > 0 Then
+		ChoiceList = New ValueList();
+		For Each String In DeviceArray Do
+			ChoiceList.Add(String);
+		EndDo;
 	
-	ProcessChangesUseImageMagick();
-	
+		NotifyDescription = New NotifyDescription("DeviceNameChoiceStartCompletion", ThisObject, Item);
+		ChoiceList.ShowChooseItem(NotifyDescription, NStr("en = 'Select scanner';"));
+	Else
+		ShowMessageBox(,NStr("en = 'No connected scanners are found. Check scanner connection.';"));
+	EndIf;
 EndProcedure
 
 #EndRegion
@@ -204,31 +142,24 @@ Procedure OK(Command)
 	If Not CheckFilling() Then 
 		Return;
 	EndIf;
+		
+	UserScanSettings = FilesOperationsClientServer.UserScanSettings();
+	FillPropertyValues(UserScanSettings, ThisObject);
 	
-	StructuresArray = New Array;
-	
-	SystemInfo = New SystemInfo();
-	ClientID = SystemInfo.ClientID;
-	
-	StructuresArray.Add (GenerateSetting("ShowScannerDialog", ShowScannerDialog, ClientID));
-	StructuresArray.Add (GenerateSetting("DeviceName", DeviceName, ClientID));
-	
-	StructuresArray.Add (GenerateSetting("ScannedImageFormat", ScannedImageFormat, ClientID));
-	StructuresArray.Add (GenerateSetting("SinglePageStorageFormat", SinglePageStorageFormat, ClientID));
-	StructuresArray.Add (GenerateSetting("MultipageStorageFormat", MultipageStorageFormat, ClientID));
-	StructuresArray.Add (GenerateSetting("Resolution", Resolution, ClientID));
-	StructuresArray.Add (GenerateSetting("Chromaticity", Chromaticity, ClientID));
-	StructuresArray.Add (GenerateSetting("Rotation", Rotation, ClientID));
-	StructuresArray.Add (GenerateSetting("PaperSize", PaperSize, ClientID));
-	StructuresArray.Add (GenerateSetting("DuplexScanning", DuplexScanning, ClientID));
-	StructuresArray.Add (GenerateSetting("UseImageMagickToConvertToPDF", UseImageMagickToConvertToPDF, ClientID));
-	StructuresArray.Add (GenerateSetting("JPGQuality", JPGQuality, ClientID));
-	StructuresArray.Add (GenerateSetting("TIFFDeflation", TIFFDeflation, ClientID));
-	StructuresArray.Add (GenerateSetting("PathToConverterApplication", PathToConverterApplication, ClientID));
-	
-	CommonServerCall.CommonSettingsStorageSaveArray(StructuresArray, True);
-	Close();
-	
+	If UserScanSettings.UseImageMagickToConvertToPDF Then
+		If Not ValueIsFilled(UserScanSettings.PathToConverterApplication) Then
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Path to the %1 application is not specified.';"), 
+			"ImageMagick");
+			CommonClient.MessageToUser(ErrorText, , "PathToConverterApplication");
+			Return;
+		Else
+			Context = New Structure;
+			CheckResultHandler = New NotifyDescription("AfterCheckInstalledConversionApp", ThisObject, UserScanSettings);
+			FilesOperationsClient.StartCheckConversionAppPresence(UserScanSettings.PathToConverterApplication, CheckResultHandler);
+			Return;
+		EndIf;
+	EndIf;
+	OKCompletion(UserScanSettings);
 EndProcedure
 
 &AtClient
@@ -246,22 +177,9 @@ EndProcedure
 #Region Private
 
 &AtClient
-Function GenerateSetting(Name, Value, ClientID)
-	
-	Item = New Structure;
-	Item.Insert("Object", "ScanningSettings1/" + Name);
-	Item.Insert("Setting", ClientID);
-	Item.Insert("Value", Value);
-	Return Item;
-	
-EndFunction	
-
-&AtClient
 Procedure RefreshStatus()
 	
-	Items.DeviceName.Enabled = False;
-	Items.DeviceName.ChoiceList.Clear();
-	Items.DeviceName.ListChoiceMode = False;
+	Items.JPGQuality.Title = StrTemplate(NStr("en = 'Quality (%1)';"), JPGQuality);
 	Items.ScannedImageFormat.Enabled = False;
 	Items.Resolution.Enabled = False;
 	Items.Chromaticity.Enabled = False;
@@ -269,24 +187,34 @@ Procedure RefreshStatus()
 	Items.PaperSize.Enabled = False;
 	Items.DuplexScanning.Enabled = False;
 	Items.CustomizeStandardSettings.Enabled = False;
+	Items.SaveToPDF.Enabled = False;
+	Items.JPGQuality.Enabled = False;
+	Items.TIFFDeflation.Enabled = False;
+	Items.MultipageStorageFormat.Enabled = False;
+	Items.MethodOfConversionToPDF.Enabled = False;
+	Items.ShowScannerDialog.Enabled = False;
 	
-	If Not FilesOperationsInternalClient.InitAddIn() Then
+	NotifyDescription = New NotifyDescription("UpdateStateAfterInitialization", ThisObject);
+	FilesOperationsInternalClient.InitAddIn(NotifyDescription, True);
+EndProcedure
+
+&AtClient
+Procedure UpdateStateAfterInitialization(InitializationCheckResult, Context) Export
+	IsAddInInitialized = InitializationCheckResult.Attached;
+	
+	If Not IsAddInInitialized Then
 		Items.DeviceName.Enabled = False;
 		Return;
 	EndIf;
+	Attachable_Module = InitializationCheckResult.Attachable_Module;
 		
-	If Not FilesOperationsInternalClient.ScanCommandAvailable() Then
-		Items.DeviceName.Enabled = False;
+	If Not FilesOperationsInternalClient.IsReadyForScanning(Attachable_Module) Then
+		Items.DeviceName.InputHint = NStr("en = 'Check scanner connection';");
 		Return;
+	Else
+		Items.DeviceName.InputHint = "";
 	EndIf;
 		
-	DeviceArray = FilesOperationsInternalClient.EnumDevices();
-	For Each String In DeviceArray Do
-		Items.DeviceName.ChoiceList.Add(String);
-	EndDo;
-	Items.DeviceName.Enabled = True;
-	Items.DeviceName.ListChoiceMode = True;
-	
 	If IsBlankString(DeviceName) Then
 		Return;
 	EndIf;
@@ -295,10 +223,16 @@ Procedure RefreshStatus()
 	Items.Resolution.Enabled = True;
 	Items.Chromaticity.Enabled = True;
 	Items.CustomizeStandardSettings.Enabled = True;
+	Items.SaveToPDF.Enabled = True;
+	Items.JPGQuality.Enabled = True;
+	Items.TIFFDeflation.Enabled = True;
+	Items.MultipageStorageFormat.Enabled = True;
+	Items.MethodOfConversionToPDF.Enabled = True;
+	Items.ShowScannerDialog.Enabled = True;
 	
-	DuplexScanningNumber = FilesOperationsInternalClient.GetSetting(
+	DuplexScanningNumber = FilesOperationsInternalClient.GetSetting(Attachable_Module, 
 		DeviceName, "DUPLEX");
-	
+		
 	Items.DuplexScanning.Enabled = (DuplexScanningNumber <> -1);
 	
 	If Not Resolution.IsEmpty() And Not Chromaticity.IsEmpty() Then
@@ -307,85 +241,55 @@ Procedure RefreshStatus()
 		Return;
 	EndIf;
 	
-	PermissionNumber = FilesOperationsInternalClient.GetSetting(DeviceName, "XRESOLUTION");
-	ChromaticityNumber  = FilesOperationsInternalClient.GetSetting(DeviceName, "PIXELTYPE");
-	RotationNumber = FilesOperationsInternalClient.GetSetting(DeviceName, "ROTATION");
-	PaperSizeNumber  = FilesOperationsInternalClient.GetSetting(DeviceName, "SUPPORTEDSIZES");
+	PermissionNumber = FilesOperationsInternalClient.GetSetting(Attachable_Module, DeviceName, "XRESOLUTION");
+	ChromaticityNumber  = FilesOperationsInternalClient.GetSetting(Attachable_Module, DeviceName, "PIXELTYPE");
+	RotationNumber = FilesOperationsInternalClient.GetSetting(Attachable_Module, DeviceName, "ROTATION");
+	PaperSizeNumber  = FilesOperationsInternalClient.GetSetting(Attachable_Module, DeviceName, "SUPPORTEDSIZES");
 	
 	Items.Rotation.Enabled = (RotationNumber <> -1);
 	Items.PaperSize.Enabled = (PaperSizeNumber <> -1);
 	
 	DuplexScanning = ? ((DuplexScanningNumber = 1), True, False);
-	SaveToSettingsScannerParameters(PermissionNumber, ChromaticityNumber, RotationNumber, PaperSizeNumber);
-	
-EndProcedure
-
-&AtServer
-Procedure SaveToSettingsScannerParameters(PermissionNumber, ChromaticityNumber, RotationNumber, PaperSizeNumber) 
-	
+	Modified = True;
 	ConvertScannerParametersToEnums(PermissionNumber, ChromaticityNumber, RotationNumber, PaperSizeNumber);
-			
-	StructuresArray = New Array;
-	
-	SystemInfo = New SystemInfo();
-	ClientID = SystemInfo.ClientID;
-	
-	Item = New Structure;
-	Item.Insert("Object", "ScanningSettings1/Resolution");
-	Item.Insert("Setting", ClientID);
-	Item.Insert("Value", Resolution);
-	StructuresArray.Add(Item);
-	
-	Item = New Structure;
-	Item.Insert("Object", "ScanningSettings1/Chromaticity");
-	Item.Insert("Setting", ClientID);
-	Item.Insert("Value", Chromaticity);
-	StructuresArray.Add(Item);
-	
-	Item = New Structure;
-	Item.Insert("Object", "ScanningSettings1/Rotation");
-	Item.Insert("Setting", ClientID);
-	Item.Insert("Value", Rotation);
-	StructuresArray.Add(Item);
-	
-	Item = New Structure;
-	Item.Insert("Object", "ScanningSettings1/PaperSize");
-	Item.Insert("Setting", ClientID);
-	Item.Insert("Value", PaperSize);
-	StructuresArray.Add(Item);
-	
-	Common.CommonSettingsStorageSaveArray(StructuresArray);
 	
 EndProcedure
 
 &AtClient
 Procedure ReadScannerSettings()
-	
-	Items.ScannedImageFormat.Enabled = Not IsBlankString(DeviceName);
-	Items.Resolution.Enabled = Not IsBlankString(DeviceName);
-	Items.Chromaticity.Enabled = Not IsBlankString(DeviceName);
+	Modified = True;
 	Items.DuplexScanning.Enabled = False;
-	Items.CustomizeStandardSettings.Enabled = Not IsBlankString(DeviceName);
 	
 	If IsBlankString(DeviceName) Then
 		Items.Rotation.Enabled = False;
 		Items.PaperSize.Enabled = False;
 		Return;
+	Else
+		Items.ScannedImageFormat.Enabled = True;
+		Items.Resolution.Enabled = True;
+		Items.Chromaticity.Enabled = True;
+		Items.CustomizeStandardSettings.Enabled = True;
+		Items.SaveToPDF.Enabled = True;
+		Items.JPGQuality.Enabled = True;
+		Items.TIFFDeflation.Enabled = True;
+		Items.MultipageStorageFormat.Enabled = True;
+		Items.MethodOfConversionToPDF.Enabled = True;
+		Items.ShowScannerDialog.Enabled = True;
 	EndIf;
 	
-	PermissionNumber = FilesOperationsInternalClient.GetSetting(
+	PermissionNumber = FilesOperationsInternalClient.GetSetting(Attachable_Module,
 		DeviceName, "XRESOLUTION");
 	
-	ChromaticityNumber = FilesOperationsInternalClient.GetSetting(
+	ChromaticityNumber = FilesOperationsInternalClient.GetSetting(Attachable_Module,
 		DeviceName, "PIXELTYPE");
 	
-	RotationNumber = FilesOperationsInternalClient.GetSetting(
+	RotationNumber = FilesOperationsInternalClient.GetSetting(Attachable_Module,
 		DeviceName, "ROTATION");
 	
-	PaperSizeNumber = FilesOperationsInternalClient.GetSetting(
+	PaperSizeNumber = FilesOperationsInternalClient.GetSetting(Attachable_Module,
 		DeviceName, "SUPPORTEDSIZES");
 	
-	DuplexScanningNumber = FilesOperationsInternalClient.GetSetting(
+	DuplexScanningNumber = FilesOperationsInternalClient.GetSetting(Attachable_Module,
 		DeviceName, "DUPLEX");
 	
 	Items.Rotation.Enabled = (RotationNumber <> -1);
@@ -399,7 +303,7 @@ Procedure ReadScannerSettings()
 		
 EndProcedure
 
-&AtServer
+&AtServerNoContext
 Procedure ConvertScannerParametersToEnums(PermissionNumber, ChromaticityNumber, RotationNumber, PaperSizeNumber) 
 	
 	Result = FilesOperationsInternal.ScannerParametersInEnumerations(PermissionNumber, ChromaticityNumber, RotationNumber, PaperSizeNumber);
@@ -410,97 +314,54 @@ Procedure ConvertScannerParametersToEnums(PermissionNumber, ChromaticityNumber, 
 	
 EndProcedure
 
-&AtServer
-Function ConvertScanningFormatToStorageFormat(ScanningFormat)
-	
-	If ScanningFormat = Enums.ScannedImageFormats.BMP Then
-		Return Enums.SinglePageFileStorageFormats.BMP;
-	ElsIf ScanningFormat = Enums.ScannedImageFormats.GIF Then
-		Return Enums.SinglePageFileStorageFormats.GIF;
-	ElsIf ScanningFormat = Enums.ScannedImageFormats.JPG Then
-		Return Enums.SinglePageFileStorageFormats.JPG;
-	ElsIf ScanningFormat = Enums.ScannedImageFormats.PNG Then
-		Return Enums.SinglePageFileStorageFormats.PNG; 
-	ElsIf ScanningFormat = Enums.ScannedImageFormats.TIF Then
-		Return Enums.SinglePageFileStorageFormats.TIF;
-	EndIf;
-	
-	Return Enums.SinglePageFileStorageFormats.PNG; 
-	
-EndFunction	
-
-&AtServer
-Function ConvertStorageFormatToScanningFormat(StorageFormat)
-	
-	If StorageFormat = Enums.SinglePageFileStorageFormats.BMP Then
-		Return Enums.ScannedImageFormats.BMP;
-	ElsIf StorageFormat = Enums.SinglePageFileStorageFormats.GIF Then
-		Return Enums.ScannedImageFormats.GIF;
-	ElsIf StorageFormat = Enums.SinglePageFileStorageFormats.JPG Then
-		Return Enums.ScannedImageFormats.JPG;
-	ElsIf StorageFormat = Enums.SinglePageFileStorageFormats.PNG Then
-		Return Enums.ScannedImageFormats.PNG; 
-	ElsIf StorageFormat = Enums.SinglePageFileStorageFormats.TIF Then
-		Return Enums.ScannedImageFormats.TIF;
-	EndIf;
-	
-	Return ScannedImageFormat; 
-	
-EndFunction	
-
-&AtServer
+&AtClient
 Procedure ProcessChangesUseImageMagick()
 	
-	If Not UseImageMagickToConvertToPDF Then
-		MultipageStorageFormat = MultiPageTIFFormat;
-		ScannedImageFormat = ConvertStorageFormatToScanningFormat(SinglePageStorageFormat);
-		Items.ScannedImageFormat.Title = NStr("en = 'Format';");
-	Else
-		SinglePageStorageFormat = ConvertScanningFormatToStorageFormat(ScannedImageFormat);
-		Items.ScannedImageFormat.Title = NStr("en = 'Type';");
-	EndIf;	
-	
-	DecorationsVisible = (UseImageMagickToConvertToPDF And (SinglePageStorageFormat = SinglePagePDFFormat));
-	Items.SinglePageStorageFormatDecoration.Visible = DecorationsVisible;
-	Items.ScannedImageFormatDecoration.Visible = DecorationsVisible;
-	
-	ScanningFormatVisibility = (UseImageMagickToConvertToPDF And (SinglePageStorageFormat = SinglePagePDFFormat)) Or (Not UseImageMagickToConvertToPDF);
-	Items.ScanningFormatGroup.Visible = ScanningFormatVisibility;
-	
 	Items.PathToConverterApplication.Enabled = UseImageMagickToConvertToPDF;
-	Items.MultipageStorageFormat.Enabled = UseImageMagickToConvertToPDF;
-	Items.StorageFormatGroup.Visible = UseImageMagickToConvertToPDF;	
 	
 EndProcedure
 
 &AtServer
-Procedure ProcessChangesSinglePageStorageFormat()
+Procedure InstallHints()
 	
-	Items.ScanningFormatGroup.Visible = (SinglePageStorageFormat = SinglePagePDFFormat);
-	
-	If SinglePageStorageFormat = SinglePagePDFFormat Then
-		ScannedImageFormat = ConvertStorageFormatToScanningFormat(SinglePageStorageFormatPrevious);
-	EndIf;	
-	
-	DecorationsVisible = (UseImageMagickToConvertToPDF And (SinglePageStorageFormat = SinglePagePDFFormat));
-	Items.SinglePageStorageFormatDecoration.Visible = DecorationsVisible;
-	Items.ScannedImageFormatDecoration.Visible = DecorationsVisible;
-	
-	If UseImageMagickToConvertToPDF Then
-		If SinglePageStorageFormat = SinglePagePDFFormat Then
-			Items.JPGQuality.Visible = (ScannedImageFormat = JPGFormat);
-			Items.TIFFDeflation.Visible = (ScannedImageFormat = TIFFormat);
-		Else	
-			Items.JPGQuality.Visible = (SinglePageStorageFormat = SinglePageJPGFormat);
-			Items.TIFFDeflation.Visible = (SinglePageStorageFormat = SinglePageTIFFormat);
+	FormatTooltip = "";
+	ExtendedTooltip = String(Items.SaveToPDF.ExtendedTooltip.Title); 
+	Hints = StrSplit(ExtendedTooltip, Chars.LF);
+	CurFormat = String(ScannedImageFormat);
+	For Each ToolTip In Hints Do
+		If StrStartsWith(ToolTip, CurFormat) Then
+			 FormatTooltip = ToolTip;
 		EndIf;
-	Else	
-		Items.JPGQuality.Visible = (ScannedImageFormat = JPGFormat);
-		Items.TIFFDeflation.Visible = (ScannedImageFormat = TIFFormat);
+	EndDo;
+	
+	Items.SinglePageDocumentFormatDetails.Title = FormatTooltip;
+	
+EndProcedure
+
+&AtClient
+Procedure DeviceNameChoiceStartCompletion(SelectedElement, Item) Export
+	If SelectedElement <> Undefined Then
+		DeviceName = SelectedElement.Value;
+		DeviceNameOnChange(Item);
 	EndIf;
-	
-	SinglePageStorageFormatPrevious = SinglePageStorageFormat;
-	
+EndProcedure
+
+&AtClient
+Procedure OKCompletion(UserScanSettings)
+	FilesOperationsClient.SaveUserScanSettings(UserScanSettings);
+	Result = New Structure("Rescanning", Rescanning);
+	Close(Result);
+EndProcedure
+
+&AtClient
+Procedure AfterCheckInstalledConversionApp(RunResult, UserScanSettings) Export
+	If StrFind(RunResult.OutputStream, "ImageMagick") <> 0 Then
+		OKCompletion(UserScanSettings);
+	Else
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Specified path to the %1 application is incorrect.';"), "ImageMagick"); 
+		CommonClient.MessageToUser(MessageText, , "PathToConverterApplication");
+	EndIf;
 EndProcedure
 
 #EndRegion

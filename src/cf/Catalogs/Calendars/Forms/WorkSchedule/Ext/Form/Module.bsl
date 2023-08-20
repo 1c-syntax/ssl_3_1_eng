@@ -135,9 +135,9 @@ EndProcedure
 Procedure AdjustTimeFieldsFormat()
 	
 	TimeFormat = ?(WorkSchedules.TwelveHourTimeFormat(),
-		NStr("en = 'DF=''hh:mm tt''; DE=';"), NStr("en = 'DF=hh:mm tt; DE=';"));
+		NStr("en = 'DF=''hh:mm tt''; DE=';"), NStr("en = 'DF=hh:mm; DE=';"));
 	EditingTimeFormat = ?(WorkSchedules.TwelveHourTimeFormat(),
-		NStr("en = 'DF=''hh:mm tt''';"), NStr("en = 'DF=hh:mm tt';"));
+		NStr("en = 'DF=''hh:mm tt''';"), NStr("en = 'DF=hh:mm';"));
 	
 	Items.WorkScheduleBeginTime.Format = TimeFormat;
 	Items.WorkScheduleBeginTime.EditFormat = EditingTimeFormat;

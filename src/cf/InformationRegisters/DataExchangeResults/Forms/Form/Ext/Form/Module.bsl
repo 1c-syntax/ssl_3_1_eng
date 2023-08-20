@@ -616,7 +616,7 @@ Procedure RefreshIssueDetailsDisplay()
 EndProcedure
 
 &AtServer
-Function PrepareEventLogFilters();
+Function PrepareEventLogFilters()
 	
 	WarningsLevels = New Array();
 	WarningsLevels.Add(String(EventLogLevel.Error));

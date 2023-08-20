@@ -259,13 +259,29 @@ EndProcedure
 &AtServer
 Function ExecuteChecksAtServer(Checks)
 	
-	If TimeConsumingOperation <> Undefined Then
-		TimeConsumingOperations.CancelJobExecution(TimeConsumingOperation.JobID);
-	EndIf;
+	FormIdentifier = New UUID;
 	
-	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
+	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(FormIdentifier);
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Run data integrity checks';");
-	Return TimeConsumingOperations.ExecuteProcedure(ExecutionParameters, "AccountingAuditInternal.ExecuteChecks", Checks);
+	
+	MethodParameters        = New Map;
+	CheckUpperBoundary = Checks.UBound();
+	
+	For IndexOfCheck = 0 To CheckUpperBoundary Do
+		ParametersArray = New Array;
+		ParametersArray.Add(Checks[IndexOfCheck]);
+		
+		MethodParameters.Insert(IndexOfCheck, ParametersArray);
+	EndDo;
+	
+	ProcedureName = "AccountingAuditInternal.ExecuteCheck";
+	
+	ExecutionResult = TimeConsumingOperations.ExecuteProcedureinMultipleThreads(
+		ProcedureName,
+		ExecutionParameters,
+		MethodParameters);
+	
+	Return ExecutionResult;
 	
 EndFunction
 
@@ -306,14 +322,7 @@ EndProcedure
 &AtServer
 Procedure RestoreByInitialFillingAtServer()
 	
-	If Common.DataSeparationEnabled() Then
-		AccountingAuditInternal.UpdateAuxiliaryRegisterDataByConfigurationChanges();
-	Else
-		AccountingAuditInternal.UpdateAccountingChecksParameters();
-		If AccountingAuditInternal.HasChangesOfAccountingChecksParameters() Then
-			AccountingAuditInternal.UpdateAuxiliaryRegisterDataByConfigurationChanges();
-		EndIf;
-	EndIf;
+	AccountingAudit.UpdateAccountingChecksParameters();
 	
 EndProcedure
 

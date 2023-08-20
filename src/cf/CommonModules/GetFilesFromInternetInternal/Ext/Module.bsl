@@ -150,22 +150,25 @@ EndFunction
 //		Port — number — a port used for connecting to the server.
 //		* — mutually exclusive keys.
 //
-// ProxySettings - Map:
-//		UseProxy - indicates whether to use proxy server.
-//		BypassProxyOnLocal - indicates whether to use proxy server for local addresses.
-//		UseSystemSettings - indicates whether to use proxy server system settings.
-//		Server       - proxy server address.
-//		Port         - proxy server port.
-//		User - username for authorization on proxy server.
-//		Password       - user password.
-//		UseOSAuthentication - Boolean - a flag that indicates the use of authentication by means of the operating system.
+// ProxySettings - Map of KeyAndValue:
+//     * Key - String
+//     * Value - Arbitrary
+//    
+//		
+//		
+//		
+//		
+//		
+//		
+//		
+//		
 //
-// SavingSetting - Map - contains parameters to save the downloaded file.
-//		StorageLocation - String - can include
-//			"Server" - server,
-//			"TemporaryStorage" - a temporary storage.
-//		Path - String (optional parameter) - path to folder at client or at server
-//			or temporary storage address will be automatically generated if not specified.
+// 
+//		
+//			
+//			
+//		
+//			
 //
 // Returns:
 //   Structure:
@@ -827,7 +830,7 @@ EndFunction
 // Returns proxy according to settings ProxyServerSetting for the specified Protocol protocol.
 //
 // Parameters:
-//   ProxyServerSetting - Map of КлючЗначение:
+//   ProxyServerSetting - Map of KeyAndValue:
 //    * Key - String - 
 //    * Value - Arbitrary
 //    

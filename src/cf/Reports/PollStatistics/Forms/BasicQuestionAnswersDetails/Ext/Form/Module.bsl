@@ -17,7 +17,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Return;
 	EndIf;
 	
-	TitleTemplate1 =  NStr("en = 'Response to question %1 of survey %2, %3.';");
+	TitleTemplate1 =  NStr("en = 'Responses to question %1 of survey %2, %3.';");
 	Title = StringFunctionsClientServer.SubstituteParametersToString(TitleTemplate1, FullCode, SurveyDescription, Format(SurveyDate,"DLF=D"));
 	
 	GenerateReport();

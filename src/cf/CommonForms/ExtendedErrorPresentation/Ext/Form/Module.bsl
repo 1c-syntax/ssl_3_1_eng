@@ -255,7 +255,16 @@ Function AdditionalData()
 	AdditionalDataForErrorClassifier = DigitalSignatureInternalClient.AdditionalDataForErrorClassifier();
 	Certificate = CommonClientServer.StructureProperty(AdditionalData, "Certificate", Undefined);
 	If ValueIsFilled(Certificate) Then
-		If TypeOf(Certificate) = Type("CatalogRef.DigitalSignatureAndEncryptionKeysCertificates") Then
+		If TypeOf(Certificate) = Type("Array") Then
+			If Certificate.Count() > 0 Then
+				If TypeOf(Certificate[0]) = Type("CatalogRef.DigitalSignatureAndEncryptionKeysCertificates") Then
+					AdditionalDataForErrorClassifier.Certificate = Certificate[0];
+					AdditionalDataForErrorClassifier.CertificateData = CertificateData(Certificate[0], UUID);
+				Else
+					AdditionalDataForErrorClassifier.CertificateData = Certificate[0];
+				EndIf;
+			EndIf;
+		ElsIf TypeOf(Certificate) = Type("CatalogRef.DigitalSignatureAndEncryptionKeysCertificates") Then
 			AdditionalDataForErrorClassifier.Certificate = Certificate;
 			AdditionalDataForErrorClassifier.CertificateData = CertificateData(Certificate, UUID);
 		ElsIf TypeOf(Certificate) = Type("BinaryData") Then

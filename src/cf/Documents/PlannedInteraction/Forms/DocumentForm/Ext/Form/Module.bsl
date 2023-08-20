@@ -233,7 +233,7 @@ Procedure DetailsPagesAdditionalOnCurrentPageChange(Item, CurrentPage)
 		PropertiesExecuteDeferredInitialization();
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
 		ModulePropertyManagerClient.AfterImportAdditionalAttributes(ThisObject);
-	EndIf;;
+	EndIf;
 	// End StandardSubsystems.Properties
 	
 EndProcedure

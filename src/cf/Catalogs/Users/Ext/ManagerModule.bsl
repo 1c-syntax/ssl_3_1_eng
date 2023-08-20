@@ -1,11 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
+#If Not MobileStandaloneServer Then
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -149,14 +149,14 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	ObjectsWithIssuesCount = 0;
 	ObjectsProcessed = 0;
-	ErrorsList = New Array;
+	ErrorList = New Array;
 	
 	While UserRef.Next() Do
 		Result = UsersInternal.UpdateEmailForPasswordRecovery(UserRef.Ref);
 		
 		If Result.Status = "Error" Then
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
-			ErrorsList.Add(Result.ErrorText);
+			ErrorList.Add(Result.ErrorText);
 		Else
 			ObjectsProcessed = ObjectsProcessed + 1;
 			InfobaseUpdate.MarkProcessingCompletion(UserRef.Ref);
@@ -169,7 +169,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Couldn''t process (skipped) some external user information records: %1
-			|%2';"), ObjectsWithIssuesCount, StrConcat(ErrorsList, Chars.LF));
+			|%2';"), ObjectsWithIssuesCount, StrConcat(ErrorList, Chars.LF));
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
@@ -190,5 +190,7 @@ Procedure EnableStandardPasswordRecoverySettings()
 EndProcedure
 
 #EndRegion
+
+#EndIf
 
 #EndIf

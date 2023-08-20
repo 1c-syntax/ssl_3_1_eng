@@ -474,7 +474,7 @@ Function ReadObjectFromStream(ReaderStream)
 	
 	If ReaderStream.NodeType <> XMLNodeType.StartElement Or ReaderStream.Name <> "Data" Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'XML reading error. Incorrect file format. Awaiting %1 element start.';"),
+			NStr("en = 'XML reading error. Invalid file format. Start of ""%1"" element is expected.';"),
 			"Data");
 	EndIf;
 	

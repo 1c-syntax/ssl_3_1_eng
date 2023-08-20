@@ -936,6 +936,8 @@ EndFunction
 //                 
 //                 
 //                 See https://its.1c.eu/db/v83doc#bookmark:dev:TI000001866
+//      * AutoUpdate - Boolean - 
+//                 
 //
 //
 // Example:
@@ -953,6 +955,7 @@ Function AddInAttachmentParameters() Export
 	Parameters.Insert("ExplanationText", "");
 	Parameters.Insert("ObjectsCreationIDs", New Array);
 	Parameters.Insert("Isolated", Undefined);
+	Parameters.Insert("AutoUpdate", True);
 	
 	Return Parameters;
 	
@@ -1281,7 +1284,6 @@ Procedure PromptUserToBackUp() Export
 EndProcedure
 
 #EndRegion
-
 #Region ObsoleteProceduresAndFunctions
 
 // Deprecated. Instead, use:
@@ -1405,7 +1407,7 @@ EndFunction
 // Prevents executable files from opening.
 //
 // Parameters:
-//  PathToFile - String - the full path to the file to open.
+//  PathToFile - String -
 //  Notification - NotifyDescription - notification on file open attempt.
 //      If the notification is not specified and an error occurs, the method shows a warning:
 //      * ApplicationStarted - Boolean - True if the external application opened successfully.
@@ -1432,7 +1434,7 @@ EndProcedure
 // If a file path is specified, the pointer is placed on the file.
 //
 // Parameters:
-//  PathToDirectoryOrFile - String - the full path to a file or folder on the drive.
+//  PathToDirectoryOrFile - String - full path to the file or directory.
 //
 // Example:
 //  // For Windows OS

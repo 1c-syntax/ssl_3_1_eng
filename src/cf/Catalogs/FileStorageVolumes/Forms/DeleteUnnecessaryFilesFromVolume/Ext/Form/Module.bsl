@@ -12,7 +12,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	Parameters.Property("FileStorageVolume", FileStorageVolume);
+	FileStorageVolume = Parameters.FileStorageVolume;
 	
 	FillExcessFilesTable();
 	UnnecessaryFilesCount = UnnecessaryFiles.Count();
@@ -111,7 +111,7 @@ EndProcedure
 Procedure DeleteUnnecessaryFiles(Command)
 	
 	If UnnecessaryFilesCount = 0 Then
-		ShowMessageBox(, NStr("en = 'There are no extraneous files on the hard drive.';"));
+		ShowMessageBox(, NStr("en = 'No extraneous files in the network directory';"));
 		Return;
 	EndIf;
 	
@@ -354,7 +354,7 @@ Procedure ProcessNextFileError(ErrorInfo, StandardProcessing, AdditionalParamete
 		ProcessErrorMessage(CurrentFile.FullName, ErrorProcessing.DetailErrorDescription(ErrorInfo));
 	Else
 		ExplanationText = NStr("en = 'For detailed description of the error,
-		|see the earlier event ""Files.Delete files from volume""';");
+			|see the earlier event ""Files.Delete files from volume""';");
 		ProcessErrorMessage(CurrentFile.FullName, ErrorInfo + Chars.LF + ExplanationText);
 	EndIf;
 	
@@ -436,7 +436,7 @@ Procedure FillExcessFilesTable()
 		NewRow.FullName        = File.FullName;
 		NewRow.Path             = File.Path;
 		NewRow.Extension       = File.Extension;
-		NewRow.CheckStatus   = NStr("en = 'Extraneous files (files on the hard drive that are not registered in the application)';");
+		NewRow.CheckStatus   = NStr("en = 'Extraneous files (files in the volume that are not registered in the application)';");
 		NewRow.Count       = 1;
 		NewRow.Volume              = FileStorageVolume;
 		
@@ -445,7 +445,7 @@ Procedure FillExcessFilesTable()
 	FilesOperationsInVolumesInternal.FillInExtraFiles(FilesTableOnHardDrive, FileStorageVolume);
 	FilesTableOnHardDrive.Indexes.Add("CheckStatus");
 	ExcessFilesArray = FilesTableOnHardDrive.FindRows(
-		New Structure("CheckStatus", NStr("en = 'Extraneous files (files on the hard drive that are not registered in the application)';")));
+		New Structure("CheckStatus", NStr("en = 'Extraneous files (files in the volume that are not registered in the application)';")));
 	
 	For Each File In ExcessFilesArray Do
 		NewRow = UnnecessaryFiles.Add();
@@ -523,9 +523,9 @@ Procedure ProcessErrorMessage(FileName, ErrorInfo)
 		EventLogLevel.Information,,,
 		StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot delete file
-				|%1
-				|from the hard drive. Reason:
-				|%2';"),
+				|""%1""
+				|due to:
+				|%2.';"),
 			FileName,
 			ErrorInfo));
 		

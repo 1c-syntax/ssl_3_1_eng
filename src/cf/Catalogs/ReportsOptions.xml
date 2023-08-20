@@ -1253,6 +1253,46 @@ Intended for application updates.</v8:content>
 					<DataHistory>Use</DataHistory>
 				</Properties>
 			</Attribute>
+			<Attribute uuid="7b074b91-3c8e-48b3-8858-b6ea1c531f66">
+				<Properties>
+					<Name>Purpose</Name>
+					<Synonym>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Use for</v8:content>
+						</v8:item>
+					</Synonym>
+					<Comment/>
+					<Type>
+						<v8:Type>cfg:EnumRef.ReportOptionPurposes</v8:Type>
+					</Type>
+					<PasswordMode>false</PasswordMode>
+					<Format/>
+					<EditFormat/>
+					<ToolTip/>
+					<MarkNegatives>false</MarkNegatives>
+					<Mask/>
+					<MultiLine>false</MultiLine>
+					<ExtendedEdit>false</ExtendedEdit>
+					<MinValue xsi:nil="true"/>
+					<MaxValue xsi:nil="true"/>
+					<FillFromFillingValue>true</FillFromFillingValue>
+					<FillValue xsi:type="xr:DesignTimeRef">Enum.ReportOptionPurposes.EnumValue.ForComputersAndTablets</FillValue>
+					<FillChecking>ShowError</FillChecking>
+					<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
+					<ChoiceParameterLinks/>
+					<ChoiceParameters/>
+					<QuickChoice>Auto</QuickChoice>
+					<CreateOnInput>Auto</CreateOnInput>
+					<ChoiceForm/>
+					<LinkByType/>
+					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+					<Use>ForItem</Use>
+					<Indexing>DontIndex</Indexing>
+					<FullTextSearch>Use</FullTextSearch>
+					<DataHistory>Use</DataHistory>
+				</Properties>
+			</Attribute>
 			<TabularSection uuid="3df19dbf-efe7-4e31-99ad-fafb59ec1329">
 				<InternalInfo>
 					<xr:GeneratedType name="CatalogTabularSection.ReportsOptions.Location" category="TabularSection">
@@ -1269,7 +1309,7 @@ Intended for application updates.</v8:content>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Layout</v8:content>
+							<v8:content>Location</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -1716,7 +1756,7 @@ Intended for application updates.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Edit report layouts.</v8:content>
+							<v8:content>Set up report location</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Picture/>
@@ -1756,7 +1796,7 @@ Intended for application updates.</v8:content>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Reset report layout settings</v8:content>
+							<v8:content>Reset report location settings</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>

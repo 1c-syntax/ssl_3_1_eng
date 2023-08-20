@@ -7,6 +7,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
+#If Not MobileStandaloneServer Then
+
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Public
@@ -2507,7 +2509,6 @@ Procedure AddMetadataObjectProperties(Val MetadataObjectCollection,
 		EndIf;
 		
 		If Not CollectionProperties.NoData
-		   And Not ExtensionsObjects
 		   And Not StandardSubsystemsServer.IsRegisterTable(CollectionProperties.SingularName)
 		   And StrFind(CollectionProperties.SingularName, "Constant") = 0 Then
 			
@@ -4478,5 +4479,7 @@ Procedure ReportError(Val LongDesc, ExtensionsObjects)
 EndProcedure
 
 #EndRegion
+
+#EndIf
 
 #EndIf

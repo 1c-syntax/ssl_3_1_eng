@@ -566,7 +566,7 @@ Function DayPartPresentation(Val DayPart, TwelveHourTimeFormat)
 	EndIf;
 	
 	TimeFormat = ?(TwelveHourTimeFormat,
-		NStr("en = 'DF=''hh:mm tt''';"), NStr("en = 'DF=hh:mm tt; DE=';"));
+		NStr("en = 'DF=''hh:mm tt''';"), NStr("en = 'DF=hh:mm; DE=';"));
 		
 	Return Format(DayPart, TimeFormat);
 	

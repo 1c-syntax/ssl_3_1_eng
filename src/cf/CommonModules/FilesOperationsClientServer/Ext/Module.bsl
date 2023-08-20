@@ -58,6 +58,46 @@ Procedure DetermineAttachedFileForm(Source, FormType, Parameters,
 		
 EndProcedure
 
+// 
+// 
+// Returns:
+//  Structure - 
+//   * ShowScannerDialog - Boolean
+//   * DeviceName - String -
+//   * ScannedImageFormat - EnumRef.ScannedImageFormats
+//   * SaveToPDF - Boolean
+//   * MultipageStorageFormat - EnumRef.MultipageFileStorageFormats 
+//   * Resolution - EnumRef.ScannedImageResolutions
+//   * Chromaticity - EnumRef.ImageColorDepths
+//   * Rotation - EnumRef.PictureRotationOptions
+//   * PaperSize - EnumRef.PaperSizes
+//   * DuplexScanning - Boolean
+//   * UseImageMagickToConvertToPDF - Boolean
+//   * JPGQuality - Number
+//   * TIFFDeflation - EnumRef.TIFFCompressionTypes
+//   * PathToConverterApplication - String
+//   * SinglePageStorageFormat - EnumRef.SinglePageFileStorageFormats
+//
+Function UserScanSettings() Export
+	UserScanSettings = New Structure;
+	UserScanSettings.Insert("ShowScannerDialog", False);
+	UserScanSettings.Insert("DeviceName", "");
+	UserScanSettings.Insert("ScannedImageFormat");
+	UserScanSettings.Insert("SaveToPDF", False);
+	UserScanSettings.Insert("MultipageStorageFormat");
+	UserScanSettings.Insert("Resolution");
+	UserScanSettings.Insert("Chromaticity");
+	UserScanSettings.Insert("Rotation");
+	UserScanSettings.Insert("PaperSize");
+	UserScanSettings.Insert("DuplexScanning", False);
+	UserScanSettings.Insert("UseImageMagickToConvertToPDF", False);
+	UserScanSettings.Insert("JPGQuality", 0);
+	UserScanSettings.Insert("TIFFDeflation");
+	UserScanSettings.Insert("PathToConverterApplication", "");
+	UserScanSettings.Insert("SinglePageStorageFormat");
+	Return UserScanSettings;
+EndFunction
+
 #EndRegion
 
 #Region Internal

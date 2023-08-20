@@ -247,7 +247,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		ToDoItem.Id  = IdentifierBanks;
 		ToDoItem.HasToDoItems       = HasToDoItems;
 		ToDoItem.Important         = Result.ClassifierIsExpired;
-		ToDoItem.Presentation  = NStr("en = 'Справочник БИК устарел';");
+		ToDoItem.Presentation  = NStr("en = 'BIC catalog is outdated';");
 		ToDoItem.ToolTip      = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The last update was %1 ago.';"), Result.AmountOfDelayByLine);
 		ToDoItem.Form          = "DataProcessor.ImportBankClassifier.Form";
 		ToDoItem.Owner       = Section;
@@ -265,8 +265,12 @@ Procedure OnAddClientParametersOnStart(Parameters) Export
 		And AccessRight("Update", Metadata.Catalogs.BankClassifier) // A user with sufficient rights.
 		And Not BankManagerInternal.ClassifierUpToDate()); // Classifier is already updated.
 	
-	EnableNotifications = Not Common.SubsystemExists("StandardSubsystems.ToDoList");
-	BankManagerOverridable.OnDetermineIfOutdatedClassifierWarningRequired(EnableNotifications);
+	If Not Common.DataSeparationEnabled() Then
+		EnableNotifications = False;
+	Else
+		EnableNotifications = Not Common.SubsystemExists("StandardSubsystems.ToDoList");
+		BankManagerOverridable.OnDetermineIfOutdatedClassifierWarningRequired(EnableNotifications);
+	EndIf;
 	
 	Parameters.Insert("Banks", New FixedStructure("OutputMessageOnInvalidity", (OutputMessageOnInvalidity And EnableNotifications)));
 	

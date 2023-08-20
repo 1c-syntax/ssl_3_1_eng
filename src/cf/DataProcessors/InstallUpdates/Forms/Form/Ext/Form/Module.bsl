@@ -517,12 +517,12 @@ Function PropertiesOfTheUpdateFileSelectionDialog()
 		
 	Else
 		
-		Properties.Title = NStr("en = 'Select configuration update delivery';");
+		Properties.Title = NStr("en = 'Select configuration updates';");
 		
 		DescriptionOfTheDialogFilter = New Array;
 		
-		DescriptionOfTheDialogFilter.Add(NStr("en = 'Configuration delivery files (*.cf)|*.cf';"));
-		DescriptionOfTheDialogFilter.Add(NStr("en = 'Configuration update delivery files(*.cfu)|*.cfu';"));
+		DescriptionOfTheDialogFilter.Add(NStr("en = 'Configuration files (*.cf)|*.cf';"));
+		DescriptionOfTheDialogFilter.Add(NStr("en = 'Update files(*.cfu)|*.cfu';"));
 		
 		DescriptionOfTheDialogFilter.Insert(0, NStr("en = 'All files (*.cf*;*.cfu;*.cfe;*.zip)|*.cf*;*.cfu;*.cfe;*.zip';"));
 		DescriptionOfTheDialogFilter.Add(NStr("en = 'Patch files (*.cfe*;*.zip)|*.cfe*;*.zip';"));
@@ -773,7 +773,7 @@ Procedure NavigateFromUpdateFilePage()
 	For Each FileName In SelectedFilesNames Do
 		If Not ThisIsTheFixFile(FileName) Then
 			If Not IsBlankString(Object.UpdateFileName) Then
-				Raise NStr("en = 'Please select a single file.';");
+				Raise NStr("en = 'Please select a single update file.';");
 			EndIf;
 			Object.UpdateFileName = FileName;
 		EndIf;
@@ -781,14 +781,14 @@ Procedure NavigateFromUpdateFilePage()
 	
 	If UpdateFileRequired = 1 Then
 		If Not ValueIsFilled(SelectedFiles) Then
-			CommonClient.MessageToUser(NStr("en = 'Please select a configuration update delivery file.';"),,"Object.UpdateFileName");
+			CommonClient.MessageToUser(NStr("en = 'Please select an update file.';"),,"Object.UpdateFileName");
 			CurrentItem = Items.UpdateFileField;
 			Return;
 		EndIf;
 		If Not IsBlankString(Object.UpdateFileName) Then
 			File = New File(Object.UpdateFileName);
 			If Not File.Exists() Or Not File.IsFile() Then
-				CommonClient.MessageToUser(NStr("en = 'The configuration update delivery file is not found.';"),,"Object.UpdateFileName");
+				CommonClient.MessageToUser(NStr("en = 'The update file is not found.';"),,"Object.UpdateFileName");
 				CurrentItem = Items.UpdateFileField;
 				Return;
 			EndIf;
@@ -817,7 +817,7 @@ Procedure CheckUpdateFilesApplicability(Result, AdditionalParameters) Export
 		Return;
 	EndIf;
 	
-	// Checking applicability of update delivery files only in a file infobase.
+	// Check applicability of update files only in a file infobase.
 	If Not CommonClient.FileInfobase() Then
 		OnUpdateLegalityCheck();
 		Return;

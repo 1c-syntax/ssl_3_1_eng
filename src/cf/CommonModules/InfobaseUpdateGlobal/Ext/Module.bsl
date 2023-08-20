@@ -14,6 +14,12 @@
 //
 Procedure CheckDeferredUpdateStatus() Export
 	
+#If MobileClient Then
+	If MainServerAvailable() = False Then
+		Return;
+	EndIf;
+#EndIf
+	
 	ClientParameters = StandardSubsystemsClient.ClientParametersOnStart();
 	
 	If ClientParameters.Property("ShowInvalidHandlersMessage") Then

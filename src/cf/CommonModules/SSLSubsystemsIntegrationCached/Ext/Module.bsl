@@ -33,4 +33,23 @@ Function SubscriptionsOSL() Export
 	
 EndFunction
 
+Function PELSubscriptions() Export
+	
+	Subscriptions = SSLSubsystemsIntegration.SSLEvents();
+	
+	If Common.SubsystemExists("EquipmentSupport") Then
+		
+		If Metadata.CommonModules.Find("PELSubsystemsIntegration") = Undefined Then
+			Return Subscriptions;
+		EndIf;
+		
+		ModulePELSubsystemsIntegration = Common.CommonModule("PELSubsystemsIntegration");
+		ModulePELSubsystemsIntegration.OnDefineEventSubscriptionsSSL(Subscriptions);
+		
+	EndIf;
+	
+	Return Subscriptions;
+	
+EndFunction
+
 #EndRegion

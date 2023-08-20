@@ -40,6 +40,16 @@ Procedure UpdatePrefixes(ExchangeNode, Prefix = "", CorrespondentPrefix = "") Ex
 	
 EndProcedure
 
+Procedure SetNameOfCorrespondentExchangePlan(ExchangeNode, CorrespondentExchangePlanName) Export
+
+	RecordStructure = New Structure;
+	RecordStructure.Insert("InfobaseNode", ExchangeNode);
+	RecordStructure.Insert("CorrespondentExchangePlanName", CorrespondentExchangePlanName);
+
+	UpdateRecord(RecordStructure);
+	
+EndProcedure
+
 #EndRegion
 
 #Region Private
@@ -449,6 +459,29 @@ Function RegistrationWhileLooping(ExchangeNode) Export
 	
 	Return Not Result.IsEmpty();
 	
+EndFunction
+
+Function CorrespondentExchangePlanName (ExchangeNode) Export
+
+	Result = "";
+	
+	Query = New Query(
+		"SELECT
+		|	CommonInfobasesNodesSettings.CorrespondentExchangePlanName AS CorrespondentExchangePlanName
+		|FROM
+		|	InformationRegister.CommonInfobasesNodesSettings AS CommonInfobasesNodesSettings
+		|WHERE
+		|	CommonInfobasesNodesSettings.InfobaseNode = &ExchangeNode");
+	
+	Query.SetParameter("ExchangeNode", ExchangeNode);
+	
+	Selection = Query.Execute().Select();
+	If Selection.Next() Then
+		Result = Selection.CorrespondentExchangePlanName;
+	EndIf;
+	
+	Return Result;
+		
 EndFunction
 
 // Updates a register record by the passed structure values.

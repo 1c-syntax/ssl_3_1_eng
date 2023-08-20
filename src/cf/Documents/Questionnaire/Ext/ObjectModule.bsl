@@ -34,7 +34,8 @@ Procedure Posting(Cancel, PostingMode)
 	|	TableComposition.CellNumber,
 	|	TableComposition.Response,
 	|	TableComposition.OpenAnswer,
-	|	TableComposition.LineNumber
+	|	TableComposition.LineNumber,
+	|	TableComposition.IsUnanswered AS IsUnanswered
 	|INTO Content
 	|FROM
 	|	&TableComposition AS TableComposition
@@ -45,12 +46,16 @@ Procedure Posting(Cancel, PostingMode)
 	|	Content.DoQueryBox,
 	|	Content.ElementaryQuestion,
 	|	Content.CellNumber,
-	|	Content.Response,
+	|	CASE
+	|		WHEN NOT Content.IsUnanswered
+	|			THEN Content.Response
+	|	END AS Response,
 	|	Content.OpenAnswer,
 	|	TRUE AS Active,
 	|	&Ref AS Recorder,
 	|	&Ref AS Questionnaire,
-	|	Content.LineNumber AS LineNumber
+	|	Content.LineNumber AS LineNumber,
+	|	Content.IsUnanswered AS IsUnanswered
 	|FROM
 	|	Content AS Content";
 	

@@ -720,7 +720,7 @@ Procedure CheckSettingExistence(FileOwner, FileOwnerType, Action, ClearingPeriod
 	Query.SetParameter("FileOwner", FileOwner);
 	Query.SetParameter("FileOwnerType", FileOwnerType);
 	
-	RecordsCount = Query.Execute().Unload().Count();;
+	RecordsCount = Query.Execute().Unload().Count();
 	
 	If RecordsCount = 0 Then
 		SaveCurrentObjectSettings(FileOwner, FileOwnerType, Action, ClearingPeriod, IsFile);

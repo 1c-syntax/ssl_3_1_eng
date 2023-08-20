@@ -38,6 +38,7 @@ Function SetPropertiesTypes(Ref, ConsiderDeletionMark = True) Export
 	SetPropertiesTypes = New Structure;
 	SetPropertiesTypes.Insert("AdditionalAttributes", False);
 	SetPropertiesTypes.Insert("AdditionalInfo",  False);
+	SetPropertiesTypes.Insert("Labels",  False);
 	
 	RefType = Undefined;
 	OwnerMetadata = PropertyManagerInternal.SetPropertiesValuesOwnerMetadata(Ref, ConsiderDeletionMark, RefType);
@@ -50,13 +51,20 @@ Function SetPropertiesTypes(Ref, ConsiderDeletionMark = True) Export
 	SetPropertiesTypes.Insert(
 		"AdditionalAttributes",
 		OwnerMetadata <> Undefined
-		And OwnerMetadata.TabularSections.Find("AdditionalAttributes") <> Undefined );
+		And OwnerMetadata.TabularSections.Find("AdditionalAttributes") <> Undefined);
 	
 	// 
 	SetPropertiesTypes.Insert(
 		"AdditionalInfo",
 		      Metadata.CommonCommands.Find("AdditionalInfoCommandBar") <> Undefined
 		    And Metadata.CommonCommands.AdditionalInfoCommandBar.CommandParameterType.ContainsType(RefType));
+	
+	// 
+	LabelsOwners = Metadata.DefinedTypes.LabelsOwner.Type;
+	SetPropertiesTypes.Insert(
+		"Labels",
+		OwnerMetadata <> Undefined
+		And LabelsOwners.ContainsType(RefType));
 	
 	Return New FixedStructure(SetPropertiesTypes);
 	

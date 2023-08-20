@@ -74,7 +74,7 @@ EndProcedure
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	If UserAccountKind = "Personal1" And Not ValueIsFilled(Object.AccountOwner) Then 
 		Cancel = True;
-		MessageText = NStr("en = 'Please select the account owner.';");
+		MessageText = NStr("en = 'Select the account owner.';");
 		Common.MessageToUser(MessageText, , "Object.AccountOwner");
 	EndIf;
 EndProcedure
@@ -109,7 +109,7 @@ EndProcedure
 &AtClient
 Procedure AfterWrite(WriteParameters)
 	
-	Notify("Write_EmailAccount",,Object.Ref);
+	CommonClient.NotifyObjectChanged(Object.Ref);
 	
 	If WriteParameters.Property("WriteAndClose") Then
 		Close();
@@ -177,10 +177,10 @@ EndProcedure
 Procedure ShowCorrectionMethod(WayFix, AdditionalParameters = Undefined) Export
 
 	If WayFix = "EnableUseAuthorizationSMTP" Then
-		CommonClient.MessageToUser(NStr("en = 'Enable authorization on the outgoing email server.';"),
+		CommonClient.MessageToUser(NStr("en = 'Enable authorization on the outgoing mail server.';"),
 			Object.Ref, , "Object.AuthorizationRequiredOnSendEmails");
 	ElsIf WayFix = "Readjust" Then
-		CommonClient.MessageToUser(NStr("en = 'To reconfigure email, click ""Reconfigure"".';"),
+		CommonClient.MessageToUser(NStr("en = 'To reconfigure your account, click ""Reconfigure"".';"),
 			Object.Ref);
 	ElsIf WayFix = "UseSTARTTLSForIncomingMail" Then
 		CommonClient.MessageToUser(NStr("en = 'Switch encryption to STARTTLS (for incoming emails).';"),

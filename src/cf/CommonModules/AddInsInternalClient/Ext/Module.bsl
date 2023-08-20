@@ -265,15 +265,23 @@ Function AddInAvailabilityResult() Export
 	
 EndFunction
 
+// 
+// 
+// Parameters:
+//  Attributes - See AddInsInternal.РеквизитыКомпоненты
+// 
+// Returns:
+//  Boolean - 
+//
 Function CurrentClientIsSupportedByAddIn(Attributes)
 	
 	SystemInfo = New SystemInfo;
-	
-	Browser = Undefined;
+	Browser = Undefined;                        
 #If WebClient Then
 	String = SystemInfo.UserAgentInformation;
-	
-	If StrFind(String, "Chrome/") > 0 Then
+	If StrFind(String, "YaBrowser/") > 0 Then
+		Browser = "YandexBrowser";
+	ElsIf StrFind(String, "Chrome/") > 0 Then
 		Browser = "Chrome";
 	ElsIf StrFind(String, "MSIE") > 0 Then
 		Browser = "MSIE";
@@ -297,6 +305,10 @@ Function CurrentClientIsSupportedByAddIn(Attributes)
 		If Browser = "Chrome" Then
 			Return Attributes.Linux_x86_Chrome;
 		EndIf;
+		
+		If Browser = "YandexBrowser" Then
+			Return Attributes.Linux_x86_YandexBrowser;
+		EndIf;
 			
 	ElsIf SystemInfo.PlatformType = PlatformType.Linux_x86_64 Then
 		
@@ -310,6 +322,10 @@ Function CurrentClientIsSupportedByAddIn(Attributes)
 		
 		If Browser = "Chrome" Then
 			Return Attributes.Linux_x86_64_Chrome;
+		EndIf;
+		
+		If Browser = "YandexBrowser" Then
+			Return Attributes.Linux_x86_64_YandexBrowser;
 		EndIf;
 		
 	ElsIf SystemInfo.PlatformType = PlatformType.MacOS_x86_64 Then
@@ -330,6 +346,10 @@ Function CurrentClientIsSupportedByAddIn(Attributes)
 			Return Attributes.MacOS_x86_64_Chrome;
 		EndIf;
 		
+		If Browser = "YandexBrowser" Then
+			Return Attributes.MacOS_x86_64_YandexBrowser;
+		EndIf;
+		
 	ElsIf SystemInfo.PlatformType = PlatformType.Windows_x86 Then
 		
 		If Browser = Undefined Then
@@ -346,6 +366,10 @@ Function CurrentClientIsSupportedByAddIn(Attributes)
 		
 		If Browser = "MSIE" Then
 			Return Attributes.Windows_x86_MSIE;
+		EndIf;
+		
+		If Browser = "YandexBrowser" Then
+			Return Attributes.Windows_x86_YandexBrowser;
 		EndIf;
 		
 	ElsIf SystemInfo.PlatformType = PlatformType.Windows_x86_64 Then
@@ -365,6 +389,10 @@ Function CurrentClientIsSupportedByAddIn(Attributes)
 		If Browser = "MSIE" Then
 			Return Attributes.Windows_x86_64_MSIE;
 		EndIf;
+		
+		If Browser = "YandexBrowser" Then
+			Return Attributes.Windows_x86_64_YandexBrowser;
+		EndIf;
 	
 	ElsIf SystemInfo.PlatformType = PlatformType.MacOS_x86 Then
 		// Browsers may misdefine the OS.
@@ -375,6 +403,10 @@ Function CurrentClientIsSupportedByAddIn(Attributes)
 		
 		If Browser = "Chrome" Then
 			Return Attributes.MacOS_x86_64_Chrome;
+		EndIf;
+		
+		If Browser = "YandexBrowser" Then
+			Return Attributes.MacOS_x86_64_YandexBrowser;
 		EndIf;
 		
 	EndIf;
@@ -924,6 +956,7 @@ EndFunction
 //      * Id - String
 //      * Version        - String
 //                      - Undefined
+//      * AutoUpdate - Boolean
 //
 Procedure ComponentSearchOnPortal(Notification, Context)
 	
@@ -931,6 +964,7 @@ Procedure ComponentSearchOnPortal(Notification, Context)
 	FormParameters.Insert("ExplanationText", Context.ExplanationText);
 	FormParameters.Insert("Id", Context.Id);
 	FormParameters.Insert("Version", Context.Version);
+	FormParameters.Insert("AutoUpdate", Context.AutoUpdate);
 	
 	NotificationForms = New NotifyDescription("AddInSearchOnPortalOnGenerateResult", ThisObject, Notification);
 	
@@ -976,22 +1010,54 @@ EndProcedure
 
 // Parameters:
 //  AddInRef - CatalogRef.AddIns
+//                          - Array of CatalogRef.AddIns
 //
-Procedure SaveAddInToFile(AddInRef) Export 
+Procedure SaveAddInToFile(AddInRef) Export
 	
-	Location = GetURL(AddInRef, "AddInStorage");
-	FileName = AddInsInternalServerCall.ComponentFileName(AddInRef);
+	If TypeOf(AddInRef) = Type("Array") Then
+		References = AddInRef;
+	Else
+		References = CommonClientServer.ValueInArray(AddInRef);
+	EndIf;
+	FilesDetails = AddInsInternalServerCall.AddInsFilesDetails(References);
+
+	If References.Count() = 1 Then
+		
+		SavingParameters = FileSystemClient.FileSavingParameters();
+		SavingParameters.Dialog.Title = NStr("en = 'Select a file to save the add-in to';");
+		SavingParameters.Dialog.Filter    = NStr("en = 'Add-in files (*.zip)|*.zip';")+"|"
+			+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
+		
+		Notification = New NotifyDescription("SaveAddInToFileAfterReceivingFiles", ThisObject);
+		FileSystemClient.SaveFile(Notification, FilesDetails[0].Location, FilesDetails[0].Name, SavingParameters);
+		
+		Return;
+	EndIf;
 	
-	SavingParameters = FileSystemClient.FileSavingParameters();
-	SavingParameters.Dialog.Title = NStr("en = 'Select a file to save the add-in to';");
-	SavingParameters.Dialog.Filter    = NStr("en = 'Add-in files (*.zip)|*.zip|All files (*.*)|*.*';");
+	Notification = New NotifyDescription("SaveAddInsToFileAfterDirectorySelected", ThisObject, FilesDetails);
+	FileSystemClient.SelectDirectory(Notification, NStr("en = 'Select a directory to save the add-ins';"));
 	
-	Context = New Structure;
-	Context.Insert("Ref", AddInRef);
+EndProcedure
+
+// Continue with the save component File procedure.
+Procedure SaveAddInsToFileAfterDirectorySelected(Directory, FilesDetails) Export
 	
-	Notification = New NotifyDescription("SaveAddInToFileAfterReceivingFiles", ThisObject, Context);
-	FileSystemClient.SaveFile(Notification, Location, FileName, SavingParameters);
+	If IsBlankString(Directory) Then
+		Return;
+	EndIf;
 	
+	FilesToSave = New Array;
+	For Each FileDetails In FilesDetails Do
+		FilesToSave.Add(New TransferableFileDescription(FileDetails.Name, FileDetails.Location));
+	EndDo;
+	
+	SavingParameters = FileSystemClient.FilesSavingParameters();
+	SavingParameters.Interactively = False;
+	SavingParameters.Dialog.Directory = Directory;
+	FileSystemClient.SaveFiles(New NotifyDescription(
+		"SaveAddInToFileAfterReceivingFiles", ThisObject), 
+		FilesToSave, SavingParameters);
+
 EndProcedure
 
 // Continuation of the SaveAddInToFile procedure.
@@ -1000,8 +1066,12 @@ Procedure SaveAddInToFileAfterReceivingFiles(ObtainedFiles, Context) Export
 	If ObtainedFiles <> Undefined 
 		And ObtainedFiles.Count() > 0 Then
 		
+		MessageText = ?(ObtainedFiles.Count() = 1, 
+			NStr("en = 'The add-in is saved to the file.';"),
+			NStr("en = 'The add-ins are saved to the files.';"));
+		
 		ShowUserNotification(NStr("en = 'Save to file';"),,
-			NStr("en = 'Add-in was successfully saved to the file.';"), PictureLib.Success32);
+			MessageText, PictureLib.Success32);
 	EndIf;
 	
 EndProcedure
@@ -1009,3 +1079,4 @@ EndProcedure
 #EndRegion
 
 #EndRegion
+

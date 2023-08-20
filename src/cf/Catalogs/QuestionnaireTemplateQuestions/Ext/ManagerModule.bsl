@@ -73,20 +73,20 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	ObjectsProcessed = 0;
 	
 	While Selection.Next() Do
-		
+		RepresentationOfTheReference = String(Selection.Ref);
 		Try
 			
 			FillTooltipDisplayMethodAttribute(Selection);
 			ObjectsProcessed = ObjectsProcessed + 1;
 			
 		Except
-			// 
+			
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process questionnaire template question %1 due to:
 					|%2';"), 
-					Selection.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+					RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
 				Metadata.Catalogs.QuestionnaireTemplateQuestions, Selection.Ref, MessageText);
 		EndTry;
@@ -119,7 +119,6 @@ Procedure FillTooltipDisplayMethodAttribute(Selection)
 	BeginTransaction();
 	Try
 	
-		// Lock the object (to ensure that it won't be edited in other sessions).
 		Block = New DataLock;
 		LockItem = Block.Add("Catalog.QuestionnaireTemplateQuestions");
 		LockItem.SetValue("Ref", Selection.Ref);
@@ -127,20 +126,14 @@ Procedure FillTooltipDisplayMethodAttribute(Selection)
 		
 		CatalogObject = Selection.Ref.GetObject();
 		
-		// Ignore objects that were deleted or processed in other sessions.
-		If CatalogObject = Undefined Then
-			RollbackTransaction();
-			Return;
-		EndIf;
 		If CatalogObject.HintPlacement <> Enums.TooltipDisplayMethods.EmptyRef() Then
 			RollbackTransaction();
+			InfobaseUpdate.MarkProcessingCompletion(Selection.Ref);
 			Return;
 		EndIf;
 		
-		// 
 		CatalogObject.HintPlacement = Enums.TooltipDisplayMethods.AsTooltip;
 		
-		// 
 		InfobaseUpdate.WriteData(CatalogObject);
 		
 		CommitTransaction();

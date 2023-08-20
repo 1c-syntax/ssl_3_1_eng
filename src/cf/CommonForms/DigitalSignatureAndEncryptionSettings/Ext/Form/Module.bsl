@@ -172,6 +172,8 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		ElsIf Parameter.IsNew Then
 			Items.Certificates.Refresh();
 			Items.Certificates.CurrentRow = Source;
+		Else
+			Items.Certificates.Refresh();
 		EndIf;
 		Return;
 	EndIf;

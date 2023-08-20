@@ -269,7 +269,7 @@ Procedure FillMailAddresses()
 	RecipientsParameters.MailingRecipientType = MetadataObjectID;
 	RecipientsParameters.Recipients = Recipients;
 	
-	BulkEmailRecipients = ReportMailing.GenerateMailingRecipientsList(RecipientsParameters);;
+	BulkEmailRecipients = ReportMailing.GenerateMailingRecipientsList(RecipientsParameters);
 	For Each BulkEmailRecipient In Recipients Do
 		If BulkEmailRecipients.Count() = 0 Then
 			If BulkEmailRecipient.Recipient = Undefined Then 

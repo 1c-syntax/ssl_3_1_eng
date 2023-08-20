@@ -38,7 +38,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Account settings</v8:content>
+							<v8:content>Account setup</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="AccountSettingsExtendedTooltip" id="33"/>
@@ -144,27 +144,65 @@
 							<Behavior>Usual</Behavior>
 							<Representation>NormalSeparation</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ThroughAlign>Use</ThroughAlign>
+							<ThroughAlign>DontUse</ThroughAlign>
 							<ExtendedTooltip name="AuthenticationExtendedTooltip" id="201"/>
 							<ChildItems>
-								<InputField name="Email" id="44">
-									<DataPath>Email</DataPath>
+								<UsualGroup name="GroupEmailAddress" id="426">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Email</v8:content>
+											<v8:content>Email address</v8:content>
 										</v8:item>
 									</Title>
-									<Width>25</Width>
-									<HorizontalStretch>false</HorizontalStretch>
-									<AutoMarkIncomplete>true</AutoMarkIncomplete>
-									<EditTextUpdate>OnValueChange</EditTextUpdate>
-									<ContextMenu name="EmailContextMenu" id="45"/>
-									<ExtendedTooltip name="EmailExtendedTooltip" id="46"/>
-									<Events>
-										<Event name="OnChange">EmailOnChange</Event>
-									</Events>
-								</InputField>
+									<Group>AlwaysHorizontal</Group>
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="GroupEmailAddressExtendedTooltip" id="427"/>
+									<ChildItems>
+										<LabelDecoration name="DecorationEmailAddress" id="428">
+											<Width>11</Width>
+											<Title formatted="false">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Email address:</v8:content>
+												</v8:item>
+											</Title>
+											<ContextMenu name="DecorationEmailAddressContextMenu" id="429"/>
+											<ExtendedTooltip name="DecorationEmailAddressExtendedTooltip" id="430">
+												<AutoMaxWidth>false</AutoMaxWidth>
+											</ExtendedTooltip>
+										</LabelDecoration>
+										<InputField name="Email" id="44">
+											<DataPath>Email</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Email</v8:content>
+												</v8:item>
+											</Title>
+											<TitleLocation>None</TitleLocation>
+											<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+											<Width>25</Width>
+											<HorizontalStretch>false</HorizontalStretch>
+											<AutoMarkIncomplete>true</AutoMarkIncomplete>
+											<EditTextUpdate>OnValueChange</EditTextUpdate>
+											<ContextMenu name="EmailContextMenu" id="45"/>
+											<ExtendedTooltip name="EmailExtendedTooltip" id="46">
+												<AutoMaxWidth>false</AutoMaxWidth>
+												<MaxWidth>30</MaxWidth>
+												<Title formatted="false">
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Account for service notifications.</v8:content>
+													</v8:item>
+												</Title>
+											</ExtendedTooltip>
+											<Events>
+												<Event name="OnChange">EmailOnChange</Event>
+											</Events>
+										</InputField>
+									</ChildItems>
+								</UsualGroup>
 								<RadioButtonField name="AuthenticationMethod" id="362">
 									<DataPath>AuthenticationMethod</DataPath>
 									<Visible>false</Visible>
@@ -227,7 +265,7 @@
 														<Presentation>
 															<v8:item>
 																<v8:lang>en</v8:lang>
-																<v8:content>Enter password:</v8:content>
+																<v8:content>Password:</v8:content>
 															</v8:item>
 														</Presentation>
 														<Value xsi:type="xs:string">Password</Value>
@@ -309,7 +347,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Use this account to</v8:content>
+									<v8:content>Use this account</v8:content>
 								</v8:item>
 							</Title>
 							<Behavior>Usual</Behavior>
@@ -321,7 +359,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Send mail</v8:content>
+											<v8:content>To send mail</v8:content>
 										</v8:item>
 									</Title>
 									<TitleLocation>Right</TitleLocation>
@@ -334,7 +372,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Receive mail</v8:content>
+											<v8:content>To receive mail</v8:content>
 										</v8:item>
 									</Title>
 									<TitleLocation>Right</TitleLocation>
@@ -369,7 +407,7 @@
 												<Presentation>
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>All users</v8:content>
+														<v8:content>For all users</v8:content>
 													</v8:item>
 												</Presentation>
 												<Value xsi:type="xs:string">Shared3</Value>
@@ -382,7 +420,7 @@
 												<Presentation>
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>Me only</v8:content>
+														<v8:content>For me only</v8:content>
 													</v8:item>
 												</Presentation>
 												<Value xsi:type="xs:string">Personal1</Value>
@@ -463,7 +501,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Protocol</v8:content>
+									<v8:content>Account type</v8:content>
 								</v8:item>
 							</Title>
 							<Width>8</Width>
@@ -918,7 +956,7 @@ Fill in the following fields from the application registration settings:
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Account settings test picture and label</v8:content>
+									<v8:content>Account settings test</v8:content>
 								</v8:item>
 							</Title>
 							<Behavior>Usual</Behavior>
@@ -1054,7 +1092,7 @@ This might take a while.</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Email account setup completed picture and label</v8:content>
+									<v8:content>Email account setup completed.</v8:content>
 								</v8:item>
 							</Title>
 							<Behavior>Usual</Behavior>
@@ -1083,8 +1121,7 @@ This might take a while.</v8:content>
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Setup of email account
-jdoe@example.com is completed.</v8:content>
+											<v8:content>Email account is set up.</v8:content>
 										</v8:item>
 									</Title>
 									<GroupVerticalAlign>Center</GroupVerticalAlign>
@@ -1284,6 +1321,12 @@ jdoe@example.com is completed.</v8:content>
 							<Type>CommandBarButton</Type>
 							<DefaultButton>true</DefaultButton>
 							<CommandName>Form.Command.Next</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Create</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="NextButton1ExtendedTooltip" id="23"/>
 						</Button>
 						<Button name="CancelButton" id="268">
@@ -1534,7 +1577,7 @@ jdoe@example.com is completed.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Send mail</v8:content>
+					<v8:content>To send mail</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1545,7 +1588,7 @@ jdoe@example.com is completed.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Receive mail</v8:content>
+					<v8:content>To receive mail</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

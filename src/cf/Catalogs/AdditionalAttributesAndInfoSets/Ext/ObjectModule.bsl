@@ -37,6 +37,10 @@ Procedure BeforeWrite(Cancel)
 		PropertiesToDelete = New Array;
 		
 		// Additional attributes.
+		BankingDetails_ = 0;
+		LabelsCount = 0;
+		Properties = AdditionalAttributes.Unload().UnloadColumn("Property");
+		PropertiesKinds = Common.ObjectsAttributesValues(Properties, "PropertyKind");
 		For Each AdditionalAttribute In AdditionalAttributes Do
 			
 			If AdditionalAttribute.Property.IsEmpty()
@@ -46,7 +50,21 @@ Procedure BeforeWrite(Cancel)
 			Else
 				SelectedProperties.Insert(AdditionalAttribute.Property, True);
 			EndIf;
+			
+			If AdditionalAttribute.DeletionMark Then
+				Continue;
+			EndIf;
+			
+			Property = PropertiesKinds.Get(AdditionalAttribute.Property);
+			If Property.PropertyKind = Enums.PropertiesKinds.Labels Then
+				LabelsCount = LabelsCount + 1;
+			Else
+				BankingDetails_ = BankingDetails_ + 1;
+			EndIf;
+			
 		EndDo;
+		AttributesCount = Format(BankingDetails_, "NG=");
+		NumberOfTags   = Format(LabelsCount, "NG=");
 		
 		For Each PropertyToDelete In PropertiesToDelete Do
 			AdditionalAttributes.Delete(PropertyToDelete);
@@ -72,11 +90,9 @@ Procedure BeforeWrite(Cancel)
 		EndDo;
 		
 		// Calculating the number of properties not marked for deletion.
-		AttributesCount = Format(AdditionalAttributes.FindRows(
-			New Structure("DeletionMark", False)).Count(), "NG=");
-		
 		InfoCount   = Format(AdditionalInfo.FindRows(
 			New Structure("DeletionMark", False)).Count(), "NG=");
+		
 	EndIf;
 	
 EndProcedure
@@ -104,8 +120,8 @@ EndProcedure
 Procedure OnReadPresentationsAtServer() Export
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.OnReadPresentationsAtServer(ThisObject);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.OnReadPresentationsAtServer(ThisObject);
 	EndIf;
 	
 EndProcedure

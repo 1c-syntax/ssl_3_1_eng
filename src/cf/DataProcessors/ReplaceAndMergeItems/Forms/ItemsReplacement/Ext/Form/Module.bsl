@@ -48,6 +48,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		DataCompositionSettingsItemViewMode.Inaccessible, "5bf5cd06-c1fd-4bd3-94b9-4e9803e90fd5");
 	If ReferencesToReplaceCommonOwner <> Undefined Then 
 		CommonClientServer.SetDynamicListFilterItem(List, "Owner", ReferencesToReplaceCommonOwner);
+		Items.ListFilterTooltip.Title = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'The list contains suitable options with the filter: %2 = %3.';"),
+			Common.ListPresentation(BasicMetadata),
+			OwnerPresentation(BasicMetadata),
+			Common.SubjectString(ReferencesToReplaceCommonOwner));
+	Else
+		Items.ListFilterTooltip.Visible = False;
 	EndIf;
 	
 	If RefsToReplace.Count() > 1 Then
@@ -759,7 +766,7 @@ Procedure InitializeReferencesToReplace(Val ReferencesArrray)
 	
 	RefsCount = ReferencesArrray.Count();
 	If RefsCount = 0 Then
-		Raise NStr("en = 'Выберите хотя бы один элемент для замены.';");
+		Raise NStr("en = 'Select at least one item to replace.';");
 	EndIf;
 	
 	ReplacementItem = ReferencesArrray[0];
@@ -775,7 +782,7 @@ Procedure InitializeReferencesToReplace(Val ReferencesArrray)
 	QueryText =
 		"SELECT
 		|Ref AS Ref,
-		|&ПолеВладелец AS Owner,
+		|&Field_Owner AS Owner,
 		|&IsFolder AS IsFolder
 		|INTO RefsToReplace
 		|FROM
@@ -807,11 +814,11 @@ Procedure InitializeReferencesToReplace(Val ReferencesArrray)
 		|WHERE
 		|	RefsToReplace.Ref IS NULL
 		|	AND &ConditionGroup
-		|	AND &OwnerCondition";
+		|	AND &ConditionOwner";
 	QueryText = StrReplace(QueryText, "#TableName", BasicMetadata.FullName());
-	QueryText = StrReplace(QueryText, "&ПолеВладелец", ?(HasOwners, "Owner", "UNDEFINED"));
+	QueryText = StrReplace(QueryText, "&Field_Owner", ?(HasOwners, "Owner", "UNDEFINED"));
 	QueryText = StrReplace(QueryText, "&IsFolder", ?(HasGroups, "IsFolder", "FALSE"));
-	QueryText = StrReplace(QueryText, "&OwnerCondition", 
+	QueryText = StrReplace(QueryText, "&ConditionOwner", 
 		?(HasOwners, "DestinationTable2.Owner = &Owner", "TRUE")); // @query-part
 	QueryText = StrReplace(QueryText, "&ConditionGroup", 
 		?(HasGroups, "NOT DestinationTable2.IsFolder", "TRUE")); // @query-part
@@ -825,23 +832,23 @@ Procedure InitializeReferencesToReplace(Val ReferencesArrray)
 	Result = Query.ExecuteBatch();
 	Conditions = Result[1].Unload()[0];
 	If Conditions.HasGroups Then
-		Raise NStr("en = 'Один из заменяемых элементов является группой.
-			|Группы не могут быть заменены.';");
+		Raise NStr("en = 'One of the items to replace is a group.
+			|Groups cannot be replaced.';");
 	ElsIf Conditions.OwnersCount > 1 Then 
-		Raise NStr("en = 'У заменяемых элементов разные владельцы.
-			|Такие элементы не могут быть заменены.';");
+		Raise NStr("en = 'Items to replace have different owners.
+			|They cannot be replaced.';");
 	ElsIf Conditions.RefsCount <> RefsCount Then
-		Raise NStr("en = 'Все заменяемые элементы должны быть одного типа.';");
+		Raise NStr("en = 'All items to replace must be of the same type.';");
 	EndIf;
 	
 	If Result[2].Unload().Count() = 0 Then
 		If RefsCount > 1 Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Выбранные элементы (%1) не на что заменить, т.к. нет других подходящих элементов для замены.';"), 
+				NStr("en = 'The selected items (%1) cannot be replaced as there are no suitable items for replacement.';"), 
 				RefsCount);
 		Else
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Выбранный элемент ""%1"" не на что заменить, т.к. нет других подходящих элементов для замены.';"), 
+				NStr("en = 'The selected %1 item cannot be replaced as there are no suitable items for replacement.';"), 
 				Common.SubjectString(ReplacementItem));
 		EndIf;
 	EndIf;

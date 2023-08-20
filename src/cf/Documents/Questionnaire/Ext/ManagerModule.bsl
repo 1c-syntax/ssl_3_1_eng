@@ -77,20 +77,20 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	ObjectsProcessed = 0;
 	
 	While Selection.Next() Do
-		
+		RepresentationOfTheReference = String(Selection.Ref);
 		Try
 			
 			FillSurveyModeAttribute(Selection);
 			ObjectsProcessed = ObjectsProcessed + 1;
 			
 		Except
-			// 
+			
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process questionnaire %1 due to:
 					|%2';"), 
-					Selection.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+					RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
 				Metadata.Documents.Questionnaire, Selection.Ref, MessageText);
 		EndTry;
@@ -100,7 +100,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	Parameters.ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue, "Document.Questionnaire");
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) some questionnaire: %1';"), ObjectsWithIssuesCount);
+			NStr("en = 'Couldn''t process (skipped) some questionnaires: %1';"), ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
@@ -122,7 +122,6 @@ Procedure FillSurveyModeAttribute(Selection)
 	BeginTransaction();
 	Try
 	
-		// Lock the object (to ensure that it won't be edited in other sessions).
 		Block = New DataLock;
 		LockItem = Block.Add("Document.Questionnaire");
 		LockItem.SetValue("Ref", Selection.Ref);
@@ -130,20 +129,14 @@ Procedure FillSurveyModeAttribute(Selection)
 		
 		DocumentObject = Selection.Ref.GetObject();
 		
-		// Ignore objects that were deleted or processed in other sessions.
-		If DocumentObject = Undefined Then
-			RollbackTransaction();
-			Return;
-		EndIf;
 		If DocumentObject.SurveyMode <> Enums.SurveyModes.EmptyRef() Then
-			RollbackTransaction();
+			InfobaseUpdate.MarkProcessingCompletion(Selection.Ref);
+			CommitTransaction();
 			Return;
 		EndIf;
 		
-		// 
 		DocumentObject.SurveyMode = Enums.SurveyModes.Questionnaire;
 		
-		// 
 		InfobaseUpdate.WriteData(DocumentObject);
 		
 		CommitTransaction();

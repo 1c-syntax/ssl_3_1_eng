@@ -33,6 +33,61 @@
 				<ButtonGroup name="FormGroupFormCommands" id="190">
 					<CommandSource>Form</CommandSource>
 					<ExtendedTooltip name="FormGroupFormCommandsExtendedTooltip" id="191"/>
+					<ChildItems>
+						<Button name="HideShowSectionsTreeDocument" id="156">
+							<Type>CommandBarButton</Type>
+							<CommandName>Form.Command.ShowSections</CommandName>
+							<Picture>
+								<xr:Ref>StdPicture.ShowInList</xr:Ref>
+								<xr:LoadTransparent>true</xr:LoadTransparent>
+							</Picture>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Show sections</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="HideShowSectionsTreeDocumentExtendedTooltip" id="157"/>
+						</Button>
+						<Button name="PreviousSection" id="163">
+							<Type>CommandBarButton</Type>
+							<Width>10</Width>
+							<CommandName>Form.Command.PreviousSection</CommandName>
+							<ExtendedTooltip name="PreviousSectionExtendedTooltip" id="164"/>
+						</Button>
+						<Button name="NextSection" id="165">
+							<Type>CommandBarButton</Type>
+							<Width>10</Width>
+							<CommandName>Form.Command.NextSection</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Next &gt;</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="NextSectionExtendedTooltip" id="166"/>
+						</Button>
+						<Button name="FillingFormEndAndClose" id="92">
+							<Type>CommandBarButton</Type>
+							<Representation>PictureAndText</Representation>
+							<SkipOnInput>false</SkipOnInput>
+							<CommandName>Form.Command.FillingFormEndAndClose</CommandName>
+							<ExtendedTooltip name="FillingFormEndAndCloseExtendedTooltip" id="115"/>
+						</Button>
+						<Button name="ResponseFormWrite" id="91">
+							<Type>CommandBarButton</Type>
+							<Representation>Text</Representation>
+							<SkipOnInput>false</SkipOnInput>
+							<CommandName>Form.Command.ResponseFormWrite</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Save questionnaire</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="ResponseFormWriteExtendedTooltip" id="116"/>
+						</Button>
+					</ChildItems>
 				</ButtonGroup>
 				<Button name="FormCommandBarPostAndClose" id="86">
 					<Type>CommandBarButton</Type>
@@ -46,36 +101,6 @@
 					<Representation>Picture</Representation>
 					<CommandName>Form.StandardCommand.Post</CommandName>
 					<ExtendedTooltip name="PostExtendedTooltip" id="193"/>
-				</Button>
-				<Button name="ResponseFormWrite" id="91">
-					<Type>CommandBarButton</Type>
-					<Representation>Picture</Representation>
-					<SkipOnInput>false</SkipOnInput>
-					<CommandName>Form.Command.ResponseFormWrite</CommandName>
-					<Picture>
-						<xr:Ref>StdPicture.Write</xr:Ref>
-						<xr:LoadTransparent>true</xr:LoadTransparent>
-					</Picture>
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Save</v8:content>
-						</v8:item>
-					</Title>
-					<ExtendedTooltip name="ResponseFormWriteExtendedTooltip" id="116"/>
-				</Button>
-				<Button name="ResponseFormPostAndClose" id="92">
-					<Type>CommandBarButton</Type>
-					<Representation>PictureAndText</Representation>
-					<SkipOnInput>false</SkipOnInput>
-					<CommandName>Form.Command.ResponseFormPostAndClose</CommandName>
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Submit</v8:content>
-						</v8:item>
-					</Title>
-					<ExtendedTooltip name="ResponseFormPostAndCloseExtendedTooltip" id="115"/>
 				</Button>
 				<Button name="FormCommandBarWrite" id="87">
 					<Type>CommandBarButton</Type>
@@ -159,7 +184,7 @@
 				</v8:item>
 			</Title>
 			<Behavior>Usual</Behavior>
-			<Representation>None</Representation>
+			<Representation>NormalSeparation</Representation>
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="MainAttributesGroupExtendedTooltip" id="119"/>
 			<ChildItems>
@@ -282,60 +307,6 @@
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="ResponseGroupExtendedTooltip" id="159"/>
-			<ChildItems>
-				<CommandBar name="QuestionnaireLeftCommandBar" id="178">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Document command bar questionnaire left</v8:content>
-						</v8:item>
-					</Title>
-					<ExtendedTooltip name="QuestionnaireLeftCommandBarExtendedTooltip" id="179"/>
-					<ChildItems>
-						<Button name="HideShowSectionsTreeDocument" id="156">
-							<Type>CommandBarButton</Type>
-							<CommandName>Form.Command.HideShowSectionsTree</CommandName>
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Show sections</v8:content>
-								</v8:item>
-							</Title>
-							<ExtendedTooltip name="HideShowSectionsTreeDocumentExtendedTooltip" id="157"/>
-						</Button>
-					</ChildItems>
-				</CommandBar>
-				<CommandBar name="QuestionnaireRightCommandBar" id="180">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Document command bar questionnaire right</v8:content>
-						</v8:item>
-					</Title>
-					<HorizontalLocation>Right</HorizontalLocation>
-					<ExtendedTooltip name="QuestionnaireRightCommandBarExtendedTooltip" id="181"/>
-					<ChildItems>
-						<Button name="PreviousSection" id="163">
-							<Type>CommandBarButton</Type>
-							<Width>10</Width>
-							<CommandName>Form.Command.PreviousSection</CommandName>
-							<ExtendedTooltip name="PreviousSectionExtendedTooltip" id="164"/>
-						</Button>
-						<Button name="NextSection" id="165">
-							<Type>CommandBarButton</Type>
-							<Width>10</Width>
-							<CommandName>Form.Command.NextSection</CommandName>
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Next &gt;</v8:content>
-								</v8:item>
-							</Title>
-							<ExtendedTooltip name="NextSectionExtendedTooltip" id="166"/>
-						</Button>
-					</ChildItems>
-				</CommandBar>
-			</ChildItems>
 		</UsualGroup>
 		<UsualGroup name="ResponseFormSectionsTreeGroup" id="68">
 			<Title>
@@ -598,7 +569,7 @@ Opening the section…</v8:content>
 					<v8:content>Command bar footer</v8:content>
 				</v8:item>
 			</Title>
-			<HorizontalLocation>Right</HorizontalLocation>
+			<HorizontalLocation>Auto</HorizontalLocation>
 			<ExtendedTooltip name="FooterCommandBarExtendedTooltip" id="177"/>
 			<ChildItems>
 				<Button name="FooterPreviousSection" id="107">
@@ -629,19 +600,26 @@ Opening the section…</v8:content>
 				</Button>
 			</ChildItems>
 		</CommandBar>
-		<InputField name="Comment" id="111">
-			<DataPath>Object.Comment</DataPath>
-			<TitleLocation>Left</TitleLocation>
-			<AutoMaxWidth>false</AutoMaxWidth>
-			<Height>2</Height>
-			<VerticalStretch>false</VerticalStretch>
-			<ChoiceButton>true</ChoiceButton>
-			<ContextMenu name="CommentContextMenu" id="112"/>
-			<ExtendedTooltip name="CommentExtendedTooltip" id="153"/>
-			<Events>
-				<Event name="StartChoice">CommentStartChoice</Event>
-			</Events>
-		</InputField>
+		<UsualGroup name="FooterGroup" id="221">
+			<Representation>NormalSeparation</Representation>
+			<ShowTitle>false</ShowTitle>
+			<ExtendedTooltip name="FooterGroupExtendedTooltip" id="222"/>
+			<ChildItems>
+				<InputField name="Comment" id="111">
+					<DataPath>Object.Comment</DataPath>
+					<TitleLocation>Left</TitleLocation>
+					<AutoMaxWidth>false</AutoMaxWidth>
+					<Height>2</Height>
+					<VerticalStretch>false</VerticalStretch>
+					<ChoiceButton>true</ChoiceButton>
+					<ContextMenu name="CommentContextMenu" id="112"/>
+					<ExtendedTooltip name="CommentExtendedTooltip" id="153"/>
+					<Events>
+						<Event name="StartChoice">CommentStartChoice</Event>
+					</Events>
+				</InputField>
+			</ChildItems>
+		</UsualGroup>
 	</ChildItems>
 	<Attributes>
 		<Attribute name="Object" id="1">
@@ -736,6 +714,16 @@ Opening the section…</v8:content>
 				<Column name="CheckBoxType" id="8">
 					<Type>
 						<v8:Type>cfg:EnumRef.CheckBoxKindsInQuestionnaires</v8:Type>
+					</Type>
+				</Column>
+				<Column name="ShouldUseMaxValue" id="9">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+				<Column name="ShouldUseMinValue" id="10">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
 					</Type>
 				</Column>
 			</Columns>
@@ -929,6 +917,50 @@ Opening the section…</v8:content>
 						<v8:Type>cfg:EnumRef.CheckBoxKindsInQuestionnaires</v8:Type>
 					</Type>
 				</Column>
+				<Column name="ShouldUseMaxValue" id="28">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+				<Column name="ShouldUseMinValue" id="29">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+				<Column name="ShouldShowRangeSlider" id="30">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+				<Column name="RangeSliderStep" id="31">
+					<Type>
+						<v8:Type>xs:decimal</v8:Type>
+						<v8:NumberQualifiers>
+							<v8:Digits>15</v8:Digits>
+							<v8:FractionDigits>2</v8:FractionDigits>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
+						</v8:NumberQualifiers>
+					</Type>
+				</Column>
+				<Column name="ShouldUseRefusalToAnswer" id="32">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+				<Column name="RefusalToAnswerText" id="33">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>50</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="NumericalQuestionHintsRange" id="34">
+					<Type>
+						<v8:Type>v8:ValueTable</v8:Type>
+					</Type>
+				</Column>
 				<AdditionalColumns table="SectionQuestionsTable.TableQuestionComposition">
 					<Column name="ElementaryQuestion" id="1">
 						<Title>
@@ -963,7 +995,7 @@ Opening the section…</v8:content>
 						<Title>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Reply</v8:content>
+								<v8:content>Response</v8:content>
 							</v8:item>
 						</Title>
 						<Type>
@@ -1053,6 +1085,55 @@ Opening the section…</v8:content>
 						</Type>
 					</Column>
 				</AdditionalColumns>
+				<AdditionalColumns table="SectionQuestionsTable.NumericalQuestionHintsRange">
+					<Column name="ValueUpTo" id="1">
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Value to</v8:content>
+							</v8:item>
+						</Title>
+						<Type>
+							<v8:Type>xs:decimal</v8:Type>
+							<v8:NumberQualifiers>
+								<v8:Digits>15</v8:Digits>
+								<v8:FractionDigits>2</v8:FractionDigits>
+								<v8:AllowedSign>Any</v8:AllowedSign>
+							</v8:NumberQualifiers>
+						</Type>
+					</Column>
+					<Column name="ToolTip" id="2">
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Hint</v8:content>
+							</v8:item>
+						</Title>
+						<Type>
+							<v8:Type>xs:string</v8:Type>
+							<v8:StringQualifiers>
+								<v8:Length>250</v8:Length>
+								<v8:AllowedLength>Variable</v8:AllowedLength>
+							</v8:StringQualifiers>
+						</Type>
+					</Column>
+					<Column name="LineNumber" id="3">
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Row number</v8:content>
+							</v8:item>
+						</Title>
+						<Type>
+							<v8:Type>xs:decimal</v8:Type>
+							<v8:NumberQualifiers>
+								<v8:Digits>10</v8:Digits>
+								<v8:FractionDigits>0</v8:FractionDigits>
+								<v8:AllowedSign>Any</v8:AllowedSign>
+							</v8:NumberQualifiers>
+						</Type>
+					</Column>
+				</AdditionalColumns>
 			</Columns>
 		</Attribute>
 		<Attribute name="PossibleAnswers" id="9">
@@ -1082,6 +1163,15 @@ Opening the section…</v8:content>
 				<Column name="OpenEndedQuestion" id="4">
 					<Type>
 						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+				<Column name="ToolTip" id="5">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>250</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
 					</Type>
 				</Column>
 			</Columns>
@@ -1278,34 +1368,48 @@ Opening the section…</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Shortcut>Ctrl+S</Shortcut>
+			<Picture>
+				<xr:Ref>StdPicture.Write</xr:Ref>
+				<xr:LoadTransparent>true</xr:LoadTransparent>
+			</Picture>
 			<Action>ResponseFormWrite</Action>
 			<ModifiesSavedData>true</ModifiesSavedData>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
-		<Command name="ResponseFormPostAndClose" id="2">
+		<Command name="FillingFormEndAndClose" id="2">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Filling form post close</v8:content>
+					<v8:content>Save and close</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Save and close</v8:content>
+					<v8:content>Finish editing the questionnaire and close the form</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>ResponseFormPostAndClose</Action>
+			<Picture>
+				<xr:Ref>StdPicture.WriteAndClose</xr:Ref>
+				<xr:LoadTransparent>true</xr:LoadTransparent>
+			</Picture>
+			<Action>FillingFormEndAndClose</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
-		<Command name="HideShowSectionsTree" id="3">
+		<Command name="ShowSections" id="3">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
 					<v8:content>Show sections</v8:content>
 				</v8:item>
 			</Title>
-			<Action>HideShowSectionsTree</Action>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Show or hide the questionnaire sections</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>ShowSections</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 		<Command name="NextSection" id="4">
@@ -1357,4 +1461,25 @@ Opening the section…</v8:content>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>
+	<Parameters>
+		<Parameter name="AllowSavingQuestionnaireDraft">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="FillingFormOnly">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="Title">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+	</Parameters>
 </Form>

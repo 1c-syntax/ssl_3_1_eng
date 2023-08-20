@@ -12,14 +12,11 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	Parameters.Property("ChangeInTransaction",    ChangeInTransaction);
-	Parameters.Property("ProcessRecursively", ProcessRecursively);
-	Parameters.Property("BatchSetting",        BatchSetting);
-	Parameters.Property("ObjectsPercentageInBatch", ObjectsPercentageInBatch);
-	Parameters.Property("ObjectCountInBatch",   ObjectCountInBatch);
-	Parameters.Property("DeveloperMode",     DeveloperMode);
-	Parameters.Property("DisableSelectionParameterConnections",     DisableSelectionParameterConnections);
-	Parameters.Property("InterruptOnError",     InterruptOnError);
+	Parameters.Property("ChangeInTransaction",            ChangeInTransaction);
+	Parameters.Property("ProcessRecursively",         ProcessRecursively);
+	Parameters.Property("DeveloperMode",              DeveloperMode);
+	Parameters.Property("DisableSelectionParameterConnections", DisableSelectionParameterConnections);
+	Parameters.Property("InterruptOnError",             InterruptOnError);
 	
 	HasDataAdministrationRight = AccessRight("DataAdministration", Metadata);
 	WindowOptionsKey = ?(HasDataAdministrationRight, "HasDataAdministrationRight", "NoDataAdministrationRight");
@@ -63,14 +60,13 @@ EndProcedure
 Procedure OK(Command)
 	
 	SelectionResult = New Structure;
-	SelectionResult.Insert("ChangeInTransaction",    ChangeInTransaction);
-	SelectionResult.Insert("ProcessRecursively", ProcessRecursively);
-	SelectionResult.Insert("BatchSetting",        BatchSetting);
-	SelectionResult.Insert("ObjectsPercentageInBatch", ObjectsPercentageInBatch);
-	SelectionResult.Insert("ObjectCountInBatch",   ObjectCountInBatch);
-	SelectionResult.Insert("InterruptOnError",     ChangeInTransaction Or InterruptOnError);
-	SelectionResult.Insert("ShowInternalAttributes", ShowInternalAttributes);
-	SelectionResult.Insert("DeveloperMode", DeveloperMode);
+	SelectionResult.Insert("ChangeInTransaction",            ChangeInTransaction);
+	SelectionResult.Insert("ProcessRecursively",         ProcessRecursively);
+	SelectionResult.Insert("BatchSetting",                BatchSetting);
+	SelectionResult.Insert("ObjectsPercentageInBatch",         ObjectsPercentageInBatch);
+	SelectionResult.Insert("InterruptOnError",             ChangeInTransaction Or InterruptOnError);
+	SelectionResult.Insert("ShowInternalAttributes",   ShowInternalAttributes);
+	SelectionResult.Insert("DeveloperMode",              DeveloperMode);
 	SelectionResult.Insert("DisableSelectionParameterConnections", DisableSelectionParameterConnections);
 	
 	NotifyChoice(SelectionResult);
@@ -84,11 +80,7 @@ EndProcedure
 &AtClient
 Procedure SetFormItems()
 	
-	If ChangeInTransaction Then
-		Items.AbortOnErrorGroup.Enabled = False;
-	Else
-		Items.AbortOnErrorGroup.Enabled = True;
-	EndIf;
+	Items.AbortOnErrorGroup.Enabled = Not ChangeInTransaction;
 	
 EndProcedure
 

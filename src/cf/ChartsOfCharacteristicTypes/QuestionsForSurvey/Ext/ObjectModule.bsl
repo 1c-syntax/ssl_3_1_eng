@@ -71,6 +71,8 @@ Procedure ClearUnnecessaryAttributes()
 		MinValue       = 0;
 		MaxValue      = 0;
 		ShowAggregatedValuesInReports = False;
+		ShouldShowRangeSlider = False;
+		RangeSliderStep = 0;
 		
 	EndIf;
 	
@@ -78,7 +80,11 @@ Procedure ClearUnnecessaryAttributes()
 		CommentRequired = False;
 		CommentNote = "";
 	EndIf;
-
+	
+	If Not ShouldShowHintForNumericalQuestions Then
+		NumericalQuestionHintsRange.Clear();
+	EndIf;
+	
 EndProcedure
 
 // Sets a CCT value type depending on the answer type.

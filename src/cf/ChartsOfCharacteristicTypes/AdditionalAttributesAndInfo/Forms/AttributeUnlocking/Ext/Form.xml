@@ -240,13 +240,13 @@ If you edit its value type, some of the current values might be lost.</v8:conten
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Allow edit</v8:content>
+					<v8:content>Allow editing</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Allow edit</v8:content>
+					<v8:content>Allow editing</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>EnableEdit</Action>

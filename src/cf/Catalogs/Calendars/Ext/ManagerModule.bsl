@@ -42,6 +42,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	Selection.Reset();
 	While Selection.Next() Do
 		LockItem.SetValue("Ref", Selection.Ref);
+		RepresentationOfTheReference = String(Selection.Ref);
 		BeginTransaction();
 		Try
 			Block.Lock();
@@ -56,7 +57,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process work schedule ""%1"" due to:
                       |%2';"), 
-				Selection.Ref, 
+				RepresentationOfTheReference, 
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(
 				InfobaseUpdate.EventLogEvent(), 

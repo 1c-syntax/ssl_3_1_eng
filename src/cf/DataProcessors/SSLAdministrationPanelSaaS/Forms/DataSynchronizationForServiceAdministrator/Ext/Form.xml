@@ -291,6 +291,54 @@ and other information systems.</v8:content>
 												</LabelDecoration>
 											</ChildItems>
 										</UsualGroup>
+										<UsualGroup name="PerformanceMonitor" id="2110">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Performance monitor</v8:content>
+												</v8:item>
+											</Title>
+											<ToolTip>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Enable performance monitoring for synchronization in the EnterpriseData format.</v8:content>
+												</v8:item>
+											</ToolTip>
+											<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="PerformanceMonitorExtendedTooltip" id="2111"/>
+											<ChildItems>
+												<CheckBoxField name="UsePerformanceEvaluation" id="2112">
+													<DataPath>ConstantsSet.UsePerformanceMonitoringOfDataSynchronization</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Performance monitor</v8:content>
+														</v8:item>
+													</Title>
+													<TitleLocation>Right</TitleLocation>
+													<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+													<CheckBoxType>Auto</CheckBoxType>
+													<ContextMenu name="UsePerformanceEvaluationContextMenu" id="2113"/>
+													<ExtendedTooltip name="UsePerformanceEvaluationExtendedTooltip" id="2114"/>
+													<Events>
+														<Event name="OnChange">UsePerformanceEvaluationOnChange</Event>
+													</Events>
+												</CheckBoxField>
+												<Button name="ExchangeSessions" id="2115">
+													<Type>Hyperlink</Type>
+													<CommandName>Catalog.DataExchangesSessions.Command.DataExchangesSessions</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Exchange sessions</v8:content>
+														</v8:item>
+													</Title>
+													<ExtendedTooltip name="ExchangeSessionsExtendedTooltip" id="2116"/>
+												</Button>
+											</ChildItems>
+										</UsualGroup>
 									</ChildItems>
 								</UsualGroup>
 							</ChildItems>

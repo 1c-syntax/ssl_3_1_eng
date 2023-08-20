@@ -1124,7 +1124,7 @@
 			</Attribute>
 			<Attribute uuid="13dee5d8-f165-48de-9ccb-3ef0239f4b27">
 				<Properties>
-					<Name>PhoneWithExtension</Name>
+					<Name>PhoneWithExtensionNumber</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>

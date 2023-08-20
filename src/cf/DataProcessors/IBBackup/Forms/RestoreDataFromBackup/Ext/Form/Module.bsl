@@ -418,14 +418,13 @@ EndProcedure
 Function GenerateScriptFiles() 
 	
 	CopyingParameters = IBBackupClient.ClientBackupParameters();
-	ClientRunParameters = StandardSubsystemsClient.ClientRunParameters();
 	CreateDirectory(CopyingParameters.TempFilesDirForUpdate);
 	
 	ScriptParameters = IBBackupClient.GeneralScriptParameters();
 	ScriptParameters.ApplicationFileName = CopyingParameters.ApplicationFileName;
 	ScriptParameters.EventLogEvent = CopyingParameters.EventLogEvent;
-	ScriptParameters.COMConnectorName = ClientRunParameters.COMConnectorName;
-	ScriptParameters.IsBaseConfigurationVersion = ClientRunParameters.IsBaseConfigurationVersion;
+	ScriptParameters.COMConnectorName = CommonClientServer.COMConnectorName();
+	ScriptParameters.IsBaseConfigurationVersion = StandardSubsystemsClient.IsBaseConfigurationVersion();
 	ScriptParameters.ScriptParameters = IBBackupClient.UpdateAdministratorAuthenticationParameters(IBAdministratorPassword);
 	ScriptParameters.OneCEnterpriseStartupParameters = CommonInternalClient.EnterpriseStartupParametersFromScript();
 	
@@ -533,7 +532,7 @@ Function GenerateSplashText()
 	
 	IBBackupServer.SetTheGeneralParametersOfTheScreenSaver(TextParameters);
 	
-	Return IBBackupServer.SubstituteParametersToText(TextTemplate1, TextParameters);;
+	Return IBBackupServer.SubstituteParametersToText(TextTemplate1, TextParameters);
 	
 EndFunction
 

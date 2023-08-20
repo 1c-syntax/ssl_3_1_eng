@@ -726,6 +726,7 @@ Function InitializeComposer(MetadataNamesList = Undefined, LimitUsageWithFilter 
 		
 		ReplacementStringType = StringFunctionsClientServer.SubstituteParametersToString("Type(%1)", FullMetadataName);
 		ReplacementRowChangeTable = StringFunctionsClientServer.SubstituteParametersToString("%1.Changes", FullMetadataName);
+		ReplacementRowTable = StringFunctionsClientServer.SubstituteParametersToString("%1", FullMetadataName);
 		MetadataSetName = StrReplace(FullMetadataName, ".", "_");
 		
 		SetName = "Automatically_" + MetadataSetName;
@@ -751,7 +752,7 @@ Function InitializeComposer(MetadataNamesList = Undefined, LimitUsageWithFilter 
 			Set.Name = SetName;
 		
 			QueryText = StrReplace(RequestTemplateQuantity, "&FullNameOfTheMetadataTableType", ReplacementStringType);
-			QueryText = StrReplace(QueryText, "&FullNameOfTheMetadataTable", ReplacementRowChangeTable);
+			QueryText = StrReplace(QueryText, "&FullNameOfTheMetadataTable", ReplacementRowTable);
 			Set.Query = QueryText;
 			
 		EndIf;

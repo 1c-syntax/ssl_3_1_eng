@@ -867,7 +867,7 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined) Ex
 			If TypeOfRightsOwnersToDefine.Get(RefType) = Undefined Then
 				ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'The rights owner type ""%1""
-					           |is missing from the flexible type collection ""%2"".';"),
+					           |is missing from type collection ""%2"".';"),
 					String(RefType),
 					"RightsSettingsOwner");
 				Raise ErrorText;
@@ -885,13 +885,13 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined) Ex
 				
 					ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Rights owner type ""%1""
-						           |is not specified in flexible type collection ""%2"" 
-						           |but used to fill access value sets 
-						           |as it is specified in one of subscriptions to the event:
+						           |is missing from type collection ""%2"".
+						           |However, it affects access value sets,
+						           |as it is present in the subscription to one of the following events:
 						           |- %3
 						           |- %4
-						           |Specify a type in defined type ""%5""
-						           |for correct filling of register ""%6"".';"),
+						           |To avoid mistakes in the %6 register,
+						           |add this type to type collection ""%5"".';"),
 						String(RefType),
 						"AccessValue",
 						"WriteDependentAccessValuesSets" + "*",
@@ -926,7 +926,7 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined) Ex
 			If SubscriptionTypesUpdateRightsSettingsOwnersGroups.Get(ObjectType) = Undefined Then
 				ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'The rights owner type ""%1""
-					           |is missing from the flexible type collection ""%2"".';"),
+					           |is missing from type collection ""%2"".';"),
 					String(ObjectType), "RightsSettingsOwnerObject");
 				Raise ErrorText;
 			EndIf;

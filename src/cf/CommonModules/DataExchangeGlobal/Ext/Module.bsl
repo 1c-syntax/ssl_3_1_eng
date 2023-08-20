@@ -13,6 +13,12 @@
 //
 Procedure CheckSubordinateNodeConfigurationUpdateRequired() Export
 	
+#If MobileClient Then
+	If MainServerAvailable() = False Then
+		Return;
+	EndIf;
+#EndIf
+	
 	UpdateRequired = StandardSubsystemsClient.ClientRunParameters().DIBNodeConfigurationUpdateRequired;
 	CheckUpdateRequired(UpdateRequired);
 	
@@ -21,6 +27,12 @@ EndProcedure
 // Checks whether infobase configuration update in the subordinate node is required. The check is performed on application startup.
 //
 Procedure CheckSubordinateNodeConfigurationUpdateRequiredOnStart() Export
+	
+#If MobileClient Then
+	If MainServerAvailable() = False Then
+		Return;
+	EndIf;
+#EndIf
 	
 	UpdateRequired = StandardSubsystemsClient.ClientParametersOnStart().DIBNodeConfigurationUpdateRequired;
 	CheckUpdateRequired(UpdateRequired);

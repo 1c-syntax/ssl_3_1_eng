@@ -82,7 +82,8 @@ Procedure CreateDataExchangeInInfobase(Sender, Settings, NodeFiltersSetting, Def
 		Except
 			
 			// Sending an error message in the managing application
-			SendMessageExchangeCreationError(Number(ThisNodeCode), Number(NewNodeCode), ErrorProcessing.DetailErrorDescription(ErrorInfo()), Sender);
+			SendMessageExchangeCreationError(Number(ThisNodeCode), Number(NewNodeCode),
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()), Sender);
 			
 			WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
 				EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
@@ -144,7 +145,8 @@ Procedure CreateDataExchangeInInfobase(Sender, Settings, NodeFiltersSetting, Def
 		RollbackTransaction();
 		
 		// Sending an error message in the managing application
-		SendMessageExchangeCreationError(Number(ThisNodeCode), Number(NewNodeCode), ErrorProcessing.DetailErrorDescription(ErrorInfo()), Sender);
+		SendMessageExchangeCreationError(Number(ThisNodeCode), Number(NewNodeCode),
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()), Sender);
 		
 		WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
 			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));

@@ -14,9 +14,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	SetConditionalAppearance();
 	
-	If Parameters.Property("MessageParameters") Then
-		MessageParameters = Parameters.MessageParameters;
-	EndIf;
+	MessageParameters = Parameters.MessageParameters;
 	
 	Items.InputOnBasisParameterTypeFullName.ChoiceList.Add(MessageTemplatesClientServer.CommonID(),
 		MessageTemplatesClientServer.CommonIDPresentation());
@@ -32,9 +30,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If IsNewTemplate Then
 		
 		If Parameters.CopyingValue = Catalogs.MessageTemplates.EmptyRef() Then
-			
 			InitializeNewMessagesTemplate(MessageTemplatesSettings);
-			
 		Else
 			
 			For Each CopyingValueParameters In Parameters.CopyingValue.Parameters Do
@@ -63,7 +59,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.AttributesContextMenuDelete.Visible = False;
 	EndIf;
 	
-	If Parameters.Property("TemplateOwner") Then
+	If ValueIsFilled(Parameters.TemplateOwner) Then
 		Items.AssignmentGroup.Visible                = False;
 		Items.FormMessageToGenerateGroup.Visible = False;
 		Items.Purpose.Visible                      = False;
@@ -853,11 +849,10 @@ Function SelectedFormatSettings()
 		EndIf;
 	EndDo;
 	
-	Result = New Structure;
-	Result.Insert("PackToArchive", Object.PackToArchive);
-	Result.Insert("SaveFormats", SaveFormats);
-	Result.Insert("Recipients", New Array);
-	Result.Insert("TransliterateFilesNames", Object.TransliterateFileNames);
+	Result = CommonInternalClient.PrintFormFormatSettings();
+	Result.PackToArchive = Object.PackToArchive;
+	Result.SaveFormats = SaveFormats;
+	Result.TransliterateFilesNames = Object.TransliterateFileNames;
 	
 	Return Result;
 	
@@ -1033,7 +1028,9 @@ Procedure InitializeNewMessagesTemplate(Val MessageTemplatesSettings)
 		
 	EndIf;
 	
-	Parameters.Property("TemplateOwner", Object.TemplateOwner);
+	If ValueIsFilled(Parameters.TemplateOwner) Then
+		Object.TemplateOwner = Parameters.TemplateOwner;
+	EndIf;
 	
 EndProcedure
 
@@ -1650,7 +1647,7 @@ EndProcedure
 Function CopyAttachmentsFromSource()
 	
 	ListOfFiles = New Array; // Array of DefinedType.AttachedFile
-	ErrorsList = Undefined;
+	ErrorList = Undefined;
 	ErrorDescription = NStr("en = 'Cannot copy attachment due to: %1';");
 	
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
@@ -1665,7 +1662,7 @@ Function CopyAttachmentsFromSource()
 					
 					WriteErrorToEventLog(EventNameMessageTemplates(), ErrorInfo, NStr("en = 'Failed to extract and save the file';"));
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorDescription, ErrorProcessing.BriefErrorDescription(ErrorInfo));
-					CommonClientServer.AddUserError(ErrorsList, "Attachments", ErrorText, "Attachments",, ErrorText);
+					CommonClientServer.AddUserError(ErrorList, "Attachments", ErrorText, "Attachments",, ErrorText);
 					Continue;
 				EndTry;
 				NewRow                = Attachments.Add();
@@ -1678,7 +1675,7 @@ Function CopyAttachmentsFromSource()
 		EndDo;
 	EndIf;
 	
-	CommonClientServer.ReportErrorsToUser(ErrorsList);
+	CommonClientServer.ReportErrorsToUser(ErrorList);
 	
 	Return ListOfFiles;
 	

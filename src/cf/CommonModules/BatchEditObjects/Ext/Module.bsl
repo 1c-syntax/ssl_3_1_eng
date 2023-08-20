@@ -43,12 +43,15 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 			Command.Importance = "SeeAlso";
 			Command.Presentation = NStr("en = 'Edit selected…';");
 			Command.WriteMode = "DoNotWrite";
-			Command.VisibilityInForms = "ListForm";
+			Command.Purpose = "ForList";
 			Command.MultipleChoice = True;
 			Command.Handler = "BatchEditObjectsClient.CommandHandler";
 			Command.OnlyInAllActions = True;
 			Command.Order = 20;
 			
+			StringParts1 = StrSplit(AttachedObject.FullName(), ".", True);
+			StringParts1[0] = StringParts1[0] + "Ref";
+			Command.ParameterType = New TypeDescription(StrConcat(StringParts1, "."));
 		EndIf;	
 	
 	EndDo;	

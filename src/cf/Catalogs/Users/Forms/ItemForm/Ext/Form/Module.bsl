@@ -47,6 +47,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 		
 		If ValueIsFilled(Object.Ref)
+		   And ValueIsFilled(Object.ServiceUserID)
 		   And Object.Ref <> Users.AuthorizedUser() Then
 			Items.Indent.Visible = False;
 			Items.PasswordExistsLabel.Visible = False;
@@ -388,28 +389,12 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 		Return;
 	EndIf;
 	
-	If Not WriteParameters.Property("WithAnEmptyEmail")
-	   And Not ValueIsFilled(Object.Ref)
-	   And SynchronizationWithServiceRequired
-	   And CommonClient.DataSeparationEnabled()
-	   And Not EmailFilled() Then
-		
-		Cancel = True;
-		ShowQueryBox(
-			New NotifyDescription("AfterAnsweringTheQuestionAboutAnEmptyEmail", ThisObject, WriteParameters),
-			NStr("en = 'Email address is required. Continue?';"),
-			QuestionDialogMode.YesNo,
-			,
-			,
-			NStr("en = 'Record new service user';"));
-		Return;
-	EndIf;
-	
 	// 
 	If CommonClient.DataSeparationEnabled()
 		And SynchronizationWithServiceRequired
-		And ServiceUserPassword = Undefined Then
+		And Not WriteParameters.Property("AfterAuthenticationPasswordRequestInService") Then
 		
+		WriteParameters.Insert("AfterAuthenticationPasswordRequestInService");
 		Cancel = True;
 		UsersInternalClient.RequestPasswordForAuthenticationInService(
 			New NotifyDescription("AfterServiceAuthenticationPasswordRequestBeforeWrite", ThisObject, WriteParameters),
@@ -1059,28 +1044,6 @@ Procedure Attachable_EMailStartChoice(Item)
 		Return;
 	EndIf;
 	
-	If ServiceUserPassword = Undefined Then
-		UsersInternalClient.RequestPasswordForAuthenticationInService(
-			New NotifyDescription("Attachable_EMailStartChoiceCompletion", ThisObject),
-			ThisObject,
-			ServiceUserPassword);
-	Else
-		Attachable_EMailStartChoiceCompletion(Null, Undefined);
-	EndIf;
-	
-EndProcedure
-
-&AtClient
-Procedure Attachable_EMailStartChoiceCompletion(SaaSUserNewPassword, Context) Export
-	
-	If SaaSUserNewPassword = Undefined Then
-		Return;
-	EndIf;
-	
-	If SaaSUserNewPassword <> Null Then
-		ServiceUserPassword = SaaSUserNewPassword;
-	EndIf;
-	
 	CITable = ThisObject.ContactInformationAdditionalAttributesDetails;
 	
 	Filter = New Structure("Kind", ContactInformationKindUserEmail());
@@ -1088,17 +1051,10 @@ Procedure Attachable_EMailStartChoiceCompletion(SaaSUserNewPassword, Context) Ex
 	EmailRow = CITable.FindRows(Filter)[0];
 	
 	FormParameters = New Structure;
-	FormParameters.Insert("ServiceUserPassword", ServiceUserPassword);
 	FormParameters.Insert("OldEmail",  ThisObject[EmailRow.AttributeName]);
-	FormParameters.Insert("User", Object.Ref);
 	
-	Try
-		OpenForm("Catalog.Users.Form.EmailAddressChange", FormParameters, ThisObject,,,,
-			New NotifyDescription("AfterChangeEmailAddress", ThisObject));
-	Except
-		ServiceUserPassword = Undefined;
-		Raise;
-	EndTry;
+	OpenForm("Catalog.Users.Form.EmailAddressChange", FormParameters, ThisObject,,,,
+		New NotifyDescription("AfterSelectNewEmail", ThisObject));
 	
 EndProcedure
 
@@ -1675,11 +1631,46 @@ Procedure UpdateShowInListProperty()
 EndProcedure
 
 &AtClient
-Procedure AfterChangeEmailAddress(Result, Context) Export
+Procedure AfterSelectNewEmail(NewEmailAddress, Context) Export
 	
-	If Result = "" Then
-		ServiceUserPassword = Undefined;
+	If Not ValueIsFilled(NewEmailAddress) Then
+		Return;
 	EndIf;
+	
+	UsersInternalClient.RequestPasswordForAuthenticationInService(
+		New NotifyDescription("ChangeEmailAfterAuthenticationPasswordRequestedInService", ThisObject, NewEmailAddress),
+		ThisObject,
+		ServiceUserPassword);
+	
+EndProcedure
+
+&AtClient
+Procedure ChangeEmailAfterAuthenticationPasswordRequestedInService(SaaSUserNewPassword, NewEmailAddress) Export
+	
+	If SaaSUserNewPassword = Undefined Then
+		Return;
+	EndIf;
+	
+	ServiceUserPassword = SaaSUserNewPassword;
+	
+	Try
+		CreateEmailAddressChangeRequest(NewEmailAddress, Object.Ref, ServiceUserPassword);
+	Except
+		ServiceUserPassword = Undefined;
+		Raise;
+	EndTry;
+	
+	ShowMessageBox(,
+		NStr("en = 'A confirmation request is sent to the specified email address.
+		           |The email address will be changed after the confirmation.';"));
+	
+EndProcedure
+
+&AtServerNoContext
+Procedure CreateEmailAddressChangeRequest(Val NewEmailAddress, Val User, Val ServiceUserPassword)
+	
+	SSLSubsystemsIntegration.OnCreateRequestToChangeEmail(NewEmailAddress,
+		User, ServiceUserPassword);
 	
 EndProcedure
 
@@ -2008,16 +1999,6 @@ Procedure AfterAnswerToQuestionAboutCopyingRights(Response, WriteParameters) Exp
 EndProcedure
 
 &AtClient
-Procedure AfterAnsweringTheQuestionAboutAnEmptyEmail(Response, WriteParameters) Export
-	
-	If Response = DialogReturnCode.Yes Then
-		WriteParameters.Insert("WithAnEmptyEmail");
-		Write(WriteParameters);
-	EndIf;
-	
-EndProcedure
-
-&AtClient
 Procedure AfterWriteCompletion(Result, WriteParameters) Export
 	
 	If WriteParameters <> Undefined And WriteParameters.Property("WriteAndClose") Then
@@ -2100,18 +2081,6 @@ Function ContactInformationKindUserEmail()
 	PredefinedValueName = "Catalog." + "ContactInformationKinds" + ".UserEmail";
 	
 	Return PredefinedValue(PredefinedValueName);
-	
-EndFunction
-
-&AtClient
-Function EmailFilled()
-	
-	CITable = ThisObject.ContactInformationAdditionalAttributesDetails;
-	
-	EmailRow = CITable.FindRows(New Structure("Kind",
-		ContactInformationKindUserEmail()))[0];
-	
-	Return ValueIsFilled(ThisObject[EmailRow.AttributeName]);
 	
 EndFunction
 
@@ -2351,7 +2320,7 @@ Procedure FindUserAndIBUserDifferences(WriteParameters = Undefined)
 				    ShowDifferenceResolvingCommands
 				Or ActionsOnForm.ItemProperties = "Edit";
 			
-			PropertiesToResolve.Insert(0, NStr("en = 'Allow sign-in';"));
+			PropertiesToResolve.Insert(0, NStr("en = 'Sign-in allowed';"));
 		EndIf;
 		
 		// Validate the email.
@@ -2538,14 +2507,14 @@ Procedure SetPropertiesAvailability(Form)
 	If Form.CanSignIn Then
 		Items.GroupNoRights.Visible         = Form.WhetherRightsAreAssigned.HasNoRights;
 		Items.GroupNoStartupRights.Visible = Not Form.WhetherRightsAreAssigned.HasNoRights
-			And Form.WhetherRightsAreAssigned.NotEnoughPermissionsToLaunch;
-		Items.GroupNoLoginRights.Visible   = Not Form.WhetherRightsAreAssigned.HasNoRights
-			And Not Form.WhetherRightsAreAssigned.NotEnoughPermissionsToLaunch
+			And Form.WhetherRightsAreAssigned.HasInsufficientRightsForStartup;
+		Items.GroupNoLogonRights.Visible   = Not Form.WhetherRightsAreAssigned.HasNoRights
+			And Not Form.WhetherRightsAreAssigned.HasInsufficientRightsForStartup
 			And Form.WhetherRightsAreAssigned.HasInsufficientRightForLogon;
 	Else
 		Items.GroupNoRights.Visible         = False;
 		Items.GroupNoStartupRights.Visible = False;
-		Items.GroupNoLoginRights.Visible   = False;
+		Items.GroupNoLogonRights.Visible   = False;
 	EndIf;
 	
 	// 
@@ -2580,12 +2549,7 @@ Procedure SetPropertiesAvailability(Form)
 		// Contact information is editable.
 		Filter = New Structure("Kind", ContactInformationKindUserEmail());
 		FoundRows = Form.ContactInformationAdditionalAttributesDetails.FindRows(Filter);
-		If FoundRows <> Undefined Then
-			EmailFilled = ValueIsFilled(Form[FoundRows[0].AttributeName]);
-		Else
-			EmailFilled = False;
-		EndIf;
-		
+		EmailFilled = (FoundRows <> Undefined) And ValueIsFilled(Form[FoundRows[0].AttributeName]);
 		If Object.Ref.IsEmpty() And EmailFilled Then
 			CanChangePassword2 = False;
 		Else

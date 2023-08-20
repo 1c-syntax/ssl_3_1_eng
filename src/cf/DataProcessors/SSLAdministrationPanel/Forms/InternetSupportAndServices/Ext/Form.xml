@@ -32,7 +32,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip_SSLs" id="1600"/>
+			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="1600"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="1581">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -103,7 +103,7 @@
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>It is recommended that you import the address classifier and keep it up-to-date to save bandwidth during auto completion and auto verification of addresses. You will need up to 2 GB on the hard drive.</v8:content>
+										<v8:content>It is recommended that you import the address classifier and keep it up-to-date to save bandwidth during auto completion and auto verification of addresses. You will need up to 2 GB on the computer.</v8:content>
 									</v8:item>
 								</Title>
 							</ExtendedTooltip>

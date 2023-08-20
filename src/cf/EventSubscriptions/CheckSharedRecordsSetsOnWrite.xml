@@ -6,7 +6,7 @@
 			<Synonym>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Control of undivided record sets on record</v8:content>
+					<v8:content>Control shared record sets on save</v8:content>
 				</v8:item>
 			</Synonym>
 			<Comment/>

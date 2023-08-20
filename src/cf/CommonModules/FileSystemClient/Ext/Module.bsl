@@ -348,7 +348,7 @@ EndFunction
 //  CompletionHandler - NotifyDescription
 //                       - Undefined - 
 //                       
-//    * TheModifiedFile             - Boolean - the file is changed on a hard drive or the binary data in a temporary storage.
+//    * TheModifiedFile             - Boolean -
 //    * AdditionalParameters - Arbitrary - a value that was specified on creating
 //                              the NotifyDescription object.
 //  FileName             - String - the name of the file with an extension or the file extension without the dot. If
@@ -399,7 +399,7 @@ EndProcedure
 // If a file path is specified, the pointer is placed on the file.
 //
 // Parameters:
-//  PathToDirectoryOrFile - String - the full path to a file or folder on the drive.
+//  PathToDirectoryOrFile - String -
 //
 // Example:
 //  // For Windows OS

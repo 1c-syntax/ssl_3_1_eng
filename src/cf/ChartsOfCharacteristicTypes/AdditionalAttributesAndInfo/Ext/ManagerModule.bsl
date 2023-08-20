@@ -108,8 +108,8 @@ Procedure PresentationGetProcessing(Data, Presentation, StandardProcessing)
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 	If Not PropertyManagerCached.IsMainLanguage()
 		And Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportClientServer = Common.CommonModule("NationalLanguageSupportClientServer");
-		ModuleNativeLanguagesSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing, "Title");
+		ModuleNationalLanguageSupportClientServer = Common.CommonModule("NationalLanguageSupportClientServer");
+		ModuleNationalLanguageSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing, "Title");
 	EndIf;
 	
 	If ValueIsFilled(Data.PropertiesSet) Then
@@ -118,8 +118,8 @@ Procedure PresentationGetProcessing(Data, Presentation, StandardProcessing)
 	EndIf;
 #Else
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportClientServer = CommonClient.CommonModule("NationalLanguageSupportClientServer");
-		ModuleNativeLanguagesSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing, "Title");
+		ModuleNationalLanguageSupportClientServer = CommonClient.CommonModule("NationalLanguageSupportClientServer");
+		ModuleNationalLanguageSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing, "Title");
 	EndIf;
 #EndIf
 	
@@ -529,7 +529,7 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 			
 			OwnerWithAdditionalAttributes = False;
 			
-			If PropertyManagerInternal.IsMetadataObjectWithAdditionalAttributes(OwnerMetadata) Then
+			If PropertyManagerInternal.IsMetadataObjectWithProperties(OwnerMetadata, "AdditionalAttributes") Then
 				OwnerWithAdditionalAttributes = True;
 				LockItem = Block.Add(FullOwnerName);
 			EndIf;
@@ -883,7 +883,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	ObjectsProcessed = 0;
 	
 	While Selection.Next() Do
-		
+		RepresentationOfTheReference = String(Selection.Ref);
 		BeginTransaction();
 		Try
 			// Lock the object (to ensure that it won't be edited in other sessions).
@@ -939,7 +939,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process additional attribute or information record: ""%1"". Reason:
 					|%2';"), 
-				Selection.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
 				Metadata.ChartsOfCharacteristicTypes.AdditionalAttributesAndInfo, Selection.Ref, MessageText);
 		EndTry;

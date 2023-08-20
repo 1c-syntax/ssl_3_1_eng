@@ -361,7 +361,7 @@ Procedure AfterAddressEdit(ClosingResult, AdditionalParameters) Export
 		String.Kind = ClosingResult.Kind;
 		String.Type = ClosingResult.Type;
 		String.StoreChangeHistory = True;
-		Items.History.CurrentRow = String.GetID();;
+		Items.History.CurrentRow = String.GetID();
 		Items.History.CurrentItem = Items.History.ChildItems.HistoryPresentation;
 		History.Sort("ValidFrom Desc");
 	Else

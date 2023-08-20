@@ -243,6 +243,12 @@ Procedure AfterImportData(Container) Export
 	
 EndProcedure
 
+Function HasRightToChangeExchangeRates() Export
+	
+	Return AccessRight("Update", Metadata.InformationRegisters.ExchangeRates);
+	
+EndFunction
+
 #EndRegion
 
 #Region Private
@@ -785,8 +791,8 @@ Function WritingInWordsInputForms() Export
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-		PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
-		ValidLanguageCodes = PrintManagementModuleMultilanguage.AvailableLanguages();
+		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
+		ValidLanguageCodes = PrintManagementModuleNationalLanguageSupport.AvailableLanguages();
 	Else
 		ValidLanguageCodes = StandardSubsystemsServer.ConfigurationLanguages();
 	EndIf;

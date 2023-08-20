@@ -77,7 +77,7 @@ Function GetRegisteredDumps(Dumps) Export
 	Return HasDumps;
 EndFunction
 
-Function GetTopOptions(StartDate, EndDate, Count, Val PlatformVersion = Undefined) Export
+Function GetTopOptions(StartDate, EndDate, Count, Val PlatformVersion = Undefined, ShouldRenameColumns = False) Export
 	StartDateSM = (StartDate - Date(1,1,1)) * 1000;
 	EndDateSM = (EndDate - Date(1,1,1)) * 1000;
 	
@@ -112,10 +112,11 @@ Function GetTopOptions(StartDate, EndDate, Count, Val PlatformVersion = Undefine
 	Else
 		Query.Text = StrReplace(Query.Text, "&CondPlatformVersion", "TRUE");
 	EndIf;
-		
 	TableOfDumps = Query.Execute().Unload();
-	TableOfDumps.Columns[0].Name = "dumpVariant";
-	TableOfDumps.Columns[1].Name = "quantity";
+	If ShouldRenameColumns Then	
+		TableOfDumps.Columns[0].Name = "dumpVariant";
+		TableOfDumps.Columns[1].Name = "quantity";
+	EndIf;                                     
 	Return TableOfDumps;
 EndFunction
 

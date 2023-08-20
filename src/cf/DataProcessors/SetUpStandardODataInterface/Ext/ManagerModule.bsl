@@ -506,10 +506,8 @@ Procedure FillModelOfDataToProvideForStandardODataInterface(Val Result, Val Full
 		String.Update = False;
 	ElsIf Common.IsDocumentJournal(MetadataObject) Then
 		String.Update = False;
-	ElsIf Not IsSeparatedMetadataObject Then
-		String.Update = False;
 	Else
-		String.Update = True;
+		String.Update = IsSeparatedMetadataObject;
 	EndIf;
 	
 	For Each KeyAndValue In MetadataObjectProperties.Dependencies Do

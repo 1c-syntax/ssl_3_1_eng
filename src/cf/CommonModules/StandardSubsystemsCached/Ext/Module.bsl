@@ -240,11 +240,7 @@ EndFunction
 //
 Function DIBUsed(FilterByPurpose = "") Export
 	
-	If DIBNodes(FilterByPurpose).Count() > 0 Then
-		Return True;
-	Else
-		Return False;
-	EndIf;
+	Return DIBNodes(FilterByPurpose).Count() > 0;
 	
 EndFunction
 

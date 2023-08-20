@@ -46,14 +46,14 @@ Function TranslateTheTexts(Texts, TranslationLanguage = Undefined, SourceLanguag
 		QueryOptions.Insert("sourceLanguageCode", SourceLanguage);
 	EndIf;
 	
-	HTTPRequest.SetBodyFromString(ValueToJSON(QueryOptions));
+	HTTPRequest.SetBodyFromString(Common.ValueToJSON(QueryOptions));
 	QueryResult = ExecuteQuery(HTTPRequest, HostName_SSLy);
 	
 	If Not QueryResult.QueryCompleted Then
 		Raise ErrorText(NStr("en = 'Cannot translate text.';"));
 	EndIf;
 	
-	ServerResponse1 = JSONValue(QueryResult.ServerResponse1);
+	ServerResponse1 = Common.JSONValue(QueryResult.ServerResponse1);
 	
 	Result = New Map;
 	For IndexOf = 0 To Texts.UBound() Do
@@ -110,7 +110,7 @@ Function NewIAMToken()
 	QueryOptions.Insert("yandexPassportOauthToken", AuthorizationSettings().OAuthToken);
 	SetPrivilegedMode(False);
 	
-	HTTPRequest.SetBodyFromString(ValueToJSON(QueryOptions));
+	HTTPRequest.SetBodyFromString(Common.ValueToJSON(QueryOptions));
 	
 	QueryResult = ExecuteQuery(HTTPRequest, HostName_SSLy);
 	
@@ -119,7 +119,7 @@ Function NewIAMToken()
 			"en = 'Cannot authorize to %1.';"), "Yandex.Cloud"));
 	EndIf;
 	
-	ConfiguringAuthorization = JSONValue(QueryResult.ServerResponse1, "expiresAt");
+	ConfiguringAuthorization = Common.JSONValue(QueryResult.ServerResponse1, "expiresAt");
 	IAMToken = ConfiguringAuthorization["iamToken"];
 	ValidityPeriod = ConfiguringAuthorization["expiresAt"];
 	
@@ -146,7 +146,7 @@ Function AvailableLanguages() Export
 	QueryOptions.Insert("folder_id", AuthorizationSettings().DirectoryID);
 	SetPrivilegedMode(False);
 	
-	HTTPRequest.SetBodyFromString(ValueToJSON(QueryOptions));
+	HTTPRequest.SetBodyFromString(Common.ValueToJSON(QueryOptions));
 	
 	QueryResult = ExecuteQuery(HTTPRequest, HostName_SSLy);
 	
@@ -155,7 +155,7 @@ Function AvailableLanguages() Export
 	EndIf;
 	
 	Result = New Array;
-	AvailableLanguages = JSONValue(QueryResult.ServerResponse1);
+	AvailableLanguages = Common.JSONValue(QueryResult.ServerResponse1);
 	For Each Language In AvailableLanguages["languages"] Do
 		LanguageCode = Language["code"];
 		If ValueIsFilled(LanguageCode) Then
@@ -196,7 +196,7 @@ Function ExecuteQuery(Val HTTPRequest, Val HostName_SSLy)
 		
 	If HTTPResponse.StatusCode = 401 
 		Or HTTPResponse.StatusCode = 403 Then
-		ErrorInfo = JSONValue(HTTPResponse.GetBodyAsString());
+		ErrorInfo = Common.JSONValue(HTTPResponse.GetBodyAsString());
 		Raise ErrorInfo["message"];
 	EndIf;
 	
@@ -256,19 +256,6 @@ Function SetupExecuted() Export
 	Return ValueIsFilled(AuthorizationSettings.OAuthToken)
 		And ValueIsFilled(AuthorizationSettings.DirectoryID);
 	
-EndFunction
-
-Function ValueToJSON(Value)
-	JSONWriter = New JSONWriter;
-	JSONWriter.SetString();
-	WriteJSON(JSONWriter, Value);
-	Return JSONWriter.Close();
-EndFunction
-
-Function JSONValue(String, PropertiesWithDateValuesNames = Undefined)
-	JSONReader = New JSONReader;
-	JSONReader.SetString(String);
-	Return ReadJSON(JSONReader, True, PropertiesWithDateValuesNames);
 EndFunction
 
 Procedure WriteErrorToEventLog(Comment)

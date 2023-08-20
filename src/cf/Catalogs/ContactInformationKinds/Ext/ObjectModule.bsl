@@ -96,8 +96,8 @@ EndProcedure
 Function DescriptionForIDGeneration()
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		CurrentLanguageSuffix = ModuleNativeLanguagesSupportServer.CurrentLanguageSuffix();
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		CurrentLanguageSuffix = ModuleNationalLanguageSupportServer.CurrentLanguageSuffix();
 		TitleForID = ?(ValueIsFilled(CurrentLanguageSuffix),
 			ThisObject["Description"+ CurrentLanguageSuffix],
 			Description);
@@ -112,8 +112,8 @@ EndFunction
 Procedure OnReadPresentationsAtServer() Export
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.OnReadPresentationsAtServer(ThisObject);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.OnReadPresentationsAtServer(ThisObject);
 	EndIf;
 	
 EndProcedure

@@ -13,8 +13,8 @@
 //
 // Parameters:
 //   ChecksKind - CatalogRef.ChecksKinds - a reference to a check kind.
-//               - String - String ID of the check kind (Property1).
-//               - Array - String IDs of the check kind (Property1…PropertyN).
+//               - String - 
+//               - Array of String - 
 //   ExactMap - Boolean - If True, filter only by the given check kind.
 //                 If False, select all check kinds related to the passed kind.
 //

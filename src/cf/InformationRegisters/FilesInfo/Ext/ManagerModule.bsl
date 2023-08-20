@@ -14,9 +14,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Update handlers.
 
-// Registers objects, 
-// for which it is necessary to update register records on the InfobaseUpdate exchange plan.
-//
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
 	SelectionParameters = Parameters.SelectionParameters;
@@ -59,15 +56,17 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
 EndProcedure
 
-// Update register records.
 Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	SelectedData = InfobaseUpdate.DataToUpdateInMultithreadHandler(Parameters);
 	ObjectsProcessed = 0;
 	ObjectsWithIssuesCount = 0;
+	BadData = New Map;
+	RegisterMetadata = Metadata.InformationRegisters.FilesInfo;
+	FullObjectName = RegisterMetadata.FullName();
 	
 	For Each String In SelectedData Do
-		
+		RepresentationOfTheReference = String(String.File);
 		BeginTransaction();
 		Try
 			
@@ -76,22 +75,34 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			DataLockItem.SetValue("Ref", String.File);
 			DataLockItem.Mode = DataLockMode.Shared;
 			
-			DataLockItem = DataLock.Add("InformationRegister.FilesInfo");
+			DataLockItem = DataLock.Add(FullObjectName);
 			DataLockItem.SetValue("File", String.File);
 			
 			DataLock.Lock();
 			
-			FileStorageType = Common.ObjectAttributeValue(String.File, "FileStorageType");
-			
 			RecordSet = InformationRegisters.FilesInfo.CreateRecordSet();
 			RecordSet.Filter.File.Set(String.File);
-			RecordSet.Read();
+
+			FileStorageType = Common.ObjectAttributeValue(String.File, "FileStorageType");
+			If FileStorageType = Undefined Then
+				BadData[String.Owner] = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'The ""File properties"" information register references a non-existent file: ""%1"".';"),
+					String.File);
+				InfobaseUpdate.MarkProcessingCompletion(RecordSet);
+				CommitTransaction();
+				Continue;
+			EndIf;
 			
+			RecordSet.Read();
 			For Each FileInfo1 In RecordSet Do
 				FileInfo1.FileStorageType = FileStorageType;
 			EndDo;
 			
-			InfobaseUpdate.WriteRecordSet(RecordSet);
+			If RecordSet.Modified() Then
+				InfobaseUpdate.WriteRecordSet(RecordSet);
+			Else
+				InfobaseUpdate.MarkProcessingCompletion(RecordSet);
+			EndIf;
 			
 			ObjectsProcessed = ObjectsProcessed + 1;
 			CommitTransaction();
@@ -101,15 +112,19 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process information records about file %1. Reason:
 				|%2';"), 
-				String.File, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
-				String.File.Metadata(), String.File, MessageText);
+				RegisterMetadata, String.File, MessageText);
 		EndTry;
 		
 	EndDo;
 	
-	Parameters.ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue, "InformationRegister.FilesInfo");
+	Parameters.ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue, FullObjectName);
 	
+	For Each UnprocessedObject In BadData Do
+		InfobaseUpdate.FileIssueWithData(UnprocessedObject.Key, UnprocessedObject.Value);
+	EndDo;
+
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Couldn''t process (skipped) some information record about files: %1';"), 

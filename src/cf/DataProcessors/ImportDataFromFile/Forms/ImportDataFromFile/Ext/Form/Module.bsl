@@ -271,6 +271,13 @@ Procedure TemplateWithDataOnActivate(Item)
 	Item.Protection = ?(Item.CurrentArea.Top > TemplateWithDataHeaderHeight, False, True);
 EndProcedure
 
+&AtClient
+Procedure TemplateWithDataSelection(Item, Area, StandardProcessing)
+	If Area.Top <= TemplateWithDataHeaderHeight Then
+		StandardProcessing = False;
+	EndIf;
+EndProcedure
+
 #EndRegion
 
 #Region DataMappingTableFormTableItemEventHandlers
@@ -748,7 +755,7 @@ EndProcedure
 &AtClient
 Function EmptyDataTable()
 	
-	If TemplateWithData.TableHeight < 2 Then
+	If TemplateWithData.TableHeight <= TemplateWithDataHeaderHeight Then
 		Return True;
 	EndIf;
 	
@@ -963,17 +970,26 @@ Procedure MapDataToImport()
 		
 		CopySingleColumnToTemplateWithData();
 		
-	ElsIf EmptyDataTable() Then
+	Else
 		
-		If ImportOption = 0 Then
-			ShowMessageBox(, (NStr("en = 'To map and import data, fill in the table.';")));
-		Else
-			ShowMessageBox(, (NStr("en = 'Cannot import data from the spreadsheet.
-			|It appears that column titles in the file don''t match the column titles in the template. ';")));
-		EndIf;
 		ExecuteStepFillTableWithDataAtClient();
-		CommandBarButtonsAvailability(True);
-		Return;
+		
+		If EmptyDataTable() Then
+		
+			If ImportOption = 0 Then
+				ShowMessageBox(, (NStr("en = 'To map and import data, fill in the table.';")));
+			Else
+				ShowMessageBox(, (NStr("en = 'Cannot import data from the spreadsheet.
+				|It appears that column titles in the file don''t match the column titles in the template.';")));
+				Items.Back.Visible = False;
+			EndIf;
+			
+			CommandBarButtonsAvailability(True); 
+			
+			Return;
+			
+		EndIf;
+		
 	EndIf;
 	
 	FormClosingConfirmation = False;

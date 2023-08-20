@@ -56,14 +56,19 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If Not Common.SubsystemExists("StandardSubsystems.Properties") Then
-		Items.AdditionalAttributesAndDataGroup.Visible = False;
+		Items.PropertiesGroup.Visible = False;
+	Else
+		ModulePropertyManager = Common.CommonModule("PropertyManager");
+		If Not ModulePropertyManager.HasLabelsOwners() Then
+			Items.GroupLabels.Visible = False;
+		EndIf;
 	EndIf;
 	
-	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
 		ThisIsTheAdministrator = Users.IsFullUser(, True);
 		Items.UseCloudSignatureService.Visible = ThisIsTheAdministrator;
 		Items.UseCloudSignatureService.ExtendedTooltip.Title = StringFunctions.FormattedString(
-					"Разрешает use for подписания services signatures DSS. Use сервиса for формирования квалифицированной электронной signatures требует <a href = ""DSSSettings"">additional_3 ofsettings</a>.")
+					"Allows use for signings services signatures DSS. Use service for formations qualified electronic_ signatures requires <a href = ""DSSSettings"">additional_3 ofsettings</a>.")
 	Else	
 		Items.CloudSignatureGroup.Visible = False;
 	EndIf;
@@ -157,7 +162,7 @@ Procedure ApplicationTitleOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure UseAdditionalAttributesAndInfoOnChange(Item)
+Procedure UsePropertiesOnChange(Item)
 	Attachable_OnChangeAttribute(Item);
 EndProcedure
 
@@ -365,7 +370,7 @@ EndProcedure
 &AtClient
 Procedure UseCloudSignatureServiceOnChange(Item)
 	
-	If Not CommonClient.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
+	If Not CommonClient.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
 		Return;
 	EndIf;
 	
@@ -418,7 +423,7 @@ Procedure AdditionalAttributes(Command)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
-		ModulePropertyManagerClient.OpenPropertiesList(True);
+		ModulePropertyManagerClient.OpenPropertiesList(Command.Name);
 	EndIf;
 	
 EndProcedure
@@ -428,7 +433,17 @@ Procedure AdditionalInfo(Command)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
-		ModulePropertyManagerClient.OpenPropertiesList();
+		ModulePropertyManagerClient.OpenPropertiesList(Command.Name);
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure Labels(Command)
+	
+	If CommonClient.SubsystemExists("StandardSubsystems.Properties") Then
+		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
+		ModulePropertyManagerClient.OpenPropertiesList(Command.Name);
 	EndIf;
 	
 EndProcedure
@@ -459,8 +474,8 @@ Procedure RegionalSettings(Command)
 	FormParameters = New Structure("Source", "SSLAdministrationPanel");
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportClient = CommonClient.CommonModule("NationalLanguageSupportClient");
-		ModuleNativeLanguagesSupportClient.OpenTheRegionalSettingsForm(, FormParameters);
+		ModuleNationalLanguageSupportClient = CommonClient.CommonModule("NationalLanguageSupportClient");
+		ModuleNationalLanguageSupportClient.OpenTheRegionalSettingsForm(, FormParameters);
 	EndIf;
 	
 EndProcedure
@@ -661,8 +676,9 @@ Procedure SetAvailability(DataPathAttribute = "")
 	
 	If (DataPathAttribute = "ConstantsSet.UseAdditionalAttributesAndInfo" Or DataPathAttribute = "")
 		And Common.SubsystemExists("StandardSubsystems.Properties") Then
-		
-		Items.AdditionalAttributesOrDataGroup.Enabled =
+		Items.AdditionalDataGroup.Enabled =
+			ConstantsSet.UseAdditionalAttributesAndInfo;
+		Items.GroupPropertiesRight.Enabled =
 			ConstantsSet.UseAdditionalAttributesAndInfo;
 	EndIf;
 	
@@ -705,7 +721,7 @@ Procedure SetAvailability(DataPathAttribute = "")
 		Or DataPathAttribute = "ConstantsSet.UseEncryption"
 		Or DataPathAttribute = "ConstantsSet.UseDSSService"
 		Or DataPathAttribute = "")
-		And Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
+		And Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
 		
 		CloudSignatureAvailability = (ConstantsSet.UseDigitalSignature Or ConstantsSet.UseEncryption)
 			And (ConstantsSet.UseDSSService);

@@ -213,7 +213,7 @@ Click "Save" to resolve the issue and hide this message.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Allow authorization</v8:content>
+					<v8:content>Sign-in allowed</v8:content>
 				</v8:item>
 			</Title>
 			<Behavior>Usual</Behavior>
@@ -319,30 +319,61 @@ with the specified authentication methods.</v8:content>
 									<v8:content>No startup rights</v8:content>
 								</v8:item>
 							</Title>
+							<ToolTip>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>User does not have any startup rights
+(e.g. thin client or web client).</v8:content>
+								</v8:item>
+							</ToolTip>
 							<ContextMenu name="NoStartupRightsLabelContextMenu" id="390"/>
 							<ExtendedTooltip name="NoStartupRightsLabelExtendedTooltip" id="391"/>
 						</LabelDecoration>
 					</ChildItems>
 				</UsualGroup>
-				<UsualGroup name="GroupNoLoginRights" id="397">
+				<UsualGroup name="GroupNoLogonRights" id="397">
 					<Visible>false</Visible>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>No rights to sign in</v8:content>
+						</v8:item>
+					</Title>
 					<Group>AlwaysHorizontal</Group>
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="GroupNoLoginRightsExtendedTooltip" id="398"/>
+					<ExtendedTooltip name="GroupNoLogonRightsExtendedTooltip" id="398"/>
 					<ChildItems>
-						<PictureDecoration name="NoAccessRightsToImage" id="399">
+						<PictureDecoration name="NoLogonRightsPicture" id="399">
+							<Title formatted="false">
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>No rights to sign in picture</v8:content>
+								</v8:item>
+							</Title>
 							<Picture>
 								<xr:Ref>CommonPicture.Warning</xr:Ref>
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
-							<ContextMenu name="NoAccessRightsToImageContextMenu" id="400"/>
-							<ExtendedTooltip name="NoAccessRightsToImageExtendedTooltip" id="401"/>
+							<ContextMenu name="NoLogonRightsPictureContextMenu" id="400"/>
+							<ExtendedTooltip name="NoLogonRightsPictureExtendedTooltip" id="401"/>
 						</PictureDecoration>
-						<LabelDecoration name="NoSignInRights" id="402">
-							<ContextMenu name="NoSignInRightsContextMenu" id="403"/>
-							<ExtendedTooltip name="NoSignInRightsExtendedTooltip" id="404"/>
+						<LabelDecoration name="NoLogonRightsLabel" id="402">
+							<Title formatted="false">
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>No rights to sign in</v8:content>
+								</v8:item>
+							</Title>
+							<ToolTip>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>User is not granted the minimum access rights to use the application.</v8:content>
+								</v8:item>
+							</ToolTip>
+							<ContextMenu name="NoLogonRightsLabelContextMenu" id="403"/>
+							<ExtendedTooltip name="NoLogonRightsLabelExtendedTooltip" id="404"/>
 						</LabelDecoration>
 					</ChildItems>
 				</UsualGroup>
@@ -570,8 +601,8 @@ username and password.</v8:content>
 																	<ToolTip>
 																		<v8:item>
 																			<v8:lang>en</v8:lang>
-																			<v8:content>The external user cannot change
-their password.</v8:content>
+																			<v8:content>Disable password recovery
+for this external user</v8:content>
 																		</v8:item>
 																	</ToolTip>
 																	<CheckBoxType>Auto</CheckBoxType>
@@ -1021,7 +1052,7 @@ language</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Allow authorization</v8:content>
+					<v8:content>Sign-in allowed</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1271,7 +1302,7 @@ language</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Require password change upon authorization</v8:content>
+					<v8:content>User must change password at next sign-in</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1362,7 +1393,7 @@ language</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>User cannot recover the password</v8:content>
+					<v8:content>User cannot recover password</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

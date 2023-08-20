@@ -189,18 +189,10 @@ EndProcedure
 Procedure FillUserTaskTree(ViewSettings)
 	
 	ToDoList   = GetFromTempStorage(Parameters.ToDoList);
-	PreviousViewSettings = Common.CommonSettingsStorageLoad("ToDoList", "ViewSettings");
-	If PreviousViewSettings = Undefined
-		Or TypeOf(PreviousViewSettings) <> Type("Structure")
-		Or Not PreviousViewSettings.Property("UserTasksTree") Then
-		SavedUserTaskTree = Undefined;
-	Else
-		SavedUserTaskTree = PreviousViewSettings.UserTasksTree; // ValueTree
-	EndIf;
-	If SavedUserTaskTree = Undefined Then
+	If ViewSettings.UserTasksTree.Columns.Count() = 0 Then
 		UserTasksTree = FormAttributeToValue("DisplayedUserTasksTree");
 	Else
-		UserTasksTree = SavedUserTaskTree;
+		UserTasksTree = ViewSettings.UserTasksTree;
 	EndIf;
 	UserTasksTree.Columns.Add("Validation", New TypeDescription("Boolean"));
 	If UserTasksTree.Columns.Find("OutputInNotifications") = Undefined Then
@@ -217,7 +209,7 @@ Procedure FillUserTaskTree(ViewSettings)
 	ToDoItemIndex    = 0;
 	TreeRow  = Undefined;
 	
-	If ViewSettings = Undefined Then
+	If ViewSettings.SectionsVisibility.Count() = 0 Then
 		ToDoListInternal.SetInitialSectionsOrder(ToDoList);
 	EndIf;
 	
@@ -319,42 +311,17 @@ EndProcedure
 &AtServer
 Procedure ShouldSaveSettings()
 	
-	PreviousViewSettings = Common.CommonSettingsStorageLoad("ToDoList", "ViewSettings");
-	CollapsedSections = Undefined;
-	DisabledObjects = New Map;
-	If TypeOf(PreviousViewSettings) = Type("Structure") Then
-		PreviousViewSettings.Property("CollapsedSections", CollapsedSections);
-		PreviousViewSettings.Property("DisabledObjects", DisabledObjects);
-	EndIf;
-	
-	If DisabledObjects = Undefined Then
-		DisabledObjects = New Map;
-	EndIf;
-	
-	If CollapsedSections = Undefined Then
-		CollapsedSections = New Map;
-	EndIf;
-	
-	// Save section position and visibility.
-	SectionsVisibility = New Map;
-	UserTasksVisible      = New Map;
-	
+	ViewSettings = ToDoListInternal.SavedViewSettings();
 	UserTasksTree = FormAttributeToValue("DisplayedUserTasksTree");
 	For Each Section In UserTasksTree.Rows Do
-		SectionsVisibility.Insert(Section.Id, Section.Check);
+		ViewSettings.SectionsVisibility.Insert(Section.Id, Section.Check);
 		For Each ToDoItem In Section.Rows Do
-			UserTasksVisible.Insert(ToDoItem.Id, ToDoItem.Check);
+			ViewSettings.UserTasksVisible.Insert(ToDoItem.Id, ToDoItem.Check);
 		EndDo;
 	EndDo;
 	
-	Result = New Structure;
-	Result.Insert("UserTasksTree", UserTasksTree);
-	Result.Insert("SectionsVisibility", SectionsVisibility);
-	Result.Insert("UserTasksVisible", UserTasksVisible);
-	Result.Insert("CollapsedSections", CollapsedSections);
-	Result.Insert("DisabledObjects", DisabledObjects);
-	
-	Common.CommonSettingsStorageSave("ToDoList", "ViewSettings", Result);
+	ViewSettings.UserTasksTree = UserTasksTree;	
+	Common.CommonSettingsStorageSave("ToDoList", "ViewSettings", ViewSettings);
 	
 	// Save auto-refresh settings.
 	AutoRefreshSettings = Common.CommonSettingsStorageLoad("ToDoList", "AutoRefreshSettings");
@@ -379,13 +346,13 @@ EndProcedure
 &AtServer
 Procedure SetSectionOrder(ViewSettings)
 	
-	If ViewSettings = Undefined Then
+	SavedUserTaskTree = ViewSettings.UserTasksTree;
+	If SavedUserTaskTree.Rows.Count() = 0 Then
 		Return;
 	EndIf;
 	
 	UserTasksTree = FormAttributeToValue("DisplayedUserTasksTree");
 	Sections   = UserTasksTree.Rows;
-	SavedUserTaskTree = ViewSettings.UserTasksTree;
 	For Each SectionRow In Sections Do
 		SavedSection = SavedUserTaskTree.Rows.Find(SectionRow.Id, "Id");
 		If SavedSection = Undefined Then

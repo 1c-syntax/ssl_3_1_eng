@@ -61,7 +61,7 @@ Procedure AfterDetermineRecipients(Data, Recipients, ExchangePlanName) Export
 					BackgroundJobs.Execute("DataExchangeSaaS.SetDataChangeFlag",, "1");
 				Except
 					WriteLogEvent(NStr("en = 'Data exchange';", Common.DefaultLanguageCode()),
-						EventLogLevel.Error, , , DetailErrorDescription(ErrorInfo()));
+						EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				EndTry;
 			EndIf;
 			
@@ -148,6 +148,10 @@ Procedure OnDefineSupportedInterfaceVersions(Val SupportedVersionsStructure) Exp
 	VersionsArray.Add("2.4.5.1");
 	SupportedVersionsStructure.Insert("DataExchangeSaaS", VersionsArray);
 	
+	VersionsArray = New Array();
+	VersionsArray.Add("1.0.0.1");
+	SupportedVersionsStructure.Insert("UpdatingRulesForRegisteringObjectsInServiceModel", VersionsArray);
+	
 EndProcedure
 
 // Gets a list of message handlers that are processed by the library subsystems.
@@ -209,28 +213,39 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 	ModuleExportImportData = Common.CommonModule("ExportImportData");
 	ModuleExportImportData.AddTypeExcludedFromUploadingUploads(Types,
 		Metadata.Catalogs.DataExchangeScenarios, ModuleExportImportData.ActionWithLinksDoNotUnloadObject());
+		
+	ModuleExportImportData.AddTypeExcludedFromUploadingUploads(Types,
+		Metadata.Catalogs.DataExchangesSessions, ModuleExportImportData.ActionWithLinksDoNotUnloadObject());	
+		
+	ModuleSaaSTechnology = Common.CommonModule("CloudTechnology");
+	CTLVersion = ModuleSaaSTechnology.LibraryVersion();
 	
-	Types.Add(Metadata.InformationRegisters.ArchiveOfExchangeMessages);
-	Types.Add(Metadata.InformationRegisters.ObjectsDataToRegisterInExchanges);
-	Types.Add(Metadata.InformationRegisters.DataExchangeTasksInternalPublication);
-	Types.Add(Metadata.InformationRegisters.CommonNodeDataChanges);
-	Types.Add(Metadata.InformationRegisters.SynchronizationCircuit);
-	Types.Add(Metadata.InformationRegisters.ExchangeMessageArchiveSettings);
-	Types.Add(Metadata.InformationRegisters.XDTODataExchangeSettings);
+	Types.Add(Metadata.InformationRegisters.CommonInfobasesNodesSettings);
 	Types.Add(Metadata.InformationRegisters.DataExchangeTransportSettings);
 	Types.Add(Metadata.InformationRegisters.DataAreaExchangeTransportSettings);
-	Types.Add(Metadata.InformationRegisters.DataSyncEventHandlers);
-	Types.Add(Metadata.InformationRegisters.ObjectsUnregisteredDuringLoop);
-	Types.Add(Metadata.InformationRegisters.CommonInfobasesNodesSettings);
-	Types.Add(Metadata.InformationRegisters.PredefinedNodesAliases);
-	Types.Add(Metadata.InformationRegisters.SynchronizedObjectPublicIDs);
-	Types.Add(Metadata.InformationRegisters.DataExchangeResults);
-	Types.Add(Metadata.InformationRegisters.SystemMessageExchangeSessions);
 	Types.Add(Metadata.InformationRegisters.DataAreasDataExchangeMessages);
-	Types.Add(Metadata.InformationRegisters.InfobaseObjectsMaps);
+	Types.Add(Metadata.InformationRegisters.DeleteDataExchangeResults);
 	Types.Add(Metadata.InformationRegisters.DataAreaDataExchangeStates);
 	Types.Add(Metadata.InformationRegisters.DataAreasSuccessfulDataExchangeStates);
-	Types.Add(Metadata.InformationRegisters.DeleteDataExchangeResults);
+		
+	If CommonClientServer.CompareVersions(CTLVersion, "2.0.9.0") < 0 Then
+		
+		Types.Add(Metadata.InformationRegisters.ArchiveOfExchangeMessages);
+		Types.Add(Metadata.InformationRegisters.ObjectsDataToRegisterInExchanges);
+		Types.Add(Metadata.InformationRegisters.DataExchangeTasksInternalPublication);
+		Types.Add(Metadata.InformationRegisters.CommonNodeDataChanges);
+		Types.Add(Metadata.InformationRegisters.SynchronizationCircuit);
+		Types.Add(Metadata.InformationRegisters.ExchangeMessageArchiveSettings);
+		Types.Add(Metadata.InformationRegisters.XDTODataExchangeSettings);
+		Types.Add(Metadata.InformationRegisters.DataSyncEventHandlers);
+		Types.Add(Metadata.InformationRegisters.ObjectsUnregisteredDuringLoop);
+		Types.Add(Metadata.InformationRegisters.PredefinedNodesAliases);
+		Types.Add(Metadata.InformationRegisters.SynchronizedObjectPublicIDs);
+		Types.Add(Metadata.InformationRegisters.DataExchangeResults);
+		Types.Add(Metadata.InformationRegisters.SystemMessageExchangeSessions);
+		Types.Add(Metadata.InformationRegisters.InfobaseObjectsMaps);
+
+	EndIf;
 	
 EndProcedure
 
@@ -304,7 +319,7 @@ Procedure OnDeleteObsoleteExchangeMessages() Export
 				DeleteFiles(MessageFile.FullName);
 			Except
 				WriteLogEvent(NStr("en = 'Data exchange';", Common.DefaultLanguageCode()),
-					EventLogLevel.Error,,, DetailErrorDescription(ErrorInfo()));
+					EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				Continue;
 			EndTry;
 		EndIf;
@@ -1171,7 +1186,7 @@ Procedure ExecuteDataExchangeScenarioActionInFirstInfobase(ScenarioRowIndex, Dat
 			EndIf;
 		Except
 			ResultingStructure.Cancel = True;
-			ResultingStructure.Information = DetailErrorDescription(ErrorInfo());
+			ResultingStructure.Information = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 			ResultingStructure.CompletedOn = CurrentSessionDate();
 			
 			WriteLogEvent(DataSyncronizationLogEvent(),
@@ -1209,7 +1224,7 @@ Procedure ExecuteDataExchangeScenarioActionInFirstInfobase(ScenarioRowIndex, Dat
 			EndIf;
 		Except
 			ResultingStructure.Cancel = True;
-			ResultingStructure.Information = DetailErrorDescription(ErrorInfo());
+			ResultingStructure.Information = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 			ResultingStructure.CompletedOn = CurrentSessionDate();
 			
 			WriteLogEvent(DataSyncronizationLogEvent(),
@@ -1258,7 +1273,7 @@ Procedure ExecuteDataExchangeScenarioActionInSecondInfobase(ScenarioRowIndex, Da
 		InfobaseNode = FindInfobaseNode(ScenarioRow.ExchangePlanName, ScenarioRow.InfobaseNodeCode);
 	Except
 		ResultingStructure.Cancel = True;
-		ResultingStructure.Information = DetailErrorDescription(ErrorInfo());
+		ResultingStructure.Information = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		
 		WriteLogEvent(DataSyncronizationLogEvent(),
 			EventLogLevel.Error, , , ActionToBeExecutedDetailsEL + Chars.LF + ResultingStructure.Information);
@@ -1287,7 +1302,7 @@ Procedure ExecuteDataExchangeScenarioActionInSecondInfobase(ScenarioRowIndex, Da
 		EndIf;
 	Except
 		ResultingStructure.Cancel = True;
-		ResultingStructure.Information = DetailErrorDescription(ErrorInfo());
+		ResultingStructure.Information = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		
 		WriteLogEvent(DataSyncronizationLogEvent(),
 			EventLogLevel.Error, , , ActionToBeExecutedDetailsEL + Chars.LF + ResultingStructure.Information);
@@ -1318,7 +1333,7 @@ Procedure ExecuteDataExchangeScenarioActionInSecondInfobase(ScenarioRowIndex, Da
 		EndIf;
 	Except
 		ResultingStructure.Cancel = True;
-		ResultingStructure.Information = DetailErrorDescription(ErrorInfo());
+		ResultingStructure.Information = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		ResultingStructure.CompletedOn = CurrentSessionDate();
 		
 		WriteLogEvent(DataSyncronizationLogEvent(),
@@ -1363,7 +1378,7 @@ Procedure DeleteSynchronizationSetting(ExchangePlanName, CorrespondentNodeCode) 
 					DeleteFiles(AbsoluteDirectory.FullName);
 				Except
 					WriteLogEvent(EventLogEventDataSynchronizationSetup(),
-						EventLogLevel.Error, , , DetailErrorDescription(ErrorInfo()));
+						EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				EndTry;
 				
 			EndIf;
@@ -1388,7 +1403,7 @@ Procedure DeleteSynchronizationSetting(ExchangePlanName, CorrespondentNodeCode) 
 				
 			Except
 				WriteLogEvent(EventLogEventDataSynchronizationSetup(),
-					EventLogLevel.Error, , , DetailErrorDescription(ErrorInfo()));
+					EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			EndTry;
 			
 		EndIf;
@@ -1424,7 +1439,7 @@ Procedure DeleteExchangePlanNode(Ref) Export
 	Except
 		RollbackTransaction();
 		WriteLogEvent(EventLogEventDataSynchronizationSetup(),
-			EventLogLevel.Error, , , DetailErrorDescription(ErrorInfo()));
+			EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	
 EndProcedure
@@ -1444,6 +1459,11 @@ Procedure RegisterSuppliedDataHandlers(Val Handlers)
 	Handler.HandlerCode = SuppliedDataKindID();
 	Handler.Handler = DataExchangeSaaS;
 	
+	Handler = Handlers.Add();
+	Handler.DataKind = IdOfTypeOfDataSuppliedRegistrationRules();
+	Handler.HandlerCode = IdOfTypeOfDataSuppliedRegistrationRules();
+	Handler.Handler = DataExchangeSaaS;
+	
 EndProcedure
 
 // The procedure is called when a new data notification is received.
@@ -1456,7 +1476,8 @@ EndProcedure
 //
 Procedure NewDataAvailable(Val Descriptor, ToImport) Export
 	
-	If Descriptor.DataType = SuppliedDataKindID() Then
+	If Descriptor.DataType = SuppliedDataKindID()
+		Or Descriptor.DataType = IdOfTypeOfDataSuppliedRegistrationRules() Then
 		
 		SuppliedRulesDetails = ParseSuppliedDataDescriptor(Descriptor);
 		
@@ -1495,8 +1516,11 @@ EndProcedure
 //
 Procedure ProcessNewData(Val Descriptor, Val PathToFile) Export
 	
-	If Descriptor.DataType = SuppliedDataKindID() Then
-		ProcessSuppliedExchangeRules(Descriptor, PathToFile);
+	If Descriptor.DataType = SuppliedDataKindID()
+		Or Descriptor.DataType = IdOfTypeOfDataSuppliedRegistrationRules() Then
+		
+		ProcessSuppliedExchangeRules(Descriptor, PathToFile, Descriptor.DataType);
+		
 	EndIf;
 	
 EndProcedure
@@ -1515,6 +1539,17 @@ EndProcedure
 Function SuppliedDataKindID()
 	
 	Return "ER"; // Not localizable.
+	
+EndFunction
+
+// Returns the ID of the supplied data type for data exchange rules
+//
+// Returns:
+//   String
+//
+Function IdOfTypeOfDataSuppliedRegistrationRules()
+	
+	Return "RR"; // 
 	
 EndFunction
 
@@ -1538,17 +1573,30 @@ Function ParseSuppliedDataDescriptor(Descriptor)
 	
 EndFunction
 
-Procedure ProcessSuppliedExchangeRules(Descriptor, PathToFile)
+Procedure ProcessSuppliedExchangeRules(Descriptor, PathToFile, DataKind)
 	
 	SetPrivilegedMode(True);
 	
 	// Read the characteristics of a built-in data instance.
 	SuppliedRulesDetails = ParseSuppliedDataDescriptor(Descriptor);
+	ExchangePlanName = SuppliedRulesDetails.ExchangePlanName;
 	
-	If SuppliedRulesDetails.Use Then
-		DataExchangeServer.ImportSuppliedRules(SuppliedRulesDetails.ExchangePlanName, PathToFile);
+	If DataKind = IdOfTypeOfDataSuppliedRegistrationRules() Then
+		
+		If SuppliedRulesDetails.Use Then
+			DataExchangeServer.DownloadSuppliedObjectRegistrationRules(ExchangePlanName, PathToFile);
+		Else
+			DataExchangeServer.DeleteSuppliedObjectRegistrationRules(ExchangePlanName);
+		EndIf;
+		
 	Else
-		DataExchangeServer.DeleteSuppliedRules(SuppliedRulesDetails.ExchangePlanName);
+		
+		If SuppliedRulesDetails.Use Then
+			DataExchangeServer.ImportSuppliedRules(ExchangePlanName, PathToFile);
+		Else
+			DataExchangeServer.DeleteSuppliedRules(ExchangePlanName);
+		EndIf;
+		
 	EndIf;
 	
 	DataExchangeServerCall.ResetObjectsRegistrationMechanismCache();
@@ -1587,7 +1635,7 @@ Procedure FinishDataExchangeScenarioExecution(ScenarioRowIndex, DataExchangeScen
 		WSServiceProxy.CommitExchange(XDTOSerializer.WriteXDTO(DataExchangeScenario));
 	Except
 		WriteLogEvent(DataSyncronizationLogEvent(),
-			EventLogLevel.Error, , , DetailErrorDescription(ErrorInfo()));
+			EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Raise;
 	EndTry;
 	
@@ -2391,7 +2439,7 @@ Procedure PrepareExchangePlansNodesDataForMonitor(Val TempTablesManager, Val Met
 	|
 	|UNION ALL
 	|
-	|//////////////////////////////////////////////////////// {ExchangePlanNameSynonym}"
+	|////////////////////////////////////////////////////////"
 	+
 	"
 	|SELECT
@@ -2470,7 +2518,7 @@ Procedure PrepareExchangePlansNodesDataForMonitor(Val TempTablesManager, Val Met
 	EndIf;
 	
 	QueryTextResult = "
-	|//////////////////////////////////////////////////////// {ConfigurationExchangePlans}
+	|////////////////////////////////////////////////////////
 	|SELECT
 	|
 	|	&AdditionalExchangePlanProperties,

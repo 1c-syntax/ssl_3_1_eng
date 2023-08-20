@@ -111,9 +111,8 @@ EndProcedure
 //         ** Presentation      - String - text details of a restriction rule.
 //         ** AdditionalFields - String - a list of comma-separated attributes, the values of which
 //                                          are required for analysis in the OnDuplicatesSearch.
-//       * ItemsCountToCompare - Number - a number of duplicate candidates passed within one call
-//                                                   to the CandidatesTable parameter of the OnDuplicatesSearch handler.
-//                                                   Default value is 1500.
+//       * ItemsCountToCompare - Number -
+//                                                   
 //     AdditionalParameters - Arbitrary - Value passed when calling DuplicateObjectsDetection.FindItemDuplicates.
 //                               When calling from the DuplicateObjectsDetection data processor, the value is Undefined.
 //     StandardProcessing - Boolean - if the SearchParameters output parameter is filled in and a call of
@@ -126,24 +125,31 @@ Procedure OnDefineDuplicatesSearchParameters(Val MetadataObjectName, SearchParam
 	
 EndProcedure
 
-// It is called when searching for duplicates according to the rules specified in OnDefineDuplicatesSearchParameters.
+// 
+// 
 //
 // Parameters:
 //     MetadataObjectName - String - a full name of reference metadata object whose items are replaced.
 //                                     For example, "Catalog.Counterparties".
-//     CandidatesTable - ValueTable - information about duplicate candidates found according to the specified search rules:
-//         * Ref1  - AnyRef - a reference to the first item.
-//         * Ref2  - AnyRef - a reference to the second item.
-//         * IsDuplicates - Boolean      - indicates whether the candidates are duplicates. Default value is False. 
-//                                    It can be set to True to mark duplicates.
-//         * Fields1    - Structure   - contains fields Code, Description, and additional fields of the first item,
-//                                    specified in the SearchParameters.ComparisonRestrictions.AdditionalFields parameter of the OnDuplicatesSearchParametersDefine
-//                                    handler.
-//         * Fields2    - Structure   - contains similar fields of the second item.
+//     ItemsDuplicates - ValueTable -
+//         * Ref1  - AnyRef - link to the first element.
+//         * Ref2  - AnyRef - link to the second element.
+//         * IsDuplicates - Boolean      - indicates that the candidates are duplicates. False by default. 
+//                                    Can be set to True to mark duplicates.
+//         * Fields1    - Structure   -
+//                                    
+//                                    
+//             ** Code - String 
+//             ** Description - String
+//             ** DeletionMark - Boolean
+//         * Fields2    - Structure   -
+//             ** Code - String 
+//             ** Description - String
+//             ** DeletionMark - Boolean
 //     AdditionalParameters - Arbitrary - Value passed when calling DuplicateObjectsDetection.FindItemDuplicates.
 //                               When calling from the DuplicateObjectsDetection data processor, the value is Undefined.
 //
-Procedure OnSearchForDuplicates(Val MetadataObjectName, CandidatesTable, AdditionalParameters) Export
+Procedure OnSearchForDuplicates(Val MetadataObjectName, Val ItemsDuplicates, Val AdditionalParameters) Export
 	
 EndProcedure
 

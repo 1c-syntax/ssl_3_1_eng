@@ -58,7 +58,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Contacts (including portal.1c.ru login for additional identification)</v8:content>
+					<v8:content>Contacts (including portal.1c.eu login for additional identification)</v8:content>
 				</v8:item>
 			</Title>
 			<TitleLocation>Top</TitleLocation>
@@ -78,7 +78,7 @@
 				<Title formatted="false">
 					<v8:item>
 						<v8:lang>en</v8:lang>
-						<v8:content>Login on portal.1c.ru will be sent with contacts for additional identification</v8:content>
+						<v8:content>Login on portal.1c.eu will be sent with contacts for additional identification</v8:content>
 					</v8:item>
 				</Title>
 			</ExtendedTooltip>

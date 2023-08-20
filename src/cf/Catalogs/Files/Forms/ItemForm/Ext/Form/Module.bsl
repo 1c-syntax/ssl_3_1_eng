@@ -994,7 +994,9 @@ Function FileData(Val AttachedFile, Val FormIdentifier = Undefined, Val Mode = "
 		Return FilesOperationsInternalServerCall.FileDataToSave(
 			AttachedFile,, FormIdentifier);
 	ElsIf Mode = "ServerCall" Then
-		Return FilesOperationsInternalServerCall.FileData(AttachedFile,, FormIdentifier);
+		FileDataParameters = FilesOperationsClientServer.FileDataParameters();
+		FileDataParameters.FormIdentifier = FormIdentifier;
+		Return FilesOperationsInternalServerCall.FileData(AttachedFile,, FileDataParameters);
 	Else
 		FileDataParameters = FilesOperationsClientServer.FileDataParameters();
 		FileDataParameters.GetBinaryDataRef = True;

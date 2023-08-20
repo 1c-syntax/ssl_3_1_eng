@@ -139,8 +139,8 @@ Procedure SaveDirectoryCompletion(Result, ExecutionParameters) Export
 		
 		ShowUserNotification(NStr("en = 'Export folder';"),,
 		             StringFunctionsClientServer.SubstituteParametersToString(
-		               NStr("en = 'Folder ""%1""
-		                          |is downloaded to folder ""%2"" on the hard drive.';"),
+		               NStr("en = 'The ""%1"" folder is exported
+		                          |to the ""%2"" directory on the computer.';"),
 		               String(WhatToSave), String(FolderForExport) ) );
 		
 		Close();
@@ -211,7 +211,7 @@ Procedure GenerateFilesTree(FolderParent)
 	
 EndProcedure
 
-// A recursive function that actually exports files to a local hard drive.
+// 
 //
 // Parameters:
 //   ResultHandler - NotifyDescription
@@ -226,17 +226,17 @@ EndProcedure
 //   ParentFolder - CatalogRef.FilesFolders - items to save.
 //   CommonParameters - Structure:
 //       * ForAllFiles - Boolean -
-//                 True: the user chose the action when overwriting the file and
-//                 checked "For all".Do not ask more questions.
-//                 False: ask a question in every time a file that has the same
-//                 name as in the infobase exists on the hard drive.
+//                 
+//                 
+//                 
+//                 
 //       * BaseAction - DialogReturnCode -
-//                 when performing one action for all conflicts
-//                 when writing a file (parameter ForAllFiles = True)
-//                 the action specified by this parameter is performed).
-//                 .Yes - rewrite.
-//                 .Skip - skip file.
-//                 .Abort - abort export.
+//                 
+//                 
+//                 
+//                 
+//                 
+//                 
 //
 &AtClient
 Procedure ProcessFilesTree(ResultHandler, TableOfFiles, BaseSaveDirectory, ParentFolder, CommonParameters)
@@ -712,7 +712,7 @@ Procedure ProcessFilesTree14(ExecutionParameters)
 		Return;
 	EndIf;
 	
-	// For the option of storing files on hard drive (on the server), deleting the file from the temporary storage after receiving it.
+	// 
 	If IsTempStorageURL(FileAddressToOpen) Then
 		DeleteFromTempStorage(FileAddressToOpen);
 	EndIf;
@@ -720,7 +720,6 @@ Procedure ProcessFilesTree14(ExecutionParameters)
 	ExecutionParameters.FileOnHardDrive = New File(ExecutionParameters.FullFileName);
 	
 	Try
-		// 
 		ExecutionParameters.FileOnHardDrive.SetReadOnly(True);
 		// Поставим время модификации - 
 		ExecutionParameters.FileOnHardDrive.SetModificationUniversalTime(

@@ -66,12 +66,21 @@ Procedure CreateCatalogsListForImport(CatalogsListForImport) Export
 	CatalogsInformation.Columns.Add("Presentation", StringType);
 	CatalogsInformation.Columns.Add("AppliedImport", BooleanType);
 	
+	FunctionalOptions = StandardSubsystemsCached.ObjectsEnabledByOption();
+	
 	For Each MetadataObjectForOutput In Metadata.Catalogs Do
-		If Not CatalogContainsExclusionAttribute(MetadataObjectForOutput) Then
+		
+		FullName = MetadataObjectForOutput.FullName();
+		If FunctionalOptions.Get(FullName) = False Then
+			Continue;
+		EndIf;
+
+		If CanImportDataFromFile(MetadataObjectForOutput) Then
 			String = CatalogsInformation.Add();
 			String.Presentation = MetadataObjectForOutput.Presentation();
-			String.FullName = MetadataObjectForOutput.FullName();
+			String.FullName     = FullName;
 		EndIf;
+		
 	EndDo;
 	
 	SSLSubsystemsIntegration.OnDefineCatalogsForDataImport(CatalogsInformation);
@@ -139,30 +148,30 @@ Function CatalogPresentation(MappingObjectName)
 	
 EndFunction
 
-Function CatalogContainsExclusionAttribute(Catalog)
+Function CanImportDataFromFile(Catalog)
 	
-	For Each Attribute In Catalog.TabularSections Do
-		If Attribute.Name <> "ContactInformation"
-			And Attribute.Name <> "AdditionalAttributes"
-			And Attribute.Name <> "Presentations"
-			And Attribute.Name <> "EncryptionCertificates" Then
-				Return True;
+	If StrStartsWith(Upper(Catalog.Name), "DELETE") Then
+		Return False;
+	EndIf;
+	
+	For Each TabularSection In Catalog.TabularSections Do
+		If TabularSection.Name <> "ContactInformation"
+			And TabularSection.Name <> "AdditionalAttributes"
+			And TabularSection.Name <> "Presentations"
+			And TabularSection.Name <> "EncryptionCertificates" Then
+				Return False;
 		EndIf;
 	EndDo;
 	
 	For Each Attribute In Catalog.Attributes Do 
 		For Each AttributeType In Attribute.Type.Types() Do
 			If AttributeType = Type("ValueStorage") Then
-				Return True;
+				Return False;
 			EndIf;
 		EndDo;
 	EndDo;
 	
-	If StrStartsWith(Upper(Catalog.Name), "DELETE") Then
-		Return True;
-	EndIf;
-	
-	Return False;
+	Return True;
 	
 EndFunction
 
@@ -463,6 +472,9 @@ Procedure FillMappingTableWithDataToImport(TemplateWithData, TableColumnsInforma
 	
 	FirstTableRow = ?(ImportDataFromFileClientServer.ColumnsHaveGroup(TableColumnsInformation), 3, 2);
 	
+	BlankRowsCount = 0;
+	NumberOfBlankLinesInRowToInterruptDownload = 30;
+	
 	IDAdjustment = FirstTableRow - 2;
 	For LineNumber = FirstTableRow To TemplateWithData.TableHeight Do 
 		EmptyTableRow = True;
@@ -476,14 +488,28 @@ Procedure FillMappingTableWithDataToImport(TemplateWithData, TableColumnsInforma
 			Column = FindColumnInfo(TableColumnsInformation, "Position", ColumnNumber);
 			
 			If Column <> Undefined Then
+				
+				CellData =  Undefined;
+				
 				ColumnName = Column.ColumnName;
 				DataType = TypeOf(NewRow[ColumnName]);
 				
 				If DataType <> Type("String") And DataType <> Type("Boolean") And DataType <> Type("Number") And DataType <> Type("Date")  And DataType <> Type("UUID") Then 
-					//
+					//@skip-
 					CellData = CellValue(Column, Cell.Text);
 				Else
-					CellData = Cell.Text;
+					If DataType = Type("Boolean") Then
+						CellValue = Upper(TrimAll(Cell.Text));
+						If CellValue = "1" 
+						   Or StrCompare(CellValue, ImportDataFromFileClientServer.PresentationOfTextYesForBoolean()) = 0
+						   Or StrCompare(CellValue, "TRUE") = 0 Then
+							CellData = True;
+						Else
+							CellData = False;
+						EndIf;
+					Else
+						CellData = Cell.Text;
+					EndIf;
 				EndIf;
 				If EmptyTableRow Then
 					EmptyTableRow = Not ValueIsFilled(CellData);
@@ -494,6 +520,13 @@ Procedure FillMappingTableWithDataToImport(TemplateWithData, TableColumnsInforma
 		If EmptyTableRow Then
 			MappingTable.Delete(NewRow);
 			IDAdjustment = IDAdjustment + 1;
+			BlankRowsCount       = BlankRowsCount + 1;
+		Else
+			BlankRowsCount       = 0;
+		EndIf;
+		
+		If BlankRowsCount > NumberOfBlankLinesInRowToInterruptDownload Then
+			Break;
 		EndIf;
 		
 		If BackgroundJob Then
@@ -699,7 +732,8 @@ Procedure ColumnsInformationFromCatalogAttributes(ImportParameters, ColumnsInfor
 		ColumnTypeDetails = "";
 		
 		If Attribute.Type.ContainsType(Type("Boolean")) Then 
-			ColumnTypeDetails = NStr("en = 'Check box, Yes or 1 / No or 0';");
+			ColumnTypeDetails = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Check box, %1 or 1 / No or 0';"), ImportDataFromFileClientServer.PresentationOfTextYesForBoolean());
 		ElsIf Attribute.Type.ContainsType(Type("Number")) Then 
 			ColumnTypeDetails =  StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Digit, Length: %1, Precision: %2';"),
 				String(Attribute.Type.NumberQualifiers.Digits),
@@ -1801,7 +1835,7 @@ Procedure WriteMappedData(ExportingParameters, StorageAddress) Export
 				TableRow.RowMappingResult = "Updated";
 				ClearContactInformation = True;
 				If CatalogItem = Undefined Then
-					Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'A product with product ID %1 does not exist.';"),
+					Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Product with product ID %1 does not exist.';"),
 					TableRow.SKU);
 				EndIf;
 			Else

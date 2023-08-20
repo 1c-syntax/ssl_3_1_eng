@@ -134,17 +134,19 @@ Procedure NotificationProcessing(Form, EventName, Parameter, Source) Export
 	
 	If EventName = "Write_UserReminders" Then
 		SettingsOfReminder = ReminderSettingsInForm(Form);
-		If Parameter.Source = SettingsOfReminder.SubjectOf And Parameter.SourceAttributeName = SettingsOfReminder.NameOfAttributeWithEventDate Then
+
+		If ValueIsFilled(Parameter) 
+			And Parameter.Source = SettingsOfReminder.SubjectOf
+			And Parameter.SourceAttributeName = SettingsOfReminder.NameOfAttributeWithEventDate Then
+				
 			FieldNameReminderTimeInterval = UserRemindersClientServer.FieldNameReminderTimeInterval();
 			ReminderInterval = Parameter.ReminderInterval;
-			SettingsOfReminder.ReminderInterval = ReminderInterval;
-			
-			Form[FieldNameReminderTimeInterval] = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 before';"), TimePresentation(ReminderInterval));
-				
-			Form[UserRemindersClientServer.FieldNameRemindAboutEvent()] = True;
+			If ReminderInterval > SettingsOfReminder.ReminderInterval Then
+				SettingsOfReminder.ReminderInterval = ReminderInterval;
+				Form[FieldNameReminderTimeInterval] = UserRemindersClientServer.PresentationOFReminderDEADLINE(Parameter);
+				Form[UserRemindersClientServer.FieldNameRemindAboutEvent()] = True;
+			EndIf;
 		EndIf;
-		
 	EndIf;
 	
 EndProcedure

@@ -880,7 +880,8 @@ Procedure ClearBypassExchangeWarnings(DeletionParameters)
 			RollbackTransaction();
 			
 			EventName = NStr("en = 'Data exchange';", Common.DefaultLanguageCode());
-			WriteLogEvent(EventName, EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+			WriteLogEvent(EventName, EventLogLevel.Error,,,
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			Raise;
 			
 		EndTry;

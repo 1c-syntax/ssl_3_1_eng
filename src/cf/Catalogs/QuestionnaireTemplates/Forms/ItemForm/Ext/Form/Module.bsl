@@ -223,16 +223,18 @@ Procedure QuestionnaireTreeFormDrag(Item, DragParameters, StandardProcessing, St
 			And AssignmentRow.QuestionType = PredefinedValue("Enum.QuestionnaireTemplateQuestionTypes.QuestionWithCondition") Then
 			
 			StandardProcessing = False;
-			DragTreeItem(AssignmentRow,RowDrag,False);
-			
-			Modified = True;
+			If Not TheseAreSubordinateElements(RowDrag, AssignmentRow) Then
+				DragTreeItem(AssignmentRow, RowDrag, False);
+				Modified = True;
+			EndIf;
 			
 		ElsIf RowDrag.GetParent() <> AssignmentRow.GetParent() Then
 			
 			StandardProcessing = False;
-			DragTreeItem(AssignmentRow,RowDrag,True);
-			
-			Modified = True;
+			If Not TheseAreSubordinateElements(RowDrag, AssignmentRow) Then
+				DragTreeItem(AssignmentRow, RowDrag, True);
+				Modified = True;
+			EndIf;
 			
 		EndIf;
 		
@@ -241,9 +243,10 @@ Procedure QuestionnaireTreeFormDrag(Item, DragParameters, StandardProcessing, St
 		If RowDrag.GetParent() <> AssignmentRow Then
 			
 			StandardProcessing = False;
-			DragTreeItem(AssignmentRow,RowDrag,False);
-			
-			Modified = True;
+			If Not TheseAreSubordinateElements(RowDrag, AssignmentRow) Then
+				DragTreeItem(AssignmentRow, RowDrag, False);
+				Modified = True;
+			EndIf;
 			
 		EndIf;
 		
@@ -252,36 +255,40 @@ Procedure QuestionnaireTreeFormDrag(Item, DragParameters, StandardProcessing, St
 		If RowDrag.GetParent() <> AssignmentRow Then
 			
 			StandardProcessing = False;
-			DragTreeItem(AssignmentRow,RowDrag,False);
-			
-			Modified = True; 
+			If Not TheseAreSubordinateElements(RowDrag, AssignmentRow) Then
+				DragTreeItem(AssignmentRow, RowDrag, False);
+				Modified = True;
+			EndIf;
 			
 		ElsIf RowDrag.GetParent() <> AssignmentRow.GetParent() Then
 			
 			StandardProcessing = False;
-			DragTreeItem(AssignmentRow,RowDrag,True);
-			
-			Modified = True;
+			If Not TheseAreSubordinateElements(RowDrag, AssignmentRow) Then
+				DragTreeItem(AssignmentRow, RowDrag, True);
+				Modified = True;
+			EndIf;
 			
 		EndIf;
 		
 	ElsIf (RowDrag.RowType = "Section") And (AssignmentRow.RowType = "DoQueryBox") Then
 		
-		If (RowDrag.GetParent() <> AssignmentRow.GetParent()) And (AssignmentRow.GetParent() <> RowDrag)Then
+		If RowDrag.GetParent() <> AssignmentRow.GetParent() Then
 			
 			StandardProcessing = False;
-			DragTreeItem(AssignmentRow,RowDrag,True);
-			
-			Modified = True;
+			If Not TheseAreSubordinateElements(RowDrag, AssignmentRow) Then
+				DragTreeItem(AssignmentRow, RowDrag, True);
+				Modified = True;
+			EndIf;
 			
 		EndIf;
 		
 	ElsIf ((RowDrag.RowType = "Section") Or (RowDrag.RowType = "DoQueryBox")) And (AssignmentRow.RowType = "Root") Then
 		
 		StandardProcessing = False;
-		DragTreeItem(AssignmentRow,RowDrag,False);
-		
-		Modified = True;
+		If Not TheseAreSubordinateElements(RowDrag, AssignmentRow) Then
+			DragTreeItem(AssignmentRow, RowDrag, False);
+			Modified = True;
+		EndIf;
 		
 	EndIf;
 	
@@ -670,6 +677,8 @@ Function AddQuestionnaireTemplateQuestionCatalogItem(TreeRow,Code = Undefined,Ca
 		CatObject.IsRequired                      = TreeRow.IsRequired;
 		CatObject.ToolTip                         = TreeRow.ToolTip;
 		CatObject.HintPlacement        = TreeRow.HintPlacement;
+		CatObject.ShouldUseRefusalToAnswer     = TreeRow.ShouldUseRefusalToAnswer;
+		CatObject.RefusalToAnswerText      = TreeRow.RefusalToAnswerText;
 		CatObject.ParentQuestion                    = ?(QuestionParent = Undefined, Catalogs.QuestionnaireTemplateQuestions.EmptyRef(),QuestionParent);
 		CommonClientServer.SupplementTable(TreeRow.TableQuestionComposition,CatObject.TableQuestionComposition);
 		CommonClientServer.SupplementTable(TreeRow.PredefinedAnswers,CatObject.PredefinedAnswers);
@@ -922,6 +931,8 @@ Procedure OpenSimpleQuestionsForm(CurrentData)
 	SimpleQuestion.Insert("IsNewLine", CurrentData.IsNewLine);
 	SimpleQuestion.Insert("ToolTip", CurrentData.ToolTip);
 	SimpleQuestion.Insert("HintPlacement", CurrentData.HintPlacement);
+	SimpleQuestion.Insert("ShouldUseRefusalToAnswer", CurrentData.ShouldUseRefusalToAnswer);
+	SimpleQuestion.Insert("RefusalToAnswerText", CurrentData.RefusalToAnswerText);
 	
 	OpenForm("Catalog.QuestionnaireTemplates.Form.BasicQuestionsForm", SimpleQuestion, ThisObject);
 	
@@ -958,7 +969,7 @@ Procedure OpenTabularQuestionsWizardForm(CurrentData)
 EndProcedure
 
 &AtClient
-Procedure DragTreeItem(AssignmentRow,RowDrag,UseAssignmentRowParent = False,DeleteAfterAdd = True);
+Procedure DragTreeItem(AssignmentRow, RowDrag, UseAssignmentRowParent = False,DeleteAfterAdd = True);
 	
 	If UseAssignmentRowParent Then
 		NewRow = AssignmentRow.GetParent().GetItems().Add();
@@ -966,7 +977,8 @@ Procedure DragTreeItem(AssignmentRow,RowDrag,UseAssignmentRowParent = False,Dele
 		NewRow = AssignmentRow.GetItems().Add();
 	EndIf;
 	
-	FillPropertyValues(NewRow,RowDrag,,"TableQuestionComposition,PredefinedAnswers, ComplexQuestionComposition");
+	FillPropertyValues(NewRow,RowDrag,,
+		"TableQuestionComposition,PredefinedAnswers, ComplexQuestionComposition, NumericalQuestionHintsRange");
 	If RowDrag.QuestionType = PredefinedValue("Enum.QuestionnaireTemplateQuestionTypes.Tabular") Then
 		CommonClientServer.SupplementTable(RowDrag.TableQuestionComposition,NewRow.TableQuestionComposition);
 		CommonClientServer.SupplementTable(RowDrag.PredefinedAnswers,NewRow.PredefinedAnswers);
@@ -977,7 +989,7 @@ Procedure DragTreeItem(AssignmentRow,RowDrag,UseAssignmentRowParent = False,Dele
 	EndIf;
 	
 	For Each Item In RowDrag.GetItems() Do
-		DragTreeItem(NewRow,Item,False,False);
+		DragTreeItem(NewRow, Item, False, False);
 	EndDo;
 	
 	If DeleteAfterAdd Then
@@ -985,12 +997,24 @@ Procedure DragTreeItem(AssignmentRow,RowDrag,UseAssignmentRowParent = False,Dele
 	EndIf;
 	
 	If UseAssignmentRowParent Then
-		Items.QuestionnaireTreeForm.Expand(AssignmentRow.GetParent().GetID(),False);
+		Items.QuestionnaireTreeForm.Expand(AssignmentRow.GetParent().GetID(), False);
 	Else	
-		Items.QuestionnaireTreeForm.Expand(AssignmentRow.GetID(),False);
+		Items.QuestionnaireTreeForm.Expand(AssignmentRow.GetID(), False);
 	EndIf;
 	
 EndProcedure
+
+&AtClient
+Function TheseAreSubordinateElements(ParentElementOfTree, TreeItem)
+	ParentItem = TreeItem;
+	While ParentItem <> Undefined Do
+		If ParentElementOfTree = ParentItem Then
+			Return True;
+		EndIf;
+		ParentItem = ParentItem.GetParent();
+	EndDo;
+	Return False;
+EndFunction
 
 &AtClient
 Procedure SelectAddedItemTypeOnCompletion(SelectedElement, AdditionalParameters) Export

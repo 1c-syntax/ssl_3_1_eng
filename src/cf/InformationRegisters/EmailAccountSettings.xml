@@ -593,7 +593,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>User who is assigned to handle messages by default.</v8:content>
+							<v8:content>The user assigned to handle messages by default</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -637,7 +637,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>User who is granted permission to manage the account's folders.</v8:content>
+							<v8:content>The user assigned to manage mailbox folders</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -769,7 +769,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Indicates whether this account is set up with System Email Client.</v8:content>
+							<v8:content>Indicates whether this account is set up with System Email Client</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

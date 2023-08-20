@@ -332,7 +332,7 @@ Procedure SetSubjectForInteractionsArray(InteractionsArray, SubjectOf, CheckIfTh
 	EndTry;	
 EndProcedure
 
-// Transforms an email into binary data and prepares it for saving to the hard drive.
+// 
 //
 // Parameters:
 //  MailMessage                  - DocumentRef.IncomingEmail

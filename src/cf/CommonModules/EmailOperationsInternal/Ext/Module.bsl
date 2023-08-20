@@ -9,10 +9,10 @@
 
 #Region Internal
 
-// Creates the profile of the passed account for connection to the mail server.
+// 
 // 
 // Parameters:
-//  Account - CatalogRef.EmailAccounts - an account.
+//  Account - CatalogRef.EmailAccounts
 //
 // Returns:
 //  InternetMailProfile - 
@@ -116,18 +116,19 @@ Function InternetMailProfile(Account, ForReceiving = False) Export
 	
 EndFunction
 
-// The function is used for integration with the Data exchange subsystem.
-// Returns the reference to the infobase email account that matches the
-// email account of the correspondent infobase for data exchange setup (see parameters). 
-// Account search is performed by a predefined item name or by address, or a new account is created if search fails.
-// Attribute values of account of this infobase are matched with attribute values of correspondent account.
+// 
+// 
+// 
+// 
+// 
+//
 // Parameters:
-//   ExchangePlanNode - CatalogObject.EmailAccounts - correspondent infobase email account
-//                   obtained from the data synchronization settings file deserialization by
-//                   using the ReadXML method.
+//   CorrespondentAccount1 - CatalogObject.EmailAccounts -
+//                   
+//                   
 //
 // Returns:
-//  CatalogObject.EmailAccounts - 
+//  CatalogObject.EmailAccounts
 //
 Function ThisInfobaseAccountByCorrespondentAccountData(CorrespondentAccount1) Export
 	
@@ -184,7 +185,7 @@ EndFunction
 // Defines if an application supports receiving emails.
 // 
 // Returns:
-//  Boolean - 
+//  Boolean
 //
 Function CanReceiveEmails() Export
 	
@@ -192,11 +193,11 @@ Function CanReceiveEmails() Export
 	
 EndFunction
 
-// Returns the account settings of the mail server connection to send emails.
-// If cannot get the account by reference, it will return an empty structure.
+// 
+// 
 //
 // Parameters:
-//  Account - CatalogRef.EmailAccounts - an account.
+//  Account - CatalogRef.EmailAccounts -
 //
 // Returns:
 //  Structure:
@@ -285,7 +286,7 @@ EndProcedure
 Procedure SaveYourAccountSettingsForPasswordRecovery(Settings) Export
 	
 	If TypeOf(Settings) <> Type("Structure") Then
-		Raise NStr("en = 'Invalid settings type of the account for password recovery';");
+		Raise NStr("en = 'Incorrect account settings type for password recovery.';");
 	EndIf;
 	
 	AccountInformation = DescriptionOfAccountSettingsForPasswordRecovery();
@@ -386,7 +387,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Id = New UUID("d57f7a36-46ca-4a52-baab-db960e3d376d");
 	Handler.Comment = NStr("en = 'Updates email account data.
 		|Until processing is finished, the list of email accounts can be incomplete.';");
-	Handler.DeferredProcessingQueue = 1;
 	Handler.UpdateDataFillingProcedure = "Catalogs.EmailAccounts.RegisterDataToProcessForMigrationToNewVersion";
 	
 	ObjectsToRead = New Array;
@@ -914,8 +914,6 @@ Function CreateAdaptedEmailMessageDetails(Columns = Undefined)
 	
 EndFunction
 
-// Internal function, used for checking email accounts.
-//
 Procedure CheckSendReceiveEmailAvailability(Account, ErrorMessage, AdditionalMessage) Export
 	
 	AccountSettings1 = Common.ObjectAttributesValues(Account, "UseForSending,UseForReceiving,ProtocolForIncomingMail");
@@ -1281,7 +1279,7 @@ Function AttachmentsDetails(AttachmentCollection) Export
 			AttachmentDetails.Presentation = Attachment.Presentation;
 			BinaryData = Undefined;
 			If TypeOf(Attachment.Value) = Type("BinaryData") Then
-				BinaryData = Attachment.Value;;
+				BinaryData = Attachment.Value;
 			Else
 				If IsTempStorageURL(Attachment.Value) Then
 					BinaryData = GetFromTempStorage(Attachment.Value);
@@ -1324,7 +1322,7 @@ Function HasExternalResources(HTMLDocument) Export
 	DisplayFilters.Add(FilterByAttribute("src", "^(http|https)://"));
 	
 	Filter = CombineFilters(DisplayFilters);
-	FoundNodes = HTMLDocument.FindByFilter(ValueToJSON(Filter));
+	FoundNodes = HTMLDocument.FindByFilter(Common.ValueToJSON(Filter));
 	
 	Return FoundNodes.Count() > 0;
 	
@@ -1343,11 +1341,11 @@ Procedure DisableUnsafeContent(HTMLDocument, DisableExternalResources = True) Ex
 	DisplayFilters.Add(FilterByAttributeName("onload"));
 	
 	Filter = CombineFilters(DisplayFilters);
-	HTMLDocument.DeleteByFilter(ValueToJSON(Filter));
+	HTMLDocument.DeleteByFilter(Common.ValueToJSON(Filter));
 	
 	If DisableExternalResources Then
 		Filter = FilterByAttribute("src", "^(http|https)://");
-		FoundNodes = HTMLDocument.FindByFilter(ValueToJSON(Filter));
+		FoundNodes = HTMLDocument.FindByFilter(Common.ValueToJSON(Filter));
 		For Each Node In FoundNodes Do
 			Node.Value = "";
 		EndDo;
@@ -1408,16 +1406,6 @@ Function FilterByAttributeValue(ValueTemplate)
 	Result.Insert("value", New Structure("value, operation", ValueTemplate, "valuematchesregex"));
 	
 	Return Result;
-	
-EndFunction
-
-Function ValueToJSON(Value)
-	
-	JSONWriter = New JSONWriter;
-	JSONWriter.SetString();
-	WriteJSON(JSONWriter, Value);
-	
-	Return JSONWriter.Close();
 	
 EndFunction
 
@@ -1526,7 +1514,7 @@ Function SendEmails(Account, Emails, ExceptionText = Undefined) Export
 					ErrorsTexts.Add(StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = '%1: %2';"), Recipient, ErrorText));
 				EndDo;
-				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The email was not sent to the following recipients:
+				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The message was not sent to the following recipients:
 					|%1';", Common.DefaultLanguageCode()), StrConcat(ErrorsTexts, Chars.LF));
 				WriteLogEvent(EventNameSendEmail(), EventLogLevel.Error, , Account, ErrorText);
 			EndIf;
@@ -1856,7 +1844,7 @@ Function ExplanationOnError(ErrorText, Val LanguageCode = Undefined, ForSetupAss
 			MethodsToFixError.Add(NStr("en = 'Check the specified settings.';"));
 		Else
 			MethodsToFixError.Add(StringFunctionsClientServer.SubstituteParametersToString(NStr(
-				"en = 'Try reconfiguring email (click <a href=\""%1\"">Reconfigure</a> in email settings).';"),
+				"en = 'Try reconfiguring your account (click <a href=\""%1\"">Reconfigure</a> in account settings).';"),
 				"Readjust"));
 		EndIf;
 		
@@ -2075,7 +2063,7 @@ EndFunction
 
 Function EventNameAuthorizationByProtocolOAuth() Export
 	
-	Return NStr("en = 'Email management. Email server authorization.';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Email management. Email server authorization';", Common.DefaultLanguageCode());
 
 EndFunction
 
@@ -2124,19 +2112,13 @@ Function Base64URLString(Value)
 
 EndFunction
 
-Function JSONValue(String, PropertiesWithDateValuesNames = Undefined) Export
-	JSONReader = New JSONReader;
-	JSONReader.SetString(String);
-	Return ReadJSON(JSONReader, True, PropertiesWithDateValuesNames);
-EndFunction
-
 Function RefreshAccessToken(Val Account, Val UpdateToken)
 	
 	AttributesValues = Common.ObjectAttributesValues(Account, 
 		"Email, EmailServiceName");
 
 	If Not ValueIsFilled(AttributesValues.EmailServiceName) Then
-		ErrorText = NStr("en = 'Email service for authorization is not specified. Reconfigure your email.';");
+		ErrorText = NStr("en = 'Email service for authorization is not specified. Reconfigure your account.';");
 		WriteLogEvent(EventNameAuthorizationByProtocolOAuth(), EventLogLevel.Error, , Account,
 			ErrorText);
 		Return "";
@@ -2150,7 +2132,7 @@ Function RefreshAccessToken(Val Account, Val UpdateToken)
 	SetPrivilegedMode(False);
 		
 	If Not ValueIsFilled(AuthorizationSettings.AppID) Then
-		ErrorText = NStr("en = 'Authorization settings of the ""%1"" online service are not found for domain ""%2"". Reconfigure your email.';");
+		ErrorText = NStr("en = 'Authorization settings of the ""%1"" online service are not found for domain ""%2"". Reconfigure your account.';");
 		WriteLogEvent(EventNameAuthorizationByProtocolOAuth(), EventLogLevel.Error, , Account,
 			ErrorText);
 			Return "";
@@ -2179,7 +2161,7 @@ Function RefreshAccessToken(Val Account, Val UpdateToken)
 	QueryResult = ExecuteQuery(ServerAddress, ResourceAddress, QueryOptions);
 	
 	Try
-		AnswerParameters = JSONValue(QueryResult.ServerResponse1);
+		AnswerParameters = Common.JSONValue(QueryResult.ServerResponse1);
 	Except
 		AnswerParameters = New Map;
 	EndTry;
@@ -2249,10 +2231,10 @@ Procedure GetStatusesOfEmailMessages() Export
 	EmailMessagesIDs.Columns.Add("EmailID", New TypeDescription("String",,,,New StringQualifiers(255)));
 	EmailMessagesIDs.Columns.Add("RecipientAddress",     New TypeDescription("String",,,,New StringQualifiers(100)));
 	
-	BeforeGetEmailMessagesStatuses(EmailMessagesIDs);        
+	BeforeGetEmailMessagesStatuses(EmailMessagesIDs);
 	
 	If EmailMessagesIDs.Count() = 0 Then
-		Return;	
+		Return;
 	EndIf;
 		
 	Query = New Query;
@@ -2273,22 +2255,26 @@ Procedure GetStatusesOfEmailMessages() Export
 		|	EmailMessagesIDs.RecipientAddress AS RecipientAddress
 		|FROM
 		|	EmailMessagesIDs AS EmailMessagesIDs
+		|		LEFT JOIN Catalog.EmailAccounts AS EmailAccounts
+		|		ON EmailMessagesIDs.Sender = EmailAccounts.Ref
+		|WHERE
+		|	ISNULL(EmailAccounts.UseForReceiving, FALSE)
 		|TOTALS BY
-		|	Sender";  
+		|	Sender";
 	
 	Query.SetParameter("EmailMessagesIDs", EmailMessagesIDs);
 	
 	QueryResult = Query.Execute();
 	
-	SelectionSender = QueryResult.Select(QueryResultIteration.ByGroups);   
+	SelectionSender = QueryResult.Select(QueryResultIteration.ByGroups);
 	
 	MessagesImportParameters = New Structure;
 	ColumnsOfMessagesTable = New Array;
-	ColumnsOfMessagesTable.Add("Title");  
-	ColumnsOfMessagesTable.Add("PostingDate");  
+	ColumnsOfMessagesTable.Add("Title");
+	ColumnsOfMessagesTable.Add("PostingDate");
 	ColumnsOfMessagesTable.Add("Texts");
 	ColumnsOfMessagesTable.Add("Sender");
-	MessagesImportParameters.Insert("Columns", ColumnsOfMessagesTable); 
+	MessagesImportParameters.Insert("Columns", ColumnsOfMessagesTable);
 		
 	DeliveryStatuses = New ValueTable;
 	DeliveryStatuses.Columns.Add("Sender",        	 New TypeDescription("CatalogRef.EmailAccounts"));
@@ -2298,7 +2284,7 @@ Procedure GetStatusesOfEmailMessages() Export
 	DeliveryStatuses.Columns.Add("StatusChangeDate", New TypeDescription("Date"));  
 	DeliveryStatuses.Columns.Add("Cause",              New TypeDescription("String",,,,New StringQualifiers(500)));
 	
-	While SelectionSender.Next() Do   	
+	While SelectionSender.Next() Do
 					
 		Messages = EmailOperations.DownloadEmailMessages(SelectionSender.Sender, MessagesImportParameters);
 		
@@ -2308,13 +2294,14 @@ Procedure GetStatusesOfEmailMessages() Export
 			For Each Message In Messages Do
 				If StrFind(Message.Title, Selection.RecipientAddress) = 0 
 					And StrFind(Message.Title, Selection.EmailID) = 0
-					And StrFind(Message.Sender, "mailer-daemon")= 0 Then
+					And StrFind(Message.Sender, "mailer-daemon")= 0 
+					And StrFind(Message.Title, "prod.outlook.com")= 0 Then
 					Continue;
 				EndIf;
-				If StrFind(Message.Title, Selection.EmailID) > 0 Then    
-					If StrFind(Message.Title, Selection.RecipientAddress) > 0 And StrFind(Message.Title, "X-Failed-Recipients") > 0  Then 
+				If StrFind(Message.Title, Selection.EmailID) > 0 Then
+					If StrFind(Message.Title, Selection.RecipientAddress) > 0 And StrFind(Message.Title, "X-Failed-Recipients") > 0  Then
 						RowFilter = New Structure("EmailID, RecipientAddress", Selection.EmailID, Selection.RecipientAddress);
-						ExistingStatusesRows = DeliveryStatuses.FindRows(RowFilter);  
+						ExistingStatusesRows = DeliveryStatuses.FindRows(RowFilter);
 						If ExistingStatusesRows.Count() > 0 Then
 							DeliveryStatusesString = ExistingStatusesRows[0];
 						Else
@@ -2323,32 +2310,33 @@ Procedure GetStatusesOfEmailMessages() Export
 						DeliveryStatusesString.Sender = SelectionSender.Sender;
 						DeliveryStatusesString.EmailID = Selection.EmailID;
 						DeliveryStatusesString.RecipientAddress = Selection.RecipientAddress;
-						DeliveryStatusesString.Status = Enums.EmailMessagesStatuses.NotDelivered; 
+						DeliveryStatusesString.Status = Enums.EmailMessagesStatuses.NotDelivered;
 						
 						CharNumberReasonLine = StrFind(Message.Title, "X-Mailer-Daemon-Error");
 						If CharNumberReasonLine > 0 Then 
-							CharNumberReasonStart = CharNumberReasonLine + StrLen("X-Mailer-Daemon-Error:");  
+							CharNumberReasonStart = CharNumberReasonLine + StrLen("X-Mailer-Daemon-Error:");
 							Cause = Mid(Message.Title, CharNumberReasonStart);
 							CharNumberNewLine = StrFind(Cause, Chars.LF);
 							Cause = TrimAll(Left(Cause, CharNumberNewLine));
 							Cause = StringFunctionsClientServer.SubstituteParametersToString(
-								NStr("en = 'The email is not delivered due to: %1.';"), Cause);
+								NStr("en = 'The message is not delivered due to: %1.';"), Cause);
 						Else
-								Cause = NStr("en = 'The email is not delivered.';");			
+								Cause = NStr("en = 'The message is not delivered.';");
 						EndIf;
 						
 						DeliveryStatusesString.Cause = Cause;
 						DeliveryStatusesString.StatusChangeDate = Message.PostingDate;
 						Break;
 					ElsIf StrFind(Message.Title, "Delivery Status Notification") > 0 Or StrFind(
-						Message.Title, "Disposition-Notification-To") > 0 Then
+						Message.Title, "Disposition-Notification-To") > 0 
+						Or StrFind(Message.Title, "report-type=delivery-status") > 0 Then
 						
 						RowFilter = New Structure("EmailID, RecipientAddress", Selection.EmailID, Selection.RecipientAddress);
-						ExistingStatusesRows = DeliveryStatuses.FindRows(RowFilter);  
+						ExistingStatusesRows = DeliveryStatuses.FindRows(RowFilter);
 						If ExistingStatusesRows.Count() > 0 Then
-							Continue;	
+							Continue;
 						EndIf;
-												
+						
 						DeliveryStatusesString = DeliveryStatuses.Add();
 						DeliveryStatusesString.Sender = SelectionSender.Sender;
 						DeliveryStatusesString.EmailID = Selection.EmailID;
@@ -2357,40 +2345,79 @@ Procedure GetStatusesOfEmailMessages() Export
 						DeliveryStatusesString.StatusChangeDate = Message.PostingDate;
 						Continue;
 					EndIf;
-				Else					
+				Else
 					If Message.Texts.Count() > 0 Then
-						For Each EmailText In Message.Texts Do     
+						For Each EmailText In Message.Texts Do
 							If EmailText["TextType"] = "HTML" Then
 								Continue;
 							EndIf;
-							If StrFind(EmailText["Text"], Selection.EmailID) > 0 
-								And StrFind(EmailText["Text"], Selection.RecipientAddress) > 0 Then 
+							RowFilter = New Structure("EmailID, RecipientAddress", Selection.EmailID, Selection.RecipientAddress);
+							ExistingStatusesRows = DeliveryStatuses.FindRows(RowFilter);
+							If ExistingStatusesRows.Count() > 0 Then
+								Break;
+							EndIf;
+
+							If StrFind(EmailText["Text"], Selection.EmailID) > 0
+								And StrFind(EmailText["Text"], Selection.RecipientAddress) > 0
+								And StrFind(EmailText["Text"], "this error:") > 0 Then
+								DeliveryStatusesString = DeliveryStatuses.Add();
+								DeliveryStatusesString.Sender = SelectionSender.Sender;
+								DeliveryStatusesString.EmailID = Selection.EmailID;
+								DeliveryStatusesString.RecipientAddress = Selection.RecipientAddress;
+								DeliveryStatusesString.Status = Enums.EmailMessagesStatuses.NotDelivered;
 								
-								RowFilter = New Structure("EmailID, RecipientAddress", Selection.EmailID, Selection.RecipientAddress);
-								ExistingStatusesRows = DeliveryStatuses.FindRows(RowFilter);  
-								If ExistingStatusesRows.Count() > 0 Then
-									Break;	
-								EndIf;
+								CharNumberReasonStart = StrFind(EmailText["Text"], "this error:");
+								Cause = Mid(EmailText["Text"], StrLen(CharNumberReasonStart)-1);
+								SymbolNumberEndOfReason = StrFind(Cause, Chars.LF,,,2);
+								Cause = Mid(Cause, 1, SymbolNumberEndOfReason);
+								
+								Cause = StringFunctionsClientServer.SubstituteParametersToString(
+								NStr("en = 'The message is not delivered due to: %1.';"), TrimAll(Cause));
+								
+								DeliveryStatusesString.Cause = Cause;
+								DeliveryStatusesString.StatusChangeDate = Message.PostingDate;
+								
+							ElsIf StrFind(EmailText["Text"], Selection.EmailID) > 0
+								And StrFind(EmailText["Text"], Selection.RecipientAddress) > 0 Then
 								
 								DeliveryStatusesString = DeliveryStatuses.Add();
 								DeliveryStatusesString.Sender = SelectionSender.Sender;
-								DeliveryStatusesString.EmailID = Selection.EmailID; 
+								DeliveryStatusesString.EmailID = Selection.EmailID;
 								DeliveryStatusesString.RecipientAddress = Selection.RecipientAddress;
 								DeliveryStatusesString.Status = Enums.EmailMessagesStatuses.Delivered;
 								DeliveryStatusesString.StatusChangeDate = Message.PostingDate;
+							ElsIf StrFind(EmailText["Text"], Selection.RecipientAddress) > 0
+								And StrFind(EmailText["Text"], "message could not") Then
+								
+								DeliveryStatusesString = DeliveryStatuses.Add(); 
+								DeliveryStatusesString.Sender = SelectionSender.Sender;
+								DeliveryStatusesString.EmailID = Selection.EmailID;
+								DeliveryStatusesString.RecipientAddress = Selection.RecipientAddress;
+								DeliveryStatusesString.Status = Enums.EmailMessagesStatuses.NotDelivered;
+								
+								CharNumberReasonStart = StrFind(EmailText["Text"], Selection.RecipientAddress, SearchDirection.FromEnd);
+								Cause = Mid(EmailText["Text"], CharNumberReasonStart);
+								Cause = StrReplace(Cause, Chars.CR, "");
+								
+								Cause = StringFunctionsClientServer.SubstituteParametersToString(
+								NStr("en = 'The message is not delivered due to: %1.';"), TrimAll(Cause));
+								
+								DeliveryStatusesString.Cause = Cause;
+								DeliveryStatusesString.StatusChangeDate = Message.PostingDate;
+								
 							EndIf;
 							Continue;
 						EndDo;
-					EndIf;			
+					EndIf;
 				EndIf;
 			EndDo;
-		EndDo;   
+		EndDo;
 	
 	EndDo;
 	
 	AfterGetEmailMessagesStatuses(DeliveryStatuses);
 	
-EndProcedure      
+EndProcedure
 
 // See EmailOperationsOverridable.BeforeGetEmailMessagesStatuses
 Procedure BeforeGetEmailMessagesStatuses(EmailMessagesIDs) 

@@ -145,6 +145,11 @@ Procedure AfterStart() Export
 	
 	SetUserExitControl(True);
 	
+	If LockMode.Use Then
+		ClientParameters().DateOfLastLockMessage = CommonClient.SessionDate();
+		SessionTerminationModeManagement(LockMode);
+	EndIf;
+	
 EndProcedure
 
 // Parameters:
@@ -205,7 +210,13 @@ EndProcedure
 // See StandardSubsystemsClient.OnReceiptServerNotification
 Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
 	
-	CurrentSessionDate = CommonClient.SessionDate();
+	If Not IsSubsystemUsed() Then
+		Return;
+	EndIf;
+	
+	CurrentSessionDate = '00010101';
+	ServerNotificationsClient.TimeoutExpired("",,, CurrentSessionDate);
+	
 	ClientParameters = ClientParameters();
 	ClientParameters.LockCheckLastDate = CurrentSessionDate;
 	
@@ -236,12 +247,17 @@ EndProcedure
 //
 Procedure BeforeRecurringClientDataSendToServer(Parameters, AreNotificationsReceived) Export
 	
+	If Not IsSubsystemUsed() Then
+		Return;
+	EndIf;
+	
 	CurrentSessionDate = '00010101';
 	ServerNotificationsClient.TimeoutExpired("",,, CurrentSessionDate);
 	
 	ClientParameters = ClientParameters();
 	
-	If Not ValueIsFilled(ClientParameters.LockCheckLastDate) Then
+	If Not ValueIsFilled(ClientParameters.LockCheckLastDate)
+	   And Not ValueIsFilled(ClientParameters.DateOfLastLockMessage) Then
 		ClientParameters.LockCheckLastDate = CurrentSessionDate;
 		Return;
 	EndIf;
@@ -252,13 +268,11 @@ Procedure BeforeRecurringClientDataSendToServer(Parameters, AreNotificationsRece
 		If ClientParameters.DateOfLastLockMessage + 300 > CurrentSessionDate Then
 			Interval = 60;
 		ElsIf AreNotificationsReceived Then
-			ClientParameters.LockCheckLastDate = CurrentSessionDate;
 			Return;
 		Else
 			Interval = 300;
 		EndIf;
 	Else
-		ClientParameters.LockCheckLastDate = CurrentSessionDate;
 		Return;
 	EndIf;
 	
@@ -736,8 +750,7 @@ EndProcedure
 //
 // Parameters:
 //  LaunchParameterValue - String - main launch parameter.
-//  StartupParameters          - Array - additional start parameters separated
-//                                       by semicolons.
+//  StartupParameters          - Array of String -
 //
 // Returns:
 //   Boolean   - 

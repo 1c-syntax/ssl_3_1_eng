@@ -842,11 +842,13 @@ EndFunction
 
 Function ThereIsAnExtensionInTheExchangeMessage(MessageReader)
 	
-	If Not InfobaseNode.Metadata().IncludeConfigurationExtensions 
-		Or Not DataExchangeServer.IsSubordinateDIBNode() 
+	If Not DataExchangeServer.IsSubordinateDIBNode() 
 		Or Common.DataSeparationEnabled() Then
 		Return False;
 	EndIf;
+	
+	HasExtensions = False;
+	ThereAreExtensionsThatChangeDataStructure = False;
 		
 	ExchangeFile = New XMLReader;
 	
@@ -854,32 +856,33 @@ Function ThereIsAnExtensionInTheExchangeMessage(MessageReader)
 	
 	While ExchangeFile.Read() Do
 		
+		If ExchangeFile.Name = "v8de:Data"
+			Or ExchangeFile.LocalName = "v8de:ConfigurationExtensions" 
+			And ExchangeFile.NodeType = XMLNodeType.EndElement Then
+			
+			Break;
+			
+		EndIf;
+		
 		If ExchangeFile.Name = "v8de:ConfigurationExtensions" Then
 			
-			While ExchangeFile.Read() Do
-				
-				If ExchangeFile.Name = "v8md:Metadata" Or ExchangeFile.Name = "v8de:ConfigurationExtensionDeletion" Then	
-					
-					Return True;
-					
-				ElsIf ExchangeFile.LocalName = "v8de:ConfigurationExtensions" 
-					And ExchangeFile.NodeType = XMLNodeType.EndElement Then
-					
-					Return False;	
-					
-				EndIf;
-				
-			EndDo;
+			HasExtensions = True;
+			Continue;
 			
-		ElsIf ExchangeFile.Name = "v8de:Data" Then
+		EndIf;
+		
+		If HasExtensions And ExchangeFile.Name = "v8md:Metadata"
+			Or ExchangeFile.Name = "v8de:ConfigurationExtensionDeletion" Then
 			
-			Return False;	
+			ThereAreExtensionsThatChangeDataStructure = True;
+			Break;
 			
 		EndIf;
 		
 	EndDo;
 	
-	Return False;
+	Return ThereAreExtensionsThatChangeDataStructure
+		Or HasExtensions And Not InfobaseNode.Metadata().IncludeConfigurationExtensions;
 	
 EndFunction
 

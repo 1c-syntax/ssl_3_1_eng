@@ -86,7 +86,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Ask a respondent to comment on their reply and explain the comment:</v8:content>
+							<v8:content>Ask a respondent to elaborate on their answer in the comment field:</v8:content>
 						</v8:item>
 					</Title>
 					<TitleLocation>Right</TitleLocation>
@@ -113,7 +113,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Reply type</v8:content>
+					<v8:content>Response type</v8:content>
 				</v8:item>
 			</Title>
 			<Behavior>Usual</Behavior>
@@ -183,7 +183,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>View</v8:content>
+											<v8:content>Display format</v8:content>
 										</v8:item>
 									</Title>
 									<Width>12</Width>
@@ -208,7 +208,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>View</v8:content>
+											<v8:content>Display format</v8:content>
 										</v8:item>
 									</Title>
 									<Width>12</Width>
@@ -250,6 +250,7 @@
 									<v8:content>Number attributes</v8:content>
 								</v8:item>
 							</Title>
+							<Group>Vertical</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
@@ -259,6 +260,7 @@
 									<DataPath>Object.Length</DataPath>
 									<Width>5</Width>
 									<HorizontalStretch>false</HorizontalStretch>
+									<SpinButton>true</SpinButton>
 									<ContextMenu name="LengthContextMenu" id="76"/>
 									<ExtendedTooltip name="LengthExtendedTooltip" id="107"/>
 									<Events>
@@ -268,23 +270,146 @@
 								<InputField name="Accuracy" id="82">
 									<DataPath>Object.Accuracy</DataPath>
 									<Width>4</Width>
+									<SpinButton>true</SpinButton>
 									<ContextMenu name="AccuracyContextMenu" id="83"/>
 									<ExtendedTooltip name="AccuracyExtendedTooltip" id="108"/>
 									<Events>
 										<Event name="OnChange">AccuracyOnChange</Event>
 									</Events>
 								</InputField>
-								<InputField name="MinValue" id="24">
-									<DataPath>Object.MinValue</DataPath>
-									<ChoiceButton>true</ChoiceButton>
-									<ContextMenu name="MinValueContextMenu" id="25"/>
-									<ExtendedTooltip name="MinValueExtendedTooltip" id="109"/>
-								</InputField>
-								<InputField name="MaxValue" id="26">
-									<DataPath>Object.MaxValue</DataPath>
-									<ChoiceButton>true</ChoiceButton>
-									<ContextMenu name="MaxValueContextMenu" id="27"/>
-									<ExtendedTooltip name="MaxValueExtendedTooltip" id="110"/>
+								<UsualGroup name="ValuesBoundariesSettings" id="177">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Set value limits</v8:content>
+										</v8:item>
+									</Title>
+									<Group>Vertical</Group>
+									<Behavior>Usual</Behavior>
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="ValuesBoundariesSettingsExtendedTooltip" id="178"/>
+									<ChildItems>
+										<UsualGroup name="MinValueSetup" id="167">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Set minimum value</v8:content>
+												</v8:item>
+											</Title>
+											<Group>AlwaysHorizontal</Group>
+											<Behavior>Usual</Behavior>
+											<Representation>None</Representation>
+											<United>false</United>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="MinValueSetupExtendedTooltip" id="168"/>
+											<ChildItems>
+												<CheckBoxField name="ShouldUseMinValue" id="171">
+													<DataPath>Object.ShouldUseMinValue</DataPath>
+													<TitleLocation>None</TitleLocation>
+													<CheckBoxType>Auto</CheckBoxType>
+													<ContextMenu name="ShouldUseMinValueContextMenu" id="172"/>
+													<ExtendedTooltip name="ShouldUseMinValueExtendedTooltip" id="173"/>
+													<Events>
+														<Event name="OnChange">ShouldUseMinValueOnChange</Event>
+													</Events>
+												</CheckBoxField>
+												<InputField name="MinValue" id="24">
+													<DataPath>Object.MinValue</DataPath>
+													<ChoiceButton>false</ChoiceButton>
+													<SpinButton>true</SpinButton>
+													<ContextMenu name="MinValueContextMenu" id="25"/>
+													<ExtendedTooltip name="MinValueExtendedTooltip" id="109"/>
+													<Events>
+														<Event name="OnChange">MinValueOnChange</Event>
+													</Events>
+												</InputField>
+											</ChildItems>
+										</UsualGroup>
+										<UsualGroup name="MaxValueSetup" id="169">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Set maximum value</v8:content>
+												</v8:item>
+											</Title>
+											<Group>AlwaysHorizontal</Group>
+											<Behavior>Usual</Behavior>
+											<Representation>None</Representation>
+											<United>false</United>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="MaxValueSetupExtendedTooltip" id="170"/>
+											<ChildItems>
+												<CheckBoxField name="ShouldUseMaxValue" id="174">
+													<DataPath>Object.ShouldUseMaxValue</DataPath>
+													<TitleLocation>None</TitleLocation>
+													<CheckBoxType>Auto</CheckBoxType>
+													<ContextMenu name="ShouldUseMaxValueContextMenu" id="175"/>
+													<ExtendedTooltip name="ShouldUseMaxValueExtendedTooltip" id="176"/>
+													<Events>
+														<Event name="OnChange">ShouldUseMaxValueOnChange</Event>
+													</Events>
+												</CheckBoxField>
+												<InputField name="MaxValue" id="26">
+													<DataPath>Object.MaxValue</DataPath>
+													<ChoiceButton>false</ChoiceButton>
+													<SpinButton>true</SpinButton>
+													<ContextMenu name="MaxValueContextMenu" id="27"/>
+													<ExtendedTooltip name="MaxValueExtendedTooltip" id="110"/>
+													<Events>
+														<Event name="OnChange">MaxValueOnChange</Event>
+													</Events>
+												</InputField>
+											</ChildItems>
+										</UsualGroup>
+									</ChildItems>
+								</UsualGroup>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="GroupRangeSlider" id="185">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group Slider</v8:content>
+								</v8:item>
+							</Title>
+							<Group>AlwaysHorizontal</Group>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GroupRangeSliderExtendedTooltip" id="186"/>
+							<ChildItems>
+								<CheckBoxField name="ShouldShowRangeSlider" id="179">
+									<DataPath>Object.ShouldShowRangeSlider</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Show slider with increment:</v8:content>
+										</v8:item>
+									</Title>
+									<TitleLocation>Right</TitleLocation>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="ShouldShowRangeSliderContextMenu" id="180"/>
+									<ExtendedTooltip name="ShouldShowRangeSliderExtendedTooltip" id="181"/>
+									<Events>
+										<Event name="OnChange">ShouldShowRangeSliderOnChange</Event>
+									</Events>
+								</CheckBoxField>
+								<InputField name="RangeSliderStep" id="187">
+									<DataPath>Object.RangeSliderStep</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Increment</v8:content>
+										</v8:item>
+									</Title>
+									<TitleLocation>None</TitleLocation>
+									<ChoiceButton>false</ChoiceButton>
+									<SpinButton>true</SpinButton>
+									<ContextMenu name="RangeSliderStepContextMenu" id="188"/>
+									<ExtendedTooltip name="RangeSliderStepExtendedTooltip" id="189"/>
+									<Events>
+										<Event name="OnChange">RangeSliderIncrementStepOnChange</Event>
+									</Events>
 								</InputField>
 							</ChildItems>
 						</UsualGroup>
@@ -295,6 +420,101 @@
 							<ContextMenu name="ShowAggregatedValuesInReportsContextMenu" id="86"/>
 							<ExtendedTooltip name="ShowAggregatedValuesInReportsExtendedTooltip" id="111"/>
 						</CheckBoxField>
+						<UsualGroup name="GroupHintsRange" id="212">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group Hint range</v8:content>
+								</v8:item>
+							</Title>
+							<Group>Vertical</Group>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GroupHintsRangeExtendedTooltip" id="213"/>
+							<ChildItems>
+								<CheckBoxField name="ShouldShowHintForNumericalQuestions" id="214">
+									<DataPath>Object.ShouldShowHintForNumericalQuestions</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Show hint</v8:content>
+										</v8:item>
+									</Title>
+									<TitleLocation>Right</TitleLocation>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="ShouldShowHintForNumericalQuestionsContextMenu" id="215"/>
+									<ExtendedTooltip name="ShouldShowHintForNumericalQuestionsExtendedTooltip" id="216"/>
+									<Events>
+										<Event name="OnChange">ShouldShowHintForNumericalQuestionsOnChange</Event>
+									</Events>
+								</CheckBoxField>
+								<Table name="HintsRange" id="190">
+									<Representation>List</Representation>
+									<Width>60</Width>
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<AutoMaxHeight>false</AutoMaxHeight>
+									<MaxHeight>7</MaxHeight>
+									<HorizontalStretch>false</HorizontalStretch>
+									<VerticalStretch>false</VerticalStretch>
+									<DataPath>Object.NumericalQuestionHintsRange</DataPath>
+									<CommandSet>
+										<ExcludedCommand>MoveDown</ExcludedCommand>
+										<ExcludedCommand>MoveUp</ExcludedCommand>
+										<ExcludedCommand>SortListAsc</ExcludedCommand>
+										<ExcludedCommand>SortListDesc</ExcludedCommand>
+									</CommandSet>
+									<RowFilter xsi:nil="true"/>
+									<ContextMenu name="HintsRangeContextMenu" id="191"/>
+									<AutoCommandBar name="HintsRangeCommandBar" id="192"/>
+									<ExtendedTooltip name="HintsRangeExtendedTooltip" id="193"/>
+									<SearchStringAddition name="HintsRangeSearchString" id="194">
+										<AdditionSource>
+											<Item>HintsRange</Item>
+											<Type>SearchStringRepresentation</Type>
+										</AdditionSource>
+										<ContextMenu name="HintsRangeSearchStringContextMenu" id="195"/>
+										<ExtendedTooltip name="HintsRangeSearchStringExtendedTooltip" id="196"/>
+									</SearchStringAddition>
+									<ViewStatusAddition name="HintsRangeViewStatus" id="197">
+										<AdditionSource>
+											<Item>HintsRange</Item>
+											<Type>ViewStatusRepresentation</Type>
+										</AdditionSource>
+										<ContextMenu name="HintsRangeViewStatusContextMenu" id="198"/>
+										<ExtendedTooltip name="HintsRangeViewStatusExtendedTooltip" id="199"/>
+									</ViewStatusAddition>
+									<SearchControlAddition name="HintsRangeSearchControl" id="200">
+										<AdditionSource>
+											<Item>HintsRange</Item>
+											<Type>SearchControl</Type>
+										</AdditionSource>
+										<ContextMenu name="HintsRangeSearchControlContextMenu" id="201"/>
+										<ExtendedTooltip name="HintsRangeSearchControlExtendedTooltip" id="202"/>
+									</SearchControlAddition>
+									<Events>
+										<Event name="BeforeDeleteRow">HintsRangeBeforeDeleteRow</Event>
+										<Event name="BeforeEditEnd">HintsRangeBeforeEditEnd</Event>
+										<Event name="OnStartEdit">HintsRangeOnStartEdit</Event>
+										<Event name="AfterDeleteRow">HintsRangeAfterDeleteRow</Event>
+									</Events>
+									<ChildItems>
+										<InputField name="HintsRangeValueUpTo" id="206">
+											<DataPath>Object.NumericalQuestionHintsRange.ValueUpTo</DataPath>
+											<EditMode>EnterOnInput</EditMode>
+											<Width>10</Width>
+											<ContextMenu name="HintsRangeValueBeforeContextMenu" id="207"/>
+											<ExtendedTooltip name="HintsRangeValueBeforeExtendedTooltip" id="208"/>
+										</InputField>
+										<InputField name="HintsRangeToolTip" id="209">
+											<DataPath>Object.NumericalQuestionHintsRange.ToolTip</DataPath>
+											<EditMode>EnterOnInput</EditMode>
+											<ContextMenu name="HintsRangeToolTipContextMenu" id="210"/>
+											<ExtendedTooltip name="HintsRangeToolTipExtendedTooltip" id="211"/>
+										</InputField>
+									</ChildItems>
+								</Table>
+							</ChildItems>
+						</UsualGroup>
 					</ChildItems>
 				</Page>
 				<Page name="StringPage" id="72">
@@ -437,7 +657,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Reply</v8:content>
+											<v8:content>Response</v8:content>
 										</v8:item>
 									</Title>
 									<Width>20</Width>
@@ -496,6 +716,36 @@
 			</Type>
 			<MainAttribute>true</MainAttribute>
 			<SavedData>true</SavedData>
+			<Columns>
+				<AdditionalColumns table="Object.NumericalQuestionHintsRange">
+					<Column name="PresentationValue" id="8">
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Value presentation</v8:content>
+							</v8:item>
+						</Title>
+						<Type>
+							<v8:Type>xs:string</v8:Type>
+							<v8:StringQualifiers>
+								<v8:Length>0</v8:Length>
+								<v8:AllowedLength>Variable</v8:AllowedLength>
+							</v8:StringQualifiers>
+						</Type>
+					</Column>
+					<Column name="DisableConditionalAppearance" id="10">
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Disable conditional appearance</v8:content>
+							</v8:item>
+						</Title>
+						<Type>
+							<v8:Type>xs:boolean</v8:Type>
+						</Type>
+					</Column>
+				</AdditionalColumns>
+			</Columns>
 		</Attribute>
 		<Attribute name="AnswersOptions" id="3">
 			<Title>
@@ -543,7 +793,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Reply type</v8:content>
+					<v8:content>Response type</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -589,6 +839,21 @@
 					<v8:Length>0</v8:Length>
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="HintsRangePreviousValue" id="9">
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>15</v8:Digits>
+					<v8:FractionDigits>2</v8:FractionDigits>
+					<v8:AllowedSign>Any</v8:AllowedSign>
+				</v8:NumberQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="ReturnValueToRange" id="11">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
 	</Attributes>

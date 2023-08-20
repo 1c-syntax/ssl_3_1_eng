@@ -9,7 +9,7 @@
 					<v8:content>SSL: Basic rights of external users</v8:content>
 				</v8:item>
 			</Synonym>
-			<Comment>These are the basic BSP rights that any external user should have</Comment>
+			<Comment>Базовые права, которые должны быть у любого внешнего пользователя.</Comment>
 		</Properties>
 	</Role>
 </MetaDataObject>

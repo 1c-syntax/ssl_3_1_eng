@@ -56,6 +56,9 @@ Function SSLEvents() Export
 	Events.Insert("OnCreateAtServerReportsOptions", False);
 	Events.Insert("BeforeLoadVariantAtServer", False);
 	
+	// ВнешниеКомпоненты
+	Events.Insert("OnDefineUsedAddIns", False);
+	
 	// ГрупповоеИзменениеОбъектов
 	Events.Insert("OnDefineObjectsWithEditableAttributes", False);
 	Events.Insert("OnDefineEditableObjectAttributes", False);
@@ -294,6 +297,11 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 	StandardSubsystemsServer.OnFillTypesExcludedFromExportImport(Types);
 	ServerNotifications.OnFillTypesExcludedFromExportImport(Types);
 	
+	If Common.SubsystemExists("StandardSubsystems.AddressClassifier") Then
+		ModuleAddressClassifierInternal = Common.CommonModule("AddressClassifierInternal");
+		ModuleAddressClassifierInternal.OnFillTypesExcludedFromExportImport(Types);
+	EndIf;
+
 	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
 		ModuleReportsOptions = Common.CommonModule("ReportsOptions");
 		ModuleReportsOptions.OnFillTypesExcludedFromExportImport(Types);
@@ -333,11 +341,6 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 		ModuleAccountingAuditInternal.OnFillTypesExcludedFromExportImport(Types);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.AddressClassifier") Then
-		ModuleAddressClassifierInternal = Common.CommonModule("AddressClassifierInternal");
-		ModuleAddressClassifierInternal.OnFillTypesExcludedFromExportImport(Types);
-	EndIf;
-
 	If Common.SubsystemExists(
 		"StandardSubsystems.SaaSOperations.IBVersionUpdateSaaS") Then
 		ModuleInfobaseUpdateInternalSaaS = Common.CommonModule(
@@ -347,8 +350,7 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 
 	If Common.SubsystemExists(
 		"StandardSubsystems.SaaSOperations.FilesOperationsSaaS") Then
-		ModuleFilesOperationsInternalSaaS = Common.CommonModule(
-			"FilesOperationsInternalSaaS");
+		ModuleFilesOperationsInternalSaaS = Common.CommonModule("FilesOperationsInternalSaaS");
 		ModuleFilesOperationsInternalSaaS.OnFillTypesExcludedFromExportImport(Types);
 	EndIf;
 
@@ -362,7 +364,7 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 		ModuleMarkedObjectsDeletionInternal.OnFillTypesExcludedFromExportImport(Types);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnFillTypesExcludedFromExportImport(Types);
 	EndIf;
@@ -379,8 +381,7 @@ Procedure OnRegisterDataExportHandlers(HandlersTable) Export
 
 	If Common.SubsystemExists(
 		"StandardSubsystems.SaaSOperations.FilesOperationsSaaS") Then
-		ModuleFilesOperationsInternalSaaS = Common.CommonModule(
-			"FilesOperationsInternalSaaS");
+		ModuleFilesOperationsInternalSaaS = Common.CommonModule("FilesOperationsInternalSaaS");
 		ModuleFilesOperationsInternalSaaS.OnRegisterDataExportHandlers(HandlersTable);
 	EndIf;
 
@@ -536,7 +537,7 @@ Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 		ModuleIBConnections.OnFillIIBParametersTable(ParametersTable);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnFillIIBParametersTable(ParametersTable);
 	EndIf;
@@ -655,8 +656,7 @@ Procedure OnGetTemplateList(JobTemplates) Export
 
 	If Common.SubsystemExists(
 		"StandardSubsystems.SaaSOperations.FilesOperationsSaaS") Then
-		ModuleFilesOperationsInternalSaaS = Common.CommonModule(
-			"FilesOperationsInternalSaaS");
+		ModuleFilesOperationsInternalSaaS = Common.CommonModule("FilesOperationsInternalSaaS");
 		ModuleFilesOperationsInternalSaaS.OnGetTemplateList(JobTemplates);
 	EndIf;
 
@@ -732,8 +732,7 @@ Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 
 	If Common.SubsystemExists(
 		"StandardSubsystems.SaaSOperations.FilesOperationsSaaS") Then
-		ModuleFilesOperationsInternalSaaS = Common.CommonModule(
-			"FilesOperationsInternalSaaS");
+		ModuleFilesOperationsInternalSaaS = Common.CommonModule("FilesOperationsInternalSaaS");
 		ModuleFilesOperationsInternalSaaS.OnDefineHandlerAliases(NamesAndAliasesMap);
 	EndIf;
 	
@@ -772,8 +771,7 @@ Procedure OnDefineScheduledJobsUsage(UsageTable) Export
 
 	If Common.SubsystemExists(
 		"StandardSubsystems.SaaSOperations.FilesOperationsSaaS") Then
-		ModuleFilesOperationsInternalSaaS = Common.CommonModule(
-			"FilesOperationsInternalSaaS");
+		ModuleFilesOperationsInternalSaaS = Common.CommonModule("FilesOperationsInternalSaaS");
 		ModuleFilesOperationsInternalSaaS.OnDefineScheduledJobsUsage(UsageTable);
 	EndIf;
 
@@ -852,6 +850,21 @@ Procedure OnChangeOnlineSupportAuthenticationData(UserData) Export
 	If Common.SubsystemExists("StandardSubsystems.Currencies") Then
 		ModuleCurrencyExchangeRates = Common.CommonModule("CurrencyRateOperations");
 		ModuleCurrencyExchangeRates.OnChangeOnlineSupportAuthenticationData(UserData);
+	EndIf;
+
+EndProcedure
+
+#EndRegion
+
+#Region AddInsSaaS
+
+// See GetAddInsSaaSOverridable.OnDefineAddInsVersionsToUse.
+Procedure OnDefineAddInsVersionsToUse(IDs) Export
+
+	If Common.SubsystemExists("StandardSubsystems.AddIns") Then
+		ModuleAddInsInternal = Common.CommonModule("AddInsInternal");
+		CommonClientServer.SupplementArray(
+			IDs, ModuleAddInsInternal.SuppliedAddIns(), True);
 	EndIf;
 
 EndProcedure
@@ -961,20 +974,6 @@ EndProcedure
 
 #EndRegion
 
-#Region DigitalSignature
-
-// See GetAddInsSaaSOverridable.OnDefineAddInsVersionsToUse.
-Procedure OnDefineAddInsVersionsToUse(IDs) Export
-
-	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
-		ModuleDigitalSignatureInternal = Common.CommonModule("DigitalSignatureInternal");
-		ModuleDigitalSignatureInternal.OnDefineAddInsVersionsToUse(IDs);
-	EndIf;
-
-EndProcedure
-
-#EndRegion
-
 #EndRegion
 
 #EndRegion
@@ -1079,7 +1078,7 @@ Procedure OnAddSessionParameterSettingHandlers(Handlers) Export
 		ModuleOSLSubsystemsIntegration.OnAddSessionParameterSettingHandlers(Handlers);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnAddSessionParameterSettingHandlers(Handlers);
 	EndIf;
@@ -1318,7 +1317,7 @@ Procedure OnClearAllExtemsionParameters() Export
 
 EndProcedure
 
-// See StandardSubsystemsServer.ПриОтправкеДанныхГлавному.
+// See StandardSubsystems.OnSendDataToMaster.
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 
 	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
@@ -1664,7 +1663,7 @@ Procedure OnDefineSupportedInterfaceVersions(SupportedVersions) Export
 
 	UsersInternal.OnDefineSupportedInterfaceVersions(SupportedVersions);
 	
-	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnDefineSupportedInterfaceVersions(SupportedVersions);
 	EndIf;
@@ -1805,7 +1804,12 @@ Procedure OnAddClientParameters(Parameters) Export
 		ModuleNetworkDownloadInternal = Common.CommonModule("GetFilesFromInternetInternal");
 		ModuleNetworkDownloadInternal.OnAddClientParameters(Parameters);
 	EndIf;
-
+	
+	If Common.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
+		ModuleSafeModeManagerInternal = Common.CommonModule("SafeModeManagerInternal");
+		ModuleSafeModeManagerInternal.OnAddClientParameters(Parameters);
+	EndIf;
+	
 	UsersInternal.OnAddClientParameters(Parameters);
 
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
@@ -1840,9 +1844,13 @@ Procedure OnAddClientParameters(Parameters) Export
 		ModuleOSLSubsystemsIntegration.OnAddClientParameters(Parameters);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnAddClientParameters(Parameters);
+	EndIf;
+	
+	If Common.SubsystemExists("IntegrationWith1CDocumentManagementSubsystem") Then
+		Parameters.Insert("DMILVersion", InfobaseUpdate.IBVersion("DocumentManagementIntegrationLibrary"));
 	EndIf;
 	
 EndProcedure
@@ -1929,11 +1937,6 @@ Procedure OnAddServerNotifications(Notifications) Export
 	
 	StandardSubsystemsServer.OnAddServerNotifications(Notifications);
 	UsersInternal.OnAddServerNotifications(Notifications);
-	
-	If Common.SubsystemExists("StandardSubsystems.Currencies") Then
-		ModuleCurrencyExchangeRates = Common.CommonModule("CurrencyRateOperations");
-		ModuleCurrencyExchangeRates.OnAddServerNotifications(Notifications);
-	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.AddIns") Then
 		ModuleAddInsInternal = Common.CommonModule("AddInsInternal");
@@ -2125,7 +2128,7 @@ Procedure OnSetUpReportsOptions(Settings) Export
 		ModuleOSLSubsystemsIntegration.OnSetUpReportsOptions(Settings);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnSetUpReportsOptions(Settings);
 	EndIf;
@@ -2170,7 +2173,7 @@ Procedure OnDefineObjectsWithReportCommands(Objects) Export
 		ModuleOSLSubsystemsIntegration.OnDefineObjectsWithReportCommands(Objects);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnDefineObjectsWithReportCommands(Objects);
 	EndIf;
@@ -2257,6 +2260,29 @@ Procedure BeforeLoadVariantAtServer(Form, NewDCSettings) Export
 	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().BeforeLoadVariantAtServer Then
 		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
 		ModuleOSLSubsystemsIntegration.BeforeLoadVariantAtServer(Form, NewDCSettings);
+	EndIf;
+
+EndProcedure
+
+#EndRegion
+
+#Region AddIns
+
+// Parameters:
+//  Components - ValueTable -
+//      * Id          - String -
+//      * AutoUpdate - Boolean -
+//
+Procedure OnDefineUsedAddIns(Components) Export
+	
+	If SSLSubsystemsIntegrationCached.PELSubscriptions().OnDefineUsedAddIns Then
+		ModulePELSubsystemsIntegration = Common.CommonModule("PELSubsystemsIntegration");
+		ModulePELSubsystemsIntegration.OnDefineUsedAddIns(Components);
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		ModuleDigitalSignatureInternal = Common.CommonModule("DigitalSignatureInternal");
+		ModuleDigitalSignatureInternal.OnDefineUsedAddIns(Components);
 	EndIf;
 
 EndProcedure
@@ -2375,7 +2401,7 @@ Procedure OnDefineObjectsWithEditableAttributes(Objects) Export
 		ModuleOSLSubsystemsIntegration.OnDefineObjectsWithEditableAttributes(Objects);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnDefineObjectsWithEditableAttributes(Objects);
 	EndIf;
@@ -2779,7 +2805,7 @@ Procedure OnDefineCatalogsForDataImport(CatalogsToImport) Export
 		ModuleOSLSubsystemsIntegration.OnDefineCatalogsForDataImport(CatalogsToImport);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnDefineCatalogsForDataImport(CatalogsToImport);
 	EndIf;
@@ -2845,6 +2871,16 @@ EndProcedure
 // See ODataInterfaceOverridable.OnPopulateDependantTablesForODataImportExport
 Procedure OnPopulateDependantTablesForODataImportExport(Tables) Export
 	
+	If Common.SubsystemExists("StandardSubsystems.AccountingAudit") Then
+		ModuleAccountingAuditInternal = Common.CommonModule("AccountingAuditInternal");
+		ModuleAccountingAuditInternal.OnPopulateDependantTablesForODataImportExport(Tables);
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.FilesOperationsSaaS") Then
+		ModuleFilesOperationsInternalSaaS = Common.CommonModule("FilesOperationsInternalSaaS");
+		ModuleFilesOperationsInternalSaaS.OnPopulateDependantTablesForODataImportExport(Tables);
+	EndIf;
+
 	If Common.SubsystemExists("StandardSubsystems.MarkedObjectsDeletion") Then
 		ModuleMarkedObjectsDeletionInternal = Common.CommonModule("MarkedObjectsDeletionInternal");
 		ModuleMarkedObjectsDeletionInternal.OnPopulateDependantTablesForODataImportExport(Tables);
@@ -3071,8 +3107,8 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.OnAddUpdateHandlers(Handlers);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.OnAddUpdateHandlers(Handlers);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.DataExchange") Then
@@ -4807,6 +4843,10 @@ Procedure OnDetermineToDoListHandlers(ToDoList) Export
 	If Common.SubsystemExists("StandardSubsystems.Interactions") Then
 		ToDoList.Add(Common.CommonModule("Interactions"));
 	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.AddIns") Then
+		ToDoList.Add(Common.CommonModule("AddInsInternal"));
+	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then
 		ToDoList.Add(Common.CommonModule("AdditionalReportsAndDataProcessors"));
@@ -5114,7 +5154,7 @@ Procedure OnFillListsWithAccessRestriction(Lists) Export
 		ModuleOSLSubsystemsIntegration.OnFillListsWithAccessRestriction(Lists);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnFillListsWithAccessRestriction(Lists);
 	EndIf;
@@ -5259,7 +5299,7 @@ Procedure OnFillMetadataObjectsAccessRestrictionKinds(LongDesc) Export
 		ModuleOSLSubsystemsIntegration.OnFillMetadataObjectsAccessRestrictionKinds(LongDesc);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnFillMetadataObjectsAccessRestrictionKinds(LongDesc);
 	EndIf;

@@ -43,10 +43,10 @@
 //                                   pictures displayed in the email body.
 //
 Function GenerateMessage(Template, SubjectOf, UUID, AdditionalParameters = Undefined) Export
-	
+
 	SendOptions = GenerateSendOptions(Template, SubjectOf, UUID, AdditionalParameters);
 	Return MessageTemplatesInternal.GenerateMessage(SendOptions);
-	
+
 EndFunction
 
 // Sends an email or a text message based on the subject from message template.
@@ -62,11 +62,12 @@ EndFunction
 // Returns:
 //   See MessageTemplatesInternal.EmailSendingResult
 //
-Function GenerateMessageAndSend(Template, SubjectOf, UUID, AdditionalParameters = Undefined) Export
-	
+Function GenerateMessageAndSend(Template, SubjectOf, UUID,
+	AdditionalParameters = Undefined) Export
+
 	SendOptions = GenerateSendOptions(Template, SubjectOf, UUID, AdditionalParameters);
 	Return MessageTemplatesInternal.GenerateMessageAndSend(SendOptions);
-	
+
 EndFunction
 
 // Returns the list of the required additional parameters for the GenerateMessageAndSend procedure.
@@ -88,14 +89,14 @@ EndFunction
 //                                         
 //
 Function ParametersForSendingAMessageUsingATemplate() Export
-	
+
 	AdditionalParameters  = New Structure;
-	
+
 	AdditionalParameters.Insert("ConvertHTMLForFormattedDocument", False);
-	AdditionalParameters.Insert("Account",  Undefined);
+	AdditionalParameters.Insert("Account", Undefined);
 	AdditionalParameters.Insert("SendImmediately", False);
 	AdditionalParameters.Insert("DCSParametersValues", New Structure);
-	 
+
 	Return AdditionalParameters;
 
 EndFunction
@@ -108,7 +109,7 @@ EndFunction
 //
 Procedure GenerateAttributesListByDCS(Attributes, Template) Export
 	MessageTemplatesInternal.AttributesByDCS(Attributes, Template);
-	
+
 EndProcedure
 
 // Fills in a list of message template attributes based on a DCS template.
@@ -132,38 +133,38 @@ EndProcedure
 //  CatalogRef.MessageTemplates - 
 //
 Function CreateTemplate(Description, TemplateParameters) Export
-	
+
 	TemplateParameters.Insert("Description", Description);
-	
+
 	EventLogEventName = NStr("en = 'Create a message template';", Common.DefaultLanguageCode());
-	
+
 	BeginTransaction();
 	Try
-		
+
 		Template = Catalogs.MessageTemplates.CreateItem();
 		Template.Fill(TemplateParameters);
-		
+
 		If InfobaseUpdate.IsCallFromUpdateHandler() Then
 			InfobaseUpdate.WriteData(Template, True);
 		Else
 			Template.Write();
 		EndIf;
-		
+
 		If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
-		
+
 			ModuleFilesOperations = Common.CommonModule("FilesOperations");
-			
+
 			If TemplateParameters.Attachments <> Undefined Then
 				For Each Attachment In TemplateParameters.Attachments Do
-					
+
 					FileName = New File(Attachment.Key);
-					
+
 					AdditionalParameters = New Structure;
 					AdditionalParameters.Insert("Description", FileName.BaseName);
 					If StrFind(TemplateParameters.Text, FileName.BaseName) > 0 Then
 						AdditionalParameters.Insert("EmailFileID", FileName.BaseName);
 					EndIf;
-					
+
 					FileAddingOptions = ModuleFilesOperations.FileAddingOptions(AdditionalParameters);
 					FileAddingOptions.BaseName = FileName.BaseName;
 					If StrLen(FileName.Extension) > 1 Then
@@ -171,7 +172,7 @@ Function CreateTemplate(Description, TemplateParameters) Export
 					EndIf;
 					FileAddingOptions.Author = Users.AuthorizedUser();
 					FileAddingOptions.FilesOwner = Template.Ref;
-					
+
 					Try
 						ModuleFilesOperations.AppendFile(FileAddingOptions, Attachment.Value);
 					Except
@@ -183,21 +184,22 @@ Function CreateTemplate(Description, TemplateParameters) Export
 					EndTry;
 				EndDo;
 			EndIf;
-			
+
 		EndIf;
-		
+
 		CommitTransaction();
 	Except
 		RollbackTransaction();
-		
+
 		ErrorInfo = ErrorInfo();
-		WriteLogEvent(EventLogEventName, EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo));
-		
+		WriteLogEvent(EventLogEventName, EventLogLevel.Error,,,
+			ErrorProcessing.DetailErrorDescription(ErrorInfo));
+
 		Raise;
 	EndTry;
-	
+
 	Return Template.Ref;
-	
+
 EndFunction
 
 // Returns details of template parameters.
@@ -234,12 +236,12 @@ EndFunction
 //                                              
 //
 Function TemplateParametersDetails() Export
-	
+
 	TemplateParameters = MessageTemplatesClientServer.TemplateParametersDetails();
 	TemplateParameters.Delete("ExpandRefAttributes");
-	
+
 	Return TemplateParameters;
-	
+
 EndFunction
 
 // Creates subordinate attributes for a reference attribute in the value tree
@@ -267,41 +269,43 @@ EndProcedure
 //                                                                          addresses. If the type is Phone, adds phone numbers.
 //  SendingOption - String -
 //
-Procedure FillRecipients(EmailRecipients, MessageSubject, AttributeName, ContactInformationType = Undefined, SendingOption = "Whom") Export
-	
+Procedure FillRecipients(EmailRecipients, MessageSubject, AttributeName,
+	ContactInformationType = Undefined, SendingOption = "Whom") Export
+
 	If TypeOf(MessageSubject) = Type("Structure") Then
 		SubjectOf = MessageSubject.SubjectOf;
 	Else
 		SubjectOf = MessageSubject;
 	EndIf;
-		
-		
 	ObjectMetadata = SubjectOf.Metadata();
-	
+
 	If ObjectMetadata.Attributes.Find(AttributeName) = Undefined Then
 		If Not MessageTemplatesInternal.IsStandardAttribute(ObjectMetadata, AttributeName) Then
 			Return;
 		EndIf;
 	EndIf;
-	
+
 	If Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
 		ModuleContactsManager = Common.CommonModule("ContactsManager");
-		
+
 		If SubjectOf[AttributeName] = Undefined Then
 			Return;
 		EndIf;
-		
+
 		If ContactInformationType = Undefined Then
-			ContactInformationType = ModuleContactsManager.ContactInformationTypeByDescription("Email");
+			ContactInformationType = ModuleContactsManager.ContactInformationTypeByDescription(
+				"Email");
 		EndIf;
-		
+
 		ObjectsOfContactInformation = New Array;
 		ObjectsOfContactInformation.Add(SubjectOf[AttributeName]);
-		
-		ContactInformation4 = ModuleContactsManager.ObjectsContactInformation(ObjectsOfContactInformation, ContactInformationType,, CurrentSessionDate());
+
+		ContactInformation4 = ModuleContactsManager.ObjectsContactInformation(
+			ObjectsOfContactInformation, ContactInformationType,, CurrentSessionDate());
 		For Each ContactInformationItem In ContactInformation4 Do
 			Recipient = EmailRecipients.Add();
-			If ContactInformationType = ModuleContactsManager.ContactInformationTypeByDescription("Phone") Then
+			If ContactInformationType = ModuleContactsManager.ContactInformationTypeByDescription(
+				"Phone") Then
 				Recipient.PhoneNumber = ContactInformationItem.Presentation;
 				Recipient.Presentation = String(ContactInformationItem.Object);
 				Recipient.Contact       = ObjectsOfContactInformation[0];
@@ -311,10 +315,10 @@ Procedure FillRecipients(EmailRecipients, MessageSubject, AttributeName, Contact
 				Recipient.Contact         = ObjectsOfContactInformation[0];
 				Recipient.SendingOption = SendingOption;
 			EndIf;
-			
+
 		EndDo;
-	EndIf
-	
+	EndIf;
+
 EndProcedure
 
 // 
@@ -323,9 +327,9 @@ EndProcedure
 //   Value - Boolean -
 //
 Procedure SetUsageOfMessagesTemplates(Value) Export
-	
+
 	Constants.UseMessageTemplates.Set(Value);
-	
+
 EndProcedure
 
 // 
@@ -334,9 +338,9 @@ EndProcedure
 //   Boolean - 
 //
 Function MessageTemplatesUsed() Export
-	
+
 	Return GetFunctionalOption("UseMessageTemplates");
-	
+
 EndFunction
 
 // API for external data processors.
@@ -347,16 +351,18 @@ EndFunction
 //   ValueTable   - 
 //
 Function ParametersTable() Export
-	
+
 	TemplateParameters = New ValueTable;
-	
-	TemplateParameters.Columns.Add("ParameterName"                , New TypeDescription("String", , New StringQualifiers(50, AllowedLength.Variable)));
-	TemplateParameters.Columns.Add("TypeDetails"                , New TypeDescription("TypeDescription"));
-	TemplateParameters.Columns.Add("IsPredefinedParameter" , New TypeDescription("Boolean"));
-	TemplateParameters.Columns.Add("ParameterPresentation"      , New TypeDescription("String", , New StringQualifiers(150, AllowedLength.Variable)));
-	
+
+	TemplateParameters.Columns.Add("ParameterName", New TypeDescription("String", , New StringQualifiers(50,
+		AllowedLength.Variable)));
+	TemplateParameters.Columns.Add("TypeDetails", New TypeDescription("TypeDescription"));
+	TemplateParameters.Columns.Add("IsPredefinedParameter", New TypeDescription("Boolean"));
+	TemplateParameters.Columns.Add("ParameterPresentation", New TypeDescription("String", ,
+		New StringQualifiers(150, AllowedLength.Variable)));
+
 	Return TemplateParameters;
-	
+
 EndFunction
 
 // Add a template parameter for an external data processor.
@@ -368,14 +374,16 @@ EndFunction
 //  IsPredefinedParameter - Boolean - if True, the parameter is predefined.
 //  ParameterPresentation - String - a parameter presentation.
 //
-Procedure AddTemplateParameter(ParametersTable, ParameterName, TypeDetails, IsPredefinedParameter, ParameterPresentation = "") Export
+Procedure AddTemplateParameter(ParametersTable, ParameterName, TypeDetails, IsPredefinedParameter,
+	ParameterPresentation = "") Export
 
 	NewRow                             = ParametersTable.Add();
 	NewRow.ParameterName                = ParameterName;
 	NewRow.TypeDetails                = TypeDetails;
 	NewRow.IsPredefinedParameter = IsPredefinedParameter;
-	NewRow.ParameterPresentation      = ?(IsBlankString(ParameterPresentation),ParameterName, ParameterPresentation);
-	
+	NewRow.ParameterPresentation      = ?(IsBlankString(ParameterPresentation), ParameterName,
+		ParameterPresentation);
+
 EndProcedure
 
 // Initializes the Recipients structure to fill in possible message recipients.
@@ -384,9 +392,9 @@ EndProcedure
 //   Structure  - 
 //
 Function InitializeRecipientsStructure() Export
-	
+
 	Return New Structure("Recipient", New Array);
-	
+
 EndFunction
 
 // Initializes the message structure that has to be returned by the external data processor from the template.
@@ -395,16 +403,16 @@ EndFunction
 //   Structure  - 
 //
 Function InitializeMessageStructure() Export
-	
+
 	MessageStructure = New Structure;
 	MessageStructure.Insert("SMSMessageText", "");
 	MessageStructure.Insert("EmailSubject", "");
 	MessageStructure.Insert("EmailText", "");
 	MessageStructure.Insert("AttachmentsStructure", New Structure);
 	MessageStructure.Insert("HTMLEmailText", "<HTML></HTML>");
-	
+
 	Return MessageStructure;
-	
+
 EndFunction
 
 // Returns details of message template parameters according to form data, a reference to a catalog item of the message
@@ -420,13 +428,12 @@ EndFunction
 //   See MessageTemplatesClientServer.TemplateParametersDetails.
 //
 Function TemplateParameters(Val Template) Export
-	
+
 	SearchByOwner = False;
-	If TypeOf(Template) <> Type("FormDataStructure") 
-		And TypeOf(Template) <> Type("CatalogRef.MessageTemplates") Then
-		
+	If TypeOf(Template) <> Type("FormDataStructure") And TypeOf(Template) <> Type("CatalogRef.MessageTemplates") Then
+
 		Query = New Query;
-		Query.Text = 
+		Query.Text =
 		"SELECT TOP 1
 		|	MessageTemplates.Ref AS Ref
 		|FROM
@@ -434,7 +441,7 @@ Function TemplateParameters(Val Template) Export
 		|WHERE
 		|	MessageTemplates.TemplateOwner = &TemplateOwner";
 		Query.SetParameter("TemplateOwner", Template);
-		
+
 		QueryResult = Query.Execute().Select();
 		If QueryResult.Next() Then
 			Template = QueryResult.Ref;
@@ -442,7 +449,7 @@ Function TemplateParameters(Val Template) Export
 			SearchByOwner = True;
 		EndIf;
 	EndIf;
-	
+
 	Result = MessageTemplatesInternal.TemplateParameters(Template);
 	If SearchByOwner Then
 		Result.TemplateOwner = Template;
@@ -463,7 +470,8 @@ EndFunction
 //   String - 
 //
 Function InsertParametersInRowAccordingToParametersTable(Val StringPattern, ValuesToInsert, Val Prefix = "") Export
-	Return MessageTemplatesInternal.InsertParametersInRowAccordingToParametersTable(StringPattern, ValuesToInsert, Prefix);
+	Return MessageTemplatesInternal.InsertParametersInRowAccordingToParametersTable(StringPattern,
+		ValuesToInsert, Prefix);
 EndFunction
 
 // Returns mapping of template message text parameters.
@@ -519,20 +527,20 @@ EndFunction
 
 // See GenerateFromOverridable.OnDefineObjectsWithCreationBasedOnCommands.
 Procedure OnDefineObjectsWithCreationBasedOnCommands(Objects) Export
-	
+
 	Objects.Add(Metadata.Catalogs.MessageTemplates);
-	
+
 EndProcedure
 
 // See GenerateFromOverridable.OnAddGenerationCommands.
 Procedure OnAddGenerationCommands(Object, GenerationCommands, Parameters, StandardProcessing) Export
-	
+
 	If Common.SubsystemExists("StandardSubsystems.Interactions") Then
 		If Object = Metadata.Documents["OutgoingEmail"] Then
 			Catalogs.MessageTemplates.AddGenerateCommand(GenerationCommands);
 		EndIf;
 	EndIf;
-	
+
 EndProcedure
 
 #EndRegion
@@ -556,16 +564,18 @@ EndProcedure
 //    * Template - CatalogRef.MessageTemplates
 //
 Function GenerateSendOptions(Template, SubjectOf, UUID, AdditionalParameters = Undefined) Export
-	
-	SendOptions = MessageTemplatesClientServer.SendOptionsConstructor(Template.Ref, SubjectOf, UUID);
-	
-	If TypeOf(SendOptions.SubjectOf) = Type("String")
-		And Common.MetadataObjectByFullName(SendOptions.SubjectOf) <> Undefined Then
-		
-		SendOptions.SubjectOf = Common.ObjectManagerByFullName(SendOptions.SubjectOf).EmptyRef();
-		
+
+	SendOptions = MessageTemplatesClientServer.SendOptionsConstructor(Template.Ref, SubjectOf,
+		UUID);
+
+	If TypeOf(SendOptions.SubjectOf) = Type("String") And Common.MetadataObjectByFullName(
+		SendOptions.SubjectOf) <> Undefined Then
+
+		SendOptions.SubjectOf = Common.ObjectManagerByFullName(
+			SendOptions.SubjectOf).EmptyRef();
+
 	EndIf;
-	
+
 	If TypeOf(AdditionalParameters) = Type("Structure") Then
 		SendOptions.AdditionalParameters.MessageParameters = AdditionalParameters;
 		
@@ -575,11 +585,11 @@ Function GenerateSendOptions(Template, SubjectOf, UUID, AdditionalParameters = U
 				SendOptions.AdditionalParameters.Insert(Item.Key, Item.Value);
 			EndIf;
 		EndDo;
-		
+
 	EndIf;
-	
+
 	Return SendOptions;
-	
+
 EndFunction
 
 // Returns:
@@ -590,14 +600,14 @@ EndFunction
 //                                   - Undefined
 //
 Function NewEmailRecipients() Export
-	
+
 	Result = New Structure;
-	Result.Insert("Address",                        "");
-	Result.Insert("Presentation",                "");
+	Result.Insert("Address", "");
+	Result.Insert("Presentation", "");
 	Result.Insert("ContactInformationSource", Undefined);
-	
+
 	Return Result;
-	
+
 EndFunction
 
 // Parameters:
@@ -622,5 +632,3 @@ Function AttachmentsRow(Attachment) Export
 EndFunction
 
 #EndRegion
-
-

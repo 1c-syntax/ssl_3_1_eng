@@ -459,7 +459,7 @@ Procedure SetInitialUserAuthorizationRestrictionStatus()
 			InitialUserAuthorizationRestrictionStatus = NStr("en = 'Users will be denied access to the application at the specified time.';");
 			UsersAuthorizationRestrictionStatus = "Scheduled";
 		ElsIf CurrentSessionDate() > Object.LockEffectiveTo And Object.LockEffectiveTo <> '00010101' Then
-			InitialUserAuthorizationRestrictionStatus = NStr("en = 'Users are allowed to sign in to the application (the lock has expired).';");;
+			InitialUserAuthorizationRestrictionStatus = NStr("en = 'Users are allowed to sign in to the application (the lock has expired).';");
 			UsersAuthorizationRestrictionStatus = "Expired";
 		Else
 			InitialUserAuthorizationRestrictionStatus = NStr("en = 'Users are denied access to the application.';");

@@ -103,7 +103,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	
 EndProcedure
 
-// See StandardSubsystemsServer.ПриОтправкеДанныхГлавному.
+// See StandardSubsystems.OnSendDataToMaster.
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 	If RecordSetOnlyWithImportRestrictionDates(DataElement) Then

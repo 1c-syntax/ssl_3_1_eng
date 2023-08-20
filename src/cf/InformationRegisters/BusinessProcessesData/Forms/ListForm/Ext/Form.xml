@@ -290,6 +290,7 @@
 	InformationRegisterBusinessProcessesData.CompletedOn,
 	InformationRegisterBusinessProcessesData.Description,
 	InformationRegisterBusinessProcessesData.DeletionMark,
+	InformationRegisterBusinessProcessesData.State,
 	CASE
 		WHEN InformationRegisterBusinessProcessesData.DeletionMark
 			THEN 6
@@ -315,6 +316,54 @@ FROM
 	InformationRegister.BusinessProcessesData AS InformationRegisterBusinessProcessesData
 		LEFT JOIN InformationRegister.ProcessesToStart AS ProcessesToStart
 		ON InformationRegisterBusinessProcessesData.Owner = ProcessesToStart.Owner</QueryText>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>State</dcssch:dataPath>
+					<dcssch:field>State</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>BusinessProcess</dcssch:dataPath>
+					<dcssch:field>BusinessProcess</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Number</dcssch:dataPath>
+					<dcssch:field>Number</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Date</dcssch:dataPath>
+					<dcssch:field>Date</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Completed</dcssch:dataPath>
+					<dcssch:field>Completed</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Started</dcssch:dataPath>
+					<dcssch:field>Started</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Author</dcssch:dataPath>
+					<dcssch:field>Author</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>CompletedOn</dcssch:dataPath>
+					<dcssch:field>CompletedOn</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Description</dcssch:dataPath>
+					<dcssch:field>Description</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeletionMark</dcssch:dataPath>
+					<dcssch:field>DeletionMark</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>RowPicture</dcssch:dataPath>
+					<dcssch:field>RowPicture</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Defer</dcssch:dataPath>
+					<dcssch:field>Defer</dcssch:field>
+				</Field>
 				<MainTable>InformationRegister.BusinessProcessesData</MainTable>
 				<ListSettings>
 					<dcsset:filter>

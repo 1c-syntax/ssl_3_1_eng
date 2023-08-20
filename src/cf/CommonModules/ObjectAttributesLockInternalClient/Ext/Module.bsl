@@ -39,8 +39,9 @@ Procedure AllowEditingObjectAttributesAfterFormClosed(Result, Parameters) Export
 	Parameters.Form = Undefined;
 	
 	If Parameters.ContinuationHandler <> Undefined Then
+		ContinuationHandler = Parameters.ContinuationHandler;
 		Parameters.ContinuationHandler = Undefined;
-		ExecuteNotifyProcessing(Parameters.ContinuationHandler, Result);
+		ExecuteNotifyProcessing(ContinuationHandler, Result);
 	EndIf;
 	
 EndProcedure

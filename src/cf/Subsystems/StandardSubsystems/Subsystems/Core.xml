@@ -383,6 +383,9 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.PlaceForBarCode</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.BorderColor</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.DataAnalysis48</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.ImportanceHigh</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.ImportanceNotSpecified</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.ImportanceLow</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

@@ -13,7 +13,7 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not Users.IsFullUser(Undefined, True, False) Then
-		Raise NStr("en = 'Not sufficient rights for data exchange administration.';");
+		Raise NStr("en = 'Insufficient rights to administer data exchange.';");
 	EndIf;
 	
 	SetPrivilegedMode(True);

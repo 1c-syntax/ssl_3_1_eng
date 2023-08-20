@@ -52,7 +52,7 @@ where:
 Example:
 &lt;b&gt;1.6.4.7&lt;/&gt; stands for revision 1.6, version 4, build 7.
 
-For more details, see &lt;link https://1c-dn.com/library/version_and_revision_numbering/&gt;Version and revision numbering&lt;/&gt;.</v8:content>
+For more details, see &lt;link https://kb.1ci.com/1C_Enterprise_Platform/Guides/Developer_Guides/1C_Enterprise_Development_Standards/Creating_and_modifying_metadata_objects/Configuration_version_management/Versions_and_releases_numbering/&gt;Version and revision numbering&lt;/&gt;.</v8:content>
 							</v8:item>
 						</Title>
 					</ExtendedTooltip>

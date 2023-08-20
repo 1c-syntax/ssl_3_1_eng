@@ -190,22 +190,80 @@
 						</InputField>
 					</ChildItems>
 				</Table>
-				<InputField name="EmailSubject" id="11">
-					<DataPath>EmailSubject</DataPath>
-					<ToolTip>
+				<UsualGroup name="GroupEmailSubject" id="113">
+					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The outgoing message subject.</v8:content>
+							<v8:content>Group email subject</v8:content>
 						</v8:item>
-					</ToolTip>
-					<Width>60</Width>
-					<Wrap>false</Wrap>
-					<ContextMenu name="EmailSubjectContextMenu" id="12"/>
-					<ExtendedTooltip name="EmailSubjectExtendedTooltip" id="53"/>
-					<Events>
-						<Event name="OnChange">SetFormModificationFlag</Event>
-					</Events>
-				</InputField>
+					</Title>
+					<Representation>None</Representation>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="GroupEmailSubjectExtendedTooltip" id="114"/>
+					<ChildItems>
+						<InputField name="EmailSubject" id="11">
+							<DataPath>EmailSubject</DataPath>
+							<ToolTip>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>The outgoing message subject.</v8:content>
+								</v8:item>
+							</ToolTip>
+							<Width>60</Width>
+							<Wrap>false</Wrap>
+							<ContextMenu name="EmailSubjectContextMenu" id="12"/>
+							<ExtendedTooltip name="EmailSubjectExtendedTooltip" id="53"/>
+							<Events>
+								<Event name="OnChange">SetFormModificationFlag</Event>
+							</Events>
+						</InputField>
+						<CommandBar name="CommandBarEmailSubject" id="115">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Command bar email subject</v8:content>
+								</v8:item>
+							</Title>
+							<Width>5</Width>
+							<HorizontalStretch>false</HorizontalStretch>
+							<ExtendedTooltip name="CommandBarEmailSubjectExtendedTooltip" id="116"/>
+							<ChildItems>
+								<Popup name="SeverityGroup" id="117">
+									<EnableContentChange>true</EnableContentChange>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Importance</v8:content>
+										</v8:item>
+									</Title>
+									<Picture>
+										<xr:Ref>CommonPicture.ImportanceNotSpecified</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<Representation>Picture</Representation>
+									<ExtendedTooltip name="SeverityGroupExtendedTooltip" id="118"/>
+									<ChildItems>
+										<Button name="ImportanceHigh" id="119">
+											<Type>CommandBarButton</Type>
+											<CommandName>Form.Command.ImportanceHigh</CommandName>
+											<ExtendedTooltip name="ImportanceHighExtendedTooltip" id="120"/>
+										</Button>
+										<Button name="ImportanceNormal" id="121">
+											<Type>CommandBarButton</Type>
+											<CommandName>Form.Command.ImportanceNormal</CommandName>
+											<ExtendedTooltip name="ImportanceNormalExtendedTooltip" id="122"/>
+										</Button>
+										<Button name="ImportanceLow" id="123">
+											<Type>CommandBarButton</Type>
+											<CommandName>Form.Command.ImportanceLow</CommandName>
+											<ExtendedTooltip name="ImportanceLowExtendedTooltip" id="124"/>
+										</Button>
+									</ChildItems>
+								</Popup>
+							</ChildItems>
+						</CommandBar>
+					</ChildItems>
+				</UsualGroup>
 				<CommandBar name="CommandBarFormatting" id="79">
 					<Title>
 						<v8:item>
@@ -643,6 +701,15 @@
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
+		<Attribute name="EmailImportance" id="22">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>10</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="SendMail" id="1">
@@ -732,6 +799,66 @@
 				</v8:item>
 			</ToolTip>
 			<Action>SaveAsTemplate</Action>
+			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="ImportanceHigh" id="6">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>High importance</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>High importance</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Picture>
+				<xr:Ref>CommonPicture.ImportanceHigh</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>ImportanceHigh</Action>
+			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="ImportanceLow" id="7">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Low importance</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Low importance</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Picture>
+				<xr:Ref>CommonPicture.ImportanceLow</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>ImportanceLow</Action>
+			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="ImportanceNormal" id="8">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Normal importance</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Normal importance</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Picture>
+				<xr:Ref>CommonPicture.ImportanceNotSpecified</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>ImportanceNormal</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>

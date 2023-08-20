@@ -487,7 +487,7 @@ Procedure ExportToFileTransferServiceForInfobaseNode(ExchangePlanName, InfobaseN
 		
 	Except
 				
-		ErrorPresentation = DetailErrorDescription(ErrorInfo());
+		ErrorPresentation = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		CallingBack(ExchangePlanName, InfobaseNodeCode, TaskID__, ErrorPresentation);
 		
 		DeleteFiles(MessageFileName);
@@ -523,7 +523,7 @@ Procedure ImportFromFileTransferServiceForInfobaseNode(ExchangePlanName, Infobas
 		
 	Except
 		
-		ErrorPresentation = DetailErrorDescription(ErrorInfo());
+		ErrorPresentation = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		CallingBack(ExchangePlanName, InfobaseNodeCode, TaskID__, ErrorPresentation);
 		
 		DeleteFiles(MessageFileName);
@@ -716,7 +716,7 @@ Function DisableScenarioOnDemand(Scenario)
 			
 			RollbackTransaction();
 			
-			ErrorMessage = DetailErrorDescription(ErrorInfo());
+			ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		
 			WriteLogEvent(EventLogEventScenarioDisabled(),
 				EventLogLevel.Error, , , ErrorMessage);
@@ -799,7 +799,7 @@ Function IsTaskQueueCompleted(Scenario = "", ExchangeID = "", Error = "")
 	Result = Query.ExecuteBatch();
 	
 	// 
-	Selection = Result[1].Select();;
+	Selection = Result[1].Select();
 	If Selection.Next() Then
 		Error = Selection.Error;
 		Return True;
@@ -911,7 +911,7 @@ Procedure RunTaskByScenario(Scenario, FirstTask = Undefined)
 			FillPropertyValues(NewRecord, Record);
 			
 			If FirstTask = Undefined Then
-				FirstTask = Common.CopyRecursive(Record, False);;		
+				FirstTask = Common.CopyRecursive(Record, False);
 			EndIf;
 			
 			TaskNumber = TaskNumber + 1;
@@ -1081,7 +1081,7 @@ Procedure RunTaskExportDataPeer(Task, Proxy, ExchangeSettingsStructure, Cancel, 
 								
 	Except
 		
-		Error = DetailErrorDescription(ErrorInfo());
+		Error = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		Cancel = True;
 		DataExchangeServer.WriteEventLogDataExchange(Error, ExchangeSettingsStructure, True);
 		ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error;
@@ -1107,7 +1107,7 @@ Procedure ImportDataImportTask(Task, ExchangeParameters, ExchangeSettingsStructu
 	Except
 		
 		Cancel = True;
-		Error = DetailErrorDescription(ErrorInfo());
+		Error = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		DataExchangeServer.WriteEventLogDataExchange(Error, ExchangeSettingsStructure, True);
 		ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error;
 
@@ -1129,7 +1129,7 @@ Procedure ImportDataImportTask(Task, ExchangeParameters, ExchangeSettingsStructu
 		EndIf;
 	Except
 		WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
-			EventLogLevel.Error,,, DetailErrorDescription(ErrorInfo()));
+			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 
 EndProcedure
@@ -1149,7 +1149,7 @@ Procedure PerformTaskDataExport(Task, Proxy, ProxyParameters, ExchangeSettingsSt
 		DataExchangeServer.WriteMessageWithNodeChanges(ExchangeSettingsStructure, FileExchangeMessages);
 	Except
 		Cancel = True;
-		Error = DetailErrorDescription(ErrorInfo());
+		Error = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		DataExchangeServer.WriteEventLogDataExchange(Error, ExchangeSettingsStructure, True);
 		ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error;
 	EndTry;
@@ -1175,13 +1175,13 @@ Procedure PerformTaskDataExport(Task, Proxy, ProxyParameters, ExchangeSettingsSt
 				DeleteFiles(TempDirectory);
 			Except
 				WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
-					EventLogLevel.Error,,, DetailErrorDescription(ErrorInfo()));
+					EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			EndTry;
 			
 		Except
 			
 			Cancel = True;
-			Error = DetailErrorDescription(ErrorInfo());
+			Error = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 			DataExchangeServer.WriteEventLogDataExchange(Error, ExchangeSettingsStructure, True);
 			ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error;
 						
@@ -1206,7 +1206,7 @@ Procedure RunTaskImportDataPeer(Task, Proxy, ExchangeParameters, ExchangeSetting
 	Except
 		
 		Cancel = True;
-		Error = DetailErrorDescription(ErrorInfo());
+		Error = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		DataExchangeServer.WriteEventLogDataExchange(Error, ExchangeSettingsStructure, True);
 		ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error;
 		
@@ -1248,11 +1248,11 @@ Procedure PerformTaskAdditionalRegistration(Task, Cancel, Error)
 		Information = ErrorInfo();
 		
 		Error = NStr("en = 'An issue occurred while adding data to export:';") 
-			+ Chars.LF + BriefErrorDescription(Information)
+			+ Chars.LF + ErrorProcessing.BriefErrorDescription(Information)
 			+ Chars.LF + NStr("en = 'Edit filter criteria.';");
 			
 		WriteLogEvent(DataExchangeServer.DataExchangeCreationEventLogEvent(),
-			EventLogLevel.Error, , , DetailErrorDescription(Information));
+			EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(Information));
 			
 	EndTry;
 	

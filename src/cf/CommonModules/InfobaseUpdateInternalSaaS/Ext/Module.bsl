@@ -946,16 +946,25 @@ Procedure ScheduleDataAreaUpdate()
 		Return;
 	EndIf;
 	
+	DataAreas = Result.Unload().UnloadColumn("DataArea");
+	
 	Query = New Query;
 	Query.Text =
-	"SELECT TOP 1
+	"SELECT
+	|	DataAreasSubsystemsVersions.DataAreaAuxiliaryData AS DataArea,
 	|	DataAreasSubsystemsVersions.Version AS Version
 	|FROM
 	|	InformationRegister.DataAreasSubsystemsVersions AS DataAreasSubsystemsVersions
 	|WHERE
-	|	DataAreasSubsystemsVersions.DataAreaAuxiliaryData = &DataArea
+	|	DataAreasSubsystemsVersions.DataAreaAuxiliaryData IN (&DataArea)
 	|	AND DataAreasSubsystemsVersions.SubsystemName = &SubsystemName";
 	Query.SetParameter("SubsystemName", Metadata.Name);
+	Query.SetParameter("DataArea", DataAreas);
+	AreasVersions = New Map;
+	ConfigurationVersionsInAreas = Query.Execute().Unload();
+	For Each String In ConfigurationVersionsInAreas Do
+		AreasVersions.Insert(String.DataArea, String.Version);
+	EndDo;
 	
 	YouNeedToSetTheScheduledStartTime = False;
 	
@@ -991,8 +1000,6 @@ Procedure ScheduleDataAreaUpdate()
 				LockingError = True;
 				Raise;
 			EndTry;
-			
-			Query.SetParameter("DataArea", Selection.DataArea);
 		
 			Block = New DataLock;
 			
@@ -1009,15 +1016,11 @@ Procedure ScheduleDataAreaUpdate()
 			
 			AreaStatus = ModuleSaaSOperations.DataAreaStatus(Selection.DataArea);
 			
-			Results = Query.Execute().Unload();
-			VersionString = Undefined;
-			If Results.Count() > 0 Then
-				VersionString = Results[0];
-			EndIf;
+			AreaVersion = AreasVersions[Selection.DataArea];
 			
 			If AreaStatus = Undefined
 				Or AreaStatus <> Enums["DataAreaStatuses"].Used
-				Or (VersionString <> Undefined And VersionString.Version = MetadataVersion) Then
+				Or (AreaVersion <> Undefined And AreaVersion = MetadataVersion) Then
 				
 				// Records do not match the original selection.
 				CommitTransaction();
@@ -1034,7 +1037,6 @@ Procedure ScheduleDataAreaUpdate()
 				CommitTransaction();
 				Continue;
 			EndIf;
-			
 			
 			HasExtensionsChangingStructure = False;
 			JobStartParameters = New Array;

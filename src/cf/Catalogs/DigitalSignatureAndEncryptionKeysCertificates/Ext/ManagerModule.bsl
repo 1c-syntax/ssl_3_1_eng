@@ -165,6 +165,8 @@ Procedure ProcessApplicationsAndCertificateAlerts(Selection)
 	
 	While Selection.Next() Do
 
+		RepresentationOfTheReference = String(Selection.Ref);
+
 		BeginTransaction();
 		Try
 
@@ -232,7 +234,7 @@ Procedure ProcessApplicationsAndCertificateAlerts(Selection)
 
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process certificate %1. Reason:
-					 |%2';"), Selection.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+					 |%2';"), RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(),
 				EventLogLevel.Warning, Selection.Ref.Metadata(), Selection.Ref, MessageText);

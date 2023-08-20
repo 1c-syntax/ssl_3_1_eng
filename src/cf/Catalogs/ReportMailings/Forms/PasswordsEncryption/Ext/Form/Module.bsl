@@ -34,11 +34,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 
 	TableRecipients = FormAttributeToValue("Recipients");
-	ValueToFormAttribute(TableRecipients, "RecipientsNoFilters");    
+	ValueToFormAttribute(TableRecipients, "RecipientsNoFilters");
 	
 	If Common.IsMobileClient() Then
 		CommandBarLocation = FormCommandBarLabelLocation.Top;
-		Items.WriteAndClose.Representation = ButtonRepresentation.Picture;      
+		Items.WriteAndClose.Representation = ButtonRepresentation.Picture;
 	EndIf;
 	
 EndProcedure
@@ -56,7 +56,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	If IsPasswordsCertificatesChanged Then
 		Cancel = True;
 		QueryText = StringFunctionsClient.FormattedString(NStr(
-		"en = 'Passwords and certificates for encryption were changed for report distribution recipients. Do you want to save the changes?
+		"en = 'Passwords and encryption certificates have been changed for report distribution recipients. Do you want to save the changes?
 		|
 		|• Click <b>Yes</b> to save the changes.
 		|• Click<b>No</b> to close the dialog box without saving the changes.';"));
@@ -189,7 +189,7 @@ EndProcedure
 Procedure PopulateCertificates(Command)
 
 	QueryText = StringFunctionsClient.FormattedString(NStr(
-		"en = 'Certificates for encryption will be filled for report distribution recipients if they are available for the respective individual.
+		"en = 'Encryption certificates will be filled for report distribution recipients if they are available for the respective individual.
 		|
 		|• Click <b>Yes</b> to re-fill certificates even if they are already specified.
 		|• Click <b>No</b> to fill only missing certificates.';"));
@@ -690,15 +690,15 @@ Procedure PrepareItemVisibility(Archive)
 		AttributesToAddArray = New Array;
 		AttributesToAddArray.Add(New FormAttribute("CertificateToEncrypt",
 			New TypeDescription("CatalogRef.DigitalSignatureAndEncryptionKeysCertificates"), "Recipients", NStr(
-			"en = 'Certificate for encryption';")));
+			"en = 'Encryption certificate';")));
 		AttributesToAddArray.Add(New FormAttribute("CertificateToEncrypt",
 			New TypeDescription("CatalogRef.DigitalSignatureAndEncryptionKeysCertificates"), "RecipientsNoFilters", NStr(
-			"en = 'Certificate for encryption';")));
+			"en = 'Encryption certificate';")));
 
 		ChangeAttributes(AttributesToAddArray);
 
 		Item = Items.Add("RecipientsEncryptionCertificate", Type("FormField"), Items.Recipients);
-		Item.Title = NStr("en = 'Certificate for encryption';");
+		Item.Title = NStr("en = 'Encryption certificate';");
 		Item.DataPath = "Recipients.CertificateToEncrypt";
 		Item.Type = FormFieldType.InputField;
 		Item.EditMode = ColumnEditMode.EnterOnInput;

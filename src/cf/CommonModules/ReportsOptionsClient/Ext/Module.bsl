@@ -596,6 +596,9 @@ Procedure RegisterReportOptionUsers(Form, ResetUsageFlag = True) Export
 	ClientParameters = StandardSubsystemsClient.ClientRunParameters();
 	InactiveValuesColor = ClientParameters.StyleItems.InaccessibleCellTextColor;
 	OptionAuthor = Object.Author;
+	If TypeOf(InactiveValuesColor) = Type("ValueStorage") Then
+		InactiveValuesColor = InactiveValuesColor.Get();
+	EndIf;
 	
 	MarkedItemCount = 0;
 	For Each String In Form.OptionUsers Do 

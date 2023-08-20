@@ -52,7 +52,7 @@ Function SelectiveRegistrationParametersByExchangeNodeName(ExchangePlanName) Exp
 		
 	EndIf;
 	
-	Return DataExchangeRegistrationServer.NewParametersOfExchangePlanDataSelectiveRegistration(ExchangePlanName);;
+	Return DataExchangeRegistrationServer.NewParametersOfExchangePlanDataSelectiveRegistration(ExchangePlanName);
 	
 EndFunction
 

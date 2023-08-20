@@ -77,14 +77,14 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Account's name</v8:content>
+							<v8:content>Account name</v8:content>
 						</v8:item>
 					</Title>
 					<TitleLocation>Left</TitleLocation>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Display name of the email account.</v8:content>
+							<v8:content>Account name</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Width>25</Width>
@@ -131,7 +131,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Use this account to</v8:content>
+					<v8:content>Use this account</v8:content>
 				</v8:item>
 			</Title>
 			<Behavior>Usual</Behavior>
@@ -143,7 +143,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Send mail</v8:content>
+							<v8:content>To send mail</v8:content>
 						</v8:item>
 					</Title>
 					<TitleLocation>Right</TitleLocation>
@@ -159,7 +159,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Receive mail</v8:content>
+							<v8:content>To receive mail</v8:content>
 						</v8:item>
 					</Title>
 					<TitleLocation>Right</TitleLocation>
@@ -204,7 +204,7 @@
 								<Presentation>
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>By all users</v8:content>
+										<v8:content>For all users</v8:content>
 									</v8:item>
 								</Presentation>
 								<Value xsi:type="xs:string">Shared3</Value>
@@ -217,7 +217,7 @@
 								<Presentation>
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>By single user:</v8:content>
+										<v8:content>For single user:</v8:content>
 									</v8:item>
 								</Presentation>
 								<Value xsi:type="xs:string">Personal1</Value>
@@ -262,7 +262,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Protocol</v8:content>
+							<v8:content>Account type</v8:content>
 						</v8:item>
 					</Title>
 					<Width>8</Width>
@@ -992,7 +992,7 @@ create a rule to filter BCC to a special folder.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Settings…</v8:content>
+					<v8:content>Reconfigure…</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>

@@ -333,7 +333,6 @@ Function StartUpdateAtServer()
 	ExecutionParameters.WaitCompletion = 0;
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update the obsolete data list';");
 	ExecutionParameters.ResultAddress = AddressOfUpdateResult;
-	ExecutionParameters.RunInBackground = True; // 
 	ExecutionParameters.WithDatabaseExtensions = True;
 	
 	JobParameters = New Structure;
@@ -485,7 +484,6 @@ Function StartCleanUpAtServer()
 	ExecutionParameters.WaitCompletion = 0;
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Clear obsolete data';");
 	ExecutionParameters.ResultAddress = AddressOfCleaningResult;
-	ExecutionParameters.RunInBackground = True; // 
 	ExecutionParameters.WithDatabaseExtensions = True;
 	ExecutionParameters.BackgroundJobKey = InfobaseUpdateInternal.ObsoleteDataPurgeJobKey();
 	

@@ -853,7 +853,7 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 			If Command.OnlyInAllActions = True Then
 				LocationInCommandBar = ButtonLocationInCommandBar.InAdditionalSubmenu;
 			ElsIf Command.OnlyInAllActions = False Then
-				LocationInCommandBar = ButtonLocationInCommandBar.InCommandBar;
+				LocationInCommandBar = ButtonLocationInCommandBar.InCommandBarAndInAdditionalSubmenu;
 			Else
 				LocationInCommandBar = ButtonLocationInCommandBar.Auto;
 			EndIf;
@@ -1144,7 +1144,9 @@ Function CommandDetailsAtClient(Command, FormButton, CommandsPrefix)
 	Return CommandDetails;
 EndFunction
 
-Function RegisterSubmenu(Items, InfoOnAllSubmenus, SubmenuName, NewSubmenuTemplate = Undefined, CommandBar = Undefined, SubmenuByDefault = Undefined)
+Function RegisterSubmenu(Items, InfoOnAllSubmenus, SubmenuName, NewSubmenuTemplate = Undefined, 
+	CommandBar = Undefined, SubmenuByDefault = Undefined)
+	
 	CommandsShown = 0;
 	Groups = New Structure;
 	SubmenuImage = Undefined;
@@ -1155,7 +1157,8 @@ Function RegisterSubmenu(Items, InfoOnAllSubmenus, SubmenuName, NewSubmenuTempla
 				Return SubmenuByDefault;
 			EndIf;
 			Popup = Items.Add(SubmenuName, Type("FormGroup"), CommandBar);
-			Popup.Type         = ?(ValueIsFilled(NewSubmenuTemplate.FormGroupType), NewSubmenuTemplate.FormGroupType, FormGroupType.Popup);
+			Popup.Type         = ?(ValueIsFilled(NewSubmenuTemplate.FormGroupType), NewSubmenuTemplate.FormGroupType, 
+				FormGroupType.Popup);
 			If ValueIsFilled(NewSubmenuTemplate.Representation) Then
 				Popup.Representation = NewSubmenuTemplate.Representation;
 			EndIf;
@@ -1271,7 +1274,7 @@ EndFunction
 // Returns:
 //   Structure:
 //       * HasChanges - Boolean - True if there were changes made during the update.
-//       * AttachedObjects - Map of КлючЗначения - Cache intended to quickly define a list of objects attached to configuration objects.
+//       * AttachedObjects - Map of KeyAndValue - Cache intended to quickly define a list of objects attached to configuration objects.
 //           
 //           ** Key - 
 //           ** Value - Array of String
@@ -1555,7 +1558,7 @@ Function CommandsTable()
 	Table.Columns.Add("FormName", New TypeDescription("String"));
 	Table.Columns.Add("FormParameters"); // 
 	Table.Columns.Add("FormParameterName", New TypeDescription("String"));
-	// Служебные:
+	// Internal:
 	Table.Columns.Add("ImportanceOrder", New TypeDescription("Number"));
 	Table.Columns.Add("NameOnForm", New TypeDescription("String"));
 	Table.Columns.Add("HasVisibilityConditions", New TypeDescription("Boolean"));

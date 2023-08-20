@@ -115,10 +115,16 @@ EndProcedure
 // See SafeModeManagerOverridable.OnFillPermissionsToAccessExternalResources.
 Procedure OnFillPermissionsToAccessExternalResources(PermissionsRequests) Export
 	
+	Permissions = New Array;
 	ModuleSafeModeManager = Common.CommonModule("SafeModeManager");
 	Resolution = ModuleSafeModeManager.PermissionToUseInternetResource("WSS", "1cdialog.com", 443, 
-		NStr("en = '1C:Dialog service for the collaboration system (themed conversations, correspondence, and video calls between application users).';"));
-	Permissions = New Array;
+		NStr("en = '1C:Dialog service for Collaboration System (themed conversations, correspondence, and video calls for application users).';"));
+	Permissions.Add(Resolution);
+	Resolution = ModuleSafeModeManager.PermissionToUseInternetResource("HTTPS", "*.s3storage.ru", 443, 
+		NStr("en = '1C:Dialog service for Collaboration System (Service file storage).';"));
+	Permissions.Add(Resolution);
+	Resolution = ModuleSafeModeManager.PermissionToUseInternetResource("HTTP", "clr.globalsign.com", 80, 
+		NStr("en = '1C:Dialog service for Collaboration System (Certificate revocation check server).';"));
 	Permissions.Add(Resolution);
 	PermissionsRequests.Add(ModuleSafeModeManager.RequestToUseExternalResources(Permissions));
 	
@@ -129,7 +135,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 
 	Handler = Handlers.Add();
 	Handler.Version = "3.1.3.282";
-	Handler.DeferredProcessingQueue = 1;
 	Handler.Id = New UUID("b3be68c5-708d-42c9-a019-818036d09d06");
 	Handler.Procedure = "ConversationsInternal.LockInvalidUsersInCollaborationSystem";
 	Handler.ExecutionMode = "Deferred";

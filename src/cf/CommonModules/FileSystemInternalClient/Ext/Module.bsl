@@ -246,13 +246,13 @@ EndProcedure
 // 
 //
 // Parameters:
-//  
-//  
-//                    
-//   
-//   
-//  
-
+//  PathToFile        - String -
+//  Notification        - NotifyDescription - notification of the opening result.
+//                    if no notification is set, a warning will be displayed in case of an error:
+//   * ApplicationStarted      - Boolean - True if the external application did not cause errors when opening.
+//   * AdditionalParameters - Arbitrary - the value that was specified when creating the message Description object.
+//  ForEditing - Boolean - True if the file is opened for editing, otherwise False.
+//
 Procedure OpenFileInViewer(PathToFile, Val Notification = Undefined,
 		Val ForEditing = False)
 	
@@ -808,20 +808,53 @@ Procedure StartApplicationBeginRunning(Context)
 		Return;
 	EndIf;
 		
-	CommandString = Context.CommandString;
-	CurrentDirectory = Context.CurrentDirectory;
-	WaitForCompletion = Context.WaitForCompletion;
-	ExecutionEncoding = Context.ExecutionEncoding;
+	ExecuteUsingPlatformMethod = True;
+		
+	#If Not WebClient And Not MobileClient Then
+		If CommonClient.IsWindowsClient() Then
+			ExecuteUsingPlatformMethod = False; 
+			CommandString = Context.CommandString;
+			CurrentDirectory = Context.CurrentDirectory;
+			ExecutionEncoding = Context.ExecutionEncoding;
+			WaitForCompletion = Context.WaitForCompletion;
+			
+			CommandString = CommonInternalClientServer.TheWindowsCommandStartLine(CommandString, CurrentDirectory, WaitForCompletion, ExecutionEncoding);
+			
+			Try
+				Shell = New COMObject("Wscript.Shell");
+				ReturnCode = Shell.Run(CommandString, 0, WaitForCompletion);
+				Shell = Undefined;
+			Except
+				Shell = Undefined;
+				ErrorInfo = ErrorInfo();
+				StandardProcessing = True;
+				StartApplicationOnProcessError(ErrorInfo, StandardProcessing, Context);
+				Return;
+			EndTry;
+			
+			If ReturnCode = Undefined Then 
+				ReturnCode = 0;
+			EndIf;
+			
+			StartApplicationAfterStartApplication(ReturnCode, Context);
+		EndIf;
+	#EndIf
 	
-	If CommonClient.IsLinuxClient() And ValueIsFilled(ExecutionEncoding) Then
-		CommandString = "LANGUAGE=" + ExecutionEncoding + " " + CommandString;
+	If ExecuteUsingPlatformMethod Then 
+		CommandString = Context.CommandString;
+		CurrentDirectory = Context.CurrentDirectory;
+		WaitForCompletion = Context.WaitForCompletion;
+		ExecutionEncoding = Context.ExecutionEncoding;
+		
+		If CommonClient.IsLinuxClient() And ValueIsFilled(ExecutionEncoding) Then
+			CommandString = "LANGUAGE=" + ExecutionEncoding + " " + CommandString;
+		EndIf;
+		
+		Notification = New NotifyDescription(
+			"StartApplicationAfterStartApplication", ThisObject, Context,
+			"StartApplicationOnProcessError", ThisObject);
+		BeginRunningApplication(Notification, CommandString, CurrentDirectory, WaitForCompletion);
 	EndIf;
-	
-	Notification = New NotifyDescription(
-		"StartApplicationAfterStartApplication", ThisObject, Context,
-		"StartApplicationOnProcessError", ThisObject);
-	BeginRunningApplication(Notification, CommandString, CurrentDirectory, WaitForCompletion);
-	
 	// ACC:534-on
 	
 EndProcedure
@@ -1008,15 +1041,12 @@ Procedure StartApplicationWithFullWindowsRights(Context)
 	
 	WaitForCompletion = False;
 	
-	CommandFileName = GetTempFileName("run.bat"); // 
-	TextDocument = CommonInternalClientServer.NewWindowsCommandStartFile(
-		CommandString, CurrentDirectory, WaitForCompletion, ExecutionEncoding);
-	TextDocument.Write(CommandFileName, TextEncoding.OEM);
+	CommandString = CommonInternalClientServer.TheWindowsCommandStartLine(CommandString, CurrentDirectory, WaitForCompletion, ExecutionEncoding);
 	
 	Try
 		Shell = New COMObject("Shell.Application");
 		// Run with elevated permissions.
-		ReturnCode = Shell.ShellExecute("cmd", "/c """ + CommandFileName + """",, "runas", 0);
+		ReturnCode = Shell.ShellExecute("cmd", "/c """ + CommandString + """",, "runas", 0);
 		Shell = Undefined;
 	Except
 		Shell = Undefined;
@@ -1045,13 +1075,13 @@ Procedure StartApplicationWithFullLinuxRights(Context)
 	CurrentDirectory = Context.CurrentDirectory;
 	CommandString = Context.CommandString;
 	
-	CommandWithPrivilegesRaise = "pkexec env DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY " + CommandString;
+	CommandWithPrivilegeEscalation = "pkexec env DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY " + CommandString;
 	WaitForCompletion = True;
 	
 	Notification = New NotifyDescription(
 		"StartApplicationAfterStartApplication", ThisObject, Context,
 		"StartApplicationOnProcessError", ThisObject);
-	BeginRunningApplication(Notification, CommandWithPrivilegesRaise, CurrentDirectory, WaitForCompletion);
+	BeginRunningApplication(Notification, CommandWithPrivilegeEscalation, CurrentDirectory, WaitForCompletion);
 	
 	// ACC:534-on
 	

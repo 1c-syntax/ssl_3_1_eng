@@ -9,9 +9,6 @@
 
 #Region Variables
 
-&AtClient
-Var ChoiceContext;
-
 &AtServer
 Var SubordinateCatalogs;
 
@@ -43,14 +40,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ThereAreAdditionalLanguagesAvailable = False;
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 		If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-			PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
-			AdditionalLanguagesOfPrintedForms = PrintManagementModuleMultilanguage.AdditionalLanguagesOfPrintedForms();
+			PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
+			AdditionalLanguagesOfPrintedForms = PrintManagementModuleNationalLanguageSupport.AdditionalLanguagesOfPrintedForms();
 			
 			Items.FilterByLanguage.ChoiceList.Add("", NStr("en = 'All';"));
 			For Each Language In AdditionalLanguagesOfPrintedForms Do
-				LanguagePresentation = ModuleNativeLanguagesSupportServer.LanguagePresentation(Language);
+				LanguagePresentation = ModuleNationalLanguageSupportServer.LanguagePresentation(Language);
 				Items.FilterByLanguage.ChoiceList.Add(LanguagePresentation);
 			EndDo;
 			
@@ -66,7 +63,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	TemplateOpeningModeView = False;
 
 	If Common.IsMobileClient() Then
-		PromptForTemplateOpeningMode = False;
 		TemplateOpeningModeView = True;
 		Items.GroupFilters.Group = ChildFormItemsGroup.HorizontalIfPossible;
 	EndIf;
@@ -237,8 +233,8 @@ EndProcedure
 Procedure AdditionalInformationURLProcessing(Item, FormattedStringURL, StandardProcessing)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-		PrintManagementModuleMultilanguageClient = CommonClient.CommonModule("PrintManagementNationalLanguageSupportClient");
-		PrintManagementModuleMultilanguageClient.AdditionalInformationURLProcessing(Item, FormattedStringURL, StandardProcessing);
+		PrintManagementModuleNationalLanguageSupportClient = CommonClient.CommonModule("PrintManagementNationalLanguageSupportClient");
+		PrintManagementModuleNationalLanguageSupportClient.AdditionalInformationURLProcessing(Item, FormattedStringURL, StandardProcessing);
 	EndIf;
 	
 EndProcedure
@@ -336,14 +332,14 @@ Procedure ImportSubordinateItems(RowsIDs)
 		ItemsCollection = CurrentData.GetItems();
 	
 		If ItemsCollection.Count() = 0 Or ValueIsFilled(ItemsCollection[0].Id) Then
-			Return;
+			Continue;
 		EndIf;
 		
 		ItemsCollection.Clear();
 		
 		MetadataObject = Common.MetadataObjectByFullName(CurrentData.Id);
 		If MetadataObject = Undefined Then
-			Return;
+			Continue;
 		EndIf;
 
 		OutputTemplates(CurrentData);
@@ -367,11 +363,6 @@ Procedure ChangeTemplate(Command)
 EndProcedure
 
 &AtClient
-Procedure OpenTemplate(Command)
-	OpenPrintFormTemplateForView();
-EndProcedure
-
-&AtClient
 Procedure UseModifiedTemplate(Command)
 	SwitchSelectedTemplatesUsage(True);
 EndProcedure
@@ -379,14 +370,6 @@ EndProcedure
 &AtClient
 Procedure UseStandardTemplate(Command)
 	SwitchSelectedTemplatesUsage(False);
-EndProcedure
-
-&AtClient
-Procedure SetActionOnChoosePrintFormTemplate(Command)
-	
-	ChoiceContext = "SetActionOnChoosePrintFormTemplate";
-	OpenForm("InformationRegister.UserPrintTemplates.Form.SelectTemplateOpeningMode", , ThisObject);
-	
 EndProcedure
 
 &AtClient
@@ -520,6 +503,34 @@ Procedure OpenPrintFormTemplateForEdit()
 	
 	CurrentData = Items.Templates.CurrentData;
 	
+	If CurrentData.Changed And Not CurrentData.ChangedTemplateUsed Then
+		NotifyDescription = New NotifyDescription("OpenPrintFormTemplateForEditingFollowUp", ThisObject, CurrentData);
+		QueryText = NStr("en = 'A template modified earlier has been found, which is not currently used.
+		|You can continue editing the modified template or start editing a standard template.
+		|';");
+		
+		Buttons = New ValueList();
+		Buttons.Add(True, NStr("en = 'Modified earlier';"));
+		Buttons.Add(False, NStr("en = 'Standard (current)';"));
+		Buttons.Add(Undefined, NStr("en = 'Cancel';"));
+		
+		ShowQueryBox(NotifyDescription, QueryText, Buttons, , , NStr("en = 'Which template do you want to edit?';"));
+		Return;
+	EndIf;
+	
+	OpenPrintFormTemplateForEditingFollowUp(False, CurrentData);
+	
+EndProcedure
+
+&AtClient
+Procedure OpenPrintFormTemplateForEditingFollowUp(SwitchUsages, CurrentData) Export
+
+	If SwitchUsages = Undefined Then
+		Return;
+	ElsIf SwitchUsages Then
+		SwitchSelectedTemplatesUsage(True);
+	EndIf;
+	
 	OpeningParameters = New Structure;
 	OpeningParameters.Insert("TemplateMetadataObjectName", CurrentData.TemplateMetadataObjectName);
 	OpeningParameters.Insert("TemplateType", CurrentData.TemplateType);
@@ -629,10 +640,11 @@ Procedure SetCommandBarButtonsEnabled()
 	CurrentTemplateSelected = CurrentTemplate <> Undefined;
 	SeveralTemplatesSelected = Items.Templates.SelectedRows.Count() > 1;
 	
-	UseModifiedTemplateEnabled = False;
+	UseModifiedTemplateEnabled  = False;
 	UseStandardTemplateEnabled = False;
-	DeleteModifiedTemplateEnabled = False;
-	RemoveLayoutVisibility = False;
+	DeleteModifiedTemplateEnabled       = False;
+	RemoveLayoutVisibility                   = False;
+	DisplayInListIsAvailable              = False;
 	
 	For Each SelectedRow In Items.Templates.SelectedRows Do
 		CurrentTemplate = Items.Templates.RowData(SelectedRow);
@@ -640,6 +652,16 @@ Procedure SetCommandBarButtonsEnabled()
 		UseStandardTemplateEnabled = CurrentTemplateSelected And CurrentTemplate.Changed And CurrentTemplate.ChangedTemplateUsed And Not ValueIsFilled(CurrentTemplate.Ref) Or SeveralTemplatesSelected And UseStandardTemplateEnabled;
 		DeleteModifiedTemplateEnabled = CurrentTemplateSelected And CurrentTemplate.Changed  And Not ValueIsFilled(CurrentTemplate.Ref) Or SeveralTemplatesSelected And DeleteModifiedTemplateEnabled;
 		RemoveLayoutVisibility = CurrentTemplateSelected And ValueIsFilled(CurrentTemplate.Ref) Or SeveralTemplatesSelected And RemoveLayoutVisibility;
+		
+		DataSources = StrSplit(CurrentTemplate.DataSources, ",", False);
+		For Each DataSource In DataSources Do
+			If StrStartsWith(DataSource, "DataProcessor") 
+				Or StrStartsWith(DataSource, "Report")
+				Or DataSource = "CommonTemplate" Then
+				Continue;
+			EndIf;
+			DisplayInListIsAvailable = True;
+		EndDo;
 	EndDo;
 	
 	Items.PrintFormTemplatesUseModifiedTemplate.Enabled = UseModifiedTemplateEnabled;
@@ -653,6 +675,7 @@ Procedure SetCommandBarButtonsEnabled()
 	Items.TemplatesAddTemplate.Enabled = CurrentTemplateSelected And CurrentTemplate.AvailableCreate;
 	Items.TemplatesAddOfficeOpenXMLTemplate.Enabled = CurrentTemplateSelected And CurrentTemplate.AvailableCreate;
 	Items.TemplatesChangeTemplate.Enabled = CurrentTemplateSelected And Not CurrentTemplate.IsFolder;
+	Items.FormShowInList.Enabled = DisplayInListIsAvailable;
 	
 EndProcedure
 
@@ -942,77 +965,20 @@ EndProcedure
 &AtServer
 Procedure FillPrintFormsTemplatesTable(Branch1)
 	
-	TemplatesList = New ValueTable();
-	TemplatesList.Columns.Add("SourceOfTemplate");
-	TemplatesList.Columns.Add("DataSources");
-	TemplatesList.Columns.Add("Id");
-	TemplatesList.Columns.Add("Presentation");
-	TemplatesList.Columns.Add("Owner");
-	TemplatesList.Columns.Add("TemplateType");
-	TemplatesList.Columns.Add("Picture");
-	TemplatesList.Columns.Add("PictureGroup");
-	TemplatesList.Columns.Add("SearchString");
-	TemplatesList.Columns.Add("AvailableLanguages");
-	TemplatesList.Columns.Add("Changed");
-	TemplatesList.Columns.Add("ChangedTemplateUsed");
-	TemplatesList.Columns.Add("UsagePicture");
-	TemplatesList.Columns.Add("AvailableTranslation");
-	TemplatesList.Columns.Add("Ref");
-	TemplatesList.Columns.Add("Used");
-	TemplatesList.Columns.Add("AvailableSettingVisibility");
-	TemplatesList.Columns.Add("Supplied");
-	TemplatesList.Columns.Add("IsPrintForm");
-	TemplatesList.Columns.Add("AvailableCreate");
-	TemplatesList.Columns.Add("TemplateMetadataObjectName");
-	
-	TemplatesList.Indexes.Add("Owner");
-	
-	ModifiedTemplates = InformationRegisters.UserPrintTemplates.ModifiedTemplates();
-	AvailableforTranslationLayouts = New Map;
-	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-		PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
-		AvailableforTranslationLayouts = PrintManagementModuleMultilanguage.AvailableforTranslationLayouts();
-	EndIf;
-	
+	ObjectsWithTemplates = New Map;
 	For Each TemplateDetails In PrintManagement.PrintFormTemplates(True) Do
-		
-		Owner = TemplateDetails.Value;
-		OwnerName = ?(Metadata.CommonTemplates = Owner, "CommonTemplate", Owner.FullName());
-		
-		MetadataObject = TemplateDetails.Key;
-		TemplateMetadataObjectName = OwnerName + "." + MetadataObject.Name;
-		TemplatePresentation = MetadataObject.Presentation(); 
-		TemplateType = InformationRegisters.UserPrintTemplates.TemplateType(MetadataObject.Name, OwnerName);
-		
-		Template = TemplatesList.Add();
-		Template.SourceOfTemplate = OwnerName;
-		Template.DataSources = OwnerName;
-		Template.Id = TemplateMetadataObjectName;
-		Template.Owner = ?(Owner = Metadata.CommonTemplates, Undefined, Owner);
-		Template.Presentation = TemplatePresentation;
-		Template.TemplateType = TemplateType;
-		Template.Picture = InformationRegisters.UserPrintTemplates.PictureIndex(TemplateType);
-		Template.PictureGroup = InformationRegisters.UserPrintTemplates.TemplateImage(TemplateType);
-		Template.Changed = ModifiedTemplates[TemplateMetadataObjectName] <> Undefined;
-		Template.ChangedTemplateUsed = Template.Changed And ModifiedTemplates[TemplateMetadataObjectName];
-		Template.AvailableTranslation = AvailableforTranslationLayouts[MetadataObject] = True;
-		Template.Used = True;
-		Template.Supplied = True;
-		
+		ObjectsWithTemplates.Insert(TemplateDetails.Value, True);
 	EndDo;
 	
-	MatchingTemplateOwners = Common.MetadataObjectIDs(TemplatesList.UnloadColumn("Owner"), False);
-	
-	For Each Template In TemplatesList Do
-		If Template.Owner <> Undefined And MatchingTemplateOwners[Template.Owner.FullName()] <> Undefined Then
-			Template.Owner = MatchingTemplateOwners[Template.Owner.FullName()];
-			Template.IsPrintForm = PrintManagement.IsPrintForm(Template.Id, Template.Owner);
-			Template.AvailableTranslation = Template.AvailableTranslation Or Template.IsPrintForm;
-		EndIf;
+	MetadataObjects = New Array;
+	For Each Object In ObjectsWithTemplates Do
+		MetadataObjects.Add(Object.Key);
 	EndDo;
+	
+	TemplateOwnersMap = Common.MetadataObjectIDs(MetadataObjects, False);
 	
 	LayoutOwners = New ValueList();
-	For Each Source In MatchingTemplateOwners Do
+	For Each Source In TemplateOwnersMap Do
 		If Not ValueIsFilled(Source.Value) Then
 			Continue;
 		EndIf;
@@ -1023,13 +989,25 @@ Procedure FillPrintFormsTemplatesTable(Branch1)
 	ValuesEmptyReferences = Common.ObjectsAttributeValue(MetadataObjectIDs, "EmptyRefValue");
 	
 	LayoutOwners.SortByPresentation();
-	LayoutOwners.Add(Catalogs.MetadataObjectIDs.EmptyRef(), NStr("en = 'Прочие';"));
+	
+	LayoutGroups = New Map();
+	
+	GroupOther = Branch1.GetItems().Add();
+	GroupOther.Presentation = NStr("en = 'Other';");
+	GroupOther.PictureGroup = PictureLib.Enum;
+	GroupOther.Id = "CommonTemplates";
+	GroupOther.UsagePicture = -1;
+	GroupOther.IsFolder = True;
+	GroupOther.Used = True;
+	GroupOther.Owner = Catalogs.MetadataObjectIDs.EmptyRef();
+	GroupOther.SearchString = Lower(GroupOther.Presentation);
+	GroupOther.AvailableCreate = False;
+	LayoutGroups.Insert(Catalogs.MetadataObjectIDs.EmptyRef(), GroupOther);
 	
 	AddingTemplatesIsAvailable = AccessRight("Insert", Metadata.Catalogs.PrintFormTemplates); 
 	
-	LayoutGroups = New Map();
 	For Each Owner In LayoutOwners Do
-		LayoutGroup = Branch1.GetItems().Add();
+		LayoutGroup = GroupOther.GetItems().Add();
 		LayoutGroup.Presentation = Owner.Presentation;
 		LayoutGroup.PictureGroup = New Picture;
 		LayoutGroup.Id = Common.ObjectAttributeValue(Owner.Value, "FullName");
@@ -1038,31 +1016,13 @@ Procedure FillPrintFormsTemplatesTable(Branch1)
 		LayoutGroup.Used = True;
 		LayoutGroup.Owner = Owner.Value;
 		LayoutGroup.SearchString = Lower(LayoutGroup.Presentation);
-		LayoutGroup.AvailableCreate = AddingTemplatesIsAvailable And ValuesEmptyReferences[Owner.Value] <> Undefined;
+		LayoutGroup.AvailableCreate = False;
+		LayoutGroup.GetItems().Add();
 		
 		LayoutGroups.Insert(Owner.Value, LayoutGroup);
 	EndDo;
 	
-	TemplatesList.Sort("Owner, Presentation");
-	LayoutGroup = Undefined;
-	For Each TemplateDetails In TemplatesList Do
-		If Not ValueIsFilled(TemplateDetails.Owner)
-			Or LayoutGroups[TemplateDetails.Owner] = Undefined Then
-			TemplateDetails.Owner = Catalogs.MetadataObjectIDs.EmptyRef();
-		EndIf;
-		
-		LayoutGroup = LayoutGroups[TemplateDetails.Owner];
-		Template = LayoutGroup.GetItems().Add();
-		FillPropertyValues(Template, TemplateDetails);
-		Template.TemplateMetadataObjectName = Template.Id;
-		Template.AvailableLanguages = InformationRegisters.UserPrintTemplates.AvailableLayoutLanguages(Template.Id);
-		Template.UsagePicture = -1;
-		If Template.Changed Then
-			Template.UsagePicture = Number(Template.Changed) + Number(Template.ChangedTemplateUsed);
-		EndIf;
-		Template.SearchString = Lower(Template.Presentation + " " + Template.TemplateType);
-		Template.AvailableCreate = Template.GetParent().AvailableCreate;
-	EndDo;
+	OutputTemplates(GroupOther);
 	
 EndProcedure
 
@@ -1140,6 +1100,8 @@ Function MetadataObjectAvailable(MetadataObject)
 		And Not Common.IsChartOfCalculationTypes(MetadataObject)
 		And Not Common.IsBusinessProcess(MetadataObject)
 		And Not Common.IsTask(MetadataObject)
+		And Not Metadata.DataProcessors.Contains(MetadataObject)
+		And Not Metadata.Reports.Contains(MetadataObject)
 		And Not IsSubsystem(MetadataObject) Then
 		Return False;
 	EndIf;
@@ -1216,7 +1178,7 @@ Function ObjectTemplates(MetadataObjectName)
 	
 	FoundItem = ObjectsWithPrintCommands.FindByValue(MetadataObjectName);
 	If FoundItem = Undefined Then
-		Return New ValueTable;
+		FoundItem = ObjectsWithPrintCommands.Add(MetadataObjectName);
 	EndIf;
 	
 	If ValueIsFilled(FoundItem.Presentation) Then
@@ -1301,7 +1263,7 @@ Procedure ExpandItemsMatchingFilter(Branch1 = Undefined)
 	
 	If Not ValueIsFilled(SearchString) Then
 		Return;
-	EndIf;;
+	EndIf;
 	
 	If Branch1 = Undefined Then
 		Branch1 = Templates;
@@ -1365,7 +1327,19 @@ Procedure PopulateObjectsWithPrintCommands()
 	For Each MetadataObject In PrintManagement.PrintCommandsSources() Do
 		ObjectsWithPrintCommands.Add(MetadataObject.FullName());
 	EndDo;
-
+	
+	ObjectsWithTemplates = New Map;
+	For Each TemplateDetails In PrintManagement.PrintFormTemplates(True) Do
+		ObjectsWithTemplates.Insert(TemplateDetails.Value, True);
+	EndDo;
+	
+	MetadataObjects = New Array;
+	For Each Object In ObjectsWithTemplates Do
+		If Object.Key <> Metadata.CommonTemplates Then
+			ObjectsWithPrintCommands.Add(Object.Key.FullName());
+		EndIf;
+	EndDo;
+	
 EndProcedure
 
 &AtClient
@@ -1513,7 +1487,11 @@ Function ObjectsWithoutCache()
 	Result = New Array;
 	For Each Item In ObjectsWithPrintCommands Do
 		If Not ValueIsFilled(Item.Presentation) Then
-			Result.Add(Common.MetadataObjectID(Item.Value)); 
+			If Item.Value = "CommonTemplates" Then
+				Result.Add(Catalogs.MetadataObjectIDs.EmptyRef());
+			Else
+				Result.Add(Common.MetadataObjectID(Item.Value));
+			EndIf;
 		EndIf;
 	EndDo;
 	
@@ -1524,14 +1502,19 @@ EndFunction
 &AtServer
 Procedure WriteTemplatesCache(ObjectsTemplates)
 	
-	MetadataObjectIDs = Common.MetadataObjectIDs(ObjectsWithPrintCommands.UnloadValues());
+	MetadataObjectIDs = Common.MetadataObjectIDs(ObjectsWithPrintCommands.UnloadValues(), False);
 
 	For Each Item In ObjectsWithPrintCommands Do
 		If ValueIsFilled(Item.Presentation) Then
 			Continue;
 		EndIf;
 		
-		Owner = MetadataObjectIDs[Item.Value];
+		If Item.Value = "CommonTemplates" Then
+			Owner = Catalogs.MetadataObjectIDs.EmptyRef();
+		Else
+			Owner = MetadataObjectIDs[Item.Value];
+		EndIf;
+		
 		FoundTemplates = ObjectsTemplates.FindRows(New Structure("Owner", Owner));
 		ObjectTemplates = ObjectsTemplates.Copy(FoundTemplates);
 		Item.Presentation = Common.ValueToXMLString(ObjectTemplates);
@@ -1544,12 +1527,9 @@ Procedure ImportBranch(Branch1)
 	
 	For Each Item In Branch1.GetItems() Do
 		ImportSubordinateItems(Item.GetID());
-		For Each SubordinateItem In Item.GetItems() Do
-			ImportBranch(SubordinateItem);
-		EndDo;
+		ImportBranch(Item);
 	EndDo;
 	
 EndProcedure
 
 #EndRegion
-

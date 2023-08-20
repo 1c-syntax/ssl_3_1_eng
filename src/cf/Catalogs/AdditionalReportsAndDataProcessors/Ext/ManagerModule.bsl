@@ -9,6 +9,8 @@
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
+#If Not MobileStandaloneServer Then
+
 #Region Public
 
 #Region ForCallsFromOtherSubsystems
@@ -56,5 +58,7 @@ EndProcedure
 #EndRegion
 
 #EndRegion
+
+#EndIf
 
 #EndIf

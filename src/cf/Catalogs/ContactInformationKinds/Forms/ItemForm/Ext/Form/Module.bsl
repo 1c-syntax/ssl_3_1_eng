@@ -89,8 +89,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 		
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.OnCreateAtServer(ThisObject, Object);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.OnCreateAtServer(ThisObject, Object);
 	EndIf;
 	
 	Items.FillIDForFormulas.Enabled = Not Items.IDForFormulas.ReadOnly;
@@ -118,8 +118,8 @@ EndProcedure
 Procedure OnReadAtServer(CurrentObject)
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.OnReadAtServer(ThisObject, CurrentObject);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.OnReadAtServer(ThisObject, CurrentObject);
 	EndIf;
 	
 EndProcedure
@@ -137,10 +137,10 @@ EndProcedure
 &AtClient
 Procedure BeforeWrite(Cancel, WriteParameters)   
 	
-	If Object.PhoneWithExtension And Object.EnterNumberByMask Then
+	If Object.PhoneWithExtensionNumber And Object.EnterNumberByMask Then
 		CommonClient.MessageToUser(NStr(
 			"en = 'You cannot enter a phone number with an extension when the ""Enter number by mask"" option is set';"),
-			, "PhoneWithExtension", "Object", Cancel);
+			, "PhoneWithExtensionNumber", "Object", Cancel);
 	EndIf;
 	
 	If Not WriteParameters.Property("WhenIDForFormulasIsAlreadyUsed")
@@ -199,8 +199,8 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.BeforeWriteAtServer(CurrentObject);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.BeforeWriteAtServer(CurrentObject);
 	EndIf;
 	
 EndProcedure
@@ -219,8 +219,8 @@ Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	Items.FillIDForFormulas.Enabled = Not Items.IDForFormulas.ReadOnly;
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.OnReadAtServer(ThisObject, CurrentObject);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.OnReadAtServer(ThisObject, CurrentObject);
 	EndIf;
 	
 EndProcedure
@@ -320,7 +320,7 @@ Procedure InternationalAddressFormatOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure PhoneNumberWithExtensionWhenChanging(Item)
+Procedure PhoneWithExtensionNumberOnChange(Item)
 	
 	UpdatePhoneFaxItemsAvailability(ThisObject);
 	
@@ -337,8 +337,8 @@ EndProcedure
 Procedure Attachable_Opening(Item, StandardProcessing)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportClient = CommonClient.CommonModule("NationalLanguageSupportClient");
-		ModuleNativeLanguagesSupportClient.OnOpen(ThisObject, Object, Item, StandardProcessing);
+		ModuleNationalLanguageSupportClient = CommonClient.CommonModule("NationalLanguageSupportClient");
+		ModuleNationalLanguageSupportClient.OnOpen(ThisObject, Object, Item, StandardProcessing);
 	EndIf;
 	
 EndProcedure
@@ -491,8 +491,8 @@ Procedure UpdatePhoneFaxItemsAvailability(Form)
 
 	Form.Items.PhoneNumberMaskTemplate.Enabled = Form.Object.EnterNumberByMask;
 	Form.Items.PhoneNumberMaskTemplate.AutoMarkIncomplete  = Form.Object.EnterNumberByMask;  
-	Form.Items.MaskOnEnterPhoneNumber.Enabled = (Not Form.Object.PhoneWithExtension And Not Form.Object.EditingOption = "Dialog") Or Form.Object.EnterNumberByMask;
-    Form.Items.PhoneWithExtension.Enabled = Not Form.Object.EnterNumberByMask Or Form.Object.PhoneWithExtension;
+	Form.Items.MaskOnEnterPhoneNumber.Enabled = (Not Form.Object.PhoneWithExtensionNumber And Not Form.Object.EditingOption = "Dialog") Or Form.Object.EnterNumberByMask;
+    Form.Items.PhoneWithExtensionNumber.Enabled = Not Form.Object.EnterNumberByMask Or Form.Object.PhoneWithExtensionNumber;
 	
 EndProcedure
 
@@ -503,8 +503,8 @@ Procedure UpdateSuggestedIDValue()
 	If Not Items.IDForFormulas.ReadOnly Then
 		
 		If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-			ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-			CurrentLanguageSuffix = ModuleNativeLanguagesSupportServer.CurrentLanguageSuffix();
+			ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+			CurrentLanguageSuffix = ModuleNationalLanguageSupportServer.CurrentLanguageSuffix();
 			Presentation = ?(ValueIsFilled(CurrentLanguageSuffix),
 				Object["Description"+ CurrentLanguageSuffix],
 				Object.Description);
@@ -535,8 +535,8 @@ EndProcedure
 Function TitleForID(CurrentObject)
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		CurrentLanguageSuffix = ModuleNativeLanguagesSupportServer.CurrentLanguageSuffix();
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		CurrentLanguageSuffix = ModuleNationalLanguageSupportServer.CurrentLanguageSuffix();
 		TitleForID = ?(ValueIsFilled(CurrentLanguageSuffix),
 			CurrentObject["Description"+ CurrentLanguageSuffix],
 			CurrentObject.Description);

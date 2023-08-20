@@ -6,6 +6,13 @@
 	<CommandBarLocation>None</CommandBarLocation>
 	<VerticalScroll>useIfNecessary</VerticalScroll>
 	<ConversationsRepresentation>Show</ConversationsRepresentation>
+	<MobileDeviceCommandBarContent>
+		<xr:Item>
+			<xr:Presentation/>
+			<xr:CheckState>0</xr:CheckState>
+			<xr:Value xsi:type="xs:string">MoreCommandBar</xr:Value>
+		</xr:Item>
+	</MobileDeviceCommandBarContent>
 	<CommandSet>
 		<ExcludedCommand>ReportSettings</ExcludedCommand>
 	</CommandSet>
@@ -32,6 +39,7 @@
 		<Event name="OnLoadVariantAtServer">OnLoadVariantAtServer</Event>
 		<Event name="OnSaveUserSettingsAtServer">OnSaveUserSettingsAtServer</Event>
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
+		<Event name="OnMainServerAvailabilityChange">OnMainServerAvailabilityChange</Event>
 		<Event name="OnUpdateUserSettingSetAtServer">OnUpdateUserSettingSetAtServer</Event>
 		<Event name="FillCheckProcessingAtServer">FillCheckProcessingAtServer</Event>
 	</Events>
@@ -1043,6 +1051,30 @@ Use:
 								</Popup>
 							</ChildItems>
 						</ButtonGroup>
+						<ButtonGroup name="GroupReportsSnapshots" id="1172">
+							<Visible>false</Visible>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Report snapshots</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="GroupReportsSnapshotsExtendedTooltip" id="1173"/>
+							<ChildItems>
+								<Button name="SaveReportSnapshot" id="1174">
+									<Type>CommandBarButton</Type>
+									<CommandName>Form.Command.SaveReportSnapshot</CommandName>
+									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+									<ExtendedTooltip name="SaveReportSnapshotExtendedTooltip" id="1175"/>
+								</Button>
+								<Button name="ReportsSnapshots" id="1178">
+									<Type>CommandBarButton</Type>
+									<CommandName>Form.Command.ReportsSnapshots</CommandName>
+									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+									<ExtendedTooltip name="ReportsSnapshotsExtendedTooltip" id="1179"/>
+								</Button>
+							</ChildItems>
+						</ButtonGroup>
 						<Popup name="MoreIndicatorsKindsCommands" id="760">
 							<Title>
 								<v8:item>
@@ -1978,6 +2010,214 @@ Use:
 				</CheckBoxField>
 			</ChildItems>
 		</UsualGroup>
+		<UsualGroup name="MobileClientButtonGroup" id="1224">
+			<Visible>false</Visible>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Button group mobile client</v8:content>
+				</v8:item>
+			</Title>
+			<Group>AlwaysHorizontal</Group>
+			<HorizontalSpacing>None</HorizontalSpacing>
+			<VerticalSpacing>None</VerticalSpacing>
+			<Behavior>Usual</Behavior>
+			<Representation>None</Representation>
+			<ShowTitle>false</ShowTitle>
+			<ExtendedTooltip name="MobileClientButtonGroupExtendedTooltip" id="1225"/>
+			<ChildItems>
+				<UsualGroup name="ButtonGroupMobileClientNested" id="1170">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Button group mobile client nested</v8:content>
+						</v8:item>
+					</Title>
+					<Group>AlwaysHorizontal</Group>
+					<HorizontalAlign>Center</HorizontalAlign>
+					<Behavior>Usual</Behavior>
+					<Representation>None</Representation>
+					<United>false</United>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="ButtonGroupMobileClientNestedExtendedTooltip" id="1171"/>
+					<ChildItems>
+						<UsualGroup name="GroupEditResourcePlacement" id="1155">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Change resource arrangement</v8:content>
+								</v8:item>
+							</Title>
+							<HorizontalStretch>true</HorizontalStretch>
+							<Group>Vertical</Group>
+							<HorizontalSpacing>None</HorizontalSpacing>
+							<VerticalSpacing>None</VerticalSpacing>
+							<HorizontalAlign>Center</HorizontalAlign>
+							<Behavior>Usual</Behavior>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GroupEditResourcePlacementExtendedTooltip" id="1156"/>
+							<ChildItems>
+								<Button name="ResourcePlacementEditButton" id="1162">
+									<Type>UsualButton</Type>
+									<Representation>Picture</Representation>
+									<CommandName>Form.Command.EditResourcePlacement</CommandName>
+									<Picture>
+										<xr:Ref>StdPicture.Dimension</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
+									</Picture>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Vertical</v8:content>
+										</v8:item>
+									</Title>
+									<ShapeRepresentation>None</ShapeRepresentation>
+									<ExtendedTooltip name="ResourcePlacementEditButtonExtendedTooltip" id="1163"/>
+								</Button>
+								<LabelDecoration name="DecorationEditResourcePlacement" id="1212">
+									<Height>1</Height>
+									<Font ref="style:SmallTextFont" kind="StyleItem"/>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Vertical</v8:content>
+										</v8:item>
+									</Title>
+									<GroupHorizontalAlign>Center</GroupHorizontalAlign>
+									<ContextMenu name="DecorationEditResourcePlacementContextMenu" id="1213"/>
+									<ExtendedTooltip name="DecorationEditResourcePlacementExtendedTooltip" id="1214"/>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="ShowReportOptionsGroup" id="1134">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Show report options</v8:content>
+								</v8:item>
+							</Title>
+							<HorizontalStretch>true</HorizontalStretch>
+							<Group>Vertical</Group>
+							<HorizontalSpacing>None</HorizontalSpacing>
+							<VerticalSpacing>None</VerticalSpacing>
+							<HorizontalAlign>Center</HorizontalAlign>
+							<Behavior>Usual</Behavior>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="ShowReportOptionsGroupExtendedTooltip" id="1135"/>
+							<ChildItems>
+								<Button name="ShowReportOptionsButton" id="1164">
+									<Type>UsualButton</Type>
+									<Representation>Picture</Representation>
+									<CommandName>Form.StandardCommand.LoadVariant</CommandName>
+									<Picture>
+										<xr:Ref>CommonPicture.SelectReportOption</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Report options</v8:content>
+										</v8:item>
+									</Title>
+									<ShapeRepresentation>None</ShapeRepresentation>
+									<ExtendedTooltip name="ShowReportOptionsButtonExtendedTooltip" id="1165"/>
+								</Button>
+								<LabelDecoration name="DecorationShowReportOptions" id="1215">
+									<Height>1</Height>
+									<Font ref="style:SmallTextFont" kind="StyleItem"/>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Options</v8:content>
+										</v8:item>
+									</Title>
+									<ContextMenu name="DecorationShowReportOptionsContextMenu" id="1216"/>
+									<ExtendedTooltip name="DecorationShowReportOptionsExtendedTooltip" id="1217"/>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="ShowSettingsGroup" id="1141">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Show settings</v8:content>
+								</v8:item>
+							</Title>
+							<HorizontalStretch>true</HorizontalStretch>
+							<Group>Vertical</Group>
+							<HorizontalSpacing>None</HorizontalSpacing>
+							<VerticalSpacing>None</VerticalSpacing>
+							<HorizontalAlign>Center</HorizontalAlign>
+							<Behavior>Usual</Behavior>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="ShowSettingsGroupExtendedTooltip" id="1142"/>
+							<ChildItems>
+								<Button name="ShowSettingsButton" id="1166">
+									<Type>UsualButton</Type>
+									<Representation>Picture</Representation>
+									<CommandName>Form.Command.AllSettings</CommandName>
+									<ShapeRepresentation>None</ShapeRepresentation>
+									<ExtendedTooltip name="ShowSettingsButtonExtendedTooltip" id="1167"/>
+								</Button>
+								<LabelDecoration name="DecorationShowSettings" id="1218">
+									<Height>1</Height>
+									<Font ref="style:SmallTextFont" kind="StyleItem"/>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Settings</v8:content>
+										</v8:item>
+									</Title>
+									<ContextMenu name="DecorationShowSettingsContextMenu" id="1219"/>
+									<ExtendedTooltip name="DecorationShowSettingsExtendedTooltip" id="1220"/>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="GenerateReportGroup" id="1148">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Generate report</v8:content>
+								</v8:item>
+							</Title>
+							<HorizontalStretch>true</HorizontalStretch>
+							<Group>Vertical</Group>
+							<HorizontalSpacing>None</HorizontalSpacing>
+							<VerticalSpacing>None</VerticalSpacing>
+							<HorizontalAlign>Center</HorizontalAlign>
+							<Behavior>Usual</Behavior>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GenerateReportGroupExtendedTooltip" id="1149"/>
+							<ChildItems>
+								<Button name="GenerateReportButton" id="1168">
+									<Type>UsualButton</Type>
+									<Representation>Picture</Representation>
+									<CommandName>Form.Command.ReportComposeResult</CommandName>
+									<ShapeRepresentation>None</ShapeRepresentation>
+									<ExtendedTooltip name="GenerateReportButtonExtendedTooltip" id="1169"/>
+								</Button>
+								<LabelDecoration name="DecorationGenerateReport" id="1221">
+									<Height>1</Height>
+									<Font ref="style:SmallTextFont" kind="StyleItem"/>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Generate</v8:content>
+										</v8:item>
+									</Title>
+									<ContextMenu name="DecorationGenerateReportContextMenu" id="1222"/>
+									<ExtendedTooltip name="DecorationGenerateReportExtendedTooltip" id="1223"/>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
+					</ChildItems>
+				</UsualGroup>
+			</ChildItems>
+		</UsualGroup>
 	</ChildItems>
 	<Attributes>
 		<Attribute name="Report" id="1">
@@ -2395,9 +2635,32 @@ Use:
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
+		<Attribute name="IsMobileClient" id="23">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
 		<Attribute name="ParametersChanged" id="50">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="ExternalReportBinaryDataAddress" id="51">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="PathToExternalReportFileAtClient" id="52">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
 	</Attributes>
@@ -3139,13 +3402,13 @@ Use:
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Save</v8:content>
+					<v8:content>Save to file</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Save a report result to a file</v8:content>
+					<v8:content>Save the resulting report to a file</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Shortcut>Ctrl+S</Shortcut>
@@ -3184,6 +3447,62 @@ Use:
 			<Action>InsertGroupAbove</Action>
 			<Representation>TextPicture</Representation>
 		</Command>
+		<Command name="EditResourcePlacement" id="58">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Change resource arrangement</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Change the resource arrangement</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>EditResourcePlacement</Action>
+		</Command>
+		<Command name="SaveReportSnapshot" id="60">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Save report snapshot</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Save the report snapshot</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Picture>
+				<xr:Ref>StdPicture.FixTable</xr:Ref>
+				<xr:LoadTransparent>true</xr:LoadTransparent>
+			</Picture>
+			<Action>SaveReportSnapshot</Action>
+			<Representation>TextPicture</Representation>
+		</Command>
+		<Command name="ReportsSnapshots" id="62">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Report snapshots</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Report snapshots list</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Shortcut>Ctrl+S</Shortcut>
+			<Picture>
+				<xr:Ref>StdPicture.ListViewModeList</xr:Ref>
+				<xr:LoadTransparent>true</xr:LoadTransparent>
+			</Picture>
+			<Action>ReportsSnapshots</Action>
+			<Representation>TextPicture</Representation>
+		</Command>
 	</Commands>
 	<Parameters>
 		<Parameter name="Ref">
@@ -3193,6 +3512,33 @@ Use:
 		</Parameter>
 		<Parameter name="Report">
 			<Type/>
+		</Parameter>
+		<Parameter name="Details">
+			<Type/>
+			<KeyParameter>true</KeyParameter>
+		</Parameter>
+		<Parameter name="VariantPresentation">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="GenerateOnOpen">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="OptionContext">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
 		</Parameter>
 	</Parameters>
 </Form>

@@ -130,7 +130,7 @@ EndProcedure
 Procedure OnDefineSelectionParameters(Form, SettingProperties) Export
 	
 	If SettingProperties.DCField = New DataCompositionField("DataParameters.ProgressProcessing") Then
-		SettingProperties.ValuesForSelection.Add(String(BegOfDay(CurrentSessionDate())), NStr("en = 'Over whole period';"));
+		SettingProperties.ValuesForSelection.Add(Format(BegOfDay(CurrentSessionDate()), "DLF=D") + " " + "00:00:00", NStr("en = 'Over whole period';"));
 		AvailablePeriods(SettingProperties.ValuesForSelection);
 	ElsIf SettingProperties.DCField = New DataCompositionField("DataParameters.Cache_Result") Then
 		SettingProperties.OutputFlagOnly = True;

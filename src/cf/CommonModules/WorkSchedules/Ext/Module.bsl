@@ -735,7 +735,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler = Handlers.Add();
 	Handler.Version = "3.1.2.78";
 	Handler.Procedure = "InformationRegisters.CalendarSchedules.ProcessDataForMigrationToNewVersion";
-	Handler.DeferredProcessingQueue = 3;
 	Handler.UpdateDataFillingProcedure = "InformationRegisters.CalendarSchedules.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.ExecutionMode = "Deferred";
 	Handler.RunAlsoInSubordinateDIBNodeWithFilters = True;
@@ -756,7 +755,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler = Handlers.Add();
 	Handler.Version = "3.1.3.94";
 	Handler.Procedure = "Catalogs.Calendars.ProcessDataForMigrationToNewVersion";
-	Handler.DeferredProcessingQueue = 1;
 	Handler.UpdateDataFillingProcedure = "Catalogs.Calendars.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.ExecutionMode = "Deferred";
 	Handler.RunAlsoInSubordinateDIBNodeWithFilters = True;

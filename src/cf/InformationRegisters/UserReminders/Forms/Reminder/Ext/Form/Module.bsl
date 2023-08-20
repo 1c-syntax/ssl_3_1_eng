@@ -542,7 +542,7 @@ Function EstimatedTimeAsString()
 	OutputDate = Day(EstimatedReminderTime) <> Day(CurrentDate);
 	
 	DateAsString = Format(EstimatedReminderTime, "DLF=DD");
-	TimeAsString = Format(EstimatedReminderTime, NStr("en = 'DF=h:mm tt';"));
+	TimeAsString = Format(EstimatedReminderTime, NStr("en = 'DF=H:mm';"));
 	
 	Return "(" + ?(OutputDate, DateAsString + " ", "") +  TimeAsString + ")";
 	

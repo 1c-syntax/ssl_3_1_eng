@@ -31,7 +31,7 @@ EndProcedure
 
 #Region Private
 
-&AtServer
+&AtServerNoContext
 Function CalculateItemOrder()
 
 	Query = New Query;

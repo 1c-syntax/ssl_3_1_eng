@@ -234,6 +234,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	EndIf;
 	
 	CurrentObject.AdditionalProperties.Insert("QuickAccess", QuickAccess.Unload());
+	CurrentObject.AdditionalProperties.Insert("ReportOptionAssignment", ReportOptionAssignment);
 	
 	CurrentObject.Permissions.Load(GetFromTempStorage(PermissionsAddress));
 	
@@ -1123,6 +1124,7 @@ Procedure UpdateFromFileAtServer(RegistrationParameters)
 	
 	If RegistrationParameters.Success Then
 		FillInCommands(SavedCommands);
+		ReportOptionAssignment = RegistrationParameters.ReportOptionAssignment;
 	ElsIf RegistrationParameters.ObjectNameUsed Then
 		LockersPresentation = "";
 		For Each ListItem In RegistrationParameters.Conflicting Do

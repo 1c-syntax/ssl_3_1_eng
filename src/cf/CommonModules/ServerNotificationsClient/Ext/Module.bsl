@@ -217,7 +217,7 @@ Procedure CheckGetServerNotificationsWithIndicators(DataReceiptStatus, Indicator
 		+ DataReceiptStatus.WaitingCountersDateAlignmentSecondsNumber
 		- ?(Second(CurrentSessionDate) < DataReceiptStatus.WaitingCountersDateAlignmentSecondsNumber, 60, 0);
 	
-	Interval = DataReceiptStatus.MinimumPeriod;
+	Interval = 60;
 	AreChatsActive = DataReceiptStatus.CollaborationSystemConnected
 		And DataReceiptStatus.IsNewPersonalMessageHandlerAttached
 		And DataReceiptStatus.IsRecurringDataSendEnabled
@@ -237,7 +237,7 @@ Procedure CheckGetServerNotificationsWithIndicators(DataReceiptStatus, Indicator
 	AreNotificationsReceived = AreNotificationsReceived(DataReceiptStatus);
 	AddMainIndicator(Indicators, StartMoment, "ServerNotificationsClient.AreNotificationsReceived");
 	
-	ChatsParametersKeyName = "StandardSubsystems.Core.ChatsIDs";
+	ChatsParametersKeyName = "StandardSubsystems.Core.ServerNotifications.ChatsIDs";
 	ShouldSendDataRecurrently = TimeoutExpired(
 		"StandardSubsystems.Core.ServerNotifications.ShouldSendDataRecurrently",
 		DataReceiptStatus.RepeatedDateExportMinInterval * 60);
@@ -278,11 +278,10 @@ Procedure CheckGetServerNotificationsWithIndicators(DataReceiptStatus, Indicator
 		AddMainIndicator(Indicators, StartMoment,
 			"IBConnectionsClient.BeforeRecurringClientDataSendToServer");
 		
-		ParameterName = "StandardSubsystems.Core.ServerNotifications.SessionActivityUpdate";
-		If TimeoutExpired(ParameterName) Then
-			AdditionalParameters.Insert(ParameterName, True);
-			If DataReceiptStatus.PersonalChatID = Undefined Then
-				AdditionalParameters.Insert(ChatsParametersKeyName, True);
+		If DataReceiptStatus.ServiceAdministratorSession Then
+			ParameterName = "StandardSubsystems.Core.ServerNotifications.RemovingOutdatedAlerts";
+			If TimeoutExpired(ParameterName) Then
+				AdditionalParameters.Insert(ParameterName, True);
 			EndIf;
 		EndIf;
 		
@@ -360,25 +359,27 @@ Procedure CheckGetServerNotificationsWithIndicators(DataReceiptStatus, Indicator
 		"TimeConsumingOperationsClient.AfterRecurringReceiptOfClientDataOnServer");
 	
 	If ShouldSendDataRecurrently Then
-		StartMoment = CurrentUniversalDateInMilliseconds();
-		Try
-			SSLSubsystemsIntegrationClient.AfterRecurringReceiptOfClientDataOnServer(
-				AdditionalResults);
-		Except
-			HandleError(ErrorInfo());
-		EndTry;
-		AddMainIndicator(Indicators, StartMoment,
-			"SSLSubsystemsIntegrationClient.AfterRecurringReceiptOfClientDataOnServer");
-		
-		StartMoment = CurrentUniversalDateInMilliseconds();
-		Try
-			CommonClientOverridable.AfterRecurringReceiptOfClientDataOnServer(
-				AdditionalResults);
-		Except
-			HandleError(ErrorInfo());
-		EndTry;
-		AddMainIndicator(Indicators, StartMoment,
-			"CommonClientOverridable.AfterRecurringReceiptOfClientDataOnServer");
+		If DataReceiptStatus.IsRecurringDataSendEnabled Then
+			StartMoment = CurrentUniversalDateInMilliseconds();
+			Try
+				SSLSubsystemsIntegrationClient.AfterRecurringReceiptOfClientDataOnServer(
+					AdditionalResults);
+			Except
+				HandleError(ErrorInfo());
+			EndTry;
+			AddMainIndicator(Indicators, StartMoment,
+				"SSLSubsystemsIntegrationClient.AfterRecurringReceiptOfClientDataOnServer");
+			
+			StartMoment = CurrentUniversalDateInMilliseconds();
+			Try
+				CommonClientOverridable.AfterRecurringReceiptOfClientDataOnServer(
+					AdditionalResults);
+			Except
+				HandleError(ErrorInfo());
+			EndTry;
+			AddMainIndicator(Indicators, StartMoment,
+				"CommonClientOverridable.AfterRecurringReceiptOfClientDataOnServer");
+		EndIf;
 		
 		StartMoment = CurrentUniversalDateInMilliseconds();
 		Try
@@ -402,9 +403,6 @@ Procedure CheckGetServerNotificationsWithIndicators(DataReceiptStatus, Indicator
 				"ServerNotificationsClient.AttachNewMessageHandler");
 		EndIf;
 		
-		If CommonCallResult.Property("ShouldRegisterIndicators") Then
-			DataReceiptStatus.ShouldRegisterIndicators = CommonCallResult.ShouldRegisterIndicators;
-		EndIf;
 		If CommonCallResult.Property("CollaborationSystemConnected") Then
 			DataReceiptStatus.CollaborationSystemConnected = CommonCallResult.CollaborationSystemConnected;
 		EndIf;
@@ -488,10 +486,10 @@ Procedure ProcessServerNotificationOnClient(DataReceiptStatus, ServerNotificatio
 	NameOfAlert = ServerNotification.NameOfAlert;
 	Result     = ServerNotification.Result;
 	
-	If NameOfAlert = "StandardSubsystems.Core.ServerNotifications.IndicatorsRegistrationChanged" Then
+	If NameOfAlert = "StandardSubsystems.Core.ServerNotifications.ShouldRegisterIndicators" Then
 		DataReceiptStatus.ShouldRegisterIndicators = (Result = True);
 		Return;
-	ElsIf NameOfAlert = "StandardSubsystems.Core.ServerNotifications.DeliveryWithoutCollaborationSystemChanged" Then
+	ElsIf NameOfAlert = "StandardSubsystems.Core.ServerNotifications.CollaborationSystemConnected" Then
 		DataReceiptStatus.CollaborationSystemConnected = (Result = True);
 		Return;
 	EndIf;
@@ -590,10 +588,6 @@ EndFunction
 //   * GlobalChatID - Undefined -
 //                                   - CollaborationSystemConversationID - 
 //        
-//   * PersonalChatID - String -
-//        
-//   * GlobalChatID  - String -
-//        
 //   * IsNewPersonalMessageHandlerAttached - Boolean
 //   * IsNewGlobalMessageHandlerAttached - Boolean
 //   * DateOfLastServerCall - Date
@@ -644,7 +638,7 @@ Procedure AttachNewMessageHandler(DataReceiptStatus)
 			CollaborationSystem.BeginAttachNewMessagesHandler(
 				New NotifyDescription("AfterAttachingNewPersonalMessageHandler", ThisObject, Context,
 					"AfterNewPersonalMessageHandlerAttachError", ThisObject),
-				New CollaborationSystemConversationID(DataReceiptStatus.PersonalChatID),
+				DataReceiptStatus.PersonalChatID,
 				New NotifyDescription("OnReceiptNewInteractionSystemPersonalMessage", ThisObject, Context,
 					"OnInteractionSystemNewPersonalMessageReceiptError", ThisObject),
 				Undefined);
@@ -661,7 +655,7 @@ Procedure AttachNewMessageHandler(DataReceiptStatus)
 			CollaborationSystem.BeginAttachNewMessagesHandler(
 				New NotifyDescription("AfterAttachingNewGroupMessageHandler", ThisObject, Context,
 					"AfterNewGlobalMessageHandlerAttachError", ThisObject),
-				New CollaborationSystemConversationID(DataReceiptStatus.GlobalChatID),
+				DataReceiptStatus.GlobalChatID,
 				New NotifyDescription("OnReceiptNewInteractionSystemGlobalMessage", ThisObject, Context,
 					"OnInteractionSystemNewGlobalMessageReceiptError", ThisObject),
 				Undefined);

@@ -18,16 +18,6 @@ Procedure OnOpen(Cancel)
 	
 EndProcedure
 
-&AtClient
-Procedure OnClose(Exit)
-	
-	If Exit Then
-		Return;
-	EndIf;
-	NotifyChoice(ServiceUserPassword);
-	
-EndProcedure
-
 #EndRegion
 
 #Region FormCommandHandlers
@@ -35,26 +25,7 @@ EndProcedure
 &AtClient
 Procedure OK(Command)
 	
-	ErrorText = "";
-	
-	If TypeOf(ThisObject.OnCloseNotifyDescription) = Type("NotifyDescription") Then
-		ServiceUserPassword = Password;
-		Try
-			ExecuteNotifyProcessing(ThisObject.OnCloseNotifyDescription, ServiceUserPassword);
-		Except
-			ErrorInfo = ErrorInfo();
-			WriteTheErrorToTheLog(ErrorProcessing.DetailErrorDescription(ErrorInfo));
-			ErrorText = ErrorProcessing.BriefErrorDescription(ErrorInfo) + Chars.LF
-				+ NStr("en = 'Password may be incorrect. Retype the password.';");
-		EndTry;
-		ThisObject.OnCloseNotifyDescription = Undefined;
-	EndIf;
-	
-	Close();
-	
-	If ValueIsFilled(ErrorText) Then
-		ShowMessageBox(, ErrorText);
-	EndIf;
+	Close(Password);
 	
 EndProcedure
 
@@ -62,19 +33,6 @@ EndProcedure
 Procedure Cancel(Command)
 	
 	Close();
-	
-EndProcedure
-
-#EndRegion
-
-#Region Private
-
-&AtServerNoContext
-Procedure WriteTheErrorToTheLog(ErrorText)
-	
-	WriteLogEvent(
-		NStr("en = 'Runtime error';", Common.DefaultLanguageCode()),
-		EventLogLevel.Error,,, ErrorText);
 	
 EndProcedure
 

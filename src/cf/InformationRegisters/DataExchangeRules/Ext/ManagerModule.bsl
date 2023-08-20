@@ -190,30 +190,9 @@ Procedure ImportSuppliedRules(ExchangePlanName, RulesFileName) Export
 	ConversionRulesInformation = StrReplace(ConversionRulesInformation, "[SourceRulesInformation]", SourceRulesInformation);
 	ConversionRulesInformation = StrReplace(ConversionRulesInformation, "[CorrespondentRulesInformation]", CorrespondentRulesInformation);
 	
-	// Getting the temporary registration file name in the local file system on the server.
-	TempRegistrationFileName = GetTempFileName("xml");
-	// 
-	RegistrationBinaryData.Write(TempRegistrationFileName);
-	
-	// Read registration rules.
-	ChangeRecordRuleImport = DataProcessors.ObjectsRegistrationRulesImport.Create();
-	
-	// 
-	ChangeRecordRuleImport.ExchangePlanNameForImport = ExchangePlanName;
-	
-	// 
-	ChangeRecordRuleImport.ImportRules(TempRegistrationFileName);
-	ReadRegistrationRules   = ChangeRecordRuleImport.ObjectsRegistrationRules;
-	RegistrationRulesInformation = ChangeRecordRuleImport.RulesInformation();
-	
-	If ChangeRecordRuleImport.ErrorFlag Then
-		Raise NStr("en = 'An error occurred when importing registration rules.';");
-	EndIf;
-	
 	// 
 	FileSystem.DeleteTempFile(TempFileName);
 	FileSystem.DeleteTempFile(CorrespondentTempFileName);
-	FileSystem.DeleteTempFile(TempRegistrationFileName);
 	
 	// Writing conversion rules.
 	CovnersionRuleWriting = CreateRecordManager();
@@ -233,7 +212,53 @@ Procedure ImportSuppliedRules(ExchangePlanName, RulesFileName) Export
 	CovnersionRuleWriting.RulesAreImported = True;
 	CovnersionRuleWriting.Write();
 	
-	// Writing registration rules.
+	ImportObjectRegistrationRules(RegistrationBinaryData, FileName, ExchangePlanName);
+		
+EndProcedure
+
+// 
+//
+// Parameters:
+//  ExchangePlanName - String - name of the exchange plan that the rules are being loaded for.
+//  RulesFileName - String -
+//
+Procedure DownloadSuppliedObjectRegistrationRules(ExchangePlanName, RulesFileName) Export
+	
+	File = New File(RulesFileName);
+	FileName = File.Name;
+	
+	RegistrationBinaryData = New BinaryData(RulesFileName);
+	
+	ImportObjectRegistrationRules(RegistrationBinaryData, FileName, ExchangePlanName);
+	
+EndProcedure
+
+Procedure ImportObjectRegistrationRules(BinaryData, FileName, ExchangePlanName)
+	
+	// 
+	TempRegistrationFileName = GetTempFileName("xml");
+	// 
+	BinaryData.Write(TempRegistrationFileName);
+	
+	// 
+	ChangeRecordRuleImport = DataProcessors.ObjectsRegistrationRulesImport.Create();
+	
+	// 
+	ChangeRecordRuleImport.ExchangePlanNameForImport = ExchangePlanName;
+	
+	// 
+	ChangeRecordRuleImport.ImportRules(TempRegistrationFileName);
+	ReadRegistrationRules   = ChangeRecordRuleImport.ObjectsRegistrationRules;
+	RegistrationRulesInformation = ChangeRecordRuleImport.RulesInformation();
+	
+	If ChangeRecordRuleImport.ErrorFlag Then
+		Raise NStr("en = 'An error occurred when importing registration rules.';");
+	EndIf;
+	
+	// 
+	FileSystem.DeleteTempFile(TempRegistrationFileName);
+	
+	// 
 	RegistrationRuleWriting = CreateRecordManager();
 	RegistrationRuleWriting.ExchangePlanName = ExchangePlanName;
 	RegistrationRuleWriting.RulesKind = Enums.DataExchangeRulesTypes.ObjectsRegistrationRules;
@@ -242,7 +267,7 @@ Procedure ImportSuppliedRules(ExchangePlanName, RulesFileName) Export
 	RegistrationRuleWriting.RulesFileName = FileName;
 	RegistrationRuleWriting.RulesInformation = RegistrationRulesInformation;
 	RegistrationRuleWriting.RulesSource = Enums.DataExchangeRulesSources.File;
-	RegistrationRuleWriting.XMLRules = New ValueStorage(RegistrationBinaryData, New Deflation());
+	RegistrationRuleWriting.XMLRules = New ValueStorage(BinaryData, New Deflation());
 	RegistrationRuleWriting.RulesAreRead = New ValueStorage(ReadRegistrationRules);
 	RegistrationRuleWriting.RulesAreImported = True;
 	RegistrationRuleWriting.Write();
@@ -257,21 +282,36 @@ EndProcedure
 Procedure DeleteSuppliedRules(ExchangePlanName) Export
 	
 	For Each RulesKind In Enums.DataExchangeRulesTypes Do
-		
-		RecordManager = CreateRecordManager();
-		RecordManager.RulesKind = RulesKind;
-		RecordManager.ExchangePlanName = ExchangePlanName;
-		RecordManager.Read();
-		RecordManager.RulesSource = Enums.DataExchangeRulesSources.ConfigurationTemplate;
-		HasErrors = False;
-		ImportRules(HasErrors, RecordManager);
-		If HasErrors Then
-			Raise NStr("en = 'An error occurred when importing rules from the configuration.';");
-		Else
-			RecordManager.Write();
-		EndIf;
-		
+		DeleteRules(ExchangePlanName, RulesKind);
 	EndDo;
+	
+EndProcedure
+
+// 
+//
+// Parameters:
+//  ExchangePlanName - String - name of the exchange plan for which the rules are being deleted.
+//
+Procedure DeleteSuppliedObjectRegistrationRules(ExchangePlanName) Export
+	
+	DeleteRules(ExchangePlanName, Enums.DataExchangeRulesTypes.ObjectsRegistrationRules);
+	
+EndProcedure
+
+Procedure DeleteRules(ExchangePlanName, RulesKind)
+	
+	RecordManager = CreateRecordManager();
+	RecordManager.RulesKind = RulesKind;
+	RecordManager.ExchangePlanName = ExchangePlanName;
+	RecordManager.Read();
+	RecordManager.RulesSource = Enums.DataExchangeRulesSources.ConfigurationTemplate;
+	HasErrors = False;
+	ImportRules(HasErrors, RecordManager);
+	If HasErrors Then
+		Raise NStr("en = 'An error occurred when importing rules from the configuration.';");
+	Else
+		RecordManager.Write();
+	EndIf;
 	
 EndProcedure
 

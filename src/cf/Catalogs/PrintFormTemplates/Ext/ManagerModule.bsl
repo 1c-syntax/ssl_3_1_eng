@@ -114,11 +114,16 @@ EndFunction
 
 Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
+	ObjectsProcessed = 0;
+	ObjectsWithIssuesCount = 0;
+	
 	Selection = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue, "Catalog.PrintFormTemplates");
 	While Selection.Next() Do
 		Block = New DataLock;
 		LockItem = Block.Add("Catalog.PrintFormTemplates");
 		LockItem.SetValue("Ref", Selection.Ref);
+		
+		RepresentationOfTheReference = String(Selection.Ref);
 		
 		BeginTransaction();
 		Try
@@ -129,15 +134,36 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			TableRow.DataSource = Template.DataSource;
 			Template.DataSource = Undefined;
 			InfobaseUpdate.WriteData(Template);
-			
+			ObjectsProcessed = ObjectsProcessed + 1;
 			CommitTransaction();
 		Except
 			RollbackTransaction();
-			Raise;
+			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
+
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Couldn''t process %1 due to:
+					 |%2';"), 
+				RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+			WriteLogEvent(InfobaseUpdate.EventLogEvent(),
+				EventLogLevel.Warning, Metadata.Catalogs.PrintFormTemplates,
+				Selection.Ref, MessageText);
 		EndTry;
 	EndDo;
 	
 	Parameters.ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue, "InformationRegister.UserPrintTemplates");
+	
+	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Couldn''t process (skipped) some print templates: %1';"),
+			ObjectsWithIssuesCount);
+		Raise MessageText;
+	Else
+		WriteLogEvent(InfobaseUpdate.EventLogEvent(),
+			EventLogLevel.Information, Metadata.InformationRegisters.UserPrintTemplates,,
+				StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Another batch of print templates is processed: %1';"),
+			ObjectsProcessed));
+	EndIf;
 	
 EndProcedure
 
@@ -388,7 +414,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Id = New UUID("959d09e5-1dc3-4f32-833a-05ff17365e30");
 	Handler.UpdateDataFillingProcedure = "Catalogs.PrintFormTemplates.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.CheckProcedure = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
-	Handler.Comment = NStr("en = 'Fills information about print data sources for user print forms. Some print forms might be unavailable until processing is completed.';");
+	Handler.Comment = NStr("en = 'Fills information about print data sources for custom print forms. Some print forms might be unavailable until processing is completed.';");
 	
 	ItemsToRead = New Array;
 	ItemsToRead.Add(Metadata.Catalogs.PrintFormTemplates.FullName());

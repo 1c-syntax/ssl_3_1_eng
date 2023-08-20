@@ -69,6 +69,11 @@ EndProcedure
 Procedure OnDefineScheduledJobSettings(Settings) Export
 	Dependence = Settings.Add();
 	Dependence.ScheduledJob = Metadata.ScheduledJobs.PerformanceMonitorDataExport;
+	Dependence.FunctionalOption = Metadata.FunctionalOptions.RunPerformanceMeasurements;
+	Dependence.UseExternalResources = True;
+	Dependence = Settings.Add();
+	Dependence.ScheduledJob = Metadata.ScheduledJobs.ClearTimeMeasurements;
+	Dependence.FunctionalOption = Metadata.FunctionalOptions.RunPerformanceMeasurements;
 	Dependence.UseExternalResources = True;
 EndProcedure
 

@@ -275,7 +275,7 @@ Procedure DetermineTypeSignaturesObject()
 	SetSignatures = DigitalSignature.SetSignatures(
 		SignedObject, ?(ValueIsFilled(SequenceNumber), SequenceNumber, Undefined));
 		
-	IsCAdESBES = False; IsCAdEST = False; IsCAdESA = False;
+	ThereIsBasicSignature = False; ThereIsSignatureWithTimestamp = False; ThereIsArchivalSignature = False;
 	
 	For Each CurrentSignature In SetSignatures Do
 		
@@ -287,40 +287,40 @@ Procedure DetermineTypeSignaturesObject()
 			Break;
 		EndIf;
 		
-		If Not IsCAdESBES And DigitalSignatureInternalClientServer.ToBeImproved(
+		If Not ThereIsBasicSignature And DigitalSignatureInternalClientServer.ToBeImproved(
 				CurrentSignature.SignatureType, Enums.CryptographySignatureTypes.WithTimeCAdEST) Then
-			IsCAdESBES = True;
+			ThereIsBasicSignature = True;
 			Continue;
 		EndIf;
 		
-		If Not IsCAdEST And DigitalSignatureInternalClientServer.ToBeImproved(
+		If Not ThereIsSignatureWithTimestamp And DigitalSignatureInternalClientServer.ToBeImproved(
 				CurrentSignature.SignatureType, Enums.CryptographySignatureTypes.ArchivalCAdESAv3) Then
-			IsCAdEST = True;
+			ThereIsSignatureWithTimestamp = True;
 			Continue;
 		EndIf;
 		
-		If Not IsCAdESA
+		If Not ThereIsArchivalSignature
 			And (CurrentSignature.SignatureType = Enums.CryptographySignatureTypes.CAdESAv2
 			Or CurrentSignature.SignatureType = Enums.CryptographySignatureTypes.ArchivalCAdESAv3) Then
-			IsCAdESA = True;
+			ThereIsArchivalSignature = True;
 			Continue;
 		EndIf;
 		
 	EndDo;
 	
-	If IsCAdESA Then
+	If ThereIsArchivalSignature Then
 		Items.AddArchiveTimestamp.Visible = True;
-	ElsIf IsCAdEST Or IsCAdESBES Then
+	ElsIf ThereIsSignatureWithTimestamp Or ThereIsBasicSignature Then
 		Items.AddArchiveTimestamp.Visible = False;
 	EndIf;
 	
-	If IsCAdESBES Then
+	If ThereIsBasicSignature Then
 		Parameters.SignatureType = Enums.CryptographySignatureTypes.BasicCAdESBES;
 		Items.SignatureType.Visible = True;
-	ElsIf IsCAdEST Then
+	ElsIf ThereIsSignatureWithTimestamp Then
 		Parameters.SignatureType = Enums.CryptographySignatureTypes.WithTimeCAdEST;
 		Items.SignatureType.Visible = True;
-	ElsIf IsCAdESA Then
+	ElsIf ThereIsArchivalSignature Then
 		Parameters.SignatureType = Enums.CryptographySignatureTypes.ArchivalCAdESAv3;
 		Items.SignatureType.Visible = False;
 	EndIf;

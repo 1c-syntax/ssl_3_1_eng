@@ -454,7 +454,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Comment = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Repopulate internal attribute %1 to prevent misordering.';")
 		,"AddlOrderingAttribute");
 	Handler.ExecutionMode = "Deferred";
-	Handler.DeferredProcessingQueue = 1;
 	Handler.UpdateDataFillingProcedure = "Catalogs.SourceDocumentsOriginalsStates.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.CheckProcedure    = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
 	Handler.ObjectsToRead      = "Catalog.SourceDocumentsOriginalsStates";

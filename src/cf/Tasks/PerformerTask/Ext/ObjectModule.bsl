@@ -111,6 +111,11 @@ Procedure BeforeWrite(Cancel)
 		AcceptForExecutionDate = CurrentSessionDate();
 	EndIf;
 	
+	If AdditionalProperties.Property("IsCheckOnly")
+	   And AdditionalProperties.IsCheckOnly Then
+		Executed = False;
+	EndIf;
+	
 EndProcedure
 
 Procedure Filling(FillingData, FillingText, StandardProcessing)

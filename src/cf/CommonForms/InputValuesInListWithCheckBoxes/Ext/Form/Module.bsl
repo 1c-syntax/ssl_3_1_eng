@@ -86,11 +86,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	List.ValueType = TypesInformation.TypesDetailsForForm;
 	If TypeOf(ValuesForSelection) = Type("ValueList") Then
 		ValuesForSelection.FillChecks(False);
-		ReportsClientServer.AddToList2(List, ValuesForSelection, True, True);
+		CommonClientServer.AddToList2(List, ValuesForSelection, True, True);
 	EndIf;
 	If TypeOf(Marked) = Type("ValueList") Then
 		Marked.FillChecks(True);
-		ReportsClientServer.AddToList2(List, Marked, True, Not RestrictSelectionBySpecifiedValues);
+		CommonClientServer.AddToList2(List, Marked, True, Not RestrictSelectionBySpecifiedValues);
 	EndIf;
 	
 	If List.Count() = 0 Then
@@ -221,7 +221,7 @@ Procedure ListChoiceProcessing(Item, SelectionResult, StandardProcessing)
 	SelectedItems = ReportsClientServer.ValuesByList(SelectionResult);
 	SelectedItems.FillChecks(True);
 	
-	AddOn = ReportsClientServer.AddToList2(List, SelectedItems, True, True);
+	AddOn = CommonClientServer.AddToList2(List, SelectedItems, True, True);
 	If AddOn.Total = 0 Then
 		Return;
 	EndIf;

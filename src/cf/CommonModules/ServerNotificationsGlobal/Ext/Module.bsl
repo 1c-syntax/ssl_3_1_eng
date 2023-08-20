@@ -10,7 +10,13 @@
 #Region Private
 
 Procedure ServerNotificationsReceiptCheckHandler() Export
-	
+
+#If MobileClient Then
+	If MainServerAvailable() = False Then
+		Return;
+	EndIf;
+#EndIf
+		
 	ServerNotificationsClient.CheckAndReceiveServerNotifications();
 	
 EndProcedure

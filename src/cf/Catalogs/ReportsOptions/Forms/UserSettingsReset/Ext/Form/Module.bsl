@@ -16,13 +16,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ErrorText = NStr("en = 'No report options provided.';");
 		Return;
 	EndIf;
-	
+
 	If Not HasUserSettings(Variants) Then
 		ErrorText = NStr("en = 'Custom settings for the %1selected report options have not been defined or have been reset.';");
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText, Format(Variants.Count(), "NZ=0; NG=0"));
 		Return;
 	EndIf;
-	
+
 	DefineBehaviorInMobileClient();
 	OptionsToAssign.LoadValues(Variants);
 EndProcedure
@@ -46,7 +46,7 @@ Procedure ResetCommand(Command)
 		ShowMessageBox(, NStr("en = 'No report options provided.';"));
 		Return;
 	EndIf;
-	
+
 	ResetUserSettingsServer(OptionsToAssign);
 	If OptionsCount = 1 Then
 		OptionRef1 = OptionsToAssign[0].Value;
@@ -56,9 +56,10 @@ Procedure ResetCommand(Command)
 		ShowUserNotification(NotificationTitle1, NotificationRef, NotificationText);
 	Else
 		NotificationText = NStr("en = 'Custom settings for %1 report options
-		|have been reset.';");
-		NotificationText = StringFunctionsClientServer.SubstituteParametersToString(NotificationText, Format(OptionsCount, "NZ=0; NG=0"));
-		ShowUserNotification(, , NotificationText);
+							   |have been reset.';");
+		NotificationText = StringFunctionsClientServer.SubstituteParametersToString(NotificationText, 
+			Format(OptionsCount, "NZ=0; NG=0"));
+		ShowUserNotification(,, NotificationText);
 	EndIf;
 	Close();
 EndProcedure
@@ -80,9 +81,9 @@ Procedure ResetUserSettingsServer(Val OptionsToAssign)
 			LockItem.SetValue("Ref", ListItem.Value);
 		EndDo;
 		Block.Lock();
-		
+
 		InformationRegisters.ReportOptionsSettings.ResetSettings(OptionsToAssign.UnloadValues());
-		
+
 		CommitTransaction();
 	Except
 		RollbackTransaction();
@@ -95,10 +96,10 @@ EndProcedure
 
 &AtServer
 Procedure DefineBehaviorInMobileClient()
-	If Not Common.IsMobileClient() Then 
+	If Not Common.IsMobileClient() Then
 		Return;
 	EndIf;
-	
+
 	CommandBarLocation = FormCommandBarLabelLocation.Auto;
 EndProcedure
 
@@ -113,7 +114,7 @@ Function HasUserSettings(OptionsArray)
 	|	InformationRegister.ReportOptionsSettings AS Settings
 	|WHERE
 	|	Settings.Variant IN(&OptionsArray)";
-	
+
 	HasUserSettings = Not Query.Execute().IsEmpty();
 	Return HasUserSettings;
 EndFunction

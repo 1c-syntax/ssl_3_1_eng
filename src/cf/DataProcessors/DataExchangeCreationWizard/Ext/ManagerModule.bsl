@@ -363,7 +363,7 @@ Procedure ChangeNodeTransportInWS(Node, Endpoint, CorrespondentDataArea) Export
 	
 	Except
 		
-		ErrorMessage = DetailErrorDescription(ErrorInfo());
+		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		
 		WriteLogEvent(DataExchangeWebService.EventLogEventTransportChangedOnWS(),
 			EventLogLevel.Error, , , ErrorMessage);
@@ -394,7 +394,7 @@ Procedure ChangeTransportOfPeerNodeOnWS(Node, Endpoint, CorrespondentEndpoint, D
 		
 	Except
 		
-		ErrorMessageInCorrespondent = DetailErrorDescription(ErrorInfo());
+		ErrorMessageInCorrespondent = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		
 		WriteLogEvent(DataExchangeServer.DataExchangeDeletionEventLogEvent(),
 			EventLogLevel.Error, , , ErrorMessageInCorrespondent);
@@ -424,7 +424,7 @@ Procedure ChangeTransportOfPeerNodeOnWS(Node, Endpoint, CorrespondentEndpoint, D
 		 
 	Except
 		
-		ErrorMessageInCorrespondent = DetailErrorDescription(ErrorInfo());
+		ErrorMessageInCorrespondent = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		
 		WriteLogEvent(DataExchangeServer.DataExchangeDeletionEventLogEvent(),
 			EventLogLevel.Error, , , ErrorMessageInCorrespondent);
@@ -453,7 +453,7 @@ Procedure OnStartGetDataExchangeSettingOptions(UUID, HandlerParameters, Continue
 	HandlerParameters = New Structure;
 	HandlerParameters.Insert("ResultAddressDefaultSettings", PutToTempStorage(StandardSettingsTable, UUID));
 	
-	If Common.SubsystemExists("OnlineUserSupport.DataExchangeWithExternalSystems") Then
+	If Common.SubsystemExists("OnlineUserSupport.ОбменДаннымиСВнешнимиСистемами") Then
 		ContinueWait = True;
 		
 		SettingVariants = ExternalSystemsDataExchangeSettingsOptionDetails();
@@ -612,7 +612,7 @@ Procedure OnWaitTimeConsumingOperation(HandlerParameters, ContinueWait = True)
 		JobCompleted = TimeConsumingOperations.JobCompleted(HandlerParameters.OperationID);
 	Except
 		HandlerParameters.Cancel             = True;
-		HandlerParameters.ErrorMessage = DetailErrorDescription(ErrorInfo());
+		HandlerParameters.ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		
 		WriteLogEvent(DataExchangeServer.DataExchangeCreationEventLogEvent(),
 			EventLogLevel.Error, , , HandlerParameters.ErrorMessage);
@@ -834,7 +834,7 @@ Procedure OnConnectToCorrespondent(Cancel, ExchangePlanName, Val CorrespondentVe
 	Try
 		DataExchangeServer.OnConnectToCorrespondent(ExchangePlanName, CorrespondentVersion);
 	Except
-		ErrorMessage = DetailErrorDescription(ErrorInfo());
+		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		
 		WriteLogEvent(DataExchangeServer.DataExchangeCreationEventLogEvent(),
 			EventLogLevel.Error, , , StringFunctionsClientServer.SubstituteParametersToString(
@@ -864,6 +864,8 @@ Procedure TestCorrespondentConnection(Parameters, ResultAddress) Export
 	CheckResult.Insert("ThisInfobaseHasPeerInfobaseNode", False);
 	CheckResult.Insert("NodeToDelete", Undefined);
 	
+	CheckResult.Insert("CorrespondentExchangePlanName", ConnectionSettings.CorrespondentExchangePlanName);
+	
 	If ConnectionSettings.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.COM Then
 		
 		Result = DataExchangeServer.EstablishExternalConnectionWithInfobase(ConnectionSettings);
@@ -881,11 +883,27 @@ Procedure TestCorrespondentConnection(Parameters, ResultAddress) Export
 		CheckResult.InterfaceVersions = DataExchangeServer.InterfaceVersionsThroughExternalConnection(ExternalConnection);
 		
 		If CheckResult.InterfaceVersions.Find("3.0.1.1") <> Undefined
-			Or CheckResult.InterfaceVersions.Find("3.0.2.1") <> Undefined Then
+			Or CheckResult.InterfaceVersions.Find("3.0.2.1") <> Undefined 
+			Or CheckResult.InterfaceVersions.Find("3.0.2.2") Then 
 			
 			ErrorMessage = "";
-			InfoBaseAdmParams = ExternalConnection.DataExchangeExternalConnection.GetInfobaseParameters_2_0_1_6(
-				ConnectionSettings.ExchangePlanName, ConnectionSettings.SourceInfobaseID, ErrorMessage);
+			
+			If CheckResult.InterfaceVersions.Find("3.0.2.2") <> Undefined Then
+				
+				AdditionalParameters = New Structure;
+				If DataExchangeCached.IsXDTOExchangePlan(ConnectionSettings.ExchangePlanName) Then
+					AdditionalParameters.Insert("IsXDTOExchangePlan", True);
+				EndIf;
+				
+				InfoBaseAdmParams = ExternalConnection.DataExchangeExternalConnection.GetInfobaseParameters_3_0_2_2(
+					ConnectionSettings.ExchangePlanName,
+					ConnectionSettings.SourceInfobaseID,
+					ErrorMessage,
+					AdditionalParameters);
+			Else
+				InfoBaseAdmParams = ExternalConnection.DataExchangeExternalConnection.GetInfobaseParameters_2_0_1_6(
+					ConnectionSettings.ExchangePlanName, ConnectionSettings.SourceInfobaseID, ErrorMessage);
+			EndIf;
 				
 			CorrespondentParameters = Common.ValueFromXMLString(InfoBaseAdmParams);
 			If Not CorrespondentParameters.ExchangePlanExists Then
@@ -901,7 +919,9 @@ Procedure TestCorrespondentConnection(Parameters, ResultAddress) Export
 			EndIf;
 							
 			CheckResult.CorrespondentParametersReceived = True;
-			CheckResult.CorrespondentParameters =	CorrespondentParameters;
+			CheckResult.CorrespondentParameters = CorrespondentParameters;
+			
+			CheckResult.CorrespondentExchangePlanName = CorrespondentParameters.ExchangePlanName;
 			
 		Else
 			
@@ -940,11 +960,11 @@ Procedure TestCorrespondentConnection(Parameters, ResultAddress) Export
 			CheckResult.InterfaceVersions = DataExchangeCached.CorrespondentVersions(AuthenticationSettingsStructure);
 		Except
 			Information = ErrorInfo();
-			CheckResult.ErrorMessage = BriefErrorDescription(Information);
+			CheckResult.ErrorMessage = ErrorProcessing.BriefErrorDescription(Information);
 			CheckResult.ConnectionIsSet = False;
 			
 			WriteLogEvent(DataExchangeServer.DataExchangeCreationEventLogEvent(),
-				EventLogLevel.Error, , , DetailErrorDescription(Information));
+				EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(Information));
 			
 			PutToTempStorage(CheckResult, ResultAddress);
 			Return;
@@ -952,7 +972,10 @@ Procedure TestCorrespondentConnection(Parameters, ResultAddress) Export
 		
 		ErrorMessageString = "";
 		WSProxy = Undefined;
-		If CheckResult.InterfaceVersions.Find("3.0.2.1") <> Undefined Then   
+		If CheckResult.InterfaceVersions.Find("3.0.2.2") <> Undefined Then   
+			WSProxy = DataExchangeServer.GetWSProxy_3_0_2_2(AuthenticationSettingsStructure, ErrorMessageString);
+			CurrentVersion = "3.0.2.2";
+		ElsIf CheckResult.InterfaceVersions.Find("3.0.2.1") <> Undefined Then
 			WSProxy = DataExchangeServer.GetWSProxy_3_0_2_1(AuthenticationSettingsStructure, ErrorMessageString);
 			CurrentVersion = "3.0.2.1"
 		ElsIf CheckResult.InterfaceVersions.Find("3.0.1.1") <> Undefined Then
@@ -980,15 +1003,22 @@ Procedure TestCorrespondentConnection(Parameters, ResultAddress) Export
 		CheckResult.ConnectionIsSet = True;
 		
 		If CheckResult.InterfaceVersions.Find("3.0.1.1") <> Undefined 
-			Or CheckResult.InterfaceVersions.Find("3.0.2.1") <> Undefined Then
+			Or CheckResult.InterfaceVersions.Find("3.0.2.1") <> Undefined 
+			Or CheckResult.InterfaceVersions.Find("3.0.2.2") <> Undefined Then
 			
 			ErrorMessage = "";
-
+			
+			AdditionalParameters = New Structure;
+			If DataExchangeCached.IsXDTOExchangePlan(ConnectionSettings.ExchangePlanName) Then
+				AdditionalParameters.Insert("IsXDTOExchangePlan", True);
+			EndIf;
+			
 			InfoBaseAdmParams = DataExchangeWebService.GetParametersOfInfobase(WSProxy, CurrentVersion,
-				ConnectionSettings.ExchangePlanName,
+				ConnectionSettings.CorrespondentExchangePlanName,
 				ConnectionSettings.SourceInfobaseID,
 				ErrorMessage,
-				ConnectionSettings.WSPeerDataArea);
+				ConnectionSettings.WSPeerDataArea,
+				AdditionalParameters);
   
 			CorrespondentParameters = XDTOSerializer.ReadXDTO(InfoBaseAdmParams);
 			If Not CorrespondentParameters.ExchangePlanExists Then
@@ -997,14 +1027,16 @@ Procedure TestCorrespondentConnection(Parameters, ResultAddress) Export
 					|Ensure that the following data is correct:
 					|- The application type selected in the exchange settings.
 					|- The web application address.';"),
-					ConnectionSettings.ExchangePlanName);
+					ConnectionSettings.CorrespondentExchangePlanName);
 				
 				PutToTempStorage(CheckResult, ResultAddress);
 				Return;
 			EndIf;
-									
+			
 			CheckResult.CorrespondentParametersReceived = True;
 			CheckResult.CorrespondentParameters = CorrespondentParameters;
+			
+			CheckResult.CorrespondentExchangePlanName = CorrespondentParameters.ExchangePlanName;
 			
 		Else
 			
@@ -1077,7 +1109,7 @@ Procedure CheckForDuplicateSyncs(ConnectionSettings, CorrespondentParameters, Ch
 		NodeRef1 = ManagerExchangePlan.FindByCode(CorrespondentParameters.ThisNodeCode);		
 		
 		If Not NodeRef1.IsEmpty() Then
-			CheckResult.ThisInfobaseHasPeerInfobaseNode = True;;
+			CheckResult.ThisInfobaseHasPeerInfobaseNode = True;
 			CheckResult.NodeToDelete = NodeRef1;	
 		EndIf;
 		
@@ -1144,10 +1176,10 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 				Cancel = True;
 				
 				Information = ErrorInfo();
-				Result.ErrorMessage = BriefErrorDescription(Information);
+				Result.ErrorMessage = ErrorProcessing.BriefErrorDescription(Information);
 							
 				WriteLogEvent(DataExchangeServer.DataExchangeCreationEventLogEvent(),
-					EventLogLevel.Error, , , DetailErrorDescription(Information));
+					EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(Information));
 				
 				PutToTempStorage(Result, ResultAddress);
 
@@ -1169,12 +1201,12 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 				Cancel = True;
 				
 				Information = ErrorInfo();
-				Result.ErrorMessage = BriefErrorDescription(Information);
+				Result.ErrorMessage = ErrorProcessing.BriefErrorDescription(Information);
 					
 				WriteLogEvent(DataExchangeServer.DataExchangeDeletionEventLogEvent(),
-					EventLogLevel.Error, , , DetailErrorDescription(Information));
+					EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(Information));
 					
-				PutToTempStorage(Result, ResultAddress);		
+				PutToTempStorage(Result, ResultAddress);
 				
 			EndTry;
 								
@@ -1192,7 +1224,7 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 		ConfigureDataExchange(ConnectionSettings);
 	Except
 		Cancel = True;
-		Result.ErrorMessage = DetailErrorDescription(ErrorInfo());
+		Result.ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		
 		WriteLogEvent(DataExchangeServer.DataExchangeCreationEventLogEvent(),
 			EventLogLevel.Error, , , Result.ErrorMessage);
@@ -1249,7 +1281,7 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 					
 			Except
 				Cancel = True;
-				Result.ErrorMessage = DetailErrorDescription(ErrorInfo());
+				Result.ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 				
 				WriteLogEvent(DataExchangeServer.DataExchangeCreationEventLogEvent(),
 					EventLogLevel.Error, , , Result.ErrorMessage);
@@ -1278,7 +1310,7 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 						CorrespondentConnectionSettings);
 				Except
 					Cancel = True;
-					Result.ErrorMessage = DetailErrorDescription(ErrorInfo());
+					Result.ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 					
 					WriteLogEvent(DataExchangeServer.DataExchangeCreationEventLogEvent(),
 						EventLogLevel.Error, , , Result.ErrorMessage);
@@ -1347,7 +1379,7 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 					ConnectionParameters, ConnectionSettings.WSPeerDataArea);
 			Except
 				Cancel = True;
-				Result.ErrorMessage = DetailErrorDescription(ErrorInfo());
+				Result.ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 				
 				WriteLogEvent(DataExchangeServer.DataExchangeCreationEventLogEvent(),
 					EventLogLevel.Error, , , Result.ErrorMessage);
@@ -1379,7 +1411,7 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 					// Возникновение исключения - 
 					// 
 					Cancel = True; 
-					Result.ErrorMessage = DetailErrorDescription(ErrorInfo());
+					Result.ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 					
 					WriteLogEvent(DataExchangeServer.DataExchangeCreationEventLogEvent(),
 						EventLogLevel.Error, , , Result.ErrorMessage);
@@ -1400,7 +1432,7 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 						ConnectionSettings.InfobaseNode, ExchangeParameters, Cancel);
 				Except
 					Cancel = True;
-					Result.ErrorMessage = DetailErrorDescription(ErrorInfo());
+					Result.ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 					
 					WriteLogEvent(DataExchangeServer.DataExchangeCreationEventLogEvent(),
 						EventLogLevel.Error, , , Result.ErrorMessage);
@@ -1490,7 +1522,7 @@ Procedure ImportXDTOCorrespondentSettings(Parameters, ResultAddress) Export
 			ImportSettings.ExchangeNode, ExchangeParameters, Cancel, AdditionalParameters);
 	Except
 		Cancel = True;
-		Result.ErrorMessage = DetailErrorDescription(ErrorInfo());
+		Result.ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		
 		WriteLogEvent(DataExchangeServer.DataExchangeCreationEventLogEvent(),
 			EventLogLevel.Error, , , Result.ErrorMessage);
@@ -1550,7 +1582,7 @@ Procedure SaveSynchronizationSettings1(Parameters, ResultAddress) Export
 			RollbackTransaction();
 			
 			Result.SettingsSaved = False;
-			Result.ErrorMessage = DetailErrorDescription(ErrorInfo());
+			Result.ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 			
 			WriteLogEvent(DataExchangeServer.DataExchangeCreationEventLogEvent(),
 				EventLogLevel.Error, , , Result.ErrorMessage);
@@ -1645,10 +1677,10 @@ Procedure DeleteSynchronizationSetting(Parameters, ResultAddress) Export
 	Except
 		Information = ErrorInfo();
 		Result.SettingDeleted  = False;
-		Result.ErrorMessage = BriefErrorDescription(Information);
+		Result.ErrorMessage = ErrorProcessing.BriefErrorDescription(Information);
 		
 		WriteLogEvent(DataExchangeServer.DataExchangeDeletionEventLogEvent(),
-			EventLogLevel.Error, , , DetailErrorDescription(Information));
+			EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(Information));
 	EndTry;
 	
 	PutToTempStorage(Result, ResultAddress);
@@ -1657,7 +1689,10 @@ EndProcedure
 
 Procedure DeleteSynchronizationSettingInCorrespondent(DeletionSettings, Result)
 	
-	ExchangePlanName    = DataExchangeCached.GetExchangePlanName(DeletionSettings.ExchangeNode);
+	ExchangePlanName = DataExchangeCached.GetExchangePlanName(DeletionSettings.ExchangeNode);
+	CorrespondentExchangePlanName =
+		DataExchangeCached.GetNameOfCorrespondentExchangePlan(DeletionSettings.ExchangeNode);
+		
 	NodeID = DataExchangeServer.NodeIDForExchange(DeletionSettings.ExchangeNode);
 		
 	TransportKind = InformationRegisters.DataExchangeTransportSettings.DefaultExchangeMessagesTransportKind(
@@ -1676,13 +1711,13 @@ Procedure DeleteSynchronizationSettingInCorrespondent(DeletionSettings, Result)
 			Return;
 		EndIf;
 		
-		CorrespondentNode = ExternalConnection.DataExchangeServer.ExchangePlanNodeByCode(ExchangePlanName,
+		CorrespondentNode = ExternalConnection.DataExchangeServer.ExchangePlanNodeByCode(CorrespondentExchangePlanName,
 			NodeID);
 			
 		If CorrespondentNode = Undefined Then
 			Result.ErrorMessageInCorrespondent = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Exchange plan node ""%1"" is not found in the peer application by code ""%2"".';"),
-				ExchangePlanName, NodeID);
+				CorrespondentExchangePlanName, NodeID);
 			Result.SettingDeletedInCorrespondent = False;
 			Return;
 		EndIf;
@@ -1691,7 +1726,7 @@ Procedure DeleteSynchronizationSettingInCorrespondent(DeletionSettings, Result)
 			ExternalConnection.DataExchangeServer.DeleteSynchronizationSetting(CorrespondentNode);
 		Except
 			Result.SettingDeletedInCorrespondent = False;
-			Result.ErrorMessageInCorrespondent = DetailErrorDescription(ErrorInfo());
+			Result.ErrorMessageInCorrespondent = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 			
 			WriteLogEvent(DataExchangeServer.DataExchangeDeletionEventLogEvent(),
 				EventLogLevel.Error, , , Result.ErrorMessageInCorrespondent);
@@ -1732,14 +1767,14 @@ Procedure DeleteSynchronizationSettingInCorrespondent(DeletionSettings, Result)
 			DataExchangeWebService.DeleteExchangeNode(WSProxy, ProxyParameters.CurrentVersion, ExchangeSettingsStructure); 
 		Except
 			Result.SettingDeletedInCorrespondent = False;
-			Result.ErrorMessageInCorrespondent = DetailErrorDescription(ErrorInfo());
+			Result.ErrorMessageInCorrespondent = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 			
 			WriteLogEvent(DataExchangeServer.DataExchangeDeletionEventLogEvent(),
 				EventLogLevel.Error, , , Result.ErrorMessageInCorrespondent);
 		EndTry;
 			
 	ElsIf TransportKind = Enums.ExchangeMessagesTransportTypes.ExternalSystem Then
-		If Common.SubsystemExists("OnlineUserSupport.DataExchangeWithExternalSystems") Then
+		If Common.SubsystemExists("OnlineUserSupport.ОбменДаннымиСВнешнимиСистемами") Then
 			
 			Context = New Structure;
 			Context.Insert("Peer", DeletionSettings.ExchangeNode);
@@ -1752,10 +1787,10 @@ Procedure DeleteSynchronizationSettingInCorrespondent(DeletionSettings, Result)
 				Information = ErrorInfo();
 				
 				Result.SettingDeletedInCorrespondent  = False;
-				Result.ErrorMessageInCorrespondent = BriefErrorDescription(Information);
+				Result.ErrorMessageInCorrespondent = ErrorProcessing.BriefErrorDescription(Information);
 				
 				WriteLogEvent(DataExchangeServer.DataExchangeDeletionEventLogEvent(),
-					EventLogLevel.Error, , , DetailErrorDescription(Information));
+					EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(Information));
 			EndTry;
 			
 		EndIf;
@@ -1784,7 +1819,7 @@ Procedure RegisterDataForInitialExport(Parameters, ResultAddress) Export
 		DataExchangeServer.RegisterDataForInitialExport(RegistrationSettings.ExchangeNode, , ReceivedNo = 0);
 	Except
 		Result.DataRegistered = False;
-		Result.ErrorMessage = DetailErrorDescription(ErrorInfo());
+		Result.ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		
 		WriteLogEvent(DataExchangeServer.RegisterDataForInitialExportEventLogEvent(),
 			EventLogLevel.Error, , , Result.ErrorMessage);
@@ -2007,7 +2042,11 @@ Procedure CreateUpdateExchangePlanNodes(ConnectionSettings)
 		?(ConnectionSettings.UsePrefixesForExchangeSettings
 			Or ConnectionSettings.UsePrefixesForCorrespondentExchangeSettings, ConnectionSettings.SourceInfobasePrefix, ""),
 		ConnectionSettings.DestinationInfobasePrefix);
-	
+		
+	InformationRegisters.CommonInfobasesNodesSettings.SetNameOfCorrespondentExchangePlan(
+		ConnectionSettings.InfobaseNode,
+		ConnectionSettings.CorrespondentExchangePlanName);
+			
 	If CreateNewNode
 		And Not Common.DataSeparationEnabled() Then
 		DataExchangeServer.UpdateDataExchangeRules();
@@ -2123,23 +2162,19 @@ Procedure FillConnectionSettingsFromXMLString(ConnectionSettings,
 		Raise;
 	EndTry;
 	
-	// Verifying read from the file parameters.
 	CorrectSettingsFile = False;
 	ExchangePlanNameInSettings = "";
 	
 	If SettingsStructure.Property("ExchangePlanName", ExchangePlanNameInSettings)
-		And DataExchangeFormatTranslationCached.BroadcastName(SettingsStructure.ExchangePlanName, "en") = ConnectionSettings.ExchangePlanName Then
-		CorrectSettingsFile = True;
-	Else
-		CorrectSettingsFile = False;
+		And SettingsStructure.ExchangePlanName = ConnectionSettings.ExchangePlanName Then
 		
-		If DataExchangeCached.IsXDTOExchangePlan(ConnectionSettings.ExchangePlanName) Then
-			If SettingsStructure.Property("XDTOExchangeParameters")
-				And SettingsStructure.XDTOExchangeParameters.Property("ExchangeFormat")
-				And SettingsStructure.XDTOExchangeParameters.ExchangeFormat = ConnectionSettings.ExchangeFormat Then
-				CorrectSettingsFile = True;
-			EndIf;
-		EndIf;
+		CorrectSettingsFile = True;
+		
+	ElsIf DataExchangeCached.IsXDTOExchangePlan(ConnectionSettings.ExchangePlanName) Then 
+		
+		FoundExchangePlan = DataExchangeServer.FindNameOfExchangePlanThroughUniversalFormat(SettingsStructure.ExchangePlanName);
+		CorrectSettingsFile = ValueIsFilled(FoundExchangePlan)
+		
 	EndIf;
 	
 	If Not CorrectSettingsFile Then
@@ -2237,7 +2272,7 @@ Procedure FillConnectionSettingsFromXMLString(ConnectionSettings,
 		SettingsStructure.Property("NewNodeCode", ConnectionSettings.SecondInfobaseNewNodeCode);
 		
 	EndIf;
-	
+		
 EndProcedure
 
 Function ConnectionSettingsInXML(ConnectionSettings, FileName = "", TypeOfTheCoding = "UTF-8") Export
@@ -2460,37 +2495,52 @@ Procedure ReadConnectionSettingsFromXMLToStructure(SettingsStructure, FileNameXM
 		XMLReader.SetString(FileNameXMLString);
 	EndIf;
 	
-	XMLReader.Read(); // ПараметрыНастройки
-	
-	FormatVersion = XMLReader.GetAttribute("FormatVersion");
-	SettingsStructure.Insert("ExchangeDataSettingsFileFormatVersion",
-		?(FormatVersion = Undefined, "1.0", FormatVersion));
-	
-	XMLReader.Read(); // ОсновныеПараметрыОбмена
-	
-	// Reading the MainExchangeParameters node.
-	ReadDataToStructure(SettingsStructure, XMLReader);
-	
-	If SettingsStructure.Property("UseTransportParametersEMAIL")
-		And SettingsStructure.UseTransportParametersEMAIL Then
+	While XMLReader.Read() Do
 		
-		If Common.SubsystemExists("StandardSubsystems.EmailOperations") Then
+		If XMLReader.NodeType = XMLNodeType.StartElement 
+			And XMLReader.Name = "SetupParameters" Then
 			
-			// 
-			XMLReader.Read(); // 
+			FormatVersion = XMLReader.GetAttribute("FormatVersion");
+			SettingsStructure.Insert("ExchangeDataSettingsFileFormatVersion",
+				?(FormatVersion = Undefined, "1.0", FormatVersion));
 			
-			ReadEmailData(SettingsStructure, XMLReader);
+		ElsIf XMLReader.NodeType = XMLNodeType.StartElement 
+			And XMLReader.Name = "MainExchangeParameters" Then
 			
-			XMLReader.Read(); // 
+			ReadDataToStructure(SettingsStructure, XMLReader);
+			
+		ElsIf XMLReader.NodeType = XMLNodeType.StartElement 
+			And XMLReader.Name = "EmailAccount" Then
+			
+			If SettingsStructure.Property("UseTransportParametersEMAIL")
+				And SettingsStructure.UseTransportParametersEMAIL Then
 				
-		Else
+				If Common.SubsystemExists("StandardSubsystems.EmailOperations") Then
+					
+					// 
+					XMLReader.Read(); // 
+					
+					ReadEmailData(SettingsStructure, XMLReader);
+					
+					XMLReader.Read(); // 
+					
+				Else
+					
+					XMLReader.Skip();
+					
+				EndIf;
+				
+			EndIf;
 			
-			XMLReader.Skip();
+		ElsIf XMLReader.NodeType = XMLNodeType.StartElement 
+			And XMLReader.Name = "XDTOExchangeParameters" Then
+			
+			ReadXDTOExchangeParameters(SettingsStructure, XMLReader);
 			
 		EndIf;
 		
-	EndIf;
-		
+	EndDo;
+	
 	XMLReader.Close();
 	
 EndProcedure
@@ -2585,6 +2635,23 @@ Procedure ReadEmailData(SettingsStructure, XMLReader)
 	EndDo;
 		
 	SettingsStructure.Insert("EmailAccount", EmailAccount);
+	
+EndProcedure
+
+Procedure ReadXDTOExchangeParameters(SettingsStructure, XMLReader)
+	
+	XDTOExchangeParameters = New Structure;
+	
+	XMLReader.Read();
+	
+	While XMLReader.NodeType <> XMLNodeType.EndElement Do
+		
+		Var_Key = XMLReader.Name;
+		XDTOExchangeParameters.Insert(Var_Key, ReadXML(XMLReader));
+		
+	EndDo;
+	
+	SettingsStructure.Insert("XDTOExchangeParameters", XDTOExchangeParameters);
 	
 EndProcedure
 

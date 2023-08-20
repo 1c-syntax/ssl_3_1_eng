@@ -151,7 +151,7 @@ EndProcedure
 Procedure OwnerWorkingDirectoryClearing(Item, StandardProcessing)
 	
 	StandardProcessing = False;
-	WorkingDirectory = OwnerSWorkingDirectoryIsBeingCleanedUpOnServer(Object.Ref, Object.Parent, Object.Description);
+	WorkingDirectory = OwnerWorkingDirectoryClearingAtServer(Object.Ref, Object.Parent, Object.Description);
 	Modified = True;
 	
 EndProcedure
@@ -216,7 +216,7 @@ Procedure FileSystemExtensionAttachedOwnerWorkingDirectorySelectionStartFollowUp
 	OpenFileDialog = New FileDialog(Mode);
 	OpenFileDialog.Directory = WorkingDirectory;
 	OpenFileDialog.FullFileName = "";
-	Filter = NStr("en = 'All files (*.*)|*.*';");
+	Filter = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
 	OpenFileDialog.Filter = Filter;
 	OpenFileDialog.Multiselect = False;
 	OpenFileDialog.Title = NStr("en = 'Select folder';");
@@ -419,7 +419,7 @@ Procedure UpdateCloudServiceNote()
 EndProcedure
 
 &AtServerNoContext
-Function OwnerSWorkingDirectoryIsBeingCleanedUpOnServer(Ref, ParentReference, Description)
+Function OwnerWorkingDirectoryClearingAtServer(Ref, ParentReference, Description)
 	
 	ParentWorkingDirectory = FilesOperationsInternalServerCall.FolderWorkingDirectory(ParentReference);
 	

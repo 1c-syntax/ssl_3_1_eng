@@ -35,7 +35,8 @@ Procedure ShowTheContextSettingOfTheReport(Form, Item, Area, StandardProcessing)
 	
 	If TypeOf(TitleProperties) <> Type("Structure")
 		Or TypeOf(TitleProperties.Field) <> Type("DataCompositionField")
-		Or TitleProperties.ValueType.Types().Count() = 0 Then 
+		Or TitleProperties.ValueType.Types().Count() = 0 
+		Or TitleProperties.SectionOrder <> 1 Then 
 		
 		Return;
 	EndIf;
@@ -163,7 +164,7 @@ Procedure WhenActivatingTheReportResult(Form, Item) Export
 		And TypeOf(Area.Details) = Type("DataCompositionDetailsID");
 	
 	Items.HeadingAreaContextMenu.Visible = (TypeOf(TitleProperties) = Type("Structure"))
-		And TypeOf(TitleProperties.Field) = Type("DataCompositionField");
+		And TypeOf(TitleProperties.Field) = Type("DataCompositionField") And TitleProperties.SectionOrder = 1;
 	
 	Items.DataAreaContextMenu.Visible = Not Items.HeadingAreaContextMenu.Visible
 		And ThisIsTheTranscript;
@@ -3019,7 +3020,8 @@ Function DataAreaContextMenu(TitleProperties, AvailableCompareTypes)
 	ContextMenu = New ValueList;
 	ContextMenu.Add(DataCompositionDetailsProcessingAction.OpenValue, NStr("en = 'Open';"));
 	
-	If TypeOf(TitleProperties) <> Type("Structure") Then 
+	If TypeOf(TitleProperties) <> Type("Structure") 
+	   Or TitleProperties.SectionOrder <> 1 Then
 		Return ContextMenu;
 	EndIf;
 	

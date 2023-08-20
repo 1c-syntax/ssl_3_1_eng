@@ -112,7 +112,7 @@
 					<ExtendedTooltip name="PictureAndDescriptionExtendedTooltip" id="16"/>
 					<ChildItems>
 						<PictureField name="RefPictureIndex" id="6">
-							<DataPath>List.Ref.PictureIndex</DataPath>
+							<DataPath>List.PictureIndex</DataPath>
 							<ShowInHeader>false</ShowInHeader>
 							<ValuesPicture>
 								<xr:Ref>CommonPicture.FileIconCollection</xr:Ref>
@@ -123,20 +123,20 @@
 							<ExtendedTooltip name="LinkImageIndexExtendedTooltip" id="17"/>
 						</PictureField>
 						<LabelField name="RefPathToFile" id="8">
-							<DataPath>List.Ref.PathToFile</DataPath>
+							<DataPath>List.PathToFile</DataPath>
 							<ContextMenu name="LinkFilePathContextMenu" id="9"/>
 							<ExtendedTooltip name="LinkFilePathExtendedTooltip" id="18"/>
 						</LabelField>
 					</ChildItems>
 				</ColumnGroup>
 				<LabelField name="RefSize" id="10">
-					<DataPath>List.Ref.Size</DataPath>
+					<DataPath>List.Size</DataPath>
 					<Width>11</Width>
 					<ContextMenu name="ReferenceSizeContextMenu" id="11"/>
 					<ExtendedTooltip name="ReferenceSizeExtendedTooltip" id="19"/>
 				</LabelField>
 				<LabelField name="RefAuthor" id="12">
-					<DataPath>List.Ref.Author</DataPath>
+					<DataPath>List.Author</DataPath>
 					<ContextMenu name="LinkAuthorContextMenu" id="13"/>
 					<ExtendedTooltip name="LinkAuthorExtendedTooltip" id="20"/>
 				</LabelField>
@@ -150,8 +150,46 @@
 			</Type>
 			<MainAttribute>true</MainAttribute>
 			<Settings xsi:type="DynamicList">
-				<ManualQuery>false</ManualQuery>
+				<ManualQuery>true</ManualQuery>
 				<DynamicDataRead>false</DynamicDataRead>
+				<QueryText>SELECT
+	FilesInVolume.Ref,
+	FilesVersions.PictureIndex,
+	FilesVersions.PathToFile,
+	FilesVersions.Author,
+	FilesVersions.Size
+FROM
+	FilterCriterion.FilesInVolume AS FilesInVolume
+		LEFT JOIN Catalog.FilesVersions AS FilesVersions
+		ON FilesInVolume.Ref = FilesVersions.Ref</QueryText>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Ref</dcssch:dataPath>
+					<dcssch:field>Ref</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PictureIndex</dcssch:dataPath>
+					<dcssch:field>PictureIndex</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PathToFile</dcssch:dataPath>
+					<dcssch:field>PathToFile</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Author</dcssch:dataPath>
+					<dcssch:field>Author</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Size</dcssch:dataPath>
+					<dcssch:field>Size</dcssch:field>
+				</Field>
+				<Parameter>
+					<dcssch:name>Value</dcssch:name>
+					<dcssch:valueType>
+						<v8:Type>cfg:CatalogRef.FileStorageVolumes</v8:Type>
+					</dcssch:valueType>
+					<dcssch:value xsi:nil="true"/>
+					<dcssch:useRestriction>false</dcssch:useRestriction>
+				</Parameter>
 				<MainTable>FilterCriterion.FilesInVolume</MainTable>
 				<ListSettings>
 					<dcsset:filter>

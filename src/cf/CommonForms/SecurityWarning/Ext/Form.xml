@@ -875,7 +875,7 @@ before deleting the extension.</v8:content>
 					<v8:content>Continue</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>ContinueCommand</Action>
+			<Action>CommandContinue</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 		<Command name="DenyOpeningExternalReportsAndDataProcessors" id="3">

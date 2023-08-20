@@ -196,17 +196,20 @@ EndFunction
 // Returns proxy according to settings ProxyServerSetting for the specified Protocol protocol.
 //
 // Parameters:
-//   ProxyServerSetting - Map:
-//    UseProxy - indicates whether to use proxy server.
-//    BypassProxyOnLocal - indicates whether to use proxy server for local addresses.
-//    UseSystemSettings - indicates whether to use proxy server system settings.
-//    Server       - proxy server address.
-//    Port         - proxy server port.
-//    User - username for authorization on proxy server.
-//    Password       - user password.
-//    UseOSAuthentication - Boolean - a flag that indicates the use of authentication by means of the operating system.
-//   Protocol - String - protocol for which proxy server parameters are set, for example "http", "https",
-//                       "ftp".
+//   ProxyServerSetting -  Map of KeyAndValue:
+//     * Key - String
+//     * Value - Arbitrary
+//    
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//                            
 //
 // Returns:
 //   InternetProxy

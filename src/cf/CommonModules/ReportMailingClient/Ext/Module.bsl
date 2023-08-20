@@ -167,7 +167,7 @@ EndProcedure
 //   SelectedElement - ValueListItem
 //   AdditionalParameters - Structure:
 //     * ResultHandler - NotifyDescription
-//     * Recipients - Map of КлючЗначение:
+//     * Recipients - Map of KeyAndValue:
 //       ** Key - Arbitrary
 //       ** Value - String 
 //     * ReturnsMap - Boolean
@@ -232,6 +232,7 @@ Procedure ExecuteNowInBackground(Recipients, Parameters) Export
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(Parameters.Form);
 	WaitSettings.OutputIdleWindow = True;
 	WaitSettings.MessageText = StateText;
+	WaitSettings.OutputProgressBar = True;
 	
 	Handler = New NotifyDescription("ExecuteNowInBackgroundEnd", ThisObject, Parameters);
 	TimeConsumingOperationsClient.WaitCompletion(Job, Handler, WaitSettings);
@@ -306,7 +307,9 @@ Function ScheduleFillingOptionsList() Export
 	VariantList.Add(9, NStr("en = 'On the first day of the month';"));
 	VariantList.Add(10, NStr("en = 'On the last day of the month';"));
 	VariantList.Add(11, NStr("en = 'On the 10th day of every quarter';"));
-	VariantList.Add(12, NStr("en = 'Other…';"));
+	If Not CommonClient.DataSeparationEnabled() Then
+		VariantList.Add(12, NStr("en = 'Other…';"));
+	EndIf;
 	
 	Return VariantList;
 EndFunction
@@ -418,7 +421,7 @@ EndProcedure
 //   Parameters - Structure:
 //     * UnsentCount - Number
 //     * PreparedSMSMessages - Array of Structure:
-//         ** PhoneNumbers - Array of строк
+//         ** PhoneNumbers - Array of String -
 //         ** SMSMessageText - String
 //         ** Recipient - DefinedType.BulkEmailRecipient	
 //     * Form - ClientApplicationForm:

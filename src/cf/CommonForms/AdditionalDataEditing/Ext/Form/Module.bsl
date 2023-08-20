@@ -169,7 +169,8 @@ Procedure ChangeAdditionalDataContent(Command)
 			           |Probably some of the required object attributes are blank.';"));
 	Else
 		FormParameters = New Structure;
-		FormParameters.Insert("ShowAdditionalInfo");
+		FormParameters.Insert("PropertyKind",
+			PredefinedValue("Enum.PropertiesKinds.AdditionalInfo"));
 		
 		OpenForm("Catalog.AdditionalAttributesAndInfoSets.ListForm", FormParameters);
 		
@@ -177,6 +178,8 @@ Procedure ChangeAdditionalDataContent(Command)
 		MigrationParameters.Insert("Set", AvailablePropertySets[0].Value);
 		MigrationParameters.Insert("Property", Undefined);
 		MigrationParameters.Insert("IsAdditionalInfo", True);
+		MigrationParameters.Insert("PropertyKind",
+			PredefinedValue("Enum.PropertiesKinds.AdditionalInfo"));
 		
 		If Items.PropertyValueTable.CurrentData <> Undefined Then
 			MigrationParameters.Insert("Set", Items.PropertyValueTable.CurrentData.Set);
@@ -216,7 +219,7 @@ Procedure FillPropertiesValuesTable(FromOnCreateHandler)
 	AccessValue = Type("ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo");
 	
 	Table = PropertyManagerInternal.PropertiesValues(
-		PropertiesValues, AvailablePropertySets, True);
+		PropertiesValues, AvailablePropertySets, Enums.PropertiesKinds.AdditionalInfo);
 	
 	CheckRights1 = Not Users.IsFullUser() And Common.SubsystemExists("StandardSubsystems.AccessManagement");
 	

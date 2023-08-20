@@ -1599,7 +1599,7 @@ Procedure FillQuickFilters(Val HandlersDetails = Undefined)
 	AddQuickFilter(HandlersDetails, RowsArray, "ChangedCheckProcedure", StatusChangedCheckProcedure, "ChangedCheckProcedure", WebColors.Goldenrod);
 	AddQuickFilter(HandlersDetails, RowsArray, "ExecutionMode", NStr("en = 'Deferred';"), "Deferred");
 	AddQuickFilter(HandlersDetails, RowsArray, "ExecutionMode", NStr("en = 'Exclusive';"), "Exclusively");
-	AddQuickFilter(HandlersDetails, RowsArray, "ExecutionMode", NStr("en = 'Seamless';"), "Seamless");
+	AddQuickFilter(HandlersDetails, RowsArray, "ExecutionMode", NStr("en = 'Real-time';"), "Seamless");
 	AddQuickFilter(HandlersDetails, RowsArray, "TechnicalDesign", NStr("en = 'Technical design';"), "TechnicalDesign");
 	
 	AddAnotherQuickFilter(HandlersDetails, "DeferredHandlersExecutionMode", NStr("en = 'Parallel';"), "Parallel");
@@ -2760,7 +2760,12 @@ EndFunction
 Function ObjectInformationText(Handler, ObjectsSetName, CodeLayout, HandlerTags)
 	
 	Filter = New Structure("Ref", Handler.Ref);
-	HandlerObjects = Object[ObjectsSetName].Unload(Filter);
+	If ObjectsSetName = "NewObjects" Then
+		Filter.Insert("NewObjects", True);
+		HandlerObjects = Object["ObjectsToChange"].Unload(Filter);
+	Else
+		HandlerObjects = Object[ObjectsSetName].Unload(Filter);
+	EndIf;
 	If ObjectsSetName = "ObjectsToLock" Then
 		Filter.Insert("LockInterface", True);
 		ObjectsToLock = Object["ObjectsToChange"].Unload(Filter);
@@ -2838,7 +2843,7 @@ EndFunction
 Function FullObjectMetadataPath(ObjectName)
 	
 	NameParts = StrSplit(ObjectName, ".");
-	NameParts[0] = PluralForm[NameParts[0]];
+	NameParts[0] = PluralForm.Get(NameParts[0]);
 	NameParts.Insert(0, "Metadata");
 	NameParts.Add("FullName()");
 	Return StrConcat(NameParts,".");
@@ -4212,7 +4217,7 @@ EndProcedure
 
 &AtClient
 Function FilterBackupFiles()
-	Return NStr("en = 'Handler details (*.handlers)|*.handlers|All files (*.*)|*.*';");
+	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Handler details (*.handlers)|*.handlers|All files (%1)|%1';"), GetAllFilesMask());
 EndFunction
 
 &AtClient
@@ -4268,7 +4273,7 @@ Procedure DownloadDataFromAFile(Address)
 	Object.ObjectsToChange.Load(Data.ObjectsToChange);
 	Object.ObjectsToLock.Load(Data.ObjectsToLock);
 	Object.ExecutionPriorities.Load(Data.ExecutionPriorities);
-	Object.HandlersConflicts.Load(Data.HandlersConflicts);;
+	Object.HandlersConflicts.Load(Data.HandlersConflicts);
 	
 	DataProcessor = DataProcessorObject2();
 	UpdateFormData(DataProcessor);
@@ -4395,7 +4400,7 @@ Procedure SetQuickFilter(QuickFilterName)
 		Filter = New Structure("ExecutionMode", NStr("en = 'Exclusive';"));
 		
 	ElsIf QuickFilterName = "Seamless" Then
-		Filter = New Structure("ExecutionMode", NStr("en = 'Seamless';"));
+		Filter = New Structure("ExecutionMode", NStr("en = 'Real-time';"));
 		
 	ElsIf QuickFilterName = "Sequentially" Then
 		Filter = New Structure("DeferredHandlersExecutionMode", NStr("en = 'Sequentially';"));

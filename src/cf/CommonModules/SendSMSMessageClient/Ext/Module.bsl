@@ -71,7 +71,7 @@ Procedure CheckForSMSMessageSendingSettings(ResultHandler)
 	If ClientRunParameters.CanSendSMSMessage Then
 		ExecuteNotifyProcessing(ResultHandler, True);
 	Else
-		If ClientRunParameters.IsFullUser Then
+		If UsersClient.IsFullUser() Then
 			NotifyDescription = New NotifyDescription("AfterSetUpSMSMessage", ThisObject, ResultHandler);
 			OpenSettingsForm(NotifyDescription);
 		Else

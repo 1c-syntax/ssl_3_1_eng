@@ -11,6 +11,12 @@
 				<DefaultButton>true</DefaultButton>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.Command.OK</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>OK</v8:content>
+					</v8:item>
+				</Title>
 				<ExtendedTooltip name="OKExtendedTooltip" id="50"/>
 			</Button>
 			<Button name="Cancel" id="8">
@@ -56,146 +62,37 @@
 					<v8:content>Settings</v8:content>
 				</v8:item>
 			</Title>
+			<Group>Vertical</Group>
 			<Behavior>Usual</Behavior>
 			<Representation>NormalSeparation</Representation>
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="SettingsGroup1ExtendedTooltip" id="55"/>
 			<ChildItems>
-				<UsualGroup name="MainGroup3" id="81">
+				<UsualGroup name="HeaderGroup" id="108">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Main</v8:content>
+							<v8:content>Group Header</v8:content>
 						</v8:item>
 					</Title>
-					<Group>Vertical</Group>
-					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="MainGroup3ExtendedTooltip" id="82"/>
+					<ExtendedTooltip name="HeaderGroupExtendedTooltip" id="109"/>
 					<ChildItems>
 						<InputField name="DeviceName" id="4">
 							<DataPath>DeviceName</DataPath>
 							<Width>35</Width>
 							<HorizontalStretch>false</HorizontalStretch>
+							<ChoiceButton>true</ChoiceButton>
+							<TextEdit>false</TextEdit>
 							<ContextMenu name="DeviceNameContextMenu" id="5"/>
 							<ExtendedTooltip name="DeviceNameExtendedTooltip" id="56"/>
 							<Events>
 								<Event name="OnChange">DeviceNameOnChange</Event>
+								<Event name="StartChoice">DeviceNameStartChoice</Event>
 								<Event name="ChoiceProcessing">DeviceNameChoiceProcessing</Event>
 							</Events>
 						</InputField>
-						<UsualGroup name="ScanningParametersGroup" id="38">
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Main</v8:content>
-								</v8:item>
-							</Title>
-							<Group>Vertical</Group>
-							<Behavior>Usual</Behavior>
-							<ExtendedTooltip name="ScanningParametersGroupExtendedTooltip" id="71"/>
-							<ChildItems>
-								<InputField name="Resolution" id="14">
-									<DataPath>Resolution</DataPath>
-									<Width>13</Width>
-									<HorizontalStretch>false</HorizontalStretch>
-									<ContextMenu name="ResolutionContextMenu" id="15"/>
-									<ExtendedTooltip name="ResolutionExtendedTooltip" id="72"/>
-								</InputField>
-								<InputField name="Chromaticity" id="16">
-									<DataPath>Chromaticity</DataPath>
-									<Width>13</Width>
-									<HorizontalStretch>false</HorizontalStretch>
-									<ContextMenu name="ChromaticityContextMenu" id="17"/>
-									<ExtendedTooltip name="ChromaticityExtendedTooltip" id="73"/>
-								</InputField>
-								<InputField name="Rotation" id="20">
-									<DataPath>Rotation</DataPath>
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Rotation</v8:content>
-										</v8:item>
-									</Title>
-									<Width>13</Width>
-									<HorizontalStretch>false</HorizontalStretch>
-									<ContextMenu name="RotationContextMenu" id="21"/>
-									<ExtendedTooltip name="RotationExtendedTooltip" id="74"/>
-								</InputField>
-								<InputField name="PaperSize" id="22">
-									<DataPath>PaperSize</DataPath>
-									<Width>13</Width>
-									<HorizontalStretch>false</HorizontalStretch>
-									<ContextMenu name="PaperSizeContextMenu" id="23"/>
-									<ExtendedTooltip name="PaperSizeExtendedTooltip" id="75"/>
-								</InputField>
-								<CheckBoxField name="DuplexScanning" id="28">
-									<DataPath>DuplexScanning</DataPath>
-									<TitleLocation>Right</TitleLocation>
-									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="DuplexScanningContextMenu" id="29"/>
-									<ExtendedTooltip name="DuplexScanningExtendedTooltip" id="76"/>
-								</CheckBoxField>
-								<CheckBoxField name="ShowScannerDialog" id="1">
-									<DataPath>ShowScannerDialog</DataPath>
-									<TitleLocation>Right</TitleLocation>
-									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="ShowScannerDialogContextMenu" id="2"/>
-									<ExtendedTooltip name="ShowScannerDialogExtendedTooltip" id="77"/>
-								</CheckBoxField>
-							</ChildItems>
-						</UsualGroup>
-						<UsualGroup name="PDFGroup" id="36">
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>PDF</v8:content>
-								</v8:item>
-							</Title>
-							<Group>Vertical</Group>
-							<Behavior>Usual</Behavior>
-							<Representation>None</Representation>
-							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="PDFGroupExtendedTooltip" id="57"/>
-							<ChildItems>
-								<CheckBoxField name="UseImageMagickToConvertToPDF" id="26">
-									<DataPath>UseImageMagickToConvertToPDF</DataPath>
-									<TitleLocation>Right</TitleLocation>
-									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="UseImageMagickToConvertToPDFContextMenu" id="27"/>
-									<ExtendedTooltip name="UseImageMagickToConvertToPDFExtendedTooltip" id="58"/>
-									<Events>
-										<Event name="OnChange">UseImageMagickToConvertToPDFOnChange</Event>
-									</Events>
-								</CheckBoxField>
-								<InputField name="PathToConverterApplication" id="34">
-									<DataPath>PathToConverterApplication</DataPath>
-									<TitleLocation>Top</TitleLocation>
-									<ChoiceButton>true</ChoiceButton>
-									<ContextMenu name="PathToConverterApplicationContextMenu" id="35"/>
-									<ExtendedTooltip name="PathToConverterApplicationExtendedTooltip" id="59"/>
-									<Events>
-										<Event name="StartChoice">PathToConverterApplicationStartChoice</Event>
-									</Events>
-								</InputField>
-							</ChildItems>
-						</UsualGroup>
-					</ChildItems>
-				</UsualGroup>
-				<UsualGroup name="AdditionalSettingsGroup" id="83">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Additional settings</v8:content>
-						</v8:item>
-					</Title>
-					<Group>Vertical</Group>
-					<Behavior>Usual</Behavior>
-					<Representation>None</Representation>
-					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="AdditionalSettingsGroupExtendedTooltip" id="84"/>
-					<ChildItems>
 						<Button name="OpenScannedFilesNumbers" id="79">
 							<Type>Hyperlink</Type>
 							<CommandName>Form.Command.OpenScannedFilesNumbers</CommandName>
@@ -207,125 +104,442 @@
 							</Title>
 							<ExtendedTooltip name="OpenScannedFilesNumbersExtendedTooltip" id="80"/>
 						</Button>
-						<UsualGroup name="SinglePageStorageFormatGroup" id="37">
+					</ChildItems>
+				</UsualGroup>
+				<UsualGroup name="GroupParameters" id="106">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Group Parameters</v8:content>
+						</v8:item>
+					</Title>
+					<Representation>None</Representation>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="ParametersGroupExtendedTooltip" id="107"/>
+					<ChildItems>
+						<UsualGroup name="MainGroup3" id="81">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Single-page images</v8:content>
+									<v8:content>Main</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Vertical</Group>
 							<Behavior>Usual</Behavior>
-							<ExtendedTooltip name="SinglePageStorageFormatGroupExtendedTooltip" id="60"/>
+							<Representation>NormalSeparation</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="MainGroup3ExtendedTooltip" id="82"/>
 							<ChildItems>
-								<UsualGroup name="StorageFormatGroup" id="44">
+								<UsualGroup name="ScanningParametersGroup" id="38">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Storage format</v8:content>
+											<v8:content>Main</v8:content>
 										</v8:item>
 									</Title>
+									<Group>Vertical</Group>
 									<Behavior>Usual</Behavior>
-									<Representation>None</Representation>
-									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="StorageFormatGroupExtendedTooltip" id="61"/>
+									<ExtendedTooltip name="ScanningParametersGroupExtendedTooltip" id="71"/>
 									<ChildItems>
-										<InputField name="SinglePageStorageFormat" id="42">
-											<DataPath>SinglePageStorageFormat</DataPath>
-											<Width>9</Width>
-											<HorizontalStretch>false</HorizontalStretch>
-											<DropListWidth>9</DropListWidth>
-											<ContextMenu name="SinglePageStorageFormatContextMenu" id="43"/>
-											<ExtendedTooltip name="SinglePageStorageFormatExtendedTooltip" id="62"/>
-											<Events>
-												<Event name="OnChange">SinglePageStorageFormatOnChange</Event>
-											</Events>
-										</InputField>
-										<LabelDecoration name="SinglePageStorageFormatDecoration" id="45">
-											<AutoMaxWidth>false</AutoMaxWidth>
-											<Title formatted="false">
+										<InputField name="Resolution" id="14">
+											<DataPath>Resolution</DataPath>
+											<ToolTip>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>(for storage)</v8:content>
+													<v8:content>p</v8:content>
 												</v8:item>
-											</Title>
-											<ContextMenu name="SinglePageStorageFormatDecorationContextMenu" id="46"/>
-											<ExtendedTooltip name="SinglePageStorageFormatDecorationExtendedTooltip" id="63"/>
-										</LabelDecoration>
-									</ChildItems>
-								</UsualGroup>
-								<UsualGroup name="ScanningFormatGroup" id="47">
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Scanning format</v8:content>
-										</v8:item>
-									</Title>
-									<Behavior>Usual</Behavior>
-									<Representation>None</Representation>
-									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="ScanningFormatGroupExtendedTooltip" id="64"/>
-									<ChildItems>
-										<InputField name="ScannedImageFormat" id="18">
-											<DataPath>ScannedImageFormat</DataPath>
-											<Width>9</Width>
+											</ToolTip>
+											<ToolTipRepresentation>Button</ToolTipRepresentation>
+											<Width>13</Width>
 											<HorizontalStretch>false</HorizontalStretch>
-											<DropListWidth>9</DropListWidth>
-											<ContextMenu name="ScannedImageFormatContextMenu" id="19"/>
-											<ExtendedTooltip name="ScannedImageFormatExtendedTooltip" id="65"/>
-											<Events>
-												<Event name="OnChange">ScannedImageFormatOnChange</Event>
-											</Events>
+											<ContextMenu name="ResolutionContextMenu" id="15"/>
+											<ExtendedTooltip name="ResolutionExtendedTooltip" id="72">
+												<Title formatted="true">
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>&lt;b&gt;200&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;dpi&lt;/&gt; is enough to send images by email or fax, post them on websites, or view them on the screen.
+&lt;b&gt;300&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;dpi&lt;/&gt; is suitable for most documents and images and for text recognition.
+&lt;b&gt;600&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;dpi&lt;/&gt; is suitable for scanning color images of publication quality. You can later print them on a high-quality or large-format printer. Such images take up a large amount of space.
+&lt;b&gt;1200&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;dpi&lt;/&gt; is suitable for scanning professional photos of publication quality. Such images take up a large amount of space.</v8:content>
+													</v8:item>
+												</Title>
+											</ExtendedTooltip>
 										</InputField>
-										<LabelDecoration name="ScannedImageFormatDecoration" id="48">
-											<AutoMaxWidth>false</AutoMaxWidth>
-											<Title formatted="false">
+										<InputField name="Chromaticity" id="16">
+											<DataPath>Chromaticity</DataPath>
+											<Width>13</Width>
+											<HorizontalStretch>false</HorizontalStretch>
+											<ContextMenu name="ChromaticityContextMenu" id="17"/>
+											<ExtendedTooltip name="ChromaticityExtendedTooltip" id="73"/>
+										</InputField>
+										<InputField name="Rotation" id="20">
+											<DataPath>Rotation</DataPath>
+											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>(for scanning)</v8:content>
+													<v8:content>Rotation</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="ScannedImageFormatDecorationContextMenu" id="49"/>
-											<ExtendedTooltip name="ScannedImageFormatDecorationExtendedTooltip" id="66"/>
-										</LabelDecoration>
+											<Width>13</Width>
+											<HorizontalStretch>false</HorizontalStretch>
+											<ContextMenu name="RotationContextMenu" id="21"/>
+											<ExtendedTooltip name="RotationExtendedTooltip" id="74"/>
+										</InputField>
+										<InputField name="PaperSize" id="22">
+											<DataPath>PaperSize</DataPath>
+											<Width>13</Width>
+											<HorizontalStretch>false</HorizontalStretch>
+											<ContextMenu name="PaperSizeContextMenu" id="23"/>
+											<ExtendedTooltip name="PaperSizeExtendedTooltip" id="75"/>
+										</InputField>
+										<CheckBoxField name="DuplexScanning" id="28">
+											<DataPath>DuplexScanning</DataPath>
+											<TitleLocation>Right</TitleLocation>
+											<CheckBoxType>Auto</CheckBoxType>
+											<ContextMenu name="DuplexScanningContextMenu" id="29"/>
+											<ExtendedTooltip name="DuplexScanningExtendedTooltip" id="76"/>
+										</CheckBoxField>
+										<CheckBoxField name="ShowScannerDialog" id="1">
+											<DataPath>ShowScannerDialog</DataPath>
+											<TitleLocation>Right</TitleLocation>
+											<TitleHeight>2</TitleHeight>
+											<ToolTipRepresentation>Button</ToolTipRepresentation>
+											<CheckBoxType>Auto</CheckBoxType>
+											<ContextMenu name="ShowScannerDialogContextMenu" id="2"/>
+											<ExtendedTooltip name="ShowScannerDialogExtendedTooltip" id="77">
+												<Title formatted="true">
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>
+You cannot disable the scanner dialog box on WIA devices (see scanner settings in the operating system).
+</v8:content>
+													</v8:item>
+												</Title>
+											</ExtendedTooltip>
+										</CheckBoxField>
 									</ChildItems>
 								</UsualGroup>
-								<InputField name="JPGQuality" id="30">
-									<DataPath>JPGQuality</DataPath>
-									<Width>9</Width>
-									<HorizontalStretch>false</HorizontalStretch>
-									<ContextMenu name="JPGQualityContextMenu" id="31"/>
-									<ExtendedTooltip name="JPGQualityExtendedTooltip" id="67"/>
-								</InputField>
-								<InputField name="TIFFDeflation" id="32">
-									<DataPath>TIFFDeflation</DataPath>
-									<Width>9</Width>
-									<HorizontalStretch>false</HorizontalStretch>
-									<DropListWidth>9</DropListWidth>
-									<ContextMenu name="TIFFDeflationContextMenu" id="33"/>
-									<ExtendedTooltip name="TIFFDeflationExtendedTooltip" id="68"/>
-								</InputField>
 							</ChildItems>
 						</UsualGroup>
-						<UsualGroup name="MultiPageStorageFormatGroup" id="39">
+						<UsualGroup name="AdditionalSettingsGroup" id="83">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Multipage images</v8:content>
+									<v8:content>Additional settings</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Vertical</Group>
 							<Behavior>Usual</Behavior>
-							<ExtendedTooltip name="MultiPageStorageFormatGroupExtendedTooltip" id="69"/>
+							<Representation>NormalSeparation</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="AdditionalSettingsGroupExtendedTooltip" id="84"/>
 							<ChildItems>
-								<InputField name="MultipageStorageFormat" id="40">
-									<DataPath>MultipageStorageFormat</DataPath>
-									<Width>9</Width>
-									<HorizontalStretch>false</HorizontalStretch>
-									<DropListWidth>9</DropListWidth>
-									<ContextMenu name="MultipageStorageFormatContextMenu" id="41"/>
-									<ExtendedTooltip name="MultipageStorageFormatExtendedTooltip" id="70"/>
-								</InputField>
+								<UsualGroup name="ScannedImageFormatGroup_" id="37">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Single-page images</v8:content>
+										</v8:item>
+									</Title>
+									<Group>Vertical</Group>
+									<Behavior>Usual</Behavior>
+									<ExtendedTooltip name="ScannedImageFormatGroup_ExtendedTooltip" id="60"/>
+									<ChildItems>
+										<UsualGroup name="ScannedImageFormatGroup" id="44">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Scanned image format</v8:content>
+												</v8:item>
+											</Title>
+											<Behavior>Usual</Behavior>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="ScannedImageFormatGroupExtendedTooltip" id="61"/>
+											<ChildItems>
+												<InputField name="ScannedImageFormat" id="42">
+													<DataPath>ScannedImageFormat</DataPath>
+													<Width>9</Width>
+													<HorizontalStretch>false</HorizontalStretch>
+													<DropListWidth>9</DropListWidth>
+													<ContextMenu name="ScannedImageFormatContextMenu" id="43"/>
+													<ExtendedTooltip name="ScannedImageFormatExtendedTooltip" id="62"/>
+													<Events>
+														<Event name="OnChange">ScannedImageFormatOnChange</Event>
+													</Events>
+												</InputField>
+												<CheckBoxField name="SaveToPDF" id="112">
+													<DataPath>SaveToPDF</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Convert to PDF</v8:content>
+														</v8:item>
+													</Title>
+													<TitleLocation>Right</TitleLocation>
+													<ToolTipRepresentation>Button</ToolTipRepresentation>
+													<CheckBoxType>Auto</CheckBoxType>
+													<ContextMenu name="SaveToPDFContextMenu" id="113"/>
+													<ExtendedTooltip name="SaveToPDFExtendedTooltip" id="114">
+														<Title formatted="true">
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>&lt;b&gt;JPG&lt;/&gt; is suitable for most documents and images. It uses lossy compression, and the compression ratio can be adjusted. 
+&lt;b&gt;PNG&lt;/&gt; is suitable for most documents and images. If offers lossless compression and small file sizes. 
+&lt;b&gt;TIF&lt;/&gt; offers lossless image compression and is commonly used to store images for printing purposes. It also supports multipage images.
+&lt;b&gt;GIF&lt;/&gt; is an outdated format for storing low-quality images with small file sizes.
+&lt;b&gt;BMP&lt;/&gt; is an outdated format for storing high-quality images with large file sizes.
+
+&lt;b&gt;Convert&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;to&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;PDF&lt;/&gt; allows you to place scanned images into a PDF file and supports multipage images.</v8:content>
+															</v8:item>
+														</Title>
+													</ExtendedTooltip>
+												</CheckBoxField>
+											</ChildItems>
+										</UsualGroup>
+										<UsualGroup name="GroupJPGQuantity" id="121">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Quality</v8:content>
+												</v8:item>
+											</Title>
+											<Height>2</Height>
+											<Group>AlwaysHorizontal</Group>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="GroupJPGQuantityExtendedTooltip" id="122"/>
+											<ChildItems>
+												<LabelDecoration name="DecorationJPGCompression" id="126">
+													<Title formatted="false">
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Higher
+compression</v8:content>
+														</v8:item>
+													</Title>
+													<ContextMenu name="DecorationJPGCompressionContextMenu" id="127"/>
+													<ExtendedTooltip name="DecorationJPGCompressionExtendedTooltip" id="128"/>
+												</LabelDecoration>
+												<TrackBarField name="JPGQuality" id="30">
+													<DataPath>JPGQuality</DataPath>
+													<TitleLocation>Top</TitleLocation>
+													<Width>9</Width>
+													<ContextMenu name="JPGQualityContextMenu" id="31"/>
+													<ExtendedTooltip name="JPGQualityExtendedTooltip" id="67"/>
+													<Events>
+														<Event name="OnChange">JPGQualityOnChange</Event>
+													</Events>
+												</TrackBarField>
+												<LabelDecoration name="DecorationJPGQuality" id="123">
+													<Title formatted="false">
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Higher
+quality</v8:content>
+														</v8:item>
+													</Title>
+													<ContextMenu name="DecorationJPGQualityContextMenu" id="124"/>
+													<ExtendedTooltip name="DecorationJPGQualityExtendedTooltip" id="125"/>
+												</LabelDecoration>
+											</ChildItems>
+										</UsualGroup>
+										<InputField name="TIFFDeflation" id="32">
+											<DataPath>TIFFDeflation</DataPath>
+											<Width>9</Width>
+											<HorizontalStretch>false</HorizontalStretch>
+											<DropListWidth>9</DropListWidth>
+											<ContextMenu name="TIFFDeflationContextMenu" id="33"/>
+											<ExtendedTooltip name="TIFFDeflationExtendedTooltip" id="68"/>
+										</InputField>
+										<LabelDecoration name="SinglePageDocumentFormatDetails" id="115">
+											<HorizontalStretch>true</HorizontalStretch>
+											<TextColor>style:NoteText</TextColor>
+											<Title formatted="true">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>It is suitable for most documents and images. It uses lossy compression, and the compression ratio can be adjusted.
+</v8:content>
+												</v8:item>
+											</Title>
+											<ContextMenu name="SinglePageDocumentFormatDetailsContextMenu" id="116"/>
+											<ExtendedTooltip name="SinglePageDocumentFormatDetailsExtendedTooltip" id="117"/>
+										</LabelDecoration>
+									</ChildItems>
+								</UsualGroup>
+								<UsualGroup name="MultiPageStorageFormatGroup" id="39">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Multipage images</v8:content>
+										</v8:item>
+									</Title>
+									<Group>Vertical</Group>
+									<Behavior>Usual</Behavior>
+									<ExtendedTooltip name="MultiPageStorageFormatGroupExtendedTooltip" id="69"/>
+									<ChildItems>
+										<InputField name="MultipageStorageFormat" id="40">
+											<DataPath>MultipageStorageFormat</DataPath>
+											<ToolTip>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>PDF. Displayed in most browsers.	
+TIF. Not all browsers display this format.</v8:content>
+												</v8:item>
+											</ToolTip>
+											<ToolTipRepresentation>None</ToolTipRepresentation>
+											<Width>9</Width>
+											<HorizontalStretch>false</HorizontalStretch>
+											<DropListWidth>9</DropListWidth>
+											<ContextMenu name="MultipageStorageFormatContextMenu" id="41"/>
+											<ExtendedTooltip name="MultipageStorageFormatExtendedTooltip" id="70"/>
+										</InputField>
+										<LabelDecoration name="MultipageDocumentFormatDetails" id="118">
+											<Visible>false</Visible>
+											<HorizontalStretch>true</HorizontalStretch>
+											<TextColor>style:NoteText</TextColor>
+											<Title formatted="false">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Displayed in most browsers.</v8:content>
+												</v8:item>
+											</Title>
+											<ContextMenu name="MultipageDocumentFormatDetailsContextMenu" id="119"/>
+											<ExtendedTooltip name="MultipageDocumentFormatDetailsExtendedTooltip" id="120"/>
+										</LabelDecoration>
+									</ChildItems>
+								</UsualGroup>
+								<UsualGroup name="PDFGroup" id="36">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>PDF</v8:content>
+										</v8:item>
+									</Title>
+									<Group>Vertical</Group>
+									<Behavior>Usual</Behavior>
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="PDFGroupExtendedTooltip" id="57"/>
+									<ChildItems>
+										<UsualGroup name="GroupUseImageMagick" id="101">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Group1</v8:content>
+												</v8:item>
+											</Title>
+											<Group>AlwaysHorizontal</Group>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="GroupUseImageMagickExtendedTooltip" id="102"/>
+											<ChildItems>
+												<UsualGroup name="GroupImageMagikRadioButton" id="132">
+													<Group>AlwaysHorizontal</Group>
+													<Representation>None</Representation>
+													<ShowTitle>false</ShowTitle>
+													<ExtendedTooltip name="GroupImageMagikRadioButtonExtendedTooltip" id="133"/>
+													<ChildItems>
+														<RadioButtonField name="MethodOfConversionToPDF" id="134">
+															<DataPath>MethodOfConversionToPDF</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Convert to PDF with</v8:content>
+																</v8:item>
+															</Title>
+															<ToolTipRepresentation>Button</ToolTipRepresentation>
+															<RadioButtonType>Auto</RadioButtonType>
+															<ChoiceList>
+																<xr:Item>
+																	<xr:Presentation/>
+																	<xr:CheckState>0</xr:CheckState>
+																	<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																		<Presentation>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>1C:Enterprise tools</v8:content>
+																			</v8:item>
+																		</Presentation>
+																		<Value xsi:type="xs:decimal">0</Value>
+																	</xr:Value>
+																</xr:Item>
+																<xr:Item>
+																	<xr:Presentation/>
+																	<xr:CheckState>0</xr:CheckState>
+																	<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																		<Presentation>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>ImageMagick</v8:content>
+																			</v8:item>
+																		</Presentation>
+																		<Value xsi:type="xs:decimal">1</Value>
+																	</xr:Value>
+																</xr:Item>
+															</ChoiceList>
+															<ContextMenu name="MethodOfConversionToPDFContextMenu" id="135"/>
+															<ExtendedTooltip name="MethodOfConversionToPDFExtendedTooltip" id="136">
+																<Title formatted="true">
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>
+&lt;link https://imagemagick.org/&gt;ImageMagick&lt;/&gt; converts images faster and generates smaller files compared to 1C:Enterprise tools. In client/server mode, ImageMagick does not require image transfer to the 1C:Enterprise server. If you select this method, make sure the free ImageMagick application is pre-installed on your computer.
+
+
+</v8:content>
+																	</v8:item>
+																</Title>
+															</ExtendedTooltip>
+															<Events>
+																<Event name="OnChange">MethodOfConversionToPDFOnChange</Event>
+															</Events>
+														</RadioButtonField>
+													</ChildItems>
+												</UsualGroup>
+												<LabelDecoration name="UseImageMagickToConvertToPDFTitle" id="103">
+													<Visible>false</Visible>
+													<Title formatted="true">
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Use &lt;link https://imagemagick.org/&gt;ImageMagick&lt;/&gt; to convert to PDF:</v8:content>
+														</v8:item>
+													</Title>
+													<ToolTip>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>You can use ImageMagick to convert scanned images to PDF. If the checkbox is not selected, internal tools are used.</v8:content>
+														</v8:item>
+													</ToolTip>
+													<ContextMenu name="UseImageMagickToConvertToPDFTitleContextMenu" id="104"/>
+													<ExtendedTooltip name="UseImageMagickToConvertToPDFTitleExtendedTooltip" id="105"/>
+												</LabelDecoration>
+											</ChildItems>
+										</UsualGroup>
+										<InputField name="PathToConverterApplication" id="34">
+											<DataPath>PathToConverterApplication</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Path to ImageMagick</v8:content>
+												</v8:item>
+											</Title>
+											<TitleLocation>None</TitleLocation>
+											<ChoiceButton>true</ChoiceButton>
+											<InputHint>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Path to ImageMagick</v8:content>
+												</v8:item>
+											</InputHint>
+											<ContextMenu name="PathToConverterApplicationContextMenu" id="35"/>
+											<ExtendedTooltip name="PathToConverterApplicationExtendedTooltip" id="59"/>
+											<Events>
+												<Event name="StartChoice">PathToConverterApplicationStartChoice</Event>
+											</Events>
+										</InputField>
+									</ChildItems>
+								</UsualGroup>
 							</ChildItems>
 						</UsualGroup>
 					</ChildItems>
@@ -344,6 +558,7 @@
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
+			<SavedData>true</SavedData>
 		</Attribute>
 		<Attribute name="DeviceName" id="2">
 			<Title>
@@ -359,6 +574,7 @@
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
+			<SavedData>true</SavedData>
 			<FillCheck>ShowError</FillCheck>
 		</Attribute>
 		<Attribute name="ScanComponentVersion" id="4">
@@ -380,6 +596,7 @@
 			<Type>
 				<v8:Type>cfg:EnumRef.ScannedImageResolutions</v8:Type>
 			</Type>
+			<SavedData>true</SavedData>
 			<FillCheck>ShowError</FillCheck>
 		</Attribute>
 		<Attribute name="Chromaticity" id="6">
@@ -392,18 +609,20 @@
 			<Type>
 				<v8:Type>cfg:EnumRef.ImageColorDepths</v8:Type>
 			</Type>
+			<SavedData>true</SavedData>
 			<FillCheck>ShowError</FillCheck>
 		</Attribute>
 		<Attribute name="ScannedImageFormat" id="3">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Type</v8:content>
+					<v8:content>Save as</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
 				<v8:Type>cfg:EnumRef.ScannedImageFormats</v8:Type>
 			</Type>
+			<SavedData>true</SavedData>
 		</Attribute>
 		<Attribute name="Rotation" id="7">
 			<Title>
@@ -415,6 +634,7 @@
 			<Type>
 				<v8:Type>cfg:EnumRef.PictureRotationOptions</v8:Type>
 			</Type>
+			<SavedData>true</SavedData>
 		</Attribute>
 		<Attribute name="PaperSize" id="8">
 			<Title>
@@ -426,17 +646,13 @@
 			<Type>
 				<v8:Type>cfg:EnumRef.PaperSizes</v8:Type>
 			</Type>
+			<SavedData>true</SavedData>
 		</Attribute>
 		<Attribute name="UseImageMagickToConvertToPDF" id="9">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Use ImageMagick to convert to PDF</v8:content>
-				</v8:item>
-			</Title>
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
+			<SavedData>true</SavedData>
 		</Attribute>
 		<Attribute name="DuplexScanning" id="10">
 			<Title>
@@ -464,6 +680,7 @@
 					<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 				</v8:NumberQualifiers>
 			</Type>
+			<SavedData>true</SavedData>
 		</Attribute>
 		<Attribute name="TIFFDeflation" id="12">
 			<Title>
@@ -475,6 +692,7 @@
 			<Type>
 				<v8:Type>cfg:EnumRef.TIFFCompressionTypes</v8:Type>
 			</Type>
+			<SavedData>true</SavedData>
 		</Attribute>
 		<Attribute name="JPGFormat" id="13">
 			<Type>
@@ -500,25 +718,21 @@
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
+			<SavedData>true</SavedData>
 		</Attribute>
 		<Attribute name="MultipageStorageFormat" id="16">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Format</v8:content>
+					<v8:content>Save as</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
 				<v8:Type>cfg:EnumRef.MultipageFileStorageFormats</v8:Type>
 			</Type>
+			<SavedData>true</SavedData>
 		</Attribute>
 		<Attribute name="SinglePageStorageFormat" id="17">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Format</v8:content>
-				</v8:item>
-			</Title>
 			<Type>
 				<v8:Type>cfg:EnumRef.SinglePageFileStorageFormats</v8:Type>
 			</Type>
@@ -528,29 +742,9 @@
 				<v8:Type>cfg:EnumRef.MultipageFileStorageFormats</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="SinglePagePDFFormat" id="19">
+		<Attribute name="ScannedImageFormatPrevious" id="23">
 			<Type>
-				<v8:Type>cfg:EnumRef.SinglePageFileStorageFormats</v8:Type>
-			</Type>
-		</Attribute>
-		<Attribute name="SinglePageTIFFormat" id="20">
-			<Type>
-				<v8:Type>cfg:EnumRef.SinglePageFileStorageFormats</v8:Type>
-			</Type>
-		</Attribute>
-		<Attribute name="SinglePageJPGFormat" id="21">
-			<Type>
-				<v8:Type>cfg:EnumRef.SinglePageFileStorageFormats</v8:Type>
-			</Type>
-		</Attribute>
-		<Attribute name="SinglePagePNGFormat" id="22">
-			<Type>
-				<v8:Type>cfg:EnumRef.SinglePageFileStorageFormats</v8:Type>
-			</Type>
-		</Attribute>
-		<Attribute name="SinglePageStorageFormatPrevious" id="23">
-			<Type>
-				<v8:Type>cfg:EnumRef.SinglePageFileStorageFormats</v8:Type>
+				<v8:Type>cfg:EnumRef.ScannedImageFormats</v8:Type>
 			</Type>
 		</Attribute>
 		<Attribute name="SavingOption" id="24">
@@ -560,6 +754,40 @@
 					<v8:Length>0</v8:Length>
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="MethodOfConversionToPDF" id="25">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Use ImageMagick to convert to PDF</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>1</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Any</v8:AllowedSign>
+				</v8:NumberQualifiers>
+			</Type>
+			<SavedData>true</SavedData>
+		</Attribute>
+		<Attribute name="SaveToPDF" id="26">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Save as PDF</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+			<SavedData>true</SavedData>
+		</Attribute>
+		<Attribute name="Rescanning" id="28">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
 	</Attributes>
@@ -613,4 +841,20 @@
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>
+	<Parameters>
+		<Parameter name="Rescanning">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="ClientID">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+	</Parameters>
 </Form>

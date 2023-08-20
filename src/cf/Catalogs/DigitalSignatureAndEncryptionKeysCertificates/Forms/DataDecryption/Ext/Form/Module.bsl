@@ -661,12 +661,18 @@ Procedure DecryptDataAfterExecuteAtClientSide(Result, Context) Export
 	DecryptDataAfterExecute(Result);
 	
 	If Result.Property("Error") Then
+		If DataDetails.Property("OperationContext") Then
+			DataDetails.OperationContext = ThisObject;
+		EndIf;
 		Context.ErrorAtClient = Result.Error;
 		HandleError(Context.Notification, Context.ErrorAtClient, Context.ErrorAtServer);
 		Return;
 	EndIf;
 	
 	If Not WriteEncryptionCertificates(Context.FormIdentifier, Context.ErrorAtClient) Then
+		If DataDetails.Property("OperationContext") Then
+			DataDetails.OperationContext = ThisObject;
+		EndIf;
 		HandleError(Context.Notification, Context.ErrorAtClient, Context.ErrorAtServer);
 		Return;
 	EndIf;

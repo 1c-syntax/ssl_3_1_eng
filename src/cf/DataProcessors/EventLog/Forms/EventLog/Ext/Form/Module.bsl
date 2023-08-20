@@ -81,6 +81,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	EventsCountLimit = 200;
 	
+	If Common.IsWebClient() Or Common.IsMobileClient() Then
+		ItemToRemove = Items.EventsCountLimit.ChoiceList.FindByValue(10000);
+		Items.EventsCountLimit.ChoiceList.Delete(ItemToRemove);
+		Items.EventsCountLimit.MaxValue = 1000;
+	EndIf;
+	
 	DefaultFilter = DefaultFilter(FilterValues);
 	If Not EventLogFilter.Property("Event") Then
 		EventLogFilter.Insert("Event", DefaultFilter);

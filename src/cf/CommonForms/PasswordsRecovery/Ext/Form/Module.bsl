@@ -238,13 +238,13 @@ Function PasswordRecoverySettingsAreCorrect()
 		
 		If Not ValueIsFilled(AccountEmail) Then
 		
-			CommonClient.MessageToUser(NStr("en = 'Email settings are required';"),,
+			CommonClient.MessageToUser(NStr("en = 'Email account is required';"),,
 				"AccountEmail");
 			TheSettingsAreCorrect = False;
 			
 		ElsIf Not AccountSetUp(AccountEmail) Then
 			
-			CommonClient.MessageToUser(NStr("en = 'Mail is not configured to send emails';"),,
+			CommonClient.MessageToUser(NStr("en = 'The email account is not configured to send mail';"),,
 				"AccountEmail");
 			TheSettingsAreCorrect = False;
 			

@@ -107,14 +107,15 @@
 			</SearchControlAddition>
 			<Events>
 				<Event name="OnActivateRow">VisibilityConditionsOnActivateRow</Event>
+				<Event name="OnStartEdit">VisibilityConditionsOnStartEdit</Event>
 			</Events>
 			<ChildItems>
 				<InputField name="VisibilityConditionsField" id="29">
 					<DataPath>VisibilityConditions.FieldPresentation</DataPath>
-					<ListChoiceMode>true</ListChoiceMode>
 					<ContextMenu name="VisibilityConditionsFieldContextMenu" id="30"/>
 					<ExtendedTooltip name="VisibilityConditionsFieldExtendedTooltip" id="31"/>
 					<Events>
+						<Event name="OnChange">VisibilityConditionsFieldOnChange</Event>
 						<Event name="ChoiceProcessing">VisibilityConditionsFieldChoiceProcessing</Event>
 					</Events>
 				</InputField>

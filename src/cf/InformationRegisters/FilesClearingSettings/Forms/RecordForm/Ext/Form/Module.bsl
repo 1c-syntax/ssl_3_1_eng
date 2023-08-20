@@ -148,7 +148,7 @@ Procedure AddToFilterIntervalException(ValueSelected)
 	FilterByInterval.RightValue = ValueSelected.IntervalException;
 	PresentationOfAttributeWithDateType = AttributesArrayWithDateType.FindByValue(ValueSelected.DateTypeAttribute).Presentation;
 	PresentationText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Clean up in %1 days after ""%2""';"), 
+		NStr("en = 'Clean up after %1 days since %2';"), 
 		ValueSelected.IntervalException, PresentationOfAttributeWithDateType);
 	FilterByInterval.Presentation = PresentationText;
 

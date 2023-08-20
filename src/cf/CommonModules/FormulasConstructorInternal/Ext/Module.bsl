@@ -44,7 +44,8 @@ Function LayoutDiagramOfDataFromTheValueTable(ValueTable) Export
 		
 		AdditionalParameters.Insert("Picture",  Base64String(TableRow.Picture.GetBinaryData()));
 		
-		Field.EditParameters.SetParameterValue("Mask", ValueToJSON(AdditionalParameters));
+		Field.EditParameters.SetParameterValue("Mask", 
+			Common.ValueToJSON(AdditionalParameters));
 	EndDo;
 	
 	Return DataCompositionSchema;
@@ -329,21 +330,12 @@ Function CheckFormula(Form, FormulaPresentation) Export
 	
 EndFunction
 
-
 Procedure FormulaEditorHandler(Form, Parameter, AdditionalParameters) Export
 	OperationKey = AdditionalParameters.OperationKey;
 	If OperationKey = "ClearUpSearchString" Then
 		ClearUpSearchString(Form, Parameter);
 	ElsIf OperationKey = "RunBackgroundSearchInFieldList" Then
 		Parameter = RunBackgroundSearchInFieldList(Form);
-	ElsIf OperationKey = "HandleSearchMessage" Then	
-		Messages = Parameter.Messages;
-		JobID = Parameter.JobID;
-		ProcessSearchMessages(Form, Messages, JobID);
-	ElsIf OperationKey = "ProcessSearchResults" Then
-		ResultAddress = Parameter.ResultAddress;
-		JobID = Parameter.JobID;
-		ProcessSearchResults(Form, ResultAddress, JobID);
 	EndIf;
 EndProcedure
 
@@ -369,17 +361,6 @@ Function RunSearchInListOfFields(ShapeStructure) Export
 	FilterSet1 = ValueIsFilled(Filter);
 	
 	Result = New Structure;
-	Items = New Structure;
-	FormElementStructure = New Structure("Visible", Not FilterSet1);
-	Items.Insert(NameOfTheFieldList + "Presentation", FormElementStructure);
-	
-	FormElementStructure = New Structure("Visible", FilterSet1);
-	Items.Insert(NameOfTheFieldList + "RepresentationOfTheDataPath", FormElementStructure);
-	
-	FormElementStructure = New Structure("Representation", ?(FilterSet1, TableRepresentation.List, TableRepresentation.Tree));
-	Items.Insert(NameOfTheFieldList, FormElementStructure);
-	Result.Insert("Items", Items);
-	
 	Result.Insert("ListName", NameOfTheFieldList);
 	
 	If IsBackgroundJob Then
@@ -397,13 +378,13 @@ Function RunSearchInListOfFields(ShapeStructure) Export
 		FilterStructure1 = New Structure("MatchesFilter", True);
 		ArrayOfFoundElements = SearchTree.Rows.FindRows(FilterStructure1, True);
 		If ArrayOfFoundElements.Count()  <> 0 Then
-			RowsIDs = New Array;
+			FoundRows = New Array;
 			For Each FoundItem In ArrayOfFoundElements Do
-				RowsIDs.Add(FoundItem.Id);
+				StringStructure = TreeStringIntoStructure(FoundItem, SearchTree);
+				FoundRows.Add(StringStructure);
 			EndDo;
 			
-			TrimmedTree = CutTree(SearchTree, RowsIDs);
-			Result = New Structure("ItemsTree, FoundItems1", TrimmedTree, RowsIDs);
+			Result = New Structure("FoundItems1", FoundRows);
 			Return Result;
 		EndIf;
 		Return Undefined;
@@ -440,49 +421,11 @@ Function RunBackgroundSearchInFieldList(Form)
 	EndIf;
 	
 	FIlterRow = Form[NameOfSearchStringCurrentAttribute];
-	FilterStringLength = StrLen(FIlterRow);
 	ListName = NameOfFieldsListAttribute(NameOfSearchStringCurrentAttribute);
-	CurrentListTable = TreeOfAvailableAttributes(Form, ListName);
 	
 	ConnectedFieldLists = Form.ConnectedFieldLists.Unload();
 	Filter = New Structure("NameOfTheFieldList", NameOfFieldsListAttribute(NameOfSearchStringCurrentAttribute));
 	AttachedFieldListsSearchStrings = ConnectedFieldLists.Copy(Filter);
-	AttachedFieldList = AttachedFieldListsSearchStrings[0];
-	
-	WaitStringMessage = NStr("en = 'Continue typing…';");
-	TreeRows = CurrentListTable.Rows;		// ValueTreeRowCollection
-	
-	RowsByFilter = TreeRows.FindRows(New Structure("MatchesFilter", True), True);
-	For Each RowByFilter In RowsByFilter Do
-		RowByFilter.MatchesFilter = False;
-	EndDo;
-	
-	RowsByFilter = TreeRows.FindRows(New Structure("TheSubordinateElementCorrespondsToTheSelection", True), True);
-	For Each RowByFilter In RowsByFilter Do
-		RowByFilter.TheSubordinateElementCorrespondsToTheSelection = False;
-	EndDo;
-	
-	WaitingString = TreeRows.Find(WaitStringMessage, "Title", False); // ValueTreeRow: см. ДеревоДоступныхРеквизитов
-	
-	If FilterStringLength <> 0 And FilterStringLength < AttachedFieldList.NumberOfCharsToAllowSearching Then
-		FIlterRow = "";
-		Form.Items[ListName].Enabled = False;
-		If WaitingString = Undefined Then
-			WaitingString = TreeRows.Add();
-		EndIf;
-		WaitingString.Title = WaitStringMessage;
-		WaitingString.RepresentationOfTheDataPath = WaitStringMessage;
-		WaitingString.MatchesFilter = True;
-		Form.Items[ListName].Representation = TableRepresentation.Tree;
-		ValueToFormData(CurrentListTable, Form[ListName]);
-   		Return Undefined;
-	Else
-		If WaitingString <> Undefined Then
-			TreeRows.Delete(WaitingString);
-		EndIf;
-		Form.Items[ListName].Enabled = True;
-		ValueToFormData(CurrentListTable, Form[ListName]);
-	EndIf;
 	
 	FilterSet1 = ValueIsFilled(FIlterRow);
 		
@@ -504,7 +447,6 @@ Function RunBackgroundSearchInFieldList(Form)
 					
 		ShapeStructure.Insert(TheNameOfTheSearchStringProps, Form[TheNameOfTheSearchStringProps]);
 		FieldTree = TreeOfAvailableAttributes(Form, AttachedListOfFields.NameOfTheFieldList);
-		ClearFilterFlag(FieldTree);
 		
 		ValueToFormData(FieldTree, Form[AttachedListOfFields.NameOfTheFieldList]);
 		SetTreeRowsIDs(FieldTree);
@@ -981,26 +923,63 @@ EndFunction
 Procedure FillInTheListOfAvailableDetails(Val CurrentAttribute, SourcesOfAvailableFields, Val Filter = "", 
 	ListSettings = Undefined, FormUniqueID = Undefined)
 	
+	CollectionsOfAvailableFields = CollectionsOfAvailableFields(CurrentAttribute, SourcesOfAvailableFields, ListSettings, FormUniqueID);
+	AvailableAttributes = AvailableAttributes(CollectionsOfAvailableFields);
+	
+	AttributesCollection = ChildItems(CurrentAttribute);
+	FieldReferenceAdded = False;
+	For Each AvailableProps In AvailableAttributes Do
+		If AvailableProps.Name = "Ref" Then
+			If TypeOf(CurrentAttribute) <> Type("FormDataTree") And TypeOf(CurrentAttribute) <> Type("ValueTree")
+				Or FieldReferenceAdded Then
+				Continue;
+			EndIf;
+			FieldReferenceAdded = True;
+		EndIf;
+		
+		Attribute = AttributesCollection.Add();
+		FillPropertyValues(Attribute, AvailableProps);
+		
+		If Parent(Attribute) <> Undefined Then
+			Parent = Parent(Attribute);
+			If Attribute.IsFolder Then
+				Attribute.DataPath = Parent.DataPath;
+				Attribute.RepresentationOfTheDataPath = String(Parent.RepresentationOfTheDataPath);
+			Else
+				If ValueIsFilled(Parent.DataPath) Then
+					Attribute.DataPath = Parent.DataPath + "." + Attribute.Name;
+					Attribute.RepresentationOfTheDataPath = String(Parent.RepresentationOfTheDataPath) + "." + Attribute.Title;
+				EndIf;
+			EndIf;
+		EndIf;
+		
+		If AvailableProps.HasSubordinateItems Then
+			ChildItems(Attribute).Add();
+		ElsIf ListSettings <> Undefined And ValueIsFilled(ListSettings.WhenDefiningAvailableFieldSources) Then
+			CollectionsOfPropsFields = CollectionsOfAvailableFields(Attribute, SourcesOfAvailableFields, ListSettings, FormUniqueID);
+			If ValueIsFilled(CollectionsOfPropsFields) And Not StrFind(Attribute.DataPath, Attribute.Name + ".")
+				And ValueIsFilled(CollectionsOfPropsFields[0].Items) Then
+					ChildItems(Attribute).Add();
+			EndIf;
+		EndIf;
+	EndDo;
+	
+EndProcedure
+
+Function AvailableAttributes(CollectionsOfAvailableFields)
+
 	AvailableAttributes = NewCollectionOfAvailableProps();
 	AvailableAttributes.Columns.Add("HasSubordinateItems", New TypeDescription("Boolean"));
 	AvailableAttributes.Columns.Add("Order", New TypeDescription("Number"));
+	AvailableAttributes.Indexes.Add("Field");
 	
-	CollectionsOfAvailableFields = CollectionsOfAvailableFields(CurrentAttribute, SourcesOfAvailableFields, ListSettings, FormUniqueID);
+	ServiceFields = ServiceFields();
+	AttachedFilesTypes = AttachedFilesTypes();
+	FieldsPrefixesPicture = FieldsPrefixesPicture(); 
+	
 	For Each CollectionOfAvailableFields In CollectionsOfAvailableFields Do
 		For Each FieldDetails In CollectionOfAvailableFields.Items Do
-			If FieldDetails.Table And (String(FieldDetails.Field) = "AdditionalAttributes"
-				Or StrEndsWith(FieldDetails.Field, ".AdditionalAttributes")) Then
-				Continue;
-			EndIf;
-			If FieldDetails.Table And (String(FieldDetails.Field) = "ContactInformation"
-				Or StrEndsWith(FieldDetails.Field, ".ContactInformation")) Then
-				Continue;
-			EndIf;
-			If FieldDetails.Table And (String(FieldDetails.Field) = "Presentations"
-				Or StrEndsWith(FieldDetails.Field, ".Presentations")) Then
-				Continue;
-			EndIf;
-			If StrEndsWith(FieldDetails.Field, ".DataVersion") Then
+			If IsInternalField(FieldDetails, ServiceFields) Then
 				Continue;
 			EndIf;
 			
@@ -1035,7 +1014,7 @@ Procedure FillInTheListOfAvailableDetails(Val CurrentAttribute, SourcesOfAvailab
 			AdditionalParameters = New Map;
 			If TypeOf(FieldDetails) = Type("DataCompositionFilterAvailableField") And ValueIsFilled(FieldDetails.Mask)
 				And StrStartsWith(FieldDetails.Mask, "{") And StrEndsWith(FieldDetails.Mask, "}") Then
-				AdditionalParameters = JSONValue(FieldDetails.Mask);
+				AdditionalParameters = Common.JSONValue(FieldDetails.Mask);
 			EndIf;
 			
 			If AdditionalParameters["Picture"] <> Undefined Then
@@ -1059,22 +1038,11 @@ Procedure FillInTheListOfAvailableDetails(Val CurrentAttribute, SourcesOfAvailab
 			If Not ValueIsFilled(Attribute.Picture) Then
 				Attribute.Picture = ImageOfType(FieldDetails.Type);
 				
-				ModuleFilesOperationsInternal = Undefined;
-				If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
-					ModuleFilesOperationsInternal = Common.CommonModule("FilesOperationsInternal");
-				EndIf;
-				
 				If Attribute.Table Then
 					Attribute.Picture = PictureLib.TypeList;
 				ElsIf Attribute.Folder Then
 					Attribute.Picture = PictureLib.FolderType;
-				ElsIf StrStartsWith(Attribute.Name, "Print")
-					Or StrStartsWith(Attribute.Name, "Signature")
-					Or StrStartsWith(Attribute.Name, "Facsimile")
-					Or StrStartsWith(Attribute.Name, "Picture")
-					Or Attribute.Type.Types().Count() = 1 
-					And ModuleFilesOperationsInternal <> Undefined
-					And ModuleFilesOperationsInternal.AttachedFilesTypes().ContainsType(Attribute.Type.Types()[0]) Then
+				ElsIf IsPictureAttribute(Attribute, FieldsPrefixesPicture, AttachedFilesTypes) Then
 					Attribute.Picture = PictureLib.TypePicture;
 				ElsIf StrStartsWith(Attribute.Name, "Stamp") Then
 					Attribute.Picture = PictureLib.DigitalSignatureStamp;
@@ -1103,7 +1071,6 @@ Procedure FillInTheListOfAvailableDetails(Val CurrentAttribute, SourcesOfAvailab
 			EndIf;
 			
 			HasSubordinateItems = Attribute.IsFolder Or HasSubordinateElements(FieldDetails);
-			
 			If HasSubordinateItems Then
 				Attribute.HasSubordinateItems = True;
 			EndIf;
@@ -1112,46 +1079,63 @@ Procedure FillInTheListOfAvailableDetails(Val CurrentAttribute, SourcesOfAvailab
 	EndDo;
 	
 	AvailableAttributes.Sort("Order, Title");
+	Return AvailableAttributes;
 	
-	AttributesCollection = ChildItems(CurrentAttribute);
-	FieldReferenceAdded = False;
-	For Each AvailableProps In AvailableAttributes Do
-		If AvailableProps.Name = "Ref" Then
-			If TypeOf(CurrentAttribute) <> Type("FormDataTree") And TypeOf(CurrentAttribute) <> Type("ValueTree")
-				Or FieldReferenceAdded Then
-				Continue;
-			EndIf;
-			FieldReferenceAdded = True;
-		EndIf;
-		
-		Attribute = AttributesCollection.Add();
-		FillPropertyValues(Attribute, AvailableProps);
-		
-		If Parent(Attribute) <> Undefined Then
-			Parent = Parent(Attribute);
-			If Attribute.IsFolder Then
-				Attribute.DataPath = Parent.DataPath;
-				Attribute.RepresentationOfTheDataPath = String(Parent.RepresentationOfTheDataPath);;
-			Else
-				If ValueIsFilled(Parent.DataPath) Then
-					Attribute.DataPath = Parent.DataPath + "." + Attribute.Name;
-					Attribute.RepresentationOfTheDataPath = String(Parent.RepresentationOfTheDataPath) + "." + Attribute.Title;
-				EndIf;
-			EndIf;
-		EndIf;
-		
-		If AvailableProps.HasSubordinateItems Then
-			ChildItems(Attribute).Add();
-		ElsIf ListSettings <> Undefined And ValueIsFilled(ListSettings.WhenDefiningAvailableFieldSources) Then
-			CollectionsOfPropsFields = CollectionsOfAvailableFields(Attribute, SourcesOfAvailableFields, ListSettings, FormUniqueID);
-			If ValueIsFilled(CollectionsOfPropsFields) And Not StrFind(Attribute.DataPath, Attribute.Name + ".")
-				And ValueIsFilled(CollectionsOfPropsFields[0].Items) Then
-					ChildItems(Attribute).Add();
-			EndIf;
+EndFunction
+
+Function IsInternalField(Val FieldDetails, Val ServiceFields)
+
+	FieldName = String(FieldDetails.Field);
+	If FieldDetails.Table And ServiceFields[FieldName] = True Then
+		Return True;
+	EndIf;
+	For Each SystemField In ServiceFields Do
+		If StrEndsWith(FieldName, "." + SystemField.Key) Then	
+			Return True;
 		EndIf;
 	EndDo;
 	
-EndProcedure
+	Return (StrEndsWith(FieldName, ".DataVersion"));
+
+EndFunction
+
+Function ServiceFields()
+	Result = New Map;
+	Result["AdditionalAttributes"] = True;
+	Result["ContactInformation"] = True;
+	Result["Presentations"] = True;
+	Return Result;
+EndFunction	
+
+Function IsPictureAttribute(Attribute, FieldsPrefixesPicture, AttachedFilesTypes)
+
+	For Each FieldPrefix In FieldsPrefixesPicture Do
+		If StrStartsWith(Attribute.Name, "." + FieldPrefix.Key) Then	
+			Return True;
+		EndIf;
+	EndDo;
+
+ 	Return Attribute.Type.Types().Count() = 1 And AttachedFilesTypes.ContainsType(Attribute.Type.Types()[0]);
+		
+EndFunction
+
+Function FieldsPrefixesPicture()
+	Result = New Map;
+	Result["Signature"] = True;
+	Result["Facsimile"] = True;
+	Result["Picture"] = True;
+	Return Result;
+EndFunction	
+	
+Function AttachedFilesTypes()
+	
+	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
+		ModuleFilesOperationsInternal = Common.CommonModule("FilesOperationsInternal");
+		Return ModuleFilesOperationsInternal.AttachedFilesTypes();
+	EndIf;
+	Return New TypeDescription();
+	
+EndFunction	
 
 // Returns:
 //  ValueTable:
@@ -1810,15 +1794,18 @@ Procedure SetFilter(Val Form, Val ListName, Val Filter,
 	CurrentSession = GetCurrentInfoBaseSession().GetBackgroundJob();
 	IsBackgroundJob = (CurrentSession <> Undefined);
 	
+	CountInBatch = 10;
 	MaxNumOfResults = 200;
 	MaxSearchLevel = 3;
-	
+	MaximumNumberOfResultsHasBeenAchieved = False;
 	
 	FilterStructure1 = New Structure("MatchesFilter", True);
 	Level = 1;					   
 	FoundItemsCount = 0;
+	AllRefsTypeDetails = Common.AllRefsTypeDetails();
 	
-	RowsIDs = New Array;
+	PortionLines = New Array;
+	AllFoundLines = New Array;
 	While True Do	
 		UsedNodes = New Map;
 		While True Do
@@ -1828,65 +1815,68 @@ Procedure SetFilter(Val Form, Val ListName, Val Filter,
 			EndIf;
 			SetFilterFlag(FoundItemsCount, MaxNumOfResults, BatchOfCurrentLevelFIelds, Filter);
 			If FoundItemsCount = MaxNumOfResults Then
-				Return;	
+				MaximumNumberOfResultsHasBeenAchieved = True;
+				Break;	
 			EndIf;
 			If IsBackgroundJob Then
 				ArrayOfFoundElements = BatchOfCurrentLevelFIelds.Rows.FindRows(FilterStructure1, True);
 				If ArrayOfFoundElements.Count()  <> 0 Then
 					For Each FoundItem In ArrayOfFoundElements Do
-						RowsIDs.Add(FoundItem.Id);
+						StringStructure = TreeStringIntoStructure(FoundItem, AttributesCollection);
+						PortionLines.Add(StringStructure);
+						AllFoundLines.Add(StringStructure);
+						If PortionLines.Count() = CountInBatch Then
+							SendPortionOfFound(PortionLines, AllRefsTypeDetails);
+						EndIf;
 					EndDo;
-					
-					TrimmedTree = CutTree(AttributesCollection, RowsIDs);
-					Result = New Structure("ItemsTree, FoundItems1", TrimmedTree, RowsIDs);
-					Common.MessageToUser(Common.ValueToXMLString(Result));
 				EndIf;
 			EndIf;
 		EndDo;
 		
+		If Level > 1 Then 
+			If IsBackgroundJob Then
+				SendPortionOfFound(PortionLines, AllRefsTypeDetails);
+			EndIf;
+		EndIf;
+		
 		Level = Level + 1;
-		If Level > MaxSearchLevel Then
+		If MaximumNumberOfResultsHasBeenAchieved Or Level > MaxSearchLevel  Then
 			Break;
 		EndIf;
 		
 	EndDo;
-		
-EndProcedure
-
-Function CutTree(Tree, RowsIDs)
-	Result = Tree.Copy();
-	RowsToSend = New Map;
-	For Each RowID In RowsIDs Do
-		TreeRow = Result.Rows.Find(RowID, "Id", True);
-		RowsOfParents(Result, TreeRow, RowsToSend);
-	EndDo;
 	
-	DeleteRowsNotInList(Result, RowsToSend);
-	Return Result;
-EndFunction
-
-Procedure DeleteRowsNotInList(Tree, Filter)
-	ArrayOfRowsToDeleteSubordinates = New Array;
-	For Each String In Tree.Rows Do
-		If Filter[String] = True Then
-			DeleteRowsNotInList(String, Filter)
-		Else
-			ArrayOfRowsToDeleteSubordinates.Add(String);
-		EndIf;
-	EndDo;
-	
-	For Each DeletionRow In ArrayOfRowsToDeleteSubordinates Do
-		DeletionRow.Rows.Clear();
-	EndDo;
-EndProcedure
-
-Procedure RowsOfParents(Tree, TreeRow, RowsToSend)
-	RowsToSend.Insert(TreeRow, True);
-	If TreeRow.Parent <> Undefined Then
-		RowsOfParents(Tree, TreeRow.Parent, RowsToSend);
+	If IsBackgroundJob Then
+		SendPortionOfFound(AllFoundLines, AllRefsTypeDetails);
 	EndIf;
-EndProcedure
 	
+EndProcedure
+
+Procedure SendPortionOfFound(FoundRows, AllRefsTypeDetails = Undefined)
+	If AllRefsTypeDetails = Undefined Then
+		AllRefsTypeDetails = Common.AllRefsTypeDetails();
+	EndIf;
+	Result = New Structure("FoundItems1", FoundRows);
+	Result.Insert("AllRefsTypeDetails", AllRefsTypeDetails);
+	Common.MessageToUser(Common.ValueToXMLString(Result));
+	FoundRows.Clear();
+EndProcedure
+
+Function TreeStringIntoStructure(TreeRow, Tree)
+	
+	Columns = New Array();
+	For Each Column In Tree.Columns Do
+		Columns.Add(Column.Name);
+	EndDo;
+	
+	ColumnsByRow = StrConcat(Columns, ",");
+	
+	Result = New Structure(ColumnsByRow);
+	FillPropertyValues(Result, TreeRow);
+			
+	Return Result;
+	
+EndFunction
 
 Procedure SetFilterFlag(FoundItemsCount, Val MaxNumOfResults, Val AttributesCollection, Val Filter)
 	
@@ -1967,256 +1957,6 @@ Function GetLevelCollection(AttributesCollection, Level, UsedNodes,  ListName, F
 		EndIf;
 	EndDo;
 EndFunction
-
-
-Procedure ProcessSearchResults(Form, ResultAddress, JobID)
-	
-	SearchResult = GetFromTempStorage(ResultAddress);
-	
-	If SearchResult = Undefined Then
-		Return;
-	EndIf;
-	
-	NameOfTheSearchString = SearchStringNameByTaskID(Form, JobID);
-	
-	If NameOfTheSearchString = Undefined Then
-		Return;
-	EndIf;
-	
-	ListName = NameOfFieldsListAttribute(NameOfTheSearchString);
-	FieldTree = Form.FormAttributeToValue(ListName);
-	TreeRowByFilter = Undefined;
-			
-	ItemsTree = SearchResult.ItemsTree;
-	FoundItems1 = SearchResult.FoundItems1;
-	For Each FoundItem In FoundItems1 Do
-		StringToAdd = ItemsTree.Rows.Find(FoundItem, "Id", True);
-		
-		ItemToAdd = AddItemByDataPath(FieldTree, StringToAdd);
-		ItemToAdd.MatchesFilter = True;
-		TreeRowByFilter = ?(TreeRowByFilter = Undefined, ItemToAdd, TreeRowByFilter); 
-		If ItemToAdd.Parent <> Undefined Then
-			ItemToAdd.Parent.TheSubordinateElementCorrespondsToTheSelection = True;
-		EndIf;
-	EndDo;
-			
-	Form.ValueToFormAttribute(FieldTree, ListName);
-	
-	CollectionRow = CollectionRowByTreeRow(Form[ListName], TreeRowByFilter, FieldTree);
-	Form.Items[ListName].CurrentRow = CollectionRow.GetID();
-	
-	Form.Items[ListName + "Presentation"].Visible = False;
-	Form.Items[ListName + "RepresentationOfTheDataPath"].Visible = True;
-	Form.Items[ListName].Representation = TableRepresentation.List;
-EndProcedure
-
-// 
-// Parameters:
-//  Form - ClientApplicationForm
-//  Messages - Array
-//  JobID - UUID
-//
-Procedure ProcessSearchMessages(Form, Messages, JobID)
-	
-	NameOfTheSearchString = SearchStringNameByTaskID(Form, JobID);
-	
-	If NameOfTheSearchString = Undefined Then
-		Return;
-	EndIf;
-	
-	ListName = NameOfFieldsListAttribute(NameOfTheSearchString);
-	
-	FieldTree = Form.FormAttributeToValue(ListName);
-	
-	CurrentRowID = Form.Items[ListName].CurrentRow;
-	If CurrentRowID <> Undefined Then
-		CollectionRow = Form[ListName].FindByID(CurrentRowID);
-		CurrentTreeRow = FieldTree.Rows.Find(CollectionRow.DataPath, "DataPath", True);
-		CurrentTreeRow = ?(CollectionRow.MatchesFilter, CurrentTreeRow, Undefined);
-	EndIf;
-	
-	WereNewSearchResultsObtained = False;
-	
-	TreeRowByFilter = Undefined;
-	
-	For Each Message In Messages Do
-	
-		Result = Common.ValueFromXMLString(Message.Text);
-		
-		If TypeOf(Result) <> Type("Structure") Then
-			Return;
-		EndIf;
-		
-		If Result.Property("Items") Then
-			For Each Item In Result.Items Do
-				FillPropertyValues(Form.Items[Item.Key], Item.Value);
-			EndDo;
-		EndIf;
-		
-		If Result.Property("FoundItems1") Then
-			
-			ItemsTree = Result.ItemsTree;
-			FoundItems1 = Result.FoundItems1;
-			For Each FoundItem In FoundItems1 Do
-				StringToAdd = ItemsTree.Rows.Find(FoundItem, "Id", True);
-				
-				ItemToAdd = AddItemByDataPath(FieldTree, StringToAdd);
-				ItemToAdd.MatchesFilter = True;
-				TreeRowByFilter = ?(TreeRowByFilter = Undefined, ItemToAdd, TreeRowByFilter);
-				If ItemToAdd.Parent <> Undefined Then
-					ItemToAdd.Parent.TheSubordinateElementCorrespondsToTheSelection = True;
-				EndIf;
-			EndDo;
-			
-			Form.ValueToFormAttribute(FieldTree, ListName);
-			WereNewSearchResultsObtained = True;
-		EndIf;
-	EndDo;
-	
-	If WereNewSearchResultsObtained Then
-		If CurrentTreeRow = Undefined Then
-			CollectionRow = CollectionRowByTreeRow(Form[ListName], TreeRowByFilter, FieldTree);
-		Else
-			CollectionRow = CollectionRowByTreeRow(Form[ListName], CurrentTreeRow, FieldTree);
-		EndIf;
-		Form.Items[ListName].CurrentRow = CollectionRow.GetID();
-	EndIf;
-	
-EndProcedure
-
-Function SearchStringNameByTaskID(Form, JobID)
-	MatchingTasks = GetFromTempStorage(Form.AddressOfLongRunningOperationDetails);
-	For Each Job In MatchingTasks Do
-		If Job.Value = JobID Then
-			Return Job.Key;
-		EndIf;
-	EndDo;
-EndFunction
-
-// Parameters:
-//  FormTree - FormDataTree
-//  CurrentTreeRow - ValueTreeRow
-//  FieldTree - ValueTree
-// 
-Function CollectionRowByTreeRow(FormTree, CurrentTreeRow, FieldTree)
-	ParentToCurrentRow = CurrentTreeRow.Parent;
-	If ParentToCurrentRow <> Undefined Then
-		Result = CollectionRowByTreeRow(FormTree, ParentToCurrentRow, FieldTree);
-		TreeRowIndex = ParentToCurrentRow.Rows.IndexOf(CurrentTreeRow);
-		Return Result.GetItems().Get(TreeRowIndex);
-	Else
-		TreeRowIndex = FieldTree.Rows.IndexOf(CurrentTreeRow);
-		Return FormTree.GetItems().Get(TreeRowIndex);
-	EndIf;
-		
-EndFunction
-
-
-// Parameters:
-//  FieldTree - ValueTree
-//  StringToAdd - ValueTreeRow
-// 
-// Returns:
-//  
-Function AddItemByDataPath(FieldTree, StringToAdd)
-	FoundRow = FieldTree.Rows.Find(StringToAdd.DataPath, "DataPath", True);
-	If FoundRow <> Undefined Then
-		Return FoundRow;
-	Else
-		ParentLevelRow = AddItemByDataPath(FieldTree, StringToAdd.Parent);
-		CurLevelLines = ParentLevelRow.Rows;
-		CurLevelLines.Clear();
-		CollectionOfLevelRows = StringToAdd.Parent.Rows;
-		For Each RowOfLevel In CollectionOfLevelRows Do
-			FieldsTreeNewRow = CurLevelLines.Add();
-			FillPropertyValues(FieldsTreeNewRow, RowOfLevel,,"Parent");
-			
-			HasSubordinateItems = RowOfLevel.Folder Or RowOfLevel.Table;
-	
-			If Not HasSubordinateItems Then
-				For Each Type In RowOfLevel.Type.Types() Do
-					HasSubordinateItems = HasSubordinateItems Or Common.IsReference(Type);
-					If HasSubordinateItems Then
-						Break;
-					EndIf; 
-				EndDo;
-			EndIf;
-			
-			If HasSubordinateItems Then
-				FieldsTreeNewRow.Rows.Add();
-			EndIf;
-
-		EndDo;
-		
-		Return CurLevelLines.Find(StringToAdd.DataPath, "DataPath");
-		
-	EndIf;
-	
-EndFunction
-
-Function GetArrayOfCompositionFieldNames(LayoutField)
-	Presentation = String(LayoutField);
-	Result = New Array;
-	WordArray = StrSplit(Presentation, "[]");
-	If WordArray.Count() = 1 Then
-		Content = StrSplit(Presentation, ".", True);
-		CommonClientServer.SupplementArray(Result, Content, False);
-	Else
-		For Each Word In WordArray Do
-			Content = StrSplit(Word, ".", True);
-			If Content[0] = "" Then
-				Content.Delete(0);
-				CommonClientServer.SupplementArray(Result, Content, False);
-			ElsIf Content[Content.UBound()] = "" Then
-				Content.Delete(Content.UBound());
-				CommonClientServer.SupplementArray(Result, Content, False);
-			Else
-				Result.Add("["+Word+"]");
-			EndIf;
-		EndDo;
-	EndIf;
-	Return Result;
-EndFunction
-
-Procedure SetFoundTreeItem(Form, FieldList, NameOfTheFieldList, ArrayOfDataPath, FoundItem, Level = 0)
-	
-	ArrayOfPathToDataTemp = New Array(New FixedArray(ArrayOfDataPath));
-	
-	While ArrayOfPathToDataTemp.UBound() > Level Do
-		ArrayOfPathToDataTemp.Delete(ArrayOfPathToDataTemp.UBound());
-	EndDo;
-	
-	SearchedForDataPath = StrConcat(ArrayOfPathToDataTemp, ".");
-	FillParameters = New Structure;
-	FillParameters.Insert("ListName", NameOfTheFieldList); 
-	
-	For Each Item In FieldList Do
-		DataPath = Item.DataPath;
-		WordCount = StrSplit(DataPath, ".", False);
-		If WordCount.Count() < Level + 1 Then
-			DataPath = StrConcat(GetArrayOfCompositionFieldNames(Item.Field), ".");
-		EndIf;
-		
-		If DataPath = SearchedForDataPath Then
-			If ArrayOfDataPath.UBound() = Level Then
-				Item.MatchesFilter = True;
-				Item.RepresentationOfTheDataPath = FoundItem.RepresentationOfTheDataPath;
-				Break;
-			Else
-				Item.TheSubordinateElementCorrespondsToTheSelection = True;
-				ChildItems = Item.GetItems();
-				If ChildItems.Count() < 2 Then
-					ItemID = Item.GetID();
-					
-					FillParameters.Insert("RowID", ItemID);
-					FillInTheListOfAvailableFields(Form, FillParameters);
-				EndIf;
-				
-				SetFoundTreeItem(Form, Item.GetItems(), NameOfTheFieldList, ArrayOfDataPath, FoundItem, Level+1)
-			EndIf;
-		EndIf;
-	EndDo;
-EndProcedure
 
 Function TheParentPropsMatchTheSelection(Attribute)
 	
@@ -2380,7 +2120,8 @@ Procedure AddAGroupOfItemsToADataset(ItemsCollection, DataSet, Parent = Undefine
 			AdditionalParameters.IsFolder = IsFolder;
 			AdditionalParameters.Insert("Picture", Base64String(Item.Picture.GetBinaryData()));			
 
-			Field.EditParameters.SetParameterValue("Mask", ValueToJSON(AdditionalParameters));
+			Field.EditParameters.SetParameterValue("Mask", 
+				Common.ValueToJSON(AdditionalParameters));
 		EndIf;
 		
 		Field.DataPath = Item.Id;
@@ -2786,22 +2527,6 @@ Function NewCollectionOfFields()
 	
 EndFunction
 
-Function ValueToJSON(Value)
-	
-	JSONWriter = New JSONWriter;
-	JSONWriter.SetString();
-	WriteJSON(JSONWriter, Value);
-	
-	Return JSONWriter.Close();
-	
-EndFunction
-
-Function JSONValue(String, PropertiesWithDateValuesNames = Undefined)
-	JSONReader = New JSONReader;
-	JSONReader.SetString(String);
-	Return ReadJSON(JSONReader, True, PropertiesWithDateValuesNames);
-EndFunction
-
 Function ImageOfType(TypeDescription)
 	
 	Picture = FormulasConstructorCached.PictureByName("TypeUndefined");
@@ -2983,21 +2708,21 @@ Procedure AddGroupOfOperatorsWorkingWithDates(ListOfOperators)
 	AddAnOperatorToAGroup(Group, "YEAR", NStr("en = 'YEAR';"), Type, True);
 	AddAnOperatorToAGroup(Group, "MONTH", NStr("en = 'MONTH';"), Type, True);
 	AddAnOperatorToAGroup(Group, "NUMBER", NStr("en = 'NUMBER';"), Type, True);
-	AddAnOperatorToAGroup(Group, "DAYOFYEAR", NStr("en = 'День года';"), Type, True);
+	AddAnOperatorToAGroup(Group, "DAYOFYEAR", NStr("en = 'Day of the year';"), Type, True);
 	AddAnOperatorToAGroup(Group, "DAY", NStr("en = 'DAY';"), Type, True);
 	AddAnOperatorToAGroup(Group, "WEEK", NStr("en = 'WEEK';"), Type, True);
-	AddAnOperatorToAGroup(Group, "WEEKDAY", NStr("en = 'День недели';"), Type, True);
+	AddAnOperatorToAGroup(Group, "WEEKDAY", NStr("en = 'Day of the week';"), Type, True);
 	AddAnOperatorToAGroup(Group, "HOUR", NStr("en = 'HOUR';"), Type, True);
 	AddAnOperatorToAGroup(Group, "MINUTE", NStr("en = 'MINUTE';"), Type, True);
 	AddAnOperatorToAGroup(Group, "SECOND", NStr("en = 'SECOND';"), Type, True);
 
-	AddAnOperatorToAGroup(Group, "BEGINOFPERIOD", NStr("en = 'Начало периода';"), New TypeDescription, True);
-	AddAnOperatorToAGroup(Group, "ENDOFPERIOD", NStr("en = 'Конец периода';"), New TypeDescription, True);
-	AddAnOperatorToAGroup(Group, "ADDTODATE", NStr("en = 'Добавить к дате';"), New TypeDescription, True);
+	AddAnOperatorToAGroup(Group, "BEGINOFPERIOD", NStr("en = 'Period start';"), New TypeDescription, True);
+	AddAnOperatorToAGroup(Group, "ENDOFPERIOD", NStr("en = 'Period end';"), New TypeDescription, True);
+	AddAnOperatorToAGroup(Group, "ADDTODATE", NStr("en = 'Add to the date';"), New TypeDescription, True);
 	
-	AddAnOperatorToAGroup(Group, "DATEDIFF", NStr("en = 'Разность дат';"), Type, True);
+	AddAnOperatorToAGroup(Group, "DATEDIFF", NStr("en = 'Difference between dates';"), Type, True);
 	
-	AddAnOperatorToAGroup(Group, "CURRENTDATE", NStr("en = 'Текущая дата';"), New TypeDescription, True);
+	AddAnOperatorToAGroup(Group, "CURRENTDATE", NStr("en = 'Current date';"), New TypeDescription, True);
 	
 EndProcedure
 
@@ -3048,13 +2773,13 @@ Procedure AddAGroupOfLogicalOperationsOperators(ListOfOperators)
 		OperatorPresentation(NStr("en = 'END';")),
 		NStr("en = 'Expression';"));
 	
-	AddAnOperatorToAGroup(Group, "SELECTION", NStr("en = 'ВЫБОР';"), , , True);
-	AddAnOperatorToAGroup(Group, "WHEN", NStr("en = 'КОГДА';"), , , True);
-	AddAnOperatorToAGroup(Group, "THEN", NStr("en = 'ТОГДА';"), , , True);
-	AddAnOperatorToAGroup(Group, "ELSE", NStr("en = 'ИНАЧЕ';"), , , True);
-	AddAnOperatorToAGroup(Group, "END", NStr("en = 'КОНЕЦ';"), , , True);
-	AddAnOperatorToAGroup(Group, "TRUE", NStr("en = 'ИСТИНА';"), , , True);
-	AddAnOperatorToAGroup(Group, "FALSE", NStr("en = 'ЛОЖЬ';"), , , True);
+	AddAnOperatorToAGroup(Group, "CASE", NStr("en = 'CASE';"), , , True); // @query-part
+	AddAnOperatorToAGroup(Group, "WHEN", NStr("en = 'WHEN';"), , , True);
+	AddAnOperatorToAGroup(Group, "THEN", NStr("en = 'THEN';"), , , True);
+	AddAnOperatorToAGroup(Group, "ELSE", NStr("en = 'ELSE';"), , , True);
+	AddAnOperatorToAGroup(Group, "END", NStr("en = 'END';"), , , True);
+	AddAnOperatorToAGroup(Group, "TRUE", NStr("en = 'TRUE';"), , , True);
+	AddAnOperatorToAGroup(Group, "FALSE", NStr("en = 'FALSE';"), , , True);
 	
 EndProcedure
 

@@ -92,9 +92,14 @@ EndProcedure
 //
 Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	
-	InformationRegisters.RolesRights.CheckRegisterData();
-	
 	StandardProcessing = False;
+	
+	If Not Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
+		ErrorText = NStr("en = 'To use the report, deploy the Report options subsystem.';");
+		Raise ErrorText;
+	EndIf;
+	
+	InformationRegisters.RolesRights.CheckRegisterData();
 	
 	DataParameters = SettingsComposer.GetSettings().DataParameters;
 	UserOrGroup = SelectionUser();

@@ -547,11 +547,6 @@ The newly translated template is ready to go!</v8:content>
 		</UsualGroup>
 	</ChildItems>
 	<Attributes>
-		<Attribute name="PromptForTemplateOpeningMode" id="4">
-			<Type>
-				<v8:Type>xs:boolean</v8:Type>
-			</Type>
-		</Attribute>
 		<Attribute name="TemplateOpeningModeView" id="5">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
@@ -943,22 +938,6 @@ The newly translated template is ready to go!</v8:content>
 			<Action>UseStandardTemplate</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
-		<Command name="SetActionOnChoosePrintFormTemplate" id="3">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Set action on select print form template…</v8:content>
-				</v8:item>
-			</Title>
-			<ToolTip>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Set action on select print form template</v8:content>
-				</v8:item>
-			</ToolTip>
-			<Action>SetActionOnChoosePrintFormTemplate</Action>
-			<CurrentRowUse>DontUse</CurrentRowUse>
-		</Command>
 		<Command name="ChangeTemplate" id="4">
 			<Title>
 				<v8:item>
@@ -978,27 +957,6 @@ The newly translated template is ready to go!</v8:content>
 				<xr:LoadTransparent>false</xr:LoadTransparent>
 			</Picture>
 			<Action>ChangeTemplate</Action>
-			<Representation>TextPicture</Representation>
-			<CurrentRowUse>DontUse</CurrentRowUse>
-		</Command>
-		<Command name="OpenTemplate" id="5">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Open</v8:content>
-				</v8:item>
-			</Title>
-			<ToolTip>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Open template.</v8:content>
-				</v8:item>
-			</ToolTip>
-			<Picture>
-				<xr:Ref>CommonPicture.OpenTemplate</xr:Ref>
-				<xr:LoadTransparent>false</xr:LoadTransparent>
-			</Picture>
-			<Action>OpenTemplate</Action>
 			<Representation>TextPicture</Representation>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>

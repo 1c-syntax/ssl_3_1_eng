@@ -902,7 +902,7 @@ Procedure Reply(Command)
 	If CorrectChoice(Items.List.Name, True) Then
 		CurrentInteraction = Items.List.CurrentData.Ref;
 		If TypeOf(CurrentInteraction) <> Type("DocumentRef.IncomingEmail") Then
-			ShowMessageBox(, NStr("en = 'You can reply only to messages you received.';"));
+			ShowMessageBox(, NStr("en = 'You can use ""Reply"" only for incoming messages.';"));
 			Return;
 		EndIf;
 	Else
@@ -921,7 +921,7 @@ Procedure ReplyToAll(Command)
 	If CorrectChoice(Items.List.Name, True) Then
 		CurrentInteraction = Items.List.CurrentData.Ref;
 		If TypeOf(CurrentInteraction) <> Type("DocumentRef.IncomingEmail") Then
-			ShowMessageBox(, NStr("en = 'You can reply to all only to messages you received.';"));
+			ShowMessageBox(, NStr("en = 'You can use ""Reply all"" only for incoming messages.';"));
 			Return;
 		EndIf;
 	Else
@@ -941,7 +941,7 @@ Procedure ForwardMail(Command)
 		CurrentInteraction = Items.List.CurrentData.Ref;
 		If TypeOf(CurrentInteraction) <> Type("DocumentRef.OutgoingEmail") 
 			And TypeOf(CurrentInteraction) <> Type("DocumentRef.IncomingEmail") Then
-			ShowMessageBox(, NStr("en = 'You can forward only mail messages.';"));
+			ShowMessageBox(, NStr("en = 'You can use ""Forward"" only for mail messages.';"));
 			Return;
 		EndIf;
 	Else
@@ -1854,7 +1854,7 @@ Procedure ChangeFilterList(TableName, DataForProcessing)
 				FieldName                    = "Account";
 				FilterItemCompareType = DataCompositionComparisonType.Equal;
 				RightValue             = DataForProcessing.Value;
-				FilterName = NStr("en = 'Account';");
+				FilterName = NStr("en = 'Email account';");
 				
 			EndIf;
 		
@@ -2240,7 +2240,7 @@ Procedure FillPropertiesTree(CommandName = "")
 		|		Document.PhoneCall AS InteractionsDocument
 		|			LEFT JOIN InformationRegister.InteractionsFolderSubjects AS InteractionsFolderSubjects
 		|			ON InteractionsDocument.Ref = InteractionsFolderSubjects.Interaction
-		|			LEFT JOIN Document.SMSMessage.AdditionalAttributes AS InteractionsDocumentAdditionalAttributes
+		|			LEFT JOIN Document.PhoneCall.AdditionalAttributes AS InteractionsDocumentAdditionalAttributes
 		|			ON (InteractionsDocumentAdditionalAttributes.Ref = InteractionsDocument.Ref)
 		|				AND (InteractionsDocumentAdditionalAttributes.Property = &Property)
 		|				AND &ConditionText
@@ -2739,7 +2739,7 @@ Procedure FillContactsPanel()
 				EndIf;
 				ConditionsTextByRegister = ConditionsTextByRegister + ConditionString + Chars.LF;
 			EndIf;
-		EndDo;;
+		EndDo;
 		
 		DynamicListQueryText = 
 		"SELECT
@@ -3341,17 +3341,17 @@ Procedure RestoreExpandedTreeNodes()
 		Return;
 	EndIf;
 
-	IdsOfDeployedNodes = New Map;
+	ExpandedNodesIDs = New Map;
 	DetermineExpandedNodesIDs(ExpandedNodes, ThisObject[Settings.TreeName].GetItems(),
-		IdsOfDeployedNodes);
+		ExpandedNodesIDs);
 
-	For Each NodeID In IdsOfDeployedNodes Do
+	For Each NodeID In ExpandedNodesIDs Do
 		Items[Settings.TreeName].Expand(NodeID.Value);
 	EndDo;
 	
 	DeletedNodes = New Array;
 	For Each ListItem In ExpandedNodes Do
-		If IdsOfDeployedNodes[ListItem.Value] = Undefined Then
+		If ExpandedNodesIDs[ListItem.Value] = Undefined Then
 			DeletedNodes.Add(ListItem);
 		EndIf;
 	EndDo;

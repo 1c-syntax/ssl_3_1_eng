@@ -11,24 +11,24 @@
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
-	
+
 	ByAuthor = Users.CurrentUser();
-	
+
 	CommonClientServer.SetDynamicListFilterItem(
 		List, "SourceTask", Tasks.PerformerTask.EmptyRef());
-	
+
 	SetFilter();
 	UseDateAndTimeInTaskDeadlines = GetFunctionalOption("UseDateAndTimeInTaskDeadlines");
 	Items.TaskDueDate.Format = ?(UseDateAndTimeInTaskDeadlines, "DLF=DT", "DLF=D");
 	Items.VerificationDueDate.Format = ?(UseDateAndTimeInTaskDeadlines, "DLF=DT", "DLF=D");
 	BusinessProcessesAndTasksServer.SetBusinessProcessesAppearance(List.ConditionalAppearance);
 	Items.FormStop.Visible = AccessRight("Update", Metadata.BusinessProcesses.Job);
-	
+
 EndProcedure
 
 &AtServer
 Procedure OnLoadDataFromSettingsAtServer(Settings)
-	SetListFilter(Settings);	
+	SetListFilter(Settings);
 EndProcedure
 
 #EndRegion
@@ -52,18 +52,18 @@ EndProcedure
 
 &AtClient
 Procedure ShowCompletedJobsOnChange(Item)
-	
+
 	SetFilter();
 	Items.List.Refresh();
-	
+
 EndProcedure
 
 &AtClient
 Procedure ShowStoppedOnChange(Item)
-	
+
 	SetFilter();
 	Items.List.Refresh();
-	
+
 EndProcedure
 
 #EndRegion
@@ -72,16 +72,16 @@ EndProcedure
 
 &AtClient
 Procedure Stop(Command)
-	
+
 	BusinessProcessesAndTasksClient.Stop(Items.List.SelectedRows);
-	
+
 EndProcedure
 
 &AtClient
 Procedure ContinueBusinessProcess(Command)
-	
+
 	BusinessProcessesAndTasksClient.Activate(Items.List.SelectedRows);
-	
+
 EndProcedure
 
 #EndRegion
@@ -90,7 +90,7 @@ EndProcedure
 
 &AtServer
 Procedure SetFilter()
-	FilterParameters = New Map();
+	FilterParameters = New Map;
 	FilterParameters.Insert("ShowCompletedJobs", ShowCompletedJobs);
 	FilterParameters.Insert("ShowStopped", ShowStopped);
 	FilterParameters.Insert("ByAuthor", ByAuthor);
@@ -101,18 +101,18 @@ EndProcedure
 
 &AtServer
 Procedure SetListFilter(FilterParameters)
-	
+
 	CommonClientServer.SetDynamicListFilterItem(List, "Completed", False,,,
 		Not FilterParameters["ShowCompletedJobs"]);
 	CommonClientServer.SetDynamicListFilterItem(List, "Suspended", False,,,
 		Not FilterParameters["ShowStopped"]);
-	CommonClientServer.SetDynamicListFilterItem(List, "Author", FilterParameters["ByAuthor"],,,
-		Not FilterParameters["ByAuthor"].IsEmpty());
-	CommonClientServer.SetDynamicListFilterItem(List, "Performer", FilterParameters["ByPerformer"],,,
-		Not FilterParameters["ByPerformer"].IsEmpty());
-	CommonClientServer.SetDynamicListFilterItem(List, "Supervisor", FilterParameters["BySupervisor"],,,
-		Not FilterParameters["BySupervisor"].IsEmpty());
-	
+	CommonClientServer.SetDynamicListFilterItem(List, "Author",
+		FilterParameters["ByAuthor"],,, Not FilterParameters["ByAuthor"].IsEmpty());
+	CommonClientServer.SetDynamicListFilterItem(List, "Performer",
+		FilterParameters["ByPerformer"],,, Not FilterParameters["ByPerformer"].IsEmpty());
+	CommonClientServer.SetDynamicListFilterItem(List, "Supervisor",
+		FilterParameters["BySupervisor"],,, Not FilterParameters["BySupervisor"].IsEmpty());
+
 EndProcedure
 
 #EndRegion

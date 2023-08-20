@@ -14,18 +14,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	SetConditionalAppearance();
 	
-	FormTitleText = "";
-	If Parameters.Property("FormCaption", FormTitleText) 
-		And Not IsBlankString(FormTitleText) Then
-		Title = FormTitleText;
+	If Not IsBlankString(Parameters.FormCaption) Then
+		Title = Parameters.FormCaption;
 		AutoTitle = False;
 	EndIf;
 	
-	If Parameters.Property("BusinessProcess") Then
-		BusinessProcessLine = Parameters.BusinessProcess;
-		TaskLine = Parameters.Task;
-		Items.TitleGroup.Visible = True;
-	EndIf;
+	Items.TitleGroup.Visible = Not IsBlankString(Parameters.BusinessProcess);
+	BusinessProcessLine = Parameters.BusinessProcess;
+	TaskLine = Parameters.Task;
 	
 	If Parameters.Property("ShowTasks") Then
 		ShowTasks = Parameters.ShowTasks;
@@ -33,14 +29,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ShowTasks = 2;
 	EndIf;
 	
-	If Parameters.Property("FiltersVisibility") Then
+	If Parameters.FiltersVisibility <> Undefined Then
 		Items.GroupFilter.Visible = Parameters.FiltersVisibility;
 	Else
 		ByAuthor = Users.AuthorizedUser();
 	EndIf;
 	SetFilter();
 	
-	If Parameters.Property("OwnerWindowLock") Then
+	If Parameters.OwnerWindowLock <> Undefined Then
 		WindowOpeningMode = Parameters.OwnerWindowLock;
 	EndIf;
 		
@@ -67,7 +63,7 @@ EndProcedure
 &AtServer
 Procedure BeforeLoadDataFromSettingsAtServer(Settings)
 
-	SettingName = ?(Parameters.Property("BusinessProcess"), "BPListForm", "ListForm");
+	SettingName = ?(Not IsBlankString(Parameters.BusinessProcess), "BPListForm", "ListForm");
 	Filter_Settings = Common.SystemSettingsStorageLoad("Tasks.PerformerTask.Forms.ListForm", SettingName);
 	If Filter_Settings = Undefined Then 
 		Settings.Clear();
@@ -134,13 +130,11 @@ EndProcedure
 
 &AtClient
 Procedure ListOnActivateRow(Item)
-	If Item.CurrentData <> Undefined
-		And Item.CurrentData.Property("AcceptedForExecution")
-		And Not Item.CurrentData.AcceptedForExecution Then
-			AcceptForExecutionAvailable(True);
-	Else
-			AcceptForExecutionAvailable(False);
+	AcceptedForExecution = False;
+	If Item.CurrentData <> Undefined Then
+		Item.CurrentData.Property("AcceptedForExecution", AcceptedForExecution) 
 	EndIf;
+	SetAcceptForExecutionAvailability(AcceptedForExecution);
 EndProcedure
 
 #EndRegion
@@ -151,7 +145,7 @@ EndProcedure
 Procedure AcceptForExecution(Command)
 	
 	BusinessProcessesAndTasksClient.AcceptTasksForExecution(Items.List.SelectedRows);
-	AcceptForExecutionAvailable(False);
+	SetAcceptForExecutionAvailability(False);
 	
 EndProcedure
 
@@ -159,7 +153,7 @@ EndProcedure
 Procedure CancelAcceptForExecution(Command)
 	
 	BusinessProcessesAndTasksClient.CancelAcceptTasksForExecution(Items.List.SelectedRows);
-	AcceptForExecutionAvailable(True);
+	SetAcceptForExecutionAvailability(True);
 	
 EndProcedure
 
@@ -255,7 +249,7 @@ Procedure RefreshTasksListOnServer()
 EndProcedure
 
 &AtClient
-Procedure AcceptForExecutionAvailable(FlagValue1)
+Procedure SetAcceptForExecutionAvailability(FlagValue1)
 	
 	Items.AcceptForExecution.Enabled                      = FlagValue1;
 	Items.ListContextMenuAcceptForExecution.Enabled = FlagValue1;

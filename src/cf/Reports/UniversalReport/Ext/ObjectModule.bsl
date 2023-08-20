@@ -76,8 +76,9 @@ EndProcedure
 // Parameters:
 //   Form - ClientApplicationForm - report form.
 //   Settings - DataCompositionSettings - settings to load into the settings composer.
+//   BeforeDownloadingSettings - Boolean -
 //
-Procedure BeforeLoadVariantAtServer(Form, Settings) Export
+Procedure BeforeLoadVariantAtServer(Form, Settings, BeforeDownloadingSettings = False) Export
 	CurrentSchemaKey = Undefined;
 	Schema = Undefined;
 	
@@ -89,11 +90,11 @@ Procedure BeforeLoadVariantAtServer(Form, Settings) Export
 		Else
 			AdditionalSettingsProperties = Settings.AdditionalProperties;
 		EndIf;
+		IsMainOption = Form.CurrentVariantKey = "Main"
+			Or Form.CurrentVariantKey = "Main";
 		
 		If Form.ReportFormType = ReportFormType.Main
-			And (Form.DetailsMode
-			Or (Form.CurrentVariantKey <> "Main"
-			And Form.CurrentVariantKey <> "Main")) Then 
+			And (Form.DetailsMode Or Not IsMainOption) Then 
 			
 			AdditionalSettingsProperties.Insert("ReportInitialized", True);
 		EndIf;
@@ -106,6 +107,23 @@ Procedure BeforeLoadVariantAtServer(Form, Settings) Export
 			CurrentSchemaKey = BinaryDataHash(SchemaBinaryData);
 			Schema = Reports.UniversalReport.ExtractSchemaFromBinaryData(SchemaBinaryData);
 		EndIf;
+		
+		AdditionalSettingsProperties.Delete("SetFixedParameters");
+		AdditionalSettingsProperties.Delete("DownloadedXMLSettings");
+		
+		If Not IsMainOption
+		   And Not BeforeDownloadingSettings
+		   And TypeOf(Settings) = Type("DataCompositionSettings")
+		   And AdditionalSettingsProperties.Property("AvailableValues") Then
+			
+			If AdditionalSettingsProperties.Property("SavableFixedParameters") Then
+				AdditionalSettingsProperties.Insert("SetFixedParameters");
+			Else
+				AdditionalSettingsProperties.Insert("DownloadedXMLSettings",
+					Common.ValueToXMLString(Settings));
+			EndIf;
+		EndIf;
+		
 	EndIf;
 	
 	If IsImportedSchema Then
@@ -145,11 +163,66 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 		EndIf;
 	EndIf;
 	
-	ResetSettings = CommonClientServer.StructureProperty(NewDCSettings.AdditionalProperties, "ResetSettings", False);
+	If NewDCSettings.AdditionalProperties.Property("SetFixedParameters") Then
+		NewDCSettings.AdditionalProperties.Delete("SetFixedParameters");
+		Try
+			Reports.UniversalReport.SetFixedParameters(ThisObject,
+				NewDCSettings.AdditionalProperties.SavableFixedParameters,
+				NewDCSettings,
+				NewDCUserSettings);
+		Except
+			ErrorInfo = ErrorInfo();
+			Comment = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Cannot set fixed parameters
+				           |for the universal report option with the ""%1"" key. Reason:
+				           |%2';"),
+				           VariantKey,
+				           ErrorProcessing.DetailErrorDescription(ErrorInfo));
+			WriteLogEvent(NStr("en = 'Report options.Set up universal report parameters';", 
+				Common.DefaultLanguageCode()),
+				EventLogLevel.Error,
+				Metadata.Catalogs.ReportsOptions,,
+				Comment);
+		EndTry;
 		
+	ElsIf Not NewDCSettings.AdditionalProperties.Property("ReportInitialized")
+	        And TypeOf(NewDCUserSettings) = Type("DataCompositionUserSettings") Then
+		
+		// 
+		// 
+		SchemaKey = "";
+	EndIf;
+	
 	AvailableValues = Undefined;
 	FixedParameters = Reports.UniversalReport.FixedParameters(
 		NewDCSettings, NewDCUserSettings, AvailableValues);
+	
+	If NewDCSettings.AdditionalProperties.Property("DownloadedXMLSettings") Then
+		DownloadedXMLSettings = NewDCSettings.AdditionalProperties.DownloadedXMLSettings;
+		NewDCSettings.AdditionalProperties.Delete("DownloadedXMLSettings");
+		Try
+			DCUploadedSettings = Common.ValueFromXMLString(DownloadedXMLSettings);
+			DCUploadedSettings.AdditionalProperties.Insert("AvailableValues", AvailableValues);
+			DCUploadedSettings.AdditionalProperties.Insert("SavableFixedParameters", FixedParameters);
+			ReportKey = Context.ReportSettings.FullName;
+			SettingsDescription = SettingsStorages.ReportsVariantsStorage.GetDescription(ReportKey, VariantKey);
+			SettingsStorages.ReportsVariantsStorage.Save(ReportKey,
+				VariantKey, DCUploadedSettings, SettingsDescription);
+		Except
+			ErrorInfo = ErrorInfo();
+			Comment = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Cannot save the fixed parameters
+				           |for the universal report option with the ""%1"" key. Reason:
+				           |%2';"),
+				           VariantKey,
+				           ErrorProcessing.DetailErrorDescription(ErrorInfo));
+			WriteLogEvent(NStr("en = 'Report options.Set up universal report parameters';", 
+				Common.DefaultLanguageCode()),
+				EventLogLevel.Error,
+				Metadata.Catalogs.ReportsOptions,,
+				Comment);
+		EndTry;
+	EndIf;
 	
 	If CurrentSchemaKey = Undefined Then 
 		CurrentSchemaKey = FixedParameters.MetadataObjectType
@@ -159,15 +232,14 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 		
 		If CurrentSchemaKey <> SchemaKey Then
 			SchemaKey = "";
-			Schema = Reports.UniversalReport.DataCompositionSchema(FixedParameters);
 		EndIf;
 	EndIf;
-		
-	If ResetSettings And Schema = Undefined Then
-	    Schema = Reports.UniversalReport.DataCompositionSchema(FixedParameters);
-	EndIf;	
-			
-	If CurrentSchemaKey <> Undefined And (CurrentSchemaKey <> SchemaKey Or ResetSettings) Then
+	
+	If Not ValueIsFilled(SchemaKey) And Not IsImportedSchema Then
+		Schema = Reports.UniversalReport.DataCompositionSchema(FixedParameters);
+	EndIf;
+	
+	If CurrentSchemaKey <> Undefined And (CurrentSchemaKey <> SchemaKey) Then
 		SchemaKey = CurrentSchemaKey;
 		ReportsServer.AttachSchema(ThisObject, Context, Schema, SchemaKey);
 		
@@ -183,7 +255,7 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 			// Переопределение.
 			SSLSubsystemsIntegration.BeforeLoadVariantAtServer(Context, NewDCSettings);
 			ReportsOverridable.BeforeLoadVariantAtServer(Context, NewDCSettings);
-			BeforeLoadVariantAtServer(Context, NewDCSettings);
+			BeforeLoadVariantAtServer(Context, NewDCSettings, True);
 			
 			TablesToUse = ReportsOptions.TablesToUse(DataCompositionSchema);
 			TablesToUse.Add(Metadata().FullName());
@@ -194,12 +266,15 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 				Context.Insert("SchemaURL", PutToTempStorage(Schema, New UUID));
 			EndIf;
 		EndIf;
+		AvailableValues = Undefined;
+		FixedParameters = Reports.UniversalReport.FixedParameters(
+			NewDCSettings, NewDCUserSettings, AvailableValues);
 	Else
 		Reports.UniversalReport.SetFixedParameters(
 			ThisObject, FixedParameters, NewDCSettings, NewDCUserSettings);
 	EndIf;
-			
-	SettingsComposer.Settings.AdditionalProperties.Insert("AvailableValues", AvailableValues);
+	NewDCSettings.AdditionalProperties.Insert("SavableFixedParameters", FixedParameters);
+	NewDCSettings.AdditionalProperties.Insert("AvailableValues", AvailableValues);
 	
 	Reports.UniversalReport.SetStandardReportHeader(
 		Context, NewDCSettings, FixedParameters, AvailableValues);

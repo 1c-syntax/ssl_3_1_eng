@@ -187,9 +187,9 @@ Function ProcessPersonalCertificates(CertificatesPropertiesTable, Filter)
 EndFunction
 
 // For internal use only.
-Function VerifySignature(SourceDataAddress, SignatureAddress, ErrorDescription) Export
+Function VerifySignature(SourceDataAddress, SignatureAddress, ErrorDescription, OnDate, CheckResult = Undefined) Export
 	
-	Return DigitalSignature.VerifySignature(Undefined, SourceDataAddress, SignatureAddress, ErrorDescription);
+	Return DigitalSignature.VerifySignature(Undefined, SourceDataAddress, SignatureAddress, ErrorDescription, OnDate, CheckResult);
 	
 EndFunction
 
@@ -197,6 +197,16 @@ EndFunction
 Function CheckCertificate(CertificateAddress, ErrorDescription, OnDate, AdditionalParameters = Undefined) Export
 	
 	Return DigitalSignatureInternal.CheckCertificate(Undefined, CertificateAddress, ErrorDescription, OnDate, AdditionalParameters);
+	
+EndFunction
+
+// For internal use only.
+Function SignatureProperties(SignaturesAddress, ShouldReadCertificates, UseCryptoManager = True) Export
+	
+	Signatures = GetFromTempStorage(SignaturesAddress);
+	Result = DigitalSignatureInternal.SignatureProperties(
+		Signatures, ShouldReadCertificates, UseCryptoManager);
+	Return PutToTempStorage(Result);
 	
 EndFunction
 
@@ -322,7 +332,7 @@ Function ExecuteAtServerSide(Val Parameters, ResultAddress, OperationStarted, Er
 		
 		If Parameters.Operation <> "Signing" Then
 			ErrorAtServer.Insert("ErrorDescription", StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'External add-in ""%1"" is intended for signing only.';"), "ExtraCryptoAPI"));
+				NStr("en = '%1 add-in is intended for signing only.';"), "ExtraCryptoAPI"));
 			Return False;
 		EndIf;
 		
@@ -341,7 +351,7 @@ Function ExecuteAtServerSide(Val Parameters, ResultAddress, OperationStarted, Er
 		
 		If Parameters.Operation <> "Signing" Then
 			ErrorAtServer.Insert("ErrorDescription", StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'External add-in ""%1"" is intended for signing only.';"), "ExtraCryptoAPI"));
+				NStr("en = '%1 add-in is intended for signing only.';"), "ExtraCryptoAPI"));
 			Return False;
 		EndIf;
 		
@@ -415,30 +425,26 @@ Function ExecuteAtServerSide(Val Parameters, ResultAddress, OperationStarted, Er
 		CertificateProperties.Insert("BinaryData", CryptoCertificate.Unload());
 		
 		If DigitalSignature.AvailableAdvancedSignature() Then
-			Try
-				ContainerSignatures = CryptoManager.GetCryptoSignaturesContainer(ResultBinaryData);
-				ParametersCryptoSignatures = DigitalSignatureInternalClientServer.ParametersCryptoSignatures(ContainerSignatures,
-					DigitalSignatureInternal.TimeAddition(), CurrentSessionDate());
-			Except
+			SignatureProperties = DigitalSignatureInternal.SignaturePropertiesReadByCryptoManager(
+				ResultBinaryData, CryptoManager, False);
+				
+			If SignatureProperties.Success = False Then
+				
 				SignatureData = Base64String(ResultBinaryData);
 				ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'When reading the signature data after signing: %1
-					|Signing result: %2';"), ErrorProcessing.BriefErrorDescription(ErrorInfo()), SignatureData);
+					NStr("en = '%1.
+					|Signature result: %2';"), SignatureProperties.ErrorText, SignatureData);
 				ErrorAtServer.Insert("ErrorDescription", ErrorPresentation);
 				ErrorAtServer.Insert("Instruction", True);
 				Return False;
-			EndTry;
+				
+			EndIf;
 		Else
-			ParametersCryptoSignatures = DigitalSignatureInternalClientServer.NewSettingsSignaturesCryptography();
-			SignaturePropertiesFromBinaryData = DigitalSignatureInternalClientServer.SignaturePropertiesFromBinaryData(
-				ResultBinaryData, DigitalSignatureInternal.TimeAddition());
-			ParametersCryptoSignatures.UnverifiedSignatureDate = SignaturePropertiesFromBinaryData.SigningDate;
-			ParametersCryptoSignatures.DateSignedFromLabels = SignaturePropertiesFromBinaryData.DateOfTimeStamp;
-			ParametersCryptoSignatures.SignatureType = SignaturePropertiesFromBinaryData.SignatureType;
+			SignatureProperties = DigitalSignatureInternal.SignaturePropertiesFromBinaryData(ResultBinaryData, False);
 		EndIf;
 		
 		SignatureProperties = DigitalSignatureInternalClientServer.SignatureProperties(ResultBinaryData,
-			CertificateProperties, Parameters.Comment, Users.AuthorizedUser(),,ParametersCryptoSignatures);
+			CertificateProperties, Parameters.Comment, Users.AuthorizedUser(),,SignatureProperties);
 			
 		SignatureProperties.SignatureDate = ?(ValueIsFilled(SignatureProperties.UnverifiedSignatureDate),
 			SignatureProperties.UnverifiedSignatureDate, CurrentSessionDate());
@@ -447,6 +453,8 @@ Function ExecuteAtServerSide(Val Parameters, ResultAddress, OperationStarted, Er
 			SignatureProperties.SignatureValidationDate = SignatureProperties.SignatureDate;
 			SignatureProperties.SignatureCorrect = Parameters.CertificateValid;
 		EndIf;
+		
+		SignatureProperties.CheckRequired2 = Parameters.CheckRequired2;
 		
 		ResultAddress = PutToTempStorage(SignatureProperties, Parameters.FormIdentifier);
 		
@@ -510,11 +518,11 @@ Function ServiceAccountSettingsToImproveSignatures(FormIdentifier = Undefined) E
 EndFunction
 
 // For internal use only.
-Function UserCertificateSettings(Certificate) Export
+Function CertificateCustomSettings(Certificate) Export
 	
 	Result = New Structure;
 	Result.Insert("IsNotified", True);
-	Result.Insert("SigningIsAllowed", Undefined);
+	Result.Insert("SigningAllowed", Undefined);
 	Result.Insert("CertificateRef",  Undefined);
 	
 	If TypeOf(Certificate) = Type("BinaryData") Then // Thumbprint
@@ -529,7 +537,7 @@ Function UserCertificateSettings(Certificate) Export
 		Return Result;
 	EndIf;
 	
-	Result.SigningIsAllowed = Common.CommonSettingsStorageLoad(
+	Result.SigningAllowed = Common.CommonSettingsStorageLoad(
 		CertificateRef, "AllowSigning", Undefined);
 	Result.IsNotified = InformationRegisters.CertificateUsersNotifications.UserAlerted(CertificateRef);
 	Result.CertificateRef = CertificateRef;
@@ -747,11 +755,22 @@ Function WriteCertificateToCatalog(Val Certificate, AdditionalParameters = Undef
 	
 EndFunction
 
+// For internal use only.
+// 
+// Parameters:
+//  Thumbprint - String
+//
+Function DoWriteCertificateRevocationMark(Thumbprint) Export
+	
+	Return DigitalSignatureInternal.DoWriteCertificateRevocationMark(Thumbprint);
+	
+EndFunction
+
 Function TheCloudSignatureServiceIsConfigured() Export
 	
 	Result = False;
 	
-	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
 	EndIf;
 	
 	Return Result;
@@ -780,7 +799,7 @@ EndFunction
 // 
 // 
 // Parameters:
-//   IssuedTo - Array of строк
+//   IssuedTo - Array of String
 //             - String
 //
 // Returns:
@@ -809,19 +828,16 @@ EndFunction
 
 #Region DigitalSignatureDiagnostics
 
-Function ActionsToFixError(ErrorText) Export
+Function ClassifierError(ErrorText) Export
 	
-	Return DigitalSignatureInternal.ActionsToFixError(ErrorText);
+	Return DigitalSignatureInternal.ClassifierError(ErrorText);
 	
 EndFunction
 
 Function ReadAddInResponce(Text) Export
 	
 	Try
-		JSONReader = New JSONReader;
-		JSONReader.SetString(Text);
-		Result = ReadJSON(JSONReader, True);
-		JSONReader.Close();
+		Result = Common.JSONValue(Text);
 	Except
 		
 		ErrorInfo = ErrorProcessing.BriefErrorDescription(ErrorInfo());
@@ -913,11 +929,11 @@ Procedure AddADescriptionOfTheCertificate(Certificate, FilesDetails, Information
 				CertificatePresentation = "";
 			EndTry;
 		EndIf;
-		Extension = ".cer";
+		Extension = "cer";
 		SignAlgorithm = DigitalSignatureInternalClientServer.CertificateSignAlgorithm(
 			CertificateData, True);
 	Else
-		Extension = ".txt";
+		Extension = "txt";
 		XMLCertificateData = XMLString(New ValueStorage(CertificateData));
 		CertificateData = GetBinaryDataFromString(XMLCertificateData, TextEncoding.ANSI, False);
 		SignAlgorithm = "";
@@ -926,8 +942,7 @@ Procedure AddADescriptionOfTheCertificate(Certificate, FilesDetails, Information
 		CertificatePresentation = NStr("en = 'Certificate';") + Format(Number, "NG=");
 	EndIf;
 	
-	CertificateFileName = DigitalSignatureInternalClientServer.PrepareStringForFileName(
-		CertificatePresentation) + Extension;
+	CertificateFileName = DigitalSignatureInternalClientServer.CertificateFileName(CertificatePresentation, "", Extension);
 	
 	FileDetails = New Structure;
 	FileDetails.Insert("Data", CertificateData);

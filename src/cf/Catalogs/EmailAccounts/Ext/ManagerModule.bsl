@@ -466,14 +466,18 @@ Function ConnectionSettingsByEmailAddress(Email, Password = "") Export
 		EndIf;
 	EndIf;
 	
+	If FoundSettings = Undefined Then
+		FoundSettings = New Map;
+	EndIf;
+	
 	Profile = Undefined;
 	If ValueIsFilled(FoundSettings) Then
 		Profile = GenerateProfile(FoundSettings, Email, Password);
-		
-		SetPrivilegedMode(True);
-		AuthorizationSettings = ServerAuthorizationSettings(FoundSettings, MailServerName, MailDomain);
-		SetPrivilegedMode(False);
 	EndIf;
+	
+	SetPrivilegedMode(True);
+	AuthorizationSettings = ServerAuthorizationSettings(FoundSettings, MailServerName, MailDomain);
+	SetPrivilegedMode(False);
 	
 	Result = New Structure;
 	Result.Insert("Profile", Profile);
@@ -498,8 +502,14 @@ Function ServerAuthorizationSettings(FoundSettings, MailServerName, MailDomain)
 	
 	AuthorizationSettings.InternetServiceName = MailServerName;
 	AuthorizationSettings.DataOwner = MailDomain;
-	AuthorizationSettings.AuthorizationAddress = SettingsFromClassifier["AuthorizationURI"];
-	AuthorizationSettings.KeyReceiptAddress = SettingsFromClassifier["TokenExchangeURI"];
+	
+	If Not ValueIsFilled(AuthorizationSettings.AuthorizationAddress) Then
+		AuthorizationSettings.AuthorizationAddress = SettingsFromClassifier["AuthorizationURI"];
+	EndIf;
+	
+	If Not ValueIsFilled(AuthorizationSettings.KeyReceiptAddress) Then
+		AuthorizationSettings.KeyReceiptAddress = SettingsFromClassifier["TokenExchangeURI"];
+	EndIf;
 	
 	AuthorizationSettings.PermissionsToRequest = SettingsFromClassifier["MailScope"];
 	If TypeOf(AuthorizationSettings.PermissionsToRequest) = Type("Array") Then

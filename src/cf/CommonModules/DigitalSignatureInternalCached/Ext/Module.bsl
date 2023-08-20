@@ -97,7 +97,7 @@ Function CommonSettings() Export
 		LongDesc.SignatureVerificationAlgorithms = SignatureVerificationAlgorithms(SettingToSupply);
 		FixedDescription = New FixedStructure(LongDesc);
 		
-		ApplicationsByNamesWithType .Insert(ApplicationSearchKeyByNameWithType, FixedDescription);
+		ApplicationsByNamesWithType.Insert(ApplicationSearchKeyByNameWithType, FixedDescription);
 		
 		PublicKeyID = Undefined;
 		For Each CurrentItem In SetsOfAlgorithmsForCreatingASignature Do
@@ -318,17 +318,14 @@ Procedure SupplementSolutionWithAutomaticActions(Decision, RemedyActions)
 EndProcedure
 
 // For internal use only.
-Function ActionsToFixErrorsRead(Remedy)
+Function ActionsToFixErrorsRead(Val Remedy)
 	
 	If Not ValueIsFilled(Remedy) Then
 		Return Undefined;
 	EndIf;
 	
-	JSONReader = New JSONReader;
-	JSONReader.SetString(Remedy);
-	Remedy = ReadJSON(JSONReader); // Map
-	
-	Return Remedy.МетодикиУстранения;
+	Remedy = Common.JSONValue(Remedy, , False); // Structure
+	Return Remedy.TroubleshootingMethods;
 	
 EndFunction
 
@@ -340,23 +337,10 @@ Function ErrorPresentation()
 	ErrorPresentation.Insert("Decision", "");
 	ErrorPresentation.Insert("Remedy", "");
 	ErrorPresentation.Insert("RemedyActions");
+	ErrorPresentation.Insert("IsCheckRequired", False);
+	ErrorPresentation.Insert("CertificateRevoked", False);
 	
 	Return ErrorPresentation;
-	
-EndFunction
-
-// 
-// 
-// Parameters:
-//  ErrorText 
-// 
-// Returns:
-//  Undefined - 
-//  
-//
-Function ActionsToFixError(ErrorText) Export
-	
-	Return DigitalSignatureInternal.ActionsToFixError(ErrorText);
 	
 EndFunction
 

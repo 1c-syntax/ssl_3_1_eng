@@ -71,7 +71,7 @@ Procedure DistributedInfobaseNodePrefixOnChange(Item)
 	EndIf;
 	
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-	WaitSettings.OutputIdleWindow = False;;
+	WaitSettings.OutputIdleWindow = False;
 	
 	Handler = New NotifyDescription("AfterChangePrefix", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(BackgroundJob, Handler, WaitSettings);

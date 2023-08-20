@@ -41,6 +41,36 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.PropertyManagerCached</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">SessionParameter.PropertiesFillingInteractiveCheck</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.AdditionalAttributesFillCheckProcessing</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Enum.PropertiesColors</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Enum.PropertiesKinds</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.LabelColorLightBlue</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.LabelColorYellow</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.LabelColorGreen</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.LabelColorLime</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.LabelColorRed</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.LabelColorOrange</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.LabelColorPink</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.LabelColorGray</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.LabelColorBlue</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.LabelColorPurple</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.LabelPurple</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.LabelBlue</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.LabelGray</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.LabelPink</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.LabelOrange</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.LabelRed</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.LabelLime</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.LabelGreen</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.LabelYellow</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.LabelLightBlue</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.Label</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.PropertiesIcons</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonForm.LabelsEdit</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Enum.LabelsDisplayOptions</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.LabelsOwner</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.EditLabels</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.LabelTextColor_SSLym</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.LabelsFont</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

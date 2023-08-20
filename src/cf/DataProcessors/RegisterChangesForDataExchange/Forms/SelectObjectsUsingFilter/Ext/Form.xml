@@ -153,7 +153,6 @@
 			<EnableStartDrag>true</EnableStartDrag>
 			<FileDragMode>AsFile</FileDragMode>
 			<DataPath>DataList</DataPath>
-			<RowPictureDataPath>~DataList.DefaultPicture</RowPictureDataPath>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>

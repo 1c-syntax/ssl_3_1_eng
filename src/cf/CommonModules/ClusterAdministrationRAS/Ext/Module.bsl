@@ -184,7 +184,7 @@ Function InfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrat
 		ProcessLicenses.Insert(ILicenseInfo["process"], ILicenseInfo); 
 	EndDo;
 	
-	// Процессы.
+	// Processes.
 	Command = "process list " + ClusterParameters;
 	Processes = New Map;
 	For Each Process_ In RunCommand(Command, ClusterAdministrationParameters, , , WorkingProcessPropertyTypes()) Do
@@ -222,7 +222,7 @@ Function InfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrat
 
 	EndDo;
 	
-	// Сеансы.
+	// Sessions.
 	Command = "session list --infobase=%1 " + ClusterParameters;
 	SubstituteParametersToCommand(Command, InfoBaseID);
 	Filter = FilterToRacNotation(Filter, SessionPropertiesDictionary());

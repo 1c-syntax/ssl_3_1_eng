@@ -34,7 +34,7 @@ EndProcedure
 // Parameters:
 //  TypeFileOwner  - Type - a type of object reference, to which the file is added.
 //
-//  CatalogNames - Map of КлючЗначение:
+//  CatalogNames - Map of KeyAndValue:
 //    * Key - String     - Name of attachment catalog.
 //    * Value - Boolean - Set to True to mark the catalog as main. 
 //                          The main catalog is used for interactive file management. 

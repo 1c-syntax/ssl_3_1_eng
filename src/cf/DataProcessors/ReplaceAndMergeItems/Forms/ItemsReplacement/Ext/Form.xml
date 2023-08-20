@@ -99,7 +99,7 @@
 							<EnableStartDrag>true</EnableStartDrag>
 							<FileDragMode>AsFile</FileDragMode>
 							<DataPath>List</DataPath>
-							<RowPictureDataPath>~List.DefaultPicture</RowPictureDataPath>
+							<RowPictureDataPath>List.DefaultPicture</RowPictureDataPath>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -167,7 +167,7 @@
 									<ExtendedTooltip name="ListItemExtendedTooltip" id="196"/>
 									<ChildItems>
 										<InputField name="ListStandardPicture" id="192">
-											<DataPath>List.StandardPicture</DataPath>
+											<DataPath>List.DefaultPicture</DataPath>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
@@ -206,13 +206,28 @@
 								</LabelField>
 							</ChildItems>
 						</Table>
+						<LabelDecoration name="ListFilterTooltip" id="244">
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<TextColor>style:NoteText</TextColor>
+							<Title formatted="false">
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>List filter tooltip</v8:content>
+								</v8:item>
+							</Title>
+							<ContextMenu name="ListFilterTooltipContextMenu" id="245"/>
+							<ExtendedTooltip name="ListFilterTooltipExtendedTooltip" id="246"/>
+							<Events>
+								<Event name="URLProcessing">ReplacementItemSelectionTooltipURLProcessing</Event>
+							</Events>
+						</LabelDecoration>
 						<LabelDecoration name="ReplacementItemSelectionTooltip" id="227">
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<TextColor>style:NoteText</TextColor>
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Replacement item select tooltip</v8:content>
+									<v8:content>Replacement item selection tooltip</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="ReplacementItemSelectionTooltipContextMenu" id="228"/>
@@ -740,38 +755,92 @@ Please wait…</v8:content>
 				<ManualQuery>true</ManualQuery>
 				<DynamicDataRead>false</DynamicDataRead>
 				<QueryText>SELECT
-	NULL AS Ref,
 	NULL AS Owner,
 	NULL AS Code,
-	FALSE AS DeletionMark,
-	FALSE AS IsFolder,
-	NULL AS StandardPicture
-
-</QueryText>
-				<Field xsi:type="dcssch:DataSetFieldField">
-					<dcssch:dataPath>Ref</dcssch:dataPath>
-					<dcssch:field>Ref</dcssch:field>
-				</Field>
-				<Field xsi:type="dcssch:DataSetFieldField">
-					<dcssch:dataPath>Owner</dcssch:dataPath>
-					<dcssch:field>Owner</dcssch:field>
-				</Field>
+	FALSE AS IsFolder
+FROM
+	Catalog.Users AS UsersOverridable</QueryText>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Code</dcssch:dataPath>
 					<dcssch:field>Code</dcssch:field>
-				</Field>
-				<Field xsi:type="dcssch:DataSetFieldField">
-					<dcssch:dataPath>DeletionMark</dcssch:dataPath>
-					<dcssch:field>DeletionMark</dcssch:field>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>IsFolder</dcssch:dataPath>
 					<dcssch:field>IsFolder</dcssch:field>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
-					<dcssch:dataPath>StandardPicture</dcssch:dataPath>
-					<dcssch:field>StandardPicture</dcssch:field>
+					<dcssch:dataPath>Owner</dcssch:dataPath>
+					<dcssch:field>Owner</dcssch:field>
 				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Description</dcssch:dataPath>
+					<dcssch:field>Description</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Invalid</dcssch:dataPath>
+					<dcssch:field>Invalid</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Department</dcssch:dataPath>
+					<dcssch:field>Department</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Individual</dcssch:dataPath>
+					<dcssch:field>Individual</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Comment</dcssch:dataPath>
+					<dcssch:field>Comment</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>IsInternal</dcssch:dataPath>
+					<dcssch:field>IsInternal</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Prepared</dcssch:dataPath>
+					<dcssch:field>Prepared</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>IBUserID</dcssch:dataPath>
+					<dcssch:field>IBUserID</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ServiceUserID</dcssch:dataPath>
+					<dcssch:field>ServiceUserID</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeleteInfobaseUserProperties</dcssch:dataPath>
+					<dcssch:field>DeleteInfobaseUserProperties</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Photo</dcssch:dataPath>
+					<dcssch:field>Photo</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>AdditionalAttributes</dcssch:dataPath>
+					<dcssch:field>AdditionalAttributes</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ContactInformation</dcssch:dataPath>
+					<dcssch:field>ContactInformation</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Predefined</dcssch:dataPath>
+					<dcssch:field>Predefined</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PredefinedDataName</dcssch:dataPath>
+					<dcssch:field>PredefinedDataName</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeletionMark</dcssch:dataPath>
+					<dcssch:field>DeletionMark</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Ref</dcssch:dataPath>
+					<dcssch:field>Ref</dcssch:field>
+				</Field>
+				<MainTable>Catalog.Users</MainTable>
 				<ListSettings>
 					<dcsset:filter>
 						<dcsset:viewMode>Normal</dcsset:viewMode>

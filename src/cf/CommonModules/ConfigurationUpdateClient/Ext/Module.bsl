@@ -36,7 +36,7 @@ Function UpdatesInstallationSupported() Export
 		Return Result;
 	EndIf;
 	
-	If Not StandardSubsystemsClient.ClientRunParameters().IsSystemAdministrator Then 
+	If Not UsersClient.IsFullUser(True) Then
 		Result.ErrorDescription = NStr("en = 'You need the administrator rights to install the update.';");
 		Return Result;
 	EndIf;
@@ -183,7 +183,7 @@ EndFunction
 //        * IBBackupDirectoryName - String - a backup directory.
 //        * RestoreInfobase - Boolean - shows whether an infobase is restored from a backup in case of update errors.
 //        * ShouldExitApp - Boolean - shows that an update is installed when the application is closed.
-//        * UpdateFiles - Array of Structure:
+//        * FilesOfUpdate - Array of Structure:
 //           ** UpdateFileFullName - String
 //           ** RunUpdateHandlers - Boolean -
 //        * Corrections - Structure:
@@ -472,7 +472,7 @@ Function UpdateFilesNames(Parameters, FirstFileOnly = False)
 		NameOfFirstFile = Null;
 		If IsBlankString(Parameters.UpdateFileName) Then
 			FilesNames = New Array;
-			For Each UpdateFile In Parameters.UpdateFiles Do
+			For Each UpdateFile In Parameters.FilesOfUpdate Do
 				If NameOfFirstFile = Null Then
 					NameOfFirstFile = UpdateFile.UpdateFileFullName;
 				EndIf;
@@ -796,7 +796,7 @@ Function PatchesInformation(Parameters, TempFilesDir)
 		
 		If Parameters.Corrections.Property("Delete")
 			And Parameters.Corrections.Delete.Count() > 0 Then
-			PatchesToDelete = StrConcat(Parameters.Corrections.Delete, ",");
+			PatchesToDelete = "'" + StrConcat(Parameters.Corrections.Delete, "','") + "'";
 			PatchesToDelete = "[" + PatchesToDelete + "]";
 		EndIf;
 	EndIf;
@@ -811,8 +811,7 @@ EndFunction
 
 Function GenerateUpdateScriptFiles(Val InteractiveMode, Parameters, AdministrationParameters)
 	
-	ClientRunParameters = StandardSubsystemsClient.ClientRunParameters();
-	IsFileInfobase = ClientRunParameters.FileInfobase;
+	IsFileInfobase = CommonClient.FileInfobase();
 	
 	PlatformDirectory = Undefined;
 	Parameters.Property("PlatformDirectory", PlatformDirectory);
@@ -821,8 +820,10 @@ Function GenerateUpdateScriptFiles(Val InteractiveMode, Parameters, Administrati
 	DesignerExecutableFileName = BinDir + StandardSubsystemsClient.ApplicationExecutableFileName(True);
 	ClientExecutableFileName = BinDir + StandardSubsystemsClient.ApplicationExecutableFileName();
 	COMConnectorPath = BinDir() + "comcntr.dll";
+	COMConnectorName = CommonClientServer.COMConnectorName();
 	EncodingOfTheLogFile = EncodingOfTheLogFile(BinDir);
-	UseCOMConnector = Not (ClientRunParameters.IsBaseConfigurationVersion Or ClientRunParameters.IsTrainingPlatform);
+	UseCOMConnector = Not (StandardSubsystemsClient.IsBaseConfigurationVersion()
+		Or StandardSubsystemsClient.IsTrainingPlatform());
 	
 	ScriptParameters = GetUpdateAdministratorAuthenticationParameters(AdministrationParameters);
 	InfoBaseConnectionString = ScriptParameters.InfoBaseConnectionString + ScriptParameters.StringForConnection;
@@ -881,7 +882,7 @@ Function GenerateUpdateScriptFiles(Val InteractiveMode, Parameters, Administrati
 	InsertScriptParameter("EventLogEvent"         , EventLogEvent()                , True, ParametersArea);
 	InsertScriptParameter("Email"             , Email                      , True, ParametersArea);
 	InsertScriptParameter("UpdateAdministratorName"       , UserName                            , True, ParametersArea);
-	InsertScriptParameter("COMConnectorName"                 , ClientRunParameters.COMConnectorName   , True, ParametersArea);
+	InsertScriptParameter("COMConnectorName"                 , COMConnectorName                          , True, ParametersArea);
 	InsertScriptParameter("BackupDirectory"             , BackupDirectory                      , True, ParametersArea);
 	InsertScriptParameter("CreateDataBackup"           , CreateDataBackup                    , False  , ParametersArea);
 	InsertScriptParameter("RestoreInfobase" , Parameters.RestoreInfobase, False  , ParametersArea);
@@ -995,6 +996,8 @@ Procedure RunUpdateScript(Parameters, AdministrationParameters)
 	
 	If Form = Undefined Then
 		RunUpdateScriptOnDataCleanUp(Context);
+	ElsIf Not Form.IsOpen() Then
+		RunUpdateScriptAfterUpdateFileChecked(Form.Result, Context);
 	EndIf;
 	
 EndProcedure
@@ -1081,8 +1084,7 @@ Procedure RunUpdateScriptCompletion(Parameters, AdministrationParameters)
 		StringUnicode(AdministrationParameters.InfobaseAdministratorPassword),
 		StringUnicode(AdministrationParameters.ClusterAdministratorPassword));
 	
-	ClientParameters = StandardSubsystemsClient.ClientRunParameters();
-	If ClientParameters.IsBaseConfigurationVersion Then
+	If StandardSubsystemsClient.IsBaseConfigurationVersion() Then
 		ConfigurationUpdateServerCall.DeletePatchesFromScript();
 	EndIf;
 	ReturnCode = Undefined;

@@ -57,6 +57,7 @@ Procedure QuestionnairesTreeBeforeChange(Item, Cancel)
 		ParametersStructure.Insert("Key",CurrentData.QuestionnaireSurvey);
 		ParametersStructure.Insert("FillingFormOnly", True);
 		ParametersStructure.Insert("SurveyMode", Object.SurveyMode);
+		ParametersStructure.Insert("Title", CurrentData.Presentation);
 		OpenForm("Document.Questionnaire.ObjectForm", ParametersStructure, Item);
 	ElsIf TypeOf(CurrentData.QuestionnaireSurvey) = Type("DocumentRef.PollPurpose") Then
 		ParametersStructure = New Structure;
@@ -64,9 +65,10 @@ Procedure QuestionnairesTreeBeforeChange(Item, Cancel)
 		FillingValues.Insert("Respondent", Object.Respondent);
 		FillingValues.Insert("Survey", CurrentData.QuestionnaireSurvey);
 		FillingValues.Insert("SurveyMode", Object.SurveyMode);
+		ParametersStructure.Insert("Title", CurrentData.Presentation);
 		ParametersStructure.Insert("FillingValues", FillingValues);
 		ParametersStructure.Insert("FillingFormOnly", True);
-		OpenForm("Document.Questionnaire.ObjectForm", ParametersStructure, Item);
+		OpenForm("Document.Questionnaire.ObjectForm", ParametersStructure, Item, CurrentData.Presentation);
 	EndIf;
 	
 EndProcedure
@@ -118,9 +120,9 @@ Procedure RespondentQuestionnairesTable()
 				
 			EndIf;
 			
+			NewRow.PictureCode = ?(TableRow.Status = "Surveys",0,1);
+			
 		EndDo;
-		
-		NewRow.PictureCode = ?(TableRow.Status = "Surveys",0,1);
 		
 	EndIf;
 	
@@ -138,25 +140,25 @@ Function GetQuestionnaireTreeRowsPresentation(TreeRow)
 	If TypeOf(TreeRow.QuestionnaireSurvey) = Type("DocumentRef.PollPurpose") Then
 		If ValueIsFilled(TreeRow.EndDate) Then
 			Return StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Questionnaire ""%1"" expires on %2';"),
+				NStr("en = '""%1"" must be filled out by %2';"),
 				TreeRow.Description, Format(BegOfDay(EndOfDay(TreeRow.EndDate) + 1), "DLF=D"));
 		Else	
 			Return StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Questionnaire ""%1""';"), TreeRow.Description);
+				NStr("en = '""%1""';"), TreeRow.Description);
 		EndIf;
 	ElsIf TypeOf(TreeRow.QuestionnaireSurvey) = Type("DocumentRef.Questionnaire") Then
 		If ValueIsFilled(TreeRow.QuestionnaireDate) And ValueIsFilled(TreeRow.EndDate) Then
 			Return StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Questionnaire ""%1"" last edited on %2 expires on %3';"), 
+				NStr("en = '""%1"" was last edited on %2 and must be filled out by %3';"), 
 				TreeRow.Description, Format(TreeRow.QuestionnaireDate, "DLF=D"),
 				Format(BegOfDay(EndOfDay(TreeRow.EndDate) + 1), "DLF=D"));
 		ElsIf ValueIsFilled(TreeRow.QuestionnaireDate) Then
 			Return StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Questionnaire ""%1"" last edited on %2';"), 
+				NStr("en = '""%1"" was last edited on %2';"), 
 				TreeRow.Description, Format(TreeRow.QuestionnaireDate, "DLF=D"));
 		Else
 			Return StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Questionnaire ""%1""';"), TreeRow.Description);
+				NStr("en = '""%1""';"), TreeRow.Description);
 		EndIf;
 	EndIf;
 	Return "";

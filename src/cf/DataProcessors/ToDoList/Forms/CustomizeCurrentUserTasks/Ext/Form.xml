@@ -285,7 +285,12 @@
 											<xr:Presentation/>
 											<xr:CheckState>0</xr:CheckState>
 											<xr:Value xsi:type="FormChoiceListDesTimeValue">
-												<Presentation/>
+												<Presentation>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>1 hour</v8:content>
+													</v8:item>
+												</Presentation>
 												<Value xsi:type="xs:decimal">60</Value>
 											</xr:Value>
 										</xr:Item>
@@ -293,7 +298,12 @@
 											<xr:Presentation/>
 											<xr:CheckState>0</xr:CheckState>
 											<xr:Value xsi:type="FormChoiceListDesTimeValue">
-												<Presentation/>
+												<Presentation>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>2 hours</v8:content>
+													</v8:item>
+												</Presentation>
 												<Value xsi:type="xs:decimal">120</Value>
 											</xr:Value>
 										</xr:Item>
@@ -301,7 +311,12 @@
 											<xr:Presentation/>
 											<xr:CheckState>0</xr:CheckState>
 											<xr:Value xsi:type="FormChoiceListDesTimeValue">
-												<Presentation/>
+												<Presentation>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>4 hours</v8:content>
+													</v8:item>
+												</Presentation>
 												<Value xsi:type="xs:decimal">240</Value>
 											</xr:Value>
 										</xr:Item>

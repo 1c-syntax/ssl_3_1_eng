@@ -610,7 +610,7 @@ EndFunction
 //  String - 
 //
 // Example:
-//  StringFunctionsClientServer.ConvertNumberIntoRomanNotation(17) = "XVII".
+//  
 //
 Function ConvertNumberIntoRomanNotation(ArabicNumber, UseLatinChars = True) Export
 	
@@ -647,7 +647,7 @@ EndFunction
 //  Number - 
 //
 // Example:
-//  StringFunctionsClientServer.ConvertNumberIntoArabicNotation("XVII") = 17.
+//  
 //
 Function ConvertNumberIntoArabicNotation(RomanNumber, UseLatinChars = True) Export
 	
@@ -814,7 +814,7 @@ EndFunction
 //  DatePart - DateFractions - determines the allowed date parts. The default value is DateParts.Date.
 // 
 // Returns:
-//  Date - 
+//  Date
 //
 Function StringToDate(Val Value, DatePart = Undefined) Export
 	
@@ -928,7 +928,7 @@ Function StringToDate(Val Value, DatePart = Undefined) Export
 			EndIf;
 			
 			If DateValueAsArray.Count() = 2 Then
-				Month = TypeDescriptionNumber.AdjustValue(DateValueAsArray[1]);;
+				Month = TypeDescriptionNumber.AdjustValue(DateValueAsArray[1]);
 			ElsIf DateValueAsArray.Count() > 2 Then
 				Month = TypeDescriptionNumber.AdjustValue(DateValueAsArray[1]);
 				If YearInBeginning Then

@@ -54,7 +54,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If Parameters.PrintFormsCollection = Undefined Then
-		TemplatesNames = Parameters.TemplatesNames;
+		Cancel = True;
 		Return;
 	Else
 		PrintFormsCollection = Parameters.PrintFormsCollection;
@@ -119,8 +119,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	PrintManagementOverridable.PrintDocumentsOnCreateAtServer(ThisObject, Cancel, StandardProcessing);
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-		PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
-		PrintManagementModuleMultilanguage.FillInTheLanguageSubmenu(ThisObject, , AvailablePrintFormLanguages());
+		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
+		PrintManagementModuleNationalLanguageSupport.FillInTheLanguageSubmenu(ThisObject, , AvailablePrintFormLanguages());
 	EndIf;
 	
 	SetFormHeader();
@@ -151,16 +151,6 @@ Procedure OnOpen(Cancel)
 		StorageUUID = New UUID;
 	Else
 		StorageUUID = FormOwner.UUID;
-	EndIf;
-	
-	If PrintFormsSettings.Count() = 0 Then
-		TimeConsumingOperation = StartGeneratingPrintForms(TemplatesNames);
-		Context = New Structure("TemplatesNames", TemplatesNames);
-		CompletionNotification2 = New NotifyDescription("OnCompleteGeneratingPrintForms", ThisObject, Context);
-		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters());
-		
-		Cancel = True;
-		Return;
 	EndIf;
 	
 	If ValueIsFilled(SaveFormatSettings) Then
@@ -726,49 +716,6 @@ Procedure SetConditionalAppearance()
 
 EndProcedure
 
-&AtServer
-Function StartGeneratingPrintForms(TemplatesNames)
-	ExecutionParameters = TimeConsumingOperations.FunctionExecutionParameters(StorageUUID);
-	ExecutionParameters.ResultAddress = PutToTempStorage(Undefined, StorageUUID);
-	ExecutionParameters.WaitCompletion = 0;
-	
-	ParametersStructure = New Structure("DataSource,SourceParameters,PrintParameters,PrintManagerName,CommandParameter");
-	For Each Parameter In ParametersStructure Do
-		ParametersStructure.Insert(Parameter.Key, Common.CopyRecursive(Parameters[Parameter.Key]));
-	EndDo;
-	ParametersStructure.PrintParameters.AdditionalParameters.Insert("SignatureAndSeal",	
-		Common.CommonSettingsStorageLoad("PrintOfficeOpenDocs", "SignatureAndSeal", False));
-	
-	
-	ParametersStructure.Insert("TemplatesNames", TemplatesNames);
-	
-	Return TimeConsumingOperations.ExecuteFunction(ExecutionParameters, "PrintManagement.GeneratePrintFormsInBackground", TemplatesNames, 
-		ParametersStructure, OutputParameters, CurrentLanguage, PrintObjects);
-EndFunction
-
-&AtClient
-Procedure OnCompleteGeneratingPrintForms(Result, Val Context) Export
-	If Result <> Undefined Then
-		If Result.Status = "Error" Then
-			Raise Result.BriefErrorDescription;
-		EndIf;
-		ResultStructure1 = GetBackgroundJobResult(Result);
-		PrintFormsCollection = ResultStructure1.PrintFormsCollection;
-		PrintObjects = ResultStructure1.PrintObjects;
-		
-		ArrayOfParametersNames = StrSplit("PrintManagerName,DataSource,CommandParameter,SourceParameters,PrintParameters", ",");
-		For Each ParameterName In ArrayOfParametersNames Do
-			Context.Insert(ParameterName, CommonClient.CopyRecursive(Parameters[ParameterName]));
-		EndDo;
-		
-		Context.Insert("PrintObjects", PrintObjects);
-		Context.Insert("PrintFormsCollection", PrintFormsCollection);
-		Context.Insert("OutputParameters", ResultStructure1.OutputParameters);
-		Context.Insert("Messages", Result.Messages);
-		OpenForm("CommonForm.PrintDocuments", Context, FormOwner, String(New UUID));
-	EndIf;
-EndProcedure
-
 &AtClient
 Procedure AfterOpen()
 	
@@ -786,32 +733,6 @@ Procedure AfterOpen()
 	PrintManagementClientOverridable.PrintDocumentsAfterOpen(ThisObject);
 	
 EndProcedure
-
-&AtServer
-Function GetBackgroundJobResult(Result)
-	BackgroundOperationResult = GetFromTempStorage(Result.ResultAddress);
-	
-	TableOfPrintedForms = BackgroundOperationResult.PrintFormsCollection;
-	OfficeDocuments = BackgroundOperationResult.OfficeDocuments;
-	PrintObjects = BackgroundOperationResult.PrintObjects;
-	
-	For Each PrintForm In TableOfPrintedForms Do
-		OfficeDocsNewAddresses = New Map();
-		If ValueIsFilled(PrintForm.OfficeDocuments) Then
-			For Each OfficeDocument In PrintForm.OfficeDocuments Do
-				OfficeDocsNewAddresses.Insert(PutToTempStorage(OfficeDocuments[OfficeDocument.Key], StorageUUID), OfficeDocument.Value);
-			EndDo;
-			PrintForm.OfficeDocuments = OfficeDocsNewAddresses;
-		EndIf;
-	EndDo;
-	ResultStructure1 = New Structure("PrintFormsCollection, PrintObjects, OutputParameters");
-	ResultStructure1.PrintFormsCollection = Common.ValueTableToArray(TableOfPrintedForms);
-	ResultStructure1.PrintObjects = PrintObjects;
-	ResultStructure1.OutputParameters = BackgroundOperationResult.OutputParameters;
-	
-	Return ResultStructure1;
-	
-EndFunction
 
 &AtClient
 Procedure NotifyWhenPrintFormsPrepared(CombinedDocStructure = Undefined)
@@ -973,8 +894,8 @@ Procedure CreateAttributesAndFormItemsForPrintForms(PrintFormsCollection)
 		NewPrintFormSetting.OutputInOtherLanguagesAvailable = PrintFormDetails.OutputInOtherLanguagesAvailable;
 		If ValueIsFilled(NewPrintFormSetting.TemplatePath) Then
 			If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-				PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
-				NewPrintFormSetting.AvailableLanguages = StrConcat(PrintManagementModuleMultilanguage.LayoutLanguages(NewPrintFormSetting.TemplatePath), ",");
+				PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
+				NewPrintFormSetting.AvailableLanguages = StrConcat(PrintManagementModuleNationalLanguageSupport.LayoutLanguages(NewPrintFormSetting.TemplatePath), ",");
 			EndIf;
 		EndIf;
 		
@@ -1002,7 +923,7 @@ Procedure CreateAttributesAndFormItemsForPrintForms(PrintFormsCollection)
 			NewItem.DataPath = AttributeName;
 			NewItem.Output = EvalOutputUsage(PrintFormDetails.SpreadsheetDocument);
 			NewItem.Edit = NewItem.Output = UseOutput.Enable And Not PrintFormDetails.SpreadsheetDocument.ReadOnly;
-			NewItem.Protection = PrintFormDetails.SpreadsheetDocument.Protection Or Not Users.RolesAvailable("PrintFormsEdit");
+			NewItem.Protection = Not Users.RolesAvailable("PrintFormsEdit");
 			
 			// 
 			NewPrintFormSetting.PageName = PageName;
@@ -1519,7 +1440,6 @@ EndProcedure
 &AtServer
 Function StartGeneratingCombinedDoc()
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.RunInBackground = True;
 	ExecutionParameters.WaitCompletion = 1;
 	
 	GenerationParameters = New Structure("RegenerateCombinedDoc", True);
@@ -1708,7 +1628,7 @@ EndFunction
 Function IdleParameters()
 	
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject.FormOwner);
-	IdleParameters.MessageText = NStr("en = 'Prepare print forms.';");
+	IdleParameters.MessageText = NStr("en = 'Preparing print forms.';");
 	IdleParameters.UserNotification.Show = False;
 	IdleParameters.OutputIdleWindow = True;
 	IdleParameters.Interval = 0;
@@ -2152,7 +2072,7 @@ Procedure SendPrintFormsByEmailAccountSetupOffered(AccountSetUp, AdditionalParam
 		Return;
 	EndIf;
 	
-	FormParameters = New Structure;
+	FormParameters = CommonInternalClient.PrintFormFormatSettings();
 	NameOfFormToOpen_ = "CommonForm.SelectAttachmentFormat";
 	If CommonClient.SubsystemExists("StandardSubsystems.Interactions") 
 		And StandardSubsystemsClient.ClientRunParameters().UseEmailClient Then
@@ -2418,6 +2338,49 @@ Function RefTemplate(TemplateMetadataObjectName)
 	Return Catalogs.PrintFormTemplates.RefTemplate(TemplateMetadataObjectName);
 	
 EndFunction
+
+&AtClient
+Procedure CurrentPrintFormSelection(Item, Area, StandardProcessing)
+	
+	If TypeOf(Area) = Type("SpreadsheetDocumentRange") Or TypeOf(Area) = Type("SpreadsheetDocumentDrawing") Then
+		
+		References = New Structure("Text,Details,Mask","","","");
+		FillPropertyValues(References, Area);
+		
+		If GoToLink(References.Text) Then
+			StandardProcessing = False;
+			Return;
+		EndIf;
+		
+		If GoToLink(References.Details) Then
+			StandardProcessing = False;
+			Return;
+		EndIf;
+		
+		If GoToLink(References.Mask) Then
+			StandardProcessing = False;
+			Return;
+		EndIf;
+	EndIf;
+
+EndProcedure
+
+&AtClient
+Function GoToLink(HyperlinkAddress)
+	If IsBlankString(HyperlinkAddress) Then
+		Return False;
+	EndIf;
+	ReferenceAddressInReg = Upper(HyperlinkAddress);
+	If StrStartsWith(ReferenceAddressInReg, Upper("http://"))
+		Or StrStartsWith(ReferenceAddressInReg, Upper("https://"))
+		Or StrStartsWith(ReferenceAddressInReg, Upper("e1cib/"))
+		Or StrStartsWith(ReferenceAddressInReg, Upper("e1c://")) Then
+		FileSystemClient.OpenURL(HyperlinkAddress);
+		Return True;
+	EndIf;
+	Return False;
+EndFunction
+
 
 #EndRegion
 

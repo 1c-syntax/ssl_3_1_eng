@@ -57,7 +57,7 @@ EndProcedure
 //
 Procedure NotifyClassifierObsolete() Export
 	
-	If WorkingWithBanksCallingServer.ClassifierUpToDate() Then
+	If BankManagerServerCall.ClassifierUpToDate() Then
 		Return;
 	EndIf;
 	

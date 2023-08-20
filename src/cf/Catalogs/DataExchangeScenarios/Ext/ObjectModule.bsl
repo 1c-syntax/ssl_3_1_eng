@@ -94,7 +94,8 @@ Procedure DeleteScheduledJob(Cancel)
 			EndIf;	
 		Except
 			MessageString = NStr("en = 'Cannot delete the scheduled job: %1';");
-			MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+			MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, 
+				ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 			DataExchangeServer.ReportError(MessageString, Cancel);
 		EndTry;
 	

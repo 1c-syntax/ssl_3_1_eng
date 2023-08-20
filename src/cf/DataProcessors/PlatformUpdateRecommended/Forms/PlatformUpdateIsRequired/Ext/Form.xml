@@ -31,6 +31,12 @@
 	</Events>
 	<ChildItems>
 		<UsualGroup name="WarningGroup" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Group Warning</v8:content>
+				</v8:item>
+			</Title>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="WarningGroupExtendedTooltip" id="2"/>
@@ -44,6 +50,12 @@
 					<ExtendedTooltip name="WarningPictureExtendedTooltip" id="9"/>
 				</PictureDecoration>
 				<UsualGroup name="InstructionGroup" id="3">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Group Instructions</v8:content>
+						</v8:item>
+					</Title>
 					<Group>Vertical</Group>
 					<Representation>NormalSeparation</Representation>
 					<ShowTitle>false</ShowTitle>
@@ -70,6 +82,12 @@ or a previous version higher than the minimum allowed version %3.
 							<ExtendedTooltip name="IndentDecorationExtendedTooltip" id="15"/>
 						</LabelDecoration>
 						<UsualGroup name="GroupLinks" id="5">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group Links</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Vertical</Group>
 							<Representation>NormalSeparation</Representation>
 							<ShowTitle>false</ShowTitle>

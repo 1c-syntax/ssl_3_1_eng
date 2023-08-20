@@ -30,7 +30,7 @@
 		<InputField name="Name" id="1">
 			<DataPath>Name</DataPath>
 			<ContextMenu name="NameContextMenu" id="2"/>
-			<ExtendedTooltip name="NameExtendedHint" id="3"/>
+			<ExtendedTooltip name="NameExtendedTooltip" id="3"/>
 			<Events>
 				<Event name="OnChange">NameOnChange</Event>
 			</Events>

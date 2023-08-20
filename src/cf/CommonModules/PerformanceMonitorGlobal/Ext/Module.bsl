@@ -14,6 +14,12 @@
 //
 Procedure EndTimeMeasurementAuto() Export
 	
+#If MobileClient Then
+	If MainServerAvailable() = False Then
+		Return;
+	EndIf;
+#EndIf
+	
 	PerformanceMonitorClient.StopTimeMeasurementAtClientAuto();
 		
 EndProcedure
@@ -22,6 +28,12 @@ EndProcedure
 // The procedure is called from an idle handler.
 //
 Procedure WriteResultsAuto() Export
+	
+#If MobileClient Then
+	If MainServerAvailable() = False Then
+		Return;
+	EndIf;
+#EndIf
 	
 	PerformanceMonitorClient.WriteResultsAutoNotGlobal();
 	

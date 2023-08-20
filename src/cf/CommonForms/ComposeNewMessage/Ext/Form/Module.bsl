@@ -220,7 +220,7 @@ Function SelectedFormatSettings()
 		EndIf;
 	EndDo;	
 	
-	Result = New Structure;
+	Result = CommonInternalClient.PrintFormFormatSettings();
 	Result.Insert("PackToArchive", PackToArchive);
 	Result.Insert("SaveFormats", SaveFormats);
 	Result.Insert("Recipients", SelectedRecipients());

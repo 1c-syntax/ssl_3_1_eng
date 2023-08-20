@@ -116,7 +116,7 @@ Function PrepareEmail(Account, EmailParameters) Export
 	
 	If TypeOf(Account) <> Type("CatalogRef.EmailAccounts")
 		Or Not ValueIsFilled(Account) Then
-		Raise NStr("en = 'The account is not filled in, or is filled with invalid data.';");
+		Raise NStr("en = 'The account is not specified or specified incorrectly.';");
 	EndIf;
 	
 	If EmailParameters = Undefined Then
@@ -157,12 +157,12 @@ Function PrepareEmail(Account, EmailParameters) Export
 	
 EndFunction
 
-// Loads messages from email server for the specified account.
-// Before loading, checks account filling for validity.
-// The function might throw an exception which must be handled.
+// 
+// 
+// 
 //
 // Parameters:
-//   Account - CatalogRef.EmailAccounts - an email account.
+//   Account - CatalogRef.EmailAccounts -
 //
 //   ImportParameters - Structure:
 //     * Columns - Array - array of strings
@@ -225,12 +225,12 @@ EndFunction
 // Returns:
 //  ValueTable - 
 //   * Ref       - CatalogRef.EmailAccounts - an account.
-//   * Description - String - an account description.
+//   * Description - String -
 //   * Address        - String - an email address.
 //
 Function AvailableEmailAccounts(Val ForSending = Undefined,
-										Val ForReceiving  = Undefined,
-										Val IncludingSystemEmailAccount = True) Export
+								Val ForReceiving  = Undefined,
+								Val IncludingSystemEmailAccount = True) Export
 	
 	If Not AccessRight("Read", Metadata.Catalogs.EmailAccounts) Then
 		Return New ValueTable;
@@ -294,10 +294,10 @@ Function AvailableEmailAccounts(Val ForSending = Undefined,
 	
 EndFunction
 
-// Gets the reference to the account by the account purpose kind.
+// 
 //
 // Returns:
-//  CatalogRef.EmailAccounts - 
+//  CatalogRef.EmailAccounts
 //
 Function SystemAccount() Export
 	
@@ -305,10 +305,10 @@ Function SystemAccount() Export
 	
 EndFunction
 
-// Checks that the system account is available (can be used).
+// 
 //
 // Returns:
-//  Boolean - 
+//  Boolean
 //
 Function CheckSystemAccountAvailable() Export
 	
@@ -316,11 +316,11 @@ Function CheckSystemAccountAvailable() Export
 	
 EndFunction
 
-// Returns True if at least one configured email account is available,
-// or user has sufficient access rights to configure the account.
+// 
+// 
 //
 // Returns:
-//  Boolean - 
+//  Boolean
 //
 Function CanSendEmails() Export
 	
@@ -380,12 +380,12 @@ Function AccountSetUp(Account, Val ForSending = Undefined, Val ForReceiving = Un
 		
 EndFunction
 
-// Checks email account settings.
+// 
 //
 // Parameters:
-//  Account     - CatalogRef.EmailAccounts - account to be checked.
-//  ErrorMessage - String - an error message text or an empty string if no errors occurred.
-//  AdditionalMessage - String - messages containing information on the checks made for the account.
+//  Account     - CatalogRef.EmailAccounts -
+//  ErrorMessage - String -
+//  AdditionalMessage - String -
 //
 Procedure CheckSendReceiveEmailAvailability(Account, ErrorMessage, AdditionalMessage) Export
 	
@@ -537,7 +537,7 @@ Function SendEmailMessage(Val Account, Val SendOptions,
 	
 	If TypeOf(Account) <> Type("CatalogRef.EmailAccounts")
 		Or Not ValueIsFilled(Account) Then
-		Raise NStr("en = 'The account is not filled in, or is filled with invalid data.';");
+		Raise NStr("en = 'The account is not specified or specified incorrectly.';");
 	EndIf;
 	
 	If SendOptions = Undefined Then

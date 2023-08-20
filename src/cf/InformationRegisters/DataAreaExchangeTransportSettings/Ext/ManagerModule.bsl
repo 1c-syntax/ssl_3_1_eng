@@ -33,6 +33,7 @@ Function TransportSettings(Val Peer) Export
 	|	DataAreasTransportSettings.FTPConnectionUser,
 	|	DataAreasTransportSettings.FTPConnectionPort,
 	|	DataAreasTransportSettings.DefaultExchangeMessagesTransportKind,
+	|	DataAreasTransportSettings.CorrespondentEndpoint,
 	|	TransportSettings.WebServiceAddress AS WSWebServiceURL,
 	|	TransportSettings.UserName AS WSUsername,
 	|	"""" AS WSPeerDataArea,
@@ -61,7 +62,8 @@ Function TransportSettings(Val Peer) Export
 	Result = DataExchangeInternal.QueryResultToStructure(QueryResult);
 	
 	SetPrivilegedMode(True);
-	Passwords = Common.ReadDataFromSecureStorage(Peer, "FTPConnectionDataAreasPassword,WSPassword, ArchivePasswordDataAreaExchangeMessages");
+	Passwords = Common.ReadDataFromSecureStorage(Result.CorrespondentEndpoint,
+		"FTPConnectionDataAreasPassword,WSPassword, ArchivePasswordDataAreaExchangeMessages", True);
 	SetPrivilegedMode(False);
 	
 	Result.Insert("WSPassword", Passwords.WSPassword);

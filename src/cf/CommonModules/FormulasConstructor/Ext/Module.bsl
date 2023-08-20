@@ -42,7 +42,7 @@ EndProcedure
 //   * HintForEnteringTheSearchString - String
 //   * ListHandlers - Structure
 //   * IncludeGroupsInTheDataPath - Boolean
-//   * IdentifierBrackets - Булев
+//   * IdentifierBrackets - Boolean
 //   * ViewBrackets - Boolean
 //   * SourcesOfAvailableFields - ValueTable - used when any field requires changing
 //                                                 subordinate fields:

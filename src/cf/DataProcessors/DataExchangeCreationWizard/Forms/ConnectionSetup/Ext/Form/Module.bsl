@@ -252,10 +252,33 @@ EndProcedure
 Procedure ConfigureManually(Command)
 	
 	ConnectionSetupOptionInService = "InternetManually";
-	OnChangeConnectionSetupMethod();
 	
-	ChangeNavigationNumber(+1);
+	If XDTOSetup Then 
 	
+		Items.ExternalConnectionConnectionKind.Visible  = AvailableTransportKinds.Property("COM");
+		Items.InternetConnectionKind.Visible           = AvailableTransportKinds.Property("WS");
+		Items.RegularCommunicationChannelsConnectionKind.Visible = AvailableTransportKinds.Property("FILE")
+			Or AvailableTransportKinds.Property("FTP")
+			Or AvailableTransportKinds.Property("EMAIL");
+			
+		Items.PassiveModeConnectionKind.Visible      = AvailableTransportKinds.Property("WSPassiveMode");
+		
+		Items.SettingsFilePassiveModeGroup.Visible = AvailableTransportKinds.Property("WSPassiveMode");
+		Items.SettingsFileRegularCommunicationChannelsGroup.Visible = AvailableTransportKinds.Property("FILE")
+			Or AvailableTransportKinds.Property("FTP")
+			Or AvailableTransportKinds.Property("EMAIL");
+		
+		Items.ConnectionSetupMethodsPanel.CurrentPage = Items.ConnectionKindsPage;
+		Items.NavigationPanel.CurrentPage = Items.PageNavigationWaysToSetUpConnection;
+		OnChangeConnectionKind();
+		
+	Else
+		
+		OnChangeConnectionSetupMethod();
+	    ChangeNavigationNumber(+1);
+
+	EndIf;
+		
 EndProcedure
 
 &AtClient
@@ -309,8 +332,13 @@ EndProcedure
 &AtClient
 Procedure BackCommand(Command)
 	
-	ChangeNavigationNumber(-1);
-	
+	If ConnectionKind = "PassiveMode" Then 
+		ChangeNavigationNumber(-5);
+		Items.NavigationPanel.CurrentPage = Items.PageNavigationWaysToSetUpConnection;
+	Else
+		ChangeNavigationNumber(-1)	
+	EndIf;
+		
 EndProcedure
 
 &AtClient
@@ -366,6 +394,40 @@ Procedure DataSyncDetails(Command)
 	
 	DataExchangeClient.OpenSynchronizationDetails(DetailedExchangeInformation);
 	
+EndProcedure
+
+&AtClient
+Procedure BackCommandIsConnectionSetupMethod(Command)
+	
+	Items.ConnectionSetupMethodsPanel.CurrentPage = Items.MyApplicationsPage;
+	Items.NavigationPanel.CurrentPage = Items.PageNavigationStart;
+			
+EndProcedure
+
+&AtClient
+Procedure NextConnectionSetupMethodCommand(Command)
+	
+	If ConnectionKind = "Internet" Then
+		
+		ConnectionSetupOptionInService = "InternetManually";
+		OnChangeConnectionSetupMethod();
+		
+		ChangeNavigationNumber(+1);
+		
+		Items.ConnectionSetupMethodsPanel.CurrentPage = Items.MyApplicationsPage;
+			
+	ElsIf ConnectionKind = "PassiveMode" Then
+		
+		If IsBlankString(XDTOCorrespondentSettingsFileName) Then
+			CommonClient.MessageToUser(
+				NStr("en = 'Please select a file with peer application settings.';"),
+				, "XDTOCorrespondentSettingsFileName");
+		Else
+			ChangeNavigationNumber(+3);			
+		EndIf;
+		
+	EndIf;	
+		
 EndProcedure
 
 #EndRegion
@@ -1145,9 +1207,7 @@ Procedure FillWizardConnectionParametersStructure(WizardSettingsStructure, Witho
 	// 
 	WizardSettingsStructure.Insert("ExchangePlanName",               ExchangePlanName);
 	WizardSettingsStructure.Insert("CorrespondentExchangePlanName", CorrespondentExchangePlanName);
-	
 	WizardSettingsStructure.Insert("ExchangeSetupOption", SettingID);
-	
 	WizardSettingsStructure.Insert("ExchangeFormat", ExchangeFormat);
 	
 	If ValueIsFilled(ExchangeNode)
@@ -1426,8 +1486,10 @@ Procedure ReadWizardConnectionParametersStructure(WizardSettingsStructure)
 	If StrLen(SourceInfobaseID) = 36
 		And StrLen(DestinationInfobaseID) = 36 Then
 		
-		If ExchangePlans[CorrespondentExchangePlanName].ThisNode().Code <> SourceInfobaseID
-			And DataExchangeServer.ExchangePlanNodes(CorrespondentExchangePlanName).Count() > 0 Then
+		ExchangePlanName = DataExchangeServer.FindNameOfExchangePlanThroughUniversalFormat(CorrespondentExchangePlanName);
+		
+		If ExchangePlans[ExchangePlanName].ThisNode().Code <> SourceInfobaseID
+			And DataExchangeServer.ExchangePlanNodes(ExchangePlanName).Count() > 0 Then
 			RestoreExchangeSettings = "RestoreWithWarning";
 		Else
 			RestoreExchangeSettings = "Restoration";
@@ -1505,8 +1567,8 @@ Procedure FillConnectionParametersFromXMLAtServer(AddressInStorage, Cancel, Erro
 			ConnectionSettings, TempFile, True);
 	Except
 		Cancel = True;
-		ErrorMessage   = BriefErrorDescription(ErrorInfo());
-		ErrorMessageEventLog = DetailErrorDescription(ErrorInfo());
+		ErrorMessage   = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+		ErrorMessageEventLog = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		
 		WriteLogEvent(DataExchangeServer.DataExchangeCreationEventLogEvent(),
 			EventLogLevel.Error, , , ErrorMessageEventLog);
@@ -1536,7 +1598,7 @@ Procedure FillXDTOCorrespondentSettingsFromXMLAtServer(AddressInStorage, Cancel,
 			TempFile, True, ExchangePlans[ExchangePlanName].EmptyRef());
 	Except
 		Cancel = True;
-		ErrorMessage = DetailErrorDescription(ErrorInfo());
+		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		
 		WriteLogEvent(DataExchangeServer.DataExchangeCreationEventLogEvent(),
 			EventLogLevel.Error, , , ErrorMessage);
@@ -1687,7 +1749,12 @@ EndProcedure
 Procedure CommonSynchronizationSettingsContinueSetting(Result, AdditionalParameters) Export
 	
 	If Result.Cancel Then
-		ChangeNavigationNumber(-1);
+		If ConnectionKind = "PassiveMode" Then 
+			ChangeNavigationNumber(-3);
+			Items.NavigationPanel.CurrentPage = Items.PageNavigationWaysToSetUpConnection;
+		Else
+			ChangeNavigationNumber(-1)	
+		EndIf;	
 		CommonClient.MessageToUser(Result.ErrorMessage);
 		Return;
 	EndIf;
@@ -1720,9 +1787,9 @@ Procedure CommonSynchronizationSettingsContinueSetting(Result, AdditionalParamet
 		"Visible",
 		Items.RegularCommunicationChannelsDefaultTransportKind.ChoiceList.Count() > 1);
 		
-	SaveConnectionParametersToFile = (ConnectionKind = "PassiveMode")
-		Or ((ConnectionKind = "RegularCommunicationChannels")
-			And Not DIBSetup And Not ImportConnectionParametersFromFile);
+	SaveConnectionParametersToFile = ConnectionKind = "RegularCommunicationChannels"
+		And Not DIBSetup 
+		And Not ImportConnectionParametersFromFile;
 		
 	CommonClientServer.SetFormItemProperty(Items,
 		"ConnectionSettingsFileNameToExport", "Visible", SaveConnectionParametersToFile);

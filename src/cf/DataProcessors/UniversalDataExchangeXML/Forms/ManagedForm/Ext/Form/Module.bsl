@@ -1642,7 +1642,7 @@ Function ExecuteExportAtServer()
 EndFunction
 
 &AtClient
-Procedure SetDebugCommandsEnabled();
+Procedure SetDebugCommandsEnabled()
 	
 	Items.ImportDebugSetup.Enabled = Object.HandlersDebugModeFlag;
 	Items.ExportDebugSetup.Enabled = Object.HandlersDebugModeFlag;

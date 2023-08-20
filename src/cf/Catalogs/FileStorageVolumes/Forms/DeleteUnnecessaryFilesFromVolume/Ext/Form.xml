@@ -96,8 +96,8 @@
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>If files on your hard drive that are not registered in the application might contain useful data,
-it is recommended that you copy them to another directory.</v8:content>
+							<v8:content>If the volume files with no records in the application might contain useful information,
+copy them to another directory.</v8:content>
 						</v8:item>
 					</Title>
 					<ContextMenu name="InfoDecorationContextMenu" id="11"/>
@@ -243,4 +243,11 @@ it is recommended that you copy them to another directory.</v8:content>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>
+	<Parameters>
+		<Parameter name="FileStorageVolume">
+			<Type>
+				<v8:Type>cfg:CatalogRef.FileStorageVolumes</v8:Type>
+			</Type>
+		</Parameter>
+	</Parameters>
 </Form>

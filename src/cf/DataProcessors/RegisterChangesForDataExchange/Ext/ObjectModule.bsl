@@ -518,7 +518,7 @@ Function ExternalDataProcessorInfo() Export
 	Info.Insert("SafeMode", True);
 	Info.Insert("Purpose",      New Array);
 	
-	Info.Insert("Description", NStr("en = 'Data staging manager';"));
+	Info.Insert("Description", NStr("en = 'Data registration manager';"));
 	Info.Insert("Version",       "1.0");
 	Info.Insert("SSLVersion",    "1.2.1.4");
 	Info.Insert("Information",    NStr("en = 'The data processor is intended for managing registration of objects at exchange nodes before exporting data. When used in configurations with SSL version 2.1.2.0 or later, it manages data migration restrictions.';"));
@@ -548,7 +548,7 @@ Function ExternalDataProcessorInfo() Export
 	
 	// The only command. Determine what to do by type of the passed item.
 	Command = Info.Commands.Add();
-	Command.Presentation = NStr("en = 'Edit object changes registration';");
+	Command.Presentation = NStr("en = 'Change item registration state';");
 	Command.Id = "OpenRegistrationEditingForm";
 	Command.Use = "ClientMethodCall";
 	
@@ -589,6 +589,7 @@ Function ChangeRegistration(JobParameters, StorageAddress = Undefined) Export
 	RegisterWithSSLMethodsAvailable  = JobParameters.RegisterWithSSLMethodsAvailable;
 	DIBModeAvailable                 = JobParameters.DIBModeAvailable;
 	ObjectExportControlSetting = JobParameters.ObjectExportControlSetting;
+	BatchRegistrationIsAvailable       = JobParameters.BatchRegistrationIsAvailable;
 	
 	ExecutionResult = EditRegistrationAtServer(JobParameters.Command, JobParameters.NoAutoRegistration, 
 		JobParameters.Node, JobParameters.Data, TableName, JobParameters.MetadataNamesStructure);
@@ -1287,6 +1288,12 @@ Procedure ReadSSLSupportFlags() Export
 	EndIf;
 EndProcedure
 
+Procedure ReadSignsOfBSDSupport() Export
+	
+	BatchRegistrationIsAvailable = DSL_RequiredVersionIsAvailable("1.0.3.1"); 
+	
+EndProcedure
+
 // Writing settings to the common storage.
 //
 // Parameters:
@@ -1371,7 +1378,52 @@ Function EditRegistrationAtServer(Command, NoAutoRegistration, Node, Data, Table
 	SSLFilterRequired = TypeOf(Command) = Type("Boolean") And Command And ConfigurationSupportsSSL And ObjectExportControlSetting;
 	
 	If TypeOf(Data) = Type("Array") Then
-		RegistrationDetails = Data;
+		
+		RegistrationDetails = New Array;
+			
+		ThisIsRegistrationByFilter = False;
+		
+		If Command
+			And ValueIsFilled(TableName)
+			And BatchRegistrationIsAvailable Then
+		
+			LongDesc = MetadataCharacteristics(TableName);
+			ThisIsRegistrationByFilter = LongDesc.IsReference;
+			
+		EndIf;
+			
+		If ThisIsRegistrationByFilter Then
+			
+			ModuleDataExchangeEvents = CommonModuleEventDataExchange();
+			
+			PDParameters = ModuleDataExchangeEvents.BatchRegistrationParameters();
+			
+			ReferencesArrray = New Array;
+			For Each ArrayElement In Data Do
+				ReferencesArrray.Add(ArrayElement.Ref);
+			EndDo;
+			
+			ModuleDataExchangeEvents.PerformBatchRegistrationForNode(Node, ReferencesArrray, PDParameters);
+			
+			For Each Ref In PDParameters.LinksToBatchRegistrationFilter Do
+				Result.Total = Result.Total + 1;
+				Result.Success = Result.Success + 1;
+				ExchangePlans.RecordChanges(Node, Ref);
+			EndDo;
+			
+			If PDParameters.ThereIsPRO_WithoutBatchRegistration Then
+				For Each Ref In PDParameters.LinksNotByBatchRegistrationFilter Do
+					StructureOfData = New Structure("Ref", Ref);
+					RegistrationDetails.Add(StructureOfData);
+				EndDo;
+			EndIf;
+			
+		Else
+		
+			RegistrationDetails = Data;
+		
+		EndIf;
+		
 	Else
 		RegistrationDetails = New Array;
 		RegistrationDetails.Add(Data);
@@ -1407,7 +1459,7 @@ Function EditRegistrationAtServer(Command, NoAutoRegistration, Node, Data, Table
 			Values.Add(Undefined);
 			
 		ElsIf Type = Type("String") Then
-			// It is metadata, either collection or a certain kind. Autorecord does not matter.
+			// 
 			LongDesc = MetadataCharacteristics(Item);
 			If SSLFilterRequired Then
 				AddResults(Result, SSLMetadataChangesRegistration(Node, LongDesc, NoAutoRegistration, MetadataNamesStructure));
@@ -1962,7 +2014,8 @@ EndFunction
 Function StringToNumber(Val Text)
 	NumberText = TrimAll(StrReplace(Text, Chars.NBSp, ""));
 	
-	If IsBlankString(NumberText) Then
+	If IsBlankString(NumberText) 
+		Or NumberText = "0" Then
 		Return 0;
 	EndIf;
 	
@@ -2010,6 +2063,17 @@ Function CommonModuleStandardSubsystemsServer()
 	Return Eval("StandardSubsystemsServer");
 EndFunction
 
+// Returns the common module of the standard subsystem Server, or Undefined if it is not included in the configuration.
+//
+Function GeneralModuleStandardSubsystemsOfRepeatIsp()
+	If Metadata.CommonModules.Find("StandardSubsystemsCached") = Undefined Then
+		Return Undefined;
+	EndIf;
+	
+	// 
+	Return Eval("StandardSubsystemsCached");
+EndFunction
+
 // Returns the CommonUse common module or Undefined if there is no such module in the configuration.
 //
 Function CommonModuleCommonUse()
@@ -2042,6 +2106,48 @@ Function SSLRequiredVersionAvailable(Val Version = Undefined)
 	If ModuleStandardSubsystemsServer <> Undefined Then
 		Try
 			CurrentVersion = ModuleStandardSubsystemsServer.LibraryVersion();
+		Except
+			CurrentVersion = Undefined;
+		EndTry;
+	EndIf;
+	
+	If CurrentVersion = Undefined Then
+		// 
+		Return False
+	EndIf;
+	CurrentVersion = StrReplace(CurrentVersion, ".", Chars.LF);
+	
+	NeededVersion = StrReplace(?(Version = Undefined, "2.2.2", Version), ".", Chars.LF);
+	
+	For IndexOf = 1 To StrLineCount(NeededVersion) Do
+		
+		CurrentVersionPart = StringToNumber(StrGetLine(CurrentVersion, IndexOf));
+		RequiredVersionPart  = StringToNumber(StrGetLine(NeededVersion,  IndexOf));
+		
+		If CurrentVersionPart = Undefined Then
+			Return False;
+			
+		ElsIf CurrentVersionPart > RequiredVersionPart Then
+			Return True;
+			
+		ElsIf CurrentVersionPart < RequiredVersionPart Then
+			Return False;
+			
+		EndIf;
+	EndDo;
+	
+	Return True;
+EndFunction
+
+// 
+//
+Function DSL_RequiredVersionIsAvailable(Val Version = Undefined)
+	
+	CurrentVersion = Undefined;
+	ModuleStandardSubsystemsOfRepeatIsp = GeneralModuleStandardSubsystemsOfRepeatIsp();
+	If ModuleStandardSubsystemsOfRepeatIsp <> Undefined Then
+		Try
+			CurrentVersion = StandardSubsystemsCached.SubsystemsDetails().ByNames["DataSyncLibrary"].Version
 		Except
 			CurrentVersion = Undefined;
 		EndTry;
@@ -2307,6 +2413,33 @@ Function SSLMetadataObjectChangesRegistration(Node, LongDesc, NoAutoRegistration
 	QueryText = StrReplace(QueryTextTemplate2, "&NamesOfFieldsOrDetails", DimensionFields);
 	QueryText = StrReplace(QueryText, "&MetadataTableName", CurTableName);
 	Query = New Query(QueryText);
+		
+	If LongDesc.IsReference And BatchRegistrationIsAvailable Then
+		
+		ModuleDataExchangeEvents = CommonModuleEventDataExchange();
+		
+		ReferencesArrray = Query.Execute().Unload().UnloadColumn("Ref");
+		PDParameters = ModuleDataExchangeEvents.BatchRegistrationParameters();
+		
+		ModuleDataExchangeEvents.PerformBatchRegistrationForNode(Node, ReferencesArrray, PDParameters);
+		
+		For Each Ref In PDParameters.LinksToBatchRegistrationFilter Do
+			Result.Success = Result.Success + 1;
+			ExchangePlans.RecordChanges(Node, Ref);
+		EndDo;
+		
+		If PDParameters.ThereIsPRO_WithoutBatchRegistration Then
+			For Each Ref In PDParameters.LinksNotByBatchRegistrationFilter Do
+				AddResults(Result, SSLRefChangesRegistration(Node, Ref, NoAutoRegistration));
+			EndDo;
+		EndIf;
+		
+		Result.Total = ReferencesArrray.Count();
+		
+		Return Result;
+		
+	EndIf;
+		
 	Selection = Query.Execute().Select();
 	While Selection.Next() Do
 		If LongDesc.IsRecordsSet Then
@@ -2317,7 +2450,7 @@ Function SSLMetadataObjectChangesRegistration(Node, LongDesc, NoAutoRegistration
 			AddResults(Result, SSLRefChangesRegistration(Node, Selection.Ref, NoAutoRegistration) );
 		EndIf;
 	EndDo;
-
+		
 	Return Result;
 	
 EndFunction

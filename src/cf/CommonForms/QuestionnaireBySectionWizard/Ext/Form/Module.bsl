@@ -63,12 +63,33 @@ Procedure Attachable_OnChangeQuestionsWithConditions(Item)
 
 EndProcedure
 
+&AtClient
+Procedure Attachable_OnChangeRangeSlider(Item)
+	
+	SurveysClient.OnChangeRangeSlider(ThisObject, Item);
+	
+EndProcedure
+
+&AtClient
+Procedure Attachable_OnChangeOfNumberField(Item)
+	
+	SurveysClient.OnChangeOfNumberField(ThisObject, Item);
+	
+EndProcedure
+
+&AtClient
+Procedure Attachable_NumberFieldAdjustment(Item, Direction, StandardProcessing)
+	
+	SurveysClient.NumberFieldAdjustment(ThisObject, Item, Direction, StandardProcessing);
+	
+EndProcedure
+
 #EndRegion
 
 #Region FormCommandHandlers
 
 &AtClient
-Procedure HideShowSectionsTree(Command)
+Procedure HideSections(Command)
 
 	ChangeSectionsTreeVisibility();
 	
@@ -107,7 +128,6 @@ Procedure SetConditionalAppearance()
 
 EndProcedure
 
-// Used for creating a filling form.
 &AtServer
 Procedure CreateFormAccordingToSection()
 	
@@ -128,7 +148,6 @@ Procedure CreateFormAccordingToSection()
 	
 EndProcedure
 
-// Starts the process of creating a filling form according to sections.
 &AtClient
 Procedure ExecuteFillingFormCreation()
 	
@@ -137,7 +156,6 @@ Procedure ExecuteFillingFormCreation()
 	
 EndProcedure
 
-// Finishes generation of a questionnaire filling form.
 &AtClient
 Procedure EndBuildFillingForm()
 	
@@ -147,18 +165,22 @@ Procedure EndBuildFillingForm()
 	
 EndProcedure
 
-// Manages availability of navigation buttons by sections.
 &AtClient
 Procedure SectionsNavigationButtonAvailabilityControl()
 	
-	Items.PreviousSection.Visible       = (Items.SectionsTree.CurrentRow <> 0);
-	Items.FooterPreviousSection.Visible = (Items.SectionsTree.CurrentRow > 0);
-	Items.NextSection.Visible        = (SectionsTree.FindByID(Items.SectionsTree.CurrentRow +  1) <> Undefined);
-	Items.FooterNextSection.Visible  = (SectionsTree.FindByID(Items.SectionsTree.CurrentRow +  1) <> Undefined);
+	IsFirstSection = Items.SectionsTree.CurrentRow = 0;
+	IsLastSection = SectionsTree.FindByID(Items.SectionsTree.CurrentRow +  1) = Undefined;
+
+	Items.PreviousSection.Visible        = Not IsFirstSection;
+	Items.FooterPreviousSection.Visible  = Not IsFirstSection;
+	Items.NextSection.Visible         = Not IsLastSection;
+	Items.NextSection.DefaultButton = Not IsLastSection;
+	Items.FooterNextSection.Visible   = Not IsLastSection;
+	Items.Close.Visible                 = IsLastSection;
+	Items.Close.DefaultButton         = IsLastSection;
 	
 EndProcedure
 
-// Changes the current section
 &AtClient
 Procedure ChangeSection(Direction)
 	
@@ -172,12 +194,11 @@ Procedure ChangeSection(Direction)
 	
 EndProcedure
 
-// Changes sections tree visibility.
 &AtClient
 Procedure ChangeSectionsTreeVisibility()
 
 	Items.SectionsTreeGroup.Visible         = Not Items.SectionsTreeGroup.Visible;
-	Items.HideShowSectionsTree.Title = ?(Items.SectionsTreeGroup.Visible,NStr("en = 'Hide sections';"), NStr("en = 'Show sections';"));
+	Items.HideSections.Title = ?(Items.SectionsTreeGroup.Visible,NStr("en = 'Hide sections';"), NStr("en = 'Show sections';"));
 
 EndProcedure 
 
@@ -187,7 +208,7 @@ Procedure AvailabilityControlSubordinateQuestions()
 	
 	For Each CollectionItem In DependentQuestions Do
 		
-		QuestionName = SurveysClientServer.GetQuestionName(CollectionItem.DoQueryBox);
+		QuestionName = SurveysClientServer.QuestionName(CollectionItem.DoQueryBox);
 		
 		For Each SubordinateQuestion In CollectionItem.SubordinateItems Do
 			

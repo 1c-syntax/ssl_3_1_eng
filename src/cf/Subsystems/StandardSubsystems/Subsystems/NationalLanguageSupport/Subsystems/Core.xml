@@ -16,6 +16,7 @@
 			<Explanation/>
 			<Picture/>
 			<Content>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.NativeLanguagesSupportServer</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.NationalLanguageSupportClient</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.NationalLanguageSupportClientServer</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.NationalLanguageSupportOverridable</xr:Item>

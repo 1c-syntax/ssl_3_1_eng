@@ -24,13 +24,7 @@
 Function AttributesToEditInBatchProcessing() Export
 	
 	Result = New Array;
-	Result.Add("Author");
 	Result.Add("Importance");
-	Result.Add("CompletionDate");
-	Result.Add("StartDate");
-	Result.Add("AcceptForExecutionDate");
-	Result.Add("SubjectOf");
-	Result.Add("AcceptedForExecution");
 	Result.Add("TaskDueDate");
 	Return Result;
 	
@@ -68,10 +62,15 @@ Procedure OnFillAccessRestriction(Restriction) Export
 	|	OR ValueAllowed(TaskPerformers.Performer)";
 	
 	Restriction.TextForExternalUsers1 =
-	"AllowReadUpdate
+	"AllowRead
 	|WHERE
-	|	ValueAllowed(Performer)
-	|	OR ValueAllowed(Author)";
+	|	ValueAllowed(Author)
+	|	OR ValueAllowed(Performer)
+	|;
+	|AllowUpdateIfReadingAllowed
+	|WHERE
+	|	ValueAllowed(Performer)";
+	
 	
 EndProcedure
 

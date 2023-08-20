@@ -1559,22 +1559,40 @@ Procedure SetConditionalAppearance()
 EndProcedure
 
 &AtServer
-Function DuplicatesReplacementPairs()
-	ReplacementPairs = New Map;
+Function DuplicatesPurgeParameters()
 	
+	DeletionParameters = New Map;
+	BatchIndex = 0;
 	DuplicatesTree = FormAttributeToValue("FoundDuplicates");
 	SearchFilter = New Structure("Main", True);
 	
 	For Each DuplicatesGroups In DuplicatesTree.Rows Do
+		ReplacementPairs = New Map;
 		Original = DuplicatesGroups.Rows.FindRows(SearchFilter)[0].Ref;
 		For Each Duplicate1 In DuplicatesGroups.Rows Do
-			If Duplicate1.Check = 1 And Duplicate1.Ref <> Original Then 
+			If Duplicate1.Check = 1 And Duplicate1.Ref <> Original Then
 				ReplacementPairs[Duplicate1.Ref] = Original;
 			EndIf;
 		EndDo;
+		ReplacementsCount = ReplacementPairs.Count();
+		If ReplacementsCount = 0 Then
+			Continue;
+		EndIf;
+		
+		SelectedCountTotal = SelectedCountTotal + ReplacementsCount;
+		
+		ProcedureParameters = New Structure;
+		ProcedureParameters.Insert("TakeAppliedRulesIntoAccount", TakeAppliedRulesIntoAccount);
+		ProcedureParameters.Insert("DeletionMethod", DeletionMethod);
+		ProcedureParameters.Insert("ReplacementPairs", ReplacementPairs);
+		ServerCallParameters = New Array;
+		ServerCallParameters.Add(ProcedureParameters);
+		DeletionParameters.Insert(BatchIndex, ServerCallParameters);
+		BatchIndex = BatchIndex + 1;
 	EndDo;
 	
-	Return ReplacementPairs;
+	Return DeletionParameters;
+	
 EndFunction
 
 &AtServerNoContext
@@ -1673,7 +1691,7 @@ Procedure FindAndDeleteDuplicatesClient()
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	WaitSettings.OutputIdleWindow = False;
 	WaitSettings.OutputProgressBar = True;
-	WaitSettings.ExecutionProgressNotification = New NotifyDescription("FindAndRemoveDuplicatesProgress", ThisObject);;
+	WaitSettings.ExecutionProgressNotification = New NotifyDescription("FindAndRemoveDuplicatesProgress", ThisObject);
 	Handler = New NotifyDescription("FindAndRemoveDuplicatesCompletion", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(Job, Handler, WaitSettings);
 	
@@ -1703,10 +1721,15 @@ Function FindAndDeleteDuplicates()
 		ProcedureParameters.Insert("PrefilterComposerSettings", PrefilterComposer.Settings);
 		ProcedureParameters.Insert("HideInsignificantDuplicates", HideInsignificantDuplicates);
 		
+		StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
+		StartSettings1.BackgroundJobDescription = MethodDescription;
+		
+		Return TimeConsumingOperations.ExecuteInBackground(ProcedureName, ProcedureParameters, StartSettings1);
+		
 	ElsIf CurrentPage = Items.DeletionStep Then
 		
-		DuplicatesReplacementPairs = DuplicatesReplacementPairs();
-		If DuplicatesReplacementPairs.Count() = 0 Then
+		DeletionParameters = DuplicatesPurgeParameters();
+		If DeletionParameters.Count() = 0 Then
 			Common.MessageToUser(NStr("en = 'Select at least one duplicate group.';"),, "FoundDuplicates");
 			Return Undefined;
 		EndIf;
@@ -1715,18 +1738,18 @@ Function FindAndDeleteDuplicates()
 		
 		ProcedureName = FormAttributeToValue("Object").Metadata().FullName() + ".ObjectModule.BackgroundDuplicateDeletion";
 		MethodDescription = NStr("en = 'Duplicate cleaner: Delete duplicates';");
-		ProcedureParameters.Insert("ReplacementPairs", DuplicatesReplacementPairs);
-		ProcedureParameters.Insert("DeletionMethod", DeletionMethod);
+		
+		StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
+		StartSettings1.BackgroundJobDescription = MethodDescription;
+		
+		BatchesCount = DeletionParameters.Count();
+		Return TimeConsumingOperations.ExecuteFunctionInMultipleThreads(ProcedureName, StartSettings1, DeletionParameters);
 		
 	Else
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Incorrect operation: %1.';"), String(CurrentPage));
 	EndIf;
 	
-	StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	StartSettings1.BackgroundJobDescription = MethodDescription;
-	
-	Return TimeConsumingOperations.ExecuteInBackground(ProcedureName, ProcedureParameters, StartSettings1);
 EndFunction
 
 &AtClient
@@ -1751,8 +1774,18 @@ Procedure FindAndRemoveDuplicatesProgress(Progress, AdditionalParameters) Export
 		
 	ElsIf CurrentPage = Items.DeletionStep Then
 		
+		ProgressParameters = Undefined;
+		If Progress.Progress.Property("AdditionalParameters", ProgressParameters)
+			And ProgressParameters = "ProgressofMultithreadedProcess" Then
+			Return;
+		EndIf;
+		
 		If Not IsBlankString(Progress.Progress.Text) Then
-			Message = Progress.Progress.Text;	
+			If ProgressParameters = Undefined Then
+				Message = Progress.Progress.Text;
+			Else
+				Message = ProgressText(ProgressParameters, Progress.Progress.Text);
+			EndIf;
 		Else	
 			Message = NStr("en = 'Processing duplicates…';");
 		EndIf;
@@ -1762,6 +1795,47 @@ Procedure FindAndRemoveDuplicatesProgress(Progress, AdditionalParameters) Export
 	EndIf;
 	
 EndProcedure
+
+&AtServer
+Function ProgressText(ProgressParameters, SourceProgressText)
+	
+	ThisIsReplacement = StrStartsWith(SourceProgressText, NStr("en = 'Replacing duplicates';"));
+	ProgressAttributeName = ?(ThisIsReplacement, "ProcessedItemsCount", "DeletedItemsCount");
+	Filter = New Structure;
+	Filter.Insert("SessionNumber", ProgressParameters.SessionNumber);
+	TableRows = DeletionProgress.FindRows(Filter);
+	If TableRows.Count() = 0 Then
+		TableRow = DeletionProgress.Add();
+		TableRow.SessionNumber = ProgressParameters.SessionNumber;
+		PreviousProcessedCount = 0;
+	Else
+		TableRow = TableRows[0];
+		PreviousProcessedCount = TableRow[ProgressAttributeName];
+	EndIf;
+	TableRow[ProgressAttributeName] = ProgressParameters.ProcessedItemsCount;
+	ProgressToAdd = (ProgressParameters.ProcessedItemsCount - PreviousProcessedCount);
+	If ThisIsReplacement Then
+		ProcessedTotalCount = ProcessedTotalCount + ProgressToAdd;
+	Else
+		DeletedTotalCount = DeletedTotalCount + ProgressToAdd;
+	EndIf;
+	
+	ProgressText = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Replacing duplicates… Processed (%1 out of %2)';"),
+		ProcessedTotalCount,
+		SelectedCountTotal);
+	If DeletionMethod = "Directly" Then
+		ProgressText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = '%1
+			|Deleting duplicates... Processed (%2 out of %3)';"),
+			ProgressText,
+			DeletedTotalCount,
+			SelectedCountTotal);
+	EndIf;
+	
+	Return ProgressText;
+	
+EndFunction
 
 &AtClient
 Procedure FindAndRemoveDuplicatesCompletion(Job, AdditionalParameters) Export
@@ -1901,7 +1975,19 @@ EndFunction
 &AtServer
 Function FillDuplicatesDeletionResults(Val ResultAddress)
 	// ErrorsTable - a result of the ReplaceReferences function of the module.
-	ErrorsTable = GetFromTempStorage(ResultAddress);
+	BackgroundExecutionResult = GetFromTempStorage(ResultAddress);
+	ErrorsTable = GetFromTempStorage(BackgroundExecutionResult[0].ResultAddress);
+	For BatchIndex = 1 To BatchesCount - 1 Do
+		BatchResultAddress = BackgroundExecutionResult[BatchIndex].ResultAddress;
+		TableOfBatchErrors = GetFromTempStorage(BatchResultAddress);
+		
+		CommonClientServer.SupplementTable(TableOfBatchErrors, ErrorsTable);
+	EndDo;
+	ProcessedTotalCount = 0;
+	DeletedTotalCount = 0;
+	SelectedCountTotal = 0;
+	BatchesCount = 0;
+	DeletionProgress.Clear();
 	
 	If IsTempStorageURL(ReplacementResultAddress) Then
 		DeleteFromTempStorage(ReplacementResultAddress);

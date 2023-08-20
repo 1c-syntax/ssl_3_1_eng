@@ -296,7 +296,7 @@ Procedure SetConditionalAppearance()
 	ItemField.Field = New DataCompositionField(Items.ContactsTableChange.Name);
 	
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
-	ItemFilter.LeftValue  = New DataCompositionField("TableOfContacts.UpdateAvailable");
+	ItemFilter.LeftValue  = New DataCompositionField("TableOfContacts.ChangeAvailable");
 	ItemFilter.ComparisonType   = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = False;
 	
@@ -860,7 +860,7 @@ Procedure SetClearFlagChangeIfRequired(CurrentData)
 	If (Not ValueIsFilled(CurrentData.Address) 
 		Or Not ValueIsFilled(CurrentData.Contact) 
 		Or Upper(CurrentData.Address) = Upper(CurrentData.CurrentContactAddress)
-		Or Not CurrentData.UpdateAvailable) Then
+		Or Not CurrentData.ChangeAvailable) Then
 		
 		CurrentData.Change = False;
 		
@@ -894,19 +894,19 @@ Procedure DefineEditAvailabilityForContacts()
 	
 		If Not ValueIsFilled(RowContact.Contact) Then
 			
-			RowContact.UpdateAvailable = False;
+			RowContact.ChangeAvailable = False;
 			
 		Else
 			
 			EditRight = AccessRight("Update", Metadata.FindByType(TypeOf(RowContact.Contact)));
-			RowContact.UpdateAvailable = EditRight;
+			RowContact.ChangeAvailable = EditRight;
 			If Not EditRight Then
-				RowContact.UpdateAvailable = False;
+				RowContact.ChangeAvailable = False;
 			EndIf;
 			
 		EndIf;
 		
-		If Not RowContact.UpdateAvailable Then
+		If Not RowContact.ChangeAvailable Then
 			
 			RowContact.Change = False;
 			

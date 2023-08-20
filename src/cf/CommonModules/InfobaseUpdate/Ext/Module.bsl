@@ -176,8 +176,9 @@ EndFunction
 //          - AccountingRegisterRecordSet
 //          - CalculationRegisterRecordSet
 //          - AnyRef
-//          - FormDataStructure - 
-//                                   
+//          - FormDataStructure 
+//          - String - 
+//                       
 //  Form  - ClientApplicationForm - if an object is not processed, the ReadOnly property is set
 //           for the passed form. If the form is not
 //           passed, an exception is thrown.
@@ -267,8 +268,9 @@ EndProcedure
 //          - AccountingRegisterRecordSet
 //          - CalculationRegisterRecordSet
 //          - AnyRef
-//          - FormDataStructure - 
-//                                   
+//          - FormDataStructure 
+//          - String - 
+//                     
 //
 // Returns:
 //   Structure:
@@ -792,6 +794,10 @@ Procedure MarkForProcessing(MainParameters, Data, AdditionalParameters = Undefin
 			// 
 			For Each Recorder In Recorders Do
 				TableType = TypeOf(Recorder);
+				If Recorder.IsEmpty() Then
+					Continue;
+				EndIf;
+				
 				If MainParameters.RegisteredRecordersTables[TableType] = Undefined Then
 					FullTableName = Recorder.Metadata().FullName();
 					MainParameters.RegisteredRecordersTables.Insert(TableType, FullTableName);
@@ -866,20 +872,20 @@ EndProcedure
 //   * TempTableName - String - the parameter is valid for methods that create temporary tables. If the name is not specified
 //                           (the default scenario), the temporary table is created with the name specified
 //                           in the method description.
-//   * AdditionalDataSources - Map of KeyAndValue - the parameter is valid for methods that select
-//                                     recorders and references to be processed. There can be only one of
-//                                     the following data kinds in matching keys:
-//                                     1. Paths to document header attributes or tabular sections attributes that
-//                                        are connected with other tables (including implicit connections when
-//                                        addressing "separated by dot").
-//                                     2. Names of reference metadata objects (String) that contain
-//                                        a map in their values where the key is a register name (String), and in the map
-//                                        value in the keys of which is the same as in the cl. 1, that means,
-//                                        map hierarchy "Object" -> "Register" -> "Sources".
-//                                     Procedures check data lock for these tables by the handlers with lowest positions
-//                                     in the queue. Source name format: <AttributeName> or
-//                                     <TabularSectionName>.<TabularSectionAttributeName>. To ease the filling
-//                                     see SetDataSource(), and see GetDataSource().
+//   * AdditionalDataSources - Map of KeyAndValue -
+//                                     
+//                                     
+//                                     
+//                                        
+//                                        
+//                                     
+//                                        
+//                                        
+//                                        
+//                                     
+//                                     
+//                                     
+//                                     
 //   * OrderFields  - Array - the name of independent information register fields used to organize
 //                                    a query result.
 //   * MaxSelection - Number - the maximum number of selecting records.
@@ -4238,7 +4244,6 @@ Procedure RestartExclusiveUpdate(Filter) Export
 	
 EndProcedure
 
-// Registers data issues found during update in the Data integrity subsystem.
 // 
 //
 // Parameters:
@@ -4610,6 +4615,10 @@ Procedure RegisterObjectChanges(Parameters, Node, References, DataKind, FullObje
 	RegistrationParameters = NewRegistrationParameters(Parameters, Node, DataKind, FullObjectName);
 	
 	For Each Ref In ItemArray(References) Do
+		If Ref.IsEmpty() Then
+			Continue;
+		EndIf;
+		
 		RegisterChangesToADataItem(Ref, RegistrationParameters);
 	EndDo;
 	
@@ -5792,7 +5801,7 @@ EndFunction
 //
 Function RangeColumnName(FieldName)
 	
-	Return FieldName + "_";
+	Return FieldName + EndOfRangePostfix();
 	
 EndFunction
 
@@ -5829,7 +5838,7 @@ EndFunction
 Function ColumnNameForQuery(FieldName)
 	
 	If IsRangeEndColumnName(FieldName) Then
-		Return Left(FieldName, StrLen(FieldName) - 1);
+		Return Left(FieldName, StrLen(FieldName) - StrLen(EndOfRangePostfix()));
 	Else
 		Return FieldName;
 	EndIf;
@@ -5846,7 +5855,13 @@ EndFunction
 //
 Function IsRangeEndColumnName(FieldName)
 	
-	Return Right(FieldName, 1) = "_";
+	Return StrEndsWith(FieldName, EndOfRangePostfix());
+	
+EndFunction
+
+Function EndOfRangePostfix()
+	
+	Return "_" + "RangeEnd";
 	
 EndFunction
 

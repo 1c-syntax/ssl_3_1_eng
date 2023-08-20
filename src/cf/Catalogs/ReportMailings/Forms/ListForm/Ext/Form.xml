@@ -481,6 +481,7 @@
 			</SearchControlAddition>
 			<Events>
 				<Event name="OnActivateRow">ListOnActivateRow</Event>
+				<Event name="Drag">ListDrag</Event>
 			</Events>
 			<ChildItems>
 				<LabelField name="Description" id="6" DisplayImportance="Usual">

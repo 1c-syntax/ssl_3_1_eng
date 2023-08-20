@@ -106,181 +106,244 @@
 		<Event name="FillCheckProcessingAtServer">FillCheckProcessingAtServer</Event>
 	</Events>
 	<ChildItems>
-		<UsualGroup name="GroupMailingIsReady" id="339">
+		<UsualGroup name="HeaderGroup" id="1288">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Report distribution prepared</v8:content>
+					<v8:content>Header</v8:content>
 				</v8:item>
 			</Title>
-			<Behavior>Usual</Behavior>
-			<Representation>None</Representation>
+			<Group>Vertical</Group>
+			<Representation>NormalSeparation</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="DataToMailPreparedGroupExtendedTooltip" id="700"/>
+			<ExtendedTooltip name="HeaderGroupExtendedTooltip" id="1289"/>
 			<ChildItems>
-				<InputField name="Description" id="1">
-					<DataPath>Object.Description</DataPath>
-					<EditMode>EnterOnInput</EditMode>
-					<AutoMaxWidth>false</AutoMaxWidth>
-					<MaxWidth>55</MaxWidth>
-					<AutoMarkIncomplete>true</AutoMarkIncomplete>
-					<ContextMenu name="DescriptionContextMenu" id="2"/>
-					<ExtendedTooltip name="DescriptionExtendedTooltip" id="701"/>
-				</InputField>
-				<CheckBoxField name="IsPrepared" id="337">
-					<DataPath>Object.IsPrepared</DataPath>
-					<TitleLocation>Right</TitleLocation>
-					<CheckBoxType>Auto</CheckBoxType>
-					<ContextMenu name="IsPreparedContextMenu" id="338"/>
-					<ExtendedTooltip name="IsPreparedExtendedTooltip" id="702"/>
-					<Events>
-						<Event name="OnChange">IsPreparedOnChange</Event>
-					</Events>
-				</CheckBoxField>
-			</ChildItems>
-		</UsualGroup>
-		<UsualGroup name="MailingKindGroup" id="538">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Distribution types</v8:content>
-				</v8:item>
-			</Title>
-			<Behavior>Usual</Behavior>
-			<Representation>None</Representation>
-			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="MailingKindGroupExtendedTooltip" id="703"/>
-			<ChildItems>
-				<InputField name="BulkEmailType" id="536">
-					<DataPath>BulkEmailType</DataPath>
+				<UsualGroup name="GroupRedistribution" id="1290">
+					<Visible>false</Visible>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Send</v8:content>
+							<v8:content>Group Resend</v8:content>
 						</v8:item>
 					</Title>
+					<Representation>None</Representation>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="GroupRedistributionExtendedTooltip" id="1291"/>
+					<ChildItems>
+						<PictureDecoration name="WarningPicture" id="1292">
+							<Title formatted="false">
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Picture Warning</v8:content>
+								</v8:item>
+							</Title>
+							<Picture>
+								<xr:Ref>CommonPicture.Warning</xr:Ref>
+								<xr:LoadTransparent>false</xr:LoadTransparent>
+							</Picture>
+							<ContextMenu name="WarningPictureContextMenu" id="1293"/>
+							<ExtendedTooltip name="WarningPictureExtendedTooltip" id="1294"/>
+						</PictureDecoration>
+						<LabelDecoration name="RedistributionHeader" id="1295">
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<AutoMaxHeight>false</AutoMaxHeight>
+							<TitleHeight>1</TitleHeight>
+							<ContextMenu name="RedistributionHeaderContextMenu" id="1296"/>
+							<ExtendedTooltip name="RedistributionHeaderExtendedTooltip" id="1297"/>
+						</LabelDecoration>
+						<Button name="Redistribution" id="1298">
+							<Type>Hyperlink</Type>
+							<CommandName>Form.Command.Redistribution</CommandName>
+							<ExtendedTooltip name="RedistributionExtendedTooltip" id="1299"/>
+						</Button>
+					</ChildItems>
+				</UsualGroup>
+				<UsualGroup name="GroupMailingIsReady" id="339">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Report distribution prepared</v8:content>
+						</v8:item>
+					</Title>
+					<Behavior>Usual</Behavior>
+					<Representation>None</Representation>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="DataToMailPreparedGroupExtendedTooltip" id="700"/>
+					<ChildItems>
+						<InputField name="Description" id="1">
+							<DataPath>Object.Description</DataPath>
+							<EditMode>EnterOnInput</EditMode>
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<MaxWidth>55</MaxWidth>
+							<AutoMarkIncomplete>true</AutoMarkIncomplete>
+							<ContextMenu name="DescriptionContextMenu" id="2"/>
+							<ExtendedTooltip name="DescriptionExtendedTooltip" id="701"/>
+						</InputField>
+						<CheckBoxField name="IsPrepared" id="337">
+							<DataPath>Object.IsPrepared</DataPath>
+							<TitleLocation>Right</TitleLocation>
+							<CheckBoxType>Auto</CheckBoxType>
+							<ContextMenu name="IsPreparedContextMenu" id="338"/>
+							<ExtendedTooltip name="IsPreparedExtendedTooltip" id="702"/>
+							<Events>
+								<Event name="OnChange">IsPreparedOnChange</Event>
+							</Events>
+						</CheckBoxField>
+					</ChildItems>
+				</UsualGroup>
+				<InputField name="Parent" id="382">
+					<DataPath>Object.Parent</DataPath>
+					<Width>10</Width>
 					<AutoMaxWidth>false</AutoMaxWidth>
-					<MaxWidth>25</MaxWidth>
-					<ClearButton>false</ClearButton>
-					<SpinButton>false</SpinButton>
-					<OpenButton>false</OpenButton>
-					<ListChoiceMode>true</ListChoiceMode>
-					<ChooseType>false</ChooseType>
-					<IncompleteChoiceMode>OnActivate</IncompleteChoiceMode>
-					<ChoiceList>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation>
-									<v8:item>
-										<v8:lang>en</v8:lang>
-										<v8:content>Reports to specified recipients</v8:content>
-									</v8:item>
-								</Presentation>
-								<Value xsi:type="xs:string">Shared3</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation>
-									<v8:item>
-										<v8:lang>en</v8:lang>
-										<v8:content>Individual report for each recipient</v8:content>
-									</v8:item>
-								</Presentation>
-								<Value xsi:type="xs:string">Personalized</Value>
-							</xr:Value>
-						</xr:Item>
-						<xr:Item>
-							<xr:Presentation/>
-							<xr:CheckState>0</xr:CheckState>
-							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation>
-									<v8:item>
-										<v8:lang>en</v8:lang>
-										<v8:content>To me only (private email)</v8:content>
-									</v8:item>
-								</Presentation>
-								<Value xsi:type="xs:string">Personal</Value>
-							</xr:Value>
-						</xr:Item>
-					</ChoiceList>
-					<BackColor>style:MasterFieldBackground</BackColor>
-					<ContextMenu name="BulkEmailTypeContextMenu" id="537"/>
-					<ExtendedTooltip name="BulkEmailTypeExtendedTooltip" id="704"/>
-					<Events>
-						<Event name="OnChange">BulkEmailTypeOnChange</Event>
-					</Events>
+					<MaxWidth>55</MaxWidth>
+					<ChoiceListButton>false</ChoiceListButton>
+					<ContextMenu name="ParentContextMenu" id="383"/>
+					<ExtendedTooltip name="ParentExtendedTooltip" id="940"/>
 				</InputField>
-				<Pages name="BulkEmailTypes" id="597">
+				<UsualGroup name="MailingKindGroup" id="538">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>Distribution types</v8:content>
 						</v8:item>
 					</Title>
-					<PagesRepresentation>None</PagesRepresentation>
-					<ExtendedTooltip name="BulkEmailTypesExtendedTooltip" id="705"/>
+					<Behavior>Usual</Behavior>
+					<Representation>None</Representation>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="MailingKindGroupExtendedTooltip" id="703"/>
 					<ChildItems>
-						<Page name="BulkEmailTypesPersonal" id="600">
+						<InputField name="BulkEmailType" id="536">
+							<DataPath>BulkEmailType</DataPath>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Distribution type: personal</v8:content>
+									<v8:content>Send</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="BulkEmailTypesPersonalExtendedTooltip" id="706"/>
-							<ChildItems>
-								<InputField name="AuthorMailAddressKind" id="574">
-									<DataPath>Object.RecipientsEmailAddressKind</DataPath>
-									<AutoMaxWidth>false</AutoMaxWidth>
-									<MaxWidth>25</MaxWidth>
-									<ClearButton>false</ClearButton>
-									<SpinButton>false</SpinButton>
-									<OpenButton>true</OpenButton>
-									<ListChoiceMode>true</ListChoiceMode>
-									<AutoMarkIncomplete>true</AutoMarkIncomplete>
-									<ChooseType>false</ChooseType>
-									<TextEdit>false</TextEdit>
-									<ContextMenu name="AuthorMailAddressKindContextMenu" id="575"/>
-									<ExtendedTooltip name="AuthorMailAddressKindExtendedTooltip" id="707"/>
-									<Events>
-										<Event name="Opening">AuthorMailAddressKindOpening</Event>
-									</Events>
-								</InputField>
-							</ChildItems>
-						</Page>
-						<Page name="BulkEmailTypesForRecipients" id="598">
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<MaxWidth>25</MaxWidth>
+							<ClearButton>false</ClearButton>
+							<SpinButton>false</SpinButton>
+							<OpenButton>false</OpenButton>
+							<ListChoiceMode>true</ListChoiceMode>
+							<ChooseType>false</ChooseType>
+							<IncompleteChoiceMode>OnActivate</IncompleteChoiceMode>
+							<ChoiceList>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Reports to specified recipients</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:string">Shared3</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Individual report for each recipient</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:string">Personalized</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>To me only (private email)</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:string">Personal</Value>
+									</xr:Value>
+								</xr:Item>
+							</ChoiceList>
+							<BackColor>style:MasterFieldBackground</BackColor>
+							<ContextMenu name="BulkEmailTypeContextMenu" id="537"/>
+							<ExtendedTooltip name="BulkEmailTypeExtendedTooltip" id="704"/>
+							<Events>
+								<Event name="OnChange">BulkEmailTypeOnChange</Event>
+							</Events>
+						</InputField>
+						<Pages name="BulkEmailTypes" id="597">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Distribution by recipients</v8:content>
+									<v8:content>Distribution types</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="BulkEmailTypesForRecipientsExtendedTooltip" id="708"/>
+							<PagesRepresentation>None</PagesRepresentation>
+							<ExtendedTooltip name="BulkEmailTypesExtendedTooltip" id="705"/>
 							<ChildItems>
-								<InputField name="MailingRecipientType" id="132">
-									<DataPath>MailingRecipientType</DataPath>
-									<AutoMaxWidth>false</AutoMaxWidth>
-									<MaxWidth>25</MaxWidth>
-									<ListChoiceMode>true</ListChoiceMode>
-									<AutoMarkIncomplete>true</AutoMarkIncomplete>
-									<ChooseType>false</ChooseType>
-									<ContextMenu name="MailingRecipientTypeContextMenu" id="133"/>
-									<ExtendedTooltip name="MailingRecipientTypeExtendedTooltip" id="709"/>
-									<Events>
-										<Event name="OnChange">MailingRecipientTypeOnChange</Event>
-										<Event name="Clearing">MailingRecipientTypeClearing</Event>
-										<Event name="ChoiceProcessing">MailingRecipientTypeChoiceProcessing</Event>
-									</Events>
-								</InputField>
+								<Page name="BulkEmailTypesPersonal" id="600">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Distribution type: personal</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="BulkEmailTypesPersonalExtendedTooltip" id="706"/>
+									<ChildItems>
+										<InputField name="AuthorMailAddressKind" id="574">
+											<DataPath>Object.RecipientsEmailAddressKind</DataPath>
+											<AutoMaxWidth>false</AutoMaxWidth>
+											<MaxWidth>25</MaxWidth>
+											<ClearButton>false</ClearButton>
+											<SpinButton>false</SpinButton>
+											<OpenButton>true</OpenButton>
+											<ListChoiceMode>true</ListChoiceMode>
+											<AutoMarkIncomplete>true</AutoMarkIncomplete>
+											<ChooseType>false</ChooseType>
+											<TextEdit>false</TextEdit>
+											<ContextMenu name="AuthorMailAddressKindContextMenu" id="575"/>
+											<ExtendedTooltip name="AuthorMailAddressKindExtendedTooltip" id="707"/>
+											<Events>
+												<Event name="Opening">AuthorMailAddressKindOpening</Event>
+											</Events>
+										</InputField>
+									</ChildItems>
+								</Page>
+								<Page name="BulkEmailTypesForRecipients" id="598">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Distribution by recipients</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="BulkEmailTypesForRecipientsExtendedTooltip" id="708"/>
+									<ChildItems>
+										<InputField name="MailingRecipientType" id="132">
+											<DataPath>MailingRecipientType</DataPath>
+											<AutoMaxWidth>false</AutoMaxWidth>
+											<MaxWidth>25</MaxWidth>
+											<ListChoiceMode>true</ListChoiceMode>
+											<AutoMarkIncomplete>true</AutoMarkIncomplete>
+											<ChooseType>false</ChooseType>
+											<ContextMenu name="MailingRecipientTypeContextMenu" id="133"/>
+											<ExtendedTooltip name="MailingRecipientTypeExtendedTooltip" id="709"/>
+											<Events>
+												<Event name="OnChange">MailingRecipientTypeOnChange</Event>
+												<Event name="Clearing">MailingRecipientTypeClearing</Event>
+												<Event name="ChoiceProcessing">MailingRecipientTypeChoiceProcessing</Event>
+											</Events>
+										</InputField>
+									</ChildItems>
+								</Page>
 							</ChildItems>
-						</Page>
+						</Pages>
 					</ChildItems>
-				</Pages>
+				</UsualGroup>
 			</ChildItems>
 		</UsualGroup>
 		<Pages name="Pages" id="37">
@@ -414,7 +477,7 @@
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Reports command bar</v8:content>
+												<v8:content>Command bar Reports</v8:content>
 											</v8:item>
 										</Title>
 										<CommandSource>Item.Reports</CommandSource>
@@ -1011,7 +1074,7 @@
 															<EditFormat>
 																<v8:item>
 																	<v8:lang>en</v8:lang>
-																	<v8:content>DF=hh:mm tt</v8:content>
+																	<v8:content>DF=HH:mm</v8:content>
 																</v8:item>
 															</EditFormat>
 															<ContextMenu name="BeginTimeContextMenu" id="430"/>
@@ -1519,6 +1582,7 @@
 							<DataPath>Object.Author</DataPath>
 							<ToolTipRepresentation>Button</ToolTipRepresentation>
 							<EditMode>EnterOnInput</EditMode>
+							<AutoMarkIncomplete>true</AutoMarkIncomplete>
 							<ContextMenu name="AuthorContextMenu" id="4"/>
 							<ExtendedTooltip name="AuthorExtendedTooltip" id="806"/>
 							<Events>
@@ -1544,584 +1608,368 @@
 						<xr:Ref>StdPicture.ExecuteTask</xr:Ref>
 						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
+					<Group>AlwaysHorizontal</Group>
 					<ExtendedTooltip name="DeliveryPageExtendedTooltip" id="808"/>
 					<ChildItems>
-						<UsualGroup name="OtherDeliveryMethods" id="630">
+						<UsualGroup name="DeliverLeft" id="1263">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Other delivery methods</v8:content>
-								</v8:item>
-							</Title>
-							<Group>AlwaysHorizontal</Group>
-							<Behavior>Usual</Behavior>
-							<Representation>None</Representation>
-							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="OtherDeliveryMethodsExtendedTooltip" id="809"/>
-							<ChildItems>
-								<CheckBoxField name="Publish" id="631">
-									<DataPath>Publish</DataPath>
-									<TitleLocation>Right</TitleLocation>
-									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="PublishContextMenu" id="632"/>
-									<ExtendedTooltip name="PublishExtendedTooltip" id="810"/>
-									<Events>
-										<Event name="OnChange">PublishOnChange</Event>
-									</Events>
-								</CheckBoxField>
-								<InputField name="OtherDeliveryMethod" id="615">
-									<DataPath>OtherDeliveryMethod</DataPath>
-									<TitleLocation>None</TitleLocation>
-									<Width>13</Width>
-									<HorizontalStretch>false</HorizontalStretch>
-									<ClearButton>false</ClearButton>
-									<SpinButton>false</SpinButton>
-									<OpenButton>false</OpenButton>
-									<ListChoiceMode>true</ListChoiceMode>
-									<ChooseType>false</ChooseType>
-									<IncompleteChoiceMode>OnActivate</IncompleteChoiceMode>
-									<ChoiceList>
-										<xr:Item>
-											<xr:Presentation/>
-											<xr:CheckState>0</xr:CheckState>
-											<xr:Value xsi:type="FormChoiceListDesTimeValue">
-												<Presentation>
-													<v8:item>
-														<v8:lang>en</v8:lang>
-														<v8:content>To directory</v8:content>
-													</v8:item>
-												</Presentation>
-												<Value xsi:type="xs:string">UseFolder</Value>
-											</xr:Value>
-										</xr:Item>
-										<xr:Item>
-											<xr:Presentation/>
-											<xr:CheckState>0</xr:CheckState>
-											<xr:Value xsi:type="FormChoiceListDesTimeValue">
-												<Presentation>
-													<v8:item>
-														<v8:lang>en</v8:lang>
-														<v8:content>To network directory</v8:content>
-													</v8:item>
-												</Presentation>
-												<Value xsi:type="xs:string">UseNetworkDirectory</Value>
-											</xr:Value>
-										</xr:Item>
-										<xr:Item>
-											<xr:Presentation/>
-											<xr:CheckState>0</xr:CheckState>
-											<xr:Value xsi:type="FormChoiceListDesTimeValue">
-												<Presentation>
-													<v8:item>
-														<v8:lang>en</v8:lang>
-														<v8:content>To FTP resource</v8:content>
-													</v8:item>
-												</Presentation>
-												<Value xsi:type="xs:string">UseFTPResource</Value>
-											</xr:Value>
-										</xr:Item>
-									</ChoiceList>
-									<ContextMenu name="OtherDeliveryMethodContextMenu" id="616"/>
-									<ExtendedTooltip name="OtherDeliveryMethodExtendedTooltip" id="811"/>
-									<Events>
-										<Event name="OnChange">OtherDeliveryMethodOnChange</Event>
-										<Event name="TextEditEnd">OtherDeliveryMethodTextEditEnd</Event>
-									</Events>
-								</InputField>
-								<Pages name="DeliveryParameters" id="617">
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Delivery parameters</v8:content>
-										</v8:item>
-									</Title>
-									<PagesRepresentation>None</PagesRepresentation>
-									<ExtendedTooltip name="DeliveryParametersExtendedTooltip" id="812"/>
-									<ChildItems>
-										<Page name="UseFolder" id="288">
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Use folder</v8:content>
-												</v8:item>
-											</Title>
-											<Group>AlwaysHorizontal</Group>
-											<ExtendedTooltip name="UseFolderExtendedTooltip" id="813"/>
-											<ChildItems>
-												<InputField name="Folder" id="214">
-													<DataPath>Object.Folder</DataPath>
-													<TitleLocation>None</TitleLocation>
-													<AutoMarkIncomplete>true</AutoMarkIncomplete>
-													<ContextMenu name="FolderContextMenu" id="215"/>
-													<ExtendedTooltip name="FolderExtendedTooltip" id="814"/>
-													<Events>
-														<Event name="Opening">FolderOpening</Event>
-														<Event name="ChoiceProcessing">FolderChoiceProcessing</Event>
-													</Events>
-												</InputField>
-											</ChildItems>
-										</Page>
-										<Page name="UseNetworkDirectory" id="289">
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Use network directory</v8:content>
-												</v8:item>
-											</Title>
-											<Group>AlwaysHorizontal</Group>
-											<ExtendedTooltip name="UseNetworkDirectoryExtendedTooltip" id="815"/>
-											<ChildItems>
-												<InputField name="NetworkDirectoryWindows" id="216">
-													<DataPath>Object.NetworkDirectoryWindows</DataPath>
-													<Title>
-														<v8:item>
-															<v8:lang>en</v8:lang>
-															<v8:content>Windows</v8:content>
-														</v8:item>
-													</Title>
-													<ChoiceButton>false</ChoiceButton>
-													<ClearButton>false</ClearButton>
-													<SpinButton>false</SpinButton>
-													<OpenButton>false</OpenButton>
-													<AutoMarkIncomplete>true</AutoMarkIncomplete>
-													<ChoiceListButton>false</ChoiceListButton>
-													<ContextMenu name="NetworkDirectoryWindowsContextMenu" id="217"/>
-													<ExtendedTooltip name="NetworkDirectoryWindowsExtendedTooltip" id="816"/>
-													<Events>
-														<Event name="OnChange">NetworkDirectoryWindowsOnChange</Event>
-													</Events>
-												</InputField>
-												<InputField name="NetworkDirectoryLinux" id="692">
-													<DataPath>Object.NetworkDirectoryLinux</DataPath>
-													<Title>
-														<v8:item>
-															<v8:lang>en</v8:lang>
-															<v8:content>Linux</v8:content>
-														</v8:item>
-													</Title>
-													<ChoiceButton>false</ChoiceButton>
-													<ClearButton>false</ClearButton>
-													<SpinButton>false</SpinButton>
-													<OpenButton>false</OpenButton>
-													<AutoMarkIncomplete>true</AutoMarkIncomplete>
-													<ChoiceListButton>false</ChoiceListButton>
-													<ContextMenu name="NetworkDirectoryLinuxContextMenu" id="693"/>
-													<ExtendedTooltip name="NetworkDirectoryLinuxExtendedTooltip" id="817"/>
-													<Events>
-														<Event name="OnChange">NetworkDirectoryLinuxOnChange</Event>
-													</Events>
-												</InputField>
-											</ChildItems>
-										</Page>
-										<Page name="UseFTPResource" id="291">
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Use FTP resource</v8:content>
-												</v8:item>
-											</Title>
-											<Group>HorizontalIfPossible</Group>
-											<ExtendedTooltip name="UseFTPResourceExtendedTooltip" id="818"/>
-											<ChildItems>
-												<InputField name="FTPServerAndDirectory" id="388">
-													<DataPath>FTPServerAndDirectory</DataPath>
-													<TitleLocation>None</TitleLocation>
-													<Wrap>false</Wrap>
-													<ChoiceButton>true</ChoiceButton>
-													<OpenButton>true</OpenButton>
-													<AutoMarkIncomplete>true</AutoMarkIncomplete>
-													<ChooseType>false</ChooseType>
-													<ChoiceListButton>false</ChoiceListButton>
-													<InputHint>
-														<v8:item>
-															<v8:lang>en</v8:lang>
-															<v8:content>ftp://server/directory/</v8:content>
-														</v8:item>
-													</InputHint>
-													<ContextMenu name="FTPServerAndDirectoryContextMenu" id="389"/>
-													<ExtendedTooltip name="FTPServerAndDirectoryExtendedTooltip" id="819"/>
-													<Events>
-														<Event name="OnChange">FTPServerAndDirectoryOnChange</Event>
-														<Event name="StartChoice">FTPServerAndDirectoryStartChoice</Event>
-														<Event name="Opening">FTPServerAndDirectoryOpening</Event>
-														<Event name="Clearing">FTPServerAndDirectoryClearing</Event>
-														<Event name="ChoiceProcessing">FTPServerAndDirectoryChoiceProcessing</Event>
-													</Events>
-												</InputField>
-											</ChildItems>
-										</Page>
-									</ChildItems>
-								</Pages>
-								<CheckBoxField name="IncludeDateInFileName" id="1187">
-									<DataPath>Object.IncludeDateInFileName</DataPath>
-									<TitleLocation>Right</TitleLocation>
-									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="IncludeDateInFileNameContextMenu" id="1188"/>
-									<ExtendedTooltip name="IncludeDateInFileNameExtendedTooltip" id="1189"/>
-								</CheckBoxField>
-							</ChildItems>
-						</UsualGroup>
-						<UsualGroup name="EmailDelivery" id="668">
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Email delivery</v8:content>
+									<v8:content>Delivery left</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Vertical</Group>
-							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="EmailDeliveryExtendedTooltip" id="821"/>
+							<ExtendedTooltip name="DeliverLeftExtendedTooltip" id="1264"/>
 							<ChildItems>
-								<UsualGroup name="GroupEmailDelivery" id="985">
+								<UsualGroup name="OtherDeliveryMethods" id="630">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Other delivery methods</v8:content>
+										</v8:item>
+									</Title>
+									<Group>AlwaysHorizontal</Group>
+									<Behavior>Usual</Behavior>
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="OtherDeliveryMethodsExtendedTooltip" id="809"/>
+									<ChildItems>
+										<CheckBoxField name="Publish" id="631">
+											<DataPath>Publish</DataPath>
+											<TitleLocation>Right</TitleLocation>
+											<CheckBoxType>Auto</CheckBoxType>
+											<ContextMenu name="PublishContextMenu" id="632"/>
+											<ExtendedTooltip name="PublishExtendedTooltip" id="810"/>
+											<Events>
+												<Event name="OnChange">PublishOnChange</Event>
+											</Events>
+										</CheckBoxField>
+										<InputField name="OtherDeliveryMethod" id="615">
+											<DataPath>OtherDeliveryMethod</DataPath>
+											<TitleLocation>None</TitleLocation>
+											<Width>13</Width>
+											<HorizontalStretch>false</HorizontalStretch>
+											<ClearButton>false</ClearButton>
+											<SpinButton>false</SpinButton>
+											<OpenButton>false</OpenButton>
+											<ListChoiceMode>true</ListChoiceMode>
+											<ChooseType>false</ChooseType>
+											<IncompleteChoiceMode>OnActivate</IncompleteChoiceMode>
+											<ChoiceList>
+												<xr:Item>
+													<xr:Presentation/>
+													<xr:CheckState>0</xr:CheckState>
+													<xr:Value xsi:type="FormChoiceListDesTimeValue">
+														<Presentation>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>To directory</v8:content>
+															</v8:item>
+														</Presentation>
+														<Value xsi:type="xs:string">UseFolder</Value>
+													</xr:Value>
+												</xr:Item>
+												<xr:Item>
+													<xr:Presentation/>
+													<xr:CheckState>0</xr:CheckState>
+													<xr:Value xsi:type="FormChoiceListDesTimeValue">
+														<Presentation>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>To network directory</v8:content>
+															</v8:item>
+														</Presentation>
+														<Value xsi:type="xs:string">UseNetworkDirectory</Value>
+													</xr:Value>
+												</xr:Item>
+												<xr:Item>
+													<xr:Presentation/>
+													<xr:CheckState>0</xr:CheckState>
+													<xr:Value xsi:type="FormChoiceListDesTimeValue">
+														<Presentation>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>To FTP resource</v8:content>
+															</v8:item>
+														</Presentation>
+														<Value xsi:type="xs:string">UseFTPResource</Value>
+													</xr:Value>
+												</xr:Item>
+											</ChoiceList>
+											<ContextMenu name="OtherDeliveryMethodContextMenu" id="616"/>
+											<ExtendedTooltip name="OtherDeliveryMethodExtendedTooltip" id="811"/>
+											<Events>
+												<Event name="OnChange">OtherDeliveryMethodOnChange</Event>
+												<Event name="TextEditEnd">OtherDeliveryMethodTextEditEnd</Event>
+											</Events>
+										</InputField>
+										<Pages name="DeliveryParameters" id="617">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Delivery parameters</v8:content>
+												</v8:item>
+											</Title>
+											<PagesRepresentation>None</PagesRepresentation>
+											<ExtendedTooltip name="DeliveryParametersExtendedTooltip" id="812"/>
+											<ChildItems>
+												<Page name="UseFolder" id="288">
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Use folder</v8:content>
+														</v8:item>
+													</Title>
+													<Group>AlwaysHorizontal</Group>
+													<ExtendedTooltip name="UseFolderExtendedTooltip" id="813"/>
+													<ChildItems>
+														<InputField name="Folder" id="214">
+															<DataPath>Object.Folder</DataPath>
+															<TitleLocation>None</TitleLocation>
+															<AutoMarkIncomplete>true</AutoMarkIncomplete>
+															<ContextMenu name="FolderContextMenu" id="215"/>
+															<ExtendedTooltip name="FolderExtendedTooltip" id="814"/>
+															<Events>
+																<Event name="Opening">FolderOpening</Event>
+																<Event name="ChoiceProcessing">FolderChoiceProcessing</Event>
+															</Events>
+														</InputField>
+													</ChildItems>
+												</Page>
+												<Page name="UseNetworkDirectory" id="289">
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Use network directory</v8:content>
+														</v8:item>
+													</Title>
+													<Group>AlwaysHorizontal</Group>
+													<ExtendedTooltip name="UseNetworkDirectoryExtendedTooltip" id="815"/>
+													<ChildItems>
+														<InputField name="NetworkDirectoryWindows" id="216">
+															<DataPath>Object.NetworkDirectoryWindows</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Windows</v8:content>
+																</v8:item>
+															</Title>
+															<ChoiceButton>false</ChoiceButton>
+															<ClearButton>false</ClearButton>
+															<SpinButton>false</SpinButton>
+															<OpenButton>false</OpenButton>
+															<AutoMarkIncomplete>true</AutoMarkIncomplete>
+															<ChoiceListButton>false</ChoiceListButton>
+															<ContextMenu name="NetworkDirectoryWindowsContextMenu" id="217"/>
+															<ExtendedTooltip name="NetworkDirectoryWindowsExtendedTooltip" id="816"/>
+															<Events>
+																<Event name="OnChange">NetworkDirectoryWindowsOnChange</Event>
+															</Events>
+														</InputField>
+														<InputField name="NetworkDirectoryLinux" id="692">
+															<DataPath>Object.NetworkDirectoryLinux</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Linux</v8:content>
+																</v8:item>
+															</Title>
+															<ChoiceButton>false</ChoiceButton>
+															<ClearButton>false</ClearButton>
+															<SpinButton>false</SpinButton>
+															<OpenButton>false</OpenButton>
+															<AutoMarkIncomplete>true</AutoMarkIncomplete>
+															<ChoiceListButton>false</ChoiceListButton>
+															<ContextMenu name="NetworkDirectoryLinuxContextMenu" id="693"/>
+															<ExtendedTooltip name="NetworkDirectoryLinuxExtendedTooltip" id="817"/>
+															<Events>
+																<Event name="OnChange">NetworkDirectoryLinuxOnChange</Event>
+															</Events>
+														</InputField>
+													</ChildItems>
+												</Page>
+												<Page name="UseFTPResource" id="291">
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Use FTP resource</v8:content>
+														</v8:item>
+													</Title>
+													<Group>HorizontalIfPossible</Group>
+													<ExtendedTooltip name="UseFTPResourceExtendedTooltip" id="818"/>
+													<ChildItems>
+														<InputField name="FTPServerAndDirectory" id="388">
+															<DataPath>FTPServerAndDirectory</DataPath>
+															<TitleLocation>None</TitleLocation>
+															<Wrap>false</Wrap>
+															<ChoiceButton>true</ChoiceButton>
+															<OpenButton>true</OpenButton>
+															<AutoMarkIncomplete>true</AutoMarkIncomplete>
+															<ChooseType>false</ChooseType>
+															<ChoiceListButton>false</ChoiceListButton>
+															<InputHint>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>ftp://server/directory/</v8:content>
+																</v8:item>
+															</InputHint>
+															<ContextMenu name="FTPServerAndDirectoryContextMenu" id="389"/>
+															<ExtendedTooltip name="FTPServerAndDirectoryExtendedTooltip" id="819"/>
+															<Events>
+																<Event name="OnChange">FTPServerAndDirectoryOnChange</Event>
+																<Event name="StartChoice">FTPServerAndDirectoryStartChoice</Event>
+																<Event name="Opening">FTPServerAndDirectoryOpening</Event>
+																<Event name="Clearing">FTPServerAndDirectoryClearing</Event>
+																<Event name="ChoiceProcessing">FTPServerAndDirectoryChoiceProcessing</Event>
+															</Events>
+														</InputField>
+													</ChildItems>
+												</Page>
+											</ChildItems>
+										</Pages>
+									</ChildItems>
+								</UsualGroup>
+								<UsualGroup name="EmailDelivery" id="668">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
 											<v8:content>Email delivery</v8:content>
 										</v8:item>
 									</Title>
+									<Group>Vertical</Group>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="GroupEmailDeliveryExtendedTooltip" id="986"/>
+									<ExtendedTooltip name="EmailDeliveryExtendedTooltip" id="821"/>
 									<ChildItems>
-										<CheckBoxField name="UseEmail" id="559">
-											<DataPath>Object.UseEmail</DataPath>
-											<TitleLocation>Right</TitleLocation>
-											<CheckBoxType>Auto</CheckBoxType>
-											<ContextMenu name="UseEmailContextMenu" id="560"/>
-											<ExtendedTooltip name="UseEmailExtendedTooltip" id="823"/>
-											<Events>
-												<Event name="OnChange">UseEmailOnChange</Event>
-											</Events>
-										</CheckBoxField>
-										<LabelField name="BulkEmailRecipients" id="982">
-											<DataPath>BulkEmailRecipients</DataPath>
-											<TitleLocation>None</TitleLocation>
-											<ToolTip>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Specify a list of report distribution recipients</v8:content>
-												</v8:item>
-											</ToolTip>
-											<ToolTipRepresentation>Balloon</ToolTipRepresentation>
-											<AutoMaxWidth>false</AutoMaxWidth>
-											<Hiperlink>true</Hiperlink>
-											<ContextMenu name="BulkEmailRecipientsContextMenu" id="983"/>
-											<ExtendedTooltip name="BulkEmailRecipientsExtendedTooltip" id="984"/>
-											<Events>
-												<Event name="Click">BulkEmailRecipientsClick</Event>
-											</Events>
-										</LabelField>
-									</ChildItems>
-								</UsualGroup>
-								<UsualGroup name="AccountGroup" id="645">
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Account</v8:content>
-										</v8:item>
-									</Title>
-									<Behavior>Usual</Behavior>
-									<Representation>None</Representation>
-									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="AccountGroupExtendedTooltip" id="829"/>
-									<ChildItems>
-										<InputField name="Account" id="31">
-											<DataPath>Object.Account</DataPath>
-											<EditMode>EnterOnInput</EditMode>
-											<AutoMarkIncomplete>true</AutoMarkIncomplete>
-											<ContextMenu name="AccountContextMenu" id="32"/>
-											<ExtendedTooltip name="AccountExtendedTooltip" id="830"/>
-										</InputField>
-										<CheckBoxField name="NotifyOnly" id="413">
-											<DataPath>Object.NotifyOnly</DataPath>
+										<UsualGroup name="GroupEmailDelivery" id="985">
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Send notifications only</v8:content>
+													<v8:content>Email delivery</v8:content>
 												</v8:item>
 											</Title>
-											<TitleLocation>Right</TitleLocation>
-											<ToolTipRepresentation>Button</ToolTipRepresentation>
-											<VerticalAlign>Center</VerticalAlign>
-											<CheckBoxType>Auto</CheckBoxType>
-											<ContextMenu name="NotifyOnlyContextMenu" id="414"/>
-											<ExtendedTooltip name="NotifyOnlyExtendedTooltip" id="826"/>
-											<Events>
-												<Event name="OnChange">NotifyOnlyOnChange</Event>
-											</Events>
-										</CheckBoxField>
-									</ChildItems>
-								</UsualGroup>
-								<UsualGroup name="EmailParameters" id="330">
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Mail properties</v8:content>
-										</v8:item>
-									</Title>
-									<Behavior>Usual</Behavior>
-									<Representation>None</Representation>
-									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="EmailParametersExtendedTooltip" id="832"/>
-									<ChildItems>
-										<UsualGroup name="EmailSubjectAndText" id="609">
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Email subject and text</v8:content>
-												</v8:item>
-											</Title>
-											<Group>Vertical</Group>
 											<Behavior>Usual</Behavior>
 											<Representation>None</Representation>
 											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="EmailSubjectAndTextExtendedTooltip" id="833"/>
+											<ExtendedTooltip name="GroupEmailDeliveryExtendedTooltip" id="986"/>
 											<ChildItems>
-												<InputField name="EmailSubject" id="27">
-													<DataPath>Object.EmailSubject</DataPath>
-													<EditMode>EnterOnInput</EditMode>
+												<CheckBoxField name="UseEmail" id="559">
+													<DataPath>Object.UseEmail</DataPath>
+													<TitleLocation>Right</TitleLocation>
+													<TitleHeight>2</TitleHeight>
+													<CheckBoxType>Auto</CheckBoxType>
+													<ContextMenu name="UseEmailContextMenu" id="560"/>
+													<ExtendedTooltip name="UseEmailExtendedTooltip" id="823"/>
+													<Events>
+														<Event name="OnChange">UseEmailOnChange</Event>
+													</Events>
+												</CheckBoxField>
+												<LabelField name="BulkEmailRecipients" id="982">
+													<DataPath>BulkEmailRecipients</DataPath>
+													<TitleLocation>None</TitleLocation>
+													<ToolTip>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Specify a list of report distribution recipients</v8:content>
+														</v8:item>
+													</ToolTip>
+													<ToolTipRepresentation>Balloon</ToolTipRepresentation>
 													<AutoMaxWidth>false</AutoMaxWidth>
-													<ContextMenu name="EmailSubjectContextMenu" id="28">
-														<ChildItems>
-															<Popup name="EmailSubjectContextMenuSubmenuParameter" id="694">
-																<Title>
-																	<v8:item>
-																		<v8:lang>en</v8:lang>
-																		<v8:content>Parameter</v8:content>
-																	</v8:item>
-																</Title>
-																<Picture>
-																	<xr:Ref>StdPicture.DataCompositionConditionalAppearance</xr:Ref>
-																	<xr:LoadTransparent>true</xr:LoadTransparent>
-																</Picture>
-																<ExtendedTooltip name="EmailSubjectContextMenuSubmenuParameterExtendedTooltip" id="834"/>
-																<ChildItems>
-																	<Button name="EmailSubjectContextMenuAddOrChangeMailingDateTemplate" id="172">
-																		<Type>CommandBarButton</Type>
-																		<CommandName>Form.Command.AddChangeMailingDateTemplate</CommandName>
-																		<ExtendedTooltip name="EmailSubjectContextMenuAddOrChangeMailingDateTemplateExtendedTooltip" id="835"/>
-																	</Button>
-																	<Button name="EmailSubjectContextMenuAddAuthorTemplate" id="267">
-																		<Type>CommandBarButton</Type>
-																		<CommandName>Form.Command.AddAuthorTemplate</CommandName>
-																		<ExtendedTooltip name="EmailSubjectContextMenuAddAuthorTemplateExtendedTooltip" id="836"/>
-																	</Button>
-																	<Button name="EmailSubjectContextMenuAddRecipientTemplate" id="173">
-																		<Type>CommandBarButton</Type>
-																		<CommandName>Form.Command.AddRecipientTemplate</CommandName>
-																		<ExtendedTooltip name="EmailSubjectContextMenuAddRecipientTemplateExtendedTooltip" id="837"/>
-																	</Button>
-																	<Button name="EmailSubjectContextMenuAddMailingTemplate" id="268">
-																		<Type>CommandBarButton</Type>
-																		<CommandName>Form.Command.AddMailingDescriptionTemplate</CommandName>
-																		<ExtendedTooltip name="EmailSubjectContextMenuAddMailingTemplateExtendedTooltip" id="838"/>
-																	</Button>
-																	<Button name="EmailSubjectContextMenuAddSystemTemplate" id="402">
-																		<Type>CommandBarButton</Type>
-																		<CommandName>Form.Command.AddSystemTemplate</CommandName>
-																		<ExtendedTooltip name="EmailSubjectContextMenuAddSystemTemplateExtendedTooltip" id="839"/>
-																	</Button>
-																	<Button name="EmailSubjectContextMenuAddDefaultTemplate" id="671">
-																		<Type>CommandBarButton</Type>
-																		<CommandName>Form.Command.AddDefaultTemplate</CommandName>
-																		<ExtendedTooltip name="EmailSubjectContextMenuAddDefaultTemplateExtendedTooltip" id="840"/>
-																	</Button>
-																	<Button name="EmailSubjectContextMenuTemplatePreview" id="277">
-																		<Type>CommandBarButton</Type>
-																		<CommandName>Form.Command.TemplatePreview</CommandName>
-																		<ExtendedTooltip name="EmailSubjectContextMenuTemplatePreviewExtendedTooltip" id="841"/>
-																	</Button>
-																</ChildItems>
-															</Popup>
-														</ChildItems>
-													</ContextMenu>
-													<ExtendedTooltip name="EmailSubjectExtendedTooltip" id="842"/>
+													<Hiperlink>true</Hiperlink>
+													<ContextMenu name="BulkEmailRecipientsContextMenu" id="983"/>
+													<ExtendedTooltip name="BulkEmailRecipientsExtendedTooltip" id="984"/>
+													<Events>
+														<Event name="Click">BulkEmailRecipientsClick</Event>
+													</Events>
+												</LabelField>
+											</ChildItems>
+										</UsualGroup>
+										<UsualGroup name="AccountGroup" id="645">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Email account</v8:content>
+												</v8:item>
+											</Title>
+											<Behavior>Usual</Behavior>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="AccountGroupExtendedTooltip" id="829"/>
+											<ChildItems>
+												<InputField name="Account" id="31">
+													<DataPath>Object.Account</DataPath>
+													<EditMode>EnterOnInput</EditMode>
+													<AutoMarkIncomplete>true</AutoMarkIncomplete>
+													<ContextMenu name="AccountContextMenu" id="32"/>
+													<ExtendedTooltip name="AccountExtendedTooltip" id="830"/>
 												</InputField>
-												<Pages name="EmailTextPages" id="127">
+												<CheckBoxField name="NotifyOnly" id="413">
+													<DataPath>Object.NotifyOnly</DataPath>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Pages email text</v8:content>
+															<v8:content>Send notifications only</v8:content>
 														</v8:item>
 													</Title>
-													<PagesRepresentation>None</PagesRepresentation>
-													<ExtendedTooltip name="EmailTextPagesExtendedTooltip" id="843"/>
+													<TitleLocation>Right</TitleLocation>
+													<ToolTipRepresentation>Button</ToolTipRepresentation>
+													<VerticalAlign>Center</VerticalAlign>
+													<CheckBoxType>Auto</CheckBoxType>
+													<ContextMenu name="NotifyOnlyContextMenu" id="414"/>
+													<ExtendedTooltip name="NotifyOnlyExtendedTooltip" id="826"/>
+													<Events>
+														<Event name="OnChange">NotifyOnlyOnChange</Event>
+													</Events>
+												</CheckBoxField>
+											</ChildItems>
+										</UsualGroup>
+										<UsualGroup name="EmailParameters" id="330">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Mail properties</v8:content>
+												</v8:item>
+											</Title>
+											<Behavior>Usual</Behavior>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="EmailParametersExtendedTooltip" id="832"/>
+											<ChildItems>
+												<UsualGroup name="EmailSubjectAndText" id="609">
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Email subject and text</v8:content>
+														</v8:item>
+													</Title>
+													<Group>Vertical</Group>
+													<Behavior>Usual</Behavior>
+													<Representation>None</Representation>
+													<ShowTitle>false</ShowTitle>
+													<ExtendedTooltip name="EmailSubjectAndTextExtendedTooltip" id="833"/>
 													<ChildItems>
-														<Page name="EmailTextPagesHTML" id="128">
+														<UsualGroup name="GroupEmailSubject" id="1251">
 															<Title>
 																<v8:item>
 																	<v8:lang>en</v8:lang>
-																	<v8:content>Pages email text HTML</v8:content>
+																	<v8:content>Group email subject</v8:content>
 																</v8:item>
 															</Title>
-															<ExtendedTooltip name="EmailTextPagesHTMLExtendedTooltip" id="844"/>
+															<Group>AlwaysHorizontal</Group>
+															<Representation>None</Representation>
+															<ShowTitle>false</ShowTitle>
+															<ExtendedTooltip name="GroupEmailSubjectExtendedTooltip" id="1252"/>
 															<ChildItems>
-																<CommandBar name="EmailTextCommandBarFormattedDocument" id="131">
-																	<Title>
-																		<v8:item>
-																			<v8:lang>en</v8:lang>
-																			<v8:content>Command bar email text formatted document</v8:content>
-																		</v8:item>
-																	</Title>
-																	<ExtendedTooltip name="EmailTextCommandBarFormattedDocumentExtendedTooltip" id="845"/>
-																	<ChildItems>
-																		<Popup name="EmailTextFormattedDocumentAddTemplateParameters" id="301">
-																			<Title>
-																				<v8:item>
-																					<v8:lang>en</v8:lang>
-																					<v8:content>Parameter</v8:content>
-																				</v8:item>
-																			</Title>
-																			<ToolTip>
-																				<v8:item>
-																					<v8:lang>en</v8:lang>
-																					<v8:content>Add parameter to email text</v8:content>
-																				</v8:item>
-																			</ToolTip>
-																			<ExtendedTooltip name="EmailTextFormattedDocumentAddTemplateParametersExtendedTooltip" id="846"/>
-																			<ChildItems>
-																				<Button name="EmailTextFormattedDocumentAddOrChangeMailingDateTemplate" id="303">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Command.AddChangeMailingDateTemplate</CommandName>
-																					<ExtendedTooltip name="EmailTextFormattedDocumentAddOrChangeMailingDateTemplateExtendedTooltip" id="847"/>
-																				</Button>
-																				<Button name="EmailTextFormattedDocumentAddAuthorTemplate" id="304">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Command.AddAuthorTemplate</CommandName>
-																					<ExtendedTooltip name="EmailTextFormattedDocumentAddAuthorTemplateExtendedTooltip" id="848"/>
-																				</Button>
-																				<Button name="EmailTextFormattedDocumentAddRecipientTemplate" id="305">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Command.AddRecipientTemplate</CommandName>
-																					<ExtendedTooltip name="EmailTextFormattedDocumentAddRecipientTemplateExtendedTooltip" id="849"/>
-																				</Button>
-																				<Button name="EmailTextFormattedDocumentAddMailingTemplate" id="306">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Command.AddMailingDescriptionTemplate</CommandName>
-																					<ExtendedTooltip name="EmailTextFormattedDocumentAddMailingTemplateExtendedTooltip" id="850"/>
-																				</Button>
-																				<Button name="EmailTextFormattedDocumentAddGeneratedReportsTemplate" id="307">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Command.AddGeneratedReportsTemplate</CommandName>
-																					<ExtendedTooltip name="EmailTextFormattedDocumentAddGeneratedReportsTemplateExtendedTooltip" id="851"/>
-																				</Button>
-																				<Button name="EmailTextFormattedDocumentAddSystemTemplate" id="406">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Command.AddSystemTemplate</CommandName>
-																					<ExtendedTooltip name="EmailTextFormattedDocumentAddSystemTemplateExtendedTooltip" id="852"/>
-																				</Button>
-																				<Button name="EmailTextFormattedDocumentAddDeliveryMethodTemplate" id="419">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Command.AddDeliveryMethodTemplate</CommandName>
-																					<ExtendedTooltip name="EmailTextFormattedDocumentAddDeliveryMethodTemplateExtendedTooltip" id="853"/>
-																				</Button>
-																				<Button name="EmailTextFormattedDocumentAddDefaultTemplate" id="698">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Command.AddDefaultTemplate</CommandName>
-																					<ExtendedTooltip name="EmailTextFormattedDocumentAddDefaultTemplateExtendedTooltip" id="854"/>
-																				</Button>
-																				<Button name="EmailTextFormattedDocumentTemplatePreview" id="395">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Command.TemplatePreview</CommandName>
-																					<ExtendedTooltip name="EmailTextFormattedDocumentTemplatePreviewExtendedTooltip" id="855"/>
-																				</Button>
-																			</ChildItems>
-																		</Popup>
-																		<Popup name="HTML" id="605">
-																			<Title>
-																				<v8:item>
-																					<v8:lang>en</v8:lang>
-																					<v8:content>HTML</v8:content>
-																				</v8:item>
-																			</Title>
-																			<ToolTip>
-																				<v8:item>
-																					<v8:lang>en</v8:lang>
-																					<v8:content>Change mail format</v8:content>
-																				</v8:item>
-																			</ToolTip>
-																			<ExtendedTooltip name="HTMLExtendedTooltip" id="856"/>
-																			<ChildItems>
-																				<Button name="ChangeTextTypeToHTMLMark" id="628">
-																					<Type>CommandBarButton</Type>
-																					<Check>true</Check>
-																					<CommandName>Form.Command.ChangeTextTypeToHTML</CommandName>
-																					<ExtendedTooltip name="ChangeTextTypeToHTMLMarkExtendedTooltip" id="857"/>
-																				</Button>
-																				<Button name="ChangeTextTypeToPlain" id="606">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Command.ChangeTextTypeToPlain</CommandName>
-																					<ExtendedTooltip name="ChangeTextTypeToPlainExtendedTooltip" id="858"/>
-																				</Button>
-																			</ChildItems>
-																		</Popup>
-																		<Button name="EmailTextFormattedDocumentPicture" id="174">
-																			<Type>CommandBarButton</Type>
-																			<CommandName>Form.Item.EmailTextFormattedDocument.StandardCommand.Picture</CommandName>
-																			<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-																			<ExtendedTooltip name="EmailTextFormattedDocumentPictureExtendedTooltip" id="859"/>
-																		</Button>
-																		<ButtonGroup name="StandardActions" id="363">
-																			<Title>
-																				<v8:item>
-																					<v8:lang>en</v8:lang>
-																					<v8:content>Standard actions</v8:content>
-																				</v8:item>
-																			</Title>
-																			<CommandSource>Item.EmailTextFormattedDocument</CommandSource>
-																			<ExtendedTooltip name="StandardActionsExtendedTooltip" id="860"/>
-																			<ChildItems>
-																				<Button name="EmailTextFormattedDocumentAlignLeft" id="633">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Item.EmailTextFormattedDocument.StandardCommand.AlignLeft</CommandName>
-																					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-																					<ExtendedTooltip name="EmailTextFormattedDocumentAlignLeftExtendedTooltip" id="861"/>
-																				</Button>
-																				<Button name="EmailTextFormattedDocumentAlignCenter" id="634">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Item.EmailTextFormattedDocument.StandardCommand.AlignCenter</CommandName>
-																					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-																					<ExtendedTooltip name="EmailTextFormattedDocumentAlignCenterExtendedTooltip" id="862"/>
-																				</Button>
-																				<Button name="EmailTextFormattedDocumentAlignRight" id="636">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Item.EmailTextFormattedDocument.StandardCommand.AlignRight</CommandName>
-																					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-																					<ExtendedTooltip name="EmailTextFormattedDocumentAlignRightExtendedTooltip" id="863"/>
-																				</Button>
-																				<Button name="EmailTextFormattedDocumentJustify" id="637">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Item.EmailTextFormattedDocument.StandardCommand.AlignJustify</CommandName>
-																					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-																					<ExtendedTooltip name="EmailTextFormattedDocumentJustifyExtendedTooltip" id="864"/>
-																				</Button>
-																				<Button name="EmailTextFormattedDocumentIncreaseIndent" id="638">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Item.EmailTextFormattedDocument.StandardCommand.IncreaseIndent</CommandName>
-																					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-																					<ExtendedTooltip name="EmailTextFormattedDocumentIncreaseIndentExtendedTooltip" id="865"/>
-																				</Button>
-																				<Button name="EmailTextFormattedDocumentDecreaseIndent" id="639">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Item.EmailTextFormattedDocument.StandardCommand.DecreaseIndent</CommandName>
-																					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-																					<ExtendedTooltip name="EmailTextFormattedDocumentDecreaseIndentExtendedTooltip" id="866"/>
-																				</Button>
-																			</ChildItems>
-																		</ButtonGroup>
-																	</ChildItems>
-																</CommandBar>
-																<FormattedDocumentField name="EmailTextFormattedDocument" id="129">
-																	<DataPath>EmailTextFormattedDocument</DataPath>
-																	<TitleLocation>None</TitleLocation>
-																	<Width>1</Width>
-																	<Height>1</Height>
-																	<ContextMenu name="EmailTextFormattedDocumentContextMenu" id="130">
+																<InputField name="EmailSubject" id="27">
+																	<DataPath>Object.EmailSubject</DataPath>
+																	<EditMode>EnterOnInput</EditMode>
+																	<AutoMaxWidth>false</AutoMaxWidth>
+																	<ContextMenu name="EmailSubjectContextMenu" id="28">
 																		<ChildItems>
-																			<Popup name="EmailTextFormattedDocumentContextMenuSubmenuParameter" id="695">
+																			<Popup name="EmailSubjectContextMenuSubmenuParameter" id="694">
 																				<Title>
 																					<v8:item>
 																						<v8:lang>en</v8:lang>
@@ -2132,281 +1980,1112 @@
 																					<xr:Ref>StdPicture.DataCompositionConditionalAppearance</xr:Ref>
 																					<xr:LoadTransparent>true</xr:LoadTransparent>
 																				</Picture>
-																				<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuSubmenuParameterExtendedTooltip" id="867"/>
+																				<ExtendedTooltip name="EmailSubjectContextMenuSubmenuParameterExtendedTooltip" id="834"/>
 																				<ChildItems>
-																					<Button name="EmailTextFormattedDocumentContextMenuAddOrChangeMailingDateTemplate" id="312">
+																					<Button name="EmailSubjectContextMenuAddOrChangeMailingDateTemplate" id="172">
 																						<Type>CommandBarButton</Type>
 																						<CommandName>Form.Command.AddChangeMailingDateTemplate</CommandName>
-																						<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddOrChangeMailingDateTemplateExtendedTooltip" id="868"/>
+																						<ExtendedTooltip name="EmailSubjectContextMenuAddOrChangeMailingDateTemplateExtendedTooltip" id="835"/>
 																					</Button>
-																					<Button name="EmailTextFormattedDocumentContextMenuAddAuthorTemplate" id="308">
+																					<Button name="EmailSubjectContextMenuAddAuthorTemplate" id="267">
 																						<Type>CommandBarButton</Type>
 																						<CommandName>Form.Command.AddAuthorTemplate</CommandName>
-																						<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddAuthorTemplateExtendedTooltip" id="869"/>
+																						<ExtendedTooltip name="EmailSubjectContextMenuAddAuthorTemplateExtendedTooltip" id="836"/>
 																					</Button>
-																					<Button name="EmailTextFormattedDocumentContextMenuAddRecipientTemplate" id="309">
+																					<Button name="EmailSubjectContextMenuAddRecipientTemplate" id="173">
 																						<Type>CommandBarButton</Type>
 																						<CommandName>Form.Command.AddRecipientTemplate</CommandName>
-																						<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddRecipientTemplateExtendedTooltip" id="870"/>
+																						<ExtendedTooltip name="EmailSubjectContextMenuAddRecipientTemplateExtendedTooltip" id="837"/>
 																					</Button>
-																					<Button name="EmailTextFormattedDocumentContextMenuAddMailingTemplate" id="310">
+																					<Button name="EmailSubjectContextMenuAddMailingTemplate" id="268">
 																						<Type>CommandBarButton</Type>
 																						<CommandName>Form.Command.AddMailingDescriptionTemplate</CommandName>
-																						<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddMailingTemplateExtendedTooltip" id="871"/>
+																						<ExtendedTooltip name="EmailSubjectContextMenuAddMailingTemplateExtendedTooltip" id="838"/>
 																					</Button>
-																					<Button name="EmailTextFormattedDocumentContextMenuAddGeneratedReportsTemplate" id="311">
-																						<Type>CommandBarButton</Type>
-																						<CommandName>Form.Command.AddGeneratedReportsTemplate</CommandName>
-																						<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddGeneratedReportsTemplateExtendedTooltip" id="872"/>
-																					</Button>
-																					<Button name="EmailTextFormattedDocumentContextMenuAddSystemTemplate" id="403">
+																					<Button name="EmailSubjectContextMenuAddSystemTemplate" id="402">
 																						<Type>CommandBarButton</Type>
 																						<CommandName>Form.Command.AddSystemTemplate</CommandName>
-																						<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddSystemTemplateExtendedTooltip" id="873"/>
+																						<ExtendedTooltip name="EmailSubjectContextMenuAddSystemTemplateExtendedTooltip" id="839"/>
 																					</Button>
-																					<Button name="EmailTextFormattedDocumentContextMenuAddDeliveryMethodTemplate" id="420">
-																						<Type>CommandBarButton</Type>
-																						<CommandName>Form.Command.AddDeliveryMethodTemplate</CommandName>
-																						<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddDeliveryMethodTemplateExtendedTooltip" id="874"/>
-																					</Button>
-																					<Button name="EmailTextFormattedDocumentContextMenuAddDefaultTemplate" id="673">
+																					<Button name="EmailSubjectContextMenuAddDefaultTemplate" id="671">
 																						<Type>CommandBarButton</Type>
 																						<CommandName>Form.Command.AddDefaultTemplate</CommandName>
-																						<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddDefaultTemplateExtendedTooltip" id="875"/>
+																						<ExtendedTooltip name="EmailSubjectContextMenuAddDefaultTemplateExtendedTooltip" id="840"/>
 																					</Button>
-																					<Button name="EmailTextFormattedDocumentContextMenuTemplatePreview" id="394">
+																					<Button name="EmailSubjectContextMenuTemplatePreview" id="277">
 																						<Type>CommandBarButton</Type>
 																						<CommandName>Form.Command.TemplatePreview</CommandName>
-																						<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuTemplatePreviewExtendedTooltip" id="876"/>
+																						<ExtendedTooltip name="EmailSubjectContextMenuTemplatePreviewExtendedTooltip" id="841"/>
 																					</Button>
 																				</ChildItems>
 																			</Popup>
 																		</ChildItems>
 																	</ContextMenu>
-																	<ExtendedTooltip name="EmailTextFormattedDocumentExtendedTooltip" id="877"/>
-																</FormattedDocumentField>
-															</ChildItems>
-														</Page>
-														<Page name="EmailTextPagesNormalText" id="125">
-															<Title>
-																<v8:item>
-																	<v8:lang>en</v8:lang>
-																	<v8:content>Pages email text plain text</v8:content>
-																</v8:item>
-															</Title>
-															<ExtendedTooltip name="EmailTextPagesNormalTextExtendedTooltip" id="878"/>
-															<ChildItems>
-																<CommandBar name="EmailTextCommandBar" id="157">
+																	<ExtendedTooltip name="EmailSubjectExtendedTooltip" id="842"/>
+																</InputField>
+																<CommandBar name="CommandBarEmailSubject" id="1253">
 																	<Title>
 																		<v8:item>
 																			<v8:lang>en</v8:lang>
-																			<v8:content>Command bar email text</v8:content>
+																			<v8:content>Command bar Email subject</v8:content>
 																		</v8:item>
 																	</Title>
-																	<ExtendedTooltip name="EmailTextCommandBarExtendedTooltip" id="879"/>
+																	<ToolTip>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Command bar Email subject</v8:content>
+																		</v8:item>
+																	</ToolTip>
+																	<Width>5</Width>
+																	<HorizontalStretch>false</HorizontalStretch>
+																	<ExtendedTooltip name="CommandBarEmailSubjectExtendedTooltip" id="1254"/>
 																	<ChildItems>
-																		<Popup name="EmailTextAddTemplateParameter" id="323">
+																		<Popup name="SeverityGroup" id="1255">
+																			<EnableContentChange>true</EnableContentChange>
 																			<Title>
 																				<v8:item>
 																					<v8:lang>en</v8:lang>
-																					<v8:content>Parameter</v8:content>
+																					<v8:content>Importance</v8:content>
 																				</v8:item>
 																			</Title>
-																			<ToolTip>
+																			<Picture>
+																				<xr:Ref>CommonPicture.ImportanceNotSpecified</xr:Ref>
+																				<xr:LoadTransparent>false</xr:LoadTransparent>
+																			</Picture>
+																			<Representation>Picture</Representation>
+																			<ExtendedTooltip name="SeverityGroupExtendedTooltip" id="1256"/>
+																			<ChildItems>
+																				<Button name="ImportanceHigh" id="1257">
+																					<Type>CommandBarButton</Type>
+																					<CommandName>Form.Command.ImportanceHigh</CommandName>
+																					<ExtendedTooltip name="ImportanceHighExtendedTooltip" id="1258"/>
+																				</Button>
+																				<Button name="ImportanceNormal" id="1259">
+																					<Type>CommandBarButton</Type>
+																					<CommandName>Form.Command.ImportanceNormal</CommandName>
+																					<ExtendedTooltip name="ImportanceNormalExtendedTooltip" id="1260"/>
+																				</Button>
+																				<Button name="ImportanceLow" id="1261">
+																					<Type>CommandBarButton</Type>
+																					<CommandName>Form.Command.ImportanceLow</CommandName>
+																					<ExtendedTooltip name="ImportanceLowExtendedTooltip" id="1262"/>
+																				</Button>
+																			</ChildItems>
+																		</Popup>
+																	</ChildItems>
+																</CommandBar>
+															</ChildItems>
+														</UsualGroup>
+														<Pages name="EmailTextPages" id="127">
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Pages email text</v8:content>
+																</v8:item>
+															</Title>
+															<PagesRepresentation>None</PagesRepresentation>
+															<ExtendedTooltip name="EmailTextPagesExtendedTooltip" id="843"/>
+															<ChildItems>
+																<Page name="EmailTextPagesHTML" id="128">
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Pages email text HTML</v8:content>
+																		</v8:item>
+																	</Title>
+																	<ExtendedTooltip name="EmailTextPagesHTMLExtendedTooltip" id="844"/>
+																	<ChildItems>
+																		<CommandBar name="EmailTextCommandBarFormattedDocument" id="131">
+																			<Title>
 																				<v8:item>
 																					<v8:lang>en</v8:lang>
-																					<v8:content>Add template parameter</v8:content>
+																					<v8:content>Command bar Email text formatted document</v8:content>
 																				</v8:item>
-																			</ToolTip>
-																			<ExtendedTooltip name="EmailTextAddTemplateParameterExtendedTooltip" id="880"/>
+																			</Title>
+																			<ExtendedTooltip name="EmailTextCommandBarFormattedDocumentExtendedTooltip" id="845"/>
 																			<ChildItems>
-																				<Button name="AddOrChangeMailingDateTemplate" id="328">
+																				<Popup name="EmailTextFormattedDocumentAddTemplateParameters" id="301">
+																					<Title>
+																						<v8:item>
+																							<v8:lang>en</v8:lang>
+																							<v8:content>Parameter</v8:content>
+																						</v8:item>
+																					</Title>
+																					<ToolTip>
+																						<v8:item>
+																							<v8:lang>en</v8:lang>
+																							<v8:content>Add parameter to email text</v8:content>
+																						</v8:item>
+																					</ToolTip>
+																					<ExtendedTooltip name="EmailTextFormattedDocumentAddTemplateParametersExtendedTooltip" id="846"/>
+																					<ChildItems>
+																						<Button name="EmailTextFormattedDocumentAddOrChangeMailingDateTemplate" id="303">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Command.AddChangeMailingDateTemplate</CommandName>
+																							<ExtendedTooltip name="EmailTextFormattedDocumentAddOrChangeMailingDateTemplateExtendedTooltip" id="847"/>
+																						</Button>
+																						<Button name="EmailTextFormattedDocumentAddAuthorTemplate" id="304">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Command.AddAuthorTemplate</CommandName>
+																							<ExtendedTooltip name="EmailTextFormattedDocumentAddAuthorTemplateExtendedTooltip" id="848"/>
+																						</Button>
+																						<Button name="EmailTextFormattedDocumentAddRecipientTemplate" id="305">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Command.AddRecipientTemplate</CommandName>
+																							<ExtendedTooltip name="EmailTextFormattedDocumentAddRecipientTemplateExtendedTooltip" id="849"/>
+																						</Button>
+																						<Button name="EmailTextFormattedDocumentAddMailingTemplate" id="306">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Command.AddMailingDescriptionTemplate</CommandName>
+																							<ExtendedTooltip name="EmailTextFormattedDocumentAddMailingTemplateExtendedTooltip" id="850"/>
+																						</Button>
+																						<Button name="EmailTextFormattedDocumentAddGeneratedReportsTemplate" id="307">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Command.AddGeneratedReportsTemplate</CommandName>
+																							<ExtendedTooltip name="EmailTextFormattedDocumentAddGeneratedReportsTemplateExtendedTooltip" id="851"/>
+																						</Button>
+																						<Button name="EmailTextFormattedDocumentAddSystemTemplate" id="406">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Command.AddSystemTemplate</CommandName>
+																							<ExtendedTooltip name="EmailTextFormattedDocumentAddSystemTemplateExtendedTooltip" id="852"/>
+																						</Button>
+																						<Button name="EmailTextFormattedDocumentAddDeliveryMethodTemplate" id="419">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Command.AddDeliveryMethodTemplate</CommandName>
+																							<ExtendedTooltip name="EmailTextFormattedDocumentAddDeliveryMethodTemplateExtendedTooltip" id="853"/>
+																						</Button>
+																						<Button name="EmailTextFormattedDocumentAddDefaultTemplate" id="698">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Command.AddDefaultTemplate</CommandName>
+																							<ExtendedTooltip name="EmailTextFormattedDocumentAddDefaultTemplateExtendedTooltip" id="854"/>
+																						</Button>
+																					</ChildItems>
+																				</Popup>
+																				<Popup name="HTML" id="605">
+																					<Title>
+																						<v8:item>
+																							<v8:lang>en</v8:lang>
+																							<v8:content>HTML</v8:content>
+																						</v8:item>
+																					</Title>
+																					<ToolTip>
+																						<v8:item>
+																							<v8:lang>en</v8:lang>
+																							<v8:content>Change mail format</v8:content>
+																						</v8:item>
+																					</ToolTip>
+																					<ExtendedTooltip name="HTMLExtendedTooltip" id="856"/>
+																					<ChildItems>
+																						<Button name="ChangeTextTypeToHTMLMark" id="628">
+																							<Type>CommandBarButton</Type>
+																							<Check>true</Check>
+																							<CommandName>Form.Command.ChangeTextTypeToHTML</CommandName>
+																							<ExtendedTooltip name="ChangeTextTypeToHTMLMarkExtendedTooltip" id="857"/>
+																						</Button>
+																						<Button name="ChangeTextTypeToPlain" id="606">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Command.ChangeTextTypeToPlain</CommandName>
+																							<ExtendedTooltip name="ChangeTextTypeToPlainExtendedTooltip" id="858"/>
+																						</Button>
+																					</ChildItems>
+																				</Popup>
+																				<Button name="EmailTextFormattedDocumentTemplatePreview" id="395">
 																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Command.AddChangeMailingDateTemplate</CommandName>
-																					<ExtendedTooltip name="AddOrChangeMailingDateTemplateExtendedTooltip" id="881"/>
+																					<Representation>Picture</Representation>
+																					<CommandName>Form.Command.TemplatePreview</CommandName>
+																					<ExtendedTooltip name="EmailTextFormattedDocumentTemplatePreviewExtendedTooltip" id="855"/>
 																				</Button>
-																				<Button name="AddAuthorTemplate" id="324">
+																				<Button name="EmailTextFormattedDocumentPicture" id="174">
 																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Command.AddAuthorTemplate</CommandName>
-																					<ExtendedTooltip name="AddAuthorTemplateExtendedTooltip" id="882"/>
+																					<CommandName>Form.Item.EmailTextFormattedDocument.StandardCommand.Picture</CommandName>
+																					<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
+																					<ExtendedTooltip name="EmailTextFormattedDocumentPictureExtendedTooltip" id="859"/>
 																				</Button>
-																				<Button name="AddRecipientTemplate" id="325">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Command.AddRecipientTemplate</CommandName>
-																					<ExtendedTooltip name="AddRecipientTemplateExtendedTooltip" id="883"/>
-																				</Button>
-																				<Button name="AddMailingTemplate" id="326">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Command.AddMailingDescriptionTemplate</CommandName>
-																					<ExtendedTooltip name="AddMailingTemplateExtendedTooltip" id="884"/>
-																				</Button>
-																				<Button name="AddGeneratedReportsTemplate" id="327">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Command.AddGeneratedReportsTemplate</CommandName>
-																					<ExtendedTooltip name="AddGeneratedReportsTemplateExtendedTooltip" id="885"/>
-																				</Button>
-																				<Button name="AddSystemTemplate" id="404">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Command.AddSystemTemplate</CommandName>
-																					<ExtendedTooltip name="AddSystemTemplateExtendedTooltip" id="886"/>
-																				</Button>
-																				<Button name="AddDeliveryMethodTemplate" id="421">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Command.AddDeliveryMethodTemplate</CommandName>
-																					<ExtendedTooltip name="AddDeliveryMethodTemplateExtendedTooltip" id="887"/>
-																				</Button>
-																				<Button name="AddDefaultTemplate" id="699">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Command.AddDefaultTemplate</CommandName>
-																					<ExtendedTooltip name="AddDefaultTemplateExtendedTooltip" id="888"/>
-																				</Button>
+																				<ButtonGroup name="StandardActions" id="363">
+																					<Title>
+																						<v8:item>
+																							<v8:lang>en</v8:lang>
+																							<v8:content>Standard actions</v8:content>
+																						</v8:item>
+																					</Title>
+																					<CommandSource>Item.EmailTextFormattedDocument</CommandSource>
+																					<ExtendedTooltip name="StandardActionsExtendedTooltip" id="860"/>
+																					<ChildItems>
+																						<Button name="EmailTextFormattedDocumentAlignLeft" id="633">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Item.EmailTextFormattedDocument.StandardCommand.AlignLeft</CommandName>
+																							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																							<ExtendedTooltip name="EmailTextFormattedDocumentAlignLeftExtendedTooltip" id="861"/>
+																						</Button>
+																						<Button name="EmailTextFormattedDocumentAlignCenter" id="634">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Item.EmailTextFormattedDocument.StandardCommand.AlignCenter</CommandName>
+																							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																							<ExtendedTooltip name="EmailTextFormattedDocumentAlignCenterExtendedTooltip" id="862"/>
+																						</Button>
+																						<Button name="EmailTextFormattedDocumentAlignRight" id="636">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Item.EmailTextFormattedDocument.StandardCommand.AlignRight</CommandName>
+																							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																							<ExtendedTooltip name="EmailTextFormattedDocumentAlignRightExtendedTooltip" id="863"/>
+																						</Button>
+																						<Button name="EmailTextFormattedDocumentJustify" id="637">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Item.EmailTextFormattedDocument.StandardCommand.AlignJustify</CommandName>
+																							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																							<ExtendedTooltip name="EmailTextFormattedDocumentJustifyExtendedTooltip" id="864"/>
+																						</Button>
+																						<Button name="EmailTextFormattedDocumentIncreaseIndent" id="638">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Item.EmailTextFormattedDocument.StandardCommand.IncreaseIndent</CommandName>
+																							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																							<ExtendedTooltip name="EmailTextFormattedDocumentIncreaseIndentExtendedTooltip" id="865"/>
+																						</Button>
+																						<Button name="EmailTextFormattedDocumentDecreaseIndent" id="639">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Item.EmailTextFormattedDocument.StandardCommand.DecreaseIndent</CommandName>
+																							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																							<ExtendedTooltip name="EmailTextFormattedDocumentDecreaseIndentExtendedTooltip" id="866"/>
+																						</Button>
+																					</ChildItems>
+																				</ButtonGroup>
+																			</ChildItems>
+																		</CommandBar>
+																		<FormattedDocumentField name="EmailTextFormattedDocument" id="129">
+																			<DataPath>EmailTextFormattedDocument</DataPath>
+																			<TitleLocation>None</TitleLocation>
+																			<Width>1</Width>
+																			<Height>1</Height>
+																			<ContextMenu name="EmailTextFormattedDocumentContextMenu" id="130">
+																				<ChildItems>
+																					<Popup name="EmailTextFormattedDocumentContextMenuSubmenuParameter" id="695">
+																						<Title>
+																							<v8:item>
+																								<v8:lang>en</v8:lang>
+																								<v8:content>Parameter</v8:content>
+																							</v8:item>
+																						</Title>
+																						<Picture>
+																							<xr:Ref>StdPicture.DataCompositionConditionalAppearance</xr:Ref>
+																							<xr:LoadTransparent>true</xr:LoadTransparent>
+																						</Picture>
+																						<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuSubmenuParameterExtendedTooltip" id="867"/>
+																						<ChildItems>
+																							<Button name="EmailTextFormattedDocumentContextMenuAddOrChangeMailingDateTemplate" id="312">
+																								<Type>CommandBarButton</Type>
+																								<CommandName>Form.Command.AddChangeMailingDateTemplate</CommandName>
+																								<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddOrChangeMailingDateTemplateExtendedTooltip" id="868"/>
+																							</Button>
+																							<Button name="EmailTextFormattedDocumentContextMenuAddAuthorTemplate" id="308">
+																								<Type>CommandBarButton</Type>
+																								<CommandName>Form.Command.AddAuthorTemplate</CommandName>
+																								<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddAuthorTemplateExtendedTooltip" id="869"/>
+																							</Button>
+																							<Button name="EmailTextFormattedDocumentContextMenuAddRecipientTemplate" id="309">
+																								<Type>CommandBarButton</Type>
+																								<CommandName>Form.Command.AddRecipientTemplate</CommandName>
+																								<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddRecipientTemplateExtendedTooltip" id="870"/>
+																							</Button>
+																							<Button name="EmailTextFormattedDocumentContextMenuAddMailingTemplate" id="310">
+																								<Type>CommandBarButton</Type>
+																								<CommandName>Form.Command.AddMailingDescriptionTemplate</CommandName>
+																								<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddMailingTemplateExtendedTooltip" id="871"/>
+																							</Button>
+																							<Button name="EmailTextFormattedDocumentContextMenuAddGeneratedReportsTemplate" id="311">
+																								<Type>CommandBarButton</Type>
+																								<CommandName>Form.Command.AddGeneratedReportsTemplate</CommandName>
+																								<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddGeneratedReportsTemplateExtendedTooltip" id="872"/>
+																							</Button>
+																							<Button name="EmailTextFormattedDocumentContextMenuAddSystemTemplate" id="403">
+																								<Type>CommandBarButton</Type>
+																								<CommandName>Form.Command.AddSystemTemplate</CommandName>
+																								<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddSystemTemplateExtendedTooltip" id="873"/>
+																							</Button>
+																							<Button name="EmailTextFormattedDocumentContextMenuAddDeliveryMethodTemplate" id="420">
+																								<Type>CommandBarButton</Type>
+																								<CommandName>Form.Command.AddDeliveryMethodTemplate</CommandName>
+																								<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddDeliveryMethodTemplateExtendedTooltip" id="874"/>
+																							</Button>
+																							<Button name="EmailTextFormattedDocumentContextMenuAddDefaultTemplate" id="673">
+																								<Type>CommandBarButton</Type>
+																								<CommandName>Form.Command.AddDefaultTemplate</CommandName>
+																								<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuAddDefaultTemplateExtendedTooltip" id="875"/>
+																							</Button>
+																							<Button name="EmailTextFormattedDocumentContextMenuTemplatePreview" id="394">
+																								<Type>CommandBarButton</Type>
+																								<CommandName>Form.Command.TemplatePreview</CommandName>
+																								<ExtendedTooltip name="EmailTextFormattedDocumentContextMenuTemplatePreviewExtendedTooltip" id="876"/>
+																							</Button>
+																						</ChildItems>
+																					</Popup>
+																				</ChildItems>
+																			</ContextMenu>
+																			<ExtendedTooltip name="EmailTextFormattedDocumentExtendedTooltip" id="877"/>
+																		</FormattedDocumentField>
+																	</ChildItems>
+																</Page>
+																<Page name="EmailTextPagesNormalText" id="125">
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Pages email text plain text</v8:content>
+																		</v8:item>
+																	</Title>
+																	<ExtendedTooltip name="EmailTextPagesNormalTextExtendedTooltip" id="878"/>
+																	<ChildItems>
+																		<CommandBar name="EmailTextCommandBar" id="157">
+																			<Title>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Command bar Email text</v8:content>
+																				</v8:item>
+																			</Title>
+																			<ExtendedTooltip name="EmailTextCommandBarExtendedTooltip" id="879"/>
+																			<ChildItems>
+																				<Popup name="EmailTextAddTemplateParameter" id="323">
+																					<Title>
+																						<v8:item>
+																							<v8:lang>en</v8:lang>
+																							<v8:content>Parameter</v8:content>
+																						</v8:item>
+																					</Title>
+																					<ToolTip>
+																						<v8:item>
+																							<v8:lang>en</v8:lang>
+																							<v8:content>Add template parameter</v8:content>
+																						</v8:item>
+																					</ToolTip>
+																					<ExtendedTooltip name="EmailTextAddTemplateParameterExtendedTooltip" id="880"/>
+																					<ChildItems>
+																						<Button name="AddOrChangeMailingDateTemplate" id="328">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Command.AddChangeMailingDateTemplate</CommandName>
+																							<ExtendedTooltip name="AddOrChangeMailingDateTemplateExtendedTooltip" id="881"/>
+																						</Button>
+																						<Button name="AddAuthorTemplate" id="324">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Command.AddAuthorTemplate</CommandName>
+																							<ExtendedTooltip name="AddAuthorTemplateExtendedTooltip" id="882"/>
+																						</Button>
+																						<Button name="AddRecipientTemplate" id="325">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Command.AddRecipientTemplate</CommandName>
+																							<ExtendedTooltip name="AddRecipientTemplateExtendedTooltip" id="883"/>
+																						</Button>
+																						<Button name="AddMailingTemplate" id="326">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Command.AddMailingDescriptionTemplate</CommandName>
+																							<ExtendedTooltip name="AddMailingTemplateExtendedTooltip" id="884"/>
+																						</Button>
+																						<Button name="AddGeneratedReportsTemplate" id="327">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Command.AddGeneratedReportsTemplate</CommandName>
+																							<ExtendedTooltip name="AddGeneratedReportsTemplateExtendedTooltip" id="885"/>
+																						</Button>
+																						<Button name="AddSystemTemplate" id="404">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Command.AddSystemTemplate</CommandName>
+																							<ExtendedTooltip name="AddSystemTemplateExtendedTooltip" id="886"/>
+																						</Button>
+																						<Button name="AddDeliveryMethodTemplate" id="421">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Command.AddDeliveryMethodTemplate</CommandName>
+																							<ExtendedTooltip name="AddDeliveryMethodTemplateExtendedTooltip" id="887"/>
+																						</Button>
+																						<Button name="AddDefaultTemplate" id="699">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Command.AddDefaultTemplate</CommandName>
+																							<ExtendedTooltip name="AddDefaultTemplateExtendedTooltip" id="888"/>
+																						</Button>
+																					</ChildItems>
+																				</Popup>
+																				<Popup name="NormalText" id="607">
+																					<Title>
+																						<v8:item>
+																							<v8:lang>en</v8:lang>
+																							<v8:content>Plain text</v8:content>
+																						</v8:item>
+																					</Title>
+																					<ToolTip>
+																						<v8:item>
+																							<v8:lang>en</v8:lang>
+																							<v8:content>Change mail format</v8:content>
+																						</v8:item>
+																					</ToolTip>
+																					<ExtendedTooltip name="NormalTextExtendedTooltip" id="890"/>
+																					<ChildItems>
+																						<Button name="ChangeTextTypeToHTML" id="608">
+																							<Type>CommandBarButton</Type>
+																							<CommandName>Form.Command.ChangeTextTypeToHTML</CommandName>
+																							<ExtendedTooltip name="ChangeTextTypeToHTMLExtendedTooltip" id="891"/>
+																						</Button>
+																						<Button name="ChangeTextTypeToPlainMark" id="629">
+																							<Type>CommandBarButton</Type>
+																							<Check>true</Check>
+																							<CommandName>Form.Command.ChangeTextTypeToPlain</CommandName>
+																							<ExtendedTooltip name="ChangeTextTypeToPlainMarkExtendedTooltip" id="892"/>
+																						</Button>
+																					</ChildItems>
+																				</Popup>
 																				<Button name="TemplatePreview" id="393">
 																					<Type>CommandBarButton</Type>
+																					<Representation>Picture</Representation>
 																					<CommandName>Form.Command.TemplatePreview</CommandName>
 																					<ExtendedTooltip name="TemplatePreviewExtendedTooltip" id="889"/>
 																				</Button>
 																			</ChildItems>
-																		</Popup>
-																		<Popup name="NormalText" id="607">
-																			<Title>
-																				<v8:item>
-																					<v8:lang>en</v8:lang>
-																					<v8:content>Plain text</v8:content>
-																				</v8:item>
-																			</Title>
-																			<ToolTip>
-																				<v8:item>
-																					<v8:lang>en</v8:lang>
-																					<v8:content>Change mail format</v8:content>
-																				</v8:item>
-																			</ToolTip>
-																			<ExtendedTooltip name="NormalTextExtendedTooltip" id="890"/>
-																			<ChildItems>
-																				<Button name="ChangeTextTypeToHTML" id="608">
-																					<Type>CommandBarButton</Type>
-																					<CommandName>Form.Command.ChangeTextTypeToHTML</CommandName>
-																					<ExtendedTooltip name="ChangeTextTypeToHTMLExtendedTooltip" id="891"/>
-																				</Button>
-																				<Button name="ChangeTextTypeToPlainMark" id="629">
-																					<Type>CommandBarButton</Type>
-																					<Check>true</Check>
-																					<CommandName>Form.Command.ChangeTextTypeToPlain</CommandName>
-																					<ExtendedTooltip name="ChangeTextTypeToPlainMarkExtendedTooltip" id="892"/>
-																				</Button>
-																			</ChildItems>
-																		</Popup>
-																	</ChildItems>
-																</CommandBar>
-																<TextDocumentField name="EmailText" id="21">
-																	<DataPath>Object.EmailText</DataPath>
-																	<TitleLocation>None</TitleLocation>
-																	<EditMode>EnterOnInput</EditMode>
-																	<Width>1</Width>
-																	<Height>1</Height>
-																	<ContextMenu name="EmailTextContextMenu" id="22">
-																		<ChildItems>
-																			<Popup name="EmailTextContextMenuSubmenuParameter" id="696">
-																				<Title>
-																					<v8:item>
-																						<v8:lang>en</v8:lang>
-																						<v8:content>Parameter</v8:content>
-																					</v8:item>
-																				</Title>
-																				<Picture>
-																					<xr:Ref>StdPicture.DataCompositionConditionalAppearance</xr:Ref>
-																					<xr:LoadTransparent>true</xr:LoadTransparent>
-																				</Picture>
-																				<ExtendedTooltip name="EmailTextContextMenuSubmenuParameterExtendedTooltip" id="893"/>
+																		</CommandBar>
+																		<TextDocumentField name="EmailText" id="21">
+																			<DataPath>Object.EmailText</DataPath>
+																			<TitleLocation>None</TitleLocation>
+																			<EditMode>EnterOnInput</EditMode>
+																			<Width>1</Width>
+																			<Height>1</Height>
+																			<ContextMenu name="EmailTextContextMenu" id="22">
 																				<ChildItems>
-																					<Button name="EmailTextContextMenuAddOrChangeMailingDateTemplate" id="322">
-																						<Type>CommandBarButton</Type>
-																						<CommandName>Form.Command.AddChangeMailingDateTemplate</CommandName>
-																						<ExtendedTooltip name="EmailTextContextMenuAddOrChangeMailingDateTemplateExtendedTooltip" id="894"/>
-																					</Button>
-																					<Button name="EmailTextContextMenuAddAuthorTemplate" id="318">
-																						<Type>CommandBarButton</Type>
-																						<CommandName>Form.Command.AddAuthorTemplate</CommandName>
-																						<ExtendedTooltip name="EmailTextContextMenuAddAuthorTemplateExtendedTooltip" id="895"/>
-																					</Button>
-																					<Button name="EmailTextContextMenuAddRecipientTemplate" id="319">
-																						<Type>CommandBarButton</Type>
-																						<CommandName>Form.Command.AddRecipientTemplate</CommandName>
-																						<ExtendedTooltip name="EmailTextContextMenuAddRecipientTemplateExtendedTooltip" id="896"/>
-																					</Button>
-																					<Button name="EmailTextContextMenuAddMailingTemplate" id="320">
-																						<Type>CommandBarButton</Type>
-																						<CommandName>Form.Command.AddMailingDescriptionTemplate</CommandName>
-																						<ExtendedTooltip name="EmailTextContextMenuAddMailingTemplateExtendedTooltip" id="897"/>
-																					</Button>
-																					<Button name="EmailTextContextMenuAddGeneratedReportsTemplate" id="321">
-																						<Type>CommandBarButton</Type>
-																						<CommandName>Form.Command.AddGeneratedReportsTemplate</CommandName>
-																						<ExtendedTooltip name="EmailTextContextMenuAddGeneratedReportsTemplateExtendedTooltip" id="898"/>
-																					</Button>
-																					<Button name="EmailTextContextMenuAddSystemTemplate" id="405">
-																						<Type>CommandBarButton</Type>
-																						<CommandName>Form.Command.AddSystemTemplate</CommandName>
-																						<ExtendedTooltip name="EmailTextContextMenuAddSystemTemplateExtendedTooltip" id="899"/>
-																					</Button>
-																					<Button name="EmailTextContextMenuAddDeliveryMethodTemplate" id="422">
-																						<Type>CommandBarButton</Type>
-																						<CommandName>Form.Command.AddDeliveryMethodTemplate</CommandName>
-																						<ExtendedTooltip name="EmailTextContextMenuAddDeliveryMethodTemplateExtendedTooltip" id="900"/>
-																					</Button>
-																					<Button name="EmailTextContextMenuAddDefaultTemplate" id="672">
-																						<Type>CommandBarButton</Type>
-																						<CommandName>Form.Command.AddDefaultTemplate</CommandName>
-																						<ExtendedTooltip name="EmailTextContextMenuAddDefaultTemplateExtendedTooltip" id="901"/>
-																					</Button>
-																					<Button name="EmailTextContextMenuTemplatePreview" id="392">
-																						<Type>CommandBarButton</Type>
-																						<CommandName>Form.Command.TemplatePreview</CommandName>
-																						<ExtendedTooltip name="EmailTextContextMenuTemplatePreviewExtendedTooltip" id="902"/>
-																					</Button>
+																					<Popup name="EmailTextContextMenuSubmenuParameter" id="696">
+																						<Title>
+																							<v8:item>
+																								<v8:lang>en</v8:lang>
+																								<v8:content>Parameter</v8:content>
+																							</v8:item>
+																						</Title>
+																						<Picture>
+																							<xr:Ref>StdPicture.DataCompositionConditionalAppearance</xr:Ref>
+																							<xr:LoadTransparent>true</xr:LoadTransparent>
+																						</Picture>
+																						<ExtendedTooltip name="EmailTextContextMenuSubmenuParameterExtendedTooltip" id="893"/>
+																						<ChildItems>
+																							<Button name="EmailTextContextMenuAddOrChangeMailingDateTemplate" id="322">
+																								<Type>CommandBarButton</Type>
+																								<CommandName>Form.Command.AddChangeMailingDateTemplate</CommandName>
+																								<ExtendedTooltip name="EmailTextContextMenuAddOrChangeMailingDateTemplateExtendedTooltip" id="894"/>
+																							</Button>
+																							<Button name="EmailTextContextMenuAddAuthorTemplate" id="318">
+																								<Type>CommandBarButton</Type>
+																								<CommandName>Form.Command.AddAuthorTemplate</CommandName>
+																								<ExtendedTooltip name="EmailTextContextMenuAddAuthorTemplateExtendedTooltip" id="895"/>
+																							</Button>
+																							<Button name="EmailTextContextMenuAddRecipientTemplate" id="319">
+																								<Type>CommandBarButton</Type>
+																								<CommandName>Form.Command.AddRecipientTemplate</CommandName>
+																								<ExtendedTooltip name="EmailTextContextMenuAddRecipientTemplateExtendedTooltip" id="896"/>
+																							</Button>
+																							<Button name="EmailTextContextMenuAddMailingTemplate" id="320">
+																								<Type>CommandBarButton</Type>
+																								<CommandName>Form.Command.AddMailingDescriptionTemplate</CommandName>
+																								<ExtendedTooltip name="EmailTextContextMenuAddMailingTemplateExtendedTooltip" id="897"/>
+																							</Button>
+																							<Button name="EmailTextContextMenuAddGeneratedReportsTemplate" id="321">
+																								<Type>CommandBarButton</Type>
+																								<CommandName>Form.Command.AddGeneratedReportsTemplate</CommandName>
+																								<ExtendedTooltip name="EmailTextContextMenuAddGeneratedReportsTemplateExtendedTooltip" id="898"/>
+																							</Button>
+																							<Button name="EmailTextContextMenuAddSystemTemplate" id="405">
+																								<Type>CommandBarButton</Type>
+																								<CommandName>Form.Command.AddSystemTemplate</CommandName>
+																								<ExtendedTooltip name="EmailTextContextMenuAddSystemTemplateExtendedTooltip" id="899"/>
+																							</Button>
+																							<Button name="EmailTextContextMenuAddDeliveryMethodTemplate" id="422">
+																								<Type>CommandBarButton</Type>
+																								<CommandName>Form.Command.AddDeliveryMethodTemplate</CommandName>
+																								<ExtendedTooltip name="EmailTextContextMenuAddDeliveryMethodTemplateExtendedTooltip" id="900"/>
+																							</Button>
+																							<Button name="EmailTextContextMenuAddDefaultTemplate" id="672">
+																								<Type>CommandBarButton</Type>
+																								<CommandName>Form.Command.AddDefaultTemplate</CommandName>
+																								<ExtendedTooltip name="EmailTextContextMenuAddDefaultTemplateExtendedTooltip" id="901"/>
+																							</Button>
+																							<Button name="EmailTextContextMenuTemplatePreview" id="392">
+																								<Type>CommandBarButton</Type>
+																								<CommandName>Form.Command.TemplatePreview</CommandName>
+																								<ExtendedTooltip name="EmailTextContextMenuTemplatePreviewExtendedTooltip" id="902"/>
+																							</Button>
+																						</ChildItems>
+																					</Popup>
 																				</ChildItems>
-																			</Popup>
-																		</ChildItems>
-																	</ContextMenu>
-																	<ExtendedTooltip name="EmailTextExtendedTooltip" id="903"/>
-																</TextDocumentField>
+																			</ContextMenu>
+																			<ExtendedTooltip name="EmailTextExtendedTooltip" id="903"/>
+																		</TextDocumentField>
+																	</ChildItems>
+																</Page>
 															</ChildItems>
-														</Page>
+														</Pages>
 													</ChildItems>
-												</Pages>
+												</UsualGroup>
+											</ChildItems>
+										</UsualGroup>
+									</ChildItems>
+								</UsualGroup>
+								<UsualGroup name="AdditionalParametersOfMailing" id="200">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Parameters of delivery via email</v8:content>
+										</v8:item>
+									</Title>
+									<Group>Vertical</Group>
+									<Behavior>Usual</Behavior>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="AdditionalParametersOfMailingExtendedTooltip" id="936"/>
+									<ChildItems>
+										<CheckBoxField name="ShouldInsertReportsIntoEmailBody" id="1271">
+											<DataPath>Object.ShouldInsertReportsIntoEmailBody</DataPath>
+											<TitleLocation>Right</TitleLocation>
+											<CheckBoxType>Auto</CheckBoxType>
+											<ContextMenu name="ShouldInsertReportsIntoEmailBodyContextMenu" id="1272"/>
+											<ExtendedTooltip name="ShouldInsertReportsIntoEmailBodyExtendedTooltip" id="1273"/>
+											<Events>
+												<Event name="OnChange">ShouldInsertReportsIntoEmailBodyOnChange</Event>
+											</Events>
+										</CheckBoxField>
+										<UsualGroup name="ReplyToAddressBCC" id="1279">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Reply-to address Bcc</v8:content>
+												</v8:item>
+											</Title>
+											<Group>AlwaysHorizontal</Group>
+											<Representation>NormalSeparation</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="ReplyToAddressBCCExtendedTooltip" id="1280"/>
+											<ChildItems>
+												<CheckBoxField name="UseBCC" id="35">
+													<DataPath>Object.BCCs</DataPath>
+													<TitleLocation>Right</TitleLocation>
+													<ToolTipRepresentation>Button</ToolTipRepresentation>
+													<EditMode>EnterOnInput</EditMode>
+													<CheckBoxType>Auto</CheckBoxType>
+													<ContextMenu name="UseBCCContextMenu" id="36"/>
+													<ExtendedTooltip name="UseBCCExtendedTooltip" id="938"/>
+												</CheckBoxField>
+												<InputField name="ReplyToAddress" id="33">
+													<DataPath>Object.ReplyToAddress</DataPath>
+													<EditMode>EnterOnInput</EditMode>
+													<Width>10</Width>
+													<MaxWidth>35</MaxWidth>
+													<ContextMenu name="ReplyToAddressContextMenu" id="34"/>
+													<ExtendedTooltip name="ReplyToAddressExtendedTooltip" id="937"/>
+												</InputField>
 											</ChildItems>
 										</UsualGroup>
 									</ChildItems>
 								</UsualGroup>
 							</ChildItems>
 						</UsualGroup>
-						<UsualGroup name="AdditionalParametersOfMailing" id="200">
+						<UsualGroup name="DeliverRight" id="1265">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Parameters of delivery via email</v8:content>
+									<v8:content>Delivery right</v8:content>
 								</v8:item>
 							</Title>
-							<Behavior>Usual</Behavior>
+							<Width>50</Width>
+							<Group>Vertical</Group>
+							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="AdditionalParametersOfMailingExtendedTooltip" id="936"/>
+							<ExtendedTooltip name="DeliverRightExtendedTooltip" id="1266"/>
 							<ChildItems>
-								<InputField name="ReplyToAddress" id="33">
-									<DataPath>Object.ReplyToAddress</DataPath>
-									<EditMode>EnterOnInput</EditMode>
-									<Width>10</Width>
-									<MaxWidth>35</MaxWidth>
-									<ContextMenu name="ReplyToAddressContextMenu" id="34"/>
-									<ExtendedTooltip name="ReplyToAddressExtendedTooltip" id="937"/>
-								</InputField>
-								<CheckBoxField name="UseBCC" id="35">
-									<DataPath>Object.BCCs</DataPath>
+								<CheckBoxField name="ShouldAttachReports" id="1274">
+									<DataPath>Object.ShouldAttachReports</DataPath>
 									<TitleLocation>Right</TitleLocation>
-									<ToolTipRepresentation>Button</ToolTipRepresentation>
-									<EditMode>EnterOnInput</EditMode>
 									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="UseBCCContextMenu" id="36"/>
-									<ExtendedTooltip name="UseBCCExtendedTooltip" id="938"/>
+									<ContextMenu name="ShouldAttachReportsContextMenu" id="1275"/>
+									<ExtendedTooltip name="ShouldAttachReportsExtendedTooltip" id="1276"/>
+									<Events>
+										<Event name="OnChange">ShouldAttachReportsOnChange</Event>
+									</Events>
 								</CheckBoxField>
+								<UsualGroup name="ReportsFilesSettings" id="1286">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Report file settings</v8:content>
+										</v8:item>
+									</Title>
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="ReportsFilesSettingsExtendedTooltip" id="1287"/>
+									<ChildItems>
+										<UsualGroup name="ReportsFormatsAndButtons" id="686">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Report formats and buttons</v8:content>
+												</v8:item>
+											</Title>
+											<Group>Vertical</Group>
+											<Behavior>Usual</Behavior>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="ReportsFormatsAndButtonsExtendedTooltip" id="917"/>
+											<ChildItems>
+												<UsualGroup name="GroupHeaderReportsFormats" id="1216">
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Report formats</v8:content>
+														</v8:item>
+													</Title>
+													<Group>Vertical</Group>
+													<Representation>None</Representation>
+													<ShowTitle>false</ShowTitle>
+													<ExtendedTooltip name="GroupHeaderReportsFormatsExtendedTooltip" id="1217"/>
+													<ChildItems>
+														<LabelField name="DefaultFormats" id="335">
+															<DataPath>DefaultFormats</DataPath>
+															<AutoMaxWidth>false</AutoMaxWidth>
+															<MaxWidth>70</MaxWidth>
+															<Hiperlink>true</Hiperlink>
+															<ContextMenu name="DefaultFormatsContextMenu" id="336">
+																<ChildItems>
+																	<Button name="ResetDefaultFormat" id="1198">
+																		<Type>CommandBarButton</Type>
+																		<CommandName>Form.Command.ResetDefaultFormat</CommandName>
+																		<ExtendedTooltip name="ResetDefaultFormatExtendedTooltip" id="1199"/>
+																	</Button>
+																</ChildItems>
+															</ContextMenu>
+															<ExtendedTooltip name="DefaultFormatsExtendedTooltip" id="916"/>
+															<Events>
+																<Event name="Click">DefaultFormatsClick</Event>
+															</Events>
+														</LabelField>
+														<CommandBar name="CommandBarReportsFormats" id="1212">
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Command bar Report formats</v8:content>
+																</v8:item>
+															</Title>
+															<GroupHorizontalAlign>Right</GroupHorizontalAlign>
+															<ExtendedTooltip name="CommandBarReportsFormatsExtendedTooltip" id="1213"/>
+															<ChildItems>
+																<Popup name="GroupDescriptionsTemplates" id="1235">
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Name templates</v8:content>
+																		</v8:item>
+																	</Title>
+																	<ExtendedTooltip name="GroupDescriptionsTemplatesExtendedTooltip" id="1236"/>
+																	<ChildItems>
+																		<Button name="SetTemplateDescription" id="1237">
+																			<Type>CommandBarButton</Type>
+																			<CommandName>Form.Command.SetTemplateDescription</CommandName>
+																			<ExtendedTooltip name="SetTemplateDescriptionExtendedTooltip" id="1238"/>
+																		</Button>
+																		<Button name="SetTemplateDescriptionFormat" id="1239">
+																			<Type>CommandBarButton</Type>
+																			<CommandName>Form.Command.SetTemplateDescriptionFormat</CommandName>
+																			<ExtendedTooltip name="SetTemplateDescriptionFormatExtendedTooltip" id="1240"/>
+																		</Button>
+																		<Button name="SetTemplateDescriptionPeriod" id="1241">
+																			<Type>CommandBarButton</Type>
+																			<CommandName>Form.Command.SetTemplateDescriptionPeriod</CommandName>
+																			<ExtendedTooltip name="SetTemplateDescriptionPeriodExtendedTooltip" id="1242"/>
+																		</Button>
+																		<Button name="SetTemplateDescriptionPeriodFormat" id="1243">
+																			<Type>CommandBarButton</Type>
+																			<CommandName>Form.Command.SetTemplateDescriptionPeriodFormat</CommandName>
+																			<ExtendedTooltip name="SetTemplateDescriptionPeriodFormatExtendedTooltip" id="1244"/>
+																		</Button>
+																		<Button name="SetTemplateDescriptionDistributionDate" id="1245">
+																			<Type>CommandBarButton</Type>
+																			<CommandName>Form.Command.SetTemplateDescriptionDistributionDate</CommandName>
+																			<ExtendedTooltip name="SetTemplateDescriptionDistributionDateExtendedTooltip" id="1246"/>
+																		</Button>
+																		<Button name="SetTemplateDescriptionDistributionDateFormat" id="1247">
+																			<Type>CommandBarButton</Type>
+																			<CommandName>Form.Command.SetTemplateDescriptionDistributionDateFormat</CommandName>
+																			<ExtendedTooltip name="SetTemplateDescriptionDistributionDateFormatExtendedTooltip" id="1248"/>
+																		</Button>
+																	</ChildItems>
+																</Popup>
+																<Button name="ReportsFormatsOutputList" id="1223">
+																	<Type>CommandBarButton</Type>
+																	<CommandName>Form.Item.ReportFormats.StandardCommand.OutputList</CommandName>
+																	<ExtendedTooltip name="ReportsFormatsOutputListExtendedTooltip" id="1224"/>
+																</Button>
+																<SearchStringAddition name="SearchStringReportsFormats" id="1220">
+																	<AdditionSource>
+																		<Item>ReportFormats</Item>
+																		<Type>SearchStringRepresentation</Type>
+																	</AdditionSource>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Search</v8:content>
+																		</v8:item>
+																	</Title>
+																	<GroupHorizontalAlign>Right</GroupHorizontalAlign>
+																	<ContextMenu name="SearchStringReportsFormatsContextMenu" id="1221"/>
+																	<ExtendedTooltip name="SearchStringReportsFormatsExtendedTooltip" id="1222"/>
+																</SearchStringAddition>
+																<ButtonGroup name="GroupToggleCheckboxIfEmpty" id="1218">
+																	<EnableContentChange>true</EnableContentChange>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Clear select check boxes if empty</v8:content>
+																		</v8:item>
+																	</Title>
+																	<GroupHorizontalAlign>Right</GroupHorizontalAlign>
+																	<Representation>Compact</Representation>
+																	<ExtendedTooltip name="GroupToggleCheckboxIfEmptyExtendedTooltip" id="1219"/>
+																	<ChildItems>
+																		<Button name="ClearAllSendIfBlank" id="689">
+																			<Type>CommandBarButton</Type>
+																			<Representation>Picture</Representation>
+																			<CommandName>Form.Command.ClearAllSendIfBlank</CommandName>
+																			<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
+																			<ExtendedTooltip name="ClearAllSendIfBlankExtendedTooltip" id="928"/>
+																		</Button>
+																		<Button name="SelectAllSendIfBlank" id="688">
+																			<Type>CommandBarButton</Type>
+																			<Representation>Picture</Representation>
+																			<CommandName>Form.Command.SelectAllSendIfBlank</CommandName>
+																			<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
+																			<ExtendedTooltip name="SelectAllSendIfBlankExtendedTooltip" id="927"/>
+																		</Button>
+																	</ChildItems>
+																</ButtonGroup>
+															</ChildItems>
+														</CommandBar>
+													</ChildItems>
+												</UsualGroup>
+												<Table name="ReportFormats" id="100">
+													<Representation>List</Representation>
+													<Height>5</Height>
+													<SelectionMode>SingleRow</SelectionMode>
+													<AutoInsertNewRow>true</AutoInsertNewRow>
+													<FileDragMode>AsFile</FileDragMode>
+													<DataPath>Object.Reports</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Report formats</v8:content>
+														</v8:item>
+													</Title>
+													<CommandSet>
+														<ExcludedCommand>Add</ExcludedCommand>
+													</CommandSet>
+													<RowFilter xsi:nil="true"/>
+													<ContextMenu name="ReportFormatsContextMenu" id="101">
+														<ChildItems>
+															<Button name="ReportFormatsContextMenuSelectAllSendIfBlank" id="684">
+																<Type>CommandBarButton</Type>
+																<CommandName>Form.Command.SelectAllSendIfBlank</CommandName>
+																<ExtendedTooltip name="ReportFormatsContextMenuSelectAllSendIfBlankExtendedTooltip" id="918"/>
+															</Button>
+															<Button name="ReportFormatsContextMenuClearAllSendIfBlank" id="685">
+																<Type>CommandBarButton</Type>
+																<CommandName>Form.Command.ClearAllSendIfBlank</CommandName>
+																<ExtendedTooltip name="ReportFormatsContextMenuClearAllSendIfBlankExtendedTooltip" id="919"/>
+															</Button>
+														</ChildItems>
+													</ContextMenu>
+													<AutoCommandBar name="ReportFormatsCommandBar" id="102">
+														<HorizontalAlign>Right</HorizontalAlign>
+														<Autofill>false</Autofill>
+													</AutoCommandBar>
+													<ExtendedTooltip name="ReportFormatsExtendedTooltip" id="922"/>
+													<SearchStringAddition name="ReportFormatsSearchString" id="1042">
+														<AdditionSource>
+															<Item>ReportFormats</Item>
+															<Type>SearchStringRepresentation</Type>
+														</AdditionSource>
+														<ContextMenu name="ReportFormatsSearchStringContextMenu" id="1043"/>
+														<ExtendedTooltip name="ReportFormatsSearchStringExtendedTooltip" id="1044"/>
+													</SearchStringAddition>
+													<ViewStatusAddition name="ReportFormatsViewStatus" id="1045">
+														<AdditionSource>
+															<Item>ReportFormats</Item>
+															<Type>ViewStatusRepresentation</Type>
+														</AdditionSource>
+														<ContextMenu name="ReportFormatsViewStatusContextMenu" id="1046"/>
+														<ExtendedTooltip name="ReportFormatsViewStatusExtendedTooltip" id="1047"/>
+													</ViewStatusAddition>
+													<SearchControlAddition name="ReportFormatsSearchControl" id="1048">
+														<AdditionSource>
+															<Item>ReportFormats</Item>
+															<Type>SearchControl</Type>
+														</AdditionSource>
+														<ContextMenu name="ReportFormatsSearchControlContextMenu" id="1049"/>
+														<ExtendedTooltip name="ReportFormatsSearchControlExtendedTooltip" id="1050"/>
+													</SearchControlAddition>
+													<Events>
+														<Event name="BeforeAddRow">ReportFormatsBeforeAddRow</Event>
+														<Event name="BeforeDeleteRow">ReportFormatsBeforeDeleteRow</Event>
+														<Event name="OnActivateRow">ReportFormatsOnActivateRow</Event>
+													</Events>
+													<ChildItems>
+														<ColumnGroup name="ReportsFormatsMainTemplate" id="1269">
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Report formats main, template</v8:content>
+																</v8:item>
+															</Title>
+															<ExtendedTooltip name="ReportsFormatsMainTemplateExtendedTooltip" id="1270"/>
+															<ChildItems>
+																<ColumnGroup name="ReportsFormatsMain" id="1267">
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Report formats main</v8:content>
+																		</v8:item>
+																	</Title>
+																	<Group>Horizontal</Group>
+																	<ExtendedTooltip name="ReportsFormatsMainExtendedTooltip" id="1268"/>
+																	<ChildItems>
+																		<InputField name="ReportFormatsPresentation" id="230">
+																			<DataPath>Object.Reports.Presentation</DataPath>
+																			<ReadOnly>true</ReadOnly>
+																			<EditMode>EnterOnInput</EditMode>
+																			<ContextMenu name="ReportFormatsPresentationContextMenu" id="231"/>
+																			<ExtendedTooltip name="ReportFormatsPresentationExtendedTooltip" id="923"/>
+																		</InputField>
+																		<InputField name="ReportFormatsFormats" id="232">
+																			<DataPath>Object.Reports.Formats</DataPath>
+																			<EditMode>Directly</EditMode>
+																			<AutoCellHeight>true</AutoCellHeight>
+																			<ChoiceButton>true</ChoiceButton>
+																			<ClearButton>true</ClearButton>
+																			<ChooseType>false</ChooseType>
+																			<TextEdit>false</TextEdit>
+																			<ChoiceListButton>false</ChoiceListButton>
+																			<ContextMenu name="ReportFormatsFormatsContextMenu" id="233"/>
+																			<ExtendedTooltip name="ReportFormatsFormatsExtendedTooltip" id="924"/>
+																			<Events>
+																				<Event name="StartChoice">ReportFormatsFormatsStartChoice</Event>
+																				<Event name="Clearing">ReportFormatsFormatsClearing</Event>
+																			</Events>
+																		</InputField>
+																		<CheckBoxField name="ReportFormatsSendIfEmpty" id="534">
+																			<DataPath>Object.Reports.SendIfEmpty</DataPath>
+																			<TitleHeight>2</TitleHeight>
+																			<EditMode>EnterOnInput</EditMode>
+																			<CheckBoxType>Auto</CheckBoxType>
+																			<ContextMenu name="ReportFormatsSendIfEmptyContextMenu" id="535"/>
+																			<ExtendedTooltip name="ReportFormatsSendIfEmptyExtendedTooltip" id="925"/>
+																			<Events>
+																				<Event name="OnChange">ReportFormatsSendIfEmptyOnChange</Event>
+																			</Events>
+																		</CheckBoxField>
+																		<CheckBoxField name="ReportFormatsDoNotSendIfEmpty" id="989">
+																			<DataPath>Object.Reports.DoNotSendIfEmpty</DataPath>
+																			<Visible>false</Visible>
+																			<TitleHeight>2</TitleHeight>
+																			<ToolTip>
+																				<v8:item>
+																					<v8:lang>en</v8:lang>
+																					<v8:content>Do not send a report if it does not contain data.</v8:content>
+																				</v8:item>
+																			</ToolTip>
+																			<EditMode>EnterOnInput</EditMode>
+																			<CheckBoxType>Auto</CheckBoxType>
+																			<ContextMenu name="ReportFormatsDoNotSendIfEmptyContextMenu" id="990"/>
+																			<ExtendedTooltip name="ReportFormatsDoNotSendIfEmptyExtendedTooltip" id="991"/>
+																			<Events>
+																				<Event name="OnChange">ReportFormatsDoNotSendIfEmptyOnChange</Event>
+																			</Events>
+																		</CheckBoxField>
+																	</ChildItems>
+																</ColumnGroup>
+																<InputField name="ReportsFormatsDescriptionTemplate" id="1230">
+																	<DataPath>Object.Reports.DescriptionTemplate1</DataPath>
+																	<DropListButton>true</DropListButton>
+																	<InputHint>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>[НаименованиеОтчета] [ФорматОтчета]</v8:content>
+																		</v8:item>
+																	</InputHint>
+																	<ContextMenu name="ReportsFormatsDescriptionTemplateContextMenu" id="1231"/>
+																	<ExtendedTooltip name="ReportsFormatsDescriptionTemplateExtendedTooltip" id="1232"/>
+																	<Events>
+																		<Event name="ChoiceProcessing">ReportsFormatsDescriptionTemplateChoiceProcessing</Event>
+																	</Events>
+																</InputField>
+															</ChildItems>
+														</ColumnGroup>
+													</ChildItems>
+												</Table>
+											</ChildItems>
+										</UsualGroup>
+										<CheckBoxField name="TransliterateFileNames" id="1180">
+											<DataPath>Object.TransliterateFileNames</DataPath>
+											<TitleLocation>Right</TitleLocation>
+											<ToolTipRepresentation>Button</ToolTipRepresentation>
+											<CheckBoxType>Auto</CheckBoxType>
+											<ContextMenu name="TransliterateFileNamesContextMenu" id="1181"/>
+											<ExtendedTooltip name="TransliterateFileNamesExtendedTooltip" id="1182"/>
+										</CheckBoxField>
+										<UsualGroup name="ZIPArchivingParametersGroup" id="98">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Parameters of archiving to ZIP</v8:content>
+												</v8:item>
+											</Title>
+											<Group>AlwaysHorizontal</Group>
+											<Behavior>Usual</Behavior>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="ZIPArchivingParametersGroupExtendedTooltip" id="929"/>
+											<ChildItems>
+												<CheckBoxField name="Archive" id="13">
+													<DataPath>Object.Archive</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Compress to ZIP archive:</v8:content>
+														</v8:item>
+													</Title>
+													<TitleLocation>Right</TitleLocation>
+													<EditMode>EnterOnInput</EditMode>
+													<CheckBoxType>Auto</CheckBoxType>
+													<ContextMenu name="ArchiveContextMenu" id="14"/>
+													<ExtendedTooltip name="ArchiveExtendedTooltip" id="930"/>
+													<Events>
+														<Event name="OnChange">ArchiveOnChange</Event>
+													</Events>
+												</CheckBoxField>
+												<InputField name="ArchiveName" id="15">
+													<DataPath>Object.ArchiveName</DataPath>
+													<TitleLocation>None</TitleLocation>
+													<EditMode>EnterOnInput</EditMode>
+													<Width>50</Width>
+													<MaxWidth>45</MaxWidth>
+													<DropListButton>true</DropListButton>
+													<ChoiceList>
+														<xr:Item>
+															<xr:Presentation/>
+															<xr:CheckState>0</xr:CheckState>
+															<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																<Presentation>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Distribution description</v8:content>
+																	</v8:item>
+																</Presentation>
+																<Value xsi:type="xs:string">[MailingDescription]</Value>
+															</xr:Value>
+														</xr:Item>
+														<xr:Item>
+															<xr:Presentation/>
+															<xr:CheckState>0</xr:CheckState>
+															<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																<Presentation>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Report distribution description and date</v8:content>
+																	</v8:item>
+																</Presentation>
+																<Value xsi:type="xs:string">DescriptionDistributionDate</Value>
+															</xr:Value>
+														</xr:Item>
+													</ChoiceList>
+													<InputHint>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Archive file name</v8:content>
+														</v8:item>
+													</InputHint>
+													<ContextMenu name="ArchiveNameContextMenu" id="16"/>
+													<ExtendedTooltip name="ArchiveNameExtendedTooltip" id="934"/>
+													<Events>
+														<Event name="ChoiceProcessing">ArchiveNameChoiceProcessing</Event>
+													</Events>
+												</InputField>
+												<UsualGroup name="GroupArchivePassword" id="1192">
+													<EnableContentChange>true</EnableContentChange>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Archive password</v8:content>
+														</v8:item>
+													</Title>
+													<Group>AlwaysHorizontal</Group>
+													<Behavior>Usual</Behavior>
+													<Representation>None</Representation>
+													<ShowTitle>false</ShowTitle>
+													<ExtendedTooltip name="GroupArchivePasswordExtendedTooltip" id="1193"/>
+													<ChildItems>
+														<InputField name="ArchivePassword" id="17">
+															<DataPath>ArchivePassword</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Password</v8:content>
+																</v8:item>
+															</Title>
+															<EditMode>EnterOnInput</EditMode>
+															<AutoMaxWidth>false</AutoMaxWidth>
+															<MaxWidth>20</MaxWidth>
+															<PasswordMode>true</PasswordMode>
+															<ChoiceButton>true</ChoiceButton>
+															<ChoiceButtonPicture>
+																<xr:Ref>CommonPicture.CharsBeingTypedShown</xr:Ref>
+																<xr:LoadTransparent>false</xr:LoadTransparent>
+															</ChoiceButtonPicture>
+															<InputHint>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Archive password</v8:content>
+																</v8:item>
+															</InputHint>
+															<ContextMenu name="ArchivePasswordContextMenu" id="18"/>
+															<ExtendedTooltip name="ArchivePasswordExtendedTooltip" id="935"/>
+															<Events>
+																<Event name="OnChange">ArchivePasswordOnChange</Event>
+																<Event name="StartChoice">ArchivePasswordStartChoice</Event>
+															</Events>
+														</InputField>
+														<Button name="CreateArchivePassword" id="1190">
+															<Type>UsualButton</Type>
+															<Representation>Picture</Representation>
+															<CommandName>Form.Command.CreateArchivePassword</CommandName>
+															<ExtendedTooltip name="CreateArchivePasswordExtendedTooltip" id="1191"/>
+														</Button>
+													</ChildItems>
+												</UsualGroup>
+												<UsualGroup name="GroupPasswordsEncryption" id="1281">
+													<EnableContentChange>true</EnableContentChange>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Passwords and encryption</v8:content>
+														</v8:item>
+													</Title>
+													<Group>AlwaysHorizontal</Group>
+													<Representation>None</Representation>
+													<ShowTitle>false</ShowTitle>
+													<ExtendedTooltip name="GroupPasswordsEncryptionExtendedTooltip" id="1282"/>
+													<ChildItems>
+														<CheckBoxField name="ShouldSetPasswordsAndEncrypt" id="1283">
+															<DataPath>Object.ShouldSetPasswordsAndEncrypt</DataPath>
+															<TitleLocation>None</TitleLocation>
+															<CheckBoxType>Auto</CheckBoxType>
+															<ContextMenu name="ShouldSetPasswordsAndEncryptContextMenu" id="1284"/>
+															<ExtendedTooltip name="ShouldSetPasswordsAndEncryptExtendedTooltip" id="1285"/>
+															<Events>
+																<Event name="OnChange">ShouldSetPasswordsAndEncryptOnChange</Event>
+															</Events>
+														</CheckBoxField>
+														<Button name="PasswordsEncryption" id="1194">
+															<Type>Hyperlink</Type>
+															<CommandName>Form.Command.PasswordsEncryption</CommandName>
+															<ExtendedTooltip name="PasswordsEncryptionExtendedTooltip" id="1195"/>
+														</Button>
+													</ChildItems>
+												</UsualGroup>
+											</ChildItems>
+										</UsualGroup>
+									</ChildItems>
+								</UsualGroup>
 							</ChildItems>
 						</UsualGroup>
 					</ChildItems>
@@ -2419,412 +3098,6 @@
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="AdditionalPageExtendedTooltip" id="915"/>
-					<ChildItems>
-						<UsualGroup name="ReportsFormatsAndButtons" id="686">
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Report formats and buttons</v8:content>
-								</v8:item>
-							</Title>
-							<Group>Vertical</Group>
-							<Behavior>Usual</Behavior>
-							<Representation>None</Representation>
-							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="ReportsFormatsAndButtonsExtendedTooltip" id="917"/>
-							<ChildItems>
-								<UsualGroup name="GroupReportsFormats" id="1214">
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Report formats</v8:content>
-										</v8:item>
-									</Title>
-									<Group>Vertical</Group>
-									<Representation>None</Representation>
-									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="GroupReportsFormatsExtendedTooltip" id="1215"/>
-									<ChildItems>
-										<UsualGroup name="GroupHeaderReportsFormats" id="1216">
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Group header report formats</v8:content>
-												</v8:item>
-											</Title>
-											<Group>AlwaysHorizontal</Group>
-											<Representation>None</Representation>
-											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="GroupHeaderReportsFormatsExtendedTooltip" id="1217"/>
-											<ChildItems>
-												<LabelField name="DefaultFormats" id="335">
-													<DataPath>DefaultFormats</DataPath>
-													<AutoMaxWidth>false</AutoMaxWidth>
-													<MaxWidth>70</MaxWidth>
-													<Hiperlink>true</Hiperlink>
-													<ContextMenu name="DefaultFormatsContextMenu" id="336">
-														<ChildItems>
-															<Button name="ResetDefaultFormat" id="1198">
-																<Type>CommandBarButton</Type>
-																<CommandName>Form.Command.ResetDefaultFormat</CommandName>
-																<ExtendedTooltip name="ResetDefaultFormatExtendedTooltip" id="1199"/>
-															</Button>
-														</ChildItems>
-													</ContextMenu>
-													<ExtendedTooltip name="DefaultFormatsExtendedTooltip" id="916"/>
-													<Events>
-														<Event name="Click">DefaultFormatsClick</Event>
-													</Events>
-												</LabelField>
-												<CommandBar name="CommandBarReportsFormats" id="1212">
-													<Title>
-														<v8:item>
-															<v8:lang>en</v8:lang>
-															<v8:content>Command bar report formats</v8:content>
-														</v8:item>
-													</Title>
-													<GroupHorizontalAlign>Right</GroupHorizontalAlign>
-													<ExtendedTooltip name="CommandBarReportsFormatsExtendedTooltip" id="1213"/>
-													<ChildItems>
-														<Button name="ReportsFormatsOutputList" id="1223">
-															<Type>CommandBarButton</Type>
-															<CommandName>Form.Item.ReportFormats.StandardCommand.OutputList</CommandName>
-															<ExtendedTooltip name="ReportsFormatsOutputListExtendedTooltip" id="1224"/>
-														</Button>
-														<SearchStringAddition name="SearchStringReportsFormats" id="1220">
-															<AdditionSource>
-																<Item>ReportFormats</Item>
-																<Type>SearchStringRepresentation</Type>
-															</AdditionSource>
-															<Title>
-																<v8:item>
-																	<v8:lang>en</v8:lang>
-																	<v8:content>Search</v8:content>
-																</v8:item>
-															</Title>
-															<GroupHorizontalAlign>Right</GroupHorizontalAlign>
-															<ContextMenu name="SearchStringReportsFormatsContextMenu" id="1221"/>
-															<ExtendedTooltip name="SearchStringReportsFormatsExtendedTooltip" id="1222"/>
-														</SearchStringAddition>
-														<ButtonGroup name="GroupToggleCheckboxIfEmpty" id="1218">
-															<EnableContentChange>true</EnableContentChange>
-															<Title>
-																<v8:item>
-																	<v8:lang>en</v8:lang>
-																	<v8:content>Clear select check boxes if empty</v8:content>
-																</v8:item>
-															</Title>
-															<GroupHorizontalAlign>Right</GroupHorizontalAlign>
-															<Representation>Compact</Representation>
-															<ExtendedTooltip name="GroupToggleCheckboxIfEmptyExtendedTooltip" id="1219"/>
-															<ChildItems>
-																<Button name="ClearAllSendIfBlank" id="689">
-																	<Type>CommandBarButton</Type>
-																	<Representation>Picture</Representation>
-																	<CommandName>Form.Command.ClearAllSendIfBlank</CommandName>
-																	<ExtendedTooltip name="ClearAllSendIfBlankExtendedTooltip" id="928"/>
-																</Button>
-																<Button name="SelectAllSendIfBlank" id="688">
-																	<Type>CommandBarButton</Type>
-																	<Representation>Picture</Representation>
-																	<CommandName>Form.Command.SelectAllSendIfBlank</CommandName>
-																	<ExtendedTooltip name="SelectAllSendIfBlankExtendedTooltip" id="927"/>
-																</Button>
-															</ChildItems>
-														</ButtonGroup>
-													</ChildItems>
-												</CommandBar>
-											</ChildItems>
-										</UsualGroup>
-									</ChildItems>
-								</UsualGroup>
-								<Table name="ReportFormats" id="100">
-									<Representation>List</Representation>
-									<Height>5</Height>
-									<SelectionMode>SingleRow</SelectionMode>
-									<AutoInsertNewRow>true</AutoInsertNewRow>
-									<FileDragMode>AsFile</FileDragMode>
-									<DataPath>Object.Reports</DataPath>
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Report formats</v8:content>
-										</v8:item>
-									</Title>
-									<CommandSet>
-										<ExcludedCommand>Add</ExcludedCommand>
-									</CommandSet>
-									<RowFilter xsi:nil="true"/>
-									<ContextMenu name="ReportFormatsContextMenu" id="101">
-										<ChildItems>
-											<Button name="ReportFormatsContextMenuSelectAllSendIfBlank" id="684">
-												<Type>CommandBarButton</Type>
-												<CommandName>Form.Command.SelectAllSendIfBlank</CommandName>
-												<ExtendedTooltip name="ReportFormatsContextMenuSelectAllSendIfBlankExtendedTooltip" id="918"/>
-											</Button>
-											<Button name="ReportFormatsContextMenuClearAllSendIfBlank" id="685">
-												<Type>CommandBarButton</Type>
-												<CommandName>Form.Command.ClearAllSendIfBlank</CommandName>
-												<ExtendedTooltip name="ReportFormatsContextMenuClearAllSendIfBlankExtendedTooltip" id="919"/>
-											</Button>
-										</ChildItems>
-									</ContextMenu>
-									<AutoCommandBar name="ReportFormatsCommandBar" id="102">
-										<HorizontalAlign>Right</HorizontalAlign>
-										<Autofill>false</Autofill>
-									</AutoCommandBar>
-									<ExtendedTooltip name="ReportFormatsExtendedTooltip" id="922"/>
-									<SearchStringAddition name="ReportFormatsSearchString" id="1042">
-										<AdditionSource>
-											<Item>ReportFormats</Item>
-											<Type>SearchStringRepresentation</Type>
-										</AdditionSource>
-										<ContextMenu name="ReportFormatsSearchStringContextMenu" id="1043"/>
-										<ExtendedTooltip name="ReportFormatsSearchStringExtendedTooltip" id="1044"/>
-									</SearchStringAddition>
-									<ViewStatusAddition name="ReportFormatsViewStatus" id="1045">
-										<AdditionSource>
-											<Item>ReportFormats</Item>
-											<Type>ViewStatusRepresentation</Type>
-										</AdditionSource>
-										<ContextMenu name="ReportFormatsViewStatusContextMenu" id="1046"/>
-										<ExtendedTooltip name="ReportFormatsViewStatusExtendedTooltip" id="1047"/>
-									</ViewStatusAddition>
-									<SearchControlAddition name="ReportFormatsSearchControl" id="1048">
-										<AdditionSource>
-											<Item>ReportFormats</Item>
-											<Type>SearchControl</Type>
-										</AdditionSource>
-										<ContextMenu name="ReportFormatsSearchControlContextMenu" id="1049"/>
-										<ExtendedTooltip name="ReportFormatsSearchControlExtendedTooltip" id="1050"/>
-									</SearchControlAddition>
-									<Events>
-										<Event name="BeforeAddRow">ReportFormatsBeforeAddRow</Event>
-										<Event name="BeforeDeleteRow">ReportFormatsBeforeDeleteRow</Event>
-									</Events>
-									<ChildItems>
-										<InputField name="ReportFormatsPresentation" id="230">
-											<DataPath>Object.Reports.Presentation</DataPath>
-											<ReadOnly>true</ReadOnly>
-											<EditMode>EnterOnInput</EditMode>
-											<ContextMenu name="ReportFormatsPresentationContextMenu" id="231"/>
-											<ExtendedTooltip name="ReportFormatsPresentationExtendedTooltip" id="923"/>
-										</InputField>
-										<InputField name="ReportFormatsFormats" id="232">
-											<DataPath>Object.Reports.Formats</DataPath>
-											<EditMode>Directly</EditMode>
-											<AutoCellHeight>true</AutoCellHeight>
-											<ChoiceButton>true</ChoiceButton>
-											<ClearButton>true</ClearButton>
-											<ChooseType>false</ChooseType>
-											<TextEdit>false</TextEdit>
-											<ChoiceListButton>false</ChoiceListButton>
-											<ContextMenu name="ReportFormatsFormatsContextMenu" id="233"/>
-											<ExtendedTooltip name="ReportFormatsFormatsExtendedTooltip" id="924"/>
-											<Events>
-												<Event name="StartChoice">ReportFormatsFormatsStartChoice</Event>
-												<Event name="Clearing">ReportFormatsFormatsClearing</Event>
-											</Events>
-										</InputField>
-										<CheckBoxField name="ReportFormatsSendIfEmpty" id="534">
-											<DataPath>Object.Reports.SendIfEmpty</DataPath>
-											<EditMode>EnterOnInput</EditMode>
-											<CheckBoxType>Auto</CheckBoxType>
-											<ContextMenu name="ReportFormatsSendIfEmptyContextMenu" id="535"/>
-											<ExtendedTooltip name="ReportFormatsSendIfEmptyExtendedTooltip" id="925"/>
-											<Events>
-												<Event name="OnChange">ReportFormatsSendIfEmptyOnChange</Event>
-											</Events>
-										</CheckBoxField>
-										<CheckBoxField name="ReportFormatsDoNotSendIfEmpty" id="989">
-											<DataPath>Object.Reports.DoNotSendIfEmpty</DataPath>
-											<Visible>false</Visible>
-											<ToolTip>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Do not send a report if it does not contain data.</v8:content>
-												</v8:item>
-											</ToolTip>
-											<EditMode>EnterOnInput</EditMode>
-											<CheckBoxType>Auto</CheckBoxType>
-											<ContextMenu name="ReportFormatsDoNotSendIfEmptyContextMenu" id="990"/>
-											<ExtendedTooltip name="ReportFormatsDoNotSendIfEmptyExtendedTooltip" id="991"/>
-											<Events>
-												<Event name="OnChange">ReportFormatsDoNotSendIfEmptyOnChange</Event>
-											</Events>
-										</CheckBoxField>
-									</ChildItems>
-								</Table>
-							</ChildItems>
-						</UsualGroup>
-						<CheckBoxField name="TransliterateFileNames" id="1180">
-							<DataPath>Object.TransliterateFileNames</DataPath>
-							<TitleLocation>Right</TitleLocation>
-							<ToolTipRepresentation>Button</ToolTipRepresentation>
-							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="TransliterateFileNamesContextMenu" id="1181"/>
-							<ExtendedTooltip name="TransliterateFileNamesExtendedTooltip" id="1182"/>
-						</CheckBoxField>
-						<UsualGroup name="ZIPArchivingParametersGroup" id="98">
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Parameters of archiving to ZIP</v8:content>
-								</v8:item>
-							</Title>
-							<Behavior>Usual</Behavior>
-							<Representation>None</Representation>
-							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="ZIPArchivingParametersGroupExtendedTooltip" id="929"/>
-							<ChildItems>
-								<CheckBoxField name="Archive" id="13">
-									<DataPath>Object.Archive</DataPath>
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Compress to ZIP archive:</v8:content>
-										</v8:item>
-									</Title>
-									<TitleLocation>Right</TitleLocation>
-									<EditMode>EnterOnInput</EditMode>
-									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="ArchiveContextMenu" id="14"/>
-									<ExtendedTooltip name="ArchiveExtendedTooltip" id="930"/>
-									<Events>
-										<Event name="OnChange">ArchiveOnChange</Event>
-									</Events>
-								</CheckBoxField>
-								<InputField name="ArchiveName" id="15">
-									<DataPath>Object.ArchiveName</DataPath>
-									<TitleLocation>None</TitleLocation>
-									<EditMode>EnterOnInput</EditMode>
-									<Width>50</Width>
-									<MaxWidth>45</MaxWidth>
-									<DropListButton>true</DropListButton>
-									<ChoiceList>
-										<xr:Item>
-											<xr:Presentation/>
-											<xr:CheckState>0</xr:CheckState>
-											<xr:Value xsi:type="FormChoiceListDesTimeValue">
-												<Presentation>
-													<v8:item>
-														<v8:lang>en</v8:lang>
-														<v8:content>Distribution description</v8:content>
-													</v8:item>
-												</Presentation>
-												<Value xsi:type="xs:string">[MailingDescription]</Value>
-											</xr:Value>
-										</xr:Item>
-										<xr:Item>
-											<xr:Presentation/>
-											<xr:CheckState>0</xr:CheckState>
-											<xr:Value xsi:type="FormChoiceListDesTimeValue">
-												<Presentation>
-													<v8:item>
-														<v8:lang>en</v8:lang>
-														<v8:content>Report distribution description and date</v8:content>
-													</v8:item>
-												</Presentation>
-												<Value xsi:type="xs:string">DescriptionDistributionDate</Value>
-											</xr:Value>
-										</xr:Item>
-									</ChoiceList>
-									<InputHint>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Archive file name</v8:content>
-										</v8:item>
-									</InputHint>
-									<ContextMenu name="ArchiveNameContextMenu" id="16"/>
-									<ExtendedTooltip name="ArchiveNameExtendedTooltip" id="934"/>
-									<Events>
-										<Event name="ChoiceProcessing">ArchiveNameChoiceProcessing</Event>
-									</Events>
-								</InputField>
-								<UsualGroup name="GroupArchivePassword" id="1192">
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Archive password</v8:content>
-										</v8:item>
-									</Title>
-									<Behavior>Usual</Behavior>
-									<Representation>None</Representation>
-									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="GroupArchivePasswordExtendedTooltip" id="1193"/>
-									<ChildItems>
-										<InputField name="ArchivePassword" id="17">
-											<DataPath>ArchivePassword</DataPath>
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Password</v8:content>
-												</v8:item>
-											</Title>
-											<EditMode>EnterOnInput</EditMode>
-											<AutoMaxWidth>false</AutoMaxWidth>
-											<MaxWidth>20</MaxWidth>
-											<PasswordMode>true</PasswordMode>
-											<ChoiceButton>true</ChoiceButton>
-											<ChoiceButtonPicture>
-												<xr:Ref>CommonPicture.CharsBeingTypedShown</xr:Ref>
-												<xr:LoadTransparent>false</xr:LoadTransparent>
-											</ChoiceButtonPicture>
-											<InputHint>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Archive password</v8:content>
-												</v8:item>
-											</InputHint>
-											<ContextMenu name="ArchivePasswordContextMenu" id="18"/>
-											<ExtendedTooltip name="ArchivePasswordExtendedTooltip" id="935"/>
-											<Events>
-												<Event name="OnChange">ArchivePasswordOnChange</Event>
-												<Event name="StartChoice">ArchivePasswordStartChoice</Event>
-											</Events>
-										</InputField>
-										<Button name="CreateArchivePassword" id="1190">
-											<Type>UsualButton</Type>
-											<Representation>Picture</Representation>
-											<CommandName>Form.Command.CreateArchivePassword</CommandName>
-											<ExtendedTooltip name="CreateArchivePasswordExtendedTooltip" id="1191"/>
-										</Button>
-									</ChildItems>
-								</UsualGroup>
-								<Button name="PasswordsEncryption" id="1194">
-									<Type>Hyperlink</Type>
-									<Visible>false</Visible>
-									<CommandName>Form.Command.PasswordsEncryption</CommandName>
-									<ExtendedTooltip name="PasswordsEncryptionExtendedTooltip" id="1195"/>
-								</Button>
-							</ChildItems>
-						</UsualGroup>
-						<UsualGroup name="AdditionalParameters" id="355">
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Additional parameters</v8:content>
-								</v8:item>
-							</Title>
-							<Group>Vertical</Group>
-							<Behavior>Usual</Behavior>
-							<Representation>NormalSeparation</Representation>
-							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="AdditionalParametersExtendedTooltip" id="939"/>
-							<ChildItems>
-								<InputField name="Parent" id="382">
-									<DataPath>Object.Parent</DataPath>
-									<Width>10</Width>
-									<ChoiceListButton>false</ChoiceListButton>
-									<ContextMenu name="ParentContextMenu" id="383"/>
-									<ExtendedTooltip name="ParentExtendedTooltip" id="940"/>
-									<Events>
-										<Event name="ChoiceProcessing">ParentChoiceProcessing</Event>
-									</Events>
-								</InputField>
-							</ChildItems>
-						</UsualGroup>
-					</ChildItems>
 				</Page>
 			</ChildItems>
 		</Pages>
@@ -2979,6 +3252,17 @@
 							<v8:item>
 								<v8:lang>en</v8:lang>
 								<v8:content>Availability</v8:content>
+							</v8:item>
+						</Title>
+						<Type>
+							<v8:Type>xs:boolean</v8:Type>
+						</Type>
+					</Column>
+					<Column name="ThereIsPeriod" id="67">
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Period available</v8:content>
 							</v8:item>
 						</Title>
 						<Type>
@@ -3175,7 +3459,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Save reports (by default)</v8:content>
+					<v8:content>Formats for saving</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -3655,7 +3939,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Recipient list</v8:content>
+					<v8:content>Recipients</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -3735,7 +4019,10 @@
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="CanEncryptAttachments" id="54">
+		<Attribute name="EmailTextAdditionalParameters" id="66">
+			<Type/>
+		</Attribute>
+		<Attribute name="CanEncryptAttachments" id="69">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
@@ -3882,7 +4169,7 @@
 				</v8:item>
 			</ToolTip>
 			<Picture>
-				<xr:Ref>StdPicture.Find</xr:Ref>
+				<xr:Ref>StdPicture.ShowData</xr:Ref>
 				<xr:LoadTransparent>true</xr:LoadTransparent>
 			</Picture>
 			<Action>TemplatePreview</Action>
@@ -4183,7 +4470,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>The "run now" command</v8:content>
+					<v8:content>Send the reports in real time</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -4269,9 +4556,15 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Passwords encryption</v8:content>
+					<v8:content>Set passwords and encrypt</v8:content>
 				</v8:item>
 			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Passwords and encryption</v8:content>
+				</v8:item>
+			</ToolTip>
 			<Action>PasswordsEncryption</Action>
 		</Command>
 		<Command name="ResetDefaultFormat" id="32">
@@ -4282,6 +4575,135 @@
 				</v8:item>
 			</Title>
 			<Action>ResetDefaultFormat</Action>
+		</Command>
+		<Command name="SetTemplateDescription" id="34">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Report name</v8:content>
+				</v8:item>
+			</Title>
+			<Action>SetTemplateDescription</Action>
+		</Command>
+		<Command name="SetTemplateDescriptionFormat" id="35">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Report name, format</v8:content>
+				</v8:item>
+			</Title>
+			<Action>SetTemplateDescriptionFormat</Action>
+		</Command>
+		<Command name="SetTemplateDescriptionPeriod" id="37">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Report name, period</v8:content>
+				</v8:item>
+			</Title>
+			<Action>SetTemplateDescriptionPeriod</Action>
+		</Command>
+		<Command name="SetTemplateDescriptionPeriodFormat" id="38">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Report name, period, format</v8:content>
+				</v8:item>
+			</Title>
+			<Action>SetTemplateDescriptionPeriodFormat</Action>
+		</Command>
+		<Command name="SetTemplateDescriptionDistributionDateFormat" id="40">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Report name, report distribution date, format</v8:content>
+				</v8:item>
+			</Title>
+			<Action>SetTemplateDescriptionDistributionDateFormat</Action>
+		</Command>
+		<Command name="SetTemplateDescriptionDistributionDate" id="41">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Report name, report distribution date</v8:content>
+				</v8:item>
+			</Title>
+			<Action>SetTemplateDescriptionDistributionDate</Action>
+		</Command>
+		<Command name="ImportanceHigh" id="42">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>High importance</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>High importance</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Picture>
+				<xr:Ref>CommonPicture.ImportanceHigh</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>ImportanceHigh</Action>
+			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="ImportanceLow" id="43">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Low importance</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Low importance</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Picture>
+				<xr:Ref>CommonPicture.ImportanceLow</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>ImportanceLow</Action>
+			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="ImportanceNormal" id="44">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Normal importance</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Normal importance</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Picture>
+				<xr:Ref>CommonPicture.ImportanceNotSpecified</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>ImportanceNormal</Action>
+			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="Redistribution" id="7">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Resend</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Resend the reports to recipients who did not receive them</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>Redistribution</Action>
 		</Command>
 	</Commands>
 </Form>

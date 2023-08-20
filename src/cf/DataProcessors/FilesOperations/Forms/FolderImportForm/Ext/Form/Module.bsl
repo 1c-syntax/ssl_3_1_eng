@@ -51,7 +51,7 @@ Procedure SelectedDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	OpenFileDialog.Directory = Directory;
 	OpenFileDialog.FullFileName = "";
-	Filter = NStr("en = 'All files (*.*)|*.*';");
+	Filter = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
 	OpenFileDialog.Filter = Filter;
 	OpenFileDialog.Multiselect = False;
 	OpenFileDialog.Title = NStr("en = 'Select directory';");

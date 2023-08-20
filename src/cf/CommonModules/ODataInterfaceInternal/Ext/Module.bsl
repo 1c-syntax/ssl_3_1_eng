@@ -144,11 +144,20 @@ Function IsRecordSet(Val MetadataObject) Export
 	
 EndFunction
 
+// Returns:
+//  MetadataObject - role.
+//
+Function ODataInterfaceRole() Export
+	
+	Return Metadata.Roles.RemoteODataAccess;
+	
+EndFunction
+
 #Region EventsHandlers
 
 Procedure BeforeExportData(Container) Export
 	
-	Content = Common.CalculateInSafeMode("GetStandardODataInterfaceContent()");
+	Content = GetStandardODataInterfaceContent();
 	CompositionToSerialize = New Array();
 	
 	For Each CompositionItem In Content Do
@@ -187,19 +196,28 @@ Procedure BeforeImportData(Container) Export
 			Or ReaderStream.Name <> "Data" Then
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'XML reading error. Incorrect file format. Awaiting %1 element start.';"), "Data");
+			NStr("en = 'Invalid XML file format. Start of ""%1"" element is expected.';"), "Data");
 		
 	EndIf;
 	
 	If Not ReaderStream.Read() Then
-		Raise NStr("en = 'XML reading error. File end is detected.';");
+		Raise NStr("en = 'Invalid XML file format. File end is detected.';");
 	EndIf;
 	
 	Content = XDTOSerializer.ReadXML(ReaderStream);
 	ReaderStream.Close();
 	
 	If Content.Count() > 0 Then
-		Common.ExecuteInSafeMode("SetStandardODataInterfaceContent(Parameters)", Content);
+		
+		For Position = -Content.UBound() To 0 Do
+			
+			If Common.MetadataObjectByFullName(Content[-Position]) = Undefined Then
+				Content.Delete(-Position);
+			EndIf;
+			
+		EndDo;
+		
+		SetStandardODataInterfaceContent(Content);
 	EndIf;
 	
 EndProcedure

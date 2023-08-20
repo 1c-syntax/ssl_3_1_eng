@@ -68,7 +68,7 @@ Procedure PrepareForm(Form, Ref, LockButtonGroup, LockButtonTitle) Export
 		
 		// Add a command.
 		Command = Form.Commands.Add("AllowObjectAttributeEdit");
-		Command.Title = ?(IsBlankString(LockButtonTitle), NStr("en = 'Allow attribute editing';"), LockButtonTitle);
+		Command.Title = ?(IsBlankString(LockButtonTitle), NStr("en = 'Allow edit attributes';"), LockButtonTitle);
 		Command.Action = "Attachable_AllowObjectAttributeEdit";
 		Command.Picture = PictureLib.AllowObjectAttributeEdit;
 		Command.ModifiesStoredData = True;

@@ -19,7 +19,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.InitialFilling = True;
 	Handler.Procedure = "MarkedObjectsDeletionInternal.EnableDeleteMarkedObjects";
 	Handler.ExecutionMode = "Seamless";
-	
+
 	Handler = Handlers.Add();
 	Handler.Version = "3.1.6.79";
 	Handler.Procedure = "MarkedObjectsDeletionInternal.SetDeletionScheduleTagged";
@@ -39,26 +39,26 @@ EndProcedure
 
 // See JobsQueueOverridable.OnGetTemplateList.
 Procedure OnGetTemplateList(JobTemplates) Export
-	
+
 	JobTemplates.Add(Metadata.ScheduledJobs.MarkedObjectsDeletion.Name);
 	JobTemplates.Add(Metadata.ScheduledJobs.MarkedObjectsDeletionControl.Name);
-	
+
 EndProcedure
 
 // See JobsQueueOverridable.OnDefineHandlerAliases.
 Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
-	
+
 	NamesAndAliasesMap.Insert(Metadata.ScheduledJobs.MarkedObjectsDeletion.MethodName);
 	NamesAndAliasesMap.Insert(Metadata.ScheduledJobs.MarkedObjectsDeletionControl.MethodName);
-	
+
 EndProcedure
 
 // See CommonOverridable.OnAddReferenceSearchExceptions.
 Procedure OnAddReferenceSearchExceptions(RefSearchExclusions) Export
-	
+
 	RefSearchExclusions.Add(Metadata.InformationRegisters.ObjectsToDelete);
 	RefSearchExclusions.Add(Metadata.InformationRegisters.NotDeletedObjects);
-	
+
 EndProcedure
 
 // See AttachableCommandsOverridable.OnDefineCommandsAttachedToObject.
@@ -137,25 +137,24 @@ Procedure OnFillToDoList(ToDoList) Export
 	If Not Users.IsFullUser() Then
 		Return;
 	EndIf;
-	
+
 	Query = New Query;
 	Query.Text =
-		"SELECT
-		|	ISNULL(COUNT(NotDeletedObjects.Object),0) AS Total
-		|FROM
-		|	InformationRegister.NotDeletedObjects AS NotDeletedObjects
-		|WHERE
-		|	NotDeletedObjects.AttemptsNumber > 3";
-	
+	"SELECT
+	|	ISNULL(COUNT(NotDeletedObjects.Object),0) AS Total
+	|FROM
+	|	InformationRegister.NotDeletedObjects AS NotDeletedObjects
+	|WHERE
+	|	NotDeletedObjects.AttemptsNumber > 3";
+
 	QueryResult = Query.Execute();
 	NotDeletedObjectsCount1 = QueryResult.Select();
 	NotDeletedObjectsCount1.Next();
-	
+
 	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
-	
+
 	Subsystem = Metadata.Subsystems.Find("Administration");
-	If Subsystem = Undefined
-		Or Not AccessRight("View", Subsystem)
+	If Subsystem = Undefined Or Not AccessRight("View", Subsystem)
 		Or Not Common.MetadataObjectAvailableByFunctionalOptions(Subsystem) Then
 		Sections = ModuleToDoListServer.SectionsForObject("DataProcessor.DeleteMarkedObjects");
 	Else
@@ -165,7 +164,7 @@ Procedure OnFillToDoList(ToDoList) Export
 
 	JobID = "NotDeletedObjects";
 	For Each Section In Sections Do
-	
+
 		ToDoItem = ToDoList.Add();
 		ToDoItem.Id  = JobID;
 		ToDoItem.HasToDoItems       = NotDeletedObjectsCount1.Total > 0;
@@ -173,17 +172,16 @@ Procedure OnFillToDoList(ToDoList) Export
 		ToDoItem.Count     = NotDeletedObjectsCount1.Total;
 		ToDoItem.Form          = "InformationRegister.NotDeletedObjects.ListForm";
 		ToDoItem.Owner       = Section;
-	
+
 	EndDo;
-	
+
 EndProcedure
 
 // See CommonOverridable.OnAddSessionParameterSettingHandlers.
 Procedure OnAddSessionParameterSettingHandlers(Handlers) Export
-	
-	Handlers.Insert("ObjectsDeletionInProgress",
-		"MarkedObjectsDeletionInternal.SessionParametersSetting");
-	
+
+	Handlers.Insert("ObjectsDeletionInProgress", "MarkedObjectsDeletionInternal.SessionParametersSetting");
+
 EndProcedure
 
 // Parameters:
@@ -208,10 +206,10 @@ EndProcedure
 
 // See ODataInterfaceOverridable.OnPopulateDependantTablesForODataImportExport
 Procedure OnPopulateDependantTablesForODataImportExport(Tables) Export
-	
+
 	Tables.Add(Metadata.InformationRegisters.NotDeletedObjects.FullName());
 	Tables.Add(Metadata.InformationRegisters.ObjectsToDelete.FullName());
-	
+
 EndProcedure
 
 #EndRegion
@@ -245,7 +243,7 @@ EndProcedure
 #EndRegion
 
 Function AllowedDeletionModes() Export
-	
+
 	AllowedModes = New Array;
 	AllowedModes.Add("Standard");
 	AllowedModes.Add("Exclusive");
@@ -259,26 +257,26 @@ Procedure EnableDeleteMarkedObjects() Export
 EndProcedure
 
 Procedure SetDeletionScheduleTagged() Export
-	
+
 	If Common.DataSeparationEnabled() Then
-		Return;	
-	EndIf;	
-	
+		Return;
+	EndIf;
+
 	Schedule = New JobSchedule;
 	Schedule.DaysRepeatPeriod = 1;
 	Schedule.WeeksPeriod = 1;
 	Schedule.BeginTime = '00010101040000'; //  
 	Schedule.EndTime = '00010101060000'; //  
 	Schedule.CompletionTime = '00010101060000'; // 06:00 
-	
+
 	JobParameters = New Structure;
 	JobParameters.Insert("Schedule", Schedule);
 	JobParameters.Insert("RestartIntervalOnFailure", 10);
 	JobParameters.Insert("RestartCountOnFailure", 3);
-	
-	ScheduledJobsServer.SetScheduledJobParameters(Metadata.ScheduledJobs.MarkedObjectsDeletion, 
-		JobParameters);
-		
+
+	ScheduledJobsServer.SetScheduledJobParameters(
+		Metadata.ScheduledJobs.MarkedObjectsDeletion, JobParameters);
+
 EndProcedure
 
 // Scheduled job entry point.
@@ -286,7 +284,7 @@ EndProcedure
 Procedure MarkedObjectsDeletionScheduled() Export
 
 	Common.OnStartExecuteScheduledJob(Metadata.ScheduledJobs.MarkedObjectsDeletion);
-	ObjectsToDelete = MarkedObjectsDeletion.MarkedForDeletion(,True);
+	ObjectsToDelete = MarkedObjectsDeletion.MarkedForDeletion(, True);
 	ToDeleteMarkedObjectsInternal(ObjectsToDelete, "Standard",, True);
 
 EndProcedure
@@ -300,8 +298,8 @@ EndProcedure
 //   Boolean
 //
 Function IsSimpleType(Type) Export
-	Return (Type = Undefined Or Type = Type("String") Or Type = Type("Number") Or Type = Type("Boolean") 
-		Or Type = Type("Date"));
+	Return (Type = Undefined Or Type = Type("String") Or Type = Type("Number") Or Type = Type("Boolean") Or Type = Type(
+		"Date"));
 EndFunction
 
 // Generates a list of metadata objects where dead references are allowed.
@@ -319,7 +317,8 @@ EndFunction
 // 
 // 
 Procedure MarkedObjectsDeletionControl() Export
-	Common.OnStartExecuteScheduledJob(Metadata.ScheduledJobs.MarkedObjectsDeletionControl);
+	Common.OnStartExecuteScheduledJob(
+		Metadata.ScheduledJobs.MarkedObjectsDeletionControl);
 
 	SetPrivilegedMode(True);
 	If Not CheckIfObjectsToDeleteAreUsed() Then
@@ -328,64 +327,65 @@ Procedure MarkedObjectsDeletionControl() Export
 
 	TheLifetimeOfALock = TheLifetimeOfALock();
 	UnlockTime = CurrentSessionDate() - TheLifetimeOfALock;
-	
+
 	QueryText =
-		"SELECT DISTINCT TOP 1000
-		|	ObjectsToDelete.SessionID AS SessionID,
-		|	ObjectsToDelete.Period AS LockTime
-		|FROM
-		|	InformationRegister.ObjectsToDelete AS ObjectsToDelete
-		|WHERE
-		|	ObjectsToDelete.Period <= &UnlockTime
-		|	AND &Condition
-		|
-		|ORDER BY
-		|	LockTime";
+	"SELECT DISTINCT TOP 1000
+	|	ObjectsToDelete.SessionID AS SessionID,
+	|	ObjectsToDelete.Period AS LockTime
+	|FROM
+	|	InformationRegister.ObjectsToDelete AS ObjectsToDelete
+	|WHERE
+	|	ObjectsToDelete.Period <= &UnlockTime
+	|	AND &Condition
+	|
+	|ORDER BY
+	|	LockTime";
 	TimeCondition = "ObjectsToDelete.Period > &LockTime";
 	QueryTextWithCondition = StrReplace(QueryText, "&Condition", TimeCondition);
-	
+
 	Query = New Query(StrReplace(QueryText, "&Condition", "TRUE"));
 	Query.SetParameter("UnlockTime", UnlockTime);
 	QueryResult = Query.Execute().Unload();
-	
+
 	ProcessedSessions = New Map;
 	While QueryResult.Count() > 0 Do
-		
+
 		For Each SelectionDetailRecords In QueryResult Do
 			IsDeletionSessionProcessed = ProcessedSessions[SelectionDetailRecords.SessionID];
 			If IsDeletionSessionProcessed = True Then
 				Continue;
 			EndIf;
-			
+
 			If IsDeletionSessionProcessed = Undefined Then
-				HasDeletionSession = BackgroundJobs.FindByUUID(SelectionDetailRecords.SessionID) <> Undefined;
+				HasDeletionSession = BackgroundJobs.FindByUUID(
+					SelectionDetailRecords.SessionID) <> Undefined;
 				ProcessedSessions[SelectionDetailRecords.SessionID] = Not HasDeletionSession;
 			Else
 				HasDeletionSession = True;
 			EndIf;
 			Try
 				// 
-				UnlockUsageOfObjectsToDelete(SelectionDetailRecords.SessionID, 
-					?(HasDeletionSession, SelectionDetailRecords.LockTime, Undefined));
+				UnlockUsageOfObjectsToDelete(SelectionDetailRecords.SessionID, ?(
+					HasDeletionSession, SelectionDetailRecords.LockTime, Undefined));
 			Except
 				WriteLogEvent(
 					NStr("en = 'Marked object deletion';", Common.DefaultLanguageCode()),
-					EventLogLevel.Error, , ,
-					NStr("en = 'Cannot disable check of marked objects due to:';")
-						+ Chars.LF + ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+					EventLogLevel.Error,,, NStr(
+					"en = 'Cannot disable check of marked objects due to:';") + Chars.LF
+					+ ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			EndTry;
 		EndDo;
-		
+
 		ProcessedSessions = New Map;
 		Query.Text = QueryTextWithCondition;
 		Query.SetParameter("LockTime", SelectionDetailRecords.LockTime);
 		Query.SetParameter("UnlockTime", UnlockTime);
 		QueryResult = Query.Execute().Unload(); // @skip-
-		
+
 	EndDo;
 
-	TryDisableMarkedObjectsDeletionControl();	
-	
+	TryDisableMarkedObjectsDeletionControl();
+
 EndProcedure
 
 // Returns the timeout (in seconds) for locking the object to be deleted. 
@@ -395,7 +395,7 @@ EndProcedure
 //   Number
 //
 Function TheLifetimeOfALock() Export
-	
+
 	Return 3 * 60 * 60;
 
 EndFunction
@@ -410,10 +410,10 @@ EndFunction
 //   String
 //
 Function SettingsKey(FormName, ListName) Export
-	
+
 	Var_Key = "ShowObjectsMarkedForDeletion1/" + FormName + "/" + ListName;
 	Return Var_Key;
-	
+
 EndFunction
 
 // Parameters:
@@ -430,29 +430,29 @@ EndFunction
 //    * Separated1 - Boolean - 
 //
 Function TypeInformation(ObjectType, ComplementableInfoAboutTypes = Undefined) Export
-	
+
 	If ComplementableInfoAboutTypes = Undefined Then
-		ComplementableInfoAboutTypes = New Map;	
+		ComplementableInfoAboutTypes = New Map;
 	EndIf;
-	
+
 	Information = ComplementableInfoAboutTypes[ObjectType];
 	If Information <> Undefined Then
 		Return Information;
 	EndIf;
-	
+
 	Information = New Structure("FullName, ItemPresentation, ListPresentation,
-		|Kind, Referential, Technical, Separated1");
+								 |Kind, Referential, Technical, Separated1");
 	ComplementableInfoAboutTypes[ObjectType] = Information;
 
 	MetadataObject = Metadata.FindByType(ObjectType);
-	
+
 	Information.FullName = Upper(MetadataObject.FullName());
 	Information.Kind = Left(Information.FullName, StrFind(Information.FullName, ".") - 1);
 	Information.ItemPresentation = Common.ObjectPresentation(MetadataObject);
 	Information.ListPresentation = Common.ListPresentation(MetadataObject);
 	Information.Referential = Common.IsRefTypeObject(MetadataObject);
 	Information.Technical = IsTechnicalObject(Information.FullName);
-	
+
 	If Common.DataSeparationEnabled() Then
 
 		If Common.SubsystemExists("CloudTechnology.Core") Then
@@ -473,15 +473,15 @@ EndFunction
 //   ComplementableInfoAboutTypes - See TypesInformation
 //
 // Returns:
-//   Map of КлючЗначение:
+//   Map of KeyAndValue:
 //     
 //     See TypeInformation 
 //
 Function TypesInformation(Objects, ComplementableInfoAboutTypes = Undefined) Export
-	
-	Result = ?(TypeOf(ComplementableInfoAboutTypes) = Type("Map"), ComplementableInfoAboutTypes, 
+
+	Result = ?(TypeOf(ComplementableInfoAboutTypes) = Type("Map"), ComplementableInfoAboutTypes,
 		New Map);
-		
+
 	For Each ObjectRef In Objects Do
 		ObjectType = TypeOf(ObjectRef);
 		If Result[ObjectType] = Undefined Then
@@ -489,7 +489,7 @@ Function TypesInformation(Objects, ComplementableInfoAboutTypes = Undefined) Exp
 		EndIf;
 	EndDo;
 	Return Result;
-	
+
 EndFunction
 
 Function TablesMerge(Table1, Table2, SaveOrder = False) Export
@@ -500,7 +500,7 @@ Function TablesMerge(Table1, Table2, SaveOrder = False) Export
 		Receiver = Table2.Copy();
 		Source = Table1;
 	EndIf;
-	
+
 	For Each Item In Source Do
 		FillPropertyValues(Receiver.Add(), Item);
 	EndDo;
@@ -518,7 +518,7 @@ EndFunction
 //
 Function AdditionalAttributesNumber(Settings) Export
 	Result = 0;
-	IntermediateTable = Settings.Copy( , "Metadata,Attribute");
+	IntermediateTable = Settings.Copy(, "Metadata,Attribute");
 	IntermediateTable.Columns.Add("Counter", New TypeDescription("Number"));
 	IntermediateTable.FillValues(1, "Counter");
 	IntermediateTable.GroupBy("Metadata", "Counter");
@@ -546,19 +546,18 @@ EndFunction
 //   See ObjectsToDeleteProcessingResult
 //
 Function RunDataProcessorOfReasonsForNotDeletion(ActionsTable) Export
-	
+
 	Result = ObjectsToDeleteProcessingResult();
 
 	ReplacementPairs = New Map;
 	DeletionMarkQueue = New Array;
 
 	For Each Action In ActionsTable Do
-		
-		If Action.Action <> "ReplaceRef" 
-			And (Not ValueIsFilled(Action.Source.DataVersion) 
-				Or Not ValueIsFilled(Action.FoundItemReference)
-				Or Not ValueIsFilled(Value(Action.FoundItemReference, "DataVersion"))) Then
-				
+
+		If Action.Action <> "ReplaceRef" And (Not ValueIsFilled(Action.Source.DataVersion)
+			Or Not ValueIsFilled(Action.FoundItemReference) Or Not ValueIsFilled(Value(
+			Action.FoundItemReference, "DataVersion"))) Then
+
 			Continue;
 		EndIf;
 
@@ -593,7 +592,7 @@ Function RunDataProcessorOfReasonsForNotDeletion(ActionsTable) Export
 	EndIf;
 
 	Return Result;
-	
+
 EndFunction
 
 // Deletes the objects marked on the DataProcessors.MarkedObjectsDeletion.DefaultForm form
@@ -620,22 +619,22 @@ Function ToDeleteMarkedObjects(Val ObjectsToDeleteSource, DeletionMode, Addition
 	PreviousStepResult, JobID) Export
 
 	If TypeOf(ObjectsToDeleteSource) = Type("ValueList") Then
-		ObjectsToDeleteSource = MarkedForDeletionItemsTree(ObjectsToDeleteSource.UnloadValues(), 
+		ObjectsToDeleteSource = MarkedForDeletionItemsTree(ObjectsToDeleteSource.UnloadValues(),
 			AdditionalAttributesSettings, New Array);
 	ElsIf ObjectsToDeleteSource = Undefined Then
-		ObjectsToDeleteSource = MarkedForDeletionItemsTree(MarkedObjectsDeletion.MarkedForDeletion(, True), 
+		ObjectsToDeleteSource = MarkedForDeletionItemsTree(MarkedObjectsDeletion.MarkedForDeletion(, True),
 			AdditionalAttributesSettings, New Array);
 	EndIf;
-	
+
 	PreviousStepResult = AdditionalDataProcessorStepResult(PreviousStepResult);
 	ObjectsToDelete = ObjectsToDeleteFromAdditionalProcessingResult(PreviousStepResult);
-	CommonClientServer.SupplementArray(ObjectsToDelete, 
-		ObjectsToDeleteFromFormData(ObjectsToDeleteSource, PreviousStepResult)); 
-	
-	DeletionResult = ToDeleteMarkedObjectsInternal(ObjectsToDelete, DeletionMode, JobID);	
-	Result = FormDataFromDeletionResult(ObjectsToDeleteSource, DeletionResult, 
+	CommonClientServer.SupplementArray(ObjectsToDelete, ObjectsToDeleteFromFormData(
+		ObjectsToDeleteSource, PreviousStepResult));
+
+	DeletionResult = ToDeleteMarkedObjectsInternal(ObjectsToDelete, DeletionMode, JobID);
+	Result = FormDataFromDeletionResult(ObjectsToDeleteSource, DeletionResult,
 		AdditionalAttributesSettings, PreviousStepResult);
-		
+
 	Return Result;
 EndFunction
 
@@ -646,16 +645,16 @@ EndFunction
 // 
 //
 Procedure SetObjectsToDeleteUsageLock(Package, SessionID) Export
-	
+
 	IsSaaSModel = Common.DataSeparationEnabled();
 	InDataArea = ?(IsSaaSModel, Common.SeparatedDataUsageAvailable(), False);
 	If IsSaaSModel And Not InDataArea Then
 		Return;
 	EndIf;
-	
+
 	RecordSet = InformationRegisters.ObjectsToDelete.CreateRecordSet();
 	RecordSet.Filter.SessionID.Set(SessionID);
-	
+
 	DeletionStartTime = CurrentSessionDate();
 	For Each Item In Package Do
 		Record = RecordSet.Add();
@@ -663,23 +662,23 @@ Procedure SetObjectsToDeleteUsageLock(Package, SessionID) Export
 		Record.Object = Item.ItemToDeleteRef;
 		Record.Period = DeletionStartTime;
 	EndDo;
-	
+
 	BeginTransaction();
 	Try
-		Block = New DataLock();
+		Block = New DataLock;
 		LockItem = Block.Add("InformationRegister.ObjectsToDelete");
 		LockItem.SetValue("SessionID", SessionID);
 		Block.Lock();
-		
+
 		Constants.CheckIfObjectsToDeleteAreUsed.Set(True);
 		RecordSet.Write();
-		
+
 		Filter = New Structure("Metadata", Metadata.ScheduledJobs.MarkedObjectsDeletionControl);
 		SetPrivilegedMode(True);
 		CheckJob = ScheduledJobsServer.FindJobs(Filter);
 		For Each Job In CheckJob Do
-			ScheduledJobsServer.ChangeJob(Job.UUID,
-				New Structure("Use", True));
+			ScheduledJobsServer.ChangeJob(Job.UUID, New Structure("Use",
+				True));
 		EndDo;
 		CommitTransaction();
 	Except
@@ -700,34 +699,35 @@ Procedure UnlockUsageOfObjectsToDelete(SessionID, UnlockTime = Undefined) Export
 	If Common.DataSeparationEnabled() And Not Common.SeparatedDataUsageAvailable() Then
 		Return;
 	EndIf;
-	
+
 	RecordSet = InformationRegisters.ObjectsToDelete.CreateRecordSet();
 	RecordSet.Filter.SessionID.Set(SessionID);
 	If UnlockTime <> Undefined Then
 		RecordSet.Filter.Period.Set(UnlockTime);
 	EndIf;
 	RecordSet.Write();
-	
+
 	If UnlockTime = Undefined Then
-		TryDisableMarkedObjectsDeletionControl();	
+		TryDisableMarkedObjectsDeletionControl();
 	EndIf;
-	
+
 EndProcedure
 
 Procedure TryDisableMarkedObjectsDeletionControl()
 
 	BeginTransaction();
 	Try
-		Block = New DataLock();
+		Block = New DataLock;
 		Block.Add("Constant.CheckIfObjectsToDeleteAreUsed");
 		Block.Lock();
-		
+
 		If Constants.CheckIfObjectsToDeleteAreUsed.Get() Then
 			Query = New Query("SELECT TOP 1 Tab.SessionID FROM InformationRegister.ObjectsToDelete AS Tab");
 			If Query.Execute().IsEmpty() Then
 				Constants.CheckIfObjectsToDeleteAreUsed.Set(False);
-				
-				Filter = New Structure("Metadata", Metadata.ScheduledJobs.MarkedObjectsDeletionControl);
+
+				Filter = New Structure("Metadata",
+					Metadata.ScheduledJobs.MarkedObjectsDeletionControl);
 				SetPrivilegedMode(True);
 				CheckJob = ScheduledJobsServer.FindJobs(Filter);
 				For Each Job In CheckJob Do
@@ -775,42 +775,42 @@ Function RemovePutATickRemoval(References) Export
 	Result.Columns.Add("Ref");
 	Result.Columns.Add("DeletionMarkNewValue");
 	TotalValueOfTheDeletionMark = False;
-	
+
 	TheValueOfTheMarksRemoval = Common.ObjectsAttributeValue(References, "DeletionMark");
-	
+
 	NumberOfUnmarkedItemsToDelete = 0;
 	For Each LinkTheValueOfTheProp In TheValueOfTheMarksRemoval Do
 		If LinkTheValueOfTheProp.Value = False Then
 			NumberOfUnmarkedItemsToDelete = NumberOfUnmarkedItemsToDelete + 1;
 		EndIf;
 	EndDo;
-	
+
 	If NumberOfUnmarkedItemsToDelete = TheValueOfTheMarksRemoval.Count() Then
 		TotalValueOfTheDeletionMark = True;
 	EndIf;
-	
+
 	BeginTransaction();
 	Try
-		
+
 		For Each LinkTheValueOfTheProp In TheValueOfTheMarksRemoval Do
-			
+
 			If LinkTheValueOfTheProp.Value <> TotalValueOfTheDeletionMark Then
 				ResultString1 = Result.Add();
 				ResultString1.Ref = LinkTheValueOfTheProp.Key;
-				
+
 				Object = LinkTheValueOfTheProp.Key.GetObject();
 				Object.SetDeletionMark(TotalValueOfTheDeletionMark);
 				ResultString1.DeletionMarkNewValue = TotalValueOfTheDeletionMark;
 			EndIf;
-			
+
 		EndDo;
 		CommitTransaction();
-		
+
 	Except
 		RollbackTransaction();
 		Raise;
 	EndTry;
-	
+
 	Return Result;
 EndFunction
 
@@ -832,7 +832,7 @@ Function MarkedForDeletionItemsTree(ObjectsToDelete, Settings, Marked)
 	ValueTree = NewTreeOfDeletableObjects(AdditionalAttributesNumber(Settings));
 
 	FirstLevelNodes = New Map;
-	
+
 	TypesInformation = TypesInformation(ObjectsToDelete);
 	For Each ItemToDeleteRef In ObjectsToDelete Do
 		TypeOfObjectToDelete = TypeOf(ItemToDeleteRef);
@@ -963,11 +963,11 @@ Function ProcessDeletionMarksQueue(DeletionMarkQueue)
 	ObjectsWithErrors = New Array;
 
 	For Each Item In DeletionMarkQueue Do
-		
+
 		LongDesc = Result.Add();
 		LongDesc.ItemToDeleteRef = Item;
 		LongDesc.DeletionRequired1 = True;
-		
+
 		BeginTransaction();
 		Try
 			Block = New DataLock;
@@ -985,28 +985,27 @@ Function ProcessDeletionMarksQueue(DeletionMarkQueue)
 			Error = ErrorInfo();
 			LongDesc.DeletionRequired1 = False;
 			LongDesc.ErrorText = ErrorProcessing.BriefErrorDescription(Error);
-			
+
 			ErrorsPresentations[Item] = ErrorProcessing.DetailErrorDescription(Error);
 			ObjectsWithErrors.Add(Item);
 		EndTry;
-		
+
 	EndDo;
-	
+
 	If ErrorsPresentations.Count() > 0 Then
-	
+
 		ErrorText = New Array;
 		ObjectsPresentations = Common.SubjectAsString(ObjectsWithErrors);
 		For Each Object In ObjectsWithErrors Do
 			ErrorText.Add(ObjectsPresentations[Object] + ":" + Chars.LF + ErrorsPresentations[Object]);
 		EndDo;
 		WriteLogEvent(
-			NStr("en = 'Marked object deletion';", Common.DefaultLanguageCode()),
-			EventLogLevel.Error, , ,
-			NStr("en = 'Couldn''t mark the following objects for deletion:';") + Chars.LF 
-				+ StrConcat(ErrorText, Chars.LF + Chars.LF));
-	
+			NStr("en = 'Marked object deletion';", Common.DefaultLanguageCode()), EventLogLevel.Error,
+			,, NStr("en = 'Couldn''t mark the following objects for deletion:';") + Chars.LF + StrConcat(
+			ErrorText, Chars.LF + Chars.LF));
+
 	EndIf;
-	
+
 	Return Result;
 EndFunction
 
@@ -1018,40 +1017,40 @@ Procedure ProhibitUsageOfObjectsToDelete(Source, Cancel)
 	
 	// 
 	// 
-	
+
 	If ExclusiveMode() Then
 		Return;
 	EndIf;
-	
-	If Source.AdditionalProperties.Property("DontControlObjectsToDelete") 
-			Or SessionParameters.ObjectsDeletionInProgress Then
+
+	If Source.AdditionalProperties.Property("DontControlObjectsToDelete")
+		Or SessionParameters.ObjectsDeletionInProgress Then
 		Return;
 	EndIf;
-	
+
 	If Common.IsConstant(Source.Metadata()) Then
 		ValuesType = TypeOf(Source.Value);
-			
+
 		If Not Common.IsReference(ValuesType) Then
 			Return;
 		EndIf;
 	EndIf;
-	
+
 	SetPrivilegedMode(True);
-	
+
 	If Not CheckIfObjectsToDeleteAreUsed() Then
 		Return;
 	EndIf;
-	
+
 	If ExceptionsOfSearchForRefsAllowingDeletion().Find(Source.Metadata()) <> Undefined Then
 		Return;
 	EndIf;
-	
+
 	SourceType = TypeOf(Source);
-	If SourceType = Type("InformationRegisterRecordSet.ObjectsToDelete") 
-			Or SourceType = Type("InformationRegisterRecordSet.NotDeletedObjects") Then
+	If SourceType = Type("InformationRegisterRecordSet.ObjectsToDelete") Or SourceType = Type(
+		"InformationRegisterRecordSet.NotDeletedObjects") Then
 		Return;
 	EndIf;
-	
+
 	RefsToObjectsToDelete = New Array;
 	Try
 		RefsToObjectsToDelete = MarkedObjectsDeletion.RefsToObjectsToDelete(Source);
@@ -1059,39 +1058,37 @@ Procedure ProhibitUsageOfObjectsToDelete(Source, Cancel)
 		Error = ErrorInfo();
 		WriteLogEvent(
 				NStr("en = 'Delete marked objects';", Common.DefaultLanguageCode()),
-				EventLogLevel.Error, , ,
-				NStr("en = 'Cannot control objects to be deleted:';") + ErrorProcessing.DetailErrorDescription(Error));
+			EventLogLevel.Error,,, NStr("en = 'Cannot control objects to be deleted:';")
+			+ ErrorProcessing.DetailErrorDescription(Error));
 	EndTry;
-	
+
 	MessageText = "";
 	If RefsToObjectsToDelete.Count() = 1 Then
 		RepresentationOfTheReference = "";
 		For Each RefToDelete In RefsToObjectsToDelete Do
 			RepresentationOfTheReference = Common.SubjectString(RefToDelete.Key);
 		EndDo;
-		
+
 		MessageText = NStr("en = 'The selected item %1 is currently being deleted as it was marked for deletion.
-		|Select another value.';");
+							  |Select another value.';");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			MessageText, 
-			RepresentationOfTheReference);
-		
+			MessageText, RepresentationOfTheReference);
+
 	ElsIf RefsToObjectsToDelete.Count() > 1 Then
-			
+
 		LinkRepresentation = New Array;
 		For Each RefToDelete In RefsToObjectsToDelete Do
 			LinkRepresentation.Add(Common.SubjectString(RefToDelete.Key));
 		EndDo;
-	
+
 		MessageText = NStr("en = 'The selected items are currently being deleted as they were marked for deletion.
-		|Select other values.
-		|%1';");
-		
+							  |Select other values.
+							  |%1';");
+
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			MessageText, 
-			StrConcat(LinkRepresentation, "-" + Chars.LF));
+			MessageText, StrConcat(LinkRepresentation, "-" + Chars.LF));
 	EndIf;
-	
+
 	If RefsToObjectsToDelete.Count() > 0 Then
 		Raise MessageText;
 	EndIf;
@@ -1110,12 +1107,12 @@ EndProcedure
 //   * MarkedForDeletionItemsTree - See NewTreeOfDeletableObjects
 //   * NotTrash - See NewTreeOfDeletableObjects
 //
-Function FormDataFromDeletionResult(ObjectsToDeleteTree, DeletionResult, AdditionalAttributesSettings, 
+Function FormDataFromDeletionResult(ObjectsToDeleteTree, DeletionResult, AdditionalAttributesSettings,
 	PreviousStepResult)
-	
-	MarkedForDeletionItemsTree = FormTreeToUniversalTree(ObjectsToDeleteTree, 
-		AdditionalAttributesNumber(AdditionalAttributesSettings));
-	
+
+	MarkedForDeletionItemsTree = FormTreeToUniversalTree(ObjectsToDeleteTree, AdditionalAttributesNumber(
+		AdditionalAttributesSettings));
+
 	Result = New Structure;
 	Result.Insert("Trash", New Array(New FixedArray(DeletionResult.Trash)));
 	Result.Insert("NotTrash", NewTreeOfDeletableObjects());
@@ -1123,29 +1120,28 @@ Function FormDataFromDeletionResult(ObjectsToDeleteTree, DeletionResult, Additio
 	Result.Insert("NotDeletedItemsLinks", NotDeletedItemsLinks());
 	Result.Insert("DeletedItemsCount", 0);
 	Result.Insert("NotDeletedObjectsCount", 0);
-	
+
 	ObjectsPreventingDeletion = DeletionResult.ObjectsPreventingDeletion.UnloadColumn("ItemToDeleteRef");
 	TypesInformation = TypesInformation(ObjectsPreventingDeletion);
-	
+
 	AttributesNames = New Array;
 	AttributesNames.Add("DeletionMark");
 	AttributesNames.Add("Posted");
 	Attributes = StandardSubsystemsServer.ObjectAttributeValuesIfExist(
 		DeletionResult.ObjectsPreventingDeletion.UnloadColumn("UsageInstance1"), AttributesNames);
-	
+
 	For Each ObjectToPreventDeletion In DeletionResult.ObjectsPreventingDeletion Do
 		AddTreeRow(Result.NotTrash, ObjectToPreventDeletion.ItemToDeleteRef, TypesInformation);
 		AddTreeRow(Result.MarkedForDeletionItemsTree, ObjectToPreventDeletion.ItemToDeleteRef,
 			TypesInformation);
 		AddNotDeletedItemRelationsRow(Result.NotDeletedItemsLinks, ObjectToPreventDeletion, TypesInformation, Attributes);
 	EndDo;
-	
+
 	Result.MarkedForDeletionItemsTree.Rows.Sort("Presentation", True);
-	Result.NotDeletedItemsLinks.Sort("ItemToDeleteRef", New CompareValues());
-	
+	Result.NotDeletedItemsLinks.Sort("ItemToDeleteRef", New CompareValues);
+
 	Result.MarkedForDeletionItemsTree = MarkedForDeletionItemsTreeWithoutDeletedItems(
-		Result.MarkedForDeletionItemsTree,
-		DeletionResult.Trash);
+		Result.MarkedForDeletionItemsTree, DeletionResult.Trash);
 
 	ChangedTreeRows = Result.MarkedForDeletionItemsTree.Rows.FindRows(
 		New Structure("Modified", True));
@@ -1158,19 +1154,17 @@ Function FormDataFromDeletionResult(ObjectsToDeleteTree, DeletionResult, Additio
 		Result.MarkedForDeletionItemsTree, AdditionalAttributesSettings);
 
 	Result.NotDeletedItemsLinks = TablesMerge(
-		PreviousStepErrors(PreviousStepResult),
-		Result.NotDeletedItemsLinks);
+		PreviousStepErrors(PreviousStepResult), Result.NotDeletedItemsLinks);
 
 	Result.NotDeletedObjectsCount = DeletionResult.NotTrash.Count();
 	Result.DeletedItemsCount = DeletionResult.Trash.Count();
-	
+
 	Return Result
 EndFunction
 
 Function AdditionalDataProcessorStepResult(PreviousStepResultIntermediate)
 	Return ?(TypeOf(PreviousStepResultIntermediate) <> Type("ValueTable"),
-		ObjectsToDeleteProcessingResult(),
-		PreviousStepResultIntermediate);
+		ObjectsToDeleteProcessingResult(), PreviousStepResultIntermediate);
 EndFunction
 
 Function FormTreeToUniversalTree(ObjectsToDeleteTree, AdditionalAttributesCount)
@@ -1187,25 +1181,25 @@ EndFunction
 //
 Function PreviousStepErrors(PreviousStepResult)
 	NotDeletedItemsLinks = NotDeletedItemsLinks();
-	
+
 	For Each Item In PreviousStepResult Do
 		If IsBlankString(Item.ErrorText) Then
 			Continue;
 		EndIf;
-		
+
 		PreviousStepError = NotDeletedItemsLinks.Add();
 		If Not (Item.DeletionRequired1) Then
 			PreviousStepError.ItemToDeleteRef = Item.FoundItemReference;
 			PreviousStepError.Presentation = Item.ErrorText;
 			PreviousStepError.FoundItemReference =  Item.ErrorText;
-		Else	
+		Else
 			FillPropertyValues(PreviousStepError, Item);
 		EndIf;
-		
+
 		PreviousStepError.IsError = True;
 		PreviousStepError.PictureNumber = 11;
 	EndDo;
-	
+
 	Return NotDeletedItemsLinks;
 EndFunction
 
@@ -1222,10 +1216,10 @@ EndFunction
 //   Array of AnyRef
 //
 Function ObjectsToDeleteFromFormData(ObjectsToDeleteSource, ErrorsProcessingResult = Undefined)
-	
+
 	If ErrorsProcessingResult = Undefined Then
 		ProhibitedForDeletion = ObjectsToDeleteProcessingResult();
-	Else	
+	Else
 		ProhibitedForDeletion = ErrorsProcessingResult.Copy(New Structure("DeletionRequired1", False));
 	EndIf;
 
@@ -1237,34 +1231,34 @@ Function ObjectsToDeleteFromFormData(ObjectsToDeleteSource, ErrorsProcessingResu
 			Result.Add(TreeRow.ItemToDeleteRef);
 		EndIf;
 	EndDo;
-	
+
 	Return Result;
-	
+
 EndFunction
 
 Function ObjectsToDeleteFromAdditionalProcessingResult(ErrorsProcessingResult)
-	
+
 	Result = New Array;
 	For Each Item In ErrorsProcessingResult.FindRows(New Structure("DeletionRequired1", True)) Do
 		Result.Add(Item.ItemToDeleteRef);
 	EndDo;
 	Return Result;
-	
+
 EndFunction
 
 Function MarkedForDeletionItemsTreeWithoutDeletedItems(MarkedForDeletion, Trash)
 	Result = MarkedForDeletion.Copy();
-	
+
 	ModifiedParents = New Map;
 	ObjectsToDelete = Result.Rows.FindRows(New Structure("Check", 1), True);
 	For Each Item In ObjectsToDelete Do
 		If Item.Parent <> Undefined And (Trash.Find(Item.ItemToDeleteRef) <> Undefined
-				Or Not Item.IsMetadataObjectDetails And Item.Technical) Then
+			Or Not Item.IsMetadataObjectDetails And Item.Technical) Then
 			ModifiedParents.Insert(Item.Parent);
 			Item.Parent.Rows.Delete(Item);
 		EndIf;
 	EndDo;
-	
+
 	For Each ValueParent In ModifiedParents Do
 		Parent = ValueParent.Key;
 		If Parent.Rows.Count() = 0 Then
@@ -1278,19 +1272,16 @@ Function MarkedForDeletionItemsTreeWithoutDeletedItems(MarkedForDeletion, Trash)
 EndFunction
 
 Procedure AddTreeRow(NotDeletedItemsTree, ItemToDeleteRef, TypesInformation)
-	
+
 	TypeInformation = TypesInformation[TypeOf(ItemToDeleteRef)]; // See TypeInformation
-	ObjectsToDeleteStrings = NotDeletedItemsTree.Rows.FindRows(New Structure("ItemToDeleteRef", ItemToDeleteRef),
-		True);
+	ObjectsToDeleteStrings = NotDeletedItemsTree.Rows.FindRows(New Structure("ItemToDeleteRef", ItemToDeleteRef), True);
 	TreeRow = ?(ObjectsToDeleteStrings.Count() = 0, Undefined, ObjectsToDeleteStrings[0]);
 
 	If TreeRow = Undefined And Not TypeInformation.Technical Then
 		NotDeletedItemGroup = NotDeletedItemsTree.Rows.FindRows(
 			New Structure("ItemToDeleteRef", TypeInformation.FullName));
-		NotDeletedItemGroup = ?(NotDeletedItemGroup.Count() = 0,
-			Undefined,
-			NotDeletedItemGroup[0]);
-			
+		NotDeletedItemGroup = ?(NotDeletedItemGroup.Count() = 0, Undefined, NotDeletedItemGroup[0]);
+
 		If NotDeletedItemGroup = Undefined Then
 			NotDeletedItemGroup = NotDeletedItemsTree.Rows.Add();
 			NotDeletedItemGroup.PictureNumber   = -1;
@@ -1312,26 +1303,25 @@ Procedure AddTreeRow(NotDeletedItemsTree, ItemToDeleteRef, TypesInformation)
 		TreeRow.Check = True;
 		TreeRow.LinkCount = TreeRow.LinkCount + 1;
 	EndIf;
-	
+
 EndProcedure
 
 Procedure AddNotDeletedItemRelationsRow(NotDeletedItemsLinksTable, Cause, TypesInformation, Attributes)
-	
+
 	PictureNumber = 0;
 	Kind = "";
 	FoundStatus = "";
-	
+
 	If Cause.Metadata <> Undefined And Metadata.Constants.Contains(Cause.Metadata) Then
 		ObjectType = Type("ConstantValueManager." + Cause.Metadata.Name);
 	Else
 		ObjectType = TypeOf(Cause.UsageInstance1);
 	EndIf;
-	
+
 	TableRow = NotDeletedItemsLinksTable.Add();
 	TableRow.ItemToDeleteRef    = Cause.ItemToDeleteRef;
 	TableRow.IsError          = ValueIsFilled(Cause.ErrorDescription);
-	TableRow.FoundItemReference = ?(TableRow.IsError,
-		Cause.ErrorDescription, Cause.UsageInstance1);
+	TableRow.FoundItemReference = ?(TableRow.IsError, Cause.ErrorDescription, Cause.UsageInstance1);
 
 	If TableRow.IsError Or Cause.Metadata = Undefined Then
 		TableRow.Presentation = Cause.DetailedErrorDetails;
@@ -1340,8 +1330,8 @@ Procedure AddNotDeletedItemRelationsRow(NotDeletedItemsLinksTable, Cause, TypesI
 		TableRow.FoundItemReference = Cause.Metadata.FullName();
 		TableRow.IsConstant = True;
 		TableRow.ReferenceType = False;
-		TableRow.Presentation = Common.ObjectPresentation(Cause.Metadata)
-			+ " (" + NStr("en = 'Constant';") + ")";
+		TableRow.Presentation = Common.ObjectPresentation(Cause.Metadata) + " (" + NStr(
+			"en = 'Constant';") + ")";
 		Kind = "CONSTANT";
 	Else
 		TypeInformation = TypeInformation(ObjectType, TypesInformation);
@@ -1351,31 +1341,30 @@ Procedure AddNotDeletedItemRelationsRow(NotDeletedItemsLinksTable, Cause, TypesI
 		ElsIf TypeInformation.Referential Then
 			Values = Attributes[Cause.UsageInstance1];
 			FoundStatus = ?(Values.DeletionMark, "Removed", "");
-		EndIf;	
-		
+		EndIf;
+
 		TableRow.ReferenceType = TypeInformation.Referential;
 		If Common.IsRegister(Cause.Metadata) Then
-			TableRow.Presentation = Common.ObjectPresentation(Cause.Metadata)
-				+ " (" + NStr("en = 'Register';") + ")";
-		Else	
+			TableRow.Presentation = Common.ObjectPresentation(Cause.Metadata) + " (" + NStr(
+				"en = 'Register';") + ")";
+		Else
 			TableRow.Presentation = String(Cause.UsageInstance1) + " ("
 				+ TypeInformation.ItemPresentation + ")";
 		EndIf;
 		InfoAboutDeletable = TypeInformation(TypeOf(Cause.ItemToDeleteRef), TypesInformation);
 		If InfoAboutDeletable.Technical Then // 
 			TableRow.PresentationItemToDelete = InfoAboutDeletable.ItemPresentation;
-		Else	
+		Else
 			TableRow.PresentationItemToDelete = String(Cause.ItemToDeleteRef);
 		EndIf;
 
 		Kind = TypeInformation.Kind;
 	EndIf;
-	
+
 	PictureNumber = TableRow.PictureNumber;
-	TableRow.PictureNumber = ?(PictureNumber <> 0, PictureNumber, 
-		PictureNumber(TableRow.FoundItemReference, TableRow.ReferenceType,
-			Kind, FoundStatus));
-		
+	TableRow.PictureNumber = ?(PictureNumber <> 0, PictureNumber, PictureNumber(TableRow.FoundItemReference,
+		TableRow.ReferenceType, Kind, FoundStatus));
+
 EndProcedure
 
 // Parameters:
@@ -1396,52 +1385,50 @@ EndProcedure
 //   * NotTrash - Array of AnyRef
 //   * Success - Boolean
 // 
-Function ToDeleteMarkedObjectsInternal(ObjectsToDelete, DeletionMode = "Standard", 
+Function ToDeleteMarkedObjectsInternal(ObjectsToDelete, DeletionMode = "Standard",
 	JobID = Undefined, IsScheduledJob = False) Export
-	
+
 	AllowedModes = AllowedDeletionModes();
 	If AllowedModes.Find(DeletionMode) = Undefined Then
 		ErrorText = NStr("en = 'Invalid value of the %1 parameter in %2.
-			           |Expected value: %3.
-					   |Actual value: %4 (type: %5).';");
-		
-		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText,
-			"DeletionMode",
-			"ToDeleteMarkedObjects",
-			StrConcat(AllowedModes, Chars.LF+"-"),
-			DeletionMode,
-			TypeOf(DeletionMode));
+						   |Expected value: %3.
+						   |Actual value: %4 (type: %5).';");
+
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText, "DeletionMode",
+			"ToDeleteMarkedObjects", StrConcat(AllowedModes, Chars.LF + "-"), DeletionMode, TypeOf(
+			DeletionMode));
 		Raise ErrorText;
 	EndIf;
-	
+
 	Result = New Structure("ObjectsPreventingDeletion, Trash, NotTrash, Success");
-	
-	DeletionParameters = DataProcessors.MarkedObjectsDeletion.DeletionParameters(); 
+
+	DeletionParameters = DataProcessors.MarkedObjectsDeletion.DeletionParameters();
 	DeletionParameters.UserObjects = ObjectsToDelete;
 	If DeletionMode = "Exclusive" Then
 		SetExclusiveModeIfNecessary(True, JobID);
 		DeletionParameters.Exclusively = True;
-	ElsIf DeletionMode = "Simplified" Then 	
+	ElsIf DeletionMode = "Simplified" Then
 		DeletionParameters.ClearRefsInUsageInstances = True;
 	EndIf;
 	DeletionParameters.Mode = DeletionMode;
 	DeletionParameters.IsScheduledJob = IsScheduledJob;
-	
+
 	Try
-		DeletionResult = DataProcessors.MarkedObjectsDeletion.ToDeleteMarkedObjects(DeletionParameters, JobID);
+		DeletionResult = DataProcessors.MarkedObjectsDeletion.ToDeleteMarkedObjects(DeletionParameters,
+			JobID);
 		If CommonClientServer.StructureProperty(DeletionParameters, "Exclusively", False) And ExclusiveMode() Then
-			SetExclusiveModeIfNecessary(False, JobID);	
+			SetExclusiveModeIfNecessary(False, JobID);
 		EndIf;
 	Except
 		If CommonClientServer.StructureProperty(DeletionParameters, "Exclusively", False) Then
-			SetExclusiveModeIfNecessary(False, JobID);	
+			SetExclusiveModeIfNecessary(False, JobID);
 		EndIf;
 		Raise;
 	EndTry;
-	
+
 	FillPropertyValues(Result, DeletionResult);
 	Result.Success = Result.NotTrash.Count() = 0;
-	
+
 	Return Result;
 EndFunction
 
@@ -1476,14 +1463,14 @@ Function IsTechnicalObject(Val FullObjectName)
 			Return True;
 		EndIf;
 	EndIf;
-	
+
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsInternal = Common.CommonModule("FilesOperationsInternal");
 		If ModuleFilesOperationsInternal.IsTechnicalObject(FullObjectName) Then
 			Return True;
 		EndIf;
 	EndIf;
-	
+
 	If Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 		ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
 		If ModuleDataExchangeServer.IsTechnicalObject(FullObjectName) Then
@@ -1491,9 +1478,8 @@ Function IsTechnicalObject(Val FullObjectName)
 		EndIf;
 	EndIf;
 
-	Return FullObjectName = Upper("Catalog.MetadataObjectIDs")
-		Or FullObjectName = Upper("Catalog.ExtensionObjectIDs") 
-		Or FullObjectName = Upper("Catalog.ExtensionsVersions");
+	Return FullObjectName = Upper("Catalog.MetadataObjectIDs") Or FullObjectName = Upper(
+		"Catalog.ExtensionObjectIDs") Or FullObjectName = Upper("Catalog.ExtensionsVersions");
 
 EndFunction
 
@@ -1509,11 +1495,10 @@ EndFunction
 //   Number - 
 //
 Function PictureNumber(Val ReferenceOrData, Val ReferenceType, Val Kind, Val Status) Export
-	
+
 	Kind = Upper(Kind);
 	If ReferenceType Then
-		If Kind = "CATALOG"
-			Or Kind = "CHARTOFCHARACTERISTICTYPES" Then
+		If Kind = "CATALOG" Or Kind = "CHARTOFCHARACTERISTICTYPES" Then
 			PictureNumber = 3;
 		ElsIf Kind = "DOCUMENT" Then
 			PictureNumber = 12;
@@ -1552,7 +1537,7 @@ Function PictureNumber(Val ReferenceOrData, Val ReferenceType, Val Kind, Val Sta
 			PictureNumber = 8;
 		EndIf;
 	EndIf;
-	
+
 	Return PictureNumber;
 EndFunction
 
@@ -1560,28 +1545,28 @@ Procedure SetExclusiveModeIfNecessary(ExclusiveModeValue, JobID)
 	If ValueIsFilled(JobID) Then
 		// 
 		Return;
-	EndIf;	
-	
+	EndIf;
+
 	If ExclusiveMode() <> ExclusiveModeValue Then
 		SetExclusiveMode(ExclusiveModeValue);
 	EndIf;
 EndProcedure
 
-Function CheckIfObjectsToDeleteAreUsed() 
+Function CheckIfObjectsToDeleteAreUsed()
 	IsSaaSModel = Common.DataSeparationEnabled();
 	InDataArea = ?(IsSaaSModel, Common.SeparatedDataUsageAvailable(), False);
 	If IsSaaSModel And Not InDataArea Then
 		Return False;
 	EndIf;
-	
+
 	ValueUpdatePeriod = 60000;
-	
+
 	ConstantData = MarkedObjectsDeletionCached.CheckIfObjectsToDeleteAreUsed();
 	If CurrentUniversalDateInMilliseconds() - ConstantData.TimeStamp > ValueUpdatePeriod Then
 		ConstantData.Value = Constants.CheckIfObjectsToDeleteAreUsed.Get();
 		ConstantData.TimeStamp = CurrentUniversalDateInMilliseconds();
 	EndIf;
-	
+
 	Return ConstantData.Value;
 EndFunction
 
@@ -1628,7 +1613,7 @@ EndFunction
 //
 Function NewTreeOfDeletableObjects(AdditionalAttributesNumber = 0)
 	Result = New ValueTree;
-	Result.Columns.Add("Check", New TypeDescription("Number",,,New NumberQualifiers(1,0)));
+	Result.Columns.Add("Check", New TypeDescription("Number", , , New NumberQualifiers(1, 0)));
 	Result.Columns.Add("ItemToDeleteRef");
 	Result.Columns.Add("Presentation", New TypeDescription("String"));
 	Result.Columns.Add("PresentationItemToDelete", New TypeDescription("String"));
@@ -1666,7 +1651,7 @@ Function NotDeletedItemsLinks()
 	Table.Columns.Add("ReferenceType", New TypeDescription("Boolean"));
 	Table.Columns.Add("IsError", New TypeDescription("Boolean"));
 	Table.Columns.Add("IsConstant", New TypeDescription("Boolean"));
-	
+
 	Table.Indexes.Add("ItemToDeleteRef");
 
 	Return Table;
@@ -1689,7 +1674,7 @@ Function ObjectsPreventingDeletion() Export
 	Table.Columns.Add("FoundItemReference");
 	Table.Columns.Add("PresentationItemToDelete", New TypeDescription("String"));
 	Table.Columns.Add("Presentation", New TypeDescription("String"));
-	
+
 	Table.Indexes.Add("ItemToDeleteRef");
 
 	Return Table;

@@ -22,7 +22,7 @@
 //  Array of String
 //
 Function AttributesToEditInBatchProcessing() Export
-	
+
 	Result = New Array;
 	Result.Add("Author");
 	Result.Add("Importance");
@@ -32,7 +32,7 @@ Function AttributesToEditInBatchProcessing() Export
 	Result.Add("TaskDueDate");
 	Result.Add("VerificationDueDate");
 	Return Result;
-	
+
 EndFunction
 
 // End StandardSubsystems.BatchEditObjects
@@ -53,18 +53,18 @@ EndFunction
 //    * FormName - String -
 //
 Function TaskExecutionForm(TaskRef, BusinessProcessRoutePoint) Export
-	
+
 	Result = New Structure;
 	Result.Insert("FormParameters", New Structure("Key", TaskRef));
-	
+
 	FormName = ?(BusinessProcessRoutePoint.Name = "Validate",
 		Metadata.BusinessProcesses.Job.Forms.ActionCheck.FullName(),
 		Metadata.BusinessProcesses.Job.Forms.ActionExecute.FullName());
 
 	Result.Insert("FormName", FormName);
-	
+
 	Return Result;
-	
+
 EndFunction
 
 // The function is called when forwarding a task.
@@ -79,12 +79,12 @@ Procedure OnForwardTask(TaskRef, NewTaskRef) Export
 	// 
 	BusinessProcessObject = TaskRef.BusinessProcess.GetObject();
 	LockDataForEdit(BusinessProcessObject.Ref);
-	BusinessProcessObject.ExecutionResult = ExecutionResultOnForward(TaskRef) 
+	BusinessProcessObject.ExecutionResult = ExecutionResultOnForward(TaskRef)
 		+ BusinessProcessObject.ExecutionResult;
 	SetPrivilegedMode(True);
 	BusinessProcessObject.Write();
 	// ACC:1327-on
-	
+
 EndProcedure
 
 // The function is called when a task is executed from a list form.
@@ -95,7 +95,7 @@ EndProcedure
 //   BusinessProcessRoutePoint - BusinessProcessRoutePointRef - Route point.
 //
 Procedure DefaultCompletionHandler(TaskRef, BusinessProcessRef, BusinessProcessRoutePoint) Export
-	
+
 	IsRoutePointComplete = (BusinessProcessRoutePoint = BusinessProcesses.Job.RoutePoints.Execute);
 	IsRoutePointCheck = (BusinessProcessRoutePoint = BusinessProcesses.Job.RoutePoints.Validate);
 	If Not IsRoutePointComplete And Not IsRoutePointCheck Then
@@ -106,25 +106,25 @@ Procedure DefaultCompletionHandler(TaskRef, BusinessProcessRef, BusinessProcessR
 	BeginTransaction();
 	Try
 		BusinessProcessesAndTasksServer.LockBusinessProcesses(BusinessProcessRef);
-		
+
 		SetPrivilegedMode(True);
 		JobObject = BusinessProcessRef.GetObject();
 		LockDataForEdit(JobObject.Ref);
-		
+
 		If IsRoutePointComplete Then
-			JobObject.Completed2 = True;	
+			JobObject.Completed2 = True;
 		ElsIf IsRoutePointCheck Then
 			JobObject.Completed2 = True;
 			JobObject.Accepted = True;
 		EndIf;
 		JobObject.Write(); // 
-		
+
 		CommitTransaction();
 	Except
 		RollbackTransaction();
 		Raise;
-	EndTry;	
-	
+	EndTry;
+
 EndProcedure	
 
 // End StandardSubsystems.BusinessProcessesAndTasks
@@ -135,7 +135,7 @@ EndProcedure
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
 //
 Procedure OnFillAccessRestriction(Restriction) Export
-	
+
 	Restriction.Text =
 	"AttachAdditionalTables
 	|ThisList AS Job
@@ -163,7 +163,7 @@ Procedure OnFillAccessRestriction(Restriction) Export
 	|AllowUpdateIfReadingAllowed
 	|WHERE
 	|	ValueAllowed(Author)";
-	
+
 EndProcedure
 
 // End StandardSubsystems.AccessManagement
@@ -177,7 +177,7 @@ EndProcedure
 //  Parameters - See GenerateFromOverridable.BeforeAddGenerationCommands.Parameters
 //
 Procedure AddGenerationCommands(GenerationCommands, Parameters) Export
-	
+
 EndProcedure
 
 // For use in the AddCreateOnBasisCommands procedure of other object manager modules.
@@ -190,18 +190,19 @@ EndProcedure
 //  ValueTableRow, Undefined - Details of the added command.
 //
 Function AddGenerateCommand(GenerationCommands) Export
-	
+
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleGeneration = Common.CommonModule("GenerateFrom");
-		Command = ModuleGeneration.AddGenerationCommand(GenerationCommands, Metadata.BusinessProcesses.Job);
+		Command = ModuleGeneration.AddGenerationCommand(GenerationCommands,
+			Metadata.BusinessProcesses.Job);
 		If Command <> Undefined Then
 			Command.FunctionalOptions = "UseBusinessProcessesAndTasks";
 		EndIf;
 		Return Command;
 	EndIf;
-	
+
 	Return Undefined;
-	
+
 EndFunction
 
 // End StandardSubsystems.AttachableCommands
@@ -227,26 +228,28 @@ EndFunction
 //    ** SubjectOf - FormFieldExtensionForALabelField
 // 
 Procedure SetTaskFormItemsState(Form) Export
-	
+
 	If Form.Items.Find("ExecutionResult") <> Undefined 
 		And Form.Items.Find("ExecutionHistory") <> Undefined Then
-			Form.Items.ExecutionHistory.Picture = CommonClientServer.CommentPicture(Form.JobExecutionResult);
+		Form.Items.ExecutionHistory.Picture = CommonClientServer.CommentPicture(
+			Form.JobExecutionResult);
 	EndIf;
-	
+
 	Form.Items.SubjectOf.Hyperlink = Form.Object.SubjectOf <> Undefined And Not Form.Object.SubjectOf.IsEmpty();
-	Form.SubjectString = Common.SubjectString(Form.Object.SubjectOf);	
-	
+	Form.SubjectString = Common.SubjectString(Form.Object.SubjectOf);
+
 EndProcedure
 
 Function ExecutionResultOnForward(Val TaskRef)
-	
+
 	StringFormat = "%1, %2 " + NStr("en = 'redirected the task';") + ":
-		|%3
-		|";
-	
+																	   |%3
+																	   |";
+
 	Comment = TrimAll(TaskRef.ExecutionResult);
 	Comment = ?(IsBlankString(Comment), "", Comment + Chars.LF);
-	Result = StringFunctionsClientServer.SubstituteParametersToString(StringFormat, TaskRef.CompletionDate, TaskRef.Performer, Comment);
+	Result = StringFunctionsClientServer.SubstituteParametersToString(StringFormat, TaskRef.CompletionDate,
+		TaskRef.Performer, Comment);
 	Return Result;
 
 EndFunction

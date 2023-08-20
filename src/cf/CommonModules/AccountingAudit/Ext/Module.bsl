@@ -99,9 +99,62 @@ Procedure ExecuteChecksInContext(AccountingChecksContext) Export
 	
 	ChecksByContext = AccountingAuditInternal.ChecksByContext(AccountingChecksContext);
 	
-	For Each Validation In ChecksByContext Do
-		ExecuteCheck(Validation);
+	MethodParameters        = New Map;
+	CheckUpperBoundary = ChecksByContext.UBound();
+	
+	For IndexOfCheck = 0 To CheckUpperBoundary Do
+		ParametersArray = New Array;
+		ParametersArray.Add(ChecksByContext[IndexOfCheck]);
+		
+		MethodParameters.Insert(IndexOfCheck, ParametersArray);
 	EndDo;
+	
+	ProcedureName = "AccountingAudit.ExecuteCheck";
+	
+	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Data integrity';");
+	ExecutionParameters.WaitCompletion = Undefined;
+	
+	ExecutionResult = TimeConsumingOperations.ExecuteProcedureinMultipleThreads(
+		ProcedureName,
+		ExecutionParameters,
+		MethodParameters);
+	
+	If ExecutionResult.Status <> "Completed2" Then
+		If ExecutionResult.Status = "Error" Then
+			ErrorText = ExecutionResult.DetailErrorDescription;
+		ElsIf ExecutionResult.Status = "Canceled" Then
+			ErrorText = NStr("en = 'The background job is canceled.';");
+		Else
+			ErrorText = NStr("en = 'Background job error';");
+		EndIf;
+		Raise ErrorText;
+	EndIf;
+	
+	Results = GetFromTempStorage(ExecutionResult.ResultAddress); // Map
+	If TypeOf(Results) <> Type("Map") Then
+		ErrorText = NStr("en = 'The background job did not return a result';");
+		Raise ErrorText;
+	EndIf;
+	
+	For Each ResultDetails In Results Do
+		Result = ResultDetails.Value; // See TimeConsumingOperations.ExecuteProcedure
+		If Result.Status <> "Completed2" Then
+			If Result.Status = "Error" Then
+				ErrorText = Result.DetailErrorDescription;
+			ElsIf Result.Status = "Canceled" Then
+				ErrorText = NStr("en = 'The background job is canceled.';");
+			Else
+				ErrorText = NStr("en = 'Background job error';");
+			EndIf;
+			Raise ErrorText;
+		EndIf;
+	EndDo;
+	
+	If MethodParameters.Count() <> Results.Count() Then
+		ErrorText = NStr("en = 'Some checks were not performed';");
+		Raise ErrorText;
+	EndIf;
 	
 EndProcedure
 
@@ -109,8 +162,8 @@ EndProcedure
 //
 // Parameters:
 //   ChecksKind                - CatalogRef.ChecksKinds - a reference to a check kind.
-//                              - String - String ID of the check kind (Property1).
-//                              - Array - String IDs of the check kind (Property1…PropertyN).
+//                              - String - 
+//                              - Array of String - 
 //   SearchByExactMap - Boolean - regulates accuracy capabilities. If True, the search is conducted
 //                                by the passed properties for equality, other properties must be equal
 //                                Undefined (tabular section of additional properties has to be blank).
@@ -149,8 +202,8 @@ EndFunction
 //
 // Parameters:
 //   ChecksKind                - CatalogRef.ChecksKinds - a reference to a check kind.
-//                              - String - String ID of the check kind (Property1).
-//                              - Array - String IDs of the check kind (Property1…PropertyN).
+//                              - String - 
+//                              - Array of String - 
 //   SearchByExactMap - Boolean - if True, the check kind is determined by the exact match of
 //                                all property values in the ChecksKind parameter (see example 2). 
 //                                If False, the check kind is determined both by the specified property values
@@ -309,7 +362,7 @@ EndFunction
 //     AnotherParameters - Array - other check parameters (items of the AnyRef, Boolean, Number, String, and Date types).
 //
 // Returns:
-//    Structure - Check parameters in the following format:
+//    Structure:
 //       * Description - String - a check kind presentation. 
 //       * Property1 - AnyRef
 //                   - Boolean
@@ -327,11 +380,11 @@ EndFunction
 //                   - String
 //                   - Date - Check's third parameter.
 //       ...                                              
-//       * PropertyN - AnyRef
+//       * СвойствоН - AnyRef
 //                   - Boolean
 //                   - Number
 //                   - String
-//                   - Date - Check kind's last parameter.
+//                   - Date - 
 //
 // Example:
 //     1. Parameters = CheckExecutionParameters("SystemChecks");
@@ -395,7 +448,7 @@ EndProcedure
 //
 // Returns:
 //   Structure:
-//     * ObjectWithIssue         - AnyRef - Reference to the object that is the Source of issues.
+//     * ObjectWithIssue         - AnyRef -
 //     * Validation                 - CatalogRef.AccountingCheckRules - a reference to the executed check.
 //                                  Taken from the CheckParameters structure.
 //     * CheckKind              - CatalogRef.ChecksKinds - Reference to the completed check's kind.
@@ -803,8 +856,9 @@ EndFunction
 //
 // Parameters:
 //   ChecksKind                - String
-//                              - Array - String ID of a check kind (Property1),
-//                                or an array of IDs (Property1…PropertyN), or a reference to a check kind.
+//                              - Array of String 
+//                              - CatalogRef.ChecksKinds - 
+//                                
 //   SearchByExactMap - Boolean - regulates accuracy capabilities. If True, the search is conducted
 //                                by the passed properties for equality, other properties must be equal
 //                                Undefined (tabular section of additional properties has to be blank).
@@ -862,10 +916,15 @@ EndFunction
 // or other settings.
 //
 Procedure UpdateAccountingChecksParameters() Export
-	AccountingAuditInternal.UpdateAccountingChecksParameters();
+	
+	If Not Common.DataSeparationEnabled() Then
+		AccountingAuditInternal.UpdateAccountingChecksParameters();
+	EndIf;
+	
 	If AccountingAuditInternal.HasChangesOfAccountingChecksParameters() Then
 		AccountingAuditInternal.UpdateAuxiliaryRegisterDataByConfigurationChanges();
 	EndIf;
+	
 EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
@@ -875,8 +934,8 @@ EndProcedure
 //
 // Parameters:
 //   ChecksKind                - CatalogRef.ChecksKinds - a reference to a check kind.
-//                              - String - String ID of the check kind (Property1).
-//                              - Array - String IDs of the check kind (Property1…PropertyN).
+//                              - String - 
+//                              - Array of String - 
 //   SearchByExactMap - Boolean - regulates accuracy capabilities. If True, the search is conducted
 //                                by the passed properties for equality, other properties must be equal
 //                                Undefined (tabular section of additional properties has to be blank).
@@ -951,8 +1010,8 @@ EndFunction
 //
 // Parameters:
 //   ChecksKind                - CatalogRef.ChecksKinds - a reference to a check kind.
-//                              - String - String ID of the check kind (Property1).
-//                              - Array - String IDs of the check kind (Property1…PropertyN).
+//                              - String - 
+//                              - Array of String - 
 //   SearchByExactMap - Boolean - regulates accuracy capabilities. If True, the search is conducted
 //                                by the passed properties for equality, other properties must be equal
 //                                Undefined (tabular section of additional properties has to be blank).

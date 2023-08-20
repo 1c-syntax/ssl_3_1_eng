@@ -10,7 +10,7 @@
 #Region Variables
 
 &AtClient
-Var ContinuationHandlerOnWriteError, CancelOnWrite;
+Var ProcessingEndOFRECORDING, ContinuationHandlerOnWriteError, CancelOnWrite;
 
 #EndRegion
 
@@ -40,7 +40,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Items.AttributeCard.Visible = False;
 		EndIf;
 	Else
-		FillAttributeOrInfoCard();
+		FillPropertyCard();
 		// 
 		ObjectAttributesLock.LockAttributes(ThisObject);
 	EndIf;
@@ -66,8 +66,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.FillIDForFormulas.Enabled = Not Items.IDForFormulas.ReadOnly;
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.OnCreateAtServer(ThisObject, Object);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.OnCreateAtServer(ThisObject, Object);
 	EndIf;
 	
 	CurrentTitle = Object.Title;
@@ -254,8 +254,8 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 			
 		ObjectTitle = CurrentObject.Title;
 		If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-			ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-			CurrentLanguageSuffix = ModuleNativeLanguagesSupportServer.CurrentLanguageSuffix();
+			ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+			CurrentLanguageSuffix = ModuleNationalLanguageSupportServer.CurrentLanguageSuffix();
 			If ValueIsFilled(CurrentLanguageSuffix) And ValueIsFilled(CurrentObject["Title" + CurrentLanguageSuffix]) Then
 				ObjectTitle = CurrentObject["Title" + CurrentLanguageSuffix];
 			EndIf;
@@ -271,8 +271,8 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.BeforeWriteAtServer(CurrentObject);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.BeforeWriteAtServer(CurrentObject);
 	EndIf;
 	
 EndProcedure
@@ -328,8 +328,8 @@ Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	ObjectAttributesLock.LockAttributes(ThisObject);
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.OnReadAtServer(ThisObject, CurrentObject);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.OnReadAtServer(ThisObject, CurrentObject);
 	EndIf;
 	
 	RefreshFormItemsContent();
@@ -415,8 +415,8 @@ Procedure OnReadAtServer(CurrentObject)
 	// End StandardSubsystems.AccessManagement
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.OnReadAtServer(ThisObject, CurrentObject);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.OnReadAtServer(ThisObject, CurrentObject);
 	EndIf;
 	
 EndProcedure
@@ -426,9 +426,12 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure IsAdditionalInfoOnChange(Item)
+Procedure PropertyKindOnChange(Item)
 	
-	Object.IsAdditionalInfo = IsAdditionalInfo;
+	Object.PropertyKind = PropertyKind;
+	If Object.PropertyKind = PredefinedValue("Enum.PropertiesKinds.AdditionalInfo") Then
+		Object.IsAdditionalInfo = True;
+	EndIf;
 	
 	RefreshFormItemsContent();
 	
@@ -544,8 +547,8 @@ EndProcedure
 Procedure Attachable_Opening(Item, StandardProcessing)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportClient = CommonClient.CommonModule("NationalLanguageSupportClient");
-		ModuleNativeLanguagesSupportClient.OnOpen(ThisObject, Object, Item, StandardProcessing);
+		ModuleNationalLanguageSupportClient = CommonClient.CommonModule("NationalLanguageSupportClient");
+		ModuleNationalLanguageSupportClient.OnOpen(ThisObject, Object, Item, StandardProcessing);
 	EndIf;
 	
 EndProcedure
@@ -747,6 +750,7 @@ Procedure Attachable_AllowObjectAttributeEdit(Command)
 		FormParameters = New Structure;
 		FormParameters.Insert("Ref", Object.Ref);
 		FormParameters.Insert("IsAdditionalAttribute", Not Object.IsAdditionalInfo);
+		FormParameters.Insert("PropertyKind", Object.PropertyKind);
 		
 		Notification = New NotifyDescription("AfterAttributesToUnlockChoice", ThisObject);
 		OpenForm("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo.Form.AttributeUnlocking",
@@ -805,6 +809,86 @@ Procedure FillIDForFormulas(Command)
 	FillIDForFormulasAtServer();
 EndProcedure
 
+&AtClient
+Procedure PropertyGray(Command)
+	
+	Object.PropertiesColor = PredefinedValue("Enum.PropertiesColors.Gray");
+	SetLabelColor(ThisObject, Object.PropertiesColor);
+	
+EndProcedure
+
+&AtClient
+Procedure PropertyLightBlue(Command)
+	
+	Object.PropertiesColor = PredefinedValue("Enum.PropertiesColors.LightBlue");
+	SetLabelColor(ThisObject, Object.PropertiesColor);
+	
+EndProcedure
+
+&AtClient
+Procedure PropertyYellow(Command)
+	
+	Object.PropertiesColor = PredefinedValue("Enum.PropertiesColors.Yellow");
+	SetLabelColor(ThisObject, Object.PropertiesColor);
+	
+EndProcedure
+
+&AtClient
+Procedure PropertyGreen(Command)
+	
+	Object.PropertiesColor = PredefinedValue("Enum.PropertiesColors.Green");
+	SetLabelColor(ThisObject, Object.PropertiesColor);
+	
+EndProcedure
+
+&AtClient
+Procedure PropertyBrown(Command)
+	
+	Object.PropertiesColor = PredefinedValue("Enum.PropertiesColors.Lime_SSLym");
+	SetLabelColor(ThisObject, Object.PropertiesColor);
+	
+EndProcedure
+
+&AtClient
+Procedure PropertyRed(Command)
+	
+	Object.PropertiesColor = PredefinedValue("Enum.PropertiesColors.Red");
+	SetLabelColor(ThisObject, Object.PropertiesColor);
+	
+EndProcedure
+
+&AtClient
+Procedure PropertyOrange(Command)
+	
+	Object.PropertiesColor = PredefinedValue("Enum.PropertiesColors.Orange");
+	SetLabelColor(ThisObject, Object.PropertiesColor);
+	
+EndProcedure
+
+&AtClient
+Procedure PropertyPink(Command)
+	
+	Object.PropertiesColor = PredefinedValue("Enum.PropertiesColors.Pink");
+	SetLabelColor(ThisObject, Object.PropertiesColor);
+	
+EndProcedure
+
+&AtClient
+Procedure PropertyBlue(Command)
+	
+	Object.PropertiesColor = PredefinedValue("Enum.PropertiesColors.B");
+	SetLabelColor(ThisObject, Object.PropertiesColor);
+	
+EndProcedure
+
+&AtClient
+Procedure PropertyPurple(Command)
+	
+	Object.PropertiesColor = PredefinedValue("Enum.PropertiesColors.Violet");
+	SetLabelColor(ThisObject, Object.PropertiesColor);
+	
+EndProcedure
+
 #EndRegion
 
 #Region Private
@@ -817,8 +901,8 @@ Procedure UpdateSuggestedIDValue()
 		
 		Presentation = Object.Title;
 		If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-			ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-			CurrentLanguageSuffix = ModuleNativeLanguagesSupportServer.CurrentLanguageSuffix();
+			ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+			CurrentLanguageSuffix = ModuleNationalLanguageSupportServer.CurrentLanguageSuffix();
 			If ValueIsFilled(CurrentLanguageSuffix) And ValueIsFilled(Object["Title" + CurrentLanguageSuffix]) Then
 				Presentation = Object["Title" + CurrentLanguageSuffix];
 			EndIf;
@@ -839,8 +923,8 @@ Procedure FillIDForFormulasAtServer()
 	
 	TitleForID = Object.Title;
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		CurrentLanguageSuffix = ModuleNativeLanguagesSupportServer.CurrentLanguageSuffix();
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		CurrentLanguageSuffix = ModuleNationalLanguageSupportServer.CurrentLanguageSuffix();
 		If ValueIsFilled(CurrentLanguageSuffix) And ValueIsFilled(Object["Title" + CurrentLanguageSuffix]) Then
 			TitleForID = Object["Title" + CurrentLanguageSuffix];
 		EndIf;
@@ -888,8 +972,8 @@ EndProcedure
 &AtServer
 Procedure FillChoicePage()
 	
-	If PassedFormParameters.IsAdditionalInfo <> Undefined Then
-		IsAdditionalInfo = PassedFormParameters.IsAdditionalInfo;
+	If PassedFormParameters.PropertyKind <> Undefined Then
+		PropertyKind = PassedFormParameters.PropertyKind;
 	EndIf;
 	
 	Query = New Query;
@@ -907,11 +991,9 @@ Procedure FillChoicePage()
 	For Each Ref In Sets Do
 		SetPropertiesTypes = PropertyManagerInternal.SetPropertiesTypes(Ref, False);
 		
-		If IsAdditionalInfo = 1
-		   And SetPropertiesTypes.AdditionalInfo
-		 Or IsAdditionalInfo = 0
-		   And SetPropertiesTypes.AdditionalAttributes Then
-			
+		If PropertyKind = Enums.PropertiesKinds.AdditionalInfo And SetPropertiesTypes.AdditionalInfo
+			Or PropertyKind = Enums.PropertiesKinds.AdditionalAttributes And SetPropertiesTypes.AdditionalAttributes
+			Or PropertyKind = Enums.PropertiesKinds.Labels And SetPropertiesTypes.Labels Then
 			AvailableSets.Add(Ref);
 		EndIf;
 	EndDo;
@@ -962,8 +1044,10 @@ Procedure FillChoicePage()
 		EndDo;
 	EndIf;
 	
-	If IsAdditionalInfo = 1 Then
+	If PropertyKind = Enums.PropertiesKinds.AdditionalInfo Then
 		Items.UnusedAttributes.Title = NStr("en = 'Unused additional information records';");
+	ElsIf PropertyKind = Enums.PropertiesKinds.Labels Then
+		Items.UnusedAttributes.Title = NStr("en = 'Unused labels';");
 	Else
 		Items.UnusedAttributes.Title = NStr("en = 'Unused additional attributes';");
 	EndIf;
@@ -975,7 +1059,7 @@ Procedure FillChoicePage()
 		PropertiesSets, "SetsToExclude", SetsToExclude, True);
 	
 	CommonClientServer.SetDynamicListParameter(
-		PropertiesSets, "IsAdditionalInfo", (IsAdditionalInfo = 1), True);
+		PropertiesSets, "PropertyKind", PropertyKind, True);
 	
 	CommonClientServer.SetDynamicListParameter(
 		PropertiesSets, "IsMainLanguage", Common.IsMainLanguage(), True);
@@ -984,13 +1068,19 @@ Procedure FillChoicePage()
 		PropertiesSets, "LanguageCode", CurrentLanguage().LanguageCode, True);
 	
 	CommonClientServer.SetDynamicListParameter(
-		CommonPropertySets, "IsAdditionalInfo", (IsAdditionalInfo = 1), True);
+		CommonPropertySets, "PropertyKind", PropertyKind, True);
+	
+	ListPresentation = "";
+	If PropertyKind = PredefinedValue("Enum.PropertiesKinds.AdditionalInfo") Then
+		ListPresentation = NStr("en = 'Unused additional information records';");
+	ElsIf PropertyKind = PredefinedValue("Enum.PropertiesKinds.AdditionalAttributes") Then
+		ListPresentation = NStr("en = 'Unused additional attributes';");
+	ElsIf PropertyKind = PredefinedValue("Enum.PropertiesKinds.Labels") Then
+		ListPresentation = NStr("en = 'Unused labels';");
+	EndIf;
 	
 	CommonClientServer.SetDynamicListParameter(
-		CommonPropertySets, "CommonAdditionalInfo", NStr("en = 'Unused additional information records';"), True);
-	
-	CommonClientServer.SetDynamicListParameter(
-		CommonPropertySets, "CommonAdditionalAttributes", NStr("en = 'Unused additional attributes';"), True);
+		CommonPropertySets, "ListPresentation", ListPresentation, True);
 	
 	SetConditionalListAppearance(AvailableSets);
 	
@@ -1067,7 +1157,7 @@ Procedure FillAdditionalAttributesValues(ValuesOwner)
 EndProcedure
 
 &AtServer
-Procedure FillAttributeOrInfoCard()
+Procedure FillPropertyCard()
 	
 	If ValueIsFilled(PassedFormParameters.CopyingValue) Then
 		AttributeAddMode = "CreateByCopying";
@@ -1078,7 +1168,7 @@ Procedure FillAttributeOrInfoCard()
 	CurrentPropertiesSet = PassedFormParameters.CurrentPropertiesSet;
 	
 	If ValueIsFilled(Object.Ref) Then
-		Items.IsAdditionalInfo.Enabled = False;
+		Items.PropertyKind.Enabled = False;
 		ShowSetAdjustment = PassedFormParameters.ShowSetAdjustment;
 	Else
 		Object.Available = True;
@@ -1095,11 +1185,13 @@ Procedure FillAttributeOrInfoCard()
 			Object.AdditionalValuesOwner = PassedFormParameters.AdditionalValuesOwner;
 		EndIf;
 		
-		If PassedFormParameters.IsAdditionalInfo <> Undefined Then
-			Object.IsAdditionalInfo = PassedFormParameters.IsAdditionalInfo;
-			
+		If PassedFormParameters.PropertyKind <> Undefined Then
+			Object.PropertyKind = PassedFormParameters.PropertyKind;
+			If Object.PropertyKind = Enums.PropertiesKinds.AdditionalInfo Then
+				Object.IsAdditionalInfo = True;
+			EndIf;
 		ElsIf Not ValueIsFilled(PassedFormParameters.CopyingValue) Then
-			Items.IsAdditionalInfo.Visible = True;
+			Items.PropertyKind.Visible = True;
 		EndIf;
 	EndIf;
 	
@@ -1107,10 +1199,10 @@ Procedure FillAttributeOrInfoCard()
 		Object.Title = Object.Description;
 	EndIf;
 	
-	IsAdditionalInfo = ?(Object.IsAdditionalInfo, 1, 0);
+	PropertyKind = Object.PropertyKind;
 	
 	If CreateAttributeByCopying Then
-		// For cases when the attribute is copied from its card using the Copy command.
+		// 
 		If Not ValueIsFilled(PassedFormParameters.AdditionalValuesOwner) Then
 			PassedFormParameters.AdditionalValuesOwner = PassedFormParameters.CopyingValue;
 		EndIf;
@@ -1342,7 +1434,7 @@ Procedure SetAdjustmentCommentClickCompletion(SelectedElement, SelectedSet) Expo
 		SelectionValue = New Structure;
 		SelectionValue.Insert("Set", SelectedSet);
 		SelectionValue.Insert("Property", Object.Ref);
-		SelectionValue.Insert("IsAdditionalInfo", Object.IsAdditionalInfo);
+		SelectionValue.Insert("PropertyKind", Object.PropertyKind);
 		NotifyChoice(SelectionValue);
 	EndIf;
 	
@@ -1426,6 +1518,7 @@ Procedure ValueListAdjustmentChangeCompletion(Cancel, Context) Export
 	FormParameters.Insert("Property", Object.Ref);
 	FormParameters.Insert("AdditionalValuesOwner", Object.AdditionalValuesOwner);
 	FormParameters.Insert("IsAdditionalInfo", Object.IsAdditionalInfo);
+	FormParameters.Insert("PropertyKind", Object.PropertyKind);
 	
 	OpenForm("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo.Form.EditPropertySettings",
 		FormParameters, ThisObject);
@@ -1444,6 +1537,7 @@ Procedure ChangeSetAdjustmentCompletion(Cancel, Context) Export
 	FormParameters.Insert("Property", Object.Ref);
 	FormParameters.Insert("AdditionalValuesOwner", Object.AdditionalValuesOwner);
 	FormParameters.Insert("IsAdditionalInfo", Object.IsAdditionalInfo);
+	FormParameters.Insert("PropertyKind", Object.PropertyKind);
 	
 	OpenForm("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo.Form.EditPropertySettings",
 		FormParameters, ThisObject);
@@ -1488,7 +1582,8 @@ Procedure WriteObject(QuestionTextVariant, FollowUpHandler, AdditionalParameters
 	WriteParameters.Insert("ContinuationHandler", ContinuationHandler);
 	
 	If ValueIsFilled(Object.Ref) Then
-		WriteObjectContinuation("Write", WriteParameters);
+		ProcessingEndOFRECORDING = New NotifyDescription("WriteObjectContinuation", ThisObject, WriteParameters);
+		AttachIdleHandler("Pluggable_EndObjectRECORDING", 0.1, True);
 		Return;
 	EndIf;
 	
@@ -1506,6 +1601,13 @@ Procedure WriteObject(QuestionTextVariant, FollowUpHandler, AdditionalParameters
 		New NotifyDescription(
 			"WriteObjectContinuation", ThisObject, WriteParameters),
 		QueryText, Buttons, , "Write");
+	
+EndProcedure
+
+&AtClient
+Procedure Pluggable_EndObjectRECORDING()
+	
+	ExecuteNotifyProcessing(ProcessingEndOFRECORDING, "Write");
 	
 EndProcedure
 
@@ -1603,23 +1705,36 @@ Procedure SetWizardSettings(CurrentPage = Undefined)
 		CurrentPage = Items.WIzardCardPages.CurrentPage;
 	EndIf;
 	
-	ListHeaderTemplate        = NStr("en = 'Select an %1 to include in the ""%2"" set';");
-	RadioButtonHeaderTemplate = NStr("en = 'Select an option to add the ""%2"" additional %1 to the ""%3"" set';");
-	
 	If CurrentPage = Items.SelectAttribute Then
 		
-		If PassedFormParameters.IsAdditionalInfo Then
+		If PassedFormParameters.PropertyKind =
+			PredefinedValue("Enum.PropertiesKinds.AdditionalInfo") Then
 			Title = NStr("en = 'Add additional information record';");
+			ListHeaderTemplate =
+				NStr("en = 'Select an additional information record to include in the ""%1"" set';");
+			RadioButtonHeaderTemplate =
+				NStr("en = 'Select an option to add the ""%1"" additional information record to the ""%2"" set';");
+		ElsIf PassedFormParameters.PropertyKind =
+			PredefinedValue("Enum.PropertiesKinds.Labels") Then
+			Title = NStr("en = 'Add label';");
+			ListHeaderTemplate =
+				NStr("en = 'Select a label to include in the ""%1"" set';");
+			RadioButtonHeaderTemplate =
+				NStr("en = 'Select an option to add the ""%1"" label to the ""%2"" set';");
 		Else
 			Title = NStr("en = 'Add additional attribute';");
+			ListHeaderTemplate =
+				NStr("en = 'Select an additional attribute to include in the ""%1"" set';");
+			RadioButtonHeaderTemplate =
+				NStr("en = 'Select an option to add the ""%1"" additional attribute to the ""%2"" set';");
 		EndIf;
 		
 		Items.CommandBarLeft.Enabled = False;
 		Items.NextCommand.Title = NStr("en = 'Next >';");
 		
+		
 		Items.TitleDecoration.Title = StringFunctionsClientServer.SubstituteParametersToString(
 			ListHeaderTemplate,
-			?(PassedFormParameters.IsAdditionalInfo, NStr("en = 'additional information record';"), NStr("en = 'additional attribute';")),
 			String(PassedFormParameters.CurrentPropertiesSet));
 		
 	ElsIf CurrentPage = Items.ActionChoice Then
@@ -1640,12 +1755,15 @@ Procedure SetWizardSettings(CurrentPage = Undefined)
 		
 		Items.AttributeAddMode.Title = StringFunctionsClientServer.SubstituteParametersToString(
 			RadioButtonHeaderTemplate,
-			?(PassedFormParameters.IsAdditionalInfo, NStr("en = 'information record';"), NStr("en = 'attribute';")),
 			String(AdditionalValuesOwner),
 			String(PassedFormParameters.CurrentPropertiesSet));
 		
-		If PassedFormParameters.IsAdditionalInfo Then
+		If PassedFormParameters.PropertyKind =
+			PredefinedValue("Enum.PropertiesKinds.AdditionalInfo") Then
 			Title = NStr("en = 'Add additional information record';");
+		ElsIf PassedFormParameters.PropertyKind =
+			PredefinedValue("Enum.PropertiesKinds.Labels") Then
+			Title = NStr("en = 'Add label';");
 		Else
 			Title = NStr("en = 'Add additional attribute';");
 		EndIf;
@@ -1701,6 +1819,21 @@ Procedure RefreshFormItemsContent(WarningText = "")
 		SwitchAttributeDisplaySettings(Object.ValueType);
 	Else
 		Items.MultilineGroup.Visible = False;
+	EndIf;
+	
+	If Object.PropertyKind = Enums.PropertiesKinds.Labels Then
+		Object.ValueType = New TypeDescription("Boolean");
+		Items.ValueTypeGroup.Visible = False;
+		Items.GroupPropertiesColors.Visible = True;
+		Items.OutputAsHyperlink.Visible = False;
+		Items.ItemVisibilityGroup.Visible = False;
+		Items.ItemAvailabilityGroup.Visible = False;
+		Items.PropertyGray.Check = True;
+		Items.Title.TypeRestriction = New TypeDescription("String",, New StringQualifiers(15));
+		If Not ValueIsFilled(Object.PropertiesColor) Then
+			Object.PropertiesColor = Enums.PropertiesColors.Gray;
+		EndIf;
+		SetLabelColor(ThisObject, Object.PropertiesColor);
 	EndIf;
 	
 	If ValueIsFilled(Object.Ref) Then
@@ -1894,8 +2027,8 @@ Procedure RefreshFormItemsContent(WarningText = "")
 			
 		ElsIf ValueIsFilled(CurrentLanguageSuffix) 
 				And Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-					ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-					ModuleNativeLanguagesSupportServer.ChangeRequestFieldUnderCurrentLanguage(ListProperties.QueryText, "Values.Description");
+					ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+					ModuleNationalLanguageSupportServer.ChangeRequestFieldUnderCurrentLanguage(ListProperties.QueryText, "Values.Description");
 		EndIf;
 		
 		Common.SetDynamicListProperties(Items.Values,
@@ -1929,8 +2062,8 @@ Procedure RefreshFormItemsContent(WarningText = "")
 			
 		ElsIf ValueIsFilled(CurrentLanguageSuffix) 
 			And Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-				ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-				ModuleNativeLanguagesSupportServer.ChangeRequestFieldUnderCurrentLanguage(ListProperties.QueryText, "Values.Description");
+				ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+				ModuleNationalLanguageSupportServer.ChangeRequestFieldUnderCurrentLanguage(ListProperties.QueryText, "Values.Description");
 		EndIf;
 		
 		Common.SetDynamicListProperties(Items.Values, ListProperties);
@@ -1956,12 +2089,14 @@ Procedure RefreshFormItemsContent(WarningText = "")
 		Items.ValueListAdjustmentChange.Enabled    = ValueIsFilled(Object.Ref);
 		
 		OwnerProperties = Common.ObjectAttributesValues(
-			Object.AdditionalValuesOwner, "Title, IsAdditionalInfo");
+			Object.AdditionalValuesOwner, "Title, PropertyKind");
 		
-		If OwnerProperties.IsAdditionalInfo <> True Then
-			AdjustmentTemplate = NStr("en = 'The value list is shared with the ""%1"" attribute';");
-		Else
+		If OwnerProperties.PropertyKind = Enums.PropertiesKinds.AdditionalInfo Then
 			AdjustmentTemplate = NStr("en = 'The value list is shared with the ""%1"" information record';");
+		ElsIf OwnerProperties.PropertyKind = Enums.PropertiesKinds.Labels Then
+			AdjustmentTemplate = NStr("en = 'The value list is shared with the ""%1"" label';");
+		Else
+			AdjustmentTemplate = NStr("en = 'The value list is shared with the ""%1"" attribute';");
 		EndIf;
 		
 		Items.ValueListAdjustmentComment.Title =
@@ -1978,27 +2113,45 @@ Procedure RefreshFormItemsContent(WarningText = "")
 		Items.SetsAdjustmentComment.Hyperlink = True;
 		
 		Items.SetsAdjustmentChange.Enabled = ValueIsFilled(Object.Ref);
-		Items.SetsAdjustmentChange.Visible = SetsList.Count() >= 2 And ValueIsFilled(CurrentPropertiesSet);
-
+		
+		If SetsList.Count() < 2 Then
+			
+			Items.SetsAdjustmentChange.Visible = False;
+		
+		ElsIf ValueIsFilled(CurrentPropertiesSet) Then
+			Items.SetsAdjustmentChange.Visible = True;
+		Else
+			Items.SetsAdjustmentChange.Visible = False;
+		EndIf;
+		
 		If SetsList.Count() = 0 Then
 			Items.SetsAdjustmentComment.Hyperlink = False;
 			Items.SetsAdjustmentChange.Visible = False;
 			
-			If Object.IsAdditionalInfo Then
+			If Object.PropertyKind = Enums.PropertiesKinds.AdditionalInfo
+				Or Object.IsAdditionalInfo Then
 				CommentText1 = NStr("en = 'The information record is not included in any sets';");
+			ElsIf Object.PropertyKind = Enums.PropertiesKinds.Labels Then
+				CommentText1 = NStr("en = 'The label is not included in any sets';");
 			Else
 				CommentText1 = NStr("en = 'The attribute is not included in any sets';");
 			EndIf;
 		ElsIf SetsList.Count() < 2 Then
-			If Object.IsAdditionalInfo Then
+			If Object.PropertyKind = Enums.PropertiesKinds.AdditionalInfo
+				Or Object.IsAdditionalInfo Then
 				AdjustmentTemplate = NStr("en = 'The information record is included in the set: %1';");
+			ElsIf Object.PropertyKind = Enums.PropertiesKinds.Labels Then
+				AdjustmentTemplate = NStr("en = 'The label is included in the set: %1';");
 			Else
 				AdjustmentTemplate = NStr("en = 'The attribute is included in the set: %1';");
 			EndIf;
 			CommentText1 = StringFunctionsClientServer.SubstituteParametersToString(AdjustmentTemplate, TrimAll(SetsList[0].Presentation));
 		Else
-			If Object.IsAdditionalInfo Then
+			If Object.PropertyKind = Enums.PropertiesKinds.AdditionalInfo
+				Or Object.IsAdditionalInfo Then
 				AdjustmentTemplate = NStr("en = 'The information record is included in %1 %2';");
+			ElsIf Object.PropertyKind = Enums.PropertiesKinds.Labels Then
+				AdjustmentTemplate = NStr("en = 'The label is included in %1 %2';");
 			Else
 				AdjustmentTemplate = NStr("en = 'The attribute is included in %1 %2';");
 			EndIf;
@@ -2136,7 +2289,7 @@ Procedure OnCurrentPageChange(Direction, BasicPage, CurrentPage)
 			FillActionListOnAddAttribute();
 		EndIf;
 	ElsIf CurrentPage = Items.AttributeCard Then
-		FillAttributeOrInfoCard();
+		FillPropertyCard();
 	EndIf;
 	
 EndProcedure
@@ -2160,41 +2313,48 @@ Procedure FillActionListOnAddAttribute()
 	
 	AttributeWithAdditionalValuesList = AttributeWithAdditionalValuesList();
 	
-	If PassedFormParameters.IsAdditionalInfo Then
-		AddCommon = NStr("en = 'Add information record ""as is"" (recommended)
+	If PassedFormParameters.PropertyKind = Enums.PropertiesKinds.AdditionalInfo Then
+		AddCommon = NStr("en = 'Add the information record ""as is"" (recommended)
 			|
 			|You can use this information record to filter data of different types in lists and reports.';");
-		MakeBySample = NStr("en = 'Copy information record from a master record (with a shared value list)
+		MakeBySample = NStr("en = 'Copy the information record from a master record (with a shared value list)
 			|
 			|Both records will share a value list.
 			|This option is recommended to configure values for similar information records.
 			|You can edit the record description and some other properties.';");
 		If AttributeWithAdditionalValuesList Then
-			CreateByCopying = NStr("en = 'Сделать копию сведения
+			CreateByCopying = NStr("en = 'Сopy the information record
 				|
-				|Будет создана копия сведения и всех его значений.';")
+				|A copy of the information record and all its values will be created.';")
 		Else
-			CreateByCopying = NStr("en = 'Сделать копию сведения
+			CreateByCopying = NStr("en = 'Copy the information record
 				|
-				|Будет создана копия сведения.';");
+				|A copy of the information record will be created.';");
 		EndIf;
+	ElsIf PassedFormParameters.PropertyKind = Enums.PropertiesKinds.Labels Then
+		AddCommon = NStr("en = 'Add the label ""as is"" (recommended)
+			|
+			|You can use this label to filter data of different types in lists and reports.';");
+		CreateByCopying = NStr("en = 'Copy the label
+			|
+			|A copy of the label will be created.';");
 	Else
-		AddCommon = NStr("en = 'Add attribute ""as is"" (recommended)
+		AddCommon = NStr("en = 'Add the attribute ""as is"" (recommended)
 			|
 			|You can use this attribute to filter data of different types in lists and reports.';");
-		MakeBySample = NStr("en = 'Copy attribute from a master attribute (with a shared value list)
+		MakeBySample = NStr("en = 'Copy the attribute from a master attribute (with a shared value list)
 			|
 			|Both attributes will share a value list.
 			|This option is recommended to configure values for similar attributes.
 			|You can edit the attribute description and some other properties.';");
 		If AttributeWithAdditionalValuesList Then
-			CreateByCopying = NStr("en = 'Сделать копию реквизита
+			CreateByCopying = NStr("en = 'Copy the attribute
 				|
-				|Будет создана копия реквизита и всех его значений.';");
+				|A copy of the attribute and all its values will be created.';");
 		Else
-			CreateByCopying = NStr("en = 'Сделать копию реквизита
+			CreateByCopying = NStr("en = 'Copy the attribute
 				|
-				|Будет создана копия реквизита.';");
+				|A copy of the attribute will be created.';");
 		EndIf;
 	EndIf;
 	
@@ -2235,7 +2395,7 @@ Procedure WriteAdditionalAttributeValuesOnCopyRecursively(Owner, TreeRow, Parent
 		ObjectCopy = TreeItem.Ref.GetObject().Copy();
 		ObjectCopy.Owner = Owner;
 		ObjectCopy.Parent = Parent;
-		ObjectCopy.Write();
+		ObjectCopy.Write(); // 
 		
 		SubordinateItems = TreeItem.GetItems();
 		WriteAdditionalAttributeValuesOnCopyRecursively(Owner, SubordinateItems, ObjectCopy.Ref)
@@ -2298,14 +2458,20 @@ EndProcedure
 Procedure SetFormHeader()
 	
 	If ValueIsFilled(Object.Ref) Then
-		If Object.IsAdditionalInfo Then
+		If Object.PropertyKind = Enums.PropertiesKinds.AdditionalInfo
+			Or Object.IsAdditionalInfo Then
 			Title = String(Object.Title) + " " + NStr("en = '(Additional information record)';");
+		ElsIf Object.PropertyKind = Enums.PropertiesKinds.Labels Then
+			Title = String(Object.Title) + " " + NStr("en = '(Label)';");
 		Else
 			Title = String(Object.Title) + " " + NStr("en = '(Additional attribute)';");
 		EndIf;
 	Else
-		If Object.IsAdditionalInfo Then
+		If Object.PropertyKind = Enums.PropertiesKinds.AdditionalInfo
+			Or Object.IsAdditionalInfo Then
 			Title = NStr("en = 'Additional information record (Create)';");
+		ElsIf Object.PropertyKind = Enums.PropertiesKinds.Labels Then
+			Title = NStr("en = 'Label (Create)';");
 		Else
 			Title = NStr("en = 'Additional attribute (Create)';");
 		EndIf;
@@ -2347,7 +2513,7 @@ Procedure UpdateCurrentSetPropertiesList()
 	
 	PropertyManagerInternal.UpdateCurrentSetPropertiesList(ThisObject, 
 			SelectedPropertiesSet,
-			IsAdditionalInfo = 1);
+			PropertyKind);
 	
 EndProcedure
 
@@ -2357,7 +2523,7 @@ Procedure NewPassedParametersStructure()
 	PassedFormParameters.Insert("AdditionalValuesOwner");
 	PassedFormParameters.Insert("ShowSetAdjustment", True);
 	PassedFormParameters.Insert("CurrentPropertiesSet");
-	PassedFormParameters.Insert("IsAdditionalInfo");
+	PassedFormParameters.Insert("PropertyKind");
 	PassedFormParameters.Insert("SelectSharedProperty");
 	PassedFormParameters.Insert("SelectedValues");
 	PassedFormParameters.Insert("SelectAdditionalValuesOwner");
@@ -2380,11 +2546,11 @@ EndProcedure
 Function DescriptionAlreadyUsed(Val Title, Val CurrentProperty, Val PropertiesSet, NewDescription, Val TitleLanguage1, Val TitleLanguage2)
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 		
-		If ModuleNativeLanguagesSupportServer.FirstAdditionalInfobaseLanguageCode() = CurrentLanguage().LanguageCode Then
+		If ModuleNationalLanguageSupportServer.FirstAdditionalInfobaseLanguageCode() = CurrentLanguage().LanguageCode Then
 			Title = TitleLanguage1;
-		ElsIf ModuleNativeLanguagesSupportServer.SecondAdditionalInfobaseLanguageCode() = CurrentLanguage().LanguageCode Then
+		ElsIf ModuleNationalLanguageSupportServer.SecondAdditionalInfobaseLanguageCode() = CurrentLanguage().LanguageCode Then
 			Title = TitleLanguage2;
 		EndIf;
 	
@@ -2427,6 +2593,24 @@ Procedure SetFormatButtonTitle(Form)
 	EndIf;
 	
 	Form.Items.EditValueFormat.Title = TitleText;
+	
+EndProcedure
+
+&AtClientAtServerNoContext
+Procedure SetLabelColor(Form, ColorOfLabel)
+	
+	Items = Form.Items;
+	Items.PropertyGray.Check = (ColorOfLabel = PredefinedValue("Enum.PropertiesColors.EmptyRef")
+								Or ColorOfLabel = PredefinedValue("Enum.PropertiesColors.Gray"));
+	Items.PropertyLightBlue.Check = (ColorOfLabel = PredefinedValue("Enum.PropertiesColors.LightBlue"));
+	Items.PropertyYellow.Check = (ColorOfLabel = PredefinedValue("Enum.PropertiesColors.Yellow"));
+	Items.PropertyGreen.Check = (ColorOfLabel = PredefinedValue("Enum.PropertiesColors.Green"));
+	Items.PropertyLime.Check = (ColorOfLabel = PredefinedValue("Enum.PropertiesColors.Lime_SSLym"));
+	Items.PropertyRed.Check = (ColorOfLabel = PredefinedValue("Enum.PropertiesColors.Red"));
+	Items.PropertyOrange.Check = (ColorOfLabel = PredefinedValue("Enum.PropertiesColors.Orange"));
+	Items.PropertyPink.Check = (ColorOfLabel = PredefinedValue("Enum.PropertiesColors.Pink"));
+	Items.PropertyBlue.Check = (ColorOfLabel = PredefinedValue("Enum.PropertiesColors.B"));
+	Items.PropertyPurple.Check = (ColorOfLabel = PredefinedValue("Enum.PropertiesColors.Violet"));
 	
 EndProcedure
 

@@ -52,7 +52,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Registration and message numbers</v8:content>
+					<v8:content>Registration and message numeration</v8:content>
 				</v8:item>
 			</Title>
 			<Group>Horizontal</Group>
@@ -65,7 +65,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Autostage</v8:content>
+							<v8:content>Autoregistration</v8:content>
 						</v8:item>
 					</Title>
 					<Group>Horizontal</Group>
@@ -81,7 +81,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Autostage vertical</v8:content>
+									<v8:content>Autoregistration vertical</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Vertical</Group>
@@ -144,7 +144,7 @@
 										<Presentation>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Stage as unsent</v8:content>
+												<v8:content>Register as unsent</v8:content>
 											</v8:item>
 										</Presentation>
 										<Value xsi:type="xs:decimal">0</Value>
@@ -278,7 +278,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Consider data migration restrictions on stage change</v8:content>
+							<v8:content>Consider data migration restrictions on register change</v8:content>
 						</v8:item>
 					</Title>
 					<TitleLocation>Right</TitleLocation>

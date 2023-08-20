@@ -554,6 +554,7 @@ Procedure UpdateUserRoles(Val UsersDetails = Undefined,
 	EndIf;
 	StandardExtensionRoles = AccessManagementInternalCached.DescriptionStandardRolesSessionExtensions().SessionRoles;
 	AdditionalAdministratorRoles = New Map(StandardExtensionRoles.AdditionalAdministratorRoles);
+	OnPrepareAdminAdditionalRoles(AdditionalAdministratorRoles);
 	AdditionalAdministratorRoles.Insert("InteractiveOpenExtReportsAndDataProcessors", True);
 	
 	// Expected result after the loop ends.
@@ -1726,7 +1727,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Id = New UUID("b73c2481-f789-4b2d-b705-8219aea0e75d");
 	Handler.CheckProcedure = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
 	Handler.UpdateDataFillingProcedure = "Catalogs.AccessGroups.RegisterDataToProcessForMigrationToNewVersion";
-	Handler.DeferredProcessingQueue = 1;
 	Handler.ObjectsToRead = "Catalog.AccessGroups";
 	Handler.ObjectsToChange = "InformationRegister.AccessGroupsTables,InformationRegister.AccessGroupsValues,InformationRegister.DefaultAccessGroupsValues";
 	
@@ -1744,7 +1744,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Comment = NStr("en = 'Updates data by application changes.';");
 	Handler.Id = New UUID("b3cb643e-d5cf-40b7-9db3-6315a88c063d");
 	Handler.UpdateDataFillingProcedure = "InformationRegisters.AccessValuesGroups.RegisterDataToProcessForMigrationToNewVersion";
-	Handler.DeferredProcessingQueue = 1;
 	Handler.ObjectsToRead = "InformationRegister.AccessValuesGroups";
 	Handler.ObjectsToChange = "InformationRegister.AccessValuesGroups";
 	
@@ -1755,7 +1754,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Comment = NStr("en = 'Updates service data of access rights settings.';");
 	Handler.Id = New UUID("40d1c62f-c3f1-4608-8985-2dc618c3d758");
 	Handler.UpdateDataFillingProcedure = "InformationRegisters.ObjectsRightsSettings.RegisterDataToProcessForMigrationToNewVersion";
-	Handler.DeferredProcessingQueue = 1;
 	Handler.ObjectsToRead = "InformationRegister.ObjectsRightsSettings";
 	Handler.ObjectsToChange = "InformationRegister.ObjectsRightsSettings";
 	
@@ -2101,7 +2099,7 @@ Procedure OnSetUpSubordinateDIBNode() Export
 	
 EndProcedure
 
-// See StandardSubsystemsServer.ПриОтправкеДанныхГлавному.
+// See StandardSubsystems.OnSendDataToMaster.
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 	If AccessManagementSubsystemObjectOnlyToCreateInitialImage(DataElement) Then
@@ -3767,18 +3765,18 @@ Procedure DataFillingForAccessRestriction(DataVolume = 0, OnlyCacheAttributes = 
 	
 	If DataVolume < 10000 Then
 		WriteLogEvent(
-			NStr("en = 'Access management.Access restriction data population';",
+			NStr("en = 'Access management.Populate data for access restriction';",
 				 Common.DefaultLanguageCode()),
 			EventLogLevel.Information,
 			,
 			,
-			NStr("en = 'Access restrictions data population has completed.';"),
+			NStr("en = 'Population of access restriction data completed.';"),
 			EventLogEntryTransactionMode.Transactional);
 			
 		SetDataFillingForAccessRestriction(False);
 	Else
 		WriteLogEvent(
-			NStr("en = 'Access management.Access restriction data population';",
+			NStr("en = 'Access management.Populate data for access restriction';",
 				 Common.DefaultLanguageCode()),
 			EventLogLevel.Information,
 			,
@@ -4093,7 +4091,7 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Procedures and functions for actions performed upon changing subsystem settings.
 
-// Enables data filling for access restriction and
+// Enables data population for access restriction and
 // updates some data immediately if necessary.
 //
 // The procedure is called from the OnWrite handler of the LimitAccessAtRecordLevel constant.
@@ -4107,12 +4105,12 @@ Procedure OnChangeAccessRestrictionAtRecordLevel(AccessRestrictionAtRecordLevelE
 	
 	If AccessRestrictionAtRecordLevelEnabled Then
 		WriteLogEvent(
-			NStr("en = 'Access management.Access restriction data population';",
+			NStr("en = 'Access management.Populate data for access restriction';",
 			     Common.DefaultLanguageCode()),
 			EventLogLevel.Information,
 			,
 			,
-			NStr("en = 'Access restriction data population has started.';"),
+			NStr("en = 'Population of access restriction data started.';"),
 			EventLogEntryTransactionMode.Transactional);
 		
 		SetDataFillingForAccessRestriction(True);
@@ -6304,6 +6302,17 @@ EndFunction
 
 // For procedure UpdateUsersRoles.
 
+// 
+//
+// Parameters:
+//  AdditionalRoles - Map of KeyAndValue:
+//    * Key     - String -
+//    * Value - Boolean - Truth.
+//
+Procedure OnPrepareAdminAdditionalRoles(AdditionalRoles)
+	Return;
+EndProcedure
+
 Function CurrentUsersProperties(UsersArray)
 	
 	Query = New Query;
@@ -6832,11 +6841,28 @@ Procedure WriteUserOnRolesUpdate(UserRef, IBUser,
 				Return;
 			EndIf;
 			
-			ErrorText =
-				NStr("en = 'Cannot change administrator access
-				           |because this operation requires the user''s password.
-				           |
-				           |It can be performed only interactively.';");
+			SimplifiedInterface = SimplifiedAccessRightsSetupInterface();
+			
+			If HadFullRights Then
+				Template = NStr("en = 'To disable administrator access for user %1, enter the password of current service user %2.';");
+			Else
+				Template = NStr("en = 'To grant user %1 administrator access, enter the password of current service user %2.';");
+			EndIf;
+			
+			If HadFullRights And SimplifiedInterface Then
+				Refinement = NStr("en = 'This action can be performed only in a user card if the Administrator profile is disabled for them.';");
+			ElsIf Not HadFullRights And SimplifiedInterface Then
+				Refinement = NStr("en = 'This action can be performed only in a user card if the Administrator profile is enabled for them.';");
+			ElsIf HadFullRights Then
+				Refinement = NStr("en = 'This action can be performed only in a card of the Administrators access group or in a user card when the user is removed from the Administrators access group.';");
+			Else
+				Refinement = NStr("en = 'This action can be performed only in a card of the Administrators access group or in a user card when the user is added to the Administrators access group.';");
+			EndIf;
+			
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(Template,
+				IBUser.Name, InfoBaseUsers.CurrentUser().Name);
+			ErrorText = ErrorText + Chars.LF + Chars.LF + Refinement;
+			
 			Raise ErrorText;
 		Else
 			ModuleUsersInternalSaaS.WriteSaaSUser(UserRef,
@@ -8341,7 +8367,7 @@ Procedure CheckSubscriptionTypesUpdateAccessValuesGroups(AccessValuesWithGroups)
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'According to data retrieved from procedure ""%1""
 		           |of common module ""%2"",
-		           |flexible type collection ""%3"" is missing mandatory types:
+		           |type collection ""%3"" is missing mandatory types:
 		           |- %4';"),
 		"OnFillAccessKinds",
 		"AccessManagementOverridable",
@@ -8423,11 +8449,11 @@ Procedure CheckType1(AccessKind, Type, AllTypes, Parameters, CheckGroupsTypes = 
 		If CheckGroupsTypes Then
 			ErrorDescription =
 				NStr("en = 'The ""%1"" access value group type of the ""%2"" access kind
-				           |is not specified in flexible type collection ""%3"".';");
+				           |is not specified in the ""%3"" type collection.';");
 		Else
 			ErrorDescription =
 				NStr("en = 'The ""%1"" access value type of the ""%2"" access kind
-				           |is not specified in flexible type collection ""%3"".';");
+				           |is not specified in the ""%3"" type collection.';");
 		EndIf;
 	EndIf;
 	
@@ -9421,6 +9447,10 @@ Function AccessAllowed(DataDetails, RightUpdate, RaiseException1 = False,
 		Return False;
 	EndIf;
 	
+	If AccessManagementInternalCached.IsUserWithUnlimitedAccess(User) Then
+		Return True;
+	EndIf;
+	
 	FullName = MetadataObject.FullName();
 	
 	If Not ProductiveOption Then
@@ -9971,6 +10001,7 @@ Procedure CheckAccessBeforeWriteSource(Source, Cancel, IsRecordSet, Replacing)
 	EndIf;
 	
 	IsFullUser = Users.IsFullUser()
+		Or AccessManagementInternalCached.IsUserWithUnlimitedAccess()
 		Or Not AccessManagement.ProductiveOption();
 	
 	Source.AdditionalProperties.Insert("AccessManagementTransactionID",
@@ -10001,6 +10032,7 @@ Procedure CheckAccessOnWriteSource(Source, Cancel, IsRecordSet, Replacing)
 	EndIf;
 	
 	IsFullUser = Users.IsFullUser()
+		Or AccessManagementInternalCached.IsUserWithUnlimitedAccess()
 		Or Not AccessManagement.ProductiveOption();
 	
 	// Checking access to a new version.
@@ -10557,8 +10589,8 @@ Procedure ReportAccessError(Data, OldVersion, HasReadRight, HasUpdateRight, IsNe
 				           |%1';"), DataPresentation(Data));
 		Else
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Insufficient rights to add data:
-				           |%1';"), DataPresentation(Data));
+				NStr("en = 'Insufficient rights to add data (no Read right):
+				           |%1.';"), DataPresentation(Data));
 		EndIf;
 	EndIf;
 	
@@ -14359,8 +14391,8 @@ Procedure ProcessExecutedJobs(Context, LockedThreads = Undefined)
 	Context.HasLongRunningJobOfReceivingDataItemsBatches = False;
 	QueryDelay = Context.MaxSecondsCountOfQuickDataItemsBatchReceipt;
 	If QueryDelay > 0 Then
-		CurCurrentBusyThreads = New Map(New FixedMap(Context.LockedThreads));
-		For Each ThreadDetails In CurCurrentBusyThreads Do
+		CurrentOccupiedThreads = New Map(New FixedMap(Context.LockedThreads));
+		For Each ThreadDetails In CurrentOccupiedThreads Do
 			Stream = ThreadDetails.Value; // See NewThread
 			If Stream.BatchFromSet <> Undefined
 			 Or Stream.Job.IsRightsUpdate
@@ -14950,7 +14982,7 @@ Function LeadingThreadUpdateIndicators(Context)
 	
 	Indicators = New Structure;
 	
-	// Переменные.
+	// Variables.
 	Indicators.Insert("WorkStartInMilliseconds", CurrentUniversalDateInMilliseconds());
 	Indicators.Insert("JobAssignmentStart");
 	
@@ -14971,7 +15003,7 @@ Function LeadingThreadUpdateIndicators(Context)
 		Indicators.Insert("ThreadsExceedingExecutionTimeCount", 0);
 		Indicators.Insert("ThreadsWithNonStandardCompletionCount", 0);
 		
-		// Переменные.
+		// Variables.
 		Indicators.Insert("JobProcessingStart", 0);
 	EndIf;
 	
@@ -15001,7 +15033,7 @@ EndFunction
 // For the ControlThreadUpdateFunctions, ExecutingThreadUpdateFunctions functions.
 Procedure AddJobsExecutionIndicators(Indicators)
 	
-	// Переменные.
+	// Variables.
 	Indicators.Insert("JobWithGetBatches", True);
 	Indicators.Insert("StartFirstAttemptToExecuteJob", 0);
 	Indicators.Insert("JobExecutionStart", 0);
@@ -16497,15 +16529,19 @@ Procedure AddLeadingObjectToSpotJob(SpotJob, SpotJobToSave,
 					UpdateRestart = True;
 					Continue;
 				EndIf;
-				Filter = New Structure(StrConcat(ColumnsNames, ", "));
+				ListOfColumnNames = StrConcat(ColumnsNames, ",");
+				Filter = New Structure(ListOfColumnNames);
+				If TableToSave.Indexes.Count() = 0 Then
+					TableToSave.Indexes.Add(ListOfColumnNames);
+				EndIf;
 				For Each String In ChangesContent Do
 					FillPropertyValues(Filter, String);
 					If TableToSave.FindRows(Filter).Count() = 0 Then
-						FillPropertyValues(TableToSave.Add(), String);
 						If TableToSave.Count() >= MaxCount Then
 							UpdateRestart = True;
 							Break;
 						EndIf;
+						FillPropertyValues(TableToSave.Add(), String);
 					EndIf;
 				EndDo;
 			EndIf;
@@ -16981,7 +17017,9 @@ Function SpotJobItemsForUpdate(ParametersOfUpdate, CountInQuery, SelectedAllItem
 						Return Undefined;
 					EndIf;
 					ColumnType = New TypeDescription(Column.ValueType,, "Null");
-					If FieldTypes.Get() <> ColumnType Then
+					If FieldTypes.Get() <> ColumnType
+					 Or DataStringForHashing(Column.ValueType)
+					       <> DataStringForHashing(New TypeDescription(Column.ValueType.Types())) Then
 						Return Undefined;
 					EndIf;
 				EndDo;
@@ -20075,7 +20113,7 @@ Procedure WriteObjectsAccessKeys(ParametersOfUpdate, Context)
 	If Not ObjectType_SSLy.ContainsType(TypeOf(Context.ObjectsAccessKeysDetails[0].CurrentRef)) Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot update object access key ""%1,"" as its type ""%2""
-			           |is not specified in flexible type collection ""%3"".';"),
+			           |is not specified in the ""%3"" type collection.';"),
 			String(Context.ObjectsAccessKeysDetails[0].CurrentRef),
 			String(TypeOf(Context.ObjectsAccessKeysDetails[0].CurrentRef)),
 			"AccessKeysValuesOwner");
@@ -20444,7 +20482,7 @@ Procedure CheckAccessKeyValueType(KeyDetails, AllowedValuesTypes, ParametersOfUp
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Update of access value keys for the ""%3"" list:
 						           |cannot save value ""%1,"" as its type ""%2""
-						           |is not specified in flexible type collection ""%4"".';"),
+						           |is not specified in type collection ""%4"".';"),
 						String(Value),
 						String(TypeOf(Value)),
 						ParametersOfUpdate.List,
@@ -22491,8 +22529,10 @@ Function CalculatedCondition(Context, Condition, RootNode = False)
 				Result = "False";
 			Else
 				RightUpdate = RightsToLeadingList.Get(Context.AccessGroup);
-				If StrStartsWith(Condition.Node, "Read")    And RightUpdate <> Undefined
-				 Or StrStartsWith(Condition.Node, "Update") And RightUpdate = True Then
+				If Condition.Node = "ListReadingAllowed"     And RightUpdate <> Undefined
+				 Or Condition.Node = "ObjectReadingAllowed"    And RightUpdate <> Undefined
+				 Or Condition.Node = "ListUpdateAllowed"  And RightUpdate = True
+				 Or Condition.Node = "ObjectUpdateAllowed" And RightUpdate = True Then
 					
 					If Context.CalculateUserRights Then
 						AccessGroupMembers = Context.AccessGroupsMembers.Get(Context.AccessGroup);
@@ -23839,7 +23879,7 @@ EndFunction
 //   * TypesRestrictionsPermissionsForExternalUsers - Undefined
 //                                                - String
 //
-Function NewCacheOfRestrictionParameters() Export
+Function RestrictionParametersNewCache() Export
 	
 	Store = New Structure;
 	Store.Insert("LeadingListsChecked", New Map);
@@ -23863,10 +23903,10 @@ Function RestrictionParametersCache()
 	
 EndFunction
 
-Procedure ResetCacheOfRestrictionParameters()
+Procedure ResetRestrictionParametersCache()
 	
 	Cache = RestrictionParametersCache();
-	NewCache = NewCacheOfRestrictionParameters();
+	NewCache = RestrictionParametersNewCache();
 	
 	For Each KeyAndValue In NewCache Do
 		Cache.Insert(KeyAndValue.Key, KeyAndValue.Value);
@@ -26025,7 +26065,7 @@ Procedure SetParametersVersion(ParametersVersion, TransactionID, CommonContext,
 	
 	If Not RepeatedCall Then
 		If SetSessionParametersForTemplates Then
-			ResetCacheOfRestrictionParameters();
+			ResetRestrictionParametersCache();
 		Else
 			RefreshReusableValues();
 		EndIf;
@@ -30918,9 +30958,7 @@ Function FieldNameExpandingBasicFieldsByTypes(Alias, FieldNode)
 	
 	NumberOfTables = FieldNode.NextFieldTables[0].Count();
 	
-	If NumberOfTables >= 70 // 
-	 Or NumberOfTables > 0.7 * FieldNode.FieldTypes[0].Types().Count() Then
-		
+	If NumberOfTables >= 70 Then // 
 		Return Alias + "." + FieldNode.Name;
 	EndIf;
 	
@@ -32733,7 +32771,7 @@ EndFunction
 Function RefTypeByFullMetadataName(FullName)
 	
 	If IsRussianVersionOfMetadataObjectKind(FullName) Then
-		RefTypeName1 = StrReplace(FullName, ".", "Ref."); // @Non-NLS
+		RefTypeName1 = StrReplace(FullName, ".", "Ссылка."); // @Non-NLS-2
 	Else
 		RefTypeName1 = StrReplace(FullName, ".", "Ref.");
 	EndIf;
@@ -32746,7 +32784,7 @@ EndFunction
 Function RecordKeyTypeByFullMetadataName(FullName)
 	
 	If IsRussianVersionOfMetadataObjectKind(FullName) Then
-		NameOfTheRecordKeyType = StrReplace(FullName, ".", "RecordKey."); // @Non-NLS
+		NameOfTheRecordKeyType = StrReplace(FullName, ".", "КлючЗаписи."); // @Non-NLS-2
 	Else
 		NameOfTheRecordKeyType = StrReplace(FullName, ".", "RecordKey.");
 	EndIf;
@@ -32759,7 +32797,7 @@ EndFunction
 Function RecordsetTypeByFullMetadataName(FullName)
 	
 	If IsRussianVersionOfMetadataObjectKind(FullName) Then
-		NameOfTheRecordsetType = StrReplace(FullName, ".", "RecordSet."); // @Non-NLS
+		NameOfTheRecordsetType = StrReplace(FullName, ".", "НаборЗаписей."); // @Non-NLS-2
 	Else
 		NameOfTheRecordsetType = StrReplace(FullName, ".", "RecordSet.");
 	EndIf;
@@ -32772,7 +32810,7 @@ EndFunction
 Function ObjectManagerTypeByFullMetadataName(FullName)
 	
 	If IsRussianVersionOfMetadataObjectKind(FullName) Then
-		NameOfTheManagerType = StrReplace(FullName, ".", "Manager."); // @Non-NLS
+		NameOfTheManagerType = StrReplace(FullName, ".", "Менеджер."); // @Non-NLS-2
 	Else
 		NameOfTheManagerType = StrReplace(FullName, ".", "Manager.");
 	EndIf;
@@ -33000,7 +33038,7 @@ Procedure CheckTypeToDefineAccessKeysToRegistersRegisterField(Context)
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot prepare access restriction parameters
 			           |for the %1 list. Reason:
-			           |The following types are missing in the flexible type collection %2:
+			           |The following types are missing in the %2 type collection:
 			           |	-%3,
 			           |some fields (%4) have these types in their access restrictions:
 			           |	%5';"),
@@ -36346,7 +36384,7 @@ EndFunction
 //     * Sources - Array
 //     * FirstField - Undefined
 //     * Fields - Map of KeyAndValue:
-//         ** Key     - String - an attribute name in uppercase, including period-separated,
+//         ** Key     - String - an attribute name in uppercase, including dot-separated,
 //                                for example, OWNER.COMPANY, GOODS.PRODUCTS.
 //         ** Value - See NewFieldProperties
 //     * Predefined - Map of KeyAndValue:
@@ -36366,18 +36404,18 @@ EndFunction
 //   Structure:
 //     * FieldWithError - Number - 0 (for filling, if the field has an error.
 //          If 1, then there is an error in the name of the first part of the field.
-//          If 2, then an error is in the name of the second part of the field, i.e. after the first period).
+//          If 2, then an error is in the name of the second part of the field, i.e. after the first dot).
 //     * ErrorKind - String - NotFound, TabularSectionWithoutField,
 //          TabularSectionAfterDot.
 //     * Collection - String - a blank row (for filling, if the first part
-//           of the field exists, i.e. a field part before the first period). Options: Attributes,
+//           of the field exists, i.e. a field part before the first dot). Options: Attributes,
 //           TabularSections, StandardAttributes, StandardTabularSections,
 //           Dimensions, Resources, Graphs, AccountingFlags, ExtDimensionAccountingFlags,
 //           AddressingAttributes, SpecialFields. Special fields are
 //           Value - for the Constant.* tables,
 //           Recorder and Period - for the Sequence.* tables,
 //           RecalculationObject, CalculationType for the CalculationRegister.<Name>.<RecalculationName> tables.
-//           Fields after the first period can be related only to the following collections: Attributes,
+//           Fields after the first dot can be related only to the following collections: Attributes,
 //           StandardAttributes, AccountingFlags, and AddressingAttributes. You do not need to specify a collection
 //           for these parts of the field name.
 //     * ContainsTypes - Map of KeyAndValue:
@@ -36413,7 +36451,7 @@ EndFunction
 //     * Sources - Array
 //     * FirstField - Undefined
 //     * Fields - Map of KeyAndValue:
-//         ** Key     - String - an attribute name in uppercase, including period-separated,
+//         ** Key     - String - an attribute name in uppercase, including dot-separated,
 //                                for example, OWNER.COMPANY, GOODS.PRODUCTS.
 //         ** Value - See NewFieldProperties
 //
@@ -36997,7 +37035,7 @@ Procedure AddWordToCharsetsTable(Table,
 			IsNumber = False;
 		Else
 			NewRow.Kind = "Name";
-			NewRow.ErrorText = NStr("en = 'A name cannot start with a period.';");
+			NewRow.ErrorText = NStr("en = 'A name cannot start with a dot.';");
 			Return;
 		EndIf;
 	Else
@@ -37029,11 +37067,11 @@ Procedure AddWordToCharsetsTable(Table,
 		For Each NamePart In NameParts Do
 			If NamePart = "" And NamePartPosition > 1 Then
 				NewRow.ErrorPosition = NamePartPosition - 1;
-				NewRow.ErrorText   = NStr("en = 'A name is expected after the period.';");
+				NewRow.ErrorText   = NStr("en = 'A name is expected after the dot.';");
 				Return;
 			ElsIf NumbersChars.Get(Left(NamePart, 1)) <> Undefined Then
 				NewRow.ErrorPosition = NamePartPosition - 1;
-				NewRow.ErrorText   = NStr("en = 'In a name, a number cannot follow a period.';");
+				NewRow.ErrorText   = NStr("en = 'In a name, a number cannot follow a dot.';");
 				Return;
 			EndIf;
 			NamePartPosition = NamePartPosition + StrLen(NamePart) + 1;
@@ -37807,7 +37845,7 @@ Function RestrictionParts(InternalData)
 	PartsProperties = New Array; // Array of See NewPartProperties
 	RowIndex = 0;
 	For Each SeparatorRowIndex In SeparatorRowsIndexes Do
-		PartRows = New Array; // See CharsetsTable
+		PartRows = New Array; // Array of ValueTableRow: см. ТаблицаНаборовСимволов
 		While RowIndex < SeparatorRowIndex Do
 			PartRow = CharsetsTable[RowIndex];
 			If PartRow.Kind <> "InvalidChar" Then
@@ -37955,10 +37993,50 @@ Function RestrictionParts(InternalData)
 	
 EndFunction
 
+// 
+//  See CharsetsTable
+//           
+//  See CharsetsTable
+//  
+//              See CharsetsTable
+//
+Procedure RowAdd(Parent, String, Context)
+	
+	If TypeOf(String) = Type("ValueTableRow") Then
+		Parent.Rows.Add(Context.CharsetsTable.IndexOf(String));
+	Else
+		Parent.Rows.Add(String);
+	EndIf;
+	
+EndProcedure
+
+// Parameters:
+//  RowDescription - Number -
+//                 - ValueTableRow: см. ТаблицаНаборовСимволов
+//                 - Structure - See AdditionalString1
+//  Context - Structure:
+//              * Table - See CharsetsTable
+//
+// Returns:
+//  ValueTableRow: см. ТаблицаНаборовСимволов
+//     See AdditionalString1
+//
+Function TableRow(RowDescription, Context)
+	
+	If TypeOf(RowDescription) = Type("Number") Then
+		String = Context.CharsetsTable[RowDescription];
+	Else
+		String = RowDescription;
+	EndIf;
+	
+	Return String;
+	
+EndFunction
+
 // Returns:
 //   Structure:
-//     * Rows                   - Array of ValueTableRow
-//     * SeparatorRow        - ValueTableRow
+//     * Rows                   - Array of ValueTableRow: см. ТаблицаНаборовСимволов
+//     * SeparatorRow        - ValueTableRow: см. ТаблицаНаборовСимволов
 //     * Name                      - String
 //     * Presentation            - String
 //
@@ -38120,6 +38198,10 @@ Procedure SetRestrictionPart(RestrictionParts, PartProperties)
 EndProcedure
 
 // For the RestrictionParts function and the ParseAdditionalTables and ParseRestrictionCondition procedures.
+// Parameters:
+//  PartProperties - See NewPartProperties
+//  ErrorText - String
+//
 Procedure SetPartBeginningError(PartProperties, ErrorText)
 	
 	If TypeOf(PartProperties) = Type("ValueTable") Then
@@ -38139,6 +38221,11 @@ Procedure SetPartBeginningError(PartProperties, ErrorText)
 EndProcedure
 
 // For the ParseConnection procedure.
+//  Parameters:
+//   Rows - Array of ValueTableRow: см. ТаблицаНаборовСимволов
+//   RowIndex - Number
+//   ErrorText - String
+//
 Procedure SetErrorInsidePart(Rows, RowIndex, ErrorText)
 	
 	If RowIndex < Rows.Count() Then
@@ -38191,7 +38278,7 @@ EndProcedure
 // For the ParseRestrictionPart procedure.
 Procedure ParseAdditionalTables(PartProperties, InternalData)
 	
-	PartRows = PartProperties.Rows; // See CharsetsTable 
+	PartRows = PartProperties.Rows; // Array of ValueTableRow: см. ТаблицаНаборовСимволов
 	
 	If PartRows.Count() < 2
 	 Or PartRows[1].Kind <> "Keyword"
@@ -38233,7 +38320,7 @@ Procedure ParseAdditionalTables(PartProperties, InternalData)
 	
 	// Dividing description into groups of left connections.
 	Joins = New Array;
-	CurrentConnection = New Array;
+	CurrentConnection = New Array; // Array of ValueTableRow: см. ТаблицаНаборовСимволов
 	
 	For IndexOf = 4 To PartRows.Count()-1 Do
 		PartRow = PartRows[IndexOf];
@@ -38288,7 +38375,7 @@ EndProcedure
 // For the ParseAdditionalTables procedure.
 //
 // Parameters:
-//    Join - See CharsetsTable
+//    Join - Array of ValueTableRow: см. ТаблицаНаборовСимволов
 //
 Procedure ParseConnection(Join, PartProperties, InternalData)
 	
@@ -38856,9 +38943,14 @@ Procedure MarkTypesRepetitionsAmongThoseToCheckAndClarify(Node, Context)
 EndProcedure
 
 // For the ParseRestrictionPart procedure.
+//
+// Parameters:
+//  PartProperties - See NewPartProperties
+//  InternalData - See NewInternalData
+//
 Procedure ParseRestrictionCondition(PartProperties, InternalData)
 	
-	PartRows = PartProperties.Rows; // See CharsetsTable
+	PartRows = PartProperties.Rows;
 	ChangeKeywordTypeListToName(PartRows);
 	
 	If PartRows.Count() < 2
@@ -38937,7 +39029,7 @@ EndProcedure
 //
 Procedure ParseCondition(Condition, Content, InternalData)
 	
-	ExpressionsInParenthesesInAttachments = ExpressionsInParenthesesInAttachments(Condition);
+	ExpressionsInParenthesesInAttachments = ExpressionsInParenthesesInAttachments(Condition, InternalData);
 	
 	FunctionsWithExpressionsInParentheses = FunctionsWithExpressionsInParentheses(
 		ExpressionsInParenthesesInAttachments, InternalData);
@@ -38987,7 +39079,7 @@ EndProcedure
 // For the ParseCondition, ParseFunction, and ParseChoice procedures.
 //
 // Parameters:
-//    Condition - See CharsetsTable
+//    Condition - Array of See TableRow.RowDescription
 //
 Procedure ParseExpression(Condition, Content, CurrentContext, NestedExpression = True)
 	
@@ -38997,7 +39089,8 @@ Procedure ParseExpression(Condition, Content, CurrentContext, NestedExpression =
 	Context.Insert("LongDesc");
 	Context.Insert("String");
 	
-	For Each String In Condition Do
+	For Each RowDescription In Condition Do
+		String = TableRow(RowDescription, CurrentContext);
 		Context.String = String;
 		
 		If String.Kind = "Name"
@@ -39182,11 +39275,11 @@ Procedure ParseConnectorIn(Context)
 	NewDetails.Insert("SearchFor",  Undefined);
 	NewDetails.Insert("Values", New Array);
 	
-	ParametersContent = CommaSeparatedParameters(String);
+	ParametersContent = CommaSeparatedParameters(String, Context);
 	// The parameter missing error is already set in the FunctionsWithExpressionsInParentheses function.
 	
 	For Each ParameterDetails In ParametersContent Do
-		ParameterDescriptionLines = ParameterDetails.Rows; // See CharsetsTable
+		ParameterDescriptionLines = ParameterDetails.Rows; // Array of ValueTableRow: см. ТаблицаНаборовСимволов
 		For Each Substring In ParameterDescriptionLines Do
 			
 			ParseConnectorValueIn(Context, Substring, NewDetails);
@@ -39441,7 +39534,7 @@ Procedure ParseCheckingFunctionParameters(Context, NewDetails)
 	NewDetails.Insert("CheckTypesExceptListed", False);
 	NewDetails.Insert("ComparisonClarifications",          New Map);
 	
-	ParametersContent = CommaSeparatedParameters(String);
+	ParametersContent = CommaSeparatedParameters(String, Context);
 	
 	If ParametersContent.Count() = 0 Then
 		Return; // The parameter missing error is already set in the FunctionsWithExpressionsInParentheses function.
@@ -39459,8 +39552,8 @@ EndProcedure
 // For the ParseCheckingFunctionParameters procedure.
 //
 // Parameters:
-//    FirstParameter - Structure:
-//    * Rows - See CharsetsTable
+//  FirstParameter - Structure:
+//   * Rows - Array of ValueTableRow: см. ТаблицаНаборовСимволов
 //
 Procedure ParseFirstCheckingFunctionParameter(Context, FirstParameter, NewDetails)
 	
@@ -39492,7 +39585,7 @@ Procedure ParseFirstCheckingFunctionParameter(Context, FirstParameter, NewDetail
 	   And FirstParameter.Rows[0].Refinement = "Cast"
 	   And NewDetails.Field.Attachment = Undefined Then
 		
-		SetErrorInRow(FirstParameter.Rows[0].EndString,
+		SetErrorInRow(TableRow(FirstParameter.Rows[0].EndString, Context),
 			InsertKeywordsIntoString(Context,
 				NStr("en = 'If the ""%1"" or ""%2"" keyword is used in the ""%4"" function parameter,
 				           |a dot operator and a field name are required after the ""%3"" nested function.';"),
@@ -39543,7 +39636,7 @@ Procedure ParseFirstCheckingFunctionParameter(Context, FirstParameter, NewDetail
 		Return;
 	EndIf;
 	
-	ParametersContent = CommaSeparatedParameters(FirstParameter.Rows[2]);
+	ParametersContent = CommaSeparatedParameters(FirstParameter.Rows[2], Context);
 	
 	If ParametersContent.Count() = 0 Then
 		Return; // The parameter missing error is already set in the FunctionsWithExpressionsInParentheses function.
@@ -39566,8 +39659,8 @@ EndProcedure
 // For the ParseCheckingFunctionParameters procedure.
 // 
 // Parameters:
-//    Parameter - Structure:
-//    * Rows - See CharsetsTable
+//  Parameter - Structure:
+//    * Rows - Array of ValueTableRow: см. ТаблицаНаборовСимволов
 //
 Procedure ParseAdditionalCheckingFunctionParameter(Context, Parameter, NewDetails)
 	
@@ -39648,7 +39741,7 @@ Procedure ParseValueFunctionOrTypeFunctionParameters(String, NewDetails, IsValue
 	
 	NewDetails.Insert("Name", Undefined);
 	
-	ParametersContent = CommaSeparatedParameters(String);
+	ParametersContent = CommaSeparatedParameters(String, Context);
 	
 	If ParametersContent.Count() = 0 Then
 		Return; // The parameter missing error is already set in the FunctionsWithExpressionsInParentheses function.
@@ -39696,7 +39789,7 @@ Procedure ParseFunctionParametersTheRoleIsAvailable(String, NewDetails, Context)
 	
 	NewDetails.Insert("NameOfRole", Undefined);
 	
-	ParametersContent = CommaSeparatedParameters(String);
+	ParametersContent = CommaSeparatedParameters(String, Context);
 	
 	If ParametersContent.Count() = 0 Then
 		Return; // The parameter missing error is already set in the FunctionsWithExpressionsInParentheses function.
@@ -39730,7 +39823,7 @@ Procedure ParseTheParametersOfTheAccessRightFunction(String, NewDetails, Context
 	NewDetails.Insert("NameOfRight", Undefined);
 	NewDetails.Insert("FullMetadataObjectName", Undefined);
 	
-	ParametersContent = CommaSeparatedParameters(String);
+	ParametersContent = CommaSeparatedParameters(String, Context);
 	
 	If ParametersContent.Count() = 0 Then
 		Return; // The parameter missing error is already set in the FunctionsWithExpressionsInParentheses function.
@@ -39787,7 +39880,7 @@ Procedure ParseValueTypeFunctionParameters(Context, NewDetails)
 	String = Context.String;
 	NewDetails.Insert("Argument", Undefined);
 	
-	ParametersContent = CommaSeparatedParameters(String);
+	ParametersContent = CommaSeparatedParameters(String, Context);
 	
 	If ParametersContent.Count() = 0 Then
 		Return; // The parameter missing error is already set in the FunctionsWithExpressionsInParentheses function.
@@ -39819,7 +39912,7 @@ Procedure ParseValueTypeFunctionParameters(Context, NewDetails)
 	   And Parameter.Rows[0].Refinement = "Cast"
 	   And NewDetails.Argument.Attachment = Undefined Then
 		
-		SetErrorInRow(Parameter.Rows[0].EndString,
+		SetErrorInRow(TableRow(Parameter.Rows[0].EndString, Context),
 			InsertKeywordsIntoString(Context,
 				NStr("en = 'A dot operator and a field name are required after the ""%1"" nested function.';"),
 				Parameter.Rows[0].Chars),
@@ -39848,7 +39941,7 @@ Function FieldNodeDetailsFromExpressFunction(String, Context)
 	NewDetails = FieldNodeDetails(String);
 	
 	If String.Rows.Count() > 0 Then
-		LastRow = String.Rows[String.Rows.Count() - 1];
+		LastRow = TableRow(String.Rows[String.Rows.Count() - 1], Context);
 		If LastRow.Type = "AdditionToExpress" Then
 			String.Rows.Delete(String.Rows.Count() - 1);
 			NewDetails.Name         = Mid(LastRow.Chars, 2);
@@ -39858,7 +39951,7 @@ Function FieldNodeDetailsFromExpressFunction(String, Context)
 		EndIf;
 	EndIf;
 	
-	ParametersContent = CommaSeparatedParameters(String);
+	ParametersContent = CommaSeparatedParameters(String, Context);
 	
 	If ParametersContent.Count() = 0 Then
 		// 
@@ -39876,7 +39969,7 @@ Function FieldNodeDetailsFromExpressFunction(String, Context)
 		
 		NewDetails.Attachment = FieldNodeDetailsFromExpressFunction(FirstParameter.Rows[0], Context);
 		If NewDetails.Attachment.Attachment = Undefined Then
-			SetErrorInRow(FirstParameter.Rows[0].EndString,
+			SetErrorInRow(TableRow(FirstParameter.Rows[0].EndString, Context),
 				StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'A dot operator and a field name are required after the ""%1"" nested function.';"),
 					FirstParameter.Rows[0].Chars),
@@ -39951,7 +40044,7 @@ Function FieldNodeDetailsFromIsNullFunction(String, Context)
 	NewDetails = FieldNodeDetails(String);
 	NewDetails.IsNullSource = String;
 	
-	ParametersContent = CommaSeparatedParameters(String);
+	ParametersContent = CommaSeparatedParameters(String, Context);
 	
 	If ParametersContent.Count() = 0 Then
 		// 
@@ -40022,13 +40115,17 @@ EndFunction
 // ParseValueFunctionOrTypeFunctionParameters, and ParseValueTypeFunctionParameters procedures and
 // the FieldNodeDetailsFromExpressFunction and FieldNodeDetailsFromIsNullFunction functions.
 //
+// Parameters:
+//  RowDescription - See TableRow.RowDescription
+//
 // Returns:
 //   Array of Structure:
-//   * Rows - See CharsetsTable
+//   * Rows - Array of ValueTableRow: см. ТаблицаНаборовСимволов
 //
-Function CommaSeparatedParameters(String)
+Function CommaSeparatedParameters(RowDescription, Context)
 	
 	ParametersContent = New Array;
+	String = TableRow(RowDescription, Context);
 	
 	If String.Rows.Count() = 0 Then
 		Return ParametersContent;
@@ -40037,11 +40134,11 @@ Function CommaSeparatedParameters(String)
 	ParameterDetails = New Structure("Rows, EndString", New Array);
 	PreviousSubstringIsArgumentPart = False;
 	
-	For Each Substring In String.Rows Do
-		
+	For Each SubstringDetails In String.Rows Do
+		Substring = TableRow(SubstringDetails, Context);
 		If Substring.Chars = "," Then
 			If Not PreviousSubstringIsArgumentPart Then
-				If String.Rows[0] = Substring Then
+				If String.Rows[0] = SubstringDetails Then
 					SetErrorInRow(Substring, StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'A parameter is missing before a comma.';"), Substring.Chars));
 					ParameterDetails.Rows.Add(AdditionalString1(Substring, ""));
@@ -40066,7 +40163,7 @@ Function CommaSeparatedParameters(String)
 	
 	If ParameterDetails.Rows.Count() > 0 Then
 		ParametersContent.Add(ParameterDetails);
-		ParameterDetails.EndString = String.EndString;
+		ParameterDetails.EndString = TableRow(String.EndString, Context);
 	Else
 		SetErrorInRow(Substring, StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'An extra comma is added, or a parameter is missing after the comma.';"), Substring.Chars), True);
@@ -40081,7 +40178,7 @@ EndFunction
 // Parameters:
 //    Context - Structure:
 //    * String - Structure:
-//       ** Rows - See CharsetsTable
+//       ** Rows - Array of ValueTableRow: см. ТаблицаНаборовСимволов
 //
 Procedure ParseChoice(Context)
 	
@@ -40093,57 +40190,66 @@ Procedure ParseChoice(Context)
 	
 	SkipWhenAnalysis = False;
 	
-	Case = String.Rows[0]; // See AdditionalString1
+	Case = TableRow(String.Rows[0], Context);
 	If Case.Rows.Count() > 0 Then
-		If Case.Rows[0].Kind = "Name" Then
-			NewDetails.Case = FieldNodeOrConstantNodeDetails(Case.Rows[0]);
+		ChoiceFirstRow = TableRow(Case.Rows[0], Context);
+		If ChoiceFirstRow.Kind = "Name" Then
+			NewDetails.Case = FieldNodeOrConstantNodeDetails(ChoiceFirstRow);
 		Else
 			SkipWhenAnalysis = True;
-			SetErrorInRow(Case.Rows[0], StringFunctionsClientServer.SubstituteParametersToString(
+			SetErrorInRow(ChoiceFirstRow, StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'If the argument for the ""%1"" keyword is specified, it must be a field name.';"),
 				String.Chars));
 		EndIf;
 	EndIf;
 	
 	IndexOf = 1;
-	While String.Rows[IndexOf].Refinement = "When" Do
+	While True Do
+		NextRow = TableRow(String.Rows[IndexOf], Context);
+		If NextRow.Refinement <> "When" Then
+			Break;
+		EndIf;
 		WhenThenDetails = New Structure("Condition, Value");
 		NewWhenDetails = NewDetails.When; // Array
 		NewWhenDetails.Add(WhenThenDetails);
 		
-		When = String.Rows[IndexOf]; // ValueTableRow: см. ТаблицаНаборовСимволов
+		When = NextRow;
 		
 		If Not SkipWhenAnalysis Then
+			FirstSubstringWhen = ?(When.Rows.Count() = 0, Undefined,
+				TableRow(When.Rows[0], Context));
+			
 			If NewDetails.Case = Undefined Then
 				ParseExpression(When.Rows, WhenThenDetails.Condition, Context);
 				
 			ElsIf When.Rows.Count() = 0 Then
 				If ValueIsFilled(When.Chars) Then
-					SetErrorInRow(When.Rows[0], StringFunctionsClientServer.SubstituteParametersToString(
+					SetErrorInRow(When, StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'As a field follows the ""%1"" keyword, 
 						           |either a predefined value or a constant is required after the ""%2"" keyword.';"),
 						String.Chars,
 						When.Chars));
 				EndIf;
 				
-			ElsIf When.Rows[0].Kind = "Number"
-			      Or When.Rows[0].Kind = "ArbitraryLine"
-			      Or When.Rows[0].Kind = "Keyword"
-			        And (    When.Rows[0].Refinement = "True"
-			           Or When.Rows[0].Refinement = "False"
-			           Or When.Rows[0].Refinement = "Undefined"
-			           Or When.Rows[0].Refinement = "Value" ) Then
+			ElsIf FirstSubstringWhen.Kind = "Number"
+			      Or FirstSubstringWhen.Kind = "ArbitraryLine"
+			      Or FirstSubstringWhen.Kind = "Keyword"
+			        And (    FirstSubstringWhen.Refinement = "True"
+			           Or FirstSubstringWhen.Refinement = "False"
+			           Or FirstSubstringWhen.Refinement = "Undefined"
+			           Or FirstSubstringWhen.Refinement = "Value" ) Then
 				
-				If When.Rows[0].Refinement = "Value" Then
+				If FirstSubstringWhen.Refinement = "Value" Then
 					WhenThenDetails.Condition = New Structure("Source, Node",
-						When.Rows[0], When.Rows[0].Refinement);
+						FirstSubstringWhen, FirstSubstringWhen.Refinement);
 					
-					ParseValueFunctionOrTypeFunctionParameters(When.Rows[0], WhenThenDetails.Condition, True, Context);
+					ParseValueFunctionOrTypeFunctionParameters(FirstSubstringWhen,
+						WhenThenDetails.Condition, True, Context);
 				Else
-					WhenThenDetails.Condition = FieldNodeOrConstantNodeDetails(When.Rows[0]);
+					WhenThenDetails.Condition = FieldNodeOrConstantNodeDetails(FirstSubstringWhen);
 				EndIf;
 			ElsIf ValueIsFilled(When.Chars) Then
-				SetErrorInRow(When.Rows[0], StringFunctionsClientServer.SubstituteParametersToString(
+				SetErrorInRow(FirstSubstringWhen, StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'As a field follows the ""%1"" keyword, 
 					           |either a predefined value or a constant is required after the ""%2"" keyword.';"),
 					String.Chars,
@@ -40151,19 +40257,19 @@ Procedure ParseChoice(Context)
 			EndIf;
 		EndIf;
 		
-		ThenContent = String.Rows[IndexOf + 1];
+		ThenContent = TableRow(String.Rows[IndexOf + 1], Context);
 		If ThenContent.Rows.Count() > 0 Then
 			ParseExpression(ThenContent.Rows, WhenThenDetails.Value, Context);
 			
 		ElsIf ValueIsFilled(ThenContent.Chars) Then
-			SetErrorInRow(When.Rows[0], StringFunctionsClientServer.SubstituteParametersToString(
+			SetErrorInRow(FirstSubstringWhen, StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'A logical expression is required after the ""%1"" keyword.';"), ThenContent.Chars));
 		EndIf;
 		
 		IndexOf = IndexOf + 2;
 	EndDo;
 	
-	ParseExpression(String.Rows[IndexOf].Rows, NewDetails.Else, Context);
+	ParseExpression(NextRow.Rows, NewDetails.Else, Context);
 	
 	AddArgumentFunctionChoiceOperator(Context, NewDetails);
 	
@@ -40290,7 +40396,7 @@ EndProcedure
 // Returns:
 //  Array of ValueTableRow
 //
-Function ExpressionsInParenthesesInAttachments(Rows)
+Function ExpressionsInParenthesesInAttachments(Rows, Context)
 	
 	Result = New Array;
 	
@@ -40300,17 +40406,17 @@ Function ExpressionsInParenthesesInAttachments(Rows)
 	
 	For Each String In Rows Do
 		If String.Chars = "(" Then
-			AddAttachment(String, Attachments, CurrentAttachment);
+			AddAttachment(String, Attachments, CurrentAttachment, Context);
 			
 		ElsIf String.Chars = ")" Then
 			If Attachments.Count() = 1 Then
 				SetErrorInRow(String,
 					NStr("en = 'A closing parenthesis is found before an opening parenthesis.';"));
 			Else
-				DeleteLastAttachment(Attachments, CurrentAttachment, String);
+				DeleteLastAttachment(Attachments, CurrentAttachment, Context, String);
 			EndIf;
 		Else
-			CurrentAttachment.Rows.Add(String);
+			RowAdd(CurrentAttachment, String, Context);
 		EndIf;
 	EndDo;
 	
@@ -40330,7 +40436,7 @@ EndFunction
 // For the ParseCondition procedure.
 //
 // Parameters:
-//    Rows - See CharsetsTable
+//    Rows - Array of ValueTableRow: см. ТаблицаНаборовСимволов
 //
 Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 	
@@ -40340,16 +40446,16 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 	Attachments = New Array;
 	Attachments.Add(CurrentAttachment);
 	
-	For Each String In Rows Do
+	For Each RowDescription In Rows Do
+		String = TableRow(RowDescription, Context);
 		
 		If String.Kind <> "Keyword"
 		 Or String.Type <> "SelectionWord" Then
 			
 			If CurrentAttachment.Refinement = "Case" Then
-				SelectionStrings = CurrentAttachment.Rows[0].Rows; // Array
-				SelectionStrings.Add(String);
+				RowAdd(TableRow(CurrentAttachment.Rows[0], Context), String, Context);
 			Else
-				CurrentAttachment.Rows.Add(String);
+				RowAdd(CurrentAttachment, String, Context);
 				If String.Chars = "(" Then
 					String.Rows = ExpressionsSelectionWhenThenInAttachments(String.Rows, Context);
 				EndIf;
@@ -40364,7 +40470,7 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 					RestoreChoiceStructure(CurrentAttachment, Attachments, CurrentAttachment, "When", Context);
 				EndIf;
 			EndIf;
-			AddAttachment(String, Attachments, CurrentAttachment);
+			AddAttachment(String, Attachments, CurrentAttachment, Context);
 			CurrentAttachment.Rows.Add(AdditionalString1(CurrentAttachment, "Case", Context));
 			
 		ElsIf String.Refinement = "When" Then
@@ -40383,14 +40489,14 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 				RestoreChoiceStructure(CurrentAttachment, Attachments, CurrentAttachment, "Then", Context);
 				
 			ElsIf CurrentAttachment.Refinement = "Then" Then
-				DeleteLastAttachment(Attachments, CurrentAttachment);
+				DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 				
 			Else // CurrentAttachment.Clarification = "Else"
 				SetErrorInRow(String, InsertKeywordsIntoString(Context,
 					NStr("en = 'The ""%1"" keyword must precede the ""%2"" keyword.';"), "When,Else"));
-				DeleteLastAttachment(Attachments, CurrentAttachment);
+				DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 			EndIf;
-			AddAttachment(String, Attachments, CurrentAttachment);
+			AddAttachment(String, Attachments, CurrentAttachment, Context);
 			
 		ElsIf String.Refinement = "Then" Then
 			
@@ -40415,11 +40521,11 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 			Else // CurrentAttachment.Clarification = "Else"
 				SetErrorInRow(String, InsertKeywordsIntoString(Context,
 					NStr("en = 'The ""%1"" keyword must precede the ""%2"" keyword.';"), "Then,Else"));
-				DeleteLastAttachment(Attachments, CurrentAttachment);
+				DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 				RestoreChoiceStructure(String, Attachments, CurrentAttachment, "When", Context);
 			EndIf;
-			DeleteLastAttachment(Attachments, CurrentAttachment);
-			AddAttachment(String, Attachments, CurrentAttachment);
+			DeleteLastAttachment(Attachments, CurrentAttachment, Context);
+			AddAttachment(String, Attachments, CurrentAttachment, Context);
 			
 		ElsIf String.Refinement = "Else" Then
 			
@@ -40436,7 +40542,7 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 			ElsIf CurrentAttachment.Refinement = "When" Then
 				SetErrorInRow(String, InsertKeywordsIntoString(Context,
 					NStr("en = 'The ""%1"" keyword precedes the ""%2"" keyword.';"), "Else,Then"));
-				DeleteLastAttachment(Attachments, CurrentAttachment);
+				DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 				RestoreChoiceStructure(String, Attachments, CurrentAttachment, "Then", Context);
 				
 			ElsIf CurrentAttachment.Refinement = "Then" Then
@@ -40446,8 +40552,8 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 				SetErrorInRow(String, InsertKeywordsIntoString(Context,
 					NStr("en = 'Repeated keyword: ""%1"".';"), "Else"));
 			EndIf;
-			DeleteLastAttachment(Attachments, CurrentAttachment);
-			AddAttachment(String, Attachments, CurrentAttachment);
+			DeleteLastAttachment(Attachments, CurrentAttachment, Context);
+			AddAttachment(String, Attachments, CurrentAttachment, Context);
 			
 		Else // String.Clarification = "End"
 			
@@ -40464,20 +40570,20 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 			ElsIf CurrentAttachment.Refinement = "When" Then
 				SetErrorInRow(String, InsertKeywordsIntoString(Context,
 					NStr("en = 'The ""%1"" keyword precedes the ""%2"" and ""%3"" keywords.';"), "End,Then,Else"));
-				DeleteLastAttachment(Attachments, CurrentAttachment);
+				DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 				RestoreChoiceStructure(String, Attachments, CurrentAttachment, "Then,Else", Context);
 				
 			ElsIf CurrentAttachment.Refinement = "Then" Then
 				SetErrorInRow(String, InsertKeywordsIntoString(Context,
 					NStr("en = 'The ""%1"" keyword precedes the ""%2"" keyword.';"), "End,Else"));
-				DeleteLastAttachment(Attachments, CurrentAttachment);
+				DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 				RestoreChoiceStructure(String, Attachments, CurrentAttachment, "Else", Context);
 				
 			Else // 
 				// 
 			EndIf;
-			DeleteLastAttachment(Attachments, CurrentAttachment);
-			DeleteLastAttachment(Attachments, CurrentAttachment);
+			DeleteLastAttachment(Attachments, CurrentAttachment, Context);
+			DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 		EndIf;
 	EndDo;
 	
@@ -40492,13 +40598,13 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 		ElsIf CurrentAttachment.Refinement = "When" Then
 			ErrorText = InsertKeywordsIntoString(Context,
 				NStr("en = 'The ""%2"", ""%3"", and ""%4"" keywords are missing after the ""%1"" keyword.';"), "When,Then,Else,End");
-			DeleteLastAttachment(Attachments, CurrentAttachment);
+			DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 			RestoreChoiceStructure(CurrentAttachment, Attachments, CurrentAttachment, "Then,Else", Context);
 			
 		ElsIf CurrentAttachment.Refinement = "Then" Then
 			ErrorText = InsertKeywordsIntoString(Context,
 				NStr("en = 'The ""%2"" and ""%3"" keywords are missing after the ""%1"" keyword.';"), "Then,Else,End");
-			DeleteLastAttachment(Attachments, CurrentAttachment);
+			DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 			RestoreChoiceStructure(CurrentAttachment, Attachments, CurrentAttachment, "Else", Context);
 			
 		Else // 
@@ -40506,8 +40612,8 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 				NStr("en = 'The ""%2"" keyword is missing after the ""%1"" keyword.';"), "Else,End");
 		EndIf;
 		SetErrorInRow(CurrentAttachment, ErrorText, True);
-		DeleteLastAttachment(Attachments, CurrentAttachment);
-		DeleteLastAttachment(Attachments, CurrentAttachment);
+		DeleteLastAttachment(Attachments, CurrentAttachment, Context);
+		DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 	EndDo;
 	
 	Return Result;
@@ -40517,18 +40623,20 @@ EndFunction
 // For the ParseCondition procedure.
 //
 // Parameters:
-//    Rows - See CharsetsTable
+//    Rows - Array of See TableRow.RowDescription
 //
 Function FunctionsWithExpressionsInParentheses(Rows, InternalData)
 	
 	Result = New Array;
+	ResultString1 = New Structure("Rows", Result);
+	
 	RowsCount = Rows.Count();
 	
 	String = Undefined;
 	IndexOf = 0;
 	While IndexOf < RowsCount Do
 		PreviousString = String; // ValueTableRow: см. ТаблицаНаборовСимволов
-		String = Rows[IndexOf];
+		String = TableRow(Rows[IndexOf], InternalData);
 		
 		If String.Chars = "(" Then
 			String.Rows = FunctionsWithExpressionsInParentheses(String.Rows, InternalData);
@@ -40537,12 +40645,15 @@ Function FunctionsWithExpressionsInParentheses(Rows, InternalData)
 		        And (    String.Type = "Function"
 		           Or String.Refinement = "In" ) Then
 			
+			NextRow = ?(IndexOf + 1 < Rows.Count(),
+				TableRow(Rows[IndexOf + 1], InternalData), Undefined);
+				
 			If IndexOf + 1 < Rows.Count()
-			   And Rows[IndexOf + 1].Chars = "(" Then
+			   And NextRow.Chars = "(" Then
 				
 				IndexOf = IndexOf + 1;
-				String.Rows = FunctionsWithExpressionsInParentheses(Rows[IndexOf].Rows, InternalData);
-				String.EndString = Rows[IndexOf].EndString;
+				String.Rows = FunctionsWithExpressionsInParentheses(NextRow.Rows, InternalData);
+				String.EndString = NextRow.EndString;
 				
 				If String.Rows.Count() = 0 Then
 					If String.Type = "Function" Then
@@ -40567,12 +40678,15 @@ Function FunctionsWithExpressionsInParentheses(Rows, InternalData)
 		ElsIf String.Kind = "Keyword"
 		        And String.Refinement = "Is"  Then
 			
+			NextRow = ?(IndexOf + 1 < Rows.Count(),
+				TableRow(Rows[IndexOf + 1], InternalData), Undefined);
+			
 			If IndexOf + 1 < Rows.Count()
-			   And Rows[IndexOf + 1].Kind = "Keyword"
-			   And Rows[IndexOf + 1].Refinement = "Null" Then
+			   And NextRow.Kind = "Keyword"
+			   And NextRow.Refinement = "Null" Then
 				
 				IndexOf = IndexOf + 1;
-				String.Rows.Add(Rows[IndexOf]);
+				RowAdd(String, NextRow, InternalData);
 			Else
 				String.Rows = New Array;
 				SetErrorInRow(String, InsertKeywordsIntoString(InternalData,
@@ -40591,8 +40705,7 @@ Function FunctionsWithExpressionsInParentheses(Rows, InternalData)
 			   And PreviousString.Refinement = "Cast" Then
 				
 				String.Type = "AdditionToExpress";
-				PreviousStringStrings = PreviousString.Rows; // Array
-				PreviousStringStrings.Add(String);
+				RowAdd(PreviousString, String, InternalData);
 				IndexOf = IndexOf + 1;
 				Continue;
 			Else
@@ -40601,7 +40714,7 @@ Function FunctionsWithExpressionsInParentheses(Rows, InternalData)
 			EndIf;
 		EndIf;
 		
-		Result.Add(String);
+		RowAdd(ResultString1, String, InternalData);
 		IndexOf = IndexOf + 1;
 	EndDo;
 	
@@ -40610,29 +40723,29 @@ Function FunctionsWithExpressionsInParentheses(Rows, InternalData)
 EndFunction
 
 // For the ExpressionsInParenthesesInAttachments and ExpressionsWhenThenSelectionInAttachments functions.
-Procedure AddAttachment(String, Attachments, CurrentAttachment)
+Procedure AddAttachment(String, Attachments, CurrentAttachment, Context)
 	
-	CurrentAttachment.Rows.Add(String);
+	RowAdd(CurrentAttachment, String, Context);
 	CurrentAttachment = String;
 	Attachments.Add(CurrentAttachment);
 	
 EndProcedure
 
 // For the ExpressionsInParenthesesInAttachments and ExpressionsWhenThenSelectionInAttachments functions.
-Procedure DeleteLastAttachment(Attachments, CurrentAttachment, EndString = Undefined)
+Procedure DeleteLastAttachment(Attachments, CurrentAttachment, Context, EndString = Undefined)
 	
 	If EndString = Undefined Then
 		If CurrentAttachment.Rows.Count() = 0 Then
 			EndString = CurrentAttachment;
 		Else
-			EndString = CurrentAttachment.Rows[CurrentAttachment.Rows.Count() - 1];
+			EndString = TableRow(CurrentAttachment.Rows[CurrentAttachment.Rows.Count() - 1], Context);
 			If EndString.EndString <> Undefined Then
-				EndString = EndString.EndString;
+				EndString = TableRow(EndString.EndString, Context);
 			EndIf;
 		EndIf;
 	EndIf;
 	
-	CurrentAttachment.EndString = EndString;
+	CurrentAttachment.EndString = Context.CharsetsTable.IndexOf(EndString);
 	
 	LastAttachmentIndex = Attachments.Count() - 1;
 	Attachments.Delete(LastAttachmentIndex);
@@ -40672,11 +40785,8 @@ EndProcedure
 //   * Type - String
 //   * Priority - Number
 //   * Refinement - String
-//   * InitialString - Structure:
-//      ** Rows - Array of See CharsetsTable
-//      ** Refinement - String
-//   * Rows - Array of See CharsetsTable
-//   * EndString - ValueTableRow: см. ТаблицаНаборовСимволов
+//   * Rows - Array of Number -
+//   * EndString - Number -
 //   * ErrorPosition - Number
 //   * ErrorText - String
 //
@@ -40687,9 +40797,8 @@ Function AdditionalString1(String, Refinement = "", Context = Undefined)
 	NewRow.Insert("Kind");
 	NewRow.Insert("Type");
 	NewRow.Insert("Priority");
-	NewRow.Insert("Refinement",      Refinement);
-	NewRow.Insert("InitialString", String);
-	NewRow.Insert("Rows",         New Array);
+	NewRow.Insert("Refinement", Refinement);
+	NewRow.Insert("Rows", New Array);
 	NewRow.Insert("EndString");
 	NewRow.Insert("ErrorPosition");
 	NewRow.Insert("ErrorText");
@@ -40710,7 +40819,7 @@ EndFunction
 // For the ParseAdditionalTables and ParseRestrictionCondition procedures.
 //
 // Parameters:
-//    PartRows - See CharsetsTable
+//    PartRows - Array of ValueTableRow: см. ТаблицаНаборовСимволов
 //
 Procedure ChangeKeywordTypeListToName(PartRows, RowToExclude = Undefined)
 	
@@ -40729,7 +40838,7 @@ EndProcedure
 // For the ParseAdditionalTables and ParseCondition procedures.
 //
 // Parameters:
-//    PartRows - See CharsetsTable
+//    See CharsetsTable
 //
 Procedure SetAlias(PartRow, IConnectionShort, InternalData)
 	
@@ -40765,7 +40874,7 @@ EndProcedure
 // For the ParseConnection procedure.
 //
 // Parameters:
-//    PartRows - See CharsetsTable
+//    See CharsetsTable
 //
 Procedure SetTableName(PartRow, IConnectionShort, InternalData)
 	
@@ -40810,7 +40919,7 @@ Procedure AddRequiredTableAsDataSource(Context, Table, Source)
 	If NameProperties.NamePartsCount < 2
 	 Or NameProperties.NamePartsCount > 3 Then
 		SetErrorInRow(Source,
-			NStr("en = 'A name of a joined table must contain one or two periods.';"));
+			NStr("en = 'A name of a joined table must contain one or two dots.';"));
 		Return;
 	EndIf;
 	
@@ -40858,7 +40967,7 @@ Procedure AddRequiredTableAsReferenceType(Context, Table, Source)
 	
 	If NameProperties.NamePartsCount <> 2 Then
 		SetErrorInRow(Source,
-			NStr("en = 'A table name specified as a type must contain a single period.';"));
+			NStr("en = 'A table name specified as a type must contain a single dot.';"));
 		Return;
 	EndIf;
 	
@@ -40890,7 +40999,7 @@ Procedure AddRequiredPredefinedItem(Context, FullPredefinedItemName, Source)
 	
 	If NameProperties.NamePartsCount <> 3 Then
 		SetErrorInRow(Source,
-			NStr("en = 'A predefined value name must contain two periods.';"));
+			NStr("en = 'A predefined value name must contain two dots.';"));
 		Return;
 	EndIf;
 	
@@ -42028,7 +42137,7 @@ Procedure MarkIncorrectFieldAndFieldTypes(FieldDetails, Context)
 	If FieldProperties.FieldWithError > 1 Then
 		For Each SourceDetails In FieldDetails.Value.Sources Do
 			If FieldProperties.ErrorKind = "TabularSectionAfterDot" Then
-				ErrorTemplate = NStr("en = 'Cannot address the tabular section ""%1"" using dot syntax.';");
+				ErrorTemplate = NStr("en = 'Cannot address the ""%1"" tabular section using dot syntax.';");
 				
 			ElsIf FieldProperties.ErrorKind = "Illegal" Then
 				ErrorTemplate = NStr("en = 'The ""%1"" field is not allowed.';");
@@ -43401,7 +43510,7 @@ Procedure FillSharesRefTypeItemsCount(ItemsCountShares, Item, TableName)
 				ItemsCountShares.Left1   = 0.4;
 			EndIf;
 			
-		Else // УстаревшиеЭлементы.
+		Else // ObsoleteItems.
 			ItemsCountShares.Processed2 = 0.9;
 			ItemsCountShares.Left1   = 0.1;
 		EndIf;
@@ -43416,7 +43525,7 @@ Procedure FillSharesRefTypeItemsCount(ItemsCountShares, Item, TableName)
 			ItemsCountShares.Processed2 = 0.0;
 			ItemsCountShares.Left1   = 1.0;
 		EndIf;
-	Else // УстаревшиеЭлементы.
+	Else // ObsoleteItems.
 		ItemsCountShares.Processed2 = 0.9;
 		ItemsCountShares.Left1   = 0.1;
 	EndIf;
@@ -43578,7 +43687,7 @@ Procedure FillRegisterItemsCountShares(ItemsCountShares, Item, RestrictionProper
 			ItemsCountShares.Left1   = 0.1;
 		EndIf;
 		
-	Else // УстаревшиеЭлементыОбщегоРегистра.
+	Else // ObsoleteCommonRegisterItems.
 		ItemsCountShares.Processed2 = 0.99;
 		ItemsCountShares.Left1   = 0.01;
 	EndIf;
@@ -43695,7 +43804,7 @@ Procedure FillAccessKeysCountShares(AccessKeysCountShares, Item)
 			AccessKeysCountShares.Processed2 = 0.0;
 			AccessKeysCountShares.Left1   = 1.0;
 		EndIf;
-	Else // УстаревшиеЭлементы.
+	Else // ObsoleteItems.
 		AccessKeysCountShares.Processed2 = 0.9;
 		AccessKeysCountShares.Left1   = 0.1;
 	EndIf;

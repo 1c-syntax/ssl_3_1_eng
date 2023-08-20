@@ -596,6 +596,17 @@ Procedure RunACommandWithAPreliminaryCheck(CommandByLine)
 		
 	EndIf;
 	
+	If CommandByLine <> "DeleteSynchronizationSetting"
+		And CurrentData.SynchronizationIsUnavailable Then
+		
+		MessageText = NStr("en = 'Synchronization is unavailable';");
+		
+		CommonClient.MessageToUser(MessageText);
+		
+		Return;
+		
+	EndIf;
+	
 	If CommandByLine = "RunSync" Then
 		
 		SynchronizationExecutionCommandProcessing(CurrentData, False);
@@ -1252,7 +1263,7 @@ EndProcedure
 &AtClient
 Procedure MigrationExchangeOverInternetInfoTextURLProcessing(Item, FormattedStringURL, StandardProcessing)
 	
-	StandardProcessing = True;
+	StandardProcessing = False;
 	
 	Items.InfoPanelMigrationToExchangeOverInternet.Visible = False;
 	
@@ -1275,7 +1286,7 @@ Function BackgroundJobSettingsOptionsOfDataExchangeWithExternalSystems(ExchangeN
 	
 	BackgroundJob = Undefined;
 	
-	If Common.SubsystemExists("OnlineUserSupport.DataExchangeWithExternalSystems") Then
+	If Common.SubsystemExists("OnlineUserSupport.ОбменДаннымиСВнешнимиСистемами") Then
 		ModuleWizard = DataExchangeServer.ModuleDataExchangeCreationWizard();
 		SettingVariants = ModuleWizard.ExternalSystemsDataExchangeSettingsOptionDetails();
 		
@@ -1563,7 +1574,23 @@ Procedure SetConditionalAppearance()
 	ItemFilter.RightValue = 0;
 	
 	Item.Appearance.SetParameterValue("Show", False);
+	
+	// 
+	Item = ConditionalAppearance.Items.Add();
+	
+	ItemField = Item.Fields.Items.Add();
+	ItemField.Field = New DataCompositionField(Items.ApplicationsList.Name);
+	
+	ItemField = Item.Fields.Items.Add();
+	ItemField.Field = New DataCompositionField(Items.ApplicationsListStatePresentation1.Name);
 		
+	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	ItemFilter.LeftValue = New DataCompositionField("ApplicationsList.SynchronizationIsUnavailable");
+	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
+	ItemFilter.RightValue = True;
+	Item.Appearance.SetParameterValue("ReadOnly", True);
+	Item.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
+	
 EndProcedure
 
 &AtServer
@@ -1613,7 +1640,8 @@ Procedure SetFormItemsView()
 		Items.RefereshRightPage.CurrentPage = Items.InfoDataExchangePausedNoRightToUpdate;
 	EndIf;
 	
-	Items.InfoPanelRestartRequired.Visible = IsRestartRequired And ApplicationsList.Count() > 0;
+	Items.InfoPanelRestartRequired.Visible = 
+		IsRestartRequired And ApplicationsList.Count() > 0 And Not SaaSModel;
 	
 	Items.InfoPanelLoopFound.Visible = IsLoopDetected;
 		
@@ -1700,7 +1728,12 @@ Procedure RefreshApplicationsList(UpdateSaaSApplications = False)
 			ApplicationRow.DataArea = SaaSApplicationRow.DataArea;
 			ApplicationRow.CorrespondentDescription = SaaSApplicationRow.ApplicationDescription;
 			ApplicationRow.CanMigrateToWS = SaaSApplicationRow.HasExchangeAdministrationManage_3_0_1_1
-				And ApplicationRow.CanMigrateToWS; 
+				And ApplicationRow.CanMigrateToWS;
+				
+		Else
+			
+			ApplicationRow.CanMigrateToWS = False;
+			
 		EndIf;
 		
 		If ApplicationRow.IsExchangeWithApplicationInService Then
@@ -1806,7 +1839,7 @@ Procedure GetDisabledScenarios()
 		|	DataExchangeScenarios.IsAutoDisabled
 		|	AND NOT DataExchangeScenarios.DeletionMark";
 	
-	Array = Query.Execute().Unload().UnloadColumn("Ref");;	
+	Array = Query.Execute().Unload().UnloadColumn("Ref");
 	DisabledScenarios.LoadValues(Array);
 	
 EndProcedure

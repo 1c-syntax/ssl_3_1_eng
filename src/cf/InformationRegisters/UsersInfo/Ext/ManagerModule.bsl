@@ -91,14 +91,14 @@ EndProcedure
 // Returns:
 //  Structure:
 //   * HasNoRights - Boolean
-//   * NotEnoughPermissionsToLaunch - Boolean
+//   * HasInsufficientRightsForStartup - Boolean
 //   * HasInsufficientRightForLogon - Boolean
 //
 Function WhetherRightsAreAssigned(UserDetails) Export
 	
 	Result = New Structure;
 	Result.Insert("HasNoRights", False);
-	Result.Insert("NotEnoughPermissionsToLaunch", False);
+	Result.Insert("HasInsufficientRightsForStartup", False);
 	Result.Insert("HasInsufficientRightForLogon", False);
 	
 	If TypeOf(UserDetails) = Type("UUID") Then
@@ -118,10 +118,10 @@ Function WhetherRightsAreAssigned(UserDetails) Export
 	
 	Result.HasNoRights = (Role = Undefined);
 	
-	Result.NotEnoughPermissionsToLaunch = Result.HasNoRights
+	Result.HasInsufficientRightsForStartup = Result.HasNoRights
 		Or Not Users.HasRightsToLogIn(IBUser, False, True);
 	
-	Result.HasInsufficientRightForLogon = Result.NotEnoughPermissionsToLaunch
+	Result.HasInsufficientRightForLogon = Result.HasInsufficientRightsForStartup
 		Or Not Users.HasRightsToLogIn(IBUser, False, False);
 	
 	Return Result;

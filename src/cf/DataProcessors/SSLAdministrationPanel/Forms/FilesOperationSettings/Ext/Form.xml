@@ -32,7 +32,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip_SSLs" id="2044"/>
+			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="2044"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="2016">
 					<AutoMaxWidth>false</AutoMaxWidth>

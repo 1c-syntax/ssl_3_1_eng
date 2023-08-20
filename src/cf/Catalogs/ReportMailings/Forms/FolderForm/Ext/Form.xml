@@ -30,6 +30,11 @@
 			<ContextMenu name="ParentContextMenu" id="4"/>
 			<ExtendedTooltip name="ParentExtendedTooltip" id="6"/>
 		</InputField>
+		<InputField name="Author" id="9">
+			<DataPath>Object.Author</DataPath>
+			<ContextMenu name="AuthorContextMenu" id="10"/>
+			<ExtendedTooltip name="AuthorExtendedTooltip" id="11"/>
+		</InputField>
 	</ChildItems>
 	<Attributes>
 		<Attribute name="Object" id="1">

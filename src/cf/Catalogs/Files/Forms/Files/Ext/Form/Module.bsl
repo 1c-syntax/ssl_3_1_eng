@@ -19,11 +19,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Items.ShowServiceFiles.Visible = Users.IsFullUser();
 	
-	If Parameters.Property("Folder") And Parameters.Folder <> Undefined Then
+	If Not Parameters.Folder.IsEmpty() Then
 		InitialFolder = Parameters.Folder;
 	Else
 		InitialFolder = Common.FormDataSettingsStorageLoad("Files", "CurrentFolder");
-		If InitialFolder = Undefined Then // An attempt to import settings, saved in the previous versions.
+		If InitialFolder = Undefined Then // 
 			InitialFolder = Common.FormDataSettingsStorageLoad("FileStorage2", "CurrentFolder");
 		EndIf;
 	EndIf;
@@ -32,11 +32,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		InitialFolder = Catalogs.FilesFolders.Templates;
 	EndIf;
 	
-	If Parameters.Property("SendOptions") Then
-		SendOptions = Parameters.SendOptions;
-	Else
-		SendOptions = FilesOperationsInternal.PrepareSendingParametersStructure();
-	EndIf;
+	SendOptions = ?(Parameters.SendOptions <> Undefined, Parameters.SendOptions,
+		FilesOperationsInternal.PrepareSendingParametersStructure());
 	
 	Items.Folders.CurrentRow = InitialFolder;
 	
@@ -45,18 +42,15 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		FilesOperationsInternal.ChangeFormForExternalUser(ThisObject, True);
 	EndIf;
 	
-	List.Parameters.SetParameterValue(
-		"Owner", InitialFolder);
-	List.Parameters.SetParameterValue(
-		"CurrentUser", CurrentUser);
+	List.Parameters.SetParameterValue(	"Owner", InitialFolder);
+	List.Parameters.SetParameterValue(	"CurrentUser", CurrentUser);
 		
 	EmptyUsers = New Array;
 	EmptyUsers.Add(Undefined);
 	EmptyUsers.Add(Catalogs.Users.EmptyRef());
 	EmptyUsers.Add(Catalogs.ExternalUsers.EmptyRef());
 	EmptyUsers.Add(Catalogs.FileSynchronizationAccounts.EmptyRef());
-	List.Parameters.SetParameterValue(
-		"EmptyUsers",  EmptyUsers);
+	List.Parameters.SetParameterValue(	"EmptyUsers",  EmptyUsers);
 	
 	ShowSizeColumn = FilesOperationsInternal.GetShowSizeColumn();
 	If ShowSizeColumn = False Then
@@ -107,7 +101,7 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	Items.FormCreateFromScanner.Visible = FilesOperationsInternalClient.ScanCommandAvailable();
+	Items.FormCreateFromScanner.Visible = FilesOperationsInternalClient.ScanAvailable();
 	
 	SetFileCommandsAvailability();
 	
@@ -381,13 +375,10 @@ EndProcedure
 &AtClient
 Procedure AddFileFromScanner(Command)
 	
-	AddingOptions = New Structure;
-	AddingOptions.Insert("ResultHandler", Undefined);
-	AddingOptions.Insert("FileOwner", Items.Folders.CurrentRow);
-	AddingOptions.Insert("OwnerForm1", ThisObject);
-	AddingOptions.Insert("DontOpenCardAfterCreateFromFIle", True);
-	AddingOptions.Insert("IsFile", True);
-	FilesOperationsInternalClient.AddFromScanner(AddingOptions);
+	AddingOptions = FilesOperationsClient.AddingFromScannerParameters();
+	AddingOptions.FileOwner  = Items.Folders.CurrentRow;
+	AddingOptions.OwnerForm1 = ThisObject;
+	FilesOperationsClient.AddFromScanner(AddingOptions);
 	
 EndProcedure
 
@@ -404,14 +395,10 @@ Procedure UseHierarchy(Command)
 	
 	UseHierarchy = Not UseHierarchy;
 	If UseHierarchy And (Items.List.CurrentData <> Undefined) Then 
-		
-		If Items.List.CurrentData.Property("FileOwner") Then 
-			Items.Folders.CurrentRow = Items.List.CurrentData.FileOwner;
-		Else
-			Items.Folders.CurrentRow = Undefined;
-		EndIf;	
-		
-		List.Parameters.SetParameterValue("Owner", Items.Folders.CurrentRow);
+		CurrentRow = Undefined;
+		Items.List.CurrentData.Property("FileOwner", CurrentRow); 
+		Items.Folders.CurrentRow = CurrentRow;
+		List.Parameters.SetParameterValue("Owner", CurrentRow);
 	EndIf;	
 	SetHierarchy(UseHierarchy);
 	
@@ -805,7 +792,7 @@ Procedure ImportFilesAfterExtensionInstalled(Result, ExecutionParameters) Export
 	
 	OpenFileDialog = New FileDialog(FileDialogMode.Open);
 	OpenFileDialog.FullFileName = "";
-	OpenFileDialog.Filter = NStr("en = 'All files (*.*)|*.*';");
+	OpenFileDialog.Filter = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
 	OpenFileDialog.Multiselect = True;
 	OpenFileDialog.Title = NStr("en = 'Select files';");
 	If Not OpenFileDialog.Choose() Then
@@ -834,7 +821,7 @@ Procedure ImportFolderAfterExtensionInstalled(Result, ExecutionParameters) Expor
 	
 	OpenFileDialog = New FileDialog(FileDialogMode.ChooseDirectory);
 	OpenFileDialog.FullFileName = "";
-	OpenFileDialog.Filter = NStr("en = 'All files (*.*)|*.*';");
+	OpenFileDialog.Filter = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
 	OpenFileDialog.Multiselect = False;
 	OpenFileDialog.Title = NStr("en = 'Select directory';");
 	If Not OpenFileDialog.Choose() Then

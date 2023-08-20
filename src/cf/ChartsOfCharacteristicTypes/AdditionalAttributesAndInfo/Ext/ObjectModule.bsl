@@ -124,7 +124,7 @@ Procedure OnWrite(Cancel)
 		|WHERE
 		|	Properties.Property = &Property
 		|	AND Properties.DeletionMark <> &DeletionMark";
-	If IsAdditionalInfo Then
+	If PropertyKind = Enums.PropertiesKinds.AdditionalInfo Then
 		TableName = "Catalog.AdditionalAttributesAndInfoSets.AdditionalInfo";
 	Else
 		TableName = "Catalog.AdditionalAttributesAndInfoSets.AdditionalAttributes";
@@ -137,7 +137,7 @@ Procedure OnWrite(Cancel)
 	
 	For Each ResultString1 In Result Do
 		PropertySetObject = ResultString1.Ref.GetObject();// CatalogObject.AdditionalAttributesAndInfoSets,
-		If IsAdditionalInfo Then
+		If PropertyKind = Enums.PropertiesKinds.AdditionalInfo Then
 			FillPropertyValues(PropertySetObject.AdditionalInfo.Find(Ref, "Property"), ObjectProperties);
 		Else
 			FillPropertyValues(PropertySetObject.AdditionalAttributes.Find(Ref, "Property"), ObjectProperties);
@@ -213,8 +213,8 @@ EndProcedure
 Procedure OnReadPresentationsAtServer() Export
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.OnReadPresentationsAtServer(ThisObject);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.OnReadPresentationsAtServer(ThisObject);
 	EndIf;
 EndProcedure
 
@@ -240,9 +240,9 @@ Function TitleForIDGeneration()
 	TitleForID = Title;
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 	
-		LanguageSuffix = ModuleNativeLanguagesSupportServer.CurrentLanguageSuffix();
+		LanguageSuffix = ModuleNationalLanguageSupportServer.CurrentLanguageSuffix();
 		If ValueIsFilled(LanguageSuffix) Then
 			
 			If ValueIsFilled(ThisObject["Title" + LanguageSuffix]) Then

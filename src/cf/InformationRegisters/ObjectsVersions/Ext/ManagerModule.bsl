@@ -349,7 +349,7 @@ Procedure OutputAttributeChanges(ReportTS, AttributeChangeTable, VersionNumberAr
 			DisplayedDescription = DescriptionDetailsStructure.DisplayedDescription;
 			
 			EmptyCell = CommonTemplate.GetArea("EmptyCell");
-			ReportTS.Put(EmptyCell);;
+			ReportTS.Put(EmptyCell);
 			
 			AttributeDescription = CommonTemplate.GetArea("FieldAttributeDescription");
 			AttributeDescription.Parameters.FieldAttributeDescription = DisplayedDescription;

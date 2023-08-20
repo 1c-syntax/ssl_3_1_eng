@@ -33,7 +33,7 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "ViewTableQuestionsTableView");
 	OptionSettings.LongDesc = 
-		NStr("en = 'Information about replies the respondents gave to question charts.
+		NStr("en = 'Information about replies the respondents gave to table questions.
 		|Each reply is displayed as a table.';");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "SimpleQuestionsAnswerCount");
@@ -41,17 +41,17 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "SimpleQuestionsAggregatedIndicators");
 	OptionSettings.LongDesc = 
-		NStr("en = 'Information on average, minimum, and maximum reply to a basic question
+		NStr("en = 'Information on average, minimum, and maximum response to a basic question
 		|that requires a numeric value.';");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "TableQuestionsAnswerCount");
 	OptionSettings.LongDesc = 
 		NStr("en = 'Information on how many times the response option which requires a numeric value 
-		|was given for the table questions.';");
+		|was given in question charts.';");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "TableQuestionsAggregatedParameters");
 	OptionSettings.LongDesc = 
-		NStr("en = 'Information on average, minimum, and maximum response in the cell of a table question 
+		NStr("en = 'Information on average, minimum, and maximum response in the cell of a question chart
 		|that requires a numeric value.';");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "SimpleQuestionsAnswerCountComparisonBySurveys");
@@ -62,7 +62,7 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "TableQuestionsAggregatedParametersComparisonBySurveys");
 	OptionSettings.LongDesc = 
 		NStr("en = 'Comparative analysis of the aggregated responses
-		|to matrix questions in surveys.';");
+		|to question charts in surveys.';");
 EndProcedure
 
 // End StandardSubsystems.ReportsOptions

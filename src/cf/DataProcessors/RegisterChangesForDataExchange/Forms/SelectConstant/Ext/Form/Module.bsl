@@ -22,7 +22,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		String.Description                  = Parameters.PresentationsArray[CurIndex];
 	EndDo;
 	
-	AutoRecordTitle = NStr("en = 'Autostage for node %1';");
+	AutoRecordTitle = NStr("en = 'Autoregistration for node %1';");
 	
 	Items.AutoRecordDecoration.Title = StrReplace(AutoRecordTitle, "%1", Parameters.ExchangeNode);
 EndProcedure

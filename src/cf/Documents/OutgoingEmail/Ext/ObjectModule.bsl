@@ -116,7 +116,7 @@ Procedure BeforeWrite(Cancel, WriteMode, PostingMode)
 	
 	If DeletionMark <> TheDataObjectToWrite.DeletionMark Then
 		HasAttachments = ?(DeletionMark, False, FilesOperationsInternalServerCall.AttachedFilesCount(Ref) > 0);
-	EndIf;;
+	EndIf;
 	
 EndProcedure
 

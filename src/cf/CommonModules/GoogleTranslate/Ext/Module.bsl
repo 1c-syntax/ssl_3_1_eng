@@ -42,14 +42,14 @@ Function TranslateTheTexts(Texts, TranslationLanguage = Undefined, SourceLanguag
 		QueryOptions.Insert("source", SourceLanguage);
 	EndIf;
 	
-	HTTPRequest.SetBodyFromString(ValueToJSON(QueryOptions));
+	HTTPRequest.SetBodyFromString(Common.ValueToJSON(QueryOptions));
 	QueryResult = ExecuteQuery(HTTPRequest, HostName_SSLy);
 	
 	If Not QueryResult.QueryCompleted Then
 		Raise ErrorText(NStr("en = 'Cannot translate text.';"));
 	EndIf;
 	
-	ServerResponse1 = JSONValue(QueryResult.ServerResponse1);
+	ServerResponse1 = Common.JSONValue(QueryResult.ServerResponse1);
 	
 	Result = New Map;
 	For IndexOf = 0 To Texts.UBound() Do
@@ -85,7 +85,7 @@ Function AvailableLanguages() Export
 	EndIf;
 	
 	Result = New Array;
-	AvailableLanguages = JSONValue(QueryResult.ServerResponse1);
+	AvailableLanguages = Common.JSONValue(QueryResult.ServerResponse1);
 	For Each Language In AvailableLanguages["data"]["languages"] Do
 		LanguageCode = Language["language"];
 		Result.Add(LanguageCode);
@@ -124,7 +124,7 @@ Function ExecuteQuery(Val HTTPRequest, Val HostName_SSLy)
 		
 	If HTTPResponse.StatusCode = 401 
 		Or HTTPResponse.StatusCode = 403 Then
-		ErrorInfo = JSONValue(HTTPResponse.GetBodyAsString());
+		ErrorInfo = Common.JSONValue(HTTPResponse.GetBodyAsString());
 		Raise ErrorInfo["error"]["message"];
 	EndIf;
 	
@@ -180,19 +180,6 @@ Function SetupExecuted() Export
 	SetPrivilegedMode(True);
 	Return ValueIsFilled(AuthorizationSettings().APIKey);
 	
-EndFunction
-
-Function ValueToJSON(Value)
-	JSONWriter = New JSONWriter;
-	JSONWriter.SetString();
-	WriteJSON(JSONWriter, Value);
-	Return JSONWriter.Close();
-EndFunction
-
-Function JSONValue(String, PropertiesWithDateValuesNames = Undefined)
-	JSONReader = New JSONReader;
-	JSONReader.SetString(String);
-	Return ReadJSON(JSONReader, True, PropertiesWithDateValuesNames);
 EndFunction
 
 Procedure WriteErrorToEventLog(Comment)

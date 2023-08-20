@@ -12,7 +12,7 @@
 // See JobsQueueOverridable.OnGetTemplateList.
 Procedure OnGetTemplateList(JobTemplates) Export
 	
-	JobTemplates.Add("SendReceiveEmails");
+	JobTemplates.Add(Metadata.ScheduledJobs.SendReceiveEmails.Name);
 	
 EndProcedure
 
@@ -1189,12 +1189,12 @@ EndFunction
 
 // Returns:
 //  Structure:
-//   * AllRecievedEmails - Array of Документы.ЭлектронноеПисьмоВходящее
-//                         - Array of Документы.ЭлектронноеПисьмоИсходящее
-//   * EmailsToDefineFolders - Array of Документы.ЭлектронноеПисьмоВходящее
-//                               - Array of Документы.ЭлектронноеПисьмоИсходящее
-//   * EmailsReceivedByAccount - Array of Документы.ЭлектронноеПисьмоВходящее
-//                                     - Array of Документы.ЭлектронноеПисьмоИсходящее
+//   * AllRecievedEmails - Array of DocumentRef.IncomingEmail
+//                         - Array of DocumentRef.OutgoingEmail
+//   * EmailsToDefineFolders - Array of DocumentRef.IncomingEmail
+//                               - Array of DocumentRef.OutgoingEmail
+//   * EmailsReceivedByAccount - Array of DocumentRef.IncomingEmail
+//                                     - Array of DocumentRef.OutgoingEmail
 //
 Function EmailsReceived()
 	
@@ -2500,16 +2500,23 @@ Procedure WriteEmailAttachment(Object, Attachment,SignaturesArray,CountOfBlankNa
 	If HasSignatures Then
 
 		ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
+		ModuleDigitalSignatureClientServer= Common.CommonModule("DigitalSignatureClientServer");
 		
 		For Each AttachmentsSignature In SignaturesArray Do
 			
-			ErrorDescription = "";
-			SignatureData = ModuleDigitalSignature.ReadSignatureData(AttachmentsSignature.Data, ErrorDescription);
 			
-			If Not IsBlankString(ErrorDescription) Then
+			SignatureData = ModuleDigitalSignatureClientServer.NewSignatureProperties();
+			SignatureData.Signature = AttachmentsSignature.Data;
+			ResultOfReadSignatureProperties = ModuleDigitalSignature.SignatureProperties(AttachmentsSignature.Data);
+			
+			If ResultOfReadSignatureProperties.Success <> False Then
+				FillPropertyValues(SignatureData, ResultOfReadSignatureProperties);
+				SignatureData.Insert("DateSignedFromLabels", ResultOfReadSignatureProperties.DateSignedFromLabels);
+				SignatureData.Insert("UnverifiedSignatureDate", ResultOfReadSignatureProperties.UnverifiedSignatureDate);
+			Else
 				EventText = NStr("en = 'Cannot read the %1 attachment signature data: %2';");
 				ErrorSignatureDataCouldNotBeRead = StringFunctionsClientServer.SubstituteParametersToString(
-					EventText, EmailAttachmentRef, ErrorDescription);
+					EventText, EmailAttachmentRef, ResultOfReadSignatureProperties.ErrorText);
 				WriteLogEvent(EventLogEvent(), EventLogLevel.Information, , , ErrorSignatureDataCouldNotBeRead);
 			EndIf;
 			
@@ -2918,7 +2925,7 @@ Function GetDateAsStringWithGMTOffset(Date)
 	OffsetHoursString = ?(OffsetHours > 0,"+","") + Format(OffsetHours,"ND=2; NFD=0; NZ=00; NLZ=");
 	OffsetMinutes = TimeOffsetInSeconds%3600;
 	If OffsetMinutes < 0 Then
-		OffsetMinutes = + OffsetMinutes;
+		OffsetMinutes = - OffsetMinutes;
 	EndIf;
 	OffsetMinutesString = Format(OffsetMinutes,"ND=2; NFD=0; NZ=00; NLZ=");
 	
@@ -3095,11 +3102,11 @@ Function AvailableAccountsQueryText()
 	
 EndFunction
 
-// Creates predefined folders for an email account.
+// 
 //
 // Parameters:
-//  Account  - CatalogRef.EmailAccounts - an email account, for which predefined
-//                                                                    folders will be created.
+//  Account  - CatalogRef.EmailAccounts -
+//                                                                    
 //
 Procedure CreatePredefinedEmailsFoldersForAccount(Account) Export
 	

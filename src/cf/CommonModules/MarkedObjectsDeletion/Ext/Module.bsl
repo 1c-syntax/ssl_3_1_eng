@@ -9,24 +9,24 @@
 
 #Region Public
 
-// Permanently deletes the objects marked for deletion with reference integrity control.
+// 
+// 
 //
 // Parameters:
-//  ObjectsToDelete - Array of ExchangePlanRef - the objects for deletion.
+//  ObjectsToDelete - Array of ExchangePlanRef 
 //                   - Array of CatalogRef
 //                   - Array of DocumentRef
 //                   - Array of ChartOfAccountsRef
 //                   - Array of ChartOfCalculationTypesRef
 //                   - Array of BusinessProcessRef
-//                   - Array of TaskRef
-//  DeletionMode - String - the deletion method can take the following values:
-//		"Standard" — deleting objects with reference integrity control and saving 
-//					  multiple user operation.
-//		"Exclusive" — deleting objects with reference integrity control and setting exclusive mode.
-//					    If failed to set exclusive mode, an exception will be raised.
-//		"Simplified" — deleting objects with reference integrity control carried out only in not marked
-//					  for deletion objects. In the marked for deletion objects, reference to the objects to delete 
-//					  will be cleared.
+//                   - Array of TaskRef - objects to delete.
+//  DeletionMode - String -
+//		 
+//					    
+//		
+//					    
+//		
+//					    
 //
 // Returns:	
 //    Structure:
@@ -67,12 +67,12 @@ EndFunction
 //   Array of AnyRef
 //
 Function MarkedForDeletion(Val MetadataFilter = Undefined, SearchForTechnologicalObjects = False) Export
-	
+
 	IsSaaSModel = Common.DataSeparationEnabled();
 	InDataArea = ?(IsSaaSModel, Common.SeparatedDataUsageAvailable(), False);
 	MetadataFilter = ?(MetadataFilter <> Undefined And MetadataFilter.Count() > 0,
 		MetadataFilter.UnloadValues(), Undefined);
-	
+
 	ObjectsToDeleteSearchExceptions = New Array;
 	SearchExceptions = New Map;
 	If Not SearchForTechnologicalObjects Then
@@ -84,28 +84,28 @@ Function MarkedForDeletion(Val MetadataFilter = Undefined, SearchForTechnologica
 			EndIf;
 		EndDo;
 	EndIf;
-	
+
 	MarkedForDeletion = New Array;
 	For Each Item In FindMarkedForDeletion( , MetadataFilter, ObjectsToDeleteSearchExceptions) Do
-		If Not MatchesMetadataFilter(MetadataFilter, Item)
-			Or SearchExceptions[Item.Metadata()] <> Undefined Then
+		If Not MatchesMetadataFilter(MetadataFilter, Item) Or SearchExceptions[Item.Metadata()]
+			<> Undefined Then
 			Continue;
 		EndIf;
-	
+
 		MarkedForDeletion.Add(Item);
 	EndDo;
 
 	Result = New Array;
 	ArePredefinedItems = Common.ArePredefinedItems(MarkedForDeletion);
 	TypesInformation = MarkedObjectsDeletionInternal.TypesInformation(MarkedForDeletion);
-	
+
 	For Each Item In MarkedForDeletion Do
 
-		If Not MatchesMetadataFilter(MetadataFilter, Item)
-			Or SearchExceptions[Item.Metadata()] <> Undefined Then
+		If Not MatchesMetadataFilter(MetadataFilter, Item) Or SearchExceptions[Item.Metadata()]
+			<> Undefined Then
 			Continue;
-		EndIf;	
-	
+		EndIf;
+
 		Information = TypesInformation[TypeOf(Item)];
 		IsPredefined = ArePredefinedItems[Item];
 		IsSharedObjectInDataArea = InDataArea And Not Information.Separated1;
@@ -211,27 +211,31 @@ EndProcedure
 
 #EndRegion
 
-// Returns a list of the objects that are being deleted and to which there are references in the object.
 // 
+// 
+//  
+//   
+//
 // Parameters:
 //   Source - CatalogObject
-//            - DocumentObject - 
+//            - DocumentObject
+//            - InformationRegisterRecordSet - 
 //
 // Returns:
 //   Map of KeyAndValue:
-//   * Key -AnyRef - a list of the objects to be deleted which are in the source.
-//   * Value - String - a reference presentation
+//   * Key - AnyRef -
+//   * Value - String -
 //
 Function RefsToObjectsToDelete(Source) Export
 	RefsToObjectsToDelete = New Map;
 	SourceMetadata = Source.Metadata();
-	
+
 	If CommonClientServer.HasAttributeOrObjectProperty(Source, "Ref") Then
 		LinkDescriptions = ReferenceToObjectsToDeleteInTheObject(ObjectDetails(Source, SourceMetadata),
 			SourceMetadata);
 	ElsIf Common.IsConstant(SourceMetadata) Then
 		ConstantValue = Source.Value;
-		If Common.IsReference(TypeOf(ConstantValue)) Then 
+		If Common.IsReference(TypeOf(ConstantValue)) Then
 			LinkDescriptions = NewLinksInTheObject();
 			ReferenceDetails = LinkDescriptions.Add();
 			ReferenceDetails.Ref = ConstantValue;
@@ -240,12 +244,11 @@ Function RefsToObjectsToDelete(Source) Export
 		EndIf;
 	ElsIf IsIndependentInformationRegister(SourceMetadata) Then
 		LinkDescriptions = ReferencesToObjectsToDeleteInTheSet(
-			SetDetails(Source, SourceMetadata),
-			SourceMetadata);
+			SetDetails(Source, SourceMetadata), SourceMetadata);
 	Else
 		Return New Map;
-	EndIf; 
-	
+	EndIf;
+
 	RefsToDelete = LockedRefsToDelete(LinkDescriptions.UnloadColumn("Ref"));
 	DeletedLinksDeleteMarks = Common.ObjectsAttributeValue(RefsToDelete, "DeletionMark");
 
@@ -253,7 +256,7 @@ Function RefsToObjectsToDelete(Source) Export
 	For Each ReferenceDetails In AddedLinks Do
 		RefsToObjectsToDelete.Insert(ReferenceDetails.Ref, ReferenceDetails.Presentation);
 	EndDo;
-	
+
 	Return RefsToObjectsToDelete;
 EndFunction
 
@@ -344,7 +347,7 @@ EndProcedure
 //     * MarkedObjectsDeletionParameters - Structure 
 //
 Procedure CreateSettingsStorageAttribute(Form)
-	
+
 	AttributeName = "MarkedObjectsDeletionParameters";
 	PropertiesValues = New Structure(AttributeName, Null);
 	FillPropertyValues(PropertiesValues, Form);
@@ -355,7 +358,7 @@ Procedure CreateSettingsStorageAttribute(Form)
 		Form.ChangeAttributes(AttributesToBeAdded);
 		Form.MarkedObjectsDeletionParameters = New Structure;
 	EndIf;
-		
+
 EndProcedure
 
 // Removes the filter from the saved user settings by the DeletionMark field
@@ -431,20 +434,22 @@ Function RefsToObjectsToDeleteInAttributes(SourceDetails, Attributes)
 	Return ValuesOfRefTypes;
 EndFunction
 
-Function RefsToObjectsToDeleteInTabularSections(SourceDetails, TabularSections, AttributesCollectionName = "Attributes")
+Function RefsToObjectsToDeleteInTabularSections(SourceDetails, TabularSections,
+	AttributesCollectionName = "Attributes")
 	ValuesOfRefTypes = NewLinksInTheObject();
 
 	For Each TabularSection In TabularSections Do
-		
-		If Not CommonClientServer.HasAttributeOrObjectProperty(SourceDetails.Source, TabularSection.Name) Then
+
+		If Not CommonClientServer.HasAttributeOrObjectProperty(SourceDetails.Source,
+			TabularSection.Name) Then
 			Continue;
 		EndIf;
-		
+
 		For Each TSRow In SourceDetails.Source[TabularSection.Name] Do
 			TabularSectionDetails = Common.CopyRecursive(SourceDetails);
 			TabularSectionDetails.Source = TSRow;
 			TabularSectionDetails.Table = SourceDetails.Table + "." + TabularSection.Name;
-			
+
 			CommonClientServer.SupplementTable(
 				RefsToObjectsToDeleteInAttributes(TabularSectionDetails, TabularSection[AttributesCollectionName]),
 				ValuesOfRefTypes);
@@ -460,14 +465,13 @@ Function RefsToObjectsToDeleteInRecordSet(SourceDetails, Val Attributes, IsAccou
 	For Each Record In SourceDetails.Source Do
 		RecordDetails = Common.CopyRecursive(SourceDetails);
 		RecordDetails.Source = Record;
-		
+
 		For Each FilterCriterion In SourceDetails.FilterCriterion Do
-			RecordDetails.FilterCriterion.Insert(FilterCriterion.Key, Record[FilterCriterion.Key]);	
+			RecordDetails.FilterCriterion.Insert(FilterCriterion.Key, Record[FilterCriterion.Key]);
 		EndDo;
-		
+
 		CommonClientServer.SupplementTable(
-			RefsToObjectsToDeleteInAttributes(RecordDetails, Attributes),
-			ValuesOfRefTypes);
+			RefsToObjectsToDeleteInAttributes(RecordDetails, Attributes), ValuesOfRefTypes);
 	EndDo;
 
 	Return ValuesOfRefTypes;
@@ -481,17 +485,17 @@ EndFunction
 //
 Function GenerateAccountingRegistersAttributesWithCorrespondence(Val Attributes)
 	RegisterWithCorrespondenceAttributes = New Array;
-	
+
 	For Each Attribute In Attributes Do
 		If CommonClientServer.HasAttributeOrObjectProperty(Attribute, "Balance")
-			 And (Attribute.Balance) Then
+			And (Attribute.Balance) Then
 			RegisterWithCorrespondenceAttributes.Add(New Structure("Name", Attribute.Name));
 		Else
-			RegisterWithCorrespondenceAttributes.Add(New Structure("Name", Attribute.Name + "Dr"));			
-			RegisterWithCorrespondenceAttributes.Add(New Structure("Name", Attribute.Name + "Cr"));			
+			RegisterWithCorrespondenceAttributes.Add(New Structure("Name", Attribute.Name + "Dr"));
+			RegisterWithCorrespondenceAttributes.Add(New Structure("Name", Attribute.Name + "Cr"));
 		EndIf;
 	EndDo;
-	
+
 	Return RegisterWithCorrespondenceAttributes;
 EndFunction
 
@@ -499,13 +503,13 @@ EndFunction
 
 Function ReferenceToObjectsToDeleteInTheObject(Source, SourceMetadata)
 	ValuesOfRefTypes = NewLinksInTheObject();
-	
+
 	If CommonClientServer.HasAttributeOrObjectProperty(SourceMetadata, "StandardAttributes") Then
 		CommonClientServer.SupplementTable(
 			RefsToObjectsToDeleteInAttributes(Source, SourceMetadata.StandardAttributes),
 			ValuesOfRefTypes);
 	EndIf;
-	
+
 	If CommonClientServer.HasAttributeOrObjectProperty(SourceMetadata, "AddressingAttributes") Then
 		CommonClientServer.SupplementTable(
 			RefsToObjectsToDeleteInAttributes(Source, SourceMetadata.AddressingAttributes),
@@ -514,8 +518,7 @@ Function ReferenceToObjectsToDeleteInTheObject(Source, SourceMetadata)
 
 	If CommonClientServer.HasAttributeOrObjectProperty(SourceMetadata, "Attributes") Then
 		CommonClientServer.SupplementTable(
-			RefsToObjectsToDeleteInAttributes(Source, SourceMetadata.Attributes),
-			ValuesOfRefTypes);
+			RefsToObjectsToDeleteInAttributes(Source, SourceMetadata.Attributes), ValuesOfRefTypes);
 	EndIf;
 
 	If CommonClientServer.HasAttributeOrObjectProperty(SourceMetadata, "TabularSections") Then
@@ -524,50 +527,47 @@ Function ReferenceToObjectsToDeleteInTheObject(Source, SourceMetadata)
 			ValuesOfRefTypes);
 	EndIf;
 
-	If CommonClientServer.HasAttributeOrObjectProperty(SourceMetadata,"StandardTabularSections") Then
+	If CommonClientServer.HasAttributeOrObjectProperty(SourceMetadata, "StandardTabularSections") Then
 		CommonClientServer.SupplementTable(
-			RefsToObjectsToDeleteInTabularSections(Source, SourceMetadata.StandardTabularSections, "StandardAttributes"),
-			ValuesOfRefTypes);
+			RefsToObjectsToDeleteInTabularSections(Source, SourceMetadata.StandardTabularSections,
+			"StandardAttributes"), ValuesOfRefTypes);
 	EndIf;
-	
+
 	Return ValuesOfRefTypes;
 EndFunction
 
 Function ReferencesToObjectsToDeleteInTheSet(Source, SourceMetadata)
 	ValuesOfRefTypes = NewLinksInTheObject();
 	IsAccountingRegister = Common.IsAccountingRegister(SourceMetadata);
-	
+
 	If CommonClientServer.HasAttributeOrObjectProperty(SourceMetadata, "Dimensions") Then
 		If Common.IsAccountingRegister(SourceMetadata) And SourceMetadata.Correspondence Then
 			Attributes = GenerateAccountingRegistersAttributesWithCorrespondence( SourceMetadata.Dimensions);
-		Else	
+		Else
 			Attributes =  SourceMetadata.Dimensions;
 		EndIf;
 		CommonClientServer.SupplementTable(
-			RefsToObjectsToDeleteInRecordSet(Source, Attributes, IsAccountingRegister),
-			ValuesOfRefTypes);
+			RefsToObjectsToDeleteInRecordSet(Source, Attributes, IsAccountingRegister), ValuesOfRefTypes);
 	EndIf;
 
 	If CommonClientServer.HasAttributeOrObjectProperty(SourceMetadata, "Resources") Then
 		If Common.IsAccountingRegister(SourceMetadata) And SourceMetadata.Correspondence Then
 			Attributes = GenerateAccountingRegistersAttributesWithCorrespondence( SourceMetadata.Resources);
-		Else	
+		Else
 			Attributes =  SourceMetadata.Resources;
 		EndIf;
 		CommonClientServer.SupplementTable(
-			RefsToObjectsToDeleteInRecordSet(Source, Attributes, IsAccountingRegister),
-			ValuesOfRefTypes);
+			RefsToObjectsToDeleteInRecordSet(Source, Attributes, IsAccountingRegister), ValuesOfRefTypes);
 	EndIf;
-	
-	If CommonClientServer.HasAttributeOrObjectProperty(SourceMetadata,"StandardAttributes") Then
+
+	If CommonClientServer.HasAttributeOrObjectProperty(SourceMetadata, "StandardAttributes") Then
 		If IsAccountingRegister Then
 			Attributes = GenerateStandardAccountingRegisterAttributes(SourceMetadata);
 		Else
 			Attributes = SourceMetadata.StandardAttributes;
-		EndIf;	
+		EndIf;
 		CommonClientServer.SupplementTable(
-			RefsToObjectsToDeleteInRecordSet(Source, Attributes, IsAccountingRegister),
-			ValuesOfRefTypes);
+			RefsToObjectsToDeleteInRecordSet(Source, Attributes, IsAccountingRegister), ValuesOfRefTypes);
 	EndIf;
 
 	If CommonClientServer.HasAttributeOrObjectProperty(SourceMetadata, "Attributes") Then
@@ -575,7 +575,7 @@ Function ReferencesToObjectsToDeleteInTheSet(Source, SourceMetadata)
 			RefsToObjectsToDeleteInRecordSet(Source, SourceMetadata.Attributes, IsAccountingRegister),
 			ValuesOfRefTypes);
 	EndIf;
-	
+
 	Return ValuesOfRefTypes;
 EndFunction
 
@@ -587,46 +587,46 @@ EndFunction
 //
 Function GenerateStandardAccountingRegisterAttributes(SourceMetadata)
 	StandardAttributes = New Array;
-	
+
 	StandardAttributes.Add(New Structure("Name", "Recorder"));
 	If SourceMetadata.Correspondence Then
-		StandardAttributes.Add(New Structure("Name","AccountDr"));
-		StandardAttributes.Add(New Structure("Name","AccountCr"));
-	Else	
-		StandardAttributes.Add(New Structure("Name","Account"));
+		StandardAttributes.Add(New Structure("Name", "AccountDr"));
+		StandardAttributes.Add(New Structure("Name", "AccountCr"));
+	Else
+		StandardAttributes.Add(New Structure("Name", "Account"));
 	EndIf;
-	
+
 	If SourceMetadata.ChartOfAccounts.MaxExtDimensionCount > 0 Then
 		If SourceMetadata.Correspondence Then
-			StandardAttributes.Add(New Structure("Name","ExtDimensionDr"));
-			StandardAttributes.Add(New Structure("Name","ExtDimensionCr"));
+			StandardAttributes.Add(New Structure("Name", "ExtDimensionDr"));
+			StandardAttributes.Add(New Structure("Name", "ExtDimensionCr"));
 		Else
-			StandardAttributes.Add(New Structure("Name","ExtDimension"));
+			StandardAttributes.Add(New Structure("Name", "ExtDimension"));
 		EndIf;
 	EndIf;
-	
+
 	Return StandardAttributes;
 EndFunction
 
-Function MatchesMetadataFilter( MetadataFilter, Item)
-	Return (Not ValueIsFilled(MetadataFilter) 
-			Or MetadataFilter.Find(Item.Metadata().FullName()) <> Undefined);
+Function MatchesMetadataFilter(MetadataFilter, Item)
+	Return (Not ValueIsFilled(MetadataFilter) Or MetadataFilter.Find(Item.Metadata().FullName())
+		<> Undefined);
 EndFunction
 
 Function IsIndependentInformationRegister(SourceMetadata)
 	Result = True;
-	
+
 	If Not Common.IsInformationRegister(SourceMetadata) Then
 		Return False;
 	EndIf;
-	
+
 	For Each StandardAttribute In SourceMetadata.StandardAttributes Do
 		If StandardAttribute.Name = "Recorder" Then
 			Result = False;
 			Break;
 		EndIf;
 	EndDo;
-	
+
 	Return Result;
 EndFunction
 
@@ -636,7 +636,7 @@ Function NewLinksInTheObject()
 	Table.Columns.Add("Table", New TypeDescription("String"));
 	Table.Columns.Add("Field", New TypeDescription("String"));
 	Table.Columns.Add("FilterCriterion", New TypeDescription("Map"));
-	
+
 	Return Table;
 EndFunction
 
@@ -662,7 +662,7 @@ Function SetDetails(Source, SourceMetadata)
 	For Each Dimension In SourceMetadata.Dimensions Do
 		LongDesc.FilterCriterion.Insert(Dimension.Name);
 	EndDo;
-	
+
 	For Each Attribute In SourceMetadata.StandardAttributes Do
 		If StrCompare(Attribute.Name, "Period") Then
 			LongDesc.FilterCriterion.Insert(Attribute.Name);
@@ -674,45 +674,45 @@ Function SetDetails(Source, SourceMetadata)
 EndFunction
 
 Function LinksAddedWhenTheObjectWasChanged(ReferencesDetails, LinksMarkedForDeletion)
-	
+
 	Result = New ValueTable;
 	Result.Columns.Add("Ref");
 	Result.Columns.Add("Presentation", New TypeDescription("String"));
-	
+
 	TheSeparatorPackageRequests = Chars.LF + "UNION ALL" + Chars.LF;
-	
+
 	QueryTemplate = "
-	|SELECT
-	|	&RefValue AS Ref,
-	|	PRESENTATION(&RefValue) AS Presentation
-	|WHERE
-	|	NOT TRUE IN (
-	|		SELECT TOP 1
-	|			TRUE
-	|		FROM 
-	|			#TableName AS Table
-	|		WHERE
-	|			&LinkSelectionCriteria)";
-	
+					|SELECT
+					|	&RefValue AS Ref,
+					|	PRESENTATION(&RefValue) AS Presentation
+					|WHERE
+					|	NOT TRUE IN (
+					|		SELECT TOP 1
+					|			TRUE
+					|		FROM 
+					|			#TableName AS Table
+					|		WHERE
+					|			&LinkSelectionCriteria)";
+
 	OtherLinkParameters = 0;
 	OtherSelectionParameters = 0;
-	
+
 	Query = New Query;
 	For Each ObjectTheValueOfTheNotes In LinksMarkedForDeletion Do
-		
+
 		If Not ObjectTheValueOfTheNotes.Value Then
 			Continue;
 		EndIf;
-		
+
 		RefValue =  ObjectTheValueOfTheNotes.Key;
-		
+
 		DescriptionOfTheLink = ReferencesDetails.FindRows(New Structure("Ref", RefValue));
 		For Each RefToDelete In DescriptionOfTheLink Do
 			ReferenceParameter = "RefValue" + XMLString(OtherLinkParameters);
 			QueryText = StrReplace(QueryTemplate, "&RefValue", "&" + ReferenceParameter);
 			QueryText = StrReplace(QueryText, "#TableName", RefToDelete.Table);
 			Query.Parameters.Insert(ReferenceParameter, RefValue);
-			
+
 			ConditionText= New Array;
 			For Each Condition In RefToDelete.FilterCriterion Do
 				ConditionText.Add("Table." + Condition.Key + " = &Parameter" + OtherSelectionParameters);
@@ -722,15 +722,13 @@ Function LinksAddedWhenTheObjectWasChanged(ReferencesDetails, LinksMarkedForDele
 			ConditionText.Add("Table." + RefToDelete.Field + " = &" + ReferenceParameter);
 			FilterText1 = StrConcat(ConditionText, Chars.LF + "And" + Chars.NBSp);
 			QueryText = StrReplace(QueryText, "&LinkSelectionCriteria", FilterText1);
-			
-			Query.Text = Query.Text 
-						+ ?(Not IsBlankString(Query.Text), TheSeparatorPackageRequests, "") 
-						+ QueryText;
+
+			Query.Text = Query.Text + ?(Not IsBlankString(Query.Text), TheSeparatorPackageRequests, "") + QueryText;
 			OtherLinkParameters = OtherLinkParameters + 1;
 		EndDo;
-		
+
 	EndDo;
-	
+
 	If Not IsBlankString(Query.Text) Then
 		QueryResult = Query.Execute();
 		Result = QueryResult.Unload();
@@ -740,21 +738,21 @@ Function LinksAddedWhenTheObjectWasChanged(ReferencesDetails, LinksMarkedForDele
 EndFunction
 
 Function LockedRefsToDelete(RefsToDelete)
-	
+
 	UnlockTime = CurrentSessionDate() - MarkedObjectsDeletionInternal.TheLifetimeOfALock();
 	Query = New Query("SELECT
-	|	ObjectsToDelete.Object AS Ref
-	|FROM
-	|	InformationRegister.ObjectsToDelete AS ObjectsToDelete
-	|WHERE
-	|	ObjectsToDelete.Object IN(&ObjectsToDelete)
-	|	AND ObjectsToDelete.Period >= &UnlockTime");
-	
+						  |	ObjectsToDelete.Object AS Ref
+						  |FROM
+						  |	InformationRegister.ObjectsToDelete AS ObjectsToDelete
+						  |WHERE
+						  |	ObjectsToDelete.Object IN(&ObjectsToDelete)
+						  |	AND ObjectsToDelete.Period >= &UnlockTime");
+
 	Query.SetParameter("ObjectsToDelete", RefsToDelete);
 	Query.SetParameter("UnlockTime", UnlockTime);
-	
+
 	Return Query.Execute().Unload().UnloadColumn("Ref");
-	
+
 EndFunction
 
 #EndRegion

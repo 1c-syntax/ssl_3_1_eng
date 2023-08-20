@@ -120,6 +120,43 @@ Procedure VisibilityConditionsFieldChoiceProcessing(Item, ValueSelected, Standar
 	
 EndProcedure
 
+&AtClient
+Procedure VisibilityConditionsFieldOnChange(Item)
+	
+	CurrentData = Items.VisibilityConditions.CurrentData;
+	SelectedField = Undefined;
+	
+	For Each FieldDetails In Items.VisibilityConditionsField.ChoiceList Do
+		If FieldDetails.Presentation = CurrentData.FieldPresentation Then
+			Return;
+		EndIf;
+		If SelectedField = Undefined And StrStartsWith(Lower(FieldDetails.Presentation), Lower(CurrentData.FieldPresentation)) Then
+			SelectedField = FieldDetails;
+		EndIf;
+	EndDo;
+	
+	If SelectedField = Undefined Then
+		CurrentData.Field = "";
+		CurrentData.FieldPresentation = "";
+	Else
+		CurrentData.Field = SelectedField.Value;
+		CurrentData.FieldPresentation = SelectedField.Presentation;
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure VisibilityConditionsOnStartEdit(Item, NewRow, Copy)
+	
+	CurrentData = Items.VisibilityConditions.CurrentData;
+	
+	If NewRow And CurrentData <> Undefined And Not ValueIsFilled(CurrentData.ComparisonType) Then
+		DefaultComparisonType = DataCompositionComparisonType.Equal;
+		CurrentData.ComparisonType = ComparisonViewIDs()[DefaultComparisonType];
+		CurrentData.ViewComparisonView = RepresentationsViewsComparisons()[CurrentData.ComparisonType];
+	EndIf;
+	
+EndProcedure
 
 &AtClient
 Procedure ConditionsVisibilityViewComparisonStartChoice(Item, ChoiceData, StandardProcessing)
@@ -150,7 +187,6 @@ Procedure ConditionsVisibilityViewComparisonChoiceProcessing(Item, ValueSelected
 	SetRestrictionType();
 	
 EndProcedure
-
 
 &AtClient
 Procedure ConditionsVisibilityViewComparisonOnChange(Item)
@@ -188,7 +224,9 @@ Procedure FillFieldSelectionList()
 				AttributeDetails.Type = Attribute.Type;
 				AttributeDetails.FieldPresentation = Attribute.Presentation();
 				
-				Items.VisibilityConditionsField.ChoiceList.Add(AttributeDetails.Field, AttributeDetails.FieldPresentation);
+				If Items.VisibilityConditionsField.ChoiceList.FindByValue(AttributeDetails.Field) = Undefined Then
+					Items.VisibilityConditionsField.ChoiceList.Add(AttributeDetails.Field, AttributeDetails.FieldPresentation);
+				EndIf;
 			EndDo;
 		EndDo;
 	EndDo;
@@ -212,7 +250,7 @@ Function RepresentationsViewsComparisons()
 	
 EndFunction
 
-&AtServer
+&AtClientAtServerNoContext
 Function ComparisonViewIDs()
 	
 	Result = New Map();

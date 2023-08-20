@@ -120,7 +120,7 @@ EndProcedure
 &AtServer
 Procedure BeforeLoadVariantAtServer(NewDCSettings)
 	
-	If ParametersForm.InitialOptionKey = CurrentVariantKey
+	If ReportsOptions.ItIsAcceptableToSetContext(ThisObject)
 	   And TypeOf(ParametersForm.Filter) = Type("Structure") Then
 		
 		ReportsServer.SetFixedFilters(ParametersForm.Filter, NewDCSettings, ReportSettings);
@@ -374,7 +374,7 @@ Procedure Attachable_List_ChoiceProcessing(Item, SelectionResult, StandardProces
 	SelectedItems = ReportsClientServer.ValuesByList(SelectionResult);
 	SelectedItems.FillChecks(True);
 	
-	AddOn = ReportsClientServer.AddToList2(List, SelectedItems, False, True);
+	AddOn = CommonClientServer.AddToList2(List, SelectedItems, False, True);
 	
 	TheValueOfTheSettingElement = CommonClient.CopyRecursive(List);
 	IndexOf = TheValueOfTheSettingElement.Count() - 1;
@@ -438,7 +438,7 @@ Procedure Attachable_ListItem_OnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure Attachable_ListItem_StartChoice(Item, ChoiceData, StandardProcessing, Cancel = False)
+Procedure Attachable_ListItem_StartChoice(Item, ChoiceData, StandardProcessing)
 	StandardProcessing = False;
 	
 	ListPath = StrReplace(Item.Name, "Value", "");
@@ -448,6 +448,20 @@ Procedure Attachable_ListItem_StartChoice(Item, ChoiceData, StandardProcessing, 
 	FillParameters.IndexOf = PathToItemsData.ByName[ListPath];
 	FillParameters.Owner = Item;
 	
+	CurrentValue = Items[ListPath].CurrentData.Value;
+	If CurrentValue <> Undefined Then
+		InformationRecords = ReportsClient.SettingItemInfo(Report.SettingsComposer, FillParameters.IndexOf);
+		UserSettings = Report.SettingsComposer.UserSettings.Items;
+		ChoiceParameters = ReportsClientServer.ChoiceParameters(InformationRecords.Settings, UserSettings, InformationRecords.Item);
+		FillParameters.Insert("ChoiceParameters", ChoiceParameters);
+		FillParameters.Insert("CurrentRow", CurrentValue);
+		
+		TypesList = New ValueList;
+		TypesList.Add(TypeOf(CurrentValue));
+		ContinueFillingList(TypesList[0], FillParameters);
+		Return;
+	EndIf;
+		
 	StartListFilling(Item, FillParameters);
 EndProcedure
 
@@ -466,7 +480,9 @@ Procedure SortSelection(Item, RowID, Field, StandardProcessing)
 	
 	If TypeOf(String.Field) = Type("DataCompositionField") Then
 		If Field = Items.SortField Then // 
-			SortingSelectField(RowID, String);
+			#If Not MobileClient Then
+				SortingSelectField(RowID, String);
+			#EndIf
 		ElsIf Field = Items.SortOrderType Then // 
 			ChangeOrderType(String);
 		EndIf;
@@ -626,6 +642,9 @@ EndProcedure
 &AtClient
 Procedure SelectedFieldsSelection(Item, RowID, Field, StandardProcessing)
 	StandardProcessing = False;
+#If MobileClient Then
+	Return;
+#EndIf
 	
 	String = Items.SelectedFields.CurrentData;
 	If String = Undefined Then
@@ -753,15 +772,37 @@ EndProcedure
 
 &AtClient
 Procedure SelectedFieldsDragCheck(Item, DragParameters, StandardProcessing, CurrentRow, Field)
+	
+	CurrentData = SelectedFields.FindByID(CurrentRow);
+	If CurrentData.IsSection Or CurrentData.IsFolder Then
+		DestinationRow = CurrentData;
+	Else
+		DestinationRow = CurrentData.GetParent();
+	EndIf;
+	
+	For Each RowID In DragParameters.Value Do 
+		RowDrag = SelectedFields.FindByID(RowID);
+		If TheseAreSubordinateElements(RowDrag, DestinationRow) Then
+			DragParameters.Action = DragAction.Cancel;
+			Return;
+		EndIf;
+	EndDo;
+	
 	DragDestinationAtClient = Item.Name;
 	
 	If DragParameters.Value.Count() > 0 Then 
 		StandardProcessing = False;
 	EndIf;
+	
 EndProcedure
 
 &AtClient
 Procedure SelectedFieldsDrag(Item, DragParameters, StandardProcessing, CurrentRow, Field)
+	
+	If DragParameters.Action = DragAction.Cancel Then
+		Return;
+	EndIf;
+	
 	StandardProcessing = False;
 	
 	If DragSourceAtClient = Item.Name Then 
@@ -771,6 +812,11 @@ EndProcedure
 
 &AtClient
 Procedure SelectedFieldsDragEnd(Item, DragParameters, StandardProcessing)
+
+	If DragParameters.Action = DragAction.Cancel Then
+		Return;
+	EndIf;
+	
 	If DragDestinationAtClient <> Item.Name Then 
 		Return;
 	EndIf;
@@ -1209,6 +1255,106 @@ Procedure FiltersUserSettingPresentationOnChange(Item)
 	EndIf;
 	
 	DetermineIfModified();
+EndProcedure
+
+&AtClient
+Procedure FiltersDragStart(Item, DragParameters, EnableDrag)
+	DragSourceAtClient = Item.Name;
+	
+	CheckDraggableRowsFromSelections(DragParameters.Value);
+	If DragParameters.Value.Count() = 0 Then 
+		EnableDrag = False;
+	EndIf;
+EndProcedure
+
+&AtClient
+Procedure FiltersDragCheck(Item, DragParameters, StandardProcessing, CurrentRow, Field)
+	
+	If CurrentRow = Undefined Then
+		DragParameters.Action = DragAction.Cancel;
+		Return;
+	EndIf;
+	
+	String = Filters.FindByID(CurrentRow);
+	Parent = String.GetParent(); 
+	If (Parent <> Undefined And Parent.Id = "DataParameters") 
+		Or String.Id = "DataParameters" Then
+		DragParameters.Action = DragAction.Cancel;
+		Return;
+	EndIf;
+
+	CurrentData = Filters.FindByID(CurrentRow);
+	If CurrentData.IsSection Or CurrentData.IsFolder Then
+		DestinationRow = CurrentData;
+	Else
+		DestinationRow = CurrentData.GetParent();
+	EndIf;
+	
+	For Each RowID In DragParameters.Value Do 
+		RowDrag = Filters.FindByID(RowID);
+		If TheseAreSubordinateElements(RowDrag, DestinationRow) Then
+			DragParameters.Action = DragAction.Cancel;
+			Return;
+		EndIf;
+	EndDo;
+
+	DragDestinationAtClient = Item.Name;
+	
+	If DragParameters.Value.Count() > 0 Then 
+		StandardProcessing = False;
+	EndIf;
+
+EndProcedure
+
+&AtClient
+Procedure FiltersDrag(Item, DragParameters, StandardProcessing, CurrentRow, Field)
+	
+	If DragParameters.Action = DragAction.Cancel Then
+		Return;
+	EndIf;
+	
+	StandardProcessing = False;
+	
+	If DragSourceAtClient = Item.Name Then 
+		DragSelectionsWithinCollection(DragParameters, CurrentRow);
+	EndIf;
+EndProcedure
+
+&AtClient
+Procedure FiltersDragEnd(Item, DragParameters, StandardProcessing)
+	
+	If DragParameters.Action = DragAction.Cancel Then
+		Return;
+	EndIf;
+	
+	If DragDestinationAtClient <> Item.Name Then 
+		Return;
+	EndIf;
+	
+	StandardProcessing = False;
+	
+	StructureItemProperty = SettingsStructureItemProperty(
+		Report.SettingsComposer, "Filter", SettingsStructureItemID, ExtendedMode);
+	
+	Rows = DragParameters.Value;
+	Parent = Rows[0].GetParent();
+	
+	IndexOf = Rows.UBound();
+	While IndexOf >= 0 Do 
+		String = Rows[IndexOf];
+		
+		SettingItem = SettingItem(StructureItemProperty, String);
+		SettingItemParent = StructureItemProperty;
+		If SettingItem.Parent <> Undefined Then 
+			SettingItemParent = SettingItem.Parent;
+		EndIf;
+		
+		SettingItemParent.Items.Delete(SettingItem);
+		Parent.GetItems().Delete(String);
+		
+		IndexOf = IndexOf - 1;
+	EndDo;
+	
 EndProcedure
 
 #EndRegion
@@ -2691,6 +2837,121 @@ EndProcedure
 // 
 
 &AtClient
+Procedure CheckDraggableRowsFromSelections(RowsIDs)
+	Parents = New Array;
+	
+	IndexOf = RowsIDs.UBound();
+	While IndexOf >= 0 Do 
+		RowID = RowsIDs[IndexOf];
+		
+		String = Filters.FindByID(RowID);
+		Parent = String.GetParent();
+		
+		If Parent = Undefined
+			Or Parent.GetItems().IndexOf(String) < 0
+			Or TypeOf(String.Id) <> Type("DataCompositionID")
+			Or Parent.Id = "DataParameters" Then 
+			RowsIDs.Delete(IndexOf);
+		Else
+			Parents.Add(Parent);
+		EndIf;
+		
+		IndexOf = IndexOf - 1;
+	EndDo;
+	
+	Parents = CommonClientServer.CollapseArray(Parents);
+	If Parents.Count() > 1 Then 
+		RowsIDs.Clear();
+	EndIf;
+EndProcedure
+
+&AtClient
+Procedure DragSelectionsWithinCollection(DragParameters, CurrentRow) 
+	
+	CurrentData = Filters.FindByID(CurrentRow);
+	
+	Rows = New Array;
+	For Each RowID In DragParameters.Value Do 
+		Rows.Add(Filters.FindByID(RowID));
+	EndDo;
+	
+	SourceRow = Rows[0].GetParent(); // See SettingsFormCollectionItem
+	If CurrentData.IsSection Or CurrentData.IsFolder Then 
+		DestinationRow = CurrentData;
+	Else
+		DestinationRow = CurrentData.GetParent();
+	EndIf; 
+	
+	IndexOf = DestinationRow.GetItems().IndexOf(CurrentData);
+	If IndexOf < 0 Then 
+		IndexOf = 0;
+	EndIf;
+	
+	RowsInheritors = New Map;
+	RowsInheritors.Insert(SourceRow, DestinationRow);
+	
+	StructureItemProperty = SettingsStructureItemProperty(
+		Report.SettingsComposer, "Filter", SettingsStructureItemID, ExtendedMode);
+	
+	SettingItemSource = StructureItemProperty;
+	If TypeOf(SourceRow.Id) = Type("DataCompositionID") Then 
+		SettingItemSource = StructureItemProperty.GetObjectByID(SourceRow.Id);
+	EndIf;
+	
+	SettingItemDestination = StructureItemProperty;
+	If TypeOf(DestinationRow.Id) = Type("DataCompositionID") Then 
+		SettingItemDestination = StructureItemProperty.GetObjectByID(DestinationRow.Id);
+	EndIf;
+	
+	SettingsItemsInheritors = New Map;
+	SettingsItemsInheritors.Insert(SettingItemSource, SettingItemDestination);
+	
+	DragAndDropFilters(StructureItemProperty, IndexOf, Rows, SettingsItemsInheritors, RowsInheritors);
+	
+	Section = DefaultRootRow("Filters");
+	Items.Filters.Expand(Section.GetID(), True);
+	
+	DetermineIfModified();
+EndProcedure
+
+&AtClient
+Procedure DragAndDropFilters(SelectedSettingsNodeFields, IndexOf, Rows, SettingsItemsInheritors, RowsInheritors)
+	For Each SourceRow In Rows Do
+		SettingItemSource = SelectedSettingsNodeFields.GetObjectByID(SourceRow.Id);
+		
+		SettingItemParentSource = SelectedSettingsNodeFields;
+		If SettingItemSource.Parent <> Undefined Then 
+			SettingItemParentSource = SettingItemSource.Parent;
+		EndIf;
+		
+		SettingItemParentDestination = SettingsItemsInheritors.Get(SettingItemParentSource); // DataCompositionFilterItemGroup
+		DestinationRowParent = RowsInheritors.Get(SourceRow.GetParent()); // See SettingsFormCollectionItem
+		
+		If IndexOf > SettingItemParentDestination.Items.Count() - 1 Then 
+			SettingItemDestination = SettingItemParentDestination.Items.Add(TypeOf(SettingItemSource));
+			DestinationRow = DestinationRowParent.GetItems().Add();
+		Else
+			SettingItemDestination = SettingItemParentDestination.Items.Insert(IndexOf, TypeOf(SettingItemSource));
+			DestinationRow = DestinationRowParent.GetItems().Insert(IndexOf);
+		EndIf;
+		
+		FillPropertyValues(SettingItemDestination, SettingItemSource);
+		FillPropertyValues(DestinationRow, SourceRow);
+		DestinationRow.Id = SelectedSettingsNodeFields.GetIDByObject(SettingItemDestination);
+		DestinationRow.IsFolder = (TypeOf(SettingItemDestination) = Type("DataCompositionFilterItemGroup"));
+		
+		SettingsItemsInheritors.Insert(SettingItemSource, SettingItemDestination);
+		RowsInheritors.Insert(SourceRow, DestinationRow);
+		
+		If TypeOf(SettingItemDestination) = Type("DataCompositionFilterItemGroup") Then 
+			DragAndDropFilters(SelectedSettingsNodeFields, IndexOf, SourceRow.GetItems(), SettingsItemsInheritors, RowsInheritors)
+		EndIf;
+	EndDo;
+EndProcedure
+
+// 
+
+&AtClient
 Procedure ShiftFilters(ToBeginning = True)
 	ShiftParameters = FiltersShiftParameters();
 	If ShiftParameters = Undefined Then 
@@ -3504,7 +3765,7 @@ Function ValuesForSelection(String)
 	
 	FilterValue = ReportsClient.SelectionValueCache(Report.SettingsComposer, SettingItem);
 	If FilterValue <> Undefined Then 
-		ReportsClientServer.AddToList2(ValuesForSelection, FilterValue);
+		CommonClientServer.AddToList2(ValuesForSelection, FilterValue);
 	EndIf;
 	
 	ReportsClient.UpdateListViews(ValuesForSelection, String.AvailableValues);
@@ -5792,6 +6053,18 @@ Procedure MoveToHierarchy(Context)
 	
 EndProcedure
 
+&AtClient
+Function TheseAreSubordinateElements(ParentElementOfTree, TreeItem)
+	ParentItem = TreeItem;
+	While ParentItem <> Undefined Do
+		If ParentElementOfTree = ParentItem Then
+			Return True;
+		EndIf;
+		ParentItem = ParentItem.GetParent();
+	EndDo;
+	Return False;
+EndFunction
+
 ////////////////////////////////////////////////////////////////////////////////
 // 
 
@@ -6334,7 +6607,7 @@ Procedure UpdateFormItemsProperties()
 	#Region SimpleEditModeItemsProperties
 	
 	Items.IsMain.Visible = Not IsExtendedMode;
-	Items.More.Visible = Not IsExtendedMode;
+	Items.More.Visible = Not IsExtendedMode And Not IsMobileClient;
 	
 	Items.OutputTitle.Visible = Not IsExtendedMode;
 	Items.OutputFilters.Visible = Not IsExtendedMode;
@@ -6362,10 +6635,49 @@ Procedure UpdateFormItemsProperties()
 		Items.FiltersPage.Title = NStr("en = 'Filters';");
 	Else
 		Items.FiltersPage.Title = NStr("en = 'Main';");
+		If IsMobileClient Then
+			GroupUserSettingsBasic = Items.IsMain.ChildItems.Find("SettingsComposerUserSettingsBasic");
+			If GroupUserSettingsBasic <> Undefined Then
+				If Items.IsMain.ChildItems.Count() = 1
+					And Items.IsMain.Type = FormGroupType.Pages Then // FormGroup
+					Items.IsMain.PagesRepresentation = FormPagesRepresentation.None;
+				Else
+					For Each SubordinateItem In Items.IsMain.ChildItems Do
+						If SubordinateItem = GroupUserSettingsBasic Then
+							Continue;
+						EndIf;
+						For Each SubordinateItem1 In SubordinateItem.ChildItems Do
+							If TypeOf(SubordinateItem1) = Type("FormTable") Then
+								SubordinateItem1.CommandBarLocation = FormItemCommandBarLabelLocation.None;
+								SubordinateItem1.Header = False;
+							EndIf;
+						EndDo;
+					EndDo;
+				EndIf;
+				If GroupUserSettingsBasic.ChildItems.Find(GroupUserSettingsBasic.Name+"1") = Undefined Then
+					GroupUserSettingsBasic1 = Items.Add(GroupUserSettingsBasic.Name+"1", Type("FormGroup"), GroupUserSettingsBasic);
+					GroupUserSettingsBasic1.Type = FormGroupType.UsualGroup; // FormGroup
+					GroupUserSettingsBasic1.ShowTitle = False;
+					GroupUserSettingsBasic1.HorizontalSpacing = FormItemSpacing.None;
+					GroupUserSettingsBasic1.VerticalSpacing = FormItemSpacing.None;
+					Counter = 0;
+					While Counter < GroupUserSettingsBasic.ChildItems.Count() Do
+						SubordinateItem = GroupUserSettingsBasic.ChildItems[Counter];
+						If SubordinateItem = GroupUserSettingsBasic1 Then
+							Counter = Counter + 1;
+						Else
+							If TypeOf(SubordinateItem) = Type("FormGroup") Then
+								SubordinateItem.United = False;
+							EndIf;
+							Items.Move(SubordinateItem, GroupUserSettingsBasic1);
+						EndIf;
+					EndDo;
+				EndIf;
+			EndIf;
+		EndIf;
 	EndIf;
 	
 	Items.Filters.Visible = DisplayFilters;
-	Items.HasNestedFiltersGroup.Visible = DisplayFilters;
 	Items.HasNestedFiltersGroup.Visible = DisplayFilters
 		And ContainsNestedFilters
 		And DisplayInformation1;
@@ -6471,8 +6783,7 @@ Procedure UpdateFormItemsProperties()
 	
 	If Parameters.Property("DisplayPages") Then 
 		DisplayPages = (Parameters.DisplayPages <> False);
-	ElsIf Not IsExtendedMode
-		And IsMobileClient Then 
+	ElsIf Not IsExtendedMode Then 
 		DisplayPages = False;
 	Else
 		DisplayPages =
@@ -6507,6 +6818,16 @@ Procedure UpdateFormItemsProperties()
 	
 	CountOfAvailableSettings = ReportsServer.CountOfAvailableSettings(Report.SettingsComposer);
 	Items.GenerateAndClose.Visible = CountOfAvailableSettings.Total > 0 Or DisplayPages;
+	If IsMobileClient Then
+		Items.ExtendedMode.Visible = False;
+		Items.SetupGroup.Visible = False;
+		Items.HasNestedReportsGroup.Visible = True;
+		Items.HasNestedReportsTooltip.Title = NStr(
+			"en = 'Advanced setup mode is unavailable in a mobile client';");
+		Items.GenerateAndClose.Representation = ButtonRepresentation.PictureAndText;
+		Items.Close.Visible = False;
+		Items.Help.Visible = False;
+	EndIf;
 	
 	#EndRegion
 EndProcedure
@@ -6576,7 +6897,7 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.GroupCompositionGroupType.Name);
 	
-	// Заголовок - 
+	// Title - 
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -6903,7 +7224,7 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.FiltersRightValue.Name);
 	
-	// Заголовок - 
+	// Title - 
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -6970,7 +7291,7 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.SelectedFieldsUse.Name);
 	
-	// Заголовок - 
+	// Title - 
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -7019,7 +7340,7 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.SortOrderType.Name);
 	
-	// Заголовок - 
+	// Title - 
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -7174,7 +7495,7 @@ Procedure ImportSettingsToComposer(ImportParameters)
 	// 
 	// 
 	If SettingsImported
-	   And ParametersForm.InitialOptionKey = CurrentVariantKey
+	   And ReportsOptions.ItIsAcceptableToSetContext(ThisObject)
 	   And TypeOf(ParametersForm.Filter) = Type("Structure") Then
 		
 		ReportsServer.SetFixedFilters(ParametersForm.Filter, Report.SettingsComposer.Settings, ReportSettings);
@@ -7677,7 +7998,7 @@ EndProcedure
 //    * IsPeriod - Boolean
 //    * Picture - Number
 //    * ChoiceForm - String
-//    * ChoiceFoldersAndItems - ВыборГруппИЭлементов
+//    * ChoiceFoldersAndItems - FoldersAndItemsUse
 //    * AvailableCompareTypes - ValueList
 //    * Parameter - DataCompositionParameter
 //    * LeftValue - DataCompositionField

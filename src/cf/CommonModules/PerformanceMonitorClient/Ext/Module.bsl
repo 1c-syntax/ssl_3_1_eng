@@ -41,7 +41,7 @@ Function TimeMeasurement(KeyOperation = Undefined, RecordWithError = False, Auto
 		Return New UUID("00000000-0000-0000-0000-000000000000");
 	EndIf;
 	
-	Parameters = TimeMeasurementParametersOnClient(KeyOperation);
+	Parameters = TimeMeasurementParametersAtClient(KeyOperation);
 	Parameters.AutoCompletion = AutoCompletion;
 	Parameters.IsFailed = RecordWithError;
 
@@ -72,7 +72,7 @@ Function StartTechologicalTimeMeasurement(AutoCompletion = True, KeyOperation = 
 		Return New UUID("00000000-0000-0000-0000-000000000000");
 	EndIf;
 
-	Parameters = TimeMeasurementParametersOnClient(KeyOperation);
+	Parameters = TimeMeasurementParametersAtClient(KeyOperation);
 	Parameters.AutoCompletion = AutoCompletion;
 	Parameters.Technological = True;
 	Parameters.IsFailed = False;
@@ -253,12 +253,15 @@ EndProcedure
 //									idle handler will be recorded under the name "Last step".
 //
 // Returns:
-//   Map:
-//   * KeyOperation - String -  name of the key operation.
-//   * BeginTime - Number - key operation start time in milliseconds.
-//   * LastMeasurementTime - Number - time of the last key operation measurement in milliseconds.
-//   * MeasurementWeight - Number - amount of data processed during execution.
-//   * NestedMeasurements - Map - collection of nested step measurements.
+//   Map of KeyAndValue:
+//     * Key - String
+//     * Value - Arbitrary
+//    
+//     
+//     
+//     
+//     
+//     
 //
 Function StartTimeConsumingOperationMeasurement(KeyOperation, RecordWithError = False, AutoCompletion = False, LastStepName = "LastStep") Export
 	
@@ -266,7 +269,7 @@ Function StartTimeConsumingOperationMeasurement(KeyOperation, RecordWithError = 
 		Return New Map;
 	EndIf;
 	
-	Parameters = TimeMeasurementParametersOnClient(KeyOperation);
+	Parameters = TimeMeasurementParametersAtClient(KeyOperation);
 	Parameters.IsFailed = RecordWithError;
 	Parameters.AutoCompletion = AutoCompletion;
 			
@@ -393,7 +396,7 @@ Function StartTimeMeasurement(AutoCompletion = True, KeyOperation = Undefined) E
 		Return New UUID("00000000-0000-0000-0000-000000000000");
 	EndIf;
 
-	Parameters = TimeMeasurementParametersOnClient(KeyOperation);
+	Parameters = TimeMeasurementParametersAtClient(KeyOperation);
 	Parameters.AutoCompletion = AutoCompletion;
 	Parameters.IsFailed = False;
 
@@ -473,7 +476,7 @@ Function StartTimeMeasurementWithOffset(Offset, AutoCompletion = True, KeyOperat
 		Return New UUID("00000000-0000-0000-0000-000000000000");
 	EndIf;
 
-	Parameters = TimeMeasurementParametersOnClient(KeyOperation);
+	Parameters = TimeMeasurementParametersAtClient(KeyOperation);
 	Parameters.AutoCompletion = AutoCompletion;
 	Parameters.IsFailed = False;
 	Parameters.Offset = Offset;
@@ -513,7 +516,7 @@ EndFunction
 //   * Offset - Number
 //   * Comment - 
 //
-Function TimeMeasurementParametersOnClient(KeyOperation)
+Function TimeMeasurementParametersAtClient(KeyOperation)
 
 	Parameters = New Structure;
 	Parameters.Insert("KeyOperation", KeyOperation);
@@ -540,7 +543,7 @@ Function PerformanceMonitorTimeMeasurement()
 EndFunction
 
 // Parameters:
-//  Parameters - See TimeMeasurementParametersOnClient
+//  Parameters - See TimeMeasurementParametersAtClient
 //
 Procedure StartTimeMeasurementAtClientInternal(Parameters)
     

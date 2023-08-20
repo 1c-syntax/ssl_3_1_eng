@@ -66,6 +66,7 @@ Function FindReminders(Val SubjectOf = Undefined, Id = Undefined) Export
 	Query.SetParameter("Id", Id);
 	
 	RemindersTable = Query.Execute().Unload();
+	RemindersTable.Sort("ReminderTime");
 	
 	Return Common.ValueTableToArray(RemindersTable);
 	

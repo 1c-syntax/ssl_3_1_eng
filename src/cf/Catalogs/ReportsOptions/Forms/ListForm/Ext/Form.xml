@@ -549,6 +549,11 @@
 											<ContextMenu name="AuthorContextMenu" id="13"/>
 											<ExtendedTooltip name="AuthorExtendedTooltip" id="125"/>
 										</LabelField>
+										<LabelField name="Purpose" id="202">
+											<DataPath>List.Purpose</DataPath>
+											<ContextMenu name="PurposeContextMenu" id="203"/>
+											<ExtendedTooltip name="PurposeExtendedTooltip" id="204"/>
+										</LabelField>
 										<PictureField name="AvailableToAllUsers" id="96">
 											<DataPath>List.AvailableToAllUsers</DataPath>
 											<UserVisible>
@@ -735,6 +740,7 @@
 	ReportsOptionsOverridable.VariantKey,
 	ReportsOptionsOverridable.ReportType,
 	ReportsOptionsOverridable.Author,
+	ReportsOptionsOverridable.Purpose,
 	CASE
 		WHEN SUBSTRING(ReportsOptionsOverridable.LongDesc, 1, 1) &lt;&gt; ""
 			THEN CAST(ReportsOptionsOverridable.LongDesc AS STRING(1000))

@@ -16,35 +16,31 @@
 //  SpecifiedParameters - Array of String
 //
 Procedure SessionParametersSetting(SessionParametersNames, SpecifiedParameters) Export
-	
-	If SessionParametersNames = Undefined
-	 Or SessionParametersNames.Find("InstalledExtensions") <> Undefined Then
-		
+
+	If SessionParametersNames = Undefined Or SessionParametersNames.Find("InstalledExtensions") <> Undefined Then
+
 		SessionParameters.InstalledExtensions = InstalledExtensions(True);
 		SpecifiedParameters.Add("InstalledExtensions");
 	EndIf;
-	
-	If SessionParametersNames = Undefined
-	 Or SessionParametersNames.Find("AttachedExtensions") <> Undefined Then
-		
+
+	If SessionParametersNames = Undefined Or SessionParametersNames.Find("AttachedExtensions") <> Undefined Then
+
 		Extensions = ConfigurationExtensions.Get(, ConfigurationExtensionsSource.SessionApplied);
 		SessionParameters.AttachedExtensions = ExtensionsChecksums(Extensions, "SafeMode");
 		SpecifiedParameters.Add("AttachedExtensions");
 	EndIf;
-	
-	If SessionParametersNames <> Undefined
-	   And SessionParametersNames.Find("ExtensionsVersion") <> Undefined Then
-		
+
+	If SessionParametersNames <> Undefined And SessionParametersNames.Find("ExtensionsVersion") <> Undefined Then
+
 		SessionParameters.ExtensionsVersion = ExtensionsVersion();
 		SpecifiedParameters.Add("ExtensionsVersion");
 	EndIf;
-	
-	If SessionParametersNames = Undefined
-	   And CurrentRunMode() <> Undefined Then
-	
+
+	If SessionParametersNames = Undefined And CurrentRunMode() <> Undefined Then
+
 		RegisterExtensionsVersionUsage(True);
 	EndIf;
-	
+
 EndProcedure
 
 // Returns checksums for the main extensions
@@ -64,7 +60,7 @@ EndProcedure
 //   * Corrections - String - a checksum of all patch extensions.
 //
 Function InstalledExtensions(OnStart = False) Export
-	
+
 	DatabaseExtensions = ConfigurationExtensions.Get();
 	If OnStart Then
 		ExtensionsOnStart = New Map;
@@ -94,7 +90,7 @@ Function InstalledExtensions(OnStart = False) Export
 	Else
 		Extensions = DatabaseExtensions;
 	EndIf;
-	
+
 	IndexOf = Extensions.Count();
 	While IndexOf > 0 Do
 		IndexOf = IndexOf - 1;
@@ -103,11 +99,11 @@ Function InstalledExtensions(OnStart = False) Export
 			Extensions.Delete(IndexOf);
 		EndIf;
 	EndDo;
-	
+
 	Main_    = New Array;
 	Corrections = New Array;
-	
-	If Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate") Then 
+
+	If Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate") Then
 		ModuleConfigurationUpdate = Common.CommonModule("ConfigurationUpdate");
 	Else
 		ModuleConfigurationUpdate = Undefined;
@@ -118,14 +114,12 @@ Function InstalledExtensions(OnStart = False) Export
 	// 
 	SharedMode = Common.DataSeparationEnabled()
 		And Not Common.SeparatedDataUsageAvailable();
-	
+
 	For Each Extension In Extensions Do
-		If SharedMode
-		   And Extension.Scope = ConfigurationExtensionScope.DataSeparation Then
+		If SharedMode And Extension.Scope = ConfigurationExtensionScope.DataSeparation Then
 			Continue;
 		EndIf;
-		If ModuleConfigurationUpdate <> Undefined
-		   And ModuleConfigurationUpdate.IsPatch(Extension) Then 
+		If ModuleConfigurationUpdate <> Undefined And ModuleConfigurationUpdate.IsPatch(Extension) Then
 			Corrections.Add(Extension);
 		Else
 			Main_.Add(Extension);
@@ -137,66 +131,63 @@ Function InstalledExtensions(OnStart = False) Export
 	InstalledExtensions.Insert("Corrections", ExtensionsChecksums(Corrections));
 	InstalledExtensions.Insert("MainState", ExtensionsChecksums(Main_, "All"));
 	InstalledExtensions.Insert("PatchesState", ExtensionsChecksums(Corrections, "All"));
-	
-	If OnStart
-	   And ActiveExtensions.Count() = 0
-	   And UnattachedExtensions.Count() = 0
-	   And DatabaseExtensions.Count() <> 0
-	   And StandardSubsystemsServer.IsBaseConfigurationVersion() Then
-		
+
+	If OnStart And ActiveExtensions.Count() = 0 And UnattachedExtensions.Count() = 0
+		And DatabaseExtensions.Count() <> 0 And StandardSubsystemsServer.IsBaseConfigurationVersion() Then
+
 		InstalledExtensions.Insert("ExtensionsUnavailable");
 	EndIf;
-	
+
 	If OnStart Then
 		SetTheInitialRegisteredState(InstalledExtensions, InstalledExtensions);
 	EndIf;
-	
+
 	Return New FixedStructure(InstalledExtensions);
-	
+
 EndFunction
 
 // For the TimeConsumingOperations.RunBackgroundJobWithClientContext function.
 Procedure InsertARegisteredSetOfInstalledExtensions(Parameters) Export
-	
+
 	ExtensionsChangedDynamically();
-	
+
 	SetPrivilegedMode(True);
 	InstalledExtensions = SessionParameters.InstalledExtensions;
 	SetPrivilegedMode(False);
-	
+
 	Properties = New Structure;
-	Properties.Insert("MainState",     InstalledExtensions.BasicRegisteredStatus);
-	Properties.Insert("PatchesState",  InstalledExtensions.FixesRegisteredStatus);
-	
+	Properties.Insert("MainState", InstalledExtensions.BasicRegisteredStatus);
+	Properties.Insert("PatchesState", InstalledExtensions.FixesRegisteredStatus);
+
 	Parameters.Insert("RegisteredCompositionOfInstalledExtensions", Properties);
-	
+
 EndProcedure
 
 // For the TimeConsumingOperations.ExecuteWithClientContext procedure.
 Procedure RestoreTheRegisteredCompositionOfInstalledExtensions(Parameters) Export
-	
+
 	If Parameters.Property("RegisteredCompositionOfInstalledExtensions") Then
 		SetTheInitialRegisteredState(
 			Parameters.RegisteredCompositionOfInstalledExtensions);
 	EndIf;
-	
+
 EndProcedure
 
 // Returns:
 //  FixedStructure
 //
 Function InstalledExtensionsOnStartup() Export
-	
+
 	Result = New Structure;
 	Result.Insert("Main_", "");
 	Result.Insert("Corrections", "");
 	Result.Insert("MainState", "");
 	Result.Insert("PatchesState", "");
-	
+
 	FillPropertyValues(Result, SessionParameters.InstalledExtensions);
-	
+
 	Return New FixedStructure(Result);
-	
+
 EndFunction
 
 // Returns a flag that shows whether the extension content was changed after the session start.
@@ -205,21 +196,21 @@ EndFunction
 //  Boolean
 //
 Function ExtensionsChangedDynamically() Export
-	
+
 	SetPrivilegedMode(True);
-	
+
 	InstalledExtensions = InstalledExtensions();
-	
+
 	InstalledExtensionsOnStartup = InstalledExtensionsOnStartup();
-	
+
 	Unchanged = InstalledExtensionsOnStartup.Property("ExtensionsUnavailable")
-		Or InstalledExtensionsOnStartup.MainState    = InstalledExtensions.MainState
-		  And InstalledExtensionsOnStartup.PatchesState = InstalledExtensions.PatchesState;
-	
+		Or InstalledExtensionsOnStartup.MainState = InstalledExtensions.MainState
+		And InstalledExtensionsOnStartup.PatchesState = InstalledExtensions.PatchesState;
+
 	RegisterChangesToInstalledExtensions(InstalledExtensions, Unchanged);
-	
+
 	Return Not Unchanged;
-	
+
 EndFunction
 
 // Returns information on changed extensions and corrections.
@@ -240,54 +231,56 @@ EndFunction
 //          * Deleted   - Number
 //
 Function DynamicallyChangedExtensions(InstalledExtensionsOnStartup = Undefined,
-			IsCheckInCurrentSession = False) Export
-	
+	IsCheckInCurrentSession = False) Export
+
 	Result = New Structure;
 	Result.Insert("Extensions", Undefined);
 	Result.Insert("Corrections", Undefined);
-	
+
 	SetPrivilegedMode(True);
-	
+
 	InstalledExtensions = InstalledExtensions();
-	
+
 	If InstalledExtensionsOnStartup = Undefined Then
 		IsCheckInCurrentSession = True;
 		InstalledExtensionsOnStartup = InstalledExtensionsOnStartup();
 	EndIf;
-	
+
 	Unchanged = InstalledExtensionsOnStartup.Property("ExtensionsUnavailable")
-		Or InstalledExtensionsOnStartup.MainState    = InstalledExtensions.MainState
-		  And InstalledExtensionsOnStartup.PatchesState = InstalledExtensions.PatchesState;
-	
+		Or InstalledExtensionsOnStartup.MainState = InstalledExtensions.MainState
+		And InstalledExtensionsOnStartup.PatchesState = InstalledExtensions.PatchesState;
+
 	If IsCheckInCurrentSession Then
 		RegisterChangesToInstalledExtensions(InstalledExtensions, Unchanged);
 	EndIf;
-	
+
 	If Unchanged Then
 		Return Result;
 	EndIf;
-	
+
 	If InstalledExtensionsOnStartup.PatchesState <> InstalledExtensions.PatchesState Then
-		Changes = ChangesInExtensionsComposition(InstalledExtensionsOnStartup.Corrections, InstalledExtensions.Corrections);
+		Changes = ChangesInExtensionsComposition(InstalledExtensionsOnStartup.Corrections,
+			InstalledExtensions.Corrections);
 		Result.Corrections = Changes;
 	EndIf;
-	
+
 	If InstalledExtensionsOnStartup.MainState <> InstalledExtensions.MainState Then
-		Changes = ChangesInExtensionsComposition(InstalledExtensionsOnStartup.MainState, InstalledExtensions.MainState);
+		Changes = ChangesInExtensionsComposition(InstalledExtensionsOnStartup.MainState,
+			InstalledExtensions.MainState);
 		Result.Extensions = Changes;
 	EndIf;
-	
+
 	Return Result;
-	
+
 EndFunction
 
 // Adds information that the session started using the metadata version.
-Procedure RegisterExtensionsVersionUsage(WhenSettingSessionParametersForFirstTime = False) Export
-	
+Procedure RegisterExtensionsVersionUsage(OnFirstSetSessionParameters = False) Export
+
 	If TransactionActive() Then
 		Return;
 	EndIf;
-	
+
 	If Not Common.SeparatedDataUsageAvailable() Then
 		If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 			ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
@@ -295,18 +288,18 @@ Procedure RegisterExtensionsVersionUsage(WhenSettingSessionParametersForFirstTim
 		EndIf;
 		Return;
 	EndIf;
-	
-	If WhenSettingSessionParametersForFirstTime Then
+
+	If OnFirstSetSessionParameters Then
 		SessionParameters.ExtensionsVersion = ExtensionsVersion();
 	EndIf;
-	
+
 	ExtensionsVersion = SessionParameters.ExtensionsVersion;
-	
+
 	If Not ValueIsFilled(ExtensionsVersion) Then
 		UpdateLatestExtensionsVersion(ExtensionsVersion);
 		Return;
 	EndIf;
-	
+
 	RoundedSessionStartDate = RoundedSessionStartDate();
 	Query = New Query;
 	Query.SetParameter("ExtensionsVersion", ExtensionsVersion);
@@ -327,7 +320,7 @@ Procedure RegisterExtensionsVersionUsage(WhenSettingSessionParametersForFirstTim
 	LockItem = Block.Add("Catalog.ExtensionsVersions");
 	LockItem.SetValue("Ref", ExtensionsVersion);
 	LockItem.Mode = DataLockMode.Shared;
-	
+
 	BeginTransaction();
 	Try
 		Block.Lock();
@@ -337,7 +330,7 @@ Procedure RegisterExtensionsVersionUsage(WhenSettingSessionParametersForFirstTim
 		RollbackTransaction();
 		Raise;
 	EndTry;
-	
+
 	If Not QueryResult.IsEmpty() Then
 		Block = New DataLock;
 		LockItem = Block.Add("Catalog.ExtensionsVersions");
@@ -346,10 +339,9 @@ Procedure RegisterExtensionsVersionUsage(WhenSettingSessionParametersForFirstTim
 		Try
 			Block.Lock();
 			Object = ServiceItem(ExtensionsVersion);
-			
-			If Object <> Undefined
-			   And Object.DateOfLastUse < RoundedSessionStartDate Then
-				
+
+			If Object <> Undefined And Object.DateOfLastUse < RoundedSessionStartDate Then
+
 				Object.DateOfLastUse = RoundedSessionStartDate;
 				Object.Write();
 			EndIf;
@@ -359,9 +351,9 @@ Procedure RegisterExtensionsVersionUsage(WhenSettingSessionParametersForFirstTim
 			Raise;
 		EndTry;
 	EndIf;
-	
+
 	UpdateLatestExtensionsVersion(ExtensionsVersion);
-	
+
 EndProcedure
 
 // Returns:
@@ -372,37 +364,35 @@ EndProcedure
 //    * UpdateID - UUID
 //
 Function LastExtensionsVersion() Export
-	
+
 	ParameterName = "StandardSubsystems.Core.LastExtensionsVersion";
 	StoredProperties = StandardSubsystemsServer.ExtensionParameter(ParameterName, True);
-	
-	If StoredProperties = Undefined
-	 Or TypeOf(StoredProperties) <> Type("Structure")
-	 Or Not StoredProperties.Property("ExtensionsVersion")
-	 Or Not StoredProperties.Property("UpdateDate")
-	 Or Not StoredProperties.Property("UpdateID") Then
-		
+
+	If StoredProperties = Undefined Or TypeOf(StoredProperties) <> Type("Structure")
+		Or Not StoredProperties.Property("ExtensionsVersion") Or Not StoredProperties.Property("UpdateDate")
+		Or Not StoredProperties.Property("UpdateID") Then
+
 		StoredProperties = New Structure;
 		StoredProperties.Insert("ExtensionsVersion");
 		StoredProperties.Insert("UpdateDate", '00010101');
 		StoredProperties.Insert("UpdateID",
 			CommonClientServer.BlankUUID());
 	EndIf;
-	
+
 	Return StoredProperties;
-	
+
 EndFunction
 
 // Deletes obsolete metadata versions.
 Procedure DeleteObsoleteParametersVersions() Export
-	
+
 	OtherVersion = OtherExtensionsVersion();
-	
+
 	If Not ValueIsFilled(OtherVersion) Then
 		DisableScheduledJobIfRequired();
 		Return;
 	EndIf;
-	
+
 	ApplicationsToCheck = New Map;
 	ApplicationsToCheck.Insert("1CV8", True);
 	ApplicationsToCheck.Insert("1CV8C", True);
@@ -411,13 +401,13 @@ Procedure DeleteObsoleteParametersVersions() Export
 	ApplicationsToCheck.Insert("WSConnection", True);
 	ApplicationsToCheck.Insert("BackgroundJob", True);
 	ApplicationsToCheck.Insert("SystemBackgroundJob", True);
-	
+
 	SessionsArray = GetInfoBaseSessions();
 	MinSessionStartDate = GetCurrentInfoBaseSession().SessionStarted;
-	
+
 	For Each Session In SessionsArray Do
 		If Session.SessionStarted >= MinSessionStartDate
-		 Or ApplicationsToCheck.Get(Session.ApplicationName) = Undefined Then
+			Or ApplicationsToCheck.Get(Session.ApplicationName) = Undefined Then
 			Continue;
 		EndIf;
 		MinSessionStartDate = Session.SessionStarted;
@@ -430,19 +420,18 @@ Procedure DeleteObsoleteParametersVersions() Export
 		If Not ValueIsFilled(OtherVersion) Then
 			Break;
 		EndIf;
-		
+
 		Block = New DataLock;
 		LockItem = Block.Add("Catalog.ExtensionsVersions");
 		LockItem.SetValue("Ref", OtherVersion);
-		
+
 		BeginTransaction();
 		Try
 			Block.Lock();
 			Object = ServiceItem(OtherVersion);
-			
-			If Object <> Undefined
-			   And Object.DateOfLastUse < MinSessionStartDate Then
-				
+
+			If Object <> Undefined And Object.DateOfLastUse < MinSessionStartDate Then
+
 				Object.DeletionMark = True;
 				Object.Write();
 			EndIf;
@@ -452,38 +441,37 @@ Procedure DeleteObsoleteParametersVersions() Export
 			Raise;
 		EndTry;
 	EndDo;
-	
+
 	DisableScheduledJobIfRequired();
-	
+
 EndProcedure
 
 // This procedure is called from an extension form.
 Procedure OnRemoveAllExtensions() Export
-	
+
 	EnableDeleteObsoleteExtensionsVersionsParametersJob(True);
-	
+
 EndProcedure
 
 // Enables and disables the DeleteObsoleteExtensionsVersionsParameters scheduled job.
 Procedure EnableDeleteObsoleteExtensionsVersionsParametersJob(Enable) Export
-	
+
 	ScheduledJobsServer.SetPredefinedScheduledJobUsage(
 		Metadata.ScheduledJobs.DeleteObsoleteExtensionsVersionsParameters, Enable);
-	
+
 EndProcedure
 
 // For General Extension forms, set Corrections.
 //
 Procedure ToggleExtensionUsage(ExtensionID, CurrentUsage) Export
-	
+
 	Extension = FindExtension(ExtensionID);
-	
-	If Extension = Undefined
-	 Or Extension.Active = CurrentUsage Then
-		
+
+	If Extension = Undefined Or Extension.Active = CurrentUsage Then
+
 		Return;
 	EndIf;
-	
+
 	Extension.Active = CurrentUsage;
 	DisableSecurityWarnings(Extension);
 	DisableMainRolesUsageForAllUsers(Extension);
@@ -492,7 +480,7 @@ Procedure ToggleExtensionUsage(ExtensionID, CurrentUsage) Export
 	Except
 		Raise;
 	EndTry;
-	
+
 	Try
 		InformationRegisters.ExtensionVersionParameters.UpdateExtensionParameters();
 	Except
@@ -500,14 +488,14 @@ Procedure ToggleExtensionUsage(ExtensionID, CurrentUsage) Export
 		If Extension.Active Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'An unexpected error occurred while preparing the extensions (after enabling the extension):
-				           |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
+					 |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		Else
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'An unexpected error occurred while preparing the extensions (after disabling the extension):
-				           |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
+					 |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		EndIf;
 	EndTry;
-	
+
 	If ValueIsFilled(ErrorText) Then
 		RecoveryErrorInformation = Undefined;
 		Try
@@ -518,18 +506,18 @@ Procedure ToggleExtensionUsage(ExtensionID, CurrentUsage) Export
 			ErrorText = ErrorText + Chars.LF + Chars.LF
 				+ StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'An unexpected error occurred when trying to cancel the change of the extension attachment check box:
-					           |%1';"), ErrorProcessing.BriefErrorDescription(RecoveryErrorInformation));
+						 |%1';"), ErrorProcessing.BriefErrorDescription(RecoveryErrorInformation));
 		EndTry;
 		If RecoveryErrorInformation = Undefined Then
 			ErrorText = ErrorText + Chars.LF + Chars.LF
 				+ NStr("en = 'The change of the ""Attached"" extension parameter is canceled.';");
 		EndIf;
 	EndIf;
-	
+
 	If ValueIsFilled(ErrorText) Then
 		Raise ErrorText;
 	EndIf;
-	
+
 EndProcedure
 
 // For common forms Extensions and InstalledPatches.
@@ -539,19 +527,19 @@ EndProcedure
 //  Undefined
 //
 Function FindExtension(ExtensionID) Export
-	
+
 	Filter = New Structure;
 	Filter.Insert("UUID", New UUID(ExtensionID));
 	Extensions = ConfigurationExtensions.Get(Filter);
-	
+
 	Extension = Undefined;
-	
+
 	If Extensions.Count() = 1 Then
 		Extension = Extensions[0];
 	EndIf;
-	
+
 	Return Extension;
-	
+
 EndFunction
 
 // For common forms Extensions and InstalledPatches.
@@ -560,23 +548,23 @@ EndFunction
 //  Extension - ConfigurationExtension
 //
 Procedure DisableSecurityWarnings(Extension) Export
-	
+
 	Extension.UnsafeActionProtection = Common.ProtectionWithoutWarningsDetails();
-	
+
 EndProcedure
 
 // For common forms Extensions and InstalledPatches.
 Procedure DisableMainRolesUsageForAllUsers(Extension) Export
-	
+
 	Extension.UseDefaultRolesForAllUsers = False;
-	
+
 EndProcedure
 
 // For common forms Extensions and InstalledPatches.
 Procedure DeleteExtensions(ExtensionsIDs, ErrorText) Export
-	
+
 	ExtensionsToDelete = New Array;
-	
+
 	ErrorText = "";
 	Try
 		ExtensionToDelete = "";
@@ -606,26 +594,25 @@ Procedure DeleteExtensions(ExtensionsIDs, ErrorText) Export
 		ErrorInfo = ErrorInfo();
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot delete extension ""%1"". Reason:
-			           |%2';"),
-			ExtensionToDelete,
-			ErrorProcessing.BriefErrorDescription(ErrorInfo));
+				 |%2';"), 
+			ExtensionToDelete, ErrorProcessing.BriefErrorDescription(ErrorInfo));
 	EndTry;
-	
+
 	If Not ValueIsFilled(ErrorText) Then
 		Try
 			If Common.SeparatedDataUsageAvailable()
-			   And ConfigurationExtensions.Get().Count() = 0 Then
-				
+				And ConfigurationExtensions.Get().Count() = 0 Then
+
 				Catalogs.ExtensionsVersions.OnRemoveAllExtensions();
 			EndIf;
 		Except
 			ErrorInfo = ErrorInfo();
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'After the deletion, an error occurred in the handler of deletion of all extensions:
-				           |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
+					 |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		EndTry;
 	EndIf;
-	
+
 	If Not ValueIsFilled(ErrorText) Then
 		Try
 			InformationRegisters.ExtensionVersionParameters.UpdateExtensionParameters();
@@ -633,10 +620,10 @@ Procedure DeleteExtensions(ExtensionsIDs, ErrorText) Export
 			ErrorInfo = ErrorInfo();
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'After the deletion, an error occurred while initializing the remaining extensions:
-				           |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
+					 |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		EndTry;
 	EndIf;
-	
+
 	If ValueIsFilled(ErrorText) Then
 		RecoveryErrorInformation = Undefined;
 		RecoveryPerformed = False;
@@ -650,19 +637,18 @@ Procedure DeleteExtensions(ExtensionsIDs, ErrorText) Export
 			EndDo;
 		Except
 			RecoveryErrorInformation = ErrorInfo();
-			ErrorText = ErrorText + Chars.LF + Chars.LF
-				+ StringFunctionsClientServer.SubstituteParametersToString(
+			ErrorText = ErrorText + Chars.LF + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Another error occurred while attempting to restore the deleted extensions:
-					           |%1';"), ErrorProcessing.BriefErrorDescription(RecoveryErrorInformation));
+						 |%1';"), 
+					ErrorProcessing.BriefErrorDescription(RecoveryErrorInformation));
 		EndTry;
-		If RecoveryPerformed
-		   And RecoveryErrorInformation = Undefined Then
-			
-			ErrorText = ErrorText + Chars.LF + Chars.LF
+		If RecoveryPerformed And RecoveryErrorInformation = Undefined Then
+
+			ErrorText = ErrorText + Chars.LF + Chars.LF 
 				+ NStr("en = 'The deleted extensions are restored.';");
 		EndIf;
 	EndIf;
-	
+
 EndProcedure
 
 // For common forms Extensions and InstalledPatches.
@@ -671,43 +657,42 @@ EndProcedure
 //  Array of UUID
 //
 Function RequestsToRevokeExternalModuleUsagePermissions(ExtensionsIDs) Export
-	
+
 	Queries = New Array;
-	
+
 	ModuleSafeModeManager = Common.CommonModule("SafeModeManager");
 	If Not ModuleSafeModeManager.UseSecurityProfiles() Then
 		Return Queries;
 	EndIf;
-	
+
 	Permissions = New Array;
-	
+
 	For Each ExtensionID In ExtensionsIDs Do
 		CurrentExtension = FindExtension(ExtensionID);
 		Permissions.Add(ModuleSafeModeManager.PermissionToUseExternalModule(
 			CurrentExtension.Name, Base64String(CurrentExtension.HashSum)));
 	EndDo;
-	
+
 	Queries.Add(ModuleSafeModeManager.RequestToCancelPermissionsToUseExternalResources(
-		Common.MetadataObjectID("InformationRegister.ExtensionVersionParameters"),
-		Permissions));
-		
+		Common.MetadataObjectID("InformationRegister.ExtensionVersionParameters"), Permissions));
+
 	Return Queries;
-	
+
 EndFunction
 
 // Returns:
 //  Boolean
 //
 Function AllExtensionsConnected() Export
-	
+
 	SetPrivilegedMode(True);
-	
+
 	Numberofextensions = ConfigurationExtensions.Get().Count();
 	NumberofConnectedExtensions = ConfigurationExtensions.Get(,
 		ConfigurationExtensionsSource.SessionApplied).Count();
-	
+
 	Return Numberofextensions = NumberofConnectedExtensions;
-	
+
 EndFunction
 
 // Returns:
@@ -716,10 +701,10 @@ EndFunction
 //         
 //
 Function SessionRealtimeTimestamp() Export
-	
+
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
-	
+
 	If Not SessionParameters.InstalledExtensions.Property("SessionRealtimeTimestamp") Then
 		InstalledExtensions = New Structure(SessionParameters.InstalledExtensions);
 		InstalledExtensions.Insert("SessionRealtimeTimestamp",
@@ -727,12 +712,12 @@ Function SessionRealtimeTimestamp() Export
 		SessionParameters.InstalledExtensions = New FixedStructure(InstalledExtensions);
 	EndIf;
 	Timestamp1 = SessionParameters.InstalledExtensions.SessionRealtimeTimestamp;
-	
+
 	SetPrivilegedMode(False);
 	SetSafeModeDisabled(False);
-	
+
 	Return Timestamp1;
-	
+
 EndFunction
 
 #EndRegion
@@ -749,65 +734,63 @@ EndFunction
 //  String - Strings in the following format: "<Extension name> (<Version>) <Hashsum>".
 //
 Function ExtensionsChecksums(Extensions, AttachmentProperties1 = "", IncludingConfiguration = True)
-	
+
 	List = New ValueList;
-	
+
 	For Each Extension In Extensions Do
 		List.Add(ExtensionChecksum(Extension, AttachmentProperties1));
 	EndDo;
-	
+
 	If IncludingConfiguration And List.Count() <> 0 Then
 		Checksum = "#" + Metadata.Name + " (" + Metadata.Version + ")";
 		List.Add(Checksum);
 	EndIf;
-	
+
 	Checksums = "";
 	For Each Item In List Do
 		Checksums = Checksums + Chars.LF + Item.Value;
 	EndDo;
-	
+
 	Return TrimL(Checksums);
-	
+
 EndFunction
 
 // For functions ExtensionsChecksums and InstalledExtensions.
 Function ExtensionChecksum(Extension, AttachmentProperties1 = "")
-	
+
 	Checksum = Extension.Name + " (" + Extension.Version + ") " + Base64String(Extension.HashSum);
-	
+
 	If ValueIsFilled(AttachmentProperties1) Then
 		Checksum = Checksum + " SafeMode:"
 			+ ?(TypeOf(Extension.SafeMode) = Type("Boolean"),
 				?(Extension.SafeMode, "Yes", "None"),
 				"{" + String(Extension.SafeMode) + "}");
 	EndIf;
-	
+
 	If AttachmentProperties1 = "All" Then
-		Checksum = Checksum
-			+ " PassToSubordinateDIBNodes:"
-				+ ?(Extension.UsedInDistributedInfoBase, "Yes", "None")
-			+ " Active:"
-				+ ?(Extension.Active, "Yes", "None");
+		Checksum = Checksum + " PassToSubordinateDIBNodes:" 
+			+ ?(Extension.UsedInDistributedInfoBase, "Yes", "None") + " Active:" 
+			+ ?(Extension.Active, "Yes", "None");
 	EndIf;
-	
+
 	Return Checksum;
-	
+
 EndFunction
 
 // Returns the current extension version.
 // The search for a version is based on details of the attached extensions.
 //
 Function ExtensionsVersion()
-	
+
 	If Not Common.SeparatedDataUsageAvailable() Then
 		Return EmptyRef();
 	EndIf;
-	
+
 	ExtensionsDetails = SessionParameters.AttachedExtensions;
 	If Not ValueIsFilled(ExtensionsDetails) Then
 		Return EmptyRef();
 	EndIf;
-	
+
 	Query = New Query;
 	Query.Text =
 	"SELECT
@@ -833,7 +816,7 @@ Function ExtensionsVersion()
 		RollbackTransaction();
 		Raise;
 	EndTry;
-	
+
 	If VersionFound(Selection, ExtensionsDetails) Then
 		ExtensionsVersion = Selection.Ref;
 	Else
@@ -868,50 +851,50 @@ Function ExtensionsVersion()
 			Raise;
 		EndTry;
 	EndIf;
-	
+
 	Return ExtensionsVersion;
-	
+
 EndFunction
 
 // For function ExtensionsVersion.
 Function VersionFound(Selection, ExtensionsDetails)
-	
+
 	While Selection.Next() Do
 		If Selection.ExtensionsDetails = ExtensionsDetails Then
 			Return True;
 		EndIf;
 	EndDo;
-	
+
 	Return False;
-	
+
 EndFunction
 
 // This method is required by ExtensionsVersion function.
 Function FlagOfAddingNewVersion()
-	
+
 	Return Catalogs.ExtensionsVersions.GetRef(
 		New UUID("61ce6265-abb2-11ea-87d6-b06ebfbf08c7"));
-	
+
 EndFunction
 
 // For the ExtensionsVersion function and DeleteObsoleteParametersVersions,
 // RegisterExtensionsVersionUsage procedures.
 //
 Function RoundedSessionStartDate(SessionStarted = '00010101')
-	
+
 	If ValueIsFilled(SessionStarted) Then
 		Return BegOfHour(SessionStarted);
 	EndIf;
-	
+
 	Return BegOfHour(GetCurrentInfoBaseSession().SessionStarted);
-	
+
 EndFunction
 
 // For the ExtensionsVersion function and DeleteObsoleteParametersVersions,
 // RegisterExtensionsVersionUsage procedures.
 //
 Function ServiceItem(Ref = Undefined)
-	
+
 	If Ref = Undefined Then
 		CatalogItem = CreateItem();
 		Query = New Query;
@@ -928,19 +911,19 @@ Function ServiceItem(Ref = Undefined)
 			Return Undefined;
 		EndIf;
 	EndIf;
-	
+
 	CatalogItem.AdditionalProperties.Insert("DontControlObjectsToDelete");
 	CatalogItem.AdditionalProperties.Insert("DisableObjectChangeRecordMechanism");
 	CatalogItem.DataExchange.Recipients.AutoFill = False;
 	CatalogItem.DataExchange.Load = True;
-	
+
 	Return CatalogItem;
-	
+
 EndFunction
 
 // This method is required by DeleteObsoleteParametersVersions procedure.
 Function OtherExtensionsVersion(MinSessionStartDate = '39991231')
-	
+
 	Query = New Query;
 	Query.SetParameter("ExtensionsVersion", SessionParameters.ExtensionsVersion);
 	Query.SetParameter("MinSessionStartDate", MinSessionStartDate);
@@ -959,7 +942,7 @@ Function OtherExtensionsVersion(MinSessionStartDate = '39991231')
 	Block = New DataLock;
 	LockItem = Block.Add("Catalog.ExtensionsVersions");
 	LockItem.Mode = DataLockMode.Shared;
-	
+
 	BeginTransaction();
 	Try
 		Block.Lock();
@@ -969,13 +952,13 @@ Function OtherExtensionsVersion(MinSessionStartDate = '39991231')
 		RollbackTransaction();
 		Raise;
 	EndTry;
-	
+
 	If Selection.Next() Then
 		Return Selection.Ref;
 	EndIf;
-	
+
 	Return Undefined;
-	
+
 EndFunction
 
 // This method is required by DeleteObsoleteParametersVersions procedure.
@@ -985,7 +968,7 @@ Procedure DisableScheduledJobIfRequired()
 	Block = New DataLock;
 	LockItem = Block.Add("Catalog.ExtensionsVersions");
 	LockItem.Mode = DataLockMode.Shared;
-	
+
 	Query = New Query;
 	Query.Text =
 	"SELECT TOP 2
@@ -994,16 +977,14 @@ Procedure DisableScheduledJobIfRequired()
 	|	Catalog.ExtensionsVersions AS ExtensionsVersions
 	|WHERE
 	|	NOT ExtensionsVersions.DeletionMark";
-	
+
 	BeginTransaction();
 	Try
 		Block.Lock();
 		Selection = Query.Execute().Select();
-		If Selection.Count() = 0
-		 Or Selection.Count() = 1
-		   And Selection.Next()
-		   And Selection.Ref = SessionParameters.ExtensionsVersion Then
-			
+		If Selection.Count() = 0 Or Selection.Count() = 1 And Selection.Next() 
+			And Selection.Ref = SessionParameters.ExtensionsVersion Then
+
 			EnableDeleteObsoleteExtensionsVersionsParametersJob(False);
 		EndIf;
 		CommitTransaction();
@@ -1011,30 +992,29 @@ Procedure DisableScheduledJobIfRequired()
 		RollbackTransaction();
 		Raise;
 	EndTry;
-	
+
 EndProcedure
 
 // This method is required by RegisterExtensionsVersionUsage procedure.
 Procedure UpdateLatestExtensionsVersion(ExtensionsVersion)
-	
-	If DataBaseConfigurationChangedDynamically()
-	 Or ExtensionsChangedDynamically() Then
+
+	If DataBaseConfigurationChangedDynamically() Or ExtensionsChangedDynamically() Then
 		Return;
 	EndIf;
-	
+
 	StoredProperties = LastExtensionsVersion();
-	
+
 	If StoredProperties.ExtensionsVersion = ExtensionsVersion Then
 		Return;
 	EndIf;
-	
+
 	StoredProperties.ExtensionsVersion = ExtensionsVersion;
 	StoredProperties.UpdateDate   = CurrentSessionDate();
 	StoredProperties.UpdateID = New UUID;
-	
+
 	ParameterName = "StandardSubsystems.Core.LastExtensionsVersion";
 	StandardSubsystemsServer.SetExtensionParameter(ParameterName, StoredProperties, True);
-	
+
 EndProcedure
 
 // For the DynamicallyChangedExtensions function.
@@ -1047,7 +1027,7 @@ Function ChangesInExtensionsComposition(CurrentComposition, NewContent)
 		NameAndHash = StrSplit(Extension, " ");
 		NewMap1.Insert(NameAndHash[0], Extension);
 	EndDo;
-	
+
 	CurrentMap = New Map;
 	For Each Extension In StrSplit(CurrentComposition, Chars.LF) Do
 		If StrStartsWith(Extension, "#") Or Not ValueIsFilled(Extension) Then
@@ -1056,7 +1036,7 @@ Function ChangesInExtensionsComposition(CurrentComposition, NewContent)
 		NameAndHash = StrSplit(Extension, " ");
 		CurrentMap.Insert(NameAndHash[0], Extension);
 	EndDo;
-	
+
 	Added2 = 0;
 	IsChanged  = 0;
 	NewItemsList = New Array;
@@ -1073,77 +1053,73 @@ Function ChangesInExtensionsComposition(CurrentComposition, NewContent)
 		EndIf;
 	EndDo;
 	Deleted = CurrentMap.Count();
-	
+
 	Result = New Structure;
 	Result.Insert("Added2", Added2);
 	Result.Insert("IsChanged", IsChanged);
 	Result.Insert("Deleted", Deleted);
 	Result.Insert("NewItemsList", NewItemsList);
-	
+
 	Return Result;
 EndFunction
 
 // For the InstalledExtensions function and RestoreRegisteredInstalledExtensionsComposition procedure.
 Procedure SetTheInitialRegisteredState(Source, Receiver = Undefined)
-	
+
 	If Receiver = Undefined Then
 		UpdateTheRegisteredStateInTheSessionParameter(Source);
 	Else
-		Receiver.Insert("BasicRegisteredStatus",    Source.MainState);
+		Receiver.Insert("BasicRegisteredStatus", Source.MainState);
 		Receiver.Insert("FixesRegisteredStatus", Source.PatchesState);
 	EndIf;
-	
+
 EndProcedure
 
 // For the ExtensionsChangedDynamically and DynamicallyChangedExtensions functions.
 Procedure RegisterChangesToInstalledExtensions(InstalledExtensions, Unchanged)
-	
-	If SessionParameters.InstalledExtensions.BasicRegisteredStatus
-	                   = InstalledExtensions.MainState
-	   And SessionParameters.InstalledExtensions.FixesRegisteredStatus
-	                   = InstalledExtensions.PatchesState Then
+
+	If SessionParameters.InstalledExtensions.BasicRegisteredStatus = InstalledExtensions.MainState
+		And SessionParameters.InstalledExtensions.FixesRegisteredStatus = InstalledExtensions.PatchesState Then
 		Return;
 	EndIf;
-	
+
 	DefaultLanguageCode = Common.DefaultLanguageCode();
 	Comment = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = '1. Previously:
-		           |- Extensions:
-		           |""%1""
-		           |- Patches:
-		           |""%2""
-		           |2. Now:
-		           |- Extensions:
-		           |""%3""
-		           |- Patches:
-		           |""%4""
-		           |3. New composition as at session start: %5';", DefaultLanguageCode),
+			 |- Extensions:
+			 |""%1""
+			 |- Patches:
+			 |""%2""
+			 |2. Now:
+			 |- Extensions:
+			 |""%3""
+			 |- Patches:
+			 |""%4""
+			 |3. New composition as at session start: %5';", DefaultLanguageCode),
 		SessionParameters.InstalledExtensions.BasicRegisteredStatus,
 		SessionParameters.InstalledExtensions.FixesRegisteredStatus,
-		InstalledExtensions.MainState,
-		InstalledExtensions.PatchesState,
-		?(Unchanged, NStr("en = 'Yes';", DefaultLanguageCode), NStr("en = 'No';", DefaultLanguageCode)));
-	
+		InstalledExtensions.MainState, InstalledExtensions.PatchesState, 
+			?(Unchanged, NStr("en = 'Yes';", DefaultLanguageCode), NStr("en = 'No';", DefaultLanguageCode)));
+
 	WriteLogEvent(
 		NStr("en = 'Configuration extensions.Installed extension change is detected';",
-		     Common.DefaultLanguageCode()),
-		EventLogLevel.Information,,, Comment);
-	
+		Common.DefaultLanguageCode()), EventLogLevel.Information,,, Comment);
+
 	UpdateTheRegisteredStateInTheSessionParameter(InstalledExtensions);
-	
+
 EndProcedure
 
 // For the RegisterExtensionsCompositionChange,
 // SetInitialRegisteredState procedures.
 //
 Procedure UpdateTheRegisteredStateInTheSessionParameter(InstalledExtensions)
-	
+
 	Properties = New Structure(SessionParameters.InstalledExtensions);
 	Properties.BasicRegisteredStatus    = InstalledExtensions.MainState;
 	Properties.FixesRegisteredStatus = InstalledExtensions.PatchesState;
-	
+
 	SessionParameters.InstalledExtensions = New FixedStructure(Properties);
-	
+
 EndProcedure
 
 // For procedure AddAdditionalInformationRecords of the manager module of information register ExtensionVersionParameters.
@@ -1156,20 +1132,20 @@ EndProcedure
 //   * All          - String - All database extensions including patches.
 //
 Function DescriptionExtensionsForJournal() Export
-	
+
 	Result = New Structure;
-	
+
 	Result.Insert("ConnectedNow", ExtensionsChecksums(
 		ConfigurationExtensions.Get(, ConfigurationExtensionsSource.SessionApplied), "All", False));
-	
+
 	Result.Insert("Disabled1", ExtensionsChecksums(
 		ConfigurationExtensions.Get(, ConfigurationExtensionsSource.SessionDisabled), "All", False));
-	
+
 	Result.Insert("All", ExtensionsChecksums(
 		ConfigurationExtensions.Get(), "All", False));
-	
+
 	Return Result;
-	
+
 EndFunction
 
 #EndRegion

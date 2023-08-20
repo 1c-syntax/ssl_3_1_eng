@@ -1115,6 +1115,7 @@ Procedure OnCreateAtServer(Form, PlacementParameters) Export
 		Group.Type = FormGroupType.UsualGroup;
 		Group.ShowTitle = False;
 		Group.Title = NStr("en = 'Set up reminder';");
+		Group.Representation = UsualGroupRepresentation.None;
 		
 		If SettingsOfReminder.ShouldAddFlag Then
 			CheckBox = Form.Items.Add(FieldNameRemindAboutEvent, Type("FormField"), Group);
@@ -1306,12 +1307,7 @@ Procedure ReadSettingsOfSubjectReminder(Form, SubjectOf)
 			FieldNameReminderTimeInterval = UserRemindersClientServer.FieldNameReminderTimeInterval();
 			
 			Form[FieldNameRemindAboutEvent] = True;
-			If Reminder.ReminderInterval = 0 Then
-				Form[FieldNameReminderTimeInterval] = UserRemindersClientServer.EnumPresentationOnOccurrence();
-			Else
-				Form[FieldNameReminderTimeInterval] = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '%1 before';"), TimePresentation(Reminder.ReminderInterval, , False));
-			EndIf;
+			Form[FieldNameReminderTimeInterval] = UserRemindersClientServer.PresentationOFReminderDEADLINE(Reminder);
 			Break;
 		EndIf;
 	EndDo;

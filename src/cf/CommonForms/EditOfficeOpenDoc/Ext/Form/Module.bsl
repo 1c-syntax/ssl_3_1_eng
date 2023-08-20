@@ -93,11 +93,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	AvailableTranslationLayout = False;
 	If IsTemplate Then
 		If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-			PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
-			AvailableTranslationLayout = PrintManagementModuleMultilanguage.AvailableTranslationLayout(IdentifierOfTemplate);
+			PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
+			AvailableTranslationLayout = PrintManagementModuleNationalLanguageSupport.AvailableTranslationLayout(IdentifierOfTemplate);
 			If IsPrintForm Or AvailableTranslationLayout Then
-				PrintManagementModuleMultilanguage.FillInTheLanguageSubmenu(ThisObject, Parameters.LanguageCode);
-				AutomaticTranslationAvailable = PrintManagementModuleMultilanguage.AutomaticTranslationAvailable(CurrentLanguage);
+				PrintManagementModuleNationalLanguageSupport.FillInTheLanguageSubmenu(ThisObject, Parameters.LanguageCode);
+				AutomaticTranslationAvailable = PrintManagementModuleNationalLanguageSupport.AutomaticTranslationAvailable(CurrentLanguage);
 			EndIf;
 		EndIf;
 	EndIf;
@@ -151,12 +151,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 		
 		ModuleConstructorFormula.AddAListOfFieldsToTheForm(ThisObject, AddingOptions);
-		
+		PrepareTemplateForOpening(PreparedTemplate);
 		ExpandFieldList();
 		
 	EndIf;
 	
-	PrepareTemplateForOpening(PreparedTemplate);
 	PutToTempStorage(PreparedTemplate, TemplateFileAddress);
 	EditableTemplateHash = GetTemplateHash(TemplateFileAddress);
 	TemplateModificationCheckTime =	CurrentUniversalDateInMilliseconds();
@@ -592,18 +591,18 @@ Procedure ImportOfficeDocFromMetadata(Val LanguageCode = Undefined)
 		EndIf;
 	EndIf;
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-		PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
+		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
 		If ValueIsFilled(LanguageCode) Then
-			AvailableTabularDocumentLanguages = PrintManagementModuleMultilanguage.LayoutLanguages(IdentifierOfTemplate);
+			AvailableTabularDocumentLanguages = PrintManagementModuleNationalLanguageSupport.LayoutLanguages(IdentifierOfTemplate);
 			TranslationRequired = AvailableTabularDocumentLanguages.Find(LanguageCode) = Undefined;
 		EndIf;
 		
 		If LanguageCode <> "" Then
-			LayoutLanguages = PrintManagementModuleMultilanguage.LayoutLanguages(IdentifierOfTemplate);
+			LayoutLanguages = PrintManagementModuleNationalLanguageSupport.LayoutLanguages(IdentifierOfTemplate);
 			Modified = Modified Or (LayoutLanguages.Find(LanguageCode) = Undefined);
 		EndIf;
 		
-		AutomaticTranslationAvailable = PrintManagementModuleMultilanguage.AutomaticTranslationAvailable(CurrentLanguage);
+		AutomaticTranslationAvailable = PrintManagementModuleNationalLanguageSupport.AutomaticTranslationAvailable(CurrentLanguage);
 		Items.Translate.Visible = AutomaticTranslationAvailable;
 		Items.ButtonShowOriginal.Visible = Items.Translate.Visible;
 	EndIf;
@@ -1599,8 +1598,8 @@ EndProcedure
 Procedure TranslateLayoutTexts()
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-		PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
-		PrintManagementModuleMultilanguage.TranslateOfficeDoc(TemplateFileAddress, CurrentLanguage, Common.DefaultLanguageCode());
+		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
+		PrintManagementModuleNationalLanguageSupport.TranslateOfficeDoc(TemplateFileAddress, CurrentLanguage, Common.DefaultLanguageCode());
 		
 		Modified = True;
 	EndIf;
@@ -1622,7 +1621,7 @@ Procedure PickupSample(MetadataObject)
 	|	Ref DESC";
 	
 	QueryText = StrReplace(QueryText, "&Table", MetadataObject.FullName());
-	Query = New Query(QueryText);;
+	Query = New Query(QueryText);
 	Selection = Query.Execute().Select();
 	If Selection.Next() Then
 		Pattern = Selection.Ref;

@@ -170,7 +170,7 @@ Procedure ApplyRules(ExportingParameters, StorageAddress) Export
 		
 		Except
 			
-			ErrorMessageTemplate = NStr("en = 'Cannot apply the ""%1"" mailbox rule for the ""%2"" account due to: 
+			ErrorMessageTemplate = NStr("en = 'Cannot apply the ""%1"" mailbox rule to the ""%2"" account due to: 
 			                                |%3
 			                                |Correct the mailbox rule.';", Common.DefaultLanguageCode());
 		

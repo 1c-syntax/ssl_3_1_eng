@@ -125,7 +125,7 @@ Function GenerateSplashText(Val TextTemplate1)
 	TextParameters["[Copyright_SSLy]"] = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = '© 1C Company, 1996-%1';"), Format(Year(CurrentSessionDate()), "NG=0"));
 	
-	Return SubstituteParametersToText(TextTemplate1, TextParameters);;
+	Return SubstituteParametersToText(TextTemplate1, TextParameters);
 	
 EndFunction
 
@@ -205,7 +205,7 @@ Function ScriptMessages()
 	Messages["[TheMessageIsACallToCompleteTheUpdate]"] = "ConfigurationUpdate.CompleteUpdate" + "({0}, {1}, {2})";
 	Messages["[FailureMessageWhenCallingToCompleteTheUpdate]"] = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Exception when calling %1: {0}, {1}';"), "ConfigurationUpdate.CompleteUpdate");
-	Messages["[TheMessageDatabaseUpdateResult]"] = NStr("en = 'Infobase is updated';");
+	Messages["[TheMessageDatabaseUpdateResult]"] = NStr("en = 'The infobase is updated.';");
 	Messages["[DatabaseUpdateFailureMessage]"] = NStr("en = 'An unexpected error occurred while updating the infobase';");
 	Messages["[TheMessageDatabaseParameters]"] = NStr("en = 'Infobase parameters: {0}.';");
 	Messages["[LoggingFailureMessage]"] = NStr("en = 'Exception when writing Event log: {0}, {1}';");

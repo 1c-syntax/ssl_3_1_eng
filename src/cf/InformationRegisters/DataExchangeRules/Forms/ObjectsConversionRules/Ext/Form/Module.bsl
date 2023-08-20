@@ -482,7 +482,7 @@ Procedure UpdateRuleInfo()
 EndProcedure
 
 &AtClient
-Procedure AllowExternalResource(WriteParameters);
+Procedure AllowExternalResource(WriteParameters)
 	
 	ClosingNotification1 = New NotifyDescription("AllowExternalResourceCompletion", ThisObject, WriteParameters);
 	If CommonClient.SubsystemExists("StandardSubsystems.SecurityProfiles") Then

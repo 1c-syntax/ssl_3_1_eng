@@ -19,7 +19,7 @@ Procedure OnWrite(Cancel)
 	
 	If Not Interactions.UserIsResponsibleForMaintainingFolders(Owner) Then
 		Common.MessageToUser(
-			NStr("en = 'This operation is available only to the user responsible for managing the account''s folders.';"),
+			NStr("en = 'The operation is available only to the user responsible for managing the account''s folders.';"),
 			Ref,,,
 			Cancel);
 	EndIf;

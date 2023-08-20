@@ -62,53 +62,45 @@ Function TranslateTheTexts(Texts, TranslationLanguage = Undefined, SourceLanguag
 	EndIf;
 	
 	FoundTranslations = FindATranslationOfTexts(Texts, TranslationLanguage, SourceLanguage);
-	TextsRequiringTranslation = New Array;
+	
+	If Not GetFunctionalOption("UseTextTranslationService") Then
+		Return FoundTranslations;
+	EndIf;	
+	
+	TextsRequiringTranslation = New Map;
+	TextTranslationServiceModule = TextTranslationServiceModule();
+	MaxBatchSize = TextTranslationServiceModule.MaxBatchSize();
 	
 	For Each Text In Texts Do
 		If ValueIsFilled(FoundTranslations[Text]) Then
 			Continue;
 		EndIf;
 		If ValueIsFilled(Text) Then
-			TextsRequiringTranslation.Add(Text);
-		Else
-			FoundTranslations.Insert(Text, Text);
+			TextsRequiringTranslation[Text] = SplitTextByDelimiter(Text, MaxBatchSize, Chars.LF + ".;!?, ");
 		EndIf;
 	EndDo;
-	
-	If Not GetFunctionalOption("UseTextTranslationService") Then
-		Return FoundTranslations;
-	EndIf;
-	
-	TextTranslationServiceModule = TextTranslationServiceModule();
 	
 	TransferQueue = New Array;
 	Batch = New Array;
 	PortionSize = 0;
-	MaxBatchSize = TextTranslationServiceModule.MaxBatchSize();
 	
-	For Each Text In TextsRequiringTranslation Do
-		If PortionSize + StrLen(Text) > MaxBatchSize And ValueIsFilled(Batch) Then
-			TransferQueue.Add(Batch);
-			Batch = New Array;
-			PortionSize = 0;
-		EndIf;
-		If StrLen(Text) <= MaxBatchSize Then
-			Batch.Add(Text);
-			PortionSize = PortionSize + StrLen(Text);
-		Else
-			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Превышен максимально допустимый размер текста для перевода, перевод не выполнен. Разделите текст на несколько частей, не превышающих  %1 символов.
-				|Длина переданного текста: %2 символов.';",
-					Common.DefaultLanguageCode()),
-					MaxBatchSize,
-					StrLen(Text));
-			WriteLogEvent(NStr("en = 'Translator';", Common.DefaultLanguageCode()), EventLogLevel.Error,
-				Metadata.Enums.TextTranslationServices, Constants.TextTranslationService.Get(), ErrorText);
-		EndIf;
+	For Each TextDetails In TextsRequiringTranslation Do
+		TextFragments = TextDetails.Value;
+		For Each Particle In TextFragments Do
+			If PortionSize + StrLen(Particle) > MaxBatchSize Then
+				TransferQueue.Add(Batch);
+				Batch = New Array;
+				PortionSize = 0;
+			EndIf;
+			Batch.Add(Particle);
+			PortionSize = PortionSize + StrLen(Particle);
+		EndDo;
 	EndDo;
 	If ValueIsFilled(Batch) Then
 		TransferQueue.Add(Batch);
 	EndIf;
+	
+	TranslatedFragments = New Map;
 	
 	For Each Batch In TransferQueue Do
 		Try
@@ -129,8 +121,20 @@ Function TranslateTheTexts(Texts, TranslationLanguage = Undefined, SourceLanguag
 		EndTry;
 		For Each Translation In Transfers Do
 			SaveTextTranslation(Translation.Key, Translation.Value, SourceLanguage, TranslationLanguage);
-			FoundTranslations.Insert(Translation.Key, Translation.Value);
+			TranslatedFragments.Insert(Translation.Key, Translation.Value);
 		EndDo;
+	EndDo;
+	
+	For Each TextDetails In TextsRequiringTranslation Do
+		Text = TextDetails.Key;
+		TextFragments = TextDetails.Value;
+
+		TranslatedTextParts = New Array;
+		For Each Particle In TextFragments Do	
+			TranslatedTextParts.Add(TranslatedFragments[Particle]);
+		EndDo;
+		
+		FoundTranslations.Insert(Text, StrConcat(TranslatedTextParts, Chars.LF));
 	EndDo;
 	
 	Return FoundTranslations;
@@ -301,7 +305,11 @@ Function FindATranslationOfTexts(Texts, TranslationLanguage, SourceLanguage)
 	
 	Result = New Map;
 	For Each Text In Texts Do
-		Result.Insert(Text, TranslatedTexts[TextIdentifiers[Text]]);
+		If ValueIsFilled(Text) Then
+			Result.Insert(Text, TranslatedTexts[TextIdentifiers[Text]]);
+		Else
+			Result.Insert(Text, Text);
+		EndIf;
 	EndDo;
 	
 	Return Result;
@@ -485,6 +493,62 @@ EndFunction
 Function ParameterId(Number)
 	
 	Return "{<" + XMLString(Number) + ">}"; 
+	
+EndFunction
+
+Function SplitTextByDelimiter(Val Text, Val TextPartsMaxSize, Val Separators)
+	
+	Result = New Array;
+	
+	Separator = Left(Separators, 1);
+	Separators = Mid(Separators, 2);
+	
+	Particles = New Array;
+	PieceOfText = StrSplit(Text, Separator, True);
+	
+	For IndexOf = 0 To PieceOfText.UBound() Do
+		IsLastFragment = IndexOf = PieceOfText.UBound();
+		Particle = PieceOfText[IndexOf] + ?(IsLastFragment, "", Separator);
+		FragmentSize = StrLen(Particle);
+		
+		If FragmentSize > TextPartsMaxSize Then
+			If Separators <> "" Then
+				FragmentParts = SplitTextByDelimiter(Particle, TextPartsMaxSize, Separators);
+			Else
+				Raise NStr("en = 'Cannot split the text into parts.';");
+			EndIf;
+			
+			For Each Particle In FragmentParts Do
+				Particles.Add(Particle);
+			EndDo;
+		Else
+			Particles.Add(Particle);
+		EndIf;
+	EndDo;
+
+	Batch = New Array;
+	PortionSize = 0;
+	
+	For IndexOf = 0 To Particles.UBound() Do
+		Particle = Particles[IndexOf];
+		FragmentSize = StrLen(Particle);
+		IsLastFragment = IndexOf = Particles.UBound();
+		
+		If PortionSize + FragmentSize > TextPartsMaxSize Then
+			Result.Add(StrConcat(Batch, ""));
+			Batch = New Array;
+			PortionSize = 0;
+		EndIf;
+
+		Batch.Add(Particle);
+		PortionSize = PortionSize + FragmentSize;
+	EndDo;
+	
+	If ValueIsFilled(Batch) Then
+		Result.Add(StrConcat(Batch, ""));
+	EndIf;
+	
+	Return Result;
 	
 EndFunction
 

@@ -9,9 +9,9 @@
 
 #Region Public
 
-// Identify the metadata objects whose list forms 
-// will display commands for duplicate merging, reference replacement,
-// See DuplicateObjectsDetectionClient.MergeSelectedItems and the DuplicateObjectsDetectionClient.ReplaceSelected command
+// 
+// 
+// See BatchEditObjectsClient.ChangeSelectedItems
 // 
 // Parameters:
 //  Objects - Array of MetadataObject

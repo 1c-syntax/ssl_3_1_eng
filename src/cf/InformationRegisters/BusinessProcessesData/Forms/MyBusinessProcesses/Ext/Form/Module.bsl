@@ -18,6 +18,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	CommonClientServer.SetDynamicListFilterItem(
 		List, "Author", Users.CurrentUser());
 	BusinessProcessesAndTasksServer.SetBusinessProcessesAppearance(List.ConditionalAppearance);
+	
+	InfobaseUpdate.CheckObjectProcessed(Metadata.InformationRegisters.BusinessProcessesData.FullName(), 
+		ThisObject);
+	
 EndProcedure
 
 &AtClient

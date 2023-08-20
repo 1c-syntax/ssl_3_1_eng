@@ -1,34 +1,34 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
-	<Configuration uuid="db02fe70-d15b-4d52-a41d-801e9f6283dc">
+	<Configuration uuid="067cc9e0-27c2-4974-97c6-b5861c4d3a7b">
 		<InternalInfo>
 			<xr:ContainedObject>
 				<xr:ClassId>9cd510cd-abfc-11d4-9434-004095e12fc7</xr:ClassId>
-				<xr:ObjectId>eb753aa1-b10f-499b-9f35-f80265353d7f</xr:ObjectId>
+				<xr:ObjectId>79d64834-f1d6-412d-bd34-a89fb63e6cf9</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>9fcd25a0-4822-11d4-9414-008048da11f9</xr:ClassId>
-				<xr:ObjectId>56a0e96e-252f-473c-b43f-938795666bdb</xr:ObjectId>
+				<xr:ObjectId>4430feeb-0b43-42c5-bab7-3f2603bf38fa</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>e3687481-0a87-462c-a166-9f34594f9bba</xr:ClassId>
-				<xr:ObjectId>6e558fdd-bae1-4fe7-ba8e-b4ec4473bea7</xr:ObjectId>
+				<xr:ObjectId>b4029ad5-7dd5-4fd1-800e-4455cd0bb77f</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>9de14907-ec23-4a07-96f0-85521cb6b53b</xr:ClassId>
-				<xr:ObjectId>ef98d087-fb5d-4eeb-bd3f-a54ac94e4674</xr:ObjectId>
+				<xr:ObjectId>03d3f30d-7bc5-42c7-a84a-4618be10bc1c</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>51f2d5d8-ea4d-4064-8892-82951750031e</xr:ClassId>
-				<xr:ObjectId>d90a208e-b99e-4117-92af-5593c58ea9dc</xr:ObjectId>
+				<xr:ObjectId>b049401b-9d1a-4db5-b48b-085e5b7acc4c</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>e68182ea-4237-4383-967f-90c1e3370bc7</xr:ClassId>
-				<xr:ObjectId>fdc8eeb9-5166-4b86-985a-db58cd6e409a</xr:ObjectId>
+				<xr:ObjectId>43fb622c-13d5-419d-bc76-91354050bd15</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>fb282519-d103-4dd3-bc12-cb271d631dfc</xr:ClassId>
-				<xr:ObjectId>f4e2117b-3185-4907-aa0e-49003cccb6b4</xr:ObjectId>
+				<xr:ObjectId>931cfd9c-8f59-402c-96e9-fe204e6f2393</xr:ObjectId>
 			</xr:ContainedObject>
 		</InternalInfo>
 		<Properties>
@@ -53,7 +53,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">Role.InteractiveOpenExtReportsAndDataProcessors</xr:Item>
 			</DefaultRoles>
 			<Vendor>1C Company</Vendor>
-			<Version>3.1.8.303</Version>
+			<Version>3.1.9.113</Version>
 			<UpdateCatalogAddress/>
 			<IncludeHelpInContents>true</IncludeHelpInContents>
 			<UseManagedFormInOrdinaryApplication>false</UseManagedFormInOrdinaryApplication>
@@ -291,6 +291,18 @@
 			<StyleItem>ImportantReportsOptionsGroupFont</StyleItem>
 			<StyleItem>InaccessibleCellTextColor</StyleItem>
 			<StyleItem>InvalidUserRightBackground</StyleItem>
+			<StyleItem>LabelColorBlue</StyleItem>
+			<StyleItem>LabelColorGray</StyleItem>
+			<StyleItem>LabelColorGreen</StyleItem>
+			<StyleItem>LabelColorLightBlue</StyleItem>
+			<StyleItem>LabelColorLime</StyleItem>
+			<StyleItem>LabelColorOrange</StyleItem>
+			<StyleItem>LabelColorPink</StyleItem>
+			<StyleItem>LabelColorPurple</StyleItem>
+			<StyleItem>LabelColorRed</StyleItem>
+			<StyleItem>LabelColorYellow</StyleItem>
+			<StyleItem>LabelsFont</StyleItem>
+			<StyleItem>LabelTextColor_SSLym</StyleItem>
 			<StyleItem>LockedAttributeColor</StyleItem>
 			<StyleItem>MainListItem</StyleItem>
 			<StyleItem>MasterFieldBackground</StyleItem>
@@ -432,6 +444,7 @@
 			<CommonPicture>ContactInformationGoToURL</CommonPicture>
 			<CommonPicture>ContactInformationKinds</CommonPicture>
 			<CommonPicture>ContactInformationObsolete</CommonPicture>
+			<CommonPicture>ContactInformationSendEmail</CommonPicture>
 			<CommonPicture>CopyToClipboard</CommonPicture>
 			<CommonPicture>Count</CommonPicture>
 			<CommonPicture>CrossTableReport</CommonPicture>
@@ -483,6 +496,7 @@
 			<CommonPicture>Download</CommonPicture>
 			<CommonPicture>DropDownList</CommonPicture>
 			<CommonPicture>EditFile</CommonPicture>
+			<CommonPicture>EditLabels</CommonPicture>
 			<CommonPicture>EditTemplate</CommonPicture>
 			<CommonPicture>EditWebsiteAddress</CommonPicture>
 			<CommonPicture>Email</CommonPicture>
@@ -538,6 +552,9 @@
 			<CommonPicture>IconsCollectionSourceDocumentOriginalPrintForms</CommonPicture>
 			<CommonPicture>IconsExchangePlanNode</CommonPicture>
 			<CommonPicture>IconsOfSourceDocumentsOriginalsStateCatalogItems</CommonPicture>
+			<CommonPicture>ImportanceHigh</CommonPicture>
+			<CommonPicture>ImportanceLow</CommonPicture>
+			<CommonPicture>ImportanceNotSpecified</CommonPicture>
 			<CommonPicture>IncomingEmail</CommonPicture>
 			<CommonPicture>IncreaseFont</CommonPicture>
 			<CommonPicture>Information32</CommonPicture>
@@ -562,6 +579,17 @@
 			<CommonPicture>ItemIconsCollection</CommonPicture>
 			<CommonPicture>Justify</CommonPicture>
 			<CommonPicture>KeyCertificate</CommonPicture>
+			<CommonPicture>Label</CommonPicture>
+			<CommonPicture>LabelBlue</CommonPicture>
+			<CommonPicture>LabelGray</CommonPicture>
+			<CommonPicture>LabelGreen</CommonPicture>
+			<CommonPicture>LabelLightBlue</CommonPicture>
+			<CommonPicture>LabelLime</CommonPicture>
+			<CommonPicture>LabelOrange</CommonPicture>
+			<CommonPicture>LabelPink</CommonPicture>
+			<CommonPicture>LabelPurple</CommonPicture>
+			<CommonPicture>LabelRed</CommonPicture>
+			<CommonPicture>LabelYellow</CommonPicture>
 			<CommonPicture>LeftArrow</CommonPicture>
 			<CommonPicture>LeftBorder</CommonPicture>
 			<CommonPicture>LockFile</CommonPicture>
@@ -681,6 +709,7 @@
 			<CommonPicture>PredefinedItem</CommonPicture>
 			<CommonPicture>ProcessesStates</CommonPicture>
 			<CommonPicture>ProcessPostponed</CommonPicture>
+			<CommonPicture>PropertiesIcons</CommonPicture>
 			<CommonPicture>PublishFile</CommonPicture>
 			<CommonPicture>QuestionnaireTreeCollection</CommonPicture>
 			<CommonPicture>QuickAccess</CommonPicture>
@@ -698,6 +727,7 @@
 			<CommonPicture>ReplyEmailToAll</CommonPicture>
 			<CommonPicture>ReportMailing</CommonPicture>
 			<CommonPicture>ReportMailingState</CommonPicture>
+			<CommonPicture>ReportOptionPurposes</CommonPicture>
 			<CommonPicture>Reports</CommonPicture>
 			<CommonPicture>ReportSettingsAccessIcons</CommonPicture>
 			<CommonPicture>ReportSettingsIcons</CommonPicture>
@@ -910,6 +940,7 @@
 			<Role>AddEditQuestionnairesTemplates</Role>
 			<Role>AddEditReportBulkEmails</Role>
 			<Role>AddEditReportsOptions</Role>
+			<Role>AddEditReportsSnapshots</Role>
 			<Role>AddEditSourceDocumentsOriginalsStates</Role>
 			<Role>AddEditUsers</Role>
 			<Role>AddEditWorkSchedules</Role>
@@ -918,6 +949,7 @@
 			<Role>BasicSSLRightsForExternalUsers</Role>
 			<Role>DataDecryption</Role>
 			<Role>DataSynchronizationInProgress</Role>
+			<Role>DeletingElectronicSignatures</Role>
 			<Role>EditAccessGroupMembers</Role>
 			<Role>EditAdditionalInfo</Role>
 			<Role>EditCompleteTask</Role>
@@ -1016,6 +1048,7 @@
 			<CommonModule>AdditionalReportsAndDataProcessorsClient</CommonModule>
 			<CommonModule>AdditionalReportsAndDataProcessorsClientOverridable</CommonModule>
 			<CommonModule>AdditionalReportsAndDataProcessorsClientServer</CommonModule>
+			<CommonModule>AdditionalReportsAndDataProcessorsGlobal</CommonModule>
 			<CommonModule>AdditionalReportsAndDataProcessorsManagementMessagesImplementation</CommonModule>
 			<CommonModule>AdditionalReportsAndDataProcessorsManagementMessagesInterface</CommonModule>
 			<CommonModule>AdditionalReportsAndDataProcessorsManagementMessagesMessageHandler_1_0_1_1</CommonModule>
@@ -1044,6 +1077,7 @@
 			<CommonModule>BankManagerGlobal</CommonModule>
 			<CommonModule>BankManagerInternal</CommonModule>
 			<CommonModule>BankManagerOverridable</CommonModule>
+			<CommonModule>BankManagerServerCall</CommonModule>
 			<CommonModule>BarcodeGeneration</CommonModule>
 			<CommonModule>BarcodeGenerationServerCached</CommonModule>
 			<CommonModule>BatchEditObjects</CommonModule>
@@ -1127,6 +1161,7 @@
 			<CommonModule>DataExchangeSaaSOverridable</CommonModule>
 			<CommonModule>DataExchangeServer</CommonModule>
 			<CommonModule>DataExchangeServerCall</CommonModule>
+			<CommonModule>DataExchangeValuationOfPerformance</CommonModule>
 			<CommonModule>DataExchangeWebService</CommonModule>
 			<CommonModule>DataExchangeXDTOServer</CommonModule>
 			<CommonModule>DigitalSignature</CommonModule>
@@ -1192,6 +1227,7 @@
 			<CommonModule>FormulasConstructorClient</CommonModule>
 			<CommonModule>FormulasConstructorClientServer</CommonModule>
 			<CommonModule>FormulasConstructorInternal</CommonModule>
+			<CommonModule>FormulasConstructorServerCall</CommonModule>
 			<CommonModule>FullTextSearchClient</CommonModule>
 			<CommonModule>FullTextSearchInternalClient</CommonModule>
 			<CommonModule>FullTextSearchInternalServerCall</CommonModule>
@@ -1282,6 +1318,7 @@
 			<CommonModule>NationalLanguageSupportClientServer</CommonModule>
 			<CommonModule>NationalLanguageSupportOverridable</CommonModule>
 			<CommonModule>NationalLanguageSupportServer</CommonModule>
+			<CommonModule>NativeLanguagesSupportServer</CommonModule>
 			<CommonModule>ObjectAttributesLock</CommonModule>
 			<CommonModule>ObjectAttributesLockClient</CommonModule>
 			<CommonModule>ObjectAttributesLockInternal</CommonModule>
@@ -1439,7 +1476,6 @@
 			<CommonModule>UsersInternalSaaSClientServer</CommonModule>
 			<CommonModule>UsersInternalSaaSServerCall</CommonModule>
 			<CommonModule>UsersOverridable</CommonModule>
-			<CommonModule>WorkingWithBanksCallingServer</CommonModule>
 			<CommonModule>WorkSchedules</CommonModule>
 			<CommonModule>WorkSchedulesClient</CommonModule>
 			<CommonModule>YandexTranslate</CommonModule>
@@ -1496,6 +1532,7 @@
 			<WebService>Exchange_2_0_1_6</WebService>
 			<WebService>Exchange_3_0_1_1</WebService>
 			<WebService>Exchange_3_0_2_1</WebService>
+			<WebService>Exchange_3_0_2_2</WebService>
 			<WebService>InterfaceVersion</WebService>
 			<WebService>RemoteAdministrationOfExchange</WebService>
 			<WebService>RemoteAdministrationOfExchange_2_0_1_6</WebService>
@@ -1527,6 +1564,8 @@
 			<EventSubscription>ClearRefsToInfobaseNode</EventSubscription>
 			<EventSubscription>ClearVersionAuthorInformation</EventSubscription>
 			<EventSubscription>ContactInformationValidationProcessing</EventSubscription>
+			<EventSubscription>ControlSharedObjectsUponSavingDSL</EventSubscription>
+			<EventSubscription>ControlSharedRecordSetsUponSavingDSL</EventSubscription>
 			<EventSubscription>CopyFileVersionAttributesToFile</EventSubscription>
 			<EventSubscription>CreatePredefinedEmailsFolders</EventSubscription>
 			<EventSubscription>DenyDeletingPredefinedItems</EventSubscription>
@@ -1609,6 +1648,7 @@
 			<ScheduledJob>PerformanceMonitorDataExport</ScheduledJob>
 			<ScheduledJob>PredefinedReportOptionsUpdate</ScheduledJob>
 			<ScheduledJob>RebuildAggregates</ScheduledJob>
+			<ScheduledJob>RemoveUnusedAddIns</ScheduledJob>
 			<ScheduledJob>ReportDistributionHistoryClearUp</ScheduledJob>
 			<ScheduledJob>ReportMailing</ScheduledJob>
 			<ScheduledJob>SendReceiveEmails</ScheduledJob>
@@ -1639,6 +1679,7 @@
 			<FunctionalOption>ObjectsVersioningOptions</FunctionalOption>
 			<FunctionalOption>ORMCachedValuesLatestUpdate</FunctionalOption>
 			<FunctionalOption>RetainReportDistributionHistory</FunctionalOption>
+			<FunctionalOption>RunPerformanceMeasurements</FunctionalOption>
 			<FunctionalOption>SaaSOperations</FunctionalOption>
 			<FunctionalOption>SendEmailsInHTMLFormat</FunctionalOption>
 			<FunctionalOption>StandaloneWorkplace</FunctionalOption>
@@ -1731,6 +1772,7 @@
 			<DefinedType>InteractionContact</DefinedType>
 			<DefinedType>InteractionSubject</DefinedType>
 			<DefinedType>Interviewer</DefinedType>
+			<DefinedType>LabelsOwner</DefinedType>
 			<DefinedType>MessagesQueueEndpoint</DefinedType>
 			<DefinedType>MessageTemplateOwner</DefinedType>
 			<DefinedType>MessageTemplateSubject</DefinedType>
@@ -1741,6 +1783,7 @@
 			<DefinedType>ObjectWithAdditionalCommands</DefinedType>
 			<DefinedType>ObjectWithCustomOrder</DefinedType>
 			<DefinedType>ObjectWithSourceDocumentsOriginalsAccounting</DefinedType>
+			<DefinedType>OptionOfReportToUpdate</DefinedType>
 			<DefinedType>Organization</DefinedType>
 			<DefinedType>OwnerLimitedByAccessValuesSetsObject</DefinedType>
 			<DefinedType>OwnerWithRestrictedAccessValueSetsDocument</DefinedType>
@@ -1797,6 +1840,7 @@
 			<CommonCommand>RelatedObjectsCreation</CommonCommand>
 			<CommonCommand>Remind</CommonCommand>
 			<CommonCommand>ReportPanelAdministration</CommonCommand>
+			<CommonCommand>ReportsSnapshotsForStandaloneMode</CommonCommand>
 			<CommonCommand>RolesAndTaskPerformers</CommonCommand>
 			<CommonCommand>SendingEvents</CommonCommand>
 			<CommonCommand>SendMail</CommonCommand>
@@ -1951,6 +1995,7 @@
 			<Constant>UseOfflineModeSaaS</Constant>
 			<Constant>UseOptimizedStandaloneWorkstationCreationWriting</Constant>
 			<Constant>UseOtherInteractions</Constant>
+			<Constant>UsePerformanceMonitoringOfDataSynchronization</Constant>
 			<Constant>UsePeriodClosingDates</Constant>
 			<Constant>UserAuthorizationSettings</Constant>
 			<Constant>UseReviewedFlag</Constant>
@@ -2016,6 +2061,7 @@
 			<CommonForm>InputInMultipleLanguages</CommonForm>
 			<CommonForm>InputValuesInListWithCheckBoxes</CommonForm>
 			<CommonForm>InstalledPatches</CommonForm>
+			<CommonForm>LabelsEdit</CommonForm>
 			<CommonForm>MyReportsAndDataProcessorsSettings</CommonForm>
 			<CommonForm>NewPassword</CommonForm>
 			<CommonForm>ObjectsRightsSettings</CommonForm>
@@ -2082,6 +2128,7 @@
 			<Catalog>ContactInformationKinds</Catalog>
 			<Catalog>Currencies</Catalog>
 			<Catalog>DataExchangeScenarios</Catalog>
+			<Catalog>DataExchangesSessions</Catalog>
 			<Catalog>DigitalSignatureAndEncryptionApplications</Catalog>
 			<Catalog>DigitalSignatureAndEncryptionKeysCertificates</Catalog>
 			<Catalog>EmailAccounts</Catalog>
@@ -2180,6 +2227,7 @@
 			<Enum>HandlersExecutionModes</Enum>
 			<Enum>ImageColorDepths</Enum>
 			<Enum>InteractionImportanceOptions</Enum>
+			<Enum>LabelsDisplayOptions</Enum>
 			<Enum>MultipageFileStorageFormats</Enum>
 			<Enum>NoteColors</Enum>
 			<Enum>ObjectsVersioningOptions</Enum>
@@ -2195,6 +2243,8 @@
 			<Enum>PictureRotationOptions</Enum>
 			<Enum>PredefinedEmailsFoldersTypes</Enum>
 			<Enum>ProcessesStatesForStart</Enum>
+			<Enum>PropertiesColors</Enum>
+			<Enum>PropertiesKinds</Enum>
 			<Enum>QuestionnaireTemplateQuestionTypes</Enum>
 			<Enum>RadioButtonTypesInQuestionnaires</Enum>
 			<Enum>RateSources</Enum>
@@ -2202,6 +2252,7 @@
 			<Enum>ReminderTimeSettingMethods</Enum>
 			<Enum>ReplyToReadReceiptPolicies</Enum>
 			<Enum>ReportMailingSchedulePeriodicities</Enum>
+			<Enum>ReportOptionPurposes</Enum>
 			<Enum>ReportSaveFormats</Enum>
 			<Enum>ReportsTypes</Enum>
 			<Enum>RequestsToUseExternalResourcesStates</Enum>
@@ -2413,6 +2464,7 @@
 			<InformationRegister>ReportMailingStates</InformationRegister>
 			<InformationRegister>ReportOptionsSettings</InformationRegister>
 			<InformationRegister>ReportsDistributionHistory</InformationRegister>
+			<InformationRegister>ReportsSnapshots</InformationRegister>
 			<InformationRegister>RequestsForPermissionsToUseExternalResources</InformationRegister>
 			<InformationRegister>RolesRights</InformationRegister>
 			<InformationRegister>SafeDataAreaDataStorage</InformationRegister>

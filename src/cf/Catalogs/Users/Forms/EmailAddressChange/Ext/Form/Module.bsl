@@ -12,8 +12,6 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	User = Parameters.User;
-	ServiceUserPassword = Parameters.ServiceUserPassword;
 	OldEmail = Parameters.OldEmail;
 	
 EndProcedure
@@ -29,15 +27,15 @@ Procedure ChangeEmailAddress(Command)
 		Return;
 	EndIf;
 	
-	QueryText = "";
 	If Not ValueIsFilled(OldEmail) Then
 		QueryText =
-			NStr("en = 'The email address of the service user is changed.
-			           |Subscriber owners and administrators cannot change the user parameters from now on.';")
-			+ Chars.LF
-			+ Chars.LF;
+			NStr("en = 'The service user''s email address will be set.
+			           |Subscriber owners and administrators will no longer be able to change the user parameters.
+			           |
+			           |Do you want to set the email address?';");
+	Else
+		QueryText = NStr("en = 'Do you want to change the email address?';");
 	EndIf;
-	QueryText = QueryText + NStr("en = 'Do you want to change the email address?';");
 	
 	ShowQueryBox(
 		New NotifyDescription("ChangeEmailFollowUp", ThisObject),
@@ -50,49 +48,14 @@ EndProcedure
 
 #Region Private
 
-&AtServer
-Procedure CreateEmailAddressChangeRequest()
-	
-	SSLSubsystemsIntegration.OnCreateRequestToChangeEmail(NewEmailAddress,
-		User, ServiceUserPassword);
-	
-EndProcedure
-
 &AtClient
 Procedure ChangeEmailFollowUp(Response, Context) Export
 	
 	If Response = DialogReturnCode.Yes Then
-		
-		Try
-			CreateEmailAddressChangeRequest();
-		Except
-			ServiceUserPassword = "";
-			AttachIdleHandler("CloseForm", 0.1, True);
-			Raise;
-		EndTry;
-		
-		ShowMessageBox(
-			New NotifyDescription("ChangeEmailAddressCompletion", ThisObject, Context),
-			NStr("en = 'A confirmation request is sent to the specified email address.
-			           |The email address will be changed after the confirmation.';"));
-		
+		Close(NewEmailAddress);
 	ElsIf Response = DialogReturnCode.No Then
-		ChangeEmailAddressCompletion(Context);
+		Close(Undefined);
 	EndIf;
-	
-EndProcedure
-
-&AtClient
-Procedure ChangeEmailAddressCompletion(Context) Export
-	
-	Close();
-	
-EndProcedure
-
-&AtClient
-Procedure CloseForm()
-	
-	Close(ServiceUserPassword);
 	
 EndProcedure
 

@@ -30,7 +30,7 @@ Procedure ImportCircuitFromMessage(ExchangeComponents, Header) Export
 			
 			NewNode = Tree.Rows.Add();
 			NewNode.NodeCode = Node.Code;
-			NewNode.NodeName = Node.Name;
+			NewNode.NodeName = GetStringFromBinaryData(GetBinaryDataFromBase64String(Node.Name));
 			NewNode.LatestUpdate = Node.LastUpdate;
 			NewNode.Prefix = Node.Prefix;
 				
@@ -38,7 +38,7 @@ Procedure ImportCircuitFromMessage(ExchangeComponents, Header) Export
 					
 				NewPeerNode = NewNode.Rows.Add();
 				NewPeerNode.CorrespondentNodeCode = CorrNode.Code;
-				NewPeerNode.PeerInfobaseNodeName = CorrNode.Name;
+				NewPeerNode.PeerInfobaseNodeName = GetStringFromBinaryData(GetBinaryDataFromBase64String(CorrNode.Name));
 				NewPeerNode.Looping = CorrNode.Looping;
 				
 			EndDo;
@@ -53,7 +53,7 @@ Procedure ImportCircuitFromMessage(ExchangeComponents, Header) Export
 		
 	EndIf;
 	
-EndProcedure 
+EndProcedure
 
 Procedure ExportCircuitToMessage(Header, ExchangePlanName) Export
 	
@@ -86,7 +86,7 @@ Procedure ExportCircuitToMessage(Header, ExchangePlanName) Export
 		
 		Node = XDTOFactory.Create(XDTOFactory.Type(XMLBasicSchema(), "Node"));
 		Node.Code 		= SelectionByNodes.NodeCode;
-		Node.Name 		= SelectionByNodes.NodeName;
+		Node.Name 		= GetBase64StringFromBinaryData(GetBinaryDataFromString(SelectionByNodes.NodeName));
 		Node.LastUpdate = SelectionByNodes.LatestUpdate;
 		Node.Prefix 	= SelectionByNodes.Prefix;
 		
@@ -97,8 +97,8 @@ Procedure ExportCircuitToMessage(Header, ExchangePlanName) Export
 			
 			PeerNode = XDTOFactory.Create(XDTOFactory.Type(XMLBasicSchema(), "CorrNode"));
 			PeerNode.Code = SelectionByPeerNodes.CorrespondentNodeCode;
-			PeerNode.Name = SelectionByPeerNodes.PeerInfobaseNodeName;
-			PeerNode.Looping = SelectionByPeerNodes.Looping;	
+			PeerNode.Name = GetBase64StringFromBinaryData(GetBinaryDataFromString(SelectionByPeerNodes.PeerInfobaseNodeName));
+			PeerNode.Looping = SelectionByPeerNodes.Looping;
 			PeerNodes.CorrNode.Add(PeerNode);
 			
 		EndDo;
@@ -106,7 +106,7 @@ Procedure ExportCircuitToMessage(Header, ExchangePlanName) Export
 		If PeerNodes.CorrNode.Count() > 0 Then
 			Node.CorrNodes = PeerNodes;
 		Else
-			Node.CorrNodes = Undefined;	
+			Node.CorrNodes = Undefined;
 		EndIf;
 		
 		SynchronizationCircuit.Node.Add(Node);

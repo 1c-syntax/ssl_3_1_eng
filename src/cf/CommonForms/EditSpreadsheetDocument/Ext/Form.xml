@@ -19,6 +19,12 @@
 	</Events>
 	<ChildItems>
 		<UsualGroup name="CommandBarGroup" id="487">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Command bar</v8:content>
+				</v8:item>
+			</Title>
 			<HorizontalStretch>true</HorizontalStretch>
 			<Behavior>Usual</Behavior>
 			<ShowTitle>false</ShowTitle>
@@ -63,9 +69,15 @@
 								</Button>
 							</ChildItems>
 						</ButtonGroup>
-						<ButtonGroup name="CancelReturnGroup" id="470">
+						<ButtonGroup name="GroupUndoRedo" id="470">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group Undo/redo</v8:content>
+								</v8:item>
+							</Title>
 							<Representation>Compact</Representation>
-							<ExtendedTooltip name="CancelReturnGroupExtendedTooltip" id="471"/>
+							<ExtendedTooltip name="GroupUndoRedoExtendedTooltip" id="471"/>
 							<ChildItems>
 								<Button name="Cancel" id="472">
 									<Type>CommandBarButton</Type>
@@ -183,11 +195,17 @@
 						</ButtonGroup>
 					</ChildItems>
 				</CommandBar>
-				<CommandBar name="GroupCommandPanelButtonsOnRight" id="685">
+				<CommandBar name="GroupCommandBarRightButtons" id="685">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Command bar buttons on the right</v8:content>
+						</v8:item>
+					</Title>
 					<HorizontalStretch>false</HorizontalStretch>
 					<GroupHorizontalAlign>Right</GroupHorizontalAlign>
 					<HorizontalLocation>Right</HorizontalLocation>
-					<ExtendedTooltip name="GroupCommandPanelButtonsOnRightExtendedTooltip" id="686"/>
+					<ExtendedTooltip name="GroupCommandBarRightButtonsExtendedTooltip" id="686"/>
 					<ChildItems>
 						<Button name="ButtonAvailableFields" id="480">
 							<Type>CommandBarButton</Type>
@@ -202,6 +220,12 @@
 			</ChildItems>
 		</UsualGroup>
 		<CommandBar name="CommandBar2" id="392">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Edit command bar</v8:content>
+				</v8:item>
+			</Title>
 			<ExtendedTooltip name="CommandBar2ExtendedTooltip" id="393"/>
 			<ChildItems>
 				<ButtonGroup name="EditingCommands" id="85">
@@ -730,6 +754,12 @@
 									<ExtendedTooltip name="SpreadsheetDocumentGoToCellExtendedTooltip" id="395"/>
 								</Button>
 								<ButtonGroup name="SpreadsheetDocumentGroup1" id="424">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Merge cells</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="SpreadsheetDocumentGroup1ExtendedTooltip" id="425"/>
 									<ChildItems>
 										<Button name="SpreadsheetDocumentMerge" id="263">
@@ -742,6 +772,12 @@
 									</ChildItems>
 								</ButtonGroup>
 								<ButtonGroup name="SpreadsheetDocumentGroup3" id="428">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Insert/split cell</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="SpreadsheetDocumentGroup3ExtendedTooltip" id="429"/>
 									<ChildItems>
 										<Button name="SpreadsheetDocumentExpand" id="396">
@@ -759,6 +795,12 @@
 									</ChildItems>
 								</ButtonGroup>
 								<ButtonGroup name="SpreadsheetDocumentGroup2" id="426">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Insert rows</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="SpreadsheetDocumentGroup2ExtendedTooltip" id="427"/>
 									<ChildItems>
 										<Button name="SpreadsheetDocumentInsertRowsAbove" id="400">
@@ -790,6 +832,12 @@
 									</ChildItems>
 								</ButtonGroup>
 								<ButtonGroup name="SpreadsheetDocumentGroup4" id="430">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Insert columns</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="SpreadsheetDocumentGroup4ExtendedTooltip" id="431"/>
 									<ChildItems>
 										<Button name="SpreadsheetDocumentInsertColumnsLeft" id="406">
@@ -821,6 +869,12 @@
 									</ChildItems>
 								</ButtonGroup>
 								<Popup name="SpreadsheetDocumentGroup5" id="432">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Clear cells</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="SpreadsheetDocumentGroup5ExtendedTooltip" id="433"/>
 									<ChildItems>
 										<Button name="SpreadsheetDocumentClearAll" id="412">
@@ -838,6 +892,12 @@
 									</ChildItems>
 								</Popup>
 								<ButtonGroup name="SpreadsheetDocumentGroup6" id="434">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Hide/show cells</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="SpreadsheetDocumentGroup6ExtendedTooltip" id="435"/>
 									<ChildItems>
 										<Button name="SpreadsheetDocumentHide" id="416">
@@ -855,6 +915,12 @@
 									</ChildItems>
 								</ButtonGroup>
 								<ButtonGroup name="SpreadsheetDocumentGroup7" id="436">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Row height and column width</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="SpreadsheetDocumentGroup7ExtendedTooltip" id="437"/>
 									<ChildItems>
 										<Button name="SpreadsheetDocumentRowHeight" id="420">
@@ -925,8 +991,14 @@
 									<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="EllipseExtendedTooltip" id="449"/>
 								</Button>
-								<ButtonGroup name="GroupingTeamGroup" id="454">
-									<ExtendedTooltip name="GroupingTeamGroupExtendedTooltip" id="455"/>
+								<ButtonGroup name="GroupGroupingCommands" id="454">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Group Grouping commands</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="GroupGroupingCommandsExtendedTooltip" id="455"/>
 									<ChildItems>
 										<Button name="Group" id="450">
 											<Type>CommandBarButton</Type>
@@ -1235,6 +1307,12 @@
 			<ExtendedTooltip name="TemplatesExtendedTooltip" id="273"/>
 			<ChildItems>
 				<UsualGroup name="EditTemplateGroup" id="294">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Edit template</v8:content>
+						</v8:item>
+					</Title>
 					<Group>Vertical</Group>
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>

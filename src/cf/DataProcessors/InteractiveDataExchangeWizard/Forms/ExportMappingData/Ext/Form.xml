@@ -355,7 +355,7 @@ Please wait…</v8:content>
 										<v8:item>
 											<v8:lang>en</v8:lang>
 											<v8:content>Registering data for export.
-Please wait…</v8:content>
+Please wait...</v8:content>
 										</v8:item>
 									</Title>
 									<ContextMenu name="Decoration2ContextMenu" id="81"/>
@@ -667,7 +667,7 @@ Data export is canceled.</v8:content>
 																<v8:item>
 																	<v8:lang>en</v8:lang>
 																	<v8:content>An error occurred when registering data.
-The data export is canceled.</v8:content>
+Data export is canceled.</v8:content>
 																</v8:item>
 															</Title>
 															<ContextMenu name="Decoration18ContextMenu" id="210"/>

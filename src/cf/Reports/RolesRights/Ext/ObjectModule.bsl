@@ -932,7 +932,7 @@ Function ReportContextByObject(FillOnlyDescriptionPermissions = False)
 			Else
 				CurrentPathToObject = ?(ValueIsFilled(CurrentPathToObject), CurrentPathToObject + ".", "")
 					+ PartsPathToObject[IndexOf] + "." + PartsPathToObject[IndexOf + 1];
-				CurrentTreeRow = Tree.Rows.Find(CurrentPathToObject, "PathToObject", True);;
+				CurrentTreeRow = Tree.Rows.Find(CurrentPathToObject, "PathToObject", True);
 				If CurrentTreeRow = Undefined Then
 					Return Undefined;
 				EndIf;
@@ -2323,7 +2323,7 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		RowTableParts.PathToObject         = TreeRow.PathToObject + ".TabularSection.*";
 		RowTableParts.RightsDetails         = RightsAttributes(NoEdit);
 		RowTableParts.Presentation        = NStr("en = 'Tables.';");
-		RowTableParts.ObjectPresentation = NStr("en = 'Table part';");
+		RowTableParts.ObjectPresentation = NStr("en = 'Table';");
 		
 		// TabularSections.Attributes
 		RowTablePartsAttributes = RowTableParts.Rows.Add();
@@ -2355,7 +2355,7 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		RowStandardTableParts.PathToObject         = TreeRow.PathToObject + ".StandardTabularSection.*";
 		RowStandardTableParts.RightsDetails         = RightsAttributes(NoEdit);
 		RowStandardTableParts.Presentation        = NStr("en = 'Standard tables.';");
-		RowStandardTableParts.ObjectPresentation = NStr("en = 'Standard table part';");
+		RowStandardTableParts.ObjectPresentation = NStr("en = 'Standard table';");
 		
 		// StandardTabularSections.StandardAttributes
 		RowStandardTablePartsStandardAttributes = RowStandardTableParts.Rows.Add();
@@ -2525,7 +2525,7 @@ Function RightUse()
 	RightsList = RightsDetails.RightsList;
 	
 	RightsList.Add("Use",
-		NStr("en = 'Usage';"));
+		NStr("en = 'Use';"));
 	
 	NewRow = RightsDetails.AccessLevels.Add();
 	NewRow.Right   = "Use";
@@ -2724,7 +2724,7 @@ Function RightsReportProcessingFunctions()
 	RightsList = RightsDetails.RightsList;
 	
 	RightsList.Add("Use",
-		NStr("en = 'Usage';"));
+		NStr("en = 'Use';"));
 	
 	RightsList.Add("View",
 		NStr("en = 'View';"));
@@ -2855,7 +2855,7 @@ Function RightsExternalDataSource()
 	RightsList = RightsDetails.RightsList;
 	
 	RightsList.Add("Use",
-		NStr("en = 'Usage';"));
+		NStr("en = 'Use';"));
 	
 	RightsList.Add("Administration",
 		NStr("en = 'Administration';"));
@@ -2987,7 +2987,7 @@ Procedure AddPermissionsInteractiveWorkWithObjects(RightsList, Un_changed = Fals
 		NStr("en = 'Unmark for deletion interactively';"));
 	
 	RightsList.Add("InteractiveDeleteMarked",
-		NStr("en = 'Delete marked items interactively';"));
+		NStr("en = 'Delete items marked for deletion interactively';"));
 	
 EndProcedure
 

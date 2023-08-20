@@ -132,36 +132,44 @@ Procedure CheckAdministrationParameters(Val ClusterAdministrationParameters, Val
 	
 	If CheckClusterAdministrationParameters Or CheckInfobaseAdministrationParameters Then
 		
-		Try
-			COMConnector = COMConnector();
-			
-			IServerAgentConnection = IServerAgentConnection(COMConnector,
-				ClusterAdministrationParameters.ServerAgentAddress,
-				ClusterAdministrationParameters.ServerAgentPort);
-			
-			Cluster = GetCluster(IServerAgentConnection,
-				ClusterAdministrationParameters.ClusterPort,
-				ClusterAdministrationParameters.ClusterAdministratorName,
-				ClusterAdministrationParameters.ClusterAdministratorPassword);
-		Except
-			If Common.IsWindowsServer() Then 
-				ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot connect to the server cluster from computer %1. Reason:
-						|%2
-						|
-						|If the error text states that the class is not registered, or the comcntr component version does not match the required one,
-						|registering comcntr on computer %1 is required. Please contact the administrator.';"),
-					ComputerName(), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
-			Else 
+		ConnectionAttempt = 1;
+		While ConnectionAttempt <= 2 Do
+			Try
+				COMConnector = COMConnector();
+				
+				IServerAgentConnection = IServerAgentConnection(COMConnector,
+					ClusterAdministrationParameters.ServerAgentAddress,
+					ClusterAdministrationParameters.ServerAgentPort);
+				
+				Cluster = GetCluster(IServerAgentConnection,
+					ClusterAdministrationParameters.ClusterPort,
+					ClusterAdministrationParameters.ClusterAdministratorName,
+					ClusterAdministrationParameters.ClusterAdministratorPassword);
+
+				ConnectionAttempt = ConnectionAttempt + 1;
+			Except
 				ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot connect to the server cluster from computer %1. Reason:
 						|%2.';"),
 					ComputerName(), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
-			EndIf;
-			
-			Raise ExceptionText
-			
-		EndTry;
+				If Common.IsWindowsServer() Then 
+					If ConnectionAttempt = 1 Then
+						If RegisterCOMConnector(ExceptionText + Chars.LF + Chars.LF) Then
+							ConnectionAttempt = ConnectionAttempt + 1;
+							Continue;
+						EndIf;
+					EndIf;
+				EndIf;
+				ExceptionText = ExceptionText + Chars.LF + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'If you get the ""Class not registered"" or comcntr version mismatch error,
+						|register comcntr on computer %1. Contact the administrator for assistance.
+						|To register the comcntr component, run the regsvr32.exe comcntr.dll command
+						|using a Windows account under which 1C:Enterprise server runs.';"),
+					ComputerName());
+				Raise ExceptionText
+				
+			EndTry;
+		EndDo;
 		
 	EndIf;
 	
@@ -841,6 +849,26 @@ Function COMConnector()
 	
 	Return New COMObject(CommonClientServer.COMConnectorName());
 	
+EndFunction
+
+Function RegisterCOMConnector(Val Message = "")
+	ApplicationStartupParameters = FileSystem.ApplicationStartupParameters();
+	ApplicationStartupParameters.WaitForCompletion = True;
+	ApplicationStartupParameters.GetOutputStream = True;
+	CommandText = StringFunctionsClientServer.SubstituteParametersToString(
+		"regsvr32.exe /n /i:user /s ""%1\comcntr.dll""", BinDir());
+	RunResult = FileSystem.StartApplication(CommandText, ApplicationStartupParameters);
+	
+	Comment = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = '%1The comcntr component is reregistered on computer %2.
+			|Command: %3
+			|Return code:%4, message:
+			|%5';"), 
+		Message, ComputerName(), CommandText, RunResult.ReturnCode, RunResult.OutputStream);
+	WriteLogEvent(NStr("en = 'Connect to server cluster';", Common.DefaultLanguageCode()),
+		?(RunResult.ReturnCode = 0, EventLogLevel.Information, EventLogLevel.Warning),,, 
+		Comment);
+	Return RunResult.ReturnCode = 0;
 EndFunction
 
 Function IServerAgentConnection(COMConnector, Val ServerAgentAddress, Val ServerAgentPort)

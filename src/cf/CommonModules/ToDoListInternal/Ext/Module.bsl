@@ -50,10 +50,7 @@ Procedure GenerateToDoListForUser(Parameters, ResultAddress) Export
 	// Result post-processing.
 	TransformToDoListTable(ToDoList, ViewSettings);
 	
-	If ViewSettings <> Undefined Then
-		Common.CommonSettingsStorageSave("ToDoList", "ViewSettings", ViewSettings);
-	EndIf;
-	
+	Common.CommonSettingsStorageSave("ToDoList", "ViewSettings", ViewSettings);
 	PutToTempStorage(ToDoList, ResultAddress);
 	
 EndProcedure
@@ -65,6 +62,8 @@ EndProcedure
 //  Structure:
 //     * UserTasksVisible - Map
 //     * SectionsVisibility - Map
+//     * DisabledObjects - Map
+//     * CollapsedSections - Map
 //     * UserTasksTree - ValueTree:
 //          ** Presentation - String
 //          ** IsSection - Boolean
@@ -77,22 +76,24 @@ EndProcedure
 //
 Function SavedViewSettings() Export
 	
+	Result = New Structure;
+	Result.Insert("UserTasksVisible", New Map);
+	Result.Insert("SectionsVisibility", New Map);
+	Result.Insert("DisabledObjects", New Map);
+	Result.Insert("CollapsedSections", New Map);
+	Result.Insert("UserTasksTree", New ValueTree);
+
 	ViewSettings = CommonSettingsStorage.Load("ToDoList", "ViewSettings");
 	If ViewSettings = Undefined Then
-		Return Undefined;
+		Return Result;
 	EndIf;
 	
 	If TypeOf(ViewSettings) <> Type("Structure") Then
-		Return Undefined;
+		Return Result;
 	EndIf;
 	
-	If ViewSettings.Property("UserTasksTree")
-		And ViewSettings.Property("SectionsVisibility")
-		And ViewSettings.Property("UserTasksVisible") Then
-		Return ViewSettings;
-	EndIf;
-	
-	Return Undefined;
+	FillPropertyValues(Result, ViewSettings);
+	Return Result;
 	
 EndFunction
 
@@ -237,14 +238,7 @@ Procedure TransformToDoListTable(ToDoList, ViewSettings)
 	ToDoList.Columns.Add("IsSection", New TypeDescription("Boolean"));
 	ToDoList.Columns.Add("SectionPresentation", New TypeDescription("String", New StringQualifiers(250)));
 	
-	If TypeOf(ViewSettings) = Type("Structure")
-		And ViewSettings.Property("DisabledObjects")
-		And TypeOf(ViewSettings.DisabledObjects) = Type("Map") Then
-		DisabledObjects = ViewSettings.DisabledObjects;
-	Else
-		DisabledObjects = New Map;
-	EndIf;
-	
+	DisabledObjects = ViewSettings.DisabledObjects;
 	InvalidChars = """'`/\-[]{}:;|=?*<>,.()+#№@!%^&~ ";
 	UserTasksToRemove = New Array;
 	For Each ToDoItem In ToDoList Do
@@ -290,10 +284,7 @@ Procedure TransformToDoListTable(ToDoList, ViewSettings)
 			EndIf;
 		EndIf;
 		
-		If ValueIsFilled(ToDoItem.ToDoOwnerObject)
-			And ToDoItem.IsSection
-			And TypeOf(ViewSettings) = Type("Structure")
-			And ViewSettings.Property("UserTasksVisible") Then
+		If ValueIsFilled(ToDoItem.ToDoOwnerObject) And ToDoItem.IsSection Then
 			If DisabledObjects[ToDoItem.ToDoOwnerObject] = Undefined Then
 				DisabledObjects.Insert(ToDoItem.ToDoOwnerObject, New Array);
 				DisabledObjects[ToDoItem.ToDoOwnerObject].Add(ToDoItem.Id);
@@ -377,30 +368,28 @@ Procedure AddUserTask(ToDoList, Manager, UserTasksCount)
 EndProcedure
 
 Function ReceiveToDoItemsByObject(Handler, ViewSettings)
-	If TypeOf(Handler) <> Type("CommonModule")
-		And ViewSettings <> Undefined
-		And TypeOf(ViewSettings) = Type("Structure")
-		And ViewSettings.Property("DisabledObjects")
-		And TypeOf(ViewSettings.DisabledObjects) = Type("Map") Then
-		ToDoOwnerObject = Metadata.FindByType(TypeOf(Handler)).FullName();
-		ToDoItemsToCheck = ViewSettings.DisabledObjects[ToDoOwnerObject];
-		If TypeOf(ToDoItemsToCheck) = Type("Array") Then
-			ReceiveToDoItems    = False;
-			For Each ToDoItemToCheck In ToDoItemsToCheck Do
-				Value = ViewSettings.UserTasksVisible[ToDoItemToCheck];
-				If Value <> False Then
-					ReceiveToDoItems = True;
-				EndIf;
-			EndDo;
-			If Not ReceiveToDoItems Then
-				Return False;
-			Else
-				ViewSettings.DisabledObjects.Delete(ToDoOwnerObject);
-			EndIf;
-		EndIf;
+	If TypeOf(Handler) = Type("CommonModule") Then
+		Return True;
 	EndIf;
+		
+	ReceiveToDoItems = True;
+	ToDoOwnerObject = Metadata.FindByType(TypeOf(Handler)).FullName();
+	ToDoItemsToCheck = ViewSettings.DisabledObjects[ToDoOwnerObject];
+	If TypeOf(ToDoItemsToCheck) = Type("Array") Then
+		ReceiveToDoItems = False;
+		For Each ToDoItemToCheck In ToDoItemsToCheck Do
+			Value = ViewSettings.UserTasksVisible[ToDoItemToCheck];
+			If Value <> False Then
+				ReceiveToDoItems = True;
+			EndIf;
+		EndDo;
+		If Not ReceiveToDoItems Then
+			Return False;
+		EndIf;
+		ViewSettings.DisabledObjects.Delete(ToDoOwnerObject);
+	EndIf;
+	Return ReceiveToDoItems;
 	
-	Return True;
 EndFunction
 
 #EndRegion

@@ -23,7 +23,7 @@
 //        ** AllowObjectAttributeEdit - FormButton
 //  LockButtonGroup  - FormGroup - used to modify the default placement
 //                            of the lock button in the object form.
-//  LockButtonTitle  - String - a button title. By default, "Allow editing object attributes".
+//  LockButtonTitle  - String - The button title. By default, "Allow edit attributes".
 //  Object                  - Undefined - take the object from the Object form attribute.
 //                          - FormDataStructure - 
 //                          - CatalogObject

@@ -165,18 +165,15 @@ Function MappingTable(ResultAddress) Export
 	
 EndFunction
 
-#EndRegion
-
-#Region Internal
-
+// 
 // 
 // 
 //
 // Parameters:
-//  ObjectReference - CatalogRef -
+//  ObjectReference - AnyRef -
 //  TableRow - ValueTableRow: см. ЗагрузкаДанныхИзФайла.ОписаниеЗагружаемыхДанныхДляСправочников
 //
-Procedure ImportPropertiesValuesfromFile(ObjectReference, TableRow) Export
+Procedure RecordObjectProperties(ObjectReference, TableRow) Export
 	
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManagerInternal = Common.CommonModule("PropertyManagerInternal");

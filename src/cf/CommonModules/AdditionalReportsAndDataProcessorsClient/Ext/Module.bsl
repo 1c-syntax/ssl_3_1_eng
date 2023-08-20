@@ -335,8 +335,9 @@ Procedure PopulateCommandHandler(Val ReferencesArrray, Val ExecutionParameters) 
 		
 		ServerCallParameters.Insert("ExecutionResult", New Structure);
 		AdditionalReportsAndDataProcessorsServerCall.ExecuteCommand(ServerCallParameters, Undefined);
-		Form.Read();
 		
+		ApplicationParameters.Insert(ApplicationParameterNameFormCommandExecutionOwner(), Form);
+		AttachIdleHandler("OnCompleteFillCommandExecution", 0.1, True);
 	EndIf;
 	
 EndProcedure
@@ -401,7 +402,7 @@ Procedure ExecuteDataProcessorClientMethod(CommandToExecute, Form, RelatedObject
 	ProcessingParameters = New Structure("CommandID, AdditionalDataProcessorRef, FormName");
 	ProcessingParameters.CommandID          = CommandToExecute.Id;
 	ProcessingParameters.AdditionalDataProcessorRef = CommandToExecute.Ref;
-	ProcessingParameters.FormName                      = ?(Form = Undefined, Undefined, Form.FormName);;
+	ProcessingParameters.FormName                      = ?(Form = Undefined, Undefined, Form.FormName);
 	
 	If TypeOf(RelatedObjects) = Type("Array") Then
 		ProcessingParameters.Insert("RelatedObjects", RelatedObjects);
@@ -526,5 +527,26 @@ Procedure ExportToFile(ExportingParameters) Export
 	FileSystemClient.SaveFile(Undefined, Address, ExportingParameters.FileName, SavingParameters);
 	
 EndProcedure
+
+// 
+Procedure UpdateDataInForm() Export
+	
+	ParameterName = ApplicationParameterNameFormCommandExecutionOwner();
+	If ApplicationParameters[ParameterName] = Undefined Then
+		Return;
+	EndIf;
+	
+	Form = ApplicationParameters[ParameterName];
+	Form.Read();
+	
+	ApplicationParameters[ParameterName] = Undefined;
+	
+EndProcedure
+
+Function ApplicationParameterNameFormCommandExecutionOwner()
+	
+	Return "StandardSubsystems.AdditionalReportsAndDataProcessors.FormCommandExecutionOwner";
+	
+EndFunction
 
 #EndRegion

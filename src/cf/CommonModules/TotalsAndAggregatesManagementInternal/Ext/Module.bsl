@@ -100,9 +100,9 @@ EndProcedure
 // See JobsQueueOverridable.OnGetTemplateList.
 Procedure OnGetTemplateList(JobTemplates) Export
 	
-	JobTemplates.Add("UpdateAggregates");
-	JobTemplates.Add("RebuildAggregates");
-	JobTemplates.Add("TotalsPeriodSetup");
+	JobTemplates.Add(Metadata.ScheduledJobs.UpdateAggregates.Name);
+	JobTemplates.Add(Metadata.ScheduledJobs.RebuildAggregates.Name);
+	JobTemplates.Add(Metadata.ScheduledJobs.TotalsPeriodSetup.Name);
 	
 EndProcedure
 

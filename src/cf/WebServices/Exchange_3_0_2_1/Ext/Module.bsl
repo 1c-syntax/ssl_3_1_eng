@@ -188,7 +188,7 @@ Function CreateDataExchangeNode(XDTOParameters, DataArea)
 		ModuleSetupWizard.ConfigureDataExchange(
 			ConnectionSettings);
 	Except
-		ErrorMessage = DetailErrorDescription(ErrorInfo());
+		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 			
 		WriteLogEvent(DataExchangeServer.DataExchangeCreationEventLogEvent(),
 			EventLogLevel.Error, , , ErrorMessage);
@@ -257,7 +257,7 @@ Function GetTimeConsumingOperationState(OperationID, ErrorMessageString, DataAre
 	
 	If BackgroundJob.ErrorInfo <> Undefined Then
 		
-		ErrorMessageString = DetailErrorDescription(BackgroundJob.ErrorInfo);
+		ErrorMessageString = ErrorProcessing.DetailErrorDescription(BackgroundJob.ErrorInfo);
 		
 	EndIf;
 	
@@ -340,7 +340,7 @@ Function ReleaseFile(TransferId)
 		DeleteFiles(TemporaryExportDirectory(TransferId));
 	Except
 		WriteLogEvent(DataExchangeServer.TempFileDeletionEventLogEvent(),
-			EventLogLevel.Error,,, DetailErrorDescription(ErrorInfo()));
+			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	
 	Return "";
@@ -415,7 +415,7 @@ Function SaveFileFromParts(TransferId, PartQuantity, FileId, Zone)
 			DeleteFiles(TempDirectory);
 		Except
 			WriteLogEvent(DataExchangeServer.TempFileDeletionEventLogEvent(),
-				EventLogLevel.Error,,, DetailErrorDescription(ErrorInfo()));	
+				EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));	
 		EndTry;
 		
 		SignOutOfDataArea(Zone);
@@ -437,7 +437,7 @@ Function SaveFileFromParts(TransferId, PartQuantity, FileId, Zone)
 		DeleteFiles(TempDirectory);
 	Except
 		WriteLogEvent(DataExchangeServer.TempFileDeletionEventLogEvent(),
-			EventLogLevel.Error,,, DetailErrorDescription(ErrorInfo()));	
+			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));	
 	EndTry;	
 	
 	SignOutOfDataArea(Zone);
@@ -450,6 +450,8 @@ EndFunction
 Function PutMessageForDataMatching(ExchangePlanName, NodeID, FileID, DataArea)
 	
 	SignInToDataArea(DataArea);
+	
+	SetPrivilegedMode(True);
 	
 	ExchangeNode = DataExchangeServer.ExchangePlanNodeByCode(ExchangePlanName, NodeID);
 		
@@ -501,7 +503,7 @@ Function TestConnection(ExchangePlanName, NodeCode, Result, DataArea)
 	Try
 		DataExchangeServer.CheckCanSynchronizeData(True);
 	Except
-		Result = BriefErrorDescription(ErrorInfo());
+		Result = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		Return False;
 	EndTry;
 	
@@ -509,7 +511,7 @@ Function TestConnection(ExchangePlanName, NodeCode, Result, DataArea)
 	Try
 		CheckInfobaseLockForUpdate();
 	Except
-		Result = BriefErrorDescription(ErrorInfo());
+		Result = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		Return False;
 	EndTry;
 		

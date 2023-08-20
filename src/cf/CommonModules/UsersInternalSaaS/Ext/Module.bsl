@@ -1283,7 +1283,7 @@ EndFunction
 // Updates infobase user IDs in the user catalog, clears the ServiceUserID field.
 //
 // Parameters:
-//  IDsMap - Map of КлючЗначение:
+//  IDsMap - Map of KeyAndValue:
 //    * Key - UUID - Original ID of the infobase user.
 //    * Value - UUID - Current ID of the infobase user.
 //

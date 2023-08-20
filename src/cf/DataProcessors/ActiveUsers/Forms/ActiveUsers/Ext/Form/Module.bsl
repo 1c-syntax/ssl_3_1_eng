@@ -388,7 +388,7 @@ Function DataSeparationValuesToString(DataSeparation)
 EndFunction
 
 // Parameters:
-//  UsersRefs - Map of КлючЗначение:
+//  UsersRefs - Map of KeyAndValue:
 //    * Key - UUID
 //    * Value - FormDataCollectionItem:
 //      ** UserRef - 

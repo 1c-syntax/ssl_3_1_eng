@@ -37,10 +37,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetVisibilityAndAvailability();
 	SetConditionalAppearance();
 	
-	Items.DecorationDocumentation.Title = StringFunctions.FormattedString("<a href=""%1"">%2</a>",
-		"http://its.1c.eu/db/v83doc#bookmark:dev:ti000001358",
-		NStr("en = 'Automatic REST service documentation';"));
-	
 EndProcedure
 
 &AtServer
@@ -365,7 +361,7 @@ Procedure SaveAtServer()
 			Content.Add(String.FullName);
 		EndDo;
 		
-		Common.ExecuteInSafeMode("SetStandardODataInterfaceContent(Parameters);", Content);
+		SetStandardODataInterfaceContent(Content);
 		
 		Modified = False;
 		CommitTransaction();

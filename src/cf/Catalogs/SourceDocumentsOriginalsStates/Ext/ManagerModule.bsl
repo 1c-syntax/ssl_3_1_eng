@@ -104,7 +104,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	Order = 2;
 	
 	For Each IsmStatus In StateOfOrder Do
-		
+		RepresentationOfTheReference = String(IsmStatus.Ref);
 		Try
 			
 			If IsmStatus.Ref = Catalogs.SourceDocumentsOriginalsStates.FormPrinted Then
@@ -129,7 +129,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process %1 due to:
 					|%2';"), 
-					IsmStatus.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+					RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
 				Metadata.Catalogs.SourceDocumentsOriginalsStates, IsmStatus.Ref, MessageText);
 		EndTry;
@@ -170,12 +170,6 @@ Procedure FillInTheDetailsOfTheAdditionalOrderingDetails(Selection, Order)
 		Block.Lock();
 		
 		TheStateOfTheObject = Selection.Ref.GetObject();
-		
-		// Ignore objects that were deleted or processed in other sessions.
-		If TheStateOfTheObject = Undefined Then
-			RollbackTransaction();
-			Return;
-		EndIf;
 		
 		// 
 		TheStateOfTheObject.AddlOrderingAttribute = Order;

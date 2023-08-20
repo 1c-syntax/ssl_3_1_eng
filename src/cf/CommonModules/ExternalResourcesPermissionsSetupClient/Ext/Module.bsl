@@ -67,7 +67,7 @@ Procedure StartInitializingRequestForPermissionsToUseExternalResources(
 		Val DisablingMode = False,
 		Val RecoveryMode = False) Export
 	
-	If EnablingMode Or DisplayPermissionSetupAssistant() Then
+	If EnablingMode Or SafeModeManagerClient.DisplayPermissionSetupAssistant() Then
 		
 		State = RequestForPermissionsToUseExternalResourcesState();
 		State.RequestsIDs = IDs;
@@ -410,18 +410,6 @@ Procedure StartRestoringSecurityProfiles(OwnerForm1, ClosingNotification1 = Unde
 		New Array(), OwnerForm1, ClosingNotification1, False, False, True);
 	
 EndProcedure
-
-// Checks whether
-// external (relative to 1C:Enterprise server cluster) resource permissions setup wizard must be shown.
-//
-// Returns:
-//   Boolean
-//
-Function DisplayPermissionSetupAssistant()
-	
-	Return StandardSubsystemsClient.ClientParametersOnStart().DisplayPermissionSetupAssistant;
-	
-EndFunction
 
 // Creates a structure used for storing the
 // external resource permissions setup wizard state.

@@ -11,56 +11,56 @@
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
-	
+
 	If Object.Ref.IsEmpty() Then
-		
+
 		If Parameters.Property("CurrencyCode_") Then
 			Object.Code = Parameters.CurrencyCode_;
 		EndIf;
-		
+
 		If Parameters.Property("ShortDescription1") Then
 			Object.Description = Parameters.ShortDescription1;
 		EndIf;
-		
+
 		If Parameters.Property("DescriptionFull") Then
 			Object.DescriptionFull = Parameters.DescriptionFull;
 		EndIf;
-		
+
 		If Parameters.Property("Downloading") And Parameters.Downloading Then
 			Object.RateSource = Enums.RateSources.DownloadFromInternet;
-		Else 
+		Else
 			Object.RateSource = Enums.RateSources.ManualInput;
 		EndIf;
-		
+
 		If Parameters.Property("AmountInWordsParameters") Then
 			Object.AmountInWordsParameters = Parameters.AmountInWordsParameters;
 		EndIf;
-		
+
 	EndIf;
-	
+
 	ProcessingExchangeRatesImport = Metadata.DataProcessors.Find("CurrenciesRatesImport");
 	Items.CurrencyRateImportedFromInternet.Visible = ProcessingExchangeRatesImport <> Undefined;
 	SetItemsAvailability(ThisObject);
-	
+
 	FillInTheCurrencyRegistrationParametersSubmenu();
 	Items.HyperlinkCurrencyInWordsParameters.Visible = WritingInWordsInputForms.Count() = 1;
 	Items.GroupCurrencyInWordsParameters.Visible = WritingInWordsInputForms.Count() > 1;
-	
+
 	If Common.IsMobileClient() Then
 		Items.RateCalculationFormula.ToolTipRepresentation = ToolTipRepresentation.ShowBottom;
 		Items.MainCurrency.TitleLocation = FormItemTitleLocation.Auto;
-		Items.HeaderGroup.ItemsAndTitlesAlign =
-			ItemsAndTitlesAlignVariant.ItemsRightTitlesLeft;
+		Items.HeaderGroup.ItemsAndTitlesAlign = ItemsAndTitlesAlignVariant.ItemsRightTitlesLeft;
 	EndIf;
-	
+
 	If Metadata.DataProcessors.Find("CurrenciesRatesImport") <> Undefined Then
-		CurrenciesImportedFromInternetCodes.LoadValues(DataProcessors["CurrenciesRatesImport"].CurrenciesImportedFromInternetCodes());
+		CurrenciesImportedFromInternetCodes.LoadValues(
+			DataProcessors["CurrenciesRatesImport"].CurrenciesImportedFromInternetCodes());
 	EndIf;
-	
+
 	DownloadFromTheInternetIsAvailable = ValueIsFilled(Object.Code) And ValueIsFilled(CurrenciesImportedFromInternetCodes)
 		And CurrenciesImportedFromInternetCodes.FindByValue(Object.Code) <> Undefined;
 	Items.CurrencyRateImportedFromInternet.Enabled = DownloadFromTheInternetIsAvailable;
-	
+
 	If Common.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormula = Common.CommonModule("FormulasConstructor");
 		FormulaPresentation = ModuleConstructorFormula.FormulaPresentation(FormulaParameters(
@@ -68,12 +68,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Else
 		Items.RateCalculationFormula.ChoiceButton = False;
 	EndIf;
-	
+
 EndProcedure
 
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
-	
+
 	If Source = ThisObject And EventName = "CurrencyInWordsParameters" Then
 		SetThePrescriptionsInTheLanguage(Parameter.AmountInWordsParameters, Parameter.LanguageCode);
 		If Parameter.Write Then
@@ -85,7 +85,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 			Close();
 		EndIf;
 	EndIf;
-	
+
 EndProcedure
 
 #EndRegion
@@ -97,10 +97,10 @@ EndProcedure
 
 &AtClient
 Procedure MainCurrencyStartChoice(Item, ChoiceData, StandardProcessing)
-	
+
 	StandardProcessing = False;
 	PrepareSubordinateCurrencyChoiceData(ChoiceData, Object.Ref);
-	
+
 EndProcedure
 
 &AtClient
@@ -110,14 +110,14 @@ EndProcedure
 
 &AtClient
 Procedure CurrencyInWordsParametersClick(Item)
-	
+
 	OpenCurrencyRegistrationParameters(0);
-	
+
 EndProcedure
 
 &AtClient
 Procedure CodeOnChange(Item)
-	
+
 	DownloadFromTheInternetIsAvailable = ValueIsFilled(Object.Code) And ValueIsFilled(CurrenciesImportedFromInternetCodes)
 		And CurrenciesImportedFromInternetCodes.FindByValue(Object.Code) <> Undefined;
 	Items.CurrencyRateImportedFromInternet.Enabled = DownloadFromTheInternetIsAvailable;
@@ -128,7 +128,7 @@ Procedure CodeOnChange(Item)
 			Object.RateSource = PredefinedValue("Enum.RateSources.ManualInput");
 		EndIf;
 	EndIf;
-	
+
 EndProcedure
 
 #EndRegion
@@ -140,12 +140,12 @@ Procedure PrepareSubordinateCurrencyChoiceData(ChoiceData, Ref)
 	
 	// 
 	// 
-	
+
 	ChoiceData = New ValueList;
-	
+
 	Query = New Query;
-	
-	Query.Text = 
+
+	Query.Text =
 	"SELECT
 	|	Currencies.Ref AS Ref,
 	|	Currencies.DescriptionFull AS DescriptionFull,
@@ -158,33 +158,35 @@ Procedure PrepareSubordinateCurrencyChoiceData(ChoiceData, Ref)
 	|
 	|ORDER BY
 	|	Currencies.DescriptionFull";
-	
+
 	Query.Parameters.Insert("Ref", Ref);
-	
+
 	Selection = Query.Execute().Select();
-	
+
 	While Selection.Next() Do
 		ChoiceData.Add(Selection.Ref, Selection.DescriptionFull + " (" + Selection.Description + ")");
 	EndDo;
-	
+
 EndProcedure
 
 &AtClientAtServerNoContext
 Procedure SetItemsAvailability(Form)
 	Items = Form.Items;
 	Object = Form.Object;
-	Items.IncreaseByGroup.Enabled = Object.RateSource = PredefinedValue("Enum.RateSources.MarkupForOtherCurrencyRate");
-	Items.RateCalculationFormula.Enabled = Object.RateSource = PredefinedValue("Enum.RateSources.CalculationByFormula");
+	Items.IncreaseByGroup.Enabled = Object.RateSource = PredefinedValue(
+		"Enum.RateSources.MarkupForOtherCurrencyRate");
+	Items.RateCalculationFormula.Enabled = Object.RateSource = PredefinedValue(
+		"Enum.RateSources.CalculationByFormula");
 EndProcedure
 
 &AtClient
 Procedure SetThePrescriptionsInTheLanguage(AmountInWordsParameters, LanguageCode)
-	
+
 	If LanguageCode = CommonClient.DefaultLanguageCode() Then
 		Object.AmountInWordsParameters = AmountInWordsParameters;
 		Return;
 	EndIf;
-	
+
 	FoundRow = Undefined;
 	For Each TableRow In Object.Presentations Do
 		If TableRow.LanguageCode = LanguageCode Then
@@ -192,63 +194,62 @@ Procedure SetThePrescriptionsInTheLanguage(AmountInWordsParameters, LanguageCode
 			Break;
 		EndIf;
 	EndDo;
-	
-	If FoundRow =  Undefined Then
+
+	If FoundRow = Undefined Then
 		FoundRow = Object.Presentations.Add();
 		FoundRow.LanguageCode = LanguageCode;
 	EndIf;
-	
+
 	FoundRow.AmountInWordsParameters = AmountInWordsParameters;
-	
+
 EndProcedure
 
 &AtClient
 Function ParametersOfCurrencyRegistrationInTheLanguage(LanguageCode)
-	
+
 	If LanguageCode = CommonClient.DefaultLanguageCode() Then
 		Return Object.AmountInWordsParameters;
 	EndIf;
-	
+
 	FoundRow = Undefined;
 	For Each TableRow In Object.Presentations Do
 		If TableRow.LanguageCode = LanguageCode Then
 			FoundRow = TableRow;
 		EndIf;
 	EndDo;
-	
+
 	If FoundRow = Undefined Then
 		Return "";
 	EndIf;
-	
+
 	Return FoundRow.AmountInWordsParameters;
-	
+
 EndFunction
 
 &AtServer
 Procedure FillInTheCurrencyRegistrationParametersSubmenu()
-	
+
 	Button = Undefined;
 	WritingInWordsInputForms = CurrencyRateOperationsInternal.WritingInWordsInputForms();
 	For IndexOf = 0 To WritingInWordsInputForms.Count() - 1 Do
 		CommandName = "CurrencyRegistrationParameters" + XMLString(IndexOf);
-		
+
 		LanguageCode = WritingInWordsInputForms[IndexOf].Value;
 		Command = Commands.Add(CommandName);
 		If ValueIsFilled(LanguageCode) Then
-			Command.Title = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1...';"),
-				CurrencyRateOperationsInternal.LanguagePresentation(LanguageCode));;
+			Command.Title = StringFunctionsClientServer.SubstituteParametersToString("%1...", 
+				CurrencyRateOperationsInternal.LanguagePresentation(LanguageCode));
 		Else
 			Command.Title = NStr("en = 'In other languages…';");
 		EndIf;
-		
+
 		Command.Action = "PlugInOpenTheCurrencyRegistrationParametersForm";
-		
+
 		Button = Items.Add(CommandName, Type("FormButton"), Items.GroupCurrencyInWordsParameters);
 		Button.Type = FormButtonType.CommandBarButton;
 		Button.CommandName = CommandName;
 	EndDo;
-	
+
 EndProcedure
 
 // Parameters:
@@ -256,50 +257,51 @@ EndProcedure
 //
 &AtClient
 Procedure PlugInOpenTheCurrencyRegistrationParametersForm(Command)
-	
+
 	IndexOf = Number(Mid(Command.Name, StrLen("CurrencyRegistrationParameters") + 1));
 	OpenCurrencyRegistrationParameters(IndexOf);
-	
+
 EndProcedure
 
 &AtClient
 Procedure OpenCurrencyRegistrationParameters(IndexOf)
-	
+
 	NameOfTheRegistrationForm = WritingInWordsInputForms[IndexOf].Presentation;
 	LanguageCode = WritingInWordsInputForms[IndexOf].Value;
-	
+
 	If NameOfTheRegistrationForm = "CurrencyInWordsInOtherLanguagesParameters" Then
 		CurrencyInWordsInOtherLanguagesParameters();
 	Else
 		FormParameters = New Structure;
 		FormParameters.Insert("AmountInWordsParameters", ParametersOfCurrencyRegistrationInTheLanguage(LanguageCode));
 		FormParameters.Insert("LanguageCode", LanguageCode);
-		
-		OpenForm(NameOfTheRegistrationForm, FormParameters, ThisObject, , , URL);
+
+		OpenForm(NameOfTheRegistrationForm, FormParameters, ThisObject,,, URL);
 	EndIf;
-	
+
 EndProcedure
 
 &AtClient
 Procedure Attachable_CurrencyInWordsInOtherLanguagesParameters(Command)
-	
+
 	CurrencyInWordsInOtherLanguagesParameters();
-	
+
 EndProcedure
 
 &AtClient
 Procedure CurrencyInWordsInOtherLanguagesParameters()
-	
+
 	AttributeName = "AmountInWordsParameters";
-	
+
 	FormParameters = New Structure;
 	FormParameters.Insert("AttributeName", AttributeName);
 	FormParameters.Insert("CurrentValue", Object.AmountInWordsParameters);
 	FormParameters.Insert("ReadOnly", ReadOnly);
 	FormParameters.Insert("Presentations", Object.Presentations);
-	
-	OpenForm("Catalog.Currencies.Form.CurrencyInWordsInOtherLanguagesParameters", FormParameters, ThisObject, , , , , FormWindowOpeningMode.LockOwnerWindow);
-	
+
+	OpenForm("Catalog.Currencies.Form.CurrencyInWordsInOtherLanguagesParameters", FormParameters, ThisObject,,,,,
+		FormWindowOpeningMode.LockOwnerWindow);
+
 EndProcedure
 
 &AtClient
@@ -309,54 +311,55 @@ Procedure RateCalculationFormulaStartChoice(Item, ChoiceData, StandardProcessing
 		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
 		StandardProcessing = False;
 		NotifyDescription = New NotifyDescription("WhenFinishedEditingFormulas", ThisObject);
-		ModuleConstructorFormulaClient.StartEditingTheFormula(FormulaParameters(Object.RateCalculationFormula, UUID), NotifyDescription);
+		ModuleConstructorFormulaClient.StartEditingTheFormula(FormulaParameters(Object.RateCalculationFormula, UUID), 
+			NotifyDescription);
 	EndIf;
-	
+
 EndProcedure
 
 &AtServerNoContext
 Function FormulaParameters(RateCalculationFormula, UUID)
-	
+
 	If Common.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormula = Common.CommonModule("FormulasConstructor");
-		
+
 		FormulaParameters = ModuleConstructorFormula.FormulaEditingOptions();
 		FormulaParameters.Formula = RateCalculationFormula;
 		FormulaParameters.BracketsOperands = False;
 		FormulaParameters.Operands = OperandsFormulasCalculationCourse(UUID);
 		FormulaParameters.Operators = OperatorsFormulasCalculationCourse(UUID);
-	
+
 		Return FormulaParameters;
 	EndIf;
-	 
+
 EndFunction
 
 &AtServerNoContext
 Function OperandsFormulasCalculationCourse(UUID)
-	
+
 	Return PutToTempStorage(OperandsTable(), UUID);
-	
+
 EndFunction
 
 &AtServerNoContext
 Function OperatorsFormulasCalculationCourse(UUID)
-	
+
 	If Common.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormula = Common.CommonModule("FormulasConstructor");
 		ListOfOperators = ModuleConstructorFormula.ListOfOperators("Operators, NumericFunction");
 		Return PutToTempStorage(ListOfOperators, UUID);
 	EndIf;
-	
+
 EndFunction
 
 &AtServerNoContext
 Function OperandsTable()
-	
+
 	If Common.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormula = Common.CommonModule("FormulasConstructor");
-	
+
 		OperandsTable = ModuleConstructorFormula.FieldTable();
-		
+
 		For Each CurrencyDescription In Catalogs.Currencies.CurrencyCodes() Do
 			If ValueIsFilled(StrConcat(StrSplit(CurrencyDescription.AlphabeticCode, "0123456789", False), "")) Then
 				Operand = OperandsTable.Add();
@@ -365,24 +368,24 @@ Function OperandsTable()
 				Operand.ValueType = New TypeDescription("Number");
 			EndIf;
 		EndDo;
-		
+
 		Return OperandsTable;
-	
+
 	EndIf;
-	
+
 EndFunction
 
 &AtClient
 Procedure WhenFinishedEditingFormulas(FormulaDescription, AdditionalParameters) Export
-	
+
 	If FormulaDescription = Undefined Then
 		Return;
 	EndIf;
-	
+
 	Object.RateCalculationFormula = FormulaDescription.Formula;
 	FormulaPresentation = FormulaDescription.FormulaPresentation;
 	Modified = True;
-	
+
 EndProcedure
 
 #EndRegion

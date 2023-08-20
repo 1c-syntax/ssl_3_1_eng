@@ -12,7 +12,7 @@
 &AtClient
 Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 	
-	Parameters = StandardSubsystemsClient.ParametersOfActionsBeforeShuttingDownTheSystem();
+	Parameters = StandardSubsystemsClient.ParametersOfActionsBeforeShuttingDownTheSystem(True);
 	StandardSubsystemsClient.ActionsBeforeExit(Parameters);
 	
 EndProcedure

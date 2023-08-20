@@ -468,16 +468,7 @@
 				</v8:NumberQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="PathToConverterApplication" id="18">
-			<Type>
-				<v8:Type>xs:string</v8:Type>
-				<v8:StringQualifiers>
-					<v8:Length>0</v8:Length>
-					<v8:AllowedLength>Variable</v8:AllowedLength>
-				</v8:StringQualifiers>
-			</Type>
-		</Attribute>
-		<Attribute name="TIFFDeflation" id="19">
+		<Attribute name="TIFFCompressionEnum" id="19">
 			<Type>
 				<v8:Type>cfg:EnumRef.TIFFCompressionTypes</v8:Type>
 			</Type>
@@ -487,7 +478,7 @@
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="TIFFCompressionNumber" id="21">
+		<Attribute name="TIFFDeflation" id="21">
 			<Type>
 				<v8:Type>xs:decimal</v8:Type>
 				<v8:NumberQualifiers>
@@ -552,11 +543,6 @@
 				<v8:Type>cfg:EnumRef.MultipageFileStorageFormats</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="SinglePageStorageFormat" id="33">
-			<Type>
-				<v8:Type>cfg:EnumRef.SinglePageFileStorageFormats</v8:Type>
-			</Type>
-		</Attribute>
 		<Attribute name="InfobasePrefix" id="34">
 			<Type>
 				<v8:Type>xs:string</v8:Type>
@@ -579,6 +565,29 @@
 		<Attribute name="OneFileOnly" id="37">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="SaveToPDF" id="38">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="ClientID" id="39">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="ResultType" id="41">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
 	</Attributes>

@@ -62,13 +62,13 @@ Procedure PresentationGetProcessing(Data, Presentation, StandardProcessing)
 	
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportClientServer = Common.CommonModule("NationalLanguageSupportClientServer");
-		ModuleNativeLanguagesSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing);
+		ModuleNationalLanguageSupportClientServer = Common.CommonModule("NationalLanguageSupportClientServer");
+		ModuleNationalLanguageSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing);
 	EndIf;
 #Else
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportClientServer = CommonClient.CommonModule("NationalLanguageSupportClientServer");
-		ModuleNativeLanguagesSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing);
+		ModuleNationalLanguageSupportClientServer = CommonClient.CommonModule("NationalLanguageSupportClientServer");
+		ModuleNationalLanguageSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing);
 	EndIf;
 #EndIf
 	

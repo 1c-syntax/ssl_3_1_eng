@@ -74,7 +74,8 @@ EndFunction
 //                
 //                
 //                See https://its.1c.eu/db/v83doc#bookmark:dev:TI000001866
-//
+//    * AutoUpdate - Boolean - 
+//                
 //
 Function AddInAttachmentContext() Export
 	
@@ -87,6 +88,7 @@ Function AddInAttachmentContext() Export
 	Context.Insert("Cached", True);
 	Context.Insert("SuggestInstall", True);
 	Context.Insert("SuggestToImport", False);
+	Context.Insert("AutoUpdate", True);
 	Context.Insert("ExplanationText", "");
 	Context.Insert("ObjectsCreationIDs", New Array);
 	Context.Insert("ASearchForANewVersionHasBeenPerformed", False);
@@ -161,6 +163,7 @@ Async Function AttachExtAddInAsync(Context) Export
 				ComponentValidationContext.Version = Undefined;
 				ComponentValidationContext.SuggestInstall = Context.SuggestInstall;
 				ComponentValidationContext.SuggestToImport = Context.SuggestToImport;
+				ComponentValidationContext.AutoUpdate = Context.AutoUpdate;
 				ComponentValidationContext.ExplanationText = Context.ExplanationText;
 				ComponentValidationContext.OriginalLocation = Context.OriginalLocation;
 				ComponentValidationContext.ObjectsCreationIDs = Context.ObjectsCreationIDs;
@@ -279,6 +282,7 @@ Procedure AttachAddInSSL(Context) Export
 				ComponentValidationContext.Version = Undefined;
 				ComponentValidationContext.SuggestInstall = Context.SuggestInstall;
 				ComponentValidationContext.SuggestToImport = Context.SuggestToImport;
+				ComponentValidationContext.AutoUpdate = Context.AutoUpdate;
 				ComponentValidationContext.ExplanationText = Context.ExplanationText;
 				ComponentValidationContext.OriginalLocation = Context.OriginalLocation;
 				ComponentValidationContext.ObjectsCreationIDs = Context.ObjectsCreationIDs;
@@ -605,6 +609,36 @@ Procedure ShortenFileName(FileName) Export
 	FileName = ShortenedString + File.Extension;
 		
 EndProcedure
+
+#Region Other
+
+// 
+// 
+// Returns:
+//  Structure - 
+//   * PackToArchive - Boolean -
+//   * SaveFormats - Array of See StandardSubsystemsServer.SpreadsheetDocumentSaveFormatsSettings
+//   * Recipients - Array of Structure:
+//                            * ContactInformationSource - CatalogRef - owner of the contact information.
+//                            * Address - String - email address of the message recipient.
+//                            * Presentation - String - representation of the addressee.
+//   * TransliterateFilesNames - Boolean - 
+//   * Sign  - Undefined, 
+// 				- Boolean - 
+//   * SignatureAndSeal - Boolean -
+//
+Function PrintFormFormatSettings() Export
+	Result = New Structure;
+	Result.Insert("PackToArchive", False);
+	Result.Insert("SaveFormats", New Array);
+	Result.Insert("Recipients", New Array);
+	Result.Insert("TransliterateFilesNames", False);
+	Result.Insert("Sign", Undefined);
+	Result.Insert("SignatureAndSeal", False);
+	Return Result;
+EndFunction
+
+#EndRegion
 
 #EndRegion
 
@@ -1148,6 +1182,10 @@ Async Function AttachAddInAfterTriedAttachAsync(Attached, Context)
 			Return AddInAttachmentError(ErrorText);
 		EndTry;
 		
+#If WebClient Then
+			PauseAsinx(2);
+#EndIf
+		
 		If Context.Cached Then 
 			WriteAddInObjectToCache(OriginalLocation, Attachable_Module)
 		EndIf;
@@ -1195,6 +1233,17 @@ Async Function AttachAddInAfterTriedAttachAsync(Attached, Context)
 		
 	EndIf;
 	 
+EndFunction
+
+Async Function PauseAsinx(TimeInSeconds)
+	
+	EndDate = CurrentDate() + TimeInSeconds; // 
+	While CurrentDate() < EndDate Do         // 
+		Await 1;
+	EndDo;
+	
+	Return Undefined;
+	
 EndFunction
 
 Function IsTemplate(Location)
@@ -1267,7 +1316,6 @@ Procedure WriteAddInSymbolicNameToCache(ObjectKey, SymbolicName)
 	
 EndProcedure
 
-// Receives an object that is an instance of the add-in from the cache.
 Function GetAddInObjectFromCache(ObjectKey)
 	
 	Attachable_Module = Undefined;
@@ -1281,7 +1329,6 @@ Function GetAddInObjectFromCache(ObjectKey)
 	
 EndFunction
 
-// Writes the instance of the add-in to the cache.
 Procedure WriteAddInObjectToCache(ObjectKey, Attachable_Module)
 	
 	Map = New Map;
@@ -1337,7 +1384,7 @@ Procedure RegisterCOMConnectorOnCheckRegistration(Result, Context) Export
 	Else 
 		
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot register the comcntr add-in.
+			NStr("en = 'Cannot register the comcntr component.
 			           |Regsvr32 error code: %1';"),
 			ReturnCode);
 			
@@ -1348,7 +1395,7 @@ Procedure RegisterCOMConnectorOnCheckRegistration(Result, Context) Export
 		ElsIf ReturnCode = 3 Then
 			MessageText = MessageText + " " + NStr("en = 'An error occurred upon loading a module from a COM library.';");
 		ElsIf ReturnCode = 4 Then
-			MessageText = MessageText + " " + NStr("en = 'An error occurred upon getting the address of a function or a variable from a COM library.';");
+			MessageText = MessageText + " " + NStr("en = 'An error occurred upon getting the address of a function or a variable from a COM-library.';");
 		ElsIf ReturnCode = 5 Then
 			MessageText = MessageText + " " + NStr("en = 'An error occurred upon executing the registration function.';");
 		Else 
@@ -1404,10 +1451,9 @@ Function RegisterCOMConnectorRegistrationIsAvailable() Export
 #If WebClient Or MobileClient Then
 	Return False;
 #Else
-	ClientParametersOnStart = StandardSubsystemsClient.ClientParametersOnStart();
 	Return Not CommonClient.ClientConnectedOverWebServer()
-		And Not ClientParametersOnStart.IsBaseConfigurationVersion
-		And Not ClientParametersOnStart.IsTrainingPlatform;
+	      And Not StandardSubsystemsClient.IsBaseConfigurationVersion()
+	      And Not StandardSubsystemsClient.IsTrainingPlatform();
 #EndIf
 	
 EndFunction

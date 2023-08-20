@@ -22,7 +22,7 @@ Function UniqueNameByWay(Val DirectoryName, Val FileName) Export
 	Counter = 0;
 	DoNumber = 0;
 	Success = False;
-	CodeLetterA = CharCode("A", 1);
+	CodeOfFirstLetter = CharCode("A", 1);
 	
 	RandomValueGenerator = Undefined;
 	
@@ -46,13 +46,13 @@ Function UniqueNameByWay(Val DirectoryName, Val FileName) Export
 		EndIf;
 		
 		DirectoryLetters = "";
-		CodeLetterA = CharCode("A", 1);
+		CodeOfFirstLetter = CharCode("A", 1);
 		
 		While True Do
 			LetterNumber = DirectoryNumber % 26;
 			DirectoryNumber = Int(DirectoryNumber / 26);
 			
-			DirectoryCode = CodeLetterA + LetterNumber;
+			DirectoryCode = CodeOfFirstLetter + LetterNumber;
 			
 			DirectoryLetters = DirectoryLetters + Char(DirectoryCode);
 			If DirectoryNumber = 0 Then
@@ -314,6 +314,8 @@ Procedure FillSignatureStatus(SignatureRow, CurrentDate) Export
 		SignatureRow.Status = NStr("en = 'Was valid on the date of signature';");
 	ElsIf SignatureRow.SignatureCorrect Then
 		SignatureRow.Status = NStr("en = 'Valid';");
+	ElsIf SignatureRow.CheckRequired2 Then
+		SignatureRow.Status = NStr("en = 'Verification required';");
 	Else
 		SignatureRow.Status = NStr("en = 'Invalid';");
 	EndIf;
@@ -344,11 +346,11 @@ EndFunction
 // 
 //
 // Returns:
-//   Structure 
-//     
-//     
-//     
-
+//   Structure:
+//     * UUID - unique form ID.
+//     * User - CatalogRef.Users
+//     * AdditionalProperties - Structure -
+//
 Function FileLockParameters() Export
 	
 	Parameters = New Structure;
@@ -594,14 +596,22 @@ EndProcedure
 // Automatically detects and returns the encoding of a text file.
 //
 // Parameters:
-//  BinaryData - ОпределяемыйТип.ДвоичныеДанные
+//  DataForAnalysis - BinaryData, String -
 //  Extension         - String - file extension.
 //
 // Returns:
 //  String
 //
-Function DetermineBinaryDataEncoding(BinaryData, Extension) Export
+Function DetermineBinaryDataEncoding(DataForAnalysis, Extension) Export
 	
+	If TypeOf(DataForAnalysis) = Type("BinaryData") Then
+		BinaryData = DataForAnalysis;
+	ElsIf IsTempStorageURL(DataForAnalysis) Then
+		BinaryData = GetFromTempStorage(DataForAnalysis);
+	Else
+		BinaryData = Undefined;
+	EndIf;
+
 	Encoding = Undefined;
 	
 	If BinaryData <> Undefined Then

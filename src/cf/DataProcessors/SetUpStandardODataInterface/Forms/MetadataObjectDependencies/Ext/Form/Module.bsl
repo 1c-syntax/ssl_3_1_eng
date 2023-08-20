@@ -109,6 +109,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	For Each TreeRow In Tree.Rows Do
 		If TreeRow.Rows.Count() = 0 Then
 			LinesToDelete.Add(TreeRow);
+		Else
+			TreeRow.Rows.Sort("Presentation");
 		EndIf;
 	EndDo;
 	For Each RowToDelete In LinesToDelete Do

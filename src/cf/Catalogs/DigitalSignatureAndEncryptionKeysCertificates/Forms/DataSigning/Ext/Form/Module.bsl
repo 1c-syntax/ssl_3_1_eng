@@ -298,7 +298,7 @@ Procedure Sign(Command)
 		
 		SignData(New NotifyDescription("SignCompletion", ThisObject));
 		
-	EndIf;	
+	EndIf;
 	
 EndProcedure
 
@@ -489,11 +489,13 @@ Procedure RefreshVisibilityWarnings()
 	
 	Items.GroupRecalled.Visible = CertificateRevoked;
 	
-	If Not CertificateRevoked And ValueIsFilled(CertificationAuthorityAuditResult) Then
-		Items.AdditionalDataGroup.Visible = ValueIsFilled(
+	If ValueIsFilled(CertificationAuthorityAuditResult) Then
+		Items.AdditionalDataGroup.Visible = Not CertificateRevoked And ValueIsFilled(
 			CertificationAuthorityAuditResult.Warning.AdditionalInfo);
 		Items.DecorationAdditionalInformation.Title =
 			CertificationAuthorityAuditResult.Warning.AdditionalInfo;
+	Else
+		Items.AdditionalDataGroup.Visible = False;
 	EndIf;
 	
 EndProcedure
@@ -622,11 +624,11 @@ Procedure SignData(Notification)
 	If ValueIsFilled(CertificationAuthorityAuditResult)
 		And Not CertificationAuthorityAuditResult.Valid_SSLyf Then
 			
-		SigningIsAllowed = CommonServerCall.CommonSettingsStorageLoad(
+		SigningAllowed = CommonServerCall.CommonSettingsStorageLoad(
 			Certificate, "AllowSigning", Undefined);
 		
-		If SigningIsAllowed = Undefined Then
-			Notification = New NotifyDescription("SignDataAfterAnsweringQuestion", ThisObject, Context);
+		If SigningAllowed = Undefined Then
+			Notification = New NotifyDescription("SignDataAfterCAQuestionAnswered", ThisObject, Context);
 			
 			QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
 			QuestionParameters.Picture = PictureLib.Warning32;
@@ -643,17 +645,17 @@ Procedure SignData(Notification)
 			Return;
 		EndIf;
 		
-		SignDataAfterAnsweringQuestion(SigningIsAllowed, Context);
+		SignDataAfterCAQuestionAnswered(SigningAllowed, Context);
 		Return;
 	EndIf;
 	
-	SignDataAfterAnsweringQuestion(True, Context)
+	SignDataAfterCAQuestionAnswered(True, Context);
 	
 EndProcedure
 
 // Continue the sign Data procedure.
 &AtClient
-Procedure SignDataAfterAnsweringQuestion(Result, Context) Export
+Procedure SignDataAfterCAQuestionAnswered(Result, Context) Export
 	
 	If TypeOf(Result) = Type("Structure") Then
 		
@@ -676,6 +678,88 @@ Procedure SignDataAfterAnsweringQuestion(Result, Context) Export
 		Return;
 	EndIf;
 	
+	AdditionalInspectionParameters = DigitalSignatureInternalClient.AdditionalCertificateVerificationParameters();
+	AdditionalInspectionParameters.ShowError = False;
+	AdditionalInspectionParameters.ToVerifySignature = True;
+	AdditionalInspectionParameters.MergeCertificateDataErrors = False;
+	AdditionalInspectionParameters.PerformCAVerification = False;
+
+	DigitalSignatureInternalClient.CheckCertificate(New NotifyDescription(
+			"SignDataAfterSelectedCertificateVerified", ThisObject, Context),
+		AddressOfCertificate,,, AdditionalInspectionParameters);
+	
+EndProcedure
+
+// Continue the sign Data procedure.
+&AtClient
+Procedure SignDataAfterSelectedCertificateVerified(Result, Context) Export
+	
+	If TypeOf(Result) = Type("Structure") Then // 
+		
+		If Result.CertificateRevoked Then
+			Context.ErrorAtClient.Insert("ErrorDescription", NStr("en = 'The certificate is revoked.
+																	 |Select another certificate.';"));
+			AdditionalErrorData = New Structure("AdditionalDataChecksOnClient",
+				ErrorCertificateMarkedAsRevoked());
+			HandleError(Context.Notification, Context.ErrorAtClient, Context.ErrorAtServer, ,
+				AdditionalErrorData);
+			Return;
+		EndIf;
+		
+		Context.Insert("CertificateValid", False);
+		Context.Insert("CheckRequired2", Result.CheckRequired2);
+		
+		Notification = New NotifyDescription("SignDataAfterInvalidSignatureWarning", ThisObject,
+			New Structure("Context, CertificateVerificationResult", Context, Result));
+		
+		QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
+		QuestionParameters.Picture = PictureLib.Warning32;
+		QuestionParameters.Title = NStr("en = 'The signature will be invalid';");
+		QuestionParameters.PromptDontAskAgain = False;
+		
+		Buttons = New ValueList;
+		Buttons.Add("CancelSigning",  NStr("en = 'Cancel signing';"));
+		Buttons.Add("AllowSigning", NStr("en = 'Allow signing';"));
+		Buttons.Add("ShowError",      NStr("en = 'Details...';"));
+		
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'The certificate has failed verification. A signature created by this certificate will be invalid.
+				|
+				|%1';"), DigitalSignatureInternalClientServer.GeneralDescriptionOfTheError(
+			Result.ErrorDetailsAtClient, Result.ErrorDescriptionAtServer, Undefined));
+		
+		StandardSubsystemsClient.ShowQuestionToUser(Notification, ErrorText, Buttons, QuestionParameters);
+		Return;
+		
+	EndIf;
+	
+	Context.Insert("CertificateValid",   True);
+	Context.Insert("CheckRequired2", False);
+	SignDataAfterInvalidSignatureWarning(New Structure("Value", "AllowSigning"), 
+		New Structure("Context", Context));
+	
+EndProcedure
+
+// Continue the sign Data procedure.
+&AtClient
+Procedure SignDataAfterInvalidSignatureWarning(Result, AdditionalParameters) Export
+	
+	Context = AdditionalParameters.Context;
+
+	If Result = Undefined Or Result.Value = "CancelSigning" Or Result.Value = "ShowError" Then
+		
+		If ValueIsFilled(AdditionalParameters.CertificateVerificationResult.ErrorDetailsAtClient) Then
+			Context.ErrorAtClient.Insert("ErrorDescription", AdditionalParameters.CertificateVerificationResult.ErrorDetailsAtClient);
+		EndIf;
+		If ValueIsFilled(AdditionalParameters.CertificateVerificationResult.ErrorDescriptionAtServer) Then
+			Context.ErrorAtServer.Insert("ErrorDescription", AdditionalParameters.CertificateVerificationResult.ErrorDescriptionAtServer);
+		EndIf;
+		
+		HandleError(Context.Notification, Context.ErrorAtClient, Context.ErrorAtServer,,,Result.Value = "ShowError");
+		Return;
+	
+	EndIf;
+		
 	SelectedCertificate = New Structure;
 	SelectedCertificate.Insert("Ref",    Certificate);
 	SelectedCertificate.Insert("Thumbprint", ThumbprintOfCertificate);
@@ -717,34 +801,17 @@ Procedure SignDataAfterProcesssingBeforeExecute(Result, Context) Export
 		Context.FormIdentifier = ObjectForm;
 	EndIf;
 	
-	AdditionalInspectionParameters = DigitalSignatureInternalClient.AdditionalCertificateVerificationParameters();
-	AdditionalInspectionParameters.ShowError = False;
-		
-	DigitalSignatureInternalClient.CheckCertificate(New NotifyDescription(
-			"SignDataAfterCertificateCheck", ThisObject, Context),
-		AddressOfCertificate,,, AdditionalInspectionParameters);
-	
-EndProcedure
-
-// Continues the SignData procedure.
-&AtClient
-Async Procedure SignDataAfterCertificateCheck(Result, Context) Export
-	
-	If VariablesCleared() Then
-		Return;
-	EndIf;
-	
 	ExecutionParameters = New Structure;
 	ExecutionParameters.Insert("DataDetails",     DataDetails);
 	ExecutionParameters.Insert("Form",              ThisObject);
 	ExecutionParameters.Insert("FormIdentifier", Context.FormIdentifier);
 	ExecutionParameters.Insert("PasswordValue",     PasswordProperties.Value);
-	ExecutionParameters.Insert("CertificateValid",    ?(Result = Undefined, Result, Result = True));
 	ExecutionParameters.Insert("AddressOfCertificate",    AddressOfCertificate);
+	ExecutionParameters.Insert("CertificateValid",    Context.CertificateValid);
+	ExecutionParameters.Insert("CheckRequired2",  Context.CheckRequired2);
 	
 	ExecutionParameters.Insert("FullDataPresentation",
 		DigitalSignatureInternalClient.FullDataPresentation(ThisObject));
-	
 	ExecutionParameters.Insert("CurrentPresentationsList", CurrentPresentationsList);
 	
 	Context.Insert("ExecutionParameters", ExecutionParameters);
@@ -811,6 +878,10 @@ Procedure SignDataAfterExecutionAtClientSide(Result, Context) Export
 	
 	If Result.Property("Error") Then
 		
+		If DataDetails.Property("OperationContext") Then
+			DataDetails.OperationContext = ThisObject;
+		EndIf;
+		
 		Context.ErrorAtClient = Result.Error;
 		UnsignedData = DigitalSignatureInternalClient.CurrentDataItemProperties(
 			Context.ExecutionParameters);
@@ -867,16 +938,20 @@ Procedure SignDataAfterExecute(Result)
 EndProcedure
 
 &AtClient
-Procedure HandleError(Notification, ErrorAtClient, ErrorAtServer, UnsignedData = Undefined, AdditionalData = Undefined)
+Procedure HandleError(Notification, ErrorAtClient, ErrorAtServer, UnsignedData = Undefined, AdditionalData = Undefined, ShowError_ = True)
 	
 	If DataDetails.Property("StopExecution") Then
 		
-		If Not DataDetails.Property("ErrorDescription") Then
-			DataDetails.Insert("ErrorDescription");
-		EndIf;
+		If ShowError_ Then
+			
+			If Not DataDetails.Property("ErrorDescription") Then
+				DataDetails.Insert("ErrorDescription");
+			EndIf;
 		
 		DataDetails.ErrorDescription = DigitalSignatureInternalClientServer.GeneralDescriptionOfTheError(
 			ErrorAtClient, ErrorAtServer, NStr("en = 'Cannot sign documents due to:';"));
+
+		EndIf;
 		
 		If IsOpen() Then
 			Close(False);
@@ -890,21 +965,23 @@ Procedure HandleError(Notification, ErrorAtClient, ErrorAtServer, UnsignedData =
 			Open();
 		EndIf;
 		
-		AdditionalParameters = New Structure;
-		If ValueIsFilled(AdditionalData) Then
-			For Each KeyAndValue In AdditionalData Do
-				AdditionalParameters.Insert(KeyAndValue.Key, KeyAndValue.Value);
-			EndDo;
+		If ShowError_ Then
+			AdditionalParameters = New Structure;
+			If ValueIsFilled(AdditionalData) Then
+				For Each KeyAndValue In AdditionalData Do
+					AdditionalParameters.Insert(KeyAndValue.Key, KeyAndValue.Value);
+				EndDo;
+			EndIf;
+			If UnsignedData <> Undefined Then
+				AdditionalParameters.Insert("UnsignedData", UnsignedData);
+			EndIf;
+			AdditionalParameters.Insert("Certificate", Certificate);
+			
+			DigitalSignatureInternalClient.ShowApplicationCallError(
+				NStr("en = 'Cannot sign documents';"), "", 
+				ErrorAtClient, ErrorAtServer, AdditionalParameters, ProcessingAfterWarning);
 		EndIf;
-		If UnsignedData <> Undefined Then
-			AdditionalParameters.Insert("UnsignedData", UnsignedData);
-		EndIf;
-		AdditionalParameters.Insert("Certificate", Certificate);
-		
-		DigitalSignatureInternalClient.ShowApplicationCallError(
-			NStr("en = 'Cannot sign documents';"), "", 
-			ErrorAtClient, ErrorAtServer, AdditionalParameters, ProcessingAfterWarning);
-		
+			
 		ExecuteNotifyProcessing(Notification, False);
 		
 	EndIf;

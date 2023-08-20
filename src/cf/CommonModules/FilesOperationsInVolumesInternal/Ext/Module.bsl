@@ -100,10 +100,9 @@ EndFunction
 // matches the infobase storage settings.
 //
 // Parameters:
-//   AttachedFile  - DefinedType.AttachedFileObject
-//                       - см. См. РаботаСФайламиВТомахСлужебный.ПараметрыДобавленияФайла - 
-//                                     
-//                                     
+//   AttachedFile  - See FilesOperationsInVolumesInternal.FileAddingOptions
+//                       
+//                         
 //   BinaryDataOrPath - BinaryData
 //                         - String - 
 //   FileDateInVolume - Date - if not specified, set it so the current session date.
@@ -133,8 +132,8 @@ EndProcedure
 // Throws exceptions. 
 // 
 // Parameters:
-//   AttachedFile  - DefinedType.AttachedFileObject
-//                       - см. РаботаСФайламиВТомахСлужебный.ПараметрыДобавленияФайла -  
+//   AttachedFile  - See FilesOperationsInVolumesInternal.FileAddingOptions
+//                       
 //                                     
 //                                     
 //   BinaryDataOrPath - BinaryData
@@ -470,7 +469,8 @@ Function FullFileNameInVolume(FileProperties, FileDateInVolume = Undefined) Expo
 	
 	RootDirectory1 = FullVolumePath + ?(Right(FullVolumePath, 1) = Separator, "", Separator);
 	If CreateSubdirectoriesWithOwnersNames() Then
-		RootDirectory1 = RootDirectory1 + FileOwnerDirectoryName(FileProperties.FileOwner) + Separator;
+		FileOwnerDirectoryName = FileOwnerDirectoryName(FileProperties.FileOwner);
+		RootDirectory1 = RootDirectory1 + FileOwnerDirectoryName + ?(FileOwnerDirectoryName = "", "", Separator);
 	EndIf;
 	
 	PlacementDate = ?(ValueIsFilled(FileDateInVolume), FileDateInVolume, CurrentSessionDate());
@@ -597,6 +597,30 @@ Function VolumeSize(Volume) Export
 	
 EndFunction
 
+// 
+//
+// Parameters:
+//   AttachedFile - DefinedType.AttachedFile -
+//
+// Returns:
+//   Boolean
+//
+Function AttachedFileIsLocatedOnDisk(AttachedFile) Export
+	
+	FileProperties = FilePropertiesInVolume(AttachedFile);
+	PathToFile = FullFileNameInVolume(FileProperties);
+	If Not ValueIsFilled(PathToFile) Then
+		Return False;
+	EndIf;
+			
+	FileToCheck = New File(PathToFile);
+	If FileToCheck.Exists() Then
+		Return True;
+	EndIf;
+	
+	Return False;
+EndFunction
+
 #Region AccountingAudit
 
 // See AccountingAuditOverridable.OnDefineChecks
@@ -608,7 +632,7 @@ Procedure OnDefineChecks(ChecksGroups, Checks) Export
 	Validation.Reasons                      = NStr("en = 'The file was deleted or moved by the antivirus software,
 		|unintentional actions of the administrator, or similar reasons.';");
 	Validation.Recommendation                 = NStr("en = '• Mark the file for deletion.
-		|• Restore the file in the volume on the hard drive from a backup.';");
+		|• Restore the volume file from a backup.';");
 	Validation.Id                = "StandardSubsystems.ReferenceToNonexistingFilesInVolumeCheck";
 	Validation.CheckHandler           = "FilesOperationsInVolumesInternal.ReferenceToNonexistingFilesInVolumeCheck";
 	Validation.AccountingChecksContext = "SystemChecks";
@@ -616,8 +640,6 @@ Procedure OnDefineChecks(ChecksGroups, Checks) Export
 	
 EndProcedure
 
-// Checks non-existent files on the hard drive when attachments are stored in volumes.
-//
 Procedure ReferenceToNonexistingFilesInVolumeCheck(Validation, CheckParameters) Export
 	
 	If Common.DataSeparationEnabled()
@@ -662,10 +684,10 @@ EndProcedure
 
 #Region StorageParameters
 
-// Returns a flag that files can be stored in volumes on hard drive.
+// 
 //
 // Returns:
-//  Boolean - 
+//  Boolean
 //
 Function StoreFilesInVolumesOnHardDrive() Export
 	
@@ -721,7 +743,7 @@ EndProcedure
 //   Volumes - Array of CatalogRef.FileStorageVolumes
 //
 // Returns:
-//   Map of КлючЗначение:
+//   Map of KeyAndValue:
 //     * Key - CatalogRef.FileStorageVolumes
 //     * Value - Number
 //
@@ -749,7 +771,7 @@ Function SizesOfVolumes(Volumes)
 	|	Versions.Volume IN (&Volumes)";
 	QueriesTexts.Add(QueryText);
 	
-	RequestTextTemplate = "SELECT
+	QueryTextTemplate2 = "SELECT
 	|	AttachedFiles.Volume,
 	|	ISNULL(AttachedFiles.Size, 0)
 	|FROM
@@ -770,7 +792,7 @@ Function SizesOfVolumes(Volumes)
 			Continue;
 		EndIf;
 		
-		QueriesTexts.Add(StrReplace(RequestTextTemplate, "&CatalogName", 
+		QueriesTexts.Add(StrReplace(QueryTextTemplate2, "&CatalogName", 
 			Metadata.FindByType(Type).FullName()));
 	EndDo;
 	
@@ -1235,10 +1257,10 @@ EndProcedure
 
 #Region FilesStorageInVolumesSettings
 
-// Returns a flag that files can be stored both in volumes on hard drive and in the infobase.
+// 
 //
 // Returns:
-//   Boolean - 
+//   Boolean
 //
 Function StoreFIlesInVolumesOnHardDriveAndInInfobase()
 	
@@ -1250,7 +1272,7 @@ EndFunction
 // Returns a flag that files in volumes are stored in subdirectories with the owner name.
 //
 // Returns:
-//   Boolean - 
+//   Boolean
 //
 Function CreateSubdirectoriesWithOwnersNames()
 	
@@ -1323,7 +1345,7 @@ EndProcedure
 // Adds a file to volumes when executing the "store initial image files" command.
 //
 // Parameters:
-//   FilesPathsMap - Map - a mapping of the UUID of the file and the path on the hard drive to the file.
+//   FilesPathsMap - Map -
 //   FileStorageType        - EnumRef.FileStorageTypes - file storage type.
 //
 Procedure AddFilesToVolumesOnPlace(FilesPathsMap, FileStorageType)
@@ -1368,7 +1390,7 @@ Procedure AddFilesToVolumesOnPlace(FilesPathsMap, FileStorageType)
 				
 			Else
 				
-				// In the destination base, files must be stored in volumes on the hard drive. Move the unzipped file to the volume.
+				// 
 				FileSource = New File(FullFilePathOnHardDrive);
 				FileName = CommonClientServer.GetNameWithExtension(Object.Description, Object.Extension);
 				Common.ShortenFileName(FileName);
@@ -1417,7 +1439,7 @@ EndFunction
 
 #Region CleanUpUnusedFiles
 
-// The table constructor containing extraneous files on the hard drive.
+// 
 // 
 // Returns:
 //   ValueTable:
@@ -1447,6 +1469,8 @@ Function UnnecessaryFilesOnHardDrive() Export
 	FilesTableOnHardDrive.Columns.Add("Count");
 	FilesTableOnHardDrive.Columns.Add("WasEditedBy");
 	FilesTableOnHardDrive.Columns.Add("EditDate");
+
+	FilesTableOnHardDrive.Indexes.Add("FullName");
 	
 	Return FilesTableOnHardDrive;
 EndFunction
@@ -1560,9 +1584,9 @@ Function ViewStatusChecks(Val CheckStatus) Export
 	If CheckStatus = "OK" Then
 		Return NStr("en = 'Data integrity check passed';");
 	ElsIf CheckStatus = "ExtraFileInTome" Then 
-		Return NStr("en = 'Extraneous files (files on the hard drive that are not registered in the application)';");
+		Return NStr("en = 'Extraneous files (files in the volume that are not registered in the application)';");
 	ElsIf CheckStatus = "NoFileInVolume" Then
-		Return NStr("en = 'No files in volume on hard drive';");
+		Return NStr("en = 'No files in the volume';");
 	EndIf;
 EndFunction
 
@@ -1774,6 +1798,18 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.ExecutionMode = "Seamless";
 	Handler.InitialFilling = True;
 	
+	Handler = Handlers.Add();
+	Handler.Version = "3.1.8.331";
+	Handler.Procedure = "Catalogs.FilesVersions.ProcessVersionStoragePath";
+	Handler.ExecutionMode = "Deferred";
+	Handler.Comment = NStr("en = 'Fixes incorrect file storage paths in a volume.';");
+	Handler.Id = New UUID("06354049-b702-4f27-8e99-f49b86f7f152");
+	Handler.CheckProcedure = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
+	Handler.ObjectsToLock = "Catalog.FilesVersions";
+	Handler.UpdateDataFillingProcedure = "Catalogs.FilesVersions.RegisterDataToProcessForMigrationToNewVersion";
+	Handler.ObjectsToRead = "Catalog.FilesVersions";
+	Handler.ObjectsToChange = "Catalog.FilesVersions";
+	
 EndProcedure
 
 // Sets the FilesStorageMethod constant value depending on the StoreFilesInVolumesOnHardDrive constant
@@ -1943,9 +1979,9 @@ Function FreeVolume(AttachedFile)
 	Result = Query.Execute();
 	If Result.IsEmpty() Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Не удалось добавить файл ""%1"", 
-				|т.к. не настроено ни одного тома для хранения файлов.
-				|Обратитесь к администратору.';"),
+			NStr("en = 'Cannot add the %1 file 
+				|as no file storage volume is configured.
+				|Contact the administrator.';"),
 			AttachedFile.Description + "." + AttachedFile.Extension);
 	EndIf;
 	
@@ -1970,9 +2006,9 @@ Function FreeVolume(AttachedFile)
 	EndDo;
 	
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-	NStr("en = 'Не удалось добавить файл ""%1"", 
-		|т.к. в томах хранения файлов недостаточно места.
-		|Обратитесь к администратору.';"),
+	NStr("en = 'Cannot add the %1 file 
+		|as the file storage volumes do not have enough space.
+		|Contact the administrator.';"),
 		AttachedFile.Description + "." + AttachedFile.Extension);
 	Raise ErrorText;	
 	

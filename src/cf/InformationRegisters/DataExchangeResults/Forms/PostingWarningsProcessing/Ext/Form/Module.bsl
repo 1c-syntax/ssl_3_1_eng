@@ -83,7 +83,7 @@ EndProcedure
 #Region Private
 
 &AtClient
-Procedure ChangeTheLineMark(MarkValue);
+Procedure ChangeTheLineMark(MarkValue)
 	
 	For Each SelectedRow In PatchObjectsTable Do
 		

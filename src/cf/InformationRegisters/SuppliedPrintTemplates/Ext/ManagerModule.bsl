@@ -22,7 +22,7 @@ Procedure UpdateTemplatesCheckSum(Parameters) Export
 	EndIf;
 	
 	TemplatesRequiringChecksumUpdate = New Map;
-	ErrorsList = New Array;
+	ErrorList = New Array;
 	
 	For Each TemplateDetails In TemplatesToProcess Do
 		Owner = TemplateDetails.Value;
@@ -91,15 +91,15 @@ Procedure UpdateTemplatesCheckSum(Parameters) Export
 			WriteLogEvent(NStr("en = 'Build-in template edit monitor';", Common.DefaultLanguageCode()),
 				EventLogLevel.Error, Template, , ErrorText);
 			
-			ErrorsList.Add(OwnerName + "." + TemplateName + ": " + ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+			ErrorList.Add(OwnerName + "." + TemplateName + ": " + ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 			TemplatesRequiringChecksumUpdate.Insert(TemplateDetails.Key, TemplateDetails.Value);
 		EndTry;
 	EndDo;
 	
 	If ValueIsFilled(TemplatesRequiringChecksumUpdate) Then
-		ErrorsList.Insert(0, NStr("en = 'Couldn''t save the template details of print forms stored in extensions:';"));
+		ErrorList.Insert(0, NStr("en = 'Couldn''t save the template details of print forms stored in extensions:';"));
 		Parameters.Insert("TemplatesRequiringChecksumUpdate", TemplatesRequiringChecksumUpdate);
-		ErrorText = StrConcat(ErrorsList, Chars.LF);
+		ErrorText = StrConcat(ErrorList, Chars.LF);
 		Raise ErrorText;
 	EndIf;
 	

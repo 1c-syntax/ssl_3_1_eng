@@ -296,7 +296,7 @@
 						<v8:Type>cfg:CatalogRef.ContactInformationKinds</v8:Type>
 					</Type>
 				</Column>
-				<Column name="UpdateAvailable" id="12">
+				<Column name="ChangeAvailable" id="12">
 					<Type>
 						<v8:Type>xs:boolean</v8:Type>
 					</Type>

@@ -860,7 +860,7 @@ End, "Number(12, 0)") Asc</dcscom:expression>
 								<dcsset:presentation xsi:type="v8:LocalStringType">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>// When checking seamless update, include only items that require exclusive mode</v8:content>
+										<v8:content>// When checking real-time update, include only items that require exclusive mode</v8:content>
 									</v8:item>
 								</dcsset:presentation>
 							</dcsset:item>
@@ -873,7 +873,7 @@ End, "Number(12, 0)") Asc</dcscom:expression>
 									<dcsset:presentation xsi:type="v8:LocalStringType">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>// When checking seamless update, include only items that require exclusive mode</v8:content>
+											<v8:content>// When checking real-time update, include only items that require exclusive mode</v8:content>
 										</v8:item>
 									</dcsset:presentation>
 								</dcsset:item>
@@ -883,7 +883,7 @@ End, "Number(12, 0)") Asc</dcscom:expression>
 									<dcsset:presentation xsi:type="v8:LocalStringType">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>// When checking seamless update, include only items that require exclusive mode</v8:content>
+											<v8:content>// When checking real-time update, include only items that require exclusive mode</v8:content>
 										</v8:item>
 									</dcsset:presentation>
 								</dcsset:item>
@@ -918,7 +918,7 @@ End, "Number(12, 0)") Asc</dcscom:expression>
 					<dcsset:presentation xsi:type="v8:LocalStringType">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>// Check seamless update</v8:content>
+							<v8:content>// Check real-time update</v8:content>
 						</v8:item>
 					</dcsset:presentation>
 				</dcsset:item>

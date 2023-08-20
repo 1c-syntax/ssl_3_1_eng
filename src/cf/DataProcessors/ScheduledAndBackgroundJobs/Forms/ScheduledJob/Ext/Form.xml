@@ -130,7 +130,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>times every</v8:content>
+							<v8:content>times  every</v8:content>
 						</v8:item>
 					</Title>
 					<Width>7</Width>
@@ -358,7 +358,7 @@ They cannot be deleted.
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Repeat in</v8:content>
+					<v8:content>Retry in</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -375,7 +375,7 @@ They cannot be deleted.
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>On error, retry</v8:content>
+					<v8:content>Retry on error</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

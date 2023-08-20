@@ -196,7 +196,7 @@
 								<InputField name="Name" id="63">
 									<DataPath>Record.Name</DataPath>
 									<ContextMenu name="NameContextMenu" id="64"/>
-									<ExtendedTooltip name="NameExtendedHint" id="65"/>
+									<ExtendedTooltip name="NameExtendedTooltip" id="65"/>
 								</InputField>
 								<InputField name="Email" id="66">
 									<DataPath>Record.Email</DataPath>

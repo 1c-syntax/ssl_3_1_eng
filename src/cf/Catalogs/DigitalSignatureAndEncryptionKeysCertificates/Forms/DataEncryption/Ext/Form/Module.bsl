@@ -420,7 +420,7 @@ Procedure FillEncryptionCertificatesFromSet(CertificatesSetDetails)
 			Except
 				ErrorInfo = ErrorInfo();
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'The ""%1"" certificate data in catalog is incorrect due to:
+					NStr("en = 'The ""%1"" certificate data in the catalog is incorrect due to:
 					           |%2';"),
 					Selection.Presentation,
 					ErrorProcessing.BriefErrorDescription(ErrorInfo));
@@ -1101,7 +1101,7 @@ Function CertificatesProperties(Val References, Val FormIdentifier)
 		Except
 			ErrorInfo = ErrorInfo();
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The ""%1"" certificate data in catalog is incorrect due to:
+				NStr("en = 'The ""%1"" certificate data in the catalog is incorrect due to:
 				           |%2';"),
 				Selection.Description,
 				ErrorProcessing.BriefErrorDescription(ErrorInfo));

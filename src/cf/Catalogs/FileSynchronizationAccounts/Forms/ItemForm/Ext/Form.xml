@@ -59,12 +59,73 @@
 					<ChildItems>
 						<InputField name="Service" id="69">
 							<DataPath>Object.Service</DataPath>
-							<DropListButton>false</DropListButton>
-							<ChoiceButton>true</ChoiceButton>
+							<DropListButton>true</DropListButton>
+							<ChooseType>false</ChooseType>
+							<ChoiceList>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Yandex.Disk</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:string">https://webdav.yandex.com</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Box</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:string">https://dav.box.com/dav</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Dropbox (via dropdav.com)</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:string">https://dav.dropdav.com</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Enter your service address</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:string"/>
+									</xr:Value>
+								</xr:Item>
+							</ChoiceList>
+							<AutoCorrectionOnTextInput>DontUse</AutoCorrectionOnTextInput>
+							<InputHint>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Enter the service address or select it from the list</v8:content>
+								</v8:item>
+							</InputHint>
 							<ContextMenu name="ServiceContextMenu" id="70"/>
 							<ExtendedTooltip name="ServiceExtendedTooltip" id="71"/>
 							<Events>
-								<Event name="StartChoice">ServiceStartChoice</Event>
+								<Event name="ChoiceProcessing">ServiceChoiceProcessing</Event>
 							</Events>
 						</InputField>
 						<InputField name="RootDirectory" id="37">
@@ -279,12 +340,12 @@
 			</Type>
 			<SavedData>true</SavedData>
 		</Attribute>
-		<Attribute name="AutoDescription" id="7">
+		<Attribute name="PasswordChanged" id="2">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="PasswordChanged" id="2">
+		<Attribute name="AutoDescription" id="6">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>

@@ -369,6 +369,80 @@ Install the received update so that synchronization continues.</v8:content>
 						</UsualGroup>
 					</ChildItems>
 				</Page>
+				<Page name="ExtensionsAreReceived" id="116">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Extensions are received</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="ExtensionsAreReceivedExtendedTooltip" id="117"/>
+					<ChildItems>
+						<UsualGroup name="Group8" id="118">
+							<Group>Horizontal</Group>
+							<Behavior>Usual</Behavior>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="Group8ExtendedTooltip" id="119"/>
+							<ChildItems>
+								<PictureDecoration name="Decoration6" id="120">
+									<Width>5</Width>
+									<Height>2</Height>
+									<Picture>
+										<xr:Ref>CommonPicture.Warning32</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<FileDragMode>AsFile</FileDragMode>
+									<ContextMenu name="Decoration6ContextMenu" id="121"/>
+									<ExtendedTooltip name="Decoration6ExtendedTooltip" id="122"/>
+								</PictureDecoration>
+								<LabelDecoration name="ExplanatoryInscriptionReceivedExtensions" id="123">
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Configuration extensions are changed.
+To continue with the changes made, restart the application.</v8:content>
+										</v8:item>
+									</Title>
+									<VerticalAlign>Center</VerticalAlign>
+									<ContextMenu name="ExplanatoryInscriptionReceivedExtensionsContextMenu" id="124"/>
+									<ExtendedTooltip name="ExplanatoryInscriptionReceivedExtensionsExtendedTooltip" id="125"/>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
+						<Button name="RestartApplication" id="135">
+							<Type>UsualButton</Type>
+							<CommandName>Form.Command.RestartApplication</CommandName>
+							<ExtendedTooltip name="RestartApplication1ExtendedTooltip" id="136"/>
+						</Button>
+						<UsualGroup name="Group12" id="128">
+							<Group>Horizontal</Group>
+							<Behavior>Usual</Behavior>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="Group12ExtendedTooltip" id="129"/>
+							<ChildItems>
+								<LabelDecoration name="LastSynchronizationInfo2" id="130">
+									<TextColor>style:NoteText</TextColor>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Last synchronization date: &lt;Date&gt;.</v8:content>
+										</v8:item>
+									</Title>
+									<ContextMenu name="LastSynchronizationInfo2ContextMenu" id="131"/>
+									<ExtendedTooltip name="LastSynchronizationInfo2ExtendedTooltip" id="132"/>
+								</LabelDecoration>
+								<Button name="GoToConflicts2" id="133">
+									<Type>Hyperlink</Type>
+									<CommandName>Form.Command.GoToConflicts</CommandName>
+									<ExtendedTooltip name="GoToConflicts2ExtendedTooltip" id="134"/>
+								</Button>
+							</ChildItems>
+						</UsualGroup>
+					</ChildItems>
+				</Page>
 			</ChildItems>
 		</Pages>
 	</ChildItems>
@@ -547,6 +621,21 @@ Install the received update so that synchronization continues.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ArchiveOfExchangeMessages</Action>
+		</Command>
+		<Command name="RestartApplication" id="7">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Restart application</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Restart application</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>RestartApplication</Action>
 		</Command>
 	</Commands>
 </Form>

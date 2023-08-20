@@ -254,6 +254,10 @@ Procedure GenerateMessageToSend(SendOptions)
 	TempStorageAddress = Undefined;
 	TempStorageAddress = PutToTempStorage(Undefined, UUID);
 	
+	If Sign Then
+		SendOptions.AdditionalParameters.SettingsForSaving.PackToArchive = False;
+	EndIf;
+	
 	ResultAddress = GenerateMessageAtServer(TempStorageAddress, SendOptions, MessageKind);
 	
 	Result = GetFromTempStorage(ResultAddress); // See MessageTemplatesInternal.GenerateMessage
@@ -264,6 +268,20 @@ Procedure GenerateMessageToSend(SendOptions)
 		And TypeOf(SendOptions.AdditionalParameters.MessageParameters) = Type("Structure") Then
 		CommonClientServer.SupplementStructure(Result, MessageParameters, False);
 	EndIf;
+	
+	If Sign Then
+		SendOptions.AdditionalParameters.SettingsForSaving.PackToArchive = PackToArchive;
+		SIgnFiles(Result, SendOptions);
+	Else
+		GenerateMessageToSendEnding(Result, SendOptions)
+	EndIf;
+EndProcedure
+
+
+
+
+&AtClient
+Procedure GenerateMessageToSendEnding(Result, SendOptions)
 	
 	If GenerateAndSend Then
 		AfterGenerateAndSendMessage(Result, SendOptions);
@@ -277,6 +295,8 @@ Procedure GenerateMessageToSend(SendOptions)
 	EndIf;
 	
 EndProcedure
+
+
 
 &AtServer
 Function GenerateMessageAtServer(TempStorageAddress, SendOptions, MessageKind)
@@ -594,22 +614,17 @@ EndProcedure
 &AtClient
 Function SelectedFormatSettings()
 	
-	Result = Undefined;
+	Result = CommonInternalClient.PrintFormFormatSettings();
 	
-	If CommonClient.SubsystemExists("StandardSubsystems.Print") Then
-		ModulePrintManagerClient = CommonClient.CommonModule("PrintManagementClient");
-		Result = ModulePrintManagerClient.SettingsForSaving();
+	For Each SelectedFormat In SelectedSaveFormats Do
+		If SelectedFormat.Check Then
+			Result.SaveFormats.Add(SelectedFormat.Value);
+		EndIf;
+	EndDo;
 
-		For Each SelectedFormat In SelectedSaveFormats Do
-			If SelectedFormat.Check Then
-				Result.SaveFormats.Add(SelectedFormat.Value);
-			EndIf;
-		EndDo;
-
-		Result.PackToArchive = PackToArchive;
-		Result.TransliterateFilesNames = TransliterateFilesNames;
-		Result.SignatureAndSeal = SignatureAndSeal;
-	EndIf;
+	Result.PackToArchive = PackToArchive;
+	Result.TransliterateFilesNames = TransliterateFilesNames;
+	Result.SignatureAndSeal = SignatureAndSeal;
 	
 	Return Result;
 	
@@ -622,6 +637,7 @@ Procedure OnSelectAttachmentFormat(ValueSelected, AdditionalParameters) Export
 		SetFormatSelection(ValueSelected.SaveFormats);
 		PackToArchive = ValueSelected.PackToArchive;
 		TransliterateFilesNames = ValueSelected.TransliterateFilesNames;
+		Sign = ValueSelected.Sign;
 		GeneratePresentationForSelectedFormats();
 	EndIf;
 		
@@ -688,6 +704,176 @@ Function PrintFormsSelectedEarlier()
 	If ValueIsFilled("MessageSourceFormName") Then
 		Result = Common.CommonSettingsStorageLoad(
 			"SendPrintFormsWithoutTemplate", MessageSourceFormName, New Array);
+	EndIf;
+	
+	Return Result;
+	
+EndFunction
+
+&AtClient
+Procedure SIgnFiles(Result, SendOptions)
+	FilesToSign = Result.Attachments;
+	
+	Context = New Structure;
+	Context.Insert("Result", Result);
+	Context.Insert("SendOptions", SendOptions);
+	
+	NotifyDescription = New NotifyDescription("GenerateMessageToSendFollowUp", ThisObject, Context);
+	
+	If CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		DataDetails = New Structure;
+		DataDetails.Insert("ShowComment", False);
+		If FilesToSign.Count() > 1 Then
+			DataDetails.Insert("Operation",            NStr("en = 'Sign files';"));
+			DataDetails.Insert("DataTitle",     NStr("en = 'Files';"));
+			
+			DataSet = New Array;
+			For Each File In FilesToSign Do
+				DescriptionOfFileData = New Structure;
+				DescriptionOfFileData.Insert("Presentation", File.Presentation);
+				DescriptionOfFileData.Insert("Data", File.AddressInTempStorage);
+				DescriptionOfFileData.Insert("PrintObject", SubjectOf);
+				DataSet.Add(DescriptionOfFileData);
+			EndDo;
+			
+			DataDetails.Insert("DataSet", DataSet);
+			DataDetails.Insert("SetPresentation", "Files (%1)");
+		Else
+			File = FilesToSign[0];
+			DataDetails.Insert("Operation",        NStr("en = 'Sign a file';"));
+			DataDetails.Insert("DataTitle", NStr("en = 'File';"));
+			DataDetails.Insert("Presentation", File.Presentation);
+			DataDetails.Insert("Data", File.AddressInTempStorage);
+			DataDetails.Insert("PrintObject", SubjectOf);
+		EndIf;
+		
+		ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
+		ModuleDigitalSignatureClient.Sign(DataDetails,,NotifyDescription);
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure GenerateMessageToSendFollowUp(SigningResult, Context) Export
+	
+	If TypeOf(SigningResult) = Type("Structure") And SigningResult.Property("Success") And Not SigningResult.Success Then
+		Return;
+	EndIf;
+	
+	Attachments = GetSignatureFiles(SigningResult, TransliterateFilesNames);
+	Attachments = PutFilesToArchive(Attachments, Context.SendOptions.AdditionalParameters.SettingsForSaving);
+	
+	Result = Context.Result;
+	Result.Attachments.Clear();
+	
+	CommonClientServer.SupplementArray(Result.Attachments, Attachments);
+	
+	GenerateMessageToSendEnding(Result, Context.SendOptions);
+	
+EndProcedure
+
+&AtServer
+Function GetSignatureFiles(SigningResult, TransliterateFilesNames)
+	If SigningResult.Property("DataSet") Then
+		DataSet = SigningResult.DataSet;
+	Else
+		DataSet = CommonClientServer.ValueInArray(SigningResult);
+	EndIf;
+	
+	ModuleDigitalSignature                      = Common.CommonModule("DigitalSignature");
+	ModuleDigitalSignatureInternalClientServer = Common.CommonModule("DigitalSignatureInternalClientServer");
+	SignatureFilesExtension = ModuleDigitalSignature.PersonalSettings().SignatureFilesExtension;
+	CertificateOwner = SigningResult.SelectedCertificate.Ref.IssuedTo;
+	If TransliterateFilesNames Then
+		CertificateOwner = StringFunctions.LatinString(CertificateOwner);
+	EndIf;
+	
+	Result = New Array;
+	For Each SignedFile In DataSet Do
+		StructureOfFileDetails = New Structure("AddressInTempStorage, Presentation, Id, Encoding");
+		StructureOfFileDetails.AddressInTempStorage = SignedFile.Data;
+		StructureOfFileDetails.Presentation = SignedFile.Presentation;
+		Result.Add(StructureOfFileDetails);
+
+		File = New File(SignedFile.Presentation);
+		
+		SignatureProperties = SignedFile.SignatureProperties;
+		SignatureData = PutToTempStorage(SignatureProperties.Signature, UUID);
+		SignatureFileName = ModuleDigitalSignatureInternalClientServer.SignatureFileName(File.BaseName,
+				String(CertificateOwner), SignatureFilesExtension);
+		
+		StructureOfFileDetails = New Structure("AddressInTempStorage, Presentation, Id, Encoding");
+		StructureOfFileDetails.AddressInTempStorage = SignatureData;
+		StructureOfFileDetails.Presentation = SignatureFileName;
+		Result.Add(StructureOfFileDetails);
+			
+		DataByCertificate = PutToTempStorage(SignatureProperties.Certificate, UUID);
+		
+		If TypeOf(SignatureProperties.Certificate) = Type("String") Then
+			CertificateExtension = "txt";
+		Else
+			CertificateExtension = "cer";
+		EndIf;
+			
+		CertificateFileName = ModuleDigitalSignatureInternalClientServer.CertificateFileName(File.BaseName,
+		String(CertificateOwner), CertificateExtension);
+		
+		StructureOfFileDetails = New Structure("AddressInTempStorage, Presentation, Id, Encoding");
+		StructureOfFileDetails.AddressInTempStorage = DataByCertificate;
+		StructureOfFileDetails.Presentation = CertificateFileName;
+		Result.Add(StructureOfFileDetails);
+		
+	EndDo;
+	
+	Return Result;
+EndFunction
+
+&AtServer
+Function PutFilesToArchive(DocsPrintForms, PassedSettings)
+	
+	Result = New Array;
+	
+	If Common.SubsystemExists("StandardSubsystems.Print") Then
+		ModulePrintManager = Common.CommonModule("PrintManagement");
+		SettingsForSaving = ModulePrintManager.SettingsForSaving();
+		FillPropertyValues(SettingsForSaving, PassedSettings);
+		
+		If Not SettingsForSaving.PackToArchive Then
+			Return DocsPrintForms;
+		EndIf;
+		SavingOption = Undefined; 
+		PassedSettings.Property("SavingOption", SavingOption);
+		SetPrintObject = SavingOption = "Join";	
+		
+		TransliterateFilesNames = SettingsForSaving.TransliterateFilesNames;
+		
+		TempDirectoryName = CommonClientServer.AddLastPathSeparator(GetTempFileName());
+		CreateDirectory(TempDirectoryName);
+		
+		ArchiveName = GetTempFileName("zip");
+		ZipFileWriter = New ZipFileWriter(ArchiveName);
+	
+		For Each FileStructure In DocsPrintForms Do
+				
+			FileData = GetFromTempStorage(FileStructure.AddressInTempStorage);
+			FullFileName = TempDirectoryName + FileStructure.Presentation;
+			FullFileName = FileSystem.UniqueFileName(FullFileName);
+			FileData.Write(FullFileName);
+			ZipFileWriter.Add(FullFileName);
+	
+		EndDo;
+			
+		ZipFileWriter.Write();
+		BinaryData = New BinaryData(ArchiveName);
+		PathInTempStorage = PutToTempStorage(BinaryData, UUID);
+		FileDetails = New Structure;
+		File = New File(ArchiveName);
+		FileDetails.Insert("Presentation", File.Name);
+		FileDetails.Insert("AddressInTempStorage", PathInTempStorage);
+		Result.Add(FileDetails);
+		DeleteFiles(ArchiveName);
+			
+		DeleteFiles(TempDirectoryName);
 	EndIf;
 	
 	Return Result;

@@ -67,7 +67,7 @@ Procedure Load(Command)
 	Items.Load.Enabled = False;
 	Items.Pages.CurrentPage = Items.TimeConsumingOperation;
 	
-	TimeConsumingOperation = StartGettingAddInFromPortal(Parameters.Id, Parameters.Version);
+	TimeConsumingOperation = StartGettingAddInFromPortal(Parameters.Id, Parameters.Version, Parameters.AutoUpdate);
 	
 	If TimeConsumingOperation = Undefined Then 
 		BriefErrorDescription = NStr("en = 'Cannot create a background job for add-in update.';");
@@ -110,7 +110,7 @@ Function PortalAuthenticationDataSaved()
 EndFunction
 
 &AtServer
-Function StartGettingAddInFromPortal(Id, Version)
+Function StartGettingAddInFromPortal(Id, Version, AutoUpdate)
 	
 	If Not AddInsInternal.CanImportFromPortal() Then
 		Return Undefined;
@@ -119,6 +119,7 @@ Function StartGettingAddInFromPortal(Id, Version)
 	ProcedureParameters = AddInsInternal.ComponentParametersFromThePortal();
 	ProcedureParameters.Id = Id;
 	ProcedureParameters.Version = Version;
+	ProcedureParameters.AutoUpdate = AutoUpdate;
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Getting add-in.';");

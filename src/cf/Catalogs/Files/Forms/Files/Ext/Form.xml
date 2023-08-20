@@ -37,7 +37,7 @@
 						<Title>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>File from hard drive…</v8:content>
+								<v8:content>File from computer...</v8:content>
 							</v8:item>
 						</Title>
 						<ExtendedTooltip name="FormCreateFromFileExtendedTooltip" id="148"/>
@@ -1591,11 +1591,6 @@ FROM
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="InitialFolder" id="4">
-			<Type>
-				<v8:Type>cfg:CatalogRef.FilesFolders</v8:Type>
-			</Type>
-		</Attribute>
 		<Attribute name="UseHierarchy" id="5">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
@@ -1731,13 +1726,13 @@ FROM
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>From file on hard drive…</v8:content>
+					<v8:content>From local file...</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Create a file from a file on a hard drive.</v8:content>
+					<v8:content>Import a file from a computer or another device</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>AppendFile</Action>
@@ -1924,7 +1919,7 @@ FROM
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Save the file to a hard drive or another device.</v8:content>
+					<v8:content>Save the file to a computer or another device</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -1973,13 +1968,13 @@ FROM
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Update from file on hard drive…</v8:content>
+					<v8:content>Update from local file...</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Update from a file on a hard drive.</v8:content>
+					<v8:content>Update from a file on a computer or another device</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -2300,6 +2295,16 @@ FROM
 			<AssociatedTableElementId xsi:type="xs:string">List</AssociatedTableElementId>
 		</Command>
 	</Commands>
+	<Parameters>
+		<Parameter name="Folder">
+			<Type>
+				<v8:Type>cfg:CatalogRef.FilesFolders</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="SendOptions">
+			<Type/>
+		</Parameter>
+	</Parameters>
 	<CommandInterface>
 		<CommandBar>
 			<Item>

@@ -36,11 +36,11 @@ EndProcedure
 
 #Region Internal
 
-// Update the account use date in the register.
+// 
 //
 // Parameters:
-//  Account     - CatalogRef.EmailAccounts - the account being updated.
-//  DateOfUse - Date - the account use date. If the date is not passed, the current one is set.
+//  Account     - CatalogRef.EmailAccounts -
+//  DateOfUse - Date -
 //
 Procedure UpdateTheAccountUsageDate(Account, DateOfUse = Undefined) Export
 	

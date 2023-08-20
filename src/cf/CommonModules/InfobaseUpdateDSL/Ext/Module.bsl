@@ -40,7 +40,7 @@
 Procedure OnAddSubsystem(LongDesc) Export
 	
 	LongDesc.Name    = "DataSyncLibrary";
-	LongDesc.Version = "1.0.2.187";
+	LongDesc.Version = "1.0.3.209";
 	LongDesc.OnlineSupportID = "DSL";
 	LongDesc.DeferredHandlersExecutionMode = "Parallel";
 	LongDesc.ParallelDeferredUpdateFromVersion = "1.0.1.1";

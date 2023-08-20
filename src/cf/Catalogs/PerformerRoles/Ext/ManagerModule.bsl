@@ -61,14 +61,14 @@ Procedure ChoiceDataGetProcessing(ChoiceData, Parameters, StandardProcessing)
 	TextFragmentsSearchForAdditionalLangs = New Array;
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 		
-		If ModuleNativeLanguagesSupportServer.FirstAdditionalLanguageUsed() Then
+		If ModuleNationalLanguageSupportServer.FirstAdditionalLanguageUsed() Then
 			TextFragmentsSearchForAdditionalLangs.Add(
 				"PerformerRoles.DescriptionLanguage1 LIKE &SearchString ESCAPE ""~""");
 		EndIf;
 		
-		If ModuleNativeLanguagesSupportServer.SecondAdditionalLanguageUsed() Then
+		If ModuleNationalLanguageSupportServer.SecondAdditionalLanguageUsed() Then
 			TextFragmentsSearchForAdditionalLangs.Add(
 				"PerformerRoles.DescriptionLanguage2 LIKE &SearchString ESCAPE ""~""");
 		EndIf;
@@ -112,13 +112,13 @@ Procedure PresentationGetProcessing(Data, Presentation, StandardProcessing)
 	
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportClientServer = Common.CommonModule("NationalLanguageSupportClientServer");
-		ModuleNativeLanguagesSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing);
+		ModuleNationalLanguageSupportClientServer = Common.CommonModule("NationalLanguageSupportClientServer");
+		ModuleNationalLanguageSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing);
 	EndIf;
 #Else
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportClientServer = CommonClient.CommonModule("NationalLanguageSupportClientServer");
-		ModuleNativeLanguagesSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing);
+		ModuleNationalLanguageSupportClientServer = CommonClient.CommonModule("NationalLanguageSupportClientServer");
+		ModuleNationalLanguageSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing);
 	EndIf;
 #EndIf
 	
@@ -128,13 +128,13 @@ Procedure PresentationFieldsGetProcessing(Fields, StandardProcessing)
 	
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportClientServer = Common.CommonModule("NationalLanguageSupportClientServer");
-		ModuleNativeLanguagesSupportClientServer.PresentationFieldsGetProcessing(Fields, StandardProcessing);
+		ModuleNationalLanguageSupportClientServer = Common.CommonModule("NationalLanguageSupportClientServer");
+		ModuleNationalLanguageSupportClientServer.PresentationFieldsGetProcessing(Fields, StandardProcessing);
 	EndIf;
 	#Else
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportClientServer = CommonClient.CommonModule("NationalLanguageSupportClientServer");
-		ModuleNativeLanguagesSupportClientServer.PresentationFieldsGetProcessing(Fields, StandardProcessing);
+		ModuleNationalLanguageSupportClientServer = CommonClient.CommonModule("NationalLanguageSupportClientServer");
+		ModuleNationalLanguageSupportClientServer.PresentationFieldsGetProcessing(Fields, StandardProcessing);
 	EndIf;
 #EndIf
 	
@@ -170,9 +170,9 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	Item.PredefinedDataName = "EmployeeResponsibleForTasksManagement";
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.FillMultilanguageAttribute(Item, "Description",
-			"en = 'Task control manager';", LanguagesCodes); // @НСтр-1
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.FillMultilanguageAttribute(Item, "Description",
+			"en = 'Task control manager';", LanguagesCodes); // @NStr-1
 	Else
 		Item.Description = NStr("en = 'Task control manager';", Common.DefaultLanguageCode());
 	EndIf;

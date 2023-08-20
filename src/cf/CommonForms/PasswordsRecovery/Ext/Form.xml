@@ -215,7 +215,7 @@
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Email settings</v8:content>
+															<v8:content>Email accounts</v8:content>
 														</v8:item>
 													</Title>
 													<Behavior>Usual</Behavior>
@@ -242,7 +242,7 @@
 																		<Presentation>
 																			<v8:item>
 																				<v8:lang>en</v8:lang>
-																				<v8:content>Email settings:</v8:content>
+																				<v8:content>Email account:</v8:content>
 																			</v8:item>
 																		</Presentation>
 																		<Value xsi:type="xs:string">ExternalMailServer</Value>

@@ -303,10 +303,6 @@ WHERE
 					<dcssch:field>HideObsoleteAddresses</dcssch:field>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
-					<dcssch:dataPath>PhoneWithExtension</dcssch:dataPath>
-					<dcssch:field>PhoneWithExtension</dcssch:field>
-				</Field>
-				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Type</dcssch:dataPath>
 					<dcssch:field>Type</dcssch:field>
 				</Field>
@@ -357,6 +353,10 @@ WHERE
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Parent</dcssch:dataPath>
 					<dcssch:field>Parent</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PhoneWithExtensionNumber</dcssch:dataPath>
+					<dcssch:field>PhoneWithExtensionNumber</dcssch:field>
 				</Field>
 				<MainTable>Catalog.ContactInformationKinds</MainTable>
 				<ListSettings>

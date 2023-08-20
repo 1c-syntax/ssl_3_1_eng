@@ -164,8 +164,9 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 	
 	If CommonClient.DataSeparationEnabled()
 	   And Object.Ref = AdministratorsAccessGroup
-	   And ServiceUserPassword = Undefined Then
+	   And Not WriteParameters.Property("AfterAuthenticationPasswordRequestInService") Then
 		
+		WriteParameters.Insert("AfterAuthenticationPasswordRequestInService");
 		Cancel = True;
 		UsersInternalClient.RequestPasswordForAuthenticationInService(
 			New NotifyDescription("BeforeWriteFollowUp", ThisObject, WriteParameters),
@@ -517,6 +518,14 @@ EndProcedure
 
 &AtClient
 Procedure UsersBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group)
+	
+	If Item.Representation = TableRepresentation.List Then
+		If Copy Then
+			Cancel = True;
+			Items.Users.AddRow();
+		EndIf;
+		Return;
+	EndIf;
 	
 	If Copy Then
 		

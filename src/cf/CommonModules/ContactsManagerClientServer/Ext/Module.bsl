@@ -394,7 +394,7 @@ EndFunction
 //         * Value - Boolean
 //     * ExcludedKinds - Array -
 //     * AllowAddingFields - Boolean
-//   Type - ПеречислениеСсылка.ТипКонтактнойИнформации
+//   Type - EnumRef.ContactInformationTypes
 //   Kind - CatalogRef.ContactInformationKinds
 //   StoreHistory - Boolean
 //
@@ -762,41 +762,41 @@ EndFunction
 //
 Function PhoneFillingErrors(InfoAboutPhone, AdditionalChecksModule = Undefined) Export
 	
-	ErrorsList = New ValueList;
+	ErrorList = New ValueList;
 	FullPhoneNumber = InfoAboutPhone.CountryCode + InfoAboutPhone.CityCode + InfoAboutPhone.PhoneNumber;
 	
 	CountryCodeNumbersOnly = LeaveOnlyTheNumbersInTheLine(InfoAboutPhone.CountryCode);
 	If ValueIsFilled(InfoAboutPhone.CountryCode) And IsBlankString(CountryCodeNumbersOnly) Then
-		ErrorsList.Add("CountryCode", NStr("en = 'Country code contains invalid characters';"));
+		ErrorList.Add("CountryCode", NStr("en = 'Country code contains invalid characters';"));
 	EndIf;
 	
 	PhoneNumberNumbersOnly = LeaveOnlyTheNumbersInTheLine(InfoAboutPhone.Presentation);
 	If IsBlankString(PhoneNumberNumbersOnly) Then
-		ErrorsList.Add("PhoneNumber", NStr("en = 'Phone number does not contain digits';"));
+		ErrorList.Add("PhoneNumber", NStr("en = 'Phone number does not contain digits';"));
 	EndIf;
 
 	FullPhoneNumberOnlyDigits = LeaveOnlyTheNumbersInTheLine(FullPhoneNumber);
 	If StrLen(FullPhoneNumberOnlyDigits) > 15 Then
-		ErrorsList.Add("PhoneNumber", NStr("en = 'Phone number is too long.';"));
+		ErrorList.Add("PhoneNumber", NStr("en = 'Phone number is too long.';"));
 	EndIf;
 	
 	If ValueIsFilled(InfoAboutPhone.CountryCode) And PhoneNumberContainsProhibitedChars(InfoAboutPhone.CountryCode) Then
-		ErrorsList.Add("CountryCode", NStr("en = 'Country code contains invalid characters';"));
+		ErrorList.Add("CountryCode", NStr("en = 'Country code contains invalid characters';"));
 	EndIf;
 	
 	If ValueIsFilled(InfoAboutPhone.CityCode) And PhoneNumberContainsProhibitedChars(InfoAboutPhone.CityCode) Then
-		ErrorsList.Add("CityCode", NStr("en = 'City code contains invalid characters';"));
+		ErrorList.Add("CityCode", NStr("en = 'City code contains invalid characters';"));
 	EndIf;
 	
 	If ValueIsFilled(InfoAboutPhone.PhoneNumber) And PhoneNumberContainsProhibitedChars(InfoAboutPhone.PhoneNumber) Then
-		ErrorsList.Add("PhoneNumber", NStr("en = 'Phone number contains illegal characters.';"));
+		ErrorList.Add("PhoneNumber", NStr("en = 'Phone number contains illegal characters.';"));
 	EndIf;
 	
 	If AdditionalChecksModule <> Undefined Then
-		AdditionalChecksModule.CheckCorrectnessOfCountryAndCityCodes(InfoAboutPhone, ErrorsList);
+		AdditionalChecksModule.CheckCorrectnessOfCountryAndCityCodes(InfoAboutPhone, ErrorList);
 	EndIf;
 	
-	Return ErrorsList;
+	Return ErrorList;
 	
 EndFunction
 

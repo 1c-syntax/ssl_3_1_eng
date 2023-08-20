@@ -12,17 +12,21 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	If Parameters.Property("ShowAdditionalAttributes") Then
-		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject,
-			"AdditionalAttributeSets");
-		Items.IsAdditionalInfoSets.Visible = False;
-		
-	ElsIf Parameters.Property("ShowAdditionalInfo") Then
-		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject,
-			"AdditionalDataSets");
-		Items.IsAdditionalInfoSets.Visible = False;
-		IsAdditionalInfoSets = True;
+	If Parameters.Property("PropertyKind") Then
+		PropertyKind = Parameters.PropertyKind;
+		Items.PropertyKind.Visible = False;
+		If PropertyKind = Enums.PropertiesKinds.AdditionalAttributes Then
+			Var_Key = "AdditionalAttributeSets";
+		ElsIf PropertyKind = Enums.PropertiesKinds.AdditionalInfo Then
+			Var_Key = "AdditionalDataSets";
+		ElsIf PropertyKind = Enums.PropertiesKinds.Labels Then
+			Var_Key = "LabelsSets";
+		EndIf;
+	Else
+		PropertyKind = Enums.PropertiesKinds.AdditionalAttributes;
+		Var_Key = "AdditionalAttributeSets";
 	EndIf;
+	StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, Var_Key);
 	
 	FormColor = Items.Properties.BackColor;
 	
@@ -63,8 +67,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ElsIf ValueIsFilled(CurrentLanguageSuffix) Then
 		
 		If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-			ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-			ModuleNativeLanguagesSupportServer.OnCreateAtServer(ThisObject,, "PropertiesSets");
+			ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+			ModuleNationalLanguageSupportServer.OnCreateAtServer(ThisObject,, "PropertiesSets");
 		EndIf;
 		
 	EndIf;
@@ -98,7 +102,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure IsAdditionalInfoSetsOnChange(Item)
+Procedure PropertyKindOnChange(Item)
 	
 	ConfigureSetsDisplay();
 	ApplySetsAndPropertiesAppearance();
@@ -171,7 +175,7 @@ Procedure PropertiesSetsOnGetDataAtServer(TagName, Settings, Rows)
 			Continue;
 		EndIf;
 		
-		If Data.IsInfo Then
+		If Data.PropertyKind = Enums.PropertiesKinds.AdditionalInfo Then
 			If Not ValueIsFilled(Data.InfoCount) Then
 				Data.Presentation = String(Data.Ref);
 				Continue;
@@ -181,7 +185,7 @@ Procedure PropertiesSetsOnGetDataAtServer(TagName, Settings, Rows)
 				Continue;
 			EndIf;
 			Data.Presentation = String(Data.Ref) + " (" + Data.InfoCount + ")";
-		Else
+		ElsIf Data.PropertyKind = Enums.PropertiesKinds.AdditionalAttributes Then
 			If Not ValueIsFilled(Data.AttributesCount) Then
 				Data.Presentation = String(Data.Ref);
 				Continue;
@@ -190,8 +194,17 @@ Procedure PropertiesSetsOnGetDataAtServer(TagName, Settings, Rows)
 				Data.Presentation = Data.DescriptionInOtherLanguages + " (" + Data.AttributesCount + ")";
 				Continue;
 			EndIf;
-			
 			Data.Presentation = String(Data.Ref) + " (" + Data.AttributesCount + ")";
+		ElsIf Data.PropertyKind = Enums.PropertiesKinds.Labels Then
+			If Not ValueIsFilled(Data.NumberOfTags) Then
+				Data.Presentation = String(Data.Ref);
+				Continue;
+			EndIf;
+			If Data.Property("DescriptionInOtherLanguages") And ValueIsFilled(Data.DescriptionInOtherLanguages) Then 
+				Data.Presentation = Data.DescriptionInOtherLanguages + " (" + Data.AttributesCount + ")";
+				Continue;
+			EndIf;
+			Data.Presentation = String(Data.Ref) + " (" + Data.NumberOfTags + ")";
 		EndIf;
 	EndDo;
 	
@@ -248,7 +261,7 @@ Procedure PropertiesChoiceProcessing(Item, ValueSelected, StandardProcessing)
 		If ValueSelected.Property("AdditionalValuesOwner") Then
 			
 			FormParameters = New Structure;
-			FormParameters.Insert("IsAdditionalInfo",      IsAdditionalInfoSets);
+			FormParameters.Insert("PropertyKind", PropertyKind);
 			FormParameters.Insert("CurrentPropertiesSet",            CurrentSet);
 			FormParameters.Insert("AdditionalValuesOwner", ValueSelected.AdditionalValuesOwner);
 			
@@ -296,7 +309,7 @@ Procedure Create(Command = Undefined)
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("PropertiesSet", CurrentSet);
-	FormParameters.Insert("IsAdditionalInfo", IsAdditionalInfoSets);
+	FormParameters.Insert("PropertyKind", PropertyKind);
 	FormParameters.Insert("CurrentPropertiesSet", CurrentSet);
 	
 	OpenForm("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo.ObjectForm",
@@ -315,14 +328,14 @@ Procedure AddFromSet(Command)
 		SelectedValues.Add(String.Property);
 	EndDo;
 	
-	If IsAdditionalInfoSets Then
+	If Not ValueIsFilled(PropertyKind) Then
 		FormParameters.Insert("SelectSharedProperty", True);
 	Else
 		FormParameters.Insert("SelectAdditionalValuesOwner", True);
 	EndIf;
 	
 	FormParameters.Insert("SelectedValues", SelectedValues);
-	FormParameters.Insert("IsAdditionalInfo", IsAdditionalInfoSets);
+	FormParameters.Insert("PropertyKind", PropertyKind);
 	FormParameters.Insert("CurrentPropertiesSet", CurrentSet);
 	
 	OpenForm("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo.ObjectForm",
@@ -370,7 +383,7 @@ Procedure AddAttributeToSet(AdditionalValuesOwner, Set = Undefined)
 	
 	FormParameters.Insert("CopyWithQuestion", True);
 	FormParameters.Insert("AdditionalValuesOwner", AdditionalValuesOwner);
-	FormParameters.Insert("IsAdditionalInfo", IsAdditionalInfoSets);
+	FormParameters.Insert("PropertyKind", PropertyKind);
 	FormParameters.Insert("CurrentPropertiesSet", CurrentPropertiesSet);
 	
 	OpenForm("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo.ObjectForm", FormParameters, Items.Properties);
@@ -433,6 +446,8 @@ EndProcedure
 &AtServer
 Procedure ApplySetsAndPropertiesAppearance()
 	
+	PropertiesSets.ConditionalAppearance.Items.Clear();
+	
 	// Appearance of the sets root.
 	ConditionalAppearanceItem = PropertiesSets.ConditionalAppearance.Items.Add();
 	
@@ -480,6 +495,8 @@ Procedure ApplySetsAndPropertiesAppearance()
 	AppearanceFieldItem = ConditionalAppearanceItem.Fields.Items.Add();
 	AppearanceFieldItem.Field = New DataCompositionField("Presentation");
 	AppearanceFieldItem.Use = True;
+	
+	ConditionalAppearance.Items.Clear();
 	
 	// 
 	ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
@@ -534,8 +551,8 @@ Procedure SelectSpecifiedRows(LongDesc)
 			ConvertStringsToReferences(LongDesc);
 		EndIf;
 		
-		If LongDesc.IsAdditionalInfo <> IsAdditionalInfoSets Then
-			IsAdditionalInfoSets = LongDesc.IsAdditionalInfo;
+		If LongDesc.PropertyKind <> PropertyKind Then
+			PropertyKind = LongDesc.PropertyKind;
 			ConfigureSetsDisplay();
 		EndIf;
 		
@@ -562,14 +579,17 @@ Procedure SwitchSetsList()
 	
 	Items.SetsPages.CurrentPage = Items.Unused;
 	
-	CommonClientServer.SetDynamicListParameter(
-		UnusedSets, "IsAdditionalInfo", (IsAdditionalInfoSets = 1), True);
+	ListPresentation = "";
+	If PropertyKind = PredefinedValue("Enum.PropertiesKinds.AdditionalInfo") Then
+		ListPresentation = NStr("en = 'Unused additional information records';");
+	ElsIf PropertyKind = PredefinedValue("Enum.PropertiesKinds.AdditionalAttributes") Then
+		ListPresentation = NStr("en = 'Unused additional attributes';");
+	ElsIf PropertyKind = PredefinedValue("Enum.PropertiesKinds.Labels") Then
+		ListPresentation = NStr("en = 'Unused labels';");
+	EndIf;
 	
 	CommonClientServer.SetDynamicListParameter(
-		UnusedSets, "CommonAdditionalInfo", NStr("en = 'Unused additional information records';"), True);
-	
-	CommonClientServer.SetDynamicListParameter(
-		UnusedSets, "CommonAdditionalAttributes", NStr("en = 'Unused additional attributes';"), True);
+		UnusedSets, "ListPresentation", ListPresentation, True);
 	
 EndProcedure
 
@@ -594,7 +614,7 @@ Procedure ConfigureSetsDisplay()
 	MoveUpCommand             = Commands.Find("MoveUp");
 	MoveDownCommand              = Commands.Find("MoveDown");
 	
-	If IsAdditionalInfoSets Then
+	If PropertyKind = Enums.PropertiesKinds.AdditionalInfo Then
 		Title = NStr("en = 'Additional information records';");
 		
 		CreateCommand.ToolTip          = NStr("en = 'Create a unique information record.';");
@@ -625,6 +645,39 @@ Procedure ConfigureSetsDisplay()
 		Items.PropertiesCommon.Title = NStr("en = 'Shared';");
 		Items.PropertiesCommon.ToolTip = NStr("en = 'A shared additional information record.
 		                                              |It belongs to multiple sets.';");
+	ElsIf PropertyKind = Enums.PropertiesKinds.Labels Then
+		Title = NStr("en = 'Labels';");
+		CreateCommand.Title          = NStr("en = 'New label';");
+		CreateCommand.ToolTip          = NStr("en = 'Create a unique label';");
+		
+		CopyCommand.ToolTip        = NStr("en = 'Create a new label by copying the current label';");
+		ChangeCommand.ToolTip           = NStr("en = 'Edit or open the current label';");
+		MarkForDeletionCommand.ToolTip = NStr("en = 'Mark the current label for deletion (Del)';");
+		MoveUpCommand.ToolTip   = NStr("en = 'Move the current label up';");
+		MoveDownCommand.ToolTip    = NStr("en = 'Move the current label down';");
+		
+		MetadataTabularSection =
+			Metadata.Catalogs.AdditionalAttributesAndInfoSets.TabularSections.AdditionalAttributes;
+		
+		Items.PropertiesTitle.ToolTip = MetadataTabularSection.Attributes.Property.Tooltip;
+		
+		Items.PropertiesRequiredToFill.Visible = True;
+		Items.PropertiesRequiredToFill.ToolTip =
+			Metadata.ChartsOfCharacteristicTypes.AdditionalAttributesAndInfo.Attributes.RequiredToFill.Tooltip;
+		
+		Items.PropertiesValueType.ToolTip =
+			NStr("en = 'Types of a value that you can enter when filling a label.';");
+		
+		Items.PropertiesCommonValues.ToolTip =
+			NStr("en = 'The label uses the list of master label values.';");
+		
+		Items.ShowUnusedAttributes.Title = NStr("en = 'Show unused labels';");
+		
+		Items.PropertiesCommon.Title = NStr("en = 'Common';");
+		Items.PropertiesCommon.ToolTip = NStr("en = 'A common label that is used in
+		                                              |several label sets.';");
+		Items.Properties.Header = False;
+		Items.PropertiesValueType.Visible = False;
 	Else
 		Title = NStr("en = 'Additional attributes';");
 		CreateCommand.Title          = NStr("en = 'New';");
@@ -694,18 +747,16 @@ Procedure ConfigureSetsDisplay()
 		
 		SetPropertiesTypes = PropertyManagerInternal.SetPropertiesTypes(SetProperties, False);
 		
-		If IsAdditionalInfoSets
-		   And SetPropertiesTypes.AdditionalInfo
-		 Or Not IsAdditionalInfoSets
-		   And SetPropertiesTypes.AdditionalAttributes Then
-			
+		If PropertyKind = Enums.PropertiesKinds.AdditionalInfo And SetPropertiesTypes.AdditionalInfo
+			Or PropertyKind = Enums.PropertiesKinds.AdditionalAttributes And SetPropertiesTypes.AdditionalAttributes
+			Or PropertyKind = Enums.PropertiesKinds.Labels And SetPropertiesTypes.Labels Then
 			AvailableSets.Add(String.Ref);
 			AvailableSetsList.Add(String.Ref);
 		EndIf;
 	EndDo;
 	
 	CommonClientServer.SetDynamicListParameter(
-		PropertiesSets, "IsAdditionalInfoSets", IsAdditionalInfoSets, True);
+		PropertiesSets, "PropertyKind", PropertyKind, True);
 	
 	CommonClientServer.SetDynamicListParameter(
 		PropertiesSets, "Sets", AvailableSets, True);
@@ -751,7 +802,7 @@ Procedure ChangeDeletionMark()
 	
 	If Items.Properties.CurrentData <> Undefined Then
 		
-		If IsAdditionalInfoSets Then
+		If PropertyKind = PredefinedValue("Enum.PropertiesKinds.AdditionalInfo") Then
 			If Not ShowUnusedAttributes Then
 				QueryText = NStr("en = 'Do you want to remove the information record from the set?';");
 				
@@ -760,7 +811,7 @@ Procedure ChangeDeletionMark()
 			Else
 				QueryText = NStr("en = 'Do you want to mark the information record for deletion?';");
 			EndIf;
-		Else
+		ElsIf PropertyKind = PredefinedValue("Enum.PropertiesKinds.AdditionalAttributes") Then
 			If Not ShowUnusedAttributes Then
 				QueryText = NStr("en = 'Do you want to remove the attribute from the set?';");
 				
@@ -768,6 +819,15 @@ Procedure ChangeDeletionMark()
 				QueryText = NStr("en = 'Do you want to clear the deletion mark from the attribute?';");
 			Else
 				QueryText = NStr("en = 'Do you want to mark the attribute for deletion?';");
+			EndIf;
+		ElsIf PropertyKind = PredefinedValue("Enum.PropertiesKinds.Labels") Then
+			If Not ShowUnusedAttributes Then
+				QueryText = NStr("en = 'Do you want to remove the label from the set?';");
+				
+			ElsIf Items.Properties.CurrentData.DeletionMark Then
+				QueryText = NStr("en = 'Do you want to unmark the label for deletion?';");
+			Else
+				QueryText = NStr("en = 'Do you want to mark the label for deletion?';");
 			EndIf;
 		EndIf;
 		
@@ -805,7 +865,7 @@ Procedure OnChangeCurrentSetAtServer()
 		EndIf;
 		PropertyManagerInternal.UpdateCurrentSetPropertiesList(ThisObject, 
 			CurrentSet,
-			IsAdditionalInfoSets,
+			PropertyKind,
 			CurrentEnable);
 	Else
 		CurrentEnable = False;
@@ -882,8 +942,13 @@ Procedure AddCommonPropertyByDragging(PropertyToAdd)
 			
 			SetDestinationObject = DestinationSet.GetObject();
 			
-			TabularSection = SetDestinationObject[?(IsAdditionalInfoSets,
-				"AdditionalInfo", "AdditionalAttributes")];
+			If PropertyKind = Enums.PropertiesKinds.AdditionalAttributes
+				Or PropertyKind = Enums.PropertiesKinds.Labels Then
+				PropertiesKindName = "AdditionalAttributes"; 
+			ElsIf PropertyKind = Enums.PropertiesKinds.AdditionalInfo Then
+				PropertiesKindName = "AdditionalInfo";
+			EndIf;
+			TabularSection = SetDestinationObject[PropertiesKindName];
 			
 			FoundRow = TabularSection.Find(PropertyToAdd, "Property");
 			
@@ -955,25 +1020,36 @@ Procedure ExecuteCommandAtServer(Command, Parameter = Undefined)
 			CurrentSetObject = CurrentSet.GetObject();
 			If CurrentSetObject.DataVersion <> CurrentSetDataVersion Then
 				OnChangeCurrentSetAtServer();
-				If IsAdditionalInfoSets Then
+				If PropertyKind = Enums.PropertiesKinds.AdditionalInfo Then
 					Raise
 						NStr("en = 'The action is not performed as the set of information records
-						           |was changed by another user.
-						           |The new set of additional information records is read.
+						           |has been changed by another user.
+						           |The new set of additional information records has been read.
 						           |
 						           |Please try again if required.';");
-				Else
+				ElsIf PropertyKind = Enums.PropertiesKinds.AdditionalAttributes Then
 					Raise
 						NStr("en = 'The action is not performed as the set of additional attributes
-						           |was changed by another user.
-						           |The new set of additional attributes is read.
+						           |has been changed by another user.
+						           |The new set of additional attributes has been read.
+						           |
+						           |Please try again if required.';");
+				ElsIf PropertyKind = Enums.PropertiesKinds.Labels Then
+					Raise
+						NStr("en = 'The action is not performed as the set of labels
+						           |has been changed by another user.
+						           |The new set of labels has been read.
 						           |
 						           |Please try again if required.';");
 				EndIf;
 			EndIf;
 			
-			TabularSection = CurrentSetObject[?(IsAdditionalInfoSets,
-				"AdditionalInfo", "AdditionalAttributes")];
+			If PropertyKind = Enums.PropertiesKinds.AdditionalInfo Then
+				PropertiesKindName = "AdditionalInfo";
+			Else
+				PropertiesKindName = "AdditionalAttributes";
+			EndIf;
+			TabularSection = CurrentSetObject[PropertiesKindName];
 			
 			If Command = "AddCommonProperty" Then
 				FoundRow = TabularSection.Find(Parameter, "Property");
@@ -1016,11 +1092,6 @@ Procedure ExecuteCommandAtServer(Command, Parameter = Undefined)
 							TabularSection.Delete(IndexOf);
 							CurrentSetObject.Write();
 							Properties.Delete(String);
-							If TabularSection.Count() > IndexOf Then
-								Items.Properties.CurrentRow = Properties[IndexOf].GetID();
-							ElsIf TabularSection.Count() > 0 Then
-								Items.Properties.CurrentRow = Properties[Properties.Count()-1].GetID();
-							EndIf;
 						Else
 							TabularSection[IndexOf].DeletionMark = Not TabularSection[IndexOf].DeletionMark;
 							CurrentSetObject.Write();

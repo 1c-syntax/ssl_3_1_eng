@@ -1060,6 +1060,7 @@
 										<InputField name="DigitalSignaturesSignatureValidationDate" id="151">
 											<DataPath>DigitalSignatures.SignatureValidationDate</DataPath>
 											<EditMode>EnterOnInput</EditMode>
+											<AutoCellHeight>true</AutoCellHeight>
 											<Width>10</Width>
 											<ContextMenu name="DigitalSignaturesSignatureValidationDateContextMenu" id="152"/>
 											<ExtendedTooltip name="DigitalSignaturesSignatureValidationDateExtendedTooltip" id="153"/>
@@ -1073,6 +1074,13 @@
 									<ContextMenu name="DigitalSignaturesCommentContextMenu" id="40"/>
 									<ExtendedTooltip name="DigitalSignaturesCommentExtendedTooltip" id="92"/>
 								</InputField>
+								<CheckBoxField name="DigitalSignaturesCheckRequired2" id="306">
+									<DataPath>DigitalSignatures.CheckRequired2</DataPath>
+									<Visible>false</Visible>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="DigitalSignaturesCheckRequired2ContextMenu" id="307"/>
+									<ExtendedTooltip name="DigitalSignaturesCheckRequired2ExtendedTooltip" id="308"/>
+								</CheckBoxField>
 							</ChildItems>
 						</Table>
 						<LabelDecoration name="Instruction" id="190">
@@ -1417,6 +1425,17 @@
 						</v8:DateQualifiers>
 					</Type>
 				</Column>
+				<Column name="CheckRequired2" id="19">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Verification is required</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
 			</Columns>
 		</Attribute>
 		<Attribute name="EncryptionCertificates" id="7">
@@ -1649,7 +1668,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Save the file to a hard drive or another device.</v8:content>
+					<v8:content>Save the file to a computer or another device</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -1802,7 +1821,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Save the file to a hard drive or another device with a digital signature.</v8:content>
+					<v8:content>Save the file with a digital signature to a computer or another device</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>SaveWithDigitalSignature</Action>
@@ -1812,13 +1831,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Update from file on hard drive…</v8:content>
+					<v8:content>Update from local file...</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Update from a file on a hard drive.</v8:content>
+					<v8:content>Update from a file on a computer or another device</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>UpdateFromFileOnHardDrive</Action>

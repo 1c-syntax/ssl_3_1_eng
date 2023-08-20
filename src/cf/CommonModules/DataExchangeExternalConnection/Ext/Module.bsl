@@ -234,4 +234,14 @@ Function GetInfobaseParameters_2_0_1_6(Val ExchangePlanName, Val NodeCode, Error
 	
 EndFunction
 
+// For internal use.
+//
+Function GetInfobaseParameters_3_0_2_2(Val ExchangePlanName, Val NodeCode, ErrorMessage,
+	AdditionalParameters = Undefined) Export 
+	
+	Return DataExchangeServer.GetInfobaseParameters_3_0_2_2(ExchangePlanName, NodeCode, ErrorMessage,
+		AdditionalParameters);
+	
+EndFunction
+
 #EndRegion

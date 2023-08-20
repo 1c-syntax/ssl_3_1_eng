@@ -3,6 +3,23 @@
 	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
 	<AutoSaveDataInSettings>Use</AutoSaveDataInSettings>
 	<CommandBarLocation>Bottom</CommandBarLocation>
+	<MobileDeviceCommandBarContent>
+		<xr:Item>
+			<xr:Presentation/>
+			<xr:CheckState>0</xr:CheckState>
+			<xr:Value xsi:type="xs:string"/>
+		</xr:Item>
+		<xr:Item>
+			<xr:Presentation/>
+			<xr:CheckState>0</xr:CheckState>
+			<xr:Value xsi:type="xs:string"/>
+		</xr:Item>
+		<xr:Item>
+			<xr:Presentation/>
+			<xr:CheckState>0</xr:CheckState>
+			<xr:Value xsi:type="xs:string"/>
+		</xr:Item>
+	</MobileDeviceCommandBarContent>
 	<CommandSet>
 		<ExcludedCommand>Abort</ExcludedCommand>
 		<ExcludedCommand>Close</ExcludedCommand>
@@ -57,6 +74,11 @@
 							<Events>
 								<Event name="OnChange">DescriptionOnChange</Event>
 							</Events>
+						</InputField>
+						<InputField name="Purpose" id="252">
+							<DataPath>Object.Purpose</DataPath>
+							<ContextMenu name="PurposeContextMenu" id="253"/>
+							<ExtendedTooltip name="PurposeExtendedTooltip" id="254"/>
 						</InputField>
 						<UsualGroup name="GroupAvailability" id="268">
 							<Title>
@@ -349,7 +371,7 @@
 														<v8:item>
 															<v8:lang>en</v8:lang>
 															<v8:content>The report option will be saved as a new option.
-Click Next to place the report option to the application sections.</v8:content>
+Click Next to add the report option to the application sections.</v8:content>
 														</v8:item>
 													</Title>
 													<VerticalAlign>Bottom</VerticalAlign>
@@ -374,7 +396,7 @@ Click Next to place the report option to the application sections.</v8:content>
 														<v8:item>
 															<v8:lang>en</v8:lang>
 															<v8:content>The existing report option will be overwritten.
-Click Next to place the report option to application sections.</v8:content>
+Click Next to add the report option to application sections.</v8:content>
 														</v8:item>
 													</Title>
 													<VerticalAlign>Bottom</VerticalAlign>
@@ -754,6 +776,11 @@ This option is recommended if you made significant changes to the report option.
 				<Column name="Order" id="11">
 					<Type>
 						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+				<Column name="Purpose" id="14">
+					<Type>
+						<v8:Type>cfg:EnumRef.ReportOptionPurposes</v8:Type>
 					</Type>
 				</Column>
 			</Columns>

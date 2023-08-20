@@ -40,14 +40,14 @@ EndFunction
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
 //
 Procedure OnFillAccessRestriction(Restriction) Export
-	
+
 	Restriction.Text =
 	"AllowReadUpdate
 	|WHERE
 	|	IsAuthorizedUser(Author)
 	|	OR Personal = FALSE
-	|	OR IsFolder = TRUE";
-	
+	|	OR Predefined = TRUE";
+
 EndProcedure
 
 // End StandardSubsystems.AccessManagement
@@ -132,15 +132,14 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	Query = New Query;
 	Query.Text =
 		"SELECT
-		|	ReportMailingsReportFormats.Ref AS Ref
+		|	ReportMailings.Ref
 		|FROM
-		|	Catalog.ReportMailings.ReportFormats AS ReportMailingsReportFormats
+		|	Catalog.ReportMailings AS ReportMailings
 		|WHERE
-		|	ReportMailingsReportFormats.Format = &Format
-		|GROUP BY
-		|	ReportMailingsReportFormats.Ref";
+		|	NOT ReportMailings.IsFolder
+		|	AND NOT ReportMailings.ShouldInsertReportsIntoEmailBody
+		|	AND NOT ReportMailings.ShouldAttachReports";
 	
-	Query.SetParameter("Format", Enums.ReportSaveFormats.HTML4);
 	QueryResult = Query.Execute().Unload();
 
 	InfobaseUpdate.MarkForProcessing(Parameters,
@@ -155,11 +154,15 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	ObjectsWithIssuesCount = 0;
 	ObjectsProcessed = 0;
 	
+	SetReportsDescriptionTemplates = SetReportsDescriptionTemplates();
+	
 	While ReportsDistributionRef.Next() Do
 		
 		Block = New DataLock;
 		LockItem = Block.Add("Catalog.ReportMailings");
 		LockItem.SetValue("Ref", ReportsDistributionRef.Ref);
+		
+		RepresentationOfTheReference = String(ReportsDistributionRef.Ref);
 		
 		BeginTransaction();
 		Try
@@ -167,6 +170,15 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			Block.Lock();
 			
 			ReportDistributionObject = ReportsDistributionRef.Ref.GetObject(); // CatalogObject.ReportMailings
+			
+			// 
+			// 
+			If ReportDistributionObject.IsFolder Then
+				InfobaseUpdate.MarkProcessingCompletion(ReportsDistributionRef.Ref);
+				ObjectsProcessed = ObjectsProcessed + 1;
+				CommitTransaction();
+				Continue;
+			EndIf;
 			
 			FilterParameters = New Structure;
 			FilterParameters.Insert("Format", Enums.ReportSaveFormats.HTML4);
@@ -176,6 +188,31 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			For Each String In ArrayOfFormatStrings Do
 				String.Format = Enums.ReportSaveFormats.HTML;
 			EndDo;
+			
+			If SetReportsDescriptionTemplates Then
+				
+				FilterParameters = New Structure("DescriptionTemplate1", "");
+				RowsWithoutNamingTemplates = ReportDistributionObject.Reports.FindRows(FilterParameters);
+				
+				If ReportDistributionObject.DeleteIncludeDateInFileName Then
+					DefaultTemplate = StringFunctionsClientServer.SubstituteParametersToString(
+						NStr("en = '%1 dated %2 %3';"), "[ReportDescription1]", "[MailingDate()]", "[ReportFormat]");
+				Else
+					DefaultTemplate = "[ReportDescription1] [ReportFormat]";
+				EndIf;
+				
+				For Each String In RowsWithoutNamingTemplates Do
+					String.DescriptionTemplate1 = DefaultTemplate;
+				EndDo;
+			EndIf;
+			
+			If Not ReportDistributionObject.ShouldInsertReportsIntoEmailBody And Not ReportDistributionObject.ShouldAttachReports Then
+				If ReportDistributionObject.Personalized Or ReportDistributionObject.Personal Then
+					ReportDistributionObject.ShouldAttachReports = True;
+				ElsIf ReportDistributionObject.UseEmail And Not ReportDistributionObject.NotifyOnly Then
+					ReportDistributionObject.ShouldAttachReports = True;
+				EndIf;
+			EndIf;
 			
 			InfobaseUpdate.WriteData(ReportDistributionObject);
 			ObjectsProcessed = ObjectsProcessed + 1;
@@ -190,7 +227,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot process the %1 report distribution due to: 
 					|%2';"),
-					ReportsDistributionRef.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+					RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
 				Metadata.Catalogs.ReportMailings, ReportsDistributionRef.Ref, MessageText);
 		EndTry;
@@ -212,6 +249,23 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	EndIf;
 	
 EndProcedure
+
+Function SetReportsDescriptionTemplates()
+		
+	Query = New Query;
+	Query.Text = 
+		"SELECT TOP 1
+		|	ReportMailingsReports.Ref
+		|FROM
+		|	Catalog.ReportMailings.Reports AS ReportMailingsReports
+		|WHERE
+		|	ReportMailingsReports.DescriptionTemplate1 <> """"";
+	
+	QueryResult = Query.Execute();
+	
+	Return QueryResult.IsEmpty();
+	
+EndFunction
 
 // See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
 // 

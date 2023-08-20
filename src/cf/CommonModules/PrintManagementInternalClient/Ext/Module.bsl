@@ -152,7 +152,7 @@ Procedure CheckDocumentsPostedDocumentsPosting(QuestionResult, AdditionalParamet
 	ClearMessages();
 	UnpostedDocumentsData = CommonServerCall.PostDocuments(AdditionalParameters.UnpostedDocuments);
 	
-	MessageTemplate = NStr("en = 'Document %1 is unposted: %2';");
+	MessageTemplate = NStr("en = 'Document %1 is not posted: %2';");
 	UnpostedDocuments = New Array;
 	For Each DocumentInformation In UnpostedDocumentsData Do
 		CommonClient.MessageToUser(
@@ -229,14 +229,78 @@ Procedure ExecutePrintFormOpeningCompletion(RelatedObjects, AdditionalParameters
 	SourceParameters.Insert("CommandID", AdditionalParameters.CommandID);
 	SourceParameters.Insert("RelatedObjects",    RelatedObjects);
 	
-	OpeningParameters = New Structure;
+	OpeningParameters = ParametersForOpeningPrintForm();
 	OpeningParameters.Insert("DataSource",     AdditionalParameters.DataSource);
 	OpeningParameters.Insert("SourceParameters", SourceParameters);
 	OpeningParameters.Insert("CommandParameter", RelatedObjects);
 	
-	OpenForm("CommonForm.PrintDocuments", OpeningParameters, Form);
+	If Form = Undefined Then
+		OpeningParameters.StorageUUID = New UUID;
+	Else
+		OpeningParameters.StorageUUID = Form.UUID;
+	EndIf;
+	
+	TimeConsumingOperation = PrintManagementServerCall.StartGeneratingPrintForms(OpeningParameters);
+	OpeningParameters.FormOwner = Form;
+	
+	CompletionNotification2 = New NotifyDescription("OpenPrintDocumentsForm", ThisObject, OpeningParameters);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters(Form));
 	
 EndProcedure
+
+Procedure OpenPrintDocumentsForm(BackgroundOperationResult, OpeningParameters) Export
+	If BackgroundOperationResult <> Undefined Then
+		If BackgroundOperationResult.Status = "Error" Then
+			Raise BackgroundOperationResult.BriefErrorDescription;
+		EndIf;
+		ResultStructure1 = GetFromTempStorage(BackgroundOperationResult.ResultAddress);
+		
+		OpeningParameters.Insert("PrintObjects", ResultStructure1.PrintObjects);
+		OpeningParameters.Insert("OutputParameters", ResultStructure1.OutputParameters); 
+		
+		PrintFormsCollection	 = ResultStructure1.PrintFormsCollection;
+		OfficeDocuments		 = ResultStructure1.OfficeDocuments;
+		For Each PrintForm In PrintFormsCollection Do
+			OfficeDocsNewAddresses = New Map();
+			If ValueIsFilled(PrintForm.OfficeDocuments) Then
+				For Each OfficeDocument In PrintForm.OfficeDocuments Do
+					OfficeDocsNewAddresses.Insert(PutToTempStorage(OfficeDocuments[OfficeDocument.Key], OpeningParameters.StorageUUID), OfficeDocument.Value);
+				EndDo;
+				PrintForm.OfficeDocuments = OfficeDocsNewAddresses;
+			EndIf;
+		EndDo;
+		
+		OpeningParameters.Insert("PrintFormsCollection", PrintFormsCollection);
+		
+		If ResultStructure1.Property("Messages") Then
+			OpeningParameters.Insert("Messages", ResultStructure1.Messages);
+		EndIf;
+		
+		FormOwner = OpeningParameters.FormOwner;
+		OpeningParameters.Delete("FormOwner");
+		
+		OpenForm("CommonForm.PrintDocuments", OpeningParameters, FormOwner, String(New UUID));
+	EndIf;
+EndProcedure
+		
+Function ParametersForOpeningPrintForm() Export
+	OpeningParameters = New Structure("PrintManagerName,TemplatesNames,CommandParameter,PrintParameters,StorageUUID,
+	|DataSource,PrintFormsCollection,SourceParameters,CurrentLanguage,FormOwner,OutputParameters");
+	OpeningParameters.Insert("PrintObjects", New ValueList);
+	Return OpeningParameters;
+EndFunction  
+
+Function IdleParameters(FormOwner) Export
+	
+	IdleParameters = TimeConsumingOperationsClient.IdleParameters(FormOwner);
+	IdleParameters.MessageText = NStr("en = 'Preparing print forms.';");
+	IdleParameters.UserNotification.Show = False;
+	IdleParameters.OutputIdleWindow = True;
+	IdleParameters.OutputMessages = False;
+	Return IdleParameters;
+
+EndFunction
+
 
 // Synchronous analog of CommonClient.CreateTempDirectory for backward compatibility.
 //

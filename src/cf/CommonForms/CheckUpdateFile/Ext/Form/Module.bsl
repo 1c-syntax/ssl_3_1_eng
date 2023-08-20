@@ -28,8 +28,10 @@ Procedure OnOpen(Cancel)
 	
 	If ValueIsFilled(NameOfFirstUpdateFile) Then
 		ImportFile_();
+		If TypeOf(Result) = Type("Boolean") Then
+			Cancel = True;
+		EndIf;
 	Else
-		Result = False;
 	#If Not WebClient And Not MobileClient Then
 		Try
 			Result = OnlyBuildNumberOfMainConfigurationChanged();
@@ -38,7 +40,10 @@ Procedure OnOpen(Cancel)
 			WriteError(ErrorText);
 		EndTry;
 	#EndIf
-		Close(Result);
+		Cancel = True;
+		If TypeOf(Result) <> Type("Boolean") Then
+			Result = False;
+		EndIf;
 	EndIf;
 	
 EndProcedure

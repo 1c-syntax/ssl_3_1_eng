@@ -20,7 +20,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.FilesAuthor.Enabled = False;
 	EndIf;
 	
-	AutoDescription = IsBlankString(Object.Description);
+	AutoDescription = IsBlankString(Object.Description); 
 	If Not IsBlankString(Object.Description) Then
 		Items.AsFilesAuthor.ChoiceList[0].Presentation =
 			StringFunctionsClientServer.SubstituteParametersToString(Items.AsFilesAuthor.Title, "(" + Object.Description + ")");
@@ -41,7 +41,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Password = ?(ValueIsFilled(AccountParameters1.Password), ThisObject.UUID, "");
 		
 	EndIf;
-	
+
 	If Common.IsMobileClient() Then
 		Items.Description.TitleLocation = FormItemTitleLocation.Top;
 	EndIf
@@ -51,19 +51,17 @@ EndProcedure
 &AtServer
 Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
-	If Not Cancel Then
-		
-		SetPrivilegedMode(True);
-		
-		Common.WriteDataToSecureStorage(CurrentObject.Ref, Login, "Login");
-		If PasswordChanged Then
-			Common.WriteDataToSecureStorage(CurrentObject.Ref, Password);
-		EndIf;
-		
-		SetPrivilegedMode(False);
-		
+	If Cancel Then
+		Return;
 	EndIf;
 	
+	SetPrivilegedMode(True);
+	Common.WriteDataToSecureStorage(CurrentObject.Ref, Login, "Login");
+	If PasswordChanged Then
+		Common.WriteDataToSecureStorage(CurrentObject.Ref, Password);
+	EndIf;
+	SetPrivilegedMode(False);
+		
 EndProcedure
 
 #EndRegion
@@ -72,7 +70,23 @@ EndProcedure
 
 &AtClient
 Procedure DescriptionOnChange(Item)
-	AutoDescription = IsBlankString(Object.Description);
+	AutoDescription = IsBlankString(Object.Description); 
+EndProcedure
+
+&AtClient
+Procedure ServiceChoiceProcessing(Item, ValueSelected, StandardProcessing)
+	
+	If Not AutoDescription Then
+		Return;
+	EndIf;
+
+	SelectedService = Items.Service.ChoiceList.FindByValue(ValueSelected);
+	If Not IsBlankString(ValueSelected) And SelectedService <> Undefined Then
+		Object.Description = SelectedService.Presentation;	
+	Else
+		Object.Description = NStr("en = 'Cloud file service';");	
+	EndIf;
+	
 EndProcedure
 
 &AtClient
@@ -89,16 +103,6 @@ Procedure PasswordOnChange(Item)
 	PasswordChanged = True;
 	
 EndProcedure
-
-&AtClient
-Procedure ServiceStartChoice(Item, ChoiceData, StandardProcessing)
-	ChoiceData = New ValueList();
-	ChoiceData.Add("https://webdav.yandex.com", NStr("en = 'Yandex.Disk';"));
-	ChoiceData.Add("https://dav.box.com/dav", NStr("en = 'Box';"));
-	ChoiceData.Add("https://dav.dropdav.com", NStr("en = 'DropBox (via dropdav.com)';"));
-	StandardProcessing = False;
-EndProcedure
-
 
 #EndRegion
 

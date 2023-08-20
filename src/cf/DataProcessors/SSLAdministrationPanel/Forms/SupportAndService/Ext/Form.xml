@@ -34,7 +34,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip_SSLs" id="1632"/>
+			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="1632"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="1575">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -945,7 +945,7 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 										<Title formatted="false">
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Update the application from a file on a hard drive or in a network directory, or install patches.</v8:content>
+												<v8:content>Update the application from a local file, a network directory file, or install patches.</v8:content>
 											</v8:item>
 										</Title>
 									</ExtendedTooltip>

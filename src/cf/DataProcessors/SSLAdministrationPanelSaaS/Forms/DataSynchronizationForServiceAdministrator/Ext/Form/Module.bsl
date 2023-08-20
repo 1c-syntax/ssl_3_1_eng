@@ -118,6 +118,7 @@ Procedure UseDataSynchronizationOnChange(Item)
 		ConstantsSet.UseOfflineModeSaaS = False;
 		ConstantsSet.UseDataSynchronizationSaaSWithLocalApplication = False;
 		ConstantsSet.UseDataSynchronizationSaaSWithWebApplication = False;
+		ConstantsSet.UsePerformanceMonitoringOfDataSynchronization = False;
 	EndIf;
 	
 	Attachable_OnChangeAttribute(Item);
@@ -140,6 +141,13 @@ EndProcedure
 
 &AtClient
 Procedure UseDataSynchronizationSaaSWithLocalApplicationOnChange(Item)
+	
+	Attachable_OnChangeAttribute(Item);
+	
+EndProcedure
+
+&AtClient
+Procedure UsePerformanceEvaluationOnChange(Item)
 	
 	Attachable_OnChangeAttribute(Item);
 	
@@ -225,7 +233,14 @@ Procedure SetAvailability(DataPathAttribute = "")
 		Items.TemporaryServerClusterDirectoriesGroup.Enabled             = ConstantsSet.UseDataSynchronization;
 	EndIf;
 	
+	If (DataPathAttribute = "ConstantsSet.UsePerformanceMonitoringOfDataSynchronization"
+		Or DataPathAttribute = "ConstantsSet.UseDataSynchronization"
+		Or DataPathAttribute = "")  Then
+		Items.ExchangeSessions.Enabled = ConstantsSet.UsePerformanceMonitoringOfDataSynchronization;
+	EndIf;
+	
 EndProcedure
+
 
 
 #EndRegion

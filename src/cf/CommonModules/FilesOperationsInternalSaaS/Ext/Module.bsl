@@ -76,8 +76,18 @@ EndProcedure
 // See JobsQueueOverridable.OnGetTemplateList.
 Procedure OnGetTemplateList(JobTemplates) Export
 	
-	JobTemplates.Add("CleanUpUnusedFiles");
-	JobTemplates.Add("FilesSynchronization");
+	JobTemplates.Add(Metadata.ScheduledJobs.CleanUpUnusedFiles.Name);
+	JobTemplates.Add(Metadata.ScheduledJobs.FilesSynchronization.Name);
+	
+EndProcedure
+
+// See ODataInterfaceOverridable.OnPopulateDependantTablesForODataImportExport
+Procedure OnPopulateDependantTablesForODataImportExport(Tables) Export
+	
+	DependentTables = FilesCatalogsAndStorageOptionObjects().StorageObjects;
+	For Each DependentTable In DependentTables Do
+		Tables.Add(DependentTable.Key);
+	EndDo;
 	
 EndProcedure
 
@@ -89,7 +99,7 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 	Types.Add(Metadata.InformationRegisters.TextExtractionQueue);
 	Types.Add(Metadata.Constants.VolumePathIgnoreRegionalSettings);
 	
-	TypesToExclude = ReadFileFunctionsExportImportCache().StorageObjects;
+	TypesToExclude = FilesCatalogsAndStorageOptionObjects().StorageObjects;
 	For Each TypeToExclude In TypesToExclude Do
 		Types.Add(Common.MetadataObjectByFullName(TypeToExclude.Key));
 	EndDo;
@@ -99,7 +109,7 @@ EndProcedure
 // See ExportImportDataOverridable.OnRegisterDataExportHandlers.
 Procedure OnRegisterDataExportHandlers(HandlersTable) Export
 	
-	FilesCatalogs = ReadFileFunctionsExportImportCache().FilesCatalogs;
+	FilesCatalogs = FilesCatalogsAndStorageOptionObjects().FilesCatalogs;
 	For Each FilesCatalog In FilesCatalogs Do
 		
 		NewHandler = HandlersTable.Add();
@@ -125,7 +135,7 @@ EndProcedure
 // See ExportImportDataOverridable.OnRegisterDataImportHandlers.
 Procedure OnRegisterDataImportHandlers(HandlersTable) Export
 	
-	FilesCatalogs = ReadFileFunctionsExportImportCache().FilesCatalogs;
+	FilesCatalogs = FilesCatalogsAndStorageOptionObjects().FilesCatalogs;
 	For Each FilesCatalog In FilesCatalogs Do
 		
 		NewHandler = HandlersTable.Add();
@@ -175,7 +185,7 @@ Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object,
 		Return;
 	EndIf;
 	
-	FilesCatalogs = ReadFileFunctionsExportImportCache().FilesCatalogs;
+	FilesCatalogs = FilesCatalogsAndStorageOptionObjects().FilesCatalogs;
 	
 	Handler = FilesCatalogs.Get(Object.Metadata().FullName());
 	
@@ -260,7 +270,7 @@ EndProcedure
 //
 Procedure BeforeImportObject(Container, Object, Artifacts, Cancel) Export
 	
-	FilesCatalogs = ReadFileFunctionsExportImportCache().FilesCatalogs;
+	FilesCatalogs = FilesCatalogsAndStorageOptionObjects().FilesCatalogs;
 	
 	Handler = FilesCatalogs.Get(Object.Metadata().FullName());
 	
@@ -425,7 +435,7 @@ Function Package()
 	
 EndFunction
 
-Function ReadFileFunctionsExportImportCache()
+Function FilesCatalogsAndStorageOptionObjects()
 	
 	Return FilesOperationsInternalSaaSCached.FilesCatalogsAndStorageOptionObjects();
 	

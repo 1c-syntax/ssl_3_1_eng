@@ -25,10 +25,9 @@ EndFunction
 // AddressObjects information register.
 //
 // Returns:
-//  FixedMap:
-//   * ClassifierAvailable   - Boolean - shows whether a classifier is available from a web service.
-//   * UseImportedItems - Boolean - shows whether a classifier is imported to the application.
-//   * AddressClassifierUsed - Boolean - the AddressClassifier subsystem is available in the application.
+//  FixedMap of KeyAndValue:
+//    * Key - String -
+//    * Value - Boolean
 //
 Function AddressClassifierAvailabilityInfo() Export
 	

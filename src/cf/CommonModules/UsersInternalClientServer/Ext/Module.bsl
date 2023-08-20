@@ -110,15 +110,15 @@ Procedure UpdateLifetimeRestriction(Form) Export
 	TitleWithRestriction = "";
 	
 	If Form.UnlimitedValidityPeriod Then
-		TitleWithRestriction = NStr("en = 'Can sign in (no expiration period)';");
+		TitleWithRestriction = NStr("en = 'Sign-in allowed (no time limit)';");
 		
 	ElsIf ValueIsFilled(Form.ValidityPeriod) Then
-		TitleWithRestriction = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Can sign in (till %1)';"),
+		TitleWithRestriction = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Sign-in allowed (till %1)';"),
 			Format(Form.ValidityPeriod, "DLF=D"));
 			
 	ElsIf ValueIsFilled(Form.InactivityPeriodBeforeDenyingAuthorization) Then
 		TitleWithRestriction = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Can sign in (revoke access after inactivity period: %1)';"),
+			NStr("en = 'Sign-in allowed (revoke access after inactivity of %1)';"),
 			Format(Form.InactivityPeriodBeforeDenyingAuthorization, "NG=") + " "
 				+ IntegerSubject(Form.InactivityPeriodBeforeDenyingAuthorization,
 					"", NStr("en = 'day,days,,,0';")));
@@ -150,7 +150,7 @@ Procedure CheckPasswordSet(Form, PasswordIsSet, AuthorizedUser) Export
 	If PasswordIsSet Then
 		Items.PasswordExistsLabel.Title = NStr("en = 'The password is set.';");
 		Items.UserMustChangePasswordOnAuthorization.Title =
-			NStr("en = 'Require password change upon authorization';");
+			NStr("en = 'User must change password at next sign-in';");
 	Else
 		Items.PasswordExistsLabel.Title = NStr("en = 'Blank password';");
 		Items.UserMustChangePasswordOnAuthorization.Title =

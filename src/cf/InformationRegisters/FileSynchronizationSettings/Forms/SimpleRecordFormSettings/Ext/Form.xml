@@ -60,6 +60,12 @@
 			<Width>40</Width>
 			<AutoMaxWidth>false</AutoMaxWidth>
 			<CreateButton>true</CreateButton>
+			<InputHint>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Select from the list</v8:content>
+				</v8:item>
+			</InputHint>
 			<ContextMenu name="AccountContextMenu" id="119"/>
 			<ExtendedTooltip name="AccountExtendedTooltip" id="120">
 				<AutoMaxWidth>false</AutoMaxWidth>

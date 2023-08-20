@@ -140,6 +140,12 @@ Searching for occurrences…</v8:content>
 									</ChildItems>
 								</ButtonGroup>
 								<ButtonGroup name="GroupSorting" id="241">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Sort</v8:content>
+										</v8:item>
+									</Title>
 									<Representation>Compact</Representation>
 									<ExtendedTooltip name="GroupSortingExtendedTooltip" id="242"/>
 									<ChildItems>

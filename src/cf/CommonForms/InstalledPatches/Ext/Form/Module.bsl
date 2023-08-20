@@ -405,7 +405,8 @@ Procedure SavePatches(OnlyAttachedOnes = False)
 	
 	SavingParameters = FileSystemClient.FileSavingParameters();
 	SavingParameters.Dialog.Title = NStr("en = 'Choose a file to save the patch';");
-	SavingParameters.Dialog.Filter    = NStr("en = '1C:Enterprise patch files (*.cfe)|*.cfe|All files (*.*)|*.*';");
+	SavingParameters.Dialog.Filter    = NStr("en = '1C:Enterprise patch files (*.cfe)|*.cfe';") + "|" 
+		+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
 	
 	FileSystemClient.SaveFiles(Undefined, FilesToSave, SavingParameters);
 	

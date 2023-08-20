@@ -11,38 +11,38 @@
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
-	
+
 	SetConditionalAppearance();
 	If Parameters.Property("ReportFormOpeningParameters", ReportFormOpeningParameters) Then
 		Return;
 	EndIf;
-	
+
 	InfobaseUpdate.CheckObjectProcessed(Object, ThisObject);
-	
+
 	Available = ?(Object.AuthorOnly, "ToAuthor", "ToAll");
-	
+
 	FullRightsToOptions = ReportsOptions.FullRightsToOptions();
 	RightToThisOption = FullRightsToOptions Or Object.Author = Users.AuthorizedUser();
 	If Not RightToThisOption Then
 		ReadOnly = True;
 		Items.SubsystemsTree.ReadOnly = True;
 	EndIf;
-	
+
 	If Object.DeletionMark Then
 		Items.SubsystemsTree.ReadOnly = True;
 	EndIf;
-	
+
 	If Not Object.Custom Then
 		Items.Description.ReadOnly = True;
 		Items.Author.AutoMarkIncomplete = False;
 		Items.Available.Visible = False;
 	EndIf;
-	
+
 	IsExternal = (Object.ReportType = Enums.ReportsTypes.External);
 	If IsExternal Then
 		Items.SubsystemsTree.ReadOnly = True;
 	EndIf;
-	
+
 	Items.Available.ReadOnly = Not FullRightsToOptions;
 	Items.NotifyUsers.Visible = FullRightsToOptions;
 	Items.Users.Visible = FullRightsToOptions Or Available = "ToAll";
@@ -58,36 +58,35 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Else
 		ReportName = Object.Report;
 	EndIf;
-	
+
 	RefillTree(False);
-	
+
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.OnCreateAtServer(ThisObject, Object);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.OnCreateAtServer(ThisObject, Object);
 	EndIf;
-	
+
 	ReportsOptions.DefineReportOptionUsersListBehavior(ThisObject);
 	ReportsOptions.DisplayTheFlagForNotifyingUsersOfTheReportVariant(Items.NotifyUsers);
-	
+
 EndProcedure
 
 &AtClient
 Procedure OnOpen(Cancel)
-	
+
 	If ReportFormOpeningParameters <> Undefined Then
 		Cancel = True;
 		ReportsOptionsClient.OpenReportForm(Undefined, ReportFormOpeningParameters);
 	EndIf;
-	
+
 	ReportsOptionsClient.RegisterReportOptionUsers(ThisObject, False);
-	
+
 EndProcedure
 
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
-	If Source <> ThisObject
-		And (EventName = ReportsOptionsClient.EventNameChangingOption()
-			Or EventName = "Write_ConstantsSet") Then
+	If Source <> ThisObject And (EventName = ReportsOptionsClient.EventNameChangingOption() Or EventName
+		= "Write_ConstantsSet") Then
 		RefillTree(True);
 		Items.SubsystemsTree.Expand(SubsystemsTree.GetItems()[0].GetID(), True);
 	EndIf;
@@ -95,9 +94,9 @@ EndProcedure
 
 &AtClient
 Procedure BeforeWrite(Cancel, WriteParameters)
-	
+
 	AskAboutUserNotification(Cancel);
-	
+
 EndProcedure
 
 &AtServer
@@ -106,20 +105,21 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	// Write properties associated with the predefined report option.
 	DetailsChanged = False;
 	If IsPredefined Then
-		
+
 		PredefinedOption = CurrentObject.PredefinedOption.GetObject();
-		
+
 		If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-			ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-			ModuleNativeLanguagesSupportServer.OnReadPresentationsAtServer(PredefinedOption);
+			ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+			ModuleNationalLanguageSupportServer.OnReadPresentationsAtServer(PredefinedOption);
 		EndIf;
-		
-		DetailsChanged = Not IsBlankString(Object.LongDesc) And Lower(TrimAll(Object.LongDesc)) <> Lower(TrimAll(PredefinedOption.LongDesc));
+
+		DetailsChanged = Not IsBlankString(Object.LongDesc) 
+			And Lower(TrimAll(Object.LongDesc)) <> Lower(TrimAll(PredefinedOption.LongDesc));
 		If Not DetailsChanged Then
 			CurrentObject.LongDesc = "";
-			For Each VariantPresentation In CurrentObject.Presentations Do 
+			For Each VariantPresentation In CurrentObject.Presentations Do
 				VariantPresentation.LongDesc = "";
-			EndDo;	
+			EndDo;
 		EndIf;
 	EndIf;
 	
@@ -131,19 +131,19 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		ChangedSections = DestinationTree.Rows.FindRows(New Structure("Modified", True), True);
 	EndIf;
 	ReportsOptions.SubsystemsTreeWrite(CurrentObject, ChangedSections);
-	
+
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.BeforeWriteAtServer(CurrentObject);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.BeforeWriteAtServer(CurrentObject);
 	EndIf;
-	
+
 	If IsPredefined And Not DetailsChanged Then
 		CurrentObject.Presentations.Clear();
 	EndIf;
-	
+
 	CurrentObject.AdditionalProperties.Insert("OptionUsers", OptionUsers);
 	CurrentObject.AdditionalProperties.Insert("NotifyUsers", NotifyUsers);
-	
+
 EndProcedure
 
 &AtServer
@@ -155,15 +155,15 @@ Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);
 	EndIf;
 	// End StandardSubsystems.AccessManagement
-	
+
 	RefillTree(False);
 	FillFromPredefinedOption(CurrentObject);
-	
+
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.OnReadAtServer(ThisObject, CurrentObject);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.OnReadAtServer(ThisObject, CurrentObject);
 	EndIf;
-	
+
 EndProcedure
 
 &AtClient
@@ -181,14 +181,14 @@ Procedure OnReadAtServer(CurrentObject)
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
 	EndIf;
 	// End StandardSubsystems.AccessManagement
-	
+
 	FillFromPredefinedOption(CurrentObject);
-	
+
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.OnReadAtServer(ThisObject, CurrentObject);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.OnReadAtServer(ThisObject, CurrentObject);
 	EndIf;
-	
+
 	InformationRegisters.ReportOptionsSettings.ReadReportOptionAvailabilitySettings(
 		CurrentObject.Ref, OptionUsers, UseUserGroups, UseExternalUsers);
 
@@ -201,27 +201,28 @@ EndProcedure
 &AtClient
 Procedure LongDescStartChoice(Item, ChoiceData, StandardProcessing)
 	StandardProcessing = False;
-	CommonClient.ShowCommentEditingForm(Item.EditText, ThisObject, "LongDesc", NStr("en = 'Details';"));
+	CommonClient.ShowCommentEditingForm(Item.EditText, ThisObject, "LongDesc",
+		NStr("en = 'Details';"));
 EndProcedure
 
 &AtClient
 Procedure AvailableOnChange(Item)
-	
+
 	Object.AuthorOnly = (Available = "ToAuthor");
-	
+
 	ReportsOptionsClient.CheckTheUsersOfTheReportOption(ThisObject);
 	ReportsOptionsClient.RegisterReportOptionUsers(ThisObject, False);
-	
+
 EndProcedure
 
 &AtClient
 Procedure Attachable_Opening(Item, StandardProcessing)
-	
+
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportClient = CommonClient.CommonModule("NationalLanguageSupportClient");
-		ModuleNativeLanguagesSupportClient.OnOpen(ThisObject, Object, Item, StandardProcessing);
+		ModuleNationalLanguageSupportClient = CommonClient.CommonModule("NationalLanguageSupportClient");
+		ModuleNationalLanguageSupportClient.OnOpen(ThisObject, Object, Item, StandardProcessing);
 	EndIf;
-	
+
 EndProcedure
 
 #EndRegion
@@ -230,42 +231,41 @@ EndProcedure
 
 &AtClient
 Procedure OptionUsersOnChange(Item)
-	
+
 	ReportsOptionsClient.RegisterReportOptionUsers(ThisObject);
-	
+
 EndProcedure
 
 &AtClient
 Procedure OptionUsersBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parameter)
-	
+
 	Cancel = True;
-	
+
 EndProcedure
 
 &AtClient
 Procedure OptionUsersBeforeDeleteRow(Item, Cancel)
-	
-	If Not UseUserGroups
-		And Not UseExternalUsers Then 
-		
+
+	If Not UseUserGroups And Not UseExternalUsers Then
+
 		Cancel = True;
-		
+
 	EndIf;
-	
+
 EndProcedure
 
 &AtClient
 Procedure OptionUsersChoiceProcessing(Item, ValueSelected, StandardProcessing)
-	
+
 	ReportsOptionsClient.ReportOptionUsersChoiceProcessing1(ThisObject, ValueSelected, StandardProcessing);
-	
+
 EndProcedure
 
 &AtClient
 Procedure OptionUsersCheckBoxOnChange(Item)
-	
+
 	ReportsOptionsClient.RegisterReportOptionUsers(ThisObject);
-	
+
 EndProcedure
 
 #EndRegion
@@ -288,17 +288,17 @@ EndProcedure
 
 &AtClient
 Procedure PickUsers(Command)
-	
+
 	ReportsOptionsClient.PickReportOptionUsers(ThisObject, UseUserGroups);
-	
+
 EndProcedure
 
 &AtClient
 Procedure PickExternalUsersGroups(Command)
-	
+
 	ReportsOptionsClient.PickReportOptionUsers(
 		ThisObject, Items.OptionUsersPickGroup.Visible, True);
-	
+
 EndProcedure
 
 #EndRegion
@@ -307,12 +307,12 @@ EndProcedure
 
 &AtServer
 Procedure SetConditionalAppearance()
-	
+
 	ConditionalAppearance.Items.Clear();
-	
+
 	ReportsOptions.SetConditionalAppearanceOfReportOptionUsersList(ThisObject);
 	ReportsOptions.SetSubsystemsTreeConditionalAppearance(ThisObject);
-	
+
 EndProcedure
 
 &AtServer
@@ -329,15 +329,15 @@ EndFunction
 
 &AtServer
 Procedure FillFromPredefinedOption(OptionObject)
-	
+
 	IsPredefined = ReportsOptions.IsPredefinedReportOption(OptionObject);
-	
+
 	If Not IsPredefined Then
 		Return;
 	EndIf;
-	
+
 	PredefinedOption = OptionObject.PredefinedOption.GetObject();
-	
+
 	OptionObject.Description = PredefinedOption.Description;
 	OptionObject.LongDesc = PredefinedOption.LongDesc;
 
@@ -345,45 +345,42 @@ EndProcedure
 
 &AtClient
 Procedure AskAboutUserNotification(Cancel)
-	
-	If Not NotifyUsers
-		Or UsersNotificationQuestionSpecified Then 
-		
+
+	If Not NotifyUsers Or UsersNotificationQuestionSpecified Then
+
 		Return;
 	EndIf;
-	
+
 	UsersCount = NumberOfUsersReportOption(OptionUsers);
-	
+
 	If UsersCount < 10 Then
 		Return;
 	EndIf;
-	
+
 	Cancel = True;
 	UsersNotificationQuestionSpecified = True;
 
 	Handler = New NotifyDescription("AfterAQuestionAboutNotifyingUsers", ThisObject);
 	ReportsOptionsInternalClient.AskAboutUserNotification(Handler, UsersCount);
-	
+
 EndProcedure
 
 &AtClient
-Procedure AfterAQuestionAboutNotifyingUsers(Response, AdditionalParameters) Export 
-	
-	If Response = DialogReturnCode.No Then 
+Procedure AfterAQuestionAboutNotifyingUsers(Response, AdditionalParameters) Export
+
+	If Response = DialogReturnCode.No Then
 		NotifyUsers = False;
 	EndIf;
-	
+
 	Write();
-	
+
 EndProcedure
 
 &AtServerNoContext
 Function NumberOfUsersReportOption(OptionUsers)
-	
+
 	Return InformationRegisters.ReportOptionsSettings.NumberOfUsersReportOption(OptionUsers);
-	
+
 EndFunction
 
 #EndRegion
-
-

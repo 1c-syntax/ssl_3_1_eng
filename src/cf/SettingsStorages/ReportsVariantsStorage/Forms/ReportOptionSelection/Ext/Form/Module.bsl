@@ -13,6 +13,8 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetConditionalAppearance();
 	
+	DefineBehaviorInMobileClient();
+	
 	VariantKey = Parameters.CurrentSettingsKey;
 	CurrentUser = Users.AuthorizedUser();
 	
@@ -214,6 +216,21 @@ Procedure SetConditionalAppearance()
 
 EndProcedure
 
+&AtServer
+Procedure DefineBehaviorInMobileClient()
+	
+	If Not Common.IsMobileClient() Then 
+		Return;
+	EndIf;
+	
+	Items.QuickFilters.Visible = False;
+	Items.MainCommandBar.Visible = False;
+	Items.OptionDetails.Visible = False;
+	Items.ReportOptionsTreeAuthorPicture.Visible = False;
+	Items.ReportOptionsTreeAuthor.Visible = False;
+	
+EndProcedure
+
 &AtClient
 Procedure SelectAndClose()
 	Variant = Items.ReportOptionsTree.CurrentData;
@@ -343,6 +360,13 @@ Procedure FillOptionsList()
 			Items.ReportOptionsTree.CurrentRow = Variant.GetID();
 		EndIf;
 		Variant.AuthorPicture = ?(Variant.AuthorOnly, -1, 0);
+		If OptionInfo.Purpose = Enums.ReportOptionPurposes.ForSmartphones Then
+			Variant.PicturePurpose = 0;
+		ElsIf OptionInfo.Purpose = Enums.ReportOptionPurposes.ForComputersAndTablets Then
+			Variant.PicturePurpose = 1;
+		ElsIf OptionInfo.Purpose = Enums.ReportOptionPurposes.ForAnyDevice Then
+			Variant.PicturePurpose = 2;
+		EndIf;
 	EndDo;
 	
 EndProcedure

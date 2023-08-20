@@ -190,7 +190,6 @@ Function FileData(Val AttachedFile, Val AdditionalParameters = Undefined,
 		FilesOperationsInternal.BorrowFileToEditServer(FileObject1);
 	EndIf;
 	
-	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
 	RefToBinaryFileData = Undefined;
@@ -400,8 +399,8 @@ EndFunction
 // Parameters:
 //   FilesOwner    - DefinedType.AttachedFilesOwner - an object, to which
 //                       you need to attach the file.
-//   FilePathOnHardDrive - String - a full file path on the hard drive, including a name and an extension of the file.
-//                       File needs to be on the server.
+//   FilePathOnHardDrive - String -
+//                       
 //
 // Returns:
 //  DefinedType.AttachedFile - 
@@ -754,7 +753,8 @@ EndFunction
 //    * ShowTooltipsOnEditFiles       - Boolean - show tooltips in web client when
 //                                                                  editing files.
 //    * PathToLocalFileCache                        - String - a path to local file cache.
-//    * IsFullUser                      - Boolean - True if it is a full access user.
+//    * IsFullUser                      - Boolean -
+//                                                           
 //    * DeleteFileFromLocalFileCacheOnCompleteEdit - Boolean - delete files from the local cache
 //                                                                              when complete editing.
 //
@@ -1187,7 +1187,7 @@ Procedure OnCreateAtServer(Form, ItemsToAdd1 = Undefined, SettingsOfFileManageme
 		
 		AdditionAvailable = Not FilesBeingEditedInCloudService
 			And AccessRight("InteractiveInsert", MetadataOfCatalogWithFiles);
-		UpdateAvailable = Not FilesBeingEditedInCloudService
+		ChangeAvailable = Not FilesBeingEditedInCloudService
 			And AccessRight("Update", MetadataOfCatalogWithFiles);
 		
 		ItemParameters = New Structure;
@@ -1203,7 +1203,7 @@ Procedure OnCreateAtServer(Form, ItemsToAdd1 = Undefined, SettingsOfFileManageme
 		FormItemParameters = New Structure;
 		FormItemParameters.Insert("GroupName",          GroupName);
 		FormItemParameters.Insert("ItemNumber",      ItemNumber);
-		FormItemParameters.Insert("UpdateAvailable",  UpdateAvailable);
+		FormItemParameters.Insert("ChangeAvailable",  ChangeAvailable);
 		FormItemParameters.Insert("AdditionAvailable", AdditionAvailable);
 		
 		If SettingsOfFileManagementInFormAdvanced.DuplicateAttachedFiles 
@@ -1355,7 +1355,8 @@ Function FileField() Export
 	FieldParameters.Insert("EditFile",         "InForm");
 	FieldParameters.Insert("ClearFile",               True);
 	FieldParameters.Insert("MaximumSize",        0);
-	FieldParameters.Insert("SelectionDialogFilter",       NStr("en = 'All files (*.*)|*.*';"));
+	FieldParameters.Insert("SelectionDialogFilter", 
+		StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask()));
 	
 	Return FieldParameters;
 	
@@ -1394,9 +1395,8 @@ EndFunction
 // Parameters:
 //  AttachedFile - DefinedType.AttachedFile - a reference to the catalog item with file.
 //
-//  SignatureProperties    - Structure - contains data that the Sign procedure
-//                       of the DigitalSignatureClient returns as a result.
-//                     - Array - 
+//  SignatureProperties    - See DigitalSignatureClientServer.NewSignatureProperties
+//                     
 //                     
 //  FormIdentifier - UUID - if specified, it is used when locking an object.
 //
@@ -1461,6 +1461,126 @@ Function SettingsOfFileManagementInForm() Export
 	
 EndFunction
 
+// 
+// 
+// Parameters:
+//  ClientID - UUID -
+// 
+// Returns:
+//   See FilesOperationsClientServer.UserScanSettings
+//
+Function GetUserScanSettings(ClientID) Export
+	
+	UserScanSettings = FilesOperationsClientServer.UserScanSettings();
+	
+	UserScanSettings.ShowScannerDialog = Common.CommonSettingsStorageLoad(
+		"ScanningSettings1/ShowScannerDialog", 
+		ClientID, True);
+	
+	UserScanSettings.DeviceName = Common.CommonSettingsStorageLoad(
+		"ScanningSettings1/DeviceName", 
+		ClientID, "");
+	
+	UserScanSettings.ScannedImageFormat = Common.CommonSettingsStorageLoad(
+		"ScanningSettings1/ScannedImageFormat", 
+		ClientID, Enums.ScannedImageFormats.PNG);
+	
+	UserScanSettings.SaveToPDF = Common.CommonSettingsStorageLoad(
+		"ScanningSettings1/SaveToPDF", 
+		ClientID, False);
+	
+	UserScanSettings.MultipageStorageFormat = Common.CommonSettingsStorageLoad(
+		"ScanningSettings1/MultipageStorageFormat", 
+		ClientID, Enums.MultipageFileStorageFormats.TIF);
+	
+	UserScanSettings.Resolution = Common.CommonSettingsStorageLoad(
+		"ScanningSettings1/Resolution", 
+		ClientID);
+	
+	UserScanSettings.Chromaticity = Common.CommonSettingsStorageLoad(
+		"ScanningSettings1/Chromaticity", 
+		ClientID);
+	
+	UserScanSettings.Rotation = Common.CommonSettingsStorageLoad(
+		"ScanningSettings1/Rotation", 
+		ClientID);
+	
+	UserScanSettings.PaperSize = Common.CommonSettingsStorageLoad(
+		"ScanningSettings1/PaperSize", 
+		ClientID);
+	
+	UserScanSettings.DuplexScanning = Common.CommonSettingsStorageLoad(
+		"ScanningSettings1/DuplexScanning", 
+		ClientID);
+	
+	UserScanSettings.UseImageMagickToConvertToPDF =  Common.CommonSettingsStorageLoad(
+		"ScanningSettings1/UseImageMagickToConvertToPDF", 
+		ClientID);
+		
+	UserScanSettings.JPGQuality = Common.CommonSettingsStorageLoad(
+		"ScanningSettings1/JPGQuality", 
+		ClientID, 100);
+	
+	UserScanSettings.TIFFDeflation = Common.CommonSettingsStorageLoad(
+		"ScanningSettings1/TIFFDeflation", 
+		ClientID, Enums.TIFFCompressionTypes.NoCompression);
+	
+	UserScanSettings.PathToConverterApplication = Common.CommonSettingsStorageLoad(
+		"ScanningSettings1/PathToConverterApplication", 
+		ClientID, ""); // ImageMagick
+		
+	Return UserScanSettings;
+EndFunction
+
+// 
+// Parameters:
+//  UserScanSettings - See FilesOperationsClientServer.UserScanSettings
+//  ClientID - UUID -
+//
+Procedure SaveUserScanSettings(UserScanSettings, ClientID) Export
+
+	StructuresArray = New Array;
+	
+	StructuresArray.Add(GenerateSetting("ShowScannerDialog",
+		UserScanSettings.ShowScannerDialog, ClientID));
+	StructuresArray.Add(GenerateSetting("DeviceName",
+		UserScanSettings.DeviceName, ClientID));
+	StructuresArray.Add(GenerateSetting("ScannedImageFormat",
+		UserScanSettings.ScannedImageFormat, ClientID));
+	StructuresArray.Add(GenerateSetting("SaveToPDF",
+		UserScanSettings.SaveToPDF, ClientID));
+	StructuresArray.Add(GenerateSetting("MultipageStorageFormat",
+		UserScanSettings.MultipageStorageFormat, ClientID));
+	StructuresArray.Add(GenerateSetting("Resolution",
+		UserScanSettings.Resolution, ClientID));
+	StructuresArray.Add(GenerateSetting("Chromaticity",
+		UserScanSettings.Chromaticity, ClientID));
+	StructuresArray.Add(GenerateSetting("Rotation",
+		UserScanSettings.Rotation, ClientID));
+	StructuresArray.Add(GenerateSetting("PaperSize",
+		UserScanSettings.PaperSize, ClientID));
+	StructuresArray.Add(GenerateSetting("DuplexScanning",
+		UserScanSettings.DuplexScanning, ClientID));
+	StructuresArray.Add(GenerateSetting("UseImageMagickToConvertToPDF",
+		UserScanSettings.UseImageMagickToConvertToPDF, ClientID));
+	StructuresArray.Add(GenerateSetting("JPGQuality",
+		UserScanSettings.JPGQuality, ClientID));
+	StructuresArray.Add(GenerateSetting("TIFFDeflation",
+		UserScanSettings.TIFFDeflation, ClientID));
+	StructuresArray.Add(GenerateSetting("PathToConverterApplication",
+		UserScanSettings.PathToConverterApplication, ClientID));
+	
+	If ValueIsFilled(UserScanSettings.SinglePageStorageFormat) Then
+		SinglePageStorageFormat = UserScanSettings.SinglePageStorageFormat;
+	Else
+		SinglePageStorageFormat = FilesOperationsInternal.ConvertScanningFormatToStorageFormat(UserScanSettings.ScannedImageFormat,
+			UserScanSettings.SaveToPDF);
+	EndIf;
+	
+	StructuresArray.Add(GenerateSetting("SinglePageStorageFormat", SinglePageStorageFormat, ClientID));
+	
+	CommonServerCall.CommonSettingsStorageSaveArray(StructuresArray, True);
+EndProcedure
 
 #Region ForCallsFromOtherSubsystems
 
@@ -1492,8 +1612,8 @@ EndProcedure
 // Parameters:
 //   FilesOwner    - DefinedType.AttachedFilesOwner - a file folder or an object, to which
 //                       you need to attach the file.
-//   FilePathOnHardDrive - String - a full file path on the hard drive, including a name and an extension of the file.
-//                       File needs to be on the server.
+//   FilePathOnHardDrive - String -
+//                       
 //
 // Returns:
 //  DefinedType.AttachedFile - 
@@ -2260,8 +2380,9 @@ Procedure CreateFilesHyperlink(Form, ItemToAdd, AttachedFilesOwner, HyperlinkPar
 		
 		ImportFile_           = Form.Commands.Add("AttachedFilesManagementImportFile_" + ItemNumber);
 		ImportFile_.Action  = "Attachable_AttachedFilesPanelCommand";
-		ImportFile_.ToolTip = NStr("en = 'Upload file from a hard drive.';");
-		ImportFile_.Title = NStr("en = 'Upload…';");
+		CommandTitle = NStr("en = 'Import a file from a computer';");
+		ImportFile_.ToolTip = CommandTitle;
+		ImportFile_.Title = CommandTitle + "...";
 		
 		LoadButton = AddButtonOnForm(Form, "AttachedFilesManagementImportFile" + ItemNumber, PlacementOnFormGroup, ImportFile_.Name);
 		LoadButton.Picture    = PictureLib.Clip;
@@ -2322,7 +2443,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 	
 	GroupName          = FileFieldParameters.GroupName;
 	ItemNumber      = FileFieldParameters.ItemNumber;
-	UpdateAvailable  = FileFieldParameters.UpdateAvailable;
+	ChangeAvailable  = FileFieldParameters.ChangeAvailable;
 	AdditionAvailable = FileFieldParameters.AdditionAvailable;
 	
 	FormCommandProperties = New Structure;
@@ -2516,7 +2637,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		ImportFile_ = Form.Commands.Add("AttachedFilesManagementImportFile_" 
 			+ OneFileOnlyText + ItemNumber);
 		ImportFile_.Action  = "Attachable_AttachedFilesPanelCommand";
-		ImportFile_.ToolTip = NStr("en = 'Upload file from a hard drive.';");
+		ImportFile_.ToolTip = NStr("en = 'Import a file from a computer';");
 		
 		If ItemToAdd.ShowCommandBar Then
 			
@@ -2579,7 +2700,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 	EndIf;
 	
 	If ItemToAdd.NeedSelectFile
-		And UpdateAvailable Then
+		And ChangeAvailable Then
 		
 		SelectFile           = Form.Commands.Add("AttachedFilesManagementSelectFile_" + ItemNumber);
 		SelectFile.Action  = "Attachable_AttachedFilesPanelCommand";
@@ -2622,7 +2743,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 	EndIf;
 	
 	If ItemToAdd.ClearFile
-		And UpdateAvailable Then
+		And ChangeAvailable Then
 		
 		Zap           = Form.Commands.Add("AttachedFilesManagementClear_" + ItemNumber);
 		Zap.Picture  = PictureLib.InputFieldClear;
@@ -2660,7 +2781,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		EndIf;
 		
 	ElsIf ItemToAdd.EditFile = "Directly"
-		And UpdateAvailable Then
+		And ChangeAvailable Then
 		
 		EditFile           = Form.Commands.Add("AttachedFilesManagementEditFile_" + ItemNumber);
 		EditFile.Picture  = PictureLib.Change;
@@ -2775,6 +2896,16 @@ Function FormAttributeByName(FormAttributes, AttributeName)
 	EndDo;
 	
 	Return Undefined;
+	
+EndFunction
+
+Function GenerateSetting(Name, Value, ClientID)
+	
+	Item = New Structure;
+	Item.Insert("Object", "ScanningSettings1/" + Name);
+	Item.Insert("Setting", ClientID);
+	Item.Insert("Value", Value);
+	Return Item;
 	
 EndFunction
 	

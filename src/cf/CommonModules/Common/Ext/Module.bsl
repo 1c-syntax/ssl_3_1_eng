@@ -77,6 +77,7 @@ Procedure MessageToUser(Val MessageToUserText, Val DataKey = Undefined,	Val Fiel
 	Message = CommonInternalClientServer.UserMessage(MessageToUserText,
 		DataKey, Field, DataPath, Cancel, IsObject);
 	
+#If Not MobileStandaloneServer Then
 	If StandardSubsystemsCached.IsLongRunningOperationSession()
 	   And Not TransactionActive() Then
 		
@@ -84,12 +85,17 @@ Procedure MessageToUser(Val MessageToUserText, Val DataKey = Undefined,	Val Fiel
 	Else
 		Message.Message();
 	EndIf;
+#Else
+		Message.Message();
+#EndIf
 	
 EndProcedure
 
 // ACC:142-on
 
 #EndRegion
+
+#If Not MobileStandaloneServer Then
 
 #Region InfobaseData
 
@@ -195,10 +201,10 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 	LanguageSuffix = "";
 	If ValueIsFilled(LanguageCode) Then
 		If SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-			ModuleNativeLanguagesSupportServer = CommonModule("NationalLanguageSupportServer");
-			LanguageSuffix = ModuleNativeLanguagesSupportServer.LanguageSuffix(LanguageCode);
+			ModuleNationalLanguageSupportServer = CommonModule("NationalLanguageSupportServer");
+			LanguageSuffix = ModuleNationalLanguageSupportServer.LanguageSuffix(LanguageCode);
 			If ValueIsFilled(LanguageSuffix) Then
-				MultilingualAttributes = ModuleNativeLanguagesSupportServer.MultilingualObjectAttributes(Ref);
+				MultilingualAttributes = ModuleNationalLanguageSupportServer.MultilingualObjectAttributes(Ref);
 			EndIf;
 		EndIf;
 	EndIf;
@@ -471,11 +477,11 @@ Function ObjectsAttributesValues(References, Val Attributes, SelectAllowedItems 
 	AttributesQueryText = Attributes;
 	
 	If SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer = CommonModule("NationalLanguageSupportServer");
 		If ValueIsFilled(LanguageCode) Then
-			LanguageSuffix = ModuleNativeLanguagesSupportServer.LanguageSuffix(LanguageCode);
+			LanguageSuffix = ModuleNationalLanguageSupportServer.LanguageSuffix(LanguageCode);
 			If ValueIsFilled(LanguageSuffix) Then
-				MultilingualAttributes = ModuleNativeLanguagesSupportServer.MultilingualObjectAttributes(References[0]);
+				MultilingualAttributes = ModuleNationalLanguageSupportServer.MultilingualObjectAttributes(References[0]);
 				AttributesSet = StrSplit(Attributes, ",");
 				For Position = 0 To AttributesSet.UBound() Do
 					AttributeName = TrimAll(AttributesSet[Position]);
@@ -534,12 +540,12 @@ Function ObjectsAttributesValues(References, Val Attributes, SelectAllowedItems 
 		QueryOptions.Insert(ParameterName, RefsByType.Value);
 		
 		If SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-			ModuleNativeLanguagesSupportServer  = CommonModule("NationalLanguageSupportServer");
+			ModuleNationalLanguageSupportServer  = CommonModule("NationalLanguageSupportServer");
 			
 			If ValueIsFilled(LanguageCode) And LanguageCode <> DefaultLanguageCode()
-				And ModuleNativeLanguagesSupportServer.ObjectContainsPMRepresentations(FullMetadataObjectName) Then
+				And ModuleNationalLanguageSupportServer.ObjectContainsPMRepresentations(FullMetadataObjectName) Then
 				
-				MultilingualAttributes = ModuleNativeLanguagesSupportServer.MultilingualObjectAttributes(MetadataObject);
+				MultilingualAttributes = ModuleNationalLanguageSupportServer.MultilingualObjectAttributes(MetadataObject);
 				TablesFields = New Array;
 				TablesFields.Add("SpecifiedTableAlias.Ref");
 				For Each Attribute In StrSplit(Attributes, ",") Do
@@ -592,18 +598,18 @@ Function ObjectsAttributesValues(References, Val Attributes, SelectAllowedItems 
 		Attributes = StrSplit(Attributes, ",");
 		
 		// Searching for field availability error.
-		ErrorsList = New Array;
+		ErrorList = New Array;
 		For Each FullMetadataObjectName In MetadataObjectNames Do
 			Result = FindObjectAttirbuteAvailabilityError(FullMetadataObjectName, Attributes);
 			If Result.Error Then 
-				ErrorsList.Add(Result.ErrorDescription);
+				ErrorList.Add(Result.ErrorDescription);
 			EndIf;
 		EndDo;
 		
-		If ValueIsFilled(ErrorsList) Then
+		If ValueIsFilled(ErrorList) Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Invalid value of the %1 parameter, function %2: %3';"), 
-				"Attributes", "Common.ObjectsAttributesValues", StrConcat(ErrorsList, Chars.LF));
+				"Attributes", "Common.ObjectsAttributesValues", StrConcat(ErrorList, Chars.LF));
 		EndIf;
 		
 		// Cannot identify the error. Forwarding the original error.
@@ -690,8 +696,8 @@ EndProcedure
 Procedure SetAttributesValues(Object, Values, LanguageCode = Undefined) Export
 	
 	If SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.SetAttributesValues(Object, Values, LanguageCode);
+		ModuleNationalLanguageSupportServer = CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.SetAttributesValues(Object, Values, LanguageCode);
 		Return;
 	EndIf;
 	
@@ -716,8 +722,8 @@ EndProcedure
 Function DefaultLanguageCode() Export
 	
 	If SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = CommonModule("NationalLanguageSupportServer");
-		Return ModuleNativeLanguagesSupportServer.DefaultLanguageCode();
+		ModuleNationalLanguageSupportServer = CommonModule("NationalLanguageSupportServer");
+		Return ModuleNationalLanguageSupportServer.DefaultLanguageCode();
 	EndIf;
 	
 	Return Metadata.DefaultLanguage.LanguageCode;
@@ -961,7 +967,7 @@ EndFunction
 //  RefSearchExclusions	 - See RefSearchExclusions
 //   
 // Returns:
-//   Map of КлючЗначение:
+//   Map of KeyAndValue:
 //     * Key - ValueTableRow
 //     * Value - Boolean -
 //
@@ -1265,7 +1271,7 @@ Function ReplaceReferences(Val ReplacementPairs, Val ReplacementParameters = Und
 			HadErrors = Result.HasErrors;
 			Result.HasErrors = False;
 			
-			//  
+			// 
 			ReplaceRefsUsingShortTransactions(Result, ExecutionParameters, Duplicate1, SearchTable);
 					
 			If Not Result.HasErrors Then
@@ -1273,9 +1279,12 @@ Function ReplaceReferences(Val ReplacementPairs, Val ReplacementParameters = Und
 			EndIf;
 			Result.HasErrors = Result.HasErrors Or HadErrors;
 			
+			AdditionalParameters = New Structure;
+			AdditionalParameters.Insert("SessionNumber", InfoBaseSessionNumber());
+			AdditionalParameters.Insert("ProcessedItemsCount", Number);
 			TimeConsumingOperations.ReportProgress(Number,
-				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Replacing duplicates… processed %1 of %2.';"), 
-					Number, DuplicateCount));
+				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Replacing duplicates… processed (%1 of %2)';"), 
+					Number, DuplicateCount), AdditionalParameters);
 			Number = Number + 1;
 			AddToReferenceReplacementStatistics(Statistics, Duplicate1, Result.HasErrors);
 			
@@ -1991,6 +2000,18 @@ Function IsStandaloneWorkplace() Export
 	
 EndFunction
 
+// 
+//
+// Returns:
+//   Boolean
+//
+Function IsDistributedInfobase() Export
+	
+	SetPrivilegedMode(True);
+	Return StandardSubsystemsCached.DIBUsed();
+	
+EndFunction
+
 // Determines whether this infobase is a subordinate node
 // of a distributed infobase (DIB).
 //
@@ -2128,7 +2149,7 @@ EndFunction
 // Returns:
 //  String, Undefined - 
 //
-Function ProgrammAuthorizationAddress (User, Password, IBPublicationType) Export
+Function ProgrammAuthorizationAddress(User, Password, IBPublicationType) Export
 	
 	Result = "";
 	
@@ -2249,15 +2270,12 @@ Function CommonCoreParameters() Export
 				If Not IsBlankString(InfoAbout1CEnterpriseVersions.MinPlatformVersion)
 					Or Not IsBlankString(InfoAbout1CEnterpriseVersions.RecommendedPlatformVersion) Then
 					
-					Min   = BuildNumberForTheCurrentPlatformVersion(
-						InfoAbout1CEnterpriseVersions.MinPlatformVersion);
-					Recommended = BuildNumberForTheCurrentPlatformVersion(
-						InfoAbout1CEnterpriseVersions.RecommendedPlatformVersion);
+					Min   = BuildNumberForTheCurrentPlatformVersion(InfoAbout1CEnterpriseVersions.MinPlatformVersion);
+					Recommended = BuildNumberForTheCurrentPlatformVersion(InfoAbout1CEnterpriseVersions.RecommendedPlatformVersion);
 					
 					If IsMinRecommended1CEnterpriseVersionInvalid(Min, Recommended) Then
 						
 						ModuleGetApplicationUpdates.DeletePlatformVersionInformation();
-						
 						MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 							NStr("en = 'The minimum and recommended 1C:Enterprise platform versions received from the application update service do not meet the following requirements:
 								| - The minimum version must be filled.
@@ -2271,21 +2289,12 @@ Function CommonCoreParameters() Export
 								|Minimum version: %6
 								|Recommended version: %7';",
 								DefaultLanguageCode()),
-							"Common.MinPlatformVersion",
-							Min,
-							BuildNumberForTheCurrentPlatformVersion(
-								MinPlatformVersion()),
-							Recommended,
-							"CommonOverridable.OnDetermineCommonCoreParameters",
-							CommonParameters.MinPlatformVersion,
-							CommonParameters.RecommendedPlatformVersion);
-						WriteLogEvent(
-							NStr("en = 'Core';", DefaultLanguageCode()),
-							EventLogLevel.Warning,
-							,
-							,
+							"Common.MinPlatformVersion", Min, BuildNumberForTheCurrentPlatformVersion(MinPlatformVersion()),
+							Recommended, "CommonOverridable.OnDetermineCommonCoreParameters",
+							CommonParameters.MinPlatformVersion, CommonParameters.RecommendedPlatformVersion);
+						WriteLogEvent(NStr("en = 'Core';", DefaultLanguageCode()), EventLogLevel.Warning,,, 
 							MessageText);
-						
+
 					Else
 						CommonParameters.MinPlatformVersion   = Min;
 						CommonParameters.RecommendedPlatformVersion = Recommended;
@@ -2294,20 +2303,12 @@ Function CommonCoreParameters() Export
 				EndIf;
 				
 			Except
-				
 				MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot change the minimum and recommended 1C:Enterprise platform versions received from the application update service. Reason:
 						|%1';",
-						DefaultLanguageCode()),
-					ErrorProcessing.DetailErrorDescription(
-						ErrorInfo()));
-				WriteLogEvent(
-					NStr("en = 'Core';", DefaultLanguageCode()),
-					EventLogLevel.Warning,
-					,
-					,
+						DefaultLanguageCode()), ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				WriteLogEvent(NStr("en = 'Core';", DefaultLanguageCode()), EventLogLevel.Warning,,,
 					MessageText);
-				
 			EndTry;
 			
 		EndIf;
@@ -2332,14 +2333,10 @@ Function CommonCoreParameters() Export
 			|Minimum SSL version: %4
 			|Recommended version: %5';",
 			DefaultLanguageCode());
-		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			MessageText,
+		Raise StringFunctionsClientServer.SubstituteParametersToString(MessageText,
 			"CommonOverridable.OnDetermineCommonCoreParameters",
 			"Common.MinPlatformVersion",
-			Min,
-			BuildNumberForTheCurrentPlatformVersion(
-				MinPlatformVersion()),
-			Recommended);
+			Min, BuildNumberForTheCurrentPlatformVersion(MinPlatformVersion()), Recommended);
 	EndIf;
 	
 	// Backward compatibility.
@@ -3218,7 +3215,7 @@ EndFunction
 //  RefsToSubjects - Array of AnyRef
 //
 // Returns:
-//   Map of КлючЗначение:
+//   Map of KeyAndValue:
 //     * Key - AnyRef
 //     * Value - String -
 // 
@@ -3263,7 +3260,7 @@ EndFunction
 //  RefsToCheck - Array of AnyRef, AnyRef
 // 
 // Returns:
-//  Map of КлючЗначение:
+//  Map of KeyAndValue:
 //   * Key - AnyRef
 //   * Value - String -
 //
@@ -3417,8 +3414,8 @@ Function COMConnectorID(Val COMConnectorName) Export
 		Return "181E893D-73A4-4722-B61D-D604B3D67D47";
 	EndIf;
 	
-	ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The CLSID for class %1 is not specified.';"), COMConnectorName);
-	Raise ExceptionText;
+	Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The CLSID for class %1 is not specified.';"), 
+		COMConnectorName);
 	
 EndFunction
 
@@ -4591,6 +4588,21 @@ Function TypePresentationString(Type) Export
 		
 		Result = ?(Presentation = "", Presentation, Presentation + "." + ObjectName);
 		
+	ElsIf Type = Type("Undefined") Then
+		Result = "Undefined";
+		
+	ElsIf Type = Type("String") Then
+		Result = "String";
+
+	ElsIf Type = Type("Number") Then
+		Result = "Number";
+
+	ElsIf Type = Type("Boolean") Then
+		Result = "Boolean";
+
+	ElsIf Type = Type("Date") Then
+		Result = "Date";
+	
 	Else
 		
 		Result = String(Type);
@@ -4811,7 +4823,7 @@ Function ObjectPresentation(MetadataObject) Export
 		Result = ObjectProperties.ObjectPresentation;
 	Else
 		Result = MetadataObject.Presentation();
-	EndIf;;
+	EndIf;
 	
 	Return Result;
 	
@@ -5208,6 +5220,59 @@ EndFunction
 
 #EndRegion
 
+#Region JSONSerialization
+
+// 
+// 
+// 
+// 
+// Parameters:
+//  Value - Arbitrary
+//
+// Returns:
+//  String
+//
+Function ValueToJSON(Val Value) Export
+	
+	JSONWriter = New JSONWriter;
+	JSONWriter.SetString();
+	WriteJSON(JSONWriter, Value);
+	
+	Return JSONWriter.Close();
+	
+EndFunction
+
+// 
+// 
+//  
+// 
+// 
+// 
+// Parameters:
+//   String - String -
+//   PropertiesWithDateValuesNames - String -
+//                                           
+//                                - Array of String 
+//   ReadToMap       - Boolean -
+//   
+// Returns:
+//  Arbitrary
+//
+Function JSONValue(Val String, Val PropertiesWithDateValuesNames = Undefined, Val ReadToMap = True) Export
+	
+	If TypeOf(PropertiesWithDateValuesNames) = Type("String") Then
+		PropertiesWithDateValuesNames = StrSplit(PropertiesWithDateValuesNames, ", " + Chars.LF, False);
+	EndIf;
+	
+	JSONReader = New JSONReader;
+	JSONReader.SetString(String);
+	
+	Return ReadJSON(JSONReader, ReadToMap, PropertiesWithDateValuesNames);
+	
+EndFunction
+
+#EndRegion
+
 #Region WebServices
 
 // Returns a parameter structure for the CreateWSProxy function.
@@ -5317,7 +5382,7 @@ Function CreateWSProxy(Val WSProxyConnectionParameters) Export
 EndFunction
 
 /////////////////////////////////////////////////////////////////////////////////
-// API versioning.
+// 
 
 // Returns version numbers of interfaces in a remote system accessed over web service.
 // Ensures full backwards compatibility against any API modifications,
@@ -5461,7 +5526,7 @@ EndProcedure
 #Region SecureStorage
 
 ////////////////////////////////////////////////////////////////////////////////
-// Password storage management procedures and functions.
+// 
 
 // Writes confidential data to a secure storage.
 // The calling script must enable privileged mode.
@@ -5769,7 +5834,7 @@ EndProcedure
 #Region Clipboard
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for internal clipboard management.
+// 
 
 // Copies the selected tabular section rows to the internal clipboard
 // so that they can be retrieved using RowsFromClipboard.
@@ -6170,8 +6235,6 @@ Procedure OnStartExecuteScheduledJob(ScheduledJob = Undefined) Export
 	
 	SetPrivilegedMode(True);
 	
-	Catalogs.ExtensionsVersions.RegisterExtensionsVersionUsage();
-	
 	If InformationRegisters.ApplicationRuntimeParameters.UpdateRequired1() Then
 		Text = NStr("en = 'The application is temporarily unavailable due to version update.
 			               |It is recommended that you prohibit execution of scheduled jobs for the duration of the update.';");
@@ -6218,6 +6281,8 @@ Procedure OnStartExecuteScheduledJob(ScheduledJob = Undefined) Export
 		ScheduledJobsServer.CancelJobExecution(ScheduledJob, Text);
 		Raise Text;
 	EndIf;
+	
+	Catalogs.ExtensionsVersions.RegisterExtensionsVersionUsage();
 	
 	InformationRegisters.ExtensionVersionParameters.UponSuccessfulStartoftheExecutionoftheScheduledTask();
 	
@@ -6547,7 +6612,11 @@ EndFunction
 
 #EndRegion
 
+#EndIf
+
 #EndRegion
+
+#If Not MobileStandaloneServer Then
 
 #Region Internal
 
@@ -6704,8 +6773,8 @@ Function CurrentUserLanguageSuffix() Export
 	Result.Insert("IsMainLanguage", "");
 	
 	If SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = CommonModule("NationalLanguageSupportServer");
-		CurrentLanguageSuffix = ModuleNativeLanguagesSupportServer.CurrentLanguageSuffix();
+		ModuleNationalLanguageSupportServer = CommonModule("NationalLanguageSupportServer");
+		CurrentLanguageSuffix = ModuleNationalLanguageSupportServer.CurrentLanguageSuffix();
 		
 		If ValueIsFilled(CurrentLanguageSuffix) Then
 			Return CurrentLanguageSuffix;
@@ -9881,10 +9950,10 @@ Function TemplateExists(FullTemplateName)
 	Template = Metadata.FindByFullName(FullTemplateName);
 	If TypeOf(Template) = Type("MetadataObject") Then 
 		
-		Var_813_Template = New Structure("TemplateType");
-		FillPropertyValues(Var_813_Template, Template);
+		Var_815_Template = New Structure("TemplateType");
+		FillPropertyValues(Var_815_Template, Template);
 		TemplateType = Undefined;
-		If Var_813_Template.Property("TemplateType", TemplateType) Then 
+		If Var_815_Template.Property("TemplateType", TemplateType) Then 
 			Return TemplateType <> Undefined;
 		EndIf;
 		
@@ -9922,7 +9991,7 @@ EndFunction
 
 Function MinPlatformVersion() Export // ACC:581 - 
 	
-	Return "8.3.21.1622; 8.3.22.1704";
+	Return "8.3.21.1775; 8.3.22.1923";
 	
 EndFunction
 
@@ -9944,9 +10013,9 @@ Function IsMinRecommended1CEnterpriseVersionInvalid(Min, Recommended)
 	
 	// 
 	// 
-	MinimalSSL = BuildNumberForTheCurrentPlatformVersion(
-		MinPlatformVersion());
-	If CommonClientServer.CompareVersions(MinimalSSL, Min) > 0 Then
+	MinimalSSL = BuildNumberForTheCurrentPlatformVersion(MinPlatformVersion());
+	If Not IsVersionOfProtectedComplexITSystem(Min)
+		And CommonClientServer.CompareVersions(MinimalSSL, Min) > 0 Then
 		Return True;
 	EndIf;
 	
@@ -10013,3 +10082,5 @@ EndFunction
 #EndRegion
 
 #EndRegion
+
+#EndIf

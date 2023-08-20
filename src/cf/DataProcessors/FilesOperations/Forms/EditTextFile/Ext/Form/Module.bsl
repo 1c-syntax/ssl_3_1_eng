@@ -94,7 +94,9 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	   And Parameter.Event = "FileDataChanged"
 	   And Source = File Then
 		
-		FileData = FilesOperationsInternalServerCall.FileData(File);
+		FileDataParameters = FilesOperationsClientServer.FileDataParameters();
+		FileDataParameters.GetBinaryDataRef = False;
+		FileData = FilesOperationsInternalServerCall.FileData(File,,FileDataParameters);
 		
 		EditMode = False;
 		
@@ -155,7 +157,6 @@ EndProcedure
 &AtClient
 Procedure SaveAs(Command)
 	
-	// Selecting a full path to the file on the hard drive.
 	SelectingFile = New FileDialog(FileDialogMode.Save);
 	SelectingFile.Multiselect = False;
 	

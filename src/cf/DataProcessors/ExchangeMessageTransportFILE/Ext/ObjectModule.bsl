@@ -489,7 +489,8 @@ Function CreateCheckFile(CheckFileName)
 		TextDocument.Write(CommonClientServer.GetFullFileName(DataExchangeDirectoryName(), CheckFileName));
 		
 	Except
-		WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(), EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(), EventLogLevel.Error,,, 
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Return False;
 	EndTry;
 	
@@ -503,7 +504,8 @@ Function DeleteCheckFile(CheckFileName)
 		DeleteFiles(DataExchangeDirectoryName(), CheckFileName);
 		
 	Except
-		WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(), EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(), EventLogLevel.Error,,, 
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Return False;
 	EndTry;
 	
@@ -524,6 +526,7 @@ Function ExecuteFileCopying(Val SourceFileName, Val ReceiverFileName)
 							SourceFileName,
 							ReceiverFileName,
 							ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+							
 		SetErrorMessageString(MessageString);
 		
 		Return False

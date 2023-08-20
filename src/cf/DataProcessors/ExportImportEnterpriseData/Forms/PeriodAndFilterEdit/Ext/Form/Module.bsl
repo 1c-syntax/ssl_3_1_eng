@@ -19,7 +19,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Parameters.Property("SettingsComposerAddress", SettingsComposerAddress) Then
 		// Storage has higher priority.
 		Data = GetFromTempStorage(SettingsComposerAddress);
- 		CompositionSchemaAddress = PutToTempStorage(Data.CompositionSchema, UUID);;
+ 		CompositionSchemaAddress = PutToTempStorage(Data.CompositionSchema, UUID);
 		SettingsComposer = New DataCompositionSettingsComposer;
 		SettingsComposer.Initialize(New DataCompositionAvailableSettingsSource(CompositionSchemaAddress));
 		SettingsComposer.LoadSettings(Data.Settings);

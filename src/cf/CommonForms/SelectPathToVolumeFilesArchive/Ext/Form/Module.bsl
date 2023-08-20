@@ -74,8 +74,8 @@ Procedure Place(Command)
 	If Not CommonClient.FileInfobase() Then
 	
 		If Not IsBlankString(WindowsArchivePath) And (Left(WindowsArchivePath, 2) <> "\\" Or StrFind(WindowsArchivePath, ":") <> 0) Then
-			ErrorText = NStr("en = 'Path to the archive with initial image files
-			                         |must have the UNC format (\\servername\resource).';");
+			ErrorText = NStr("en = 'The path to the archive with initial image files
+			                         |must be in the UNC format (\\servername\resource).';");
 			CommonClient.MessageToUser(ErrorText, , "WindowsArchivePath");
 			Return;
 		EndIf;

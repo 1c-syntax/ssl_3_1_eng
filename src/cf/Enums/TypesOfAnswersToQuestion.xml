@@ -20,7 +20,7 @@
 			<Synonym>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Types of replies to question</v8:content>
+					<v8:content>Response types</v8:content>
 				</v8:item>
 			</Synonym>
 			<Comment/>
@@ -170,7 +170,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Select one response option from the provided ones</v8:content>
+							<v8:content>Select one answer</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -182,7 +182,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Select several response options from the provided ones</v8:content>
+							<v8:content>Select multiple answers</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>

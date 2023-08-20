@@ -84,7 +84,7 @@ EndProcedure
 #Region FormCommandHandlers
 
 &AtClient
-Procedure ContinueCommand(Command)
+Procedure CommandContinue(Command)
 	SelectedButtonName = Command.Name;
 	CloseFormAndReturnResult();
 EndProcedure

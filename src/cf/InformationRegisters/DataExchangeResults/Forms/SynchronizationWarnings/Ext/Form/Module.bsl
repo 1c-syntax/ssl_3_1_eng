@@ -939,7 +939,7 @@ EndProcedure
 #Region BatchErrorCorrection
 
 &AtClient
-Procedure NavigateDocumentsThroughTheSelectedLines(SelectedRows);
+Procedure NavigateDocumentsThroughTheSelectedLines(SelectedRows)
 	
 	DataForSelectedRows = New Array;
 	For Each RowIndex In SelectedRows Do
@@ -976,7 +976,7 @@ Procedure NavigateDocumentsThroughTheSelectedLines(SelectedRows);
 EndProcedure
 
 &AtClient
-Procedure CollisionsOnSelectedLines(SelectedRows);
+Procedure CollisionsOnSelectedLines(SelectedRows)
 	
 	TypesOfCollisionWarnings = New Array(2);
 	TypesOfCollisionWarnings[0] = ValuesCache.RejectedConflictData;
@@ -1022,7 +1022,7 @@ Procedure CollisionsOnSelectedLines(SelectedRows);
 EndProcedure
 
 &AtClient
-Procedure ForbiddingLoadingBySelectedLines(SelectedRows);
+Procedure ForbiddingLoadingBySelectedLines(SelectedRows)
 	
 	TypesOfCollisionWarnings = New Array(2);
 	TypesOfCollisionWarnings[0] = ValuesCache.RejectedDueToPeriodEndClosingDateObjectDoesNotExistInInfobase;

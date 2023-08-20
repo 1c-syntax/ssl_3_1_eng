@@ -42,7 +42,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 		Items.DecorationNote.Title = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = '%1
-				 |Do you want to check and import the add-in update?';"), ExplanationText);
+				 |Do you want to check for add-in updates and import them?';"), ExplanationText);
 
 		Items.EnableOnlineSupport.Visible = Not PortalAuthenticationDataSaved;
 		Items.Close.Visible = False;
@@ -166,7 +166,17 @@ Procedure AfterUpdateAddInsFromPortal(Result, AdditionalParameters) Export
 	EndIf;
 
 	If Result.Status = "Completed2" Then
-		ExecutionResult = GetFromTempStorage(Result.ResultAddress);
+		
+		UpdateResult = GetFromTempStorage(Result.ResultAddress);
+		
+		ExecutionResult = "";
+		For Each KeyAndValue In UpdateResult.Errors Do
+			ExecutionResult = ExecutionResult + KeyAndValue.Value + Chars.LF;
+		EndDo;
+		For Each KeyAndValue In UpdateResult.Success Do
+			ExecutionResult = ExecutionResult + KeyAndValue.Value + Chars.LF;
+		EndDo;
+		
 		Items.Pages.CurrentPage = Items.Completed2;
 		Items.Load.Visible = False;
 		Items.Cancel.Visible = False;

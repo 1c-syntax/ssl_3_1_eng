@@ -1172,6 +1172,12 @@ Procedure ImportInitialImageData()
 	DataExchangeInternal.DisableAccessKeysUpdate(True, False);
 	SetRegistersTotalsUsage(False);
 	
+	//  
+	// 
+	// 
+	// 
+	SetsOfAccountingRegisters = New Array;
+	
 	For Each DataFileName In DataFileList Do
 		
 		InitialImageData = New XMLReader;
@@ -1188,8 +1194,17 @@ Procedure ImportInitialImageData()
 				
 				DataElement.DataExchange.Load = True;
 				DataElement.AdditionalProperties.Insert("DisableObjectChangeRecordMechanism");
-				DataElement.Write();
 				
+				If Common.IsAccountingRegister(DataElement.Metadata()) Then
+					SetsOfAccountingRegisters.Add(DataElement);
+				Else
+					DataElement.Write();
+				EndIf;
+				
+			EndDo;
+			
+			For Each Set In SetsOfAccountingRegisters Do
+				Set.Write();
 			EndDo;
 			
 		Except

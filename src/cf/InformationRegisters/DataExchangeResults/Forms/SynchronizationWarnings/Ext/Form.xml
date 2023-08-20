@@ -613,12 +613,7 @@
 				<Field>List.VersionFromOtherApplicationAccepted</Field>
 				<Field>List.WarningComment</Field>
 				<Field>List.WarningType</Field>
-				<Field>~List.АвторДругойВерсии</Field>
-				<Field>~List.НовыйОбъект</Field>
-				<Field>~List.НомерДругойВерсии</Field>
-				<Field>~List.НомерЭтойВерсии</Field>
 				<Field>~List.Пропущена</Field>
-				<Field>~List.ТипСтрокой</Field>
 			</UseAlways>
 			<Settings xsi:type="DynamicList">
 				<ManualQuery>true</ManualQuery>

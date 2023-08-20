@@ -16,7 +16,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	InfobaseUpdate.CheckObjectProcessed(Object, ThisObject);
 	
-	// 
 	CommonClientServer.SetDynamicListFilterItem(AnswersOptions,"Owner", Object.Ref, DataCompositionComparisonType.Equal, ,True);
 	
 	SetAnswerType();
@@ -69,6 +68,24 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 			Cancel = True;
 		EndIf;
 		
+		If Object.ShouldUseMinValue And Object.ShouldUseMaxValue Then
+			If Object.MinValue = Object.MaxValue Then
+				CommonClient.MessageToUser(
+					NStr("en = 'The minimum allowed value cannot be equal to the maximum allowed value.';"),,
+					"Object.MinValue");
+				Cancel = True;
+			EndIf;
+		EndIf;
+		
+		If Object.ShouldShowRangeSlider Then
+			If Object.RangeSliderStep > Object.MaxValue - Object.MinValue Then
+			CommonClient.MessageToUser(
+				NStr("en = 'A slider increment cannot be greater than the difference between the maximum and minimum values.';"),,
+				"Object.RangeSliderStep");
+			Cancel = True;
+			EndIf;
+		EndIf;
+		
 	ElsIf Object.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.String") Then	
 		
 		Object.Length = StringLength;
@@ -105,6 +122,8 @@ Procedure AfterWrite(WriteParameters)
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.AfterWrite(ThisObject, Object, WriteParameters);
 	EndIf;
+	
+	SetHintRangePresentationForNumericalQuestion();
 	
 EndProcedure
 
@@ -185,6 +204,148 @@ Procedure PresentationStartChoice(Item, ChoiceData, StandardProcessing)
 	ClosingNotification1 = New NotifyDescription("WordingEditOnClose", ThisObject);
 	CommonClient.ShowMultilineTextEditingForm(ClosingNotification1, Item.EditText, NStr("en = 'Wording';"));
 	
+EndProcedure
+
+&AtClient
+Procedure ShouldUseMinValueOnChange(Item) 
+	
+	Items.MinValue.Enabled = Object.ShouldUseMinValue;
+	
+	SetRangeSliderSetupAvailability();
+	
+EndProcedure 
+
+&AtClient
+Procedure ShouldUseMaxValueOnChange(Item)
+	
+	Items.MaxValue.Enabled = Object.ShouldUseMaxValue;
+	
+	SetRangeSliderSetupAvailability();
+	SetDefaultRangeSliderStep();
+	
+EndProcedure
+
+&AtClient
+Procedure MinValueOnChange(Item)
+	
+	SetDefaultRangeSliderStep();
+	
+EndProcedure
+
+&AtClient
+Procedure MaxValueOnChange(Item)
+	
+	SetDefaultRangeSliderStep();
+	
+EndProcedure
+
+&AtClient
+Procedure ShouldShowRangeSliderOnChange(Item)
+	
+	Items.RangeSliderStep.Enabled = Object.ShouldShowRangeSlider;
+	
+EndProcedure
+
+&AtClient
+Procedure RangeSliderIncrementStepOnChange(Item)
+	
+	SetDefaultRangeSliderStep();
+	
+EndProcedure
+
+&AtClient
+Procedure ShouldShowHintForNumericalQuestionsOnChange(Item)
+	
+	SetHintsRangeAvailability();
+
+	If Object.ShouldShowHintForNumericalQuestions And Object.NumericalQuestionHintsRange.Count() = 0 Then
+		NewRow = Object.NumericalQuestionHintsRange.Add();
+		NewRow.ValueUpTo = NumericalQuestionHintsRangeCapValue();
+	EndIf;
+	
+	SetHintRangePresentationForNumericalQuestion();
+	
+EndProcedure
+
+&AtClient
+Procedure HintsRangeOnStartEdit(Item, NewRow, Copy)
+	
+	HintsRangePreviousValue = Item.CurrentData.ValueUpTo;
+	
+	If Item.CurrentItem = Items.HintsRangeValueUpTo Then
+		Item.CurrentData.DisableConditionalAppearance = True
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure HintsRangeBeforeEditEnd(Item, NewRow, CancelEdit, Cancel)
+	
+	CurrentData = Item.CurrentData;
+	If CurrentData = Undefined Then
+		Return;
+	EndIf;
+	
+	CurrentData.DisableConditionalAppearance = False;
+	
+	If CancelEdit Then
+		If ReturnValueToRange Then
+			CurrentData.ValueUpTo = HintsRangePreviousValue;
+			ReturnValueToRange = False;
+		EndIf;
+		Return;
+	EndIf;
+	
+	If Not NewRow And HintsRangePreviousValue = CurrentData.ValueUpTo Then
+		Return;
+	EndIf;
+		
+	TableOfRanges = Object.NumericalQuestionHintsRange;
+	
+	If Not NewRow And HintsRangePreviousValue = CurrentData.ValueUpTo Then
+		Return;
+	EndIf;
+	
+	CheckIfHintsRangeFilled(TableOfRanges, Cancel);
+	
+	If Not Cancel Then
+		SetHintRangePosition(TableOfRanges, CurrentData, CurrentData.ValueUpTo);
+		SetHintRangePresentationForNumericalQuestion();
+	Else
+		ReturnValueToRange = True;
+		
+		ClearMessages();
+		If NewRow Then
+			NameOfFormField = StrTemplate("Object.NumericalQuestionHintsRange[%1]",
+				TableOfRanges.IndexOf(CurrentData));
+		Else
+			NameOfFormField = StrTemplate("Object.NumericalQuestionHintsRange[%1].ValueUpTo",
+				TableOfRanges.IndexOf(CurrentData));
+		EndIf;
+		CommonClient.MessageToUser(
+			NStr("en = 'This value already exists in a hint range.';"),, NameOfFormField);
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure HintsRangeBeforeDeleteRow(Item, Cancel)
+	
+	CurrentData = Item.CurrentData;
+	If CurrentData = Undefined Then
+		Return;
+	EndIf;
+	
+	If CurrentData.ValueUpTo = NumericalQuestionHintsRangeCapValue() Then
+		Cancel = True;
+		Return;
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure HintsRangeAfterDeleteRow(Item)
+	SetHintRangePresentationForNumericalQuestion();
 EndProcedure
 
 #EndRegion
@@ -275,6 +436,47 @@ Procedure SetConditionalAppearance()
 
 	Item.Appearance.SetParameterValue("MarkIncomplete", True);
 
+	// 
+
+	ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
+	
+	PropertyDecorationItem = ConditionalAppearanceItem.Appearance.Items.Find("Text");
+	PropertyDecorationItem.Value = New DataCompositionField("Object.NumericalQuestionHintsRange.PresentationValue");
+	PropertyDecorationItem.Use = True;
+	
+	DataFilterItem = ConditionalAppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	DataFilterItem.LeftValue = New DataCompositionField("Object.NumericalQuestionHintsRange.PresentationValue");
+	DataFilterItem.ComparisonType = DataCompositionComparisonType.Filled;
+	DataFilterItem.Use = True;
+	
+	DataFilterItem = ConditionalAppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	DataFilterItem.LeftValue = New DataCompositionField("Object.NumericalQuestionHintsRange.DisableConditionalAppearance");
+	DataFilterItem.ComparisonType = DataCompositionComparisonType.Equal;
+	DataFilterItem.RightValue = False ;
+	DataFilterItem.Use = True;
+	
+	FormattedField = ConditionalAppearanceItem.Fields.Items.Add();
+	FormattedField.Field = New DataCompositionField("HintsRangeValueUpTo");
+	FormattedField.Use = True;
+	
+	// 
+	
+	ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
+	
+	PropertyDecorationItem = ConditionalAppearanceItem.Appearance.Items.Find("ReadOnly");
+	PropertyDecorationItem.Value = True;
+	PropertyDecorationItem.Use = True;
+	
+	DataFilterItem = ConditionalAppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	DataFilterItem.LeftValue = New DataCompositionField("Object.NumericalQuestionHintsRange.ValueUpTo");
+	DataFilterItem.ComparisonType = DataCompositionComparisonType.Equal;
+	DataFilterItem.RightValue = NumericalQuestionHintsRangeCapValue();
+	DataFilterItem.Use = True;
+	
+	FormattedField = ConditionalAppearanceItem.Fields.Items.Add();
+	FormattedField.Field = New DataCompositionField("HintsRangeValueUpTo");
+	FormattedField.Use = True;
+
 EndProcedure
 
 &AtClient
@@ -294,6 +496,13 @@ Procedure VisibilityManagement()
 		Items.DependentParameters.CurrentPage = Items.StringPage;
 	ElsIf Object.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.Number") Then
 		Items.DependentParameters.CurrentPage = Items.NumericAttributesPage;
+		Items.MinValue.Enabled = Object.ShouldUseMinValue;
+		Items.MaxValue.Enabled = Object.ShouldUseMaxValue;
+		
+		SetRangeSliderSetupAvailability();
+		SetHintsRangeAvailability();
+		SetHintRangePresentationForNumericalQuestion();
+		
 	ElsIf Object.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.InfobaseValue") Then
 		Items.DependentParameters.CurrentPage = Items.IsEmpty;
 	ElsIf Object.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.OneVariantOf") 
@@ -354,7 +563,7 @@ Procedure AnswersOptionsTableAvailability(Form)
 		Form.AnswersOptionsInfo                       = NStr("en = 'Before you start editing the responses, save the question';");
 	Else
 		Form.Items.TableAnswersOptions.ReadOnly = False;
-		Form.AnswersOptionsInfo                      = NStr("en = 'Possible responses to questions:';");
+		Form.AnswersOptionsInfo                      = NStr("en = 'Response options:';");
 	EndIf; 
 	
 	If Form.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.OneVariantOf") Then
@@ -371,7 +580,6 @@ Procedure OpenQuestionnaireAnswersQuestionsCatalogItemForm(Item,InsertMode)
 	ParametersStructure = New Structure;
 	ParametersStructure.Insert("Owner",Object.Ref);
 	ParametersStructure.Insert("ReplyType",Object.ReplyType);
-	ParametersStructure.Insert("Description",Object.ReplyType);
 	
 	If Not InsertMode Then
 		CurrentData = Items.TableAnswersOptions.CurrentData;
@@ -379,11 +587,7 @@ Procedure OpenQuestionnaireAnswersQuestionsCatalogItemForm(Item,InsertMode)
 			Return;
 		EndIf;
 		ParametersStructure.Insert("Key",CurrentData.Ref);
-	Else
-		CurrentData = Items.TableAnswersOptions.CurrentData;
-		If CurrentData <> Undefined Then
-			ParametersStructure.Insert("Description",CurrentData.Description);
-		EndIf;
+		ParametersStructure.Insert("Description",CurrentData.Description);
 	EndIf;
 		
 	OpenForm("Catalog.QuestionnaireAnswersOptions.ObjectForm", ParametersStructure,Item);
@@ -463,6 +667,137 @@ Procedure WordingEditOnClose(ReturnText, AdditionalParameters) Export
 		Object.Wording = ReturnText;
 		Modified = True;
 	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure SetRangeSliderSetupAvailability()
+	
+	Items.ShouldShowRangeSlider.Enabled = Object.ShouldUseMinValue
+		And Object.ShouldUseMaxValue;
+	Items.RangeSliderStep.Enabled = Object.ShouldShowRangeSlider;
+	
+EndProcedure
+
+&AtClient
+Procedure SetDefaultRangeSliderStep()
+	
+	If Not Object.ShouldShowRangeSlider Then
+		Return;
+	EndIf;
+	
+	// 
+	SliderLength = (Object.MaxValue - Object.MinValue) / Object.RangeSliderStep;
+	If SliderLength <> Int(SliderLength) Then
+		Object.RangeSliderStep = 1;
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure SetHintsRangeAvailability()
+	
+	Items.HintsRange.Enabled = Object.ShouldShowHintForNumericalQuestions;
+	
+EndProcedure
+
+&AtClientAtServerNoContext
+Function NumericalQuestionHintsRangeCapValue()
+	Return 9999999999999.99;
+EndFunction
+
+&AtClient
+Procedure SetHintRangePresentationForNumericalQuestion()
+	
+	TableOfRanges = Object.NumericalQuestionHintsRange;
+	
+	For Each CurrentRow In TableOfRanges Do
+		CurrentIndex = Object.NumericalQuestionHintsRange.IndexOf(CurrentRow);
+		If CurrentRow.ValueUpTo = NumericalQuestionHintsRangeCapValue() Then
+			If CurrentIndex = 0 Then
+				PresentationValue = NStr("en = 'any value';");
+				CurrentRow.PresentationValue = PresentationValue;
+			Else
+				PreviousString = TableOfRanges[CurrentIndex - 1];
+				If PreviousString.ValueUpTo = NumericalQuestionHintsRangeCapValue() Then
+					CurrentRow.PresentationValue = PreviousString.PresentationValue;
+				Else
+					StringPattern = NStr("en = 'greater than %1';");
+					CurrentRow.PresentationValue = StrTemplate(StringPattern, String(PreviousString.ValueUpTo));
+				EndIf;
+			EndIf;
+		Else
+			If CurrentIndex = 0 Then
+				StringPattern = NStr("en = '%1 or less';");
+				CurrentRow.PresentationValue = StrTemplate(StringPattern, String(CurrentRow.ValueUpTo));
+			Else
+				PreviousString = TableOfRanges[CurrentIndex - 1];
+				If PreviousString.ValueUpTo = CurrentRow.ValueUpTo Then
+					CurrentRow.PresentationValue = PreviousString.PresentationValue;
+				Else
+					CurrentRow.PresentationValue = StrTemplate(NStr("en = 'from %1 to %2';"),
+						String(PreviousString.ValueUpTo), 
+						String(CurrentRow.ValueUpTo));
+				EndIf;
+			EndIf;
+		EndIf;
+	EndDo;
+	
+EndProcedure
+
+&AtClient
+Procedure CheckIfHintsRangeFilled(TableOfRanges, Cancel)
+	
+	ArrayOfValues = New Array;
+	
+	For Each CurrentRow In TableOfRanges Do
+		If ArrayOfValues.Find(CurrentRow.ValueUpTo) <> Undefined Then
+			Cancel = True;
+			Return;
+		EndIf;
+		ArrayOfValues.Add(CurrentRow.ValueUpTo);
+	EndDo;
+	
+EndProcedure
+
+&AtClient
+Procedure SetHintRangePosition(TableOfRanges, CurrentData, ElementValue)
+	
+	ItemCount = TableOfRanges.Count();
+	
+	If ItemCount <= 1 Then
+		Return;
+	EndIf;
+	
+	CurrentPosition = TableOfRanges.IndexOf(CurrentData);
+	
+	IsPositionFound = False;
+	For Each CollectionItem In TableOfRanges Do
+		
+		CurrentIndex = TableOfRanges.IndexOf(CollectionItem);
+		IsLastItem = ?(ItemCount = CurrentIndex + 1, True, False);
+		
+		If Not IsLastItem Then
+			NewPosition = CurrentIndex;
+		EndIf;
+		
+		IsGreatestValueItemFound = ?(CollectionItem.ValueUpTo > ElementValue, True, False);
+		
+		If IsGreatestValueItemFound Then
+			IsPositionFound = True;
+		EndIf;
+		
+		If IsPositionFound Then
+			If NewPosition > CurrentPosition Then
+				NewPosition = NewPosition - 1;
+			EndIf;
+			Break;
+		EndIf
+		
+	EndDo;
+	
+	Move = NewPosition - CurrentPosition;
+	TableOfRanges.Move(CurrentPosition, Move);
 	
 EndProcedure
 

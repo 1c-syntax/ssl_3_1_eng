@@ -11,7 +11,7 @@
 
 // Parameters:
 //  MeasurementsToWrite - Structure:
-//   * CompletedMeasurements - Map of КлючЗначение:
+//   * CompletedMeasurements - Map of KeyAndValue:
 //      ** Key - UUID - the unique identifier of the measurement.
 //      ** Value - Map
 //   * UserAgentInformation - String
@@ -47,9 +47,7 @@ Function RecordKeyOperationsDuration(MeasurementsToWrite) Export
 	User = InfoBaseUsers.CurrentUser();
 	RecordDateLocal = CurrentSessionDate();
 	
-	JSONReader = New JSONReader();
-	JSONReader.SetString(SessionParameters.TimeMeasurementComment);
-	DefaultComment = ReadJSON(JSONReader, True);
+	DefaultComment = Common.JSONValue(SessionParameters.TimeMeasurementComment);
 	DefaultComment.Insert("InfCl", UserAgentInformation);
 	
 	JSONWriter = New JSONWriter;

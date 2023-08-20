@@ -680,7 +680,7 @@ Function CheckReferencesToMerge(Val RefSet)
 	
 	RefsCount = RefSet.Count();
 	If RefsCount < 2 Then
-		Raise NStr("en = 'Для объединения укажите несколько элементов.';");
+		Raise NStr("en = 'Select more than one item to merge.';");
 	EndIf;
 	
 	TheFirstControl = RefSet[0];	
@@ -717,13 +717,13 @@ Function CheckReferencesToMerge(Val RefSet)
 	
 	Control = Query.Execute().Unload()[0];
 	If Control.HasGroups Then
-		Raise NStr("en = 'Один из объединяемых элементов является группой.
-			|Группы не могут быть объединены.';");
+		Raise NStr("en = 'One of the items to merge is a group.
+			|Groups cannot be merged.';");
 	ElsIf Control.OwnersCount > 1 Then 
-		Raise NStr("en = 'У объединяемых элементов различные владельцы.
-			|Такие элементы не могут быть объединены.';");
+		Raise NStr("en = 'Items to merge have different owners.
+			|They cannot be merged.';");
 	ElsIf Control.RefsCount <> RefsCount Then
-		Raise NStr("en = 'Все объединяемые элементы должны быть одного типа.';");
+		Raise NStr("en = 'All items to merge must be of the same type.';");
 	EndIf;
 
 	Return ?(HasOwners, Control.CommonOwner, Undefined);
@@ -897,7 +897,7 @@ Function DeleteProcessedItemsFromUsageInstances()
 	EndDo;
 	
 	IndexOf = UsageInstances.Count() - 1;
-	While IndexOf > 0 Do
+	While IndexOf >= 0 Do
 		Ref = UsageInstances[IndexOf].Ref;
 		If Ref <> MainItem And Unsuccessful[Ref] = Undefined Then
 			UsageInstances.Delete(IndexOf);

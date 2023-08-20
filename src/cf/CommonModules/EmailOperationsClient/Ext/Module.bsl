@@ -39,8 +39,8 @@ Procedure CreateNewEmailMessage(EmailSendOptions = Undefined, FormClosingNotific
 			OpenForm("Catalog.EmailAccounts.Form.AccountSetupWizard", 
 				New Structure("ContextMode", True), , , , , ResultHandler);
 		Else
-			MessageText = NStr("en = 'Cannot send mail because the account is not configured.
-				|Please contact the administrator.';");
+			MessageText = NStr("en = 'To send messages, set up the email account.
+				|Contact the administrator.';");
 			NotifyDescription = New NotifyDescription("CheckAccountForSendingEmailExistsEnd", ThisObject, ResultHandler);
 			ShowMessageBox(NotifyDescription, MessageText);
 		EndIf;
@@ -55,7 +55,7 @@ EndProcedure
 //   * Sender - CatalogRef.EmailAccounts - account used to
 //                   send the email message.
 //                 - ValueList - 
-//                     ** Presentation - String- an account description.
+//                     ** Presentation - String -
 //                     ** Value - CatalogRef.EmailAccounts - an account.
 //    
 //   * Recipient - String - list of addresses in the following format:
@@ -100,10 +100,10 @@ Function EmailSendOptions() Export
 	Return EmailParameters;
 EndFunction
 
-// If a user has no account configured for sending emails, does one of the following depending on the access rights: starts
-// the account setup wizard, or displays a message that email cannot be sent.
-// The procedure is intended for scenarios that require account setup before requesting additional
-// sending parameters.
+// 
+// 
+// 
+// 
 //
 // Parameters:
 //  ResultHandler - NotifyDescription - procedure to be executed after the check is completed.
@@ -118,8 +118,8 @@ Procedure CheckAccountForSendingEmailExists(ResultHandler) Export
 			OpenForm("Catalog.EmailAccounts.Form.AccountSetupWizard", 
 				New Structure("ContextMode", True), , , , , ResultHandler);
 		Else	
-			MessageText = NStr("en = 'Set up the email account to send emails.
-				|Contact the Administrator.';");
+			MessageText = NStr("en = 'To send messages, set up the email account.
+				|Contact the administrator.';");
 			NotifyDescription = New NotifyDescription("CheckAccountForSendingEmailExistsEnd", ThisObject, ResultHandler);
 			ShowMessageBox(NotifyDescription, MessageText);
 		EndIf;

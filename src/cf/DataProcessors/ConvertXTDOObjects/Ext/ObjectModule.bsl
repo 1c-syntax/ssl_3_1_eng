@@ -162,9 +162,11 @@ Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 	DataImportDataProcessorField = DataProcessorForDataImport;
 	
 	ExchangeComponents = DataExchangeXDTOServer.InitializeExchangeComponents("Send");
-	
+		
 	#Region SettingExchangeComponentsForNodeOperations
 	ExchangeComponents.CorrespondentNode = NodeForExchange;
+	
+	DataExchangeValuationOfPerformance.Initialize(ExchangeComponents);
 	
 	ExchangeComponents.XDTOSettingsOnly = Not DataExchangeServer.SynchronizationSetupCompleted(
 		ExchangeComponents.CorrespondentNode);
@@ -243,6 +245,8 @@ Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 		DataExchangeXDTOServer.WriteToExecutionProtocol(ExchangeComponents, ErrorCode);
 		DataExchangeXDTOServer.FinishKeepExchangeProtocol(ExchangeComponents);
 		
+		DataExchangeValuationOfPerformance.ExitApp(ExchangeComponents);
+		
 		ExchangeComponents.ExchangeFile = Undefined;
 		Cancel = True;
 	EndTry;
@@ -264,6 +268,8 @@ Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 	
 	If Cancel Then
 		
+		DataExchangeValuationOfPerformance.ExitApp(ExchangeComponents);
+		
 		Return;
 		
 	EndIf;
@@ -271,6 +277,8 @@ Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 	XMLExportData = ExchangeComponents.ExchangeFile.Close();
 	
 	DataExchangeXDTOServer.FinishKeepExchangeProtocol(ExchangeComponents);
+	
+	DataExchangeValuationOfPerformance.ExitApp(ExchangeComponents);
 	
 	If IsExchangeOverExternalConnection() Then
 		If DataProcessorForDataImport().DataImportMode = "ImportMessageForDataMapping" Then
@@ -330,9 +338,13 @@ Procedure RunDataImport(ImportParameters = Undefined) Export
 	EndIf;
 	
 	ExchangeComponents = DataExchangeXDTOServer.InitializeExchangeComponents("Receive");
-	
+		
 	ExchangeComponents.CorrespondentNode = ExchangeNodeDataImport;
+	ExchangeComponents.UseCacheOfPublicIdentifiers = 
+		DataExchangeCached.UseCacheOfPublicIdentifiers(ExchangeNodeDataImport.Metadata().Name);
 	
+	DataExchangeValuationOfPerformance.Initialize(ExchangeComponents);
+
 	DataExchangeWithExternalSystem = Undefined;
 	If ImportParameters.Property("DataExchangeWithExternalSystem", DataExchangeWithExternalSystem) Then
 		ExchangeComponents.DataExchangeWithExternalSystem = DataExchangeWithExternalSystem;
@@ -349,6 +361,7 @@ Procedure RunDataImport(ImportParameters = Undefined) Export
 	If IsBlankString(ExchangeFileName) Then
 		DataExchangeXDTOServer.WriteToExecutionProtocol(ExchangeComponents, 15);
 		DataExchangeXDTOServer.FinishKeepExchangeProtocol(ExchangeComponents);
+		DataExchangeValuationOfPerformance.ExitApp(ExchangeComponents);
 		Return;
 	EndIf;
 	
@@ -372,6 +385,7 @@ Procedure RunDataImport(ImportParameters = Undefined) Export
 	EndIf;
 	
 	If Cancel Then
+		DataExchangeValuationOfPerformance.ExitApp(ExchangeComponents);
 		Return;
 	EndIf;
 	
@@ -440,6 +454,8 @@ Procedure RunDataImport(ImportParameters = Undefined) Export
 	
 	DataExchangeXDTOServer.FinishKeepExchangeProtocol(ExchangeComponents);
 	
+	DataExchangeValuationOfPerformance.ExitApp(ExchangeComponents);
+	
 	If SetExchangePlanNodeLock
 		And ExchangeComponents.IsExchangeViaExchangePlan Then
 		
@@ -465,6 +481,11 @@ Procedure ExecuteDataImportForInfobase(TablesToImport) Export
 	ExchangeComponents.EventLogMessageKey = EventLogMessageKey;
 	ExchangeComponents.KeepDataProtocol.OutputInfoMessagesToProtocol = OutputInfoMessagesToProtocol;
 	ExchangeComponents.CorrespondentNode = ExchangeNodeDataImport;
+	
+	ExchangeComponents.UseCacheOfPublicIdentifiers = 
+		DataExchangeCached.UseCacheOfPublicIdentifiers(ExchangeNodeDataImport.Metadata().Name);
+		
+	DataExchangeValuationOfPerformance.Initialize(ExchangeComponents);
 	
 	DataExchangeXDTOServer.AfterInitializationOfTheExchangeComponents(ExchangeComponents);
 	
@@ -542,12 +563,19 @@ Procedure ExecuteExchangeMessageAnalysis(AnalysisParameters = Undefined) Export
 	ExchangeComponents.CorrespondentNode = ExchangeNodeDataImport;
 	ExchangeComponents.DataImportToInfobaseMode = False;
 	
+	ExchangeComponents.UseCacheOfPublicIdentifiers = 
+		DataExchangeCached.UseCacheOfPublicIdentifiers(ExchangeNodeDataImport.Metadata().Name);
+		
+	DataExchangeValuationOfPerformance.Initialize(ExchangeComponents, True);
+	
 	DataExchangeXDTOServer.InitializeKeepExchangeProtocol(ExchangeComponents, ExchangeProtocolFileName);
 	DataExchangeXDTOServer.AfterInitializationOfTheExchangeComponents(ExchangeComponents);
-	
+		
 	If IsBlankString(ExchangeFileName) Then
 		DataExchangeXDTOServer.WriteToExecutionProtocol(ExchangeComponents, 15);
 		DataExchangeXDTOServer.FinishKeepExchangeProtocol(ExchangeComponents);
+		
+		DataExchangeValuationOfPerformance.ExitApp(ExchangeComponents);
 		Return;
 	EndIf;
 	
@@ -597,14 +625,15 @@ Procedure ExecuteExchangeMessageAnalysis(AnalysisParameters = Undefined) Export
 		
 	Except
 		MessageString = NStr("en = 'Data analysis error: %1';");
-		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString,
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		DataExchangeXDTOServer.WriteToExecutionProtocol(ExchangeComponents, MessageString,,,,,True);
 	EndTry;
 	
 	ExchangeComponents.ExchangeFile.Close();
 	
 	DataExchangeXDTOServer.FinishKeepExchangeProtocol(ExchangeComponents);
-	
+		
 EndProcedure
 
 // Imports data from the exchange message file to values table of specified objects types.
@@ -631,7 +660,12 @@ Procedure ExecuteDataImportIntoValueTable(TablesToImport) Export
 		ExchangeComponents.KeepDataProtocol.OutputInfoMessagesToProtocol = OutputInfoMessagesToProtocol;
 		ExchangeComponents.CorrespondentNode = ExchangeNodeDataImport;
 		
+		ExchangeComponents.UseCacheOfPublicIdentifiers = 
+			DataExchangeCached.UseCacheOfPublicIdentifiers(ExchangeNodeDataImport.Metadata().Name);
+			
 		DataExchangeXDTOServer.AfterInitializationOfTheExchangeComponents(ExchangeComponents);
+		
+		DataExchangeValuationOfPerformance.Initialize(ExchangeComponents);
 		
 	EndIf;
 	
@@ -661,8 +695,11 @@ Procedure ExecuteDataImportIntoValueTable(TablesToImport) Export
 	EndDo;
 	
 	DataExchangeXDTOServer.RunReadingData(ExchangeComponents, TablesToImport);
-	ExchangeComponents.ExchangeFile.Close();
 	
+	DataExchangeValuationOfPerformance.ExitApp(ExchangeComponents);
+	
+	ExchangeComponents.ExchangeFile.Close();
+		
 EndProcedure
 
 #EndRegion
@@ -683,12 +720,17 @@ Procedure PutMessageForDataMapping(XMLExportData) Export
 	ExchangeComponents.EventLogMessageKey = EventLogMessageKey;
 	ExchangeComponents.KeepDataProtocol.OutputInfoMessagesToProtocol = OutputInfoMessagesToProtocol;
 	
+	ExchangeComponents.UseCacheOfPublicIdentifiers = 
+		DataExchangeCached.UseCacheOfPublicIdentifiers(ExchangeNodeDataImport.Metadata().Name);
+		
 	DataExchangeXDTOServer.InitializeKeepExchangeProtocol(ExchangeComponents, ExchangeProtocolFileName);
 	DataExchangeXDTOServer.AfterInitializationOfTheExchangeComponents(ExchangeComponents);
 	
 	If Not ValueIsFilled(XMLExportData) Then
 		DataExchangeXDTOServer.WriteToExecutionProtocol(ExchangeComponents, 15);
 		DataExchangeXDTOServer.FinishKeepExchangeProtocol(ExchangeComponents);
+		
+		DataExchangeValuationOfPerformance.ExitApp(ExchangeComponents);
 		
 		FileID = "";
 	Else
@@ -781,6 +823,7 @@ Procedure AfterOpenExportFile(Cancel = False)
 	If ExchangeComponents.ErrorFlag Then
 		ExchangeComponents.ExchangeFile = Undefined;
 		DataExchangeXDTOServer.FinishKeepExchangeProtocol(ExchangeComponents);
+		DataExchangeValuationOfPerformance.ExitApp(ExchangeComponents);
 		Cancel = True;
 		Return;
 	EndIf;
@@ -812,6 +855,7 @@ Procedure AfterOpenExportFile(Cancel = False)
 		If Cancel Then
 			DataExchangeXDTOServer.WriteToExecutionProtocol(ExchangeComponents, ErrorMessage);
 			DataExchangeXDTOServer.FinishKeepExchangeProtocol(ExchangeComponents);
+			DataExchangeValuationOfPerformance.ExitApp(ExchangeComponents);
 			Return;
 		EndIf;
 		

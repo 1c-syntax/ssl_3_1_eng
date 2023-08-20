@@ -9,6 +9,18 @@
 
 #Region Internal
 
+// 
+// 
+// Returns:
+//  Array - 
+//
+Function SuppliedAddIns() Export
+
+	UsedAddIns = UsedAddIns();
+	Return UsedAddIns.UnloadColumn("Id");
+		
+EndFunction
+
 // Add-in presentation for the event log
 //
 Function AddInPresentation(Id, Version) Export
@@ -54,6 +66,8 @@ EndFunction
 //      * BinaryData - BinaryData - add-in file export.
 //      * AdditionalInformation - Map - information received by passed search parameters.
 //      * ErrorDescription - String - an error text if Disassembled = False.
+//      * ErrorInfo - ErrorInfo, Undefined -
+//      * IsFileOfService - Boolean -
 //
 Function InformationOnAddInFromFile(BinaryData, ParseInfoFile = True,
 	Val AdditionalInformationSearchParameters = Undefined) Export
@@ -64,6 +78,8 @@ Function InformationOnAddInFromFile(BinaryData, ParseInfoFile = True,
 	Result.Insert("BinaryData", Undefined);
 	Result.Insert("AdditionalInformation", New Map);
 	Result.Insert("ErrorDescription", "");
+	Result.Insert("ErrorInfo", Undefined);
+	Result.Insert("IsFileOfService", False);
 	
 	Attributes = AddInAttributes();
 	If AdditionalInformationSearchParameters = Undefined Then
@@ -96,9 +112,17 @@ Function InformationOnAddInFromFile(BinaryData, ParseInfoFile = True,
 		EndIf;
 
 		Try
+			
+			OriginalFullName = Lower(ArchiveItem.OriginalFullName);
 
+			If OriginalFullName = "external-components.json" Then
+				Result.IsFileOfService = True;
+				Result.ErrorDescription = NStr("en = 'This is a file to import add-ins from 1C:ITS Portal.';");
+				Return Result;
+			EndIf;
+			
 			// Manifest search and parsing.
-			If Lower(ArchiveItem.OriginalFullName) = "manifest.xml" Then
+			If OriginalFullName = "manifest.xml" Then
 
 				Attributes.VersionDate = ArchiveItem.Modified;
 
@@ -110,7 +134,7 @@ Function InformationOnAddInFromFile(BinaryData, ParseInfoFile = True,
 
 			EndIf;
 
-			If Lower(ArchiveItem.OriginalFullName) = "info.xml" And ParseInfoFile Then
+			If OriginalFullName = "info.xml" And ParseInfoFile Then
 
 				ReadingArchive.Extract(ArchiveItem, TempDirectory);
 				InfoXMLFile = TempDirectory + GetPathSeparator() + ArchiveItem.FullName;
@@ -122,7 +146,7 @@ Function InformationOnAddInFromFile(BinaryData, ParseInfoFile = True,
 
 				XMLFileName = SearchParameter.Value.XMLFileName;
 
-				If ArchiveItem.OriginalFullName = XMLFileName Then
+				If OriginalFullName = Lower(XMLFileName) Then
 
 					AdditionalInformationKey = SearchParameter.Key;
 					XPathExpression = SearchParameter.Value.XPathExpression;
@@ -140,8 +164,9 @@ Function InformationOnAddInFromFile(BinaryData, ParseInfoFile = True,
 			EndDo;
 
 		Except
-			Result.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Incorrect file %1:
-				|%2';"), ArchiveItem.OriginalFullName, ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+			Result.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Incorrect file %1';"), ArchiveItem.OriginalFullName);
+			Result.ErrorInfo = ErrorInfo();
 			Return Result;
 		EndTry;
 	EndDo;
@@ -236,18 +261,19 @@ EndFunction
 //  Parameters - See ImportParameters
 //  ParseInfoFile - Boolean - whether INFO.XML file data is required
 //          to analyze additionally
+//  UsedAddIns - See UsedAddIns
 //
-Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True) Export
+Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True, UsedAddIns = Undefined) Export
 	
 	If TypeOf(Parameters.Data) = Type("String") Then
 		If IsBlankString(Parameters.Data) Then
-			ExceptionText = NStr("en = 'Add add-in: data is not filled in.';");
+			ExceptionText = NStr("en = 'Data is not filled in.';");
 			Raise ExceptionText;
 		Else
 			If IsTempStorageURL(Parameters.Data) Then
 				BinaryData = GetFromTempStorage(Parameters.Data);
 			Else
-				Raise NStr("en = 'Add add-in: data address is not a temporary storage address.';");
+				Raise NStr("en = 'The data address is not a temporary storage address.';");
 			EndIf;
 		EndIf;
 	Else
@@ -255,25 +281,29 @@ Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True) Export
 	EndIf;
 	
 	If TypeOf(BinaryData) <> Type("BinaryData") Then
-		ExceptionText =  NStr("en = 'Add add-in: file data is not binary data.';");
+		ExceptionText =  NStr("en = 'The file data is not binary data.';");
 		Raise ExceptionText;
 	EndIf;
 	
 	Information = InformationOnAddInFromFile(BinaryData, ParseInfoFile);
 
 	If Not Information.Disassembled Then
-		WriteLogEvent(NStr("en = 'Add add-in';", 
-			Common.DefaultLanguageCode()), EventLogLevel.Error, , , Information.ErrorDescription);
-		Raise Information.ErrorDescription;
+		
+		ExceptionText = Information.ErrorDescription + ?(Information.ErrorInfo = Undefined, "",
+			 ": " + ErrorProcessing.BriefErrorDescription(Information.ErrorInfo));
+		
+		WriteLogEvent(NStr("en = 'Add add-in';", Common.DefaultLanguageCode()),
+			EventLogLevel.Error, , , ExceptionText);
+		Raise ExceptionText;
 	EndIf;
 	
 	Id = ?(ValueIsFilled(Parameters.Id), Parameters.Id, Information.Attributes.Id);
 	
 	If Not ValueIsFilled(Id) Then
-		ExceptionText = NStr("en = 'Add add-in: ID is not filled in';");
+		ExceptionText = NStr("en = 'Enter the ID.';");
 		Raise ExceptionText;
 	EndIf;
-
+	
 	BeginTransaction();
 	Try
 
@@ -311,6 +341,14 @@ Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True) Export
 		Object.FileName = ?(ValueIsFilled(Parameters.FileName), Parameters.FileName, Information.Attributes.FileName);
 		Object.ErrorDescription = Parameters.ErrorDescription;
 		Object.UpdateFrom1CITSPortal = Parameters.UpdateFrom1CITSPortal;
+		
+		If UsedAddIns <> Undefined Then
+			ComponentsLine = UsedAddIns.Find(Id, "Id");
+			If ComponentsLine <> Undefined Then
+				Object.UpdateFrom1CITSPortal = ComponentsLine.AutoUpdate;
+			EndIf;
+		EndIf;
+		
 		Object.AdditionalProperties.Insert("ComponentBinaryData", Information.BinaryData);
 		
 		Object.Write();
@@ -345,7 +383,7 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 
 EndProcedure
 
-// See StandardSubsystemsServer.ПриОтправкеДанныхГлавному.
+// See StandardSubsystems.OnSendDataToMaster.
 Procedure OnSendDataToMaster(DataElement, ItemSend,
 		Recipient) Export
 
@@ -398,6 +436,36 @@ Procedure OnAddServerNotifications(Notifications) Export
 	
 EndProcedure
 
+////////////////////////////////////////////////////////////////////////////////
+// 
+
+// Parameters:
+//   ToDoList - See ToDoListServer.ToDoList.
+//
+Procedure OnFillToDoList(ToDoList) Export
+	
+	If Users.IsExternalUserSession() Or Not Users.IsFullUser() Then
+		Return;
+	EndIf;
+
+	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
+	Sections = ModuleToDoListServer.SectionsForObject(Metadata.Catalogs.AddIns.FullName());
+
+	UnusedAddInsCount = UnusedAddInsCount();
+	For Each Section In Sections Do
+		ToDoItem = ToDoList.Add ();
+		ToDoItem.Id  = "DeleteUnusedAddIns";
+		ToDoItem.HasToDoItems       = UnusedAddInsCount > 0;
+		ToDoItem.Presentation  = NStr("en = 'Delete unused add-ins';");
+		ToDoItem.Count     = UnusedAddInsCount;
+		ToDoItem.Important         = False;
+		ToDoItem.Form          = "Catalog.AddIns.ListForm";
+		ToDoItem.FormParameters = New Structure("UseFilter", 3);
+		ToDoItem.Owner       = Section;
+	EndDo;
+
+EndProcedure
+
 #EndRegion
 
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
@@ -420,6 +488,183 @@ EndProcedure
 #EndRegion
 
 #Region Private
+
+// 
+// 
+// Returns:
+//  ValueTable:
+//   * Id - String
+//   * AutoUpdate - Boolean 
+//
+Function UsedAddIns() Export
+	
+	UsedAddIns = New ValueTable;
+	UsedAddIns.Columns.Add("Id",          Common.StringTypeDetails(50));
+	UsedAddIns.Columns.Add("AutoUpdate", New TypeDescription("Boolean"));
+	
+	SSLSubsystemsIntegration.OnDefineUsedAddIns(UsedAddIns);
+	
+	Return UsedAddIns;
+	
+EndFunction
+
+// 
+//
+// Returns:
+//  Boolean - the availability criterion.
+//
+Function CanImportFromPortalInteractively() Export
+
+	If Common.SubsystemExists("OnlineUserSupport") 
+		And Common.SubsystemExists("OnlineUserSupport.GetAddIns") Then
+		ModuleOnlineUserSupportClientServer = Common.CommonModule("OnlineUserSupportClientServer");
+		If CommonClientServer.CompareVersions(
+			ModuleOnlineUserSupportClientServer.LibraryVersion(), "2.7.2.0") >= 0 Then
+			ModuleGetAddIns = Common.CommonModule("GetAddIns");
+			Return ModuleGetAddIns.LoadingExternalComponentsIsAvailable();
+		EndIf;
+	EndIf;
+
+	Return False;
+
+EndFunction
+
+// 
+//
+// Parameters:
+//  Variant - String -
+//    
+//    
+//
+// Returns:
+//   ValueTable:
+//    * Id - String
+//    * Version - String
+//    * Description - String
+//    * VersionDate - Date
+//    * AutoUpdate - Boolean
+//
+Function AddInsData(Variant = "ForUpdate") Export
+	
+	Query = New Query;
+	
+	If Variant = "ForUpdate" Then
+		Query.Text = 
+			"SELECT
+			|	AddIns.Id AS Id,
+			|	AddIns.Version AS Version,
+			|	AddIns.Description AS Description,
+			|	AddIns.VersionDate AS VersionDate,
+			|	AddIns.UpdateFrom1CITSPortal AS AutoUpdate
+			|FROM
+			|	Catalog.AddIns AS AddIns
+			|WHERE
+			|	AddIns.UpdateFrom1CITSPortal";
+			
+	ElsIf Variant = "ForImport" Then
+		
+		Query.Text =
+			"SELECT
+			|	UsedAddIns.Id,
+			|	UsedAddIns.AutoUpdate
+			|INTO UsedAddIns
+			|FROM
+			|	&UsedAddIns AS UsedAddIns
+			|;
+			|
+			|////////////////////////////////////////////////////////////////////////////////
+			|SELECT
+			|	ISNULL(AddIns.Id, UsedAddIns.Id) AS Id,
+			|	ISNULL(AddIns.Version, """") AS Version,
+			|	ISNULL(AddIns.Description, """") AS Description,
+			|	ISNULL(AddIns.VersionDate, DATETIME(1, 1, 1)) AS VersionDate,
+			|	ISNULL(AddIns.UpdateFrom1CITSPortal, UsedAddIns.AutoUpdate) AS
+			|		AutoUpdate
+			|FROM
+			|	Catalog.AddIns AS AddIns
+			|		FULL JOIN UsedAddIns AS UsedAddIns
+			|		ON AddIns.Id = UsedAddIns.Id";
+			
+			Query.SetParameter("UsedAddIns", UsedAddIns());
+	Else
+		Raise StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Unknown parameter %1 in %2.';"), Variant,
+			"AddInsInternal.AddInsData");
+	EndIf;
+	
+	QueryResult = Query.Execute();
+	AddInsDetails = QueryResult.Unload();
+	
+	Return AddInsDetails;
+
+EndFunction
+
+Procedure DeleteUnusedAddIns() Export
+	
+	Query = New Query;
+	Query.Text =
+	"SELECT
+	|	AddIns.Ref AS Ref
+	|FROM
+	|	Catalog.AddIns AS AddIns
+	|WHERE
+	|	NOT AddIns.DeletionMark
+	|	AND NOT AddIns.Id IN (&IDs)";
+
+	Query.SetParameter("IDs", SuppliedAddIns());
+
+	Selection = Query.Execute().Select();
+	While Selection.Next() Do
+
+		BeginTransaction();
+		Try
+			Block = New DataLock;
+			LockItem = Block.Add("Catalog.AddIns");
+			LockItem.SetValue("Ref", Selection.Ref);
+			Block.Lock();
+
+			Object = Selection.Ref.GetObject();
+			Object.DeletionMark = True;
+			Object.Write();
+			CommitTransaction();
+		Except
+			RollbackTransaction();
+			WriteLogEvent(NStr("en = 'Delete the add-in';", Common.DefaultLanguageCode()),
+				EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(
+				ErrorInfo()));
+			Raise;
+		EndTry;
+		
+	EndDo;
+	
+	NotifyAllSessionsAboutAddInChange();
+	
+EndProcedure
+
+Function UnusedAddInsCount()
+	
+	UnusedAddInsCount = 0;
+	
+	Query = New Query;
+	Query.Text = 
+			"SELECT
+			|	COUNT(AddIns.Ref) AS UnusedAddInsCount
+			|FROM
+			|	Catalog.AddIns AS AddIns
+			|WHERE
+			|	NOT AddIns.DeletionMark
+			|	AND NOT AddIns.Id IN (&IDs)";
+	
+	Query.SetParameter("IDs", SuppliedAddIns());
+		
+	Selection = Query.Execute().Select();
+	While Selection.Next() Do
+		Return Selection.UnusedAddInsCount;
+	EndDo;
+	
+	Return UnusedAddInsCount;
+	
+EndFunction
 
 Procedure NotifyAllSessionsAboutAddInChange() Export
 	
@@ -688,6 +933,11 @@ EndFunction
 //    * MacOS_x86_64_Safari - Boolean
 //    * MacOS_x86_64_Chrome - Boolean
 //    * MacOS_x86_64_Firefox - Boolean
+//    * Windows_x86_YandexBrowser - Boolean
+//    * Windows_x86_64_YandexBrowser - Boolean
+//    * Linux_x86_YandexBrowser - Boolean
+//    * Linux_x86_64_YandexBrowser - Boolean
+//    * MacOS_x86_64_YandexBrowser - Boolean
 //    * Id - String
 //    * Description - String
 //    * Version - String
@@ -713,6 +963,11 @@ Function AddInAttributes()
 	Attributes.Insert("MacOS_x86_64_Safari");
 	Attributes.Insert("MacOS_x86_64_Chrome");
 	Attributes.Insert("MacOS_x86_64_Firefox");
+	Attributes.Insert("Windows_x86_YandexBrowser");
+	Attributes.Insert("Windows_x86_64_YandexBrowser");
+	Attributes.Insert("Linux_x86_YandexBrowser");
+	Attributes.Insert("Linux_x86_64_YandexBrowser");
+	Attributes.Insert("MacOS_x86_64_YandexBrowser");
 	Attributes.Insert("Id");
 	Attributes.Insert("Description");
 	Attributes.Insert("Version");
@@ -806,24 +1061,27 @@ Procedure FillAttributesByManifestXML(ManifestXMLFileName, Attributes)
 				EndIf;
 
 				If OperatingSystem = "windows" And PlatformArchitecture = "i386"
-						And ComponentType = "plugin" And Viewer = "chrome" Then
+						And ComponentType = "plugin" And (Viewer = "chrome" 
+						Or Viewer = "anychromiumbased") Then
 
 					Attributes.Windows_x86_Chrome = True;
-					Continue;
+
 				EndIf;
 
 				If OperatingSystem = "linux" And PlatformArchitecture = "i386"
-						And ComponentType = "plugin" And Viewer = "chrome" Then
+						And ComponentType = "plugin" And (Viewer = "chrome" 
+						Or Viewer = "anychromiumbased") Then
 
 					Attributes.Linux_x86_Chrome = True;
-					Continue;
+
 				EndIf;
 
 				If OperatingSystem = "linux" And PlatformArchitecture = "x86_64"
-						And ComponentType = "plugin" And Viewer = "chrome" Then
+						And ComponentType = "plugin" And (Viewer = "chrome" 
+						Or Viewer = "anychromiumbased") Then
 
 					Attributes.Linux_x86_64_Chrome = True;
-					Continue;
+
 				EndIf;
 
 				If OperatingSystem = "macos" And (PlatformArchitecture = "x86_64"
@@ -843,10 +1101,10 @@ Procedure FillAttributesByManifestXML(ManifestXMLFileName, Attributes)
 				
 				If OperatingSystem = "macos" And (PlatformArchitecture = "x86_64"
 						Or PlatformArchitecture = "universal") And ComponentType = "plugin"
-						And Viewer = "chrome" Then
+						And (Viewer = "chrome" Or Viewer = "anychromiumbased") Then
 
 					Attributes.MacOS_x86_64_Chrome = True;
-					Continue;
+
 				EndIf;
 				
 				If OperatingSystem = "macos" And (PlatformArchitecture = "x86_64"
@@ -855,6 +1113,47 @@ Procedure FillAttributesByManifestXML(ManifestXMLFileName, Attributes)
 
 					Attributes.MacOS_x86_64_Firefox = True;
 					Continue;
+				EndIf;
+				
+				If OperatingSystem = "windows" And PlatformArchitecture = "i386"
+						And ComponentType = "plugin" And (Viewer = "yandexbrowser" 
+						Or Viewer = "anychromiumbased") Then
+
+					Attributes.Windows_x86_YandexBrowser = True;
+
+				EndIf;
+				
+				If OperatingSystem = "windows" And PlatformArchitecture = "x86_64"
+						And ComponentType = "plugin" And (Viewer = "yandexbrowser" 
+						Or Viewer = "anychromiumbased") Then
+
+					Attributes.Windows_x86_64_YandexBrowser = True;
+
+				EndIf;
+
+				If OperatingSystem = "linux" And PlatformArchitecture = "i386"
+						And ComponentType = "plugin" And (Viewer = "yandexbrowser" 
+						Or Viewer = "anychromiumbased") Then
+
+					Attributes.Linux_x86_YandexBrowser = True;
+
+				EndIf;
+
+				If OperatingSystem = "linux" And PlatformArchitecture = "x86_64"
+						And ComponentType = "plugin" And (Viewer = "yandexbrowser" 
+						Or Viewer = "anychromiumbased") Then
+
+					Attributes.Linux_x86_64_YandexBrowser = True;
+
+				EndIf;
+				
+				If OperatingSystem = "macos" And (PlatformArchitecture = "x86_64"
+						Or PlatformArchitecture = "universal") And ComponentType = "plugin"
+						And (Viewer = "yandexbrowser" 
+						Or Viewer = "anychromiumbased") Then
+
+					Attributes.MacOS_x86_64_YandexBrowser = True;
+
 				EndIf;
 
 			EndIf;
@@ -950,12 +1249,14 @@ EndProcedure
 //  Structure:
 //   * Id - String
 //   * Version - String
+//   * AutoUpdate - Boolean
 //
 Function ComponentParametersFromThePortal() Export
 	
 	Result = New Structure;
 	Result.Insert("Id", "");
 	Result.Insert("Version", "");
+	Result.Insert("AutoUpdate", True);
 	Return Result;
 	
 EndFunction
@@ -1022,9 +1323,13 @@ Procedure NewAddInsFromPortal(ProcedureParameters, ResultAddress) Export
 		Information = InformationOnAddInFromFile(BinaryData, False);
 
 		If Not Information.Disassembled Then
+			
+			ExceptionText = Information.ErrorDescription + ?(Information.ErrorInfo = Undefined, "",
+			 ": " + ErrorProcessing.BriefErrorDescription(Information.ErrorInfo));
+				
 			WriteLogEvent(NStr("en = 'Updating add-ins';", Common.DefaultLanguageCode()), 
-				EventLogLevel.Error, , , Information.ErrorDescription);
-			Raise Information.ErrorDescription;
+				EventLogLevel.Error, , , ExceptionText);
+			Raise ExceptionText;
 		EndIf;
 
 		SetPrivilegedMode(True);
@@ -1042,7 +1347,8 @@ Procedure NewAddInsFromPortal(ProcedureParameters, ResultAddress) Export
 			Object.AdditionalProperties.Insert("ComponentBinaryData", Information.BinaryData);
 
 			If Not ValueIsFilled(Version) Then // Если запрос конкретной версии - 
-				Object.UpdateFrom1CITSPortal = Object.ThisIsTheLatestVersionComponent();
+				Object.UpdateFrom1CITSPortal = Object.ThisIsTheLatestVersionComponent()
+					And ProcedureParameters.AutoUpdate;
 			EndIf;
 
 			Object.Write();
@@ -1111,6 +1417,5 @@ Procedure UpdateAddInsFromPortal(ProcedureParameters, ResultAddress) Export
 EndProcedure
 
 #EndRegion
-
 
 #EndRegion

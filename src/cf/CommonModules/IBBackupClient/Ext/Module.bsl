@@ -298,8 +298,7 @@ EndProcedure
 //
 Function EventLogEvent() Export
 	
-	Return NStr("en = 'Infobase backup';",
-		StandardSubsystemsClient.ClientParametersOnStart().DefaultLanguageCode);
+	Return NStr("en = 'Infobase backup';", CommonClient.DefaultLanguageCode());
 	
 EndFunction
 

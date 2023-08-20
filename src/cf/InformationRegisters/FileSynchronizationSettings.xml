@@ -42,7 +42,7 @@
 			<Comment/>
 			<UseStandardCommands>true</UseStandardCommands>
 			<EditType>InDialog</EditType>
-			<DefaultRecordForm>InformationRegister.FileSynchronizationSettings.Form.RecordFormSettings</DefaultRecordForm>
+			<DefaultRecordForm>InformationRegister.FileSynchronizationSettings.Form.RecordForm</DefaultRecordForm>
 			<DefaultListForm>InformationRegister.FileSynchronizationSettings.Form.FileSynchronizationSettings</DefaultListForm>
 			<AuxiliaryRecordForm/>
 			<AuxiliaryListForm/>
@@ -476,7 +476,7 @@
 			</Dimension>
 			<Form>FileSynchronizationSettings</Form>
 			<Form>AddConditionsByDate</Form>
-			<Form>RecordFormSettings</Form>
+			<Form>RecordForm</Form>
 			<Form>SimpleRecordFormSettings</Form>
 		</ChildObjects>
 	</InformationRegister>

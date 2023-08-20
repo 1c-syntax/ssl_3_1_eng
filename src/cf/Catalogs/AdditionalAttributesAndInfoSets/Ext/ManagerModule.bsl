@@ -63,13 +63,13 @@ Procedure PresentationGetProcessing(Data, Presentation, StandardProcessing)
 	If ValueIsFilled(Data.Parent) Then
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 		If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-			ModuleNativeLanguagesSupportClientServer = Common.CommonModule("NationalLanguageSupportClientServer");
-			ModuleNativeLanguagesSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing);
+			ModuleNationalLanguageSupportClientServer = Common.CommonModule("NationalLanguageSupportClientServer");
+			ModuleNationalLanguageSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing);
 		EndIf;
 #Else
 		If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-			ModuleNativeLanguagesSupportClientServer = CommonClient.CommonModule("NationalLanguageSupportClientServer");
-			ModuleNativeLanguagesSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing);
+			ModuleNationalLanguageSupportClientServer = CommonClient.CommonModule("NationalLanguageSupportClientServer");
+			ModuleNationalLanguageSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing);
 		EndIf;
 #EndIf
 		Return;
@@ -230,13 +230,19 @@ Procedure ProcessPropertiesSetsForMigrationToNewVersion(Parameters) Export
 			EndDo;
 			
 			If Not SetToUpdate.IsFolder Then
-				AttributesCount = Format(NewSetObject.AdditionalAttributes.FindRows(
-					New Structure("DeletionMark", False)).Count(), "NG=");
-				InfoCount   = Format(NewSetObject.AdditionalInfo.FindRows(
-					New Structure("DeletionMark", False)).Count(), "NG=");
+				AdditionalAttributesTable = NewSetObject.AdditionalAttributes.Unload();
+				AdditionalAttributes = PropertyManager.PropertiesByAdditionalAttributesKind(
+					AdditionalAttributesTable, Enums.PropertiesKinds.AdditionalAttributes);
+				Labels = PropertyManager.PropertiesByAdditionalAttributesKind(
+					AdditionalAttributesTable,Enums.PropertiesKinds.Labels);
+				AttributesCount = AdditionalAttributes.Count();
+				NumberOfTags      = Labels.Count();
+				InfoCount   = NewSetObject.AdditionalInfo.FindRows(
+					New Structure("DeletionMark", False)).Count();
 				
-				NewSetObject.AttributesCount = AttributesCount;
-				NewSetObject.InfoCount   = InfoCount;
+				NewSetObject.AttributesCount = Format(AttributesCount, "NG=");
+				NewSetObject.InfoCount   = Format(InfoCount, "NG=");
+				NewSetObject.NumberOfTags      = Format(NumberOfTags, "NG=");
 			EndIf;
 			
 			InfobaseUpdate.WriteObject(NewSetObject);
@@ -407,7 +413,7 @@ EndFunction
 // For internal use only.
 // 
 // Parameters:
-//  PropertiesSets - Map of КлючЗначение:
+//  PropertiesSets - Map of KeyAndValue:
 //     * Key - 
 //     * Value - See New_SetProperties
 //  Set - ValueTreeRow:

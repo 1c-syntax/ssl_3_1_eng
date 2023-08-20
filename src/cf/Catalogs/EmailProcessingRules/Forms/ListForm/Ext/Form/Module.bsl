@@ -45,9 +45,9 @@ Procedure ApplyRules(Command)
 	FilterItemsArray = CommonClientServer.FindFilterItemsAndGroups(InteractionsClientServer.DynamicListFilter(List), "Owner");
 	If FilterItemsArray.Count() > 0 And FilterItemsArray[0].Use
 		And ValueIsFilled(FilterItemsArray[0].RightValue) Then
-		FormParameters.Insert("Account",FilterItemsArray[0].RightValue);
+		FormParameters.Insert("Account", FilterItemsArray[0].RightValue);
 	Else
-		CommonClient.MessageToUser(NStr("en = 'Please specify an email account to apply rules to.';"));
+		CommonClient.MessageToUser(NStr("en = 'Select an email account to read the list of rules.';"));
 		Return;
 	EndIf;
 	

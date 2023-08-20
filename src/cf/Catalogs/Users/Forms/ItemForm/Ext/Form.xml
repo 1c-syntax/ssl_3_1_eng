@@ -418,7 +418,7 @@ Click "Save" to resolve the issue and hide this message.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Allow authorization</v8:content>
+					<v8:content>Sign-in allowed</v8:content>
 				</v8:item>
 			</Title>
 			<Behavior>Usual</Behavior>
@@ -524,30 +524,61 @@ with the specified authentication methods.</v8:content>
 									<v8:content>No startup rights</v8:content>
 								</v8:item>
 							</Title>
+							<ToolTip>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>User does not have any startup rights
+(e.g. thin client or web client).</v8:content>
+								</v8:item>
+							</ToolTip>
 							<ContextMenu name="NoStartupRightsLabelContextMenu" id="425"/>
 							<ExtendedTooltip name="NoStartupRightsLabelExtendedTooltip" id="426"/>
 						</LabelDecoration>
 					</ChildItems>
 				</UsualGroup>
-				<UsualGroup name="GroupNoLoginRights" id="440">
+				<UsualGroup name="GroupNoLogonRights" id="440">
 					<Visible>false</Visible>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>No rights to sign in</v8:content>
+						</v8:item>
+					</Title>
 					<Group>AlwaysHorizontal</Group>
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="GroupNoLoginRightsExtendedTooltip" id="441"/>
+					<ExtendedTooltip name="GroupNoLogonRightsExtendedTooltip" id="441"/>
 					<ChildItems>
-						<PictureDecoration name="NoAccessRightsToImage" id="442">
+						<PictureDecoration name="NoLogonRightsPicture" id="442">
+							<Title formatted="false">
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>No rights to sign in picture</v8:content>
+								</v8:item>
+							</Title>
 							<Picture>
 								<xr:Ref>CommonPicture.Warning</xr:Ref>
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
-							<ContextMenu name="NoAccessRightsToImageContextMenu" id="443"/>
-							<ExtendedTooltip name="NoAccessRightsToImageExtendedTooltip" id="444"/>
+							<ContextMenu name="NoLogonRightsPictureContextMenu" id="443"/>
+							<ExtendedTooltip name="NoLogonRightsPictureExtendedTooltip" id="444"/>
 						</PictureDecoration>
-						<LabelDecoration name="NoSignInRights" id="445">
-							<ContextMenu name="NoSignInRightsContextMenu" id="446"/>
-							<ExtendedTooltip name="NoSignInRightsExtendedTooltip" id="447"/>
+						<LabelDecoration name="NoLogonRightsLabel" id="445">
+							<Title formatted="false">
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>No rights to sign in</v8:content>
+								</v8:item>
+							</Title>
+							<ToolTip>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>User is not granted the minimum access rights to use the application.</v8:content>
+								</v8:item>
+							</ToolTip>
+							<ContextMenu name="NoLogonRightsLabelContextMenu" id="446"/>
+							<ExtendedTooltip name="NoLogonRightsLabelExtendedTooltip" id="447"/>
 						</LabelDecoration>
 					</ChildItems>
 				</UsualGroup>
@@ -853,8 +884,8 @@ username and password.</v8:content>
 																	<ToolTip>
 																		<v8:item>
 																			<v8:lang>en</v8:lang>
-																			<v8:content>The user cannot change their password,
-even at sign-in (applicable to limited users only).
+																			<v8:content>Prevent limited-access user from changing
+their password, even during sign-in
 </v8:content>
 																		</v8:item>
 																	</ToolTip>
@@ -1386,7 +1417,7 @@ associated with the 1C:Enterprise user.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Allow authorization</v8:content>
+					<v8:content>Sign-in allowed</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1621,7 +1652,7 @@ language</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Require password change upon authorization</v8:content>
+					<v8:content>User must change password at next sign-in</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1748,7 +1779,7 @@ language</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>User cannot recover the password</v8:content>
+					<v8:content>User cannot recover password</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2016,7 +2047,7 @@ language</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
-				<xr:Ref>CommonPicture.SendEmail</xr:Ref>
+				<xr:Ref>CommonPicture.ContactInformationSendEmail</xr:Ref>
 				<xr:LoadTransparent>false</xr:LoadTransparent>
 			</Picture>
 			<Action>Attachable_ContactInformationExecuteCommand</Action>

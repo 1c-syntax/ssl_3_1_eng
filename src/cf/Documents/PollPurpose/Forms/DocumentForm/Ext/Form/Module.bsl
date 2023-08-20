@@ -182,7 +182,6 @@ EndProcedure
 
 #Region FormCommandHandlers
 
-// Opens the respondents pick form.
 &AtClient
 Procedure PickRespondents(Command)
 	
@@ -198,15 +197,15 @@ EndProcedure
 
 #Region Private
 
-// Processes respondent type change.
 &AtClient
 Procedure ProcessRespondentTypeChange()
 	
 	Items.RespondentsRespondent.TypeRestriction  = RespondentsType;
 	Items.RespondentsRespondent.AvailableTypes	= RespondentsType;
 	
-	If Object.RespondentsType <> Undefined Then
-		Object.RespondentsType = New(RespondentsType.Types()[0]);
+	RespondentNewType = New(RespondentsType.Types()[0]);
+	If Object.RespondentsType <> RespondentNewType Then
+		Object.RespondentsType = RespondentNewType;
 	EndIf;
 	
 	For Each RespondentsRow In Object.Respondents Do
@@ -222,7 +221,6 @@ Procedure ProcessRespondentTypeChange()
 	
 EndProcedure
 
-// Controls form items availability.
 &AtClient
 Procedure AvailabilityControl()
 

@@ -241,15 +241,45 @@
 						</Page>
 					</ChildItems>
 				</Pages>
-				<InputField name="Subject" id="29">
-					<DataPath>Object.Subject</DataPath>
-					<Width>40</Width>
-					<AutoMaxWidth>false</AutoMaxWidth>
-					<Wrap>false</Wrap>
-					<TextEdit>false</TextEdit>
-					<ContextMenu name="SubjectContextMenu" id="30"/>
-					<ExtendedTooltip name="SubjectExtendedTooltip" id="249"/>
-				</InputField>
+				<UsualGroup name="TopicGroup" id="321">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Group email subject</v8:content>
+						</v8:item>
+					</Title>
+					<Group>AlwaysHorizontal</Group>
+					<Representation>None</Representation>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="TopicGroupExtendedTooltip" id="322"/>
+					<ChildItems>
+						<InputField name="Subject" id="29">
+							<DataPath>Object.Subject</DataPath>
+							<Width>40</Width>
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<Wrap>false</Wrap>
+							<TextEdit>false</TextEdit>
+							<ContextMenu name="SubjectContextMenu" id="30"/>
+							<ExtendedTooltip name="SubjectExtendedTooltip" id="249"/>
+						</InputField>
+						<PictureDecoration name="DecorationImportance" id="323">
+							<Width>3</Width>
+							<Height>1</Height>
+							<Title formatted="false">
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Importance</v8:content>
+								</v8:item>
+							</Title>
+							<Picture>
+								<xr:Ref>CommonPicture.ImportanceNotSpecified</xr:Ref>
+								<xr:LoadTransparent>false</xr:LoadTransparent>
+							</Picture>
+							<ContextMenu name="DecorationImportanceContextMenu" id="324"/>
+							<ExtendedTooltip name="DecorationImportanceExtendedTooltip" id="325"/>
+						</PictureDecoration>
+					</ChildItems>
+				</UsualGroup>
 				<Pages name="DetailsPagesAdditional" id="197">
 					<Title>
 						<v8:item>
@@ -609,12 +639,6 @@
 					<ShowTitle>false</ShowTitle>
 					<ExtendedTooltip name="ImportanceNumberSentGroupExtendedTooltip" id="244"/>
 					<ChildItems>
-						<LabelField name="Importance" id="167">
-							<DataPath>Object.Importance</DataPath>
-							<TitleLocation>Left</TitleLocation>
-							<ContextMenu name="ImportanceContextMenu" id="168"/>
-							<ExtendedTooltip name="ImportanceExtendedTooltip" id="260"/>
-						</LabelField>
 						<LabelField name="Number" id="219">
 							<DataPath>Object.Number</DataPath>
 							<Width>11</Width>
@@ -629,7 +653,7 @@
 							<Format>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>DF='MM/dd/yyyy h:mm tt'</v8:content>
+									<v8:content>DF='MM/dd/yyyy h:mm'</v8:content>
 								</v8:item>
 							</Format>
 							<ContextMenu name="PostingDateContextMenu" id="222"/>

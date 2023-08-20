@@ -186,6 +186,8 @@ Procedure OnStartTestConnectionAtServer(ContinueWait)
 	ConnectionSettings.Insert("ExchangeMessagesTransportKind", TransportKind);
 	
 	ConnectionSettings.Insert("ExchangePlanName", DataExchangeCached.GetExchangePlanName(ExchangeNode));
+	ConnectionSettings.Insert("CorrespondentExchangePlanName", 
+		DataExchangeCached.GetNameOfCorrespondentExchangePlan(ExchangeNode));
 	
 	ModuleSetupWizard = DataExchangeServer.ModuleDataExchangeCreationWizard();
 	

@@ -72,21 +72,16 @@ Procedure UpdateRegisterDataInBackground(HasChanges)
 	OperationParametersList = TimeConsumingOperations.BackgroundExecutionParameters(Undefined);
 	OperationParametersList.BackgroundJobDescription = JobDescription;
 	OperationParametersList.WithDatabaseExtensions = True;
-	OperationParametersList.RunInBackground = True;
-	OperationParametersList.WaitCompletion = 0;
+	OperationParametersList.WaitCompletion = Undefined;
 	
 	ProcedureName = "InformationRegisters.AccessRestrictionParameters.HandlerForLongTermUpdateOperationInBackground";
 	TimeConsumingOperation = TimeConsumingOperations.ExecuteInBackground(ProcedureName, Undefined, OperationParametersList);
-	BackgroundJob = BackgroundJobs.FindByUUID(TimeConsumingOperation.JobID);
-	BackgroundJob.WaitForExecutionCompletion();
-	BackgroundJob = BackgroundJobs.FindByUUID(TimeConsumingOperation.JobID);
-	
 	ErrorTitle = NStr("en = 'Cannot update access restriction parameters due to:';") + Chars.LF;
 	
-	If BackgroundJob.State <> BackgroundJobState.Completed Then
-		If TypeOf(BackgroundJob.ErrorInfo) = Type("ErrorInfo") Then
-			ErrorText = ErrorProcessing.DetailErrorDescription(BackgroundJob.ErrorInfo);
-		ElsIf BackgroundJob.State = BackgroundJobState.Canceled Then
+	If TimeConsumingOperation.Status <> "Completed2" Then
+		If TimeConsumingOperation.Status = "Error" Then
+			ErrorText = TimeConsumingOperation.DetailErrorDescription;
+		ElsIf TimeConsumingOperation.Status = "Canceled" Then
 			ErrorText = NStr("en = 'The background job is canceled.';");
 		Else
 			ErrorText = NStr("en = 'Background job error';");
@@ -524,14 +519,14 @@ Procedure AddProperty(Texts, Restriction, Separators, PropertyName)
 	
 EndProcedure
 
-Procedure RegisterDataToProcessForMigrationToNewVersion3(Parameters) Export
+Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
 	// 
 	Return;
 	
 EndProcedure
 
-Procedure ProcessDataForMigrationToNewVersion3(Parameters) Export
+Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	EnableUniversalRecordLevelAccessRestriction();
 	

@@ -85,7 +85,7 @@ Function AmountInWordsParameters(Form)
 	AmountInWordsParameters.Add(Form.FractionalPartPluralForm);
 	AmountInWordsParameters.Add(Form.FractionalPartLength);
 	
-	Return StrConcat(AmountInWordsParameters, ", ");;
+	Return StrConcat(AmountInWordsParameters, ", ");
 	
 EndFunction
 

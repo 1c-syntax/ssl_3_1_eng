@@ -9,6 +9,8 @@
 
 #Region Internal
 
+#If Not MobileStandaloneServer Then
+
 #Region RunExternalApplications
 
 // Parameters:
@@ -237,6 +239,8 @@ EndFunction
 
 #EndRegion
 
+#EndIf
+
 #EndRegion
 
 #Region Private
@@ -272,6 +276,8 @@ Function UserMessage(
 EndFunction
 
 #EndRegion
+
+#If Not MobileStandaloneServer Then
 
 #Region InfobaseData
 
@@ -593,34 +599,6 @@ Function TheWindowsCommandStartLine(CommandString, CurrentDirectory, WaitForComp
 	
 EndFunction
 
-Function NewWindowsCommandStartFile(CommandString, CurrentDirectory, WaitForCompletion, ExecutionEncoding) Export
-	
-	TextDocument = New TextDocument;
-	TextDocument.AddLine("@echo off");
-	
-	If ValueIsFilled(ExecutionEncoding) Then 
-		
-		If ExecutionEncoding = "OEM" Then
-			ExecutionEncoding = 437;
-		ElsIf ExecutionEncoding = "CP866" Then
-			ExecutionEncoding = 866;
-		ElsIf ExecutionEncoding = "UTF8" Then
-			ExecutionEncoding = 65001;
-		EndIf;
-		
-		TextDocument.AddLine("chcp " + Format(ExecutionEncoding, "NG="));
-		
-	EndIf;
-	
-	If Not IsBlankString(CurrentDirectory) Then 
-		TextDocument.AddLine("cd /D """ + CurrentDirectory + """");
-	EndIf;
-	TextDocument.AddLine("cmd /S /C "" " + CommandString + " """);
-	
-	Return TextDocument;
-	
-EndFunction
-
 #EndIf
 
 #EndRegion
@@ -776,5 +754,7 @@ Function TheTextOfACellOfTheFormForScientificNotation(Val CellText)
 EndFunction
 
 #EndRegion
+
+#EndIf
 
 #EndRegion

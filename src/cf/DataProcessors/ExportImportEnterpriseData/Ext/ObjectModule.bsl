@@ -29,6 +29,7 @@ Function ExchangeComponents(ExchangeDirection, ExchangeFormatVersionOnImport1 = 
 		ExchangeComponents.CorrespondentNode = ExchangeNode;
 		ExchangeComponents.ObjectsRegistrationRulesTable = DataExchangeXDTOServer.ObjectsRegistrationRules(ExchangeNode);
 		ExchangeComponents.ExchangePlanNodeProperties = DataExchangeXDTOServer.ExchangePlanNodeProperties(ExchangeNode);
+		ExchangeComponents.ExchangeViaProcessingUploadUploadED = True;
 	Else
 		ExchangeComponents.IsExchangeViaExchangePlan = False;
 	EndIf;

@@ -147,7 +147,7 @@ Procedure ObjectsRegistrationMechanismBeforeDelete(ExchangePlanName, Source, Can
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions to use in handlers of registration rule events.
+// 
 
 // The procedure complements the list of recipient nodes of the object with the values passed.
 //
@@ -332,6 +332,48 @@ Function ImportRestricted(Data, Val ExchangePlanNode) Export
 	Return ItemReceive = DataItemReceive.Ignore;
 	
 EndFunction
+
+////////////////////////////////////////////////////////////////////////////////
+// 
+
+// See ExportImportDataOverridable.OnRegisterDataImportHandlers.
+Procedure OnRegisterDataImportHandlers(HandlersTable) Export
+	
+	For Each ExchangePlanName In DataExchangeCached.SSLExchangePlans() Do
+		
+		HandlerRow = HandlersTable.Add();
+		HandlerRow.MetadataObject      = Metadata.ExchangePlans[ExchangePlanName];
+		HandlerRow.Handler            = Common.CommonModule("DataExchangeEvents");
+		HandlerRow.AfterImportObject = True;
+		
+	EndDo;
+		
+EndProcedure
+
+// Executes handlers after the object is loaded.
+//
+// Parameters:
+//  Container - DataProcessorObject.ExportImportDataContainerManager - 
+//		the container manager used in the data upload process. For more information, see the comment 
+//		on the software interface for processing the unloading of the data of the Manager container.
+//  Object - Arbitrary - the object of the uploaded data.
+//  Artifacts - Array of XDTODataObject -
+//
+Procedure AfterImportObject(Container, Object, Artifacts) Export
+	
+	ExchangePlansList = DataExchangeCached.SSLExchangePlans();
+	If ExchangePlansList.Find(Object.Metadata().Name) <> Undefined
+		And Not Object.ThisNode Then
+		
+		Record = InformationRegisters.CommonInfobasesNodesSettings.CreateRecordManager();
+		Record.InfobaseNode = Object.Ref;
+		Record.SynchronizationIsUnavailable = True;
+		Record.SettingCompleted = True;
+		Record.Write(True);
+		
+	EndIf;
+	
+EndProcedure
 
 #EndRegion
 
@@ -645,17 +687,22 @@ Procedure CheckForChangesToDataMigrationRestrictionFiltersWhenWriting(Source, Ca
 			
 			If Common.IsRefTypeObject(ItemSet.Key) Then
 				
-				While ItemSet.Value.Count() > 0 Do
-					
-					Object = ItemSet.Value[0].GetObject();
-					If Not ObjectExportAllowed(Source.Ref, Object) Then
-						ExchangePlans.DeleteChangeRecords(Source.Ref, Object);
-					EndIf;
-					Object = Undefined;
-					ItemSet.Value.Delete(0);
-					
-				EndDo;
+				PDParameters = BatchRegistrationParameters();
 				
+				PerformBatchRegistrationForNode(Source.Ref, ItemSet.Value, PDParameters);
+					
+				If PDParameters.ThereIsPRO_WithoutBatchRegistration Then
+					For Each Ref In PDParameters.LinksNotByBatchRegistrationFilter Do
+						If Not ObjectExportAllowed(Source.Ref, Ref) Then
+							ExchangePlans.DeleteChangeRecords(Source.Ref, Ref);
+						EndIf;
+					EndDo;
+				Else
+					For Each Ref In PDParameters.LinksNotByBatchRegistrationFilter Do
+						ExchangePlans.DeleteChangeRecords(Source.Ref, Ref);
+					EndDo;
+				EndIf;
+					
 			ElsIf Common.IsConstant(ItemSet.Key) Then
 				
 				Object = ItemSet.Value;
@@ -892,15 +939,22 @@ Procedure SaveObjectsAvailableForExport(ObjectNode)
 			
 			DataSet = RegisteredDataOfSingleReferenceType(ObjectNode.Ref, FullMetadataObjectName);
 			
-			For Each DataString In DataSet Do
+			ReferencesArrray = DataSet.UnloadColumn("Ref");
+			PDParameters = BatchRegistrationParameters();
+			
+			PerformBatchRegistrationForNode(ObjectNode.Ref, ReferencesArrray, PDParameters);
 				
-				ObjectReference = DataString.Ref;
-				
-				If ObjectExportAllowed(ObjectNode.Ref, ObjectReference.GetObject()) Then
-					RefsCollection.Add(ObjectReference);
-				EndIf;
-				
+			For Each Ref In PDParameters.LinksToBatchRegistrationFilter Do
+				RefsCollection.Add(Ref);
 			EndDo;
+			
+			If PDParameters.ThereIsPRO_WithoutBatchRegistration Then
+				For Each Ref In PDParameters.LinksNotByBatchRegistrationFilter Do
+					If ObjectExportAllowed(ObjectNode.Ref, Ref) Then
+						RefsCollection.Add(Ref);
+					EndIf;
+				EndDo;
+			EndIf;
 			
 			RegisteredData[ItemMetadata] = RefsCollection;
 			
@@ -1292,7 +1346,7 @@ Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParam
 	Except
 		
 		TextTemplate1 = NStr("en = 'Cannot register changes in the nodes. Exchange plan: %1. Reason: %2';", Common.DefaultLanguageCode());
-		DetailedPresentation = DetailErrorDescription(ErrorInfo());
+		DetailedPresentation = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		
 		ErrorDescription = StrTemplate(TextTemplate1, ExchangePlanName, DetailedPresentation);
 		
@@ -1383,7 +1437,7 @@ Procedure ExecuteObjectsRegistrationRulesForExchangePlan(NodesArrayResult, Objec
 			|Error details:
 			|%2';"),
 			ExchangePlanName,
-			DetailErrorDescription(ErrorInfo()));
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	
 EndProcedure
@@ -1469,6 +1523,15 @@ Procedure ExecuteObjectsRegistrationRulesForExchangePlanAttemptException(NodesAr
 		Else // For Reference data type.
 			
 			For Each ORR In ObjectRegistrationRules Do
+					
+				// 
+				// 
+				// 
+				If ORR.BatchExecutionOfHandlers 
+					And Object.AdditionalProperties.Property("CheckRegistrationBeforeUploading")
+					And Not Object.AdditionalProperties.Property("InteractiveExportAddition") Then
+					Continue;
+				EndIf;
 				
 				// DETERMINING RECIPIENTS WHOSE EXPORT MODE IS "BY CONDITION"
 				
@@ -1898,7 +1961,7 @@ Function PropertiesValuesForRef(Ref, ObjectProperties, Val ObjectPropertiesAsStr
 		
 	Except
 		MessageString = NStr("en = 'An error occurred when receiving reference properties. Query execution error: [ErrorDescription]';");
-		MessageString = StrReplace(MessageString, "[ErrorDescription]", DetailErrorDescription(ErrorInfo()));
+		MessageString = StrReplace(MessageString, "[ErrorDescription]", ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Raise MessageString;
 	EndTry;
 	
@@ -2041,7 +2104,7 @@ Function NodesArrayByPropertiesValues(PropertiesValues, Val QueryText, Val Excha
 		
 	Except
 		MessageString = NStr("en = 'An error occurred when receiving the list of destination nodes. Query execution error: [ErrorDescription]';");
-		MessageString = StrReplace(MessageString, "[ErrorDescription]", DetailErrorDescription(ErrorInfo()));
+		MessageString = StrReplace(MessageString, "[ErrorDescription]", ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Raise MessageString;
 	EndTry;
 	
@@ -2487,7 +2550,7 @@ Procedure ExecuteORRHandlerBeforeProcessing(ORR, Cancel, Object, MetadataObject,
 				"BeforeProcess",
 				ORR.ExchangePlanName,
 				ORR.MetadataObjectName3,
-				DetailErrorDescription(ErrorInfo()));
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
 		
 	EndIf;
@@ -2516,7 +2579,7 @@ Procedure ExecuteORRHandlerOnProcessing(Cancel, ORR, Object, AdditionalParameter
 				"OnProcess",
 				ORR.ExchangePlanName,
 				ORR.MetadataObjectName3,
-				DetailErrorDescription(ErrorInfo()));
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
 		
 	EndIf;
@@ -2543,7 +2606,7 @@ Procedure ExecuteORRHandlerOnProcessingAdditional(Cancel, ORR, Object, QueryText
 				"OnProcessAdditional",
 				ORR.ExchangePlanName,
 				ORR.MetadataObjectName3,
-				DetailErrorDescription(ErrorInfo()));
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
 		
 	EndIf;
@@ -2566,10 +2629,133 @@ Procedure ExecuteORRHandlerAfterProcessing(ORR, Cancel, Object, MetadataObject, 
 				"AfterProcess",
 				ORR.ExchangePlanName,
 				ORR.MetadataObjectName3,
-				DetailErrorDescription(ErrorInfo()));
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
 		
 	EndIf;
+	
+EndProcedure
+
+Function BatchRegistrationParameters() Export
+
+	Parameters = New Structure;
+	Parameters.Insert("ThereIsPRO_WITHBatchRegistration", False);
+	Parameters.Insert("ThereIsPRO_WithoutBatchRegistration",False);
+	Parameters.Insert("LinksToBatchRegistrationFilter", New Array);
+	Parameters.Insert("LinksNotByBatchRegistrationFilter", New Array);
+	Parameters.Insert("InitialImageCreating", False);
+	
+	Return Parameters;
+	
+EndFunction
+
+Procedure PerformBatchRegistrationForNode(Node, ReferencesArrray, Parameters) Export
+	
+	If ReferencesArrray.Count() = 0 Then
+		Return;
+	EndIf;
+		
+	ExchangePlanName = DataExchangeCached.GetExchangePlanName(Node);
+	FullObjectName = ReferencesArrray[0].Metadata().FullName();
+	
+	ObjectExportMode = DataExchangeCached.ObjectExportMode(FullObjectName, Node);
+	
+	If ObjectExportMode = Enums.ExchangeObjectExportModes.ExportAlways Then
+		
+		Parameters.LinksToBatchRegistrationFilter = ReferencesArrray;
+		
+	Else
+	
+		Rules = ObjectRegistrationRules(ExchangePlanName, FullObjectName);
+			
+		For Each ORR In Rules Do
+			If ORR.BatchExecutionOfHandlers Then
+				
+				ArrayOfLinksAbout = Common.CopyRecursive(ReferencesArrray, False);
+				PerformBatchRegistrationForNodeAttemptException(ORR, ArrayOfLinksAbout, Node);
+				CommonClientServer.SupplementArray(Parameters.LinksToBatchRegistrationFilter, ArrayOfLinksAbout, True);
+				
+				Parameters.ThereIsPRO_WITHBatchRegistration = True;
+				
+			Else
+				
+				Parameters.ThereIsPRO_WithoutBatchRegistration = True;
+				
+			EndIf;
+		EndDo;
+		
+		If Not Parameters.ThereIsPRO_WITHBatchRegistration Then
+			
+			Parameters.LinksNotByBatchRegistrationFilter = ReferencesArrray;
+			
+		ElsIf ReferencesArrray.Count() <> Parameters.LinksToBatchRegistrationFilter.Count() Then
+				
+			For Each Ref In ReferencesArrray Do
+				If Parameters.LinksToBatchRegistrationFilter.Find(Ref) = Undefined Then
+					Parameters.LinksNotByBatchRegistrationFilter.Add(Ref);
+				EndIf;
+			EndDo;
+		
+		EndIf;
+		
+	EndIf;
+
+	If Common.SubsystemExists("StandardSubsystems.PersonalDataProtection") Then
+		ModulePersonalDataProtection = Common.CommonModule("PersonalDataProtection");
+		
+		Count = Parameters.LinksToBatchRegistrationFilter.Count();
+		For Cnt = 1 To Count Do
+			
+			IndexOf = Count - Cnt;
+			Ref = Parameters.LinksToBatchRegistrationFilter[IndexOf];
+			ItemSend = DataItemSend.Auto;
+			ModulePersonalDataProtection.OnSendData(Ref, ItemSend, Node, Parameters.InitialImageCreating);
+			
+			If ItemSend = DataItemSend.Ignore Then
+				Parameters.LinksToBatchRegistrationFilter.Delete(IndexOf);
+			EndIf;
+			
+		EndDo;
+		
+	EndIf;
+		
+EndProcedure
+
+Procedure PerformBatchRegistrationForNodeAttemptException(ORR, ReferencesArrray, Node)
+	
+	ExportMode = Node[ORR.FlagAttributeName];
+	
+	If ExportMode <> Enums.ExchangeObjectExportModes.ExportByCondition
+		And ExportMode <> Enums.ExchangeObjectExportModes.ManualExport
+		And ExportMode <> Enums.ExchangeObjectExportModes.EmptyRef() Then
+		
+		ReferencesArrray = New Array;
+		Return;
+		
+	EndIf;
+	
+	ExchangePlanName = DataExchangeCached.GetExchangePlanName(Node);
+	SecurityProfileName = DataExchangeCached.SecurityProfileName(ExchangePlanName);
+	If SecurityProfileName <> Undefined Then
+		SetSafeMode(SecurityProfileName);
+	EndIf;
+	
+	Try
+		If ValueIsFilled(ORR.RegistrationManagerName) Then
+			Manager = Common.CommonModule(ORR.RegistrationManagerName);
+			Manager.BatchProcessing(ORR, ReferencesArrray, Node);
+		Else
+			Execute(ORR.BatchProcessing);
+		EndIf;
+	Except
+		ReferencesArrray = New Array;
+		
+		Raise DetailedHandlerExecutionErrorPresentation(
+			"BatchProcessing",
+			ORR.ExchangePlanName,
+			ORR.MetadataObjectName3,
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+	EndTry;
 	
 EndProcedure
 
@@ -3390,6 +3576,11 @@ Procedure ExchangePlanNodeModifiedByRefAttributes(ExchangePlanNodeObject, NodeCh
 EndProcedure
 
 Procedure ExcludeRegistrationFromLoopedNodes(NodesArrayResult, Object, ExchangePlanName)
+	
+	SSLExchangePlans = DataExchangeCached.SSLExchangePlans();
+	If SSLExchangePlans.Find(ExchangePlanName) = Undefined Then
+		Return;
+	EndIf;
 	
 	MetadataObject = Object.Metadata();
 	IsRefTypeObject = Common.IsRefTypeObject(MetadataObject);

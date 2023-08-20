@@ -17,7 +17,12 @@ Var Measurement;
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
+	PresentationTruth = NStr("en = 'All report options';");
+	PresentationLies = NStr("en = 'Computers and tablets';");
+	Items.DisplayAllReportOptions.EditFormat = "BF='" + PresentationLies + "'; BT='"
+		+ PresentationTruth + "'";
 	DefineBehaviorInMobileClient();
+	
 	If Not ValueIsFilled(Parameters.SubsystemPath) Then
 		Parameters.SubsystemPath = ReportsOptionsClientServer.HomePageID();
 	EndIf;
@@ -30,6 +35,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	StyleItems = Metadata.StyleItems;
 	
 	HiddenOptionsColor = StyleItems.HiddenReportOptionColor.Value;
+	ColorOfHiddenOptionsByAssignment = StyleItems.LockedAttributeColor.Value;
 	VisibleOptionsColor = StyleItems.HyperlinkColor.Value;
 	SearchResultsHighlightColor = StyleItems.SearchResultsBackground.Value;
 	TooltipColor = StyleItems.NoteText.Value;
@@ -139,10 +145,11 @@ Procedure NotificationProcessing(EventName, Changes, Source)
 		ClientParameters.ShouldUpdate = True;
 	ElsIf EventName = ReportsOptionsClient.EventNameChangingCommonSettings() Then
 		If Changes.ShowTooltips <> ShowTooltips
+			Or Changes.DisplayAllReportOptions <> DisplayAllReportOptions
 			Or Changes.SearchInAllSections <> SearchInAllSections Then
 			ClientParameters.ShouldUpdate = True;
 		EndIf;
-		FillPropertyValues(ThisObject, Changes, "ShowTooltips,SearchInAllSections");
+		FillPropertyValues(ThisObject, Changes, "ShowTooltips,SearchInAllSections,DisplayAllReportOptions");
 	EndIf;
 	If ClientParameters.ShouldUpdate Then
 		AttachIdleHandler("UpdateReportPanelByTimer", 1, True);
@@ -249,6 +256,8 @@ Procedure Attachable_SectionTitleClick(Item)
 	Section = FoundItems[0];
 	
 	SubsystemPath = StrReplace(Section.FullName, "Subsystem.", "");
+
+	SubsystemPath = ?(IsBlankString(SubsystemPath), "NonIncludedToSections", SubsystemPath);
 	
 	ParametersForm = New Structure;
 	ParametersForm.Insert("SubsystemPath",      SubsystemPath);
@@ -277,6 +286,18 @@ Procedure ShowTooltipsOnChange(Item)
 	CommonSettings = New Structure;
 	CommonSettings.Insert("ShowTooltips", ShowTooltips);
 	CommonSettings.Insert("SearchInAllSections", SearchInAllSections);
+	CommonSettings.Insert("DisplayAllReportOptions", DisplayAllReportOptions);
+	Notify(ReportsOptionsClient.EventNameChangingCommonSettings(), CommonSettings, ThisObject);
+EndProcedure
+
+&AtClient
+Procedure DisplayAllReportOptionsOnChange(Item)
+	UpdateReportPanelAtClient("DisplayAllReportOptionsOnChange");
+	
+	CommonSettings = New Structure;
+	CommonSettings.Insert("ShowTooltips", ShowTooltips);
+	CommonSettings.Insert("SearchInAllSections", SearchInAllSections);
+	CommonSettings.Insert("DisplayAllReportOptions", DisplayAllReportOptions);
 	Notify(ReportsOptionsClient.EventNameChangingCommonSettings(), CommonSettings, ThisObject);
 EndProcedure
 
@@ -395,6 +416,15 @@ Procedure ExecuteSearch(Command)
 	UpdateReportPanelAtClient("ExecuteSearch");
 EndProcedure
 
+&AtClient
+Procedure ReportsSnapshots(Command)
+	
+	OpenForm("InformationRegister.ReportsSnapshots.ListForm",
+				New Structure("User",
+							UsersClient.CurrentUser()));
+	
+EndProcedure
+
 #EndRegion
 
 #Region Private
@@ -405,7 +435,8 @@ EndProcedure
 &AtClient
 Procedure ShowHideOption(Variant, Item, Show)
 	Variant.Visible = Show;
-	Item.TextColor = ?(Show, VisibleOptionsColor, HiddenOptionsColor);
+	Item.TextColor = ?(Show, ?(Variant.VisibilityByAssignment, VisibleOptionsColor,
+		ColorOfHiddenOptionsByAssignment), HiddenOptionsColor);
 	ThisObject["CheckBox_"+ Variant.LabelName] = Show;
 	If Variant.Important Then
 		If Show Then
@@ -658,18 +689,22 @@ Function UpdateReportPanelAtServer(Val Event = "")
 			EndIf;
 		EndIf;
 	ElsIf Event = "ShowTooltipsOnChange"
+		Or Event = "DisplayAllReportOptionsOnChange"
 		Or Event = "SearchInAllSectionsOnChange" Then
 		
 		CommonSettings = New Structure;
 		CommonSettings.Insert("ShowTooltips", ShowTooltips);
 		CommonSettings.Insert("SearchInAllSections", SearchInAllSections);
+		CommonSettings.Insert("DisplayAllReportOptions", DisplayAllReportOptions);
 		ReportsOptions.SaveCommonPanelSettings(CommonSettings);
 	EndIf;
 	
 	Items.ShowTooltips.Visible = SetupMode;
+	Items.DisplayAllReportOptions.Visible = SetupMode;
 	Items.QuickAccessHeaderLabel.ToolTipRepresentation = ?(SetupMode, ToolTipRepresentation.Button, ToolTipRepresentation.None);
 	Items.OtherSectionsSearchResultsGroup.Visible = (SearchInAllSections = 1);
 	Items.Customize.Check = SetupMode;
+	Items.GroupReportsSnapshots.Visible = AccessRight("Edit", Metadata.InformationRegisters.ReportsSnapshots);
 	
 	// Title.
 	SetupModeSuffix = " (" + NStr("en = 'setting';") + ")";
@@ -732,6 +767,12 @@ Procedure DefineBehaviorInMobileClient()
 	
 	Items.QuickAccessHeaderLabel.ExtendedTooltip.Title =
 		StrReplace(Items.QuickAccessHeaderLabel.ExtendedTooltip.Title, SearchSubstring, ReplaceSubstring);
+	
+	Items.Move(Items.DisplayAllReportOptions, Items.TopBarMobileClient,
+		Items.ShowTooltips);
+	Items.DisplayAllReportOptions.Title = NStr("en = 'Show reports for computers and tablets';");
+	Items.DisplayAllReportOptions.TitleLocation = FormItemTitleLocation.Right;
+	
 EndProcedure
 
 &AtServer
@@ -809,7 +850,6 @@ Procedure DefineSubsystemsAndTitle(Var_Parameters)
 	AllSubsystems = ReportsOptionsCached.CurrentUserSubsystems().Tree;
 	AllSections = AllSubsystems.Rows[0].Rows;
 	SubsystemsByRef = New Map;
-	
 	For Each RowSection In AllSections Do
 		TableRow = ApplicationSubsystems.Add();
 		FillPropertyValues(TableRow, RowSection);
@@ -849,6 +889,22 @@ Procedure DefineSubsystemsAndTitle(Var_Parameters)
 		EndDo;
 	EndDo;
 	
+	TableRow = ApplicationSubsystems.Add();
+	TableRow.TagName    = "NonIncludedToSections";
+	TableRow.Name            = "NonIncludedToSections";
+	TableRow.Presentation  = NStr("en = 'Not included in sections';");
+	TableRow.ItemNumber  = 0;
+	TableRow.SectionReference   = Catalogs.MetadataObjectIDs.EmptyRef();
+	TableRow.ParentReference = Catalogs.MetadataObjectIDs.EmptyRef();
+	TableRow.Ref   = Catalogs.MetadataObjectIDs.EmptyRef(); 
+	TableRow.Priority = "999";
+	SubsystemsByRef.Insert(Catalogs.MetadataObjectIDs.EmptyRef(), TableRow.GetID());
+	
+	If Var_Parameters.SubsystemPath = "NonIncludedToSections" Then
+		CurrentSectionRef = Catalogs.MetadataObjectIDs.EmptyRef();
+		PanelTitle = NStr("en = 'Reports not included in sections';");
+	EndIf;
+	
 	If CurrentSectionRef = Undefined Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Non-existent section ""%1"" specified in report panel. See %2.';"),
@@ -864,7 +920,7 @@ EndProcedure
 &AtServer
 Procedure ImportAllSettings()
 	CommonSettings = ReportsOptions.CommonPanelSettings();
-	FillPropertyValues(ThisObject, CommonSettings, "ShowTooltips,SearchInAllSections");
+	FillPropertyValues(ThisObject, CommonSettings, "ShowTooltips,SearchInAllSections,DisplayAllReportOptions");
 	
 	LocalSettings = Common.CommonSettingsStorageLoad(
 		ReportsOptionsClientServer.FullSubsystemName(),
@@ -899,7 +955,15 @@ Function FillReportPanelInBackground()
 	SearchParameters.Insert("SearchInAllSections", SearchInAllSections);
 	SearchParameters.Insert("CurrentSectionRef", CurrentSectionRef);
 	
-	CurrentSectionOnly = SetupMode Or Not ValueIsFilled(SearchString) Or SearchInAllSections = 0;	
+	ReportOptionPurposes = New Array;
+	ReportOptionPurposes.Add(Enums.ReportOptionPurposes.ForAnyDevice);
+	ReportOptionPurposes.Add(?(Common.IsMobileClient(),
+									Enums.ReportOptionPurposes.ForSmartphones,
+									Enums.ReportOptionPurposes.ForComputersAndTablets));
+	SearchParameters.Insert("ReportOptionPurposes", ReportOptionPurposes);
+	SearchParameters.Insert("DisplayAllReportOptions", DisplayAllReportOptions);
+	
+	CurrentSectionOnly = SetupMode Or Not ValueIsFilled(SearchString) Or SearchInAllSections = 0;
 	If CurrentSectionOnly Then
 		SubsystemsTable = ApplicationSubsystems.Unload(New Structure("SectionReference", CurrentSectionRef));
 	Else
@@ -1774,11 +1838,13 @@ Procedure FillOutputOrder(OutputOrder, ParentLevelRow, TreeRow, Recursion, FillP
 		
 		If VisibleOptionsCount > 0 Then
 			SubsystemForms = FindSubsystemByRef(ThisObject, TreeRow.SubsystemRef);
+			If SubsystemForms <> Undefined Then
 			SubsystemForms.VisibleOptionsCount = SubsystemForms.VisibleOptionsCount + VisibleOptionsCount;
 			While SubsystemForms.Ref <> SubsystemForms.SectionReference Do
 				SubsystemForms = FindSubsystemByRef(ThisObject, SubsystemForms.SectionReference);
 				SubsystemForms.VisibleOptionsCount = SubsystemForms.VisibleOptionsCount + VisibleOptionsCount;
 			EndDo;
+			EndIf;
 		EndIf;
 		
 	EndIf;
@@ -2034,6 +2100,8 @@ Function AddReportOptionItems(FillParameters, Variant, ToGroup, NestingLevel = 0
 	Label.SetAction("Click", "Attachable_OptionClick");
 	If Not Variant.Visible Then
 		Label.TextColor = HiddenOptionsColor;
+	ElsIf Not Variant.VisibilityByAssignment Then
+		Label.TextColor = ColorOfHiddenOptionsByAssignment;
 	EndIf;
 	If Variant.Important
 		And FillParameters.GroupName <> "SeeAlso"

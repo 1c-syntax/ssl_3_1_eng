@@ -45,8 +45,8 @@ EndFunction
 Procedure ChoiceDataGetProcessing(ChoiceData, Parameters, StandardProcessing)
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.ChoiceDataGetProcessing(
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.ChoiceDataGetProcessing(
 			ChoiceData, Parameters, StandardProcessing, Metadata.ChartsOfCharacteristicTypes.TaskAddressingObjects);
 	EndIf;
 	
@@ -58,13 +58,13 @@ Procedure PresentationFieldsGetProcessing(Fields, StandardProcessing)
 	
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportClientServer = Common.CommonModule("NationalLanguageSupportClientServer");
-		ModuleNativeLanguagesSupportClientServer.PresentationFieldsGetProcessing(Fields, StandardProcessing);
+		ModuleNationalLanguageSupportClientServer = Common.CommonModule("NationalLanguageSupportClientServer");
+		ModuleNationalLanguageSupportClientServer.PresentationFieldsGetProcessing(Fields, StandardProcessing);
 	EndIf;
 	#Else
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportClientServer = CommonClient.CommonModule("NationalLanguageSupportClientServer");
-		ModuleNativeLanguagesSupportClientServer.PresentationFieldsGetProcessing(Fields, StandardProcessing);
+		ModuleNationalLanguageSupportClientServer = CommonClient.CommonModule("NationalLanguageSupportClientServer");
+		ModuleNationalLanguageSupportClientServer.PresentationFieldsGetProcessing(Fields, StandardProcessing);
 	EndIf;
 #EndIf
 	
@@ -74,13 +74,13 @@ Procedure PresentationGetProcessing(Data, Presentation, StandardProcessing)
 	
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportClientServer = Common.CommonModule("NationalLanguageSupportClientServer");
-		ModuleNativeLanguagesSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing);
+		ModuleNationalLanguageSupportClientServer = Common.CommonModule("NationalLanguageSupportClientServer");
+		ModuleNationalLanguageSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing);
 	EndIf;
 #Else
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportClientServer = CommonClient.CommonModule("NationalLanguageSupportClientServer");
-		ModuleNativeLanguagesSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing);
+		ModuleNationalLanguageSupportClientServer = CommonClient.CommonModule("NationalLanguageSupportClientServer");
+		ModuleNationalLanguageSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing);
 	EndIf;
 #EndIf
 	
@@ -116,9 +116,9 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	Item.PredefinedDataName = "AllAddressingObjects";
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-			ModuleNativeLanguagesSupportServer.FillMultilanguageAttribute(Item, "Description",
-		"en = 'All business objects';", LanguagesCodes); // @НСтр-1
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+			ModuleNationalLanguageSupportServer.FillMultilanguageAttribute(Item, "Description",
+		"en = 'All business objects';", LanguagesCodes); // @NStr-1
 	Else
 		Item.Description = NStr("en = 'All business objects';", Common.DefaultLanguageCode());
 	EndIf;

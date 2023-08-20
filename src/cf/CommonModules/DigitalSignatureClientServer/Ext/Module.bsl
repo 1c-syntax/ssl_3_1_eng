@@ -9,36 +9,40 @@
 
 #Region Public
 
-// SignatureProperties constructor that adds and updates signature data.
+// 
+// 
 // 
 // Returns:
-//   Structure - 
-//     * Signature             - BinaryData - Signing result.
+//   Structure:
+//     * Signature             - BinaryData - the result of the signing.
+//                           - String - 
 //     * SignatureSetBy - CatalogRef.Users - a user who
 //                           signed the infobase object.
 //     * Comment         - String - a comment if it was entered upon signing.
 //     * SignatureFileName     - String - if a signature is added from a file.
 //     * SignatureDate         - Date - a signature date. It makes sense
 //                           when the date cannot be extracted from signature data.
-//     * SignatureValidationDate - Date - a last signature check date.
-//     * SignatureCorrect        - Boolean - Last signature validation result.
+//     * SignatureValidationDate - Date - Date when the signature was last verified.
+//     * SignatureCorrect        - Boolean - result of the last signature check.
+//     * CheckRequired2   - Boolean -
 //     
-//     Intended for updating upgraded signatures:
+//     
 //     * SignedObject   - DefinedType.SignedObject - Object the signature associated with.
 //                             Ignored in methods there this object is a parameter.
 //     * SequenceNumber     - Number - Signature ID that used for list sorting.
 //                             Empty if the signature is not associated with an object.
-//     * IsErrorOccurredDuringAutomaticRenewal - Boolean - Service attribute. Assigned by a scheduled job.
+//     * IsErrorOccurredDuringAutomaticRenewal - Boolean -
 //
-//     Derived properties:
+//     
+//     * SignatureType          - EnumRef.CryptographySignatureTypes
+//     * DateActionLastTimestamp - Date -
+//                                           
+//                                           
 //     * Certificate          - ValueStorage - contains an upload of the certificate
 //                             that was used for signing (contained in the signature).
 //                           - BinaryData
 //     * Thumbprint           - String - a certificate thumbprint in the Base64 string format.
 //     * CertificateOwner - String - a subject presentation received from the certificate binary data.
-//     * SignatureType          - ПеречислениеСсылка.ТипыЭлектроннойПодписи
-//     * DateActionLastTimestamp - Date - Validity period of the certificate  that the last timestamp was signed with.
-//                                   Empty date if there's no timestamp.
 //     * CertificateDetails - Structure - Property required for certificates that cannot be passed to the CryptoCertificate's method.
 //                             Has the following properties:
 //        ** SerialNumber - String - a certificate serial number as in the CryptoCertificate platform object.
@@ -59,19 +63,55 @@ Function NewSignatureProperties() Export
 	Structure.Insert("SignatureCorrect");
 	Structure.Insert("SignedObject");
 	Structure.Insert("SequenceNumber");
+	Structure.Insert("CheckRequired2", False);
 	
 	Structure.Insert("Certificate");
 	Structure.Insert("Thumbprint");
 	Structure.Insert("CertificateOwner");
 	Structure.Insert("SignatureType");
 	Structure.Insert("DateActionLastTimestamp");
-	Structure.Insert("DateSignedFromLabels");
-	Structure.Insert("UnverifiedSignatureDate");
 	
 	Structure.Insert("CertificateDetails");
 	
 	Structure.Insert("IsErrorOccurredDuringAutomaticRenewal", False);
 	
+	Return Structure;
+	
+EndFunction
+
+// 
+// 
+// Returns:
+//  Structure:
+//   * Result - Boolean     -
+//             - String       - 
+//             - Undefined - 
+//   * SignatureCorrect        - Boolean, Undefined - result of the last signature check.
+//   * CertificateRevoked   - Boolean -
+//   * CheckRequired2   - Boolean -
+//   * SignatureType          - EnumRef.CryptographySignatureTypes -
+//   * DateActionLastTimestamp - Date -
+//    
+//   * UnverifiedSignatureDate - Date -
+//                               - Undefined - 
+//                                                
+//   * DateSignedFromLabels  - Date -
+//                       - Undefined - 
+//   * Certificate          - BinaryData -
+//   * Thumbprint           - String - the thumbprint of the certificate in Base64 string format.
+//   * CertificateOwner - String - the subject representation obtained from the certificate's binary data.
+//
+Function SignatureVerificationResult() Export
+	
+	Structure = New Structure;
+	Structure.Insert("Result");
+	Structure.Insert("SignatureCorrect");
+	Structure.Insert("CertificateRevoked", False);
+	Structure.Insert("CheckRequired2");
+	
+	CommonClientServer.SupplementStructure(
+		Structure, DigitalSignatureInternalClientServer.SignaturePropertiesUponReadAndVerify());
+		
 	Return Structure;
 	
 EndFunction

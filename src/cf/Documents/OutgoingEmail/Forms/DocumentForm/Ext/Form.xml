@@ -180,17 +180,17 @@
 					</Title>
 					<ExtendedTooltip name="MessageFormatExtendedTooltip" id="298"/>
 					<ChildItems>
-						<Button name="FormHTML" id="234">
+						<Button name="HTMLFormat" id="234">
 							<Type>CommandBarButton</Type>
-							<CommandName>Form.Command.HTML</CommandName>
+							<CommandName>Form.Command.HTMLFormat</CommandName>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-							<ExtendedTooltip name="FormHTMLExtendedTooltip" id="299"/>
+							<ExtendedTooltip name="HTMLFormatExtendedTooltip" id="299"/>
 						</Button>
-						<Button name="FormNormalText" id="235">
+						<Button name="FormatPlainText" id="235">
 							<Type>CommandBarButton</Type>
-							<CommandName>Form.Command.NormalText</CommandName>
+							<CommandName>Form.Command.FormatPlainText</CommandName>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-							<ExtendedTooltip name="FormPlainTextExtendedTooltip" id="300"/>
+							<ExtendedTooltip name="FormatPlainTextExtendedTooltip" id="300"/>
 						</Button>
 					</ChildItems>
 				</Popup>
@@ -450,21 +450,97 @@
 								</Page>
 							</ChildItems>
 						</Pages>
-						<InputField name="Subject" id="29">
-							<DataPath>Object.Subject</DataPath>
-							<TitleLocation>None</TitleLocation>
-							<Width>40</Width>
-							<AutoMaxWidth>false</AutoMaxWidth>
-							<Wrap>false</Wrap>
-							<InputHint>
+						<UsualGroup name="TopicGroup" id="484">
+							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Subject</v8:content>
+									<v8:content>Group email subject</v8:content>
 								</v8:item>
-							</InputHint>
-							<ContextMenu name="SubjectContextMenu" id="30"/>
-							<ExtendedTooltip name="SubjectExtendedTooltip" id="327"/>
-						</InputField>
+							</Title>
+							<Group>AlwaysHorizontal</Group>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="TopicGroupExtendedTooltip" id="485"/>
+							<ChildItems>
+								<InputField name="Subject" id="29">
+									<DataPath>Object.Subject</DataPath>
+									<TitleLocation>None</TitleLocation>
+									<Width>40</Width>
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<Wrap>false</Wrap>
+									<InputHint>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Subject</v8:content>
+										</v8:item>
+									</InputHint>
+									<ContextMenu name="SubjectContextMenu" id="30"/>
+									<ExtendedTooltip name="SubjectExtendedTooltip" id="327"/>
+								</InputField>
+								<PictureDecoration name="DecorationImportance" id="496">
+									<Visible>false</Visible>
+									<Width>3</Width>
+									<Height>1</Height>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Importance</v8:content>
+										</v8:item>
+									</Title>
+									<Picture>
+										<xr:Ref>CommonPicture.ImportanceNotSpecified</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<ContextMenu name="DecorationImportanceContextMenu" id="497"/>
+									<ExtendedTooltip name="DecorationImportanceExtendedTooltip" id="498"/>
+								</PictureDecoration>
+								<CommandBar name="CommandBarSubject" id="486">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Command bar email subject</v8:content>
+										</v8:item>
+									</Title>
+									<Width>5</Width>
+									<HorizontalStretch>false</HorizontalStretch>
+									<ExtendedTooltip name="CommandBarSubjectExtendedTooltip" id="487"/>
+									<ChildItems>
+										<Popup name="SeverityGroup" id="488">
+											<EnableContentChange>true</EnableContentChange>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Importance</v8:content>
+												</v8:item>
+											</Title>
+											<Picture>
+												<xr:Ref>CommonPicture.ImportanceNotSpecified</xr:Ref>
+												<xr:LoadTransparent>false</xr:LoadTransparent>
+											</Picture>
+											<Representation>Picture</Representation>
+											<ExtendedTooltip name="SeverityGroupExtendedTooltip" id="489"/>
+											<ChildItems>
+												<Button name="ImportanceHigh" id="490">
+													<Type>CommandBarButton</Type>
+													<CommandName>Form.Command.ImportanceHigh</CommandName>
+													<ExtendedTooltip name="ImportanceHighExtendedTooltip" id="491"/>
+												</Button>
+												<Button name="ImportanceNormal" id="492">
+													<Type>CommandBarButton</Type>
+													<CommandName>Form.Command.ImportanceNormal</CommandName>
+													<ExtendedTooltip name="ImportanceNormalExtendedTooltip" id="493"/>
+												</Button>
+												<Button name="ImportanceLow" id="494">
+													<Type>CommandBarButton</Type>
+													<CommandName>Form.Command.ImportanceLow</CommandName>
+													<ExtendedTooltip name="ImportanceLowExtendedTooltip" id="495"/>
+												</Button>
+											</ChildItems>
+										</Popup>
+									</ChildItems>
+								</CommandBar>
+							</ChildItems>
+						</UsualGroup>
 						<Pages name="DetailsPagesAdditional" id="248">
 							<Title>
 								<v8:item>
@@ -541,12 +617,12 @@
 																				<ChildItems>
 																					<Button name="FormHTMLContextMenu" id="435">
 																						<Type>CommandBarButton</Type>
-																						<CommandName>Form.Command.HTML</CommandName>
+																						<CommandName>Form.Command.HTMLFormat</CommandName>
 																						<ExtendedTooltip name="FormHTMLContextMenuExtendedTooltip" id="436"/>
 																					</Button>
 																					<Button name="FormPlainTextContextMenu" id="437">
 																						<Type>CommandBarButton</Type>
-																						<CommandName>Form.Command.NormalText</CommandName>
+																						<CommandName>Form.Command.FormatPlainText</CommandName>
 																						<ExtendedTooltip name="FormPlainTextContextMenuExtendedTooltip" id="438"/>
 																					</Button>
 																				</ChildItems>
@@ -602,12 +678,12 @@
 																				<ChildItems>
 																					<Button name="FormPlainTextContextMenu1" id="443">
 																						<Type>CommandBarButton</Type>
-																						<CommandName>Form.Command.NormalText</CommandName>
+																						<CommandName>Form.Command.FormatPlainText</CommandName>
 																						<ExtendedTooltip name="FormPlainTextContextMenu1ExtendedTooltip" id="444"/>
 																					</Button>
 																					<Button name="FormHTMLContextMenu1" id="441">
 																						<Type>CommandBarButton</Type>
-																						<CommandName>Form.Command.HTML</CommandName>
+																						<CommandName>Form.Command.HTMLFormat</CommandName>
 																						<ExtendedTooltip name="FormHTMLContextMenu1ExtendedTooltip" id="442"/>
 																					</Button>
 																				</ChildItems>
@@ -941,6 +1017,7 @@
 									<v8:content>Attachment commands</v8:content>
 								</v8:item>
 							</Title>
+							<HorizontalStretch>false</HorizontalStretch>
 							<HorizontalLocation>Right</HorizontalLocation>
 							<ExtendedTooltip name="AttachmentsCommands1ExtendedTooltip" id="451"/>
 							<ChildItems>
@@ -1020,7 +1097,6 @@
 							<DataPath>Object.EmployeeResponsible</DataPath>
 							<TitleLocation>Top</TitleLocation>
 							<Width>32</Width>
-							<AutoMaxWidth>false</AutoMaxWidth>
 							<HorizontalStretch>false</HorizontalStretch>
 							<Wrap>false</Wrap>
 							<ContextMenu name="EmployeeResponsibleContextMenu" id="166"/>
@@ -1036,6 +1112,8 @@
 							</Title>
 							<TitleLocation>Top</TitleLocation>
 							<Width>32</Width>
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<MaxWidth>36</MaxWidth>
 							<Wrap>false</Wrap>
 							<DropListButton>true</DropListButton>
 							<TextEdit>false</TextEdit>
@@ -1072,15 +1150,6 @@
 							<Events>
 								<Event name="ChoiceProcessing">ReviewAfterChoiceProcessing</Event>
 							</Events>
-						</InputField>
-						<InputField name="Importance" id="264">
-							<DataPath>Object.Importance</DataPath>
-							<TitleLocation>Top</TitleLocation>
-							<Width>17</Width>
-							<HorizontalStretch>false</HorizontalStretch>
-							<Wrap>false</Wrap>
-							<ContextMenu name="ImportanceContextMenu" id="265"/>
-							<ExtendedTooltip name="ImportanceExtendedTooltip" id="320"/>
 						</InputField>
 						<UsualGroup name="SendingDateRelevanceGroup" id="368">
 							<Title>
@@ -1158,7 +1227,7 @@
 									<Format>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>DF='MM/dd/yyyy h:mm tt'</v8:content>
+											<v8:content>DF='MM/dd/yyyy h:mm'</v8:content>
 										</v8:item>
 									</Format>
 									<ContextMenu name="PostingDateContextMenu" id="279"/>
@@ -1593,6 +1662,11 @@
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
+		<Attribute name="AccountBeforeChange" id="30">
+			<Type>
+				<v8:Type>cfg:CatalogRef.EmailAccounts</v8:Type>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="Send" id="1">
@@ -1695,7 +1769,7 @@
 			<Representation>TextPicture</Representation>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
-		<Command name="HTML" id="6">
+		<Command name="HTMLFormat" id="6">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -1708,14 +1782,14 @@
 					<v8:content>HTML</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>HTML</Action>
+			<Action>HTMLFormat</Action>
 			<FunctionalOptions>
 				<Item>FunctionalOption.SendEmailsInHTMLFormat</Item>
 			</FunctionalOptions>
 			<ModifiesSavedData>true</ModifiesSavedData>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
-		<Command name="NormalText" id="7">
+		<Command name="FormatPlainText" id="7">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -1728,7 +1802,7 @@
 					<v8:content>Plain text</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>NormalText</Action>
+			<Action>FormatPlainText</Action>
 			<FunctionalOptions>
 				<Item>FunctionalOption.SendEmailsInHTMLFormat</Item>
 			</FunctionalOptions>
@@ -1866,6 +1940,66 @@
 				</v8:item>
 			</Title>
 			<Action>SaveAttachment</Action>
+		</Command>
+		<Command name="ImportanceHigh" id="15">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>High importance</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>High importance</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Picture>
+				<xr:Ref>CommonPicture.ImportanceHigh</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>ImportanceHigh</Action>
+			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="ImportanceLow" id="16">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Low importance</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Low importance</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Picture>
+				<xr:Ref>CommonPicture.ImportanceLow</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>ImportanceLow</Action>
+			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="ImportanceNormal" id="17">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Normal importance</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Normal importance</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Picture>
+				<xr:Ref>CommonPicture.ImportanceNotSpecified</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>ImportanceNormal</Action>
+			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>
 	<Parameters>

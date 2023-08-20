@@ -44,7 +44,9 @@ EndFunction
 //                          reminder time settings.
 //
 Function ReminderDetails(DataToFill = Undefined, AllAttributes = False) Export
+	
 	Result = New Structure("User,EventTime,Source,ReminderTime,LongDesc,Id");
+	
 	If AllAttributes Then 
 		Result.Insert("ReminderTimeSettingMethod");
 		Result.Insert("ReminderInterval", 0);
@@ -53,9 +55,17 @@ Function ReminderDetails(DataToFill = Undefined, AllAttributes = False) Export
 		Result.Insert("PictureIndex", 2);
 		Result.Insert("RepeatAnnually", False);
 	EndIf;
+	
 	If DataToFill <> Undefined Then
 		FillPropertyValues(Result, DataToFill);
 	EndIf;
+	
+	If AllAttributes 
+		And Result.ReminderTimeSettingMethod <> Undefined
+		And Result.ReminderTimeSettingMethod <> PredefinedValue("Enum.ReminderTimeSettingMethods.RelativeToSubjectTime") Then
+		Result.SourceAttributeName = "";
+	EndIf;
+	
 	Return Result;
 EndFunction
 
@@ -287,6 +297,34 @@ EndFunction
 Function EnumPresentationOnOccurrence() Export
 	
 	Return NStr("en = 'on occurrence';");
+	
+EndFunction
+
+Function PresentationOFScheduledEnumeration()
+	
+	Return NStr("en = 'по расписанию';");
+	
+EndFunction
+
+// Parameters:
+//  Reminder - See ReminderDetails
+//
+Function PresentationOFReminderDEADLINE(Reminder) Export
+	
+	If Reminder.ReminderTimeSettingMethod = PredefinedValue("Enum.ReminderTimeSettingMethods.RelativeToSubjectTime") Then
+		If Reminder.ReminderInterval = 0 Then
+			Return EnumPresentationOnOccurrence();
+		Else
+			Return StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'за %1';"), TimePresentation(Reminder.ReminderInterval));
+		EndIf;
+	ElsIf Reminder.ReminderTimeSettingMethod = PredefinedValue("Enum.ReminderTimeSettingMethods.AtSpecifiedTime")
+		Or Reminder.ReminderTimeSettingMethod = PredefinedValue("Enum.ReminderTimeSettingMethods.RelativeToCurrentTime") Then
+		Return StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = '%1';"), Format(Reminder.ReminderTime, "DLF=DT;"));
+	Else
+		Return PresentationOFScheduledEnumeration();
+	EndIf;
 	
 EndFunction
 

@@ -100,10 +100,12 @@ EndFunction
 //    * AdditionalActionParameters - Arbitrary - (optional) - if specified, it is passed
 //                           to the server to the BeforeOperationStart procedure of the
 //                           DigitalSignatureOverridable common module as InputParameters.
-//    * OperationContext     - Undefined - (optional) - if specified, the property will be
-//                           set to a specific arbitrary type value, which allows
-//                           to execute an action with the same certificate again (the user 
-//                           s asked neither to enter the password nor to confirm an action).
+//    * OperationContext     - Undefined -
+//                           
+//                            
+//                           
+//                           
+//                           
 //                           - Arbitrary - 
 //                           
 //                           
@@ -229,6 +231,7 @@ Procedure Sign(DataDetails, Form = Undefined, ResultProcessing = Undefined, Sign
 	
 EndProcedure
 
+// 
 // 
 // 
 // Parameters:
@@ -423,10 +426,12 @@ EndProcedure
 // had set the check of digital signatures on the server.
 //
 // Parameters:
-//   Notification           - NotifyDescription - a notification about the execution result of the following types:
-//             = Boolean       - True if the check is completed successfully.
-//             = String       - a description of a signature check error.
-//             = Undefined - cannot get the crypto manager (because it is not specified).
+//   Notification           - NotifyDescription -
+//             
+//             
+//             
+//             See DigitalSignatureClientServer.SignatureVerificationResult
+//             
 //   RawData       - BinaryData - binary data that was signed.
 //                          Mathematical check is executed on the client side, even when
 //                          the administrator has set the check of digital signatures on the server
@@ -452,17 +457,35 @@ EndProcedure
 //                          
 //                          
 //                          
-//   ShowError       - Boolean - show the crypto manager creation error (when it is not specified).
+//   CheckParameters    - See SignatureVerificationParameters
+//                        
 //
 Procedure VerifySignature(Notification, RawData, Signature,
 	CryptoManager = Undefined,
 	OnDate = Undefined,
-	ShowError = True) Export
+	CheckParameters = Undefined) Export
 	
 	DigitalSignatureInternalClient.VerifySignature(
-		Notification, RawData, Signature, CryptoManager, OnDate, ShowError);
+		Notification, RawData, Signature, CryptoManager, OnDate, CheckParameters);
 	
 EndProcedure
+
+// 
+// 
+// Returns:
+//  Structure:
+//   * ShowCryptoManagerCreationError - Boolean - 
+//              
+//   * ResultAsStructure - See DigitalSignatureClientServer.SignatureVerificationResult
+//
+Function SignatureVerificationParameters() Export
+	
+	Structure = New Structure;
+	Structure.Insert("ShowCryptoManagerCreationError", True);
+	Structure.Insert("ResultAsStructure", False);
+	Return Structure;
+	
+EndFunction
 
 // Encrypts data, returns encryption certificates, and adds them to an object, if specified.
 // 
@@ -649,10 +672,12 @@ EndProcedure
 //    * AdditionalActionParameters - Arbitrary - (optional) - if specified, it is passed
 //                           to the server to the BeforeOperationStart common module procedure.
 //                           DigitalSignatureOverridable common module as InputParameters.
-//    * OperationContext     - Undefined - (optional) - if specified, the property will be
-//                           set to a specific arbitrary type value, which allows
-//                           to execute an action with the same certificate again (the user 
-//                           s asked neither to enter the password nor to confirm an action).
+//    * OperationContext     - Undefined -
+//                           
+//                            
+//                           
+//                           
+//                           
 //                           - Arbitrary - 
 //                           
 //                           
@@ -801,7 +826,7 @@ EndProcedure
 //
 // Parameters:
 //  DataDetails - Structure:
-//    * SignatureType          - ПеречислениеСсылка.ТипыЭлектроннойПодписи - Signature type to upgrade to.
+//    * SignatureType          - EnumRef.CryptographySignatureTypes - Signature type to upgrade to.
 //                           If the actual SignatureType is the same or higher, no actions are performed.
 //                           
 //    * AddArchiveTimestamp - Boolean - If True and SignatureType and actual SignatureType are archived, add a timestamp.
@@ -840,30 +865,33 @@ EndProcedure
 //        - UUID - 
 //                                
 //
-//  AbortArrayProcessingOnError - Boolean - Upon error, the item processing will be aborted.
+//  AbortArrayProcessingOnError  - Boolean -
+//  ShouldIgnoreCertificateValidityPeriod - Boolean -
+//                                                 
 //
-//  ResultProcessing - NotifyDescription - Required for non-standard result processing.
-//     For example, if the object reference or signature number is not specified.
-//     Structure:
-//     # Success - Boolean - True if all operations succeeded. If False, the partial abortion is defined by SignatureProperties.
-//               If the property is specified, the step is considered completed.
-//     # ErrorText - String
-//     # SignatureProperties - Array of Structure -
-//                          ## Signature - BinaryData - Signature to be upgraded.
-//                                     - String - Address in the temp storage.
-//                          ## SignedObject - AnyRef - If any.
-//                          ## SequenceNumber - Number - If any.
-//                          ## SignatureType - EnumRef.............. - Signature type.
-//                                Applicable if the upgrade failed but the type was determined.
-//                          ## LastTimestampValidityPeriod - Date - Timestamp validity.
-//                                Applicable if the upgrade failed but the validity period was determined.
-//                          ## SignatureProperties - Upgraded signature properties. See DigitalSignatureClientServer.NewSignatureProperties
-//                             Only modified properties are available.
-//                          ## Error - String - Text of an error occurred during the upgrade.
-//                           In this case, the structure doesn't contain properties of the signature that failed to upgrade.
-//                        - String - Address of the temp storage that contains the array above.
+//  
+//     
+//     
+//     
+//               
+//     
+//     
+//                          
+//                                     
+//                          
+//                          
+//                          
+//                                
+//                          
+//                                
+//                          See DigitalSignatureClientServer.NewSignatureProperties
+//                             
+//                          
+//                           
+//                        
 //
-Procedure EnhanceSignature(DataDetails, Form, ResultProcessing = Undefined, AbortArrayProcessingOnError = True) Export
+Procedure EnhanceSignature(DataDetails, Form, ResultProcessing = Undefined,
+	AbortArrayProcessingOnError = True, ShouldIgnoreCertificateValidityPeriod = False) Export
 	
 	Context = New Structure;
 	Context.Insert("ResultProcessing", ResultProcessing);
@@ -875,7 +903,8 @@ Procedure EnhanceSignature(DataDetails, Form, ResultProcessing = Undefined, Abor
 	Else
 		ExecutionParameters.Insert("FormIdentifier", Form);
 	EndIf;
-	ExecutionParameters.Insert("AbortArrayProcessingOnError", AbortArrayProcessingOnError);
+	ExecutionParameters.Insert("AbortArrayProcessingOnError",  AbortArrayProcessingOnError);
+	ExecutionParameters.Insert("ShouldIgnoreCertificateValidityPeriod", ShouldIgnoreCertificateValidityPeriod);
 		
 	Context.Insert("ExecutionParameters", ExecutionParameters);
 	
@@ -1214,11 +1243,11 @@ EndFunction
 //                          LE - in case of issuing the DS to an official responsible - their position.
 //                        - Undefined - 
 //
-//     * RegistrationNumber             - String - (64) - extracted from the OGRN field.
+//     * OGRN             - String - (64) - extracted from the OGRN field.
 //                          LE - a company's OGRN.
 //                        - Undefined - 
 //
-//     * REGNUMIE           - String - (64) - extracted from the OGRNIP field.
+//     * OGRNIE           - String - (64) - extracted from the OGRNIP field.
 //                          IE - an OGRN of an individual entrepreneur.
 //                        - Undefined - 
 //
@@ -1290,7 +1319,7 @@ EndFunction
 //     * Email - String - (128) - it is extracted from the E field. It is an email address of the certificate authority.
 //                        - Undefined - 
 //
-//     * RegistrationNumber             - String - (13) - extracted from the OGRN field - a certificate authority's OGRN.
+//     * OGRN             - String - (13) - extracted from the OGRN field - a certificate authority's OGRN.
 //                        - Undefined - 
 //
 //     * TIN              - String - (12) - extracted from the INN field - a TIN of the certificate authority company.
@@ -1307,42 +1336,46 @@ Function CertificateIssuerProperties(Certificate) Export
 	
 EndFunction
 
-// Returns the XML format template containing one standard Signature
-// item (see standard https://www.w3.org/TR/xmldsig-core1) 
-// with one Reference item and the filled in URI attribute
-// (reference to the XML message to be signed).
+// 
+// 
+// 
+// 
 //
-// The returned template contains the %SignatureMethod%, %DigestMethod%,
-// %DigestValue%, %SignatureValue%, %BinarySecurityToken% parameters,
-// which are automatically filled in upon signing.
-// The %SignatureMethod% (signing algorithm in the XML format) and
-// %DigestMethod% (hashing algorithm in the XML format) parameters are calculated by
-// the public key algorithm of the certificate that is used for signing,
-// first by the table specified in the XMLDSigParameters, then
-// if the table is not filled in or mapping is not found,
-// by the internal mapping table (recommended).
+// 
+// 
+// 
+// 
+// 
+// 
+// 
+// 
+// 
+// 
+// 
+// 
+// 
 //
-// Signing and hashing algorithms GOST 94…2012 are supported.
-// Canonicalization algorithms are supported:
-//  Exclusive XML Canonicalization 1.0
-//   http://www.w3.org/2001/10/xml-exc-c14n#
-//   http://www.w3.org/2001/10/xml-exc-c14n#WithComments
-//  Canonical XML 1.0
-//   http://www.w3.org/TR/2001/REC-xml-c14n-20010315
-//   http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments
-//  Canonical XML 1.1
-//   http://www.w3.org/2006/12/xml-c14n11
-//   http://www.w3.org/2006/12/xml-c14n11#WithComments
-//  Enveloped signature (it is ignored since
-//  the empty URI is not supported in the SignedInfo.Reference item):
-//   http://www.w3.org/2000/09/xmldsig#enveloped-signature
-//  Recommendation SMEV 3.5.0.1, "XML transformation ALGORITHM":
-//   urn://smev-gov-ru/xmldsig/transform
+// 
+// 
+//  
+//   
+//   
+//  
+//   
+//   
+//  
+//   
+//   
+//  
+//  
+//   
+//  
+//   
 //
-// The certificate can be specified in the KeyInfo as the base64 value:
-// - or as the X509Data.X509Certificate item
-// - or as the KeyInfoReference.Reference item or
-//   the SecurityTokenReference.Reference with the URI to an item with a value.
+// 
+// 
+// 
+//   
 //
 // Parameters:
 //  Parameters - See DigitalSignatureClient.XMLEnvelopeParameters
@@ -1876,9 +1909,8 @@ EndProcedure
 //             
 //          
 //          
-//       - только установленные программы, из переданных в параметре ПроверяемыеПрограммы на клиенте.
 //     
-//     
+//                                            
 //     
 //     
 //     
@@ -1922,6 +1954,23 @@ Procedure SetCertificatePassword(CertificateReference, Password, PasswordNote = 
 	DigitalSignatureInternalClient.SetCertificatePassword(CertificateReference, Password, PasswordNote);
 	
 EndProcedure
+
+// 
+// 
+// 
+//
+// Parameters:
+//  CertificateReference - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates -
+//                        
+//
+// Returns:
+//  Boolean - 
+//
+Function CertificatePasswordIsSet(CertificateReference) Export
+	
+	Return DigitalSignatureInternalClient.CertificatePasswordIsSet(CertificateReference);
+	
+EndFunction
 
 // Overrides the usual certificate choice from the catalog to certificate selection
 // from the personal storage with password confirmation and automatic addition to the catalog
@@ -1990,6 +2039,60 @@ Procedure InstallRootCertificate(Certificate) Export
 	
 EndProcedure
 
+// 
+// 
+// Parameters:
+//  Notification - NotifyDescription -
+//                                    
+//                                   
+//    
+//     
+//     
+//                                  
+//     
+//                                                   
+//     
+//             - Undefined - 
+//     
+//     
+//     
+//      
+//     
+//  Signature - BinaryData
+//          - String - 
+//          - Array of String
+//          - Array of BinaryData
+//  ShouldReadCertificates - Boolean -
+//
+Procedure ReadSignatureProperties(Notification, Signature, ShouldReadCertificates = True) Export
+
+	DigitalSignatureInternalClient.ReadSignatureProperties(Notification, Signature, ShouldReadCertificates);
+
+EndProcedure
+
+// 
+
+// 
+// 
+// Parameters:
+//  Certificate - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates
+//
+Procedure NotifyAboutCertificateExpiring(Certificate) Export
+	
+	Result = DigitalSignatureInternalServerCall.CertificateCustomSettings(Certificate);
+
+	If ValueIsFilled(Result.CertificateRef) And Not Result.IsNotified Then
+		
+		FormOpenParameters = New Structure("Certificate", Certificate);
+		ActionOnClick = New NotifyDescription("OpenNotificationFormNeedReplaceCertificate",
+			DigitalSignatureInternalClient, FormOpenParameters);
+		ShowUserNotification(NStr("en = 'You need to reissue the certificate';"), ActionOnClick, Certificate,
+			PictureLib.Warning32, UserNotificationStatus.Important, Certificate);
+
+	EndIf;
+	
+EndProcedure
+
 #EndRegion
 
 #EndRegion
@@ -2007,7 +2110,7 @@ Procedure OpenSignature(CurrentData) Export
 		"SignatureDate, Comment, CertificateOwner, Thumbprint,
 		|SignatureAddress, SignatureSetBy, CertificateAddress,
 		|Status, ErrorDescription, SignatureCorrect, SignatureValidationDate, SignatureType, DateActionLastTimestamp,
-		|Object, SequenceNumber");
+		|Object, SequenceNumber, CheckRequired2");
 	
 	FillPropertyValues(SignatureProperties, CurrentData);
 	
@@ -2038,7 +2141,7 @@ Procedure OpenReportExtendValidityofElectronicSignatures(ExtensionMode) Export
 EndProcedure
 
 
-// Saves signature to the hard drive
+// 
 Procedure SaveSignature(SignatureAddress) Export
 	
 	DigitalSignatureInternalClient.SaveSignature(SignatureAddress);

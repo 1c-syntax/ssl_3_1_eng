@@ -23,6 +23,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	InfobaseUpdate.CheckObjectProcessed(Object, ThisObject);
 	
+	Object.HTMLText = CommonClientServer.ReplaceProhibitedXMLChars(Object.HTMLText);
+	
 	If Object.Ref.IsEmpty() Then
 		Reviewed = True;
 		OnCreateAndOnReadAtServer();
@@ -55,7 +57,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
 	EndIf;
-	// End StandardSubsystems.AttachableCommands
+	// End StandardSubsystems.AttachableCommands       
 	
 	StatusOfSendingEmails = StatusOfSendingEmails();
 	Items.WarningAboutUnsentEmails.Visible = StatusOfSendingEmails.SendingIsSuspended;
@@ -178,6 +180,8 @@ Procedure OnReadAtServer(CurrentObject)
 	
 	Interactions.SetInteractionFormAttributesByRegisterData(ThisObject);
 	OnCreateAndOnReadAtServer();
+	
+	Object.HTMLText = CommonClientServer.ReplaceProhibitedXMLChars(Object.HTMLText);
 	
 	// StandardSubsystems.Properties
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
@@ -617,7 +621,8 @@ EndProcedure
 Procedure SenderPresentationChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	
 	If Object.Account <> ValueSelected Then
-		ChangeSignature(Object.Account, ValueSelected);
+		
+		AccountBeforeChange = Object.Account;
 		Object.Account = ValueSelected;
 		ListItem = Item.ChoiceList.FindByValue(ValueSelected);
 		If ListItem <> Undefined Then
@@ -625,6 +630,8 @@ Procedure SenderPresentationChoiceProcessing(Item, ValueSelected, StandardProces
 			Object.SenderPresentation = ListItem.Presentation;
 		EndIf;
 		Modified = True;
+		AttachIdleHandler("AfterChangingSender", 0.1, True);
+		
 	EndIf;
 	
 EndProcedure
@@ -901,7 +908,7 @@ Procedure SendForwardExecute(Command)
 EndProcedure
 
 &AtClient
-Procedure HTML(Command)
+Procedure HTMLFormat(Command)
 	
 	If MessageFormat <> PredefinedValue("Enum.EmailEditingMethods.HTML") Then
 		
@@ -913,7 +920,7 @@ Procedure HTML(Command)
 EndProcedure
 
 &AtClient
-Procedure NormalText(Command)
+Procedure FormatPlainText(Command)
 	
 	If MessageFormat <> PredefinedValue("Enum.EmailEditingMethods.NormalText") Then
 		
@@ -970,6 +977,42 @@ EndProcedure
 Procedure InsertExternalRefToInfobaseObject(Command)
 	
 	OpenForm("Document.OutgoingEmail.Form.ExternalObjectRefGeneration",,ThisObject);
+	
+EndProcedure
+
+&AtClient
+Procedure ImportanceHigh(Command)
+	
+	Object.Importance = PredefinedValue("Enum.InteractionImportanceOptions.High");
+	Items.SeverityGroup.Picture = PictureLib.ImportanceHigh;
+	Items.SeverityGroup.ToolTip = NStr("en = 'High importance';");
+	Items.DecorationImportance.Picture = PictureLib.ImportanceHigh;
+	Items.DecorationImportance.ToolTip = NStr("en = 'High importance';");
+	Modified = True;
+	
+EndProcedure
+
+&AtClient
+Procedure ImportanceNormal(Command)
+	
+	Object.Importance = PredefinedValue("Enum.InteractionImportanceOptions.Ordinary");
+	Items.SeverityGroup.Picture = PictureLib.ImportanceNotSpecified;
+	Items.SeverityGroup.ToolTip = NStr("en = 'Normal importance';");
+	Items.DecorationImportance.Picture = PictureLib.ImportanceNotSpecified;
+	Items.DecorationImportance.ToolTip = NStr("en = 'Normal importance';");
+	Modified = True;
+	
+EndProcedure
+
+&AtClient
+Procedure ImportanceLow(Command)
+	
+	Object.Importance = PredefinedValue("Enum.InteractionImportanceOptions.Low");
+	Items.SeverityGroup.Picture = PictureLib.ImportanceLow;
+	Items.SeverityGroup.ToolTip = NStr("en = 'Low importance';");
+	Items.DecorationImportance.Picture = PictureLib.ImportanceLow;
+	Items.DecorationImportance.ToolTip = NStr("en = 'Low importance';");
+	Modified = True;
 	
 EndProcedure
 
@@ -1137,6 +1180,30 @@ Function BaseEmailProcessingRequired()
 
 EndFunction
 
+&AtServer
+Procedure DoDisplayImportance()
+
+	If Object.Importance = Enums.InteractionImportanceOptions.High Then
+		Items.SeverityGroup.Picture = PictureLib.ImportanceHigh;
+		Items.SeverityGroup.ToolTip = NStr("en = 'High importance';");
+		Items.DecorationImportance.Picture = PictureLib.ImportanceHigh;
+		Items.DecorationImportance.ToolTip = NStr("en = 'High importance';");
+		
+	ElsIf Object.Importance = Enums.InteractionImportanceOptions.Low Then
+		Items.SeverityGroup.Picture = PictureLib.ImportanceLow;
+		Items.SeverityGroup.ToolTip = NStr("en = 'Low importance';");
+		Items.DecorationImportance.Picture = PictureLib.ImportanceLow;
+		Items.DecorationImportance.ToolTip = NStr("en = 'Low importance';");
+		
+	Else
+		Items.SeverityGroup.Picture = PictureLib.ImportanceNotSpecified;
+		Items.SeverityGroup.ToolTip = NStr("en = 'Normal importance';");
+		Items.DecorationImportance.Picture = PictureLib.ImportanceNotSpecified;
+		Items.DecorationImportance.ToolTip = NStr("en = 'Normal importance';");
+	EndIf;
+
+EndProcedure
+
 /////////////////////////////////////////////////////////////////////////////////
 //  
 
@@ -1185,6 +1252,8 @@ Procedure DefineItemsVisibilityAvailabilityDependingOnEmailStatus()
 		Items.RecipientsListSendingOption.ReadOnly     = True;
 		Items.RecipientsListPresentation.TextEdit = False;
 		Items.RecipientsList.ReadOnly                    = True;
+		Items.SeverityGroup.Visible                            = False;
+		Items.DecorationImportance.Visible = Object.Importance <> Enums.InteractionImportanceOptions.Ordinary;
 		
 	EndIf;
 	
@@ -1517,7 +1586,7 @@ Procedure AttachIncomingBaseEmailAsAttachmentIfNecessary(CurrentObject)
 			HTMLTextIncomingEmail = Interactions.GenerateHTMLTextForOutgoingEmail(InteractionBasis, True, True, False);
 		EndIf;
 		
-		FileName = GetTempFileName("HTML");
+		FileName = GetTempFileName("html");
 		FileSourceMessage = New TextWriter(FileName,TextEncoding.UTF16);
 		FileSourceMessage.Write(HTMLTextIncomingEmail);
 		FileSourceMessage.Close();
@@ -1532,7 +1601,7 @@ Procedure AttachIncomingBaseEmailAsAttachmentIfNecessary(CurrentObject)
 		FileParameters = FilesOperations.FileAddingOptions();
 		FileParameters.FilesOwner = CurrentObject.Ref;
 		FileParameters.BaseName = NStr("en = 'Forwarded message';");
-		FileParameters.ExtensionWithoutPoint = "HTML";
+		FileParameters.ExtensionWithoutPoint = "html";
 		FileParameters.ModificationTimeUniversal = Undefined;
 		
 		FilesOperations.AppendFile(FileParameters, FileAddressInStorage);
@@ -2147,7 +2216,7 @@ Procedure SendExecute()
 	FoundRows = AvailableAccountsForSending.FindRows(New Structure("Account", Object.Account));
 	If FoundRows.Count() = 0 Then
 		CommonClient.MessageToUser(
-			NStr("en = 'Cannot send messages from this email account.';"),, "SenderPresentation", "Object");
+			NStr("en = 'The selected account cannot be used to send mail.';"),, "SenderPresentation", "Object");
 		Return;
 	EndIf;
 	
@@ -2158,7 +2227,7 @@ Procedure SendExecute()
 		ButtonsList.Add(DialogReturnCode.No, NStr("en = 'Send and save';"));
 		ButtonsList.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
 		
-		QueryText = NStr("en = 'This email account doesn''t store sent messages in the app.
+		QueryText = NStr("en = 'This email account doesn''t store sent messages in the application.
 		                    |Do you want to continue?';");
 		
 		CloseNotificationHandler = New NotifyDescription("PromptForNotSavingSentEmail", ThisObject);
@@ -2249,7 +2318,8 @@ Procedure OnCreateAndOnReadAtServer()
 	
 	Items.CommentPage.Picture = CommonClientServer.CommentPicture(Object.Comment);
 	
-	GenerateEmailRecipientsLists();
+	GenerateEmailRecipientsLists();  
+	DoDisplayImportance();
 	
 EndProcedure 
 
@@ -2900,6 +2970,13 @@ Procedure AfterPutFile(Result, AdditionalParameters) Export
 		EndIf;
 	EndIf;
 	
+EndProcedure
+
+&AtClient
+Procedure AfterChangingSender()
+
+	ChangeSignature(AccountBeforeChange, Object.Account);
+
 EndProcedure
 
 &AtClient

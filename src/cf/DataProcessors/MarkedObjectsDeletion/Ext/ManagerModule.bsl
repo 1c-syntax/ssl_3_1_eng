@@ -657,7 +657,7 @@ Function QueryTextSubordinateElements(MetadataInformation)
 	QueryTemplate = "SELECT
 	|	Tab.Ref AS Item,
 	|	Tab.DeletionMark AS DeletionMark,
-	|	""Subordinate"" AS ElementType
+	|	""Subordinated"" AS ElementType
 	|FROM
 	|	&TableName AS Tab
 	|WHERE
@@ -718,7 +718,7 @@ Function ItemDeletionAllowed(AdditionalInfo)
 	Result = True;
 	
 	For Each Item In AdditionalInfo Do
-		If Not Item.DeletionMark And Not Item.ElementType = "Subordinate" Then
+		If Not Item.DeletionMark And Not Item.ElementType = "Subordinated" Then
 			Result = False;
 			Break;
 		EndIf;
@@ -1565,7 +1565,7 @@ Procedure DeleteMarkedObjectsExclusively(ObjectsToDelete, ExecutionParameters)
 		// 
 		ChildSubordinateObjects = ChildSubordinateItems(RemovableObject, MetadataInformation);
 		For Each SubordinateObject In ChildSubordinateObjects Do
-			If SubordinateObject.DeletionMark Or SubordinateObject.ElementType = "Subordinate" Then
+			If SubordinateObject.DeletionMark Or SubordinateObject.ElementType = "Subordinated" Then
 				SubordinateObjects.Add(SubordinateObject.Item);
 			EndIf;
 		EndDo;
@@ -1735,6 +1735,7 @@ Procedure MarkCollectionTraversalProgress(ExecutionParameters, CollectionName)
 	
 	Percent = Round(100 * (ExecutionParameters.ProcessedItemsCount)
 		/ ExecutionParameters.CountOfItemsToDelete);
+	AdditionalParameters = Undefined;
 	
 	// Prepare parameters to be passed.
 	If CollectionName = "BeforeSearchForItemsMarkedForDeletion" Then
@@ -1755,6 +1756,9 @@ Procedure MarkCollectionTraversalProgress(ExecutionParameters, CollectionName)
 		
 	ElsIf CollectionName = "UserObjects" Then
 		
+		AdditionalParameters = New Structure;
+		AdditionalParameters.Insert("SessionNumber", InfoBaseSessionNumber());
+		AdditionalParameters.Insert("ProcessedItemsCount", ExecutionParameters.ProcessedItemsCount);
 		Text = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Processed %1 of %2';"),
 			ExecutionParameters.ProcessedItemsCount,
@@ -1780,7 +1784,7 @@ Procedure MarkCollectionTraversalProgress(ExecutionParameters, CollectionName)
 		
 	EndIf;
 	
-	TimeConsumingOperations.ReportProgress(Percent, Text);
+	TimeConsumingOperations.ReportProgress(Percent, Text, AdditionalParameters);
 EndProcedure
 
 #EndRegion

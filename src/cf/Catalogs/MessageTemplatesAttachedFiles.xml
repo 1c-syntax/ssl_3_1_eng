@@ -1497,7 +1497,7 @@
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Signature comment</v8:content>
+									<v8:content>Comment to signature</v8:content>
 								</v8:item>
 							</ToolTip>
 							<MarkNegatives>false</MarkNegatives>
@@ -1744,7 +1744,7 @@
 							<Synonym>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Date submitted</v8:content>
+									<v8:content>Date verified</v8:content>
 								</v8:item>
 							</Synonym>
 							<Comment/>
@@ -1760,7 +1760,7 @@
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Date when the signature was last submitted for validation.</v8:content>
+									<v8:content>Date when the signature was last verified.</v8:content>
 								</v8:item>
 							</ToolTip>
 							<MarkNegatives>false</MarkNegatives>

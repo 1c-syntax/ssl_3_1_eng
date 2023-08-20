@@ -171,7 +171,7 @@ Function TemplateFromBinaryData(BinaryTemplateData) Export
 	
 	Extension = DefineDataFileExtensionBySignature(BinaryTemplateData);
 	If Extension <> "docx" Then
-		ErrorText = NStr("en = 'Invalid layout format for MS Word template.';");
+		ErrorText = NStr("en = 'Incorrect layout format for MS Word template.';");
 		WriteEventsToEventLog(EventLogEvent(), "Error", ErrorText);
 		Raise ErrorText;
 	EndIf;
@@ -216,7 +216,7 @@ Function TemplateFromDCSBinaryData(BinaryTemplateData) Export
 	
 	Extension = DefineDataFileExtensionBySignature(BinaryTemplateData);
 	If Extension <> "docx" Then
-		ErrorText = NStr("en = 'Invalid layout format for MS Word template.';");
+		ErrorText = NStr("en = 'Incorrect layout format for MS Word template.';");
 		WriteEventsToEventLog(EventLogEvent(), "Error", ErrorText);
 		Raise ErrorText;
 	EndIf;
@@ -1415,12 +1415,12 @@ Procedure FindAreas(DocumentStructure, ObjectTablePartNames) Export
 		AreaCondition = AreaCondition(StartArea);
 		If EndArea = Undefined Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'В макете документа нет окончания условной области ""%1"".';"), AreaCondition);
+				NStr("en = 'In the document template, the end of the %1 conditional area is not specified.';"), AreaCondition);
 		EndIf;
 		
 		CollectionArea = Undefined;
 		ConditionalAreasEnds = New Array;
-		AreasToDelete = New Array;
+		AreasToRemove = New Array;
 		For Each Area In Areas Do
 			If Area.IndexOf >= FoundAreaIndexEnd Or FoundAreaIndexStart >= Area.IndexOf Then
 				Continue;
@@ -1436,7 +1436,7 @@ Procedure FindAreas(DocumentStructure, ObjectTablePartNames) Export
 			EndIf;
 				
 			If CollectionArea <> Undefined Then
-				NextAreaNode = BorderOfNextArea(CollectionArea.DocTreeNode, Areas);
+				NextAreaNode = NextAreaBorder(CollectionArea.DocTreeNode, Areas);
 				If NextAreaNode <> Undefined And NextAreaNode.IndexOf < FoundAreaIndexEnd Then
 					AreaProperties = New Structure("DocTreeNode, AreaCondition");
 					AreaProperties.DocTreeNode = NextAreaNode;
@@ -1445,16 +1445,16 @@ Procedure FindAreas(DocumentStructure, ObjectTablePartNames) Export
 				EndIf;
 			EndIf;
 			
-			NextAreaNode = BorderOfNextArea(EndArea, Areas);
+			NextAreaNode = NextAreaBorder(EndArea, Areas);
 			If NextAreaNode = Undefined Then
-				AreasToDelete.Add(Area);
+				AreasToRemove.Add(Area);
 				Continue;
 			EndIf;
 			Area.DocTreeNode = NextAreaNode;
 			Area.IndexOf = Area.DocTreeNode.IndexOf;
 		EndDo;
 		
-		For Each Area In AreasToDelete Do
+		For Each Area In AreasToRemove Do
 			Areas.Delete(Area);
 		EndDo;
 		
@@ -1893,7 +1893,7 @@ Function GetNextNode(Node)
 	EndIf;
 EndFunction
 
-Function BorderOfNextArea(String, Areas)
+Function NextAreaBorder(String, Areas)
 	Parent = String.Parent;
 	If Parent = Undefined Then
 		Return Undefined;
@@ -1914,7 +1914,7 @@ Function BorderOfNextArea(String, Areas)
 		
 	If NavigateToParent Then
 		
-		Return BorderOfNextArea(Parent, Areas);
+		Return NextAreaBorder(Parent, Areas);
 		
 	Else
 		
@@ -2560,7 +2560,7 @@ Procedure DeleteConditionalAreasTags(Indexes, DocumentTree)
 EndProcedure
 
 Procedure AddAreaWithCondition(Areas, Area)
-	NextAreaNode = BorderOfNextArea(Area, Areas);
+	NextAreaNode = NextAreaBorder(Area, Areas);
 	
 	If NextAreaNode = Undefined Then
 		Return;
@@ -2586,7 +2586,7 @@ Procedure ParseDOCXDocumentContainer(Val FullFileName, Val FileStructurePath)
 	Except
 		DeleteFiles(FullFileName);
 		WriteEventsToEventLog(EventLogEvent(), "Error", ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		Raise(NStr("en = 'Не удалось открыть файл шаблона по причине:';") + Chars.LF 
+		Raise(NStr("en = 'Cannot open template file. Reason:';") + Chars.LF 
 			+ ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 	EndTry;
 	
@@ -5361,7 +5361,7 @@ Function DefineDataFileExtensionBySignature(DataOrStructure) Export
 		Except
 			DeleteFiles(TempFileName);
 			WriteEventsToEventLog(EventLogEvent(), "Error", ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-			Raise(NStr("en = 'Не удалось открыть файл шаблона по причине:';") + Chars.LF 
+			Raise(NStr("en = 'Cannot open template file. Reason:';") + Chars.LF 
 				+ ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		EndTry;
 		

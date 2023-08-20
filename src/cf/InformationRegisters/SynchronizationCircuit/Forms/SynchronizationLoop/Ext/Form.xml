@@ -207,7 +207,7 @@
 							<Title formatted="true">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>&lt;b&gt;&lt;colorstyle -16&gt;Warning!&lt;/&gt;&lt;/&gt; If you enable registration upon looping, it might lead to excessive data to send and receive and increase the exchange duration.</v8:content>
+									<v8:content>&lt;colorstyle -16&gt;&lt;b&gt;Warning!&lt;/&gt;&lt;/&gt; If you enable registration upon looping, it might lead to excessive data to send and receive and increase the exchange duration.</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="InfoResumeRegistrationContextMenu" id="101"/>

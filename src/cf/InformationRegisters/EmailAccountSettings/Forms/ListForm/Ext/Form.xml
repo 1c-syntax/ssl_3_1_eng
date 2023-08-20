@@ -102,7 +102,7 @@
 					<ExtendedTooltip name="EmailAccountExtendedTooltip" id="18"/>
 				</LabelField>
 				<InputField name="PersonalAccount" id="19">
-					<DataPath>List.EmailAccount.AccountOwner</DataPath>
+					<DataPath>List.AccountOwner</DataPath>
 					<DefaultItem>true</DefaultItem>
 					<ContextMenu name="PersonalAccountContextMenu" id="20"/>
 					<ExtendedTooltip name="PersonalAccountExtendedTooltip" id="21"/>
@@ -136,22 +136,53 @@
 			</Type>
 			<MainAttribute>true</MainAttribute>
 			<UseAlways>
-				<Field>List.AddSignatureForNewMessages</Field>
-				<Field>List.AddSignatureOnReplyForward</Field>
-				<Field>List.DeleteEmailsAfterSend</Field>
+				<Field>List.AccountOwner</Field>
 				<Field>List.EmailAccount</Field>
 				<Field>List.EmployeeResponsibleForFoldersMaintenance</Field>
 				<Field>List.EmployeeResponsibleForProcessingEmails</Field>
-				<Field>List.IncludeUsernameInPresentation</Field>
-				<Field>List.MailHandlingInOtherMailClient</Field>
-				<Field>List.NewMessageSignatureFormat</Field>
 				<Field>List.NotUseInDefaultEmailClient</Field>
-				<Field>List.PutEmailInBaseEmailFolder</Field>
-				<Field>List.ReplyForwardSignatureFormat</Field>
+				<Field>~List.ВПредставлениеВключатьИмяПользователя</Field>
+				<Field>~List.ВключатьПодписьДляНовыхСообщений</Field>
+				<Field>~List.ВключатьПодписьПриОтветеПересылке</Field>
+				<Field>~List.ОбработкаПисемВыполняетсяВДругомПочтовомКлиенте</Field>
+				<Field>~List.ПомещатьПисьмоВПапкуПисьмаОснования</Field>
+				<Field>~List.УдалятьПисьмаПослеОтправки</Field>
+				<Field>~List.ФорматПодписиДляНовыхСообщений</Field>
+				<Field>~List.ФорматПодписиПриОтветеПересылке</Field>
 			</UseAlways>
 			<Settings xsi:type="DynamicList">
-				<ManualQuery>false</ManualQuery>
+				<ManualQuery>true</ManualQuery>
 				<DynamicDataRead>true</DynamicDataRead>
+				<QueryText>SELECT 
+	EmailAccountSettings.EmailAccount,
+	EmailAccountSettings.EmployeeResponsibleForProcessingEmails,
+	EmailAccountSettings.EmployeeResponsibleForFoldersMaintenance,
+	EmailAccountSettings.NotUseInDefaultEmailClient,
+	EmailAccounts.AccountOwner
+FROM
+	InformationRegister.EmailAccountSettings AS EmailAccountSettings
+		LEFT JOIN Catalog.EmailAccounts AS EmailAccounts
+		ON EmailAccountSettings.EmailAccount = EmailAccounts.Ref</QueryText>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>EmailAccount</dcssch:dataPath>
+					<dcssch:field>EmailAccount</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>EmployeeResponsibleForProcessingEmails</dcssch:dataPath>
+					<dcssch:field>EmployeeResponsibleForProcessingEmails</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>EmployeeResponsibleForFoldersMaintenance</dcssch:dataPath>
+					<dcssch:field>EmployeeResponsibleForFoldersMaintenance</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>NotUseInDefaultEmailClient</dcssch:dataPath>
+					<dcssch:field>NotUseInDefaultEmailClient</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>AccountOwner</dcssch:dataPath>
+					<dcssch:field>AccountOwner</dcssch:field>
+				</Field>
 				<MainTable>InformationRegister.EmailAccountSettings</MainTable>
 				<ListSettings>
 					<dcsset:filter>

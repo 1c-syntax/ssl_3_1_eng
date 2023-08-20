@@ -764,7 +764,7 @@ Procedure ChangeScheduleAfterSetUpSchedule(NewSchedule, AdditionalParameters) Ex
 				|To have them executed correctly, specify the repeat interval.
 				|
 				|In the schedule settings window, click the ""Daily"" tab
-				|and fill the ""Repeat in"" field.';");
+				|and fill in the ""Repeat after"" field.';");
 			ShowQueryBox(Notification, MessageText, QuestionButtons,, "SetUpSchedule");
 		Else
 			SetDeferredUpdateSchedule(NewSchedule);

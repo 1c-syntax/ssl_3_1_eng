@@ -42,7 +42,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Allow authorization</v8:content>
+					<v8:content>Sign-in allowed</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -487,7 +487,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Expires on</v8:content>
+					<v8:content>Access expires on</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -503,7 +503,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Require password change upon authorization</v8:content>
+					<v8:content>User must change password at next sign-in</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -531,7 +531,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Password never expires</v8:content>
+					<v8:content>Access never expires</v8:content>
 				</v8:item>
 			</title>
 		</field>
@@ -541,7 +541,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Inactivity period before denying authorization</v8:content>
+					<v8:content>Inactivity period before sign-in is denied</v8:content>
 				</v8:item>
 			</title>
 		</field>
@@ -551,7 +551,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Authorization allowed on</v8:content>
+					<v8:content>Sign-in allowed on</v8:content>
 				</v8:item>
 			</title>
 		</field>
@@ -571,7 +571,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Authorization automatically denied on</v8:content>
+					<v8:content>Sign-in auto-denied on</v8:content>
 				</v8:item>
 			</title>
 		</field>
@@ -581,7 +581,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Last used client</v8:content>
+					<v8:content>Last active client</v8:content>
 				</v8:item>
 			</title>
 		</field>

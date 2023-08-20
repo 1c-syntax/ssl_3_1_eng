@@ -33,7 +33,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip_SSLs" id="1638"/>
+			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="1638"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="1563">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -336,7 +336,7 @@
 										<Title formatted="false">
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>The application sends notifications from the service email account.</v8:content>
+												<v8:content>Set up an account to send out service notifications.</v8:content>
 											</v8:item>
 										</Title>
 									</ExtendedTooltip>

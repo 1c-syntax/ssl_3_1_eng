@@ -524,7 +524,7 @@ EndProcedure
 &AtServer
 Procedure DeleteFormsDuplicates()
 
-	RemovablePrintedForms = New Array;
+	PrintFormsToDelete = New Array;
 	For Each String In PrintFormsSet Do
 		TS = SourceDocumentsOriginalsRecording.TableOfEmployees(Record.Owner); 
 		If TS <> "" Then
@@ -535,11 +535,11 @@ Procedure DeleteFormsDuplicates()
 		FoundDuplicates = PrintFormsSet.FindRows(Filter);
 		If FoundDuplicates.Count() > 1 Then
 			FoundDuplicates.Delete(0);
-			CommonClientServer.SupplementArray(RemovablePrintedForms, FoundDuplicates, True);
+			CommonClientServer.SupplementArray(PrintFormsToDelete, FoundDuplicates, True);
 		EndIf;
 	EndDo;
 	
-	For Each PrintForm In RemovablePrintedForms Do
+	For Each PrintForm In PrintFormsToDelete Do
 		PrintFormsSet.Delete(PrintForm);
 	EndDo;
 

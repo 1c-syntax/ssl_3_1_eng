@@ -213,7 +213,8 @@ Procedure WriteScheduledJob(Cancel, ScheduledJobObject)
 	Except
 		
 		MessageString = NStr("en = 'Couldn''t save the exchange schedule. Error details: %1';");
-		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString,
+			ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		DataExchangeServer.ReportError(MessageString, Cancel);
 		
 	EndTry;

@@ -118,11 +118,16 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 		Handler.Comment     = NStr("en = 'Enables sending application usage data to 1C company. You can disable this option in Administration — Online support and services — Monitoring center.';");
 		Handler.Id   = New UUID("68c8c60c-5b23-436a-9555-a6f24a6b1ffd");
 		Handler.Procedure       = "MonitoringCenterInternal.EnableSendingInfo";
-		Handler.DeferredProcessingQueue          = 1;
 		Handler.UpdateDataFillingProcedure = "MonitoringCenterInternal.EnableSendingInfoFilling";
 		Handler.ObjectsToRead                     = "Constant.MonitoringCenterParameters";
 		Handler.ObjectsToChange                   = "Constant.MonitoringCenterParameters, ScheduledJob.StatisticsDataCollectionAndSending";
 	EndIf;
+
+	Handler = Handlers.Add();
+	Handler.ExecutionMode = "Seamless";
+	Handler.SharedData = True;
+	Handler.Version = "3.1.9.43";
+	Handler.Procedure = "MonitoringCenterInternal.DisableEventLoggingOnUpdate";
 	
 EndProcedure
 
@@ -371,6 +376,21 @@ Procedure OnFillToDoList(ToDoList) Export
 		ToDoItem.FormParameters = New Structure("OnRequest", True);
 		ToDoItem.Form          = "DataProcessor.MonitoringCenterSettings.Form.SendContactInformation";
 	EndDo;
+	
+EndProcedure
+
+Procedure DisableEventLogging() Export
+	
+	NewParameters = New Structure;
+	NewParameters.Insert("RegisterSystemInformation", False);
+	NewParameters.Insert("RegisterSubsystemVersions", False);
+	NewParameters.Insert("RegisterDumps", False);
+	NewParameters.Insert("RegisterBusinessStatistics", False);
+	NewParameters.Insert("RegisterConfigurationStatistics", False);
+	NewParameters.Insert("RegisterConfigurationSettings", False);
+	NewParameters.Insert("RegisterPerformance", False);
+	NewParameters.Insert("RegisterTechnologicalPerformance", False);
+	SetMonitoringCenterParameters(NewParameters);
 	
 EndProcedure
 
@@ -977,7 +997,7 @@ Function GenerateJSONStructureForSending(Parameters)
 	
 	
 	If MonitoringCenterParameters.RegisterDumps Then
-		TopDumps = InformationRegisters.PlatformDumps.GetTopOptions(StartDate, EndDate, TopDumpsQuantity);
+		TopDumps = InformationRegisters.PlatformDumps.GetTopOptions(StartDate, EndDate, TopDumpsQuantity,, True);
 		
 		AdditionalParameters = New Map;
 		AdditionalParameters.Insert("StartDate", StartDate);
@@ -1276,15 +1296,6 @@ Function GenerateJSONStructureForSending(Parameters)
 	EndIf;
 			
 	Return JSONStructure;
-EndFunction
-
-Function JSONStringToStructure(JSONString)
-	JSONReader = New JSONReader();
-	JSONReader.SetString(JSONString);
-	
-	JSONStructure1 = ReadJSON(JSONReader);
-	
-	Return JSONStructure1;
 EndFunction
 
 Function JSONStructureToString(JSONStructure) Export
@@ -1671,7 +1682,7 @@ Function SendMonitoringData(TestPackage = False)
 			HTTPResponse = HTTPServiceSendDataInternal(HTTPParameters);
 			
 			If HTTPResponse.StatusCode = 200 Then
-				AnswerParameters = JSONStringToStructure(HTTPResponse.Body);
+				AnswerParameters = Common.JSONValue(HTTPResponse.Body, , False);
 				If Not TestPackage Then
 					SetSendingParameters(AnswerParameters);
 				Else
@@ -2977,6 +2988,14 @@ Procedure EnableSendingInfoFilling(Parameters) Export
 	
 EndProcedure
 
+Procedure DisableEventLoggingOnUpdate() Export
+	MonitoringCenterParameters = GetMonitoringCenterParameters(New Structure("EnableMonitoringCenter, ApplicationInformationProcessingCenter"));	
+	If Not MonitoringCenterParameters.EnableMonitoringCenter And Not MonitoringCenterParameters.ApplicationInformationProcessingCenter Then
+		// 
+		DisableEventLogging();
+	EndIf;
+EndProcedure
+
 Procedure WriteBusinessStatisticsOperationInternal(WriteParameters) Export
 	
 	RecordPeriod = WriteParameters.RecordPeriod;
@@ -3562,7 +3581,7 @@ Function RequiredDumps(DumpOption)
 	HTTPResponse = HTTPServiceSendDataInternal(HTTPParameters);
 	
 	If HTTPResponse.StatusCode = 200 Then
-		Response = JSONStringToStructure(HTTPResponse.Body);
+		Response = Common.JSONValue(HTTPResponse.Body, , False);
 		Result.MiniDump = Response.MiniDump;
 		Result.FullDump = Response.FullDump;
 		Result.RequestSuccessful = True;
@@ -3725,12 +3744,11 @@ Procedure CheckIfNotificationOfDumpsIsRequired(DumpsDirectoryPath)
 	SysInfo = New SystemInfo;
 	
 	TopDumps = InformationRegisters.PlatformDumps.GetTopOptions(StartDate, CurrentDate, 10, SysInfo.AppVersion);
-	Selection = TopDumps.Select();
-	While Selection.Next() Do
+	For Each String In TopDumps Do
 		// If the number of dumps exceeds the minimum one, check whether the dump is required.
-		If Selection.OptionsCount >=	MonitoringCenterParameters.MinDumpsCount Then
+		If String.OptionsCount >=	MonitoringCenterParameters.MinDumpsCount Then
 			// If the dump is required, initiate its collection.
-			DumpRequirement = DumpIsRequired(Selection.DumpOption, "");
+			DumpRequirement = DumpIsRequired(String.DumpOption, "");
 			If DumpRequirement.Required2 Then
 				If DumpRequirement.DumpType = "3" Then
 					// For a full dump, check if there is enough space.
@@ -3750,7 +3768,7 @@ Procedure CheckIfNotificationOfDumpsIsRequired(DumpsDirectoryPath)
 				
 			    // Set dumps collection parameters.
 				NewParameters = New Structure;
-				NewParameters.Insert("DumpOption", Selection.DumpOption);
+				NewParameters.Insert("DumpOption", String.DumpOption);
 				NewParameters.Insert("DumpCollectingEnd", BegOfDay(CurrentDate)+30*86400);
 				// Until the user agrees, cannot enable collection of full dumps.
 				If MonitoringCenterParameters.SendDumpsFiles = 1 Then
@@ -3797,16 +3815,7 @@ Procedure SendTestPackage(ExecutionParameters, ResultAddress) Export
 	EndIf;
 	
 	// Disable parameters to prevent excessive data from being sent.
-	NewParameters = New Structure;
-	NewParameters.Insert("RegisterSystemInformation", False);
-	NewParameters.Insert("RegisterSubsystemVersions", False);
-	NewParameters.Insert("RegisterDumps", False);
-	NewParameters.Insert("RegisterBusinessStatistics", False);
-	NewParameters.Insert("RegisterConfigurationStatistics", False);
-	NewParameters.Insert("RegisterConfigurationSettings", False);
-	NewParameters.Insert("RegisterPerformance", False);
-	NewParameters.Insert("RegisterTechnologicalPerformance", False);
-	SetMonitoringCenterParameters(NewParameters);
+	DisableEventLogging();
 	
 	StartDate2 = CurrentUniversalDate();
 	MonitoringCenterParameters = New Structure();
@@ -3945,10 +3954,8 @@ Procedure InstallAdditionalErrorHandlingInformation() Export
 			SetPrivilegedMode(False);
 			AdditionalInformation = New Structure;
 			If ValueIsFilled(CommonSettings.AdditionalReportInformation) Then
-				// By default, it is assumed that it has the JSON structure. Otherwise, someone changed it manually. In this case, don't change it.
-				JSONReader = New JSONReader();
-				JSONReader.SetString(CommonSettings.AdditionalReportInformation);
-				AdditionalInformation = ReadJSON(JSONReader);
+				// Считаем, что внутри json. Если нет, то кто-
+				AdditionalInformation = Common.JSONValue(CommonSettings.AdditionalReportInformation, , False);
 			EndIf;
 			If AdditionalInformation.Property("guid") 
 				And AdditionalInformation.guid = InfoBaseID Then

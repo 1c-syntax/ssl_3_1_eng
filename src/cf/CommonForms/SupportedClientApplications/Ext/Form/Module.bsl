@@ -37,6 +37,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.MacOS_x86_64_Safari.Picture = ?(MacOS_x86_64_Safari, PictureAvailable, PictureUnavailable);
 	Items.MacOS_x86_64_Chrome.Picture = ?(MacOS_x86_64_Chrome, PictureAvailable, PictureUnavailable);
 	Items.MacOS_x86_64_Firefox.Picture = ?(MacOS_x86_64_Firefox, PictureAvailable, PictureUnavailable);
+	Items.Windows_x86_YandexBrowser.Picture = ?(Windows_x86_YandexBrowser, PictureAvailable, PictureUnavailable);
+	Items.Windows_x86_64_YandexBrowser.Picture = ?(Windows_x86_64_YandexBrowser, PictureAvailable, PictureUnavailable);
+	Items.Linux_x86_YandexBrowser.Picture = ?(Linux_x86_YandexBrowser, PictureAvailable, PictureUnavailable);
+	Items.Linux_x86_64_YandexBrowser.Picture = ?(Linux_x86_64_YandexBrowser, PictureAvailable, PictureUnavailable);
+	Items.MacOS_x86_64_YandexBrowser.Picture = ?(MacOS_x86_64_YandexBrowser, PictureAvailable, PictureUnavailable);
+	
 	
 EndProcedure
 

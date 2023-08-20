@@ -80,11 +80,23 @@ EndProcedure
 
 // See CommonClientOverridable.AfterStart.
 Procedure AfterStart() Export
+	
 	ClientParameters = StandardSubsystemsClient.ClientParametersOnStart();
-	If ClientParameters.Property("AccountingAudit")
-		And ClientParameters.AccountingAudit.NotifyOfAccountingIssues1 Then
-		AttachIdleHandler("NotifyOfAccountingIssues", 30, True);
+	If Not ClientParameters.Property("AccountingAudit") Then
+		Return;
 	EndIf;
+	Properties = ClientParameters.AccountingAudit;
+	
+	If Not Properties.NotifyOfAccountingIssues1
+	 Or Not ValueIsFilled(Properties.AccountingIssuesCount) Then
+		Return;
+	EndIf;
+	
+	ApplicationParameters.Insert("StandardSubsystems.AccountingAudit.IssuesCount",
+		Properties.AccountingIssuesCount);
+	
+	AttachIdleHandler("NotifyOfAccountingIssues", 30, True);
+	
 EndProcedure
 
 // See ReportsClientOverridable.DetailProcessing.
@@ -306,20 +318,20 @@ Function AddFilter(StructureItem, FilterParameters, AdditionalParameters = Undef
 EndFunction
 
 Procedure NotifyOfAccountingIssuesCases() Export
-	ClientParameters = StandardSubsystemsClient.ClientParametersOnStart();
-	If Not ClientParameters.Property("AccountingAudit") Then
+	
+	IssuesCount = ApplicationParameters.Get(
+		"StandardSubsystems.AccountingAudit.IssuesCount");
+	
+	If Not ValueIsFilled(IssuesCount) Then
 		Return;
 	EndIf;
 	
-	IssuesCount = ClientParameters.AccountingAudit.AccountingIssuesCount;
-	If IssuesCount = 0 Then
-		Return;
-	EndIf;
 	ShowUserNotification(
 		NStr("en = 'Data integrity check';"),
 		"e1cib/app/Report.AccountingCheckResults",
 		NStr("en = 'Data integrity issues found';") + " (" + IssuesCount + ")",
 		PictureLib.Warning32);
+	
 EndProcedure
 
 

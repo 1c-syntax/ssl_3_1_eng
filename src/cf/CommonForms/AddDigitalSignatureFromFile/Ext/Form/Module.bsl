@@ -225,8 +225,9 @@ Procedure SelectFile(AddNewRow = False)
 	ImportParameters.FormIdentifier = UUID;
 	ImportParameters.Dialog.Title = NStr("en = 'Select a digital signature file';");
 	ImportParameters.Dialog.Filter = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Signature files (*.%1)|*.%1|All files (*.*)|*.*';"),
+		NStr("en = 'Signature files (*.%1)|*.%1';"),
 		DigitalSignatureClient.PersonalSettings().SignatureFilesExtension);
+	ImportParameters.Dialog.Filter = ImportParameters.Dialog.Filter + "|" + StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
 	
 	If Not AddNewRow Then
 		ImportParameters.Dialog.FullFileName = Items.Signatures.CurrentData.PathToFile;
@@ -278,9 +279,9 @@ Procedure ChooseFileAfterCreateCryptoManager(CryptoManager, Context) Export
 	If TypeOf(CryptoManager) <> Type("CryptoManager") Then
 		CreationParameters = DigitalSignatureInternalClient.CryptoManagerCreationParameters();  
 		CreationParameters.ShowError = Undefined;
-		DigitalSignatureInternalClient.CreateCryptoManager(New NotifyDescription(
-			"SelectFileAfterCreatingAnyCryptographyManager", ThisObject, Context),
-			"", CreationParameters);
+		DigitalSignatureInternalClient.ReadSignatureProperties(New NotifyDescription(
+			"SelectFileAfterSignaturePropertiesRead", ThisObject, Context),
+			Context.SignatureData, True, False);
 		Return;
 	EndIf;
 	
@@ -302,18 +303,36 @@ EndProcedure
 
 // Continue the select File procedure.
 &AtClient
-Procedure SelectFileAfterCreatingAnyCryptographyManager(CryptoManager, Context) Export
+Procedure SelectFileAfterSignaturePropertiesRead(Result, Context) Export
 	
-	If TypeOf(CryptoManager) <> Type("CryptoManager") Then
-		ShowError(CryptoManager, Context.ErrorAtServer);
+	If Result.Success = False Then
+		ShowError(Result.ErrorText, Context.ErrorAtServer);
 		Return;
 	EndIf;
 	
-	Context.Insert("CryptoManager", CryptoManager);
-	Context.Insert("SignatureParameters", Undefined);
-	CryptoManager.BeginGettingCertificatesFromSignature(New NotifyDescription(
-		"ChooseFilesAfterGetCertificatesFromSignature", ThisObject, Context,
-		"SelectFileAfterGetCertificateFromSignatureError", ThisObject), Context.SignatureData);
+	Context.Insert("CryptoManager", Undefined);
+	Context.Insert("SignatureParameters", Result);
+	
+	If Result.Certificate <> Undefined Then
+		
+		CertificateProperties = New Structure;
+		CertificateProperties.Insert("BinaryData", Result.Certificate);
+		CertificateProperties.Insert("Thumbprint", Result.Thumbprint);
+		CertificateProperties.Insert("IssuedTo", Result.CertificateOwner);
+		
+		SignatureProperties = DigitalSignatureInternalClientServer.SignatureProperties(Context.SignatureData,
+			CertificateProperties, "", UsersClient.AuthorizedUser(), Context.FileName,
+			Context.SignatureParameters, True);
+
+		AddRow(ThisObject, Context.AddNewRow, SignatureProperties, Context.FileName,
+			Context.SignaturePropertiesAddress);
+
+		SelectFileAfterAddRow(Context);
+	Else
+		ErrorAtClient = New Structure("ErrorDescription", NStr("en = 'The signature file contains no certificates.';"));
+
+		ShowError(ErrorAtClient, Context.ErrorAtServer);
+	EndIf;
 	
 EndProcedure
 
@@ -385,7 +404,7 @@ Procedure ChooseFilesAfterGetCertificatesFromSignature(Certificates, Context) Ex
 	
 	If Certificates.Count() = 0 Then
 		ErrorAtClient = New Structure("ErrorDescription",
-			NStr("en = 'Signature file does not include any certificates.';"));
+			NStr("en = 'The signature file contains no certificates.';"));
 		
 		ShowError(ErrorAtClient, Context.ErrorAtServer);
 		Return;
@@ -575,7 +594,7 @@ Function AddRowAtServer(Address, FileName, AddNewRow, ErrorAtServer,
 			Certificates = CryptoManager.GetCertificatesFromSignature(SignatureData);
 			
 			If Certificates.Count() = 0 Then
-				Raise NStr("en = 'Signature file does not include any certificates.';");
+				Raise NStr("en = 'The signature file contains no certificates.';");
 			EndIf;
 			
 			If Certificates.Count() = 1 Then

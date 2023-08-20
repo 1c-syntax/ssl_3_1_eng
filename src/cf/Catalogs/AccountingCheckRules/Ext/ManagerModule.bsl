@@ -50,12 +50,11 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	CheckToDIsable = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue, FullObjectName);
 	While CheckToDIsable.Next() Do
-		
+		CheckToDisableRef = CheckToDIsable.Ref;
+		RepresentationOfTheReference = String(CheckToDisableRef);
 		BeginTransaction();
 		
 		Try
-			
-			CheckToDisableRef = CheckToDIsable.Ref;
 			
 			Block = New DataLock;
 			LockItem = Block.Add(FullObjectName);
@@ -80,7 +79,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			Comment = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process check rule %1. Reason:
 				|%2';"), 
-				CheckToDisableRef, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			
 			WriteLogEvent(
 				InfobaseUpdate.EventLogEvent(),

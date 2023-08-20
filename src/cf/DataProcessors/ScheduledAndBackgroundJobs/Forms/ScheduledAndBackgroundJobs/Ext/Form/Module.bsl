@@ -962,7 +962,7 @@ Function ScheduledJobsImport(JobID)
 		ExecutionParameters.RunNotInBackground1 = True;
 	EndIf;
 	ExecutionParameters.WaitCompletion = 0; // 
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Generating scheduled job list';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Generate scheduled job list';");
 	
 	Return TimeConsumingOperations.ExecuteInBackground("ScheduledJobsInternal.GenerateScheduledJobsTable",
 		TimeConsumingOperationParameters, ExecutionParameters);
@@ -1050,7 +1050,7 @@ Function GenerateBackgroundJobsTableInBackground()
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.WaitCompletion = 0;
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Scheduled jobs. Updating background job list';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Scheduled jobs. Update background job list';");
 	
 	Result = TimeConsumingOperations.ExecuteInBackground("ScheduledJobsInternal.FillBackgroundJobsPropertiesTableInBackground",
 		TransmittedParameters, ExecutionParameters);

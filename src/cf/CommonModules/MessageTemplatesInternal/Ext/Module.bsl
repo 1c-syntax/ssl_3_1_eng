@@ -364,7 +364,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Procedure       = "Catalogs.MessageTemplates.ProcessDataForMigrationToNewVersion";
 	Handler.ExecutionMode = "Deferred";
 	Handler.UpdateDataFillingProcedure = "Catalogs.MessageTemplates.RegisterDataToProcessForMigrationToNewVersion";
-	Handler.DeferredProcessingQueue = 2;
 	Handler.ObjectsToRead    = StrConcat(ObjectsToRead, ",");
 	Handler.ObjectsToChange  = "Catalog.MessageTemplates";
 	Handler.ObjectsToLock = "Catalog.MessageTemplates";
@@ -950,10 +949,17 @@ Function DefineTemplatesSubjects() Export
 	MessageTemplatesSubjectsTypes = Metadata.DefinedTypes.MessageTemplateSubject.Type.Types();
 	For Each MessageTemplateSubjectType In MessageTemplatesSubjectsTypes Do
 		If MessageTemplateSubjectType <> Type("CatalogRef.MetadataObjectIDs") Then
-			Purpose = BasisForMessageTemplates.Add();
+			
 			MetadataObject3 = Metadata.FindByType(MessageTemplateSubjectType);
-			Purpose.Name = MetadataObject3.FullName();
+			
+			If MetadataObject3 = Undefined Or Not AccessRight("Read", MetadataObject3) Then
+				Continue;
+			EndIf;
+			
+			Purpose = BasisForMessageTemplates.Add();
+			Purpose.Name           = MetadataObject3.FullName();
 			Purpose.Presentation = MetadataObject3.Presentation();
+			
 			If MetadataObject3.Templates.Find(DefaultTemplateName) <> Undefined Then
 				Purpose.Template = DefaultTemplateName;
 				
@@ -973,6 +979,7 @@ Function DefineTemplatesSubjects() Export
 					EndIf;
 				EndDo;
 			EndIf;
+			
 		EndIf;
 	EndDo;
 	
@@ -2346,7 +2353,7 @@ EndFunction
 
 Procedure ProcessDefineAttributesForMetadataQuery(BasisParameters, ObjectMetadata)
 	
-	KeysOfParametersToBeDeleted = New Array;
+	KeysOfParametersToDelete = New Array;
 	
 	For Each BasisParameter In BasisParameters Do
 		Position = StrFind(BasisParameter.Key, "{");
@@ -2362,7 +2369,7 @@ Procedure ProcessDefineAttributesForMetadataQuery(BasisParameters, ObjectMetadat
 					ProcessDefineAttributesForMetadataQuery(BasisParameter.Value, Metadata.FindByType(Type));
 				EndDo;
 			Else
-				KeysOfParametersToBeDeleted.Add(BasisParameter.Key);
+				KeysOfParametersToDelete.Add(BasisParameter.Key);
 			EndIf;
 		ElsIf ObjectMetadata.Attributes.Find(ParameterName) = Undefined Then
 			AttributeNotFound = True;
@@ -2374,12 +2381,12 @@ Procedure ProcessDefineAttributesForMetadataQuery(BasisParameters, ObjectMetadat
 			EndDo;
 			
 			If AttributeNotFound Then
-				KeysOfParametersToBeDeleted.Add(BasisParameter.Key);
+				KeysOfParametersToDelete.Add(BasisParameter.Key);
 			EndIf;
 		EndIf;
 	EndDo;
 	
-	For Each ParameterKey In KeysOfParametersToBeDeleted Do
+	For Each ParameterKey In KeysOfParametersToDelete Do
 		BasisParameters.Delete(ParameterKey);
 	EndDo;
 	

@@ -32,7 +32,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.FormUpdateFromFile.Visible = False;
 		Items.FormSaveAs.Visible = False;
 		Items.PerformUpdateFrom1CITSPortal.Visible = False;
-		
+	
 	EndIf;
 	
 	If Not AddInsInternal.CanImportFromPortal() Then 
@@ -49,7 +49,7 @@ Procedure OnOpen(Cancel)
 	
 	If Parameters.ShowImportFromFileDialogOnOpen Then
 		AttachIdleHandler("ImportAddInFromFile", 0.1, True);
-	EndIf
+	EndIf;
 	
 EndProcedure
 
@@ -155,6 +155,7 @@ EndProcedure
 &AtClient
 Procedure UpdateFromFile(Command)
 	
+	Parameters.FileThatWasPut = Undefined;
 	ClearMessages();
 	ImportAddInFromFile();
 	
@@ -192,6 +193,11 @@ Procedure SupportedClientApplications(Command)
 	Attributes.Insert("MacOS_x86_64_Safari");
 	Attributes.Insert("MacOS_x86_64_Chrome");
 	Attributes.Insert("MacOS_x86_64_Firefox");
+	Attributes.Insert("Windows_x86_YandexBrowser");
+	Attributes.Insert("Windows_x86_64_YandexBrowser");
+	Attributes.Insert("Linux_x86_YandexBrowser");
+	Attributes.Insert("Linux_x86_64_YandexBrowser");
+	Attributes.Insert("MacOS_x86_64_YandexBrowser");
 	
 	FillPropertyValues(Attributes, Object);
 	
@@ -210,6 +216,11 @@ EndProcedure
 
 &AtClient
 Procedure ImportAddInFromFile()
+	
+	If Parameters.FileThatWasPut <> Undefined Then
+		ImportAddInAfterPutFile(Parameters.FileThatWasPut, Undefined);
+		Return;
+	EndIf;
 	
 	Notification = New NotifyDescription("ImportAddInAfterSecurityWarning", ThisObject);
 	FormParameters = New Structure("Key", "BeforeAddAddIn");
@@ -231,14 +242,14 @@ Procedure ImportAddInAfterSecurityWarning(Response, Context) Export
 	EndIf;
 	
 	Notification = New NotifyDescription("ImportAddInAfterPutFile", ThisObject, Context);
-	
 	ImportParameters = FileSystemClient.FileImportParameters();
-	ImportParameters.Dialog.Filter = NStr("en = 'Add-in (*.zip)|*.zip|All files (*.*)|*.*';");
+	
+	ImportParameters.Dialog.Filter    = NStr("en = 'Add-in (*.zip)|*.zip';")+"|"
+			+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
 	ImportParameters.Dialog.Title = NStr("en = 'Select an add-in file';");
 	ImportParameters.FormIdentifier = UUID;
-	
 	FileSystemClient.ImportFile_(Notification, ImportParameters, Object.FileName);
-	
+
 EndProcedure
 
 // ImportAComponentFromAFile procedure continuation.
@@ -259,14 +270,14 @@ Procedure ImportAddInAfterPutFile(FileThatWasPut, Context) Export
 		AdditionalInformation = Result.AdditionalInformation;
 		Modified = True;
 	Else 
-		ImportAddInOnErrorDisplay(Result.ErrorDescription);
+		ImportAddInOnErrorDisplay(Result.ErrorDescription, Result.ErrorInfo);
 	EndIf;
 	
 EndProcedure
 
 // ImportAComponentFromAFile procedure continuation.
 &AtClient
-Procedure ImportAddInOnErrorDisplay(ErrorDescription = "")
+Procedure ImportAddInOnErrorDisplay(ErrorDescription = "", ErrorInfo = Undefined)
 	
 	If IsBlankString(ErrorDescription) Then 
 		ImportAddInAfterErrorDisplay(Undefined);
@@ -275,7 +286,10 @@ Procedure ImportAddInOnErrorDisplay(ErrorDescription = "")
 		
 		StringWithWarning = NStr("en = '%1
 			|Specify a ZIP archive with an add-in.
-			|For more information, see <a href = ""%2"">Add-in Development Technology</a> (in Russian).';");
+			|For more information, see <a href = ""%2"">Add-in Development Technology</a> (in Russian).';")
+			+ ?(ErrorInfo = Undefined, "",
+				Chars.LF + ErrorProcessing.BriefErrorDescription(ErrorInfo));
+		
 		StringWithWarning = StringFunctionsClient.FormattedString(StringWithWarning, ErrorDescription,
 			"https://its.1c.eu/db/metod8dev/content/3221");
 		
@@ -352,6 +366,7 @@ Function ImportAddInFromFileOnServer(ImportParameters)
 	
 	If Not Information.Disassembled Then 
 		Result.ErrorDescription = Information.ErrorDescription;
+		Result.ErrorInfo = Information.ErrorInfo;
 		Return Result;
 	EndIf;
 	
@@ -398,6 +413,7 @@ Function AddInImportResult()
 	Result = New Structure;
 	Result.Insert("Imported1", False);
 	Result.Insert("ErrorDescription", "");
+	Result.Insert("ErrorInfo", Undefined);
 	Result.Insert("AdditionalInformation", New Map);
 	
 	Return Result;
@@ -424,7 +440,7 @@ Procedure SetVisibilityAvailability()
 	CatalogObject = FormAttributeToValue("Object");
 	IsNew = Object.Ref.IsEmpty();
 	
-	Items.Information.Visible = Not IsNew And ValueIsFilled(Object.ErrorDescription);
+	Items.Information.Visible = ValueIsFilled(Object.ErrorDescription);
 	
 	// WarningDisplayOnEditParameters
 	DisplayWarning = WarningOnEditRepresentation.Show;

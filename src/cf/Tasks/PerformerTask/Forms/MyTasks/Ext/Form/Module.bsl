@@ -170,6 +170,18 @@ Procedure SetConditionalAppearance()
 	ConditionalAppearance.Items.Clear();
 	BusinessProcessesAndTasksServer.SetTaskAppearance(List);
 	
+	Item = List.ConditionalAppearance.Items.Add();
+	
+	ItemField = Item.Fields.Items.Add();
+	ItemField.Field = New DataCompositionField(Items.StartDate.Name);
+	
+	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	ItemFilter.LeftValue  = New DataCompositionField("Executed");
+	ItemFilter.ComparisonType   = DataCompositionComparisonType.Equal;
+	ItemFilter.RightValue = True;
+	
+	Item.Appearance.SetParameterValue("Text", "");
+	
 EndProcedure
 
 &AtClient

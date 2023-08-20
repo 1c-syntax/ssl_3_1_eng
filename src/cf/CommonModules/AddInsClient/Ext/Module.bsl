@@ -26,6 +26,8 @@
 //                
 //                
 //                See https://its.1c.eu/db/v83doc#bookmark:dev:TI000001866
+//      * AutoUpdate - Boolean -
+//                
 //
 // Example:
 //
@@ -43,6 +45,7 @@ Function ConnectionParameters() Export
 	Parameters.Insert("ExplanationText", "");
 	Parameters.Insert("ObjectsCreationIDs", New Array);
 	Parameters.Insert("Isolated", Undefined);
+	Parameters.Insert("AutoUpdate", True);
 	
 	Return Parameters;
 	

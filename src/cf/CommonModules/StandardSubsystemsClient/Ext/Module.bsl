@@ -211,6 +211,22 @@ Procedure OpenActiveUserList(FormParameters = Undefined, FormOwner = Undefined) 
 	
 EndProcedure
 
+// See StandardSubsystemsServer.IsBaseConfigurationVersion
+Function IsBaseConfigurationVersion() Export
+	
+	Return ClientParameter("IsBaseConfigurationVersion");
+	
+EndFunction
+
+// See StandardSubsystemsServer.IsTrainingPlatform
+Function IsTrainingPlatform() Export
+	
+	Return ClientParameter("IsTrainingPlatform");
+	
+EndFunction
+
+#Region ApplicationEventsProcessing
+
 // Disables the exit confirmation.
 //
 Procedure SkipExitConfirmation() Export
@@ -272,7 +288,7 @@ Procedure BeforeStart(Val CompletionNotification = Undefined) Export
 	// 
 	If CommonClientServer.CompareVersions(ISLVersion, "2.7.1.0") > 0 Then
 		ModuleLicensingClientClient = CommonClient.CommonModule("LicensingClientClient");
-		ModuleLicensingClientClient.ConnectRequestClientSettingsLicensing();
+		ModuleLicensingClientClient.AttachLicensingClientSettingsRequest();
 	EndIf;
 	
 EndProcedure
@@ -480,6 +496,8 @@ Function ClientRunParameters() Export
 	
 EndFunction
 
+#EndRegion
+
 #Region ForCallsFromOtherSubsystems
 
 // 
@@ -560,7 +578,11 @@ Procedure FillClientParameters(ClientParameters) Export
 		ApplicationParameters[ParameterName] = New Structure;
 		ApplicationParameters[ParameterName].Insert("DataSeparationEnabled");
 		ApplicationParameters[ParameterName].Insert("FileInfobase");
+		ApplicationParameters[ParameterName].Insert("IsBaseConfigurationVersion");
+		ApplicationParameters[ParameterName].Insert("IsTrainingPlatform");
 		ApplicationParameters[ParameterName].Insert("IsExternalUserSession");
+		ApplicationParameters[ParameterName].Insert("IsFullUser");
+		ApplicationParameters[ParameterName].Insert("IsSystemAdministrator");
 		ApplicationParameters[ParameterName].Insert("AuthorizedUser");
 		ApplicationParameters[ParameterName].Insert("AskConfirmationOnExit");
 		ApplicationParameters[ParameterName].Insert("SeparatedDataUsageAvailable");
@@ -568,6 +590,7 @@ Procedure FillClientParameters(ClientParameters) Export
 		ApplicationParameters[ParameterName].Insert("PersonalFilesOperationsSettings");
 		ApplicationParameters[ParameterName].Insert("LockedFilesCount");
 		ApplicationParameters[ParameterName].Insert("IBBackupOnExit");
+		ApplicationParameters[ParameterName].Insert("DisplayPermissionSetupAssistant");
 		ApplicationParameters[ParameterName].Insert("SessionTimeOffset");
 		ApplicationParameters[ParameterName].Insert("UniversalTimeCorrection");
 		ApplicationParameters[ParameterName].Insert("StandardTimeOffset");
@@ -652,8 +675,7 @@ Function ApplicationExecutableFileName(GetDesignerFileName = False) Export
 	EndIf;	
 #EndIf
 	
-	IsTrainingPlatform = ClientParametersOnStart().IsTrainingPlatform;
-	Return StrReplace(FileNameTemplate, "[TrainingPlatform]", ?(IsTrainingPlatform, "t", ""));
+	Return StrReplace(FileNameTemplate, "[TrainingPlatform]", ?(IsTrainingPlatform(), "t", ""));
 	
 EndFunction
 
@@ -760,20 +782,21 @@ EndFunction
 // See SSLSubsystemsIntegrationClient.BeforeRecurringClientDataSendToServer
 Procedure BeforeRecurringClientDataSendToServer(Parameters) Export
 	
-	CounterName = "StandardSubsystems.Core";
-	If Not ServerNotificationsClient.TimeoutExpired(CounterName) Then
+	ParameterName = "StandardSubsystems.Core.DynamicUpdateControl";
+	If Not ServerNotificationsClient.TimeoutExpired(ParameterName) Then
 		Return;
 	EndIf;
 	
 	// ИзмененаКонфигурацияИлиРасширения
-	Parameters.Insert("StandardSubsystems.Core", True);
+	Parameters.Insert(ParameterName, True);
 	
 EndProcedure
 
 // See CommonClientOverridable.AfterRecurringReceiptOfClientDataOnServer
 Procedure AfterRecurringReceiptOfClientDataOnServer(Results) Export
 	
-	Result = Results.Get("StandardSubsystems.Core");
+	ParameterName = "StandardSubsystems.Core.DynamicUpdateControl";
+	Result = Results.Get(ParameterName);
 	If Result = Undefined Then
 		Return;
 	EndIf;
@@ -928,14 +951,10 @@ Function SupportInformation() Export
 	Text = StrReplace(Text, "[SSLVersion]", StandardSubsystemsServerCall.LibraryVersion());
 	Text = StrReplace(Text, "[OperatingSystem]", SystemInfo.OSVersion);
 	Text = StrReplace(Text, "[RAM]", SystemInfo.RAM);
-	Text = StrReplace(Text, "[COMConnectorName]", 
-		?(Parameters.Property("COMConnectorName"), Parameters.COMConnectorName, TextUnavailable));
-	Text = StrReplace(Text, "[IsBaseConfigurationVersion]", 
-		?(Parameters.Property("IsBaseConfigurationVersion"), Parameters.IsBaseConfigurationVersion, TextUnavailable));
-	Text = StrReplace(Text, "[IsFullUser]", 
-		?(Parameters.Property("IsFullUser"), Parameters.IsFullUser, TextUnavailable));
-	Text = StrReplace(Text, "[IsTrainingPlatform]", 
-		?(Parameters.Property("IsTrainingPlatform"), Parameters.IsTrainingPlatform, TextUnavailable));
+	Text = StrReplace(Text, "[COMConnectorName]", CommonClientServer.COMConnectorName());
+	Text = StrReplace(Text, "[IsBaseConfigurationVersion]", IsBaseConfigurationVersion());
+	Text = StrReplace(Text, "[IsFullUser]", UsersClient.IsFullUser());
+	Text = StrReplace(Text, "[IsTrainingPlatform]", IsTrainingPlatform());
 	Text = StrReplace(Text, "[ConfigurationChanged]", 
 		?(Parameters.Property("SettingsOfUpdate"), Parameters.SettingsOfUpdate.ConfigurationChanged, TextUnavailable));
 	
@@ -1608,6 +1627,9 @@ EndFunction
 // BeforeExit
 
 // For internal use only. 
+// 
+// Parameters:
+//  ReCreate - Boolean
 //
 // Returns:
 //   Structure:
@@ -1618,9 +1640,17 @@ EndFunction
 //     ContinuousExecution - Boolean
 //     CompletionProcessing - NotifyDescription
 //
-Function ParametersOfActionsBeforeShuttingDownTheSystem() Export
+Function ParametersOfActionsBeforeShuttingDownTheSystem(ReCreate = False) Export
 	
-	Parameters = New Structure;
+	ParameterName = "StandardSubsystems.ParametersOfActionsBeforeShuttingDownTheSystem";
+	If ReCreate Or ApplicationParameters[ParameterName] = Undefined Then
+		ApplicationParameters.Insert(ParameterName, New Structure);
+	EndIf;
+	Parameters = ApplicationParameters[ParameterName];
+	
+	If Not ReCreate Then
+		Return Parameters;
+	EndIf;
 	
 	// 
 	Parameters.Insert("Cancel", False);
@@ -1633,7 +1663,7 @@ Function ParametersOfActionsBeforeShuttingDownTheSystem() Export
 	
 	// 
 	Parameters.Insert("CompletionProcessing", New NotifyDescription(
-		"ActionsBeforeExitCompletionHandler", StandardSubsystemsClient, Parameters));
+		"ActionsBeforeExitCompletionHandler", StandardSubsystemsClient));
 	Return Parameters;
 	
 EndFunction	
@@ -1670,6 +1700,7 @@ EndProcedure
 //
 Procedure ActionsBeforeExitCompletionHandler(NotDefined, Parameters) Export
 	
+	Parameters = ParametersOfActionsBeforeShuttingDownTheSystem();
 	Parameters.ContinuationHandler = Undefined;
 	Parameters.CompletionProcessing  = Undefined;
 	ParameterName = "StandardSubsystems.SkipQuitSystemAfterWarningsHandled";
@@ -1689,14 +1720,12 @@ EndProcedure
 // 
 // Parameters:
 //  NotDefined - Undefined
-//   AdditionalParameters - Structure:
-//    * Parameters - See StandardSubsystemsClient.ParametersOfActionsBeforeShuttingDownTheSystem
-//    * ContinuationHandler - NotifyDescription
+//  ContinuationHandler - NotifyDescription
 //
-Procedure ActionsBeforeExitAfterErrorProcessing(NotDefined, AdditionalParameters) Export
+Procedure ActionsBeforeExitAfterErrorProcessing(NotDefined, ContinuationHandler) Export
 	
-	Parameters = AdditionalParameters.Parameters;
-	Parameters.ContinuationHandler = AdditionalParameters.ContinuationHandler;
+	Parameters = ParametersOfActionsBeforeShuttingDownTheSystem();
+	Parameters.ContinuationHandler = ContinuationHandler;
 	
 	If Parameters.Cancel Then
 		Parameters.Cancel = False;
@@ -1762,7 +1791,7 @@ Procedure Check1CEnterpriseVersionOnStartup(Parameters, Context) Export
 	EndIf;
 	
 	If CommonClientServer.CompareVersions(Current, Min) < 0 Then
-		If ClientParameters.HasAccessForUpdatingPlatformVersion Then
+		If UsersClient.IsFullUser(True) Then
 			MessageText =
 				NStr("en = 'Cannot start the application.
 				           |1C:Enterprise platform update is required.';");
@@ -1772,7 +1801,7 @@ Procedure Check1CEnterpriseVersionOnStartup(Parameters, Context) Export
 				           |1C:Enterprise platform update is required. Contact the administrator.';");
 		EndIf;
 	Else
-		If ClientParameters.HasAccessForUpdatingPlatformVersion Then
+		If UsersClient.IsFullUser(True) Then
 			MessageText =
 				NStr("en = 'It is recommended that you close the application and update the 1C:Enterprise platform version.
 				         |The new 1C:Enterprise platform version includes bug fixes that improve the application stability.
@@ -1910,9 +1939,9 @@ Procedure InteractiveInitialRegionalInfobaseSettingsProcessing(Parameters, Conte
 	EndIf;
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportClient = CommonClient.CommonModule("NationalLanguageSupportClient");
+		ModuleNationalLanguageSupportClient = CommonClient.CommonModule("NationalLanguageSupportClient");
 		NotifyDescription = New NotifyDescription("AfterCloseInitialRegionalInfobaseSettingsChoiceForm", ThisObject, Parameters);
-		ModuleNativeLanguagesSupportClient.OpenTheRegionalSettingsForm(NotifyDescription);
+		ModuleNationalLanguageSupportClient.OpenTheRegionalSettingsForm(NotifyDescription);
 	Else
 		AfterCloseInitialRegionalInfobaseSettingsChoiceForm(New Structure("Cancel", True), Parameters);
 	EndIf;
@@ -2016,7 +2045,7 @@ EndProcedure
 //
 Procedure AfterClosingWarningFormOnExit(Result, AdditionalParameters) Export
 	
-	Parameters = AdditionalParameters.Parameters;
+	Parameters = ParametersOfActionsBeforeShuttingDownTheSystem();
 	
 	If AdditionalParameters.FormOption = "DoQueryBox" Then
 		
@@ -2720,7 +2749,6 @@ EndFunction
 Procedure OpenMessageFormOnExit(Parameters)
 	
 	AdditionalParameters = New Structure;
-	AdditionalParameters.Insert("Parameters", Parameters);
 	AdditionalParameters.Insert("FormOption", "DoQueryBox");
 	
 	ResponseHandler = New NotifyDescription("AfterClosingWarningFormOnExit",
@@ -2734,21 +2762,10 @@ Procedure OpenMessageFormOnExit(Parameters)
 	
 	FormName = "CommonForm.ExitWarnings";
 	
-	If Warnings.Count() = 1 Then
-		If Not IsBlankString(Warnings[0].CheckBoxText) Then 
-			AdditionalParameters.Insert("FormOption", "StandardForm");
-			FormOpenParameters = New Structure;
-			FormOpenParameters.Insert("FormName", FormName);
-			FormOpenParameters.Insert("FormParameters", FormParameters);
-			FormOpenParameters.Insert("ResponseHandler", ResponseHandler);
-			FormOpenParameters.Insert("WindowOpeningMode", Undefined);
-			Parameters.InteractiveHandler = New NotifyDescription(
-				"WarningInteractiveHandlerOnExit", ThisObject, FormOpenParameters);
-		Else
-			AdditionalParameters.Insert("FormOption", "AppliedForm");
-			OpenApplicationWarningForm(Parameters, ResponseHandler, Warnings[0], FormName, FormParameters);
-		EndIf;
-	Else
+	If Warnings.Count() = 1 And IsBlankString(Warnings[0].CheckBoxText) Then
+		AdditionalParameters.Insert("FormOption", "AppliedForm");
+		OpenApplicationWarningForm(Parameters, ResponseHandler, Warnings[0], FormName, FormParameters);
+	Else	
 		AdditionalParameters.Insert("FormOption", "StandardForm");
 		FormOpenParameters = New Structure;
 		FormOpenParameters.Insert("FormName", FormName);
@@ -2873,11 +2890,8 @@ Procedure HandleErrorOnStartOrExit(Parameters, ErrorInfo, Event, Shutdown = Fals
 			Parameters.ContinuationHandler = Parameters.CompletionProcessing;
 		EndIf;
 	Else
-		AdditionalParameters = New Structure("Parameters, ContinuationHandler", 
-			Parameters, Parameters.ContinuationHandler);
-		
 		Parameters.ContinuationHandler = New NotifyDescription(
-			"ActionsBeforeExitAfterErrorProcessing", ThisObject, AdditionalParameters);
+			"ActionsBeforeExitAfterErrorProcessing", ThisObject, Parameters.ContinuationHandler);
 	EndIf;
 	
 	StandardSubsystemsServerCall.WriteErrorToEventLogOnStartOrExit(

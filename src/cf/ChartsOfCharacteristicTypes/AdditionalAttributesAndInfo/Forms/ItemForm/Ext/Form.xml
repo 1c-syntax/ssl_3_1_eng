@@ -376,7 +376,7 @@
 											<DataPath>Properties</DataPath>
 											<RowPictureDataPath>Properties.PictureNumber</RowPictureDataPath>
 											<RowsPicture>
-												<xr:Ref>CommonPicture.ItemIcons</xr:Ref>
+												<xr:Ref>CommonPicture.PropertiesIcons</xr:Ref>
 												<xr:LoadTransparent>false</xr:LoadTransparent>
 											</RowsPicture>
 											<Title>
@@ -612,44 +612,16 @@ to display in value edit forms. </v8:content>
 										<Event name="OnChange">TitleOnChange</Event>
 									</Events>
 								</InputField>
-								<RadioButtonField name="IsAdditionalInfo" id="20">
-									<DataPath>IsAdditionalInfo</DataPath>
+								<RadioButtonField name="PropertyKind" id="20">
+									<DataPath>PropertyKind</DataPath>
 									<Visible>false</Visible>
 									<TitleLocation>None</TitleLocation>
 									<RadioButtonType>Auto</RadioButtonType>
-									<ColumnsCount>2</ColumnsCount>
-									<ChoiceList>
-										<xr:Item>
-											<xr:Presentation/>
-											<xr:CheckState>0</xr:CheckState>
-											<xr:Value xsi:type="FormChoiceListDesTimeValue">
-												<Presentation>
-													<v8:item>
-														<v8:lang>en</v8:lang>
-														<v8:content>Additional attribute</v8:content>
-													</v8:item>
-												</Presentation>
-												<Value xsi:type="xs:decimal">0</Value>
-											</xr:Value>
-										</xr:Item>
-										<xr:Item>
-											<xr:Presentation/>
-											<xr:CheckState>0</xr:CheckState>
-											<xr:Value xsi:type="FormChoiceListDesTimeValue">
-												<Presentation>
-													<v8:item>
-														<v8:lang>en</v8:lang>
-														<v8:content>Additional information record</v8:content>
-													</v8:item>
-												</Presentation>
-												<Value xsi:type="xs:decimal">1</Value>
-											</xr:Value>
-										</xr:Item>
-									</ChoiceList>
-									<ContextMenu name="IsAdditionalInfoContextMenu" id="21"/>
-									<ExtendedTooltip name="IsAdditionalInfoExtendedTooltip" id="119"/>
+									<ColumnsCount>1</ColumnsCount>
+									<ContextMenu name="PropertyKindContextMenu" id="21"/>
+									<ExtendedTooltip name="PropertyKindExtendedTooltip" id="119"/>
 									<Events>
-										<Event name="OnChange">IsAdditionalInfoOnChange</Event>
+										<Event name="OnChange">PropertyKindOnChange</Event>
 									</Events>
 								</RadioButtonField>
 							</ChildItems>
@@ -889,6 +861,111 @@ to display in value edit forms. </v8:content>
 									</Title>
 									<ExtendedTooltip name="MainPageExtendedTooltip" id="170"/>
 									<ChildItems>
+										<UsualGroup name="GroupPropertiesColors" id="498">
+											<Visible>false</Visible>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Property colors</v8:content>
+												</v8:item>
+											</Title>
+											<ToolTip>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Color</v8:content>
+												</v8:item>
+											</ToolTip>
+											<Behavior>Usual</Behavior>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="GroupPropertiesColorsExtendedTooltip" id="499"/>
+											<ChildItems>
+												<LabelDecoration name="DecorationPropertiesColors" id="500">
+													<TextColor>style:ButtonTextColor</TextColor>
+													<Title formatted="false">
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Color:</v8:content>
+														</v8:item>
+													</Title>
+													<ToolTipRepresentation>ShowLeft</ToolTipRepresentation>
+													<ContextMenu name="DecorationPropertiesColorsContextMenu" id="501"/>
+													<ExtendedTooltip name="DecorationPropertiesColorsExtendedTooltip" id="502"/>
+												</LabelDecoration>
+												<CommandBar name="CommandBarPropertiesColors" id="503">
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Command bar property colors</v8:content>
+														</v8:item>
+													</Title>
+													<ExtendedTooltip name="CommandBarPropertiesColorsExtendedTooltip" id="504"/>
+													<ChildItems>
+														<ButtonGroup name="GroupColors" id="505">
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Group colors</v8:content>
+																</v8:item>
+															</Title>
+															<Representation>Compact</Representation>
+															<ExtendedTooltip name="GroupColorsExtendedTooltip" id="506"/>
+															<ChildItems>
+																<Button name="PropertyGray" id="507">
+																	<Type>CommandBarButton</Type>
+																	<CommandName>Form.Command.PropertyGray</CommandName>
+																	<ExtendedTooltip name="PropertyGrayExtendedTooltip" id="508"/>
+																</Button>
+																<Button name="PropertyGreen" id="517">
+																	<Type>CommandBarButton</Type>
+																	<CommandName>Form.Command.PropertyGreen</CommandName>
+																	<ExtendedTooltip name="PropertyGreenExtendedTooltip" id="518"/>
+																</Button>
+																<Button name="PropertyYellow" id="515">
+																	<Type>CommandBarButton</Type>
+																	<CommandName>Form.Command.PropertyYellow</CommandName>
+																	<ExtendedTooltip name="PropertyYellowExtendedTooltip" id="516"/>
+																</Button>
+																<Button name="PropertyOrange" id="513">
+																	<Type>CommandBarButton</Type>
+																	<CommandName>Form.Command.PropertyOrange</CommandName>
+																	<ExtendedTooltip name="PropertyOrangeExtendedTooltip" id="514"/>
+																</Button>
+																<Button name="PropertyRed" id="511">
+																	<Type>CommandBarButton</Type>
+																	<CommandName>Form.Command.PropertyRed</CommandName>
+																	<ExtendedTooltip name="PropertyRedExtendedTooltip" id="512"/>
+																</Button>
+																<Button name="PropertyPurple" id="523">
+																	<Type>CommandBarButton</Type>
+																	<CommandName>Form.Command.PropertyPurple</CommandName>
+																	<ExtendedTooltip name="PropertyPurpleExtendedTooltip" id="524"/>
+																</Button>
+																<Button name="PropertyBlue" id="519">
+																	<Type>CommandBarButton</Type>
+																	<CommandName>Form.Command.PropertyBlue</CommandName>
+																	<ExtendedTooltip name="PropertyBlueExtendedTooltip" id="520"/>
+																</Button>
+																<Button name="PropertyLime" id="509">
+																	<Type>CommandBarButton</Type>
+																	<CommandName>Form.Command.PropertyLime</CommandName>
+																	<ExtendedTooltip name="PropertyLimeExtendedTooltip" id="510"/>
+																</Button>
+																<Button name="PropertyPink" id="525">
+																	<Type>CommandBarButton</Type>
+																	<CommandName>Form.Command.PropertyPink</CommandName>
+																	<ExtendedTooltip name="PropertyPinkExtendedTooltip" id="526"/>
+																</Button>
+																<Button name="PropertyLightBlue" id="521">
+																	<Type>CommandBarButton</Type>
+																	<CommandName>Form.Command.PropertyLightBlue</CommandName>
+																	<ExtendedTooltip name="PropertyLightBlueExtendedTooltip" id="522"/>
+																</Button>
+															</ChildItems>
+														</ButtonGroup>
+													</ChildItems>
+												</CommandBar>
+											</ChildItems>
+										</UsualGroup>
 										<UsualGroup name="PropertiesAndDependenciesGroup" id="324">
 											<Title>
 												<v8:item>
@@ -1656,7 +1733,7 @@ Unless specified, the name is generated automatically. </v8:content>
 									</ToolTip>
 									<ToolTipRepresentation>Button</ToolTipRepresentation>
 									<ContextMenu name="NameContextMenu" id="458"/>
-									<ExtendedTooltip name="NameExtendedHint" id="459"/>
+									<ExtendedTooltip name="NameExtendedTooltip" id="459"/>
 								</InputField>
 							</ChildItems>
 						</UsualGroup>
@@ -1727,20 +1804,15 @@ Unless specified, the name is generated automatically. </v8:content>
 			<MainAttribute>true</MainAttribute>
 			<SavedData>true</SavedData>
 		</Attribute>
-		<Attribute name="IsAdditionalInfo" id="3">
+		<Attribute name="PropertyKind" id="3">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>This is an additional information record</v8:content>
+					<v8:content>Property kind</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
-				<v8:Type>xs:decimal</v8:Type>
-				<v8:NumberQualifiers>
-					<v8:Digits>1</v8:Digits>
-					<v8:FractionDigits>0</v8:FractionDigits>
-					<v8:AllowedSign>Any</v8:AllowedSign>
-				</v8:NumberQualifiers>
+				<v8:Type>cfg:EnumRef.PropertiesKinds</v8:Type>
 			</Type>
 			<SavedData>true</SavedData>
 			<FunctionalOptions>
@@ -1810,6 +1882,62 @@ Unless specified, the name is generated automatically. </v8:content>
 	ValuesOverridable.Weight
 FROM
 	Catalog.ObjectsPropertiesValues AS ValuesOverridable</QueryText>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FullDescr</dcssch:dataPath>
+					<dcssch:field>FullDescr</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DescriptionLanguage1</dcssch:dataPath>
+					<dcssch:field>DescriptionLanguage1</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DescriptionLanguage2</dcssch:dataPath>
+					<dcssch:field>DescriptionLanguage2</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Presentations</dcssch:dataPath>
+					<dcssch:field>Presentations</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PredefinedDataName</dcssch:dataPath>
+					<dcssch:field>PredefinedDataName</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Ref</dcssch:dataPath>
+					<dcssch:field>Ref</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DataVersion</dcssch:dataPath>
+					<dcssch:field>DataVersion</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeletionMark</dcssch:dataPath>
+					<dcssch:field>DeletionMark</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Predefined</dcssch:dataPath>
+					<dcssch:field>Predefined</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Owner</dcssch:dataPath>
+					<dcssch:field>Owner</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Parent</dcssch:dataPath>
+					<dcssch:field>Parent</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>IsFolder</dcssch:dataPath>
+					<dcssch:field>IsFolder</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Description</dcssch:dataPath>
+					<dcssch:field>Description</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Weight</dcssch:dataPath>
+					<dcssch:field>Weight</dcssch:field>
+				</Field>
 				<MainTable>Catalog.ObjectsPropertiesValues</MainTable>
 				<ListSettings>
 					<dcsset:filter>
@@ -1973,16 +2101,23 @@ FROM
 	CASE
 		WHEN Sets.IsFolder
 			THEN Sets.Description
-		WHEN &amp;IsAdditionalInfo
+		WHEN &amp;PropertyKind = VALUE(Enum.PropertiesKinds.AdditionalInfo)
 			THEN CASE
 				WHEN Sets.InfoCount = ""
 					THEN Sets.Description
 				ELSE Sets.Description + " (" + Sets.InfoCount + ")"
 			END
-		ELSE CASE
+		WHEN &amp;PropertyKind = VALUE(Enum.PropertiesKinds.AdditionalAttributes)
+		THEN CASE
 			WHEN Sets.AttributesCount = ""
 				THEN Sets.Description
 			ELSE Sets.Description + " (" + Sets.AttributesCount + ")"
+		END
+		WHEN &amp;PropertyKind = VALUE(Enum.PropertiesKinds.Labels)
+		THEN CASE
+			WHEN Sets.NumberOfTags = ""
+				THEN Sets.Description
+			ELSE Sets.Description + " (" + Sets.NumberOfTags + ")"
 		END
 	END AS Presentation,
 	CASE
@@ -2005,6 +2140,108 @@ WHERE
 	AND Sets.Used
 	AND ISNULL(Sets.Parent.Used, TRUE)
 	AND NOT Sets.Ref IN (&amp;SetsToExclude)</QueryText>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Ref</dcssch:dataPath>
+					<dcssch:field>Ref</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DataVersion</dcssch:dataPath>
+					<dcssch:field>DataVersion</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeletionMark</dcssch:dataPath>
+					<dcssch:field>DeletionMark</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Predefined</dcssch:dataPath>
+					<dcssch:field>Predefined</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Parent</dcssch:dataPath>
+					<dcssch:field>Parent</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>IsFolder</dcssch:dataPath>
+					<dcssch:field>IsFolder</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Description</dcssch:dataPath>
+					<dcssch:field>Description</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Used</dcssch:dataPath>
+					<dcssch:field>Used</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PictureNumber</dcssch:dataPath>
+					<dcssch:field>PictureNumber</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>AttributesCount</dcssch:dataPath>
+					<dcssch:field>AttributesCount</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>InfoCount</dcssch:dataPath>
+					<dcssch:field>InfoCount</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>NumberOfTags</dcssch:dataPath>
+					<dcssch:field>NumberOfTags</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PredefinedSetName</dcssch:dataPath>
+					<dcssch:field>PredefinedSetName</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DescriptionLanguage1</dcssch:dataPath>
+					<dcssch:field>DescriptionLanguage1</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DescriptionLanguage2</dcssch:dataPath>
+					<dcssch:field>DescriptionLanguage2</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>AdditionalAttributes</dcssch:dataPath>
+					<dcssch:field>AdditionalAttributes</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>AdditionalInfo</dcssch:dataPath>
+					<dcssch:field>AdditionalInfo</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Labels</dcssch:dataPath>
+					<dcssch:field>Labels</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Presentations</dcssch:dataPath>
+					<dcssch:field>Presentations</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PredefinedDataName</dcssch:dataPath>
+					<dcssch:field>PredefinedDataName</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Presentation</dcssch:dataPath>
+					<dcssch:field>Presentation</dcssch:field>
+				</Field>
+				<Parameter>
+					<dcssch:name>SetsToExclude</dcssch:name>
+					<dcssch:useRestriction>true</dcssch:useRestriction>
+					<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
+				</Parameter>
+				<Parameter>
+					<dcssch:name>Sets</dcssch:name>
+					<dcssch:useRestriction>true</dcssch:useRestriction>
+					<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
+				</Parameter>
+				<Parameter>
+					<dcssch:name>PropertyKind</dcssch:name>
+					<dcssch:valueType>
+						<v8:Type>cfg:EnumRef.PropertiesKinds</v8:Type>
+					</dcssch:valueType>
+					<dcssch:value xsi:nil="true"/>
+					<dcssch:useRestriction>true</dcssch:useRestriction>
+				</Parameter>
 				<MainTable>Catalog.AdditionalAttributesAndInfoSets</MainTable>
 				<ListSettings>
 					<dcsset:filter>
@@ -2079,7 +2316,7 @@ WHERE
 					<Type>
 						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
-							<v8:Digits>1</v8:Digits>
+							<v8:Digits>2</v8:Digits>
 							<v8:FractionDigits>0</v8:FractionDigits>
 							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
@@ -2171,12 +2408,21 @@ WHERE
 				<ManualQuery>true</ManualQuery>
 				<DynamicDataRead>false</DynamicDataRead>
 				<QueryText>SELECT
-	CASE
-		WHEN &amp;IsAdditionalInfo
-			THEN &amp;CommonAdditionalInfo
-		ELSE &amp;CommonAdditionalAttributes
-	END AS Presentation,
+	&amp;ListPresentation AS Presentation,
 	0 AS PictureNumber</QueryText>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Presentation</dcssch:dataPath>
+					<dcssch:field>Presentation</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PictureNumber</dcssch:dataPath>
+					<dcssch:field>PictureNumber</dcssch:field>
+				</Field>
+				<Parameter>
+					<dcssch:name>ListPresentation</dcssch:name>
+					<dcssch:value xsi:nil="true"/>
+					<dcssch:useRestriction>true</dcssch:useRestriction>
+				</Parameter>
 				<ListSettings>
 					<dcsset:filter>
 						<dcsset:viewMode>Normal</dcsset:viewMode>
@@ -2419,6 +2665,136 @@ WHERE
 			</Picture>
 			<Action>FillIDForFormulas</Action>
 			<Representation>Picture</Representation>
+		</Command>
+		<Command name="PropertyLightBlue" id="12">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Property light blue</v8:content>
+				</v8:item>
+			</Title>
+			<Picture>
+				<xr:Ref>CommonPicture.LabelLightBlue</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>PropertyLightBlue</Action>
+		</Command>
+		<Command name="PropertyYellow" id="13">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Property yellow</v8:content>
+				</v8:item>
+			</Title>
+			<Picture>
+				<xr:Ref>CommonPicture.LabelYellow</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>PropertyYellow</Action>
+		</Command>
+		<Command name="PropertyGreen" id="14">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Property green</v8:content>
+				</v8:item>
+			</Title>
+			<Picture>
+				<xr:Ref>CommonPicture.LabelGreen</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>PropertyGreen</Action>
+		</Command>
+		<Command name="PropertyLime" id="15">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Property lime</v8:content>
+				</v8:item>
+			</Title>
+			<Picture>
+				<xr:Ref>CommonPicture.LabelLime</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>PropertyBrown</Action>
+		</Command>
+		<Command name="PropertyRed" id="16">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Property red</v8:content>
+				</v8:item>
+			</Title>
+			<Picture>
+				<xr:Ref>CommonPicture.LabelRed</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>PropertyRed</Action>
+		</Command>
+		<Command name="PropertyOrange" id="17">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Property orange</v8:content>
+				</v8:item>
+			</Title>
+			<Picture>
+				<xr:Ref>CommonPicture.LabelOrange</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>PropertyOrange</Action>
+		</Command>
+		<Command name="PropertyPink" id="18">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Property pink</v8:content>
+				</v8:item>
+			</Title>
+			<Picture>
+				<xr:Ref>CommonPicture.LabelPink</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>PropertyPink</Action>
+		</Command>
+		<Command name="PropertyGray" id="19">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Property gray</v8:content>
+				</v8:item>
+			</Title>
+			<Picture>
+				<xr:Ref>CommonPicture.LabelGray</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>PropertyGray</Action>
+		</Command>
+		<Command name="PropertyBlue" id="20">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Property blue</v8:content>
+				</v8:item>
+			</Title>
+			<Picture>
+				<xr:Ref>CommonPicture.LabelBlue</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>PropertyBlue</Action>
+		</Command>
+		<Command name="PropertyPurple" id="21">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Property purple</v8:content>
+				</v8:item>
+			</Title>
+			<Picture>
+				<xr:Ref>CommonPicture.LabelPurple</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>PropertyPurple</Action>
 		</Command>
 	</Commands>
 	<Parameters>

@@ -270,7 +270,7 @@ EndProcedure
 
 #If Not WebClient And Not MobileClient Then
 	
-	// Extracts text from files on the hard drive on the client.
+// 
 &AtClient
 Procedure TextExtractionClient(PortionSize = Undefined)
 	

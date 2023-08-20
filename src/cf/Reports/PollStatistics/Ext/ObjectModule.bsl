@@ -597,6 +597,7 @@ Function ExecuteQueryByQuestionnaireTemplateQuestions(Survey,QuestionnaireTempla
 	|WHERE
 	|	QuestionnaireQuestionAnswers.Questionnaire.Survey = &Survey
 	|	AND VALUETYPE(QuestionnaireQuestionAnswers.Response) = TYPE(NUMBER)
+	|	AND QuestionnaireQuestionAnswers.IsUnanswered = FALSE
 	|GROUP BY
 	|	QuestionnaireQuestionAnswers.DoQueryBox,
 	|	QuestionnaireQuestionAnswers.ElementaryQuestion,
@@ -619,6 +620,7 @@ Function ExecuteQueryByQuestionnaireTemplateQuestions(Survey,QuestionnaireTempla
 	|WHERE
 	|	QuestionnaireQuestionAnswers.Questionnaire.Survey = &Survey
 	|	AND VALUETYPE(QuestionnaireQuestionAnswers.Response) = TYPE(DATE)
+	|	AND QuestionnaireQuestionAnswers.IsUnanswered = FALSE
 	|
 	|GROUP BY
 	|	QuestionnaireQuestionAnswers.DoQueryBox,
@@ -669,6 +671,7 @@ Function ExecuteQueryByQuestionnaireTemplateQuestions(Survey,QuestionnaireTempla
 	|	AND VALUETYPE(QuestionnaireQuestionAnswers.Response) <> TYPE(DATE)
 	|	AND VALUETYPE(QuestionnaireQuestionAnswers.Response) <> TYPE(NUMBER)
 	|	AND VALUETYPE(QuestionnaireQuestionAnswers.Response) <> TYPE(Catalog.QuestionnaireAnswersOptions)
+	|	AND QuestionnaireQuestionAnswers.IsUnanswered = FALSE
 	|	
 	|GROUP BY
 	|	QuestionnaireQuestionAnswers.DoQueryBox,

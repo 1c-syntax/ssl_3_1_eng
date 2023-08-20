@@ -681,7 +681,6 @@ Function StartFillingInTheValues(JobID)
 	
 	MethodParameters = TimeConsumingOperations.FunctionExecutionParameters(JobID);
 	MethodParameters.BackgroundJobDescription = NStr("en = 'Fill in filter by value';");
-	MethodParameters.RunInBackground = True;
 	
 	FillingResult = TimeConsumingOperations.ExecuteFunction(
 		MethodParameters,

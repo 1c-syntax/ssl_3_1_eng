@@ -36,11 +36,11 @@ EndFunction
 
 #Region Private
 
-// Returns a reference to the external component catalog by ID and version.
+// Returns a reference to the add-in catalog by ID and version.
 //
 // Parameters:
-//  Id - String - an external component object ID.
-//  Version        - String - an add-in version.
+//  Id - String - Add-in object ID.
+//  Version        - String - Add-in version.
 //
 // Returns:
 //  CatalogRef.AddIns - 

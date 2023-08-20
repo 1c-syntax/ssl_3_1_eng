@@ -113,7 +113,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	ObjectsForProcessing = Query.Execute().Select();
 	
 	While ObjectsForProcessing.Next() Do
-		
+		RepresentationOfTheReference = String(ObjectsForProcessing.Ref);
 		BeginTransaction();
 		
 		Try
@@ -153,7 +153,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Failed to process %1 %2 due to:
 					|%3';"), 
-				FullObjectName, ObjectsForProcessing.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				FullObjectName, RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(),
 				EventLogLevel.Warning,

@@ -69,7 +69,10 @@ EndProcedure
 &AtClient
 Procedure ListBeforeDeleteRow(Item, Cancel)
 	
-	FileData = FilesOperationsInternalServerCall.FileData(Items.List.CurrentRow);
+	FileDataParameters = FilesOperationsClientServer.FileDataParameters();
+	FileDataParameters.GetBinaryDataRef = False;
+
+	FileData = FilesOperationsInternalServerCall.FileData(Items.List.CurrentRow,,FileDataParameters);
 	If FileData.CurrentVersion = Items.List.CurrentRow Then
 		ShowMessageBox(, NStr("en = 'Cannot delete the active version.';"));
 		Cancel = True;

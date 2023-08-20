@@ -25,10 +25,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Return;
 	EndIf;
 	
+	Object.HTMLText = CommonClientServer.ReplaceProhibitedXMLChars(Object.HTMLText);
+	
 	InfobaseUpdate.CheckObjectProcessed(Object, ThisObject);
 	
 	Interactions.SetEmailFormHeader(ThisObject);
 	RestrictedExtensions = FilesOperationsInternal.DeniedExtensionsList();
+	DoDisplayImportance();
 	
 	// 
 	Interactions.FillChoiceListForReviewAfter(Items.ReviewAfter.ChoiceList);
@@ -82,6 +85,8 @@ EndProcedure
 Procedure OnReadAtServer(CurrentObject)
 	
 	EnableUnsafeContent = False;
+	
+	Object.HTMLText = CommonClientServer.ReplaceProhibitedXMLChars(Object.HTMLText);
 	
 	Interactions.SetInteractionFormAttributesByRegisterData(ThisObject);
 	
@@ -642,6 +647,27 @@ Procedure FillAdditionalInformation()
 	+ Chars.LF + NStr("en = 'Importance';") + ":  " + Object.Importance
 	+ Chars.LF + NStr("en = 'Encoding';") + ": " + Object.Encoding;
 	
+EndProcedure
+
+&AtServer
+Procedure DoDisplayImportance()
+
+	Items.DecorationImportance.Visible = True;
+
+	If Object.Importance = Enums.InteractionImportanceOptions.High Then
+		Items.DecorationImportance.Picture = PictureLib.ImportanceHigh;
+		Items.DecorationImportance.ToolTip = NStr("en = 'High importance';");
+		
+	ElsIf Object.Importance = Enums.InteractionImportanceOptions.Low Then
+		Items.DecorationImportance.Picture = PictureLib.ImportanceLow;
+		Items.DecorationImportance.ToolTip = NStr("en = 'Low importance';");
+		
+	Else
+		Items.DecorationImportance.Picture = PictureLib.ImportanceNotSpecified;
+		Items.DecorationImportance.ToolTip = NStr("en = 'Normal importance';");
+		Items.DecorationImportance.Visible = False;
+	EndIf;
+
 EndProcedure
 
 &AtServer

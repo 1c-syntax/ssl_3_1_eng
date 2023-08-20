@@ -17,7 +17,7 @@ Procedure UpdateTemplatesCheckSum() Export
 	
 	TemplatesToProcess = ConfigurationPrintFormTemplates();
 	
-	ErrorsList = New Array;
+	ErrorList = New Array;
 	
 	For Each TemplateDetails In TemplatesToProcess Do
 		Owner = TemplateDetails.Value;
@@ -86,13 +86,13 @@ Procedure UpdateTemplatesCheckSum() Export
 			WriteLogEvent(NStr("en = 'Build-in template edit monitor';", Common.DefaultLanguageCode()),
 				EventLogLevel.Error, Template, , ErrorText);
 			
-			ErrorsList.Add(OwnerName + "." + TemplateName + ": " + ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+			ErrorList.Add(OwnerName + "." + TemplateName + ": " + ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		EndTry;
 	EndDo;
 	
-	If ValueIsFilled(ErrorsList) Then
-		ErrorsList.Insert(0, NStr("en = 'Couldn''t save the print form templates details stored in the configuration:';"));
-		ErrorText = StrConcat(ErrorsList, Chars.LF);
+	If ValueIsFilled(ErrorList) Then
+		ErrorList.Insert(0, NStr("en = 'Couldn''t save the print form templates details stored in the configuration:';"));
+		ErrorText = StrConcat(ErrorList, Chars.LF);
 		Raise ErrorText;
 	EndIf;
 	
@@ -133,6 +133,16 @@ Procedure Print(ObjectsArray, PrintParameters, PrintFormsCollection, PrintObject
 		PrintForm.TemplateSynonym = NStr("en = 'How to create facsimile signatures and stamps';");
 		PrintForm.SpreadsheetDocument = GetCommonTemplate("GuideToCreateFacsimileAndStamp");
 		PrintForm.FullTemplatePath = "CommonTemplate.GuideToCreateFacsimileAndStamp";
+		PrintForm.SpreadsheetDocument.ReadOnly = True;
+		
+		RefArea = PrintForm.SpreadsheetDocument.Drawings.Scan;
+		If PrintParameters.ScanAvailable And Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
+			RefArea.Text = NStr("en = 'Scan';");
+			ModuleFilesOperationsInternal = Common.CommonModule("FilesOperationsInternal");
+			RefArea.Mask = ModuleFilesOperationsInternal.CommandScanSheet();
+		Else
+			PrintForm.SpreadsheetDocument.Drawings.Delete(RefArea);
+		EndIf;
 	EndIf;
 	
 EndProcedure

@@ -503,7 +503,7 @@ Procedure FillNavigationTable()
 	Transition = NavigationTable.Add();
 	Transition.NavigationNumber = 2;
 	Transition.MainPageName     = "PageWait";
-	Transition.NavigationPageName    = "NavigationWaitPage";;
+	Transition.NavigationPageName    = "NavigationWaitPage";
 	Transition.OnOpenHandlerName = "Attachable_WaitingPageOnOpen";
 	
 	Transition = NavigationTable.Add();

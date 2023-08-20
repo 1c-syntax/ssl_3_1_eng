@@ -765,6 +765,35 @@ Function GetWSProxy_3_0_2_1(SettingsStructure, ErrorMessageString = "", UserMess
 	
 EndFunction
 
+// The function returns a Wsproxy object of the Exchange_3_0_1_1 web service created with the passed parameters.
+//
+// Parameters:
+//  SettingsStructure - Structure:
+//    * WSWebServiceURL - String - the location of the wsdl.
+//    * WSServiceName - String - service name.
+//    * WSServiceNamespaceURL - String - URI of the web service namespace.
+//    * WSUsername - String - name of the user to log in to the server.
+//    * WSPassword - String - user password.
+//    * WSTimeout - Number - timeout for operations performed through the received proxy.
+//  ErrorMessageString - String - contains a detailed description of the error if the connection failed;
+//  UserMessage - String - contains a brief description of the error if the connection failed.
+//  Timeout - Number - timeout. 
+//
+// Returns:
+//  WSProxy - 
+//
+Function GetWSProxy_3_0_2_2(SettingsStructure, ErrorMessageString = "", UserMessage = "", Timeout = 600) Export
+	
+	DeleteInsignificantCharactersInConnectionSettings(SettingsStructure);
+	
+	SettingsStructure.Insert("WSServiceNamespaceURL", "http://www.1c.ru/SSL/Exchange_3_0_2_2");
+	SettingsStructure.Insert("WSServiceName",                 "Exchange_3_0_2_2");
+	SettingsStructure.Insert("WSTimeout",                    Timeout);
+	
+	Return GetWSProxyByConnectionParameters(SettingsStructure, ErrorMessageString, UserMessage, True);
+	
+EndFunction
+
 // Returns allowed number of items processed in a single data import transaction.
 //
 // Returns:
@@ -916,9 +945,12 @@ EndProcedure
 //                                                                  user.
 //      * DestinationConfigurationName                       - Structure - a list of IDs of correspondent configurations
 //                                                                  exchange with which is possible via this exchange plan.
-//      * ExchangeFormatVersions                            - Map - a map of supported format versions
-//                                                                  and references to common modules with exchange implemented using format.
-//                                                                  It is used for exchange via the universal format only.
+//      * ExchangeFormatVersions                            - Map of KeyAndValue -
+//                                                                  
+//                                                                  
+//                                                                  
+//         ** Key - Number -
+//         ** Value - CommonModule -
 //      * ExchangeFormat                                   - String - the XDTO package namespace that contains 
 //                                                                  a universal format without the version specified.
 //                                                                  It is used for exchange using a universal format only.
@@ -944,6 +976,11 @@ EndProcedure
 //      * Algorithms                                      - Structure - a list of export procedures and functions
 //                                                                  declared in the exchange plan manager module
 //                                                                  and used by the data exchange subsystem.
+//      *RulesForRegisteringInManager                    - Boolean - 
+//                                                                  
+//      *RegistrationManagerName                         - String -
+//      *UseCacheOfPublicIdentifiers         - Boolean -
+//                                                                  
 //
 Function DefaultExchangePlanSettings(ExchangePlanName) Export
 	
@@ -995,6 +1032,8 @@ Function DefaultExchangePlanSettings(ExchangePlanName) Export
 	Parameters.Insert("Algorithms",                                      Algorithms);
 	Parameters.Insert("RulesForRegisteringInManager", False);
 	Parameters.Insert("RegistrationManagerName", "");
+	Parameters.Insert("UseCacheOfPublicIdentifiers", False);
+	Parameters.Insert("Global", False);
 		
 	Return Parameters;
 	
@@ -1197,8 +1236,8 @@ Procedure OnSaveExternalSystemConnectionSettings(Context, ConnectionParameters, 
 			DatabaseObjectsTable = DataExchangeXDTOServer.SupportedObjectsInFormat(
 				Context.ExchangePlanName, "SendReceive", Peer);
 			
-			XDTOSettingManager = Common.CommonModule("InformationRegisters.XDTODataExchangeSettings");
-			XDTOSettingManager.UpdateSettings2(
+			XDTODataExchangeConfigurationModule = Common.CommonModule("InformationRegisters.XDTODataExchangeSettings");
+			XDTODataExchangeConfigurationModule.UpdateSettings2(
 				Peer, "SupportedObjects", DatabaseObjectsTable);
 				
 			RecordStructure = New Structure;
@@ -1251,14 +1290,14 @@ Procedure OnSaveExternalSystemConnectionSettings(Context, ConnectionParameters, 
 		
 		If Not XDTOSettings = Undefined Then
 			If Not XDTOSettings.SupportedObjects = Undefined Then
-				XDTOSettingManager = Common.CommonModule("InformationRegisters.XDTODataExchangeSettings");
-				XDTOSettingManager.UpdateCorrespondentSettings(
+				XDTODataExchangeConfigurationModule = Common.CommonModule("InformationRegisters.XDTODataExchangeSettings");
+				XDTODataExchangeConfigurationModule.UpdateCorrespondentSettings(
 					Peer, "SupportedObjects", XDTOSettings.SupportedObjects);
 			EndIf;
 		EndIf;
 		
-		TransportSettingsManager = Common.CommonModule("InformationRegisters.DataExchangeTransportSettings");
-		TransportSettingsManager.SaveExternalSystemTransportSettings(
+		ModuleDataExchangeTransportSettings = Common.CommonModule("InformationRegisters.DataExchangeTransportSettings");
+		ModuleDataExchangeTransportSettings.SaveExternalSystemTransportSettings(
 			Peer, ConnectionParameters.TransportSettings);
 			
 		If ConnectionParameters.Property("SynchronizationSchedule")
@@ -1268,7 +1307,9 @@ Procedure OnSaveExternalSystemConnectionSettings(Context, ConnectionParameters, 
 				ConnectionParameters.UseScheduledJob, True);
 				
 			If Common.DataSeparationEnabled() Then
-				If Common.SubsystemExists("CloudTechnology.JobsQueue") Then
+				If Common.SubsystemExists("CloudTechnology.JobsQueue") 
+					And Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then
+					
 					ModuleJobsQueue = Common.CommonModule("JobsQueue");
 					ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 					
@@ -1358,7 +1399,7 @@ Procedure OnSaveExternalSystemConnectionSettings(Context, ConnectionParameters, 
 			ExecuteDataExchangeWithExternalSystem(Peer, ExchangeParameters, Cancel);
 		Except
 			Cancel = True;
-			ErrorMessage = DetailErrorDescription(ErrorInfo());
+			ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 			WriteLogEvent(DataExchangeCreationEventLogEvent(),
 				EventLogLevel.Error, , , ErrorMessage);
 		EndTry;
@@ -1784,6 +1825,31 @@ Function ExchangeSetupOptionForCorrespondent(ExchangePlanName, CorrespondentName
 	
 EndFunction
 
+// 
+//
+// Parameters:
+//  ExchangePlanName - String - name of the exchange plan for which the rules are being deleted.
+//
+Procedure DeleteSuppliedObjectRegistrationRules(ExchangePlanName) Export
+	
+	InformationRegisters.DataExchangeRules.DeleteSuppliedObjectRegistrationRules(ExchangePlanName);	
+	
+EndProcedure
+
+// 
+//
+// Parameters:
+//  ExchangePlanName - String - name of the exchange plan that the rules are being loaded for.
+//  RulesFileName - String -
+//
+Procedure DownloadSuppliedObjectRegistrationRules(ExchangePlanName, RulesFileName) Export
+	
+	InformationRegisters.DataExchangeRules.DownloadSuppliedObjectRegistrationRules(
+		ExchangePlanName,
+		RulesFileName);	
+	
+EndProcedure
+
 // End StandardSubsystems.SaaS.DataExchangeSaaS
 
 #EndRegion
@@ -2011,7 +2077,7 @@ Procedure ImportPriorityDataToSubordinateDIBNode(Cancel = False) Export
 		WriteLogEvent(
 			NStr("en = 'Data exchange.Priority data import';", Common.DefaultLanguageCode()),
 			EventLogLevel.Error,,,
-			DetailErrorDescription(ErrorInfo()));
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		
 		Raise
 			NStr("en = 'Cannot import priority data from the exchange message.
@@ -2453,17 +2519,31 @@ Procedure CheckExchangeMessageTransportDataProcessorAttachment(Cancel,
 	// Initializing data processor properties by the passed settings parameters.
 	FillPropertyValues(DataProcessorObject, SettingsStructure);
 	
+	Peer = Undefined;
+	ThereIsCorrespondent = SettingsStructure.Property("Peer", Peer)
+		Or SettingsStructure.Property("CorrespondentEndpoint", Peer);
+		
 	// Privileged mode is set above.
-	If SettingsStructure.Property("Peer") Then
+	If ThereIsCorrespondent Then
+
+		ParametersString1 = "COMUserPassword, FTPConnectionPassword, WSPassword, ArchivePasswordExchangeMessages,
+			|FTPConnectionDataAreasPassword, ArchivePasswordDataAreaExchangeMessages";
+		
 		If NewPasswords = Undefined Then
-			Passwords = Common.ReadDataFromSecureStorage(SettingsStructure.Peer,
-				"COMUserPassword, FTPConnectionPassword, WSPassword, ArchivePasswordExchangeMessages", True);
+			Passwords = Common.ReadDataFromSecureStorage(Peer, ParametersString1, True);
 		Else
-			Passwords = New Structure(
-				"COMUserPassword, FTPConnectionPassword, WSPassword, ArchivePasswordExchangeMessages");
+			Passwords = New Structure(ParametersString1);
 			FillPropertyValues(Passwords, NewPasswords);
 		EndIf;
+		
 		FillPropertyValues(DataProcessorObject, Passwords);
+		
+		If Common.DataSeparationEnabled()
+			And TypeOf(DataProcessorObject) = Type("DataProcessorObject.ExchangeMessageTransportFTP") Then
+			DataProcessorObject.FTPConnectionPassword = Passwords.FTPConnectionDataAreasPassword;
+			DataProcessorObject.ArchivePasswordExchangeMessages = Passwords.ArchivePasswordDataAreaExchangeMessages;
+		EndIf;
+		
 	EndIf;
 	
 	// 
@@ -2894,7 +2974,10 @@ Function GetFilterSettingsValues(ExternalConnectionSettingsStructure) Export
 	Return Result;
 EndFunction
 
-Function InfoBaseAdmParams(Val ExchangePlanName, Val NodeCode, ErrorMessage) Export
+Function InfoBaseAdmParams(Val ExchangePlanName, 
+									Val NodeCode, 
+									ErrorMessage, 
+									AdditionalParameters = Undefined) Export 
 	
 	Result = New Structure;
 	
@@ -2924,21 +3007,16 @@ Function InfoBaseAdmParams(Val ExchangePlanName, Val NodeCode, ErrorMessage) Exp
 	SetPrivilegedMode(True);
 	
 	Result.ExchangePlanExists = (Metadata.ExchangePlans.Find(ExchangePlanName) <> Undefined);
-	
-	If Not Result.ExchangePlanExists Then
-		// Exchange format can be passed as an exchange plan name.
-		For Each ExchangePlan In DataExchangeCached.SSLExchangePlans() Do
-			If Not DataExchangeCached.IsXDTOExchangePlan(ExchangePlan) Then
-				Continue;
-			EndIf;
+
+	If Not Result.ExchangePlanExists 
+		And AdditionalParameters <> Undefined
+		And AdditionalParameters.Property("IsXDTOExchangePlan") Then
+		
+		ExchangePlan = FindNameOfExchangePlanThroughUniversalFormat(ExchangePlanName);
 			
-			ExchangeFormat = ExchangePlanSettingValue(ExchangePlan, "ExchangeFormat");
-			If ExchangePlanName = ExchangeFormat Then
-				Result.ExchangePlanExists = True;
-				Result.ExchangePlanName = ExchangePlan;
-				Break;
-			EndIf;
-		EndDo;
+		Result.ExchangePlanExists = ValueIsFilled(ExchangePlan);
+		Result.ExchangePlanName = ExchangePlan;
+	
 	EndIf;
 	
 	If Not Result.ExchangePlanExists Then
@@ -3814,11 +3892,12 @@ Function DataExchangeMonitorTable(Val Var_ExchangePlans, Val AdditionalExchangeP
 	|			THEN 0
 	|		ELSE 1
 	|	END AS ScheduleConfigured,
-	|	CommonInfobasesNodesSettings.CorrespondentVersion AS CorrespondentVersion,
-	|	CommonInfobasesNodesSettings.CorrespondentPrefix AS CorrespondentPrefix,
-	|	CommonInfobasesNodesSettings.SettingCompleted AS SettingCompleted,
-	|	CommonInfobasesNodesSettings.MigrationToWebService_Step AS MigrationToWebService_Step,
-	|	CommonInfobasesNodesSettings.TransportKind AS TransportKind,
+	|	ISNULL(CommonInfobasesNodesSettings.CorrespondentVersion, 0) AS CorrespondentVersion,
+	|	ISNULL(CommonInfobasesNodesSettings.CorrespondentPrefix, """") AS CorrespondentPrefix,
+	|	ISNULL(CommonInfobasesNodesSettings.SettingCompleted, FALSE) AS SettingCompleted,
+	|	ISNULL(CommonInfobasesNodesSettings.MigrationToWebService_Step, 0) AS MigrationToWebService_Step,
+	|	ISNULL(CommonInfobasesNodesSettings.TransportKind, """") AS TransportKind,
+	|	ISNULL(CommonInfobasesNodesSettings.SynchronizationIsUnavailable, FALSE) AS SynchronizationIsUnavailable,
 	|	CASE
 	|		WHEN ISNULL(DataExchangeStatesExport.ExchangeExecutionResult, 0) = 0
 	|				AND ISNULL(DataExchangeStatesImport.ExchangeExecutionResult, 0) = 0
@@ -3901,8 +3980,8 @@ Function DataExchangeMonitorTable(Val Var_ExchangePlans, Val AdditionalExchangeP
 		SyncSetup.ExchangePlanName = DataExchangeCached.GetExchangePlanName(SyncSetup.InfobaseNode);
 		
 		If Common.DataSeparationEnabled()
-			And SyncSetup.SettingCompleted
-			And DataExchangeCached.IsXDTOExchangePlan(SyncSetup.InfobaseNode)
+			And SyncSetup.SettingCompleted = True
+			And DataExchangeCached.IsXDTOExchangePlan(SyncSetup.InfobaseNode) = True
 			And SyncSetup.TransportKind <> Enums.ExchangeMessagesTransportTypes.WS
 			And SyncSetup.TransportKind <> Enums.ExchangeMessagesTransportTypes.WSPassiveMode Then
 				
@@ -3989,7 +4068,7 @@ Procedure CheckDataExchangeUsage(SetUsing = False) Export
 			Try
 				Constants.UseDataSynchronization.Set(True);
 			Except
-				MessageText = DetailErrorDescription(ErrorInfo());
+				MessageText = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 				WriteLogEvent(DataExchangeEventLogEvent(), EventLogLevel.Error,,,MessageText);
 				Raise MessageText;
 			EndTry;
@@ -4160,9 +4239,9 @@ Procedure DeleteDocumentRegisterRecords(DocumentObject) Export
 	
 	RecordTableRowToProcessArray = New Array;
 	
-	InsertAnAdditionalParameterForDeletingMovements = 
-		DocumentObject.AdditionalProperties.Property("DataSynchronizationViaAUniversalFormatDeletingMovements")
-			And (DocumentObject.AdditionalProperties.DataSynchronizationViaAUniversalFormatDeletingMovements = True);
+	InsertAnAdditionalParameterForDeletingRegisteredRecords = 
+		DocumentObject.AdditionalProperties.Property("DataSynchronizationViaAUniversalFormatDeletingRegisteredRecords")
+			And (DocumentObject.AdditionalProperties.DataSynchronizationViaAUniversalFormatDeletingRegisteredRecords = True);
 	
 	// Getting a list of registers with existing records.
 	RegisterRecordTable = DetermineDocumentHasRegisterRecords(DocumentObject.Ref);
@@ -4198,9 +4277,9 @@ Procedure DeleteDocumentRegisterRecords(DocumentObject) Export
 			Try
 				
 				Set = RegisterRecordRow.RecordSet; // 
-				If InsertAnAdditionalParameterForDeletingMovements Then
+				If InsertAnAdditionalParameterForDeletingRegisteredRecords Then
 					
-					Set.AdditionalProperties.Insert("DataSynchronizationViaAUniversalFormatDeletingMovements", True);
+					Set.AdditionalProperties.Insert("DataSynchronizationViaAUniversalFormatDeletingRegisteredRecords", True);
 					
 				EndIf;
 				
@@ -4213,7 +4292,7 @@ Procedure DeleteDocumentRegisterRecords(DocumentObject) Export
 					NStr("en = 'Operation failed: %1
 					|%2';"),
 					RegisterRecordRow.RegisterTableName,
-					BriefErrorDescription(ErrorInfo()));
+					ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 					
 			EndTry;
 		EndDo;
@@ -4324,7 +4403,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.ExecutionMode = "Deferred";
 	Handler.ObjectsToRead = "InformationRegister.DeleteExchangeTransportSettings";
 	Handler.ObjectsToChange = "InformationRegister.DeleteExchangeTransportSettings,InformationRegister.DataExchangeTransportSettings";
-	Handler.DeferredProcessingQueue = 1;
 	Handler.RunAlsoInSubordinateDIBNodeWithFilters = True;
 	Handler.UpdateDataFillingProcedure = "InformationRegisters.DataExchangeTransportSettings.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.CheckProcedure = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
@@ -4339,7 +4417,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.ExecutionMode = "Deferred";
 	Handler.ObjectsToRead = "InformationRegister.XDTODataExchangeSettings";
 	Handler.ObjectsToChange = "InformationRegister.XDTODataExchangeSettings";
-	Handler.DeferredProcessingQueue = 1;
 	Handler.RunAlsoInSubordinateDIBNodeWithFilters = True;
 	Handler.UpdateDataFillingProcedure = "InformationRegisters.XDTODataExchangeSettings.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.CheckProcedure = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
@@ -4354,7 +4431,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.ExecutionMode = "Deferred";
 	Handler.ObjectsToRead = "InformationRegister.CommonInfobasesNodesSettings";
 	Handler.ObjectsToChange = "InformationRegister.CommonInfobasesNodesSettings";
-	Handler.DeferredProcessingQueue = 1;
 	Handler.RunAlsoInSubordinateDIBNodeWithFilters = True;
 	Handler.UpdateDataFillingProcedure = "InformationRegisters.CommonInfobasesNodesSettings.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.CheckProcedure = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
@@ -4369,7 +4445,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.ExecutionMode = "Deferred";
 	Handler.ObjectsToRead = "InformationRegister.DeleteDataExchangeResults";
 	Handler.ObjectsToChange = "InformationRegister.DeleteDataExchangeResults,InformationRegister.DataExchangeResults";
-	Handler.DeferredProcessingQueue = 1;
 	Handler.RunAlsoInSubordinateDIBNodeWithFilters = True;
 	Handler.UpdateDataFillingProcedure = "InformationRegisters.DataExchangeResults.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.CheckProcedure = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
@@ -4442,6 +4517,7 @@ Procedure OnDefineSupportedInterfaceVersions(Val SupportedVersionsStructure) Exp
 	VersionsArray.Add("2.1.1.7");
 	VersionsArray.Add("3.0.1.1");
 	VersionsArray.Add("3.0.2.1");
+	VersionsArray.Add("3.0.2.2");
 	SupportedVersionsStructure.Insert("DataExchange", VersionsArray);
 	
 EndProcedure
@@ -4875,7 +4951,7 @@ Procedure ExecuteDataExchangeForInfobaseNodeOverFileOrString(ExchangeParameters)
 				DeleteFiles(ExchangeParameters.FullNameOfExchangeMessageFile);
 			Except
 				WriteLogEvent(DataExchangeEventLogEvent(),
-					EventLogLevel.Error,,, DetailErrorDescription(ErrorInfo()));
+					EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			EndTry;
 		EndIf;
 		
@@ -4950,7 +5026,7 @@ Procedure WriteMessageWithNodeChanges(ExchangeSettingsStructure, Val ExchangeMes
 			
 		Except
 			
-			ErrorMessageString = DetailErrorDescription(ErrorInfo());
+			ErrorMessageString = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 			
 			WriteLogEvent(ExchangeSettingsStructure.EventLogMessageKey, EventLogLevel.Error,
 					ExchangeSettingsStructure.InfobaseNode.Metadata(), 
@@ -4982,7 +5058,7 @@ Procedure WriteMessageWithNodeChanges(ExchangeSettingsStructure, Val ExchangeMes
 			Try
 				DataExchangeXMLDataProcessor.RunDataExport();
 			Except
-				ErrorMessageString = DetailErrorDescription(ErrorInfo());
+				ErrorMessageString = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 			
 				WriteLogEvent(ExchangeSettingsStructure.EventLogMessageKey, EventLogLevel.Error,
 						ExchangeSettingsStructure.InfobaseNode.Metadata(), 
@@ -5020,7 +5096,7 @@ Procedure WriteMessageWithNodeChanges(ExchangeSettingsStructure, Val ExchangeMes
 									ExchangeSettingsStructure.EventLogMessageKey,
 									ProcessedObjectsCount);
 			Except
-				ErrorMessageString = DetailErrorDescription(ErrorInfo());
+				ErrorMessageString = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 			
 				WriteLogEvent(ExchangeSettingsStructure.EventLogMessageKey, EventLogLevel.Error,
 						ExchangeSettingsStructure.InfobaseNode.Metadata(), 
@@ -5098,7 +5174,7 @@ Procedure ReadMessageWithNodeChanges(ExchangeSettingsStructure,
 				ProcessedObjectsCount);
 			
 		Except
-			ErrorMessageString = DetailErrorDescription(ErrorInfo());
+			ErrorMessageString = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 			
 			WriteLogEvent(ExchangeSettingsStructure.EventLogMessageKey, EventLogLevel.Error,
 					ExchangeSettingsStructure.InfobaseNode.Metadata(), 
@@ -5356,6 +5432,27 @@ Function UniqueExchangeMessageFileName(Extension = "xml") Export
 	Return Result;
 EndFunction
 
+Function FindNameOfExchangePlanThroughUniversalFormat(Val OriginalNameOfExchangePlan) Export
+	
+	ExchangePlanName = DataExchangeFormatTranslationCached.BroadcastName(OriginalNameOfExchangePlan, "en");
+	
+	If Metadata.ExchangePlans.Find(ExchangePlanName) <> Undefined Then
+		Return ExchangePlanName;
+	EndIf;
+
+	For Each ExchangePlan In DataExchangeCached.SSLExchangePlans() Do
+		
+		If DataExchangeCached.IsXDTOExchangePlan(ExchangePlan)
+			And DataExchangeCached.ThisIsGlobalExchangeThroughUniversalFormat(ExchangePlan) Then
+				
+			Return ExchangePlan;
+			
+		EndIf;
+		
+	EndDo;
+	
+EndFunction
+
 #EndRegion
 
 #EndRegion
@@ -5519,7 +5616,8 @@ EndProcedure
 Procedure ExecuteDeferredDocumentsPosting(
 		DocumentsForDeferredPosting,
 		CorrespondentNode,
-		AdditionalPropertiesForDeferredPosting = Undefined) Export
+		AdditionalPropertiesForDeferredPosting = Undefined,
+		ExchangeComponents = Undefined) Export
 	
 	If DocumentsForDeferredPosting.Count() = 0 Then
 		Return; // The queue is empty
@@ -5536,6 +5634,8 @@ Procedure ExecuteDeferredDocumentsPosting(
 	DisablePeriodEndClosingDatesCheck(True);
 	Try
 		For Each TableRow In DocumentsForDeferredPosting Do
+			
+			BeginTime = DataExchangeValuationOfPerformance.StartMeasurement();
 			
 			If TableRow.DocumentRef.IsEmpty() Then
 				Continue;
@@ -5555,6 +5655,13 @@ Procedure ExecuteDeferredDocumentsPosting(
 				TableRow.DocumentRef,
 				True,
 				AdditionalObjectProperties);
+				
+			If ExchangeComponents <> Undefined Then
+				Event = "DelayedExecutionOfDocuments." + TableRow.DocumentRef.Metadata().FullName();
+				DataExchangeValuationOfPerformance.FinishMeasurement(
+					BeginTime, Event, TableRow.DocumentRef, ExchangeComponents,
+					DataExchangeValuationOfPerformance.EventTypeApplied());
+			EndIf;
 			
 		EndDo;
 	Except
@@ -5616,7 +5723,7 @@ Procedure ExecuteDocumentPostingOnImport(
 	Except
 		RollbackTransaction();
 		
-		ErrorDescription = BriefErrorDescription(ErrorInfo());
+		ErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		DocumentPostedSuccessfully = False;
 		
 	EndTry;
@@ -5630,7 +5737,7 @@ Procedure ExecuteDocumentPostingOnImport(
 	
 EndProcedure
 
-Procedure ExecuteDeferredObjectsWrite(ObjectsForDeferredPosting, CorrespondentNode) Export
+Procedure ExecuteDeferredObjectsWrite(ObjectsForDeferredPosting, CorrespondentNode, ExchangeComponents = Undefined) Export
 	
 	If ObjectsForDeferredPosting.Count() = 0 Then
 		Return; // No objects in the queue.
@@ -5640,6 +5747,8 @@ Procedure ExecuteDeferredObjectsWrite(ObjectsForDeferredPosting, CorrespondentNo
 	DisablePeriodEndClosingDatesCheck(True);
 	Try
 		For Each MapObject In ObjectsForDeferredPosting Do
+			
+			BeginTime = DataExchangeValuationOfPerformance.StartMeasurement();
 			
 			If MapObject.Key.IsEmpty() Then
 				Continue;
@@ -5708,7 +5817,7 @@ Procedure ExecuteDeferredObjectsWrite(ObjectsForDeferredPosting, CorrespondentNo
 				
 				RollbackTransaction();
 				
-				ErrorDescription = BriefErrorDescription(ErrorInfo());
+				ErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 				
 				ObjectWrittenSuccessfully = False;
 				
@@ -5718,6 +5827,13 @@ Procedure ExecuteDeferredObjectsWrite(ObjectsForDeferredPosting, CorrespondentNo
 				
 				RecordObjectWriteError(Object, CorrespondentNode, ErrorDescription);
 				
+			EndIf;
+			
+			If ExchangeComponents <> Undefined Then
+				Event = "ExecuteDeferredObjectsWrite" + Object.Metadata().FullName();
+				DataExchangeValuationOfPerformance.FinishMeasurement(
+					BeginTime, Event, Object, ExchangeComponents,
+					DataExchangeValuationOfPerformance.EventTypeRule());
 			EndIf;
 			
 		EndDo;
@@ -5753,7 +5869,7 @@ Procedure BlockTheExchangeNode(ExchangeNode, Cancel) Export
 	
 EndProcedure
 
-Procedure BeforePerformingExchanges(InfobaseNode, Cancel) Export
+Procedure BeforePerformingExchanges(InfobaseNode, Cancel)
 	
 	CheckCanSynchronizeData();
 	
@@ -5761,7 +5877,7 @@ Procedure BeforePerformingExchanges(InfobaseNode, Cancel) Export
 	
 EndProcedure
 
-Procedure AfterPerformingTheExchanges(InfobaseNode, Cancel) Export
+Procedure AfterPerformingTheExchanges(InfobaseNode, Cancel)
 	
 	UnblockTheExchangeNode(InfobaseNode, Cancel);
 	
@@ -5827,6 +5943,7 @@ Procedure SetPredefinedNodeCodes() Export
 	CodeFromSaaSMode = "";
 	If Common.DataSeparationEnabled()
 		And Common.SeparatedDataUsageAvailable()
+		And Common.SubsystemExists("CloudTechnology.Core")
 		And Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then
 		
 		ModuleSaaSOperations       = Common.CommonModule("SaaSOperations");
@@ -6056,6 +6173,8 @@ Function GetExchangeMessageToTempDirectoryFromCorrespondentInfobase(Cancel, Info
 	Result.Insert("DataPackageFileID",       Undefined);
 	
 	ExchangePlanName = DataExchangeCached.GetExchangePlanName(InfobaseNode);
+	CorrespondentExchangePlanName = DataExchangeCached.GetNameOfCorrespondentExchangePlan(InfobaseNode);
+	
 	CurrentExchangePlanNode = DataExchangeCached.GetThisExchangePlanNode(ExchangePlanName);
 	CurrentExchangePlanNodeCode = NodeIDForExchange(InfobaseNode);
 
@@ -6071,7 +6190,8 @@ Function GetExchangeMessageToTempDirectoryFromCorrespondentInfobase(Cancel, Info
 	Except
 		If OutputMessages Then
 			Message = NStr("en = 'Data exchange failed: %1';");
-			Message = StringFunctionsClientServer.SubstituteParametersToString(Message, DetailErrorDescription(ErrorInfo()));
+			Message = StringFunctionsClientServer.SubstituteParametersToString(Message, 
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			Common.MessageToUser(Message,,,, Cancel);
 		EndIf;
 		Return Result;
@@ -6105,13 +6225,14 @@ Function GetExchangeMessageToTempDirectoryFromCorrespondentInfobase(Cancel, Info
 	If ValueIsFilled(NodeAlias) Then
 		// 
 		// 
-		ExchangePlanManager = ExternalConnection.ExchangePlans[ExchangePlanName];
+		ExchangePlanManager = ExternalConnection.ExchangePlans[CorrespondentExchangePlanName];
 		If ExchangePlanManager.FindByCode(NodeAlias) <> ExchangePlanManager.EmptyRef() Then
 			CurrentExchangePlanNodeCode = NodeAlias;
 		EndIf;
 	EndIf;
 	
-	ExternalConnection.DataExchangeExternalConnection.ExportForInfobaseNode(Cancel, ExchangePlanName, CurrentExchangePlanNodeCode, ExchangeMessageFileName, ErrorMessageString);
+	ExternalConnection.DataExchangeExternalConnection.ExportForInfobaseNode(Cancel, 
+		CorrespondentExchangePlanName, CurrentExchangePlanNodeCode, ExchangeMessageFileName, ErrorMessageString);
 	
 	If Cancel Then
 		
@@ -6211,7 +6332,7 @@ Procedure DeleteObsoleteExchangeMessages() Export
 					DeleteFiles(MessageFile.FullName);
 				Except
 					WriteLogEvent(DataExchangeEventLogEvent(),
-						EventLogLevel.Error,,, DetailErrorDescription(ErrorInfo()));
+						EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 					Continue;
 				EndTry;
 			EndIf;
@@ -6291,7 +6412,7 @@ Procedure ExportMessageAfterInfobaseUpdate()
 		
 	Except
 		WriteLogEvent(DataExchangeEventLogEvent(),
-			EventLogLevel.Error,,, DetailErrorDescription(ErrorInfo()));
+			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	
 EndProcedure
@@ -6360,7 +6481,8 @@ Procedure ExecuteStandardNodeChangesExport(Cancel,
 				RollbackTransaction();
 				
 				WriteLogEvent(EventLogMessageKey, EventLogLevel.Error,
-					InfobaseNode.Metadata(), InfobaseNode, DetailErrorDescription(ErrorInfo()));
+					InfobaseNode.Metadata(), InfobaseNode,
+					ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				Cancel = True;
 				Break;
 			EndTry;
@@ -6372,7 +6494,7 @@ Procedure ExecuteStandardNodeChangesExport(Cancel,
 			EndDo;
 		Except
 			WriteLogEvent(EventLogMessageKey, EventLogLevel.Error,
-				InfobaseNode.Metadata(), InfobaseNode, DetailErrorDescription(ErrorInfo()));
+				InfobaseNode.Metadata(), InfobaseNode, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			Cancel = True;
 		EndTry;
 	EndIf;
@@ -6561,7 +6683,8 @@ Procedure ExecuteStandardNodeChangeImport(
 				
 				ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error;
 				WriteLogEvent(EventLogMessageKey, EventLogLevel.Error,
-					InfobaseNode.Metadata(), InfobaseNode, DetailErrorDescription(ErrorInfo()));
+					InfobaseNode.Metadata(), InfobaseNode,
+					ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				Break;
 			EndTry;
 		EndDo;
@@ -6576,7 +6699,8 @@ Procedure ExecuteStandardNodeChangeImport(
 			DataExchangeInternal.DisableAccessKeysUpdate(False);
 			ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error;
 			WriteLogEvent(EventLogMessageKey, EventLogLevel.Error,
-				InfobaseNode.Metadata(), InfobaseNode, DetailErrorDescription(ErrorInfo()));
+				InfobaseNode.Metadata(), InfobaseNode,
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
 		
 	EndIf;
@@ -6599,7 +6723,8 @@ Procedure ExecuteStandardNodeChangeImport(
 		Except
 			ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error;
 			WriteLogEvent(EventLogMessageKey, EventLogLevel.Error,
-				InfobaseNode.Metadata(), InfobaseNode, DetailErrorDescription(ErrorInfo()));
+				InfobaseNode.Metadata(), InfobaseNode,
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
 	EndIf;
 	
@@ -6656,7 +6781,7 @@ Procedure FillInitialRefsInPredefinedDataTable(ImportParameters, ErrorMessage)
 			EndIf;
 		EndDo;
 	Except
-		ErrorMessage = DetailErrorDescription(ErrorInfo());
+		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 	EndTry;
 	
 	XMLReader.Close();
@@ -6678,8 +6803,8 @@ Procedure InitializeMessageReaderForStandardImport(ImportParameters, ExchangeExe
 	Except
 		ErrorInfo  = ErrorInfo();
 		
-		BriefInformation   = BriefErrorDescription(ErrorInfo);
-		DetailedInformation = DetailErrorDescription(ErrorInfo);
+		BriefInformation   = ErrorProcessing.BriefErrorDescription(ErrorInfo);
+		DetailedInformation = ErrorProcessing.DetailErrorDescription(ErrorInfo);
 		
 		If IsErrorMessageNumberLessOrEqualToPreviouslyReceivedMessageNumber(BriefInformation) Then
 			ExchangeExecutionResult = Enums.ExchangeExecutionResults.Warning_ExchangeMessageAlreadyAccepted;
@@ -6850,7 +6975,7 @@ Function DataExchangeMessageTransportDataProcessorName(TransportKind)
 	TypesOfTransportAndProcessing.Insert(Enums.ExchangeMessagesTransportTypes.FILE,	Metadata.DataProcessors.ExchangeMessageTransportFILE.Name);
 	TypesOfTransportAndProcessing.Insert(Enums.ExchangeMessagesTransportTypes.FTP,	Metadata.DataProcessors.ExchangeMessageTransportFTP.Name);
 	
-	If Common.SubsystemExists("OnlineUserSupport.DataExchangeWithExternalSystems") Then
+	If Common.SubsystemExists("OnlineUserSupport.ОбменДаннымиСВнешнимиСистемами") Then
 		TypesOfTransportAndProcessing.Insert(Enums.ExchangeMessagesTransportTypes.ExternalSystem, "ExchangeMessagesTransportExternalSystem");
 	EndIf;
 	
@@ -7720,7 +7845,7 @@ Function DataExchangesStatesForInfobaseNode(Val InfobaseNode) Export
 	|;
 	|";
 	
-	If Common.SubsystemExists("StandardSubsystems.SaaSOperations") Then
+	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then
 		
 		ModuleDataExchangeSaaS = Common.CommonModule("DataExchangeSaaS");
 		ModuleDataExchangeSaaS.AdaptTheTextOfTheRequestAboutTheResultsOfTheExchangeInTheService(QueryText);
@@ -7779,7 +7904,7 @@ Function DataExchangesStates(Val InfobaseNode, ActionOnExchange) Export
 	|	AND DataExchangesStates.ActionOnExchange      = &ActionOnExchange
 	|";
 	
-	If Common.SubsystemExists("StandardSubsystems.SaaSOperations") Then
+	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then
 		
 		ModuleDataExchangeSaaS = Common.CommonModule("DataExchangeSaaS");
 		ModuleDataExchangeSaaS.AdaptTheTextOfTheRequestAboutTheResultsOfTheExchangeInTheService(QueryText);
@@ -7911,6 +8036,7 @@ Function ObjectsRegistrationRulesTableInitialization() Export
 	Columns = Rules.Columns;
 	
 	Columns.Add("MetadataObjectName3", New TypeDescription("String"));
+	Columns.Add("Id",       New TypeDescription("String"));
 	Columns.Add("ExchangePlanName",      New TypeDescription("String"));
 	
 	Columns.Add("FlagAttributeName", New TypeDescription("String"));
@@ -7933,6 +8059,7 @@ Function ObjectsRegistrationRulesTableInitialization() Export
 	Columns.Add("HasOnProcessHandler",               New TypeDescription("Boolean"));
 	Columns.Add("HasOnProcessHandlerAdditional", New TypeDescription("Boolean"));
 	Columns.Add("HasAfterProcessHandler",             New TypeDescription("Boolean"));
+	Columns.Add("BatchExecutionOfHandlers",           New TypeDescription("Boolean"));
 	
 	Columns.Add("FilterByObjectProperties", New TypeDescription("ValueTree"));
 	
@@ -8117,33 +8244,33 @@ EndFunction
 //
 // Parameters:
 //  Object - DocumentObject - errors occurred during deferred posting of this document.
-//  ExchangeNode - ExchangePlanRef - an infobase node the document is received from.
-//  ErrorMessage - String - a message text for the event log.
-//    It is recommended to pass BriefErrorDescription(ErrorInfo()) as this parameter.
-//    Message text to display in the monitor is generated from system user messages
-//    that are generated but not displayed to a user yet. Therefore, we recommend that you delete cached messages
-//    before calling this method.
+//  ExchangeNode - ExchangePlanRef -
+//  
+//    
+//    
+//    
+//    
 //  RecordIssuesInExchangeResults - Boolean - issues must be registered.
 //
 // Example:
-// Procedure PostDocumentOnImport(Document, ExchangeNode)
-// Document.DataExchange.Import = True;
-// Document.Write();
-// Document.DataExchange.Import = False;
-// Cancel = False;
+// 
+// 
+// 
+// 
+// 
 //
-// Try
-// 	Document.Write(DocumentWriteMode.Posting);
-// Except
-// 	ErrorMessage = BriefErrorPresentation(ErrorInfo());
-// 	Cancel = True;
-// EndTry;
+// 
+// 	
+// 
+// 	
+// 	
+// 
 //
-// If Cancel Then
-// 	DataExchangeServer.RecordDocumentWriteError(Document, ExchangeNode, ErrorMessage);
-// EndIf;
+// 
+// 	
+// 
 //
-// EndProcedure;
+// 
 //
 Procedure RecordDocumentPostingError(
 		Object,
@@ -8185,8 +8312,19 @@ Procedure RecordDocumentPostingError(
 	WriteLogEvent(DataExchangeEventLogEvent(), EventLogLevel.Warning,,, MessageString);
 	
 	If RecordIssuesInExchangeResults Then
-		InformationRegisters.DataExchangeResults.RecordDocumentCheckError(Object.Ref, ExchangeNode,
-			MessageText, Enums.DataExchangeIssuesTypes.UnpostedDocument);
+		Try
+			InformationRegisters.DataExchangeResults.RecordDocumentCheckError(Object.Ref, ExchangeNode,
+				MessageText, Enums.DataExchangeIssuesTypes.UnpostedDocument);
+		Except
+			MessageString = NStr("en = 'An error occurred when saving the data exchange result for the %1 object:
+								   |%2';", Common.DefaultLanguageCode());
+			ErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+			
+			MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, 
+				String(Object), ErrorDescription);
+			
+			WriteLogEvent(DataExchangeEventLogEvent(), EventLogLevel.Error,,, MessageString);	
+		EndTry	
 	EndIf;
 	
 EndProcedure
@@ -8195,32 +8333,32 @@ EndProcedure
 //
 // Parameters:
 //   Object - CatalogObject, ДокументОбъект и т.п. - errors occurred during deferred writing of this object.
-//   ExchangeNode - ExchangePlanRef - an infobase node the object was received from.
-//   ErrorMessage - String - a message text for the event log.
-//     It is recommended to pass the result of BriefErrorDescription(ErrorInfo()) in this parameter.
-//     Message text to display in the monitor is compiled from system user messages that are
-//     generated but are not displayed to a user yet. Therefore, we recommend you to
-//     delete cached messages before calling this method.
+//   ExchangeNode - ExchangePlanRef -
+//   
+//     
+//     
+//     
+//     
 //
 // Example:
-// Procedure WriteObjectOnImport(Object, ExchangeNode)
-// Object.DataExchange.Import = True;
-// Object.Write();
-// Object.DataExchange.Import = False;
-// Cancel = False;
+// 
+// 
+// 
+// 
+// 
 //
-// Try
-// 	Object.Write();
-// Except
-// 	ErrorMessage = BriefErrorPresentation(ErrorInfo());
-// 	Cancel = True;
-// EndTry;
+// 
+// 	
+// 
+// 	
+// 	
+// 
 //
-// If Cancel Then
-// 	DataExchangeServer.RecordObjectWriteError(Object, ExchangeNode, ErrorMessage);
-// EndIf;
+// 
+// 	
+// 
 //
-// EndProcedure;
+// 
 //
 Procedure RecordObjectWriteError(
 		Object,
@@ -8256,8 +8394,19 @@ Procedure RecordObjectWriteError(
 	
 	WriteLogEvent(DataExchangeEventLogEvent(), EventLogLevel.Warning,,, MessageString);
 	
-	InformationRegisters.DataExchangeResults.RecordDocumentCheckError(Object.Ref, ExchangeNode,
-		MessageText, Enums.DataExchangeIssuesTypes.BlankAttributes);
+	Try
+		InformationRegisters.DataExchangeResults.RecordDocumentCheckError(Object.Ref, ExchangeNode,
+			MessageText, Enums.DataExchangeIssuesTypes.BlankAttributes);
+	Except
+		MessageString = NStr("en = 'An error occurred when saving the data exchange result for the %1 object:
+								   |%2';", Common.DefaultLanguageCode());
+		ErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+		
+		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, 
+			String(Object), ErrorDescription);
+		
+		WriteLogEvent(DataExchangeEventLogEvent(), EventLogLevel.Error,,, MessageString);		
+	EndTry
 	
 EndProcedure
 
@@ -8628,7 +8777,9 @@ Procedure ExecuteExchangeActionForInfobaseNodeUsingExternalConnection(Cancel, In
 	ExchangeWithSSL20 = CommonClientServer.CompareVersions("2.1.1.10", SSLVersionByExternalConnection) > 0;
 	
 	// INITIALIZING DATA EXCHANGE (USING EXTERNAL CONNECTION)
-	Structure = New Structure("ExchangePlanName, CurrentExchangePlanNodeCode1, TransactionItemsCount");
+	Structure = New Structure("ExchangePlanName, CorrespondentExchangePlanName, 
+		|CurrentExchangePlanNodeCode1, TransactionItemsCount");
+	
 	FillPropertyValues(Structure, ExchangeSettingsStructure);
 	
 	// Reversing enumeration values.
@@ -8645,7 +8796,7 @@ Procedure ExecuteExchangeActionForInfobaseNodeUsingExternalConnection(Cancel, In
 	If IsXDTOExchangePlan Then
 		// Checking a predefined node alias.
 		PredefinedNodeAlias = PredefinedNodeAlias(InfobaseNode);
-		ExchangePlanManager = ExternalConnection.ExchangePlans[Structure.ExchangePlanName];
+		ExchangePlanManager = ExternalConnection.ExchangePlans[Structure.CorrespondentExchangePlanName];
 		CheckNodeExistenceInCorrespondent = True;
 		If ValueIsFilled(PredefinedNodeAlias) Then
 			// 
@@ -8697,10 +8848,15 @@ Procedure ExecuteExchangeActionForInfobaseNodeUsingExternalConnection(Cancel, In
 		EndIf;
 	EndIf;
 	
+	CorrespondentStructure = Common.CopyRecursive(Structure, False);
+	CorrespondentStructure.ExchangePlanName = Structure.CorrespondentExchangePlanName;
+	CorrespondentStructure.CorrespondentExchangePlanName = Structure.ExchangePlanName;
+	
 	Try
-		ExchangeSettingsStructureExternalConnection = ExternalConnection.DataExchangeExternalConnection.ExchangeSettingsStructure(Structure);
+		ExchangeSettingsStructureExternalConnection = ExternalConnection.DataExchangeExternalConnection.ExchangeSettingsStructure(CorrespondentStructure);
 	Except
-		WriteEventLogDataExchange(DetailErrorDescription(ErrorInfo()), ExchangeSettingsStructure, True);
+		WriteEventLogDataExchange(ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			ExchangeSettingsStructure, True);
 		
 		ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Canceled;
 		WriteExchangeFinish(ExchangeSettingsStructure);
@@ -8787,7 +8943,7 @@ Procedure ExecuteExchangeActionForInfobaseNodeUsingExternalConnection(Cancel, In
 			Except
 				WriteEventLogDataExchange(
 					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Error occurred in peer infobase: %1';"),
-					DetailErrorDescription(ErrorInfo())), ExchangeSettingsStructure, True);
+					ErrorProcessing.DetailErrorDescription(ErrorInfo())), ExchangeSettingsStructure, True);
 				
 				// 
 				ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Canceled;
@@ -9211,14 +9367,14 @@ EndProcedure
 // 
 Procedure ExecuteDataExchangeByScheduledJob(ExchangeScenarioCode) Export
 	
+	Common.OnStartExecuteScheduledJob(Metadata.ScheduledJobs.DataSynchronization);
+	
 	If Not ValueIsFilled(ExchangeScenarioCode) Then
 		
 		Raise NStr("en = 'Data exchange scenario not specified.';");
 		
 	EndIf;
-	
-	Common.OnStartExecuteScheduledJob(Metadata.ScheduledJobs.DataSynchronization);
-	
+		
 	Query = New Query;
 	Query.SetParameter("Code", ExchangeScenarioCode);
 	
@@ -9504,7 +9660,7 @@ Procedure ExecuteDataExchangeWithExternalSystemDataImport(ExchangeSettingsStruct
 	Except
 		Information = ErrorInfo();
 		ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.ErrorMessageTransport;
-		WriteEventLogDataExchange(DetailErrorDescription(Information), ExchangeSettingsStructure, True);
+		WriteEventLogDataExchange(ErrorProcessing.DetailErrorDescription(Information), ExchangeSettingsStructure, True);
 	EndTry;
 	
 	MessageProcessed = False;
@@ -9524,7 +9680,7 @@ Procedure ExecuteDataExchangeWithExternalSystemDataImport(ExchangeSettingsStruct
 	Try
 		DeleteFiles(TempDirectoryName);
 	Except
-		WriteEventLogDataExchange(DetailErrorDescription(Information), ExchangeSettingsStructure);
+		WriteEventLogDataExchange(ErrorProcessing.DetailErrorDescription(Information), ExchangeSettingsStructure);
 	EndTry;
 	
 	SettingCompleted = SynchronizationSetupCompleted(ExchangeSettingsStructure.InfobaseNode);
@@ -9536,7 +9692,7 @@ Procedure ExecuteDataExchangeWithExternalSystemDataImport(ExchangeSettingsStruct
 		Except
 			Information = ErrorInfo();
 			ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.ErrorMessageTransport;
-			WriteEventLogDataExchange(DetailErrorDescription(Information), ExchangeSettingsStructure, True);
+			WriteEventLogDataExchange(ErrorProcessing.DetailErrorDescription(Information), ExchangeSettingsStructure, True);
 			HasNextMessage = False;
 		EndTry;
 		
@@ -9591,7 +9747,7 @@ Procedure ExecuteDataExchangeWithExternalSystemExportXDTOSettings(ExchangeSettin
 	Except
 		Information = ErrorInfo();
 		ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.ErrorMessageTransport;
-		WriteEventLogDataExchange(DetailErrorDescription(Information), ExchangeSettingsStructure, True);
+		WriteEventLogDataExchange(ErrorProcessing.DetailErrorDescription(Information), ExchangeSettingsStructure, True);
 	EndTry;
 	
 EndProcedure
@@ -9762,6 +9918,8 @@ Function ExchangeSettingsForExternalConnection(InfobaseNode, ActionOnExchange, T
 	ExchangeSettingsStructure.DoDataExport = (ExchangeSettingsStructure.ActionOnExchange = Enums.ActionsOnExchange.DataExport);
 	
 	ExchangeSettingsStructure.ExchangePlanName = DataExchangeCached.GetExchangePlanName(ExchangeSettingsStructure.InfobaseNode);
+	ExchangeSettingsStructure.CorrespondentExchangePlanName =
+		DataExchangeCached.GetNameOfCorrespondentExchangePlan(ExchangeSettingsStructure.InfobaseNode);
 	
 	ExchangeSettingsStructure.CurrentExchangePlanNode = DataExchangeCached.GetThisExchangePlanNode(ExchangeSettingsStructure.ExchangePlanName);
 	ExchangeSettingsStructure.CurrentExchangePlanNodeCode1 = NodeIDForExchange(ExchangeSettingsStructure.InfobaseNode);
@@ -9999,6 +10157,9 @@ Procedure InitExchangeSettingsStructureForInfobaseNode(
 	ExchangeSettingsStructure.DoDataExport = (ExchangeSettingsStructure.ActionOnExchange = Enums.ActionsOnExchange.DataExport);
 	
 	ExchangeSettingsStructure.ExchangePlanName = DataExchangeCached.GetExchangePlanName(ExchangeSettingsStructure.InfobaseNode);
+	ExchangeSettingsStructure.CorrespondentExchangePlanName = 
+		DataExchangeCached.GetNameOfCorrespondentExchangePlan(ExchangeSettingsStructure.InfobaseNode);
+		
 	ExchangeSettingsStructure.ExchangeByObjectConversionRules  = DataExchangeCached.IsUniversalDataExchangeNode(ExchangeSettingsStructure.InfobaseNode);
 	ExchangeSettingsStructure.ConversionRulesAreRequired = ExchangePlanSettingValue(ExchangeSettingsStructure.ExchangePlanName, "ConversionRulesAreRequired");
 	
@@ -10091,6 +10252,7 @@ Function BaseExchangeSettingsStructure()
 	ExchangeSettingsStructure.Insert("ExchangeMessageTransportDataProcessor");
 	
 	ExchangeSettingsStructure.Insert("ExchangePlanName");
+	ExchangeSettingsStructure.Insert("CorrespondentExchangePlanName");
 	ExchangeSettingsStructure.Insert("CurrentExchangePlanNode");
 	ExchangeSettingsStructure.Insert("CurrentExchangePlanNodeCode1");
 	
@@ -10420,7 +10582,7 @@ Procedure SetDataExportExchangeRules(DataExchangeXMLDataProcessor, ExchangeSetti
 	Try
 		DataExchangeXMLDataProcessor.RestoreRulesFromInternalFormat();
 	Except
-		WriteEventLogDataExchange(DetailErrorDescription(ErrorInfo()), ExchangeSettingsStructure, True);
+		WriteEventLogDataExchange(ErrorProcessing.DetailErrorDescription(ErrorInfo()), ExchangeSettingsStructure, True);
 		WriteExchangeInitializationFinish(ExchangeSettingsStructure);
 		Return;
 	EndTry;
@@ -10454,7 +10616,7 @@ Procedure SetDataImportExchangeRules(DataExchangeXMLDataProcessor, ExchangeSetti
 	Try
 		DataExchangeXMLDataProcessor.RestoreRulesFromInternalFormat();
 	Except
-		WriteEventLogDataExchange(BriefErrorDescription(ErrorInfo()), ExchangeSettingsStructure, True);
+		WriteEventLogDataExchange(ErrorProcessing.BriefErrorDescription(ErrorInfo()), ExchangeSettingsStructure, True);
 		WriteExchangeInitializationFinish(ExchangeSettingsStructure);
 		Return;
 	EndTry;
@@ -10651,7 +10813,7 @@ EndFunction
 
 Procedure InitMessagesOfExchangeWithExternalSystemTransportProcessing(ExchangeSettingsStructure)
 	
-	If Common.SubsystemExists("OnlineUserSupport.DataExchangeWithExternalSystems") Then
+	If Common.SubsystemExists("OnlineUserSupport.ОбменДаннымиСВнешнимиСистемами") Then
 		
 		ExchangeMessageTransportDataProcessor = DataProcessors[ExchangeSettingsStructure.DataExchangeMessageTransportDataProcessorName].Create();
 		
@@ -10684,7 +10846,8 @@ Procedure GetCommonInfobasesNodesSettings(TempTablesManager)
 		|	ISNULL(CommonInfobasesNodesSettings.CorrespondentPrefix, """") AS CorrespondentPrefix,
 		|	ISNULL(CommonInfobasesNodesSettings.SettingCompleted, FALSE) AS SettingCompleted,
 		|	ISNULL(CommonInfobasesNodesSettings.MigrationToWebService_Step, 0) AS MigrationToWebService_Step,
-		|	ISNULL(DataExchangeTransportSettings.DefaultExchangeMessagesTransportKind, """") AS TransportKind
+		|	ISNULL(DataExchangeTransportSettings.DefaultExchangeMessagesTransportKind, """") AS TransportKind,
+		|	ISNULL(CommonInfobasesNodesSettings.SynchronizationIsUnavailable, FALSE) AS SynchronizationIsUnavailable
 		|INTO CommonInfobasesNodesSettings
 		|FROM
 		|	InformationRegister.CommonInfobasesNodesSettings AS CommonInfobasesNodesSettings
@@ -10700,7 +10863,8 @@ Procedure GetCommonInfobasesNodesSettings(TempTablesManager)
 		|	"""" AS CorrespondentPrefix,
 		|	FALSE AS SettingCompleted,
 		|	0 AS MigrationToWebService_Step,
-		|	"""" AS TransportKind
+		|	"""" AS TransportKind,
+		|	FALSE AS SynchronizationIsUnavailable
 		|INTO CommonInfobasesNodesSettings";
 		
 	EndIf;
@@ -10772,7 +10936,8 @@ Procedure OnFillToDoListSynchronizationWarnings(ToDoList)
 		ToDoItem = ToDoList.Add();
 		ToDoItem.Id  = NotificationOnSynchronizationID;
 		ToDoItem.HasToDoItems       = ResultingStructure.Count > 0;
-		ToDoItem.Presentation  = ResultingStructure.Title;
+		ToDoItem.Count     = ResultingStructure.Count;
+		ToDoItem.Presentation  = NStr("en = 'Warnings';");
 		ToDoItem.Form          = "InformationRegister.DataExchangeResults.Form.SynchronizationWarnings";
 		ToDoItem.Owner       = Section;
 		
@@ -11528,7 +11693,7 @@ Function UnpackZipFile(Val FullArchiveFileName, Val FilesUnpackPath, Val Archive
 			|%3';"),
 			FullArchiveFileName,
 			FilesUnpackPath,
-			DetailErrorDescription(ErrorInfo()));
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		
 		WriteLogEvent(DataExchangeEventLogEvent(),
 			EventLogLevel.Error, , , ErrorInfo);
@@ -11568,7 +11733,7 @@ Function PackIntoZipFile(Val FullArchiveFileName, Val FilesPackingMask, Val Arch
 		
 	Except
 		Archiver = Undefined;
-		ReportError(BriefErrorDescription(ErrorInfo()));
+		ReportError(ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		Return False;
 	EndTry;
 	
@@ -11583,7 +11748,7 @@ Function PackIntoZipFile(Val FullArchiveFileName, Val FilesPackingMask, Val Arch
 			|%3';"),
 			FilesPackingMask,
 			FullArchiveFileName,
-			DetailErrorDescription(ErrorInfo()));
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		
 		WriteLogEvent(DataExchangeEventLogEvent(),
 			EventLogLevel.Error, , , ErrorInfo);
@@ -11971,6 +12136,15 @@ EndFunction
 Function GetInfobaseParameters_2_0_1_6(Val ExchangePlanName, Val NodeCode, ErrorMessage) Export
 	
 	Return Common.ValueToXMLString(InfoBaseAdmParams(ExchangePlanName, NodeCode, ErrorMessage));
+	
+EndFunction
+
+Function GetInfobaseParameters_3_0_2_2(Val ExchangePlanName, Val NodeCode, ErrorMessage, 
+	AdditionalParameters = Undefined) Export
+		
+	InformationSecurityParpameters = InfoBaseAdmParams(ExchangePlanName, NodeCode, ErrorMessage, AdditionalParameters);
+	
+	Return Common.ValueToXMLString(InformationSecurityParpameters);
 	
 EndFunction
 
@@ -12683,7 +12857,7 @@ Procedure UpdateStandardDataExchangeRuleVersion(ExchangeRulesImportedFromFile, R
 		Else
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Updating data conversion rules. Exchange plan: %1';"), ExchangePlanName);
+				NStr("en = 'Updating data registration rules. Exchange plan: %1';"), ExchangePlanName);
 				
 			WriteLogEvent(DataExchangeEventLogEvent(),
 				EventLogLevel.Information,,, MessageText);
@@ -12955,6 +13129,15 @@ Function DataExchangeOption(Val Peer) Export
 	Result = "Synchronization";
 	
 	If DataExchangeCached.IsDistributedInfobaseNode(Peer) Then
+		Return Result;
+	EndIf;
+	
+	ExchangePlanName = DataExchangeCached.GetExchangePlanName(Peer);
+	SettingID = SavedExchangePlanNodeSettingOption(Peer);
+	DataMappingSupported = ExchangePlanSettingValue(ExchangePlanName, 
+		"DataMappingSupported", SettingID);
+	
+	If Not DataMappingSupported Then
 		Return Result;
 	EndIf;
 	
@@ -14345,7 +14528,7 @@ Procedure SetUpLoopFormElements(Form)
 	TextTemplate1 = NStr("en = '<br>Synchronization loop is found. For more information, follow the 
 			  |<a href=ФормаЗацикливаниеСинхронизации>link</a>.
 			  |<br><br>
-			  |<a href=ФормаОбъектыНезарегистрированныеПриЗацикливании>Objects that were not registered upon looping</a>.';");
+			  |<a href=ФормаОбъектыНезарегистрированныеПриЗацикливании>Objects not registered upon looping</a>.';");
 
 	FormattedDoc = New FormattedDocument;
 	FormattedDoc.SetHTML("<html>" + TextTemplate1 + "</html>", New Structure);

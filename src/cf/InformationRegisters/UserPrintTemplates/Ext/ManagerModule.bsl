@@ -39,6 +39,9 @@ EndProcedure
 
 Procedure ProcessUserTemplates(Parameters) Export
 	
+	ObjectsProcessed = 0;
+	ObjectsWithIssuesCount = 0;
+	
 	TemplatesInDOCXFormat = New Array;
 	SSLSubsystemsIntegration.OnPrepareTemplateListInOfficeDocumentServerFormat(TemplatesInDOCXFormat);
 	
@@ -73,6 +76,7 @@ Procedure ProcessUserTemplates(Parameters) Export
 					|%1.';"), TemplateMetadataObjectName);
 			WriteLogEvent(EventName, EventLogLevel.Warning, , TemplateMetadataObjectName, ErrorText);
 			InfobaseUpdate.MarkProcessingCompletion(RecordSet);
+			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			Continue;
 		EndIf;
 		
@@ -97,9 +101,23 @@ Procedure ProcessUserTemplates(Parameters) Export
 		Else
 			InfobaseUpdate.MarkProcessingCompletion(RecordSet);
 		EndIf;
+		ObjectsProcessed = ObjectsProcessed + 1;
 	EndDo;
 	
 	Parameters.ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue, "InformationRegister.UserPrintTemplates");
+	
+	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Couldn''t process (skipped) some custom templates: %1';"),
+			ObjectsWithIssuesCount);
+		Raise MessageText;
+	Else
+		WriteLogEvent(InfobaseUpdate.EventLogEvent(),
+			EventLogLevel.Information, Metadata.InformationRegisters.UserPrintTemplates,,
+				StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Another batch of custom templates is processed: %1';"),
+			ObjectsProcessed));
+	EndIf;
 	
 EndProcedure
 
@@ -216,7 +234,12 @@ EndProcedure
 //
 Function ObjectTemplates(ObjectName) Export
 	
-	MetadataObjectID = Common.MetadataObjectID(ObjectName);
+	If ObjectName = "CommonTemplates" Then
+		MetadataObjectID = Catalogs.MetadataObjectIDs.EmptyRef();
+	Else
+		MetadataObjectID = Common.MetadataObjectID(ObjectName);
+	EndIf;
+	
 	Return ObjectsTemplates(CommonClientServer.ValueInArray(MetadataObjectID));
 	
 EndFunction
@@ -262,7 +285,10 @@ EndFunction
 
 Procedure AddTemplatesFromMetadata(TemplatesList, MetadataObjectIDs)
 	
-	MetadataObjectsByIDs = Common.MetadataObjectsByIDs(MetadataObjectIDs);
+	MetadataObjectsByIDs = Common.MetadataObjectsByIDs(MetadataObjectIDs, False);
+	If MetadataObjectIDs.Find(Catalogs.MetadataObjectIDs.EmptyRef()) <> Undefined Then
+		MetadataObjectsByIDs.Insert(Catalogs.MetadataObjectIDs.EmptyRef(), Metadata.CommonTemplates);
+	EndIf;
 	
 	MetadataObjects = New Array;
 	For Each MetadataObjectDetails In MetadataObjectsByIDs Do
@@ -274,20 +300,24 @@ Procedure AddTemplatesFromMetadata(TemplatesList, MetadataObjectIDs)
 	
 	AvailableforTranslationLayouts = New Map;
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-		PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
-		AvailableforTranslationLayouts = PrintManagementModuleMultilanguage.AvailableforTranslationLayouts();
+		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
+		AvailableforTranslationLayouts = PrintManagementModuleNationalLanguageSupport.AvailableforTranslationLayouts();
 	EndIf;
 	
 	For Each MetadataObjectDetails In MetadataObjectsByIDs Do
 
 		MetadataObjectTemplateOwner = MetadataObjectDetails.Value;
-		AttachedTemplates = AttachedTemplates(MetadataObjectDetails.Key);
 		Owner =  ?(Metadata.CommonTemplates = MetadataObjectTemplateOwner, 
 					Catalogs.MetadataObjectIDs.EmptyRef(), MetadataObjectDetails.Key);
 
 		CollectionOfTemplates = New Array;
-		CollectionOfTemplates.Add(MetadataObjectTemplateOwner.Templates);
-		CollectionOfTemplates.Add(AttachedTemplates);
+		If Metadata.CommonTemplates = MetadataObjectTemplateOwner Then
+			CollectionOfTemplates.Add(Metadata.CommonTemplates);
+		Else
+			CollectionOfTemplates.Add(MetadataObjectTemplateOwner.Templates);
+			AttachedTemplates = AttachedTemplates(MetadataObjectDetails.Key);
+			CollectionOfTemplates.Add(AttachedTemplates);
+		EndIf;
 		
 		For Each TemplatesCollection In CollectionOfTemplates Do
 			For Each Item In TemplatesCollection Do
@@ -340,7 +370,8 @@ Procedure AddTemplatesFromMetadata(TemplatesList, MetadataObjectIDs)
 					Template.UsagePicture = Number(Template.Changed) + Number(Template.ChangedTemplateUsed);
 				EndIf;
 				Template.SearchString = Lower(Template.Presentation + " " + Template.TemplateType);
-				Template.AvailableCreate = Common.IsRefTypeObject(MetadataObjectTemplateOwner);
+				Template.AvailableCreate = MetadataObjectTemplateOwner <> Metadata.CommonTemplates 
+					And Common.IsRefTypeObject(MetadataObjectTemplateOwner);
 				
 			EndDo;
 		EndDo;
@@ -354,6 +385,10 @@ Function AttachedTemplates(MetadataObjectID)
 	Result.Columns.Add("MetadataObject");
 	Result.Columns.Add("SourceOfTemplate");
 	Result.Columns.Add("DataSources");
+	
+	If TypeOf(MetadataObjectID) <> Type("CatalogRef.MetadataObjectIDs") Then
+		Return Result;
+	EndIf;
 	
 	AttachedReportsAndDataProcessors = AttachableCommands.AttachedObjects(MetadataObjectID);
 	For Each AttachedObject In AttachedReportsAndDataProcessors Do
@@ -375,7 +410,7 @@ Function AttachedTemplates(MetadataObjectID)
 	
 EndFunction
 
-Function ModifiedTemplates(MetadataObjects = Undefined) Export
+Function ModifiedTemplates(MetadataObjects = Undefined)
 	
 	QueryText =
 	"SELECT
@@ -403,8 +438,8 @@ Function ModifiedTemplates(MetadataObjects = Undefined) Export
 	
 	PrintFormsLanguages = CommonClientServer.ValueInArray(Common.DefaultLanguageCode());
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-		PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
-		PrintFormsLanguages = PrintManagementModuleMultilanguage.AvailableLanguages();
+		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
+		PrintFormsLanguages = PrintManagementModuleNationalLanguageSupport.AvailableLanguages();
 	EndIf;
 	
 	Result = New Map;
@@ -520,15 +555,15 @@ EndProcedure
 Function AvailableLayoutLanguages(Val TemplateMetadataObjectName) Export
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-		PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
-		Return PrintManagementModuleMultilanguage.RepresentationOfLayoutLanguages(TemplateMetadataObjectName);
+		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
+		Return PrintManagementModuleNationalLanguageSupport.RepresentationOfLayoutLanguages(TemplateMetadataObjectName);
 	EndIf;
 	
 	Return "";
 	
 EndFunction
 
-Function TemplateType(TemplateMetadataObjectName, ObjectName = "CommonTemplate") Export
+Function TemplateType(TemplateMetadataObjectName, ObjectName = "CommonTemplate")
 	
 	Position = StrFind(TemplateMetadataObjectName, "PF_");
 	If Position = 0 Then
@@ -572,7 +607,7 @@ Function PictureIndex(Val TemplateType) Export
 	
 EndFunction 
 
-Function TemplateImage(Val TemplateType) Export
+Function TemplateImage(Val TemplateType)
 	
 	TemplateTypes = New Map;
 	TemplateTypes.Insert("DOC", PictureLib.WordFormat);

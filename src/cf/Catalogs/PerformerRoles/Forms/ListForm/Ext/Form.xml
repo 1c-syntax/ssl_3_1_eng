@@ -161,6 +161,12 @@
 											<v8:content>Without objects</v8:content>
 										</v8:item>
 									</Title>
+									<ToolTip>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Used without business objects</v8:content>
+										</v8:item>
+									</ToolTip>
 									<CheckBoxType>Auto</CheckBoxType>
 									<ContextMenu name="UsedWithoutAddressingObjectsContextMenu" id="13"/>
 									<ExtendedTooltip name="UsedWithoutAddressingObjectsExtendedTooltip" id="25"/>

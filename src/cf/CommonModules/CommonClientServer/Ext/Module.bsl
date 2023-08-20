@@ -22,7 +22,7 @@
 // Parameters:
 //  Errors - Undefined - create a new list of errors.
 //         - Structure:
-//            * ErrorsList - Array of Structure:
+//            * ErrorList - Array of Structure:
 //             ** ErrorField - String
 //             ** SingleErrorText - String
 //             ** ErrorsGroup1 - Arbitrary
@@ -57,7 +57,7 @@ Procedure AddUserError(
 	
 	If Errors = Undefined Then
 		Errors = New Structure;
-		Errors.Insert("ErrorsList", New Array);
+		Errors.Insert("ErrorList", New Array);
 		Errors.Insert("ErrorGroups", New Map);
 	EndIf;
 	
@@ -81,7 +81,7 @@ Procedure AddUserError(
 	Error.Insert("SeveralErrorsText", SeveralErrorsText);
 	Error.Insert("RowIndex", RowIndex);
 	
-	Errors.ErrorsList.Add(Error);
+	Errors.ErrorList.Add(Error);
 	
 EndProcedure
 
@@ -102,7 +102,7 @@ Procedure ReportErrorsToUser(Errors, Cancel = False) Export
 	EndIf;
 	Cancel = True;
 	
-	For Each Error In Errors.ErrorsList Do
+	For Each Error In Errors.ErrorList Do
 		
 		If Error.RowIndex = Undefined Then
 			RowIndex = Error.LineNumber;
@@ -320,9 +320,10 @@ EndProcedure
 //       
 //   PropertiesTypesToExpect - Structure - If the expected type is a structure, 
 //       this parameter can be used to specify its properties.
+//   ExpectedValues - Array, String -
 //
 Procedure CheckParameter(Val NameOfAProcedureOrAFunction, Val ParameterName, Val ParameterValue, 
-	Val ExpectedTypes, Val PropertiesTypesToExpect = Undefined) Export
+	Val ExpectedTypes, Val PropertiesTypesToExpect = Undefined, Val ExpectedValues = Undefined) Export
 	
 	Context = "CommonClientServer.CheckParameter";
 	Validate(TypeOf(NameOfAProcedureOrAFunction) = Type("String"), 
@@ -386,6 +387,19 @@ Procedure CheckParameter(Val NameOfAProcedureOrAFunction, Val ParameterName, Val
 				TypeOf(PropertyValue)));
 			
 		EndDo;
+	EndIf;
+	
+	If ExpectedValues <> Undefined Then
+		If TypeOf(ExpectedValues) = Type("String") Then
+			ExpectedValues = StrSplit(ExpectedValues, ",");
+		EndIf; 
+		Validate(ExpectedValues.Find(ParameterValue) <> Undefined,
+			StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Invalid value of the %1 parameter in %2.
+				           |Expected value: %3.
+				           |Actual value: %4 (type: %5).';"),
+				ParameterName, NameOfAProcedureOrAFunction, StrConcat(ExpectedValues, ","), 
+				PresentationOfParameterValue, TypeOf(ParameterValue)));
 	EndIf;
 	
 EndProcedure
@@ -518,6 +532,76 @@ Procedure SupplementMap(Receiver, Source, Replace = Undefined) Export
 	EndDo;
 	
 EndProcedure
+
+// 
+//  
+// 
+// 
+// Parameters:
+//  DestinationList - ValueList
+//  SourceList - ValueList
+//  ShouldSkipValuesOfOtherTypes - Boolean - 
+//                                   
+//                                  
+//  AddNewItems - Boolean, Undefined -
+//                                          
+// 
+// Returns:
+//  Structure:
+//    * Total     - Number -
+//    * Added2 - Number -
+//    * Updated3 - Number - 
+//                          
+//    * Skipped3 - Number -
+//
+Function AddToList2(Val DestinationList, Val SourceList, Val ShouldSkipValuesOfOtherTypes = Undefined, 
+	Val AddNewItems = True) Export
+	
+	Result = New Structure;
+	Result.Insert("Total", 0);
+	Result.Insert("Added2", 0);
+	Result.Insert("Updated3", 0);
+	Result.Insert("Skipped3", 0);
+	
+	If DestinationList = Undefined Or SourceList = Undefined Then
+		Return Result;
+	EndIf;
+	
+	ReplaceExistingItems = True;
+	ReplacePresentation = ReplaceExistingItems And AddNewItems;
+	
+	If ShouldSkipValuesOfOtherTypes = Undefined Then
+		ShouldSkipValuesOfOtherTypes = (DestinationList.ValueType <> SourceList.ValueType);
+	EndIf;
+	If ShouldSkipValuesOfOtherTypes Then
+		DestinationTypesDetails = DestinationList.ValueType;
+	EndIf;
+	For Each SourceItem In SourceList Do
+		Result.Total = Result.Total + 1;
+		Value = SourceItem.Value;
+		If ShouldSkipValuesOfOtherTypes And Not DestinationTypesDetails.ContainsType(TypeOf(Value)) Then
+			Result.Skipped3 = Result.Skipped3 + 1;
+			Continue;
+		EndIf;
+		DestinationItem = DestinationList.FindByValue(Value);
+		If DestinationItem = Undefined Then
+			If AddNewItems Then
+				Result.Added2 = Result.Added2 + 1;
+				FillPropertyValues(DestinationList.Add(), SourceItem);
+			Else
+				Result.Skipped3 = Result.Skipped3 + 1;
+			EndIf;
+		Else
+			If ReplaceExistingItems Then
+				Result.Updated3 = Result.Updated3 + 1;
+				FillPropertyValues(DestinationItem, SourceItem, , ?(ReplacePresentation, "", "Presentation"));
+			Else
+				Result.Skipped3 = Result.Skipped3 + 1;
+			EndIf;
+		EndIf;
+	EndDo;
+	Return Result;
+EndFunction
 
 // Checks whether an arbitrary object has the attribute or property without metadata call.
 //
@@ -1389,17 +1473,17 @@ EndProcedure
 //
 // Parameters:
 //  DirectoryPath - String - directory path.
-//  Platform - PlatformType - deprecated parameter.
+//  Delete1CEnterprise - PlatformType - this parameter is deprecated and is no longer used.
 //
 // Returns:
-//  String - 
+//  String
 //
 // Example:
 //  Result = AddFinalPathSeparator("C:\My directory"); // Returns "C:\My directory\".
 //  Result = AddFinalPathSeparator("C:\My directory\"); // Returns "C:\My directory\".
 //  Result = AddFinalPathSeparator("%APPDATA%"); // Returns "%APPDATA%\".
 //
-Function AddLastPathSeparator(Val DirectoryPath, Val Platform = Undefined) Export
+Function AddLastPathSeparator(Val DirectoryPath, Val Delete1CEnterprise = Undefined) Export
 	If IsBlankString(DirectoryPath) Then
 		Return DirectoryPath;
 	EndIf;
@@ -1420,7 +1504,7 @@ EndFunction
 //  FileName     - String - the file name.
 //
 // Returns:
-//   String - 
+//   String
 //
 Function GetFullFileName(Val DirectoryName, Val FileName) Export
 
@@ -1479,13 +1563,13 @@ Function ParseFullFileName(Val FullFileName, IsDirectory = False) Export
 	
 EndFunction
 
-// Parses the string into an array, using dot (.), slash mark (/), and backslash () as separators.
+// 
 //
 // Parameters:
 //  String - String - the source string.
 //
 // Returns:
-//  Array - 
+//  Array of String
 //
 Function ParseStringByDotsAndSlashes(Val String) Export
 	
@@ -1519,7 +1603,7 @@ EndFunction
 //  FileName - String - the file name (with or without the directory).
 //
 // Returns:
-//   String - file extension.
+//   String
 //
 Function GetFileNameExtension(Val FileName) Export
 	
@@ -1538,7 +1622,7 @@ EndFunction
 //  Extension - String - the file extension.
 //
 // Returns:
-//  String - 
+//  String
 //
 Function ExtensionWithoutPoint(Val Extension) Export
 	
@@ -1560,7 +1644,7 @@ EndFunction
 //  Extension       - String - extension.
 //
 // Returns:
-//  String - name of the file with the extension.
+//  String
 //
 Function GetNameWithExtension(BaseName, Extension) Export
 	
@@ -1574,8 +1658,9 @@ EndFunction
 
 // Returns a string of illegal file name characters.
 // See the list of symbols on https://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words.
+// 
 // Returns:
-//   String - 
+//   String
 //
 Function GetProhibitedCharsInFileName() Export
 
@@ -1591,8 +1676,8 @@ EndFunction
 //  FileName  - String - file name.
 //
 // Returns:
-//   Array   - 
-//              
+//   Array of String  - 
+//                       
 //
 Function FindProhibitedCharsInFileName(FileName) Export
 
@@ -1618,7 +1703,7 @@ EndFunction
 //  WhatReplaceWith  - String - the string to substitute an illegal character.
 //
 // Returns:
-//   String - 
+//   String
 //
 Function ReplaceProhibitedCharsInFileName(Val FileName, WhatReplaceWith = " ") Export
 	
@@ -1637,8 +1722,8 @@ EndFunction
 // Parses through a string of email addresses. Validates the addresses.
 //
 // Parameters:
-//  AddressesList - String - email addresses separated by commas or semicolons. For example:
-//                           Recipient1 <Address1>, Recipient2 <Address2>… RecipientN <AddressN>.
+//  AddressesList - String -
+//                           
 //
 // Returns:
 //  Array of Structure:
@@ -1657,14 +1742,14 @@ Function EmailsFromString(Val AddressesList) Export
 	
 	For Each String In StrSplit(AddressesList, ";", False) Do
 		PresentationParts = New Array;
-		For Each AddressWithAView In StrSplit(String, ",", False) Do
+		For Each AddressWithAView In StrSplit(TrimAll(String), ",", False) Do
 			If Not ValueIsFilled(AddressWithAView) Then
 				PresentationParts.Add(AddressWithAView);
 				Continue;
 			EndIf;
 			
 			StringParts1 = StrSplit(TrimR(AddressWithAView), " ", True);
-			Address = StringParts1[StringParts1.UBound()];
+			Address = TrimAll(StringParts1[StringParts1.UBound()]);
 			Alias = "";
 			ErrorDescription = "";
 			
@@ -1795,27 +1880,27 @@ Function EmailAddressMeetsRequirements(Val Address, AllowLocalAddresses = False)
 	
 EndFunction
 
-// Validates a string of email addresses.
-//
-//  String format:
-//  Z = UserName|[User Name] [<]user@email_server[>], Sting = Z[<delimiter*>Z].
 // 
-//   * Delimiter - any delimiting character.
+//
+// 
+//  
+// 
+//  
 //
 // Parameters:
-//  PassedAddressesString - String - a valid email address string.
-//  RaiseException1 - Boolean - If False and the parsing fails, no exception is raised.
+//  Addresses - String - the correct string with the email addresses.
+//  RaiseException1 - Boolean -
 //
 // Returns:
 //  Array of Structure:
 //   * Address - String - Send-to email.
 //   * Presentation - String - Recipient name.
 //
-Function ParseStringWithEmailAddresses(Val PassedAddressesString, RaiseException1 = True) Export
+Function ParseStringWithEmailAddresses(Val Addresses, RaiseException1 = True) Export
 	
 	Result = New Array;
 	ErrorsDetails = New Array;
-	SMSMessageRecipients = EmailsFromString(PassedAddressesString);
+	SMSMessageRecipients = EmailsFromString(Addresses);
 	
 	For Each Addressee In SMSMessageRecipients Do
 		If ValueIsFilled(Addressee.ErrorDescription) Then
@@ -1844,7 +1929,7 @@ EndFunction
 // Returns the name of the COM class to operate 1C:Enterprise over a COM connection.
 //
 // Returns:
-//  String - 
+//  String
 //
 Function COMConnectorName() Export
 	
@@ -1854,24 +1939,32 @@ Function COMConnectorName() Export
 	
 EndFunction
 
-// Constructor of "Parameter" parameter of functions
-// Common.EstablishExternalConnectionWithInfobase() and CommonClient.EstablishExternalConnectionWithInfobase().
-//
+// 
+// 
+// 
 // Returns:
-//  Structure - 
+//  Structure:
+//    * InfobaseOperatingMode - Number -
+//    * InfobaseDirectory - String -
+//    * NameOf1CEnterpriseServer - String -
+//    * NameOfInfobaseOn1CEnterpriseServer - String - 
+//    * OperatingSystemAuthentication - Boolean -
+//                                          
+//    * UserName - String -
+//    * UserPassword - String -
 //
 Function ParametersStructureForExternalConnection() Export
 	
-	ParametersStructure = New Structure;
-	ParametersStructure.Insert("InfobaseOperatingMode", 0);
-	ParametersStructure.Insert("InfobaseDirectory", "");
-	ParametersStructure.Insert("NameOf1CEnterpriseServer", "");
-	ParametersStructure.Insert("NameOfInfobaseOn1CEnterpriseServer", "");
-	ParametersStructure.Insert("OperatingSystemAuthentication", False);
-	ParametersStructure.Insert("UserName", "");
-	ParametersStructure.Insert("UserPassword", "");
+	Result = New Structure;
+	Result.Insert("InfobaseOperatingMode", 0);
+	Result.Insert("InfobaseDirectory", "");
+	Result.Insert("NameOf1CEnterpriseServer", "");
+	Result.Insert("NameOfInfobaseOn1CEnterpriseServer", "");
+	Result.Insert("OperatingSystemAuthentication", False);
+	Result.Insert("UserName", "");
+	Result.Insert("UserPassword", "");
 	
-	Return ParametersStructure;
+	Return Result;
 	
 EndFunction
 
@@ -2043,7 +2136,7 @@ EndFunction
 //   ReplacementChar - String - the string to be used instead of the invalid character in XML string.
 // 
 // Returns:
-//    String - 
+//    String
 //
 Function ReplaceProhibitedXMLChars(Val Text, ReplacementChar = " ") Export
 	
@@ -2092,7 +2185,7 @@ EndFunction
 //  Text - String - the string where invalid characters need to be replaced.
 // 
 // Returns:
-//  String - 
+//  String
 //
 Function DeleteDisallowedXMLCharacters(Val Text) Export
 	
@@ -2104,12 +2197,12 @@ EndFunction
 
 #Region SpreadsheetDocument
 
-// The procedure manages field states in a spreadsheet document.
+// 
 //
 // Parameters:
 //  SpreadsheetDocumentField - FormField - a SpreadsheetDocumentField type form field
 //                            that requires the state change.
-//  State               - String - the state kind.
+//  State               - String -
 //
 Procedure SetSpreadsheetDocumentFieldState(SpreadsheetDocumentField, State = "DontUse") Export
 	
@@ -2125,17 +2218,27 @@ Procedure SetSpreadsheetDocumentFieldState(SpreadsheetDocumentField, State = "Do
 			StatePresentation.Visible                      = True;
 			StatePresentation.AdditionalShowMode = AdditionalShowMode.Irrelevance;
 			StatePresentation.Picture                       = New Picture;
-			StatePresentation.Text                          = NStr("en = 'To run report, click ""Generate"".';");;
+			StatePresentation.Text                          = NStr("en = 'To run report, click ""Generate"".';");
 		ElsIf Upper(State) = "REPORTGENERATION" Then  
 			StatePresentation.Visible                      = True;
 			StatePresentation.AdditionalShowMode = AdditionalShowMode.Irrelevance;
 			StatePresentation.Picture                       = PictureLib.TimeConsumingOperation48;
 			StatePresentation.Text                          = NStr("en = 'Generating report…';");
 		Else
-			Raise(NStr("en = 'Invalid parameter value (parameter number: 2).';"));
+			CheckParameter(
+				"CommonClientServer.SetSpreadsheetDocumentFieldState", "State", State, 
+				Type("String"),, "DontUse,Irrelevance,ReportGeneration");
 		EndIf;
 	Else
-		Raise(NStr("en = 'Invalid parameter value (parameter number: 1).';"));
+		CheckParameter(
+			"CommonClientServer.SetSpreadsheetDocumentFieldState", "SpreadsheetDocumentField", 
+			SpreadsheetDocumentField, Type("FormField"));
+		Validate(SpreadsheetDocumentField.Type = FormFieldType.SpreadsheetDocumentField,
+			StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Invalid value of the %1 parameter in %2.
+				           |Expected value: %3, passed value: %4 (type: %5).';"),
+				"SpreadsheetDocumentField", "CommonClientServer.SetSpreadsheetDocumentFieldState", 
+				"FormFieldType.SpreadsheetDocumentField", SpreadsheetDocumentField.Type, TypeOf(SpreadsheetDocumentField.Type)));	
 	EndIf;
 	
 EndProcedure
@@ -2151,7 +2254,7 @@ EndProcedure
 //                   - See CellsIndicatorsCalculationParameters
 //
 // Returns:
-//   Structure - 
+//   Structure:
 //       * Count         - Number - selected cells count.
 //       * NumericCellsCount - Number - numeric cells count.
 //       * Sum      - Number - a sum of the selected cells with numbers.
@@ -3750,20 +3853,9 @@ Function StartApplication(Val StartupCommand, ApplicationStartupParameters = Und
 					"ApplicationStartupParameters.ExecuteWithFullRights");
 			EndIf;
 			
-			// 
-			// 
-			//  
-			// 
-			
-			CommandFile = GetTempFileName("runas.bat");
-			WriteCommand = New TextWriter(CommandFile, TextEncoding.OEM);
-			WriteCommand.WriteLine(CommandString);
-			WriteCommand.WriteLine("del /f /q """ + CommandFile + """");
-			WriteCommand.Close();
-			
 			Shell = New COMObject("Shell.Application");
 			// Запуск с передачей глагола действия - 
-			Shell.ShellExecute("cmd", "/c """ + CommandFile + """",, "runas", 0);
+			Shell.ShellExecute("cmd", "/c """ + CommandString + """",, "runas", 0);
 			Shell = Undefined;
 			
 		Else 
@@ -4051,16 +4143,16 @@ Function ArrayOfValues(Val Value1, Val Value2 = Undefined, Val Value3 = Undefine
 	Val Value4 = Undefined) Export
 	
 	Result = New Array;
-	If Value4 <> Undefined Then
-		Result.Add(Value4);
+	Result.Add(Value1);
+	If Value2 <> Undefined Then
+		Result.Add(Value2);
 	EndIf;
 	If Value3 <> Undefined Then
 		Result.Add(Value3);
 	EndIf;
-	If Value2 <> Undefined Then
-		Result.Add(Value2);
+	If Value4 <> Undefined Then
+		Result.Add(Value4);
 	EndIf;
-	Result.Add(Value1);
 	Return Result;
 	
 EndFunction

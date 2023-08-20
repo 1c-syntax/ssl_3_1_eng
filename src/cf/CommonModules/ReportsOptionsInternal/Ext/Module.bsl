@@ -69,6 +69,9 @@ Procedure InitializeReportHeaders(Form) Export
 	
 	HeaderPropertiesSection = StandardSectionOfReportHeaderProperties();
 	
+	IsMobileClient = CommonClientServer.HasAttributeOrObjectProperty(Form, "IsMobileClient")
+		And Form.IsMobileClient;
+	
 	For LineNumber = 1 To ReportResult.TableHeight Do 
 		
 		StartCell = ReportResult.Area(LineNumber, 1);
@@ -390,6 +393,20 @@ Function RepresentationOfTheSortingElement(Item, Sort = Undefined) Export
 	
 EndFunction
 
+Function ReportOptionEmptyAssignment() Export
+	
+	Return PredefinedValue("Enum.ReportOptionPurposes.EmptyRef");
+	
+EndFunction
+
+// 
+// Returns:
+//  EnumRef.ReportOptionPurposes
+//
+Function AssigningDefaultReportOption() Export
+	Return Enums.ReportOptionPurposes.ForComputersAndTablets;
+EndFunction
+
 #EndRegion
 
 #EndRegion
@@ -641,7 +658,7 @@ EndProcedure
 //              - DataCompositionGroup
 //              - DataCompositionTableGroup
 //  Settings - DataCompositionSettings
-//  SortFields - Map of КлючЗначение:
+//  SortFields - Map of KeyAndValue:
 //   * Key - DataCompositionField
 //   * Value - DataCompositionSortDirection
 //                 
@@ -1817,6 +1834,10 @@ Procedure InsertSortingIndicator(FieldIndex, TitleProperties, Cell)
 	If Cell.ColumnWidth > 0
 		And Cell.ColumnWidth <= MinimumColumnWidthForIndicatorOutput Then 
 		
+		Return;
+	EndIf;
+	
+	If TitleProperties.SectionOrder <> 1 Then
 		Return;
 	EndIf;
 	

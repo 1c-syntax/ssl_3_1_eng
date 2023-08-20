@@ -101,7 +101,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.PhoneNumberByMask.Visible = EnterNumberByMask;
 	Items.PhoneNumberByMask.Mask = ContactInformationKindStructure1.PhoneNumberMask;	
 	Items.PhoneFieldsGroup.Visible = Not EnterNumberByMask;
-	Items.PhoneExtension.Visible = ContactInformationKindStructure1.PhoneWithExtension;
+	Items.PhoneExtension.Visible = ContactInformationKindStructure1.PhoneWithExtensionNumber;
 	Items.ClearPhone.Enabled = Not Parameters.ReadOnly;
 	
 	If Not EnterNumberByMask Then
@@ -281,12 +281,12 @@ Procedure ConfirmAndClose(Result = Undefined, AdditionalParameters = Undefined) 
 				Phonefields.PhoneNumber = PhoneNumberByMask;
 			EndIf;	
 			
-			ErrorsList = ContactsManagerClientServer.PhoneFillingErrors(Phonefields, ModuleAddressManagerClient);
+			ErrorList = ContactsManagerClientServer.PhoneFillingErrors(Phonefields, ModuleAddressManagerClient);
 			
-			HasFillingErrors = ErrorsList.Count() > 0;
+			HasFillingErrors = ErrorList.Count() > 0;
 		EndIf;
 		If HasFillingErrors Then
-			NotifyFillErrors(ErrorsList);
+			NotifyFillErrors(ErrorList);
 			Return;
 		EndIf;
 		
@@ -453,9 +453,9 @@ EndProcedure
 
 // Notifies of any filling errors based on PhoneFillingErrorsServer function results.
 &AtClient
-Procedure NotifyFillErrors(ErrorsList)
+Procedure NotifyFillErrors(ErrorList)
 	
-	If ErrorsList.Count()=0 Then
+	If ErrorList.Count()=0 Then
 		ShowMessageBox(, NStr("en = 'The phone number is valid.';"));
 		Return;
 	EndIf;
@@ -463,7 +463,7 @@ Procedure NotifyFillErrors(ErrorsList)
 	ClearMessages();
 	
 	// Values are XPaths. Presentations store error descriptions.
-	For Each Item In ErrorsList Do
+	For Each Item In ErrorList Do
 		CommonClient.MessageToUser(Item.Presentation,,,
 		FormDataPathByXPath(Item.Value));
 	EndDo;

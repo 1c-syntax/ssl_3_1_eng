@@ -34,6 +34,37 @@
 		</right>
 	</object>
 	<object>
+		<name>Configuration.StandardSubsystemsLibrary</name>
+		<right>
+			<name>MainWindowModeNormal</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeEmbeddedWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeFullscreenWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeKiosk</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>AnalyticsSystemClient</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Output</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>Catalog.ReportMailings.Command.MailingEvents</name>
 		<right>
 			<name>View</name>
@@ -77,17 +108,35 @@
 #ELSE
 РассылкиОтчетов WHERE (ReportMailings.Author = &amp;CurrentUser
 			OR ReportMailings.Personal = FALSE
-			OR ReportMailings.IsFolder = TRUE)
+			OR Predefined = TRUE)
 #ENDIF</condition>
 			</restrictionByCondition>
 		</right>
 		<right>
 			<name>Insert</name>
 			<value>true</value>
+			<restrictionByCondition>
+				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
+#ForObject("")
+#ELSE
+РассылкиОтчетов WHERE (ReportMailings.Author = &amp;CurrentUser
+			OR ReportMailings.Personal = FALSE
+			OR Predefined = TRUE)
+#ENDIF</condition>
+			</restrictionByCondition>
 		</right>
 		<right>
 			<name>Update</name>
 			<value>true</value>
+			<restrictionByCondition>
+				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
+#ForObject("")
+#ELSE
+РассылкиОтчетов WHERE (ReportMailings.Author = &amp;CurrentUser
+			OR ReportMailings.Personal = FALSE
+			OR Predefined = TRUE)
+#ENDIF</condition>
+			</restrictionByCondition>
 		</right>
 		<right>
 			<name>View</name>
@@ -111,37 +160,6 @@
 		</right>
 		<right>
 			<name>InputByString</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>Configuration.StandardSubsystemsLibrary</name>
-		<right>
-			<name>MainWindowModeNormal</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeEmbeddedWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeFullscreenWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeKiosk</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>AnalyticsSystemClient</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>Output</name>
 			<value>true</value>
 		</right>
 	</object>

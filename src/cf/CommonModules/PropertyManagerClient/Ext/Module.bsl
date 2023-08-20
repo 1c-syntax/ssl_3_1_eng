@@ -46,9 +46,18 @@ Function ProcessNotifications(Form, EventName, Parameter) Export
 			Or Not Parameter.Property("Ref") Then
 			Return True;
 		Else
-			Filter = New Structure("Property", Parameter.Ref);
-			Return Form.PropertiesAdditionalAttributeDetails.FindRows(Filter).Count() > 0;
+			Filter = New Structure("Property", Parameter.Ref); 
+			If Form.PropertiesAdditionalAttributeDetails.FindRows(Filter).Count() > 0
+				Or Form.Properties_LabelsApplied.FindByValue(Parameter.Ref) <> Undefined Then
+				Return True;
+			Else
+				Return False;
+			EndIf;
 		EndIf;
+	ElsIf EventName = "Write_LabelsChange" And Form = Parameter.Owner Then
+		Form.Properties_LabelsApplied.LoadValues(Parameter.LabelsApplied);
+		Form.Modified = True;
+		Return True;
 	EndIf;
 	
 	Return False;
@@ -161,12 +170,20 @@ EndProcedure
 //                       - FormCommand - 
 //  StandardProcessing - Boolean - a returned parameter, if interactive
 //                          actions with the user are needed, it is set to False.
+//  Object - FormDataStructure - description of the object to which the properties are connected
+//                                  . if the property is not specified or Undefined, the
+//                                  object will be taken from the "Object"form details.
 //
-Procedure ExecuteCommand(Form, Item  = Undefined, StandardProcessing  = Undefined) Export
+Procedure ExecuteCommand(Form,
+						   Item = Undefined,
+						   StandardProcessing = Undefined,
+						   Object = Undefined) Export
 	
 	If Item = Undefined Then
 		CommandName = "EditAdditionalAttributesComposition";
 	ElsIf TypeOf(Item) = Type("FormCommand") Then
+		CommandName = Item.Name;
+	ElsIf TypeOf(Item) = Type("FormDecoration") Then
 		CommandName = Item.Name;
 	Else
 		AttributeValue = Form[Item.Name];
@@ -181,23 +198,115 @@ Procedure ExecuteCommand(Form, Item  = Undefined, StandardProcessing  = Undefine
 		EditPropertiesContent(Form);
 	ElsIf CommandName = "EditAttributeHyperlink" Then
 		EditAttributeHyperlink(Form);
+	ElsIf CommandName = "EditLabels"
+		Or CommandName = "OtherLabels"
+		Or StrFind(CommandName, "Label") = 1 Then
+		EditLabels(Form, Object);
 	EndIf;
+	
+EndProcedure
+
+// 
+//
+// Parameters:
+//  Form  - ClientApplicationForm     - the form being processed.
+//  Object - FormDataStructure - description of the object to which the properties are connected
+//                                  . if the property is not specified or Undefined, the
+//                                  object will be taken from the "Object"form details.
+//
+Procedure EditLabels(Form, Object = Undefined) Export
+	
+	If Object = Undefined Then
+		ObjectDetails = Form.Object;
+	Else
+		ObjectDetails = Object;
+	EndIf;
+	
+	FormParameters = New Structure;
+	FormParameters.Insert("ObjectDetails", ObjectDetails);
+	
+	OpenForm("CommonForm.LabelsEdit", FormParameters, Form, Form,,,,
+		FormWindowOpeningMode.LockOwnerWindow);
+	
+EndProcedure
+
+// 
+//
+// Parameters:
+//  Form      - ClientApplicationForm     - the form being processed.
+//  CommandName - String -
+//
+Procedure ApplyFilterByLabel(Form, CommandName) Export
+	
+	FilterItems1 = Form.List.Filter.Items;
+	FilterGroup = Undefined;
+	For Each FilterElement In FilterItems1 Do
+		If FilterElement.UserSettingID = "FilterByLabels" Then
+			FilterGroup = FilterElement;
+			Break;
+		EndIf;
+	EndDo;
+	
+	PlacemarkName = StrReplace(CommandName, "FilterLabel_", "");
+	LabelsLegendDetails = Form.Properties_LabelsLegendDetails;
+	LegendLabels = LabelsLegendDetails.FindRows(New Structure("PlacemarkName", PlacemarkName));
+	
+	If LegendLabels.Count() = 0 Then
+		Return;
+	Else
+		SelectedLabel = LegendLabels[0];
+	EndIf;
+	
+	If FilterGroup = Undefined Then
+		SelectedLabels = New Array;
+		SelectedLabels.Add(SelectedLabel.Label);
+	Else
+		SelectedLabels = FilterGroup.RightValue;
+		LabelIndex = SelectedLabels.Find(SelectedLabel.Label);
+		If LabelIndex <> Undefined Then
+			SelectedLabels.Delete(LabelIndex);
+			SelectedLabel.FilterByLabel = False;
+		Else
+			SelectedLabels.Add(SelectedLabel.Label);
+			SelectedLabel.FilterByLabel = True;
+		EndIf;
+	EndIf;
+	
+	If SelectedLabels.Count() = 0 Then
+		FilterGroup.Use = False;
+		Return;
+	EndIf;
+	
+	CommonClientServer.SetDynamicListFilterItem(
+		Form.List,
+		"AdditionalAttributes.Property",
+		SelectedLabels,
+		DataCompositionComparisonType.InList,,
+		True,
+		DataCompositionSettingsItemViewMode.Inaccessible,
+		"FilterByLabels");
+	
 EndProcedure
 
 #EndRegion
 
 #Region Internal
 
-Procedure OpenPropertiesList(AdditionalAttributes = False) Export
+Procedure OpenPropertiesList(CommandName) Export
+	
+	If CommandName = "AdditionalAttributes" Then
+		PropertyKind = PredefinedValue("Enum.PropertiesKinds.AdditionalAttributes");
+	ElsIf CommandName = "AdditionalInfo" Then
+		PropertyKind = PredefinedValue("Enum.PropertiesKinds.AdditionalInfo");
+	ElsIf CommandName = "Labels" Then
+		PropertyKind = PredefinedValue("Enum.PropertiesKinds.Labels");
+	Else
+		PropertyKind = PredefinedValue("Enum.PropertiesKinds.AdditionalAttributes");
+	EndIf;
 	
 	FormParameters = New Structure;
-	If AdditionalAttributes Then
-		FormParameters.Insert("ShowAdditionalAttributes");
-	Else
-		FormParameters.Insert("ShowAdditionalInfo");
-	EndIf;
-	OpenForm("Catalog.AdditionalAttributesAndInfoSets.ListForm",
-		FormParameters, , ?(AdditionalAttributes, "AdditionalAttributes", "AdditionalInfo"));
+	FormParameters.Insert("PropertyKind", PropertyKind);
+	OpenForm("Catalog.AdditionalAttributesAndInfoSets.ListForm", FormParameters,, PropertyKind);
 	
 EndProcedure
 
@@ -224,7 +333,8 @@ Procedure EditPropertiesContent(Form)
 	
 	Else
 		FormParameters = New Structure;
-		FormParameters.Insert("ShowAdditionalAttributes");
+		FormParameters.Insert("PropertyKind",
+			PredefinedValue("Enum.PropertiesKinds.AdditionalAttributes"));
 		
 		OpenForm("Catalog.AdditionalAttributesAndInfoSets.ListForm", FormParameters);
 		
@@ -232,6 +342,8 @@ Procedure EditPropertiesContent(Form)
 		MigrationParameters.Insert("Set", Sets[0].Value);
 		MigrationParameters.Insert("Property", Undefined);
 		MigrationParameters.Insert("IsAdditionalInfo", False);
+		MigrationParameters.Insert("PropertyKind",
+			PredefinedValue("Enum.PropertiesKinds.AdditionalAttributes"));
 		
 		BeginningLength = StrLen("AdditionalAttributeValue_");
 		IsFormField = (TypeOf(Form.CurrentItem) = Type("FormField"));

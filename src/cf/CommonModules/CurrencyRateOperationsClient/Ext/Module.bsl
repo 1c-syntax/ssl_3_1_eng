@@ -27,17 +27,6 @@ Procedure AfterStart() Export
 	
 EndProcedure
 
-// See StandardSubsystemsClient.OnReceiptServerNotification.
-Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
-	
-	If NameOfAlert <> "StandardSubsystems.Currencies.ExchangeRatesUpdateRequired" Then
-		Return;
-	EndIf;
-	
-	NotifyRatesObsolete();
-	
-EndProcedure
-
 #EndRegion
 
 #Region Private
@@ -60,9 +49,9 @@ Function SettingsOnClient()
 	
 EndFunction
 
-Procedure NotifyRatesObsolete(Val CheckRelevance = False) Export
+Procedure NotifyRatesObsolete(Val ShouldCheckValidity = False) Export
 	
-	If CheckRelevance And CurrenciesExchangeRatesServerCall.RatesUpToDate() Then
+	If ShouldCheckValidity And CurrenciesExchangeRatesServerCall.RatesUpToDate() Then
 		Return;
 	EndIf;
 	
@@ -74,7 +63,7 @@ Procedure NotifyRatesObsolete(Val CheckRelevance = False) Export
 	EndIf;
 	Settings.LastNotificationDayStart = DateStartOfDay;
 	
-	ShowUserNotification(
+	ShowNotification(
 		NStr("en = 'Outdated exchange rates';"),
 		DataProcessorURL(),
 		NStr("en = 'Update exchange rates';"),
@@ -100,7 +89,7 @@ EndProcedure
 //
 Procedure NotifyRatesUpToDate() Export
 	
-	ShowMessageBox(,NStr("en = 'Актуальные курсы валют успешно загружены.';"));
+	ShowMessageBox(,NStr("en = 'Up-to-date exchange rates are imported.';"));
 	
 EndProcedure
 
@@ -109,5 +98,17 @@ EndProcedure
 Function DataProcessorURL()
 	Return "e1cib/app/DataProcessor.CurrenciesRatesImport";
 EndFunction
+
+Procedure ShowNotification(Text, ActionOnClick, Explanation, Picture, Var_UserNotificationStatus, UniqueKey)
+	
+	ShowUserNotification(
+		Text,
+		ActionOnClick,
+		Explanation,
+		Picture,
+		Var_UserNotificationStatus,
+		UniqueKey);
+		
+EndProcedure
 
 #EndRegion

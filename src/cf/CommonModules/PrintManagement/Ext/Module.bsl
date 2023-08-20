@@ -1736,7 +1736,7 @@ Procedure SpecifyParameters(TreeOfTemplate, ReplacementsMap, AreaPopulationParam
 	DocumentTree = ?(AreaStructure = Undefined, DocumentStructure.DocumentTree, AreaStructure.AreaTree);
 	
 	If CollectStrings Then
-		CollectStringsOfConditionalAreas(DocumentTree, DocumentStructure.Hyperlinks);
+		PrepareConditionalAreasNodes(DocumentTree, DocumentStructure.Hyperlinks);
 	EndIf;
 	
 	If PopulateHeadersAndFooters Then
@@ -1996,49 +1996,62 @@ Procedure WriteTemplatesInAdditionalLangs(TemplateParameters1) Export
 	
 EndProcedure
 
-Function GeneratePrintFormsInBackground(TemplatesNames, Parameters, OutputParameters, CurrentLanguage, PrintObjects) Export
+Function GeneratePrintFormsInBackground(BackgroundPrintingOptions) Export
+	
+	TemplatesNames = BackgroundPrintingOptions.TemplatesNames;
+	OutputParameters = BackgroundPrintingOptions.OutputParameters;
+	CurrentLanguage = BackgroundPrintingOptions.CurrentLanguage;
+	PrintObjects = BackgroundPrintingOptions.PrintObjects;
+	PrintParameters = BackgroundPrintingOptions.PrintParameters;
+	StoragesContents = BackgroundPrintingOptions.StoragesContents;
+	StorageUUID = BackgroundPrintingOptions.StorageUUID;
+	PutToStorages(PrintParameters, StoragesContents, StorageUUID);
+	BackgroundPrintingOptions.Delete("StoragesContents");
+	
 	Result = Undefined;
 	// 
-	If ValueIsFilled(Parameters.DataSource) Then
+	If ValueIsFilled(BackgroundPrintingOptions.DataSource) Then
 		If TypeOf(OutputParameters) = Type("Structure") And OutputParameters.Property("LanguageCode") Then
 			OutputParameters.LanguageCode = CurrentLanguage;
 		EndIf;
 		PrintByExternalSource(
-			Parameters.DataSource,
-			Parameters.SourceParameters,
+			BackgroundPrintingOptions.DataSource,
+			BackgroundPrintingOptions.SourceParameters,
 			Result,
 			PrintObjects,
 			OutputParameters);
 	Else
 		PrintObjectsTypes = New Array;
-		Parameters.PrintParameters.Property("PrintObjectsTypes", PrintObjectsTypes);
+		PrintParameters.Property("PrintObjectsTypes", PrintObjectsTypes);
 		
 		AdditionalParameters = Undefined;
-		Parameters.PrintParameters.Property("AdditionalParameters", AdditionalParameters);
+		PrintParameters.Property("AdditionalParameters", AdditionalParameters);
 		
-		PrintForms = GeneratePrintForms(Parameters.PrintManagerName, TemplatesNames,
-			Parameters.CommandParameter, AdditionalParameters, PrintObjectsTypes, CurrentLanguage);
+		PrintForms = GeneratePrintForms(BackgroundPrintingOptions.PrintManagerName, TemplatesNames,
+			BackgroundPrintingOptions.CommandParameter, AdditionalParameters, PrintObjectsTypes, CurrentLanguage);
 		PrintObjects = PrintForms.PrintObjects;
 		OutputParameters = PrintForms.OutputParameters;
 		Result = PrintForms.PrintFormsCollection;
 	EndIf;
 	
 	// Setting the flag of saving print forms to a file (do not open the form, save it directly to a file).
-	If TypeOf(Parameters.PrintParameters) = Type("Structure") And Parameters.PrintParameters.Property("SaveFormat")
-		And ValueIsFilled(Parameters.PrintParameters.SaveFormat) Then
-		FoundFormat = SpreadsheetDocumentSaveFormatsSettings().Find(SpreadsheetDocumentFileType[Parameters.PrintParameters.SaveFormat], "SpreadsheetDocumentFileType");
+	If TypeOf(PrintParameters) = Type("Structure") And PrintParameters.Property("SaveFormat")
+		And ValueIsFilled(PrintParameters.SaveFormat) Then
+		FoundFormat = SpreadsheetDocumentSaveFormatsSettings().Find(SpreadsheetDocumentFileType[PrintParameters.SaveFormat], "SpreadsheetDocumentFileType");
 		If FoundFormat <> Undefined Then
 			SaveFormatSettings = New Structure("SpreadsheetDocumentFileType,Presentation,Extension,Filter");
 			FillPropertyValues(SaveFormatSettings, FoundFormat);
 			SaveFormatSettings.Filter = SaveFormatSettings.Presentation + "|*." + SaveFormatSettings.Extension;
-			SaveFormatSettings.SpreadsheetDocumentFileType = Parameters.PrintParameters.SaveFormat;
+			SaveFormatSettings.SpreadsheetDocumentFileType = PrintParameters.SaveFormat;
 		EndIf;
 	EndIf;
 	
-	ResultOfFormation = New Structure("PrintFormsCollection, BackgroundJobParameters,OfficeDocuments,PrintObjects,OutputParameters");
-	ResultOfFormation.PrintFormsCollection = Result;
+	ResultOfFormation = New Structure("PrintFormsCollection,BackgroundJobParameters,OfficeDocuments,
+	|PrintObjects,OutputParameters,PrintParameters,Messages");
+	ResultOfFormation.PrintFormsCollection = Common.ValueTableToArray(Result);
 	ResultOfFormation.OutputParameters = OutputParameters;
-	ResultOfFormation.BackgroundJobParameters = Parameters;
+	ResultOfFormation.BackgroundJobParameters = BackgroundPrintingOptions;
+	ResultOfFormation.PrintParameters = PrintParameters; 
 	OfficeDocuments = New Map();
 	
 	For Each ResultString1 In Result Do
@@ -2049,12 +2062,12 @@ Function GeneratePrintFormsInBackground(TemplatesNames, Parameters, OutputParame
 		EndIf;
 	EndDo;
 	ResultOfFormation.OfficeDocuments = OfficeDocuments;
-	ResultOfFormation.PrintObjects = PrintObjects;	
+	ResultOfFormation.PrintObjects = PrintObjects;
+	ResultOfFormation.Messages = GetUserMessages();	
 	
 	Return ResultOfFormation;
 	
 EndFunction
-
 
 // Generates a print form based on an external source.
 //
@@ -2197,7 +2210,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Version = "3.0.1.60";
 	Handler.Procedure = "InformationRegisters.UserPrintTemplates.ProcessUserTemplates";
 	Handler.ExecutionMode = "Deferred";
-	Handler.DeferredProcessingQueue = 1;
 	Handler.Comment = NStr("en = 'Removes custom templates that are indistinguishable from build-in templates.
 		|Disables custom templates that incompatible with the configuration version.';");
 	Handler.Id = New UUID("e5b0d876-c766-40a0-a0cf-ffccc83a193f");
@@ -2215,8 +2227,8 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Id = New UUID("51f71246-67e3-40e0-80e5-ebb3192fa6c0");
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-		PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
-		PrintManagementModuleMultilanguage.OnAddUpdateHandlers(Handlers);
+		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
+		PrintManagementModuleNationalLanguageSupport.OnAddUpdateHandlers(Handlers);
 	EndIf;
 	
 	Catalogs.PrintFormTemplates.OnAddUpdateHandlers(Handlers);
@@ -2355,8 +2367,8 @@ EndFunction
 Procedure AddPrintFormsLanguages(LanguagesCodes) Export
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-		PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
-		PrintManagementModuleMultilanguage.AddPrintFormsLanguages(LanguagesCodes);
+		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
+		PrintManagementModuleNationalLanguageSupport.AddPrintFormsLanguages(LanguagesCodes);
 	EndIf;
 	
 EndProcedure
@@ -2529,6 +2541,11 @@ Function TemplateDataSource(TemplatePath) Export
 	
 	PathParts.Delete(PathParts.UBound());
 	ObjectName = StrConcat(PathParts, ".");
+	
+	If ObjectName = "CommonTemplate" Then
+		TemplateDataSource.Add(Catalogs.MetadataObjectIDs.EmptyRef());
+		Return TemplateDataSource;
+	EndIf;
 	
 	MetadataObject = Common.MetadataObjectByFullName(ObjectName);
 	If MetadataObject = Undefined Then
@@ -3063,7 +3080,7 @@ Function GenerateOfficeDoc(Template, ObjectsArray, PrintObjects, LanguageCode, P
 		
 	ObjectTablePartNames = PrintData.Get("ObjectTablePartNames");
 	
-	CollectStringsOfConditionalAreas(DocumentStructure.DocumentTree, DocumentStructure.Hyperlinks);
+	PrepareConditionalAreasNodes(DocumentStructure.DocumentTree, DocumentStructure.Hyperlinks);
 	PrintManagementInternal.RunIndexNodes(DocumentStructure.DocumentTree);
 	PrintManagementInternal.FindAreas(DocumentStructure, ObjectTablePartNames);
 	
@@ -4483,14 +4500,14 @@ Function TheTypeOfTheFileTableOfTheDocument(FileType)
 	
 EndFunction
 
-Function PrintFormTemplates(ProcessingAndReportingOnly = False) Export
+Function PrintFormTemplates(AreDataProcessorsAndReportsOnly = False) Export
 	
 	Result = New Map;
 	
 	MetadataObjectsCollections = New Array; // Array of MetadataObjectCollection -
 	MetadataObjectsCollections.Add(Metadata.DataProcessors);
 	MetadataObjectsCollections.Add(Metadata.Reports);
-	If Not ProcessingAndReportingOnly Then
+	If Not AreDataProcessorsAndReportsOnly Then
 		MetadataObjectsCollections.Add(Metadata.Catalogs);
 		MetadataObjectsCollections.Add(Metadata.Documents);
 		MetadataObjectsCollections.Add(Metadata.BusinessProcesses);
@@ -4616,8 +4633,8 @@ Procedure SetTheLayoutLanguage(Template, LanguageCode)
 	
 	ItIsAnAdditionalLanguageOfPrintedForms = False;
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-		PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
-		ItIsAnAdditionalLanguageOfPrintedForms = PrintManagementModuleMultilanguage.ItIsAnAdditionalLanguageOfPrintedForms(LanguageCode);
+		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
+		ItIsAnAdditionalLanguageOfPrintedForms = PrintManagementModuleNationalLanguageSupport.ItIsAnAdditionalLanguageOfPrintedForms(LanguageCode);
 	EndIf;
 	
 	If ValueIsFilled(LanguageCode) And Not ItIsAnAdditionalLanguageOfPrintedForms Then
@@ -6023,8 +6040,8 @@ Function FieldsSourceDataCompositionSchemes(FieldSourceName, AddCommonAttributes
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-		PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
-		PrintManagementModuleMultilanguage.OnDefinePrintDataSources(FieldSourceName, FieldSources);
+		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
+		PrintManagementModuleNationalLanguageSupport.OnDefinePrintDataSources(FieldSourceName, FieldSources);
 	EndIf;
 	
 	SSLSubsystemsIntegration.OnDefinePrintDataSources(FieldSourceName, FieldSources);
@@ -6060,8 +6077,8 @@ Procedure WhenPreparingPrintData(Objects, ExternalDataSets, DataCompositionSchem
 	
 		
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-		PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
-		PrintManagementModuleMultilanguage.WhenPreparingPrintData(
+		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
+		PrintManagementModuleNationalLanguageSupport.WhenPreparingPrintData(
 			Objects, ExternalDataSets, DataCompositionSchemaId, LanguageCode, AdditionalParameters);
 	EndIf;
 	
@@ -6136,6 +6153,9 @@ Function QueryText(TypesOfObjectsToChange, RestrictSelection = False)
 		QueryText = "";
 		
 		For Each AttributeName In ObjectsStructure.Attributes Do
+			If StrStartsWith(AttributeName, "Delete") Then
+				Continue;
+			EndIf;
 			If Not IsBlankString(QueryText) Then
 				QueryText = QueryText + "," + Chars.LF;
 			EndIf;
@@ -6144,6 +6164,9 @@ Function QueryText(TypesOfObjectsToChange, RestrictSelection = False)
 		
 		For Each TabularSection In ObjectsStructure.TabularSections Do
 			TabularSectionName = TabularSection.Key;
+			If StrStartsWith(TabularSectionName, "Delete") Then
+				Continue;
+			EndIf;
 			QueryText = QueryText + "," + Chars.LF + TableAlias + "." + TabularSectionName + ".(";
 			
 			AttributesRow = "LineNumber";
@@ -6445,8 +6468,8 @@ Function AvailableforTranslationLayouts() Export
 	
 	AvailableforTranslationLayouts = New Map;
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-		PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
-		AvailableforTranslationLayouts = PrintManagementModuleMultilanguage.AvailableforTranslationLayouts();
+		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
+		AvailableforTranslationLayouts = PrintManagementModuleNationalLanguageSupport.AvailableforTranslationLayouts();
 	EndIf;
 	
 	Return AvailableforTranslationLayouts;
@@ -6727,7 +6750,7 @@ Function PrintDataCharacterCase(Objects)
 	
 EndFunction
 
-Procedure CollectStringsOfConditionalAreas(XMLTree, Hyperlinks)
+Procedure PrepareConditionalAreasNodes(XMLTree, Hyperlinks)
 	SortTable = New ValueTable();
 	SortTable.Columns.Add("Key");
 	SortTable.Columns.Add("Value");
@@ -6737,32 +6760,72 @@ Procedure CollectStringsOfConditionalAreas(XMLTree, Hyperlinks)
 	NameTag = TagNameCondition();
 	
 	
-	ArrayOfTextFragments = StrSplit(WholeText, "{",);
-	For Each TextFragment In ArrayOfTextFragments Do
+	TextFragments = StrSplit(WholeText, "{", False);
+	For Each TextFragment In TextFragments Do
 		TagNamePosition = StrFind(TextFragment, NameTag);
 		If TagNamePosition And TagNamePosition < 3 Then
-			ArrayOfRowsFragments = StrSplit(TextFragment, "}");
+			StringFragments = StrSplit(TextFragment, "}", False);
 									
 			NewRow = SortTable.Add();
-			NewRow.Key 		= "{"+ArrayOfRowsFragments[0]+"}";
+			NewRow.Key 		= "{"+StringFragments[0]+"}";
 			NewRow.Length 		= NewRow.Key;
 			NewRow.Value 	= NewRow.Key;
 		EndIf;
 	EndDo;
 	
 	SortTable.Sort("Length Desc");
+	AllConditionsNodes = New Array;
 	
+	ConditionsNodes = New Array;
 	For Each ReplacementCompliance In SortTable Do
-		NodesArray = New Array; 
-		PrintManagementInternal.FindNodes(XMLTree, ReplacementCompliance.Key, NodesArray);
-		
-		For Each Node In NodesArray Do
+		ConditionsNodes.Clear(); 
+		PrintManagementInternal.FindNodes(XMLTree, ReplacementCompliance.Key, ConditionsNodes);
+
+		For Each Node In ConditionsNodes Do
 			If Node.Rows.Count() Then
 				CollectStrings(Node);
+				PrintManagementInternal.RestoreFullText(Node, Hyperlinks);
 			EndIf;
 		EndDo;
+		CommonClientServer.SupplementArray(AllConditionsNodes, ConditionsNodes, True);
 	EndDo;
-	PrintManagementInternal.RestoreFullText(XMLTree, Hyperlinks);
+	
+	NodeFragments = New Array;
+	For Each ConditionNode In AllConditionsNodes Do
+		NodeFragments.Clear();
+		TextFragments = StrSplit(ConditionNode.Text, "{", False);
+		For Each TextFragment In TextFragments Do
+			TagNamePosition = StrFind(TextFragment, NameTag);
+			If TagNamePosition And TagNamePosition < 3 Then
+				StringFragments = StrSplit(TextFragment, "}", False);
+				
+				NodeFragments.Add("{"+StringFragments[0]+"}");
+				For FragmentIndex = 1 To StringFragments.UBound() Do
+					NodeFragments.Add(StringFragments[FragmentIndex]);
+				EndDo;
+			Else
+				NodeFragments.Add(TextFragment);
+			EndIf;
+		EndDo;
+		SeparateRunThrough(ConditionNode, NodeFragments, Hyperlinks);
+	EndDo;
+EndProcedure
+
+Procedure SeparateRunThrough(ConditionNode, NodeFragments, Hyperlinks)
+	ParentOfAddition = ConditionNode.Parent;
+	AdditingIndex = ParentOfAddition.Rows.IndexOf(ConditionNode);
+	For NodeFragmentIndex = 0 To NodeFragments.UBound() Do
+		
+		If NodeFragmentIndex = 0 Then
+			NodeForProcessing = ConditionNode;
+		Else
+			NodeForProcessing = PrintManagementInternal.MakeCopyNode(ParentOfAddition, AdditingIndex, ConditionNode);
+		EndIf;
+		AdditingIndex = AdditingIndex + 1;
+		
+		NodeForProcessing.Text = NodeFragments[NodeFragmentIndex];
+	EndDo;
+	PrintManagementInternal.RestoreFullText(ParentOfAddition, Hyperlinks);
 EndProcedure
 
 Function CollectStrings(Node, AssemblyNode = Undefined, AssemblyNodes = Undefined,  OpenedCount = 0)
@@ -7047,5 +7110,42 @@ Procedure FindSkippedParents(Parents, TreeForOutput, AddLine)
 		FindSkippedParents(Parents, TreeForOutput, AddLine.Parent);
 	EndIf;
 EndProcedure
+
+Function PutToStorages(ParametersStructure, StoragesContents, StorageUUID)
+	If StoragesContents.Count() = 0 Then
+		Return False;
+	EndIf;
+	
+	ParametersType = TypeOf(ParametersStructure);
+	If ParametersType = Type("String") And IsTempStorageURL(ParametersStructure) Then
+		ParametersStructure = PutToTempStorage(StoragesContents[ParametersStructure], StorageUUID);
+		Return True;
+	ElsIf ParametersType = Type("Array") Or ParametersType = Type("ValueTable") 
+		Or ParametersType = Type("ValueTableRow") Or ParametersType = Type("ValueTreeRow") Then
+		
+		For Each Item In ParametersStructure Do
+			PutToStorages(Item, StoragesContents, StorageUUID);
+		EndDo;
+	ElsIf ParametersType = Type("Structure") Or ParametersType = Type("Map") Then
+		
+		NewStorageAddresses = New Map;
+		For Each Item In ParametersStructure Do
+			CollectionValue = Item.Value;
+			If PutToStorages(CollectionValue, StoragesContents, StorageUUID) Then
+				NewStorageAddresses.Insert(Item.Key, CollectionValue);
+			EndIf;
+		EndDo;
+		
+		For Each NewAddress In NewStorageAddresses Do
+			ParametersStructure.Insert(NewAddress.Key, NewAddress.Value);
+		EndDo;
+				
+	ElsIf  ParametersType = Type("ValueTree") Then
+		For Each Item In ParametersStructure.Rows Do
+			PutToStorages(Item, StoragesContents, StorageUUID);
+		EndDo;
+	EndIf;
+	Return False;
+EndFunction
 
 #EndRegion

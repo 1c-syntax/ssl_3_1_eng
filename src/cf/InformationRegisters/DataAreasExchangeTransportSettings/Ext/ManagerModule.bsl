@@ -50,7 +50,8 @@ Function TransportSettings(Val CorrespondentEndpoint) Export
 	
 	Result = DataExchangeInternal.QueryResultToStructure(QueryResult);
 	SetPrivilegedMode(True);
-	Passwords = Common.ReadDataFromSecureStorage(CorrespondentEndpoint, "FTPConnectionDataAreasPassword,ArchivePasswordDataAreaExchangeMessages");
+	Passwords = Common.ReadDataFromSecureStorage(
+		CorrespondentEndpoint, "FTPConnectionDataAreasPassword,ArchivePasswordDataAreaExchangeMessages", True);
 	SetPrivilegedMode(False);
 	Result.Insert("ArchivePasswordExchangeMessages", Passwords.ArchivePasswordDataAreaExchangeMessages);
 	Result.Insert("FTPConnectionPassword", Passwords.FTPConnectionDataAreasPassword);

@@ -1098,7 +1098,7 @@ Procedure OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating, Recipie
 	
 EndProcedure
 
-// See StandardSubsystemsServer.ПриОтправкеДанныхГлавному.
+// See StandardSubsystems.OnSendDataToMaster.
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 	OnSendDataToRecipient1(DataElement, ItemSend, Recipient);
@@ -1278,7 +1278,7 @@ EndProcedure
 // See MarkedObjectsDeletionOverridable.BeforeDeletingAGroupOfObjects
 Procedure BeforeDeletingAGroupOfObjects(Context, ObjectsToDelete) Export
 	
-	Context.Insert("Versioning_DeletedObjects", ObjectsToDelete);
+	Context.Insert("Versioning_ObjectsToDelete", ObjectsToDelete);
 	
 EndProcedure
 
@@ -1289,7 +1289,7 @@ Procedure AfterDeletingAGroupOfObjects(Context, Success) Export
 		Return;
 	EndIf;
 	
-	For Each Ref In Context.Versioning_DeletedObjects Do
+	For Each Ref In Context.Versioning_ObjectsToDelete Do
 		If Metadata.InformationRegisters.ObjectsVersions.Attributes.VersionAuthor.Type.ContainsType(TypeOf(Ref)) Then
 			InformationRegisters.ObjectsVersions.DeleteVersionAuthorInfo(Ref);
 		EndIf;
@@ -1352,7 +1352,7 @@ Procedure CreateObjectVersion(Object, ObjectVersionInfo, NormalVersionRecord = T
 			EndIf;
 		EndIf;
 		
-		ObjectReference = Object.Ref;;
+		ObjectReference = Object.Ref;
 		If ObjectReference.IsEmpty() Then
 			ObjectReference = Object.GetNewObjectRef();
 			If ObjectReference.IsEmpty() Then

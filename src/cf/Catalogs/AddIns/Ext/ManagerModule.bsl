@@ -36,11 +36,11 @@ EndFunction
 
 #Region Private
 
-// Returns a reference to the external component catalog by ID and version.
+// Returns a reference to the add-in catalog by ID and version.
 //
 // Parameters:
-//  Id - String - an external component object ID.
-//  Version        - String - an add-in version.
+//  Id - String - Add-in object ID.
+//  Version        - String - Add-in version.
 //
 // Returns:
 //  CatalogRef.AddIns - 
@@ -186,7 +186,7 @@ Procedure ProcessExternalComponents(Selection)
 			
 			Continue;
 		EndIf;
-		
+		RepresentationOfTheReference = String(Selection.Ref);
 		BeginTransaction();
 		Try
 
@@ -213,7 +213,7 @@ Procedure ProcessExternalComponents(Selection)
 
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process the %1 add-in due to:
-					 |%2';"), Selection.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+					 |%2';"), RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(),
 				EventLogLevel.Warning, Selection.Ref.Metadata(), Selection.Ref, MessageText);

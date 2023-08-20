@@ -52,6 +52,9 @@ EndProcedure
 
 Procedure WriteChangesToTheLog(Var_ThisObject, Replacing)
 	
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+	
 	Table = Var_ThisObject.Unload();
 	Table.Columns.Add("LineChangeType", New TypeDescription("Number"));
 	Table.FillValues(1, "LineChangeType");
@@ -119,6 +122,9 @@ Procedure WriteChangesToTheLog(Var_ThisObject, Replacing)
 		,
 		Comment,
 		EventLogEntryTransactionMode.Transactional);
+	
+	SetPrivilegedMode(False);
+	SetSafeModeDisabled(False);
 	
 EndProcedure
 

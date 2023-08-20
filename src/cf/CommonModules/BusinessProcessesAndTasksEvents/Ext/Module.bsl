@@ -31,12 +31,14 @@ Procedure WriteToBusinessProcessesList(Source, Cancel) Export
 	EndIf;	
 	
 	RecordSet = InformationRegisters.BusinessProcessesData.CreateRecordSet();
-	RecordSet.Filter.Owner.Value = Source.Ref;
-	RecordSet.Filter.Owner.Use = True;
+	RecordSet.Filter.Owner.Set(Source.Ref);
 	Record = RecordSet.Add();
 	Record.Owner = Source.Ref;
-	FieldList = "Number,Date,Completed,Started,Author,CompletedOn,Description,DeletionMark";
+	FieldList = "Number,Date,Completed,Started,Author,CompletedOn,Description,DeletionMark,State";
 	FillPropertyValues(Record, Source, FieldList);
+	If Not ValueIsFilled(Record.State) Then
+		Record.State = Enums.BusinessProcessStates.Running;
+	EndIf;
 	
 	BusinessProcessesAndTasksOverridable.OnWriteBusinessProcessesList(Record);
 	

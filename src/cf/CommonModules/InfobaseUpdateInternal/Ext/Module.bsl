@@ -1670,7 +1670,7 @@ Procedure OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating, Recipie
 	
 EndProcedure
 
-// See StandardSubsystemsServer.ПриОтправкеДанныхГлавному.
+// See StandardSubsystems.OnSendDataToMaster.
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 	OnSendSubsystemVersions(DataElement, ItemSend);
@@ -1738,7 +1738,7 @@ EndProcedure
 // See JobsQueueOverridable.OnGetTemplateList.
 Procedure OnGetTemplateList(JobTemplates) Export
 	
-	JobTemplates.Add("DeferredIBUpdate");
+	JobTemplates.Add(Metadata.ScheduledJobs.DeferredIBUpdate.Name);
 	
 EndProcedure
 
@@ -2049,8 +2049,8 @@ Procedure InitialFillingOfPredefinedData(UpdateMultilanguageStrings = False, Add
 	FillParameters = New Structure;
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.WhenGettingParametersForFillingInPredefinedData(FillParameters);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.WhenGettingParametersForFillingInPredefinedData(FillParameters);
 	EndIf;
 	
 	CheckRequiredExecution = AdditionalParameters <> Undefined
@@ -2195,8 +2195,8 @@ Procedure InitialFillingOfPredefinedData(UpdateMultilanguageStrings = False, Add
 				
 				If FillParameters.ObjectAttributesToLocalize.Count() > 0 And FillParameters.ObjectAttributesToLocalize["Description"] <> Undefined Then
 					If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-						ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-						ModuleNativeLanguagesSupportServer.InitialFillingInOfPredefinedDataLocalizedBankingDetails(
+						ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+						ModuleNationalLanguageSupportServer.InitialFillingInOfPredefinedDataLocalizedBankingDetails(
 							ItemToFill, HierarchySupported, TableRow, FillParameters);
 					ElsIf FillParameters.ObjectContainsPMRepresentations Then
 						InitialFillingPMViews(ItemToFill, TableRow, FillParameters);
@@ -2271,10 +2271,10 @@ Function ParameterSetForFillingObject(ObjectMetadata) Export
 	ObjectContainsPMRepresentations  = False;
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ObjectAttributesToLocalize = ModuleNativeLanguagesSupportServer.MultilingualObjectAttributes(ObjectMetadata);
-		MultilanguageStringsInAttributes = ModuleNativeLanguagesSupportServer.MultilanguageStringsInAttributes(ObjectMetadata);
-		ObjectContainsPMRepresentations = ModuleNativeLanguagesSupportServer.ObjectContainsPMRepresentations(ObjectMetadata.FullName());
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ObjectAttributesToLocalize = ModuleNationalLanguageSupportServer.MultilingualObjectAttributes(ObjectMetadata);
+		MultilanguageStringsInAttributes = ModuleNationalLanguageSupportServer.MultilanguageStringsInAttributes(ObjectMetadata);
+		ObjectContainsPMRepresentations = ModuleNationalLanguageSupportServer.ObjectContainsPMRepresentations(ObjectMetadata.FullName());
 	EndIf;
 	
 	ObjectManager = Common.ObjectManagerByFullName(ObjectMetadata.FullName());
@@ -2383,8 +2383,6 @@ Function ActionsBeforeUpdateInfobase(ParametersOfUpdate)
 		EndTry;
 	EndIf;
 	
-	SetUpObsoleteDataPurgeJob(False);
-	
 	Result = New Structure;
 	Result.Insert("Return", "");
 	
@@ -2410,6 +2408,8 @@ Function ActionsBeforeUpdateInfobase(ParametersOfUpdate)
 		EndIf;
 		
 	EndIf;
+	
+	SetUpObsoleteDataPurgeJob(False);
 	
 	// Importing and exporting exchange messages after restart, as configuration changes are received.
 	If Common.SubsystemExists("StandardSubsystems.DataExchange") Then
@@ -2861,9 +2861,12 @@ Function UpdateInfobaseInBackground(FormUniqueID, IBLock) Export
 	EndIf;
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(FormUniqueID);
-	ExecutionParameters.RunInBackground = True;
 	ExecutionParameters.WaitCompletion = 0;
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update infobase in background';");
+	// 
+	// 
+	// 
+	ExecutionParameters.RunInBackground = True;
 	
 	Result = TimeConsumingOperations.ExecuteInBackground("InfobaseUpdateInternal.RunInfobaseUpdateInBackground",
 		IBUpdateParameters, ExecutionParameters);
@@ -4932,22 +4935,14 @@ Procedure ExecuteDeferredHandler(HandlerContext, ResultAddress) Export
 		Result.Parameters = HandlerContext.Parameters;
 		Result.UpdateHandlerParameters = SessionParameters.UpdateHandlerParameters;
 		
-		Try
-			ValidateNestedTransaction(HandlerContext.TransactionActiveAtExecutionStartTime,
-				HandlerContext.HandlerName);
-		Except
-			Result.ErrorInfo = ErrorProcessing.DetailErrorDescription(ErrorInfo());
-			Result.HasOpenTransactions = True;
-			
-			While TransactionActive() Do
-				RollbackTransaction(); // 
-			EndDo;
-		EndTry;
+		CheckNestedTransactionWhenExecutingDeferredHandler(HandlerContext, Result);
 		
 		PutToTempStorage(Result, ResultAddress);
 		DisableAccessKeysUpdate(False, SubsystemExists);
 		SessionParameters.UpdateHandlerParameters = New FixedStructure(NewUpdateHandlerParameters());
 	Except
+		CheckNestedTransactionWhenExecutingDeferredHandler(HandlerContext, Result);
+		
 		DisableAccessKeysUpdate(False, SubsystemExists);
 		SessionParameters.UpdateHandlerParameters = New FixedStructure(NewUpdateHandlerParameters());
 		Raise;
@@ -6716,8 +6711,8 @@ Procedure RegisterPredefinedItemsToUpdate(Parameters, MetadataObject = Undefined
 		ObjectManager = Common.ObjectManagerByFullName(MetadataObjectWithItems.FullName());
 		ObjectAttributesToLocalize = New Map;
 		If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-			ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-			ObjectAttributesToLocalize = ModuleNativeLanguagesSupportServer.MultilingualObjectAttributes(MetadataObjectWithItems);
+			ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+			ObjectAttributesToLocalize = ModuleNationalLanguageSupportServer.MultilingualObjectAttributes(MetadataObjectWithItems);
 		EndIf;
 		
 		PredefinedData       = PredefinedObjectData(MetadataObjectWithItems, ObjectManager, ObjectAttributesToLocalize);
@@ -6736,8 +6731,8 @@ Procedure RegisterPredefinedItemsToUpdate(Parameters, MetadataObject = Undefined
 		EndIf;
 		
 		If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-			ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-			ModuleNativeLanguagesSupportServer.GenerateNamesOfMultilingualAttributes(ObjectAttributesNames, ObjectAttributesToLocalize);
+			ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+			ModuleNationalLanguageSupportServer.GenerateNamesOfMultilingualAttributes(ObjectAttributesNames, ObjectAttributesToLocalize);
 		EndIf;
 		
 		If ObjectAttributesNames.Find("PredefinedDataName") = Undefined Then
@@ -6775,8 +6770,8 @@ Procedure RegisterPredefinedItemsToUpdate(Parameters, MetadataObject = Undefined
 				ElsIf RegistrationParameters.UpdateMode = "MultilingualStrings" Then
 					
 					If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-						ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-						If ModuleNativeLanguagesSupportServer.MultilingualAttributesStringsChanged(
+						ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+						If ModuleNationalLanguageSupportServer.MultilingualAttributesStringsChanged(
 							SuppliedInformationRecords, QueryData, ObjectAttributesToLocalize, RegistrationParameters) Then
 							ObjectsToBeProcessed.Add(QueryData.Ref);
 						EndIf;
@@ -6841,8 +6836,8 @@ Procedure FillItemsWithInitialData(Parameters, MetadataObject, PopulationSetting
 	
 	If PopulationSettings.UpdateMultilingualStringsOnly Then
 		If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-			ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-			Result = ModuleNativeLanguagesSupportServer.UpdateMultilanguageStringsOfPredefinedItems(ObjectsRefs, MetadataObject);
+			ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+			Result = ModuleNationalLanguageSupportServer.UpdateMultilanguageStringsOfPredefinedItems(ObjectsRefs, MetadataObject);
 		EndIf;
 	Else
 		Result = UpdateItemsOfPredefinedItems(ObjectsRefs, MetadataObject, PopulationSettings);
@@ -6886,8 +6881,8 @@ Function DataContainsDifferences(QueryData, NameObjectAttribute, SuppliedInforma
 		
 		AttributeNameWithoutSuffixLanguage= ObjectAttributeName;
 		If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-			ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-			AttributeNameWithoutSuffixLanguage = ModuleNativeLanguagesSupportServer.AttributeNameWithoutSuffixLanguage(ObjectAttributeName);
+			ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+			AttributeNameWithoutSuffixLanguage = ModuleNationalLanguageSupportServer.AttributeNameWithoutSuffixLanguage(ObjectAttributeName);
 		EndIf;
 
 		If ObjectAttributesToLocalize[AttributeNameWithoutSuffixLanguage] = Undefined Then
@@ -6914,8 +6909,8 @@ Function DataContainsDifferences(QueryData, NameObjectAttribute, SuppliedInforma
 		Else
 			
 			If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-				ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-				If ModuleNativeLanguagesSupportServer.MultilingualAttributeStringsChanged(SuppliedInformationRecords, QueryData,
+				ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+				If ModuleNationalLanguageSupportServer.MultilingualAttributeStringsChanged(SuppliedInformationRecords, QueryData,
 						AttributeNameWithoutSuffixLanguage, RegistrationParameters) Then
 					Return True;
 				EndIf;
@@ -7026,8 +7021,8 @@ Procedure FillRequisitesInitialData(ItemToFill, DatasetToFill, PopulationSetting
 	EndIf;
 		
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.FillItemsWithMultilingualInitialData(ItemToFill,
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.FillItemsWithMultilingualInitialData(ItemToFill,
 			DatasetToFill.ObjectAttributesToLocalize, DatasetToFill.MultilanguageStringsInAttributes,
 			DatasetToFill.HierarchySupported, TableRow);
 	EndIf;
@@ -7083,6 +7078,8 @@ Function UpdateItemsOfPredefinedItems(ObjectsRefs, ObjectMetadata, PopulationSet
 			Continue;
 		EndIf;
 		
+		RepresentationOfTheReference = String(ObjectsRefs.Ref);
+		
 		BeginTransaction();
 		
 		Try
@@ -7113,8 +7110,8 @@ Function UpdateItemsOfPredefinedItems(ObjectsRefs, ObjectMetadata, PopulationSet
 			EndIf;
 			
 			If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-				ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-				ModuleNativeLanguagesSupportServer.FillItemsWithMultilingualInitialData(ItemToFill,
+				ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+				ModuleNationalLanguageSupportServer.FillItemsWithMultilingualInitialData(ItemToFill,
 					ParametersForFillingObject.ObjectAttributesToLocalize, ParametersForFillingObject.MultilanguageStringsInAttributes, 
 					HierarchySupported, TableRow);
 			EndIf;
@@ -7134,7 +7131,7 @@ Function UpdateItemsOfPredefinedItems(ObjectsRefs, ObjectMetadata, PopulationSet
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot fill in item %1 due to: %2';"),
-			ObjectsRefs.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+			RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
 			ObjectMetadata, ObjectsRefs.Ref, MessageText);
@@ -7269,8 +7266,8 @@ Procedure AddPredefinedDataTableColumn(PredefinedData, Attribute, AttributesToLo
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		AttributeToLocalizeFlag = ModuleNativeLanguagesSupportServer.AttributeToLocalizeFlag()
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		AttributeToLocalizeFlag = ModuleNationalLanguageSupportServer.AttributeToLocalizeFlag()
 	Else
 		AttributeToLocalizeFlag = Undefined;
 	EndIf;
@@ -9049,6 +9046,8 @@ EndProcedure
 
 Procedure SetProcedureForDeferredUpdate() Export
 	
+	Common.OnStartExecuteScheduledJob(Metadata.ScheduledJobs.SetDeferredUpdateProcedureInSaaS);
+	
 	If Not Common.DataSeparationEnabled()
 		Or Common.SeparatedDataUsageAvailable() Then
 		// 
@@ -9059,8 +9058,6 @@ Procedure SetProcedureForDeferredUpdate() Export
 		EndDo;
 		Return;
 	EndIf;
-	
-	Common.OnStartExecuteScheduledJob(Metadata.ScheduledJobs.SetDeferredUpdateProcedureInSaaS);
 	
 	UpdateProgress = InfobaseUpdate.DataAreasUpdateProgress("Deferred2");
 	AreasToCheck = UpdateProgress.AreasRunning;
@@ -9371,6 +9368,8 @@ Procedure ExecuteUpdateHandler(Handler, Parameters, AdditionalParameters)
 		
 		SetUpdateHandlerParameters(Undefined);
 		
+		ValidateNestedTransaction(TransactionActiveAtExecutionStartTime, Handler.Procedure);
+		
 		PropertiesToSet = New Structure;
 		PropertiesToSet.Insert("Status", Enums.UpdateHandlersStatuses.Completed);
 		PropertiesToSet.Insert("ProcessingDuration", ProcessingEnd - ProcessingStart);
@@ -9378,6 +9377,7 @@ Procedure ExecuteUpdateHandler(Handler, Parameters, AdditionalParameters)
 		
 		DisableAccessKeysUpdate(False, SubsystemExists);
 	Except
+		ValidateNestedTransaction(TransactionActiveAtExecutionStartTime, Handler.Procedure);
 		
 		DisableAccessKeysUpdate(False, SubsystemExists);
 		If AdditionalParameters.WriteToLog1 Then
@@ -9397,8 +9397,6 @@ Procedure ExecuteUpdateHandler(Handler, Parameters, AdditionalParameters)
 		SetHandlerStatus(Handler.Procedure, "Error", ErrorText);
 		Raise;
 	EndTry;
-	
-	ValidateNestedTransaction(TransactionActiveAtExecutionStartTime, Handler.Procedure);
 	
 	If AdditionalParameters.WriteToLog1 Then
 		WriteUpdateProgressDetails(HandlerDetails);
@@ -9538,6 +9536,22 @@ Procedure WriteUpdateProgressDetails(HandlerDetails)
 		,
 		Common.ValueToXMLString(ACopyOfTheDescription));
 		
+EndProcedure
+
+Procedure CheckNestedTransactionWhenExecutingDeferredHandler(HandlerContext, Result)
+	
+	Try
+		ValidateNestedTransaction(HandlerContext.TransactionActiveAtExecutionStartTime,
+			HandlerContext.HandlerName);
+	Except
+		Result.ErrorInfo = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		Result.HasOpenTransactions = True;
+		
+		While TransactionActive() Do
+			RollbackTransaction(); // 
+		EndDo;
+	EndTry;
+	
 EndProcedure
 
 Procedure ValidateNestedTransaction(TransactionActiveAtExecutionStartTime, HandlerName1)
@@ -10705,6 +10719,11 @@ Procedure BeforeStartDataProcessingProcedure(HandlerContext,
 		Properties.Insert("BatchProcessingCompleted", False);
 		Properties.Insert("ExecutionStatistics", New ValueStorage(ExecutionStatistics));
 		SetHandlerProperties(HandlerUpdates.HandlerName, Properties);
+		
+		DataToProcess = HandlerUpdates.DataToProcess.Get();
+		If HandlerUpdates.Multithreaded Then
+			CheckSelectionParameters(DataToProcess.SelectionParameters);
+		EndIf;
 		
 		HandlerContext.DataProcessingStart = CurrentUniversalDateInMilliseconds();
 		If ParametersOfUpdate.ParallelMode

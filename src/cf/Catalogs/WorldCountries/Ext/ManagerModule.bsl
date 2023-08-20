@@ -179,10 +179,10 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
 	NewRow                    = CountryList.Add();
 	NewRow.Code                = "807";
-	NewRow.Description       = NStr("en = 'РЕСПУБЛИКА МАКЕДОНИЯ';");
+	NewRow.Description       = NStr("en = 'REPUBLIC OF MACEDONIA';");
 	NewRow.CodeAlpha2          = "MK";
 	NewRow.CodeAlpha3          = "MKD";
-	NewRow.DescriptionFull =  NStr("en = 'Республика Македония';");
+	NewRow.DescriptionFull =  NStr("en = 'REPUBLIC OF MACEDONIA';");
 	
 	Query = New Query;
 	Query.Text = "SELECT
@@ -221,14 +221,15 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	WorldCountryRef = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue, "Catalog.WorldCountries");
 	SettingsOfUpdate = Undefined;
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		SettingsOfUpdate = ModuleNativeLanguagesSupportServer.SettingsPredefinedDataUpdate(Metadata.Catalogs.WorldCountries);
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		SettingsOfUpdate = ModuleNationalLanguageSupportServer.SettingsPredefinedDataUpdate(Metadata.Catalogs.WorldCountries);
 	EndIf;
 	
 	ObjectsWithIssuesCount = 0;
 	ObjectsProcessed = 0;
 	
 	While WorldCountryRef.Next() Do
+		RepresentationOfTheReference = String(WorldCountryRef.Ref);
 		Try
 			
 			ClassifierData = ContactsManager.WorldCountryClassifierDataByCode(WorldCountryRef.Ref.Code);
@@ -262,8 +263,8 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			// Update descriptions.
 			If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 				If SettingsOfUpdate.ObjectAttributesToLocalize.Count() > 0 Then
-					ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-					ModuleNativeLanguagesSupportServer.UpdateMultilanguageStringsOfPredefinedItem(WorldCountryRef, SettingsOfUpdate);
+					ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+					ModuleNationalLanguageSupportServer.UpdateMultilanguageStringsOfPredefinedItem(WorldCountryRef, SettingsOfUpdate);
 				EndIf;
 			EndIf;
 			
@@ -276,7 +277,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process country: %1. Reason:
 					|%2';"),
-				WorldCountryRef.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
 				Metadata.Catalogs.WorldCountries, WorldCountryRef.Ref, MessageText);
 		EndTry;

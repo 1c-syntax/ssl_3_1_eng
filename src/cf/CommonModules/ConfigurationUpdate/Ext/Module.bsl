@@ -745,8 +745,16 @@ Procedure UpdatePatchesFromScript(NewPatches, PatchesToDelete) Export
 	If ValueIsFilled(NewPatches) Then
 		NewPatchesArray = StrSplit(NewPatches, Chars.LF);
 		For Each Patch In NewPatchesArray Do
-			PatchData = New BinaryData(Patch);
-			PatchesToInstall1.Add(PutToTempStorage(PatchData));
+			Try
+				PatchData = New BinaryData(Patch);
+				PatchesToInstall1.Add(PutToTempStorage(PatchData));
+			Except
+				ErrorText = NStr("en = 'Cannot get binary data of the patch due to:
+					|%1';");
+				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText,
+					ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				WriteLogEvent(EventLogEvent(), EventLogLevel.Error, , , ErrorText);
+			EndTry
 		EndDo;
 	EndIf;
 	

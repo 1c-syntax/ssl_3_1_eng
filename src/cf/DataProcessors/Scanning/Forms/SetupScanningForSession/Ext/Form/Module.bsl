@@ -22,7 +22,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ScannedImageFormat = Parameters.ScannedImageFormat;
 	JPGQuality = Parameters.JPGQuality;
 	TIFFDeflation = Parameters.TIFFDeflation;
-	SinglePageStorageFormat = Parameters.SinglePageStorageFormat;
+	SaveToPDF = Parameters.SaveToPDF;
 	MultipageStorageFormat = Parameters.MultipageStorageFormat;
 	
 	Items.Rotation.Visible = Parameters.RotationAvailable;
@@ -33,46 +33,23 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	TIFFormat = Enums.ScannedImageFormats.TIF;
 	
 	MultiPageTIFFormat = Enums.MultipageFileStorageFormats.TIF;
-	SinglePagePDFFormat = Enums.SinglePageFileStorageFormats.PDF;
-	SinglePageJPGFormat = Enums.SinglePageFileStorageFormats.JPG;
-	SinglePageTIFFormat = Enums.SinglePageFileStorageFormats.TIF;
-	SinglePagePNGFormat = Enums.SinglePageFileStorageFormats.PNG;
 	
 	If Not UseImageMagickToConvertToPDF Then
 		MultipageStorageFormat = MultiPageTIFFormat;
 	EndIf;
 	
-	Items.StorageFormatGroup.Visible = UseImageMagickToConvertToPDF;
-	
-	If UseImageMagickToConvertToPDF Then
-		If SinglePageStorageFormat = SinglePagePDFFormat Then
-			Items.JPGQuality.Visible = (ScannedImageFormat = JPGFormat);
-			Items.TIFFDeflation.Visible = (ScannedImageFormat = TIFFormat);
-		Else
-			Items.JPGQuality.Visible = (SinglePageStorageFormat = SinglePageJPGFormat);
-			Items.TIFFDeflation.Visible = (SinglePageStorageFormat = SinglePageTIFFormat);
-		EndIf;
-	Else	
-		Items.JPGQuality.Visible = (ScannedImageFormat = JPGFormat);
-		Items.TIFFDeflation.Visible = (ScannedImageFormat = TIFFormat);
-	EndIf;
-	
-	DecorationsVisible = (UseImageMagickToConvertToPDF And (SinglePageStorageFormat = SinglePagePDFFormat));
-	Items.SinglePageStorageFormatDecoration.Visible = DecorationsVisible;
-	Items.ScannedImageFormatDecoration.Visible = DecorationsVisible;
-	
-	ScanningFormatVisibility = (UseImageMagickToConvertToPDF And (SinglePageStorageFormat = SinglePagePDFFormat)) Or (Not UseImageMagickToConvertToPDF);
-	Items.ScanningFormatGroup.Visible = ScanningFormatVisibility;
+	Items.JPGQuality.Visible = (ScannedImageFormat = JPGFormat);
+	Items.TIFFDeflation.Visible = (ScannedImageFormat = TIFFormat);
 	
 	Items.MultipageStorageFormat.Enabled = UseImageMagickToConvertToPDF;
-	SinglePageStorageFormatPrevious = SinglePageStorageFormat;
+	Items.JPGQuality.Title = StrTemplate(NStr("en = 'Quality (%1)';"), JPGQuality);
+	InstallHints();
 	
-	If Not UseImageMagickToConvertToPDF Then
-		Items.ScannedImageFormat.Title = NStr("en = 'Format';");
-	Else
-		Items.ScannedImageFormat.Title = NStr("en = 'Type';");
-	EndIf;
-	
+EndProcedure
+
+&AtClient
+Procedure JPGQualityOnChange(Item)
+	Items.JPGQuality.Title = StrTemplate(NStr("en = 'Quality (%1)';"), JPGQuality);
 EndProcedure
 
 #EndRegion
@@ -82,25 +59,9 @@ EndProcedure
 &AtClient
 Procedure ScannedImageFormatOnChange(Item)
 	
-	If UseImageMagickToConvertToPDF Then
-		If SinglePageStorageFormat = SinglePagePDFFormat Then
-			Items.JPGQuality.Visible = (ScannedImageFormat = JPGFormat);
-			Items.TIFFDeflation.Visible = (ScannedImageFormat = TIFFormat);
-		Else	
-			Items.JPGQuality.Visible = (SinglePageStorageFormat = SinglePageJPGFormat);
-			Items.TIFFDeflation.Visible = (SinglePageStorageFormat = SinglePageTIFFormat);
-		EndIf;
-	Else	
-		Items.JPGQuality.Visible = (ScannedImageFormat = JPGFormat);
-		Items.TIFFDeflation.Visible = (ScannedImageFormat = TIFFormat);
-	EndIf;
-	
-EndProcedure
-
-&AtClient
-Procedure SinglePageStorageFormatOnChange(Item)
-	
-	ProcessChangesSinglePageStorageFormat();
+	Items.GroupJPGQuantity.Visible = (ScannedImageFormat = JPGFormat);
+	Items.TIFFDeflation.Visible = (ScannedImageFormat = TIFFormat);
+	InstallHints();
 	
 EndProcedure
 
@@ -130,8 +91,11 @@ Procedure OK(Command)
 	SelectionResult.Insert("ScannedImageFormat", ScannedImageFormat);
 	SelectionResult.Insert("JPGQuality",                     JPGQuality);
 	SelectionResult.Insert("TIFFDeflation",                      TIFFDeflation);
-	SelectionResult.Insert("SinglePageStorageFormat",    SinglePageStorageFormat);
+	SelectionResult.Insert("SaveToPDF",                   SaveToPDF);
 	SelectionResult.Insert("MultipageStorageFormat",   MultipageStorageFormat);
+	
+	SinglePageStorageFormat = ConvertScanningFormatToStorageFormat(ScannedImageFormat, SaveToPDF);
+	SelectionResult.Insert("SinglePageStorageFormat",    SinglePageStorageFormat);
 	
 	NotifyChoice(SelectionResult);
 	
@@ -141,52 +105,27 @@ EndProcedure
 
 #Region Private
 
-&AtServer
-Function ConvertStorageFormatToScanningFormat(StorageFormat)
+&AtServerNoContext
+Function ConvertScanningFormatToStorageFormat(ScanningFormat, SaveToPDF)
 	
-	If StorageFormat = Enums.SinglePageFileStorageFormats.BMP Then
-		Return Enums.ScannedImageFormats.BMP;
-	ElsIf StorageFormat = Enums.SinglePageFileStorageFormats.GIF Then
-		Return Enums.ScannedImageFormats.GIF;
-	ElsIf StorageFormat = Enums.SinglePageFileStorageFormats.JPG Then
-		Return Enums.ScannedImageFormats.JPG;
-	ElsIf StorageFormat = Enums.SinglePageFileStorageFormats.PNG Then
-		Return Enums.ScannedImageFormats.PNG; 
-	ElsIf StorageFormat = Enums.SinglePageFileStorageFormats.TIF Then
-		Return Enums.ScannedImageFormats.TIF;
-	EndIf;
+	Return FilesOperationsInternal.ConvertScanningFormatToStorageFormat(ScanningFormat, SaveToPDF); 
 	
-	Return ScannedImageFormat; 
-	
-EndFunction	
+EndFunction
 
 &AtServer
-Procedure ProcessChangesSinglePageStorageFormat()
+Procedure InstallHints()
 	
-	Items.ScanningFormatGroup.Visible = (SinglePageStorageFormat = SinglePagePDFFormat);
-	
-	If SinglePageStorageFormat = SinglePagePDFFormat Then
-		ScannedImageFormat = ConvertStorageFormatToScanningFormat(SinglePageStorageFormatPrevious);
-	EndIf;
-	
-	DecorationsVisible = (UseImageMagickToConvertToPDF And (SinglePageStorageFormat = SinglePagePDFFormat));
-	Items.SinglePageStorageFormatDecoration.Visible = DecorationsVisible;
-	Items.ScannedImageFormatDecoration.Visible = DecorationsVisible;
-	
-	If UseImageMagickToConvertToPDF Then
-		If SinglePageStorageFormat = SinglePagePDFFormat Then
-			Items.JPGQuality.Visible = (ScannedImageFormat = JPGFormat);
-			Items.TIFFDeflation.Visible = (ScannedImageFormat = TIFFormat);
-		Else	
-			Items.JPGQuality.Visible = (SinglePageStorageFormat = SinglePageJPGFormat);
-			Items.TIFFDeflation.Visible = (SinglePageStorageFormat = SinglePageTIFFormat);
+	FormatTooltip = "";
+	ExtendedTooltip = String(Items.SaveToPDF.ExtendedTooltip.Title); 
+	Hints = StrSplit(ExtendedTooltip, Chars.LF);
+	CurFormat = String(ScannedImageFormat);
+	For Each ToolTip In Hints Do
+		If StrStartsWith(ToolTip, CurFormat) Then
+			 FormatTooltip = ToolTip;
 		EndIf;
-	Else	
-		Items.JPGQuality.Visible = (ScannedImageFormat = JPGFormat);
-		Items.TIFFDeflation.Visible = (ScannedImageFormat = TIFFormat);
-	EndIf;
+	EndDo;
 	
-	SinglePageStorageFormatPrevious = SinglePageStorageFormat;
+	Items.SinglePageDocumentFormatDetails.Title = FormatTooltip;
 	
 EndProcedure
 

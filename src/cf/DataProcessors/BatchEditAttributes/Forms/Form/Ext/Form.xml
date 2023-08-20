@@ -8,6 +8,7 @@
 	</AutoCommandBar>
 	<Events>
 		<Event name="ChoiceProcessing">ChoiceProcessing</Event>
+		<Event name="OnOpen">OnOpen</Event>
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 	</Events>
 	<ChildItems>
@@ -77,44 +78,69 @@
 								</LabelDecoration>
 							</ChildItems>
 						</UsualGroup>
-						<RadioButtonField name="OperationType" id="268">
-							<DataPath>Object.OperationType</DataPath>
-							<TitleLocation>None</TitleLocation>
-							<RadioButtonType>Tumbler</RadioButtonType>
-							<ChoiceList>
-								<xr:Item>
-									<xr:Presentation/>
-									<xr:CheckState>0</xr:CheckState>
-									<xr:Value xsi:type="FormChoiceListDesTimeValue">
-										<Presentation>
-											<v8:item>
-												<v8:lang>en</v8:lang>
-												<v8:content>Manually</v8:content>
-											</v8:item>
-										</Presentation>
-										<Value xsi:type="xs:string">EnterValues</Value>
-									</xr:Value>
-								</xr:Item>
-								<xr:Item>
-									<xr:Presentation/>
-									<xr:CheckState>0</xr:CheckState>
-									<xr:Value xsi:type="FormChoiceListDesTimeValue">
-										<Presentation>
-											<v8:item>
-												<v8:lang>en</v8:lang>
-												<v8:content>Custom algorithm</v8:content>
-											</v8:item>
-										</Presentation>
-										<Value xsi:type="xs:string">ExecuteAlgorithm</Value>
-									</xr:Value>
-								</xr:Item>
-							</ChoiceList>
-							<ContextMenu name="OperationTypeContextMenu" id="269"/>
-							<ExtendedTooltip name="OperationTypeExtendedTooltip" id="270"/>
-							<Events>
-								<Event name="OnChange">OperationKindOnChange</Event>
-							</Events>
-						</RadioButtonField>
+						<UsualGroup name="GroupOperationType" id="355">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group Operation type</v8:content>
+								</v8:item>
+							</Title>
+							<HorizontalStretch>true</HorizontalStretch>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GroupOperationTypeExtendedTooltip" id="356"/>
+							<ChildItems>
+								<RadioButtonField name="OperationType" id="268">
+									<DataPath>Object.OperationType</DataPath>
+									<TitleLocation>None</TitleLocation>
+									<RadioButtonType>Tumbler</RadioButtonType>
+									<ChoiceList>
+										<xr:Item>
+											<xr:Presentation/>
+											<xr:CheckState>0</xr:CheckState>
+											<xr:Value xsi:type="FormChoiceListDesTimeValue">
+												<Presentation>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Manually</v8:content>
+													</v8:item>
+												</Presentation>
+												<Value xsi:type="xs:string">EnterValues</Value>
+											</xr:Value>
+										</xr:Item>
+										<xr:Item>
+											<xr:Presentation/>
+											<xr:CheckState>0</xr:CheckState>
+											<xr:Value xsi:type="FormChoiceListDesTimeValue">
+												<Presentation>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Custom algorithm</v8:content>
+													</v8:item>
+												</Presentation>
+												<Value xsi:type="xs:string">ExecuteAlgorithm</Value>
+											</xr:Value>
+										</xr:Item>
+									</ChoiceList>
+									<ContextMenu name="OperationTypeContextMenu" id="269"/>
+									<ExtendedTooltip name="OperationTypeExtendedTooltip" id="270"/>
+									<Events>
+										<Event name="OnChange">OperationKindOnChange</Event>
+									</Events>
+								</RadioButtonField>
+								<SearchStringAddition name="AttributesSearchString" id="357">
+									<AdditionSource>
+										<Item>ObjectAttributes</Item>
+										<Type>SearchStringRepresentation</Type>
+									</AdditionSource>
+									<GroupHorizontalAlign>Right</GroupHorizontalAlign>
+									<Width>30</Width>
+									<HorizontalStretch>false</HorizontalStretch>
+									<ContextMenu name="AttributesSearchStringContextMenu" id="358"/>
+									<ExtendedTooltip name="AttributesSearchStringExtendedTooltip" id="359"/>
+								</SearchStringAddition>
+							</ChildItems>
+						</UsualGroup>
 						<Pages name="OperationKindPages" id="271">
 							<Title>
 								<v8:item>
@@ -143,6 +169,9 @@
 											</Title>
 											<PagesRepresentation>TabsOnTop</PagesRepresentation>
 											<ExtendedTooltip name="ObjectCompositionExtendedTooltip" id="113"/>
+											<Events>
+												<Event name="OnCurrentPageChange">ObjectCompositionOnCurrentPageChange</Event>
+											</Events>
 											<ChildItems>
 												<Page name="Attributes" id="114">
 													<Title>
@@ -379,7 +408,9 @@
 																			<v8:content>Attributes:</v8:content>
 																		</v8:item>
 																	</Title>
+																	<HorizontalStretch>true</HorizontalStretch>
 																	<VerticalStretch>true</VerticalStretch>
+																	<Group>HorizontalIfPossible</Group>
 																	<VerticalAlign>Center</VerticalAlign>
 																	<ExtendedTooltip name="AttributesLabelPageExtendedTooltip" id="312"/>
 																	<ChildItems>
@@ -393,6 +424,17 @@
 																			<ContextMenu name="AttributesLabelContextMenu" id="304"/>
 																			<ExtendedTooltip name="AttributesLabelExtendedTooltip" id="305"/>
 																		</LabelDecoration>
+																		<SearchStringAddition name="AttributesAlgorithmSearchString" id="352">
+																			<AdditionSource>
+																				<Item>ObjectAttributesAlgorithm</Item>
+																				<Type>SearchStringRepresentation</Type>
+																			</AdditionSource>
+																			<GroupHorizontalAlign>Right</GroupHorizontalAlign>
+																			<Width>20</Width>
+																			<HorizontalStretch>false</HorizontalStretch>
+																			<ContextMenu name="AttributesAlgorithmSearchStringContextMenu" id="353"/>
+																			<ExtendedTooltip name="AttributesAlgorithmSearchStringExtendedTooltip" id="354"/>
+																		</SearchStringAddition>
 																	</ChildItems>
 																</Page>
 																<Page name="InvisiblePage" id="313">
@@ -496,7 +538,7 @@
 											<ThroughAlign>DontUse</ThroughAlign>
 											<ExtendedTooltip name="AlgorithmExecutionParametersExtendedTooltip" id="342"/>
 											<ChildItems>
-												<RadioButtonField name="ObjectWriteMode" id="343">
+												<InputField name="ObjectWriteMode" id="343">
 													<DataPath>Object.ObjectWriteOption</DataPath>
 													<Title>
 														<v8:item>
@@ -506,8 +548,10 @@
 													</Title>
 													<TitleHeight>1</TitleHeight>
 													<ToolTipRepresentation>Button</ToolTipRepresentation>
-													<RadioButtonType>Auto</RadioButtonType>
-													<ColumnsCount>2</ColumnsCount>
+													<AutoMaxWidth>false</AutoMaxWidth>
+													<MaxWidth>20</MaxWidth>
+													<ListChoiceMode>true</ListChoiceMode>
+													<TextEdit>false</TextEdit>
 													<ChoiceList>
 														<xr:Item>
 															<xr:Presentation/>
@@ -547,12 +591,14 @@
 															</v8:item>
 														</Title>
 													</ExtendedTooltip>
-												</RadioButtonField>
-												<RadioButtonField name="ExecutionMode" id="346">
+												</InputField>
+												<InputField name="ExecutionMode" id="346">
 													<DataPath>Object.ExecutionMode</DataPath>
 													<ToolTipRepresentation>Button</ToolTipRepresentation>
-													<RadioButtonType>Auto</RadioButtonType>
-													<ColumnsCount>2</ColumnsCount>
+													<AutoMaxWidth>false</AutoMaxWidth>
+													<MaxWidth>12</MaxWidth>
+													<ListChoiceMode>true</ListChoiceMode>
+													<TextEdit>false</TextEdit>
 													<ChoiceList>
 														<xr:Item>
 															<xr:Presentation/>
@@ -590,7 +636,7 @@
 															</v8:item>
 														</Title>
 													</ExtendedTooltip>
-												</RadioButtonField>
+												</InputField>
 											</ChildItems>
 										</UsualGroup>
 									</ChildItems>
@@ -1399,6 +1445,25 @@ Total items edited: %1.</v8:content>
 				<v8:Type>v8:ValueListType</v8:Type>
 			</Type>
 			<Settings xsi:type="v8:TypeDescription"/>
+		</Attribute>
+		<Attribute name="ExternalProcessorFilePathAtClient" id="3">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="ObjectCountInBatch" id="5">
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>5</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Nonnegative</v8:AllowedSign>
+				</v8:NumberQualifiers>
+			</Type>
 		</Attribute>
 	</Attributes>
 	<Commands>

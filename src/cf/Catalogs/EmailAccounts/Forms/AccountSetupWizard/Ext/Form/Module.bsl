@@ -35,11 +35,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.KeepMessagesOnServer.Visible = CanReceiveEmails;
 	
 	Items.AccountSettingsTitle.Title = ?(ContextMode,
-		NStr("en = 'To send emails, set up the email account';"),
+		NStr("en = 'To send messages, set up the email account.';"),
 		NStr("en = 'Enter email settings';"));
 		
 	Items.AccountSettingsTitle.Visible = ContextMode;
-	Title = NStr("en = 'Email settings';");
+	Title = NStr("en = 'Account setup';");
 	
 	UseForReceiving = Not ContextMode And CanReceiveEmails;
 	UseForSending = True;
@@ -51,51 +51,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Parameters.Property("Key") Then
 		AccountRef = Parameters.Key;
-		QueryText =
-		"SELECT
-		|	EmailAccounts.Email AS Email,
-		|	EmailAccounts.UserName AS EmailSenderName,
-		|	EmailAccounts.Description AS AccountName,
-		|	EmailAccounts.EmailServiceAuthorization
-		|FROM
-		|	Catalog.EmailAccounts AS EmailAccounts
-		|WHERE
-		|	EmailAccounts.Ref = &Ref";
-		Query = New Query(QueryText);
-		Query.SetParameter("Ref", Parameters.Key);
-		Selection = Query.Execute().Select();
-		If Selection.Next() Then
-			FillPropertyValues(ThisObject, Selection);
-			OnlyAuthorization = Parameters.OnlyAuthorization;
-			If Selection.EmailServiceAuthorization Or OnlyAuthorization Then
-				AuthenticationMethod = "OAuth";
-				Items.Password.Enabled = False;
-				If OnlyAuthorization Then
-					SettingsAuthorizationOnMailServer = SettingsAuthorizationOnMailServer();
-					AuthorizationSettings = SettingsAuthorizationOnMailServer; // See SettingsAuthorizationOnMailServer
-					
-					If ValueIsFilled(AuthorizationSettings) And ValueIsFilled(AuthorizationSettings.AppID) Then
-						AppID = AuthorizationSettings.AppID;
-						RedirectAddress = AuthorizationSettings.RedirectAddress;
-						If IsWebClient() Then
-							RedirectAddress = AuthorizationSettings.RedirectionAddressWebClient;
-						EndIf;
-						
-						ApplicationPassword = AuthorizationSettings.ApplicationPassword;
-						Items.Pages.CurrentPage = Items.Authorization;
-						
-						If IsWebClient() Then
-							Items.AuthorizationOptions.CurrentPage = Items.OperatingSystemBrowser;
-							CurrentItem = Items.WebPage;
-						Else
-							Items.AuthorizationOptions.CurrentPage = Items.EmbeddedBrowser;
-						EndIf;
-					Else
-						Items.Pages.CurrentPage = Items.ApplicationAuthorizationSettings;
-					EndIf;
-				EndIf;
-			EndIf;
-		EndIf;
+		PopulateUserAccountProperties();
 	Else
 		NewAccountRef = Catalogs.EmailAccounts.GetRef();
 		
@@ -114,6 +70,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			EndDo;
 		EndIf;
 	EndIf;
+	
+	Items.CannotConnectPictureAndLabel.Visible = False;
+	Items.BackButton.Visible = False;
 	
 	IsFullUser = Users.IsFullUser();
 	Items.AccountAvailability.Visible = IsFullUser And Not ContextMode;
@@ -279,6 +238,62 @@ EndProcedure
 
 #Region Private
 
+&AtServer
+Procedure PopulateUserAccountProperties()
+	QueryText =
+	"SELECT
+	|	EmailAccounts.Email AS Email,
+	|	EmailAccounts.UserName AS EmailSenderName,
+	|	EmailAccounts.Description AS AccountName,
+	|	EmailAccounts.EmailServiceAuthorization
+	|FROM
+	|	Catalog.EmailAccounts AS EmailAccounts
+	|WHERE
+	|	EmailAccounts.Ref = &Ref";
+	Query = New Query(QueryText);
+	Query.SetParameter("Ref", AccountRef);
+	Selection = Query.Execute().Select();
+	If Not Selection.Next() Then
+		Return;
+	EndIf;
+
+	FillPropertyValues(ThisObject, Selection);
+	OnlyAuthorization = Parameters.OnlyAuthorization;
+	If Selection.EmailServiceAuthorization Or OnlyAuthorization Then
+		AuthenticationMethod = "OAuth";
+		Items.Password.Enabled = False;
+		If OnlyAuthorization Then
+			SettingsAuthorizationOnMailServer = SettingsAuthorizationOnMailServer();
+			AuthorizationSettings = SettingsAuthorizationOnMailServer; // See SettingsAuthorizationOnMailServer
+			
+			If ValueIsFilled(AuthorizationSettings) And ValueIsFilled(AuthorizationSettings.AppID) Then
+				AppID = AuthorizationSettings.AppID;
+				RedirectAddress = AuthorizationSettings.RedirectAddress;
+				If IsWebClient() Then
+					RedirectAddress = AuthorizationSettings.RedirectionAddressWebClient;
+				EndIf;
+				
+				ApplicationPassword = AuthorizationSettings.ApplicationPassword;
+				Items.Pages.CurrentPage = Items.Authorization;
+				
+				If IsWebClient() Then
+					Items.AuthorizationOptions.CurrentPage = Items.OperatingSystemBrowser;
+					CurrentItem = Items.WebPage;
+				Else
+					Items.AuthorizationOptions.CurrentPage = Items.EmbeddedBrowser;
+				EndIf;
+			Else
+				Items.Pages.CurrentPage = Items.ApplicationAuthorizationSettings;
+			EndIf;
+		EndIf;
+	EndIf;
+	
+	Items.Email.ToolTipRepresentation = 
+		?(AccountRef = EmailOperations.SystemAccount(),
+			ToolTipRepresentation.ShowBottom, ToolTipRepresentation.None);
+		
+EndProcedure
+
 &AtClient
 Procedure ShowQueryBoxBeforeCloseForm()
 	QueryText = NStr("en = 'Changes are not saved. Close the form?';");
@@ -286,7 +301,7 @@ Procedure ShowQueryBoxBeforeCloseForm()
 	Buttons = New ValueList;
 	Buttons.Add("Close", NStr("en = 'Close';"));
 	Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Do not close';"));
-	ShowQueryBox(NotifyDescription, QueryText, Buttons, , DialogReturnCode.Cancel, NStr("en = 'Email settings';"));
+	ShowQueryBox(NotifyDescription, QueryText, Buttons, , DialogReturnCode.Cancel, NStr("en = 'Account setup';"));
 EndProcedure
 
 &AtClient
@@ -448,6 +463,16 @@ Procedure SetTextsExplanationsByRegistrationApplication()
 		Return;
 	EndIf;
 	
+	If IsWebClient() Then
+		RedirectAddress = AuthorizationSettings.RedirectionAddressWebClient;
+	Else
+		RedirectAddress = AuthorizationSettings.RedirectAddress;
+	EndIf;
+	
+	If Not ValueIsFilled(RedirectAddress) Then
+		RedirectAddress = AuthorizationSettings.RedirectAddressDefault;
+	EndIf;
+	
 	If Not ValueIsFilled(AuthorizationSettings.ExplanationByRedirectAddress)
 		And Not ValueIsFilled(AuthorizationSettings.ExplanationByApplicationID)
 		And Not ValueIsFilled(AuthorizationSettings.ExplanationApplicationPassword) Then
@@ -481,17 +506,6 @@ Procedure SetTextsExplanationsByRegistrationApplication()
 	
 	Items.RedirectAddress.Visible = ValueIsFilled(AliasRedirectAddresses);
 	
-	
-	If IsWebClient() Then
-		RedirectAddress = AuthorizationSettings.RedirectionAddressWebClient;
-	Else
-		RedirectAddress = AuthorizationSettings.RedirectAddress;
-	EndIf;
-	
-	If Not ValueIsFilled(RedirectAddress) Then
-		RedirectAddress = AuthorizationSettings.RedirectAddressDefault;
-	EndIf;
-	
 EndProcedure
 
 &AtClient
@@ -518,7 +532,7 @@ Procedure CheckSettingsPermissionRequestExecuted(QueryResult, AdditionalParamete
 	
 	ValidateAccountSettings();
 	If ValueIsFilled(AccountRef) Then 
-		NotifyChanged(TypeOf(AccountRef));
+		CommonClient.NotifyObjectChanged(AccountRef);
 	EndIf;
 	GotoNextPage();
 EndProcedure
@@ -606,7 +620,7 @@ Procedure SetCurrentPageItems()
 	EndIf;
 	
 	Items.NextButton.Title = ButtonNextTitle;
-	Items.NextButton.DefaultButton =CurrentPage <> Items.ValidatingAccountSettings; 
+	Items.NextButton.DefaultButton = CurrentPage <> Items.ValidatingAccountSettings; 
 	Items.NextButton.Enabled = Not (CurrentPage = Items.ValidatingAccountSettings And CheckMissed);
 	Items.NextButton.Visible = Not (CurrentPage = Items.ValidatingAccountSettings And SetupMethod = "Manually")
 		And Not (CurrentPage = Items.Authorization And Not IsWebClient())
@@ -966,7 +980,9 @@ Procedure OnCompleteSettingsSearch(Result, AdditionalParameters) Export
 			ValidationCompletedWithErrors = True;
 			ErrorsMessages = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		EndTry;
-		NotifyChanged(NewAccountRef);
+		If Not ValidationCompletedWithErrors Then
+			CommonClient.NotifyObjectChanged(NewAccountRef);	
+		EndIf;
 	EndIf;
 	GotoNextPage();
 	
@@ -1027,6 +1043,7 @@ Procedure LoginAtMailServer()
 				EndIf;
 				AttachIdleHandler("GetAccessKeysWebClient", QueryExecutionInterval, True);
 			Else
+				FillinExplanations();
 				GotoNextPage();
 				Return;
 			EndIf;
@@ -1165,7 +1182,7 @@ EndProcedure
 Procedure OnReceiveMailServerResponse(ParametersString1, KeyReceiptAddress)
 	
 	If StrStartsWith(ParametersString1, "{") Then
-		Response = EmailOperationsInternal.JSONValue(ParametersString1);
+		Response = Common.JSONValue(ParametersString1);
 	Else
 		Response = ParametersFromStringURI(ParametersString1);
 	EndIf;
@@ -1232,7 +1249,7 @@ Function GetAccessKeysToMailServer(AuthorizationCode, KeyReceiptAddress, Applica
 	QueryResult = EmailOperationsInternal.ExecuteQuery(ServerAddress, ResourceAddress, QueryOptions);
 	
 	Try
-		AnswerParameters = EmailOperationsInternal.JSONValue(QueryResult.ServerResponse1);
+		AnswerParameters = Common.JSONValue(QueryResult.ServerResponse1);
 	Except
 		AnswerParameters = New Map;
 	EndTry;
@@ -1367,7 +1384,7 @@ Function GetAuthorizationParametersInWebClient(KeyReceiptAddress)
 	QueryResult = EmailOperationsInternal.ExecuteQuery(ServerAddress, ResourceAddress, QueryOptions);
 	
 	Try
-		AnswerParameters = EmailOperationsInternal.JSONValue(QueryResult.ServerResponse1);
+		AnswerParameters = Common.JSONValue(QueryResult.ServerResponse1);
 	Except
 		AnswerParameters = New Map;
 	EndTry;
@@ -1455,7 +1472,7 @@ Function GetDeviceAccessKey()
 	QueryResult = EmailOperationsInternal.ExecuteQuery(ServerAddress, ResourceAddress, QueryOptions);
 	
 	Try
-		AnswerParameters = EmailOperationsInternal.JSONValue(QueryResult.ServerResponse1);
+		AnswerParameters = Common.JSONValue(QueryResult.ServerResponse1);
 	Except
 		AnswerParameters = New Map;
 	EndTry;

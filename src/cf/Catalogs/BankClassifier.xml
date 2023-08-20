@@ -31,7 +31,7 @@
 					<v8:content>BIC catalog</v8:content>
 				</v8:item>
 			</Synonym>
-			<Comment>ACC:58</Comment>
+			<Comment>ACC58</Comment>
 			<Hierarchical>true</Hierarchical>
 			<HierarchyType>HierarchyFoldersAndItems</HierarchyType>
 			<LimitLevelCount>false</LimitLevelCount>

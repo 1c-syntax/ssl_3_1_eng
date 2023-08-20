@@ -26,7 +26,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Procedure                           = "InformationRegisters.AccountingCheckResults.ProcessDataForMigrationToNewVersion";
 	Handler.ExecutionMode                     = "Deferred";
 	Handler.UpdateDataFillingProcedure = "InformationRegisters.AccountingCheckResults.RegisterDataToProcessForMigrationToNewVersion";
-	Handler.DeferredProcessingQueue          = 1;
 	Handler.ObjectsToRead                     = "InformationRegister.AccountingCheckResults";
 	Handler.ObjectsToChange                   = "InformationRegister.AccountingCheckResults";
 	Handler.ObjectsToLock                  = "InformationRegister.AccountingCheckResults";
@@ -42,7 +41,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Procedure                           = "Catalogs.AccountingCheckRules.ProcessDataForMigrationToNewVersion";
 	Handler.ExecutionMode                     = "Deferred";
 	Handler.UpdateDataFillingProcedure = "Catalogs.AccountingCheckRules.RegisterDataToProcessForMigrationToNewVersion";
-	Handler.DeferredProcessingQueue          = 1;
 	Handler.ObjectsToRead                     = "Catalog.AccountingCheckRules";
 	Handler.ObjectsToChange                   = "Catalog.AccountingCheckRules";
 	Handler.ObjectsToLock                  = "Catalog.AccountingCheckRules";
@@ -130,7 +128,7 @@ EndProcedure
 // See JobsQueueOverridable.OnGetTemplateList.
 Procedure OnGetTemplateList(JobTemplates) Export
 	
-	JobTemplates.Add("AccountingCheck");
+	JobTemplates.Add(Metadata.ScheduledJobs.AccountingCheck.Name);
 	
 EndProcedure
 
@@ -144,6 +142,10 @@ EndProcedure
 // See CommonOverridable.OnAddClientParametersOnStart.
 Procedure OnAddClientParametersOnStart(Parameters) Export
 	
+	If Not Common.SeparatedDataUsageAvailable() Then
+		Return;
+	EndIf;
+	
 	ToDosBuiltIn = Common.SubsystemExists("StandardSubsystems.ToDoList");
 	Count = 0;
 	If Not Users.IsExternalUserSession() And Not ToDosBuiltIn Then
@@ -154,6 +156,13 @@ Procedure OnAddClientParametersOnStart(Parameters) Export
 		New FixedStructure("NotifyOfAccountingIssues1, AccountingIssuesCount",
 			Not ToDosBuiltIn,
 			Count));
+	
+EndProcedure
+
+// See ODataInterfaceOverridable.OnPopulateDependantTablesForODataImportExport
+Procedure OnPopulateDependantTablesForODataImportExport(Tables) Export
+	
+	Tables.Add(Metadata.InformationRegisters.AccountingCheckResults.FullName());
 	
 EndProcedure
 
@@ -2134,10 +2143,11 @@ Procedure FindDeadRefs(MetadataObject, CheckParameters, CheckedRefs)
 				If IsDeadRef(RefToCheck, CheckedRefs) Then
 					IssueSummary = IssueSummary + ?(ValueIsFilled(IssueSummary), Chars.LF, "")
 						+ StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'Attribute ""%2"" of object ""%1"" references an item that does not exist: ""%3"".';"), 
+							NStr("en = 'The ""%2"" attribute of the ""%1"" object references an item that does not exist: ""%3"" (%4).';"), 
 							ObjectReference, 
 							Result.Columns[IndexOf].Name, 
-							RefToCheck);
+							RefToCheck,
+							TypeOf(RefToCheck));
 				EndIf;
 			EndDo;
 			
@@ -2164,9 +2174,9 @@ Procedure FindDeadRefs(MetadataObject, CheckParameters, CheckedRefs)
 								EndIf;
 								IssueSummary = IssueSummary + ?(ValueIsFilled(IssueSummary), Chars.LF, "")
 									+ StringFunctionsClientServer.SubstituteParametersToString(
-										NStr("en = 'Attribute ""%2"" of ""%3"" table (row #%4) in ""%1"" object refers to an item that does not exist: ""%5"".';"),
+										NStr("en = 'The ""%2"" attribute of the ""%3"" table (row #%4) in the ""%1"" object references an item that does not exist: ""%5"" (%6).';"),
 										ObjectReference, TSAttributeName, StrReplace(TabularSectionAttributes.Key, TSAttributeName, ""), 
-										CurrentRowNumber1, DataToCheck1);
+										CurrentRowNumber1, DataToCheck1, TypeOf(DataToCheck1));
 								IssuesLimit = IssuesLimit - 1;
 							EndIf;
 						EndDo;
@@ -2622,12 +2632,14 @@ Procedure FindDeadRefsInIndependentPeriodicalInformationRegisters(MetadataObject
 					AdditionalInformation.Insert(Dimension.Name, DimensionRef);
 				EndDo;
 				
+				BrokenRef = ResultString1[AttributeInformation.NameOfMetadataObjects + AttributeInformation.MetadataTypeInNominativeCase + "Ref"];
 				Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); // @skip-
 				Issue1.IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Information register ""%1"" in ""%2"", combination of dimensions ""%3"", references an item that does not exist: ""%4"".';"),
+					NStr("en = 'The ""%1"" information register in %2, the ""%3"" combination of dimensions, references an item that does not exist: ""%4"" (%5).';"),
 					MetadataObject.Presentation(), AttributeInformation.MetadataTypeInInstrumentalCase,
 					OrderFields, 
-					ResultString1[AttributeInformation.NameOfMetadataObjects + AttributeInformation.MetadataTypeInNominativeCase + "Ref"]);
+					BrokenRef,
+					TypeOf(BrokenRef));
 				Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation);
 				WriteIssue(Issue1, CheckParameters); // 
 				
@@ -2736,12 +2748,14 @@ Procedure FindDeadRefsInIndependentNonPeriodicalInformationRegisters(MetadataObj
 					AdditionalInformation.Insert(Dimension.Name, DimensionRef);
 				EndDo;
 				
+				BrokenRef = ResultString1[AttributeInformation.NameOfMetadataObjects + AttributeInformation.MetadataTypeInNominativeCase + "Ref"];
 				Issue1 = IssueDetails(Common.MetadataObjectID(MetadataObject), CheckParameters); // @skip-
 				Issue1.IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Information register ""%1"" in ""%2"", combination of dimensions ""%3"", references an item that does not exist: ""%4"".';"),
+					NStr("en = 'The ""%1"" information register in ""%2"", the ""%3"" combination of dimensions, references an item that does not exist: ""%4"" (%5).';"),
 					MetadataObject.Presentation(), AttributeInformation.MetadataTypeInInstrumentalCase,
 					OrderFields, 
-					ResultString1[AttributeInformation.NameOfMetadataObjects + AttributeInformation.MetadataTypeInNominativeCase + "Ref"]);
+					BrokenRef,
+					TypeOf(BrokenRef));
 				Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation);
 				WriteIssue(Issue1, CheckParameters); // 
 				
@@ -4496,7 +4510,7 @@ Function CheckParametersPropertiesExpectedTypes() Export
 	
 EndFunction
 
-// Returns allowed parameter types of check kinds. See the PropertyN attributes of the ChecksKinds catalog.  
+//  
 //
 // Returns:
 //   TypeDescription - 

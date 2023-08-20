@@ -439,6 +439,24 @@ Function GetExchangePlanName(ExchangePlanNode) Export
 	
 EndFunction
 
+Function GetNameOfCorrespondentExchangePlan(ExchangePlanNode) Export
+	
+	ExchangePlanName = GetExchangePlanName(ExchangePlanNode);
+	
+	If Not DataExchangeCached.IsXDTOExchangePlan(ExchangePlanNode) Then
+		Return ExchangePlanName;
+	EndIf;
+	
+	CorrespondentExchangePlanName = InformationRegisters.CommonInfobasesNodesSettings.CorrespondentExchangePlanName(ExchangePlanNode);
+	
+	If CorrespondentExchangePlanName = "" Then
+		CorrespondentExchangePlanName = ExchangePlanName;
+	EndIf; 
+	
+	Return CorrespondentExchangePlanName;
+	
+EndFunction
+
 // Gets an array of names of separated configuration exchange plans that use the SSL functionality.
 // If the configuration does not contain separators, all exchange plans are treated as separated.
 //
@@ -539,6 +557,40 @@ Function RegistrationManagerName(Val ExchangePlanName) Export
 	Return ExchangePlanSettings.RegistrationManagerName;	
 	
 EndFunction	
+
+// 
+//
+// Parameters:
+//  ExchangePlanName - String - name of the exchange plan as specified in the Configurator.
+//
+//  Returns:
+//    Boolean - 
+// 
+Function UseCacheOfPublicIdentifiers(Val ExchangePlanName) Export
+	
+	ExchangePlanSettings = DataExchangeServer.ExchangePlanSettings(ExchangePlanName, "", "", Undefined);
+	
+	Return ExchangePlanSettings.UseCacheOfPublicIdentifiers;
+	
+EndFunction
+
+//  
+//
+// Parameters:
+//  ExchangePlanName - String - name of the exchange plan as specified in the Configurator.
+//
+//  Returns:
+//    Boolean - 
+// 
+Function ThisIsGlobalExchangeThroughUniversalFormat(Val ExchangePlanName) Export
+	
+	ExchangePlanSettings = DataExchangeServer.ExchangePlanSettings(ExchangePlanName, "", "", Undefined);
+	
+	Return ExchangePlanSettings.Global;
+	
+EndFunction
+
+
 
 #EndRegion
 

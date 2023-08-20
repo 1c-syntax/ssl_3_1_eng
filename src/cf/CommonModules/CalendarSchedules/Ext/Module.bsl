@@ -1056,7 +1056,7 @@ Procedure CheckItemStart(Val XMLReader, Val Name)
 	If XMLReader.NodeType <> XMLNodeType.StartElement Or XMLReader.Name <> Name Then
 		EventName = NStr("en = 'Calendar schedules.Process classifier file';", Common.DefaultLanguageCode());
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid data file format. Beginning of the ""%1"" element is expected.';"), 
+			NStr("en = 'Invalid data file format. Start of ""%1"" element is expected.';"), 
 			Name);
 		WriteLogEvent(EventName, EventLogLevel.Error, , , MessageText);
 		Raise MessageText;

@@ -30,4 +30,22 @@ Function IsExternalUserSession() Export
 	
 EndFunction
 
+// 
+// 
+// Parameters:
+//  CheckSystemAdministrationRights - See Users.IsFullUser.CheckSystemAdministrationRights
+//
+// Returns:
+//  Boolean - 
+//
+Function IsFullUser(CheckSystemAdministrationRights = False) Export
+	
+	If CheckSystemAdministrationRights Then
+		Return StandardSubsystemsClient.ClientParameter("IsFullUser");
+	Else
+		Return StandardSubsystemsClient.ClientParameter("IsSystemAdministrator");
+	EndIf;
+	
+EndFunction
+
 #EndRegion

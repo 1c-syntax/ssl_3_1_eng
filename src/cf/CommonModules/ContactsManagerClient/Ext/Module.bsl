@@ -244,7 +244,7 @@ EndProcedure
 //  Structure:
 //   * ContactInformationKind - See ContactsManager.ContactInformationKindParameters
 //   * ReadOnly          - Boolean - if True, the form will be opened in view-only mode.
-//   * Value                - String - a value of contact information fields in JSON or XML format.
+//   * Value                - String -
 //   * Presentation           - String - a contact information presentation.
 //   * ContactInformationType - EnumRef.ContactInformationTypes - a contact information type if it was specified
 //                                                                            in the parameters.
@@ -1843,14 +1843,14 @@ EndProcedure
 // 
 // Parameters:
 //   Presentation - String - presentation of contact information.
-//   Value      - String - value of contact information fields in JSON or XML format.
+//   Value      - String -
 //   Type           - EnumRef.ContactInformationTypes
 //   Kind           - CatalogRef.ContactInformationKinds
 //
 // Returns:
 //   Structure:
 //     * Presentation - String - presentation of contact information.
-//     * Value      - String - value of contact information fields in JSON or XML format.
+//     * Value      - String -
 //     * Type           - EnumRef.ContactInformationTypes
 //     * Kind           - CatalogRef.ContactInformationKinds
 //
@@ -2057,7 +2057,7 @@ EndProcedure
 //  
 //
 // Parameters:
-//  InitialString - Строка;
+//  InitialString - String
 //  Prefix        - String
 //
 // Returns:
@@ -2079,7 +2079,7 @@ EndFunction
 //  
 //
 // Parameters:
-//  InitialString - Строка;
+//  InitialString - String
 //  Postfix       - String
 //
 // Returns:

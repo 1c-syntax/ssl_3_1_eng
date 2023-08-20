@@ -73,4 +73,78 @@ Function DocumentsPackage(SpreadsheetDocuments, PrintObjects, PrintInSets, Copie
 	
 EndFunction
 
+#Region PrintingInBackgroundJob
+
+Function StartGeneratingPrintForms(ParametersForOpeningIncoming) Export
+	
+	OpeningParameters = Common.CopyRecursive(ParametersForOpeningIncoming);
+	
+	ExecutionParameters = TimeConsumingOperations.FunctionExecutionParameters(OpeningParameters.StorageUUID);
+	ExecutionParameters.ResultAddress = PutToTempStorage(Undefined, OpeningParameters.StorageUUID);
+	StoragesContents = Undefined;
+	ExtractFromRepositories(OpeningParameters.PrintParameters, StoragesContents);
+	OpeningParameters.Insert("StoragesContents", StoragesContents);
+	If Not ValueIsFilled(OpeningParameters.DataSource) Then 
+		CommonClientServer.Validate(TypeOf(OpeningParameters.CommandParameter) = Type("Array") Or Common.RefTypeValue(OpeningParameters.CommandParameter),
+			StringFunctionsClientServer.SubstituteParametersToString(NStr(
+				"en = 'Invalid parameter value. %1 parameter, %2 method.
+				|Expected value: %3, %4.
+				|Passed value: %5.';"),
+				"CommandParameter",
+				"PrintManagementClient.ExecutePrintCommand",
+				"Array",
+				"AnyRef",
+				 TypeOf(OpeningParameters.CommandParameter)));
+	EndIf;
+
+	// 
+	PrintParameters = OpeningParameters.PrintParameters;
+	If OpeningParameters.PrintParameters = Undefined Then
+		PrintParameters = New Structure;
+	EndIf;
+	If Not PrintParameters.Property("AdditionalParameters") Then
+		OpeningParameters.PrintParameters = New Structure("AdditionalParameters", PrintParameters);
+		For Each PrintParameter In PrintParameters Do
+			OpeningParameters.PrintParameters.Insert(PrintParameter.Key, PrintParameter.Value);
+		EndDo;
+	EndIf;
+			
+	Return TimeConsumingOperations.ExecuteFunction(ExecutionParameters, "PrintManagement.GeneratePrintFormsInBackground", OpeningParameters);
+EndFunction 
+
+Procedure ExtractFromRepositories(ParametersStructure, StoragesContents)
+	If StoragesContents = Undefined Then
+		StoragesContents = New Map;
+	EndIf;
+	
+	ParametersType = TypeOf(ParametersStructure);
+	If ParametersType = Type("String") And IsTempStorageURL(ParametersStructure) Then
+		StoragesContents.Insert(ParametersStructure, GetFromTempStorage(ParametersStructure));
+	ElsIf ParametersType = Type("Array") Or ParametersType = Type("ValueTable") 
+		Or ParametersType = Type("ValueTableRow") Or ParametersType = Type("ValueTreeRow") Then
+		
+		For Each Item In ParametersStructure Do
+			ExtractFromRepositories(Item, StoragesContents);
+		EndDo;
+	ElsIf ParametersType = Type("Structure") Or ParametersType = Type("Map") Then
+		
+		For Each Item In ParametersStructure Do
+			ExtractFromRepositories(Item.Value, StoragesContents);
+		EndDo;
+		
+		If ParametersType = Type("Map") Then
+			For Each Item In ParametersStructure Do
+				ExtractFromRepositories(Item.Key, StoragesContents);
+			EndDo;
+		EndIf;
+
+	ElsIf  ParametersType = Type("ValueTree") Then
+		For Each Item In ParametersStructure.Rows Do
+			ExtractFromRepositories(Item, StoragesContents);
+		EndDo;
+	EndIf;
+	
+EndProcedure
+#EndRegion
+
 #EndRegion

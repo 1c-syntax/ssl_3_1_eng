@@ -182,7 +182,7 @@ Procedure PostDocuments(ObjectWithIssue, ErrorMessage)
 		RollbackTransaction();
 		
 		MessageTemplate = NStr("en = 'Cannot post the document ""%1"" due to:%2 %3.';", Common.DefaultLanguageCode());
-		ErrorPresentation = BriefErrorDescription(ErrorInfo());
+		ErrorPresentation = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		Common.MessageToUser(StringFunctionsClientServer.SubstituteParametersToString(MessageTemplate, ObjectWithIssue, Chars.LF, ErrorPresentation));
 			
 	EndTry;

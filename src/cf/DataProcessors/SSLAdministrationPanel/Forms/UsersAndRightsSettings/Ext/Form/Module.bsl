@@ -129,17 +129,17 @@ Procedure LimitAccessAtRecordLevelUniversallyOnChange(Item)
 			           |(see “Update record-level access”).';");
 	ElsIf ConstantsSet.LimitAccessAtRecordLevel Then
 		QueryText =
-			NStr("en = 'Do you want to disable the High-performance mode of access restriction?
+			NStr("en = 'Do you want to disable the high-performance mode of access restriction?
 			           |
 			           |This requires data population that will be performed in batches by
-			           |scheduled job ""Filling data to restrict access""
-			           |(see the progress is in the Event Log).';");
+			           |scheduled job ""Populate data for access restriction""
+			           |(see the progress in the Event Log).';");
 	Else
 		QueryText =
-			NStr("en = 'Do you want to disable the High-performance mode of access restriction?
+			NStr("en = 'Do you want to disable the high-performance mode of access restriction?
 			           |
-			           |This requires data population that will be performed in batches
-			           |by scheduled job ""Access restriction data population""
+			           |This requires partial data population that will be performed in batches
+			           |by scheduled job ""Populate data for access restriction""
 			           |(see the progress in the Event Log).';");
 	EndIf;
 	
@@ -178,7 +178,7 @@ Procedure LimitAccessAtRecordLevelOnChange(Item)
 			NStr("en = 'Do you want to enable record-level access restriction?
 			           |
 			           |This requires data population that will be performed in batches
-			           |by scheduled job ""Access restriction data population"" 
+			           |by scheduled job ""Populate data for access restriction"" 
 			           |(see the progress in the Event Log).
 			           |
 			           |The processing might slow down the application and take
@@ -222,8 +222,8 @@ Procedure UseExternalUsersOnChange(Item)
 		QueryText =
 			NStr("en = 'Do you want to deny external user access?
 			           |
-			           |Attribute ""Can sign in"" will be cleared
-			           |in all external user profiles.';");
+			           |Attribute ""Sign-in allowed"" will be cleared
+			           |in all external user cards.';");
 		
 		ShowQueryBox(
 			New NotifyDescription(
@@ -290,7 +290,7 @@ Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
 EndProcedure
 
 &AtClient
-Procedure PlugIn_SettingsOfDestructionOfNDaysWhenChanging(Item)
+Procedure Attachable_PDDestructionSettingsOnChange(Item)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.PersonalDataProtection") Then
 		ModulePersonalDataProtectionClient = CommonClient.CommonModule("PersonalDataProtectionClient");

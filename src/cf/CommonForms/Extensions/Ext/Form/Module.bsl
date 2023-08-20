@@ -42,7 +42,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Items.ExtensionsListCommon.Visible = Common.DataSeparationEnabled() And AccessRight("Administration", Metadata);
 	Items.ExtensionsListReceivedFromMasterDIBNode.Visible = Common.IsSubordinateDIBNode();
-	Items.ExtensionsListPassToSubordinateDIBNodes.Visible = StandardSubsystemsCached.DIBUsed();
+	Items.ExtensionsListPassToSubordinateDIBNodes.Visible = Common.IsDistributedInfobase();
 	
 	Items.FormInstalledPatches1.Visible = 
 		Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate");
@@ -194,7 +194,8 @@ Procedure SaveAs(Command)
 	
 	SavingParameters = FileSystemClient.FileSavingParameters();
 	SavingParameters.Dialog.Title = NStr("en = 'Select file';");
-	SavingParameters.Dialog.Filter    = NStr("en = 'Configuration extension files (*.cfe)|*.cfe|All files (*.*)|*.*';");
+	SavingParameters.Dialog.Filter    = NStr("en = 'Configuration extension files (*.cfe)|*.cfe';") + "|"
+			+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
 	
 	FileSystemClient.SaveFiles(Undefined, FilesToSave, SavingParameters);
 	

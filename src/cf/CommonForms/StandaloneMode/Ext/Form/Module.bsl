@@ -117,6 +117,14 @@ Procedure InstallUpdate(Command)
 EndProcedure
 
 &AtClient
+Procedure RestartApplication(Command)
+	
+	Exit(False, True);
+	
+EndProcedure
+
+
+&AtClient
 Procedure SynchronizeDataByScheduleOnChange(Item)
 	
 	If SynchronizeDataBySchedule And Not SaveUserPassword Then
@@ -218,15 +226,30 @@ Procedure RefreshVisibilityAtServer()
 	
 	UpdateInstallationRequired = DataExchangeServer.UpdateInstallationRequired();
 	
-	Items.StandaloneMode.CurrentPage = ?(UpdateInstallationRequired,
-		Items.IsConfigurationUpdateReceived,
-		Items.DataSynchronization);
+	IsRestartRequired = Catalogs.ExtensionsVersions.ExtensionsChangedDynamically();
 	
-	Items.PerformDataSynchronization.DefaultButton         = Not UpdateInstallationRequired;
-	Items.PerformDataSynchronization.DefaultItem = Not UpdateInstallationRequired;
-	
-	Items.InstallUpdate.DefaultButton         = UpdateInstallationRequired;
-	Items.InstallUpdate.DefaultItem = UpdateInstallationRequired;
+	If UpdateInstallationRequired Then
+		
+		Items.StandaloneMode.CurrentPage = Items.IsConfigurationUpdateReceived;
+		
+		Items.InstallUpdate.DefaultButton         = True;
+		Items.InstallUpdate.DefaultItem = True;
+		
+	ElsIf IsRestartRequired Then
+		
+		Items.StandaloneMode.CurrentPage = Items.ExtensionsAreReceived;
+		
+		Items.RestartApplication.DefaultButton         = True;
+		Items.RestartApplication.DefaultItem = True;
+		
+	Else
+		
+		Items.StandaloneMode.CurrentPage = Items.DataSynchronization;
+		
+		Items.PerformDataSynchronization.DefaultButton         = True;
+		Items.PerformDataSynchronization.DefaultItem = True;
+		
+	EndIf;
 	
 	TransportSettingsWS = InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(ApplicationInSaaS);
 	

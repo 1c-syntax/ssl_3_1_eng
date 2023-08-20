@@ -620,7 +620,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	RecordsWithIssuesCount = 0;
 	
 	While Selection.Next() Do
-		
+		RepresentationOfTheReference = String(Selection.InfobaseNode);
 		Try
 			
 			TransferSettingsOfCorrespondentDataExchangeTransport(Selection.InfobaseNode);
@@ -632,7 +632,8 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process a set of ""%1"" register records with filter ""InfobaseNode = %2"" due to:
-				|%3';"), RegisterPresentation, Selection.InfobaseNode, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				|%3';"), RegisterPresentation, RepresentationOfTheReference,
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
 				RegisterMetadata, , MessageText);

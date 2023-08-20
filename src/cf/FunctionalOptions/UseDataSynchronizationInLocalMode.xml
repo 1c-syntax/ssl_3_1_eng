@@ -13,19 +13,20 @@
 			<Location>Constant.UseDataSynchronizationInLocalMode</Location>
 			<PrivilegedGetMode>true</PrivilegedGetMode>
 			<Content>
-				<xr:Object>Subsystem.StandardSubsystems.Subsystem.DataExchange</xr:Object>
-				<xr:Object>Catalog.DataExchangeScenarios</xr:Object>
-				<xr:Object>CommonCommand.ConnectionSettings</xr:Object>
-				<xr:Object>CommonCommand.ReceivingEvents</xr:Object>
-				<xr:Object>CommonCommand.ImportObjectConvertionRules</xr:Object>
-				<xr:Object>CommonCommand.ImportObjectRegistrationRules</xr:Object>
-				<xr:Object>CommonCommand.Synchronize</xr:Object>
-				<xr:Object>CommonCommand.SendingEvents</xr:Object>
 				<xr:Object>CommonCommand.SynchronizationScenarios</xr:Object>
-				<xr:Object>CommonCommand.SynchronizeWithAdditionalParameters</xr:Object>
+				<xr:Object>Subsystem.StandardSubsystems.Subsystem.DataExchange</xr:Object>
+				<xr:Object>CommonCommand.ConnectionSettings</xr:Object>
+				<xr:Object>Catalog.DataExchangeScenarios</xr:Object>
+				<xr:Object>CommonCommand.ReceivingEvents</xr:Object>
+				<xr:Object>CommonCommand.ImportObjectRegistrationRules</xr:Object>
+				<xr:Object>CommonCommand.ImportObjectConvertionRules</xr:Object>
+				<xr:Object>CommonCommand.Synchronize</xr:Object>
 				<xr:Object>CommonForm.SelectCorrespondentInfobaseObjects</xr:Object>
-				<xr:Object>CommonForm.DataSyncSettings</xr:Object>
 				<xr:Object>CommonCommand.GetSynchronizationSettingsForOtherApplication</xr:Object>
+				<xr:Object>CommonCommand.SendingEvents</xr:Object>
+				<xr:Object>CommonCommand.SynchronizeWithAdditionalParameters</xr:Object>
+				<xr:Object>CommonForm.DataSyncSettings</xr:Object>
+				<xr:Object>CommonCommand.ImportRulesSet</xr:Object>
 			</Content>
 		</Properties>
 	</FunctionalOption>

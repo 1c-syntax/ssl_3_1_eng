@@ -120,7 +120,7 @@ Please wait…</v8:content>
 													<v8:content>The following data will be deleted from this application:
  - Connection settings
  - Object mapping
- - List of objects registered for sending</v8:content>
+ - List of objects registered for export</v8:content>
 												</v8:item>
 											</Title>
 											<ContextMenu name="Decoration6ContextMenu" id="53"/>

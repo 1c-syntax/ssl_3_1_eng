@@ -863,7 +863,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Files that do not exist in the application but are available in the volume on the hard drive</v8:content>
+					<v8:content>Files that do not exist in the application but are available in the volume of the network directory</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>DeletedFilesVolume</Action>

@@ -69,14 +69,17 @@ EndFunction
 // the client.
 //
 // Returns:
-//   Map:
-//    UseProxy - indicates whether to use proxy server.
-//    BypassProxyOnLocal - indicates whether to use proxy server for local addresses.
-//    UseSystemSettings - indicates whether to use proxy server system settings.
-//    Server       - proxy server address.
-//    Port         - proxy server port.
-//    User - username for authorization on proxy server.
-//    Password       - user password.
+//    Map of KeyAndValue:
+//      * Key - String
+//      * Value - Arbitrary
+//    
+//      
+//      
+//      
+//      
+//      
+//      
+//      
 //
 Function ProxySettingsAtClient() Export
 	
@@ -119,14 +122,17 @@ EndFunction
 // Returns the 1C:Enterprise server's proxy settings.
 //
 // Returns:
-//   Map:
-//    UseProxy - indicates whether to use proxy server.
-//    BypassProxyOnLocal - indicates whether to use proxy server for local addresses.
-//    UseSystemSettings - indicates whether to use proxy server system settings.
-//    Server       - proxy server address.
-//    Port         - proxy server port.
-//    User - username for authorization on proxy server.
-//    Password       - user password.
+//   Map of KeyAndValue:
+//     * Key - String
+//     * Value - Arbitrary
+//    
+//      
+//      
+//      
+//      
+//      
+//      
+//      
 //
 Function ProxySettingsAtServer() Export
 	

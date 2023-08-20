@@ -9,6 +9,8 @@
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
+#If Not MobileStandaloneServer Then
+
 #Region EventsHandlers
 
 Procedure BeforeWrite(Cancel)
@@ -26,6 +28,8 @@ Procedure BeforeDelete(Cancel)
 EndProcedure
 
 #EndRegion
+
+#EndIf
 
 #Else
 Raise NStr("en = 'Invalid object call on the client.';");

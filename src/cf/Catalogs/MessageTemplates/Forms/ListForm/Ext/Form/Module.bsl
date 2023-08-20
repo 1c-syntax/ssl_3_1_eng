@@ -193,6 +193,8 @@ EndProcedure
 &AtServer
 Procedure InitializeFilters()
 	
+	ShowContextTemplates = Items.FormShowContextTemplates.Check;
+	
 	Items.AssignmentFilter.ChoiceList.Clear();
 	Items.TemplateForFilter.ChoiceList.Clear();
 	
@@ -203,7 +205,7 @@ Procedure InitializeFilters()
 	
 	List.Parameters.SetParameterValue("SMSMessage", TemplatesKinds.FindByValue("SMS").Presentation);
 	List.Parameters.SetParameterValue("Email", TemplatesKinds.FindByValue("Email").Presentation);
-	List.Parameters.SetParameterValue("ShowContextTemplates", False);
+	List.Parameters.SetParameterValue("ShowContextTemplates", ShowContextTemplates);
 	
 	For Each TemplateKind In TemplatesKinds Do
 		Items.TemplateForFilter.ChoiceList.Add(TemplateKind.Value, TemplateKind.Presentation);

@@ -92,4 +92,8 @@ Function ColumnsHaveGroup(Val ColumnsInformation) Export
 	Return ?(ColumnsGroups.Count() > 1, True, False);
 EndFunction
 
+Function PresentationOfTextYesForBoolean() Export
+	Return NStr("en = 'Yes';");
+EndFunction
+
 #EndRegion

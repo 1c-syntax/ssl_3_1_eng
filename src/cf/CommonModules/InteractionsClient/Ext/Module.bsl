@@ -174,7 +174,7 @@ Procedure ListSubjectDrag(Item, DragParameters, StandardProcessing, TableRow, Fi
 	
 EndProcedure
 
-// Saves an email to hard drive.
+// 
 //
 // Parameters:
 //  MailMessage                  - DocumentRef.IncomingEmail
@@ -672,7 +672,7 @@ EndProcedure
 //
 // Parameters:
 //  Object - DocumentObject - a document being checked.
-//  Cancel  - Boolean - sets to true if attributes are filled incorrectly.
+//  Cancel  - Boolean -
 //
 Procedure CheckOfDeferredSendingAttributesFilling(Object, Cancel) Export
 	
@@ -756,16 +756,16 @@ EndProcedure
 
 // Returns:
 //   Structure:
-//     *BaseEmailDate          - Date -
-//     *UserAccountUsername - String - the user name of the account that accepted the Foundation email.
-//     *DoNotCallPrintCommand      - Boolean - indicates that it is not required to call OS print command when opening
-//                                              a form.
-//     *EmailBasis              - Undefined
-//                                   - String
-//                                   - DocumentRef.IncomingEmail
-//                                   - DocumentRef.OutgoingEmail - 
-//                                                                                 
-//     *BaseEmailSubject          - String - the subject of the email is grounds.
+//     * BaseEmailDate          - Date -
+//     * UserAccountUsername - String -
+//     * DoNotCallPrintCommand      - Boolean - indicates that it is not required to call OS print command when opening
+//                                               a form.
+//     * EmailBasis              - Undefined
+//                                    - String
+//                                    - DocumentRef.IncomingEmail
+//                                    - DocumentRef.OutgoingEmail - 
+//                                                                                  
+//     * BaseEmailSubject          - String - the subject of the email is grounds.
 //
 Function EmailAttachmentParameters() Export
 

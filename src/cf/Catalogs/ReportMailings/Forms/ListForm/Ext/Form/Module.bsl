@@ -119,6 +119,13 @@ EndProcedure
 #Region ListFormTableItemEventHandlers
 
 &AtClient
+Procedure ListDrag(Item, DragParameters, StandardProcessing, String, Field)
+	If String = PredefinedValue("Catalog.ReportMailings.PersonalMailings") Then
+		StandardProcessing = False;
+	EndIf;
+EndProcedure
+
+&AtClient
 Procedure ListOnActivateRow(Item)
 	
 	// Standard subsystems.Pluggable commands
@@ -233,6 +240,7 @@ Procedure Attachable_UpdateCommands()
 		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Items.List);
 	EndIf;
 EndProcedure
+
 // 
 
 #EndRegion

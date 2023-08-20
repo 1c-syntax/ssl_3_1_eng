@@ -225,12 +225,20 @@ Function BackgroundJobsProperties(Filter = Undefined) Export
 		If Filter.ScheduledJobID <> "" Then
 			ScheduledJob = ScheduledJobs.FindByUUID(
 				New UUID(Filter.ScheduledJobID));
-			CurrentFilter = New Structure("MethodName", ScheduledJob.Metadata.MethodName);
-			AllBackgroundJobs = BackgroundJobs.GetBackgroundJobs(CurrentFilter);
+			
+			AllBackgroundJobs       = New Array;
+			StartedAutomatically = New Array;
+			CurrentFilter      = New Structure("Key", Filter.ScheduledJobID);
+			StartedManually = BackgroundJobs.GetBackgroundJobs(CurrentFilter);
 			
 			If ScheduledJob <> Undefined Then
 				LastBackgroundJob = ScheduledJob.LastJob;
+				CurrentFilter            = New Structure("ScheduledJob", ScheduledJob);
+				StartedAutomatically = BackgroundJobs.GetBackgroundJobs(CurrentFilter);
 			EndIf;
+			
+			CommonClientServer.SupplementArray(AllBackgroundJobs, StartedManually);
+			CommonClientServer.SupplementArray(AllBackgroundJobs, StartedAutomatically);
 			
 			If GetLast Then
 				LastBackgroundJob = ScheduledJobsServer.LastBackgroundJobInArray(AllBackgroundJobs);
@@ -429,7 +437,7 @@ Function DefaultSettings()
 	
 	SubsystemSettings = New Structure;
 	SubsystemSettings.Insert("UnlockCommandPlacement",
-		NStr("en = 'Also, you can release the lock in <b>Administration — Support and service</b>.';"));
+		NStr("en = 'You can release the lock later in <b>Administration — Support and service</b>.';"));
 	
 	Return SubsystemSettings;
 	

@@ -644,7 +644,8 @@ Function InfoAboutPhone(ContactInformation = Undefined) Export
 		Return Result;
 	EndIf;
 	
-	PhoneByFields         = ContactsManagerInternal.ContactInformationToJSONStructure(ContactInformation, Enums.ContactInformationTypes.Phone);
+	PhoneByFields         = ContactsManagerInternal.ContactInformationToJSONStructure(ContactInformation, 
+		Enums.ContactInformationTypes.Phone);
 	
 	Result.Presentation = String(PhoneByFields.value);
 	Result.CountryCode     = String(PhoneByFields.CountryCode);
@@ -717,7 +718,10 @@ Function ContactInformationInJSON(Val ContactInformation, Val ExpectedKind = Und
 		Return ContactInformation;
 	EndIf;
 	
-	ContactInformationByFields = ContactsManagerInternal.ContactInformationToJSONStructure(ContactInformation, ExpectedKind,,  False);
+	ConversionSettings = ContactInformationConversionSettings();
+	ConversionSettings.UpdateIDs = False;
+	
+	ContactInformationByFields = ContactsManagerInternal.ContactInformationToJSONStructure(ContactInformation, ExpectedKind, ConversionSettings);
 	Return ContactsManagerInternal.ToJSONStringStructure(ContactInformationByFields);
 	
 EndFunction
@@ -1789,6 +1793,8 @@ Procedure OnCreateAtServer(Form, Object, AdditionalParameters = Undefined, Delet
 		ContactInformationOutputParameters.Insert("ItemsPlacedOnForm", ItemsPlacedOnForm);
 		ContactInformationOutputParameters.Insert("AllowAddingFields", AllowAddingFields);
 		ContactInformationOutputParameters.Insert("URLProcessing", URLProcessing);
+		ContactInformationOutputParameters.Insert("PositionOfAddButton", ContactInfoSettings.PositionOfAddButton);
+		ContactInformationOutputParameters.Insert("CommentFieldWidth", ContactInfoSettings.CommentFieldWidth);
 		
 		HideContactInformation(Form, AttributesToBeAdded, ContactInformationOutputParameters);
 		
@@ -1889,6 +1895,8 @@ Procedure OnCreateAtServer(Form, Object, AdditionalParameters = Undefined, Delet
 	
 	AdditionalParameters = AdditionalParametersOfContactInfoOutput(ContactInfoSettings.DetailsOfCommands,
 		ContactInfoSettings.ShouldShowIcons, ItemsPlacedOnForm, AllowAddingFields, ExcludedKinds, HiddenKinds);
+	AdditionalParameters.PositionOfAddButton = ContactInfoSettings.PositionOfAddButton;
+	AdditionalParameters.CommentFieldWidth = ContactInfoSettings.CommentFieldWidth;
 	
 	ContactInformationParameters = ContactInformationOutputParameters(Form, ItemForPlacementName,
 		CITitleLocation, DeferredInitialization, AdditionalParameters);
@@ -1921,7 +1929,7 @@ Procedure OnCreateAtServer(Form, Object, AdditionalParameters = Undefined, Delet
 		GroupContactInfoCommandVals.Group = ChildFormItemsGroup.Vertical;
 		GroupContactInfoCommandVals.HorizontalAlignInGroup = ItemHorizontalLocation.Right;
 		GroupContactInfoCommandVals.HorizontalStretch = False;
-		GroupContactInfoCommandVals.United = False;	
+		GroupContactInfoCommandVals.United = False;
 	EndIf;
 			
 	GroupName = "GroupOfContactInfoValues"+ItemForPlacementName;
@@ -2949,8 +2957,8 @@ EndFunction
 //                                                    description in the address presentation is required.
 //         ** CheckValidity - Boolean - For the EmailAddress type.
 //                                             If True, forbid users to save invalid email addresses.
-//         ** PhoneWithExtension  - Boolean - for the Phone or Fax types. If True, a phone/fax contains
-//                                                  an extension.
+//         ** PhoneWithExtensionNumber  - Boolean - for the Phone or Fax type. If True, then the phone/fax contains
+//                                                  an extension number.
 //         ** EnterNumberByMask - Boolean - for the Phone or Fax types. True if entering a phone by mask is required.
 //         ** PhoneNumberMask  - String - for types Phone or Fax. Contains a character-by-character string of the mask
 //                                           of interactive entering a text in the field. The mask format matches
@@ -3005,6 +3013,10 @@ Procedure SetContactInformationKindProperties(Parameters) Export
 	ValidationSettings = SettingsForCheckingContactInformationParameters(Parameters.Type);
 	
 	If ValidateSettings Then
+		If Parameters.ValidationSettings.Property("PhoneWithExtension") 
+		   And Parameters.ValidationSettings.PhoneWithExtension  Then
+				ValidationSettings.PhoneWithExtensionNumber = Parameters.ValidationSettings.PhoneWithExtension;
+		EndIf;
 		FillPropertyValues(ValidationSettings, Parameters.ValidationSettings);
 	EndIf;
 	
@@ -3013,7 +3025,7 @@ Procedure SetContactInformationKindProperties(Parameters) Export
 	ElsIf ValidateSettings And Parameters.Type = Enums.ContactInformationTypes.Email Then
 		SetValidationAttributesValues(Object, ValidationSettings);
 	ElsIf ValidateSettings And Parameters.Type = Enums.ContactInformationTypes.Phone Then
-		Object.PhoneWithExtension = ValidationSettings.PhoneWithExtension;
+		Object.PhoneWithExtensionNumber = ValidationSettings.PhoneWithExtensionNumber;
 		Object.PhoneNumberMask = ValidationSettings.PhoneNumberMask;
 		Object.EnterNumberByMask = ValidationSettings.EnterNumberByMask;
 	Else
@@ -3182,8 +3194,8 @@ EndFunction
 //       ** SpecifyRNCMT - Boolean - for the Address type. indicates whether manual input of an RNCMT code is available in the address input form.
 //       ** CheckValidity - Boolean - For the EmailAddress type. 
 //                                          If True, forbid users to save invalid email addresses. By default, False.
-//       ** PhoneWithExtension - Boolean - for the Phone and Fax type. If true,
-//                                               you can enter an extension in the phone input form. The default value is True.
+//       ** PhoneWithExtensionNumber - Boolean - for the Phone and Fax type. If True, then an
+//                                               extension number can be entered in the phone entry form. The default value is True.
 //
 Function ContactInformationKindParameters(ContactInformationKindOrType = Undefined) Export
 	
@@ -3655,7 +3667,7 @@ Function CommandDetailsByName(CommandName) Export
 		Return CommandProperties(
 				NStr("en = 'Create mail';"),
 				NStr("en = 'Send an email to the specified address';"),
-				PictureLib.SendEmail,
+				PictureLib.ContactInformationSendEmail,
 				"ContactsManagerClient.BeforeCreateEmailMessage");
 	EndIf;
 	
@@ -3831,23 +3843,23 @@ Procedure OnHideAttributeValue(FullName, Value, StandardProcessing) Export
 		Template = "<ContactInformation xmlns=""http://www.v8.1c.ru/ssl/contactinfo"" xmlns:xs=""http://www.w3.org/2001/XMLSchema"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" Presentation=""%Presentation%""></ContactInformation>";
 		Value = StrReplace(Template, "%Presentation%", New UUID);
 	
-	ElsIf StrEndsWith(FullName, "ContactInformation.Value") And ValueIsFilled(Value) Then  
+	ElsIf StrEndsWith(FullName, "ContactInformation.Value") And ValueIsFilled(Value) Then
 		
 		ContactInformationFields = ContactsManagerInternal.JSONStringToStructure1(Value);
-		
-		FieldsNotProcessed = New Array;
-		FieldsNotProcessed.Add("type");
-		FieldsNotProcessed.Add("apartments");
-		FieldsNotProcessed.Add("buildings");
 		
 		If ContactInformationFields.Count() > 0 Then
 		
 			For Each ContactInformationField1 In ContactInformationFields Do
-				If FieldsNotProcessed.Find(ContactInformationField1.Key) = Undefined
-					And ValueIsFilled(ContactInformationField1.Value) Then
-					ContactInformationFields[ContactInformationField1.Key] =
-						StrReplace(String(New UUID), "-", "");
+				
+				If Not ValueIsFilled(ContactInformationField1.Value)
+					Or TypeOf(ContactInformationField1.Value) = Type("Array")
+					Or ContactInformationField1.Key = "type" Then
+					Continue;
 				EndIf;
+				
+				ContactInformationFields[ContactInformationField1.Key] =
+					StrReplace(String(New UUID), "-", "");
+					
 			EndDo;
 			
 			Value = ContactsManagerInternal.ToJSONStringStructure(ContactInformationFields);
@@ -4063,7 +4075,7 @@ Procedure GenerateContactInformationAttributes(Val Form, Val AttributesToBeAdded
 			EndDo;
 			
 		Else
-						
+			
 			If ObjectOfContactInformation.IsHistoricalContactInformation Then
 				AdjustContactInformation(Form, ObjectOfContactInformation);
 				Continue;
@@ -4091,10 +4103,10 @@ Procedure GenerateContactInformationAttributes(Val Form, Val AttributesToBeAdded
 			
 			If CreatedAttribute = Undefined Then
 				ObjectOfContactInformation.AttributeName = "ContactInformationField" + StrReplace(CurrentKind.UUID(), "-", "x")
-					+ SequenceNumber;
+					+ Format(SequenceNumber, "NG=0");
 				If HasCommentField Then
 					ObjectOfContactInformation.AttributeNameComment = "CommentContactInformationField" + StrReplace(
-						CurrentKind.UUID(), "-", "x") + SequenceNumber;
+						CurrentKind.UUID(), "-", "x") + Format(SequenceNumber, "NG=0");
 				EndIf;
 				If Not DeferredInitialization Then
 					
@@ -4144,6 +4156,10 @@ Procedure HideContactInformation(Val Form, Val AttributesToBeAdded, OutputParame
 	AdditionalParameters = AdditionalParametersOfContactInfoOutput(OutputParameters.DetailsOfCommands,
 		OutputParameters.ShouldShowIcons, OutputParameters.ItemsPlacedOnForm, OutputParameters.AllowAddingFields,
 		OutputParameters.ExcludedKinds, OutputParameters.HiddenKinds);
+		
+	AdditionalParameters.PositionOfAddButton = OutputParameters.PositionOfAddButton;
+	AdditionalParameters.CommentFieldWidth = OutputParameters.CommentFieldWidth;	
+		
 	ContactInformationParameters = ContactInformationOutputParameters(Form, OutputParameters.ItemForPlacementName,
 		OutputParameters.CITitleLocation, OutputParameters.DeferredInitialization, AdditionalParameters);
 		
@@ -4158,11 +4174,19 @@ EndProcedure
 
 Procedure AddAdditionalContactInformationFieldButton(Val Form, Val ItemForPlacementName)
 	
+	ItemContactInformationParameters = Form.ContactInformationParameters[ItemForPlacementName]; // See ContactInformationOutputParameters
+	
 	LongDesc = NStr("en = 'Add additional contact information field';");
 	CommandGroup             = Group("ContactInformationGroupAddInputField" + ItemForPlacementName, 
 		Form, LongDesc, ItemForPlacementName, "GroupContactInfoCommandVals"+ItemForPlacementName);
 	CommandGroup.Representation = UsualGroupRepresentation.NormalSeparation;
-	CommandGroup.HorizontalAlignInGroup = ItemHorizontalLocation.Right;
+	If ItemContactInformationParameters.PositionOfAddButton = "Auto"
+		Or ItemContactInformationParameters.PositionOfAddButton = "Right" Then
+		HorizontalAlignInGroup = ItemHorizontalLocation.Right;
+	Else
+		HorizontalAlignInGroup = ItemHorizontalLocation.Left;
+	EndIf;
+	CommandGroup.HorizontalAlignInGroup = HorizontalAlignInGroup;
 	
 	CommandName          = "ContactInformationAddInputField" + ItemForPlacementName;
 	Command             = Form.Commands.Add(CommandName);
@@ -4173,7 +4197,6 @@ Procedure AddAdditionalContactInformationFieldButton(Val Form, Val ItemForPlacem
 	EndIf;
 	Command.Action    = "Attachable_ContactInformationExecuteCommand";
 	
-	ItemContactInformationParameters = Form.ContactInformationParameters[ItemForPlacementName]; // See ContactInformationOutputParameters
 	ItemContactInformationParameters.AddedItems.Add(CommandName, 9, True);
 	
 	Button             = Form.Items.Add(CommandName,Type("FormButton"), CommandGroup);
@@ -4181,11 +4204,11 @@ Procedure AddAdditionalContactInformationFieldButton(Val Form, Val ItemForPlacem
 	Button.Title   = "+ " + NStr("en = 'Phone number, address';");
 	Command.ModifiesStoredData     = True;
 	Button.CommandName                     = CommandName;
-	Button.HorizontalAlignInGroup = ItemHorizontalLocation.Right;
+	Button.HorizontalAlignInGroup = HorizontalAlignInGroup;
 	Button.PictureLocation              = FormButtonPictureLocation.Right;
 	ItemContactInformationParameters.AddedItems.Add(CommandName, 2, False);
 	
-	If Not Common.IsMobileClient() Then
+	If Not Common.IsMobileClient() And ItemContactInformationParameters.PositionOfAddButton = "Auto" Then
 		// 
 		// 
 		ItemsOfPlacementGroup = Form.Items[ItemForPlacementName].ChildItems;
@@ -4235,11 +4258,11 @@ Procedure AddNoteOnFormSettingsReset(Val Form, Val ItemForPlacementName, Val Def
 		PageHeader = ?(ValueIsFilled(GroupForPlacement.Title), GroupForPlacement.Title, GroupForPlacement.Name);
 		PageGroupHeader1 = ?(ValueIsFilled(PagesGroup.Title), PagesGroup.Title, PagesGroup.Name);
 		
-		PlacementWarning = NStr("en = 'To view the contact information, display the ""%1"" group under any other item in the ""%2"" group. To do so, click More — Change form.';");
+		PlacementWarning = NStr("en = 'To view the contact information, display the ""%1"" group under any other item in the ""%2"" group. To do so, click More actions — Change form.';");
 		PlacementWarning = StringFunctionsClientServer.SubstituteParametersToString(PlacementWarning,
 		PageHeader, PageGroupHeader1);
 		ToolTipText = NStr("en = 'To restore a form to the default settings, do the following:
-		| • Select More — Change form.
+		| • Select More actions — Change form.
 		| • In the Customize form window that opens, select More actions — Restore default settings.';");
 		
 		Decoration = Form.Items.Add("ContactInformationStub", Type("FormDecoration"), GroupForPlacement);
@@ -4342,13 +4365,13 @@ Procedure AddContactInformationRow(Form, Result, ItemForPlacementName, IsNewCIKi
 		AttributeName = StringFunctionsClientServer.SubstituteParametersToString("%1%2%3",
 			"ContactInformationField",
 			StrReplace(KindToAdd.UUID(), "-", "x"),
-			KindRowsCount + 1);
+			Format(KindRowsCount + 1, "NG=0"));
 		AttributeNameComment = "";
 		If HasCommentField Then
 			AttributeNameComment = StringFunctionsClientServer.SubstituteParametersToString("%1%2%3%4",
 			"Comment", "ContactInformationField",
 			StrReplace(KindToAdd.UUID(), "-", "x"),
-			KindRowsCount + 1);
+			Format(KindRowsCount + 1, "NG=0"));
 		EndIf;
 		NewRow.AttributeName              = AttributeName;
 		NewRow.AttributeNameComment   = AttributeNameComment;
@@ -4382,7 +4405,7 @@ Procedure AddContactInformationRow(Form, Result, ItemForPlacementName, IsNewCIKi
 	
 	// Draw items on the form.
 	If Common.IsMobileClient() And ContactInformationParameters.ShouldShowIcons Then
-		GroupStringsTitle = Group("TitleGroup" + AttributeName, Form, KindToAdd.Description, ItemForPlacementName, "GroupOfContactInfoValues"+ItemForPlacementName, 6);
+		GroupStringsTitle = Group("TitleGroup" + AttributeName, Form, KindToAdd.Description, ItemForPlacementName, "GroupOfContactInfoValues" + ItemForPlacementName, 6);
 		GroupStringsTitle.Group = ChildFormItemsGroup.Vertical;
 		GroupStringsTitle.Representation = UsualGroupRepresentation.NormalSeparation; 
 		GroupLinesTitlesPicture = Group("GroupTitlePicture" + AttributeName, Form, KindToAdd.Description, ItemForPlacementName, "TitleGroup" + AttributeName);
@@ -4398,12 +4421,11 @@ Procedure AddContactInformationRow(Form, Result, ItemForPlacementName, IsNewCIKi
 		ContactInformationParameters.AddedItems.Add("Title" + AttributeName, 2, False);
 		ParentGroupName = "TitleGroup" + AttributeName;
 	Else	 
-		 ParentGroupName = "GroupOfContactInfoValues"+ItemForPlacementName;
-	EndIf;	
-
+		 ParentGroupName = "GroupOfContactInfoValues" + ItemForPlacementName;
+	EndIf;
+	
 	StringGroup1 = Group("Group" + AttributeName, Form, KindToAdd.Description, ItemForPlacementName, 
 		ParentGroupName);
-
 	
 	If Common.IsMobileClient() And Not ContactInformationParameters.ShouldShowIcons Then
 		StringGroup1.ShowTitle = True;
@@ -4434,7 +4456,7 @@ Procedure AddContactInformationRow(Form, Result, ItemForPlacementName, IsNewCIKi
 	EndIf;
 		
 	If Common.IsMobileClient() And ContactInformationParameters.ShouldShowIcons Then
-		NameOfNextGroupOfCurrentKind = "TitleGroup" + AttributeName;	
+		NameOfNextGroupOfCurrentKind = "TitleGroup" + AttributeName;
 	Else
 		NameOfNextGroupOfCurrentKind = "Group" + AttributeName;
 	EndIf;
@@ -4493,7 +4515,11 @@ Procedure AddContactInformationRow(Form, Result, ItemForPlacementName, IsNewCIKi
 			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 field, comment';"),
 			KindToAdd.Description), ItemForPlacementName, "Group" + AttributeName, 4);
 	Else
-		GroupFIeldComment = StringGroup1;	
+		GroupFIeldComment = StringGroup1;
+	EndIf;
+	
+	If ContactInformationParameters.HasDestinationGroupWidthLimit Then
+		Form.Items[ItemForPlacementName].HorizontalStretch = False;
 	EndIf;
 	
 	InputField = GenerateInputField(Form, GroupFIeldComment, CIKindInformation, AttributeName, ItemForPlacementName, IsNewCIKind, Mandatory);
@@ -4511,8 +4537,9 @@ Procedure AddContactInformationRow(Form, Result, ItemForPlacementName, IsNewCIKi
 		CommentField.SkipOnInput = True;
 		CommentField.InputHint = NStr("en = 'Note';");
 		CommentField.AutoMaxWidth = False;
-		CommentField.MaxWidth = 30;
-		CommentField.Width = 30;
+		CommentFieldWidth = ?(ContactInformationParameters.HasDestinationGroupWidthLimit, ContactInformationParameters.CommentFieldWidth, 30);
+		CommentField.MaxWidth = CommentFieldWidth;
+		CommentField.Width = CommentFieldWidth;
 		CommentField.HorizontalStretch = False;
 		CommentField.VerticalStretch = False;
 		CommentField.SetAction("OnChange", "Attachable_ContactInformationOnChange");
@@ -4564,6 +4591,8 @@ Function GenerateInputField(Form, Parent, CIKindInformation, AttributeName, Item
 	Item = Form.Items.Add(AttributeName, Type("FormField"), Parent); // 
 	Item.DataPath = AttributeName;
 	
+	HasDestinationGroupWidthLimit = ContactInformationParameters.HasDestinationGroupWidthLimit;
+	
 	If CIKindInformation.EditingOption = "Dialog" And CIKindInformation.Type = Enums.ContactInformationTypes.Address Then
 		
 			Item.Type = FormFieldType.LabelField;
@@ -4614,68 +4643,7 @@ Function GenerateInputField(Form, Parent, CIKindInformation, AttributeName, Item
 	
 	Item.TitleHeight = ?(Common.IsMobileClient(), 1, 3);
 	
-	If CIKindInformation.Type = Enums.ContactInformationTypes.Address Then
-		If CIKindInformation.EditingOption = "InputField" Then
-			Item.DropListButton = True;
-			Item.Width = 70;
-		ElsIf CIKindInformation.EditingOption = "Dialog" Then
-			Item.Width = 73;
-		Else
-			Item.DropListButton = True;
-			Item.Width = 68;
-		EndIf;
-	ElsIf CIKindInformation.Type = Enums.ContactInformationTypes.Phone
-		Or CIKindInformation.Type = Enums.ContactInformationTypes.Fax Then
-		
-		If CIKindInformation.EditingOption = "InputField" Then
-			Item.Width = 40;
-		Else
-			Item.Width = 38;
-		EndIf;
-			
-		If CIKindInformation.EnterNumberByMask Then 
-			PhoneNumberMatchesMask = ContactsManagerInternal.PhoneNumberMatchesMask(Form[AttributeName], CIKindInformation.PhoneNumberMask);	
-			If IsBlankString(Form[AttributeName]) Or PhoneNumberMatchesMask Then
-				Item.Mask = CIKindInformation.PhoneNumberMask;
-			EndIf;
-			
-			ContactInformationTable1 = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form);
-			FoundRows = ContactInformationTable1.FindRows(New Structure("AttributeName", AttributeName));
-			If FoundRows.Count() > 0 Then
-				FoundRows[0].Mask = CIKindInformation.PhoneNumberMask;
-			EndIf;
-			
-		EndIf;
-		
-	ElsIf CIKindInformation.Type = Enums.ContactInformationTypes.Other Then
-		If CIKindInformation.FieldKindOther = "MultilineWide" Then
-			Item.Height = 3;
-			Item.Width = 72;
-			Item.MultiLine = True;
-		ElsIf CIKindInformation.FieldKindOther = "SingleLineWide" Then
-			Item.Height = 1;
-			Item.Width = 72;
-			Item.MultiLine = False;
-		Else // ОднострочноеУзкое
-			Item.Height = 1;
-			Item.Width = 35;
-			Item.MultiLine = False;
-		EndIf;
-	ElsIf CIKindInformation.Type = Enums.ContactInformationTypes.WebPage Then
-		If URLProcessing Then	
-			Item.Width = 73;
-		Else
-			Item.Width = 40;
-		EndIf;
-	ElsIf CIKindInformation.Type = Enums.ContactInformationTypes.Skype Then	
-		Item.Width = 40;
-	Else
-		If CIKindInformation.EditingOption = "InputField" Then
-			Item.Width = 40;
-		Else
-			Item.Width = 35;
-		EndIf;
-	EndIf;
+	SetEntryFieldsProperties(CIKindInformation, Item, Form, AttributeName, URLProcessing);
 	
 	If Not IsNewCIKind Then
 		Item.HorizontalAlignInGroup = ItemHorizontalLocation.Right;
@@ -4738,6 +4706,13 @@ Function GenerateInputField(Form, Parent, CIKindInformation, AttributeName, Item
 		
 	EndIf;
 	
+	If HasDestinationGroupWidthLimit Then
+		Item.Width = 0;
+		Item.MaxWidth = 0;
+		Item.AutoMaxWidth = False;
+		Item.HorizontalStretch = True
+	EndIf;
+	
 	Return Item;
 	
 EndFunction
@@ -4770,6 +4745,26 @@ Procedure PrepareStaticItem(Form, CIRow, CreatedItems, CreatedElement, ShouldSho
 			Or StringGroup1.Parent = Form.Items["GroupOfContactInfoValues"+ItemForPlacementName] Then			
 			Form.Items.Move(StringGroup1, Form.Items["GroupOfContactInfoValues"+ItemForPlacementName]);
 		EndIf;
+		ContactInformationParameters = FormContactInformationParameters(Form.ContactInformationParameters, ItemForPlacementName);
+		
+		ButtonName = "Command" + CIRow.AttributeName;
+		If Form.Items.Find(ButtonName) <> Undefined Then
+			Button = Form.Items[ButtonName];
+			If Form.Commands[Button.CommandName].Action = "Attachable_ContactInformationExecuteCommand" Then
+				ShouldDisplayHistory = CIRow.StoreChangeHistory And Not CIRow.DeletionMark;
+				CommandsForOutput = ContactsManagerClientServer.CommandsToOutputToForm(ContactInformationParameters, 
+					CIRow.Type, CIRow.Kind, ShouldDisplayHistory);
+				CommandsCount = CommandsForOutput.Count();
+				If CommandsCount = 1 Then
+					For Each CommandForOutput In CommandsForOutput Do
+						FillPropertyValues(Button, CommandForOutput.Value, "Picture");
+					EndDo;
+				ElsIf CommandsCount > 1 Then
+					Button.Picture = PictureLib.MenuAdditionalFunctions;
+				EndIf;
+			EndIf;
+		EndIf;
+		
 		If Common.IsMobileClient() Then
 			
 			If Form.Items.Find(CIRow.AttributeName) <> Undefined Then
@@ -4785,8 +4780,7 @@ Procedure PrepareStaticItem(Form, CIRow, CreatedItems, CreatedElement, ShouldSho
 				
 				GroupLinesTitlesPicture = Group("GroupTitlePicture" + CIRow.AttributeName, Form, StringGroup1.Title, ItemForPlacementName, "TitleGroup" + CIRow.AttributeName);
 				
-				ContactInformationParameters = FormContactInformationParameters(Form.ContactInformationParameters, ItemForPlacementName);
-				
+								
 				PictureItemName = "Picture" + CIRow.AttributeName;
 				If Form.Items.Find(PictureItemName) <> Undefined Then
 					ItemPicture1 = Form.Items[PictureItemName];			
@@ -4819,6 +4813,29 @@ Procedure PrepareStaticItem(Form, CIRow, CreatedItems, CreatedElement, ShouldSho
 			
 		Else
 			
+			If ContactInformationParameters.HasDestinationGroupWidthLimit Then
+				If Form.Items.Find(CIRow.AttributeName) <> Undefined Then
+					InputField = Form.Items[CIRow.AttributeName];
+					InputField.Width = 0;
+					InputField.MaxWidth = 0;
+					InputField.AutoMaxWidth = False;
+					InputField.HorizontalStretch = True;
+				EndIf;
+				
+				ItemNameComment = "Comment" + CIRow.AttributeName;
+				If Form.Items.Find(ItemNameComment) <> Undefined Then
+					CommentField = Form.Items[ItemNameComment];
+					CommentField.MaxWidth = ContactInformationParameters.CommentFieldWidth;
+					CommentField.Width = ContactInformationParameters.CommentFieldWidth;
+				EndIf; 
+			Else
+				If Form.Items.Find(CIRow.AttributeName) <> Undefined Then
+					InputField = Form.Items[CIRow.AttributeName]; 
+					URLProcessing = ContactInformationParameters.URLProcessing;
+					SetEntryFieldsProperties(CIRow, InputField, Form, CIRow.AttributeName, URLProcessing);
+				EndIf;
+			EndIf;
+			
 			PictureItemName = "Picture" + CIRow.AttributeName;
 			If ShouldShowIcons And Form.Items.Find(PictureItemName) = Undefined Then
 				If StringGroup1.Parent = Form.Items["GroupOfContactInfoValues"+ItemForPlacementName] Then
@@ -4835,6 +4852,66 @@ Procedure PrepareStaticItem(Form, CIRow, CreatedItems, CreatedElement, ShouldSho
 			EndIf;
 			
 		EndIf;
+	EndIf;
+	
+EndProcedure
+
+Procedure SetEntryFieldsProperties(CIKindInformation, Item, Form, AttributeName, URLProcessing)
+	
+	If CIKindInformation.Type = Enums.ContactInformationTypes.Address Then
+		If CIKindInformation.EditingOption = "InputField" Then
+			Item.DropListButton = True;
+			Item.Width = 70;
+		ElsIf CIKindInformation.EditingOption = "Dialog" Then
+			Item.Width = 73;
+		Else
+			Item.DropListButton = True;
+			Item.Width = 68;
+		EndIf;
+	ElsIf CIKindInformation.Type = Enums.ContactInformationTypes.Phone
+		Or CIKindInformation.Type = Enums.ContactInformationTypes.Fax Then
+		
+		If CIKindInformation.EditingOption = "InputField" Then
+			Item.Width = 40;
+		Else
+			Item.Width = 38;
+		EndIf;
+		
+		If CIKindInformation.EnterNumberByMask Then 
+			PhoneNumberMatchesMask = ContactsManagerInternal.PhoneNumberMatchesMask(Form[AttributeName], CIKindInformation.PhoneNumberMask);	
+			If IsBlankString(Form[AttributeName]) Or PhoneNumberMatchesMask Then
+				Item.Mask = CIKindInformation.PhoneNumberMask;
+			EndIf;
+			
+			ContactInformationTable1 = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form);
+			FoundRows = ContactInformationTable1.FindRows(New Structure("AttributeName", AttributeName));
+			If FoundRows.Count() > 0 Then
+				FoundRows[0].Mask = CIKindInformation.PhoneNumberMask;
+			EndIf;
+		EndIf;
+		
+	ElsIf CIKindInformation.Type = Enums.ContactInformationTypes.Other Then
+		If CIKindInformation.FieldKindOther = "MultilineWide" Then
+			Item.Height = 3;
+			Item.Width = 72;
+			Item.MultiLine = True;
+		ElsIf CIKindInformation.FieldKindOther = "SingleLineWide" Then
+			Item.Height = 1;
+			Item.Width = 72;
+			Item.MultiLine = False;
+		Else // ОднострочноеУзкое
+			Item.Height = 1;
+			Item.Width = 35;
+			Item.MultiLine = False;
+		EndIf;
+	ElsIf CIKindInformation.Type = Enums.ContactInformationTypes.WebPage Then
+		If URLProcessing Then	
+			Item.Width = 73;
+		Else
+			Item.Width = 40;
+		EndIf;
+	Else
+		Item.Width = 40;
 	EndIf;
 	
 EndProcedure
@@ -5233,8 +5310,8 @@ Procedure SetContactInformationKindDescription(Val Object, Val Description)
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		LanguagesInformationRecords = ModuleNativeLanguagesSupportServer.LanguagesInformationRecords();
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		LanguagesInformationRecords = ModuleNationalLanguageSupportServer.LanguagesInformationRecords();
 		
 		PresentationLanguage1 = "";
 		PresentationLanguage2 = "";
@@ -5252,7 +5329,7 @@ Procedure SetContactInformationKindDescription(Val Object, Val Description)
 		
 		If IsBlankString(PresentationLanguage1) Then
 			
-			CaptionLanguage1 = DescriptionsInDifferentLanguages.Get(ModuleNativeLanguagesSupportServer.FirstAdditionalInfobaseLanguageCode());
+			CaptionLanguage1 = DescriptionsInDifferentLanguages.Get(ModuleNationalLanguageSupportServer.FirstAdditionalInfobaseLanguageCode());
 			If TypeOf(CaptionLanguage1) = Type("Map") Then
 				PresentationLanguage1 = CaptionLanguage1.Get(PredefinedKindName);
 			EndIf;
@@ -5260,7 +5337,7 @@ Procedure SetContactInformationKindDescription(Val Object, Val Description)
 		EndIf;
 		
 		If IsBlankString(PresentationLanguage2) Then
-			CaptionLanguage2 = DescriptionsInDifferentLanguages.Get(ModuleNativeLanguagesSupportServer.SecondAdditionalInfobaseLanguageCode());
+			CaptionLanguage2 = DescriptionsInDifferentLanguages.Get(ModuleNationalLanguageSupportServer.SecondAdditionalInfobaseLanguageCode());
 			If TypeOf(CaptionLanguage2) = Type("Map") Then
 				PresentationLanguage2 = CaptionLanguage2.Get(PredefinedKindName);
 			EndIf;
@@ -5273,7 +5350,6 @@ Procedure SetContactInformationKindDescription(Val Object, Val Description)
 	
 EndProcedure
 
-
 Procedure ContactInformationConvertionToJSON(ContactInformation)
 	
 	// Conversion.
@@ -5281,13 +5357,19 @@ Procedure ContactInformationConvertionToJSON(ContactInformation)
 		If IsBlankString(CIRow.Value) Then
 			If ValueIsFilled(CIRow.FieldValues) Then
 				
+				ConversionSettings = ContactInformationConversionSettings();
+				ConversionSettings.UpdateIDs             = False;
+				ConversionSettings.ShouldRestoreContactInfo = False;
+				ConversionSettings.Presentation                       = CIRow.Presentation;
+				
 				ContactInformationByFields = ContactsManagerInternal.ContactInformationToJSONStructure(CIRow.FieldValues,
-				CIRow.Type, CIRow.Presentation, False);
+					CIRow.Type, ConversionSettings);
+				
+				If CIRow.Type = Enums.ContactInformationTypes.Address
+				   And ContactsManagerClientServer.IsAddressInFreeForm(ContactInformationByFields.AddressType) Then
+						Continue;
+				EndIf;
 				CIRow.Value = ContactsManagerInternal.ToJSONStringStructure(ContactInformationByFields);
-				
-			ElsIf ValueIsFilled(CIRow.Presentation) Then
-				
-				CIRow.Value = ContactsByPresentation(CIRow.Presentation, CIRow.Type);
 				
 			EndIf;
 			
@@ -5300,6 +5382,16 @@ Procedure ContactInformationConvertionToJSON(ContactInformation)
 	EndDo;
 
 EndProcedure
+
+Function ContactInformationConversionSettings() Export
+	
+	Result = New Structure();
+	Result.Insert("UpdateIDs",             True);
+	Result.Insert("ShouldRestoreContactInfo", True);
+	Result.Insert("Presentation",                       "");
+	Return Result;
+	
+EndFunction
 
 Procedure CreateTabularSectionItems(Val Form, Val ObjectName, ItemForPlacementName, 
 	Val ContactInformationRow, Val ContactInformationKindData)
@@ -5506,8 +5598,8 @@ Function AddressFIllErrors(Source, InformationKind, AttributeName = "", Attribut
 	EndIf;
 	
 	If Metadata.DataProcessors.Find("AdvancedContactInformationInput") <> Undefined Then
-		ErrorsList = DataProcessors["AdvancedContactInformationInput"].AddressFIllErrors(Source, InformationKind);
-		For Each Item In ErrorsList Do
+		ErrorList = DataProcessors["AdvancedContactInformationInput"].AddressFIllErrors(Source, InformationKind);
+		For Each Item In ErrorList Do
 			
 			OutputUserMessage(Item.ErrorText, AttributeName, AttributeField);
 			HasErrors = True;
@@ -5549,9 +5641,9 @@ Function PhoneFillingErrors(Source, InformationKind, AttributeName = "")
 		ModuleAddressManager = Common.CommonModule("AddressManager");
 	EndIf;
 	
-	ErrorsList  = ContactsManagerClientServer.PhoneFillingErrors(InfoAboutPhone, ModuleAddressManager);
+	ErrorList  = ContactsManagerClientServer.PhoneFillingErrors(InfoAboutPhone, ModuleAddressManager);
 
-	For Each Item In ErrorsList Do
+	For Each Item In ErrorList Do
 		
 		If ValueIsFilled(AttributeName) Then
 			OutputUserMessage(Item.Presentation, AttributeName);
@@ -5639,19 +5731,8 @@ EndFunction
 //                        - FormItemTitleLocation
 //   DeferredInitialization - Array
 //                           - Boolean
-//   AdditionalParameters - Structure:
-//     * DetailsOfCommands   - See DetailsOfCommands 
-//     * ShouldShowIcons - Boolean              
-//     * ItemsPlacedOnForm - Map of KeyAndValue:
-//         * Key - CatalogRef.ContactInformationKinds
-//         * Value - Boolean
-//                        - Undefined
-//     * AllowAddingFields - Boolean
-//     * ExcludedKinds  - Array
-//                        - Undefined
-//     * HiddenKinds   - Array
-//                        - Undefined
-// 	
+//   AdditionalParameters - See AdditionalParametersOfContactInfoOutput
+//
 // Returns:
 //  Structure:
 //   * GroupForPlacement - String
@@ -5678,6 +5759,9 @@ EndFunction
 //       * Value - Boolean
 //                  - Undefined
 //   * AllowAddingFields - Boolean
+//   * CommentFieldWidth - Number
+//   * PositionOfAddButton - String -
+//   * HasDestinationGroupWidthLimit - Boolean
 //
 Function ContactInformationOutputParameters(Form, ItemForPlacementName, CITitleLocation,
 	DeferredInitialization, AdditionalParameters)
@@ -5710,6 +5794,9 @@ Function ContactInformationOutputParameters(Form, ItemForPlacementName, CITitleL
 	ContactInformationParameters.Insert("ShouldShowIcons",                 AdditionalParameters.ShouldShowIcons);
 	ContactInformationParameters.Insert("ItemsPlacedOnForm",                 AdditionalParameters.ItemsPlacedOnForm);
 	ContactInformationParameters.Insert("AllowAddingFields",         AdditionalParameters.AllowAddingFields);
+	ContactInformationParameters.Insert("CommentFieldWidth",            AdditionalParameters.CommentFieldWidth);
+	ContactInformationParameters.Insert("PositionOfAddButton",          String(AdditionalParameters.PositionOfAddButton));
+	ContactInformationParameters.Insert("HasDestinationGroupWidthLimit", HasDestinationGroupWidthLimit(Form.Items[ItemForPlacementName]));
 	
 	AddressParameters = New Structure("PremiseType, Country, IndexOf", "Appartment");
 	ContactInformationParameters.Insert("AddressParameters", AddressParameters);
@@ -5718,6 +5805,30 @@ Function ContactInformationOutputParameters(Form, ItemForPlacementName, CITitleL
 	Return Form.ContactInformationParameters[ItemForPlacementName];
 	
 EndFunction
+
+// 
+// 
+//
+Function HasDestinationGroupWidthLimit(Group)
+
+	WidthCap = False;
+	CheckGroupForWidthRestrictionsRecursively(Group, WidthCap);
+	
+	Return WidthCap;
+
+EndFunction
+
+Procedure CheckGroupForWidthRestrictionsRecursively(Group, WidthCap)
+	
+	If Group.Width <> 0 And Group.Width < 90 Then
+		WidthCap = True;
+	EndIf;
+	
+	If TypeOf(Group) <> Type("ClientApplicationForm") Then
+		CheckGroupForWidthRestrictionsRecursively(Group.Parent, WidthCap);
+	EndIf;
+	
+EndProcedure
 
 Function ObjectContactInformationKindsGroup(Val FullMetadataObjectName)
 	
@@ -5796,6 +5907,13 @@ Procedure CreateAction(Form, ContactInformationKind, AttributeName, ActionGroup1
 
 	CommandsCount = CommandsForOutput.Count();
 	If CommandsCount = 0 Then
+		If ContactInfoParameters.HasDestinationGroupWidthLimit Then
+			Decoration = Form.Items.Add("Indent" + AttributeName, Type("FormDecoration"), ActionGroup1);
+			Decoration.Type       = FormDecorationType.Picture;
+			Decoration.Width    = 3;
+			Decoration.Title = NStr("en = 'Indent';");
+			Decoration.Height    = 1;
+		EndIf;
 		Return;
 	EndIf;
 	
@@ -6007,9 +6125,6 @@ Procedure UpdateConextMenu(Form, ItemForPlacementName)
 				AddressPresentation = "";
 			Else
 				AddressData = New Structure("Presentation, Address", AddressPresentation, Address.Value);
-				If CIRow.InternationalAddressFormat Then
-					AddressData.Address = ContactsByPresentation(AddressPresentation, Address.Type);
-				EndIf;
 				AddressesListInSubmenu.Insert(Upper(Address.Presentation), AddressData);
 			EndIf;
 				
@@ -6187,7 +6302,7 @@ Function ParametersFromContactInformationKind(Val ContactInformationKind)
 	|	ContactInformationKinds.EditingOption AS EditingOption,
 	|	ContactInformationKinds.AddlOrderingAttribute AS AddlOrderingAttribute,
 	|	ContactInformationKinds.HideObsoleteAddresses AS HideObsoleteAddresses,
-	|	ContactInformationKinds.PhoneWithExtension AS PhoneWithExtension,
+	|	ContactInformationKinds.PhoneWithExtensionNumber AS PhoneWithExtensionNumber,
 	|	ContactInformationKinds.PhoneNumberMask AS PhoneNumberMask,
 	|	ContactInformationKinds.EnterNumberByMask AS EnterNumberByMask,
 	|	ContactInformationKinds.Type AS Type,
@@ -6229,7 +6344,7 @@ Function ParametersFromContactInformationKind(Val ContactInformationKind)
 	ElsIf Type = Enums.ContactInformationTypes.Email Then
 		KindParameters.ValidationSettings.CheckValidity = CurrentParameters.CheckValidity;
 	ElsIf Type = Enums.ContactInformationTypes.Phone Then
-		KindParameters.ValidationSettings.PhoneWithExtension = CurrentParameters.PhoneWithExtension;
+		KindParameters.ValidationSettings.PhoneWithExtensionNumber = CurrentParameters.PhoneWithExtensionNumber;
 		KindParameters.ValidationSettings.PhoneNumberMask = CurrentParameters.PhoneNumberMask;
 		KindParameters.ValidationSettings.EnterNumberByMask = CurrentParameters.EnterNumberByMask;
 	ElsIf Type = Enums.ContactInformationTypes.Other Then
@@ -6259,6 +6374,7 @@ Function SettingsForCheckingContactInformationParameters(Val ContactInformationT
 	ElsIf ContactInformationType =  Enums.ContactInformationTypes.Phone Then
 		ValidationSettings = New Structure;
 		ValidationSettings.Insert("PhoneWithExtension",    True);
+		ValidationSettings.Insert("PhoneWithExtensionNumber",    True);
 		ValidationSettings.Insert("EnterNumberByMask", False);
 		ValidationSettings.Insert("PhoneNumberMask", "");
 	EndIf;
@@ -6376,8 +6492,8 @@ EndFunction
 //       ** SpecifyRNCMT - Boolean - for the Address type. indicates whether manual input of an RNCMT code is available in the address input form.
 //       ** CheckValidity - Boolean - for the type of electronic mail address. If True, the user is prohibited from entering 
 //                                           an incorrect email address. The default value is False.
-//       ** PhoneWithExtension - Boolean - for the Phone or Fax type. If true,
-//                                               you can enter an extension in the phone input form. The default value is True.
+//       ** PhoneWithExtensionNumber - Boolean - for the Phone or Fax type. If True, then an
+//                                               extension number can be entered in the phone entry form. The default value is True.
 //
 Function ContactInformationParametersDetails(Val ContactInformationType)
 	
@@ -6565,8 +6681,8 @@ Function GenerateQueryText(Val HasColumnTabularSectionRowID, Val QueryTextHistor
 	If CurrentLanguageSuffix <> Undefined Then
 		
 		If ValueIsFilled(CurrentLanguageSuffix) Then
-			ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-			ModuleNativeLanguagesSupportServer.ChangeRequestFieldUnderCurrentLanguage(QueryText, "ContactInformationKinds.Description AS Description");
+			ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+			ModuleNationalLanguageSupportServer.ChangeRequestFieldUnderCurrentLanguage(QueryText, "ContactInformationKinds.Description AS Description");
 		EndIf;
 		
 	Else
@@ -6734,6 +6850,8 @@ EndProcedure
 //                       - Undefined
 //    * HiddenKinds   - Array
 //                       - Undefined
+//    * CommentFieldWidth - Number
+//    * PositionOfAddButton - ItemHorizontalLocation
 //
 Function AdditionalParametersOfContactInfoOutput(DetailsOfCommands, ShouldShowIcons, ItemsPlacedOnForm,
 	AllowAddingFields, ExcludedKinds, HiddenKinds) 
@@ -6745,6 +6863,8 @@ Function AdditionalParametersOfContactInfoOutput(DetailsOfCommands, ShouldShowIc
 	AdditionalParameters.Insert("AllowAddingFields", AllowAddingFields);
 	AdditionalParameters.Insert("ExcludedKinds",          ExcludedKinds);
 	AdditionalParameters.Insert("HiddenKinds",           HiddenKinds);
+	AdditionalParameters.Insert("CommentFieldWidth",    30);
+	AdditionalParameters.Insert("PositionOfAddButton", ItemHorizontalLocation.Left);
 	
 	Return AdditionalParameters;
 
@@ -6755,6 +6875,8 @@ Function SubsystemSettings(ContactInformationOwner)
 	Settings = New Structure;
 	Settings.Insert("ShouldShowIcons", False);
 	Settings.Insert("DetailsOfCommands", DetailsOfCommands());
+	Settings.Insert("PositionOfAddButton", ItemHorizontalLocation.Left);
+	Settings.Insert("CommentFieldWidth", 30);
 	
 	ContactsManagerOverridable.OnDefineSettings(Settings);
 	

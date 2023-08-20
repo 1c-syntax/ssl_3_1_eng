@@ -16,7 +16,7 @@
 			<Synonym>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Data staging manager</v8:content>
+					<v8:content>Data registration manager</v8:content>
 				</v8:item>
 			</Synonym>
 			<Comment/>
@@ -34,7 +34,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Document sequence autostage</v8:content>
+							<v8:content>Autoregister sequences</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -47,7 +47,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Document sequence autostage</v8:content>
+							<v8:content>Autoregister document sequences</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -73,7 +73,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Autostage records</v8:content>
+							<v8:content>Autoregister records</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -86,7 +86,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Autostage document register record.</v8:content>
+							<v8:content>Autoregister document register records</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -277,7 +277,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Registration with SSL methods is available</v8:content>
+							<v8:content>Registration with SSL available</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -290,7 +290,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Registration with SSL methods is available.</v8:content>
+							<v8:content>Registration with SSL available</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -355,7 +355,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Asynchronous registration is available</v8:content>
+							<v8:content>Asynchronous registration available</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -368,9 +368,43 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Registration in asynchronous mode is available.</v8:content>
+							<v8:content>Registration in asynchronous mode available</v8:content>
 						</v8:item>
 					</ToolTip>
+					<MarkNegatives>false</MarkNegatives>
+					<Mask/>
+					<MultiLine>false</MultiLine>
+					<ExtendedEdit>false</ExtendedEdit>
+					<MinValue xsi:nil="true"/>
+					<MaxValue xsi:nil="true"/>
+					<FillChecking>DontCheck</FillChecking>
+					<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
+					<ChoiceParameterLinks/>
+					<ChoiceParameters/>
+					<QuickChoice>Auto</QuickChoice>
+					<CreateOnInput>Auto</CreateOnInput>
+					<ChoiceForm/>
+					<LinkByType/>
+					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="c0f5bbe1-3247-4bbe-a28e-8c55748e7d42">
+				<Properties>
+					<Name>BatchRegistrationIsAvailable</Name>
+					<Synonym>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Batch registration available</v8:content>
+						</v8:item>
+					</Synonym>
+					<Comment/>
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+					<PasswordMode>false</PasswordMode>
+					<Format/>
+					<EditFormat/>
+					<ToolTip/>
 					<MarkNegatives>false</MarkNegatives>
 					<Mask/>
 					<MultiLine>false</MultiLine>
@@ -401,7 +435,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Register changes for sending</v8:content>
+							<v8:content>Register changes to send</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>

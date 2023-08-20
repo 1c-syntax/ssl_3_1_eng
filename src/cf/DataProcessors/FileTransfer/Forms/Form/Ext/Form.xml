@@ -50,7 +50,7 @@
 						<Presentation>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Between volumes on hard drive</v8:content>
+								<v8:content>Between volumes</v8:content>
 							</v8:item>
 						</Presentation>
 						<Value xsi:type="xs:string">MoveBetweenVolumes</Value>
@@ -63,7 +63,7 @@
 						<Presentation>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>From infobase to volumes on hard drive</v8:content>
+								<v8:content>From infobase to volumes</v8:content>
 							</v8:item>
 						</Presentation>
 						<Value xsi:type="xs:string">MoveToVolumes</Value>
@@ -76,7 +76,7 @@
 						<Presentation>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>From volumes on hard drive to infobase</v8:content>
+								<v8:content>From volumes to infobase</v8:content>
 							</v8:item>
 						</Presentation>
 						<Value xsi:type="xs:string">MoveToInfobase</Value>

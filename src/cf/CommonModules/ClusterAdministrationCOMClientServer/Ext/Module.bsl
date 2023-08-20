@@ -164,8 +164,8 @@ Procedure CheckAdministrationParameters(Val ClusterAdministrationParameters, Val
 			Raise;
 #Else
 			Raise ErrorProcessing.BriefErrorDescription(ErrorInfo()) + Chars.LF + Chars.LF
-				+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'If the comcntr add-in version mismatch error occurs, register it on computer %1
-					|for Windows OS account under which 1C:Enterprise runs. Example:
+				+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'If the comcntr version mismatch error occurs, register comcntr on computer %1
+					|using a Windows account under which 1C:Enterprise runs. Example:
 					|regsvr32.exe ""%2\comcntr.dll""';"), ComputerName(), BinDir());
 #EndIf
 		EndTry;
@@ -900,7 +900,7 @@ Function COMConnector()
 #ElsIf MobileClient Then
 	Raise NStr("en = 'Warning! The mobile client does not support cluster administration.';");
 #Else
-	Return New COMObject(StandardSubsystemsClient.ClientRunParameters().COMConnectorName);
+	Return New COMObject(CommonClientServer.COMConnectorName());
 #EndIf
 	
 	// ACC:547-on

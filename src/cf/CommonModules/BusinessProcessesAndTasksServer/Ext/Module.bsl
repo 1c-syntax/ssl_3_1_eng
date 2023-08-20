@@ -66,7 +66,7 @@ Procedure TaskFormOnCreateAtServer(BusinessTaskForm, TaskObject,
 		If Item = Undefined Then
 			Item = BusinessTaskForm.Items.Add("__HeadTask", Type("FormDecoration"), Parent);
 			Item.Type = FormDecorationType.Label;
-			Item.Title = NStr("en = 'This is a leading task for nested business processes. It will be completed automatically upon their completion.';");
+			Item.Title = NStr("en = 'This is a head task for nested business processes. It will be completed automatically upon their completion.';");
 			Item.Height = 0; // автовысота
 			Item.AutoMaxWidth = False;
 		EndIf;
@@ -854,9 +854,9 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Scheduled job handlers.
 
-// Runs notification mailing to assignees on new tasks received since the date of previous mailing.
-// Notifications are sent using email on behalf of the system account.
-// Also it is the NewPerformerTaskNotifications scheduled job handler.
+// 
+// 
+// 
 //
 Procedure NotifyPerformersOnNewTasks() Export
 	
@@ -886,7 +886,7 @@ Procedure NotifyPerformersOnNewTasks() Export
 		LatestNotificationDate, NotificationDate3));
 	
 	TasksByPerformers = SelectNewTasksByPerformers(LatestNotificationDate, NotificationDate3);
-	Recipients = CommonClientServer.CollapseArray(TasksByPerformers.UnloadColumn("Performer"));
+	Recipients = CommonClientServer.CollapseArray(TasksByPerformers.Rows.UnloadColumn("Performer"));
 	RecipientsAddresses = Emails(Recipients);
 	For Each PerformerRow In TasksByPerformers.Rows Do
 		SendNotificationOnNewTasks(PerformerRow.Performer, PerformerRow, RecipientsAddresses);
@@ -902,12 +902,12 @@ Procedure NotifyPerformersOnNewTasks() Export
 	
 EndProcedure
 
-// Runs notification mailing to task assignees and authors on overdue tasks.
-// Notifications are sent using email on behalf of the system account.
-// If a task is sent to a role with no assignee,
-// a new task to the persons responsible for role setting is created.
+// 
+// 
+// 
+// 
 //
-// Also it is the TaskMonitoring scheduled job handler.
+// 
 //
 Procedure CheckTasks() Export
 	
@@ -1078,6 +1078,28 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.ExecutionMode = "Seamless";
 	Handler.Procedure = "BusinessProcessesAndTasksServer.FillPredefinedItemDescriptionAllAddressingObjects";
 	
+	Handler = Handlers.Add();
+	Handler.Procedure = "InformationRegisters.BusinessProcessesData.ProcessDataForMigrationToNewVersion";
+	Handler.Version = "3.1.9.99";
+	Handler.ExecutionMode = "Deferred";
+	Handler.Id = New UUID("5137a43e-75aa-4a68-ba2f-525a3a646de8");
+	Handler.Multithreaded = True;
+	Handler.UpdateDataFillingProcedure = "InformationRegisters.BusinessProcessesData.RegisterDataToProcessForMigrationToNewVersion";
+	Handler.CheckProcedure = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
+	Handler.Comment = NStr("en = 'Populate the State attribute in the ""Business processes"" information register.';");
+	Handler.ObjectsToChange = Metadata.InformationRegisters.BusinessProcessesData.FullName();
+	Handler.ObjectsToLock = Metadata.InformationRegisters.BusinessProcessesData.FullName();
+
+	ItemsToRead = New Array;
+	BusinessProcessesTypes = Metadata.DefinedTypes.BusinessProcess.Type;
+	If Not BusinessProcessesTypes.ContainsType(Type("String")) Then
+		For Each BusinessProcessType In BusinessProcessesTypes.Types() Do 
+			ItemsToRead.Add(Metadata.FindByType(BusinessProcessType).FullName());
+		EndDo;	
+	EndIf;
+	ItemsToRead.Add(Metadata.InformationRegisters.BusinessProcessesData.FullName());
+	Handler.ObjectsToRead = StrConcat(ItemsToRead, ",");
+	
 EndProcedure
 
 // See SSLSubsystemsIntegration.OnDeterminePerformersGroups.
@@ -1178,8 +1200,8 @@ EndProcedure
 // See JobsQueueOverridable.OnGetTemplateList
 Procedure OnGetTemplateList(JobTemplates) Export
 	
-	JobTemplates.Add("TaskMonitoring");
-	JobTemplates.Add("NewPerformerTaskNotifications");
+	JobTemplates.Add(Metadata.ScheduledJobs.TaskMonitoring.Name);
+	JobTemplates.Add(Metadata.ScheduledJobs.NewPerformerTaskNotifications.Name);
 	
 EndProcedure
 
@@ -1528,7 +1550,7 @@ Function SelectOverdueTasks()
 	OverdueTasks = OverdueTasksList();
 	
 	IndexOf = OverdueTasks.Count() - 1;
-	While IndexOf > 0 Do
+	While IndexOf >= 0 Do
 		OverdueTask = OverdueTasks.Get(IndexOf);
 		If Not ValueIsFilled(OverdueTask.Performer) And BusinessProcessesAndTasksServerCall.IsHeadTask(OverdueTask.Ref) Then
 			OverdueTasks.Delete(OverdueTask);
@@ -1935,8 +1957,8 @@ Function SelectRolesWithPerformerCount(MainAddressingObject) Export
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		CurrentLanguageSuffix = ModuleNativeLanguagesSupportServer.CurrentLanguageSuffix();
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		CurrentLanguageSuffix = ModuleNationalLanguageSupportServer.CurrentLanguageSuffix();
 
 		If ValueIsFilled(CurrentLanguageSuffix) Then
 			QueryText = StrReplace(QueryText, "PerformerRoles.Description", 
@@ -2544,7 +2566,7 @@ Function SystemEmailAccountIsSetUp(ErrorDescription)
 		If ModuleEmailOperations.AccountSetUp(ModuleEmailOperations.SystemAccount(), True, False) Then
 			Return True;
 		EndIf;
-		ErrorDescription = NStr("en = 'System email account is not configured for sending.';");
+		ErrorDescription = NStr("en = 'The service email account is not set up.';");
 	EndIf;
 	
 	Return False;

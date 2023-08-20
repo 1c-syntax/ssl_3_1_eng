@@ -619,6 +619,8 @@ Function CopyFileToFTPServer(Val SourceFileName, ReceiverFileName, Val Timeout)
 		Return False;
 	EndIf;
 	
+	CreateDirectoryIfNecessary(FTPConnection, DirectoryAtServer);
+	
 	Try
 		FTPConnection.Put(SourceFileName, DirectoryAtServer + ReceiverFileName);
 	Except
@@ -640,6 +642,27 @@ Function CopyFileToFTPServer(Val SourceFileName, ReceiverFileName, Val Timeout)
 	Return FilesArray.Count() > 0;
 	
 EndFunction
+
+Procedure CreateDirectoryIfNecessary(FTPConnection, DirectoryAtServer)
+	
+	If DirectoryAtServer = "/" Then
+		Return;
+	EndIf;
+	
+	NamesArray = StrSplit(DirectoryAtServer, "/", False);
+	DirectoryName = "";
+	
+	For Each Name In NamesArray Do
+		
+		DirectoryName = DirectoryName + "/" + Name;
+		
+		If FTPConnection.FindFiles(DirectoryName).Count() = 0 Then
+			FTPConnection.CreateDirectory(DirectoryName);
+		EndIf;
+		
+	EndDo;
+	
+EndProcedure
 
 Function DeleteFileAtFTPServer(Val FileName, ConnectionCheckUp = False)
 	

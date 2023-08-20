@@ -182,9 +182,13 @@
 				<xr:Item xsi:type="xr:MDObjectRef">FunctionalOption.StandaloneWorkplace</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.DataExchangeFormatTranslationCached</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.DataExchangeEmailAccounts</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Constant.UsePerformanceMonitoringOfDataSynchronization</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.DataExchangeValuationOfPerformance</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Catalog.DataExchangesSessions</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">XDTOPackage.EnterpriseData_1_11_7</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">XDTOPackage.EnterpriseData_1_12_1</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">XDTOPackage.EnterpriseData_1_15_3</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">XDTOPackage.EnterpriseData_1_12_1</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">WebService.Exchange_3_0_2_2</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects>

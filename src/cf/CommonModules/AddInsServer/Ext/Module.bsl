@@ -80,44 +80,41 @@ EndFunction
 
 // OnlineUserSupport.GetAddIns
 
-// Returns the table of add-ins details to be updated from the 1C:ITS Portal automatically.
+// 
+//
+// Parameters:
+//  Variant - String -
+//    
+//    
+//    
 //
 // Returns:
-//   See GetAddIns.AddInsDetails
+//   - See GetAddIns.AddInsDetails
+//   
 //
-Function AutomaticallyUpdatedAddIns() Export
+Function ComponentsToUse(Variant) Export
 	
-	If Common.SubsystemExists("OnlineUserSupport.GetAddIns") Then
-		
-		Query = New Query;
-		Query.Text = 
-			"SELECT
-			|	AddIns.Id AS Id,
-			|	AddIns.Version AS Version
-			|FROM
-			|	Catalog.AddIns AS AddIns
-			|WHERE
-			|	AddIns.UpdateFrom1CITSPortal";
-		
-		QueryResult = Query.Execute();
-		Selection = QueryResult.Select();
-		
-		ModuleGetAddIns = Common.CommonModule("GetAddIns");
-		AddInsDetails = ModuleGetAddIns.AddInsDetails();
-		
-		While Selection.Next() Do
-			ComponentDetails = AddInsDetails.Add();
-			ComponentDetails.Id = Selection.Id;
-			ComponentDetails.Version = Selection.Version;
-		EndDo;
-		
-		Return AddInsDetails;
-		
-	Else
+	If Not Common.SubsystemExists("OnlineUserSupport.GetAddIns") Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Operation is unavailable. Subsystem ""%1"" is required.';"),
+			NStr("en = 'The operation is unavailable as the ""%1"" subsystem is required.';"),
 			"OnlineUserSupport.GetAddIns");
 	EndIf;
+	
+	If Variant = "Supplied1" Then
+		Return AddInsInternal.SuppliedAddIns();
+	EndIf;
+	
+	AddInsData = AddInsInternal.AddInsData(Variant);
+	
+	ModuleGetAddIns = Common.CommonModule("GetAddIns");
+	AddInsDetails = ModuleGetAddIns.AddInsDetails();
+	
+	For Each ComponentDetails In AddInsData Do
+		NewRow = AddInsDetails.Add();
+		FillPropertyValues(NewRow, ComponentDetails);
+	EndDo;
+	
+	Return AddInsDetails;
 	
 EndFunction
 
@@ -132,15 +129,26 @@ EndFunction
 //    * FileName - String - file name.
 //    * FileAddress - String - file address.
 //    * ErrorCode - String - error code.
-//  ResultAddress - String - a temporary storage address.
-//      If it is specified, it contains operation result details.
+//  ResultAddress - String -
+//      
+//      
+//       
+//       
+//         
+//         
+//       
+//         
+//         
 //
 Procedure UpdateAddIns(AddInsData, ResultAddress = Undefined) Export
 	
+	ExecutionResult = New Structure;
+	ExecutionResult.Insert("Result", False);
+	ExecutionResult.Insert("Errors", New Map);
+	ExecutionResult.Insert("Success", New Map);
+	
 	If Common.SubsystemExists("OnlineUserSupport.GetAddIns") Then
 	
-		Result = "";
-		
 		Query = New Query;
 		Query.Text =
 			"SELECT
@@ -158,6 +166,8 @@ Procedure UpdateAddIns(AddInsData, ResultAddress = Undefined) Export
 		QueryResult = Query.Execute();
 		Selection = QueryResult.Select();
 		
+		UsedAddIns = Undefined;
+		
 		// Loop through the query result.
 		For Each ResultString1 In AddInsData Do
 			
@@ -169,8 +179,9 @@ Procedure UpdateAddIns(AddInsData, ResultAddress = Undefined) Export
 			If ValueIsFilled(ErrorCode) Then
 				
 				If ErrorCode = "LatestVersion" Then
-					Result = Result + StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = '%1 - latest version.';"), AddInPresentation) + Chars.LF;
+					ExecutionResult.Success.Insert(ResultString1.Id,
+						StringFunctionsClientServer.SubstituteParametersToString(
+						NStr("en = '%1: the latest version.';"), AddInPresentation));
 					Continue;
 				EndIf;
 				
@@ -186,7 +197,8 @@ Procedure UpdateAddIns(AddInsData, ResultAddress = Undefined) Export
 					           |%2';"),
 					AddInPresentation, ErrorInfo);
 				
-				Result = Result + AddInPresentation + " - " + ErrorInfo + Chars.LF;
+				ExecutionResult.Errors.Insert(ResultString1.Id, ErrorText);
+			
 				WriteLogEvent(NStr("en = 'Updating add-ins';", Common.DefaultLanguageCode()),
 					EventLogLevel.Error,,,	ErrorText);
 				
@@ -196,70 +208,98 @@ Procedure UpdateAddIns(AddInsData, ResultAddress = Undefined) Export
 			BinaryData = GetFromTempStorage(ResultString1.FileAddress);
 			Information = AddInsInternal.InformationOnAddInFromFile(BinaryData, False);
 			
-			If Not Information.Disassembled Then 
-				Result = Result + AddInPresentation + " - " + Information.ErrorDescription + Chars.LF;
+			If Not Information.Disassembled Then
+				
+				ExecutionResult.Errors.Insert(ResultString1.Id, AddInPresentation + " - "
+					+ Information.ErrorDescription + ?(Information.ErrorInfo = Undefined, "", ": "
+					+ ErrorProcessing.BriefErrorDescription(Information.ErrorInfo)));
+
 				WriteLogEvent(NStr("en = 'Updating add-ins';",
-					Common.DefaultLanguageCode()),
-					EventLogLevel.Error,,, Information.ErrorDescription);
+					Common.DefaultLanguageCode()), EventLogLevel.Error, , ,
+					Information.ErrorDescription);
 				Continue;
 			EndIf;
 			
 			// Find the ref.
 			Filter = New Structure("Id", ResultString1.Id);
+			Selection.Reset();
 			If Selection.FindNext(Filter) Then 
-				
 				// If the earlier add-in than on 1C:ITS Portal is imported, it should not be updated.
 				If Selection.VersionDate > ResultString1.VersionDate Then 
 					AddInPresentation = AddInsInternal.AddInPresentation(
 						ResultString1.Id, Selection.Version);
-					Result = Result + StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = '%1 - the application has a version that is newer than the version in the service (%2 dated %3).';"), 
-						AddInPresentation, ResultString1.Version, Format(ResultString1.VersionDate, "DLF=D")) + Chars.LF;
+					
+					ExecutionResult.Success.Insert(ResultString1.Id,
+						StringFunctionsClientServer.SubstituteParametersToString(
+							NStr("en = '%1: the application contains a version that is newer than the version in the service (%2 dated %3).';"), 
+							AddInPresentation, ResultString1.Version, Format(ResultString1.VersionDate, "DLF=D")));
 					Continue;
 				EndIf;
 				
-				BeginTransaction();
-				Try
-					
-					Block = New DataLock;
-					LockItem = Block.Add("Catalog.AddIns");
-					LockItem.SetValue("Ref", Selection.Ref);
-					Block.Lock();
-					
-					Object = Selection.Ref.GetObject();
-					Object.Lock();
-					
-					FillPropertyValues(Object, Information.Attributes); // According to manifest data.
-					FillPropertyValues(Object, ResultString1);     // 
-					
-					Object.AdditionalProperties.Insert("ComponentBinaryData", Information.BinaryData);
-					
-					Object.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Imported from 1C:ITS Portal. %1.';"),
-						CurrentSessionDate());
-					
-					Object.Write();
-					
-					Result = Result + StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = '%1 - updated.';"), AddInPresentation) + Chars.LF;
-					
-					CommitTransaction();
-				Except
-					RollbackTransaction();
-					Result = Result + AddInPresentation
-						+ " - " + ErrorProcessing.BriefErrorDescription(ErrorInfo()) + Chars.LF;
-					
-					WriteLogEvent(NStr("en = 'Updating add-ins';",
-							Common.DefaultLanguageCode()),
-						EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-				EndTry;
-				
+				ObjectReference = Selection.Ref;
+			Else
+				ObjectReference = Undefined;
+				If UsedAddIns = Undefined Then
+					UsedAddIns = AddInsInternal.UsedAddIns();
+				EndIf;
+				ComponentsLine = UsedAddIns.Find(ResultString1.Id, "Id");
+				If ComponentsLine <> Undefined Then
+					AutoUpdate = ComponentsLine.AutoUpdate;
+				Else
+					AutoUpdate = False;
+				EndIf;
 			EndIf;
+				
+			BeginTransaction();
+			Try
+				
+				Block = New DataLock;
+				LockItem = Block.Add("Catalog.AddIns");
+				If ObjectReference <> Undefined Then
+					LockItem.SetValue("Ref", ObjectReference);
+				EndIf;
+				Block.Lock();
+				
+				If ObjectReference <> Undefined Then
+					Object = ObjectReference.GetObject();
+					Object.Lock();
+				Else
+					Object = Catalogs.AddIns.CreateItem();
+					Object.UpdateFrom1CITSPortal = AutoUpdate;
+				EndIf;
+				
+				FillPropertyValues(Object, Information.Attributes); // According to manifest data.
+				FillPropertyValues(Object, ResultString1);     // 
+				
+				Object.AdditionalProperties.Insert("ComponentBinaryData", Information.BinaryData);
+				
+				Object.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Imported from 1C:ITS Portal. %1.';"),
+					CurrentSessionDate());
+				
+				Object.Write();
+				
+				ExecutionResult.Success.Insert(ResultString1.Id, StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = '%1: updated.';"), AddInPresentation));
+				
+				CommitTransaction();
+			Except
+				RollbackTransaction();
+				
+				ExecutionResult.Errors.Insert(ResultString1.Id, AddInPresentation
+					+ " - " + ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+					
+				WriteLogEvent(NStr("en = 'Updating add-ins';",
+						Common.DefaultLanguageCode()),
+					EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+			EndTry;
 			
 		EndDo;
 		
+		ExecutionResult.Result = ExecutionResult.Errors.Count() = 0;
+		
 		If ValueIsFilled(ResultAddress) Then 
-			PutToTempStorage(Result, ResultAddress);
+			PutToTempStorage(ExecutionResult, ResultAddress);
 		EndIf;
 		
 	Else
@@ -306,8 +346,37 @@ Procedure UpdateSharedAddIn(ComponentDetails) Export
 	
 EndProcedure
 
-// End OnlineUserSupport.GetAddIns
+// 
+// 
+//
+// Returns:
+//   See GetAddIns.AddInsDetails
+//
+Function AutomaticallyUpdatedAddIns() Export
+	
+	If Not Common.SubsystemExists("OnlineUserSupport.GetAddIns") Then
+		Raise StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Operation is unavailable. Subsystem ""%1"" is required.';"),
+			"OnlineUserSupport.GetAddIns");
+	EndIf;
+	
+	ModuleGetAddIns = Common.CommonModule("GetAddIns");
+	AddInsDetails = ModuleGetAddIns.AddInsDetails();
+	
+	AddInsData = AddInsInternal.AddInsData("ForUpdate");
+	
+	For Each ComponentDetails In AddInsData Do
+		NewRow = AddInsDetails.Add();
+		FillPropertyValues(NewRow, ComponentDetails);
+	EndDo;
+	
+	Return AddInsDetails;
+	
+EndFunction
 
 #EndRegion
 
+// 
+
 #EndRegion
+

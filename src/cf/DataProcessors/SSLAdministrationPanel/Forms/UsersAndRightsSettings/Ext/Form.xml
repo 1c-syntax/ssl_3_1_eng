@@ -33,7 +33,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip_SSLs" id="2037"/>
+			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="2037"/>
 			<ChildItems>
 				<LabelDecoration name="SectionDetails" id="2023">
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -701,14 +701,32 @@ will speed up viewing lists and generating reports compared to the standard mode
 								</Button>
 							</ChildItems>
 						</UsualGroup>
-						<UsualGroup name="GroupDestructionOfPersonalDataUse" id="2223">
+						<UsualGroup name="GroupPersonalDataDestructionUsage" id="2223">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Personal data destruction usage</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Vertical</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupDestructionOfPersonalDataUseExtendedTooltip" id="2224"/>
+							<ExtendedTooltip name="GroupPersonalDataDestructionUsageExtendedTooltip" id="2224"/>
 							<ChildItems>
-								<UsualGroup name="GroupOfDaysBeforeDestruction" id="2225">
+								<UsualGroup name="GroupDaysBeforeDestruction" id="2225">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Days before destruction</v8:content>
+										</v8:item>
+									</Title>
+									<ToolTip>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Possible reasons for data destruction: the subject's consent expired or the consent is missing.</v8:content>
+										</v8:item>
+									</ToolTip>
 									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 									<Width>43</Width>
 									<HorizontalStretch>false</HorizontalStretch>
@@ -716,29 +734,41 @@ will speed up viewing lists and generating reports compared to the standard mode
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="GroupOfDaysBeforeDestructionExtendedTooltip" id="2226"/>
+									<ExtendedTooltip name="GroupDaysBeforeDestructionExtendedTooltip" id="2226"/>
 									<ChildItems>
-										<CheckBoxField name="UseDestructionOfPersonalData" id="2227">
+										<CheckBoxField name="UsePersonalDataDestruction" id="2227">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Destroy personal data</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>Right</TitleLocation>
 											<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 											<CheckBoxType>Auto</CheckBoxType>
-											<ContextMenu name="UseDestructionOfPersonalDataContextMenu" id="2228"/>
-											<ExtendedTooltip name="UseDestructionOfPersonalDataExtendedTooltip" id="2229"/>
+											<ContextMenu name="UsePersonalDataDestructionContextMenu" id="2228"/>
+											<ExtendedTooltip name="UsePersonalDataDestructionExtendedTooltip" id="2229"/>
 											<Events>
-												<Event name="OnChange">PlugIn_SettingsOfDestructionOfNDaysWhenChanging</Event>
+												<Event name="OnChange">Attachable_PDDestructionSettingsOnChange</Event>
 											</Events>
 										</CheckBoxField>
-										<PictureDecoration name="DecorationWaitingForChangeOfUseDestructionOfNDays" id="2233">
+										<PictureDecoration name="DecorationWaitForPDDestructionUsageChange" id="2233">
 											<Visible>false</Visible>
 											<Width>2</Width>
 											<Height>1</Height>
+											<Title formatted="false">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Decoration Wait for personal data destruction settings to change</v8:content>
+												</v8:item>
+											</Title>
 											<Picture>
 												<xr:Ref>CommonPicture.CheckInProgress</xr:Ref>
 												<xr:LoadTransparent>false</xr:LoadTransparent>
 											</Picture>
 											<FileDragMode>AsFile</FileDragMode>
-											<ContextMenu name="DecorationWaitingForChangeOfUseDestructionOfNDaysContextMenu" id="2234"/>
-											<ExtendedTooltip name="DecorationWaitingForChangeOfUseDestructionOfNDaysExtendedTooltip" id="2235"/>
+											<ContextMenu name="DecorationWaitForPDDestructionUsageChangeContextMenu" id="2234"/>
+											<ExtendedTooltip name="DecorationWaitForPDDestructionUsageChangeExtendedTooltip" id="2235"/>
 										</PictureDecoration>
 									</ChildItems>
 								</UsualGroup>

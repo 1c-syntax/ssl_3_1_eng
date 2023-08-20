@@ -21,7 +21,6 @@
 	</AutoCommandBar>
 	<Events>
 		<Event name="OnOpen">OnOpen</Event>
-		<Event name="OnClose">OnClose</Event>
 	</Events>
 	<ChildItems>
 		<LabelDecoration name="InformationLabelDecoration" id="1">
@@ -58,9 +57,6 @@
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
-		</Attribute>
-		<Attribute name="ServiceUserPassword" id="2">
-			<Type/>
 		</Attribute>
 	</Attributes>
 	<Commands>

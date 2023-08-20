@@ -165,9 +165,9 @@ Procedure AfterStart() Export
 	
 	If ClientRunParameters.Property("AskAboutDisablingOpenIDConnect") Then
 		ClickNotification = New NotifyDescription("AskAboutDisablingOpenIDConnect", ThisObject);
-		MessageTitle = NStr("en = 'Предупреждение безопасности';");
+		MessageTitle = NStr("en = 'Security warning';");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Отключите аутентификацию %1, если не используется.';"), "OpenID-Connect");
+			NStr("en = 'Disable %1 authentication if it is not used.';"), "OpenID-Connect");
 		ShowUserNotification(MessageTitle, ClickNotification,
 			MessageText, PictureLib.Warning32, UserNotificationStatus.Important);
 	EndIf;
@@ -184,7 +184,7 @@ Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
 		ShowUserNotification(
 			NStr("en = 'Access rights are updated';"),
 			"e1cib/app/CommonForm.InfobaseUserRoleChangeControl",
-			NStr("en = 'Restart the application so that they come into force';"),
+			NStr("en = 'Restart the application so that they come into force.';"),
 			PictureLib.Warning32,
 			UserNotificationStatus.Important,
 			"InfobaseUserRoleChangeControl");
@@ -255,7 +255,7 @@ Procedure AskAboutDisablingOpenIDConnect(Context) Export
 	Buttons.Add("RemindLater",              NStr("en = 'Remind me later';"));
 	
 	AdditionalParameters = StandardSubsystemsClient.QuestionToUserParameters();
-	AdditionalParameters.Title = NStr("en = 'Предупреждение безопасности';");
+	AdditionalParameters.Title = NStr("en = 'Security warning';");
 	AdditionalParameters.PromptDontAskAgain = False;
 	
 	StandardSubsystemsClient.ShowQuestionToUser(CompletionProcessing,

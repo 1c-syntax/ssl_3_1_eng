@@ -138,6 +138,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// 
 	CurrentObject.ReadSettings();
 	CurrentObject.ReadSSLSupportFlags();
+	CurrentObject.ReadSignsOfBSDSupport();
 	ThisObject(CurrentObject);
 	
 	// Initializing other parameters only if this form will be opened
@@ -159,7 +160,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Not ControlSettings() And OpenWithNodeParameter Then
 		
 		MessageText = StrReplace(
-			NStr("en = 'Cannot change item stage state for node ""%1"".';"),
+			NStr("en = 'Cannot change item registration state for node ""%1"".';"),
 			"%1", ExchangePlanNodeDescription);
 		
 		Raise MessageText;
@@ -182,7 +183,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	If TimeConsumingOperationStarted Then
 		Cancel = True;
 		Notification = New NotifyDescription("ConfirmFormClosingCompletion", ThisObject);
-		ShowQueryBox(Notification, NStr("en = 'Abort staging?';"), QuestionDialogMode.YesNo);
+		ShowQueryBox(Notification, NStr("en = 'Abort registration?';"), QuestionDialogMode.YesNo);
 	EndIf;
 	
 EndProcedure
@@ -225,10 +226,10 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 	EndIf;
 		
 	If ValueSelected.ChoiceAction Then
-		Text = NStr("en = 'Do you want to stage the query result
+		Text = NStr("en = 'Do you want to register the query result
 		                 |at node ""%1""?';"); 
 	Else
-		Text = NStr("en = 'Do you want to unstage the query result
+		Text = NStr("en = 'Do you want to unregister the query result
 		                 |at node ""%1""?';");
 	EndIf;
 	Text = StrReplace(Text, "%1", String(ExchangeNodeReference));
@@ -793,7 +794,7 @@ Procedure RegisterMOIDAndPredefinedItems(Command)
 	
 	QuestionTitle = NStr("en = 'Confirm operation';");
 	QueryText     = StrReplace( 
-		NStr("en = 'Do you want to stage items to recover the DIB subnode
+		NStr("en = 'Do you want to register items to recover the DIB subnode
 		     |at node ""%1""?';"),
 		"%1", ExchangeNodeReference);
 	
@@ -1114,12 +1115,12 @@ Procedure ReportRegistrationResults(Results)
 	Command = Results.Command;
 	If TypeOf(Command) = Type("Boolean") Then
 		If Command Then
-			WarningTitle = NStr("en = 'Staged items:';");
-			WarningText = NStr("en = '%1 out of %2 items are staged.
+			WarningTitle = NStr("en = 'Registered items:';");
+			WarningText = NStr("en = '%1 out of %2 items are registered.
 			                           |Node: %0';");
 		Else
-			WarningTitle = NStr("en = 'Unstaged items:';");
-			WarningText = NStr("en = '%1 items are unstaged.
+			WarningTitle = NStr("en = 'Unregistered items:';");
+			WarningText = NStr("en = '%1 items are unregistered.
 			                           |Node: %0';");
 		EndIf;
 	Else
@@ -1200,10 +1201,10 @@ Procedure DeleteConstantRegistrationInList()
 	If Count = 0 Then
 		Return;
 	ElsIf Count = 1 Then
-		Text = NStr("en = 'Do you want to unstage ""%2""
+		Text = NStr("en = 'Do you want to unregister ""%2""
 		                 |at node ""%1""?';"); 
 	Else
-		Text = NStr("en = 'Do you want to unstage the constants
+		Text = NStr("en = 'Do you want to unregister the constants
 		                 |at node ""%1""?';"); 
 	EndIf;
 	Text = StrReplace(Text, "%1", ExchangeNodeReference);
@@ -1290,10 +1291,10 @@ Procedure DeleteRegistrationFromReferenceList()
 	If Count = 0 Then
 		Return;
 	ElsIf Count = 1 Then
-		Text = NStr("en = 'Do you want to unstage ""%2""
+		Text = NStr("en = 'Do you want to unregister ""%2""
 		                 |at node ""%1""?';"); 
 	Else
-		Text = NStr("en = 'Do you want to unstage the selected items
+		Text = NStr("en = 'Do you want to unregister the selected items
 		                 |at node ""%1""?';"); 
 	EndIf;
 	Text = StrReplace(Text, "%1", ExchangeNodeReference);
@@ -1384,7 +1385,7 @@ Procedure AddSelectedObjectRegistration(NoAutoRegistration = True)
 		Data = GetCurrentRowMetadataNames(NoAutoRegistration);
 	EndIf;
 	
-	Text = NStr("en = 'Do you want to stage %1  to export to node ""%2""?
+	Text = NStr("en = 'Do you want to register %1 for export to node ""%2""?
 	                 |
 	                 |This might take a while.';");
 					 
@@ -1429,7 +1430,7 @@ Procedure DeleteSelectedObjectRegistration(NoAutoRegistration = True)
 		Data = GetCurrentRowMetadataNames(NoAutoRegistration);
 	EndIf;
 	
-	Text = NStr("en = 'Do you want to unstage %1 for export to node ""%2""?
+	Text = NStr("en = 'Do you want to unregister %1 for export to node ""%2""?
 	                 |
 	                 |This might take a while.';");
 	
@@ -1497,9 +1498,9 @@ Procedure TimeConsumingOperationPage1()
 		Return;
 	EndIf;
 	If TimeConsumingOperationKind Then
-		OperationStatus = NStr("en = 'Staging in progress. Please wait.';");
+		OperationStatus = NStr("en = 'Registering in progress. Please wait.';");
 	Else
-		OperationStatus = NStr("en = 'Unstaging in progress. Please wait.';");
+		OperationStatus = NStr("en = 'Unregistering in progress. Please wait.';");
 	EndIf;
 	Items.TimeConsumingOperationStatus.Title = OperationStatus;
 	Items.GroupPages.CurrentPage = Items.Waiting;
@@ -1570,7 +1571,7 @@ Procedure BackgroundJobGetResultAtServer()
 	If BackgroundJobCompleteResult <> Undefined Then
 		BackgroundJobCompleteResult.Insert("AdditionalResultData", New Structure);
 		ErrorMessage = "";
-		StandardErrorPresentation = NStr("en = 'Error changing stage state. See the Event log for details.';");
+		StandardErrorPresentation = NStr("en = 'Error changing registration state. See the Event log for details.';");
 		
 		If BackgroundJobCompleteResult.Status = "Error" Then
 			ErrorMessage = BackgroundJobCompleteResult.DetailErrorDescription;
@@ -1704,10 +1705,10 @@ Procedure DataChoiceProcessing(FormTable, ValueSelected)
 	EndIf;
 	
 	If Ref = Undefined Then
-		Text = NStr("en = 'Do you want to unstage the selected items
+		Text = NStr("en = 'Do you want to unregister the selected items
 		                 |at node ""%1""?';"); 
 	Else
-		Text = NStr("en = 'Do you want to unstage ""%2""
+		Text = NStr("en = 'Do you want to unregister ""%2""
 		                 |at node ""%1""?';"); 
 	EndIf;
 		
@@ -1840,9 +1841,9 @@ Procedure ActionWithQueryResult(ActionCommand)
 	If CurFormName <> Undefined Then
 		// Open form.
 		If ActionCommand Then
-			Text = NStr("en = 'Stage query results';");
+			Text = NStr("en = 'Register query results';");
 		Else
-			Text = NStr("en = 'Unstage query results';");
+			Text = NStr("en = 'Unregister query results';");
 		EndIf;
 		ParametersStructure = New Structure();
 		ParametersStructure.Insert("Title", Text);
@@ -2268,9 +2269,9 @@ Procedure SetUpEmptyPage(Description, TableName = Undefined)
 		Tree = FormAttributeToValue("MetadataTree");
 		String = Tree.Rows.Find(TableName, "MetaFullName", True);
 		If String <> Undefined Then
-			CountsText = NStr("en = 'Objects registered: %1
-			                          |Objects exported: %2
-			                          |Objects not exported: %3';");
+			CountsText = NStr("en = 'Items registered: %1
+			                          |Items exported: %2
+			                          |Items pending export: %3';");
 	
 			CountsText = StrReplace(CountsText, "%1", Format(String.ChangeCount, "NFD=0; NZ="));
 			CountsText = StrReplace(CountsText, "%2", Format(String.ExportedCount, "NFD=0; NZ="));
@@ -2282,9 +2283,9 @@ Procedure SetUpEmptyPage(Description, TableName = Undefined)
 	                 |
 	                 |%2
 	                 |
-	                 |To stage or unstage items for exchange with node ""%3"",
-	                 |select an object in the metadata object tree
-	                 |and click Stage or Unstage.';");
+	                 |To register or unregister items for exchange with node ""%3"",
+	                 |select an object in the metadata object tree and click Register or Unregister.
+	                 |';");
 		
 	Text = StrReplace(Text, "%1", Description);
 	Text = StrReplace(Text, "%2", CountsText);
@@ -2501,14 +2502,14 @@ Function GetSelectedMetadataDetails(NoAutoRegistration, MetaGroupName = Undefine
 		
 	Else
 		// 
-		Text = NStr("en = 'all objects of type ""%3"" %1';");
+		Text = NStr("en = 'all items of type ""%3"" %1';");
 		
 	EndIf;
 	
 	If NoAutoRegistration Then
 		FlagText = "";
 	Else
-		FlagText = NStr("en = 'with Autostage flag';");
+		FlagText = NStr("en = 'with Autoregistration flag';");
 	EndIf;
 	
 	Presentation = "";
@@ -2639,10 +2640,10 @@ Procedure ProcessNodeChangeProhibition()
 	
 	If OperationsAllowed Then
 		Items.ExchangeNodeReference.Visible = True;
-		Title = NStr("en = 'Data staging manager';");
+		Title = NStr("en = 'Data registration manager';");
 	Else
 		Items.ExchangeNodeReference.Visible = False;
-		Title = StrReplace(NStr("en = 'Changed data management: Exchange with ""%1""';"), "%1", String(ExchangeNodeReference));
+		Title = StrReplace(NStr("en = 'Data registration manager: Exchange with ""%1""';"), "%1", String(ExchangeNodeReference));
 	EndIf;
 	
 	Items.FormOpenNodeRegistrationForm.Visible = OperationsAllowed;
@@ -2799,6 +2800,7 @@ Function PrepareRegistrationChangeParameters(Command, NoAutoRegistration, Data, 
 	Result.Insert("RegisterWithSSLMethodsAvailable",  Object.RegisterWithSSLMethodsAvailable);
 	Result.Insert("DIBModeAvailable",                 Object.DIBModeAvailable);
 	Result.Insert("ObjectExportControlSetting", Object.ObjectExportControlSetting);
+	Result.Insert("BatchRegistrationIsAvailable",       Object.BatchRegistrationIsAvailable);
 	
 	Result.Insert("MetadataNamesStructure",           MetadataNamesStructure);
 	
@@ -2878,27 +2880,27 @@ Procedure FillAdditionalInformation()
 			SelectiveRegistrationMode = ModuleDataExchangeRegistrationCached.ExchangePlanDataSelectiveRegistrationMode(ExchangePlanName);
 			If SelectiveRegistrationMode = ModuleDataExchangeRegistrationServer.SelectiveRegistrationModeDisabled()Then
 				
-				TitleText = NStr("en = 'disabled.';", DefaultLanguageCode());
+				TitleText = NStr("en = 'Disabled.';", DefaultLanguageCode());
 				
 			ElsIf SelectiveRegistrationMode = ModuleDataExchangeRegistrationServer.SelectiveRegistrationModeModification() Then
 				
-				TitleText = NStr("en = 'modified.';", DefaultLanguageCode());
+				TitleText = NStr("en = 'Modified.';", DefaultLanguageCode());
 				
 			Else
 				
-				TitleText = NStr("en = 'according to XML rules.';", DefaultLanguageCode());
+				TitleText = NStr("en = 'According to XML rules.';", DefaultLanguageCode());
 				
 			EndIf;
 			
 		Else
 			
-			TitleText = NStr("en = 'not supported.';", DefaultLanguageCode());
+			TitleText = NStr("en = 'Not supported.';", DefaultLanguageCode());
 			
 		EndIf;
 		
 	Else
 		
-		TitleText = NStr("en = 'specify a synchronization setting.';", DefaultLanguageCode());
+		TitleText = NStr("en = 'Specify a synchronization setting.';", DefaultLanguageCode());
 		
 	EndIf;
 	

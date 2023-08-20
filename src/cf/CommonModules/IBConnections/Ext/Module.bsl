@@ -248,7 +248,7 @@ EndFunction
 // Sets the data area session lock.
 // 
 // Parameters:
-//   Parameters         - See NewConnectionLockParameters.
+//   Parameters         - See NewConnectionLockParameters
 //   LocalTime - Boolean - lock beginning time and lock end time are specified in the local session time.
 //                                If the parameter is False, they are specified in universal time.
 //   DataArea - Number - number of the data area to be locked.
@@ -256,17 +256,18 @@ EndFunction
 //       equal to the session separator value (or unspecified) can be passed.
 //     When calling this procedure from a session with separator values not set, the parameter value must be specified.
 //
-Procedure SetDataAreaSessionLock(Parameters, Val LocalTime = True, Val DataArea = -1) Export
+Procedure SetDataAreaSessionLock(Val Parameters, Val LocalTime = True, Val DataArea = -1) Export
 	
 	If Not Users.IsFullUser() Then
 		Raise NStr("en = 'Not enough rights to perform the operation.';");
 	EndIf;
 	
-	Exclusive = False;
-	If Not Parameters.Property("Exclusive", Exclusive) Then
-		Exclusive = False;
-	EndIf;
-	If Exclusive And Not Users.IsFullUser(, True) Then
+	// 
+	ConnectionsLockParameters = NewConnectionLockParameters();
+	FillPropertyValues(ConnectionsLockParameters, Parameters); 
+	Parameters = ConnectionsLockParameters;
+	 
+	If Parameters.Exclusive And Not Users.IsFullUser(, True) Then
 		Raise NStr("en = 'Not enough rights to perform the operation.';");
 	EndIf;
 	
@@ -281,22 +282,11 @@ Procedure SetDataAreaSessionLock(Parameters, Val LocalTime = True, Val DataArea 
 			Raise NStr("en = 'Cannot set a session lock for a data area that is different from the session data area because the session uses separator values.';");
 		EndIf;
 		
-	Else
-		
-		If DataArea = -1 Then
-			Raise NStr("en = 'Cannot lock data area sessions because the data area is not specified.';");
-		EndIf;
-		
-	EndIf;
-	
-	SettingsStructure = Parameters;
-	If TypeOf(Parameters) = Type("SessionsLock") Then
-		SettingsStructure = NewConnectionLockParameters();
-		FillPropertyValues(SettingsStructure, Parameters);
+	ElsIf DataArea = -1 Then
+		Raise NStr("en = 'Cannot lock data area sessions because the data area is not specified.';");
 	EndIf;
 	
 	SetPrivilegedMode(True);
-	
 	BeginTransaction();
 	Try
 		
@@ -312,12 +302,12 @@ Procedure SetDataAreaSessionLock(Parameters, Val LocalTime = True, Val DataArea 
 		If Parameters.Use Then 
 			Block = LockSet1.Add();
 			Block.DataAreaAuxiliaryData = DataArea;
-			Block.LockStart = ?(LocalTime And ValueIsFilled(SettingsStructure.Begin), 
-				ToUniversalTime(SettingsStructure.Begin), SettingsStructure.Begin);
-			Block.LockEnd = ?(LocalTime And ValueIsFilled(SettingsStructure.End), 
-				ToUniversalTime(SettingsStructure.End), SettingsStructure.End);
-			Block.LockMessage = SettingsStructure.Message;
-			Block.Exclusive = SettingsStructure.Exclusive;
+			Block.LockStart = ?(LocalTime And ValueIsFilled(Parameters.Begin), 
+				ToUniversalTime(Parameters.Begin), Parameters.Begin);
+			Block.LockEnd = ?(LocalTime And ValueIsFilled(Parameters.End), 
+				ToUniversalTime(Parameters.End), Parameters.End);
+			Block.LockMessage = Parameters.Message;
+			Block.Exclusive = Parameters.Exclusive;
 		EndIf;
 		LockSet1.Write();
 		
@@ -685,11 +675,11 @@ EndProcedure
 // See CommonOverridable.OnReceiptRecurringClientDataOnServer
 Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
 	
-	ParameterName = "StandardSubsystems.UsersSessions.SessionsLock";
-	If Parameters.Get(ParameterName) = Undefined Then
+	If Not IsSubsystemUsed() Then
 		Return;
 	EndIf;
 	
+	ParameterName = "StandardSubsystems.UsersSessions.SessionsLock";
 	SessionLockParameters = SessionsLockSettingsWhenSet();
 	
 	If SessionLockParameters <> Undefined

@@ -64,6 +64,9 @@
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
+		<Attribute name="Result" id="3">
+			<Type/>
+		</Attribute>
 	</Attributes>
 	<Parameters>
 		<Parameter name="NameOfFirstUpdateFile">

@@ -128,8 +128,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
-		PrintManagementModuleMultilanguage = Common.CommonModule("PrintManagementNationalLanguageSupport");
-		PrintManagementModuleMultilanguage.FillInTheLanguageSubmenu(ThisObject, , AvailablePrintFormLanguages());
+		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
+		PrintManagementModuleNationalLanguageSupport.FillInTheLanguageSubmenu(ThisObject, , AvailablePrintFormLanguages());
 	EndIf;
 	
 	Items.SignedAndSealedFlag.Visible = HasSignaturesAndSealsForPrintObjects();
@@ -577,7 +577,6 @@ Function GetPrintFormsLongRunningOperation(CombinedDocStructure)
 	TableOfPrintedForms.Columns.Add("CreateAgain",  New TypeDescription("Boolean"));
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.RunInBackground = True;
 	ExecutionParameters.WaitCompletion = 1;
 	
 	GenerationParameters = New Structure("RegenerateCombinedDoc", False);
@@ -1174,7 +1173,7 @@ Procedure SendPrintFormsByEmailAccountSetupOffered(AccountSetUp, AdditionalParam
 		Return;
 	EndIf;
 
-	FormParameters = New Structure;
+	FormParameters = CommonInternalClient.PrintFormFormatSettings();
 	NameOfFormToOpen_ = "CommonForm.SelectAttachmentFormat";
 	If CommonClient.SubsystemExists("StandardSubsystems.Interactions") 
 		And StandardSubsystemsClient.ClientRunParameters().UseEmailClient Then

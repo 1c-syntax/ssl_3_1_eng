@@ -48,17 +48,20 @@ Function FileDataAndBinaryData(FileOrVersionRef, SignatureAddress = Undefined, F
 	ObjectMetadata = Metadata.FindByType(TypeOf(FileOrVersionRef));
 	IsFilesCatalog = Common.HasObjectAttribute("FileOwner", ObjectMetadata);
 	AbilityToStoreVersions = Common.HasObjectAttribute("CurrentVersion", ObjectMetadata);
+	FileDataParameters = FilesOperationsClientServer.FileDataParameters();
+	FileDataParameters.GetBinaryDataRef = False;
+		
 	If AbilityToStoreVersions
 		And ValueIsFilled(FileOrVersionRef.CurrentVersion) Then
 		
 		VersionRef = FileOrVersionRef.CurrentVersion;
-		FileData = FileData(FileOrVersionRef, VersionRef);
+		FileData = FileData(FileOrVersionRef, VersionRef, FileDataParameters);
 	ElsIf IsFilesCatalog Then
 		VersionRef = FileOrVersionRef;
-		FileData = FileData(FileOrVersionRef);
+		FileData = FileData(FileOrVersionRef, , FileDataParameters);
 	Else
 		VersionRef = FileOrVersionRef;
-		FileData = FileData(FileOrVersionRef.Owner, VersionRef);
+		FileData = FileData(FileOrVersionRef.Owner, VersionRef, FileDataParameters);
 	EndIf;
 	
 	BinaryData = Undefined;
@@ -155,6 +158,10 @@ Function CreateFileWithVersion(FileOwner, FileInfo1) Export
 		EndIf;
 		FilesOperationsInternal.UpdateVersionInFile(FileRef, Version, FileInfo1.TempTextStorageAddress);
 		
+		If Not ValueIsFilled(FileInfo1.Encoding) Then
+			FileInfo1.Encoding = FilesOperationsInternalClientServer.DetermineBinaryDataEncoding(FileInfo1.TempFileStorageAddress, FileInfo1.ExtensionWithoutPoint);
+		EndIf;
+		
 		If FileInfo1.Encoding <> Undefined Then
 			InformationRegisters.FilesEncoding.WriteFileVersionEncoding(
 				?(Version = Catalogs.FilesVersions.EmptyRef(), FileRef, Version), FileInfo1.Encoding);
@@ -214,9 +221,12 @@ Function UnlockFiles(Val Files) Export
 	
 	FilesVersions = New Map;
 	
+	FileDataParameters = FilesOperationsClientServer.FileDataParameters();
+	FileDataParameters.GetBinaryDataRef = False;
+	
 	For Each AttachedFile In Files Do
 		FilesOperationsInternal.UnlockFile(AttachedFile);
-		FileData = FileData(AttachedFile);
+		FileData = FileData(AttachedFile,,FileDataParameters);
 		FilesVersions.Insert(AttachedFile, FileData.CurrentVersion);
 	EndDo;
 	
@@ -311,31 +321,75 @@ EndFunction
 Function FileDataForSigning(Val Files, FormIdentifier = Undefined) Export
 	
 	If TypeOf(Files) <> Type("Array") Then
-		Return FileData(Files,,FormIdentifier);
+		FileDataParameters = FilesOperationsClientServer.FileDataParameters();
+		FileDataParameters.FormIdentifier = FormIdentifier;
+		Return FileData(Files,,FileDataParameters);
 	EndIf;
+	
+	FileDataParameters = FilesOperationsClientServer.FileDataParameters();
+	FileDataParameters.FormIdentifier = FormIdentifier;
 	
 	FilesData = New Array;
 	For Each File In Files Do
-		FilesData.Add(FileData(File,,FormIdentifier));
+		FilesData.Add(FileData(File,,FileDataParameters));
 	EndDo;
 	
 	Return FilesData;
 	
 EndFunction
 
-// Returns the structure containing various info on the file and version.
-//
-// Parameters:
-//  FileOrVersionRef  - CatalogRef.Files
-//                       - , CatalogRef.FilesVersions - a file or a file version.
-//
+// Returns a structure containing various file and version information.
+// 
+// Parameters: 
+//  FileRef - See FilesOperations.FileBinaryData.AttachedFile.
+//  VersionRef - CatalogRef.FilesVersions -
+//                                                 
+//  FileDataParameters - See FilesOperationsClientServer.FileDataParameters.
+// 
 // Returns:
-//   Structure:
-//     * Ref - DefinedType.AttachedFile
-//     * Version - CatalogRef.FilesVersions
-//     * Extension - String
+//  Structure:
+//   * Author - CatalogRef.Users
+//   * CurrentVersionAuthor - CatalogRef.Users
+//   * InWorkingDirectoryForRead - Boolean
+//   * Version - CatalogRef.FilesVersions
+//   * Owner - DefinedType.AttachedFilesOwner
+//   * LockedDate - Date
+//   * UniversalModificationDate - Date
+//   * Encrypted	- Boolean
+//   * Encoding - String
+//   * CurrentVersionEncoding - String
+//   * ForReading - Boolean
+//   * URL - String
+//   * CurrentVersionURL - String
+//   * Description - String
+//   * VersionNumber - Number
+//   * FolderForSaveAs - String
+//   * SignedWithDS - Boolean
+//   * FullFileNameInWorkingDirectory - String
+//   * FullVersionDescription - String
+//   * DeletionMark - Boolean
+//   * OwnerWorkingDirectory - String
+//   * Size - Number
+//   * Extension - String
+//   * BeingEditedBy - CatalogRef.Users
+//   * IsInternal - Boolean
+//   * Ref - DefinedType.AttachedFile
+//   * RefToBinaryFileData - String
+//   * TextExtractionStatus - String
+//   * CurrentVersion - CatalogRef.FilesVersions
+//   * Volume - CatalogRef.FileStorageVolumes
+//   * CurrentUserEditsFile - Boolean
+//   * StoreVersions - Boolean
 //
-Function FileData(FileRef, VersionRef = Undefined, FormIdentifier = Undefined, Val RaiseException1 = True) Export
+Function FileData(FileRef, VersionRef = Undefined, FileDataParameters = Undefined) Export
+	
+	If FileDataParameters = Undefined Then
+		FileDataParameters = FilesOperationsClientServer.FileDataParameters();
+	EndIf;
+	
+	FormIdentifier = FileDataParameters.FormIdentifier;
+	RaiseException1 = FileDataParameters.RaiseException1;
+	GetBinaryDataRef = FileDataParameters.GetBinaryDataRef;
 	
 	HasRightsToObject = Common.ObjectAttributesValues(FileRef, "Ref", True);
 	
@@ -355,7 +409,6 @@ Function FileData(FileRef, VersionRef = Undefined, FormIdentifier = Undefined, V
 	
 	If Common.HasObjectAttribute("CurrentVersion", FileObjectMetadata) And ValueIsFilled(FileRef.CurrentVersion) Then
 		CurrentFileVersion = FileObject1.CurrentVersion;
-		// Without the ability to store versions.
 	Else
 		CurrentFileVersion = FileRef;
 	EndIf;
@@ -374,14 +427,26 @@ Function FileData(FileRef, VersionRef = Undefined, FormIdentifier = Undefined, V
 	FileData.Insert("LockedDate", FileObject1.LockedDate);
 	
 	If VersionRef = Undefined Then
-		FileData.Insert("RefToBinaryFileData",
-			PutToTempStorage(FilesOperations.FileBinaryData(FileRef, RaiseException1), FormIdentifier));
+		If GetBinaryDataRef Then
+			RefToBinaryFileData = 
+				PutToTempStorage(FilesOperations.FileBinaryData(CurrentFileVersion, RaiseException1), FormIdentifier);
+		Else
+			RefToBinaryFileData = Undefined;
+		EndIf;
+		FileData.Insert("RefToBinaryFileData", RefToBinaryFileData);
+			
 		FileData.Insert("URL", GetURL(FileRef));
 		FileData.Insert("CurrentVersionAuthor", FileRef.ChangedBy);
-		FileData.Insert("Encoding", InformationRegisters.FilesEncoding.DefineFileEncoding(FileRef, FileObject1.Extension));
+		FileData.Insert("Encoding", InformationRegisters.FilesEncoding.DefineFileEncoding(CurrentFileVersion, FileObject1.Extension));
 	Else
-		FileData.Insert("RefToBinaryFileData",
-			PutToTempStorage(FilesOperations.FileBinaryData(VersionRef, RaiseException1), FormIdentifier));
+		If GetBinaryDataRef Then
+			RefToBinaryFileData = 
+				PutToTempStorage(FilesOperations.FileBinaryData(VersionRef, RaiseException1), FormIdentifier);
+		Else
+			RefToBinaryFileData = Undefined;
+		EndIf;
+		FileData.Insert("RefToBinaryFileData", RefToBinaryFileData);
+		
 		FileData.Insert("URL", GetURL(FileObject1.Ref));
 		FileData.Insert("CurrentVersionAuthor", VersionRef.Author);
 		FileData.Insert("Encoding", InformationRegisters.FilesEncoding.DefineFileEncoding(VersionRef, FileObject1.Extension));
@@ -479,8 +544,11 @@ Function FileDataToOpen(FileRef, VersionRef, FormIdentifier = Undefined,
 		
 		VersionRef = FileRef.CurrentVersion;
 	EndIf;
-
-	FileData = FileData(FileRef, VersionRef, FormIdentifier);
+	
+	FileDataParameters = FilesOperationsClientServer.FileDataParameters();
+	FileDataParameters.FormIdentifier = FormIdentifier;
+		
+	FileData = FileData(FileRef, VersionRef, FileDataParameters);
 	If OwnerWorkingDirectory = Undefined Then
 		OwnerWorkingDirectory = FolderWorkingDirectory(FileData.Owner);
 	EndIf;
@@ -596,11 +664,16 @@ Function AttachedFilesCount(FilesOwner, ReturnFilesData = False, PlacementAttrib
 		FilesCount = TableOfFiles.Count();
 		
 		OwnerFiles.FilesCount = FilesCount;
+		
+		FileDataParameters = FilesOperationsClientServer.FileDataParameters();
+		FileDataParameters.GetBinaryDataRef = False;
+		FileDataParameters.RaiseException1 = False;
+		
 		If ReturnFilesData And FilesCount > 0 Then
 			If PlacementAttribute = Undefined Or Not ValueIsFilled(FilesOwner[PlacementAttribute]) Then
-				OwnerFiles.FileData = FileData(TableOfFiles[0].File, , , False);
+				OwnerFiles.FileData = FileData(TableOfFiles[0].File, , FileDataParameters);
 			Else
-				OwnerFiles.FileData = FileData(FilesOwner[PlacementAttribute], , , False);
+				OwnerFiles.FileData = FileData(FilesOwner[PlacementAttribute], , FileDataParameters);
 			EndIf;
 		EndIf;
 		
@@ -609,6 +682,134 @@ Function AttachedFilesCount(FilesOwner, ReturnFilesData = False, PlacementAttrib
 	Return ?(ReturnFilesData, OwnerFiles, OwnerFiles.FilesCount);
 	
 EndFunction
+
+Function IsFilesOperationsItem(DataElement) Export
+	Return FilesOperationsInternal.IsFilesOperationsItem(DataElement); 
+EndFunction
+
+Function NewSpreadsheetAtServer(PageCount) Export
+	SpreadsheetDocument =New SpreadsheetDocument;
+	EmptyArea = SpreadsheetDocument.GetArea(1,1,1,1);
+	For ObjectIndex = 1 To PageCount Do
+		SpreadsheetDocument.Put(EmptyArea);
+		SpreadsheetDocument.PutHorizontalPageBreak();
+	EndDo;
+	Return SpreadsheetDocument;
+EndFunction   
+
+Function ConvertScanSettings(IncomingSettings) Export
+	ScanningSettings1 = New Structure("Resolution, Chromaticity, Rotation, PaperSize, TIFFDeflation");
+	Result = New Structure("Resolution, Chromaticity, Rotation, PaperSize, TIFFDeflation");
+	
+	FillPropertyValues(ScanningSettings1, IncomingSettings);
+	
+	Result.Resolution = -1;
+	If ScanningSettings1.Resolution = Enums.ScannedImageResolutions.dpi200 Then
+		Result.Resolution = 200; 
+	ElsIf ScanningSettings1.Resolution  = Enums.ScannedImageResolutions.dpi300 Then
+		Result.Resolution = 300;
+	ElsIf ScanningSettings1.Resolution  = Enums.ScannedImageResolutions.dpi600 Then
+		Result.Resolution = 600;
+	ElsIf ScanningSettings1.Resolution  = Enums.ScannedImageResolutions.dpi1200 Then
+		Result.Resolution = 1200;
+	EndIf;
+	
+	Result.Chromaticity = -1;
+	If ScanningSettings1.Chromaticity = Enums.ImageColorDepths.Monochrome Then
+		Result.Chromaticity = 0;
+	ElsIf ScanningSettings1.Chromaticity = Enums.ImageColorDepths.Grayscale Then
+		Result.Chromaticity = 1;
+	ElsIf ScanningSettings1.Chromaticity = Enums.ImageColorDepths.Colored Then
+		Result.Chromaticity = 2;
+	EndIf;
+	
+	Result.Rotation = 0;
+	If ScanningSettings1.Rotation = Enums.PictureRotationOptions.NoRotation Then
+		Result.Rotation = 0;
+	ElsIf ScanningSettings1.Rotation  = Enums.PictureRotationOptions.Right90 Then
+		Result.Rotation = 90;
+	ElsIf ScanningSettings1.Rotation  = Enums.PictureRotationOptions.Right180 Then
+		Result.Rotation = 180;
+	ElsIf ScanningSettings1.Rotation  = Enums.PictureRotationOptions.Left90 Then
+		Result.Rotation = 270;
+	EndIf;
+	
+	Result.PaperSize = 0;
+	If ScanningSettings1.PaperSize = Enums.PaperSizes.NotDefined Then
+		Result.PaperSize = 0;
+	ElsIf ScanningSettings1.PaperSize = Enums.PaperSizes.A3 Then
+		Result.PaperSize = 11;
+	ElsIf ScanningSettings1.PaperSize = Enums.PaperSizes.A4 Then
+		Result.PaperSize = 1;
+	ElsIf ScanningSettings1.PaperSize = Enums.PaperSizes.A5 Then
+		Result.PaperSize = 5;
+	ElsIf ScanningSettings1.PaperSize = Enums.PaperSizes.B4 Then
+		Result.PaperSize = 6;
+	ElsIf ScanningSettings1.PaperSize = Enums.PaperSizes.B5 Then
+		Result.PaperSize = 2;
+	ElsIf ScanningSettings1.PaperSize = Enums.PaperSizes.B6 Then
+		Result.PaperSize = 7;
+	ElsIf ScanningSettings1.PaperSize = Enums.PaperSizes.C4 Then
+		Result.PaperSize = 14;
+	ElsIf ScanningSettings1.PaperSize = Enums.PaperSizes.C5 Then
+		Result.PaperSize = 15;
+	ElsIf ScanningSettings1.PaperSize = Enums.PaperSizes.C6 Then
+		Result.PaperSize = 16;
+	ElsIf ScanningSettings1.PaperSize = Enums.PaperSizes.USLetter Then
+		Result.PaperSize = 3;
+	ElsIf ScanningSettings1.PaperSize = Enums.PaperSizes.USLegal Then
+		Result.PaperSize = 4;
+	ElsIf ScanningSettings1.PaperSize = Enums.PaperSizes.USExecutive Then
+		Result.PaperSize = 10;
+	EndIf;
+	
+	Result.TIFFDeflation = 6; // БезСжатия
+	If ScanningSettings1.TIFFDeflation = Enums.TIFFCompressionTypes.LZW Then
+		Result.TIFFDeflation = 2;
+	ElsIf ScanningSettings1.TIFFDeflation = Enums.TIFFCompressionTypes.RLE Then
+		Result.TIFFDeflation = 5;
+	ElsIf ScanningSettings1.TIFFDeflation = Enums.TIFFCompressionTypes.NoCompression Then
+		Result.TIFFDeflation = 6;
+	ElsIf ScanningSettings1.TIFFDeflation = Enums.TIFFCompressionTypes.CCITT3 Then
+		Result.TIFFDeflation = 3;
+	ElsIf ScanningSettings1.TIFFDeflation = Enums.TIFFCompressionTypes.CCITT4 Then
+		Result.TIFFDeflation = 4;
+	EndIf;
+	
+	Return  Result;
+	
+EndFunction
+
+Function ScanningParameters(Fill = False, ClientID = Undefined) Export
+	ScanningParameters = New Structure; 
+	ScanningParameters.Insert("ShowDialogBox", True);
+	ScanningParameters.Insert("SelectedDevice", "");
+	ScanningParameters.Insert("PictureFormat", "png");
+	ScanningParameters.Insert("Resolution", 200);
+	ScanningParameters.Insert("Chromaticity", 1);
+	ScanningParameters.Insert("Rotation", 0);
+	ScanningParameters.Insert("PaperSize", 1);
+	ScanningParameters.Insert("JPGQuality", 100);
+	ScanningParameters.Insert("TIFFDeflation", 6);
+	ScanningParameters.Insert("DuplexScanning", False);
+	ScanningParameters.Insert("SaveToPDF", False);
+	ScanningParameters.Insert("UseImageMagickToConvertToPDF", False);
+	
+	If Fill And ClientID <> Undefined Then
+		UserScanSettings = FilesOperations.GetUserScanSettings(ClientID);
+		FillPropertyValues(ScanningParameters, UserScanSettings);
+	EndIf;
+	
+	Return ScanningParameters;
+EndFunction
+
+Function GetUserScanSettings(ClientID) Export
+	Return FilesOperations.GetUserScanSettings(ClientID);
+EndFunction
+
+Procedure SaveUserScanSettings(ClientScanSettings, ClientID) Export
+	FilesOperations.SaveUserScanSettings(ClientScanSettings, ClientID);
+EndProcedure
 
 #EndRegion
 
@@ -830,7 +1031,7 @@ Function RefreshFileObject(FileRef, FileInfo1, VersionRef = Undefined,
 			Version.PathToFile = "";
 			Version.Volume = Catalogs.FileStorageVolumes.EmptyRef();
 			
-		Else // hard drive storage
+		Else // 
 			
 			If Version.Size = 0 Then
 				Version.Size = BinaryData.Size();
@@ -923,7 +1124,10 @@ Function SaveChangesAndUnlockFile(FileData, FileInfo1,
 	DontChangeRecordInWorkingDirectory, FullFilePath, UserWorkingDirectory, 
 	FormUniqueID = Undefined) Export
 	
-	FileDataCurrent = FileData(FileData.Ref);
+	FileDataParameters = FilesOperationsClientServer.FileDataParameters();
+	FileDataParameters.GetBinaryDataRef = False;
+	
+	FileDataCurrent = FileData(FileData.Ref,,FileDataParameters);
 	If Not FileDataCurrent.CurrentUserEditsFile And Not FileToSynchronizeByCloudService(FileData.Ref) Then
 		Raise NStr("en = 'The file is not locked by the current user.';");
 	EndIf;
@@ -973,7 +1177,10 @@ EndFunction
 Function SaveChangesAndUnlockFileByRef(FileRef, FileInfo1, 
 	FullFilePath, UserWorkingDirectory, FormUniqueID = Undefined) Export
 	
-	FileData = FileData(FileRef);
+	FileDataParameters = FilesOperationsClientServer.FileDataParameters();
+	FileDataParameters.GetBinaryDataRef = False;
+	
+	FileData = FileData(FileRef,,FileDataParameters);
 	VersionCreated = SaveChangesAndUnlockFile(FileData, FileInfo1, False, FullFilePath, UserWorkingDirectory,
 		FormUniqueID);
 	Return New Structure("Success,FileData", VersionCreated, FileData);
@@ -1001,7 +1208,9 @@ Function SaveFileChanges(FileRef, FileInfo1,
 	DontChangeRecordInWorkingDirectory, RelativeFilePath, FullFilePath, InOwnerWorkingDirectory,
 	FormUniqueID = Undefined) Export
 	
-	FileDataCurrent = FileData(FileRef);
+	FileDataParameters = FilesOperationsClientServer.FileDataParameters();
+	FileDataParameters.GetBinaryDataRef = False;
+	FileDataCurrent = FileData(FileRef,,FileDataParameters);
 	If Not FileDataCurrent.CurrentUserEditsFile And Not FileToSynchronizeByCloudService(FileRef) Then
 		Raise NStr("en = 'The file is not locked by the current user.';");
 	EndIf;
@@ -1009,6 +1218,10 @@ Function SaveFileChanges(FileRef, FileInfo1,
 	OldVersion = ?(FileInfo1.StoreVersions, FileRef.CurrentVersion, FileRef);
 	If FileInfo1.Encrypted = Undefined Then
 		FileInfo1.Encrypted = FileDataCurrent.Encrypted;
+	EndIf;
+	
+	If FileInfo1.Encoding = Undefined Then
+		FileInfo1.Encoding = FilesOperationsInternalClientServer.DetermineBinaryDataEncoding(FileInfo1.TempFileStorageAddress, FileInfo1.ExtensionWithoutPoint);
 	EndIf;
 	
 	If TypeOf(FileRef.Ref) = Type("CatalogRef.Files") Then
@@ -1183,10 +1396,13 @@ EndProcedure
 Function MoveFiles(ObjectsRef, Folder) Export 
 	
 	FilesData = New Array;
+
+	FileDataParameters = FilesOperationsClientServer.FileDataParameters();
+	FileDataParameters.GetBinaryDataRef = False;
 	
 	For Each FileRef In ObjectsRef Do
 		TransferFile(FileRef, Folder);
-		FileData = FileData(FileRef);
+		FileData = FileData(FileRef,,FileDataParameters);
 		FilesData.Add(FileData);
 	EndDo;
 	
@@ -1323,10 +1539,11 @@ Function BorrowFileToEdit(FileRef, UUID = Undefined,
 	
 EndFunction
 
-// Executes PutInTempStorage (if the file is stored on the hard drive) and returns a URL of the file in the storage.
+// 
+//
 // Parameters:
 //   VersionRef - file version.
-//  FormIdentifier - unique form ID.
+//   FormIdentifier - unique form ID.
 //
 // Returns:
 //   String  - 
@@ -1369,7 +1586,10 @@ Function FileDataAndWorkingDirectory(FileOrVersionRef, OwnerWorkingDirectory = U
 	CurrentVersion = ?(Not AbilityToStoreVersions, Undefined, 
 		Common.ObjectAttributeValue(FileRef, "CurrentVersion"));
 	
-	FileData = FileData(FileOrVersionRef);
+	FileDataParameters = FilesOperationsClientServer.FileDataParameters();
+	FileDataParameters.GetBinaryDataRef = False;
+	
+	FileData = FileData(FileOrVersionRef,,FileDataParameters);
 	If OwnerWorkingDirectory = Undefined Then
 		OwnerWorkingDirectory = FolderWorkingDirectory(FileData.Owner);
 	EndIf;
@@ -1405,7 +1625,10 @@ EndFunction
 //
 Function GetFileDataAndVersionsCount(FileRef) Export
 	
-	FileData = FileData(FileRef);
+	FileDataParameters = FilesOperationsClientServer.FileDataParameters();
+	FileDataParameters.GetBinaryDataRef = False;
+		
+	FileData = FileData(FileRef,,FileDataParameters);
 	VersionsCount = GetVersionsCount(FileRef);
 	FileData.Insert("VersionsCount", VersionsCount);
 	
@@ -1448,7 +1671,10 @@ Function GetFileDataAndSaveFileChanges(FileRef, FileInfo1,
 	RelativeFilePath, FullFilePath, InOwnerWorkingDirectory,
 	FormUniqueID = Undefined) Export
 	
-	FileData = FileData(FileRef);
+	FileDataParameters = FilesOperationsClientServer.FileDataParameters();
+	FileDataParameters.GetBinaryDataRef = False;
+	
+	FileData = FileData(FileRef,,FileDataParameters);
 	If Not FileData.CurrentUserEditsFile Then
 		Raise NStr("en = 'The file is not locked by the current user.';");
 	EndIf;
@@ -1460,7 +1686,8 @@ Function GetFileDataAndSaveFileChanges(FileRef, FileInfo1,
 	
 EndFunction
 
-// Receives the synthetic working directory of the folder on the hard drive (it can come from the parent folder).
+// 
+//
 // Parameters:
 //  FolderRef  - CatalogRef.FilesFolders - file owner.
 //
@@ -1626,7 +1853,7 @@ Procedure WriteRecordStructureToRegister(File,
 	
 EndProcedure
 
-// Finds a record in the FilesInWorkingDirectory information register by a path on the hard drive.
+// 
 //
 // Parameters:
 //  FileName - String - a name of the file with a relative path (without a path to the working directory).
@@ -2076,14 +2303,18 @@ Function FileDataAndURLOfAllFileVersions(FileRef, FormIdentifier) Export
 	Result = Query.Execute();
 	Selection = Result.Select();
 	
+	FileDataParameters = FilesOperationsClientServer.FileDataParameters();
+	FileDataParameters.RaiseException1 = False;
+	FileDataParameters.GetBinaryDataRef = False;
+	
 	ReturnArray = New Array;
 	While Selection.Next() Do
 		
 		VersionRef = Selection.Ref;
-		FileData = FileData(FileRef, VersionRef, , False);
+		FileData = FileData(FileRef, VersionRef, FileDataParameters);
 		
 		If FileData.DeletionMark = False
-			And GetFromTempStorage(FileData.RefToBinaryFileData) = Undefined Then
+			And Not AttachedFileIsLocatedOnDisk(VersionRef) Then
 			
 			Continue;
 		EndIf;
@@ -2098,7 +2329,9 @@ Function FileDataAndURLOfAllFileVersions(FileRef, FormIdentifier) Export
 	
 	// If versions are not stored, encrypting the file.
 	If Not FileRef.StoreVersions Or Not ValueIsFilled(FileRef.CurrentVersion) Then
-		FileData = FileData(FileRef);
+		FileDataParameters = FilesOperationsClientServer.FileDataParameters();
+		FileDataParameters.GetBinaryDataRef = False;
+		FileData = FileData(FileRef,,FileDataParameters);
 		VersionURL = FilesOperationsInternal.GetTemporaryStorageURL(FileRef, FormIdentifier);
 		
 		ReturnStructure = New Structure("FileData, VersionURL, VersionRef", 
@@ -2291,8 +2524,8 @@ Procedure DeleteData(FileOrVersion, UUID)
 		FileOrVersionObject = FileOrVersion.GetObject();
 		If FileOrVersionObject.FileStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive Then
 			
-			FileData = FilesOperationsInVolumesInternal.FileData(FileOrVersion, False);
-			If FileData <> Undefined Then
+			AttachedFileIsLocatedOnDisk = AttachedFileIsLocatedOnDisk(FileOrVersion);
+			If AttachedFileIsLocatedOnDisk Then
 				
 				FileProperties = FilesOperationsInVolumesInternal.FilePropertiesInVolume();
 				FillPropertyValues(FileProperties, FileOrVersionObject);
@@ -2887,6 +3120,53 @@ Function StampedOfficeDoc(FileRef, Ref) Export
 		
 	Return FileData.RefToBinaryFileData;
 	
+EndFunction
+
+// 
+//
+// Parameters:
+//   AttachedFile - DefinedType.AttachedFile -
+//
+// Returns:
+//   Boolean
+//
+Function AttachedFileIsLocatedOnDisk(AttachedFile)
+	
+	CommonClientServer.CheckParameter("FilesOperations.FileBinaryData", "AttachedFile", 
+		AttachedFile, Metadata.DefinedTypes.AttachedFile.Type);
+	
+	FileObject1 = FilesOperationsInternal.FileObject1(AttachedFile);
+	If (FileObject1 = Undefined Or FileObject1.IsFolder) Then
+		Return False;
+	EndIf;
+	
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+	
+	If FileObject1.DeletionMark Then
+		Return False;
+	EndIf;
+	
+	If FileObject1.FileStorageType = Enums.FileStorageTypes.InInfobase Then
+		
+		Result = FilesOperations.FileFromInfobaseStorage(FileObject1.Ref);
+		If Result <> Undefined Then
+			Result = Result.Get();
+			If Result <> Undefined Then
+				Return True;
+			EndIf;
+		EndIf;
+
+		Return False;
+			
+	Else
+		Return FilesOperationsInVolumesInternal.AttachedFileIsLocatedOnDisk(AttachedFile);
+	EndIf;
+EndFunction
+
+Function MergeImagesIntoTIFFile(Pictures) Export
+	ProcessingPicture = New ProcessingPicture(Pictures, PictureFormat.TIFF);
+	Return ProcessingPicture.GetPicture();
 EndFunction
 
 #EndRegion

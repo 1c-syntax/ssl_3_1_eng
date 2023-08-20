@@ -299,12 +299,19 @@ EndProcedure
 Procedure Refresh(Command)
 	If CurrentOperation1 = Undefined Then
 		RunJob(FormJobs().MarkedObjectsSearch);
-	EndIf;;
+	EndIf;
 EndProcedure
 
 &AtClient
 Procedure ExecuteActionsAndDelete(Command)
 	UpdateTheTreeMarkedForDeletion();
+	InformationAboutTheSelectedObjects = SelectedObjectsCount();
+	SelectedCountTotal = InformationAboutTheSelectedObjects.SelectedCount;
+	If SelectedCountTotal = 0 Then
+		WarningText = NStr("en = 'Select at least one item to be deleted.';");
+		ShowMessageBox(, WarningText);
+		Return;
+	EndIf;
 	AddJob(FormJobs().AdditionalDataProcessorExecution);
 	AddJob(FormJobs().DeleteMarkedObjects);
 	RunJob();
@@ -485,18 +492,19 @@ EndFunction
 Procedure DeleteSelectedItems(Command)
 	
 	InformationAboutTheSelectedObjects = SelectedObjectsCount();
-	If InformationAboutTheSelectedObjects.SelectedCount = 0 Then
+	SelectedCountTotal = InformationAboutTheSelectedObjects.SelectedCount;
+	If SelectedCountTotal = 0 Then
 		QueryText = NStr("en = 'Select at least one item to be deleted.';");
 		ShowMessageBox(, QueryText);
 		Return;
-	ElsIf InformationAboutTheSelectedObjects.SelectedCount = 1 Then
+	ElsIf SelectedCountTotal = 1 Then
 		QueryText = NStr("en = 'Delete the item marked for deletion?';");
-	ElsIf InformationAboutTheSelectedObjects.SelectedCount = InformationAboutTheSelectedObjects.TotalCount1 Then
+	ElsIf SelectedCountTotal = InformationAboutTheSelectedObjects.TotalCount1 Then
 		QueryText = NStr("en = 'Delete all items marked for deletion?';");
 	Else
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Delete the items marked for deletion (%1)?';"),
-			InformationAboutTheSelectedObjects.SelectedCount);
+			SelectedCountTotal);
 	EndIf;
 	
 	NotificationConfirmationDeleteAll = New NotifyDescription("OnConfirmationDelete",
@@ -693,7 +701,7 @@ Procedure SetObjectsMarkedForDeletionSelectionStateWithStatePanel()
 	Items.SearchFilterSettingsGroup.Enabled = True;
 	Items.ProgressPresentation.Visible = False;
 	Items.MarkedForDeletionItemsTreeDeleteSelectedItems.DefaultButton = True;
-	Items.ActiveAfterSearchMarkedObjectsGroup.Enabled = MarkedForDeletionItemsTree.GetItems().Count() > 0;;
+	Items.ActiveAfterSearchMarkedObjectsGroup.Enabled = MarkedForDeletionItemsTree.GetItems().Count() > 0;
 	Items.SearchStringForDeletion.Visible = False;
 EndProcedure
 
@@ -1465,12 +1473,15 @@ Procedure ToStartSearchingForTheMarkedSettingOfTheForm(Form)
 EndProcedure
 
 &AtClient
-Procedure OnStartBackgroundJob(Val Handler)
+Procedure OnStartBackgroundJob(Val Handler, IsDeletionProcess = False)
 	Var WaitSettings;
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	WaitSettings.OutputIdleWindow = False;
 	WaitSettings.OutputProgressBar = True;
-	WaitSettings.ExecutionProgressNotification = New NotifyDescription("OnUpdateBackgroundJobProgress", ThisObject);
+	AdditionalParameters = New Structure;
+	AdditionalParameters.Insert("IsDeletionProcess", IsDeletionProcess);
+	WaitSettings.ExecutionProgressNotification = New NotifyDescription("OnUpdateBackgroundJobProgress",
+		ThisObject, AdditionalParameters);
 	TimeConsumingOperationsClient.WaitCompletion(CurrentOperation1, Handler, WaitSettings);
 	If CurrentOperation1 <> Undefined And CurrentOperation1.Status = "Running" Then
 		ShowDialogBeforeClose = True;
@@ -1499,7 +1510,6 @@ Function StartMarkedObjectsSearchServer(MetadataFilter, FormUniqueID)
 	MethodName = "MarkedObjectsDeletionInternal.MarkedForDeletion";
 	
 	MethodParameters = TimeConsumingOperations.FunctionExecutionParameters(FormUniqueID);
-	MethodParameters.RunInBackground = True;
 	MethodParameters.BackgroundJobDescription = NStr("en = 'Search for objects marked for deletion';");
 	Job = TimeConsumingOperations.ExecuteFunction(MethodParameters, MethodName,
 		MetadataFilter, 
@@ -1628,23 +1638,69 @@ Function StartMarkedObjectsDeletionServer(FormUniqueID, PreviousStepResult, Repe
 	AdditionalAttributesSettings = FormAttributeToValue("AdditionalAttributesOfItemsMarkedForDeletion");
 	MethodName = "MarkedObjectsDeletionInternal.ToDeleteMarkedObjects";
 	
-	MethodParameters = TimeConsumingOperations.FunctionExecutionParameters(FormUniqueID);
-	MethodParameters.BackgroundJobDescription = NStr("en = 'Marked object deletion';");
-	MethodParameters.RunInBackground = True;
+	ExecutionParameters = TimeConsumingOperations.FunctionExecutionParameters(FormUniqueID);
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Marked object deletion';");
+	
 	PreviousStepResultValue = ?(PreviousStepResult <> Undefined 
 			And IsTempStorageURL(PreviousStepResult.ResultAddress),
 		GetFromTempStorage(PreviousStepResult.ResultAddress),
 		Undefined);
 	
 	AllowedDeletionModes = MarkedObjectsDeletionInternal.AllowedDeletionModes();
-	Job = TimeConsumingOperations.ExecuteFunction(MethodParameters, MethodName,
-		ObjectsToDeleteSource,
-		?(AllowedDeletionModes.Find(DeletionMode) <> Undefined, DeletionMode, "Standard"),
-		AdditionalAttributesSettings,
-		PreviousStepResultValue,
-		FormUniqueID);
-
+	ResultingDeletionMode = ?(AllowedDeletionModes.Find(DeletionMode) <> Undefined,
+		DeletionMode, "Standard");
+	If ResultingDeletionMode = "Exclusive" Then
+		AllowedDeletionModes = MarkedObjectsDeletionInternal.AllowedDeletionModes();
+		Job = TimeConsumingOperations.ExecuteFunction(ExecutionParameters, MethodName,
+			ObjectsToDeleteSource,
+			ResultingDeletionMode,
+			AdditionalAttributesSettings,
+			PreviousStepResultValue,
+			FormUniqueID);
+	Else
+		DeletionParameters = ParametersForDeletingMarkedObjects(ObjectsToDeleteSource, ResultingDeletionMode,
+			AdditionalAttributesSettings, PreviousStepResultValue, FormUniqueID);
+		BatchesCount = DeletionParameters.Count();
+		
+		Job = TimeConsumingOperations.ExecuteFunctionInMultipleThreads(MethodName,
+			ExecutionParameters, DeletionParameters);
+	EndIf;
+	
 	Return Job;
+EndFunction
+
+&AtServer
+Function ParametersForDeletingMarkedObjects(ObjectsToDeleteSource, ResultingDeletionMode,
+	AdditionalAttributesSettings, PreviousStepResultValue, FormUniqueID)
+	
+	If ObjectsToDeleteSource = Undefined Then
+		ObjectsToDeleteSource = FormAttributeToValue("MarkedForDeletionItemsTree");
+	EndIf;
+	
+	DeletionParameters = New Map;
+	If TypeOf(ObjectsToDeleteSource) <> Type("ValueTree") Then
+		ServerCallParameters = New Array;
+		ServerCallParameters.Add(ObjectsToDeleteSource);
+		ServerCallParameters.Add(ResultingDeletionMode);
+		ServerCallParameters.Add(AdditionalAttributesSettings);
+		ServerCallParameters.Add(PreviousStepResultValue);
+		ServerCallParameters.Add(FormUniqueID);
+		DeletionParameters.Insert(0, ServerCallParameters);
+		Return DeletionParameters;
+	EndIf;
+	
+	BatchIndex = 0;
+	
+	ServerCallParameters = New Array;
+	ServerCallParameters.Add(ObjectsToDeleteSource);
+	ServerCallParameters.Add(ResultingDeletionMode);
+	ServerCallParameters.Add(AdditionalAttributesSettings);
+	ServerCallParameters.Add(PreviousStepResultValue);
+	ServerCallParameters.Add(FormUniqueID);
+	DeletionParameters.Insert(BatchIndex, ServerCallParameters);
+	
+	Return DeletionParameters;
+	
 EndFunction
 
 &AtClient
@@ -1725,7 +1781,35 @@ EndProcedure
 //
 &AtServer
 Function ImportDeletionResult(DeletionResult, ResultStorageID, ResultInfo)
-	BackgroundExecutionResult = GetFromTempStorage(DeletionResult.ResultAddress);
+	GeneralOutput = GetFromTempStorage(DeletionResult.ResultAddress);
+	If TypeOf(GeneralOutput) = Type("Structure") Then
+		BackgroundExecutionResult = GeneralOutput;
+	Else
+		BackgroundExecutionResult = GetFromTempStorage(GeneralOutput[0].ResultAddress);
+		For BatchIndex = 1 To BatchesCount - 1 Do
+			BatchResultAddress = GeneralOutput[BatchIndex].ResultAddress;
+			ResultOfBatchExecutionInBackground = GetFromTempStorage(BatchResultAddress);
+			
+			BackgroundExecutionResult.NotDeletedObjectsCount = BackgroundExecutionResult.NotDeletedObjectsCount
+				+ ResultOfBatchExecutionInBackground.NotDeletedObjectsCount;
+			BackgroundExecutionResult.DeletedItemsCount = BackgroundExecutionResult.DeletedItemsCount
+				+ ResultOfBatchExecutionInBackground.DeletedItemsCount;
+			CommonClientServer.SupplementTable(ResultOfBatchExecutionInBackground.NotDeletedItemsLinks,
+				BackgroundExecutionResult.NotDeletedItemsLinks);
+			CommonClientServer.SupplementArray(BackgroundExecutionResult.Trash,
+				ResultOfBatchExecutionInBackground.Trash);
+			BackgroundExecutionResult.MarkedForDeletionItemsTree =
+				MarkedForDeletionItemsTreeWithoutDeletedItems(BackgroundExecutionResult.MarkedForDeletionItemsTree,
+				ResultOfBatchExecutionInBackground.Trash);
+			MergeItemsMarkedForDeletion(BackgroundExecutionResult.MarkedForDeletionItemsTree,
+				ResultOfBatchExecutionInBackground.MarkedForDeletionItemsTree);
+			MergeAllNonDeleted(BackgroundExecutionResult.NotTrash, ResultOfBatchExecutionInBackground.NotTrash);
+		EndDo;
+		ProcessedTotalCount = 0;
+		SelectedCountTotal = 0;
+		BatchesCount = 0;
+		DeletionProgress.Clear();
+	EndIf;
 	ResultInfo = ?(DeleteOnOpen, ResultInfo, Undefined);
 
 	Result = GenerateDeletionResult(ResultInfo, BackgroundExecutionResult,
@@ -1739,6 +1823,87 @@ Function ImportDeletionResult(DeletionResult, ResultStorageID, ResultInfo)
 
 	Return Result;
 EndFunction
+
+&AtServerNoContext
+Function MarkedForDeletionItemsTreeWithoutDeletedItems(MarkedForDeletion, Trash)
+	
+	Result = MarkedForDeletion.Copy();
+	ModifiedParents = New Array;
+	
+	For Each ItemToDeleteRef In Trash Do
+		TreeRow = Result.Rows.Find(ItemToDeleteRef, "ItemToDeleteRef", True);
+		If TreeRow = Undefined Then
+			Continue;
+		EndIf;
+		
+		If TreeRow.Parent <> Undefined Then
+			ModifiedParents.Add(TreeRow.Parent);
+		EndIf;
+		TreeRow.Parent.Rows.Delete(TreeRow);
+	EndDo;
+	
+	ModifiedParents = CommonClientServer.CollapseArray(ModifiedParents);
+	
+	For Each ModifiedParent In ModifiedParents Do
+		If ModifiedParent.Rows.Count() > 0 Then
+			Continue;
+		EndIf;
+		
+		Result.Rows.Delete(ModifiedParent);
+	EndDo;
+	
+	Return Result;
+	
+EndFunction
+
+&AtServerNoContext
+Procedure MergeItemsMarkedForDeletion(Receiver, Source)
+	
+	RowsCount = Source.Rows.Count();
+	
+	For RowIndex = 0 To RowsCount - 1 Do
+		TreeRowSource = Source.Rows[RowIndex];
+		If TreeRowSource.Check = 0 Then
+			Continue;
+		EndIf;
+		
+		TreeRowDestination = Receiver.Rows.Find(TreeRowSource.ItemToDeleteRef, "ItemToDeleteRef"); 
+		If TreeRowDestination  = Undefined Then
+			Continue;
+		EndIf;
+		
+		TreeRowDestination.Check = TreeRowSource.Check;
+		SubstringCount = TreeRowSource.Rows.Count();
+		For SubstringIndex = 0 To SubstringCount - 1 Do
+			
+			TreeSubRowSource = TreeRowSource.Rows[SubstringIndex];
+			
+			TreeSubRowDestination = TreeRowDestination.Rows.Find(TreeSubRowSource.ItemToDeleteRef, "ItemToDeleteRef");
+			If TreeSubRowDestination = Undefined Then
+				Continue;
+			EndIf;
+			
+			TreeSubRowDestination.Check = TreeSubRowSource.Check;
+		EndDo;
+	EndDo;
+	
+EndProcedure
+
+&AtServerNoContext
+Procedure MergeAllNonDeleted(Receiver, Source)
+	
+	RowsCount = Source.Rows.Count();
+	
+	For Each TreeRowSource In Source.Rows Do
+		TreeRowDestination = Receiver.Rows.Add();
+		FillPropertyValues(TreeRowDestination, TreeRowSource);
+		For Each TreeSubRowSource In TreeRowSource.Rows Do
+			TreeSubRowDestination = TreeRowDestination.Rows.Add();
+			FillPropertyValues(TreeSubRowDestination, TreeSubRowSource);
+		EndDo;
+	EndDo;
+	
+EndProcedure
 
 &AtServer
 Function GenerateDeletionResult(ResultInfo, BackgroundExecutionResult, ResultStorageID)
@@ -1806,7 +1971,6 @@ Function StartAdditionalDataProcessorExecutionServer()
 	MethodName = "MarkedObjectsDeletionInternal.RunDataProcessorOfReasonsForNotDeletion";
 	
 	MethodParameters = TimeConsumingOperations.FunctionExecutionParameters(UUID);
-	MethodParameters.RunInBackground = True;
 	MethodParameters.BackgroundJobDescription = NStr("en = 'Additional processing of objects preventing deletion';");
 	
 	Job = TimeConsumingOperations.ExecuteFunction(MethodParameters, MethodName, ActionsTable.Unload());
@@ -1846,10 +2010,47 @@ EndProcedure
 &AtClient
 Procedure OnUpdateBackgroundJobProgress(Job, AdditionalParameters) Export
 	If Job.Progress <> Undefined Then
+		ProgressParameters = Undefined;
+		If Job.Progress.Property("AdditionalParameters", ProgressParameters)
+			And ProgressParameters = "ProgressofMultithreadedProcess" Then
+			Return;
+		EndIf;
+		
 		Items.ProgressPresentation.Visible = True;
-		Items.ProgressPresentation.Title = Job.Progress.Text;
+		If Not AdditionalParameters.IsDeletionProcess Or ProgressParameters = Undefined Then
+			ProgressText = Job.Progress.Text;
+		Else
+			ProgressText = ProgressText(ProgressParameters);
+		EndIf;
+		Items.ProgressPresentation.Title = ProgressText;
 	EndIf;
 EndProcedure
+
+&AtServer
+Function ProgressText(ProgressParameters)
+	
+	Filter = New Structure;
+	Filter.Insert("SessionNumber", ProgressParameters.SessionNumber);
+	TableRows = DeletionProgress.FindRows(Filter);
+	If TableRows.Count() = 0 Then
+		TableRow = DeletionProgress.Add();
+		TableRow.SessionNumber = ProgressParameters.SessionNumber;
+		PreviousProcessedCount = 0;
+	Else
+		TableRow = TableRows[0];
+		PreviousProcessedCount = TableRow.ProcessedItemsCount;
+	EndIf;
+	TableRow.ProcessedItemsCount = ProgressParameters.ProcessedItemsCount;
+	ProcessedTotalCount = ProcessedTotalCount
+		+ (ProgressParameters.ProcessedItemsCount - PreviousProcessedCount);
+	
+	ProgressText = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Processed %1 of %2';"),
+		ProcessedTotalCount,
+		SelectedCountTotal);
+	Return ProgressText;
+	
+EndFunction
 
 &AtClientAtServerNoContext
 Function ItemMarkValues(ParentItems1)

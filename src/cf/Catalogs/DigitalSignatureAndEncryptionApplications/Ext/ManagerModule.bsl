@@ -241,6 +241,8 @@ Procedure UpdateAppDataWithDeferral(Application, ObjectsProcessed, ObjectsWithIs
 	Block = New DataLock;
 	Block.Add("Catalog.DigitalSignatureAndEncryptionApplications");
 	
+	RepresentationOfTheReference = String(Application);
+	
 	BeginTransaction();
 	Try
 		Block.Lock();
@@ -280,7 +282,7 @@ Procedure UpdateAppDataWithDeferral(Application, ObjectsProcessed, ObjectsWithIs
 		
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Couldn''t update ""%1"". Reason:
-			|%2';"), String(Application), ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+			|%2';"), RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(),
 			EventLogLevel.Warning, , , MessageText);

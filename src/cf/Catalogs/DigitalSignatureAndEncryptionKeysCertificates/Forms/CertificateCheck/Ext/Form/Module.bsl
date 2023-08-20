@@ -1706,9 +1706,9 @@ Procedure CheckAtServerSide(Val PasswordValue)
 		ResultCheckCA = DigitalSignatureInternal.ResultofCertificateAuthorityVerification(
 			CryptoCertificate);
 		If Not ResultCheckCA.Valid_SSLyf Then
-			SigningIsAllowed = Common.CommonSettingsStorageLoad(
+			SigningAllowed = Common.CommonSettingsStorageLoad(
 				Certificate, "AllowSigning", Undefined);
-			If SigningIsAllowed = Undefined Or Not SigningIsAllowed Then
+			If SigningAllowed = Undefined Or Not SigningAllowed Then
 				ErrorDescription = ResultCheckCA.Warning.ErrorText;
 				SetItem(ThisObject, "Signing", True, ResultCheckCA.Warning, True,
 					MergeResults);
@@ -2251,10 +2251,10 @@ Procedure AdditionalCheckOnthePossibilityofSigning(CryptoCertificate, ExecutionS
 		
 		If Not ResultofCertificateAuthorityVerification.Valid_SSLyf Then
 			
-			SigningIsAllowed = CommonServerCall.CommonSettingsStorageLoad(
+			SigningAllowed = CommonServerCall.CommonSettingsStorageLoad(
 				Certificate, "AllowSigning", Undefined);
 		
-			If SigningIsAllowed = Undefined Or Not SigningIsAllowed Then
+			If SigningAllowed = Undefined Or Not SigningAllowed Then
 				ErrorDescription = ResultofCertificateAuthorityVerification.Warning.ErrorText;
 				SetItem(ThisObject, "Signing", ExecutionSide, ResultofCertificateAuthorityVerification.Warning, True,
 					MergeResults);

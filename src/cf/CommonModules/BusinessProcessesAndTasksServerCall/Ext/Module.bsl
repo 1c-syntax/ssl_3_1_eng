@@ -146,6 +146,7 @@ Function ForwardTasks(Val RedirectedTasks_SSLs, Val ForwardingInfo, Val IsCheckO
 				TaskObject = Task.Key.GetObject();
 				TaskObject.Executed = False;
 				TaskObject.AdditionalProperties.Insert("Redirection1", True);
+				TaskObject.AdditionalProperties.Insert("IsCheckOnly",  True);
 				TaskObject.ExecuteTask();
 			EndDo;
 			RollbackTransaction();
@@ -521,7 +522,7 @@ Function UncompletedBusinessProcessesTasksCount(Var_BusinessProcesses) Export
 		|	AND Tasks.Executed = FALSE");
 
 	Query.SetParameter("BusinessProcesses", BusinessProcessesArray);
-	Return Query.Execute().Select().Next().Count;
+	Return Query.Execute().Unload()[0].Count;
 	
 EndFunction
 
@@ -564,7 +565,7 @@ EndFunction
 
 Procedure OnForwardTask(TaskObject, NewTaskObject) 
 	
-	If TaskObject.BusinessProcess.IsEmpty() Then
+	If TaskObject.BusinessProcess = Undefined Or TaskObject.BusinessProcess.IsEmpty() Then
 		Return;
 	EndIf;
 	

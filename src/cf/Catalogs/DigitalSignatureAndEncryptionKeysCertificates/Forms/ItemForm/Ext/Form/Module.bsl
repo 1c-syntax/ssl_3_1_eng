@@ -18,7 +18,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	CloudSignatureCertificate = CloudSignatureInformation(Object.Application);
 	FillApplicationsListServer();
 	
-	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService")
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS")
 		And DigitalSignatureInternal.UseCloudSignatureService() Then
 		Items.Application.Title = NStr("en = 'Application or service';");
 	EndIf;
@@ -118,8 +118,11 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	EndIf;
 
 	If EventName = "Write_DigitalSignatureAndEncryptionKeysCertificates" And Source = Object.Ref Then
-		If Parameter.Count() = 0 Then
+		If Not ValueIsFilled(Parameter) Then
 			Return;
+		EndIf;
+		If Parameter.Revoked Then
+			RefreshVisibilityWarnings();
 		EndIf;
 		If Parameter.Is_Specified Then
 			AttachIdleHandler("WaitHandlerShowCertificateStatus", 0.1, True);
@@ -225,10 +228,10 @@ Procedure WarningURLProcessing(Item, FormattedStringURL, StandardProcessing)
 EndProcedure
 
 &AtClient
-Procedure SigningIsAllowedOnChange(Item)
+Procedure SigningAllowedOnChange(Item)
 	
 	CommonServerCall.CommonSettingsStorageSave(
-			Object.Ref, "AllowSigning", SigningIsAllowed);
+			Object.Ref, "AllowSigning", SigningAllowed);
 	
 EndProcedure
 
@@ -464,8 +467,8 @@ Procedure OnCreateAtServerOnReadAtServer()
 			
 		Else
 			// 
-			Items.Individual.ReadOnly = Not ValueIsFilled(Object.Individual);
-			Items.PickIndividual.Enabled = ValueIsFilled(Object.Individual);
+			Items.Individual.ReadOnly       =  ValueIsFilled(Object.Individual);
+			Items.PickIndividual.Enabled =  Not Items.Individual.ReadOnly;
 			If Not ThisIsTheAuthor Then
 				// 
 				// 
@@ -632,8 +635,9 @@ Procedure RefreshVisibilityWarnings(Val CryptoCertificate = Undefined)
 	If Object.Revoked Then
 		
 		Items.GroupWarning.Visible = True;
-		Items.Warning.Title = NStr("en = 'The certificate is marked in the application as revoked';");
-		Items.SigningIsAllowed.Visible = False;
+		Items.Warning.Title = 
+			NStr("en = 'The certificate is marked as revoked in the application. Signatures created by this certificate are considered valid if they contain a timestamp added before the certificate revocation date. To find out the revocation reason and date, contact the certificate authority that issued the certificate.';");
+		Items.SigningAllowed.Visible = False;
 	
 	ElsIf Object.ValidBefore > CurrentSessionDate() Then
 	
@@ -669,12 +673,12 @@ Procedure RefreshVisibilityWarnings(Val CryptoCertificate = Undefined)
 				Items.Warning.Title = New FormattedString(RowsArray);
 				
 				If DigitalSignature.AddEditDigitalSignatures() Then
-					AllowSigningSettings = Common.CommonSettingsStorageLoad(
+					SettingAllowSigning = Common.CommonSettingsStorageLoad(
 						Object.Ref, "AllowSigning", Undefined);
-					Items.SigningIsAllowed.Visible = True;
-					SigningIsAllowed = AllowSigningSettings;
+					Items.SigningAllowed.Visible = True;
+					SigningAllowed = SettingAllowSigning;
 				Else
-					Items.SigningIsAllowed.Visible = False;
+					Items.SigningAllowed.Visible = False;
 				EndIf;
 			EndIf;
 			

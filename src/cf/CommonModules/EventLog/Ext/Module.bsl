@@ -494,8 +494,10 @@ Procedure FilterItemTransform(Filter, FilterElement)
 			For Each FilterValue In FilterValues Do
 				If Upper(FilterStructureKey) = Upper("User") Then
 					Try
+						SetPrivilegedMode(True);
 						NewValue.Add(InfoBaseUsers.FindByUUID(
 							New UUID(FilterValue)));
+						SetPrivilegedMode(False);
 					Except
 						NewValue.Add(FilterValue);
 					EndTry;

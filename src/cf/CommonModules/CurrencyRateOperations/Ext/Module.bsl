@@ -166,7 +166,7 @@ Procedure OnFillToDoList(ToDoList) Export
 	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
 	If Common.DataSeparationEnabled() // Automatic update in SaaS mode.
 		Or Common.IsStandaloneWorkplace()
-		Or Not AccessRight("Update", Metadata.InformationRegisters.ExchangeRates)
+		Or Not CurrencyRateOperationsInternal.HasRightToChangeExchangeRates()
 		Or ModuleToDoListServer.UserTaskDisabled("CurrencyClassifier") Then
 		Return;
 	EndIf;
@@ -232,45 +232,6 @@ Procedure OnAddClientParametersOnStart(Parameters) Export
 	
 	Parameters.Insert("Currencies", New FixedStructure("ExchangeRatesUpdateRequired",
 		ShouldNotifyWhenExchageRatesOutdated And Not RatesUpToDate()));
-	
-	If ShouldNotifyWhenExchageRatesOutdated Then
-		SetDateOfNextNotification();
-	EndIf;
-	
-EndProcedure
-
-// See CommonOverridable.OnAddServerNotifications
-Procedure OnAddServerNotifications(Notifications) Export
-	
-	If Not ShouldNotifyWhenExchageRatesOutdated() Then
-		Return;
-	EndIf;
-	
-	Notification = ServerNotifications.NewServerNotification(
-		"StandardSubsystems.Currencies.ExchangeRatesUpdateRequired");
-	
-	Notification.NotificationSendModuleName  = "CurrencyRateOperations";
-	Notification.NotificationReceiptModuleName = "CurrencyRateOperationsClient";
-	
-	Notifications.Insert(Notification.Name, Notification);
-	
-EndProcedure
-
-// See StandardSubsystemsServer.OnSendServerNotification
-Procedure OnSendServerNotification(NameOfAlert, ParametersVariants) Export
-	
-	NextNotificationDate = Common.SystemSettingsStorageLoad(
-		"StandardSubsystems.Currencies", "NextNotificationDate", '00010101',, "");
-	
-	If Not ValueIsFilled(NextNotificationDate) Or NextNotificationDate > CurrentSessionDate() Then
-		Return;
-	EndIf;
-	
-	If Not RatesUpToDate() Then
-		ServerNotifications.SendServerNotification(NameOfAlert, "", ParametersVariants[0].SMSMessageRecipients);
-	EndIf;
-	
-	SetDateOfNextNotification();
 	
 EndProcedure
 
@@ -592,7 +553,7 @@ Function ShouldNotifyWhenExchageRatesOutdated()
 	
 	// 
 	If Common.DataSeparationEnabled() Or Common.IsStandaloneWorkplace() 
-		Or Not AccessRight("Update", Metadata.InformationRegisters.ExchangeRates) Then
+		Or Not CurrencyRateOperationsInternal.HasRightToChangeExchangeRates() Then
 		Return False;
 	EndIf;
 	
@@ -659,12 +620,5 @@ Function DataPrintAmountWords(DataSourceDescriptions, LanguageCode)
 	Return PrintData;
 	
 EndFunction
-
-Procedure SetDateOfNextNotification()
-	
-	Common.SystemSettingsStorageSave(
-		"StandardSubsystems.Currencies", "NextNotificationDate", EndOfDay(CurrentSessionDate()) + 1 + 7*60*60,, "");
-	
-EndProcedure
 
 #EndRegion

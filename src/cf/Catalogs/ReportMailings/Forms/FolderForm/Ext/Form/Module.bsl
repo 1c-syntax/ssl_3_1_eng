@@ -12,12 +12,12 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	If Object.Ref.IsEmpty() Then
-		If Object.Parent = Catalogs.ReportMailings.PersonalMailings Then
-			Object.Parent = Catalogs.ReportMailings.EmptyRef();
-		EndIf;
-	EndIf;
+	Items.Author.Enabled = Users.IsFullUser();
 	
+	If Object.Ref.IsEmpty() Then
+		Object.Author =  Users.CurrentUser();
+	EndIf; 
+	 	
 	// 
 	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
 		ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");

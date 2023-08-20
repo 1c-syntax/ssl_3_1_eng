@@ -90,7 +90,8 @@ Function GetExchangeMessageToTempDirectoryFromCorrespondentInfobaseViaWebService
 		
 		Cancel = True;
 		Message = NStr("en = 'Errors occurred in the peer infobase during data export: %1';", Common.DefaultLanguageCode());
-		Message = StringFunctionsClientServer.SubstituteParametersToString(Message, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		Message = StringFunctionsClientServer.SubstituteParametersToString(Message,
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		
 		DataExchangeServer.WriteEventLogDataExchange(Message, ExchangeSettingsStructure, True);
 		
@@ -111,7 +112,8 @@ Function GetExchangeMessageToTempDirectoryFromCorrespondentInfobaseViaWebService
 		
 		Cancel = True;
 		Message = NStr("en = 'Errors occurred while receiving an exchange message from the file transfer service: %1';", Common.DefaultLanguageCode());
-		Message = StringFunctionsClientServer.SubstituteParametersToString(Message, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		Message = StringFunctionsClientServer.SubstituteParametersToString(Message,
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		
 		DataExchangeServer.WriteEventLogDataExchange(Message, ExchangeSettingsStructure, True);
 		
@@ -123,7 +125,8 @@ Function GetExchangeMessageToTempDirectoryFromCorrespondentInfobaseViaWebService
 	Except
 		Cancel = True;
 		Message = NStr("en = 'Errors occurred while receiving an exchange message: %1';", Common.DefaultLanguageCode());
-		Message = StringFunctionsClientServer.SubstituteParametersToString(Message, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		Message = StringFunctionsClientServer.SubstituteParametersToString(Message,
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		
 		DataExchangeServer.WriteEventLogDataExchange(Message, ExchangeSettingsStructure, True);
 		
@@ -191,7 +194,8 @@ Function GetExchangeMessageToTempDirectoryFromCorrespondentInfobaseViaWebService
 		
 		Cancel = True;
 		Message = NStr("en = 'Errors occurred while receiving an exchange message from the file transfer service: %1';", Common.DefaultLanguageCode());
-		Message = StringFunctionsClientServer.SubstituteParametersToString(Message, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		Message = StringFunctionsClientServer.SubstituteParametersToString(Message,
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		ExchangeSettingsStructure = New Structure("EventLogMessageKey");
 		ExchangeSettingsStructure.EventLogMessageKey = 
 			DataExchangeServer.EventLogMessageKey(InfobaseNode, Enums.ActionsOnExchange.DataImport);
@@ -206,7 +210,8 @@ Function GetExchangeMessageToTempDirectoryFromCorrespondentInfobaseViaWebService
 	Except
 		Cancel = True;
 		Message = NStr("en = 'Errors occurred while receiving an exchange message: %1';", Common.DefaultLanguageCode());
-		Message = StringFunctionsClientServer.SubstituteParametersToString(Message, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		Message = StringFunctionsClientServer.SubstituteParametersToString(Message,
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		ExchangeSettingsStructure = New Structure("EventLogMessageKey");
 		ExchangeSettingsStructure.EventLogMessageKey = 
 			DataExchangeServer.EventLogMessageKey(InfobaseNode, Enums.ActionsOnExchange.DataImport);
@@ -315,7 +320,8 @@ Procedure ExecuteExchangeActionForInfobaseNodeUsingWebService(Cancel,
 				
 			Except
 				
-				DataExchangeServer.WriteEventLogDataExchange(ErrorProcessing.DetailErrorDescription(ErrorInfo()), ExchangeSettingsStructure, True);
+				DataExchangeServer.WriteEventLogDataExchange(
+					ErrorProcessing.DetailErrorDescription(ErrorInfo()),ExchangeSettingsStructure, True);
 				ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error;
 				Cancel = True;
 				
@@ -385,7 +391,8 @@ Procedure ExecuteExchangeActionForInfobaseNodeUsingWebService(Cancel,
 		Try
 			DataExchangeServer.WriteMessageWithNodeChanges(ExchangeSettingsStructure, FileExchangeMessages);
 		Except
-			DataExchangeServer.WriteEventLogDataExchange(ErrorProcessing.DetailErrorDescription(ErrorInfo()), ExchangeSettingsStructure, True);
+			DataExchangeServer.WriteEventLogDataExchange(
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()), ExchangeSettingsStructure, True);
 			ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error;
 			Cancel = True;
 		EndTry;
@@ -774,8 +781,7 @@ Procedure InitializeWSProxyToManageDataExchange(Proxy,
 		NodeAlias = DataExchangeServer.PredefinedNodeAlias(SettingsStructure.InfobaseNode);
 		If ValueIsFilled(NodeAlias) Then
 			// 
-			SettingsStructureOfPredefined = New Structure;
-			SettingsStructureOfPredefined.Insert("ExchangePlanName", SettingsStructure.ExchangePlanName);
+			SettingsStructureOfPredefined = Common.CopyRecursive(SettingsStructure, False); // Structure
 			SettingsStructureOfPredefined.Insert("CurrentExchangePlanNodeCode1", NodeAlias);
 			SetupStatus = SynchronizationSetupStatusInCorrespondent(Proxy, ProxyParameters, SettingsStructureOfPredefined);
 				
@@ -857,14 +863,16 @@ Function WSProxyForInfobaseNode(InfobaseNode, ErrorMessageString = "", Additiona
 	EndTry;
 	
 	AvailableVersions = New Map;
-	For Each Version In StrSplit("3.0.2.1;3.0.1.1;2.1.1.7;2.0.1.6", ";", False) Do
+	For Each Version In StrSplit("3.0.2.2;3.0.2.1;3.0.1.1;2.1.1.7;2.0.1.6", ";", False) Do
 		AvailableVersions.Insert(Version, CorrespondentVersions.Find(Version) <> Undefined
 			And (CommonClientServer.CompareVersions(Version, MinVersion) >= 0));
 	EndDo;
 	
 	AvailableVersions.Insert("0.0.0.0", CommonClientServer.CompareVersions("0.0.0.0", MinVersion) >= 0);
 	
-	If AvailableVersions.Get("3.0.2.1") = True Then
+	If AvailableVersions.Get("3.0.2.2") = True Then
+		CurrentVersion = "3.0.2.2";
+	ElsIf AvailableVersions.Get("3.0.2.1") = True Then
 		CurrentVersion = "3.0.2.1";
 	ElsIf AvailableVersions.Get("3.0.1.1") = True Then
 		CurrentVersion = "3.0.1.1";
@@ -1060,7 +1068,7 @@ Procedure RunDataExport(Proxy, ProxyVersion, ExchangeSettingsStructure, Exchange
 	If Version3_0_2_1(ProxyVersion) Then
 		
 		Proxy.UploadData(
-			ExchangeSettingsStructure.ExchangePlanName,
+			ExchangeSettingsStructure.CorrespondentExchangePlanName,
 			ExchangeSettingsStructure.CurrentExchangePlanNodeCode1,
 			ExchangeParameters.FileID,
 			ExchangeParameters.TimeConsumingOperation,
@@ -1088,7 +1096,7 @@ Procedure RunDataImport(Proxy, ProxyVersion, ExchangeSettingsStructure, Exchange
 	If Version3_0_2_1(ProxyVersion) Then
 		
 		Proxy.DownloadData(
-			ExchangeSettingsStructure.ExchangePlanName,
+			ExchangeSettingsStructure.CorrespondentExchangePlanName,
 			ExchangeSettingsStructure.CurrentExchangePlanNodeCode1,
 			FileIDAsString,
 			ExchangeParameters.TimeConsumingOperation,
@@ -1111,11 +1119,22 @@ Procedure RunDataImport(Proxy, ProxyVersion, ExchangeSettingsStructure, Exchange
 EndProcedure
 
 // Corresponds to the GetIBParameters operation.
-Function GetParametersOfInfobase(Proxy, ProxyVersion, ExchangePlanName, NodeCode, ErrorMessage, DataArea) Export
+Function GetParametersOfInfobase(Proxy, ProxyVersion, ExchangePlanName, NodeCode, ErrorMessage,
+	DataArea, AdditionalParameters = Undefined) Export
 	
-	If Version3_0_2_1(ProxyVersion) Then
+	If Version3_0_2_2(ProxyVersion) Then
 		
-		Return Proxy.GetIBParameters(ExchangePlanName, NodeCode, ErrorMessage, DataArea);   
+		If AdditionalParameters = Undefined Then
+			AdditionalParameters = New Structure;
+		EndIf;
+		
+		AdditionalXDTOParameters = XDTOSerializer.WriteXDTO(AdditionalParameters);
+		
+		Return Proxy.GetIBParameters(ExchangePlanName, NodeCode, ErrorMessage, DataArea, AdditionalXDTOParameters);
+		
+	ElsIf Version3_0_2_1(ProxyVersion) Then
+		
+		Return Proxy.GetIBParameters(ExchangePlanName, NodeCode, ErrorMessage, DataArea);
 			
 	Else
 		
@@ -1147,7 +1166,7 @@ Procedure PutMessageForDataMapping(Proxy, ProxyVersion, ExchangeSettingsStructur
 	
 	If Version3_0_2_1(ProxyVersion) Then
 		
-		Proxy.PutMessageForDataMatching(ExchangeSettingsStructure.ExchangePlanName,
+		Proxy.PutMessageForDataMatching(ExchangeSettingsStructure.CorrespondentExchangePlanName,
 			ExchangeSettingsStructure.CurrentExchangePlanNodeCode1,
 			FileIDAsString,
 			ExchangeSettingsStructure.TransportSettings.WSPeerDataArea);
@@ -1168,7 +1187,7 @@ Procedure DeleteExchangeNode(Proxy, ProxyVersion, ExchangeSettingsStructure) Exp
 	
 	If Version3_0_2_1(ProxyVersion) Then
 		
-		Proxy.RemoveExchangeNode(ExchangeSettingsStructure.ExchangePlanName,
+		Proxy.RemoveExchangeNode(ExchangeSettingsStructure.CorrespondentExchangePlanName,
 			ExchangeSettingsStructure.CurrentExchangePlanNodeCode1,
 			ExchangeSettingsStructure.TransportSettings.WSPeerDataArea);
 			   
@@ -1275,7 +1294,7 @@ Procedure WaitingForTheOperationToComplete(ExchangeSettingsStructure, ExchangePa
 			
 		Else
 			
-			Raise StrTemplate(NStr("en = 'Peer infobase error:%1 %2';"), Chars.LF, ErrorMessageString);;
+			Raise StrTemplate(NStr("en = 'Peer infobase error:%1 %2';"), Chars.LF, ErrorMessageString);
 			
 		EndIf;
 		
@@ -1288,6 +1307,13 @@ Function Version3_0_2_1(ProxyVersion)
 	Return CommonClientServer.CompareVersions(ProxyVersion, "3.0.2.1") >= 0;
 		
 EndFunction
+
+Function Version3_0_2_2(ProxyVersion)
+	
+	Return CommonClientServer.CompareVersions(ProxyVersion, "3.0.2.2") >= 0;
+		
+EndFunction
+
 
 // 
 Function PrepareFileForObtaining(Proxy, ProxyVersion, ExchangeSettingsStructure,
@@ -1363,10 +1389,10 @@ Function ConnectionTesting(Proxy, ProxyVersion, ExchangeSettingsStructure, Error
 	If Version3_0_2_1(ProxyVersion) Then
 		
 		Return Proxy.TestConnection(
-			ExchangeSettingsStructure.ExchangePlanName, 
+			ExchangeSettingsStructure.CorrespondentExchangePlanName, 
 			ExchangeSettingsStructure.CurrentExchangePlanNodeCode1, 
 			ErrorMessage, 
-			ExchangeSettingsStructure.TransportSettings.WSPeerDataArea);	
+			ExchangeSettingsStructure.TransportSettings.WSPeerDataArea);
 			
 	Else
 		
@@ -1471,7 +1497,7 @@ Function SynchronizationSetupStatusInCorrespondent(Proxy, ProxyParameters, Setti
 			And CommonClientServer.CompareVersions(ProxyParameters.CurrentVersion, "3.0.1.1") >= 0 Then
 			
 			ProxyDestinationParameters = GetParametersOfInfobase(Proxy, ProxyParameters.CurrentVersion,
-				SettingsStructure.ExchangePlanName,
+				SettingsStructure.CorrespondentExchangePlanName,
 				SettingsStructure.CurrentExchangePlanNodeCode1,
 				ErrorMessageString,
 				SettingsStructure.TransportSettings.WSPeerDataArea);

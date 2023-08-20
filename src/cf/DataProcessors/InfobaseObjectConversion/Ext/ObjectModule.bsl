@@ -445,8 +445,8 @@ Function ExportByRule(
 		
 		RememberExportedData = False;
 		
-	ElsIf OCR.Owner().Columns.Find("AnObjectWithMovements") <> Undefined
-		And OCR.AnObjectWithMovements = True Then
+	ElsIf OCR.Owner().Columns.Find("AnObjectWithRegisteredRecords") <> Undefined
+		And OCR.AnObjectWithRegisteredRecords = True Then
 		
 		// Если объект выгружаем с движениями по регистрам - 
 		WriteMode = "Record";
@@ -532,7 +532,8 @@ Function ExportByRule(
 			EndIf;
 			
 		Except
-			WriteInfoOnOCRHandlerExportError(64, ErrorProcessing.DetailErrorDescription(ErrorInfo()), OCR, Source, NStr("en = 'BeforeConvertObject (global)';"));
+			WriteInfoOnOCRHandlerExportError(64, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				OCR, Source, NStr("en = 'BeforeConvertObject (global)';"));
 		EndTry;
 		
 		If Cancel Then	//	
@@ -561,7 +562,8 @@ Function ExportByRule(
 			EndIf;
 			
 		Except
-			WriteInfoOnOCRHandlerExportError(41, ErrorProcessing.DetailErrorDescription(ErrorInfo()), OCR, Source, "BeforeExportObject");
+			WriteInfoOnOCRHandlerExportError(41, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				OCR, Source, "BeforeExportObject");
 		EndTry;
 		
 		If Cancel Then	//	
@@ -936,7 +938,8 @@ Function ExportByRule(
 			EndIf;
 			
 		Except
-			WriteInfoOnOCRHandlerExportError(42, ErrorProcessing.DetailErrorDescription(ErrorInfo()), OCR, Source, "OnExportObject");
+			WriteInfoOnOCRHandlerExportError(42, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				OCR, Source, "OnExportObject");
 		EndTry;
 				
 		If Cancel Then	//	
@@ -1014,7 +1017,8 @@ Function ExportByRule(
 				EndIf;
 				
 			Except
-				WriteInfoOnOCRHandlerExportError(43, ErrorProcessing.DetailErrorDescription(ErrorInfo()), OCR, Source, "AfterExportObject");
+				WriteInfoOnOCRHandlerExportError(43, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+					OCR, Source, "AfterExportObject");
 			EndTry;
 			
 			If Cancel Then	//	
@@ -1113,7 +1117,8 @@ Function ExportByRule(
 			EndIf;
 			
 		Except
-			WriteInfoOnOCRHandlerExportError(79, ErrorProcessing.DetailErrorDescription(ErrorInfo()), OCR, Source, "HasAfterExportToFileHandler");
+			WriteInfoOnOCRHandlerExportError(79, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				OCR, Source, "HasAfterExportToFileHandler");
 		EndTry;
 		
 	EndIf;
@@ -1387,7 +1392,8 @@ Procedure ExportDataByRule(Rule) Export
 			
 		Except
 			
-			WriteErrorInfoDERHandlers(31, ErrorProcessing.DetailErrorDescription(ErrorInfo()), Rule.Name, "BeforeProcessDataExport");
+			WriteErrorInfoDERHandlers(31, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				Rule.Name, "BeforeProcessDataExport");
 			
 		EndTry;
 		
@@ -1505,7 +1511,8 @@ Procedure ExportDataByRule(Rule) Export
 			
 		Except
 			
-			WriteErrorInfoDERHandlers(32, ErrorProcessing.DetailErrorDescription(ErrorInfo()), Rule.Name, "AfterProcessDataExport");
+			WriteErrorInfoDERHandlers(32, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				Rule.Name, "AfterProcessDataExport");
 			
 		EndTry;
 		
@@ -1705,7 +1712,8 @@ Procedure WriteObjectToIB(Object, Type, WriteObject = False, Val SendBack = Fals
 		
 		WriteObject = False;
 		
-		ErrorMessageString = WriteErrorInfoToProtocol(26, ErrorProcessing.DetailErrorDescription(ErrorInfo()), Object, Type);
+		ErrorMessageString = WriteErrorInfoToProtocol(26, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			Object, Type);
 		
 		If Not ContinueOnError Then
 			Raise ErrorMessageString;
@@ -1758,7 +1766,8 @@ Procedure UndoObjectPostingInIB(Object, Type, WriteObject = False) Export
 		
 		WriteObject = False;
 		
-		ErrorMessageString = WriteErrorInfoToProtocol(26, ErrorProcessing.DetailErrorDescription(ErrorInfo()), Object, Type);
+		ErrorMessageString = WriteErrorInfoToProtocol(26, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			Object, Type);
 		
 		If Not ContinueOnError Then
 			Raise ErrorMessageString;
@@ -2793,7 +2802,8 @@ Procedure ExternalConnectionConversionHandlerBeforeDataImport(Cancel) Export
 			EndIf;
 			
 		Except
-			WriteErrorInfoConversionHandlers(22, ErrorProcessing.DetailErrorDescription(ErrorInfo()), NStr("en = 'BeforeImportData (conversion)';"));
+			WriteErrorInfoConversionHandlers(22, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				NStr("en = 'BeforeImportData (conversion)';"));
 			Cancel = True;
 		EndTry;
 		
@@ -2903,7 +2913,8 @@ Procedure ExternalConnectionAfterDataImport() Export
 				EndIf;
 				
 			Except
-				WriteErrorInfoConversionHandlers(23, ErrorProcessing.DetailErrorDescription(ErrorInfo()), NStr("en = 'AfterImportData (conversion)';"));
+				WriteErrorInfoConversionHandlers(23, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+					NStr("en = 'AfterImportData (conversion)';"));
 			EndTry;
 			
 		EndIf;
@@ -4607,7 +4618,8 @@ Procedure InitializeKeepExchangeProtocol()
 		DataProtocolFile = Undefined;
 		MessageString = NStr("en = 'Failed to log to: %1. Error details: %2';",
 			Common.DefaultLanguageCode());
-		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, ExchangeProtocolFileName, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, ExchangeProtocolFileName,
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		WriteEventLogDataExchange1(MessageString, EventLogLevel.Warning);
 	EndTry;
 	
@@ -5594,7 +5606,7 @@ EndProcedure
 //                   object presentation strings.
 //  SourceType   - значение Тип - the Type type - source object type.
 //
-Procedure LoadValues(ExchangeRules, Values, SourceType);
+Procedure LoadValues(ExchangeRules, Values, SourceType)
 
 	While ExchangeRules.Read() Do
 		
@@ -5729,7 +5741,8 @@ Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 							
 						Except
 							
-							WriteErrorInfoToProtocol(11, ErrorProcessing.DetailErrorDescription(ErrorInfo()), String(NewRow.Source));
+							WriteErrorInfoToProtocol(11, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+								String(NewRow.Source));
 							
 						EndTry;
 					
@@ -5906,9 +5919,9 @@ Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 			
 			NewRow.TableFields = deElementValue(ExchangeRules, StringType);
 			
-		ElsIf NodeName = "AnObjectWithMovements" Then
+		ElsIf NodeName = "AnObjectWithRegisteredRecords" Then
 			
-			NewRow.AnObjectWithMovements = deElementValue(ExchangeRules, BooleanType);
+			NewRow.AnObjectWithRegisteredRecords = deElementValue(ExchangeRules, BooleanType);
 			
 		ElsIf (NodeName = "Rule") And (ExchangeRules.NodeType = XMLNodeTypeEndElement) Then
 		
@@ -6967,7 +6980,8 @@ Procedure RestoreRulesFromInternalFormat() Export
 					Managers[TableRow.Source].OCR = TableRow;
 				EndIf;
 			Except
-				WriteErrorInfoToProtocol(11, ErrorProcessing.DetailErrorDescription(ErrorInfo()), String(TableRow.Source));
+				WriteErrorInfoToProtocol(11, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+					String(TableRow.Source));
 			EndTry;
 			
 		EndIf;
@@ -7080,7 +7094,8 @@ Procedure SelectionObjectDeletion(Object, Rule, Properties, IncomingData)
 			
 		Except
 			
-			WriteDataClearingHandlerErrorInfo(29, ErrorProcessing.DetailErrorDescription(ErrorInfo()), Rule.Name, Object, "BeforeDeleteSelectionObject");
+			WriteDataClearingHandlerErrorInfo(29, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				Rule.Name, Object, "BeforeDeleteSelectionObject");
 			
 		EndTry;
 		
@@ -7098,7 +7113,8 @@ Procedure SelectionObjectDeletion(Object, Rule, Properties, IncomingData)
 		
 	Except
 		
-		WriteDataClearingHandlerErrorInfo(24, ErrorProcessing.DetailErrorDescription(ErrorInfo()), Rule.Name, Object, "");
+		WriteDataClearingHandlerErrorInfo(24, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			Rule.Name, Object, "");
 		
 	EndTry;
 	
@@ -7135,7 +7151,8 @@ Procedure ClearDataByRule(Rule)
 			
 		Except
 			
-			WriteDataClearingHandlerErrorInfo(27, ErrorProcessing.DetailErrorDescription(ErrorInfo()), Rule.Name, "", "BeforeProcessClearingRule");
+			WriteDataClearingHandlerErrorInfo(27, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				Rule.Name, "", "BeforeProcessClearingRule");
 						
 		EndTry;
 			
@@ -7240,7 +7257,8 @@ Procedure ClearDataByRule(Rule)
 			
 		Except
 			
-			WriteDataClearingHandlerErrorInfo(28, ErrorProcessing.DetailErrorDescription(ErrorInfo()), Rule.Name, "", "AfterProcessClearingRule");
+			WriteDataClearingHandlerErrorInfo(28, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				Rule.Name, "", "AfterProcessClearingRule");
 			
 		EndTry;
 		
@@ -7356,7 +7374,8 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 			EndIf;
 			
 		Except
-			Raise WriteErrorInfoConversionHandlers(22, ErrorProcessing.DetailErrorDescription(ErrorInfo()), NStr("en = 'BeforeImportData (conversion)';"));
+			Raise WriteErrorInfoConversionHandlers(22, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				NStr("en = 'BeforeImportData (conversion)';"));
 		EndTry;
 		
 		If Cancel Then
@@ -7482,7 +7501,8 @@ Procedure ExecuteHandlerAfterImportData()
 			EndIf;
 			
 		Except
-			Raise WriteErrorInfoConversionHandlers(23, ErrorProcessing.DetailErrorDescription(ErrorInfo()), NStr("en = 'AfterImportData (conversion)';"));
+			Raise WriteErrorInfoConversionHandlers(23, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				NStr("en = 'AfterImportData (conversion)';"));
 		EndTry;
 		
 	EndIf;
@@ -9857,7 +9877,8 @@ Function ReadRegisterRecordSet()
 			
 		Except
 			
-			WriteInfoOnOCRHandlerImportError(53, ErrorProcessing.DetailErrorDescription(ErrorInfo()), RuleName, Source, 
+			WriteInfoOnOCRHandlerImportError(53, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				RuleName, Source, 
 			ObjectType, Undefined, NStr("en = 'BeforeImportObject (global)';"));
 			
 		EndTry;
@@ -9893,8 +9914,8 @@ Function ReadRegisterRecordSet()
 			
 		Except
 			
-			WriteInfoOnOCRHandlerImportError(19, ErrorProcessing.DetailErrorDescription(ErrorInfo()), RuleName, Source, 
-				ObjectType, Undefined, "BeforeImportObject");
+			WriteInfoOnOCRHandlerImportError(19, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				RuleName, Source, ObjectType, Undefined, "BeforeImportObject");
 			
 		EndTry;
 		
@@ -10011,8 +10032,8 @@ Function ReadRegisterRecordSet()
 						
 					Except
 						
-						WriteInfoOnOCRHandlerImportError(20, ErrorProcessing.DetailErrorDescription(ErrorInfo()), RuleName, Source, 
-						ObjectType, Object, "OnImportObject");
+						WriteInfoOnOCRHandlerImportError(20, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+							RuleName, Source, ObjectType, Object, "OnImportObject");
 						
 					EndTry;
 					
@@ -10064,8 +10085,8 @@ Function ReadRegisterRecordSet()
 			
 		Except
 			
-			WriteInfoOnOCRHandlerImportError(21, ErrorProcessing.DetailErrorDescription(ErrorInfo()), RuleName, Source, 
-				ObjectType, Object, "AfterImportObject");
+			WriteInfoOnOCRHandlerImportError(21, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				RuleName, Source, ObjectType, Object, "AfterImportObject");
 			
 		EndTry;
 		
@@ -10285,9 +10306,9 @@ Function ReadObject(UUIDAsString1 = "")
 			
 		Except
 			
-			WriteInfoOnOCRHandlerImportError(53, ErrorProcessing.DetailErrorDescription(ErrorInfo()), RuleName, Source, 
-				ObjectType, Undefined, NStr("en = 'BeforeImportObject (global)';"));				
-							
+			WriteInfoOnOCRHandlerImportError(53, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				RuleName, Source, ObjectType, Undefined, NStr("en = 'BeforeImportObject (global)';"));
+				
 		EndTry;
 				
 		If Cancel Then	//	
@@ -10321,8 +10342,8 @@ Function ReadObject(UUIDAsString1 = "")
 			
 		Except
 			
-			WriteInfoOnOCRHandlerImportError(19, ErrorProcessing.DetailErrorDescription(ErrorInfo()), RuleName, Source, 
-			ObjectType, Undefined, "BeforeImportObject");				
+			WriteInfoOnOCRHandlerImportError(19, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				RuleName, Source, ObjectType, Undefined, "BeforeImportObject");
 			
 		EndTry;
 		
@@ -10381,10 +10402,10 @@ Function ReadObject(UUIDAsString1 = "")
 						
 					Except
 						
-						WriteInfoOnOCRHandlerImportError(20, ErrorProcessing.DetailErrorDescription(ErrorInfo()), RuleName, Source,
-																		 ObjectType, Object, "OnImportObject");
+						WriteInfoOnOCRHandlerImportError(20, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+							RuleName, Source, ObjectType, Object, "OnImportObject");
 						
-					EndTry;							
+					EndTry;
 					
 				EndIf;
 				
@@ -10545,9 +10566,9 @@ Function ReadObject(UUIDAsString1 = "")
 					
 				Except
 					
-					WriteInfoOnOCRHandlerImportError(20, ErrorProcessing.DetailErrorDescription(ErrorInfo()), RuleName, Source,
-							ObjectType, Object, "OnImportObject");
-					//
+					WriteInfoOnOCRHandlerImportError(20, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+						RuleName, Source, ObjectType, Object, "OnImportObject");
+					
 				EndTry;
 				
 				If ObjectFound And DontReplaceObject Then
@@ -10597,8 +10618,8 @@ Function ReadObject(UUIDAsString1 = "")
 						
 					Except
 						
-						WriteInfoOnOCRHandlerImportError(20, ErrorProcessing.DetailErrorDescription(ErrorInfo()), RuleName, Source, 
-							ObjectType, Object, "OnImportObject");							
+						WriteInfoOnOCRHandlerImportError(20, ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
+							RuleName, Source, ObjectType, Object, "OnImportObject");
 						
 					EndTry;
 						
@@ -10640,15 +10661,15 @@ Function ReadObject(UUIDAsString1 = "")
 				// 
 				If Metadata.AccountingRegisters.Find(Name) <> Undefined Then
 				
-					LoadedMovements = Object.RegisterRecords[Name].Unload();
-					If LoadedMovements.Count() > 0 Then
+					LoadedRegisteredRecords = Object.RegisterRecords[Name].Unload();
+					If LoadedRegisteredRecords.Count() > 0 Then
 						
 						// 
 						// 
 						// 
-						EliminateErrorOfAssigningTypeOfSubconto(LoadedMovements);
+						EliminateErrorOfAssigningTypeOfSubconto(LoadedRegisteredRecords);
 						
-						DeferredMotionRecordingTables.Insert(Name, LoadedMovements);
+						DeferredMotionRecordingTables.Insert(Name, LoadedRegisteredRecords);
 						Object.RegisterRecords[Name].Clear();
 						
 					EndIf;
@@ -10681,8 +10702,8 @@ Function ReadObject(UUIDAsString1 = "")
 					
 				Except
 					
-					WriteInfoOnOCRHandlerImportError(54, ErrorProcessing.DetailErrorDescription(ErrorInfo()), RuleName, Source,
-						ObjectType, Object, NStr("en = 'AfterImportObject (global)';"));
+					WriteInfoOnOCRHandlerImportError(54, ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
+						RuleName, Source, ObjectType, Object, NStr("en = 'AfterImportObject (global)';"));
 					
 				EndTry;
 				
@@ -10706,8 +10727,8 @@ Function ReadObject(UUIDAsString1 = "")
 					
 				Except
 					
-					WriteInfoOnOCRHandlerImportError(21, ErrorProcessing.DetailErrorDescription(ErrorInfo()), RuleName, Source, 
-						ObjectType, Object, "AfterImportObject");				
+					WriteInfoOnOCRHandlerImportError(21, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+						RuleName, Source, ObjectType, Object, "AfterImportObject");
 					
 				EndTry;
 				
@@ -10983,7 +11004,10 @@ EndFunction
 Procedure SwitchToNewExchange()
 	
 	ExchangePlanName = ExchangePlanName();
-	NameOfExchangePlanToGo = ExchangePlans[ExchangePlanName].ExchangePlanNameToMigrateToNewExchange();
+		
+	PreviousExchangePlanSettings = 
+		DataExchangeServer.ExchangePlanSettingValue(ExchangePlanName, "ExchangePlanNameToMigrateToNewExchange");
+	NameOfExchangePlanToGo = PreviousExchangePlanSettings.ExchangePlanNameToMigrateToNewExchange;
 	
 	DataSynchronizationSetup = Undefined;
 	If ValueIsFilled(NodeForExchange) Then
@@ -11072,13 +11096,13 @@ Procedure RecordAccountingRegisters(Recorder, DeferredMotionRecordingTables)
 	
 EndProcedure
 
-Procedure CheckOutSubKontoCollection(TableRow, ValuesBeforeCorrection, Direction, HasError)
+Procedure CheckExtDimensionCollection(TableRow, ValuesBeforeCorrection, Direction, HasError)
 	
-	CollectionOfSubKontoSpecies = TableRow["Account" + Direction].ExtDimensionTypes;
+	ExtDimensionTypesCollection = TableRow["Account" + Direction].ExtDimensionTypes;
 	
-	For Each ViewOfSubKontoFromCollection In CollectionOfSubKontoSpecies Do
+	For Each ExtDimensionTypeFromCollection In ExtDimensionTypesCollection Do
 		
-		ExtDimensionType = Direction + String(ViewOfSubKontoFromCollection.LineNumber);
+		ExtDimensionType = Direction + String(ExtDimensionTypeFromCollection.LineNumber);
 		
 		NameExtdimension = "ExtDimension" + ExtDimensionType;
 		NameTypesOfSubconto = "ExtDimensionType" + ExtDimensionType;
@@ -11088,12 +11112,12 @@ Procedure CheckOutSubKontoCollection(TableRow, ValuesBeforeCorrection, Direction
 		DescriptionOfExtdimension.Insert("ExtDimension", TableRow[NameExtdimension]);
 		DescriptionOfExtdimension.Insert("ExtDimensionType", TableRow[NameTypesOfSubconto]);
 		
-		If TableRow[NameTypesOfSubconto] <> ViewOfSubKontoFromCollection.ExtDimensionType Then
+		If TableRow[NameTypesOfSubconto] <> ExtDimensionTypeFromCollection.ExtDimensionType Then
 			
 			DescriptionOfExtdimension.HasError = True;
 			
 			TableRow[NameExtdimension] = Undefined;
-			TableRow[NameTypesOfSubconto] = ViewOfSubKontoFromCollection.ExtDimensionType;
+			TableRow[NameTypesOfSubconto] = ExtDimensionTypeFromCollection.ExtDimensionType;
 			
 			HasError = True;
 			
@@ -11105,16 +11129,16 @@ Procedure CheckOutSubKontoCollection(TableRow, ValuesBeforeCorrection, Direction
 	
 EndProcedure
 
-Procedure EliminateErrorOfAssigningTypeOfSubconto(LoadedMovements)
+Procedure EliminateErrorOfAssigningTypeOfSubconto(LoadedRegisteredRecords)
 	
-	For Each TableRow In LoadedMovements Do
+	For Each TableRow In LoadedRegisteredRecords Do
 		
 		HasError = False;
 		
 		ValuesBeforeCorrection = New Map;
 		
-		CheckOutSubKontoCollection(TableRow, ValuesBeforeCorrection, "Dr", HasError);
-		CheckOutSubKontoCollection(TableRow, ValuesBeforeCorrection, "Cr", HasError);
+		CheckExtDimensionCollection(TableRow, ValuesBeforeCorrection, "Dr", HasError);
+		CheckExtDimensionCollection(TableRow, ValuesBeforeCorrection, "Cr", HasError);
 		
 		If HasError Then
 			
@@ -11772,8 +11796,8 @@ Procedure GetPropertyValue(Value, CollectionObject, OCR, PCR, IncomingData, Sour
 		If ErrorCode <> 14 Then
 			WriteErrorInfoPCRHandlers(ErrorCode, ErrorProcessing.DetailErrorDescription(ErrorInfo()), OCR, PCR, Source, "");
 		EndIf;
-																	
-	EndTry;					
+		
+	EndTry;
 			
 EndProcedure
 
@@ -11820,8 +11844,8 @@ Procedure _ExportExtDimension(Source, Receiver, IncomingData, OutgoingData, OCR,
 			
 		Except
 			
-			WriteErrorInfoPCRHandlers(55, ErrorProcessing.DetailErrorDescription(ErrorInfo()), OCR, PCR, Source, 
-				"BeforeExportProperty", Value);
+			WriteErrorInfoPCRHandlers(55, ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
+				OCR, PCR, Source, "BeforeExportProperty", Value);
 			
 		EndTry;
 		
@@ -11873,8 +11897,8 @@ Procedure _ExportExtDimension(Source, Receiver, IncomingData, OutgoingData, OCR,
 				
 			Except
 				
-				WriteErrorInfoPCRHandlers(56, ErrorProcessing.DetailErrorDescription(ErrorInfo()), OCR, PCR, Source, 
-					"OnExportProperty", Value);
+				WriteErrorInfoPCRHandlers(56, ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
+					OCR, PCR, Source, "OnExportProperty", Value);
 				
 			EndTry;
 			
@@ -12027,8 +12051,8 @@ Procedure _ExportExtDimension(Source, Receiver, IncomingData, OutgoingData, OCR,
 				
 			Except
 				
-				WriteErrorInfoPCRHandlers(57, ErrorProcessing.DetailErrorDescription(ErrorInfo()), OCR, PCR, Source, 
-				"AfterExportProperty", Value);
+				WriteErrorInfoPCRHandlers(57, ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
+					OCR, PCR, Source, "AfterExportProperty", Value);
 				
 			EndTry;
 			
@@ -12528,9 +12552,9 @@ Procedure ExportProperties(Source,
 				
 			Except
 				
-				WriteErrorInfoPCRHandlers(55, ErrorProcessing.DetailErrorDescription(ErrorInfo()), OCR, PCR, Source, 
-						"BeforeExportProperty", Value);
-														
+				WriteErrorInfoPCRHandlers(55, ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
+					OCR, PCR, Source, "BeforeExportProperty", Value);
+				
 			EndTry;
 			
 			If Cancel Then	//	
@@ -12647,9 +12671,9 @@ Procedure ExportProperties(Source,
 				
 			Except
 				
-				WriteErrorInfoPCRHandlers(56, ErrorProcessing.DetailErrorDescription(ErrorInfo()), OCR, PCR, Source, 
-						"OnExportProperty", Value);
-														
+				WriteErrorInfoPCRHandlers(56, ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
+					OCR, PCR, Source, "OnExportProperty", Value);
+				
 			EndTry;
 			
 			If Cancel Then	//	
@@ -12847,8 +12871,8 @@ Procedure ExportProperties(Source,
 				
 			Except
 				
-				WriteErrorInfoPCRHandlers(57, ErrorProcessing.DetailErrorDescription(ErrorInfo()), OCR, PCR, Source, 
-						"AfterExportProperty", Value);
+				WriteErrorInfoPCRHandlers(57, ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
+					OCR, PCR, Source, "AfterExportProperty", Value);
 				
 			EndTry;
 			
@@ -13027,7 +13051,8 @@ Procedure FireEventsBeforeExportObject(Object, Rule, Properties=Undefined, Incom
 			EndIf;
 			
 		Except
-			WriteErrorInfoDERHandlers(65, ErrorProcessing.DetailErrorDescription(ErrorInfo()), Rule.Name, NStr("en = 'BeforeExportSelectionObject (global)';"), Object);
+			WriteErrorInfoDERHandlers(65, ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
+				Rule.Name, NStr("en = 'BeforeExportSelectionObject (global)';"), Object);
 		EndTry;
 		
 		If Cancel Then
@@ -13052,7 +13077,8 @@ Procedure FireEventsBeforeExportObject(Object, Rule, Properties=Undefined, Incom
 			EndIf;
 			
 		Except
-			WriteErrorInfoDERHandlers(33, ErrorProcessing.DetailErrorDescription(ErrorInfo()), Rule.Name, "BeforeExportSelectionObject", Object);
+			WriteErrorInfoDERHandlers(33, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				Rule.Name, "BeforeExportSelectionObject", Object);
 		EndTry;
 		
 	EndIf;		
@@ -13080,7 +13106,8 @@ Procedure FireEventsAfterExportObject(Object, Rule, Properties=Undefined, Incomi
 			EndIf;
 			
 		Except
-			WriteErrorInfoDERHandlers(69, ErrorProcessing.DetailErrorDescription(ErrorInfo()), Rule.Name, NStr("en = 'AfterExportSelectionObject (global)';"), Object);
+			WriteErrorInfoDERHandlers(69, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				Rule.Name, NStr("en = 'AfterExportSelectionObject (global)';"), Object);
 		EndTry;
 	EndIf;
 	
@@ -13100,7 +13127,8 @@ Procedure FireEventsAfterExportObject(Object, Rule, Properties=Undefined, Incomi
 			EndIf;
 			
 		Except
-			WriteErrorInfoDERHandlers(34, ErrorProcessing.DetailErrorDescription(ErrorInfo()), Rule.Name, "AfterExportSelectionObject", Object);
+			WriteErrorInfoDERHandlers(34, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				Rule.Name, "AfterExportSelectionObject", Object);
 		EndTry;
 		
 	EndIf;
@@ -13300,7 +13328,9 @@ Procedure ProcessObjectDeletion(ObjectDeletionData, ErrorMessageString = "")
 				EndIf;
 				
 			Except
-				ErrorMessageString = WriteErrorInfoConversionHandlers(76, ErrorProcessing.DetailErrorDescription(ErrorInfo()), NStr("en = 'BeforeSendDeletionInfo (conversion)';"));
+				ErrorMessageString = WriteErrorInfoConversionHandlers(76, 
+					ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
+					NStr("en = 'BeforeSendDeletionInfo (conversion)';"));
 				
 				If Not ContinueOnError Then
 					Raise ErrorMessageString;
@@ -13317,10 +13347,10 @@ Procedure ProcessObjectDeletion(ObjectDeletionData, ErrorMessageString = "")
 	EndIf;
 	
 	Filter = New Structure("Source", TypeOf(Ref));
-	Rules = ConversionRulesCollection().Copy(Filter, "DestinationType,SourceType");
-	Rules.GroupBy("DestinationType, SourceType");
+	RulesForDeletion = ConversionRulesCollection().Copy(Filter, "DestinationType,SourceType");
+	RulesForDeletion.GroupBy("DestinationType, SourceType");
 	
-	If Rules.Count() = 0 Then
+	If RulesForDeletion.Count() = 0 Then
 
 		WP = ExchangeProtocolRecord(45);
 		
@@ -13332,7 +13362,7 @@ Procedure ProcessObjectDeletion(ObjectDeletionData, ErrorMessageString = "")
 		
 	EndIf;
 	
-	For Each OCR In Rules Do
+	For Each OCR In RulesForDeletion Do
 		WriteToFileObjectDeletion(Ref, OCR.DestinationType, OCR.SourceType);
 	EndDo;
 	
@@ -13575,7 +13605,7 @@ Procedure InitConversionRuleTable()
 	Columns.Add("SearchFields",  deTypeDetails("String"));
 	Columns.Add("TableFields", deTypeDetails("String"));
 	
-	Columns.Add("AnObjectWithMovements", deTypeDetails("Boolean"));
+	Columns.Add("AnObjectWithRegisteredRecords", deTypeDetails("Boolean"));
 	
 EndProcedure
 
@@ -15422,6 +15452,8 @@ EndProcedure
 
 Procedure DeleteExcessiveItemsFromMap(StructureOfData)
 	
+	ArrayOfKeysToDelete = New Array;
+	
 	For Each Item In StructureOfData Do
 		
 		If TypeOf(Item.Value) = MapType Then
@@ -15429,12 +15461,16 @@ Procedure DeleteExcessiveItemsFromMap(StructureOfData)
 			DeleteExcessiveItemsFromMap(Item.Value);
 			
 			If Item.Value.Count() = 0 Then
-				StructureOfData.Delete(Item.Key);
+				ArrayOfKeysToDelete.Add(Item.Key);
 			EndIf;
 			
-		EndIf;		
+		EndIf;
 		
-	EndDo;		
+	EndDo;
+	
+	For Each Var_Key In ArrayOfKeysToDelete Do
+		StructureOfData.Delete(Var_Key);
+	EndDo;	
 	
 EndProcedure
 
@@ -16003,7 +16039,9 @@ Procedure ImportExchangeRules(Source="",
 			EndIf;
 			
 		Except
-			ErrorMessageString = WriteErrorInfoConversionHandlers(75, ErrorProcessing.DetailErrorDescription(ErrorInfo()), NStr("en = 'AfterImportExchangeRules (conversion)';"));
+			ErrorMessageString = WriteErrorInfoConversionHandlers(75, 
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
+				NStr("en = 'AfterImportExchangeRules (conversion)';"));
 			
 			If Not ContinueOnError Then
 				Raise ErrorMessageString;
@@ -16074,7 +16112,10 @@ Procedure DeleteObjectByLink(Ref, ErrorMessageString)
 			EndIf;
 			
 		Except
-			ErrorMessageString = WriteErrorInfoConversionHandlers(77, ErrorProcessing.DetailErrorDescription(ErrorInfo()), NStr("en = 'OnGetDeletionInfo (conversion)';"));
+			ErrorMessageString = WriteErrorInfoConversionHandlers(77,
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				NStr("en = 'OnGetDeletionInfo (conversion)';"));
+				
 			Cancel = True;
 			
 			If Not ContinueOnError Then
@@ -16867,7 +16908,7 @@ Procedure ReadDataViaExchange(MessageReader, DataAnalysis)
 		If DeleteChangeRecords Then // 
 			
 			If TransactionActive() Then
-				Raise NStr("en = 'Cannot delete the registration of data changes in an active transaction.';");
+				Raise NStr("en = 'Cannot unregister items in an active transaction.';");
 			EndIf;
 			
 			ExchangePlans.DeleteChangeRecords(MessageReader.Sender, MessageReader.ReceivedNo);
@@ -16912,7 +16953,9 @@ Procedure ReadDataViaExchange(MessageReader, DataAnalysis)
 			EndIf;
 			
 		Except
-			Raise WriteErrorInfoConversionHandlers(176, ErrorProcessing.DetailErrorDescription(ErrorInfo()), NStr("en = 'AfterGetExchangeNodesInformation (conversion)';"));
+			Raise WriteErrorInfoConversionHandlers(176,
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				NStr("en = 'AfterGetExchangeNodesInformation (conversion)';"));
 		EndTry;
 		
 	EndIf;
@@ -17372,7 +17415,10 @@ Procedure ExecuteExport(ErrorMessageString = "")
 			EndIf;
 			
 		Except
-			WriteErrorInfoConversionHandlers(62, ErrorProcessing.DetailErrorDescription(ErrorInfo()), NStr("en = 'BeforeExportData (conversion)';"));
+			WriteErrorInfoConversionHandlers(62, 
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				NStr("en = 'BeforeExportData (conversion)';"));
+				
 			Cancel = True;
 		EndTry; 
 		
@@ -17506,7 +17552,8 @@ Procedure ExecuteExport(ErrorMessageString = "")
 			EndIf;
 			
 		Except
-			WriteErrorInfoConversionHandlers(63, ErrorProcessing.DetailErrorDescription(ErrorInfo()), NStr("en = 'AfterExportData (conversion)';"));
+			WriteErrorInfoConversionHandlers(63,
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()), NStr("en = 'AfterExportData (conversion)';"));
 		EndTry;
 	
 	EndIf;
@@ -17576,7 +17623,8 @@ Procedure ExecuteRegisteredDataExport(WriteMessage1, ErrorMessageString, UsedExp
 			EndIf;
 			
 		Except
-			WriteErrorInfoConversionHandlers(175, ErrorProcessing.DetailErrorDescription(ErrorInfo()), NStr("en = 'BeforeGetChangedObjects (conversion)';"));
+			WriteErrorInfoConversionHandlers(175, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				NStr("en = 'BeforeGetChangedObjects (conversion)';"));
 			Return;
 		EndTry;
 		
@@ -17689,7 +17737,8 @@ Procedure ExecuteRegisteredDataExport(WriteMessage1, ErrorMessageString, UsedExp
 							EndIf;
 							
 						Except
-							WriteErrorInfoDERHandlers(32, ErrorProcessing.DetailErrorDescription(ErrorInfo()), PreviousDataExportRule["Name"], "AfterProcessDataExport");
+							WriteErrorInfoDERHandlers(32, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+								PreviousDataExportRule["Name"], "AfterProcessDataExport");
 						EndTry;
 						
 					EndIf;
@@ -17750,7 +17799,8 @@ Procedure ExecuteRegisteredDataExport(WriteMessage1, ErrorMessageString, UsedExp
 						EndIf;
 						
 					Except
-						WriteErrorInfoDERHandlers(31, ErrorProcessing.DetailErrorDescription(ErrorInfo()), DataExportRule.Name, "BeforeProcessDataExport");
+						WriteErrorInfoDERHandlers(31, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+							DataExportRule.Name, "BeforeProcessDataExport");
 					EndTry;
 					
 					
@@ -17845,7 +17895,8 @@ Procedure ExecuteRegisteredDataExport(WriteMessage1, ErrorMessageString, UsedExp
 					EndIf;
 					
 				Except
-					WriteErrorInfoDERHandlers(32, ErrorProcessing.DetailErrorDescription(ErrorInfo()), DataExportRule.Name, "AfterProcessDataExport");
+					WriteErrorInfoDERHandlers(32, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+						DataExportRule.Name, "AfterProcessDataExport");
 				EndTry;
 				
 			EndIf;

@@ -132,7 +132,8 @@ Procedure AppendFile(ResultHandler, FileOwner, OwnerForm1, CreateMode = Undefine
 		
 		ExecutionParameters.Insert("MaximumSize" , 0);
 		ExecutionParameters.Insert("DontOpenCard", ?(AddingOptions = Undefined, False, AddingOptions));
-		ExecutionParameters.Insert("SelectionDialogFilter",  NStr("en = 'All files (*.*)|*.*';"));
+		ExecutionParameters.Insert("SelectionDialogFilter",  
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask()));
 		
 	Else
 		ExecutionParameters.Insert("MaximumSize" , AddingOptions.MaximumSize);
@@ -574,24 +575,271 @@ EndProcedure
 Procedure OpenScanSettingForm() Export
 	
 	If Not FilesOperationsInternalClient.ScanAvailable() Then
-		MessageText = NStr("en = 'To scan an image, use the 32-bit application version for Windows.';");
+		MessageText = NStr("en = 'Scanning is available in applications for Microsoft Windows x86 and x64.';");
 		ShowMessageBox(, MessageText);
 		Return;
 	EndIf;
 	
-	AddInInstalled = FilesOperationsInternalClient.InitAddIn();
+	Handler = New NotifyDescription("OpenScanningSettingsFormCompletion", ThisObject);
 	
-	If Not AddInInstalled Then
-		QueryText = 
-			NStr("en = 'To proceed, install the scanner add-in.
-			           |Do you want to install the add-in?';");
-		Handler = New NotifyDescription("ShowInstallScanningAddInQuestion", 
-			ThisObject, AddInInstalled);
-		ShowQueryBox(Handler, QueryText, QuestionDialogMode.YesNo);
+	FilesOperationsInternalClient.InitAddIn(Handler, True);
+		
+EndProcedure
+
+// 
+// 
+// Returns:
+//  Structure:
+//   * ResultType - See ConversionResultTypeFileName
+//                   - See ConversionResultTypeBinaryData
+//                   - See ConversionResultTypeAttachedFile
+//   
+//   See ConversionResultTypeFileName
+//   
+//
+Function GraphicDocumentConversionParameters() Export
+	
+	ConversionParameters_SSLy = New Structure;
+	ConversionParameters_SSLy.Insert("ResultType", ConversionResultTypeFileName());
+	ConversionParameters_SSLy.Insert("ResultFormat", "pdf");
+	ConversionParameters_SSLy.Insert("ResultFileName", "");
+	
+	UserScanSettings = GetUserScanSettings();
+	
+	ConversionParameters_SSLy.Insert("UseImageMagick", 
+		UserScanSettings.UseImageMagickToConvertToPDF);
+		
+	Return ConversionParameters_SSLy;
+	
+EndFunction
+
+// 
+// 
+// Returns:
+//  String
+//
+Function ConversionResultTypeFileName() Export
+	
+	Return FilesOperationsInternalClient.ConversionResultTypeFileName();
+	
+EndFunction
+
+// 
+// 
+// Returns:
+//  String
+//
+Function ConversionResultTypeBinaryData() Export
+	
+	Return FilesOperationsInternalClient.ConversionResultTypeBinaryData();
+	
+EndFunction
+
+// 
+// 
+// Returns:
+//  String
+//
+Function ConversionResultTypeAttachedFile() Export
+	
+	Return FilesOperationsInternalClient.ConversionResultTypeAttachedFile();
+	
+EndFunction
+
+
+// 
+// 
+// Parameters:
+//  NotificationOfReturn - NotifyDescription -
+//  ObjectsForMerging - Array of BinaryData, DefinedType.AttachedFile, String - 
+//                          
+//                          
+//  GraphicDocumentConversionParameters - See FilesOperationsClient.GraphicDocumentConversionParameters.
+// 
+Procedure CombineToMultipageFile(NotificationOfReturn, ObjectsForMerging, GraphicDocumentConversionParameters) Export
+	
+	Result = ResultOfMergeIntoMultipageDocument();
+	UserScanSettings = GetUserScanSettings();
+	
+	UseImageMagick = GraphicDocumentConversionParameters.UseImageMagick; 
+	PathToConverterApplication = UserScanSettings.PathToConverterApplication;
+	
+		Context = New Structure;
+	Context.Insert("NotificationOfReturn", NotificationOfReturn);
+	Context.Insert("ObjectsForMerging", ObjectsForMerging);
+	Context.Insert("GraphicDocumentConversionParameters", GraphicDocumentConversionParameters);
+	Context.Insert("UserScanSettings", UserScanSettings);
+	
+	If ObjectsForMerging.Count() = 0 Then
+		Result.ErrorDescription = NStr("en = 'Images for merging are not specified.';");
+		ExecuteNotifyProcessing(NotificationOfReturn, Result);
+		Return;
+	ElsIf UseImageMagick And Not ValueIsFilled(PathToConverterApplication) Then
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Path to the %1 application is not specified.
+		|Multipage documents are merged using 1C:Enterprise tools.';"), "ImageMagick");
+		
+		EventLogClient.AddMessageForEventLog(EventLogEvent(),
+			"Warning", ErrorText,, True);
+		Context.GraphicDocumentConversionParameters.UseImageMagick = False;
+		MergeIntoMultipageFileFollowUp(Context);
 		Return;
 	EndIf;
 	
-	OpenScanningSettingsFormCompletion(AddInInstalled, Undefined);
+	#If Not WebClient And Not MobileClient Then
+		
+	If UseImageMagick Then
+		NotificationOfResult = New NotifyDescription("AfterCheckIfConversionAppInstalled", ThisObject, Context);
+		StartCheckConversionAppPresence(PathToConverterApplication, NotificationOfResult);
+		Return;
+	EndIf;
+	
+	MergeIntoMultipageFileFollowUp(Context);
+	
+	#EndIf
+EndProcedure
+
+// 
+// 
+// Parameters:
+//  Fill - Boolean -
+// 
+// Returns:
+//  Structure:
+//   * ShowDialogBox - Boolean -
+//                                 
+//   * SelectedDevice - String - name of the scanner.
+//   * PictureFormat - String -
+//   * Resolution - Number -
+//   * Chromaticity - Number -
+//   * Rotation - Number -
+//   * PaperSize - Number -
+//       
+//       
+//       
+//       
+//       
+//       
+//       
+//       
+//       
+//       
+//       
+//       
+//       
+//   * JPGQuality - Number -
+//                           
+//   * TIFFDeflation - Number -
+//       
+//       
+//       
+//       
+//       
+//   * DuplexScanning - Boolean -
+//   * SaveToPDF - Boolean
+//   * UseImageMagickToConvertToPDF - Boolean
+//
+Function ScanningParameters(Fill = False) Export
+	SystemInfo = New SystemInfo();
+	ClientID = SystemInfo.ClientID;
+	ScanningParameters = FilesOperationsInternalServerCall.ScanningParameters(Fill, ClientID);
+	Return ScanningParameters;
+	
+EndFunction
+
+// 
+// 
+// Returns:
+//  Structure:
+//    * ResultHandler - Undefined, NotifyDescription -
+//    * FileOwner - Undefined, DefinedType.FilesOwner -
+//                                                                     
+//    * OwnerForm1 - Undefined, Form -
+//    * DontOpenCardAfterCreateFromFIle - Boolean -
+//    * IsFile - Boolean
+//    * ResultType - See ConversionResultTypeFileName 
+//                    - See ConversionResultTypeBinaryData
+//                    - See ConversionResultTypeAttachedFile
+//    
+//
+Function AddingFromScannerParameters() Export
+	AddingOptions = New Structure;
+	AddingOptions.Insert("ResultHandler", Undefined);
+	AddingOptions.Insert("FileOwner", Undefined);
+	AddingOptions.Insert("OwnerForm1", Undefined);
+	AddingOptions.Insert("DontOpenCardAfterCreateFromFIle", True);
+	AddingOptions.Insert("IsFile", True);
+	AddingOptions.Insert("ResultType", ConversionResultTypeAttachedFile());
+	AddingOptions.Insert("OneFileOnly", False);
+	Return AddingOptions;
+EndFunction
+
+//  
+// 
+// 
+// Parameters:
+//  AddingOptions - See AddingFromScannerParameters
+//  ScanningParameters - See ScanningParameters
+//
+Procedure AddFromScanner(AddingOptions, ScanningParameters = Undefined) Export
+	
+	FilesOperationsInternalClient.AddFromScanner(AddingOptions, ScanningParameters);
+	
+EndProcedure
+
+// 
+// 
+// Returns:
+//   See FilesOperationsInternalClient.ScanAvailable
+//
+Function ScanAvailable() Export
+	Return FilesOperationsInternalClient.ScanAvailable();
+EndFunction
+
+// 
+// 
+// Parameters:
+//  NotificationOfResult - NotifyDescription -
+//   * Result - Boolean -
+//   * AdditionalParameters - Arbitrary -
+//
+Procedure ScanCommandAvailable(NotificationOfResult) Export
+	NotifyDescription = New NotifyDescription("ScanCommandAvailableCompletion", ThisObject, NotificationOfResult);
+	FilesOperationsInternalClient.InitAddIn(NotifyDescription);
+EndProcedure
+
+// 
+// 
+// Parameters:
+//  ClientID - UUID -
+// 
+// Returns:
+//   See FilesOperationsClientServer.UserScanSettings
+//
+Function GetUserScanSettings(ClientID = Undefined) Export
+	
+	If ClientID = Undefined Then
+		SystemInfo = New SystemInfo();
+		ClientID = SystemInfo.ClientID;
+	EndIf;
+	
+	Return FilesOperationsInternalServerCall.GetUserScanSettings(ClientID);
+	
+EndFunction
+
+// 
+// 
+// Parameters:
+//  UserScanSettings - See FilesOperationsClientServer.UserScanSettings
+//  ClientID - UUID -
+//
+Procedure SaveUserScanSettings(UserScanSettings, ClientID = Undefined) Export
+	
+	If ClientID = Undefined Then
+		SystemInfo = New SystemInfo();
+		ClientID = SystemInfo.ClientID;
+	EndIf;
+	
+	FilesOperationsInternalServerCall.SaveUserScanSettings(UserScanSettings, ClientID);
 	
 EndProcedure
 
@@ -604,12 +852,10 @@ EndProcedure
 //  Cancel - Boolean - standard parameter of OnOpen managed form event.
 //
 Procedure OnOpen(Form, Cancel) Export
-	
-	ScannerExistence = FilesOperationsInternalClientCached.ScanCommandAvailable();
+	ScannerExistence = FilesOperationsInternalClient.ScanAvailable();
 	If Not ScannerExistence Then
 		ChangeAdditionalCommandsVisibility(Form);
 	EndIf;
-	
 EndProcedure
 
 // NotificationProcessing event handler of the file owner managed form.
@@ -692,9 +938,9 @@ EndProcedure
 //  Form                - ClientApplicationForm - a file owner form.
 //  Item              - FormField - a preview field.
 //  StandardProcessing - Boolean - standard parameter of the Click form field event.
-//  View             - Boolean - if the parameter value is True, it opens file
-//                       for viewing. Otherwise, opens a file from the hard drive.
-//                       The default value is False.
+//  View             - Boolean -
+//                       
+//                       
 //
 Procedure PreviewFieldClick(Form, Item, StandardProcessing, View = False) Export
 	
@@ -922,7 +1168,7 @@ Procedure PrintFilesExecution(ResultHandler, ExecutionParameters) Export
 	EndIf;
 EndProcedure
 
-// The procedure of printing the File after receiving it to hard drive
+// 
 //
 // Parameters:
 //  Result - Structure:
@@ -963,18 +1209,12 @@ Procedure PrintFromApplicationByFileName(FileToOpenName)
 
 EndProcedure
 
-Procedure ShowInstallScanningAddInQuestion(Result, AddInInstalled) Export
+Procedure OpenScanningSettingsFormCompletion(InitializationCheckResult, ExecutionParameters) Export
 	
-	If Result = DialogReturnCode.Yes Then
-		Handler = New NotifyDescription("OpenScanningSettingsFormCompletion", ThisObject);
-		FilesOperationsInternalClient.InstallAddInSSL(Handler);
-	EndIf;
-	
-EndProcedure
-
-Procedure OpenScanningSettingsFormCompletion(AddInInstalled, ExecutionParameters) Export
+	AddInInstalled = InitializationCheckResult.Attached;
 	
 	If Not AddInInstalled Then
+		ShowMessageBox(, InitializationCheckResult.ErrorDescription);
 		Return;
 	EndIf;
 	
@@ -995,6 +1235,237 @@ Procedure PromptForWriteRequiredAfterCompletion(Result, AdditionalParameters) Ex
 		Return;
 	EndIf;
 	
+EndProcedure
+
+Function ImagesForMerging(ObjectsForMerging, UseImageMagick = False)
+	
+	ImagesForMerging = New Array;
+	
+	If UseImageMagick Then
+		For Each ObjectForMerging In ObjectsForMerging Do
+			FileName = Undefined;
+			#If Not WebClient And Not MobileClient Then
+				// 
+				TempFileName = GetTempFileName();
+				// 
+			#Else
+				TempFileName = Undefined;			
+			#EndIf
+			
+			If ObjectForMerging = Undefined Then
+				Continue;
+			ElsIf TypeOf(ObjectForMerging) = Type("BinaryData") Then
+				FileName = TempFileName;
+				ObjectForMerging.Write(FileName);
+			ElsIf TypeOf(ObjectForMerging) = Type("String") Then
+				If IsTempStorageURL(ObjectForMerging) Then
+					AddressContent = GetFromTempStorage(ObjectForMerging);
+					If TypeOf(AddressContent) = Type("BinaryData") Then
+						FileName = TempFileName;
+						AddressContent.Write(FileName);
+					ElsIf TypeOf(AddressContent) = Type("Picture") Then
+						PictureData = AddressContent.GetBinaryData();
+						FileName = TempFileName;
+						PictureData.Write(FileName);
+					EndIf;
+				Else
+					FileName = ObjectForMerging;
+				EndIf;
+			ElsIf FilesOperationsInternalServerCall.IsFilesOperationsItem(ObjectForMerging) Then
+				FileData = FilesOperationsInternalServerCall.FileData(ObjectForMerging);
+				AddressContent = GetFromTempStorage(FileData.RefToBinaryFileData);
+				FileName = TempFileName;
+				AddressContent.Write(FileName);
+			EndIf;
+			
+			If FileName <> Undefined Then
+				ImagesForMerging.Add(FileName);
+			EndIf;
+			
+		EndDo;
+	Else
+		For Each ObjectForMerging In ObjectsForMerging Do
+			Image = Undefined;
+			If ObjectForMerging = Undefined Then
+				Continue;
+			ElsIf TypeOf(ObjectForMerging) = Type("BinaryData") Then
+				Image = New Picture(ObjectForMerging);
+			ElsIf TypeOf(ObjectForMerging) = Type("String") Then
+				If IsTempStorageURL(ObjectForMerging) Then
+					AddressContent = GetFromTempStorage(ObjectForMerging);
+					If TypeOf(AddressContent) = Type("BinaryData") Then
+						Image = New Picture(AddressContent);
+					ElsIf TypeOf(AddressContent) = Type("Picture") Then
+						Image = AddressContent;
+					EndIf;
+				Else
+					Image = New Picture(ObjectForMerging);
+				EndIf;
+			ElsIf FilesOperationsInternalServerCall.IsFilesOperationsItem(ObjectForMerging) Then
+				FileData = FilesOperationsInternalServerCall.FileData(ObjectForMerging);
+				AddressContent = GetFromTempStorage(FileData.RefToBinaryFileData);
+				Image = New Picture(AddressContent);
+			EndIf;
+			
+			If Image <> Undefined Then
+				ImagesForMerging.Add(Image);
+			EndIf;
+			
+		EndDo;
+	EndIf;
+	
+	Return ImagesForMerging;
+EndFunction
+
+Function ResultOfMergeIntoMultipageDocument()
+	Result = New Structure;
+	Result.Insert("ResultFileName", "");
+	Result.Insert("BinaryData");
+	Result.Insert("ErrorDescription", "");
+	Result.Insert("Success", False);	
+	Return Result;
+EndFunction
+
+Procedure MergeIntoMultipageFileAfterCommandExecuted(ImageMagickResult, Context) Export
+
+	ImageFiles = Context.ImageFiles;
+	ResultType = Context.ResultType;
+	ResultFileName = Context.ResultFileName;
+	NotificationOfReturn = Context.NotificationOfReturn;
+	
+	Result = ResultOfMergeIntoMultipageDocument();
+
+	If ImageMagickResult.ReturnCode <> 0 Then
+		Result.ErrorDescription = ImageMagickResult.ErrorDescription;
+		ExecuteNotifyProcessing(NotificationOfReturn, Result);
+		Return;
+	EndIf;
+	
+	For Each ImageFile In ImageFiles Do
+		DeleteFiles(ImageFile);
+	EndDo;
+	
+	If ResultType = ConversionResultTypeFileName() Then
+		Result.ResultFileName = ResultFileName;
+	ElsIf ResultType = ConversionResultTypeBinaryData() Then
+		PDFData = New BinaryData(ResultFileName);
+		DeleteFiles(ResultFileName);
+		Result.BinaryData =  PDFData;
+	EndIf;
+	Result.Success = True;
+	
+	ExecuteNotifyProcessing(NotificationOfReturn, Result);
+		
+EndProcedure
+
+Procedure ScanCommandAvailableCompletion(InitializationCheckResult, NotificationOfResult) Export
+	IsAddInInitialized = InitializationCheckResult.Attached;
+	ExecuteNotifyProcessing(NotificationOfResult, IsAddInInitialized);	
+EndProcedure
+
+Procedure AfterCheckIfConversionAppInstalled(RunResult, Context) Export
+	If StrFind(RunResult.OutputStream, "ImageMagick") = 0  Then
+		UserScanSettings = Context.UserScanSettings;
+		PathToConverterApplication = UserScanSettings.PathToConverterApplication;
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Specified path to the %1 application is incorrect.
+		|Multipage documents are merged using 1C:Enterprise tools.
+		|Specified path: %2';"), "ImageMagick", PathToConverterApplication); 
+		EventLogClient.AddMessageForEventLog(EventLogEvent(),
+			"Warning", ErrorText,, True);
+		Context.GraphicDocumentConversionParameters.UseImageMagick = False;
+	EndIf;
+	MergeIntoMultipageFileFollowUp(Context);
+EndProcedure
+	
+Procedure MergeIntoMultipageFileFollowUp(Context)
+	NotificationOfReturn = Context.NotificationOfReturn;
+	ObjectsForMerging = Context.ObjectsForMerging;
+	GraphicDocumentConversionParameters = Context.GraphicDocumentConversionParameters;
+	UserScanSettings = Context.UserScanSettings;
+	
+	UseImageMagick = GraphicDocumentConversionParameters.UseImageMagick; 
+	PathToConverterApplication = UserScanSettings.PathToConverterApplication;
+	
+	Result = ResultOfMergeIntoMultipageDocument();
+	
+	#If Not WebClient And Not MobileClient Then
+	ResultFileName = GraphicDocumentConversionParameters.ResultFileName;
+	
+	If Not ValueIsFilled(ResultFileName) Then
+		// ACC:441-
+		ResultFileName = GetTempFileName(GraphicDocumentConversionParameters.ResultFormat);
+		// 
+	EndIf;
+	
+	If Not UseImageMagick Then
+		ImagesForMerging = ImagesForMerging(ObjectsForMerging);
+		If GraphicDocumentConversionParameters.ResultFormat = "pdf" Then
+			SpreadsheetDocument = FilesOperationsInternalServerCall.NewSpreadsheetAtServer(ImagesForMerging.Count());
+			Stream = New MemoryStream();
+			SpreadsheetDocument.Write(Stream, SpreadsheetDocumentFileType.PDF);
+			
+			PDFDocument = New PDFDocument();
+			PDFDocument.Read(Stream);
+			For ObjectIndex = 0 To ImagesForMerging.UBound() Do
+				LongDesc = New PDFRepresentationObjectDescription;
+				LongDesc.Name           = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Image #%1';"), ObjectIndex);
+				Image = ImagesForMerging[ObjectIndex];
+				Width = Image.Width();
+				Height = Image.Height();
+				RatioA4 = 210/297;
+				
+				If RatioA4*Height > Width Then
+					LongDesc.Height        = 269; //297
+					LongDesc.Width        = LongDesc.Height * Width/Height; //210
+				Else
+					LongDesc.Width        = 190; //210
+					LongDesc.Height        = LongDesc.Width * Height/Width; //297 
+				EndIf;
+				LongDesc.Left          = 0;
+				LongDesc.Top          = 0;
+				LongDesc.PageNumber = ObjectIndex+1;
+				LongDesc.Object        = Image;
+				PDFDocument.AddRepresentationObject(LongDesc);
+			EndDo;
+			PDFDocument.Write(Stream);
+			ResultData = Stream.CloseAndGetBinaryData();
+		ElsIf GraphicDocumentConversionParameters.ResultFormat = "tif" Then
+			TIFImage = FilesOperationsInternalServerCall.MergeImagesIntoTIFFile(ImagesForMerging);
+			ResultData = TIFImage.GetBinaryData();
+		EndIf;
+		
+		If GraphicDocumentConversionParameters.ResultType = ConversionResultTypeFileName() Then
+			ResultData.Write(ResultFileName);
+			Result.ResultFileName = ResultFileName;
+			Result.Success = True;
+		ElsIf GraphicDocumentConversionParameters.ResultType = ConversionResultTypeBinaryData() Then
+			Result.BinaryData = ResultData;
+			Result.Success = True;
+		EndIf;
+		
+		ExecuteNotifyProcessing(NotificationOfReturn, Result);
+	Else
+		ImageFiles = ImagesForMerging(ObjectsForMerging, True);
+		
+		ImageFilesAsString = """" + StrConcat(ImageFiles, """" + " " + """") + """";
+		SystemCommands = """" + PathToConverterApplication + """" +" "+ ImageFilesAsString + " " +""""+ ResultFileName+"""";
+		
+		Context = New Structure;
+		Context.Insert("ImageFiles", ImageFiles);
+		Context.Insert("ResultType", GraphicDocumentConversionParameters.ResultType);
+		Context.Insert("ResultFileName", ResultFileName);
+		Context.Insert("NotificationOfReturn", NotificationOfReturn);
+		
+		ApplicationStartupParameters = FileSystemClient.ApplicationStartupParameters();
+		ApplicationStartupParameters.WaitForCompletion = True;
+		ApplicationStartupParameters.Notification = New NotifyDescription("MergeIntoMultipageFileAfterCommandExecuted", 
+			ThisObject, Context);
+		FileSystemClient.StartApplication(SystemCommands, ApplicationStartupParameters);
+				
+	EndIf;
+	
+	#EndIf
 EndProcedure
 
 #Region AttachedFilesManagement
@@ -1101,31 +1572,71 @@ Procedure AttachedFilesManagementCommandCompletion(Form, Command, AttachedFilesO
 		Form.FilesOperationsParameters.FormElementsDetails[ItemNumber].SelectionDialogFilter);
 	FileAddingOptions.Insert("DontOpenCard", True);
 	
+	// IntegrationWith1CDocumentManagementSubsystem
+	UseEDIToStoreObjectFiles = False;
+	If CommonClient.SubsystemExists("IntegrationWith1CDocumentManagementSubsystem") Then
+		DMILVersion = "1.0.0.0";
+		StandardSubsystemsClient.ClientRunParameters().Property("DMILVersion", DMILVersion);
+		If CommonClientServer.CompareVersions(DMILVersion, "3.0.2.4") >= 0 Then
+			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient = CommonClient.CommonModule(
+				"ИнтеграцияС1СДокументооборотБазоваяФункциональностьКлиент");
+			UseEDIToStoreObjectFiles =
+				ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient.UseEDIToStoreObjectFiles(
+					Form,
+					Command,
+					AttachedFilesOwner);
+		EndIf;
+	EndIf;
+	// 
+	
 	If StrStartsWith(CommandName, "OpenList") Then
 		
-		FormParameters = New Structure();
-		FormParameters.Insert("FileOwner", AttachedFilesOwner);
-		FormParameters.Insert("ShouldHideOwner", True);
-		FormParameters.Insert("CurrentRow", Form.UUID);
-		OpenForm("DataProcessor.FilesOperations.Form.AttachedFiles", FormParameters);
+		If UseEDIToStoreObjectFiles Then
+			
+			// ИнтеграцияС1СДокументооборотом
+			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient.OpenAttachedFiles(
+				AttachedFilesOwner);
+			// 
+			
+		Else
+			
+			FormParameters = New Structure();
+			FormParameters.Insert("FileOwner", AttachedFilesOwner);
+			FormParameters.Insert("ShouldHideOwner", True);
+			FormParameters.Insert("CurrentRow", Form.UUID);
+			OpenForm("DataProcessor.FilesOperations.Form.AttachedFiles", FormParameters);
+			
+		EndIf;
 		
 	ElsIf StrStartsWith(CommandName, "ImportFile_") Then
 		
-		CommandName = StrReplace(CommandName, "ImportFile_", "");
-		OwnerFiles = FilesOperationsInternalServerCall.AttachedFilesCount(AttachedFilesOwner, True);
-		If StrStartsWith(CommandName, "OneFileOnly")
-			And OwnerFiles.Count > 0 Then
+		If UseEDIToStoreObjectFiles Then
 			
-			FileData = OwnerFiles.FileData; // See FilesOperations.FileData
-			
-			ExecutionParameters.Action = "ReplaceFile";
-			ExecutionParameters.Insert("PicturesFile", FileData.Ref);
-			
-			FilesOperationsInternalClient.UpdateFromFileOnHardDriveWithNotification(CompletionHandler,
-				FileData, Form.UUID, FileAddingOptions);
+			// ИнтеграцияС1СДокументооборотом
+			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient.ДобавитьФайлСДискаКОбъектуИС(
+				AttachedFilesOwner,
+				Form.UUID);
+			// 
 			
 		Else
-			AppendFile(CompletionHandler, AttachedFilesOwner, Form, 2, FileAddingOptions);
+			
+			CommandName = StrReplace(CommandName, "ImportFile_", "");
+			OwnerFiles = FilesOperationsInternalServerCall.AttachedFilesCount(AttachedFilesOwner, True);
+			If StrStartsWith(CommandName, "OneFileOnly")
+				And OwnerFiles.Count > 0 Then
+				
+				FileData = OwnerFiles.FileData; // See FilesOperations.FileData
+				
+				ExecutionParameters.Action = "ReplaceFile";
+				ExecutionParameters.Insert("PicturesFile", FileData.Ref);
+				
+				FilesOperationsInternalClient.UpdateFromFileOnHardDriveWithNotification(CompletionHandler,
+					FileData, Form.UUID, FileAddingOptions);
+				
+			Else
+				AppendFile(CompletionHandler, AttachedFilesOwner, Form, 2, FileAddingOptions);
+			EndIf;
+			
 		EndIf;
 		
 	ElsIf StrStartsWith(CommandName, "AttachedFileTitle") Then
@@ -1501,6 +2012,25 @@ Procedure ChangeAdditionalCommandsVisibility(Form)
 	EndDo;
 	
 EndProcedure
+
+Procedure StartCheckConversionAppPresence(PathToConverterApplication, NotificationOfResult) Export
+	
+	SystemCommands = """" + PathToConverterApplication + """ -version";
+	
+	ApplicationStartupParameters = FileSystemClient.ApplicationStartupParameters();
+	ApplicationStartupParameters.WaitForCompletion = True;
+	ApplicationStartupParameters.GetErrorStream = True;
+	ApplicationStartupParameters.GetOutputStream = True;
+	
+	ApplicationStartupParameters.Notification = NotificationOfResult;
+	FileSystemClient.StartApplication(SystemCommands, ApplicationStartupParameters);
+EndProcedure
+
+Function EventLogEvent()
+	
+	Return NStr("en = 'Files';", CommonClient.DefaultLanguageCode());
+	
+EndFunction
 
 #EndRegion
 

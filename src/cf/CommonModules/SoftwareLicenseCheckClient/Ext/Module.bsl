@@ -21,7 +21,7 @@
 //
 Procedure ShowLegitimateSoftwareCheck(Notification, TerminateApplication = False) Export
 	
-	If StandardSubsystemsClient.ClientRunParameters().IsBaseConfigurationVersion Then
+	If StandardSubsystemsClient.IsBaseConfigurationVersion() Then
 		ExecuteNotifyProcessing(Notification, True);
 		Return;
 	EndIf;

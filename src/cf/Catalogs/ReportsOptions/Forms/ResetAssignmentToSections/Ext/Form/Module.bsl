@@ -16,7 +16,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ErrorText = NStr("en = 'No report options provided.';");
 		Return;
 	EndIf;
-	
+
 	DefineBehaviorInMobileClient();
 	OptionsToAssign.LoadValues(Variants);
 	Filter();
@@ -41,7 +41,7 @@ Procedure ResetCommand(Command)
 		ShowMessageBox(, NStr("en = 'No report options provided.';"));
 		Return;
 	EndIf;
-	
+
 	OptionsCount = ResetAssignmentSettingsServer(OptionsToAssign);
 	If OptionsCount = 1 And SelectedOptionsCount = 1 Then
 		OptionRef1 = OptionsToAssign[0].Value;
@@ -51,9 +51,10 @@ Procedure ResetCommand(Command)
 		ShowUserNotification(NotificationTitle1, NotificationRef, NotificationText);
 	Else
 		NotificationText = NStr("en = 'Assignment settings for %1 report options
-		|have been reset.';");
-		NotificationText = StringFunctionsClientServer.SubstituteParametersToString(NotificationText, Format(OptionsCount, "NZ=0; NG=0"));
-		ShowUserNotification(, , NotificationText);
+							   |have been reset.';");
+		NotificationText = StringFunctionsClientServer.SubstituteParametersToString(NotificationText, Format(
+			OptionsCount, "NZ=0; NG=0"));
+		ShowUserNotification(,, NotificationText);
 	EndIf;
 	ReportsOptionsClient.UpdateOpenForms();
 	Close();
@@ -77,7 +78,7 @@ Function ResetAssignmentSettingsServer(Val OptionsToAssign)
 			LockItem.SetValue("Ref", ListItem.Value);
 		EndDo;
 		Block.Lock();
-		
+
 		For Each ListItem In OptionsToAssign Do
 			OptionObject = ListItem.Value.GetObject(); // CatalogObject.ReportsOptions
 			If ReportsOptions.ResetReportOptionSettings(OptionObject) Then
@@ -98,18 +99,18 @@ EndFunction
 
 &AtServer
 Procedure DefineBehaviorInMobileClient()
-	If Not Common.IsMobileClient() Then 
+	If Not Common.IsMobileClient() Then
 		Return;
 	EndIf;
-	
+
 	CommandBarLocation = FormCommandBarLabelLocation.Auto;
 EndProcedure
 
 &AtServer
 Procedure Filter()
-	
+
 	CountBeforeFilter = OptionsToAssign.Count();
-	
+
 	Query = New Query;
 	Query.SetParameter("OptionsArray", OptionsToAssign.UnloadValues());
 	Query.SetParameter("InternalType", Enums.ReportsTypes.BuiltIn);
@@ -124,21 +125,21 @@ Procedure Filter()
 	|	AND ReportOptionsPlacement.Custom = FALSE
 	|	AND ReportOptionsPlacement.ReportType IN (&InternalType, &ExtensionType)
 	|	AND ReportOptionsPlacement.DeletionMark = FALSE";
-	
+
 	OptionsArray = Query.Execute().Unload().UnloadColumn("Ref");
 	OptionsToAssign.LoadValues(OptionsArray);
-	
+
 	CountAfterFilter = OptionsToAssign.Count();
 	If CountBeforeFilter <> CountAfterFilter Then
 		If CountAfterFilter = 0 Then
 			ErrorText = NStr("en = 'You do not have to reset assignment settings for selected report options due to one or more of the following reasons:
-			|- Selected report options are custom options.
-			|- Selected report options are marked for deletion.
-			|- Selected report options are additional or external reports.';");
+							   |- Selected report options are custom options.
+							   |- Selected report options are marked for deletion.
+							   |- Selected report options are additional or external reports.';");
 			Return;
 		EndIf;
 	EndIf;
-	
+
 EndProcedure
 
 #EndRegion

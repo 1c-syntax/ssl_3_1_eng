@@ -7,6 +7,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
+#If Not MobileStandaloneServer Then
+
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Public
@@ -193,5 +195,7 @@ Function CurrentVersionExtensionObjectIDsFilled() Export
 EndFunction
 
 #EndRegion
+
+#EndIf
 
 #EndIf

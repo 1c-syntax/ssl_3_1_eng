@@ -229,13 +229,13 @@ Function DataCompositionSchema(QueryText) Export
 EndFunction
 
 // For internal use.
-Procedure ChangeObjects1(Parameters, ResultAddress) Export
+Function ChangeObjects1(Parameters, ResultAddress) Export
 	
 	ObjectsToProcess = Parameters.ObjectsToProcess.Get().Rows;
-	ObjectsForChanging = Parameters.ObjectsForChanging.Get().Rows;
+	ObjectsForChanging   = Parameters.ObjectsForChanging.Get().Rows;
 	
 	ChangeResult = New Structure("HasErrors, ProcessingState");
-	ChangeResult.HasErrors = False;
+	ChangeResult.HasErrors         = False;
 	ChangeResult.ProcessingState = New Map;
 	
 	If ObjectsToProcess = Undefined Then
@@ -247,12 +247,12 @@ Procedure ChangeObjects1(Parameters, ResultAddress) Export
 	
 	If ObjectsToProcess.Count() = 0 Then
 		PutToTempStorage(ChangeResult, ResultAddress);
-		Return;
+		Return Undefined;
 	EndIf;
 	
 	If Parameters.OperationType = "ExecuteAlgorithm" And DataSeparationEnabled() Then
 		PutToTempStorage(ChangeResult, ResultAddress);
-		Return;
+		Return Undefined;
 	EndIf;
 	
 	StopChangeOnError = Parameters.StopChangeOnError;
@@ -260,132 +260,31 @@ Procedure ChangeObjects1(Parameters, ResultAddress) Export
 		StopChangeOnError = Parameters.InterruptOnError;
 	EndIf;
 	
-	WriteError = True;
-	Ref = Undefined;
 	RunAlgorithmCodeInSafeMode = (Parameters.ExecutionMode <> 1);
 	
-	DisableAccessKeysUpdate(True);
-	If Parameters.ChangeInTransaction Then
-		BeginTransaction(DataLockControlMode.Managed);
+	IsExternalDataProcessor = IsExternalDataProcessor();
+	If IsExternalDataProcessor Then
+		Parameters.ExternalReportDataProcessor =
+			?(ValueIsFilled(ExternalDataProcessorBinaryDataAddress),
+				GetFromTempStorage(ExternalDataProcessorBinaryDataAddress), Undefined);
 	EndIf;
 	
-	Try
-		If Parameters.ChangeInTransaction Then
-			Block = New DataLock;
-			For Each ObjectData In ObjectsToProcess Do
-				Ref = ObjectData.Ref;
-				LockRef(Block, ObjectData.Ref);
-			EndDo;
-			Block.Lock();
-		EndIf;
+	If Not IsLongRunningOperationsAvailable()
+	 Or IsExternalDataProcessor 
+	   And TypeOf(Parameters.ExternalReportDataProcessor) <> Type("BinaryData") Then
 		
-		For Each ObjectData In ObjectsToProcess Do
-			
-			WriteError = True;
-			BeginTransaction(DataLockControlMode.Managed);
-			Try
-				
-				Ref = ObjectData.Ref;
-				If Not Parameters.ChangeInTransaction Then
-					Block = New DataLock;
-					LockRef(Block, Ref);
-					Block.Lock();
-				EndIf;
-			
-				ObjectToChange = Ref.GetObject();
-				
-				Changes = Undefined;
-				If Parameters.OperationType = "ExecuteAlgorithm" Then
-					RunAlgorithmCode(ObjectToChange, Parameters.AlgorithmCode, RunAlgorithmCodeInSafeMode);
-				Else
-					// @skip-
-					Changes = MakeChanges(ObjectData, ObjectToChange, Parameters);
-				EndIf;
-				
-				// Write mode.
-				IsDocument = Metadata.Documents.Contains(ObjectToChange.Metadata());
-				WriteMode = DetermineWriteMode(ObjectToChange, IsDocument, Parameters.DeveloperMode);
-				
-				// Validate value population.
-				If Not Parameters.DeveloperMode Then
-					If Not IsDocument Or WriteMode = DocumentWriteMode.Posting Then
-						If Not ObjectToChange.CheckFilling() Then
-							Raise FillCheckErrorsText();
-						EndIf;
-					EndIf;
-				EndIf;
-				
-				// Write additional info.
-				If Changes <> Undefined And Changes.AddInfoRecordsArray.Count() > 0 Then
-					For Each RecordManager In Changes.AddInfoRecordsArray Do
-						RecordManager.Write(True);
-					EndDo;
-				EndIf;
-				
-				ChangesAreConfigured = ValueIsFilled(Parameters.AttributesToChange) Or ValueIsFilled(Parameters.TabularSectionsToChange);
-				
-				MustWriteObject = Parameters.ObjectWriteOption <> "DoNotWrite"
-					And (ObjectToChange.Modified() Or Not ChangesAreConfigured);
-					
-				// Write the object.
-				If MustWriteObject Then
-					If WriteMode <> Undefined Then
-						ObjectToChange.Write(WriteMode);
-					Else
-						ObjectToChange.Write();
-					EndIf;
-				EndIf;
-				
-				FillAdditionalPropertiesChangeResult(ChangeResult, Ref, ObjectToChange, Changes);
-				
-				UnlockDataForEdit(Ref);
-				CommitTransaction();
-				
-			Except
-				
-				RollbackTransaction();
-				If Parameters.ChangeInTransaction Then
-					UnlockDataForEdit(Ref);
-				EndIf;
-				
-				BriefErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
-				FillChangeResult(ChangeResult, Ref, BriefErrorDescription);
-				If StopChangeOnError Or Parameters.ChangeInTransaction Then
-					WriteError = False;
-					Raise;
-				EndIf;
-				
-				Continue;
-			EndTry;
-			
-		EndDo;
-		
-		DisableAccessKeysUpdate(False);
-		If Parameters.ChangeInTransaction Then
-			CommitTransaction();
-		EndIf;
-		
-	Except
-		
-		If Parameters.ChangeInTransaction Then 
-			RollbackTransaction();
-			For Each ObjectData In ObjectsToProcess Do
-				UnlockDataForEdit(ObjectData.Ref);
-			EndDo;
-		EndIf;
-		
-		DisableAccessKeysUpdate(False, Parameters.ChangeInTransaction);
-		
-		If WriteError Then
-			BriefErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
-			FillChangeResult(ChangeResult, Ref, BriefErrorDescription);
-		EndIf;
-		
-	EndTry;
+		ChangeSettings = ChangeSettings(Parameters, RunAlgorithmCodeInSafeMode);
+		ObjectsBatchChangeResult(ObjectsToProcess, ChangeResult, ChangeSettings);
+	Else
+		Return RunObjectsChangeInMultipleThreads(Parameters, ObjectsToProcess, ChangeResult,
+			StopChangeOnError, RunAlgorithmCodeInSafeMode);
+	EndIf;
 	
 	PutToTempStorage(ChangeResult, ResultAddress);
 	
-EndProcedure
+	Return Undefined;
+	
+EndFunction
 
 // Parameters:
 //   Block - DataLock 
@@ -409,12 +308,23 @@ EndProcedure
 Function MakeChanges(Val ObjectData, Val ObjectToChange, Val Parameters)
 	
 	Result = New Structure;
-	Result.Insert("ObjectAttributesToChange", New Array);
+	Result.Insert("ObjectAttributesToChange",    New Array);
 	Result.Insert("AdditionalObjectAttributesToChange", New Map);
-	Result.Insert("AdditionalObjectInfoToChange", New Map);
-	Result.Insert("AddInfoRecordsArray", New Array);
+	Result.Insert("AdditionalObjectInfoToChange",  New Map);
+	Result.Insert("AddInfoRecordsArray",      New Array);
 	
-	AddedAttributes = New Array;
+	AdditionalAttributes = New Array;
+	For Each Operation In Parameters.AttributesToChange Do
+		If Operation.OperationKind = 2 Then
+			AdditionalAttributes.Add(Operation.Property);
+		EndIf;
+	EndDo;
+	
+	PropertiesOfAdditionalDetails = Undefined;
+	If AdditionalAttributes.Count() > 0 Then
+		ModuleCommon = CommonModule("Common");
+		PropertiesOfAdditionalDetails = ModuleCommon.ObjectsAttributesValues(AdditionalAttributes, "ValueType, MultilineInputField");
+	EndIf;
 	
 	// Run modification operations.
 	For Each Operation In Parameters.AttributesToChange Do
@@ -435,15 +345,21 @@ Function MakeChanges(Val ObjectData, Val ObjectToChange, Val Parameters)
 				Continue;
 			EndIf;
 			
-			FoundRow = ObjectToChange.AdditionalAttributes.Find(Operation.Property, "Property");
-			If ValueIsFilled(Value) Then
+			FoundRow   = ObjectToChange.AdditionalAttributes.Find(Operation.Property, "Property");
+			PropsProperties = PropertiesOfAdditionalDetails[Operation.Property];
+			CompositeType      = PropsProperties.ValueType.Types().Count() > 1;
+			If (CompositeType And Value <> Undefined)
+				Or (Not CompositeType And ValueIsFilled(Value)) Then
 				If FoundRow = Undefined Then
 					FoundRow = ObjectToChange.AdditionalAttributes.Add();
 					FoundRow.Property = Operation.Property;
 				EndIf;
 				FoundRow.Value = Value;
 				
-				AddedAttributes.Add(FoundRow);
+				ModulePropertyManagerInternal = CommonModule("PropertyManagerInternal");
+				If ModulePropertyManagerInternal.UseUnlimitedString(PropsProperties.ValueType, PropsProperties.MultilineInputField) Then
+					FoundRow.TextString = Value;
+				EndIf;
 			Else
 				If FoundRow <> Undefined Then
 					ObjectToChange.AdditionalAttributes.Delete(FoundRow);
@@ -472,24 +388,10 @@ Function MakeChanges(Val ObjectData, Val ObjectToChange, Val Parameters)
 		
 	EndDo;
 	
-	If AddedAttributes.Count() > 0 Then
-		ListOfProperties = ObjectToChange.AdditionalAttributes.Unload(AddedAttributes).UnloadColumn("Property");
-		ModuleCommon = CommonModule("Common");
-		DetailsOfProperties = ModuleCommon.ObjectsAttributesValues(ListOfProperties, "ValueType, MultilineInputField");
-		
-		ModulePropertyManagerInternal = CommonModule("PropertyManagerInternal");
-		For Each AddedAttribute In AddedAttributes Do
-			PropertyDetails = DetailsOfProperties[AddedAttribute.Property];
-			If ModulePropertyManagerInternal.UseUnlimitedString(PropertyDetails.ValueType, PropertyDetails.MultilineInputField) Then
-				AddedAttribute.TextString = Value;
-			EndIf;
-		EndDo;
-	EndIf;
-	
 	If Parameters.TabularSectionsToChange.Count() > 0 Then
 		MakeChangesToTabularSections(ObjectToChange, ObjectData, Parameters.TabularSectionsToChange);
 	EndIf;
-
+	
 	Return Result;
 	
 EndFunction
@@ -654,7 +556,10 @@ EndProcedure
 //
 Function StringMatchesFilter(TableRow, ObjectData, TableName)
 	
-	Return ObjectData.Rows.FindRows(New Structure(TableName + "LineNumber", TableRow.LineNumber)).Count() = 1;
+	Rows = ?(TypeOf(ObjectData) = Type("ValueTreeRow"), 
+		ObjectData.Rows, ObjectData.TabularSections.Rows);
+	
+	Return Rows.FindRows(New Structure(TableName + "LineNumber", TableRow.LineNumber)).Count() = 1;
 	
 EndFunction
 
@@ -734,18 +639,18 @@ Function AttributesEditingSettings(MetadataObject, ObjectsManagers = Null) Expor
 		ObjectsManagers = ObjectsManagersForEditingAttributes();
 	EndIf;
 	
-	ToEdit = Undefined;
+	ToEdit   = Undefined;
 	ToSkip = Undefined;
 	
 	If ObjectsManagers <> Undefined Then
 		AvailableMethods = ObjectManagerMethodsForEditingAttributes(MetadataObject.FullName(), ObjectsManagers);
-		If TypeOf(AvailableMethods) = Type("Array") And (AvailableMethods.Count() = 0 
+		If TypeOf(AvailableMethods) = Type("Array") And (AvailableMethods.Count() = 0
 			Or AvailableMethods.Find("AttributesToEditInBatchProcessing") <> Undefined) Then
 				ObjectManager = ObjectManagerByFullName(MetadataObject.FullName());
 				ToEdit = ObjectManager.AttributesToEditInBatchProcessing();
 		EndIf;
 	Else
-		//  
+		// 
 		// 
 		ObjectManager = ObjectManagerByFullName(MetadataObject.FullName());
 		Try
@@ -761,12 +666,12 @@ Function AttributesEditingSettings(MetadataObject, ObjectsManagers = Null) Expor
 			Or AvailableMethods.Find("AttributesToSkipInBatchProcessing") <> Undefined) Then
 				If ObjectManager = Undefined Then
 					ObjectManager = ObjectManagerByFullName(MetadataObject.FullName());
-				EndIf;	
+				EndIf;
 				ToSkip = ObjectManager.AttributesToSkipInBatchProcessing();
 		EndIf;
 		
 	Else
-		//  
+		// 
 		// 
 		Try
 			ToSkip = ObjectManager.AttributesToSkipInBatchProcessing();
@@ -779,10 +684,10 @@ Function AttributesEditingSettings(MetadataObject, ObjectsManagers = Null) Expor
 	If SSLVersionMatchesRequirements() Then
 		ModuleSSLSubsystemsIntegration = CommonModule("SSLSubsystemsIntegration");
 		ModuleBatchObjectsModificationOverridable = CommonModule("BatchEditObjectsOverridable");
-
+		
 		ModuleSSLSubsystemsIntegration.OnDefineEditableObjectAttributes(
 			MetadataObject, ToEdit, ToSkip);
-			
+		
 		ModuleBatchObjectsModificationOverridable.OnDefineEditableObjectAttributes(
 			MetadataObject, ToEdit, ToSkip);
 	EndIf;
@@ -808,13 +713,17 @@ EndFunction
 
 Function ObjectsManagersForEditingAttributes()
 	
+	ObjectsWithLockedAttributes = New Map;
+	If Not SubsystemExists("StandardSubsystems.Core") Then
+		Return ObjectsWithLockedAttributes;
+	EndIf;
+	
 	ModuleSSLSubsystemsIntegration = CommonModule("SSLSubsystemsIntegration");
 	ModuleBatchObjectsModificationOverridable = CommonModule("BatchEditObjectsOverridable");
 	If ModuleSSLSubsystemsIntegration = Undefined Or ModuleBatchObjectsModificationOverridable = Undefined Then
-		Return New Array;
+		Return ObjectsWithLockedAttributes;
 	EndIf;
 	
-	ObjectsWithLockedAttributes = New Map;
 	ModuleSSLSubsystemsIntegration.OnDefineObjectsWithEditableAttributes(ObjectsWithLockedAttributes);
 	ModuleBatchObjectsModificationOverridable.OnDefineObjectsWithEditableAttributes(ObjectsWithLockedAttributes);
 	
@@ -835,8 +744,12 @@ Function SSLVersionMatchesRequirements() Export
 	EndIf;
 	
 	SSLVersion = ModuleStandardSubsystemsServer.LibraryVersion();
-	Return CompareVersions(SSLVersion, "3.1.8.25") >= 0;
+	Return CompareVersions(SSLVersion, "3.1.8.240") >= 0;
 	
+EndFunction
+
+Function IsLongRunningOperationsAvailable() Export
+	Return SSLVersionMatchesRequirements() And SubsystemExists("StandardSubsystems.Core");
 EndFunction
 
 // Compares two versions in the String format.
@@ -1493,6 +1406,282 @@ Function ConfigurationSeparators() Export
 	Return New FixedArray(SeparatorArray);
 	
 EndFunction
+
+#Region MultiThreadedObjectModification
+
+// APK:581-Export is off, as it is called from a background task.
+Function ObjectsBatchChangeResult(ObjectsToProcess, ChangeResult, ChangeSettings) Export
+
+	Ref         = Undefined;
+	WriteError = True;
+	
+	DisableAccessKeysUpdate(True);
+	If ChangeSettings.ChangeInTransaction Then
+		BeginTransaction();
+	EndIf;
+	
+	Try
+		If ChangeSettings.ChangeInTransaction Then
+			Block = New DataLock;
+			For Each ObjectData In ObjectsToProcess Do
+				Ref = ObjectData.Ref;
+				LockRef(Block, ObjectData.Ref);
+			EndDo;
+			Block.Lock();
+		EndIf;
+		
+		For Each ObjectData In ObjectsToProcess Do
+			
+			WriteError = True;
+			BeginTransaction();
+			Try
+				
+				Ref = ObjectData.Ref;
+				If Not ChangeSettings.ChangeInTransaction Then
+					Block = New DataLock;
+					LockRef(Block, Ref);
+					Block.Lock();
+				EndIf;
+				
+				ObjectToChange = Ref.GetObject();
+				
+				Changes = Undefined;
+				If ChangeSettings.OperationType = "ExecuteAlgorithm" Then
+					RunAlgorithmCode(ObjectToChange, ChangeSettings.AlgorithmCode,
+						ChangeSettings.RunAlgorithmCodeInSafeMode);
+				Else
+					Changes = MakeChanges(ObjectData, ObjectToChange, ChangeSettings);
+				EndIf;
+				
+				// 
+				IsDocument = Metadata.Documents.Contains(ObjectToChange.Metadata());
+				WriteMode = DetermineWriteMode(ObjectToChange, IsDocument, ChangeSettings.DeveloperMode);
+				
+				// 
+				If Not ChangeSettings.DeveloperMode Then
+					If Not IsDocument Or WriteMode = DocumentWriteMode.Posting Then
+						If Not ObjectToChange.CheckFilling() Then
+							Raise FillCheckErrorsText();
+						EndIf;
+					EndIf;
+				EndIf;
+				
+				// 
+				If Changes <> Undefined And Changes.AddInfoRecordsArray.Count() > 0 Then
+					For Each RecordManager In Changes.AddInfoRecordsArray Do
+						RecordManager.Write(True);
+					EndDo;
+				EndIf;
+				
+				ChangesAreConfigured = ValueIsFilled(ChangeSettings.AttributesToChange)
+					Or ValueIsFilled(ChangeSettings.TabularSectionsToChange);
+				
+				MustWriteObject = ChangeSettings.ObjectWriteOption <> "DoNotWrite"
+					And (ObjectToChange.Modified() Or Not ChangesAreConfigured);
+				
+				// 
+				If MustWriteObject Then
+					If WriteMode <> Undefined Then
+						ObjectToChange.Write(WriteMode);
+					Else
+						ObjectToChange.Write();
+					EndIf;
+				EndIf;
+				
+				FillAdditionalPropertiesChangeResult(ChangeResult, Ref, ObjectToChange, Changes);
+				
+				UnlockDataForEdit(Ref);
+				CommitTransaction();
+				
+			Except
+				
+				RollbackTransaction();
+				If ChangeSettings.ChangeInTransaction Then
+					UnlockDataForEdit(Ref);
+				EndIf;
+				
+				BriefErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+				FillChangeResult(ChangeResult, Ref, BriefErrorDescription);
+				If ChangeSettings.StopChangeOnError Or ChangeSettings.ChangeInTransaction Then
+					WriteError = False;
+					Raise;
+				EndIf;
+				
+				Continue;
+			EndTry;
+			
+		EndDo;
+		
+		DisableAccessKeysUpdate(False);
+		If ChangeSettings.ChangeInTransaction Then
+			CommitTransaction();
+		EndIf;
+		
+	Except
+		
+		If ChangeSettings.ChangeInTransaction Then 
+			RollbackTransaction();
+			For Each ObjectData In ObjectsToProcess Do
+				UnlockDataForEdit(ObjectData.Ref);
+			EndDo;
+		EndIf;
+		
+		DisableAccessKeysUpdate(False, ChangeSettings.ChangeInTransaction);
+		
+		If WriteError Then
+			BriefErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+			FillChangeResult(ChangeResult, Ref, BriefErrorDescription);
+		EndIf;
+		
+	EndTry;
+	
+	Return ChangeResult;
+	
+EndFunction
+// 
+
+Function RunObjectsChangeInMultipleThreads(Parameters, ObjectsToProcess, ChangeResult,
+		StopChangeOnError, RunAlgorithmCodeInSafeMode)
+	
+	FormIdentifier = New UUID;
+	
+	ModuleTimeConsumingOperations = CommonModule("TimeConsumingOperations");
+	
+	ExecutionParameters = ModuleTimeConsumingOperations.BackgroundExecutionParameters(FormIdentifier);
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Bulk attribute edit';");
+	
+	IsExternalDataProcessor = IsExternalDataProcessor();
+	If IsExternalDataProcessor Then
+		ExecutionParameters.ExternalReportDataProcessor = Parameters.ExternalReportDataProcessor;
+	EndIf;
+	
+	ArrayOfPortions    = New Array;
+	PortionOfObjects  = New Array;
+	ObjectsCounter = 0;
+	
+	LongRunningOperationsThreadCount = ModuleTimeConsumingOperations.AllowedNumberofThreads();
+	
+	ShouldProcessInSingleThread = Parameters.ChangeInTransaction Or Parameters.InterruptOnError; 
+	If LongRunningOperationsThreadCount > 0 And Not ShouldProcessInSingleThread Then
+		ObjectCountInBatch = Int(ObjectsToProcess.Count() / LongRunningOperationsThreadCount);
+	Else
+		ObjectCountInBatch = ObjectsToProcess.Count();
+	EndIf;
+	
+	TabularSectionsDetails = TabularSectionsDetails(Parameters);
+	
+	For Each ObjectData In ObjectsToProcess Do
+		If ObjectsCounter = ObjectCountInBatch Then
+			ArrayOfPortions.Add(PortionOfObjects);
+			PortionOfObjects  = New Array;
+			ObjectsCounter = 0;
+		EndIf;
+		
+		TabularSections = TabularSectionsDetails.Copy();
+		
+		AddValueTreeRowsRecursively(TabularSections, ObjectData);
+		
+		ThesePortions = New Structure;
+		ThesePortions.Insert("Ref",         ObjectData.Ref);
+		ThesePortions.Insert("TabularSections", TabularSections);
+		
+		PortionOfObjects.Add(ThesePortions);
+		
+		ObjectsCounter = ObjectsCounter + 1;
+	EndDo;
+	
+	If PortionOfObjects.Count() > 0 Then
+		ArrayOfPortions.Add(PortionOfObjects);
+	EndIf;
+	
+	MethodParameters      = New Map;
+	BatchesUpperBound = ArrayOfPortions.UBound();
+	
+	ChangeSettings = ChangeSettings(Parameters, RunAlgorithmCodeInSafeMode);
+	
+	For BatchIndex = 0 To BatchesUpperBound Do
+		ParametersArray = New Array;
+		ParametersArray.Add(ArrayOfPortions[BatchIndex]);
+		ParametersArray.Add(ChangeResult);
+		ParametersArray.Add(ChangeSettings);
+		
+		MethodParameters.Insert(BatchIndex, ParametersArray);
+	EndDo;
+	
+	FunctionName = StrTemplate("%1.BatchEditAttributes.ObjectModule.ObjectsBatchChangeResult",
+		?(IsExternalDataProcessor, "ExternalDataProcessor", "DataProcessor"));
+	
+	ExecutionResult = ModuleTimeConsumingOperations.ExecuteFunctionInMultipleThreads(FunctionName,
+		ExecutionParameters, MethodParameters);
+		
+	Return ExecutionResult;
+	
+EndFunction
+
+Function TabularSectionsDetails(Parameters)
+
+	TabularSectionsDetails = New ValueTree;
+	
+	ObjectsForChanging = Parameters.ObjectsForChanging.Get();
+	If ObjectsForChanging = Undefined Then
+		ObjectsForChanging = Parameters.ObjectsToProcess.Get();
+	EndIf;
+	
+	For Each Column In ObjectsForChanging.Columns Do
+		TabularSectionsDetails.Columns.Add(Column.Name, Column.ValueType, Column.Title, Column.Width);
+	EndDo;
+	
+	Return TabularSectionsDetails;
+	
+EndFunction
+
+Procedure AddValueTreeRowsRecursively(Recipient, Source)
+	
+	For Each SourceRow1 In Source.Rows Do
+		
+		CurrentRow = Recipient.Rows.Add();
+		FillPropertyValues(CurrentRow, SourceRow1);
+		
+		If SourceRow1.Rows.Count() > 0 Then
+			AddValueTreeRowsRecursively(CurrentRow, SourceRow1);
+		EndIf;
+		
+	EndDo;
+	
+EndProcedure
+
+// For internal use.
+Function IsExternalDataProcessor()
+	
+	ObjectStructure = New Structure;
+	ObjectStructure.Insert("UsedFileName", Undefined);
+	FillPropertyValues(ObjectStructure, ThisObject);
+	
+	Return (ObjectStructure.UsedFileName <> Undefined);
+	
+EndFunction
+
+Function ChangeSettings(Parameters, RunAlgorithmCodeInSafeMode)
+	
+	ChangeSettings = New Structure;
+	ChangeSettings.Insert("ObjectWriteOption");
+	ChangeSettings.Insert("RunAlgorithmCodeInSafeMode", RunAlgorithmCodeInSafeMode);
+	ChangeSettings.Insert("AvailableAttributes");
+	ChangeSettings.Insert("AttributesToChange");
+	ChangeSettings.Insert("TabularSectionsToChange");
+	ChangeSettings.Insert("ChangeInTransaction");
+	ChangeSettings.Insert("AlgorithmCode");
+	ChangeSettings.Insert("StopChangeOnError");
+	ChangeSettings.Insert("DeveloperMode");
+	ChangeSettings.Insert("OperationType");
+	
+	FillPropertyValues(ChangeSettings, Parameters);
+	
+	Return ChangeSettings;
+	
+EndFunction
+
+#EndRegion
 
 #EndRegion
 

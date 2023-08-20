@@ -119,6 +119,11 @@
 			<ContextMenu name="AuthorContextMenu" id="116"/>
 			<ExtendedTooltip name="AuthorExtendedTooltip" id="167"/>
 		</InputField>
+		<InputField name="Purpose" id="315">
+			<DataPath>Object.Purpose</DataPath>
+			<ContextMenu name="PurposeContextMenu" id="316"/>
+			<ExtendedTooltip name="PurposeExtendedTooltip" id="317"/>
+		</InputField>
 		<Pages name="Pages" id="269">
 			<Title>
 				<v8:item>
@@ -541,7 +546,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Layout data (without predefined option settings)</v8:content>
+							<v8:content>Location (without predefined option settings)</v8:content>
 						</v8:item>
 					</Title>
 					<CommandSet>

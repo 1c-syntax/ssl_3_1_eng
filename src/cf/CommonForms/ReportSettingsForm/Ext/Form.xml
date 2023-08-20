@@ -897,10 +897,14 @@
 								<ExtendedTooltip name="FiltersSearchControlExtendedTooltip" id="360"/>
 							</SearchControlAddition>
 							<Events>
+								<Event name="DragCheck">FiltersDragCheck</Event>
 								<Event name="Selection">FiltersSelection</Event>
 								<Event name="BeforeAddRow">FiltersBeforeAddRow</Event>
 								<Event name="BeforeDeleteRow">FiltersBeforeDeleteRow</Event>
 								<Event name="OnActivateRow">FiltersOnActivateRow</Event>
+								<Event name="DragStart">FiltersDragStart</Event>
+								<Event name="Drag">FiltersDrag</Event>
+								<Event name="DragEnd">FiltersDragEnd</Event>
 								<Event name="OnActivateCell">FiltersOnActivateCell</Event>
 							</Events>
 							<ChildItems>
@@ -1065,7 +1069,7 @@
 									<Title formatted="true">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>&lt;bgcolor #ffec9d&gt;&lt;color #9d5600&gt;The report has assigned grouping filters that can be set up on the &lt;/&gt;&lt;/&gt;&lt;b&gt;&lt;color #9d5600&gt;Structure&lt;/&gt;&lt;/&gt;&lt;bgcolor #ffec9d&gt;&lt;color #9d5600&gt; page.&lt;/&gt;&lt;/&gt;</v8:content>
+											<v8:content>&lt;bgcolor #ffec9d&gt;&lt;color #9d5600&gt;Filters set for report groupings on tab &lt;/&gt;&lt;/&gt;&lt;b&gt;&lt;color #9d5600&gt;Structure&lt;/&gt;&lt;/&gt;&lt;bgcolor #ffec9d&gt;&lt;color #9d5600&gt; have a higher priority.&lt;/&gt;&lt;/&gt;</v8:content>
 										</v8:item>
 									</Title>
 									<BackColor>style:AttentionBackColor</BackColor>
@@ -1858,7 +1862,7 @@
 									<Title formatted="true">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>&lt;bgcolor #ffec9d&gt;&lt;color #9d5600&gt;The report has selected fields and sorts for groupings that can be set up on the &lt;/&gt;&lt;/&gt;&lt;b&gt;&lt;color #9d5600&gt;Structure&lt;/&gt;&lt;/&gt;&lt;bgcolor #ffec9d&gt;&lt;color #9d5600&gt; page.&lt;/&gt;&lt;/&gt;</v8:content>
+											<v8:content>&lt;bgcolor #ffec9d&gt;&lt;color #9d5600&gt;Fields and sorts set for report groupings on tab &lt;/&gt;&lt;/&gt;&lt;b&gt;&lt;color #9d5600&gt;Structure&lt;/&gt;&lt;/&gt;&lt;bgcolor #ffec9d&gt;&lt;color #9d5600&gt; have a higher priority.&lt;/&gt;&lt;/&gt;</v8:content>
 										</v8:item>
 									</Title>
 									<BackColor>style:AttentionBackColor</BackColor>
@@ -2159,7 +2163,7 @@
 									<Title formatted="true">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>&lt;bgcolor #ffec9d&gt;&lt;color #9d5600&gt;The report has assigned grouping appearance that can be set up on the &lt;/&gt;&lt;/&gt;&lt;b&gt;&lt;color #9d5600&gt;Structure&lt;/&gt;&lt;/&gt;&lt;bgcolor #ffec9d&gt;&lt;color #9d5600&gt; page.&lt;/&gt;&lt;/&gt;</v8:content>
+											<v8:content>&lt;bgcolor #ffec9d&gt;&lt;color #9d5600&gt;The appearance set for report groupings on tab&lt;/&gt;&lt;/&gt;&lt;b&gt;&lt;color #9d5600&gt;Structure&lt;/&gt;&lt;/&gt;&lt;bgcolor #ffec9d&gt;&lt;color #9d5600&gt; has a higher priority.&lt;/&gt;&lt;/&gt;</v8:content>
 										</v8:item>
 									</Title>
 									<BackColor>style:AttentionBackColor</BackColor>
@@ -2976,6 +2980,12 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 							<ExtendedTooltip name="CloseExtendedTooltip" id="7"/>
 						</Button>
 						<ButtonGroup name="SetupGroup" id="1413">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Settings</v8:content>
+								</v8:item>
+							</Title>
 							<ExtendedTooltip name="SetupGroupExtendedTooltip" id="1414"/>
 							<ChildItems>
 								<Button name="EditFiltersConditions" id="1000">

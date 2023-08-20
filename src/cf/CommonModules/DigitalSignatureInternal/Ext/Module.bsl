@@ -140,12 +140,12 @@ Function CheckCertificate(CryptoManager, Certificate, ErrorDescription = Null, O
 		If Not Result.Valid_SSLyf Or AdditionalParameters.Property("Certificate") And ValueIsFilled(Result.Warning.ErrorText)
 				And Not AdditionalParameters.ToVerifySignature Then
 			
-			UserCertificateSettings = DigitalSignatureInternalServerCall.UserCertificateSettings(
+			CertificateCustomSettings = DigitalSignatureInternalServerCall.CertificateCustomSettings(
 					CertificateToCheck.Thumbprint);
 
 			If Not Result.Valid_SSLyf Then
 				
-				If UserCertificateSettings.SigningIsAllowed <> True Then
+				If CertificateCustomSettings.SigningAllowed <> True Then
 					ErrorDescription = Result.Warning.ErrorText;
 					AdditionalParameters.Warning = Result.Warning;
 					If RaiseException1 Then
@@ -159,12 +159,12 @@ Function CheckCertificate(CryptoManager, Certificate, ErrorDescription = Null, O
 			If AdditionalParameters.Property("Certificate") And ValueIsFilled(Result.Warning.ErrorText)
 				And Not AdditionalParameters.ToVerifySignature Then
 				
-				If UserCertificateSettings.IsNotified
-					Or UserCertificateSettings.CertificateRef = Undefined Then
+				If CertificateCustomSettings.IsNotified
+					Or CertificateCustomSettings.CertificateRef = Undefined Then
 					AdditionalParameters.Warning = Undefined;
 				Else
 					AdditionalParameters.Warning = Result.Warning;
-					AdditionalParameters.Certificate = UserCertificateSettings.CertificateRef;
+					AdditionalParameters.Certificate = CertificateCustomSettings.CertificateRef;
 				EndIf;
 			EndIf;
 			
@@ -471,7 +471,7 @@ Function CertificatesInOrderToRoot(CertificatesData) Export
 		By_Order.Add(CertificateData);
 		CertificatesDetails.Insert(Certificate, CertificateData);
 		CertificatesBySubjects.Insert(
-			DigitalSignatureInternalClientServer.PublisherSKey(Certificate.Subject),
+			DigitalSignatureInternalClientServer.IssuerKey(Certificate.Subject),
 			CertificateData);
 	EndDo;
 	
@@ -486,7 +486,6 @@ Function CertificatesInOrderToRoot(CertificatesData) Export
 		
 	Return By_Order;
 
-	
 EndFunction
 
 // For internal use only.
@@ -650,7 +649,7 @@ Procedure ConfigureCommonSettingsForm(Form, DataPathAttribute) Export
 		
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService")
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS")
 	 And AvailableAdvancedSignature
 		And (DataPathAttribute = "ConstantsSet.UseDSSService" Or DataPathAttribute = "") Then
 
@@ -965,7 +964,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.UpdateDataFillingProcedure = "Catalogs.DigitalSignatureAndEncryptionApplications.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.ObjectsToRead      = "Catalog.DigitalSignatureAndEncryptionApplications";
 	Handler.ObjectsToChange    = "Catalog.DigitalSignatureAndEncryptionApplications";
-	Handler.DeferredProcessingQueue = 1;
 	Handler.CheckProcedure    = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
 	
 EndProcedure
@@ -1066,6 +1064,15 @@ Procedure OnDefineAddInsVersionsToUse(IDs) Export
 
 	IDs.Add(DigitalSignatureInternalClientServer.ComponentDetails().ObjectName);
 
+EndProcedure
+
+// See SSLSubsystemsIntegration.OnDefineUsedAddIns.
+Procedure OnDefineUsedAddIns(Components) Export
+
+	NewRow = Components.Add();
+	NewRow.Id = DigitalSignatureInternalClientServer.ComponentDetails().ObjectName;
+	NewRow.AutoUpdate = True;
+	
 EndProcedure
 
 // See ScheduledJobsOverridable.OnDefineScheduledJobSettings
@@ -1262,6 +1269,185 @@ EndProcedure
 
 #Region Private
 
+//  
+// 
+// 
+// Returns:
+//   See DigitalSignatureInternalClientServer.ResultOfReadSignatureProperties
+//   
+//
+Function SignatureProperties(Signatures, ShouldReadCertificates, UseCryptoManager = True) Export
+	
+	If TypeOf(Signatures) = Type("String") Or TypeOf(Signatures) = Type("BinaryData") Then
+		SignaturesArray = CommonClientServer.ValueInArray(Signatures);
+		Map = Undefined;
+	Else
+		SignaturesArray = Signatures;
+		Map = New Map;
+	EndIf;
+	
+	IsReadingByCryptoManager = UseCryptoManager 
+		And (DigitalSignature.CommonSettings().VerifyDigitalSignaturesOnTheServer
+			Or DigitalSignature.CommonSettings().GenerateDigitalSignaturesAtServer
+			Or Common.FileInfobase());
+	
+	For Each Signature In SignaturesArray Do
+	
+		Result = DigitalSignatureInternalClientServer.ResultOfReadSignatureProperties();
+
+		If IsReadingByCryptoManager Then
+			ErrorDescription = "";
+			CryptoManager = DigitalSignature.CryptoManager("ReadSignature", False, ErrorDescription,
+				Signature); // CryptoManager
+			If CryptoManager = Undefined Then
+				Result.ErrorText = ErrorDescription;
+			Else
+				Result = SignaturePropertiesReadByCryptoManager(Signature, CryptoManager, ShouldReadCertificates);
+				If Result.Success = True Then
+					If Map = Undefined Then
+						Return Result;
+					Else
+						Map.Insert(Signature, Result);
+						Continue;
+					EndIf;
+				Else
+					Result.Success = Undefined;
+				EndIf;
+			EndIf;
+		EndIf;
+		
+		SignaturePropertiesFromBinaryData = SignaturePropertiesFromBinaryData(Signature, ShouldReadCertificates);
+		FillPropertyValues(Result, SignaturePropertiesFromBinaryData, , "Success, ErrorText");
+
+		If SignaturePropertiesFromBinaryData.Success = False Then
+			Result.Success = False;
+			Result.ErrorText = ?(IsBlankString(Result.ErrorText), "", Result.ErrorText + Chars.LF)
+				+ SignaturePropertiesFromBinaryData.ErrorText;
+		EndIf;
+		
+		If Map = Undefined Then
+			Return Result;
+		Else
+			Map.Insert(Signature, Result);
+		EndIf;
+	
+	EndDo;
+	
+	Return Map;
+	
+EndFunction
+
+Function SignaturePropertiesReadByCryptoManager(Signature, CryptoManager, ShouldReadCertificates) Export
+	
+	Result = DigitalSignatureInternalClientServer.ResultOfReadSignatureProperties();
+	
+	BinaryData = DigitalSignatureInternalClientServer.BinaryDataFromTheData(Signature,
+		"DigitalSignatureInternal.SignaturePropertiesReadByCryptoManager");
+	
+	Try
+		ContainerSignatures = CryptoManager.GetCryptoSignaturesContainer(BinaryData);
+	Except
+		Result.Success = False;
+		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'When reading the signature data: %1';"), ErrorProcessing.BriefErrorDescription(
+					ErrorInfo()));
+		Return Result;
+	EndTry;
+
+	ParametersCryptoSignatures = DigitalSignatureInternalClientServer.ParametersCryptoSignatures(
+						ContainerSignatures, TimeAddition(), CurrentSessionDate());
+
+	Result.SignatureType = ParametersCryptoSignatures.SignatureType;
+	Result.DateActionLastTimestamp = ParametersCryptoSignatures.DateActionLastTimestamp;
+	Result.UnverifiedSignatureDate = ParametersCryptoSignatures.UnverifiedSignatureDate;
+	Result.DateSignedFromLabels = ParametersCryptoSignatures.DateSignedFromLabels;
+	If ParametersCryptoSignatures.CertificateDetails <> Undefined Then
+		Result.Thumbprint = ParametersCryptoSignatures.CertificateDetails.Thumbprint;
+		Result.CertificateOwner = ParametersCryptoSignatures.CertificateDetails.IssuedTo;
+	EndIf;
+
+	If ShouldReadCertificates Then
+		SignatureRow = ContainerSignatures.Signatures[0];
+		If DigitalSignatureInternalClientServer.IsCertificateExists( 
+					SignatureRow.SignatureCertificate) Then
+			Result.Certificate = SignatureRow.SignatureCertificate.Unload();
+		EndIf;
+		For Each Certificate In SignatureRow.SignatureVerificationCertificates Do
+			If DigitalSignatureInternalClientServer.IsCertificateExists(Certificate) Then
+				Result.Certificates.Add(Certificate.Unload());
+			EndIf;
+		EndDo;
+	EndIf;
+
+	Result.Success = True;
+	Return Result;
+	
+EndFunction
+
+Function SignaturePropertiesFromBinaryData(Signature, ShouldReadCertificates) Export
+	
+	Result = DigitalSignatureInternalClientServer.ResultOfReadSignatureProperties();
+	
+	Try
+		SignaturePropertiesFromBinaryData = DigitalSignatureInternalClientServer.SignaturePropertiesFromBinaryData(
+			Signature, TimeAddition(), ShouldReadCertificates);
+		If Not ValueIsFilled(SignaturePropertiesFromBinaryData.SignatureType) Then
+			Result.ErrorText = NStr("en = 'The data is not a signature.';");
+			Result.Success = False;
+			Return Result;
+		EndIf;
+	Except
+		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Cannot read the signature properties: %1';"), ErrorProcessing.BriefErrorDescription(
+			ErrorInfo()));
+		Return Result;
+	EndTry;
+
+	Result.SignatureType = SignaturePropertiesFromBinaryData.SignatureType;
+
+	If ValueIsFilled(SignaturePropertiesFromBinaryData.SigningDate) Then
+		Result.UnverifiedSignatureDate = SignaturePropertiesFromBinaryData.SigningDate;
+	EndIf;
+	If ValueIsFilled(SignaturePropertiesFromBinaryData.DateOfTimeStamp) Then
+		Result.DateSignedFromLabels = SignaturePropertiesFromBinaryData.DateOfTimeStamp;
+	EndIf;
+
+	If SignaturePropertiesFromBinaryData.Certificates.Count() > 0 Then
+		
+		If SignaturePropertiesFromBinaryData.Certificates.Count() > 1 Then
+			Try
+				Result.Certificates = CertificatesInOrderToRoot(
+					SignaturePropertiesFromBinaryData.Certificates);
+				Result.Certificate = Result.Certificates[0];
+			Except
+				Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Cannot read the certificate properties: %1';"),
+					ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+			EndTry;
+		Else
+			Result.Certificate = SignaturePropertiesFromBinaryData.Certificates[0];
+		EndIf;
+		
+		Try
+			Certificate = New CryptoCertificate(Result.Certificate);
+			Result.Certificate = Certificate.Unload();
+			CertificateProperties = DigitalSignature.CertificateProperties(Certificate);
+			Result.Thumbprint = CertificateProperties.Thumbprint;
+			Result.CertificateOwner = CertificateProperties.IssuedTo;
+		Except
+			Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Cannot read the certificate properties: %1';"),
+				ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+		EndTry;
+
+	EndIf;
+
+	Result.Success = IsBlankString(Result.ErrorText);
+	
+	Return Result;
+
+EndFunction
+
 Procedure SetVisibilityOfRefToAppsTroubleshootingGuide(InstructionItem) Export
 	
 	URL = "";
@@ -1384,7 +1570,7 @@ Function CryptoManager(Operation, CryptoManagerCreationParameters = Undefined) E
 		
 	ElsIf Operation = "CheckSignature" Then
 		ErrorTitle = NStr("en = 'Cannot verify the signature on server %1 due to:';");
-		
+	
 	ElsIf Operation = "Encryption" Then
 		ErrorTitle = NStr("en = 'Cannot encrypt data on server %1 due to:';");
 		
@@ -1396,6 +1582,9 @@ Function CryptoManager(Operation, CryptoManagerCreationParameters = Undefined) E
 		
 	ElsIf Operation = "GetCertificates" Then
 		ErrorTitle = NStr("en = 'Cannot receive certificates on server %1 due to:';");
+	
+	ElsIf Operation = "ReadSignature" Then
+		ErrorTitle = NStr("en = 'Cannot read all the signature properties on the %1 server due to:';");
 		
 	ElsIf Operation = "ExtensionValiditySignature" Then
 		ErrorTitle = NStr("en = 'Couldn''t enhance signatures on server %1 due to:';");
@@ -1729,7 +1918,8 @@ EndProcedure
 //  ChoiceList - ValueList - List to be populated.
 //  Operation     - String - Enhancement, Signing, Settings - Operations the list is generated for.
 //               - Undefined - 
-//  SignatureType   - Перечисление.ТипыПодписиКриптографии - SignatureType that defines what signatures are available for this operation.
+//  SignatureType   - EnumRef.CryptographySignatureTypes -
+//                                                              
 //
 Procedure FillListSignatureTypesCryptography(ChoiceList, Operation = Undefined, SignatureType = Undefined) Export
 	
@@ -1930,22 +2120,43 @@ Function ValidateCertificate(CryptoManagerToCheck, CertificateToCheck,
 	
 	Try
 		CryptoManagerToCheck.CheckCertificate(CertificateToCheck, CertificateCheckModes);
+		Return True;
 	Except
-
 		ErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
-		
-		Return RevalidateCertificate(CryptoManagerToCheck, CertificateToCheck, 
-			CertificateCheckModes, ErrorDescription, RaiseException1);
-		
 	EndTry;
 	
-	Return True;
+	If Not ValueIsFilled(ErrorDescription) Then
+		Return False;
+	EndIf;
+
+	ClassifierError = ClassifierError(ErrorDescription, True);
+	If ClassifierError = Undefined Then
+		Return False;
+	EndIf;
+
+	If ClassifierError.CertificateRevoked Then
+		Try
+			DoWriteCertificateRevocationMark(Base64String(CertificateToCheck.Thumbprint));
+		Except
+			ErrorDescription = ErrorDescription + Chars.LF + ErrorProcessing.BriefErrorDescription(
+				ErrorInfo());
+		EndTry;
+		Return False;
+	EndIf;
+
+	If ValueIsFilled(ClassifierError.RemedyActions) Then
+		Return RevalidateCertificate(CryptoManagerToCheck, CertificateToCheck,
+			CertificateCheckModes, ErrorDescription, RaiseException1,
+			ClassifierError.RemedyActions);
+	EndIf;
+	
+	Return False;
 	
 EndFunction
 
 // 
 Function RevalidateCertificate(CryptoManagerToCheck, CertificateToCheck, 
-	CertificateCheckModes, ErrorDescription, RaiseException1)
+	CertificateCheckModes, ErrorDescription, RaiseException1, RemedyActions)
 	
 	
 	Return False;
@@ -2043,6 +2254,73 @@ Function WriteCertificateAfterCheck(Context) Export
 	EndDo;
 	
 	Return Undefined;
+	
+EndFunction
+
+// For internal use only.
+// 
+// Parameters:
+//  Thumbprint - String - 
+//
+Function DoWriteCertificateRevocationMark(Thumbprint) Export
+	
+	SetPrivilegedMode(True);
+	
+	Query = New Query;
+	Query.SetParameter("Thumbprint", Thumbprint);
+	Query.Text =
+	"SELECT
+	|	Certificates.Ref AS Ref
+	|FROM
+	|	Catalog.DigitalSignatureAndEncryptionKeysCertificates AS Certificates
+	|WHERE
+	|	Certificates.Thumbprint = &Thumbprint
+	|	AND NOT Certificates.Revoked";
+	
+	QueryResult = Query.Execute();
+	
+	If QueryResult.IsEmpty() Then
+		Return Undefined;
+	EndIf;
+	
+	Selection = QueryResult.Select();
+	Selection.Next();
+	CertificateRef = Selection.Ref;
+	
+	Block = New DataLock;
+	LockItem = Block.Add("Catalog.DigitalSignatureAndEncryptionKeysCertificates");
+	LockItem.SetValue("Ref", CertificateRef);
+	
+	BeginTransaction();
+	Try
+		
+		Block.Lock();
+		CertificateObject = CertificateRef.GetObject();
+		
+		If CertificateObject.Revoked <> True Then
+			CertificateObject.Revoked = True;
+			CertificateObject.DataExchange.Load = True;
+			CertificateObject.Write();
+		EndIf;
+		
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		
+		ErrorInfo = ErrorInfo();
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Cannot save the %1 certificate revocation mark: %2';"), CertificateRef, 
+			ErrorProcessing.BriefErrorDescription(ErrorInfo));
+		
+		WriteLogEvent(
+			NStr("en = 'Digital signature.Set certificate revocation mark.';",
+			Common.DefaultLanguageCode()),
+			EventLogLevel.Error, , CertificateRef,
+			ErrorProcessing.DetailErrorDescription(ErrorInfo));
+		Raise ErrorText;
+	EndTry;
+	
+	Return CertificateRef;
 	
 EndFunction
 
@@ -2825,7 +3103,8 @@ Function RefineSignatureInService(Signature, ExecutionParameters)
 		Return Result;
 	EndIf;
 	
-	If CertificateProperties.EndDate < CurrentSessionDate() Then 
+	If Not ExecutionParameters.ShouldIgnoreCertificateValidityPeriod 
+		And CertificateProperties.EndDate < CurrentSessionDate() Then 
 		InformationAboutCertificate =
 			DigitalSignatureInternalClientServer.DetailsCertificateString(CertificateProperties);
 	
@@ -2980,6 +3259,7 @@ Function EnhanceServerSide(Parameters) Export
 		ExecutionParameters.Insert("SignatureType", Parameters.SignatureType);
 		ExecutionParameters.Insert("ParametersSignatureCAdEST", Parameters.ParametersSignatureCAdEST);
 		ExecutionParameters.Insert("ServiceAccountDSS", Parameters.ServiceAccountDSS);
+		ExecutionParameters.Insert("ShouldIgnoreCertificateValidityPeriod", Parameters.ShouldIgnoreCertificateValidityPeriod);
 		
 		QueryResult = RefineSignatureInService(Signature, ExecutionParameters);
 		FillPropertyValues(Result, QueryResult);
@@ -3024,13 +3304,17 @@ Function EnhanceServerSide(Parameters) Export
 		
 		CryptoManager.TimestampServersAddresses = DigitalSignature.CommonSettings().TimestampServersAddresses;
 		
+		AdditionalParameters = New Structure;
+		AdditionalParameters.Insert("CryptoManager", CryptoManager);
+		AdditionalParameters.Insert("ShouldIgnoreCertificateValidityPeriod", Parameters.ShouldIgnoreCertificateValidityPeriod);
+		
 		If Parameters.DataItemForSErver.Property("SignedObject") Then
 			QueryResult = DigitalSignature.ImproveObjectSignature(Parameters.DataItemForSErver.SignedObject,
 				Parameters.DataItemForSErver.SequenceNumber, Parameters.SignatureType,
-				Parameters.AddArchiveTimestamp, Parameters.FormIdentifier, CryptoManager);
+				Parameters.AddArchiveTimestamp, Parameters.FormIdentifier, AdditionalParameters);
 		Else
 			QueryResult = DigitalSignature.EnhanceSignature(Signature, Parameters.SignatureType,
-				Parameters.AddArchiveTimestamp, CryptoManager);
+				Parameters.AddArchiveTimestamp, AdditionalParameters);
 		EndIf;
 		
 		FillPropertyValues(Result, QueryResult);
@@ -3091,20 +3375,25 @@ Function Sign(Val XMLEnvelope, XMLDSigParameters, CryptoCertificate, CryptoManag
 	XMLEnvelope = StrReplace(XMLEnvelope, "%SignatureMethod%", SigningAlgorithmData.SelectedSignatureAlgorithm);
 	XMLEnvelope = StrReplace(XMLEnvelope, "%DigestMethod%",    SigningAlgorithmData.SelectedHashAlgorithm);
 	
-	If XMLEnvelopeProperties = Undefined Then
-		CanonizedTextXMLBody = C14N(ComponentObject,
-			XMLEnvelope, SigningAlgorithmData.XPathTagToSign);
+	If XMLEnvelopeProperties <> Undefined Then
+		For IndexOf = 0 To XMLEnvelopeProperties.AreasToHash.UBound() Do
+			HashedArea = XMLEnvelopeProperties.AreasToHash[IndexOf];
+			CanonizedTextXMLBody = CanonizedXMLText(ComponentObject,
+				XMLEnvelopeProperties.AreasBody[IndexOf], HashedArea.TransformationAlgorithms);
+			DigestValueAttribute = HashResult(ComponentObject, CanonizedTextXMLBody,
+				SigningAlgorithmData.SelectedHashAlgorithmOID, CryptoProviderProperties.Type);
+
+			XMLEnvelope = StrReplace(XMLEnvelope, HashedArea.HashValue, DigestValueAttribute);
+		EndDo;
 	Else
-		CanonizedTextXMLBody = CanonizedXMLText(ComponentObject,
-			XMLEnvelopeProperties.BodyArea, XMLEnvelopeProperties.HashedArea.TransformationAlgorithms);
+		CanonizedTextXMLBody = C14N(ComponentObject, XMLEnvelope,
+			SigningAlgorithmData.XPathTagToSign);
+		
+		DigestValueAttribute = HashResult(ComponentObject, CanonizedTextXMLBody,
+			SigningAlgorithmData.SelectedHashAlgorithmOID, CryptoProviderProperties.Type);
+
+		XMLEnvelope = StrReplace(XMLEnvelope, "%DigestValue%", DigestValueAttribute);
 	EndIf;
-	
-	DigestValueAttribute = HashResult(ComponentObject,
-		CanonizedTextXMLBody,
-		SigningAlgorithmData.SelectedHashAlgorithmOID,
-		CryptoProviderProperties.Type);
-	
-	XMLEnvelope = StrReplace(XMLEnvelope, "%DigestValue%", DigestValueAttribute);
 	
 	If XMLEnvelopeProperties = Undefined Then
 		CanonizedTextXMLSignedInfo = C14N(ComponentObject,
@@ -3152,6 +3441,8 @@ EndFunction
 //
 Function VerifySignature(Val XMLEnvelope, XMLDSigParameters, CryptoManager, XMLEnvelopeProperties = Undefined) Export
 	
+	CheckParameters = New Structure;
+	
 	ComponentObject = AnObjectOfAnExternalComponentOfTheExtraCryptoAPI();
 	
 	CryptoProviderProperties = CryptoProviderProperties(CryptoManager);
@@ -3170,21 +3461,45 @@ Function VerifySignature(Val XMLEnvelope, XMLDSigParameters, CryptoManager, XMLE
 		CanonizedTextXMLSignedInfo = CanonizedXMLText(ComponentObject,
 			XMLEnvelopeProperties.SignedInfoArea,
 			CommonClientServer.ValueInArray(XMLEnvelopeProperties.TheCanonizationAlgorithm));
-		CanonizedTextXMLBody = CanonizedXMLText(ComponentObject,
-			XMLEnvelopeProperties.BodyArea, XMLEnvelopeProperties.HashedArea.TransformationAlgorithms);
-		Base64CryptoCertificate = XMLEnvelopeProperties.Certificate.CertificateValue;
+		
 		SignatureValue = XMLEnvelopeProperties.SignatureValue;
-		HashValue    = XMLEnvelopeProperties.HashedArea.HashValue;
+		Base64CryptoCertificate = XMLEnvelopeProperties.Certificate.CertificateValue;
+		
 	EndIf;
 	
 	DigitalSignatureInternalClientServer.CheckChooseSignAlgorithm(
 		Base64CryptoCertificate, SigningAlgorithmData, True, XMLEnvelopeProperties);
-	
+		
 	SignatureCorrect = VerifySignResult(ComponentObject,
 		CanonizedTextXMLSignedInfo,
 		SignatureValue,
 		Base64CryptoCertificate,
 		CryptoProviderProperties.Type);
+
+	If XMLEnvelopeProperties <> Undefined Then
+		
+		Counter = 1;
+		For Each HashedArea In XMLEnvelopeProperties.AreasToHash Do
+			CanonizedTextXMLBody = CanonizedXMLText(ComponentObject,
+				XMLEnvelopeProperties.AreasBody[Counter-1], HashedArea.TransformationAlgorithms);
+			HashValue = HashedArea.HashValue; 
+			
+			DigestValueAttribute = HashResult(ComponentObject,
+				CanonizedTextXMLBody,
+				SigningAlgorithmData.SelectedHashAlgorithmOID,
+				CryptoProviderProperties.Type);
+				
+			HashMaps = (DigestValueAttribute = HashValue);
+			
+			If Not HashMaps Or Not SignatureCorrect Then
+				Raise DigitalSignatureInternalClientServer.XMLSignatureVerificationErrorText(SignatureCorrect, HashMaps);
+			EndIf;
+			Counter = Counter + 1;
+		EndDo;
+		
+		Return XMLSignatureVerificationResult(Base64CryptoCertificate);
+		
+	EndIf;
 	
 	DigestValueAttribute = HashResult(ComponentObject,
 		CanonizedTextXMLBody,
@@ -3194,26 +3509,23 @@ Function VerifySignature(Val XMLEnvelope, XMLDSigParameters, CryptoManager, XMLE
 	HashMaps = (DigestValueAttribute = HashValue);
 	
 	If HashMaps And SignatureCorrect Then
-		
-		BinaryData = Base64Value(Base64CryptoCertificate);
-		
-		ReturnValue = New Structure;
-		ReturnValue.Insert("Certificate", New CryptoCertificate(BinaryData));
-		ReturnValue.Insert("SigningDate", Undefined);
-		
-		Return ReturnValue;
+		Return XMLSignatureVerificationResult(Base64CryptoCertificate);
 	Else
-		If SignatureCorrect Then
-			ErrorText = NStr("en = 'Invalid signature (%1 is valid, %2 is invalid).';")
-		ElsIf HashMaps Then
-			ErrorText = NStr("en = 'Invalid signature (%1 is invalid, %2 is valid).';");
-		Else
-			ErrorText = NStr("en = 'Invalid signature (%1 is invalid, %2 is invalid).';");
-		EndIf;
-		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText, "SignatureValue", "DigestValue");
-		Raise ErrorText;
+		Raise DigitalSignatureInternalClientServer.XMLSignatureVerificationErrorText(SignatureCorrect, HashMaps);
 	EndIf;
 	
+EndFunction
+
+Function XMLSignatureVerificationResult(Base64CryptoCertificate)
+	
+	BinaryData = Base64Value(Base64CryptoCertificate);
+
+	Result = New Structure;
+	Result.Insert("Certificate", New CryptoCertificate(BinaryData));
+	Result.Insert("SigningDate", Undefined);
+
+	Return Result;
+		
 EndFunction
 
 // Calculates and checks the properties of the XML envelope for signing and checking the signature.
@@ -3251,12 +3563,26 @@ Function XMLEnvelopeProperties(XMLEnvelope, XMLDSigParameters, CheckSignature) E
 	NameOfTheSignatureNodeNamespace = "http://www.w3.org/2000/09/xmldsig#";
 	NamespacesUpToAndIncludingTheSignatureNode = New Array;
 	
-	SignatureNode = FindANodeByName(DOMDocument,
-		SignatureNodeName, NameOfTheSignatureNodeNamespace,
-		XMLEnvelopeProperties.ErrorText, , NamespacesUpToAndIncludingTheSignatureNode);
-	If SignatureNode = Undefined Then
-		Return ReturnedPropertiesOfTheXMLEnvelope(XMLEnvelopeProperties);
-	EndIf;
+	ExcludedNodes = New Array;
+	NumberSingnature = 0;
+	While True Do
+		NumberSingnature = NumberSingnature + 1;
+		SignatureNode = FindANodeByName(DOMDocument,
+			SignatureNodeName, NameOfTheSignatureNodeNamespace,
+			XMLEnvelopeProperties.ErrorText, ExcludedNodes, NamespacesUpToAndIncludingTheSignatureNode);
+		If SignatureNode = Undefined Then
+			Return ReturnedPropertiesOfTheXMLEnvelope(XMLEnvelopeProperties);
+		EndIf;
+		
+		// 
+		// 
+		If StrFind(SignatureNode.TextContent, "%SignatureValue%") = 0 And Not CheckSignature Then
+			ExcludedNodes.Add(SignatureNode);
+			Continue;
+		Else
+			Break;
+		EndIf;
+	EndDo;
 	
 	For Each ChildNode In SignatureNode.ChildNodes Do
 		If ChildNode.LocalName = "SignedInfo" Then
@@ -3313,8 +3639,7 @@ Function XMLEnvelopeProperties(XMLEnvelope, XMLDSigParameters, CheckSignature) E
 		
 		Return ReturnedPropertiesOfTheXMLEnvelope(XMLEnvelopeProperties);
 	EndIf;
-	
-	ExcludedNodes = New Array;
+
 	ExcludedNodes.Add(SignatureNode);
 	
 	If ValueIsFilled(XMLEnvelopeProperties.Certificate.NodeID) Then
@@ -3332,36 +3657,34 @@ Function XMLEnvelopeProperties(XMLEnvelope, XMLDSigParameters, CheckSignature) E
 		ExcludedNodes.Add(CertificateNode);
 	EndIf;
 	
-	NamespacesUpToTheBodyNode = New Array;
-	BodyNode = FindANodeByID(DOMDocument,
-		XMLEnvelopeProperties.HashedArea.NodeID,
-		XMLEnvelopeProperties.ErrorText,
-		ExcludedNodes,
-		NamespacesUpToTheBodyNode);
+	NodesBody = New Array;
 	
-	If ValueIsFilled(XMLEnvelopeProperties.ErrorText) Then
-		Return ReturnedPropertiesOfTheXMLEnvelope(XMLEnvelopeProperties);
-	EndIf;
+	For Each HashedArea In XMLEnvelopeProperties.AreasToHash Do
+		NamespacesUpToTheBodyNode = New Array;
+		BodyNode = FindANodeByID(DOMDocument,
+			HashedArea.NodeID,
+			XMLEnvelopeProperties.ErrorText,
+			ExcludedNodes,
+			NamespacesUpToTheBodyNode);
+		If ValueIsFilled(XMLEnvelopeProperties.ErrorText) Then
+			Return ReturnedPropertiesOfTheXMLEnvelope(XMLEnvelopeProperties);
+		EndIf;
+		ExcludedNodes.Add(BodyNode);
+		NodesBody.Add(BodyNode);
+	EndDo;
 	
-	ExcludedNodes.Add(BodyNode);
-	
-	SignatureNode2 = FindANodeByName(DOMDocument,
-		SignatureNodeName, NameOfTheSignatureNodeNamespace,
-		XMLEnvelopeProperties.ErrorText, ExcludedNodes, , True);
-	If SignatureNode2 <> Undefined Then
-		Return ReturnedPropertiesOfTheXMLEnvelope(XMLEnvelopeProperties);
-	EndIf;
-	
-	NodeBody2 = FindANodeByID(DOMDocument,
-		XMLEnvelopeProperties.HashedArea.NodeID,
-		XMLEnvelopeProperties.ErrorText, ExcludedNodes, , True);
-	If NodeBody2 <> Undefined Then
-		Return ReturnedPropertiesOfTheXMLEnvelope(XMLEnvelopeProperties);
-	EndIf;
+	For Each HashedArea In XMLEnvelopeProperties.AreasToHash Do
+		NodeBody2 = FindANodeByID(DOMDocument,
+			HashedArea.NodeID,
+			XMLEnvelopeProperties.ErrorText, ExcludedNodes, , True);
+		If NodeBody2 <> Undefined Then
+			Return ReturnedPropertiesOfTheXMLEnvelope(XMLEnvelopeProperties);
+		EndIf;
+	EndDo;
 	
 	TheSignedInfoNode = XMLEnvelopeProperties.UniqueNodes.SignedInfo; // DOMElement
 	SignedInfoArea = DigitalSignatureInternalClientServer.XMLScope(XMLEnvelope,
-		TheSignedInfoNode.TagName);
+		TheSignedInfoNode.TagName, NumberSingnature);
 	If ValueIsFilled(SignedInfoArea.ErrorText) Then
 		XMLEnvelopeProperties.ErrorText = SignedInfoArea.ErrorText;
 		Return ReturnedPropertiesOfTheXMLEnvelope(XMLEnvelopeProperties);
@@ -3369,14 +3692,16 @@ Function XMLEnvelopeProperties(XMLEnvelope, XMLDSigParameters, CheckSignature) E
 	SignedInfoArea.NamespacesUpToANode = NamespacesUpToAndIncludingTheSignatureNode;
 	XMLEnvelopeProperties.SignedInfoArea = SignedInfoArea;
 	
-	BodyArea = DigitalSignatureInternalClientServer.XMLScope(XMLEnvelope,
-		BodyNode.TagName);
-	If ValueIsFilled(BodyArea.ErrorText) Then
-		XMLEnvelopeProperties.ErrorText = BodyArea.ErrorText;
-		Return ReturnedPropertiesOfTheXMLEnvelope(XMLEnvelopeProperties);
-	EndIf;
-	BodyArea.NamespacesUpToANode = NamespacesUpToTheBodyNode;
-	XMLEnvelopeProperties.BodyArea = BodyArea;
+	For Each ItemAreaBody In NodesBody Do
+		BodyArea = DigitalSignatureInternalClientServer.XMLScope(XMLEnvelope,
+			ItemAreaBody.TagName);
+		If ValueIsFilled(BodyArea.ErrorText) Then
+			XMLEnvelopeProperties.ErrorText = BodyArea.ErrorText;
+			Return ReturnedPropertiesOfTheXMLEnvelope(XMLEnvelopeProperties);
+		EndIf;
+		BodyArea.NamespacesUpToANode = NamespacesUpToTheBodyNode;
+		XMLEnvelopeProperties.AreasBody.Add(BodyArea);
+	EndDo;
 	
 	Return ReturnedPropertiesOfTheXMLEnvelope(XMLEnvelopeProperties);
 	
@@ -3481,7 +3806,7 @@ EndFunction
 //      ** ApplicationPath - String
 //      ** Version - String -
 //      ** ILicenseInfo - Boolean -
-//      ** AutoDetect - Истина
+//      ** AutoDetect - Boolean
 //
 Function InstalledCryptoProviders(ComponentObject = Undefined) Export
 	
@@ -3495,7 +3820,7 @@ Function InstalledCryptoProviders(ComponentObject = Undefined) Export
 	If (Not Common.FileInfobase() Or Common.ClientConnectedOverWebServer())
 		And Not DigitalSignature.VerifyDigitalSignaturesOnTheServer()
 		And Not DigitalSignature.GenerateDigitalSignaturesAtServer() Then
-			Result.Error = NStr("en = 'Не настроена криптография на сервере.';");
+			Result.Error = NStr("en = 'Cryptography is not configured on the server.';");
 			Return Result;
 	EndIf;
 	
@@ -5074,13 +5399,14 @@ EndFunction
 // 
 // 
 // Parameters:
-//   IssuedTo - Array of строк
+//   IssuedTo - Array of String
 //             - String
 //
 // Returns:
 //   Map of KeyAndValue:
 //     * Key     - String -
-//     * Value - Array of ссылок -
+//     * Value - Array of DefinedType.Individual -
+//                                                             
 //
 Function GetIndividualsByCertificateFieldIssuedTo(IssuedTo) Export
 
@@ -5236,74 +5562,84 @@ Function ProcessTheSignedInfoNode(TheSignedInfoNode, XMLEnvelopeProperties)
 		Return False;
 	EndIf;
 	
+	NodesArrayReference = New Array;
+	
 	For Each ChildNode In TheSignedInfoNode.ChildNodes Do
 		If ChildNode.LocalName = "CanonicalizationMethod" Then
 			If Not GetAttribute(ChildNode, "Algorithm", XMLEnvelopeProperties,
-						"TheCanonizationAlgorithm",,, XMLEnvelopeProperties.CheckSignature) Then
+						"TheCanonizationAlgorithm", XMLEnvelopeProperties.CheckSignature) Then
 				Return False;
 			EndIf;
 		ElsIf ChildNode.LocalName = "SignatureMethod" Then
 			If Not GetAttribute(ChildNode, "Algorithm", XMLEnvelopeProperties,
-						"SignAlgorithm",,, XMLEnvelopeProperties.CheckSignature) Then
+						"SignAlgorithm", XMLEnvelopeProperties.CheckSignature) Then
 				Return False;
 			EndIf;
 		ElsIf ChildNode.LocalName = "Reference" Then
-			If Not ProcessTheReferenceNode(ChildNode, XMLEnvelopeProperties) Then
-				Return False;
-			EndIf;
+			NodesArrayReference.Add(ChildNode);
 		EndIf;
+	EndDo;
+	
+	Return ProcessReferenceNodes(NodesArrayReference, XMLEnvelopeProperties);
+		
+EndFunction
+
+Function ProcessReferenceNodes(NodesArrayReference, XMLEnvelopeProperties)
+	
+	For Each TheReferenceNode In NodesArrayReference Do
+		HashedArea = DescriptionOfTheHashedArea();
+		
+		AdditionalParameters = AttributeAdditionalParameters(True, HashedArea, True);
+		If Not GetAttribute(TheReferenceNode, "URI", XMLEnvelopeProperties,
+					"NodeID", False, AdditionalParameters) Then
+			Return False;
+		EndIf;
+		
+		For Each ChildNode In TheReferenceNode.ChildNodes Do
+			If ChildNode.LocalName = "Transforms" Then
+				If Not ProcessTheTransformsNode(ChildNode, XMLEnvelopeProperties, HashedArea) Then
+					Return False;
+				EndIf;
+			ElsIf ChildNode.LocalName = "DigestMethod" Then
+				AdditionalParameters = AttributeAdditionalParameters(True, HashedArea);
+				If Not GetAttribute(ChildNode, "Algorithm", XMLEnvelopeProperties, "HashAlgorithm",
+							XMLEnvelopeProperties.CheckSignature, AdditionalParameters) Then
+					Return False;
+				EndIf;
+			ElsIf ChildNode.LocalName = "DigestValue" Then
+				AdditionalParameters = AttributeAdditionalParameters(False, HashedArea);
+				If Not GetValue(ChildNode, XMLEnvelopeProperties,
+						"HashValue", HashedArea, True) Then
+					Return False;
+				EndIf;
+			EndIf;
+		EndDo;
+		XMLEnvelopeProperties.AreasToHash.Add(HashedArea);
 	EndDo;
 	
 	Return True;
 	
 EndFunction
 
-Function ProcessTheReferenceNode(TheReferenceNode, XMLEnvelopeProperties)
+Function ProcessTheTransformsNode(TheTransformsNode, XMLEnvelopeProperties, HashedArea)
 	
-	If Not GetAttribute(TheReferenceNode, "URI", XMLEnvelopeProperties,
-				"NodeID", XMLEnvelopeProperties.HashedArea, True) Then
-		Return False;
-	EndIf;
-	
-	For Each ChildNode In TheReferenceNode.ChildNodes Do
-		If ChildNode.LocalName = "Transforms" Then
-			If Not ProcessTheTransformsNode(ChildNode, XMLEnvelopeProperties) Then
-				Return False;
-			EndIf;
-		ElsIf ChildNode.LocalName = "DigestMethod" Then
-			If Not GetAttribute(ChildNode, "Algorithm", XMLEnvelopeProperties, "HashAlgorithm",
-						XMLEnvelopeProperties.HashedArea,, XMLEnvelopeProperties.CheckSignature) Then
-				Return False;
-			EndIf;
-		ElsIf ChildNode.LocalName = "DigestValue" Then
-			If Not GetValue(ChildNode, XMLEnvelopeProperties,
-					"HashValue", XMLEnvelopeProperties.HashedArea) Then
-				Return False;
-			EndIf;
-		EndIf;
-	EndDo;
-	
-	Return True;
-	
-EndFunction
-
-Function ProcessTheTransformsNode(TheTransformsNode, XMLEnvelopeProperties)
-	
-	If Not CheckTheUniquenessOfTheNode(TheTransformsNode, XMLEnvelopeProperties) Then
+	AdditionalParameters = AttributeAdditionalParameters(True);
+	If Not CheckTheUniquenessOfTheNode(TheTransformsNode, XMLEnvelopeProperties, AdditionalParameters) Then
 		Return False;
 	EndIf;
 	
 	For Each ChildNode In TheTransformsNode.ChildNodes Do
 		If ChildNode.LocalName = "Transform" Then
+			AdditionalParameters = AttributeAdditionalParameters(True, HashedArea);
 			If Not GetAttribute(ChildNode, "Algorithm", XMLEnvelopeProperties, "TransformationAlgorithms",
-						XMLEnvelopeProperties.HashedArea,, XMLEnvelopeProperties.CheckSignature) Then
+						XMLEnvelopeProperties.CheckSignature, AdditionalParameters) Then
 				Return False;
 			EndIf;
 		EndIf;
 	EndDo;
 	
 	Return True;
-	
+
 EndFunction
 
 Function ProcessTheKeyInfoNode(KeyInfoNode, XMLEnvelopeProperties)
@@ -5355,12 +5691,15 @@ Function ProcessANodeWithACertificateReference(NodeWithALinkToTheCertificate, XM
 		Return False;
 	EndIf;
 	
+	AdditionalParameters = AttributeAdditionalParameters(False);
+	
 	For Each ChildNode In NodeWithALinkToTheCertificate.ChildNodes Do
 		If ChildNode.LocalName <> "Reference" Then
 			Continue;
 		EndIf;
+		AdditionalParameters.Properties = XMLEnvelopeProperties.Certificate;
 		If Not GetAttribute(ChildNode, "URI", XMLEnvelopeProperties,
-				"NodeID", XMLEnvelopeProperties.Certificate) Then
+				"NodeID", False, AdditionalParameters) Then
 			Return False;
 		EndIf;
 	EndDo;
@@ -5536,19 +5875,36 @@ Procedure AddNamespaces(Namespaces, Node, NamespacesOfNestedNodes)
 	
 EndProcedure
 
-Function GetValue(DOMElement, XMLEnvelopeProperties, PropertyName, Properties = Undefined)
+Function GetValue(DOMElement, XMLEnvelopeProperties, PropertyName, Properties = Undefined, MultipleSigning = False)
 	
 	Value = DOMElement.TextContent;
 	
+	AdditionalParameters = AttributeAdditionalParameters(MultipleSigning, Properties);
+	
 	Result = CheckSetValue(Value,
-		DOMElement, "", XMLEnvelopeProperties, PropertyName, Properties);
+		DOMElement, "", XMLEnvelopeProperties, PropertyName, AdditionalParameters);
 	
 	Return Result;
 	
 EndFunction
 
+Function AttributeAdditionalParameters(MultipleSigning, Properties = Undefined, NameWithParent = False)
+	
+	Structure = New Structure;
+	Structure.Insert("MultipleSigning", MultipleSigning);
+	Structure.Insert("Properties", Properties);
+	Structure.Insert("NameWithParent", NameWithParent);
+	
+	Return Structure;
+	
+EndFunction
+
 Function GetAttribute(DOMElement, AttributeName, XMLEnvelopeProperties, PropertyName,
-			Properties = Undefined, NameWithParent = False, LowercaseValue = False)
+			LowercaseValue = False, AdditionalParameters = Undefined)
+	
+	If AdditionalParameters = Undefined Then
+		AdditionalParameters = AttributeAdditionalParameters(False);
+	EndIf;
 	
 	Attribute = DOMElement.Attributes.GetNamedItem(AttributeName);
 	If Attribute = Undefined Then
@@ -5564,15 +5920,16 @@ Function GetAttribute(DOMElement, AttributeName, XMLEnvelopeProperties, Property
 	EndIf;
 	
 	Result = CheckSetValue(Value,
-		DOMElement, AttributeName, XMLEnvelopeProperties, PropertyName, Properties, NameWithParent);
+		DOMElement, AttributeName, XMLEnvelopeProperties, PropertyName,
+		AdditionalParameters);
 	
 	Return Result;
 	
 EndFunction
 
-Function CheckSetValue(Value, DOMElement, AttributeName, XMLEnvelopeProperties, PropertyName, Properties, NameWithParent = False)
+Function CheckSetValue(Value, DOMElement, AttributeName, XMLEnvelopeProperties, PropertyName, AdditionalParameters)
 	
-	If Not CheckTheUniquenessOfTheNode(DOMElement, XMLEnvelopeProperties, NameWithParent) Then
+	If Not CheckTheUniquenessOfTheNode(DOMElement, XMLEnvelopeProperties, AdditionalParameters) Then
 		Return False;
 	EndIf;
 	
@@ -5584,8 +5941,8 @@ Function CheckSetValue(Value, DOMElement, AttributeName, XMLEnvelopeProperties, 
 		
 		If Not XMLEnvelopeProperties.CheckSignature
 		   And ValueIsFilled(AvailableValues.ParameterName) Then
-			
-			If Value <> AvailableValues.ParameterName Then
+		   
+			If Value <> AvailableValues.ParameterName And Not AdditionalParameters.MultipleSigning Then
 				If ValueIsFilled(AttributeName) Then
 					XMLEnvelopeProperties.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'The %1 node requires the %3 value in the %2 attribute in the XML document.';"),
@@ -5652,10 +6009,10 @@ Function CheckSetValue(Value, DOMElement, AttributeName, XMLEnvelopeProperties, 
 		EndIf;
 	EndIf;
 	
-	If Properties = Undefined Then
+	If AdditionalParameters.Properties = Undefined Then
 		PropertiesSet = XMLEnvelopeProperties;
 	Else
-		PropertiesSet = Properties
+		PropertiesSet = AdditionalParameters.Properties;
 	EndIf;
 	
 	If TypeOf(PropertiesSet[PropertyName]) = Type("Array") Then
@@ -5670,10 +6027,14 @@ Function CheckSetValue(Value, DOMElement, AttributeName, XMLEnvelopeProperties, 
 	
 EndFunction
 
-Function CheckTheUniquenessOfTheNode(DOMElement, XMLEnvelopeProperties, NameWithParent = False)
+Function CheckTheUniquenessOfTheNode(DOMElement, XMLEnvelopeProperties, AdditionalParameters = Undefined)
+	
+	If AdditionalParameters = Undefined Then
+		AdditionalParameters = AttributeAdditionalParameters(False);
+	EndIf;
 	
 	PropertyName = DOMElement.LocalName;
-	If NameWithParent Then
+	If AdditionalParameters.NameWithParent Then
 		PropertyName = DOMElement.ParentNode.LocalName + "_" + PropertyName;
 	EndIf;
 	
@@ -5685,21 +6046,32 @@ Function CheckTheUniquenessOfTheNode(DOMElement, XMLEnvelopeProperties, NameWith
 		Return True;
 	EndIf;
 	
-	If XMLEnvelopeProperties.UniqueNodes[PropertyName] <> Undefined Then
-		If NameWithParent Then
-			XMLEnvelopeProperties.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The %1 node appears more than once in the %2 node in the XML document.';"),
-				DOMElement.LocalName,
-				DOMElement.Parent.LocalName);
+	If AdditionalParameters.MultipleSigning Then
+		If PropertyName = "SignedInfo_Reference" Then
+			If XMLEnvelopeProperties.UniqueNodes[PropertyName] = Undefined Then
+				XMLEnvelopeProperties.UniqueNodes[PropertyName] = New Array;
+			EndIf;
+			XMLEnvelopeProperties.UniqueNodes[PropertyName].Add(DOMElement);
 		Else
-			XMLEnvelopeProperties.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The %1 node appears more than once in the XML document.';"),
-				PropertyName);
+			XMLEnvelopeProperties.UniqueNodes[PropertyName] = DOMElement;
 		EndIf;
-		Return False;
+	Else
+		
+		If XMLEnvelopeProperties.UniqueNodes[PropertyName] <> Undefined Then
+			If AdditionalParameters.NameWithParent Then
+				XMLEnvelopeProperties.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'The %1 node appears more than once in the %2 node in the XML document.';"),
+					DOMElement.LocalName,
+					DOMElement.ParentNode.LocalName);
+			Else
+				XMLEnvelopeProperties.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'The %1 node appears more than once in the XML document.';"),
+					PropertyName);
+			EndIf;
+			Return False;
+		EndIf;
+		XMLEnvelopeProperties.UniqueNodes[PropertyName] = DOMElement;
 	EndIf;
-	
-	XMLEnvelopeProperties.UniqueNodes[PropertyName] = DOMElement;
 	
 	Return True;
 	
@@ -5712,10 +6084,10 @@ EndFunction
 //  Structure:
 //   * ErrorText         - String
 //   * SignedInfoArea   - See DigitalSignatureInternalClientServer.XMLScope
-//   * BodyArea         - See DigitalSignatureInternalClientServer.XMLScope
+//   * AreasBody         - Array of See DigitalSignatureInternalClientServer.XMLScope
 //   * TheCanonizationAlgorithm - See TheCanonizationAlgorithm
 //   * SignAlgorithm     - See SignatureAndHashingAlgorithm
-//   * HashedArea   - See DescriptionOfTheHashedArea
+//   * AreasToHash   - Array of See DescriptionOfTheHashedArea
 //   * SignatureValue     - String - the Base64 string.
 //   * Certificate          - See CertificateDetails
 //   * CheckSignature     - Boolean - when False, signing.
@@ -5725,10 +6097,10 @@ Function ReturnedPropertiesOfTheXMLEnvelope(ServicePropertiesOfTheXMLEnvelope = 
 	Result = New Structure;
 	Result.Insert("ErrorText", "");
 	Result.Insert("SignedInfoArea");
-	Result.Insert("BodyArea");
+	Result.Insert("AreasBody", New Array);
 	Result.Insert("TheCanonizationAlgorithm");
 	Result.Insert("SignAlgorithm");
-	Result.Insert("HashedArea", DescriptionOfTheHashedArea());
+	Result.Insert("AreasToHash", New Array);
 	Result.Insert("SignatureValue", "");
 	Result.Insert("Certificate", CertificateDetails());
 	Result.Insert("CheckSignature", False);
@@ -5748,10 +6120,10 @@ EndFunction
 //  Structure:
 //   * ErrorText         - String
 //   * SignedInfoArea   - See DigitalSignatureInternalClientServer.XMLScope
-//   * BodyArea         - See DigitalSignatureInternalClientServer.XMLScope
+//   * AreasBody         - Array of See DigitalSignatureInternalClientServer.XMLScope
 //   * TheCanonizationAlgorithm - See TheCanonizationAlgorithm
 //   * SignAlgorithm     - See SignatureAndHashingAlgorithm
-//   * HashedArea   - See DescriptionOfTheHashedArea
+//   * AreasToHash   - Array of See DescriptionOfTheHashedArea
 //   * SignatureValue     - String - the Base64 string.
 //   * Certificate          - See CertificateDetails
 //   * CheckSignature     - Boolean - when False, signing.
@@ -6017,7 +6389,7 @@ Function CryptoErrorsClassifier() Export
 	
 	If TypeOf(ClassifierData) = Type("Structure") Then
 		Try
-			If CommonClientServer.CompareVersions(ClassifierData.Version, "3.0.0.2") < 0 Then
+			If CommonClientServer.CompareVersions(ClassifierData.Version, "3.0.1.0") < 0 Then
 				Version = Undefined;
 			Else
 				Version = ClassifierData.Version;
@@ -6070,8 +6442,10 @@ Function NewClassifierOfCryptoErrors()
 	Result.Columns.Add("Ref",
 		New TypeDescription("String", New StringQualifiers(500)));
 		
-	Result.Columns.Add("OnlyServer", New TypeDescription("Boolean"));
-	Result.Columns.Add("OnlyClient", New TypeDescription("Boolean"));
+	Result.Columns.Add("OnlyServer",    New TypeDescription("Boolean"));
+	Result.Columns.Add("OnlyClient",    New TypeDescription("Boolean"));
+	Result.Columns.Add("IsCheckRequired", New TypeDescription("Boolean"));
+	Result.Columns.Add("CertificateRevoked", New TypeDescription("Boolean"));
 	
 	Return Result;
 	
@@ -6114,12 +6488,17 @@ Function RepresentationOfErrorClassifier(ClassifierData) Export
 	For Each KnownError In ErrorsClassifier.Classifier Do
 		
 		NewError = Classifier.Add();
-		NewError.Ref = KnownError.Anchor;
-		NewError.Cause = KnownError.Reason;
-		NewError.Decision = KnownError.Solution;
-		NewError.OnlyServer = CommonClientServer.StructureProperty(KnownError, "Server", False);
-		NewError.OnlyClient = CommonClientServer.StructureProperty(KnownError, "Client", False);
-		NewError.ErrorText = KnownError.ErrorText;
+		NewError.Ref           = KnownError.Anchor;
+		NewError.Cause          = KnownError.Reason;
+		NewError.Decision          = KnownError.Solution;
+		NewError.OnlyServer     = CommonClientServer.StructureProperty(KnownError, "Server", False);
+		NewError.OnlyClient     = CommonClientServer.StructureProperty(KnownError, "Client", False);
+		Category = CommonClientServer.StructureProperty(KnownError, "Category", Undefined);
+		If ValueIsFilled(Category) Then
+			NewError.IsCheckRequired   = IsErrorRecheckRequired(Category);
+			NewError.CertificateRevoked = ErrorCertificateRevoked(Category);
+		EndIf;
+		NewError.ErrorText      = KnownError.ErrorText;
 		NewError.Remedy = KnownError.RepairMethods;
 		
 	EndDo;
@@ -6128,15 +6507,23 @@ Function RepresentationOfErrorClassifier(ClassifierData) Export
 	
 EndFunction
 
-// For internal use only.
-Function ActionsToFixError(ErrorText, ErrorAtServer = False) Export
+Function IsErrorRecheckRequired(Category)
 	
-	ClassifierError = ClassifierError(ErrorText, ErrorAtServer);
-	If Not ValueIsFilled(ClassifierError) Then
-		Return Undefined;
+	If Category = "untrustedroot" Or Category = "no_revocation_check" Or Category = "chaining" Then
+		Return True;
 	EndIf;
 	
-	Return ClassifierError.RemedyActions;
+	Return False;
+	
+EndFunction
+
+Function ErrorCertificateRevoked(Category)
+	
+	If Category = "cert_revoked" Then
+		Return True;
+	EndIf;
+	
+	Return False;
 	
 EndFunction
 
@@ -6742,7 +7129,7 @@ Function CertificatesChain(Val Certificate, FormIdentifier = Undefined, Componen
 		
 		CertificatesResult = ComponentObject.GetCertificateChain(Certificate);
 		
-		Error = ComponentObject.ErrorsList;
+		Error = ComponentObject.ErrorList;
 		If ValueIsFilled(Error) Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot receive the certificate chain: %1 (%2).';"), Error, ComputerName());

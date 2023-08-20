@@ -574,23 +574,22 @@ Procedure FillRoles()
 	
 	Filter = New Structure("Role", "FullAccess");
 	If ReadRoles.FindRows(Filter).Count() > 0 Then
-		
-		Filter = New Structure("Role", "SystemAdministrator");
-		HasRoleSystemAdministrator = ReadRoles.FindRows(Filter).Count() > 0;
-		
-		Filter = New Structure("Role", "InteractiveOpenExtReportsAndDataProcessors");
-		HasRoleInteractiveOpenOfExternalReportsAndDataProcessors = ReadRoles.FindRows(Filter).Count() > 0;
+		OriginalReadRoles = ReadRoles.Unload(, "Role");
 		
 		ReadRoles.Clear();
 		ReadRoles.Add().Role = "FullAccess";
 		
-		If HasRoleSystemAdministrator Then
-			ReadRoles.Add().Role = "SystemAdministrator";
-		EndIf;
+		StandardExtensionRoles = AccessManagementInternalCached.DescriptionStandardRolesSessionExtensions().SessionRoles;
+		PossibleAdministratorRoles = New Map(StandardExtensionRoles.AdditionalAdministratorRoles);
+		PossibleAdministratorRoles.Insert("SystemAdministrator", True);
+		PossibleAdministratorRoles.Insert("InteractiveOpenExtReportsAndDataProcessors", True);
 		
-		If HasRoleInteractiveOpenOfExternalReportsAndDataProcessors Then
-			ReadRoles.Add().Role = "InteractiveOpenExtReportsAndDataProcessors";
-		EndIf;
+		For Each RoleDetails In PossibleAdministratorRoles Do
+			Filter = New Structure("Role", RoleDetails.Key);
+			If OriginalReadRoles.FindRows(Filter).Count() > 0 Then
+				ReadRoles.Add().Role = RoleDetails.Key;
+			EndIf;
+		EndDo;
 	EndIf;
 	
 	ProcessRolesInterface("RefreshRolesTree");

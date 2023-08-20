@@ -56,7 +56,7 @@ EndProcedure
 //                                                             displayed in the email body.
 //
 //   * ReplyToAddress - Map - see the "To" field description.
-//   * Password      - String - an account password.
+//   * Password      - String -
 //   * BasisIDs - String - IDs of the message basis objects.
 //   * ProcessTexts  - Boolean - shows whether message text processing is required on sending.
 //   * RequestDeliveryReceipt  - Boolean - shows whether a delivery notification is required.

@@ -93,7 +93,7 @@ Function ExecuteFunction(Val ExecutionParameters, FunctionName, Val Parameter1 =
 	
 	CallParameters = ParametersList(Parameter1, Parameter2, Parameter3, Parameter4,
 		Parameter5, Parameter6, Parameter7);
-		
+	
 	ExecutionParameters = PrepareExecutionParameters(ExecutionParameters, True);
 	
 	Return ExecuteInBackground(FunctionName, CallParameters, ExecutionParameters);
@@ -229,15 +229,7 @@ EndFunction
 //
 Function ExecuteFunctionInMultipleThreads(FunctionName, Val ExecutionParameters, Val FunctionSettings = Undefined) Export
 	
-	If FunctionSettings <> Undefined
-	   And TypeOf(FunctionSettings) <> Type("Map")
-	   And TypeOf(FunctionSettings) <> Type("Structure") Then
-		Raise NStr("en = 'Invalid type of parameter set is passed';");
-	EndIf;
-	
-	If Common.DataSeparationEnabled() And Not Common.SeparatedDataUsageAvailable() Then
-		Raise NStr("en = 'Multi-threaded long-running operations in a shared session are not supported.';");
-	EndIf;
+	CheckIfCanRunMultiThreadLongRunningOperation(ExecutionParameters, FunctionSettings);
 
 	If ExecutionParameters.WaitCompletion = CommonBackgroundExecutionParameters().WaitCompletion Then
 		ExecutionParameters.WaitCompletion = 0;
@@ -282,6 +274,7 @@ Function ExecuteFunctionInMultipleThreads(FunctionName, Val ExecutionParameters,
 	
 EndFunction
 
+
 // 
 // 
 // 
@@ -318,15 +311,7 @@ EndFunction
 //
 Function ExecuteProcedureinMultipleThreads(ProcedureName, Val ExecutionParameters, Val ProcedureSettings = Undefined) Export
 	
-	If ProcedureSettings <> Undefined
-	   And TypeOf(ProcedureSettings) <> Type("Map")
-	   And TypeOf(ProcedureSettings) <> Type("Structure") Then
-		Raise NStr("en = 'Invalid type of parameter set is passed';");
-	EndIf;
-	
-	If Common.DataSeparationEnabled() And Not Common.SeparatedDataUsageAvailable() Then
-		Raise NStr("en = 'Multi-threaded long-running operations in a shared session are not supported.';");
-	EndIf;
+	CheckIfCanRunMultiThreadLongRunningOperation(ExecutionParameters, ProcedureSettings);
 	
 	NewExecutionParameters = FunctionExecutionParameters(Undefined);
 	FillPropertyValues(NewExecutionParameters, ExecutionParameters);
@@ -414,6 +399,12 @@ EndFunction
 //                                  are attached to run the background job. Has priority over the RunNotInBackground parameter. 
 //     * WithDatabaseExtensions  - Boolean - If True, the background job will run with the latest version of
 //                                  the configuration extensions. Has priority over the RunNotInBackground parameter.
+//     * ExternalReportDataProcessor    - Undefined -
+//                                - BinaryData - 
+//                                    
+//                                    
+//                                    
+//                                    
 //     * AbortExecutionIfError - Boolean - If True, when an error occurs in a child job, the multithread background job is aborted.
 //                                  The running child jobs will be aborted.
 //                                  Applicable to function RunFunctionInMultithreading.
@@ -459,6 +450,12 @@ EndFunction
 //                                  are attached to run the background job. Has priority over the RunNotInBackground parameter. 
 //     * WithDatabaseExtensions  - Boolean - If True, the background job will run with the latest version of
 //                                  the configuration extensions. Has priority over the RunNotInBackground parameter. 
+//     * ExternalReportDataProcessor    - Undefined -
+//                                - BinaryData - 
+//                                    
+//                                    
+//                                    
+//                                    
 //     * AbortExecutionIfError - Boolean - If True, when an error occurs in a child job, the multithread background job is aborted.
 //                                  The running child jobs will be aborted.
 //                                  Applicable to function RunProcedureInMultithreading.
@@ -572,21 +569,22 @@ Function ExecuteInBackground(Val ProcedureName, Val ProcedureParameters, Val Exe
 			|cannot have value %3 in %4 at the same time.';"),
 			"NoExtensions", "WithDatabaseExtensions", "True", "TimeConsumingOperations.ExecuteInBackground");
 	EndIf;
+	
 #If ExternalConnection Then
 	FileInfobase = Common.FileInfobase();
 	If ExecutionParameters.NoExtensions And FileInfobase Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr(
-			"en = 'Cannot start a background job with ""NoExtensions"" parameter
-			|%1in a file infobase in %2.';"),
+			"en = 'Cannot start the background job with the ""%1"" parameter
+			|in the external connection with the file infobase in %2.';"),
 			"NoExtensions", "TimeConsumingOperations.ExecuteInBackground");
 	ElsIf ExecutionParameters.WithDatabaseExtensions And FileInfobase Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr(
-			"en = 'Cannot start a background job with ""NoExtensions"" parameter
-			|%1in a file infobase in %2.';"),
+			"en = 'Cannot start the background job with the ""%1"" parameter
+			|in the external connection with the file infobase in %2.';"),
 			"WithDatabaseExtensions", "TimeConsumingOperations.ExecuteInBackground");
 	EndIf;
 #EndIf
-	
+		
 	Result = New Structure;
 	Result.Insert("Status", "Running");
 	Result.Insert("JobID", Undefined);
@@ -665,7 +663,7 @@ Function ExecuteInBackground(Val ProcedureName, Val ProcedureParameters, Val Exe
 			If ExecutionParameters.Property("IsFunction") And ExecutionParameters.IsFunction Then
 				CallFunction(ProcedureName, ExportProcedureParameters, ExecutionParameters);
 			Else
-				CallProcedure(ProcedureName, ExportProcedureParameters);
+				CallProcedure(ProcedureName, ExportProcedureParameters, ExecutionParameters);
 			EndIf;
 			Result.Status = "Completed2";
 		Except
@@ -789,6 +787,12 @@ EndFunction
 //                                  are attached to run the background job. Has priority over the RunNotInBackground parameter. 
 //     * WithDatabaseExtensions  - Boolean - If True, the background job will run with the latest version of
 //                                  the configuration extensions. Has priority over the RunNotInBackground parameter. 
+//     * ExternalReportDataProcessor    - Undefined -
+//                                - BinaryData - 
+//                                    
+//                                    
+//                                    
+//                                    
 //
 Function BackgroundExecutionParameters(Val FormIdentifier = Undefined) Export
 	
@@ -1303,6 +1307,45 @@ Procedure OnAddServerNotifications(Notifications) Export
 	
 EndProcedure
 
+// 
+// 
+//
+// 
+// 
+//
+// 
+// 
+// 
+//
+// 
+// 
+// 
+//
+// 
+// 
+// 
+//
+// Returns:
+//  Number - 
+//
+Function AllowedNumberofThreads() Export
+	
+	If Common.DataSeparationEnabled()
+	 Or Common.FileInfobase() Then
+		Return 1;
+	EndIf;
+	
+	AllowedNumberofThreads = Constants.LongRunningOperationsThreadCount.Get();
+	
+	If AllowedNumberofThreads > 0 Then
+		Return AllowedNumberofThreads;
+	EndIf;
+	
+	// 
+	Return 4;
+	
+EndFunction
+
 #EndRegion
 
 #Region Private
@@ -1598,7 +1641,7 @@ Procedure ExecuteWithClientContext(AllParameters) Export
 		If ExecutionParameters.Property("IsFunction") And ExecutionParameters.IsFunction Then
 			CallFunction(AllParameters.ProcedureName, AllParameters.ProcedureParameters, ExecutionParameters);
 		Else
-			CallProcedure(AllParameters.ProcedureName, AllParameters.ProcedureParameters);
+			CallProcedure(AllParameters.ProcedureName, AllParameters.ProcedureParameters, ExecutionParameters);
 		EndIf;
 		Result.Status = "Completed2";
 	Except
@@ -1616,7 +1659,7 @@ Procedure ExecuteWithClientContext(AllParameters) Export
 	
 EndProcedure
 
-Procedure CallProcedure(ProcedureName, CallParameters)
+Procedure CallProcedure(ProcedureName, CallParameters, ExecutionParameters)
 	
 	NameParts = StrSplit(ProcedureName, ".");
 	IsDataProcessorModuleProcedure = (NameParts.Count() = 4) And Upper(NameParts[2]) = "OBJECTMODULE";
@@ -1637,9 +1680,7 @@ Procedure CallProcedure(ProcedureName, CallParameters)
 	IsExternalDataProcessor = Upper(NameParts[0]) = "EXTERNALDATAPROCESSOR";
 	IsExternalReport = Upper(NameParts[0]) = "EXTERNALREPORT";
 	If IsExternalDataProcessor Or IsExternalReport Then
-		VerifyAccessRights("InteractiveOpenExtDataProcessors", Metadata);
-		ObjectManager = ?(IsExternalReport, ExternalReports, ExternalDataProcessors);
-		DataProcessorReportObject = ObjectManager.Create(NameParts[1], SafeMode());
+		DataProcessorReportObject = ExternalDataProcessorReportObject(IsExternalReport, ExecutionParameters, NameParts[1]);
 		Common.ExecuteObjectMethod(DataProcessorReportObject, NameParts[3], CallParameters);
 		Return;
 	EndIf;
@@ -1648,6 +1689,54 @@ Procedure CallProcedure(ProcedureName, CallParameters)
 		NStr("en = 'Invalid format of the %2 parameter (passed value: %1).';"), ProcedureName, "ProcedureName");
 	
 EndProcedure
+
+Function ExternalDataProcessorReportObject(IsExternalReport, ExecutionParameters, NameOfAttachedReportProcessor)
+	
+	ObjectManager = ?(IsExternalReport, ExternalReports, ExternalDataProcessors);
+	
+	If TypeOf(ExecutionParameters.ExternalReportDataProcessor) <> Type("BinaryData") Then
+		If ExecutionParameters.RunNotInBackground1 Then
+			Return ObjectManager.Create(NameOfAttachedReportProcessor, SafeMode());
+		Else
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'To call an external report or data processor procedure,
+				           |specify the %1parameter.';"),
+				"ExternalReportDataProcessor");
+			Raise ErrorText;
+		EndIf;
+	EndIf;
+	
+	If IsExternalReport Then
+		VerifyAccessRights("InteractiveOpenExtReports", Metadata);
+	Else
+		VerifyAccessRights("InteractiveOpenExtDataProcessors", Metadata);
+	EndIf;
+	
+	SafeMode = SafeMode();
+	If SafeMode <> False Then
+		SetSafeModeDisabled(True);
+	EndIf;
+	
+	ReportProcessorTempFileName = GetTempFileName();
+	ExecutionParameters.ExternalReportDataProcessor.Write(ReportProcessorTempFileName);
+	
+	Try
+		DataProcessorReportObject = ObjectManager.Create(ReportProcessorTempFileName, SafeMode);
+	Except
+		DeleteFiles(ReportProcessorTempFileName);
+		If SafeMode <> False Then
+			SetSafeModeDisabled(False);
+		EndIf;
+		Raise;
+	EndTry;
+	DeleteFiles(ReportProcessorTempFileName);
+	If SafeMode <> False Then
+		SetSafeModeDisabled(False);
+	EndIf;
+	
+	Return DataProcessorReportObject;
+	
+EndFunction
 
 Procedure CallFunction(FunctionName, ProcedureParameters, ExecutionParameters)
 	
@@ -1672,9 +1761,7 @@ Procedure CallFunction(FunctionName, ProcedureParameters, ExecutionParameters)
 	IsExternalDataProcessor = Upper(NameParts[0]) = "EXTERNALDATAPROCESSOR";
 	IsExternalReport = Upper(NameParts[0]) = "EXTERNALREPORT";
 	If IsExternalDataProcessor Or IsExternalReport Then
-		VerifyAccessRights("InteractiveOpenExtDataProcessors", Metadata);
-		ObjectManager = ?(IsExternalReport, ExternalReports, ExternalDataProcessors);
-		DataProcessorReportObject = ObjectManager.Create(NameParts[1], SafeMode());
+		DataProcessorReportObject = ExternalDataProcessorReportObject(IsExternalReport, ExecutionParameters, NameParts[1]);
 		Result = Common.CallObjectFunction(DataProcessorReportObject, NameParts[3], ProcedureParameters);
 		SetFunctionCallResult(Result, ExecutionParameters);
 		Return;
@@ -1915,7 +2002,7 @@ Procedure SendClientNotification(NotificationKind, ValueToPass,
 		AdditionalSendingParameters.Replace = True;
 		AdditionalSendingParameters.DeliveryDeferral = 3;
 		AdditionalSendingParameters.LogEventOnDeliveryDeferral =
-			NStr("en = 'Длительные операции.Отложенная доставка прогресса';",
+			NStr("en = 'Long-running operations.Deferred progress delivery';",
 				Common.DefaultLanguageCode());
 		AdditionalSendingParameters.LogCommentOnDeliveryDeferral =
 			NStr("en = 'Send progress more often than every 3 seconds';");
@@ -1961,7 +2048,7 @@ Procedure WritePendingUserMessages(JobID)
 	BackgroundJob = BackgroundJobs.FindByUUID(LastID_);
 	
 	If BackgroundJob <> Undefined
-	   And Not ExclusiveModeInBackgroundTask(BackgroundJob) Then
+	   And Not ExclusiveModeInBackgroundJob(BackgroundJob) Then
 		
 		Messages = BackgroundJob.GetUserMessages(True);
 		For Each Message In Messages Do
@@ -1979,7 +2066,7 @@ EndProcedure
 //  Boolean - 
 //    
 //
-Function ExclusiveModeInBackgroundTask(BackgroundJob = Undefined)
+Function ExclusiveModeInBackgroundJob(BackgroundJob = Undefined)
 	
 	If Not ExclusiveMode() Then
 		Return False;
@@ -2016,10 +2103,8 @@ Function CanRunInBackground(ProcedureName)
 		Return False;
 	EndIf;
 	
-	IsExternalDataProcessor = (Upper(NameParts[0]) = "EXTERNALDATAPROCESSOR");
-	IsExternalReport = (Upper(NameParts[0]) = "EXTERNALREPORT");
-	Return Not (IsExternalDataProcessor Or IsExternalReport);
-
+	Return True;
+	
 EndFunction
 
 Function RunBackgroundJob(ExecutionParameters, MethodName, Parameters, Var_Key, Description)
@@ -2091,6 +2176,7 @@ Function PrepareExecutionParameters(PassedParameter, ForFunction)
 	EndIf;
 	
 	Result.Insert("IsFunction", ForFunction);
+	
 	Return Result;
 	
 EndFunction
@@ -2107,6 +2193,7 @@ Function CommonBackgroundExecutionParameters()
 	Result.Insert("WithDatabaseExtensions", False);
 	Result.Insert("AbortExecutionIfError", False);
 	Result.Insert("WaitForCompletion", -1); // 
+	Result.Insert("ExternalReportDataProcessor", Undefined);
 	
 	Return Result;
 	
@@ -2244,6 +2331,9 @@ Function ExecuteMultithreadedProcess(OperationParametersList) Export
 	Results = New Map();
 	
 	For Each Stream In ThreadsProcess Do
+		If Stream.Status = TimeConsumingOperationStatus().CreatedOn Then
+			Continue;
+		EndIf;
 		
 		Var_Key = Stream.ThreadKey.Get();
 		Results.Insert(Var_Key, New Structure(New FixedStructure(ResultLongOperation)));
@@ -2290,6 +2380,9 @@ Function ExecuteThread(Stream, OperationParametersList, ExecuteInBackground)
 	EndIf;
 	
 	ExecutionParameters = PrepareExecutionParameters(ExecutionParameters, OperationParametersList.ForFunction);
+	ExecutionParameters.ExternalReportDataProcessor = OperationParametersList.ExecutionParameters.ExternalReportDataProcessor;
+	
+	ExecutionParameters.ResultAddress = Stream.ResultAddress;
 	
 	SetFullNameOfAppliedProcedure(OperationParametersList.MethodName);
 	RunResult = ExecuteInBackground(OperationParametersList.MethodName, MethodParameters, ExecutionParameters);
@@ -2633,6 +2726,7 @@ Function HasCompletedThreads(Threads, EndEarlyIfError, ProcessID)
 		EndIf;
 		
 		UpdateInfoAboutThread(Stream);
+		ThisIsFlowOfCurrentProcess = (Stream.ProcessID = ProcessID);
 		Threads.Delete(Stream);
 		HasCompletedThreads = True;
 		
@@ -2645,7 +2739,7 @@ Function HasCompletedThreads(Threads, EndEarlyIfError, ProcessID)
 		EndIf;
 		
 		If EndEarlyIfError = True
-		   And Stream.ProcessID = ProcessID Then
+		   And ThisIsFlowOfCurrentProcess Then
 			Return Undefined;
 		EndIf;
 		
@@ -2735,45 +2829,6 @@ Procedure DeleteNonExistingThreads()
 	EndDo;
 	
 EndProcedure
-
-// 
-// 
-//
-// 
-// 
-//
-// 
-// 
-// 
-//
-// 
-// 
-// 
-//
-// 
-// 
-// 
-//
-// Returns:
-//  Number - 
-//
-Function AllowedNumberofThreads()
-	
-	If Common.DataSeparationEnabled()
-	 Or Common.FileInfobase() Then
-		Return 1;
-	EndIf;
-	
-	AllowedNumberofThreads = Constants.LongRunningOperationsThreadCount.Get();
-	
-	If AllowedNumberofThreads > 0 Then
-		Return AllowedNumberofThreads;
-	EndIf;
-	
-	// 
-	Return 4;
-	
-EndFunction
 
 // 
 //
@@ -2970,6 +3025,7 @@ Procedure PrepareMultiThreadOperationForStartup(Val MethodName, AddressResults,
 	If Not Users.IsFullUser() Then
 		UserName = InfoBaseUsers.CurrentUser().Name;
 	EndIf;
+	CurrentSessionDate = CurrentSessionDate();
 	
 	SetPrivilegedMode(True);
 	
@@ -2988,16 +3044,22 @@ Procedure PrepareMultiThreadOperationForStartup(Val MethodName, AddressResults,
 		Record.Status                = TimeConsumingOperationStatus().CreatedOn;
 		Record.AttemptNumber          = 0;
 		Record.Description          = String(KeyValue.Key);
-		Record.CreationDate          = CurrentSessionDate();
+		Record.CreationDate          = CurrentSessionDate;
 		Record.UserName       = UserName;
 		Record.StreamParameters       = New ValueStorage(KeyValue.Value);
 		
 	EndDo;
 	
+	ThreadID = CommonClientServer.BlankUUID();
 	If OperationUpdatedParameters = Undefined Then
+		Record = RecordSet.Add();
+		Record.ProcessID = ProcessID;
+		Record.ThreadID   = ThreadID;
+		Record.AttemptNumber          = 0;
+		Record.CreationDate          = CurrentSessionDate;
+		Record.UserName       = UserName;
 		RecordSet.Write();
 	Else
-		ThreadID = CommonClientServer.BlankUUID();
 		Block = New DataLock;
 		LockItem = Block.Add("InformationRegister.TimeConsumingOperations");
 		LockItem.SetValue("ProcessID", ProcessID);
@@ -3030,6 +3092,20 @@ Procedure PrepareMultiThreadOperationForStartup(Val MethodName, AddressResults,
 	
 EndProcedure
 
+Procedure CheckIfCanRunMultiThreadLongRunningOperation(ExecutionParameters, ParametersSet)
+	
+	If ParametersSet <> Undefined
+	   And TypeOf(ParametersSet) <> Type("Map")
+	   And TypeOf(ParametersSet) <> Type("Structure") Then
+		Raise NStr("en = 'Invalid type of parameter set is passed';");
+	EndIf;
+	
+	If Common.DataSeparationEnabled() And Not Common.SeparatedDataUsageAvailable() Then
+		Raise NStr("en = 'Multi-threaded long-running operations in a shared session are not supported.';");
+	EndIf;
+	
+EndProcedure
+
 // Returns:
 //  Structure:
 //   * CreatedOn     - String
@@ -3058,7 +3134,8 @@ EndFunction
 Function IsThreadOfControlRestarted(JobID, Job)
 	
 	If Job <> Undefined
-	   And Job.State <> BackgroundJobState.Failed Then
+	   And Job.State <> BackgroundJobState.Failed
+	 Or Not Common.SeparatedDataUsageAvailable() Then
 		Return False;
 	EndIf;
 	
@@ -3101,6 +3178,8 @@ Function IsThreadOfControlRestarted(JobID, Job)
 		
 		ExecutionParameters = OperationParametersList.ExecutionParameters;
 		ExecutionParameters.WaitCompletion = 0;
+		// 
+		// 
 		ExecutionParameters.RunInBackground = True;
 		ExecutionParameters.Insert("IsThreadOfControlRestart");
 		
@@ -3182,11 +3261,11 @@ Procedure ScheduleStartOfLongRunningOperationThreads(RunResult, OperationParamet
 			Record = RecordSet[0];
 		Else
 			Record                       = RecordSet.Add();
+			Record.ProcessID = ProcessID;
 			Record.ThreadID   = ThreadID;
 			Record.AttemptNumber          = 0;
 			Record.CreationDate          = CurrentSessionDate();
 			Record.UserName       = UserName();
-			Record.ProcessID = ProcessID;
 		EndIf;
 		Record.ResultAddress       = RunResult.ResultAddress;
 		Record.JobID  = RunResult.JobID;

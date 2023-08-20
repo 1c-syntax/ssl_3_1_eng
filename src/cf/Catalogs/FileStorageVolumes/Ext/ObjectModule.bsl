@@ -61,7 +61,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 		   And (    Left(FullPathWindows, 2) <> "\\"
 		      Or StrFind(FullPathWindows, ":") <> 0 ) Then
 			
-			ErrorText = NStr("en = 'The volume path must have UNC format (\\server_name\resource).';");
+			ErrorText = NStr("en = 'The volume path must be in the UNC format (\\servername\resource).';");
 			Common.MessageToUser(ErrorText, , "FullPathWindows", "Object", Cancel);
 			Return;
 		EndIf;

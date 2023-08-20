@@ -24,7 +24,7 @@ Procedure BeforeWrite(Cancel)
 
 	If Not Interactions.UserIsResponsibleForMaintainingFolders(Owner) Then
 		Common.MessageToUser(
-			NStr("en = 'This operation is available only to the user responsible for managing the account''s folders.';"),
+			NStr("en = 'The operation is available only to the user responsible for managing the account''s folders.';"),
 			Ref,,,Cancel);
 	ElsIf PredefinedFolder And (Not Parent.IsEmpty()) Then
 		Common.MessageToUser(
@@ -32,7 +32,7 @@ Procedure BeforeWrite(Cancel)
 			Ref,,,Cancel);
 	EndIf;
 	
-	AdditionalProperties.Insert("Parent",Common.ObjectAttributeValue(Ref,"Parent"));
+	AdditionalProperties.Insert("Parent", Common.ObjectAttributeValue(Ref, "Parent"));
 	
 EndProcedure
 

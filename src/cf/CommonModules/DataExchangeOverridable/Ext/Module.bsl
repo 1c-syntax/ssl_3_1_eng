@@ -249,8 +249,8 @@ Procedure OnGetAvailableFormatExtensions(FormatExtensions) Export
 	
 EndProcedure
 
-// Called from event OnWrite of constant IsStandaloneWorkplace.
-// Allows overriding the standard data processor upon the value change.
+// 
+// 
 //
 // Parameters:
 //   PreviousValue - Boolean - Value of constant IsStandaloneWorkplace before change.
@@ -264,4 +264,21 @@ Procedure WhenChangingOfflineModeOption(PreviousValue, NewCurrent, StandardProce
 	
 EndProcedure
 
+// 
+// 
+// 
+// Parameters:
+//   ExchangePlanName - String - 
+//                             
+//   SettingsMode - String -
+//                               
+//   ExchangePlanIsRecognized - Boolean -
+//
+Procedure WhenCheckingCorrectnessOfNameOfEnterpriseDataExchangePlan(ExchangePlanName, SettingsMode, ExchangePlanIsRecognized) Export
+	
+	
+	
+EndProcedure
+
 #EndRegion
+

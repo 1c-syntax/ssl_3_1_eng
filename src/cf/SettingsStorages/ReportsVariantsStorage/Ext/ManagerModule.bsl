@@ -14,7 +14,7 @@
 // Reading handler of report option settings.
 //
 // Parameters:
-//   ReportKey        - String - the report full name with a point.
+//   ReportKey        - String - Full report name with a dot.
 //   VariantKey      - String - Report option key.
 //   Settings         - Arbitrary     - report option settings.
 //   SettingsDescription  - SettingsDescription - additional details of settings.
@@ -66,7 +66,7 @@ EndProcedure
 // Handler of writing report option settings.
 //
 // Parameters:
-//   ReportKey        - String - the report full name with a point.
+//   ReportKey        - String - Full report name with a dot.
 //   VariantKey      - String - Report option key.
 //   Settings         - Arbitrary         - report option settings.
 //   SettingsDescription  - SettingsDescription     - additional details of settings.
@@ -145,7 +145,7 @@ EndProcedure
 // Receiving handler of report option settings details.
 //
 // Parameters:
-//   ReportKey       - String - the report full name with a point.
+//   ReportKey       - String - Full report name with a dot.
 //   VariantKey     - String - Report option key.
 //   SettingsDescription - SettingsDescription     - additional details of settings.
 //   User     - String
@@ -205,7 +205,7 @@ EndProcedure
 // Installation handler of report option settings details.
 //
 // Parameters:
-//   ReportKey       - String - the report full name with a point.
+//   ReportKey       - String - Full report name with a dot.
 //   VariantKey     - String - Report option key.
 //   SettingsDescription - SettingsDescription - additional details of settings.
 //   User     - String           - Name of an infobase user.

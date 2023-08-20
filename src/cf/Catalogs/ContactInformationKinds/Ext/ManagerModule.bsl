@@ -91,7 +91,7 @@ Procedure DuplicatesSearchParameters(SearchParameters, AdditionalParameters = Un
 	
 	Restriction = New Structure;
 	Restriction.Insert("Presentation",      NStr("en = 'Same group and same type (for example, ""address"" or ""phone"" type).';"));
-	Restriction.Insert("AdditionalFields", "Parent, Type");
+	Restriction.Insert("AdditionalFields", "Parent, Type, Used");
 	SearchParameters.ComparisonRestrictions.Add(Restriction);
 	
 	// 
@@ -100,14 +100,18 @@ Procedure DuplicatesSearchParameters(SearchParameters, AdditionalParameters = Un
 EndProcedure
 
 // Parameters:
-//   CandidatesTable - See DuplicateObjectsDetectionOverridable.OnSearchForDuplicates.CandidatesTable
+//   ItemsDuplicates - See DuplicateObjectsDetectionOverridable.OnSearchForDuplicates.ItemsDuplicates
 //   AdditionalParameters - See DuplicateObjectsDetectionOverridable.OnSearchForDuplicates.AdditionalParameters
 //
-Procedure OnSearchForDuplicates(CandidatesTable, AdditionalParameters = Undefined) Export
+Procedure OnSearchForDuplicates(ItemsDuplicates, AdditionalParameters = Undefined) Export
 	
-	For Each Variant In CandidatesTable Do
-		If Variant.Fields1.Parent = Variant.Fields2.Parent And Variant.Fields1.Type = Variant.Fields2.Type Then
-			Variant.IsDuplicates = True;
+	For Each Duplicate1 In ItemsDuplicates Do
+		If Duplicate1.Fields1.Used
+		   And Duplicate1.Fields2.Used
+		   And Duplicate1.Fields1.Parent = Duplicate1.Fields2.Parent 
+		   And Duplicate1.Fields1.Type = Duplicate1.Fields2.Type
+		   And StrCompare(Duplicate1.Fields1.Description, Duplicate1.Fields2.Description) = 0 Then
+			Duplicate1.IsDuplicates = True;
 		EndIf;
 	EndDo;
 	
@@ -142,13 +146,13 @@ EndProcedure
 Procedure PresentationGetProcessing(Data, Presentation, StandardProcessing)
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportClientServer = Common.CommonModule("NationalLanguageSupportClientServer");
-		ModuleNativeLanguagesSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing);
+		ModuleNationalLanguageSupportClientServer = Common.CommonModule("NationalLanguageSupportClientServer");
+		ModuleNationalLanguageSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing);
 	EndIf;
 #Else
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportClientServer = CommonClient.CommonModule("NationalLanguageSupportClientServer");
-		ModuleNativeLanguagesSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing);
+		ModuleNationalLanguageSupportClientServer = CommonClient.CommonModule("NationalLanguageSupportClientServer");
+		ModuleNationalLanguageSupportClientServer.PresentationGetProcessing(Data, Presentation, StandardProcessing);
 	EndIf;
 #EndIf
 EndProcedure
@@ -189,9 +193,9 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	Item.IsFolder = True;
 	Item.Used = True;
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.FillMultilanguageAttribute(Item, "Description", 
-			"en = '""Users"" catalog contact information';", LanguagesCodes); // @НСтр-1
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.FillMultilanguageAttribute(Item, "Description", 
+			"en = '""Users"" catalog contact information';", LanguagesCodes); // @NStr-1
 	Else
 		Item.Description = NStr("en = '""Users"" catalog contact information';", 
 			Common.DefaultLanguageCode());
@@ -209,9 +213,9 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	Item.AddlOrderingAttribute = 2;
 	Item.IsAlwaysDisplayed          = True;
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.FillMultilanguageAttribute(Item, "Description", 
-		"en = 'Email';", LanguagesCodes); // @НСтр-1
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.FillMultilanguageAttribute(Item, "Description", 
+		"en = 'Email';", LanguagesCodes); // @NStr-1
 	Else
 		Item.Description = NStr("en = 'Email';", Common.DefaultLanguageCode());
 	EndIf;
@@ -230,9 +234,9 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	Item.AddlOrderingAttribute = 1;
 	Item.IsAlwaysDisplayed          = True;
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNativeLanguagesSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		ModuleNativeLanguagesSupportServer.FillMultilanguageAttribute(Item, "Description", 
-		"en = 'Phone';", LanguagesCodes); // @НСтр-1
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		ModuleNationalLanguageSupportServer.FillMultilanguageAttribute(Item, "Description", 
+		"en = 'Phone';", LanguagesCodes); // @NStr-1
 	Else
 		Item.Description = NStr("en = 'Phone';", Common.DefaultLanguageCode());
 	EndIf;
@@ -575,13 +579,15 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	ObjectsWithIssuesCount = 0;
 	ObjectsProcessed = 0;
 	
-	SetToDisplayAlways = CommonClientServer.CompareVersions("3.1.8.270", Parameters.SubsystemVersionAtStartUpdates) > 0;
+	SetAlwaysShow = CommonClientServer.CompareVersions("3.1.8.270", Parameters.SubsystemVersionAtStartUpdates) > 0;
 	
 	While ContactInformationKindRef.Next() Do
 		
 		Block = New DataLock;
 		LockItem = Block.Add("Catalog.ContactInformationKinds");
 		LockItem.SetValue("Ref", ContactInformationKindRef.Ref);
+		
+		RepresentationOfTheReference = String(ContactInformationKindRef.Ref);
 		
 		BeginTransaction();
 		Try
@@ -621,7 +627,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 					ContactInformationKind.Ref, ContactInformationKind.Parent);
 			EndIf;
 				
-			If Not ContactInformationKind.IsFolder And SetToDisplayAlways Then
+			If Not ContactInformationKind.IsFolder And SetAlwaysShow Then
 				ContactInformationKind.IsAlwaysDisplayed = True;
 			EndIf;
 							
@@ -638,7 +644,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process contact information kind: %1. Reason:
 					|%2';"),
-					ContactInformationKindRef.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+					RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
 				Metadata.Catalogs.ContactInformationKinds, ContactInformationKindRef.Ref, MessageText);
 		EndTry;

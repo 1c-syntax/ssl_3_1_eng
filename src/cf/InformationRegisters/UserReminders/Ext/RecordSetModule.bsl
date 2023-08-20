@@ -32,6 +32,9 @@ Procedure BeforeWrite(Cancel, Replacing)
 	
 	For Each Record In ThisObject Do
 		Record.SourcePresentation = Common.SubjectString(Record.Source);
+		If Record.ReminderTimeSettingMethod <> Enums.ReminderTimeSettingMethods.RelativeToSubjectTime Then
+			Record.SourceAttributeName = "";
+		EndIf;
 	EndDo;
 	
 EndProcedure

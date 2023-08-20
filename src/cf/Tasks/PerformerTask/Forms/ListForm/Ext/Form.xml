@@ -12,7 +12,6 @@
 	</Events>
 	<ChildItems>
 		<UsualGroup name="TitleGroup" id="54">
-			<Visible>false</Visible>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -22,7 +21,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupHeaderExtendedTooltip_SSLs" id="86"/>
+			<ExtendedTooltip name="GroupHeaderExtendedTooltip" id="86"/>
 			<ChildItems>
 				<LabelField name="BusinessProcessLine" id="55">
 					<DataPath>BusinessProcessLine</DataPath>
@@ -983,6 +982,7 @@ WHERE
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
+			<KeyParameter>true</KeyParameter>
 		</Parameter>
 		<Parameter name="ShowTasks">
 			<Type>
@@ -993,6 +993,12 @@ WHERE
 					<v8:AllowedSign>Any</v8:AllowedSign>
 				</v8:NumberQualifiers>
 			</Type>
+		</Parameter>
+		<Parameter name="OwnerWindowLock">
+			<Type/>
+		</Parameter>
+		<Parameter name="FiltersVisibility">
+			<Type/>
 		</Parameter>
 	</Parameters>
 </Form>

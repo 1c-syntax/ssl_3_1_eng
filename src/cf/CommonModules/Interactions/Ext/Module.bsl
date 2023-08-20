@@ -568,7 +568,14 @@ Function CreateEmail(Message, Account, SendImmediately = True) Export
 		MailMessage.Author                    = Users.CurrentUser();
 		MailMessage.EmployeeResponsible            = Users.CurrentUser();
 		MailMessage.Date                     = CurrentSessionDate();
-		MailMessage.Importance                 = Enums.InteractionImportanceOptions.Ordinary;
+		
+		If Message.Importance = InternetMailMessageImportance.High Then
+			MailMessage.Importance = Enums.InteractionImportanceOptions.High;
+		ElsIf Message.Importance = InternetMailMessageImportance.Low Then
+			MailMessage.Importance = Enums.InteractionImportanceOptions.Low;
+		Else	
+			MailMessage.Importance = Enums.InteractionImportanceOptions.Ordinary;
+		EndIf;
 		MailMessage.Encoding                = "UTF-8";
 		MailMessage.SenderPresentation = String(Account);
 		
@@ -608,18 +615,18 @@ Function CreateEmail(Message, Account, SendImmediately = True) Export
 			NewRow.Contact       = EmailRecipient.ContactInformationSource;
 		EndDo;
 		
-		For Each RecipientOfResponse In Message.ReplyRecipients Do
+		For Each ReplyRecipient In Message.ReplyRecipients Do
 			NewRow = MailMessage["ReplyRecipients"].Add();
-			NewRow.Address         = RecipientOfResponse.Address;
-			NewRow.Presentation = RecipientOfResponse.Presentation;
-			NewRow.Contact       = RecipientOfResponse.ContactInformationSource;
+			NewRow.Address         = ReplyRecipient.Address;
+			NewRow.Presentation = ReplyRecipient.Presentation;
+			NewRow.Contact       = ReplyRecipient.ContactInformationSource;
 		EndDo;
 		
-		For Each RecipientOfHiddenCopies In Message.BccRecipients Do
+		For Each BccRecipient In Message.BccRecipients Do
 			NewRow = MailMessage["BccRecipients"].Add();
-			NewRow.Address         = RecipientOfHiddenCopies.Address;
-			NewRow.Presentation = RecipientOfHiddenCopies.Presentation;
-			NewRow.Contact       = RecipientOfHiddenCopies.ContactInformationSource;
+			NewRow.Address         = BccRecipient.Address;
+			NewRow.Presentation = BccRecipient.Presentation;
+			NewRow.Contact       = BccRecipient.ContactInformationSource;
 		EndDo;
 		
 		MailMessage.EmailRecipientsList    = InteractionsClientServer.GetAddressesListPresentation(MailMessage.EmailRecipients, False);
@@ -783,10 +790,11 @@ EndFunction
 //    * Subject - String
 //    * Text - String
 //    * UserMessages - FixedArray
+//    * Importance - InternetMailMessageImportance
 //    * Recipients - ValueTable:
 //      ** Presentation - String
 //      ** Address - String -
-//      ** ContactInformationSource - ОпределяемыеТип.ВладелецКонтактнойИнформации
+//      ** ContactInformationSource - DefinedType.InteractionContact
 //    * ReplyRecipients
 //      ** 
 //      ** 
@@ -812,6 +820,7 @@ Function EmailParameters() Export
 	Message = New Structure;
 	Message.Insert("Subject", "");
 	Message.Insert("Text", "");
+	Message.Insert("Importance", InternetMailMessageImportance.Normal);
 	Message.Insert("UserMessages", New FixedArray(New Array));
 
 	StringType = New TypeDescription("String");
@@ -819,21 +828,21 @@ Function EmailParameters() Export
 	Recipients = New ValueTable;
 	Recipients.Columns.Add("Address", StringType);
 	Recipients.Columns.Add("Presentation", StringType);
-	Recipients.Columns.Add("ContactInformationSource", Metadata.DefinedTypes.ContactInformationOwner.Type);
+	Recipients.Columns.Add("ContactInformationSource", Metadata.DefinedTypes.InteractionContact.Type);
 
 	Message.Insert("Recipients", Recipients);
 	
 	ReplyRecipients = New ValueTable;
 	ReplyRecipients.Columns.Add("Address", StringType);
 	ReplyRecipients.Columns.Add("Presentation", StringType);
-	ReplyRecipients.Columns.Add("ContactInformationSource", Metadata.DefinedTypes.ContactInformationOwner.Type);
+	ReplyRecipients.Columns.Add("ContactInformationSource", Metadata.DefinedTypes.InteractionContact.Type);
 
 	Message.Insert("ReplyRecipients", ReplyRecipients); 
 	
 	BccRecipients = New ValueTable;
 	BccRecipients.Columns.Add("Address", StringType);
 	BccRecipients.Columns.Add("Presentation", StringType);
-	BccRecipients.Columns.Add("ContactInformationSource", Metadata.DefinedTypes.ContactInformationOwner.Type);
+	BccRecipients.Columns.Add("ContactInformationSource", Metadata.DefinedTypes.InteractionContact.Type);
 	
 	Message.Insert("BccRecipients", BccRecipients);
 
@@ -1128,9 +1137,9 @@ EndProcedure
 // See JobsQueueOverridable.OnGetTemplateList.
 Procedure OnGetTemplateList(JobTemplates) Export
 	
-	JobTemplates.Add("SMSDeliveryStatusUpdate");
-	JobTemplates.Add("SendSMSMessage");
-	JobTemplates.Add("SendReceiveEmails");
+	JobTemplates.Add(Metadata.ScheduledJobs.SMSDeliveryStatusUpdate.Name);
+	JobTemplates.Add(Metadata.ScheduledJobs.SendSMSMessage.Name);
+	JobTemplates.Add(Metadata.ScheduledJobs.SendReceiveEmails.Name);
 	
 EndProcedure
 
@@ -1199,7 +1208,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Comment =
 		NStr("en = 'Fills in the predefined folder type in the ""Email folders"" catalog';");
 	Handler.ExecutionMode = "Deferred";
-	Handler.DeferredProcessingQueue = 1;
 	Handler.UpdateDataFillingProcedure = "Catalogs.EmailMessageFolders.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.CheckProcedure    = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
 	Handler.ObjectsToRead      = "Catalog.EmailMessageFolders";
@@ -1213,7 +1221,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Comment =
 		NStr("en = 'Filling in the ""Text"" attribute of the ""Outbox e-mail"" document for HTML messages which were not previously filled in with it by mistake';");
 	Handler.ExecutionMode = "Deferred";
-	Handler.DeferredProcessingQueue = 3;
 	Handler.UpdateDataFillingProcedure = "Documents.OutgoingEmail.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.CheckProcedure    = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
 	Handler.ObjectsToRead      = "Document.OutgoingEmail";
@@ -4869,7 +4876,7 @@ Procedure AddPrintFormHeaderToEmailBody(HTMLDocument, Selection, IsOutgoingEmail
 	EmailBodyItem = EmailBodyItem(HTMLDocument);
 	BodyChildNodesArray = ChildNodesWithHTML(EmailBodyItem);
 	
-	// Account username.
+	// 
 	UserItem = GenerateAccountUsernameItem(EmailBodyItem, Selection);
 	InsertHTMLElementAsFirstChildElement(EmailBodyItem,UserItem, BodyChildNodesArray);
 	
@@ -4994,7 +5001,7 @@ Function EvaluateOutgoingEmailSize(MailMessage) Export
 		Selection.Next();
 		Size = Size + StrLen(Selection.Text) + StrLen(Selection.Subject);
 		
-	EndIf;;
+	EndIf;
 	
 	Return Size;
 
@@ -5761,10 +5768,10 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////
 // Operations with email folders.
 
-// Checks whether the current user is responsible for the account filing.
+// 
 //
 // Parameters:
-//  Account  - CatalogRef.EmailAccounts - an account to be checked.
+//  Account  - CatalogRef.EmailAccounts -
 //
 // Returns:
 //   Boolean   - True is the user is responsible for folder management. Otherwise, False.
@@ -6244,7 +6251,7 @@ Function DefineFolderForEmail(MailMessage) Export
 
 		Except
 			
-			ErrorMessageTemplate = NStr("en = 'Cannot apply the ""%1"" mailbox rule for the ""%2"" account due to: 
+			ErrorMessageTemplate = NStr("en = 'Cannot apply the ""%1"" mailbox rule to the ""%2"" account due to: 
 			                                |%3
 			                                |Correct the mailbox rule.';", Common.DefaultLanguageCode());
 		
@@ -6578,7 +6585,7 @@ Function DefineEmailFolders(Emails)
 					
 				Except
 					
-					ErrorMessageTemplate = NStr("en = 'Cannot apply the ""%1"" mailbox rule for the ""%2"" account due to: 
+					ErrorMessageTemplate = NStr("en = 'Cannot apply the ""%1"" mailbox rule to the ""%2"" account due to: 
 					                                |%3
 					                                |Correct the mailbox rule.';", Common.DefaultLanguageCode());
 				
@@ -7440,7 +7447,7 @@ Procedure FillTimeSelectionList(FormInputField, Interval = 3600) Export
 		If Not ValueIsFilled(ListTime) Then
 			TimePresentation = "00:00";
 		Else
-			TimePresentation = Format(ListTime, NStr("en = 'DF=hh:mm tt';"));
+			TimePresentation = Format(ListTime, NStr("en = 'DF=hh:mm';"));
 		EndIf;
 
 		TimesList.Add(ListTime, TimePresentation);
@@ -7537,7 +7544,13 @@ Function InteractionsListQueryText(FilterValue = Undefined) Export
 	|	InteractionDocumentsLog.Attendees,
 	|	InteractionDocumentsLog.Type,
 	|	InteractionDocumentsLog.Account,
-	|	InteractionDocumentsLog.HasAttachments,
+	|	CASE
+	|		WHEN ISNULL(InteractionDocumentsLog.HasAttachments, FilesExist.HasFiles) IS NULL
+	|			THEN FALSE
+	|		WHEN ISNULL(InteractionDocumentsLog.HasAttachments, FilesExist.HasFiles)
+	|			THEN TRUE
+	|		ELSE FALSE
+	|	END AS HasAttachments,
 	|	InteractionDocumentsLog.Importance,
 	|	CASE
 	|		WHEN InteractionDocumentsLog.Importance = VALUE(Enum.InteractionImportanceOptions.High)
@@ -7561,6 +7574,8 @@ Function InteractionsListQueryText(FilterValue = Undefined) Export
 	|		INNER JOIN InformationRegister.InteractionsFolderSubjects AS InteractionsSubjects
 	|		ON InteractionDocumentsLog.Ref = InteractionsSubjects.Interaction
 	|		AND &ConnectionTextContactsTable
+	|		LEFT JOIN InformationRegister.FilesExist AS FilesExist
+	|		ON InteractionDocumentsLog.Ref = FilesExist.ObjectWithFiles
 	|{WHERE
 	|	InteractionDocumentsLog.Ref AS Search
 	|	,&FilterContact}";

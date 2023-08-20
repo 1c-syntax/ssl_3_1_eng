@@ -4,127 +4,80 @@
 	<CommandBarLocation>Top</CommandBarLocation>
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<Autofill>false</Autofill>
+		<ChildItems>
+			<Button name="HideSections" id="68">
+				<Type>CommandBarButton</Type>
+				<SkipOnInput>false</SkipOnInput>
+				<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+				<CommandName>Form.Command.HideSections</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Hide sections</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="HideSectionsExtendedTooltip" id="99"/>
+			</Button>
+			<Button name="PreviousSection" id="72">
+				<Type>CommandBarButton</Type>
+				<SkipOnInput>false</SkipOnInput>
+				<Width>10</Width>
+				<GroupHorizontalAlign>Right</GroupHorizontalAlign>
+				<CommandName>Form.Command.PreviousSection</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>&lt; Back</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="PreviousSectionExtendedTooltip" id="101"/>
+			</Button>
+			<Button name="NextSection" id="73">
+				<Type>CommandBarButton</Type>
+				<DefaultButton>true</DefaultButton>
+				<SkipOnInput>false</SkipOnInput>
+				<Width>10</Width>
+				<AutoMaxWidth>false</AutoMaxWidth>
+				<GroupHorizontalAlign>Right</GroupHorizontalAlign>
+				<CommandName>Form.Command.NextSection</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Next &gt;</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="NextSectionExtendedTooltip" id="102"/>
+			</Button>
+			<Button name="FormHelp" id="95">
+				<Type>CommandBarButton</Type>
+				<Representation>Picture</Representation>
+				<Width>3</Width>
+				<GroupHorizontalAlign>Right</GroupHorizontalAlign>
+				<CommandName>Form.StandardCommand.Help</CommandName>
+				<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
+				<ExtendedTooltip name="FormHelpExtendedTooltip" id="97"/>
+			</Button>
+			<Button name="Close" id="77">
+				<Type>CommandBarButton</Type>
+				<SkipOnInput>false</SkipOnInput>
+				<AutoMaxWidth>false</AutoMaxWidth>
+				<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+				<CommandName>Form.StandardCommand.Close</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Close</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="CloseExtendedTooltip" id="96"/>
+			</Button>
+		</ChildItems>
 	</AutoCommandBar>
 	<Events>
 		<Event name="OnOpen">OnOpen</Event>
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 	</Events>
 	<ChildItems>
-		<UsualGroup name="HeaderGroup" id="135">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Header</v8:content>
-				</v8:item>
-			</Title>
-			<HorizontalStretch>true</HorizontalStretch>
-			<Behavior>Usual</Behavior>
-			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="HeaderGroupExtendedTooltip" id="136"/>
-			<ChildItems>
-				<CommandBar name="HeaderLeftGroup" id="141">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Header left</v8:content>
-						</v8:item>
-					</Title>
-					<ExtendedTooltip name="HeaderLeftGroupExtendedTooltip" id="142"/>
-					<ChildItems>
-						<Button name="Close" id="77">
-							<Type>CommandBarButton</Type>
-							<DefaultButton>true</DefaultButton>
-							<SkipOnInput>false</SkipOnInput>
-							<AutoMaxWidth>false</AutoMaxWidth>
-							<GroupHorizontalAlign>Left</GroupHorizontalAlign>
-							<CommandName>Form.StandardCommand.Close</CommandName>
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Close</v8:content>
-								</v8:item>
-							</Title>
-							<ExtendedTooltip name="CloseExtendedTooltip" id="96"/>
-						</Button>
-						<Button name="HideShowSectionsTree" id="68">
-							<Type>CommandBarButton</Type>
-							<SkipOnInput>false</SkipOnInput>
-							<GroupHorizontalAlign>Left</GroupHorizontalAlign>
-							<CommandName>Form.Command.HideShowSectionsTree</CommandName>
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Hide sections</v8:content>
-								</v8:item>
-							</Title>
-							<ExtendedTooltip name="HideShowSectionsTreeExtendedTooltip" id="99"/>
-						</Button>
-					</ChildItems>
-				</CommandBar>
-				<CommandBar name="HeaderRightGroup" id="133">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Header right</v8:content>
-						</v8:item>
-					</Title>
-					<HorizontalLocation>Right</HorizontalLocation>
-					<ExtendedTooltip name="HeaderRightGroupExtendedTooltip" id="134"/>
-					<ChildItems>
-						<Button name="PreviousSection" id="72">
-							<Type>CommandBarButton</Type>
-							<SkipOnInput>false</SkipOnInput>
-							<Width>10</Width>
-							<GroupHorizontalAlign>Right</GroupHorizontalAlign>
-							<CommandName>Form.Command.PreviousSection</CommandName>
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>&lt; Back</v8:content>
-								</v8:item>
-							</Title>
-							<ExtendedTooltip name="PreviousSectionExtendedTooltip" id="101"/>
-						</Button>
-						<Button name="NextSection" id="73">
-							<Type>CommandBarButton</Type>
-							<SkipOnInput>false</SkipOnInput>
-							<Width>10</Width>
-							<AutoMaxWidth>false</AutoMaxWidth>
-							<GroupHorizontalAlign>Right</GroupHorizontalAlign>
-							<CommandName>Form.Command.NextSection</CommandName>
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Next &gt;</v8:content>
-								</v8:item>
-							</Title>
-							<ExtendedTooltip name="NextSectionExtendedTooltip" id="102"/>
-						</Button>
-						<Button name="FormHelp" id="95">
-							<Type>CommandBarButton</Type>
-							<Representation>Picture</Representation>
-							<Width>3</Width>
-							<GroupHorizontalAlign>Right</GroupHorizontalAlign>
-							<CommandName>Form.StandardCommand.Help</CommandName>
-							<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-							<ExtendedTooltip name="FormHelpExtendedTooltip" id="97"/>
-						</Button>
-					</ChildItems>
-				</CommandBar>
-			</ChildItems>
-		</UsualGroup>
-		<UsualGroup name="ButtonsHeaderGroup" id="69">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Buttons header</v8:content>
-				</v8:item>
-			</Title>
-			<Behavior>Usual</Behavior>
-			<Representation>None</Representation>
-			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="ButtonsHeaderGroupExtendedTooltip" id="98"/>
-		</UsualGroup>
 		<UsualGroup name="ResponseFormTree" id="48">
 			<Title>
 				<v8:item>
@@ -374,7 +327,7 @@ Opening the section…</v8:content>
 					<v8:content>Buttons footer</v8:content>
 				</v8:item>
 			</Title>
-			<HorizontalLocation>Right</HorizontalLocation>
+			<HorizontalLocation>Auto</HorizontalLocation>
 			<ExtendedTooltip name="FooterButtonsGroupExtendedTooltip" id="140"/>
 			<ChildItems>
 				<Button name="FooterPreviousSection" id="93">
@@ -601,6 +554,50 @@ Opening the section…</v8:content>
 						<v8:Type>cfg:EnumRef.CheckBoxKindsInQuestionnaires</v8:Type>
 					</Type>
 				</Column>
+				<Column name="ShouldUseMaxValue" id="28">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+				<Column name="ShouldUseMinValue" id="29">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+				<Column name="ShouldShowRangeSlider" id="30">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+				<Column name="RangeSliderStep" id="31">
+					<Type>
+						<v8:Type>xs:decimal</v8:Type>
+						<v8:NumberQualifiers>
+							<v8:Digits>15</v8:Digits>
+							<v8:FractionDigits>2</v8:FractionDigits>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
+						</v8:NumberQualifiers>
+					</Type>
+				</Column>
+				<Column name="ShouldUseRefusalToAnswer" id="34">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+				<Column name="RefusalToAnswerText" id="35">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>50</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="NumericalQuestionHintsRange" id="32">
+					<Type>
+						<v8:Type>v8:ValueTable</v8:Type>
+					</Type>
+				</Column>
 				<AdditionalColumns table="SectionQuestionsTable.TableQuestionComposition">
 					<Column name="ElementaryQuestion" id="1">
 						<Title>
@@ -635,7 +632,7 @@ Opening the section…</v8:content>
 						<Title>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Reply</v8:content>
+								<v8:content>Response</v8:content>
 							</v8:item>
 						</Title>
 						<Type>
@@ -725,6 +722,55 @@ Opening the section…</v8:content>
 						</Type>
 					</Column>
 				</AdditionalColumns>
+				<AdditionalColumns table="SectionQuestionsTable.NumericalQuestionHintsRange">
+					<Column name="ValueUpTo" id="1">
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Value to</v8:content>
+							</v8:item>
+						</Title>
+						<Type>
+							<v8:Type>xs:decimal</v8:Type>
+							<v8:NumberQualifiers>
+								<v8:Digits>15</v8:Digits>
+								<v8:FractionDigits>2</v8:FractionDigits>
+								<v8:AllowedSign>Any</v8:AllowedSign>
+							</v8:NumberQualifiers>
+						</Type>
+					</Column>
+					<Column name="ToolTip" id="2">
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Hint</v8:content>
+							</v8:item>
+						</Title>
+						<Type>
+							<v8:Type>xs:string</v8:Type>
+							<v8:StringQualifiers>
+								<v8:Length>250</v8:Length>
+								<v8:AllowedLength>Variable</v8:AllowedLength>
+							</v8:StringQualifiers>
+						</Type>
+					</Column>
+					<Column name="LineNumber" id="3">
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Row number</v8:content>
+							</v8:item>
+						</Title>
+						<Type>
+							<v8:Type>xs:decimal</v8:Type>
+							<v8:NumberQualifiers>
+								<v8:Digits>10</v8:Digits>
+								<v8:FractionDigits>0</v8:FractionDigits>
+								<v8:AllowedSign>Any</v8:AllowedSign>
+							</v8:NumberQualifiers>
+						</Type>
+					</Column>
+				</AdditionalColumns>
 			</Columns>
 		</Attribute>
 		<Attribute name="DependentQuestions" id="2">
@@ -805,6 +851,15 @@ Opening the section…</v8:content>
 						<v8:Type>xs:boolean</v8:Type>
 					</Type>
 				</Column>
+				<Column name="ToolTip" id="36">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>250</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
 			</Columns>
 		</Attribute>
 		<Attribute name="DynamicallyAddedAttributes" id="5">
@@ -876,6 +931,16 @@ Opening the section…</v8:content>
 				<Column name="CheckBoxType" id="8">
 					<Type>
 						<v8:Type>cfg:EnumRef.CheckBoxKindsInQuestionnaires</v8:Type>
+					</Type>
+				</Column>
+				<Column name="ShouldUseMaxValue" id="32">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+				<Column name="ShouldUseMinValue" id="33">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
 					</Type>
 				</Column>
 			</Columns>
@@ -999,20 +1064,24 @@ Opening the section…</v8:content>
 		</Attribute>
 	</Attributes>
 	<Commands>
-		<Command name="HideShowSectionsTree" id="1">
+		<Command name="HideSections" id="1">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Hide show sections tree</v8:content>
+					<v8:content>Hide sections</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Hide show sections tree</v8:content>
+					<v8:content>Hide/show sections tree</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>HideShowSectionsTree</Action>
+			<Picture>
+				<xr:Ref>StdPicture.ShowInList</xr:Ref>
+				<xr:LoadTransparent>true</xr:LoadTransparent>
+			</Picture>
+			<Action>HideSections</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 		<Command name="PreviousSection" id="2">

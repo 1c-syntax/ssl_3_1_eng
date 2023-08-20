@@ -130,6 +130,12 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.CheckFormula</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.CancelAction</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.RetryAction</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.ReportOptionPurposes</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Enum.ReportOptionPurposes</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.ReportsSnapshots</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.ReportsSnapshotsForStandaloneMode</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Role.AddEditReportsSnapshots</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.OptionOfReportToUpdate</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

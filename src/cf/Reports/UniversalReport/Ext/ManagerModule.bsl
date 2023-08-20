@@ -126,9 +126,8 @@ Procedure SetFixedParameter(Id, Parameters, Settings, UserSettings, AvailableVal
 	EndIf;
 	
 	UserSettingItem = Undefined;   
-	ResetSettings = CommonClientServer.StructureProperty(Settings.AdditionalProperties, "ResetSettings", False); 
 			
-	If Not ResetSettings And TypeOf(UserSettings) = Type("DataCompositionUserSettings")
+	If TypeOf(UserSettings) = Type("DataCompositionUserSettings")
 		And (Settings.AdditionalProperties.Property("ReportInitialized")
 		Or UserSettings.AdditionalProperties.Property("ReportInitialized")) Then 
 		
@@ -1122,10 +1121,7 @@ Procedure CustomizeStandardSettings(Report, FixedParameters, Settings, UserSetti
 	ReportInitialized = CommonClientServer.StructureProperty(
 		Settings.AdditionalProperties, "ReportInitialized", False);    
 		
-	ResetSettings = CommonClientServer.StructureProperty(
-		Settings.AdditionalProperties, "ResetSettings", False);
-	
-	If ReportInitialized And Not ResetSettings Then 
+	If ReportInitialized Then 
 		Return;
 	EndIf;
 	
@@ -1194,45 +1190,6 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Work with the data source of a report option.
 
-// Sets the DataSource parameter of report option settings
-//
-// Parameters:
-//  Variant - CatalogRef.ReportsOptions - Report option settings storage.
-//
-Procedure DetermineOptionDataSource(Variant) Export
-	UniversalReport = Common.MetadataObjectID(Metadata.Reports.UniversalReport);
-	
-	BeginTransaction();
-	Try
-		Block = New DataLock;
-		LockItem = Block.Add(Variant.Metadata().FullName());
-		LockItem.SetValue("Ref", Variant);
-		Block.Lock();
-		
-		OptionObject = Variant.GetObject();
-		
-		OptionSettings = Undefined;
-		If OptionObject <> Undefined
-			And OptionObject.Report = UniversalReport Then 
-			OptionSettings = OptionSettings(OptionObject);
-		EndIf;
-		
-		If OptionSettings = Undefined Then 
-			RollbackTransaction();
-			InfobaseUpdate.MarkProcessingCompletion(Variant);
-			Return;
-		EndIf;
-		
-		OptionObject.Settings = New ValueStorage(OptionSettings);
-		InfobaseUpdate.WriteData(OptionObject);
-		
-		CommitTransaction();
-	Except
-		RollbackTransaction();
-		Raise;
-	EndTry;
-EndProcedure
-
 // Returns the report option settings with the set DataSource parameter.
 //
 // Parameters:
@@ -1242,7 +1199,7 @@ EndProcedure
 //   DataCompositionSettings, Undefined - 
 //                                            
 //
-Function OptionSettings(Variant)
+Function OptionSettings(Variant) Export
 	Try
 		OptionSettings = Variant.Settings.Get(); // DataCompositionSettings
 	Except

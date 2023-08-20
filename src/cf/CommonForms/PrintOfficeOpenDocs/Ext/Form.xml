@@ -989,7 +989,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Save to the hard drive or as an object attachment</v8:content>
+					<v8:content>Save to a local folder or attach to the object</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

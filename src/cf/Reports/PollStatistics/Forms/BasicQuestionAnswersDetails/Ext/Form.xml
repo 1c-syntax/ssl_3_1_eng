@@ -34,7 +34,7 @@
 						<Presentation>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>With grouping by replies</v8:content>
+								<v8:content>With grouping by responses</v8:content>
 							</v8:item>
 						</Presentation>
 						<Value xsi:type="xs:string">Replies</Value>

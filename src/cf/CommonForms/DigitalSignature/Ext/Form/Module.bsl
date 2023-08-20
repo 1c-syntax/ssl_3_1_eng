@@ -37,6 +37,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	HashAlgorithm = DigitalSignatureInternalClientServer.HashAlgorithm(
 		SignatureAddress, True);
+	
+	Items.DecorationStatus.Title = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Status as of %1: %2';"), SignatureValidationDate, Status);
 		
 	UpdateFormData();
 		
@@ -72,6 +75,19 @@ Procedure OpenCertificate(Command)
 		
 	ElsIf ValueIsFilled(Thumbprint) Then
 		DigitalSignatureClient.OpenCertificate(Thumbprint);
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure OpenCertificateToVerifySignature(Command)
+	
+	If Not ArePropertiesRead Or ValueIsFilled(SignatureReadError) Then
+		DigitalSignatureClient.ReadSignatureProperties(
+			New NotifyDescription("AfterSignaturePropertiesRead", ThisObject), SignatureAddress);
+		Return;
+	Else
+		OpenCertificateRead();
 	EndIf;
 	
 EndProcedure
@@ -157,6 +173,92 @@ Procedure AfterImprovementSignature(Result, AdditionalParameters) Export
 		EndDo;
 		
 		UpdateFormData();
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Async Procedure AfterSignaturePropertiesRead(Result, AdditionalParameters) Export
+	
+	ArePropertiesRead = True;
+	
+	If Result.Success = True Then
+		SignatureReadError = "";
+		HasSignatureCertificate = False;
+		For Each CertificateData In Result.Certificates Do
+			
+			NewRow = CertificatesToVerifySignature.Add();
+			
+			CryptoCertificate = New CryptoCertificate;
+			Await CryptoCertificate.InitializeAsync(CertificateData);
+			CertificateProperties = DigitalSignatureClient.CertificateProperties(CryptoCertificate);
+			NewRow.IssuedTo = CertificateProperties.Presentation;
+			NewRow.CertificateData = PutToTempStorage(CertificateData, UUID);
+			If CertificateData = Result.Certificate Then
+				NewRow.IsSignatureCertificate = True;
+				HasSignatureCertificate = True;
+			EndIf;
+			
+		EndDo;
+		
+		If Not HasSignatureCertificate And ValueIsFilled(Result.Certificate) Then
+			
+			NewRow = CertificatesToVerifySignature.Add();
+			
+			CryptoCertificate = New CryptoCertificate;
+			Await CryptoCertificate.InitializeAsync(Result.Certificate);
+			CertificateProperties = DigitalSignatureClient.CertificateProperties(CryptoCertificate);
+			NewRow.IssuedTo = CertificateProperties.Presentation;
+			NewRow.CertificateData = PutToTempStorage(Result.Certificate, UUID);
+			NewRow.IsSignatureCertificate = True;
+			
+		EndIf;
+	ElsIf Result.Success = Undefined Then
+		SignatureReadError = NStr("en = 'Cannot get certificates from the signature. Check the settings of the digital signature applications.';");
+	Else
+		SignatureReadError = Result.ErrorText;
+	EndIf;
+		
+	CertificatesToVerifySignature.Sort("IsSignatureCertificate Desc");
+	OpenCertificateRead();
+	
+EndProcedure
+
+&AtClient
+Async Procedure OpenCertificateRead()
+	
+	If ValueIsFilled(SignatureReadError) Then
+		ShowMessageBox(, SignatureReadError);
+		Return;
+	EndIf;
+	
+	Count = CertificatesToVerifySignature.Count();
+	
+	If Count > 1 Then
+		
+		ValueList = New ValueList();
+		For Each String In CertificatesToVerifySignature Do
+			
+			If String.IsSignatureCertificate Then
+				Presentation = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Signer''s certificate: %1';"), String.IssuedTo);
+			Else
+				Presentation = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Certificate for signature verification: %1';"), String.IssuedTo);
+			EndIf;
+			
+			ValueList.Add(String.CertificateData, Presentation);
+				
+		EndDo;
+		
+		SelectedItemsCount = Await ValueList.ChooseItemAsync(NStr("en = 'Select a certificate';"));
+
+		If SelectedItemsCount <> Undefined Then
+			DigitalSignatureClient.OpenCertificate(SelectedItemsCount.Value);
+		EndIf;
+		
+	ElsIf Count = 1 Then
+		DigitalSignatureClient.OpenCertificate(CertificatesToVerifySignature[0].CertificateData);
 	EndIf;
 	
 EndProcedure

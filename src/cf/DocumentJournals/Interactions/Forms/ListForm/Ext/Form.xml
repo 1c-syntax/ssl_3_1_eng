@@ -2341,6 +2341,12 @@
 														</InputField>
 														<PictureField name="HasAttachments" id="108">
 															<DataPath>List.HasAttachments</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Has attachments</v8:content>
+																</v8:item>
+															</Title>
 															<TitleLocation>None</TitleLocation>
 															<ToolTip>
 																<v8:item>
@@ -2625,7 +2631,13 @@
 	InteractionDocumentsLogOverridable.Attendees,
 	InteractionDocumentsLogOverridable.Type,
 	InteractionDocumentsLogOverridable.OutgoingEmailStatus,
-	InteractionDocumentsLogOverridable.HasAttachments,
+	CASE
+		WHEN ISNULL(InteractionDocumentsLogOverridable.HasAttachments, FilesExistOverridable.HasFiles) IS NULL
+			THEN FALSE
+		WHEN ISNULL(InteractionDocumentsLogOverridable.HasAttachments, FilesExistOverridable.HasFiles)
+			THEN TRUE
+		ELSE FALSE
+	END AS HasAttachments,
 	ISNULL(InteractionsSubjectsOverridable.SubjectOf, UNDEFINED) AS SubjectOf,
 	VALUETYPE(InteractionsSubjectsOverridable.SubjectOf) AS SubjectType,
 	InteractionDocumentsLogOverridable.Account,
@@ -2644,8 +2656,126 @@ FROM
 	DocumentJournal.Interactions AS InteractionDocumentsLogOverridable
 		LEFT JOIN InformationRegister.InteractionsFolderSubjects AS InteractionsSubjectsOverridable
 		ON InteractionDocumentsLogOverridable.Ref = InteractionsSubjectsOverridable.Interaction
+		LEFT JOIN InformationRegister.FilesExist AS FilesExistOverridable
+		ON InteractionDocumentsLogOverridable.Ref = FilesExistOverridable.ObjectWithFiles
 {WHERE
 	InteractionDocumentsLogOverridable.Ref AS Search}</QueryText>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Search</dcssch:dataPath>
+					<dcssch:field>Search</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>HasAttachments</dcssch:dataPath>
+					<dcssch:field>HasAttachments</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>InteractionBasis</dcssch:dataPath>
+					<dcssch:field>InteractionBasis</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Size</dcssch:dataPath>
+					<dcssch:field>Size</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DateToSendEmail</dcssch:dataPath>
+					<dcssch:field>DateToSendEmail</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>EmailSendingRelevanceDate</dcssch:dataPath>
+					<dcssch:field>EmailSendingRelevanceDate</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>MessageID</dcssch:dataPath>
+					<dcssch:field>MessageID</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PictureNumber</dcssch:dataPath>
+					<dcssch:field>PictureNumber</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Ref</dcssch:dataPath>
+					<dcssch:field>Ref</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Date</dcssch:dataPath>
+					<dcssch:field>Date</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeletionMark</dcssch:dataPath>
+					<dcssch:field>DeletionMark</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Number</dcssch:dataPath>
+					<dcssch:field>Number</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Author</dcssch:dataPath>
+					<dcssch:field>Author</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Incoming</dcssch:dataPath>
+					<dcssch:field>Incoming</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Subject</dcssch:dataPath>
+					<dcssch:field>Subject</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>EmployeeResponsible</dcssch:dataPath>
+					<dcssch:field>EmployeeResponsible</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Reviewed</dcssch:dataPath>
+					<dcssch:field>Reviewed</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ReviewAfter</dcssch:dataPath>
+					<dcssch:field>ReviewAfter</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Attendees</dcssch:dataPath>
+					<dcssch:field>Attendees</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Type</dcssch:dataPath>
+					<dcssch:field>Type</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>OutgoingEmailStatus</dcssch:dataPath>
+					<dcssch:field>OutgoingEmailStatus</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>SubjectOf</dcssch:dataPath>
+					<dcssch:field>SubjectOf</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>SubjectType</dcssch:dataPath>
+					<dcssch:field>SubjectType</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Account</dcssch:dataPath>
+					<dcssch:field>Account</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Folder</dcssch:dataPath>
+					<dcssch:field>Folder</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>SentReceived</dcssch:dataPath>
+					<dcssch:field>SentReceived</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Importance</dcssch:dataPath>
+					<dcssch:field>Importance</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ImportancePictureNumber</dcssch:dataPath>
+					<dcssch:field>ImportancePictureNumber</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Posted</dcssch:dataPath>
+					<dcssch:field>Posted</dcssch:field>
+				</Field>
 				<MainTable>DocumentJournal.Interactions</MainTable>
 				<ListSettings>
 					<dcsset:filter>

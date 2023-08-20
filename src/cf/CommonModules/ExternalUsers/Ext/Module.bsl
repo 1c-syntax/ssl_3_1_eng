@@ -115,7 +115,9 @@ Procedure ShowExternalUsersListView(Form, AdditionalParameters = Undefined) Expo
 	QuerySchema = New QuerySchema;
 	QuerySchema.SetQueryText(List.QueryText);
 	Sources = QuerySchema.QueryBatch[0].Operators[0].Sources; // QuerySchemaSources
-	For IndexOf = 0 To Sources.Count() - 1 Do
+	IndexOf = Sources.Count();
+	While IndexOf > 0 Do
+		IndexOf = IndexOf - 1;
 		If Sources[IndexOf].Source.TableName = "Catalog.ExternalUsers" Then
 			Sources.Delete(IndexOf);
 		EndIf;

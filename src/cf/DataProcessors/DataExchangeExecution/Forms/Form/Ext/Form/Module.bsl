@@ -207,6 +207,13 @@ Procedure InstallUpdate(Command)
 EndProcedure
 
 &AtClient
+Procedure RestartApplication(Command)
+
+	Exit(False, True);
+
+EndProcedure
+
+&AtClient
 Procedure ForgotPassword(Command)
 	
 	DataExchangeClient.OpenInstructionHowToChangeDataSynchronizationPassword(AccountPasswordRecoveryAddress);
@@ -732,6 +739,13 @@ Function UpdateInstallationRequired()
 EndFunction
 
 &AtServerNoContext
+Function IsRestartRequired()
+	
+	Return Catalogs.ExtensionsVersions.ExtensionsChangedDynamically();
+	
+EndFunction
+
+&AtServerNoContext
 Procedure CheckWhetherTheExchangeCanBeStarted(ExchangeNode, LockSet)
 	
 	Cancel = False;
@@ -1099,6 +1113,11 @@ Function Attachable_ExchangeCompletionOnOpen(Cancel, SkipPage, IsMoveNext)
 				
 			Items.UpdateRequiredTextRestrictedAccess.Title = StringFunctionsClientServer.SubstituteParametersToString(
 				Items.UpdateRequiredTextRestrictedAccess.Title, CorrespondentDescription);
+				
+		ElsIf IsRestartRequired() Then
+				
+			Items.ExchangeCompletionStatus.CurrentPage = Items.ExchangeIsCompletedWithErrorRebootIsRequired;
+			Items.ActionsPanel.CurrentPage = Items.ActionsReload;
 				
 		ElsIf ErrorAssigningIDForNode Then
 			
@@ -1541,10 +1560,10 @@ Function TimeConsumingOperationStateForInfobaseNode(
 			ErrorMessage);
 	Except
 		Information = ErrorInfo();
-		ErrorMessage = BriefErrorDescription(Information);
+		ErrorMessage = ErrorProcessing.BriefErrorDescription(Information);
 			
 		WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
-			EventLogLevel.Error, , , DetailErrorDescription(Information));
+			EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(Information));
 	EndTry;
 		
 	Return ActionState;

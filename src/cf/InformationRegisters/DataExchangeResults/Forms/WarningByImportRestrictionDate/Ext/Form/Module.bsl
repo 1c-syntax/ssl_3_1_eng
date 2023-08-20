@@ -229,7 +229,7 @@ Procedure AcceptRejectVersionAtServer(ErrorMessage)
 	Except
 		
 		ObjectPresentation	= ?(Common.RefExists(ObjectWithIssue), ObjectWithIssue, ObjectWithIssue.Metadata());
-		ExceptionText			= BriefErrorDescription(ErrorInfo());
+		ExceptionText			= ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		TextTemplate1			= NStr("en = 'Cannot accept the object version ""%1"" due to:%2 %3.';", Common.DefaultLanguageCode());
 		ExceptionText			= StringFunctionsClientServer.SubstituteParametersToString(TextTemplate1, ObjectPresentation, Chars.LF, ExceptionText);
 		

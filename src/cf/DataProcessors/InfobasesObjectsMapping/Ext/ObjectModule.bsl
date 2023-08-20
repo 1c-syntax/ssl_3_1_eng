@@ -131,7 +131,7 @@ Procedure ApplyUnapprovedRecordsTable(Cancel) Export
 	Except
 		RollbackTransaction();
 		WriteLogEvent(NStr("en = 'Data exchange';", Common.DefaultLanguageCode()),
-			EventLogLevel.Error,,, DetailErrorDescription(ErrorInfo()));
+			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Cancel = True;
 		Return;
 	EndTry;

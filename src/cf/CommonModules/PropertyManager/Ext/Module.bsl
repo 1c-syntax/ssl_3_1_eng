@@ -10,7 +10,7 @@
 #Region Public
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for standard processing of additional attributes.
+// 
 
 // Creates main form attributes and fields necessary for work.
 // Fills additional attributes if used.
@@ -52,6 +52,8 @@
 //            When calling the BeforeWriteAtServer procedure in the hide deleted mode, deleted values
 //            are cleared (not transferred back to object), and the HideDeleted mode is set to False.
 //
+//    * LabelsDisplayParameters - See LabelsDisplayParameters.
+//
 Procedure OnCreateAtServer(Form, AdditionalParameters = Undefined) Export
 	
 	If Not PropertiesUsed(Form, AdditionalParameters) Then
@@ -65,6 +67,7 @@ Procedure OnCreateAtServer(Form, AdditionalParameters = Undefined) Export
 	Context.Insert("ArbitraryObject",         False);
 	Context.Insert("CommandBarItemName", "");
 	Context.Insert("HideDeleted",            Undefined);
+	Context.Insert("LabelsDisplayParameters",  LabelsDisplayParameters());
 	
 	If TypeOf(AdditionalParameters) = Type("Structure") Then
 		FillPropertyValues(Context, AdditionalParameters);
@@ -116,6 +119,12 @@ Procedure OnCreateAtServer(Form, AdditionalParameters = Undefined) Export
 	If Not Context.ArbitraryObject
 		And Not Context.DeferredInitialization Then
 		FillAdditionalAttributesInForm(Form, ObjectDetails, , Context.HideDeleted);
+	EndIf;
+	
+	SetLabelsVisibility(Form, Context.LabelsDisplayParameters.LabelsDestinationElementName);
+	FillObjectLabels(Form, ObjectDetails, Context.ArbitraryObject);
+	If Context.ArbitraryObject Then
+		FillLabelsLegend(Form, ObjectDetails);
 	EndIf;
 	
 EndProcedure
@@ -313,7 +322,7 @@ Procedure BeforeWriteObjectKind(ObjectKind,
 		PropertySetObject.Used = True;
 	EndIf;
 	
-	PropertySetObject.Description    = ObjectKind.Description;
+	PropertySetObject.Description    = StrReplace(ObjectKind.Description, ".", "");
 	PropertySetObject.DeletionMark = ObjectKind.DeletionMark;
 	PropertySetObject.Parent        = SetParent;
 	PropertySetObject.Write();
@@ -322,7 +331,57 @@ Procedure BeforeWriteObjectKind(ObjectKind,
 	
 EndProcedure
 
-// Updates displayed data on the object form with properties.
+// 
+//
+// Parameters:
+//  ObjectKind                - CatalogObjectCatalogName -
+//  PropertySetAttributeName - String - used when there are several property sets, or
+//                              when the name of the main set's props is used, other than"property Set".
+//
+Procedure BeforeDeleteObjectKind(ObjectKind, PropertySetAttributeName = "PropertiesSet") Export
+	
+	SetPrivilegedMode(True);
+	PropertiesSet = ObjectKind[PropertySetAttributeName];
+	
+	Query = New Query;
+	Query.SetParameter("PropertiesSet", PropertiesSet);
+	Query.Text =
+		"SELECT
+		|	AdditionalAttributesAndInfo.Ref AS Ref
+		|FROM
+		|	ChartOfCharacteristicTypes.AdditionalAttributesAndInfo AS AdditionalAttributesAndInfo
+		|WHERE
+		|	AdditionalAttributesAndInfo.PropertiesSet = &PropertiesSet";
+	Result = Query.Execute().Unload();
+	AdditionalAttributes = Result.UnloadColumn("Ref");
+	For Each AdditionalAttribute In AdditionalAttributes Do
+		
+		Block = New DataLock;
+		LockItem = Block.Add("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo");
+		LockItem.SetValue("Ref", AdditionalAttribute);
+		Block.Lock();
+			
+		If Common.RefExists(AdditionalAttribute) Then
+			AdditionalAttributeObject = AdditionalAttribute.GetObject();
+			AdditionalAttributeObject.PropertiesSet = Catalogs.AdditionalAttributesAndInfoSets.EmptyRef();
+			AdditionalAttributeObject.Write();
+		EndIf;
+		
+	EndDo;
+	
+	Block = New DataLock;
+	LockItem = Block.Add("Catalog.AdditionalAttributesAndInfoSets");
+	LockItem.SetValue("Ref", PropertiesSet);
+	Block.Lock();
+	
+	If Common.RefExists(PropertiesSet) Then
+		PropertySetObject = PropertiesSet.GetObject();
+		PropertySetObject.Delete(); 
+	EndIf;
+	
+EndProcedure
+
+// 
 // 
 // Parameters:
 //  Form           - ClientApplicationForm - already set in the OnCreateAtServer procedure.
@@ -345,8 +404,87 @@ EndProcedure
 Procedure UpdateAdditionalAttributesItems(Form, Object = Undefined, HideDeleted = Undefined) Export
 	
 	PropertyManagerInternal.TransferValuesFromFormAttributesToObject(Form, Object);
-
 	FillAdditionalAttributesInForm(Form, Object, , HideDeleted);
+	
+	PropertyManagerInternal.MoveSetLabelsIntoObject(Form, Object);
+	FillObjectLabels(Form, Object);
+	
+EndProcedure
+
+// 
+// 
+//
+// Parameters:
+//   Settings              - DataCompositionSettings -
+//   Rows                 - DynamicListRows -
+//   OwnerName           - String                    -
+//                                                        
+//                                                        
+//
+Procedure OnGetDataAtServer(Settings, Rows, OwnerName = Undefined) Export
+	
+	If Not Common.SubsystemExists("StandardSubsystems.Properties") Then
+		Return;
+	EndIf;
+	
+	If Not GetFunctionalOption("UseAdditionalAttributesAndInfo") Then
+		Return;
+	EndIf;
+	
+	Keys = Rows.GetKeys();
+	If Keys.Count() = 0 Then
+		Return;
+	EndIf;
+	
+	For Each Var_Key In Keys Do
+		If OwnerName <> Undefined Then
+			Owner = Var_Key[OwnerName];
+		Else
+			Owner = Var_Key;
+		EndIf;
+		If ValueIsFilled(Owner) Then
+			ObjectsKind = Owner.Metadata().FullName();
+			Break;
+		EndIf;
+	EndDo;
+	
+	PropertiesListForObjectsKind = PropertyManagerInternal.PropertiesListForObjectsKind(ObjectsKind, "Labels");
+	If PropertiesListForObjectsKind = Undefined Then
+		Return;
+	EndIf;
+	
+	Labels = PropertiesListForObjectsKind.UnloadColumn("Property");
+	LabelsAttributes = Common.ObjectsAttributesValues(Labels, "PropertiesColor, DeletionMark");
+	
+	For Each String In Rows Do
+		Composite = String.Key;
+		RowData = Rows.Get(Composite);
+		If OwnerName <> Undefined Then
+			Owner = Composite[OwnerName];
+		Else
+			Owner = Composite;
+		EndIf;
+		If Not ValueIsFilled(Owner) Then
+			Continue;
+		EndIf;
+		AdditionalAttributes = Owner.AdditionalAttributes.Unload();
+		Labels = PropertiesByAdditionalAttributesKind(AdditionalAttributes, Enums.PropertiesKinds.Labels);
+		LabelNumber = 1;
+		For Each Label In Labels Do
+			LabelAttributes = LabelsAttributes.Get(Label);
+			If LabelAttributes = Undefined Or LabelAttributes.DeletionMark Then
+				Continue;
+			EndIf;
+			PropertyName = StrTemplate("Label%1", LabelNumber);
+			If RowData.Data.Property(PropertyName) Then
+				RowData.Data[PropertyName] =
+					Enums.PropertiesColors.IndexOf(LabelAttributes.PropertiesColor) + 1;
+				LabelNumber = LabelNumber + 1;
+			Else
+				Break;
+			EndIf;
+		EndDo;
+	EndDo;
 	
 EndProcedure
 
@@ -502,7 +640,7 @@ EndProcedure
 //  Hierarchy  - Boolean  
 //
 // Returns:
-//  СправочникСсылка.ЗначениеСвойствОбъекта
+//  CatalogRef.ObjectsPropertiesValues
 //  
 //
 Function AddPropertyValue(Val Owner, Parameters, Hierarchy = False) Export
@@ -603,8 +741,8 @@ EndFunction
 //  Structure:
 //     * Description - String -
 //     * FullDescr - String
-//     * Parent - СправочникСсылка.ЗначениеСвойствОбъекта
-//                - СправочникСсылка.ЗначениеСвойствОбъектаИерархия
+//     * Parent - CatalogRef.ObjectsPropertiesValues
+//                - CatalogRef.ObjectPropertyValueHierarchy
 //     * IsFolder - Boolean
 //
 Function PropertyValAdditionParameters() Export
@@ -697,10 +835,11 @@ Procedure FillAdditionalAttributesInForm(Form, Object = Undefined, LabelsFields 
 	
 	UpdateFormAssignmentKey(Form, AssignmentKey);
 	
+	PropertyKind = Enums.PropertiesKinds.AdditionalAttributes;
 	PropertiesDetails = PropertyManagerInternal.PropertiesValues(
 		ObjectDetails.AdditionalAttributes.Unload(),
 		Form.PropertiesObjectAdditionalAttributeSets,
-		False);
+		PropertyKind);
 	
 	PropertiesDetails.Columns.Add("ValueAttributeName");
 	PropertiesDetails.Columns.Add("RefTypeString");
@@ -1144,7 +1283,7 @@ Procedure DeleteOldAttributesAndItems(Form) Export
 	
 EndProcedure
 
-// Returns additional attributes and info for the specified object.
+// 
 //
 // Parameters:
 //  PropertiesOwner      - AnyRef - for example, CatalogRef.Products, DocumentRef.SalesOrder, …
@@ -1156,7 +1295,9 @@ EndProcedure
 // Returns:
 //  Array of ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo
 //
-Function ObjectProperties(PropertiesOwner, GetAddlAttributes = True, GetAddlInfo = True) Export
+Function ObjectProperties(PropertiesOwner,
+					    GetAddlAttributes = True,
+					    GetAddlInfo = True) Export
 	
 	If Not (GetAddlAttributes Or GetAddlInfo) Then
 		Return New Array;
@@ -1188,21 +1329,23 @@ Function ObjectProperties(PropertiesOwner, GetAddlAttributes = True, GetAddlInfo
 		|	PropertiesTable.Ref IN (&ObjectPropertySetsArray)";
 	
 	Query = New Query;
-	
-	If GetAddlAttributes And GetAddlInfo Then
-		
-		Query.Text = QueryTextAdditionalInfo + "
-		|
-		| UNION ALL
-		|" + QueryTextAdditionalAttributes;
-		
-	ElsIf GetAddlAttributes Then
-		Query.Text = QueryTextAdditionalAttributes;
-		
-	ElsIf GetAddlInfo Then
-		Query.Text = QueryTextAdditionalInfo;
+	QueryText = "";
+	If GetAddlInfo Then
+		QueryText = QueryTextAdditionalInfo;
 	EndIf;
 	
+	If GetAddlAttributes Then
+		If ValueIsFilled(QueryText) Then
+			QueryText = QueryText + "
+			|
+			| UNION ALL
+			|" + QueryTextAdditionalAttributes;
+		Else
+			QueryText = QueryTextAdditionalAttributes;
+		EndIf;
+	EndIf;
+	
+	Query.Text = QueryText;
 	Query.Parameters.Insert("ObjectPropertySetsArray", ObjectPropertySetsArray);
 	
 	Result = Query.Execute().Unload().UnloadColumn("Property");
@@ -1216,7 +1359,8 @@ EndFunction
 // Returns values of additional object properties.
 //
 // Parameters:
-//  ObjectsWithProperties  - Array      - objects for which additional property values are to be received.
+//  ObjectsWithProperties  - Array      -
+//                                       
 //                       - AnyRef - a link to an object, such as a reference link.Nomenclature,
 //                                       Document link.Customer's order, ...
 //  GetAddlAttributes - Boolean - include additional attributes to the result. The default value is True.
@@ -1255,12 +1399,27 @@ Function PropertiesValues(ObjectsWithProperties,
 		PropertiesOwner = ObjectsWithProperties;
 	EndIf;
 	
+	ObjectWithPropertiesName = Common.TableNameByRef(PropertiesOwner);
+	AllAttributes = New Array;
 	If GetAddlAttributes Then
 		GetAddlAttributes = UseAddlAttributes(PropertiesOwner);
+		If GetAddlAttributes And Properties = Undefined Then
+			ObjectAttributes = PropertyManagerInternal.PropertiesListForObjectsKind(ObjectWithPropertiesName, "AdditionalAttributes");
+			If ObjectAttributes <> Undefined Then
+				AllAttributes = ObjectAttributes.UnloadColumn("Property");
+			EndIf;
+		EndIf;
 	EndIf;
 	
+	AllInfoRecords = New Array;
 	If GetAddlInfo Then
 		GetAddlInfo = UseAddlInfo(PropertiesOwner);
+		If GetAddlInfo And Properties = Undefined Then
+			ObjectInfoRecords = PropertyManagerInternal.PropertiesListForObjectsKind(ObjectWithPropertiesName, "AdditionalInfo");
+			If ObjectInfoRecords <> Undefined Then
+				AllInfoRecords = ObjectInfoRecords.UnloadColumn("Property");
+			EndIf;
+		EndIf;
 	EndIf;
 	
 	If Not GetAddlAttributes And Not GetAddlInfo Then
@@ -1268,10 +1427,9 @@ Function PropertiesValues(ObjectsWithProperties,
 	EndIf;
 	
 	If Properties = Undefined Then
-		Properties = ObjectProperties(PropertiesOwner, GetAddlAttributes, GetAddlInfo);
+		Properties = AllAttributes;
+		CommonClientServer.SupplementArray(Properties, AllInfoRecords);
 	EndIf;
-	
-	ObjectWithPropertiesName = Common.TableNameByRef(PropertiesOwner);
 	
 	QueryTextAdditionalAttributes =
 		"SELECT ALLOWED
@@ -1281,7 +1439,7 @@ Function PropertiesValues(ObjectsWithProperties,
 		|	PropertiesTable.Ref AS PropertiesOwner,
 		|	AdditionalAttributesAndInfo.Name AS PropertyName
 		|FROM
-		|	&ObjectWithPropertiesName AS PropertiesTable
+		|	&NameOfObjectWithAdditionalAttributes AS PropertiesTable
 		|		LEFT JOIN ChartOfCharacteristicTypes.AdditionalAttributesAndInfo AS AdditionalAttributesAndInfo
 		|		ON AdditionalAttributesAndInfo.Ref = PropertiesTable.Property
 		|WHERE
@@ -1306,21 +1464,25 @@ Function PropertiesValues(ObjectsWithProperties,
 		|		OR AdditionalAttributesAndInfo.Name IN (&Properties))";
 	
 	Query = New Query;
+	QueryText = "";
+	If GetAddlAttributes Then
+		QueryText = QueryTextAdditionalAttributes;
+	EndIf;
 	
-	If GetAddlAttributes And GetAddlInfo Then
-		QueryText = QueryTextAdditionalAttributes + "
+	If GetAddlInfo Then
+		If ValueIsFilled(QueryText) Then
+			QueryText = QueryText + "
 			|
 			| UNION ALL
 			|" + StrReplace(QueryTextAdditionalInfo, "ALLOWED", ""); // @Query-part-1, @Query-part-2
-		
-	ElsIf GetAddlAttributes Then
-		QueryText = QueryTextAdditionalAttributes;
-		
-	ElsIf GetAddlInfo Then
-		QueryText = QueryTextAdditionalInfo;
+		Else
+			QueryText = QueryTextAdditionalInfo;
+		EndIf;
 	EndIf;
 	
-	QueryText = StrReplace(QueryText, "&ObjectWithPropertiesName", ObjectWithPropertiesName + ".AdditionalAttributes");
+	QueryText = StrReplace(QueryText, "&NameOfObjectWithAdditionalAttributes",
+		ObjectWithPropertiesName + ".AdditionalAttributes");
+	QueryText = StrReplace(QueryText, "&NameOfObjectWithLabels", ObjectWithPropertiesName + ".Labels");
 	
 	Query.Parameters.Insert("ObjectsWithProperties", ObjectsWithProperties);
 	Query.Parameters.Insert("Properties", Properties);
@@ -1368,7 +1530,8 @@ EndFunction
 //  Arbitrary - 
 //
 Function PropertyValue(Object, Property, LanguageCode = "") Export
-	ShouldGetAttributes = PropertyManagerInternal.IsMetadataObjectWithAdditionalAttributes(Object.Metadata());
+	
+	ShouldGetAttributes = PropertyManagerInternal.IsMetadataObjectWithProperties(Object.Metadata(), "AdditionalAttributes");
 	
 	Result = PropertiesValues(Object, ShouldGetAttributes, True, Property, LanguageCode);
 	If Result.Count() = 1 Then
@@ -1497,6 +1660,7 @@ Procedure WriteObjectProperties(PropertiesOwner, PropertyAndValueTable) Export
 			EndDo;
 			
 		EndIf;
+		
 		CommitTransaction();
 	Except
 		RollbackTransaction();
@@ -1611,6 +1775,265 @@ Function RepresentationsOfPropertyValues(ObjectsWithProperties, LanguageCode = "
 	EndIf;
 	
 	Return Result;
+EndFunction
+
+////////////////////////////////////////////////////////////////////////////////
+// Labels
+
+// 
+// 
+// Parameters:
+//  Form           - ClientApplicationForm - it is already configured in the procedure for joining the server.
+//
+Procedure SetLabelsLegendVisibility(Form) Export
+	
+	If Form.Items["GroupHideableLegendPart"].Visible Then
+		Form.Items["GroupHideableLegendPart"].Visible = False;
+		Form.Items["ShowLEGEND"].Picture = PictureLib.GreenDownArrow;
+		IsLabelsLegendVisible = False;
+	Else
+		Form.Items["GroupHideableLegendPart"].Visible = True;
+		Form.Items["ShowLEGEND"].Picture = PictureLib.GreenRightArrow;
+		IsLabelsLegendVisible = True;
+	EndIf;
+	
+	SetPrivilegedMode(True);
+	CurrentParameters = New Map(SessionParameters.ClientParametersAtServer);
+	CurrentParameters.Insert("IsLabelsLegendVisible", IsLabelsLegendVisible);
+	SessionParameters.ClientParametersAtServer = New FixedMap(CurrentParameters); 
+	SetPrivilegedMode(False);
+	Common.CommonSettingsStorageSave("Properties", "IsLabelsLegendVisible", IsLabelsLegendVisible);
+	
+EndProcedure
+
+// 
+//
+// Parameters:
+//  Form              - ClientApplicationForm - it is already configured in the procedure for joining the server.
+//
+//  Object             - Undefined - take an object from the props of the "Object" form.
+//                     - CatalogObjectCatalogName
+//                     - DocumentObjectDocumentName
+//                     - ChartOfCharacteristicTypesObjectChartOfCharacteristicTypesName
+//                     - BusinessProcessObjectNameOfBusinessProcess
+//                     - TaskObjectTaskName
+//                     - ChartOfCalculationTypesObjectChartOfCalculationTypesName
+//                     - ChartOfAccountsObjectChartOfAccountsName
+//                     - FormDataStructure
+//
+//  ArbitraryObject - Boolean -
+//
+Procedure FillObjectLabels(Form, Object = Undefined, ArbitraryObject = False) Export
+	
+	If Not Form.PropertiesUseProperties
+	 Or Not Form.PropertiesUseAddlAttributes Then
+		Return;
+	EndIf;
+	
+	LabelsDestinationElementName = Form.Properties_LabelsDestinationElementName;
+	If Not ValueIsFilled(LabelsDestinationElementName) Then
+		Return;
+	EndIf;
+	
+	If Object = Undefined Then
+		If ArbitraryObject Then
+			Return;
+		EndIf;
+		ObjectDetails = Form.Object;
+	Else
+		ObjectDetails = Object;
+	EndIf;
+	
+	If Form.Items.Find("EditLabels") = Undefined Then
+		NewItem = Form.Items.Add("EditLabels", Type("FormDecoration"),
+			Form.Items[LabelsDestinationElementName]);
+		NewItem.Type = FormDecorationType.Picture;
+		NewItem.Hyperlink = True;
+		NewItem.Picture = PictureLib.EditLabels;
+		NewItem.SetAction("Click", "Attachable_PropertiesExecuteCommand");
+		NewItem.ToolTip = NStr("en = 'Edit labels';");
+	EndIf;
+	
+	Labels = PropertiesByAdditionalAttributesKind(
+		ObjectDetails.AdditionalAttributes.Unload(),
+		Enums.PropertiesKinds.Labels);
+	If Form.Properties_LabelsApplied.Count() = 0 Then
+		Form.Properties_LabelsApplied.LoadValues(Labels);
+	EndIf;
+	
+	GroupLabels = Form.Items[LabelsDestinationElementName];
+	ChildItems = GroupLabels.ChildItems;
+	NamesOfLabelsForDeletion = New Array;
+	For Each SubordinateItem In ChildItems Do
+		If SubordinateItem = Form.Items["EditLabels"] Then
+			Continue;
+		EndIf;
+		NamesOfLabelsForDeletion.Add(SubordinateItem.Name);
+	EndDo;
+	
+	For Each Label In NamesOfLabelsForDeletion Do
+		Form.Items.Delete(Form.Items[Label]);
+	EndDo;
+	
+	LabelsToHideCount = 0;
+	NumberOfTags = Labels.Count();
+	MaxLabelsOnForm = Form.PropertiesParameters.MaxLabelsOnForm;
+	If MaxLabelsOnForm <> Undefined And MaxLabelsOnForm < NumberOfTags Then
+		LabelsToHideCount = NumberOfTags - MaxLabelsOnForm;
+		NumberOfTags = MaxLabelsOnForm;
+	EndIf;
+	LabelsDisplayOption = Form.PropertiesParameters.LabelsDisplayOption;
+	
+	LabelsShownCount = 0;
+	LabelsAttributes = Common.ObjectsAttributesValues(Labels,
+		"Name, PropertiesColor, Description, DeletionMark, ToolTip");
+	If LabelsDisplayOption = Enums.LabelsDisplayOptions.Label Then
+		For IndexOf = 0 To NumberOfTags - 1 Do
+			Label = LabelsAttributes.Get(Labels[IndexOf]);
+			If Label = Undefined Or Label.DeletionMark Then
+				Continue;
+			EndIf;
+			NewItem = Form.Items.Add("Label" + Label.Name, Type("FormDecoration"), GroupLabels);
+			NewItem.Type = FormDecorationType.Label;
+			NewItem.HorizontalAlign = ItemHorizontalLocation.Center;
+			NewItem.Height = 1;
+			NewItem.Title = Label.Description;
+			NewItem.TextColor = Metadata.StyleItems.LabelTextColor_SSLym.Value;
+			NewItem.BackColor = StyleItemByColor(Label.PropertiesColor);
+			NewItem.Font = Metadata.StyleItems.LabelsFont.Value;
+			NewItem.ToolTip = Label.ToolTip;
+			If Not ArbitraryObject Then
+				NewItem.Hyperlink = True;
+				NewItem.SetAction("Click", "Attachable_PropertiesExecuteCommand");
+			EndIf;
+			DescriptionLength = StrLen(Label.Description);
+			If DescriptionLength > 8 Then
+				NewItem.Width = DescriptionLength;
+			Else
+				NewItem.Width = 8;
+			EndIf;
+			LabelsShownCount = LabelsShownCount + 1;
+		EndDo;
+	Else
+		For IndexOf = 0 To NumberOfTags - 1 Do
+			Label = LabelsAttributes.Get(Labels[IndexOf]);
+			If Label = Undefined Or Label.DeletionMark Then
+				Continue;
+			EndIf;
+			NewItem = Form.Items.Add("Label" + Label.Name, Type("FormDecoration"), GroupLabels);
+			NewItem.Type = FormDecorationType.Picture;
+			If Not ArbitraryObject Then
+				NewItem.Hyperlink = True;
+			EndIf;
+			NewItem.Picture = PictureLabelsByColor(Label.PropertiesColor);
+			NewItem.SetAction("Click", "Attachable_PropertiesExecuteCommand");
+			NewItem.ToolTip = Label.Description;
+			NewItem.Title = Label.Description;
+			LabelsShownCount = LabelsShownCount + 1;
+		EndDo;
+	EndIf;
+	
+	If ValueIsFilled(LabelsToHideCount) Then
+		NewItem = Form.Items.Add("OtherLabels", Type("FormDecoration"), GroupLabels);
+		NewItem.Type = FormDecorationType.Label;
+		NewItem.Hyperlink = True;
+		NewItem.SetAction("Click", "Attachable_PropertiesExecuteCommand"); 
+		NewItem.Title = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'and %1 more';"), LabelsToHideCount);
+		NewItem.ToolTip = NStr("en = 'Other labels';");
+	EndIf;
+	
+	If ArbitraryObject Or LabelsShownCount <> 0 Then
+		Form.Items["EditLabels"].Visible = False;
+	Else
+		Form.Items["EditLabels"].Visible = True;
+	EndIf;
+	
+EndProcedure
+
+// 
+//
+// Returns:
+//  Structure:
+//    
+//    * LabelsDestinationElementName - String -
+//    
+//    * LabelsLegendDestinationElementName - String -
+//    
+//    * MaxLabelsOnForm - Number -
+//    
+//    * LabelsSelection - Boolean -
+//    
+//    * LabelsDisplayOption - EnumRef.LabelsDisplayOptions -
+//            
+//            
+//            
+//    
+//    * ObjectsKind - String -
+//
+Function LabelsDisplayParameters() Export
+	
+	LabelsDisplayParameters = New Structure;
+	LabelsDisplayParameters.Insert("LabelsDestinationElementName", "");
+	LabelsDisplayParameters.Insert("LabelsLegendDestinationElementName", "");
+	LabelsDisplayParameters.Insert("LabelsDisplayOption", Enums.LabelsDisplayOptions.Picture);
+	LabelsDisplayParameters.Insert("MaxLabelsOnForm");
+	LabelsDisplayParameters.Insert("LabelsSelection", False);
+	LabelsDisplayParameters.Insert("ObjectsKind", "");
+	
+	Return LabelsDisplayParameters;
+	
+EndFunction
+
+// 
+//
+// Parameters:
+//  Properties   - ValueTable -
+//
+//  PropertyKind - EnumRef.PropertiesKinds -
+//
+// Returns:
+//  Array     - 
+//
+Function PropertiesByAdditionalAttributesKind(Properties, PropertyKind) Export
+	
+	PropertiesByKind = New Array;
+	ListOfProperties = Properties.UnloadColumn("Property");
+	ObjectsPropertiesKinds = Common.ObjectsAttributesValues(ListOfProperties, "PropertyKind");
+	If PropertyKind = Enums.PropertiesKinds.AdditionalAttributes Then
+		For Each Property In ListOfProperties Do
+			ObjectPropertiesKind = ObjectsPropertiesKinds.Get(Property).PropertyKind;
+			If Not ValueIsFilled(ObjectPropertiesKind) Or ObjectPropertiesKind = PropertyKind Then
+				PropertiesByKind.Add(Property);
+			EndIf;
+		EndDo;
+	ElsIf PropertyKind = Enums.PropertiesKinds.Labels Then
+		For Each Property In ListOfProperties Do
+			ObjectPropertiesKind = ObjectsPropertiesKinds.Get(Property).PropertyKind;
+			If ObjectPropertiesKind = PropertyKind Then
+				PropertiesByKind.Add(Property);
+			EndIf;
+		EndDo;
+	EndIf;
+	
+	Return PropertiesByKind;
+	
+EndFunction
+
+// 
+// 
+// Returns:
+//  Boolean     - 
+//
+Function HasLabelsOwners() Export
+	
+	LabelsOwners = Metadata.DefinedTypes.LabelsOwner.Type.Types();
+	If LabelsOwners.Count() = 1 And LabelsOwners[0] = Type("String") Then
+		Return False;
+	EndIf;
+	
+	Return True;
+	
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1953,6 +2376,14 @@ Procedure NewMainFormObjects(Form, Context, CreateAdditionalAttributesDetails)
 	ItemForPlacementName   = Context.ItemForPlacementName;
 	CommandBarItemName = Context.CommandBarItemName;
 	DeferredInitialization    = Context.DeferredInitialization;
+	ArbitraryObject         = Context.ArbitraryObject;
+	
+	LabelsDestinationElementName        = Context.LabelsDisplayParameters.LabelsDestinationElementName;
+	LabelsLegendDestinationElementName = Context.LabelsDisplayParameters.LabelsLegendDestinationElementName;
+	LabelsDisplayOption              = Context.LabelsDisplayParameters.LabelsDisplayOption;
+	MaxLabelsOnForm                 = Context.LabelsDisplayParameters.MaxLabelsOnForm;
+	ObjectsKind                          = Context.LabelsDisplayParameters.ObjectsKind;
+	LabelsSelection                           = Context.LabelsDisplayParameters.LabelsSelection;
 	
 	Attributes = New Array;
 	
@@ -2062,6 +2493,31 @@ Procedure NewMainFormObjects(Form, Context, CreateAdditionalAttributesDetails)
 			Attributes.Add(New FormAttribute(
 				"PropertiesItemNameForPlacement", New TypeDescription()));
 			
+			// Метки
+			Attributes.Add(New FormAttribute("Properties_LabelsDestinationElementName",
+				New TypeDescription("String")));
+			
+			Attributes.Add(New FormAttribute("Properties_LabelsApplied",
+				New TypeDescription("ValueList")));
+			
+			If ArbitraryObject Then
+				Attributes.Add(New FormAttribute("Properties_LabelsLegendDestinationElementName",
+					New TypeDescription("String")));
+				
+				// 
+				DetailsName = "Properties_LabelsLegendDetails";
+				Attributes.Add(New FormAttribute(DetailsName, New TypeDescription("ValueTable")));
+				
+				Attributes.Add(New FormAttribute("Label",
+					New TypeDescription("ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo"), DetailsName));
+				
+				Attributes.Add(New FormAttribute("PlacemarkName", New TypeDescription("String"), DetailsName));
+				
+				If LabelsSelection Then
+					Attributes.Add(New FormAttribute("FilterByLabel", New TypeDescription("Boolean"), DetailsName));
+				EndIf;
+			EndIf;
+			
 			// 
 			// 
 			If AccessRight("Update", Metadata.Catalogs.AdditionalAttributesAndInfoSets) Then
@@ -2084,9 +2540,9 @@ Procedure NewMainFormObjects(Form, Context, CreateAdditionalAttributesDetails)
 			EndIf;
 			
 			Command = Form.Commands.Add("EditAttributeHyperlink");
-			Command.Title   = NStr("en = 'Start/end editing';");
+			Command.Title   = NStr("en = 'Start/finish editing';");
 			Command.Action    = "Attachable_PropertiesExecuteCommand";
-			Command.ToolTip   = NStr("en = 'Start/end editing';");
+			Command.ToolTip   = NStr("en = 'Start/finish editing';");
 			Command.Picture    = PictureLib.Change;
 			Command.Representation = ButtonRepresentation.Picture;
 		EndIf;
@@ -2110,6 +2566,22 @@ Procedure NewMainFormObjects(Form, Context, CreateAdditionalAttributesDetails)
 	
 	If OptionUseProperties And CreateAdditionalAttributesDetails Then
 		Form.PropertiesItemNameForPlacement = ItemForPlacementName;
+		
+		Form.Properties_LabelsDestinationElementName = LabelsDestinationElementName;
+		Form.PropertiesParameters.Insert("LabelsDisplayOption", LabelsDisplayOption);
+		Form.PropertiesParameters.Insert("MaxLabelsOnForm", MaxLabelsOnForm);
+		
+		If ArbitraryObject Then
+			Form.Properties_LabelsLegendDestinationElementName = LabelsLegendDestinationElementName;
+			
+			Form.PropertiesParameters.Insert("ObjectsKind", ObjectsKind);
+			Form.PropertiesParameters.Insert("LabelsSelection", LabelsSelection);
+			
+			Command = Form.Commands.Add("LabelsLegend");
+			Command.Action = "Attachable_SetLabelsLegendVisibility";
+			Command.Picture = PictureLib.Label;
+			Command.Representation = ButtonRepresentation.PictureAndText;
+		EndIf;
 	EndIf;
 	
 	// 
@@ -2183,6 +2655,112 @@ Procedure PrepareFormForDeferredInitialization(Form, ItemForPlacementName, Index
 	EndIf;
 	
 	FormGroup.EnableContentChange = False;
+	
+EndProcedure
+
+// 
+//
+// Parameters:
+//  Form              - ClientApplicationForm - it is already configured in the procedure for joining the server.
+//
+//  Object             - Undefined - take an object from the props of the "Object" form.
+//                     - CatalogObjectCatalogName
+//                     - DocumentObjectDocumentName
+//                     - ChartOfCharacteristicTypesObjectChartOfCharacteristicTypesName
+//                     - BusinessProcessObjectNameOfBusinessProcess
+//                     - TaskObjectTaskName
+//                     - ChartOfCalculationTypesObjectChartOfCalculationTypesName
+//                     - ChartOfAccountsObjectChartOfAccountsName
+//                     - FormDataStructure
+//
+Procedure FillLabelsLegend(Form, Object)
+	
+	If Not Form.PropertiesUseProperties
+	 Or Not Form.PropertiesUseAddlAttributes Then
+		Return;
+	EndIf;
+	
+	LabelsLegendDestinationElementName = Form.Properties_LabelsLegendDestinationElementName;
+	If Not ValueIsFilled(LabelsLegendDestinationElementName) Then
+		Return;
+	EndIf;
+	
+	Labels = PropertyManagerInternal.PropertiesListForObjectsKind(
+		Form.PropertiesParameters.ObjectsKind, "Labels").UnloadColumn("Property");
+	If Labels.Count() = 0 Then
+		Return;
+	EndIf;
+	
+	IsLabelsLegendVisible = CommonSettingsStorage.Load("Properties", "IsLabelsLegendVisible");
+	
+	If IsLabelsLegendVisible = Undefined Then
+		IsLabelsLegendVisible = False;
+		Common.CommonSettingsStorageSave("Properties", "IsLabelsLegendVisible", IsLabelsLegendVisible);
+	EndIf;
+	
+	NewItem = Form.Items.Add("ShowLEGEND", Type("FormDecoration"),
+		Form.Items[LabelsLegendDestinationElementName]);
+	NewItem.Type = FormDecorationType.Picture;
+	NewItem.Hyperlink = True;
+	NewItem.SetAction("Click", "Attachable_SetLabelsLegendVisibility");
+	If IsLabelsLegendVisible Then
+		NewItem.Picture = PictureLib.GreenRightArrow;
+	Else
+		NewItem.Picture = PictureLib.GreenDownArrow;
+	EndIf;
+	
+	GroupHideableLegendPart = Form.Items.Add("GroupHideableLegendPart", Type("FormGroup"),
+		Form.Items[LabelsLegendDestinationElementName]);
+	GroupHideableLegendPart.Type = FormGroupType.UsualGroup;
+	GroupHideableLegendPart.Visible = IsLabelsLegendVisible; 
+	GroupHideableLegendPart.ShowTitle = False;
+	GroupHideableLegendPart.Group = Form.Items[LabelsLegendDestinationElementName].Group;
+	
+	LabelsSelection = Form.PropertiesParameters.LabelsSelection;
+	LabelsAttributes = Common.ObjectsAttributesValues(Labels,
+		"Ref, Name, Description, PropertiesColor, DeletionMark");
+	If LabelsSelection Then
+		Attributes = New Array;
+		For Each Label In Labels Do
+			LabelAttributes = LabelsAttributes.Get(Label);
+			If LabelAttributes = Undefined Then
+				Continue;
+			EndIf;
+			Attributes.Add(New FormAttribute("FilterLabel_" + LabelAttributes.Name,
+				New TypeDescription("Boolean")));
+		EndDo;
+		Form.ChangeAttributes(Attributes);
+	EndIf;
+	
+	For Each Label In Labels Do
+		Label = LabelsAttributes.Get(Label);
+		If Label = Undefined Or Label.DeletionMark Then
+			Continue;
+		EndIf;
+		
+		Group = Form.Items.Add("Group" + Label.Name, Type("FormGroup"), GroupHideableLegendPart);
+		Group.Type = FormGroupType.UsualGroup;
+		Group.ShowTitle = False;
+		Group.Group = ChildFormItemsGroup.AlwaysHorizontal;
+		
+		LegendLabel = Form.Properties_LabelsLegendDetails.Add();
+		LegendLabel.Label = Label.Ref;
+		LegendLabel.PlacemarkName = Label.Name;
+		
+		If LabelsSelection Then
+			NewItem = Form.Items.Add("FilterLabel_" + Label.Name, Type("FormField"), Group);
+			NewItem.Type = FormFieldType.CheckBoxField;
+			NewItem.DataPath = "FilterLabel_" + Label.Name;
+			NewItem.TitleLocation = FormItemTitleLocation.None;
+			NewItem.SetAction("OnChange", "Attachable_FilterByLabelsHandler");
+		EndIf;
+		
+		NewItem = Form.Items.Add("LEGEND_" + Label.Name, Type("FormDecoration"), Group);
+		NewItem.Type = FormDecorationType.Picture;
+		NewItem.Picture = PictureLabelsByColor(Label.PropertiesColor);
+		NewItem.ToolTip = Label.Description;
+		NewItem.ToolTipRepresentation = ToolTipRepresentation.ShowRight;
+	EndDo;
 	
 EndProcedure
 
@@ -2438,6 +3016,79 @@ Function PropertiesFormat(Property)
 	EndDo;
 	
 	Return PropertiesFormat;
+	
+EndFunction
+
+Procedure SetLabelsVisibility(Form, LabelsDestinationElementName)
+	
+	If Not ValueIsFilled(LabelsDestinationElementName) Then
+		Return;
+	EndIf;
+	
+	If Not Form.PropertiesUseProperties
+	 Or Not Form.PropertiesUseAddlAttributes Then
+		AreLabelsVisible = False;
+	Else
+		AreLabelsVisible = True;
+	EndIf;
+	
+	Form.Items[LabelsDestinationElementName].Visible = AreLabelsVisible;
+	
+EndProcedure
+
+Function PictureLabelsByColor(PropertiesColor)
+	
+	If PropertiesColor = Enums.PropertiesColors.LightBlue Then
+		Picture = PictureLib.LabelLightBlue;
+	ElsIf PropertiesColor = Enums.PropertiesColors.Yellow Then
+		Picture = PictureLib.LabelYellow;
+	ElsIf PropertiesColor = Enums.PropertiesColors.Green Then
+		Picture = PictureLib.LabelGreen;
+	ElsIf PropertiesColor = Enums.PropertiesColors.Lime_SSLym Then
+		Picture = PictureLib.LabelLime;
+	ElsIf PropertiesColor = Enums.PropertiesColors.Red Then
+		Picture = PictureLib.LabelRed;
+	ElsIf PropertiesColor = Enums.PropertiesColors.Orange Then
+		Picture = PictureLib.LabelOrange;
+	ElsIf PropertiesColor = Enums.PropertiesColors.Pink Then
+		Picture = PictureLib.LabelPink;
+	ElsIf PropertiesColor = Enums.PropertiesColors.B Then
+		Picture = PictureLib.LabelBlue;
+	ElsIf PropertiesColor = Enums.PropertiesColors.Violet Then
+		Picture = PictureLib.LabelPurple;
+	Else
+		Picture = PictureLib.LabelGray;
+	EndIf;
+	
+	Return Picture;
+	
+EndFunction
+
+Function StyleItemByColor(PropertiesColor)
+	
+	If PropertiesColor = Enums.PropertiesColors.Lime_SSLym Then
+		StyleItem = Metadata.StyleItems.LabelColorLime.Value;
+	ElsIf PropertiesColor = Enums.PropertiesColors.Red Then
+		StyleItem = Metadata.StyleItems.LabelColorRed.Value;
+	ElsIf PropertiesColor = Enums.PropertiesColors.Orange Then
+		StyleItem = Metadata.StyleItems.LabelColorOrange.Value;
+	ElsIf PropertiesColor = Enums.PropertiesColors.Yellow Then
+		StyleItem = Metadata.StyleItems.LabelColorYellow.Value;
+	ElsIf PropertiesColor = Enums.PropertiesColors.Green Then
+		StyleItem = Metadata.StyleItems.LabelColorGreen.Value;
+	ElsIf PropertiesColor = Enums.PropertiesColors.B Then
+		StyleItem = Metadata.StyleItems.LabelColorBlue.Value;
+	ElsIf PropertiesColor = Enums.PropertiesColors.LightBlue Then
+		StyleItem = Metadata.StyleItems.LabelColorLightBlue.Value;
+	ElsIf PropertiesColor = Enums.PropertiesColors.Violet Then
+		StyleItem = Metadata.StyleItems.LabelColorPurple.Value;
+	ElsIf PropertiesColor = Enums.PropertiesColors.Pink Then
+		StyleItem = Metadata.StyleItems.LabelColorPink.Value;
+	Else
+		StyleItem = Metadata.StyleItems.LabelColorGray.Value;
+	EndIf;
+	
+	Return StyleItem;
 	
 EndFunction
 

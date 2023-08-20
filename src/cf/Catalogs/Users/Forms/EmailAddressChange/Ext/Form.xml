@@ -42,20 +42,6 @@
 			</Type>
 			<FillCheck>ShowError</FillCheck>
 		</Attribute>
-		<Attribute name="ServiceUserPassword" id="2">
-			<Type>
-				<v8:Type>xs:string</v8:Type>
-				<v8:StringQualifiers>
-					<v8:Length>0</v8:Length>
-					<v8:AllowedLength>Variable</v8:AllowedLength>
-				</v8:StringQualifiers>
-			</Type>
-		</Attribute>
-		<Attribute name="User" id="3">
-			<Type>
-				<v8:Type>cfg:CatalogRef.Users</v8:Type>
-			</Type>
-		</Attribute>
 		<Attribute name="OldEmail" id="4">
 			<Type>
 				<v8:Type>xs:string</v8:Type>
@@ -92,20 +78,6 @@
 					<v8:Length>0</v8:Length>
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
-			</Type>
-		</Parameter>
-		<Parameter name="ServiceUserPassword">
-			<Type>
-				<v8:Type>xs:string</v8:Type>
-				<v8:StringQualifiers>
-					<v8:Length>0</v8:Length>
-					<v8:AllowedLength>Variable</v8:AllowedLength>
-				</v8:StringQualifiers>
-			</Type>
-		</Parameter>
-		<Parameter name="User">
-			<Type>
-				<v8:Type>cfg:CatalogRef.Users</v8:Type>
 			</Type>
 		</Parameter>
 	</Parameters>

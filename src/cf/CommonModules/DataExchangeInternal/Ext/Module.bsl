@@ -383,7 +383,7 @@ Function PrepareFileForImport(FileID, ErrorMessage) Export
 	Try
 		MergeFiles(FilesToMerge, ArchiveName);
 	Except
-		ErrorMessage = BriefErrorDescription(ErrorInfo());
+		ErrorMessage = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		Raise (ErrorMessage);
 	EndTry;
 	
@@ -395,7 +395,7 @@ Function PrepareFileForImport(FileID, ErrorMessage) Export
 		Try
 			DeleteFiles(TempFilesDir);
 		Except
-			ErrorMessage = DetailErrorDescription(ErrorInfo());
+			ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 			WriteLogEvent(DataExchangeServer.TempFileDeletionEventLogEvent(),
 				EventLogLevel.Error, , , ErrorMessage);
 			Raise (ErrorMessage);
@@ -421,7 +421,7 @@ Function PrepareFileForImport(FileID, ErrorMessage) Export
 	Try
 		MoveFile(FileName, FileNameInImportDirectory);
 	Except
-		ErrorMessage = DetailErrorDescription(ErrorInfo());
+		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		WriteLogEvent(DataExchangeServer.TempFileDeletionEventLogEvent(),
 			EventLogLevel.Error, , , ErrorMessage);
 		Raise (ErrorMessage);
@@ -433,7 +433,7 @@ Function PrepareFileForImport(FileID, ErrorMessage) Export
 	Try
 		DeleteFiles(TempFilesDir);
 	Except
-		ErrorMessage = DetailErrorDescription(ErrorInfo());
+		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		WriteLogEvent(DataExchangeServer.TempFileDeletionEventLogEvent(),
 			EventLogLevel.Error, , , ErrorMessage);
 		Raise (ErrorMessage);
@@ -481,7 +481,7 @@ Procedure PrepareDataForExportFromInfobase(ProcedureParameters, StorageAddress) 
 
 		Info = ErrorInfo();
 		ErrorCode = New Structure("BriefErrorDescription, DetailErrorDescription",
-			BriefErrorDescription(Info), DetailErrorDescription(Info));
+			ErrorProcessing.BriefErrorDescription(Info), ErrorProcessing.DetailErrorDescription(Info));
 
 		DataExchangeXDTOServer.WriteToExecutionProtocol(ExchangeComponents, ErrorCode);
 		DataExchangeXDTOServer.FinishKeepExchangeProtocol(ExchangeComponents);
@@ -569,7 +569,7 @@ Procedure ImportXDTODateToInfobase(ProcedureParameters, StorageAddress) Export
 			Information = ErrorInfo();
 			ErrorMessage = NStr("en = 'Data import error: %1';");
 			ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
-				ErrorMessage, DetailErrorDescription(Information));
+				ErrorMessage, ErrorProcessing.DetailErrorDescription(Information));
 			DataExchangeXDTOServer.WriteToExecutionProtocol(ExchangeComponents, ErrorMessage, , , , , True);
 			ExchangeComponents.ErrorFlag = True;
 		EndTry;
@@ -583,7 +583,7 @@ Procedure ImportXDTODateToInfobase(ProcedureParameters, StorageAddress) Export
 			Information = ErrorInfo();
 			ErrorMessage = NStr("en = 'Cannot delete temporary objects created by references: %1';");
 			ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
-				ErrorMessage, DetailErrorDescription(Information));
+				ErrorMessage, ErrorProcessing.DetailErrorDescription(Information));
 			DataExchangeXDTOServer.WriteToExecutionProtocol(ExchangeComponents, ErrorMessage, , , , , True);
 			ExchangeComponents.ErrorFlag = True;
 		EndTry;
@@ -667,7 +667,7 @@ Function GetDataReceiptExecutionStatus(TimeConsumingOperationID, ErrorMessage) E
 	Else
 
 		If BackgroundJob.ErrorInfo <> Undefined Then
-			ErrorMessage = DetailErrorDescription(BackgroundJob.ErrorInfo);
+			ErrorMessage = ErrorProcessing.DetailErrorDescription(BackgroundJob.ErrorInfo);
 		EndIf;
 		CurrentBackgroundJobState = BackgroundJobStates.Get(BackgroundJob.State);
 
@@ -699,7 +699,7 @@ Function GetExecutionStatusOfDataPreparationForSending(BackgroundJobIdentifier, 
 		CurrentBackgroundJobState = BackgroundJobsStates().Get(BackgroundJob.State);
 
 		If BackgroundJob.ErrorInfo <> Undefined Then
-			ErrorMessage = DetailErrorDescription(BackgroundJob.ErrorInfo);
+			ErrorMessage = ErrorProcessing.DetailErrorDescription(BackgroundJob.ErrorInfo);
 		Else
 			If BackgroundJob.State = BackgroundJobState.Completed Then
 				ArrayOfMessages  = TimeConsumingOperations.UserMessages(True, BackgroundJob.UUID);
@@ -810,7 +810,7 @@ Function TimeConsumingOperationStateForInfobaseNode(Val OperationID, Val Infobas
 	ProxyParameters = New Structure("CurrentVersion", AdditionalParameters.CurrentVersion);
 	ExchangeParameters = New Structure("OperationID", OperationID);
 	ExchangeSettingsStructure = DataExchangeServer.ExchangeSettingsForInfobaseNode(InfobaseNode,
-		"CheckLongRunningOperationStates", Enums.ExchangeMessagesTransportTypes.WS);
+		"CheckLongRunningOperationStates", Enums.ExchangeMessagesTransportTypes.WS, False);
 	
 	Result = DataExchangeWebService.GetLongRunningOperationStatus(Proxy, ProxyParameters.CurrentVersion, ExchangeSettingsStructure, ExchangeParameters, ErrorMessageString);
 	

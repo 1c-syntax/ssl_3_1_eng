@@ -177,7 +177,7 @@ Procedure SelectFilesExecuteAfterInstallExtension(ExtensionInstalled, ExecutionP
 	
 	OpenFileDialog = New FileDialog(Mode);
 	OpenFileDialog.FullFileName = "";
-	Filter = NStr("en = 'All files (*.*)|*.*';");
+	Filter = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
 	OpenFileDialog.Filter = Filter;
 	OpenFileDialog.Multiselect = True;
 	OpenFileDialog.Title = NStr("en = 'Select files';");

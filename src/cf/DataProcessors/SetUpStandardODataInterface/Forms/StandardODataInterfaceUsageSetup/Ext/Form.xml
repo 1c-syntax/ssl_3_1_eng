@@ -184,11 +184,11 @@
 							<ExtendedTooltip name="ContentExtendedTooltip" id="109">
 								<AutoMaxWidth>false</AutoMaxWidth>
 								<HorizontalStretch>true</HorizontalStretch>
-								<Title formatted="false">
+								<Title formatted="true">
 									<v8:item>
 										<v8:lang>en</v8:lang>
 										<v8:content>The list contains objects that can be accessed through the automatic REST service.
- The required composition of objects can be checked with the developer of a third-party program that will connect to the application through the automatic REST service.</v8:content>
+The required composition of objects can be checked with the developer of a third-party program that will connect to the application through the automatic REST service. &lt;link https://its.1c.eu/db/v8323doc#bookmark:dev:ti000001358&gt;Information for developers&lt;/&gt;</v8:content>
 									</v8:item>
 								</Title>
 							</ExtendedTooltip>
@@ -231,16 +231,6 @@
 									<ExtendedTooltip name="MetadataObjectsExtendedTooltip" id="4">
 										<AutoMaxWidth>false</AutoMaxWidth>
 										<HorizontalStretch>true</HorizontalStretch>
-										<Title formatted="false">
-											<v8:item>
-												<v8:lang>en</v8:lang>
-												<v8:content>Legend for the Note column:
-· Subordinate objects. Users can manage such objects indirectly while working with other objects. Access to such objects is a common scenario.
-· Read-only objects. They can only be read through the REST service.
-
-The list contains only objects available under the current application settings.</v8:content>
-											</v8:item>
-										</Title>
 										<VerticalAlign>Top</VerticalAlign>
 									</ExtendedTooltip>
 									<SearchStringAddition name="MetadataObjectsSearchString" id="118">
@@ -328,7 +318,7 @@ The list contains only objects available under the current application settings.
 											<ExtendedTooltip name="NoteGroup1ExtendedTooltip" id="115"/>
 											<ChildItems>
 												<LabelField name="MetadataObjectsSubordinateItem3" id="95">
-													<DataPath>MetadataObjects.Subordinate</DataPath>
+													<DataPath>MetadataObjects.Subordinated</DataPath>
 													<ReadOnly>true</ReadOnly>
 													<Title>
 														<v8:item>
@@ -364,37 +354,40 @@ The list contains only objects available under the current application settings.
 										</ColumnGroup>
 									</ChildItems>
 								</Table>
+								<UsualGroup name="TooltipGroup" id="129">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Legend for the Note column</v8:content>
+										</v8:item>
+									</Title>
+									<Behavior>Collapsible</Behavior>
+									<Collapsed>true</Collapsed>
+									<ControlRepresentation>Picture</ControlRepresentation>
+									<Representation>None</Representation>
+									<ExtendedTooltip name="TooltipGroupExtendedTooltip" id="130"/>
+									<ChildItems>
+										<LabelDecoration name="DecorationHint" id="131">
+											<AutoMaxWidth>false</AutoMaxWidth>
+											<TextColor>style:NoteText</TextColor>
+											<Title formatted="true">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>· &lt;b&gt;Subordinate objects&lt;/&gt;. Users can manage such objects indirectly while working with other objects. Access to such objects is a common scenario.
+· &lt;b&gt;Read-only objects&lt;/&gt;. They can only be read through the REST service.
+
+The list contains only objects available under the current application settings.</v8:content>
+												</v8:item>
+											</Title>
+											<ContextMenu name="DecorationHintContextMenu" id="132"/>
+											<ExtendedTooltip name="DecorationHintExtendedTooltip" id="133"/>
+										</LabelDecoration>
+									</ChildItems>
+								</UsualGroup>
 							</ChildItems>
 						</Page>
 					</ChildItems>
 				</Pages>
-				<UsualGroup name="InformationForDevelopers" id="55">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Information for developers</v8:content>
-						</v8:item>
-					</Title>
-					<HorizontalStretch>true</HorizontalStretch>
-					<Group>Horizontal</Group>
-					<Behavior>Collapsible</Behavior>
-					<Collapsed>true</Collapsed>
-					<ControlRepresentation>Picture</ControlRepresentation>
-					<ExtendedTooltip name="InformationForDevelopersExtendedTooltip" id="56"/>
-					<ChildItems>
-						<LabelDecoration name="DecorationDocumentation" id="67">
-							<AutoMaxWidth>false</AutoMaxWidth>
-							<Title formatted="true">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>&lt;link Ref&gt;Automatic REST service documentation&lt;/&gt;</v8:content>
-								</v8:item>
-							</Title>
-							<ContextMenu name="DecorationDocumentationContextMenu" id="68"/>
-							<ExtendedTooltip name="DecorationDocumentationExtendedTooltip" id="69"/>
-						</LabelDecoration>
-					</ChildItems>
-				</UsualGroup>
 			</ChildItems>
 		</UsualGroup>
 	</ChildItems>
@@ -457,7 +450,7 @@ The list contains only objects available under the current application settings.
 						<v8:Type>xs:boolean</v8:Type>
 					</Type>
 				</Column>
-				<Column name="Subordinate" id="5">
+				<Column name="Subordinated" id="5">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>

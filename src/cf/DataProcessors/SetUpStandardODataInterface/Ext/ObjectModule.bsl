@@ -120,7 +120,7 @@ Procedure AddNestedTreeRow(Val FullName, Val ReadOnly, Val Use, Val Dependencies
 	NewRow.Class = RowOwner.Class;
 	NewRow.Picture = RowOwner.Picture;
 	NewRow.Use = StandardInterfaceComposition.Find(FullName) <> Undefined;
-	NewRow.Subordinate = ODataInterfaceInternal.IsRecordSet(FullName)
+	NewRow.Subordinated = ODataInterfaceInternal.IsRecordSet(FullName)
 		And Not IsIndependentRecordSet(FullName);
 	NewRow.ReadOnly = ReadOnly;
 	NewRow.Use = Use;
@@ -152,7 +152,7 @@ Procedure AddTreeRootRow(Val FullName, Val Presentation, Val Class, Val Picture)
 	NewRow.Presentation = Presentation;
 	NewRow.Class = Class;
 	NewRow.Picture = Picture;
-	NewRow.Subordinate = False;
+	NewRow.Subordinated = False;
 	NewRow.ReadOnly = False;
 	NewRow.Root = True;
 	
@@ -204,7 +204,7 @@ ObjectsTree.Columns.Add("Presentation", New TypeDescription("String"));
 ObjectsTree.Columns.Add("Class", New TypeDescription("Number", , New NumberQualifiers(10, 0, AllowedSign.Nonnegative)));
 ObjectsTree.Columns.Add("Picture", New TypeDescription("Picture"));
 ObjectsTree.Columns.Add("Use", New TypeDescription("Boolean"));
-ObjectsTree.Columns.Add("Subordinate", New TypeDescription("Boolean"));
+ObjectsTree.Columns.Add("Subordinated", New TypeDescription("Boolean"));
 ObjectsTree.Columns.Add("ReadOnly", New TypeDescription("Boolean"));
 ObjectsTree.Columns.Add("Root", New TypeDescription("Boolean"));
 

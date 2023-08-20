@@ -46,6 +46,16 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 EndProcedure
 
 &AtClient
+Procedure OnOpen(Cancel)
+	AttributeListOfOperators = ThisObject[NameOfTheListOfOperators()];
+	ItemOperatorsList = Items[NameOfTheListOfOperators()];
+	ItemsOperators = AttributeListOfOperators.GetItems();
+	If ItemsOperators.Count() > 0 Then
+		ItemOperatorsList.Expand(ItemsOperators[0].GetID());	
+	EndIf;	
+EndProcedure
+
+&AtClient
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
 	NotifyDescription = New NotifyDescription("ConfirmAndClose", ThisObject);
@@ -375,6 +385,5 @@ Function TheTextOfTheErrorMessageWhenCheckingTheFormula(ErrorText)
 	Return MessageText;
 	
 EndFunction
-	
-	
+
 #EndRegion

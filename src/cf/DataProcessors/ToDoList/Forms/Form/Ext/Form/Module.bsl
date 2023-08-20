@@ -150,24 +150,15 @@ Procedure GenerateToDoList(ToDoList)
 	IsMobileClient = Common.IsMobileClient();
 	UserTasksParameters.Clear();
 	SectionsWithImportantUserTasks = New Structure;
-	SavedViewSettings = ToDoListInternal.SavedViewSettings();
-	If SavedViewSettings = Undefined Then
-		SectionsVisibleSet = New Map;
-		UserTasksVisibleSet      = New Map;
-	Else
-		SavedViewSettings.Property("SectionsVisibility", SectionsVisibleSet);
-		SavedViewSettings.Property("UserTasksVisible", UserTasksVisibleSet);
-	EndIf;
-	
+	ViewSettings = ToDoListInternal.SavedViewSettings();
 	CollapsedSections = CollapsedSections();
 	
 	ToDoList.Sort("IsSection Desc, SectionPresentation Asc, Important Desc, Presentation");
-	
 	PutToTempStorage(ToDoList, UserTasksToStorage);
 	
 	// 
 	// 
-	If SavedViewSettings = Undefined Then
+	If ViewSettings.SectionsVisibility.Count() = 0 Then
 		ToDoListInternal.SetInitialSectionsOrder(ToDoList);
 	EndIf;
 	
@@ -183,8 +174,7 @@ Procedure GenerateToDoList(ToDoList)
 				
 				SectionCollapsed = CollapsedSections[ToDoItem.OwnerID];
 				If SectionCollapsed = Undefined Then
-					If SavedViewSettings = Undefined
-						And CurrentCommonGroup <> "" Then
+					If ViewSettings.SectionsVisibility.Count() = 0 And CurrentCommonGroup <> "" Then
 						// 
 						CollapsedSections.Insert(ToDoItem.OwnerID, True);
 						SectionCollapsed = True;
@@ -194,7 +184,7 @@ Procedure GenerateToDoList(ToDoList)
 					
 				EndIf;
 				
-				SectionVisibleEnabled = SectionsVisibleSet[ToDoItem.OwnerID];
+				SectionVisibleEnabled = ViewSettings.SectionsVisibility[ToDoItem.OwnerID];
 				If SectionVisibleEnabled = Undefined Then
 					SectionVisibleEnabled = True;
 				EndIf;
@@ -228,7 +218,7 @@ Procedure GenerateToDoList(ToDoList)
 				EndIf;
 			EndIf;
 			
-			UserTaskVisibleEnabled = UserTasksVisibleSet[ToDoItem.Id];
+			UserTaskVisibleEnabled = ViewSettings.UserTasksVisible[ToDoItem.Id];
 			If UserTaskVisibleEnabled = Undefined Then
 				UserTaskVisibleEnabled = True;
 			EndIf;
@@ -256,8 +246,7 @@ Procedure GenerateToDoList(ToDoList)
 		
 	EndDo;
 	
-	AddToDoItemsWithNotification(SavedViewSettings, ToDoList);
-	
+	AddToDoItemsWithNotification(ViewSettings, ToDoList);	
 	SaveCollapsedSections(CollapsedSections);
 	
 EndProcedure
@@ -310,7 +299,9 @@ Function GenerateToDoListInBackground()
 	ExecutionParameters.WaitCompletion = 0; // 
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update to-do list';");
 	ExecutionParameters.ResultAddress = UserTasksToStorage;
-	ExecutionParameters.RunInBackground = True; // 
+	// 
+	// 
+	ExecutionParameters.RunInBackground = True;
 	
 	Result = TimeConsumingOperations.ExecuteInBackground("ToDoListInternal.GenerateToDoListForUser",
 		New Structure, ExecutionParameters);
@@ -777,16 +768,15 @@ Procedure ProcessHyperlinkClickCompletion(Result, AdditionalParameters) Export
 EndProcedure
 
 &AtServer
-Procedure AddToDoItemsWithNotification(SavedViewSettings, ToDoList)
+Procedure AddToDoItemsWithNotification(ViewSettings, ToDoList)
 	
 	ToDoItemsWithNotification.Clear();
 	
 	FilterParameters = New Structure;
 	FilterParameters.Insert("OutputInNotifications", True);
 	
-	If SavedViewSettings <> Undefined
-		And SavedViewSettings.UserTasksTree.Columns.Find("OutputInNotifications") <> Undefined Then
-		FoundRows = SavedViewSettings.UserTasksTree.Rows.FindRows(FilterParameters, True);
+	If ViewSettings.UserTasksTree.Columns.Find("OutputInNotifications") <> Undefined Then
+		FoundRows = ViewSettings.UserTasksTree.Rows.FindRows(FilterParameters, True);
 		For Each String In FoundRows Do
 			ToDoItem = ToDoList.Find(String.Id, "Id");
 			
@@ -798,7 +788,7 @@ Procedure AddToDoItemsWithNotification(SavedViewSettings, ToDoList)
 				Continue;
 			EndIf;
 			
-			If SavedViewSettings.UserTasksVisible[String.Id] = False Then
+			If ViewSettings.UserTasksVisible[String.Id] = False Then
 				Continue;
 			EndIf;
 			
@@ -816,8 +806,7 @@ Procedure AddToDoItemsWithNotification(SavedViewSettings, ToDoList)
 	
 	FoundRows = ToDoList.FindRows(FilterParameters);
 	For Each String In FoundRows Do
-		If SavedViewSettings <> Undefined
-			And SavedViewSettings.UserTasksVisible[String.Id] <> Undefined Then
+		If ViewSettings.UserTasksVisible[String.Id] <> Undefined Then
 			Continue;
 		EndIf;
 		

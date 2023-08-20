@@ -195,7 +195,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	ObjectsWithIssuesCount = 0;
 	
 	For Each String In SelectedData Do
-		
+		RepresentationOfTheReference = String(String.Ref);
 		BeginTransaction();
 		Try
 			
@@ -249,7 +249,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process file %1. Reason:
 				|%2';"), 
-				String.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
 				String.Ref.Metadata(), String.Ref, MessageText);
 		EndTry;

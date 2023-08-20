@@ -42,11 +42,33 @@ Function SavedAddInInformation(Id, Version = Undefined, ThePathToTheLayoutToSear
 	
 EndFunction
 
-// Add-in file name to save to the file.
+// 
+// 
+// Parameters:
+//  References References
+// 
+// Returns:
+//  Array of Structure:
+//   * Location - String
+//   * FileName - String
 //
-Function ComponentFileName(Ref) Export 
+Function AddInsFilesDetails(References) Export
 	
-	Return Common.ObjectAttributeValue(Ref, "FileName");
+	Array = New Array;
+	
+	ObjectsAttributesValues = Common.ObjectsAttributesValues(References, "FileName, Id");
+	For Each KeyAndValue In ObjectsAttributesValues Do
+		Structure = New Structure;
+		Structure.Insert("Location", GetURL(KeyAndValue.Key, "AddInStorage"));
+		FileName = KeyAndValue.Value.FileName;
+		If Not ValueIsFilled(FileName) Then
+			FileName = KeyAndValue.Value.Id + ".zip";
+		EndIf;
+		Structure.Insert("Name", FileName);
+		Array.Add(Structure);
+	EndDo;
+	
+	Return Array;
 	
 EndFunction
 

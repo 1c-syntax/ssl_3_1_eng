@@ -190,7 +190,7 @@
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>Checking an access right for a data item of a subordinate table includes checking an access right
-and an access right restriction for the main table object.</v8:content>
+and an access right restriction for the master table object.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -224,7 +224,7 @@ and an access right restriction for the main table object.</v8:content>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Main table type</v8:content>
+							<v8:content>Master table type</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment>APK:1330-No. 728.2.1 it is Acceptable to use a universal reference type, since this is a universal mechanism and only for RLS in the BSP 2.x format (deprecated)</Comment>
@@ -245,7 +245,7 @@ and an access right restriction for the main table object.</v8:content>
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>Checking an access right for a data item of a subordinate table includes checking an access right
-and an access right restriction for the main table object.</v8:content>
+and an access right restriction for the master table object.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

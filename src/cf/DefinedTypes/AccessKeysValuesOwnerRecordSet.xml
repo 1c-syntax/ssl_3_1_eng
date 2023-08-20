@@ -21,6 +21,7 @@
 				<v8:Type>cfg:InformationRegisterRecordSet.BusinessProcessesData</v8:Type>
 				<v8:Type>cfg:InformationRegisterRecordSet.ReportOptionsSettings</v8:Type>
 				<v8:Type>cfg:InformationRegisterRecordSet.InteractionsFolderSubjects</v8:Type>
+				<v8:Type>cfg:InformationRegisterRecordSet.ReportsSnapshots</v8:Type>
 				<v8:Type>cfg:InformationRegisterRecordSet.PeriodClosingDates</v8:Type>
 				<v8:Type>cfg:InformationRegisterRecordSet.EmailAccountSettings</v8:Type>
 				<v8:Type>cfg:InformationRegisterRecordSet.AdditionalInfo</v8:Type>

@@ -27,9 +27,9 @@ Function CertificationAuthorityData(SearchValues) Export
 	
 EndFunction
 
-Function ActionsToFixError(ErrorText) Export
+Function ClassifierError(ErrorText) Export
 	
-	Return DigitalSignatureInternalServerCall.ActionsToFixError(ErrorText);
+	Return DigitalSignatureInternalServerCall.ClassifierError(ErrorText);
 	
 EndFunction
 

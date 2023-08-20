@@ -325,6 +325,10 @@
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>
+		<Metadata>InformationRegister.ReportsSnapshots</Metadata>
+		<AutoRecord>Deny</AutoRecord>
+	</Item>
+	<Item>
 		<Metadata>Catalog.PredefinedExtensionsReportsOptions</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
@@ -422,6 +426,10 @@
 	</Item>
 	<Item>
 		<Metadata>Constant.UseObjectsVersioning</Metadata>
+		<AutoRecord>Deny</AutoRecord>
+	</Item>
+	<Item>
+		<Metadata>Catalog.DataExchangesSessions</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>

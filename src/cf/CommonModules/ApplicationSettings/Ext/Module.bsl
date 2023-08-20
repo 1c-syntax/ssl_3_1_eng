@@ -39,9 +39,11 @@ Procedure OnlineSupportAndServicesOnCreateAtServer(Form, Cancel, StandardProcess
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.Currencies") Then
+		ModuleCurrencyExchangeRatesInternal = Common.CommonModule("CurrencyRateOperationsInternal");
 		Items.ImportCurrenciesRatesDataProcessorGroup.Visible =
 			  Not Form.DataSeparationEnabled
-			And Not Form.IsStandaloneWorkplace;
+			And Not Form.IsStandaloneWorkplace
+			And ModuleCurrencyExchangeRatesInternal.HasRightToChangeExchangeRates();
 	Else
 		Items.ImportCurrenciesRatesDataProcessorGroup.Visible = False;
 	EndIf;
@@ -207,6 +209,7 @@ Procedure OnlineSupportAndServicesAllowSendDataOnChange(Form, Item, OperationPar
 		ModuleMonitoringCenterInternal.SetDefaultScheduleExternalCall(SchedJob);
 	ElsIf Result = 2 Then
 		ModuleMonitoringCenterInternal.DeleteScheduledJobExternalCall("StatisticsDataCollectionAndSending");
+		ModuleMonitoringCenterInternal.DisableEventLogging();
 	EndIf;
 	
 	OperationParametersList.Insert("RunResult", RunResult);

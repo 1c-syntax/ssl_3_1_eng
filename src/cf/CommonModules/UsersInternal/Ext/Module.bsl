@@ -716,13 +716,13 @@ EndProcedure
 // Parameters:
 //  RolesAssignment - Undefined
 //  CheckEverything - Boolean
-//  ErrorsList - Undefined
+//  ErrorList - Undefined
 //               - ValueList - 
 //                   * Value      - String - a role name.
 //                                   - Undefined - 
 //                   * Presentation - String - error text.
 //
-Procedure CheckRoleAssignment(RolesAssignment = Undefined, CheckEverything = False, ErrorsList = Undefined) Export
+Procedure CheckRoleAssignment(RolesAssignment = Undefined, CheckEverything = False, ErrorList = Undefined) Export
 	
 	If RolesAssignment = Undefined Then
 		RolesAssignment = UsersInternalCached.RolesAssignment();
@@ -745,10 +745,10 @@ Procedure CheckRoleAssignment(RolesAssignment = Undefined, CheckEverything = Fal
 						NStr("en = 'Role ""%1""
 						           | specified in assignment %2 does not exist in metadata.';"),
 						KeyAndValue.Key, RolesAssignmentDetails.Key);
-				If ErrorsList = Undefined Then
+				If ErrorList = Undefined Then
 					ErrorText = ErrorText + Chars.LF + Chars.LF + ErrorDescription;
 				Else
-					ErrorsList.Add(Undefined, ErrorDescription);
+					ErrorList.Add(Undefined, ErrorDescription);
 				EndIf;
 				Continue;
 			EndIf;
@@ -762,10 +762,10 @@ Procedure CheckRoleAssignment(RolesAssignment = Undefined, CheckEverything = Fal
 					NStr("en = 'Role ""%1"" is specified in multiple assignments:
 					           |%2 and %3.';"),
 					Role.Name, RolesAssignmentDetails.Key, AssignmentDetails.Key);
-				If ErrorsList = Undefined Then
+				If ErrorList = Undefined Then
 					ErrorText = ErrorText + Chars.LF + Chars.LF + ErrorDescription;
 				Else
-					ErrorsList.Add(Role, ErrorDescription);
+					ErrorList.Add(Role, ErrorDescription);
 				EndIf;
 			EndDo;
 		EndDo;
@@ -780,10 +780,10 @@ Procedure CheckRoleAssignment(RolesAssignment = Undefined, CheckEverything = Fal
 	UnavailableRights.Add("DataAdministration");
 	
 	CheckRoleRightsList(UnavailableRights, Purpose.ForExternalUsersOnly, ErrorText,
-		NStr("en = 'Errors were found while checking external user roles:';"), ErrorsList);
+		NStr("en = 'Errors were found while checking external user roles:';"), ErrorList);
 	
 	CheckRoleRightsList(UnavailableRights, Purpose.BothForUsersAndExternalUsers, ErrorText,
-		NStr("en = 'Errors were found while checking both user and external user roles:';"), ErrorsList);
+		NStr("en = 'Errors were found while checking both user and external user roles:';"), ErrorList);
 	
 	// Check user roles.
 	If Common.DataSeparationEnabled() Or CheckEverything Then
@@ -808,7 +808,7 @@ Procedure CheckRoleAssignment(RolesAssignment = Undefined, CheckEverything = Fal
 		
 		Shared_Data = Shared_Data();
 		CheckRoleRightsList(UnavailableRights, Roles, ErrorText,
-			NStr("en = 'Errors were found while checking application user roles:';"), ErrorsList, Shared_Data);
+			NStr("en = 'Errors were found while checking application user roles:';"), ErrorList, Shared_Data);
 	EndIf;
 	If Not Common.DataSeparationEnabled() Or CheckEverything Then
 		Roles = New Map;
@@ -825,10 +825,10 @@ Procedure CheckRoleAssignment(RolesAssignment = Undefined, CheckEverything = Fal
 		UnavailableRights.Add("UpdateDataBaseConfiguration");
 		
 		CheckRoleRightsList(UnavailableRights, Roles, ErrorText,
-			NStr("en = 'Errors were found while checking user roles:';"), ErrorsList);
+			NStr("en = 'Errors were found while checking user roles:';"), ErrorList);
 		
 		CheckRoleRightsList(UnavailableRights, Purpose.BothForUsersAndExternalUsers, ErrorText,
-			NStr("en = 'Errors were found while checking both user and external user roles:';"), ErrorsList);
+			NStr("en = 'Errors were found while checking both user and external user roles:';"), ErrorList);
 	EndIf;
 	
 	If ValueIsFilled(ErrorText) Then
@@ -1509,6 +1509,7 @@ EndProcedure
 // See CommonOverridable.OnAddClientParameters.
 Procedure OnAddClientParameters(Parameters) Export
 	
+	// 
 	Parameters.Insert("IsFullUser", Users.IsFullUser());
 	Parameters.Insert("IsSystemAdministrator", Users.IsFullUser(, True));
 	
@@ -1529,7 +1530,7 @@ Procedure OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating, Recipie
 	
 EndProcedure
 
-// See StandardSubsystemsServer.ПриОтправкеДанныхГлавному.
+// See StandardSubsystems.OnSendDataToMaster.
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 	OnSendData(DataElement, ItemSend, False);
@@ -2869,8 +2870,8 @@ EndFunction
 //                                  b) For users with the right to sign in to the application,
 //                                     any property can be edited, except for granting the right to sign in
 //                                     and the authentication settings (see below). 
-//   * ChangeAuthorizationPermission  - Boolean - changing the "Can sign in" flag.
-//   * DisableAuthorizationApproval - Boolean - clearing the "Can sign in" flag.
+//   * ChangeAuthorizationPermission  - Boolean - Change the "Sign-in allowed" check box state.
+//   * DisableAuthorizationApproval - Boolean - Clear the "Sign-in allowed" check box.
 //   * AuthorizationSettings2          - Boolean -
 //                                    
 //                                    
@@ -4812,7 +4813,7 @@ Function UsersToEnablePasswordRecovery() Export
 		Return New Array;
 	EndIf;
 	
-	IBSUsersByMail = UsersWithEmailForRecovery();
+	IBSUsersByMail = UsersWithRecoveryEmail();
 	
 	If ExternalUsers.UseExternalUsers() Then
 		Return UsersToEnablePasswordRecoveryBasedOnExternalUsers(IBSUsersByMail);
@@ -5049,7 +5050,7 @@ Function ExternalUsersToEnablePasswordRecovery() Export
 	
 	QueryResult = Query.Execute().Unload();
 	
-	IBSUsersByMail = UsersWithEmailForRecovery();
+	IBSUsersByMail = UsersWithRecoveryEmail();
 	
 	Return ListOfUsersToUpdate(IBSUsersByMail, QueryResult);
 	
@@ -5092,7 +5093,7 @@ Function UpdateEmailForPasswordRecovery(UserRef, AuthorizationObject = Undefined
 	LockItem.Mode = DataLockMode.Shared;
 	
 	EmailForPasswordRecovery = "";
-	
+	RepresentationOfTheReference = String(UserRef);
 	BeginTransaction();
 	Try
 		
@@ -5147,7 +5148,7 @@ Function UpdateEmailForPasswordRecovery(UserRef, AuthorizationObject = Undefined
 		
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Couldn''t process the %1 user due to: %2';"),
-			UserRef, ErrorProcessing.DetailErrorDescription(ErrorInfo));
+			RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo));
 			
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
 			Metadata.Catalogs.Users, UserRef, MessageText);
@@ -5165,7 +5166,7 @@ Function UpdateEmailForPasswordRecovery(UserRef, AuthorizationObject = Undefined
 	
 EndFunction
 
-Function UsersWithEmailForRecovery()
+Function UsersWithRecoveryEmail()
 	
 	IBSUsersByMail = New Map;
 	
@@ -6780,7 +6781,7 @@ Function CheckUserRights(IBUser, CheckMode, IsExternalUser,
 		EndIf;
 		
 		UnavailableRolesToAdd = UnavailableRolesToAdd
-			+ StringFunctionsClientServer.SubstituteParametersToString(TemplateText, Role.Presentation()) + Chars.LF;;
+			+ StringFunctionsClientServer.SubstituteParametersToString(TemplateText, Role.Presentation()) + Chars.LF;
 	EndDo;
 	
 	UnavailableRolesToAdd = TrimAll(UnavailableRolesToAdd);
@@ -6907,7 +6908,44 @@ Procedure CopySettings(SettingsManager, UserNameSource, UserNameDestination, Wra
 	For Each Setting In SettingsTable Do
 		ObjectKey = Setting.ObjectKey;
 		SettingsKey = Setting.SettingsKey;
-		Value = SettingsManager.Load(ObjectKey, SettingsKey, , UserNameSource);
+		Try
+			Value = SettingsManager.Load(ObjectKey, SettingsKey, , UserNameSource);
+		Except
+			ErrorInfo = ErrorInfo();
+			Comment = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Cannot import the setting value when copying the setting from user ""%1""
+				           |to user ""%2""
+				           |with the ""%3"" object key and
+				           |the ""%4"" setting key.
+				           |Reason:
+				           |%5';"),
+				UserNameSource,
+				UserNameDestination,
+				ObjectKey,
+				SettingsKey,
+				ErrorProcessing.DetailErrorDescription(ErrorInfo));
+			WriteLogEvent(
+				NStr("en = 'Users.Copy settings';",
+				     Common.DefaultLanguageCode()),
+				EventLogLevel.Error,,,
+				Comment);
+			CanProceed = True;
+			Try
+				Catalogs.Users.FindByDescription(String(New UUID()), True);
+			Except
+				CanProceed = False;
+			EndTry;
+			If CanProceed Then
+				Continue;
+			EndIf;
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Cannot copy the setting to the user due to:
+				           |%1
+				           |
+				           |For more information, see the event log.';"),
+				ErrorProcessing.BriefErrorDescription(ErrorInfo));
+			Raise ErrorText;
+		EndTry;
 		SettingsDescription = SettingsManager.GetDescription(ObjectKey, SettingsKey, UserNameSource);
 		SettingsManager.Save(ObjectKey, SettingsKey, Value,
 			SettingsDescription, UserNameDestination);
@@ -6996,7 +7034,7 @@ Procedure CopyIBUserSettings(UserObject, ProcessingParameters)
 	
 EndProcedure
 
-Procedure CheckRoleRightsList(UnavailableRights, RolesDetails, GeneralErrorText, ErrorTitle, ErrorsList, Shared_Data = Undefined)
+Procedure CheckRoleRightsList(UnavailableRights, RolesDetails, GeneralErrorText, ErrorTitle, ErrorList, Shared_Data = Undefined)
 	
 	ErrorText = "";
 	
@@ -7007,10 +7045,10 @@ Procedure CheckRoleRightsList(UnavailableRights, RolesDetails, GeneralErrorText,
 				ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Role ""%1"" contains unavailable right %2.';"),
 					Role, UnavailableRight);
-				If ErrorsList = Undefined Then
+				If ErrorList = Undefined Then
 					ErrorText = ErrorText + Chars.LF + ErrorDescription;
 				Else
-					ErrorsList.Add(Role, ErrorTitle + Chars.LF + ErrorDescription);
+					ErrorList.Add(Role, ErrorTitle + Chars.LF + ErrorDescription);
 				EndIf;
 			EndIf;
 		EndDo;
@@ -7026,10 +7064,10 @@ Procedure CheckRoleRightsList(UnavailableRights, RolesDetails, GeneralErrorText,
 				ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Role ""%1"" contains the ""Update"" right for shared object %2.';"),
 					Role, MetadataObject.FullName());
-				If ErrorsList = Undefined Then
+				If ErrorList = Undefined Then
 					ErrorText = ErrorText + Chars.LF + ErrorDescription;
 				Else
-					ErrorsList.Add(MetadataObject, ErrorTitle + Chars.LF + ErrorDescription);
+					ErrorList.Add(MetadataObject, ErrorTitle + Chars.LF + ErrorDescription);
 				EndIf;
 			EndIf;
 			If DataProperties.Presentation = "" Then
@@ -7039,20 +7077,20 @@ Procedure CheckRoleRightsList(UnavailableRights, RolesDetails, GeneralErrorText,
 				ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Role ""%1"" contains the ""Insert"" right for shared object %2.';"),
 					Role, MetadataObject.FullName());
-				If ErrorsList = Undefined Then
+				If ErrorList = Undefined Then
 					ErrorText = ErrorText + Chars.LF + ErrorDescription;
 				Else
-					ErrorsList.Add(MetadataObject, ErrorTitle + Chars.LF + ErrorDescription);
+					ErrorList.Add(MetadataObject, ErrorTitle + Chars.LF + ErrorDescription);
 				EndIf;
 			EndIf;
 			If AccessRight("Delete", MetadataObject, Role) Then
 				ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Role ""%1"" contains the ""Delete"" right for shared object %2.';"),
 					Role, MetadataObject.FullName());
-				If ErrorsList = Undefined Then
+				If ErrorList = Undefined Then
 					ErrorText = ErrorText + Chars.LF + ErrorDescription;
 				Else
-					ErrorsList.Add(MetadataObject, ErrorTitle + Chars.LF + ErrorDescription);
+					ErrorList.Add(MetadataObject, ErrorTitle + Chars.LF + ErrorDescription);
 				EndIf;
 			EndIf;
 		EndDo;
@@ -7391,6 +7429,10 @@ Function PasswordChangeRequired(ErrorDescription = "", OnStart = False, Register
 		EndTry;
 	EndIf;
 	SetPrivilegedMode(False);
+	
+	If StandardSubsystemsServer.ThisIsSplitSessionModeWithNoDelimiters() Then
+		Return False;
+	EndIf;
 	
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("IncludeCannotChangePasswordProperty");
@@ -8248,12 +8290,12 @@ Procedure DisableInactiveAndOverdueUsers(ForAuthorizedUsersOnly = False,
 			If RegisterInLog Then
 				If Selection.ValidityPeriodExpired Then
 					CommentTemplate =
-						NStr("en = 'Cannot clear the ""Can sign in"" flag
-						           |for user ""%1"" with expired password. Reason:
+						NStr("en = 'Cannot clear the ""Sign-in allowed"" flag
+						           |for user ""%1"" with expired authorization. Reason:
 						           |%2';");
 				Else
 					CommentTemplate =
-						NStr("en = 'Cannot clear the ""Can sign in"" flag
+						NStr("en = 'Cannot clear the ""Sign-in allowed"" flag
 						           |for user ""%1"" with inactivity timeout reached.
 						           |Reason:
 						           |%2';");

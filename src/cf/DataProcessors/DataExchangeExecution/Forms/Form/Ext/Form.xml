@@ -875,6 +875,45 @@ For a correction method, see the &lt;link 1&gt;instruction&lt;/&gt;
 										</LabelDecoration>
 									</ChildItems>
 								</Page>
+								<Page name="ExchangeIsCompletedWithErrorRebootIsRequired" id="236">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Exchange completed with error Restart required</v8:content>
+										</v8:item>
+									</Title>
+									<Group>HorizontalIfPossible</Group>
+									<ExtendedTooltip name="ExchangeIsCompletedWithErrorRebootIsRequiredExtendedTooltip" id="237"/>
+									<ChildItems>
+										<PictureDecoration name="PictureNeedsReboot" id="238">
+											<Title formatted="false">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Picture Restart required</v8:content>
+												</v8:item>
+											</Title>
+											<Picture>
+												<xr:Ref>CommonPicture.Warning32</xr:Ref>
+												<xr:LoadTransparent>false</xr:LoadTransparent>
+											</Picture>
+											<FileDragMode>AsFile</FileDragMode>
+											<ContextMenu name="PictureNeedsRebootContextMenu" id="239"/>
+											<ExtendedTooltip name="PictureNeedsRebootExtendedTooltip" id="240"/>
+										</PictureDecoration>
+										<LabelDecoration name="TextRebootIsRequired" id="250">
+											<Title formatted="false">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Configuration extensions are changed.
+To continue with the changes made, restart the application.</v8:content>
+												</v8:item>
+											</Title>
+											<VerticalAlign>Center</VerticalAlign>
+											<ContextMenu name="TextRebootIsRequiredContextMenu" id="251"/>
+											<ExtendedTooltip name="TextRebootIsRequiredExtendedTooltip" id="252"/>
+										</LabelDecoration>
+									</ChildItems>
+								</Page>
 							</ChildItems>
 						</Pages>
 						<Pages name="ActionsPanel" id="45">
@@ -929,7 +968,7 @@ For a correction method, see the &lt;link 1&gt;instruction&lt;/&gt;
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Command bar set close</v8:content>
+													<v8:content>Command bar Install close</v8:content>
 												</v8:item>
 											</Title>
 											<HorizontalLocation>Right</HorizontalLocation>
@@ -985,6 +1024,40 @@ For a correction method, see the &lt;link 1&gt;instruction&lt;/&gt;
 														</v8:item>
 													</Title>
 													<ExtendedTooltip name="CloseExtendedTooltip" id="167"/>
+												</Button>
+											</ChildItems>
+										</CommandBar>
+									</ChildItems>
+								</Page>
+								<Page name="ActionsReload" id="253">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Actions Restart</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="ActionsReloadExtendedTooltip" id="254"/>
+									<ChildItems>
+										<CommandBar name="RestartCommandPanel" id="255">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Command bar Install close</v8:content>
+												</v8:item>
+											</Title>
+											<HorizontalLocation>Right</HorizontalLocation>
+											<ExtendedTooltip name="RestartCommandPanelExtendedTooltip" id="256"/>
+											<ChildItems>
+												<Button name="RestartApplication" id="261">
+													<Type>CommandBarButton</Type>
+													<CommandName>Form.Command.RestartApplication</CommandName>
+													<ExtendedTooltip name="RestartApplication1ExtendedTooltip" id="262"/>
+												</Button>
+												<Button name="FormClose3" id="259">
+													<Type>CommandBarButton</Type>
+													<Representation>Text</Representation>
+													<CommandName>Form.StandardCommand.Close</CommandName>
+													<ExtendedTooltip name="FormClose3ExtendedTooltip" id="260"/>
 												</Button>
 											</ChildItems>
 										</CommandBar>
@@ -1504,6 +1577,21 @@ For a correction method, see the &lt;link 1&gt;instruction&lt;/&gt;
 				</v8:item>
 			</ToolTip>
 			<Action>CancelQueueAndResume</Action>
+		</Command>
+		<Command name="RestartApplication" id="7">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Restart application</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Restart application.</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>RestartApplication</Action>
 		</Command>
 	</Commands>
 	<Parameters>

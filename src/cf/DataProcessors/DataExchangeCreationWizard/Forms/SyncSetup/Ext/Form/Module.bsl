@@ -95,7 +95,7 @@ Procedure SetUpConnectionParameters(Command)
 	ClosingNotification1 = New NotifyDescription("SetUpConnectionParametersCompletion", ThisObject);
 	
 	If DataExchangeWithExternalSystem Then
-		If CommonClient.SubsystemExists("OnlineUserSupport.DataExchangeWithExternalSystems") Then
+		If CommonClient.SubsystemExists("OnlineUserSupport.ОбменДаннымиСВнешнимиСистемами") Then
 			Context = New Structure;
 			Context.Insert("SettingID", SettingID);
 			Context.Insert("ConnectionParameters", ExternalSystemConnectionParameters);
@@ -151,7 +151,7 @@ Procedure GetConnectionConfirmation(Command)
 		Return;
 	EndIf;
 	
-	If CommonClient.SubsystemExists("OnlineUserSupport.DataExchangeWithExternalSystems") Then
+	If CommonClient.SubsystemExists("OnlineUserSupport.ОбменДаннымиСВнешнимиСистемами") Then
 		Context = New Structure;
 		Context.Insert("Mode",                  "ConfirmConnection");
 		Context.Insert("Peer",          ExchangeNode);

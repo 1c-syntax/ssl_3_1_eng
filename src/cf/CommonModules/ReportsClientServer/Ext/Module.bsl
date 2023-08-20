@@ -594,6 +594,21 @@ Function SettingItemIndexByPath(Val Path, ItemProperty = Undefined) Export
 	Return IndexDetails.AdjustValue(ElementIndex);
 EndFunction
 
+#Region ObsoleteProceduresAndFunctions
+
+// Deprecated.
+Function AddToList2(DestinationList, SourceList, CheckType = Undefined, AddNewItems = True) Export
+	
+	If DestinationList = Undefined Or SourceList = Undefined Then
+		Return Undefined;
+	EndIf;
+	
+	Return CommonClientServer.AddToList2(DestinationList, SourceList, CheckType, AddNewItems);
+	
+EndFunction
+
+#EndRegion
+
 #EndRegion
 
 #Region Private
@@ -1819,53 +1834,6 @@ Function ValuesByList(Values, OnlyFilledValues = False) Export
 	EndDo;
 	
 	Return List;
-EndFunction
-
-Function AddToList2(DestinationList, SourceList, CheckType = Undefined, AddNewItems = True) Export
-	If DestinationList = Undefined Or SourceList = Undefined Then
-		Return Undefined;
-	EndIf;
-	
-	ReplaceExistingItems = True;
-	ReplacePresentation = ReplaceExistingItems And AddNewItems;
-	
-	Result = New Structure;
-	Result.Insert("Total", 0);
-	Result.Insert("Added2", 0);
-	Result.Insert("Updated3", 0);
-	Result.Insert("Skipped3", 0);
-	
-	If CheckType = Undefined Then
-		CheckType = (DestinationList.ValueType <> SourceList.ValueType);
-	EndIf;
-	If CheckType Then
-		DestinationTypesDetails = DestinationList.ValueType;
-	EndIf;
-	For Each SourceItem In SourceList Do
-		Result.Total = Result.Total + 1;
-		Value = SourceItem.Value;
-		If CheckType And Not DestinationTypesDetails.ContainsType(TypeOf(Value)) Then
-			Result.Skipped3 = Result.Skipped3 + 1;
-			Continue;
-		EndIf;
-		DestinationItem = DestinationList.FindByValue(Value);
-		If DestinationItem = Undefined Then
-			If AddNewItems Then
-				Result.Added2 = Result.Added2 + 1;
-				FillPropertyValues(DestinationList.Add(), SourceItem);
-			Else
-				Result.Skipped3 = Result.Skipped3 + 1;
-			EndIf;
-		Else
-			If ReplaceExistingItems Then
-				Result.Updated3 = Result.Updated3 + 1;
-				FillPropertyValues(DestinationItem, SourceItem, , ?(ReplacePresentation, "", "Presentation"));
-			Else
-				Result.Skipped3 = Result.Skipped3 + 1;
-			EndIf;
-		EndIf;
-	EndDo;
-	Return Result;
 EndFunction
 
 Function StrLeftBeforeChar(String, Separator, Balance = Undefined)

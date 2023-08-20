@@ -208,7 +208,7 @@ lowercase letters, numbers, and special characters
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Maximum password validity period</v8:content>
+													<v8:content>Maximum password lifetime</v8:content>
 												</v8:item>
 											</Title>
 											<Behavior>Usual</Behavior>
@@ -258,7 +258,7 @@ to the moment the password expires.</v8:content>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Minimum password validity period</v8:content>
+													<v8:content>Minimum password lifetime</v8:content>
 												</v8:item>
 											</Title>
 											<Behavior>Usual</Behavior>
@@ -340,7 +340,7 @@ when the user cannot change the password.</v8:content>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Warn about password lifetime end</v8:content>
+													<v8:content>Prompt to change password before expiration</v8:content>
 												</v8:item>
 											</Title>
 											<Behavior>Usual</Behavior>
@@ -385,7 +385,7 @@ when the user cannot change the password.</v8:content>
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Inactivity period before denying authorization</v8:content>
+											<v8:content>Inactivity period before sign-in is denied</v8:content>
 										</v8:item>
 									</Title>
 									<Behavior>Usual</Behavior>
@@ -575,7 +575,7 @@ lowercase letters, numbers, and special characters
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Maximum password validity period</v8:content>
+													<v8:content>Maximum password lifetime</v8:content>
 												</v8:item>
 											</Title>
 											<Behavior>Usual</Behavior>
@@ -625,7 +625,7 @@ to the moment the password expires.</v8:content>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Minimum password validity period</v8:content>
+													<v8:content>Minimum password lifetime</v8:content>
 												</v8:item>
 											</Title>
 											<Behavior>Usual</Behavior>
@@ -707,7 +707,7 @@ when the user cannot change the password.</v8:content>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Warn about password lifetime end</v8:content>
+													<v8:content>Prompt to change password before expiration</v8:content>
 												</v8:item>
 											</Title>
 											<Behavior>Usual</Behavior>
@@ -752,7 +752,7 @@ when the user cannot change the password.</v8:content>
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Inactivity period before denying authorization</v8:content>
+											<v8:content>Inactivity period before sign-in is denied</v8:content>
 										</v8:item>
 									</Title>
 									<Behavior>Usual</Behavior>
@@ -819,7 +819,7 @@ The setting does not affect administrators.</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Number of attempts to enter password before lockout</v8:content>
+									<v8:content>Number of password attempts before lockout</v8:content>
 								</v8:item>
 							</Title>
 							<Behavior>Usual</Behavior>
@@ -1040,7 +1040,7 @@ The checkbox is hidden and disabled for all users</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Apply password complexity requirements</v8:content>
+					<v8:content>Apply password complexity rules</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1067,7 +1067,7 @@ The checkbox is hidden and disabled for all users</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Maximum password validity period</v8:content>
+					<v8:content>Maximum password lifetime</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1083,7 +1083,7 @@ The checkbox is hidden and disabled for all users</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Minimum password validity period</v8:content>
+					<v8:content>Minimum password lifetime</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1104,7 +1104,7 @@ The checkbox is hidden and disabled for all users</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Inactivity period before denying authorization</v8:content>
+					<v8:content>Inactivity period before sign-in is denied</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1142,7 +1142,7 @@ The checkbox is hidden and disabled for all users</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Minimum password validity period:</v8:content>
+					<v8:content>Minimum password lifetime:</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1153,7 +1153,7 @@ The checkbox is hidden and disabled for all users</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Maximum password validity period:</v8:content>
+					<v8:content>Maximum password lifetime:</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1164,7 +1164,7 @@ The checkbox is hidden and disabled for all users</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Inactivity period before the user is blocked from signing in to the application:</v8:content>
+					<v8:content>Inactivity period before the user is blocked from signing in:</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1178,7 +1178,7 @@ The checkbox is hidden and disabled for all users</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Number of attempts to enter password before lockout</v8:content>
+					<v8:content>Number of password attempts before lockout</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1194,7 +1194,7 @@ The checkbox is hidden and disabled for all users</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Warn about password lifetime end</v8:content>
+					<v8:content>Prompt to change password before expiration</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1210,7 +1210,7 @@ The checkbox is hidden and disabled for all users</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Number of attempts to enter password before lockout</v8:content>
+					<v8:content>Number of password attempts before lockout</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1258,7 +1258,7 @@ The checkbox is hidden and disabled for all users</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Period before password lifetime end to send the warning</v8:content>
+					<v8:content>Prompt to change password this many days before expiration:</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1285,7 +1285,7 @@ The checkbox is hidden and disabled for all users</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Apply password complexity requirements</v8:content>
+					<v8:content>Apply password complexity rules</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1323,7 +1323,7 @@ The checkbox is hidden and disabled for all users</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Maximum password validity period:</v8:content>
+					<v8:content>Maximum password lifetime:</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1334,7 +1334,7 @@ The checkbox is hidden and disabled for all users</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Maximum password validity period</v8:content>
+					<v8:content>Maximum password lifetime</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1350,7 +1350,7 @@ The checkbox is hidden and disabled for all users</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Minimum password validity period:</v8:content>
+					<v8:content>Minimum password lifetime:</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1361,7 +1361,7 @@ The checkbox is hidden and disabled for all users</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Minimum password validity period</v8:content>
+					<v8:content>Minimum password lifetime</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1377,7 +1377,7 @@ The checkbox is hidden and disabled for all users</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Period before password lifetime end to send the warning</v8:content>
+					<v8:content>Prompt to change password this many days before expiration:</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1388,7 +1388,7 @@ The checkbox is hidden and disabled for all users</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Warn about password lifetime end</v8:content>
+					<v8:content>Prompt to change password before expiration</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1431,7 +1431,7 @@ The checkbox is hidden and disabled for all users</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Inactivity period before the user is blocked from signing in to the application:</v8:content>
+					<v8:content>Inactivity period before the user is blocked from signing in:</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1442,7 +1442,7 @@ The checkbox is hidden and disabled for all users</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Inactivity period before denying authorization</v8:content>
+					<v8:content>Inactivity period before sign-in is denied</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

@@ -75,7 +75,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	MappingStatusFilterOptions = New Structure;
 	
 	// Populate filter list.
-	ChoiceList = Items.FilterByMappingStatus.ChoiceList;;
+	ChoiceList = Items.FilterByMappingStatus.ChoiceList;
 	
 	NewListItem = ChoiceList.Add("AllObjects", NStr("en = 'All data';"));
 	MappingStatusFilterOptions.Insert(NewListItem.Value, New FixedStructure);
@@ -1485,7 +1485,7 @@ Procedure ExecuteObjectMappingCompletion(Cancel)
 		AfterObjectMapping();
 	Except
 		Cancel = True;
-		RecordError(DetailErrorDescription(ErrorInfo()));
+		RecordError(ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Return;
 	EndTry;
 	

@@ -115,7 +115,7 @@ EndProcedure
 
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
-	If EventName = "Write_EmailAccount" 
+	If EventName = "Write_EmailAccounts" 
 		And Source = Record.EmailAccount Then
 		
 		Items.WhereEmailsBeingProcessedGroup.Visible = EmailsProcessingSettingInAnotherClientAvailable();

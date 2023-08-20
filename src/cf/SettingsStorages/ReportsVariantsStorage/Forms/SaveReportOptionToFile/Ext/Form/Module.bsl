@@ -335,7 +335,7 @@ Procedure FillReportOptionDetails(ReportVariant, DataOfTheReportVariant,
 	If Report.DataCompositionSchema = Undefined Then 
 		ReportsOptionsDetails.Delete(ReportOptionDetails);
 		Common.MessageToUser(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Вариант отчета ""%1"" не предназначен для сохранения.';"), DataOfTheReportVariant.Presentation));
+			NStr("en = 'Report option ""%1"" cannot be saved.';"), DataOfTheReportVariant.Presentation));
 		Return;
 	EndIf;
 	

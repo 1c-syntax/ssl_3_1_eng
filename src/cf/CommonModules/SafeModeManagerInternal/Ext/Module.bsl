@@ -233,6 +233,15 @@ Procedure OnAddClientParametersOnStart(Parameters, BeforeUpdateApplicationRunPar
 	
 EndProcedure
 
+// See CommonOverridable.OnAddClientParameters
+Procedure OnAddClientParameters(Parameters) Export
+	
+	SetPrivilegedMode(True);
+	Parameters.Insert("DisplayPermissionSetupAssistant", InteractivePermissionRequestModeUsed());
+	
+EndProcedure
+
+
 // See ReportsOptionsOverridable.CustomizeReportsOptions.
 Procedure OnSetUpReportsOptions(Settings) Export
 	ModuleReportsOptions = Common.CommonModule("ReportsOptions");

@@ -9,7 +9,6 @@
 
 #Region Private
 
-// An event handler when writing an email account.
 Procedure OnWriteEmailAccount(Source, Cancel) Export
 
 	If Source.DataExchange.Load Then

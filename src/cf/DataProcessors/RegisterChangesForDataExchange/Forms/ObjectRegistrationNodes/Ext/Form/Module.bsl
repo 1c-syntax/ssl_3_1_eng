@@ -36,9 +36,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If IsBlankString(Details) Then
-		Title = StrReplace(NStr("en = 'Registration %1';"), "%1", CurrentObject.RepresentationOfTheReference(ObjectAsString));
+		Title = StrReplace(NStr("en = 'Register %1';"), "%1", CurrentObject.RepresentationOfTheReference(ObjectAsString));
 	Else
-		Title = StrReplace(NStr("en = 'Registration %1 (%2)';"), "%1", CurrentObject.RepresentationOfTheReference(ObjectAsString));
+		Title = StrReplace(NStr("en = 'Register %1 (%2)';"), "%1", CurrentObject.RepresentationOfTheReference(ObjectAsString));
 		Title = StrReplace(Title, "%2", Details);
 	EndIf;
 	
@@ -126,8 +126,8 @@ EndProcedure
 Procedure EditRegistration(Command)
 	
 	QuestionTitle = NStr("en = 'Confirm operation';");
-	Text = NStr("en = 'Do you want to change %1 registration
-	             |at all nodes?';");
+	Text = NStr("en = 'Do you want to change registration state
+	             |of %1 at all nodes?';");
 	
 	Text = StrReplace(Text, "%1", RegistrationObject);
 	
@@ -144,8 +144,8 @@ Procedure EditRegistrationCompletion(Val QuestionResult, Val AdditionalParameter
 	
 	Count = NodeRegistrationEdit(ExchangeNodesTree);
 	If Count > 0 Then
-		Text = NStr("en = 'Registration of %1 changed at %2 nodes.';");
-		NotificationTitle = NStr("en = 'Registration changed:';");
+		Text = NStr("en = 'Registration state of %1 changed at %2 nodes.';");
+		NotificationTitle = NStr("en = 'Registration state changed:';");
 		
 		Text = StrReplace(Text, "%1", RegistrationObject);
 		Text = StrReplace(Text, "%2", Count);
