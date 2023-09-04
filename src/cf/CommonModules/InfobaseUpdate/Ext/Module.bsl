@@ -315,9 +315,9 @@ Function ObjectProcessed(Data) Export
 		Return Result; // 
 	EndIf;
 	
-	LockChanging = False;
+	BlockUpdate = False;
 	MessageText = "";
-	InfobaseUpdateOverridable.OnExecuteCheckObjectProcessed(FullName, LockChanging, MessageText);
+	InfobaseUpdateOverridable.OnExecuteCheckObjectProcessed(FullName, BlockUpdate, MessageText);
 	
 	ObjectToCheck = StrReplace(FullName, ".", "");
 	
@@ -1351,7 +1351,7 @@ Function SelectRegisterRecordersToProcess(Queue, FullDocumentName, FullRegisterN
 		
 		If FilterOfUpToDateData.HasSelectionFilter Then
 			HasSelectionFilter = True;
-			CheckQueryText =
+			QueryTextChecks =
 				"SELECT TOP 1
 				|	TRUE
 				|FROM
@@ -1361,14 +1361,14 @@ Function SelectRegisterRecordersToProcess(Queue, FullDocumentName, FullRegisterN
 				|WHERE
 				|	RegisterTableChanges.Node = &CurrentQueue
 				|	AND &ConditionUpToDateData";
-			CheckQueryText = StrReplace(CheckQueryText, "&ConditionUpToDateData", FilterOfUpToDateData.Condition);
-			CheckQueryText = StrReplace(CheckQueryText,"#RegisterTableChanges", FullRegisterName + ".Changes");
-			CheckQueryText = StrReplace(CheckQueryText,"#FullDocumentName", FullDocumentName);
+			QueryTextChecks = StrReplace(QueryTextChecks, "&ConditionUpToDateData", FilterOfUpToDateData.Condition);
+			QueryTextChecks = StrReplace(QueryTextChecks,"#RegisterTableChanges", FullRegisterName + ".Changes");
+			QueryTextChecks = StrReplace(QueryTextChecks,"#FullDocumentName", FullDocumentName);
 			
 			VerificationRequest = New Query;
 			VerificationRequest.SetParameter("CurrentQueue", QueueRef(Queue));
 			VerificationRequest.SetParameter("UpToDateDataFilterVal", FilterOfUpToDateData.Value);
-			VerificationRequest.Text = CheckQueryText;
+			VerificationRequest.Text = QueryTextChecks;
 			
 			IsAllUpToDateDataProcessed = VerificationRequest.Execute().IsEmpty();
 			SetHandlerParametersOnSelectData(AdditionalParameters, IsAllUpToDateDataProcessed, UpdateHandlerParameters, FullDocumentName);
@@ -1469,7 +1469,7 @@ Function SelectRefsToProcess(Queue, FullObjectName, AdditionalParameters = Undef
 	FilterOfUpToDateData = InfobaseUpdateInternal.FilterOfUpToDateData(UpdateHandlerParameters, "ObjectTable");
 	QueryText = StrReplace(QueryText, "&ConditionUpToDateData", FilterOfUpToDateData.Condition);
 	If FilterOfUpToDateData.HasSelectionFilter Then
-		CheckQueryText =
+		QueryTextChecks =
 			"SELECT TOP 1
 			|	TRUE
 			|FROM
@@ -1479,14 +1479,14 @@ Function SelectRefsToProcess(Queue, FullObjectName, AdditionalParameters = Undef
 			|WHERE
 			|	ChangesTable.Node = &CurrentQueue
 			|	AND &ConditionUpToDateData";
-		CheckQueryText = StrReplace(CheckQueryText, "&ConditionUpToDateData", FilterOfUpToDateData.Condition);
-		CheckQueryText = StrReplace(CheckQueryText,"#ObjectTableChanges", FullObjectName + ".Changes");
-		CheckQueryText = StrReplace(CheckQueryText,"#ObjectTable", FullObjectName);
+		QueryTextChecks = StrReplace(QueryTextChecks, "&ConditionUpToDateData", FilterOfUpToDateData.Condition);
+		QueryTextChecks = StrReplace(QueryTextChecks,"#ObjectTableChanges", FullObjectName + ".Changes");
+		QueryTextChecks = StrReplace(QueryTextChecks,"#ObjectTable", FullObjectName);
 		
 		VerificationRequest = New Query;
 		VerificationRequest.SetParameter("CurrentQueue", QueueRef(Queue));
 		VerificationRequest.SetParameter("UpToDateDataFilterVal", FilterOfUpToDateData.Value);
-		VerificationRequest.Text = CheckQueryText;
+		VerificationRequest.Text = QueryTextChecks;
 		
 		IsAllUpToDateDataProcessed = VerificationRequest.Execute().IsEmpty();
 		
@@ -1583,7 +1583,7 @@ Function CreateTemporaryTableOfRefsToProcess(Queue, FullObjectName, TempTablesMa
 	FilterOfUpToDateData = InfobaseUpdateInternal.FilterOfUpToDateData(Undefined, "ObjectTable");
 	QueryFragment = StrReplace(QueryFragment, "&ConditionUpToDateData", FilterOfUpToDateData.Condition);
 	If FilterOfUpToDateData.HasSelectionFilter Then
-		CheckQueryText =
+		QueryTextChecks =
 			"SELECT TOP 1
 			|	TRUE
 			|FROM
@@ -1593,14 +1593,14 @@ Function CreateTemporaryTableOfRefsToProcess(Queue, FullObjectName, TempTablesMa
 			|WHERE
 			|	ChangesTable.Node = &CurrentQueue
 			|	AND &ConditionUpToDateData";
-		CheckQueryText = StrReplace(CheckQueryText, "&ConditionUpToDateData", FilterOfUpToDateData.Condition);
-		CheckQueryText = StrReplace(CheckQueryText,"#ObjectTableChanges", FullObjectName + ".Changes");
-		CheckQueryText = StrReplace(CheckQueryText,"#ObjectTable", FullObjectName);
+		QueryTextChecks = StrReplace(QueryTextChecks, "&ConditionUpToDateData", FilterOfUpToDateData.Condition);
+		QueryTextChecks = StrReplace(QueryTextChecks,"#ObjectTableChanges", FullObjectName + ".Changes");
+		QueryTextChecks = StrReplace(QueryTextChecks,"#ObjectTable", FullObjectName);
 		
 		VerificationRequest = New Query;
 		VerificationRequest.SetParameter("CurrentQueue", QueueRef(Queue));
 		VerificationRequest.SetParameter("UpToDateDataFilterVal", FilterOfUpToDateData.Value);
-		VerificationRequest.Text = CheckQueryText;
+		VerificationRequest.Text = QueryTextChecks;
 		
 		IsAllUpToDateDataProcessed = VerificationRequest.Execute().IsEmpty();
 		
@@ -1716,7 +1716,7 @@ Function SelectStandaloneInformationRegisterDimensionsToProcess(Queue, FullObjec
 	FilterOfUpToDateData = InfobaseUpdateInternal.FilterOfUpToDateData(UpdateHandlerParameters, "ChangesTable");
 	QueryText = StrReplace(QueryText, "&ConditionUpToDateData", FilterOfUpToDateData.Condition);
 	If FilterOfUpToDateData.HasSelectionFilter Then
-		CheckQueryText =
+		QueryTextChecks =
 			"SELECT TOP 1
 			|	TRUE
 			|FROM
@@ -1724,13 +1724,13 @@ Function SelectStandaloneInformationRegisterDimensionsToProcess(Queue, FullObjec
 			|WHERE
 			|	ChangesTable.Node = &CurrentQueue
 			|	AND &ConditionUpToDateData";
-		CheckQueryText = StrReplace(CheckQueryText, "&ConditionUpToDateData", FilterOfUpToDateData.Condition);
-		CheckQueryText = StrReplace(CheckQueryText,"#ObjectTableChanges", FullObjectName + ".Changes");
+		QueryTextChecks = StrReplace(QueryTextChecks, "&ConditionUpToDateData", FilterOfUpToDateData.Condition);
+		QueryTextChecks = StrReplace(QueryTextChecks,"#ObjectTableChanges", FullObjectName + ".Changes");
 		
 		VerificationRequest = New Query;
 		VerificationRequest.SetParameter("CurrentQueue", QueueRef(Queue));
 		VerificationRequest.SetParameter("UpToDateDataFilterVal", FilterOfUpToDateData.Value);
-		VerificationRequest.Text = CheckQueryText;
+		VerificationRequest.Text = QueryTextChecks;
 		
 		IsAllUpToDateDataProcessed = VerificationRequest.Execute().IsEmpty();
 		SetHandlerParametersOnSelectData(AdditionalParameters, IsAllUpToDateDataProcessed, UpdateHandlerParameters)
@@ -1957,7 +1957,7 @@ Function HasDataToProcess(Queue, FullObjectNameMetadata, Filter = Undefined) Exp
 	
 	QueryTexts = New Array;
 	RegisterRequestTexts = New Array;
-	FilterSet1 = False;
+	FilterIs_Specified = False;
 	
 	For Each TypeToProcess In FullNamesOfObjectsToProcess Do
 		
@@ -2009,7 +2009,7 @@ Function HasDataToProcess(Queue, FullObjectNameMetadata, Filter = Undefined) Exp
 				Raise ExceptionText;
 			EndIf;	
 			
-			FilterSet1 = True;
+			FilterIs_Specified = True;
 			
 			QueryText =
 			"SELECT TOP 1
@@ -2072,8 +2072,8 @@ Function HasDataToProcess(Queue, FullObjectNameMetadata, Filter = Undefined) Exp
 					Continue;
 				EndIf;
 				FullRecorderName = RegistrarMetadata.FullName();
-				CheckQueryText = StrReplace(VerificationRequestTemplate, "#TableName", FullRecorderName);
-				QueryCollection.Add(CheckQueryText);
+				QueryTextChecks = StrReplace(VerificationRequestTemplate, "#TableName", FullRecorderName);
+				QueryCollection.Add(QueryTextChecks);
 			EndDo;
 			
 			ConditionForCheckingTheRegistrar = StrConcat(QueryCollection, Chars.LF + "OR ");
@@ -2142,7 +2142,7 @@ Function HasDataToProcess(Queue, FullObjectNameMetadata, Filter = Undefined) Exp
 		
 		QueryText = StrReplace(QueryText, "&NodeFilterCriterion", NodeFilterCriterion);
 		
-		If Not FilterSet1 Then
+		If Not FilterIs_Specified Then
 			Query.SetParameter("Filter", Filter);
 		EndIf;
 			
@@ -4700,7 +4700,20 @@ Procedure RegisterChangesToADataItem(Data, RegistrationParameters)
 		RegistrationParameters.DataForRegistration.Add(Data);
 		RegisterADataPackage(RegistrationParameters, RegistrationParameters.DataForRegistration);
 	Else
-		ExchangePlans.RecordChanges(RegistrationParameters.Node, Data);
+		Try
+			ExchangePlans.RecordChanges(RegistrationParameters.Node, Data);
+		Except
+			ExceptionText = NStr("en = 'Не удалось зарегистрировать данные для обработки. Возможно, таблицы, по которым
+				|выполняется регистрация данных, не включены в состав плана обмена ""%1"".
+				|Для выявления таких ошибок рекомендуется использовать инструмент ""%2"".
+				|
+				|%3';");
+			ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(ExceptionText, 
+				Metadata.ExchangePlans.InfobaseUpdate.Name,
+				"SSLImplementationCheck",
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+			Raise ExceptionText;
+		EndTry;
 		ReleaseTheReusedSetsInTheParameters(RegistrationParameters);
 	EndIf;
 	
@@ -4733,7 +4746,20 @@ EndProcedure
 Procedure RegisterADataPackage(RegistrationParameters, Data, Forcibly = False, PackageSize = 1000)
 	
 	If Data.Count() >= PackageSize Or Forcibly And Data.Count() > 0 Then
-		ExchangePlans.RecordChanges(RegistrationParameters.Node, Data);
+		Try
+			ExchangePlans.RecordChanges(RegistrationParameters.Node, Data);
+		Except
+			ExceptionText = NStr("en = 'Не удалось зарегистрировать данные для обработки. Возможно, таблицы, по которым
+				|выполняется регистрация данных, не включены в состав плана обмена ""%1"".
+				|Для выявления таких ошибок рекомендуется использовать инструмент ""%2"".
+				|
+				|%3';");
+			ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(ExceptionText, 
+				Metadata.ExchangePlans.InfobaseUpdate.Name,
+				"SSLImplementationCheck",
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+			Raise ExceptionText;
+		EndTry;
 		Data.Clear();
 		
 		ReleaseTheReusedSetsInTheParameters(RegistrationParameters);
@@ -5085,7 +5111,7 @@ EndFunction
 //  Structure:
 //   * Sets - Array - reused sets.
 //   * CreatedOn - Number - number of created sets.
-//   * Issued - Number - number of issued sets.
+//   * Issued_SSLy - Number - number of issued sets.
 //
 Function NewReusedSets(Manager, Size = 1000)
 	
@@ -5093,7 +5119,7 @@ Function NewReusedSets(Manager, Size = 1000)
 	ReusedObjects.Insert("Manager", Manager);
 	ReusedObjects.Insert("Sets", New Array(Size));
 	ReusedObjects.Insert("CreatedOn", 0);
-	ReusedObjects.Insert("Issued", 0);
+	ReusedObjects.Insert("Issued_SSLy", 0);
 	
 	Return ReusedObjects;
 	
@@ -5112,7 +5138,7 @@ EndFunction
 //
 Function GetAReusedSet(ReusedSets)
 	
-	If ReusedSets.CreatedOn = ReusedSets.Issued Then
+	If ReusedSets.CreatedOn = ReusedSets.Issued_SSLy Then
 		NewSet = ReusedSets.Manager.CreateRecordSet();
 		
 		If ReusedSets.CreatedOn > ReusedSets.Sets.UBound() Then
@@ -5124,8 +5150,8 @@ Function GetAReusedSet(ReusedSets)
 		ReusedSets.CreatedOn = ReusedSets.CreatedOn + 1;
 	EndIf;
 	
-	TheReturnedSet = ReusedSets.Sets[ReusedSets.Issued];
-	ReusedSets.Issued = ReusedSets.Issued + 1;
+	TheReturnedSet = ReusedSets.Sets[ReusedSets.Issued_SSLy];
+	ReusedSets.Issued_SSLy = ReusedSets.Issued_SSLy + 1;
 	
 	Return TheReturnedSet;
 	
@@ -5138,7 +5164,7 @@ EndFunction
 //
 Procedure ReleaseReusedSets(ReusedSets)
 	
-	ReusedSets.Issued = 0;
+	ReusedSets.Issued_SSLy = 0;
 	
 EndProcedure
 
@@ -6375,7 +6401,7 @@ Function RequestTextInTBlockedByPM(TSAttributes, FullObjectName, FullRegisterNam
 		|						#Table AS InTTheTableIsBlocked
 		|					WHERE
 		|						&ConditionForBlockedUsers" + ")";
-	TemplateOfTheConditionForTheBankDetails = "TSDocument%1.%2 = %3.Ref"; // @query-part
+	TemplateOfTheConditionForTheBankDetails = "TSDocument_%1.%2 = %3.Ref"; // @query-part
 	ConditionSeparator =
 		"
 		|	OR ";
@@ -6425,8 +6451,8 @@ Function RequestTextInTBlockedByPM(TSAttributes, FullObjectName, FullRegisterNam
 		
 		TextOfConditionsForBlockedUsers = StrConcat(ConditionsForBlockedUsers, ConditionSeparatorForBlockedItems);
 		Condition = StrReplace(ConditionTemplate, "#Table", FullObjectName + "." + TabularSection);
-		Condition = StrReplace(Condition, "THOfTheDocumentFullNameOfTheObject", "TSDocument" + TabularSection);
-		Condition = StrReplace(Condition, "&ConditionForATableField", "ChangesTable." + TableField + " = TSDocument"+ TabularSection + ".Ref");
+		Condition = StrReplace(Condition, "THOfTheDocumentFullNameOfTheObject", "TSDocument_" + TabularSection);
+		Condition = StrReplace(Condition, "&ConditionForATableField", "ChangesTable." + TableField + " = TSDocument_"+ TabularSection + ".Ref");
 		Condition = StrReplace(Condition, "&TextOfConditionsForBlockedUsers", TextOfConditionsForBlockedUsers);
 		Conditions.Add(Condition);
 	EndDo;
@@ -6633,7 +6659,7 @@ Procedure ResetHandlerState(Handler)
 	HandlerUpdates.HandlerName = Handler;
 	HandlerUpdates.Read();
 	
-	HandlerUpdates.Status = Enums.UpdateHandlersStatuses.WasNotExecuted;
+	HandlerUpdates.Status = Enums.UpdateHandlersStatuses.NotPerformed;
 	HandlerUpdates.ProcessingDuration = 0;
 	HandlerUpdates.AttemptCount = 0;
 	HandlerUpdates.ExecutionStatistics = New ValueStorage(New Map);

@@ -240,11 +240,11 @@ Procedure EnableDisableImportAtServer(Val ImportUsageFlag, Val DataExchangeScena
 EndProcedure
 
 &AtServer
-Procedure EnableDisableImportExportAtServer(Val UsageFlag, Val DataExchangeScenario)
+Procedure EnableDisableImportExportAtServer(Val Flagusage, Val DataExchangeScenario)
 	
-	EnableDisableImportAtServer(UsageFlag, DataExchangeScenario);
+	EnableDisableImportAtServer(Flagusage, DataExchangeScenario);
 	
-	EnableDisableExportAtServer(UsageFlag, DataExchangeScenario);
+	EnableDisableExportAtServer(Flagusage, DataExchangeScenario);
 	
 EndProcedure
 
@@ -259,7 +259,7 @@ Procedure SetConditionalAppearance()
 	ItemField.Field = New DataCompositionField(Items.List.Name);
 	
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
-	ItemFilter.LeftValue = New DataCompositionField("List.UsageFlag");
+	ItemFilter.LeftValue = New DataCompositionField("List.Flagusage");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = True;
 	

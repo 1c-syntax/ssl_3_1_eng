@@ -396,7 +396,7 @@ Procedure CancelTaskQueue(Node, Scenario, ExchangeID) Export
 		ProxyInitialization(Proxy, ProxyParameters, ExchangeSettingsStructure, Cancel, Error);
 		
 		Proxy.StopTasks(XDTOSerializer.WriteXDTO(DestinationTasks),
-			ExchangeSettingsStructure.TransportSettings.WSPeerDataArea);
+			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
 		
 	EndIf;
 	
@@ -1009,7 +1009,7 @@ Procedure CallingBack(ExchangePlanName, InfobaseNodeCode, TaskID__, Error = "")
 	
 	Proxy = DataExchangeWebService.WSProxyForInfobaseNode(Node, ErrorMessageString);
 	
-	Proxy.Callback(TaskID__, Error, TransportSettings.WSPeerDataArea);
+	Proxy.Callback(TaskID__, Error, TransportSettings.WSCorrespondentDataArea);
 
 EndProcedure
 
@@ -1077,7 +1077,7 @@ Procedure RunTaskExportDataPeer(Task, Proxy, ExchangeSettingsStructure, Cancel, 
 	Try
 			
 		Proxy.UploadDataInt(ExchangeSettingsStructure.ExchangePlanName, ExchangeSettingsStructure.CurrentExchangePlanNodeCode1,
-			Task.TaskID__, ExchangeSettingsStructure.TransportSettings.WSPeerDataArea);
+			Task.TaskID__, ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
 								
 	Except
 		
@@ -1201,7 +1201,7 @@ Procedure RunTaskImportDataPeer(Task, Proxy, ExchangeParameters, ExchangeSetting
 		
 		Proxy.DownloadDataInt(ExchangeSettingsStructure.ExchangePlanName, ExchangeSettingsStructure.CurrentExchangePlanNodeCode1,
 			Task.TaskID__, ExchangeParameters.TaskIDPrev,
-			ExchangeSettingsStructure.TransportSettings.WSPeerDataArea);
+			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
 		
 	Except
 		
@@ -1271,7 +1271,7 @@ Procedure SetFuncOptionsForNode(Form, TransportSettings)
 	
 	UseScenarios = 
 		TransportKind = Enums.ExchangeMessagesTransportTypes.WS
-		And ValueIsFilled(TransportSettings.WSPeerEndpoint);
+		And ValueIsFilled(TransportSettings.WSCorrespondentEndpoint);
 		
 	UseConnectionSettings = 
 		TransportKind = Enums.ExchangeMessagesTransportTypes.WS	

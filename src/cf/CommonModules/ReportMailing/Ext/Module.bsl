@@ -155,7 +155,7 @@ Function ExecuteReportsMailing(BulkEmail, LogParameters = Undefined, AdditionalS
 	If DeliveryParameters.UseFTPResource Then
 		DeliveryParameters.Server = BulkEmailObject.FTPServer;
 		DeliveryParameters.Port = BulkEmailObject.FTPPort;
-		DeliveryParameters.Login = BulkEmailObject.FTPUsername;
+		DeliveryParameters.Login = BulkEmailObject.FTPLogin;
 		
 		SetPrivilegedMode(True);
 		DeliveryParameters.Password = Common.ReadDataFromSecureStorage(BulkEmail, "FTPPassword");
@@ -341,7 +341,7 @@ Function ExecuteBulkEmail(Var_Reports, DeliveryParameters, MailingDescription = 
 		NStr("en = 'Start report distribution to recipients.';"));
 	
 	// Send personal reports (personalized).
-	QuantityToBeShipped = ReportsTree.Rows.Count();
+	QuantityToSend = ReportsTree.Rows.Count();
 	SentCount = 0;
 	For Each RecipientRow In ReportsTree.Rows Do
 		If RecipientRow = DeliveryParameters.GeneralReportsRow Then
@@ -418,8 +418,8 @@ Function ExecuteBulkEmail(Var_Reports, DeliveryParameters, MailingDescription = 
 			MailingExecuted = True;
 			DeliveryParameters.ExecutedByEmail = True;  
 			SentCount = SentCount + 1;
-			ProgressText = ReportDistributionProgressText(DeliveryParameters, SentCount, QuantityToBeShipped);
-			ProgressPercent = Round(SentCount * 100 / QuantityToBeShipped);
+			ProgressText = ReportDistributionProgressText(DeliveryParameters, SentCount, QuantityToSend);
+			ProgressPercent = Round(SentCount * 100 / QuantityToSend);
 			TimeConsumingOperations.ReportProgress(ProgressPercent, ProgressText);
 
 			AdditionalInfo = "";
@@ -917,7 +917,7 @@ Procedure SendBulkEmailsInBackgroundJob(ExecutionParameters, ResultAddress) Expo
 	
 	Total        = MailingsTable.Count();
 	Prepared2 = PreparedReportDistributionDetails.Count();
-	NotCompleted  = Prepared2 - Completed2;
+	NotCompleted2  = Prepared2 - Completed2;
 	
 	If Total = 0 Then
 		MessageText = NStr("en = 'The selected groups contain  no report distributions.';");
@@ -950,7 +950,7 @@ Procedure SendBulkEmailsInBackgroundJob(ExecutionParameters, ResultAddress) Expo
 			Format(Prepared2, "NZ=0; NG=0"), Format(Total, "NZ=0; NG=0"),
 			Format(Completed2,    "NZ=0; NG=0"),
 			Format(WithErrors,    "NZ=0; NG=0"),
-			Format(NotCompleted,  "NZ=0; NG=0"));
+			Format(NotCompleted2,  "NZ=0; NG=0"));
 	EndIf;
 	
 	Result = New Structure;
@@ -2055,7 +2055,7 @@ Function ExecuteDelivery(LogParameters, DeliveryParameters, Attachments) Export
 		AllRecipients = GenerateArrayOfDistributionRecipients(LogParameters.Data, LogParameters);
 		Try
 			SentCount = 0;
-			QuantityToBeShipped = Attachments.Count();
+			QuantityToSend = Attachments.Count();
 			For Each Attachment In Attachments Do
 				FileCopy(Attachment.Value, ServerNetworkDdirectory + Attachment.Key);
 				If DeliveryParameters.AddReferences <> "" Then
@@ -2065,8 +2065,8 @@ Function ExecuteDelivery(LogParameters, DeliveryParameters, Attachments) Export
 						DeliveryParameters.NetworkDirectoryWindows + Attachment.Key);
 				EndIf;
 				SentCount = SentCount + 1;
-				ProgressText = ReportDistributionProgressText(DeliveryParameters, SentCount, QuantityToBeShipped);
-				ProgressPercent = Round(SentCount * 100 / QuantityToBeShipped);
+				ProgressText = ReportDistributionProgressText(DeliveryParameters, SentCount, QuantityToSend);
+				ProgressPercent = Round(SentCount * 100 / QuantityToSend);
 				TimeConsumingOperations.ReportProgress(ProgressPercent, ProgressText);
 			EndDo;
 			Result = True;
@@ -2145,7 +2145,7 @@ Function ExecuteDelivery(LogParameters, DeliveryParameters, Attachments) Export
 				15);
 			Join.SetCurrentDirectory(DeliveryParameters.Directory);
 			SentCount = 0;
-			QuantityToBeShipped = Attachments.Count();
+			QuantityToSend = Attachments.Count();
 			For Each Attachment In Attachments Do
 				Join.Put(Attachment.Value, DeliveryParameters.Directory + Attachment.Key);
 				If DeliveryParameters.AddReferences <> "" Then
@@ -2154,8 +2154,8 @@ Function ExecuteDelivery(LogParameters, DeliveryParameters, Attachments) Export
 						Attachment.Value,
 						Target + Attachment.Key);
 					SentCount = SentCount + 1;
-					ProgressText = ReportDistributionProgressText(DeliveryParameters, SentCount, QuantityToBeShipped);
-					ProgressPercent = Round(SentCount * 100 / QuantityToBeShipped);
+					ProgressText = ReportDistributionProgressText(DeliveryParameters, SentCount, QuantityToSend);
+					ProgressPercent = Round(SentCount * 100 / QuantityToSend);
 					TimeConsumingOperations.ReportProgress(ProgressPercent, ProgressText);
 				EndIf;
 			EndDo;
@@ -4525,7 +4525,7 @@ Procedure AddCommandsAddTextAdditionalParameters(Form) Export
 
 EndProcedure
 
-Function ReportDistributionProgressText(DeliveryParameters, SentCount, QuantityToBeShipped)
+Function ReportDistributionProgressText(DeliveryParameters, SentCount, QuantityToSend)
 	
 	If DeliveryParameters.UseNetworkDirectory Then
 		Text = NStr("en = 'Distributing the reports.
@@ -4543,7 +4543,7 @@ Function ReportDistributionProgressText(DeliveryParameters, SentCount, QuantityT
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(Text,
 		Format(SentCount, "NZ=0; NG="),
-		Format(QuantityToBeShipped, "NZ=0; NG=")); 
+		Format(QuantityToSend, "NZ=0; NG=")); 
 	
 EndFunction
 
@@ -4582,7 +4582,7 @@ Function GetReportDistributionState(BulkEmail) Export
 		|	ReportMailingStates.Executed AS Executed,
 		|	ReportMailingStates.WithErrors AS WithErrors,
 		|	ReportMailingStates.SessionNumber AS SessionNumber
-		|INTO TT_DistributionState
+		|INTO TT_MailoutStatus
 		|FROM
 		|	InformationRegister.ReportMailingStates AS ReportMailingStates
 		|WHERE
@@ -4594,14 +4594,14 @@ Function GetReportDistributionState(BulkEmail) Export
 		|	ReportsDistributionHistory.Recipient AS Recipient,
 		|	ReportsDistributionHistory.EMAddress AS EMAddress,
 		|	MAX(ReportsDistributionHistory.Executed) AS Executed,
-		|	TT_DistributionState.BulkEmail AS BulkEmail
+		|	TT_MailoutStatus.BulkEmail AS BulkEmail
 		|INTO TT_Recipients
 		|FROM
-		|	TT_DistributionState AS TT_DistributionState
+		|	TT_MailoutStatus AS TT_MailoutStatus
 		|		INNER JOIN InformationRegister.ReportsDistributionHistory AS ReportsDistributionHistory
-		|		ON TT_DistributionState.BulkEmail = ReportsDistributionHistory.ReportMailing
-		|			AND TT_DistributionState.LastRunStart = ReportsDistributionHistory.StartDistribution
-		|			AND TT_DistributionState.SessionNumber = ReportsDistributionHistory.SessionNumber
+		|		ON TT_MailoutStatus.BulkEmail = ReportsDistributionHistory.ReportMailing
+		|			AND TT_MailoutStatus.LastRunStart = ReportsDistributionHistory.StartDistribution
+		|			AND TT_MailoutStatus.SessionNumber = ReportsDistributionHistory.SessionNumber
 		|WHERE
 		|	ReportsDistributionHistory.ReportMailing = &ReportMailing
 		|	AND ReportsDistributionHistory.EMAddress <> """"
@@ -4609,7 +4609,7 @@ Function GetReportDistributionState(BulkEmail) Export
 		|GROUP BY
 		|	ReportsDistributionHistory.Recipient,
 		|	ReportsDistributionHistory.EMAddress,
-		|	TT_DistributionState.BulkEmail
+		|	TT_MailoutStatus.BulkEmail
 		|;
 		|
 		|////////////////////////////////////////////////////////////////////////////////
@@ -4628,21 +4628,21 @@ Function GetReportDistributionState(BulkEmail) Export
 		|
 		|////////////////////////////////////////////////////////////////////////////////
 		|SELECT
-		|	TT_DistributionState.BulkEmail AS BulkEmail,
-		|	TT_DistributionState.LastRunStart AS LastRunStart,
-		|	TT_DistributionState.LastRunCompletion AS LastRunCompletion,
-		|	TT_DistributionState.SuccessfulStart AS SuccessfulStart,
-		|	TT_DistributionState.Executed AS Executed,
-		|	TT_DistributionState.SessionNumber AS SessionNumber,
+		|	TT_MailoutStatus.BulkEmail AS BulkEmail,
+		|	TT_MailoutStatus.LastRunStart AS LastRunStart,
+		|	TT_MailoutStatus.LastRunCompletion AS LastRunCompletion,
+		|	TT_MailoutStatus.SuccessfulStart AS SuccessfulStart,
+		|	TT_MailoutStatus.Executed AS Executed,
+		|	TT_MailoutStatus.SessionNumber AS SessionNumber,
 		|	CASE
 		|		WHEN ISNULL(TT_Undelivered.Count, 0) = 0
 		|			THEN FALSE
 		|		ELSE TRUE
 		|	END AS WithErrors
 		|FROM
-		|	TT_DistributionState AS TT_DistributionState
+		|	TT_MailoutStatus AS TT_MailoutStatus
 		|		LEFT JOIN TT_Undelivered AS TT_Undelivered
-		|		ON TT_DistributionState.BulkEmail = TT_Undelivered.BulkEmail";
+		|		ON TT_MailoutStatus.BulkEmail = TT_Undelivered.BulkEmail";
 	
 	Query.SetParameter("ReportMailing", BulkEmail);
 	
@@ -4701,7 +4701,7 @@ EndProcedure
 Function GenerateReportsInMultipleThreads(Var_Reports, DeliveryParameters, MailingDescription, LogParameters)
 	
 	PersonalizedReports   = New Map;
-	NonPersonalizedReports = New Array;
+	NotPersonalizedReports = New Array;
 	
 	// 
 	ReportsNumber = 1;
@@ -4749,7 +4749,7 @@ Function GenerateReportsInMultipleThreads(Var_Reports, DeliveryParameters, Maili
 			ReportParametersStructure = New Structure("Report, Settings, Formats, SendIfEmpty, DescriptionTemplate1");
 			FillPropertyValues(ReportParametersStructure, RowReport);
 			
-			NonPersonalizedReports.Add(ReportParametersStructure);
+			NotPersonalizedReports.Add(ReportParametersStructure);
 		EndIf;
 		
 	EndDo;
@@ -4776,8 +4776,8 @@ Function GenerateReportsInMultipleThreads(Var_Reports, DeliveryParameters, Maili
 	PortionNumber  = 1;
 	PortionSize = 2;
 	Batch = New Array;
-	ReportCount = NonPersonalizedReports.Count();
-	For Each Report In NonPersonalizedReports Do
+	ReportCount = NotPersonalizedReports.Count();
+	For Each Report In NotPersonalizedReports Do
 		Batch.Add(Report);
 		ReportsNumber = ReportsNumber + 1;
 		
@@ -4948,8 +4948,8 @@ Procedure MergeReportsForEmailTextFromMultipleThreads(DeliveryParameters, Report
 		If ReportsForText = Undefined Then
 			DeliveryParameters.ReportsForEmailText.Insert(ReportsByUsers.Key, ReportsByUsers.Value);
 		Else  
-			For Each FileStructure In ReportsForEmailText Do
-				ReportsForText.Add(ReportsByUsers.Value);
+			For Each FileStructure In ReportsByUsers.Value Do
+				ReportsForText.Add(FileStructure);
 			EndDo;
 		EndIf; 
 	EndDo;

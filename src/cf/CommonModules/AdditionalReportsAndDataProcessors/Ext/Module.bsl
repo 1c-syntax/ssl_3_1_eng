@@ -351,7 +351,7 @@ Function ExecuteCommand(CommandParameters, ResultAddress = Undefined) Export
 EndFunction
 
 // Executes a data processor command directly from the external object form and returns the execution result.
-// Usage example: See AdditionalReportsAndDataProcessorsClient.ВыполнитьКомандуВФоне().
+// Usage example: See AdditionalReportsAndDataProcessorsClient.ExecuteCommandInBackground.
 //
 // Important: Checking functional option UseAdditionalReportsAndDataProcessors
 // must be executed by the calling code.
@@ -359,7 +359,7 @@ EndFunction
 // Parameters:
 //   CommandID - String    - a command name as it is specified in function ExternalDataProcessorInfo() in the object module.
 //   CommandParameters     - Structure - command execution parameters.
-//                                      See AdditionalReportsAndDataProcessorsClient.ВыполнитьКомандуВФоне().
+//                                      See AdditionalReportsAndDataProcessorsClient.ExecuteCommandInBackground.
 //   Form                - ClientApplicationForm - a form to return the result to.
 //
 // Returns:
@@ -752,7 +752,7 @@ EndFunction
 //      ** Ref - AnyRef
 //               - FormTable - 
 //
-Procedure PopulateCommandHandler(Val ReferencesArrray, Val ExecutionParameters) Export
+Procedure HandlerFillingCommands(Val ReferencesArrray, Val ExecutionParameters) Export
 	CommandToExecute = ExecutionParameters.CommandDetails.AdditionalParameters; 
 	
 	ExternalObject = ExternalDataProcessorObject(CommandToExecute.Ref);
@@ -1522,7 +1522,7 @@ EndProcedure
 //
 // Parameters:
 //   Context - Structure - a set of parameters got while checking and attaching a report.
-//       See ReportsOptions.ПриПодключенииОтчета().
+//       See ReportsOptions.OnAttachReport.
 //
 // Usage locations:
 //   ReportsOptions.OnAttachReport().
@@ -3094,10 +3094,10 @@ Procedure OnDetermineFillingCommandsAttachedToObject(Commands, ObjectsIDs, Comma
 			Command.Order        = 50;
 			Command.ChangesSelectedObjects = True;
 			If TableRow.StartupOption = FillingForm Then
-				Command.Handler  = "AdditionalReportsAndDataProcessors.PopulateCommandHandler";
-				Command.WriteMode = "DoNotWrite";
+				Command.Handler  = "AdditionalReportsAndDataProcessors.HandlerFillingCommands";
+				Command.WriteMode = "NotWrite";
 			Else
-				Command.Handler  = "AdditionalReportsAndDataProcessorsClient.PopulateCommandHandler";
+				Command.Handler  = "AdditionalReportsAndDataProcessorsClient.HandlerFillingCommands";
 				Command.WriteMode = "Write";
 			EndIf;
 			Command.ParameterType = New TypeDescription(ObjectFillingTypes);

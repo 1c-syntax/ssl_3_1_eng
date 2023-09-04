@@ -129,7 +129,7 @@ Procedure UpdatePeriodEndClosingDateDisplayOnChange(Context) Export
 	
 	If Context.PeriodEndClosingDateDetails = "" Or Context.PeriodEndClosingDateDetails = "Custom" Then
 		Context.Items.Custom.CurrentPage = ?(Context.PeriodEndClosingDateDetails = "",
-			Context.Items.CustomDateNotUsed, Context.Items.CustomDateUsed);
+			Context.Items.CustomNotUsed, Context.Items.CustomDateUsed);
 		EditFormat = ?(Context.RecordExists, "DP=01.01.0001", "");
 		Context.Items.PeriodEndClosingDateSimpleMode.EditFormat = EditFormat;
 		Context.Items.PeriodEndClosingDate.EditFormat = EditFormat;
@@ -141,7 +141,7 @@ Procedure UpdatePeriodEndClosingDateDisplayOnChange(Context) Export
 	EndIf;
 	
 	Context.Items.PeriodEndClosingDateProperties.CurrentPage = Context.Items.RelativeDate;
-	Context.Items.Custom.CurrentPage = Context.Items.CustomDateNotUsed;
+	Context.Items.Custom.CurrentPage = Context.Items.CustomNotUsed;
 	
 	If Context.PeriodEndClosingDateDetails = "PreviousDay" Then
 		Context.Items.EnableDataChangeBeforePeriodEndClosingDate.Enabled = False;

@@ -99,7 +99,7 @@ EndProcedure
 //
 //   FileOwner - DefinedType.AttachedFilesOwner - a file folder or an object, to which
 //                 you need to attach the file.
-//   OwnerForm1 - ClientApplicationForm - a form from which the file creation was called.
+//   OwnerForm - ClientApplicationForm - a form from which the file creation was called.
 //   CreateMode - Undefined
 //                 - Number - 
 //                 - Undefined - 
@@ -114,10 +114,10 @@ EndProcedure
 //                           if its value is bigger than it is specified in the MaxFileSize constant.
 //     * SelectionDialogFilter - String - a filter set in the selection dialog when adding a file.
 //                           See the format description in the Filter property of the FileSelectionDialog object in Syntax Assistant. 
-//     * DontOpenCard - Boolean - an action after file creation. If it is True, a file card
+//     * NotOpenCard - Boolean - an action after file creation. If it is True, a file card
 //                           will not open after creation, otherwise, it will open.
 //
-Procedure AppendFile(ResultHandler, FileOwner, OwnerForm1, CreateMode = Undefined, 
+Procedure AppendFile(ResultHandler, FileOwner, OwnerForm, CreateMode = Undefined, 
 	AddingOptions = Undefined) Export
 	
 	If Not ValueIsFilled(FileOwner) Then
@@ -131,22 +131,22 @@ Procedure AppendFile(ResultHandler, FileOwner, OwnerForm1, CreateMode = Undefine
 		Or TypeOf(AddingOptions) = Type("Boolean") Then
 		
 		ExecutionParameters.Insert("MaximumSize" , 0);
-		ExecutionParameters.Insert("DontOpenCard", ?(AddingOptions = Undefined, False, AddingOptions));
+		ExecutionParameters.Insert("NotOpenCard", ?(AddingOptions = Undefined, False, AddingOptions));
 		ExecutionParameters.Insert("SelectionDialogFilter",  
 			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask()));
 		
 	Else
 		ExecutionParameters.Insert("MaximumSize" , AddingOptions.MaximumSize);
-		ExecutionParameters.Insert("DontOpenCard", AddingOptions.DontOpenCard);
+		ExecutionParameters.Insert("NotOpenCard", AddingOptions.NotOpenCard);
 		ExecutionParameters.Insert("SelectionDialogFilter", AddingOptions.SelectionDialogFilter);
 	EndIf;
 	
 	If CreateMode = Undefined Then
-		FilesOperationsInternalClient.AppendFile(ResultHandler, FileOwner, OwnerForm1, , ExecutionParameters);
+		FilesOperationsInternalClient.AppendFile(ResultHandler, FileOwner, OwnerForm, , ExecutionParameters);
 	Else
 		ExecutionParameters.Insert("ResultHandler", ResultHandler);
 		ExecutionParameters.Insert("FileOwner", FileOwner);
-		ExecutionParameters.Insert("OwnerForm1", OwnerForm1);
+		ExecutionParameters.Insert("OwnerForm", OwnerForm);
 		ExecutionParameters.Insert("OneFileOnly", True);
 		FilesOperationsInternalClient.AddAfterCreationModeChoice(CreateMode, ExecutionParameters);
 	EndIf;
@@ -446,8 +446,10 @@ EndProcedure
 //       
 //                                  
 //                                  
+//  SignatureParameters         - See DigitalSignatureClient.NewSignatureType
 //
-Procedure SignFile(AttachedFile, FormIdentifier, AdditionalParameters = Undefined) Export
+Procedure SignFile(AttachedFile, FormIdentifier, AdditionalParameters = Undefined,
+	SignatureParameters = Undefined) Export
 	
 	If Not ValueIsFilled(AttachedFile) Then
 		ShowMessageBox(, NStr("en = 'Please select a file to sign.';"));
@@ -481,7 +483,7 @@ Procedure SignFile(AttachedFile, FormIdentifier, AdditionalParameters = Undefine
 	AdditionalParameters.Property("ResultProcessing", ResultProcessing);
 	
 	FilesOperationsInternalClient.SignFile(AttachedFile,
-		AdditionalParameters.FileData, FormIdentifier, ResultProcessing);
+		AdditionalParameters.FileData, FormIdentifier, ResultProcessing, Undefined, SignatureParameters);
 	
 EndProcedure
 
@@ -580,7 +582,7 @@ Procedure OpenScanSettingForm() Export
 		Return;
 	EndIf;
 	
-	Handler = New NotifyDescription("OpenScanningSettingsFormCompletion", ThisObject);
+	Handler = New NotifyDescription("OpenScanSettingFormCompletion", ThisObject);
 	
 	FilesOperationsInternalClient.InitAddIn(Handler, True);
 		
@@ -735,7 +737,7 @@ EndProcedure
 //       
 //       
 //   * DuplexScanning - Boolean -
-//   * SaveToPDF - Boolean
+//   * ShouldSaveAsPDF - Boolean
 //   * UseImageMagickToConvertToPDF - Boolean
 //
 Function ScanningParameters(Fill = False) Export
@@ -753,8 +755,8 @@ EndFunction
 //    * ResultHandler - Undefined, NotifyDescription -
 //    * FileOwner - Undefined, DefinedType.FilesOwner -
 //                                                                     
-//    * OwnerForm1 - Undefined, Form -
-//    * DontOpenCardAfterCreateFromFIle - Boolean -
+//    * OwnerForm - Undefined, Form -
+//    * NotOpenCardAfterCreateFromFile - Boolean -
 //    * IsFile - Boolean
 //    * ResultType - See ConversionResultTypeFileName 
 //                    - See ConversionResultTypeBinaryData
@@ -765,8 +767,8 @@ Function AddingFromScannerParameters() Export
 	AddingOptions = New Structure;
 	AddingOptions.Insert("ResultHandler", Undefined);
 	AddingOptions.Insert("FileOwner", Undefined);
-	AddingOptions.Insert("OwnerForm1", Undefined);
-	AddingOptions.Insert("DontOpenCardAfterCreateFromFIle", True);
+	AddingOptions.Insert("OwnerForm", Undefined);
+	AddingOptions.Insert("NotOpenCardAfterCreateFromFile", True);
 	AddingOptions.Insert("IsFile", True);
 	AddingOptions.Insert("ResultType", ConversionResultTypeAttachedFile());
 	AddingOptions.Insert("OneFileOnly", False);
@@ -881,7 +883,7 @@ Procedure NotificationProcessing(Form, EventName) Export
 		AttachedFilesCount = FilesOperationsInternalServerCall.AttachedFilesCount(AttachedFilesOwner);
 		AttachedFilesCountAsString = Format(AttachedFilesCount, "NG=");
 		
-		Hyperlink = Form.Items.Find("AttachedFilesManagementOpenList" + ItemNumber);
+		Hyperlink = Form.Items.Find(FilesOperationsClientServer.CommandsPrefix() + FilesOperationsClientServer.NameOfOpenListCommand() + ItemNumber);
 		If Hyperlink = Undefined Then
 			Continue;
 		EndIf;
@@ -927,7 +929,7 @@ Procedure AttachmentsControlCommand(Form, Command) Export
 		AskQuestionAboutOwnerRecord(HandlerParameters);
 		
 	Else
-		AttachedFilesManagementCommandCompletion(Form, Command, AttachedFilesOwner);
+		AttachmentsControlCommandCompletion(Form, Command, AttachedFilesOwner);
 	EndIf;
 	
 EndProcedure
@@ -1209,7 +1211,7 @@ Procedure PrintFromApplicationByFileName(FileToOpenName)
 
 EndProcedure
 
-Procedure OpenScanningSettingsFormCompletion(InitializationCheckResult, ExecutionParameters) Export
+Procedure OpenScanSettingFormCompletion(InitializationCheckResult, ExecutionParameters) Export
 	
 	AddInInstalled = InitializationCheckResult.Attached;
 	
@@ -1509,9 +1511,9 @@ Procedure AskQuestionAboutOwnerRecord(CompletionHandlerParameters)
 	QueryText = NStr("en = 'You have unsaved data.
 		|You can open the attachments after saving the data.
 		|Do you want to save the data?';");
-	NotificationHandler = New NotifyDescription("ShowNewOwnerRecordQuestion", ThisObject, CompletionHandlerParameters);
+	HandlerNotifications = New NotifyDescription("ShowNewOwnerRecordQuestion", ThisObject, CompletionHandlerParameters);
 	
-	ShowQueryBox(NotificationHandler, QueryText, QuestionDialogMode.OKCancel);
+	ShowQueryBox(HandlerNotifications, QueryText, QuestionDialogMode.OKCancel);
 	
 EndProcedure
 
@@ -1538,7 +1540,7 @@ Procedure ShowNewOwnerRecordQuestion(Response, AdditionalParameters) Export
 		EndIf;
 		
 		If AdditionalParameters.Action = "CommandExecution" Then
-			AttachedFilesManagementCommandCompletion(Form, AdditionalParameters.Command, AttachedFilesOwner);
+			AttachmentsControlCommandCompletion(Form, AdditionalParameters.Command, AttachedFilesOwner);
 		ElsIf AdditionalParameters.Action = "PreviewClick" Then
 			PreviewFieldClickCompletion(Form, AttachedFilesOwner,
 				AdditionalParameters.Item, StandardProcessing,
@@ -1552,13 +1554,19 @@ Procedure ShowNewOwnerRecordQuestion(Response, AdditionalParameters) Export
 	
 EndProcedure
 
-Procedure AttachedFilesManagementCommandCompletion(Form, Command, AttachedFilesOwner)
+Procedure AttachmentsControlCommandCompletion(Form, Command, AttachedFilesOwner)
 	
-	CommandNameParts = StrSplit(Command.Name, "_");
-	CommandName        = StrReplace(CommandNameParts[0], "AttachedFilesManagement", "");
+	CommandName = StrReplace(Command.Name, FilesOperationsClientServer.CommandsPrefix(), "");
+	ItemNumber = "";
+
+	Position = StrFind(CommandName, "_", SearchDirection.FromEnd);
+	If Position > 0 Then 
+		ItemNumber = StrReplace(Mid(CommandName, Position + 1), FilesOperationsClientServer.OneFileOnlyText(), "");
+		CommandName    = Left(CommandName, Position - 1);
+	EndIf;
 	
 	ExecutionParameters = ManagementCommandParameters(Form);
-	ExecutionParameters.ItemNumber = StrReplace(CommandNameParts[1], FilesOperationsClientServer.OneFileOnlyText(), "");
+	ExecutionParameters.ItemNumber = ItemNumber;
 	
 	CompletionHandler = New NotifyDescription("CommandWithNotificationExecutionCompletion",
 		ThisObject, ExecutionParameters);
@@ -1570,7 +1578,7 @@ Procedure AttachedFilesManagementCommandCompletion(Form, Command, AttachedFilesO
 		Form.FilesOperationsParameters.FormElementsDetails[ItemNumber].MaximumSize);
 	FileAddingOptions.Insert("SelectionDialogFilter",
 		Form.FilesOperationsParameters.FormElementsDetails[ItemNumber].SelectionDialogFilter);
-	FileAddingOptions.Insert("DontOpenCard", True);
+	FileAddingOptions.Insert("NotOpenCard", True);
 	
 	// IntegrationWith1CDocumentManagementSubsystem
 	UseEDIToStoreObjectFiles = False;
@@ -1579,7 +1587,7 @@ Procedure AttachedFilesManagementCommandCompletion(Form, Command, AttachedFilesO
 		StandardSubsystemsClient.ClientRunParameters().Property("DMILVersion", DMILVersion);
 		If CommonClientServer.CompareVersions(DMILVersion, "3.0.2.4") >= 0 Then
 			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient = CommonClient.CommonModule(
-				"ИнтеграцияС1СДокументооборотБазоваяФункциональностьКлиент");
+				"Integration1CDocumentManagementCommonClient");
 			UseEDIToStoreObjectFiles =
 				ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient.UseEDIToStoreObjectFiles(
 					Form,
@@ -1608,19 +1616,19 @@ Procedure AttachedFilesManagementCommandCompletion(Form, Command, AttachedFilesO
 			
 		EndIf;
 		
-	ElsIf StrStartsWith(CommandName, "ImportFile_") Then
+	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.NameOfCommandUploadFile()) Then
 		
 		If UseEDIToStoreObjectFiles Then
 			
 			// ИнтеграцияС1СДокументооборотом
-			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient.ДобавитьФайлСДискаКОбъектуИС(
+			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient.AddFileFromDiskoISObject(
 				AttachedFilesOwner,
 				Form.UUID);
 			// 
 			
 		Else
 			
-			CommandName = StrReplace(CommandName, "ImportFile_", "");
+			CommandName = StrReplace(CommandName, FilesOperationsClientServer.NameOfCommandUploadFile(), "");
 			OwnerFiles = FilesOperationsInternalServerCall.AttachedFilesCount(AttachedFilesOwner, True);
 			If StrStartsWith(CommandName, "OneFileOnly")
 				And OwnerFiles.Count > 0 Then
@@ -1649,28 +1657,28 @@ Procedure AttachedFilesManagementCommandCompletion(Form, Command, AttachedFilesO
 			ExecuteActionWithFile(ExecutionParameters, CompletionHandler);
 		EndIf;
 		
-	ElsIf StrStartsWith(CommandName, "CreateByTemplate") Then
+	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.NameOfCreateByTemplateCommand()) Then
 		AppendFile(CompletionHandler, AttachedFilesOwner, Form, 1, FileAddingOptions);
-	ElsIf StrStartsWith(CommandName, "Scan") Then
+	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.NameOfScanCommand()) Then
 		AppendFile(CompletionHandler, AttachedFilesOwner, Form, 3, FileAddingOptions);
-	ElsIf StrStartsWith(CommandName, "SelectFile") Then
+	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.NameOfCommandToSelectFile()) Then
 		ExecutionParameters.Action = "SelectFile";
 		OpenFileChoiceForm(AttachedFilesOwner, Undefined, False, CompletionHandler);
-	ElsIf StrStartsWith(CommandName, "ViewFile1") Then
+	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.NameOfCommandsViewFile()) Then
 		ExecutionParameters.Action = "ViewFile1";
 		ExecuteActionWithFile(ExecutionParameters, CompletionHandler);
-	ElsIf StrStartsWith(CommandName, "Clear") Then
+	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.ClearCommandName()) Then
 		UpdateAttachedFileStorageAttribute(Form, ExecutionParameters.ItemNumber, Undefined);
-	ElsIf StrStartsWith(CommandName, "OpenForm") Then
+	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.NameOfOpenFormCommand()) Then
 		ExecutionParameters.Action = "OpenForm";
 		ExecuteActionWithFile(ExecutionParameters, CompletionHandler);
-	ElsIf StrStartsWith(CommandName, "EditFile") Then
+	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.NameOfEditFileCommand()) Then
 		ExecutionParameters.Action = "EditFile";
 		ExecuteActionWithFile(ExecutionParameters, CompletionHandler);
-	ElsIf StrStartsWith(CommandName, "PutFile") Then
+	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.NameOfCommandToPlaceFile()) Then
 		ExecutionParameters.Action = "PutFile";
 		ExecuteActionWithFile(ExecutionParameters, CompletionHandler);
-	ElsIf StrStartsWith(CommandName, "CancelEdit") Then
+	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.NameOfUndoEditingCommand()) Then
 		ExecutionParameters.Action = "CancelEdit";
 		ExecuteActionWithFile(ExecutionParameters, CompletionHandler);
 	EndIf;
@@ -1693,7 +1701,7 @@ Procedure PreviewFieldClickCompletion(Form, AttachedFilesOwner, Item, StandardPr
 	FileAddingOptions.Insert("SelectionDialogFilter", FileOperationsParameters.SelectionDialogFilter);
 
 
-	FileAddingOptions.Insert("DontOpenCard", True);
+	FileAddingOptions.Insert("NotOpenCard", True);
 	PlacementAttribute = Undefined;
 	If FileOperationsParameters.Property("PathToPictureData") And ValueIsFilled(FileOperationsParameters.PathToPlacementAttribute) Then
 		PathToPlacementAttribute = FileOperationsParameters.PathToPlacementAttribute;
@@ -1774,8 +1782,8 @@ Procedure PreviewFieldDragCompletion(ExtensionInstalled, AdditionalParameters) E
 		AddingOptions.Insert("ResultHandler", CompletionHandler);
 		AddingOptions.Insert("FullFileName", File.FullName);
 		AddingOptions.Insert("FileOwner", AttachedFilesOwner);
-		AddingOptions.Insert("OwnerForm1", Form);
-		AddingOptions.Insert("DontOpenCardAfterCreateFromFIle", True);
+		AddingOptions.Insert("OwnerForm", Form);
+		AddingOptions.Insert("NotOpenCardAfterCreateFromFile", True);
 		AddingOptions.Insert("NameOfFileToCreate", File.BaseName);
 		AddingOptions.Insert("MaximumSize",
 			Form.FilesOperationsParameters.FormElementsDetails[ItemNumber].MaximumSize);
@@ -1940,13 +1948,18 @@ EndProcedure
 //
 Procedure ChangeButtonsAvailability(Form, ItemNumber, EditStart)
 	
+	CommandPrefix                   = FilesOperationsClientServer.CommandsPrefix();
+	NameOfCommandToPlaceFile          = FilesOperationsClientServer.NameOfCommandToPlaceFile();
+	NameOfUndoEditingCommand = FilesOperationsClientServer.NameOfUndoEditingCommand();
+	NameOfEditFileCommand      = FilesOperationsClientServer.NameOfEditFileCommand();
+	
 	Buttons = New ValueList;
-	Buttons.Add("AttachedFilesManagementPlaceFile" + ItemNumber, , EditStart);
-	Buttons.Add("AttachedFilesManagementCancelEditing" + ItemNumber, , EditStart);
-	Buttons.Add("AttachedFilesManagementEditFile" + ItemNumber, , Not EditStart);
-	Buttons.Add("PutFileFromContextMenu" + ItemNumber, , EditStart);
-	Buttons.Add("CancelEditFromContextMenu" + ItemNumber, , EditStart);
-	Buttons.Add("EditFileFromContextMenu" + ItemNumber, , Not EditStart);
+	Buttons.Add(CommandPrefix + NameOfCommandToPlaceFile + ItemNumber,, EditStart);
+	Buttons.Add(CommandPrefix + NameOfUndoEditingCommand + ItemNumber,, EditStart);
+	Buttons.Add(CommandPrefix + NameOfEditFileCommand + ItemNumber,, Not EditStart);
+	Buttons.Add(NameOfCommandToPlaceFile + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,, EditStart);
+	Buttons.Add(NameOfUndoEditingCommand + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,, EditStart);
+	Buttons.Add(NameOfEditFileCommand + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,, Not EditStart);
 	
 	Items = Form.Items;
 	For Each Button In Buttons Do
@@ -1973,18 +1986,21 @@ Procedure ChangeAdditionalCommandsVisibility(Form)
 		Return;
 	EndIf;
 	
+	CommandPrefix = FilesOperationsClientServer.CommandsPrefix();
+	
 	For ElementIndex = 0 To Form.FilesOperationsParameters.FormElementsDetails.UBound() Do
 		
 		CommandsSubmenu                 = Form.Items.Find("AddingFileSubmenu" + ElementIndex);
-		CommandSelectButton          = Form.Items.Find("AttachedFilesManagementSelectFile" + ElementIndex);
-		CommandLoadButton        = Form.Items.Find("AttachedFilesManagementImportFile" + ElementIndex);
-		CommandScanButton      = Form.Items.Find("AttachedFilesManagementScan" + ElementIndex);
-		CommandCreateFromTemplateButton = Form.Items.Find("AttachedFilesManagementCreateByTemplate" + ElementIndex);
+		CommandSelectButton          = Form.Items.Find(CommandPrefix + FilesOperationsClientServer.NameOfCommandToSelectFile() + ElementIndex);
+		CommandSelectButton          = Form.Items.Find(CommandPrefix + FilesOperationsClientServer.NameOfCommandToSelectFile() + ElementIndex);
+		CommandLoadButton        = Form.Items.Find(CommandPrefix + FilesOperationsClientServer.NameOfCommandUploadFile() + ElementIndex);
+		CommandScanButton      = Form.Items.Find(CommandPrefix + FilesOperationsClientServer.NameOfScanCommand() + ElementIndex);
+		CommandCreateFromTemplateButton = Form.Items.Find(CommandPrefix + FilesOperationsClientServer.NameOfCreateByTemplateCommand() + ElementIndex);
 		
 		If CommandScanButton <> Undefined Then
 			CommandScanButton.Visible = False;
-			CommandScanFromContextMenuButton = Form.Items.Find("AttachedFilesManagementScanFromContextMenu" 
-				+ ElementIndex);
+			CommandScanFromContextMenuButton = Form.Items.Find(FilesOperationsClientServer.CommandsPrefix()
+				+ FilesOperationsClientServer.NameOfScanCommand() + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ElementIndex);
 			If CommandScanFromContextMenuButton <> Undefined Then
 				CommandScanFromContextMenuButton.Visible = False;
 			EndIf;
@@ -1992,8 +2008,8 @@ Procedure ChangeAdditionalCommandsVisibility(Form)
 		
 		If CommandCreateFromTemplateButton <> Undefined Then
 			CommandCreateFromTemplateButton.Visible = False;
-			CommandCreateFromTemplateFromContextMenuButton = Form.Items.Find("AttachedFilesManagementCreateByTemplateFromContextMenu" 
-				+ ElementIndex);
+			CommandCreateFromTemplateFromContextMenuButton = Form.Items.Find(FilesOperationsClientServer.CommandsPrefix() 
+				+ FilesOperationsClientServer.NameOfScanCommand() + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ElementIndex);
 			If CommandCreateFromTemplateFromContextMenuButton <> Undefined Then
 				CommandCreateFromTemplateFromContextMenuButton.Visible = False;
 			EndIf;

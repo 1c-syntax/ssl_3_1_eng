@@ -196,7 +196,7 @@ Procedure PropertiesSetsOnGetDataAtServer(TagName, Settings, Rows)
 			EndIf;
 			Data.Presentation = String(Data.Ref) + " (" + Data.AttributesCount + ")";
 		ElsIf Data.PropertyKind = Enums.PropertiesKinds.Labels Then
-			If Not ValueIsFilled(Data.NumberOfTags) Then
+			If Not ValueIsFilled(Data.LabelCount) Then
 				Data.Presentation = String(Data.Ref);
 				Continue;
 			EndIf;
@@ -204,7 +204,7 @@ Procedure PropertiesSetsOnGetDataAtServer(TagName, Settings, Rows)
 				Data.Presentation = Data.DescriptionInOtherLanguages + " (" + Data.AttributesCount + ")";
 				Continue;
 			EndIf;
-			Data.Presentation = String(Data.Ref) + " (" + Data.NumberOfTags + ")";
+			Data.Presentation = String(Data.Ref) + " (" + Data.LabelCount + ")";
 		EndIf;
 	EndDo;
 	
@@ -262,7 +262,7 @@ Procedure PropertiesChoiceProcessing(Item, ValueSelected, StandardProcessing)
 			
 			FormParameters = New Structure;
 			FormParameters.Insert("PropertyKind", PropertyKind);
-			FormParameters.Insert("CurrentPropertiesSet",            CurrentSet);
+			FormParameters.Insert("CurrentPropertiesSet",            Current_Set);
 			FormParameters.Insert("AdditionalValuesOwner", ValueSelected.AdditionalValuesOwner);
 			
 			OpenForm("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo.ObjectForm",
@@ -270,7 +270,7 @@ Procedure PropertiesChoiceProcessing(Item, ValueSelected, StandardProcessing)
 			
 		ElsIf ValueSelected.Property("CommonProperty") Then
 			
-			ChangedSet = CurrentSet;
+			ChangedSet = Current_Set;
 			If ValueSelected.Property("Drag") Then
 				AddCommonPropertyByDragging(ValueSelected.CommonProperty);
 			Else
@@ -308,9 +308,9 @@ EndProcedure
 Procedure Create(Command = Undefined)
 	
 	FormParameters = New Structure;
-	FormParameters.Insert("PropertiesSet", CurrentSet);
+	FormParameters.Insert("PropertiesSet", Current_Set);
 	FormParameters.Insert("PropertyKind", PropertyKind);
-	FormParameters.Insert("CurrentPropertiesSet", CurrentSet);
+	FormParameters.Insert("CurrentPropertiesSet", Current_Set);
 	
 	OpenForm("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo.ObjectForm",
 		FormParameters, Items.Properties);
@@ -336,7 +336,7 @@ Procedure AddFromSet(Command)
 	
 	FormParameters.Insert("SelectedValues", SelectedValues);
 	FormParameters.Insert("PropertyKind", PropertyKind);
-	FormParameters.Insert("CurrentPropertiesSet", CurrentSet);
+	FormParameters.Insert("CurrentPropertiesSet", Current_Set);
 	
 	OpenForm("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo.ObjectForm",
 		FormParameters, Items.Properties);
@@ -349,7 +349,7 @@ Procedure Change(Command = Undefined)
 		// Open the property form.
 		FormParameters = New Structure;
 		FormParameters.Insert("Key", Items.Properties.CurrentData.Property);
-		FormParameters.Insert("CurrentPropertiesSet", CurrentSet);
+		FormParameters.Insert("CurrentPropertiesSet", Current_Set);
 		
 		OpenForm("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo.ObjectForm",
 			FormParameters, Items.Properties);
@@ -363,7 +363,7 @@ Procedure Copy(Command = Undefined, PasteFromClipboard2 = False)
 	FormParameters = New Structure;
 	CopyingValue = Items.Properties.CurrentData.Property;
 	FormParameters.Insert("AdditionalValuesOwner", CopyingValue);
-	FormParameters.Insert("CurrentPropertiesSet", CurrentSet);
+	FormParameters.Insert("CurrentPropertiesSet", Current_Set);
 	FormParameters.Insert("CopyingValue", CopyingValue);
 	
 	OpenForm("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo.ObjectForm", FormParameters);
@@ -375,7 +375,7 @@ Procedure AddAttributeToSet(AdditionalValuesOwner, Set = Undefined)
 	
 	FormParameters = New Structure;
 	If Set = Undefined Then
-		CurrentPropertiesSet = CurrentSet;
+		CurrentPropertiesSet = Current_Set;
 	Else
 		CurrentPropertiesSet = Set;
 		FormParameters.Insert("Drag", True);
@@ -557,7 +557,7 @@ Procedure SelectSpecifiedRows(LongDesc)
 		EndIf;
 		
 		Items.PropertiesSets.CurrentRow = LongDesc.Set;
-		CurrentSet = Undefined;
+		Current_Set = Undefined;
 		OnChangeCurrentSet();
 		FoundRows = Properties.FindRows(New Structure("Property", LongDesc.Property));
 		If FoundRows.Count() > 0 Then
@@ -772,16 +772,16 @@ EndProcedure
 Procedure OnChangeCurrentSet()
 	
 	If ShowUnusedAttributes Then
-		CurrentSet = Undefined;
+		Current_Set = Undefined;
 		OnChangeCurrentSetAtServer();
 	ElsIf Items.PropertiesSets.CurrentData = Undefined Then
-		If ValueIsFilled(CurrentSet) Then
-			CurrentSet = Undefined;
+		If ValueIsFilled(Current_Set) Then
+			Current_Set = Undefined;
 			OnChangeCurrentSetAtServer();
 		EndIf;
 		
-	ElsIf Items.PropertiesSets.CurrentData.Ref <> CurrentSet Then
-		CurrentSet          = Items.PropertiesSets.CurrentData.Ref;
+	ElsIf Items.PropertiesSets.CurrentData.Ref <> Current_Set Then
+		Current_Set          = Items.PropertiesSets.CurrentData.Ref;
 		CurrentSetIsFolder = Items.PropertiesSets.CurrentData.IsFolder;
 		OnChangeCurrentSetAtServer();
 	EndIf;
@@ -792,7 +792,7 @@ Procedure OnChangeCurrentSet()
 		Items.PropertiesSets.DisplayImportance = DisplayImportance.VeryLow;
 		ImportanceConfigured = True;
 	EndIf;
-	Items.Properties.Title = String(CurrentSet);
+	Items.Properties.Title = String(Current_Set);
 #EndIf
 	
 EndProcedure
@@ -832,14 +832,14 @@ Procedure ChangeDeletionMark()
 		EndIf;
 		
 		ShowQueryBox(
-			New NotifyDescription("ChangeDeletionMarkCompletion", ThisObject, CurrentSet),
+			New NotifyDescription("ChangeDeletionMarkCompletion", ThisObject, Current_Set),
 			QueryText, QuestionDialogMode.YesNo);
 	EndIf;
 	
 EndProcedure
 
 &AtClient
-Procedure ChangeDeletionMarkCompletion(Response, CurrentSet) Export
+Procedure ChangeDeletionMarkCompletion(Response, Current_Set) Export
 	
 	If Response <> DialogReturnCode.Yes Then
 		Return;
@@ -848,14 +848,14 @@ Procedure ChangeDeletionMarkCompletion(Response, CurrentSet) Export
 	ExecuteCommandAtServer("ChangeDeletionMark");
 	
 	Notify("Write_AdditionalAttributesAndInfoSets",
-		New Structure("Ref", CurrentSet), CurrentSet);
+		New Structure("Ref", Current_Set), Current_Set);
 	
 EndProcedure
 
 &AtServer
 Procedure OnChangeCurrentSetAtServer()
 	
-	If ValueIsFilled(CurrentSet)
+	If ValueIsFilled(Current_Set)
 	   And Not CurrentSetIsFolder
 	   Or ShowUnusedAttributes Then
 		
@@ -864,7 +864,7 @@ Procedure OnChangeCurrentSetAtServer()
 			Items.Properties.BackColor = Items.PropertiesSets.BackColor;
 		EndIf;
 		PropertyManagerInternal.UpdateCurrentSetPropertiesList(ThisObject, 
-			CurrentSet,
+			Current_Set,
 			PropertyKind,
 			CurrentEnable);
 	Else
@@ -989,7 +989,7 @@ Procedure ExecuteCommandAtServer(Command, Parameter = Undefined)
 		LockItem = Block.Add("Catalog.ObjectPropertyValueHierarchy");
 	Else
 		LockItem = Block.Add("Catalog.AdditionalAttributesAndInfoSets");
-		LockItem.SetValue("Ref", CurrentSet);
+		LockItem.SetValue("Ref", Current_Set);
 	EndIf;
 	
 	If ShowUnusedAttributes Then
@@ -1011,13 +1011,13 @@ Procedure ExecuteCommandAtServer(Command, Parameter = Undefined)
 	EndIf;
 	
 	Try
-		LockDataForEdit(CurrentSet);
+		LockDataForEdit(Current_Set);
 		BeginTransaction();
 		Try
 			Block.Lock();
-			LockDataForEdit(CurrentSet);
+			LockDataForEdit(Current_Set);
 			
-			CurrentSetObject = CurrentSet.GetObject();
+			CurrentSetObject = Current_Set.GetObject();
 			If CurrentSetObject.DataVersion <> CurrentSetDataVersion Then
 				OnChangeCurrentSetAtServer();
 				If PropertyKind = Enums.PropertiesKinds.AdditionalInfo Then
@@ -1110,7 +1110,7 @@ Procedure ExecuteCommandAtServer(Command, Parameter = Undefined)
 			Raise;
 		EndTry;
 	Except
-		UnlockDataForEdit(CurrentSet);
+		UnlockDataForEdit(Current_Set);
 		Raise;
 	EndTry;
 	

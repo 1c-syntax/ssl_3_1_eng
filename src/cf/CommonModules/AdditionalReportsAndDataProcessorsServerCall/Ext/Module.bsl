@@ -10,7 +10,7 @@
 #Region Public
 
 // Attaches an external report or data processor.
-// For more information See AdditionalReportsAndDataProcessors.ПодключитьВнешнююОбработку().
+// For more information See AdditionalReportsAndDataProcessors.AttachExternalDataProcessor.
 //
 // Parameters:
 //   Ref - CatalogRef.AdditionalReportsAndDataProcessors - a data processor to attach.
@@ -47,7 +47,7 @@ EndFunction
 #Region Private
 
 // Executes a data processor command and puts the result in a temporary storage.
-//   For more information- See AdditionalReportsAndDataProcessors.ВыполнитьКоманду().
+//   For more information- See AdditionalReportsAndDataProcessors.ExecuteCommand.
 //
 Function ExecuteCommand(CommandParameters, ResultAddress = Undefined) Export
 	

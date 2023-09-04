@@ -98,7 +98,7 @@ EndFunction
 
 Procedure WriteConfigurationStatistics(Val MetadataNamesMap = Undefined) Export
 	ConfigurationStatistics = NewConfigurationStatistics(MetadataNamesMap);
-	Write(ConfigurationStatistics.NotDivided, InformationRegisters.StatisticsAreas.GetRef("0", True));
+	Write(ConfigurationStatistics.NotSeparated, InformationRegisters.StatisticsAreas.GetRef("0", True));
 	
 	If ConfigurationStatistics.Separated <> Undefined Then
 		WriteSeparated(ConfigurationStatistics.Separated);
@@ -188,9 +188,9 @@ EndProcedure
 
 Function SeparateConfigurationByAreas(Tables, MetadataNamesMap, MetadataNamesMapResult, SeparationByDataAreasEnabled)
 	If SeparationByDataAreasEnabled Then
-		MetadataNamesMapByAreas = New Structure("NotDivided, Separated", New Map, New Map);
+		MetadataNamesMapByAreas = New Structure("NotSeparated, Separated", New Map, New Map);
 	Else
-		MetadataNamesMapByAreas = New Structure("NotDivided, Separated", New Map, Undefined);
+		MetadataNamesMapByAreas = New Structure("NotSeparated, Separated", New Map, Undefined);
 	EndIf;
 		
 	CoreSaaSAvailable = Common.SubsystemExists("CloudTechnology.Core");
@@ -250,7 +250,7 @@ Function SeparateConfigurationByAreas(Tables, MetadataNamesMap, MetadataNamesMap
 		If IsSeparation Then
 			MetadataNamesMapByAreas.Separated.Insert(CurRow.TableName, New Structure("Query, StatisticsOperations, StatisticsKind", QueryText, Undefined, 0));
 		Else
-			MetadataNamesMapByAreas.NotDivided.Insert(CurRow.TableName, New Structure("Query, StatisticsOperations, StatisticsKind", QueryText, Undefined, 0));
+			MetadataNamesMapByAreas.NotSeparated.Insert(CurRow.TableName, New Structure("Query, StatisticsOperations, StatisticsKind", QueryText, Undefined, 0));
 		EndIf;
 			
 	EndDo;
@@ -261,7 +261,7 @@ EndFunction
 
 Procedure WriteConfigurationSettings() Export
 	ConfigurationSettings = BooleanFunctionalOptions();
-	Write(ConfigurationSettings.NotDivided, InformationRegisters.StatisticsAreas.GetRef("0", True));
+	Write(ConfigurationSettings.NotSeparated, InformationRegisters.StatisticsAreas.GetRef("0", True));
 	If ValueIsFilled(ConfigurationSettings.Separated) Then
 		WriteSeparated(ConfigurationSettings.Separated);
 	EndIf;
@@ -269,7 +269,7 @@ EndProcedure
 
 Function BooleanFunctionalOptions()
 	
-	Result = New Structure("NotDivided, Separated", New Map, New Map);
+	Result = New Structure("NotSeparated, Separated", New Map, New Map);
 	
 	DataSeparationEnabled = MonitoringCenterInternal.SeparationByDataAreasEnabled() 
 		And Common.SubsystemExists("CloudTechnology.Core");
@@ -292,7 +292,7 @@ Function BooleanFunctionalOptions()
 				IsSeparation = False;
 			EndIf;
             
-			Collection = ?(IsSeparation, Result.Separated, Result.NotDivided);
+			Collection = ?(IsSeparation, Result.Separated, Result.NotSeparated);
 			Collection.Insert(FunctionalOption.FullName(), 
 				New Structure("Query, StatisticsOperations, StatisticsKind", FunctionalOption.Location, Undefined, 1));
 		EndIf;

@@ -146,7 +146,7 @@
 					<tl>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Show in PROF</v8:content>
+							<v8:content>Show in PROF version</v8:content>
 						</v8:item>
 					</tl>
 				</c>
@@ -157,7 +157,7 @@
 					<tl>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Show in the basic one</v8:content>
+							<v8:content>Show in basic version</v8:content>
 						</v8:item>
 					</tl>
 				</c>

@@ -104,8 +104,6 @@ Procedure OutputSpreadsheetDocument()
 	
 EndProcedure
 
-// Outputs parent object tree rows.
-//
 // Parameters:
 //  TreeRows - FormDataTreeItemCollection
 //  Template - SpreadsheetDocument
@@ -157,8 +155,6 @@ Procedure OutputParentTreeItems(TreeRows, Template, RecursionLevels = 1)
 	
 EndProcedure
 
-// Outputs the picture matching the object status and its presentation to a spreadsheet document.
-//
 &AtServer
 Procedure OutputPresentationAndPicture(TreeRow, Template, IsCurrentObject = False, IsSubordinateDocument = Undefined)
 	
@@ -267,7 +263,7 @@ Procedure OutputPresentationAndPicture(TreeRow, Template, IsCurrentObject = Fals
 	
 EndProcedure
 
-// Determines whether a vertical connector is to be output to the spreadsheet document.
+// 
 //
 // Parameters:
 //  LevelUp  - Number - how many levels higher is the 
@@ -278,7 +274,7 @@ EndProcedure
 //   Boolean   - 
 //
 &AtServer
-Function OutputVerticalConnector(LevelUp,TreeRow,SearchSubordinateDocuments = True)
+Function OutputVerticalConnector(LevelUp, TreeRow, SearchSubordinateDocuments = True)
 	
 	CurrentRow = TreeRow;
 	
@@ -333,8 +329,6 @@ Procedure OutputCurrentObject(Template)
 	
 EndProcedure
 
-// Generates a document presentation for output to the spreadsheet document.
-//
 // Parameters:
 //  Selection - QueryResultSelection
 //          - FormDataTreeItem - 
@@ -414,7 +408,6 @@ Procedure OutputSubordinateTreeItems(TreeRows, Template, RecursionLevels = 1)
 	
 EndProcedure
 
-// Initiates output to the spreadsheet document and displays it when the document is ready.
 &AtClient
 Procedure OutputHierarchy()
 
@@ -586,16 +579,16 @@ Procedure OutputParentObjects(CurrentObject, ParentTree, DisplayedObjects,
 			Continue;
 		EndIf;
 		
-		For Each CurrentType In Attribute.Type.Types() Do
+		For Each Current_Type In Attribute.Type.Types() Do
 			
-			AttributeMetadata = MetadataOfPropsType(CurrentType);
+			AttributeMetadata = MetadataOfPropsType(Current_Type);
 			If AttributeMetadata.Metadata = Undefined Then
 				Continue;
 			EndIf;
 			
 			AttributeValue = CurrentObject[Attribute.Name];
 			If ValueIsFilled(AttributeValue)
-				And TypeOf(AttributeValue) = CurrentType
+				And TypeOf(AttributeValue) = Current_Type
 				And AttributeValue <> CurrentObject
 				And AttributesList.Find(AttributeValue) = Undefined Then
 				
@@ -615,8 +608,8 @@ Procedure OutputParentObjects(CurrentObject, ParentTree, DisplayedObjects,
 				Continue;
 			EndIf;
 				
-			For Each CurrentType In Attribute.Type.Types() Do
-				AttributeMetadata = MetadataOfPropsType(CurrentType);
+			For Each Current_Type In Attribute.Type.Types() Do
+				AttributeMetadata = MetadataOfPropsType(Current_Type);
 				If AttributeMetadata.Metadata = Undefined Then
 					Continue;
 				EndIf;
@@ -714,8 +707,6 @@ Function MetadataOfPropsType(AttributeType)
 
 EndFunction
 
-// 
-//
 // Parameters:
 //  ParentRow  - FormDataTree
 //                  - FormDataTreeItem
@@ -1312,8 +1303,6 @@ Function ChangeItemsDeletionMark(SelectedItems, Check)
 	Return Errors;
 	
 EndFunction
-
-// 
 
 &AtClient
 Procedure ChangeDocumentsPosting(Mode)

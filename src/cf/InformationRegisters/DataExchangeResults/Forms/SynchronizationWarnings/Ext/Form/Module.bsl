@@ -670,10 +670,10 @@ EndProcedure
 Procedure DynamicListWithVersioningWarnings()
 	
 	ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");
-	VersionRequestText = ModuleObjectsVersioning.TextOfTheVersionWarningListRequest();
+	QueryTextVersions = ModuleObjectsVersioning.TextOfTheVersionWarningListRequest();
 	
 	ListProperties = Common.DynamicListPropertiesStructure();
-	ListProperties.QueryText = List.QueryText + Chars.LF + "UNION ALL" + Chars.LF + VersionRequestText;
+	ListProperties.QueryText = List.QueryText + Chars.LF + "UNION ALL" + Chars.LF + QueryTextVersions;
 	ListProperties.MainTable = "";
 	ListProperties.DynamicDataRead = False;
 	

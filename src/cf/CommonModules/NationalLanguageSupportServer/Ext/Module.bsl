@@ -1206,9 +1206,9 @@ Procedure SetAttributesValues(Object, Values, Val LanguageCode = Undefined) Expo
 	AllMultilingualRequisites = MultilingualObjectAttributes(MetadataObject);
 	NamesofLocalizableDetails = TheNamesOfTheLocalizedDetailsOfTheObjectInTheHeader(MetadataObject);
 	
-	PMSubmissions = Undefined;
+	TSPresentations = Undefined;
 	If ObjectContainsPMRepresentations(MetadataObject.FullName()) Then
-		PMSubmissions = Metadata.FindByType(TypeOf(Object.Presentations));
+		TSPresentations = Metadata.FindByType(TypeOf(Object.Presentations));
 	EndIf;
 	
 	For Each AttributeValue In Values Do
@@ -1244,8 +1244,8 @@ Procedure SetAttributesValues(Object, Values, Val LanguageCode = Undefined) Expo
 					EndIf;
 				EndIf;
 				
-				If PMSubmissions <> Undefined 
-					 And PMSubmissions.Attributes.Find(AttributeName) <> Undefined Then
+				If TSPresentations <> Undefined 
+					 And TSPresentations.Attributes.Find(AttributeName) <> Undefined Then
 						
 						FoundRow = Undefined;
 						For Each TableRow In Object.Presentations Do
@@ -2022,12 +2022,12 @@ Function ListOfObjectsToBeProcessedToUpgradeToNewVersion(DataVariant)
 		|DirectoryofSTCHRepresentations.Ref
 		|FROM
 		|	#PresentationTable AS DirectoryofSTCHRepresentations
-		|	LEFT JOIN #Table AS CatalogWithTS
-		|		ON DirectoryofSTCHRepresentations.Ref = CatalogWithTS.Ref
+		|	LEFT JOIN #Table AS CatalogPTS
+		|		ON DirectoryofSTCHRepresentations.Ref = CatalogPTS.Ref
 		|WHERE DirectoryofSTCHRepresentations.LanguageCode = ""&LanguageCode"" AND &Condition";
 		
 		TemplateWhere = "(CAST(DirectoryofSTCHRepresentations.%1 AS STRING(10)) <> """" 
-		|AND CAST(CatalogWithTS.%1#LanguageSuffix AS STRING(10)) = """")";
+		|AND CAST(CatalogPTS.%1#LanguageSuffix AS STRING(10)) = """")";
 		
 		QueriesSet = New Array;
 		
@@ -2053,10 +2053,10 @@ Function ListOfObjectsToBeProcessedToUpgradeToNewVersion(DataVariant)
 				
 				If ObjectTabularSection.Use = Metadata.ObjectProperties.AttributeUse.ForItem Then
 					QueryTextWhere = QueryTextWhere + "
-					|AND CatalogWithTS.IsFolder <> TRUE";
+					|AND CatalogPTS.IsFolder <> TRUE";
 				ElsIf ObjectTabularSection.Use = Metadata.ObjectProperties.AttributeUse.ForFolder Then
 					QueryTextWhere = QueryTextWhere + "
-					|AND CatalogWithTS.IsFolder = TRUE";
+					|AND CatalogPTS.IsFolder = TRUE";
 				EndIf;
 			EndIf;
 			

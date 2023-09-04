@@ -354,7 +354,7 @@ Procedure OnStartExportDataForMapping()
 			AttachIdleHandler("OnWaitForExportDataForMapping",
 				MappingDataExportIdleHandlerParameters.CurrentInterval, True);
 		Else
-			CompletionNotification2 = New NotifyDescription("DataExportForMappingCompletion", ThisObject);
+			CompletionNotification2 = New NotifyDescription("ExportMappingDataCompletion", ThisObject);
 		
 			IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 			IdleParameters.OutputIdleWindow = False;
@@ -402,7 +402,7 @@ Procedure OnCompleteDataExportForMapping()
 EndProcedure
 
 &AtClient
-Procedure DataExportForMappingCompletion(Result, AdditionalParameters) Export
+Procedure ExportMappingDataCompletion(Result, AdditionalParameters) Export
 	
 	If Result <> Undefined Then
 		OnCompleteDataExportForMapping();
@@ -553,7 +553,7 @@ Procedure InitializeTransportParameters()
 	
 	TransportSettings = InformationRegisters.DataExchangeTransportSettings.TransportSettings(ExchangeNode);
 	TransportSettings.Property("DefaultExchangeMessagesTransportKind", TransportKind);
-	TransportSettings.Property("WSPeerEndpoint", Endpoint);
+	TransportSettings.Property("WSCorrespondentEndpoint", Endpoint);
 	
 	If Not ValueIsFilled(TransportKind) Then
 		TransportKind = Enums.ExchangeMessagesTransportTypes.WSPassiveMode;

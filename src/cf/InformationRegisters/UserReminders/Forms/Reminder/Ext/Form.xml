@@ -296,7 +296,7 @@
 																<v8:content>5 minutes</v8:content>
 															</v8:item>
 														</Presentation>
-														<Value xsi:type="xs:string">5m</Value>
+														<Value xsi:type="xs:string">5M</Value>
 													</xr:Value>
 												</xr:Item>
 												<xr:Item>
@@ -309,7 +309,7 @@
 																<v8:content>10 minutes</v8:content>
 															</v8:item>
 														</Presentation>
-														<Value xsi:type="xs:string">10m</Value>
+														<Value xsi:type="xs:string">10M</Value>
 													</xr:Value>
 												</xr:Item>
 												<xr:Item>
@@ -322,7 +322,7 @@
 																<v8:content>15 minutes</v8:content>
 															</v8:item>
 														</Presentation>
-														<Value xsi:type="xs:string">M15</Value>
+														<Value xsi:type="xs:string">15M</Value>
 													</xr:Value>
 												</xr:Item>
 												<xr:Item>
@@ -335,7 +335,7 @@
 																<v8:content>30 minutes</v8:content>
 															</v8:item>
 														</Presentation>
-														<Value xsi:type="xs:string">30m</Value>
+														<Value xsi:type="xs:string">30M</Value>
 													</xr:Value>
 												</xr:Item>
 												<xr:Item>
@@ -348,7 +348,7 @@
 																<v8:content>1 hour</v8:content>
 															</v8:item>
 														</Presentation>
-														<Value xsi:type="xs:string">1H</Value>
+														<Value xsi:type="xs:string">1Ch</Value>
 													</xr:Value>
 												</xr:Item>
 												<xr:Item>
@@ -361,7 +361,7 @@
 																<v8:content>2 hours</v8:content>
 															</v8:item>
 														</Presentation>
-														<Value xsi:type="xs:string">2H</Value>
+														<Value xsi:type="xs:string">2Ch</Value>
 													</xr:Value>
 												</xr:Item>
 												<xr:Item>
@@ -374,7 +374,7 @@
 																<v8:content>4 hours</v8:content>
 															</v8:item>
 														</Presentation>
-														<Value xsi:type="xs:string">4h</Value>
+														<Value xsi:type="xs:string">4Ch</Value>
 													</xr:Value>
 												</xr:Item>
 												<xr:Item>
@@ -387,7 +387,7 @@
 																<v8:content>8 hours</v8:content>
 															</v8:item>
 														</Presentation>
-														<Value xsi:type="xs:string">8h</Value>
+														<Value xsi:type="xs:string">8Ch</Value>
 													</xr:Value>
 												</xr:Item>
 												<xr:Item>
@@ -439,7 +439,7 @@
 																<v8:content>1 week</v8:content>
 															</v8:item>
 														</Presentation>
-														<Value xsi:type="xs:string">1N</Value>
+														<Value xsi:type="xs:string">1N1</Value>
 													</xr:Value>
 												</xr:Item>
 												<xr:Item>
@@ -452,7 +452,7 @@
 																<v8:content>2 weeks</v8:content>
 															</v8:item>
 														</Presentation>
-														<Value xsi:type="xs:string">2n</Value>
+														<Value xsi:type="xs:string">2N1</Value>
 													</xr:Value>
 												</xr:Item>
 											</ChoiceList>
@@ -542,7 +542,7 @@
 														<v8:content>hourly</v8:content>
 													</v8:item>
 												</Presentation>
-												<Value xsi:type="xs:string">1H</Value>
+												<Value xsi:type="xs:string">1Ch</Value>
 											</xr:Value>
 										</xr:Item>
 										<xr:Item>
@@ -568,7 +568,7 @@
 														<v8:content>weekly</v8:content>
 													</v8:item>
 												</Presentation>
-												<Value xsi:type="xs:string">1N</Value>
+												<Value xsi:type="xs:string">1N1</Value>
 											</xr:Value>
 										</xr:Item>
 										<xr:Item>

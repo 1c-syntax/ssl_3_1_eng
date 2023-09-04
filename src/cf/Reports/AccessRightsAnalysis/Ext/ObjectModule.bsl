@@ -524,7 +524,7 @@ EndFunction
 
 Function UsersRights()
 	
-	TheRequestTextIsGeneral =
+	QueryTextShared =
 	"SELECT
 	|	ExtensionsRolesRights.MetadataObject AS MetadataObject,
 	|	ExtensionsRolesRights.Role AS Role,
@@ -1270,18 +1270,18 @@ Function UsersRights()
 	EndIf;
 	
 	SelectionByUserType = SelectionByUserType();
-	FilterByUsers     = FilterByUsers();
-	If ValueIsFilled(FilterByUsers.Value) And FilterByUsers.WithoutGroups Then
-		Query.SetParameter("SelectedUsersWithoutGroups", FilterByUsers.Value);
+	FilterForSpecifiedUsers     = FilterForSpecifiedUsers();
+	If ValueIsFilled(FilterForSpecifiedUsers.Value) And FilterForSpecifiedUsers.WithoutGroups Then
+		Query.SetParameter("SelectedUsersWithoutGroups", FilterForSpecifiedUsers.Value);
 		SelectionCriteriaForUsers = SelectionCriteriaForUsers + "
 			|			AND (UserGroupCompositions.User IN (&SelectedUsersWithoutGroups))";
 		
-	ElsIf ValueIsFilled(FilterByUsers.Value) Then
-		Query.SetParameter("SelectedUsersAndGroups", FilterByUsers.Value);
+	ElsIf ValueIsFilled(FilterForSpecifiedUsers.Value) Then
+		Query.SetParameter("SelectedUsersAndGroups", FilterForSpecifiedUsers.Value);
 		SelectionCriteriaForUsers = SelectionCriteriaForUsers + "
-			|		INNER JOIN InformationRegister.UserGroupCompositions AS FilterUsers
-			|		ON (FilterUsers.User = UserGroupCompositions.User)
-			|			AND (FilterUsers.UsersGroup IN (&SelectedUsersAndGroups))";
+			|		INNER JOIN InformationRegister.UserGroupCompositions AS FilterUsers_SSLy
+			|		ON (FilterUsers_SSLy.User = UserGroupCompositions.User)
+			|			AND (FilterUsers_SSLy.UsersGroup IN (&SelectedUsersAndGroups))";
 		
 	ElsIf SelectionByUserType = "Users" Then
 		SelectionCriteriaForUsers = SelectionCriteriaForUsers + "
@@ -1297,8 +1297,8 @@ Function UsersRights()
 	VariantWithRestrictedAccess = VariantWithRestrictedAccess();
 	
 	If GroupByReportsEnabled Then
-		TheTextOfTheRequestToThePrimary = RequestTextWithGroupingByReports;
-		Query.Text = TheRequestTextIsGeneral + Common.QueryBatchSeparator()
+		QueryTextMain = RequestTextWithGroupingByReports;
+		Query.Text = QueryTextShared + Common.QueryBatchSeparator()
 			+ RequestTextWithGroupingByReportsSupplement;
 		Query.SetParameter("RolesRightsToReports", RolesRightsToReports());
 		Query.SetParameter("ReportsTables",     ReportsTables());
@@ -1317,12 +1317,12 @@ Function UsersRights()
 			Query.SetParameter("AccessRestrictionKinds",
 				Reports.AccessRightsAnalysis.AccessRestrictionKinds());
 		EndIf;
-		TheTextOfTheRequestToThePrimary = QueryTextWithoutGroupingByReportsWithAccessRestrictionsStart
+		QueryTextMain = QueryTextWithoutGroupingByReportsWithAccessRestrictionsStart
 			+ Common.QueryBatchSeparator()
 			+ QueryTextWithoutGroupingByReportsWithAccessRestrictionsRestrictionTypes
 			+ Common.QueryBatchSeparator()
 			+ QueryTextWithoutGroupingByReportsWithAccessRestrictionsEnd;
-		Query.Text = TheRequestTextIsGeneral;
+		Query.Text = QueryTextShared;
 		Query.SetParameter("TextAllowed", " (" + NStr("en = 'Allowed';")+ ")");
 		Query.SetParameter("TextForbidden", " (" + NStr("en = 'Denied';") + ")");
 		Query.SetParameter("TextAllowedUsers", " (" + NStr("en = 'Allowed';") + ") - "
@@ -1336,25 +1336,25 @@ Function UsersRights()
 		Query.SetParameter("EmptyAccessValueReferences",
 			AccessManagementInternal.EmptyAccessValueReferences());
 	Else
-		TheTextOfTheRequestToThePrimary = RequestTextWithoutGroupingByReports;
-		Query.Text = TheRequestTextIsGeneral;
+		QueryTextMain = RequestTextWithoutGroupingByReports;
+		Query.Text = QueryTextShared;
 	EndIf;
 	
 	SimplifiedInterface = AccessManagementInternal.SimplifiedAccessRightsSetupInterface();
 	If Not SimplifiedInterface Then
-		TheTextOfTheRequestToThePrimary = StrReplace(TheTextOfTheRequestToThePrimary,
+		QueryTextMain = StrReplace(QueryTextMain,
 			"SELECT DISTINCT", "SELECT"); // @query-part-1 @query-part-2
 	EndIf;
 	Query.Text = Query.Text + Common.QueryBatchSeparator()
-		+ TheTextOfTheRequestToThePrimary;
+		+ QueryTextMain;
 	
 	Query.SetParameter("SimplifiedAccessRightsSetupInterface", SimplifiedInterface);
 	Query.SetParameter("ExtensionsRolesRights", AccessManagementInternal.ExtensionsRolesRights());
 	Query.SetParameter("AUserIsNotSpecified", Users.UnspecifiedUserRef());
 	
-	SelectionByTables = SelectionByTables();
-	If ValueIsFilled(SelectionByTables) Then
-		Query.SetParameter("SelectedTables", SelectionByTables);
+	FilterByTables = FilterByTables();
+	If ValueIsFilled(FilterByTables) Then
+		Query.SetParameter("SelectedTables", FilterByTables);
 		Query.Text = StrReplace(Query.Text, "&SelectingRightsByTables",
 			"RolesRights.MetadataObject IN (&SelectedTables)");
 		Query.Text = StrReplace(Query.Text, "&SelectingReportsByTables",
@@ -1417,7 +1417,7 @@ EndFunction
 //
 Function SettingsRightsByTableInselection()
 	
-	Table = SelectionByTables();
+	Table = FilterByTables();
 	If Not ValueIsFilled(Table)
 	 Or Not DescriptionOfIDTypes().ContainsType(TypeOf(Table)) Then
 		Return Undefined;
@@ -1523,7 +1523,7 @@ Function SelectionByUserType()
 	
 EndFunction
 
-Function FilterByUsers()
+Function FilterForSpecifiedUsers()
 	
 	Result = New Structure;
 	Result.Insert("WithoutGroups", True);
@@ -1553,7 +1553,7 @@ Function FilterByUsers()
 	
 EndFunction
 
-Function SelectionByTables()
+Function FilterByTables()
 	
 	Filter = SettingsComposer.GetSettings().Filter;
 	For Each Item In Filter.Items Do 
@@ -1606,7 +1606,7 @@ Function RightsSettingsOnObjects()
 	EndIf;
 	Result.OwnerSettingsHeader = String(RightsSettings.RefType);
 	
-	UserDetails = FilterByUsers().Value;
+	UserDetails = FilterForSpecifiedUsers().Value;
 	If TypeOf(UserDetails) = Type("ValueList") Then
 		If UserDetails.Count() <> 1 Then
 			Return Result;
@@ -1787,7 +1787,7 @@ Function RightsSettingsOnObjects()
 	|		ELSE UNDEFINED
 	|	END AS ParentOwnerOrUserSettings,
 	|	InheritanceSettingsByOwners.SettingsOwner AS OwnerOrUserSettings,
-	|	PRESENTATION(InheritanceSettingsByOwners.SettingsOwner) AS OwnerOrUserSettingsView,
+	|	PRESENTATION(InheritanceSettingsByOwners.SettingsOwner) AS OwnerOrUserSettingsPresentation,
 	|	CASE
 	|		WHEN InheritanceSettingsByOwners.SettingsOwner.Parent <> &EmptyParent
 	|			THEN InheritanceSettingsByOwners.SettingsOwner.Parent

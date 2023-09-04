@@ -924,7 +924,7 @@ Function GetWSProxyByConnectionParameters(
 	EndTry;
 
 	Try
-		CheckProhibitedCharsInWSProxyUsername(SettingsStructure.WSUsername);
+		CheckProhibitedCharsInWSProxyUsername(SettingsStructure.WSUserName);
 	Except
 		UserMessage = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		ErrorMessageString = ErrorProcessing.DetailErrorDescription(ErrorInfo());
@@ -940,7 +940,7 @@ Function GetWSProxyByConnectionParameters(
 	ConnectionParameters.WSDLAddress = WSDLLocation;
 	ConnectionParameters.NamespaceURI = SettingsStructure.WSServiceNamespaceURL;
 	ConnectionParameters.ServiceName = SettingsStructure.WSServiceName;
-	ConnectionParameters.UserName = SettingsStructure.WSUsername; 
+	ConnectionParameters.UserName = SettingsStructure.WSUserName; 
 	ConnectionParameters.Password = SettingsStructure.WSPassword;
 	ConnectionParameters.Timeout = SettingsStructure.WSTimeout;
 	ConnectionParameters.ProbingCallRequired = ProbingCallRequired;
@@ -1074,7 +1074,7 @@ Procedure RunDataExport(Proxy, ProxyVersion, ExchangeSettingsStructure, Exchange
 			ExchangeParameters.TimeConsumingOperation,
 			ExchangeParameters.OperationID,
 			ExchangeParameters.TimeConsumingOperationAllowed,
-			ExchangeSettingsStructure.TransportSettings.WSPeerDataArea);
+			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
 
 	Else
 					
@@ -1102,7 +1102,7 @@ Procedure RunDataImport(Proxy, ProxyVersion, ExchangeSettingsStructure, Exchange
 			ExchangeParameters.TimeConsumingOperation,
 			ExchangeParameters.OperationID,
 			ExchangeParameters.TimeConsumingOperationAllowed,
-			ExchangeSettingsStructure.TransportSettings.WSPeerDataArea);
+			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
 		
 	Else
 		
@@ -1151,7 +1151,7 @@ Function GetLongRunningOperationStatus(Proxy, ProxyVersion, ExchangeSettingsStru
 		
 		Return Proxy.GetContinuousOperationStatus(ExchangeParameters.OperationID,
 			ErrorMessageString, 
-			ExchangeSettingsStructure.TransportSettings.WSPeerDataArea);
+			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
 		
 	Else
 	
@@ -1169,7 +1169,7 @@ Procedure PutMessageForDataMapping(Proxy, ProxyVersion, ExchangeSettingsStructur
 		Proxy.PutMessageForDataMatching(ExchangeSettingsStructure.CorrespondentExchangePlanName,
 			ExchangeSettingsStructure.CurrentExchangePlanNodeCode1,
 			FileIDAsString,
-			ExchangeSettingsStructure.TransportSettings.WSPeerDataArea);
+			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
 
 		
 	Else
@@ -1189,7 +1189,7 @@ Procedure DeleteExchangeNode(Proxy, ProxyVersion, ExchangeSettingsStructure) Exp
 		
 		Proxy.RemoveExchangeNode(ExchangeSettingsStructure.CorrespondentExchangePlanName,
 			ExchangeSettingsStructure.CurrentExchangePlanNodeCode1,
-			ExchangeSettingsStructure.TransportSettings.WSPeerDataArea);
+			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
 			   
 	Else
 	
@@ -1325,7 +1325,7 @@ Function PrepareFileForObtaining(Proxy, ProxyVersion, ExchangeSettingsStructure,
 			PartSize,
 			SessionID,
 			PartCount, 
-			ExchangeSettingsStructure.TransportSettings.WSPeerDataArea);
+			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
 		
 	Else
 	
@@ -1342,7 +1342,7 @@ Procedure GetFileChunk(Proxy, ProxyVersion, ExchangeSettingsStructure, SessionID
 		
 		Proxy.GetFilePart(SessionID,
 			PartNumber, PartData,
-			ExchangeSettingsStructure.TransportSettings.WSPeerDataArea);
+			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
 			
 	Else
 	
@@ -1358,7 +1358,7 @@ Procedure PutFileChunk(Proxy, ProxyVersion, ExchangeSettingsStructure, SessionID
 	If Version3_0_2_1(ProxyVersion) Then
 		
 		Proxy.PutFilePart(SessionID, PartNumber, FileData,
-			ExchangeSettingsStructure.TransportSettings.WSPeerDataArea);
+			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
 		
 	Else
 	
@@ -1374,7 +1374,7 @@ Procedure AssembleFileFromParts(Proxy, ProxyVersion, ExchangeSettingsStructure, 
 	If Version3_0_2_1(ProxyVersion) Then
 		
 		Proxy.SaveFileFromParts(SessionID, PartCount, FileID,
-			ExchangeSettingsStructure.TransportSettings.WSPeerDataArea);
+			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
 	Else
 		
 		Proxy.SaveFileFromParts(SessionID, PartCount, FileID);
@@ -1392,7 +1392,7 @@ Function ConnectionTesting(Proxy, ProxyVersion, ExchangeSettingsStructure, Error
 			ExchangeSettingsStructure.CorrespondentExchangePlanName, 
 			ExchangeSettingsStructure.CurrentExchangePlanNodeCode1, 
 			ErrorMessage, 
-			ExchangeSettingsStructure.TransportSettings.WSPeerDataArea);
+			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
 			
 	Else
 		
@@ -1500,7 +1500,7 @@ Function SynchronizationSetupStatusInCorrespondent(Proxy, ProxyParameters, Setti
 				SettingsStructure.CorrespondentExchangePlanName,
 				SettingsStructure.CurrentExchangePlanNodeCode1,
 				ErrorMessageString,
-				SettingsStructure.TransportSettings.WSPeerDataArea);
+				SettingsStructure.TransportSettings.WSCorrespondentDataArea);
 			
 			DestinationParameters = XDTOSerializer.ReadXDTO(ProxyDestinationParameters);
 			
@@ -1514,7 +1514,7 @@ Function SynchronizationSetupStatusInCorrespondent(Proxy, ProxyParameters, Setti
 				SettingsStructure.ExchangePlanName,
 				SettingsStructure.CurrentExchangePlanNodeCode1,
 				ErrorMessageString,
-				SettingsStructure.TransportSettings.WSPeerDataArea);
+				SettingsStructure.TransportSettings.WSCorrespondentDataArea);
 			
 		DestinationParameters = ValueFromStringInternal(ProxyDestinationParameters);
 		

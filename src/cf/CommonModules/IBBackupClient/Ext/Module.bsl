@@ -210,14 +210,14 @@ Procedure PerformABackup()
 	Buttons.Add("None", NStr("en = 'No';"));
 	Buttons.Add("Snooze", NStr("en = 'Snooze for 15 minutes';"));
 	
-	DescriptionOfTheAlert = New NotifyDescription("CreateBackupCompletion", ThisObject);
+	DescriptionOfTheAlert = New NotifyDescription("PerformABackupCompletion", ThisObject);
 	ShowQueryBox(DescriptionOfTheAlert, NStr("en = 'Scheduled backup is all set to start.
 		|Do you want to start it now?';"),
 		Buttons, 30, "Yes", NStr("en = 'Scheduled backup';"), "Yes");
 	
 EndProcedure
 
-Procedure CreateBackupCompletion(QuestionResult, AdditionalParameters) Export
+Procedure PerformABackupCompletion(QuestionResult, AdditionalParameters) Export
 	
 	ExecuteBackup = QuestionResult = "Yes" Or QuestionResult = DialogReturnCode.Timeout;
 	DeferBackup = QuestionResult = "Snooze";
@@ -248,7 +248,7 @@ Procedure CheckIBBackup(Parameters)
 	If Parameters.LastBackupManualStart Then
 		
 		FormParameters = New Structure();
-		FormParameters.Insert("WorkMode", ?(Parameters.CopyingResult, "CompletedSuccessfully1", "NotCompleted"));
+		FormParameters.Insert("WorkMode", ?(Parameters.CopyingResult, "CompletedSuccessfully1", "NotCompleted2"));
 		FormParameters.Insert("BackupFileName", Parameters.BackupFileName);
 		OpenForm("DataProcessor.IBBackup.Form.DataBackup", FormParameters);
 		

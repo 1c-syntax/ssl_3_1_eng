@@ -415,7 +415,7 @@ EndProcedure
 // Returns:
 //  Boolean - 
 //
-Function FTPDirectoryExists(Val Path, Val DirectoryName, Val FTPConnection) Export
+Function FTPDirectoryExist(Val Path, Val DirectoryName, Val FTPConnection) Export
 	
 	For Each FTPFile In FTPConnection.FindFiles(Path) Do
 		
@@ -632,7 +632,7 @@ EndFunction
 //    * WSWebServiceURL - String - the wsdl location.
 //    * WSServiceName - String - a service name.
 //    * WSServiceNamespaceURL - String - web service namespace URI.
-//    * WSUsername - String - a username to sign in to the server.
+//    * WSUserName - String - a username to sign in to the server.
 //    * WSPassword - String - User password.
 //    * WSTimeout - Number - the timeout for operations executed over the proxy.
 //  ErrorMessageString - String - contains detailed error description in case of unsuccessful connection;
@@ -659,7 +659,7 @@ EndFunction
 //    * WSWebServiceURL - String - the wsdl location.
 //    * WSServiceName - String - a service name.
 //    * WSServiceNamespaceURL - String - web service namespace URI.
-//    * WSUsername - String - a username to sign in to the server.
+//    * WSUserName - String - a username to sign in to the server.
 //    * WSPassword - String - User password.
 //    * WSTimeout - Number - the timeout for operations executed over the proxy.
 //  ErrorMessageString - String - contains detailed error description in case of unsuccessful connection;
@@ -686,7 +686,7 @@ EndFunction
 //    * WSWebServiceURL - String - the wsdl location.
 //    * WSServiceName - String - a service name.
 //    * WSServiceNamespaceURL - String - web service namespace URI.
-//    * WSUsername - String - a username to sign in to the server.
+//    * WSUserName - String - a username to sign in to the server.
 //    * WSPassword - String - User password.
 //    * WSTimeout - Number - the timeout for operations executed over the proxy.
 //  ErrorMessageString - String - contains detailed error description in case of unsuccessful connection;
@@ -714,7 +714,7 @@ EndFunction
 //    * WSWebServiceURL - String - the wsdl location.
 //    * WSServiceName - String - a service name.
 //    * WSServiceNamespaceURL - String - web service namespace URI.
-//    * WSUsername - String - a username to sign in to the server.
+//    * WSUserName - String - a username to sign in to the server.
 //    * WSPassword - String - User password.
 //    * WSTimeout - Number - the timeout for operations executed over the proxy.
 //  ErrorMessageString - String - contains detailed error description in case of unsuccessful connection;
@@ -743,7 +743,7 @@ EndFunction
 //    * WSWebServiceURL - String - the location of the wsdl.
 //    * WSServiceName - String - service name.
 //    * WSServiceNamespaceURL - String - URI of the web service namespace.
-//    * WSUsername - String - name of the user to log in to the server.
+//    * WSUserName - String - name of the user to log in to the server.
 //    * WSPassword - String - user password.
 //    * WSTimeout - Number - timeout for operations performed through the received proxy.
 //  ErrorMessageString - String - contains a detailed description of the error if the connection failed;
@@ -772,7 +772,7 @@ EndFunction
 //    * WSWebServiceURL - String - the location of the wsdl.
 //    * WSServiceName - String - service name.
 //    * WSServiceNamespaceURL - String - URI of the web service namespace.
-//    * WSUsername - String - name of the user to log in to the server.
+//    * WSUserName - String - name of the user to log in to the server.
 //    * WSPassword - String - user password.
 //    * WSTimeout - Number - timeout for operations performed through the received proxy.
 //  ErrorMessageString - String - contains a detailed description of the error if the connection failed;
@@ -3641,7 +3641,7 @@ Function FTPConnection(Val Settings) Export
 	
 EndFunction
 
-Function FTPConnectionSettings(Val Timeout = 180) Export
+Function FTPConnectionSetup(Val Timeout = 180) Export
 	
 	Result = New Structure;
 	Result.Insert("Server", "");
@@ -3851,7 +3851,7 @@ Function WSParameterStructure() Export
 	
 	ParametersStructure = New Structure;
 	ParametersStructure.Insert("WSWebServiceURL");
-	ParametersStructure.Insert("WSUsername");
+	ParametersStructure.Insert("WSUserName");
 	ParametersStructure.Insert("WSPassword");
 	
 	Return ParametersStructure;
@@ -5206,7 +5206,7 @@ Procedure ReadMessageWithNodeChanges(ExchangeSettingsStructure,
 				DataExchangeXMLDataProcessor.RunDataImport(ImportParameters);
 				
 				DataReceivedForMapping = False;
-				If Not DataExchangeXMLDataProcessor.ExchangeComponents.ErrorFlag Then
+				If Not DataExchangeXMLDataProcessor.ExchangeComponents.FlagErrors Then
 					DataReceivedForMapping = (DataExchangeXMLDataProcessor.ExchangeComponents.IncomingMessageNumber > 0
 						And DataExchangeXMLDataProcessor.ExchangeComponents.MessageNumberReceivedByCorrespondent = 0);
 				EndIf;
@@ -11893,7 +11893,7 @@ Function FillExternalConnectionParameters(TransportSettings)
 	ConnectionParameters.NameOf1CEnterpriseServer                     = TransportSettings.COM1CEnterpriseServerName;
 	ConnectionParameters.NameOfInfobaseOn1CEnterpriseServer = TransportSettings.COM1CEnterpriseServerSideInfobaseName;
 	ConnectionParameters.OperatingSystemAuthentication           = TransportSettings.COMOperatingSystemAuthentication;
-	ConnectionParameters.UserName                             = TransportSettings.COMUsername;
+	ConnectionParameters.UserName                             = TransportSettings.COMUserName;
 	ConnectionParameters.UserPassword = TransportSettings.COMUserPassword;
 	
 	Return ConnectionParameters;
@@ -12324,9 +12324,9 @@ EndFunction
 
 Function StatisticsInformation(StatisticsInformation, Val EnableObjectDeletion = False) Export
 	
-	ArrayFilter1 = StatisticsInformation.UnloadColumn("DestinationTableName");
+	FilterArray = StatisticsInformation.UnloadColumn("DestinationTableName");
 	
-	FilterString = StrConcat(ArrayFilter1, ",");
+	FilterString = StrConcat(FilterArray, ",");
 	
 	Filter = New Structure("FullName", FilterString);
 	
@@ -12644,7 +12644,7 @@ Function TransportSettingsByExternalConnectionParameters(Parameters)
 	
 	TransportSettings.Insert("COMUserPassword",
 		CommonClientServer.StructureProperty(Parameters, "UserPassword"));
-	TransportSettings.Insert("COMUsername",
+	TransportSettings.Insert("COMUserName",
 		CommonClientServer.StructureProperty(Parameters, "UserName"));
 	TransportSettings.Insert("COMOperatingSystemAuthentication",
 		CommonClientServer.StructureProperty(Parameters, "OperatingSystemAuthentication"));
@@ -13148,7 +13148,7 @@ Function DataExchangeOption(Val Peer) Export
 	For Each Attribute In AttributesValues Do
 			
 		If Attribute.Value = Enums.ExchangeObjectExportModes.ManualExport
-			Or Attribute.Value = Enums.ExchangeObjectExportModes.DoNotExport Then
+			Or Attribute.Value = Enums.ExchangeObjectExportModes.NotExport Then
 			
 			Result = "ReceiveAndSend";
 			Break;

@@ -822,7 +822,7 @@ EndFunction
 
 // Parameters:
 //   DeletionParameters - See DeletionResult
-//   Item - ValueTableRow: см. ПакетУдаляемыхОбъектов
+//   Item - ValueTableRow of See ObjectsToDeletePackage
 //   UsageInstances - See UsageInstances
 //   UndeletedItems - Array of AnyRef
 //

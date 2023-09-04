@@ -156,7 +156,7 @@ Procedure SelectRecipient(ResultHandler, Object, MultipleChoice, ReturnsMap) Exp
 	AdditionalParameters.Insert("Recipients", Recipients);
 	AdditionalParameters.Insert("ReturnsMap", ReturnsMap);
 	
-	Handler = New NotifyDescription("SelectRecipientEnd", ThisObject, AdditionalParameters);
+	Handler = New NotifyDescription("SelectRecipientCompletion", ThisObject, AdditionalParameters);
 	PossibleRecipients.ShowChooseItem(Handler, NStr("en = 'Select recipient';"));
 	
 EndProcedure
@@ -172,7 +172,7 @@ EndProcedure
 //       ** Value - String 
 //     * ReturnsMap - Boolean
 //
-Procedure SelectRecipientEnd(SelectedElement, AdditionalParameters) Export
+Procedure SelectRecipientCompletion(SelectedElement, AdditionalParameters) Export
 	If SelectedElement = Undefined Then
 		Result = Undefined;
 	Else
@@ -234,13 +234,13 @@ Procedure ExecuteNowInBackground(Recipients, Parameters) Export
 	WaitSettings.MessageText = StateText;
 	WaitSettings.OutputProgressBar = True;
 	
-	Handler = New NotifyDescription("ExecuteNowInBackgroundEnd", ThisObject, Parameters);
+	Handler = New NotifyDescription("ExecuteNowInBackgroundCompletion", ThisObject, Parameters);
 	TimeConsumingOperationsClient.WaitCompletion(Job, Handler, WaitSettings);
 	
 EndProcedure
 
 // Accepts the background job result.
-Procedure ExecuteNowInBackgroundEnd(Job, Parameters) Export
+Procedure ExecuteNowInBackgroundCompletion(Job, Parameters) Export
 	
 	If Job = Undefined Then
 		Return; // Canceled.

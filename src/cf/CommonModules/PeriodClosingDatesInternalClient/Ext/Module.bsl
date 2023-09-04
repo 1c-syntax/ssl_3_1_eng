@@ -12,16 +12,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 // For calling from the dashboard.
 
-Procedure OpenPeriodEndClosingDates(OwnerForm1) Export
+Procedure OpenPeriodEndClosingDates(OwnerForm) Export
 	
-	OpenForm("InformationRegister.PeriodClosingDates.Form.PeriodClosingDates",, OwnerForm1);
+	OpenForm("InformationRegister.PeriodClosingDates.Form.PeriodClosingDates",, OwnerForm);
 	
 EndProcedure	
 
-Procedure OpenDataImportRestrictionDates(OwnerForm1) Export
+Procedure OpenDataImportRestrictionDates(OwnerForm) Export
 	
 	FormParameters = New Structure("DataImportRestrictionDates", True);
-	OpenForm("InformationRegister.PeriodClosingDates.Form.PeriodClosingDates", FormParameters, OwnerForm1);
+	OpenForm("InformationRegister.PeriodClosingDates.Form.PeriodClosingDates", FormParameters, OwnerForm);
 	
 EndProcedure	
 

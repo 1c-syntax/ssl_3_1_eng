@@ -27,95 +27,61 @@
 Function DatesBySchedule(Val WorkScheduleCalendar, Val DateFrom, Val DaysArray, 
 	Val CalculateNextDateFromPrevious = False, RaiseException1 = True) Export
 	
-	TempTablesManager = New TempTablesManager;
-	
-	CalendarSchedules.CreateTTDaysIncrement(TempTablesManager, DaysArray, CalculateNextDateFromPrevious);
-	
-	// 
-	// 
-	// 
+	ShiftDays = CalendarSchedules.DaysIncrement(DaysArray, CalculateNextDateFromPrevious);
 	
 	Query = New Query;
-	Query.TempTablesManager = TempTablesManager;
-	
-	Query.Text =
-	"SELECT
-	|	CalendarSchedules.Year,
-	|	MAX(CalendarSchedules.DaysCountInScheduleSinceBegOfYear) AS DaysInSchedule
-	|INTO TTNumberOfDaysInScheduleByYear
-	|FROM
-	|	InformationRegister.CalendarSchedules AS CalendarSchedules
-	|WHERE
-	|	CalendarSchedules.ScheduleDate >= &DateFrom
-	|	AND CalendarSchedules.Calendar = &WorkScheduleCalendar
-	|
-	|GROUP BY
-	|	CalendarSchedules.Year
-	|;
-	|
-	|////////////////////////////////////////////////////////////////////////////////
-	|SELECT
-	|	NumberOfDaysInScheduleByYears.Year,
-	|	SUM(ISNULL(NumberOfDaysInPreviousYears.DaysInSchedule, 0)) AS DaysInSchedule
-	|INTO TTNumberOfDaysIncludingPreviousYears
-	|FROM
-	|	TTNumberOfDaysInScheduleByYear AS NumberOfDaysInScheduleByYears
-	|		LEFT JOIN TTNumberOfDaysInScheduleByYear AS NumberOfDaysInPreviousYears
-	|		ON (NumberOfDaysInPreviousYears.Year < NumberOfDaysInScheduleByYears.Year)
-	|
-	|GROUP BY
-	|	NumberOfDaysInScheduleByYears.Year
-	|;
-	|
-	|////////////////////////////////////////////////////////////////////////////////
-	|SELECT
-	|	MIN(CalendarSchedules.DaysCountInScheduleSinceBegOfYear) AS DaysCountInScheduleSinceBegOfYear
-	|INTO TTNumberOfDaysInScheduleForStartDate
-	|FROM
-	|	InformationRegister.CalendarSchedules AS CalendarSchedules
-	|WHERE
-	|	CalendarSchedules.ScheduleDate >= &DateFrom
-	|	AND CalendarSchedules.Year = YEAR(&DateFrom)
-	|	AND CalendarSchedules.Calendar = &WorkScheduleCalendar
-	|;
-	|
-	|////////////////////////////////////////////////////////////////////////////////
-	|SELECT
-	|	DaysIncrement.RowIndex,
-	|	ISNULL(CalendarSchedules.ScheduleDate, UNDEFINED) AS DateByCalendar
-	|FROM
-	|	TTDayIncrement AS DaysIncrement
-	|		INNER JOIN TTNumberOfDaysInScheduleForStartDate AS NumberOfDaysInScheduleForStartDate
-	|		ON (TRUE)
-	|		LEFT JOIN InformationRegister.CalendarSchedules AS CalendarSchedules
-	|			INNER JOIN TTNumberOfDaysIncludingPreviousYears AS NumberOfDaysIncludingPreviousYears
-	|			ON (NumberOfDaysIncludingPreviousYears.Year = CalendarSchedules.Year)
-	|		ON (CalendarSchedules.DaysCountInScheduleSinceBegOfYear = NumberOfDaysInScheduleForStartDate.DaysCountInScheduleSinceBegOfYear - NumberOfDaysIncludingPreviousYears.DaysInSchedule + DaysIncrement.DaysCount)
-	|			AND (CalendarSchedules.ScheduleDate >= &DateFrom)
-	|			AND (CalendarSchedules.Calendar = &WorkScheduleCalendar)
-	|			AND (CalendarSchedules.DayAddedToSchedule)
-	|
-	|ORDER BY
-	|	DaysIncrement.RowIndex";
-	
 	Query.SetParameter("DateFrom", BegOfDay(DateFrom));
 	Query.SetParameter("WorkScheduleCalendar", WorkScheduleCalendar);
+	Query.SetParameter("Days", ShiftDays.DaysIncrement.UnloadColumn("DaysCount"));
+	Query.Text =
+		"SELECT TOP 0
+		|	CalendarSchedules.ScheduleDate AS Date
+		|FROM
+		|	InformationRegister.CalendarSchedules AS CalendarSchedules
+		|WHERE
+		|	CalendarSchedules.ScheduleDate > &DateFrom
+		|	AND CalendarSchedules.Calendar = &WorkScheduleCalendar
+		|	AND CalendarSchedules.DayAddedToSchedule
+		|
+		|ORDER BY
+		|	Date";
+
+	// 
+	QuerySchema = New QuerySchema();
+	QuerySchema.SetQueryText(Query.Text);
+	QuerySchema.QueryBatch[0].Operators[0].RetrievedRecordsCount = ShiftDays.Maximum;
+	Query.Text = QuerySchema.GetQueryText();
+	
+	RequestedDays = New Map();
+	For Each TableRow In ShiftDays.DaysIncrement Do
+		RequestedDays.Insert(TableRow.DaysCount, False);
+	EndDo;
 	
 	Selection = Query.Execute().Select();
+	If Selection.Count() < ShiftDays.Maximum Then
+		If RaiseException1 Then
+			Raise StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'График работы ""%1"" не заполнен с даты %2 на указанное количество рабочих дней.';"), 
+				WorkScheduleCalendar, 
+				Format(DateFrom, "DLF=D"));
+		Else
+			Return Undefined;
+		EndIf;
+	EndIf;
+	
+	OfDays = 0;
+	While Selection.Next() Do
+		OfDays = OfDays + 1;
+		If RequestedDays[OfDays] = False Then
+			RequestedDays.Insert(OfDays, Selection.Date);
+		EndIf;
+	EndDo;
 	
 	DatesArray = New Array;
-	
-	While Selection.Next() Do
-		If Selection.DateByCalendar = Undefined Then
-			ErrorMessage = NStr("en = 'Cannot determine the date because work schedule ""%1"" is not filled for the specified number of workdays after %2.';");
-			If RaiseException1 Then
-				Raise StringFunctionsClientServer.SubstituteParametersToString(ErrorMessage, WorkScheduleCalendar, Format(DateFrom, "DLF=D"));
-			Else
-				Return Undefined;
-			EndIf;
-		EndIf;
-		
-		DatesArray.Add(Selection.DateByCalendar);
+	For Each TableRow In ShiftDays.DaysIncrement Do
+		Date = RequestedDays[TableRow.DaysCount];
+		CommonClientServer.Validate(TypeOf(Date) = Type("Date") And ValueIsFilled(Date));
+		DatesArray.Add(Date);
 	EndDo;
 	
 	Return DatesArray;

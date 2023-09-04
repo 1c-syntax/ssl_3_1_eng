@@ -324,7 +324,7 @@ EndProcedure
 
 &AtClient
 Procedure ExitAppUpdate(Command)
-	Notification = New NotifyDescription("CompleteChangingCompletion", ThisObject);
+	Notification = New NotifyDescription("ExitAppUpdateCompletion", ThisObject);
 	ErrorAlert = New NotifyDescription("ErrorReadingFile", ThisObject);
 	ReadTemplateEditableFile(Notification, ErrorAlert);
 EndProcedure
@@ -520,7 +520,7 @@ Procedure SaveToFileFollowUp(Result, AdditionalParameters) Export
 EndProcedure
 
 &AtClient
-Procedure CompleteChangingCompletion(Result, AdditionalParameters) Export
+Procedure ExitAppUpdateCompletion(Result, AdditionalParameters) Export
 	NotifyDescription = New NotifyDescription("OnImportFile", ThisObject);
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.FormIdentifier = UUID;
@@ -1384,8 +1384,8 @@ Procedure SetHeader()
 	Title = DocumentName;
 	
 	If ValueIsFilled(CurrentLanguage) Then 
-		CurrentLangPresentation = Items["Language_"+CurrentLanguage].Title; 
-		Title = Title + " ("+CurrentLangPresentation+")";
+		CurrentLanguagePresentation = Items["Language_"+CurrentLanguage].Title; 
+		Title = Title + " ("+CurrentLanguagePresentation+")";
 	EndIf;
 	
 	If IsNew() Then
@@ -1646,14 +1646,14 @@ Procedure ExpandFieldList()
 	FieldList.Header = True;
 	FieldList.SetAction("OnActivateRow", "PlugIn_AvailableFieldsWhenActivatingLine");
 	
-	ColumnNameView = NameOfTheFieldList() + "Presentation";
+	ColumnNamePresentation = NameOfTheFieldList() + "Presentation";
 	If Common.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormulaInternal = Common.CommonModule("FormulasConstructorInternal");
-		ColumnNameView = ModuleConstructorFormulaInternal.ColumnNameView(NameOfTheFieldList());
+		ColumnNamePresentation = ModuleConstructorFormulaInternal.ColumnNamePresentation(NameOfTheFieldList());
 	EndIf;
 	
-	PresentationColumn = Items[ColumnNameView];
-	PresentationColumn.Title = NStr("en = 'Field';");
+	ColumnPresentation = Items[ColumnNamePresentation];
+	ColumnPresentation.Title = NStr("en = 'Field';");
 	
 	ColumnPattern = Items.Add(NameOfTheFieldList() + "Pattern", Type("FormField"), FieldList);
 	ColumnPattern.DataPath = NameOfTheFieldList() + "." + "Pattern";
@@ -2292,7 +2292,7 @@ EndFunction
 
 &AtClient
 Function GetNameOfCurrTable()
-	For Each AttachedFieldList In ThisObject.ConnectedFieldLists Do
+	For Each AttachedFieldList In ThisObject["ConnectedFieldLists"] Do
 		If AttachedFieldList.NameOfTheFieldList <> NameOfTheListOfOperators() Then
 			If Items[AttachedFieldList.NameOfTheFieldList].CurrentData <> Undefined
 				And Items[AttachedFieldList.NameOfTheFieldList].CurrentData.Table Then

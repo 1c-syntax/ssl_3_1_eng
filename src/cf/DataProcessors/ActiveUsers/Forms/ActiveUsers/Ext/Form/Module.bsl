@@ -155,16 +155,16 @@ Procedure OpenEventLog()
 		Return;
 	EndIf;
 	
-	FilterByUsers = New ValueList;
+	FilterForSpecifiedUsers = New ValueList;
 	For Each RowID In SelectedRows Do
 		UserRow1 = UsersList.FindByID(RowID);
 		UserName = UserRow1.UserName;
-		If FilterByUsers.FindByValue(UserName) = Undefined Then
-			FilterByUsers.Add(UserRow1.UserName, UserRow1.UserName);
+		If FilterForSpecifiedUsers.FindByValue(UserName) = Undefined Then
+			FilterForSpecifiedUsers.Add(UserRow1.UserName, UserRow1.UserName);
 		EndIf;
 	EndDo;
 	
-	OpenForm("DataProcessor.EventLog.Form", New Structure("User", FilterByUsers));
+	OpenForm("DataProcessor.EventLog.Form", New Structure("User", FilterForSpecifiedUsers));
 	
 EndProcedure
 
@@ -415,9 +415,9 @@ Procedure PopulateRefsByIDs(UsersRefs, UsersIDs)
 		|WHERE
 		|	Users.IBUserID IN (&IDs)";
 					
-	QueryByUsersText = StrReplace(QueryTextTemplate2, "&TableName", 
+	QueryTextForSpecifiedUsers = StrReplace(QueryTextTemplate2, "&TableName", 
 		Metadata.Catalogs.Users.FullName());
-	Query = New Query(QueryByUsersText);
+	Query = New Query(QueryTextForSpecifiedUsers);
 	Query.Parameters.Insert("IDs", UsersIDs);
 	
 	Selection = Query.Execute().Select();

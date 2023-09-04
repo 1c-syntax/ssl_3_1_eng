@@ -885,26 +885,26 @@ EndProcedure
 
 #Region Private
 
-Procedure SetRegistersTotalsUsage(UsageFlag)
+Procedure SetRegistersTotalsUsage(Flagusage)
 	
 	SessionDate = CurrentSessionDate();
 	AccumulationRegisterPeriod  = EndOfMonth(AddMonth(SessionDate, -1)); // 
 	AccountingRegisterPeriod = EndOfMonth(SessionDate); // 
 	
-	BalanceKind = Metadata.ObjectProperties.AccumulationRegisterType.Balance;
+	KindBalance = Metadata.ObjectProperties.AccumulationRegisterType.Balance;
 	
 	For Each MetadataRegister In Metadata.AccumulationRegisters Do
 		
-		If MetadataRegister.RegisterType <> BalanceKind Then
+		If MetadataRegister.RegisterType <> KindBalance Then
 			Continue;
 		EndIf;
 		
 		AccumulationRegisterManager = AccumulationRegisters[MetadataRegister.Name];
 		
-		AccumulationRegisterManager.SetTotalsUsing(UsageFlag);
-		AccumulationRegisterManager.SetPresentTotalsUsing(UsageFlag);
+		AccumulationRegisterManager.SetTotalsUsing(Flagusage);
+		AccumulationRegisterManager.SetPresentTotalsUsing(Flagusage);
 		
-		If UsageFlag Then
+		If Flagusage Then
 			AccumulationRegisterManager.SetMaxTotalsPeriod(AccumulationRegisterPeriod);
 			AccumulationRegisterManager.RecalcPresentTotals();
 		EndIf;
@@ -915,10 +915,10 @@ Procedure SetRegistersTotalsUsage(UsageFlag)
 		
 		AccountingRegisterManager = AccountingRegisters[MetadataRegister.Name];
 		
-		AccountingRegisterManager.SetTotalsUsing(UsageFlag);
-		AccountingRegisterManager.SetPresentTotalsUsing(UsageFlag);
+		AccountingRegisterManager.SetTotalsUsing(Flagusage);
+		AccountingRegisterManager.SetPresentTotalsUsing(Flagusage);
 		
-		If UsageFlag Then
+		If Flagusage Then
 			AccountingRegisterManager.SetMaxTotalsPeriod(AccountingRegisterPeriod);
 			AccountingRegisterManager.RecalcPresentTotals();
 		EndIf;

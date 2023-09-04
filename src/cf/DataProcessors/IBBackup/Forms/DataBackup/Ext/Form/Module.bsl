@@ -45,7 +45,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ElsIf Parameters.WorkMode = "CompletedSuccessfully1" Then
 		Items.WizardPages.CurrentPage = Items.BackupSuccessfulPage;
 		BackupFileName = Parameters.BackupFileName;
-	ElsIf Parameters.WorkMode = "NotCompleted" Then
+	ElsIf Parameters.WorkMode = "NotCompleted2" Then
 		Items.WizardPages.CurrentPage = Items.BackupCreationErrorsPage;
 	EndIf;
 	
@@ -426,13 +426,13 @@ Procedure Timeout2()
 	DetachIdleHandler("CheckForSingleConnection");
 	QueryText = NStr("en = 'Cannot terminate all user sessions. Are you sure you still want to back up the data? The backup might contain errors.';");
 	ExplanationText = NStr("en = 'Cannot terminate the user session.';");
-	NotifyDescription = New NotifyDescription("ExpiringTimeoutCompletion", ThisObject);
+	NotifyDescription = New NotifyDescription("Timeout2Completion", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, 30, DialogReturnCode.No, ExplanationText, DialogReturnCode.No);
 	
 EndProcedure
 
 &AtClient
-Procedure ExpiringTimeoutCompletion(Response, AdditionalParameters) Export
+Procedure Timeout2Completion(Response, AdditionalParameters) Export
 	
 	If Response = DialogReturnCode.Yes Then
 		StartBackup();

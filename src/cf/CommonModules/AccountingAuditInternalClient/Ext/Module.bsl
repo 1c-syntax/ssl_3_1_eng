@@ -180,10 +180,10 @@ Procedure ResolveIssue(Form, Details)
 	If StrStartsWith(GoToCorrectionHandler, "CommonForm.") Or StrFind(GoToCorrectionHandler, ".Form") > 0 Then
 		OpenForm(GoToCorrectionHandler, PatchParameters, Form);
 	Else
-		CorrectionHandler = StringFunctionsClientServer.SplitStringIntoSubstringsArray(GoToCorrectionHandler, ".");
+		HandlerCorrections = StringFunctionsClientServer.SplitStringIntoSubstringsArray(GoToCorrectionHandler, ".");
 		
-		ModuleCorrectionHandler  = CommonClient.CommonModule(CorrectionHandler[0]);
-		ProcedureName = CorrectionHandler[1];
+		ModuleCorrectionHandler  = CommonClient.CommonModule(HandlerCorrections[0]);
+		ProcedureName = HandlerCorrections[1];
 		
 		ExecuteNotifyProcessing(New NotifyDescription(ProcedureName, ModuleCorrectionHandler), PatchParameters);
 	EndIf;

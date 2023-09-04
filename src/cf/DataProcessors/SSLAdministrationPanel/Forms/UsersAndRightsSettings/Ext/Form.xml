@@ -864,7 +864,7 @@ will speed up viewing lists and generating reports compared to the standard mode
 					<v8:content>External users</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>ExternalUsersCatalog</Action>
+			<Action>CatalogExternalUsers</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 		<Command name="AccessUpdateOnRecordsLevel" id="2">

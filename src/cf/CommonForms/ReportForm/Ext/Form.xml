@@ -2363,12 +2363,12 @@ Use:
 				<Column name="SubordinateFormID" id="3">
 					<Type/>
 				</Column>
-				<Column name="TypeOfParent" id="4">
+				<Column name="MasterType" id="4">
 					<Type>
 						<v8:Type>v8:TypeDescription</v8:Type>
 					</Type>
 				</Column>
-				<Column name="SubordinateType" id="5">
+				<Column name="SubordinatedType" id="5">
 					<Type>
 						<v8:Type>v8:TypeDescription</v8:Type>
 					</Type>

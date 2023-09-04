@@ -365,7 +365,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Status</v8:content>
+							<v8:content>State</v8:content>
 						</v8:item>
 					</Title>
 					<HorizontalStretch>true</HorizontalStretch>
@@ -583,7 +583,7 @@
 					<v8:content>Save and close</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>WriteAndCloseComplete</Action>
+			<Action>WriteAndCloseExecute</Action>
 			<ModifiesSavedData>true</ModifiesSavedData>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
@@ -604,7 +604,7 @@
 				<xr:Ref>StdPicture.ExecuteTask</xr:Ref>
 				<xr:LoadTransparent>true</xr:LoadTransparent>
 			</Picture>
-			<Action>CompletedComplete</Action>
+			<Action>Completed2Execute</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 		<Command name="Canceled" id="2">

@@ -83,7 +83,7 @@ EndProcedure
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
 	
-	If Upper(EventName) = Upper("UserSelection") And Source <> ThisObject.FormName Then
+	If Upper(EventName) = Upper("UserSelection") And Source <> FormName Then
 		Return;
 	EndIf;
 	
@@ -357,7 +357,7 @@ Procedure ClearObsoleteSettings(Command)
 	QuestionButtons.Add("Clear", NStr("en = 'Clear the settings.';"));
 	QuestionButtons.Add("Cancel",   NStr("en = 'Cancel';"));
 	
-	Notification = New NotifyDescription("ClearOutdatedSettingsCompletion", ThisObject);
+	Notification = New NotifyDescription("ClearObsoleteSettingsCompletion", ThisObject);
 	
 	ShowQueryBox(Notification, QueryText, QuestionButtons,, QuestionButtons[1].Value);
 	
@@ -415,7 +415,7 @@ Procedure ClearObsoleteSettingsOfAllUsers(Command)
 	QuestionButtons.Add("ClearAll", NStr("en = 'Clear all';"));
 	QuestionButtons.Add("Cancel",      NStr("en = 'Cancel';"));
 	
-	Notification = New NotifyDescription("ClearOutdatedSettingsOfAllUsersCompletion", ThisObject);
+	Notification = New NotifyDescription("ClearObsoleteSettingsOfAllUsersCompletion", ThisObject);
 	ShowQueryBox(Notification, QueryText, QuestionButtons,, QuestionButtons[1].Value);
 	
 EndProcedure
@@ -960,7 +960,7 @@ EndProcedure
 &AtClient
 Procedure SelectUsers(ChoiceParameters)
 	
-	ChoiceParameters.Insert("Source", ThisObject.FormName);
+	ChoiceParameters.Insert("Source", FormName);
 	OpenForm("DataProcessor.UsersSettings.Form.SelectUsers", ChoiceParameters);
 	
 EndProcedure
@@ -995,7 +995,7 @@ Procedure ClearSettingsForAllUsersCompletion(Response, AdditionalParameters) Exp
 EndProcedure
 
 &AtClient
-Procedure ClearOutdatedSettingsOfAllUsersCompletion(Response, AdditionalParameters) Export
+Procedure ClearObsoleteSettingsOfAllUsersCompletion(Response, AdditionalParameters) Export
 	
 	If Response = "Cancel" Then
 		Return;
@@ -1036,7 +1036,7 @@ Procedure ClearAllSettingsCompletion(Response, AdditionalParameters) Export
 EndProcedure
 
 &AtClient
-Procedure ClearOutdatedSettingsCompletion(Response, AdditionalParameters) Export
+Procedure ClearObsoleteSettingsCompletion(Response, AdditionalParameters) Export
 	
 	If Response = "Cancel" Then
 		Return;

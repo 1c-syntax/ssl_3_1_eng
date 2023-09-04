@@ -207,7 +207,6 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	Purpose = ReportsOptionsInternal.AssigningDefaultReportOption();
 	UniversalReport = Common.MetadataObjectID(Metadata.Reports.UniversalReport);
 
-	OptionsArray = New Array;
 	Variant = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue, FullObjectName);
 
 	While Variant.Next() Do

@@ -64,7 +64,7 @@ Procedure BeforeWrite(Cancel)
 			
 		EndDo;
 		AttributesCount = Format(BankingDetails_, "NG=");
-		NumberOfTags   = Format(LabelsCount, "NG=");
+		LabelCount   = Format(LabelsCount, "NG=");
 		
 		For Each PropertyToDelete In PropertiesToDelete Do
 			AdditionalAttributes.Delete(PropertyToDelete);

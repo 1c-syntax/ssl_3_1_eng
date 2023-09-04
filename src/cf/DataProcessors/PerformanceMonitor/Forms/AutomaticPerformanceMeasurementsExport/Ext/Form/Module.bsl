@@ -20,7 +20,7 @@ Var ExternalResourcesAllowed;
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not PerformanceMonitorInternal.SubsystemExists("StandardSubsystems.Core") Then
-        ThisObject.Items.LocalExportDirectory.ChoiceButton = False;
+        Items.LocalExportDirectory.ChoiceButton = False;
 		SSLAvailable = False;
 	Else
 		SSLAvailable = True;
@@ -111,11 +111,11 @@ Procedure SaveAtServer()
 	
 	ExecuteLocalDirectory = New Array;
 	ExecuteLocalDirectory.Add(DoExportToLocalDirectory);
-	ExecuteLocalDirectory.Add(TrimAll(ThisObject.LocalExportDirectory));
+	ExecuteLocalDirectory.Add(TrimAll(LocalExportDirectory));
 	
 	ExecuteFTPDirectory = New Array;
 	ExecuteFTPDirectory.Add(DoExportToFTPDirectory);
-	ExecuteFTPDirectory.Add(TrimAll(ThisObject.FTPExportDirectory));
+	ExecuteFTPDirectory.Add(TrimAll(FTPExportDirectory));
 	
 	SetExportDirectory(ExecuteLocalDirectory, ExecuteFTPDirectory);  
 
@@ -154,7 +154,7 @@ Procedure SetExportSchedule(Command)
 	
 	JobSchedule = PerformanceMonitorDataExportSchedule();
 	
-	Notification = New NotifyDescription("SetUpExportScheduleCompletion", ThisObject);
+	Notification = New NotifyDescription("SetExportScheduleCompletion", ThisObject);
 	Dialog = New ScheduledJobDialog(JobSchedule);
 	Dialog.Show(Notification);
 	
@@ -173,7 +173,7 @@ Procedure SelectExportDirectorySuggested(FileSystemExtensionAttached1, Additiona
 		SelectingFile.Multiselect = False;
 		SelectingFile.Title = NStr("en = 'Select an export directory';");
 		
-		NotifyDescription = New NotifyDescription("SelectDirectoryDialogCompletion", ThisObject, Undefined);
+		NotifyDescription = New NotifyDescription("DirectorySelectionDialogBoxCompletion", ThisObject, Undefined);
 		If SSLAvailable Then 
 			ModuleFileSystemClient = Eval("FileSystemClient");
 			If TypeOf(ModuleFileSystemClient) = Type("CommonModule") Then
@@ -271,7 +271,7 @@ Procedure CommitScheduledJob(Job)
 EndProcedure
 
 &AtClient
-Procedure SetUpExportScheduleCompletion(Schedule, AdditionalParameters) Export
+Procedure SetExportScheduleCompletion(Schedule, AdditionalParameters) Export
 	
 	If Schedule <> Undefined Then
 		SetSchedule(Schedule);
@@ -334,7 +334,7 @@ Procedure ValidatePermissionToAccessExternalResources(CloseForm)
 		EndIf;
 	ElsIf CloseForm Then
 		SaveAtServer();
-		ThisObject.Close();
+		Close();
 	Else
 		SaveAtServer();
 	EndIf;
@@ -354,7 +354,7 @@ Procedure AllowExternalResourceSaveAndClose(Result, Context) Export
 	If Result = DialogReturnCode.OK Then
 		ExternalResourcesAllowed = True;
 		SaveAtServer();
-		ThisObject.Close();
+		Close();
 	EndIf;
 	
 EndProcedure
@@ -388,12 +388,12 @@ Procedure ConstantsSetKeepMeasurementsPeriodOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure SelectDirectoryDialogCompletion(SelectedFiles, AdditionalParameters) Export
+Procedure DirectorySelectionDialogBoxCompletion(SelectedFiles, AdditionalParameters) Export
     
     If SelectedFiles <> Undefined Then
 		SelectedDirectory = SelectedFiles[0];
 		LocalExportDirectory = SelectedDirectory;
-		ThisObject.Modified = True;
+		Modified = True;
 	EndIf;
 		
 EndProcedure

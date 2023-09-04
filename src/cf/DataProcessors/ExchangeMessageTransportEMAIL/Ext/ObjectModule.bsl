@@ -150,7 +150,7 @@ Function ConnectionIsSet() Export
 	
 	InitMessages();
 	
-	If Not ValueIsFilled(EMAIL_Account) Then
+	If Not ValueIsFilled(EMAILAccount) Then
 		GetErrorMessage(101);
 		Return False;
 	EndIf;
@@ -371,7 +371,7 @@ Function GetExchangeMessage(ExistenceCheck)
 	ImportParameters.Insert("GetHeaders", True);
 	
 	Try
-		MessageSet = EmailOperationsCommonModule.DownloadEmailMessages(EMAIL_Account, ImportParameters);
+		MessageSet = EmailOperationsCommonModule.DownloadEmailMessages(EMAILAccount, ImportParameters);
 	Except
 		ErrorText = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		GetErrorMessage(103);
@@ -426,7 +426,7 @@ Function GetExchangeMessage(ExistenceCheck)
 		ImportParameters.Insert("HeadersIDs", ExchangeMessagesTable[0].Id);
 		
 		Try
-			MessageSet = EmailOperationsCommonModule.DownloadEmailMessages(EMAIL_Account, ImportParameters);
+			MessageSet = EmailOperationsCommonModule.DownloadEmailMessages(EMAILAccount, ImportParameters);
 		Except
 			ErrorText = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 			GetErrorMessage(105);
@@ -619,7 +619,7 @@ Function SendMessagebyEmail(Body, OutgoingMessageFileName, PathToFile)
 	AttachmentDetails.Insert("Presentation", OutgoingMessageFileName);
 	AttachmentDetails.Insert("AddressInTempStorage", PutToTempStorage(New BinaryData(PathToFile)));
 	
-	Email = Common.ObjectAttributeValue(EMAIL_Account, "Email");					
+	Email = Common.ObjectAttributeValue(EMAILAccount, "Email");					
 						
 	MessageParameters = New Structure;
 	MessageParameters.Insert("Whom",     Email);
@@ -630,8 +630,8 @@ Function SendMessagebyEmail(Body, OutgoingMessageFileName, PathToFile)
 	MessageParameters.Attachments.Add(AttachmentDetails);
 	
 	Try
-		NewEmail = EmailOperationsCommonModule.PrepareEmail(EMAIL_Account, MessageParameters);
-		EmailOperationsCommonModule.SendMail(EMAIL_Account, NewEmail);
+		NewEmail = EmailOperationsCommonModule.PrepareEmail(EMAILAccount, MessageParameters);
+		EmailOperationsCommonModule.SendMail(EMAILAccount, NewEmail);
 	Except
 		ErrorText = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		GetErrorMessage(102);

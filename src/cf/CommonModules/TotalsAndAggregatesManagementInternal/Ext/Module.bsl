@@ -19,9 +19,9 @@ Procedure CalculateTotals() Export
 	Cache = SplitCheckCache();
 	
 	// Totals calculation for accumulation registers.
-	BalanceKind = Metadata.ObjectProperties.AccumulationRegisterType.Balance;
+	KindBalance = Metadata.ObjectProperties.AccumulationRegisterType.Balance;
 	For Each MetadataRegister In Metadata.AccumulationRegisters Do
-		If MetadataRegister.RegisterType <> BalanceKind Then
+		If MetadataRegister.RegisterType <> KindBalance Then
 			Continue;
 		EndIf;
 		If Not MetadataObjectAvailableOnSplit(Cache, MetadataRegister) Then
@@ -253,9 +253,9 @@ Function GenerateTotalsAndAggregatesParameters()
 	Parameters.Insert("HasTotalsRegisters", False);
 	Parameters.Insert("TotalsCalculationDate",  '39991231235959'); // 
 	
-	BalanceKind = Metadata.ObjectProperties.AccumulationRegisterType.Balance;
+	KindBalance = Metadata.ObjectProperties.AccumulationRegisterType.Balance;
 	For Each MetadataRegister In Metadata.AccumulationRegisters Do
-		If MetadataRegister.RegisterType = BalanceKind Then
+		If MetadataRegister.RegisterType = KindBalance Then
 			AccumulationRegisterManager = AccumulationRegisters[MetadataRegister.Name]; // AccumulationRegisterManager
 			Date = AccumulationRegisterManager.GetMaxTotalsPeriod() + 1;
 			Parameters.HasTotalsRegisters = True;

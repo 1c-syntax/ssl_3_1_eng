@@ -192,7 +192,7 @@
 							</Button>
 						</ChildItems>
 					</ContextMenu>
-					<AutoCommandBar name="UsersGroupsCommandBar" id="14">
+					<AutoCommandBar name="UserGroupsCommandBar" id="14">
 						<Autofill>false</Autofill>
 					</AutoCommandBar>
 					<ExtendedTooltip name="UsersGroupsExtendedTooltip" id="63"/>
@@ -304,7 +304,7 @@
 							</Button>
 						</ChildItems>
 					</ContextMenu>
-					<AutoCommandBar name="UsersListCommandBar_SSLy" id="3">
+					<AutoCommandBar name="UsersListCommandBar" id="3">
 						<HorizontalAlign>Right</HorizontalAlign>
 					</AutoCommandBar>
 					<ExtendedTooltip name="UsersList1ExtendedTooltip" id="70"/>

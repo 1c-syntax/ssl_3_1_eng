@@ -1391,9 +1391,9 @@ Function HTTPResponseToStructure(Response)
 		Result.Headers.Insert(Parameter.Key, Parameter.Value);
 	EndDo;
 	
-	HTTPHeaders_SSLy = HTTPHeadersInLowercase(Response.Headers);
-	If HTTPHeaders_SSLy["content-type"] <> Undefined Then
-		MIMEType = HTTPHeaders_SSLy["content-type"];
+	HTTPHeaders = HTTPHeadersInLowercase(Response.Headers);
+	If HTTPHeaders["content-type"] <> Undefined Then
+		MIMEType = HTTPHeaders["content-type"];
 		If StrFind(MIMEType, "text/plain") > 0 Then
 			Body = Response.GetBodyAsString();
 			Result.Insert("Body", Body);

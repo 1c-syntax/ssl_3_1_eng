@@ -64,11 +64,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 	EndIf;
 	
-	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
 		ThisIsTheAdministrator = Users.IsFullUser(, True);
 		Items.UseCloudSignatureService.Visible = ThisIsTheAdministrator;
 		Items.UseCloudSignatureService.ExtendedTooltip.Title = StringFunctions.FormattedString(
-					"Allows use for signings services signatures DSS. Use service for formations qualified electronic_ signatures requires <a href = ""DSSSettings"">additional_3 ofsettings</a>.")
+					"Allows_ use for signings services signatures DSS. Use service for formations qualified electronic_ signatures requires <a href = ""DSSSettings"">additional_3 ofsettings</a>.")
 	Else	
 		Items.CloudSignatureGroup.Visible = False;
 	EndIf;
@@ -236,7 +236,7 @@ EndProcedure
 
 &AtClient
 Procedure DeleteMarkedObjectsUsageOnChange(Item)
-	ChangeNotification1 = New NotifyDescription("DeleteMarkedObjectsUseOnChangeCompletion", ThisObject);
+	ChangeNotification1 = New NotifyDescription("DeleteMarkedObjectsUsageOnChangeCompletion", ThisObject);
 	
 	If (CommonClient.SubsystemExists("StandardSubsystems.MarkedObjectsDeletion")) Then
 		ModuleMarkedObjectsDeletionClient = CommonClient.CommonModule("MarkedObjectsDeletionClient");
@@ -245,7 +245,7 @@ Procedure DeleteMarkedObjectsUsageOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure DeleteMarkedObjectsUseOnChangeCompletion(Update, AdditionalParameters) Export
+Procedure DeleteMarkedObjectsUsageOnChangeCompletion(Update, AdditionalParameters) Export
 	If (Update = Undefined) Then
 		Return;
 	EndIf;
@@ -370,7 +370,7 @@ EndProcedure
 &AtClient
 Procedure UseCloudSignatureServiceOnChange(Item)
 	
-	If Not CommonClient.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
+	If Not CommonClient.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
 		Return;
 	EndIf;
 	
@@ -650,24 +650,24 @@ Function SaveAttributeValue(DataPathAttribute)
 	NameParts = StrSplit(DataPathAttribute, ".");
 	
 	If NameParts.Count() = 2 Then
-		NameOfConstant = NameParts[1];
-		ConstantValue1 = ConstantsSet[NameOfConstant];
+		ConstantName = NameParts[1];
+		ConstantValue = ConstantsSet[ConstantName];
 	ElsIf NameParts.Count() = 1 And Lower(Left(DataPathAttribute, 9)) = Lower("Constant") Then
-		NameOfConstant = Mid(DataPathAttribute, 10);
-		ConstantValue1 = ThisObject[DataPathAttribute];
+		ConstantName = Mid(DataPathAttribute, 10);
+		ConstantValue = ThisObject[DataPathAttribute];
 	Else
 		Return "";
 	EndIf;
 	
-	If Constants[NameOfConstant].Get() <> ConstantValue1 Then
-		Constants[NameOfConstant].Set(ConstantValue1);
+	If Constants[ConstantName].Get() <> ConstantValue Then
+		Constants[ConstantName].Set(ConstantValue);
 	EndIf;
 	
-	If NameOfConstant = "UseAdditionalAttributesAndInfo" And ConstantValue1 = False Then
-		ThisObject.Read();
+	If ConstantName = "UseAdditionalAttributesAndInfo" And ConstantValue = False Then
+		Read();
 	EndIf;
 	
-	Return NameOfConstant;
+	Return ConstantName;
 	
 EndFunction
 
@@ -721,7 +721,7 @@ Procedure SetAvailability(DataPathAttribute = "")
 		Or DataPathAttribute = "ConstantsSet.UseEncryption"
 		Or DataPathAttribute = "ConstantsSet.UseDSSService"
 		Or DataPathAttribute = "")
-		And Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
+		And Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
 		
 		CloudSignatureAvailability = (ConstantsSet.UseDigitalSignature Or ConstantsSet.UseEncryption)
 			And (ConstantsSet.UseDSSService);

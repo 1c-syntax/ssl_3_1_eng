@@ -343,9 +343,9 @@ Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True, UsedAdd
 		Object.UpdateFrom1CITSPortal = Parameters.UpdateFrom1CITSPortal;
 		
 		If UsedAddIns <> Undefined Then
-			ComponentsLine = UsedAddIns.Find(Id, "Id");
-			If ComponentsLine <> Undefined Then
-				Object.UpdateFrom1CITSPortal = ComponentsLine.AutoUpdate;
+			RowOfAddIn = UsedAddIns.Find(Id, "Id");
+			If RowOfAddIn <> Undefined Then
+				Object.UpdateFrom1CITSPortal = RowOfAddIn.AutoUpdate;
 			EndIf;
 		EndIf;
 		
@@ -796,7 +796,7 @@ Function CheckAddInAttachmentAbility(Val Id,
 	If Information.State = "DisabledByAdministrator" Then
 		Result.ErrorDescription = NStr("en = 'The add-in is disabled by the administrator.';");
 		Return Result;
-	ElsIf Information.State = "IsNotFound" Then
+	ElsIf Information.State = "NotFound1" Then
 		Result.ErrorDescription = NStr("en = 'The add-in is missing from the list of allowed add-ins.';");
 		Return Result;
 	ElsIf Not OperatingSystemSupportedByAddInn(Information.Attributes) Then
@@ -877,7 +877,7 @@ Function SavedAddInInformation(Id, Version = Undefined, ThePathToTheLayoutToSear
 	Else	
 		ReferenceFromStorage = Catalogs.AddIns.FindByID(Id, Version);
 		If ReferenceFromStorage.IsEmpty() Then
-			Result.State = "IsNotFound";
+			Result.State = "NotFound1";
 		Else
 			Result.State = "FoundInStorage";
 			Result.Ref = ReferenceFromStorage;
@@ -889,7 +889,7 @@ Function SavedAddInInformation(Id, Version = Undefined, ThePathToTheLayoutToSear
 			ThePathToTheLayoutToSearchForTheLatestVersion);
 	EndIf;
 
-	If Result.State = "IsNotFound" Then
+	If Result.State = "NotFound1" Then
 		Return Result;
 	EndIf;
 

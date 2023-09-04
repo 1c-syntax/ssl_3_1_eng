@@ -176,7 +176,7 @@ Procedure Save(Command)
 		SetFileNames();
 	EndIf;
 	
-	Handler = New NotifyDescription("PackReportOptionSettingsCompletion", ThisObject);
+	Handler = New NotifyDescription("CompressReportOptionSettingsCompletion", ThisObject);
 	
 	SavingParameters = FileSystemClient.FileSavingParameters();
 	SavingParameters.SuggestionText = SuggestionText();
@@ -449,7 +449,7 @@ Procedure CompressReportOptionSettings(ReportOptionDetails)
 EndProcedure
 
 &AtClient
-Procedure PackReportOptionSettingsCompletion(Files, AdditionalParameters) Export 
+Procedure CompressReportOptionSettingsCompletion(Files, AdditionalParameters) Export 
 	
 	If TypeOf(Files) <> Type("Array")
 		Or Files.Count() = 0 Then 

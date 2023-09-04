@@ -1797,7 +1797,7 @@
 			</Attribute>
 			<Attribute uuid="64fe317a-7d0e-4758-b5cf-0d871d2bf4ad">
 				<Properties>
-					<Name>DontRequestConfirmationOnDataImportOnOpenDataProcessor</Name>
+					<Name>NotRequestConfirmationOnDataImportOnOpenDataProcessor</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -2759,7 +2759,7 @@
 			</Attribute>
 			<Attribute uuid="29e7299a-ce80-497a-8102-615d0a001ea8">
 				<Properties>
-					<Name>ErrorFlag</Name>
+					<Name>FlagErrors</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>

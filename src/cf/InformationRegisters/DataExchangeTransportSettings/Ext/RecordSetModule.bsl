@@ -21,14 +21,14 @@ Procedure BeforeWrite(Cancel, Replacing)
 		
 		// Deleting insignificant characters (spaces) on the left and right for string parameters.
 		TrimAllFieldValue(SetRow, "COM1CEnterpriseServerSideInfobaseName");
-		TrimAllFieldValue(SetRow, "COMUsername");
+		TrimAllFieldValue(SetRow, "COMUserName");
 		TrimAllFieldValue(SetRow, "COM1CEnterpriseServerName");
 		TrimAllFieldValue(SetRow, "COMInfobaseDirectory");
 		TrimAllFieldValue(SetRow, "FILEDataExchangeDirectory");
 		TrimAllFieldValue(SetRow, "FTPConnectionUser");
 		TrimAllFieldValue(SetRow, "FTPConnectionPath");
 		TrimAllFieldValue(SetRow, "WSWebServiceURL");
-		TrimAllFieldValue(SetRow, "WSUsername");
+		TrimAllFieldValue(SetRow, "WSUserName");
 		
 	EndDo;
 	

@@ -37,7 +37,7 @@
 					</Button>
 				</ChildItems>
 			</ContextMenu>
-			<AutoCommandBar name="TableOfCorrectionObjectsCommandBar" id="3">
+			<AutoCommandBar name="PatchObjectsTableCommandBar" id="3">
 				<Autofill>false</Autofill>
 				<ChildItems>
 					<Button name="PatchObjectsTableChangeResult" id="47">

@@ -345,7 +345,7 @@ Function GetOverallSystemPerformanceItem() Export
 	|	Priority";
 	
 	If HasPredefinedItem Then
-		RequestTextPredefinedElement = 
+		QueryTextPredefinedItem = 
 		"SELECT TOP 1
 		|	KeyOperations.Ref,
 		|	1 AS Priority
@@ -354,7 +354,7 @@ Function GetOverallSystemPerformanceItem() Export
 		|WHERE
 		|	KeyOperations.PredefinedDataName = ""OverallSystemPerformance""
 		|	AND NOT KeyOperations.DeletionMark";
-		QueryText = StrTemplate("%1 UNION ALL %2", RequestTextPredefinedElement, QueryText); 
+		QueryText = StrTemplate("%1 UNION ALL %2", QueryTextPredefinedItem, QueryText); 
 	EndIf;
 	
 	Query = New Query;

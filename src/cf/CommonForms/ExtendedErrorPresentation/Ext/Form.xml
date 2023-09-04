@@ -70,10 +70,11 @@
 					<TitleLocation>None</TitleLocation>
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<MultiLine>true</MultiLine>
+					<BorderColor>style:FormBackColor</BorderColor>
 					<ContextMenu name="ErrorTextClientContextMenu" id="10"/>
 					<ExtendedTooltip name="ErrorTextClientExtendedTooltip" id="11"/>
 				</InputField>
-				<UsualGroup name="PossibleReasonsAndDecisionsClient" id="53">
+				<UsualGroup name="PossibleCausesAndSolutionsClient" id="53">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -113,7 +114,7 @@
 								</LabelDecoration>
 							</ChildItems>
 						</UsualGroup>
-						<UsualGroup name="PossibleDecisionsClient" id="17">
+						<UsualGroup name="PossibleSolutionsClient" id="17">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -225,10 +226,11 @@
 					<TitleLocation>None</TitleLocation>
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<MultiLine>true</MultiLine>
+					<BorderColor>style:FormBackColor</BorderColor>
 					<ContextMenu name="ErrorTextServerContextMenu" id="38"/>
 					<ExtendedTooltip name="ErrorTextServerExtendedTooltip" id="39"/>
 				</InputField>
-				<UsualGroup name="PossibleReasonsAndDecisionsServer" id="55">
+				<UsualGroup name="PossibleCausesAndSolutionsServer" id="55">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -268,7 +270,7 @@
 								</LabelDecoration>
 							</ChildItems>
 						</UsualGroup>
-						<UsualGroup name="PossibleDecisionsServer" id="45">
+						<UsualGroup name="PossibleSolutionsServer" id="45">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -314,6 +316,75 @@
 				</LabelDecoration>
 			</ChildItems>
 		</UsualGroup>
+		<UsualGroup name="Error" id="81">
+			<Group>Vertical</Group>
+			<Representation>None</Representation>
+			<ShowTitle>false</ShowTitle>
+			<ExtendedTooltip name="ErrorExtendedTooltip" id="82"/>
+			<ChildItems>
+				<InputField name="ErrorText" id="83">
+					<DataPath>ErrorText</DataPath>
+					<ReadOnly>true</ReadOnly>
+					<SkipOnInput>true</SkipOnInput>
+					<TitleLocation>None</TitleLocation>
+					<AutoMaxWidth>false</AutoMaxWidth>
+					<MultiLine>true</MultiLine>
+					<BorderColor>style:FormBackColor</BorderColor>
+					<ContextMenu name="ErrorTextContextMenu" id="84"/>
+					<ExtendedTooltip name="ErrorTextExtendedTooltip" id="85"/>
+				</InputField>
+				<UsualGroup name="PossibleCausesAndSolutions" id="99">
+					<Group>Vertical</Group>
+					<Behavior>Usual</Behavior>
+					<Representation>None</Representation>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="PossibleCausesAndSolutionsExtendedTooltip" id="100"/>
+					<ChildItems>
+						<UsualGroup name="PossibleReasons" id="86">
+							<Behavior>Usual</Behavior>
+							<Representation>None</Representation>
+							<ExtendedTooltip name="PossibleReasonsExtendedTooltip" id="87"/>
+							<ChildItems>
+								<LabelDecoration name="ReasonsText" id="88">
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<ContextMenu name="ReasonsTextContextMenu" id="89"/>
+									<ExtendedTooltip name="ReasonsTextExtendedTooltip" id="90"/>
+									<Events>
+										<Event name="URLProcessing">ReasonsClientTextURLProcessing</Event>
+									</Events>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="PossibleSolutions" id="91">
+							<Behavior>Usual</Behavior>
+							<Representation>None</Representation>
+							<ExtendedTooltip name="PossibleSolutionsExtendedTooltip" id="92"/>
+							<ChildItems>
+								<LabelDecoration name="SolutionsText" id="93">
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<Title formatted="true"/>
+									<ContextMenu name="SolutionsTextContextMenu" id="94"/>
+									<ExtendedTooltip name="SolutionsTextExtendedTooltip" id="95"/>
+									<Events>
+										<Event name="URLProcessing">DecisionsClientTextURLProcessing</Event>
+									</Events>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
+					</ChildItems>
+				</UsualGroup>
+				<LabelDecoration name="Instruction" id="96">
+					<Visible>false</Visible>
+					<AutoMaxWidth>false</AutoMaxWidth>
+					<Hyperlink>true</Hyperlink>
+					<ContextMenu name="InstructionContextMenu" id="97"/>
+					<ExtendedTooltip name="InstructionExtendedTooltip" id="98"/>
+					<Events>
+						<Event name="Click">InstructionClick</Event>
+					</Events>
+				</LabelDecoration>
+			</ChildItems>
+		</UsualGroup>
 		<LabelDecoration name="SeparatorDecoration2" id="78">
 			<Font ref="style:NormalTextFont" kind="StyleItem" scale="10"/>
 			<ContextMenu name="SeparatorDecoration2ContextMenu" id="79"/>
@@ -332,16 +403,10 @@
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="FooterGroupExtendedTooltip" id="61"/>
 			<ChildItems>
-				<UsualGroup name="Instruction" id="62">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Need help?</v8:content>
-						</v8:item>
-					</Title>
+				<UsualGroup name="Help" id="62">
 					<Group>Vertical</Group>
 					<Behavior>PopUp</Behavior>
-					<ExtendedTooltip name="InstructionExtendedTooltip" id="63"/>
+					<ExtendedTooltip name="HelpExtendedTooltip" id="63"/>
 					<ChildItems>
 						<LabelDecoration name="SupportInformation" id="67">
 							<Title formatted="true">
@@ -460,6 +525,24 @@ If you cannot find a solution, contact 1C support team and provide &lt;link %2&g
 		<Attribute name="AdditionalData" id="6">
 			<Type/>
 		</Attribute>
+		<Attribute name="ErrorText" id="7">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="ErrorAnchor" id="8">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="OpenApplicationsSettings" id="1">
@@ -548,6 +631,20 @@ If you cannot find a solution, contact 1C support team and provide &lt;link %2&g
 		</Parameter>
 		<Parameter name="AdditionalData">
 			<Type/>
+		</Parameter>
+		<Parameter name="SupportInformation">
+			<Type>
+				<v8:Type>v8ui:FormattedString</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="ErrorText">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
 		</Parameter>
 	</Parameters>
 </Form>

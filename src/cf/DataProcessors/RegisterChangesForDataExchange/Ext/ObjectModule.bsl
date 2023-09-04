@@ -973,9 +973,9 @@ Function RecordSetDimensions(TableName, AllDimensions = False) Export
 	
 	If Not AllDimensions Then
 		// Data be register.
-		DontConsider = "#MessageNo#Node#";
+		NotConsider = "#MessageNo#Node#";
 		For Each MetaCommon In Metadata.CommonAttributes Do
-			DontConsider = DontConsider + "#" + MetaCommon.Name + "#" ;
+			NotConsider = NotConsider + "#" + MetaCommon.Name + "#" ;
 		EndDo;
 		
 		QueryTextTemplate2 = 
@@ -993,7 +993,7 @@ Function RecordSetDimensions(TableName, AllDimensions = False) Export
 		EmptyResult = Query.Execute();
 		For Each ResultColumn In EmptyResult.Columns Do
 			ColumnName = ResultColumn.Name;
-			If StrFind(DontConsider, "#" + ColumnName + "#") = 0 Then
+			If StrFind(NotConsider, "#" + ColumnName + "#") = 0 Then
 				String = Dimensions.Add();
 				String.Name         = ColumnName;
 				String.ValueType = ResultColumn.ValueType;

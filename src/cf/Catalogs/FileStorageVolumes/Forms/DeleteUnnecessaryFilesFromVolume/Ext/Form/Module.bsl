@@ -57,13 +57,13 @@ Procedure PathToFolderToCopyStartChoice(Item, ChoiceData, StandardProcessing)
 	Context = New Structure("OpenFileDialog", OpenFileDialog);
 	
 	ChoiceDialogNotificationDetails = New NotifyDescription(
-		"FolderPathForCopyStartChoiceCompletion", ThisObject, Context);
+		"PathToFolderToCopyStartChoiceCompletion", ThisObject, Context);
 	FileSystemClient.ShowSelectionDialog(ChoiceDialogNotificationDetails, OpenFileDialog);
 	
 EndProcedure
 
 &AtClient
-Procedure FolderPathForCopyStartChoiceCompletion(SelectedFiles, Context) Export
+Procedure PathToFolderToCopyStartChoiceCompletion(SelectedFiles, Context) Export
 	
 	OpenFileDialog = Context.OpenFileDialog;
 	
@@ -306,19 +306,19 @@ EndProcedure
 &AtClient
 Procedure ProcessNextFileMoveEnd(Result, AdditionalParameters) Export
 	
-	ProcessesNextFileEnd(AdditionalParameters);
+	ProcessNextFileCompletion(AdditionalParameters);
 	
 EndProcedure
 
 &AtClient
 Procedure ProcessNextFileDeletionEnd(AdditionalParameters)
 	
-	ProcessesNextFileEnd(AdditionalParameters);
+	ProcessNextFileCompletion(AdditionalParameters);
 	
 EndProcedure
 
 &AtClient
-Procedure ProcessesNextFileEnd(AdditionalParameters)
+Procedure ProcessNextFileCompletion(AdditionalParameters)
 	
 	CurrentFile                  = AdditionalParameters.CurrentFile;
 	FinalNotification           = AdditionalParameters.FinalNotification; // NotifyDescription

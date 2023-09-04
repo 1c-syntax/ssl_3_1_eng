@@ -414,6 +414,11 @@ Function CommandsToOutputToForm(ContactInformationParameters, Type, Kind, StoreH
 	TypeCommands = DetailsOfCommands[Type];
 	
 	CommandsForOutput = New Structure;
+	
+	If TypeCommands = Undefined Then
+		Return CommandsForOutput;
+	EndIf;
+	
 	If KindCommands = Undefined Then
 		For Each TypeCommand In TypeCommands Do
 			If ValueIsFilled(TypeCommand.Value.Action) Then

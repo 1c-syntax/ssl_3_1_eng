@@ -5,7 +5,7 @@
 	<Customizable>false</Customizable>
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<ChildItems>
-			<ButtonGroup name="CommandBarGroup" id="34">
+			<ButtonGroup name="GroupCommandBar" id="34">
 				<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="35"/>
 				<ChildItems>
 					<Button name="WriteAndClose" id="36">

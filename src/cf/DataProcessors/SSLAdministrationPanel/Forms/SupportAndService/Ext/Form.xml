@@ -577,7 +577,7 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Status pages cloud archive</v8:content>
+											<v8:content>State pages cloud archive</v8:content>
 										</v8:item>
 									</Title>
 									<HorizontalStretch>true</HorizontalStretch>
@@ -908,7 +908,7 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Update and change log first line</v8:content>
+							<v8:content>Update and release notes (line 1)</v8:content>
 						</v8:item>
 					</Title>
 					<Behavior>Usual</Behavior>
@@ -991,7 +991,7 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Update and detailed changes (line 2)</v8:content>
+							<v8:content>Update and release notes (line 2)</v8:content>
 						</v8:item>
 					</Title>
 					<Behavior>Usual</Behavior>
@@ -1034,7 +1034,7 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Open change log</v8:content>
+									<v8:content>Open release notes</v8:content>
 								</v8:item>
 							</Title>
 							<Width>43</Width>
@@ -1053,7 +1053,7 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 										<Title formatted="false">
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Open the application change log.</v8:content>
+												<v8:content>Read about new features and improvements introduced in each release.</v8:content>
 											</v8:item>
 										</Title>
 									</ExtendedTooltip>

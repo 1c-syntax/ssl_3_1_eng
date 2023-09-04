@@ -776,7 +776,7 @@
 				<group>true</group>
 				<order>true</order>
 			</attributeUseRestriction>
-			<presentationExpression>OwnerOrUserSettingsView</presentationExpression>
+			<presentationExpression>OwnerOrUserSettingsPresentation</presentationExpression>
 			<valueType>
 				<v8:TypeSet xmlns:d5p1="http://v8.1c.ru/8.1/data/enterprise/current-config">d5p1:AnyRef</v8:TypeSet>
 			</valueType>
@@ -820,8 +820,8 @@
 			</valueType>
 		</field>
 		<field xsi:type="DataSetFieldField">
-			<dataPath>OwnerOrUserSettingsView</dataPath>
-			<field>OwnerOrUserSettingsView</field>
+			<dataPath>OwnerOrUserSettingsPresentation</dataPath>
+			<field>OwnerOrUserSettingsPresentation</field>
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>

@@ -23,13 +23,13 @@
 //
 Function AttributesToSkipInBatchProcessing() Export
 	
-	AttributesToSkip = New Array;
-	AttributesToSkip.Add("IsInternal");
-	AttributesToSkip.Add("IBUserID");
-	AttributesToSkip.Add("ServiceUserID");
-	AttributesToSkip.Add("DeleteInfobaseUserProperties");
+	NotAttributesToEdit = New Array;
+	NotAttributesToEdit.Add("IsInternal");
+	NotAttributesToEdit.Add("IBUserID");
+	NotAttributesToEdit.Add("ServiceUserID");
+	NotAttributesToEdit.Add("DeleteInfobaseUserProperties");
 	
-	Return AttributesToSkip;
+	Return NotAttributesToEdit;
 	
 EndFunction
 

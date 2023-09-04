@@ -791,7 +791,7 @@ Searching for marked objects</v8:content>
 													</Button>
 												</ChildItems>
 											</ContextMenu>
-											<AutoCommandBar name="NotDeletedItemsCommandBar" id="222">
+											<AutoCommandBar name="NotTrashCommandBar" id="222">
 												<Autofill>false</Autofill>
 												<ChildItems>
 													<SearchStringAddition name="SearchStringUndeleted" id="740">
@@ -835,7 +835,7 @@ Searching for marked objects</v8:content>
 												<Event name="BeforeRowChange">NotDeletedItemsBeforeRowChange</Event>
 											</Events>
 											<ChildItems>
-												<InputField name="NotDeletedItemsPresentation" id="224">
+												<InputField name="NotTrashPresentation" id="224">
 													<DataPath>NotTrash.Presentation</DataPath>
 													<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
 													<PasswordMode>false</PasswordMode>

@@ -26,15 +26,12 @@ EndProcedure
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// Set a choice list for the given type of the question chart.
 	For Each MetadataItem In Metadata.Enums.TabularQuestionTypes.EnumValues Do
 		Items.TabularQuestionType.ChoiceList.Add(Enums.TabularQuestionTypes[MetadataItem.Name],MetadataItem.Synonym);
 	EndDo;
 		
-	// Get owner form parameters.
 	ProcessOwnerFormParameters();
 	
-	// Specify a page.
 	If Parameters.TabularQuestionType = Enums.TabularQuestionTypes.EmptyRef() Then
 		Items.Pages.CurrentPage = Items.TableQuestionTypePage;
 	Else
@@ -326,7 +323,6 @@ Procedure SetHelpTexts()
 	
 EndProcedure
 
-// Controls availability of form attributes.
 &AtClient
 Procedure AvailabilityControl()
 
@@ -419,10 +415,8 @@ Procedure AvailabilityControl()
 	
 EndProcedure
 
-// Checks whether all answers are filled in.
-//
 // Returns:
-//   Boolean   - True if all answers are filled in.
+//   Boolean - True if all answers are filled in.
 //
 &AtClient
 Function AllAnswersFilled()
@@ -439,7 +433,6 @@ Function AllAnswersFilled()
 
 EndFunction
 
-// The procedure processes the beginning of user selection in choice lists and sets filters in choice forms.
 &AtClient
 Procedure ListsChoiceStart(Item,StandardProcessing,DetailsOfAvailableTypes)
 	
@@ -482,9 +475,6 @@ Procedure ClearAnswersListIfNecessary(QuestionsArray)
 	
 EndProcedure 
 
-// Depending on the question chart type, the method sets a page for the structure generation.
-// 
-//
 &AtClient
 Procedure SetAnswersPage()
 	
@@ -524,7 +514,6 @@ Procedure SetAnswersPage()
 	
 EndProcedure
 
-// Generates the resulting question chart.
 &AtServer
 Procedure GenerateResultingTable()
 	
@@ -533,7 +522,6 @@ Procedure GenerateResultingTable()
 	
 EndProcedure
 
-// Generates a return structure to pass to the owner form.
 &AtClient
 Function GenerateParametersStructureToPassToOwner()
 
@@ -554,8 +542,6 @@ Function GenerateParametersStructureToPassToOwner()
 
 EndFunction
 
-// Processes owner form parameters.
-//
 &AtServer
 Procedure ProcessOwnerFormParameters()
 	
@@ -609,9 +595,6 @@ Procedure ProcessOwnerFormParameters()
 	
 EndProcedure
 
-// Sets filters in form items
-// used to create a list of predefined answers.
-//
 &AtClient
 Procedure SetFilters()
 	
@@ -687,10 +670,8 @@ Procedure SetLinkOfAnswersAndQuestionsChoiceParameter(AnswerFieldName, QuestionA
 
 EndProcedure
 
-
-// Called upon changing form items linked to the answers table.
 // Parameters:
-//   Item  - FormTable - itemthatcaused the change.
+//   Item - FormTable -
 //
 &AtClient
 Procedure OnChangeAnswers(Item)
@@ -750,8 +731,6 @@ Procedure EndEditAndClose()
 	
 EndProcedure
 
-// Clears up answers and populates them with response option.
-//
 // Parameters:
 //  ElementaryQuestion - ChartOfCharacteristicTypesRef.QuestionsForSurvey
 //

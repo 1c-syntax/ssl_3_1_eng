@@ -265,13 +265,13 @@ Procedure EditScheduledJobSchedule()
 	Dialog = New ScheduledJobDialog(JobSchedule);
 	
 	// Opening a dialog box for editing the schedule.
-	NotifyDescription = New NotifyDescription("JobScheduleEditCompletion", ThisObject);
+	NotifyDescription = New NotifyDescription("EditScheduledJobScheduleCompletion", ThisObject);
 	Dialog.Show(NotifyDescription);
 	
 EndProcedure
 
 &AtClient
-Procedure JobScheduleEditCompletion(Schedule, AdditionalParameters) Export
+Procedure EditScheduledJobScheduleCompletion(Schedule, AdditionalParameters) Export
 	
 	If Schedule <> Undefined Then
 		
@@ -450,7 +450,7 @@ Procedure ValidateExchangeSettingInService(Cancel)
 			|////////////////////////////////////////////////////////////////////////////////
 			|SELECT
 			|	TT_ExchangeSettings.InfobaseNode AS InfobaseNode
-			|INTO TT_Import
+			|INTO TT_Load
 			|FROM
 			|	TT_ExchangeSettings AS TT_ExchangeSettings
 			|WHERE
@@ -460,7 +460,7 @@ Procedure ValidateExchangeSettingInService(Cancel)
 			|////////////////////////////////////////////////////////////////////////////////
 			|SELECT
 			|	TT_ExchangeSettings.InfobaseNode AS InfobaseNode
-			|INTO TT_Export
+			|INTO TT_Upload0
 			|FROM
 			|	TT_ExchangeSettings AS TT_ExchangeSettings
 			|WHERE
@@ -469,20 +469,20 @@ Procedure ValidateExchangeSettingInService(Cancel)
 			|
 			|////////////////////////////////////////////////////////////////////////////////
 			|SELECT
-			|	ISNULL(TT_Export.InfobaseNode, TT_Import.InfobaseNode) AS InfobaseNode,
+			|	ISNULL(TT_Upload0.InfobaseNode, TT_Load.InfobaseNode) AS InfobaseNode,
 			|	CASE
-			|		WHEN TT_Export.InfobaseNode IS NULL
+			|		WHEN TT_Upload0.InfobaseNode IS NULL
 			|			THEN 1
-			|		WHEN TT_Import.InfobaseNode IS NULL
+			|		WHEN TT_Load.InfobaseNode IS NULL
 			|			THEN 2
 			|	END AS MissingAction
 			|FROM
-			|	TT_Import AS TT_Import
-			|		FULL JOIN TT_Export AS TT_Export
-			|		ON TT_Import.InfobaseNode = TT_Export.InfobaseNode
+			|	TT_Load AS TT_Load
+			|		FULL JOIN TT_Upload0 AS TT_Upload0
+			|		ON TT_Load.InfobaseNode = TT_Upload0.InfobaseNode
 			|WHERE
-			|	(TT_Export.InfobaseNode IS NULL
-			|			OR TT_Import.InfobaseNode IS NULL)";
+			|	(TT_Upload0.InfobaseNode IS NULL
+			|			OR TT_Load.InfobaseNode IS NULL)";
 		
 		Query.SetParameter("ExchangeSettings", ExchangeSettings);
 		

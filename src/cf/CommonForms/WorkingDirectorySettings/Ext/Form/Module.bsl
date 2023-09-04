@@ -151,14 +151,14 @@ Procedure ClearLocalFileCacheCompletionAfterAnswerQuestionContinue(Response, Exe
 		Return;
 	EndIf;
 	
-	Handler = New NotifyDescription("ClearLocalFileCacheCompletion", ThisObject);
+	Handler = New NotifyDescription("CleanUpLocalFileCacheCompletion", ThisObject);
 	// 
 	FilesOperationsInternalClient.CleanUpWorkingDirectory(Handler, WorkingDirectoryFilesSize, 0, True);
 	
 EndProcedure
 
 &AtClient
-Procedure ClearLocalFileCacheCompletion(Result, ExecutionParameters) Export
+Procedure CleanUpLocalFileCacheCompletion(Result, ExecutionParameters) Export
 	
 	UpdateWorkDirectoryCurrentStatus();
 	

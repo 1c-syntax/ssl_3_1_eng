@@ -836,7 +836,6 @@ Procedure GoToCurrentCertificateChoice(Notification)
 		ModuleCertificateStoreClient.FindCertificate(New NotifyDescription(
 			"GoToCurrentCertificateChoiceAfterCertificateSearchInCloudService", ThisObject, Context), TheStructureOfTheSearch);
 	Else
-		// СертификатНаКлиенте.
 		DigitalSignatureInternalClient.GetCertificateByThumbprint(
 			New NotifyDescription("GoToCurrentCertificateChoiceAfterCertificateSearch", ThisObject, Context),
 			CurrentData.Thumbprint, False, Undefined);

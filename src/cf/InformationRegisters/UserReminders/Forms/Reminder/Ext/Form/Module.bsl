@@ -279,14 +279,14 @@ EndProcedure
 Procedure DeleteReminder(QuestionResult, AdditionalParameters) Export
 	
 	If QuestionResult = DialogReturnCode.Yes Then
-		ThisObject.Modified = False;
+		Modified = False;
 		If InitialParameters <> Undefined Then 
 			DisableReminder();
 			UserRemindersClient.DeleteRecordFromNotificationsCache(InitialParameters);
 			Notify("Write_UserReminders", New Structure, Object.SourceRecordKey);
 			NotifyChanged(Type("InformationRegisterRecordKey.UserReminders"));
 		EndIf;
-		If ThisObject.IsOpen() Then
+		If IsOpen() Then
 			Close();
 		EndIf;
 	EndIf;
@@ -444,12 +444,12 @@ Procedure OpenScheduleSettingDialog()
 		Schedule.DaysRepeatPeriod = 1;
 	EndIf;
 	ScheduleDialog1 = New ScheduledJobDialog(Schedule);
-	NotifyDescription = New NotifyDescription("OpenScheduleSettingsDialogCompletion", ThisObject);
+	NotifyDescription = New NotifyDescription("OpenScheduleSettingDialogCompletion", ThisObject);
 	ScheduleDialog1.Show(NotifyDescription);
 EndProcedure
 
 &AtClient
-Procedure OpenScheduleSettingsDialogCompletion(SelectedSchedule, AdditionalParameters) Export
+Procedure OpenScheduleSettingDialogCompletion(SelectedSchedule, AdditionalParameters) Export
 	If SelectedSchedule = Undefined Then
 		Return;
 	EndIf;

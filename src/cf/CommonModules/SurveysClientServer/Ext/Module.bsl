@@ -39,8 +39,6 @@ Function DeleteLastCharsFromString(IncomingString, DeletionSubstring, Separator 
 
 EndFunction
 
-// Generates the question name based on the unique identifier of the questionnaire tree line.
-//
 // Parameters:
 //  Var_Key  - UUID - the key that will be used to generate the question name.
 //
@@ -49,7 +47,7 @@ EndFunction
 //
 Function QuestionName(Val Var_Key) Export
 
-	Return "Question_" + StrReplace(Var_Key, "-", "_");
+	Return "DoQueryBox_" + StrReplace(Var_Key, "-", "_");
 
 EndFunction
 
@@ -101,7 +99,6 @@ Procedure GenerateTreeItemsNumbering(TreeRows, RecursionLevel, ArrayFullCode,
 
 EndProcedure
 
-// Finds the first row in the specified column with the specified value in the TreeFormData collection.
 Function FindStringInFormDataTree(WhereToFind, Value, Column, SearchSubordinateItems) Export
 
 	TreeItems = WhereToFind.GetItems();
@@ -123,8 +120,6 @@ Function FindStringInFormDataTree(WhereToFind, Value, Column, SearchSubordinateI
 
 EndFunction
 
-// Returns a picture code depending on question type and on whether it belongs to the section.
-//
 // Parameters:
 //  IsSection  - Boolean - a section flag.
 //  QuestionType - EnumRef.QuestionnaireTemplateQuestionTypes
@@ -151,9 +146,8 @@ Function GetQuestionnaireTemplatePictureCode(IsSection, QuestionType = Undefined
 EndFunction
 
 // Parameters:
-//
-// Form - ClientApplicationForm
-// QuestionnaireBodyVisibility - Boolean
+//   Form - ClientApplicationForm
+//   QuestionnaireBodyVisibility - Boolean
 //
 Procedure SwitchQuestionnaireBodyGroupsVisibility(Form, QuestionnaireBodyVisibility) Export
 

@@ -35,9 +35,9 @@ Function TransportSettings(Val Peer) Export
 	|	DataAreasTransportSettings.DefaultExchangeMessagesTransportKind,
 	|	DataAreasTransportSettings.CorrespondentEndpoint,
 	|	TransportSettings.WebServiceAddress AS WSWebServiceURL,
-	|	TransportSettings.UserName AS WSUsername,
-	|	"""" AS WSPeerDataArea,
-	|	"""" AS WSPeerEndpoint
+	|	TransportSettings.UserName AS WSUserName,
+	|	"""" AS WSCorrespondentDataArea,
+	|	"""" AS WSCorrespondentEndpoint
 	|FROM
 	|	InformationRegister.DataAreaExchangeTransportSettings AS DataAreaTransportSettings
 	|		LEFT JOIN InformationRegister.DataAreasExchangeTransportSettings AS DataAreasTransportSettings

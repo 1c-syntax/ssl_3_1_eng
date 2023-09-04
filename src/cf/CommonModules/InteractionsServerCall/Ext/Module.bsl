@@ -12,8 +12,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //  Main procedures and functions of contact search.
 
-// Gets contact presentation and all its contact information.
-//
 // Parameters:
 //  Contact                 - DefinedType.InteractionContact - a contact, for which the information is being received.
 //  Presentation           - String - a contact, for which the information is being received.
@@ -37,12 +35,12 @@ Procedure PresentationAndAllContactInformationOfContact(Contact, Presentation, C
 	Query = New Query;
 	Query.Text =
 	"SELECT
-	|	ContactCatalog.Description   AS Description,
+	|	CatalogContact.Description   AS Description,
 	|	&NameOfTheOwnerSName AS OwnerDescription1
 	|FROM
-	|	&TableName AS ContactCatalog
+	|	&TableName AS CatalogContact
 	|WHERE
-	|	ContactCatalog.Ref = &Contact
+	|	CatalogContact.Ref = &Contact
 	|";
 	
 	Query.Text = StrReplace(Query.Text, "&TableName", "Catalog." + TableName);
@@ -72,8 +70,6 @@ Procedure PresentationAndAllContactInformationOfContact(Contact, Presentation, C
 	
 EndProcedure
 
-// Gets description and addresses of the contact email.
-//
 // Parameters:
 //  Contact - AnyRef - a contact, for which the data is being received.
 //
@@ -115,14 +111,14 @@ Function ContactDescriptionAndEmailAddresses(Contact) Export
 	QueryText =
 	"SELECT ALLOWED DISTINCT
 	|	ISNULL(ContactInformationTable.EMAddress,"""") AS EMAddress,
-	|	ContactCatalog." + DetailsArrayElement.ContactPresentationAttributeName + " AS Description
+	|	CatalogContact." + DetailsArrayElement.ContactPresentationAttributeName + " AS Description
 	|FROM
-	|	" + TableName + " AS ContactCatalog
+	|	" + TableName + " AS CatalogContact
 	|		LEFT JOIN " + TableName + ".ContactInformation AS ContactInformationTable
-	|		On (ContactInformationTable.Ref = ContactCatalog.Ref)
+	|		On (ContactInformationTable.Ref = CatalogContact.Ref)
 	|			AND (ContactInformationTable.Type = VALUE(Enum.ContactInformationTypes.Email))
 	|WHERE
-	|	ContactCatalog.Ref = &Contact
+	|	CatalogContact.Ref = &Contact
 	|TOTALS BY
 	|	Description";
 	
@@ -145,13 +141,11 @@ Function ContactDescriptionAndEmailAddresses(Contact) Export
 	
 EndFunction
 
-// Gets contact email addresses.
-//
 // Parameters:
 //  Contact - DefinedType.InteractionContact - a contact, for which the data is being received.
 //
 // Returns:
-//  Array - Array of structures that contain addresses with their kinds and presentations.
+//  Array of Structure - Array of structures that contain addresses with their kinds and presentations.
 //
 Function GetContactEmailAddresses(Contact, IncludeBlankKinds = False) Export
 	
@@ -236,8 +230,6 @@ Function GetContactEmailAddresses(Contact, IncludeBlankKinds = False) Export
 	
 EndFunction
 
-// Sends and receives user mails in background mode.
-//
 // Parameters:
 //  UUID - UUID - a background job ID.
 //
@@ -265,8 +257,6 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 //  Miscellaneous.
 
-// Sets a subject for the interaction array.
-//
 // Parameters:
 //  InteractionsArray - Array - an array of interactions, for which a subject will be set
 //  SubjectOf  - AnyRef - a subject that will replace the previous one.
@@ -340,7 +330,7 @@ EndProcedure
 //  UUID - UUID - an UUID of a form, from which a saving command was called.
 //
 // Returns:
-//  Structure - Structure that contains the prepared email data.
+//   See FileDataStructure
 //
 Function EmailDataToSaveAsFile(MailMessage, UUID) Export
 
@@ -369,6 +359,22 @@ Function EmailDataToSaveAsFile(MailMessage, UUID) Export
 
 EndFunction
 
+// Returns:
+//  Structure:
+//   * RefToBinaryFileData - String
+//   * RelativePath - String
+//   * UniversalModificationDate - Date
+//   * FileName - String
+//   * Description - String
+//   * Extension - String
+//   * Size - String
+//   * BeingEditedBy - Undefined
+//   * SignedWithDS - Boolean
+//   * Encrypted - Boolean
+//   * FileBeingEdited - Boolean
+//   * CurrentUserEditsFile - Boolean
+//   * FullVersionDescription - String
+//
 Function FileDataStructure()
 
 	FileDataStructure = New Structure;

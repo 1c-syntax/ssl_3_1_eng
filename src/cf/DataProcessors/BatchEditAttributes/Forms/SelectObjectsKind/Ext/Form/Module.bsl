@@ -17,10 +17,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Not IsBlankString(Parameters.SelectedTypes) Then
 		SelectedTypes = StrSplit(Parameters.SelectedTypes, ",", True);
 		For Each SelectedType In SelectedTypes Do
-			Type_Found = EditableObjects.FindByValue(SelectedType);
-			If Type_Found <> Undefined Then
+			Found3Type = EditableObjects.FindByValue(SelectedType);
+			If Found3Type <> Undefined Then
 				EditableObjects.FindByValue(SelectedType).Check = True;
-				Items.EditableObjects.CurrentRow = Type_Found.GetID();
+				Items.EditableObjects.CurrentRow = Found3Type.GetID();
 			EndIf;
 		EndDo;
 	EndIf;

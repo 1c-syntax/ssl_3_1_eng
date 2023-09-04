@@ -1027,11 +1027,11 @@ Procedure ScheduleDataAreaUpdate()
 				Continue;
 			EndIf;
 			
-			JobFilter = New Structure;
-			JobFilter.Insert("MethodName", "InfobaseUpdateInternalSaaS.UpdateCurrentDataArea");
-			JobFilter.Insert("Key", "1");
-			JobFilter.Insert("DataArea", Selection.DataArea);
-			Jobs = ModuleJobsQueue.GetTasks(JobFilter);
+			FilterJobs = New Structure;
+			FilterJobs.Insert("MethodName", "InfobaseUpdateInternalSaaS.UpdateCurrentDataArea");
+			FilterJobs.Insert("Key", "1");
+			FilterJobs.Insert("DataArea", Selection.DataArea);
+			Jobs = ModuleJobsQueue.GetTasks(FilterJobs);
 			If Jobs.Count() > 0 Then
 				// The area update job already exists.
 				CommitTransaction();

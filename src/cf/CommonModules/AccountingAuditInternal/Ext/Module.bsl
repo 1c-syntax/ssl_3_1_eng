@@ -552,7 +552,7 @@ Function CheckKindExtendedSearch(CheckExecutionParameters, PropertiesCount)
 	Query = New Query(
 	"SELECT
 	|	ChecksKinds.Ref AS CheckKind
-	|INTO TTChecksKinds
+	|INTO TT_ChecksKinds
 	|FROM
 	|	Catalog.ChecksKinds AS ChecksKinds
 	|WHERE
@@ -571,9 +571,9 @@ Function CheckKindExtendedSearch(CheckExecutionParameters, PropertiesCount)
 	|	TypesOfObjectPropertyChecks.PropertyValue AS PropertyValue,
 	|	TypesOfObjectPropertyChecks.PropertyName AS PropertyName
 	|FROM
-	|	TTChecksKinds AS TTChecksKinds
+	|	TT_ChecksKinds AS TT_ChecksKinds
 	|		INNER JOIN Catalog.ChecksKinds.ObjectProperties AS TypesOfObjectPropertyChecks
-	|		ON TTChecksKinds.CheckKind = TypesOfObjectPropertyChecks.Ref
+	|		ON TT_ChecksKinds.CheckKind = TypesOfObjectPropertyChecks.Ref
 	|
 	|ORDER BY
 	|	CheckKind");
@@ -1093,7 +1093,7 @@ Procedure AddChecksGroups(ChecksGroups)
 	"SELECT
 	|	ChecksGroups.Id AS Id,
 	|	ChecksGroups.Description AS Description
-	|INTO TTChecksGroups
+	|INTO TT_ChecksGroups
 	|FROM
 	|	&ChecksGroups AS ChecksGroups
 	|;
@@ -1103,10 +1103,10 @@ Procedure AddChecksGroups(ChecksGroups)
 	|	AccountingCheckRules.Ref AS Ref
 	|FROM
 	|	Catalog.AccountingCheckRules AS AccountingCheckRules
-	|		LEFT JOIN TTChecksGroups AS TTChecksGroups
-	|		ON AccountingCheckRules.Id = TTChecksGroups.Id
+	|		LEFT JOIN TT_ChecksGroups AS TT_ChecksGroups
+	|		ON AccountingCheckRules.Id = TT_ChecksGroups.Id
 	|WHERE
-	|	TTChecksGroups.Description IS NULL
+	|	TT_ChecksGroups.Description IS NULL
 	|	AND AccountingCheckRules.IsFolder
 	|	AND NOT AccountingCheckRules.Predefined
 	|	AND NOT AccountingCheckRules.AccountingCheckIsChanged");
@@ -1182,7 +1182,7 @@ Procedure AddChecks(Checks)
 	"SELECT
 	|	Checks.Id AS Id,
 	|	Checks.Description AS Description
-	|INTO TTChecks
+	|INTO TT_Checks
 	|FROM
 	|	&Checks AS Checks
 	|;
@@ -1192,10 +1192,10 @@ Procedure AddChecks(Checks)
 	|	AccountingCheckRules.Ref AS Ref
 	|FROM
 	|	Catalog.AccountingCheckRules AS AccountingCheckRules
-	|		LEFT JOIN TTChecks AS TTChecks
-	|		ON AccountingCheckRules.Id = TTChecks.Id
+	|		LEFT JOIN TT_Checks AS TT_Checks
+	|		ON AccountingCheckRules.Id = TT_Checks.Id
 	|WHERE
-	|	TTChecks.Description IS NULL
+	|	TT_Checks.Description IS NULL
 	|	AND NOT AccountingCheckRules.IsFolder
 	|	AND NOT AccountingCheckRules.Predefined
 	|	AND NOT AccountingCheckRules.AccountingCheckIsChanged");
@@ -1231,7 +1231,7 @@ Procedure SpecifiedItemsUniquenessCheck(ChecksGroups, Checks)
 	"SELECT
 	|	Description AS Description,
 	|	Id AS Id
-	|INTO TTChecksGroups
+	|INTO TT_ChecksGroups
 	|FROM
 	|	&ChecksGroups AS ChecksGroups
 	|;
@@ -1240,50 +1240,50 @@ Procedure SpecifiedItemsUniquenessCheck(ChecksGroups, Checks)
 	|SELECT
 	|	Description AS Description,
 	|	Id AS Id
-	|INTO TTChecks
+	|INTO TT_Checks
 	|FROM
 	|	&Checks AS Checks
 	|;
 	|
 	|////////////////////////////////////////////////////////////////////////////////
 	|SELECT
-	|	TTChecksGroups.Description AS Description,
-	|	TTChecksGroups.Id AS Id
-	|INTO TTCommonTable
+	|	TT_ChecksGroups.Description AS Description,
+	|	TT_ChecksGroups.Id AS Id
+	|INTO TT_CommonTable
 	|FROM
-	|	TTChecksGroups AS TTChecksGroups
+	|	TT_ChecksGroups AS TT_ChecksGroups
 	|
 	|UNION ALL
 	|
 	|SELECT
-	|	TTChecks.Description,
-	|	TTChecks.Id
+	|	TT_Checks.Description,
+	|	TT_Checks.Id
 	|FROM
-	|	TTChecks AS TTChecks
+	|	TT_Checks AS TT_Checks
 	|;
 	|
 	|////////////////////////////////////////////////////////////////////////////////
 	|SELECT
-	|	TTCommonTable.Id AS Id
+	|	TT_CommonTable.Id AS Id
 	|INTO TTGroupByID
 	|FROM
-	|	TTCommonTable AS TTCommonTable
+	|	TT_CommonTable AS TT_CommonTable
 	|
 	|GROUP BY
-	|	TTCommonTable.Id
+	|	TT_CommonTable.Id
 	|
 	|HAVING
-	|	COUNT(TTCommonTable.Id) > 1
+	|	COUNT(TT_CommonTable.Id) > 1
 	|;
 	|
 	|////////////////////////////////////////////////////////////////////////////////
 	|SELECT
-	|	TTCommonTable.Description AS Description,
-	|	TTCommonTable.Id AS Id
+	|	TT_CommonTable.Description AS Description,
+	|	TT_CommonTable.Id AS Id
 	|FROM
 	|	TTGroupByID AS TTGroupByID
-	|		INNER JOIN TTCommonTable AS TTCommonTable
-	|		ON TTGroupByID.Id = TTCommonTable.Id
+	|		INNER JOIN TT_CommonTable AS TT_CommonTable
+	|		ON TTGroupByID.Id = TT_CommonTable.Id
 	|
 	|ORDER BY
 	|	Id
@@ -1605,7 +1605,7 @@ Function PlaceErrorIndicatorGroup(Form, NamesUniqueKey, GroupParentName = Undefi
 		PlaceContext = GroupParent;
 	EndIf;
 	
-	ErrorIndicatorGroup = FormAllItems.Add("ErrorIndicatorGroup1" + NamesUniqueKey, Type("FormGroup"), PlaceContext); // FormTable
+	ErrorIndicatorGroup = FormAllItems.Add("ErrorIndicatorGroup_" + NamesUniqueKey, Type("FormGroup"), PlaceContext); // FormTable
 	ErrorIndicatorGroup.Type                      = FormGroupType.UsualGroup;
 	ErrorIndicatorGroup.ShowTitle      = False;
 	ErrorIndicatorGroup.Group              = ChildFormItemsGroup.AlwaysHorizontal;
@@ -1642,12 +1642,12 @@ Procedure FillErrorIndicatorGroup(Form, ErrorIndicatorGroup, NamesUniqueKey,
 	
 	ManagedFormItems = Form.Items;
 	
-	ErrorIndicatorPicture = ManagedFormItems.Add("DecorationPicture" + NamesUniqueKey, Type("FormDecoration"), ErrorIndicatorGroup);
+	ErrorIndicatorPicture = ManagedFormItems.Add("PictureDecoration_" + NamesUniqueKey, Type("FormDecoration"), ErrorIndicatorGroup);
 	ErrorIndicatorPicture.Type            = FormDecorationType.Picture;
 	ErrorIndicatorPicture.Picture       = IssuePicture(Settings);
 	ErrorIndicatorPicture.PictureSize = PictureSize.RealSize;
 	
-	LabelDecoration = ManagedFormItems.Add("DecorationLabel" + NamesUniqueKey, Type("FormDecoration"), ErrorIndicatorGroup);
+	LabelDecoration = ManagedFormItems.Add("LabelDecoration_" + NamesUniqueKey, Type("FormDecoration"), ErrorIndicatorGroup);
 	LabelDecoration.Type                   = FormDecorationType.Label;
 	LabelDecoration.Title             = MainRowIndicator;
 	LabelDecoration.VerticalAlign = ItemVerticalAlign.Center;
@@ -1776,7 +1776,7 @@ Procedure ExecuteCheck(Validation, CheckExecutionParameters = Undefined, Objects
 	HandlerParameters = New Array;
 	HandlerParameters.Add(CheckToExecute);
 	HandlerParameters.Add(CheckParameters);
-	Common.ExecuteConfigurationMethod(CheckString.CheckHandler, HandlerParameters);
+	Common.ExecuteConfigurationMethod(CheckString.HandlerChecks, HandlerParameters);
 	
 	If SessionParameters.AccountingIssuesCounter > 0
 		And CheckParameters.IssueSeverity = Enums.AccountingIssueSeverity.Error Then
@@ -3043,8 +3043,8 @@ EndFunction
 Function ContainsRefType(Attribute)
 	
 	AttributeTypes = Attribute.Type.Types();
-	For Each CurrentType In AttributeTypes Do
-		If Common.IsReference(CurrentType) Then
+	For Each Current_Type In AttributeTypes Do
+		If Common.IsReference(Current_Type) Then
 			Return True;
 		EndIf;
 	EndDo;
@@ -4185,9 +4185,9 @@ Function ReadParameters(CheckExecutionParameters)
 	Return Result;
 EndFunction
 
-Function ObjectWithIssuePresentation(ObjectWithIssue, ProblemObjectPresentation, AdditionalInformation) Export
+Function ObjectWithIssuePresentation(ObjectWithIssue, ObjectWithIssuePresentation, AdditionalInformation) Export
 	
-	Result = ProblemObjectPresentation + " (" + ObjectWithIssue.Metadata().Presentation() + ")";
+	Result = ObjectWithIssuePresentation + " (" + ObjectWithIssue.Metadata().Presentation() + ")";
 	If TypeOf(ObjectWithIssue) <> Type("CatalogRef.MetadataObjectIDs") Then
 		Return Result;
 	EndIf;

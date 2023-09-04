@@ -108,8 +108,9 @@ Function SetSignatures(Object, SequenceNumber = Undefined) Export
 		|	DigitalSignatures.Thumbprint AS Thumbprint,
 		|	DigitalSignatures.CertificateOwner AS CertificateOwner,
 		|	DigitalSignatures.SignatureType AS SignatureType,
-		|	DigitalSignatures.CheckRequired2 AS CheckRequired2,
-		|	DigitalSignatures.DateActionLastTimestamp AS DateActionLastTimestamp
+		|	DigitalSignatures.IsVerificationRequired AS IsVerificationRequired,
+		|	DigitalSignatures.DateActionLastTimestamp AS DateActionLastTimestamp,
+		|	DigitalSignatures.SignatureID AS SignatureID
 		|FROM
 		|	InformationRegister.DigitalSignatures AS DigitalSignatures
 		|WHERE
@@ -288,17 +289,21 @@ Procedure UpdateSignature(Object, Val SignatureProperties, UpdateByOrderNumber =
 				// If binary data matches, the signature must be refreshed.
 				Or SignatureBinaryData = SignatureProperties.Signature Then
 					
-				SignatureToRefresh = InformationRegisters.DigitalSignatures.CreateRecordManager();
-				SignatureToRefresh.SequenceNumber   = SignatureProperties.SequenceNumber;
-				SignatureToRefresh.SignedObject = Object;
-				SignatureToRefresh.Read();
+				RecordSet = InformationRegisters.DigitalSignatures.CreateRecordSet();
+				RecordSet.Filter.SequenceNumber.Set(ObjectSignature.SequenceNumber);
+				RecordSet.Filter.SignedObject.Set(Object);
+				RecordSet.AdditionalProperties.Insert("UpdatingSignature");
+				RecordSet.Read();
+				
+				SignatureToRefresh = RecordSet[0];
 				
 				If UpdateByOrderNumber Then
 					For Each KeyAndValue In SignatureProperties Do
 						If KeyAndValue.Key = "Certificate"
 							Or KeyAndValue.Key = "SignedObject"
 							Or KeyAndValue.Key = "SignatureDate"
-							Or KeyAndValue.Key = "SequenceNumber" Then
+							Or KeyAndValue.Key = "SequenceNumber"
+							Or KeyAndValue.Key = "ResultOfSignatureVerificationByMCHD" Then
 							Continue;
 						EndIf;
 						If KeyAndValue.Value <> Undefined Then
@@ -313,7 +318,8 @@ Procedure UpdateSignature(Object, Val SignatureProperties, UpdateByOrderNumber =
 					
 					For Each KeyAndValue In SignatureProperties Do
 						If KeyAndValue.Key = "Certificate"
-							Or KeyAndValue.Key = "Signature" Then
+							Or KeyAndValue.Key = "Signature"
+							Or KeyAndValue.Key = "ResultOfSignatureVerificationByMCHD" Then
 							Continue;
 						EndIf;
 						
@@ -336,7 +342,7 @@ Procedure UpdateSignature(Object, Val SignatureProperties, UpdateByOrderNumber =
 
 				EndIf;
 				
-				SignatureToRefresh.Write(True);
+				RecordSet.Write(True);
 			EndIf;
 		EndDo;
 		CommitTransaction();
@@ -959,7 +965,7 @@ Procedure AddStampsToSpreadsheetDocument(Document, StampsDetails, CellSize = Und
 										TableCellArea = Document.Area(LineNumber, ColumnNumber);
 										
 										If IsBlankString(TableCellArea.Text)
-											And TableCellArea.Left = TableWidth
+											And TableCellArea.Left = ColumnNumber
 											And TableCellArea.Top = LineNumber
 											And TableCellArea.RightBorder.LineType = SpreadsheetDocumentCellLineType.None
 											And TableCellArea.BottomBorder.LineType = SpreadsheetDocumentCellLineType.None
@@ -1445,7 +1451,7 @@ EndFunction
 // 
 //
 // Parameters:
-//   Signature - BinaryData - signature file.
+//   Signature - BinaryData -
 //   ShouldReadCertificates - Boolean -
 //                                   
 //
@@ -2059,6 +2065,33 @@ Function CMSParameters() Export
 	
 EndFunction
 
+// 
+// 
+// Parameters:
+//  Certificate - CryptoCertificate
+//  OnDate - Undefined, Date -
+//  ThisVerificationSignature - Boolean -
+// 
+// Returns:
+//  Structure - 
+//   * Valid_SSLyf - Boolean - 
+//                 
+//   * FoundintheListofCAs - Boolean -
+//   * IsState - Boolean -
+//                                
+//   
+//   * ThisIsQualifiedCertificate - Boolean -
+//   * Warning - Structure -
+//                       ** ErrorText - String
+//                       ** PossibleReissue - Boolean -
+//                       ** Cause - String -
+//                       ** Decision - String -
+//
+Function ResultofCertificateAuthorityVerification(Certificate, OnDate = Undefined, ThisVerificationSignature = False) Export
+	
+	Return DigitalSignatureInternal.ResultofCertificateAuthorityVerification(Certificate, OnDate, ThisVerificationSignature);
+	
+EndFunction
 
 #EndRegion
 
@@ -2095,6 +2128,60 @@ EndFunction
 #EndRegion
 
 #Region Internal
+
+// 
+// 
+// Parameters:
+//  SignatureData - BinaryData
+//                - String - 
+// 
+// Returns:
+//  BinaryData - 
+//
+Function DEREncodedSignature(SignatureData) Export
+	
+	BinaryData = DigitalSignatureInternalClientServer.BinaryDataFromTheData(SignatureData,
+		"DigitalSignature.DEREncodedSignature");
+	
+	TempFileFullName = GetTempFileName();
+	BinaryData.Write(TempFileFullName);
+	Text = New TextDocument;
+	Text.Read(TempFileFullName);
+	
+	Try
+		DeleteFiles(TempFileFullName);
+	Except
+		WriteLogEvent(
+			NStr("en = 'Электронная подпись.Удаление временного файла';",
+				Common.DefaultLanguageCode()),
+			EventLogLevel.Error, , ,
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+	EndTry;
+	
+	Base64Row = Undefined;
+	If Text.LineCount() > 3 And StrStartsWith(Text.GetLine(1), "-----BEGIN")
+		And StrStartsWith(Text.GetLine(Text.LineCount()), "-----END") Then
+		Text.DeleteLine(1);
+		Text.DeleteLine(Text.LineCount());
+		Base64Row = Text.GetText();
+	ElsIf StrStartsWith(Text.GetLine(1), "MI") Then
+		Base64Row = Text.GetText();
+	EndIf;
+	
+	If Base64Row <> Undefined Then
+		Try
+			BinaryData = Base64Value(Base64Row);
+		Except
+			ErrorInfo = ErrorInfo();
+			Raise StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Не удалось получить данные из файла подписи по причине:
+						|%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
+		EndTry;
+	EndIf;
+	
+	Return BinaryData;
+	
+EndFunction
 
 // Returns the encrypted data viewability flag.
 //
@@ -2522,7 +2609,9 @@ Procedure AddSignatureRows(DataObject, PropertiesSignatures, EventLogMessage)
 	For Each SignatureProperties In SignaturePropertiesArray Do
 
 		NewRecord = InformationRegisters.DigitalSignatures.CreateRecordManager();
-
+		
+		NewSignatureProperties = DigitalSignatureClientServer.NewSignatureProperties();
+		FillPropertyValues(NewSignatureProperties, SignatureProperties);
 		FillPropertyValues(NewRecord, SignatureProperties, , "Signature, Certificate");
 
 		NewRecord.SignedObject = DataObject.Ref;
@@ -2547,7 +2636,7 @@ Procedure AddSignatureRows(DataObject, PropertiesSignatures, EventLogMessage)
 			SignatureDate = SigningDate(SignatureProperties.Signature);
 		Else
 			SignatureParameters = DigitalSignatureInternalClientServer.SignaturePropertiesFromBinaryData(
-					SignatureProperties.Signature, DigitalSignatureInternal.TimeAddition());
+				SignatureProperties.Signature, DigitalSignatureInternal.TimeAddition());
 			If ValueIsFilled(SignatureParameters.SigningDate) Then
 				SignatureDate = SignatureParameters.SigningDate;
 			EndIf;
@@ -2560,11 +2649,16 @@ Procedure AddSignatureRows(DataObject, PropertiesSignatures, EventLogMessage)
 		ElsIf Not ValueIsFilled(NewRecord.SignatureDate) Then
 			NewRecord.SignatureDate = CurrentSessionDate();
 		EndIf;
+		
+		If Not ValueIsFilled(NewRecord.SignatureID) Then
+			NewRecord.SignatureID = New UUID;
+		EndIf;
 
 		EventLogMessage = DigitalSignatureInternal.SignatureInfoForEventLog(
 				NewRecord.SignatureDate, SignatureProperties);
 
 		NewRecord.Write();
+		
 
 		WriteLogEvent(
 				NStr("en = 'Digital signature.Add signature';", Common.DefaultLanguageCode()),
@@ -2580,7 +2674,7 @@ EndProcedure
 Procedure DeleteSignatureRows(SignedObject, SequenceNumbers, EventLogMessage)
 	
 	HasRightsToDeleteOthersSignatures = Users.IsFullUser() 
-		Or Users.RolesAvailable("DeletingElectronicSignatures");
+		Or Users.RolesAvailable("RemoveDigitalSignatures");
 
 	SetPrivilegedMode(True);
 
@@ -2591,18 +2685,25 @@ Procedure DeleteSignatureRows(SignedObject, SequenceNumbers, EventLogMessage)
 	EndIf;
 
 	Query = New Query;
-	Query.Text =
-	"SELECT
-	|	DigitalSignatures.SequenceNumber AS SequenceNumber,
-	|	DigitalSignatures.SignedObject AS SignedObject
-	|FROM
-	|	InformationRegister.DigitalSignatures AS DigitalSignatures
-	|WHERE
-	|	DigitalSignatures.SequenceNumber IN (&SequenceNumbersArray)
-	|	AND DigitalSignatures.SignedObject = &SignedObject
-	|
-	|ORDER BY
-	|	SequenceNumber DESC";
+	
+	If Common.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
+		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal = Common.CommonModule("MachineReadableAuthorizationLettersOfFederalTaxServiceInternal");
+		Query.Text = ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal.QueryTextForDeletingElectronicSignatures();
+	Else
+		Query.Text =
+			"SELECT
+			|	DigitalSignatures.SequenceNumber AS SequenceNumber,
+			|	DigitalSignatures.SignedObject AS SignedObject,
+			|	0 AS ThereAreSignaturesOnMCHD
+			|FROM
+			|	InformationRegister.DigitalSignatures AS DigitalSignatures
+			|WHERE
+			|	DigitalSignatures.SequenceNumber IN(&SequenceNumbersArray)
+			|	AND DigitalSignatures.SignedObject = &SignedObject
+			|
+			|ORDER BY
+			|	SequenceNumber DESC";
+	EndIf;
 
 	Query.SetParameter("SequenceNumbersArray", SequenceNumbersArray);
 	Query.SetParameter("SignedObject", SignedObject.Ref);
@@ -2629,12 +2730,17 @@ Procedure DeleteSignatureRows(SignedObject, SequenceNumbers, EventLogMessage)
 		SignatureProperties.Insert("CertificateOwner", RecordManager.CertificateOwner);
 
 		EventLogMessage = DigitalSignatureInternal.SignatureInfoForEventLog(
-		RecordManager.SignatureDate, SignatureProperties);
+			RecordManager.SignatureDate, SignatureProperties);
 
 		If HasRights Then
 			RecordManager.Delete();
 		Else
 			Raise NStr("en = 'Insufficient rights to delete the signature.';");
+		EndIf;
+		
+		If SelectionDetailRecords.ThereAreSignaturesOnMCHD > 0 Then
+			ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal.DeleteMachineReadableSignatureAuthorizationLetter(
+				SignedObject.Ref, SelectionDetailRecords.SignatureID);
 		EndIf;
 
 		WriteLogEvent(
@@ -2729,7 +2835,7 @@ Procedure CheckParameterObject(Object, ProcedureName, RefsOnly = False)
 EndProcedure
 
 Procedure FillSignatureVerificationResult(
-	Result, ResultStructure = Undefined, CheckRequired2 = Undefined, CertificateRevoked = False)
+	Result, ResultStructure = Undefined, IsVerificationRequired = Undefined, CertificateRevoked = False)
 	
 	If ResultStructure <> Undefined Then
 				
@@ -2737,22 +2843,22 @@ Procedure FillSignatureVerificationResult(
 		
 		If Result = True Then
 			ResultStructure.SignatureCorrect = True;
-			ResultStructure.CheckRequired2 = False;
+			ResultStructure.IsVerificationRequired = False;
 			Return;
 		EndIf;
 		
-		If CheckRequired2 <> Undefined Then
-			ResultStructure.CheckRequired2 = CheckRequired2;
+		If IsVerificationRequired <> Undefined Then
+			ResultStructure.IsVerificationRequired = IsVerificationRequired;
 		EndIf;
 		
-		If ResultStructure.CheckRequired2 = False Then
+		If ResultStructure.IsVerificationRequired = False Then
 			
 			If CertificateRevoked Then
 				ResultStructure.Result = DigitalSignatureInternalClientServer.ErrorTextForRevokedSignatureCertificate(
 					ResultStructure);
 			EndIf;
 			ResultStructure.CertificateRevoked = CertificateRevoked;
-			ResultStructure.CheckRequired2 = CheckRequired2;
+			ResultStructure.IsVerificationRequired = IsVerificationRequired;
 			
 			ResultStructure.SignatureCorrect = False;
 		EndIf;
@@ -2763,15 +2869,15 @@ EndProcedure
 
 Function IsSignatureVerificationRequired(ErrorDescription, ResultStructure)
 	
-	CheckRequired2 = Undefined;
+	IsVerificationRequired = Undefined;
 	If ValueIsFilled(ErrorDescription) And ResultStructure <> Undefined Then
 		ClassifierError = DigitalSignatureInternal.ClassifierError(ErrorDescription, True);
 		If ClassifierError <> Undefined Then
-			CheckRequired2 = ClassifierError.IsCheckRequired;
+			IsVerificationRequired = ClassifierError.IsCheckRequired;
 		EndIf;
 	EndIf;
 	
-	Return CheckRequired2;
+	Return IsVerificationRequired;
 	
 EndFunction
 

@@ -245,16 +245,16 @@ EndProcedure
 Function CreateRequestToUseExternalResources(ConstantName)
 	
 	ConstantManager = Constants[ConstantName];
-	ConstantValue1 = ConstantsSet[ConstantName];
+	ConstantValue = ConstantsSet[ConstantName];
 	
-	If ConstantManager.Get() = ConstantValue1 Then
+	If ConstantManager.Get() = ConstantValue Then
 		Return Undefined;
 	EndIf;
 	
 	If ConstantName = "UseDataSynchronization" Then
 		
 		ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
-		If ConstantValue1 Then
+		If ConstantValue Then
 			Query = ModuleDataExchangeServer.RequestToUseExternalResourcesOnEnableExchange();
 		Else
 			Query = ModuleDataExchangeServer.RequestToClearPermissionsToUseExternalResources();
@@ -267,14 +267,14 @@ Function CreateRequestToUseExternalResources(ConstantName)
 		ConstantID = Common.MetadataObjectID(ValueManager.Metadata());
 		
 		ModuleSafeModeManager = Common.CommonModule("SafeModeManager");
-		If IsBlankString(ConstantValue1) Then
+		If IsBlankString(ConstantValue) Then
 			
 			Query = ModuleSafeModeManager.RequestToClearPermissionsToUseExternalResources(ConstantID);
 			
 		Else
 			
 			Permissions = CommonClientServer.ValueInArray(
-				ModuleSafeModeManager.PermissionToUseFileSystemDirectory(ConstantValue1, True, True));
+				ModuleSafeModeManager.PermissionToUseFileSystemDirectory(ConstantValue, True, True));
 			Query = ModuleSafeModeManager.RequestToUseExternalResources(Permissions, ConstantID);
 			
 		EndIf;
@@ -294,7 +294,7 @@ Procedure RefreshSecurityProfilesPermissionsCompletion(Result, Item) Export
 		
 	Else
 		
-		ThisObject.Read();
+		Read();
 	
 	EndIf;
 	
@@ -327,10 +327,10 @@ Function SaveAttributeValue(DataPathAttribute)
 	
 	ConstantName = NameParts[1];
 	ConstantManager = Constants[ConstantName];
-	ConstantValue1 = ConstantsSet[ConstantName];
+	ConstantValue = ConstantsSet[ConstantName];
 	
-	If ConstantManager.Get() <> ConstantValue1 Then
-		ConstantManager.Set(ConstantValue1);
+	If ConstantManager.Get() <> ConstantValue Then
+		ConstantManager.Set(ConstantValue);
 	EndIf;
 	
 	Return ConstantName;

@@ -257,7 +257,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 	If ValueIsFilled(CopyingValue)
 	   And Not ValueIsFilled(Object.Ref)
 	   And CommonClient.SubsystemExists("StandardSubsystems.AccessManagement")
-	   And (Not WriteParameters.Property("DoNotCopyUserRights")
+	   And (Not WriteParameters.Property("NotCopyUserRights")
 	      And Not WriteParameters.Property("CopyUserRights")) Then
 		
 		Cancel = True;
@@ -753,7 +753,7 @@ Procedure PagesOnCurrentPageChange(Item, CurrentPage)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties")
 		And CurrentPage.Name = "AdditionalAttributesPage"
-		And Not ThisObject.PropertiesParameters.DeferredInitializationExecuted Then
+		And Not PropertiesParameters.DeferredInitializationExecuted Then
 		
 		PropertiesExecuteDeferredInitialization();
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
@@ -1421,7 +1421,7 @@ Procedure AfterAnswerToQuestionAboutCopyingRights(Response, WriteParameters) Exp
 	If Response = DialogReturnCode.Yes Then
 		WriteParameters.Insert("CopyUserRights");
 	Else
-		WriteParameters.Insert("DoNotCopyUserRights");
+		WriteParameters.Insert("NotCopyUserRights");
 	EndIf;
 	Write(WriteParameters);
 	

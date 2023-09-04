@@ -93,7 +93,7 @@
 							<ShowTitle>false</ShowTitle>
 							<ExtendedTooltip name="DataSynchronizationGroup1ExtendedTooltip" id="2054"/>
 							<ChildItems>
-								<UsualGroup name="DataSynchronizationGroupFlag" id="2035">
+								<UsualGroup name="GroupDataSynchronizationFlag" id="2035">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>

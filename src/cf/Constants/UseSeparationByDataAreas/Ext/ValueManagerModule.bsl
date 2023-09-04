@@ -41,7 +41,7 @@ Procedure OnWrite(Cancel)
 	
 	If Value Then
 		
-		Constants.DoNotUseSeparationByDataAreas.Set(False);
+		Constants.NotUseSeparationByDataAreas.Set(False);
 		If Common.IsStandaloneWorkplace() Then
 			
 			ModuleStandaloneMode = Common.CommonModule("StandaloneMode");
@@ -51,11 +51,11 @@ Procedure OnWrite(Cancel)
 		
 	ElsIf Common.IsStandaloneWorkplace() Then
 		
-		Constants.DoNotUseSeparationByDataAreas.Set(False);
+		Constants.NotUseSeparationByDataAreas.Set(False);
 		
 	Else
 		
-		Constants.DoNotUseSeparationByDataAreas.Set(True);
+		Constants.NotUseSeparationByDataAreas.Set(True);
 		
 	EndIf;
 	

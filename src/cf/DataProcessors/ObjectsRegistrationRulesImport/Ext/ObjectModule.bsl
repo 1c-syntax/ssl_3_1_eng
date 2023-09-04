@@ -13,7 +13,7 @@
 
 Var Registration Export; // 
 Var ObjectsRegistrationRules Export; // 
-Var ErrorFlag Export; // 
+Var FlagErrors Export; // 
 
 Var StringType;
 Var BooleanType;
@@ -44,7 +44,7 @@ Var ErrorsMessages; // Соответствие. Ключ -
 //
 Procedure ImportRules(Val FileName, InformationOnly = False) Export
 	
-	ErrorFlag = False;
+	FlagErrors = False;
 	
 	If IsBlankString(FileName) Then
 		ReportProcessingError(4);
@@ -68,7 +68,7 @@ Procedure ImportRules(Val FileName, InformationOnly = False) Export
 	EndTry;
 	
 	// Error reading rules from the file.
-	If ErrorFlag Then
+	If FlagErrors Then
 		Return;
 	EndIf;
 	
@@ -100,7 +100,7 @@ Function RulesInformation() Export
 	// Function return value.
 	InfoString = "";
 	
-	If ErrorFlag Then
+	If FlagErrors Then
 		Return InfoString;
 	EndIf;
 	
@@ -208,7 +208,7 @@ Procedure LoadRecord(Rules, InformationOnly)
 				// Checking whether ORR are imported for the required exchange plan.
 				CheckExchangePlanExists();
 				
-				If ErrorFlag Then
+				If FlagErrors Then
 					Break; // Rules contain wrong exchange plan.
 				EndIf;
 				
@@ -886,7 +886,7 @@ Function GetPropertyConditionText(Rule, ObjectProperties)
 		
 		ObjectPropertyKey = StrReplace(Rule.ObjectProperty1, ".", "_");
 		
-		QueryParameterLiteral = "&ObjectProperty_" + ObjectPropertyKey + "";
+		QueryParameterLiteral = "&ObjectProperty1_" + ObjectPropertyKey + "";
 		
 		ObjectProperties.Insert(ObjectPropertyKey, Rule.ObjectProperty1);
 		
@@ -942,7 +942,7 @@ EndProcedure
 Procedure ReportProcessingError(Code = -1, ErrorDescription = "")
 	
 	// 
-	ErrorFlag = True;
+	FlagErrors = True;
 	
 	If ErrorsMessages = Undefined Then
 		ErrorsMessages = InitMessages();
@@ -1191,7 +1191,7 @@ EndFunction
 // 
 Procedure InitAttributesAndModuleVariables()
 	
-	ErrorFlag = False;
+	FlagErrors = False;
 	
 	// Типы
 	StringType            = Type("String");

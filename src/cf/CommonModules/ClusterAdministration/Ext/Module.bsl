@@ -330,7 +330,7 @@ EndProcedure
 //          DBMS connection capture.
 //     * IConnectionShort - Structure
 //                          - Undefined -  
-//                  See ClusterAdministration.СвойстваОписанияСоединения().
+//                  See ClusterAdministration.ConnectionDetailsProperties.
 //     * Sleep - Boolean - the session is in the sleep mode.
 //     * TerminateIn - Number - a time interval in seconds, after which the session in sleep mode is terminated.
 //     * SleepIn - Number - a time interval in seconds, after which an inactive session is put into sleep
@@ -342,7 +342,7 @@ EndProcedure
 //                                         5 minutes.
 //     * ILicenseInfo - Structure
 //                - Undefined - 
-//                  See ClusterAdministration.СвойстваЛицензии(). 
+//                  See ClusterAdministration.LicenseProperties. 
 //                  
 //     * OccupiedMemory - Number - contains memory volume in bytes used in the process of calls since the session start.
 //     * OccupiedMemoryInCurrentCall - Number - contains memory volume in bytes used since the start of the current call. 
@@ -355,7 +355,7 @@ EndProcedure
 //                                        minutes.
 //     * IWorkingProcessInfo - Structure
 //                      - Undefined -  
-//                  See ClusterAdministration.СвойстваРабочегоПроцесса(). 
+//                  See ClusterAdministration.WorkingProcessProperties. 
 //                   
 //
 Function SessionProperties() Export
@@ -785,7 +785,8 @@ EndFunction
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.ФильтрСоединений, Array Of See ClusterAdministration.JoinsFilters
+//   Filter - See ClusterAdministration.JoinsFilters 
+//          See ClusterAdministration.JoinsFilters
 //
 // Returns: 
 //   Array of See ClusterAdministration.ConnectionProperties
@@ -1469,7 +1470,8 @@ EndFunction
 //   ClusterID - String - Internal server cluster ID.
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   InfoBaseID - String - Internal infobase ID.
-//   Filter - See ClusterAdministration.ФильтрСеансов, Array Of See ClusterAdministration.SessionsFilter
+//   Filter - See ClusterAdministration.SessionsFilter
+//          See ClusterAdministration.SessionsFilter
 //   UseDictionary - Boolean - If True, the return value is generated using a dictionary.
 //
 // Returns: 
@@ -1496,7 +1498,8 @@ EndFunction
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   InfoBaseID - String - Internal infobase ID.
 //   InfobaseAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.ФильтрСоединений, Array Of See ClusterAdministration.JoinsFilters
+//   Filter - See ClusterAdministration.JoinsFilters
+//          See ClusterAdministration.JoinsFilters
 //   UseDictionary - Boolean - If True, the return value is generated using a dictionary.
 //
 // Returns: 

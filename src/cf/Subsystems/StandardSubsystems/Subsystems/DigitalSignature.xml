@@ -86,7 +86,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">Enum.DigitalSignatureAppUsageModes</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.TypesOfCertificates</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.CertificateRevocationLists</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">Role.DeletingElectronicSignatures</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Role.RemoveDigitalSignatures</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

@@ -35,9 +35,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ModuleCryptographyServiceDSSConfirmationServer.ConfirmationWhenChangingCertificate(ThisObject, Certificate);
 	EndIf;
 	
-	If DigitalSignature.AvailableAdvancedSignature() Then
-		SetSignatureType(Parameters.SignatureType);
-	Else
+	SetSignatureType(Parameters.SignatureType);
+	
+	If Not DigitalSignature.AvailableAdvancedSignature() Then
 		SignatureType = Undefined;
 		Items.SignatureType.Visible = False;
 	EndIf;
@@ -100,7 +100,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	
 	ElsIf Upper(EventName) = Upper("ConfirmationPrepareData") And Source = UUID Then
 		DigitalSignatureInternalClient.GetDataForACloudSignature(
-			Parameter.TheHandlerIsAsFollows, Parameter.TheFormContext, 
+			Parameter.HandlerNext, Parameter.TheFormContext, 
 			Parameter.DataDetails, Parameter.Data, True);
 	
 	EndIf;
@@ -110,6 +110,20 @@ EndProcedure
 #EndRegion
 
 #Region FormHeaderItemsEventHandlers
+
+&AtClient
+Procedure ChoosingAuthorizationLetterWhenChanging(Item)
+	
+	Items.GroupPages.CurrentPage = ?(ByAuthorizationLetter, Items.AuthorizationLetterSelectionPage,
+		Items.PageWithoutAuthorizationLetter);
+	
+	If Not ByAuthorizationLetter Then
+		MachineReadableAuthorizationLetter = Undefined;
+	Else
+		AttachIdleHandler("Attachable_PickUpAuthorizationLetter", 0.1, True);
+	EndIf;
+	
+EndProcedure
 
 &AtClient
 Procedure DataPresentationClick(Item, StandardProcessing)
@@ -330,6 +344,7 @@ Procedure SetSignatureType(Val ParameterSignatureType)
 		NewParameterSignatureType.Insert("SignatureTypes", New Array);
 		NewParameterSignatureType.Insert("Visible", False);
 		NewParameterSignatureType.Insert("Enabled", False);
+		NewParameterSignatureType.Insert("ChoosingAuthorizationLetter", False);
 		If ValueIsFilled(ParameterSignatureType) Then
 			NewParameterSignatureType.SignatureTypes.Add(ParameterSignatureType);
 		EndIf;
@@ -358,6 +373,19 @@ Procedure SetSignatureType(Val ParameterSignatureType)
 	
 	Items.SignatureType.Visible = ParameterSignatureType.Visible;
 	Items.SignatureType.Enabled = ParameterSignatureType.Enabled;
+	
+	If Common.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
+		Items.PowerOfAttorneyGroup.Visible = ParameterSignatureType.ChoosingAuthorizationLetter;
+		If ParameterSignatureType.ChoosingAuthorizationLetter Then
+			Items.GroupPages.CurrentPage = ?(ByAuthorizationLetter, Items.AuthorizationLetterSelectionPage,
+				Items.PageWithoutAuthorizationLetter);
+			If ByAuthorizationLetter Then
+				PickUpAuthorizationLetter();
+			EndIf;
+		EndIf;
+	Else
+		Items.PowerOfAttorneyGroup.Visible = False;
+	EndIf;
 	
 	If Items.SignatureType.Visible Then
 		TypesList = New ValueList;
@@ -532,13 +560,13 @@ Procedure PerformSigning(ClientParameters, CompletionProcessing) Export
 	ProcessingAfterWarning = CompletionProcessing;
 	
 	Context = New Structure("CompletionProcessing", CompletionProcessing);
-	SignData(New NotifyDescription("ExecuteSigningCompletion", ThisObject, Context));
+	SignData(New NotifyDescription("PerformSigningCompletion", ThisObject, Context));
 	
 EndProcedure
 
 // Continues the ExecuteSigning procedure.
 &AtClient
-Procedure ExecuteSigningCompletion(Result, Context) Export
+Procedure PerformSigningCompletion(Result, Context) Export
 	
 	ExecuteNotifyProcessing(Context.CompletionProcessing, Result);
 	
@@ -548,13 +576,13 @@ EndProcedure
 Procedure OnChangeCertificatesList()
 	
 	DigitalSignatureInternalClient.GetCertificatesThumbprintsAtClient(
-		New NotifyDescription("OnChangeCertificateListCompletion", ThisObject));
+		New NotifyDescription("OnChangeCertificatesListCompletion", ThisObject));
 	
 EndProcedure
 
 // Continues the OnChangeCertificatesList procedure.
 &AtClient
-Procedure OnChangeCertificateListCompletion(CertificatesThumbprintsAtClient, Context) Export
+Procedure OnChangeCertificatesListCompletion(CertificatesThumbprintsAtClient, Context) Export
 	
 	CertificateOnChangeAtServer(CertificatesThumbprintsAtClient, True);
 	
@@ -580,8 +608,49 @@ Procedure CertificateOnChangeAtServer(CertificatesThumbprintsAtClient, CheckRef 
 		ModuleCryptographyServiceDSSConfirmationServer.ConfirmationWhenChangingCertificate(ThisObject, Certificate);
 	EndIf;
 	
+	If ByAuthorizationLetter Then
+		PickUpAuthorizationLetter();
+	EndIf;
+	
 	RefreshVisibilityWarnings();
 	
+EndProcedure
+
+&AtClient
+Procedure Attachable_PickUpAuthorizationLetter()
+	PickUpAuthorizationLetter()
+EndProcedure
+
+&AtServer
+Procedure PickUpAuthorizationLetter()
+	
+	If Not Common.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
+		Return;
+	EndIf;
+		
+	MachineReadableAuthorizationLetter = Undefined;
+	Items.MachineReadableAuthorizationLetter.ChoiceList.Clear();
+	Items.MachineReadableAuthorizationLetter.ListChoiceMode = False;
+	
+	ModuleMachineReadableAuthorizationLettersOfFederalTaxService = Common.CommonModule("MachineReadableAuthorizationLettersOfFederalTaxService");
+	CryptoCertificate = New CryptoCertificate(GetFromTempStorage(AddressOfCertificate));
+	SelectionForAuthorizationLettersByCertificate = ModuleMachineReadableAuthorizationLettersOfFederalTaxService.SelectionForAuthorizationLettersByCertificate(CryptoCertificate);
+	SelectedFields = New Array;
+	SelectedFields.Add("MachineReadableAuthorizationLetter");
+	SelectedFields.Add("Presentation");
+	SelectedFields.Add("DateOfIssue1");
+	LettersOfAuthority = ModuleMachineReadableAuthorizationLettersOfFederalTaxService.AuthorizationLettersWithSelection(SelectionForAuthorizationLettersByCertificate, SelectedFields);
+	
+	If LettersOfAuthority.Count() > 0 Then
+		Items.MachineReadableAuthorizationLetter.ListChoiceMode = True;
+		Items.MachineReadableAuthorizationLetter.ChoiceList.Clear();
+		For Each String In LettersOfAuthority Do
+			Items.MachineReadableAuthorizationLetter.ChoiceList.Add(String.MachineReadableAuthorizationLetter,
+				StrTemplate("%1, %2", String.Presentation, Format(String.DateOfIssue1, "DLF=D")));
+		EndDo;
+		MachineReadableAuthorizationLetter = Items.MachineReadableAuthorizationLetter.ChoiceList[0].Value;
+	EndIf;
+
 EndProcedure
 
 &AtClient
@@ -707,7 +776,7 @@ Procedure SignDataAfterSelectedCertificateVerified(Result, Context) Export
 		EndIf;
 		
 		Context.Insert("CertificateValid", False);
-		Context.Insert("CheckRequired2", Result.CheckRequired2);
+		Context.Insert("IsVerificationRequired", Result.IsVerificationRequired);
 		
 		Notification = New NotifyDescription("SignDataAfterInvalidSignatureWarning", ThisObject,
 			New Structure("Context, CertificateVerificationResult", Context, Result));
@@ -734,7 +803,7 @@ Procedure SignDataAfterSelectedCertificateVerified(Result, Context) Export
 	EndIf;
 	
 	Context.Insert("CertificateValid",   True);
-	Context.Insert("CheckRequired2", False);
+	Context.Insert("IsVerificationRequired", False);
 	SignDataAfterInvalidSignatureWarning(New Structure("Value", "AllowSigning"), 
 		New Structure("Context", Context));
 	
@@ -764,7 +833,8 @@ Procedure SignDataAfterInvalidSignatureWarning(Result, AdditionalParameters) Exp
 	SelectedCertificate.Insert("Ref",    Certificate);
 	SelectedCertificate.Insert("Thumbprint", ThumbprintOfCertificate);
 	SelectedCertificate.Insert("Data",    AddressOfCertificate);
-	DataDetails.Insert("SelectedCertificate", SelectedCertificate);
+	DataDetails.Insert("SelectedCertificate",   SelectedCertificate);
+	DataDetails.Insert("SelectedAuthorizationLetter", MachineReadableAuthorizationLetter);
 	
 	If DataDetails.Property("BeforeExecute")
 	   And TypeOf(DataDetails.BeforeExecute) = Type("NotifyDescription") Then
@@ -808,7 +878,7 @@ Procedure SignDataAfterProcesssingBeforeExecute(Result, Context) Export
 	ExecutionParameters.Insert("PasswordValue",     PasswordProperties.Value);
 	ExecutionParameters.Insert("AddressOfCertificate",    AddressOfCertificate);
 	ExecutionParameters.Insert("CertificateValid",    Context.CertificateValid);
-	ExecutionParameters.Insert("CheckRequired2",  Context.CheckRequired2);
+	ExecutionParameters.Insert("IsVerificationRequired",  Context.IsVerificationRequired);
 	
 	ExecutionParameters.Insert("FullDataPresentation",
 		DigitalSignatureInternalClient.FullDataPresentation(ThisObject));

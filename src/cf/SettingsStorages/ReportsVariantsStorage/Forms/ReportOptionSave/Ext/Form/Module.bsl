@@ -141,7 +141,7 @@ Procedure LongDescStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	StandardProcessing = False;
 	
-	Notification = New NotifyDescription("BeginSelectDetailsCompletion", ThisObject);
+	Notification = New NotifyDescription("LongDescStartChoiceCompletion", ThisObject);
 	CommonClient.ShowMultilineTextEditingForm(
 		Notification, Items.LongDesc.EditText, NStr("en = 'Details';"));
 	
@@ -471,7 +471,7 @@ Procedure SaveAndLoad()
 EndProcedure
 
 &AtClient
-Procedure BeginSelectDetailsCompletion(Val EnteredText, Val AdditionalParameters) Export
+Procedure LongDescStartChoiceCompletion(Val EnteredText, Val AdditionalParameters) Export
 	
 	If EnteredText = Undefined Then
 		Return;
@@ -944,7 +944,7 @@ Procedure FillPresentations(Variant)
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		
-		RequestTextMultilingualRequisites = "CASE
+		QueryTextMultilingualAttributes = "CASE
 		|		WHEN NOT FromConfiguration.DescriptionLanguage1 IS NULL
 		|			THEN FromConfiguration.DescriptionLanguage1
 		|		WHEN NOT FromExtensions.DescriptionLanguage1 IS NULL
@@ -977,10 +977,10 @@ Procedure FillPresentations(Variant)
 		|		ELSE CAST("""" AS STRING(1000))
 		|	END AS LongDescLanguage2";
 	Else
-		RequestTextMultilingualRequisites  = "TRUE";
+		QueryTextMultilingualAttributes  = "TRUE";
 	EndIf;
 	
-	QueryText = StrReplace(QueryText, "&NationalLanguageSupport", RequestTextMultilingualRequisites );
+	QueryText = StrReplace(QueryText, "&NationalLanguageSupport", QueryTextMultilingualAttributes );
 	
 	Query = New Query(QueryText);
 	Query.SetParameter("Variant", Variant);

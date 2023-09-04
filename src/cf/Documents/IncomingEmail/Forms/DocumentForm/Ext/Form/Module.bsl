@@ -33,7 +33,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	RestrictedExtensions = FilesOperationsInternal.DeniedExtensionsList();
 	DoDisplayImportance();
 	
-	// 
 	Interactions.FillChoiceListForReviewAfter(Items.ReviewAfter.ChoiceList);
 	If Reviewed Then
 		Items.ReviewAfter.Enabled = False;
@@ -114,7 +113,6 @@ Procedure OnReadAtServer(CurrentObject)
 		
 	EndIf;
 	
-	// Setting a text and its kind.
 	If Object.TextType = Enums.EmailTextTypes.HTML Then
 		ReadHTMLEmailText();
 		Items.EmailText.Type = FormFieldType.HTMLDocumentField;
@@ -125,7 +123,6 @@ Procedure OnReadAtServer(CurrentObject)
 	EndIf;
 	SetSecurityWarningVisiblity();
 	
-	// Generate a sender presentation.
 	SenderPresentation = InteractionsClientServer.GetAddresseePresentation(
 		Object.SenderPresentation, Object.SenderAddress,"");
 	
@@ -280,7 +277,7 @@ Procedure DetailsPagesAdditionalOnCurrentPageChange(Item, CurrentPage)
 	// StandardSubsystems.Properties
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties")
 		And CurrentPage.Name = "AdditionalAttributesPage"
-		And Not ThisObject.PropertiesParameters.DeferredInitializationExecuted Then
+		And Not PropertiesParameters.DeferredInitializationExecuted Then
 		
 		PropertiesExecuteDeferredInitialization();
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
@@ -321,7 +318,6 @@ EndProcedure
 &AtClient
 Procedure EditRecipients()
 	
-	// Get the addressee list.
 	SendersArray = New Array;
 	SendersArray.Add(New Structure("Address,Presentation,Contact",
 		Object.SenderAddress,
@@ -343,7 +339,6 @@ Procedure EditRecipients()
 	FormParameters.Insert("SubjectOf", SubjectOf);
 	FormParameters.Insert("MailMessage", Object.Ref);
 	
-	// Opening a form to edit an addressee list.
 	OpenForm("CommonForm.ContactsClarification", FormParameters, ThisObject);
 	
 EndProcedure
@@ -376,7 +371,6 @@ Procedure FillClarifiedContacts(Result)
 	
 	EndDo;
 	
-	// Generate the sender presentation.
 	SenderPresentation = InteractionsClientServer.GetAddresseePresentation(
 		Object.SenderPresentation, Object.SenderAddress, "");
 	

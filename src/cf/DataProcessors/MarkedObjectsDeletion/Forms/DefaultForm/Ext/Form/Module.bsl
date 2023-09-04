@@ -1658,7 +1658,7 @@ Function StartMarkedObjectsDeletionServer(FormUniqueID, PreviousStepResult, Repe
 			PreviousStepResultValue,
 			FormUniqueID);
 	Else
-		DeletionParameters = ParametersForDeletingMarkedObjects(ObjectsToDeleteSource, ResultingDeletionMode,
+		DeletionParameters = ParametersOfMarkedObjectsDeletion(ObjectsToDeleteSource, ResultingDeletionMode,
 			AdditionalAttributesSettings, PreviousStepResultValue, FormUniqueID);
 		BatchesCount = DeletionParameters.Count();
 		
@@ -1670,7 +1670,7 @@ Function StartMarkedObjectsDeletionServer(FormUniqueID, PreviousStepResult, Repe
 EndFunction
 
 &AtServer
-Function ParametersForDeletingMarkedObjects(ObjectsToDeleteSource, ResultingDeletionMode,
+Function ParametersOfMarkedObjectsDeletion(ObjectsToDeleteSource, ResultingDeletionMode,
 	AdditionalAttributesSettings, PreviousStepResultValue, FormUniqueID)
 	
 	If ObjectsToDeleteSource = Undefined Then
@@ -1760,7 +1760,7 @@ Procedure ProcessDeletionExecutionResult(DeletionResultsInfo)
 		Items.PartialDeletionStateLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Deleted %1 of %2.';"),
 			DeletionResultsInfo.DeletedItemsCount1,
-	 		DeletionResultsInfo.NotDeletedItemsCount + DeletionResultsInfo.DeletedItemsCount1);
+	 		DeletionResultsInfo.NotDeletedItemsCount1 + DeletionResultsInfo.DeletedItemsCount1);
 		SetStateUnsuccessfulDeletionWithStatePanel();
 	ElsIf DeletionResultsInfo.DeletedItemsCount1 > 0 Then
 		SetObjectsMarkedForDeletionSelectionStateWithStatePanel();
@@ -1917,8 +1917,8 @@ Function GenerateDeletionResult(ResultInfo, BackgroundExecutionResult, ResultSto
 	
 	CommonClientServer.SupplementArray(Result.Trash, BackgroundExecutionResult.Trash);
 	Result.DeletedItemsCount1 = BackgroundExecutionResult.DeletedItemsCount + Result.DeletedItemsCount1;
-	Result.NotDeletedItemsCount = BackgroundExecutionResult.NotDeletedObjectsCount + Result.NotDeletedItemsCount;
-	Result.Success = Result.DeletedItemsCount1 > 0 And Result.NotDeletedItemsCount = 0;
+	Result.NotDeletedItemsCount1 = BackgroundExecutionResult.NotDeletedObjectsCount + Result.NotDeletedItemsCount1;
+	Result.Success = Result.DeletedItemsCount1 > 0 And Result.NotDeletedItemsCount1 = 0;
 	
 	NotDeletedResultItemRelations = MarkedObjectsDeletionInternal.TablesMerge(
 			ItemsPreventingDeletionResult,

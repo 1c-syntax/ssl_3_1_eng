@@ -42,10 +42,10 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 			Command.Kind = "Administration";
 			Command.Importance = "SeeAlso";
 			Command.Presentation = NStr("en = 'Edit selected…';");
-			Command.WriteMode = "DoNotWrite";
+			Command.WriteMode = "NotWrite";
 			Command.Purpose = "ForList";
 			Command.MultipleChoice = True;
-			Command.Handler = "BatchEditObjectsClient.CommandHandler";
+			Command.Handler = "BatchEditObjectsClient.HandlerCommands";
 			Command.OnlyInAllActions = True;
 			Command.Order = 20;
 			

@@ -124,7 +124,7 @@ Procedure DeviceNameStartChoice(Item, StandardProcessing)
 			ChoiceList.Add(String);
 		EndDo;
 	
-		NotifyDescription = New NotifyDescription("DeviceNameChoiceStartCompletion", ThisObject, Item);
+		NotifyDescription = New NotifyDescription("DeviceNameStartChoiceCompletion", ThisObject, Item);
 		ChoiceList.ShowChooseItem(NotifyDescription, NStr("en = 'Select scanner';"));
 	Else
 		ShowMessageBox(,NStr("en = 'No connected scanners are found. Check scanner connection.';"));
@@ -187,7 +187,7 @@ Procedure RefreshStatus()
 	Items.PaperSize.Enabled = False;
 	Items.DuplexScanning.Enabled = False;
 	Items.CustomizeStandardSettings.Enabled = False;
-	Items.SaveToPDF.Enabled = False;
+	Items.ShouldSaveAsPDF.Enabled = False;
 	Items.JPGQuality.Enabled = False;
 	Items.TIFFDeflation.Enabled = False;
 	Items.MultipageStorageFormat.Enabled = False;
@@ -223,7 +223,7 @@ Procedure UpdateStateAfterInitialization(InitializationCheckResult, Context) Exp
 	Items.Resolution.Enabled = True;
 	Items.Chromaticity.Enabled = True;
 	Items.CustomizeStandardSettings.Enabled = True;
-	Items.SaveToPDF.Enabled = True;
+	Items.ShouldSaveAsPDF.Enabled = True;
 	Items.JPGQuality.Enabled = True;
 	Items.TIFFDeflation.Enabled = True;
 	Items.MultipageStorageFormat.Enabled = True;
@@ -269,7 +269,7 @@ Procedure ReadScannerSettings()
 		Items.Resolution.Enabled = True;
 		Items.Chromaticity.Enabled = True;
 		Items.CustomizeStandardSettings.Enabled = True;
-		Items.SaveToPDF.Enabled = True;
+		Items.ShouldSaveAsPDF.Enabled = True;
 		Items.JPGQuality.Enabled = True;
 		Items.TIFFDeflation.Enabled = True;
 		Items.MultipageStorageFormat.Enabled = True;
@@ -325,7 +325,7 @@ EndProcedure
 Procedure InstallHints()
 	
 	FormatTooltip = "";
-	ExtendedTooltip = String(Items.SaveToPDF.ExtendedTooltip.Title); 
+	ExtendedTooltip = String(Items.ShouldSaveAsPDF.ExtendedTooltip.Title); 
 	Hints = StrSplit(ExtendedTooltip, Chars.LF);
 	CurFormat = String(ScannedImageFormat);
 	For Each ToolTip In Hints Do
@@ -339,7 +339,7 @@ Procedure InstallHints()
 EndProcedure
 
 &AtClient
-Procedure DeviceNameChoiceStartCompletion(SelectedElement, Item) Export
+Procedure DeviceNameStartChoiceCompletion(SelectedElement, Item) Export
 	If SelectedElement <> Undefined Then
 		DeviceName = SelectedElement.Value;
 		DeviceNameOnChange(Item);

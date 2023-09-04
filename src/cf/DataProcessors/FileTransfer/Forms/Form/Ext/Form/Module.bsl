@@ -117,7 +117,7 @@ Procedure ExecuteTransfer(Command)
 	EndIf;
 	
 	TimeConsumingOperation = ExecuteTransferAtServer();
-	CompletionNotification2 = New NotifyDescription("ExecuteTransferFinish", ThisObject);
+	CompletionNotification2 = New NotifyDescription("ExecuteTransferCompletion", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2);
 
 EndProcedure
@@ -127,7 +127,7 @@ EndProcedure
 #Region Private
 
 &AtClient
-Procedure ExecuteTransferFinish(Result, AdditionalParameters) Export
+Procedure ExecuteTransferCompletion(Result, AdditionalParameters) Export
 
 	If Result = Undefined Or Result.Status = "Canceled" Then
 		Return;

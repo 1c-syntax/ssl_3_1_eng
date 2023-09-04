@@ -222,7 +222,7 @@ Procedure Validate(Command)
 	AdditionalInspectionParameters = DigitalSignatureInternalClient.AdditionalCertificateVerificationParameters();
 	AdditionalInspectionParameters.MergeCertificateDataErrors = False;
 	DigitalSignatureInternalClient.CheckCertificate(New NotifyDescription(
-		"CheckCompletion", ThisObject), CertificateAddress,,, AdditionalInspectionParameters);
+		"ValidateCompletion", ThisObject), CertificateAddress,,, AdditionalInspectionParameters);
 	Items.FormValidate.Enabled = False;
 	
 EndProcedure
@@ -277,7 +277,7 @@ EndProcedure
 
 // Continues the Check procedure.
 &AtClient
-Procedure CheckCompletion(Result, Context) Export
+Procedure ValidateCompletion(Result, Context) Export
 	
 	If Result = True Then
 		ShowMessageBox(, NStr("en = 'Certificate is valid.';"));

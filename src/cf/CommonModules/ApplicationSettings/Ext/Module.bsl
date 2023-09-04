@@ -190,22 +190,9 @@ Procedure OnlineSupportAndServicesAllowSendDataOnChange(Form, Item, OperationPar
 	ApplicationInformationProcessingCenter = MonitoringCenterParameters.ApplicationInformationProcessingCenter;
 	
 	Result = GetDataSendingRadioButtons(EnableMonitoringCenter, ApplicationInformationProcessingCenter);
-	
 	If Result = 0 Or Result = 1 Then
-		// 
 		RunResult = ModuleMonitoringCenterInternal.StartDiscoveryPackageSending();
-	EndIf;
-	
-	If Result = 0 Then
-		// 
-		SchedJob = ModuleMonitoringCenterInternal.GetScheduledJobExternalCall(
-			"StatisticsDataCollectionAndSending",
-			True);
-		ModuleMonitoringCenterInternal.SetDefaultScheduleExternalCall(SchedJob);
-	ElsIf Result = 1 Then
-		SchedJob = ModuleMonitoringCenterInternal.GetScheduledJobExternalCall(
-			"StatisticsDataCollectionAndSending",
-			True);
+		SchedJob = ModuleMonitoringCenterInternal.GetScheduledJobExternalCall("StatisticsDataCollectionAndSending", True);
 		ModuleMonitoringCenterInternal.SetDefaultScheduleExternalCall(SchedJob);
 	ElsIf Result = 2 Then
 		ModuleMonitoringCenterInternal.DeleteScheduledJobExternalCall("StatisticsDataCollectionAndSending");
@@ -227,26 +214,11 @@ Procedure OnlineSupportAndServicesMonitoringCenterOnChange(Form, Item) Export
 	
 	Try
 		AddressStructure1 = CommonClientServer.URIStructure(Form.MonitoringCenterServiceAddress);
-		
-		If AddressStructure1.Schema = "http" Then
-			AddressStructure1.Insert("SecureConnection", False);
-		ElsIf AddressStructure1.Schema = "https" Then
-			AddressStructure1.Insert("SecureConnection", True);
-		Else
-			AddressStructure1.Insert("SecureConnection", False);
-		EndIf;
-		
+		AddressStructure1.Insert("SecureConnection", AddressStructure1.Schema = "https");
 		If Not ValueIsFilled(AddressStructure1.Port) Then
-			If AddressStructure1.Schema = "http" Then
-				AddressStructure1.Port = 80;
-			ElsIf AddressStructure1.Schema = "https" Then
-				AddressStructure1.Port = 443;
-			Else
-				AddressStructure1.Port = 80;
-			EndIf;
+			AddressStructure1.Port = ?(AddressStructure1.Schema = "https", 443, 80);
 		EndIf;
 	Except
-		//  
 		// 
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Service address %1 is not a valid web service address for sending application usage reports.';"),

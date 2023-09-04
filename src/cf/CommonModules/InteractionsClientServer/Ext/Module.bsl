@@ -117,13 +117,11 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Define the reference type.
 
-// Determines whether a reference passed to the function is an interaction or not.
-//
 // Parameters:
 //  ObjectRef  - AnyRef - a reference, to which a check is required.
 //
 // Returns:
-//   Boolean   - True if the passed reference is associated with an interaction.
+//   Boolean   - 
 //
 Function IsInteraction(ObjectRef) Export
 	
@@ -142,8 +140,6 @@ Function IsInteraction(ObjectRef) Export
 	
 EndFunction
 
-// Determines whether a reference passed to the function is an attached interaction file.
-//
 // Parameters:
 //  ObjectRef  - AnyRef - a reference, to which a check is required.
 //
@@ -161,11 +157,9 @@ Function IsAttachedInteractionsFile(ObjectRef) Export
 	
 EndFunction
 
-// Checks if the passed reference is an interaction subject.
-//
 // Parameters:
 //  ObjectRef - AnyRef - a reference, which is checked
-//                          if it is a reference to an interaction subject.
+//                               if it is a reference to an interaction subject.
 //
 // Returns:
 //   Boolean   - 
@@ -185,8 +179,6 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Miscellaneous.
 
-// Checks if a file is an email by file extension.
-//
 // Parameters:
 //  FileName  - String - a checked file name.
 //
@@ -201,8 +193,6 @@ Function IsFileEmail(FileName) Export
 	
 EndFunction
 
-// Generates an information row about the number of messages and characters left.
-//
 // Parameters:
 //  SendInTransliteration  - Boolean - SendInTransliteration - Boolean - indicates that a message 
 //                                   will be automatically transformed into Latin characters when sending it.
@@ -222,8 +212,6 @@ Function GenerateInfoLabelMessageCharsCount(SendInTransliteration, MessageText) 
 
 EndFunction
 
-// Generates an array of details on possible contact types
-// 
 // Returns:
 //  FixedArray of Structure - Includes:
 //     * Type                                 - Type     - a contact reference type.
@@ -252,7 +240,8 @@ Function ContactsDetails() Export
 	
 EndFunction
 
-// Checks filling of contacts in the interaction document and updates interaction document form//
+// 
+//
 // Parameters:
 //  Object - DocumentObject - an interaction document being checked.
 //  Form - ClientApplicationForm - a form for an interactions document.
@@ -270,8 +259,6 @@ Procedure CheckContactsFilling(Object,Form,DocumentKind) Export
 	
 EndProcedure
 
-// Gets the file size presentation as String.
-//
 // Parameters:
 //  SizeInBytes - Number - Attachment size in bytes.
 //
@@ -282,9 +269,9 @@ Function GetFileSizeStringPresentation(SizeInBytes) Export
 	
 	SizeMB = SizeInBytes / (1024*1024);
 	If SizeMB > 1 Then
-		StringSize = Format(SizeMB,"NFD=1") + " " + NStr("en = 'MB';");
+		StringSize = Format(SizeMB, "NFD=1") + " " + NStr("en = 'MB';");
 	Else
-		StringSize = Format(SizeInBytes /1024,"NFD=0; NZ=0") + " " + NStr("en = 'kB';");
+		StringSize = Format(SizeInBytes /1024, "NFD=0; NZ=0") + " " + NStr("en = 'kB';");
 	EndIf;
 	
 	Return StringSize;
@@ -304,14 +291,12 @@ Procedure QuickFilterListOnChange(Form, FilterName, DateForFilter = Undefined, I
 	
 	If FilterName = "Status" Then
 		
-		// 
 		CommonClientServer.DeleteFilterItems(Filter, "ReviewAfter");
 		CommonClientServer.DeleteFilterItems(Filter, "Reviewed");
 		If Not IsFilterBySubject Then
 			CommonClientServer.DeleteFilterItems(Filter, "SubjectOf");
 		EndIf;
 		
-		// Set filters for the mode.
 		If Form[FilterName] = "ToReview" Then
 			
 			CommonClientServer.SetFilterItem(Filter, "Reviewed", False,,, True);
@@ -445,8 +430,6 @@ Procedure OnChangeFilterInteractionType(Form,InteractionType) Export
 	
 EndProcedure
 
-// Generates an email addressee presentation.
-//
 // Parameters:
 //  Name     - String - a recipient's name.
 //  Address   - String - an addressee email address.
@@ -466,8 +449,6 @@ Function GetAddresseePresentation(Name, Address, Contact) Export
 	
 EndFunction
 
-// Generates a presentation of email addressee list for addressee collection.
-//
 // Parameters:
 //  AddresseesTable    - ValueTable - Table with addressee data.
 //  IncludeContactName - Boolean - Flag indicating whether to include it in contact details into the presentation.
@@ -490,16 +471,14 @@ Function GetAddressesListPresentation(AddresseesTable, IncludeContactName = True
 
 EndFunction
 
-// Checks contact filling in interaction documents.
-//
 // Parameters:
-//  InteractionObject    - DocumentObject - an interaction document being checked.
+//  InteractionObject - DocumentObject - an interaction document being checked.
 //  DocumentKind - String - a document name.
 //
 // Returns:
 //  Boolean - True if contacts are specified. Otherwise, False.
 //
-Function ContactsFilled(InteractionObject,DocumentKind)
+Function ContactsFilled(InteractionObject, DocumentKind)
 	
 	TabularSectionsArray = New Array;
 	
@@ -551,7 +530,6 @@ Function ContactsFilled(InteractionObject,DocumentKind)
 	
 EndFunction
 
-// Sets property value for all subordinate group elements.
 Procedure SetGroupItemsProperty(Items_Group, PropertyName, PropertyValue) Export
 	
 	For Each SubordinateItem In Items_Group.ChildItems Do
@@ -576,8 +554,6 @@ Function GetContactPresentation(Contact)
 
 EndFunction
 
-// Determines dynamic list filter based on having the compatibility mode.
-//
 // Parameters:
 //  List  - DynamicList - a list, whose filter has to be determined.
 //
@@ -590,8 +566,6 @@ Function DynamicListFilter(List) Export
 
 EndFunction
 
-// Generates an interaction presentation.
-// 
 // Parameters:
 //  ObjectManager     - DocumentObject.PhoneCall
 //                      - DocumentObject.PlannedInteraction

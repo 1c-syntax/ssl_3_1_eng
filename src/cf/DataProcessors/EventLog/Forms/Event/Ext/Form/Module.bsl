@@ -81,7 +81,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				Items.DataPresentations.CurrentPage = Items.AccessActionDeniedData;
 				Items.AccessActionDeniedData.Visible = True;
 				AccessActionDenied = EventData.Action;
-				CreateFormTable("AccessActionDeniedDataTable", "DataTable", EventData.Data);
+				ТаблицаДанные = Undefined;
+				If EventData.Property("Data") Then
+					ТаблицаДанные = EventData.Data;
+				EndIf;
+				CreateFormTable("AccessActionDeniedDataTable", "DataTable", ТаблицаДанные);
 				Items.Comment.VerticalStretch = False;
 				Items.Comment.Height = 1;
 			EndIf;

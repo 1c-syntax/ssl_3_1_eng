@@ -44,8 +44,9 @@
 //                                     "Completed " if the job has completed;
 //                                     "Error" if the job has completed with error;
 //                                     "Canceled" if job is canceled by a user or by an administrator.
-//   * JobID - UUID - contains 
-//                                     the ID of the running background job if Status = "Running".
+//   * JobID - UUID - if the Status = "Running", it contains 
+//                                     the ID of the running background task.
+//                          - Undefined - 
 //   * ResultAddress       - String - the address of the temporary storage where the function result must be
 //                                      stored.
 //   * BriefErrorDescription   - String - contains brief description of the exception if Status = "Error".
@@ -135,8 +136,9 @@ EndFunction
 //                                     "Completed " if the job has completed;
 //                                     "Error" if the job has completed with error;
 //                                     "Canceled" if job is canceled by a user or by an administrator.
-//   * JobID - UUID - contains 
-//                                     the ID of the running background job if Status = "Running".
+//   * JobID - UUID - if the Status = "Running", it contains 
+//                                     the ID of the running background task.
+//                          - Undefined - 
 //   * BriefErrorDescription   - String - contains brief description of the exception if Status = "Error".
 //   * DetailErrorDescription - String - contains detailed description of the exception if Status = "Error".
 //   * Messages - FixedArray - If Status <> "Running", then the MessageToUser array of objects
@@ -217,8 +219,9 @@ EndFunction
 //                                     "Completed " if the job has completed;
 //                                     "Error" if the job has completed with error;
 //                                     "Canceled" if job is canceled by a user or by an administrator.
-//   * JobID - UUID - contains 
-//                                     the ID of the running background job if Status = "Running".
+//   * JobID - UUID - if the Status = "Running", it contains 
+//                                     the ID of the running background task.
+//                          - Undefined - 
 //   * ResultAddress       - String - Address of the temporary storage to save the Map to:
 //                                      ** Key - Arbitrary
 //                                      ** Value - See ExecuteFunction
@@ -299,8 +302,9 @@ EndFunction
 //                                     "Completed " if the job has completed;
 //                                     "Error" if the job has completed with error;
 //                                     "Canceled" if job is canceled by a user or by an administrator.
-//   * JobID - UUID - contains 
-//                                     the ID of the running background job if Status = "Running".
+//   * JobID - UUID - if the Status = "Running", it contains 
+//                                     the ID of the running background task.
+//                          - Undefined - 
 //   * ResultAddress       - String - Address of the temporary storage to save the Map to:
 //                                       ** Key - Arbitrary
 //                                       ** Value - See ExecuteProcedure
@@ -497,8 +501,9 @@ EndFunction
 //                                     "Completed " if the job has completed;
 //                                     "Error" if the job has completed with error;
 //                                     "Canceled" if job is canceled by a user or by an administrator.
-//   * JobID  - UUID - contains 
-//                                     the ID of the running background job if Status = "Running".
+//   * JobID  - UUID - if the Status = "Running", it contains 
+//                                     the ID of the running background task.
+//                           - Undefined - 
 //   * ResultAddress       - String - the address of the temporary storage to which the procedure result must be placed
 //                                      (or is already placed if Status = "Completed").
 //   * AdditionalResultAddress - String - If the AdditionalResult parameter is set, 
@@ -940,6 +945,12 @@ EndProcedure
 //
 Function JobCompleted(Val JobID, ExtendedResult = False) Export
 	
+	CommonClientServer.CheckParameter("TimeConsumingOperations.JobCompleted",
+		"JobID", JobID, Type("UUID"));
+	
+	CommonClientServer.CheckParameter("TimeConsumingOperations.JobCompleted",
+		"ExtendedResult", ExtendedResult, Type("Boolean"));
+	
 	Job = Undefined;
 	Result = ActionCompleted(JobID, Job);
 	
@@ -1053,7 +1064,8 @@ EndFunction
 //   * StorageAddressAdditional - String - the address of the additional temporary storage
 //                                    where the job result must be stored (can only be used 
 //                                    when UseAdditionalTempStorage is set);
-//   * JobID - UUID - the unique ID of the running background job;
+//   * JobID - UUID - unique ID of the running background task;
+//                          - Undefined - 
 //   * JobCompleted - Boolean - True if the job is completed successfully during the function call.
 // 
 Function StartBackgroundExecution(Val FormIdentifier, Val ExportProcedureName, Val Parameters,
@@ -1131,6 +1143,9 @@ EndFunction
 //   See OperationNewRuntimeResult
 //
 Function ActionCompleted(Val JobID, Job = Undefined) Export
+	
+	CommonClientServer.CheckParameter("TimeConsumingOperations.ActionCompleted",
+		"JobID", JobID, Type("UUID"));
 	
 	Result = OperationNewRuntimeResult();
 	LastID_ = LastID_(JobID);

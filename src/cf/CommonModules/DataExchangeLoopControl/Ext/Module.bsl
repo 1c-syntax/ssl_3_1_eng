@@ -164,7 +164,7 @@ Procedure UpdateCircuit(ExchangePlanName) Export
 		|////////////////////////////////////////////////////////////////////////////////
 		|SELECT DISTINCT
 		|	TRUE AS DeletionRequired
-		|INTO TT_HasDeletion
+		|INTO TT_DeletionRequired
 		|FROM
 		|	TT_Circuit AS TT_Circuit
 		|		FULL JOIN TT_Nodes AS TT_Nodes
@@ -202,7 +202,7 @@ Procedure UpdateCircuit(ExchangePlanName) Export
 		|		ELSE FALSE
 		|	END AS RemoveNodeFromCircuit,
 		|	CASE
-		|		WHEN ISNULL(TT_HasDeletion.DeletionRequired, FALSE)
+		|		WHEN ISNULL(TT_DeletionRequired.DeletionRequired, FALSE)
 		|			THEN TRUE
 		|		ELSE FALSE
 		|	END AS InstallNewestUpdate
@@ -210,7 +210,7 @@ Procedure UpdateCircuit(ExchangePlanName) Export
 		|	TT_Circuit AS TT_Circuit
 		|		FULL JOIN TT_Nodes AS TT_Nodes
 		|		ON TT_Circuit.InfobaseNode = TT_Nodes.Ref
-		|		FULL JOIN TT_HasDeletion AS TT_HasDeletion
+		|		FULL JOIN TT_DeletionRequired AS TT_DeletionRequired
 		|		ON (TRUE)";
 		
 	QueryText = StrReplace(QueryText, "&ExchangePlan", "ExchangePlan." + ExchangePlanName);

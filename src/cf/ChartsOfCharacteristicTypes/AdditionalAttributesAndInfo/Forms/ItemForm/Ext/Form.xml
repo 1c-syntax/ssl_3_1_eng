@@ -2115,9 +2115,9 @@ FROM
 		END
 		WHEN &amp;PropertyKind = VALUE(Enum.PropertiesKinds.Labels)
 		THEN CASE
-			WHEN Sets.NumberOfTags = ""
+			WHEN Sets.LabelCount = ""
 				THEN Sets.Description
-			ELSE Sets.Description + " (" + Sets.NumberOfTags + ")"
+			ELSE Sets.Description + " (" + Sets.LabelCount + ")"
 		END
 	END AS Presentation,
 	CASE
@@ -2185,8 +2185,8 @@ WHERE
 					<dcssch:field>InfoCount</dcssch:field>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
-					<dcssch:dataPath>NumberOfTags</dcssch:dataPath>
-					<dcssch:field>NumberOfTags</dcssch:field>
+					<dcssch:dataPath>LabelCount</dcssch:dataPath>
+					<dcssch:field>LabelCount</dcssch:field>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>PredefinedSetName</dcssch:dataPath>

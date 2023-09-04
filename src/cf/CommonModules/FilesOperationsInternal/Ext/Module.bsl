@@ -663,7 +663,7 @@ EndProcedure
 // Parameters:
 //  FilesOwner - AnyRef - an object for adding the file.
 // 
-Function FileStorageCatalogNames(FilesOwner, DoNotRaiseException = False) Export
+Function FileStorageCatalogNames(FilesOwner, NotRaiseException1 = False) Export
 	
 	If TypeOf(FilesOwner) = Type("Type") Then
 		FilesOwnerType = FilesOwner;
@@ -725,7 +725,7 @@ Function FileStorageCatalogNames(FilesOwner, DoNotRaiseException = False) Export
 	
 	If CatalogNames.Count() = 0 Then
 		
-		If DoNotRaiseException Then
+		If NotRaiseException1 Then
 			Return CatalogNames;
 		EndIf;
 		
@@ -1191,15 +1191,15 @@ Procedure MoveSignaturesCheckResults(SignaturesInForm, SignedFile) Export
 		Return;
 	EndIf;
 	
-	Properties = New Structure("SignatureValidationDate, SignatureCorrect, CheckRequired2", Null, Null, Null);
+	Properties = New Structure("SignatureValidationDate, SignatureCorrect, IsVerificationRequired", Null, Null, Null);
 	FillPropertyValues(Properties, SignaturesInObject[0]);
 	If Properties.SignatureValidationDate = Null
 	 Or Properties.SignatureCorrect = Null Then
 		Return; // If the object does not have check attributes, the check results are not transferred.
 	EndIf;
 	
-	If Properties.CheckRequired2 = Null Then
-		Properties.Delete("CheckRequired2");
+	If Properties.IsVerificationRequired = Null Then
+		Properties.Delete("IsVerificationRequired");
 	EndIf;
 	
 	For Each String In SignaturesInForm Do
@@ -1813,8 +1813,8 @@ Procedure CreateFileInitialImageAtServer(Parameters, StorageAddress) Export
 		ExchangePlans.CreateInitialImage(Parameters.Node, ConnectionString);  // Actual creation of the initial image.
 		
 		If Parameters.HasFilesInVolumes Then
-			ZIPFile = New ZipFileWriter;
-			ZIPFile.Open(Parameters.VolumesFilesArchivePath);
+			ZipFile = New ZipFileWriter;
+			ZipFile.Open(Parameters.VolumesFilesArchivePath);
 			
 			TemporaryFiles = New Array;
 			TemporaryFiles = FindFiles(Parameters.FileDirectoryName, GetAllFilesMask());
@@ -1822,11 +1822,11 @@ Procedure CreateFileInitialImageAtServer(Parameters, StorageAddress) Export
 			For Each TempFile In TemporaryFiles Do
 				If TempFile.IsFile() Then
 					TemporaryFilePath = TempFile.FullName;
-					ZIPFile.Add(TemporaryFilePath);
+					ZipFile.Add(TemporaryFilePath);
 				EndIf;
 			EndDo;
 			
-			ZIPFile.Write();
+			ZipFile.Write();
 			
 			DeleteFiles(Parameters.FileDirectoryName); // Deleting along with all the files inside.
 		EndIf;
@@ -1935,9 +1935,9 @@ Procedure CreateServerInitialImageAtServer(Parameters, ResultAddress) Export
 		ExchangePlans.CreateInitialImage(Parameters.Node, Parameters.ConnectionString);
 		
 		If Parameters.HasFilesInVolumes Then
-			ZIPFile = New ZipFileWriter;
+			ZipFile = New ZipFileWriter;
 			ZIPPath = Parameters.FilePath;
-			ZIPFile.Open(ZIPPath);
+			ZipFile.Open(ZIPPath);
 			
 			TemporaryFiles = New Array;
 			TemporaryFiles = FindFiles(Parameters.FileDirectoryName, GetAllFilesMask());
@@ -1945,11 +1945,11 @@ Procedure CreateServerInitialImageAtServer(Parameters, ResultAddress) Export
 			For Each TempFile In TemporaryFiles Do
 				If TempFile.IsFile() Then
 					TemporaryFilePath = TempFile.FullName;
-					ZIPFile.Add(TemporaryFilePath);
+					ZipFile.Add(TemporaryFilePath);
 				EndIf;
 			EndDo;
 			
-			ZIPFile.Write();
+			ZipFile.Write();
 			DeleteFiles(Parameters.FileDirectoryName); // Deleting along with all the files inside.
 		EndIf;
 		
@@ -2004,8 +2004,8 @@ Function QueryTextToExtractText(GetAllFiles = False, AdditionalFields = False) E
 	
 	For Each Type In FilesTypes Do
 		FilesDirectoryMetadata = Metadata.FindByType(Type);
-		DontUseFullTextSearch = Metadata.ObjectProperties.FullTextSearchUsing.DontUse;
-		If FilesDirectoryMetadata.FullTextSearch = DontUseFullTextSearch Then
+		NotUseFullTextSearch = Metadata.ObjectProperties.FullTextSearchUsing.DontUse;
+		If FilesDirectoryMetadata.FullTextSearch = NotUseFullTextSearch Then
 			Continue;
 		EndIf;
 		TotalCatalogNames.Add(FilesDirectoryMetadata.Name);
@@ -2103,9 +2103,9 @@ Function ScannerParametersInEnumerations(PermissionNumber, ChromaticityNumber, R
 	
 EndFunction
 
-Function ConvertScanningFormatToStorageFormat(ScanningFormat, SaveToPDF) Export
+Function ConvertScanningFormatToStorageFormat(ScanningFormat, ShouldSaveAsPDF) Export
 	
-	If SaveToPDF Then
+	If ShouldSaveAsPDF Then
 		Return Enums.SinglePageFileStorageFormats.PDF;
 	ElsIf ScanningFormat = Enums.ScannedImageFormats.BMP Then
 		Return Enums.SinglePageFileStorageFormats.BMP;
@@ -2828,7 +2828,7 @@ EndProcedure
 #Region CleanUpUnusedFiles
 
 Procedure ClearConfigurationFiles(Setting, ExceptionsArray)
-	If Setting.Action = Enums.FilesCleanupOptions.DontClear Then
+	If Setting.Action = Enums.FilesCleanupOptions.NotClear Then
 		Return;
 	EndIf;
 	
@@ -2885,18 +2885,18 @@ Function QueryTextToClearFiles(FileOwner, Setting, ExceptionsArray, ExceptionIte
 			
 			QueryText = 
 				"SELECT 
-				|	DirectoryFileOwner.Ref,
+				|	CatalogFileOwner.Ref,
 				|	&Attributes,
 				|	VALUETYPE(Files.FileOwner) AS FileOwner,
 				|	FilesVersions.Size / (1024 * 1024) AS Size,
 				|	Files.Ref AS FileRef,
 				|	FilesVersions.Ref AS VersionRef
 				|FROM
-				|	#DirectoryFileOwner AS DirectoryFileOwner
+				|	#CatalogFileOwner AS CatalogFileOwner
 				|	INNER JOIN #FullFilesCatalogName AS Files
 				|		INNER JOIN #FullFilesVersionsCatalogName AS FilesVersions
 				|		ON Files.Ref = FilesVersions.Owner
-				|	ON DirectoryFileOwner.Ref = Files.FileOwner
+				|	ON CatalogFileOwner.Ref = Files.FileOwner
 				|WHERE
 				|	NOT Files.DeletionMark
 				|	AND &ThisIsNotGroup
@@ -2913,7 +2913,7 @@ Function QueryTextToClearFiles(FileOwner, Setting, ExceptionsArray, ExceptionIte
 			QueryText = StrReplace(QueryText, "&Attributes" + ",", DetailsOfTheFileOwner(FileOwner));
 			QueryText = StrReplace(QueryText, "#FullFilesVersionsCatalogName", FullFilesVersionsCatalogName);
 			QueryText = StrReplace(QueryText, "#FullFilesCatalogName", FullFilesCatalogName);
-			QueryText = StrReplace(QueryText, "#DirectoryFileOwner", FileOwner.FullName);
+			QueryText = StrReplace(QueryText, "#CatalogFileOwner", FileOwner.FullName);
 		EndIf;
 	
 	Else // Not HasAbilityToStoreVersions
@@ -2926,8 +2926,8 @@ Function QueryTextToClearFiles(FileOwner, Setting, ExceptionsArray, ExceptionIte
 			|	Files.Ref AS FileRef
 			|FROM
 			|	#FileOwnerType AS Files
-			|		INNER JOIN #DirectoryFileOwner AS DirectoryFileOwner
-			|		ON Files.FileOwner = DirectoryFileOwner.Ref
+			|		INNER JOIN #CatalogFileOwner AS CatalogFileOwner
+			|		ON Files.FileOwner = CatalogFileOwner.Ref
 			|WHERE
 			|	Files.CreationDate <= &ClearingPeriod
 			|	AND NOT Files.DeletionMark
@@ -2942,20 +2942,20 @@ Function QueryTextToClearFiles(FileOwner, Setting, ExceptionsArray, ExceptionIte
 			|	";
 
 			QueryText = StrReplace(QueryText, "#FileOwnerType", "Catalog." + Setting.FileOwnerType.Name);
-			QueryText = StrReplace(QueryText, "#DirectoryFileOwner", FileOwner.FullName);
+			QueryText = StrReplace(QueryText, "#CatalogFileOwner", FileOwner.FullName);
 		Else
 			
 			QueryText = 
 			"SELECT
-			|	DirectoryFileOwner.Ref,
+			|	CatalogFileOwner.Ref,
 			|	VALUETYPE(Files.FileOwner) AS FileOwner,
 			|	Files.Size / (1024 * 1024) AS Size,
 			|	&Attributes,
 			|	Files.Ref AS FileRef
 			|FROM
 			|	#FullFilesCatalogName AS Files
-			|		LEFT JOIN #DirectoryFileOwner AS DirectoryFileOwner
-			|		ON Files.FileOwner = DirectoryFileOwner.Ref
+			|		LEFT JOIN #CatalogFileOwner AS CatalogFileOwner
+			|		ON Files.FileOwner = CatalogFileOwner.Ref
 			|WHERE
 			|	NOT Files.DeletionMark
 			|	AND &ThisIsNotGroup
@@ -2968,7 +2968,7 @@ Function QueryTextToClearFiles(FileOwner, Setting, ExceptionsArray, ExceptionIte
 			|	AND VALUETYPE(Files.FileOwner) = &OwnerType";
 			QueryText = StrReplace(QueryText, "&Attributes" + ",", DetailsOfTheFileOwner(FileOwner));
 			QueryText = StrReplace(QueryText, "#FullFilesCatalogName", FullFilesCatalogName);
-			QueryText = StrReplace(QueryText, "#DirectoryFileOwner", FileOwner.FullName);
+			QueryText = StrReplace(QueryText, "#CatalogFileOwner", FileOwner.FullName);
 		EndIf;
 	EndIf;
 	
@@ -3005,9 +3005,9 @@ Function FilesCleanupMode() Export
 		Job = ScheduledJobsServer.FindJobs(Filter);
 		If Job.Count() > 0 Then
 			Job = Job[0];
-			Mode = ?(Job.Use, Enums.FilesCleanupModes.CleanUpDeletedAndUnusedFiles, Enums.FilesCleanupModes.DontClear);
+			Mode = ?(Job.Use, Enums.FilesCleanupModes.CleanUpDeletedAndUnusedFiles, Enums.FilesCleanupModes.NotClear);
 		Else
-			Mode = Enums.FilesCleanupModes.DontClear;
+			Mode = Enums.FilesCleanupModes.NotClear;
 		EndIf;
 	EndIf;
 	
@@ -3020,7 +3020,7 @@ EndFunction
 //  Mode - EnumRef.FilesCleanupModes
 //
 Procedure SetTheFileCleaningMode(Mode) Export
-	AutomaticallyCleanUpUnusedFiles = ?(Mode = Enums.FilesCleanupModes.DontClear, False, True);
+	AutomaticallyCleanUpUnusedFiles = ?(Mode = Enums.FilesCleanupModes.NotClear, False, True);
 	Constants.FilesCleanupMode.Set(Mode);
 	
 	JobParameters = New Structure;
@@ -3663,11 +3663,11 @@ EndProcedure
 Function FileStoringCatalogName(FilesOwner, CatalogName = "",
 	ErrorTitle = Undefined, ErrorEnd = Undefined) Export
 	
-	DoNotRaiseException = (ErrorTitle = Undefined);
-	CatalogNames = FileStorageCatalogNames(FilesOwner, DoNotRaiseException);
+	NotRaiseException1 = (ErrorTitle = Undefined);
+	CatalogNames = FileStorageCatalogNames(FilesOwner, NotRaiseException1);
 	
 	If CatalogNames.Count() = 0 Then
-		If DoNotRaiseException Then
+		If NotRaiseException1 Then
 			Return "";
 		EndIf;
 		
@@ -3684,7 +3684,7 @@ Function FileStoringCatalogName(FilesOwner, CatalogName = "",
 			Return CatalogName;
 		EndIf;
 	
-		If DoNotRaiseException Then
+		If NotRaiseException1 Then
 			Return "";
 		EndIf;
 		
@@ -3709,7 +3709,7 @@ Function FileStoringCatalogName(FilesOwner, CatalogName = "",
 		Return DefaultCatalog;
 	EndIf;
 		
-	If DoNotRaiseException Then
+	If NotRaiseException1 Then
 		Return "";
 	EndIf;
 	
@@ -3739,7 +3739,7 @@ EndFunction
 //   * Key - String
 //   * Value - Boolean
 //
-Function FilesVersionsStorageCatalogsNames(FilesOwner, DoNotRaiseException = False)
+Function FilesVersionsStorageCatalogsNames(FilesOwner, NotRaiseException1 = False)
 	
 	If TypeOf(FilesOwner) = Type("Type") Then
 		FilesOwnerType = FilesOwner;
@@ -3821,8 +3821,8 @@ EndFunction
 Function FilesVersionsStorageCatalogName(FilesOwner, CatalogName = "",
 	ErrorTitle = Undefined, ErrorEnd = Undefined) Export
 	
-	DoNotRaiseException = (ErrorTitle = Undefined);
-	CatalogNames = FilesVersionsStorageCatalogsNames(FilesOwner, DoNotRaiseException);
+	NotRaiseException1 = (ErrorTitle = Undefined);
+	CatalogNames = FilesVersionsStorageCatalogsNames(FilesOwner, NotRaiseException1);
 	
 	If CatalogNames.Count() = 0 Then
 		Return "";
@@ -3840,7 +3840,7 @@ Function FilesVersionsStorageCatalogName(FilesOwner, CatalogName = "",
 		Return DefaultCatalog;
 	EndIf;
 		
-	If DoNotRaiseException Then
+	If NotRaiseException1 Then
 		Return "";
 	EndIf;
 	
@@ -5357,7 +5357,7 @@ Procedure ItemFormOnCreateAtServer(Context, Cancel, StandardProcessing, Paramete
 		Items.StoreVersions.Visible = CanCreateFileVersions;
 	EndIf;
 	
-	Context.ModificationDate = ToLocalTime(Context.ThisObject.Object.UniversalModificationDate);
+	Context.ModificationDate = ToLocalTime(Context.Object.UniversalModificationDate);
 	
 	CryptographyOnCreateFormAtServer(Context, False);
 	FillSignatureList(Context, Parameters.CopyingValue);
@@ -5503,9 +5503,9 @@ Procedure SetUpFormObject(Val NewObject, Context)
 	
 	AttributesToBeAdded = New Array;
 	AttributesToBeAdded.Add(NewAttribute);
-	
 	Context.ChangeAttributes(AttributesToBeAdded);
 	Context.ValueToFormAttribute(NewObject, "Object");
+
 	For Each Item In Context.Items Do
 		If TypeOf(Item) = Type("FormField")
 			And StrStartsWith(Item.DataPath, "PrototypeObject[0].")
@@ -5724,12 +5724,12 @@ Function FilesSettings() Export
 	
 	FilesSettings = New Structure;
 	FilesSettings.Insert("DontClearFiles",            New Array);
-	FilesSettings.Insert("DontSynchronizeFiles",   New Array);
+	FilesSettings.Insert("NotSynchronizeFiles",   New Array);
 	FilesSettings.Insert("DontOutputToInterface",      New Array);
 	FilesSettings.Insert("DontCreateFilesByTemplate", New Array);
 	FilesSettings.Insert("FilesWithoutFolders",             New Array);
 	
-	SSLSubsystemsIntegration.OnDefineFileSynchronizationExceptionObjects(FilesSettings.DontSynchronizeFiles);
+	SSLSubsystemsIntegration.OnDefineFileSynchronizationExceptionObjects(FilesSettings.NotSynchronizeFiles);
 	FilesOperationsOverridable.OnDefineSettings(FilesSettings);
 	
 	Return FilesSettings;
@@ -5958,7 +5958,7 @@ Function DeleteAnUnnecessaryFile(AttachedFile)
 EndFunction
 
 // Parameters:
-//  ClearingSetup - ValueTableRow: см. РегистрыСведений.НастройкиОчисткиФайлов.ТекущиеНастройкиОчистки
+//  ClearingSetup - ValueTableRow of See InformationRegisters.FilesClearingSettings.CurrentClearSettings
 //  ExceptionsArray - Array of DefinedType.FilesOwner
 // 
 // Returns:
@@ -6078,17 +6078,17 @@ Function DetailsOfTheFileOwner(FileOwner)
 	MetadataObject = Common.MetadataObjectByID(FileOwner);
 	If Common.IsCatalog(MetadataObject) Then
 		For Each Attribute In MetadataObject.Attributes Do
-			QueryAttributes = QueryAttributes + Chars.LF + "DirectoryFileOwner." + Attribute.Name + ",";
+			QueryAttributes = QueryAttributes + Chars.LF + "CatalogFileOwner." + Attribute.Name + ",";
 		EndDo;
 	ElsIf Common.IsDocument(MetadataObject) Then
 		QueryTemplate = "DATEDIFF(&TheNameOfThePropsDate, &CurrentDate, DAY) AS DaysBeforeDeletionFromTheDate"; // @query-part
 		For Each Attribute In MetadataObject.Attributes Do
 			If Attribute.Type = New TypeDescription("Date") Then
-				QueryFragment = StrReplace(QueryTemplate, "&TheNameOfThePropsDate", "DirectoryFileOwner." + Attribute.Name);
+				QueryFragment = StrReplace(QueryTemplate, "&TheNameOfThePropsDate", "CatalogFileOwner." + Attribute.Name);
 				QueryFragment = StrReplace(QueryFragment, "DaysBeforeDeletionFromTheDate", "DaysBeforeDeletionFrom" + Attribute.Name);
 				QueryAttributes = QueryAttributes + Chars.LF + QueryFragment + ",";
 			EndIf;
-			QueryAttributes = QueryAttributes + Chars.LF + "DirectoryFileOwner." + Attribute.Name + ",";
+			QueryAttributes = QueryAttributes + Chars.LF + "CatalogFileOwner." + Attribute.Name + ",";
 		EndDo;
 	EndIf;
 	Return QueryAttributes;
@@ -6178,7 +6178,7 @@ EndFunction
 
 Function OnDefineFileSynchronizationExceptionObjects() Export
 	
-	Return FilesSettings().DontSynchronizeFiles;
+	Return FilesSettings().NotSynchronizeFiles;
 	
 EndFunction
 
@@ -6646,10 +6646,10 @@ Function CallGETMethod(FileAddressHRef, EtagID, SynchronizationParameters, FileM
 	FileWithBinaryData = SynchronizationParameters.Response.GetBodyAsBinaryData(); // BinaryData
 	
 	// ACC:216-off External service IDs contain Latin and Cyrillic letters.
-	HTTPHeaders_SSLy = StandardSubsystemsServer.HTTPHeadersInLowercase(SynchronizationParameters.Response.Headers);
-	EtagID = ?(HTTPHeaders_SSLy["etagid"] = Undefined, "", HTTPHeaders_SSLy["etagid"]);
-	FileModificationDate = ?(HTTPHeaders_SSLy["last-modified"] = Undefined, CurrentUniversalDate(), 
-		CommonClientServer.RFC1123Date(HTTPHeaders_SSLy["last-modified"]));
+	Var_645_HTTPHeaders = StandardSubsystemsServer.HTTPHeadersInLowercase(SynchronizationParameters.Response.Headers);
+	EtagID = ?(Var_645_HTTPHeaders["etagid"] = Undefined, "", Var_645_HTTPHeaders["etagid"]);
+	FileModificationDate = ?(Var_645_HTTPHeaders["last-modified"] = Undefined, CurrentUniversalDate(), 
+		CommonClientServer.RFC1123Date(Var_645_HTTPHeaders["last-modified"]));
 	FileLength = FileWithBinaryData.Size();
 	// ACC:216-on
 	
@@ -7397,7 +7397,7 @@ Procedure ImportFilesTreeRecursively(CurrentRowsOfFilesTree, HttpAddress, Synchr
 						NewFilesTreeRow.Is_Directory = CalculateXPath("./*[local-name()='collection']", XMLDocumentContext, PropstatChildNode).IterateNext() <> Undefined;
 					ElsIf PropstatChildNode.LocalName = "UID1C" Then
 						NewFilesTreeRow.UID1C = PropstatChildNode.TextContent;
-						NewFilesTreeRow.IsUID1NotSupported = False;
+						NewFilesTreeRow.UID1CNotSupported = False;
 					ElsIf PropstatChildNode.LocalName = "getetag" Then
 						NewFilesTreeRow.Etag = PropstatChildNode.TextContent;
 					ElsIf PropstatChildNode.LocalName = "getlastmodified" Then
@@ -7413,13 +7413,13 @@ Procedure ImportFilesTreeRecursively(CurrentRowsOfFilesTree, HttpAddress, Synchr
 			If FoundPropstat <> Undefined Then
 				For Each PropstatChildNode In FoundPropstat.ChildNodes Do
 					If PropstatChildNode.NodeName = "UID1C" Then
-						NewFilesTreeRow.IsUID1NotSupported = True;
+						NewFilesTreeRow.UID1CNotSupported = True;
 					EndIf;
 				EndDo;
 			EndIf;
 			
 			// If there was no UID, we try to receive it separately, it is necessary, for example, for owncloud.
-			If NewFilesTreeRow.IsUID1NotSupported = False And Not ValueIsFilled(NewFilesTreeRow.UID1C) Then
+			If NewFilesTreeRow.UID1CNotSupported = False And Not ValueIsFilled(NewFilesTreeRow.UID1C) Then
 				NewFilesTreeRow.UID1C = GetUID1C(NewFilesTreeRow.Href, SynchronizationParameters);
 			EndIf;
 			
@@ -8242,7 +8242,7 @@ Function GenerateStructureOfServerFilesTree()
 	ServerFilesTree = New ValueTree;
 	ServerFilesTree.Columns.Add("Href");
 	ServerFilesTree.Columns.Add("UID1C");
-	ServerFilesTree.Columns.Add("IsUID1NotSupported");
+	ServerFilesTree.Columns.Add("UID1CNotSupported");
 	ServerFilesTree.Columns.Add("Etag");
 	ServerFilesTree.Columns.Add("FileName");
 	ServerFilesTree.Columns.Add("Is_Directory");
@@ -8422,14 +8422,14 @@ Function CreateFileInCloudService(Val ServerAddress, Val SynchronizationParamete
 				Postfix = PostfixForCaption(SignatureNumber);
 
 				If TableRow.Encrypted Then
-					SignatureToHref = NameOfEncryptedFile(TableRow.ToHref) + Postfix;
+					ToHrefSignatures = NameOfEncryptedFile(TableRow.ToHref) + Postfix;
 				Else
-					SignatureToHref = TableRow.ToHref + Postfix;
+					ToHrefSignatures = TableRow.ToHref + Postfix;
 				EndIf;
 
-				SignatureUID1C = TableRow.UID1C + Postfix;
-				CallPUTMethod(SignatureToHref, Signature.Signature, SynchronizationParameters, True);
-				UpdateFileUID1C(SignatureToHref, SignatureUID1C, SynchronizationParameters);
+				UID1CSignatures = TableRow.UID1C + Postfix;
+				CallPUTMethod(ToHrefSignatures, Signature.Signature, SynchronizationParameters, True);
+				UpdateFileUID1C(ToHrefSignatures, UID1CSignatures, SynchronizationParameters);
 				SignatureNumber = SignatureNumber + 1;
 			EndDo;
 			
@@ -9145,13 +9145,13 @@ Function QueryTextForFilesWithUnextractedText(CatalogName, FilesNumberInSelectio
 		QueryText =
 		"SELECT TOP 1
 		|	Files.Ref AS Ref,
-		|	ISNULL(InformationRegisterFIleEncodings.Encoding, """") AS Encoding,
+		|	ISNULL(InformationRegisterFilesEncoding.Encoding, """") AS Encoding,
 		|	Files.Extension AS Extension,
 		|	Files.Description AS Description
 		|FROM
 		|	&CatalogName AS Files
-		|		LEFT JOIN InformationRegister.FilesEncoding AS InformationRegisterFIleEncodings
-		|		ON (InformationRegisterFIleEncodings.File = Files.Ref)
+		|		LEFT JOIN InformationRegister.FilesEncoding AS InformationRegisterFilesEncoding
+		|		ON (InformationRegisterFilesEncoding.File = Files.Ref)
 		|WHERE
 		|	Files.TextExtractionStatus IN (
 		|		VALUE(Enum.FileTextExtractionStatuses.NotExtracted),
@@ -9160,11 +9160,11 @@ Function QueryTextForFilesWithUnextractedText(CatalogName, FilesNumberInSelectio
 		QueryText =
 		"SELECT TOP 1
 		|	Files.Ref AS Ref,
-		|	ISNULL(InformationRegisterFIleEncodings.Encoding, """") AS Encoding
+		|	ISNULL(InformationRegisterFilesEncoding.Encoding, """") AS Encoding
 		|FROM
 		|	&CatalogName AS Files
-		|		LEFT JOIN InformationRegister.FilesEncoding AS InformationRegisterFIleEncodings
-		|		ON (InformationRegisterFIleEncodings.File = Files.Ref)
+		|		LEFT JOIN InformationRegister.FilesEncoding AS InformationRegisterFilesEncoding
+		|		ON (InformationRegisterFilesEncoding.File = Files.Ref)
 		|WHERE
 		|	Files.TextExtractionStatus IN (
 		|		VALUE(Enum.FileTextExtractionStatuses.NotExtracted),
@@ -9805,7 +9805,7 @@ Procedure RegisterObjectsToMoveDigitalSignaturesAndEncryptionCertificates(Parame
 	|				WHERE
 	|					DeleteDigitalSignatures.Ref = Files.Ref))";
 	
-	TabularSectionsDeleteEncryptionResultsQueryText =
+	QueryTextTSDeleteEncryptionCertificates =
 	"SELECT
 	|	Files.Ref AS Ref
 	|FROM
@@ -9819,7 +9819,7 @@ Procedure RegisterObjectsToMoveDigitalSignaturesAndEncryptionCertificates(Parame
 	|			WHERE
 	|				DeleteEncryptionCertificates.Ref = Files.Ref)";
 	
-	TabularSectionsDeleteDigitalSignaturesQueryText =
+	QueryTextTSDeleteDigitalSignatures =
 	"SELECT
 	|	Files.Ref AS Ref
 	|FROM
@@ -9847,10 +9847,10 @@ Procedure RegisterObjectsToMoveDigitalSignaturesAndEncryptionCertificates(Parame
 			CurrentQueryText = TwoTabularSectionsQueryText;
 			
 		ElsIf HasTabularSectionDeleteEncryptionResults Then
-			CurrentQueryText = TabularSectionsDeleteEncryptionResultsQueryText;
+			CurrentQueryText = QueryTextTSDeleteEncryptionCertificates;
 			
 		ElsIf HasTabularSectionDeleteDigitalSignatures Then
-			CurrentQueryText = TabularSectionsDeleteDigitalSignaturesQueryText;
+			CurrentQueryText = QueryTextTSDeleteDigitalSignatures;
 		Else 
 			Continue;
 		EndIf;
@@ -9996,40 +9996,40 @@ Procedure MoveDigitalSignatureDataToInformationRegister(ObjectsArray, FullMetada
 		Query = New Query;
 		Query.Text =
 		"SELECT
-		|	TabularSectionDigitalSignatures.Ref AS SignedObject,
-		|	TabularSectionDigitalSignatures.SignatureDate,
-		|	TabularSectionDigitalSignatures.SignatureFileName,
-		|	TabularSectionDigitalSignatures.Comment,
-		|	TabularSectionDigitalSignatures.CertificateOwner,
-		|	TabularSectionDigitalSignatures.Thumbprint,
-		|	TabularSectionDigitalSignatures.Signature,
-		|	TabularSectionDigitalSignatures.SignatureSetBy,
-		|	TabularSectionDigitalSignatures.LineNumber AS SequenceNumber,
-		|	TabularSectionDigitalSignatures.Certificate, 
-		|	TabularSectionDigitalSignatures.SignatureCorrect AS SignatureCorrect,
-		|	TabularSectionDigitalSignatures.SignatureValidationDate AS SignatureValidationDate
+		|	TSDigitalSignatures.Ref AS SignedObject,
+		|	TSDigitalSignatures.SignatureDate,
+		|	TSDigitalSignatures.SignatureFileName,
+		|	TSDigitalSignatures.Comment,
+		|	TSDigitalSignatures.CertificateOwner,
+		|	TSDigitalSignatures.Thumbprint,
+		|	TSDigitalSignatures.Signature,
+		|	TSDigitalSignatures.SignatureSetBy,
+		|	TSDigitalSignatures.LineNumber AS SequenceNumber,
+		|	TSDigitalSignatures.Certificate, 
+		|	TSDigitalSignatures.SignatureCorrect AS SignatureCorrect,
+		|	TSDigitalSignatures.SignatureValidationDate AS SignatureValidationDate
 		|FROM
-		|	&DeleteDigitalSignatures AS TabularSectionDigitalSignatures
+		|	&DeleteDigitalSignatures AS TSDigitalSignatures
 		|WHERE
-		|	TabularSectionDigitalSignatures.Ref IN(&ObjectsArray)
+		|	TSDigitalSignatures.Ref IN(&ObjectsArray)
 		|TOTALS
 		|	BY SignedObject";
 		
 		Query.Text = StrReplace(Query.Text, "&DeleteDigitalSignatures", FullMetadataObjectName + ".DeleteDigitalSignatures"); 
 		If MetadataObject = Metadata.Catalogs.FilesVersions Then
 			Query.Text = StrReplace(Query.Text,
-				"TabularSectionDigitalSignatures.Ref AS SignedObject",
-				"TabularSectionDigitalSignatures.Ref.Owner AS SignedObject");
+				"TSDigitalSignatures.Ref AS SignedObject",
+				"TSDigitalSignatures.Ref.Owner AS SignedObject");
 		EndIf;
 		
 		TSAttributes = MetadataObject.TabularSections.DeleteDigitalSignatures.Attributes;
 		
 		If TSAttributes.Find("SignatureCorrect") = Undefined Then
-			Query.Text = StrReplace(Query.Text, "TabularSectionDigitalSignatures.SignatureCorrect", "FALSE");
+			Query.Text = StrReplace(Query.Text, "TSDigitalSignatures.SignatureCorrect", "FALSE");
 		EndIf;
 		
 		If TSAttributes.Find("SignatureValidationDate") = Undefined Then
-			Query.Text = StrReplace(Query.Text, "TabularSectionDigitalSignatures.SignatureValidationDate", "Undefined");
+			Query.Text = StrReplace(Query.Text, "TSDigitalSignatures.SignatureValidationDate", "Undefined");
 		EndIf;
 		
 		Query.SetParameter("ObjectsArray", ObjectsArray);
@@ -10078,15 +10078,15 @@ Procedure MoveCertificatesDataToInformationRegister(ObjectsArray, FullMetadataOb
 		Query = New Query;
 		Query.Text =
 		"SELECT
-		|	TabularSectionEncryptionCertificates.Ref AS EncryptedObject,
-		|	TabularSectionEncryptionCertificates.Thumbprint,
-		|	TabularSectionEncryptionCertificates.Certificate,
-		|	TabularSectionEncryptionCertificates.LineNumber AS SequenceNumber,
-		|	TabularSectionEncryptionCertificates.Presentation
+		|	TSEncryptionCertificates.Ref AS EncryptedObject,
+		|	TSEncryptionCertificates.Thumbprint,
+		|	TSEncryptionCertificates.Certificate,
+		|	TSEncryptionCertificates.LineNumber AS SequenceNumber,
+		|	TSEncryptionCertificates.Presentation
 		|FROM
-		|	&DeleteEncryptionCertificates AS TabularSectionEncryptionCertificates
+		|	&DeleteEncryptionCertificates AS TSEncryptionCertificates
 		|WHERE
-		|	TabularSectionEncryptionCertificates.Ref IN(&ObjectsArray)
+		|	TSEncryptionCertificates.Ref IN(&ObjectsArray)
 		|TOTALS
 		|	BY EncryptedObject";
 		

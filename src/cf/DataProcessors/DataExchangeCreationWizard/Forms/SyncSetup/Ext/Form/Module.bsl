@@ -497,7 +497,7 @@ Procedure SetDataSendingAndReceivingRulesFollowUp(ClosingResult, AdditionalParam
 	FillSetupStagesTable();
 	UpdateCurrentSettingsStateDisplay();
 	
-	ClosingNotification1 = New NotifyDescription("SetDataSendingAndReceivingRulesCompletion", ThisObject);
+	ClosingNotification1 = New NotifyDescription("ConfigureDataExportImportRulesCompletion", ThisObject);
 	
 	CheckParameters = New Structure;
 	CheckParameters.Insert("Peer",          ExchangeNode);
@@ -532,7 +532,7 @@ Procedure SetDataSendingAndReceivingRulesFollowUp(ClosingResult, AdditionalParam
 EndProcedure
 
 &AtClient
-Procedure SetDataSendingAndReceivingRulesCompletion(ClosingResult, AdditionalParameters) Export
+Procedure ConfigureDataExportImportRulesCompletion(ClosingResult, AdditionalParameters) Export
 	
 	If CurrentSetupStep = "RulesSetting"
 		And SynchronizationSetupCompleted(ExchangeNode) Then

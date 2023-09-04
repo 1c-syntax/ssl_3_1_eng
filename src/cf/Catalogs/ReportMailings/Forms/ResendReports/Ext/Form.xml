@@ -29,9 +29,9 @@
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 	</Events>
 	<ChildItems>
-		<LabelDecoration name="TitleDecoration" id="26">
-			<ContextMenu name="TitleDecorationContextMenu" id="27"/>
-			<ExtendedTooltip name="TitleDecorationExtendedTooltip" id="28"/>
+		<LabelDecoration name="HeadingDecoration" id="26">
+			<ContextMenu name="HeadingDecorationContextMenu" id="27"/>
+			<ExtendedTooltip name="HeadingDecorationExtendedTooltip" id="28"/>
 		</LabelDecoration>
 		<CommandBar name="RecipientsCommandBarGroup" id="29">
 			<Title>

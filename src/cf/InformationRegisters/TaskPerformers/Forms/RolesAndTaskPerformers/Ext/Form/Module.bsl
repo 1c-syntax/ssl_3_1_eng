@@ -104,11 +104,11 @@ Procedure RefreshItemsData()
 	ListObject.Clear();
 	While QuerySelection.Next() Do
 		ValueType = QuerySelection.MainAddressingObjectTypes.ValueType;
-		IncludesType = True;
+		IncludedType = True;
 		If MainAddressingObject <> Undefined Then
-			IncludesType = ValueType <> Undefined And ValueType.ContainsType(TypeOf(MainAddressingObject));
+			IncludedType = ValueType <> Undefined And ValueType.ContainsType(TypeOf(MainAddressingObject));
 		EndIf;
-		If IncludesType Then
+		If IncludedType Then
 			NewRow = ListObject.Add();
 			FillPropertyValues(NewRow, QuerySelection, "Assignees,Role,RoleRef,ExternalRole"); 
 		EndIf;

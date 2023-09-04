@@ -307,9 +307,9 @@
 			<MainAttribute>true</MainAttribute>
 			<UseAlways>
 				<Field>List.ExportUsageFlag</Field>
+				<Field>List.Flagusage</Field>
 				<Field>List.ImportUsageFlag</Field>
 				<Field>List.Ref</Field>
-				<Field>List.UsageFlag</Field>
 				<Field>List.UseScheduledJob</Field>
 			</UseAlways>
 			<Settings xsi:type="DynamicList">
@@ -323,7 +323,7 @@
             WHEN DataExchangeScenariosExchangeSettings.InfobaseNode = &amp;InfobaseNode
                 THEN TRUE
             ELSE FALSE
-        END) AS UsageFlag,
+        END) AS Flagusage,
     MAX(CASE
             WHEN DataExchangeScenariosExchangeSettings.InfobaseNode = &amp;InfobaseNode
                     AND DataExchangeScenariosExchangeSettings.CurrentAction = VALUE(Enum.ActionsOnExchange.DataImport)
@@ -351,7 +351,7 @@ SELECT
 	DataExchangeScenarios.Ref,
 	DataExchangeScenarios.UseScheduledJob,
 	DataExchangeScenarios.Description,
-	ISNULL(NestedQuery.UsageFlag, FALSE) AS UsageFlag,
+	ISNULL(NestedQuery.Flagusage, FALSE) AS Flagusage,
 	ISNULL(NestedQuery.ImportUsageFlag, FALSE) AS ImportUsageFlag,
 	ISNULL(NestedQuery.ExportUsageFlag, FALSE) AS ExportUsageFlag,
 	DataExchangeScenarios.Comment
@@ -374,7 +374,7 @@ WHERE
 							<dcsset:orderType>Asc</dcsset:orderType>
 						</dcsset:item>
 						<dcsset:item xsi:type="dcsset:OrderItemField">
-							<dcsset:field>UsageFlag</dcsset:field>
+							<dcsset:field>Flagusage</dcsset:field>
 							<dcsset:orderType>Asc</dcsset:orderType>
 						</dcsset:item>
 						<dcsset:viewMode>Normal</dcsset:viewMode>

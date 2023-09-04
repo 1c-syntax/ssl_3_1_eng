@@ -493,7 +493,7 @@ EndProcedure
 //  String - 
 //
 Function StringIntoPunycode(Val String) Export
-	String = Lower(String);
+
 	URIStructure = CommonClientServer.URIStructure(String);
 	HostAddress = URIStructure.Host;
 	CopiedHostAddress = EncodeStringWithDelimiter(HostAddress);
@@ -2359,7 +2359,8 @@ Procedure GetStatusesOfEmailMessages() Export
 
 							If StrFind(EmailText["Text"], Selection.EmailID) > 0
 								And StrFind(EmailText["Text"], Selection.RecipientAddress) > 0
-								And StrFind(EmailText["Text"], "this error:") > 0 Then
+								And (StrFind(EmailText["Text"], "this error:") > 0
+								Or StrFind(EmailText["Text"], "Delivery has failed") > 0) Then
 								DeliveryStatusesString = DeliveryStatuses.Add();
 								DeliveryStatusesString.Sender = SelectionSender.Sender;
 								DeliveryStatusesString.EmailID = Selection.EmailID;
@@ -2367,9 +2368,12 @@ Procedure GetStatusesOfEmailMessages() Export
 								DeliveryStatusesString.Status = Enums.EmailMessagesStatuses.NotDelivered;
 								
 								CharNumberReasonStart = StrFind(EmailText["Text"], "this error:");
-								Cause = Mid(EmailText["Text"], StrLen(CharNumberReasonStart)-1);
-								SymbolNumberEndOfReason = StrFind(Cause, Chars.LF,,,2);
-								Cause = Mid(Cause, 1, SymbolNumberEndOfReason);
+								If CharNumberReasonStart = 0 Then
+									CharNumberReasonStart = StrFind(EmailText["Text"], "Your message");
+								EndIf;
+								Cause = Mid(EmailText["Text"], CharNumberReasonStart);
+								CharNumberReasonEnd = StrFind(Cause, Chars.LF,,,2);
+								Cause = Mid(Cause, 1, CharNumberReasonEnd);
 								
 								Cause = StringFunctionsClientServer.SubstituteParametersToString(
 								NStr("en = 'The message is not delivered due to: %1.';"), TrimAll(Cause));
@@ -2560,6 +2564,8 @@ Function EncodePunycodeString(Val IncomingString)
 		Return IncomingString;
 	EndIf;
 	
+	ThereIsHyphen = ?(Result.Find("-") = Undefined, False, True);
+	
 	Result.Add("-");
 	OutputCharCount = OutputCharCount + 1;
 
@@ -2617,7 +2623,11 @@ Function EncodePunycodeString(Val IncomingString)
 		Largest = Largest + 1;
 	EndDo;
 	EncodedString = "xn--" + StrConcat(Result);
-	EncodedString = StrReplace(EncodedString, "---", "--");
+	
+	If Not ThereIsHyphen Then
+		EncodedString = StrReplace(EncodedString, "---", "--");
+	EndIf;
+	
 	Return EncodedString;
 EndFunction
 
@@ -2625,11 +2635,7 @@ Function DecodePunycodeString(Val EncodedString)
 	If Not StrStartsWith(EncodedString, "xn--") Then
 		Return EncodedString;
 	Else
-		If StrOccurrenceCount(EncodedString, "-") = 3 Then
-			EncodedString = StrReplace(EncodedString, "xn--", "");
-		Else
-			EncodedString = StrReplace(EncodedString, "xn-", "");
-		EndIf;
+		EncodedString = StrReplace(EncodedString, "xn--", "");
 	EndIf;
 	Result = New Array;
 	Code = 128;

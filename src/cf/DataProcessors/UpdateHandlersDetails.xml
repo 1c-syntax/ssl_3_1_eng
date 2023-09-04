@@ -3030,7 +3030,7 @@ or other handlers modify objects readable by this handler.</v8:content>
 				<ChildObjects>
 					<Attribute uuid="5dfe90e2-cb1a-4510-b22c-af94ca06dd7b">
 						<Properties>
-							<Name>WriterHandler</Name>
+							<Name>HandlerWriter</Name>
 							<Synonym>
 								<v8:item>
 									<v8:lang>en</v8:lang>

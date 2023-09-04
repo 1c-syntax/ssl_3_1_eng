@@ -1868,7 +1868,7 @@ Function PrepareFormChangeNotification(ModifiedObjects) Export
 		If TypeOf(MetadataObject) <> Type("MetadataObject") Then
 			Continue;
 		EndIf;
-		EventName = "Write_" + MetadataObject.Name;
+		EventName = "Record_" + MetadataObject.Name;
 		Try
 			EmptyRef = PredefinedValue(MetadataObject.FullName() + ".EmptyRef");
 		Except
@@ -2959,13 +2959,13 @@ Procedure SetConstantDoNotUseSeparationByDataAreas(Parameters) Export
 	
 	NewValues = New Map;
 	If Constants.UseSeparationByDataAreas.Get() Then
-		NewValues.Insert("DoNotUseSeparationByDataAreas", False);
+		NewValues.Insert("NotUseSeparationByDataAreas", False);
 		NewValues.Insert("StandardSubsystemsStandaloneMode", False);
 	ElsIf Common.IsStandaloneWorkplace() Then
-		NewValues.Insert("DoNotUseSeparationByDataAreas", False);
+		NewValues.Insert("NotUseSeparationByDataAreas", False);
 		NewValues.Insert("StandardSubsystemsStandaloneMode", True);
 	Else
-		NewValues.Insert("DoNotUseSeparationByDataAreas", True);
+		NewValues.Insert("NotUseSeparationByDataAreas", True);
 		NewValues.Insert("StandardSubsystemsStandaloneMode", False);
 	EndIf;
 	
@@ -3041,11 +3041,11 @@ Procedure OnAddMetadataObjectsRenaming(Total) Export
 	
 	Library = "StandardSubsystems";
 	
-	OldName = "Role.BasicRights";
+	OldName = "Role.BasicAccess";
 	NewName  = "Role.BasicSSLRights";
 	Common.AddRenaming(Total, "3.0.1.19", OldName, NewName, Library);
 	
-	OldName = "Role.BasicExternalUserRights";
+	OldName = "Role.BasicAccessExternalUser";
 	NewName  = "Role.BasicSSLRightsForExternalUsers";
 	Common.AddRenaming(Total, "3.0.1.19", OldName, NewName, Library);
 	
@@ -3556,27 +3556,27 @@ Procedure BeforeStartApplication()
 		SupportedPlatformVersions = StrSplit("8.3.21", ", ", False);
 		
 		If SupportedPlatformVersions.Find(PlatformVersion) <> Undefined Then 
-			UnsupportedPlatformVersion = "";
+			NotSupportedPlatformVersion = "";
 		Else
-			UnsupportedPlatformVersion = PlatformVersion;
+			NotSupportedPlatformVersion = PlatformVersion;
 		EndIf;
 	Else
 		CurrentModeAsString = String(CurrentMode);
 		
 		If StrEndsWith(CurrentModeAsString, "8_3_21") Then
 			
-			UnsupportedPlatformVersion = "";
+			NotSupportedPlatformVersion = "";
 		Else
-			UnsupportedPlatformVersion = CurrentModeAsString;
+			NotSupportedPlatformVersion = CurrentModeAsString;
 		EndIf;
 	EndIf;
 	
-	If ValueIsFilled(UnsupportedPlatformVersion) Then
+	If ValueIsFilled(NotSupportedPlatformVersion) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Configuration compatibility mode ""Version %1"" is not supported. 
 			           |To start the application, set the compatibility mode to ""None"" (on 1C:Enterprise version %2)
 			           | or to ""Version %2"" (on a later 1C:Enterprise version).';"),
-			UnsupportedPlatformVersion, SupportedPlatformVersion);
+			NotSupportedPlatformVersion, SupportedPlatformVersion);
 	EndIf;
 	
 	// Checking whether the configuration version is filled.

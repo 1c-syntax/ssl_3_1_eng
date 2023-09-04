@@ -9,8 +9,6 @@
 
 #Region Private
 
-// Generates an array of details on possible contact types
-// 
 // Returns:
 //   FixedArray of See InteractionsClientServer.NewContactDescription
 //

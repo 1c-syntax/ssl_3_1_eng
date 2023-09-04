@@ -486,7 +486,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="SelectionCommandPanel1ExtendedTooltip" id="346"/>
+					<ExtendedTooltip name="FilterCommandBar1ExtendedTooltip" id="346"/>
 					<ChildItems>
 						<LabelDecoration name="FilterTitle" id="347">
 							<Title formatted="false">
@@ -495,17 +495,17 @@
 									<v8:content>Criterion:</v8:content>
 								</v8:item>
 							</Title>
-							<ContextMenu name="SelectionOfTitleContextMenu" id="348"/>
+							<ContextMenu name="FilterTitleContextMenu" id="348"/>
 							<ExtendedTooltip name="SelectionOfTitleExtendedTooltip" id="349"/>
 						</LabelDecoration>
-						<CommandBar name="FilterBasicCommands" id="350">
+						<CommandBar name="FilterCommandsBasic" id="350">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
 									<v8:content>Main commands</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="TeamSelectionMainExtendedTooltip" id="351"/>
+							<ExtendedTooltip name="FilterCommandsBasicExtendedTooltip" id="351"/>
 							<ChildItems>
 								<Button name="FilterAddFilterItem" id="293">
 									<Type>CommandBarButton</Type>
@@ -519,7 +519,7 @@
 									</Title>
 									<ExtendedTooltip name="FilterAddFilterItemExtendedTooltip" id="294"/>
 								</Button>
-								<ButtonGroup name="FilterChangeCheckBoxesGroup" id="285">
+								<ButtonGroup name="FilterChangeCheckboxesGroup" id="285">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -527,19 +527,19 @@
 										</v8:item>
 									</Title>
 									<Representation>Compact</Representation>
-									<ExtendedTooltip name="SelectionGroupChangeCheckboxesExtendedTooltip" id="286"/>
+									<ExtendedTooltip name="FilterChangeCheckboxesGroupExtendedTooltip" id="286"/>
 									<ChildItems>
-										<Button name="FilterSelectCheckBoxes" id="295">
+										<Button name="FilterCheckAll" id="295">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Item.Filter.StandardCommand.CheckAll</CommandName>
 											<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-											<ExtendedTooltip name="FilterSelectCheckBoxesExtendedTooltip" id="296"/>
+											<ExtendedTooltip name="FilterCheckAllExtendedTooltip" id="296"/>
 										</Button>
-										<Button name="FilterClearCheckBoxes" id="297">
+										<Button name="FilterUncheckAll" id="297">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Item.Filter.StandardCommand.UncheckAll</CommandName>
 											<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-											<ExtendedTooltip name="FilterClearCheckBoxesExtendedTooltip" id="298"/>
+											<ExtendedTooltip name="FilterUncheckAllExtendedTooltip" id="298"/>
 										</Button>
 									</ChildItems>
 								</ButtonGroup>
@@ -551,7 +551,7 @@
 										</v8:item>
 									</Title>
 									<Representation>Compact</Representation>
-									<ExtendedTooltip name="SelectionGroupMoveExtendedTooltip" id="292"/>
+									<ExtendedTooltip name="FilterMoveGroupExtendedTooltip" id="292"/>
 									<ChildItems>
 										<Button name="FilterMoveUp" id="299">
 											<Type>CommandBarButton</Type>
@@ -638,7 +638,7 @@
 										<v8:content>Change</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="SelectionGroupChangeExtendedTooltip" id="353"/>
+								<ExtendedTooltip name="FilterChangeGroupExtendedTooltip" id="353"/>
 								<ChildItems>
 									<Button name="FilterCopy" id="313">
 										<Type>CommandBarButton</Type>
@@ -664,12 +664,12 @@
 										<v8:content>Other</v8:content>
 									</v8:item>
 								</Title>
-								<ExtendedTooltip name="SelectionGroupOtherExtendedTooltip" id="310"/>
+								<ExtendedTooltip name="FilterOthersGroupExtendedTooltip" id="310"/>
 								<ChildItems>
-									<Button name="FilterCompleteEditing" id="319">
+									<Button name="FilterEndEdit" id="319">
 										<Type>CommandBarButton</Type>
 										<CommandName>Form.Item.Filter.StandardCommand.EndEdit</CommandName>
-										<ExtendedTooltip name="FilterCompleteEditingExtendedTooltip" id="320"/>
+										<ExtendedTooltip name="FilterEndEditExtendedTooltip" id="320"/>
 									</Button>
 									<Button name="FilterUseFieldAsValue" id="321">
 										<Type>CommandBarButton</Type>
@@ -714,13 +714,13 @@
 						<Event name="OnChange">FilterOnChange</Event>
 					</Events>
 					<ChildItems>
-						<CheckBoxField name="FilterUsage" id="214">
+						<CheckBoxField name="FilterUse" id="214">
 							<DataPath>SettingsComposer.Settings.ConditionalAppearance[0].Filter.Use</DataPath>
 							<TitleLocation>None</TitleLocation>
 							<EditMode>Directly</EditMode>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="FilterUsageContextMenu" id="215"/>
-							<ExtendedTooltip name="FilterUsageExtendedTooltip" id="216"/>
+							<ContextMenu name="FilterUseContextMenu" id="215"/>
+							<ExtendedTooltip name="FilterUseExtendedTooltip" id="216"/>
 						</CheckBoxField>
 						<ColumnGroup name="FilterColumnsGroupFilter" id="217">
 							<Title>
@@ -808,7 +808,7 @@
 											<DataPath>SettingsComposer.Settings.ConditionalAppearance[0].Filter.Date</DataPath>
 											<EditMode>EnterOnInput</EditMode>
 											<Width>10</Width>
-											<ContextMenu name="FilterDate1ContextMenu" id="249"/>
+											<ContextMenu name="FilterDateContextMenu" id="249"/>
 											<ExtendedTooltip name="FilterDate1ExtendedTooltip" id="250"/>
 										</InputField>
 									</ChildItems>
@@ -837,14 +837,14 @@
 											</Title>
 											<ExtendedTooltip name="FilterColumnsGroupApplyExtendedTooltip" id="220"/>
 											<ChildItems>
-												<InputField name="FilterApply" id="251">
+												<InputField name="FilterApplication" id="251">
 													<DataPath>SettingsComposer.Settings.ConditionalAppearance[0].Filter.Application</DataPath>
 													<EditMode>EnterOnInput</EditMode>
 													<Width>5</Width>
 													<ContextMenu name="FilterApplyContextMenu" id="252"/>
 													<ExtendedTooltip name="FilterApplyExtendedTooltip" id="253"/>
 												</InputField>
-												<InputField name="FilterDisplayMode" id="254">
+												<InputField name="FilterViewMode" id="254">
 													<DataPath>SettingsComposer.Settings.ConditionalAppearance[0].Filter.ViewMode</DataPath>
 													<EditMode>EnterOnInput</EditMode>
 													<Width>5</Width>

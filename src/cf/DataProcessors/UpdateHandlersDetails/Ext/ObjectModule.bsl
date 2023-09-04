@@ -536,7 +536,7 @@ Function ConflictsDataUpdateQueryText()
 	TextOfHandlersIntersection = 
 	"SELECT
 	|	T.MetadataObject AS MetadataObject,
-	|	T.WriterHandler AS WriterHandler,
+	|	T.HandlerWriter AS HandlerWriter,
 	|	MIN(UpdatePriorities1.OrderOfType) AS OrderOfType1,
 	|	T.ReadOrWriteHandler2 AS ReadOrWriteHandler2,
 	|	MIN(UpdatePriorities2.OrderOfType) AS OrderOfType2,
@@ -549,7 +549,7 @@ Function ConflictsDataUpdateQueryText()
 	|(
 	|	// Изменяемые объекты читаются другими обработчиками
 	|	SELECT
-	|		ObjectsToChange.Ref AS WriterHandler,
+	|		ObjectsToChange.Ref AS HandlerWriter,
 	|		ObjectsToReadByOtherHandlers.Ref AS ReadOrWriteHandler2,
 	|		ObjectsToChange.MetadataObject AS MetadataObject,
 	|		TRUE AS WritingPriority,
@@ -573,7 +573,7 @@ Function ConflictsDataUpdateQueryText()
 	|
 	|	// Изменяемые объекты изменяются другими обработчиками
 	|	SELECT
-	|		ObjectsToChange.Ref AS WriterHandler,
+	|		ObjectsToChange.Ref AS HandlerWriter,
 	|		ObjectsChangedByOtherHandlers.Ref AS ReadOrWriteHandler2,
 	|		ObjectsToChange.MetadataObject AS MetadataObject,
 	|		FALSE AS WritingPriority,
@@ -595,24 +595,24 @@ Function ConflictsDataUpdateQueryText()
 	|
 	|) AS T
 	|LEFT JOIN TypeUpdatePriorities AS UpdatePriorities1
-	|	ON T.WriterHandler = UpdatePriorities1.Ref
+	|	ON T.HandlerWriter = UpdatePriorities1.Ref
 	|LEFT JOIN TypeUpdatePriorities AS UpdatePriorities2
 	|	ON T.ReadOrWriteHandler2 = UpdatePriorities2.Ref
 	|
 	|GROUP BY
 	|	T.MetadataObject,
-	|	T.WriterHandler,
+	|	T.HandlerWriter,
 	|	T.ReadOrWriteHandler2
 	|
 	|INDEX BY
-	|	WriterHandler,
+	|	HandlerWriter,
 	|	ReadOrWriteHandler2";
 	#EndRegion
 	
 	#Region TextTTConflicts
 	TextTTConflicts = 
 	"SELECT
-	|	T.WriterHandler AS WriterHandler,
+	|	T.HandlerWriter AS HandlerWriter,
 	|	T.ReadOrWriteHandler2 AS ReadOrWriteHandler2,
 	|	MIN(T.OrderOfType1) AS OrderOfType1,
 	|	MIN(T.OrderOfType2) AS OrderOfType2,
@@ -623,7 +623,7 @@ Function ConflictsDataUpdateQueryText()
 	|INTO ttConflicts
 	|FROM
 	|	(SELECT
-	|		Conflicts1.WriterHandler AS WriterHandler,
+	|		Conflicts1.HandlerWriter AS HandlerWriter,
 	|		Conflicts1.ReadOrWriteHandler2 AS ReadOrWriteHandler2,
 	|		Conflicts1.OrderOfType1 AS OrderOfType1,
 	|		Conflicts1.OrderOfType2 AS OrderOfType2,
@@ -637,8 +637,8 @@ Function ConflictsDataUpdateQueryText()
 	|	UNION ALL
 	|
 	|	SELECT
-	|		Conflicts1.ReadOrWriteHandler2 AS WriterHandler,
-	|		Conflicts1.WriterHandler AS ReadOrWriteHandler2,
+	|		Conflicts1.ReadOrWriteHandler2 AS HandlerWriter,
+	|		Conflicts1.HandlerWriter AS ReadOrWriteHandler2,
 	|		Conflicts1.OrderOfType2 AS OrderOfType2,
 	|		Conflicts1.OrderOfType1 AS OrderOfType1,
 	|		NOT Conflicts1.WritingPriority AS WritingPriority,
@@ -650,18 +650,18 @@ Function ConflictsDataUpdateQueryText()
 	|	) AS T
 	|
 	|GROUP BY
-	|	T.WriterHandler,
+	|	T.HandlerWriter,
 	|	T.ReadOrWriteHandler2
 	|
 	|INDEX BY
-	|	WriterHandler,
+	|	HandlerWriter,
 	|	ReadOrWriteHandler2";
 	#EndRegion
 	
 	#Region TtPrioritiesByRecord
 	TtPrioritiesByRecord = 
 	"SELECT DISTINCT
-	|	Conflicts1.WriterHandler AS WriterHandler,
+	|	Conflicts1.HandlerWriter AS HandlerWriter,
 	|	Conflicts1.ReadOrWriteHandler2 AS ReadOrWriteHandler2,
 	|	Conflicts1.WritingPriority AS WritingPriority
 	|INTO TtPrioritiesByRecord
@@ -671,14 +671,14 @@ Function ConflictsDataUpdateQueryText()
 	|	Conflicts1.WritingPriority
 	|
 	|INDEX BY
-	|	WriterHandler,
+	|	HandlerWriter,
 	|	ReadOrWriteHandler2";
 	#EndRegion
 	
 	#Region TextTTPriorities
 	TextTTPriorities = 
 	"SELECT DISTINCT
-	|	Conflicts1.WriterHandler AS WriterHandler,
+	|	Conflicts1.HandlerWriter AS HandlerWriter,
 	|	Conflicts1.ReadOrWriteHandler2 AS ReadOrWriteHandler2,
 	|	Conflicts1.DataToReadWriter AS DataToReadWriter,
 	|	ConflictsMirrored.DataToReadWriter AS DataToReadWriter2,
@@ -744,36 +744,36 @@ Function ConflictsDataUpdateQueryText()
 	|FROM 
 	|	ttConflicts AS Conflicts1
 	|	LEFT JOIN ExecutionPriorities AS Priorities
-	|	ON Conflicts1.WriterHandler = Priorities.Ref
+	|	ON Conflicts1.HandlerWriter = Priorities.Ref
 	|		AND Conflicts1.ReadOrWriteHandler2 = Priorities.Handler2
 	|
 	|	LEFT JOIN ExecutionPriorities AS PrioritiesViceVersa
-	|	ON Conflicts1.WriterHandler = PrioritiesViceVersa.Handler2
+	|	ON Conflicts1.HandlerWriter = PrioritiesViceVersa.Handler2
 	|		AND Conflicts1.ReadOrWriteHandler2 = PrioritiesViceVersa.Ref
     |
 	|	LEFT JOIN ttConflicts AS ConflictsMirrored
-	|	ON Conflicts1.WriterHandler = ConflictsMirrored.ReadOrWriteHandler2
-	|		AND Conflicts1.ReadOrWriteHandler2 = ConflictsMirrored.WriterHandler
+	|	ON Conflicts1.HandlerWriter = ConflictsMirrored.ReadOrWriteHandler2
+	|		AND Conflicts1.ReadOrWriteHandler2 = ConflictsMirrored.HandlerWriter
 	|
 	|	LEFT JOIN TtPrioritiesByRecord AS PrioritiesByRecordInversed
-	|	ON Conflicts1.WriterHandler = PrioritiesByRecordInversed.ReadOrWriteHandler2
-	|		AND Conflicts1.ReadOrWriteHandler2 = PrioritiesByRecordInversed.WriterHandler
+	|	ON Conflicts1.HandlerWriter = PrioritiesByRecordInversed.ReadOrWriteHandler2
+	|		AND Conflicts1.ReadOrWriteHandler2 = PrioritiesByRecordInversed.HandlerWriter
 	|
 	|	LEFT JOIN Handlers AS Handlers1
-	|	ON Conflicts1.WriterHandler = Handlers1.Ref
+	|	ON Conflicts1.HandlerWriter = Handlers1.Ref
 	|
 	|	LEFT JOIN Handlers AS Handlers2
 	|	ON Conflicts1.ReadOrWriteHandler2 = Handlers2.Ref
 	|
 	|INDEX BY
-	|	WriterHandler,
+	|	HandlerWriter,
 	|	ReadOrWriteHandler2";
 	#EndRegion
 	
 	#Region TextNewPriorities
 	TextNewPriorities =
 	"SELECT DISTINCT
-	|	Priorities.WriterHandler AS WriterHandler,
+	|	Priorities.HandlerWriter AS HandlerWriter,
 	|	Priorities.ReadOrWriteHandler2 AS ReadOrWriteHandler2,
 	|	ISNULL(Handlers1.DeferredProcessingQueue, """") AS Queue1,
 	|	ISNULL(Handlers2.DeferredProcessingQueue, """") AS Queue2,
@@ -848,13 +848,13 @@ Function ConflictsDataUpdateQueryText()
 	|	ttPriorities AS Priorities
 	|
 	|	LEFT JOIN Handlers AS Handlers1
-	|	ON Priorities.WriterHandler = Handlers1.Ref
+	|	ON Priorities.HandlerWriter = Handlers1.Ref
 	|
 	|	LEFT JOIN Handlers AS Handlers2
 	|	ON Priorities.ReadOrWriteHandler2 = Handlers2.Ref
 	|
 	|INDEX BY
-	|	WriterHandler,
+	|	HandlerWriter,
 	|	ReadOrWriteHandler2";
 	#EndRegion
 	
@@ -893,7 +893,7 @@ Function ConflictsDataUpdateQueryText()
 	|INTO Issues
 	|FROM
 	|	(SELECT
-	|		Issues.WriterHandler AS Handler,
+	|		Issues.HandlerWriter AS Handler,
 	|		Issues.DataToReadWriter AS DataToReadWriter,
 	|		Issues.WriteAgain AS WriteAgain,
 	|		Issues.ExecutionOrderSpecified AS ExecutionOrderSpecified,
@@ -938,7 +938,7 @@ Function ConflictsDataUpdateQueryText()
 	TextConflicts = 
 	"SELECT
 	|	Conflicts1.MetadataObject AS MetadataObject,
-	|	Conflicts1.WriterHandler AS WriterHandler,
+	|	Conflicts1.HandlerWriter AS HandlerWriter,
 	|	Conflicts1.ReadOrWriteHandler2 AS ReadOrWriteHandler2,
 	|	Conflicts1.DataToReadWriter AS DataToReadWriter,
 	|	Conflicts1.WriteAgain AS WriteAgain,
@@ -951,7 +951,7 @@ Function ConflictsDataUpdateQueryText()
 	|	HandlersIntersections AS Conflicts1
 	|
 	|	LEFT JOIN Handlers AS WriteHandlers
-	|	ON Conflicts1.WriterHandler = WriteHandlers.Ref
+	|	ON Conflicts1.HandlerWriter = WriteHandlers.Ref
 	|
 	|	LEFT JOIN Handlers AS ReadOrWriteHandlers2
 	|	ON Conflicts1.ReadOrWriteHandler2 = ReadOrWriteHandlers2.Ref
@@ -965,7 +965,7 @@ Function ConflictsDataUpdateQueryText()
 	#Region TextPriorities
 	TextPriorities = 
 	"SELECT
-	|	Priorities.WriterHandler AS Ref,
+	|	Priorities.HandlerWriter AS Ref,
 	|	Priorities.ReadOrWriteHandler2 AS Handler2,
 	|	Priorities.Order AS Order,
 	|	Priorities.OrderAuto AS OrderAuto,
@@ -1002,7 +1002,7 @@ Function ConflictsDataUpdateQueryText()
 	|FROM
 	|	NewPriorities AS Priorities
 	|	LEFT JOIN Handlers AS WriteHandlers
-	|	ON Priorities.WriterHandler = WriteHandlers.Ref
+	|	ON Priorities.HandlerWriter = WriteHandlers.Ref
 	|
 	|	LEFT JOIN Handlers AS ReadWriteHandlers2
 	|	ON Priorities.ReadOrWriteHandler2 = ReadWriteHandlers2.Ref
@@ -1158,9 +1158,9 @@ Function TempTablesQueryText()
 	#EndRegion
 
 	#Region ObjectsToChange
-	QueryTextChangeableObjects = StrReplace(QueryTextObjectsToRead, "&NewObjects", "ObjectsToRead.NewObjects");
-	QueryTextChangeableObjects = StrReplace(QueryTextChangeableObjects, "ObjectsToRead", "ObjectsToChange");
-	QueriesTexts.Add(StrReplace(QueryTextChangeableObjects, "ObjectsToRead", "ObjectsToChange"));
+	QueryTextObjectsToChange = StrReplace(QueryTextObjectsToRead, "&NewObjects", "ObjectsToRead.NewObjects");
+	QueryTextObjectsToChange = StrReplace(QueryTextObjectsToChange, "ObjectsToRead", "ObjectsToChange");
+	QueriesTexts.Add(StrReplace(QueryTextObjectsToChange, "ObjectsToRead", "ObjectsToChange"));
 	#EndRegion
 
 	#Region TypeUpdatePriorities
@@ -1237,7 +1237,7 @@ Function TempTablesQueryText()
 	#Region HandlersConflicts
 	QueriesTexts.Add(
 	"SELECT
-	|	HandlersConflicts.WriterHandler AS WriterHandler,
+	|	HandlersConflicts.HandlerWriter AS HandlerWriter,
 	|	HandlersConflicts.ReadOrWriteHandler2 AS ReadOrWriteHandler2,
 	|	HandlersConflicts.MetadataObject AS MetadataObject,
 	|	HandlersConflicts.DataToReadWriter AS DataToReadWriter,
@@ -1247,7 +1247,7 @@ Function TempTablesQueryText()
 	|	&HandlersConflicts AS HandlersConflicts
 	|
 	|INDEX BY
-	|	WriterHandler,
+	|	HandlerWriter,
 	|	ReadOrWriteHandler2,
 	|	MetadataObject");
 	#EndRegion
@@ -1311,7 +1311,7 @@ Function TempQueueBuildingTablesText()
 
 	Return
 	"SELECT
-	|	Conflicts1.WriterHandler AS WriterHandler,
+	|	Conflicts1.HandlerWriter AS HandlerWriter,
 	|	Conflicts1.ReadOrWriteHandler2 AS ReadOrWriteHandler2,
 	|
 	|	WriteHandlers.ExecutionMode AS ExecutionMode1,
@@ -1325,7 +1325,7 @@ Function TempQueueBuildingTablesText()
 	|FROM
 	|	HandlersConflicts AS Conflicts1
 	|	LEFT JOIN Handlers AS WriteHandlers
-	|	ON Conflicts1.WriterHandler = WriteHandlers.Ref
+	|	ON Conflicts1.HandlerWriter = WriteHandlers.Ref
 	|
 	|	LEFT JOIN Handlers AS ReadWriteHandlers2
 	|	ON Conflicts1.ReadOrWriteHandler2 = ReadWriteHandlers2.Ref
@@ -1422,7 +1422,7 @@ Function TempQueueBuildingTablesText()
 	|
 	|////////////////////////////////////////////////////////////////////////////////
 	|SELECT
-	|	HandlersIssues.WriterHandler AS Handler1,
+	|	HandlersIssues.HandlerWriter AS Handler1,
 	|	HandlersIssues.ReadOrWriteHandler2 AS Handler2,
 	|	MAX(HandlersIssues.WriteAgain) AS HasWriteAgain
 	|INTO WriteAgain
@@ -1430,7 +1430,7 @@ Function TempQueueBuildingTablesText()
 	|	HandlersIssues AS HandlersIssues
 	|
 	|GROUP BY
-	|	HandlersIssues.WriterHandler,
+	|	HandlersIssues.HandlerWriter,
 	|	HandlersIssues.ReadOrWriteHandler2
 	|
 	|HAVING

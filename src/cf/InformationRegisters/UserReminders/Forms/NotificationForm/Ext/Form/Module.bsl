@@ -40,7 +40,7 @@ EndProcedure
 Procedure OnReopen()
 	UpdateRemindersTable();
 	UpdateTimeInRemindersTable();
-	ThisObject.CurrentItem = Items.RepeatedNotificationPeriod;
+	CurrentItem = Items.RepeatedNotificationPeriod;
 	Activate();
 EndProcedure
 
@@ -291,8 +291,8 @@ EndFunction
 Procedure SetVisibility1()
 	HasTableData = Reminders.Count() > 0;
 	
-	If Not HasTableData And ThisObject.IsOpen() Then
-		ThisObject.Close();
+	If Not HasTableData And IsOpen() Then
+		Close();
 	EndIf;
 	
 	Items.ButtonsPanel.Enabled = HasTableData;

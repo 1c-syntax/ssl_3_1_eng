@@ -165,7 +165,7 @@ Procedure SRCDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
 	#If Not WebClient Then
 		StandardProcessing = False;
 		
-		FileSelectionHandler = New NotifyDescription("SelectDirectoryDialogCompletion", ThisObject, "SRCDirectory");
+		FileSelectionHandler = New NotifyDescription("DirectorySelectionDialogBoxCompletion", ThisObject, "SRCDirectory");
 		FileSystemClient.SelectDirectory(FileSelectionHandler, NStr("en = 'Select a SRC directory';"), Object.SRCDirectory);
 		
 	#EndIf
@@ -186,7 +186,7 @@ Procedure ErrorFileDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
 		
 		FileDialog = New FileDialog(FileDialogMode.ChooseDirectory);
 		FileDialog.FullFileName = ErrorFileDirectory;
-		FileSelectionHandler = New NotifyDescription("SelectDirectoryDialogCompletion", ThisObject, "ErrorFileDirectory");
+		FileSelectionHandler = New NotifyDescription("DirectorySelectionDialogBoxCompletion", ThisObject, "ErrorFileDirectory");
 		FileSystemClient.SelectDirectory(FileSelectionHandler, NStr("en = 'Specify an error files directory';"), ErrorFileDirectory);
 	#EndIf
 EndProcedure
@@ -286,10 +286,10 @@ EndProcedure
 &AtClient
 Procedure HandlerEditingCompletion(Result, AdditionalParameters) Export
 	
-	If ThisObject.CurrentItem <> Undefined And ThisObject.CurrentItem.Name <> "UpdateHandlers" Then
-		ThisObject.CurrentItem = Items.UpdateHandlers;
-		If ThisObject.CurrentItem.CurrentItem  <> Undefined And ThisObject.CurrentItem.CurrentItem.Name <> "UpdateHandlersProcedure" Then
-			ThisObject.CurrentItem.CurrentItem = Items.UpdateHandlersProcedure;
+	If CurrentItem <> Undefined And CurrentItem.Name <> "UpdateHandlers" Then
+		CurrentItem = Items.UpdateHandlers;
+		If CurrentItem.CurrentItem  <> Undefined And CurrentItem.CurrentItem.Name <> "UpdateHandlersProcedure" Then
+			CurrentItem.CurrentItem = Items.UpdateHandlersProcedure;
 		EndIf;
 	EndIf;
 	
@@ -471,7 +471,7 @@ Procedure SaveToFile(Command)
 	
     #If Not WebClient Then
 		
-		FileSelectionHandler = New NotifyDescription("SelectFileDialogCompletion", ThisObject, "");
+		FileSelectionHandler = New NotifyDescription("FileDialogCompletion", ThisObject, "");
 		FileDialog = New FileDialog(FileDialogMode.Save);
 		FileDialog.Title = NStr("en = 'Specify a file name';");
 		FileDialog.Filter = FilterBackupFiles();
@@ -1362,7 +1362,7 @@ Procedure Attachable_OpenHandlerDetailsEditor()
 	OpenForm(HandlerFormName,
 		FormParameters,
 		ThisObject,
-		ThisObject.UUID,
+		UUID,
 		,
 		,
 		FormClosingHandler,
@@ -1390,7 +1390,7 @@ Function PutHandlerDataInStorage(HandlerRef, Address = Undefined, CopySource = U
 		TabSections.Insert("ExecutionPriorities", Object.ExecutionPriorities.Unload(Filter));
 		TabSections.Insert("LowPriorityReading", Object.LowPriorityReading.Unload(Filter));
 	
-		Filter = New Structure("WriterHandler", HandlerRef);
+		Filter = New Structure("HandlerWriter", HandlerRef);
 		TabSections.Insert("HandlersConflicts", Object.HandlersConflicts.Unload(Filter));
 		
 		Filter = New Structure("ReadOrWriteHandler2", HandlerRef);
@@ -1984,7 +1984,7 @@ Function HandlersDetailsByManagersModules(SettingsAddress)
 			CommonClientServer.SupplementArray(ChangedHandlers, PickedHandlers, True);
 		EndIf;
 		For Each Changed In ChangedHandlers Do
-			HandlerConflicts = Object.HandlersConflicts.Unload(New Structure("WriterHandler", Changed));
+			HandlerConflicts = Object.HandlersConflicts.Unload(New Structure("HandlerWriter", Changed));
 			ConflictingHandlers = AllHandlersModules.CopyColumns();
 			For Each Conflict In HandlerConflicts Do
 				Handler = HandlersForDetails.Find(Conflict.ReadOrWriteHandler2, "Ref");
@@ -4202,7 +4202,7 @@ Procedure ApplySettingsGroupAppearance()
 EndProcedure 
 
 &AtClient
-Procedure SelectDirectoryDialogCompletion(SelectedDirectory, Var_AttributeName) Export
+Procedure DirectorySelectionDialogBoxCompletion(SelectedDirectory, Var_AttributeName) Export
 
 	If SelectedDirectory <> "" Then
 		If Var_AttributeName = "ErrorFileDirectory" Then
@@ -4221,7 +4221,7 @@ Function FilterBackupFiles()
 EndFunction
 
 &AtClient
-Procedure SelectFileDialogCompletion(SelectedFile, AdditionalParameters) Export
+Procedure FileDialogCompletion(SelectedFile, AdditionalParameters) Export
 
 	If SelectedFile <> Undefined Then
 		BackupFileName = SelectedFile[0];
@@ -4616,7 +4616,7 @@ Function HandlerData(TSName, Ref)
 		TSData = Object[TSName].Unload(Filter);
 		
 	ElsIf TSName = "HandlersConflicts" Then
-		Filter = New Structure("WriterHandler", Ref);
+		Filter = New Structure("HandlerWriter", Ref);
 		TSData = Object[TSName].Unload(Filter);
 		Filter = New Structure("ReadOrWriteHandler2", Ref);
 		TSData2 = Object[TSName].Unload(Filter);

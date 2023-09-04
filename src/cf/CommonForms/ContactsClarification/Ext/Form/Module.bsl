@@ -249,7 +249,7 @@ EndProcedure
 #Region FormCommandHandlers
 
 &AtClient
-Procedure OKCommandExecute()
+Procedure OkCommandExecute()
 	
 	SaveAndLoad();
 	
@@ -296,7 +296,7 @@ Procedure SetConditionalAppearance()
 	ItemField.Field = New DataCompositionField(Items.ContactsTableChange.Name);
 	
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
-	ItemFilter.LeftValue  = New DataCompositionField("TableOfContacts.ChangeAvailable");
+	ItemFilter.LeftValue  = New DataCompositionField("TableOfContacts.AvailableUpdate");
 	ItemFilter.ComparisonType   = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = False;
 	
@@ -860,7 +860,7 @@ Procedure SetClearFlagChangeIfRequired(CurrentData)
 	If (Not ValueIsFilled(CurrentData.Address) 
 		Or Not ValueIsFilled(CurrentData.Contact) 
 		Or Upper(CurrentData.Address) = Upper(CurrentData.CurrentContactAddress)
-		Or Not CurrentData.ChangeAvailable) Then
+		Or Not CurrentData.AvailableUpdate) Then
 		
 		CurrentData.Change = False;
 		
@@ -894,19 +894,19 @@ Procedure DefineEditAvailabilityForContacts()
 	
 		If Not ValueIsFilled(RowContact.Contact) Then
 			
-			RowContact.ChangeAvailable = False;
+			RowContact.AvailableUpdate = False;
 			
 		Else
 			
 			EditRight = AccessRight("Update", Metadata.FindByType(TypeOf(RowContact.Contact)));
-			RowContact.ChangeAvailable = EditRight;
+			RowContact.AvailableUpdate = EditRight;
 			If Not EditRight Then
-				RowContact.ChangeAvailable = False;
+				RowContact.AvailableUpdate = False;
 			EndIf;
 			
 		EndIf;
 		
-		If Not RowContact.ChangeAvailable Then
+		If Not RowContact.AvailableUpdate Then
 			
 			RowContact.Change = False;
 			

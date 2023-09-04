@@ -41,7 +41,7 @@ Procedure WindowsArchivePathStartChoice(Item, ChoiceData, StandardProcessing)
 	Dialog = New FileDialog(FileDialogMode.Open);
 	
 	Dialog.Title                    = NStr("en = 'Select file';");
-	Dialog.FullFileName               = ?(ThisObject.WindowsArchivePath = "", "files.zip", ThisObject.WindowsArchivePath);
+	Dialog.FullFileName               = ?(WindowsArchivePath = "", "files.zip", WindowsArchivePath);
 	Dialog.Multiselect           = False;
 	Dialog.Preview      = False;
 	Dialog.CheckFileExist  = True;
@@ -49,7 +49,7 @@ Procedure WindowsArchivePathStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	If Dialog.Choose() Then
 		
-		ThisObject.WindowsArchivePath = Dialog.FullFileName;
+		WindowsArchivePath = Dialog.FullFileName;
 		
 	EndIf;
 	

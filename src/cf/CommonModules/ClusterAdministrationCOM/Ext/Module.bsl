@@ -265,7 +265,8 @@ EndProcedure
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.ФильтрСеансов, Array Of See ClusterAdministration.SessionsFilter
+//   Filter - See ClusterAdministration.SessionsFilter
+//          See ClusterAdministration.SessionsFilter
 //
 // Returns: 
 //   Array of See ClusterAdministration.SessionProperties
@@ -299,7 +300,8 @@ EndFunction
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.ФильтрСеансов, Array Of See ClusterAdministration.SessionsFilter
+//   Filter - See ClusterAdministration.SessionsFilter
+//          See ClusterAdministration.SessionsFilter
 //
 Procedure DeleteInfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -373,7 +375,8 @@ EndProcedure
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.ФильтрСоединений, Array Of See ClusterAdministration.JoinsFilters
+//   Filter - See ClusterAdministration.JoinsFilters
+//          See ClusterAdministration.JoinsFilters
 //
 // Returns: 
 //   Array of See ClusterAdministration.ConnectionProperties
@@ -409,7 +412,8 @@ EndFunction
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.ФильтрСоединений, Array Of See ClusterAdministration.JoinsFilters
+//   Filter - See ClusterAdministration.JoinsFilters
+//          See ClusterAdministration.JoinsFilters
 //
 Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val IBAdministrationParameters, 
 	Val Filter = Undefined) Export

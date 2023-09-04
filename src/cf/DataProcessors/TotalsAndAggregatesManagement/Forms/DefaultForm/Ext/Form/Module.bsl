@@ -634,7 +634,7 @@ EndProcedure
 
 &AtClient
 Procedure RecalcTotalsForPeriod(Command)
-	Handler = New NotifyDescription("RecalculateTotalsForPeriodCompletion", ThisObject);
+	Handler = New NotifyDescription("RecalcTotalsForPeriodCompletion", ThisObject);
 	Dialog = New StandardPeriodEditDialog;
 	Dialog.Period = RegistersRecalculationPeriod;
 	Dialog.Show(Handler);
@@ -766,7 +766,7 @@ Procedure ClearAggregatesByRegistersCompletion(Response, AdditionalParameters) E
 EndProcedure
 
 &AtClient
-Procedure RecalculateTotalsForPeriodCompletion(ValueSelected, AdditionalParameters) Export
+Procedure RecalcTotalsForPeriodCompletion(ValueSelected, AdditionalParameters) Export
 	
 	If ValueSelected = Undefined Then
 		Return;

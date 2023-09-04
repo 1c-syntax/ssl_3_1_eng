@@ -293,6 +293,7 @@ Function SignaturePropertiesUponReadAndVerify() Export
 	Structure.Insert("DateActionLastTimestamp");
 	Structure.Insert("DateSignedFromLabels");
 	Structure.Insert("UnverifiedSignatureDate");
+	Structure.Insert("ResultOfSignatureVerificationByMCHD");
 	
 	Structure.Insert("Certificate");
 	Structure.Insert("Thumbprint");
@@ -568,7 +569,7 @@ Function DefineApp(CertificateProperties,
 	
 	For Each InstalledCryptoProvider In InstalledCryptoProviders Do
 		
-		If AppNotUsed(InstalledCryptoProvider.UsageMode) Then
+		If ApplicationNotUsed(InstalledCryptoProvider.UsageMode) Then
 			Continue;
 		EndIf;
 		
@@ -663,7 +664,7 @@ Function NewErrorProperties() Export
 	ErrorProperties.Insert("ErrorTitle",   "");
 	ErrorProperties.Insert("LongDesc",          "");
 	ErrorProperties.Insert("FromException",      False);
-	ErrorProperties.Insert("Unsupported",  False);
+	ErrorProperties.Insert("NotSupported",  False);
 	ErrorProperties.Insert("NoExtension",     False);
 	ErrorProperties.Insert("ToAdministrator",   False);
 	ErrorProperties.Insert("Instruction",        False);
@@ -761,7 +762,7 @@ Function CryptoManagerApplicationsDetails(Application, Errors, Val ApplicationsD
 					
 				EndIf;
 				
-				If AppNotUsed(ApplicationDetails.UsageMode) Then
+				If ApplicationNotUsed(ApplicationDetails.UsageMode) Then
 					Break;
 				EndIf;
 				
@@ -785,7 +786,7 @@ Function CryptoManagerApplicationsDetails(Application, Errors, Val ApplicationsD
 		
 		For Each ApplicationDetails In ApplicationsDetailsCollection Do
 			If Not ValueIsFilled(ApplicationDetails.Id)
-				And Not AppNotUsed(ApplicationDetails.UsageMode) Then
+				And Not ApplicationNotUsed(ApplicationDetails.UsageMode) Then
 				
 				Found4 = Undefined;
 				For Each AppAuto In AppsAuto Do
@@ -820,7 +821,7 @@ Function AreAutomaticSettingsUsed(UsageMode) Export
 		
 EndFunction
 
-Function AppNotUsed(UsageMode) Export
+Function ApplicationNotUsed(UsageMode) Export
 
 	Return UsageMode = PredefinedValue(
 		"Enum.DigitalSignatureAppUsageModes.NotUsed")
@@ -1601,7 +1602,7 @@ EndProcedure
 //   * UnverifiedSignatureDate - Date
 //
 Function SignatureProperties(SignatureBinaryData, CertificateProperties, Comment,
-			AuthorizedUser, SignatureFileName = "", SignatureParameters = Undefined, CheckRequired2 = False) Export
+			AuthorizedUser, SignatureFileName = "", SignatureParameters = Undefined, IsVerificationRequired = False) Export
 	
 	SignatureProperties = New Structure;
 	SignatureProperties.Insert("Signature",             SignatureBinaryData);
@@ -1620,7 +1621,8 @@ Function SignatureProperties(SignatureBinaryData, CertificateProperties, Comment
 	SignatureProperties.Insert("DateActionLastTimestamp");
 	SignatureProperties.Insert("DateSignedFromLabels");
 	SignatureProperties.Insert("UnverifiedSignatureDate");
-	SignatureProperties.Insert("CheckRequired2", CheckRequired2);
+	SignatureProperties.Insert("IsVerificationRequired", IsVerificationRequired);
+	SignatureProperties.Insert("SignatureID");
 	
 	If SignatureParameters <> Undefined Then
 		SignatureProperties.Insert("SignatureType", SignatureParameters.SignatureType);
@@ -1921,7 +1923,7 @@ Function GeneralDescriptionOfTheError(ErrorAtClient, ErrorAtServer, ErrorTitle =
 		GeneralDescriptionOfTheError = NStr("en = 'Unexpected error';");
 		
 	ElsIf Not ValueIsFilled(ErrorDetailsAtClient.ErrorDescription)
-	      Or ErrorDetailsAtClient.Unsupported
+	      Or ErrorDetailsAtClient.NotSupported
 	        And ValueIsFilled(ErrorDescriptionAtServer.ErrorDescription) Then
 		
 		If ValueIsFilled(ErrorDescriptionAtServer.ErrorTitle)
@@ -3113,7 +3115,7 @@ Function SimplifiedErrorStructure(Error, ErrorTitle)
 	SimplifiedStructure.Insert("ErrorDescription",  "");
 	SimplifiedStructure.Insert("ErrorTitle", "");
 	SimplifiedStructure.Insert("LongDesc",        "");
-	SimplifiedStructure.Insert("Unsupported", False);
+	SimplifiedStructure.Insert("NotSupported", False);
 	
 	If TypeOf(Error) = Type("String") Then
 		SimplifiedStructure.ErrorDescription = TrimAll(Error);
@@ -3140,8 +3142,8 @@ Function SimplifiedErrorStructure(Error, ErrorTitle)
 			LongDesc = LongDesc + ErrorProperties.LongDesc;
 			SimplifiedStructure.LongDesc = TrimAll(LongDesc);
 			SimplifiedStructure.ErrorDescription = TrimAll(SimplifiedStructure.ErrorTitle + Chars.LF + LongDesc);
-			If ErrorProperties.Unsupported Then
-				SimplifiedStructure.Unsupported = True;
+			If ErrorProperties.NotSupported Then
+				SimplifiedStructure.NotSupported = True;
 			EndIf;
 		EndIf;
 	ElsIf ValueIsFilled(ErrorTitle) Then
@@ -4591,7 +4593,8 @@ Function IsCertificateExists(CryptoCertificate) Export
 		Return False;
 	EndIf;
 	
-	Try 
+	Try
+		// 
 		SerialNumber = CryptoCertificate.SerialNumber;
 		Return True;
 	Except

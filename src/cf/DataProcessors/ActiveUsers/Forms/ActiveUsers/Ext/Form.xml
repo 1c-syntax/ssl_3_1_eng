@@ -221,7 +221,7 @@
 					</Button>
 				</ChildItems>
 			</ContextMenu>
-			<AutoCommandBar name="UsersListCommandBar_SSLy" id="23"/>
+			<AutoCommandBar name="UsersListCommandBar" id="23"/>
 			<ExtendedTooltip name="UsersList1ExtendedTooltip" id="52"/>
 			<SearchStringAddition name="UsersList1SearchString" id="73">
 				<AdditionSource>

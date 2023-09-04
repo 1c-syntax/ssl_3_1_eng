@@ -204,7 +204,7 @@ Procedure NewPredefinedNodeCode(Command)
 			
 	Else
 		
-		NotificationProcessing = New NotifyDescription("NewCodeOfThePredefinedNodeCompletion", ThisObject);
+		NotificationProcessing = New NotifyDescription("NewPredefinedNodeCodeCompletion", ThisObject);
 		List.ShowChooseItem(NotificationProcessing, NStr("en = 'Select an exchange plan';"))	
 	
 	EndIf;
@@ -234,7 +234,7 @@ Function ExchangePlansWithIDSupport()
 EndFunction
 
 &AtClient
-Procedure NewCodeOfThePredefinedNodeCompletion(Result, AdditionalParameters) Export
+Procedure NewPredefinedNodeCodeCompletion(Result, AdditionalParameters) Export
 	
 	If Result = Undefined Then
 		Return;

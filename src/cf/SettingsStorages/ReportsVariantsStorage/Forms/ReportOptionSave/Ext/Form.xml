@@ -371,7 +371,7 @@
 														<v8:item>
 															<v8:lang>en</v8:lang>
 															<v8:content>The report option will be saved as a new option.
-Click Next to add the report option to the application sections.</v8:content>
+Click Next to add the report option to application sections.</v8:content>
 														</v8:item>
 													</Title>
 													<VerticalAlign>Bottom</VerticalAlign>
@@ -616,7 +616,7 @@ This option is recommended if you made significant changes to the report option.
 				</Page>
 			</ChildItems>
 		</Pages>
-		<UsualGroup name="CommandBarGroup" id="145">
+		<UsualGroup name="GroupCommandBar" id="145">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>

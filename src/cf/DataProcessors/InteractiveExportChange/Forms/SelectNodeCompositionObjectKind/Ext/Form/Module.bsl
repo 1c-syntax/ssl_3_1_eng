@@ -24,7 +24,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	AllData = DataExchangeCached.ExchangePlanContent(Object.InfobaseNode.Metadata().Name);
 
 	// Hiding items with DoNotExport set.
-	NotExportMode = Enums.ExchangeObjectExportModes.DoNotExport;
+	NotExportMode = Enums.ExchangeObjectExportModes.NotExport;
 	ExportModes   = DataExchangeCached.UserExchangePlanComposition(Object.InfobaseNode);
 	Position = AllData.Count() - 1;
 	While Position >= 0 Do

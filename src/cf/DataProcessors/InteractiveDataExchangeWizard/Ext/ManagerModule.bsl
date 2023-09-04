@@ -572,7 +572,7 @@ Function StatisticsTableExchangeMessages(Parameters,
 	
 	ExchangeExecutionResult = DataExchangeDataProcessor.ExchangeExecutionResult();
 	
-	If DataExchangeDataProcessor.ErrorFlag() Then
+	If DataExchangeDataProcessor.FlagErrors() Then
 		Cancel = True;
 		ErrorMessage = DataExchangeDataProcessor.ErrorMessageString();
 		Return StatisticsInformation;

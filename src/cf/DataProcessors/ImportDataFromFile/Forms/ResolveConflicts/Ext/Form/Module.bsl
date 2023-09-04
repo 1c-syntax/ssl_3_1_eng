@@ -80,7 +80,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndDo;
 	
 	For Each Item In Parameters.TableRow Do
-		AttributesArray.Add(New FormAttribute("IND" + Item[IndexOf], New TypeDescription("String"),, Item[1]));
+		AttributesArray.Add(New FormAttribute("PL_" + Item[IndexOf], New TypeDescription("String"),, Item[1]));
 	EndDo;
 	
 	ChangeAttributes(AttributesArray);
@@ -160,17 +160,17 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				Items_Group = Items.BasicDataFromFile;
 			EndIf;
 			
-			NewItem2 = Items.Add(Item[IndexOf] + "_Value", Type("FormField"), Items_Group);
-			NewItem2.DataPath = "IND"+Item[IndexOf];
+			NewItem2 = Items.Add(Item[IndexOf] + "_Val_", Type("FormField"), Items_Group);
+			NewItem2.DataPath = "PL_"+Item[IndexOf];
 			NewItem2.Title = Item[1];
 			NewItem2.Type = FormFieldType.InputField;
 			NewItem2.ReadOnly = True;
-			ThisObject["IND" + Item[IndexOf]] = Item[2];
+			ThisObject["PL_" + Item[IndexOf]] = Item[2];
 		EndDo;
 	EndIf;
 	
 	Items.OtherDataFromFile.Title = Items.OtherDataFromFile.Title + " (" +String(ConvertedItemsCount) + ")";
-	ThisObject.Height = Parameters.TableRow.Count() + ConflictsList.Count() + 7;
+	Height = Parameters.TableRow.Count() + ConflictsList.Count() + 7;
 
 EndProcedure
 

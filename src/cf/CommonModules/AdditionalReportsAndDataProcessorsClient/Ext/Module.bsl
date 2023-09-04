@@ -80,7 +80,7 @@ EndProcedure
 //          It is used for additional data processors to assign.
 //      * CreatedObjects - Array - references to the objects created while executing the command.
 //          It is used for assignable additional data processors of the "Create related objects" kind.
-//      * OwnerForm1 - ClientApplicationForm - a list form or an object form the command is called from.
+//      * OwnerForm - ClientApplicationForm - a list form or an object form the command is called from.
 //
 Function CommandExecuteParametersInBackground(Ref) Export
 	
@@ -88,7 +88,7 @@ Function CommandExecuteParametersInBackground(Ref) Export
 	Result.Insert("AccompanyingText1");
 	Result.Insert("RelatedObjects");
 	Result.Insert("CreatedObjects");
-	Result.Insert("OwnerForm1");
+	Result.Insert("OwnerForm");
 	Return Result;
 	
 EndFunction
@@ -156,8 +156,8 @@ Procedure ExecuteCommandInBackground(Val CommandID, Val CommandParameters, Val H
 	MustReceiveResult = CommonClientServer.StructureProperty(CommandParameters, "MustReceiveResult", False);
 	
 	Form = Undefined;
-	If CommandParameters.Property("OwnerForm1", Form) Then
-		CommandParameters.OwnerForm1 = Undefined;
+	If CommandParameters.Property("OwnerForm", Form) Then
+		CommandParameters.OwnerForm = Undefined;
 	EndIf;
 	If TypeOf(Handler) = Type("NotifyDescription") Then
 		CommonClientServer.CheckParameter(ProcedureName, "Handler.Module",
@@ -293,8 +293,8 @@ Procedure OpenCommandList(Val ReferencesArrray, Val ExecutionParameters) Export
 	OpenAdditionalReportAndDataProcessorCommandsForm(ReferencesArrray, Context, Kind);
 EndProcedure
 
-// See AdditionalReportsAndDataProcessors.PopulateCommandHandler
-Procedure PopulateCommandHandler(Val ReferencesArrray, Val ExecutionParameters) Export
+// See AdditionalReportsAndDataProcessors.HandlerFillingCommands
+Procedure HandlerFillingCommands(Val ReferencesArrray, Val ExecutionParameters) Export
 	Form              = ExecutionParameters.Form;
 	Object             = ExecutionParameters.Source;
 	CommandToExecute = ExecutionParameters.CommandDetails.AdditionalParameters; // See AdditionalReportsAndDataProcessors.AdditionalFillingCommandParameters

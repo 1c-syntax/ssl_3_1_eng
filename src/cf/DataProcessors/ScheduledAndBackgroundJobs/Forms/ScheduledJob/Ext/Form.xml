@@ -513,7 +513,7 @@ They cannot be deleted.
 				<xr:Ref>StdPicture.WriteAndClose</xr:Ref>
 				<xr:LoadTransparent>true</xr:LoadTransparent>
 			</Picture>
-			<Action>WriteAndCloseComplete</Action>
+			<Action>WriteAndCloseExecute</Action>
 			<Representation>Text</Representation>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
@@ -534,7 +534,7 @@ They cannot be deleted.
 				<xr:Ref>StdPicture.SetTime</xr:Ref>
 				<xr:LoadTransparent>true</xr:LoadTransparent>
 			</Picture>
-			<Action>SetScheduleExecute</Action>
+			<Action>SetUpScheduleExecute</Action>
 			<Representation>TextPicture</Representation>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>

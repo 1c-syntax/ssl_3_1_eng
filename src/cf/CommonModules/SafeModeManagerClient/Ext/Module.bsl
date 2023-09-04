@@ -13,21 +13,21 @@
 //
 // Parameters:
 //  IDs - Array - Request IDs.
-//  OwnerForm1 - ClientApplicationForm - Form that must be locked before permissions are applied.
+//  OwnerForm - ClientApplicationForm - Form that must be locked before permissions are applied.
 //  ClosingNotification1 - NotifyDescription - Notification triggered when permissions are granted.
 //
-Procedure ApplyExternalResourceRequests(Val IDs, OwnerForm1, ClosingNotification1) Export
+Procedure ApplyExternalResourceRequests(Val IDs, OwnerForm, ClosingNotification1) Export
 	
 	StandardProcessing = True;
-	SSLSubsystemsIntegrationClient.OnConfirmRequestsToUseExternalResources(IDs, OwnerForm1, ClosingNotification1, StandardProcessing);
+	SSLSubsystemsIntegrationClient.OnConfirmRequestsToUseExternalResources(IDs, OwnerForm, ClosingNotification1, StandardProcessing);
 	If Not StandardProcessing Then
 		Return;
 	EndIf;
 		
 	SafeModeManagerClientOverridable.OnConfirmRequestsToUseExternalResources(
-		IDs, OwnerForm1, ClosingNotification1, StandardProcessing);
+		IDs, OwnerForm, ClosingNotification1, StandardProcessing);
 	ExternalResourcesPermissionsSetupClient.StartInitializingRequestForPermissionsToUseExternalResources(
-		IDs, OwnerForm1, ClosingNotification1);
+		IDs, OwnerForm, ClosingNotification1);
 	
 EndProcedure
 

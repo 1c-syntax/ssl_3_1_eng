@@ -217,9 +217,9 @@ EndProcedure
 &AtClient
 Procedure ShowErrorTextAndNotifyAboutClosingCompletion(Context) Export
 	
-	If ThisObject.OnCloseNotifyDescription <> Undefined Then
-		ExecuteNotifyProcessing(ThisObject.OnCloseNotifyDescription);
-		ThisObject.OnCloseNotifyDescription = Undefined;
+	If OnCloseNotifyDescription <> Undefined Then
+		ExecuteNotifyProcessing(OnCloseNotifyDescription);
+		OnCloseNotifyDescription = Undefined;
 	EndIf;
 	
 EndProcedure

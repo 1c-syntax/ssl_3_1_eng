@@ -54,7 +54,6 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Receiving and sending emails
 
-// Sends and receives emails.
 Procedure SendReceiveEmails() Export
 	
 	Common.OnStartExecuteScheduledJob(Metadata.ScheduledJobs.SendReceiveEmails);
@@ -371,8 +370,6 @@ Function AfterExecuteSendEmail(Ref, MessageID, MessageIDIMAPSending, DeleteAfter
 	
 EndFunction
 
-// Generates a blank structure to fill the parameters of error processing on sending a mail message.
-//
 // Returns:
 //   Structure:
 //     * EmailObject                      - DocumentObject.OutgoingEmail - an email to be sent.
@@ -396,8 +393,6 @@ Function SendErrorProcessingParameters() Export
 	
 EndFunction
 
-// Processes the error found when sending an email message
-// 
 // Parameters:
 //  ErrorProcessingParameters - See SendErrorProcessingParameters
 //  WrongRecipients      - Array 
@@ -547,10 +542,11 @@ EndProcedure
 // Receives email by accounts available to the user.
 //
 // Parameters:
-//  ReceivedEmails              - Number - the amount of received emails will be returned to this parameter.
-//  UserAccountsAvailable - Number - the amount of accounts available to user will be returned to this
-//                                   parameter.
-//  HasErrors - Boolean - indicates that there are errors when receiving emails.
+//   Result - Structure:
+//   * ReceivedEmails               - Number -
+//   * UserAccountsAvailable - Number -
+//                                   
+//   * HasErrors             - Boolean -
 //
 Procedure LoadUserEmail(Result)
 	
@@ -1117,7 +1113,6 @@ EndProcedure
 
 Procedure GetEmailByPOP3Protocol(AccountData, Mail, EmailsReceived1, EmailsReceived)
 
-	// Getting message IDs on the server.
 	IDs = Mail.GetUIDL();
 	If IDs.Count() = 0 And (Not AccountData.KeepCopies) Then
 		// 
@@ -1149,7 +1144,6 @@ Procedure GetEmailByPOP3Protocol(AccountData, Mail, EmailsReceived1, EmailsRecei
 		Mail.DeleteMessages(MessagesToDelete);
 	EndIf;
 	
-	// 
 	If RemoveAll Then
 		DeleteIDsOfAllPreviouslyReceivedEmails(AccountData.Ref);
 	Else
@@ -1442,7 +1436,6 @@ Procedure DeleteIDsOfPreviouslyReceivedEmails(Account, IDsAtServer, IDsDelete)
 		LockItem.DataSource = UUIDsTable;
 		Block.Lock();
 		
-		// Deleting all unnecessary IDs.
 		For Each TableRow In UUIDsTable Do
 			Set = InformationRegisters.ReceivedEmailIDs.CreateRecordSet();
 			Set.Filter.Account.Set(TableRow["Account"]);
@@ -1545,7 +1538,6 @@ EndFunction
 Function WriteEmail(AccountData, Message, EmployeeResponsibleForProcessingEmails,
 	PutEmailInBaseEmailFolder, AddToEmailsArrayToGetFolder, IsOutgoingEmail1);
 	
-	// Creating a document and filling its attributes on the message basis.
 	BeginTransaction();
 	Try
 		If IsOutgoingEmail1 Then
@@ -1561,7 +1553,6 @@ Function WriteEmail(AccountData, Message, EmployeeResponsibleForProcessingEmails
 		MailMessage.EmployeeResponsible = EmployeeResponsibleForProcessingEmails;
 		MailMessage.Write();
 	
-		// Setting email folder and subject.
 		If AccountData.MailHandledInOtherMailClient Then 
 			ReviewedFlag = True;
 		Else
@@ -1575,7 +1566,6 @@ Function WriteEmail(AccountData, Message, EmployeeResponsibleForProcessingEmails
 		Attributes.CalculateReviewedItems = False;
 		InformationRegisters.InteractionsFolderSubjects.WriteInteractionFolderSubjects(MailMessage.Ref, Attributes);
 		
-		// Write ID.
 		If Not AccountData.ProtocolForIncomingMail = "IMAP" Then
 			WriteReceivedEmailID(AccountData.Ref, MailMessage.IDAtServer,
 				Message.DateReceived);
@@ -1715,10 +1705,7 @@ Procedure FillEmailDocument(MailMessage, Message, IsOutgoingEmail1)
 	MailMessage.HashSum                  = EmailMessageHashSum(Message);
 	
 	For Each Attachment In Message.Attachments Do
-		If IsBlankString(Attachment.CID) Then
-			MailMessage.HasAttachments = True;
-			Break;
-		ElsIf StrFind(MailMessage.HTMLText, Attachment.CID) = 0 Then
+		If IsBlankString(Attachment.CID) Or StrFind(MailMessage.HTMLText, Attachment.CID) = 0 Then
 			MailMessage.HasAttachments = True;
 			Break;
 		EndIf;
@@ -1868,10 +1855,8 @@ Function FillSubjectAndContacts(MailMessage, Account, IsOutgoingEmail1, PutEmail
 		
 	EndIf;
 	
-	// 
 	ContactsMap = ContactsInEmailMap(MailMessage.InteractionBasis);
 
-	// 
 	UndefinedAddresses = New Array;
 	SetContactInEmail(MailMessage, ContactsMap, UndefinedAddresses, IsOutgoingEmail1);
 
@@ -2011,13 +1996,13 @@ Function ContactsInEmailMap(MailMessage)
 	
 	If TypeOf(MailMessage) = Type("DocumentRef.OutgoingEmail") Then
 		
-		TheTextOfTheQuerySender = "
+		QueryTextSender = "
 		|	
 		|	UNION ALL
 		|	
 		|";
 		
-		TheTextOfTheQuerySender = TheTextOfTheQuerySender + "
+		QueryTextSender = QueryTextSender + "
 		|SELECT
 		|		IncomingEmail.SenderAddress   AS Address,
 		|		IncomingEmail.SenderContact AS Contact
@@ -2028,7 +2013,7 @@ Function ContactsInEmailMap(MailMessage)
 		
 	Else
 		
-		TheTextOfTheQuerySender = "";
+		QueryTextSender = "";
 		
 	EndIf;
 
@@ -2064,9 +2049,9 @@ Function ContactsInEmailMap(MailMessage)
 	|	FROM
 	|		&TheNameOfTheTableRecipientsResponse AS Recipients
 	|	WHERE
-	|		Recipients.Ref = &MailMessage AND &TheTextOfTheQuerySender) AS Addresses";
+	|		Recipients.Ref = &MailMessage AND &QueryTextSender) AS Addresses";
 	
-	Query.Text = StrReplace(Query.Text, "AND &TheTextOfTheQuerySender", TheTextOfTheQuerySender);
+	Query.Text = StrReplace(Query.Text, "AND &QueryTextSender", QueryTextSender);
 	Query.SetParameter("MailMessage", MailMessage);
 	
 	If TypeOf(MailMessage) = Type("DocumentRef.OutgoingEmail") Then
@@ -2377,15 +2362,6 @@ Procedure DeterminePreviouslyImportedSubordinateEmails(Account, EmailsReceived);
 						Interactions.SetSubject(Selection.BaseEmailRef, Selection.EmailSubjectSubordinate, False);
 					EndIf;
 					
-				Else
-					
-					If InteractionsClientServer.IsSubject(Selection.BasisEmailSubject) Then
-						Interactions.SetSubject(Selection.MailMessage, Selection.BasisEmailSubject, False);
-						ArrayOfEmailsToAddToProcessing.Add(Selection.MailMessage);
-					Else 
-						Interactions.SetSubject(Selection.BaseEmailRef, Selection.EmailSubjectSubordinate, False);
-					EndIf;
-					
 				EndIf;
 				
 			EndIf;
@@ -2444,13 +2420,10 @@ Procedure WriteEmailAttachment(Object, Attachment,SignaturesArray,CountOfBlankNa
 	
 	If Not IsBlankString(Attachment.CID) Then
 		
-		If StrFind(Object.HTMLText, Attachment.CID) = 0 Then
-			
-			Attachment.CID = "";
-			
-		ElsIf StrFind(Object.HTMLText, Attachment.Name) > 0 
+		If StrFind(Object.HTMLText, Attachment.CID) = 0 
+			Or (StrFind(Object.HTMLText, Attachment.Name) > 0 
 			And StrFind(Attachment.CID, Attachment.Name + "@") = 0
-			And StrFind(Object.HTMLText, "alt=" + """" + Attachment.Name + """") = 0 Then
+			And StrFind(Object.HTMLText, "alt=" + """" + Attachment.Name + """") = 0) Then
 			
 			Attachment.CID = "";
 			
@@ -2504,10 +2477,19 @@ Procedure WriteEmailAttachment(Object, Attachment,SignaturesArray,CountOfBlankNa
 		
 		For Each AttachmentsSignature In SignaturesArray Do
 			
+			Try
+				SignatureDataAttachments = ModuleDigitalSignature.DEREncodedSignature(AttachmentsSignature.Data);
+			Except
+				EventText = NStr("en = 'Cannot read the %1 attachment signature data: %2';");
+				ErrorSignatureDataCouldNotBeRead = StringFunctionsClientServer.SubstituteParametersToString(
+					EventText, EmailAttachmentRef, ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+				WriteLogEvent(EventLogEvent(), EventLogLevel.Information, , , ErrorSignatureDataCouldNotBeRead);
+				Continue;
+			EndTry;
 			
 			SignatureData = ModuleDigitalSignatureClientServer.NewSignatureProperties();
-			SignatureData.Signature = AttachmentsSignature.Data;
-			ResultOfReadSignatureProperties = ModuleDigitalSignature.SignatureProperties(AttachmentsSignature.Data);
+			SignatureData.Signature = SignatureDataAttachments;
+			ResultOfReadSignatureProperties = ModuleDigitalSignature.SignatureProperties(SignatureDataAttachments);
 			
 			If ResultOfReadSignatureProperties.Success <> False Then
 				FillPropertyValues(SignatureData, ResultOfReadSignatureProperties);
@@ -2518,6 +2500,7 @@ Procedure WriteEmailAttachment(Object, Attachment,SignaturesArray,CountOfBlankNa
 				ErrorSignatureDataCouldNotBeRead = StringFunctionsClientServer.SubstituteParametersToString(
 					EventText, EmailAttachmentRef, ResultOfReadSignatureProperties.ErrorText);
 				WriteLogEvent(EventLogEvent(), EventLogLevel.Information, , , ErrorSignatureDataCouldNotBeRead);
+				Continue;
 			EndIf;
 			
 			SignatureData.Comment = NStr("en = 'Email attachment';");
@@ -2532,8 +2515,6 @@ Procedure WriteEmailAttachment(Object, Attachment,SignaturesArray,CountOfBlankNa
 	
 EndProcedure
 
-// Gets email attachments.
-//
 // Parameters:
 //  MailMessage                         - DocumentRef - an email document, whose attachments need to be received.
 //  GenerateSizePresentation - Boolean - indicates that the blank SizePresentation string column will be the query result.
@@ -2622,8 +2603,6 @@ Function GetEmailAttachments(MailMessage,GenerateSizePresentation = False, OnlyW
 	
 EndFunction
 
-// Writes an email attachment located in a temporary storage to a file.
-// 
 // Parameters:
 //  MailMessage                          - DocumentRef.IncomingEmail
 //                                  - DocumentRef.OutgoingEmail -Email message whose attachment is being written.
@@ -2703,7 +2682,6 @@ Function WriteEmailAttachmentFromTempStorage(
 	
 EndFunction
 
-// Writes an email attachment by copying another email attachment.
 Function WriteEmailAttachmentByCopyOtherEmailAttachment(
 	MailMessage,
 	FileRef,
@@ -2725,8 +2703,6 @@ Function WriteEmailAttachmentByCopyOtherEmailAttachment(
 	
 EndFunction
 
-// Deletes email attachments.
-//
 // Parameters:
 //  MailMessage - DocumentRef - an email, whose attachments will be deleted.
 //
@@ -2766,7 +2742,7 @@ EndProcedure
 // Checks if binary data upon deserialization is InternetMailMessage.
 //
 // Parameters:
-//  BinaryData  - BinaryData - binary data to be checked.
+//  BinaryData - BinaryData - binary data to be checked.
 //
 // Returns:
 //   Boolean   - True if binary data can be deserialized into InternetMailMessage.
@@ -2796,10 +2772,8 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Read receipts
 
-// Gets an email account used to send emails by default.
-//
 // Returns:
-//  CatalogRef.EmailAccounts  - Default email account.
+//  CatalogRef.EmailAccounts - Default email account.
 //
 Function GetAccountForDefaultSending() Export
 	
@@ -2992,9 +2966,6 @@ Function TheTypeOfThePredefinedFolderByName(PredefinedFolderName) Export
 EndFunction
 // ACC:1391-on
 
-// Returns the importance of Internet mail message depending
-// on the passed InteractionImportanceOptions enumeration value.
-//
 // Parameters:
 //  InteractionImportance - EnumRef.InteractionImportanceOptions
 //
@@ -3013,7 +2984,6 @@ Function GetImportance(InteractionImportance) Export
 	
 EndFunction
 
-// Returns an event name of the Interactions subsystem event log.
 Function EventLogEvent() Export
 	
 	Return NStr("en = 'Business interactions';", Common.DefaultLanguageCode());
@@ -3102,11 +3072,9 @@ Function AvailableAccountsQueryText()
 	
 EndFunction
 
-// 
-//
 // Parameters:
-//  Account  - CatalogRef.EmailAccounts -
-//                                                                    
+//  Account - CatalogRef.EmailAccounts -
+//                                                                   
 //
 Procedure CreatePredefinedEmailsFoldersForAccount(Account) Export
 	
@@ -3141,13 +3109,12 @@ Procedure CreatePredefinedEmailsFoldersForAccount(Account) Export
 	
 EndProcedure
 
-// Gets a name of the metadata object with email attachments.
-//
 // Parameters:
-//  MailMessage  - DocumentRef - an email whose name is defined.
+//  MailMessage - DocumentRef - an email whose name is defined.
 //
 // Returns:
-//  String,Undefined  - Name of the metadata object with email attachments.
+//  String - 
+//  
 //
 Function MetadataObjectNameOfAttachedEmailFiles(MailMessage) Export
 

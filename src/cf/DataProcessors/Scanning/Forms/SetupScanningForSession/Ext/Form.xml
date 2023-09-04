@@ -178,8 +178,8 @@
 												<Event name="OnChange">ScannedImageFormatOnChange</Event>
 											</Events>
 										</InputField>
-										<CheckBoxField name="SaveToPDF" id="84">
-											<DataPath>SaveToPDF</DataPath>
+										<CheckBoxField name="ShouldSaveAsPDF" id="84">
+											<DataPath>ShouldSaveAsPDF</DataPath>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
@@ -189,8 +189,8 @@
 											<TitleLocation>Right</TitleLocation>
 											<ToolTipRepresentation>Button</ToolTipRepresentation>
 											<CheckBoxType>Auto</CheckBoxType>
-											<ContextMenu name="SaveToPDFContextMenu" id="85"/>
-											<ExtendedTooltip name="SaveToPDFExtendedTooltip" id="86">
+											<ContextMenu name="ShouldSaveAsPDFContextMenu" id="85"/>
+											<ExtendedTooltip name="ShouldSaveAsPDFExtendedTooltip" id="86">
 												<Title formatted="true">
 													<v8:item>
 														<v8:lang>en</v8:lang>
@@ -440,7 +440,7 @@ quality</v8:content>
 				<v8:Type>cfg:EnumRef.MultipageFileStorageFormats</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="SaveToPDF" id="19">
+		<Attribute name="ShouldSaveAsPDF" id="19">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -546,7 +546,7 @@ quality</v8:content>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Parameter>
-		<Parameter name="SaveToPDF">
+		<Parameter name="ShouldSaveAsPDF">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>

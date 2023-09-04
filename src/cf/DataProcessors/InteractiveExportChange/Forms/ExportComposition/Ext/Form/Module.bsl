@@ -291,7 +291,7 @@ EndFunction
 Procedure DetailLevelGroupAnalysis(Filter, DetailsParameters)
 	
 	MetadataNameField = New DataCompositionField("FullMetadataName");
-	FormFieldPresentation = New DataCompositionField("ListPresentation");
+	FieldPresentation = New DataCompositionField("ListPresentation");
 	TheObjectField        = New DataCompositionField("RegistrationObject");
 	
 	For Each Item In Filter.Items Do
@@ -301,7 +301,7 @@ Procedure DetailLevelGroupAnalysis(Filter, DetailsParameters)
 		ElsIf Item.LeftValue=MetadataNameField Then
 			DetailsParameters.FullMetadataName = Item.RightValue;
 			
-		ElsIf Item.LeftValue=FormFieldPresentation Then
+		ElsIf Item.LeftValue=FieldPresentation Then
 			DetailsParameters.ListPresentation = Item.RightValue;
 			
 		ElsIf Item.LeftValue=TheObjectField Then

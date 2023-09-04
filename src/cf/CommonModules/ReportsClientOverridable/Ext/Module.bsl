@@ -66,7 +66,7 @@ EndProcedure
 //   Command     - FormCommand     - Command that was called.
 //   Result   - Boolean           - True if the command call is processed.
 //
-Procedure CommandHandler(ReportForm, Command, Result) Export
+Procedure HandlerCommands(ReportForm, Command, Result) Export
 	
 	
 	

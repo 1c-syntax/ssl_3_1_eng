@@ -26,7 +26,7 @@ Procedure OpenChangePasswordForm(User = Undefined, ContinuationHandler = Undefin
 EndProcedure
 
 // See UsersInternalSaaSClient.RequestPasswordForAuthenticationInService.
-Procedure RequestPasswordForAuthenticationInService(ContinuationHandler, OwnerForm1 = Undefined, ServiceUserPassword = Undefined) Export
+Procedure RequestPasswordForAuthenticationInService(ContinuationHandler, OwnerForm = Undefined, ServiceUserPassword = Undefined) Export
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.SaaSOperations.UsersSaaS") Then
 		
@@ -34,7 +34,7 @@ Procedure RequestPasswordForAuthenticationInService(ContinuationHandler, OwnerFo
 			"UsersInternalSaaSClient");
 		
 		ModuleUsersInternalSaaSClient.RequestPasswordForAuthenticationInService(
-			ContinuationHandler, OwnerForm1, ServiceUserPassword);
+			ContinuationHandler, OwnerForm, ServiceUserPassword);
 	EndIf;
 	
 EndProcedure
@@ -223,12 +223,12 @@ Procedure InteractiveHandlerOnChangePasswordOnStart(Parameters, Context) Export
 	FormParameters.Insert("OnAuthorization", True);
 	
 	OpenForm("CommonForm.PasswordChange", FormParameters,,,,, New NotifyDescription(
-		"InteractiveDataProcessorOnChangePasswordOnStartCompletion", ThisObject, Parameters));
+		"InteractiveHandlerOnChangePasswordOnStartCompletion", ThisObject, Parameters));
 	
 EndProcedure
 
 // Continue the InteractiveDataProcessorOnChangePasswordOnStart procedure.
-Procedure InteractiveDataProcessorOnChangePasswordOnStartCompletion(Result, Parameters) Export
+Procedure InteractiveHandlerOnChangePasswordOnStartCompletion(Result, Parameters) Export
 	
 	If Not ValueIsFilled(Result) Then
 		Parameters.Cancel = True;

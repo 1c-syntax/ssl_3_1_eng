@@ -37,7 +37,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	TransportSettings = InformationRegisters.DataExchangeTransportSettings.TransportSettings(InfobaseNode);
 	MessagesTransportKind = TransportSettings.DefaultExchangeMessagesTransportKind;
-	CorrespondentEndpoint = TransportSettings.WSPeerEndpoint;
+	CorrespondentEndpoint = TransportSettings.WSCorrespondentEndpoint;
 	
 	ExecuteDataSending = InformationRegisters.CommonInfobasesNodesSettings.ExecuteDataSending(InfobaseNode);
 	
@@ -1393,7 +1393,7 @@ Procedure AfterCompleteBackgroundJob()
 	If BackgroundJobCompleteResult.AdditionalResultData.Property("ForceCloseForm") 
 		And BackgroundJobCompleteResult.AdditionalResultData.ForceCloseForm Then
 		FormReopeningParameters = BackgroundJobCompleteResult.AdditionalResultData.FormReopeningParameters;
-		ThisObject.Close();
+		Close();
 	EndIf;
 	
 	// Go further with a one second delay to display the progress bar 100%.

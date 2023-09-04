@@ -14,14 +14,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	CatalogAttributes = Metadata.Catalogs.ReportMailings.Attributes;
 	Items.ServerAndDirectory.ToolTip      = CatalogAttributes.FTPDirectory.Tooltip;
 	Items.Port.ToolTip                = CatalogAttributes.FTPPort.Tooltip;
-	Items.Login.ToolTip               = CatalogAttributes.FTPUsername.Tooltip;
+	Items.Login.ToolTip               = CatalogAttributes.FTPLogin.Tooltip;
 	Items.PassiveConnection.ToolTip = CatalogAttributes.FTPPassiveConnection.Tooltip;
 	FillPropertyValues(ThisObject, Parameters, "Server, Directory, Port, Login, Password, PassiveConnection");
-	If ThisObject.Server = "" Then
-		ThisObject.Server = "server";
+	If Server = "" Then
+		Server = "server";
 	EndIf;
-	If ThisObject.Directory = "" Then
-		ThisObject.Directory = "/directory/";
+	If Directory = "" Then
+		Directory = "/directory/";
 	EndIf;
 	VisibleEnabled(ThisObject);
 EndProcedure

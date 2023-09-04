@@ -225,7 +225,7 @@ Procedure SelectExecute()
 		SelectRefs(SelectedMetadataObjects);
 	EndIf;
 	
-	If ThisObject.OnCloseNotifyDescription = Undefined Then
+	If OnCloseNotifyDescription = Undefined Then
 		Notify("SelectMetadataObjects", SelectedMetadataObjects, UUIDSource);
 	EndIf;
 	

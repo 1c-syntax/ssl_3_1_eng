@@ -25,7 +25,7 @@
 //														  with fields will be passed to the notification processing:
 //                              * Success - Boolean - True if all the objects were deleted successfully.
 //                              * DeletedItemsCount1 - Number - a number of deleted objects.
-//                              * NotDeletedItemsCount - Number - a number of not deleted objects.
+//                              * NotDeletedItemsCount1 - Number - a number of not deleted objects.
 //                              * ResultAddress - String - the temporary storage address.
 //								- Undefined - default.
 //

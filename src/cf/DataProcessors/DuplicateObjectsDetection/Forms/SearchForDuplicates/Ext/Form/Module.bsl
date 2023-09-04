@@ -986,6 +986,7 @@ Procedure WizardStepBack()
 		If PossibleDuplicateSelected Then
 			PickSelectedUsageInstances(PossibleDuplicateSelectedType);
 			DuplicatesSearchAreaSelectionCompletion(PossibleDuplicateSelectedType, Undefined);
+			WizardStepNext();
 		Else
 			GoToWizardStep1(Items.NoSearchPerformedStep);
 		EndIf;
@@ -1026,7 +1027,7 @@ Procedure StepSelectTheMainElementWhenYouClickNext(DescriptionOfTheNextStep, Add
 		DescriptionOfTheNextStep, AdditionalParameters.CompletionHandler);
 	If ReturnedLessThanFound Then
 		
-		ResponseHandler1 = New NotifyDescription("StepSelectingTheMainElementWhenYouClickNextCompletion", ThisObject, HandlerParameters);
+		ResponseHandler1 = New NotifyDescription("StepSelectTheMainElementWhenYouClickNextCompletion", ThisObject, HandlerParameters);
 		ShowQueryBox(
 			ResponseHandler1, 
 			NStr("en = 'Not all duplicates found are displayed. All duplicates found will be processed.
@@ -1039,7 +1040,7 @@ Procedure StepSelectTheMainElementWhenYouClickNext(DescriptionOfTheNextStep, Add
 EndProcedure
 
 &AtClient         
-Procedure StepSelectingTheMainElementWhenYouClickNextCompletion(Result, AdditionalParameters) Export
+Procedure StepSelectTheMainElementWhenYouClickNextCompletion(Result, AdditionalParameters) Export
 
 	If Result = DialogReturnCode.Yes Then
 	
@@ -1692,7 +1693,7 @@ Procedure FindAndDeleteDuplicatesClient()
 	WaitSettings.OutputIdleWindow = False;
 	WaitSettings.OutputProgressBar = True;
 	WaitSettings.ExecutionProgressNotification = New NotifyDescription("FindAndRemoveDuplicatesProgress", ThisObject);
-	Handler = New NotifyDescription("FindAndRemoveDuplicatesCompletion", ThisObject);
+	Handler = New NotifyDescription("FindAndDeleteDuplicatesCompletion", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(Job, Handler, WaitSettings);
 	
 EndProcedure
@@ -1838,7 +1839,7 @@ Function ProgressText(ProgressParameters, SourceProgressText)
 EndFunction
 
 &AtClient
-Procedure FindAndRemoveDuplicatesCompletion(Job, AdditionalParameters) Export
+Procedure FindAndDeleteDuplicatesCompletion(Job, AdditionalParameters) Export
 	WizardSettings.ShowDialogBeforeClose = False;
 	Activate();
 	CurrentPage = Items.WizardSteps.CurrentPage;
@@ -2151,9 +2152,7 @@ Function GeneratePossibleDuplicatesFilter(DuplicatesTree)
 	
 		For Each DuplicateRow In DuplicatesGroup.Rows Do
 		
-			If DuplicateRow.Main Then
-				Filter.Add(DuplicateRow.Ref);
-			EndIf;	
+			Filter.Add(DuplicateRow.Ref);
 		
 		EndDo;
 	

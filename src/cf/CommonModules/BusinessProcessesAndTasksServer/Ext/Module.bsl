@@ -2260,17 +2260,17 @@ Function TaskPerformersGroups(NewTasksPerformers) Export
 	
 	PerformersGroups = Query.Execute().Unload();
 	
-	PerformersGroupsFilter = New Structure(FieldsNames1);
+	FilterPerformersGroups = New Structure(FieldsNames1);
 	TaskPerformersGroups = New Array;
 	
 	For Each Record In NewTasksPerformers Do
-		FillPropertyValues(PerformersGroupsFilter, Record);
-		PerformersGroup = PerformersGroups.FindRows(PerformersGroupsFilter)[0];
+		FillPropertyValues(FilterPerformersGroups, Record);
+		PerformersGroup = PerformersGroups.FindRows(FilterPerformersGroups)[0];
 		// It is necessary to update the reference in the found row.
 		If Not ValueIsFilled(PerformersGroup.Ref) Then
 			// It is necessary to add a new assignee group.
 			PerformersGroupObject = Catalogs.TaskPerformersGroups.CreateItem();
-			FillPropertyValues(PerformersGroupObject, PerformersGroupsFilter);
+			FillPropertyValues(PerformersGroupObject, FilterPerformersGroups);
 			PerformersGroupObject.Write();
 			PerformersGroup.Ref = PerformersGroupObject.Ref;
 		EndIf;

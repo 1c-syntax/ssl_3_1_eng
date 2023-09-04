@@ -334,7 +334,7 @@ Procedure Validate(Command)
 	Items.WarningDecoration.Visible = False;
 	Items.FormValidate.Enabled = False;
 	Items.FormValidate.Representation = ButtonRepresentation.PictureAndText;
-	CheckCertificate(New NotifyDescription("CheckCompletion", ThisObject));
+	CheckCertificate(New NotifyDescription("ValidateCompletion", ThisObject));
 	
 EndProcedure
 
@@ -344,7 +344,7 @@ EndProcedure
 
 // Continues the Check procedure.
 &AtClient
-Procedure CheckCompletion(NotDefined, Context) Export
+Procedure ValidateCompletion(NotDefined, Context) Export
 	
 	Items.FormValidate.Enabled = True;
 	Items.FormValidate.Representation = ButtonRepresentation.Text;
@@ -1082,7 +1082,6 @@ Procedure CheckAtClientSideAfterCheckSignature(Certificate, Context) Export
 		SetItem(ThisObject, "CheckSignature", False, ErrorDescription, True, MergeResults);
 	EndIf;
 	
-	// Шифрование.
 	Context.CryptoManager.BeginEncrypting(New NotifyDescription(
 			"CheckAtClientSideAfterEncryption", ThisObject, Context,
 			"CheckAtClientSideAfterEncryptionError", ThisObject),
@@ -1110,7 +1109,6 @@ Procedure CheckAtClientSideAfterCheckSignatureInSaaSMode(Result, Context) Export
 		SetItem(ThisObject, "CheckSignature", True, ErrorDescription, True, MergeResults);
 	EndIf;
 	
-	// Encryption.
 	ModuleCryptographyServiceClient = CommonClient.CommonModule("CryptographyServiceClient");
 	ModuleCryptographyServiceClient.Encrypt(New NotifyDescription(
 			"CheckAtClientSideAfterEncryptionInSaaSMode", ThisObject, Context,
@@ -1362,11 +1360,11 @@ Procedure CheckOnTheClientSideAfterSearchingForTheCloudSignatureCertificate(Call
 	EndIf;
 	
 	// Checking certificate data.
-	TheHandlerIsAsFollows = New NotifyDescription(
+	HandlerNext = New NotifyDescription(
 			"VerifyOnTheClientSideAfterVerifyingTheCloudSignatureCertificate", ThisObject, Context);
 	
 	TheDSSCryptographyServiceModuleClient = CommonClient.CommonModule("DSSCryptographyServiceClient");
-	TheDSSCryptographyServiceModuleClient.CheckCertificate(TheHandlerIsAsFollows, Context.UserSettings,
+	TheDSSCryptographyServiceModuleClient.CheckCertificate(HandlerNext, Context.UserSettings,
 		CallResult.CertificateData.Certificate);
 	
 EndProcedure
@@ -1434,7 +1432,7 @@ Procedure VerifyClientSideCloudSignature(Result, Context)
 		TheDSSCryptographyServiceModuleClientServer = CommonClient.CommonModule("DSSCryptographyServiceClientServer");
 		TheDSSCryptographyServiceModuleClient = CommonClient.CommonModule("DSSCryptographyServiceClient");
 		
-		TheHandlerIsAsFollows = New NotifyDescription(
+		HandlerNext = New NotifyDescription(
 				"VerifyOnTheClientSideAfterSigningCloudSignature", ThisObject, Context,
 				"CheckAtClientSideAfterSigningError", ThisObject);
 		
@@ -1446,7 +1444,7 @@ Procedure VerifyClientSideCloudSignature(Result, Context)
 		OperationParametersList.Insert("Pin", TheDSSCryptographyServiceModuleClient.PreparePasswordObject(PINCodeValue));
 		
 		TheDSSCryptographyServiceModuleClient.Sign(
-				TheHandlerIsAsFollows,
+				HandlerNext,
 				Context.UserSettings,
 				Context.CertificateData,
 				,
@@ -1485,12 +1483,12 @@ Procedure VerifyOnTheClientSideAfterSigningCloudSignature(CallResult, Context) E
 	
 	// Check the signature.
 	If CallResult <> Undefined And ChecksAtServer.CertificateExists = True And Not ValueIsFilled(ErrorDescription) Then
-		TheHandlerIsAsFollows = New NotifyDescription(
+		HandlerNext = New NotifyDescription(
 					"VerifyOnTheClientSideAfterVerifyingTheSignatureCloudSignature", ThisObject, Context,
 					"CheckAtClientSideAfterCheckSignatureError", ThisObject);
 		
 		TheDSSCryptographyServiceModuleClient = CommonClient.CommonModule("DSSCryptographyServiceClient");
-		TheDSSCryptographyServiceModuleClient.VerifySignature(TheHandlerIsAsFollows, 
+		TheDSSCryptographyServiceModuleClient.VerifySignature(HandlerNext, 
 						Context.UserSettings, 
 						SignatureData,
 						Context.CertificateData,
@@ -1519,14 +1517,13 @@ Procedure VerifyOnTheClientSideAfterVerifyingTheSignatureCloudSignature(CallResu
 		SetItem(ThisObject, "CheckSignature", True, ErrorDescription, True, MergeResults);
 	EndIf;
 	
-	// Encryption.
 	If Not ValueIsFilled(ErrorDescription) Then
-		TheHandlerIsAsFollows = New NotifyDescription(
+		HandlerNext = New NotifyDescription(
 				"VerifyOnTheClientSideAfterEncryptionCloudSignature", ThisObject, Context,
 				"CheckAtClientSideAfterEncryptionError", ThisObject);
 		
 		TheDSSCryptographyServiceModuleClient = CommonClient.CommonModule("DSSCryptographyServiceClient");
-		TheDSSCryptographyServiceModuleClient.Encrypt(TheHandlerIsAsFollows,
+		TheDSSCryptographyServiceModuleClient.Encrypt(HandlerNext,
 				Context.UserSettings,
 				Context.CertificateData,
 				Context.CertificateData);
@@ -1552,7 +1549,7 @@ Procedure VerifyOnTheClientSideAfterEncryptionCloudSignature(CallResult, Context
 	
 	// Decryption.
 	If ChecksAtServer.CertificateExists = True And Not ValueIsFilled(ErrorDescription) Then
-		TheHandlerIsAsFollows = New NotifyDescription(
+		HandlerNext = New NotifyDescription(
 				"VerifyOnTheClientSideAfterDecryptingTheCloudSignature", ThisObject, Context,
 				"CheckAtClientSideAfterDecryptionError", ThisObject);
 		
@@ -1566,7 +1563,7 @@ Procedure VerifyOnTheClientSideAfterEncryptionCloudSignature(CallResult, Context
 		OperationParametersList = New Structure;
 		OperationParametersList.Insert("Pin", TheDSSCryptographyServiceModuleClient.PreparePasswordObject(PINCodeValue));
 		
-		TheDSSCryptographyServiceModuleClient.Decrypt(TheHandlerIsAsFollows, Context.UserSettings, CallResult.Result, , TheStructureOfTheSearch, OperationParametersList);
+		TheDSSCryptographyServiceModuleClient.Decrypt(HandlerNext, Context.UserSettings, CallResult.Result, , TheStructureOfTheSearch, OperationParametersList);
 	Else
 		VerifyOnTheClientSideAfterDecryptingTheCloudSignature(Undefined, Context);
 	EndIf;
@@ -1696,7 +1693,6 @@ Procedure CheckAtServerSide(Val PasswordValue)
 	
 	CryptoManager.PrivateKeyAccessPassword = PasswordValue;
 	
-	// Подписание.
 	ErrorDescription = "";
 	
 	If Revoked Then
@@ -1720,16 +1716,13 @@ Procedure CheckAtServerSide(Val PasswordValue)
 		SignatureData = CheckSigningArServer(CryptoManager, CertificateData, CryptoCertificate, ErrorDescription);
 	EndIf;
 	
-	// Check the signature.
 	If ChecksAtServer.CertificateExists = True And Not ValueIsFilled(ErrorDescription) Then
 		CheckSignatureAtServer(CryptoManager, CertificateData, SignatureData);
 	EndIf;
 	
-	// Шифрование.
 	ErrorDescription = "";
 	EncryptedData = CheckEncryptionAtServer(CryptoManager, CertificateData, CryptoCertificate, ErrorDescription); 
 	
-	// Decryption.
 	If ChecksAtServer.CertificateExists = True And Not ValueIsFilled(ErrorDescription) Then
 		CheckDecryptionAtServer(CryptoManager, EncryptedData);
 	EndIf;

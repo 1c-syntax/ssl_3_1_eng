@@ -1750,7 +1750,7 @@ Procedure UpdateUserData()
 			
 			ShowQueryBox(
 				New NotifyDescription(
-					"UpdateUserDateCompletion",
+					"UpdateUserDataCompletion",
 					ThisObject,
 					NewUser),
 				MessageTextExcessSetting(
@@ -1763,12 +1763,12 @@ Procedure UpdateUserData()
 		EndIf;
 	EndIf;
 	
-	UpdateUserDateCompletion(Undefined, NewUser);
+	UpdateUserDataCompletion(Undefined, NewUser);
 	
 EndProcedure
 
 &AtClient
-Procedure UpdateUserDateCompletion(Response, NewUser) Export
+Procedure UpdateUserDataCompletion(Response, NewUser) Export
 	
 	If Response = DialogReturnCode.No Then
 		Filter = New Structure("User", CurrentUser);
@@ -2261,15 +2261,15 @@ Function ReadUserDataWithoutSections(Val User, Val SingleSection)
 		Query = New Query;
 		Query.SetParameter("User",           User);
 		Query.SetParameter("SingleSection",     SingleSection);
-		Query.SetParameter("CommonDatePresentation", CommonDatePresentationText());
+		Query.SetParameter("SingleDatePresentation", CommonDatePresentationText());
 		// ACC:494-
 		// 
 		Query.Text =
 		"SELECT ALLOWED
 		|	VALUE(ChartOfCharacteristicTypes.PeriodClosingDatesSections.EmptyRef) AS Section,
 		|	VALUE(ChartOfCharacteristicTypes.PeriodClosingDatesSections.EmptyRef) AS Object,
-		|	&CommonDatePresentation AS FullPresentation,
-		|	&CommonDatePresentation AS Presentation,
+		|	&SingleDatePresentation AS FullPresentation,
+		|	&SingleDatePresentation AS Presentation,
 		|	ISNULL(SingleDate.PeriodEndClosingDate, DATETIME(1, 1, 1, 0, 0, 0)) AS PeriodEndClosingDate,
 		|	ISNULL(SingleDate.PeriodEndClosingDateDetails, """") AS PeriodEndClosingDateDetails,
 		|	TRUE AS IsSection,

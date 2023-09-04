@@ -461,7 +461,7 @@
 											<UpdateOnDataChange>Auto</UpdateOnDataChange>
 											<AllowGettingCurrentRowURL>true</AllowGettingCurrentRowURL>
 											<ContextMenu name="UsersGroupsContextMenu" id="177"/>
-											<AutoCommandBar name="UsersGroupsCommandBar" id="178"/>
+											<AutoCommandBar name="UserGroupsCommandBar" id="178"/>
 											<ExtendedTooltip name="UsersGroupsExtendedTooltip" id="204"/>
 											<SearchStringAddition name="UsersGroupsSearchString" id="263">
 												<AdditionSource>
@@ -552,7 +552,7 @@
 													</Button>
 												</ChildItems>
 											</ContextMenu>
-											<AutoCommandBar name="UsersListCommandBar_SSLy" id="97">
+											<AutoCommandBar name="UsersListCommandBar" id="97">
 												<ChildItems>
 													<Button name="UsersListView" id="329">
 														<Type>CommandBarButton</Type>
@@ -1506,7 +1506,7 @@ FROM
 				<xr:Ref>StdPicture.ChooseFromList</xr:Ref>
 				<xr:LoadTransparent>true</xr:LoadTransparent>
 			</Picture>
-			<Action>OKCommandExecute</Action>
+			<Action>OkCommandExecute</Action>
 			<Representation>TextPicture</Representation>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
@@ -1544,7 +1544,7 @@ FROM
 				<xr:Ref>StdPicture.FindInList</xr:Ref>
 				<xr:LoadTransparent>true</xr:LoadTransparent>
 			</Picture>
-			<Action>FindInListFromSubjectListExecute</Action>
+			<Action>FindInListFromSubjectsListExecute</Action>
 			<Representation>TextPicture</Representation>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
@@ -1565,7 +1565,7 @@ FROM
 				<xr:Ref>StdPicture.BusinessProcessStart</xr:Ref>
 				<xr:LoadTransparent>true</xr:LoadTransparent>
 			</Picture>
-			<Action>AddFromSubjectListExecute</Action>
+			<Action>AddFromSubjectsListExecute</Action>
 			<Representation>TextPicture</Representation>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
@@ -1619,7 +1619,7 @@ FROM
 					<v8:content>Specify "Cc"</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>ChangeGroupCCExecute</Action>
+			<Action>ChangeCcGroupExecute</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 		<Command name="ChangeBCCGroup" id="9">
@@ -1635,7 +1635,7 @@ FROM
 					<v8:content>Specify "Bcc"</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>ChangeGroupBCCExecute</Action>
+			<Action>ChangeBCCGroupExecute</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 		<Command name="FindInListFromRecipientsList" id="10">
@@ -1727,7 +1727,7 @@ FROM
 				<xr:Ref>StdPicture.FindInList</xr:Ref>
 				<xr:LoadTransparent>true</xr:LoadTransparent>
 			</Picture>
-			<Action>FindInListFromFoundContactsListExecute</Action>
+			<Action>FindInListFromFoundItemsListExecute</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 		<Command name="DeleteRecipient" id="15">

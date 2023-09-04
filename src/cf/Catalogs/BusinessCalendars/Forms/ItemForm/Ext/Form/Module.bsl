@@ -28,7 +28,7 @@ Procedure OnReadAtServer(CurrentObject)
 	
 	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then
 		ModuleStandaloneMode = Common.CommonModule("StandaloneMode");
-		ModuleStandaloneMode.ObjectOnReadAtServer(CurrentObject, ThisObject.ReadOnly);
+		ModuleStandaloneMode.ObjectOnReadAtServer(CurrentObject, ReadOnly);
 	EndIf;
 	
 	FillWithCurrentYearData();

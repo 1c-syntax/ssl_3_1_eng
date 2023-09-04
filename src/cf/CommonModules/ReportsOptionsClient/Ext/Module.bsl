@@ -12,7 +12,7 @@
 // Opens a form of the specified report. 
 //
 // Parameters:
-//  OwnerForm1 - ClientApplicationForm
+//  OwnerForm - ClientApplicationForm
 //                - Undefined - 
 //  Variant - CatalogRef.ReportsOptions
 //          - CatalogRef.AdditionalReportsAndDataProcessors -  
@@ -20,7 +20,7 @@
 //             
 //  AdditionalParameters - Structure - For internal use only.
 //
-Procedure OpenReportForm(Val OwnerForm1, Val Variant, Val AdditionalParameters = Undefined) Export
+Procedure OpenReportForm(Val OwnerForm, Val Variant, Val AdditionalParameters = Undefined) Export
 	Type = TypeOf(Variant);
 	If Type = Type("Structure") Then
 		OpeningParameters = Variant;
@@ -34,8 +34,8 @@ Procedure OpenReportForm(Val OwnerForm1, Val Variant, Val AdditionalParameters =
 		Return;
 	Else
 		OpeningParameters = New Structure("Ref, Report, ReportType, FullReportName, ReportName, VariantKey, MeasurementsKey");
-		If TypeOf(OwnerForm1) = Type("ClientApplicationForm") Then
-			FillPropertyValues(OpeningParameters, OwnerForm1);
+		If TypeOf(OwnerForm) = Type("ClientApplicationForm") Then
+			FillPropertyValues(OpeningParameters, OwnerForm);
 		EndIf;
 		FillPropertyValues(OpeningParameters, Variant);
 	EndIf;
@@ -193,7 +193,7 @@ EndProcedure
 Procedure OpenOptionArrangeInSectionsDialog(Variants, Owner = Undefined) Export
 	
 	If TypeOf(Variants) <> Type("Array") Or Variants.Count() < 1 Then
-		ShowMessageBox(, NStr("en = 'Select report options for placement in sections.';"));
+		ShowMessageBox(, NStr("en = 'Select report options to add to sections.';"));
 		Return;
 	EndIf;
 	
@@ -644,7 +644,7 @@ Procedure UpdateReportOptionFromFiles(ReportOptionProperties, FormIdentifier) Ex
 	ImportParameters.Dialog.Filter = NStr("en = 'Report information (*.zip)|*.zip';");
 	ImportParameters.FormIdentifier = FormIdentifier;
 	
-	Handler = New NotifyDescription("UpdateReportsOptionsFromFilesCompletion", ThisObject, 
+	Handler = New NotifyDescription("UpdateReportOptionsFromFilesCompletion", ThisObject, 
 		ReportOptionProperties);
 	FileSystemClient.ImportFiles(Handler, ImportParameters);
 
@@ -656,7 +656,7 @@ EndProcedure
 //     * Name - String
 //   BaseReportOptionProperties - See BaseReportOptionProperties
 //
-Procedure UpdateReportsOptionsFromFilesCompletion(FilesDetails, BaseReportOptionProperties) Export 
+Procedure UpdateReportOptionsFromFilesCompletion(FilesDetails, BaseReportOptionProperties) Export 
 	
 	If TypeOf(FilesDetails) <> Type("Array") Then
 		Return;

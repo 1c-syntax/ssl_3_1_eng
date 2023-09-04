@@ -127,12 +127,12 @@ Procedure SaveFolder()
 	GenerateFilesTree(WhatToSave);
 	
 	// After that start exporting
-	Handler = New NotifyDescription("SaveDirectoryCompletion", ThisObject);
+	Handler = New NotifyDescription("SaveFolderCompletion", ThisObject);
 	ProcessFilesTree(Handler, FilesTree, FullExportPath, WhatToSave, Undefined);
 EndProcedure
 
 &AtClient
-Procedure SaveDirectoryCompletion(Result, ExecutionParameters) Export
+Procedure SaveFolderCompletion(Result, ExecutionParameters) Export
 	If Result.Success = True Then
 		PathToSave = FolderForExport;
 		CommonServerCall.CommonSettingsStorageSave("ExportFolderName", "ExportFolderName",  PathToSave);

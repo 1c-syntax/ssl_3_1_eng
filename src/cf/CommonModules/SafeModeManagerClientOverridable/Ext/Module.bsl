@@ -13,14 +13,14 @@
 // 
 // Parameters:
 //  RequestsIDs - Array - Request IDs.
-//  OwnerForm1 - ClientApplicationForm - Form that must be locked before permissions are applied.
+//  OwnerForm - ClientApplicationForm - Form that must be locked before permissions are applied.
 //  ClosingNotification1 - NotifyDescription - Notification triggered when permissions are granted.
 //  StandardProcessing - Boolean - indicates that the standard processing of usage of permissions to use
 //    external resources is executed (connection to a service agent via COM connection or to an administration server
 //    requesting cluster connection parameters from the user). Can be set to False
 //    in the event handler. In this case, standard session termination processing is not performed.
 //
-Procedure OnConfirmRequestsToUseExternalResources(Val RequestsIDs, OwnerForm1, ClosingNotification1, StandardProcessing) Export
+Procedure OnConfirmRequestsToUseExternalResources(Val RequestsIDs, OwnerForm, ClosingNotification1, StandardProcessing) Export
 	
 	
 	

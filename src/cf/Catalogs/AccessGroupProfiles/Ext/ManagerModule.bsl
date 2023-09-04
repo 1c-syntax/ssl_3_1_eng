@@ -23,13 +23,13 @@
 //
 Function AttributesToSkipInBatchProcessing() Export
 	
-	AttributesToSkip = New Array;
-	AttributesToSkip.Add("SuppliedDataID");
-	AttributesToSkip.Add("SuppliedProfileChanged");
-	AttributesToSkip.Add("AccessKinds.*");
-	AttributesToSkip.Add("AccessValues.*");
+	NotAttributesToEdit = New Array;
+	NotAttributesToEdit.Add("SuppliedDataID");
+	NotAttributesToEdit.Add("SuppliedProfileChanged");
+	NotAttributesToEdit.Add("AccessKinds.*");
+	NotAttributesToEdit.Add("AccessValues.*");
 	
-	Return AttributesToSkip;
+	Return NotAttributesToEdit;
 	
 EndFunction
 
@@ -424,12 +424,12 @@ Procedure FillStandardExtensionRoles(ProfileRoles, StandardExtensionRoles = Unde
 	
 	// BasicSSLRights.
 	SetRolesInProfile(ProfileRoles,
-		StandardExtensionRoles.BasicRights,
+		StandardExtensionRoles.BasicAccess,
 		StandardProfileRoles.BasicSSLRights);
 	
 	// BasicSSLRightsForExternalUsers.
 	SetRolesInProfile(ProfileRoles,
-		StandardExtensionRoles.ExternalUsersBasicRights,
+		StandardExtensionRoles.BasicAccessExternalUsers,
 		StandardProfileRoles.BasicSSLRightsForExternalUsers);
 	
 	// Common rights.
@@ -1409,8 +1409,8 @@ Procedure ClearRemovedStandardExtensionRoles(ProfileRoles)
 		NameOfRole = NameParts[1];
 		If Not StrEndsWith(Upper(NameOfRole), Upper("CommonRights"))
 		   And Not StrEndsWith(Upper(NameOfRole), Upper("FullAccess"))
-		   And Not StrEndsWith(Upper(NameOfRole), Upper("BasicRights"))
-		   And Not StrEndsWith(Upper(NameOfRole), Upper("ExternalUsersBasicRights"))
+		   And Not StrEndsWith(Upper(NameOfRole), Upper("BasicAccess"))
+		   And Not StrEndsWith(Upper(NameOfRole), Upper("BasicAccessExternalUsers"))
 		   And Not StrEndsWith(Upper(NameOfRole), Upper("SystemAdministrator")) Then
 			Continue;
 		EndIf;
@@ -1484,8 +1484,8 @@ Function PreparedStandardRolesSessionExtensions() Export
 	
 	Result = New Structure;
 	Result.Insert("CommonRights", New Array);
-	Result.Insert("BasicRights", New Array);
-	Result.Insert("ExternalUsersBasicRights", New Array);
+	Result.Insert("BasicAccess", New Array);
+	Result.Insert("BasicAccessExternalUsers", New Array);
 	Result.Insert("SystemAdministrator", New Array);
 	Result.Insert("FullAccess", New Array);
 	Result.Insert("All", New Map);
@@ -1510,13 +1510,13 @@ Function PreparedStandardRolesSessionExtensions() Export
 			Result.AdditionalAdministratorRoles.Insert(NameOfRole, True);
 			Result.All.Insert(NameOfRole, "FullAccess");
 			
-		ElsIf StrEndsWith(Upper(NameOfRole), Upper("BasicRights")) Then
-			Result.BasicRights.Add(NameOfRole);
-			Result.All.Insert(NameOfRole, "BasicRights");
+		ElsIf StrEndsWith(Upper(NameOfRole), Upper("BasicAccess")) Then
+			Result.BasicAccess.Add(NameOfRole);
+			Result.All.Insert(NameOfRole, "BasicAccess");
 			
-		ElsIf StrEndsWith(Upper(NameOfRole), Upper("ExternalUsersBasicRights")) Then
-			Result.ExternalUsersBasicRights.Add(NameOfRole);
-			Result.All.Insert(NameOfRole, "ExternalUsersBasicRights");
+		ElsIf StrEndsWith(Upper(NameOfRole), Upper("BasicAccessExternalUsers")) Then
+			Result.BasicAccessExternalUsers.Add(NameOfRole);
+			Result.All.Insert(NameOfRole, "BasicAccessExternalUsers");
 			
 		ElsIf StrEndsWith(Upper(NameOfRole), Upper("SystemAdministrator")) Then
 			Result.SystemAdministrator.Add(NameOfRole);

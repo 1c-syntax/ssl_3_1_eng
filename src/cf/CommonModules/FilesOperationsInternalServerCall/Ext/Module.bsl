@@ -792,7 +792,7 @@ Function ScanningParameters(Fill = False, ClientID = Undefined) Export
 	ScanningParameters.Insert("JPGQuality", 100);
 	ScanningParameters.Insert("TIFFDeflation", 6);
 	ScanningParameters.Insert("DuplexScanning", False);
-	ScanningParameters.Insert("SaveToPDF", False);
+	ScanningParameters.Insert("ShouldSaveAsPDF", False);
 	ScanningParameters.Insert("UseImageMagickToConvertToPDF", False);
 	
 	If Fill And ClientID <> Undefined Then

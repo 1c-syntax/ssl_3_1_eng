@@ -56,7 +56,7 @@
 //   * MaintainAspectRatio - Boolean - save proportions of a barcode image.                                                              
 //   * VerticalAlignment - Number - vertical alignment of a barcode.
 //      Possible values: 1 - Top, 2 - Center, 3 - Bottom
-//   * GS1DatabarRowCount - Number - a number of rows in the GS1Databar barcode.
+//   * GS1DatabarRowsCount - Number - a number of rows in the GS1Databar barcode.
 //   * RemoveExtraBackgroud - Boolean
 //   * LogoImage - String - a string with base64 presentation of a PNG logo image.
 //   * LogoSizePercentFromBarcode - Number - a percentage of the generated QR code to add a logo.
@@ -76,7 +76,7 @@ Function BarcodeGenerationParameters() Export
 	BarcodeParameters.Insert("Zoomable"           , False);
 	BarcodeParameters.Insert("MaintainAspectRatio"       , False);
 	BarcodeParameters.Insert("VerticalAlignment" , 1); 
-	BarcodeParameters.Insert("GS1DatabarRowCount", 2);
+	BarcodeParameters.Insert("GS1DatabarRowsCount", 2);
 	BarcodeParameters.Insert("InputDataType", 0);
 	BarcodeParameters.Insert("RemoveExtraBackgroud" , False); 
 	BarcodeParameters.Insert("LogoImage");
@@ -273,14 +273,14 @@ Function PrepareABarcodeImage(AddIn, BarcodeParameters)
 	EndIf;
 	AddIn.Width = TheWidthOfTheBarcode;
 	AddIn.Height = TheHeightOfTheBarcode;
-	AddIn.CodeAuto = False;
+	AddIn.AutoType = False;
 	
 	TimeBarcode = String(BarcodeParameters.Barcode); // 
 	
 	If BarcodeParameters.CodeType = 99 Then
-		AddIn.CodeAuto = True;
+		AddIn.AutoType = True;
 	Else
-		AddIn.CodeAuto = False;
+		AddIn.AutoType = False;
 		AddIn.CodeType = BarcodeParameters.CodeType;
 	EndIf;
 	
@@ -292,12 +292,12 @@ Function PrepareABarcodeImage(AddIn, BarcodeParameters)
 		AddIn.InputDataType = BarcodeParameters.InputDataType;
 	EndIf;
 	
-	If BarcodeParameters.Property("GS1DatabarRowCount") Then
-		AddIn.GS1DatabarRowCount = BarcodeParameters.GS1DatabarRowCount;
+	If BarcodeParameters.Property("GS1DatabarRowsCount") Then
+		AddIn.GS1DatabarRowCount = BarcodeParameters.GS1DatabarRowsCount;
 	EndIf;
 	
 	If BarcodeParameters.Property("RemoveExtraBackgroud") Then
-		AddIn.RemoveExeedBackgroud = BarcodeParameters.RemoveExtraBackgroud;
+		AddIn.RemoveExtraBackgroud = BarcodeParameters.RemoveExtraBackgroud;
 	EndIf;
 	
 	AddIn.TextVisible = BarcodeParameters.ShowText;
@@ -341,7 +341,7 @@ Function PrepareABarcodeImage(AddIn, BarcodeParameters)
 	
 	// CodeVerticalAlignment: 1 - align top, 2 - align center, 3 - align bottom.
 	If BarcodeParameters.Property("VerticalAlignment") And (BarcodeParameters.VerticalAlignment > 0) Then
-		AddIn.BarVerticalAlign = BarcodeParameters.VerticalAlignment;
+		AddIn.CodeVerticalAlign = BarcodeParameters.VerticalAlignment;
 	EndIf;
 	
 	If BarcodeParameters.Property("FontSize") And (BarcodeParameters.FontSize > 0) 
@@ -352,9 +352,9 @@ Function PrepareABarcodeImage(AddIn, BarcodeParameters)
 	If BarcodeParameters.Property("FontSize") And BarcodeParameters.FontSize > 0
 		And BarcodeParameters.Property("MonochromeFont") Then
 		If BarcodeParameters.MonochromeFont Then
-			AddIn.MaxFontSizeForHinting = BarcodeParameters.FontSize + 1;
+			AddIn.MaxFontSizeForLowDPIPrinters = BarcodeParameters.FontSize + 1;
 		Else
-			AddIn.MaxFontSizeForHinting = -1;
+			AddIn.MaxFontSizeForLowDPIPrinters = -1;
 		EndIf;
 	EndIf;
 	

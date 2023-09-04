@@ -35,7 +35,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SMSMessageSenderPassword = SMSMessageSendingSettings.Password;
 	
 	If Items.Password.PasswordMode Then
-		SMSMessageSenderPassword = ?(ValueIsFilled(SMSMessageSendingSettings.Password), ThisObject.UUID, "");
+		SMSMessageSenderPassword = ?(ValueIsFilled(SMSMessageSendingSettings.Password), UUID, "");
 	EndIf;
 	
 EndProcedure
@@ -59,7 +59,7 @@ EndProcedure
 Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	SetPrivilegedMode(True);
 	Owner = Common.MetadataObjectID("Constant.SMSProvider");
-	If SMSMessageSenderPassword <> String(ThisObject.UUID) Then
+	If SMSMessageSenderPassword <> String(UUID) Then
 		Common.WriteDataToSecureStorage(Owner, SMSMessageSenderPassword);
 	EndIf;
 	Common.WriteDataToSecureStorage(Owner, SMSMessageSenderUsername, "Login");

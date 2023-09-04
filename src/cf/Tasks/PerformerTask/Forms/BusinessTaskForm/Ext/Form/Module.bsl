@@ -89,16 +89,16 @@ EndProcedure
 #Region FormCommandHandlers
 
 &AtClient
-Procedure WriteAndCloseComplete(Command)
+Procedure WriteAndCloseExecute(Command)
 	
-	BusinessProcessesAndTasksClient.WriteAndCloseComplete(ThisObject);
+	BusinessProcessesAndTasksClient.WriteAndCloseExecute(ThisObject);
 	
 EndProcedure
 
 &AtClient
 Procedure ExecutedExecute(Command)
 
-	BusinessProcessesAndTasksClient.WriteAndCloseComplete(ThisObject, True);
+	BusinessProcessesAndTasksClient.WriteAndCloseExecute(ThisObject, True);
 
 EndProcedure
 

@@ -231,7 +231,7 @@ Procedure FilterAvailable(StructureItem)
 EndProcedure
 
 &AtClient
-Procedure FilterUnavailable()
+Procedure FilterDisabled()
 	
 	LocalFilter = False;
 	Items.LocalFilter.ReadOnly = True;
@@ -370,7 +370,7 @@ Procedure SettingsComposerSettingsOnActivateRow(Item)
 		
 		GroupFieldsUnavailable();
 		SelectedFieldsUnavailable();
-		FilterUnavailable();
+		FilterDisabled();
 		OrderUnavailable();
 		ConditionalAppearanceUnavailable();
 		OutputParametersUnavailable();
@@ -417,7 +417,7 @@ Procedure SettingsComposerSettingsOnActivateRow(Item)
 		
 		GroupFieldsUnavailable();
 		SelectedFieldsAvailable(StructureItem);
-		FilterUnavailable();
+		FilterDisabled();
 		OrderUnavailable();
 		ConditionalAppearanceAvailable(StructureItem);
 		OutputParametersAvailable(StructureItem);

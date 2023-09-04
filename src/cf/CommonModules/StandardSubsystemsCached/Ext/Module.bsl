@@ -644,7 +644,7 @@ Function CollectionNamesByBaseTypeNames() Export
 	CollectionsNames.Insert(Upper("XDTOPackage"), "XDTOPackages");
 	CollectionsNames.Insert(Upper("WebService"), "WebServices");
 	CollectionsNames.Insert(Upper("HTTPService"), "HTTPServices");
-	CollectionsNames.Insert(Upper("WSReference"), "WSReferences");
+	CollectionsNames.Insert(Upper("WSRef"), "WSReferences");
 	CollectionsNames.Insert(Upper("ServiceIntegration"), "IntegrationServices");
 	CollectionsNames.Insert(Upper("StyleItem"), "StyleItems");
 	CollectionsNames.Insert(Upper("Style"), "Styles");

@@ -65,7 +65,7 @@ Function GetExchangeServiceWSProxy() Export
 		
 		SettingsStructure = New Structure;
 		SettingsStructure.Insert("WSWebServiceURL",   TransportSettings.WSWebServiceURL);
-		SettingsStructure.Insert("WSUsername", TransportSettings.WSUsername);
+		SettingsStructure.Insert("WSUserName", TransportSettings.WSUserName);
 		SettingsStructure.Insert("WSPassword",          TransportSettings.WSPassword);
 		SettingsStructure.Insert("WSServiceName",      "ManageApplicationExchange_1_0_6_5");
 		SettingsStructure.Insert("WSServiceNamespaceURL", "http://www.1c.ru/SaaS/1.0/WS/ManageApplicationExchange_1_0_6_5");

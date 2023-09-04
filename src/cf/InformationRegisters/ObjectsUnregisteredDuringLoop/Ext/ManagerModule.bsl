@@ -23,8 +23,8 @@ Procedure RegisterEverything(Schema, Settings) Export
 	SchemaQuery.SetQueryText(QueryText);
 	
 	SelectedFields = SchemaQuery.QueryBatch[0].Operators[0].SelectedFields;
-	SelectedFields.Add("InfoRegisterObjectsUnregisteredWhileLooping.InformationRegisterName");
-	SelectedFields.Add("InfoRegisterObjectsUnregisteredWhileLooping.InformationRegisterChanges");
+	SelectedFields.Add("InformationRegisterObjectsUnregisteredDuringLoop.InformationRegisterName");
+	SelectedFields.Add("InformationRegisterObjectsUnregisteredDuringLoop.InformationRegisterChanges");
 	
 	Query.Text = SchemaQuery.GetQueryText();
 	
@@ -49,7 +49,7 @@ Procedure RegisterSelected(Address) Export
 		|	ObjectsTable.InfobaseNode AS InfobaseNode,
 		|	ObjectsTable.Object AS Object,
 		|	ObjectsTable.InformationRegisterKey AS InformationRegisterKey
-		|INTO TT_TableOfObjects
+		|INTO TT_ObjectsTable
 		|FROM
 		|	&ObjectsTable AS ObjectsTable
 		|;
@@ -62,11 +62,11 @@ Procedure RegisterSelected(Address) Export
 		|	Objects.InformationRegisterName AS InformationRegisterName,
 		|	Objects.InformationRegisterChanges AS InformationRegisterChanges
 		|FROM
-		|	TT_TableOfObjects AS TT_TableOfObjects
+		|	TT_ObjectsTable AS TT_ObjectsTable
 		|		LEFT JOIN InformationRegister.ObjectsUnregisteredDuringLoop AS Objects
-		|		ON TT_TableOfObjects.InfobaseNode = Objects.InfobaseNode
-		|			AND TT_TableOfObjects.Object = Objects.Object
-		|			AND TT_TableOfObjects.InformationRegisterKey = Objects.InformationRegisterKey";
+		|		ON TT_ObjectsTable.InfobaseNode = Objects.InfobaseNode
+		|			AND TT_ObjectsTable.Object = Objects.Object
+		|			AND TT_ObjectsTable.InformationRegisterKey = Objects.InformationRegisterKey";
 	
 	Query.SetParameter("ObjectsTable", ObjectsTable);
 	

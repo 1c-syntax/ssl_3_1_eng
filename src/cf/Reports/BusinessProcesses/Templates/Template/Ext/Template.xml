@@ -97,7 +97,7 @@ FROM
 		<title xsi:type="v8:LocalStringType">
 			<v8:item>
 				<v8:lang>en</v8:lang>
-				<v8:content>Status of business processes</v8:content>
+				<v8:content>Business process state</v8:content>
 			</v8:item>
 		</title>
 		<presentationExpression>Completed</presentationExpression>

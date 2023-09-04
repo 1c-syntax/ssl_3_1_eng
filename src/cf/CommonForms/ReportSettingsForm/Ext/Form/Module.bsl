@@ -374,7 +374,7 @@ Procedure Attachable_List_ChoiceProcessing(Item, SelectionResult, StandardProces
 	SelectedItems = ReportsClientServer.ValuesByList(SelectionResult);
 	SelectedItems.FillChecks(True);
 	
-	AddOn = CommonClientServer.AddToList2(List, SelectedItems, False, True);
+	AddOn = CommonClientServer.SupplementList(List, SelectedItems, False, True);
 	
 	TheValueOfTheSettingElement = CommonClient.CopyRecursive(List);
 	IndexOf = TheValueOfTheSettingElement.Count() - 1;
@@ -986,7 +986,7 @@ EndProcedure
 
 &AtClient
 Procedure Filters_DontShow(Command)
-	FiltersSetDisplayMode("DontShow");
+	FiltersSetDisplayMode("NotShow");
 EndProcedure
 
 &AtClient
@@ -1713,7 +1713,7 @@ Procedure OptionStructure_MoveUpAndLeft(Command)
 	ExecutionParameters.Insert("Mode",              "UpAndLeft");
 	ExecutionParameters.Insert("TableRowUp", TableRowUp);
 	ExecutionParameters.Insert("TableRowDown",  TableRowDown);
-	OptionStructure_Move(-1, ExecutionParameters);
+	OptionStructure_MoveTo(-1, ExecutionParameters);
 EndProcedure
 
 &AtClient
@@ -1736,21 +1736,21 @@ Procedure OptionStructure_MoveDownAndRight(Command)
 		Return;
 	ElsIf Count = 1 Then
 		ExecutionParameters.TableRowUp = SubordinateRows[0];
-		OptionStructure_Move(-1, ExecutionParameters);
+		OptionStructure_MoveTo(-1, ExecutionParameters);
 	Else
 		List = New ValueList;
 		For LineNumber = 1 To Count Do
 			SubordinateRow = SubordinateRows[LineNumber-1];
 			List.Add(SubordinateRow.GetID(), SubordinateRow.Presentation);
 		EndDo;
-		Handler = New NotifyDescription("OptionStructure_Move", ThisObject, ExecutionParameters);
+		Handler = New NotifyDescription("OptionStructure_MoveTo", ThisObject, ExecutionParameters);
 		ShowChooseFromMenu(Handler, List);
 	EndIf;
 	
 EndProcedure
 
 &AtClient
-Procedure OptionStructure_Move(Result, ExecutionParameters) Export
+Procedure OptionStructure_MoveTo(Result, ExecutionParameters) Export
 	If Result <> -1 Then
 		If TypeOf(Result) <> Type("ValueListItem") Then
 			Return;
@@ -2028,12 +2028,12 @@ Procedure EditFiltersConditions(Command)
 	FormParameters.Insert("OwnerFormType", ReportFormType);
 	FormParameters.Insert("ReportSettings", ReportSettings);
 	FormParameters.Insert("SettingsComposer", Report.SettingsComposer);
-	Handler = New NotifyDescription("EditFilterCriteriaCompletion", ThisObject);
+	Handler = New NotifyDescription("EditFiltersConditionsCompletion", ThisObject);
 	OpenForm("SettingsStorage.ReportsVariantsStorage.Form.ReportFiltersConditions", FormParameters, ThisObject, True,,, Handler);
 EndProcedure
 
 &AtClient
-Procedure EditFilterCriteriaCompletion(FiltersConditions, Context) Export
+Procedure EditFiltersConditionsCompletion(FiltersConditions, Context) Export
 	If FiltersConditions = Undefined
 		Or FiltersConditions = DialogReturnCode.Cancel
 		Or FiltersConditions.Count() = 0 Then
@@ -2118,7 +2118,7 @@ Procedure Attachable_List_PasteFromClipboard(Command)
 	SearchParameters.Insert("Scenario", "PastingFromClipboard");
 	SearchParameters.Insert("ChoiceParameters", ChoiceParameters);
 	
-	Handler = New NotifyDescription("PasteFromClipboardCompletion", ThisObject, ListPath);
+	Handler = New NotifyDescription("PasteFromClipboard1Completion", ThisObject, ListPath);
 	
 	ModuleDataImportFromFileClient = CommonClient.CommonModule("ImportDataFromFileClient");
 	ModuleDataImportFromFileClient.ShowRefFillingForm(SearchParameters, Handler);
@@ -3765,7 +3765,7 @@ Function ValuesForSelection(String)
 	
 	FilterValue = ReportsClient.SelectionValueCache(Report.SettingsComposer, SettingItem);
 	If FilterValue <> Undefined Then 
-		CommonClientServer.AddToList2(ValuesForSelection, FilterValue);
+		CommonClientServer.SupplementList(ValuesForSelection, FilterValue);
 	EndIf;
 	
 	ReportsClient.UpdateListViews(ValuesForSelection, String.AvailableValues);
@@ -5150,7 +5150,7 @@ Procedure ChangeStructureItem(String, PageName = Undefined, UseOptionForm = Unde
 			Or String.Type = "DataCompositionNestedObjectSettings");
 	EndIf;
 	
-	Handler = New NotifyDescription("StructureItemIDCompletion", ThisObject);
+	Handler = New NotifyDescription("ChangeStructureItemCompletion", ThisObject);
 	
 	TitleTemplate1 = NStr("en = '%1 settings of report %2';");
 	If String.Type = "DataCompositionChart" Then
@@ -5198,7 +5198,7 @@ Procedure ChangeStructureItem(String, PageName = Undefined, UseOptionForm = Unde
 EndProcedure
 
 &AtClient
-Procedure StructureItemIDCompletion(Result, Context) Export
+Procedure ChangeStructureItemCompletion(Result, Context) Export
 	If TypeOf(Result) <> Type("Structure")
 		Or Result = DialogReturnCode.Cancel Then
 		Return;
@@ -5407,7 +5407,7 @@ Procedure CompleteListFilling(SelectedValues, FillParameters) Export
 EndProcedure
 
 &AtClient
-Procedure PasteFromClipboardCompletion(FoundObjects, ListPath) Export
+Procedure PasteFromClipboard1Completion(FoundObjects, ListPath) Export
 	If FoundObjects = Undefined Then
 		Return;
 	EndIf;
@@ -6154,7 +6154,7 @@ Function AvailableDisplayModes(ShowCheckBoxesModes)
 		AvailableDisplayModes.Add("ShowOnlyCheckBoxInReportSettings", NStr("en = 'Only check box in report settings';"), , PictureLib.NormalAccessWithCheckBox);
 	EndIf;
 	
-	AvailableDisplayModes.Add("DontShow", NStr("en = 'Hide';"), , PictureLib.HiddenReportSettingsItem);
+	AvailableDisplayModes.Add("NotShow", NStr("en = 'Hide';"), , PictureLib.HiddenReportSettingsItem);
 	
 	Return AvailableDisplayModes;
 	
@@ -6168,7 +6168,7 @@ Function AvailableImagesOfDisplayModes()
 	AvailableImages.Insert("ShowInReportHeader", 2);
 	AvailableImages.Insert("ShowOnlyCheckBoxInReportSettings", 3);
 	AvailableImages.Insert("ShowInReportSettings", 4);
-	AvailableImages.Insert("DontShow", 5);
+	AvailableImages.Insert("NotShow", 5);
 	
 	Return AvailableImages;
 	
@@ -6852,7 +6852,6 @@ Procedure SetConditionalAppearance()
 	
 	#Region ConditionalTableAppearanceOfGroupContentForm
 	
-	// ShowAdditionType = True.
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -6867,7 +6866,6 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.GroupCompositionGroupType.Name);
 	
-	// 
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -6882,7 +6880,6 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.GroupCompositionAdditionType.Name);
 	
-	// 
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -6897,7 +6894,6 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.GroupCompositionGroupType.Name);
 	
-	// Title - 
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -6914,7 +6910,6 @@ Procedure SetConditionalAppearance()
 	
 	#Region ConditionalTableAppearanceOfFiltersForm
 	
-	// 
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -6978,7 +6973,6 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.FiltersUserSettingPresentation.Name);
 	
-	// 
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -7030,7 +7024,6 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.FiltersField.Name);
 	
-	// 
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -7045,7 +7038,6 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.FiltersComparisonType.Name);
 	
-	// 
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -7061,7 +7053,6 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.FiltersUse.Name);
 	
-	// ЭтоРаздел = Ложь; ЭтоПараметр = Ложь; ЭтоГруппа = Ложь - 
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -7139,7 +7130,6 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.FiltersValue.Name);
 	
-	// 
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -7210,7 +7200,6 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.FiltersUserSettingPresentation.Name);
 	
-	// 
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -7224,7 +7213,6 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.FiltersRightValue.Name);
 	
-	// Title - 
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -7241,7 +7229,6 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.FiltersField.Name);
 	
-	// ПредставлениеЗначения - 
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -7256,7 +7243,6 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.FiltersRightValue.Name);
 	
-	// IsPredefinedTitle = True.
 	//
 	ProhibitedCellTextColor = Metadata.StyleItems.InaccessibleCellTextColor;
 	
@@ -7276,7 +7262,7 @@ Procedure SetConditionalAppearance()
 	
 	#Region ConditionalTableAppearanceOfSelectedFieldsForm
 	
-	// 
+
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -7291,7 +7277,6 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.SelectedFieldsUse.Name);
 	
-	// Title - 
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -7308,7 +7293,6 @@ Procedure SetConditionalAppearance()
 	
 	#Region ConditionalTableAppearanceOfSortingForm
 	
-	// 
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -7325,7 +7309,6 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.SortOrderType.Name);
 	
-	// 
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -7340,7 +7323,6 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.SortOrderType.Name);
 	
-	// Title - 
 	//
 	Item = ConditionalAppearance.Items.Add();
 	

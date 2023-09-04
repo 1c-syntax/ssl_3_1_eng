@@ -132,7 +132,7 @@ EndProcedure
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  IBAdministrationParameters - Structure - describes infobase connection parameters.
-//    details - See ClusterAdministrationClientServer.ПараметрыАдминистрированияИнформационнойБазыКластера().
+//    details - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters.
 //    The parameter can be skipped if the same fields have been filled in the structure passed
 //    as the ClusterAdministrationParameters parameter value,
 //  CheckClusterAdministrationParameters - Boolean - Indicates whether a check of cluster

@@ -41,7 +41,7 @@ Procedure CreateNewEmailMessage(EmailSendOptions = Undefined, FormClosingNotific
 		Else
 			MessageText = NStr("en = 'To send messages, set up the email account.
 				|Contact the administrator.';");
-			NotifyDescription = New NotifyDescription("CheckAccountForSendingEmailExistsEnd", ThisObject, ResultHandler);
+			NotifyDescription = New NotifyDescription("CheckAccountForSendingEmailExistsCompletion", ThisObject, ResultHandler);
 			ShowMessageBox(NotifyDescription, MessageText);
 		EndIf;
 	EndIf;
@@ -120,7 +120,7 @@ Procedure CheckAccountForSendingEmailExists(ResultHandler) Export
 		Else	
 			MessageText = NStr("en = 'To send messages, set up the email account.
 				|Contact the administrator.';");
-			NotifyDescription = New NotifyDescription("CheckAccountForSendingEmailExistsEnd", ThisObject, ResultHandler);
+			NotifyDescription = New NotifyDescription("CheckAccountForSendingEmailExistsCompletion", ThisObject, ResultHandler);
 			ShowMessageBox(NotifyDescription, MessageText);
 		EndIf;
 	EndIf;
@@ -232,7 +232,7 @@ Procedure OpenSimpleSendEmailMessageForm(EmailParameters, OnCloseNotifyDescripti
 	OpenForm("CommonForm.SendMessage", EmailParameters, , , , , OnCloseNotifyDescription);
 EndProcedure
 
-Procedure CheckAccountForSendingEmailExistsEnd(ResultHandler) Export
+Procedure CheckAccountForSendingEmailExistsCompletion(ResultHandler) Export
 	ExecuteNotifyProcessing(ResultHandler, False);
 EndProcedure
 

@@ -151,10 +151,10 @@ Procedure FillSections()
 		OptionsCount = OptionsToAssign.Count();
 
 		If OptionsCount = 0 Then
-			ErrorsMessages.Text = NStr("en = 'Insufficient rights to assign selected report options to sections.';");
+			ErrorsMessages.Text = NStr("en = 'Insufficient rights to add selected report options to sections.';");
 		Else
 			ErrorsMessages.Text = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Insufficient rights to assign %1 report options to sections.';"),
+				NStr("en = 'Insufficient rights to add some report options (%1) to sections.';"),
 				Format(ErrorsCount, "NG="));
 		EndIf;
 

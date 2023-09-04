@@ -27,7 +27,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	OnChangeUseOfSigningOrEncryptionAtServer();
 	
-	URL = "e1cib/app/" + ThisObject.FormName;
+	URL = "e1cib/app/" + FormName;
 EndProcedure
 
 &AtClient
@@ -113,7 +113,7 @@ Procedure Release(Command)
 		Return;
 	EndIf;
 	
-	Handler = New NotifyDescription("UnlockCompletion", ThisObject);
+	Handler = New NotifyDescription("ReleaseCompletion", ThisObject);
 	FilesOperationsInternalClient.UnlockFiles(Items.List);
 	Items.List.Refresh();
 	
@@ -189,7 +189,7 @@ EndProcedure
 #Region Private
 
 &AtClient
-Procedure UnlockCompletion(Result, ExecutionParameters) Export
+Procedure ReleaseCompletion(Result, ExecutionParameters) Export
 	SetFileCommandsAvailability();
 EndProcedure
 

@@ -655,7 +655,7 @@ Procedure ShowMessageBoxAndContinue(Parameters, WarningDetails) Export
 		WarningText = WarningDetails;
 	EndIf;
 	
-	ClosingNotification1 = New NotifyDescription("ShowMessageBoxAndContinueExit", ThisObject, Parameters);
+	ClosingNotification1 = New NotifyDescription("ShowMessageBoxAndContinueCompletion", ThisObject, Parameters);
 	ShowQuestionToUser(ClosingNotification1, WarningText, Buttons, QuestionParameters);
 	
 EndProcedure
@@ -989,6 +989,28 @@ Function SystemApplicationsDirectory() Export
 EndFunction
 
 #EndIf
+
+// 
+// 
+// 
+// 
+// 
+// Parameters:
+//  Notification - NotifyDescription -
+//  Result  - Arbitrary -
+//               
+//
+Procedure StartProcessingNotification(Notification, Result = Undefined) Export
+	
+	Context = New Structure;
+	Context.Insert("Notification", Notification);
+	Context.Insert("Result", Result);
+	
+	Stream = New MemoryStream;
+	Stream.BeginGetSize(New NotifyDescription(
+		"StartProcessingNotificationCompletion", ThisObject, Context));
+	
+EndProcedure
 
 #EndRegion
 
@@ -2405,6 +2427,20 @@ EndFunction
 
 #EndRegion
 
+// 
+//
+// Parameters:
+//  Size - Number
+//  Context - Structure:
+//   * Notification - NotifyDescription
+//   * Result  - Arbitrary
+//
+Procedure StartProcessingNotificationCompletion(Size, Context) Export
+	
+	ExecuteNotifyProcessing(Context.Notification, Context.Result);
+	
+EndProcedure
+
 ////////////////////////////////////////////////////////////////////////////////
 // Auxiliary procedures and functions.
 
@@ -2790,7 +2826,7 @@ Procedure WarningInteractiveHandlerOnExit(Parameters, FormOpenParameters) Export
 EndProcedure
 
 // Continues the execution of ShowMessageBoxAndContinue procedure.
-Procedure ShowMessageBoxAndContinueExit(Result, Parameters) Export
+Procedure ShowMessageBoxAndContinueCompletion(Result, Parameters) Export
 	
 	If Result <> Undefined Then
 		If Result.Value = "ExitApp" Then

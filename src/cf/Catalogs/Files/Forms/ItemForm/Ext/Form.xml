@@ -1074,12 +1074,12 @@
 									<ContextMenu name="DigitalSignaturesCommentContextMenu" id="40"/>
 									<ExtendedTooltip name="DigitalSignaturesCommentExtendedTooltip" id="92"/>
 								</InputField>
-								<CheckBoxField name="DigitalSignaturesCheckRequired2" id="306">
-									<DataPath>DigitalSignatures.CheckRequired2</DataPath>
+								<CheckBoxField name="DigitalSignaturesIsVerificationRequired" id="306">
+									<DataPath>DigitalSignatures.IsVerificationRequired</DataPath>
 									<Visible>false</Visible>
 									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="DigitalSignaturesCheckRequired2ContextMenu" id="307"/>
-									<ExtendedTooltip name="DigitalSignaturesCheckRequired2ExtendedTooltip" id="308"/>
+									<ContextMenu name="DigitalSignaturesIsVerificationRequiredContextMenu" id="307"/>
+									<ExtendedTooltip name="DigitalSignaturesIsVerificationRequiredExtendedTooltip" id="308"/>
 								</CheckBoxField>
 							</ChildItems>
 						</Table>
@@ -1425,7 +1425,7 @@
 						</v8:DateQualifiers>
 					</Type>
 				</Column>
-				<Column name="CheckRequired2" id="19">
+				<Column name="IsVerificationRequired" id="19">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -1555,6 +1555,9 @@
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
+		</Attribute>
+		<Attribute name="PropertiesParameters" id="20">
+			<Type/>
 		</Attribute>
 	</Attributes>
 	<Commands>

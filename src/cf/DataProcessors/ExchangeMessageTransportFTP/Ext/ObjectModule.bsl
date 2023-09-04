@@ -582,7 +582,7 @@ EndProcedure
 
 Function GetFTPConnection(Timeout)
 	
-	FTPSettings = DataExchangeServer.FTPConnectionSettings(Timeout);
+	FTPSettings = DataExchangeServer.FTPConnectionSetup(Timeout);
 	FTPSettings.Server               = FTPServerName;
 	FTPSettings.Port                 = FTPConnectionPort;
 	FTPSettings.UserName      = FTPConnectionUser;

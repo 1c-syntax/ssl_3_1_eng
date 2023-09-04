@@ -49,7 +49,7 @@
 							<DataPath>Record.FILEDataExchangeDirectory</DataPath>
 							<ChoiceButton>true</ChoiceButton>
 							<OpenButton>true</OpenButton>
-							<ContextMenu name="FILEInformationExchangeDirectoryContextMenu" id="9"/>
+							<ContextMenu name="FILEDataExchangeDirectoryContextMenu" id="9"/>
 							<ExtendedTooltip name="FILEInformationExchangeDirectoryExtendedTooltip" id="107"/>
 							<Events>
 								<Event name="StartChoice">FILEInformationExchangeDirectoryStartChoice</Event>

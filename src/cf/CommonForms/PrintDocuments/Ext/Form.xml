@@ -26,7 +26,7 @@
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 	</Events>
 	<ChildItems>
-		<UsualGroup name="CommandBarGroup" id="116" DisplayImportance="VeryHigh">
+		<UsualGroup name="GroupCommandBar" id="116" DisplayImportance="VeryHigh">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -37,7 +37,7 @@
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="CommandBarGroupExtendedTooltip" id="143"/>
+			<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="143"/>
 			<ChildItems>
 				<CommandBar name="CommandBarLeftPart" id="114">
 					<Title>

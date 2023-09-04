@@ -59,7 +59,7 @@
 					</Title>
 					<RowFilter xsi:nil="true"/>
 					<ContextMenu name="SyncsListContextMenu" id="38"/>
-					<AutoCommandBar name="SyncsListCommandBar" id="39"/>
+					<AutoCommandBar name="SynchronizationsListCommandBar" id="39"/>
 					<ExtendedTooltip name="SyncsListExtendedTooltip" id="40"/>
 					<SearchStringAddition name="SyncsListSearchString" id="41">
 						<AdditionSource>

@@ -100,6 +100,7 @@
 							<v8:content>Enter the password of certificate private key</v8:content>
 						</v8:item>
 					</Title>
+					<Group>Vertical</Group>
 					<Behavior>Usual</Behavior>
 					<ThroughAlign>Use</ThroughAlign>
 					<ExtendedTooltip name="SignGroupExtendedTooltip" id="379"/>
@@ -310,6 +311,60 @@
 														<Event name="Click">SpecifiedPasswordNoteClick</Event>
 													</Events>
 												</LabelDecoration>
+											</ChildItems>
+										</Page>
+									</ChildItems>
+								</Pages>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="PowerOfAttorneyGroup" id="496">
+							<Representation>NormalSeparation</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="PowerOfAttorneyGroupExtendedTooltip" id="497"/>
+							<ChildItems>
+								<Pages name="GroupPages" id="504">
+									<PagesRepresentation>None</PagesRepresentation>
+									<ExtendedTooltip name="GroupPagesExtendedTooltip" id="505"/>
+									<ChildItems>
+										<Page name="PageWithoutAuthorizationLetter" id="510">
+											<Group>AlwaysHorizontal</Group>
+											<ExtendedTooltip name="PageWithoutAuthorizationLetterExtendedTooltip" id="511"/>
+											<ChildItems>
+												<CheckBoxField name="ByAuthorizationLetter1" id="515">
+													<DataPath>ByAuthorizationLetter</DataPath>
+													<TitleLocation>Right</TitleLocation>
+													<GroupVerticalAlign>Center</GroupVerticalAlign>
+													<CheckBoxType>Auto</CheckBoxType>
+													<ContextMenu name="ByAuthorizationLetter1ContextMenu" id="516"/>
+													<ExtendedTooltip name="ByAuthorizationLetter1ExtendedTooltip" id="517"/>
+													<Events>
+														<Event name="OnChange">ChoosingAuthorizationLetterWhenChanging</Event>
+													</Events>
+												</CheckBoxField>
+											</ChildItems>
+										</Page>
+										<Page name="AuthorizationLetterSelectionPage" id="508">
+											<Group>AlwaysHorizontal</Group>
+											<ExtendedTooltip name="AuthorizationLetterSelectionPageExtendedTooltip" id="509"/>
+											<ChildItems>
+												<CheckBoxField name="ByAuthorizationLetter" id="498">
+													<DataPath>ByAuthorizationLetter</DataPath>
+													<TitleLocation>Right</TitleLocation>
+													<GroupVerticalAlign>Center</GroupVerticalAlign>
+													<CheckBoxType>Auto</CheckBoxType>
+													<ContextMenu name="ByAuthorizationLetterContextMenu" id="499"/>
+													<ExtendedTooltip name="ByAuthorizationLetterExtendedTooltip" id="500"/>
+													<Events>
+														<Event name="OnChange">ChoosingAuthorizationLetterWhenChanging</Event>
+													</Events>
+												</CheckBoxField>
+												<InputField name="MachineReadableAuthorizationLetter" id="501">
+													<DataPath>MachineReadableAuthorizationLetter</DataPath>
+													<TitleLocation>None</TitleLocation>
+													<AutoMaxWidth>false</AutoMaxWidth>
+													<ContextMenu name="MachineReadableAuthorizationLetterContextMenu" id="502"/>
+													<ExtendedTooltip name="MachineReadableAuthorizationLetterExtendedTooltip" id="503"/>
+												</InputField>
 											</ChildItems>
 										</Page>
 									</ChildItems>
@@ -608,6 +663,20 @@
 		</Attribute>
 		<Attribute name="CertificationAuthorityAuditResult" id="26">
 			<Type/>
+		</Attribute>
+		<Attribute name="ByAuthorizationLetter" id="27">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="MachineReadableAuthorizationLetter" id="28">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
 		</Attribute>
 	</Attributes>
 	<Commands>

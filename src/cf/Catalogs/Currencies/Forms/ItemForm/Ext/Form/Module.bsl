@@ -232,7 +232,7 @@ Procedure FillInTheCurrencyRegistrationParametersSubmenu()
 	Button = Undefined;
 	WritingInWordsInputForms = CurrencyRateOperationsInternal.WritingInWordsInputForms();
 	For IndexOf = 0 To WritingInWordsInputForms.Count() - 1 Do
-		CommandName = "CurrencyRegistrationParameters" + XMLString(IndexOf);
+		CommandName = "CurrencyInWordsParameters_" + XMLString(IndexOf);
 
 		LanguageCode = WritingInWordsInputForms[IndexOf].Value;
 		Command = Commands.Add(CommandName);
@@ -258,7 +258,7 @@ EndProcedure
 &AtClient
 Procedure PlugInOpenTheCurrencyRegistrationParametersForm(Command)
 
-	IndexOf = Number(Mid(Command.Name, StrLen("CurrencyRegistrationParameters") + 1));
+	IndexOf = Number(Mid(Command.Name, StrLen("CurrencyInWordsParameters_") + 1));
 	OpenCurrencyRegistrationParameters(IndexOf);
 
 EndProcedure

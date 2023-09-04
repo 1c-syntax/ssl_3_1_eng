@@ -103,14 +103,14 @@ EndProcedure
 
 #Region Internal
 
-Procedure ShowMonitoringCenterSettings(OwnerForm1, FormParameters) Export
+Procedure ShowMonitoringCenterSettings(OwnerForm, FormParameters) Export
 	OpenForm("DataProcessor.MonitoringCenterSettings.Form.MonitoringCenterSettings",
-		FormParameters, OwnerForm1,,,,, FormWindowOpeningMode.LockOwnerWindow);
+		FormParameters, OwnerForm,,,,, FormWindowOpeningMode.LockOwnerWindow);
 EndProcedure
 
-Procedure ShowSendSettingOfContactInfo(OwnerForm1) Export
+Procedure ShowSendSettingOfContactInfo(OwnerForm) Export
 	OpenForm("DataProcessor.MonitoringCenterSettings.Form.SendContactInformation",,
-		OwnerForm1,,,,, FormWindowOpeningMode.LockOwnerWindow);
+		OwnerForm,,,,, FormWindowOpeningMode.LockOwnerWindow);
 EndProcedure
 
 #EndRegion

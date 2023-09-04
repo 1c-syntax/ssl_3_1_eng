@@ -665,9 +665,9 @@ Only for a web server connection (the service address must be configured).</v8:c
 														<Title formatted="false">
 															<v8:item>
 																<v8:lang>en</v8:lang>
-																<v8:content>OpenID Connect allows 1C:Enterprise system to verify a user's identity based on authentication by a third-party service owner. As a result, to get access to 1C:Enterprise application, users can use their account data on other websites that support OpenID Connect authentication. For example, users can use the Unified System of Identification and Authentication (USIA) and authorize via gosuslugi.ru website.
+																<v8:content>OpenID Connect enables the 1C:Enterprise system to verify a user's identity through third-party authentication. Users can sign in to the 1C:Enterprise application with their account credentials from other websites that support OpenID Connect authentication, such as Google.
 
-Only for a web server connection (the service address must be configured).</v8:content>
+This authentication applies only to web server connections and requires the service address to be configured accordingly.</v8:content>
 															</v8:item>
 														</Title>
 													</ExtendedTooltip>
@@ -684,10 +684,10 @@ Only for a web server connection (the service address must be configured).</v8:c
 														<Title formatted="false">
 															<v8:item>
 																<v8:lang>en</v8:lang>
-																<v8:content>JWT token authentication (RFC 7519 standard).
-It is a more advanced authentication than OpenID and OpenID-Connect.
+																<v8:content>JWT token authentication (RFC 7519).
+This is a more advanced form of authentication than OpenID and OpenID Connect.
 
-Many public services use JWT token authentication. For example, the Unified System of Identification and Authentication (USIA), services of the Ministry of Health and Social Development, the Chestny ZNAK national track &amp; trace digital system.</v8:content>
+It is widely used by many public digital services.</v8:content>
 															</v8:item>
 														</Title>
 													</ExtendedTooltip>
@@ -1432,6 +1432,9 @@ language</v8:content>
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
+		</Attribute>
+		<Attribute name="PropertiesParameters" id="46">
+			<Type/>
 		</Attribute>
 	</Attributes>
 	<Commands>

@@ -183,7 +183,7 @@ EndProcedure
 Procedure ModifySchedule(Command)
 	
 	ScheduleDialog1 = New ScheduledJobDialog(Schedule);
-	NotifyDescription = New NotifyDescription("ChangeScheduleCompletion", ThisObject);
+	NotifyDescription = New NotifyDescription("ModifyScheduleCompletion", ThisObject);
 	ScheduleDialog1.Show(NotifyDescription);
 	
 EndProcedure
@@ -380,7 +380,7 @@ Procedure UpdateBackupDirectoryRestrictionType(Form)
 EndProcedure
 
 &AtClient
-Procedure ChangeScheduleCompletion(ScheduleResult, AdditionalParameters) Export
+Procedure ModifyScheduleCompletion(ScheduleResult, AdditionalParameters) Export
 	
 	If ScheduleResult = Undefined Then
 		Return;

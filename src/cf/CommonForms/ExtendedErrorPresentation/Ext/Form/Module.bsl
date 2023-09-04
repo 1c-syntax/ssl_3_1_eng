@@ -14,19 +14,25 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	AdditionalData = Parameters.AdditionalData;
 	
-	Items.SupportInformation.Title = DigitalSignatureInternal.InfoHeadingForSupport();
+	If ValueIsFilled(Parameters.SupportInformation) Then
+		Items.SupportInformation.Title = Parameters.SupportInformation;
+	Else
+		Items.SupportInformation.Title = DigitalSignatureInternal.InfoHeadingForSupport();
+	EndIf;
 	
 	DigitalSignatureInternal.ToSetTheTitleOfTheBug(ThisObject,
 		Parameters.WarningTitle);
 	
 	ErrorTextClient = Parameters.ErrorTextClient;
 	ErrorTextServer = Parameters.ErrorTextServer;
+	ErrorText = Parameters.ErrorText;
 	
 	TwoMistakes = Not IsBlankString(ErrorTextClient)
 		And Not IsBlankString(ErrorTextServer);
 	
-	SetItems(ErrorTextClient, TwoMistakes, False);
-	SetItems(ErrorTextServer, TwoMistakes, True);
+	SetItems(ErrorTextClient, TwoMistakes, "Client");
+	SetItems(ErrorTextServer, TwoMistakes, "Server");
+	SetItems(ErrorText, TwoMistakes, "");
 	
 	Items.SeparatorDecoration.Visible = TwoMistakes;
 	
@@ -44,8 +50,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		DigitalSignatureInternal.VisibilityOfRefToAppsTroubleshootingGuide();
 	
 	If Parameters.ShowNeedHelp Then
-		Items.Instruction.Visible                     = Parameters.ShowInstruction;
-		Items.SupportInformation.Title = DigitalSignatureInternal.InfoHeadingForSupport();
+		Items.Help.Visible                     = Parameters.ShowInstruction;
 		Items.FormOpenApplicationsSettings.Visible = Parameters.ShowOpenApplicationsSettings;
 		Items.FormInstallExtension.Visible      = Parameters.ShowExtensionInstallation;
 		Items.InstructionClient.Visible = Items.InstructionClient.Visible And GuideRefVisibility 
@@ -155,22 +160,29 @@ EndProcedure
 #Region Private
 
 &AtServer
-Procedure SetItems(ErrorText, TwoMistakes, ErrorAtServer)
+Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 	
-	If ErrorAtServer Then
+	If ErrorLocation = "Server" Then
 		ItemError = Items.ErrorServer;
 		ErrorTextElement = Items.ErrorTextServer;
 		InstructionItem = Items.InstructionServer;
 		ReasonItemText = Items.ReasonsServerText;
 		ItemDecisionText = Items.DecisionsServerText;
-		ReasonsAndDecisionsGroup = Items.PossibleReasonsAndDecisionsServer;
-	Else
+		ReasonsAndDecisionsGroup = Items.PossibleCausesAndSolutionsServer;
+	ElsIf ErrorLocation = "Client" Then
 		ItemError = Items.ErrorClient;
 		ErrorTextElement = Items.ErrorTextClient;
 		InstructionItem = Items.InstructionClient;
 		ReasonItemText = Items.ReasonsClientText;
 		ItemDecisionText = Items.DecisionsClientText;
-		ReasonsAndDecisionsGroup = Items.PossibleReasonsAndDecisionsClient;
+		ReasonsAndDecisionsGroup = Items.PossibleCausesAndSolutionsClient;
+	Else
+		ItemError = Items.Error;
+		ErrorTextElement = Items.ErrorText;
+		InstructionItem = Items.Instruction;
+		ReasonItemText = Items.ReasonsText;
+		ItemDecisionText = Items.SolutionsText;
+		ReasonsAndDecisionsGroup = Items.PossibleCausesAndSolutions;
 	EndIf;
 	
 	ItemError.Visible = Not IsBlankString(ErrorText);
@@ -178,8 +190,16 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorAtServer)
 		
 		HaveReasonAndSolution = Undefined;
 		If TypeOf(AdditionalData) = Type("Structure") Then
+			If ErrorLocation = "Server" Then
+				CheckSuffix_ = "AtServer";
+			ElsIf ErrorLocation = "Client" Then
+				CheckSuffix_ = "AtClient";
+			Else
+				CheckSuffix_ = "";
+			EndIf;
+				
 			HaveReasonAndSolution = CommonClientServer.StructureProperty(AdditionalData, 
-				"Additional_DataChecks" + ?(ErrorAtServer, "AtServer", "AtClient"), Undefined); // See DigitalSignatureInternalClientServer.WarningWhileVerifyingCertificateAuthorityCertificate
+				"Additional_DataChecks" + CheckSuffix_, Undefined); // See DigitalSignatureInternalClientServer.WarningWhileVerifyingCertificateAuthorityCertificate
 		EndIf;
 		
 		If ValueIsFilled(HaveReasonAndSolution) Then
@@ -190,7 +210,7 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorAtServer)
 			ClassifierError.Insert("Decision", FormattedString(HaveReasonAndSolution.Decision));
 			ClassifierError.Insert("Remedy", "");
 		Else
-			ClassifierError = DigitalSignatureInternal.ClassifierError(ErrorText, ErrorAtServer);
+			ClassifierError = DigitalSignatureInternal.ClassifierError(ErrorText, ErrorLocation = "Server");
 		EndIf;
 		
 		IsKnownError = ClassifierError <> Undefined;
@@ -217,10 +237,12 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorAtServer)
 					ItemDecisionText.Name, "Visible", False);
 			EndIf;
 			
-			If ErrorAtServer Then
+			If ErrorLocation = "Server" Then
 				ErrorAnchorServer = ClassifierError.Ref;
-			Else
+			ElsIf ErrorLocation = "Client" Then
 				ErrorAnchorClient = ClassifierError.Ref;
+			Else
+				ErrorAnchor = ClassifierError.Ref;
 			EndIf;
 			
 		EndIf;

@@ -28,16 +28,16 @@ Procedure LoadKeyOperationsProfile(Command)
 			ImportParameters.Dialog.Title = NStr("en = 'Select file of key operation profile';");
 			ImportParameters.Dialog.Filter = "Files profile2 key operations (*.xml)|*.xml";
 			
-			NotifyDescription = New NotifyDescription("SelectFileDialogCompletion", ThisObject, Undefined);
+			NotifyDescription = New NotifyDescription("FileDialogCompletion", ThisObject, Undefined);
 			ModuleFileSystemClient.ImportFile_(NotifyDescription, ImportParameters);
 		EndIf;
 	Else          		
 		AdditionalParameters = New Structure("Mode, Title, ClosingNotification1",  
 		FileDialogMode.Open, 
 		NStr("en = 'Select file of key operation profile';"),
-		New NotifyDescription("SelectFileDialogCompletion", ThisObject, Undefined));  
+		New NotifyDescription("FileDialogCompletion", ThisObject, Undefined));  
 		#If WebClient Then
-			Notification = New NotifyDescription("StartFileExtensionAttachmentCompletion", ThisObject,
+			Notification = New NotifyDescription("BeginAttachingFileSystemExtensionCompletion", ThisObject,
 			New NotifyDescription("DialogueFileSelectionShow", ThisObject, AdditionalParameters));
 			BeginAttachingFileSystemExtension(Notification);
 		#Else
@@ -56,15 +56,15 @@ Procedure SaveKeyOperationsProfile(Command)
 			SavingParameters = ModuleFileSystemClient.FileSavingParameters();
 			SavingParameters.Dialog.Title = NStr("en = 'Save key operation profile to file';");
 			SavingParameters.Dialog.Filter = "Files profile2 key operations (*.xml)|*.xml";  		
-			ModuleFileSystemClient.SaveFile(New NotifyDescription("EndSaveFileDialog", ThisObject, Undefined), SaveKeyOperationsProfileToServer(), , SavingParameters);
+			ModuleFileSystemClient.SaveFile(New NotifyDescription("SaveFileDialogCompletion", ThisObject, Undefined), SaveKeyOperationsProfileToServer(), , SavingParameters);
 		EndIf;
 	Else              		
 		AdditionalParameters = New Structure("Mode, Title, ClosingNotification1",  
 			FileDialogMode.Save, 
 			NStr("en = 'Save key operation profile to file';"),
-			New NotifyDescription("EndSaveFileDialog", ThisObject, Undefined));  
+			New NotifyDescription("SaveFileDialogCompletion", ThisObject, Undefined));  
 		#If WebClient Then
-		Notification = New NotifyDescription("StartFileExtensionAttachmentCompletion", ThisObject,
+		Notification = New NotifyDescription("BeginAttachingFileSystemExtensionCompletion", ThisObject,
 			New NotifyDescription("DialogueFileSelectionShow", ThisObject, AdditionalParameters));
 		BeginAttachingFileSystemExtension(Notification);
 		#Else
@@ -90,7 +90,7 @@ Procedure DialogueFileSelectionShow(Result, AdditionalParameters) Export
 		ChoiceDialog.Title = AdditionalParameters.Title;
 		ChoiceDialog.Filter = "Files profile2 key operations (*.xml)|*.xml";
 		If AdditionalParameters.Mode = FileDialogMode.Open Then
-			BeginPuttingFiles(AdditionalParameters.ClosingNotification1,, ChoiceDialog, True, ThisObject.UUID);
+			BeginPuttingFiles(AdditionalParameters.ClosingNotification1,, ChoiceDialog, True, UUID);
 		ElsIf AdditionalParameters.Mode = FileDialogMode.Save Then
 			FilesToReceive = New Array;
 			FilesToReceive.Add(New TransferableFileDescription("", SaveKeyOperationsProfileToServer()));
@@ -103,7 +103,7 @@ Procedure DialogueFileSelectionShow(Result, AdditionalParameters) Export
 EndProcedure
 
 &AtClient
-Procedure SelectFileDialogCompletion(SelectedFile, AdditionalParameters) Export
+Procedure FileDialogCompletion(SelectedFile, AdditionalParameters) Export
 	
 	If SelectedFile = Undefined Then
 		Return;
@@ -128,14 +128,14 @@ Procedure SelectFileDialogCompletion(SelectedFile, AdditionalParameters) Export
 EndProcedure
 
 &AtClient
-Procedure EndSaveFileDialog(SelectedFiles, AdditionalParameters) Export
+Procedure SaveFileDialogCompletion(SelectedFiles, AdditionalParameters) Export
     
 	Status(NStr("en = 'The files are saved.';"));
     
 EndProcedure
 
 &AtClient
-Procedure StartFileExtensionAttachmentCompletion(ExtensionAttached, AdditionalParameters) Export
+Procedure BeginAttachingFileSystemExtensionCompletion(ExtensionAttached, AdditionalParameters) Export
 	
 	If ExtensionAttached Then
 		ExecuteNotifyProcessing(AdditionalParameters, True);
@@ -155,7 +155,7 @@ EndProcedure
 &AtClient
 Procedure QueryAboutExtensionInstallation(Notification) Export
 	
-	NotificationOnChecking = New NotifyDescription("StartFileExtensionAttachmentCompletion", ThisObject,
+	NotificationOnChecking = New NotifyDescription("BeginAttachingFileSystemExtensionCompletion", ThisObject,
 			New NotifyDescription("DialogueFileSelectionShow", ThisObject, Notification));
 	BeginAttachingFileSystemExtension(NotificationOnChecking);
 	
@@ -197,7 +197,7 @@ Function SaveKeyOperationsProfileToServer()
     XMLWriter.Close();
     
     BinaryData = New BinaryData(TempFileName);
-    StorageAddress = PutToTempStorage(BinaryData, ThisObject.UUID);
+    StorageAddress = PutToTempStorage(BinaryData, UUID);
     
     DeleteFiles(TempFileName);
     

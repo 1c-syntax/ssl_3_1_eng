@@ -94,7 +94,7 @@
 		<ChildObjects>
 			<EnumValue uuid="299c014f-996a-4a99-a5be-a7cfd5ee45e4">
 				<Properties>
-					<Name>DontClear</Name>
+					<Name>NotClear</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>

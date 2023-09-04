@@ -140,7 +140,7 @@ Function CommonID() Export
 	Return "Shared";
 EndFunction
 
-Function CommonIDPresentation() Export
+Function SharedPresentation() Export
 	Return NStr("en = 'Common';");
 EndFunction
 

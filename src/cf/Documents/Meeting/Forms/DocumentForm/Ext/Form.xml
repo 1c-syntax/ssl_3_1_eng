@@ -835,6 +835,9 @@
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
+		<Attribute name="PropertiesParameters" id="14">
+			<Type/>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="CreateContact" id="2">
@@ -854,7 +857,7 @@
 				<xr:Ref>StdPicture.AddListItem</xr:Ref>
 				<xr:LoadTransparent>true</xr:LoadTransparent>
 			</Picture>
-			<Action>CreateContactComplete</Action>
+			<Action>CreateContactExecute</Action>
 			<Representation>Text</Representation>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>

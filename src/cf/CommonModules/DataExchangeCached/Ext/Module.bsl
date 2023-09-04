@@ -797,7 +797,7 @@ Function ObjectsExportModesPriorities()
 	Result.Add(Enums.ExchangeObjectExportModes.ExportByCondition);
 	Result.Add(Enums.ExchangeObjectExportModes.EmptyRef());
 	Result.Add(Enums.ExchangeObjectExportModes.ExportIfNecessary);
-	Result.Add(Enums.ExchangeObjectExportModes.DoNotExport);
+	Result.Add(Enums.ExchangeObjectExportModes.NotExport);
 	Result.Add(Undefined);
 	
 	Return Result;
@@ -1301,7 +1301,7 @@ Function CorrespondentVersions(Val Peer) Export
 	
 	ConnectionParameters = New Structure;
 	ConnectionParameters.Insert("URL",      SettingsStructure.WSWebServiceURL);
-	ConnectionParameters.Insert("UserName", SettingsStructure.WSUsername);
+	ConnectionParameters.Insert("UserName", SettingsStructure.WSUserName);
 	ConnectionParameters.Insert("Password", SettingsStructure.WSPassword);
 	
 	Return Common.GetInterfaceVersions(ConnectionParameters, "DataExchange");

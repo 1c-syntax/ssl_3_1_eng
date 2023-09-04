@@ -119,8 +119,6 @@ Procedure OutputToSpreadsheetDocument(TreeRows,ReportTable,Template,RecursionLev
 	
 EndProcedure
 
-// Outputs section in the report table.
-//
 // Parameters:
 //  ReportTable - SpreadsheetDocument - a document, in which information is output.
 //  TreeRow  - ValueTreeRow - a current row with data:
@@ -137,8 +135,6 @@ Procedure OutputSection(ReportTable,TreeRow,Template,FullCode)
 	
 EndProcedure
 
-// Depending on the question type, the method outputs the question to the report table and calls the required procedures.
-//
 // Parameters:
 //  ReportTable - SpreadsheetDocument - a document, in which information is output.
 //  TreeRow  - ValueTreeRow - a current row with data:
@@ -169,8 +165,6 @@ Procedure OutputQuestion(ReportTable,TreeRow,Template,FullCode, QuestionsPresent
 	
 EndProcedure
 
-// Depending on the question chart type, the method calls the required procedures.
-//
 // Parameters:
 //  ReportTable         - SpreadsheetDocument - a document, in which information is output.
 //  TreeRow          - ValueTreeRow - a current row with data.
@@ -267,8 +261,6 @@ Procedure OutputAnswerPredefinedAnswersInColumnsTabularQuestion(ReportTable, Tre
 		
 EndProcedure
 
-// Outputs answers from a question chart with predefined answers in rows into a report table.
-//
 // Parameters:
 //  ReportTable         - SpreadsheetDocument - a document, in which information is output.
 //  TreeRow          - ValueTreeRow - a current row with data.
@@ -423,8 +415,6 @@ Procedure OutputAnswerPredefinedAnswersInRowsAndColumnsTabularQuestion(ReportTab
 	
 EndProcedure
 
-// Outputs answers from a composite question chart into a report table.
-//
 // Parameters:
 //  ReportTable         - SpreadsheetDocument - a document, in which information is output.
 //  TreeRow          - ValueTreeRow - a current row with data.
@@ -472,8 +462,6 @@ Procedure OutputAnswerCompositeTabularQuestion(ReportTable, TreeRow, Template, F
 	
 EndProcedure
 
-// Outputs a simple question answer to the report table.
-//
 // Parameters:
 //  ReportTable         - SpreadsheetDocument - a document, in which information is output.
 //  TreeRow          - ValueTreeRow - a current row with data.
@@ -501,8 +489,6 @@ Procedure OutputAnswerSimpleQuestion(ReportTable, TreeRow, Template, FullCode)
 	
 EndProcedure
 
-// Outputs answer options for questions with the Boolean, OneVariantOf and MultipleOptionsFor type to the report table.
-//
 // Параметры:
 // Parameters:
 //  ReportTable         - SpreadsheetDocument - a document, in which information is output.
@@ -547,8 +533,6 @@ Procedure OutputAnswerAnswersOptions(ReportTable,TreeRow,Template,FullCode)
 	
 EndProcedure
 
-// Executes a query on the questionnaire template and answer registers data.
-//
 // Parameters:
 //  Survey  - DocumentRef.PollPurpose - a survey on which the query is created.
 //  QuestionnaireTemplate - CatalogRef.QuestionnaireTemplates - used for the survey.
@@ -882,8 +866,6 @@ Function ExecuteQueryByQuestionnaireTemplateQuestions(Survey,QuestionnaireTempla
 	
 EndFunction
 
-// Converts aggregate query values to a string for further output to a report.
-//
 // Parameters:
 //   TreeRow - ValueTreeRow
 //
@@ -924,8 +906,6 @@ EndFunction
 
 #Region RespondersAnalysis
 
-// Generates report in the respondents analysis option.
-//
 // Parameters:
 //  ReportTable - SpreadsheetDocument - Spreadsheet document to output the report to.
 //  Survey         - DocumentRef.PollPurpose - a survey for which the report is created.
@@ -947,8 +927,6 @@ Procedure GenerateRespondersAnalysisReport(ReportTable,Survey)
 
 EndProcedure
 
-// Processes the query result and outputs it to a spreadsheet document.
-//
 // Parameters:
 //  QueryResult - QueryResult  - query execution result.
 //  AttributesSurvey   - Structure - contains values of the SurveyPurpose attributes.
@@ -984,8 +962,6 @@ Procedure OutputRespondersQueryResultToSpreadsheetDocument(QueryResult,Attribute
 	
 EndProcedure
 
-// Outputs a string to a spreadsheet document.
-//
 // Parameters:
 //  Selection       - QueryResultSelection - a selection containing the data to be displayed in the report.
 //  Template         - SpreadsheetDocument - Spreadsheet document containing the report template.
@@ -1007,8 +983,6 @@ Procedure OutputRespondentsRowToSpreadsheetDocument(Selection,Template,ReportTab
 	
 EndProcedure
 
-// Generates and executes a query for free-form surveys.
-//
 // Parameters:
 //  Survey - DocumentRef.PollPurpose - a survey for which the report is created.
 //  
@@ -1067,8 +1041,6 @@ Function ExecuteQueryOnSurveysRespondentsWithSpecificCompositionOfRespondents(Su
 	
 EndFunction
 
-// Generates and executes a query for free-form surveys.
-//
 // Parameters:
 //  Survey           - DocumentRef.PollPurpose - a survey for which the report is created.
 //  RespondentsType - CatalogRef - an empty reference to the catalog the elements 
@@ -1148,7 +1120,6 @@ EndFunction
 
 #Region Other
 
-// Generates the survey presentation for the report header.
 Function SurveyPresentationForHeader(AttributesSurvey)
 	
 	If AttributesSurvey.StartDate <> Date(1, 1, 1) And AttributesSurvey.EndDate <> Date(1, 1, 1) Then

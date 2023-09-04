@@ -442,7 +442,7 @@
 			</Attribute>
 			<Attribute uuid="710059de-c70e-4b6e-b2a0-11197139144d">
 				<Properties>
-					<Name>NumberOfTags</Name>
+					<Name>LabelCount</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>

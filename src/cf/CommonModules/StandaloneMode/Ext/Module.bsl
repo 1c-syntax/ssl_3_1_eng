@@ -164,15 +164,15 @@ Procedure WhenConfirmingDisconnectionOfCommunicationWithTheMasterNode() Export
 	
 	DisablePropertyIB();
 	
-	DoNotUseSeparationByDataAreas = Constants.DoNotUseSeparationByDataAreas.CreateValueManager();
-	DoNotUseSeparationByDataAreas.Read();
+	NotUseSeparationByDataAreas = Constants.NotUseSeparationByDataAreas.CreateValueManager();
+	NotUseSeparationByDataAreas.Read();
 	If Not Constants.UseSeparationByDataAreas.Get()
-		And Not DoNotUseSeparationByDataAreas.Value Then
+		And Not NotUseSeparationByDataAreas.Value Then
 		
-		DoNotUseSeparationByDataAreas.Value = True;
+		NotUseSeparationByDataAreas.Value = True;
 		
 		ModuleUpdatingInfobase = Common.CommonModule("InfobaseUpdate");
-		ModuleUpdatingInfobase.WriteData(DoNotUseSeparationByDataAreas);
+		ModuleUpdatingInfobase.WriteData(NotUseSeparationByDataAreas);
 		
 	EndIf;
 		

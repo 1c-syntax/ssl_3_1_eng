@@ -155,7 +155,7 @@ Procedure FillAddInInformation(Result, Version, Id) Export
 		
 	If ReferenceFromStorage.IsEmpty() Then
 		If ReferenceFromSharedStorage.IsEmpty() Then
-			Result.State = "IsNotFound";
+			Result.State = "NotFound1";
 		Else
 			Result.State = "FoundInSharedStorage";
 			Result.Ref = ReferenceFromSharedStorage;

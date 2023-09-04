@@ -45,12 +45,12 @@ Procedure ResetCommand(Command)
 	OptionsCount = ResetAssignmentSettingsServer(OptionsToAssign);
 	If OptionsCount = 1 And SelectedOptionsCount = 1 Then
 		OptionRef1 = OptionsToAssign[0].Value;
-		NotificationTitle1 = NStr("en = 'Report option assignment settings have been reset.';");
+		NotificationTitle1 = NStr("en = 'Report option location settings have been reset.';");
 		NotificationRef    = GetURL(OptionRef1);
 		NotificationText     = String(OptionRef1);
 		ShowUserNotification(NotificationTitle1, NotificationRef, NotificationText);
 	Else
-		NotificationText = NStr("en = 'Assignment settings for %1 report options
+		NotificationText = NStr("en = 'Location settings for %1 report options
 							   |have been reset.';");
 		NotificationText = StringFunctionsClientServer.SubstituteParametersToString(NotificationText, Format(
 			OptionsCount, "NZ=0; NG=0"));
@@ -132,7 +132,7 @@ Procedure Filter()
 	CountAfterFilter = OptionsToAssign.Count();
 	If CountBeforeFilter <> CountAfterFilter Then
 		If CountAfterFilter = 0 Then
-			ErrorText = NStr("en = 'You do not have to reset assignment settings for selected report options due to one or more of the following reasons:
+			ErrorText = NStr("en = 'You do not have to reset location settings for selected report options due to one or more of the following reasons:
 							   |- Selected report options are custom options.
 							   |- Selected report options are marked for deletion.
 							   |- Selected report options are additional or external reports.';");

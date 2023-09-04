@@ -62,7 +62,7 @@ EndProcedure
 //
 //  PropertiesSets - ValueTable:
 //     * Set - CatalogRef.AdditionalAttributesAndInfoSets
-//     * CommonSet - Boolean - True if the property set contains properties
+//     * SharedSet - Boolean - True if the property set contains properties
 //                             common for all objects.
 //    // Then, form item properties of the FormGroup type and the usual group kind
 //    // or page that is created if there are more than one set excluding

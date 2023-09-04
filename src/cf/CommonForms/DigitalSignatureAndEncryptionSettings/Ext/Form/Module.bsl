@@ -19,6 +19,9 @@ Var ApplicationsCheckPerformed;
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
+	Items.OpenMachineReadableAuthorizationLetters.Visible = False;
+	
+	
 	DigitalSignatureInternal.SetVisibilityOfRefToAppsTroubleshootingGuide(Items.Instruction);
 	
 	SetConditionalAppearance();
@@ -1415,10 +1418,10 @@ Procedure FillApplicationsAndSettings(RefreshCached = False)
 	
 	For Each SelectionString In TheSampleTable Do
 		
-		AppNotUsed = DigitalSignatureInternalClientServer.AppNotUsed(SelectionString.UsageMode);
+		ApplicationNotUsed = DigitalSignatureInternalClientServer.ApplicationNotUsed(SelectionString.UsageMode);
 		
 		If Not Users.IsFullUser() 
-			And (AppNotUsed Or SelectionString.DeletionMark) Then
+			And (ApplicationNotUsed Or SelectionString.DeletionMark) Then
 			Continue;
 		EndIf;
 		
@@ -1456,7 +1459,7 @@ Procedure FillApplicationsAndSettings(RefreshCached = False)
 		UpdateValue(String.AppPathAtServerAuto,  SelectionString.AppPathAtServerAuto);
 		UpdateValue(String.IsBuiltInCryptoProvider, SelectionString.IsBuiltInCryptoProvider);
 		
-		If AppNotUsed And Not SelectionString.DeletionMark Then
+		If ApplicationNotUsed And Not SelectionString.DeletionMark Then
 			UpdateValue(String.LocationType, 9);
 		Else
 			UpdateValue(String.LocationType, SelectionString.LocationType + ?(SelectionString.DeletionMark, 4, 0));

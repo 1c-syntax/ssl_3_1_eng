@@ -72,7 +72,7 @@
 				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
 #ForObject("")
 #ELSE
-РассылкиОтчетов WHERE (ReportMailings.Author = &amp;CurrentUser
+ReportMailings WHERE (ReportMailings.Author = &amp;CurrentUser
 			OR ReportMailings.Personal = FALSE
 			OR Predefined = TRUE)
 #ENDIF</condition>

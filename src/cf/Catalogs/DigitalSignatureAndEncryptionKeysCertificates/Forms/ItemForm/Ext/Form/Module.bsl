@@ -18,7 +18,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	CloudSignatureCertificate = CloudSignatureInformation(Object.Application);
 	FillApplicationsListServer();
 	
-	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS")
+	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService")
 		And DigitalSignatureInternal.UseCloudSignatureService() Then
 		Items.Application.Title = NStr("en = 'Application or service';");
 	EndIf;
@@ -586,11 +586,11 @@ EndProcedure
 &AtClient
 Procedure NotificationClosedStatements(Result, AdditionalParameters) Export
 	
-	If Result <> Undefined And Result.Added And Not ThisObject.IsOpen() Then
+	If Result <> Undefined And Result.Added And Not IsOpen() Then
 		OpenRequest = False;
 		StandardSubsystemsClient.SetFormStorageOption(ThisObject, True);
 		OnCreateAtServerOnReadAtServer();
-		ThisObject.Open();
+		Open();
 	EndIf;
 	
 EndProcedure
@@ -710,7 +710,7 @@ Procedure CreateAListOfUsers()
 EndProcedure	
 
 &AtClient
-Procedure ListOfUsersCompletion(SelectionResult, AdditionalParameters) Export
+Procedure UsersListCompletion(SelectionResult, AdditionalParameters) Export
 	
 	If SelectionResult <> Undefined And TypeOf(SelectionResult) = Type("Structure") Then
 		Object.Users.Clear();
@@ -794,7 +794,7 @@ Procedure OpenTheListOfUsers(ViewMode)
 		UsersArray.Add(TableRow.User);
 	EndDo;	
 	
-	CompletionNotification = New NotifyDescription("ListOfUsersCompletion", ThisObject);
+	CompletionNotification = New NotifyDescription("UsersListCompletion", ThisObject);
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("User", Object.User);

@@ -89,7 +89,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// 
 	
 	If Object.DeletionMark Then
-		ThisObject.ReadOnly = True;
+		ReadOnly = True;
 	EndIf;
 	
 	// Deleting the "To folder" option if the StoredFiles subsystem is not available.
@@ -201,7 +201,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Object.ArchiveName = Cache.Templates.ArchiveName;
 		EndIf;
 		If Not FTPPasswordChanged Then
-			Object.FTPUsername = "";
+			Object.FTPLogin = "";
 			Object.FTPServer = "";
 			Object.FTPPort = 21;
 			Object.FTPDirectory = "";
@@ -543,7 +543,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 				Field = "Reports["+ Format(CurrentObject.Reports.IndexOf(ReportsRowObject), "NZ=0; NG=0") +"].Presentation";
 				Common.MessageToUser(MessageText, CurrentObject, Field);
 			EndIf;
-		EndIf; // СтрокаОтчеты.СКД
+		EndIf;
 		
 		// [3] Ordinary report analysis.
 		If TypeOf(ReportSettings) = Type("ValueTable") Then
@@ -787,7 +787,7 @@ Procedure MailingRecipientTypeChoiceProcessing(Item, ValueSelected, StandardProc
 		
 		AdditionalParameters = New Structure;
 		AdditionalParameters.Insert("ValueSelected", ValueSelected);
-		Handler = New NotifyDescription("MailingRecipientsTypeChoiceChoiceProcessingEnd", ThisObject, AdditionalParameters);
+		Handler = New NotifyDescription("MailingRecipientTypeChoiceProcessingCompletion", ThisObject, AdditionalParameters);
 		
 		ShowQueryBox(Handler, QuestionRow, Buttons, 60, DialogReturnCode.Yes);
 	EndIf;
@@ -1019,7 +1019,7 @@ Procedure ArchiveNameChoiceProcessing(Item, ValueSelected, StandardProcessing)
 		Variables1.Insert("FormatText", "");
 		Variables1.Insert("PreviousFragmentFound", False);
 
-		Handler = New NotifyDescription("AddChangeMailingDateTemplateEnd", ThisObject, Variables1);
+		Handler = New NotifyDescription("AddChangeMailingDateTemplateCompletion", ThisObject, Variables1);
 
 		Dialog = New FormatStringWizard;
 		Dialog.AvailableTypes = New TypeDescription("Date");
@@ -1859,7 +1859,7 @@ Procedure AddChangeMailingDateTemplate(Command)
 		Variables1.FormatText = Mid(Variables1.PreviousText1, PrefixPosition + PrefixLength, PostfixPosition - PrefixPosition - PrefixLength);
 	EndIf;
 	
-	Handler = New NotifyDescription("AddChangeMailingDateTemplateEnd", ThisObject, Variables1);
+	Handler = New NotifyDescription("AddChangeMailingDateTemplateCompletion", ThisObject, Variables1);
 	
 	Dialog = New FormatStringWizard;
 	Dialog.AvailableTypes = New TypeDescription("Date");
@@ -1934,7 +1934,7 @@ Procedure AddDefaultTemplate(Command)
 	
 	If SubjectValue = "" Then
 		// Empty subject  - required to be filled without questions.
-		AddDefaultTemplateEnd(1, AdditionalParameters);
+		AddDefaultTemplateCompletion(1, AdditionalParameters);
 		
 	ElsIf SubjectValue = DefaultTemplate Then
 		// Subject matches the template — no fill required.
@@ -1962,7 +1962,7 @@ Procedure AddDefaultTemplate(Command)
 		Buttons.Add(2, NStr("en = 'Add';"));
 		Buttons.Add(DialogReturnCode.Cancel);
 		
-		Handler = New NotifyDescription("AddDefaultTemplateEnd", ThisObject, AdditionalParameters);
+		Handler = New NotifyDescription("AddDefaultTemplateCompletion", ThisObject, AdditionalParameters);
 		
 		ShowQueryBox(Handler, QueryText, Buttons, 60, 1, QuestionTitle);
 	EndIf;
@@ -2376,7 +2376,7 @@ Procedure BulkEmailRecipientsClickCompletion(Result, Parameter) Export
 EndProcedure
 
 &AtClient
-Procedure MailingRecipientsTypeChoiceChoiceProcessingEnd(Response, AdditionalParameters) Export
+Procedure MailingRecipientTypeChoiceProcessingCompletion(Response, AdditionalParameters) Export
 	If Response = DialogReturnCode.Yes Then
 		Object.Recipients.Clear();
 		MailingRecipientType = AdditionalParameters.ValueSelected;
@@ -2387,7 +2387,7 @@ Procedure MailingRecipientsTypeChoiceChoiceProcessingEnd(Response, AdditionalPar
 EndProcedure
 
 &AtClient
-Procedure AddDefaultTemplateEnd(Response, AdditionalParameters) Export
+Procedure AddDefaultTemplateCompletion(Response, AdditionalParameters) Export
 	DefaultTemplate = AdditionalParameters.DefaultTemplate;
 	If Response = 1 Then
 		If AdditionalParameters.OverwriteSubject Then
@@ -2420,29 +2420,24 @@ Procedure CheckMailingAfterResponseToQuestion(Response, DeliveryParameters) Expo
 		Return;
 	EndIf;
 	
-	// Clean up message window.
 	ClearMessages();
 	
-	// 
 	DeliveryParameters.BulkEmail = Object.Description;
 	
-	// Folder.
 	If DeliveryParameters.UseFolder Then
 		DeliveryParameters.Folder = Object.Folder;
 	EndIf;
 	
-	// Network directory.
 	If DeliveryParameters.UseNetworkDirectory Then
 		DeliveryParameters.NetworkDirectoryWindows = Object.NetworkDirectoryWindows;
 		DeliveryParameters.NetworkDirectoryLinux = Object.NetworkDirectoryLinux;
 	EndIf;
 	
-	// FTP.
 	If DeliveryParameters.UseFTPResource Then
 		DeliveryParameters.Owner = Object.Ref;
 		DeliveryParameters.Server = Object.FTPServer;
 		DeliveryParameters.Port = Object.FTPPort;
-		DeliveryParameters.Login = Object.FTPUsername;
+		DeliveryParameters.Login = Object.FTPLogin;
 		If FTPPasswordChanged Then
 			DeliveryParameters.Password = FTPPassword;
 		EndIf;
@@ -2452,7 +2447,6 @@ Procedure CheckMailingAfterResponseToQuestion(Response, DeliveryParameters) Expo
 	
 	Handler = New NotifyDescription("CheckMailingAfterRecipientsChoice", ThisObject, DeliveryParameters);
 	
-	// Mailbox.
 	If DeliveryParameters.UseEmail Then
 		ReportMailingClient.SelectRecipient(Handler, Object, False, True);
 		Return;
@@ -2504,7 +2498,7 @@ EndProcedure
 //   Variables1 - Structure
 //
 &AtClient
-Procedure AddChangeMailingDateTemplateEnd(ResultRow, Variables1) Export
+Procedure AddChangeMailingDateTemplateCompletion(ResultRow, Variables1) Export
 	If ResultRow = Undefined Then
 		Return;
 	EndIf;
@@ -2567,7 +2561,7 @@ Procedure AddChangeMailingDateTemplateEnd(ResultRow, Variables1) Export
 EndProcedure
 
 &AtClient
-Procedure SelectEndFormat(FormatsList, Variables1) Export
+Procedure ChooseFormatCompletion(FormatsList, Variables1) Export
 	If FormatsList = Undefined Then
 		Return;
 	EndIf;
@@ -2709,7 +2703,7 @@ Procedure ChooseFormat(ReportRef1, ResultHandler)
 	Variables1.Insert("FormatsListCopy",  FormatsList.Copy());
 	Variables1.Insert("IsDefaultFormat", IsDefaultFormat);
 	Variables1.Insert("ResultHandler", ResultHandler);
-	Handler = New NotifyDescription("SelectEndFormat", ThisObject, Variables1);
+	Handler = New NotifyDescription("ChooseFormatCompletion", ThisObject, Variables1);
 	
 	FormatsList.ShowCheckItems(Handler, DialogTitle);
 	
@@ -2845,7 +2839,7 @@ Procedure SetDescriptionTemplates(TemplateName, MultipleChange = False)
 	EndIf;
 
 	Variables1 = ReportDescriptionTemplateChoiceVariables(TemplateName, MultipleChange);
-	Handler = New NotifyDescription("AddChangeMailingDateTemplateEnd", ThisObject, Variables1);
+	Handler = New NotifyDescription("AddChangeMailingDateTemplateCompletion", ThisObject, Variables1);
 
 	Dialog = New FormatStringWizard;
 	Dialog.AvailableTypes = New TypeDescription("Date");
@@ -3145,7 +3139,7 @@ EndFunction
 &AtClient
 Procedure AfterCloseRedistribution(Result, Var_Parameters) Export
 	
-	ThisObject.Read();
+	Read();
 	
 EndProcedure
 
@@ -3165,8 +3159,8 @@ Procedure VisibilityAvailabilityCorrectness(Form, Changes = "")
 	If Changes = "" Or Changes = "FTPServerAndDirectory" Then
 		If ValueIsFilled(Object.FTPServer) Then
 			AddressPresentation = "ftp://";
-			If ValueIsFilled(Object.FTPUsername) Then
-				AddressPresentation = AddressPresentation + Object.FTPUsername + ?(ValueIsFilled(Form.FTPPassword), ":" + PasswordHidden(), "") + "@";
+			If ValueIsFilled(Object.FTPLogin) Then
+				AddressPresentation = AddressPresentation + Object.FTPLogin + ?(ValueIsFilled(Form.FTPPassword), ":" + PasswordHidden(), "") + "@";
 			EndIf;
 			Form.FTPServerAndDirectory = AddressPresentation + Object.FTPServer + ":" + Format(Object.FTPPort, "NZ=0; NG=0") + Object.FTPDirectory;
 		Else
@@ -3838,7 +3832,7 @@ Procedure FillScheduleByOption(Variant, RefreshVisibility = False)
 
 	// On weekly basis.
 	WeekDayMin = 1;
-	MaxWeekDay = 7;
+	WeekDayMax = 7;
 	
 	// On monthly basis.
 	AllMonths = New Array;
@@ -3858,29 +3852,29 @@ Procedure FillScheduleByOption(Variant, RefreshVisibility = False)
 	ElsIf Variant = 4 Then // 
 		Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.Weekly;
 		WeekDayMin = 1;
-		MaxWeekDay = 5;
+		WeekDayMax = 5;
 		
 	ElsIf Variant = 5 Then // 
 		Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.Weekly;
 		Schedule.BeginTime = '00010101220000'; // at 10:00 pm
 		WeekDayMin = 6;
-		MaxWeekDay = 7;
+		WeekDayMax = 7;
 		
 	ElsIf Variant = 6 Then // 
 		Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.Weekly;
 		WeekDayMin = 1;
-		MaxWeekDay = 1;
+		WeekDayMax = 1;
 		
 	ElsIf Variant = 7 Then // 
 		Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.Weekly;
 		WeekDayMin = 5;
-		MaxWeekDay = 5;
+		WeekDayMax = 5;
 		
 	ElsIf Variant = 8 Then // 
 		Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.Weekly;
 		Schedule.BeginTime = '00010101220000'; // at 10:00 pm
 		WeekDayMin = 7;
-		MaxWeekDay = 7;
+		WeekDayMax = 7;
 		
 	ElsIf Variant = 9 Then // 
 		Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.Monthly;
@@ -3906,7 +3900,7 @@ Procedure FillScheduleByOption(Variant, RefreshVisibility = False)
 	
 	// On weekly basis.
 	SelectedWeekDays = New Array;
-	For IndexOf = WeekDayMin To MaxWeekDay Do
+	For IndexOf = WeekDayMin To WeekDayMax Do
 		SelectedWeekDays.Add(IndexOf);
 	EndDo;
 	Schedule.WeekDays = SelectedWeekDays;
@@ -4064,7 +4058,7 @@ Function HasPeriodInSettings(RowID)
 			LogParameters,
 			ReportParameters,
 			Object.Personalized,
-			ThisObject.UUID);
+			UUID);
 		If ReportParameters.DCSettings <> Undefined Then
 			UserSettings = ReportParameters.DCSettings.DataParameters;
 		EndIf;
@@ -4231,7 +4225,7 @@ Function ReportsPlannedListInAttachments()
 	EndDo;
 
 	For Each RowReport In Object.Reports Do
-		ReportFormats = New Array;
+		FormatsOfReport = New Array;
 		FoundItems = Object.ReportFormats.FindRows(New Structure("Report", RowReport.Report));
 
 		If FoundItems.Count() = 0 Then
@@ -4239,11 +4233,11 @@ Function ReportsPlannedListInAttachments()
 				If Not StringFormat.Check Then
 					Continue;
 				EndIf;
-				ReportFormats.Add(StringFormat.Value);
+				FormatsOfReport.Add(StringFormat.Value);
 			EndDo;
 		Else
 			For Each StringFormat In FoundItems Do
-				ReportFormats.Add(StringFormat.Format);
+				FormatsOfReport.Add(StringFormat.Format);
 			EndDo;
 		EndIf;
 		If IsTempStorageURL(RowReport.SettingsAddress) Then
@@ -4255,7 +4249,7 @@ Function ReportsPlannedListInAttachments()
 		EndIf;
 		Period = ReportMailing.GetPeriodFromUserSettings(UserSettings);
 
-		For Each Format In ReportFormats Do
+		For Each Format In FormatsOfReport Do
 			FormatParameters = FormatsParameters.Get(Format);
 			FullFileName = ReportMailing.FullFileNameFromTemplate(
 			"", RowReport.Presentation, FormatParameters, DeliveryParameters, RowReport.DescriptionTemplate1, Period);
@@ -4598,7 +4592,7 @@ Function InitializeReport(ReportsRow, AddCommonText, UserSettings, Interactively
 		LogParameters,
 		ReportParameters,
 		Object.Personalized,
-		ThisObject.UUID);
+		UUID);
 	
 	ReportParameters.Insert("ErrorsArray", LogParameters.ErrorsArray);
 	ReportParameters.Errors = ReportMailing.MessagesToUserString(ReportParameters.ErrorsArray, AddCommonText);

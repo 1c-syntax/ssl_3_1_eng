@@ -75,7 +75,7 @@ Procedure ExecuteActionsToSetNewDataExchange(Cancel,
 			
 			Constants.SubordinateDIBNodeSetupCompleted.Set(True);
 			Constants.UseDataSynchronization.Set(True);
-			Constants.DoNotUseSeparationByDataAreas.Set(True);
+			Constants.NotUseSeparationByDataAreas.Set(True);
 			
 			// 
 			DataExchangeServer.UpdateDataExchangeRules();
@@ -596,7 +596,7 @@ Procedure UpdateExchangeMessagesTransportSettings()
 	
 	SupplementStructureWithAttributeValue(RecordStructure, "EMAILMaxMessageSize");
 	SupplementStructureWithAttributeValue(RecordStructure, "EMAILCompressOutgoingMessageFile");
-	SupplementStructureWithAttributeValue(RecordStructure, "EMAIL_Account");
+	SupplementStructureWithAttributeValue(RecordStructure, "EMAILAccount");
 	SupplementStructureWithAttributeValue(RecordStructure, "EMAILTransliterateExchangeMessageFileNames");
 	SupplementStructureWithAttributeValue(RecordStructure, "FILEDataExchangeDirectory");
 	SupplementStructureWithAttributeValue(RecordStructure, "FILECompressOutgoingMessageFile");
@@ -610,7 +610,7 @@ Procedure UpdateExchangeMessagesTransportSettings()
 	SupplementStructureWithAttributeValue(RecordStructure, "FTPConnectionPath");
 	SupplementStructureWithAttributeValue(RecordStructure, "FTPTransliterateExchangeMessageFileNames");
 	SupplementStructureWithAttributeValue(RecordStructure, "WSWebServiceURL");
-	SupplementStructureWithAttributeValue(RecordStructure, "WSUsername");
+	SupplementStructureWithAttributeValue(RecordStructure, "WSUserName");
 	SupplementStructureWithAttributeValue(RecordStructure, "WSPassword");
 	SupplementStructureWithAttributeValue(RecordStructure, "WSRememberPassword");
 	SupplementStructureWithAttributeValue(RecordStructure, "ArchivePasswordExchangeMessages");
@@ -629,7 +629,7 @@ Procedure UpdateCOMExchangeMessagesTransportSettings()
 	SupplementStructureWithAttributeValue(RecordStructure, "COMOperatingSystemAuthentication");
 	SupplementStructureWithAttributeValue(RecordStructure, "COMInfobaseOperatingMode");
 	SupplementStructureWithAttributeValue(RecordStructure, "COM1CEnterpriseServerSideInfobaseName");
-	SupplementStructureWithAttributeValue(RecordStructure, "COMUsername");
+	SupplementStructureWithAttributeValue(RecordStructure, "COMUserName");
 	SupplementStructureWithAttributeValue(RecordStructure, "COM1CEnterpriseServerName");
 	SupplementStructureWithAttributeValue(RecordStructure, "COMInfobaseDirectory");
 	SupplementStructureWithAttributeValue(RecordStructure, "COMUserPassword");

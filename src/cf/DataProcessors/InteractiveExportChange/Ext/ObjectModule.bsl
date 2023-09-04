@@ -464,7 +464,7 @@ Function RestoreCurrentAttributesFromSettings(Presentation, Variants = Undefined
 		Data = CommonFilterSettingsComposer();
 		AllDocumentsFilterComposer = New DataCompositionSettingsComposer;
 		AllDocumentsFilterComposer.Initialize(New DataCompositionAvailableSettingsSource(Data.CompositionSchema));
-		AllDocumentsFilterComposer.LoadSettings(ListItem.Value._AllDocumentsFilterComposerSettings);
+		AllDocumentsFilterComposer.LoadSettings(ListItem.Value._AllDocumentsFilterComposerSettings1);
 		
 		// Initialize additional composer.
 		If FormStorageAddress<>Undefined Then
@@ -495,7 +495,7 @@ Procedure SaveCurrentValuesInSettings(Presentation) Export
 	ListItem.Value = New Structure(AttributesToSave);
 	FillPropertyValues(ListItem.Value, ThisObject);
 	
-	ListItem.Value.Insert("_AllDocumentsFilterComposerSettings", AllDocumentsFilterComposer.Settings);
+	ListItem.Value.Insert("_AllDocumentsFilterComposerSettings1", AllDocumentsFilterComposer.Settings);
 	
 	SettingsParameters = SettingsParameterStructure();
 	
@@ -564,7 +564,7 @@ Function EnlargedMetadataGroupComposition(FullMetadataName) Export
 	EndIf;
 	
 	// Hiding items with DoNotExport set.
-	NotExportMode = Enums.ExchangeObjectExportModes.DoNotExport;
+	NotExportMode = Enums.ExchangeObjectExportModes.NotExport;
 	ExportModes   = DataExchangeCached.UserExchangePlanComposition(InfobaseNode);
 	
 	Position = CompositionTables.UBound();
@@ -804,7 +804,7 @@ Function InitializeComposer(MetadataNamesList = Undefined, LimitUsageWithFilter 
 			
 			ReplacementStringType = StringFunctionsClientServer.SubstituteParametersToString("Type(%1)", NameOfTableToAdd);
 			
-			SetName = "Additionally_" + StrReplace(NameOfTableToAdd, ".", "_");
+			SetName = "More_" + StrReplace(NameOfTableToAdd, ".", "_");
 			If SetItemsChanges.Find(SetName) = Undefined Then 
 				
 				Set = SetItemsChanges.Add(Type("DataCompositionSchemaDataSetQuery"));
@@ -934,7 +934,7 @@ Procedure AddTabularSectionCompositionAdditionalSets(SourceItems, AddingOptions)
 	NameOfTableToAdd = AddingOptions.NameOfTableToAdd;
 	CompositionSchema       = AddingOptions.CompositionSchema;
 	
-	CommonSet     = CompositionSchema.DataSets.Find("ChangeRecords");
+	SharedSet     = CompositionSchema.DataSets.Find("ChangeRecords");
 	DataSource = CompositionSchema.DataSources.Get(0).Name; 
 	
 	ObjectMetadata = Metadata.FindByFullName(NameOfTableToAdd);
@@ -946,7 +946,7 @@ Procedure AddTabularSectionCompositionAdditionalSets(SourceItems, AddingOptions)
 	QueryTextTemplate2 = 
 	"SELECT ALLOWED
 	|	Ref                            AS RegistrationObject,
-	|	&NameOfTheTableToBeAddedType         AS RegistrationObjectType,
+	|	&NameOfTableToAddType         AS RegistrationObjectType,
 	|	&RegistrationReasonAdvanced  AS RegistrationReason
 	|	,&AllTabularSectionFields
 	|FROM
@@ -989,13 +989,13 @@ Procedure AddTabularSectionCompositionAdditionalSets(SourceItems, AddingOptions)
 		EndIf;
 		
 		Alias = StrReplace(NameOfTableToAdd, ".", "") + TableName;
-		SetName = "Additionally_" + Alias;
-		Set = CommonSet.Items.Find(SetName);
+		SetName = "More_" + Alias;
+		Set = SharedSet.Items.Find(SetName);
 		If Set <> Undefined Then
 			Continue;
 		EndIf;
 		
-		Set = CommonSet.Items.Add(Type("DataCompositionSchemaDataSetQuery"));
+		Set = SharedSet.Items.Add(Type("DataCompositionSchemaDataSetQuery"));
 		Set.AutoFillAvailableFields = True;
 		Set.DataSource = DataSource;
 		Set.Name = SetName;
@@ -1004,7 +1004,7 @@ Procedure AddTabularSectionCompositionAdditionalSets(SourceItems, AddingOptions)
 		NameOfTheAdditionalSelectionQueryTableToBeAdded = StringFunctionsClientServer.SubstituteParametersToString("%1.%2", NameOfTableToAdd, TableName);
 		
 		ReplacementString = StringFunctionsClientServer.SubstituteParametersToString("Type(%1)", NameOfTableToAdd);
-		QueryText = StrReplace(QueryTextTemplate2, "&NameOfTheTableToBeAddedType", ReplacementString);
+		QueryText = StrReplace(QueryTextTemplate2, "&NameOfTableToAddType", ReplacementString);
 		QueryText = StrReplace(QueryText, ",&AllTabularSectionFields", AllTabularSectionFields.QueryFields);
 		QueryText = StrReplace(QueryText, "&NameOfTableToAdd", NameOfTheAdditionalSelectionQueryTableToBeAdded);
 		Set.Query = QueryText;

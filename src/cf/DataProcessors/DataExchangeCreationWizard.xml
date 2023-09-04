@@ -151,7 +151,7 @@
 			</Attribute>
 			<Attribute uuid="7601fa7e-079a-4347-abea-e161b2d00783">
 				<Properties>
-					<Name>COMUsername</Name>
+					<Name>COMUserName</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -396,7 +396,7 @@
 			</Attribute>
 			<Attribute uuid="0ee5b788-61dc-464b-86da-f985df7704b6">
 				<Properties>
-					<Name>EMAIL_Account</Name>
+					<Name>EMAILAccount</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -961,7 +961,7 @@
 			</Attribute>
 			<Attribute uuid="d77e3c65-e9fd-4ba7-885f-a8a2f4c827d2">
 				<Properties>
-					<Name>WSUsername</Name>
+					<Name>WSUserName</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>

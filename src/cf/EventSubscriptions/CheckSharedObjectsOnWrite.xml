@@ -16,7 +16,7 @@
 				<v8:Type>cfg:ConstantValueManager.SynchronizeDataWithInternetApplicationsOnExit</v8:Type>
 				<v8:Type>cfg:CatalogObject.BankClassifier</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.UseDataSynchronizationSaaS</v8:Type>
-				<v8:Type>cfg:ConstantValueManager.DoNotUseSeparationByDataAreas</v8:Type>
+				<v8:Type>cfg:ConstantValueManager.NotUseSeparationByDataAreas</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.SynchronizeDataWithInternetApplicationsOnStart</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.DeniedExtensionsList</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.AdditionalReportAndDataProcessorFolderUsageSaaS</v8:Type>

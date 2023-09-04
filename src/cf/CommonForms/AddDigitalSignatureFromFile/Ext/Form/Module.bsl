@@ -518,44 +518,13 @@ EndProcedure
 Function AddRowAtServer(Address, FileName, AddNewRow, ErrorAtServer,
 			SignatureData, SignatureDate, SignaturePropertiesAddress)
 	
-	SignatureData = GetFromTempStorage(Address); // BinaryData
-	
-	TempFileFullName = GetTempFileName();
-	SignatureData.Write(TempFileFullName);
-	Text = New TextDocument;
-	Text.Read(TempFileFullName);
-	
 	Try
-		DeleteFiles(TempFileFullName);
+		SignatureData = DigitalSignature.DEREncodedSignature(Address);
 	Except
-		WriteLogEvent(
-			NStr("en = 'Digital signature.Remove temporary file';",
-				Common.DefaultLanguageCode()),
-			EventLogLevel.Error, , ,
-			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		ErrorInfo = ErrorInfo();
+		ErrorAtServer.Insert("ErrorDescription", ErrorProcessing.BriefErrorDescription(ErrorInfo));
+		Return False;
 	EndTry;
-	
-	Base64Row = Undefined;
-	If Text.LineCount() > 3 And StrStartsWith(Text.GetLine(1), "-----BEGIN")
-		And StrStartsWith(Text.GetLine(Text.LineCount()), "-----END") Then
-		Text.DeleteLine(1);
-		Text.DeleteLine(Text.LineCount());
-		Base64Row = Text.GetText();
-	ElsIf StrStartsWith(Text.GetLine(1), "MII") Then
-		Base64Row = Text.GetText();
-	EndIf;
-	
-	If Base64Row <> Undefined Then
-		Try
-			SignatureData = Base64Value(Base64Row);
-		Except
-			ErrorInfo = ErrorInfo();
-			ErrorAtServer.Insert("ErrorDescription", StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Cannot receive data from the signature file due to:
-			 |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo)));
-			Return False;
-		EndTry;
-	EndIf;
 	
 	SignatureDate = DigitalSignature.SigningDate(SignatureData);
 	

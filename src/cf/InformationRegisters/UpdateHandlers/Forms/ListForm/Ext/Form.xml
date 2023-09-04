@@ -15,7 +15,7 @@
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 	</Events>
 	<ChildItems>
-		<UsualGroup name="FilterGroupCommandBar" id="61">
+		<UsualGroup name="GroupFilterCommandBar" id="61">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -258,36 +258,148 @@
 				<ManualQuery>true</ManualQuery>
 				<DynamicDataRead>false</DynamicDataRead>
 				<QueryText>SELECT
-	UpdateHandlers.HandlerName,
-	UpdateHandlers.Status,
-	UpdateHandlers.Version,
-	UpdateHandlers.LibraryName,
-	UpdateHandlers.ProcessingDuration,
-	UpdateHandlers.ExecutionMode,
-	UpdateHandlers.RegistrationVersion,
-	UpdateHandlers.VersionOrder,
-	UpdateHandlers.Id,
-	UpdateHandlers.AttemptCount,
-	UpdateHandlers.ExecutionStatistics,
-	UpdateHandlers.ErrorInfo,
-	UpdateHandlers.Comment,
-	UpdateHandlers.Priority,
-	UpdateHandlers.CheckProcedure,
-	UpdateHandlers.UpdateDataFillingProcedure,
-	UpdateHandlers.DeferredProcessingQueue,
-	UpdateHandlers.ExecuteInMasterNodeOnly,
-	UpdateHandlers.RunAlsoInSubordinateDIBNodeWithFilters,
-	UpdateHandlers.Multithreaded,
-	UpdateHandlers.BatchProcessingCompleted,
-	UpdateHandlers.UpdateGroup,
-	UpdateHandlers.StartIteration,
-	UpdateHandlers.DataToProcess,
-	UpdateHandlers.DeferredHandlerExecutionMode,
-	UpdateHandlers.ObjectsToChange,
-	UpdateHandlers.DataAreaAuxiliaryData,
-	UpdateHandlers.DataRegistrationDuration
+	UpdateHandlersOverridable.HandlerName,
+	UpdateHandlersOverridable.Status,
+	UpdateHandlersOverridable.Version,
+	UpdateHandlersOverridable.LibraryName,
+	UpdateHandlersOverridable.ProcessingDuration,
+	UpdateHandlersOverridable.ExecutionMode,
+	UpdateHandlersOverridable.RegistrationVersion,
+	UpdateHandlersOverridable.VersionOrder,
+	UpdateHandlersOverridable.Id,
+	UpdateHandlersOverridable.AttemptCount,
+	UpdateHandlersOverridable.ExecutionStatistics,
+	UpdateHandlersOverridable.ErrorInfo,
+	UpdateHandlersOverridable.Comment,
+	UpdateHandlersOverridable.Priority,
+	UpdateHandlersOverridable.CheckProcedure,
+	UpdateHandlersOverridable.UpdateDataFillingProcedure,
+	UpdateHandlersOverridable.DeferredProcessingQueue,
+	UpdateHandlersOverridable.ExecuteInMasterNodeOnly,
+	UpdateHandlersOverridable.RunAlsoInSubordinateDIBNodeWithFilters,
+	UpdateHandlersOverridable.Multithreaded,
+	UpdateHandlersOverridable.BatchProcessingCompleted,
+	UpdateHandlersOverridable.UpdateGroup,
+	UpdateHandlersOverridable.StartIteration,
+	UpdateHandlersOverridable.DataToProcess,
+	UpdateHandlersOverridable.DeferredHandlerExecutionMode,
+	UpdateHandlersOverridable.ObjectsToChange,
+	0 AS DataAreaAuxiliaryData,
+	UpdateHandlersOverridable.DataRegistrationDuration
 FROM
-	InformationRegister.UpdateHandlers AS UpdateHandlers</QueryText>
+	InformationRegister.UpdateHandlers AS UpdateHandlersOverridable</QueryText>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>HandlerName</dcssch:dataPath>
+					<dcssch:field>HandlerName</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Status</dcssch:dataPath>
+					<dcssch:field>Status</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Version</dcssch:dataPath>
+					<dcssch:field>Version</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>LibraryName</dcssch:dataPath>
+					<dcssch:field>LibraryName</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ProcessingDuration</dcssch:dataPath>
+					<dcssch:field>ProcessingDuration</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ExecutionMode</dcssch:dataPath>
+					<dcssch:field>ExecutionMode</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>RegistrationVersion</dcssch:dataPath>
+					<dcssch:field>RegistrationVersion</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>VersionOrder</dcssch:dataPath>
+					<dcssch:field>VersionOrder</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Id</dcssch:dataPath>
+					<dcssch:field>Id</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>AttemptCount</dcssch:dataPath>
+					<dcssch:field>AttemptCount</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ExecutionStatistics</dcssch:dataPath>
+					<dcssch:field>ExecutionStatistics</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ErrorInfo</dcssch:dataPath>
+					<dcssch:field>ErrorInfo</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Comment</dcssch:dataPath>
+					<dcssch:field>Comment</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Priority</dcssch:dataPath>
+					<dcssch:field>Priority</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>CheckProcedure</dcssch:dataPath>
+					<dcssch:field>CheckProcedure</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>UpdateDataFillingProcedure</dcssch:dataPath>
+					<dcssch:field>UpdateDataFillingProcedure</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeferredProcessingQueue</dcssch:dataPath>
+					<dcssch:field>DeferredProcessingQueue</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ExecuteInMasterNodeOnly</dcssch:dataPath>
+					<dcssch:field>ExecuteInMasterNodeOnly</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>RunAlsoInSubordinateDIBNodeWithFilters</dcssch:dataPath>
+					<dcssch:field>RunAlsoInSubordinateDIBNodeWithFilters</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Multithreaded</dcssch:dataPath>
+					<dcssch:field>Multithreaded</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>BatchProcessingCompleted</dcssch:dataPath>
+					<dcssch:field>BatchProcessingCompleted</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>UpdateGroup</dcssch:dataPath>
+					<dcssch:field>UpdateGroup</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>StartIteration</dcssch:dataPath>
+					<dcssch:field>StartIteration</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DataToProcess</dcssch:dataPath>
+					<dcssch:field>DataToProcess</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeferredHandlerExecutionMode</dcssch:dataPath>
+					<dcssch:field>DeferredHandlerExecutionMode</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ObjectsToChange</dcssch:dataPath>
+					<dcssch:field>ObjectsToChange</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DataAreaAuxiliaryData</dcssch:dataPath>
+					<dcssch:field>DataAreaAuxiliaryData</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DataRegistrationDuration</dcssch:dataPath>
+					<dcssch:field>DataRegistrationDuration</dcssch:field>
+				</Field>
 				<ListSettings>
 					<dcsset:filter>
 						<dcsset:viewMode>Normal</dcsset:viewMode>

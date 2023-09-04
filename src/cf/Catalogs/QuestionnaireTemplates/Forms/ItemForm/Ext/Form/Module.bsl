@@ -119,7 +119,7 @@ Procedure AfterWrite(WriteParameters)
 	
 	DetermineTemplateTreeAvailability();
 	If Object.TemplateEditCompleted Then
-		ThisObject.ReadOnly = True;
+		ReadOnly = True;
 	EndIf;
 	
 EndProcedure
@@ -416,9 +416,6 @@ EndProcedure
 
 #Region FormCommandHandlers
 
-// Sets the flag indicating that questionnaire template editing is finished
-// and records the questionnaire.
-//
 &AtClient
 Procedure EndEdit(Command)
 	
@@ -433,7 +430,6 @@ Procedure EndEdit(Command)
 	
 EndProcedure
 
-// Adds a section to the questionnaire template tree.
 &AtClient
 Procedure AddSection(Command)
 	
@@ -451,7 +447,6 @@ Procedure AddSection(Command)
 	
 EndProcedure
 
-// Adds a basic question to the questionnaire template tree.
 &AtClient
 Procedure AddSimpleQuestion(Command)
 	
@@ -464,7 +459,6 @@ Procedure AddSimpleQuestion(Command)
 	
 EndProcedure 
 
-// Adds a complex question to the questionnaire template.
 &AtClient
 Procedure AddComplexQuestion(Command)
 	
@@ -477,7 +471,6 @@ Procedure AddComplexQuestion(Command)
 	
 EndProcedure
 
-// Adds a question with condition to the questionnaire template.
 &AtClient
 Procedure AddQuestionWithCondition(Command)
 	
@@ -490,7 +483,6 @@ Procedure AddQuestionWithCondition(Command)
 	
 EndProcedure
 
-// Adds a question chart to the questionnaire template.
 &AtClient
 Procedure AddTabularQuestion(Command)
 	
@@ -584,8 +576,6 @@ Procedure SetConditionalAppearance()
 
 EndProcedure
 
-// Adds a new row to the form tree.
-// 
 // Parameters:
 //   Parent   - ValueTreeRow - an item of the form values tree, from which a new branch starts.
 //   RowType  - String - a type of a tree row.
@@ -641,7 +631,6 @@ Procedure WriteQuestionnaireTemplateTree(TreeRowParent,RecursionLevel,CatalogPar
 	
 	Counter = 0;
 	
-	// Writing new rows.
 	For Each TreeRow In TreeRowParent.Rows Do
 		
 		Counter = Counter + 1;
@@ -701,8 +690,6 @@ Function AddQuestionnaireTemplateQuestionCatalogItem(TreeRow,Code = Undefined,Ca
 	
 EndFunction
 
-// Processes the result of the question chart wizard.
-//
 // Parameters:
 //  CurrentData -FormDataTreeItem - the current data of the template tree.
 //  Parameter  - Structure - Result of the question chart wizard.
@@ -769,7 +756,6 @@ Procedure ProcessComplexQuestionsWizardResult(CurrentData,Parameter,CurrentRow)
 	
 EndProcedure
 
-// Sets conditional appearance of the form.
 &AtServer
 Procedure SetConditionalFormAppearance();
 	
@@ -854,8 +840,6 @@ Function GetParentQuestionnaireTree(CurrentParent,CanBeRoot,QuestionType = Undef
 	
 EndFunction
 
-// Adds a question to the questionnaire template.
-//
 // Parameters:
 //  CurrentData - FormDataTreeItem
 //  QuestionType    - EnumRef.QuestionnaireTemplateQuestionTypes
@@ -898,7 +882,7 @@ Procedure SetEditingUnavailability()
 	
 	If Object.TemplateEditCompleted Or TemplateHasQuestionnaires Then
 		
-		ThisObject.ReadOnly                                                 = True;
+		ReadOnly                                                 = True;
 		Items.QuestionnaireTree.ReadOnly                                      = True;
 		Items.QuestionnaireTreeForm.ReadOnly                                 = True;
 		Items.QuestionnaireTreeForm.CommandBar.Enabled                    = False;

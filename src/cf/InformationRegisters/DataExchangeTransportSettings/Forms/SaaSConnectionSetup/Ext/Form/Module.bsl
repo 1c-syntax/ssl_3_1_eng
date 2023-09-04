@@ -25,9 +25,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.InternetAccessParameters.Visible = False;
 	EndIf;
 	
-	If Not IsBlankString(Record.WSUsername) Then
+	If Not IsBlankString(Record.WSUserName) Then
 		
-		User = Users.FindByName(Record.WSUsername);
+		User = Users.FindByName(Record.WSUserName);
 		
 	EndIf;
 	
@@ -110,7 +110,7 @@ Procedure TestServiceConnection(Cancel)
 	UserProperties = Users.IBUserProperies(
 		Common.ObjectAttributeValue(User, "IBUserID"));
 	If UserProperties <> Undefined Then
-		Record.WSUsername = UserProperties.Name
+		Record.WSUserName = UserProperties.Name
 	EndIf;
 	
 	// Testing connection to the correspondent.

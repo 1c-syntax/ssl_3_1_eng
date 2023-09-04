@@ -26,7 +26,7 @@ EndProcedure
 Procedure NotificationProcessing(EventName, Parameter, Source)
 	
 	If Upper(EventName) = Upper("UserSelection") Then
-		If Source <> ThisObject.FormName Then
+		If Source <> FormName Then
 			Return;
 		EndIf;
 		
@@ -173,7 +173,7 @@ Procedure OpenUserSelectionForm(User)
 	FormParameters.Insert("User",          User);
 	FormParameters.Insert("ActionType",           "Clearing");
 	FormParameters.Insert("SelectedUsers", SelectedUsers.UnloadValues());
-	FormParameters.Insert("Source", ThisObject.FormName);
+	FormParameters.Insert("Source", FormName);
 	
 	OpenForm("DataProcessor.UsersSettings.Form.SelectUsers", FormParameters);
 	

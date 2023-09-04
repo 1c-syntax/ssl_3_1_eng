@@ -82,13 +82,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Schedule = Job.Schedule;
 		
 		If Action = "Copy" Then
-			ThisObject.Predefined = False;
+			Predefined = False;
 		Else
 			MessagesToUserAndErrorDescription =
 				ScheduledJobsInternal.ScheduledJobMessagesAndErrorDescriptions(Job);
 		EndIf;
 		
-		Items.Description.Visible = Not ThisObject.Predefined;
+		Items.Description.Visible = Not Predefined;
 	EndIf;
 	
 	If Action <> "Change" Then
@@ -151,14 +151,14 @@ Procedure Write(Command)
 EndProcedure
 
 &AtClient
-Procedure WriteAndCloseComplete()
+Procedure WriteAndCloseExecute()
 	
 	WriteAndCloseCompletion();
 	
 EndProcedure
 
 &AtClient
-Procedure SetScheduleExecute()
+Procedure SetUpScheduleExecute()
 
 	Dialog = New ScheduledJobDialog(Schedule);
 	Dialog.Show(New NotifyDescription("OpenScheduleEnd", ThisObject));

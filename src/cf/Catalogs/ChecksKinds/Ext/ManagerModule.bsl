@@ -23,9 +23,9 @@
 //
 Function AttributesToSkipInBatchProcessing() Export
 	
-	AttributesToSkip = New Array;
+	NotAttributesToEdit = New Array;
 	
-	Return AttributesToSkip;
+	Return NotAttributesToEdit;
 	
 EndFunction
 

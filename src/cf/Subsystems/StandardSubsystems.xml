@@ -20,24 +20,24 @@
 		<ChildObjects>
 			<Subsystem>EventLogAnalysis</Subsystem>
 			<Subsystem>ObjectAttributesLock</Subsystem>
-			<Subsystem>WorkSchedules</Subsystem>
-			<Subsystem>ODataInterface</Subsystem>
-			<Subsystem>UsersSessions</Subsystem>
-			<Subsystem>BusinessProcessesAndTasks</Subsystem>
+			<Subsystem>AdditionalReportsAndDataProcessors</Subsystem>
 			<Subsystem>Surveys</Subsystem>
+			<Subsystem>BatchEditObjects</Subsystem>
+			<Subsystem>BusinessProcessesAndTasks</Subsystem>
 			<Subsystem>ImportDataFromFile</Subsystem>
-			<Subsystem>ObjectsVersioning</Subsystem>
+			<Subsystem>Interactions</Subsystem>
 			<Subsystem>Core</Subsystem>
+			<Subsystem>Currencies</Subsystem>
+			<Subsystem>UsersSessions</Subsystem>
+			<Subsystem>WorkSchedules</Subsystem>
+			<Subsystem>PeriodClosingDates</Subsystem>
+			<Subsystem>Banks</Subsystem>
+			<Subsystem>UserNotes</Subsystem>
+			<Subsystem>ObjectsVersioning</Subsystem>
+			<Subsystem>ODataInterface</Subsystem>
 			<Subsystem>BarcodeGeneration</Subsystem>
 			<Subsystem>ReportsOptions</Subsystem>
-			<Subsystem>Interactions</Subsystem>
-			<Subsystem>AdditionalReportsAndDataProcessors</Subsystem>
-			<Subsystem>UserNotes</Subsystem>
-			<Subsystem>PeriodClosingDates</Subsystem>
-			<Subsystem>Currencies</Subsystem>
-			<Subsystem>BatchEditObjects</Subsystem>
 			<Subsystem>AddIns</Subsystem>
-			<Subsystem>Banks</Subsystem>
 			<Subsystem>InformationOnStart</Subsystem>
 			<Subsystem>CalendarSchedules</Subsystem>
 			<Subsystem>FormulasConstructor</Subsystem>

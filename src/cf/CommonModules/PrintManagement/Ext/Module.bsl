@@ -76,7 +76,7 @@ EndFunction
 //  Id         - String - a print form ID in the print manager.
 //
 // Returns:
-//  ValueTableRow: см. УправлениеПечатьюПереопределяемый.ПриПечати.КоллекцияПечатныхФорм
+//  ValueTableRow of See PrintManagementOverridable.OnPrint.PrintFormsCollection
 //
 // Example:
 //  PrintForm = PrintManagement.PrintFormInfo(PrintFormsCollection, "Receipt");
@@ -2174,7 +2174,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 		EndIf;
 		Command.VisibilityInForms = PrintCommand.FormsList;
 		If PrintCommand.DontWriteToForm Then
-			Command.WriteMode = "DoNotWrite";
+			Command.WriteMode = "NotWrite";
 		ElsIf PrintCommand.CheckPostingBeforePrint Then
 			Command.WriteMode = "Post";
 		Else
@@ -2182,7 +2182,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 		EndIf;
 		Command.FilesOperationsRequired = PrintCommand.FileSystemExtensionIsRequired;
 		
-		Command.Handler = "PrintManagementInternalClient.CommandHandler";
+		Command.Handler = "PrintManagementInternalClient.HandlerCommands";
 		Command.AdditionalParameters = New Structure(HandlerParametersKeys);
 		FillPropertyValues(Command.AdditionalParameters, PrintCommand);
 	EndDo;
@@ -2433,6 +2433,7 @@ EndProcedure
 Function ListOfOperators(AdditionalFields = Undefined) Export
 	
 	ListOfOperators = FormulasConstructor.ListOfOperators();
+	AddGroupOfFunctionOperatorsForTables(ListOfOperators);
 	
 	If AdditionalFields <> Undefined Then
 		For Each GroupOfAdditionalField In AdditionalFields Do
@@ -2461,14 +2462,14 @@ Function ListOfOperators(AdditionalFields = Undefined) Export
 		Group.Picture = PictureLib.TypeFunction;
 	EndIf;
 	
-	AddAnOperatorToAGroup(Group, "PrintControl_StringLatin", NStr("en = 'Latin string';"), New TypeDescription("String"), True);
+	AddAnOperatorToAGroup(Group, NameOfPrintModule() + CommandSeparator() + "LatinString", NStr("en = 'Latin string';"), New TypeDescription("String"), True);
 	
 	Group = ListOfOperators.Rows.Find("OtherFunctions");
 	If Group = Undefined Then
 		Group = ListOfOperators.Rows.Add();
 		Group.Id = "OtherFunctions";
 		Group.Presentation = NStr("en = 'Other functions';");
-		Group.Order = 6;
+		Group.Order = 7;
 		Group.Picture = PictureLib.TypeFunction;
 	EndIf;
 	
@@ -2597,7 +2598,7 @@ Function IsPrintForm(Val IdentifierOfTemplate, Val Owner = Undefined) Export
 	IdentifierOfTemplate = PathParts[PathParts.UBound()];
 	PrintCommands = ObjectPrintCommands(MetadataObject, False);
 	For Each PrintCommand In PrintCommands Do
-		If PrintCommand.PrintManager = "PrintManagement" And StrFind(PrintCommand.Id, IdentifierOfTemplate) Then
+		If PrintCommand.PrintManager = NameOfPrintModule() And StrFind(PrintCommand.Id, IdentifierOfTemplate) Then
 			Return True;
 		EndIf;
 	EndDo;
@@ -3288,7 +3289,7 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 		TemplatesNames = Common.CopyRecursive(TemplatesNames);
 	EndIf;
 	
-	GeneralPrintManager = "PrintManagement";
+	GeneralPrintManager = NameOfPrintModule();
 	ExternalPrintFormsPrefix = "ExternalPrintForm.";
 	
 	ExternalPrintFormsSource = PrintManagerName;
@@ -3392,7 +3393,7 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 			If Not IsBlankString(UsedPrintManager) Then
 				// Printing an internal print form.
 				If ObjectsCorrespondingToPrintForm <> Undefined Then
-					ThisPrintableFormSKD = UsedPrintManager = "PrintManagement";
+					ThisPrintableFormSKD = UsedPrintManager = NameOfPrintModule();
 					If ThisPrintableFormSKD Then
 						// 
 						Print(ObjectsCorrespondingToPrintForm, PrintParameters, TempCollectionForSinglePrintForm, 
@@ -4000,9 +4001,9 @@ Procedure AddSignatureAndSeal(SpreadsheetDocument, AreasSignaturesAndSeals) Expo
 	For Each Drawing In SpreadsheetDocument.Drawings Do
 		Position = StrFind(Drawing.Name, "_Document_");
 		If Position > 0 Then
-			ObjectAreaName = Mid(Drawing.Name, Position + 1);
+			AreaNameObject_ = Mid(Drawing.Name, Position + 1);
 			
-			SignaturesAndSealsSet = AreasSignaturesAndSeals[ObjectAreaName];
+			SignaturesAndSealsSet = AreasSignaturesAndSeals[AreaNameObject_];
 			If SignaturesAndSealsSet = Undefined Then
 				Continue;
 			EndIf;
@@ -4187,6 +4188,8 @@ Function PrintFormsByObjects(PrintForm, PrintObjects) Export
 			SpreadsheetDocument = PrintForm;
 		Else
 			SpreadsheetDocument = PrintForm.GetArea(Area.Top, , Area.Bottom);
+			LastRow = SpreadsheetDocument.Area(SpreadsheetDocument.TableHeight, , SpreadsheetDocument.TableHeight, );
+			LastRow.PageBottom = False;
 			FillPropertyValues(SpreadsheetDocument, PrintForm, SpreadsheetDocumentPropertiesToCopy());
 		EndIf;
 		
@@ -4388,7 +4391,7 @@ Function PrepareOutputParametersStructure() Export
 EndFunction
 
 // Parameters:
-//  PrintCommand - ValueTableRow: см. СоздатьКоллекциюКомандПечати
+//  PrintCommand - ValueTableRow of See CreatePrintCommandsCollection
 //  SettingsForSaving - See PrintManagement.SettingsForSaving
 //  ListOfObjects - Array
 //  Result - ValueTable:
@@ -4674,7 +4677,8 @@ Procedure Print(ObjectsArray, PrintParameters, PrintFormsCollection, PrintObject
 		If TypeOf(Template) = Type("BinaryData") Then
 			PrintForm.OfficeDocuments = GenerateOfficeDoc(Template, ObjectsArray, PrintObjects, LanguageCode, PrintParameters);
 		Else			
-			SpreadsheetDocument = GenerateSpreadsheetDocument(Template, ObjectsArray, PrintObjects, LanguageCode);
+			SpreadsheetDocument = GenerateSpreadsheetDocument(Template, ObjectsArray, PrintObjects, LanguageCode); // SpreadsheetDocument
+			SpreadsheetDocument.PrintParametersKey = PrintForm.FullTemplatePath + ?(ValueIsFilled(LanguageCode), "." + LanguageCode, "");
 			PrintForm.SpreadsheetDocument = SpreadsheetDocument;
 		EndIf;
 	EndDo;
@@ -5582,7 +5586,7 @@ Function EvalExpression(Val OriginalExpression, PrintData, FieldFormatSettings, 
 	EndDo;
 	
 	Expression = StrConcat(FormulaElements.AllItems);
-	Expression = StrReplace(Expression, "ManagePrint_", "PrintManagement.");
+	Expression = StrReplace(Expression, NameOfPrintModule() + CommandSeparator(), NameOfPrintModule() + ".");
 	
 	Try
 		Result = Common.CalculateInSafeMode(Expression, Parameters);
@@ -5598,7 +5602,9 @@ Function EvalExpression(Val OriginalExpression, PrintData, FieldFormatSettings, 
 EndFunction
 
 Procedure PickTableColumnName(Expression, FormulaElements)
-	FunctionsWithParametersSeparation = StrSplit("PrintManagement_ColumnAmount,PrintControl_NumberofLines,PrintManagement_Max,PrintManagement_Min,PrintManagement_Average",",", False);
+	
+	FunctionsWithParametersSeparation = FunctionsWithParametersSeparation();	
+	
 	IsFunctionFound = False;
 	For Each FunctionName In FunctionsWithParametersSeparation Do
 		If StrFind(Expression, FunctionName) Then
@@ -5607,14 +5613,13 @@ Procedure PickTableColumnName(Expression, FormulaElements)
 		EndIf;
 	EndDo;
 	
-	
 	If IsFunctionFound Then
 		Result = New Array;
 		AllItemsOfExpression = FormulaElements.AllItems;
 		For IndexOf = 0 To AllItemsOfExpression.UBound() Do
 			Item = AllItemsOfExpression[IndexOf];
 			Result.Add(Item);
-			If StrStartsWith(Item, "ManagePrint_") Then
+			If StrStartsWith(Item, NameOfPrintModule() + CommandSeparator()) Then
 				Result.Add(AllItemsOfExpression[IndexOf+1]); 
 				ArrayOfParameterNames = StrSplit(AllItemsOfExpression[IndexOf+2], ".", False);
 				Result.Add(ArrayOfParameterNames[0]);
@@ -5635,6 +5640,29 @@ Procedure PickTableColumnName(Expression, FormulaElements)
 	EndIf;
 	
 EndProcedure
+
+Function FunctionsWithParametersSeparation()
+	
+	DelimitedPrintModuleName = NameOfPrintModule() + CommandSeparator();
+	
+	FunctionsWithParametersSeparation = New Array();	
+	FunctionsWithParametersSeparation.Add(DelimitedPrintModuleName + "SumByColumn");
+	FunctionsWithParametersSeparation.Add(DelimitedPrintModuleName + "RowsCount");
+	FunctionsWithParametersSeparation.Add(DelimitedPrintModuleName + "Maximum");
+	FunctionsWithParametersSeparation.Add(DelimitedPrintModuleName + "Minimum");
+	FunctionsWithParametersSeparation.Add(DelimitedPrintModuleName + "Mean");
+	
+	Return FunctionsWithParametersSeparation;
+	
+EndFunction
+
+Function NameOfPrintModule()
+	Return Metadata.CommonModules.PrintManagement.Name;
+EndFunction
+
+Function CommandSeparator()
+	Return "_";
+EndFunction
 
 Function ClearSquareBrackets(String)
 	
@@ -6347,7 +6375,7 @@ Procedure AddPrintCommands(PrintCommands, MetadataObject)
 		PrintCommand = PrintCommands.Add();
 		FillPropertyValues(PrintCommand, Selection);
 		PrintCommand.Id = "PF_" + String(PrintCommand.Id);
-		PrintCommand.PrintManager = "PrintManagement";
+		PrintCommand.PrintManager = NameOfPrintModule();
 		
 		VisibilityConditions = Selection.VisibilityConditions.Get();
 		If ValueIsFilled(VisibilityConditions) Then
@@ -6639,7 +6667,7 @@ Function ContactInformation(DataSources, DataCompositionSchemaId, LanguageCode, 
 			DateOfLastEdit = CurrentSessionDate();
 		EndIf;
 		
-		Filter = ModuleContactsManager.SelectingContactInformation();
+		Filter = ModuleContactsManager.FilterContactInformation3();
 		Filter.LanguageCode = LanguageCode;
 		Filter.Date = DateOfLastEdit;
 
@@ -6892,7 +6920,6 @@ Function GetObjectParametersValues(PrintData, PrintObject, TreeOfTemplate, Langu
 	
 	ObjectData = PrintData[PrintObject];
 	FieldFormatSettings = PrintData["FieldFormatSettings"];
-	DocumentStructure = TreeOfTemplate.DocumentStructure;
 	
 	MatchingOfString = New Map();
 	For Each AreaParameter In TextParameters Do
@@ -7147,5 +7174,24 @@ Function PutToStorages(ParametersStructure, StoragesContents, StorageUUID)
 	EndIf;
 	Return False;
 EndFunction
+
+Procedure AddGroupOfFunctionOperatorsForTables(ListOfOperators)
+	Group = ListOfOperators.Rows.Add();
+	Group.Id = "TableFunctions";
+	Group.Presentation = NStr("en = 'Функции для табличных частей';");
+	Group.Order = 5;
+	Group.Picture = PictureLib.TypeFunction;
+	
+	Type = New TypeDescription("Number");
+	
+	Prefix = NameOfPrintModule() + CommandSeparator();
+	
+	AddAnOperatorToAGroup(Group, Prefix + "SumByColumn", NStr("en = 'Сумма по колонке';"), Type, True);
+	AddAnOperatorToAGroup(Group, Prefix + "RowsCount", NStr("en = 'Количество строк';"), Type, True);
+	AddAnOperatorToAGroup(Group, Prefix + "ColumnMax", NStr("en = 'Максимум по колонке';"), Type, True);
+	AddAnOperatorToAGroup(Group, Prefix + "ColumnMin", NStr("en = 'Минимум по колонке';"), Type, True);
+	AddAnOperatorToAGroup(Group, Prefix + "ColumnAverage", NStr("en = 'Среднее по колонке';"), Type, True);
+	
+EndProcedure
 
 #EndRegion

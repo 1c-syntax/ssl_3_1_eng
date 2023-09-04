@@ -118,7 +118,7 @@ Note that the data added by the extensions will be permanently deleted along wit
 								</v8:item>
 							</Title>
 							<ContextMenu name="ExtensionsThatChangeTheDataStructureContextMenu" id="341"/>
-							<AutoCommandBar name="ExtensionsThatChangeTheDataStructureCommandBar" id="342">
+							<AutoCommandBar name="ExtensionsThatChangeDataStructureCommandBar" id="342">
 								<Autofill>false</Autofill>
 							</AutoCommandBar>
 							<ExtendedTooltip name="ExtensionsThatChangeTheDataStructureExtendedTooltip" id="343"/>

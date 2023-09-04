@@ -33,7 +33,7 @@ Procedure StartCommandExecution(Form, Command, Val Source = Undefined) Export
 	
 	ExecutionParameters.IsObjectForm = TypeOf(Source) = Type("FormDataStructure");
 	// 
-	ExecutionParameters.WritingRequired         = ExecutionParameters.IsObjectForm And CommandDetails.WriteMode <> "DoNotWrite";
+	ExecutionParameters.WritingRequired         = ExecutionParameters.IsObjectForm And CommandDetails.WriteMode <> "NotWrite";
 	ExecutionParameters.PostingRequired     = (CommandDetails.WriteMode = "Post");
 	ExecutionParameters.FilesOperationsRequired = CommandDetails.FilesOperationsRequired;
 	ExecutionParameters.CallServerThroughNotificationProcessing = True;
@@ -63,7 +63,7 @@ Procedure ExecuteCommand(Form, Command, Source) Export
 	ExecutionParameters.Source        = Source;
 	ExecutionParameters.IsObjectForm = TypeOf(Source) = Type("FormDataStructure");
 	// 
-	ExecutionParameters.WritingRequired  = ExecutionParameters.IsObjectForm And CommandDetails.WriteMode <> "DoNotWrite";
+	ExecutionParameters.WritingRequired  = ExecutionParameters.IsObjectForm And CommandDetails.WriteMode <> "NotWrite";
 	ExecutionParameters.PostingRequired = (CommandDetails.WriteMode = "Post");
 	ExecutionParameters.FilesOperationsRequired = CommandDetails.FilesOperationsRequired;
 	
@@ -414,14 +414,14 @@ EndFunction
 
 // Refreshes the destination object form when the command has been executed.
 Procedure UpdateForm(Context)
-	If Context.IsObjectForm And Context.CommandDetails.WriteMode <> "DoNotWrite" And Not Context.Form.Modified Then
+	If Context.IsObjectForm And Context.CommandDetails.WriteMode <> "NotWrite" And Not Context.Form.Modified Then
 		Try
 			Context.Form.Read();
 		Except
 			// If the Read method is unavailable, printing was executed from a location other than the object form.
 		EndTry;
 	EndIf;
-	If Context.CommandDetails.WriteMode <> "DoNotWrite" Then
+	If Context.CommandDetails.WriteMode <> "NotWrite" Then
 		ModifiedObjectTypes = New Array;
 		For Each Ref In Context.ReferencesArrray Do
 			Type = TypeOf(Ref);
@@ -470,7 +470,7 @@ Function SelectedObjects(Source, CommandDetails)
 		EndDo;
 	EndIf;
 	
-	If Not ValueIsFilled(Result) And CommandDetails.WriteMode <> "DoNotWrite" Then
+	If Not ValueIsFilled(Result) And CommandDetails.WriteMode <> "NotWrite" Then
 		Raise NStr("en = 'Cannot run the command for the object.';");
 	EndIf;
 	

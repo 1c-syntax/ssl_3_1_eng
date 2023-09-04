@@ -83,7 +83,7 @@ Procedure SyncAndContinue(Command)
 	
 	If Not TimeConsumingOperation Then
 		
-		SynchronizeAndContinueCompletion();
+		SyncAndContinueCompletion();
 		
 	EndIf;
 	
@@ -523,7 +523,7 @@ Procedure CheckUpdateRequired()
 EndProcedure
 
 &AtClient
-Procedure SynchronizeAndContinueCompletion()
+Procedure SyncAndContinueCompletion()
 	
 	SetFormItemsView();
 	
@@ -585,7 +585,7 @@ Procedure TimeConsumingOperationIdleHandler()
 			
 		EndIf;
 		
-		SynchronizeAndContinueCompletion();
+		SyncAndContinueCompletion();
 		
 	EndIf;
 	

@@ -348,7 +348,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 	If ValueIsFilled(CopyingValue)
 	   And Not ValueIsFilled(Object.Ref)
 	   And CommonClient.SubsystemExists("StandardSubsystems.AccessManagement")
-	   And (Not WriteParameters.Property("DoNotCopyUserRights")
+	   And (Not WriteParameters.Property("NotCopyUserRights")
 	      And Not WriteParameters.Property("CopyUserRights")) Then
 		
 		Cancel = True;
@@ -397,7 +397,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 		WriteParameters.Insert("AfterAuthenticationPasswordRequestInService");
 		Cancel = True;
 		UsersInternalClient.RequestPasswordForAuthenticationInService(
-			New NotifyDescription("AfterServiceAuthenticationPasswordRequestBeforeWrite", ThisObject, WriteParameters),
+			New NotifyDescription("AfterAuthenticationPasswordRequestInServiceBeforeWrite", ThisObject, WriteParameters),
 			ThisObject,
 			ServiceUserPassword);
 		Return;
@@ -920,7 +920,7 @@ Procedure PagesOnCurrentPageChange(Item, CurrentPage)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties")
 		And CurrentPage.Name = "AdditionalAttributesPage"
-		And Not ThisObject.PropertiesParameters.DeferredInitializationExecuted Then
+		And Not PropertiesParameters.DeferredInitializationExecuted Then
 		
 		PropertiesExecuteDeferredInitialization();
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
@@ -977,7 +977,7 @@ EndProcedure
 // 
 
 &AtClient
-Procedure Attachable_EmailOnChange(Item)
+Procedure Attachable_EMailOnChange(Item)
 	
 	ModuleContactsManagerClient =
 		CommonClient.CommonModule("ContactsManagerClient");
@@ -990,7 +990,7 @@ Procedure Attachable_EmailOnChange(Item)
 		Return;
 	EndIf;
 	
-	CITable = ThisObject.ContactInformationAdditionalAttributesDetails;
+	CITable = ContactInformationAdditionalAttributesDetails;
 	
 	EmailRow = CITable.FindRows(New Structure("Kind",
 		ContactInformationKindUserEmail()))[0];
@@ -1011,7 +1011,7 @@ EndProcedure
 //  StandardProcessing - Boolean
 //
 &AtClient
-Procedure Attachable_EmailClearing(Item, StandardProcessing)
+Procedure Attachable_EMailClearing(Item, StandardProcessing)
 	
 	If Not Item.TextEdit Then
 		StandardProcessing = False;
@@ -1044,7 +1044,7 @@ Procedure Attachable_EMailStartChoice(Item)
 		Return;
 	EndIf;
 	
-	CITable = ThisObject.ContactInformationAdditionalAttributesDetails;
+	CITable = ContactInformationAdditionalAttributesDetails;
 	
 	Filter = New Structure("Kind", ContactInformationKindUserEmail());
 	
@@ -1523,7 +1523,7 @@ EndFunction
 
 // The BeforeWrite event handler continuation.
 &AtClient
-Procedure AfterServiceAuthenticationPasswordRequestBeforeWrite(SaaSUserNewPassword, WriteParameters) Export
+Procedure AfterAuthenticationPasswordRequestInServiceBeforeWrite(SaaSUserNewPassword, WriteParameters) Export
 	
 	If SaaSUserNewPassword = Undefined Then
 		Return;
@@ -1992,7 +1992,7 @@ Procedure AfterAnswerToQuestionAboutCopyingRights(Response, WriteParameters) Exp
 	If Response = DialogReturnCode.Yes Then
 		WriteParameters.Insert("CopyUserRights");
 	Else
-		WriteParameters.Insert("DoNotCopyUserRights");
+		WriteParameters.Insert("NotCopyUserRights");
 	EndIf;
 	Write(WriteParameters);
 	
@@ -2032,12 +2032,12 @@ Procedure OverrideContactInformationEditingSaaS()
 		Return;
 	EndIf;
 	
-	ContactInformation = ThisObject.ContactInformationAdditionalAttributesDetails;
+	ContactInformation = ContactInformationAdditionalAttributesDetails;
 	
 	EmailRow = ContactInformation.FindRows(New Structure("Kind", ContactInformationKind("UserEmail")))[0];
 	EmailItem = Items[EmailRow.AttributeName];
-	EmailItem.SetAction("OnChange", "Attachable_EmailOnChange");
-	EmailItem.SetAction("Clearing",      "Attachable_EmailClearing");
+	EmailItem.SetAction("OnChange", "Attachable_EMailOnChange");
+	EmailItem.SetAction("Clearing",      "Attachable_EMailClearing");
 	EmailItem.AutoMarkIncomplete = True;
 	
 	EmailItem.ChoiceButton = ValueIsFilled(Object.Ref) And ValueIsFilled(ThisObject[EmailRow.AttributeName]);
@@ -2057,7 +2057,7 @@ Procedure UpdateEmailChangeMethodSaaS()
 		Return;
 	EndIf;
 	
-	ContactInformation = ThisObject.ContactInformationAdditionalAttributesDetails;
+	ContactInformation = ContactInformationAdditionalAttributesDetails;
 	
 	EmailRow = ContactInformation.FindRows(New Structure("Kind", ContactInformationKind("UserEmail")))[0];
 	EmailItem = Items[EmailRow.AttributeName];
@@ -2582,7 +2582,7 @@ EndProcedure
 Function DetermineContactInformationItemsAvailability()
 	
 	Result = New Map;
-	For Each ContactInformationRow In ThisObject.ContactInformationAdditionalAttributesDetails Do // ValueTableRow: см. УправлениеКонтактнойИнформацией.НоваяКонтактнаяИнформация
+	For Each ContactInformationRow In ContactInformationAdditionalAttributesDetails Do // ValueTableRow of See ContactsManager.NewContactInformation
 		ContactInformationKindActions = ActionsWithSaaSUser.ContactInformation.Get(ContactInformationRow.Kind);
 		If ContactInformationKindActions = Undefined Then
 			// Service manager does not manage whether this kind of contact information can be edited.

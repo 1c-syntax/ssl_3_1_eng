@@ -15,10 +15,10 @@
 // Parameters:
 //  ContactsTableName   - String - an interaction subject table name, where search is required.
 //                                   For example, "Documents.CustomerOrder".
-//  SearchQueryText - String - a query fragment for the search is specified to this parameter. When performing 
+//  QueryTextForSearch - String - a query fragment for the search is specified to this parameter. When performing 
 //                                   a query, a reference to an interaction subject is inserted in the &Subject query parameter.
 //
-Procedure OnSearchForContacts(Val ContactsTableName, SearchQueryText) Export
+Procedure OnSearchForContacts(Val ContactsTableName, QueryTextForSearch) Export
 	
 	
 	

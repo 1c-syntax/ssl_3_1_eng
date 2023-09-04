@@ -36,7 +36,7 @@ Function SearchIndexIsRelevant() Export
 	
 EndFunction
 
-// Flag status for the full text search setting form.
+// Check box state for the full-text search setup form.
 //
 // Returns: 
 //   Number - 

@@ -181,7 +181,7 @@ EndProcedure
 // Sets the visibility conditions of the command on the form, depending on the context.
 //
 // Parameters:
-//   Command      - ValueTableRow: см. УправлениеПечатью.СоздатьКоллекциюКомандПечати
+//   Command      - ValueTableRow of See PrintManagement.CreatePrintCommandsCollection
 //   Attribute     - String                - an object attribute name.
 //   Value     - Arbitrary          - an object attribute value. The parameter is required for all kinds of
 //                                          comparisons except for Filled and NotFilled.

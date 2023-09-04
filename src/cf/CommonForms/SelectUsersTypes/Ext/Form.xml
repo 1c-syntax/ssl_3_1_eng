@@ -122,7 +122,7 @@
 							<ContextMenu name="PurposeCheckBoxContextMenu" id="64"/>
 							<ExtendedTooltip name="PurposeCheckBoxExtendedTooltip" id="65"/>
 						</CheckBoxField>
-						<InputField name="AssignmentPresentation" id="60">
+						<InputField name="PurposePresentation" id="60">
 							<DataPath>Purpose.Presentation</DataPath>
 							<ReadOnly>true</ReadOnly>
 							<Title>
@@ -132,8 +132,8 @@
 								</v8:item>
 							</Title>
 							<EditMode>EnterOnInput</EditMode>
-							<ContextMenu name="AssignmentPresentationContextMenu" id="61"/>
-							<ExtendedTooltip name="AssignmentPresentationExtendedTooltip" id="62"/>
+							<ContextMenu name="PurposePresentationContextMenu" id="61"/>
+							<ExtendedTooltip name="PurposePresentationExtendedTooltip" id="62"/>
 						</InputField>
 					</ChildItems>
 				</ColumnGroup>

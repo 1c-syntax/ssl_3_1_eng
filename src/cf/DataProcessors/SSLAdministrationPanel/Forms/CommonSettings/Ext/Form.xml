@@ -512,7 +512,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="PlacemarkGroupExtendedTooltip" id="2259"/>
+							<ExtendedTooltip name="GroupLabelsExtendedTooltip" id="2259"/>
 							<ChildItems>
 								<Button name="Labels" id="2260">
 									<Type>Hyperlink</Type>
@@ -898,7 +898,7 @@
 									<ExtendedTooltip name="GroupServerAddressesExtendedTooltip" id="2184"/>
 									<ChildItems>
 										<InputField name="TimestampServersAddresses" id="2191">
-											<DataPath>TimeStampServerAddressConstant</DataPath>
+											<DataPath>ConstantTimestampServersAddresses</DataPath>
 											<TitleLocation>Top</TitleLocation>
 											<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 											<AutoMaxHeight>false</AutoMaxHeight>
@@ -1165,7 +1165,7 @@
 					<ExtendedTooltip name="CheckSignaturesAtServerGroupExtendedTooltip" id="2213"/>
 					<ChildItems>
 						<CheckBoxField name="VerifyDigitalSignaturesOnTheServer" id="2239">
-							<DataPath>ConstantVerifyElectronicSignaturesOnServer</DataPath>
+							<DataPath>ConstantVerifyDigitalSignaturesOnTheServer</DataPath>
 							<TitleLocation>Right</TitleLocation>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 							<CheckBoxType>Auto</CheckBoxType>
@@ -1187,7 +1187,7 @@
 							</Events>
 						</CheckBoxField>
 						<CheckBoxField name="GenerateDigitalSignaturesAtServer" id="2242">
-							<DataPath>ConstantCreateElectronicSignaturesOnServer</DataPath>
+							<DataPath>ConstantGenerateDigitalSignaturesAtServer</DataPath>
 							<TitleLocation>Right</TitleLocation>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 							<CheckBoxType>Auto</CheckBoxType>
@@ -1693,7 +1693,7 @@ See also &lt;link http://1c.ru/news/info.jsp?id=25491&gt;restriction of 12 cores
 				<v8:Type>cfg:EnumRef.CryptographySignatureTypes</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="TimeStampServerAddressConstant" id="5">
+		<Attribute name="ConstantTimestampServersAddresses" id="5">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -1735,7 +1735,7 @@ See also &lt;link http://1c.ru/news/info.jsp?id=25491&gt;restriction of 12 cores
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="ConstantVerifyElectronicSignaturesOnServer" id="15">
+		<Attribute name="ConstantVerifyDigitalSignaturesOnTheServer" id="15">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -1746,7 +1746,7 @@ See also &lt;link http://1c.ru/news/info.jsp?id=25491&gt;restriction of 12 cores
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="ConstantCreateElectronicSignaturesOnServer" id="16">
+		<Attribute name="ConstantGenerateDigitalSignaturesAtServer" id="16">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>

@@ -443,7 +443,7 @@ Function SaveAtServer(RowsIDs, PathToDirectory = "")
 				Prefix = "";
 			EndIf;
 			Name = Prefix + Extension.Name + "_" + Extension.Version + ".cfe";
-			Location = PutToTempStorage(Extension.GetData(), ThisObject.UUID);
+			Location = PutToTempStorage(Extension.GetData(), UUID);
 			TransferableFileDescription = New TransferableFileDescription(Name, Location);
 			FilesToSave.Add(TransferableFileDescription);
 		EndIf;

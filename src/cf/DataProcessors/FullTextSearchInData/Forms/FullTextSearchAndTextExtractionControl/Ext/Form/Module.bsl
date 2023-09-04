@@ -348,10 +348,10 @@ Function SaveAttributeValue(DataPathAttribute)
 	EndIf;
 
 	ConstantManager = Constants[ConstantName];
-	ConstantValue1 = ConstantsSet[ConstantName];
+	ConstantValue = ConstantsSet[ConstantName];
 	
-	If ConstantManager.Get() <> ConstantValue1 Then
-		ConstantManager.Set(ConstantValue1);
+	If ConstantManager.Get() <> ConstantValue Then
+		ConstantManager.Set(ConstantValue);
 	EndIf;
 	
 	Result.ConstantName = ConstantName;

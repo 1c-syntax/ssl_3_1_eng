@@ -100,8 +100,8 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 	Types.Add(Metadata.Constants.VolumePathIgnoreRegionalSettings);
 	
 	TypesToExclude = FilesCatalogsAndStorageOptionObjects().StorageObjects;
-	For Each TypeToExclude In TypesToExclude Do
-		Types.Add(Common.MetadataObjectByFullName(TypeToExclude.Key));
+	For Each IsExcludableType In TypesToExclude Do
+		Types.Add(Common.MetadataObjectByFullName(IsExcludableType.Key));
 	EndDo;
 	
 EndProcedure

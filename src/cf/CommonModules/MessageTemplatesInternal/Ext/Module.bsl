@@ -696,9 +696,9 @@ Procedure DefineAttributesAndAttachmentsList(TemplateInfo, TemplateParameters)
 				EndIf;
 				DefinePrintFormsList(MetadataObject3, TemplateInfo, ArbitraryParameter.Key);
 			Else
-				ArbitraryAttributesPresentation = NStr("en = 'Custom';");
+				Arbitrary_ParametersPresentation = NStr("en = 'Custom';");
 				Prefix = "Arbitrary_Parameters";
-				RelatedObjectAttributes = RelatedObjectAttributes(TemplateInfo.Attributes, Prefix, ArbitraryAttributesPresentation);
+				RelatedObjectAttributes = RelatedObjectAttributes(TemplateInfo.Attributes, Prefix, Arbitrary_ParametersPresentation);
 				NewString1 = RelatedObjectAttributes.Add();
 				NewString1.Name = Prefix + "." + ArbitraryParameter.Key;
 				NewString1.Presentation = ArbitraryParameter.Value.Presentation;
@@ -706,9 +706,9 @@ Procedure DefineAttributesAndAttachmentsList(TemplateInfo, TemplateParameters)
 				NewString1.ArbitraryParameter = True;
 			EndIf;
 		Else
-			ArbitraryAttributesPresentation = NStr("en = 'Custom';");
+			Arbitrary_ParametersPresentation = NStr("en = 'Custom';");
 			Prefix = "Arbitrary_Parameters";
-			RelatedObjectAttributes = RelatedObjectAttributes(TemplateInfo.Attributes, Prefix, ArbitraryAttributesPresentation);
+			RelatedObjectAttributes = RelatedObjectAttributes(TemplateInfo.Attributes, Prefix, Arbitrary_ParametersPresentation);
 			NewString1 = RelatedObjectAttributes.Add();
 			NewString1.Name = Prefix + "." + ArbitraryParameter.Key;
 			NewString1.Presentation = ArbitraryParameter.Value.Presentation;

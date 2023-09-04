@@ -541,7 +541,7 @@
 					<xr:ConditionalSeparation/>
 				</xr:Item>
 				<xr:Item>
-					<xr:Metadata>Constant.DoNotUseSeparationByDataAreas</xr:Metadata>
+					<xr:Metadata>Constant.NotUseSeparationByDataAreas</xr:Metadata>
 					<xr:Use>DontUse</xr:Use>
 					<xr:ConditionalSeparation/>
 				</xr:Item>

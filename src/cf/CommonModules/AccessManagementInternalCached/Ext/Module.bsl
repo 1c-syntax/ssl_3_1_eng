@@ -455,7 +455,7 @@ EndFunction
 // Returns:
 //  Boolean
 //
-Function ConstantRestrictAccessAtRecordLevel() Export
+Function ConstantLimitAccessAtRecordLevel() Export
 	
 	Return Constants.LimitAccessAtRecordLevel.Get();
 	
@@ -466,9 +466,9 @@ EndFunction
 // Returns:
 //  Boolean
 //
-Function LimitAccessAtRecordLevelUniversallyConstant() Export
+Function ConstantLimitAccessAtRecordLevelUniversally() Export
 	
-	Return AccessManagementInternal.LimitAccessAtRecordLevelUniversallyConstant();
+	Return AccessManagementInternal.ConstantLimitAccessAtRecordLevelUniversally();
 	
 EndFunction
 
@@ -984,7 +984,7 @@ Function LastCheckOfAllowedSetsVersion() Export
 	
 EndFunction
 
-Function RolesNamesBasicRights(ForExternalUsers) Export
+Function RolesNamesBasicAccess(ForExternalUsers) Export
 	
 	RolesNames = New Array;
 	
@@ -993,7 +993,7 @@ Function RolesNamesBasicRights(ForExternalUsers) Export
 	For Each Role In Metadata.Roles Do
 		NameOfRole = Role.Name;
 		
-		If Not StrStartsWith(Upper(NameOfRole), Upper("BasicRights")) Then
+		If Not StrStartsWith(Upper(NameOfRole), Upper("BasicAccess")) Then
 			Continue;
 		EndIf;
 		RoleForExternalUsers = RolesAssignment.ForExternalUsersOnly.Get(Role.Name) <> Undefined;

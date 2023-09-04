@@ -398,7 +398,7 @@ Function ExportByRule(
 	
 	ExportedObjects          = OCR.Exported_;
 	AllObjectsExported         = OCR.AllObjectsExported;
-	DontReplaceObjectOnImport = OCR.DontReplace;
+	DontReplaceObjectOnImport = OCR.NotReplace;
 	DontCreateIfNotFound     = OCR.DontCreateIfNotFound;
 	OnExchangeObjectByRefSetGIUDOnly     = OCR.OnExchangeObjectByRefSetGIUDOnly;
 	DontReplaceObjectCreatedInDestinationInfobase = OCR.DontReplaceObjectCreatedInDestinationInfobase;
@@ -893,7 +893,7 @@ Function ExportByRule(
 			WriteExchangeObjectPriority(ExchangeObjectsPriority, Receiver);
 			
 			If DontReplaceObjectOnImport Then
-				SetAttribute(Receiver, "DontReplace",	"true");
+				SetAttribute(Receiver, "NotReplace",	"true");
 			EndIf;
 			
 			If Not IsBlankString(AutonumberingPrefix) Then
@@ -1933,7 +1933,7 @@ EndFunction
 // Returns:
 //  Boolean - 
 //
-Function ErrorFlag() Export
+Function FlagErrors() Export
 	
 	If TypeOf(ErrorFlagField) <> Type("Boolean") Then
 		
@@ -2115,7 +2115,7 @@ Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 		OpenExportFile();
 	EndIf;
 	
-	If ErrorFlag() Then
+	If FlagErrors() Then
 		ExchangeFile = Undefined;
 		FinishKeepExchangeProtocol();
 		Return;
@@ -2133,7 +2133,7 @@ Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 		
 		DataProcessorForDataImport().ImportExchangeRules(XMLRules, "String");
 		
-		If DataProcessorForDataImport().ErrorFlag() Then
+		If DataProcessorForDataImport().FlagErrors() Then
 			
 			MessageString = NStr("en = 'Peer infobase error: %1';");
 			MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, DataProcessorForDataImport().ErrorMessageString());
@@ -2175,7 +2175,7 @@ Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 	
 	If IsExchangeOverExternalConnection() Then
 		
-		If Not ErrorFlag() Then
+		If Not FlagErrors() Then
 			
 			DataProcessorForDataImport().ExternalConnectionAfterDataImport();
 			
@@ -2267,7 +2267,7 @@ Procedure UnloadRegister(RecordSetForExport,
 	
 	ExportingEmptySet = RegisterRecordCount = 0;
 	If ExportingEmptySet Then
-		SetAttribute(Receiver, "BlankSet",	True);
+		SetAttribute(Receiver, "IsEmptySet",	True);
 	EndIf;
 	
 	Receiver.WriteStartElement("Filter");
@@ -2419,7 +2419,7 @@ Procedure RunDataImport() Export
 			
 			RunReadingData(MessageReader);
 			
-			If ErrorFlag() Then
+			If FlagErrors() Then
 				Raise NStr("en = 'Data import errors.';");
 			EndIf;
 			
@@ -2428,7 +2428,7 @@ Procedure RunDataImport() Export
 			
 			ExecuteHandlerAfterImportData();
 			
-			If ErrorFlag() Then
+			If FlagErrors() Then
 				Raise NStr("en = 'Data import errors.';");
 			EndIf;
 			
@@ -2678,7 +2678,7 @@ Procedure ExecuteExchangeMessageAnalysis(AnalysisParameters = Undefined) Export
 			// Reading data from the exchange message.
 			ReadDataInAnalysisMode(MessageReader, AnalysisParameters);
 			
-			If ErrorFlag() Then
+			If FlagErrors() Then
 				Raise NStr("en = 'Data analysis errors.';");
 			EndIf;
 			
@@ -2896,7 +2896,7 @@ Procedure ExternalConnectionAfterDataImport() Export
 	ExecuteWriteNotWrittenObjects();
 	
 	// AfterImportData handler.
-	If Not ErrorFlag() Then
+	If Not FlagErrors() Then
 		
 		If Not IsBlankString(Conversion.AfterImportData) Then
 			
@@ -2921,7 +2921,7 @@ Procedure ExternalConnectionAfterDataImport() Export
 		
 	EndIf;
 	
-	If Not ErrorFlag() Then
+	If Not FlagErrors() Then
 		
 		// Posting documents in queue.
 		ExecuteDeferredDocumentsPosting();
@@ -2929,7 +2929,7 @@ Procedure ExternalConnectionAfterDataImport() Export
 		
 	EndIf;
 	
-	If Not ErrorFlag() Then
+	If Not FlagErrors() Then
 		
 		BeginTransaction();
 		Try
@@ -2955,7 +2955,7 @@ Procedure ExternalConnectionAfterDataImport() Export
 		
 	EndIf;
 	
-	If Not ErrorFlag() Then
+	If Not FlagErrors() Then
 		
 		If HasObjectRegistrationDataAdjustment = True Then
 			
@@ -3014,7 +3014,7 @@ Procedure ExternalConnectionCommitTransactionOnDataImport() Export
 	
 	If UseTransactions Then
 		
-		If ErrorFlag() Then
+		If FlagErrors() Then
 			RollbackTransaction();
 		Else
 			CommitTransaction();
@@ -3085,7 +3085,7 @@ Function RulesInformation(IsCorrespondentRules = False) Export
 	// Function return value.
 	InfoString = "";
 	
-	If ErrorFlag() Then
+	If FlagErrors() Then
 		Return InfoString;
 	EndIf;
 	
@@ -4452,7 +4452,7 @@ Procedure WriteToFile(Node)
 		// ============================ {Start: Data exchange through external connection}.
 		DataProcessorForDataImport().ExternalConnectionImportDataFromXMLString(InformationToWriteToFile);
 		
-		If DataProcessorForDataImport().ErrorFlag() Then
+		If DataProcessorForDataImport().FlagErrors() Then
 			
 			MessageString = NStr("en = 'Peer infobase error: %1';");
 			MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, DataProcessorForDataImport().ErrorMessageString());
@@ -5012,7 +5012,7 @@ EndFunction
 //     * PredefinedDataReadValues - Structure
 //     * Exported_ - ValueTable
 //     * ExportSourcePresentation - Boolean
-//     * DontReplace - Boolean
+//     * NotReplace - Boolean
 //     * RememberExportedData - Boolean
 //     * AllObjectsExported - Boolean
 //     * SearchFields - String
@@ -5063,7 +5063,7 @@ EndFunction
 //     * Receiver - Arbitrary
 //     * ConversionRule - Arbitrary
 //     * GetFromIncomingData - Boolean
-//     * DontReplace - Boolean
+//     * NotReplace - Boolean
 //     * IsRequiredProperty - Boolean
 //     * BeforeExport - Arbitrary
 //     * BeforeExportHandlerName - Arbitrary
@@ -5192,7 +5192,7 @@ Procedure ImportPGCR(ExchangeRules, PropertiesTable, DisabledProperties, Synchro
 	NewRow.DisabledGroupRules = PropertyConversionRuleTable.Copy();
 	
 	// 
-	NewRow.DontReplace               = False;
+	NewRow.NotReplace               = False;
 	NewRow.GetFromIncomingData = False;
 	NewRow.SimplifiedPropertyExport = False;
 	
@@ -5242,8 +5242,8 @@ Procedure ImportPGCR(ExchangeRules, PropertiesTable, DisabledProperties, Synchro
 		ElsIf NodeName = "Order" Then
 			NewRow.Order = deElementValue(ExchangeRules, NumberType);
 			
-		ElsIf NodeName = "DontReplace" Then
-			NewRow.DontReplace = deElementValue(ExchangeRules, BooleanType);
+		ElsIf NodeName = "NotReplace" Then
+			NewRow.NotReplace = deElementValue(ExchangeRules, BooleanType);
 			
 		ElsIf NodeName = "ConversionRuleCode" Then
 			NewRow.ConversionRule = deElementValue(ExchangeRules, StringType);
@@ -5274,7 +5274,7 @@ Procedure ImportPGCR(ExchangeRules, PropertiesTable, DisabledProperties, Synchro
 	
 	If NewRow.HasBeforeProcessExportHandler Then
 		
-		HandlerName = "ПКГС_[OCRName][PCRPropertyName]_ПередОбработкойВыгрузки_[PGCRName]_[OCRNameLength]";
+		HandlerName = "PGCR_[OCRName][PCRPropertyName]_BeforeProcessExport_[PGCRName]_[OCRNameLength]";
 		HandlerName = StrReplace(HandlerName, "[OCRName]", OCRName);
 		HandlerName = StrReplace(HandlerName, "[PCRPropertyName]", PCRPropertyName(NewRow));
 		HandlerName = StrReplace(HandlerName, "[PGCRName]", NewRow.Name);
@@ -5285,7 +5285,7 @@ Procedure ImportPGCR(ExchangeRules, PropertiesTable, DisabledProperties, Synchro
 	
 	If NewRow.HasAfterProcessExportHandler Then
 		
-		HandlerName = "ПКГС_[OCRName][PCRPropertyName]_ПослеОбработкиВыгрузки_[PGCRName]_[OCRNameLength]";
+		HandlerName = "PGCR_[OCRName][PCRPropertyName]_AfterProcessExport_[PGCRName]_[OCRNameLength]";
 		HandlerName = StrReplace(HandlerName, "[OCRName]", OCRName);
 		HandlerName = StrReplace(HandlerName, "[PCRPropertyName]", PCRPropertyName(NewRow));
 		HandlerName = StrReplace(HandlerName, "[PGCRName]", NewRow.Name);
@@ -5296,7 +5296,7 @@ Procedure ImportPGCR(ExchangeRules, PropertiesTable, DisabledProperties, Synchro
 	
 	If NewRow.HasBeforeExportHandler Then
 		
-		HandlerName = "ПКГС_[OCRName][PCRPropertyName]_ПередВыгрузкойСвойства_[PGCRName]_[OCRNameLength]";
+		HandlerName = "PGCR_[OCRName][PCRPropertyName]_BeforeExportProperty_[PGCRName]_[OCRNameLength]";
 		HandlerName = StrReplace(HandlerName, "[OCRName]", OCRName);
 		HandlerName = StrReplace(HandlerName, "[PCRPropertyName]", PCRPropertyName(NewRow));
 		HandlerName = StrReplace(HandlerName, "[PGCRName]", NewRow.Name);
@@ -5307,7 +5307,7 @@ Procedure ImportPGCR(ExchangeRules, PropertiesTable, DisabledProperties, Synchro
 	
 	If NewRow.HasOnExportHandler Then
 		
-		HandlerName = "ПКГС_[OCRName][PCRPropertyName]_ПриВыгрузкеСвойства_[PGCRName]_[OCRNameLength]";
+		HandlerName = "PGCR_[OCRName][PCRPropertyName]_OnExportProperty_[PGCRName]_[OCRNameLength]";
 		HandlerName = StrReplace(HandlerName, "[OCRName]", OCRName);
 		HandlerName = StrReplace(HandlerName, "[PCRPropertyName]", PCRPropertyName(NewRow));
 		HandlerName = StrReplace(HandlerName, "[PGCRName]", NewRow.Name);
@@ -5318,7 +5318,7 @@ Procedure ImportPGCR(ExchangeRules, PropertiesTable, DisabledProperties, Synchro
 	
 	If NewRow.HasAfterExportHandler Then
 		
-		HandlerName = "ПКГС_[OCRName][PCRPropertyName]_ПослеВыгрузкиСвойства_[PGCRName]_[OCRNameLength]";
+		HandlerName = "PGCR_[OCRName][PCRPropertyName]_AfterExportProperty_[PGCRName]_[OCRNameLength]";
 		HandlerName = StrReplace(HandlerName, "[OCRName]", OCRName);
 		HandlerName = StrReplace(HandlerName, "[PCRPropertyName]", PCRPropertyName(NewRow));
 		HandlerName = StrReplace(HandlerName, "[PGCRName]", NewRow.Name);
@@ -5397,7 +5397,7 @@ Procedure ImportPCR(ExchangeRules,
 	EndIf;
 	
 	// 
-	NewRow.DontReplace               = False;
+	NewRow.NotReplace               = False;
 	NewRow.GetFromIncomingData = False;
 	NewRow.IsRequiredProperty  = IsRequiredProperty;
 	NewRow.IsSearchField            = IsSearchField;
@@ -5435,8 +5435,8 @@ Procedure ImportPCR(ExchangeRules,
 		ElsIf NodeName = "Order" Then
 			NewRow.Order = deElementValue(ExchangeRules, NumberType);
 			
-		ElsIf NodeName = "DontReplace" Then
-			NewRow.DontReplace = deElementValue(ExchangeRules, BooleanType);
+		ElsIf NodeName = "NotReplace" Then
+			NewRow.NotReplace = deElementValue(ExchangeRules, BooleanType);
 			
 		ElsIf NodeName = "ConversionRuleCode" Then
 			NewRow.ConversionRule = deElementValue(ExchangeRules, StringType);
@@ -5473,7 +5473,7 @@ Procedure ImportPCR(ExchangeRules,
 	
 	If NewRow.HasBeforeExportHandler Then
 		
-		HandlerName = "ПКС_[OCRName][ParentName][PCRPropertyName]_ПередВыгрузкойСвойства_[PCRName]_[OCRNameLength]";
+		HandlerName = "PCR_[OCRName][ParentName][PCRPropertyName]_BeforeExportProperty_[PCRName]_[OCRNameLength]";
 		HandlerName = StrReplace(HandlerName, "[OCRName]", OCRName);
 		HandlerName = StrReplace(HandlerName, "[ParentName]", ParentName);
 		HandlerName = StrReplace(HandlerName, "[PCRPropertyName]", PCRPropertyName(NewRow));
@@ -5486,7 +5486,7 @@ Procedure ImportPCR(ExchangeRules,
 	
 	If NewRow.HasOnExportHandler Then
 		
-		HandlerName = "ПКС_[OCRName][ParentName][PCRPropertyName]_ПриВыгрузкеСвойства_[PCRName]_[OCRNameLength]";
+		HandlerName = "PCR_[OCRName][ParentName][PCRPropertyName]_OnExportProperty_[PCRName]_[OCRNameLength]";
 		HandlerName = StrReplace(HandlerName, "[OCRName]", OCRName);
 		HandlerName = StrReplace(HandlerName, "[ParentName]", ParentName);
 		HandlerName = StrReplace(HandlerName, "[PCRPropertyName]", PCRPropertyName(NewRow));
@@ -5499,7 +5499,7 @@ Procedure ImportPCR(ExchangeRules,
 	
 	If NewRow.HasAfterExportHandler Then
 		
-		HandlerName = "ПКС_[OCRName][ParentName][PCRPropertyName]_ПослеВыгрузкиСвойства_[PCRName]_[OCRNameLength]";
+		HandlerName = "PCR_[OCRName][ParentName][PCRPropertyName]_AfterExportProperty_[PCRName]_[OCRNameLength]";
 		HandlerName = StrReplace(HandlerName, "[OCRName]", OCRName);
 		HandlerName = StrReplace(HandlerName, "[ParentName]", ParentName);
 		HandlerName = StrReplace(HandlerName, "[PCRPropertyName]", PCRPropertyName(NewRow));
@@ -5638,7 +5638,7 @@ Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 	// 
 	
 	NewRow.RememberExportedData = True;
-	NewRow.DontReplace            = False;
+	NewRow.NotReplace            = False;
 	NewRow.ExchangeObjectsPriority = Enums.ExchangeObjectsPriorities.ExchangeObjectHigherPriority;
 	
 	NewRow.SearchInTabularSections = SearchTabularSectionsCollection();
@@ -5698,15 +5698,15 @@ Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 			NewRow.GenerateNewNumberOrCodeIfNotSet = deElementValue(ExchangeRules, BooleanType);
 			deWriteElement(XMLWriter, NodeName, NewRow.GenerateNewNumberOrCodeIfNotSet);
 						
-		ElsIf NodeName = "DoNotRememberExported" Then
+		ElsIf NodeName = "NotRememberExportedData" Then
 			
 			NewRow.RememberExportedData = Not deElementValue(ExchangeRules, BooleanType);
 			
-		ElsIf NodeName = "DontReplace" Then
+		ElsIf NodeName = "NotReplace" Then
 			
 			Value = deElementValue(ExchangeRules, BooleanType);
 			deWriteElement(XMLWriter, NodeName, Value);
-			NewRow.DontReplace = Value;
+			NewRow.NotReplace = Value;
 			
 		ElsIf NodeName = "Receiver" Then
 			
@@ -5781,28 +5781,28 @@ Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 		ElsIf NodeName = "BeforeExport" Then
 		
 			NewRow.BeforeExport = deElementValue(ExchangeRules, StringType);
-			HandlerName = "ПКО_[OCRName]_ПередВыгрузкойОбъекта";
+			HandlerName = "OCR_[OCRName]_BeforeExportObject";
 			NewRow.BeforeExportHandlerName = StrReplace(HandlerName, "[OCRName]", NewRow.Name);
 			NewRow.HasBeforeExportHandler = Not IsBlankString(NewRow.BeforeExport);
 			
 		ElsIf NodeName = "OnExport" Then
 			
 			NewRow.OnExport = deElementValue(ExchangeRules, StringType);
-			HandlerName = "ПКО_[OCRName]_ПриВыгрузкеОбъекта";
+			HandlerName = "OCR_[OCRName]_OnExportObject";
 			NewRow.OnExportHandlerName = StrReplace(HandlerName, "[OCRName]", NewRow.Name);
 			NewRow.HasOnExportHandler    = Not IsBlankString(NewRow.OnExport);
 			
 		ElsIf NodeName = "AfterExport" Then
 			
 			NewRow.AfterExport = deElementValue(ExchangeRules, StringType);
-			HandlerName = "ПКО_[OCRName]_ПослеВыгрузкиОбъекта";
+			HandlerName = "OCR_[OCRName]_AfterExportObject";
 			NewRow.AfterExportHandlerName = StrReplace(HandlerName, "[OCRName]", NewRow.Name);
 			NewRow.HasAfterExportHandler  = Not IsBlankString(NewRow.AfterExport);
 			
 		ElsIf NodeName = "AfterExportToFile" Then
 			
 			NewRow.AfterExportToFile = deElementValue(ExchangeRules, StringType);
-			HandlerName = "ПКО_[OCRName]_ПослеВыгрузкиОбъектаВФайлОбмена";
+			HandlerName = "OCR_[OCRName]_ПослеВыгрузкиОбъектаВФайлОбмена";
 			NewRow.AfterExportToFileHandlerName = StrReplace(HandlerName, "[OCRName]", NewRow.Name);
 			NewRow.HasAfterExportToFileHandler  = Not IsBlankString(NewRow.AfterExportToFile);
 			
@@ -5815,7 +5815,7 @@ Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 			If ExchangeMode = "Load" Then
 				
 				NewRow.BeforeImport               = Value;
-				HandlerName = "ПКО_[OCRName]_ПередЗагрузкойОбъекта";
+				HandlerName = "OCR_[OCRName]_BeforeImportObject";
 				NewRow.BeforeImportHandlerName = StrReplace(HandlerName, "[OCRName]", NewRow.Name);
 				NewRow.HasBeforeImportHandler = Not IsBlankString(Value);
 				
@@ -5832,7 +5832,7 @@ Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 			If ExchangeMode = "Load" Then
 				
 				NewRow.OnImport               = Value;
-				HandlerName = "ПКО_[OCRName]_ПриЗагрузкеОбъекта";
+				HandlerName = "OCR_[OCRName]_OnImportObject";
 				NewRow.OnImportHandlerName = StrReplace(HandlerName, "[OCRName]", NewRow.Name);
 				NewRow.HasOnImportHandler = Not IsBlankString(Value);
 				
@@ -5849,7 +5849,7 @@ Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 			If ExchangeMode = "Load" Then
 				
 				NewRow.AfterImport               = Value;
-				HandlerName = "ПКО_[OCRName]_ПослеЗагрузкиОбъекта";
+				HandlerName = "OCR_[OCRName]_AfterImportObject";
 				NewRow.AfterImportHandlerName = StrReplace(HandlerName, "[OCRName]", NewRow.Name);
 				NewRow.HasAfterImportHandler = Not IsBlankString(Value);
 				
@@ -5867,7 +5867,7 @@ Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 			If ExchangeMode = "Load" Then
 				
 				NewRow.SearchFieldSequence = Value;
-				HandlerName = "ПКО_[OCRName]_ПоследовательностьПолейПоиска";
+				HandlerName = "OCR_[OCRName]_SearchFieldSequence";
 				NewRow.SearchFieldSequenceHandlerName = StrReplace(HandlerName, "[OCRName]", NewRow.Name);
 				
 			Else
@@ -6236,17 +6236,17 @@ Procedure ImportDPR(ExchangeRules, NewRow)
 
 		ElsIf NodeName = "BeforeProcessRule" Then
 			NewRow.BeforeProcess = deElementValue(ExchangeRules, StringType);
-			HandlerName = "ПОД_[DPRName]_ПередОбработкойПравила";
+			HandlerName = "DPR_[DPRName]_BeforeProcessRule";
 			NewRow.BeforeProcessHandlerName = StrReplace(HandlerName, "[DPRName]", NewRow.Name);
 			
 		ElsIf NodeName = "AfterProcessRule" Then
 			NewRow.AfterProcess = deElementValue(ExchangeRules, StringType);
-			HandlerName = "ПОД_[DPRName]_ПослеОбработкиПравила";
+			HandlerName = "DPR_[DPRName]_AfterProcessRule";
 			NewRow.AfterProcessHandlerName = StrReplace(HandlerName, "[DPRName]", NewRow.Name);
 			
 		ElsIf NodeName = "BeforeDeleteObject" Then
 			NewRow.BeforeDeleteRow = deElementValue(ExchangeRules, StringType);
-			HandlerName = "ПОД_[DPRName]_ПередУдалениемОбъекта";
+			HandlerName = "DPR_[DPRName]_BeforeDeleteObject";
 			NewRow.BeforeDeleteHandlerName = StrReplace(HandlerName, "[DPRName]", NewRow.Name);
 			
 		// Exit.
@@ -6725,22 +6725,22 @@ Procedure ImportDER(ExchangeRules)
 
 		ElsIf NodeName = "BeforeProcessRule" Then
 			NewRow.BeforeProcess = deElementValue(ExchangeRules, StringType);
-			HandlerName = "ПВД_[DERName]_ПередОбработкойПравила";
+			HandlerName = "DER_[DERName]_BeforeProcessRule";
 			NewRow.BeforeProcessHandlerName = StrReplace(HandlerName, "[DERName]", NewRow.Name);
 			
 		ElsIf NodeName = "AfterProcessRule" Then
 			NewRow.AfterProcess = deElementValue(ExchangeRules, StringType);
-			HandlerName = "ПВД_[DERName]_ПослеОбработкиПравила";
+			HandlerName = "DER_[DERName]_AfterProcessRule";
 			NewRow.AfterProcessHandlerName = StrReplace(HandlerName, "[DERName]", NewRow.Name);
 		
 		ElsIf NodeName = "BeforeExportObject" Then
 			NewRow.BeforeExport = deElementValue(ExchangeRules, StringType);
-			HandlerName = "ПВД_[DERName]_ПередВыгрузкойОбъекта";
+			HandlerName = "DER_[DERName]_BeforeExportObject";
 			NewRow.BeforeExportHandlerName = StrReplace(HandlerName, "[DERName]", NewRow.Name);
 			
 		ElsIf NodeName = "AfterExportObject" Then
 			NewRow.AfterExport = deElementValue(ExchangeRules, StringType);
-			HandlerName = "ПВД_[DERName]_ПослеВыгрузкиОбъекта";
+			HandlerName = "DER_[DERName]_AfterExportObject";
 			NewRow.AfterExportHandlerName = StrReplace(HandlerName, "[DERName]", NewRow.Name);
 			
 		ElsIf (NodeName = "Rule") And (ExchangeRules.NodeType = XMLNodeTypeEndElement) Then
@@ -6811,7 +6811,7 @@ Procedure ImportConversionRuleExchangeObjectsExportModes(XMLWriter)
 	NewRow = ConversionRulesCollection().Add();
 	
 	NewRow.RememberExportedData = True;
-	NewRow.DontReplace            = False;
+	NewRow.NotReplace            = False;
 	NewRow.ExchangeObjectsPriority = Enums.ExchangeObjectsPriorities.ExchangeObjectHigherPriority;
 	
 	NewRow.Properties            = PropertyConversionRuleTable.Copy();
@@ -6829,7 +6829,7 @@ Procedure ImportConversionRuleExchangeObjectsExportModes(XMLWriter)
 	Values.Insert("ExportByCondition",        "ExportByCondition");
 	Values.Insert("ExportIfNecessary", "ExportIfNecessary");
 	Values.Insert("ManualExport",          "ManualExport");
-	Values.Insert("DoNotExport",               "DoNotExport");
+	Values.Insert("NotExport",               "NotExport");
 	NewRow.PredefinedDataReadValues = Values;
 	
 	SearchInTabularSections = New ValueTable;
@@ -7349,7 +7349,7 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 	
 	If ConversionRulesTable.Count() = 0 Then
 		ImportExchangeRules(ExchangeFile, "XMLReader");
-		If ErrorFlag() Then
+		If FlagErrors() Then
 			Raise NStr("en = 'Cannot load data exchange rules.';");
 		EndIf;
 	Else
@@ -7408,7 +7408,7 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 			deSkip(ExchangeFile);
 		Else
 			ImportDataTypeInformation();
-			If ErrorFlag() Then
+			If FlagErrors() Then
 				Raise NStr("en = 'Errors occurred while importing information about the data types.';");
 			EndIf;
 		EndIf;
@@ -8099,7 +8099,7 @@ Procedure ReadSearchPropertiesFromFile(SearchProperties, SearchPropertiesDontRep
 				
 			EndIf;
 			
-			DontReplaceProperty = deAttribute(ExchangeFile, BooleanType, "DontReplace");
+			DontReplaceProperty = deAttribute(ExchangeFile, BooleanType, "NotReplace");
 			
 			SearchByEqualDate = SearchByEqualDate 
 						Or deAttribute(ExchangeFile, BooleanType, "SearchByEqualDate");
@@ -8572,11 +8572,11 @@ Function FindObjectByRef(ObjectType,
 		
 	DontCreateObjectIfNotFound = DontCreateObjectIfNotFound Or FlagDontCreateObjectIfNotFound;
 	
-	DontReplaceObjectCreatedInDestinationInfobaseFlag = deAttribute(ExchangeFile, BooleanType, "DontReplaceObjectCreatedInDestinationInfobase");
-	If Not ValueIsFilled(DontReplaceObjectCreatedInDestinationInfobaseFlag) Then
+	FlagDontReplaceObjectCreatedInDestinationInfobase = deAttribute(ExchangeFile, BooleanType, "DontReplaceObjectCreatedInDestinationInfobase");
+	If Not ValueIsFilled(FlagDontReplaceObjectCreatedInDestinationInfobase) Then
 		DontReplaceObjectCreatedInDestinationInfobase = False;
 	Else
-		DontReplaceObjectCreatedInDestinationInfobase = DontReplaceObjectCreatedInDestinationInfobaseFlag;	
+		DontReplaceObjectCreatedInDestinationInfobase = FlagDontReplaceObjectCreatedInDestinationInfobase;	
 	EndIf;
 	
 	SearchBySearchFieldsIfNotFoundByID = deAttribute(ExchangeFile, BooleanType, "ContinueSearch");
@@ -9009,7 +9009,7 @@ Procedure ImportTabularSection(Object, TabularSectionName, GeneralDocumentTypeIn
 	
 	UUID = StrReplace(String(New UUID), "-", "_");
 	
-	OrderFieldName = "ПолеСортировки_[UUID]";
+	OrderFieldName = "SortField_[UUID]";
 	OrderFieldName = StrReplace(OrderFieldName, "[UUID]", UUID);
 	
 	IteratorColumnName = "ПолеИтератора_[UUID]";
@@ -9655,7 +9655,7 @@ Function ReadObjectChangeRecordInfo()
 	SourceUUID = deAttribute(ExchangeFile, StringType, "DestinationUUID");
 	DestinationType                     = deAttribute(ExchangeFile, StringType, "SourceType");
 	SourceType                     = deAttribute(ExchangeFile, StringType, "DestinationType");
-	BlankSet                      = deAttribute(ExchangeFile, BooleanType, "BlankSet");
+	IsEmptySet                      = deAttribute(ExchangeFile, BooleanType, "IsEmptySet");
 	
 	Try
 		SourceUUID = New UUID(SourceUUID);
@@ -9692,7 +9692,7 @@ Function ReadObjectChangeRecordInfo()
 	RecordSet.Filter.SourceType.Set(SourceType);
 	RecordSet.Filter.DestinationType.Set(DestinationType);
 	
-	If Not BlankSet Then
+	If Not IsEmptySet Then
 		
 		// Adding a single record to the set.
 		SetRow = RecordSet.Add();
@@ -9817,7 +9817,7 @@ Function ReadRegisterRecordSet()
 	ObjectTypeString       = deAttribute(ExchangeFile, StringType, "Type");
 	ExchangeObjectPriority  = ExchangeObjectPriority(ExchangeFile);
 	
-	IsEmptySet			= deAttribute(ExchangeFile, BooleanType, "BlankSet");
+	IsEmptySet			= deAttribute(ExchangeFile, BooleanType, "IsEmptySet");
 	If Not ValueIsFilled(IsEmptySet) Then
 		IsEmptySet = False;
 	EndIf;
@@ -9959,7 +9959,7 @@ Function ReadRegisterRecordSet()
 			IsParameterForObject = (NodeName = "ParameterValue");
 			
 			Name                = deAttribute(ExchangeFile, StringType, "Name");
-			DontReplaceProperty = deAttribute(ExchangeFile, BooleanType, "DontReplace");
+			DontReplaceProperty = deAttribute(ExchangeFile, BooleanType, "NotReplace");
 			OCRName             = deAttribute(ExchangeFile, StringType, "OCRName");
 			
 			// Reading and setting the property value.
@@ -10232,7 +10232,7 @@ Function ReadObject(UUIDAsString1 = "")
 	Gsn					= deAttribute(ExchangeFile, NumberType,  "Gsn");
 	Source				= deAttribute(ExchangeFile, StringType, "Source");
 	RuleName				= deAttribute(ExchangeFile, StringType, "RuleName");
-	DontReplaceObject 		= deAttribute(ExchangeFile, BooleanType, "DontReplace");
+	DontReplaceObject 		= deAttribute(ExchangeFile, BooleanType, "NotReplace");
 	AutonumberingPrefix	= deAttribute(ExchangeFile, StringType, "AutonumberingPrefix");
 	ExchangeObjectPriority  = ExchangeObjectPriority(ExchangeFile);
 	
@@ -10429,7 +10429,7 @@ Function ReadObject(UUIDAsString1 = "")
 
 			
 			Name                = deAttribute(ExchangeFile, StringType, "Name");
-			DontReplaceProperty = deAttribute(ExchangeFile, BooleanType, "DontReplace");
+			DontReplaceProperty = deAttribute(ExchangeFile, BooleanType, "NotReplace");
 			OCRName             = deAttribute(ExchangeFile, StringType, "OCRName");
 			
 			If ConstantOperatingMode Then
@@ -10628,8 +10628,8 @@ Function ReadObject(UUIDAsString1 = "")
 			EndIf;
 			
 			Name                = deAttribute(ExchangeFile, StringType, "Name");
-			DontReplaceProperty = deAttribute(ExchangeFile, BooleanType, "DontReplace");
-			DontClear          = deAttribute(ExchangeFile, BooleanType, "DontClear");
+			DontReplaceProperty = deAttribute(ExchangeFile, BooleanType, "NotReplace");
+			NotClear          = deAttribute(ExchangeFile, BooleanType, "NotClear");
 
 			If ObjectFound And DontReplaceProperty Then
 				
@@ -10656,7 +10656,7 @@ Function ReadObject(UUIDAsString1 = "")
 			ElsIf NodeName = "RecordSet" Then
 				
 				// Import register records.
-				ImportRegisterRecords(Object, Name, Not DontClear, TypesInformation, ObjectParameters, Rule);
+				ImportRegisterRecords(Object, Name, Not NotClear, TypesInformation, ObjectParameters, Rule);
 				
 				// 
 				If Metadata.AccountingRegisters.Find(Name) <> Undefined Then
@@ -11072,19 +11072,19 @@ Procedure RecordAccountingRegisters(Recorder, DeferredMotionRecordingTables)
 			SetRecord = RegisterRecordSet.Add();
 			FillPropertyValues(SetRecord, TableRow);
 			
-			DrExtDimensionNumber = 0;
+			ExtDimensionNumberDr = 0;
 			For Each DrDescriptionOfExtDimensionType In SetRecord.AccountDr.ExtDimensionTypes Do
 				
-				DrExtDimensionNumber = DrExtDimensionNumber + 1;
-				SetRecord.ExtDimensionsDr[DrDescriptionOfExtDimensionType.ExtDimensionType] = TableRow["ExtDimensionDr" + String(DrExtDimensionNumber)];
+				ExtDimensionNumberDr = ExtDimensionNumberDr + 1;
+				SetRecord.ExtDimensionsDr[DrDescriptionOfExtDimensionType.ExtDimensionType] = TableRow["ExtDimensionDr" + String(ExtDimensionNumberDr)];
 				
 			EndDo;
 			
-			CrExtDimensionNumber = 0;
+			ExtDimensionNumberCr = 0;
 			For Each DescriptionOfTypeOfExtDimensionOfCr In SetRecord.AccountCr.ExtDimensionTypes Do
 				
-				CrExtDimensionNumber = CrExtDimensionNumber + 1;
-				SetRecord.ExtDimensionsCr[DescriptionOfTypeOfExtDimensionOfCr.ExtDimensionType] = TableRow["ExtDimensionCr" + String(CrExtDimensionNumber)];
+				ExtDimensionNumberCr = ExtDimensionNumberCr + 1;
+				SetRecord.ExtDimensionsCr[DescriptionOfTypeOfExtDimensionOfCr.ExtDimensionType] = TableRow["ExtDimensionCr" + String(ExtDimensionNumberCr)];
 				
 			EndDo;
 			
@@ -11235,8 +11235,8 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 
 	
 	ObjectCollection1 = Undefined;
-	DontReplace        = PGCR.DontReplace;
-	DontClear         = False;
+	NotReplace        = PGCR.NotReplace;
+	NotClear         = False;
 	ExportGroupToFile = PGCR.ExportGroupToFile;
 	
 	// BeforeProcessExport handler
@@ -11249,7 +11249,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 			If ExportHandlersDebug Then
 				
 				ExecutePGCRHandlerBeforeExportProcessing(ExchangeFile, Source, Receiver, IncomingData, OutgoingData, OCR,
-																 PGCR, Cancel, ObjectCollection1, DontReplace, PropertyCollectionNode, DontClear);
+																 PGCR, Cancel, ObjectCollection1, NotReplace, PropertyCollectionNode, NotClear);
 				
 			Else
 				
@@ -11304,15 +11304,15 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 		
 		CreateObjectsForXMLWriter(PropertyNodeStructure, ObjectCollectionNode, True, PGCR.Receiver, MasterNodeName);
 		
-		If DontReplace Then
+		If NotReplace Then
 			
-			AddAttributeForXMLWriter(PropertyNodeStructure, ObjectCollectionNode, "DontReplace", "true");
+			AddAttributeForXMLWriter(PropertyNodeStructure, ObjectCollectionNode, "NotReplace", "true");
 						
 		EndIf;
 		
-		If DontClear Then
+		If NotClear Then
 			
-			AddAttributeForXMLWriter(PropertyNodeStructure, ObjectCollectionNode, "DontClear", "true");
+			AddAttributeForXMLWriter(PropertyNodeStructure, ObjectCollectionNode, "NotClear", "true");
 						
 		EndIf;
 		
@@ -11331,15 +11331,15 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 		
 		CreateObjectsForXMLWriter(PropertyNodeStructure, ObjectCollectionNode, True, PGCR.Receiver, MasterNodeName);
 		
-		If DontReplace Then
+		If NotReplace Then
 			
-			AddAttributeForXMLWriter(PropertyNodeStructure, ObjectCollectionNode, "DontReplace", "true");
+			AddAttributeForXMLWriter(PropertyNodeStructure, ObjectCollectionNode, "NotReplace", "true");
 						
 		EndIf;
 		
-		If DontClear Then
+		If NotClear Then
 			
-			AddAttributeForXMLWriter(PropertyNodeStructure, ObjectCollectionNode, "DontClear", "true");
+			AddAttributeForXMLWriter(PropertyNodeStructure, ObjectCollectionNode, "NotClear", "true");
 						
 		EndIf;
 		
@@ -11807,11 +11807,11 @@ Procedure ExportItemPropertyType(PropertyNode1, PropertyType1)
 	
 EndProcedure
 
-Procedure _ExportExtDimension(Source, Receiver, IncomingData, OutgoingData, OCR, PCR, 
+Procedure _ExportExtDimension1(Source, Receiver, IncomingData, OutgoingData, OCR, PCR, 
 	PropertyCollectionNode = Undefined, CollectionObject = Undefined, Val ExportRefOnly = False)
 	
 	// Stubs to support debugging mechanism of event handler code.
-    Var DestinationType, Empty, Expression, DontReplace, PropertiesOCR, PropertyNode1;
+    Var DestinationType, Empty, Expression, NotReplace, PropertiesOCR, PropertyNode1;
 	
 	// Initialize the value.
 	Value = Undefined;
@@ -11831,7 +11831,7 @@ Procedure _ExportExtDimension(Source, Receiver, IncomingData, OutgoingData, OCR,
 				
 				ExecutePCRHandlerBeforeExportProperty(ExchangeFile, Source, Receiver, IncomingData, OutgoingData,
 															   PCR, OCR, CollectionObject, Cancel, Value, DestinationType, OCRName,
-															   OCRNameExtDimensionType, Empty, Expression, PropertyCollectionNode, DontReplace,
+															   OCRNameExtDimensionType, Empty, Expression, PropertyCollectionNode, NotReplace,
 															   ExportObject1);
 				
 			Else
@@ -12446,9 +12446,9 @@ Procedure ExportProperties(Source,
 				
 			EndIf;
 			
-			If PCR.DontReplace Then
+			If PCR.NotReplace Then
 				
-				SetAttribute(PropertyCollectionNode, "DontReplace",	"true");
+				SetAttribute(PropertyCollectionNode, "NotReplace",	"true");
 				
 			EndIf;
 			
@@ -12484,7 +12484,7 @@ Procedure ExportProperties(Source,
 					
 		ElsIf PCR.DestinationKind = "AccountExtDimensionTypes" Then
 			
-			_ExportExtDimension(Source, Receiver, IncomingData, OutgoingData, OCR, 
+			_ExportExtDimension1(Source, Receiver, IncomingData, OutgoingData, OCR, 
 				PCR, PropertyCollectionNode, CollectionObject, ExportRefOnly);
 			
 			Continue;
@@ -12518,7 +12518,7 @@ Procedure ExportProperties(Source,
 		//	
 		Value 	 = Undefined;
 		OCRName		 = PCR.ConversionRule;
-		DontReplace   = PCR.DontReplace;
+		NotReplace   = PCR.NotReplace;
 		
 		Empty		 = False;
 		Expression	 = Undefined;
@@ -12539,7 +12539,7 @@ Procedure ExportProperties(Source,
 					
 					ExecutePCRHandlerBeforeExportProperty(ExchangeFile, Source, Receiver, IncomingData, OutgoingData,
 																   PCR, OCR, CollectionObject, Cancel, Value, DestinationType, OCRName,
-																   OCRNameExtDimensionType, Empty, Expression, PropertyCollectionNode, DontReplace,
+																   OCRNameExtDimensionType, Empty, Expression, PropertyCollectionNode, NotReplace,
 																   ExportObject1);
 					
 				Else
@@ -12571,9 +12571,9 @@ Procedure ExportProperties(Source,
 		
 		CreateComplexInformationForXMLWriter(PropertyNodeStructure, PropertyNode1, PCR.XMLNodeRequiredOnExport, PCR.Receiver, PCR.ParameterForTransferName);
 							
-		If DontReplace Then
+		If NotReplace Then
 			
-			AddAttributeForXMLWriter(PropertyNodeStructure, PropertyNode1, "DontReplace", "true");			
+			AddAttributeForXMLWriter(PropertyNodeStructure, PropertyNode1, "NotReplace", "true");			
 						
 		EndIf;
 		
@@ -12992,7 +12992,7 @@ Procedure ExportChangeRecordedObjectData(RecordSetForExport)
 	
 EndProcedure
 
-Procedure ExportInfobaseObjectsMapRecord(SetRow, BlankSet)
+Procedure ExportInfobaseObjectsMapRecord(SetRow, IsEmptySet)
 	
 	Receiver = CreateNode("ObjectRegistrationInformation");
 	
@@ -13001,7 +13001,7 @@ Procedure ExportInfobaseObjectsMapRecord(SetRow, BlankSet)
 	SetAttribute(Receiver, "SourceType",                            SetRow.SourceType);
 	SetAttribute(Receiver, "DestinationType",                            SetRow.DestinationType);
 	
-	SetAttribute(Receiver, "BlankSet", BlankSet);
+	SetAttribute(Receiver, "IsEmptySet", IsEmptySet);
 	
 	Receiver.WriteEndElement(); // ИнформацияОРегистрацииОбъекта
 	
@@ -13377,7 +13377,7 @@ Function ExchangeRules(Source) Export
 	
 	ImportExchangeRules(Source, "XMLFile");
 	
-	If ErrorFlag() Then
+	If FlagErrors() Then
 		Return Undefined;
 	EndIf;
 	
@@ -13461,7 +13461,7 @@ Procedure InitPropertyConversionRuleTable(Tab)
 
 	Columns.Add("GetFromIncomingData", deTypeDetails("Boolean"));
 	
-	Columns.Add("DontReplace",              deTypeDetails("Boolean"));
+	Columns.Add("NotReplace",              deTypeDetails("Boolean"));
 	Columns.Add("IsRequiredProperty", deTypeDetails("Boolean"));
 	
 	Columns.Add("BeforeExport");
@@ -13597,7 +13597,7 @@ Procedure InitConversionRuleTable()
 	Columns.Add("Exported_",                     deTypeDetails("ValueTable"));
 	Columns.Add("ExportSourcePresentation", deTypeDetails("Boolean"));
 	
-	Columns.Add("DontReplace",                  deTypeDetails("Boolean"));
+	Columns.Add("NotReplace",                  deTypeDetails("Boolean"));
 	
 	Columns.Add("RememberExportedData",       deTypeDetails("Boolean"));
 	Columns.Add("AllObjectsExported",         deTypeDetails("Boolean"));
@@ -13878,9 +13878,9 @@ Procedure SupplementManagerArrayWithReferenceType(Managers, ManagersForExchangeP
 	TheTextOfTheSearchQuery = StrReplace(TheTextOfTheSearchQuery, "&MetadataTableName", StringFunctionsClientServer.SubstituteParametersToString("%1.%2", TypeName, Name));
 	SearchString = TheTextOfTheSearchQuery + " WHERE ";
 	
-	TextOfTheUploadRequest = "SELECT &SearchFieldsParameter FROM &MetadataTableName";
-	TextOfTheUploadRequest = StrReplace(TextOfTheUploadRequest, "&MetadataTableName", StringFunctionsClientServer.SubstituteParametersToString("%1.%2", TypeName, Name));
-	RefExportSearchString     = StrReplace(TextOfTheUploadRequest, "&SearchFieldsParameter", "#SearchFields#");
+	QueryTextExports = "SELECT &SearchFieldsParameter FROM &MetadataTableName";
+	QueryTextExports = StrReplace(QueryTextExports, "&MetadataTableName", StringFunctionsClientServer.SubstituteParametersToString("%1.%2", TypeName, Name));
+	RefExportSearchString     = StrReplace(QueryTextExports, "&SearchFieldsParameter", "#SearchFields#");
 	
 	RefType        = Type(RefTypeString1);
 	
@@ -14858,7 +14858,7 @@ EndProcedure
 
 Procedure ExecutePCRHandlerBeforeExportProperty(ExchangeFile, Source, Receiver, IncomingData, OutgoingData,
 														 PCR, OCR, CollectionObject, Cancel, Value, DestinationType, OCRName,
-														 OCRNameExtDimensionType, Empty, Expression, PropertyCollectionNode, DontReplace,
+														 OCRNameExtDimensionType, Empty, Expression, PropertyCollectionNode, NotReplace,
 														 ExportObject1)
 	
 	HandlerParameters = New Array();
@@ -14878,7 +14878,7 @@ Procedure ExecutePCRHandlerBeforeExportProperty(ExchangeFile, Source, Receiver, 
 	HandlerParameters.Add(Empty);
 	HandlerParameters.Add(Expression);
 	HandlerParameters.Add(PropertyCollectionNode);
-	HandlerParameters.Add(DontReplace);
+	HandlerParameters.Add(NotReplace);
 	HandlerParameters.Add(ExportObject1);
 	
 	Common.ExecuteObjectMethod(
@@ -14900,7 +14900,7 @@ Procedure ExecutePCRHandlerBeforeExportProperty(ExchangeFile, Source, Receiver, 
 	Empty = HandlerParameters[13];
 	Expression = HandlerParameters[14];
 	PropertyCollectionNode = HandlerParameters[15];
-	DontReplace = HandlerParameters[16];
+	NotReplace = HandlerParameters[16];
 	ExportObject1 = HandlerParameters[17];
 	
 EndProcedure
@@ -15015,7 +15015,7 @@ EndProcedure
 // PGCR handlers.
 
 Procedure ExecutePGCRHandlerBeforeExportProcessing(ExchangeFile, Source, Receiver, IncomingData, OutgoingData, OCR,
-														   PGCR, Cancel, ObjectCollection1, DontReplace, PropertyCollectionNode, DontClear)
+														   PGCR, Cancel, ObjectCollection1, NotReplace, PropertyCollectionNode, NotClear)
 	
 	HandlerParameters = New Array();
 	HandlerParameters.Add(ExchangeFile);
@@ -15027,9 +15027,9 @@ Procedure ExecutePGCRHandlerBeforeExportProcessing(ExchangeFile, Source, Receive
 	HandlerParameters.Add(PGCR);
 	HandlerParameters.Add(Cancel);
 	HandlerParameters.Add(ObjectCollection1);
-	HandlerParameters.Add(DontReplace);
+	HandlerParameters.Add(NotReplace);
 	HandlerParameters.Add(PropertyCollectionNode);
-	HandlerParameters.Add(DontClear);
+	HandlerParameters.Add(NotClear);
 	
 	Common.ExecuteObjectMethod(
 		ExportProcessing, PGCR.BeforeExportProcessHandlerName, HandlerParameters);
@@ -15043,9 +15043,9 @@ Procedure ExecutePGCRHandlerBeforeExportProcessing(ExchangeFile, Source, Receive
 	PGCR = HandlerParameters[6];
 	Cancel = HandlerParameters[7];
 	ObjectCollection1 = HandlerParameters[8];
-	DontReplace = HandlerParameters[9];
+	NotReplace = HandlerParameters[9];
 	PropertyCollectionNode = HandlerParameters[10];
-	DontClear = HandlerParameters[11];
+	NotClear = HandlerParameters[11];
 	
 EndProcedure
 
@@ -15334,7 +15334,7 @@ Procedure ExecuteHandlerParametersAfterParameterImport(Name, Value)
 	HandlerParameters.Add(Name);
 	HandlerParameters.Add(Value);
 	
-	HandlerName = "Параметры_[ParameterName]_ПослеЗагрузкиПараметра";
+	HandlerName = "Parameters_[ParameterName]_AfterImportParameter";
 	HandlerName = StrReplace(HandlerName, "[ParameterName]", Name);
 	
 	Common.ExecuteObjectMethod(
@@ -16191,7 +16191,7 @@ Procedure ExecuteSelectiveMessageReader(TablesToImport)
 			
 			ReadDataForTables(TablesToImport);
 			
-			If ErrorFlag() Then
+			If FlagErrors() Then
 				Raise NStr("en = 'Data import errors.';");
 			EndIf;
 			
@@ -16200,7 +16200,7 @@ Procedure ExecuteSelectiveMessageReader(TablesToImport)
 			
 			ExecuteHandlerAfterImportData();
 			
-			If ErrorFlag() Then
+			If FlagErrors() Then
 				Raise NStr("en = 'Data import errors.';");
 			EndIf;
 			
@@ -16299,7 +16299,7 @@ Procedure RunReadingData(MessageReader)
 		EndIf;
 		
 		// Abort the file read cycle if an importing error occurs.
-		If ErrorFlag() Then
+		If FlagErrors() Then
 			Raise NStr("en = 'Data import errors.';");
 		EndIf;
 		
@@ -16497,7 +16497,7 @@ Procedure ReadDataForTables(TablesToImport)
 		EndIf;
 		
 		// Abort the file read cycle if an error occurs.
-		If ErrorFlag() Then
+		If FlagErrors() Then
 			Raise NStr("en = 'Data import errors.';");
 		EndIf;
 		
@@ -16660,7 +16660,7 @@ Procedure ReadDataInAnalysisMode(MessageReader, AnalysisParameters = Undefined)
 		EndIf;
 		
 		// Abort the file read cycle if an error occurs.
-		If ErrorFlag() Then
+		If FlagErrors() Then
 			Raise NStr("en = 'Data analysis errors.';");
 		EndIf;
 		
@@ -16781,7 +16781,7 @@ Procedure ReadDataInExternalConnectionMode(MessageReader)
 			
 			deSkip(ExchangeFile, NodeName);
 			
-			If ErrorFlag() Then
+			If FlagErrors() Then
 				Break;
 			EndIf;
 			
@@ -16791,7 +16791,7 @@ Procedure ReadDataInExternalConnectionMode(MessageReader)
 			
 			deSkip(ExchangeFile, NodeName);
 			
-			If ErrorFlag() Then
+			If FlagErrors() Then
 				Break;
 			EndIf;
 			
@@ -16814,7 +16814,7 @@ Procedure ReadDataInExternalConnectionMode(MessageReader)
 		EndIf;
 		
 		// Abort the file read cycle if an importing error occurs.
-		If ErrorFlag() Then
+		If FlagErrors() Then
 			Break;
 		EndIf;
 		
@@ -17958,7 +17958,7 @@ Procedure ToCommitTheTransactionWhenTheDataIsLoaded()
 	If IsExchangeOverExternalConnection() Then
 		If DataImportExecutedInExternalConnection Then
 			If DataProcessorForDataImport().UseTransactions Then
-				If DataProcessorForDataImport().ErrorFlag() Then
+				If DataProcessorForDataImport().FlagErrors() Then
 					Raise(NStr("en = 'Cannot send the data.';"));
 				Else
 					ExternalConnection.CommitTransaction();

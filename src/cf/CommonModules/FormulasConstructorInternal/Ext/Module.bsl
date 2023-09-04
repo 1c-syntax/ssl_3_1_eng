@@ -189,7 +189,7 @@ Function CollectionOfSourcesOfAvailableFields() Export
 	
 EndFunction
 
-Function ColumnNameView(NameOfTheFieldList) Export
+Function ColumnNamePresentation(NameOfTheFieldList) Export
 	
 	Return NameOfTheFieldList + "Presentation";
 	
@@ -358,7 +358,7 @@ Function RunSearchInListOfFields(ShapeStructure) Export
 	NameOfTheFieldList = ShapeStructure.ListName;
 	TheNameOfTheSearchStringProps = TheNameOfTheFieldListSearchStringDetails(NameOfTheFieldList);
 	Filter = ShapeStructure[TheNameOfTheSearchStringProps];
-	FilterSet1 = ValueIsFilled(Filter);
+	FilterIs_Specified = ValueIsFilled(Filter);
 	
 	Result = New Structure;
 	Result.Insert("ListName", NameOfTheFieldList);
@@ -367,7 +367,7 @@ Function RunSearchInListOfFields(ShapeStructure) Export
 		Common.MessageToUser(Common.ValueToXMLString(Result));
 	EndIf;
 	
-	If FilterSet1 Then
+	If FilterIs_Specified Then
 		SetFilter(ShapeStructure, NameOfTheFieldList, Filter, ShapeStructure[NameOfTheFieldList]);
 	EndIf;
 		
@@ -427,9 +427,9 @@ Function RunBackgroundSearchInFieldList(Form)
 	Filter = New Structure("NameOfTheFieldList", NameOfFieldsListAttribute(NameOfSearchStringCurrentAttribute));
 	AttachedFieldListsSearchStrings = ConnectedFieldLists.Copy(Filter);
 	
-	FilterSet1 = ValueIsFilled(FIlterRow);
+	FilterIs_Specified = ValueIsFilled(FIlterRow);
 		
-	If Not FilterSet1 Then
+	If Not FilterIs_Specified Then
 		PerformASearchInTheListOfFields(Form);
 		Return Undefined;
 	EndIf;
@@ -656,7 +656,7 @@ Procedure AddAListOfFieldsToTheForm(Form, Parameters) Export
 	FieldPicture.Type = FormFieldType.PictureField;
 	FieldPicture.ShowInHeader = False;
 	
-	FieldPresentation = Form.Items.Add(ColumnNameView(NameOfTheFieldList), Type("FormField"), ColumnGroup);
+	FieldPresentation = Form.Items.Add(ColumnNamePresentation(NameOfTheFieldList), Type("FormField"), ColumnGroup);
 	FieldPresentation.DataPath = NameOfTheFieldList + ".Title";
 	FieldPresentation.Type = FormFieldType.InputField;
 	FieldPresentation.ReadOnly = True;
@@ -1778,13 +1778,13 @@ Procedure PerformASearchInTheListOfFields(Form) Export
 	NameOfTheFieldList = NameOfFieldsListAttribute(Form.NameOfCurrSearchString);
 	TheNameOfTheSearchStringProps = Form.NameOfCurrSearchString;
 	Filter = Form[TheNameOfTheSearchStringProps];
-	FilterSet1 = ValueIsFilled(Filter);
+	FilterIs_Specified = ValueIsFilled(Filter);
 	If ValueIsFilled(Filter) Then
 		SetFilter(Form, NameOfTheFieldList, Filter, Form[NameOfTheFieldList]);
 	EndIf;
-	Form.Items[NameOfTheFieldList + "Presentation"].Visible = Not FilterSet1;
-	Form.Items[NameOfTheFieldList + "RepresentationOfTheDataPath"].Visible = FilterSet1;
-	Form.Items[NameOfTheFieldList].Representation = ?(FilterSet1, TableRepresentation.List, TableRepresentation.Tree);
+	Form.Items[NameOfTheFieldList + "Presentation"].Visible = Not FilterIs_Specified;
+	Form.Items[NameOfTheFieldList + "RepresentationOfTheDataPath"].Visible = FilterIs_Specified;
+	Form.Items[NameOfTheFieldList].Representation = ?(FilterIs_Specified, TableRepresentation.List, TableRepresentation.Tree);
 	
 EndProcedure
 
@@ -1796,7 +1796,7 @@ Procedure SetFilter(Val Form, Val ListName, Val Filter,
 	
 	CountInBatch = 10;
 	MaxNumOfResults = 200;
-	MaxSearchLevel = 3;
+	MaxSearchLevel = ?(IsBackgroundJob, 3, 2);
 	MaximumNumberOfResultsHasBeenAchieved = False;
 	
 	FilterStructure1 = New Structure("MatchesFilter", True);
@@ -2559,7 +2559,7 @@ Function ListOfOperators(GroupsOfOperators = Undefined) Export
 	
 	If GroupsOfOperators = Undefined Then
 		GroupsOfOperators = "LogicalOperatorsAndConstants,
-		|NumericFunction, StringFunctions, TableFunctions, OtherFunctions";
+		|NumericFunction, StringFunctions, OtherFunctions";
 	ElsIf GroupsOfOperators = "AllSKDOperators" Then
 		GroupsOfOperators = "OperationsOnSKDLines, WorkingWithDCSDates, SKDComparisonOperations,
 		|LogicalOperationsOfTheSKD, AggregateFunctionsOfTheSCD, OtherDCSFunctions";
@@ -2585,8 +2585,6 @@ Function ListOfOperators(GroupsOfOperators = Undefined) Export
 			AddAGroupOfLogicalOperationsOperators(ListOfOperators);
 		ElsIf GroupName = "AggregateFunctionsOfTheSCD" Then
 			AddAGroupOfOperatorsAggregateFunctions(ListOfOperators);
-		ElsIf GroupName = "TableFunctions" Then
-			AddGroupOfFunctionOperatorsForTables(ListOfOperators);
 		ElsIf GroupName = "OtherDCSFunctions" Then
 			AddGroupOfOperatorsOtherDCSFunctions(ListOfOperators);
 		EndIf;
@@ -2812,22 +2810,6 @@ Procedure AddGroupOfOperatorsOtherDCSFunctions(ListOfOperators)
 	AddAnOperatorToAGroup(Group, "STRING", NStr("en = 'STRING';"), New TypeDescription("String"), True);
 	AddAnOperatorToAGroup(Group, "VALUE", NStr("en = 'VALUE';"), New TypeDescription, True);
 	
-EndProcedure
-
-Procedure AddGroupOfFunctionOperatorsForTables(ListOfOperators)
-	Group = ListOfOperators.Rows.Add();
-	Group.Id = "TableFunctions";
-	Group.Presentation = NStr("en = 'Functions for tables';");
-	Group.Order = 7;
-	Group.Picture = PictureLib.TypeFunction;
-	
-	Type = New TypeDescription("Number");
-	
-	AddAnOperatorToAGroup(Group, "PrintManagement_ColumnAmount", NStr("en = 'Amount by column';"), Type, True);
-	AddAnOperatorToAGroup(Group, "PrintControl_NumberofLines", NStr("en = 'Number of strings';"), Type, True);
-	AddAnOperatorToAGroup(Group, "PrintManagement_ColumnMax", NStr("en = 'Maximum value by column';"), Type, True);
-	AddAnOperatorToAGroup(Group, "PrintManagement_ColumnMin", NStr("en = 'Minimum value by column';"), Type, True);
-	AddAnOperatorToAGroup(Group, "PrintManagement_ColumnAverage", NStr("en = 'Average value by column';"), Type, True);
 EndProcedure
 
 Function TheNameOfTheFieldListSearchStringDetails(NameOfTheFieldList)

@@ -308,7 +308,7 @@
 			</Resource>
 			<Resource uuid="c9bd0dcd-98ec-4dc9-869a-e735fd269046">
 				<Properties>
-					<Name>COMUsername</Name>
+					<Name>COMUserName</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -540,7 +540,7 @@
 			</Resource>
 			<Resource uuid="91a82492-5e27-46b6-b1a8-48e89a437715">
 				<Properties>
-					<Name>EMAIL_Account</Name>
+					<Name>EMAILAccount</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -1182,7 +1182,7 @@
 			</Resource>
 			<Resource uuid="66844ae3-f098-462c-aef8-1fd38c403760">
 				<Properties>
-					<Name>WSUsername</Name>
+					<Name>WSUserName</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -1274,7 +1274,7 @@
 			</Resource>
 			<Resource uuid="e59e9cfc-43b2-4bdf-a512-b6f87f781cee">
 				<Properties>
-					<Name>WSPeerDataArea</Name>
+					<Name>WSCorrespondentDataArea</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -1499,7 +1499,7 @@
 			</Resource>
 			<Resource uuid="178342fd-1ba5-422d-89d2-4f486e45dae9">
 				<Properties>
-					<Name>WSPeerEndpoint</Name>
+					<Name>WSCorrespondentEndpoint</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>

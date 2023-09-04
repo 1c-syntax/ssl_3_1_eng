@@ -492,7 +492,7 @@ Function LocationOfTheList(Items)
 EndFunction
 
 // Parameters:
-//  ThisObject - ClientApplicationForm
+//  Form - ClientApplicationForm
 //
 // Returns:
 //  Structure:
@@ -526,20 +526,16 @@ EndFunction
 //        ** TheSubordinateElementCorrespondsToTheSelection - Boolean
 //
 &AtClientAtServerNoContext
-Function ListOfAvailableFields(ThisObject)
+Function ListOfAvailableFields(Form)
 	
 	ListOfAvailableFields = New Structure("Field, Data");
-	
-	LocationOfTheList = LocationOfTheList(ThisObject.Items);
-	
+	LocationOfTheList = LocationOfTheList(Form.Items);
 	For Each Item In LocationOfTheList.ChildItems Do 
 		
 		If TypeOf(Item) = Type("FormTable") Then 
-			
 			ListOfAvailableFields.Field = Item;
-			ListOfAvailableFields.Data = ThisObject[Item.Name];
+			ListOfAvailableFields.Data = Form[Item.Name];
 			Break;
-			
 		EndIf;
 		
 	EndDo;
@@ -582,20 +578,16 @@ Function FormulaEditingIsAvailable(SelectedField)
 EndFunction
 
 &AtClientAtServerNoContext
-Function FieldsCollection(ThisObject)
+Function FieldsCollection(Form)
 	
-	Settings = ThisObject.SettingsComposer.Settings;
-			
-	If ThisObject.FieldsCollectionName = "GroupAvailableFields" Then
+	Settings = Form.SettingsComposer.Settings;
+	If Form.FieldsCollectionName = "GroupAvailableFields" Then
 		
-		If ThisObject.SettingsStructureItemID = Undefined Then
-			
+		If Form.SettingsStructureItemID = Undefined Then
 			SettingsStructureItem = Settings;
-		
 		Else
 			SettingsStructureItem = Settings.GetObjectByID(
-				ThisObject.SettingsStructureItemID);
-			
+				Form.SettingsStructureItemID);
 		EndIf;
 		
 		If TypeOf(SettingsStructureItem) = Type("DataCompositionSettings") Then
@@ -604,20 +596,18 @@ Function FieldsCollection(ThisObject)
 			Return SettingsStructureItem.GroupFields.GroupFieldsAvailableFields;
 		EndIf;
 		
-	ElsIf StrFind(ThisObject.FieldsCollectionName, ".") > 0 Then 
+	ElsIf StrFind(Form.FieldsCollectionName, ".") > 0 Then 
 		
-		DescriptionOfTheFieldCollectionName = StrSplit(ThisObject.FieldsCollectionName, ".");
+		DescriptionOfTheFieldCollectionName = StrSplit(Form.FieldsCollectionName, ".");
 		FieldsCollection = Settings;
-		
 		For Each Item In DescriptionOfTheFieldCollectionName Do 
 			FieldsCollection = FieldsCollection[Item];
 		EndDo;
-		
 		Return FieldsCollection;
 		
 	EndIf;
 	
-	Return Settings[ThisObject.FieldsCollectionName];
+	Return Settings[Form.FieldsCollectionName];
 	
 EndFunction
 

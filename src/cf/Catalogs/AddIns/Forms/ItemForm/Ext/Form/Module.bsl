@@ -424,7 +424,7 @@ EndFunction
 &AtServer
 Procedure UpdateCardAfterAddInUpdateFromPortal()
 	
-	ThisObject.Read();
+	Read();
 	Modified = False;
 	SetVisibilityAvailability();
 	
@@ -444,21 +444,21 @@ Procedure SetVisibilityAvailability()
 	
 	// WarningDisplayOnEditParameters
 	DisplayWarning = WarningOnEditRepresentation.Show;
-	DontDisplayWarning = WarningOnEditRepresentation.DontShow;
+	NotDisplayWarning = WarningOnEditRepresentation.DontShow;
 	If ValueIsFilled(Object.Description) Then
 		Items.Description.WarningOnEditRepresentation = DisplayWarning;
 	Else
-		Items.Description.WarningOnEditRepresentation = DontDisplayWarning;
+		Items.Description.WarningOnEditRepresentation = NotDisplayWarning;
 	EndIf;
 	If ValueIsFilled(Object.Id) Then 
 		Items.Id.WarningOnEditRepresentation = DisplayWarning;
 	Else 
-		Items.Id.WarningOnEditRepresentation = DontDisplayWarning;
+		Items.Id.WarningOnEditRepresentation = NotDisplayWarning;
 	EndIf;
 	If ValueIsFilled(Object.Version) Then 
 		Items.Version.WarningOnEditRepresentation = DisplayWarning;
 	Else 
-		Items.Version.WarningOnEditRepresentation = DontDisplayWarning;
+		Items.Version.WarningOnEditRepresentation = NotDisplayWarning;
 	EndIf;
 	
 	// 

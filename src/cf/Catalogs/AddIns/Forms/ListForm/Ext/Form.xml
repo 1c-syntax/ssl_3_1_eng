@@ -13,7 +13,7 @@
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 	</Events>
 	<ChildItems>
-		<Pages name="GroupPages" id="83">
+		<Pages name="Pages_Group" id="83">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -21,9 +21,9 @@
 				</v8:item>
 			</Title>
 			<PagesRepresentation>None</PagesRepresentation>
-			<ExtendedTooltip name="GroupPagesExtendedTooltip" id="84"/>
+			<ExtendedTooltip name="Pages_GroupExtendedTooltip" id="84"/>
 			<ChildItems>
-				<Page name="ListPage" id="85">
+				<Page name="List_Page" id="85">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -31,7 +31,7 @@
 						</v8:item>
 					</Title>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="ListPageExtendedTooltip" id="86"/>
+					<ExtendedTooltip name="List_PageExtendedTooltip" id="86"/>
 					<ChildItems>
 						<UsualGroup name="SettingsComposerUserSettingsList" id="1">
 							<Title>
@@ -344,7 +344,7 @@
 						</Table>
 					</ChildItems>
 				</Page>
-				<Page name="WaitingPage" id="87">
+				<Page name="WaitPage" id="87">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -352,7 +352,7 @@
 						</v8:item>
 					</Title>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="WaitingPageExtendedTooltip" id="88"/>
+					<ExtendedTooltip name="WaitPageExtendedTooltip" id="88"/>
 					<ChildItems>
 						<PictureDecoration name="DecorationWaiting" id="89">
 							<Title formatted="false">

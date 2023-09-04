@@ -236,13 +236,13 @@ Procedure ProcessPropertiesSetsForMigrationToNewVersion(Parameters) Export
 				Labels = PropertyManager.PropertiesByAdditionalAttributesKind(
 					AdditionalAttributesTable,Enums.PropertiesKinds.Labels);
 				AttributesCount = AdditionalAttributes.Count();
-				NumberOfTags      = Labels.Count();
+				LabelCount      = Labels.Count();
 				InfoCount   = NewSetObject.AdditionalInfo.FindRows(
 					New Structure("DeletionMark", False)).Count();
 				
 				NewSetObject.AttributesCount = Format(AttributesCount, "NG=");
 				NewSetObject.InfoCount   = Format(InfoCount, "NG=");
-				NewSetObject.NumberOfTags      = Format(NumberOfTags, "NG=");
+				NewSetObject.LabelCount      = Format(LabelCount, "NG=");
 			EndIf;
 			
 			InfobaseUpdate.WriteObject(NewSetObject);

@@ -258,7 +258,7 @@ Procedure ChangeHistory(Command)
 	
 	FormParameters = New Structure("ContactInformationList", ContactInformationList);
 	FormParameters.Insert("ContactInformationKind",  ContactInformationKindDetails(ThisObject).Ref);
-	FormParameters.Insert("ReadOnly", ThisObject.ReadOnly);
+	FormParameters.Insert("ReadOnly", ReadOnly);
 	FormParameters.Insert("FromAddressEntryForm", True);
 	FormParameters.Insert("ValidFrom", AddressOnDate);
 	
@@ -457,8 +457,8 @@ Procedure AfterClosingHistoryForm(Result, AdditionalParameters) Export
 	
 	DisplayInformationAboutAddressValidityDate(AddressOnDate);
 	
-	If Not ThisObject.Modified Then
-		ThisObject.Modified = Result.Modified;
+	If Not Modified Then
+		Modified = Result.Modified;
 	EndIf;
 	
 EndProcedure

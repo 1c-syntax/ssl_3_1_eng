@@ -370,7 +370,7 @@ EndProcedure
 
 &AtServerNoContext
 Procedure SetPathToHandlerProcedure(Form, CurrentCheckMetadata)
-	Form.HandlerProcedurePath = ?(CurrentCheckMetadata = Undefined, NStr("en = 'Handler is not defined';"), CurrentCheckMetadata.CheckHandler);
+	Form.HandlerProcedurePath = ?(CurrentCheckMetadata = Undefined, NStr("en = 'Handler is not defined';"), CurrentCheckMetadata.HandlerChecks);
 EndProcedure
 
 &AtServer

@@ -420,7 +420,7 @@ Function ModifiedTemplates(MetadataObjects = Undefined)
 	|FROM
 	|	InformationRegister.UserPrintTemplates AS ModifiedTemplates
 	|WHERE
-	|	NOT &FilterSet1
+	|	NOT &FilterIs_Specified
 	|	OR ModifiedTemplates.Object IN(&Objects)";
 	
 	ObjectsNames = Undefined;
@@ -432,7 +432,7 @@ Function ModifiedTemplates(MetadataObjects = Undefined)
 	EndIf;
 	
 	Query = New Query(QueryText);
-	Query.SetParameter("FilterSet1", ValueIsFilled(ObjectsNames));
+	Query.SetParameter("FilterIs_Specified", ValueIsFilled(ObjectsNames));
 	Query.SetParameter("Objects", ObjectsNames);
 	ModifiedTemplates = Query.Execute().Unload();
 	

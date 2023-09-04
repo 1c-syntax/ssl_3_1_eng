@@ -327,7 +327,7 @@ EndProcedure
 #Region FormCommandHandlers
 
 &AtClient
-Procedure ImportFilesExecute()
+Procedure FilesImportExecute()
 	
 	Handler = New NotifyDescription("ImportFilesAfterExtensionInstalled", ThisObject);
 	FilesOperationsInternalClient.ShowFileSystemExtensionInstallationQuestion(Handler);
@@ -366,8 +366,8 @@ Procedure AddFileByTemplate(Command)
 	AddingOptions = New Structure;
 	AddingOptions.Insert("ResultHandler",                    Undefined);
 	AddingOptions.Insert("FileOwner",                           Items.Folders.CurrentRow);
-	AddingOptions.Insert("OwnerForm1",                           ThisObject);
-	AddingOptions.Insert("DontOpenCardAfterCreateFromFIle", True);
+	AddingOptions.Insert("OwnerForm",                           ThisObject);
+	AddingOptions.Insert("NotOpenCardAfterCreateFromFile", True);
 	FilesOperationsInternalClient.AddBasedOnTemplate(AddingOptions);
 	
 EndProcedure
@@ -377,13 +377,13 @@ Procedure AddFileFromScanner(Command)
 	
 	AddingOptions = FilesOperationsClient.AddingFromScannerParameters();
 	AddingOptions.FileOwner  = Items.Folders.CurrentRow;
-	AddingOptions.OwnerForm1 = ThisObject;
+	AddingOptions.OwnerForm = ThisObject;
 	FilesOperationsClient.AddFromScanner(AddingOptions);
 	
 EndProcedure
 
 &AtClient
-Procedure CreateFolderExecute()
+Procedure CreateCatalogExecute()
 	
 	NewFolderParameters = New Structure("Parent", Items.Folders.CurrentRow);
 	OpenForm("Catalog.FilesFolders.ObjectForm", NewFolderParameters, Items.Folders);
@@ -587,9 +587,19 @@ EndProcedure
 &AtClient
 Procedure Sign(Command)
 	
+	If Not CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		Return;
+	EndIf;
+	
 	NotifyDescription      = New NotifyDescription("SignCompletion", ThisObject);
 	AdditionalParameters = New Structure("ResultProcessing", NotifyDescription);
-	FilesOperationsClient.SignFile(Items.List.SelectedRows, UUID, AdditionalParameters);
+	
+	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
+	SigningParameters = ModuleDigitalSignatureClient.NewSignatureType();
+	SigningParameters.ChoosingAuthorizationLetter = True;
+
+	FilesOperationsClient.SignFile(Items.List.SelectedRows, UUID, AdditionalParameters,
+		SigningParameters);
 	
 EndProcedure
 
@@ -695,7 +705,7 @@ Procedure Print(Command)
 	
 	SelectedRows = Items.List.SelectedRows;
 	If SelectedRows.Count() > 0 Then
-		FilesOperationsClient.PrintFiles(SelectedRows, ThisObject.UUID);
+		FilesOperationsClient.PrintFiles(SelectedRows, UUID);
 	EndIf;
 	
 EndProcedure
@@ -867,9 +877,9 @@ Procedure DragToFolder(FolderForAdding, DragValue, Action)
 			AddingOptions.Insert("ResultHandler", Undefined);
 			AddingOptions.Insert("FullFileName", DragValue.FullName);
 			AddingOptions.Insert("FileOwner", FolderForAdding);
-			AddingOptions.Insert("OwnerForm1", ThisObject);
+			AddingOptions.Insert("OwnerForm", ThisObject);
 			AddingOptions.Insert("NameOfFileToCreate", Undefined);
-			AddingOptions.Insert("DontOpenCardAfterCreateFromFIle", True);
+			AddingOptions.Insert("NotOpenCardAfterCreateFromFile", True);
 			FilesOperationsInternalClient.AddFormFileSystemWithExtension(AddingOptions);
 		Else
 			FileNamesArray = New Array;

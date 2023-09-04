@@ -261,13 +261,13 @@ Procedure SubsystemsTreeDrag(Item, DragParameters, StandardProcessing, String, F
 
 	If PlacementParameters.Variants.Total = 1 Then
 		If PlacementParameters.Action = "Copy" Then
-			QuestionTemplate = NStr("en = 'Do you want to assign %1 to %4?';");
+			QuestionTemplate = NStr("en = 'Do you want to add ""%1"" to %4?';");
 		Else
 			QuestionTemplate = NStr("en = 'Do you want to move %1 from %3 to %4?';");
 		EndIf;
 	Else
 		If PlacementParameters.Action = "Copy" Then
-			QuestionTemplate = NStr("en = 'Do you want to assign %2 report options %1 to %4?';");
+			QuestionTemplate = NStr("en = 'Do you want to add %2 report options %1 to %4?';");
 		Else
 			QuestionTemplate = NStr("en = 'Do you want to move %2 report options %1 from %3 to %4?';");
 		EndIf;
@@ -517,7 +517,7 @@ Procedure SubsystemsTreeDragCompletion(Response, PlacementParameters) Export
 			If PlacementParameters.Action = "Move" Then
 				Template = NStr("en = 'Report successfully moved to %1.';");
 			Else
-				Template = NStr("en = 'Report successfully assigned to %1.';");
+				Template = NStr("en = 'Report successfully added to %1.';");
 			EndIf;
 			Text = PlacementParameters.Variants.Presentation;
 			Ref = GetURL(PlacementParameters.Variants.Array[0]);
@@ -525,7 +525,7 @@ Procedure SubsystemsTreeDragCompletion(Response, PlacementParameters) Export
 			If PlacementParameters.Action = "Move" Then
 				Template = NStr("en = 'Reports successfully moved to %1.';");
 			Else
-				Template = NStr("en = 'Reports successfully assigned to %1.';");
+				Template = NStr("en = 'Reports successfully added to %1.';");
 			EndIf;
 			Text = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 report options.';"),
 				Format(PlacementParameters.Variants.Total, "NZ=0; NG=0"));
@@ -538,12 +538,12 @@ Procedure SubsystemsTreeDragCompletion(Response, PlacementParameters) Export
 		ErrorsText = "";
 		If Not IsBlankString(ExecutionResult.CannotBePlaced) Then
 			ErrorsText = ?(ErrorsText = "", "", ErrorsText + Chars.LF + Chars.LF) 
-				+ NStr("en = 'Cannot assign to the command interface:';") + Chars.LF
+				+ NStr("en = 'Cannot add to the command interface:';") + Chars.LF
 				+ ExecutionResult.CannotBePlaced;
 		EndIf;
 		If Not IsBlankString(ExecutionResult.AlreadyAssigned) Then
 			ErrorsText = ?(ErrorsText = "", "", ErrorsText + Chars.LF + Chars.LF) 
-				+ NStr("en = 'Already assigned to this section:';") + Chars.LF + ExecutionResult.AlreadyAssigned;
+				+ NStr("en = 'Already added to this section:';") + Chars.LF + ExecutionResult.AlreadyAssigned;
 		EndIf;
 
 		If PlacementParameters.Action = "Move" Then
@@ -551,7 +551,7 @@ Procedure SubsystemsTreeDragCompletion(Response, PlacementParameters) Export
 						  |Details:
 						  |%3';");
 		Else
-			Template = NStr("en = '%1 of %2 report options have been assigned.
+			Template = NStr("en = '%1 out of %2 report options have been added.
 						  |Details:
 						  |%3';");
 		EndIf;

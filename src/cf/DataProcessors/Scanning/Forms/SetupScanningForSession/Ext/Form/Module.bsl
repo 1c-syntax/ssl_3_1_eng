@@ -22,7 +22,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ScannedImageFormat = Parameters.ScannedImageFormat;
 	JPGQuality = Parameters.JPGQuality;
 	TIFFDeflation = Parameters.TIFFDeflation;
-	SaveToPDF = Parameters.SaveToPDF;
+	ShouldSaveAsPDF = Parameters.ShouldSaveAsPDF;
 	MultipageStorageFormat = Parameters.MultipageStorageFormat;
 	
 	Items.Rotation.Visible = Parameters.RotationAvailable;
@@ -91,10 +91,10 @@ Procedure OK(Command)
 	SelectionResult.Insert("ScannedImageFormat", ScannedImageFormat);
 	SelectionResult.Insert("JPGQuality",                     JPGQuality);
 	SelectionResult.Insert("TIFFDeflation",                      TIFFDeflation);
-	SelectionResult.Insert("SaveToPDF",                   SaveToPDF);
+	SelectionResult.Insert("ShouldSaveAsPDF",                   ShouldSaveAsPDF);
 	SelectionResult.Insert("MultipageStorageFormat",   MultipageStorageFormat);
 	
-	SinglePageStorageFormat = ConvertScanningFormatToStorageFormat(ScannedImageFormat, SaveToPDF);
+	SinglePageStorageFormat = ConvertScanningFormatToStorageFormat(ScannedImageFormat, ShouldSaveAsPDF);
 	SelectionResult.Insert("SinglePageStorageFormat",    SinglePageStorageFormat);
 	
 	NotifyChoice(SelectionResult);
@@ -106,9 +106,9 @@ EndProcedure
 #Region Private
 
 &AtServerNoContext
-Function ConvertScanningFormatToStorageFormat(ScanningFormat, SaveToPDF)
+Function ConvertScanningFormatToStorageFormat(ScanningFormat, ShouldSaveAsPDF)
 	
-	Return FilesOperationsInternal.ConvertScanningFormatToStorageFormat(ScanningFormat, SaveToPDF); 
+	Return FilesOperationsInternal.ConvertScanningFormatToStorageFormat(ScanningFormat, ShouldSaveAsPDF); 
 	
 EndFunction
 
@@ -116,7 +116,7 @@ EndFunction
 Procedure InstallHints()
 	
 	FormatTooltip = "";
-	ExtendedTooltip = String(Items.SaveToPDF.ExtendedTooltip.Title); 
+	ExtendedTooltip = String(Items.ShouldSaveAsPDF.ExtendedTooltip.Title); 
 	Hints = StrSplit(ExtendedTooltip, Chars.LF);
 	CurFormat = String(ScannedImageFormat);
 	For Each ToolTip In Hints Do

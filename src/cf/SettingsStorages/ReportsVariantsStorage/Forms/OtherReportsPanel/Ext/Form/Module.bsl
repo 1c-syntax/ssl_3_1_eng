@@ -368,7 +368,7 @@ Function DetermineOutputGroup(SubsystemPresentation)
 	
 	NumberOfGroup = SubsystemsGroups.Count() + 1;
 	DecorationName = "IndentSubsystems" + NumberOfGroup;
-	GroupName_SSLy = "SubsystemsGroup_" + NumberOfGroup;
+	GroupName_SSLy = "SubsystemsGroup1_" + NumberOfGroup;
 	
 	If OtherReportsAvailable Then
 		Decoration = Items.Add(DecorationName, Type("FormDecoration"), Items.OtherReportsPage);

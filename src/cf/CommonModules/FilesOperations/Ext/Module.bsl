@@ -1187,7 +1187,7 @@ Procedure OnCreateAtServer(Form, ItemsToAdd1 = Undefined, SettingsOfFileManageme
 		
 		AdditionAvailable = Not FilesBeingEditedInCloudService
 			And AccessRight("InteractiveInsert", MetadataOfCatalogWithFiles);
-		ChangeAvailable = Not FilesBeingEditedInCloudService
+		AvailableUpdate = Not FilesBeingEditedInCloudService
 			And AccessRight("Update", MetadataOfCatalogWithFiles);
 		
 		ItemParameters = New Structure;
@@ -1203,7 +1203,7 @@ Procedure OnCreateAtServer(Form, ItemsToAdd1 = Undefined, SettingsOfFileManageme
 		FormItemParameters = New Structure;
 		FormItemParameters.Insert("GroupName",          GroupName);
 		FormItemParameters.Insert("ItemNumber",      ItemNumber);
-		FormItemParameters.Insert("ChangeAvailable",  ChangeAvailable);
+		FormItemParameters.Insert("AvailableUpdate",  AvailableUpdate);
 		FormItemParameters.Insert("AdditionAvailable", AdditionAvailable);
 		
 		If SettingsOfFileManagementInFormAdvanced.DuplicateAttachedFiles 
@@ -1485,8 +1485,8 @@ Function GetUserScanSettings(ClientID) Export
 		"ScanningSettings1/ScannedImageFormat", 
 		ClientID, Enums.ScannedImageFormats.PNG);
 	
-	UserScanSettings.SaveToPDF = Common.CommonSettingsStorageLoad(
-		"ScanningSettings1/SaveToPDF", 
+	UserScanSettings.ShouldSaveAsPDF = Common.CommonSettingsStorageLoad(
+		"ScanningSettings1/ShouldSaveAsPDF", 
 		ClientID, False);
 	
 	UserScanSettings.MultipageStorageFormat = Common.CommonSettingsStorageLoad(
@@ -1547,8 +1547,8 @@ Procedure SaveUserScanSettings(UserScanSettings, ClientID) Export
 		UserScanSettings.DeviceName, ClientID));
 	StructuresArray.Add(GenerateSetting("ScannedImageFormat",
 		UserScanSettings.ScannedImageFormat, ClientID));
-	StructuresArray.Add(GenerateSetting("SaveToPDF",
-		UserScanSettings.SaveToPDF, ClientID));
+	StructuresArray.Add(GenerateSetting("ShouldSaveAsPDF",
+		UserScanSettings.ShouldSaveAsPDF, ClientID));
 	StructuresArray.Add(GenerateSetting("MultipageStorageFormat",
 		UserScanSettings.MultipageStorageFormat, ClientID));
 	StructuresArray.Add(GenerateSetting("Resolution",
@@ -1574,7 +1574,7 @@ Procedure SaveUserScanSettings(UserScanSettings, ClientID) Export
 		SinglePageStorageFormat = UserScanSettings.SinglePageStorageFormat;
 	Else
 		SinglePageStorageFormat = FilesOperationsInternal.ConvertScanningFormatToStorageFormat(UserScanSettings.ScannedImageFormat,
-			UserScanSettings.SaveToPDF);
+			UserScanSettings.ShouldSaveAsPDF);
 	EndIf;
 	
 	StructuresArray.Add(GenerateSetting("SinglePageStorageFormat", SinglePageStorageFormat, ClientID));
@@ -2332,6 +2332,12 @@ Procedure CreateFilesHyperlink(Form, ItemToAdd, AttachedFilesOwner, HyperlinkPar
 	GroupName          = HyperlinkParameters.GroupName;
 	ItemNumber      = HyperlinkParameters.ItemNumber;
 	AdditionAvailable = HyperlinkParameters.AdditionAvailable;
+
+	CommandPrefix             = FilesOperationsClientServer.CommandsPrefix();
+	NameOfCommandUploadFile    = FilesOperationsClientServer.NameOfCommandUploadFile();
+	NameOfCreateByTemplateCommand = FilesOperationsClientServer.NameOfCreateByTemplateCommand();
+	NameOfScanCommand      = FilesOperationsClientServer.NameOfScanCommand();
+	NameOfOpenListCommand    = FilesOperationsClientServer.NameOfOpenListCommand();
 	
 	FormCommandProperties = New Structure;
 	FormCommandProperties.Insert("Representation", ButtonRepresentation.Text);
@@ -2378,13 +2384,13 @@ Procedure CreateFilesHyperlink(Form, ItemToAdd, AttachedFilesOwner, HyperlinkPar
 		SubmenuAdd.ToolTip   = NStr("en = 'Attach files';");
 		SubmenuAdd.Representation = ButtonRepresentation.Picture;
 		
-		ImportFile_           = Form.Commands.Add("AttachedFilesManagementImportFile_" + ItemNumber);
+		ImportFile_           = Form.Commands.Add(CommandPrefix + NameOfCommandUploadFile + "_" + ItemNumber);
 		ImportFile_.Action  = "Attachable_AttachedFilesPanelCommand";
 		CommandTitle = NStr("en = 'Import a file from a computer';");
 		ImportFile_.ToolTip = CommandTitle;
 		ImportFile_.Title = CommandTitle + "...";
 		
-		LoadButton = AddButtonOnForm(Form, "AttachedFilesManagementImportFile" + ItemNumber, PlacementOnFormGroup, ImportFile_.Name);
+		LoadButton = AddButtonOnForm(Form, CommandPrefix + NameOfCommandUploadFile + ItemNumber, PlacementOnFormGroup, ImportFile_.Name);
 		LoadButton.Picture    = PictureLib.Clip;
 		LoadButton.Visible   = False;
 		LoadButton.Representation = ButtonRepresentation.Picture;
@@ -2394,32 +2400,33 @@ Procedure CreateFilesHyperlink(Form, ItemToAdd, AttachedFilesOwner, HyperlinkPar
 			SubmenuAdd.ShapeRepresentation = ButtonShapeRepresentation[ItemToAdd.ShapeRepresentation];
 		EndIf;
 		
-		LoadButtonFromSubmenu = AddButtonOnForm(Form, "ImportFileFromSubmenu" + ItemNumber, SubmenuAdd, ImportFile_.Name);
+		LoadButtonFromSubmenu = AddButtonOnForm(Form, 
+			NameOfCommandUploadFile + FilesOperationsClientServer.NameOfAdditionalCommandFromSubmenu() + ItemNumber, SubmenuAdd, ImportFile_.Name);
 		LoadButtonFromSubmenu.Representation = ButtonRepresentation.Text;
 		
-		CreateByTemplate = Form.Commands.Add("AttachedFilesManagementCreateByTemplate_" + ItemNumber);
+		CreateByTemplate = Form.Commands.Add(CommandPrefix + NameOfCreateByTemplateCommand + "_" + ItemNumber);
 		CreateByTemplate.Title = NStr("en = 'Create from template…';");
 		FillPropertyValues(CreateByTemplate, FormCommandProperties);
 		
-		AddButtonOnForm(Form, "CreateByTemplate" + ItemNumber, SubmenuAdd, CreateByTemplate.Name);
+		AddButtonOnForm(Form, NameOfCreateByTemplateCommand + ItemNumber, SubmenuAdd, CreateByTemplate.Name);
 		
-		Scan = Form.Commands.Add("AttachedFilesManagementScan_" + ItemNumber);
+		Scan = Form.Commands.Add(CommandPrefix + NameOfScanCommand + "_" + ItemNumber);
 		Scan.Title = NStr("en = 'Scan…';");
 		FillPropertyValues(Scan, FormCommandProperties);
 		
-		AddButtonOnForm(Form, "Scan" + ItemNumber, SubmenuAdd, Scan.Name);
+		AddButtonOnForm(Form, NameOfScanCommand + ItemNumber, SubmenuAdd, Scan.Name);
 		
 	EndIf;
 	
-	OpenListCommand = Form.Commands.Add("AttachedFilesManagementOpenList_" + ItemNumber);
+	OpenListCommand = Form.Commands.Add(CommandPrefix + NameOfOpenListCommand + "_" + ItemNumber);
 	FillPropertyValues(OpenListCommand, FormCommandProperties);
 	
 	If ItemToAdd.DisplayTitleRight
 		Or Not ItemToAdd.AddFiles2 Then
-		GoToHyperlink = AddButtonOnForm(Form, "AttachedFilesManagementOpenList" + ItemNumber,
+		GoToHyperlink = AddButtonOnForm(Form, CommandPrefix + NameOfOpenListCommand + ItemNumber,
 			PlacementOnFormGroup, OpenListCommand.Name);
 	Else
-		GoToHyperlink = Form.Items.Insert("AttachedFilesManagementOpenList" + ItemNumber,
+		GoToHyperlink = Form.Items.Insert(CommandPrefix + NameOfOpenListCommand + ItemNumber,
 			Type("FormButton"), PlacementOnFormGroup, SubmenuAdd);
 			
 		GoToHyperlink.CommandName = OpenListCommand.Name;
@@ -2443,7 +2450,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 	
 	GroupName          = FileFieldParameters.GroupName;
 	ItemNumber      = FileFieldParameters.ItemNumber;
-	ChangeAvailable  = FileFieldParameters.ChangeAvailable;
+	AvailableUpdate  = FileFieldParameters.AvailableUpdate;
 	AdditionAvailable = FileFieldParameters.AdditionAvailable;
 	
 	FormCommandProperties = New Structure;
@@ -2632,23 +2639,27 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		
 	EndIf;
 	
+	CommandPrefix = FilesOperationsClientServer.CommandsPrefix();
+	
 	If ItemToAdd.AddFiles2 Then
 		
-		ImportFile_ = Form.Commands.Add("AttachedFilesManagementImportFile_" 
-			+ OneFileOnlyText + ItemNumber);
+		NameOfCommandWithPrefix = CommandPrefix + FilesOperationsClientServer.NameOfCommandUploadFile();
+		
+		ImportFile_ = Form.Commands.Add(NameOfCommandWithPrefix + "_" + OneFileOnlyText + ItemNumber);
 		ImportFile_.Action  = "Attachable_AttachedFilesPanelCommand";
 		ImportFile_.ToolTip = NStr("en = 'Import a file from a computer';");
 		
 		If ItemToAdd.ShowCommandBar Then
 			
-			LoadButton = AddButtonOnForm(Form, "AttachedFilesManagementImportFile" + ItemNumber,
+			LoadButton = AddButtonOnForm(Form, NameOfCommandWithPrefix + ItemNumber,
 				GroupCommandBar, ImportFile_.Name);
 			
 			LoadButton.Picture    = PictureAdd1;
 			LoadButton.Visible   = False;
 			LoadButton.Representation = ButtonRepresentation.Picture;
 			
-			LoadButtonFromSubmenu = AddButtonOnForm(Form, "AttachedFilesManagementImportFileFromSubmenu" + ItemNumber,
+			LoadButtonFromSubmenu = AddButtonOnForm(Form, 
+				NameOfCommandWithPrefix + FilesOperationsClientServer.NameOfAdditionalCommandFromSubmenu() + ItemNumber,
 				SubmenuGroup, ImportFile_.Name);
 			
 			FillPropertyValues(LoadButtonFromSubmenu, LoadButtonProperties);
@@ -2658,7 +2669,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		If ItemToAdd.ShowPreview Then
 			
 			LoadButtonFromContextMenu = AddButtonOnForm(Form, 
-				"AttachedFilesManagementImportFileFromContextMenu" + ItemNumber,
+				NameOfCommandWithPrefix + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
 				ContextMenuAddGroup, ImportFile_.Name);
 			
 			FillPropertyValues(LoadButtonFromContextMenu, LoadButtonProperties);
@@ -2667,31 +2678,36 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		
 		If Not ItemToAdd.OneFileOnly Then
 			
-			CreateByTemplate = Form.Commands.Add("AttachedFilesManagementCreateByTemplate_" + ItemNumber);
+			NameOfCommandWithPrefix = CommandPrefix + FilesOperationsClientServer.NameOfCreateByTemplateCommand();
+			
+			CreateByTemplate = Form.Commands.Add(NameOfCommandWithPrefix + "_" + ItemNumber);
 			CreateByTemplate.Title = NStr("en = 'Create from template…';");
 			FillPropertyValues(CreateByTemplate, FormCommandProperties);
 		
 			If ItemToAdd.ShowCommandBar Then
-				AddButtonOnForm(Form, "AttachedFilesManagementCreateByTemplate" + ItemNumber,
+				AddButtonOnForm(Form, NameOfCommandWithPrefix + ItemNumber,
 					SubmenuGroup, CreateByTemplate.Name);
 			EndIf;
 			
 			If ItemToAdd.ShowPreview Then
-				AddButtonOnForm(Form, "AttachedFilesManagementCreateByTemplateFromContextMenu" + ItemNumber,
+				AddButtonOnForm(Form, 
+					NameOfCommandWithPrefix + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
 					ContextMenuAddGroup, CreateByTemplate.Name);
 			EndIf;
 		
-			Scan = Form.Commands.Add("AttachedFilesManagementScan_" + ItemNumber);
+			NameOfCommandWithPrefix = CommandPrefix + FilesOperationsClientServer.NameOfScanCommand();
+			
+			Scan = Form.Commands.Add(NameOfCommandWithPrefix + "_" + ItemNumber);
 			Scan.Title = ?(Common.IsMobileClient(), NStr("en = 'Take a photograph…';"), NStr("en = 'Scan…';"));
 			FillPropertyValues(Scan, FormCommandProperties);
 		
 			If ItemToAdd.ShowCommandBar Then
-				AddButtonOnForm(Form, "AttachedFilesManagementScan" + ItemNumber,
+				AddButtonOnForm(Form, NameOfCommandWithPrefix + ItemNumber,
 					SubmenuGroup, Scan.Name);
 			EndIf;
 			
 			If ItemToAdd.ShowPreview Then
-				AddButtonOnForm(Form, "AttachedFilesManagementScanFromContextMenu" + ItemNumber,
+				AddButtonOnForm(Form, NameOfCommandWithPrefix + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
 					ContextMenuAddGroup, Scan.Name);
 			EndIf;
 					
@@ -2700,15 +2716,17 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 	EndIf;
 	
 	If ItemToAdd.NeedSelectFile
-		And ChangeAvailable Then
+		And AvailableUpdate Then
 		
-		SelectFile           = Form.Commands.Add("AttachedFilesManagementSelectFile_" + ItemNumber);
+		NameOfCommandWithPrefix = CommandPrefix + FilesOperationsClientServer.NameOfCommandToSelectFile();
+		
+		SelectFile           = Form.Commands.Add(NameOfCommandWithPrefix + "_" + ItemNumber);
 		SelectFile.Action  = "Attachable_AttachedFilesPanelCommand";
 		SelectFile.ToolTip = NStr("en = 'Select a file from attached ones.';");
 		
 		If ItemToAdd.ShowCommandBar Then
 			
-			ChooseFileButton = AddButtonOnForm(Form, "AttachedFilesManagementSelectFile" + ItemNumber,
+			ChooseFileButton = AddButtonOnForm(Form, NameOfCommandWithPrefix + ItemNumber,
 				SubmenuAdd, SelectFile.Name);
 			
 			FillPropertyValues(ChooseFileButton, SelectionButtonProperties);
@@ -2718,7 +2736,8 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		If ItemToAdd.ShowPreview Then
 			
 			ChooseFromContextMenuButton = AddButtonOnForm(Form, 
-				"SelectFileFromContextMenu" + ItemNumber, PreviewContextMenu, SelectFile.Name);
+				FilesOperationsClientServer.NameOfCommandToSelectFile() + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
+				PreviewContextMenu, SelectFile.Name);
 			FillPropertyValues(ChooseFromContextMenuButton, SelectionButtonProperties);
 			
 		EndIf;
@@ -2727,7 +2746,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 	
 	If ItemToAdd.ViewFile Then
 		
-		ViewFile1 = Form.Commands.Add("AttachedFilesManagementViewFile" + ItemNumber);
+		ViewFile1 = Form.Commands.Add(CommandPrefix + FilesOperationsClientServer.NameOfCommandsViewFile() + "_" + ItemNumber);
 		ViewFile1.Title = NStr("en = 'View';");
 		FillPropertyValues(ViewFile1, FormCommandProperties);
 		
@@ -2737,15 +2756,15 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		EndIf;
 		
 		If ItemToAdd.ShowCommandBar Then
-			AddButtonOnForm(Form, "ViewFile1" + ItemNumber, GroupCommandBar, ViewFile1.Name);
+			AddButtonOnForm(Form, FilesOperationsClientServer.NameOfCommandsViewFile() + ItemNumber, GroupCommandBar, ViewFile1.Name);
 		EndIf;
 		
 	EndIf;
 	
 	If ItemToAdd.ClearFile
-		And ChangeAvailable Then
+		And AvailableUpdate Then
 		
-		Zap           = Form.Commands.Add("AttachedFilesManagementClear_" + ItemNumber);
+		Zap           = Form.Commands.Add(CommandPrefix + FilesOperationsClientServer.ClearCommandName() + "_" + ItemNumber);
 		Zap.Picture  = PictureLib.InputFieldClear;
 		Zap.Title = NStr("en = 'Clear';");
 		Zap.ToolTip = Zap.Title;
@@ -2756,7 +2775,8 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		EndIf;
 		
 		If ItemToAdd.ShowPreview Then
-			AddButtonOnForm(Form, "ClearFromContextMenu" + ItemNumber,
+			AddButtonOnForm(Form, 
+				FilesOperationsClientServer.ClearCommandName() + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
 				PreviewContextMenu, Zap.Name);
 		EndIf;
 		
@@ -2765,38 +2785,39 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 	EditFile = Undefined;
 	If ItemToAdd.EditFile = "InForm" Then
 		
-		EditFile           = Form.Commands.Add("AttachedFilesManagementOpenForm_" + ItemNumber);
+		EditFile           = Form.Commands.Add(CommandPrefix + FilesOperationsClientServer.NameOfOpenFormCommand() + "_" + ItemNumber);
 		EditFile.Picture  = PictureLib.InputFieldOpen;
 		EditFile.Title = NStr("en = 'Open card';");
 		EditFile.ToolTip = NStr("en = 'Open the attachment card.';");
 		FillPropertyValues(EditFile, FormCommandPropertiesPicture);
 		
 		If ItemToAdd.ShowCommandBar Then
-			AddButtonOnForm(Form, "EditFile" + ItemNumber, GroupCommandBar, EditFile.Name);
+			AddButtonOnForm(Form, FilesOperationsClientServer.NameOfEditFileCommand() + ItemNumber, GroupCommandBar, EditFile.Name);
 		EndIf;
 		
 		If ItemToAdd.ShowPreview Then
-			AddButtonOnForm(Form, "EditFromContextMenu" + ItemNumber,
+			AddButtonOnForm(Form, 
+				FilesOperationsClientServer.NameOfEditFileCommand() + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
 				PreviewContextMenu, EditFile.Name);
 		EndIf;
 		
 	ElsIf ItemToAdd.EditFile = "Directly"
-		And ChangeAvailable Then
+		And AvailableUpdate Then
 		
-		EditFile           = Form.Commands.Add("AttachedFilesManagementEditFile_" + ItemNumber);
+		EditFile           = Form.Commands.Add(CommandPrefix + FilesOperationsClientServer.NameOfEditFileCommand() + "_" + ItemNumber);
 		EditFile.Picture  = PictureLib.Change;
 		EditFile.Title = NStr("en = 'Edit';");
 		EditFile.ToolTip = NStr("en = 'Open the file for editing.';");
 		FillPropertyValues(EditFile, FormCommandPropertiesPicture);
 		
-		PutFile           = Form.Commands.Add("AttachedFilesManagementPlaceFile_" + ItemNumber);
+		PutFile           = Form.Commands.Add(CommandPrefix + FilesOperationsClientServer.NameOfCommandToPlaceFile() + "_" + ItemNumber);
 		PutFile.Picture  = PictureLib.EndFileEditing;
 		PutFile.Title = NStr("en = 'Commit';");
 		PutFile.ToolTip = NStr("en = 'Save the file and release it in the infobase.';");
 		FillPropertyValues(PutFile, FormCommandPropertiesPicture);
 		
 		CancelEdit = Form.Commands.Add(
-			"AttachedFilesManagementCancelEditing_" + ItemNumber);
+			CommandPrefix + FilesOperationsClientServer.NameOfUndoEditingCommand() + "_" + ItemNumber);
 		
 		CancelEdit.Picture  = PictureLib.UnlockFile;
 		CancelEdit.Title = NStr("en = 'Cancel editing';");
@@ -2819,13 +2840,13 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 			DirectEditingGroup.Representation = ButtonGroupRepresentation.Compact;
 		
 			EditButton1 = AddButtonOnForm(Form,
-				"AttachedFilesManagementEditFile" + ItemNumber,
+				CommandPrefix + FilesOperationsClientServer.NameOfEditFileCommand() + ItemNumber,
 				DirectEditingGroup, EditFile.Name);
 		
-			PlaceButton = AddButtonOnForm(Form, "AttachedFilesManagementPlaceFile" + ItemNumber,
+			PlaceButton = AddButtonOnForm(Form, CommandPrefix + FilesOperationsClientServer.NameOfCommandToPlaceFile() + ItemNumber,
 				DirectEditingGroup, PutFile.Name);
 		
-			CancelButton1 = AddButtonOnForm(Form, "AttachedFilesManagementCancelEditing" + ItemNumber,
+			CancelButton1 = AddButtonOnForm(Form, CommandPrefix + FilesOperationsClientServer.NameOfUndoEditingCommand() + ItemNumber,
 				DirectEditingGroup, CancelEdit.Name);
 			
 			SetEditingAvailability(PlacementFileData, EditButton1, CancelButton1, PlaceButton);
@@ -2840,13 +2861,16 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 			
 			EditingGroupInMenu.Type = FormGroupType.ButtonGroup;
 			
-			EditButton1 = AddButtonOnForm(Form, "EditFileFromContextMenu" + ItemNumber,
+			EditButton1 = AddButtonOnForm(Form, 
+				FilesOperationsClientServer.NameOfEditFileCommand() + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
 				EditingGroupInMenu, EditFile.Name);
 		
-			CancelButton1 = AddButtonOnForm(Form, "PutFileFromContextMenu" + ItemNumber,
+			CancelButton1 = AddButtonOnForm(Form, 
+				FilesOperationsClientServer.NameOfCommandToPlaceFile() + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
 				EditingGroupInMenu, PutFile.Name);
 		
-			PlaceButton = AddButtonOnForm(Form, "CancelEditFromContextMenu" + ItemNumber,
+			PlaceButton = AddButtonOnForm(Form, 
+				FilesOperationsClientServer.NameOfUndoEditingCommand() + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
 				EditingGroupInMenu, CancelEdit.Name);
 			
 			SetEditingAvailability(PlacementFileData, EditButton1, CancelButton1, PlaceButton);

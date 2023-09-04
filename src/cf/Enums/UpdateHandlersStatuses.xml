@@ -106,7 +106,7 @@
 			</EnumValue>
 			<EnumValue uuid="f37b7b25-abd2-4e19-9712-78aafceb4f43">
 				<Properties>
-					<Name>WasNotExecuted</Name>
+					<Name>NotPerformed</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>

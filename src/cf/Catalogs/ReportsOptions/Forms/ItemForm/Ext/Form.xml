@@ -567,7 +567,7 @@
 					</CommandSet>
 					<RowFilter xsi:nil="true"/>
 					<ContextMenu name="PlacementContextMenu" id="123"/>
-					<AutoCommandBar name="PlacementCommandBar" id="124"/>
+					<AutoCommandBar name="LocationCommandBar" id="124"/>
 					<ExtendedTooltip name="PlacementExtendedTooltip" id="177"/>
 					<SearchStringAddition name="PlacementSearchString" id="215">
 						<AdditionSource>

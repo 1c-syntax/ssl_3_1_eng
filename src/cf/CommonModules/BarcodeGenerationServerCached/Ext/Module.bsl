@@ -20,12 +20,12 @@
 //   AddInObject:
 //    * ECL - Number
 //    * GS1DatabarRowCount - Number
-//    * CodeAuto - Boolean
+//    * AutoType - Boolean
 //    * Version - String
-//    * BarVerticalAlign - Number
+//    * CodeVerticalAlign - Number
 //    * CanvasYOffset - Number
 //    * CodeShowCS - Boolean
-//    * BarAlign - Number
+//    * CodeAlignment - Number
 //    * Height - Number
 //    * CanvasXOffset - Number
 //    * GraphicsPresent - Boolean
@@ -37,7 +37,7 @@
 //    * CodeCheckSymbol - String
 //    * LogoImage - Picture 
 //    * LogoSizePercentFromBarcode - Number
-//    * MaxFontSizeForHinting - Number
+//    * MaxFontSizeForLowDPIPrinters - Number
 //    * CodeMinHeight - Number
 //    * CodeMinWidth - Number
 //    * TextAlign - Number
@@ -49,11 +49,11 @@
 //    * CanvasMargin - Number
 //    * FontSize - Number
 //    * Result - Number
-//    * CodeIsRaw - Boolean
+//    * ContainsCS - Boolean
 //    * CodeText - String
 //    * InputDataType - Number
 //    * CodeType - Number
-//    * RemoveExeedBackgroud - Boolean
+//    * RemoveExtraBackgroud - Boolean
 //    * CanvasRotation - Number
 //    * QRErrorCorrectionLevel - Number
 //    * BarColor - Number

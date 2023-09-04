@@ -432,7 +432,7 @@ Procedure SetTemplatesFilter();
 	
 	If FilterByTemplateUsage = "Modified1" Then
 		ShowUnmodified = False;
-	ElsIf FilterByTemplateUsage = "NotModified" Then
+	ElsIf FilterByTemplateUsage = "NotModified1" Then
 		ShowChanged = False;
 	ElsIf FilterByTemplateUsage = "UsedModifiedItems" Then
 		ShowUnused = False;
@@ -1231,13 +1231,13 @@ EndFunction
 &AtClient
 Procedure ApplySelection()
 	
-	If FilterSet1() Then
+	If FilterIs_Specified() Then
 		UploadListOfTemplates();
 	EndIf;
 	
 	MarkItemsMatchingFilter();
 	
-	If Not FilterSet1() Then
+	If Not FilterIs_Specified() Then
 		Return;
 	EndIf;
 	
@@ -1287,7 +1287,7 @@ Function MarkItemsMatchingFilter(Val Branch1 = Undefined)
 		Branch1 = Templates;
 	EndIf;
 	
-	HasItemsMatchingFilter = Not FilterSet1();
+	HasItemsMatchingFilter = Not FilterIs_Specified();
 	
 	For Each Item In Branch1.GetItems() Do
 		Item.MatchesFilter = MatchesFilter(Item);
@@ -1313,7 +1313,7 @@ Function MatchesFilter(Item)
 EndFunction
 
 &AtClient
-Function FilterSet1()
+Function FilterIs_Specified()
 	
 	Return ValueIsFilled(SearchString) 
 		Or FilterByTemplateUsage <> "AllMakets"

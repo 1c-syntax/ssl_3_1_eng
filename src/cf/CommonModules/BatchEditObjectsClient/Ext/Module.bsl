@@ -71,7 +71,7 @@ EndProcedure
 //   ReferencesArrray - Array of AnyRef - references to the selected objects for which a command is being executed.
 //   ExecutionParameters - See AttachableCommandsClient.CommandExecuteParameters
 //
-Procedure CommandHandler(Val ReferencesArrray, Val ExecutionParameters) Export
+Procedure HandlerCommands(Val ReferencesArrray, Val ExecutionParameters) Export
 	CommandParameters = New Structure;
 	CommandParameters.Insert("ObjectsArray", ReferencesArrray);
 	StartEditSelectedItems(CommandParameters);

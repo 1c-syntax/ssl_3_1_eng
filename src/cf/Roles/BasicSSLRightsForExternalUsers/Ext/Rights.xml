@@ -29,33 +29,6 @@
 		</right>
 	</object>
 	<object>
-		<name>Configuration.StandardSubsystemsLibrary</name>
-		<right>
-			<name>MainWindowModeNormal</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeEmbeddedWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeFullscreenWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeKiosk</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>AnalyticsSystemClient</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
 		<name>Constant.UseEmailClient</name>
 		<right>
 			<name>Read</name>
@@ -269,6 +242,33 @@ ReportsOptions WHERE (ReportsOptions.User = FALSE
 		</right>
 		<right>
 			<name>Set</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>Configuration.StandardSubsystemsLibrary</name>
+		<right>
+			<name>MainWindowModeNormal</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeEmbeddedWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeFullscreenWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeKiosk</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>AnalyticsSystemClient</name>
 			<value>true</value>
 		</right>
 	</object>
@@ -1279,7 +1279,7 @@ WHERE Ref = &amp;CurrentExternalUser
 		</right>
 	</object>
 	<object>
-		<name>Constant.DoNotUseSeparationByDataAreas</name>
+		<name>Constant.NotUseSeparationByDataAreas</name>
 		<right>
 			<name>Read</name>
 			<value>true</value>
@@ -1619,7 +1619,7 @@ WHERE Ref = &amp;CurrentExternalUser
 				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
 #ForRegister("MetadataObjectIDs.InformationRegisterReportOptionsSettings", "Variant", "User", "", "", "")
 #ELSE
-ТекущаяТаблица
+CurrentTable
 WHERE User = &amp;AuthorizedUser
 	OR User = UNDEFINED
 	OR Variant.Author = &amp;AuthorizedUser
@@ -1627,7 +1627,7 @@ WHERE User = &amp;AuthorizedUser
 			SELECT TOP 1
 				TRUE
 			FROM
-				InformationRegister.СоставыГруппПользователей AS UserGroupCompositions
+				InformationRegister.UserGroupCompositions AS UserGroupCompositions
 			WHERE
 				UserGroupCompositions.UsersGroup = CurrentTable.User
 				AND UserGroupCompositions.User = &amp;AuthorizedUser)
@@ -1641,7 +1641,7 @@ WHERE User = &amp;AuthorizedUser
 				<condition>#IF &amp;RecordLevelAccessRestrictionIsUniversal #THEN
 #ForRegister("MetadataObjectIDs.InformationRegisterReportOptionsSettings", "Variant", "User", "", "", "")
 #ELSE
-ТекущаяТаблица
+CurrentTable
 WHERE User = &amp;AuthorizedUser
 	OR User = UNDEFINED
 	OR Variant.Author = &amp;AuthorizedUser
@@ -1649,7 +1649,7 @@ WHERE User = &amp;AuthorizedUser
 			SELECT TOP 1
 				TRUE
 			FROM
-				InformationRegister.СоставыГруппПользователей AS UserGroupCompositions
+				InformationRegister.UserGroupCompositions AS UserGroupCompositions
 			WHERE
 				UserGroupCompositions.UsersGroup = CurrentTable.User
 				AND UserGroupCompositions.User = &amp;AuthorizedUser)

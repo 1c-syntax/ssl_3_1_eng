@@ -1228,7 +1228,7 @@ Function AttributesRequiringPasswordToChange() Export
 	
 EndFunction
 
-Function PasswordCheckIsRequired(Ref, AttributeValuesBeforeWrite) Export
+Function PasswordCheckIsRequired(Ref, AttributesValuesBeforeWrite) Export
 	
 	If Ref.IsEmpty() Then
 		Return False;
@@ -1242,7 +1242,7 @@ Function PasswordCheckIsRequired(Ref, AttributeValuesBeforeWrite) Export
 		BeforeChange = New Structure(AttributesList);
 		FillPropertyValues(BeforeChange, WrittenAttributeValues);
 		AfterChange = New Structure(AttributesList);
-		FillPropertyValues(AfterChange, AttributeValuesBeforeWrite);
+		FillPropertyValues(AfterChange, AttributesValuesBeforeWrite);
 		Result = Common.ValueToXMLString(BeforeChange) <> Common.ValueToXMLString(AfterChange);
 	EndIf;
 	

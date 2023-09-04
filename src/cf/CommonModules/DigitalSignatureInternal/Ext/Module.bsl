@@ -134,7 +134,7 @@ Function CheckCertificate(CryptoManager, Certificate, ErrorDescription = Null, O
 	
 	If AdditionalParameters.PerformCAVerification Then
 		
-		Result = ResultofCertificateAuthorityVerification(CertificateToCheck, OnDate,
+		Result = DigitalSignature.ResultofCertificateAuthorityVerification(CertificateToCheck, OnDate,
 			AdditionalParameters.ToVerifySignature);
 		
 		If Not Result.Valid_SSLyf Or AdditionalParameters.Property("Certificate") And ValueIsFilled(Result.Warning.ErrorText)
@@ -621,7 +621,7 @@ Procedure ConfigureCommonSettingsForm(Form, DataPathAttribute) Export
 		If ConstantsSet.UseDigitalSignature And (DataPathAttribute
 			= "ConstantsSet.UseDigitalSignature" Or DataPathAttribute = "") Then
 			If AvailableAdvancedSignature Then
-				Form.TimeStampServerAddressConstant = StrConcat(CommonSettings.TimestampServersAddresses, Chars.LF);
+				Form.ConstantTimestampServersAddresses = StrConcat(CommonSettings.TimestampServersAddresses, Chars.LF);
 				Form.ConstantRefineSignaturesAutomatically = Constants.RefineSignaturesAutomatically.Get();
 				Form.ConstantAddTimestampsAutomatically = Constants.AddTimestampsAutomatically.Get();
 				Form.ConstantRefineSignaturesDates = Constants.RefineSignaturesDates.Get();
@@ -630,10 +630,10 @@ Procedure ConfigureCommonSettingsForm(Form, DataPathAttribute) Export
 				SetHeaderTipsImprovements(Form, SignatureType);
 			EndIf;
 			If Items.GenerateDigitalSignaturesAtServer.Visible Then
-				Form.ConstantCreateElectronicSignaturesOnServer = Constants.GenerateDigitalSignaturesAtServer.Get();
+				Form.ConstantGenerateDigitalSignaturesAtServer = Constants.GenerateDigitalSignaturesAtServer.Get();
 			EndIf;
 			If Items.VerifyDigitalSignaturesOnTheServer.Visible Then
-				Form.ConstantVerifyElectronicSignaturesOnServer = Constants.VerifyDigitalSignaturesOnTheServer.Get();
+				Form.ConstantVerifyDigitalSignaturesOnTheServer = Constants.VerifyDigitalSignaturesOnTheServer.Get();
 			EndIf;
 		EndIf;
 		
@@ -649,7 +649,7 @@ Procedure ConfigureCommonSettingsForm(Form, DataPathAttribute) Export
 		
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS")
+	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService")
 	 And AvailableAdvancedSignature
 		And (DataPathAttribute = "ConstantsSet.UseDSSService" Or DataPathAttribute = "") Then
 
@@ -884,24 +884,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Procedure = "Catalogs.DigitalSignatureAndEncryptionApplications.FillInitialSettings";
 	Handler.ExecutionMode = "Exclusively";
 	
-	Handler = Handlers.Add();
-	Handler.Version = "3.1.3.190";
-	Handler.Comment = NStr("en = 'Delete paths from filled signature file names.';");
-	Handler.Id = New UUID("781a39e1-48e9-4145-8d98-93c1040c2755");
-	Handler.Procedure = "InformationRegisters.DigitalSignatures.ProcessDataForMigrationToNewVersion";
-	Handler.ExecutionMode = "Deferred";
-	Handler.UpdateDataFillingProcedure = "InformationRegisters.DigitalSignatures.RegisterDataToProcessForMigrationToNewVersion";
-	Handler.ObjectsToRead      = "InformationRegister.DigitalSignatures";
-	Handler.ObjectsToChange    = "InformationRegister.DigitalSignatures";
-	Handler.DeferredProcessingQueue = 10;
-	Handler.CheckProcedure    = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
-	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
-		Handler.ExecutionPriorities = InfobaseUpdate.HandlerExecutionPriorities();
-		Priority = Handler.ExecutionPriorities.Add();
-		Priority.Order = "After";
-		Priority.Procedure = "FilesOperations.MoveDigitalSignaturesAndEncryptionCertificatesToInformationRegisters";
-	EndIf;
-
 	If Common.SubsystemExists("StandardSubsystems.AddIns")
 		And Not Common.DataSeparationEnabled() Then
 		Handler = Handlers.Add();
@@ -965,6 +947,23 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.ObjectsToRead      = "Catalog.DigitalSignatureAndEncryptionApplications";
 	Handler.ObjectsToChange    = "Catalog.DigitalSignatureAndEncryptionApplications";
 	Handler.CheckProcedure    = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
+	
+	Handler = Handlers.Add();
+	Handler.Version = "3.1.9.122";
+	Handler.Comment = NStr("en = 'Удаление путей из заполненных имен файлов подписей. Заполнение идентификатора подписи в регистре Электронные подписи.';");
+	Handler.Id = New UUID("927d1ffb-682a-474d-b3ea-5a40fd20ff08");
+	Handler.Procedure = "InformationRegisters.DigitalSignatures.ProcessDataForMigrationToNewVersion";
+	Handler.ExecutionMode = "Deferred";
+	Handler.UpdateDataFillingProcedure = "InformationRegisters.DigitalSignatures.RegisterDataToProcessForMigrationToNewVersion";
+	Handler.ObjectsToRead      = "InformationRegister.DigitalSignatures";
+	Handler.ObjectsToChange    = "InformationRegister.DigitalSignatures";
+	Handler.CheckProcedure    = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
+	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
+		Handler.ExecutionPriorities = InfobaseUpdate.HandlerExecutionPriorities();
+		Priority = Handler.ExecutionPriorities.Add();
+		Priority.Order = "After";
+		Priority.Procedure = "FilesOperations.MoveDigitalSignaturesAndEncryptionCertificatesToInformationRegisters";
+	EndIf;
 	
 EndProcedure
 
@@ -3440,8 +3439,6 @@ EndFunction
 //   * SigningDate - Date
 //
 Function VerifySignature(Val XMLEnvelope, XMLDSigParameters, CryptoManager, XMLEnvelopeProperties = Undefined) Export
-	
-	CheckParameters = New Structure;
 	
 	ComponentObject = AnObjectOfAnExternalComponentOfTheExtraCryptoAPI();
 	
@@ -6360,7 +6357,8 @@ Function CryptoErrorsClassifier() Export
 	SetPrivilegedMode(True);
 	
 	If Not Common.DataSeparationEnabled() 
-		And Metadata.CommonModules.Find("DigitalSignatureInternalLocalization") <> Undefined Then
+		And Metadata.CommonModules.Find("DigitalSignatureInternalLocalization") <> Undefined
+		And Common.SubsystemExists("StandardSubsystems.GetFilesFromInternet") Then
 			
 		ModuleDigitalSignatureInternalLocalization = Common.CommonModule("DigitalSignatureInternalLocalization");
 		

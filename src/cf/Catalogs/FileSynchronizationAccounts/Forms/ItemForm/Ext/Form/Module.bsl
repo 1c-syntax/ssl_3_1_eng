@@ -38,7 +38,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		SetPrivilegedMode(False);
 		
 		Login  = AccountParameters1.Login;
-		Password = ?(ValueIsFilled(AccountParameters1.Password), ThisObject.UUID, "");
+		Password = ?(ValueIsFilled(AccountParameters1.Password), UUID, "");
 		
 	EndIf;
 

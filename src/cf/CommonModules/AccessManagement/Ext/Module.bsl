@@ -641,7 +641,7 @@ Function LimitAccessAtRecordLevel() Export
 	SetPrivilegedMode(True);
 	SetSafeModeDisabled(True);
 	
-	Result = AccessManagementInternalCached.ConstantRestrictAccessAtRecordLevel();
+	Result = AccessManagementInternalCached.ConstantLimitAccessAtRecordLevel();
 	
 	SetSafeModeDisabled(False);
 	SetPrivilegedMode(False);

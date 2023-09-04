@@ -825,9 +825,9 @@ Function deGetTypesDescriptionXMLPresentation(TypeDescription) Export
 		SetAttribute(TypesNode, "AllowedLength",         TrimAll(TypeDescription.AllowedLength));
 		SetAttribute(TypesNode, "DateComposition",              TrimAll(TypeDescription.DateFractions));
 		
-		For Each StrType In TypeDescription.Types Do
+		For Each Page1Type In TypeDescription.Types Do
 			NodeOfType = CreateNode("Type");
-			NodeOfType.WriteText(TrimAll(StrType));
+			NodeOfType.WriteText(TrimAll(Page1Type));
 			AddSubordinateNode(TypesNode, NodeOfType);
 		EndDo;
 	Else
@@ -1670,7 +1670,7 @@ Function ExportByRule(Source					= Undefined,
 	ExportedObjects          = OCR.Exported_;
 	ExportedObjectsOnlyRefs = OCR.OnlyRefsExported;
 	AllObjectsExported         = OCR.AllObjectsExported;
-	DontReplaceObjectOnImport = OCR.DontReplace;
+	DontReplaceObjectOnImport = OCR.NotReplace;
 	DontCreateIfNotFound     = OCR.DontCreateIfNotFound;
 	OnExchangeObjectByRefSetGIUDOnly     = OCR.OnExchangeObjectByRefSetGIUDOnly;
 	
@@ -1991,7 +1991,7 @@ Function ExportByRule(Source					= Undefined,
 		SetAttribute(Receiver, "RuleName",	OCR.Name);
 		
 		If DontReplaceObjectOnImport Then
-			SetAttribute(Receiver, "DontReplace",	"true");
+			SetAttribute(Receiver, "NotReplace",	"true");
 		EndIf;
 		
 		If Not IsBlankString(AutonumberingPrefix) Then
@@ -2757,7 +2757,7 @@ Procedure InitPropertyConversionRuleTable(Tab) Export
 
 	AddMissingColumns(Columns, "GetFromIncomingData", deTypeDetails("Boolean"));
 	
-	AddMissingColumns(Columns, "DontReplace", deTypeDetails("Boolean"));
+	AddMissingColumns(Columns, "NotReplace", deTypeDetails("Boolean"));
 	
 	AddMissingColumns(Columns, "BeforeExport");
 	AddMissingColumns(Columns, "OnExport");
@@ -3343,7 +3343,7 @@ EndFunction
 //     * Properties - See PropertiesConversionRulesCollection
 //     * Exported_ - ValueTable
 //     * ExportSourcePresentation - Boolean
-//     * DontReplace - Boolean
+//     * NotReplace - Boolean
 //     * RememberExportedData - Boolean
 //     * AllObjectsExported - Boolean
 // 
@@ -3415,7 +3415,7 @@ EndFunction
 //     * Receiver - Arbitrary
 //     * ConversionRule - Arbitrary
 //     * GetFromIncomingData - Boolean
-//     * DontReplace - Boolean
+//     * NotReplace - Boolean
 //     * IsRequiredProperty - Boolean
 //     * BeforeExport - Arbitrary
 //     * BeforeExportHandlerName - Arbitrary
@@ -3508,7 +3508,7 @@ Procedure ImportPGCR(ExchangeRules, PropertiesTable)
 	
 	// 
 
-	NewRow.DontReplace               = False;
+	NewRow.NotReplace               = False;
 	NewRow.GetFromIncomingData = False;
 	NewRow.SimplifiedPropertyExport = False;
 	
@@ -3550,8 +3550,8 @@ Procedure ImportPGCR(ExchangeRules, PropertiesTable)
 		ElsIf NodeName = "Order" Then
 			NewRow.Order = deElementValue(ExchangeRules, deNumberType);
 			
-		ElsIf NodeName = "DontReplace" Then
-			NewRow.DontReplace = deElementValue(ExchangeRules, deBooleanType);
+		ElsIf NodeName = "NotReplace" Then
+			NewRow.NotReplace = deElementValue(ExchangeRules, deBooleanType);
 			
 		ElsIf NodeName = "ConversionRuleCode" Then
 			NewRow.ConversionRule = deElementValue(ExchangeRules, deStringType);
@@ -3633,7 +3633,7 @@ Procedure ImportPCR(ExchangeRules, PropertiesTable, SearchTable = Undefined, Sea
 	
 	// 
 
-	NewRow.DontReplace               = False;
+	NewRow.NotReplace               = False;
 	NewRow.GetFromIncomingData = False;
 	
 	
@@ -3667,8 +3667,8 @@ Procedure ImportPCR(ExchangeRules, PropertiesTable, SearchTable = Undefined, Sea
 		ElsIf NodeName = "Order" Then
 			NewRow.Order = deElementValue(ExchangeRules, deNumberType);
 			
-		ElsIf NodeName = "DontReplace" Then
-			NewRow.DontReplace = deElementValue(ExchangeRules, deBooleanType);
+		ElsIf NodeName = "NotReplace" Then
+			NewRow.NotReplace = deElementValue(ExchangeRules, deBooleanType);
 			
 		ElsIf NodeName = "ConversionRuleCode" Then
 			NewRow.ConversionRule = deElementValue(ExchangeRules, deStringType);
@@ -3828,7 +3828,7 @@ Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 	// 
 	
 	NewRow.RememberExportedData = True;
-	NewRow.DontReplace            = False;
+	NewRow.NotReplace            = False;
 	
 	SearchInTSTable = SearchTabularSectionsCollection();
 	NewRow.SearchInTabularSections = SearchInTSTable;
@@ -3883,15 +3883,15 @@ Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 			NewRow.GenerateNewNumberOrCodeIfNotSet = deElementValue(ExchangeRules, deBooleanType);
 			deWriteElement(XMLWriter, NodeName, NewRow.GenerateNewNumberOrCodeIfNotSet);
 			
-		ElsIf NodeName = "DoNotRememberExported" Then
+		ElsIf NodeName = "NotRememberExportedData" Then
 			
 			NewRow.RememberExportedData = Not deElementValue(ExchangeRules, deBooleanType);
 			
-		ElsIf NodeName = "DontReplace" Then
+		ElsIf NodeName = "NotReplace" Then
 			
 			Value = deElementValue(ExchangeRules, deBooleanType);
 			deWriteElement(XMLWriter, NodeName, Value);
-			NewRow.DontReplace = Value;
+			NewRow.NotReplace = Value;
 			
 		ElsIf NodeName = "ExchangeObjectsPriority" Then
 			
@@ -4828,11 +4828,11 @@ Procedure ExportEventHandlers(Cancel) Export
 	
 	DataProcessingMode = mDataProcessingModes.EventHandlersExport;
 	
-	ErrorFlag = False;
+	FlagErrors = False;
 	
 	ImportExchangeRulesForHandlerExport();
 	
-	If ErrorFlag Then
+	If FlagErrors Then
 		Cancel = True;
 		Return;
 	EndIf; 
@@ -4898,7 +4898,7 @@ Procedure ExportEventHandlers(Cancel) Export
 	
 	If IsInteractiveMode Then
 		
-		If ErrorFlag Then
+		If FlagErrors Then
 			
 			MessageToUser(NStr("en = 'Error exporting event handlers.';"));
 			
@@ -5403,18 +5403,18 @@ EndProcedure
 // Adds the NewHandler string as a comment to algorithm code insertion.
 //
 // Parameters:
-//  NewHandler1 - String - a result string that contains full algorithm scripts taking algorithm nesting into account.
+//  HandlerNew - String - a result string that contains full algorithm scripts taking algorithm nesting into account.
 //  AlgorithmName    - String - an algorithm name.
 //  PrefixString  - String - sets the initial offset of the comment to be inserted.
 //  Title       - String - comment description: "{ALGORITHM START}", "{ALGORITHM END}"…
 //
-Procedure WriteAlgorithmBlockTitle(NewHandler1, AlgorithmName, PrefixString, Title) 
+Procedure WriteAlgorithmBlockTitle(HandlerNew, AlgorithmName, PrefixString, Title) 
 	
 	AlgorithmTitle = "//============================ " + Title + " """ + AlgorithmName + """ ============================";
 	
-	NewHandler1 = NewHandler1 + Chars.LF;
-	NewHandler1 = NewHandler1 + Chars.LF + PrefixString + AlgorithmTitle;
-	NewHandler1 = NewHandler1 + Chars.LF;
+	HandlerNew = HandlerNew + Chars.LF;
+	HandlerNew = HandlerNew + Chars.LF + PrefixString + AlgorithmTitle;
+	HandlerNew = HandlerNew + Chars.LF;
 	
 EndProcedure  
 
@@ -5485,9 +5485,9 @@ Function ReplaceAlgorithmCallsWithTheirHandlerScript(Handler, AlgorithmOwner, Re
 	RequestedItemArray.Add(Upper(AlgorithmOwner));
 	
 	// Initialize return value.
-	NewHandler1 = "";
+	HandlerNew = "";
 	
-	WriteAlgorithmBlockTitle(NewHandler1, AlgorithmOwner, PrefixString, NStr("en = '{ALGORITHM START}';"));
+	WriteAlgorithmBlockTitle(HandlerNew, AlgorithmOwner, PrefixString, NStr("en = '{ALGORITHM START}';"));
 	
 	For IndexOf = 1 To StrLineCount(Handler) Do
 		
@@ -5506,14 +5506,14 @@ Function ReplaceAlgorithmCallsWithTheirHandlerScript(Handler, AlgorithmOwner, Re
 				
 				If RequestedItemArray.Find(Upper(Algorithm)) <> Undefined Then // 
 					
-					WriteAlgorithmBlockTitle(NewHandler1, Algorithm, PrefixStringForInlineCode, NStr("en = '{RECURSIVE ALGORITHM CALL}';"));
+					WriteAlgorithmBlockTitle(HandlerNew, Algorithm, PrefixStringForInlineCode, NStr("en = '{RECURSIVE ALGORITHM CALL}';"));
 					
 					OperatorString = NStr("en = '%1 ""RECURSIVE ALGORITHM CALL: %2"";';");
 					OperatorString = SubstituteParametersToString(OperatorString, "CauseTheException", Algorithm);
 					
-					NewHandler1 = NewHandler1 + Chars.LF + PrefixStringForInlineCode + OperatorString;
+					HandlerNew = HandlerNew + Chars.LF + PrefixStringForInlineCode + OperatorString;
 					
-					WriteAlgorithmBlockTitle(NewHandler1, Algorithm, PrefixStringForInlineCode, NStr("en = '{RECURSIVE ALGORITHM CALL}';"));
+					WriteAlgorithmBlockTitle(HandlerNew, Algorithm, PrefixStringForInlineCode, NStr("en = '{RECURSIVE ALGORITHM CALL}';"));
 					
 					RecordStructure = New Structure;
 					RecordStructure.Insert("Algorithm_1", AlgorithmOwner);
@@ -5523,7 +5523,7 @@ Function ReplaceAlgorithmCallsWithTheirHandlerScript(Handler, AlgorithmOwner, Re
 					
 				Else
 					
-					NewHandler1 = NewHandler1 + ReplaceAlgorithmCallsWithTheirHandlerScript(Algorithms[Algorithm], Algorithm, CopyArray(RequestedItemArray), PrefixStringForInlineCode);
+					HandlerNew = HandlerNew + ReplaceAlgorithmCallsWithTheirHandlerScript(Algorithms[Algorithm], Algorithm, CopyArray(RequestedItemArray), PrefixStringForInlineCode);
 					
 				EndIf; 
 				
@@ -5531,13 +5531,13 @@ Function ReplaceAlgorithmCallsWithTheirHandlerScript(Handler, AlgorithmOwner, Re
 			
 		EndIf; 
 		
-		NewHandler1 = NewHandler1 + Chars.LF + PrefixString + HandlerRow; 
+		HandlerNew = HandlerNew + Chars.LF + PrefixString + HandlerRow; 
 		
 	EndDo;
 	
-	WriteAlgorithmBlockTitle(NewHandler1, AlgorithmOwner, PrefixString, NStr("en = '{ALGORITHM END}';"));
+	WriteAlgorithmBlockTitle(HandlerNew, AlgorithmOwner, PrefixString, NStr("en = '{ALGORITHM END}';"));
 	
-	Return NewHandler1;
+	Return HandlerNew;
 	
 EndFunction
 
@@ -6823,7 +6823,7 @@ Procedure ReadSearchPropertiesFromFile(SearchProperties, SearchPropertiesDontRep
 			
 			EndIf;
 			
-			DontReplaceProperty = deAttribute(ExchangeFile, deBooleanType, "DontReplace");
+			DontReplaceProperty = deAttribute(ExchangeFile, deBooleanType, "NotReplace");
 			SearchByEqualDate = SearchByEqualDate 
 					Or deAttribute(ExchangeFile, deBooleanType, "SearchByEqualDate");
 			//
@@ -8532,7 +8532,7 @@ Function ReadObject()
 	Gsn					= deAttribute(ExchangeFile, deNumberType,  "Gsn");
 	Source				= deAttribute(ExchangeFile, deStringType, "Source");
 	RuleName				= deAttribute(ExchangeFile, deStringType, "RuleName");
-	DontReplaceObject 		= deAttribute(ExchangeFile, deBooleanType, "DontReplace");
+	DontReplaceObject 		= deAttribute(ExchangeFile, deBooleanType, "NotReplace");
 	AutonumberingPrefix	= deAttribute(ExchangeFile, deStringType, "AutonumberingPrefix");
 	ObjectTypeString       = deAttribute(ExchangeFile, deStringType, "Type");
 	ObjectType 				= Type(ObjectTypeString);
@@ -8720,7 +8720,7 @@ Function ReadObject()
 			EndIf;
 			
 			Name                = deAttribute(ExchangeFile, deStringType, "Name");
-			DontReplaceProperty = deAttribute(ExchangeFile, deBooleanType, "DontReplace");
+			DontReplaceProperty = deAttribute(ExchangeFile, deBooleanType, "NotReplace");
 			OCRName             = deAttribute(ExchangeFile, deStringType, "OCRName");
 			
 			If Not IsParameterForObject
@@ -8919,8 +8919,8 @@ Function ReadObject()
 			EndIf;
 			
 			Name                = deAttribute(ExchangeFile, deStringType, "Name");
-			DontReplaceProperty = deAttribute(ExchangeFile, deBooleanType, "DontReplace");
-			DontClear          = deAttribute(ExchangeFile, deBooleanType, "DontClear");
+			DontReplaceProperty = deAttribute(ExchangeFile, deBooleanType, "NotReplace");
+			NotClear          = deAttribute(ExchangeFile, deBooleanType, "NotClear");
 
 			If ObjectFound And DontReplaceProperty Then
 				
@@ -8939,12 +8939,12 @@ Function ReadObject()
 			If NodeName = "TabularSection" Then
 				
 				// Importing items from the tabular section
-				ImportTabularSection(Object, Name, Not DontClear, TypesInformation, NeedToWriteObject, ObjectParameters, Rule);
+				ImportTabularSection(Object, Name, Not NotClear, TypesInformation, NeedToWriteObject, ObjectParameters, Rule);
 				
 			ElsIf NodeName = "RecordSet" Then
 				
 				// Import register records.
-				ImportRegisterRecords(Object, Name, Not DontClear, TypesInformation, NeedToWriteObject, ObjectParameters, Rule);
+				ImportRegisterRecords(Object, Name, Not NotClear, TypesInformation, NeedToWriteObject, ObjectParameters, Rule);
 				
 			EndIf;			
 			
@@ -9521,8 +9521,8 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 	EndIf;
 	
 	ObjectCollection1 = Undefined;
-	DontReplace        = PGCR.DontReplace;
-	DontClear         = False;
+	NotReplace        = PGCR.NotReplace;
+	NotClear         = False;
 	ExportGroupToFile = PGCR.ExportGroupToFile;
 	
 	// BeforeProcessExport handler
@@ -9572,15 +9572,15 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 		
 		CreateObjectsForXMLWriter(PropertyNodeStructure, ObjectCollectionNode, True, PGCR.Receiver, MasterNodeName);
 		
-		If DontReplace Then
+		If NotReplace Then
 			
-			AddAttributeForXMLWriter(PropertyNodeStructure, ObjectCollectionNode, "DontReplace", "true");
+			AddAttributeForXMLWriter(PropertyNodeStructure, ObjectCollectionNode, "NotReplace", "true");
 						
 		EndIf;
 		
-		If DontClear Then
+		If NotClear Then
 			
-			AddAttributeForXMLWriter(PropertyNodeStructure, ObjectCollectionNode, "DontClear", "true");
+			AddAttributeForXMLWriter(PropertyNodeStructure, ObjectCollectionNode, "NotClear", "true");
 						
 		EndIf;
 		
@@ -9599,15 +9599,15 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 		
 		CreateObjectsForXMLWriter(PropertyNodeStructure, ObjectCollectionNode, True, PGCR.Receiver, MasterNodeName);
 		
-		If DontReplace Then
+		If NotReplace Then
 			
-			AddAttributeForXMLWriter(PropertyNodeStructure, ObjectCollectionNode, "DontReplace", "true");
+			AddAttributeForXMLWriter(PropertyNodeStructure, ObjectCollectionNode, "NotReplace", "true");
 						
 		EndIf;
 		
-		If DontClear Then
+		If NotClear Then
 			
-			AddAttributeForXMLWriter(PropertyNodeStructure, ObjectCollectionNode, "DontClear", "true");
+			AddAttributeForXMLWriter(PropertyNodeStructure, ObjectCollectionNode, "NotClear", "true");
 						
 		EndIf;
 		
@@ -9991,7 +9991,7 @@ Procedure ExportExtDimension1(Source,
 	//
 	// 
 	// 
-	Var DestinationType, Empty, Expression, DontReplace, PropertyNode1, PropertiesOCR;
+	Var DestinationType, Empty, Expression, NotReplace, PropertyNode1, PropertiesOCR;
 	
 	If SafeMode Then
 		SetSafeMode(True);
@@ -10494,9 +10494,9 @@ Procedure ExportProperties(Source, Receiver, IncomingData, OutgoingData, OCR, PC
 				
 			EndIf;
 			
-			If PCR.DontReplace Then
+			If PCR.NotReplace Then
 				
-				SetAttribute(PropertyCollectionNode, "DontReplace",	"true");
+				SetAttribute(PropertyCollectionNode, "NotReplace",	"true");
 				
 			EndIf;
 			
@@ -10587,7 +10587,7 @@ Procedure ExportProperties(Source, Receiver, IncomingData, OutgoingData, OCR, PC
 		//	
 		Value 	 = Undefined;
 		OCRName		 = PCR.ConversionRule;
-		DontReplace   = PCR.DontReplace;
+		NotReplace   = PCR.NotReplace;
 		
 		Empty		 = False;
 		Expression	 = Undefined;
@@ -10642,9 +10642,9 @@ Procedure ExportProperties(Source, Receiver, IncomingData, OutgoingData, OCR, PC
 			
 		EndIf;
 		
-		If DontReplace Then
+		If NotReplace Then
 			
-			SetAttribute(PropertyNode1, "DontReplace",	"true");
+			SetAttribute(PropertyNode1, "NotReplace",	"true");
 			
 		EndIf;
 		
@@ -11975,7 +11975,7 @@ Procedure OpenImportFile(ReadHeaderOnly=False, ExchangeFileData = "") Export
 	EndIf; 
 	
 	
-	ErrorFlag = False;
+	FlagErrors = False;
 	ExchangeFile = New XMLReader();
 
 	Try
@@ -12999,7 +12999,7 @@ Function ExecuteActionsBeforeReadData(DataString1 = "") Export
 	mNotWrittenObjectGlobalStack = New Map;
 	
 	mImportedObjectCounter = 0;
-	ErrorFlag                  = False;
+	FlagErrors                  = False;
 	ImportedObjects          = New Map;
 	ImportedGlobalObjects = New Map;
 
@@ -13007,7 +13007,7 @@ Function ExecuteActionsBeforeReadData(DataString1 = "") Export
 	
 	OpenImportFile(,DataString1);
 	
-	If ErrorFlag Then 
+	If FlagErrors Then 
 		FinishKeepExchangeProtocol();
 		Return False; 
 	EndIf;
@@ -13332,13 +13332,13 @@ Procedure ExecuteExport() Export
 	
 	mExportedObjectCounter = 0;
 	mSnCounter 				= 0;
-	ErrorFlag                  = False;
+	FlagErrors                  = False;
 
 	// Import exchange rules.
 	If Conversion.Count() = 9 Then
 		
 		ImportExchangeRules();
-		If ErrorFlag Then
+		If FlagErrors Then
 			FinishKeepExchangeProtocol();
 			mDataImportDataProcessor = Undefined;
 			Return;
@@ -13359,7 +13359,7 @@ Procedure ExecuteExport() Export
 	// Open the exchange file.
 	CurrentRowForWrite = OpenExportFile() + Chars.LF;
 	
-	If ErrorFlag Then
+	If FlagErrors Then
 		ExchangeFile = Undefined;
 		FinishKeepExchangeProtocol();
 		mDataImportDataProcessor = Undefined;
@@ -13567,9 +13567,9 @@ EndProcedure
 //  
 Procedure SetErrorFlag2(Value)
 	
-	ErrorFlag = Value;
+	FlagErrors = Value;
 	
-	If ErrorFlag Then
+	If FlagErrors Then
 		
 		EventHandlerExternalDataProcessorDestructor(FlagDebugMode);
 		
@@ -13668,7 +13668,7 @@ Procedure InitConversionRuleTable()
 	AddMissingColumns(Columns, "OnlyRefsExported",				deTypeDetails("Map"));
 	AddMissingColumns(Columns, "ExportSourcePresentation",		deTypeDetails("Boolean"));
 	
-	AddMissingColumns(Columns, "DontReplace",					deTypeDetails("Boolean"));
+	AddMissingColumns(Columns, "NotReplace",					deTypeDetails("Boolean"));
 	
 	AddMissingColumns(Columns, "RememberExportedData",       deTypeDetails("Boolean"));
 	AddMissingColumns(Columns, "AllObjectsExported",         deTypeDetails("Boolean"));
@@ -14192,7 +14192,7 @@ Procedure InitAttributesAndModuleVariables()
 	Managers    = Undefined;
 	deMessages  = Undefined;
 	
-	ErrorFlag   = False;
+	FlagErrors   = False;
 	
 	CreateConversionStructure();
 	

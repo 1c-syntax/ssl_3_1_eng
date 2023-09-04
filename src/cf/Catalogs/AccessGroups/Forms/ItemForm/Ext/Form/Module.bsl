@@ -1067,16 +1067,16 @@ EndProcedure
 Procedure UpdateAssignment()
 	
 	Purpose.Clear();
-	AssignmentPresentation = "";
+	PurposePresentation = "";
 	For Each Member In Object.Profile.Purpose Do
 		If Member.UsersType <> Undefined Then
 			Purpose.Add(Member.UsersType);
 			TypePresentation = Member.UsersType.Metadata().Synonym;
-			AssignmentPresentation = ?(IsBlankString(AssignmentPresentation),
-				TypePresentation, AssignmentPresentation + ", " + TypePresentation);
+			PurposePresentation = ?(IsBlankString(PurposePresentation),
+				TypePresentation, PurposePresentation + ", " + TypePresentation);
 		EndIf;
 	EndDo;
-	Items.Users.ToolTip = NStr("en = 'Allowed members:';") + " " + AssignmentPresentation;
+	Items.Users.ToolTip = NStr("en = 'Allowed members:';") + " " + PurposePresentation;
 	
 EndProcedure
 

@@ -334,7 +334,7 @@
 												</InputField>
 											</ChildItems>
 										</Page>
-										<Page name="CustomDateNotUsed" id="26">
+										<Page name="CustomNotUsed" id="26">
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>

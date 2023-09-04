@@ -33,8 +33,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	PrintWithStampAvailable =
 		  Common.SubsystemExists("StandardSubsystems.DigitalSignature")
-		And ThisObject.Object.Extension = "mxl"
-		And ThisObject.Object.SignedWithDS;
+		And Object.Extension = "mxl"
+		And Object.SignedWithDS;
 	
 	Items.PrintWithStamp.Visible = PrintWithStampAvailable;
 	If Not PrintWithStampAvailable Then
@@ -97,7 +97,7 @@ Procedure OnClose(Exit)
 	If Exit Then
 		Return;
 	EndIf;
-	UnlockObject(ThisObject.Object.Ref, UUID);
+	UnlockObject(Object.Ref, UUID);
 	
 EndProcedure
 
@@ -337,13 +337,13 @@ EndProcedure
 Procedure UpdateFromFileOnHardDrive(Command)
 	
 	If IsNew()
-		Or ThisObject.Object.Encrypted
-		Or ThisObject.Object.SignedWithDS
-		Or ValueIsFilled(ThisObject.Object.BeingEditedBy) Then
+		Or Object.Encrypted
+		Or Object.SignedWithDS
+		Or ValueIsFilled(Object.BeingEditedBy) Then
 		Return;
 	EndIf;
 	
-	FileData = FileData(ThisObject.Object.Ref, UUID, "ServerCall");
+	FileData = FileData(Object.Ref, UUID, "ServerCall");
 	Handler = New NotifyDescription("UpdateFromFileOnHardDriveCompletion", ThisObject);
 	FilesOperationsInternalClient.UpdateFromFileOnHardDriveWithNotification(Handler, FileData, UUID);
 	
@@ -357,7 +357,7 @@ Procedure StandardSaveAndClose(Command)
 		Result = New Structure();
 		Result.Insert("ErrorText", "");
 		Result.Insert("FileAdded", True);
-		Result.Insert("FileRef", ThisObject.Object.Ref);
+		Result.Insert("FileRef", Object.Ref);
 		
 		Close(Result);
 		
@@ -380,7 +380,7 @@ Procedure StandardSetDeletionMark(Command)
 	EndIf;
 	
 	If Modified Then
-		If ThisObject.Object.DeletionMark Then
+		If Object.DeletionMark Then
 			QueryText = NStr(
 				"en = 'To proceed, save the file changes.
 				      |Save the changes and clear the deletion mark from file
@@ -392,7 +392,7 @@ Procedure StandardSetDeletionMark(Command)
 				      |""%1"" file for deletion?';");
 		EndIf;
 	Else
-		If ThisObject.Object.DeletionMark Then
+		If Object.DeletionMark Then
 			QueryText = NStr("en = 'Deletion mark will be cleared from %1.
 			                          |Continue?';");
 		Else
@@ -402,7 +402,7 @@ Procedure StandardSetDeletionMark(Command)
 	EndIf;
 	
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-		QueryText, ThisObject.Object.Ref);
+		QueryText, Object.Ref);
 		
 	NotifyDescription = New NotifyDescription("StandardSetDeletionMarkAnswerReceived", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
@@ -412,7 +412,7 @@ EndProcedure
 Procedure StandardSetDeletionMarkAnswerReceived(QuestionResult, AdditionalParameters) Export
 	
 	If QuestionResult = DialogReturnCode.Yes Then
-		ThisObject.Object.DeletionMark = Not ThisObject.Object.DeletionMark;
+		Object.DeletionMark = Not Object.DeletionMark;
 		HandleFileRecordCommand();
 	EndIf;
 	
@@ -438,6 +438,10 @@ EndProcedure
 &AtClient
 Procedure Sign(Command)
 	
+	If Not CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		Return;
+	EndIf;
+	
 	If IsNew()
 		Or ValueIsFilled(Object.BeingEditedBy)
 		Or Object.Encrypted Then
@@ -450,7 +454,10 @@ Procedure Sign(Command)
 	
 	NotifyDescription      = New NotifyDescription("OnGetSignature", ThisObject);
 	AdditionalParameters = New Structure("ResultProcessing", NotifyDescription);
-	FilesOperationsClient.SignFile(Object.Ref, UUID, AdditionalParameters);
+	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
+	SigningParameters = ModuleDigitalSignatureClient.NewSignatureType();
+	SigningParameters.ChoosingAuthorizationLetter = True;
+	FilesOperationsClient.SignFile(Object.Ref, UUID, AdditionalParameters, SigningParameters);
 	
 EndProcedure
 
@@ -458,12 +465,12 @@ EndProcedure
 Procedure AddDSFromFile(Command)
 	
 	If IsNew()
-		Or ValueIsFilled(ThisObject.Object.BeingEditedBy)
-		Or ThisObject.Object.Encrypted Then
+		Or ValueIsFilled(Object.BeingEditedBy)
+		Or Object.Encrypted Then
 		Return;
 	EndIf;
 	
-	AttachedFile = ThisObject.Object.Ref;
+	AttachedFile = Object.Ref;
 	FilesOperationsInternalClient.AddSignatureFromFile(
 		AttachedFile,
 		UUID,
@@ -475,13 +482,13 @@ EndProcedure
 Procedure SaveWithDigitalSignature(Command)
 	
 	If IsNew()
-		Or ValueIsFilled(ThisObject.Object.BeingEditedBy)
-		Or ThisObject.Object.Encrypted Then
+		Or ValueIsFilled(Object.BeingEditedBy)
+		Or Object.Encrypted Then
 		Return;
 	EndIf;
 	
 	FilesOperationsClient.SaveWithDigitalSignature(
-		ThisObject.Object.Ref,
+		Object.Ref,
 		UUID);
 	
 EndProcedure
@@ -489,7 +496,7 @@ EndProcedure
 &AtClient
 Procedure Encrypt(Command)
 	
-	If IsNew() Or ValueIsFilled(ThisObject.Object.BeingEditedBy) Or ThisObject.Object.Encrypted Then
+	If IsNew() Or ValueIsFilled(Object.BeingEditedBy) Or Object.Encrypted Then
 		Return;
 	EndIf;
 	
@@ -497,7 +504,7 @@ Procedure Encrypt(Command)
 		Write();
 	EndIf;
 	
-	FileData = FilesOperationsInternalServerCall.GetFileDataAndVersionsCount(ThisObject.Object.Ref);
+	FileData = FilesOperationsInternalServerCall.GetFileDataAndVersionsCount(Object.Ref);
 	
 	HandlerParameters = New Structure;
 	HandlerParameters.Insert("FileData", FileData);
@@ -529,10 +536,10 @@ Procedure EncryptAfterEncryptAtClient(Result, ExecutionParameters) Export
 	FilesOperationsInternalClient.InformOfEncryption(
 		FilesArrayInWorkingDirectoryToDelete,
 		ExecutionParameters.FileData.Owner,
-		ThisObject.Object.Ref);
+		Object.Ref);
 		
-	NotifyChanged(ThisObject.Object.Ref);
-	Notify("Write_File", New Structure, ThisObject.Object.Ref);
+	NotifyChanged(Object.Ref);
+	Notify("Write_File", New Structure, Object.Ref);
 	
 	SetAvaliabilityOfEncryptionList();
 	
@@ -541,11 +548,11 @@ EndProcedure
 &AtClient
 Procedure Decrypt(Command)
 	
-	If IsNew() Or Not ThisObject.Object.Encrypted Then
+	If IsNew() Or Not Object.Encrypted Then
 		Return;
 	EndIf;
 	
-	FileData = FilesOperationsInternalServerCall.GetFileDataAndVersionsCount(ThisObject.Object.Ref);
+	FileData = FilesOperationsInternalServerCall.GetFileDataAndVersionsCount(Object.Ref);
 	
 	HandlerParameters = New Structure;
 	HandlerParameters.Insert("FileData", FileData);
@@ -571,7 +578,7 @@ Procedure DecryptAfterDecryptAtClient(Result, ExecutionParameters) Export
 	
 	FilesOperationsInternalClient.InformOfDecryption(
 		ExecutionParameters.FileData.Owner,
-		ThisObject.Object.Ref);
+		Object.Ref);
 	
 	FillEncryptionListAtServer();
 	SetAvaliabilityOfEncryptionList();
@@ -606,7 +613,7 @@ Procedure VerifyDigitalSignature(Command)
 		Return;
 	EndIf;
 	
-	FileData = FileData(ThisObject.Object.Ref, UUID);
+	FileData = FileData(Object.Ref, UUID);
 	
 	FilesOperationsInternalClient.VerifySignatures(ThisObject,
 		FileData.RefToBinaryFileData,
@@ -625,7 +632,7 @@ Procedure CheckEverything(Command)
 		Return;
 	EndIf;
 	
-	FileData = FileData(ThisObject.Object.Ref, UUID);
+	FileData = FileData(Object.Ref, UUID);
 	FilesOperationsInternalClient.VerifySignatures(ThisObject, FileData.RefToBinaryFileData);
 	If Items.FormWriteAndClose.Visible And Items.FormWriteAndClose.Enabled Then
 		Modified = True;
@@ -692,8 +699,8 @@ Procedure DeleteDigitalSignatureAnswerReceived(QuestionResult, AdditionalParamet
 	
 	Write();
 	DeleteFromSignatureListAndWriteFile();
-	NotifyChanged(ThisObject.Object.Ref);
-	Notify("Write_File", New Structure, ThisObject.Object.Ref);
+	NotifyChanged(Object.Ref);
+	Notify("Write_File", New Structure, Object.Ref);
 	SetAvaliabilityOfDSCommandsList();
 	
 EndProcedure
@@ -756,8 +763,8 @@ Procedure Edit(Command)
 		Return;
 	EndIf;
 	
-	If ValueIsFilled(ThisObject.Object.BeingEditedBy)
-	   And ThisObject.Object.BeingEditedBy <> CurrentUser Then
+	If ValueIsFilled(Object.BeingEditedBy)
+	   And Object.BeingEditedBy <> CurrentUser Then
 		Return;
 	EndIf;
 	
@@ -765,13 +772,13 @@ Procedure Edit(Command)
 		Return;
 	EndIf;
 	
-	FileData = FileData(ThisObject.Object.Ref, UUID, "ToOpen");
-	FileBeingEdited = ValueIsFilled(ThisObject.Object.BeingEditedBy);
+	FileData = FileData(Object.Ref, UUID, "ToOpen");
+	FileBeingEdited = ValueIsFilled(Object.BeingEditedBy);
 	FilesOperationsInternalClient.EditFile(Undefined, FileData, UUID);
 	If Not FileBeingEdited Then
 		UpdateObject();
-		NotifyChanged(ThisObject.Object.Ref);
-		Notify("Write_File", New Structure, ThisObject.Object.Ref);
+		NotifyChanged(Object.Ref);
+		Notify("Write_File", New Structure, Object.Ref);
 	EndIf;
 	
 EndProcedure
@@ -780,12 +787,12 @@ EndProcedure
 Procedure EndEdit(Command)
 	
 	If IsNew()
-		Or Not ValueIsFilled(ThisObject.Object.BeingEditedBy)
-		Or ThisObject.Object.BeingEditedBy <> CurrentUser Then
+		Or Not ValueIsFilled(Object.BeingEditedBy)
+		Or Object.BeingEditedBy <> CurrentUser Then
 			Return;
 	EndIf;
 	
-	FileData = FileData(ThisObject.Object.Ref, UUID, "ServerCall");
+	FileData = FileData(Object.Ref, UUID, "ServerCall");
 	NotifyDescription = New NotifyDescription("EndEditingPuttingCompleted", ThisObject);
 	FileUpdateParameters = FilesOperationsInternalClient.FileUpdateParameters(NotifyDescription, FileData.Ref, UUID);
 	FileUpdateParameters.StoreVersions = FileData.StoreVersions;
@@ -803,8 +810,8 @@ Procedure EndEditingPuttingCompleted(FileInfo, AdditionalParameters) Export
 	
 	UpdateObject();
 	
-	NotifyChanged(ThisObject.Object.Ref);
-	Notify("Write_File", New Structure, ThisObject.Object.Ref);
+	NotifyChanged(Object.Ref);
+	Notify("Write_File", New Structure, Object.Ref);
 	
 EndProcedure
 
@@ -812,32 +819,32 @@ EndProcedure
 Procedure Release(Command)
 	
 	If IsNew()
-		Or Not ValueIsFilled(ThisObject.Object.BeingEditedBy)
-		Or ThisObject.Object.BeingEditedBy <> CurrentUser Then
+		Or Not ValueIsFilled(Object.BeingEditedBy)
+		Or Object.BeingEditedBy <> CurrentUser Then
 		Return;
 	EndIf;
 
-	UnlockCompletion = New NotifyDescription("UnlockCompletion", ThisObject);
+	ReleaseCompletion = New NotifyDescription("ReleaseCompletion", ThisObject);
 	If Modified Then
-		ShowQueryBox(UnlockCompletion,
+		ShowQueryBox(ReleaseCompletion,
 			NStr("en = 'If editing is canceled, changes made will be lost. Continue?';"),
 			QuestionDialogMode.YesNo);
 	Else
-		ExecuteNotifyProcessing(UnlockCompletion, DialogReturnCode.Yes);
+		ExecuteNotifyProcessing(ReleaseCompletion, DialogReturnCode.Yes);
 	EndIf;
 	
 EndProcedure
 
 &AtClient
-Procedure UnlockCompletion(QuestionResult, AdditionalParameters) Export
+Procedure ReleaseCompletion(QuestionResult, AdditionalParameters) Export
 	
 	If QuestionResult <> DialogReturnCode.Yes Then
 		Return;
 	EndIf;
 		
 	UnlockFile();
-	NotifyChanged(ThisObject.Object.Ref);
-	Notify("Write_File", New Structure("Event", "EditingCanceled"), ThisObject.Object.Ref);
+	NotifyChanged(Object.Ref);
+	Notify("Write_File", New Structure("Event", "EditCanceled"), Object.Ref);
 	FilesOperationsInternalClient.ChangeLockedFilesCount();
 	
 EndProcedure
@@ -851,7 +858,7 @@ Procedure SaveChanges(Command)
 	
 	Handler = New NotifyDescription("ReadAndSetFormItemsAvailability", ThisObject);	
 	FilesOperationsInternalClient.SaveFileChangesWithNotification(Handler,
-		ThisObject.Object.Ref, UUID);
+		Object.Ref, UUID);
 	
 EndProcedure
 
@@ -902,9 +909,9 @@ EndProcedure
 &AtClient
 Procedure Send(Command)
 	
-	If ValueIsFilled(ThisObject.Object.Ref)
+	If ValueIsFilled(Object.Ref)
 		Or Write() Then
-		Files = CommonClientServer.ValueInArray(ThisObject.Object.Ref);
+		Files = CommonClientServer.ValueInArray(Object.Ref);
 		FilesOperationsInternalClient.SendFilesViaEmail(Files, UUID, SendOptions, True);
 	EndIf;
 	
@@ -913,9 +920,9 @@ EndProcedure
 &AtClient
 Procedure Print(Command)
 	
-	If ValueIsFilled(ThisObject.Object.Ref) Or Write() Then
-		Files = CommonClientServer.ValueInArray(ThisObject.Object.Ref);
-		FilesOperationsClient.PrintFiles(Files, ThisObject.UUID);
+	If ValueIsFilled(Object.Ref) Or Write() Then
+		Files = CommonClientServer.ValueInArray(Object.Ref);
+		FilesOperationsClient.PrintFiles(Files, UUID);
 	EndIf;
 
 EndProcedure
@@ -923,9 +930,9 @@ EndProcedure
 &AtClient
 Procedure PrintWithStamp(Command)
 	
-	If ValueIsFilled(ThisObject.Object.Ref)
+	If ValueIsFilled(Object.Ref)
 		Or Write() Then
-		DocumentWithStamp = FilesOperationsInternalServerCall.SpreadsheetDocumentWithStamp(ThisObject.Object.Ref, ThisObject.Object.Ref);
+		DocumentWithStamp = FilesOperationsInternalServerCall.SpreadsheetDocumentWithStamp(Object.Ref, Object.Ref);
 		FilesOperationsInternalClient.PrintFileWithStamp(DocumentWithStamp);
 	EndIf;
 	
@@ -953,9 +960,9 @@ Procedure RefreshTitle()
 		FileType = NStr("en = 'Attachment';");
 	EndIf;
 	
-	If ValueIsFilled(ThisObject.Object.Ref) Then
+	If ValueIsFilled(Object.Ref) Then
 		Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 (%2)';"), String(ThisObject.Object.Ref), FileType);
+			NStr("en = '%1 (%2)';"), String(Object.Ref), FileType);
 	Else
 		Title = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = '%1 (Create)';"), FileType);
@@ -1012,9 +1019,9 @@ Procedure OpenFileForViewing()
 		Return;
 	EndIf;
 	
-	FileBeingEdited = ValueIsFilled(ThisObject.Object.BeingEditedBy)
-		And ThisObject.Object.BeingEditedBy = CurrentUser;
-	FileData = FileData(ThisObject.Object.Ref, UUID, "ToOpen");
+	FileBeingEdited = ValueIsFilled(Object.BeingEditedBy)
+		And Object.BeingEditedBy = CurrentUser;
+	FileData = FileData(Object.Ref, UUID, "ToOpen");
 	FilesOperationsClient.OpenFile(FileData, FileBeingEdited);
 	
 EndProcedure
@@ -1023,11 +1030,11 @@ EndProcedure
 Procedure OpenFileDirectory()
 	
 	If IsNew()
-		Or ThisObject.Object.Encrypted Then
+		Or Object.Encrypted Then
 		Return;
 	EndIf;
 	
-	FileData = FileData(ThisObject.Object.Ref, UUID, "ToOpen");
+	FileData = FileData(Object.Ref, UUID, "ToOpen");
 	FilesOperationsClient.OpenFileDirectory(FileData);
 	
 EndProcedure
@@ -1039,7 +1046,7 @@ Procedure SaveAs()
 		Return;
 	EndIf;
 	
-	FileData = FileData(ThisObject.Object.Ref, UUID, "ForSave");
+	FileData = FileData(Object.Ref, UUID, "ForSave");
 	FilesOperationsInternalClient.SaveAs(Undefined, FileData, Undefined);
 	
 EndProcedure
@@ -1292,7 +1299,7 @@ Procedure EncryptServer(DataArrayToStoreInDatabase,
 	EncryptionInformationWriteParameters.UUID = UUID;
 		
 	FilesOperationsInternal.WriteEncryptionInformation(
-		ThisObject.Object.Ref, EncryptionInformationWriteParameters);
+		Object.Ref, EncryptionInformationWriteParameters);
 		
 	UpdateInfoOfObjectCertificates();
 	
@@ -1309,7 +1316,7 @@ Procedure DecryptServer(DataArrayToStoreInDatabase,
 	EncryptionInformationWriteParameters.UUID = UUID;
 	
 	FilesOperationsInternal.WriteEncryptionInformation(
-		ThisObject.Object.Ref, EncryptionInformationWriteParameters);
+		Object.Ref, EncryptionInformationWriteParameters);
 		
 	UpdateInfoOfObjectCertificates();
 	
@@ -1319,7 +1326,7 @@ EndProcedure
 Procedure UpdateObject()
 	
 	Read();
-	ModificationDate = ToLocalTime(ThisObject.Object.UniversalModificationDate);
+	ModificationDate = ToLocalTime(Object.UniversalModificationDate);
 	SetButtonsAvailability(ThisObject, Items);
 	
 EndProcedure
@@ -1336,14 +1343,14 @@ EndProcedure
 &AtClient
 Function HandleFileRecordCommand()
 	
-	If IsBlankString(ThisObject.Object.Description) Then
+	If IsBlankString(Object.Description) Then
 		CommonClient.MessageToUser(
 			NStr("en = 'To proceed, please provide the file name.';"), , "Description", "Object");
 		Return False;
 	EndIf;
 	
 	Try
-		FilesOperationsInternalClient.CorrectFileName(ThisObject.Object.Description);
+		FilesOperationsInternalClient.CorrectFileName(Object.Description);
 	Except
 		CommonClient.MessageToUser(
 			ErrorProcessing.BriefErrorDescription(ErrorInfo()), ,"Description", "Object");
@@ -1353,10 +1360,10 @@ Function HandleFileRecordCommand()
 	Write();
 
 	Modified = False;
-	RepresentDataChange(ThisObject.Object.Ref, DataChangeType.Update);
-	NotifyChanged(ThisObject.Object.Ref);
-	NotifyChanged(ThisObject.Object.FileOwner);
-	Notify("Write_File", New Structure("IsNew", FileCreated), ThisObject.Object.Ref);
+	RepresentDataChange(Object.Ref, DataChangeType.Update);
+	NotifyChanged(Object.Ref);
+	NotifyChanged(Object.FileOwner);
+	Notify("Write_File", New Structure("IsNew", FileCreated), Object.Ref);
 	
 	SetAvaliabilityOfDSCommandsList();
 	SetAvaliabilityOfEncryptionList();
@@ -1412,7 +1419,7 @@ EndProcedure
 &AtServer
 Procedure UpdateInfoOfObjectSignature()
 	
-	FileObject1 = ThisObject.Object.Ref.GetObject();
+	FileObject1 = Object.Ref.GetObject();
 	ValueToFormAttribute(FileObject1, "Object");
 	FilesOperationsInternal.FillSignatureList(ThisObject);
 	SetButtonsAvailability(ThisObject, Items);
@@ -1422,7 +1429,7 @@ EndProcedure
 &AtServer
 Procedure UpdateInfoOfObjectCertificates()
 	
-	FileObject1 = ThisObject.Object.Ref.GetObject();
+	FileObject1 = Object.Ref.GetObject();
 	ValueToFormAttribute(FileObject1, "Object");
 	FilesOperationsInternal.FillEncryptionList(ThisObject);
 	SetButtonsAvailability(ThisObject, Items);
@@ -1439,7 +1446,7 @@ EndProcedure
 &AtClient
 Function IsNew()
 	
-	Return ThisObject.Object.Ref.IsEmpty();
+	Return Object.Ref.IsEmpty();
 	
 EndFunction
 
@@ -1447,8 +1454,8 @@ EndFunction
 Procedure UpdateFromFileOnHardDriveCompletion(Result, ExecutionParameters) Export
 	
 	UpdateObject();
-	NotifyChanged(ThisObject.Object.Ref);
-	Notify("Write_File", New Structure, ThisObject.Object.Ref);
+	NotifyChanged(Object.Ref);
+	Notify("Write_File", New Structure, Object.Ref);
 	
 EndProcedure
 
@@ -1472,7 +1479,7 @@ Procedure AdditionalPageDataGroupOnCurrentPageChange(Item, CurrentPage)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties")
 		And CurrentPage.Name = "GroupAdditionalAttributes"
-		And Not ThisObject.PropertiesParameters.DeferredInitializationExecuted Then
+		And Not PropertiesParameters.DeferredInitializationExecuted Then
 		
 		PropertiesExecuteDeferredInitialization();
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");

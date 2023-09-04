@@ -1698,7 +1698,7 @@ FROM
 					<v8:content>Upload files</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>ImportFilesExecute</Action>
+			<Action>FilesImportExecute</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 		<Command name="FolderExport" id="7">
@@ -1755,7 +1755,7 @@ FROM
 				<xr:Ref>StdPicture.CreateFolder</xr:Ref>
 				<xr:LoadTransparent>true</xr:LoadTransparent>
 			</Picture>
-			<Action>CreateFolderExecute</Action>
+			<Action>CreateCatalogExecute</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 		<Command name="EndEdit" id="5">

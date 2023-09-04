@@ -332,7 +332,7 @@
 							<UpdateOnDataChange>Auto</UpdateOnDataChange>
 							<AllowGettingCurrentRowURL>true</AllowGettingCurrentRowURL>
 							<ContextMenu name="UsersGroupsContextMenu" id="101"/>
-							<AutoCommandBar name="UsersGroupsCommandBar" id="102"/>
+							<AutoCommandBar name="UserGroupsCommandBar" id="102"/>
 							<ExtendedTooltip name="UsersGroupsExtendedTooltip" id="124"/>
 							<SearchStringAddition name="UsersGroupsSearchString" id="146">
 								<AdditionSource>
@@ -415,7 +415,7 @@
 							<UpdateOnDataChange>Auto</UpdateOnDataChange>
 							<AllowGettingCurrentRowURL>true</AllowGettingCurrentRowURL>
 							<ContextMenu name="UsersList1ContextMenu" id="85"/>
-							<AutoCommandBar name="UsersListCommandBar_SSLy" id="86"/>
+							<AutoCommandBar name="UsersListCommandBar" id="86"/>
 							<ExtendedTooltip name="UsersList1ExtendedTooltip" id="126"/>
 							<SearchStringAddition name="UsersList1SearchString" id="155">
 								<AdditionSource>
@@ -813,7 +813,7 @@ FROM
 				<xr:Ref>StdPicture.FindInList</xr:Ref>
 				<xr:LoadTransparent>true</xr:LoadTransparent>
 			</Picture>
-			<Action>FindInListFromSubjectListExecute</Action>
+			<Action>FindInListFromSubjectsListExecute</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 		<Command name="FindInListFromFoundItemsList" id="6">
@@ -833,7 +833,7 @@ FROM
 				<xr:Ref>StdPicture.FindInList</xr:Ref>
 				<xr:LoadTransparent>true</xr:LoadTransparent>
 			</Picture>
-			<Action>FindInListFromFoundContactsListExecute</Action>
+			<Action>FindInListFromFoundItemsListExecute</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 		<Command name="SelectCommand" id="1">

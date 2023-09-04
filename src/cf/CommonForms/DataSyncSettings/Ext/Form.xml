@@ -1141,7 +1141,7 @@ Please wait…</v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Status picture</v8:content>
+							<v8:content>State picture</v8:content>
 						</v8:item>
 					</Title>
 					<Type>
@@ -1157,7 +1157,7 @@ Please wait…</v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Status</v8:content>
+							<v8:content>State</v8:content>
 						</v8:item>
 					</Title>
 					<Type>
@@ -1217,7 +1217,7 @@ Please wait…</v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Export status picture</v8:content>
+							<v8:content>Export state picture</v8:content>
 						</v8:item>
 					</Title>
 					<Type>
@@ -1233,7 +1233,7 @@ Please wait…</v8:content>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Import status picture</v8:content>
+							<v8:content>Import state picture</v8:content>
 						</v8:item>
 					</Title>
 					<Type>

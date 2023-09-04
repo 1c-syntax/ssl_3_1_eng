@@ -69,7 +69,7 @@ EndProcedure
 #Region FormCommandHandlers
 
 &AtClient
-Procedure OKComplete()
+Procedure OKExecute()
 	
 	ClearMessages();
 	If Not CheckFilling() Then

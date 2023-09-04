@@ -70,8 +70,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	EndIf;
 	
-	ThisObject.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		ThisObject.Title, MetadataObject.Presentation());
+	Title = StringFunctionsClientServer.SubstituteParametersToString(
+		Title, MetadataObject.Presentation());
 	
 	// Populate tree.
 	

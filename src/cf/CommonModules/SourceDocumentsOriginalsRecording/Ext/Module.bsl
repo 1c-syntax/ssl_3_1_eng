@@ -592,7 +592,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 		Command.Picture = PictureLib.ConfigureSourceDocumentOriginalStates;
 		Command.ParameterType = Metadata.DefinedTypes.ObjectWithSourceDocumentsOriginalsAccounting.Type;
 		Command.Purpose = "ForList";
-		Command.WriteMode = "DoNotWrite";
+		Command.WriteMode = "NotWrite";
 		Command.FunctionalOptions = "UseSourceDocumentsOriginalsRecording";
 		Command.Handler = "SourceDocumentsOriginalsRecordingClient.Attachable_SetOriginalState";	
 	EndIf;

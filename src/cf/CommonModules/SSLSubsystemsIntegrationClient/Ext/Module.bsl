@@ -455,7 +455,7 @@ Procedure OnProcessAdditionalDetails(ReportForm, Item, Details, StandardProcessi
 	
 EndProcedure
 
-// See ReportsClientOverridable.CommandHandler.
+// See ReportsClientOverridable.HandlerCommands.
 Procedure OnProcessCommand(ReportForm, Command, Result) Export
 	
 	InfobaseUpdateClient.OnProcessCommand(ReportForm, Command, Result);
@@ -586,7 +586,7 @@ EndProcedure
 // Called upon session termination using the UsersSessions subsystem.
 //
 // Parameters:
-//  OwnerForm1 - ClientApplicationForm - used to terminate the session,
+//  OwnerForm - ClientApplicationForm - used to terminate the session,
 //  SessionsNumbers - Number - a number 8 characters long, a number of the session to terminate,
 //  StandardProcessing - Boolean - Indicates whether standard session termination processing is executed
 //    (connection to the server agent via COM connection or administration server
@@ -602,16 +602,16 @@ EndProcedure
 //    is terminated successfully). You can omit the parameter and skip
 //    the notification processing.
 //
-Procedure OnEndSessions(OwnerForm1, Val SessionsNumbers, StandardProcessing, Val NotificationAfterTerminateSession = Undefined) Export
+Procedure OnEndSessions(OwnerForm, Val SessionsNumbers, StandardProcessing, Val NotificationAfterTerminateSession = Undefined) Export
 	
 	If SSLSubsystemsIntegrationClientCached.SubscriptionsCTL().OnEndSessions Then
 		ModuleCTLSubsystemsIntegrationClient = CommonClient.CommonModule("CTLSubsystemsIntegrationClient");
-		ModuleCTLSubsystemsIntegrationClient.OnEndSessions(OwnerForm1, SessionsNumbers, StandardProcessing, NotificationAfterTerminateSession);
+		ModuleCTLSubsystemsIntegrationClient.OnEndSessions(OwnerForm, SessionsNumbers, StandardProcessing, NotificationAfterTerminateSession);
 	EndIf;
 	
 	If SSLSubsystemsIntegrationClientCached.SubscriptionsOSL().OnEndSessions Then
 		ModuleOSLSubsystemsIntegrationClient = CommonClient.CommonModule("OSLSubsystemsIntegrationClient");
-		ModuleOSLSubsystemsIntegrationClient.OnEndSessions(OwnerForm1, SessionsNumbers, StandardProcessing, NotificationAfterTerminateSession);
+		ModuleOSLSubsystemsIntegrationClient.OnEndSessions(OwnerForm, SessionsNumbers, StandardProcessing, NotificationAfterTerminateSession);
 	EndIf;
 	
 EndProcedure
@@ -674,17 +674,17 @@ EndProcedure
 #Region SecurityProfiles
 
 // See SafeModeManagerClientOverridable.OnConfirmRequestsToUseExternalResources.
-Procedure OnConfirmRequestsToUseExternalResources(IDs, OwnerForm1, ClosingNotification1, StandardProcessing) Export
+Procedure OnConfirmRequestsToUseExternalResources(IDs, OwnerForm, ClosingNotification1, StandardProcessing) Export
 	
 	If SSLSubsystemsIntegrationClientCached.SubscriptionsCTL().OnConfirmRequestsToUseExternalResources Then
 		ModuleCTLSubsystemsIntegrationClient = CommonClient.CommonModule("CTLSubsystemsIntegrationClient");
 		ModuleCTLSubsystemsIntegrationClient.OnConfirmRequestsToUseExternalResources(IDs, 
-			OwnerForm1, ClosingNotification1, StandardProcessing);
+			OwnerForm, ClosingNotification1, StandardProcessing);
 	EndIf;
 		
 	If SSLSubsystemsIntegrationClientCached.SubscriptionsOSL().OnConfirmRequestsToUseExternalResources Then
 		ModuleOSLSubsystemsIntegrationClient = CommonClient.CommonModule("OSLSubsystemsIntegrationClient");
-		ModuleOSLSubsystemsIntegrationClient.OnConfirmRequestsToUseExternalResources(IDs, OwnerForm1, ClosingNotification1, StandardProcessing);
+		ModuleOSLSubsystemsIntegrationClient.OnConfirmRequestsToUseExternalResources(IDs, OwnerForm, ClosingNotification1, StandardProcessing);
 	EndIf;
 	
 EndProcedure

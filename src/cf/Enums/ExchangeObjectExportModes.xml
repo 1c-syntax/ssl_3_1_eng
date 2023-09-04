@@ -142,7 +142,7 @@
 			</EnumValue>
 			<EnumValue uuid="bd04a870-0943-4bdb-9e30-50a69daa8a13">
 				<Properties>
-					<Name>DoNotExport</Name>
+					<Name>NotExport</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>

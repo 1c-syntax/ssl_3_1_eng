@@ -190,11 +190,11 @@ Procedure LimitAccessAtRecordLevelOnChange(Item)
 	If ValueIsFilled(QueryText) Then
 		ShowQueryBox(
 			New NotifyDescription(
-				"UseRecordsLevelSecurityOnChangeCompletion",
+				"LimitAccessAtRecordLevelOnChangeCompletion",
 				ThisObject, Item),
 			QueryText, QuestionDialogMode.YesNo);
 	Else
-		UseRecordsLevelSecurityOnChangeCompletion(DialogReturnCode.Yes, Item);
+		LimitAccessAtRecordLevelOnChangeCompletion(DialogReturnCode.Yes, Item);
 	EndIf;
 	
 EndProcedure
@@ -241,7 +241,7 @@ EndProcedure
 #Region FormCommandHandlers
 
 &AtClient
-Procedure ExternalUsersCatalog(Command)
+Procedure CatalogExternalUsers(Command)
 	OpenForm("Catalog.ExternalUsers.ListForm", , ThisObject);
 EndProcedure
 
@@ -328,7 +328,7 @@ Procedure LimitAccessAtRecordLevelUniversallyOnChangeCompletion(Response, Item) 
 EndProcedure
 
 &AtClient
-Procedure UseRecordsLevelSecurityOnChangeCompletion(Response, Item) Export
+Procedure LimitAccessAtRecordLevelOnChangeCompletion(Response, Item) Export
 	
 	If Response = DialogReturnCode.No Then
 		ConstantsSet.LimitAccessAtRecordLevel = Not ConstantsSet.LimitAccessAtRecordLevel;
@@ -393,11 +393,11 @@ Function SaveAttributeValue(DataPathAttribute)
 	
 	ConstantName = NameParts[1];
 	ConstantManager = Constants[ConstantName];
-	ConstantValue1 = ConstantsSet[ConstantName];
+	ConstantValue = ConstantsSet[ConstantName];
 	CurrentValue  = ConstantManager.Get();
-	If CurrentValue <> ConstantValue1 Then
+	If CurrentValue <> ConstantValue Then
 		Try
-			ConstantManager.Set(ConstantValue1);
+			ConstantManager.Set(ConstantValue);
 		Except
 			ConstantsSet[ConstantName] = CurrentValue;
 			Raise;

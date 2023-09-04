@@ -541,7 +541,7 @@ Function UncompletedHandlersStatus(OnUpdate = False) Export
 		|	UpdateHandlers.Status";
 	HandlersStatuses = Query.Execute().Unload();
 	
-	If HandlersStatuses.Find(Enums.UpdateHandlersStatuses.WasNotExecuted) <> Undefined Then
+	If HandlersStatuses.Find(Enums.UpdateHandlersStatuses.NotPerformed) <> Undefined Then
 		Return "UncompletedStatus";
 	ElsIf HandlersStatuses.Find(Enums.UpdateHandlersStatuses.Error) <> Undefined Then
 		Return "StatusError";
@@ -1841,7 +1841,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	Command = Commands.Add();
 	Command.Kind = "IBVersionUpdate";
 	Command.Presentation = NStr("en = 'Unlock object for editing';");
-	Command.WriteMode = "DoNotWrite";
+	Command.WriteMode = "NotWrite";
 	Command.Purpose = "ForObject";
 	Command.OnlyInAllActions = True;
 	Command.Handler = "InfobaseUpdateClient.UnlockObjectToEdit";
@@ -1880,7 +1880,7 @@ Procedure OnDefineChecks(ChecksGroups, Checks) Export
 	Validation.Recommendation                 = NStr("en = 'If mandatory attributes are missing, enter them manually.
 		|Restore missing data in the backup copy.';");
 	Validation.Id                = "InfoBaseUpdateProblemWithData";
-	Validation.CheckHandler           = "InfobaseUpdateInternal.AccountingCheckHandler";
+	Validation.HandlerChecks           = "InfobaseUpdateInternal.HandlerAccountingChecks";
 	Validation.ImportanceChangeDenied   = False;
 	Validation.AccountingChecksContext = "IBVersionUpdate";
 	Validation.isDisabled                    = True;
@@ -2418,7 +2418,7 @@ Function ActionsBeforeUpdateInfobase(ParametersOfUpdate)
 	EndIf;
 	
 	If Not InfobaseUpdate.InfobaseUpdateRequired() Then
-		Result.Return = "NotRequired";
+		Result.Return = "NotRequired2";
 		Return Result;
 	EndIf;
 	
@@ -2634,11 +2634,7 @@ Procedure ExecuteActionsAfterUpdateInfobase(ParametersOfUpdate, AdditionalParame
 	EndIf;
 	
 	If Common.DataSeparationEnabled() And Not Common.SeparatedDataUsageAvailable() Then
-		Jobs = ScheduledJobsServer.FindJobs(New Structure("Metadata", Metadata.ScheduledJobs.SetDeferredUpdateProcedureInSaaS));
-		For Each Job In Jobs Do
-			ScheduledJobsServer.ChangeJob(Job.UUID,
-				New Structure("Use", True));
-		EndDo;
+		ScheduledJobsServer.SetScheduledJobUsage(Metadata.ScheduledJobs.SetDeferredUpdateProcedureInSaaS, True);
 	EndIf;
 	
 	DefineUpdateDetailsDisplay(OutputUpdatesDetails);
@@ -2941,7 +2937,7 @@ Function UpdateUnderRestrictedRights(IBLock) Export
 	EndTry;
 	// ACC:280 -
 	
-	Return (Result = "Success" Or Result = "NotRequired");
+	Return (Result = "Success" Or Result = "NotRequired2");
 EndFunction
 
 // For internal use.
@@ -3452,7 +3448,7 @@ Procedure AddHandlers(LibraryName, HandlersByVersion, AddedHandlers)
 			EndIf;
 			
 			Record.ExecutionMode = ExecutionMode;
-			Record.Status = Enums.UpdateHandlersStatuses.WasNotExecuted;
+			Record.Status = Enums.UpdateHandlersStatuses.NotPerformed;
 			Record.LibraryName = LibraryName;
 			
 			AddedHandlers.Add(Handler.HandlerName);
@@ -3575,11 +3571,11 @@ EndFunction
 // Generates a spreadsheet document containing change description
 // for each version in the Sections version list.
 //
-Function UpdateDetailsDocument(Val Sections) Export
+Function DocumentUpdatesDetails(Val Sections) Export
 	
-	UpdateDetailsDocument = New SpreadsheetDocument();
+	DocumentUpdatesDetails = New SpreadsheetDocument();
 	If Sections.Count() = 0 Then
-		Return UpdateDetailsDocument;
+		Return DocumentUpdatesDetails;
 	EndIf;
 	
 	UpdateDetailsTemplate = Metadata.CommonTemplates.Find("SystemReleaseNotes");
@@ -3591,11 +3587,11 @@ Function UpdateDetailsDocument(Val Sections) Export
 	
 	For Each Version In Sections Do
 		
-		OutputUpdateDetails(Version, UpdateDetailsDocument, UpdateDetailsTemplate);
+		OutputUpdateDetails(Version, DocumentUpdatesDetails, UpdateDetailsTemplate);
 		
 	EndDo;
 	
-	Return UpdateDetailsDocument;
+	Return DocumentUpdatesDetails;
 	
 EndFunction
 
@@ -4230,7 +4226,7 @@ Procedure AddDeferredHandlers(LibraryName, HandlersByVersion, UpdateGroup, Error
 			EndIf;
 			Record.VersionOrder = VersionRow.VersionOrder;
 			Record.ExecutionMode = ExecutionMode;
-			Record.Status = Enums.UpdateHandlersStatuses.WasNotExecuted;
+			Record.Status = Enums.UpdateHandlersStatuses.NotPerformed;
 			Record.LibraryName = LibraryName;
 			Record.UpdateGroup = UpdateGroup;
 			Record.ExecutionStatistics = New ValueStorage(New Map);
@@ -4323,9 +4319,9 @@ Function IncompleteDeferredHandlers(UpdateInfo)
 		IsRunning = HandlersTree.FindRows(Filter, True);
 		MoveHandlersFromConstant(Handlers, IsRunning);
 		
-		Filter.Status = "NotCompleted";
-		NotCompleted1 = HandlersTree.FindRows(Filter, True);
-		MoveHandlersFromConstant(Handlers, NotCompleted1);
+		Filter.Status = "NotCompleted2";
+		NotExecuted = HandlersTree.FindRows(Filter, True);
+		MoveHandlersFromConstant(Handlers, NotExecuted);
 		
 		Filter.Status = "Error";
 		CompletedWithError1 = HandlersTree.FindRows(Filter, True);
@@ -4652,7 +4648,7 @@ EndFunction
 //  DataToProcessDetails - See NewDataToProcessDetails
 //
 // Returns:
-//  ValueTableRow: см. НовоеОписаниеПотоков
+//  ValueTableRow of See NewThreadsDetails
 //
 Function AddDeferredUpdateDataRegistrationThread(DataToProcessDetails)
 	
@@ -4774,7 +4770,7 @@ EndFunction
 //  UpdateInfo - See InfobaseUpdateInfo
 //
 // Returns:
-//   ValueTableRow: см. НовоеОписаниеПотоков
+//   ValueTableRow of See NewThreadsDetails
 //
 Function AddDeferredUpdateHandlerThread(UpdateInfo)
 	
@@ -5085,7 +5081,7 @@ Procedure OnCancelDeferredHandlerThread(Stream) Export
 	HandlerProperty(HandlerUpdates.HandlerName, "BatchProcessingCompleted", True);
 	
 	If HandlerUpdates.Status = Enums.UpdateHandlersStatuses.Running Then
-		SetHandlerStatus(HandlerUpdates.HandlerName, "WasNotExecuted");
+		SetHandlerStatus(HandlerUpdates.HandlerName, "NotPerformed");
 	EndIf;
 	
 	If HandlerUpdates.Multithreaded Then
@@ -5345,7 +5341,7 @@ EndFunction
 //
 // Parameters:
 //  Groups - Map
-//  Stream - ValueTableRow: см. НовоеОписаниеПотоков
+//  Stream - ValueTableRow of See NewThreadsDetails
 //  FormIdentifier - UUID - the form ID, if any.
 //
 Procedure ExecuteThread(Groups, Stream, FormIdentifier = Undefined)
@@ -5600,7 +5596,7 @@ EndFunction
 // Waits the specified duration for a thread to stop.
 //
 // Parameters:
-//   Stream - ValueTableRow: см. НовоеОписаниеПотоков
+//   Stream - ValueTableRow of See NewThreadsDetails
 //   Duration - Number - timeout duration, in seconds.
 //
 // Returns:
@@ -6630,7 +6626,7 @@ EndFunction
 //  BatchesToUpdate - See NewBatchesTableForUpdate
 //
 // Returns:
-//  ValueTableRow: см. НоваяТаблицаПорцийДляОбновления
+//  ValueTableRow of See NewBatchesTableForUpdate
 //  
 //
 Function FirstUnprocessedBatch(BatchesToUpdate)
@@ -8280,7 +8276,7 @@ EndProcedure
 // 
 //
 // Parameters:
-//  TableToCleanUp - ValueTableRow: см. ОчищаемыеТаблицы
+//  TableToCleanUp - ValueTableRow of See TablesToClearUp
 //
 // Returns:
 //  Query - 
@@ -9067,7 +9063,7 @@ Procedure SetProcedureForDeferredUpdate() Export
 	OrderOfDataToProcess = Constants.OrderOfDataToProcess.Get();
 	
 	Statuses = New Array;
-	Statuses.Add(Enums.UpdateHandlersStatuses.WasNotExecuted);
+	Statuses.Add(Enums.UpdateHandlersStatuses.NotPerformed);
 	Statuses.Add(Enums.UpdateHandlersStatuses.Running);
 	
 	Query = New Query;
@@ -9108,11 +9104,7 @@ Procedure SetProcedureForDeferredUpdate() Export
 	EndIf;
 	
 	If DisableJob Then
-		Jobs = ScheduledJobsServer.FindJobs(New Structure("Metadata", Metadata.ScheduledJobs.SetDeferredUpdateProcedureInSaaS));
-		For Each Job In Jobs Do
-			ScheduledJobsServer.ChangeJob(Job.UUID,
-				New Structure("Use", False));
-		EndDo;
+		ScheduledJobsServer.SetScheduledJobUsage(Metadata.ScheduledJobs.SetDeferredUpdateProcedureInSaaS, False);
 	EndIf;
 	
 EndProcedure
@@ -10080,7 +10072,7 @@ EndProcedure
 //                          
 //                          UpdateDetailsDocument.
 //
-Procedure OutputUpdateDetails(Val VersionNumber, UpdateDetailsDocument, UpdateDetailsTemplate)
+Procedure OutputUpdateDetails(Val VersionNumber, DocumentUpdatesDetails, UpdateDetailsTemplate)
 	
 	Number = StrReplace(VersionNumber, ".", "_");
 	
@@ -10088,11 +10080,11 @@ Procedure OutputUpdateDetails(Val VersionNumber, UpdateDetailsDocument, UpdateDe
 		Return;
 	EndIf;
 	
-	UpdateDetailsDocument.Put(UpdateDetailsTemplate.GetArea("Header" + Number));
-	UpdateDetailsDocument.StartRowGroup("Version" + Number);
-	UpdateDetailsDocument.Put(UpdateDetailsTemplate.GetArea("Version" + Number));
-	UpdateDetailsDocument.EndRowGroup();
-	UpdateDetailsDocument.Put(UpdateDetailsTemplate.GetArea("Indent"));
+	DocumentUpdatesDetails.Put(UpdateDetailsTemplate.GetArea("Header" + Number));
+	DocumentUpdatesDetails.StartRowGroup("Version" + Number);
+	DocumentUpdatesDetails.Put(UpdateDetailsTemplate.GetArea("Version" + Number));
+	DocumentUpdatesDetails.EndRowGroup();
+	DocumentUpdatesDetails.Put(UpdateDetailsTemplate.GetArea("Indent"));
 	
 EndProcedure
 
@@ -10124,7 +10116,7 @@ Procedure DefineUpdateDetailsDisplay(OutputUpdatesDetails)
 	
 EndProcedure
 
-// Returns a list of change log sections.
+// Returns a list of release notes sections.
 //
 // Returns:
 //  ValueList:
@@ -10258,7 +10250,7 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Auxiliary procedures and deferred update functions.
 
-Procedure AccountingCheckHandler(Validation, CheckParameters) Export
+Procedure HandlerAccountingChecks(Validation, CheckParameters) Export
 	
 	// 
 	// 
@@ -10479,7 +10471,7 @@ EndProcedure
 Function AreHandlersToRunMissing()
 	
 	Statuses = New Array;
-	Statuses.Add(Enums.UpdateHandlersStatuses.WasNotExecuted);
+	Statuses.Add(Enums.UpdateHandlersStatuses.NotPerformed);
 	Statuses.Add(Enums.UpdateHandlersStatuses.Running);
 	
 	// 

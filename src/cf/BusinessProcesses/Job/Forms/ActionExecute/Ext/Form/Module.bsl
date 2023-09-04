@@ -135,9 +135,9 @@ Procedure CompletionDateOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure WriteAndCloseComplete()
+Procedure WriteAndCloseExecute()
 
-	BusinessProcessesAndTasksClient.WriteAndCloseComplete(ThisObject);
+	BusinessProcessesAndTasksClient.WriteAndCloseExecute(ThisObject);
 
 EndProcedure
 
@@ -188,10 +188,10 @@ EndProcedure
 #Region FormCommandHandlers
 
 &AtClient
-Procedure CompletedComplete(Command)
+Procedure Completed2Execute(Command)
 
 	JobCompleted = True;
-	BusinessProcessesAndTasksClient.WriteAndCloseComplete(ThisObject, True);
+	BusinessProcessesAndTasksClient.WriteAndCloseExecute(ThisObject, True);
 
 EndProcedure
 
@@ -199,7 +199,7 @@ EndProcedure
 Procedure Canceled(Command)
 
 	JobCompleted = False;
-	BusinessProcessesAndTasksClient.WriteAndCloseComplete(ThisObject, True);
+	BusinessProcessesAndTasksClient.WriteAndCloseExecute(ThisObject, True);
 
 EndProcedure
 

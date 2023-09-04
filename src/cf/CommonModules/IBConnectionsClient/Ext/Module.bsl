@@ -721,12 +721,12 @@ Procedure AskOnTermination(MessageText, LockBeginTime)
 	QueryText = NStr("en = '%1
 		|Do you want to exit?';");
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(QueryText, MessageText);
-	NotifyDescription = New NotifyDescription("AskQuestionOnTerminateCompletion", ThisObject);
+	NotifyDescription = New NotifyDescription("AskOnTerminationCompletion", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, 30, DialogReturnCode.Yes);
 	
 EndProcedure
 
-Procedure AskQuestionOnTerminateCompletion(Response, AdditionalParameters) Export
+Procedure AskOnTerminationCompletion(Response, AdditionalParameters) Export
 	
 	If Response = DialogReturnCode.Yes Then
 		StandardSubsystemsClient.SkipExitConfirmation();

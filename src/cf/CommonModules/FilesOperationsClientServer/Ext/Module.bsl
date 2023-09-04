@@ -65,7 +65,7 @@ EndProcedure
 //   * ShowScannerDialog - Boolean
 //   * DeviceName - String -
 //   * ScannedImageFormat - EnumRef.ScannedImageFormats
-//   * SaveToPDF - Boolean
+//   * ShouldSaveAsPDF - Boolean
 //   * MultipageStorageFormat - EnumRef.MultipageFileStorageFormats 
 //   * Resolution - EnumRef.ScannedImageResolutions
 //   * Chromaticity - EnumRef.ImageColorDepths
@@ -83,7 +83,7 @@ Function UserScanSettings() Export
 	UserScanSettings.Insert("ShowScannerDialog", False);
 	UserScanSettings.Insert("DeviceName", "");
 	UserScanSettings.Insert("ScannedImageFormat");
-	UserScanSettings.Insert("SaveToPDF", False);
+	UserScanSettings.Insert("ShouldSaveAsPDF", False);
 	UserScanSettings.Insert("MultipageStorageFormat");
 	UserScanSettings.Insert("Resolution");
 	UserScanSettings.Insert("Chromaticity");
@@ -224,6 +224,62 @@ EndFunction
 
 Function OneFileOnlyText() Export
 	Return "OneFileOnly";
+EndFunction
+
+Function CommandsPrefix() Export
+	Return "AttachedFilesManagement";
+EndFunction
+
+Function NameOfCommandUploadFile() Export
+	Return "ImportFile_";
+EndFunction
+
+Function NameOfCreateByTemplateCommand() Export
+	Return "CreateByTemplate";
+EndFunction
+
+Function NameOfScanCommand() Export
+	Return "Scan";
+EndFunction
+
+Function NameOfOpenListCommand() Export
+	Return "OpenList";
+EndFunction
+
+Function NameOfCommandToSelectFile() Export
+	Return "SelectFile";
+EndFunction
+
+Function NameOfCommandsViewFile() Export
+	Return "ViewFile1";
+EndFunction
+
+Function ClearCommandName() Export
+	Return "Clear";
+EndFunction
+
+Function NameOfOpenFormCommand() Export
+	Return "OpenForm";
+EndFunction
+
+Function NameOfEditFileCommand() Export
+	Return "EditFile";
+EndFunction
+
+Function NameOfCommandToPlaceFile() Export
+	Return "PutFile";
+EndFunction
+
+Function NameOfUndoEditingCommand() Export
+	Return "CancelEdit";
+EndFunction
+
+Function NameOfAdditionalCommandFromContextMenu() Export
+	Return "FromContextMenu";
+EndFunction
+
+Function NameOfAdditionalCommandFromSubmenu() Export
+	Return "FromSubmenu";
 EndFunction
 
 #EndRegion

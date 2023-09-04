@@ -718,7 +718,7 @@
 			<SavedData>true</SavedData>
 			<Columns>
 				<AdditionalColumns table="Object.NumericalQuestionHintsRange">
-					<Column name="PresentationValue" id="8">
+					<Column name="ValuePresentation" id="8">
 						<Title>
 							<v8:item>
 								<v8:lang>en</v8:lang>

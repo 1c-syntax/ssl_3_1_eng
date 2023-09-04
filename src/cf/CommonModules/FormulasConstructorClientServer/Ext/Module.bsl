@@ -10,7 +10,7 @@
 #Region Private
 
 // Returns:
-//  ValueTableRow: см. КонструкторФормулСлужебный.ОписаниеСписковПолей
+//  ValueTableRow of See FormulasConstructorInternal.DescriptionOfFieldLists
 //
 Function FieldListSettings(Form, NameOfTheFieldList) Export
 	

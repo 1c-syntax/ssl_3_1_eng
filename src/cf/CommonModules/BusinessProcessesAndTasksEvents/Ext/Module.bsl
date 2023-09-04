@@ -34,7 +34,10 @@ Procedure WriteToBusinessProcessesList(Source, Cancel) Export
 	RecordSet.Filter.Owner.Set(Source.Ref);
 	Record = RecordSet.Add();
 	Record.Owner = Source.Ref;
-	FieldList = "Number,Date,Completed,Started,Author,CompletedOn,Description,DeletionMark,State";
+	FieldList = "Number,Date,Completed,Started,Author,CompletedOn,Description,DeletionMark";
+	If Source.Metadata().Attributes.Find("State") <> Undefined Then 
+		FieldList = FieldList + ",State";
+	EndIf;
 	FillPropertyValues(Record, Source, FieldList);
 	If Not ValueIsFilled(Record.State) Then
 		Record.State = Enums.BusinessProcessStates.Running;
@@ -59,8 +62,8 @@ Procedure MarkTasksForDeletion(Source, Cancel) Export
         Return;  
 	EndIf; 
 	
-	PreviousDeletionMark = Common.ObjectAttributeValue(Source.Ref, "DeletionMark");
-	If Source.DeletionMark <> PreviousDeletionMark Then
+	PrevDeletionMark = Common.ObjectAttributeValue(Source.Ref, "DeletionMark");
+	If Source.DeletionMark <> PrevDeletionMark Then
 		SetPrivilegedMode(True);
 		BusinessProcessesAndTasksServer.MarkTasksForDeletion(Source.Ref, Source.DeletionMark);
 	EndIf;	

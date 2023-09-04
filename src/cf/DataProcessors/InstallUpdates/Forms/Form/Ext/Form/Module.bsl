@@ -955,18 +955,18 @@ Procedure OnUpdateLegalityCheck()
 	
 	If UpdateFileRequired = 1 Then
 		If CommonClient.SubsystemExists("StandardSubsystems.SoftwareLicenseCheck") Then
-			Notification = New NotifyDescription("OnCheckUpdateLegalityCompletion", ThisObject);
+			Notification = New NotifyDescription("OnUpdateLegalityCheckCompletion", ThisObject);
 			ModuleSoftwareLicenseCheckClient = CommonClient.CommonModule("SoftwareLicenseCheckClient");
 			ModuleSoftwareLicenseCheckClient.ShowLegitimateSoftwareCheck(Notification);
 			Return;
 		EndIf;
 	EndIf;
-	OnCheckUpdateLegalityCompletion(True, Undefined);
+	OnUpdateLegalityCheckCompletion(True, Undefined);
 	
 EndProcedure
 
 &AtClient
-Procedure OnCheckUpdateLegalityCompletion(UpdateAcquiredLegally, AdditionalParameters) Export
+Procedure OnUpdateLegalityCheckCompletion(UpdateAcquiredLegally, AdditionalParameters) Export
 	
 	If UpdateAcquiredLegally = True Then
 		ProceedToUpdateModeSelection(True);

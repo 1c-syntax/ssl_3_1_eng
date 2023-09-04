@@ -282,7 +282,7 @@
 					<ShowTitle>false</ShowTitle>
 					<ExtendedTooltip name="HeaderAttributesRightColumnGroupExtendedTooltip" id="56"/>
 					<ChildItems>
-						<CheckBoxField name="HideFromArchivedQuestionnaires" id="38">
+						<CheckBoxField name="NotShowInQuestionnaireArchive" id="38">
 							<DataPath>Object.ShowInQuestionnaireArchive</DataPath>
 							<TitleLocation>Right</TitleLocation>
 							<CheckBoxType>Auto</CheckBoxType>

@@ -221,8 +221,8 @@ Procedure FillUserTaskTree(ViewSettings)
 			If TreeRow <> Undefined Then
 				RowFilter = New Structure;
 				RowFilter.Insert("IsHidden", False);
-				NotHidden = TreeRow.Rows.FindRows(RowFilter);
-				TreeRow.IsHidden = (NotHidden.Count() = 0);
+				NotHidden1 = TreeRow.Rows.FindRows(RowFilter);
+				TreeRow.IsHidden = (NotHidden1.Count() = 0);
 			EndIf;
 			
 			TreeRow = UserTasksTree.Rows.Find(ToDoItem.OwnerID, "Id");

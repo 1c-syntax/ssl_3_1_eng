@@ -13,19 +13,19 @@
 //
 // Parameters:
 //  ContinuationHandler      - NotifyDescription - to be processed after the password is entered.
-//  OwnerForm1             - ClientApplicationForm - that requests the password.
+//  OwnerForm             - ClientApplicationForm - that requests the password.
 //  ServiceUserPassword - String - a current SaaS user password.
 //
-Procedure RequestPasswordForAuthenticationInService(ContinuationHandler, OwnerForm1, ServiceUserPassword) Export
+Procedure RequestPasswordForAuthenticationInService(ContinuationHandler, OwnerForm, ServiceUserPassword) Export
 	
 	Context = New Structure;
 	Context.Insert("ContinuationHandler", ContinuationHandler);
-	Context.Insert("OwnerForm1", OwnerForm1);
+	Context.Insert("OwnerForm", OwnerForm);
 	Context.Insert("ServiceUserPassword", ServiceUserPassword);
 	
 	If ServiceUserPassword = Undefined Then
 		Notification = New NotifyDescription("AfterAuthenticationPasswordRequestInService", ThisObject, Context);
-		OpenForm("CommonForm.AuthenticationInService", , OwnerForm1, , , , Notification);
+		OpenForm("CommonForm.AuthenticationInService", , OwnerForm, , , , Notification);
 	Else
 		AfterAuthenticationPasswordRequestInService(ServiceUserPassword, Context)
 	EndIf;
@@ -40,9 +40,10 @@ Procedure AfterAuthenticationPasswordRequestInService(ServiceUserPassword, Conte
 	
 	Context.ServiceUserPassword = ServiceUserPassword;
 	
-	Stream = New MemoryStream;
-	Stream.BeginGetSize(New NotifyDescription(
-		"AfterAuthenticationPasswordRequestInServiceFollowUp", ThisObject, Context));
+	Notification = New NotifyDescription(
+		"AfterAuthenticationPasswordRequestInServiceFollowUp", ThisObject, Context);
+	
+	StandardSubsystemsClient.StartProcessingNotification(Notification);
 	
 EndProcedure
 
@@ -69,7 +70,7 @@ EndProcedure
 Procedure AfterRequestAuthenticationPasswordInServiceAndErrorWarning(Context) Export
 	
 	RequestPasswordForAuthenticationInService(Context.ContinuationHandler,
-		Context.OwnerForm1, Undefined);
+		Context.OwnerForm, Undefined);
 	
 EndProcedure
 

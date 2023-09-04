@@ -1992,7 +1992,7 @@ Function RolesAssignment() Export
 		If StrEndsWith(Upper(NameOfRole), Upper("CommonRights")) Then
 			RolesAssignment.BothForUsersAndExternalUsers.Add(NameOfRole);
 			
-		ElsIf StrEndsWith(Upper(NameOfRole), Upper("ExternalUsersBasicRights")) Then
+		ElsIf StrEndsWith(Upper(NameOfRole), Upper("BasicAccessExternalUsers")) Then
 			RolesAssignment.ForExternalUsersOnly.Add(NameOfRole);
 			
 		ElsIf StrEndsWith(Upper(NameOfRole), Upper("SystemAdministrator")) Then

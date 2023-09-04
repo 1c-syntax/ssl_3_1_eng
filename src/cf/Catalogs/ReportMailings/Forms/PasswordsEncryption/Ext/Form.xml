@@ -195,12 +195,12 @@
 										<Event name="OnChange">UseFilterCertificateChangedOnChange</Event>
 									</Events>
 								</CheckBoxField>
-								<InputField name="IsFilterCertificateChanged" id="96">
-									<DataPath>IsFilterCertificateChanged</DataPath>
-									<ContextMenu name="IsFilterCertificateChangedContextMenu" id="97"/>
-									<ExtendedTooltip name="IsFilterCertificateChangedExtendedTooltip" id="98"/>
+								<InputField name="FilterIsCertificateChanged" id="96">
+									<DataPath>FilterIsCertificateChanged</DataPath>
+									<ContextMenu name="FilterIsCertificateChangedContextMenu" id="97"/>
+									<ExtendedTooltip name="FilterIsCertificateChangedExtendedTooltip" id="98"/>
 									<Events>
-										<Event name="OnChange">IsFilterCertificateChangedOnChange</Event>
+										<Event name="OnChange">FilterIsCertificateChangedOnChange</Event>
 									</Events>
 								</InputField>
 							</ChildItems>
@@ -209,7 +209,7 @@
 				</UsualGroup>
 			</ChildItems>
 		</UsualGroup>
-		<CommandBar name="CommandBarGroup" id="26">
+		<CommandBar name="GroupCommandBar" id="26">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -496,7 +496,7 @@
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="IsFilterCertificateChanged" id="13">
+		<Attribute name="FilterIsCertificateChanged" id="13">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>

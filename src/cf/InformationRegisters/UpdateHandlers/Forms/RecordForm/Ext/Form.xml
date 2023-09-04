@@ -354,11 +354,6 @@
 					<ContextMenu name="DeferredHandlerExecutionModeContextMenu" id="68"/>
 					<ExtendedTooltip name="DeferredHandlerExecutionModeExtendedTooltip" id="69"/>
 				</InputField>
-				<InputField name="DataAreaAuxiliaryData" id="1">
-					<DataPath>Record.DataAreaAuxiliaryData</DataPath>
-					<ContextMenu name="DataAreaAuxiliaryDataContextMenu" id="2"/>
-					<ExtendedTooltip name="DataAreaAuxiliaryDataExtendedTooltip" id="3"/>
-				</InputField>
 				<InputField name="DataRegistrationDuration" id="103">
 					<DataPath>Record.DataRegistrationDuration</DataPath>
 					<Title>

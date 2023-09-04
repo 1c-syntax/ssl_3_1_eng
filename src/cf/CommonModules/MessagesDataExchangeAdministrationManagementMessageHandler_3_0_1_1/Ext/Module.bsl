@@ -124,12 +124,12 @@ Procedure ConnectCorrespondent(Message, Sender)
 		
 		SenderConnectionSettings = DataExchangeServer.WSParameterStructure();
 		SenderConnectionSettings.WSWebServiceURL = Body.RecipientURL;
-		SenderConnectionSettings.WSUsername = Body.RecipientUser;
+		SenderConnectionSettings.WSUserName = Body.RecipientUser;
 		SenderConnectionSettings.WSPassword = Body.RecipientPassword;
 		
 		RecipientConnectionSettings = DataExchangeServer.WSParameterStructure();
 		RecipientConnectionSettings.WSWebServiceURL = Body.SenderURL;
-		RecipientConnectionSettings.WSUsername = Body.SenderUser;
+		RecipientConnectionSettings.WSUserName = Body.SenderUser;
 		RecipientConnectionSettings.WSPassword = Body.SenderPassword;
 		
 		ModuleMessagesExchange.ConnectEndpoint(
@@ -196,12 +196,12 @@ Procedure ConnectCorrespondent(Message, Sender)
 		
 		SenderConnectionSettings = DataExchangeServer.WSParameterStructure();
 		SenderConnectionSettings.WSWebServiceURL = Body.RecipientURL;
-		SenderConnectionSettings.WSUsername = Body.RecipientUser;
+		SenderConnectionSettings.WSUserName = Body.RecipientUser;
 		SenderConnectionSettings.WSPassword = Body.RecipientPassword;
 		
 		RecipientConnectionSettings = DataExchangeServer.WSParameterStructure();
 		RecipientConnectionSettings.WSWebServiceURL = Body.SenderURL;
-		RecipientConnectionSettings.WSUsername = Body.SenderUser;
+		RecipientConnectionSettings.WSUserName = Body.SenderUser;
 		RecipientConnectionSettings.WSPassword = Body.SenderPassword;
 		
 		ModuleMessagesExchange.UpdateEndpointConnectionSettings(

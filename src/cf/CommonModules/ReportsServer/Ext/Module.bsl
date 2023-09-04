@@ -2192,7 +2192,7 @@ Procedure SetSettingsFormItemsProperties(Form, SettingsItems, ItemsProperties)
 				PickingParameters.Insert(Item.SettingIndex, Field.ChoiceForm);
 			EndIf;
 			
-			Result = CommonClientServer.AddToList2(Field.ChoiceList, Item.AvailableValues, False, True);
+			Result = CommonClientServer.SupplementList(Field.ChoiceList, Item.AvailableValues, False, True);
 			Field.ListChoiceMode = Not Item.IsList And Result.Total > 0;
 			
 			If Field.HorizontalStretch = Undefined Then
@@ -3085,7 +3085,7 @@ Procedure AddListItems(Form, SettingItem, SettingItemDetails, ListName, Attribut
 	Properties = "AvailableTypes, TypeRestriction, AutoMarkIncomplete, ChoiceParameterLinks, TypeLink";
 	FillPropertyValues(ValueField, Field, Properties);
 	
-	CommonClientServer.AddToList2(ValueField.ChoiceList, Field.ChoiceList, False, True);
+	CommonClientServer.SupplementList(ValueField.ChoiceList, Field.ChoiceList, False, True);
 	
 	EditParameters = New Structure("QuickChoice, ChoiceFoldersAndItems");
 	If SettingItemDetails.SettingDetails <> Undefined Then 
@@ -3223,8 +3223,8 @@ Procedure InitializeList(Form, IndexOf, Field, SettingItem)
 		AvailableValues = Field.ChoiceList;
 	EndIf;
 	
-	CommonClientServer.AddToList2(List, AvailableValues, False, True);
-	CommonClientServer.AddToList2(List, SelectedValues, False, True);
+	CommonClientServer.SupplementList(List, AvailableValues, False, True);
+	CommonClientServer.SupplementList(List, SelectedValues, False, True);
 	
 	For Each ListItem In List Do 
 		If Not ValueIsFilled(ListItem.Value) Then 

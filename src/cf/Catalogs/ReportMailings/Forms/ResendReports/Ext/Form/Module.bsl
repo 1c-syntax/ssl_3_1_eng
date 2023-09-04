@@ -15,11 +15,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	MailoutStatus = ReportMailing.GetReportDistributionState(DistributionRef);
 	
 	If MailoutStatus.WithErrors Then 
-		Items.TitleDecoration.Title = StringFunctionsClientServer.SubstituteParametersToString(
+		Items.HeadingDecoration.Title = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The report distribution (%1) was not delivered to some recipients. Resend the reports to the following recipients:';"),
 			MailoutStatus.LastRunStart);
 	Else	
-		Items.TitleDecoration.Title = NStr("en = 'No need to resend the reports.';");
+		Items.HeadingDecoration.Title = NStr("en = 'No need to resend the reports.';");
 	EndIf;
 	
 	PopulateRedistributionRecipients(DistributionRef, MailoutStatus);
@@ -42,8 +42,8 @@ Procedure RedoDistribution(Command)
 	
 	StartupParameters = New Structure("MailingArray, Form, IsItemForm");
 	StartupParameters.MailingArray = MailingArray;
-	StartupParameters.Form = ThisObject.FormOwner;
-	StartupParameters.IsItemForm = (ThisObject.FormOwner = "Catalog.ReportMailings.Form.ItemForm");
+	StartupParameters.Form = FormOwner;
+	StartupParameters.IsItemForm = (FormOwner = "Catalog.ReportMailings.Form.ItemForm");
 	
 	RecipientsList = New Map;
 	For Each RecipientRow In Recipients Do
@@ -52,7 +52,7 @@ Procedure RedoDistribution(Command)
 	
 	ReportMailingClient.ExecuteNowInBackground(RecipientsList, StartupParameters);
 	
-	ThisObject.Close();
+	Close();
 	
 EndProcedure
 

@@ -56,7 +56,7 @@
 			</CommandSet>
 			<RowFilter xsi:nil="true"/>
 			<ContextMenu name="ContactsTableContextMenu" id="14"/>
-			<AutoCommandBar name="ContactsTableCommandBar" id="15">
+			<AutoCommandBar name="TableOfContactsCommandBar" id="15">
 				<Autofill>false</Autofill>
 			</AutoCommandBar>
 			<ExtendedTooltip name="ContactsTableExtendedTooltip" id="34"/>
@@ -296,7 +296,7 @@
 						<v8:Type>cfg:CatalogRef.ContactInformationKinds</v8:Type>
 					</Type>
 				</Column>
-				<Column name="ChangeAvailable" id="12">
+				<Column name="AvailableUpdate" id="12">
 					<Type>
 						<v8:Type>xs:boolean</v8:Type>
 					</Type>
@@ -371,7 +371,7 @@
 					<v8:content>Save and close</v8:content>
 				</v8:item>
 			</Title>
-			<Action>OKCommandExecute</Action>
+			<Action>OkCommandExecute</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>

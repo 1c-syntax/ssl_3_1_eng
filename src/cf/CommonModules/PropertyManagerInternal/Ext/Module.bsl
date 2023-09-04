@@ -945,7 +945,7 @@ Function GetObjectPropertySets(Val PropertiesOwner, AssignmentKey = Undefined) E
 	PropertiesSets.Columns.Add("Representation");
 	PropertiesSets.Columns.Add("Picture");
 	PropertiesSets.Columns.Add("ShowTitle");
-	PropertiesSets.Columns.Add("CommonSet", New TypeDescription("Boolean"));
+	PropertiesSets.Columns.Add("SharedSet", New TypeDescription("Boolean"));
 	// Устарело:
 	PropertiesSets.Columns.Add("SlaveItemsWidth");
 	

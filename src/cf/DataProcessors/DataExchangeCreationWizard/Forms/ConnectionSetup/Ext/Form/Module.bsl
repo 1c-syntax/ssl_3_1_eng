@@ -1256,7 +1256,7 @@ Procedure FillWizardConnectionParametersStructure(WizardSettingsStructure, Witho
 		?(ExternalConnectionInfobaseOperationMode = "File", 0, 1));
 	WizardSettingsStructure.Insert("COM1CEnterpriseServerSideInfobaseName",
 		ExternalConnectionInfobaseName);
-	WizardSettingsStructure.Insert("COMUsername",
+	WizardSettingsStructure.Insert("COMUserName",
 		ExternalConnectionUsername);
 	WizardSettingsStructure.Insert("COM1CEnterpriseServerName",
 		ExternalConnectionServerCluster);
@@ -1269,7 +1269,7 @@ Procedure FillWizardConnectionParametersStructure(WizardSettingsStructure, Witho
 		RegularCommunicationChannelsMAILMaxAttachmentSize);
 	WizardSettingsStructure.Insert("EMAILCompressOutgoingMessageFile",
 		RegularCommunicationChannelsArchiveFiles);
-	WizardSettingsStructure.Insert("EMAIL_Account",
+	WizardSettingsStructure.Insert("EMAILAccount",
 		RegularCommunicationChannelsMAILUserAccount);
 	WizardSettingsStructure.Insert("EMAILTransliterateExchangeMessageFileNames",
 		RegularCommunicationChannelsTransliterateFileNames);
@@ -1300,7 +1300,7 @@ Procedure FillWizardConnectionParametersStructure(WizardSettingsStructure, Witho
 		
 	WizardSettingsStructure.Insert("WSWebServiceURL", InternetWebAddress);
 	WizardSettingsStructure.Insert("WSRememberPassword", InternetRememberPassword);
-	WizardSettingsStructure.Insert("WSUsername", InternetUsername);
+	WizardSettingsStructure.Insert("WSUserName", InternetUsername);
 	WizardSettingsStructure.Insert("WSPassword", InternetPassword);
 	
 	If ConnectionKind = "Internet" Then
@@ -1341,15 +1341,15 @@ Procedure FillWizardConnectionParametersStructure(WizardSettingsStructure, Witho
 	
 	If ConnectionSetupOptionInService = "InternetAuto" Then
 		
-		WizardSettingsStructure.Insert("WSPeerEndpoint", CorrespondentEndpoint);
-		WizardSettingsStructure.Insert("WSPeerDataArea", CorrespondentDataArea);
+		WizardSettingsStructure.Insert("WSCorrespondentEndpoint", CorrespondentEndpoint);
+		WizardSettingsStructure.Insert("WSCorrespondentDataArea", CorrespondentDataArea);
 		WizardSettingsStructure.Insert("WSEndpoint", Endpoint);
 		WizardSettingsStructure.Insert("WSDataArea", SessionParameters["DataAreaValue"]);
 							
 	Else
 		
-		WizardSettingsStructure.Insert("WSPeerEndpoint", Undefined);
-		WizardSettingsStructure.Insert("WSPeerDataArea", 0);
+		WizardSettingsStructure.Insert("WSCorrespondentEndpoint", Undefined);
+		WizardSettingsStructure.Insert("WSCorrespondentDataArea", 0);
 		WizardSettingsStructure.Insert("WSEndpoint", Undefined);
 		WizardSettingsStructure.Insert("WSDataArea", 0);
 		
@@ -1407,7 +1407,7 @@ Procedure ReadWizardConnectionParametersStructure(WizardSettingsStructure)
 	ExternalConnectionInfobaseName =
 		WizardSettingsStructure.COM1CEnterpriseServerSideInfobaseName;
 	ExternalConnectionUsername =
-		WizardSettingsStructure.COMUsername;
+		WizardSettingsStructure.COMUserName;
 	ExternalConnectionServerCluster =
 		WizardSettingsStructure.COM1CEnterpriseServerName;
 	ExternalConnectionInfobaseDirectory =
@@ -1420,7 +1420,7 @@ Procedure ReadWizardConnectionParametersStructure(WizardSettingsStructure)
 	RegularCommunicationChannelsEMAILEnableAttachmentSizeLimit = 
 		ValueIsFilled(RegularCommunicationChannelsMAILMaxAttachmentSize);
 	RegularCommunicationChannelsMAILUserAccount =
-		WizardSettingsStructure.EMAIL_Account;
+		WizardSettingsStructure.EMAILAccount;
 	
 	RegularCommunicationChannelsFILEDirectory =
 		WizardSettingsStructure.FILEDataExchangeDirectory;
@@ -1442,7 +1442,7 @@ Procedure ReadWizardConnectionParametersStructure(WizardSettingsStructure)
 		
 	InternetWebAddress        = WizardSettingsStructure.WSWebServiceURL;
 	InternetRememberPassword = WizardSettingsStructure.WSRememberPassword;
-	InternetUsername = WizardSettingsStructure.WSUsername;
+	InternetUsername = WizardSettingsStructure.WSUserName;
 	InternetPassword          = WizardSettingsStructure.WSPassword;
 	
 	If WizardSettingsStructure.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WS Then

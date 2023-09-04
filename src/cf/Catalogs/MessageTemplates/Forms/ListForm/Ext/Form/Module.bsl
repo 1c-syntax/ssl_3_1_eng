@@ -216,7 +216,7 @@ Procedure InitializeFilters()
 	List.Parameters.SetParameterValue(MessageTemplatesClientServer.CommonID(),
 		MessageTemplatesClientServer.CommonID());
 	Items.AssignmentFilter.ChoiceList.Add(MessageTemplatesClientServer.CommonID(), 
-		MessageTemplatesClientServer.CommonIDPresentation());
+		MessageTemplatesClientServer.SharedPresentation());
 		
 	Query = New Query;
 	Query.Text = 
@@ -286,7 +286,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = MessageTemplatesClientServer.CommonID();
 	
-	Item.Appearance.SetParameterValue("Text", MessageTemplatesClientServer.CommonIDPresentation());
+	Item.Appearance.SetParameterValue("Text", MessageTemplatesClientServer.SharedPresentation());
 	
 	//
 	OnDefineSettings =  MessageTemplatesInternalCached.OnDefineSettings();

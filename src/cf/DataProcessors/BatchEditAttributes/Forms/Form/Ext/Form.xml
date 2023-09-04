@@ -31,7 +31,7 @@
 					</Title>
 					<ExtendedTooltip name="ChangesSettingExtendedTooltip" id="75"/>
 					<ChildItems>
-						<UsualGroup name="ObjectsFilter" id="110">
+						<UsualGroup name="FilterObjects_" id="110">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -576,7 +576,7 @@
 																		<v8:content>In algorithm code</v8:content>
 																	</v8:item>
 																</Presentation>
-																<Value xsi:type="xs:string">DoNotWrite</Value>
+																<Value xsi:type="xs:string">NotWrite</Value>
 															</xr:Value>
 														</xr:Item>
 													</ChoiceList>

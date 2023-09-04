@@ -130,7 +130,7 @@
 			</EnumValue>
 			<EnumValue uuid="05c702a1-2c74-45d5-b2ee-fdd795b0945a">
 				<Properties>
-					<Name>DontClear</Name>
+					<Name>NotClear</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>

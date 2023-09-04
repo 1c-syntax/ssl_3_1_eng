@@ -178,9 +178,9 @@ EndProcedure
 #Region FormCommandHandlers
 
 &AtClient
-Procedure WriteAndCloseComplete(Command)
+Procedure WriteAndCloseExecute(Command)
 
-	BusinessProcessesAndTasksClient.WriteAndCloseComplete(ThisObject);
+	BusinessProcessesAndTasksClient.WriteAndCloseExecute(ThisObject);
 
 EndProcedure
 
@@ -189,7 +189,7 @@ Procedure Completed2(Command)
 
 	JobConfirmed = True;
 	JobCompleted = True;
-	BusinessProcessesAndTasksClient.WriteAndCloseComplete(ThisObject, True);
+	BusinessProcessesAndTasksClient.WriteAndCloseExecute(ThisObject, True);
 
 EndProcedure
 
@@ -198,7 +198,7 @@ Procedure Returned(Command)
 
 	JobConfirmed = False;
 	JobCompleted = False;
-	BusinessProcessesAndTasksClient.WriteAndCloseComplete(ThisObject, True);
+	BusinessProcessesAndTasksClient.WriteAndCloseExecute(ThisObject, True);
 
 EndProcedure
 
@@ -207,12 +207,12 @@ Procedure Canceled(Command)
 
 	JobConfirmed = True;
 	JobCompleted = False;
-	BusinessProcessesAndTasksClient.WriteAndCloseComplete(ThisObject, True);
+	BusinessProcessesAndTasksClient.WriteAndCloseExecute(ThisObject, True);
 
 EndProcedure
 
 &AtClient
-Procedure ChangeJobComplete(Command)
+Procedure ChangeJobExecute(Command)
 
 	If Modified Then
 		Write();

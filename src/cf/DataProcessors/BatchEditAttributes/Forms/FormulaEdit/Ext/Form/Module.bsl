@@ -105,7 +105,7 @@ Procedure OperandsSelection(Item, RowSelected, Field, StandardProcessing)
 	If Item.CurrentData.DeletionMark Then
 		
 		ShowQueryBox(
-			New NotifyDescription("OperandsSelectCompletion", ThisObject), 
+			New NotifyDescription("OperandsSelectionCompletion", ThisObject), 
 			NStr("en = 'Selected item is marked for deletion.
 				|Continue?';"), 
 			QuestionDialogMode.YesNo);
@@ -119,7 +119,7 @@ Procedure OperandsSelection(Item, RowSelected, Field, StandardProcessing)
 EndProcedure
 
 &AtClient
-Procedure OperandsSelectCompletion(QuestionResult, AdditionalParameters) Export
+Procedure OperandsSelectionCompletion(QuestionResult, AdditionalParameters) Export
 	
 	If QuestionResult = DialogReturnCode.Yes Then
 		InsertOperandIntoFormula();
@@ -234,13 +234,13 @@ Procedure OperatorsDragEnd(Item, DragParameters, StandardProcessing)
 	
 	If Item.CurrentData.Operator = "Format(,)" Then
 		RowFormat = New FormatStringWizard;
-		RowFormat.Show(New NotifyDescription("OperatorsEndDragCompletion", ThisObject, New Structure("RowFormat", RowFormat)));
+		RowFormat.Show(New NotifyDescription("OperatorsDragEndCompletion", ThisObject, New Structure("RowFormat", RowFormat)));
 	EndIf;
 	
 EndProcedure
 
 &AtClient
-Procedure OperatorsEndDragCompletion(Text, AdditionalParameters) Export
+Procedure OperatorsDragEndCompletion(Text, AdditionalParameters) Export
 	
 	RowFormat = AdditionalParameters.RowFormat;
 	

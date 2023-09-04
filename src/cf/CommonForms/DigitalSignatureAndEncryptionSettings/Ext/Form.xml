@@ -474,6 +474,12 @@
 								</LabelField>
 							</ChildItems>
 						</Table>
+						<Button name="OpenMachineReadableAuthorizationLetters" id="476">
+							<Type>Hyperlink</Type>
+							<Visible>false</Visible>
+							<CommandName>Form.Command.OpenMachineReadableAuthorizationLetters</CommandName>
+							<ExtendedTooltip name="OpenMachineReadableAuthorizationLettersExtendedTooltip" id="477"/>
+						</Button>
 						<UsualGroup name="LegendGroup" id="379">
 							<Title>
 								<v8:item>
@@ -860,7 +866,7 @@
 													</Button>
 												</ChildItems>
 											</ContextMenu>
-											<AutoCommandBar name="ApplicationsCommandBar" id="205">
+											<AutoCommandBar name="ProgramsCommandBar" id="205">
 												<Autofill>false</Autofill>
 											</AutoCommandBar>
 											<ExtendedTooltip name="ApplicationsExtendedTooltip" id="206"/>
@@ -1925,6 +1931,7 @@ WHERE
 			<Action>AddToEncryptOnly</Action>
 			<Representation>TextPicture</Representation>
 		</Command>
+		<Command name="OpenMachineReadableAuthorizationLetters" id="12"/>
 	</Commands>
 	<Parameters>
 		<Parameter name="CertificatesShow">

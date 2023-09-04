@@ -342,7 +342,7 @@
 				</v8:NumberQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="CheckRequired2" id="18">
+		<Attribute name="IsVerificationRequired" id="18">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>

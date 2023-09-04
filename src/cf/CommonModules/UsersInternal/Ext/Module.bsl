@@ -284,14 +284,14 @@ Function ErrorInsufficientRightsForAuthorization(RegisterInLog = True) Export
 	// 
 	
 	If Users.IsExternalUserSession() Then
-		BasicRightsRoleName = Metadata.Roles.BasicSSLRightsForExternalUsers.Name;
+		BasicAccessRoleName = Metadata.Roles.BasicSSLRightsForExternalUsers.Name;
 	Else
-		BasicRightsRoleName = Metadata.Roles.BasicSSLRights.Name;
+		BasicAccessRoleName = Metadata.Roles.BasicSSLRights.Name;
 	EndIf;
 	
 	// 
 	//
-	If IsInRole(BasicRightsRoleName) Then
+	If IsInRole(BasicAccessRoleName) Then
 		Return "";
 	EndIf;
 	// ACC:336-
@@ -2518,7 +2518,6 @@ Function ProcessNewPassword(Parameters) Export
 	
 	NewPassword  = Parameters.NewPassword;
 	PreviousPassword = Parameters.PreviousPassword;
-	LoginName  = Parameters.LoginName;
 	
 	AdditionalParameters = New Structure;
 	
@@ -6361,7 +6360,7 @@ Procedure UpdateGroupCompositionsByAuthorizationObjectType(ExternalUsersGroup,
 	|	Catalog.ExternalUsers AS ExternalUsers
 	|		INNER JOIN Catalog.ExternalUsersGroups AS ExternalUsersGroups
 	|		ON (ExternalUsersGroups.AllAuthorizationObjects = TRUE)
-	|			AND (&FilterExternalUserGroups1)
+	|			AND (&FilterExternalUsersGroups1)
 	|			AND (TRUE IN
 	|				(SELECT TOP 1
 	|					TRUE
@@ -6385,7 +6384,7 @@ Procedure UpdateGroupCompositionsByAuthorizationObjectType(ExternalUsersGroup,
 	|WHERE
 	|	VALUETYPE(UserGroupCompositions.UsersGroup) = TYPE(Catalog.ExternalUsersGroups)
 	|	AND CAST(UserGroupCompositions.UsersGroup AS Catalog.ExternalUsersGroups).AllAuthorizationObjects = TRUE
-	|	AND &FilterExternalUserGroups2
+	|	AND &FilterExternalUsersGroups2
 	|	AND &FilterExternalUser2
 	|	AND NewCompositions.User IS NULL 
 	|;
@@ -6405,17 +6404,17 @@ Procedure UpdateGroupCompositionsByAuthorizationObjectType(ExternalUsersGroup,
 	|	UserGroupCompositions.User IS NULL ";
 	
 	If ExternalUsersGroup = Undefined Then
-		Query.Text = StrReplace(Query.Text, "&FilterExternalUserGroups1", "TRUE");
-		Query.Text = StrReplace(Query.Text, "&FilterExternalUserGroups2", "TRUE");
+		Query.Text = StrReplace(Query.Text, "&FilterExternalUsersGroups1", "TRUE");
+		Query.Text = StrReplace(Query.Text, "&FilterExternalUsersGroups2", "TRUE");
 	Else
 		Query.SetParameter("ExternalUsersGroup", ExternalUsersGroup);
 		Query.Text = StrReplace(
 			Query.Text,
-			"&FilterExternalUserGroups1",
+			"&FilterExternalUsersGroups1",
 			"ExternalUsersGroups.Ref IN (&ExternalUsersGroup)");
 		Query.Text = StrReplace(
 			Query.Text,
-			"&FilterExternalUserGroups2",
+			"&FilterExternalUsersGroups2",
 			"UserGroupCompositions.UsersGroup IN (&ExternalUsersGroup)");
 	EndIf;
 	
@@ -8137,7 +8136,7 @@ Procedure DisableInactiveAndOverdueUsers(ForAuthorizedUsersOnly = False,
 	|		LEFT JOIN InformationRegister.UsersInfo AS UsersInfo
 	|		ON (UsersInfo.User = Users.Ref)
 	|WHERE
-	|	&FilterUsers
+	|	&FilterUsers_SSLy
 	|	AND ISNULL(UsersInfo.UnlimitedValidityPeriod, FALSE) = FALSE
 	|	AND ISNULL(UsersInfo.AutomaticAuthorizationProhibitionDate, &DateEmpty) = &DateEmpty
 	|	AND CASE
@@ -8218,13 +8217,13 @@ Procedure DisableInactiveAndOverdueUsers(ForAuthorizedUsersOnly = False,
 	|		END";
 	If ForAuthorizedUsersOnly Then
 		Query.SetParameter("User", Users.AuthorizedUser());
-		FilterUsers        = "Users.Ref = &User";
+		FilterUsers_SSLy        = "Users.Ref = &User";
 		FilterExternalUsers = "ExternalUsers.Ref = &User";
 	Else
-		FilterUsers        = "TRUE";
+		FilterUsers_SSLy        = "TRUE";
 		FilterExternalUsers = "TRUE";
 	EndIf;
-	Query.Text = StrReplace(Query.Text, "&FilterUsers",        FilterUsers);
+	Query.Text = StrReplace(Query.Text, "&FilterUsers_SSLy",        FilterUsers_SSLy);
 	Query.Text = StrReplace(Query.Text, "&FilterExternalUsers", FilterExternalUsers);
 	
 	Selection = Query.Execute().Select();

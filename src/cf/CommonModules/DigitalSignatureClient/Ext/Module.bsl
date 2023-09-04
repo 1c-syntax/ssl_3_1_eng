@@ -85,11 +85,13 @@ EndFunction
 //                           c) Or a password has been set earlier by the SetCertificatePassword method.
 //                           If an error occurs upon signing, the form will be opened with the ability to enter the password.
 //                           The ShowComment parameter is ignored.
-//    * BeforeExecute     - NotifyDescription - (optional) - details of the additional
-//                           data preparation handler, after selecting the certificate, by which the data will be signed.
-//                           In this handler, you can fill in the Data parameter if it depends
-//                           on the certificate that in the moment of call is already inserted in DataDetails
-//                           as SelectedCertificate (see below). Consider the common approach (see above).
+//    * BeforeExecute     - NotifyDescription -
+//                           
+//                           
+//                           
+//                           
+//                           
+//                           
 //    * ExecuteAtServer   - Undefined
 //                           - Boolean - 
 //                           
@@ -170,33 +172,35 @@ EndFunction
 //        - Undefined     - 
 //
 //  ResultProcessing - NotifyDescription -
-//     Required for non-standard result processing, for example, if the Object or Form parameter is not specified.
-//     The result gets the DataDetails parameter, to which the following properties are added in case of success:
-//     # Success - Boolean - True if everything is successfully completed.
-//               If Success = False, the partial completion is defined by having the SignatureProperties property.
-//     # Cancel - Boolean - True if the user canceled the operation interactively.
-//     # UserClickedSign - Boolean - If True, the user has clicked Sign at least once.
-//               Used for scenarios where a simple signature is enough to continue the business process (the intention to set a signature),
-//               and setting a qualified signature is an addition that can be implemented later if technical problems arise.
-//               # SelectedCertificate - Structure - Contains the following certificate properties:
-//     ## CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - Reference to the found certificate.
-//         ## Thumbprint - String - Certificate thumbprint in the Base64 string format.
-//         ## String - Address of temporary storage that contains certificate binary data.
-//         # SignatureProperties - String - a temporary storage address that contains the structure described below.
-//     Check the property in the DataSet parameter when passing it.
-//                         = Structure - 
+//     
+//     
+//     
+//               
+//     
+//     
+//               
+//               
+//               
+//     
+//         
+//         
+//         
+//     
+//     
+//               
 //                       See DigitalSignatureClientServer.NewSignatureProperties
+//               
 //                       
-//  SignatureType - See NewSignatureType
+//  SignatureParameters - See NewSignatureType
 //
-Procedure Sign(DataDetails, Form = Undefined, ResultProcessing = Undefined, SignatureType = Undefined) Export
+Procedure Sign(DataDetails, Form = Undefined, ResultProcessing = Undefined, SignatureParameters = Undefined) Export
 	
 	ClientParameters = New Structure;
 	ClientParameters.Insert("DataDetails", DataDetails);
 	ClientParameters.Insert("Form", Form);
 	ClientParameters.Insert("ResultProcessing", ResultProcessing);
 	
-	CompletionProcessing = New NotifyDescription("StandardCompletion",
+	CompletionProcessing = New NotifyDescription("RegularlyCompletion",
 		DigitalSignatureInternalClient, ClientParameters);
 	
 	If DataDetails.Property("OperationContext")
@@ -224,7 +228,7 @@ Procedure Sign(DataDetails, Form = Undefined, ResultProcessing = Undefined, Sign
 	ServerParameters1.Insert("NotifyOfCertificateAboutToExpire", True);
 	FillPropertyValues(ServerParameters1, DataDetails);
 	
-	ServerParameters1.Insert("SignatureType", SignatureType);
+	ServerParameters1.Insert("SignatureType", SignatureParameters);
 	
 	DigitalSignatureInternalClient.OpenNewForm("DataSigning",
 		ClientParameters, ServerParameters1, CompletionProcessing);
@@ -242,6 +246,7 @@ EndProcedure
 //   * SignatureTypes - Array -
 //   * Visible - Boolean -
 //   * Enabled - Boolean -
+//   * ChoosingAuthorizationLetter - Boolean -
 //
 Function NewSignatureType(SignatureType = Undefined) Export
 	
@@ -249,6 +254,7 @@ Function NewSignatureType(SignatureType = Undefined) Export
 	Structure.Insert("SignatureTypes", New Array);
 	Structure.Insert("Visible", False);
 	Structure.Insert("Enabled", False);
+	Structure.Insert("ChoosingAuthorizationLetter", False);
 	
 	If ValueIsFilled(SignatureType) Then
 		Structure.SignatureTypes.Add(SignatureType);
@@ -337,7 +343,7 @@ Procedure AddSignatureFromFile(DataDetails, Form = Undefined, ResultProcessing =
 	DigitalSignatureInternalClient.SetDataPresentation(ClientParameters, ServerParameters1);
 	
 	AdditionForm = OpenForm("CommonForm.AddDigitalSignatureFromFile", ServerParameters1,,,,,
-		New NotifyDescription("StandardCompletion", DigitalSignatureInternalClient, ClientParameters));
+		New NotifyDescription("RegularlyCompletion", DigitalSignatureInternalClient, ClientParameters));
 	
 	If AdditionForm = Undefined Then
 		If ResultProcessing <> Undefined Then
@@ -600,7 +606,7 @@ Procedure Encrypt(DataDetails, Form = Undefined, ResultProcessing = Undefined) E
 	ClientParameters.Insert("Form", Form);
 	ClientParameters.Insert("ResultProcessing", ResultProcessing);
 	
-	CompletionProcessing = New NotifyDescription("StandardCompletion",
+	CompletionProcessing = New NotifyDescription("RegularlyCompletion",
 		DigitalSignatureInternalClient, ClientParameters);
 	
 	If DataDetails.Property("OperationContext")
@@ -769,7 +775,7 @@ Procedure Decrypt(DataDetails, Form = Undefined, ResultProcessing = Undefined) E
 	ClientParameters.Insert("Form", Form);
 	ClientParameters.Insert("ResultProcessing", ResultProcessing);
 	
-	CompletionProcessing = New NotifyDescription("StandardCompletion",
+	CompletionProcessing = New NotifyDescription("RegularlyCompletion",
 		DigitalSignatureInternalClient, ClientParameters);
 	
 	If DataDetails.Property("OperationContext")
@@ -2058,7 +2064,7 @@ EndProcedure
 //     
 //      
 //     
-//  Signature - BinaryData
+//  Signature - BinaryData -
 //          - String - 
 //          - Array of String
 //          - Array of BinaryData
@@ -2110,7 +2116,7 @@ Procedure OpenSignature(CurrentData) Export
 		"SignatureDate, Comment, CertificateOwner, Thumbprint,
 		|SignatureAddress, SignatureSetBy, CertificateAddress,
 		|Status, ErrorDescription, SignatureCorrect, SignatureValidationDate, SignatureType, DateActionLastTimestamp,
-		|Object, SequenceNumber, CheckRequired2");
+		|Object, SequenceNumber, IsVerificationRequired");
 	
 	FillPropertyValues(SignatureProperties, CurrentData);
 	

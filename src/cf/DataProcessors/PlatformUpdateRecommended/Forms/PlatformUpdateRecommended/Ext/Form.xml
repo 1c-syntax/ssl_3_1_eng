@@ -89,7 +89,7 @@
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>%1 requires 1C:Enterprise version %2 or later.
+											<v8:content>For the proper functioning of the application, 1C:Enterprise version %2 or later is %1.
 Current version: %3.</v8:content>
 										</v8:item>
 									</Title>

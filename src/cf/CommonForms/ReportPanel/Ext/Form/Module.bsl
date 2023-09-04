@@ -263,7 +263,7 @@ Procedure Attachable_SectionTitleClick(Item)
 	ParametersForm.Insert("SubsystemPath",      SubsystemPath);
 	ParametersForm.Insert("SearchString",         SearchString);
 	
-	OwnerForm1     = ThisObject;
+	OwnerForm     = ThisObject;
 	FormUniqueness = True;
 	
 	If ClientParameters.RunMeasurements Then
@@ -272,7 +272,7 @@ Procedure Attachable_SectionTitleClick(Item)
 		Measurement = StartMeasurement("ReportPanel.Opening", Comment);
 	EndIf;
 	
-	OpenForm("CommonForm.ReportPanel", ParametersForm, OwnerForm1, FormUniqueness);
+	OpenForm("CommonForm.ReportPanel", ParametersForm, OwnerForm, FormUniqueness);
 	
 	If ClientParameters.RunMeasurements Then
 		EndMeasurement(Measurement);
@@ -377,7 +377,7 @@ EndProcedure
 &AtClient
 Procedure ResetSettings(Command)
 	QueryText = NStr("en = 'Do you want to reset report assignment settings?';");
-	Handler = New NotifyDescription("ClearSettingsCompletion", ThisObject);
+	Handler = New NotifyDescription("ResetSettingsCompletion", ThisObject);
 	ShowQueryBox(Handler, QueryText, QuestionDialogMode.YesNo, 60, DialogReturnCode.No);
 EndProcedure
 
@@ -474,7 +474,7 @@ Procedure AddRemoveOptionFromQuickAccess(Variant, Item, QuickAccess)
 EndProcedure
 
 &AtClient
-Procedure ClearSettingsCompletion(Response, AdditionalParameters) Export
+Procedure ResetSettingsCompletion(Response, AdditionalParameters) Export
 	If Response = DialogReturnCode.Yes Then
 		SetupMode = False;
 		UpdateReportPanelAtClient("ResetSettings");
@@ -1892,7 +1892,7 @@ Function AddSubsystemsGroup(FillParameters, OutputOrderRow, ToGroup)
 	// Insert a left indent.
 	If OutputOrderRow.NestingLevel > 1 Then
 		// Group.
-		IndentGroup1 = Items.Insert(SubsystemsGroupName + "_GroupIndent", Type("FormGroup"), ToGroup);
+		IndentGroup1 = Items.Insert(SubsystemsGroupName + "_IndentGroup1", Type("FormGroup"), ToGroup);
 		IndentGroup1.Type                      = FormGroupType.UsualGroup;
 		IndentGroup1.Group              = ChildFormItemsGroup.AlwaysHorizontal;
 		IndentGroup1.Representation              = UsualGroupRepresentation.None;
@@ -1900,7 +1900,7 @@ Function AddSubsystemsGroup(FillParameters, OutputOrderRow, ToGroup)
 		IndentGroup1.HorizontalStretch = True;
 		
 		// Picture.
-		IndentPicture1 = Items.Insert(SubsystemsGroupName + "_IndentPicture", Type("FormDecoration"), IndentGroup1);
+		IndentPicture1 = Items.Insert(SubsystemsGroupName + "_IndentPicture1", Type("FormDecoration"), IndentGroup1);
 		FillPropertyValues(IndentPicture1, FillParameters.Templates.IndentPicture1);
 		IndentPicture1.Width = OutputOrderRow.NestingLevel - 1;
 		If OutputOrderRow.TreeRow.OptionsCount = 0 And OutputOrderRow.TreeRow.TotalNestedOptions = 0 Then
@@ -1972,9 +1972,9 @@ EndFunction
 Function AddGroupWithIndent(FillParameters, OutputOrderRow, ToGroup)
 	FillParameters.OptionItemsDisplayed = FillParameters.OptionItemsDisplayed + 1;
 	
-	IndentGroupName   = "IndentGroup_" + Format(FillParameters.OptionItemsDisplayed, "NG=0");
-	IndentPictureName = "IndentPicture_" + Format(FillParameters.OptionItemsDisplayed, "NG=0");
-	OutputGroupName    = "OutputGroup_" + Format(FillParameters.OptionItemsDisplayed, "NG=0");
+	IndentGroupName   = "IndentGroup1_" + Format(FillParameters.OptionItemsDisplayed, "NG=0");
+	IndentPictureName = "IndentPicture1_" + Format(FillParameters.OptionItemsDisplayed, "NG=0");
+	OutputGroupName    = "OutputGroup1_" + Format(FillParameters.OptionItemsDisplayed, "NG=0");
 	
 	// Indent.
 	IndentGroup1 = Items.Insert(IndentGroupName, Type("FormGroup"), ToGroup);
@@ -2309,7 +2309,7 @@ EndFunction
 Function AddBlankDecoration(FillParameters, ToGroup)
 	
 	FillParameters.EmptyDecorationsAdded = FillParameters.EmptyDecorationsAdded + 1;
-	DecorationName = "EmptyDecoration_" + Format(FillParameters.EmptyDecorationsAdded, "NG=0");
+	DecorationName = "BlankDecoration_" + Format(FillParameters.EmptyDecorationsAdded, "NG=0");
 	
 	Decoration = Items.Insert(DecorationName, Type("FormDecoration"), ToGroup);
 	Decoration.Type = FormDecorationType.Label;

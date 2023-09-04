@@ -52,7 +52,7 @@
 				</v8:item>
 			</Title>
 			<ContextMenu name="SettingsComposerSettingsContextMenu" id="2"/>
-			<AutoCommandBar name="SettingsComposerSettingsCommandBar" id="3"/>
+			<AutoCommandBar name="SettingSettingsComposerCommandBar" id="3"/>
 			<ExtendedTooltip name="SettingsComposerSettingsExtendedTooltip" id="130"/>
 			<SearchStringAddition name="SettingsComposerSettingsSearchString" id="201">
 				<AdditionSource>
@@ -257,7 +257,7 @@
 												</v8:item>
 											</Title>
 											<ContextMenu name="SettingsComposerSettingsGroupFieldsGroupFieldsAvailableFieldsContextMenu" id="17"/>
-											<AutoCommandBar name="SettingsComposerSettingsGroupFieldsGroupFieldsAvailableFieldsCommandBar" id="18"/>
+											<AutoCommandBar name="SettingsComposerSettingsGroupFieldsAvailableGroupFieldsFieldsCommandBar" id="18"/>
 											<ExtendedTooltip name="SettingsComposerSettingsGroupFieldsGroupFieldsAvailableFieldsExtendedTooltip" id="139"/>
 											<SearchStringAddition name="SettingsComposerSettingsGroupFieldsGroupFieldsAvailableFieldsSearchString" id="228">
 												<AdditionSource>
@@ -422,7 +422,7 @@ Browse the structure tree and select a grouping to view or edit grouping field s
 												</v8:item>
 											</Title>
 											<ContextMenu name="SettingsComposerSettingsSelectionSelectionAvailableFieldsContextMenu" id="31"/>
-											<AutoCommandBar name="SettingsComposerSettingsSelectionSelectionAvailableFieldsCommandBar" id="32"/>
+											<AutoCommandBar name="SettingsComposerSettingsSelectionAvailableSelectionFieldsCommandBar" id="32"/>
 											<ExtendedTooltip name="SettingsComposerSettingsSelectionSelectionAvailableFieldsExtendedTooltip" id="147"/>
 											<SearchStringAddition name="SettingsComposerSettingsSelectionSelectionAvailableFieldsSearchString" id="246">
 												<AdditionSource>
@@ -641,7 +641,7 @@ In the report structure tree, select the item and then select required fields.</
 												</v8:item>
 											</Title>
 											<ContextMenu name="SettingsComposerSettingsFilterFilterAvailableFieldsContextMenu" id="52"/>
-											<AutoCommandBar name="SettingsComposerSettingsFilterFilterAvailableFieldsCommandBar" id="53"/>
+											<AutoCommandBar name="SettingsComposerSettingsFilterAvailableFilterFieldsCommandBar" id="53"/>
 											<ExtendedTooltip name="SettingsComposerSettingsFilterFilterAvailableFieldsExtendedTooltip" id="159"/>
 											<SearchStringAddition name="SettingsComposerSettingsFilterFilterAvailableFieldsSearchString" id="264">
 												<AdditionSource>
@@ -862,7 +862,7 @@ In the structure tree, select the report and edit report filters.</v8:content>
 												</v8:item>
 											</Title>
 											<ContextMenu name="SettingsComposerSettingsOrderOrderAvailableFieldsContextMenu" id="73"/>
-											<AutoCommandBar name="SettingsComposerSettingsOrderOrderAvailableFieldsCommandBar" id="74"/>
+											<AutoCommandBar name="SettingsComposerSettingsOrderAvailableOrderFieldsCommandBar" id="74"/>
 											<ExtendedTooltip name="SettingsComposerSettingsOrderOrderAvailableFieldsExtendedTooltip" id="171"/>
 											<SearchStringAddition name="SettingsComposerSettingsOrderOrderAvailableFieldsSearchString" id="282">
 												<AdditionSource>

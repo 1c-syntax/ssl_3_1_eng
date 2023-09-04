@@ -48,7 +48,7 @@ EndProcedure
 // Parameters:
 //  IDs - Array of UUID - IDs (UUID) of requests to use external resources,
 //                  for which the wizard is called.
-//  OwnerForm1 - ClientApplicationForm
+//  OwnerForm - ClientApplicationForm
 //                - Undefined - 
 //  ClosingNotification1 - NotifyDescription, Undefined - details of a notification that must be
 //                        processed after closing the wizard.
@@ -61,7 +61,7 @@ EndProcedure
 //
 Procedure StartInitializingRequestForPermissionsToUseExternalResources(
 		Val IDs,
-		Val OwnerForm1,
+		Val OwnerForm,
 		Val ClosingNotification1,
 		Val EnablingMode = False,
 		Val DisablingMode = False,
@@ -72,7 +72,7 @@ Procedure StartInitializingRequestForPermissionsToUseExternalResources(
 		State = RequestForPermissionsToUseExternalResourcesState();
 		State.RequestsIDs = IDs;
 		State.NotifyDescription = ClosingNotification1;
-		State.OwnerForm1 = OwnerForm1;
+		State.OwnerForm = OwnerForm;
 		State.EnablingMode = EnablingMode;
 		State.DisablingMode = DisablingMode;
 		State.RecoveryMode = RecoveryMode;
@@ -91,7 +91,7 @@ Procedure StartInitializingRequestForPermissionsToUseExternalResources(
 		OpenForm(
 			"DataProcessor.ExternalResourcesPermissionsSetup.Form.PermissionsRequestInitialization",
 			FormParameters,
-			OwnerForm1,
+			OwnerForm,
 			,
 			,
 			,
@@ -141,7 +141,7 @@ Procedure AfterInitializeRequestForPermissionsToUseExternalResources(Result, Sta
 			OpenForm(
 				"DataProcessor.ExternalResourcesPermissionsSetup.Form.ExternalResourcesPermissionsSetup",
 				FormParameters,
-				State.OwnerForm1,
+				State.OwnerForm,
 				,
 				,
 				,
@@ -186,7 +186,7 @@ Procedure AfterSetUpPermissionsToUseExternalResources(Result, State) Export
 	If Result = DialogReturnCode.OK Or Result = DialogReturnCode.Ignore Then
 		
 		PlanPermissionApplyingCheckAfterOwnerFormClose(
-			State.OwnerForm1,
+			State.OwnerForm,
 			State.RequestsIDs);
 		
 		FormParameters = New Structure();
@@ -372,13 +372,13 @@ EndProcedure
 // mode.
 //
 // Parameters:
-//  OwnerForm1 - ClientApplicationForm - Form that must be locked before permissions are applied.
+//  OwnerForm - ClientApplicationForm - Form that must be locked before permissions are applied.
 //  ClosingNotification1 - NotifyDescription - it will be called once permissions are granted.
 //
-Procedure StartEnablingSecurityProfilesUsage(OwnerForm1, ClosingNotification1 = Undefined) Export
+Procedure StartEnablingSecurityProfilesUsage(OwnerForm, ClosingNotification1 = Undefined) Export
 	
 	StartInitializingRequestForPermissionsToUseExternalResources(
-		New Array(), OwnerForm1, ClosingNotification1, True, False, False);
+		New Array(), OwnerForm, ClosingNotification1, True, False, False);
 	
 EndProcedure
 
@@ -386,13 +386,13 @@ EndProcedure
 // mode.
 //
 // Parameters:
-//  OwnerForm1 - ClientApplicationForm - Form that must be locked before permissions are applied.
+//  OwnerForm - ClientApplicationForm - Form that must be locked before permissions are applied.
 //  ClosingNotification1 - NotifyDescription - it will be called once permissions are granted.
 //
-Procedure StartDisablingSecurityProfilesUsage(OwnerForm1, ClosingNotification1 = Undefined) Export
+Procedure StartDisablingSecurityProfilesUsage(OwnerForm, ClosingNotification1 = Undefined) Export
 	
 	StartInitializingRequestForPermissionsToUseExternalResources(
-		New Array(), OwnerForm1, ClosingNotification1, False, True, False);
+		New Array(), OwnerForm, ClosingNotification1, False, True, False);
 	
 EndProcedure
 
@@ -401,13 +401,13 @@ EndProcedure
 // infobase state.
 //
 // Parameters:
-//  OwnerForm1 - ClientApplicationForm - Form that must be locked before permissions are applied.
+//  OwnerForm - ClientApplicationForm - Form that must be locked before permissions are applied.
 //  ClosingNotification1 - NotifyDescription - it will be called once permissions are granted.
 //
-Procedure StartRestoringSecurityProfiles(OwnerForm1, ClosingNotification1 = Undefined) Export
+Procedure StartRestoringSecurityProfiles(OwnerForm, ClosingNotification1 = Undefined) Export
 	
 	StartInitializingRequestForPermissionsToUseExternalResources(
-		New Array(), OwnerForm1, ClosingNotification1, False, False, True);
+		New Array(), OwnerForm, ClosingNotification1, False, False, True);
 	
 EndProcedure
 
@@ -433,7 +433,7 @@ Function RequestForPermissionsToUseExternalResourcesState()
 	
 	// Form, из которой первоначально было инициализировано применение запросов на использование
 	// 
-	Result.Insert("OwnerForm1");
+	Result.Insert("OwnerForm");
 	
 	// Режим включения - 
 	Result.Insert("EnablingMode", False);

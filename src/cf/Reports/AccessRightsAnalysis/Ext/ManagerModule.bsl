@@ -210,7 +210,7 @@ Function AccessRestrictionKinds(ForExternalUsers = Undefined,
 		|FROM
 		|	&PermanentRestrictionKinds AS PermanentRestrictionKinds
 		|WHERE
-		|	&SelectionForExternalUsers
+		|	&FilterForExternalUsers
 		|;
 		|
 		|////////////////////////////////////////////////////////////////////////////////
@@ -289,10 +289,10 @@ Function AccessRestrictionKinds(ForExternalUsers = Undefined,
 		
 		If TypeOf(ForExternalUsers) = Type("Boolean") Then
 			Query.SetParameter("ForExternalUsers", ForExternalUsers);
-			Query.Text = StrReplace(Query.Text, "&SelectionForExternalUsers",
+			Query.Text = StrReplace(Query.Text, "&FilterForExternalUsers",
 				"PermanentRestrictionKinds.ForExternalUsers = &ForExternalUsers");
 		Else
-			Query.Text = StrReplace(Query.Text, "&SelectionForExternalUsers", "TRUE");
+			Query.Text = StrReplace(Query.Text, "&FilterForExternalUsers", "TRUE");
 		EndIf;
 		Query.SetParameter("AccessTypesWithView",
 			AccessTypesWithView(AccessKindsValuesTypes, False));

@@ -334,7 +334,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 			Command.Kind = "Administration";
 			Command.Importance = "SeeAlso";
 			Command.Presentation = NStr("en = 'Merge selected items…';");
-			Command.WriteMode = "DoNotWrite";
+			Command.WriteMode = "NotWrite";
 			Command.VisibilityInForms = "ListForm";
 			Command.MultipleChoice = True;
 			Command.Handler = "DuplicateObjectsDetectionClient.MergeSelectedItems";
@@ -345,7 +345,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 			Command.Kind = "Administration";
 			Command.Importance = "SeeAlso";
 			Command.Presentation = NStr("en = 'Replace selected items…';");
-			Command.WriteMode = "DoNotWrite";
+			Command.WriteMode = "NotWrite";
 			Command.VisibilityInForms = "ListForm";
 			Command.MultipleChoice = True;
 			Command.Handler = "DuplicateObjectsDetectionClient.ReplaceSelected";
@@ -722,7 +722,7 @@ Function ObjectsForReplacementQueryText(SubordinateObjectDetails, Links)
 	KeyName = StrReplace(SubordinateObjectDetails.Key, ".", "");
 	KeyTable = SubordinateObjectDetails.Key;
 
-	UnchangeableAttributes = "";
+	NotAttributesToChange = "";
 	AttributesToChange = "";
 	KeysValue = "";
 	ValueAttributesToChange = "";
@@ -743,7 +743,7 @@ Function ObjectsForReplacementQueryText(SubordinateObjectDetails, Links)
 		Value = "UNION" // @query-part
 			+ StrReplace(" SELECT
 							|	Tab.Ref AS Ref,
-							|	&UnchangeableAttributes,
+							|	&NotAttributesToChange,
 							|	&AttributesToChange
 							|FROM
 							|	#KeyTable AS Tab
@@ -773,7 +773,7 @@ Function ObjectsForReplacementQueryText(SubordinateObjectDetails, Links)
 		Else
 			
 			Value =  StringFunctionsClientServer.SubstituteParametersToString("Tab.%1 AS %1", KeyAttribute);
-			UnchangeableAttributes = UnchangeableAttributes + ?(IsBlankString(UnchangeableAttributes),Value, ","+Value);
+			NotAttributesToChange = NotAttributesToChange + ?(IsBlankString(NotAttributesToChange),Value, ","+Value);
 
 		EndIf;
 		
@@ -782,7 +782,7 @@ Function ObjectsForReplacementQueryText(SubordinateObjectDetails, Links)
 	AddToQueryText(QueryText, "#KeysValue", KeysValue);
 	AddToQueryText(QueryText, "LEFT JOIN #ConnectionValueOfAttributesToReplace ON TRUE", ConnectionValueOfAttributesToReplace);
 	AddToQueryText(QueryText, "&LinksByKey", LinksByKey);
-	AddToQueryText(QueryText, "&UnchangeableAttributes", ?(IsBlankString(UnchangeableAttributes), "UNDEFINED", UnchangeableAttributes));
+	AddToQueryText(QueryText, "&NotAttributesToChange", ?(IsBlankString(NotAttributesToChange), "UNDEFINED", NotAttributesToChange));
 	AddToQueryText(QueryText, "&AttributesToChange",  ?(IsBlankString(AttributesToChange), "UNDEFINED", AttributesToChange));
 	
 	AddToQueryText(QueryText, "#KeyTable", KeyTable);
@@ -797,7 +797,7 @@ Function QueryTemplate()
 	Return "
 	|SELECT
 	|	Tab.Ref AS Ref,
-	|	&UnchangeableAttributes,
+	|	&NotAttributesToChange,
 	|	&AttributesToChange
 	|INTO #KeyNameSourceData
 	|FROM
@@ -810,7 +810,7 @@ Function QueryTemplate()
 	|" + "
 	|SELECT
 	|	Tab.Ref AS Ref,
-	|	&UnchangeableAttributes,
+	|	&NotAttributesToChange,
 	|	&AttributesToChange
 	|INTO #KeyNameTheValueOfTheDetailsAfterReplacement
 	|FROM
@@ -820,7 +820,7 @@ Function QueryTemplate()
 	|SELECT
 	|	Tab.Ref AS Ref,
 	|	Replacement.Ref AS Replacement,
-	|	&UnchangeableAttributes,
+	|	&NotAttributesToChange,
 	|	&AttributesToChange
 	|FROM
 	|	#KeyNameTheValueOfTheDetailsAfterReplacement AS Tab

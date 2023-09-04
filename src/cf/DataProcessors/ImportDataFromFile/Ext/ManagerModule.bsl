@@ -480,7 +480,7 @@ Procedure FillMappingTableWithDataToImport(TemplateWithData, TableColumnsInforma
 		EmptyTableRow = True;
 		NewRow = MappingTable.Add();
 		NewRow.Id = LineNumber - 1 - IDAdjustment;
-		NewRow.RowMappingResult = "NotMapped1";
+		NewRow.RowMappingResult = "NotMatched";
 		
 		For ColumnNumber = 1 To TemplateWithData.TableWidth Do
 			

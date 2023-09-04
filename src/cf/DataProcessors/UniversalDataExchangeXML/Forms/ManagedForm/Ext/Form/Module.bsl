@@ -284,13 +284,13 @@ Procedure AfterExistenceCheckRulesFileName(Exists, AdditionalParameters) Export
 		Return;
 	EndIf;
 	
-	NotifyDescription = New NotifyDescription("RuleFileNameOnChangeCompletion", ThisObject);
+	NotifyDescription = New NotifyDescription("RulesFileNameOnChangeCompletion", ThisObject);
 	ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to import data exchange rules?';"), QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
 	
 EndProcedure
 
 &AtClient
-Procedure RuleFileNameOnChangeCompletion(Result, AdditionalParameters) Export
+Procedure RulesFileNameOnChangeCompletion(Result, AdditionalParameters) Export
 	
 	If Result = DialogReturnCode.Yes Then
 		
@@ -741,7 +741,7 @@ Procedure ReadExchangeRulesCompletion(Result, Address, SelectedFileName, Additio
 		
 		ExecuteImportExchangeRules(Address, SelectedFileName);
 		
-		If Object.ErrorFlag Then
+		If Object.FlagErrors Then
 			
 			SetImportRuleFlag(False);
 			
@@ -943,11 +943,11 @@ EndFunction
 &AtClient
 Procedure ExecuteImportExchangeRules(RuleFileAddressInStorage = "", FileNameForExtension = "")
 	
-	Object.ErrorFlag = False;
+	Object.FlagErrors = False;
 	
 	ImportExchangeRulesAndParametersAtServer(RuleFileAddressInStorage, FileNameForExtension);
 	
-	If Object.ErrorFlag Then
+	If Object.FlagErrors Then
 		
 		SetImportRuleFlag(False);
 		
@@ -1030,7 +1030,7 @@ Procedure ImportExchangeRulesAndParametersAtServer(RuleFileAddressInStorage, Fil
 	ObjectForServer.ImportExchangeRules();
 	ObjectForServer.InitializeInitialParameterValues();
 	ObjectForServer.Parameters.Clear();
-	Object.ErrorFlag = ObjectForServer.ErrorFlag;
+	Object.FlagErrors = ObjectForServer.FlagErrors;
 	
 	If IsClient Then
 		
@@ -1542,7 +1542,7 @@ Procedure ExecuteExportFromForm()
 	
 	ExpandTreeRows(Object.ExportRulesTable, Items.ExportRulesTable, "Enable");
 	
-	If IsClient And Not DirectExport And Not Object.ErrorFlag Then
+	If IsClient And Not DirectExport And Not Object.FlagErrors Then
 		
 		FileToSaveName = ?(Object.ArchiveFile, NStr("en = 'Export file.zip';"),NStr("en = 'Export file.xml';"));
 		

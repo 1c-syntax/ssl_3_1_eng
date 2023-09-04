@@ -597,13 +597,13 @@ EndFunction
 #Region ObsoleteProceduresAndFunctions
 
 // Deprecated.
-Function AddToList2(DestinationList, SourceList, CheckType = Undefined, AddNewItems = True) Export
+Function SupplementList(DestinationList, SourceList, CheckType = Undefined, AddNewItems = True) Export
 	
 	If DestinationList = Undefined Or SourceList = Undefined Then
 		Return Undefined;
 	EndIf;
 	
-	Return CommonClientServer.AddToList2(DestinationList, SourceList, CheckType, AddNewItems);
+	Return CommonClientServer.SupplementList(DestinationList, SourceList, CheckType, AddNewItems);
 	
 EndFunction
 

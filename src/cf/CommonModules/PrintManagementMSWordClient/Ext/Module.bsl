@@ -25,7 +25,7 @@ Function InitializeMSWordPrintForm(Template) Export
 		FailedToGeneratePrintForm(ErrorInfo());
 	EndTry;
 	
-	Handler.Insert("COMConnection", COMObject);
+	Handler.Insert("COMJoin", COMObject);
 	Try
 		COMObject.Documents.Add();
 	Except
@@ -40,11 +40,11 @@ Function InitializeMSWordPrintForm(Template) Export
 	If TypeOf(Template) = Type("Structure") Then
 		TemplatePagesSettings = Template.TemplatePagesSettings;
 		// 
-		Template.COMConnection.ActiveDocument.Close();
-		Handler.COMConnection.ActiveDocument.CopyStylesFromTemplate(Template.FileName);
+		Template.COMJoin.ActiveDocument.Close();
+		Handler.COMJoin.ActiveDocument.CopyStylesFromTemplate(Template.FileName);
 		
-		Template.COMConnection.WordBasic.DisableAutoMacros(1);
-		Template.COMConnection.Documents.Open(Template.FileName);
+		Template.COMJoin.WordBasic.DisableAutoMacros(1);
+		Template.COMJoin.Documents.Open(Template.FileName);
 	EndIf;
 	
 	// Copy page settings.
@@ -113,7 +113,7 @@ Function GetMSWordTemplate(Val BinaryTemplateData, Val TempFileName) Export
 			+ ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 	EndTry;
 	
-	Handler.Insert("COMConnection", COMObject);
+	Handler.Insert("COMJoin", COMObject);
 	Handler.Insert("FileName", TempFileName);
 	Handler.Insert("IsTemplate", True);
 	
@@ -140,10 +140,10 @@ EndFunction
 Procedure CloseConnection(Handler, Val CloseApplication) Export
 	
 	If CloseApplication Then
-		Handler.COMConnection.Quit(0);
+		Handler.COMJoin.Quit(0);
 	EndIf;
 	
-	Handler.COMConnection = 0;
+	Handler.COMJoin = 0;
 	
 	#If Not WebClient Then
 	If Handler.Property("FileName") Then
@@ -160,16 +160,16 @@ EndProcedure
 //
 Procedure ShowMSWordDocument(Val Handler) Export
 	
-	COMConnection = Handler.COMConnection;
-	COMConnection.Application.Selection.Collapse();
+	COMJoin = Handler.COMJoin;
+	COMJoin.Application.Selection.Collapse();
 	
 	// Restoring a document view kind.
 	If Handler.Property("ViewType") Then
-		COMConnection.Application.ActiveWindow.View.Type = Handler.ViewType;
+		COMJoin.Application.ActiveWindow.View.Type = Handler.ViewType;
 	EndIf;
 	
-	COMConnection.Application.Visible = True;
-	COMConnection.Activate();
+	COMJoin.Application.Visible = True;
+	COMJoin.Activate();
 	
 EndProcedure
 
@@ -200,14 +200,14 @@ Function GetMSWordTemplateArea(Val Handler,
 	
 	Result = New Structure("Document,Start,End");
 	
-	PositionStart = OffsetStart + GetAreaStartPosition(Handler.COMConnection, AreaName);
-	PositionEnd1 = OffsetEnd + GetAreaEndPosition(Handler.COMConnection, AreaName);
+	PositionStart = OffsetStart + GetAreaStartPosition(Handler.COMJoin, AreaName);
+	PositionEnd1 = OffsetEnd + GetAreaEndPosition(Handler.COMJoin, AreaName);
 	
 	If PositionStart >= PositionEnd1 Or PositionStart < 0 Then
 		Return Undefined;
 	EndIf;
 	
-	Result.Document = Handler.COMConnection.ActiveDocument;
+	Result.Document = Handler.COMJoin.ActiveDocument;
 	Result.Start = PositionStart;
 	Result.End   = PositionEnd1;
 	
@@ -223,7 +223,7 @@ EndFunction
 //
 Function GetHeaderArea(Val Handler) Export
 	
-	Return New Structure("Header", Handler.COMConnection.ActiveDocument.Sections(1).Headers.Item(1));
+	Return New Structure("Header", Handler.COMJoin.ActiveDocument.Sections(1).Headers.Item(1));
 	
 EndFunction
 
@@ -235,7 +235,7 @@ EndFunction
 //
 Function GetFooterArea(Handler) Export
 	
-	Return New Structure("Footer", Handler.COMConnection.ActiveDocument.Sections(1).Footers.Item(1));
+	Return New Structure("Footer", Handler.COMJoin.ActiveDocument.Sections(1).Footers.Item(1));
 	
 EndFunction
 
@@ -278,7 +278,7 @@ Procedure FillFooterParameters(Val PrintForm, Val ObjectData = Undefined) Export
 EndProcedure
 
 Function Footer(PrintForm)
-	Return PrintForm.COMConnection.ActiveDocument.Sections(1).Footers.Item(1).Range;
+	Return PrintForm.COMJoin.ActiveDocument.Sections(1).Footers.Item(1).Range;
 EndFunction
 
 // Adds a header from a template to a print form.
@@ -317,7 +317,7 @@ Procedure FillHeaderParameters(Val PrintForm, Val ObjectData = Undefined) Export
 EndProcedure
 
 Function Header(PrintForm)
-	Return PrintForm.COMConnection.ActiveDocument.Sections(1).Headers.Item(1).Range;
+	Return PrintForm.COMJoin.ActiveDocument.Sections(1).Headers.Item(1).Range;
 EndFunction
 
 // End: operations with Microsoft Word document headers and footers.
@@ -344,7 +344,7 @@ Function AttachArea(Val PrintForm,
 	
 	HandlerArea.Document.Range(HandlerArea.Start, HandlerArea.End).Copy();
 	
-	PFActiveDocument = PrintForm.COMConnection.ActiveDocument;
+	PFActiveDocument = PrintForm.COMJoin.ActiveDocument;
 	DocumentEndPosition	= PFActiveDocument.Range().End;
 	InsertionArea				= PFActiveDocument.Range(DocumentEndPosition-1, DocumentEndPosition-1);
 	
@@ -410,7 +410,7 @@ Procedure JoinAndFillSet(Val PrintForm,
 	
 	HandlerArea.Document.Range(HandlerArea.Start, HandlerArea.End).Copy();
 	
-	ActiveDocument = PrintForm.COMConnection.ActiveDocument;
+	ActiveDocument = PrintForm.COMJoin.ActiveDocument;
 	
 	If ObjectData <> Undefined Then
 		For Each RowData In ObjectData Do
@@ -456,7 +456,7 @@ Procedure JoinAndFillTableArea(Val PrintForm,
 	
 	HandlerArea.Document.Range(HandlerArea.Start, HandlerArea.End).Copy();
 	
-	ActiveDocument = PrintForm.COMConnection.ActiveDocument;
+	ActiveDocument = PrintForm.COMJoin.ActiveDocument;
 	
 	// 
 	// 
@@ -480,10 +480,10 @@ Procedure JoinAndFillTableArea(Val PrintForm,
 		
 		NewInsertionPosition = ActiveDocument.Range().End;
 		ActiveDocument.Range(InsertPosition-1, ActiveDocument.Range().End-1).Select();
-		PrintForm.COMConnection.Selection.InsertRowsBelow();
+		PrintForm.COMJoin.Selection.InsertRowsBelow();
 		
 		ActiveDocument.Range(NewInsertionPosition-1, ActiveDocument.Range().End-2).Select();
-		PrintForm.COMConnection.Selection.Paste();
+		PrintForm.COMJoin.Selection.Paste();
 		InsertPosition = NewInsertionPosition;
 		
 		If TypeOf(TableRowData) = Type("Structure") Then
@@ -507,7 +507,7 @@ EndProcedure
 //   Handler - 
 //
 Procedure InsertBreakAtNewLine(Val Handler) Export
-	ActiveDocument = Handler.COMConnection.ActiveDocument;
+	ActiveDocument = Handler.COMJoin.ActiveDocument;
 	DocumentEndPosition = ActiveDocument.Range().End;
 	ActiveDocument.Range(DocumentEndPosition-1, DocumentEndPosition-1).InsertParagraphAfter();
 EndProcedure
@@ -515,42 +515,42 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Other procedures and functions
 
-Function GetAreaStartPosition(Val COMConnection, Val AreaID)
+Function GetAreaStartPosition(Val COMJoin, Val AreaID)
 	
 	AreaID = "{v8 Area." + AreaID + "}";
 	
-	EntireDocument = COMConnection.ActiveDocument.Content;
+	EntireDocument = COMJoin.ActiveDocument.Content;
 	EntireDocument.Select();
 	
-	Search = COMConnection.Selection.Find;
+	Search = COMJoin.Selection.Find;
 	Search.Text = AreaID;
 	Search.ClearFormatting();
 	Search.Forward = True;
 	Search.execute();
 	
 	If Search.Found Then
-		Return COMConnection.Selection.End;
+		Return COMJoin.Selection.End;
 	EndIf;
 	
 	Return -1;
 	
 EndFunction
 
-Function GetAreaEndPosition(Val COMConnection, Val AreaID)
+Function GetAreaEndPosition(Val COMJoin, Val AreaID)
 	
 	AreaID = "{/v8 Area." + AreaID + "}";
 	
-	EntireDocument = COMConnection.ActiveDocument.Content;
+	EntireDocument = COMJoin.ActiveDocument.Content;
 	EntireDocument.Select();
 	
-	Search = COMConnection.Selection.Find;
+	Search = COMJoin.Selection.Find;
 	Search.Text = AreaID;
 	Search.ClearFormatting();
 	Search.Forward = True;
 	Search.execute();
 	
 	If Search.Found Then
-		Return COMConnection.Selection.Start;
+		Return COMJoin.Selection.Start;
 	EndIf;
 	
 	Return -1;

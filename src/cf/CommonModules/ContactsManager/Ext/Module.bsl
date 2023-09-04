@@ -16,7 +16,7 @@
 //
 // Parameters:
 //    Source         - Array - contact information owners.
-//    Filter - See SelectingContactInformation.
+//    Filter - See FilterContactInformation3.
 //
 // Returns:
 //  ValueTable:
@@ -197,7 +197,7 @@ EndFunction
 //                         Presentations of contact information of the Address type will be received upon transliteration. This parameter does not affect
 //                         other types of contact information.
 //
-Function SelectingContactInformation() Export
+Function FilterContactInformation3() Export
 	
 	Filter = New Structure;
 	Filter.Insert("ContactInformationTypes", New Array);
@@ -238,7 +238,7 @@ EndFunction
 //
 Function ObjectsContactInformation(ReferencesOrObjects, Val ContactInformationTypes = Undefined, Val ContactInformationKinds = Undefined, Date = Undefined) Export
 	
-	Filter = SelectingContactInformation();
+	Filter = FilterContactInformation3();
 	
 	If TypeOf(ContactInformationTypes) = Type("Array") Then
 		Filter.ContactInformationTypes = ContactInformationTypes;
@@ -718,10 +718,10 @@ Function ContactInformationInJSON(Val ContactInformation, Val ExpectedKind = Und
 		Return ContactInformation;
 	EndIf;
 	
-	ConversionSettings = ContactInformationConversionSettings();
-	ConversionSettings.UpdateIDs = False;
+	SettingsOfConversion = ContactInformationConversionSettings();
+	SettingsOfConversion.UpdateIDs = False;
 	
-	ContactInformationByFields = ContactsManagerInternal.ContactInformationToJSONStructure(ContactInformation, ExpectedKind, ConversionSettings);
+	ContactInformationByFields = ContactsManagerInternal.ContactInformationToJSONStructure(ContactInformation, ExpectedKind, SettingsOfConversion);
 	Return ContactsManagerInternal.ToJSONStringStructure(ContactInformationByFields);
 	
 EndFunction
@@ -1172,7 +1172,7 @@ Procedure CreateContactInformationTemporaryTable(TempTablesManager, ObjectsArray
 	EndDo;
 	
 	Query = New Query();
-	QueryTextPreparingData = "";
+	QueryTextDataPreparation = "";
 	
 	For Each ObjectWithContactInformation In ObjectsGroupedByTypes Do
 		
@@ -1186,7 +1186,7 @@ Procedure CreateContactInformationTemporaryTable(TempTablesManager, ObjectsArray
 		
 		If ObjectMetadata.TabularSections.ContactInformation.Attributes.Find("ValidFrom") <> Undefined Then
 			
-			QueryTextPreparingData = QueryTextPreparingData + "SELECT ALLOWED
+			QueryTextDataPreparation = QueryTextDataPreparation + "SELECT ALLOWED
 			|	ContactInformation.Ref AS Object,
 			|	ContactInformation.Kind AS Kind,
 			|	MIN(ContactInformation.LineNumber) AS LineNumber,
@@ -1303,7 +1303,7 @@ Procedure CreateContactInformationTemporaryTable(TempTablesManager, ObjectsArray
 		Query.SetParameter("ObjectsArray" + TableName, ObjectWithContactInformation.Value);
 	EndDo;
 	
-	Query.Text = QueryTextPreparingData + QueryText;
+	Query.Text = QueryTextDataPreparation + QueryText;
 	Query.TempTablesManager = TempTablesManager;
 	
 	Query.SetParameter("ValidFrom", Date);
@@ -1932,7 +1932,7 @@ Procedure OnCreateAtServer(Form, Object, AdditionalParameters = Undefined, Delet
 		GroupContactInfoCommandVals.United = False;
 	EndIf;
 			
-	GroupName = "GroupOfContactInfoValues"+ItemForPlacementName;
+	GroupName = "GroupOfContactInfoValues" + ItemForPlacementName;
 	GroupOfContactInfoValues = Form.Items.Find(GroupName);
 	
 	If GroupOfContactInfoValues = Undefined Then
@@ -5357,13 +5357,13 @@ Procedure ContactInformationConvertionToJSON(ContactInformation)
 		If IsBlankString(CIRow.Value) Then
 			If ValueIsFilled(CIRow.FieldValues) Then
 				
-				ConversionSettings = ContactInformationConversionSettings();
-				ConversionSettings.UpdateIDs             = False;
-				ConversionSettings.ShouldRestoreContactInfo = False;
-				ConversionSettings.Presentation                       = CIRow.Presentation;
+				SettingsOfConversion = ContactInformationConversionSettings();
+				SettingsOfConversion.UpdateIDs             = False;
+				SettingsOfConversion.ShouldRestoreContactInfo = False;
+				SettingsOfConversion.Presentation                       = CIRow.Presentation;
 				
 				ContactInformationByFields = ContactsManagerInternal.ContactInformationToJSONStructure(CIRow.FieldValues,
-					CIRow.Type, ConversionSettings);
+					CIRow.Type, SettingsOfConversion);
 				
 				If CIRow.Type = Enums.ContactInformationTypes.Address
 				   And ContactsManagerClientServer.IsAddressInFreeForm(ContactInformationByFields.AddressType) Then

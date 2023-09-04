@@ -199,14 +199,14 @@ Procedure ExecuteDataImportForInfobase(Cancel, TablesToImport) Export
 		DataExchangeDataProcessor.DataTablesExchangeMessages().Delete(Item);
 	EndDo;
 	
-	If DataExchangeDataProcessor.ErrorFlag() Then
+	If DataExchangeDataProcessor.FlagErrors() Then
 		NString = NStr("en = 'Errors occurred while importing the exchange message: %1';");
 		NString = StringFunctionsClientServer.SubstituteParametersToString(NString, DataExchangeDataProcessor.ErrorMessageString());
 		Common.MessageToUser(NString,,,, Cancel);
 		Return;
 	EndIf;
 	
-	DataImportedSuccessfully = Not DataExchangeDataProcessor.ErrorFlag();
+	DataImportedSuccessfully = Not DataExchangeDataProcessor.FlagErrors();
 	
 EndProcedure
 
@@ -2120,7 +2120,7 @@ Function SourceInfobaseData(Cancel)
 		// 
 		DataExchangeDataProcessor.ExecuteDataImportIntoValueTable(TablesToImport);
 		
-		If DataExchangeDataProcessor.ErrorFlag() Then
+		If DataExchangeDataProcessor.FlagErrors() Then
 			
 			NString = NStr("en = 'Errors occurred while importing the exchange message: %1';");
 			NString = StringFunctionsClientServer.SubstituteParametersToString(NString, DataExchangeDataProcessor.ErrorMessageString());

@@ -238,7 +238,7 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 			Return;
 		EndIf;
 		
-		ChoiceContext = "SubjectExecute";
+		ChoiceContext = "SubjectOfExecute";
 		
 		FormParameters = New Structure;
 		FormParameters.Insert("ChoiceMode", True);
@@ -262,7 +262,7 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 		
 		Return;
 		
-	ElsIf ChoiceContext = "SubjectExecute" Then
+	ElsIf ChoiceContext = "SubjectOfExecute" Then
 		
 		If ValueSelected <> Undefined Then
 			SetSubject(ValueSelected, Undefined);
@@ -1098,7 +1098,7 @@ Procedure ReviewedExecuteList(FlagValues)
 EndProcedure
 
 &AtClient
-Procedure SubjectExecute(Command)
+Procedure SubjectOfExecute(Command)
 	
 	ChoiceContext = "SubjectExecuteSubjectType";
 	OpenForm("DocumentJournal.Interactions.Form.SelectSubjectType",,ThisObject);
@@ -2153,9 +2153,9 @@ Procedure FillPropertiesTree(CommandName = "")
 		ConditionText = " WHERE
 			|(InteractionsDocument.Ref IN
 			|	(SELECT DISTINCT
-			|		ListFilter.Ref
+			|		Filterlist0.Ref
 			|	FROM
-			|		ListFilter AS ListFilter))";
+			|		Filterlist0 AS Filterlist0))";
 	
 	EndIf;
 	
@@ -2167,7 +2167,7 @@ Procedure FillPropertiesTree(CommandName = "")
 		|	1 AS PictureNumber,
 		|	CASE
 		|		WHEN NestedQuery.Value = &NotSpecified
-		|			THEN &UnspecifiedRepresentation
+		|			THEN &NotSpecifiedPresentation
 		|		ELSE PRESENTATION(NestedQuery.Value)
 		|	END AS Presentation
 		|FROM
@@ -2300,7 +2300,7 @@ Procedure FillPropertiesTree(CommandName = "")
 		|	1                                               AS PictureNumber,
 		|	CASE
 		|		WHEN NestedQuery.Value = &NotSpecified
-		|			THEN &UnspecifiedRepresentation
+		|			THEN &NotSpecifiedPresentation
 		|		ELSE PRESENTATION(NestedQuery.Value)
 		|		END AS Presentation
 		|	FROM
@@ -2336,7 +2336,7 @@ Procedure FillPropertiesTree(CommandName = "")
 	
 	Query.SetParameter("Property",              CurrentPropertyOfNavigationPanel);
 	Query.SetParameter("NotSpecified",              "NotSpecified");
-	Query.SetParameter("UnspecifiedRepresentation", NStr("en = 'Not specified';"));
+	Query.SetParameter("NotSpecifiedPresentation", NStr("en = 'Not specified';"));
 	
 	Result = Query.Execute();
 	Tree = Result.Unload(QueryResultIteration.ByGroupsWithHierarchy);
@@ -2362,8 +2362,8 @@ Procedure FillSubjectsPanel()
 	
 	ListParameters = Common.DynamicListPropertiesStructure();
 	
-	FilterDestination = NavigationPanelSubjects.SettingsComposer.FixedSettings.Filter;
-	FilterDestination.Items.Clear();
+	FilterReceiver = NavigationPanelSubjects.SettingsComposer.FixedSettings.Filter;
+	FilterReceiver.Items.Clear();
 	
 	If ImportantSubjectsOnly Then
 		
@@ -2398,7 +2398,7 @@ Procedure FillSubjectsPanel()
 			EndIf;
 		EndDo;
 		
-		DynamicListQueryText = 
+		QueryTextDynamicList = 
 			"SELECT
 			|	InteractionsSubjectsStates.SubjectOf AS SubjectOf,
 			|	InteractionsSubjectsStates.NotReviewedInteractionsCount AS NotReviewedInteractionsCount,
@@ -2421,12 +2421,12 @@ Procedure FillSubjectsPanel()
 			|			WHERE
 			|				&FolderRegisterConnectionText)";
 		
-		DynamicListQueryText = StrReplace(DynamicListQueryText, "&DocumentJournalConditionText", 
+		QueryTextDynamicList = StrReplace(QueryTextDynamicList, "&DocumentJournalConditionText", 
 			?(IsBlankString(ConditionsTextByDocumentJournal), "TRUE", ConditionsTextByDocumentJournal));
-		DynamicListQueryText = StrReplace(DynamicListQueryText, "&FolderRegisterConnectionText", 
+		QueryTextDynamicList = StrReplace(QueryTextDynamicList, "&FolderRegisterConnectionText", 
 			?(IsBlankString(ConditionsTextByRegister), "TRUE", ConditionsTextByRegister));
 		
-		ListParameters.QueryText = DynamicListQueryText;
+		ListParameters.QueryText = QueryTextDynamicList;
 		Common.SetDynamicListProperties(Items.NavigationPanelSubjects, ListParameters);
 		
 		For Each QueryParameter In Query.Parameters Do
@@ -2440,7 +2440,7 @@ Procedure FillSubjectsPanel()
 		
 	Else
 		
-		DynamicListQueryText = "
+		QueryTextDynamicList = "
 		|SELECT
 		|	InteractionsSubjectsStates.SubjectOf,
 		|	InteractionsSubjectsStates.NotReviewedInteractionsCount,
@@ -2459,13 +2459,13 @@ Procedure FillSubjectsPanel()
 		|					ON InteractionsFolderSubjects.SubjectOf = InteractionsSubjectsStates.SubjectOf
 		|							AND InteractionsFolderSubjects.Interaction = InteractionDocumentsLog.Ref)";
 		
-		ListParameters.QueryText = DynamicListQueryText;
+		ListParameters.QueryText = QueryTextDynamicList;
 		Common.SetDynamicListProperties(Items.NavigationPanelSubjects, ListParameters);
 		
 	EndIf;
 	
 	If ShowAllActiveSubjects Then
-		CommonClientServer.SetFilterItem(FilterDestination,"Running", True,DataCompositionComparisonType.Equal);
+		CommonClientServer.SetFilterItem(FilterReceiver,"Running", True,DataCompositionComparisonType.Equal);
 	EndIf;
 	
 	Items.NavigationPanelSubjectsContextMenuActiveSubjectsOnly.Check = ShowAllActiveSubjects;
@@ -2489,16 +2489,16 @@ Procedure FillCategoriesTable()
 		ConditionTextAttributes = " AND
 			|InteractionAdditionalAttributes.Ref IN
 			|	(SELECT DISTINCT
-			|		ListFilter.Ref
+			|		Filterlist0.Ref
 			|	FROM
-			|		ListFilter AS ListFilter)";
+			|		Filterlist0 AS Filterlist0)";
 		
 		ConditionTextInfo = " AND
 			|AdditionalInfo.Object IN
 			|	(SELECT DISTINCT
-			|		ListFilter.Ref
+			|		Filterlist0.Ref
 			|	FROM
-			|		ListFilter AS ListFilter)";
+			|		Filterlist0 AS Filterlist0)";
 	
 	EndIf;
 		
@@ -2741,7 +2741,7 @@ Procedure FillContactsPanel()
 			EndIf;
 		EndDo;
 		
-		DynamicListQueryText = 
+		QueryTextDynamicList = 
 		"SELECT
 		|	InteractionsContactStates.Contact,
 		|	InteractionsContactStates.NotReviewedInteractionsCount,
@@ -2767,12 +2767,12 @@ Procedure FillContactsPanel()
 		|							AND InteractionsContacts.Interaction = InteractionsSubjects.Interaction
 		|							AND &FolderRegisterConnectionText)";
 		
-		DynamicListQueryText = StrReplace(DynamicListQueryText, "&DocumentJournalConditionText", 
+		QueryTextDynamicList = StrReplace(QueryTextDynamicList, "&DocumentJournalConditionText", 
 			?(IsBlankString(ConditionsTextByDocumentJournal), "TRUE", ConditionsTextByDocumentJournal));
-		DynamicListQueryText = StrReplace(DynamicListQueryText, "&FolderRegisterConnectionText", 
+		QueryTextDynamicList = StrReplace(QueryTextDynamicList, "&FolderRegisterConnectionText", 
 			?(IsBlankString(ConditionsTextByRegister), "TRUE", ConditionsTextByRegister));
 		
-		ListPropertiesStructure.QueryText = DynamicListQueryText;
+		ListPropertiesStructure.QueryText = QueryTextDynamicList;
 		Common.SetDynamicListProperties(Items.NavigationPanelContacts, ListPropertiesStructure);
 		
 		For Each QueryParameter In Query.Parameters Do
@@ -2786,7 +2786,7 @@ Procedure FillContactsPanel()
 		
 	Else
 		
-		DynamicListQueryText = "
+		QueryTextDynamicList = "
 		|SELECT
 		|	InteractionsContactStates.Contact,
 		|	InteractionsContactStates.NotReviewedInteractionsCount,
@@ -2796,7 +2796,7 @@ Procedure FillContactsPanel()
 		|FROM
 		|	InformationRegister.InteractionsContactStates AS InteractionsContactStates";
 		
-		ListPropertiesStructure.QueryText = DynamicListQueryText;
+		ListPropertiesStructure.QueryText = QueryTextDynamicList;
 		Common.SetDynamicListProperties(Items.NavigationPanelContacts, ListPropertiesStructure);
 		
 	EndIf;
@@ -2991,7 +2991,7 @@ Function GetQueryTextByListFilter(Query)
 		
 		FoundItemFROM = StrFind(QueryText,"FROM"); // @query-part
 		If FoundItemFROM <> 0 Then
-			QueryText = Left(QueryText,FoundItemFROM - 1) + "  INTO ListFilter
+			QueryText = Left(QueryText,FoundItemFROM - 1) + "  INTO Filterlist0
 			|  " + Right(QueryText,StrLen(QueryText) - FoundItemFROM + 1); // @query-part
 		EndIf;
 		

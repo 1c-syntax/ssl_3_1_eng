@@ -486,7 +486,7 @@ Procedure OpenInformationRegisterWriteFormByFilter(
 		Filter,
 		FillingValues,
 		Val RegisterName,
-		OwnerForm1,
+		OwnerForm,
 		Val FormName = "",
 		FormParameters = Undefined,
 		ClosingNotification1 = Undefined) Export
@@ -534,9 +534,9 @@ Procedure OpenInformationRegisterWriteFormByFilter(
 	
 	// Opening the information register record form.
 	If ClosingNotification1 <> Undefined Then
-		OpenForm(FullFormName, WriteParameters, OwnerForm1, , , , ClosingNotification1);
+		OpenForm(FullFormName, WriteParameters, OwnerForm, , , , ClosingNotification1);
 	Else
-		OpenForm(FullFormName, WriteParameters, OwnerForm1);
+		OpenForm(FullFormName, WriteParameters, OwnerForm);
 	EndIf;
 	
 EndProcedure

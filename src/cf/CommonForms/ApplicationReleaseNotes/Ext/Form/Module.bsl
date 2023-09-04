@@ -34,8 +34,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	LatestVersion1 = InfobaseUpdateInternal.SystemChangesDisplayLastVersion();
 	
 	If Sections.Count() = 0 Then
-		UpdateDetailsDocument = Metadata.CommonTemplates.Find("SystemReleaseNotes");
-		If UpdateDetailsDocument <> Undefined
+		DocumentUpdatesDetails = Metadata.CommonTemplates.Find("SystemReleaseNotes");
+		If DocumentUpdatesDetails <> Undefined
 			And (LatestVersion1 = Undefined
 				Or Not Parameters.ShowOnlyChanges) Then
 			AllSections = InfobaseUpdateInternal.UpdateDetailsSections();
@@ -44,20 +44,20 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				For Each Item In AllSections Do
 					Sections.Add(Item.Presentation);
 				EndDo;
-				UpdateDetailsDocument = InfobaseUpdateInternal.UpdateDetailsDocument(Sections);
+				DocumentUpdatesDetails = InfobaseUpdateInternal.DocumentUpdatesDetails(Sections);
 			Else
-				UpdateDetailsDocument = GetCommonTemplate(UpdateDetailsDocument);
+				DocumentUpdatesDetails = GetCommonTemplate(DocumentUpdatesDetails);
 			EndIf;
 		Else
-			UpdateDetailsDocument = New SpreadsheetDocument();
+			DocumentUpdatesDetails = New SpreadsheetDocument();
 		EndIf;
 	Else
-		UpdateDetailsDocument = InfobaseUpdateInternal.UpdateDetailsDocument(Sections);
+		DocumentUpdatesDetails = InfobaseUpdateInternal.DocumentUpdatesDetails(Sections);
 	EndIf;
 	
-	If UpdateDetailsDocument.TableHeight = 0 Then
+	If DocumentUpdatesDetails.TableHeight = 0 Then
 		Text = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The application is updated to version %1.';"), Metadata.Version);
-		UpdateDetailsDocument.Area("R1C1:R1C1").Text = Text;
+		DocumentUpdatesDetails.Area("R1C1:R1C1").Text = Text;
 	EndIf;
 	
 	SubsystemsDetails  = StandardSubsystemsCached.SubsystemsDetails();
@@ -67,12 +67,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Continue;
 		EndIf;
 		Module = Common.CommonModule(SubsystemDetails.MainServerModule);
-		Module.OnPrepareUpdateDetailsTemplate(UpdateDetailsDocument);
+		Module.OnPrepareUpdateDetailsTemplate(DocumentUpdatesDetails);
 	EndDo;
-	InfobaseUpdateOverridable.OnPrepareUpdateDetailsTemplate(UpdateDetailsDocument);
+	InfobaseUpdateOverridable.OnPrepareUpdateDetailsTemplate(DocumentUpdatesDetails);
 	
 	UpdatesDetails.Clear();
-	UpdatesDetails.Put(UpdateDetailsDocument);
+	UpdatesDetails.Put(DocumentUpdatesDetails);
 	
 	UpdateInfo = InfobaseUpdateInternal.InfobaseUpdateInfo();
 	UpdateStartTime = UpdateInfo.UpdateStartTime;
@@ -192,13 +192,13 @@ EndProcedure
 Procedure ScheduledJobsDisabled1URLProcessing(Item, FormattedStringURL, StandardProcessing)
 	StandardProcessing = False;
 	
-	Notification = New NotifyDescription("DisabledScheduledJobsURLProcessingCompletion", ThisObject);
+	Notification = New NotifyDescription("ScheduledJobsDisabled1URLProcessingCompletion", ThisObject);
 	QueryText = NStr("en = 'Restart the application?';");
 	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo,, DialogReturnCode.No);
 EndProcedure
 
 &AtClient
-Procedure DisabledScheduledJobsURLProcessingCompletion(Result, AdditionalParameters) Export
+Procedure ScheduledJobsDisabled1URLProcessingCompletion(Result, AdditionalParameters) Export
 	
 	If Result = DialogReturnCode.Yes Then
 		NewStartupParameter = StrReplace(LaunchParameter, "ScheduledJobsDisabled2", "");

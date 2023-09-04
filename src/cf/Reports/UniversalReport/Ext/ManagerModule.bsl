@@ -221,15 +221,15 @@ Function TextOfQueryByMetadata(ReportParameters)
 		SourceName = SourceName + "." + ReportParameters.TableName;
 	EndIf;
 	
-	SourceFilter = "";
+	FilterSource1 = "";
 	If ReportParameters.TableName = "BalanceAndTurnovers"
 		Or ReportParameters.TableName = "Turnovers" Then
-		SourceFilter = "({&BeginOfPeriod}, {&EndOfPeriod}, Auto)";
+		FilterSource1 = "({&BeginOfPeriod}, {&EndOfPeriod}, Auto)";
 	ElsIf ReportParameters.TableName = "Balance"
 		Or ReportParameters.TableName = "SliceLast" Then
-		SourceFilter = "({&EndOfPeriod},)";
+		FilterSource1 = "({&EndOfPeriod},)";
 	ElsIf ReportParameters.TableName = "SliceFirst" Then
-		SourceFilter = "({&BeginOfPeriod},)";
+		FilterSource1 = "({&BeginOfPeriod},)";
 	ElsIf ReportParameters.MetadataObjectType = "Documents" 
 		Or ReportParameters.MetadataObjectType = "Tasks"
 		Or ReportParameters.MetadataObjectType = "BusinessProcesses" Then
@@ -237,26 +237,26 @@ Function TextOfQueryByMetadata(ReportParameters)
 		If ValueIsFilled(ReportParameters.TableName)
 			And CommonClientServer.HasAttributeOrObjectProperty(SourceMetadata, "TabularSections")
 			And CommonClientServer.HasAttributeOrObjectProperty(SourceMetadata.TabularSections, ReportParameters.TableName) Then 
-			SourceFilter = "
+			FilterSource1 = "
 				|{WHERE
 				|	(Ref.Date BETWEEN &BeginOfPeriod AND &EndOfPeriod)}";
 		Else
-			SourceFilter = "
+			FilterSource1 = "
 				|{WHERE
 				|	(DATE BETWEEN &BeginOfPeriod AND &EndOfPeriod)}";
 		EndIf;
 	ElsIf ReportParameters.MetadataObjectType = "InformationRegisters"
 		And SourceMetadata.InformationRegisterPeriodicity <> Metadata.ObjectProperties.InformationRegisterPeriodicity.Nonperiodical Then
-		SourceFilter = "
+		FilterSource1 = "
 			|{WHERE
 			|	(Period BETWEEN &BeginOfPeriod AND &EndOfPeriod)}";
 	ElsIf ReportParameters.MetadataObjectType = "AccumulationRegisters"
 		Or ReportParameters.MetadataObjectType = "AccountingRegisters" Then
-		SourceFilter = "
+		FilterSource1 = "
 			|{WHERE
 			|	(Period BETWEEN &BeginOfPeriod AND &EndOfPeriod)}";
 	ElsIf ReportParameters.MetadataObjectType = "CalculationRegisters" Then
-		SourceFilter = "
+		FilterSource1 = "
 			|{WHERE
 			|	RegistrationPeriod BETWEEN &BeginOfPeriod AND &EndOfPeriod}";
 	EndIf;
@@ -270,8 +270,8 @@ Function TextOfQueryByMetadata(ReportParameters)
 	QueryText = StrReplace(QueryText, "AS Table", "");
 	QueryText = StrReplace(QueryText, "&SourceName", SourceName);
 	
-	If ValueIsFilled(SourceFilter) Then 
-		QueryText = QueryText + SourceFilter;
+	If ValueIsFilled(FilterSource1) Then 
+		QueryText = QueryText + FilterSource1;
 	EndIf;
 	
 	Return QueryText;
@@ -889,24 +889,7 @@ Procedure AddIndicators(ReportParameters, DCSettings)
 				ReportsServer.AddSelectedField(SelectedFields, Resource.Name);
 			EndIf;
 		EndDo;
-	ElsIf ReportParameters.MetadataObjectType = "CalculationRegisters" Then
-		For Each Dimension In MetadataObject.Dimensions Do
-			If Not Common.MetadataObjectAvailableByFunctionalOptions(Dimension) Then 
-				Continue;
-			EndIf;
-			
-			SelectedFields = DCSettings.Selection;
-			ReportsServer.AddSelectedField(SelectedFields, Dimension.Name);
-		EndDo;
-		For Each Resource In MetadataObject.Resources Do
-			If Not Common.MetadataObjectAvailableByFunctionalOptions(Resource) Then 
-				Continue;
-			EndIf;
-			
-			SelectedFields = DCSettings.Selection;
-			ReportsServer.AddSelectedField(SelectedFields, Resource.Name);
-		EndDo;
-	ElsIf ReportParameters.MetadataObjectType = "InformationRegisters" Then
+	ElsIf ReportParameters.MetadataObjectType = "InformationRegisters" Or ReportParameters.MetadataObjectType = "CalculationRegisters" Then
 		For Each Dimension In MetadataObject.Dimensions Do
 			If Not Common.MetadataObjectAvailableByFunctionalOptions(Dimension) Then 
 				Continue;
@@ -950,14 +933,7 @@ Procedure AddIndicators(ReportParameters, DCSettings)
 				ReportsServer.AddSelectedField(SelectedFieldsTurnovers, Resource.Name + "TurnoverCr", Resource.Synonym + " " + NStr("en = 'Cr turnover';"));
 				ReportsServer.AddSelectedField(SelectedFieldsClosingBalance, Resource.Name + "ClosingBalanceDr", " " + Resource.Synonym + NStr("en = 'Dr close balance';"));
 				ReportsServer.AddSelectedField(SelectedFieldsClosingBalance, Resource.Name + "ClosingBalanceCr", " " + Resource.Synonym + NStr("en = 'Cr close balance';"));
-			ElsIf ReportParameters.TableName = "RecordsWithExtDimensions" Then
-				If Resource.Balance Then
-					ReportsServer.AddSelectedField(SelectedFields, Resource.Name, Resource.Synonym);
-				Else
-					ReportsServer.AddSelectedField(SelectedFields, Resource.Name + "Dr", Resource.Synonym + " " + NStr("en = 'Dr';"));
-					ReportsServer.AddSelectedField(SelectedFields, Resource.Name + "Cr", Resource.Synonym + " " + NStr("en = 'Cr';"));
-				EndIf;
-			ElsIf ReportParameters.TableName = "" Then
+			ElsIf ReportParameters.TableName = "RecordsWithExtDimensions" Or ReportParameters.TableName = "" Then
 				If Resource.Balance Then
 					ReportsServer.AddSelectedField(SelectedFields, Resource.Name, Resource.Synonym);
 				Else

@@ -690,7 +690,7 @@
 												<InputField name="FilterPeriodFor" id="115">
 													<DataPath>FilterPeriodFor</DataPath>
 													<Wrap>false</Wrap>
-													<ContextMenu name="FilterPeriodToContextMenu" id="116"/>
+													<ContextMenu name="FilterPeriodForContextMenu" id="116"/>
 													<ExtendedTooltip name="FilterPeriodToExtendedTooltip" id="218"/>
 												</InputField>
 											</ChildItems>

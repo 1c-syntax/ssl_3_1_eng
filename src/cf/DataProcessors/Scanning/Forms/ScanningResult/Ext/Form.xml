@@ -138,7 +138,7 @@
 							</Button>
 						</ChildItems>
 					</ContextMenu>
-					<AutoCommandBar name="FilesTable1CommandBar" id="11">
+					<AutoCommandBar name="TableOfFilesCommandBar" id="11">
 						<Autofill>false</Autofill>
 					</AutoCommandBar>
 					<ExtendedTooltip name="FilesTable1ExtendedTooltip" id="33"/>
@@ -171,7 +171,7 @@
 						<Event name="OnActivateRow">FilesTable1OnActivateRow</Event>
 					</Events>
 					<ChildItems>
-						<InputField name="FilesTable1Presentation" id="12">
+						<InputField name="TableOfFilesPresentation" id="12">
 							<DataPath>TableOfFiles.Presentation</DataPath>
 							<ReadOnly>true</ReadOnly>
 							<EditMode>EnterOnInput</EditMode>
@@ -305,7 +305,7 @@
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="DontOpenCardAfterCreateFromFIle" id="5">
+		<Attribute name="NotOpenCardAfterCreateFromFile" id="5">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
@@ -567,7 +567,7 @@
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="SaveToPDF" id="38">
+		<Attribute name="ShouldSaveAsPDF" id="38">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>

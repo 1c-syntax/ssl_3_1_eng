@@ -101,7 +101,7 @@ Procedure OnOpen(Cancel)
 	SetSectionsNavigationAvailability();
 	HighlightAnsweredQuestions();
 
-	If (Not ThisObject.ReadOnly) Then
+	If (Not ReadOnly) Then
 		AvailabilityControlSubordinateQuestions(False);
 	EndIf;
 	
@@ -212,9 +212,9 @@ Procedure Attachable_StartChoiceOfTableQuestionsTextCells(Item, ChoiceData, Stan
 	StandardProcessing = False;
 
 	AdditionalParameters = New Structure("Item", Item);
-	NotificationHandler = New NotifyDescription("EditMultilineTextOnEnd", ThisObject,
+	HandlerNotifications = New NotifyDescription("EditMultilineTextOnEnd", ThisObject,
 		AdditionalParameters);
-	CommonClient.ShowMultilineTextEditingForm(NotificationHandler,
+	CommonClient.ShowMultilineTextEditingForm(HandlerNotifications,
 		Item.EditText);
 
 EndProcedure
@@ -223,7 +223,7 @@ EndProcedure
 Procedure Attachable_ChoiceStartComment(Item, ChoiceData, StandardProcessing)
 
 	StandardProcessing = False;
-	If ThisObject.Items.Find(Item.Name) = Undefined Then
+	If Items.Find(Item.Name) = Undefined Then
 		Return;
 	EndIf;
 
@@ -379,8 +379,6 @@ Procedure SetSectionFillingFormAttributesValues()
 
 EndProcedure
 
-// Analyzes a question type and calls the required procedure, which will assign attribute values.
-//
 // Parameters:
 //  TemplateQuestion  - CatalogRef.QuestionnaireTemplateQuestions - a questionnaire template question, 
 //                 for which attributes values are set.
@@ -407,8 +405,6 @@ Procedure SetAttributeValue(TemplateQuestion, SelectionQuestion)
 
 EndProcedure
 
-// Sets attributes values of a simple question.
-//
 // Parameters:
 //  DoQueryBox  - CatalogRef.QuestionnaireTemplateQuestions - a questionnaire template question, 
 //                 for which attributes values are set.
@@ -454,7 +450,7 @@ Procedure SetSimpleQuestionAttributeValue(DoQueryBox, SelectionQuestion, TreeRow
 				ThisObject[QuestionName + "_Comment"] = SelectionQuestion.OpenAnswer;
 			EndIf;
 			If TreeRow.ShouldUseRefusalToAnswer Then
-				ThisObject[QuestionName + "_UseRefusalToAnswer"] = SelectionQuestion.IsUnanswered;
+				ThisObject[QuestionName + "_ShouldUseRefusalToAnswer"] = SelectionQuestion.IsUnanswered;
 			EndIf;
 		EndDo;
 
@@ -482,7 +478,7 @@ Procedure SetSimpleQuestionAttributeValue(DoQueryBox, SelectionQuestion, TreeRow
 			EndIf;
 
 			If TreeRow.ShouldUseRefusalToAnswer Then
-				ThisObject[QuestionName + "_UseRefusalToAnswer"] = SelectionQuestion.IsUnanswered;
+				ThisObject[QuestionName + "_ShouldUseRefusalToAnswer"] = SelectionQuestion.IsUnanswered;
 			EndIf;
 
 		EndIf;
@@ -491,8 +487,6 @@ Procedure SetSimpleQuestionAttributeValue(DoQueryBox, SelectionQuestion, TreeRow
 
 EndProcedure
 
-// Analyzes a question chart type and calls the required procedure, which will assign attribute values.
-//
 // Parameters:
 //  DoQueryBox  - CatalogRef.QuestionnaireTemplateQuestions - a questionnaire template question, 
 //                 for which attributes values are set.
@@ -523,8 +517,6 @@ Procedure SetTabularQuestionAttributeValue(DoQueryBox, SelectionQuestion, TreeRo
 
 EndProcedure
 
-// Sets attributes values for a composite question chart.
-//
 // Parameters:
 //  DoQueryBox  - CatalogRef.QuestionnaireTemplateQuestions - a questionnaire template question, 
 //                 for which attributes values are set.
@@ -564,8 +556,6 @@ Procedure SetAttributeValuesCompositeTabularQuestion(DoQueryBox, SelectionQuesti
 
 EndProcedure
 
-// Assigns attribute values for question charts with predefined answers in rows.
-//
 // Parameters:
 //  DoQueryBox  - CatalogRef.QuestionnaireTemplateQuestions - a questionnaire template question, 
 //                 for which attributes values are set.
@@ -595,8 +585,6 @@ Procedure SetAttributeValuesTabularQuestionAnswersInRows(DoQueryBox, SelectionQu
 
 EndProcedure
 
-// Assigns attribute values for question charts with predefined answers in columns.
-//
 // Parameters:
 //  DoQueryBox  - CatalogRef.QuestionnaireTemplateQuestions - a questionnaire template question, 
 //                 for which attributes values are set.
@@ -630,8 +618,6 @@ Procedure SetAttributeValuesTabularQuestionAnswersInColumns(DoQueryBox, Selectio
 
 EndProcedure
 
-// Assigns attribute values for question charts with predefined answers in rows and columns.
-//
 // Parameters:
 //  DoQueryBox  - CatalogRef.QuestionnaireTemplateQuestions - a questionnaire template question, 
 //            for which attributes values are set.
@@ -663,8 +649,6 @@ Procedure SetAttributeValuesTabularQuestionAnswersInRowsAndColumns(DoQueryBox, S
 
 EndProcedure
 
-// Sets attributes values of complex questions.
-//
 // Parameters:
 //  DoQueryBox  - CatalogRef.QuestionnaireTemplateQuestions - a questionnaire template question, 
 //                 for which attributes values are set.
@@ -793,9 +777,6 @@ Procedure ConvertSectionFillingResultsToTabularSection()
 
 EndProcedure
 
-// Defines the type of the question chart and calls the required procedure, 
-// which gets answers given by the respondent to the question.
-//
 // Parameters:
 //   TreeRow - ValueTreeRow - a row of the questionnaire template tree.
 //
@@ -1026,7 +1007,7 @@ Procedure FillAnswerSimpleQuestion(TreeRow)
 
 	RefusalToAnswer = False;
 	If TreeRow.ShouldUseRefusalToAnswer Then
-		RefusalToAnswer = ThisObject[QuestionName + "_UseRefusalToAnswer"];
+		RefusalToAnswer = ThisObject[QuestionName + "_ShouldUseRefusalToAnswer"];
 	EndIf;
 
 	If TreeRow.ReplyType = Enums.TypesOfAnswersToQuestion.MultipleOptionsFor Then
@@ -1179,7 +1160,6 @@ EndProcedure
 &AtServer
 Procedure CreateFormAccordingToSection()
 	
-	// Determine the section.
 	CurrentDataSectionsTree = SectionsTree.FindByID(Items.SectionsTree.CurrentRow);
 	If CurrentDataSectionsTree = Undefined Then
 		Return;
@@ -1201,8 +1181,6 @@ Procedure CreateFormAccordingToSection()
 
 EndProcedure
 
-// Checks whether answers to required questions are given.
-//
 // Returns:
 //   Boolean
 //
@@ -1572,7 +1550,7 @@ Procedure SetOnChangeEventHandlerForQuestions()
 			EndIf;
 			If TableRow.ShouldUseRefusalToAnswer 
 				And TableRow.ReplyType <> Enums.TypesOfAnswersToQuestion.Boolean Then
-				Items[QuestionName + "_UseRefusalToAnswer"].SetAction("OnChange",
+				Items[QuestionName + "_ShouldUseRefusalToAnswer"].SetAction("OnChange",
 					"Attachable_OnChangeFlagDoNotAnswerQuestion");
 			EndIf;
 		EndIf;
@@ -1621,7 +1599,6 @@ Procedure SetOnChangeEventHandlerForComplexQuestions(TableRow, QuestionName)
 
 EndProcedure
 
-// Starts the process of building the fill-in form according to the sections.
 &AtClient
 Procedure ExecuteFillingFormCreation()
 

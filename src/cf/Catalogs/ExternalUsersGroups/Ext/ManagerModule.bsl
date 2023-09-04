@@ -23,11 +23,11 @@
 //
 Function AttributesToSkipInBatchProcessing() Export
 	
-	AttributesToSkip = New Array;
-	AttributesToSkip.Add("AuthorizationObjectsType");
-	AttributesToSkip.Add("AllAuthorizationObjects");
+	NotAttributesToEdit = New Array;
+	NotAttributesToEdit.Add("AuthorizationObjectsType");
+	NotAttributesToEdit.Add("AllAuthorizationObjects");
 	
-	Return AttributesToSkip;
+	Return NotAttributesToEdit;
 	
 EndFunction
 

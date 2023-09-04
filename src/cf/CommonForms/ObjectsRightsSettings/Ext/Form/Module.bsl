@@ -282,7 +282,7 @@ Procedure Reread(Command)
 		ReadRights();
 	Else
 		ShowQueryBox(
-			New NotifyDescription("RereadEnd", ThisObject),
+			New NotifyDescription("RereadCompletion", ThisObject),
 			NStr("en = 'The data was changed. Do you want to read the data without saving it?';"),
 			QuestionDialogMode.YesNo,
 			5,
@@ -425,7 +425,7 @@ Procedure WriteCompletion()
 EndProcedure
 
 &AtClient
-Procedure RereadEnd(Response, Context) Export
+Procedure RereadCompletion(Response, Context) Export
 	
 	If Response = DialogReturnCode.Yes Then
 		ReadRights();

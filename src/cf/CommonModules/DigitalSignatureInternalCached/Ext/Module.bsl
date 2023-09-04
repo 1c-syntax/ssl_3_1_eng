@@ -125,7 +125,7 @@ Function CommonSettings() Export
 			Id = "";
 			SignatureVerificationAlgorithms = New Array;
 		Else
-			String = Rows[0]; // ValueTableRow: см. ЭлектроннаяПодписьСлужебный.ПоставляемыеНастройкиПрограмм
+			String = Rows[0]; // ValueTableRow of See DigitalSignatureInternal.ApplicationsSettingsToSupply
 			Id = String.Id;
 			SignatureVerificationAlgorithms = SignatureVerificationAlgorithms(String);
 		EndIf;

@@ -136,7 +136,7 @@ EndProcedure
 
 #Region FormHeaderItemsEventHandlers
 
-#Region OnlineUserSupport_CloudArchive20
+#Region OnlineUserSupportCloudArchive20
 
 &AtClient
 Procedure BackupRetentionOnChange(Item)
@@ -219,7 +219,7 @@ EndProcedure
 
 #Region FormCommandHandlers
 
-#Region OnlineUserSupport_CloudArchive20
+#Region OnlineUserSupportCloudArchive20
 
 &AtClient
 Procedure CloudArchiveBackupSettings(Command)
@@ -331,10 +331,10 @@ Function SaveAttributeValue(DataPathAttribute)
 
 	ConstantName = NameParts[1];
 	ConstantManager = Constants[ConstantName];
-	ConstantValue1 = ConstantsSet[ConstantName];
+	ConstantValue = ConstantsSet[ConstantName];
 
-	If ConstantManager.Get() <> ConstantValue1 Then
-		ConstantManager.Set(ConstantValue1);
+	If ConstantManager.Get() <> ConstantValue Then
+		ConstantManager.Set(ConstantValue);
 	EndIf;
 
 	Return ConstantName;

@@ -3,7 +3,12 @@
 	<Template uuid="5189beb9-b939-4f97-aca0-c2f3492ac8b9">
 		<Properties>
 			<Name>ComponentExtraCryptoAPI_3_0_2_29</Name>
-			<Synonym/>
+			<Synonym>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>ExtraCryptoAPI add-in</v8:content>
+				</v8:item>
+			</Synonym>
 			<Comment/>
 			<TemplateType>AddIn</TemplateType>
 		</Properties>

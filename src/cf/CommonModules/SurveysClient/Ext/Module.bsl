@@ -24,8 +24,6 @@ Function CreateFilterParameterStructure(FilterType, LeftValue, Var_ComparisonTyp
 
 EndFunction
 
-// Starts an interview with the selected respondent.
-//
 // Parameters:
 //  Respondent   - DefinedType.Respondent - an interviewee.
 //  QuestionnaireTemplate - CatalogRef.QuestionnaireTemplates - a template used for interview.
@@ -47,8 +45,6 @@ Procedure StartInterview(Respondent, QuestionnaireTemplate = Undefined) Export
 
 EndProcedure
 
-// Opens the form of a new questionnaire in interview mode with the selected respondent and questionnaire template.
-//
 Procedure OpenInterviewForm(Respondent, QuestionnaireTemplate)
 
 	FillingValues = New Structure;
@@ -118,7 +114,7 @@ EndProcedure
 
 Procedure OnChangeRangeSlider(Form, Item) Export
 
-	NameOfNumberAttribute = Left(Item.Name, StrFind(Item.Name, "_RangeSlider") - 1);
+	NameOfNumberAttribute = Left(Item.Name, StrFind(Item.Name, "_TrackBar") - 1);
 	FoundRows = Form.SectionQuestionsTable.FindRows(New Structure("Composite",
 		New UUID(StrReplace(Right(NameOfNumberAttribute, 36), "_", "-"))));
 
@@ -171,7 +167,7 @@ EndProcedure
 
 Procedure OnChangeOfNumberField(Form, Item) Export
 
-	If Form.Items.Find(Item.Name + "_RangeSlider") = Undefined Then
+	If Form.Items.Find(Item.Name + "_TrackBar") = Undefined Then
 		Return;
 	EndIf;
 
@@ -196,7 +192,7 @@ EndProcedure
 
 Procedure OnChangeFlagDoNotAnswerQuestion(Form, Item) Export
 
-	QuestionName = Left(Item.Name, StrFind(Item.Name, "_UseRefusalToAnswer") - 1);
+	QuestionName = Left(Item.Name, StrFind(Item.Name, "_ShouldUseRefusalToAnswer") - 1);
 
 	FoundRows = Form.SectionQuestionsTable.FindRows(New Structure("Composite",
 		New UUID(StrReplace(Right(QuestionName, 36), "_", "-"))));
@@ -275,7 +271,7 @@ Procedure HighlightAnsweredQuestion(Form, DoQueryBox, QuestionName)
 
 	IsUnanswered = False;
 	If DoQueryBox.ShouldUseRefusalToAnswer Then
-		IsUnanswered = Form[QuestionName + "_UseRefusalToAnswer"];
+		IsUnanswered = Form[QuestionName + "_ShouldUseRefusalToAnswer"];
 	EndIf;
 
 	If DoQueryBox.ReplyType <> PredefinedValue("Enum.TypesOfAnswersToQuestion.OneVariantOf")
@@ -286,7 +282,7 @@ Procedure HighlightAnsweredQuestion(Form, DoQueryBox, QuestionName)
 
 	If DoQueryBox.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.Number")
 		And DoQueryBox.ShouldShowRangeSlider Then
-		Form.Items[QuestionName + "_RangeSlider"].Enabled = Not IsUnanswered;
+		Form.Items[QuestionName + "_TrackBar"].Enabled = Not IsUnanswered;
 	EndIf;
 
 	If DoQueryBox.CommentRequired Then

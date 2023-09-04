@@ -43,7 +43,7 @@ Procedure OverwriteExecute()
 EndProcedure
 
 &AtClient
-Procedure SkipExecute()
+Procedure IgnoreExecute()
 	
 	ReturnStructure = New Structure("ApplyForAll, ReturnCode", 
 		ApplyForAll, DialogReturnCode.Ignore);

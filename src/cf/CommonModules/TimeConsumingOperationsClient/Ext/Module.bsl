@@ -62,7 +62,7 @@ Procedure WaitCompletion(Val TimeConsumingOperation, Val CompletionNotification2
 			ProcessMessagesToUser(TimeConsumingOperation.Messages,
 				AdvancedOptions_.AccumulatedMessages,
 				AdvancedOptions_.OutputMessages,
-				AdvancedOptions_.OwnerForm1);
+				AdvancedOptions_.OwnerForm);
 			FinishLongRunningOperation(AdvancedOptions_, TimeConsumingOperation);
 		Else
 			TimeConsumingOperation.Insert("Progress");
@@ -73,7 +73,7 @@ Procedure WaitCompletion(Val TimeConsumingOperation, Val CompletionNotification2
 	EndIf;
 	
 	If AdvancedOptions_.OutputIdleWindow Then
-		AdvancedOptions_.Delete("OwnerForm1");
+		AdvancedOptions_.Delete("OwnerForm");
 		
 		Context = New Structure;
 		Context.Insert("Result");
@@ -83,7 +83,7 @@ Procedure WaitCompletion(Val TimeConsumingOperation, Val CompletionNotification2
 			ThisObject, Context);
 		
 		OpenForm("CommonForm.TimeConsumingOperation", AdvancedOptions_, 
-			?(IdleParameters <> Undefined, IdleParameters.OwnerForm1, Undefined),
+			?(IdleParameters <> Undefined, IdleParameters.OwnerForm, Undefined),
 			,,,ClosingNotification1);
 	Else
 		AdvancedOptions_.Insert("AccumulatedMessages", New Array);
@@ -102,12 +102,12 @@ EndProcedure
 // Returns a blank structure for the IdleParameters parameter of TimeConsumingOperationsClient.WaitForCompletion procedure.
 //
 // Parameters:
-//  OwnerForm1 - ClientApplicationForm
+//  OwnerForm - ClientApplicationForm
 //                - Undefined - 
 //
 // Returns:
 //  Structure              -  
-//   * OwnerForm1          - ClientApplicationForm
+//   * OwnerForm          - ClientApplicationForm
 //                            - Undefined - 
 //   * Title              - String - Title displayed on the wait form. If empty, the title is hidden. 
 //   * MessageText         - String - the message text that is displayed in the idle form.
@@ -151,10 +151,10 @@ EndProcedure
 //   
 //   * MustReceiveResult - Boolean - For internal use only.
 //
-Function IdleParameters(OwnerForm1) Export
+Function IdleParameters(OwnerForm) Export
 	
 	Result = New Structure;
-	Result.Insert("OwnerForm1", OwnerForm1);
+	Result.Insert("OwnerForm", OwnerForm);
 	Result.Insert("MessageText", "");
 	Result.Insert("Title", ""); 
 	Result.Insert("AttemptNumber", 1);
@@ -165,7 +165,7 @@ Function IdleParameters(OwnerForm1) Export
 	Result.Insert("Interval", 0);
 	Result.Insert("MustReceiveResult", False);
 	Result.Insert("ShouldCancelWhenOwnerFormClosed",
-		TypeOf(OwnerForm1) = Type("ClientApplicationForm") And OwnerForm1.IsOpen());
+		TypeOf(OwnerForm) = Type("ClientApplicationForm") And OwnerForm.IsOpen());
 	
 	UserNotification = New Structure;
 	UserNotification.Insert("Show", False);
@@ -394,8 +394,8 @@ EndFunction
 Function IsLongRunningOperationCanceled(TimeConsumingOperation)
 	
 	Return TimeConsumingOperation.ShouldCancelWhenOwnerFormClosed
-	    And TimeConsumingOperation.OwnerForm1 <> Undefined
-		And Not TimeConsumingOperation.OwnerForm1.IsOpen();
+	    And TimeConsumingOperation.OwnerForm <> Undefined
+		And Not TimeConsumingOperation.OwnerForm.IsOpen();
 	
 EndFunction
 
@@ -474,7 +474,7 @@ EndProcedure
 
 // Parameters:
 //  TimeConsumingOperation - Structure:
-//   * OwnerForm1          - ClientApplicationForm
+//   * OwnerForm          - ClientApplicationForm
 //                            - Undefined
 //   * Title              - String
 //   * MessageText         - String
@@ -673,8 +673,8 @@ Procedure CheckParametersWaitForCompletion(Val TimeConsumingOperation, Val Compl
 	If IdleParameters <> Undefined Then
 		
 		PropertyTypes = New Structure;
-		If IdleParameters.OwnerForm1 <> Undefined Then
-			PropertyTypes.Insert("OwnerForm1", Type("ClientApplicationForm"));
+		If IdleParameters.OwnerForm <> Undefined Then
+			PropertyTypes.Insert("OwnerForm", Type("ClientApplicationForm"));
 		EndIf;
 		PropertyTypes.Insert("MessageText", Type("String"));
 		PropertyTypes.Insert("Title",      Type("String"));

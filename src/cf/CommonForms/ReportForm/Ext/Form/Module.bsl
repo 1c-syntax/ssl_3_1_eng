@@ -1256,7 +1256,7 @@ Procedure Attachable_Command(Command)
 		ExecuteNotifyProcessing(Handler, ThisObject);
 	Else
 		SSLSubsystemsIntegrationClient.OnProcessCommand(ThisObject, Command, False);
-		ReportsClientOverridable.CommandHandler(ThisObject, Command, False);
+		ReportsClientOverridable.HandlerCommands(ThisObject, Command, False);
 	EndIf;
 EndProcedure
 
@@ -1878,7 +1878,7 @@ Function ValuesForSelection(ChoiceList, SettingItem, AvailableTypes, AvailableVa
 
 	FilterValue = ReportsClient.SelectionValueCache(Report.SettingsComposer, SettingItem);
 	If FilterValue <> Undefined Then
-		CommonClientServer.AddToList2(ValuesForSelection, FilterValue);
+		CommonClientServer.SupplementList(ValuesForSelection, FilterValue);
 	EndIf;
 
 	ReportsClient.UpdateListViews(ValuesForSelection, AvailableValues);
@@ -2308,7 +2308,7 @@ Procedure FindSuitableValuesOfTheUniversalNumberSearch(SuitableValues, SearchFie
 	EndDo;
 
 	SuitableValuesForTheNumber.SortByPresentation();
-	CommonClientServer.AddToList2(SuitableValues, SuitableValuesForTheNumber);
+	CommonClientServer.SupplementList(SuitableValues, SuitableValuesForTheNumber);
 
 EndProcedure
 
@@ -2456,7 +2456,7 @@ Procedure FindSuitableUniversalSearchValues(SuitableValues, SearchFieldsByType, 
 	SuitableValues.SortByPresentation();
 	AdditionalValues.SortByPresentation();
 
-	CommonClientServer.AddToList2(SuitableValues, AdditionalValues);
+	CommonClientServer.SupplementList(SuitableValues, AdditionalValues);
 
 EndProcedure
 
@@ -2517,7 +2517,7 @@ Procedure FindSuitableValuesBooleanUniversalSearch(SuitableValues, SearchFieldsB
 	// ACC:1391-
 
 	ValuesSuitableForBoolean.SortByPresentation();
-	CommonClientServer.AddToList2(SuitableValues, ValuesSuitableForBoolean);
+	CommonClientServer.SupplementList(SuitableValues, ValuesSuitableForBoolean);
 
 EndProcedure
 
@@ -2577,7 +2577,7 @@ Procedure FindSuitableValuesStringUniversalSearch(SuitableValues, SearchFieldsBy
 	EndDo;
 
 	ValuesSuitableForString.SortByPresentation();
-	CommonClientServer.AddToList2(SuitableValues, ValuesSuitableForString);
+	CommonClientServer.SupplementList(SuitableValues, ValuesSuitableForString);
 
 EndProcedure
 
@@ -2610,7 +2610,7 @@ Procedure FindSuitableValuesDateUniversalSearch(SuitableValues, SearchFieldsByTy
 	EndDo;
 
 	ValuesSuitableForDate.SortByPresentation();
-	CommonClientServer.AddToList2(SuitableValues, ValuesSuitableForDate);
+	CommonClientServer.SupplementList(SuitableValues, ValuesSuitableForDate);
 
 EndProcedure
 
@@ -4572,7 +4572,7 @@ Procedure SaveAsNewOrOverwriteExistingReportOptionAndContinue(Command)
 		QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
 		QuestionParameters.PromptDontAskAgain = False;
 		QuestionParameters.DefaultButton = "SaveAndResume";
-		QuestionParameters.Title = ThisObject.ReportCurrentOptionDescription;
+		QuestionParameters.Title = ReportCurrentOptionDescription;
 		StandardSubsystemsClient.ShowQuestionToUser(
 			New NotifyDescription("Attachable_CommandAfter", ThisObject, Command),
 			NStr("en = 'Do you want to save the report option?';"), Buttons, QuestionParameters);

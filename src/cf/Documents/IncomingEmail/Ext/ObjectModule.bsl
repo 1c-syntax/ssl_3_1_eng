@@ -40,13 +40,13 @@ Procedure BeforeWrite(Cancel, WriteMode, PostingMode)
 	
 	InfobaseUpdate.CheckObjectProcessed(ThisObject);
 	
-	PreviousDeletionMark = False;
+	PrevDeletionMark = False;
 	If Not IsNew() Then
-		PreviousDeletionMark = Common.ObjectAttributeValue(Ref, "DeletionMark");
+		PrevDeletionMark = Common.ObjectAttributeValue(Ref, "DeletionMark");
 	EndIf;
-	AdditionalProperties.Insert("DeletionMark", PreviousDeletionMark);
+	AdditionalProperties.Insert("DeletionMark", PrevDeletionMark);
 	
-	If DeletionMark <> PreviousDeletionMark Then
+	If DeletionMark <> PrevDeletionMark Then
 		HasAttachments = ?(DeletionMark, False, FilesOperationsInternalServerCall.AttachedFilesCount(Ref) > 0);
 	EndIf;
 

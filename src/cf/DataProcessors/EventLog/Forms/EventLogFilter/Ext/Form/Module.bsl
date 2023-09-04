@@ -28,7 +28,7 @@ EndProcedure
 Procedure NotificationProcessing(EventName, Parameter, Source)
 	
 	If EventName = "EventLogFilterItemValueChoice"
-	   And Source.UUID = ThisObject.UUID Then
+	   And Source.UUID = UUID Then
 		If PropertyCompositionEditorItemName = Items.Users.Name Then
 			UsersList = Parameter;
 		ElsIf PropertyCompositionEditorItemName = Items.Events.Name Then
@@ -135,16 +135,16 @@ EndProcedure
 &AtClient
 Procedure FilterPeriodOnChange(Item)
 	
-	NotificationHandler = New NotifyDescription("FilterIntervalOnChangeCompletion", ThisObject);
+	HandlerNotifications = New NotifyDescription("FilterPeriodOnChangeCompletion", ThisObject);
 	
 	Dialog = New StandardPeriodEditDialog;
 	Dialog.Period = FilterDateRange;
-	Dialog.Show(NotificationHandler);
+	Dialog.Show(HandlerNotifications);
 	
 EndProcedure
 
 &AtClient
-Procedure FilterIntervalOnChangeCompletion(Period, AdditionalParameters) Export
+Procedure FilterPeriodOnChangeCompletion(Period, AdditionalParameters) Export
 	
 	If Period = Undefined Then
 		Return;

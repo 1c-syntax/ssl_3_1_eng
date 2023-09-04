@@ -124,8 +124,8 @@
 			</title>
 		</field>
 		<field xsi:type="DataSetFieldField">
-			<dataPath>NotCompleted</dataPath>
-			<field>NotCompleted</field>
+			<dataPath>NotCompleted2</dataPath>
+			<field>NotCompleted2</field>
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -211,7 +211,7 @@
 			WHEN (NOT Tasks.Executed)
 				THEN 1
 			ELSE 0
-		END) AS NotCompleted,
+		END) AS NotCompleted2,
 	SUM(CASE
 			WHEN NOT Tasks.Executed
 					AND (Tasks.TaskDueDate &gt;= &amp;Deadline OR Tasks.TaskDueDate = "00010101")
@@ -282,8 +282,8 @@ GROUP BY
 		<expression>Sum(NotOnTime)</expression>
 	</totalField>
 	<totalField>
-		<dataPath>NotCompleted</dataPath>
-		<expression>Sum(NotCompleted)</expression>
+		<dataPath>NotCompleted2</dataPath>
+		<expression>Sum(NotCompleted2)</expression>
 	</totalField>
 	<totalField>
 		<dataPath>Overdue1</dataPath>
@@ -742,7 +742,7 @@ GROUP BY
 						</v8:item>
 					</dcsset:lwsTitle>
 					<dcsset:item xsi:type="dcsset:SelectedItemField">
-						<dcsset:field>NotCompleted</dcsset:field>
+						<dcsset:field>NotCompleted2</dcsset:field>
 						<dcsset:lwsTitle>
 							<v8:item>
 								<v8:lang>en</v8:lang>
@@ -848,7 +848,7 @@ GROUP BY
 					<dcsset:orderType>Asc</dcsset:orderType>
 				</dcsset:item>
 				<dcsset:item xsi:type="dcsset:OrderItemField">
-					<dcsset:field>NotCompleted</dcsset:field>
+					<dcsset:field>NotCompleted2</dcsset:field>
 					<dcsset:orderType>Desc</dcsset:orderType>
 				</dcsset:item>
 			</dcsset:order>

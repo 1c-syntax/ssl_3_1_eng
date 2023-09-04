@@ -253,7 +253,7 @@
 						<ExtendedTooltip name="ReplacementsListSearchControlExtendedTooltip" id="49"/>
 					</SearchControlAddition>
 					<ChildItems>
-						<LabelField name="ShiftedHolidaysListPresentation" id="23">
+						<LabelField name="ReplacementsListPresentation" id="23">
 							<DataPath>ReplacementsList.Presentation</DataPath>
 							<Title>
 								<v8:item>

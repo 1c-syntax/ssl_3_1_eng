@@ -7,8 +7,8 @@
 	<dataSet xsi:type="DataSetUnion">
 		<name>ChangeRecords</name>
 		<field xsi:type="DataSetFieldField">
-			<dataPath>ObjectType_SSLy</dataPath>
-			<field>ObjectType_SSLy</field>
+			<dataPath>ObjectType</dataPath>
+			<field>ObjectType</field>
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -29,8 +29,8 @@
 		<item xsi:type="DataSetQuery">
 			<name>FieldDefinition</name>
 			<field xsi:type="DataSetFieldField">
-				<dataPath>ObjectType_SSLy</dataPath>
-				<field>ObjectType_SSLy</field>
+				<dataPath>ObjectType</dataPath>
+				<field>ObjectType</field>
 				<title xsi:type="v8:LocalStringType">
 					<v8:item>
 						<v8:lang>en</v8:lang>
@@ -51,7 +51,7 @@
 			<dataSource>CommonDataSource</dataSource>
 			<query>SELECT
 	NULL 						AS ObjectRef,
-	NULL 						AS ObjectType_SSLy
+	NULL 						AS ObjectType
 WHERE
 	FALSE</query>
 		</item>
@@ -103,7 +103,7 @@ WHERE
 	<totalField>
 		<dataPath>CommonCount</dataPath>
 		<expression>Count(ObjectRef)</expression>
-		<group>ObjectType_SSLy</group>
+		<group>ObjectType</group>
 		<group>Overall</group>
 	</totalField>
 	<parameter>
@@ -176,7 +176,7 @@ WHERE
 			<dcsset:item xsi:type="dcsset:StructureItemGroup">
 				<dcsset:groupItems>
 					<dcsset:item xsi:type="dcsset:GroupItemField">
-						<dcsset:field>ObjectType_SSLy</dcsset:field>
+						<dcsset:field>ObjectType</dcsset:field>
 						<dcsset:groupType>Items</dcsset:groupType>
 						<dcsset:periodAdditionType>None</dcsset:periodAdditionType>
 						<dcsset:periodAdditionBegin xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionBegin>

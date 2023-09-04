@@ -785,18 +785,18 @@ Procedure AttachFileOperationsExtension(
 		SuggestionText = "",
 		CanContinueWithoutInstalling = True) Export
 	
-	NotificationDescriptionCompletion = New NotifyDescription(
+	NotifyDescriptionCompletion = New NotifyDescription(
 		"StartFileSystemExtensionAttachingWhenAnsweringToInstallationQuestion", FileSystemInternalClient,
 		OnCloseNotifyDescription);
 	
 #If Not WebClient Then
 	// In thin, thick, and web clients, the extension is always attached.
-	ExecuteNotifyProcessing(NotificationDescriptionCompletion, "AttachmentNotRequired");
+	ExecuteNotifyProcessing(NotifyDescriptionCompletion, "AttachmentNotRequired");
 	Return;
 #EndIf
 	
 	Context = New Structure;
-	Context.Insert("NotificationDescriptionCompletion", NotificationDescriptionCompletion);
+	Context.Insert("NotifyDescriptionCompletion", NotifyDescriptionCompletion);
 	Context.Insert("SuggestionText",             SuggestionText);
 	Context.Insert("CanContinueWithoutInstalling", CanContinueWithoutInstalling);
 	

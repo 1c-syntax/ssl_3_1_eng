@@ -113,10 +113,10 @@ EndProcedure
 
 &AtClient
 Procedure HyperlinkHandlersUpdatesClick(Item)
-	ListFilter = New Structure;
-	ListFilter.Insert("ExecutionMode", PredefinedValue("Enum.HandlersExecutionModes.Deferred"));
+	Filterlist0 = New Structure;
+	Filterlist0.Insert("ExecutionMode", PredefinedValue("Enum.HandlersExecutionModes.Deferred"));
 	
-	OpenForm("InformationRegister.UpdateHandlers.ListForm", ListFilter);
+	OpenForm("InformationRegister.UpdateHandlers.ListForm", Filterlist0);
 EndProcedure
 
 #EndRegion
@@ -306,7 +306,7 @@ Procedure StartSelectedProcedureForDebug(HandlerName)
 	RecordSet.Read();
 	
 	Handler = RecordSet[0];
-	Handler.Status = Enums.UpdateHandlersStatuses.WasNotExecuted;
+	Handler.Status = Enums.UpdateHandlersStatuses.NotPerformed;
 	Handler.ExecutionStatistics = New ValueStorage(New Map);
 	
 	// ACC:1327-

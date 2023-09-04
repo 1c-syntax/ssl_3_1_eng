@@ -420,8 +420,8 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 				
 				If HTTPResponse.StatusCode = 304 Then
 					
-					HTTPHeaders_SSLy = StandardSubsystemsServer.HTTPHeadersInLowercase(HTTPRequest.Headers);
-					If (HTTPHeaders_SSLy["if-modified-since"] <> Undefined Or HTTPHeaders_SSLy["if-none-match"] <> Undefined) Then
+					HTTPHeaders = StandardSubsystemsServer.HTTPHeadersInLowercase(HTTPRequest.Headers);
+					If (HTTPHeaders["if-modified-since"] <> Undefined Or HTTPHeaders["if-none-match"] <> Undefined) Then
 						WriteError1 = False;
 					EndIf;
 					

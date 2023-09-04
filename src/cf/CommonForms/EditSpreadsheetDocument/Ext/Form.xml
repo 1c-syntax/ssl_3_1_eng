@@ -18,7 +18,7 @@
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 	</Events>
 	<ChildItems>
-		<UsualGroup name="CommandBarGroup" id="487">
+		<UsualGroup name="GroupCommandBar" id="487">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>

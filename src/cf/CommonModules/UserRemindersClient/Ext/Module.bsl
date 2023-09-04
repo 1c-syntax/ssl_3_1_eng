@@ -143,7 +143,7 @@ Procedure NotificationProcessing(Form, EventName, Parameter, Source) Export
 			ReminderInterval = Parameter.ReminderInterval;
 			If ReminderInterval > SettingsOfReminder.ReminderInterval Then
 				SettingsOfReminder.ReminderInterval = ReminderInterval;
-				Form[FieldNameReminderTimeInterval] = UserRemindersClientServer.PresentationOFReminderDEADLINE(Parameter);
+				Form[FieldNameReminderTimeInterval] = UserRemindersClientServer.ReminderTimePresentation(Parameter);
 				Form[UserRemindersClientServer.FieldNameRemindAboutEvent()] = True;
 			EndIf;
 		EndIf;

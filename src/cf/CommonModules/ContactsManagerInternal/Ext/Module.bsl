@@ -61,19 +61,19 @@ Function FindContactsWithEmailAddresses(SearchString, ContactsDetails) Export
 	
 	QueryText = 
 	"SELECT ALLOWED DISTINCT TOP 20
-	|	ContactCatalog.Ref AS Contact,
-	|	PRESENTATION(ContactCatalog.Ref) AS Description,
+	|	CatalogContact.Ref AS Contact,
+	|	PRESENTATION(CatalogContact.Ref) AS Description,
 	|	"""" AS OwnerDescription1,
 	|	ContactInformationTable.EMAddress AS Presentation
 	|FROM
-	|	Catalog.Users AS ContactCatalog
+	|	Catalog.Users AS CatalogContact
 	|		INNER JOIN Catalog.Users.ContactInformation AS ContactInformationTable
-	|		ON (ContactInformationTable.Ref = ContactCatalog.Ref)
+	|		ON (ContactInformationTable.Ref = CatalogContact.Ref)
 	|			AND (ContactInformationTable.Type = VALUE(Enum.ContactInformationTypes.Email))
 	|			AND (ContactInformationTable.EMAddress <> """")
 	|WHERE
-	|	NOT ContactCatalog.DeletionMark
-	|	AND (ContactCatalog.Description LIKE &EnteredString ESCAPE ""~""
+	|	NOT CatalogContact.DeletionMark
+	|	AND (CatalogContact.Description LIKE &EnteredString ESCAPE ""~""
 	|			OR ContactInformationTable.EMAddress LIKE &EnteredString ESCAPE ""~""
 	|			OR ContactInformationTable.ServerDomainName LIKE &EnteredString ESCAPE ""~""
 	|			OR ContactInformationTable.Presentation LIKE &EnteredString ESCAPE ""~"")";
@@ -101,7 +101,7 @@ Function FindContactsWithEmailAddresses(SearchString, ContactsDetails) Export
 			If FieldOfStringType Then
 				InputFieldsConditionByString = InputFieldsConditionByString + " " 
 					+ StringFunctionsClientServer.SubstituteParametersToString(
-						"OR ContactCatalog.%1 LIKE &EnteredString ESCAPE ""~""",
+						"OR CatalogContact.%1 LIKE &EnteredString ESCAPE ""~""",
 						Field.Name);
 			EndIf;
 		EndDo;
@@ -112,18 +112,18 @@ Function FindContactsWithEmailAddresses(SearchString, ContactsDetails) Export
 		
 		QueryText = QueryText + "
 		|SELECT DISTINCT TOP 20
-		|	ContactCatalog.Ref AS Contact,
+		|	CatalogContact.Ref AS Contact,
 		|	&TheNameField AS Description,
 		|	&TheNameFieldOfTheOwner AS OwnerDescription1,
 		|	ContactInformationTable.EMAddress AS Presentation
 		|FROM
-		|	&ReferenceTable AS ContactCatalog
+		|	&ReferenceTable AS CatalogContact
 		|		INNER JOIN TheNameOfTheTableContactInformation AS ContactInformationTable
-		|		ON (ContactInformationTable.Ref = ContactCatalog.Ref)
+		|		ON (ContactInformationTable.Ref = CatalogContact.Ref)
 		|			AND (ContactInformationTable.Type = VALUE(Enum.ContactInformationTypes.Email) 
 		|			AND (ContactInformationTable.EMAddress <> """"))
 		|WHERE
-		|	NOT ContactCatalog.DeletionMark 
+		|	NOT CatalogContact.DeletionMark 
 		|	AND (ContactInformationTable.EMAddress LIKE &EnteredString ESCAPE ""~""
 		|		OR ContactInformationTable.ServerDomainName LIKE &EnteredString ESCAPE ""~""
 		|		OR ContactInformationTable.Presentation LIKE &EnteredString ESCAPE ""~""
@@ -131,8 +131,8 @@ Function FindContactsWithEmailAddresses(SearchString, ContactsDetails) Export
 		|";
 		
 		QueryText = StrReplace(QueryText, "&TheNameFieldOfTheOwner" , ?(ContactDescription.HasOwner, 
-			"PRESENTATION(ContactCatalog.Owner)", """"""));
-		QueryText = StrReplace(QueryText, "&TheNameField" , "ContactCatalog." 
+			"PRESENTATION(CatalogContact.Owner)", """"""));
+		QueryText = StrReplace(QueryText, "&TheNameField" , "CatalogContact." 
 			+ ContactDescription.ContactPresentationAttributeName);
 		QueryText = StrReplace(QueryText, "&ReferenceTable" ,"Catalog." + ContactDescription.Name);
 		QueryText = StrReplace(QueryText, "TheNameOfTheTableContactInformation" ,"Catalog." 
@@ -317,7 +317,7 @@ Procedure OnDefineChecks(ChecksGroups, Checks) Export
 	|For distributed infobases (DIB), run the repair procedure for the master node only.
 	|After that, perform synchronization with subordinate nodes.';");
 	Validation.Id                = "ContactInformation.CheckAndCorrectContactInformationKinds";
-	Validation.CheckHandler           = "ContactsManagerInternal.CheckContactInformationKinds";
+	Validation.HandlerChecks           = "ContactsManagerInternal.CheckContactInformationKinds";
 	Validation.GoToCorrectionHandler = "Catalog.ContactInformationKinds.Form.ContactInformationKindsCorrection";
 	Validation.AccountingChecksContext = "_ContactInformation";
 	Validation.isDisabled                    = True;
@@ -364,12 +364,12 @@ Function ContainsBlankJSONFields(ObjectToCheck)
 	QueryTemplate = "SELECT TOP 1
 		|	TableWithContactInformation.Ref AS Ref
 		|FROM
-		|	&FullNAMEOFObjectWITHCONTACTDETAILS AS TableWithContactInformation
+		|	&FullNameOfObjectWithContactDetails AS TableWithContactInformation
 		|WHERE
 		|	(CAST(TableWithContactInformation.Value AS STRING(1))) = """"
 		|	AND TableWithContactInformation.Ref = &Ref";
 	
-	QueryTextSet = StrReplace(QueryTemplate, "&FullNAMEOFObjectWITHCONTACTDETAILS",
+	QueryTextSet = StrReplace(QueryTemplate, "&FullNameOfObjectWithContactDetails",
 			MetadataObject.FullName() + ".ContactInformation");
 			
 	Query = New Query(QueryTextSet);
@@ -500,7 +500,6 @@ Procedure FormattingAutoCompleteResults(ChoiceData, Val Text, HighlightOutdatedA
 	SearchTextFragments = StrSplit(Text, " ");
 	For Each DataString1 In ChoiceData Do
 		
-		ObsoleteAddress = False;
 		If TypeOf(DataString1.Value) = Type("Structure")
 			And DataString1.Value.Property("Address") Then
 			
@@ -582,7 +581,7 @@ Function CorrectContactInformationKindsBatch(Val ObjectsWithIssues, Validation)
 	|	ContactInformation.Kind AS Kind
 	|FROM
 	|	ObjectsWithIssues AS ObjectsWithIssues
-	|		LEFT JOIN &FullNAMEOFObjectWITHCONTACTDETAILS AS ContactInformation
+	|		LEFT JOIN &FullNameOfObjectWithContactDetails AS ContactInformation
 	|		ON (ContactInformation.Kind = ObjectsWithIssues.Ref)
 	|WHERE
 	|	NOT ContactInformation.Ref IS NULL
@@ -591,7 +590,7 @@ Function CorrectContactInformationKindsBatch(Val ObjectsWithIssues, Validation)
 	|	ContactInformation.Kind";
 	
 	For Each MetadataObject In MetadataObjects Do
-		QueryTextSet.Add(StrReplace(QueryTemplate, "&FullNAMEOFObjectWITHCONTACTDETAILS", 
+		QueryTextSet.Add(StrReplace(QueryTemplate, "&FullNameOfObjectWithContactDetails", 
 		MetadataObject.Metadata().FullName() + ".ContactInformation"));
 	EndDo;
 	
@@ -2314,7 +2313,7 @@ Procedure SetObjectsContactInformation(ContactInformationOwner, Object, Val Obje
 		Object.ContactInformation.Clear();
 	EndIf;
 	
-	For Each ObjectContactInformationRow In ObjectContactInformationRows Do // ValueTableRow: см. УправлениеКонтактнойИнформацией.НоваяКонтактнаяИнформация
+	For Each ObjectContactInformationRow In ObjectContactInformationRows Do // ValueTableRow of See ContactsManager.NewContactInformation
 		
 		StoreChangeHistory = ContactInformationOwner.Value["Periodic"] And ObjectContactInformationRow.Kind.StoreChangeHistory;
 		
@@ -2862,10 +2861,10 @@ EndFunction
 
 #EndRegion
 
-Function ContactInformationToJSONStructure(ContactInformation, Val Type = Undefined, ConversionSettings = Undefined) Export
+Function ContactInformationToJSONStructure(ContactInformation, Val Type = Undefined, SettingsOfConversion = Undefined) Export
 	
-	If ConversionSettings = Undefined Then
-		ConversionSettings = ContactsManager.ContactInformationConversionSettings();
+	If SettingsOfConversion = Undefined Then
+		SettingsOfConversion = ContactsManager.ContactInformationConversionSettings();
 	EndIf;
 	
 	If Type <> Undefined And TypeOf(Type) <> Type("EnumRef.ContactInformationTypes") Then
@@ -2891,7 +2890,7 @@ Function ContactInformationToJSONStructure(ContactInformation, Val Type = Undefi
 	If ContactsManagerInternalCached.AreAddressManagementModulesAvailable() And Type = Enums.ContactInformationTypes.Address Then
 		
 		ModuleAddressManager = Common.CommonModule("AddressManager");
-		Return ModuleAddressManager.ContactInformationToJSONStructure(ContactInformation, Type, ConversionSettings);
+		Return ModuleAddressManager.ContactInformationToJSONStructure(ContactInformation, Type, SettingsOfConversion);
 		
 	EndIf;
 	
@@ -2930,7 +2929,7 @@ Function ContactInformationToJSONStructure(ContactInformation, Val Type = Undefi
 	
 	If ContactsManagerInternalCached.IsLocalizationModuleAvailable() Then
 		ModuleContactsManagerLocalization = Common.CommonModule("ContactsManagerLocalization");
-		Result = ModuleContactsManagerLocalization.ContactInformationToJSONStructure(ContactInformation, Type, ConversionSettings);
+		Result = ModuleContactsManagerLocalization.ContactInformationToJSONStructure(ContactInformation, Type, SettingsOfConversion);
 	EndIf;
 	
 	Return Result;

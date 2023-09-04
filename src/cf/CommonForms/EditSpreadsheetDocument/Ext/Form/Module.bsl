@@ -302,7 +302,7 @@ EndProcedure
 &AtClient
 Procedure WriteAndClose(Command)
 	NotifyDescription = New NotifyDescription("CloseFormAfterWriteSpreadsheetDocument", ThisObject);
-	WriteSpreadsheetDocument(NotifyDescription);
+	WriteSpreadsheetDocument(NotifyDescription, True);
 EndProcedure
 
 &AtClient
@@ -756,41 +756,41 @@ Procedure CloseFormAfterWriteSpreadsheetDocument(Close_SSLy, AdditionalParameter
 EndProcedure
 
 &AtClient
-Procedure WriteSpreadsheetDocument(CompletionHandler = Undefined)
+Procedure WriteSpreadsheetDocument(CompletionHandler = Undefined, UnlockFile = False)
 
 	ClearHighlight();
 	
 	ThereIsARef = ValueIsFilled(Parameters.Ref);
 	If IsNew() And Not IsTemplate And Not ThereIsARef Or EditingDenied Then
-		StartFileSavingDialog(CompletionHandler);
+		StartFileSavingDialog(CompletionHandler, UnlockFile);
 		Return;
 	EndIf;
 		
-	WriteSpreadsheetDocumentFileNameSelected(CompletionHandler);
+	WriteSpreadsheetDocumentFileNameSelected(CompletionHandler, UnlockFile);
 	
 EndProcedure
 
 &AtClient
-Procedure WriteSpreadsheetDocumentFileNameSelected(Val CompletionHandler)
+Procedure WriteSpreadsheetDocumentFileNameSelected(Val CompletionHandler, UnlockFile)
+	
+	AdditionalParameters = New Structure;
+	AdditionalParameters.Insert("CompletionHandler", CompletionHandler);
+	AdditionalParameters.Insert("UnlockFile", UnlockFile);
 	
 	If IsBlankString(Parameters.PathToFile) Then
 		TemplateAddressInTempStorage = "";
-		
-		AdditionalParameters = New Structure;
 		AdditionalParameters.Insert("TemplateAddressInTempStorage", TemplateAddressInTempStorage);
-		AdditionalParameters.Insert("CompletionHandler", CompletionHandler);
-		
 		ClearMessages();
 		
 		If WriteTemplate(True, AdditionalParameters.TemplateAddressInTempStorage) Then
-			AfterWriteSpreadsheetDocument(AdditionalParameters.CompletionHandler);
+			AfterWriteSpreadsheetDocument(AdditionalParameters.CompletionHandler, UnlockFile);
 		Else
 			NotifyDescription = New NotifyDescription("ContinueWritingTabularDocument", ThisObject, AdditionalParameters);
 			ShowQueryBox(NotifyDescription, NStr("en = 'Template contains errors. Do you want to continue saving?';"), QuestionDialogMode.YesNo, , DialogReturnCode.No);
 		EndIf;
 	Else
 		SpreadsheetDocument.BeginWriting(
-			New NotifyDescription("ProcessSpreadsheetDocumentWritingResult", ThisObject, CompletionHandler),
+			New NotifyDescription("ProcessSpreadsheetDocumentWritingResult", ThisObject, AdditionalParameters),
 			Parameters.PathToFile);
 	EndIf;
 	
@@ -801,23 +801,23 @@ Procedure ContinueWritingTabularDocument(DialogResult, AdditionalParameters) Exp
 	
 	If DialogResult = DialogReturnCode.Yes Then
 		WriteTemplate(False, AdditionalParameters.TemplateAddressInTempStorage);
-		AfterWriteSpreadsheetDocument(AdditionalParameters.CompletionHandler);
+		AfterWriteSpreadsheetDocument(AdditionalParameters.CompletionHandler, AdditionalParameters.UnlockFile);
 	EndIf;
 	
 EndProcedure
 
 &AtClient
-Procedure ProcessSpreadsheetDocumentWritingResult(Result, CompletionHandler) Export 
+Procedure ProcessSpreadsheetDocumentWritingResult(Result, AdditionalParameters) Export 
 	If Result <> True Then 
 		Return;
 	EndIf;
 	
 	EditingDenied = False;
-	AfterWriteSpreadsheetDocument(CompletionHandler);
+	AfterWriteSpreadsheetDocument(AdditionalParameters.CompletionHandler, AdditionalParameters.UnlockFile);
 EndProcedure
 
 &AtClient
-Procedure AfterWriteSpreadsheetDocument(CompletionHandler)
+Procedure AfterWriteSpreadsheetDocument(CompletionHandler, UnlockFile)
 	WritingCompleted = True;
 	Modified = False;
 	SetHeader();
@@ -826,9 +826,14 @@ Procedure AfterWriteSpreadsheetDocument(CompletionHandler)
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		If ValueIsFilled(Parameters.AttachedFile) Then
 			ModuleFilesOperationsInternalClient = CommonClient.CommonModule("FilesOperationsInternalClient");
-			FileUpdateParameters = ModuleFilesOperationsInternalClient.FileUpdateParameters(CompletionHandler, Parameters.AttachedFile, UUID);
-			ModuleFilesOperationsInternalClient.EndEditAndNotify(FileUpdateParameters);
-			Return;
+			If UnlockFile Then
+				FileUpdateParameters = ModuleFilesOperationsInternalClient.FileUpdateParameters(CompletionHandler, Parameters.AttachedFile, UUID);
+				ModuleFilesOperationsInternalClient.EndEditAndNotify(FileUpdateParameters);
+				Return;
+			Else
+				ModuleFilesOperationsInternalClient.SaveFileChangesWithNotification(CompletionHandler, Parameters.AttachedFile, UUID);
+				Return;
+			EndIf;
 		EndIf;
 	EndIf;
 	
@@ -836,7 +841,7 @@ Procedure AfterWriteSpreadsheetDocument(CompletionHandler)
 EndProcedure
 
 &AtClient
-Procedure StartFileSavingDialog(Val CompletionHandler)
+Procedure StartFileSavingDialog(Val CompletionHandler, UnlockFile)
 	
 	Var SaveFileDialog, NotifyDescription;
 	
@@ -844,13 +849,17 @@ Procedure StartFileSavingDialog(Val CompletionHandler)
 	SaveFileDialog.FullFileName = CommonClientServer.ReplaceProhibitedCharsInFileName(DocumentName);
 	SaveFileDialog.Filter = NStr("en = 'Spreadsheet documents';") + " (*.mxl)|*.mxl";
 	
-	NotifyDescription = New NotifyDescription("OnCompleteFileSelectionDialog", ThisObject, CompletionHandler);
+	AdditionalParameters = New Structure;
+	AdditionalParameters.Insert("CompletionHandler", CompletionHandler);
+	AdditionalParameters.Insert("UnlockFile", UnlockFile);
+		
+	NotifyDescription = New NotifyDescription("OnCompleteFileSelectionDialog", ThisObject, AdditionalParameters);
 	FileSystemClient.ShowSelectionDialog(NotifyDescription, SaveFileDialog);
 	
 EndProcedure
 
 &AtClient
-Procedure OnCompleteFileSelectionDialog(SelectedFiles, CompletionHandler) Export
+Procedure OnCompleteFileSelectionDialog(SelectedFiles, AdditionalParameters) Export
 	
 	If SelectedFiles = Undefined Then
 		Return;
@@ -864,7 +873,7 @@ Procedure OnCompleteFileSelectionDialog(SelectedFiles, CompletionHandler) Export
 		DocumentName = Left(DocumentName, StrLen(DocumentName) - 4);
 	EndIf;
 	
-	WriteSpreadsheetDocumentFileNameSelected(CompletionHandler);
+	WriteSpreadsheetDocumentFileNameSelected(AdditionalParameters.CompletionHandler, AdditionalParameters.UnlockFile);
 	
 EndProcedure
 
@@ -902,8 +911,8 @@ Procedure SetHeader()
 	
 	Title = DocumentName;
 	If ValueIsFilled(CurrentLanguage) Then
-		CurrentLangPresentation = Items["Language_"+CurrentLanguage].Title; 
-		Title = Title + " ("+CurrentLangPresentation+")";
+		CurrentLanguagePresentation = Items["Language_"+CurrentLanguage].Title; 
+		Title = Title + " ("+CurrentLanguagePresentation+")";
 	EndIf;
 	
 	If IsNew() Then
@@ -917,24 +926,24 @@ EndProcedure
 &AtClient
 Procedure SetUpCommandPresentation()
 	
-	CanEditDocument = Items.SpreadsheetDocument.Edit;
-	Items.Edit.Check = CanEditDocument;
-	Items.EditingCommands.Enabled = CanEditDocument;
-	Items.WriteAndClose.Enabled = CanEditDocument Or Modified;
-	Items.Write.Enabled = CanEditDocument Or Modified;
+	DocumentIsBeingEdited = Items.SpreadsheetDocument.Edit;
+	Items.Edit.Check = DocumentIsBeingEdited;
+	Items.EditingCommands.Enabled = DocumentIsBeingEdited;
+	Items.WriteAndClose.Enabled = DocumentIsBeingEdited Or Modified;
+	Items.Write.Enabled = DocumentIsBeingEdited Or Modified;
 
-	If CanEditDocument And IsTemplate And Not IsPrintForm Then
+	If DocumentIsBeingEdited And IsTemplate And Not IsPrintForm Then
 		Items.Warning.Visible = True;
 	EndIf;
 	
-	Items.Edit.Enabled = CanEditDocument Or Not IsTemplate;
-	Items.LoadFromFile.Enabled = CanEditDocument Or Not IsTemplate;
-	Items.StrikethroughAllActions.Enabled = CanEditDocument Or Not IsTemplate;
-	Items.CurrentValue.Enabled = CanEditDocument;
-	Items.ShowHeadersAndFooters.Enabled = CanEditDocument;
-	Items.Translate.Enabled = CanEditDocument;
+	Items.Edit.Enabled = DocumentIsBeingEdited Or Not IsTemplate;
+	Items.LoadFromFile.Enabled = DocumentIsBeingEdited Or Not IsTemplate;
+	Items.StrikethroughAllActions.Enabled = DocumentIsBeingEdited Or Not IsTemplate;
+	Items.CurrentValue.Enabled = DocumentIsBeingEdited;
+	Items.ShowHeadersAndFooters.Enabled = DocumentIsBeingEdited;
+	Items.Translate.Enabled = DocumentIsBeingEdited;
 	SetAvailabilityRecursively(Items.EditingCommands);
-	SetAvailabilityRecursively(Items.LangsToAdd, CanEditDocument);
+	SetAvailabilityRecursively(Items.LangsToAdd, DocumentIsBeingEdited);
 	
 EndProcedure
 
@@ -2040,7 +2049,7 @@ Procedure Attachable_OperatorsDragEnd(Item, DragParameters, StandardProcessing)
 		If Context.DataPath = "Format" Then
 			RowFormat = New FormatStringWizard;
 			Context.Insert("RowFormat", RowFormat);
-			NotificationOfDraggingEndCompletion = New NotifyDescription("OperatorsEndDragCompletion", ThisObject, Context);
+			NotificationOfDraggingEndCompletion = New NotifyDescription("OperatorsDragEndCompletion", ThisObject, Context);
 			RowFormat.Show(NotificationOfDraggingEndCompletion);
 		EndIf;
 	EndIf;
@@ -2048,7 +2057,7 @@ Procedure Attachable_OperatorsDragEnd(Item, DragParameters, StandardProcessing)
 EndProcedure
 
 &AtClient
-Procedure OperatorsEndDragCompletion(Text, Context) Export
+Procedure OperatorsDragEndCompletion(Text, Context) Export
 	
 	If Text = Undefined Then
 		Return;
@@ -2097,7 +2106,7 @@ EndProcedure
 
 &AtClient
 Function GetNameOfCurrTable()
-	For Each AttachedFieldList In ThisObject.ConnectedFieldLists Do
+	For Each AttachedFieldList In ThisObject["ConnectedFieldLists"] Do
 		If AttachedFieldList.NameOfTheFieldList <> NameOfTheListOfOperators() Then
 			If Items[AttachedFieldList.NameOfTheFieldList].CurrentData <> Undefined
 				And Items[AttachedFieldList.NameOfTheFieldList].CurrentData.Table Then
@@ -2520,14 +2529,14 @@ Procedure ExpandFieldList()
 	FieldList.Header = True;
 	FieldList.SetAction("OnActivateRow", "PlugIn_AvailableFieldsWhenActivatingLine");
 	
-	ColumnNameView = NameOfTheFieldList() + "Presentation";
+	ColumnNamePresentation = NameOfTheFieldList() + "Presentation";
 	If Common.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormulaInternal = Common.CommonModule("FormulasConstructorInternal");
-		ColumnNameView = ModuleConstructorFormulaInternal.ColumnNameView(NameOfTheFieldList());
+		ColumnNamePresentation = ModuleConstructorFormulaInternal.ColumnNamePresentation(NameOfTheFieldList());
 	EndIf;
 	
-	PresentationColumn = Items[ColumnNameView];
-	PresentationColumn.Title = NStr("en = 'Field';");
+	ColumnPresentation = Items[ColumnNamePresentation];
+	ColumnPresentation.Title = NStr("en = 'Field';");
 	
 	ColumnPattern = Items.Add(NameOfTheFieldList() + "Pattern", Type("FormField"), FieldList);
 	ColumnPattern.DataPath = NameOfTheFieldList() + "." + "Pattern";

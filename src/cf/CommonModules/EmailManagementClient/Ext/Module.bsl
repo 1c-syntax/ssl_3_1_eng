@@ -9,8 +9,6 @@
 
 #Region Private
 
-// Opens an email attachment.
-//
 // Parameters:
 //  Ref  - CatalogRef.IncomingEmailAttachedFiles,
 //            CatalogRef.IncomingEmailAttachedFiles - a reference to file that
@@ -43,15 +41,18 @@ Procedure OpenFileAfterConfirm(Result, AdditionalParameters) Export
 	If Result <> Undefined And Result = "Continue" Then
 		FilesOperationsClient.OpenFile(AdditionalParameters.FileData, AdditionalParameters.ForEditing);
 	EndIf;
-	
+
 EndProcedure
 
-// Returns an array that contains structures with information about interaction contacts
-// or interaction subject participants.
-// 
 // Parameters:
 //  TableOfContacts - FormDataCollection - contains descriptions and references to interaction contacts
 //                                            or interaction subject participants.
+//
+// Returns:
+//  Array of Structure:
+//    * Address - String
+//    * Presentation - String
+//    * Contact - Arbitrary 
 //
 Function ContactsTableToArray(TableOfContacts) Export
 	
@@ -91,7 +92,7 @@ Procedure SendReceiveUserEmail(UUID, Form, ItemList = Undefined, DisplayProgress
 	EndIf;	
 	
 	If TimeConsumingOperation.Status = "Completed2" Then
-		SendImportUserEmailCompletion(TimeConsumingOperation, AdditionalParameters);
+		SendReceiveUserEmailCompletion(TimeConsumingOperation, AdditionalParameters);
 	ElsIf TimeConsumingOperation.Status = "Running" Then
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(Form);
 		If DisplayProgress Then
@@ -99,7 +100,7 @@ Procedure SendReceiveUserEmail(UUID, Form, ItemList = Undefined, DisplayProgress
 		Else
 			IdleParameters.OutputIdleWindow = False;
 		EndIf;
-		CompletionNotification2 = New NotifyDescription("SendImportUserEmailCompletion", ThisObject, AdditionalParameters);
+		CompletionNotification2 = New NotifyDescription("SendReceiveUserEmailCompletion", ThisObject, AdditionalParameters);
 		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters);
 	EndIf;
 	
@@ -115,7 +116,7 @@ EndProcedure
 //  AdditionalParameters - Structure:
 //   * ItemList - FormTable - an item containing a dynamic list.
 //
-Procedure SendImportUserEmailCompletion(Result, AdditionalParameters) Export
+Procedure SendReceiveUserEmailCompletion(Result, AdditionalParameters) Export
 	
 	AdditionalParameters.Form.SendReceiveEmailInProgress = False;
 	

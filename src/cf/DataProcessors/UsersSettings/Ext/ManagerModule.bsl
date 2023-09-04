@@ -199,7 +199,7 @@ Function FormSettingsList(FormsList, UserName)
 	
 	Result = FormSettingsListPeopertiesPalette();
 	
-	ResultString1 = Undefined; // ValueTableRow: см. ПалитраСвойствСпискаНастроекФорм
+	ResultString1 = Undefined; // ValueTableRow of See FormSettingsListPeopertiesPalette
 	FormDetails    = Undefined;
 	
 	Settings = ReadSettingsFromStorage(SystemSettingsStorage, UserName);

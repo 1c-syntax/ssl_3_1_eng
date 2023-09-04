@@ -368,7 +368,7 @@ Procedure ConfigureExchangeMessagesTransportParameters(Command)
 	Filter              = New Structure("Peer", Object.InfobaseNode);
 	FillingValues = New Structure("Peer", Object.InfobaseNode);
 	
-	Notification = New NotifyDescription("SetUpExchangeMessageTransportParametersCompletion", ThisObject);
+	Notification = New NotifyDescription("ConfigureExchangeMessagesTransportParametersCompletion", ThisObject);
 	DataExchangeClient.OpenInformationRegisterWriteFormByFilter(Filter,
 		FillingValues, "DataExchangeTransportSettings", ThisObject, , , Notification);
 
@@ -533,7 +533,7 @@ Procedure ExportAdditionClearGeneralFilter(Command)
 	
 	TitleText = NStr("en = 'Confirm operation';");
 	QueryText   = NStr("en = 'Do you want to clear the common filter?';");
-	NotifyDescription = New NotifyDescription("ExportAdditionGeneralFilterClearingCompletion", ThisObject);
+	NotifyDescription = New NotifyDescription("ExportAdditionClearGeneralFilterCompletion", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);
 	
 EndProcedure
@@ -542,7 +542,7 @@ EndProcedure
 Procedure ExportAdditionClearDetailedFilter(Command)
 	TitleText = NStr("en = 'Confirm operation';");
 	QueryText   = NStr("en = 'Do you want to clear the detailed filter?';");
-	NotifyDescription = New NotifyDescription("ExportAdditionDetailedFilterClearingCompletion", ThisObject);
+	NotifyDescription = New NotifyDescription("ExportAdditionClearDetailedFilterCompletion", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);
 EndProcedure
 
@@ -908,14 +908,14 @@ Procedure InitializeDataProcessorVariables()
 EndProcedure
 
 &AtClient
-Procedure SetUpExchangeMessageTransportParametersCompletion(ClosingResult, AdditionalParameters) Export
+Procedure ConfigureExchangeMessagesTransportParametersCompletion(ClosingResult, AdditionalParameters) Export
 	
 	InitializeExchangeMessagesTransportSettings();
 	
 EndProcedure
 
 &AtClient
-Procedure ExportAdditionFilterHistoryCompletion(Response, SettingPresentation) Export
+Procedure ExportAdditionFiltersHistoryCompletion(Response, SettingPresentation) Export
 	
 	If Response = DialogReturnCode.Yes Then
 		ExportAdditionSetSettingsServer(SettingPresentation);
@@ -925,7 +925,7 @@ Procedure ExportAdditionFilterHistoryCompletion(Response, SettingPresentation) E
 EndProcedure
 
 &AtClient
-Procedure ExportAdditionGeneralFilterClearingCompletion(Response, AdditionalParameters) Export
+Procedure ExportAdditionClearGeneralFilterCompletion(Response, AdditionalParameters) Export
 	
 	If Response = DialogReturnCode.Yes Then
 		ExportAdditionClearGeneralFilterServer();
@@ -934,7 +934,7 @@ Procedure ExportAdditionGeneralFilterClearingCompletion(Response, AdditionalPara
 EndProcedure
 
 &AtClient
-Procedure ExportAdditionDetailedFilterClearingCompletion(Response, AdditionalParameters) Export
+Procedure ExportAdditionClearDetailedFilterCompletion(Response, AdditionalParameters) Export
 	If Response = DialogReturnCode.Yes Then
 		ExportAdditionClearDetailedFilterServer();
 	EndIf;
@@ -955,7 +955,7 @@ Procedure ExportAdditionFilterHistoryMenuSelection(Val SelectedElement, Val Addi
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Do you want to restore ""%1"" settings?';"), SettingPresentation);
 		
-		NotifyDescription = New NotifyDescription("ExportAdditionFilterHistoryCompletion", ThisObject, SettingPresentation);
+		NotifyDescription = New NotifyDescription("ExportAdditionFiltersHistoryCompletion", ThisObject, SettingPresentation);
 		ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);
 		
 	ElsIf SettingPresentation=1 Then
@@ -1166,7 +1166,7 @@ Procedure InitializeExchangeMessagesTransportSettings()
 	
 	TransportSettings = InformationRegisters.DataExchangeTransportSettings.TransportSettings(Object.InfobaseNode);
 	DefaultTransportKind = TransportSettings.DefaultExchangeMessagesTransportKind;
-	CorrespondentEndpoint = TransportSettings.WSPeerEndpoint;
+	CorrespondentEndpoint = TransportSettings.WSCorrespondentEndpoint;
 	
 	ConfiguredTransportTypes = InformationRegisters.DataExchangeTransportSettings.ConfiguredTransportTypes(Object.InfobaseNode);
 	
@@ -1944,19 +1944,19 @@ EndProcedure
 &AtClient
 Procedure ProcessBackgroundJobExecutionStatus(CurrentAction = Undefined)
 	
-	WriteFinish = False;
+	CommitCompletion = False;
 	If TypeOf(BackgroundJobExecutionResult) <> Type("Structure") Then
 		Return; 
 	ElsIf BackgroundJobExecutionResult.Status = "Error" Then
 		ErrorMessage = BackgroundJobExecutionResult.DetailErrorDescription;
-		WriteFinish = True;
+		CommitCompletion = True;
 	ElsIf BackgroundJobExecutionResult.Status = "Canceled" Then
 		ErrorMessage = NStr("en = 'The operation was canceled by user.';");
-		WriteFinish = True;
+		CommitCompletion = True;
 	EndIf;
 	
 	If ValueIsFilled(CurrentAction)
-		And WriteFinish Then
+		And CommitCompletion Then
 		DataExchangeServerCall.WriteExchangeFinishWithError(
 			Object.InfobaseNode,
 			CurrentAction,

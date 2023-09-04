@@ -11,11 +11,11 @@
 
 #Region Private
 
-Procedure WriteANode(Node, NodeBeforeRecording) Export
+Procedure WriteANode(Node, NodeBeforeWrite) Export
 	
 	ObjectNode = Node.GetObject();
 	
-	For Each KeyAndValue In NodeBeforeRecording Do
+	For Each KeyAndValue In NodeBeforeWrite Do
 		
 		Var_Key = KeyAndValue.Key;
 		Value = KeyAndValue.Value;

@@ -115,7 +115,7 @@ EndProcedure
 //  Command - FormCommand
 //
 &AtClient
-Procedure Attachable_CommandHandler(Command)
+Procedure Attachable_HandlerCommands(Command)
 	ValueSelected = ButtonsAndReturnValuesMap.Get(Command.Name);
 	
 	SelectionResult = New Structure;
@@ -207,7 +207,7 @@ Procedure AddCommandsAndButtonsToForm(Buttons)
 		IndexOf = IndexOf + 1;
 		CommandName = "Command" + XMLString(IndexOf);
 		Command = Commands.Add(CommandName);
-		Command.Action  = "Attachable_CommandHandler";
+		Command.Action  = "Attachable_HandlerCommands";
 		Command.Title = ButtonInfoItem.Presentation;
 		Command.ModifiesStoredData = False;
 		

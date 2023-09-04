@@ -87,11 +87,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.EventsCountLimit.MaxValue = 1000;
 	EndIf;
 	
-	DefaultFilter = DefaultFilter(FilterValues);
+	FilterDefault = FilterDefault(FilterValues);
 	If Not EventLogFilter.Property("Event") Then
-		EventLogFilter.Insert("Event", DefaultFilter);
+		EventLogFilter.Insert("Event", FilterDefault);
 	EndIf;
-	DefaultEventLogFilter.Insert("Event", DefaultFilter);
+	DefaultEventLogFilter.Insert("Event", FilterDefault);
 	Items.SessionDataSeparationPresentation.Visible = Not Common.SeparatedDataUsageAvailable();
 	
 	Severity = "AllEvents";
@@ -293,7 +293,7 @@ EndProcedure
 &AtClient
 Procedure SetPeriodForViewing()
 	
-	Notification = New NotifyDescription("SetViewDateIntervalCompletion", ThisObject);
+	Notification = New NotifyDescription("SetPeriodForViewingCompletion", ThisObject);
 	EventLogClient.SetPeriodForViewing(DateInterval, EventLogFilter, Notification)
 	
 EndProcedure
@@ -345,7 +345,7 @@ EndProcedure
 #Region Private
 
 &AtClient
-Procedure SetViewDateIntervalCompletion(IntervalSet, AdditionalParameters) Export
+Procedure SetPeriodForViewingCompletion(IntervalSet, AdditionalParameters) Export
 	
 	If IntervalSet Then
 		RefreshCurrentList();
@@ -354,9 +354,9 @@ Procedure SetViewDateIntervalCompletion(IntervalSet, AdditionalParameters) Expor
 EndProcedure
 
 &AtServer
-Function DefaultFilter(EventsList)
+Function FilterDefault(EventsList)
 	
-	DefaultFilter = New ValueList;
+	FilterDefault = New ValueList;
 	
 	For Each LogEvent In EventsList Do
 		
@@ -366,11 +366,11 @@ Function DefaultFilter(EventsList)
 			Continue;
 		EndIf;
 		
-		DefaultFilter.Add(LogEvent.Key, LogEvent.Value);
+		FilterDefault.Add(LogEvent.Key, LogEvent.Value);
 		
 	EndDo;
 	
-	Return DefaultFilter;
+	Return FilterDefault;
 EndFunction
 
 &AtServer

@@ -75,7 +75,7 @@ Procedure Load(Command)
 	EndIf;
 	
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-	IdleParameters.OwnerForm1 = ThisObject;
+	IdleParameters.OwnerForm = ThisObject;
 	IdleParameters.OutputIdleWindow = False;
 	
 	Notification = New NotifyDescription("AfterGetAddInFromPortal", ThisObject);

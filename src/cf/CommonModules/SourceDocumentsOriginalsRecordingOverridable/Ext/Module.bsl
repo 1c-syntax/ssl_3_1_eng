@@ -9,7 +9,7 @@
 
 #Region Public
 
-// Defines configuration objects whose list forms contain commands of source document originals recording,
+// Defines configuration objects whose list forms contain commands of source document tracking,
 //
 // Parameters:
 //  ListOfObjects - Array of String - object managers with the AddPrintCommands procedure.

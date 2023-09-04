@@ -45,8 +45,8 @@ EndProcedure
 //       * FullFileName - String - optional. A full path and name of the file on the client.
 //             If not specified, a dialog box to select a file will open.
 //       * FileOwner - AnyRef - file owner.
-//       * OwnerForm1 - ClientApplicationForm - a form, from which the file creation was called.
-//       * DontOpenCardAfterCreateFromFIle - Boolean
+//       * OwnerForm - ClientApplicationForm - a form, from which the file creation was called.
+//       * NotOpenCardAfterCreateFromFile - Boolean
 //             - 
 //       * NameOfFileToCreate - String - optional. New file name.
 //
@@ -62,7 +62,7 @@ Procedure AddFormFileSystemWithExtension(ExecutionParameters) Export
 		Return;
 	EndIf;
 	
-	If ExecutionParameters.DontOpenCardAfterCreateFromFIle <> True Then
+	If ExecutionParameters.NotOpenCardAfterCreateFromFile <> True Then
 		FormParameters = New Structure("OpenCardAfterCreateFile", True);
 		OnCloseNotifyDescription = CompletionHandler(ExecutionParameters.ResultHandler);
 		FilesOperationsClient.OpenFileForm(Result.FileRef,, FormParameters, OnCloseNotifyDescription); 
@@ -142,7 +142,7 @@ Function AddFromFileSystemWithExtensionSynchronous(ExecutionParameters) Export
 	ExtractFilesTextsAtClient = Not CommonSettings.ExtractTextFilesOnServer;
 	If ExtractFilesTextsAtClient Then
 		TempTextStorageAddress = ExtractTextToTempStorage(FileToAdd.FullName,
-			ExecutionParameters.OwnerForm1.UUID);
+			ExecutionParameters.OwnerForm.UUID);
 	Else
 		TempTextStorageAddress = "";
 	EndIf;
@@ -155,7 +155,7 @@ Function AddFromFileSystemWithExtensionSynchronous(ExecutionParameters) Export
 	Files.Add(LongDesc);
 	
 	PlacedFiles = New Array;
-	FilesPut = PutFiles(Files, PlacedFiles, , False, ExecutionParameters.OwnerForm1.UUID);
+	FilesPut = PutFiles(Files, PlacedFiles, , False, ExecutionParameters.OwnerForm.UUID);
 	If Not FilesPut Then
 		Return Result;
 	EndIf;
@@ -245,8 +245,8 @@ Procedure AddFilesAddInSuggested(FileSystemExtensionAttached1, AdditionalParamet
 		
 		Filter = AdditionalParameters.Filter;
 		OpenCardAfterCreateFromFile = False;
-		If AdditionalParameters.Property("DontOpenCardAfterCreateFromFIle") Then
-			OpenCardAfterCreateFromFile = Not AdditionalParameters.DontOpenCardAfterCreateFromFIle;
+		If AdditionalParameters.Property("NotOpenCardAfterCreateFromFile") Then
+			OpenCardAfterCreateFromFile = Not AdditionalParameters.NotOpenCardAfterCreateFromFile;
 		EndIf;
 		
 		SelectedFiles = New Array;
@@ -613,11 +613,29 @@ Procedure EndEditAndNotify(Parameters) Export
 	ExecutionParameters = New Structure;
 	ExecutionParameters.Insert("ResultHandler", Parameters.ResultHandler);
 	ExecutionParameters.Insert("CommandParameter", Parameters.ObjectRef);
-	Handler = New NotifyDescription("FinishEditWithNotificationCompletion", ThisObject, ExecutionParameters);
+	Handler = New NotifyDescription("EndEditAndNotifyCompletion", ThisObject, ExecutionParameters);
 	
 	HandlerParameters = FileUpdateParameters(Handler, Parameters.ObjectRef, Parameters.FormIdentifier);
 	HandlerParameters.CreateNewVersion = Parameters.CreateNewVersion;
 	EndEdit(HandlerParameters);
+	
+EndProcedure
+
+// Saves the file to the infobase but does not unlock it.
+Procedure SaveFileChangesWithNotification(ResultHandler, CommandParameter, FormIdentifier) Export
+	
+	If CommandParameter = Undefined Then
+		ReturnResult(ResultHandler, Undefined);
+		Return;
+	EndIf;
+	
+	ExecutionParameters = New Structure;
+	ExecutionParameters.Insert("ResultHandler", ResultHandler);
+	ExecutionParameters.Insert("CommandParameter", CommandParameter);
+	
+	Handler = New NotifyDescription("SaveFileChangesWithNotificationCompletion", ThisObject, ExecutionParameters);
+	HandlerParameters = FileUpdateParameters(Handler, CommandParameter, FormIdentifier);
+	SaveFileChanges(HandlerParameters);
 	
 EndProcedure
 
@@ -701,7 +719,7 @@ Procedure CheckSignaturesAfterCheckRow(SignatureVerificationResult, AdditionalPa
 	SignatureRow = AdditionalParameters.SignatureRow;
 	SignatureRow.SignatureValidationDate = CommonClient.SessionDate();
 	SignatureRow.SignatureCorrect      = (Result = True);
-	SignatureRow.CheckRequired2 = SignatureVerificationResult.CheckRequired2;
+	SignatureRow.IsVerificationRequired = SignatureVerificationResult.IsVerificationRequired;
 	SignatureRow.ErrorDescription    = ?(SignatureRow.SignatureCorrect, "", Result);
 	
 	FilesOperationsInternalClientServer.FillSignatureStatus(SignatureRow, CommonClient.SessionDate());
@@ -778,7 +796,7 @@ EndProcedure
 //  ExecutionParameters - Structure:
 //   * ResultHandler - 
 //   * FileOwner - 
-//   * OwnerForm1 - 
+//   * OwnerForm - 
 //   * IsFile - Boolean
 //  ScanningParameters - See FilesOperationsClient.ScanningParameters.
 //
@@ -818,7 +836,7 @@ Procedure AddFromScanner(ExecutionParameters, ScanningParameters = Undefined) Ex
 		FileParameters.ExtensionWithoutPoint = MultimediaData.FileExtention;
 		
 		FileAddress = PutToTempStorage(MultimediaData.GetBinaryData(),
-			ExecutionParameters.OwnerForm1.UUID);
+			ExecutionParameters.OwnerForm.UUID);
 			
 		ScanningResult.Insert("FileAdded", True);
 		ScanningResult.Insert("FileRef", FilesOperationsInternalServerCall.AppendFile(FileParameters, FileAddress));
@@ -834,14 +852,14 @@ Procedure AddFromScanner(ExecutionParameters, ScanningParameters = Undefined) Ex
 		ScanningParameters = FilesOperationsInternalServerCall.ScanningParameters(True, ClientID);
 	EndIf;
 	
-	FormParameters = New Structure("FileOwner, IsFile, DontOpenCardAfterCreateFromFIle, OneFileOnly, ResultType");
+	FormParameters = New Structure("FileOwner, IsFile, NotOpenCardAfterCreateFromFile, OneFileOnly, ResultType");
 	FillPropertyValues(FormParameters, ExecutionParameters);
 	FormParameters.Insert("ClientID", ClientID);
 	FormParameters.Insert("ScanningParameters", ScanningParameters);
 	
 	OnCloseNotifyDescription = CompletionHandler(ExecutionParameters.ResultHandler);
 	OpenForm("DataProcessor.Scanning.Form.ScanningResult", FormParameters, 
-		ExecutionParameters.OwnerForm1, , , , OnCloseNotifyDescription);
+		ExecutionParameters.OwnerForm, , , , OnCloseNotifyDescription);
 	
 #EndIf
 	
@@ -1467,7 +1485,7 @@ Procedure CheckSignaturesAfterPrepareData(Data, AdditionalParameters)
 	EndIf;
 	
 	UseACloudSignature = False;
-	If CommonClient.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
+	If CommonClient.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
 		TheDSSCryptographyServiceModuleClient = CommonClient.CommonModule("DSSCryptographyServiceClient");
 		UseACloudSignature = TheDSSCryptographyServiceModuleClient.UseCloudSignatureService();
 	EndIf;
@@ -4398,8 +4416,8 @@ Procedure AddFilesCompletion(AttachedFile, AdditionalParameters) Export
 	EndIf;
 	
 	OpenCardAfterCreateFromFile = False;
-	If AdditionalParameters.Property("DontOpenCardAfterCreateFromFIle") Then
-		OpenCardAfterCreateFromFile = Not AdditionalParameters.DontOpenCardAfterCreateFromFIle;
+	If AdditionalParameters.Property("NotOpenCardAfterCreateFromFile") Then
+		OpenCardAfterCreateFromFile = Not AdditionalParameters.NotOpenCardAfterCreateFromFile;
 	EndIf;
 	If OpenCardAfterCreateFromFile Then
 		
@@ -7063,7 +7081,7 @@ EndProcedure
 // Imports the edited file into the application, removes the lock and sends a notification.
 
 // Continuation of the procedure (see above). 
-Procedure FinishEditWithNotificationCompletion(Result, ExecutionParameters) Export
+Procedure EndEditAndNotifyCompletion(Result, ExecutionParameters) Export
 	
 	If Result = True Then
 		
@@ -7368,7 +7386,7 @@ Procedure OpenFileWithNotification(ResultHandler, FileData, UUID = Undefined, Fo
 	
 	// If File does not have a file, open the card.
 	If ExecutionParameters.FileData.Version.IsEmpty() And ExecutionParameters.FileData.StoreVersions Then
-		Handler = New NotifyDescription("OpenFileWIthNotificationCompletion", ThisObject, ExecutionParameters);
+		Handler = New NotifyDescription("OpenFileWithNotificationCompletion", ThisObject, ExecutionParameters);
 		ShowValue(Handler, ExecutionParameters.FileData.Ref);
 		Return;
 	EndIf;
@@ -7392,7 +7410,7 @@ Procedure OpenFileWithNotificationAfterInstallExtension(ExtensionInstalled, Exec
 	Else
 		FillTemporaryFormID(ExecutionParameters.UUID, ExecutionParameters);
 		
-		Handler = New NotifyDescription("OpenFileWIthNotificationCompletion", ThisObject, ExecutionParameters);
+		Handler = New NotifyDescription("OpenFileWithNotificationCompletion", ThisObject, ExecutionParameters);
 		OpenFileWithoutExtension(Handler, ExecutionParameters.FileData, ExecutionParameters.UUID);
 	EndIf;
 	
@@ -7409,7 +7427,7 @@ Procedure OpenFileWithNotificationWithExtensionAfterGetVersionToWorkingDirectory
 		OpenFileWithApplication(ExecutionParameters.FileData, Result.FullFileName, UUID);
 	EndIf;
 	
-	OpenFileWIthNotificationCompletion(Result.FileReceived = True, ExecutionParameters);
+	OpenFileWithNotificationCompletion(Result.FileReceived = True, ExecutionParameters);
 	
 EndProcedure
 
@@ -7419,7 +7437,7 @@ EndProcedure
 //   ExecutionParameters   - Structure:
 //     * FileData - See FilesOperationsInternalServerCall.FileData
 //
-Procedure OpenFileWIthNotificationCompletion(Result, ExecutionParameters) Export
+Procedure OpenFileWithNotificationCompletion(Result, ExecutionParameters) Export
 	
 	ClearTemporaryFormID(ExecutionParameters);
 	
@@ -7571,24 +7589,6 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Imports file to the application and sends a message.
 
-// Saves the file to the infobase but does not unlock it.
-Procedure SaveFileChangesWithNotification(ResultHandler, CommandParameter, FormIdentifier) Export
-	
-	If CommandParameter = Undefined Then
-		ReturnResult(ResultHandler, Undefined);
-		Return;
-	EndIf;
-	
-	ExecutionParameters = New Structure;
-	ExecutionParameters.Insert("ResultHandler", ResultHandler);
-	ExecutionParameters.Insert("CommandParameter", CommandParameter);
-	
-	Handler = New NotifyDescription("SaveFileChangesWithNotificationCompletion", ThisObject, ExecutionParameters);
-	HandlerParameters = FileUpdateParameters(Handler, CommandParameter, FormIdentifier);
-	SaveFileChanges(HandlerParameters);
-	
-EndProcedure
-
 // Continuation of the procedure (see above). 
 Procedure SaveFileChangesWithNotificationCompletion(Result, ExecutionParameters) Export
 	
@@ -7597,7 +7597,7 @@ Procedure SaveFileChangesWithNotificationCompletion(Result, ExecutionParameters)
 		Notify("Write_File", New Structure("Event", "VersionSaved"), ExecutionParameters.CommandParameter);
 	EndIf;
 	
-	ReturnResult(ExecutionParameters.ResultHandler, Undefined);
+	ReturnResult(ExecutionParameters.ResultHandler, Result);
 	
 EndProcedure
 
@@ -7951,7 +7951,7 @@ EndProcedure
 Procedure AppendFile(
 	ResultHandler,
 	FileOwner,
-	OwnerForm1,
+	OwnerForm,
 	CreateMode = 1,
 	AddingOptions = Undefined) Export
 	
@@ -7961,17 +7961,17 @@ Procedure AppendFile(
 		
 		ExecutionParameters.Insert("MaximumSize", 0);
 		ExecutionParameters.Insert("SelectionDialogFilter",  StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask()));
-		ExecutionParameters.Insert("DontOpenCardAfterCreateFromFIle", ?(AddingOptions = Undefined, False, AddingOptions));
+		ExecutionParameters.Insert("NotOpenCardAfterCreateFromFile", ?(AddingOptions = Undefined, False, AddingOptions));
 		
 	Else
 		ExecutionParameters.Insert("MaximumSize", AddingOptions.MaximumSize);
 		ExecutionParameters.Insert("SelectionDialogFilter", AddingOptions.SelectionDialogFilter);
-		ExecutionParameters.Insert("DontOpenCardAfterCreateFromFIle", AddingOptions.DontOpenCard);
+		ExecutionParameters.Insert("NotOpenCardAfterCreateFromFile", AddingOptions.NotOpenCard);
 	EndIf;
 	
 	ExecutionParameters.Insert("ResultHandler", ResultHandler);
 	ExecutionParameters.Insert("FileOwner", FileOwner);
-	ExecutionParameters.Insert("OwnerForm1", OwnerForm1);
+	ExecutionParameters.Insert("OwnerForm", OwnerForm);
 	ExecutionParameters.Insert("IsFile", True);
 	
 	Handler = New NotifyDescription("AddAfterCreationModeChoice", ThisObject, ExecutionParameters);
@@ -7989,12 +7989,12 @@ Procedure AppendFile(
 	
 EndProcedure
 
-Procedure AddFileFromFileSystem(FileOwner, OwnerForm1) Export
+Procedure AddFileFromFileSystem(FileOwner, OwnerForm) Export
 	
 	ExecutionParameters = New Structure;
 	ExecutionParameters.Insert("ResultHandler",                    Undefined);
 	ExecutionParameters.Insert("FileOwner",                           FileOwner);
-	ExecutionParameters.Insert("OwnerForm1",                           OwnerForm1);
+	ExecutionParameters.Insert("OwnerForm",                           OwnerForm);
 	ExecutionParameters.Insert("IsFile",                                 True);
 	
 	AddAfterCreationModeChoice(2, ExecutionParameters);
@@ -8016,7 +8016,7 @@ EndProcedure
 //
 Procedure AddAfterCreationModeChoice(CreateMode, ExecutionParameters) Export
 	
-	ExecutionParameters.Insert("DontOpenCardAfterCreateFromFIle", True);
+	ExecutionParameters.Insert("NotOpenCardAfterCreateFromFile", True);
 	
 	If CreateMode = 1 Then // 
 		AddBasedOnTemplate(ExecutionParameters);
@@ -8079,7 +8079,7 @@ Procedure AddFromFileSystemWithoutExtension(ExecutionParameters)
 	EndIf;
 	
 	Handler = New NotifyDescription("AddFromFileSystemWithoutFileSystemExtensionAfterImportFile", ThisObject, ExecutionParameters);
-	BeginPutFile(Handler, , ChoiceDialog, , ExecutionParameters.OwnerForm1.UUID);
+	BeginPutFile(Handler, , ChoiceDialog, , ExecutionParameters.OwnerForm.UUID);
 	
 EndProcedure
 
@@ -8167,7 +8167,7 @@ Procedure AddFromFileSystemWithoutFileSystemExtensionAfterImportFile(Put, Addres
 		Result.FileRef,
 		PictureLib.Information32);
 	
-	If ExecutionParameters.DontOpenCardAfterCreateFromFIle <> True Then
+	If ExecutionParameters.NotOpenCardAfterCreateFromFile <> True Then
 		FormParameters = New Structure("OpenCardAfterCreateFile", True);
 		OnCloseNotifyDescription = CompletionHandler(ExecutionParameters.ResultHandler);
 		FilesOperationsClient.OpenFileForm(Result.FileRef,, FormParameters, OnCloseNotifyDescription);
@@ -8395,7 +8395,7 @@ EndProcedure
 // Operations with digital signatures.
 //
 Procedure SignFile(AttachedFile, FileData, FormIdentifier,
-			CompletionHandler = Undefined, HandlerOnGetSignature = Undefined) Export
+			CompletionHandler = Undefined, HandlerOnGetSignature = Undefined, SignatureParameters = Undefined) Export
 	
 	ExecutionParameters = New Structure;
 	ExecutionParameters.Insert("CompletionHandler", CompletionHandler);
@@ -8466,7 +8466,11 @@ Procedure SignFile(AttachedFile, FileData, FormIdentifier,
 	EndIf;
 	
 	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
-	ModuleDigitalSignatureClient.Sign(DataDetails, FormIdentifier, FollowUpHandler);
+	SigningParameters = ModuleDigitalSignatureClient.NewSignatureType();
+	If SignatureParameters <> Undefined Then
+		FillPropertyValues(SigningParameters, SignatureParameters);
+	EndIf;
+	ModuleDigitalSignatureClient.Sign(DataDetails, FormIdentifier, FollowUpHandler, SigningParameters);
 	
 EndProcedure
 
@@ -8616,8 +8620,8 @@ EndProcedure
 Procedure OnSaveFileData(Parameters, Context) Export
 	
 	AdditionalParameters = New Structure("Notification", Parameters.Notification);
-	NotificationHandler = New NotifyDescription("OnSaveFileDataReturnResult", ThisObject, AdditionalParameters);
-	SaveAs(NotificationHandler, Context.FileData, Context.FormIdentifier);
+	HandlerNotifications = New NotifyDescription("OnSaveFileDataReturnResult", ThisObject, AdditionalParameters);
+	SaveAs(HandlerNotifications, Context.FileData, Context.FormIdentifier);
 	
 EndProcedure
 

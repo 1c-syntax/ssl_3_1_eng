@@ -30,7 +30,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			TableRow.Type = ContactInformationType;
 			TableRow.Kind = ContactInformationKind;
 		EndDo;
-		ThisObject.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Change history (%1)';"), ContactInformationPresentation);
+		Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'История изменений (%1)';"), ContactInformationPresentation);
 		Items.HistoryPresentation.Title = ContactInformationPresentation;
 	Else
 		Cancel = True;
@@ -50,7 +50,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Parameters.Property("FromAddressEntryForm") And Parameters.FromAddressEntryForm Then
 		Items.HistorySelect.DefaultButton = True;
 		ChoiceMode = Parameters.FromAddressEntryForm;
-		Items.CommandBarGroup.Visible = False;
+		Items.GroupCommandBar.Visible = False;
 		Items.HistorySelect.Visible = True;
 		Items.HistoryEdit.Visible = False;
 		Items.HistoryPresentation.ReadOnly = True;
@@ -77,7 +77,7 @@ EndProcedure
 
 &AtClient
 Procedure HistoryPresentationOnChange(Item)
-	ThisObject.CurrentItem.CurrentData.FieldValues = ContactsXMLByPresentation(ThisObject.CurrentItem.CurrentData.Presentation, ContactInformationKind);
+	CurrentItem.CurrentData.FieldValues = ContactsXMLByPresentation(CurrentItem.CurrentData.Presentation, ContactInformationKind);
 EndProcedure
 
 &AtClient
@@ -125,8 +125,8 @@ EndProcedure
 Procedure HistoryOnChange(Item)
 	
 	If Item.CurrentItem.Name = "HistoryValidFrom" Then
-		IndexOf = History.IndexOf(ThisObject.CurrentItem.CurrentData);
-		ThisObject.CurrentItem.CurrentData.ValidFrom = AllowedHistoryDate(PreviousDate, ThisObject.CurrentItem.CurrentData.ValidFrom, IndexOf);
+		IndexOf = History.IndexOf(CurrentItem.CurrentData);
+		CurrentItem.CurrentData.ValidFrom = AllowedHistoryDate(PreviousDate, CurrentItem.CurrentData.ValidFrom, IndexOf);
 		History.Sort("ValidFrom Desc");
 	EndIf;
 EndProcedure
@@ -144,10 +144,10 @@ EndProcedure
 Procedure HistoryOnActivateRow(Item)
 	
 	If Item.CurrentData <> Undefined Then
-		Items.HistoryEdit.Enabled = Not IsFirstDate(Item.CurrentData.ValidFrom) And Not ThisObject.ReadOnly;
-		Items.HistoryDelete.Enabled = Not IsFirstDate(Item.CurrentData.ValidFrom) And Not ThisObject.ReadOnly;
-		Items.HistoryContextMenuChange.Enabled = Not IsFirstDate(Item.CurrentData.ValidFrom) And Not ThisObject.ReadOnly;
-		Items.HistoryContextMenuDelete.Enabled = Not IsFirstDate(Item.CurrentData.ValidFrom) And Not ThisObject.ReadOnly;
+		Items.HistoryEdit.Enabled = Not IsFirstDate(Item.CurrentData.ValidFrom) And Not ReadOnly;
+		Items.HistoryDelete.Enabled = Not IsFirstDate(Item.CurrentData.ValidFrom) And Not ReadOnly;
+		Items.HistoryContextMenuChange.Enabled = Not IsFirstDate(Item.CurrentData.ValidFrom) And Not ReadOnly;
+		Items.HistoryContextMenuDelete.Enabled = Not IsFirstDate(Item.CurrentData.ValidFrom) And Not ReadOnly;
 	EndIf;
 	
 EndProcedure

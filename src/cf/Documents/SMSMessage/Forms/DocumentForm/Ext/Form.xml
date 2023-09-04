@@ -831,6 +831,9 @@
 		<Attribute name="AttachableCommandsParameters" id="14">
 			<Type/>
 		</Attribute>
+		<Attribute name="PropertiesParameters" id="15">
+			<Type/>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="CreateContact" id="1">
@@ -851,7 +854,7 @@
 				<xr:Ref>StdPicture.AddListItem</xr:Ref>
 				<xr:LoadTransparent>true</xr:LoadTransparent>
 			</Picture>
-			<Action>CreateContactComplete</Action>
+			<Action>CreateContactExecute</Action>
 			<Representation>Text</Representation>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>

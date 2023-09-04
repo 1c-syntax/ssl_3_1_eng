@@ -72,7 +72,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">Role.BasicSSLRights</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.OnReceiveDataFromMaster</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.ExtensionVersionParameters</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">Constant.DoNotUseSeparationByDataAreas</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Constant.NotUseSeparationByDataAreas</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.CommonClientCached</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonForm.FileSystemExtensionInstallationQuestion</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Constant.UseSeparationByDataAreas</xr:Item>

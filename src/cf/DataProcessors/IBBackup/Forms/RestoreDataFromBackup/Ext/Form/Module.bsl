@@ -286,7 +286,7 @@ Function CheckAttributesFilling()
 	Else 
 		
 		Try
-			ZIPFile = New ZipFileReader(FileName);
+			ZipFile = New ZipFileReader(FileName);
 		Except
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
 					"en = 'The selected archive file with a backup is damaged or is not a ZIP archive (%1).';"),
@@ -295,7 +295,7 @@ Function CheckAttributesFilling()
 			Return False;
 		EndTry;
 		
-		If ZIPFile.Items.Count() <> 1 Then
+		If ZipFile.Items.Count() <> 1 Then
 			
 			MessageText = NStr("en = 'The selected file is not a valid backup file. It contains more than one file.';");
 			CommonClient.MessageToUser(MessageText,, "Object.BackupImportFile");
@@ -303,7 +303,7 @@ Function CheckAttributesFilling()
 			
 		EndIf;
 		
-		FileInArchive = ZIPFile.Items[0];
+		FileInArchive = ZipFile.Items[0];
 		
 		If Upper(FileInArchive.Extension) <> "1CD" Then
 			

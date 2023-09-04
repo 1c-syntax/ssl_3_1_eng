@@ -396,7 +396,7 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	ExternalDataSets.Insert("RightsRolesOnObject", RightsRolesOnObject(
 		Variant = "RightsRolesOnMetadataObject"));
 	
-	ExternalDataSets.Insert("SelectionRole", SelectionRole(
+	ExternalDataSets.Insert("FilterRoles", FilterRoles(
 		Variant = "RightsRolesOnMetadataObjects"));
 	
 	CompositionProcessor = New DataCompositionProcessor;
@@ -687,7 +687,7 @@ Function DetailedObjectPermissions(Fill, ProfilesInsteadofRoles)
 	TheNameOfTheStandardProps = Context.TheNameOfTheStandardProps;
 	
 	FoundPermissions = New Map;
-	SelectedPermissions = ValuesofSelectedParameter("Right");
+	SelectedPermissions_ = ValuesofSelectedParameter("Right");
 	
 	If ProfilesInsteadofRoles Then
 		RoleProfiles = RoleProfiles();
@@ -704,8 +704,8 @@ Function DetailedObjectPermissions(Fill, ProfilesInsteadofRoles)
 			If Not HasRight Then
 				Continue;
 			EndIf;
-			If SelectedPermissions <> Undefined
-			   And SelectedPermissions.FindByValue(RightDetails.Value) = Undefined Then
+			If SelectedPermissions_ <> Undefined
+			   And SelectedPermissions_.FindByValue(RightDetails.Value) = Undefined Then
 				Continue;
 			EndIf;
 			FoundPermissions.Insert(RightDetails, True);
@@ -767,8 +767,8 @@ Function DetailedObjectPermissions(Fill, ProfilesInsteadofRoles)
 			If RightsList.Count() > 0 Then
 				FirstRight = Undefined;
 				For Each RightDetails In RightsList Do
-					If SelectedPermissions = Undefined
-					 Or SelectedPermissions.FindByValue(FirstRight.Value) <> Undefined Then
+					If SelectedPermissions_ = Undefined
+					 Or SelectedPermissions_.FindByValue(FirstRight.Value) <> Undefined Then
 						FirstRight = RightDetails;
 						Break;
 					EndIf;
@@ -809,8 +809,8 @@ Function DetailedObjectPermissions(Fill, ProfilesInsteadofRoles)
 	
 	For Each RightDetails In RightsList Do
 		If FoundPermissions.Get(RightDetails) <> Undefined
-		 Or SelectedPermissions <> Undefined
-		   And SelectedPermissions.FindByValue(RightDetails.Value) = Undefined Then
+		 Or SelectedPermissions_ <> Undefined
+		   And SelectedPermissions_.FindByValue(RightDetails.Value) = Undefined Then
 			Continue;
 		EndIf;
 		NewRow = Rights.Add();
@@ -991,33 +991,33 @@ Function StandardAttribute(MetadataObject, TheNameOfTheStandardProps)
 	
 EndFunction
 
-Function SelectionRole(Fill)
+Function FilterRoles(Fill)
 	
-	SelectionRole = New ValueTable;
-	SelectionRole.Columns.Add("NameOfRole",              StringType(255));
-	SelectionRole.Columns.Add("RolePresentation",    StringType(255));
+	FilterRoles = New ValueTable;
+	FilterRoles.Columns.Add("NameOfRole",              StringType(255));
+	FilterRoles.Columns.Add("RolePresentation",    StringType(255));
 	
 	If Not Fill Then
-		Return SelectionRole;
+		Return FilterRoles;
 	EndIf;
 	
 	SelectedRoles = ValuesofSelectedParameter("Role");
 	If Not ValueIsFilled(SelectedRoles)
 	 Or SelectedRoles.Count() <> 1 Then
-		Return SelectionRole;
+		Return FilterRoles;
 	EndIf;
 	
 	NameOfRole = SelectedRoles[0].Value;
 	RoleMetadata = Metadata.Roles.Find(NameOfRole);
 	If RoleMetadata = Undefined Then
-		Return SelectionRole;
+		Return FilterRoles;
 	EndIf;
 	
-	NewRow = SelectionRole.Add();
+	NewRow = FilterRoles.Add();
 	NewRow.NameOfRole = RoleMetadata.Name;
 	NewRow.RolePresentation = RoleMetadata.Presentation();
 	
-	Return SelectionRole;
+	Return FilterRoles;
 	
 EndFunction
 
@@ -1109,15 +1109,15 @@ Function RoleProfiles()
 	|FROM
 	|	Catalog.AccessGroupProfiles.Roles AS ProfilesRoles
 	|WHERE
-	|	&ProfileSelection
+	|	&FilterProfiles
 	|TOTALS BY
 	|	Role";
 	
 	SelectedProfiles = ValuesofSelectedParameter("Profile");
 	If SelectedProfiles = Undefined Then
-		Query.Text = StrReplace(Query.Text, "&ProfileSelection", "TRUE");
+		Query.Text = StrReplace(Query.Text, "&FilterProfiles", "TRUE");
 	Else
-		Query.Text = StrReplace(Query.Text, "&ProfileSelection",
+		Query.Text = StrReplace(Query.Text, "&FilterProfiles",
 			"ProfilesRoles.Ref IN(&Profiles)");
 		Query.SetParameter("Profiles", SelectedProfiles.UnloadValues());
 	EndIf;

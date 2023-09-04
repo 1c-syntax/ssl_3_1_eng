@@ -2094,7 +2094,7 @@ Function NodesArrayByPropertiesValues(PropertiesValues, Val QueryText, Val Excha
 	// Setting query parameters using object properties.
 	For Each Item In PropertiesValues Do
 		
-		Query.SetParameter("ObjectProperty_" + Item.Key, Item.Value);
+		Query.SetParameter("ObjectProperty1_" + Item.Key, Item.Value);
 		
 	EndDo;
 	
@@ -2831,7 +2831,7 @@ Procedure OnSendData(DataElement, ItemSend, Val Recipient, Val InitialImageCreat
 			
 		EndIf;
 			
-	ElsIf ObjectExportMode = Enums.ExchangeObjectExportModes.DoNotExport Then
+	ElsIf ObjectExportMode = Enums.ExchangeObjectExportModes.NotExport Then
 		
 		ItemSend = DataItemSend.Ignore;
 		

@@ -219,7 +219,7 @@ Function ExportDataToXML()
 			Selection = Query.Execute().Select();
 			While Selection.Next() Do
 				DataExchangeXDTOServer.ExportSelectionObject(ExchangeComponents, Selection.Ref.GetObject(), ProcessingRule);
-				HasExportedObjects = HasExportedObjects Or Not ExchangeComponents.ErrorFlag;
+				HasExportedObjects = HasExportedObjects Or Not ExchangeComponents.FlagErrors;
 			EndDo;
 		EndDo;
 	EndIf;
@@ -267,7 +267,7 @@ Function ExportDataToXML()
 	ExportResult = New Structure;
 	ExportResult.Insert("ExportText",              ExportText);
 	ExportResult.Insert("HasExportedObjects",     HasExportedObjects);
-	ExportResult.Insert("HasErrors",                 ExchangeComponents.ErrorFlag);
+	ExportResult.Insert("HasErrors",                 ExchangeComponents.FlagErrors);
 	ExportResult.Insert("ErrorText",                ExchangeComponents.ErrorMessageString);
 	ExportResult.Insert("ExportedObjects",         ExchangeComponents.ExportedObjects);
 	ExportResult.Insert("ExportedByRefObjects", ExchangeComponents.ExportedByRefObjects);
@@ -388,7 +388,7 @@ Function ImportDataFromXML(XMLReader)
 	EndTry;
 	SetPrivilegedMode(False);
 	
-	If ExchangeComponents.ErrorFlag Then
+	If ExchangeComponents.FlagErrors Then
 		ImportResult1.HasErrors = True;
 		ImportResult1.ErrorText = ExchangeComponents.ErrorMessageString;
 	EndIf;
@@ -720,7 +720,7 @@ Function InitializeComposer(MetadataNamesList = Undefined, SchemaSavingAddress =
 	
 	QueryTextTemplate2 = "SELECT ALLOWED
 	|	AliasOfTheMetadataTable.Ref AS ObjectRef,
-	|	&NameOfTheTableToBeAddedType         AS ObjectType_SSLy
+	|	&NameOfTableToAddType         AS ObjectType
 	|FROM
 	|	&NameOfTableToAdd AS AliasOfTheMetadataTable";
 	
@@ -737,14 +737,14 @@ Function InitializeComposer(MetadataNamesList = Undefined, SchemaSavingAddress =
 		
 		TablesToAdd = EnlargedMetadataGroupComposition(FullMetadataName);
 		For Each NameOfTableToAdd In TablesToAdd Do
-			SetName = "Additionally_" + StrReplace(NameOfTableToAdd, ".", "_");
+			SetName = "More_" + StrReplace(NameOfTableToAdd, ".", "_");
 			Set = SetItemsChanges.Add(Type("DataCompositionSchemaDataSetQuery"));
 			Set.DataSource = DataSource;
 			Set.AutoFillAvailableFields = True;
 			Set.Name = SetName;
 			
 			ReplacementString = StringFunctionsClientServer.SubstituteParametersToString("Type(%1)", NameOfTableToAdd);
-			QueryText = StrReplace(QueryTextTemplate2, "&NameOfTheTableToBeAddedType", ReplacementString);
+			QueryText = StrReplace(QueryTextTemplate2, "&NameOfTableToAddType", ReplacementString);
 			QueryText = StrReplace(QueryText, "&NameOfTableToAdd", NameOfTableToAdd);
 			Set.Query = QueryText;
 				
@@ -877,7 +877,7 @@ Procedure AddTabularSectionCompositionAdditionalSets(SourceItems, AddingOptions)
 	NameOfTableToAdd = AddingOptions.NameOfTableToAdd;
 	CompositionSchema       = AddingOptions.CompositionSchema;
 	
-	CommonSet = CompositionSchema.DataSets.Find("ChangeRecords");
+	SharedSet = CompositionSchema.DataSets.Find("ChangeRecords");
 	DataSource = CompositionSchema.DataSources.Get(0).Name; 
 	
 	ObjectMetadata = Metadata.FindByFullName(NameOfTableToAdd);
@@ -889,7 +889,7 @@ Procedure AddTabularSectionCompositionAdditionalSets(SourceItems, AddingOptions)
 	QueryTextTemplate2 = 
 	"SELECT ALLOWED
 	|	Ref                    AS ObjectRef,
-	|	&NameOfTheTableToBeAddedType AS ObjectType_SSLy
+	|	&NameOfTableToAddType AS ObjectType
 	|	,&AllFieldsOfTheTablePartOfTheRequestField 
 	|FROM
 	|	&VirtualTableSource";
@@ -931,13 +931,13 @@ Procedure AddTabularSectionCompositionAdditionalSets(SourceItems, AddingOptions)
 		EndIf;
 		
 		Alias = StrReplace(NameOfTableToAdd, ".", "") + TableName;
-		SetName = "Additionally_" + Alias;
-		Set = CommonSet.Items.Find(SetName);
+		SetName = "More_" + Alias;
+		Set = SharedSet.Items.Find(SetName);
 		If Set <> Undefined Then
 			Continue;
 		EndIf;
 		
-		Set = CommonSet.Items.Add(Type("DataCompositionSchemaDataSetQuery"));
+		Set = SharedSet.Items.Add(Type("DataCompositionSchemaDataSetQuery"));
 		Set.AutoFillAvailableFields = True;
 		Set.DataSource = DataSource;
 		Set.Name = SetName;
@@ -946,7 +946,7 @@ Procedure AddTabularSectionCompositionAdditionalSets(SourceItems, AddingOptions)
 		
 		ReplacementString = StringFunctionsClientServer.SubstituteParametersToString("TYPE(%1)", NameOfTableToAdd);
 		ReplacementRowTable = StringFunctionsClientServer.SubstituteParametersToString("%1.%2", NameOfTableToAdd, TableName);
-		QueryText = StrReplace(QueryTextTemplate2, "&NameOfTheTableToBeAddedType", ReplacementString);
+		QueryText = StrReplace(QueryTextTemplate2, "&NameOfTableToAddType", ReplacementString);
 		QueryText = StrReplace(QueryText, ",&AllFieldsOfTheTablePartOfTheRequestField", AllTabularSectionFields.QueryFields);
 		QueryText = StrReplace(QueryText, "&VirtualTableSource", ReplacementRowTable);
 		Set.Query = QueryText;

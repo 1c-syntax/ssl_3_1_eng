@@ -22,7 +22,7 @@
 //                                         
 //                                       - CatalogRef.JobsQueue - 
 //                                            
-//                                       - ValueTableRow: см. НайтиЗадания
+//                                       - ValueTableRow of See FindJobs
 //             * Metadata              - MetadataObjectScheduledJob - a scheduled job metadata.
 //                                       - String - 
 //             * Use           - Boolean - If True, a job is enabled.
@@ -147,7 +147,7 @@ EndFunction
 //                - ScheduledJob - 
 //                           
 //                - CatalogRef.JobsQueue - 
-//                - ValueTableRow: см. НайтиЗадания
+//                - ValueTableRow of See FindJobs
 // 
 // Returns:
 //  ScheduledJob - 
@@ -270,7 +270,7 @@ EndFunction
 //                - ScheduledJob -  
 //                  
 //                - CatalogRef.JobsQueue - 
-//                - ValueTableRow: см. НайтиЗадания
+//                - ValueTableRow of See FindJobs
 //
 Procedure DeleteJob(Val Id) Export
 	
@@ -317,7 +317,7 @@ EndProcedure
 //                           
 //                - ScheduledJob - 
 //                - CatalogRef.JobsQueue - 
-//                - ValueTableRow: см. НайтиЗадания
+//                - ValueTableRow of See FindJobs
 //
 //  Parameters - Structure - parameters that should be set to the job, possible properties:
 //   * Use - Boolean - True if a scheduled job is executed automatically according to the schedule.

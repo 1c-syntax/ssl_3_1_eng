@@ -324,7 +324,7 @@
 					<v8:content>Open task list for the selected route point</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>TasksComplete</Action>
+			<Action>TasksExecute</Action>
 			<Representation>TextPicture</Representation>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>

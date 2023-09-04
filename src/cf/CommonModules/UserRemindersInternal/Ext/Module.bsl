@@ -1159,7 +1159,6 @@ Procedure OnCreateAtServer(Form, PlacementParameters) Export
 		EndDo;
 		
 		If SettingsOfReminder.ReminderInterval = Undefined Then
-			ReminderInterval = UserRemindersClientServer.EnumPresentationOnOccurrence();
 			SettingsOfReminder.ReminderInterval = 0;
 		EndIf;
 		
@@ -1201,10 +1200,7 @@ Procedure OnReadAtServer(Form, CurrentObject) Export
 		Return;
 	EndIf;
 	
-	FieldNameReminderTimeInterval = UserRemindersClientServer.FieldNameReminderTimeInterval();
-	FieldNameRemindAboutEvent = FieldNameRemindAboutEvent();
 	SubjectOf = CurrentObject.Ref;
-	
 	ReadSettingsOfSubjectReminder(Form, SubjectOf);
 	
 EndProcedure
@@ -1307,7 +1303,7 @@ Procedure ReadSettingsOfSubjectReminder(Form, SubjectOf)
 			FieldNameReminderTimeInterval = UserRemindersClientServer.FieldNameReminderTimeInterval();
 			
 			Form[FieldNameRemindAboutEvent] = True;
-			Form[FieldNameReminderTimeInterval] = UserRemindersClientServer.PresentationOFReminderDEADLINE(Reminder);
+			Form[FieldNameReminderTimeInterval] = UserRemindersClientServer.ReminderTimePresentation(Reminder);
 			Break;
 		EndIf;
 	EndDo;

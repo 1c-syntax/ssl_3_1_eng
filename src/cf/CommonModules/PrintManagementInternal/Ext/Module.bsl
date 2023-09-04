@@ -331,7 +331,7 @@ Procedure ConvertParameters(DocumentTree) Export
 	EndDo;
 	
 	For Each AreaArray In ArrayOfAreas Do
-		StartNode = AreaArray[0];  // ValueTreeRow: см. УправлениеПечатьюСлужебный.ПрочитатьXMLВДерево
+		StartNode = AreaArray[0];  // ValueTreeRow of See PrintManagementInternal.ReadXMLIntoTree
 		If Not StartNode.Rows.Count() Then
 			Continue;
 		EndIf;	
@@ -344,7 +344,7 @@ Procedure ConvertParameters(DocumentTree) Export
 		StartNode.Attributes.Clear();
 		
 		
-		EndNode = AreaArray[AreaArray.UBound()]; // ValueTreeRow: см. УправлениеПечатьюСлужебный.ПрочитатьXMLВДерево
+		EndNode = AreaArray[AreaArray.UBound()]; // ValueTreeRow of See PrintManagementInternal.ReadXMLIntoTree
 		
 		RunThroughBegin = StartNode.Parent;
 		RunThroughEnd = EndNode.Parent;
@@ -892,7 +892,7 @@ Function MergeOfficeDocs(OfficeDocuments, AddressOfCombinedDoc)
 				FinalDocStructureOfRefs.Insert(NewKey, Common.CopyRecursive(RefsInDoc.Value));
 			EndDo;
 			
-			DocumentNodeOfNewDoc = DocumentStructure.DocumentTree.Rows[0]; // ValueTableRow: см. УправлениеПечатьюСлужебный.ПрочитатьXMLВДерево
+			DocumentNodeOfNewDoc = DocumentStructure.DocumentTree.Rows[0]; // ValueTableRow of See PrintManagementInternal.ReadXMLIntoTree
 			FinalDocDocumentNode = FinalDocStructure.DocumentTree.Rows[0]; 
 			
 			BodyNodeOfNewDoc 	= DocumentNodeOfNewDoc.Rows[0]; 
@@ -1557,7 +1557,7 @@ Function StructureOfAreaFromTemplate(TreeOfTemplate, Areas, AreaIndex, Hyperlink
 EndFunction
 
 // Parameters:
-//  TreeRow - ValueTreeRow: см. ДеревоДокумента
+//  TreeRow - ValueTreeRow of See DocumentTree
 //  Var_Key - String
 //  NodesArray - Array of See DocumentTree
 //
@@ -1717,7 +1717,7 @@ Procedure RestoreEntireTextRecursively(TreeRow, Hyperlinks)
 EndProcedure
 
 // Returns:
-// - ValueTreeRow: см. ДеревоДокумента
+// - ValueTreeRow of See DocumentTree
 // - Undefined
 //
 Function FindNode(Node, Direction, Name)
@@ -2858,7 +2858,7 @@ EndFunction
 
 
 // Parameters:
-//  SearchNode - ValueTreeRow: см. ДеревоДокумента
+//  SearchNode - ValueTreeRow of See DocumentTree
 //  PuttingIndex - Number
 //
 Procedure FindStampLocationNode(SearchNode, PuttingIndex) Export
@@ -2873,8 +2873,8 @@ Procedure FindStampLocationNode(SearchNode, PuttingIndex) Export
 EndProcedure
 
 // Parameters:
-//  TableNode - ValueTreeRow: см. ДеревоДокумента
-//  NodeOfText - ValueTreeRow: см. ДеревоДокумента
+//  TableNode - ValueTreeRow of See DocumentTree
+//  NodeOfText - ValueTreeRow of See DocumentTree
 //
 Procedure MoveFormattingParameters(TableNode, NodeOfText) Export
 	

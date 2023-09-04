@@ -413,7 +413,7 @@ Then import the spreadsheet to the application. The application supports the fol
 						</Pages>
 					</ChildItems>
 				</Page>
-				<Page name="CannotFind" id="543">
+				<Page name="NotFound4" id="543">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -691,7 +691,7 @@ Unmapped data can be skipped or added as new items. Mapped data can be updated o
 									<CommandName>Form.Command.ResolveConflictConflict</CommandName>
 									<ExtendedTooltip name="ResolveConflictExtendedTooltip" id="460"/>
 								</Button>
-								<CommandBar name="CommandBarGroup" id="431">
+								<CommandBar name="GroupCommandBar" id="431">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>

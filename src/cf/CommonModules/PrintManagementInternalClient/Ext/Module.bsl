@@ -15,10 +15,10 @@
 //   ReferencesArrray - Array of AnyRef - references to the selected objects for which a command is being executed.
 //   ExecutionParameters - See AttachableCommandsClient.CommandExecuteParameters
 //
-Procedure CommandHandler(Val ReferencesArrray, Val ExecutionParameters) Export
+Procedure HandlerCommands(Val ReferencesArrray, Val ExecutionParameters) Export
 	ExecutionParameters.Insert("PrintObjects", ReferencesArrray);
 	CommonClientServer.SupplementStructure(ExecutionParameters.CommandDetails, ExecutionParameters.CommandDetails.AdditionalParameters, True);
-	RunAttachablePrintCommandCompletion(True, ExecutionParameters);
+	RunConnectedPrintCommandCompletion(True, ExecutionParameters);
 EndProcedure
 
 // Generates a spreadsheet document in the Print subsystem form.
@@ -62,7 +62,7 @@ EndProcedure
 
 #Region Private
 
-Procedure RunAttachablePrintCommandCompletion(FileSystemExtensionAttached1, AdditionalParameters)
+Procedure RunConnectedPrintCommandCompletion(FileSystemExtensionAttached1, AdditionalParameters)
 	
 	If Not FileSystemExtensionAttached1 Then
 		Return;
@@ -190,16 +190,16 @@ Procedure CheckDocumentsPostedDocumentsPosting(QuestionResult, AdditionalParamet
 			DialogButtons.Add(DialogReturnCode.OK);
 		EndIf;
 		
-		NotifyDescription = New NotifyDescription("CheckDocumentsPostedCompletion", ThisObject, AdditionalParameters);
+		NotifyDescription = New NotifyDescription("CheckDocumentsPostingCompletion", ThisObject, AdditionalParameters);
 		ShowQueryBox(NotifyDescription, DialogText, DialogButtons);
 		Return;
 	EndIf;
 	
-	CheckDocumentsPostedCompletion(Undefined, AdditionalParameters);
+	CheckDocumentsPostingCompletion(Undefined, AdditionalParameters);
 	
 EndProcedure
 
-Procedure CheckDocumentsPostedCompletion(QuestionResult, AdditionalParameters) Export
+Procedure CheckDocumentsPostingCompletion(QuestionResult, AdditionalParameters) Export
 	
 	If QuestionResult <> Undefined And QuestionResult <> DialogReturnCode.Ignore Then
 		Return;

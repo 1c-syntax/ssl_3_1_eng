@@ -622,6 +622,9 @@
 				</v8:NumberQualifiers>
 			</Type>
 		</Attribute>
+		<Attribute name="PropertiesParameters" id="10">
+			<Type/>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="CallParticipants" id="1">
@@ -667,7 +670,7 @@
 					<v8:content>Create contact</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>CreateContactComplete</Action>
+			<Action>CreateContactExecute</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>

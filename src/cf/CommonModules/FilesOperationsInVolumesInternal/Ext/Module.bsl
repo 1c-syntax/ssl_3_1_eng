@@ -634,7 +634,7 @@ Procedure OnDefineChecks(ChecksGroups, Checks) Export
 	Validation.Recommendation                 = NStr("en = '• Mark the file for deletion.
 		|• Restore the volume file from a backup.';");
 	Validation.Id                = "StandardSubsystems.ReferenceToNonexistingFilesInVolumeCheck";
-	Validation.CheckHandler           = "FilesOperationsInVolumesInternal.ReferenceToNonexistingFilesInVolumeCheck";
+	Validation.HandlerChecks           = "FilesOperationsInVolumesInternal.ReferenceToNonexistingFilesInVolumeCheck";
 	Validation.AccountingChecksContext = "SystemChecks";
 	Validation.isDisabled                    = True;
 	
@@ -1316,17 +1316,17 @@ Procedure AddFilesToVolumes(WindowsArchivePath, PathToArchiveLinux) Export
 	DirectoryName = FileSystem.CreateTemporaryDirectory();
 	CreateDirectory(DirectoryName);
 	
-	ZIPFile = New ZipFileReader(FullFileNameZip);
-	ZIPFile.ExtractAll(DirectoryName, ZIPRestoreFilePathsMode.DontRestore);
+	ZipFile = New ZipFileReader(FullFileNameZip);
+	ZipFile.ExtractAll(DirectoryName, ZIPRestoreFilePathsMode.DontRestore);
 	
 	FilesPathsMap = New Map;
 	
-	For Each ZIPItem In ZIPFile.Items Do
+	For Each ZIPItem In ZipFile.Items Do
 		FullFilePath1 = DirectoryName + "\" + ZIPItem.Name;
 		// Generate file name. See FilesOperationsInternal.ПриОтправкеФайлаСозданиеНачальногоОбраза
-		DirectoryUniqueIdentifier = ZIPItem.Name;
+		CatalogUUID = ZIPItem.Name;
 		
-		FilesPathsMap.Insert(DirectoryUniqueIdentifier, FullFilePath1);
+		FilesPathsMap.Insert(CatalogUUID, FullFilePath1);
 	EndDo;
 	
 	BeginTransaction();

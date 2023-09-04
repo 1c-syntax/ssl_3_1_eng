@@ -204,11 +204,11 @@ EndProcedure
 //
 // Parameters:
 //  FullObjectName - String - an object name for which the check is called.
-//  LockChanging - Boolean - if you set True, the object
+//  BlockUpdate - Boolean - if you set True, the object
 //                         will be opened only for reading. The default value is False.
 //  MessageText   - String - a message that will be displayed to a user when opening an object.
 //
-Procedure OnExecuteCheckObjectProcessed(FullObjectName, LockChanging, MessageText) Export
+Procedure OnExecuteCheckObjectProcessed(FullObjectName, BlockUpdate, MessageText) Export
 	
 EndProcedure
 

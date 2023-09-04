@@ -55,13 +55,13 @@ Procedure WriteChangesToTheLog(Var_ThisObject, Replacing)
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
-	Table = Var_ThisObject.Unload();
+	Table = Unload();
 	Table.Columns.Add("LineChangeType", New TypeDescription("Number"));
 	Table.FillValues(1, "LineChangeType");
 	
 	If Replacing Then
 		OldRecords = InformationRegisters.PeriodClosingDates.CreateRecordSet();
-		For Each FilterElement In Var_ThisObject.Filter Do
+		For Each FilterElement In Filter Do
 			If FilterElement.Use Then
 				OldRecords.Filter[FilterElement.Name].Set(FilterElement.Value);
 			EndIf;

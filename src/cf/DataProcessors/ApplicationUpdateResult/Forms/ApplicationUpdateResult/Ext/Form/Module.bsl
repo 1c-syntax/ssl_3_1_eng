@@ -24,7 +24,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.MinimalUserActivityPeriodHintGroup.Visible = False;
 		Items.WhereToFindThisFormHint.Title = 
 			NStr("en = 'To monitor the progress of processing application version data,
-		               |go to Quick menu—Information—Change log.';");
+		               |go to Quick menu > Information > Release notes.';");
 		
 	EndIf;
 	
@@ -157,7 +157,7 @@ EndProcedure
 Procedure OnOpen(Cancel)
 	
 #If MobileClient Then
-	ThisObject.CommandBarLocation = FormCommandBarLabelLocation.None;
+	CommandBarLocation = FormCommandBarLabelLocation.None;
 #EndIf
 	
 	If Not FileIB Then
@@ -311,14 +311,14 @@ EndProcedure
 Procedure InformationForTechnicalSupport(Command)
 	
 	If Not IsBlankString(ScriptDirectory) Then
-		NotifyDescription = New NotifyDescription("StartFileSearchCompletion", ThisObject);
+		NotifyDescription = New NotifyDescription("BeginFindingFilesCompletion", ThisObject);
 		BeginFindingFiles(NotifyDescription, ScriptDirectory, "log*.txt");
 	EndIf;
 	
 EndProcedure
 
 &AtClient
-Procedure StartFileSearchCompletion(FilesArray, AdditionalParameters) Export
+Procedure BeginFindingFilesCompletion(FilesArray, AdditionalParameters) Export
 	If FilesArray.Count() > 0 Then
 		LogFile = FilesArray[0];
 		FileSystemClient.OpenFile(LogFile.FullName);
@@ -511,7 +511,7 @@ Procedure ResetHandlersStatus(Status)
 		
 		Record = RecordSet[0];
 		Record.AttemptCount = 0;
-		Record.Status = Enums.UpdateHandlersStatuses.WasNotExecuted;
+		Record.Status = Enums.UpdateHandlersStatuses.NotPerformed;
 		ExecutionStatistics = Record.ExecutionStatistics.Get();
 		ExecutionStatistics.Insert("StartsCount", 0);
 		Record.ExecutionStatistics = New ValueStorage(ExecutionStatistics);

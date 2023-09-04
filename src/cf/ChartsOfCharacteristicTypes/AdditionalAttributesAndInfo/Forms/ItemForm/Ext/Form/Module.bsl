@@ -10,7 +10,7 @@
 #Region Variables
 
 &AtClient
-Var ProcessingEndOFRECORDING, ContinuationHandlerOnWriteError, CancelOnWrite;
+Var ProcessingEndOfRecording, ContinuationHandlerOnWriteError, CancelOnWrite;
 
 #EndRegion
 
@@ -26,7 +26,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If PassedFormParameters.SelectSharedProperty
 		Or PassedFormParameters.SelectAdditionalValuesOwner
 		Or PassedFormParameters.CopyWithQuestion Then
-		ThisObject.WindowOpeningMode = FormWindowOpeningMode.LockOwnerWindow;
+		WindowOpeningMode = FormWindowOpeningMode.LockOwnerWindow;
 		WizardMode               = True;
 		If PassedFormParameters.CopyWithQuestion Then
 			Items.WIzardCardPages.CurrentPage = Items.ActionChoice;
@@ -299,7 +299,7 @@ Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters)
 			NewRow = TabularSection.Add();
 			NewRow.Property = CurrentObject.Ref;
 			ObjectPropertySet.Write();
-			CurrentObject.AdditionalProperties.Insert("ModifiedSet", CurrentPropertiesSet);
+			CurrentObject.AdditionalProperties.Insert("ChangedSet", CurrentPropertiesSet);
 		EndIf;
 		
 	EndIf;
@@ -334,8 +334,8 @@ Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	
 	RefreshFormItemsContent();
 	
-	If CurrentObject.AdditionalProperties.Property("ModifiedSet") Then
-		WriteParameters.Insert("ModifiedSet", CurrentObject.AdditionalProperties.ModifiedSet);
+	If CurrentObject.AdditionalProperties.Property("ChangedSet") Then
+		WriteParameters.Insert("ChangedSet", CurrentObject.AdditionalProperties.ChangedSet);
 	EndIf;
 	
 	CurrentTitle = Object.Title;
@@ -348,10 +348,10 @@ Procedure AfterWrite(WriteParameters)
 	Notify("Write_AdditionalAttributesAndInfo",
 		New Structure("Ref", Object.Ref), Object.Ref);
 	
-	If WriteParameters.Property("ModifiedSet") Then
+	If WriteParameters.Property("ChangedSet") Then
 		
 		Notify("Write_AdditionalAttributesAndInfoSets",
-			New Structure("Ref", WriteParameters.ModifiedSet), WriteParameters.ModifiedSet);
+			New Structure("Ref", WriteParameters.ChangedSet), WriteParameters.ChangedSet);
 	EndIf;
 	
 	If WriteParameters.Property("ContinuationHandler") Then
@@ -611,7 +611,7 @@ Procedure ValuesBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group)
 	AdditionalParameters.Insert("Parent", Parent);
 	AdditionalParameters.Insert("Group", Var_Group);
 	
-	FollowUpHandler = New NotifyDescription("BeforeAddRowValuesCompletion", ThisObject);
+	FollowUpHandler = New NotifyDescription("ValuesBeforeAddRowCompletion", ThisObject);
 	WriteObject("GoToValueList", FollowUpHandler, AdditionalParameters);
 	
 EndProcedure
@@ -624,7 +624,7 @@ Procedure ValuesBeforeRowChange(Item, Cancel)
 		Return;
 	EndIf;
 	
-	FollowUpHandler = New NotifyDescription("ValuesBeforeChangeRowCompletion", ThisObject);
+	FollowUpHandler = New NotifyDescription("ValuesBeforeRowChangeCompletion", ThisObject);
 	WriteObject("GoToValueList", FollowUpHandler);
 	
 EndProcedure
@@ -735,7 +735,7 @@ EndProcedure
 &AtClient
 Procedure SetsAdjustmentChange(Command)
 	
-	FollowUpHandler = New NotifyDescription("ChangeSetAdjustmentCompletion", ThisObject);
+	FollowUpHandler = New NotifyDescription("SetsAdjustmentChangeCompletion", ThisObject);
 	WriteObject("AttributeKindEdit", FollowUpHandler);
 	
 EndProcedure
@@ -844,7 +844,7 @@ EndProcedure
 &AtClient
 Procedure PropertyBrown(Command)
 	
-	Object.PropertiesColor = PredefinedValue("Enum.PropertiesColors.Lime_SSLym");
+	Object.PropertiesColor = PredefinedValue("Enum.PropertiesColors.GreenLime");
 	SetLabelColor(ThisObject, Object.PropertiesColor);
 	
 EndProcedure
@@ -1034,7 +1034,7 @@ Procedure FillChoicePage()
 		ObjectSets = PropertyManagerInternal.GetObjectPropertySets(NewObject);
 		
 		FilterParameters = New Structure;
-		FilterParameters.Insert("CommonSet", True);
+		FilterParameters.Insert("SharedSet", True);
 		FoundRows = ObjectSets.FindRows(FilterParameters);
 		For Each FoundRow In FoundRows Do
 			If PassedFormParameters.CurrentPropertiesSet = FoundRow.Set Then
@@ -1411,16 +1411,16 @@ Procedure SetAdjustmentCommentClickFollowUp(Cancel, Context) Export
 	
 	If SetsList.Count() > 1 Then
 		ShowChooseFromList(
-			New NotifyDescription("SetAdjustmentCommentClickCompletion", ThisObject),
+			New NotifyDescription("SetsAdjustmentCommentClickCompletion", ThisObject),
 			SetsList, Items.SetsAdjustmentComment);
 	Else
-		SetAdjustmentCommentClickCompletion(Undefined, SetsList[0].Value);
+		SetsAdjustmentCommentClickCompletion(Undefined, SetsList[0].Value);
 	EndIf;
 	
 EndProcedure
 
 &AtClient
-Procedure SetAdjustmentCommentClickCompletion(SelectedElement, SelectedSet) Export
+Procedure SetsAdjustmentCommentClickCompletion(SelectedElement, SelectedSet) Export
 	
 	If SelectedElement <> Undefined Then
 		SelectedSet = SelectedElement.Value;
@@ -1441,7 +1441,7 @@ Procedure SetAdjustmentCommentClickCompletion(SelectedElement, SelectedSet) Expo
 EndProcedure
 
 &AtClient
-Procedure BeforeAddRowValuesCompletion(Cancel, ProcessingParameters) Export
+Procedure ValuesBeforeAddRowCompletion(Cancel, ProcessingParameters) Export
 	
 	If Cancel Then
 		Return;
@@ -1482,7 +1482,7 @@ Procedure BeforeAddRowValuesCompletion(Cancel, ProcessingParameters) Export
 EndProcedure
 
 &AtClient
-Procedure ValuesBeforeChangeRowCompletion(Cancel, Context) Export
+Procedure ValuesBeforeRowChangeCompletion(Cancel, Context) Export
 	
 	If Cancel Then
 		Return;
@@ -1526,7 +1526,7 @@ Procedure ValueListAdjustmentChangeCompletion(Cancel, Context) Export
 EndProcedure
 
 &AtClient
-Procedure ChangeSetAdjustmentCompletion(Cancel, Context) Export
+Procedure SetsAdjustmentChangeCompletion(Cancel, Context) Export
 	
 	If Cancel Then
 		Return;
@@ -1582,8 +1582,8 @@ Procedure WriteObject(QuestionTextVariant, FollowUpHandler, AdditionalParameters
 	WriteParameters.Insert("ContinuationHandler", ContinuationHandler);
 	
 	If ValueIsFilled(Object.Ref) Then
-		ProcessingEndOFRECORDING = New NotifyDescription("WriteObjectContinuation", ThisObject, WriteParameters);
-		AttachIdleHandler("Pluggable_EndObjectRECORDING", 0.1, True);
+		ProcessingEndOfRecording = New NotifyDescription("WriteObjectContinuation", ThisObject, WriteParameters);
+		AttachIdleHandler("Pluggable_EndObjectRecording", 0.1, True);
 		Return;
 	EndIf;
 	
@@ -1605,9 +1605,9 @@ Procedure WriteObject(QuestionTextVariant, FollowUpHandler, AdditionalParameters
 EndProcedure
 
 &AtClient
-Procedure Pluggable_EndObjectRECORDING()
+Procedure Pluggable_EndObjectRecording()
 	
-	ExecuteNotifyProcessing(ProcessingEndOFRECORDING, "Write");
+	ExecuteNotifyProcessing(ProcessingEndOfRecording, "Write");
 	
 EndProcedure
 
@@ -2605,7 +2605,7 @@ Procedure SetLabelColor(Form, ColorOfLabel)
 	Items.PropertyLightBlue.Check = (ColorOfLabel = PredefinedValue("Enum.PropertiesColors.LightBlue"));
 	Items.PropertyYellow.Check = (ColorOfLabel = PredefinedValue("Enum.PropertiesColors.Yellow"));
 	Items.PropertyGreen.Check = (ColorOfLabel = PredefinedValue("Enum.PropertiesColors.Green"));
-	Items.PropertyLime.Check = (ColorOfLabel = PredefinedValue("Enum.PropertiesColors.Lime_SSLym"));
+	Items.PropertyLime.Check = (ColorOfLabel = PredefinedValue("Enum.PropertiesColors.GreenLime"));
 	Items.PropertyRed.Check = (ColorOfLabel = PredefinedValue("Enum.PropertiesColors.Red"));
 	Items.PropertyOrange.Check = (ColorOfLabel = PredefinedValue("Enum.PropertiesColors.Orange"));
 	Items.PropertyPink.Check = (ColorOfLabel = PredefinedValue("Enum.PropertiesColors.Pink"));

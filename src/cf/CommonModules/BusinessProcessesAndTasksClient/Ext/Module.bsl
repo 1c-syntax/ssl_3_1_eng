@@ -398,7 +398,7 @@ EndProcedure
 // Returns:
 //   Boolean   - 
 //
-Function WriteAndCloseComplete(Form, ExecuteTask = False, NotificationParameters = Undefined) Export
+Function WriteAndCloseExecute(Form, ExecuteTask = False, NotificationParameters = Undefined) Export
 	
 	ClearMessages();
 	
@@ -432,12 +432,12 @@ EndFunction
 // Opens a new job form.
 //
 // Parameters:
-//  OwnerForm1  - ClientApplicationForm - a form that must be the owner for the form being opened.
+//  OwnerForm  - ClientApplicationForm - a form that must be the owner for the form being opened.
 //  FormParameters - Structure - parameters of the form to be opened.
 //
-Procedure CreateJob(Val OwnerForm1 = Undefined, Val FormParameters = Undefined) Export
+Procedure CreateJob(Val OwnerForm = Undefined, Val FormParameters = Undefined) Export
 	
-	OpenForm("BusinessProcess.Job.ObjectForm", FormParameters, OwnerForm1);
+	OpenForm("BusinessProcess.Job.ObjectForm", FormParameters, OwnerForm);
 	
 EndProcedure	
 
@@ -445,11 +445,11 @@ EndProcedure
 //
 // Parameters:
 //  RedirectedTasks_SSLs - Array of TaskRef.PerformerTask
-//  OwnerForm - ClientApplicationForm - a form that must be the owner for the task forwarding
-//                                               form being opened.
+//  OwnerForm - ClientApplicationForm - the form that should be the owner of
+//                                               the task redirection form that is being opened.
 //
 Procedure ForwardTasks(RedirectedTasks_SSLs, OwnerForm) Export
-
+	
 	If RedirectedTasks_SSLs = Undefined Then
 		ShowMessageBox(,NStr("en = 'Tasks are not selected.';"));
 		Return;

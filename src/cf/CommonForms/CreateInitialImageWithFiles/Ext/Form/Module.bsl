@@ -97,7 +97,7 @@ Procedure InfobaseTypeOnChange(Item)
 	Pages = Items.Find("Pages");
 	Pages.CurrentPage = Pages.ChildItems[InfobaseKind];
 	
-	If ThisObject.InfobaseKind = 0 Then
+	If InfobaseKind = 0 Then
 		Items.VolumesFilesArchivePath.InputHint = "";
 		Items.VolumesFilesArchivePath.ChoiceButton = True;
 	Else

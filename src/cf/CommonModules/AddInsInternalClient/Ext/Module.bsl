@@ -63,7 +63,7 @@ Procedure CheckAddInAvailability(Notification, Context) Export
 		Result.ErrorDescription = NStr("en = 'Disabled by administrator.';");
 		ExecuteNotifyProcessing(Notification, Result);
 		
-	ElsIf Information.State = "IsNotFound" Then 
+	ElsIf Information.State = "NotFound1" Then 
 		
 		If Information.CanImportFromPortal 
 			And Context.SuggestToImport Then 
@@ -160,7 +160,7 @@ Function AddInAvailabilityCheckResult(Context) Export
 		Result.ErrorDescription = NStr("en = 'Disabled by administrator.';");
 		Return Result;
 		
-	ElsIf Information.State = "IsNotFound" Then 
+	ElsIf Information.State = "NotFound1" Then 
 		
 		Result.ErrorDescription = NStr("en = 'The add-in is missing from the list of allowed add-ins.';");
 		

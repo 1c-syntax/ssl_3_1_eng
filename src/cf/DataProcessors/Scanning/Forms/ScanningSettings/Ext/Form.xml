@@ -234,7 +234,7 @@ You cannot disable the scanner dialog box on WIA devices (see scanner settings i
 							<ShowTitle>false</ShowTitle>
 							<ExtendedTooltip name="AdditionalSettingsGroupExtendedTooltip" id="84"/>
 							<ChildItems>
-								<UsualGroup name="ScannedImageFormatGroup_" id="37">
+								<UsualGroup name="GroupScannedImageFormat" id="37">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -243,7 +243,7 @@ You cannot disable the scanner dialog box on WIA devices (see scanner settings i
 									</Title>
 									<Group>Vertical</Group>
 									<Behavior>Usual</Behavior>
-									<ExtendedTooltip name="ScannedImageFormatGroup_ExtendedTooltip" id="60"/>
+									<ExtendedTooltip name="GroupScannedImageFormatExtendedTooltip" id="60"/>
 									<ChildItems>
 										<UsualGroup name="ScannedImageFormatGroup" id="44">
 											<Title>
@@ -268,8 +268,8 @@ You cannot disable the scanner dialog box on WIA devices (see scanner settings i
 														<Event name="OnChange">ScannedImageFormatOnChange</Event>
 													</Events>
 												</InputField>
-												<CheckBoxField name="SaveToPDF" id="112">
-													<DataPath>SaveToPDF</DataPath>
+												<CheckBoxField name="ShouldSaveAsPDF" id="112">
+													<DataPath>ShouldSaveAsPDF</DataPath>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -279,8 +279,8 @@ You cannot disable the scanner dialog box on WIA devices (see scanner settings i
 													<TitleLocation>Right</TitleLocation>
 													<ToolTipRepresentation>Button</ToolTipRepresentation>
 													<CheckBoxType>Auto</CheckBoxType>
-													<ContextMenu name="SaveToPDFContextMenu" id="113"/>
-													<ExtendedTooltip name="SaveToPDFExtendedTooltip" id="114">
+													<ContextMenu name="ShouldSaveAsPDFContextMenu" id="113"/>
+													<ExtendedTooltip name="ShouldSaveAsPDFExtendedTooltip" id="114">
 														<Title formatted="true">
 															<v8:item>
 																<v8:lang>en</v8:lang>
@@ -773,7 +773,7 @@ TIF. Not all browsers display this format.</v8:content>
 			</Type>
 			<SavedData>true</SavedData>
 		</Attribute>
-		<Attribute name="SaveToPDF" id="26">
+		<Attribute name="ShouldSaveAsPDF" id="26">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>

@@ -146,41 +146,19 @@ EndProcedure
 
 &AtClient
 Procedure SetMappingTableFiltering()
-
+	
 	Filter = MappingTableFilter;
 	
-	If ImportType = "TabularSection" Then
-		If Filter = "Mapped1" Then
-			Items.DataMappingTable.RowFilter = New FixedStructure("RowMappingResult", "RowMapped");
-		ElsIf Filter = "Unmapped" Then 
-			Items.DataMappingTable.RowFilter = New FixedStructure("RowMappingResult", "Not");
-		ElsIf Filter = "Ambiguous" Then 
-			Items.DataMappingTable.RowFilter = New FixedStructure("RowMappingResult", "Conflict1");
-		Else
-			Items.DataMappingTable.RowFilter = Undefined;
-		EndIf;
-	ElsIf ImportType = "PastingFromClipboard" Then
-		If Filter = "Mapped1" Then 
-			Items.DataMappingTable.RowFilter = New FixedStructure("RowMappingResult", "RowMapped");
-		ElsIf Filter = "Unmapped" Then
-			Items.DataMappingTable.RowFilter = New FixedStructure("RowMappingResult", "Not");
-		ElsIf Filter = "Ambiguous" Then
-			Items.DataMappingTable.RowFilter = New FixedStructure("RowMappingResult", "Conflict1");
-		Else
-			Items.DataMappingTable.RowFilter = Undefined;
-		EndIf;
+	If Filter = "Mapped1" Then
+		Items.DataMappingTable.RowFilter = New FixedStructure("RowMappingResult", "RowMapped");
+	ElsIf Filter = "Unmapped" Then 
+		Items.DataMappingTable.RowFilter = New FixedStructure("RowMappingResult", "Not");
+	ElsIf Filter = "Ambiguous" Then 
+		Items.DataMappingTable.RowFilter = New FixedStructure("RowMappingResult", "Conflict1");
 	Else
-		If Filter = "Mapped1" Then 
-			Items.DataMappingTable.RowFilter = New FixedStructure("RowMappingResult", "RowMapped");
-		ElsIf Filter = "Unmapped" Then 
-			Items.DataMappingTable.RowFilter = New FixedStructure("RowMappingResult", "Not");
-		ElsIf Filter = "Ambiguous" Then 
-			Items.DataMappingTable.RowFilter = New FixedStructure("RowMappingResult", "Conflict1"); 
-		Else
-			Items.DataMappingTable.RowFilter = Undefined;
-		EndIf;
+		Items.DataMappingTable.RowFilter = Undefined;
 	EndIf;
-
+	
 EndProcedure
 
 &AtClient
@@ -399,11 +377,11 @@ Procedure StepBack()
 		
 		Items.WizardPages.CurrentPage = Items.SelectCatalogToImport;
 		Items.Back.Visible = False;
-		ThisObject.Title = NStr("en = 'Import data to catalog';");
+		Title = NStr("en = 'Загрузка данных в справочник';");
 		ClearTable();
 		
 	ElsIf Items.WizardPages.CurrentPage = Items.DataToImportMapping
-		Or Items.WizardPages.CurrentPage = Items.CannotFind
+		Or Items.WizardPages.CurrentPage = Items.NotFound4
 		Or Items.WizardPages.CurrentPage = Items.MappingResults
 		Or Items.WizardPages.CurrentPage = Items.TimeConsumingOperations Then
 		
@@ -604,7 +582,7 @@ Function MappingStatistics()
 	Result.Insert("Mapped2",   MappedItemsCount);
 	Result.Insert("Ambiguous1",    ConflictingItemsCount);
 	Result.Insert("Incomparable", UnmappedItemsCount);
-	Result.Insert("CannotFind",        UnmappedItemsCount - ConflictingItemsCount);
+	Result.Insert("NotFound4",        UnmappedItemsCount - ConflictingItemsCount);
 	
 	Return Result;
 	
@@ -642,11 +620,7 @@ Procedure ShowMappingStatisticsImportFromFile()
 		MappingTableFilter = "Unmapped";
 	EndIf;
 	
-	If ImportType = "PastingFromClipboard" Then
-		SetMappingTableFiltering();
-	Else
-		SetMappingTableFiltering();
-	EndIf;
+	SetMappingTableFiltering();
 	
 EndProcedure
 
@@ -1104,12 +1078,12 @@ Procedure WriteDataToImportClient()
 EndProcedure
 
 &AtClient
-Procedure ReportAtClientBackgroundJob(DontOutputWaitWindow = True)
+Procedure ReportAtClientBackgroundJob(NotOutputIdleWindow = True)
 	
-	BackgroundJob = GenerateReportOnImport(FilterReport, DontOutputWaitWindow);
+	BackgroundJob = GenerateReportOnImport(FilterReport, NotOutputIdleWindow);
 	
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-	WaitSettings.OutputIdleWindow = Not DontOutputWaitWindow;
+	WaitSettings.OutputIdleWindow = Not NotOutputIdleWindow;
 		
 	Handler = New NotifyDescription("AfterCreateReport", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(BackgroundJob, Handler, WaitSettings);
@@ -1163,17 +1137,17 @@ Procedure ExecuteDataToImportMappingStepClient()
 			Items.MappingResultLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(TextFound,
 				Statistics.Total, Statistics.Mapped2);
 			
-			If Statistics.Ambiguous1 > 0 And Statistics.CannotFind > 0 Then 
+			If Statistics.Ambiguous1 > 0 And Statistics.NotFound4 > 0 Then 
 				TextNotFound = NStr("en = 'Total rows skipped: %3. Details:
 				| • No matches found: %1
 				| • Multiple matches found: %2';");
-				TextNotFound = StringFunctionsClientServer.SubstituteParametersToString(TextNotFound, Statistics.CannotFind, Statistics.Ambiguous1, Statistics.Incomparable);
+				TextNotFound = StringFunctionsClientServer.SubstituteParametersToString(TextNotFound, Statistics.NotFound4, Statistics.Ambiguous1, Statistics.Incomparable);
 			ElsIf Statistics.Ambiguous1 > 0 Then
 				TextNotFound = NStr("en = 'Rows that has multiple matches will be skipped: %1';");
 				TextNotFound = StringFunctionsClientServer.SubstituteParametersToString(TextNotFound, Statistics.Ambiguous1);
-			ElsIf Statistics.CannotFind > 0 Then
+			ElsIf Statistics.NotFound4 > 0 Then
 				TextNotFound = NStr("en = 'Rows that has no matches will be skipped: %1';");
-				TextNotFound = StringFunctionsClientServer.SubstituteParametersToString(TextNotFound, Statistics.CannotFind);
+				TextNotFound = StringFunctionsClientServer.SubstituteParametersToString(TextNotFound, Statistics.NotFound4);
 			EndIf;
 			TextNotFound = TextNotFound + Chars.LF + NStr("en = 'To view skipped rows and map them manually, click ""Next"".';");
 			Items.NotFoundAndConflictsDecoration.Title = TextNotFound;
@@ -1191,7 +1165,7 @@ Procedure ExecuteDataToImportMappingStepClient()
 			ShowMappingStatisticsImportFromFile();
 			SetAppearanceForMappingPage(False, Items.RefSearchNote, False, NStr("en = 'Next >';"));
 		Else
-			Items.WizardPages.CurrentPage = Items.CannotFind;
+			Items.WizardPages.CurrentPage = Items.NotFound4;
 			Items.Close.Title = NStr("en = 'Close';");
 			Items.Back.Visible = True;
 			Items.AddToList.Visible = False;
@@ -1213,8 +1187,6 @@ Procedure ExecuteDataToImportMappingStepClient()
 			
 			SetAppearanceForMappingPage(False, Items.TabularSectionNote, True, NStr("en = 'Import data';"));
 			SetAppearanceForConflictFields(New Structure("RowMappingResult", "Conflict1"));
-		ElsIf ImportType = "ExternalImport" Then
-			SetAppearanceForMappingPage(False, Items.AppliedImportNote, False, NStr("en = 'Import data >';"));
 		Else
 			SetAppearanceForMappingPage(False, Items.AppliedImportNote, False, NStr("en = 'Import data >';"));
 		EndIf;
@@ -1262,11 +1234,11 @@ Procedure OpenResolveConflictForm(RowSelected, NameField1, StandardProcessing)
 						ColumnsArray1 = New Array();
 						ColumnsArray1.Add(Column.ColumnName);
 						ColumnsArray1.Add(Column.ColumnPresentation);
-						ColumnsArray1.Add(String["IND" + Column.ColumnName]);
+						ColumnsArray1.Add(String["PL_" + Column.ColumnName]);
 						ColumnsArray1.Add(Column.ColumnType);
 						TableRow.Add(ColumnsArray1);
 						If Name = Column.Parent Then
-							ValuesOfColumnsToImport.Insert(Column.ColumnName, String["IND" + Column.ColumnName]);
+							ValuesOfColumnsToImport.Insert(Column.ColumnName, String["PL_" + Column.ColumnName]);
 						EndIf;
 					EndDo;
 					
@@ -1471,11 +1443,11 @@ Procedure ClearTable()
 	ColumnsInformation.Clear();
 	
 	While Items.DataMappingTable.ChildItems.Count() > 0 Do
-		ThisObject.Items.Delete(Items.DataMappingTable.ChildItems.Get(0));
+		Items.Delete(Items.DataMappingTable.ChildItems.Get(0));
 	EndDo;
 	TemplateWithData = New SpreadsheetDocument;
 	
-	MappingTableAttributes = ThisObject.GetAttributes("DataMappingTable");
+	MappingTableAttributes = GetAttributes("DataMappingTable");
 	AttributePathsArray = New Array;
 	For Each TableAttribute In MappingTableAttributes Do
 		AttributePathsArray.Add("DataMappingTable." + TableAttribute.Name);
@@ -1599,11 +1571,13 @@ EndFunction
 &AtServer
 Function ConditionsBySelectedColumns(CatalogName)
 	
-	SeparatorAnd   = "";
 	ComparisonTypeSSL   = " = ";
 	StringCondition  = "";
 	TabularSection = "";
-	SelectionWhere       = New Array;
+	FilterWhere       = New Array;
+	ConditionStrings  = New Array;
+	ConditionTemplateContactDetails = "CAST(MappingCatalog.Presentation AS STRING(500)) = CAST(MappingTable.%1 AS STRING(500))";
+	ConditionTemplateAdditionalAttributes = "MappingCatalog.Value =  MappingTable.%1";
 	
 	If Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
 		ModuleContactsManager = Common.CommonModule("ContactsManager");
@@ -1612,99 +1586,93 @@ Function ConditionsBySelectedColumns(CatalogName)
 	
 	For Each Item In MapByColumn Do
 		If Item.Check Then
+
 			Column = ColumnInformation(Item.Value);
-			
-			If Column <> Undefined Then
-				// Creating a query depending on the data types.
+			If Column = Undefined Then
+				Continue;
+			EndIf;
 				
-				If StrStartsWith(Column.ColumnName, "ContactInformation_") Then
-					
-					CIKindName = StandardSubsystemsServer.TransformAdaptedColumnDescriptionToString(Mid(Column.ColumnName, StrLen("ContactInformation_") + 1));
-					FoundKinds = ContactInformationKinds.Find(CIKindName, "Description");
-					
-					TabularSection = "ContactInformation";
-					
-					TemplateStringCondition = "CAST(MappingCatalog.Presentation AS STRING(500)) = CAST(MappingTable.%1 AS STRING(500))";
-					StringCondition = StringCondition + SeparatorAnd
-						+ StringFunctionsClientServer.SubstituteParametersToString(TemplateStringCondition, Column.ColumnName);
-					If FoundKinds <> Undefined Then
-						StringCondition = StringCondition + " AND MappingCatalog.Kind.Description = """ + FoundKinds.Ref.Description + """";
-					EndIf;
-					
-					SelectionWhere.Add("MappingCatalog.Presentation <> """"");
-					
-					SeparatorAnd = " And ";
-					Continue;
-					
-				ElsIf StrStartsWith(Column.ColumnName, "AdditionalAttribute_") Then
-					CatalogColumnName = "Value";
-					TabularSection = "AdditionalAttributes";
-					StringCondition = StringCondition + SeparatorAnd + " MappingCatalog.Value =  MappingTable." + Column.ColumnName;
-					
-					ColumnType = Column.ColumnType.Types()[0];
-					If TypeOf(ColumnType) = Type("String") And Column.ColumnType.StringQualifiers.Length = 0 Then
-						Continue; // It is not allowed to compare lines of unlimited length.
-					EndIf;
-					
-					ColumnTypeObjects = Metadata.FindByType(ColumnType);
-					If ColumnTypeObjects <> Undefined Then      
-						TemplateWhere = "MappingCatalog.Value <> VALUE(%1.EmptyRef)";
-						SelectionWhere.Add(StringFunctionsClientServer.SubstituteParametersToString(TemplateWhere, ColumnTypeObjects.FullName()));
-					EndIf;
-					SeparatorAnd = " And ";
-					Continue;
+			If StrStartsWith(Column.ColumnName, "ContactInformation_") Then
+				
+				CIKindName = StandardSubsystemsServer.TransformAdaptedColumnDescriptionToString(
+					Mid(Column.ColumnName, StrLen("ContactInformation_") + 1));
+				FoundKinds = ContactInformationKinds.Find(CIKindName, "Description");
+				
+				TabularSection = "ContactInformation";
+				StringCondition = StringFunctionsClientServer.SubstituteParametersToString(ConditionTemplateContactDetails, Column.ColumnName);
+				If FoundKinds <> Undefined Then
+					StringCondition = StringCondition + StringFunctionsClientServer.SubstituteParametersToString(
+						" AND MappingCatalog.Kind.Description = ""%1""", FoundKinds.Ref.Description);
 				EndIf;
+				ConditionStrings.Add(StringCondition);
+				FilterWhere.Add("MappingCatalog.Presentation <> """"");
+				Continue;
 				
-				CatalogColumnName = "Ref." + Column.ColumnName;
+			ElsIf StrStartsWith(Column.ColumnName, "AdditionalAttribute_") Then
+				CatalogColumnName = "Value";
+				TabularSection = "AdditionalAttributes";
+				ConditionStrings.Add(StringFunctionsClientServer.SubstituteParametersToString(ConditionTemplateAdditionalAttributes, Column.ColumnName));
 				
 				ColumnType = Column.ColumnType.Types()[0];
-				If ColumnType = Type("String") Then 
-					TemplateWhere = "MappingCatalog.%1 <> """"";
-					If Column.ColumnType.StringQualifiers.Length = 0 Then
-						StringCondition = StringCondition + SeparatorAnd + "CAST(MappingCatalog." + CatalogColumnName
-							+ " AS STRING(500)) = CAST(MappingTable." + Column.ColumnName + " AS  STRING(500))";
-					Else
-						StringCondition = StringCondition + SeparatorAnd + "MappingCatalog." + CatalogColumnName
-							+ " = MappingTable." + Column.ColumnName;
-					EndIf;
-					SelectionWhere.Add(StringFunctionsClientServer.SubstituteParametersToString(TemplateWhere, CatalogColumnName));
-				ElsIf ColumnType = Type("Number") Then
-					StringCondition = StringCondition + SeparatorAnd + "MappingCatalog." + CatalogColumnName + " =  MappingTable." + Column.ColumnName;
-				ElsIf ColumnType = Type("Date") Then 
-					StringCondition = StringCondition + SeparatorAnd + "MappingCatalog." + CatalogColumnName + " =  MappingTable." + Column.ColumnName;
-				ElsIf ColumnType = Type("Boolean") Then 
-					StringCondition = StringCondition + SeparatorAnd + "MappingCatalog." + CatalogColumnName + " =  MappingTable." + Column.ColumnName;
-				Else
-					InfoObject = MetadataObjectInfoByType(ColumnType);
-					If InfoObject.ObjectType = "Catalog" Then
-						Catalog = Metadata.Catalogs.Find(InfoObject.ObjectName); // MetadataObjectCatalog
-						ConditionTextCatalog = "";
-						SeparatorOR = "";
-						For Each InputString In Catalog.InputByString Do 
-							If InputString.Name = "Code" And Not Catalog.Autonumbering Then 
-								InputByStringConditionText = "MappingCatalog." + CatalogColumnName + ".Code " + ComparisonTypeSSL + " MappingTable." + Column.ColumnName;
-							Else
-								InputByStringConditionText = "MappingCatalog." + CatalogColumnName + "." + InputString.Name  + ComparisonTypeSSL + " MappingTable." + Column.ColumnName;
-							EndIf;
-							ConditionTextCatalog = ConditionTextCatalog + SeparatorOR + InputByStringConditionText;
-							SeparatorOR = " OR ";
-						EndDo;
-						StringCondition = StringCondition + SeparatorAnd + " ( "+ ConditionTextCatalog + " )";
-					ElsIf InfoObject.ObjectType = "Enum" Then
-						StringCondition = StringCondition + SeparatorAnd + "MappingCatalog." + CatalogColumnName + " =  MappingTable." + Column.ColumnName;	
-					EndIf;
+				If TypeOf(ColumnType) = Type("String") And Column.ColumnType.StringQualifiers.Length = 0 Then
+					Continue; // It is not allowed to compare lines of unlimited length.
 				EndIf;
 				
+				ColumnTypeObjects = Metadata.FindByType(ColumnType);
+				If ColumnTypeObjects <> Undefined Then      
+					TemplateWhere = "MappingCatalog.Value <> VALUE(%1.EmptyRef)";
+					FilterWhere.Add(StringFunctionsClientServer.SubstituteParametersToString(TemplateWhere, ColumnTypeObjects.FullName()));
+				EndIf;
+				Continue;
 			EndIf;
 			
-			SeparatorAnd = " And ";
+			CatalogColumnName = "Ref." + Column.ColumnName;
+			
+			ColumnType = Column.ColumnType.Types()[0];
+			If ColumnType = Type("String") Then 
+				If Column.ColumnType.StringQualifiers.Length = 0 Then
+					ConditionStrings.Add(StringFunctionsClientServer.SubstituteParametersToString(
+						"CAST(MappingCatalog.%1 AS STRING(500)) = CAST(MappingTable.%2 AS  STRING(500))", 
+						CatalogColumnName, Column.ColumnName));
+				Else
+					ConditionStrings.Add(StringFunctionsClientServer.SubstituteParametersToString(
+						"MappingCatalog.%1 = MappingTable.%2", CatalogColumnName, Column.ColumnName));
+				EndIf;
+				TemplateWhere = "MappingCatalog.%1 <> """"";
+				FilterWhere.Add(StringFunctionsClientServer.SubstituteParametersToString(TemplateWhere, CatalogColumnName));
+			ElsIf ColumnType = Type("Number") Or ColumnType = Type("Date") Or ColumnType = Type("Boolean") Then
+				ConditionStrings.Add(StringFunctionsClientServer.SubstituteParametersToString(
+					"MappingCatalog.%1 =  MappingTable.%2", CatalogColumnName, Column.ColumnName));
+			Else
+				InfoObject = MetadataObjectInfoByType(ColumnType);
+				If InfoObject.ObjectType = "Catalog" Then
+					ConditionTextCatalog = New Array;
+					Catalog = Metadata.Catalogs.Find(InfoObject.ObjectName); // MetadataObjectCatalog
+					For Each InputString In Catalog.InputByString Do 
+						If InputString.Name = "Code" And Not Catalog.Autonumbering Then 
+							InputByStringConditionText = StringFunctionsClientServer.SubstituteParametersToString(
+								"MappingCatalog.%1.Code %2 MappingTable.%3", // 
+								CatalogColumnName, ComparisonTypeSSL, Column.ColumnName);
+						Else
+							InputByStringConditionText = StringFunctionsClientServer.SubstituteParametersToString(
+								"MappingCatalog.%1.%2 %3 MappingTable.%4", // 
+								CatalogColumnName, InputString.Name, ComparisonTypeSSL, Column.ColumnName);
+						EndIf;
+						ConditionTextCatalog.Add(InputByStringConditionText);
+					EndDo;
+					ConditionStrings.Add(" ( " + StrConcat(ConditionTextCatalog, " OR ") + " )");
+				ElsIf InfoObject.ObjectType = "Enum" Then
+					ConditionStrings.Add(StringFunctionsClientServer.SubstituteParametersToString(
+						"MappingCatalog.%1 =  MappingTable.%2", CatalogColumnName, Column.ColumnName));	
+				EndIf;
+			EndIf;
 			
 		EndIf;
 	EndDo;
 	
 	Conditions = New Structure("JoinCondition , Where, TabularSection");
-	Conditions.JoinCondition  = StringCondition;
-	Conditions.Where = StrConcat(SelectionWhere, " And ");
+	Conditions.JoinCondition  = StrConcat(ConditionStrings, " And ");
+	Conditions.Where = StrConcat(FilterWhere, " And ");
 	Conditions.TabularSection = TabularSection;
 	Return Conditions;
 	
@@ -1886,7 +1854,7 @@ Procedure PutDataInMappingTable(ImportedDataAddress, TabularSectionCopyAddress, 
 			NewRow = Rows[0];
 			For Each Column In DataToImport.Columns Do
 				If Column.Name <> "Id" And Column.Name <> "RowMappingResult" And Column.Name <> "ErrorDescription" Then
-					NewRow["IND" + Column.Name] = String[Column.Name];
+					NewRow["PL_" + Column.Name] = String[Column.Name];
 				EndIf;
 			EndDo;
 		EndIf;
@@ -2400,8 +2368,8 @@ Procedure CreateMappingTableByColumnsInformationForTS()
 	EndDo;
 	
 	For Each Column In ColumnsInformation Do
-		TemporarySpecification.Columns.Add("IND" + Column.ColumnName, StringType, Column.ColumnPresentation);
-		AttributesArray.Add(New FormAttribute("IND" + Column.ColumnName, StringType, "DataMappingTable", Column.ColumnPresentation));
+		TemporarySpecification.Columns.Add("PL_" + Column.ColumnName, StringType, Column.ColumnPresentation);
+		AttributesArray.Add(New FormAttribute("PL_" + Column.ColumnName, StringType, "DataMappingTable", Column.ColumnPresentation));
 	EndDo;
 	
 	ChangeAttributes(AttributesArray);
@@ -2417,7 +2385,7 @@ Procedure CreateMappingTableByColumnsInformationForTS()
 			TSDataToImportColumnsGroup = Items.Add("DataToImport_" + Column.Name , Type("FormGroup"), DataToImportColumnsGroup);
 			TSDataToImportColumnsGroup.Group = ColumnsGroup.Vertical;
 			Parent = TSDataToImportColumnsGroup;
-		ElsIf StrStartsWith(Column.Name, "IND") Then
+		ElsIf StrStartsWith(Column.Name, "PL_") Then
 			Continue;
 		Else
 			Parent = DataToImportColumnsGroup;
@@ -2476,7 +2444,7 @@ Procedure CreateMappingTableByColumnsInformationForTS()
 			
 			If GroupColumns.Count() = 1 Then
 				
-				ColumnLevel2 = TemporarySpecification.Columns.Find("IND" + GroupColumns[0].ColumnName);
+				ColumnLevel2 = TemporarySpecification.Columns.Find("PL_" + GroupColumns[0].ColumnName);
 				If ColumnLevel2 <> Undefined Then 
 					NewItem = Items.Add(ColumnLevel2.Name, Type("FormField"), Parent); // FormFieldExtensionForATextBox
 					NewItem.Type = FormFieldType.InputField;
@@ -2498,7 +2466,7 @@ Procedure CreateMappingTableByColumnsInformationForTS()
 				
 				Prefix = NStr("en = 'File:';");
 				For Each GroupColumn In GroupColumns Do
-					Column2 = TemporarySpecification.Columns.Find("IND" + GroupColumn.ColumnName);
+					Column2 = TemporarySpecification.Columns.Find("PL_" + GroupColumn.ColumnName);
 					If Column2 <> Undefined Then 
 						NewItem = Items.Add(Column2.Name, Type("FormField"), Parent);  // FormFieldExtensionForATextBox
 						NewItem.Type = FormFieldType.InputField;
@@ -2507,7 +2475,7 @@ Procedure CreateMappingTableByColumnsInformationForTS()
 						NewItem.ReadOnly = True;
 						NewItem.TextColor = StyleColors.NoteText;
 						
-						If StrLen(Column.Name) > 3 And StrStartsWith(Column.Name, "IND") Then
+						If StrLen(Column.Name) > 3 And StrStartsWith(Column.Name, "PL_") Then
 						Filter = New Structure("ColumnName", Mid(Column.Name, 4));
 						Columns = ColumnsInformation.FindRows(Filter);
 							If Columns.Count() > 0 Then 
@@ -2622,7 +2590,7 @@ EndProcedure
 &AtClient
 Procedure AfterFileExtensionChoice(Result, Parameter) Export
 	If ValueIsFilled(Result) Then
-		AddressInTempStorage = ThisObject.UUID;
+		AddressInTempStorage = UUID;
 		SaveTemplateToTempStorage(Result, AddressInTempStorage);
 		FileSavingParameters = FileSystemClient.FileSavingParameters();
 		FileSystemClient.SaveFile(Undefined, AddressInTempStorage,
@@ -2780,7 +2748,7 @@ Function ImportFileWithDataToSpreadsheetDocumentAtServer(TempStorageAddress, Ext
 	ServerCallParameters.Insert("TempFileName", TempFileName);
 	ServerCallParameters.Insert("ColumnsInformation", FormAttributeToValue("ColumnsInformation"));
 	
-	BackgroundExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(ThisObject.UUID);
+	BackgroundExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	BackgroundExecutionParameters.BackgroundJobDescription =  StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = '%1 subsystem: import data from file using the server method';"), "ImportDataFromFile");
 	
@@ -2914,7 +2882,7 @@ Function GenerateReportOnImport(ReportType = "AllItems",  CalculateProgressPerce
 	ServerCallParameters.Insert("CalculateProgressPercent", CalculateProgressPercent);
 	ServerCallParameters.Insert("ColumnsInformation", TableColumnsInformation);
 	
-	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(ThisObject.UUID);
+	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Create report on data import from file';");
 	
 	Return TimeConsumingOperations.ExecuteInBackground("DataProcessors.ImportDataFromFile.GenerateReportOnBackgroundImport",

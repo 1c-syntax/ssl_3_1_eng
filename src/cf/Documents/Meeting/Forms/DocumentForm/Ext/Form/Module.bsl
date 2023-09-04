@@ -30,7 +30,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ContactsToInteractivelyCreateList = Interactions.CreateValueListOfInteractivelyCreatedContacts();
 	Items.CreateContact.Visible      = ContactsToInteractivelyCreateList.Count() > 0;
 	
-	// 
 	Interactions.PrepareNotifications(ThisObject, Parameters);
 	
 	// StandardSubsystems.Properties
@@ -230,7 +229,7 @@ Procedure ParticipantsDetailsPagesAdditionalOnCurrentPageChange(Item, CurrentPag
 	// StandardSubsystems.Properties
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties")
 		And CurrentPage.Name = "AdditionalAttributesPage"
-		And Not ThisObject.PropertiesParameters.DeferredInitializationExecuted Then
+		And Not PropertiesParameters.DeferredInitializationExecuted Then
 		
 		PropertiesExecuteDeferredInitialization();
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
@@ -446,7 +445,7 @@ EndProcedure
 #Region FormCommandHandlers
 
 &AtClient
-Procedure CreateContactComplete()
+Procedure CreateContactExecute()
 	
 	CurrentData = Items.Attendees.CurrentData;
 	If CurrentData = Undefined Then

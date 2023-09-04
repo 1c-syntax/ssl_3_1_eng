@@ -599,7 +599,7 @@ Procedure DetailsPagesAdditionalOnCurrentPageChange(Item, CurrentPage)
 	// StandardSubsystems.Properties
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties")
 		And CurrentPage.Name = "AdditionalAttributesPage"
-		And Not ThisObject.PropertiesParameters.DeferredInitializationExecuted Then
+		And Not PropertiesParameters.DeferredInitializationExecuted Then
 		
 		PropertiesExecuteDeferredInitialization();
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
@@ -881,7 +881,7 @@ Procedure SendForwardExecute(Command)
 	ClearMessages();
 	
 	If Object.EmailStatus = PredefinedValue("Enum.OutgoingEmailStatuses.Sent") Then
-		ForwardExecute();
+		ForwardMailExecute();
 		Return;
 	EndIf;
 		
@@ -1778,7 +1778,6 @@ EndFunction
 &AtServer
 Function GenerateOutgoingMessageHTML(Selection, HTMLDocumentToEdit, CurrentObject)
 	
-	// Getting HTMLDocument of the incoming email.
 	If Selection.TextType = Enums.EmailTextTypes.PlainText Then
 		HTMLDocument = Interactions.GetHTMLDocumentFromPlainText(Selection.Text);
 	Else
@@ -1806,7 +1805,6 @@ EndFunction
 &AtServer
 Function GenerateOutgoingMessagePlainText(SelectionIncomingEmailData, CurrentObject)
 
-	// Generating an incoming email header.
 	StringHeader1 = NStr("en = '---------- Forwarded message ---------';");
 	
 	StringHeader1 = StringHeader1 + Chars.LF+ NStr("en = 'From';") + ": "+ SelectionIncomingEmailData.SenderPresentation
@@ -1846,9 +1844,6 @@ EndFunction
 
 #Region Other
 
-// Determines an email edit method
-// and displays the email text according to the edit method.
-//
 &AtServer
 Procedure DetermineEmailEditMethod()
 
@@ -1951,7 +1946,6 @@ Procedure DetermineEmailEditMethod()
 	
 EndProcedure
 
-// Processes passed parameters when creating an email.
 &AtServer
 Procedure ProcessPassedParameters(PassedParameters)
 	
@@ -2141,7 +2135,6 @@ Procedure SetTheMessageTextAccordingToThePassedParameters(PassedParameters)
 	
 EndProcedure
 
-// Defines whether the base email needs to be displayed.
 &AtServer
 Procedure DisplayBaseEmail()
 	
@@ -2239,7 +2232,7 @@ Procedure SendExecute()
 EndProcedure
 
 &AtClient
-Procedure ForwardExecute()
+Procedure ForwardMailExecute()
 	
 	Basis = New Structure("Basis,Command", Object.Ref, "ForwardMail");
 	OpeningParameters = New Structure("Basis", Basis);
@@ -2394,7 +2387,6 @@ Procedure EditRecipientsList(ToSelect, SelectionGroup = "")
 	OpeningParameters.Insert("MailMessage", Object.Ref);
 	OpeningParameters.Insert("DefaultGroup", ?(IsBlankString(SelectionGroup), "Whom", SelectionGroup));
 	
-	// Opening a form to edit an addressee list.
 	NotificationAfterClose = New NotifyDescription("AfterFillAddressBook", ThisObject);
 	CommonFormName = ?(ToSelect, "CommonForm.AddressBook", "CommonForm.ContactsClarification");
 	
@@ -2425,14 +2417,12 @@ Procedure FillSelectedRecipientsAfterChoice(ValueSelected)
 	
 	ToSelect = (Object.EmailStatus <> PredefinedValue("Enum.OutgoingEmailStatuses.Sent"));
 	
-	// Set addressees.
 	If ToSelect Then
 		FillSelectedRecipients(TabularSectionsMap, ValueSelected);
 	Else
 		FillClarifiedContacts(ValueSelected);
 	EndIf;
 	
-	// 
 	InteractionsClientServer.CheckContactsFilling(Object, ThisObject, "OutgoingEmail");
 	ContactsChanged = True;
 	Modified = True;

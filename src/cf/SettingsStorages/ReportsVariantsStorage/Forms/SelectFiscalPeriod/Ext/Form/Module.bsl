@@ -222,7 +222,7 @@ Procedure SelectDay(Command)
 	FormParameters.Insert("EndOfPeriod",     EndOfPeriod);
 	FormParameters.Insert("LowLimit", LowLimit);
 	
-	NotifyDescription = New NotifyDescription("ChooseTheDayOfCompletion", ThisObject);
+	NotifyDescription = New NotifyDescription("SelectDayCompletion", ThisObject);
 	OpenForm(
 		"SettingsStorage.ReportsVariantsStorage.Form.SelectFiscalPeriodDay", 
 		FormParameters, 
@@ -324,7 +324,7 @@ Procedure SelectAQuarter(QuarterNumber)
 EndProcedure
 
 &AtClient
-Procedure ChooseTheDayOfCompletion(Result, AdditionalParameters) Export
+Procedure SelectDayCompletion(Result, AdditionalParameters) Export
 	
 	If Result <> Undefined Then
 		BeginOfPeriod = Result.BeginOfPeriod;

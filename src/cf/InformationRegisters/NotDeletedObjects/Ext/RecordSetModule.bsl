@@ -26,7 +26,7 @@ Procedure BeforeWrite(Cancel, Replacing)
 		|	CurrentRecordSet.Object AS Object,
 		|	1 AS AttemptsNumber,
 		|	&CurrentAttemptTime AS LastAttemptTime
-		|INTO CurrentSet
+		|INTO Current_Set
 		|FROM
 		|	&CurrentRecordSet AS CurrentRecordSet
 		|;
@@ -48,16 +48,16 @@ Procedure BeforeWrite(Cancel, Replacing)
 		|			(SELECT
 		|				Tab.Object
 		|			FROM
-		|				CurrentSet AS Tab)
+		|				Current_Set AS Tab)
 		|
 		|	UNION ALL
 		|
 		|	SELECT
-		|		CurrentSet.Object,
-		|		CurrentSet.AttemptsNumber,
-		|		CurrentSet.LastAttemptTime
+		|		Current_Set.Object,
+		|		Current_Set.AttemptsNumber,
+		|		Current_Set.LastAttemptTime
 		|	FROM
-		|		CurrentSet AS CurrentSet) AS Table
+		|		Current_Set AS Current_Set) AS Table
 		|GROUP BY
 		|	Table.Object";
 	

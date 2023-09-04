@@ -1387,7 +1387,7 @@ Procedure DeleteSynchronizationSetting(ExchangePlanName, CorrespondentNodeCode) 
 			
 			Try
 				
-				FTPSettings = DataExchangeServer.FTPConnectionSettings();
+				FTPSettings = DataExchangeServer.FTPConnectionSetup();
 				FTPSettings.Server               = TransportSettings.FTPServer;
 				FTPSettings.Port                 = TransportSettings.FTPConnectionPort;
 				FTPSettings.UserName      = TransportSettings.FTPConnectionUser;
@@ -1397,7 +1397,7 @@ Procedure DeleteSynchronizationSetting(ExchangePlanName, CorrespondentNodeCode) 
 				
 				FTPConnection = DataExchangeServer.FTPConnection(FTPSettings);
 				
-				If DataExchangeServer.FTPDirectoryExists(TransportSettings.FTPPath, TransportSettings.RelativeInformationExchangeDirectory, FTPConnection) Then
+				If DataExchangeServer.FTPDirectoryExist(TransportSettings.FTPPath, TransportSettings.RelativeInformationExchangeDirectory, FTPConnection) Then
 					FTPConnection.Delete(TransportSettings.FTPPath);
 				EndIf;
 				
@@ -2097,7 +2097,7 @@ Procedure UpdateDataAreaTransportSettings(Parameters)
 		
 		// Data exchange over a  FTP server.
 		
-		FTPSettings = DataExchangeServer.FTPConnectionSettings();
+		FTPSettings = DataExchangeServer.FTPConnectionSetup();
 		FTPSettings.Server               = TransportSettings.FTPServer;
 		FTPSettings.Port                 = TransportSettings.FTPConnectionPort;
 		FTPSettings.UserName      = TransportSettings.FTPConnectionUser;
@@ -2110,7 +2110,7 @@ Procedure UpdateDataAreaTransportSettings(Parameters)
 		AbsoluteDataExchangeDirectory = CommonClientServer.GetFullFileName(
 			TransportSettings.FTPPath,
 			RelativeInformationExchangeDirectory);
-		If Not DataExchangeServer.FTPDirectoryExists(AbsoluteDataExchangeDirectory, RelativeInformationExchangeDirectory, FTPConnection) Then
+		If Not DataExchangeServer.FTPDirectoryExist(AbsoluteDataExchangeDirectory, RelativeInformationExchangeDirectory, FTPConnection) Then
 			FTPConnection.CreateDirectory(AbsoluteDataExchangeDirectory);
 		EndIf;
 		
@@ -2611,7 +2611,7 @@ Function CorrespondentVersions(Val InfobaseNode)
 	
 	ConnectionParameters = New Structure;
 	ConnectionParameters.Insert("URL",      SettingsStructure.WSWebServiceURL);
-	ConnectionParameters.Insert("UserName", SettingsStructure.WSUsername);
+	ConnectionParameters.Insert("UserName", SettingsStructure.WSUserName);
 	ConnectionParameters.Insert("Password", SettingsStructure.WSPassword);
 	
 	Return Common.GetInterfaceVersions(ConnectionParameters, "DataExchangeSaaS");

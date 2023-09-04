@@ -462,7 +462,7 @@ Procedure CompleteInfobaseUpdate(Result, AdditionalParameters) Export
 	EndIf;
 	
 	AdditionalParameters = New Structure;
-	AdditionalParameters.Insert("UpdateDetailsDocument", Undefined);
+	AdditionalParameters.Insert("DocumentUpdatesDetails", Undefined);
 	AdditionalParameters.Insert("BriefErrorDescription", Result.BriefErrorDescription);
 	AdditionalParameters.Insert("DetailErrorDescription", Result.DetailErrorDescription);
 	AdditionalParameters.Insert("UpdateStartTime", UpdateStartTime);
@@ -485,7 +485,7 @@ Procedure CompleteInfobaseUpdate(Result, AdditionalParameters) Export
 		
 	EndIf;
 	
-	UpdateInfobaseCompletion(AdditionalParameters);
+	UpdateInfobase1Completion(AdditionalParameters);
 	
 EndProcedure
 
@@ -509,7 +509,7 @@ EndProcedure
 Procedure UpdateInfobaseWhenCannotSetExclusiveMode(AdditionalParameters)
 	
 	If AdditionalParameters.HandlersExecutionFlag <> "ExclusiveModeSettingError" Then
-		UpdateInfobaseCompletion(AdditionalParameters);
+		UpdateInfobase1Completion(AdditionalParameters);
 		Return;
 	EndIf;
 	
@@ -557,7 +557,7 @@ Procedure SetIBLockParametersWhenCannotSetExclusiveMode()
 EndProcedure
 
 &AtClient
-Procedure UpdateInfobaseCompletion(AdditionalParameters)
+Procedure UpdateInfobase1Completion(AdditionalParameters)
 	
 	If ValueIsFilled(AdditionalParameters.BriefErrorDescription) Then
 		
@@ -567,7 +567,7 @@ Procedure UpdateInfobaseCompletion(AdditionalParameters)
 		
 	EndIf;
 	
-	UpdateInfobaseCompletionServer(AdditionalParameters);
+	UpdateInfobase1CompletionServer(AdditionalParameters);
 	RefreshReusableValues();
 	
 	CloseForm(False, False);
@@ -575,7 +575,7 @@ Procedure UpdateInfobaseCompletion(AdditionalParameters)
 EndProcedure
 
 &AtServer
-Procedure UpdateInfobaseCompletionServer(AdditionalParameters)
+Procedure UpdateInfobase1CompletionServer(AdditionalParameters)
 	
 	// Если обновление ИБ завершилось - 
 	InfobaseUpdateInternal.UnlockIB(IBLock);

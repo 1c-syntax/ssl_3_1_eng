@@ -104,7 +104,7 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 		|If unfilled mandatory attributes are found in registers,
 		| generally, you only need to fill in the corresponding fields in the recorder document to eliminate this issue.';");
 	Validation.Id                = "StandardSubsystems.CheckBlankMandatoryAttributes";
-	Validation.CheckHandler           = "AccountingAuditInternal.CheckUnfilledRequiredAttributes";
+	Validation.HandlerChecks           = "AccountingAuditInternal.CheckUnfilledRequiredAttributes";
 	Validation.AccountingChecksContext = "SystemChecks";
 	Validation.SupportsRandomCheck = True;
 	Validation.isDisabled                      = True;
@@ -139,7 +139,7 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 		+ NStr("en = 'If some dead references are detected in registers, usually, it is enough to remove dead references
 		|in recording documents to eliminate the issue.';");
 	Validation.Id                = "StandardSubsystems.CheckReferenceIntegrity1";
-	Validation.CheckHandler           = "AccountingAuditInternal.CheckReferenceIntegrity";
+	Validation.HandlerChecks           = "AccountingAuditInternal.CheckReferenceIntegrity";
 	Validation.AccountingChecksContext = "SystemChecks";
 	Validation.SupportsRandomCheck = True;
 	Validation.isDisabled                      = True;
@@ -152,7 +152,7 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 		|For distributed infobases, run the repair procedure for the master node only.
 		|After that, perform synchronization with subordinate nodes.';");
 	Validation.Id                  = "StandardSubsystems.CheckCircularRefs1";
-	Validation.CheckHandler             = "AccountingAuditInternal.CheckCircularRefs";
+	Validation.HandlerChecks             = "AccountingAuditInternal.CheckCircularRefs";
 	Validation.GoToCorrectionHandler = "Report.AccountingCheckResults.Form.AutoCorrectIssues";
 	Validation.AccountingChecksContext   = "SystemChecks";
 	Validation.isDisabled                      = True;
@@ -171,7 +171,7 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 			|After that, perform synchronization with subordinate nodes.';");
 	EndIf;
 	Validation.Id                  = "StandardSubsystems.CheckNoPredefinedItems";
-	Validation.CheckHandler             = "AccountingAuditInternal.CheckMissingPredefinedItems";
+	Validation.HandlerChecks             = "AccountingAuditInternal.CheckMissingPredefinedItems";
 	Validation.GoToCorrectionHandler = "Report.AccountingCheckResults.Form.AutoCorrectIssues";
 	Validation.AccountingChecksContext   = "SystemChecks";
 	Validation.isDisabled                      = True;
@@ -187,7 +187,7 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 			|After that, perform synchronization with subordinate nodes.';");
 	EndIf;
 	Validation.Id                = "StandardSubsystems.CheckDuplicatePredefinedItems1";
-	Validation.CheckHandler           = "AccountingAuditInternal.CheckDuplicatePredefinedItems";
+	Validation.HandlerChecks           = "AccountingAuditInternal.CheckDuplicatePredefinedItems";
 	Validation.AccountingChecksContext = "SystemChecks";
 	Validation.isDisabled                    = True;
 	
@@ -208,7 +208,7 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 			|After that, perform synchronization with subordinate nodes.';");
 	EndIf;
 	Validation.Id                = "StandardSubsystems.CheckNoPredefinedExchangePlansNodes";
-	Validation.CheckHandler           = "AccountingAuditInternal.CheckPredefinedExchangePlanNodeAvailability";
+	Validation.HandlerChecks           = "AccountingAuditInternal.CheckPredefinedExchangePlanNodeAvailability";
 	Validation.AccountingChecksContext = "SystemChecks";
 	Validation.isDisabled                    = True;
 	
@@ -265,7 +265,7 @@ EndFunction
 //                                                 check all).
 //      * IssuesLimit                           - Number - a number of the checked objects. The default value is 1000. 
 //                                                 If 0 is specified, check all objects.
-//      * CheckHandler                     - String - a name of the export handler procedure of the server common 
+//      * HandlerChecks                     - String - a name of the export handler procedure of the server common 
 //                                                 module as ModuleName.ProcedureName. 
 //      * GoToCorrectionHandler         - String - a name of the export handler procedure for client common 
 //                                                 module to start correcting an issue in the form of "ModuleName.ProcedureName.
@@ -294,7 +294,7 @@ Function NewChecksTable() Export
 	ChecksColumns.Add("Id",                          New TypeDescription("String", , , , New StringQualifiers(256)));
 	ChecksColumns.Add("CheckStartDate",                     New TypeDescription("Date", , , , , New DateQualifiers(DateFractions.DateTime)));
 	ChecksColumns.Add("IssuesLimit",                           New TypeDescription("Number", , , New NumberQualifiers(8, 0, AllowedSign.Nonnegative)));
-	ChecksColumns.Add("CheckHandler",                     New TypeDescription("String", , , , New StringQualifiers(256)));
+	ChecksColumns.Add("HandlerChecks",                     New TypeDescription("String", , , , New StringQualifiers(256)));
 	ChecksColumns.Add("GoToCorrectionHandler",         New TypeDescription("String", , , , New StringQualifiers(256)));
 	ChecksColumns.Add("NoCheckHandler",                 New TypeDescription("Boolean"));
 	ChecksColumns.Add("ImportanceChangeDenied",             New TypeDescription("Boolean"));

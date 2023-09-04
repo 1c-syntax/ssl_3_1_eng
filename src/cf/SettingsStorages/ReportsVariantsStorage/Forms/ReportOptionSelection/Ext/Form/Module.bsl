@@ -133,7 +133,7 @@ Procedure ReportOptionsTreeBeforeDeleteRow(Item, Cancel)
 	
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("Variant", Variant);
-	Handler = New NotifyDescription("ReportOptionsTreeBeforeDeleteCompletion", ThisObject, AdditionalParameters);
+	Handler = New NotifyDescription("ReportOptionsTreeBeforeDeleteRowCompletion", ThisObject, AdditionalParameters);
 	ShowQueryBox(Handler, QueryText, QuestionDialogMode.YesNo, 60, DialogReturnCode.Yes);
 EndProcedure
 
@@ -287,7 +287,7 @@ EndProcedure
 //         ** PictureIndex - Number
 //
 &AtClient
-Procedure ReportOptionsTreeBeforeDeleteCompletion(Response, AdditionalParameters) Export
+Procedure ReportOptionsTreeBeforeDeleteRowCompletion(Response, AdditionalParameters) Export
 	If Response = DialogReturnCode.Yes Then
 		DeleteOptionAtServer(AdditionalParameters.Variant.Ref, AdditionalParameters.Variant.PictureIndex);
 	EndIf;

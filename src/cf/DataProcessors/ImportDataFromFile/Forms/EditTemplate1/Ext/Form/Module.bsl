@@ -53,7 +53,7 @@ EndProcedure
 
 &AtClient
 Procedure ResetSettings(Command)
-	Notification = New NotifyDescription("ClearSettingsCompletion", ThisObject, MappingObjectName);
+	Notification = New NotifyDescription("ResetSettingsCompletion", ThisObject, MappingObjectName);
 	ShowQueryBox(Notification, NStr("en = 'Do you want to revert to the default column settings?';"), QuestionDialogMode.YesNo);
 EndProcedure
 
@@ -117,7 +117,7 @@ Procedure SetDataAppearance()
 EndProcedure
 
 &AtClient
-Procedure ClearSettingsCompletion(QuestionResult, MappingObjectName) Export
+Procedure ResetSettingsCompletion(QuestionResult, MappingObjectName) Export
 	If QuestionResult = DialogReturnCode.Yes Then
 		ResetColumnsSettings(MappingObjectName);
 	EndIf;

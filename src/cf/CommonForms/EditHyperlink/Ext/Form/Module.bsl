@@ -12,7 +12,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	ThisObject.ReadOnly = Parameters.ReadOnly;
+	ReadOnly = Parameters.ReadOnly;
 	
 	Items.Ref.TypeRestriction  = Parameters.ValueType;
 	RefTypeString             = Parameters.RefTypeString;

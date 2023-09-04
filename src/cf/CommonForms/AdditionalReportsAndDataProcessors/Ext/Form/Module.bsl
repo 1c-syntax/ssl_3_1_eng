@@ -201,7 +201,7 @@ Procedure ExecuteDataProcessorServerMethod()
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	WaitSettings.OutputIdleWindow = False;
 	
-	Handler = New NotifyDescription("RunDataProcessorServerMethodCompletion", ThisObject);
+	Handler = New NotifyDescription("ExecuteDataProcessorServerMethodCompletion", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(Job, Handler, WaitSettings);
 	
 EndProcedure
@@ -224,7 +224,7 @@ Function RunBackgroundJob1(Val CommandToExecute, Val UUID)
 EndFunction
 
 &AtClient
-Procedure RunDataProcessorServerMethodCompletion(Job, AdditionalParameters) Export
+Procedure ExecuteDataProcessorServerMethodCompletion(Job, AdditionalParameters) Export
 	
 	If Job = Undefined Then
 		Return;

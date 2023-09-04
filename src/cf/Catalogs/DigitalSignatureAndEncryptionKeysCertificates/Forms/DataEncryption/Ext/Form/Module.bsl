@@ -108,7 +108,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		
 	ElsIf Upper(EventName) = Upper("ConfirmationPrepareData") And Source = UUID Then
 		DigitalSignatureInternalClient.GetDataForACloudSignature(
-			Parameter.TheHandlerIsAsFollows, Parameter.TheFormContext, 
+			Parameter.HandlerNext, Parameter.TheFormContext, 
 			Parameter.DataDetails, Parameter.Data, True);
 	
 	EndIf;
@@ -867,13 +867,13 @@ EndProcedure
 Procedure OnChangeCertificatesList()
 	
 	DigitalSignatureInternalClient.GetCertificatesThumbprintsAtClient(
-		New NotifyDescription("OnChangeCertificateListCompletion", ThisObject));
+		New NotifyDescription("OnChangeCertificatesListCompletion", ThisObject));
 	
 EndProcedure
 
 // Continues the OnChangeCertificatesList procedure.
 &AtClient
-Procedure OnChangeCertificateListCompletion(CertificatesThumbprintsAtClient, Context) Export
+Procedure OnChangeCertificatesListCompletion(CertificatesThumbprintsAtClient, Context) Export
 	
 	CertificateOnChangeAtServer(CertificatesThumbprintsAtClient, True);
 	

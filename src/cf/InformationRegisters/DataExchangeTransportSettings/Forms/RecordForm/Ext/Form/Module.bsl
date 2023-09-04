@@ -39,26 +39,26 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Common.DataSeparationEnabled() Then
 		
-		If ValueIsFilled(Record.WSPeerEndpoint) Then		
+		If ValueIsFilled(Record.WSCorrespondentEndpoint) Then		
 			Items.WSWebServiceURL.Visible = False;
 			Items.WSUserAndPassword.Visible = False;
 			Items.InternetAccessParameters.Visible = False;
 			
 			SetPrivilegedMode(True);
-			WSPeerEndpoint = String(Record.WSPeerEndpoint);
+			WSCorrespondentEndpoint = String(Record.WSCorrespondentEndpoint);
 			SetPrivilegedMode(True);
 		Else
-			Items.WSPeerEndpoint.Visible = False;
-			Items.WSPeerDataArea.Visible = False;
+			Items.WSCorrespondentEndpoint.Visible = False;
+			Items.WSCorrespondentDataArea.Visible = False;
 		EndIf;
 		
 		Items.TestWSConnection.Visible = False;
-		Items.WSPeerDataArea.ReadOnly = Not Users.IsFullUser(, True);
+		Items.WSCorrespondentDataArea.ReadOnly = Not Users.IsFullUser(, True);
 		
 	Else	
 						
-		Items.WSPeerEndpoint.Visible = False;
-		Items.WSPeerDataArea.Visible = False;
+		Items.WSCorrespondentEndpoint.Visible = False;
+		Items.WSCorrespondentDataArea.Visible = False;
 
 	EndIf;
 	
@@ -163,7 +163,7 @@ Procedure COMInfobaseOperatingModeOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure COMOperatingSystemAuthenticationOnChange(Item)
+Procedure COMOSAuthenticationOnChange(Item)
 	
 	OSAuthenticationOnChange();
 	
@@ -342,7 +342,7 @@ Procedure ExecuteExternalConnectionTest(Cancel)
 	ConnectionParameters.Insert("COMOperatingSystemAuthentication", Record.COMOperatingSystemAuthentication);
 	ConnectionParameters.Insert("COM1CEnterpriseServerSideInfobaseName",
 		Record.COM1CEnterpriseServerSideInfobaseName);
-	ConnectionParameters.Insert("COMUsername", Record.COMUsername);
+	ConnectionParameters.Insert("COMUserName", Record.COMUserName);
 	ConnectionParameters.Insert("COM1CEnterpriseServerName", Record.COM1CEnterpriseServerName);
 	ConnectionParameters.Insert("COMInfobaseDirectory", Record.COMInfobaseDirectory);
 	
@@ -500,7 +500,7 @@ EndProcedure
 &AtClient
 Procedure OSAuthenticationOnChange()
 	
-	Items.COMUsername.Enabled    = Not Record.COMOperatingSystemAuthentication;
+	Items.COMUserName.Enabled    = Not Record.COMOperatingSystemAuthentication;
 	Items.COMUserPassword.Enabled = Not Record.COMOperatingSystemAuthentication;
 	
 EndProcedure

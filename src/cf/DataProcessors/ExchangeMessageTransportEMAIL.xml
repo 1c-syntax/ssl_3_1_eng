@@ -108,7 +108,7 @@
 			</Attribute>
 			<Attribute uuid="168e3189-2676-4cdb-bc9d-78d85df51faf">
 				<Properties>
-					<Name>EMAIL_Account</Name>
+					<Name>EMAILAccount</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>

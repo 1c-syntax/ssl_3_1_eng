@@ -1135,7 +1135,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Set revocation list</v8:content>
+					<v8:content>Install revocation list</v8:content>
 				</v8:item>
 			</Title>
 			<Action>SetRevocationList</Action>

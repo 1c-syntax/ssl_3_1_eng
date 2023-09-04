@@ -100,9 +100,9 @@ EndFunction
 //  Returns:
 //     Boolean - 
 //
-Function ErrorFlag() Export
+Function FlagErrors() Export
 	
-	Return ExchangeComponents.ErrorFlag;
+	Return ExchangeComponents.FlagErrors;
 	
 EndFunction
 
@@ -255,7 +255,7 @@ Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 		UnlockDataForEdit(ExchangeComponents.CorrespondentNode);
 	EndIf;
 	
-	If ExchangeComponents.ErrorFlag Then
+	If ExchangeComponents.FlagErrors Then
 
 		Try
 			DeleteFiles(ExchangeFileName);
@@ -282,13 +282,13 @@ Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 	
 	If IsExchangeOverExternalConnection() Then
 		If DataProcessorForDataImport().DataImportMode = "ImportMessageForDataMapping" Then
-			If Not ExchangeComponents.ErrorFlag Then
+			If Not ExchangeComponents.FlagErrors Then
 				DataProcessorForDataImport().PutMessageForDataMapping(XMLExportData);
 			Else
 				DataProcessorForDataImport().PutMessageForDataMapping(Undefined);
 			EndIf;
 		Else
-			If Not ExchangeComponents.ErrorFlag Then
+			If Not ExchangeComponents.FlagErrors Then
 				If Common.HasObjectAttribute("DataImportedOverExternalConnection", DataProcessorForDataImport().Metadata())
 					And DataProcessorForDataImport().DataImportedOverExternalConnection Then
 					DataProcessorForDataImport().ToDownloadTheMessageDataExchange(XMLExportData);
@@ -406,7 +406,7 @@ Procedure RunDataImport(ImportParameters = Undefined) Export
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(
 			MessageString, ErrorProcessing.DetailErrorDescription(Information));
 		DataExchangeXDTOServer.WriteToExecutionProtocol(ExchangeComponents, MessageString, , , , , True);
-		ExchangeComponents.ErrorFlag = True;
+		ExchangeComponents.FlagErrors = True;
 	EndTry;
 	
 	DataExchangeInternal.DisableAccessKeysUpdate(True);
@@ -420,12 +420,12 @@ Procedure RunDataImport(ImportParameters = Undefined) Export
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(
 			MessageString, ErrorProcessing.DetailErrorDescription(Information));
 		DataExchangeXDTOServer.WriteToExecutionProtocol(ExchangeComponents, MessageString, , , , , True);
-		ExchangeComponents.ErrorFlag = True;
+		ExchangeComponents.FlagErrors = True;
 	EndTry;
 	
 	ExchangeComponents.ExchangeFile.Close();
 	
-	If Not ExchangeComponents.ErrorFlag Then
+	If Not ExchangeComponents.FlagErrors Then
 		// Checking data From / NewFrom.
 		CheckNodesCodes(DataAnalysisResultToExport, ExchangeComponents.CorrespondentNode);
 		
@@ -820,7 +820,7 @@ EndProcedure
 
 Procedure AfterOpenExportFile(Cancel = False)
 	
-	If ExchangeComponents.ErrorFlag Then
+	If ExchangeComponents.FlagErrors Then
 		ExchangeComponents.ExchangeFile = Undefined;
 		DataExchangeXDTOServer.FinishKeepExchangeProtocol(ExchangeComponents);
 		DataExchangeValuationOfPerformance.ExitApp(ExchangeComponents);

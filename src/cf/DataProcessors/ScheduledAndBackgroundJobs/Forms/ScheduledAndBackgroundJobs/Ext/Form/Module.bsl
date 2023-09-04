@@ -196,7 +196,7 @@ Procedure ScheduledJobsTableBeforeDeleteRow(Item, Cancel)
 		ShowMessageBox(, NStr("en = 'Predefined scheduled job cannot be deleted.';") );
 	Else
 		ShowQueryBox(
-			New NotifyDescription("ScheduledJobsTableBeforeDeleteEnd", ThisObject),
+			New NotifyDescription("ScheduledJobsTableBeforeDeleteRowCompletion", ThisObject),
 			NStr("en = 'Do you want to delete the scheduled job?';"), QuestionDialogMode.YesNo);
 	EndIf;
 	
@@ -298,7 +298,7 @@ Procedure ExecuteScheduledJobManually(Command)
 			
 			ShowQueryBox(
 				New NotifyDescription(
-					"ExecuteScheduledJobManuallyEnd", ThisObject, AllErrorsText),
+					"ExecuteScheduledJobManuallyCompletion", ThisObject, AllErrorsText),
 				ErrorTextTitle, Buttons);
 		Else
 			ShowMessageBox(, TrimAll(AllErrorsText.GetText()));
@@ -566,7 +566,7 @@ Procedure SetDisabledJobsVisibility(Show)
 EndProcedure
 
 &AtClient
-Procedure ScheduledJobsTableBeforeDeleteEnd(Response, Context) Export
+Procedure ScheduledJobsTableBeforeDeleteRowCompletion(Response, Context) Export
 	
 	If Response = DialogReturnCode.Yes Then
 		DeleteScheduledJobExecuteAtServer(
@@ -576,7 +576,7 @@ Procedure ScheduledJobsTableBeforeDeleteEnd(Response, Context) Export
 EndProcedure
 
 &AtClient
-Procedure ExecuteScheduledJobManuallyEnd(Response, AllErrorsText) Export
+Procedure ExecuteScheduledJobManuallyCompletion(Response, AllErrorsText) Export
 	
 	If Response = 1 Then
 		AllErrorsText.Show();
@@ -1036,7 +1036,7 @@ Procedure UpdateBackgroundJobsTableAtClient()
 	
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
-	CompletionNotification2 = New NotifyDescription("UpdaetBackgroundJobTableCompletion", ThisObject);
+	CompletionNotification2 = New NotifyDescription("UpdateBackgroundJobTableCompletion", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(Result, CompletionNotification2, IdleParameters);
 	
 EndProcedure
@@ -1188,7 +1188,7 @@ Procedure UpdateBackgroundJobTable(ResultAddress = Undefined)
 EndProcedure
 
 &AtClient
-Procedure UpdaetBackgroundJobTableCompletion(Result, AdditionalParameters) Export
+Procedure UpdateBackgroundJobTableCompletion(Result, AdditionalParameters) Export
 	
 	If Result = Undefined Then
 		Return;
@@ -1213,9 +1213,9 @@ Procedure AddSelectionBySession(Filter, Id)
 		Return;
 	EndIf;
 	
-	JobFilter = New Structure;
-	JobFilter.Insert("UUID", New UUID(Id));
-	FoundJobs = ScheduledJobsServer.FindJobs(JobFilter);
+	FilterJobs = New Structure;
+	FilterJobs.Insert("UUID", New UUID(Id));
+	FoundJobs = ScheduledJobsServer.FindJobs(FilterJobs);
 	ScheduledJob = Undefined;
 	For Each FoundJob In FoundJobs Do
 		ScheduledJob = FoundJob;

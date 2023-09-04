@@ -626,16 +626,13 @@ Procedure SetCurrentPageItems()
 		And Not (CurrentPage = Items.Authorization And Not IsWebClient())
 		And Not CurrentPage = Items.ErrorsFoundOnCheck;
 	
-	// КнопкаНазад
 	Items.BackButton.Visible = CurrentPage <> Items.UserAccountSetup
 		And CurrentPage <> Items.AccountConfigured
 		And CurrentPage <> Items.ValidatingAccountSettings
 		And Not OnlyAuthorization;
 	
-	// КнопкаОтмена
 	Items.CancelButton.Visible = CurrentPage <> Items.AccountConfigured;
 	
-	// КнопкаПерейтиКНастройкам
 	Items.GoToSettingsButton.Visible = Not UseSecurityProfiles And (CurrentPage = Items.UserAccountSetup
 		And ValidationCompletedWithErrors Or Not ContextMode And Not Reconfigure And CurrentPage = Items.AccountConfigured);
 		
@@ -1187,7 +1184,7 @@ Procedure OnReceiveMailServerResponse(ParametersString1, KeyReceiptAddress)
 		Response = ParametersFromStringURI(ParametersString1);
 	EndIf;
 	
-	AuthorizationCode = Response["code"];
+	AuthorizationCode_ = Response["code"];
 	ErrorCode = Response["error"];
 	ErrorText = Response["error_description"];
 	
@@ -1201,7 +1198,7 @@ Procedure OnReceiveMailServerResponse(ParametersString1, KeyReceiptAddress)
 	ElsIf QueryID <> Response["state"] Then
 		ErrorsMessages = NStr("en = 'Cannot authorize on the mail server. Incorrect response ID.';");
 		ValidationCompletedWithErrors = True;
-	ElsIf Not GetAccessKeysToMailServer(AuthorizationCode, KeyReceiptAddress) Then
+	ElsIf Not GetAccessKeysToMailServer(AuthorizationCode_, KeyReceiptAddress) Then
 		ValidationCompletedWithErrors = True;
 	EndIf;
 	
@@ -1212,7 +1209,7 @@ Procedure OnReceiveMailServerResponse(ParametersString1, KeyReceiptAddress)
 EndProcedure
 
 &AtServer
-Function GetAccessKeysToMailServer(AuthorizationCode, KeyReceiptAddress, ApplicationCaption = "")
+Function GetAccessKeysToMailServer(AuthorizationCode_, KeyReceiptAddress, ApplicationCaption = "")
 	
 	URIStructure = CommonClientServer.URIStructure(KeyReceiptAddress);
 	ServerAddress = URIStructure.Host;
@@ -1227,7 +1224,7 @@ Function GetAccessKeysToMailServer(AuthorizationCode, KeyReceiptAddress, Applica
 		QueryOptions.Insert("scope", AuthorizationSettings["PermissionsToRequest"]);
 	EndIf;
 
-	QueryOptions.Insert("code", AuthorizationCode);
+	QueryOptions.Insert("code", AuthorizationCode_);
 	QueryOptions.Insert("redirect_uri", RedirectAddress);
 	QueryOptions.Insert("grant_type", "authorization_code");
 	

@@ -1602,7 +1602,7 @@ EndFunction
 //             - FormTable
 //             - FormField
 //   * RowData - Undefined
-//                  - FormDataCollectionItem: см. УправлениеКонтактнойИнформациейКлиентСервер.ОписаниеКонтактнойИнформацииНаФорме
+//                  - FormDataCollectionItem of See ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm
 //   * PlacementItemName - String
 //   * IsTabularSection - Boolean
 //   * FillingData - String

@@ -602,6 +602,9 @@
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
+		<Attribute name="PropertiesParameters" id="9">
+			<Type/>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="CreateContact" id="1">
@@ -617,7 +620,7 @@
 					<v8:content>Create contact</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>CreateContactComplete</Action>
+			<Action>CreateContactExecute</Action>
 			<Representation>Text</Representation>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>

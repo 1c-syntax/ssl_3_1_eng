@@ -231,7 +231,7 @@
 									</ButtonGroup>
 								</ChildItems>
 							</ContextMenu>
-							<AutoCommandBar name="GroupCompositionCommandBar" id="626">
+							<AutoCommandBar name="GroupingCompositionCommandBar" id="626">
 								<Autofill>false</Autofill>
 							</AutoCommandBar>
 							<ExtendedTooltip name="GroupCompositionExtendedTooltip" id="627"/>
@@ -581,7 +581,7 @@
 												</Title>
 												<ExtendedTooltip name="Filters_GroupType1ExtendedTooltip" id="1424"/>
 												<ChildItems>
-													<Button name="FiltersSelectedFields_GroupAND1" id="1425">
+													<Button name="FiltersSelectedField_GroupAND1" id="1425">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SelectedField_GroupAND</CommandName>
 														<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -593,7 +593,7 @@
 														<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 														<ExtendedTooltip name="FiltersSelectedFields_GroupOR1ExtendedTooltip" id="1428"/>
 													</Button>
-													<Button name="FiltersSelectedFields_GroupNOT1" id="1429">
+													<Button name="FiltersSelectedField_GroupNOT1" id="1429">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SelectedField_GroupNOT</CommandName>
 														<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -1238,12 +1238,12 @@
 												</Title>
 												<ExtendedTooltip name="SelectedFieldsCommandsCheckBoxes1ExtendedTooltip" id="1042"/>
 												<ChildItems>
-													<Button name="SelectedFieldsSelectedFields_SelectCheckBoxes1" id="1043">
+													<Button name="SelectedFieldsSelectedFieldsSelectCheckBoxes1" id="1043">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SelectedFields_SelectCheckBoxes</CommandName>
 														<ExtendedTooltip name="SelectedFieldsSelectedFieldsSelectCheckBoxes1ExtendedTooltip" id="1044"/>
 													</Button>
-													<Button name="SelectedFieldsSelectedFields_ClearCheckBoxes1" id="1045">
+													<Button name="SelectedFieldsSelectedFieldsClearCheckBoxes1" id="1045">
 														<Type>CommandBarButton</Type>
 														<CommandName>Form.Command.SelectedFields_ClearCheckBoxes</CommandName>
 														<ExtendedTooltip name="SelectedFieldsSelectedFieldsClearCheckBoxes1ExtendedTooltip" id="1046"/>
@@ -1624,12 +1624,12 @@
 														</Title>
 														<ExtendedTooltip name="SortingCommandsCheckBoxes1ExtendedTooltip" id="1054"/>
 														<ChildItems>
-															<Button name="SortSort_SelectAll1" id="1055">
+															<Button name="SortSortingSelectCheckBoxes1" id="1055">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.Sort_SelectAll</CommandName>
 																<ExtendedTooltip name="SortingSortingSelectCheckBoxes1ExtendedTooltip" id="1056"/>
 															</Button>
-															<Button name="SortSort_ClearAll1" id="1057">
+															<Button name="SortSortingClearCheckBoxes1" id="1057">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Command.Sorting_ClearAll</CommandName>
 																<ExtendedTooltip name="SortingSortingClearCheckBoxes1ExtendedTooltip" id="1058"/>
@@ -2246,7 +2246,7 @@
 												<Type>CommandBarButton</Type>
 												<Representation>Picture</Representation>
 												<CommandName>Form.Item.OptionStructure.StandardCommand.Add</CommandName>
-												<ExtendedTooltip name="OptionStructureAdd1ExtendedTooltip" id="744"/>
+												<ExtendedTooltip name="OptionStructure_Add1ExtendedTooltip" id="744"/>
 											</Button>
 											<Button name="OptionStructure_Group1" id="747">
 												<Type>CommandBarButton</Type>
@@ -2295,7 +2295,7 @@
 												<Type>CommandBarButton</Type>
 												<Representation>Picture</Representation>
 												<CommandName>Form.Item.OptionStructure.StandardCommand.Delete</CommandName>
-												<ExtendedTooltip name="OptionStructureDelete1ExtendedTooltip" id="754"/>
+												<ExtendedTooltip name="OptionStructure_Delete1ExtendedTooltip" id="754"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -2372,12 +2372,12 @@
 										</Title>
 										<ExtendedTooltip name="OptionStructureCommandsCheckBoxes1ExtendedTooltip" id="768"/>
 										<ChildItems>
-											<Button name="OptionStructure_SelectCheckBoxes1" id="769">
+											<Button name="OptionStructure_CheckAll1" id="769">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_CheckAll</CommandName>
 												<ExtendedTooltip name="OptionStructureSelectCheckBoxes1ExtendedTooltip" id="770"/>
 											</Button>
-											<Button name="OptionStructure_ClearCheckBoxes1" id="771">
+											<Button name="OptionStructure_UncheckAll1" id="771">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_UncheckAll</CommandName>
 												<ExtendedTooltip name="OptionStructureClearCheckBoxes1ExtendedTooltip" id="772"/>
@@ -2402,7 +2402,7 @@
 												<Type>CommandBarButton</Type>
 												<Representation>PictureAndText</Representation>
 												<CommandName>Form.Item.OptionStructure.StandardCommand.Add</CommandName>
-												<ExtendedTooltip name="OptionStructureAddExtendedTooltip" id="509"/>
+												<ExtendedTooltip name="OptionStructure_AddExtendedTooltip" id="509"/>
 											</Button>
 											<Button name="OptionStructure_Group" id="510">
 												<Type>CommandBarButton</Type>
@@ -2435,14 +2435,14 @@
 												<Representation>Picture</Representation>
 												<CommandName>Form.Command.OptionStructure_Change</CommandName>
 												<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="OptionStructureChangeExtendedTooltip" id="513"/>
+												<ExtendedTooltip name="OptionStructure_ChangeExtendedTooltip" id="513"/>
 											</Button>
 											<Button name="OptionStructure_Delete" id="668">
 												<Type>CommandBarButton</Type>
 												<Representation>Picture</Representation>
 												<CommandName>Form.Item.OptionStructure.StandardCommand.Delete</CommandName>
 												<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="OptionStructureDeleteExtendedTooltip" id="669"/>
+												<ExtendedTooltip name="OptionStructure_DeleteExtendedTooltip" id="669"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -2534,12 +2534,12 @@
 											<Button name="OptionStructure_CheckAll" id="520">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_CheckAll</CommandName>
-												<ExtendedTooltip name="OptionStructureSelectCheckBoxesExtendedTooltip" id="521"/>
+												<ExtendedTooltip name="OptionStructure_CheckAllExtendedTooltip" id="521"/>
 											</Button>
 											<Button name="OptionStructure_UncheckAll" id="522">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Command.OptionStructure_UncheckAll</CommandName>
-												<ExtendedTooltip name="OptionStructureClearCheckBoxesExtendedTooltip" id="523"/>
+												<ExtendedTooltip name="OptionStructure_UncheckAllExtendedTooltip" id="523"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -4124,12 +4124,12 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 				<Column name="SubordinateFormID" id="3">
 					<Type/>
 				</Column>
-				<Column name="TypeOfParent" id="4">
+				<Column name="MasterType" id="4">
 					<Type>
 						<v8:Type>v8:TypeDescription</v8:Type>
 					</Type>
 				</Column>
-				<Column name="SubordinateType" id="5">
+				<Column name="SubordinatedType" id="5">
 					<Type>
 						<v8:Type>v8:TypeDescription</v8:Type>
 					</Type>

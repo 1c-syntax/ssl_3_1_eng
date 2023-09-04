@@ -20,7 +20,7 @@
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="CustomSettingsFolderExtendedTooltip" id="18"/>
 		</UsualGroup>
-		<CommandBar name="CommandBarGroup" id="19">
+		<CommandBar name="GroupCommandBar" id="19">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>

@@ -173,7 +173,7 @@ Procedure EnableObjectsVersioning(Objects) Export
 	BeginTransaction();
 	Try
 		Block = New DataLock();
-		LockItem = Block.Add("InformationRegister.ObjectVersioningSettings");
+		Block.Add("InformationRegister.ObjectVersioningSettings");
 		Block.Lock();
 
 		For Each ObjectName In Objects Do
@@ -3430,13 +3430,13 @@ Function VersionNumberInRegister(Object, SerialNumberOfVersionToSynchronize)
 	ObjectsVersions.Indexes.Add("Synchronized");
 	
 	VersionsToSynchronize = ObjectsVersions.FindRows(New Structure("Synchronized", True));
-	VersionsNotToSynchronize = ObjectsVersions.FindRows(New Structure("Synchronized", False));
+	NotVersionsToSynchronize = ObjectsVersions.FindRows(New Structure("Synchronized", False));
 	
 	If VersionsToSynchronize.Count() >= SerialNumberOfVersionToSynchronize Then
 		Return VersionsToSynchronize[SerialNumberOfVersionToSynchronize - 1].VersionNumber;
 	EndIf;
 	
-	Return VersionsNotToSynchronize.Count() + SerialNumberOfVersionToSynchronize;
+	Return NotVersionsToSynchronize.Count() + SerialNumberOfVersionToSynchronize;
 	
 EndFunction
 

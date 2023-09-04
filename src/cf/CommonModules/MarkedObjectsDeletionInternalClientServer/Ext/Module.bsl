@@ -23,7 +23,7 @@ EndProcedure
 // Returns:
 //   Structure:
 //   * DeletedItemsCount1 - Number
-//   * NotDeletedItemsCount - Number
+//   * NotDeletedItemsCount1 - Number
 //   * ResultAddress - String
 //   * Success - Boolean
 //
@@ -31,7 +31,7 @@ Function NewDeletionResultsInfo() Export
 	Result = New Structure;
 	Result.Insert("Trash", New Array);
 	Result.Insert("DeletedItemsCount1", 0);
-	Result.Insert("NotDeletedItemsCount", 0);
+	Result.Insert("NotDeletedItemsCount1", 0);
 	Result.Insert("ResultAddress", "");
 	Result.Insert("Success", False);
 	Return Result;

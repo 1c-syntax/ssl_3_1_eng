@@ -90,7 +90,7 @@ Procedure OnOpen(Cancel)
 			Return; // Don't process. The form opens in the regular mode.
 		EndTry;
 		Cancel = True;
-		ExecuteNotifyProcessing(ThisObject.OnCloseNotifyDescription, AdministrationParameters);
+		ExecuteNotifyProcessing(OnCloseNotifyDescription, AdministrationParameters);
 	EndIf;
 EndProcedure
 

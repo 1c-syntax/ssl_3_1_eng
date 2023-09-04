@@ -300,7 +300,7 @@ Function EnumPresentationOnOccurrence() Export
 	
 EndFunction
 
-Function PresentationOFScheduledEnumeration()
+Function EnumPresentationOnSchedule()
 	
 	Return NStr("en = 'по расписанию';");
 	
@@ -309,21 +309,21 @@ EndFunction
 // Parameters:
 //  Reminder - See ReminderDetails
 //
-Function PresentationOFReminderDEADLINE(Reminder) Export
+Function ReminderTimePresentation(Reminder) Export
 	
 	If Reminder.ReminderTimeSettingMethod = PredefinedValue("Enum.ReminderTimeSettingMethods.RelativeToSubjectTime") Then
 		If Reminder.ReminderInterval = 0 Then
 			Return EnumPresentationOnOccurrence();
 		Else
 			Return StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'за %1';"), TimePresentation(Reminder.ReminderInterval));
+				NStr("en = '%1 before';"), TimePresentation(Reminder.ReminderInterval));
 		EndIf;
 	ElsIf Reminder.ReminderTimeSettingMethod = PredefinedValue("Enum.ReminderTimeSettingMethods.AtSpecifiedTime")
 		Or Reminder.ReminderTimeSettingMethod = PredefinedValue("Enum.ReminderTimeSettingMethods.RelativeToCurrentTime") Then
 		Return StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = '%1';"), Format(Reminder.ReminderTime, "DLF=DT;"));
 	Else
-		Return PresentationOFScheduledEnumeration();
+		Return EnumPresentationOnSchedule();
 	EndIf;
 	
 EndFunction

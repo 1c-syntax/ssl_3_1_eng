@@ -4242,20 +4242,12 @@ Function ObjectIsFolder(Object) Export
 	EndIf;
 	
 	ObjectMetadata = Ref.Metadata();
-	
 	If IsCatalog(ObjectMetadata) Then
-		
 		If Not ObjectMetadata.Hierarchical
-		 Or ObjectMetadata.HierarchyType
-		     <> Metadata.ObjectProperties.HierarchyType.HierarchyFoldersAndItems Then
-			
+		 	Or ObjectMetadata.HierarchyType <> Metadata.ObjectProperties.HierarchyType.HierarchyFoldersAndItems Then
 			Return False;
 		EndIf;
-		
-	ElsIf Not IsChartOfCharacteristicTypes(ObjectMetadata) Then
-		Return False;
-		
-	ElsIf Not ObjectMetadata.Hierarchical Then
+	ElsIf Not IsChartOfCharacteristicTypes(ObjectMetadata) Or Not ObjectMetadata.Hierarchical Then
 		Return False;
 	EndIf;
 	
@@ -5350,9 +5342,7 @@ Function CreateWSProxy(Val WSProxyConnectionParameters) Export
 		Try
 			WSProxyPing.Ping();
 		Except
-			
 			EndpointAddress = WSProxyPing.Endpoint.Location;
-			
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot check availability of the web service
 				           |%1.
@@ -5364,11 +5354,11 @@ Function CreateWSProxy(Val WSProxyConnectionParameters) Export
 			If SubsystemExists("StandardSubsystems.GetFilesFromInternet") Then
 				ModuleNetworkDownload = CommonModule("GetFilesFromInternet");
 				DiagnosticsResult = ModuleNetworkDownload.ConnectionDiagnostics(EndpointAddress);
-				
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = '%1
 					           |Diagnostics result:
 					           |%2';"),
+					ErrorText,
 					DiagnosticsResult.ErrorDescription);
 			EndIf;
 			
@@ -6220,16 +6210,19 @@ EndFunction
 
 #Region Other
 
-// Performs actions before continuing to execute the scheduled job handler.
-//
-// For example, checks whether a scheduled job handler can be executed.
-// If the administrator has not disabled the execution of scheduled jobs before
-// an infobase update is completed, the handler execution must be stopped.
+// 
+// 
+//  
+//   
+//    
+//  
 //
 // Parameters:
-//  ScheduledJob - MetadataObjectScheduledJob - the scheduled job
-//    the method was called from. Required to be passed for checking availability
-//    by functional options.
+//  ScheduledJob - MetadataObjectScheduledJob -
+//    
+//
+// Example:
+// 
 //
 Procedure OnStartExecuteScheduledJob(ScheduledJob = Undefined) Export
 	
@@ -10036,6 +10029,7 @@ Function IsVersionOfProtectedComplexITSystem(Version)
 	
 	Versions = New Array;
 	Versions.Add("8.3.21.1676");
+	Versions.Add("8.3.21.1901");
 	Return Versions.Find(Version) <> Undefined;
 	
 EndFunction

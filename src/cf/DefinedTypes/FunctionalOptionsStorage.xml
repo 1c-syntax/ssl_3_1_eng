@@ -20,7 +20,7 @@
 				<v8:Type>cfg:ConstantValueManager.IndependentUsageOfAdditionalReportsAndDataProcessorsSaaS</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.GenerateDigitalSignaturesAtServer</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.UseDataSynchronizationSaaS</v8:Type>
-				<v8:Type>cfg:ConstantValueManager.DoNotUseSeparationByDataAreas</v8:Type>
+				<v8:Type>cfg:ConstantValueManager.NotUseSeparationByDataAreas</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.UseNotes</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.UseUserReminders</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.UseDataSynchronization</v8:Type>

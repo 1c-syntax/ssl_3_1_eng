@@ -364,7 +364,7 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 		ModuleMarkedObjectsDeletionInternal.OnFillTypesExcludedFromExportImport(Types);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnFillTypesExcludedFromExportImport(Types);
 	EndIf;
@@ -537,7 +537,7 @@ Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 		ModuleIBConnections.OnFillIIBParametersTable(ParametersTable);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnFillIIBParametersTable(ParametersTable);
 	EndIf;
@@ -674,6 +674,11 @@ Procedure OnGetTemplateList(JobTemplates) Export
 	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
 		ModuleDigitalSignatureInternal = Common.CommonModule("DigitalSignatureInternal");
 		ModuleDigitalSignatureInternal.OnGetTemplateList(JobTemplates);
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
+		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal = Common.CommonModule("MachineReadableAuthorizationLettersOfFederalTaxServiceInternal");
+		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal.OnGetTemplateList(JobTemplates);
 	EndIf;
 	
 EndProcedure
@@ -1078,9 +1083,14 @@ Procedure OnAddSessionParameterSettingHandlers(Handlers) Export
 		ModuleOSLSubsystemsIntegration.OnAddSessionParameterSettingHandlers(Handlers);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnAddSessionParameterSettingHandlers(Handlers);
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
+		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal = Common.CommonModule("MachineReadableAuthorizationLettersOfFederalTaxServiceInternal");
+		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal.OnAddSessionParameterSettingHandlers(Handlers);
 	EndIf;
 	
 EndProcedure
@@ -1663,7 +1673,7 @@ Procedure OnDefineSupportedInterfaceVersions(SupportedVersions) Export
 
 	UsersInternal.OnDefineSupportedInterfaceVersions(SupportedVersions);
 	
-	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnDefineSupportedInterfaceVersions(SupportedVersions);
 	EndIf;
@@ -1844,7 +1854,7 @@ Procedure OnAddClientParameters(Parameters) Export
 		ModuleOSLSubsystemsIntegration.OnAddClientParameters(Parameters);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnAddClientParameters(Parameters);
 	EndIf;
@@ -2128,7 +2138,7 @@ Procedure OnSetUpReportsOptions(Settings) Export
 		ModuleOSLSubsystemsIntegration.OnSetUpReportsOptions(Settings);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnSetUpReportsOptions(Settings);
 	EndIf;
@@ -2173,7 +2183,7 @@ Procedure OnDefineObjectsWithReportCommands(Objects) Export
 		ModuleOSLSubsystemsIntegration.OnDefineObjectsWithReportCommands(Objects);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnDefineObjectsWithReportCommands(Objects);
 	EndIf;
@@ -2401,7 +2411,7 @@ Procedure OnDefineObjectsWithEditableAttributes(Objects) Export
 		ModuleOSLSubsystemsIntegration.OnDefineObjectsWithEditableAttributes(Objects);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnDefineObjectsWithEditableAttributes(Objects);
 	EndIf;
@@ -2805,7 +2815,7 @@ Procedure OnDefineCatalogsForDataImport(CatalogsToImport) Export
 		ModuleOSLSubsystemsIntegration.OnDefineCatalogsForDataImport(CatalogsToImport);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnDefineCatalogsForDataImport(CatalogsToImport);
 	EndIf;
@@ -3331,6 +3341,11 @@ Procedure OnDefinePrintSettings(PrintSettings) Export
 	If Common.SubsystemExists("StandardSubsystems.PersonalDataProtection") Then
 		ModulePersonalDataProtection = Common.CommonModule("PersonalDataProtection");
 		ModulePersonalDataProtection.OnDefinePrintSettings(PrintSettings);
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
+		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal = Common.CommonModule("MachineReadableAuthorizationLettersOfFederalTaxServiceInternal");
+		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal.OnDefinePrintSettings(PrintSettings);
 	EndIf;
 	
 	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnDefinePrintSettings Then
@@ -4728,6 +4743,11 @@ Procedure OnDefineScheduledJobSettings(Settings) Export
 		ModuleDigitalSignatureInternal.OnDefineScheduledJobSettings(Settings);
 	EndIf;
 	
+	If Common.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
+		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal = Common.CommonModule("MachineReadableAuthorizationLettersOfFederalTaxServiceInternal");
+		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal.OnDefineScheduledJobSettings(Settings);
+	EndIf;
+	
 	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnDefineScheduledJobSettings Then
 		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
 		ModuleCTLSubsystemsIntegration.OnDefineScheduledJobSettings(Settings);
@@ -4925,7 +4945,11 @@ Procedure OnDetermineToDoListHandlers(ToDoList) Export
 	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
 		ToDoList.Add(Common.CommonModule("DigitalSignatureInternal"));
 	EndIf;
-
+	
+	If Common.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
+		ToDoList.Add(Common.CommonModule("MachineReadableAuthorizationLettersOfFederalTaxServiceInternal"));
+	EndIf;
+	
 	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnDetermineToDoListHandlers Then
 		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
 		ModuleCTLSubsystemsIntegration.OnDetermineToDoListHandlers(ToDoList);
@@ -5154,7 +5178,7 @@ Procedure OnFillListsWithAccessRestriction(Lists) Export
 		ModuleOSLSubsystemsIntegration.OnFillListsWithAccessRestriction(Lists);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnFillListsWithAccessRestriction(Lists);
 	EndIf;
@@ -5299,7 +5323,7 @@ Procedure OnFillMetadataObjectsAccessRestrictionKinds(LongDesc) Export
 		ModuleOSLSubsystemsIntegration.OnFillMetadataObjectsAccessRestrictionKinds(LongDesc);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnFillMetadataObjectsAccessRestrictionKinds(LongDesc);
 	EndIf;

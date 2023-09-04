@@ -86,7 +86,7 @@
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
 								<Presentation/>
-								<Value xsi:type="xs:string">5m</Value>
+								<Value xsi:type="xs:string">5M</Value>
 							</xr:Value>
 						</xr:Item>
 						<xr:Item>
@@ -94,7 +94,7 @@
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
 								<Presentation/>
-								<Value xsi:type="xs:string">10m</Value>
+								<Value xsi:type="xs:string">10M</Value>
 							</xr:Value>
 						</xr:Item>
 						<xr:Item>
@@ -102,7 +102,7 @@
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
 								<Presentation/>
-								<Value xsi:type="xs:string">M15</Value>
+								<Value xsi:type="xs:string">15M</Value>
 							</xr:Value>
 						</xr:Item>
 						<xr:Item>
@@ -110,7 +110,7 @@
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
 								<Presentation/>
-								<Value xsi:type="xs:string">30m</Value>
+								<Value xsi:type="xs:string">30M</Value>
 							</xr:Value>
 						</xr:Item>
 						<xr:Item>
@@ -118,7 +118,7 @@
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
 								<Presentation/>
-								<Value xsi:type="xs:string">1H</Value>
+								<Value xsi:type="xs:string">1Ch</Value>
 							</xr:Value>
 						</xr:Item>
 						<xr:Item>
@@ -126,7 +126,7 @@
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
 								<Presentation/>
-								<Value xsi:type="xs:string">2H</Value>
+								<Value xsi:type="xs:string">2Ch</Value>
 							</xr:Value>
 						</xr:Item>
 						<xr:Item>
@@ -134,7 +134,7 @@
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
 								<Presentation/>
-								<Value xsi:type="xs:string">4h</Value>
+								<Value xsi:type="xs:string">4Ch</Value>
 							</xr:Value>
 						</xr:Item>
 						<xr:Item>
@@ -142,7 +142,7 @@
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
 								<Presentation/>
-								<Value xsi:type="xs:string">8h</Value>
+								<Value xsi:type="xs:string">8Ch</Value>
 							</xr:Value>
 						</xr:Item>
 						<xr:Item>
@@ -174,7 +174,7 @@
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
 								<Presentation/>
-								<Value xsi:type="xs:string">1N</Value>
+								<Value xsi:type="xs:string">1N1</Value>
 							</xr:Value>
 						</xr:Item>
 						<xr:Item>
@@ -182,7 +182,7 @@
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
 								<Presentation/>
-								<Value xsi:type="xs:string">2n</Value>
+								<Value xsi:type="xs:string">2N1</Value>
 							</xr:Value>
 						</xr:Item>
 					</ChoiceList>

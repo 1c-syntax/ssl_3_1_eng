@@ -444,7 +444,7 @@ Procedure ExternalUsersGroupsDrag(Item, DragParameters, StandardProcessing, Stri
 		
 	EndIf;
 	
-	ExternalUserGroupsDragCompletion(UserMessage);
+	ExternalUsersGroupsDragCompletion(UserMessage);
 	
 EndProcedure
 
@@ -494,11 +494,11 @@ Procedure ExternalUsersListBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group)
 	FormParameters = New Structure(
 		"NewExternalUserGroup", Items.ExternalUsersGroups.CurrentRow);
 	
-	If ValueIsFilled(StoredParameters.AuthorizationObjectFilter) Then
+	If ValueIsFilled(StoredParameters.FilterAuthorizationObject) Then
 		
 		FormParameters.Insert(
 			"NewExternalUserAuthorizationObject",
-			StoredParameters.AuthorizationObjectFilter);
+			StoredParameters.FilterAuthorizationObject);
 	EndIf;
 	
 	If Copy And Item.CurrentData <> Undefined Then
@@ -548,7 +548,7 @@ EndProcedure
 Procedure SelectedUsersAndGroupsListSelection(Item, RowSelected, Field, StandardProcessing)
 	
 	DeleteFromSelectedItems();
-	ThisObject.Modified = True;
+	Modified = True;
 	
 EndProcedure
 
@@ -609,7 +609,7 @@ Procedure EndAndClose(Command)
 	If StoredParameters.AdvancedPick Then
 		UsersArray = SelectionResult();
 		NotifyChoice(UsersArray);
-		ThisObject.Modified = False;
+		Modified = False;
 		Close(UsersArray);
 	EndIf;
 	
@@ -676,7 +676,7 @@ EndProcedure
 // Returns:
 //   Structure:
 //   * SelectExternalUsersGroups - Boolean
-//   * AuthorizationObjectFilter - DefinedType.ExternalUser
+//   * FilterAuthorizationObject - DefinedType.ExternalUser
 //   * AdvancedPick - Boolean
 //   * AllUsersGroup - CatalogRef.ExternalUsersGroups
 //   * CurrentRow - Number
@@ -690,9 +690,9 @@ Function NewStoredParameters1()
 	StoredParameters.Insert("SelectExternalUsersGroups", Parameters.SelectExternalUsersGroups);
 	
 	If Parameters.Filter.Property("AuthorizationObject") Then
-		StoredParameters.Insert("AuthorizationObjectFilter", Parameters.Filter.AuthorizationObject);
+		StoredParameters.Insert("FilterAuthorizationObject", Parameters.Filter.AuthorizationObject);
 	Else
-		StoredParameters.Insert("AuthorizationObjectFilter", Undefined);
+		StoredParameters.Insert("FilterAuthorizationObject", Undefined);
 	EndIf;
 	Return StoredParameters;
 	
@@ -723,7 +723,6 @@ EndProcedure
 &AtServer
 Procedure ApplyConditionalAppearanceAndHideInvalidExternalUsers()
 	
-	// Appearance.
 	ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
 	
 	AppearanceColorItem = ConditionalAppearanceItem.Appearance.Items.Find("TextColor");
@@ -740,7 +739,6 @@ Procedure ApplyConditionalAppearanceAndHideInvalidExternalUsers()
 	AppearanceFieldItem.Field = New DataCompositionField("ExternalUsersList");
 	AppearanceFieldItem.Use = True;
 	
-	// Скрытие.
 	CommonClientServer.SetDynamicListFilterItem(
 		ExternalUsersList, "Invalid", False, , , True);
 	
@@ -898,7 +896,7 @@ Procedure ChangeExtendedPickFormParameters()
 		Items.GroupsAndUsers.Group                 = ChildFormItemsGroup.Vertical;
 		Items.ExternalUsersList.Height                = 5;
 		Items.ExternalUsersGroups.Height               = 3;
-		ThisObject.Height                                        = 17;
+		Height                                        = 17;
 		// 
 		Items.ExternalUsersGroups.TitleLocation   = FormItemTitleLocation.Top;
 		Items.ExternalUsersList.TitleLocation    = FormItemTitleLocation.Top;
@@ -959,7 +957,7 @@ Procedure FillSelectedUsersAndGroupsList(SelectedItemsAndPictures)
 			SelectedUsersRow = SelectedUsersAndGroups.Add();
 			SelectedUsersRow.User = SelectedUserOrGroup;
 			SelectedUsersRow.PictureNumber = PictureNumber;
-			ThisObject.Modified = True;
+			Modified = True;
 			
 		EndIf;
 		
@@ -1217,12 +1215,12 @@ Procedure ExternalUserGroupsDragQuestionProcessing(Response, AdditionalParameter
 	
 	UserMessage = MoveUserToNewGroup(
 		AdditionalParameters.DragParameters, AdditionalParameters.String, AdditionalParameters.Move);
-	ExternalUserGroupsDragCompletion(UserMessage);
+	ExternalUsersGroupsDragCompletion(UserMessage);
 	
 EndProcedure
 
 &AtClient
-Procedure ExternalUserGroupsDragCompletion(UserMessage)
+Procedure ExternalUsersGroupsDragCompletion(UserMessage)
 	
 	If UserMessage.Message = Undefined Then
 		Return;

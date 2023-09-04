@@ -437,17 +437,17 @@ Procedure WriteChanges(ContinuationHandler = Undefined)
 	   And SynchronizationWithServiceRequired Then
 		
 		UsersInternalClient.RequestPasswordForAuthenticationInService(
-			New NotifyDescription("SaveChangesCompletion", ThisObject, ContinuationHandler),
+			New NotifyDescription("WriteChangesCompletion", ThisObject, ContinuationHandler),
 			ThisObject,
 			ServiceUserPassword);
 	Else
-		SaveChangesCompletion(Null, ContinuationHandler);
+		WriteChangesCompletion(Null, ContinuationHandler);
 	EndIf;
 	
 EndProcedure
 
 &AtClient
-Procedure SaveChangesCompletion(SaaSUserNewPassword, ContinuationHandler) Export
+Procedure WriteChangesCompletion(SaaSUserNewPassword, ContinuationHandler) Export
 	
 	If SaaSUserNewPassword = Undefined Then
 		Return;
@@ -778,7 +778,7 @@ Procedure WriteChangesAtServer(Cancel)
 	|////////////////////////////////////////////////////////////////////////////////
 	|SELECT
 	|	Profiles.Ref AS Profile,
-	|	ProfilesCatalog.Description AS ProfileDescription,
+	|	CatalogProfiles.Description AS ProfileDescription,
 	|	Profiles.Check,
 	|	CurrentProfiles.PersonalAccessGroup
 	|FROM
@@ -787,8 +787,8 @@ Procedure WriteChangesAtServer(Cancel)
 	|		ON ChangedGroupsProfiles.Profile = Profiles.Ref
 	|		INNER JOIN CurrentProfiles AS CurrentProfiles
 	|		ON ChangedGroupsProfiles.Profile = CurrentProfiles.Ref
-	|		INNER JOIN Catalog.AccessGroupProfiles AS ProfilesCatalog
-	|		ON (ProfilesCatalog.Ref = ChangedGroupsProfiles.Profile)";
+	|		INNER JOIN Catalog.AccessGroupProfiles AS CatalogProfiles
+	|		ON (CatalogProfiles.Ref = ChangedGroupsProfiles.Profile)";
 	
 	BeginTransaction();
 	Try

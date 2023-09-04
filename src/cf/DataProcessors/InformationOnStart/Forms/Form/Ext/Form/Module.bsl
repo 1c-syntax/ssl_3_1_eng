@@ -124,7 +124,7 @@ Function PrepareFormData()
 	
 	UseRegisterCache = True;
 	If Common.DebugMode()
-		Or Lower(StrLeftBeforeChar(ThisObject.FormName, ".")) = Lower("ExternalDataProcessor") Then
+		Or Lower(StrLeftBeforeChar(FormName, ".")) = Lower("ExternalDataProcessor") Then
 		UseRegisterCache = False;
 	EndIf;
 	

@@ -434,7 +434,7 @@ Procedure UpdateAccessUpdateJobState(State = Undefined)
 			EndIf;
 			PartsFormat.Insert(1, New Structure("Font, TextColor", BoldFont, RedColor));
 		ElsIf ValueIsFilled(AccessUpdateErrorText) Then
-			If State.UpdateCanceled Then
+			If State.RefreshEnabledCanceled Then
 				If State.LastCompletionToday Then
 					Template = NStr("en = '<1>canceled</1> <2>with an error</2> at %1, duration: %2';");
 				Else
@@ -450,7 +450,7 @@ Procedure UpdateAccessUpdateJobState(State = Undefined)
 			PartsFormat.Insert(1, New Structure("Font, TextColor", BoldFont, RedColor));
 			PartsFormat.Insert(2, New Structure("Ref", "ShowErrorText"));
 		Else
-			If State.UpdateCanceled Then
+			If State.RefreshEnabledCanceled Then
 				If State.LastCompletionToday Then
 					Template = NStr("en = 'canceled at %1, duration: %2';");
 				Else
@@ -568,8 +568,8 @@ Function AccessUpdateJobState()
 	State.Insert("LastCompletionToday",
 		IsCurrentDate(CurrentDateAtServer, State.LastAccessUpdateCompletion));
 	
-	State.Insert("UpdateCanceled",
-		LastAccessUpdate.UpdateCanceled);
+	State.Insert("RefreshEnabledCanceled",
+		LastAccessUpdate.RefreshEnabledCanceled);
 	
 	State.Insert("AccessUpdateErrorText",
 		LastAccessUpdate.CompletionErrorText);

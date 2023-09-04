@@ -1819,7 +1819,6 @@
 				<Field>Object.CommentOnDataImport</Field>
 				<Field>Object.DirectReadingInDestinationIB</Field>
 				<Field>Object.DontOutputInfoMessagesToUser</Field>
-				<Field>Object.DontRequestConfirmationOnDataImportOnOpenDataProcessor</Field>
 				<Field>Object.EndDate</Field>
 				<Field>Object.EventHandlerExternalDataProcessorFileName</Field>
 				<Field>Object.EventHandlersFileName</Field>
@@ -1845,6 +1844,7 @@
 				<Field>Object.InfobaseToConnectType</Field>
 				<Field>Object.InfobaseToConnectUser</Field>
 				<Field>Object.InfobaseToConnectWindowsAuthentication</Field>
+				<Field>Object.NotRequestConfirmationOnDataImportOnOpenDataProcessor</Field>
 				<Field>Object.ObjectCountPerTransaction</Field>
 				<Field>Object.OpenExchangeProtocolsAfterExecutingOperations</Field>
 				<Field>Object.OptimizedObjectsWriting</Field>

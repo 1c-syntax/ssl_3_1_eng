@@ -112,7 +112,7 @@ Procedure ReadExchangeNodeTree()
 		|	InformationRegister.DataExchangeTransportSettings AS TransportSettings
 		|WHERE
 		|	TransportSettings.DefaultExchangeMessagesTransportKind = &TransportKind
-		|	AND TransportSettings.WSPeerEndpoint <> &MessageExchangeEmptyRef
+		|	AND TransportSettings.WSCorrespondentEndpoint <> &MessageExchangeEmptyRef
 		|TOTALS BY
 		|	NodeType";
 	

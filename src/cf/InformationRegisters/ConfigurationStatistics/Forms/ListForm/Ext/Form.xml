@@ -154,8 +154,8 @@
 					</Title>
 					<ExtendedTooltip name="ValueGroupExtendedTooltip" id="39"/>
 					<ChildItems>
-						<LabelField name="PresentationValue" id="43">
-							<DataPath>List.PresentationValue</DataPath>
+						<LabelField name="ValuePresentation" id="43">
+							<DataPath>List.ValuePresentation</DataPath>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -200,7 +200,7 @@
 				WHEN 0 THEN FALSE
 				WHEN 1 THEN TRUE
 			END
-	END AS PresentationValue,
+	END AS ValuePresentation,
 	StatisticsOperations.Description,
 	InformationRegisterConfigurationStatistics.StatisticsKind AS StatisticsKind,
 	CASE InformationRegisterConfigurationStatistics.StatisticsKind

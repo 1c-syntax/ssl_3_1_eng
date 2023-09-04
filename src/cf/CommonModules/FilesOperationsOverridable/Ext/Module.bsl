@@ -15,7 +15,7 @@
 //   Settings - Structure:
 //     * DontClearFiles - Array of MetadataObject - objects, whose files are not to be displayed in the 
 //                        file clearing settings (for example, internal documents).
-//     * DontSynchronizeFiles - Array of MetadataObject - objects, whose files are not to be displayed in the synchronization 
+//     * NotSynchronizeFiles - Array of MetadataObject - objects, whose files are not to be displayed in the synchronization 
 //                        settings with cloud services (for example, internal documents).
 //     * DontCreateFilesByTemplate - Array of MetadataObject - objects for whose files the ability to 
 //                        create files by templates is disabled.

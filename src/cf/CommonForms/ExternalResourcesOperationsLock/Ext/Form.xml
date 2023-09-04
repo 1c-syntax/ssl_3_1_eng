@@ -68,7 +68,7 @@ You can release the lock later in &lt;b&gt;Administration&lt;/&gt;&lt;b&gt; — 
 								<Event name="URLProcessing">WarningLabelURLProcessing</Event>
 							</Events>
 						</LabelDecoration>
-						<CommandBar name="CommandBarGroup" id="27">
+						<CommandBar name="GroupCommandBar" id="27">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>

@@ -139,7 +139,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		NameAndExtension);
 	Buttons = New ValueList;
 	Buttons.Add("Save", NStr("en = 'Save';"));
-	Buttons.Add("DoNotSave", NStr("en = 'Do not save';"));
+	Buttons.Add("NotPreserve", NStr("en = 'Do not save';"));
 	Buttons.Add("Cancel",  NStr("en = 'Cancel';"));
 	ReminderParameters = New Structure;
 	ReminderParameters.Insert("Picture", PictureLib.Information32);
@@ -206,8 +206,9 @@ EndProcedure
 Procedure Write(Command)
 	
 	WriteText();
-	
-	Handler = New NotifyDescription("EndEditingCompletion", ThisObject);
+	HandlerParameters = New Structure;
+	HandlerParameters.Insert("Scenario", "TakeNoAction");
+	Handler = New NotifyDescription("EndEditCompletion", ThisObject, HandlerParameters);
 	FileUpdateParameters = FilesOperationsInternalClient.FileUpdateParameters(Handler, File, OwnerID);
 	FileUpdateParameters.Encoding = FileTextEncoding;
 	FilesOperationsInternalClient.SaveFileChangesWithNotification(Handler, File, OwnerID);
@@ -221,7 +222,7 @@ Procedure EndEdit(Command)
 	
 	HandlerParameters = New Structure;
 	HandlerParameters.Insert("Scenario", "EndEdit");
-	Handler = New NotifyDescription("EndEditingCompletion", ThisObject, HandlerParameters);
+	Handler = New NotifyDescription("EndEditCompletion", ThisObject, HandlerParameters);
 	
 	FileUpdateParameters = FilesOperationsInternalClient.FileUpdateParameters(Handler, File, OwnerID);
 	FileUpdateParameters.Encoding = FileTextEncoding;
@@ -255,7 +256,7 @@ Procedure WriteAndClose(Command)
 	
 	HandlerParameters = New Structure;
 	HandlerParameters.Insert("Scenario", "WriteAndClose");
-	Handler = New NotifyDescription("EndEditingCompletion", ThisObject, HandlerParameters);
+	Handler = New NotifyDescription("EndEditCompletion", ThisObject, HandlerParameters);
 	
 	FileUpdateParameters = FilesOperationsInternalClient.FileUpdateParameters(Handler, File, OwnerID);
 	FileUpdateParameters.Encoding = FileTextEncoding;
@@ -283,12 +284,12 @@ Procedure BeforeCloseAfterAnswerQuestionOnClosingTextEditor(Result, ExecutionPar
 		WriteText();
 		HandlerParameters = New Structure;
 		HandlerParameters.Insert("Scenario", "Close");
-		Handler = New NotifyDescription("EndEditingCompletion", ThisObject, HandlerParameters);
+		Handler = New NotifyDescription("EndEditCompletion", ThisObject, HandlerParameters);
 		FileUpdateParameters = FilesOperationsInternalClient.FileUpdateParameters(Handler, File, OwnerID);
 		FileUpdateParameters.Encoding = FileTextEncoding;
 		FilesOperationsInternalClient.EndEditAndNotify(FileUpdateParameters);
 		
-	ElsIf Result.Value = "DoNotSave" Then
+	ElsIf Result.Value = "NotPreserve" Then
 		
 		Modified = False;
 		Close();
@@ -316,7 +317,7 @@ Procedure SelectEncodingCompletion(Result, ExecutionParameters) Export
 EndProcedure
 
 &AtClient
-Procedure EndEditingCompletion(Result, ExecutionParameters) Export
+Procedure EndEditCompletion(Result, ExecutionParameters) Export
 	If Result <> True Then
 		Return;
 	EndIf;

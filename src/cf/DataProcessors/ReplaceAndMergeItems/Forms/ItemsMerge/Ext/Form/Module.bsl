@@ -191,7 +191,7 @@ Procedure UsageInstancesBeforeDeleteRow(Item, Cancel)
 		NStr("en = 'Delete item %1 from the merge list?';"),
 		String(Ref) + ?(IsBlankString(Code), "", " (" + Code + ")" ));
 	
-	Notification = New NotifyDescription("UsageInstancesBeforeDeleteCompletion", ThisObject, New Structure);
+	Notification = New NotifyDescription("UsageInstancesBeforeDeleteRowCompletion", ThisObject, New Structure);
 	Notification.AdditionalParameters.Insert("CurrentRow", Item.CurrentRow);
 	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo);
 EndProcedure
@@ -735,7 +735,7 @@ EndFunction
 //  AdditionalParameters - Structure
 //
 &AtClient
-Procedure UsageInstancesBeforeDeleteCompletion(Val QuestionResult, Val AdditionalParameters) Export
+Procedure UsageInstancesBeforeDeleteRowCompletion(Val QuestionResult, Val AdditionalParameters) Export
 	If QuestionResult <> DialogReturnCode.Yes Then
 		Return;
 	EndIf;

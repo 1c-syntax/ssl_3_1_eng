@@ -503,15 +503,15 @@ EndProcedure
 //   Array - 
 //
 // Example:
-//  // Call from the native form of the report using DCS.
-//  UsedTables = ReportsOptions.UsedTables(FormAttributeToValue(Report).DataCompositionSchema);
-//  ReportsOptions.CheckUsedTables(UsedTables).
-//  // Call from the OnComposeResult handler of the report using DCS.
-//  UsedTables = ReportsOptions.UsedTables(ThisObject.DataCompositionSchema);
-//  ReportsOptions.CheckUsedTables(UsedTables).
-//  // Call from the OnComposeResult handler of the report using query.
-//  UsedTables = ReportsOptions.UsedTables(QueryText);
-//  ReportsOptions.CheckUsedTables(UsedTables).
+//  
+//  
+//  
+//  
+//  
+//  
+//  
+//  
+//  
 //
 Function TablesToUse(Object) Export
 	Tables = New Array;
@@ -570,12 +570,12 @@ EndFunction
 //   Boolean - 
 //
 // Example:
-//  // Call from the native form of the report.
-//  ReportsOptions.CheckUsedTables(FormAttributeToValue("Report").DataCompositionSchema);
-//  // Call from the OnComposeResult report handler.
-//  ReportsOptions.CheckUsedTables(ThisObject.DataCompositionSchema);
-//  // Call upon query execution.
-//  ReportsOptions.CheckUsedTables(QueryText);
+//  
+//  
+//  
+//  
+//  
+//  
 //
 Function CheckUsedTables(Object, ToReport = True) Export
 	If TypeOf(Object) = Type("Array") Then
@@ -2183,12 +2183,12 @@ Function PredefinedReportsOptions(ReportsType = "BuiltIn", ConnectedToTheStorage
 		EndIf;
 		
 		ReportRef = Common.MetadataObjectID(ReportMetadata);
-		TypeOfReport = ReportByStringType(ReportRef);
-		If ReportsType <> Undefined And ReportsType <> TypeOfReport Then
+		ReportType = ReportByStringType(ReportRef);
+		If ReportsType <> Undefined And ReportsType <> ReportType Then
 			Continue;
 		EndIf;
 		
-		DescriptionOfReport = DefaultReportDetails(Result, ReportMetadata, ReportRef, TypeOfReport, GroupByReports);
+		DescriptionOfReport = DefaultReportDetails(Result, ReportMetadata, ReportRef, ReportType, GroupByReports);
 		
 		// Layout.
 		FoundItems = ReportsSubsystems.FindRows(New Structure("ReportMetadata", ReportMetadata)); 
@@ -2255,7 +2255,7 @@ Function PredefinedReportsOptions(ReportsType = "BuiltIn", ConnectedToTheStorage
 						OptionDetails.Description = ?(OptionDetails.VariantKey <> "Main", OptionDetails.VariantKey,  // 
 							DescriptionOfReport.Description + "." + OptionDetails.VariantKey);
 					EndIf;	
-					OptionDetails.Type          = TypeOfReport;
+					OptionDetails.Type          = ReportType;
 					OptionDetails.IsOption   = True;
 					If IsBlankString(DescriptionOfReport.MainOption) Then
 						DescriptionOfReport.MainOption = OptionDetails.VariantKey;
@@ -4078,7 +4078,7 @@ Function UpdatePredefinedReportOption(Mode, OptionDetails, Result)
 		OptionPlacement = New Array;
 		For Each Section In OptionDetails.Location Do
 			If Section.Key = Undefined Then
-				MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'A subsystem to place the %1 report option (%2) is not specified.
+				MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'A subsystem to add the %1 report option (%2) to is not specified.
 					|See the %3 and %4 procedures.';"), OptionDetails.Description,
 					OptionDetails.VariantKey, ProcedureName, NameOfManagerModuleProcedure);
 				WriteToLog(EventLogLevel.Error, MessageText);
@@ -5365,8 +5365,6 @@ Function UserReportOptionSettings(ReportVariant, Val User, SettingsKey = Undefin
 		Return Undefined;
 	EndIf;
 	
-	ReportOptionPresentation1 = String(ReportVariant);
-	
 	If TypeOf(User) = Type("Array") Then
 		UsersList = User;
 	Else
@@ -5393,9 +5391,7 @@ Function UserReportOptionSettings(ReportVariant, Val User, SettingsKey = Undefin
 	Query.SetParameter("SettingKeyDefined", SettingsKey <> Undefined);
 	Query.SetParameter("SettingsKey", SettingsKey);
 	
-	UserSettings = Query.Execute().Unload();
-	
-	Return UserSettings;
+	Return Query.Execute().Unload();
 	
 EndFunction
 
@@ -6114,7 +6110,6 @@ Function ReportSettings(ReportRef, VariantKey, ReportObject)
 		If IsExternalReport(ReportObject) Then
 			ReportSettings = ReportsClientServer.DefaultReportSettings();
 		Else
-			ErrorInfo = ErrorInfo();
 			MetadataOfReport = ReportObject.Metadata();
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The ""%1"" (%2) report is attached to
@@ -6334,10 +6329,10 @@ Function FindReportsOptions(Val SearchParameters, Val GetSummaryTable = False, V
 		   And ValueIsFilled(SearchParameters.OptionKeyWithoutConditions) Then
 			
 			Query.SetParameter("OptionKeyWithoutConditions", SearchParameters.OptionKeyWithoutConditions);
-			QueryText = StrReplace(QueryText, "&SelectionOptionKeyWithoutConditions",
+			QueryText = StrReplace(QueryText, "&FilterOptionKeyWithoutConditions",
 				"ReportsOptions.VariantKey = &OptionKeyWithoutConditions");
 		Else
-			QueryText = StrReplace(QueryText, "&SelectionOptionKeyWithoutConditions", "FALSE");
+			QueryText = StrReplace(QueryText, "&FilterOptionKeyWithoutConditions", "FALSE");
 		EndIf;
 	EndIf;
 	
@@ -6650,7 +6645,7 @@ Function ReportsWithSpecifiedFiltersQueryText()
 		
 	EndIf;
 	
-	TheRequestTextIsGeneral = "SELECT
+	QueryTextShared = "SELECT
 	|	SubsystemsPresentations.Ref AS Ref,
 	|	SubsystemsPresentations.Presentation AS Presentation
 	|INTO SubsystemsPresentations
@@ -6897,7 +6892,7 @@ Function ReportsWithSpecifiedFiltersQueryText()
 	|	AND NOT &SearchOnlyOptionsWithoutSubsystems
 	|	AND &UserSettingsBySearchString";
 	
-	Return TheTextOfTheRequest + Common.QueryBatchSeparator() + TheRequestTextIsGeneral;
+	Return TheTextOfTheRequest + Common.QueryBatchSeparator() + QueryTextShared;
 	
 EndFunction
 
@@ -8470,23 +8465,23 @@ Procedure ComplementFiltersFromStructure(Filter, Structure, ViewMode = Undefined
 	EndIf;
 	For Each KeyAndValue In Structure Do
 		FieldName = KeyAndValue.Key;
-		FieldFilter = KeyAndValue.Value;
-		Type = TypeOf(FieldFilter);
+		FilterFields = KeyAndValue.Value;
+		Type = TypeOf(FilterFields);
 		If Type = Type("Structure") Then
-			Condition = DataCompositionComparisonType[FieldFilter.Kind];
-			Value = FieldFilter.Value;
+			Condition = DataCompositionComparisonType[FilterFields.Kind];
+			Value = FilterFields.Value;
 		ElsIf Type = Type("Array") Then
 			Condition = DataCompositionComparisonType.InList;
-			Value = FieldFilter;
+			Value = FilterFields;
 		ElsIf Type = Type("ValueList") Then
 			Condition = DataCompositionComparisonType.InList;
-			Value = FieldFilter.UnloadValues();
+			Value = FilterFields.UnloadValues();
 		ElsIf Type = Type("DataCompositionComparisonType") Then
-			Condition = FieldFilter;
+			Condition = FilterFields;
 			Value = Undefined;
 		Else
 			Condition = DataCompositionComparisonType.Equal;
-			Value = FieldFilter;
+			Value = FilterFields;
 		EndIf;
 		CommonClientServer.SetFilterItem(
 			Filter,
@@ -8738,14 +8733,14 @@ Function ReadReportOptionSettings(DirectoryName)
 		EndIf;
 		
 		AttributeName = "isCurrent";
-		IsCurrentPresentation = Item.Attributes.GetNamedItem(AttributeName);
-		If IsCurrentPresentation = Undefined Then 
+		IsCurrent1Presentation = Item.Attributes.GetNamedItem(AttributeName);
+		If IsCurrent1Presentation = Undefined Then 
 			SettingsDescription.ErrorDescription = HeaderDescriptionErrors + StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Item ""%2"" is missing attribute ""%1"".';"), AttributeName, TagName);			
 			Return SettingsDescription;
 		EndIf;
 		
-		IsCurrent1 = XMLValue(Type("Boolean"), IsCurrentPresentation.Value);
+		IsCurrent1 = XMLValue(Type("Boolean"), IsCurrent1Presentation.Value);
 		
 		SettingsDescription.UserSettings.Add(
 			SettingsKey.Value, SettingsPresentation.Value, IsCurrent1);

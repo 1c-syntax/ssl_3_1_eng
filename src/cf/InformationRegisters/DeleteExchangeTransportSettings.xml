@@ -313,7 +313,7 @@
 			</Resource>
 			<Resource uuid="b270fc64-15c6-41ed-ad09-44c833ca7c41">
 				<Properties>
-					<Name>COMUsername</Name>
+					<Name>COMUserName</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -545,7 +545,7 @@
 			</Resource>
 			<Resource uuid="bc55dc06-a769-40be-9c99-0794bdd2dbea">
 				<Properties>
-					<Name>EMAIL_Account</Name>
+					<Name>EMAILAccount</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -1187,7 +1187,7 @@
 			</Resource>
 			<Resource uuid="599b1692-5f4e-42ef-ae1a-822ff527a415">
 				<Properties>
-					<Name>WSUsername</Name>
+					<Name>WSUserName</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>

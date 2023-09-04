@@ -66,11 +66,7 @@ Procedure InitializeReportHeaders(Form) Export
 	
 	IndexOfTheReportStructure = IndexOfTheReportStructure(Form);
 	SectionHeaderBorder = Undefined;
-	
 	HeaderPropertiesSection = StandardSectionOfReportHeaderProperties();
-	
-	IsMobileClient = CommonClientServer.HasAttributeOrObjectProperty(Form, "IsMobileClient")
-		And Form.IsMobileClient;
 	
 	For LineNumber = 1 To ReportResult.TableHeight Do 
 		

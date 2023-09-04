@@ -23,14 +23,14 @@
 //
 Function AttributesToSkipInBatchProcessing() Export
 	
-	AttributesToSkip = New Array;
-	AttributesToSkip.Add("AuthorizationObject");
-	AttributesToSkip.Add("SetRolesDirectly");
-	AttributesToSkip.Add("IBUserID");
-	AttributesToSkip.Add("ServiceUserID");
-	AttributesToSkip.Add("DeleteInfobaseUserProperties");
+	NotAttributesToEdit = New Array;
+	NotAttributesToEdit.Add("AuthorizationObject");
+	NotAttributesToEdit.Add("SetRolesDirectly");
+	NotAttributesToEdit.Add("IBUserID");
+	NotAttributesToEdit.Add("ServiceUserID");
+	NotAttributesToEdit.Add("DeleteInfobaseUserProperties");
 	
-	Return AttributesToSkip;
+	Return NotAttributesToEdit;
 	
 EndFunction
 

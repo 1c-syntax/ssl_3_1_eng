@@ -73,7 +73,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	
 	If Source = "UseExternalUsers" Then
 		
-		ThisObject.Read();
+		Read();
 		SetAvailability();
 		
 	EndIf;
@@ -299,7 +299,7 @@ Function OnChangeAttributeServer(TagName)
 	ConstantName = SaveAttributeValue(DataPathAttribute);
 	If (ConstantName = "UseEmailClient" Or ConstantName = "UseBusinessProcessesAndTasks") 
 		And Not ConstantsSet[ConstantName] Then
-		ThisObject.Read();
+		Read();
 	EndIf;
 	SetAvailability(DataPathAttribute);
 	RefreshReusableValues();
@@ -317,10 +317,10 @@ Function SaveAttributeValue(DataPathAttribute)
 	
 	ConstantName = NameParts[1];
 	ConstantManager = Constants[ConstantName];
-	ConstantValue1 = ConstantsSet[ConstantName];
+	ConstantValue = ConstantsSet[ConstantName];
 	
-	If ConstantManager.Get() <> ConstantValue1 Then
-		ConstantManager.Set(ConstantValue1);
+	If ConstantManager.Get() <> ConstantValue Then
+		ConstantManager.Set(ConstantValue);
 	EndIf;
 	
 	Return ConstantName;

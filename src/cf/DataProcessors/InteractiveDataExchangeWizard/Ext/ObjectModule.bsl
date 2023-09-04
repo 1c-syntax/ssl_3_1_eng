@@ -275,7 +275,7 @@ Procedure ExecuteDataImportFromExchangeMessagesIntoCache(Cancel, RowIndexes)
 		
 		DataExchangeDataProcessor.ExecuteDataImportIntoValueTable(TablesToImport);
 		
-		If DataExchangeDataProcessor.ErrorFlag() Then
+		If DataExchangeDataProcessor.FlagErrors() Then
 			Cancel = True;
 			NString = NStr("en = 'Errors occurred while importing the exchange message: %1';");
 			NString = StringFunctionsClientServer.SubstituteParametersToString(NString, DataExchangeDataProcessor.ErrorMessageString());

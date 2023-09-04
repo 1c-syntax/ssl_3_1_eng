@@ -107,7 +107,7 @@ Procedure UseFilterCertificateChangedOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure IsFilterCertificateChangedOnChange(Item)
+Procedure FilterIsCertificateChangedOnChange(Item)
 	SetFilters();
 EndProcedure
 
@@ -458,7 +458,7 @@ Procedure SetFilters()
 
 		NewCertificate = Filter.Add("IsCertificateChanged");
 		NewCertificate.ComparisonType	= ComparisonType.Equal;
-		NewCertificate.Value		= IsFilterCertificateChanged;
+		NewCertificate.Value		= FilterIsCertificateChanged;
 		NewCertificate.Use	= UseFilterCertificateChanged;
 	EndIf;
 	
@@ -753,7 +753,7 @@ Procedure PopulateDefaultFilters()
 	FilterPasswordIsSet = True;
 	FilterPasswordChanged = True;
 	FilterCertificateSpecified = True;
-	IsFilterCertificateChanged = True;
+	FilterIsCertificateChanged = True;
 	
 EndProcedure
 

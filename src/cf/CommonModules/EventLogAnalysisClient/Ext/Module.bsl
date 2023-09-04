@@ -57,7 +57,7 @@ Procedure ReportFormDetailProcessing(ReportForm, Item, Details, StandardProcessi
 		HandlerParameters = New Structure;
 		HandlerParameters.Insert("Details", Details);
 		HandlerParameters.Insert("ReportForm", ReportForm);
-		Handler = New NotifyDescription("DetailProcessingResultCompletion", ThisObject, HandlerParameters);
+		Handler = New NotifyDescription("ResultDetailProcessingCompletion", ThisObject, HandlerParameters);
 		ReportForm.ShowChooseFromMenu(Handler, DetailsOption);
 		
 	ElsIf DetailsType <> Undefined Then
@@ -101,7 +101,7 @@ EndProcedure
 //                  - ManagedFormExtensionForReports:
 //        ** ReportSpreadsheetDocument - SpreadsheetDocument
 //
-Procedure DetailProcessingResultCompletion(SelectedOption, HandlerParameters) Export
+Procedure ResultDetailProcessingCompletion(SelectedOption, HandlerParameters) Export
 	If SelectedOption = Undefined Then
 		Return;
 	EndIf;

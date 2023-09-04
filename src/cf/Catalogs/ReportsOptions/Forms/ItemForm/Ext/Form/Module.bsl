@@ -319,7 +319,7 @@ EndProcedure
 Function RefillTree(Read)
 	SelectedRows = ReportsServer.RememberSelectedRows(ThisObject, "SubsystemsTree", "Ref");
 	If Read Then
-		ThisObject.Read();
+		Read();
 	EndIf;
 	DestinationTree = ReportsOptions.SubsystemsTreeGenerate(ThisObject, Object);
 	ValueToFormAttribute(DestinationTree, "SubsystemsTree");

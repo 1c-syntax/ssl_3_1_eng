@@ -90,7 +90,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	PermissionsAddress = PutToTempStorage(
 		FormAttributeToValue("Object").Permissions.Unload(),
-		ThisObject.UUID);
+		UUID);
 	
 	SetVisibilityAvailability();
 	
@@ -317,7 +317,7 @@ Procedure AdditionalReportOptionsBeforeDeleteRow(Item, Cancel)
 	
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("Variant", Variant);
-	Handler = New NotifyDescription("AdditionalReportOptionsBeforeDeleteCompletion", ThisObject, AdditionalParameters);
+	Handler = New NotifyDescription("AdditionalReportOptionsBeforeDeleteRowCompletion", ThisObject, AdditionalParameters);
 	ShowQueryBox(Handler, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
 EndProcedure
 
@@ -374,7 +374,7 @@ EndProcedure
 Procedure OptionsCommandsPermissionsPagesOnCurrentPageChange(Item, CurrentPage)
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties")
 		And CurrentPage.Name = "AdditionalAttributesPage"
-		And Not ThisObject.PropertiesParameters.DeferredInitializationExecuted Then
+		And Not PropertiesParameters.DeferredInitializationExecuted Then
 		
 		PropertiesExecuteDeferredInitialization();
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
@@ -462,7 +462,7 @@ EndProcedure
 
 &AtClient
 Procedure AdditionalReportOptionsOpen(Command)
-	Variant = ThisObject.Items.AdditionalReportOptions.CurrentData;
+	Variant = Items.AdditionalReportOptions.CurrentData;
 	If Variant = Undefined Then
 		ShowMessageBox(, NStr("en = 'Choose a report option.';"));
 		Return;
@@ -491,7 +491,7 @@ EndProcedure
 &AtClient
 Procedure SetPrintCommandVisibility(Command)
 	If Modified Then
-		NotifyDescription = New NotifyDescription("SetUpVisibilityCompletion", ThisObject);
+		NotifyDescription = New NotifyDescription("SetPrintCommandVisibilityCompletion", ThisObject);
 		QueryText = NStr("en = 'To configure the visibility of print commands, save the data processor. Continue?';");
 		Buttons = New ValueList;
 		Buttons.Add("Continue", NStr("en = 'Continue';"));
@@ -611,12 +611,12 @@ Procedure ContinueWriteAtClient(Result, CloseAfterWrite)  Export
 		NotificationText1 = NStr("en = 'To apply the changes in open windows, close and reopen them.';");
 		ShowUserNotification(, , NotificationText1);
 	EndIf;
-	WriteAtClientEnd(WriteParameters);
+	WriteAtClientCompletion(WriteParameters);
 	
 EndProcedure
 
 &AtClient
-Procedure WriteAtClientEnd(WriteParameters)
+Procedure WriteAtClientCompletion(WriteParameters)
 	If WriteParameters.CloseAfterWrite And IsOpen() Then
 		Close();
 	EndIf;
@@ -984,7 +984,7 @@ EndProcedure
 //   AdditionalParameters - Structure
 //
 &AtClient
-Procedure AdditionalReportOptionsBeforeDeleteCompletion(Response, AdditionalParameters) Export
+Procedure AdditionalReportOptionsBeforeDeleteRowCompletion(Response, AdditionalParameters) Export
 	If Response = DialogReturnCode.Yes Then
 		Variant = AdditionalParameters.Variant;
 		DeleteAdditionalReportOption("ExternalReport." + Object.ObjectName, Variant.VariantKey);
@@ -1117,7 +1117,7 @@ Procedure UpdateFromFileAtServer(RegistrationParameters)
 	ObjectOfCatalog = FormAttributeToValue("Object");
 	SavedCommands = ObjectOfCatalog.Commands.Unload();
 	RegistrationResult = AdditionalReportsAndDataProcessors.RegisterDataProcessor(ObjectOfCatalog, RegistrationParameters);
-	PermissionsAddress = PutToTempStorage(ObjectOfCatalog.Permissions.Unload(), ThisObject.UUID);
+	PermissionsAddress = PutToTempStorage(ObjectOfCatalog.Permissions.Unload(), UUID);
 	ValueToFormAttribute(ObjectOfCatalog, "Object");
 	
 	CommonClientServer.SupplementStructure(RegistrationParameters, RegistrationResult, True);
@@ -1601,7 +1601,7 @@ Function SelectedRelatedObjects()
 EndFunction
 
 &AtClient
-Procedure SetUpVisibilityCompletion(DialogResult, AdditionalParameters) Export
+Procedure SetPrintCommandVisibilityCompletion(DialogResult, AdditionalParameters) Export
 	If DialogResult <> "Continue" Then
 		Return;
 	EndIf;

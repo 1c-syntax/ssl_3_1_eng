@@ -52,12 +52,12 @@ Function GenerateColumnDetails(Table, Columns = Undefined) Export
 					ToolTip = ToolTip + MetadataObject.Comment + Chars.LF;
 					
 					If Common.IsEnum(MetadataObject) Then
-						TooltipSet = New Array;
-						TooltipSet.Add(NStr("en = 'Available options:';"));
+						ToolTipSet = New Array;
+						ToolTipSet.Add(NStr("en = 'Available options:';"));
 						For Each EnumOption In MetadataObject.EnumValues Do
-							TooltipSet.Add(EnumOption.Presentation());
+							ToolTipSet.Add(EnumOption.Presentation());
 						EndDo;
-						ToolTip = StrConcat(TooltipSet, Chars.LF);
+						ToolTip = StrConcat(ToolTipSet, Chars.LF);
 					EndIf;
 					
 				EndIf;
@@ -171,9 +171,9 @@ EndFunction
 //
 // Parameters:
 //  ObjectReference - AnyRef -
-//  TableRow - ValueTableRow: см. ЗагрузкаДанныхИзФайла.ОписаниеЗагружаемыхДанныхДляСправочников
+//  TableRow - ValueTableRow of See ImportDataFromFile.DescriptionOfTheUploadedDataForReferenceBooks
 //
-Procedure RecordObjectProperties(ObjectReference, TableRow) Export
+Procedure WritePropertiesOfObject(ObjectReference, TableRow) Export
 	
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManagerInternal = Common.CommonModule("PropertyManagerInternal");

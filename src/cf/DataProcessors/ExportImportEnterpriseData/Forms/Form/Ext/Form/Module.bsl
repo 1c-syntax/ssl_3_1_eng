@@ -945,11 +945,11 @@ Procedure ReportOperationEnd(Load = False)
 EndProcedure
 
 &AtClient
-Procedure SetVisibilityAvailabilityOfButtons(FlagAvailability)
-	Items.UpperGroup.Visible = FlagAvailability;
-	Items.FormExecuteOperation.Visible = FlagAvailability;
-	Items.FormEnableAdvancedFeatures.Enabled = FlagAvailability;
-	Items.FormAbort.Visible = Not FlagAvailability;
+Procedure SetVisibilityAvailabilityOfButtons(FlagEnabled)
+	Items.UpperGroup.Visible = FlagEnabled;
+	Items.FormExecuteOperation.Visible = FlagEnabled;
+	Items.FormEnableAdvancedFeatures.Enabled = FlagEnabled;
+	Items.FormAbort.Visible = Not FlagEnabled;
 EndProcedure
 
 &AtClient
@@ -1262,8 +1262,8 @@ Procedure ImportExportSettingsAtServer()
 		
 		ElsIf XMLReader.Name = "Filter" Then
 			
-			SKDSelection = ANewLineOfSelectionOfSKD.Filter; // DataCompositionFilter
-			FIlterRow = SKDSelection.Items.Add(Type("DataCompositionFilterItem"));
+			FilterDCS = ANewLineOfSelectionOfSKD.Filter; // DataCompositionFilter
+			FIlterRow = FilterDCS.Items.Add(Type("DataCompositionFilterItem"));
 			
 			ReadTheValueOfSKDSelections(XMLReader, FIlterRow);
 			

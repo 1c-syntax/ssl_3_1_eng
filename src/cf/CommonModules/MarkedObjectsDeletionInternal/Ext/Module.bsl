@@ -75,7 +75,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 			Command.Kind = "ObjectsMarkedForDeletionDisplay";
 			Command.Importance = "SeeAlso";
 			Command.Presentation = NStr("en = 'Show objects marked for deletion';");
-			Command.WriteMode = "DoNotWrite";
+			Command.WriteMode = "NotWrite";
 			Command.VisibilityInForms = "ListForm";
 			Command.MultipleChoice = False;
 			Command.Handler = "MarkedObjectsDeletionClient.RunAttachableCommandShowObjectsMarkedForDeletion";
@@ -88,7 +88,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 				Command.Kind = "GoToMarkedForDeletionItems";
 				Command.Importance = "SeeAlso";
 				Command.Presentation = NStr("en = 'Go to objects marked for deletion';");
-				Command.WriteMode = "DoNotWrite";
+				Command.WriteMode = "NotWrite";
 				Command.VisibilityInForms = "ListForm";
 				Command.MultipleChoice = False;
 				Command.Handler = "MarkedObjectsDeletionClient.RunAttachableCommandGoToObjectsMarkedForDeletion";

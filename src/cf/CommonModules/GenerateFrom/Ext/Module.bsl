@@ -237,7 +237,7 @@ EndFunction
 
 // Parameters:
 //  Form - ClientApplicationForm
-//  CommandsKind - ValueTableRow: см. ПодключаемыеКомандыПереопределяемый.ПриОпределенииВидовПодключаемыхКоманд.ВидыПодключаемыхКоманд
+//  CommandsKind - ValueTableRow of See AttachableCommandsOverridable.OnDefineAttachableCommandsKinds.AttachableCommandsKinds
 //  SubmenuInfoByDefault - ValueTableRow:
 //   * Popup - FormGroup 
 //   * CommandsShown - Number

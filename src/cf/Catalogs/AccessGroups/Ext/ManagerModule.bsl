@@ -23,14 +23,14 @@
 //
 Function AttributesToSkipInBatchProcessing() Export
 	
-	AttributesToSkip = New Array;
-	AttributesToSkip.Add("UsersType");
-	AttributesToSkip.Add("User");
-	AttributesToSkip.Add("MainSuppliedProfileAccessGroup");
-	AttributesToSkip.Add("AccessKinds.*");
-	AttributesToSkip.Add("AccessValues.*");
+	NotAttributesToEdit = New Array;
+	NotAttributesToEdit.Add("UsersType");
+	NotAttributesToEdit.Add("User");
+	NotAttributesToEdit.Add("MainSuppliedProfileAccessGroup");
+	NotAttributesToEdit.Add("AccessKinds.*");
+	NotAttributesToEdit.Add("AccessValues.*");
 	
-	Return AttributesToSkip;
+	Return NotAttributesToEdit;
 	
 EndFunction
 

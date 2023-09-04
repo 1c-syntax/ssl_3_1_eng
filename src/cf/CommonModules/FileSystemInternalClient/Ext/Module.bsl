@@ -1154,14 +1154,14 @@ Procedure StartFileSystemExtensionAttachingOnSetExtension(Attached, Context) Exp
 	
 	// If the extension is already installed, there is no need to ask about it
 	If Attached Then
-		ExecuteNotifyProcessing(Context.NotificationDescriptionCompletion, "AttachmentNotRequired");
+		ExecuteNotifyProcessing(Context.NotifyDescriptionCompletion, "AttachmentNotRequired");
 		Return;
 	EndIf;
 	
 	// 
 	If CommonClient.IsMacOSClient() 
 			And Not AnExtensionForWorkingWithFilesIsAvailable() Then
-		ExecuteNotifyProcessing(Context.NotificationDescriptionCompletion);
+		ExecuteNotifyProcessing(Context.NotifyDescriptionCompletion);
 		Return;
 	EndIf;
 	
@@ -1174,7 +1174,7 @@ Procedure StartFileSystemExtensionAttachingOnSetExtension(Attached, Context) Exp
 	SuggestFileSystemExtensionInstallation = ApplicationParameters[ParameterName] Or FirstCallDuringSession;
 	If Context.CanContinueWithoutInstalling And Not SuggestFileSystemExtensionInstallation Then
 		
-		ExecuteNotifyProcessing(Context.NotificationDescriptionCompletion);
+		ExecuteNotifyProcessing(Context.NotifyDescriptionCompletion);
 		
 	Else 
 		
@@ -1184,7 +1184,7 @@ Procedure StartFileSystemExtensionAttachingOnSetExtension(Attached, Context) Exp
 		OpenForm(
 			"CommonForm.FileSystemExtensionInstallationQuestion", 
 			FormParameters,,,,, 
-			Context.NotificationDescriptionCompletion);
+			Context.NotifyDescriptionCompletion);
 		
 	EndIf;
 	

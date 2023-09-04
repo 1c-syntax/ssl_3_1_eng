@@ -22,9 +22,6 @@
 			<xr:Value xsi:type="xs:string">CommandBar</xr:Value>
 		</xr:Item>
 	</MobileDeviceCommandBarContent>
-	<CommandSet>
-		<ExcludedCommand>CustomizeForm</ExcludedCommand>
-	</CommandSet>
 	<AutoCommandBar name="FormCommandBar" id="-1"/>
 	<Events>
 		<Event name="OnOpen">OnOpen</Event>
@@ -77,6 +74,8 @@
 				<LabelField name="SearchRulesPresentation" id="408">
 					<DataPath>SearchRulesPresentation</DataPath>
 					<AutoMaxWidth>false</AutoMaxWidth>
+					<Height>2</Height>
+					<VerticalStretch>true</VerticalStretch>
 					<Hiperlink>true</Hiperlink>
 					<ContextMenu name="SearchRulesPresentationContextMenu" id="409"/>
 					<ExtendedTooltip name="SearchRulesPresentationExtendedTooltip" id="410"/>
@@ -98,6 +97,7 @@
 			<ExtendedTooltip name="WizardStepsExtendedTooltip" id="59"/>
 			<ChildItems>
 				<Page name="NoSearchPerformedStep" id="62">
+					<EnableContentChange>true</EnableContentChange>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -119,6 +119,7 @@
 					</ChildItems>
 				</Page>
 				<Page name="PerformSearchStep" id="186">
+					<EnableContentChange>true</EnableContentChange>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -279,7 +280,7 @@
 												<ChildItems>
 													<Button name="FoundDuplicatesContextMenuCustomizeForm" id="424">
 														<Type>CommandBarButton</Type>
-														<CommandName>Form.Item.FoundDuplicates.StandardCommand.OutputList</CommandName>
+														<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
 														<ExtendedTooltip name="FoundDuplicatesContextMenuCustomizeFormExtendedTooltip" id="425"/>
 													</Button>
 												</ChildItems>
@@ -334,6 +335,10 @@
 												</v8:item>
 											</ToolTip>
 											<EditMode>EnterOnInput</EditMode>
+											<HeaderPicture>
+												<xr:Ref>CommonPicture.MetadataAttributes</xr:Ref>
+												<xr:LoadTransparent>false</xr:LoadTransparent>
+											</HeaderPicture>
 											<ValuesPicture>
 												<xr:Ref>CommonPicture.ItemIcons</xr:Ref>
 												<xr:LoadTransparent>false</xr:LoadTransparent>
@@ -572,7 +577,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Status</v8:content>
+									<v8:content>State</v8:content>
 								</v8:item>
 							</Title>
 							<Height>2</Height>
@@ -617,6 +622,7 @@
 					</ChildItems>
 				</Page>
 				<Page name="DeletionStep" id="205">
+					<EnableContentChange>true</EnableContentChange>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -977,6 +983,11 @@
 														<CommandName>Form.Item.UnprocessedDuplicates.StandardCommand.OutputList</CommandName>
 														<ExtendedTooltip name="UnprocessedDuplicatesContextMenuOutputListExtendedTooltip" id="437"/>
 													</Button>
+													<Button name="UnprocessedDuplicatesContextMenuCustomizeForm" id="521">
+														<Type>CommandBarButton</Type>
+														<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
+														<ExtendedTooltip name="UnprocessedDuplicatesContextMenuCustomizeFormExtendedTooltip" id="522"/>
+													</Button>
 												</ChildItems>
 											</ContextMenu>
 											<AutoCommandBar name="UnprocessedDuplicatesCommandBar" id="244">
@@ -1298,6 +1309,7 @@
 					</ChildItems>
 				</Page>
 				<Page name="DuplicatesNotFoundStep" id="227">
+					<EnableContentChange>true</EnableContentChange>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -1319,6 +1331,7 @@
 					</ChildItems>
 				</Page>
 				<Page name="ErrorOccurredStep" id="448">
+					<EnableContentChange>true</EnableContentChange>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -1381,6 +1394,7 @@
 			</ChildItems>
 		</Pages>
 		<UsualGroup name="WizardActionsPanel" id="167">
+			<EnableContentChange>true</EnableContentChange>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -1449,6 +1463,7 @@
 		<UsualGroup name="GroupPictures" id="75">
 			<Visible>false</Visible>
 			<Enabled>false</Enabled>
+			<EnableContentChange>true</EnableContentChange>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -1764,7 +1779,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Duplicates found status details</v8:content>
+					<v8:content>State of found duplicates</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

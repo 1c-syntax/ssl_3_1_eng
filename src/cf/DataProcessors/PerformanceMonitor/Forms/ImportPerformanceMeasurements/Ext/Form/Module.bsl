@@ -12,7 +12,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Not PerformanceMonitorInternal.SubsystemExists("StandardSubsystems.Core") Then
-		ThisObject.Items.ImportFile3.ChoiceButton = False;
+		Items.ImportFile3.ChoiceButton = False;
 		SSLAvailable = False;
 	Else
 		SSLAvailable = True;
@@ -33,7 +33,7 @@ Procedure SelectFileToImportSuggested(FileSystemExtensionAttached1, AdditionalPa
 		SelectingFile.Title = NStr("en = 'Choose a sample file';");
 		SelectingFile.Filter = "Files import2 measurings (*.zip)|*.zip";
 		
-		NotifyDescription = New NotifyDescription("SelectFileDialogCompletion", ThisObject, Undefined);
+		NotifyDescription = New NotifyDescription("FileDialogCompletion", ThisObject, Undefined);
 		If SSLAvailable Then
 			ModuleFileSystemClient = Eval("FileSystemClient");
 			If TypeOf(ModuleFileSystemClient) = Type("CommonModule") Then
@@ -80,7 +80,7 @@ Procedure ImportAfterExistenceCheck(Exists, AdditionalParameters) Export
 		Return;
 	EndIf;
 	BinaryData = New BinaryData(ImportFile3);
-    StorageAddress = PutToTempStorage(BinaryData, ThisObject.UUID);
+    StorageAddress = PutToTempStorage(BinaryData, UUID);
     ExecuteImportAtServer1(ImportFile3, StorageAddress);	
 EndProcedure
 
@@ -94,7 +94,7 @@ Procedure ExecuteImportAtServer1(FileName, StorageAddress)
 EndProcedure                                                                     
 
 &AtClient
-Procedure SelectFileDialogCompletion(SelectedFiles, AdditionalParameters) Export
+Procedure FileDialogCompletion(SelectedFiles, AdditionalParameters) Export
     
     If SelectedFiles <> Undefined Then
 		ImportFile3 = SelectedFiles[0];

@@ -136,7 +136,7 @@
 					</Title>
 					<Width>20</Width>
 					<Group>InCell</Group>
-					<ExtendedTooltip name="PlacemarkGroupExtendedTooltip" id="37"/>
+					<ExtendedTooltip name="GroupLabelsExtendedTooltip" id="37"/>
 					<ChildItems>
 						<CheckBoxField name="LabelsValue" id="17">
 							<DataPath>Labels.Value</DataPath>

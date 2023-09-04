@@ -43,76 +43,66 @@ Function DatesByCalendar(Val WorkScheduleCalendar, Val DateFrom, Val DaysArray, 
 		EndIf;
 	EndIf;
 	
-	TempTablesManager = New TempTablesManager;
+	ShiftDays = DaysIncrement(DaysArray, CalculateNextDateFromPrevious);
 	
-	CreateTTDaysIncrement(TempTablesManager, DaysArray, CalculateNextDateFromPrevious);
+	TypesOfDaysIncludedInCalculation = New Array();
+	TypesOfDaysIncludedInCalculation.Add(Enums.BusinessCalendarDaysKinds.Work); 
+	TypesOfDaysIncludedInCalculation.Add(Enums.BusinessCalendarDaysKinds.Preholiday);
 	
-	// 
-	// 
-	// 
-	// 
-	
-	Query = New Query;
-	
-	Query.TempTablesManager = TempTablesManager;
-	
-	// 
-	Query.Text =
-	"SELECT
-	|	CalendarSchedules.Date AS ScheduleDate
-	|INTO TTSubsequentScheduleDates
-	|FROM
-	|	InformationRegister.BusinessCalendarData AS CalendarSchedules
-	|WHERE
-	|	CalendarSchedules.Date >= &DateFrom
-	|	AND CalendarSchedules.BusinessCalendar = &WorkScheduleCalendar
-	|	AND CalendarSchedules.DayKind IN (VALUE(Enum.BusinessCalendarDaysKinds.Work), VALUE(Enum.BusinessCalendarDaysKinds.Preholiday))
-	|;
-	|
-	|////////////////////////////////////////////////////////////////////////////////
-	|SELECT
-	|	SubsequentScheduleDates.ScheduleDate,
-	|	COUNT(CalendarSchedules.ScheduleDate) - 1 AS NumberOfDaysInSchedule
-	|INTO TTSubsequentScheduleDatesWithDayCount
-	|FROM
-	|	TTSubsequentScheduleDates AS SubsequentScheduleDates
-	|		INNER JOIN TTSubsequentScheduleDates AS CalendarSchedules
-	|		ON (CalendarSchedules.ScheduleDate <= SubsequentScheduleDates.ScheduleDate)
-	|
-	|GROUP BY
-	|	SubsequentScheduleDates.ScheduleDate
-	|;
-	|
-	|////////////////////////////////////////////////////////////////////////////////
-	|SELECT
-	|	DaysIncrement.RowIndex,
-	|	ISNULL(SubsequentDays.ScheduleDate, UNDEFINED) AS DateByCalendar
-	|FROM
-	|	TTDayIncrement AS DaysIncrement
-	|		LEFT JOIN TTSubsequentScheduleDatesWithDayCount AS SubsequentDays
-	|		ON DaysIncrement.DaysCount = SubsequentDays.NumberOfDaysInSchedule
-	|
-	|ORDER BY
-	|	DaysIncrement.RowIndex";
-	
+	Query = New Query();
+	Query.SetParameter("BusinessCalendar", WorkScheduleCalendar);
 	Query.SetParameter("DateFrom", BegOfDay(DateFrom));
-	Query.SetParameter("WorkScheduleCalendar", WorkScheduleCalendar);
+	Query.SetParameter("Days", ShiftDays.DaysIncrement.UnloadColumn("DaysCount"));
+	Query.SetParameter("DaysKinds", TypesOfDaysIncludedInCalculation);
+	Query.Text =
+		"SELECT TOP 0
+		|	CalendarSchedules.Date AS Date
+		|FROM
+		|	InformationRegister.BusinessCalendarData AS CalendarSchedules
+		|WHERE
+		|	CalendarSchedules.Date > &DateFrom
+		|	AND CalendarSchedules.BusinessCalendar = &BusinessCalendar
+		|	AND CalendarSchedules.DayKind IN(&DaysKinds)
+		|
+		|ORDER BY
+		|	Date";
+
+	// 
+	QuerySchema = New QuerySchema();
+	QuerySchema.SetQueryText(Query.Text);
+	QuerySchema.QueryBatch[0].Operators[0].RetrievedRecordsCount = ShiftDays.Maximum;
+	Query.Text = QuerySchema.GetQueryText();
+
+	RequestedDays = New Map();
+	For Each TableRow In ShiftDays.DaysIncrement Do
+		RequestedDays.Insert(TableRow.DaysCount, False);
+	EndDo;
 	
 	Selection = Query.Execute().Select();
+	If Selection.Count() < ShiftDays.Maximum Then
+		If RaiseException1 Then
+			Raise StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Производственный календарь ""%1"" не заполнен с даты %2 на указанное количество рабочих дней.';"), 
+				WorkScheduleCalendar, 
+				Format(DateFrom, "DLF=D"));
+		Else
+			Return Undefined;
+		EndIf;
+	EndIf;
+	
+	OfDays = 0;
+	While Selection.Next() Do
+		OfDays = OfDays + 1;
+		If RequestedDays[OfDays] = False Then
+			RequestedDays.Insert(OfDays, Selection.Date);
+		EndIf;
+	EndDo;
 	
 	DatesArray = New Array;
-	
-	While Selection.Next() Do
-		If Selection.DateByCalendar = Undefined Then
-			ErrorMessage = NStr("en = 'Cannot determine the date because business calendar ""%1"" is not filled for the specified number of workdays after %2.';");
-			If RaiseException1 Then
-				Raise StringFunctionsClientServer.SubstituteParametersToString(ErrorMessage, WorkScheduleCalendar, Format(DateFrom, "DLF=D"));
-			Else
-				Return Undefined;
-			EndIf;
-		EndIf;
-		
-		DatesArray.Add(Selection.DateByCalendar);
+	For Each TableRow In ShiftDays.DaysIncrement Do
+		Date = RequestedDays[TableRow.DaysCount];
+		CommonClientServer.Validate(TypeOf(Date) = Type("Date") And ValueIsFilled(Date));
+		DatesArray.Add(Date);
 	EndDo;
 	
 	Return DatesArray;
@@ -615,52 +605,42 @@ EndFunction
 
 #Region Internal
 
-// Creates temporary table TTDaysIncrement, in which a row with item index and value (number of days)  
-// is generated for each item of the DaysArray.
+//  
+// 
+// 
 // 
 // Parameters:
-//  - 
-//  
-//  
+//  DaysArray - Array of Number -
+//  CalculateNextDateFromPrevious - Boolean -
+// 
+// Returns:
+//  Structure:
+//   * DaysIncrement - ValueTable
+//   * Maximum - Number
 //
-Procedure CreateTTDaysIncrement(TempTablesManager, Val DaysArray, Val CalculateNextDateFromPrevious = False) Export
-	
-	DaysIncrement = New ValueTable;
-	DaysIncrement.Columns.Add("RowIndex", New TypeDescription("Number"));
-	DaysIncrement.Columns.Add("DaysCount", New TypeDescription("Number"));
+Function DaysIncrement(DaysArray, Val CalculateNextDateFromPrevious = False) Export
+
+	Result = New Structure();
+	Result.Insert("DaysIncrement", New ValueTable);
+	Result.Insert("Maximum", 0);
+
+	Result.DaysIncrement.Columns.Add("RowIndex", New TypeDescription("Number"));
+	Result.DaysIncrement.Columns.Add("DaysCount", New TypeDescription("Number"));
 	
 	DaysCount = 0;
 	LineNumber = 0;
 	For Each DaysRow In DaysArray Do
 		DaysCount = DaysCount + DaysRow;
-		
-		String = DaysIncrement.Add();
-		String.RowIndex			= LineNumber;
-		If CalculateNextDateFromPrevious Then
-			String.DaysCount	= DaysCount;
-		Else
-			String.DaysCount	= DaysRow;
-		EndIf;
-			
+		String = Result.DaysIncrement.Add();
+		String.RowIndex = LineNumber;
+		String.DaysCount = ?(CalculateNextDateFromPrevious, DaysCount, DaysRow);
+		Result.Maximum = Max(Result.Maximum, String.DaysCount);
 		LineNumber = LineNumber + 1;
 	EndDo;
 	
-	Query = New Query;
-	Query.TempTablesManager = TempTablesManager;
-	
-	Query.Text =
-	"SELECT
-	|	DaysIncrement.RowIndex,
-	|	DaysIncrement.DaysCount
-	|INTO TTDayIncrement
-	|FROM
-	|	&DaysIncrement AS DaysIncrement";
-	
-	Query.SetParameter("DaysIncrement",	DaysIncrement);
-	
-	Query.Execute();
-	
-EndProcedure
+	Return Result;
+
+EndFunction
 
 // Updates items related to a business calendar, 
 // for example, Work schedules.

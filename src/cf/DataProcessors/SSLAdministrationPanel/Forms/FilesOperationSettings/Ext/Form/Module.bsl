@@ -253,7 +253,7 @@ EndProcedure
 #Region FormCommandHandlers
 
 &AtClient
-Procedure CatalogFiles1(Command)
+Procedure CatalogFiles(Command)
 	
 	OpenForm("Catalog.Files.ListForm", , ThisObject);
 	
@@ -344,22 +344,22 @@ EndProcedure
 &AtClient
 Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
 	
-	NameOfConstant = OnChangeAttributeServer(Item.Name);
+	ConstantName = OnChangeAttributeServer(Item.Name);
 	RefreshReusableValues();
-	AfterChangeAttribute(NameOfConstant, ShouldRefreshInterface);
+	AfterChangeAttribute(ConstantName, ShouldRefreshInterface);
 	
 EndProcedure
 
 &AtClient
-Procedure AfterChangeAttribute(NameOfConstant, ShouldRefreshInterface = True)
+Procedure AfterChangeAttribute(ConstantName, ShouldRefreshInterface = True)
 	
 	If ShouldRefreshInterface Then
 		RefreshInterface = True;
 		AttachIdleHandler("RefreshApplicationInterface", 2, True);
 	EndIf;
 	
-	If NameOfConstant <> "" Then
-		Notify("Write_ConstantsSet", New Structure, NameOfConstant);
+	If ConstantName <> "" Then
+		Notify("Write_ConstantsSet", New Structure, ConstantName);
 	EndIf;
 	
 EndProcedure
@@ -379,12 +379,12 @@ Function OnChangeAttributeServer(TagName)
 	
 	DataPathAttribute = Items[TagName].DataPath;
 	
-	NameOfConstant = SaveAttributeValue(DataPathAttribute);
+	ConstantName = SaveAttributeValue(DataPathAttribute);
 	
 	SetAvailability(DataPathAttribute);
 	RefreshReusableValues();
 	
-	Return NameOfConstant;
+	Return ConstantName;
 	
 EndFunction
 
@@ -442,38 +442,38 @@ Function SaveAttributeValue(DataPathAttribute)
 		
 		If DataPathAttribute = "MaxFileSize" Then
 			ConstantsSet.MaxFileSize = MaxFileSize * (1024*1024);
-			NameOfConstant = "MaxFileSize";
+			ConstantName = "MaxFileSize";
 		ElsIf DataPathAttribute = "MaxDataAreaFileSize" Then
 			
 			If Not Common.DataSeparationEnabled() Then
 				ConstantsSet.MaxFileSize = MaxDataAreaFileSize * (1024*1024);
-				NameOfConstant = "MaxFileSize";
+				ConstantName = "MaxFileSize";
 			Else
 				ConstantsSet.MaxDataAreaFileSize = MaxDataAreaFileSize * (1024*1024);
-				NameOfConstant = "MaxDataAreaFileSize";
+				ConstantName = "MaxDataAreaFileSize";
 			EndIf;
 			
 		ElsIf DataPathAttribute = "DenyUploadFilesByExtension" Then
 			ConstantsSet.DenyUploadFilesByExtension = DenyUploadFilesByExtension;
-			NameOfConstant = "DenyUploadFilesByExtension";
+			ConstantName = "DenyUploadFilesByExtension";
 		EndIf;
 		
 	Else
-		NameOfConstant = NameParts[1];
+		ConstantName = NameParts[1];
 	EndIf;
 	
-	If IsBlankString(NameOfConstant) Then
+	If IsBlankString(ConstantName) Then
 		Return "";
 	EndIf;
 	
-	ConstantManager = Constants[NameOfConstant];
-	ConstantValue1 = ConstantsSet[NameOfConstant];
+	ConstantManager = Constants[ConstantName];
+	ConstantValue = ConstantsSet[ConstantName];
 	
-	If ConstantManager.Get() <> ConstantValue1 Then
-		ConstantManager.Set(ConstantValue1);
+	If ConstantManager.Get() <> ConstantValue Then
+		ConstantManager.Set(ConstantValue);
 	EndIf;
 	
-	Return NameOfConstant;
+	Return ConstantName;
 	
 EndFunction
 

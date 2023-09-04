@@ -125,15 +125,15 @@ EndProcedure
 //
 // Parameters:
 //  Ref        - AnyRef - versioned object;
-//  OwnerForm1 - ClientApplicationForm - a form used to open a history of changes from.
+//  OwnerForm - ClientApplicationForm - a form used to open a history of changes from.
 //
-Procedure ShowChangeHistory(Ref, OwnerForm1) Export
+Procedure ShowChangeHistory(Ref, OwnerForm) Export
 	
 	OpeningParameters = New Structure;
 	OpeningParameters.Insert("Ref", Ref);
-	OpeningParameters.Insert("ReadOnly", OwnerForm1.ReadOnly);
+	OpeningParameters.Insert("ReadOnly", OwnerForm.ReadOnly);
 	
-	OpenForm("InformationRegister.ObjectsVersions.Form.SelectStoredVersions", OpeningParameters, OwnerForm1);
+	OpenForm("InformationRegister.ObjectsVersions.Form.SelectStoredVersions", OpeningParameters, OwnerForm);
 	
 EndProcedure
 

@@ -25,7 +25,10 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	|	InformationRegister.DigitalSignatures AS DigitalSignatures
 	|WHERE
 	|	(DigitalSignatures.SignatureFileName LIKE ""%\%"" ESCAPE ""~""
-	|			OR DigitalSignatures.SignatureFileName LIKE ""%/%"" ESCAPE ""~"")";
+	|			OR DigitalSignatures.SignatureFileName LIKE ""%/%"" ESCAPE ""~"")
+	|	OR DigitalSignatures.SignatureID = &BlankUUID";
+	
+	Query.SetParameter("BlankUUID", New UUID("00000000-0000-0000-0000-000000000000"));
 	
 	AdditionalParameters = InfobaseUpdate.AdditionalProcessingMarkParameters();
 	AdditionalParameters.IsIndependentInformationRegister = True;
@@ -62,10 +65,21 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			RecordSet.Read();
 			If RecordSet.Count() > 0 Then
 				Record = RecordSet[0];
+				TheNameOfTheSignatureFileWithoutAPath = Undefined;
 				NameParts = StrSplit(Record.SignatureFileName, "\/", False);
-				TheNameOfTheSignatureFileWithoutAPath = NameParts[NameParts.UBound()];
-				If Record.SignatureFileName <> TheNameOfTheSignatureFileWithoutAPath Then
+				If NameParts.Count() > 0 Then
+					TheNameOfTheSignatureFileWithoutAPath = NameParts[NameParts.UBound()];
+				EndIf;
+				WriteSet = False;
+				If Not ValueIsFilled(Record.SignatureID) Then
+					Record.SignatureID = New UUID;
+					WriteSet = True;
+				EndIf;
+				If TheNameOfTheSignatureFileWithoutAPath <> Undefined And Record.SignatureFileName <> TheNameOfTheSignatureFileWithoutAPath Then
 					Record.SignatureFileName = TheNameOfTheSignatureFileWithoutAPath;
+					WriteSet = True;
+				EndIf;
+				If WriteSet Then
 					InfobaseUpdate.WriteRecordSet(RecordSet);
 				EndIf;
 			EndIf;

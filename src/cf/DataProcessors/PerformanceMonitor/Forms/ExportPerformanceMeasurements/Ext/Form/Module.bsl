@@ -12,7 +12,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Not PerformanceMonitorInternal.SubsystemExists("StandardSubsystems.Core") Then
-		ThisObject.Items.ExportDirectory.ChoiceButton = False;
+		Items.ExportDirectory.ChoiceButton = False;
 		SSLAvailable = False;
 	Else
 		SSLAvailable = True;
@@ -32,7 +32,7 @@ Procedure SelectExportDirectorySuggested(FileSystemExtensionAttached1, Additiona
 		SelectingFile.Multiselect = False;
 		SelectingFile.Title = NStr("en = 'Select export directory';");
 		
-		NotifyDescription = New NotifyDescription("SelectDirectoryDialogCompletion", ThisObject, Undefined);
+		NotifyDescription = New NotifyDescription("DirectorySelectionDialogBoxCompletion", ThisObject, Undefined);
 		If SSLAvailable Then 
 			ModuleFileSystemClient = Eval("FileSystemClient");
 			If TypeOf(ModuleFileSystemClient) = Type("CommonModule") Then
@@ -130,10 +130,10 @@ Procedure ExportPerformanceTestFile(Command)
         Return;
     EndIf;
             
-	StorageAddress = PutToTempStorage(Undefined, ThisObject.UUID);
+	StorageAddress = PutToTempStorage(Undefined, UUID);
 	ExportParameters1 = New Structure;
-	ExportParameters1.Insert("StartDate", ThisObject.ExportPeriodStartDate);
-	ExportParameters1.Insert("EndDate", ThisObject.ExportPeriodEndDate);
+	ExportParameters1.Insert("StartDate", ExportPeriodStartDate);
+	ExportParameters1.Insert("EndDate", ExportPeriodEndDate);
 	ExportParameters1.Insert("StorageAddress", StorageAddress);
 	ExportParameters1.Insert("Profile", Profile);
 	RunExportAtServer(ExportParameters1);
@@ -142,7 +142,7 @@ Procedure ExportPerformanceTestFile(Command)
 	DeleteFromTempStorage(StorageAddress);
     
     If BinaryData <> Undefined Then
-        BinaryData.Write(ThisObject.ExportDirectory + GetClientPathSeparator() + ThisObject.ArchiveName + ".zip");
+        BinaryData.Write(ExportDirectory + GetClientPathSeparator() + ArchiveName + ".zip");
     Else
         UserMessage = New UserMessage;
         UserMessage.Text = NStr("en = 'There are no samples for the period. The archive was not generated.';") + Chars.LF;
@@ -161,10 +161,10 @@ Procedure RunExportAtServer(Parameters)
 EndProcedure
 
 &AtClient
-Procedure SelectDirectoryDialogCompletion(SelectedFiles, AdditionalParameters) Export
+Procedure DirectorySelectionDialogBoxCompletion(SelectedFiles, AdditionalParameters) Export
     
     If SelectedFiles <> Undefined Then
-		ThisObject.ExportDirectory = SelectedFiles[0];
+		ExportDirectory = SelectedFiles[0];
 	EndIf;
 		
 EndProcedure

@@ -173,7 +173,7 @@ Procedure MetadataObjectsTreeActionClearing(Item, StandardProcessing)
 	
 	StandardProcessing = False;	
 	SetActionForSelectedObjects(
-		PredefinedValue("Enum.FilesCleanupOptions.DontClear"));
+		PredefinedValue("Enum.FilesCleanupOptions.NotClear"));
 	
 EndProcedure
 
@@ -202,7 +202,7 @@ EndProcedure
 Procedure SetActionDoNotCleanUp(Command)
 	
 	SetActionForSelectedObjects(
-		PredefinedValue("Enum.FilesCleanupOptions.DontClear"));
+		PredefinedValue("Enum.FilesCleanupOptions.NotClear"));
 	
 EndProcedure
 
@@ -383,11 +383,11 @@ Procedure FillChoiceLists()
 	ChoiceListWithVersions = New ValueList;
 	ChoiceListWithVersions.Add(Enums.FilesCleanupOptions.CleanUpFilesAndVersions);
 	ChoiceListWithVersions.Add(Enums.FilesCleanupOptions.CleanUpVersions);
-	ChoiceListWithVersions.Add(Enums.FilesCleanupOptions.DontClear);
+	ChoiceListWithVersions.Add(Enums.FilesCleanupOptions.NotClear);
 	
 	ChoiceListWithoutVersions = New ValueList;
 	ChoiceListWithoutVersions.Add(Enums.FilesCleanupOptions.CleanUpFiles);
-	ChoiceListWithoutVersions.Add(Enums.FilesCleanupOptions.DontClear);
+	ChoiceListWithoutVersions.Add(Enums.FilesCleanupOptions.NotClear);
 	
 EndProcedure
 
@@ -525,7 +525,7 @@ Procedure FillObjectTypesInValueTree()
 			NewTableRow.Action = FoundSettings[0].Action;
 			NewTableRow.ClearingPeriod = FoundSettings[0].ClearingPeriod;
 		Else
-			NewTableRow.Action = Enums.FilesCleanupOptions.DontClear;
+			NewTableRow.Action = Enums.FilesCleanupOptions.NotClear;
 			NewTableRow.ClearingPeriod = Enums.FilesCleanupPeriod.OverOneYear;
 		EndIf;
 	EndDo;
@@ -829,7 +829,7 @@ Procedure AddSettingsByOwner(ValueSelected)
 		NewRecord = InformationRegisters.FilesClearingSettings.CreateRecordManager();
 		NewRecord.FileOwner = Setting;
 		NewRecord.FileOwnerType = RowOwner.FileOwnerType;
-		NewRecord.Action = Enums.FilesCleanupOptions.DontClear;
+		NewRecord.Action = Enums.FilesCleanupOptions.NotClear;
 		NewRecord.ClearingPeriod = Enums.FilesCleanupPeriod.OverOneYear;
 		NewRecord.IsFile = RowOwner.IsFile;
 		NewRecord.Write(True);
@@ -888,7 +888,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter = FilterItemsGroup.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("MetadataObjectsTree.Action");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
-	ItemFilter.RightValue = Enums.FilesCleanupOptions.DontClear;
+	ItemFilter.RightValue = Enums.FilesCleanupOptions.NotClear;
 	
 	ItemFilter = FilterItemsGroup.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("MetadataObjectsTree.ClearingPeriod");
@@ -905,7 +905,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("MetadataObjectsTree.Action");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
-	ItemFilter.RightValue = Enums.FilesCleanupOptions.DontClear;
+	ItemFilter.RightValue = Enums.FilesCleanupOptions.NotClear;
 	
 	Item.Appearance.SetParameterValue("Text", "");
 	Item.Appearance.SetParameterValue("ReadOnly", True);
@@ -918,7 +918,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("MetadataObjectsTree.Action");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.NotEqual;
-	ItemFilter.RightValue = Enums.FilesCleanupOptions.DontClear;
+	ItemFilter.RightValue = Enums.FilesCleanupOptions.NotClear;
 	
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("MetadataObjectsTree.Action");

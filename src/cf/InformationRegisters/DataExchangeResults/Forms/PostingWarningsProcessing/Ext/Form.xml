@@ -24,7 +24,7 @@
 			</Title>
 			<RowFilter xsi:nil="true"/>
 			<ContextMenu name="TableOfCorrectionObjectsContextMenu" id="2"/>
-			<AutoCommandBar name="TableOfCorrectionObjectsCommandBar" id="3">
+			<AutoCommandBar name="PatchObjectsTableCommandBar" id="3">
 				<Autofill>false</Autofill>
 				<ChildItems>
 					<Button name="TableOfCorrectionObjectsPostDocuments" id="26">

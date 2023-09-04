@@ -18,7 +18,6 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// Get owner form parameters.
 	ProcessOwnerFormParameters();
 	
 EndProcedure
@@ -76,7 +75,6 @@ EndProcedure
 
 #Region Private
 
-// Generates a return structure to pass to the owner form.
 &AtClient
 Function GenerateParametersStructureToPassToOwner()
 
@@ -95,8 +93,6 @@ Function GenerateParametersStructureToPassToOwner()
 
 EndFunction
 
-// Processes owner form parameters.
-//
 &AtServer
 Procedure ProcessOwnerFormParameters()
 	

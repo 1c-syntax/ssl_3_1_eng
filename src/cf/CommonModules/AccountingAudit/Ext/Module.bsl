@@ -763,7 +763,7 @@ Procedure OnReadAtServer(Form, CurrentObject) Export
 	NamesUniqueKey       = Common.CheckSumString(ObjectReference.Metadata().FullName()
 		+ GetPathSeparator() + Form.FormName);
 		
-	GroupDecoration = ManagedFormItems.Find("ErrorIndicatorGroup1" + NamesUniqueKey);
+	GroupDecoration = ManagedFormItems.Find("ErrorIndicatorGroup_" + NamesUniqueKey);
 	
 	IndicationGroupParameters = New Structure;
 	AccountingAuditInternal.OnDetermineIndicationGroupParameters(IndicationGroupParameters, TypeOf(ObjectReference));
@@ -783,7 +783,7 @@ Procedure OnReadAtServer(Form, CurrentObject) Export
 	Settings.LastCheckDate = AccountingAuditInternal.LastObjectCheck(ObjectReference);
 	If GroupDecoration <> Undefined Then
 		
-		LabelDecoration = ManagedFormItems.Find("DecorationLabel" + NamesUniqueKey);
+		LabelDecoration = ManagedFormItems.Find("LabelDecoration_" + NamesUniqueKey);
 		If LabelDecoration <> Undefined Then
 			LabelDecoration.Title = AccountingAuditInternal.GenerateCommonStringIndicator(Form, ObjectReference, Settings);
 		EndIf;

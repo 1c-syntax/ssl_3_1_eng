@@ -1234,7 +1234,6 @@ Procedure HideAGrouping(Settings, Group, Settings2, Group2, Field)
 	
 	If TypeOf(ParentGrouping2) = Type("DataCompositionTable") Then 
 		
-		GroupingID = Settings.GetIDByObject(Group);
 		GroupingID2 = Settings2.GetIDByObject(Group2);
 		
 		If StrFind(GroupingID2, "/row/") > 0 Then 
@@ -2154,11 +2153,8 @@ Procedure AfterChangingTheLayoutElementOfTheReportGrouping(Result, AdditionalPar
 	SettingsUsed2 = SettingsUsed(Form, TitleProperties.IDOfTheSettings, True);
 	Section = SettingsUsed.GetObjectByID(TitleProperties.SectionID);
 	Section2 = SettingsUsed2.GetObjectByID(TitleProperties.SectionID);
-	Group = SettingsUsed.GetObjectByID(TitleProperties.GroupingID);
-	Group2 = SettingsUsed2.GetObjectByID(TitleProperties.GroupingID);
 	
 	SampleDesign = Result.DCItem;
-	
 	If TypeOf(Section) = Type("DataCompositionNestedObjectSettings") Then
 		ApplyTheLayoutOfTheReportGrouping(Section.Settings, Section2.Settings, SampleDesign, TitleProperties);
 	ElsIf TitleProperties.NumberOfPartitions = 1 Then 

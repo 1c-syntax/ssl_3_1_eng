@@ -256,7 +256,7 @@ Procedure ToObtainThePathToTheProgram(CompletionProcessing, ProgramLink) Export
 	
 	DescriptionOfWay = VerifiedPathsToProgramModules.Get(ProgramLink);
 	If DescriptionOfWay <> Undefined Then
-		GetThePathToTheProgramCompletion(DescriptionOfWay, Context);
+		ToObtainThePathToTheProgramCompletion(DescriptionOfWay, Context);
 		Return;
 	EndIf;
 	Context.Insert("VerifiedPathsToProgramModules", VerifiedPathsToProgramModules);
@@ -272,7 +272,7 @@ Procedure ToObtainThePathToTheProgram(CompletionProcessing, ProgramLink) Export
 			"GetTheProgramPathAfterCheckingThePath", ThisObject, Context), ApplicationPath);
 	Else
 		GetTheDefaultProgramPath(New NotifyDescription(
-			"GetThePathToTheProgramCompletion", ThisObject, Context), ProgramLink);
+			"ToObtainThePathToTheProgramCompletion", ThisObject, Context), ProgramLink);
 	EndIf;
 	
 EndProcedure
@@ -281,12 +281,12 @@ EndProcedure
 Procedure GetTheProgramPathAfterCheckingThePath(Exists, Context) Export
 	
 	Context.Result.Exists = Exists;
-	GetThePathToTheProgramCompletion(Context.Result, Context);
+	ToObtainThePathToTheProgramCompletion(Context.Result, Context);
 	
 EndProcedure
 
 // Continues the GetApplicationPath procedure.
-Procedure GetThePathToTheProgramCompletion(DescriptionOfWay, Context) Export
+Procedure ToObtainThePathToTheProgramCompletion(DescriptionOfWay, Context) Export
 	
 	If Context.Property("VerifiedPathsToProgramModules") Then
 		Context.VerifiedPathsToProgramModules.Insert(Context.ProgramLink, DescriptionOfWay);
@@ -762,7 +762,7 @@ Procedure OpenCertificateFollowUp(Context)
 		GetCertificateByThumbprint(New NotifyDescription(
 			"OpenCertificateAfterCertificateSearch", ThisObject, Context), Thumbprint, False, Undefined);
 	Else
-		OpenCertificateEnd(Context);
+		OpenCertificateCompletion(Context);
 	EndIf;
 	
 EndProcedure
@@ -775,7 +775,7 @@ Procedure OpenCertificateAfterCertificateSearch(Result, Context) Export
 			"OpenCertificateAfterExportFoundCertificate", ThisObject, Context));
 	Else
 		Context.ErrorAtClient = Result;
-		OpenCertificateEnd(Context);
+		OpenCertificateCompletion(Context);
 	EndIf;
 	
 EndProcedure
@@ -785,12 +785,12 @@ Procedure OpenCertificateAfterExportFoundCertificate(ExportedData, Context) Expo
 	
 	Context.CertificateAddress = PutToTempStorage(ExportedData);
 	
-	OpenCertificateEnd(Context);
+	OpenCertificateCompletion(Context);
 	
 EndProcedure
 
 // Continue the OpenCertificate procedure.
-Procedure OpenCertificateEnd(Context)
+Procedure OpenCertificateCompletion(Context)
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("Ref");
@@ -1369,16 +1369,16 @@ EndProcedure
 
 Async Procedure VerifySignatureAddSignaturePropertiesToResult(Signature, Result, Context)
 	
-	CheckRequired2 = Undefined;
+	IsVerificationRequired = Undefined;
 	
 	If TypeOf(Context.CheckResult) = Type("Structure") Then
 		
 		If Result = Undefined Then
-			Context.CheckResult.CheckRequired2 = True;
+			Context.CheckResult.IsVerificationRequired = True;
 		ElsIf TypeOf(Result) =  Type("String") Then
 			ClassifierError = DigitalSignatureInternalClientCached.ClassifierError(Result);
 			If ClassifierError <> Undefined Then
-				CheckRequired2 = ClassifierError.IsCheckRequired;
+				IsVerificationRequired = ClassifierError.IsCheckRequired;
 			EndIf;
 		EndIf;
 		
@@ -1393,7 +1393,7 @@ Async Procedure VerifySignatureAddSignaturePropertiesToResult(Signature, Result,
 	EndIf;
 	
 	ExecuteNotifyProcessing(Context.Notification,
-		SignatureVerificationResult(Result, Context.CheckResult, CheckRequired2));
+		SignatureVerificationResult(Result, Context.CheckResult, IsVerificationRequired));
 			
 EndProcedure
 
@@ -1563,14 +1563,14 @@ Procedure VerifySignatureAfterSignatureCertificateVerified(CheckResult, Context)
 					Context.CheckResult);
 			EndIf;
 			Context.CheckResult.CertificateRevoked = CheckResult.CertificateRevoked;
-			Context.CheckResult.CheckRequired2 = CheckResult.CheckRequired2;
+			Context.CheckResult.IsVerificationRequired = CheckResult.IsVerificationRequired;
 		EndIf;
 
 	ElsIf CheckResult = Undefined Then
 		
 		Result = CheckResult;
 		If Context.CheckResult <> Undefined Then
-			Context.CheckResult.CheckRequired2 = True;
+			Context.CheckResult.IsVerificationRequired = True;
 		EndIf;
 		
 	Else
@@ -2107,7 +2107,7 @@ Procedure CheckCertificateAfterFailedCheck(Context)
 			Structure = New Structure;
 			Structure.Insert("GeneralDescriptionOfTheError", GeneralDescriptionOfTheError);
 			Structure.Insert("CertificateRevoked", Context.CertificateRevoked);
-			Structure.Insert("CheckRequired2", GeneralDescriptionOfTheError = Undefined
+			Structure.Insert("IsVerificationRequired", GeneralDescriptionOfTheError = Undefined
 				Or (Context.IsCheckRequiredAtServer = Undefined Or Context.IsCheckRequiredAtServer)
 				And (Context.IsCheckRequiredAtClient = Undefined Or Context.IsCheckRequiredAtClient));
 			
@@ -2128,7 +2128,7 @@ Procedure CheckCertificateAfterFailedCheck(Context)
 		If Context.ToVerifySignature Then
 			
 			Structure.Insert("CertificateRevoked", Context.CertificateRevoked);
-			Structure.Insert("CheckRequired2", GeneralDescriptionOfTheError = Undefined
+			Structure.Insert("IsVerificationRequired", GeneralDescriptionOfTheError = Undefined
 				Or (Context.IsCheckRequiredAtServer = Undefined Or Context.IsCheckRequiredAtServer)
 				And (Context.IsCheckRequiredAtClient = Undefined Or Context.IsCheckRequiredAtClient));
 			
@@ -2267,7 +2267,7 @@ Async Procedure CreateCryptoManagerAfterAttachCryptoExtension(Attached, Context)
 		CommonErrorText = ErrorTextDeviceNotSupported();
 			
 		ErrorProperties = DigitalSignatureInternalClientServer.NewErrorProperties();
-		ErrorProperties.Unsupported = True;
+		ErrorProperties.NotSupported = True;
 	EndIf;
 	
 	If Not Attached Then
@@ -2475,9 +2475,10 @@ Procedure CreateCryptoManagerLoopStart(Context) Export
 		Return;
 	EndIf;
 	
-	Stream = New MemoryStream;
-	Stream.BeginGetSize(New NotifyDescription(
-		"CreateACryptographyManagerCycleStartContinue", ThisObject, Context));
+	Notification = New NotifyDescription(
+		"CreateACryptographyManagerCycleStartContinue", ThisObject, Context);
+	
+	StandardSubsystemsClient.StartProcessingNotification(Notification);
 	
 EndProcedure
 
@@ -3364,7 +3365,7 @@ Procedure AddCertificatesOnlyToEncryptFromFileAfterPutFiles(PlacedFiles, Context
 	FormParameters.Insert("Organization",     Context.Organization);
 	
 	CompletionHandler = ?(Context.Property("CompletionHandler"), Context.CompletionHandler, Undefined);
-	Form = OpenForm("Catalog.DigitalSignatureAndEncryptionKeysCertificates.Form.AddCertificatesForEncryption",
+	OpenForm("Catalog.DigitalSignatureAndEncryptionKeysCertificates.Form.AddCertificatesForEncryption",
 		FormParameters, , , , , CompletionHandler);
 	
 EndProcedure
@@ -3783,7 +3784,7 @@ Procedure CheckCatalogCertificate(Certificate, AdditionalParameters) Export
 EndProcedure
 
 // For internal use only.
-Procedure StandardCompletion(Success, ClientParameters) Export
+Procedure RegularlyCompletion(Success, ClientParameters) Export
 	
 	ClientParameters.DataDetails.Insert("Success", Success = True);
 	ClientParameters.DataDetails.Insert("Cancel", Success = Undefined);
@@ -4965,9 +4966,10 @@ Procedure ExecuteAtSideLoopStart(Context)
 		Return;
 	EndIf;
 	
-	Stream = New MemoryStream;
-	Stream.BeginGetSize(New NotifyDescription(
-		"RunAStartContinueLoopOnTheSide", ThisObject, Context));
+	Notification = New NotifyDescription(
+		"RunAStartContinueLoopOnTheSide", ThisObject, Context);
+	
+	StandardSubsystemsClient.StartProcessingNotification(Notification);
 	
 EndProcedure
 
@@ -5019,7 +5021,7 @@ Procedure ExecuteAtSideLoopAfterOperationAtClientXMLDSig(XMLEnvelope, Context) E
 		SignatureProperties.SignatureCorrect = Context.CertificateValid;
 	EndIf;
 	
-	SignatureProperties.CheckRequired2 = Context.CheckRequired2;
+	SignatureProperties.IsVerificationRequired = Context.IsVerificationRequired;
 	
 	ExecuteAtSideAfterSigning(SignatureProperties, Context);
 	
@@ -5226,7 +5228,7 @@ Procedure ExecuteAtSideCycleAfterGetData(Result, Context) Export
 	ParametersForServer.Insert("Operation", Context.Operation);
 	ParametersForServer.Insert("FormIdentifier",  Context.FormIdentifier);
 	ParametersForServer.Insert("CertificateValid",     Context.CertificateValid);
-	ParametersForServer.Insert("CheckRequired2",   Context.CheckRequired2);
+	ParametersForServer.Insert("IsVerificationRequired",   Context.IsVerificationRequired);
 	ParametersForServer.Insert("CertificateApp", Context.Form.CertificateApp);
 	ParametersForServer.Insert("ThumbprintOfCertificate", Context.Form.ThumbprintOfCertificate);
 	ParametersForServer.Insert("DataItemForSErver", DataItemForSErver);
@@ -5243,6 +5245,7 @@ Procedure ExecuteAtSideCycleAfterGetData(Result, Context) Export
 		ParametersForServer.Insert("SignatureType",     Context.DataDetails.SignatureType);
 		ParametersForServer.Insert("Comment",    Context.Form.Comment);
 		ParametersForServer.Insert("PasswordValue", Context.PasswordValue);
+		ParametersForServer.Insert("SelectedAuthorizationLetter", Context.DataDetails.SelectedAuthorizationLetter);
 		
 		If Context.DataElement.Property("Object")
 		   And Not TypeOf(Context.DataElement.Object) = Type("NotifyDescription") Then
@@ -5331,13 +5334,7 @@ Async Procedure ExecuteAtSideCycleAfterOPerationAtClient(BinaryData, Context) Ex
 			Return;
 		EndIf;
 		
-		If Context.Operation = "Signing" Then
-			BinaryData = BinaryData.Result;
-		ElsIf Context.Operation = "Encryption" Then
-			BinaryData = BinaryData.Result;
-		Else
-			BinaryData = BinaryData.Result;
-		EndIf;
+		BinaryData = BinaryData.Result;
 		
 	EndIf;
 	
@@ -5403,7 +5400,7 @@ Function GetSignaturePropertiesAfterSigning(BinaryData, Context, SignatureParame
 		SignatureProperties.SignatureCorrect = Context.CertificateValid;
 	EndIf;
 	
-	SignatureProperties.CheckRequired2 = Context.CheckRequired2;
+	SignatureProperties.IsVerificationRequired = Context.IsVerificationRequired;
 	
 	Return SignatureProperties;
 	
@@ -5426,6 +5423,9 @@ Procedure ExecuteAtSideAfterSigning(SignatureProperties, Context)
 		If Context.OnClientSide Then
 			ObjectVersion = Undefined;
 			DataElement.Property("ObjectVersion", ObjectVersion);
+			SignatureProperties.Insert("SignatureID", String(New UUID));
+			
+			
 			ErrorPresentation = DigitalSignatureInternalServerCall.AddSignature(
 				DataElement.Object, SignatureProperties, Context.FormIdentifier, ObjectVersion);
 			If ValueIsFilled(ErrorPresentation) Then
@@ -5593,7 +5593,7 @@ EndProcedure
 //   * PasswordValue - String
 //   * CertificateValid - Undefined
 //                     - Boolean
-//   * CheckRequired2 - Undefined
+//   * IsVerificationRequired - Undefined
 //                       - Boolean
 //   * AddressOfCertificate - String
 //   * CurrentPresentationsList - ValueList
@@ -5609,7 +5609,7 @@ EndProcedure
 Function ExecuteANewContextOnTheSide()
 	
 	Return New Structure("DataDetails, Form, FormIdentifier, PasswordValue,
-		|CertificateValid, CheckRequired2, AddressOfCertificate, CurrentPresentationsList, FullDataPresentation");
+		|CertificateValid, IsVerificationRequired, AddressOfCertificate, CurrentPresentationsList, FullDataPresentation");
 	
 EndFunction
 
@@ -5926,9 +5926,10 @@ Procedure RefineSideLoopStart(Context)
 		Return;
 	EndIf;
 	
-	Stream = New MemoryStream;
-	Stream.BeginGetSize(New NotifyDescription(
-		"RefineSideLoopStartContinuation", ThisObject, Context));
+	Notification = New NotifyDescription(
+		"RefineSideLoopStartContinuation", ThisObject, Context);
+	
+	StandardSubsystemsClient.StartProcessingNotification(Notification);
 	
 EndProcedure
 
@@ -7016,7 +7017,7 @@ EndFunction
 Async Function HashResult(ComponentObject, CanonizedTextXMLBody, HashingAlgorithmOID, CryptoProviderType)
 	
 	Try
-		Result = Await ComponentObject.HashАсинх(
+		Result = Await ComponentObject.HashAsync(
 			CanonizedTextXMLBody,
 			HashingAlgorithmOID,
 			CryptoProviderType);
@@ -7028,7 +7029,7 @@ Async Function HashResult(ComponentObject, CanonizedTextXMLBody, HashingAlgorith
 	EndTry;
 	
 	If DigestValueAttribute = Undefined Then
-		ResultError = Await ComponentObject.GetLastErrorАсинх();
+		ResultError = Await ComponentObject.GetLastErrorAsync();
 		ErrorText = DigitalSignatureInternalClientServer.ErrorCallMethodComponents("Hash",
 			ResultError.Value);
 		Raise ErrorText;
@@ -7047,7 +7048,7 @@ Async Function SignResult(ComponentObject, CanonizedTextXMLSignedInfo,
 		Base64CryptoCertificate);
 
 	Try
-		Result = Await ComponentObject.SignАсинх(
+		Result = Await ComponentObject.SignAsync(
 			CanonizedTextXMLSignedInfo,
 			Base64CryptoCertificate,
 			PrivateKeyAccessPassword);
@@ -7059,7 +7060,7 @@ Async Function SignResult(ComponentObject, CanonizedTextXMLSignedInfo,
 	EndTry;
 	
 	If SignatureValueAttribute = Undefined Then
-		ResultError = Await ComponentObject.GetLastErrorАсинх();
+		ResultError = Await ComponentObject.GetLastErrorAsync();
 		ErrorText = DigitalSignatureInternalClientServer.ErrorCallMethodComponents("Sign",
 			ResultError.Value);
 		Raise ErrorText;
@@ -7090,8 +7091,6 @@ Async Procedure StartCheckSignatureXMLDSig(Context)
 EndProcedure
 
 Async Function VerifySignatureXMLDSig(Context)
-	
-	CheckParameters = New Structure;
 	
 	ComponentObject = Context.ComponentObject;
 	SigningAlgorithmData = Context.SigningAlgorithmData;
@@ -7182,7 +7181,7 @@ Async Function VerifySignResult(ComponentObject, CanonizedTextXMLSignedInfo,
 	SignatureValueAttribute, Base64CryptoCertificate, CryptoProviderType)
 	
 	Try
-		Result = Await ComponentObject.VerifySignАсинх(
+		Result = Await ComponentObject.VerifySignAsync(
 			CanonizedTextXMLSignedInfo,
 			SignatureValueAttribute,
 			Base64CryptoCertificate,
@@ -7195,7 +7194,7 @@ Async Function VerifySignResult(ComponentObject, CanonizedTextXMLSignedInfo,
 	EndTry;
 	
 	If SignatureCorrect = Undefined Then
-		ResultError = Await ComponentObject.GetLastErrorАсинх();
+		ResultError = Await ComponentObject.GetLastErrorAsync();
 		ErrorText = DigitalSignatureInternalClientServer.ErrorCallMethodComponents("VerifySign",
 			ResultError.Value);
 		Raise ErrorText;
@@ -7232,7 +7231,7 @@ Async Function C14NAsync(ComponentObject, XMLEnvelope, XPath)
 	
 	If CanonizedXMLText = Undefined Then
 		
-		ResultError = Await ComponentObject.GetLastErrorАсинх();
+		ResultError = Await ComponentObject.GetLastErrorAsync();
 		ErrorText = DigitalSignatureInternalClientServer.ErrorCallMethodComponents("C14N",
 			ResultError.Value);
 		Raise ErrorText;
@@ -7288,7 +7287,7 @@ EndFunction
 Async Function C14N_body(ComponentObject, XMLText, Algorithm)
 	
 	Try
-		Result = Await ComponentObject.c14n_bodyАсинх(XMLText,
+		Result = Await ComponentObject.c14n_bodyAsync(XMLText,
 			Algorithm.Version, Algorithm.WithComments);
 		CanonizedXMLText = Result.Value;
 
@@ -7299,7 +7298,7 @@ Async Function C14N_body(ComponentObject, XMLText, Algorithm)
 	EndTry;
 	
 	If CanonizedXMLText = Undefined Then
-		ResultError = Await ComponentObject.GetLastErrorАсинх();
+		ResultError = Await ComponentObject.GetLastErrorAsync();
 		ErrorText = DigitalSignatureInternalClientServer.ErrorCallMethodComponents("C14N_body",
 			ResultError.Value);
 		Raise ErrorText;
@@ -7312,7 +7311,7 @@ EndFunction
 Async Function CanonizationSMEV(ComponentObject, XMLText)
 	
 	Try
-		Result = Await ComponentObject.TransformSMEVАсинх(XMLText);
+		Result = Await ComponentObject.TransformSMEVAsync(XMLText);
 		CanonizedXMLText = Result.Value;
 	Except
 		ErrorText = DigitalSignatureInternalClientServer.ErrorCallMethodComponents("TransformSMEV",
@@ -7321,7 +7320,7 @@ Async Function CanonizationSMEV(ComponentObject, XMLText)
 	EndTry;
 	
 	If CanonizedXMLText = Undefined Then
-		ResultError = Await ComponentObject.GetLastErrorАсинх();
+		ResultError = Await ComponentObject.GetLastErrorAsync();
 		ErrorText = DigitalSignatureInternalClientServer.ErrorCallMethodComponents("TransformSMEV",
 			ResultError.Value);
 		Raise ErrorText;
@@ -7621,7 +7620,7 @@ Async Procedure CheckSignatureAtClientAfterCheckSignatureSaaS(Result, Context) E
 	
 	If Not Result.Completed2 Then
 		If TypeOf(Context.CheckResult) = Type("Structure") Then
-			Context.CheckResult.CheckRequired2 = True;
+			Context.CheckResult.IsVerificationRequired = True;
 		EndIf;
 		CheckSignatureAtClientAfterCheckSignatureError(Result.ErrorInfo, False, Context);
 		Return;
@@ -8308,7 +8307,6 @@ EndProcedure
 Async Procedure RunALoopOnTheSideAfterSigningThePackage(SignaturesArray, Context)
 	
 	ErrorAtClient = Undefined;
-	TimeAddition = TimeAddition();
 	
 	For Counter = 0 To SignaturesArray.Count() - 1 Do
 		
@@ -8329,6 +8327,7 @@ Async Procedure RunALoopOnTheSideAfterSigningThePackage(SignaturesArray, Context
 		If TypeOf(DataElement.Object) <> Type("NotifyDescription") Then
 			ObjectVersion = Undefined;
 			DataElement.Property("ObjectVersion", ObjectVersion);
+			SignatureProperties.Insert("SignatureID", String(New UUID));
 			ErrorPresentation = DigitalSignatureInternalServerCall.AddSignature(
 				DataElement.Object, SignatureProperties, Context.FormIdentifier, ObjectVersion);
 			If ValueIsFilled(ErrorPresentation) Then
@@ -8510,13 +8509,13 @@ Procedure VerifyTheSignatureOnTheCloudSignatureClient(Context)
 	Context.Insert("SignatureData", Signature);
 	Context.Insert("CryptoManager", "CloudSignature");
 	
-	TheHandlerIsAsFollows = New NotifyDescription(
+	HandlerNext = New NotifyDescription(
 		"VerifyTheSignatureOnTheClientAfterVerifyingTheSignatureCloudSignature", ThisObject, Context,
 		"CheckSignatureAtClientAfterCheckSignatureError", ThisObject);
 	
 	TheDSSCryptographyServiceModuleClient = CommonClient.CommonModule("DSSCryptographyServiceClient");
 	TheDSSCryptographyServiceModuleClient.VerifySignature(
-		TheHandlerIsAsFollows,
+		HandlerNext,
 		Undefined,
 		Context.SignatureData,
 		RawData,
@@ -8545,7 +8544,7 @@ EndProcedure
 
 Function UseCloudSignatureService() Export
 	
-	If CommonClient.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
+	If CommonClient.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
 		TheDSSCryptographyServiceModuleClient = CommonClient.CommonModule("DSSCryptographyServiceClient");
 		Return TheDSSCryptographyServiceModuleClient.UseCloudSignatureService();
 	EndIf;
@@ -8558,7 +8557,7 @@ Function ServiceProgramTypeSignatures() Export
 	
 	Result = Undefined;
 	
-	If CommonClient.SubsystemExists("StandardSubsystems.DigitalSignatureСервисаDSS") Then
+	If CommonClient.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
 		TheDSSCryptographyServiceModuleClientServer = CommonClient.CommonModule("DSSCryptographyServiceClientServer");
 		Result = TheDSSCryptographyServiceModuleClientServer.GetTheTypeOfCloudSignature();
 	EndIf;
@@ -9232,7 +9231,7 @@ Async Procedure InstallRevocationListAfterTempDirCreated(TempDirectoryName, Cont
 	Context.Insert("TempDirectoryName", TempDirectoryName);
 
 	StorageName = "CA";
-	InstallResult = Await Context.ComponentObject.ИмпортироватьСписокОтзываСертификатовАсинх(
+	InstallResult = Await Context.ComponentObject.ImportCRLAAsync(
 		Context.RevocationListFilename, StorageName);
 	
 	If InstallResult.Value <> True Then
@@ -9840,6 +9839,8 @@ Procedure HandleNaviLinkClassifier(Item, FormattedStringURL, StandardProcessing,
 		
 	ElsIf StrFind(FormattedStringURL, "http") Then
 		FileSystemClient.OpenURL(FormattedStringURL, );
+	ElsIf StrStartsWith(FormattedStringURL, "e1cib") Then 
+		StandardProcessing = True;
 	Else
 		ShowMessageBox(, NStr("en = 'The action will be available in the next application updates';"));
 	EndIf;
@@ -9869,9 +9870,9 @@ EndFunction
 // Intended for managing notifications from the certificate form, certificate request form, and CertificateAboutToExpireNotification form. 
 // 
 //
-Procedure EditMarkONReminder(Certificate, Remind, OwnerForm1) Export
+Procedure EditMarkONReminder(Certificate, Remind, OwnerForm) Export
 	
-	If OwnerForm1.FormName = "DataProcessor.ApplicationForNewQualifiedCertificateIssue.Form.Form" Then
+	If OwnerForm.FormName = "DataProcessor.ApplicationForNewQualifiedCertificateIssue.Form.Form" Then
 		ReminderID = "AutoReminderAboutStateChangeStatement";
 	Else	
 		ReminderID = "AutomaticCertificateRenewalReminder";
@@ -10239,14 +10240,14 @@ EndFunction
 //  Result  - See DigitalSignatureClientServer.SignatureVerificationResult.Результат. 
 //  ResultStructure - Undefined
 //                     - See DigitalSignatureClientServer.SignatureVerificationResult
-//  CheckRequired2  - Undefined, Boolean - 
+//  IsVerificationRequired  - Undefined, Boolean - 
 //                        
 //
 // Returns:
 //   See DigitalSignatureClientServer.SignatureVerificationResult
 //   See DigitalSignatureClientServer.SignatureVerificationResult.Результат
 //
-Function SignatureVerificationResult(Result, ResultStructure = Undefined, CheckRequired2 = Undefined)
+Function SignatureVerificationResult(Result, ResultStructure = Undefined, IsVerificationRequired = Undefined)
 	
 	If ResultStructure = Undefined Then
 		Return Result;
@@ -10256,15 +10257,15 @@ Function SignatureVerificationResult(Result, ResultStructure = Undefined, CheckR
 		
 		If Result = True Then
 			ResultStructure.SignatureCorrect = True;
-			ResultStructure.CheckRequired2 = False;
+			ResultStructure.IsVerificationRequired = False;
 			Return ResultStructure;
 		EndIf;
 		
-		If CheckRequired2 <> Undefined Then
-			ResultStructure.CheckRequired2 = CheckRequired2;
+		If IsVerificationRequired <> Undefined Then
+			ResultStructure.IsVerificationRequired = IsVerificationRequired;
 		EndIf;
 		
-		If ResultStructure.CheckRequired2 = False Then
+		If ResultStructure.IsVerificationRequired = False Then
 			ResultStructure.SignatureCorrect = False;
 		EndIf;
 		

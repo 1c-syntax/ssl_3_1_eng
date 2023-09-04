@@ -277,8 +277,8 @@ Only for a web server connection (service address must be configured)</v8:conten
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>JWT token authentication (RFC 7519 standard).
-It is a more advanced authentication than OpenID and OpenID-Connect</v8:content>
+							<v8:content>JWT token authentication (RFC 7519).
+This is a more advanced form of authentication than OpenID and OpenID Connect.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<HorizontalAlign>Center</HorizontalAlign>

@@ -24,14 +24,16 @@
 //                           when the date cannot be extracted from signature data.
 //     * SignatureValidationDate - Date - Date when the signature was last verified.
 //     * SignatureCorrect        - Boolean - result of the last signature check.
-//     * CheckRequired2   - Boolean -
-//     
+//     * IsVerificationRequired   - Boolean -
+//
 //     
 //     * SignedObject   - DefinedType.SignedObject - Object the signature associated with.
 //                             Ignored in methods there this object is a parameter.
 //     * SequenceNumber     - Number - Signature ID that used for list sorting.
 //                             Empty if the signature is not associated with an object.
 //     * IsErrorOccurredDuringAutomaticRenewal - Boolean -
+//     
+//     * SignatureID - UUID
 //
 //     
 //     * SignatureType          - EnumRef.CryptographySignatureTypes
@@ -63,7 +65,7 @@ Function NewSignatureProperties() Export
 	Structure.Insert("SignatureCorrect");
 	Structure.Insert("SignedObject");
 	Structure.Insert("SequenceNumber");
-	Structure.Insert("CheckRequired2", False);
+	Structure.Insert("IsVerificationRequired", False);
 	
 	Structure.Insert("Certificate");
 	Structure.Insert("Thumbprint");
@@ -74,6 +76,8 @@ Function NewSignatureProperties() Export
 	Structure.Insert("CertificateDetails");
 	
 	Structure.Insert("IsErrorOccurredDuringAutomaticRenewal", False);
+	Structure.Insert("SignatureID");
+	Structure.Insert("ResultOfSignatureVerificationByMCHD");
 	
 	Return Structure;
 	
@@ -88,7 +92,7 @@ EndFunction
 //             - Undefined - 
 //   * SignatureCorrect        - Boolean, Undefined - result of the last signature check.
 //   * CertificateRevoked   - Boolean -
-//   * CheckRequired2   - Boolean -
+//   * IsVerificationRequired   - Boolean -
 //   * SignatureType          - EnumRef.CryptographySignatureTypes -
 //   * DateActionLastTimestamp - Date -
 //    
@@ -107,7 +111,7 @@ Function SignatureVerificationResult() Export
 	Structure.Insert("Result");
 	Structure.Insert("SignatureCorrect");
 	Structure.Insert("CertificateRevoked", False);
-	Structure.Insert("CheckRequired2");
+	Structure.Insert("IsVerificationRequired");
 	
 	CommonClientServer.SupplementStructure(
 		Structure, DigitalSignatureInternalClientServer.SignaturePropertiesUponReadAndVerify());

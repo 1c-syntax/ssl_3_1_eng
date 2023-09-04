@@ -460,19 +460,19 @@ Procedure ChangeAttributesOnTypeChange()
 		Items.StoreChangeHistory.Enabled = Object.EditingOption = "Dialog";
 	Else
 		
-		FlagKeepHistoryChanges             = False;
+		FlagStoreChangeHistory             = False;
 		FlagAvailabilityKeepHistoryChanges = False;
 		
 		If Object.Type = PredefinedValue("Enum.ContactInformationTypes.Email") Then
 			Object.EditingOption = "InputField";
 		ElsIf Object.Type = PredefinedValue("Enum.ContactInformationTypes.Phone")
 			Or Object.Type = PredefinedValue("Enum.ContactInformationTypes.Fax") Then
-			FlagKeepHistoryChanges             = Object.StoreChangeHistory;
+			FlagStoreChangeHistory             = Object.StoreChangeHistory;
 			FlagAvailabilityKeepHistoryChanges = Object.EditingOption = "Dialog";
 		Else
 			Object.EditingOption = "InputFieldAndDialog";
 		EndIf;
-		Object.StoreChangeHistory               = FlagKeepHistoryChanges;
+		Object.StoreChangeHistory               = FlagStoreChangeHistory;
 		Items.StoreChangeHistory.Enabled = FlagAvailabilityKeepHistoryChanges;
 		
 	EndIf;

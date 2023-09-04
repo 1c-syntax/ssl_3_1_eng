@@ -35,7 +35,7 @@ Procedure ResolveIssue(Command)
 	If CheckID = "StandardSubsystems.CheckCircularRefs1" Then
 		TimeConsumingOperation = ResolveIssueInBackground(CheckID);
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-		CompletionNotification2 = New NotifyDescription("FixIssueInBackgroundCompletion", ThisObject);
+		CompletionNotification2 = New NotifyDescription("ResolveIssueInBackgroundCompletion", ThisObject);
 		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters);
 	ElsIf CheckID = "StandardSubsystems.CheckNoPredefinedItems" Then
 		SetCurrentPage(ThisObject, "TroubleshootingInProgress");
@@ -87,7 +87,7 @@ Function ResolveIssueInBackground(CheckID)
 EndFunction
 
 &AtClient
-Procedure FixIssueInBackgroundCompletion(Result, AdditionalParameters) Export
+Procedure ResolveIssueInBackgroundCompletion(Result, AdditionalParameters) Export
 	
 	TimeConsumingOperation = Undefined;
 

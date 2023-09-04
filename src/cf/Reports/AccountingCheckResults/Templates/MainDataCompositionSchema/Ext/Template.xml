@@ -304,7 +304,7 @@ FROM
 		</title>
 	</calculatedField>
 	<calculatedField>
-		<dataPath>ProblemObjectPresentation</dataPath>
+		<dataPath>ObjectWithIssuePresentation</dataPath>
 		<expression>AccountingAuditInternal.ObjectWithIssuePresentation(ObjectWithIssue, Presentation(ObjectWithIssue), AdditionalInformation)</expression>
 		<title xsi:type="v8:LocalStringType">
 			<v8:item>
@@ -758,7 +758,7 @@ FROM
 			<dcsat:item xsi:type="dcsat:TableRow">
 				<dcsat:tableCell>
 					<dcsat:item xsi:type="dcsat:Field">
-						<dcsat:value xsi:type="dcscor:Parameter">ProblemObjectPresentation</dcsat:value>
+						<dcsat:value xsi:type="dcscor:Parameter">ObjectWithIssuePresentation</dcsat:value>
 					</dcsat:item>
 					<dcsat:appearance>
 						<dcscor:item>
@@ -776,13 +776,13 @@ FROM
 		<parameter xmlns:dcsat="http://v8.1c.ru/8.1/data-composition-system/area-template" xsi:type="dcsat:DetailsAreaTemplateParameter">
 			<dcsat:name>Details</dcsat:name>
 			<dcsat:fieldExpression>
-				<dcsat:field>ProblemObjectPresentation</dcsat:field>
+				<dcsat:field>ObjectWithIssuePresentation</dcsat:field>
 				<dcsat:expression>DetailsField</dcsat:expression>
 			</dcsat:fieldExpression>
 		</parameter>
 		<parameter xmlns:dcsat="http://v8.1c.ru/8.1/data-composition-system/area-template" xsi:type="dcsat:ExpressionAreaTemplateParameter">
-			<dcsat:name>ProblemObjectPresentation</dcsat:name>
-			<dcsat:expression>ProblemObjectPresentation</dcsat:expression>
+			<dcsat:name>ObjectWithIssuePresentation</dcsat:name>
+			<dcsat:expression>ObjectWithIssuePresentation</dcsat:expression>
 		</parameter>
 	</template>
 	<template>
@@ -852,7 +852,7 @@ FROM
 		</parameter>
 	</template>
 	<fieldTemplate>
-		<field>ProblemObjectPresentation</field>
+		<field>ObjectWithIssuePresentation</field>
 		<template>Template4</template>
 	</fieldTemplate>
 	<fieldTemplate>
@@ -1485,7 +1485,7 @@ FROM
 								<dcsset:name>Details</dcsset:name>
 								<dcsset:groupItems>
 									<dcsset:item xsi:type="dcsset:GroupItemField">
-										<dcsset:field>ProblemObjectPresentation</dcsset:field>
+										<dcsset:field>ObjectWithIssuePresentation</dcsset:field>
 										<dcsset:groupType>Items</dcsset:groupType>
 										<dcsset:periodAdditionType>None</dcsset:periodAdditionType>
 										<dcsset:periodAdditionBegin xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionBegin>

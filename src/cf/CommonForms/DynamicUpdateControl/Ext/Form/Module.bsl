@@ -86,7 +86,7 @@ EndProcedure
 &AtClient
 Procedure ScheduleClick(Item, StandardProcessing)
 	StandardProcessing = False;
-	CompletionHandler = New NotifyDescription("ScheduleClickFinish", ThisObject);
+	CompletionHandler = New NotifyDescription("ScheduleClickCompletion", ThisObject);
 	List = New ValueList;
 	List.Add("Once", NStr("en = 'once a day';"));
 	List.Add("Twice", NStr("en = 'twice a day';"));
@@ -143,7 +143,7 @@ Procedure RemindTomorrowOnServer()
 EndProcedure
 
 &AtClient
-Procedure ScheduleClickFinish(Result, AdditionalParameters) Export
+Procedure ScheduleClickCompletion(Result, AdditionalParameters) Export
 	If Result = Undefined Then
 		Return;
 	EndIf;

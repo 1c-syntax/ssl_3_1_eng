@@ -177,9 +177,9 @@ Function CreateDataExchangeNode(XDTOParameters, DataArea)
 		ModuleSetupWizard.FillConnectionSettingsFromXMLString(
 			ConnectionSettings, Parameters.XMLParametersString, , True);
 			
-		If ValueIsFilled(ConnectionSettings.WSPeerEndpoint) Then
-			ConnectionSettings.WSPeerEndpoint = 
-				ExchangePlans["MessagesExchange"].FindByCode(ConnectionSettings.WSPeerEndpoint);
+		If ValueIsFilled(ConnectionSettings.WSCorrespondentEndpoint) Then
+			ConnectionSettings.WSCorrespondentEndpoint = 
+				ExchangePlans["MessagesExchange"].FindByCode(ConnectionSettings.WSCorrespondentEndpoint);
 			ConnectionSettings.Insert("ExchangeMessagesTransportKind", Enums.ExchangeMessagesTransportTypes.WS);	
 		Else	
 			ConnectionSettings.Insert("ExchangeMessagesTransportKind", Enums.ExchangeMessagesTransportTypes.WSPassiveMode);
@@ -565,8 +565,8 @@ Function ChangeNodeTransportToWSInt(XDTOParameters, DataArea)
 	RecordStructure = New Structure;
 	RecordStructure.Insert("Peer", ExchangeNode);
 	RecordStructure.Insert("DefaultExchangeMessagesTransportKind", Enums.ExchangeMessagesTransportTypes.WS);
-	RecordStructure.Insert("WSPeerEndpoint", Endpoint);
-	RecordStructure.Insert("WSPeerDataArea", Parameters.CorrespondentDataArea);
+	RecordStructure.Insert("WSCorrespondentEndpoint", Endpoint);
+	RecordStructure.Insert("WSCorrespondentDataArea", Parameters.CorrespondentDataArea);
 	RecordStructure.Insert("WSUseLargeVolumeDataTransfer", True);
 	
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(

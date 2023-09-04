@@ -1865,13 +1865,13 @@ Procedure ActionWithQueryResult(ActionCommand)
 	
 	QuestionTitle = NStr("en = 'Settings';");
 
-	Notification = New NotifyDescription("ActionWithQueryResultsCompletion", ThisObject);
+	Notification = New NotifyDescription("ActionWithQueryResultCompletion", ThisObject);
 	ShowQueryBox(Notification, Text, QuestionDialogMode.YesNo, , , QuestionTitle);
 EndProcedure
 
 // Dialog continuation notification handler.
 &AtClient 
-Procedure ActionWithQueryResultsCompletion(Val QuestionResult, Val AdditionalParameters) Export
+Procedure ActionWithQueryResultCompletion(Val QuestionResult, Val AdditionalParameters) Export
 	If QuestionResult <> DialogReturnCode.Yes Then
 		Return;
 	EndIf;
@@ -2186,7 +2186,7 @@ Procedure SetUpConstantList(TableName = Undefined, Description = "")
 	|	&AutoRecordPictureIndex AS AutoRecordPictureIndex,
 	|	2 AS PictureIndex,
 	|	""&CustomRepresentationOfAConstant"" AS Description,
-	|	""&NameOfTheMetadataTableView"" AS MetaFullName,
+	|	""&MetadataTableNamePresentation"" AS MetaFullName,
 	|	ChangesTable.MessageNo AS MessageNo,
 	|	CASE
 	|		WHEN ChangesTable.MessageNo IS NULL
@@ -2212,7 +2212,7 @@ Procedure SetUpConstantList(TableName = Undefined, Description = "")
 		
 		SubqueryText = StrReplace(QueryTextTemplate2, "&AutoRecordPictureIndex", Format(AutoRecord[IndexOf], "NZ=; NG="));
 		SubqueryText = StrReplace(SubqueryText, "&CustomRepresentationOfAConstant", ProcessQuotationMarksInRow(Presentations[IndexOf]));
-		SubqueryText = StrReplace(SubqueryText, "&NameOfTheMetadataTableView", Name);
+		SubqueryText = StrReplace(SubqueryText, "&MetadataTableNamePresentation", Name);
 		SubqueryText = StrReplace(SubqueryText, "&MetadataTableName", SubstituteParametersToString("%1.Changes", Name));
 		
 		Text = Text + SubqueryText;

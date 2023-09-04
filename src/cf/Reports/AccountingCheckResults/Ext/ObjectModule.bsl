@@ -1044,12 +1044,12 @@ Function StructureTree()
 	
 EndFunction
 
-Function RegisterOptionTreeNode(DCSettings, DCNode, TreeRowsSet, Subtype = "")
+Function RegisterOptionTreeNode(DCSettings, DCNode, TreeRowsSet, DPRType = "")
 	
 	TreeRow = TreeRowsSet.Add();
 	TreeRow.DCNode = DCNode;
 	TreeRow.Type    = SettingTypeAsString(TypeOf(DCNode));
-	TreeRow.Subtype = Subtype;
+	TreeRow.Subtype = DPRType;
 	
 	If StrSplit("Settings,Group,ChartGroup,TableGroup", ",").Find(TreeRow.Type) <> Undefined Then
 		TreeRow.HasStructure = True;

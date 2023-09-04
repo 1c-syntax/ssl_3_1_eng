@@ -150,7 +150,7 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 			Return;
 		EndIf;
 		
-		ChoiceContext = "SubjectExecute";
+		ChoiceContext = "SubjectOfExecute";
 		
 		FormParameters = New Structure;
 		FormParameters.Insert("ChoiceMode", True);
@@ -159,7 +159,7 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 		
 		Return;
 		
-	ElsIf ChoiceContext = "SubjectExecute" Then
+	ElsIf ChoiceContext = "SubjectOfExecute" Then
 		
 		If ValueSelected <> Undefined Then
 			
@@ -406,7 +406,7 @@ Procedure EmployeeResponsibleExecute()
 EndProcedure
 
 &AtClient
-Procedure SubjectExecute()
+Procedure SubjectOfExecute()
 	
 	If Not CorrectChoice() Then
 		Return;
@@ -1043,11 +1043,11 @@ Function ContactParameterDependingOnType(Contact)
 		
 		If DetailsArrayElement.Name = ContactTableName Then
 			QueryText = "SELECT ALLOWED
-			|	ContactCatalog.Ref AS Contact
+			|	CatalogContact.Ref AS Contact
 			|FROM
-			|	&TableName AS ContactCatalog
+			|	&TableName AS CatalogContact
 			|WHERE
-			|	ContactCatalog.Ref = &Contact";
+			|	CatalogContact.Ref = &Contact";
 			
 			
 			QueryText = StrReplace(QueryText, "&TableName", "Catalog." + DetailsArrayElement.Name);
@@ -1062,15 +1062,15 @@ Function ContactParameterDependingOnType(Contact)
 				
 				QueryText = QueryText + "
 				|SELECT
-				|	ContactCatalog.Ref 
+				|	CatalogContact.Ref 
 				|FROM
-				|	&TableName AS ContactCatalog
+				|	&TableName AS CatalogContact
 				|WHERE
-				|	ContactCatalog." + Right(Link,StrLen(Link) - StrFind(Link,".")) + " = &Contact"; 
+				|	CatalogContact." + Right(Link,StrLen(Link) - StrFind(Link,".")) + " = &Contact"; 
 				
 				
 				QueryText = StrReplace(QueryText, "&TableName", "Catalog." + Left(Link,StrFind(Link,".")-1));
-				QueryText = StrReplace(QueryText, "&NameOfTheComparisonProp", "ContactCatalog." + Right(Link,StrLen(Link) - StrFind(Link,".")));
+				QueryText = StrReplace(QueryText, "&NameOfTheComparisonProp", "CatalogContact." + Right(Link,StrLen(Link) - StrFind(Link,".")));
 				HasAdditionalTables = True;
 				
 			EndIf;
@@ -1084,11 +1084,11 @@ Function ContactParameterDependingOnType(Contact)
 			
 			QueryText = QueryText + "
 			|SELECT
-			|	ContactCatalog.Ref
+			|	CatalogContact.Ref
 			|FROM
-			|	&TableName AS ContactCatalog
+			|	&TableName AS CatalogContact
 			|WHERE
-			|	ContactCatalog.Owner = &Contact";
+			|	CatalogContact.Owner = &Contact";
 			
 			QueryText = StrReplace(QueryText, "&TableName", "Catalog." + DetailsArrayElement.Name);
 			

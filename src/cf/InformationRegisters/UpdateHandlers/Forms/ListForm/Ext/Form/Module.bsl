@@ -28,6 +28,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.IBVersionUpdateSaaS") Then
 		ModuleInfobaseUpdateInternalSaaS = Common.CommonModule("InfobaseUpdateInternalSaaS");
 		UpdateProgressReport = ModuleInfobaseUpdateInternalSaaS.UpdateProgressReport();
+		SetQueryText();
 	Else
 		Items.DataAreasUpdateProgress.Visible = False;
 	EndIf;
@@ -87,6 +88,48 @@ EndFunction
 &AtClient
 Procedure DataAreasUpdateProgressClick(Item)
 	OpenForm(UpdateProgressReport);
+EndProcedure
+
+&AtServer
+Procedure SetQueryText()
+	
+	QueryText =
+		"SELECT
+		|	UpdateHandlersOverridable.HandlerName,
+		|	UpdateHandlersOverridable.Status,
+		|	UpdateHandlersOverridable.Version,
+		|	UpdateHandlersOverridable.LibraryName,
+		|	UpdateHandlersOverridable.ProcessingDuration,
+		|	UpdateHandlersOverridable.ExecutionMode,
+		|	UpdateHandlersOverridable.RegistrationVersion,
+		|	UpdateHandlersOverridable.VersionOrder,
+		|	UpdateHandlersOverridable.Id,
+		|	UpdateHandlersOverridable.AttemptCount,
+		|	UpdateHandlersOverridable.ExecutionStatistics,
+		|	UpdateHandlersOverridable.ErrorInfo,
+		|	UpdateHandlersOverridable.Comment,
+		|	UpdateHandlersOverridable.Priority,
+		|	UpdateHandlersOverridable.CheckProcedure,
+		|	UpdateHandlersOverridable.UpdateDataFillingProcedure,
+		|	UpdateHandlersOverridable.DeferredProcessingQueue,
+		|	UpdateHandlersOverridable.ExecuteInMasterNodeOnly,
+		|	UpdateHandlersOverridable.RunAlsoInSubordinateDIBNodeWithFilters,
+		|	UpdateHandlersOverridable.Multithreaded,
+		|	UpdateHandlersOverridable.BatchProcessingCompleted,
+		|	UpdateHandlersOverridable.UpdateGroup,
+		|	UpdateHandlersOverridable.StartIteration,
+		|	UpdateHandlersOverridable.DataToProcess,
+		|	UpdateHandlersOverridable.DeferredHandlerExecutionMode,
+		|	UpdateHandlersOverridable.ObjectsToChange,
+		|	UpdateHandlersOverridable.DataAreaAuxiliaryData AS DataAreaAuxiliaryData,
+		|	UpdateHandlersOverridable.DataRegistrationDuration
+		|FROM
+		|	InformationRegister.UpdateHandlers AS UpdateHandlersOverridable";  
+	
+	ListProperties = Common.DynamicListPropertiesStructure();
+	ListProperties.QueryText = QueryText;
+	Common.SetDynamicListProperties(Items.List, ListProperties);
+	
 EndProcedure
 
 #EndRegion

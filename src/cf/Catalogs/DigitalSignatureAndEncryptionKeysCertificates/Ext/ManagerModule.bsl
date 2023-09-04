@@ -23,35 +23,35 @@
 //
 Function AttributesToSkipInBatchProcessing() Export
 	
-	AttributesToSkip = New Array;
-	AttributesToSkip.Add("IssuedTo");
-	AttributesToSkip.Add("Firm");
-	AttributesToSkip.Add("LastName");
-	AttributesToSkip.Add("Name");
-	AttributesToSkip.Add("MiddleName");
-	AttributesToSkip.Add("JobTitle");
-	AttributesToSkip.Add("IssuedBy");
-	AttributesToSkip.Add("ValidBefore");
-	AttributesToSkip.Add("Signing");
-	AttributesToSkip.Add("Encryption");
-	AttributesToSkip.Add("Thumbprint");
-	AttributesToSkip.Add("CertificateData");
-	AttributesToSkip.Add("Application");
-	AttributesToSkip.Add("Revoked");
-	AttributesToSkip.Add("EnterPasswordInDigitalSignatureApplication");
-	AttributesToSkip.Add("Organization");
-	AttributesToSkip.Add("User");
-	AttributesToSkip.Add("Added");
+	NotAttributesToEdit = New Array;
+	NotAttributesToEdit.Add("IssuedTo");
+	NotAttributesToEdit.Add("Firm");
+	NotAttributesToEdit.Add("LastName");
+	NotAttributesToEdit.Add("Name");
+	NotAttributesToEdit.Add("MiddleName");
+	NotAttributesToEdit.Add("JobTitle");
+	NotAttributesToEdit.Add("IssuedBy");
+	NotAttributesToEdit.Add("ValidBefore");
+	NotAttributesToEdit.Add("Signing");
+	NotAttributesToEdit.Add("Encryption");
+	NotAttributesToEdit.Add("Thumbprint");
+	NotAttributesToEdit.Add("CertificateData");
+	NotAttributesToEdit.Add("Application");
+	NotAttributesToEdit.Add("Revoked");
+	NotAttributesToEdit.Add("EnterPasswordInDigitalSignatureApplication");
+	NotAttributesToEdit.Add("Organization");
+	NotAttributesToEdit.Add("User");
+	NotAttributesToEdit.Add("Added");
 	
 	If Metadata.DataProcessors.Find("ApplicationForNewQualifiedCertificateIssue") <> Undefined Then
 		ProcessingApplicationForNewQualifiedCertificateIssue =
 			Common.ObjectManagerByFullName(
 				"DataProcessor.ApplicationForNewQualifiedCertificateIssue");
 		ProcessingApplicationForNewQualifiedCertificateIssue.AttributesToSkipInBatchProcessing(
-			AttributesToSkip);
+			NotAttributesToEdit);
 	EndIf;
 	
-	Return AttributesToSkip;
+	Return NotAttributesToEdit;
 	
 EndFunction
 

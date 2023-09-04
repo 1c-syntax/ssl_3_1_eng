@@ -142,7 +142,7 @@
 						</v8:item>
 					</InputHint>
 					<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>
-					<ContextMenu name="FilterByReportTypeContextMenu" id="46"/>
+					<ContextMenu name="FilterReportTypeContextMenu" id="46"/>
 					<ExtendedTooltip name="FilterByReportTypeExtendedTooltip" id="101"/>
 					<Events>
 						<Event name="OnChange">FilterByReportTypeOnChange</Event>

@@ -17,7 +17,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	MessageParameters = Parameters.MessageParameters;
 	
 	Items.InputOnBasisParameterTypeFullName.ChoiceList.Add(MessageTemplatesClientServer.CommonID(),
-		MessageTemplatesClientServer.CommonIDPresentation());
+		MessageTemplatesClientServer.SharedPresentation());
 	MessageTemplatesSettings = MessageTemplatesInternalCached.OnDefineSettings();
 	For Each TemplateSubject In MessageTemplatesSettings.TemplatesSubjects Do
 		Items.InputOnBasisParameterTypeFullName.ChoiceList.Add(TemplateSubject.Name, TemplateSubject.Presentation);
@@ -115,7 +115,7 @@ Procedure OnReadAtServer(CurrentObject)
 	FillArbitraryParametersFromObject(CurrentObject);
 	
 	If IsBlankString(Object.InputOnBasisParameterTypeFullName) Then
-		Object.Purpose = MessageTemplatesClientServer.CommonIDPresentation();
+		Object.Purpose = MessageTemplatesClientServer.SharedPresentation();
 		Object.ForInputOnBasis = False;
 		Object.InputOnBasisParameterTypeFullName = MessageTemplatesClientServer.CommonID();
 	EndIf;
@@ -367,7 +367,7 @@ Procedure AfterWrite(WriteParameters)
 	Notify("Write_MessageTemplates", Object.Ref, ThisObject);
 	
 	If IsBlankString(Object.InputOnBasisParameterTypeFullName) Then
-		Object.Purpose = MessageTemplatesClientServer.CommonIDPresentation();
+		Object.Purpose = MessageTemplatesClientServer.SharedPresentation();
 		Object.ForInputOnBasis = False;
 		Object.InputOnBasisParameterTypeFullName = MessageTemplatesClientServer.CommonID();
 	EndIf;

@@ -168,7 +168,7 @@
 				</InputField>
 			</ChildItems>
 		</Table>
-		<CommandBar name="CommandBarGroup" id="36">
+		<CommandBar name="GroupCommandBar" id="36">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>

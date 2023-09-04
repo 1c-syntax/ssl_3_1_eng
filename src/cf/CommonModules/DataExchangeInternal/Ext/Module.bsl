@@ -460,7 +460,7 @@ Procedure PrepareDataForExportFromInfobase(ProcedureParameters, StorageAddress) 
 	// 
 	DataExchangeXDTOServer.OpenExportFile(ExchangeComponents, FullFileName);
 
-	If ExchangeComponents.ErrorFlag Then
+	If ExchangeComponents.FlagErrors Then
 		ExchangeComponents.ExchangeFile = Undefined;
 
 		DataExchangeXDTOServer.FinishKeepExchangeProtocol(ExchangeComponents);
@@ -495,7 +495,7 @@ Procedure PrepareDataForExportFromInfobase(ProcedureParameters, StorageAddress) 
 
 	WriteExchangeFinish(ExchangeSettingsStructure, ExchangeComponents);
 
-	If ExchangeComponents.ErrorFlag Then
+	If ExchangeComponents.FlagErrors Then
 
 		ErrorMessage = ExchangeComponents.ErrorMessageString;
 		Raise ErrorMessage;
@@ -552,7 +552,7 @@ Procedure ImportXDTODateToInfobase(ProcedureParameters, StorageAddress) Export
 	Cancel = False;
 	ExchangeComponents = ExchangeComponents("Receive", WebServiceParameters, Cancel);
 
-	If ExchangeComponents.ErrorFlag Then
+	If ExchangeComponents.FlagErrors Then
 		ErrorMessage = ExchangeComponents.ErrorMessageString;
 		Raise ErrorMessage;
 	EndIf;
@@ -571,7 +571,7 @@ Procedure ImportXDTODateToInfobase(ProcedureParameters, StorageAddress) Export
 			ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
 				ErrorMessage, ErrorProcessing.DetailErrorDescription(Information));
 			DataExchangeXDTOServer.WriteToExecutionProtocol(ExchangeComponents, ErrorMessage, , , , , True);
-			ExchangeComponents.ErrorFlag = True;
+			ExchangeComponents.FlagErrors = True;
 		EndTry;
 
 		DisableAccessKeysUpdate(True);
@@ -585,21 +585,21 @@ Procedure ImportXDTODateToInfobase(ProcedureParameters, StorageAddress) Export
 			ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
 				ErrorMessage, ErrorProcessing.DetailErrorDescription(Information));
 			DataExchangeXDTOServer.WriteToExecutionProtocol(ExchangeComponents, ErrorMessage, , , , , True);
-			ExchangeComponents.ErrorFlag = True;
+			ExchangeComponents.FlagErrors = True;
 		EndTry;
 
 		ExchangeComponents.ExchangeFile.Close();
 	Else
-		ExchangeComponents.ErrorFlag = True;
+		ExchangeComponents.FlagErrors = True;
 	EndIf;
 
 	WriteExchangeFinish(ExchangeSettingsStructure, ExchangeComponents);
 
-	If ExchangeComponents.ErrorFlag Then
+	If ExchangeComponents.FlagErrors Then
 		Raise ExchangeComponents.ErrorMessageString;
 	EndIf;
 
-	If Not ExchangeComponents.ErrorFlag And ExchangeComponents.IsExchangeViaExchangePlan
+	If Not ExchangeComponents.FlagErrors And ExchangeComponents.IsExchangeViaExchangePlan
 		And ExchangeComponents.UseHandshake Then
 		
 		// Writing information on the incoming message number.
@@ -1300,7 +1300,7 @@ Function ExchangeComponents(ExchangeDirection, WebServiceParameters, Cancel = Fa
 
 	EndIf;
 
-	If ExchangeComponents.ErrorFlag Then
+	If ExchangeComponents.FlagErrors Then
 		Return ExchangeComponents;
 	EndIf;
 

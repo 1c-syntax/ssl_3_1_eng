@@ -107,7 +107,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.SignedAndSealedFlag.TitleLocation = FormItemTitleLocation.Auto;
 		Items.CopiesCountSetup.Group = ChildFormItemsGroup.Vertical;
 		Items.Move(Items.IndicatorsCommands, Items.IndicatorsCommands.Parent, Items.Factor);
-		Items.CommandBarGroup.Group = ChildFormItemsGroup.Vertical;
+		Items.GroupCommandBar.Group = ChildFormItemsGroup.Vertical;
 	EndIf;
 	
 	If PrintManagement.PrintSettings().HideSignaturesAndSealsForEditing Then
@@ -1093,8 +1093,8 @@ Procedure SetFormHeader()
 	EndIf;
 	
 	If ValueIsFilled(CurrentLanguage) Then 
-		CurrentLangPresentation = Items["Language_"+CurrentLanguage].Title; 
-		FormCaption = FormCaption + " ("+CurrentLangPresentation+")";
+		CurrentLanguagePresentation = Items["Language_"+CurrentLanguage].Title; 
+		FormCaption = FormCaption + " ("+CurrentLanguagePresentation+")";
 	EndIf;
 	
 	Title = FormCaption;
@@ -1627,7 +1627,7 @@ EndFunction
 &AtClient
 Function IdleParameters()
 	
-	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject.FormOwner);
+	IdleParameters = TimeConsumingOperationsClient.IdleParameters(FormOwner);
 	IdleParameters.MessageText = NStr("en = 'Preparing print forms.';");
 	IdleParameters.UserNotification.Show = False;
 	IdleParameters.OutputIdleWindow = True;

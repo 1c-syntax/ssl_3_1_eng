@@ -208,7 +208,7 @@ EndFunction
 Function NotExportedNodeObjectsMetadataNames(Val InfobaseNode) Export
 	Result = New Array;
 	
-	NotExportMode = Enums.ExchangeObjectExportModes.DoNotExport;
+	NotExportMode = Enums.ExchangeObjectExportModes.NotExport;
 	ExportModes   = DataExchangeCached.UserExchangePlanComposition(InfobaseNode);
 	For Each KeyValue In ExportModes Do
 		If KeyValue.Value=NotExportMode Then
@@ -323,7 +323,7 @@ Function CheckTheNeedForADeferredNodeEntry(Val ObjectNode) Export
 	EndIf;
 	
 	NodeType = Type("ExchangePlanObject." + ObjectNode.Ref.Metadata().Name);
-	NodeBeforeRecording = FormDataToValue(ObjectNode, NodeType); //ExchangePlanObject
+	NodeBeforeWrite = FormDataToValue(ObjectNode, NodeType); //ExchangePlanObject
 		
 	Result = New Structure;
 	Result.Insert("ALongTermOperationIsRequired"	, False);
@@ -332,7 +332,7 @@ Function CheckTheNeedForADeferredNodeEntry(Val ObjectNode) Export
 	
 	If Not ObjectNode.Ref.IsEmpty()
 		And Not ObjectNode.ThisNode
-		And DataExchangeEvents.DataDiffers1(NodeBeforeRecording, ObjectNode.Ref.GetObject(), , StrConcat(PropertiesToExclude, ","))
+		And DataExchangeEvents.DataDiffers1(NodeBeforeWrite, ObjectNode.Ref.GetObject(), , StrConcat(PropertiesToExclude, ","))
 		And DataExchangeInternal.ChangesRegistered(ObjectNode.Ref) Then
 		
 		Result.ALongTermOperationIsRequired = True;
@@ -348,14 +348,14 @@ Function CheckTheNeedForADeferredNodeEntry(Val ObjectNode) Export
 		//
 		NodeStructure = New Structure;
 	
-		NodeMetadata = NodeBeforeRecording.Ref.Metadata();
+		NodeMetadata = NodeBeforeWrite.Ref.Metadata();
 		
 		For Each Attribute In NodeMetadata.Attributes Do
-			NodeStructure.Insert(Attribute.Name, NodeBeforeRecording[Attribute.Name]);			
+			NodeStructure.Insert(Attribute.Name, NodeBeforeWrite[Attribute.Name]);			
 		EndDo;
 		
 		For Each Table In NodeMetadata.TabularSections Do		
-			Tab = NodeBeforeRecording[Table.Name].Unload();
+			Tab = NodeBeforeWrite[Table.Name].Unload();
 			NodeStructure.Insert(Table.Name, Tab);				
 		EndDo;
 		

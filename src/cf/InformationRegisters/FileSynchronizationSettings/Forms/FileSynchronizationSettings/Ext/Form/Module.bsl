@@ -388,7 +388,7 @@ Procedure FillObjectTypesInValueTree()
 			EndIf;
 			
 		Else
-			NewTableRow.Synchronize = Enums.FilesCleanupOptions.DontClear;
+			NewTableRow.Synchronize = Enums.FilesCleanupOptions.NotClear;
 			NewTableRow.FilterRule = NStr("en = 'All files';");
 		EndIf;
 		
@@ -573,7 +573,7 @@ Function ClearSettingData()
 	
 	ServerCallParameters = New Structure();
 	
-	BackgroundExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(ThisObject.UUID);
+	BackgroundExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	BackgroundExecutionParameters.BackgroundJobDescription = NStr("en = 'Subsystem ""File management"": Disable file synchronization with cloud service';");
 	
 	BackgroundJob = TimeConsumingOperations.ExecuteInBackground("FilesOperationsInternal.UnlockLockedFilesBackground",

@@ -242,9 +242,9 @@ Procedure UpdateAddIns(AddInsData, ResultAddress = Undefined) Export
 				If UsedAddIns = Undefined Then
 					UsedAddIns = AddInsInternal.UsedAddIns();
 				EndIf;
-				ComponentsLine = UsedAddIns.Find(ResultString1.Id, "Id");
-				If ComponentsLine <> Undefined Then
-					AutoUpdate = ComponentsLine.AutoUpdate;
+				RowOfAddIn = UsedAddIns.Find(ResultString1.Id, "Id");
+				If RowOfAddIn <> Undefined Then
+					AutoUpdate = RowOfAddIn.AutoUpdate;
 				Else
 					AutoUpdate = False;
 				EndIf;

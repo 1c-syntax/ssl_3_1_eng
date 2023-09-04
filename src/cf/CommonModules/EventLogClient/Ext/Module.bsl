@@ -130,7 +130,7 @@ EndProcedure
 // to display detailed data for the selected event.
 //
 // Parameters:
-//  Data - FormDataCollectionItem: см. Обработка.ЖурналРегистрации.Форма.ЖурналРегистрации.Журнал
+//  Data - FormDataCollectionItem of See DataProcessor.EventLog.Form.EventLog.Log
 //
 Procedure ViewCurrentEventInNewWindow(Data, DataStorage) Export
 	
@@ -151,9 +151,9 @@ EndProcedure
 // Parameters:
 //  DateInterval - StandardPeriod - the filter date interval.
 //  EventLogFilter - Structure
-//  NotificationHandler - NotifyDescription
+//  HandlerNotifications - NotifyDescription
 //
-Procedure SetPeriodForViewing(DateInterval, EventLogFilter, NotificationHandler = Undefined) Export
+Procedure SetPeriodForViewing(DateInterval, EventLogFilter, HandlerNotifications = Undefined) Export
 	
 	// Get the current period.
 	StartDate    = Undefined;
@@ -178,9 +178,9 @@ Procedure SetPeriodForViewing(DateInterval, EventLogFilter, NotificationHandler 
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("EventLogFilter", EventLogFilter);
 	AdditionalParameters.Insert("DateInterval", DateInterval);
-	AdditionalParameters.Insert("NotificationHandler", NotificationHandler);
+	AdditionalParameters.Insert("HandlerNotifications", HandlerNotifications);
 	
-	Notification = New NotifyDescription("SetViewDateIntervalCompletion", ThisObject, AdditionalParameters);
+	Notification = New NotifyDescription("SetPeriodForViewingCompletion", ThisObject, AdditionalParameters);
 	Dialog.Show(Notification);
 	
 EndProcedure
@@ -325,7 +325,7 @@ Function EventLogEventToStructure(Data)
 	FormParameters.Insert("TransactionStatus",        Data.TransactionStatus);
 	FormParameters.Insert("Session",                   Data.Session);
 	FormParameters.Insert("ServerName",           Data.ServerName);
-	FormParameters.Insert("PrimaryIPPort",          Data.Port);
+	FormParameters.Insert("PrimaryIPPort",          Data.PrimaryIPPort);
 	FormParameters.Insert("SyncPort",   Data.SyncPort);
 	FormParameters.Insert("Level",                 Data.Level);
 	
@@ -347,7 +347,7 @@ EndFunction
 //            - Undefined
 //  AdditionalParameters - Structure
 //   
-Procedure SetViewDateIntervalCompletion(Result, AdditionalParameters) Export
+Procedure SetPeriodForViewingCompletion(Result, AdditionalParameters) Export
 	
 	EventLogFilter = AdditionalParameters.EventLogFilter;
 	IntervalSet = False;
@@ -371,8 +371,8 @@ Procedure SetViewDateIntervalCompletion(Result, AdditionalParameters) Export
 		
 	EndIf;
 	
-	If AdditionalParameters.NotificationHandler <> Undefined Then
-		ExecuteNotifyProcessing(AdditionalParameters.NotificationHandler, IntervalSet);
+	If AdditionalParameters.HandlerNotifications <> Undefined Then
+		ExecuteNotifyProcessing(AdditionalParameters.HandlerNotifications, IntervalSet);
 	EndIf;
 	
 EndProcedure

@@ -141,7 +141,6 @@ EndProcedure
 
 #Region Private
 
-// Generates a parameter structure to pass to the owner form.
 &AtClient
 Function GenerateParametersStructureToPassToOwner()
 

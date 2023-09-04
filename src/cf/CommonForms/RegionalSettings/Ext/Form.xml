@@ -304,7 +304,7 @@
 					</Title>
 					<ExtendedTooltip name="CompletedSuccessfully2ExtendedTooltip" id="38"/>
 					<ChildItems>
-						<UsualGroup name="CompletionGroup" id="75">
+						<UsualGroup name="GroupCompletion" id="75">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -333,7 +333,7 @@
 									<ContextMenu name="CompletedSuccessfullyPictureContextMenu" id="42"/>
 									<ExtendedTooltip name="CompletedSuccessfullyPictureExtendedTooltip" id="43"/>
 								</PictureDecoration>
-								<LabelDecoration name="CompletionDecoration" id="72">
+								<LabelDecoration name="DecorationCompletion" id="72">
 									<AutoMaxWidth>false</AutoMaxWidth>
 									<Height>3</Height>
 									<AutoMaxHeight>false</AutoMaxHeight>

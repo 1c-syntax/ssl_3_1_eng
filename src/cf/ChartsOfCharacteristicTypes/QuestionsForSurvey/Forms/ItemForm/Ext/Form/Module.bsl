@@ -441,11 +441,11 @@ Procedure SetConditionalAppearance()
 	ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
 	
 	PropertyDecorationItem = ConditionalAppearanceItem.Appearance.Items.Find("Text");
-	PropertyDecorationItem.Value = New DataCompositionField("Object.NumericalQuestionHintsRange.PresentationValue");
+	PropertyDecorationItem.Value = New DataCompositionField("Object.NumericalQuestionHintsRange.ValuePresentation");
 	PropertyDecorationItem.Use = True;
 	
 	DataFilterItem = ConditionalAppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
-	DataFilterItem.LeftValue = New DataCompositionField("Object.NumericalQuestionHintsRange.PresentationValue");
+	DataFilterItem.LeftValue = New DataCompositionField("Object.NumericalQuestionHintsRange.ValuePresentation");
 	DataFilterItem.ComparisonType = DataCompositionComparisonType.Filled;
 	DataFilterItem.Use = True;
 	
@@ -635,8 +635,6 @@ Procedure SetAnswerType()
 	
 EndProcedure
 
-// Sets precision of a numerical answer based on the selected length.
-//
 &AtClient
 Procedure SetPrecisionBasedOnNumberLength()
 
@@ -715,27 +713,27 @@ Procedure SetHintRangePresentationForNumericalQuestion()
 		CurrentIndex = Object.NumericalQuestionHintsRange.IndexOf(CurrentRow);
 		If CurrentRow.ValueUpTo = NumericalQuestionHintsRangeCapValue() Then
 			If CurrentIndex = 0 Then
-				PresentationValue = NStr("en = 'any value';");
-				CurrentRow.PresentationValue = PresentationValue;
+				ValuePresentation = NStr("en = 'any value';");
+				CurrentRow.ValuePresentation = ValuePresentation;
 			Else
 				PreviousString = TableOfRanges[CurrentIndex - 1];
 				If PreviousString.ValueUpTo = NumericalQuestionHintsRangeCapValue() Then
-					CurrentRow.PresentationValue = PreviousString.PresentationValue;
+					CurrentRow.ValuePresentation = PreviousString.ValuePresentation;
 				Else
 					StringPattern = NStr("en = 'greater than %1';");
-					CurrentRow.PresentationValue = StrTemplate(StringPattern, String(PreviousString.ValueUpTo));
+					CurrentRow.ValuePresentation = StrTemplate(StringPattern, String(PreviousString.ValueUpTo));
 				EndIf;
 			EndIf;
 		Else
 			If CurrentIndex = 0 Then
 				StringPattern = NStr("en = '%1 or less';");
-				CurrentRow.PresentationValue = StrTemplate(StringPattern, String(CurrentRow.ValueUpTo));
+				CurrentRow.ValuePresentation = StrTemplate(StringPattern, String(CurrentRow.ValueUpTo));
 			Else
 				PreviousString = TableOfRanges[CurrentIndex - 1];
 				If PreviousString.ValueUpTo = CurrentRow.ValueUpTo Then
-					CurrentRow.PresentationValue = PreviousString.PresentationValue;
+					CurrentRow.ValuePresentation = PreviousString.ValuePresentation;
 				Else
-					CurrentRow.PresentationValue = StrTemplate(NStr("en = 'from %1 to %2';"),
+					CurrentRow.ValuePresentation = StrTemplate(NStr("en = 'from %1 to %2';"),
 						String(PreviousString.ValueUpTo), 
 						String(CurrentRow.ValueUpTo));
 				EndIf;

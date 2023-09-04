@@ -707,7 +707,7 @@ Procedure NotifyObjectChanged(Source, Val AdditionalParameters = Undefined) Expo
 	If AdditionalParameters = Undefined Then
 		AdditionalParameters = New Structure;
 	EndIf;
-	Notify("Write_" + CommonInternalClient.MetadataObjectName(TypeOf(Source)), AdditionalParameters, Source);
+	Notify("Record_" + CommonInternalClient.MetadataObjectName(TypeOf(Source)), AdditionalParameters, Source);
 	NotifyChanged(Source);
 EndProcedure
 
@@ -729,11 +729,11 @@ Procedure NotifyObjectsChanged(Source, Val AdditionalParameters = Undefined) Exp
 	
 	If TypeOf(Source) = Type("Type") Then
 		NotifyChanged(Source);
-		Notify("Write_" + CommonInternalClient.MetadataObjectName(Source), AdditionalParameters);
+		Notify("Record_" + CommonInternalClient.MetadataObjectName(Source), AdditionalParameters);
 	ElsIf TypeOf(Source) = Type("TypeDescription") Then
 		For Each Type In Source.Types() Do
 			NotifyChanged(Type);
-			Notify("Write_" + CommonInternalClient.MetadataObjectName(Type), AdditionalParameters);
+			Notify("Record_" + CommonInternalClient.MetadataObjectName(Type), AdditionalParameters);
 		EndDo;
 	ElsIf TypeOf(Source) = Type("Array") Then
 		If Source.Count() = 1 Then
@@ -745,7 +745,7 @@ Procedure NotifyObjectsChanged(Source, Val AdditionalParameters = Undefined) Exp
 			EndDo;
 			For Each Type In NotifiedTypes Do
 				NotifyChanged(Type.Key);
-				Notify("Write_" + CommonInternalClient.MetadataObjectName(Type.Key), AdditionalParameters);
+				Notify("Record_" + CommonInternalClient.MetadataObjectName(Type.Key), AdditionalParameters);
 			EndDo;
 		EndIf;
 	EndIf;
@@ -815,7 +815,7 @@ EndProcedure
 //
 // Parameters:
 //  MultilineText - String - a text to be edited.
-//  OwnerForm1      - ClientApplicationForm - the form that owns the field a user entering a comment into.
+//  OwnerForm      - ClientApplicationForm - the form that owns the field a user entering a comment into.
 //  AttributeName       - String - the name of the form attribute the user comment will be stored to.
 //                                The default value is Object.Comment.
 //  Title          - String - the text to be displayed in the from title.
@@ -827,12 +827,12 @@ EndProcedure
 //
 Procedure ShowCommentEditingForm(
 	Val MultilineText, 
-	Val OwnerForm1, 
+	Val OwnerForm, 
 	Val AttributeName = "Object.Comment", 
 	Val Title = Undefined) Export
 	
 	Context = New Structure;
-	Context.Insert("OwnerForm1", OwnerForm1);
+	Context.Insert("OwnerForm", OwnerForm);
 	Context.Insert("AttributeName", AttributeName);
 	
 	Notification = New NotifyDescription(

@@ -15,17 +15,17 @@
 // Parameters:
 //  BIC - String - Bank ID.
 //  Form - ClientApplicationForm - a form that opens the choice form.
-//  NotificationHandler - NotifyDescription - the procedure to which the management is passed after the selection.
+//  HandlerNotifications - NotifyDescription - the procedure to which the management is passed after the selection.
 //                                              If the parameter is not specified, the standard choice handler will be called.
 //    Procedure parameters:
 //     * BIC - CatalogRef.BankClassifier - a selected item.
 //     * AdditionalParameters - Arbitrary - the parameter passed in the notification details constructor.
 // 
-Procedure SelectFromTheBICDirectory(BIC, Form, NotificationHandler = Undefined) Export
+Procedure SelectFromTheBICDirectory(BIC, Form, HandlerNotifications = Undefined) Export
 	
 	Parameters = New Structure;
 	Parameters.Insert("BIC", BIC);
-	OpenForm("Catalog.BankClassifier.ChoiceForm", Parameters, Form, , , , NotificationHandler);
+	OpenForm("Catalog.BankClassifier.ChoiceForm", Parameters, Form, , , , HandlerNotifications);
 	
 EndProcedure
 

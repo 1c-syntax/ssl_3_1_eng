@@ -77,7 +77,7 @@ Procedure ContactAfterWrite(Form,Object,WriteParameters,MessageSenderObjectName,
 		EndIf;
 		
 		If SendNotification1 Then
-			Notify("Write_" + MessageSenderObjectName,WriteParameters,Object.Ref);
+			Notify("Record_" + MessageSenderObjectName,WriteParameters,Object.Ref);
 			Form.NotificationRequired = False
 		EndIf;
 		
@@ -112,7 +112,7 @@ Procedure InteractionSubjectAfterWrite(Form,Object,WriteParameters,MessageSender
 	EndIf;
 	
 	If SendNotification1 Then
-		Notify("Write_" + MessageSenderObjectName,WriteParameters,Object.Ref);
+		Notify("Record_" + MessageSenderObjectName,WriteParameters,Object.Ref);
 		Form.NotificationRequired = False;
 	EndIf;
 	
@@ -214,7 +214,6 @@ EndProcedure
 
 #Region Private
 
-// Creates an interaction or an interaction subject.
 // Parameters:
 //  ObjectFormName - String - item form name of the object being created.
 //  Basis       - DefinedType.InteractionContact
@@ -254,6 +253,7 @@ Procedure CreateInteractionOrSubject(ObjectFormName, Basis, Source) Export
 EndProcedure
 
 // Opens a contact object form filled according to an interaction participant details.
+//
 // Parameters:
 //  LongDesc      - String           - a text contact details.
 //  Address         - String           - contact information.
@@ -270,12 +270,13 @@ Procedure CreateContact(LongDesc, Address, Basis, ContactsTypes) Export
 	AdditionalParameters.Insert("LongDesc", LongDesc);
 	AdditionalParameters.Insert("Address", Address);
 	AdditionalParameters.Insert("Basis", Basis);
-	NotificationHandler = New NotifyDescription("SelectContactTypeOnCompletion", ThisObject, AdditionalParameters);
-	ContactsTypes.ShowChooseItem(NotificationHandler, NStr("en = 'Select contact type';"));
+	HandlerNotifications = New NotifyDescription("SelectContactTypeOnCompletion", ThisObject, AdditionalParameters);
+	ContactsTypes.ShowChooseItem(HandlerNotifications, NStr("en = 'Select contact type';"));
 
 EndProcedure
 
 // A notification handler for contact type choice when creating a contact from interaction documents.
+//
 // Parameters:
 //  SelectionResult - ValueListItem - item value contains a string contact type presentation,
 //  AdditionalParameters - Structure - contains fields "Description", "Address" and "Base".
@@ -492,8 +493,6 @@ Procedure DoProcessNotification(Form,EventName, Parameter, Source) Export
 	
 EndProcedure
 
-// Creates a new interaction document.
-//
 // Parameters:
 //  ObjectType        - String - type of the object to be created.
 //  CreationParameters - Structure - parameters of a document to be created.
@@ -508,7 +507,7 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Common event handlers of interaction documents
 
-// Calls a contact choice form and processes the choice result.
+// 
 //
 // Parameters:
 //  SubjectOf        - DefinedType.InteractionSubject - interaction topic.
@@ -534,8 +533,6 @@ Procedure SelectContact(SubjectOf, Address, Presentation, Contact, Parameters) E
 
 EndProcedure
 
-// Returns the opening parameters for InteractionsClient.SelectContact.
-//
 // Returns: 
 //  Structure:
 //    * EmailOnly   - Boolean
@@ -555,8 +552,6 @@ Function ContactChoiceParameters(FormIdentifier) Export
 	
 EndFunction	
 
-// Processing the "review after" field choice in interaction documents.
-//
 // Parameters:
 //  Simple         - Date - "Process after" field value. 
 //  ValueSelected    - Date
@@ -601,7 +596,6 @@ Procedure ContactOwnerOnActivateRow(Item,Form) Export
  
 EndProcedure 
 
-// Asks the user when changing an email formatting mode from HTML to plain text.
 Procedure PromptOnChangeMessageFormatToPlainText(Form, AdditionalParameters = Undefined) Export
 	
 	OnCloseNotifyHandler = New NotifyDescription("PromptOnChangeFormatOnClose", Form, AdditionalParameters);
@@ -610,8 +604,6 @@ Procedure PromptOnChangeMessageFormatToPlainText(Form, AdditionalParameters = Un
 	
 EndProcedure
 
-// Handler before adding dynamic lists of interaction log.
-//
 // Parameters:
 //  Item - FormTable - the list being modified contains:
 //   * CurrentData - ValueTableRow:
@@ -649,8 +641,6 @@ Procedure ListBeforeAddRow(Item, Cancel, Copy,OnlyEmail,DocumentsAvailableForCre
 	
 EndProcedure
 
-// Handler for the OnClick form event of the HTML document field.
-//
 // Parameters:
 //  Item                        - FormField - a form, for which the event is being processed.
 //  EventData                  - FixedStructure - data contains event parameters.
@@ -800,13 +790,11 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Define the reference type.
 
-// Determines whether a reference passed to the function is an interaction or not.
-//
 // Parameters:
 //  ObjectRef - AnyRef - a reference, to which a check is required.
 //
 // Returns:
-//   Boolean   - True if the passed reference is associated with an interaction.
+//   Boolean   - 
 //
 Function IsEmail(ObjectRef) Export
 	

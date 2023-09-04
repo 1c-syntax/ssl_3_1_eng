@@ -179,19 +179,19 @@ EndProcedure
 
 &AtServer
 Procedure SetCatalogAndClassifierIntersectionFilter()
-	ListFilter = List.SettingsComposer.FixedSettings.Filter;
+	Filterlist0 = List.SettingsComposer.FixedSettings.Filter;
 	
 	If RefFilterItemID=Undefined Then
-		FilterElement = ListFilter.Items.Add(Type("DataCompositionFilterItem"));
+		FilterElement = Filterlist0.Items.Add(Type("DataCompositionFilterItem"));
 		
 		FilterElement.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 		FilterElement.LeftValue    = New DataCompositionField("Ref");
 		FilterElement.ComparisonType     = DataCompositionComparisonType.InList;
 		FilterElement.Use    = True;
 		
-		RefFilterItemID = ListFilter.GetIDByObject(FilterElement);
+		RefFilterItemID = Filterlist0.GetIDByObject(FilterElement);
 	Else
-		FilterElement = ListFilter.GetObjectByID(RefFilterItemID);
+		FilterElement = Filterlist0.GetObjectByID(RefFilterItemID);
 	EndIf;
 	
 	Query = New Query("

@@ -194,7 +194,7 @@ Procedure EndRequestsProcessing()
 		
 	Else
 		
-		NotifyDescription = ThisObject.OnCloseNotifyDescription;
+		NotifyDescription = OnCloseNotifyDescription;
 		If NotifyDescription <> Undefined Then
 			ExecuteNotifyProcessing(NotifyDescription, DialogReturnCode.OK);
 		EndIf;

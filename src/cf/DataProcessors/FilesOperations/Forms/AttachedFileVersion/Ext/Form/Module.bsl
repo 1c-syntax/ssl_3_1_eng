@@ -17,7 +17,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	SetUpFormObject(ObjectValue);
 	
-	If TypeOf(ThisObject.Object.Owner) = Type("CatalogRef.Files") Then
+	If TypeOf(Object.Owner) = Type("CatalogRef.Files") Then
 		Items.Description0.ReadOnly = True;
 	EndIf;
 	
@@ -28,17 +28,17 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.LocationGroup3.Visible = False;
 	EndIf;
 	
-	VolumeFullPath = FilesOperationsInVolumesInternal.FullVolumePath(ThisObject.Object.Volume);
+	VolumeFullPath = FilesOperationsInVolumesInternal.FullVolumePath(Object.Volume);
 	
 	CommonSettings = FilesOperationsInternalCached.FilesOperationSettings().CommonSettings;
 	
 	FileExtensionInList = FilesOperationsInternalClientServer.FileExtensionInList(
-		CommonSettings.TextFilesExtensionsList, ThisObject.Object.Extension);
+		CommonSettings.TextFilesExtensionsList, Object.Extension);
 	
 	If FileExtensionInList Then
-		If ValueIsFilled(ThisObject.Object.Ref) Then
+		If ValueIsFilled(Object.Ref) Then
 			
-			EncodingValue = InformationRegisters.FilesEncoding.FileVersionEncoding(ThisObject.Object.Ref);
+			EncodingValue = InformationRegisters.FilesEncoding.FileVersionEncoding(Object.Ref);
 			
 			EncodingsList = FilesOperationsInternal.Encodings();
 			ListItem = EncodingsList.FindByValue(EncodingValue);
@@ -58,7 +58,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	Items.FormDelete.Visible =
-		ThisObject.Object.Author = Users.AuthorizedUser();
+		Object.Author = Users.AuthorizedUser();
 	
 	If Common.IsMobileClient() Then
 		
@@ -91,8 +91,8 @@ EndProcedure
 &AtClient
 Procedure OpenExecute()
 	
-	VersionRef = ThisObject.Object.Ref;
-	FileData = FilesOperationsInternalServerCall.FileDataToOpen(ThisObject.Object.Owner, VersionRef, UUID);
+	VersionRef = Object.Ref;
+	FileData = FilesOperationsInternalServerCall.FileDataToOpen(Object.Owner, VersionRef, UUID);
 	FilesOperationsInternalClient.OpenFileVersion(Undefined, FileData, UUID);
 	
 EndProcedure
@@ -104,8 +104,8 @@ EndProcedure
 &AtClient
 Procedure SaveAs(Command)
 	
-	VersionRef = ThisObject.Object.Ref;
-	FileData = FilesOperationsInternalServerCall.FileDataToSave(ThisObject.Object.Owner, VersionRef, UUID);
+	VersionRef = Object.Ref;
+	FileData = FilesOperationsInternalServerCall.FileDataToSave(Object.Owner, VersionRef, UUID);
 	FilesOperationsInternalClient.SaveAs(Undefined, FileData, UUID);
 	
 EndProcedure
@@ -166,15 +166,6 @@ EndProcedure
 &AtServer
 Procedure SetUpFormObject(Val NewObject)
 	
-	NewObjectType = New Array;
-	NewObjectType.Add(TypeOf(NewObject));
-	NewAttribute = New FormAttribute("Object", New TypeDescription(NewObjectType));
-	NewAttribute.StoredData = True;
-	
-	AttributesToBeAdded = New Array;
-	AttributesToBeAdded.Add(NewAttribute);
-	
-	ChangeAttributes(AttributesToBeAdded);
 	ValueToFormAttribute(NewObject, "Object");
 	For Each Item In Items Do
 		
@@ -203,7 +194,7 @@ Procedure SetUpFormObject(Val NewObject)
 	EndDo;
 	
 	If Not NewObject.IsNew() Then
-		ThisObject.URL = GetURL(NewObject);
+		URL = GetURL(NewObject);
 	EndIf;
 
 EndProcedure
@@ -211,14 +202,14 @@ EndProcedure
 &AtClient
 Function ProcessWriteFileVersionCommand()
 	
-	If IsBlankString(ThisObject.Object.Description) Then
+	If IsBlankString(Object.Description) Then
 		CommonClient.MessageToUser(
 			NStr("en = 'Please specify the name of the file version.';"), , "Description", "Object");
 		Return False;
 	EndIf;
 	
 	Try
-		FilesOperationsInternalClient.CorrectFileName(ThisObject.Object.Description);
+		FilesOperationsInternalClient.CorrectFileName(Object.Description);
 	Except
 		CommonClient.MessageToUser(
 			ErrorProcessing.BriefErrorDescription(ErrorInfo()), ,"Description", "Object");
@@ -230,10 +221,10 @@ Function ProcessWriteFileVersionCommand()
 	EndIf;
 	
 	Modified = False;
-	RepresentDataChange(ThisObject.Object.Ref, DataChangeType.Update);
-	NotifyChanged(ThisObject.Object.Ref);
-	Notify("Write_File", New Structure("Event", "VersionSaved"), ThisObject.Object.Owner);
-	Notify("Write_FileVersion", New Structure("IsNew", False), ThisObject.Object.Ref);
+	RepresentDataChange(Object.Ref, DataChangeType.Update);
+	NotifyChanged(Object.Ref);
+	Notify("Write_File", New Structure("Event", "VersionSaved"), Object.Owner);
+	Notify("Write_FileVersion", New Structure("IsNew", False), Object.Ref);
 	
 	Return True;
 	
@@ -302,7 +293,7 @@ EndFunction
 &AtClient
 Function CurrentFormObject()
 
-	Return ThisObject.Object;
+	Return Object;
 
 EndFunction
 
@@ -312,7 +303,7 @@ EndFunction
 &AtServer
 Function CurrentFormObjectServer()
 
-	Return ThisObject.Object;
+	Return Object;
 
 EndFunction
 

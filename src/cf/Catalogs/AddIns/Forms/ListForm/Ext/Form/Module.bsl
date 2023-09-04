@@ -176,7 +176,7 @@ Procedure AddFromFiles(Command)
 			+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
 	
 	ImportParameters.Dialog.Multiselect = True;
-	Items.GroupPages.CurrentPage = Items.WaitingPage;
+	Items.Pages_Group.CurrentPage = Items.WaitPage;
 	FileSystemClient.ImportFiles(Notification, ImportParameters);
 	
 EndProcedure
@@ -195,7 +195,7 @@ Procedure AddAddInsFromDirectoryAfterExtensionsAttached(Result, CreationParamete
 	EndIf;
 		
 	Notification = New NotifyDescription("AddAddInsAfterDirectorySelected", ThisObject);
-	Items.GroupPages.CurrentPage = Items.WaitingPage;
+	Items.Pages_Group.CurrentPage = Items.WaitPage;
 	FileSystemClient.SelectDirectory(Notification, NStr("en = 'Select a directory with add-in files';"));
 	
 EndProcedure
@@ -206,7 +206,7 @@ EndProcedure
 Async Procedure AddAddInsAfterDirectorySelected(SelectedDirectory, AdditionalParameters) Export
 	
 	If Not ValueIsFilled(SelectedDirectory) Then
-		Items.GroupPages.CurrentPage = Items.ListPage;
+		Items.Pages_Group.CurrentPage = Items.List_Page;
 		Return;
 	EndIf;
 	
@@ -239,12 +239,12 @@ EndProcedure
 Procedure DownloadAddInsAfterSafetyWarning(Response, PlacedFiles) Export
 	
 	If Response <> "Continue" Then
-		Items.GroupPages.CurrentPage = Items.ListPage;
+		Items.Pages_Group.CurrentPage = Items.List_Page;
 		Return;
 	EndIf;
 	
 	If PlacedFiles.Count() = 1 Then
-		Items.GroupPages.CurrentPage = Items.ListPage;
+		Items.Pages_Group.CurrentPage = Items.List_Page;
 		If IsFileOfService(PlacedFiles[0].Location) Then
 			ModuleGetAddInsClient = CommonClient.CommonModule("GetAddInsClient");
 			ModuleGetAddInsClient.UpdateAddIns(Undefined, PlacedFiles[0].FullName);
@@ -257,7 +257,7 @@ Procedure DownloadAddInsAfterSafetyWarning(Response, PlacedFiles) Export
 	EndIf;
 	
 	Result = DownloadAddInsAtServer(PlacedFiles);
-	Items.GroupPages.CurrentPage = Items.ListPage;
+	Items.Pages_Group.CurrentPage = Items.List_Page;
 	
 	If Result.Count() > 0 Then
 		TextDocument = New TextDocument;
@@ -311,7 +311,7 @@ EndFunction
 Procedure AddAddInsAfterFilesPut(PlacedFiles, AdditionalParameters) Export
 	
 	If Not ValueIsFilled(PlacedFiles) Then
-		Items.GroupPages.CurrentPage = Items.ListPage;
+		Items.Pages_Group.CurrentPage = Items.List_Page;
 		Return;
 	EndIf;
 	

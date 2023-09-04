@@ -6,7 +6,7 @@
 		<xr:Item>
 			<xr:Presentation/>
 			<xr:CheckState>0</xr:CheckState>
-			<xr:Value xsi:type="xs:string">CommandBarGroup</xr:Value>
+			<xr:Value xsi:type="xs:string">GroupCommandBar</xr:Value>
 		</xr:Item>
 	</MobileDeviceCommandBarContent>
 	<CommandSet>
@@ -279,7 +279,7 @@
 						</InputField>
 					</ChildItems>
 				</UsualGroup>
-				<CommandBar name="CommandBarGroup" id="47">
+				<CommandBar name="GroupCommandBar" id="47">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>

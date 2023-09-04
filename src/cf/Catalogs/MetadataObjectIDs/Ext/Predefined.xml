@@ -235,7 +235,7 @@
 		<IsFolder>false</IsFolder>
 	</Item>
 	<Item id="e33879f7-5e7b-4ace-ba14-5946df8c4ab4">
-		<Name>InformationRegisterLandLots</Name>
+		<Name>InformationRegisterLandPlots</Name>
 		<Code/>
 		<Description/>
 		<IsFolder>false</IsFolder>
@@ -349,7 +349,7 @@
 		<IsFolder>false</IsFolder>
 	</Item>
 	<Item id="96fec588-694c-4ef3-aff2-1b51d09654da">
-		<Name>InformationRegisterFIleEncodings</Name>
+		<Name>InformationRegisterFilesEncoding</Name>
 		<Code/>
 		<Description/>
 		<IsFolder>false</IsFolder>
@@ -391,7 +391,7 @@
 		<IsFolder>false</IsFolder>
 	</Item>
 	<Item id="cde94ed4-cf3d-4b25-8a23-cfdea893a8f6">
-		<Name>InformationRegisterAccessValueSets</Name>
+		<Name>InformationRegisterAccessValuesSets</Name>
 		<Code/>
 		<Description/>
 		<IsFolder>false</IsFolder>
@@ -403,7 +403,7 @@
 		<IsFolder>false</IsFolder>
 	</Item>
 	<Item id="1488dddc-2038-4d06-97f9-ee1e0de89b92">
-		<Name>InformationRegisterHasAttachments</Name>
+		<Name>InformationRegisterFilesExist</Name>
 		<Code/>
 		<Description/>
 		<IsFolder>false</IsFolder>
@@ -505,7 +505,7 @@
 		<IsFolder>false</IsFolder>
 	</Item>
 	<Item id="03933e66-351b-4c8c-ab39-1c9c5127f09f">
-		<Name>InformationRegisterPersonalDataAreas</Name>
+		<Name>InformationRegisterAreasOfPersonalData</Name>
 		<Code/>
 		<Description/>
 		<IsFolder>false</IsFolder>
@@ -601,7 +601,7 @@
 		<IsFolder>false</IsFolder>
 	</Item>
 	<Item id="5ada59c9-aac4-4444-9b62-35a0513f1cf3">
-		<Name>InformationRegisterApplicationParameters</Name>
+		<Name>InformationRegisterApplicationRuntimeParameters</Name>
 		<Code/>
 		<Description/>
 		<IsFolder>false</IsFolder>
@@ -811,7 +811,7 @@
 		<IsFolder>false</IsFolder>
 	</Item>
 	<Item id="fca8fbbe-afe8-4df6-a9ca-b3be93a4ec4f">
-		<Name>InformationRegisterDataAreaDataExchangeMessages</Name>
+		<Name>InformationRegisterDataAreasDataExchangeMessages</Name>
 		<Code/>
 		<Description/>
 		<IsFolder>false</IsFolder>
@@ -889,7 +889,7 @@
 		<IsFolder>false</IsFolder>
 	</Item>
 	<Item id="623acf6b-7efa-408f-ac9b-89cd66e64862">
-		<Name>InformationRegisterSubjectsToHidePersonalData</Name>
+		<Name>InformationRegisterSubjectsForHidingPersonalData</Name>
 		<Code/>
 		<Description/>
 		<IsFolder>false</IsFolder>
@@ -991,7 +991,7 @@
 		<IsFolder>false</IsFolder>
 	</Item>
 	<Item id="eca783ba-56c7-43b7-a318-9ddc9570a3cc">
-		<Name>InformationRegisterInfoCenterViewedData</Name>
+		<Name>InformationRegisterViewedInformationCenterData</Name>
 		<Code/>
 		<Description/>
 		<IsFolder>false</IsFolder>
@@ -1009,7 +1009,7 @@
 		<IsFolder>false</IsFolder>
 	</Item>
 	<Item id="d9a17a35-50b1-4c83-834b-62e3b50e3b89">
-		<Name>InformationRegisterDataAreaFiles</Name>
+		<Name>InformationRegisterDataAreasFiles</Name>
 		<Code/>
 		<Description/>
 		<IsFolder>false</IsFolder>
@@ -1039,7 +1039,7 @@
 		<IsFolder>false</IsFolder>
 	</Item>
 	<Item id="417f7313-4c12-4a68-8ab3-b391a0a883e2">
-		<Name>InformationRegisterAccessKeysUpdateCurrentJobs</Name>
+		<Name>InformationRegisterUsersAccessKeysCurrentJobs</Name>
 		<Code/>
 		<Description/>
 		<IsFolder>false</IsFolder>

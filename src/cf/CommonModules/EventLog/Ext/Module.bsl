@@ -214,7 +214,7 @@ Procedure ReadEventLogEvents(ReportParameters, StorageAddress) Export
 					LogData = LogEvent.Data; // Structure
 					LogEvent.Data = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Action: %1%2';"), 
-						LogData.Action, ?(LogEvent.Data.Data = Undefined, "", ", ...") );
+						LogData.Action, ?(Not LogEvent.Data.Property("Data") Or LogEvent.Data.Data = Undefined, "", ", ...") );
 				EndIf;
 			EndIf;
 			

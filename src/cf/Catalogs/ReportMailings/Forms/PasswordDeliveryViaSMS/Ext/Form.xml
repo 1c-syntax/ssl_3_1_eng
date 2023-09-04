@@ -75,7 +75,7 @@
 										<Event name="OnChange">TypeOfRecipientsPhoneOnChange</Event>
 									</Events>
 								</InputField>
-								<CommandBar name="CommandBarGroup" id="42">
+								<CommandBar name="GroupCommandBar" id="42">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>

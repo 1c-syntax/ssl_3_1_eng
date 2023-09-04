@@ -64,7 +64,7 @@ EndProcedure
 //                                              by default (check all).
 //      * IssuesLimit                 - Number - a number of the checked objects. The default value is 1000. 
 //                                               If 0 is specified, check all objects.
-//      * CheckHandler           - String - a name of the export handler procedure of the server common
+//      * HandlerChecks           - String - a name of the export handler procedure of the server common
 //                                                module as ModuleName.ProcedureName.
 //      * GoToCorrectionHandler - String - a name of the export handler procedure for client common module
 //                                                  to start correcting an issue in the form of "ModuleName.ProcedureName"
@@ -207,7 +207,7 @@ EndProcedure
 //                                         the specified one. Not filled in by default (check all).
 //      * IssuesLimit                   - Number - the maximum number of the checked objects.
 //                                         0 by default - check all objects.
-//      * CheckHandler             - String - an export check handler procedure name in the server common module.
+//      * HandlerChecks             - String - an export check handler procedure name in the server common module.
 //                                         Designed for searching and registering data integrity issues.
 //                                         Check handler parameters:
 //                                           * Validation - CatalogRef.AccountingCheckRules - a check being executed.

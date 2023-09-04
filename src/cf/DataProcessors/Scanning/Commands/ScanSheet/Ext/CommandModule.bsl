@@ -12,7 +12,7 @@
 Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 	If FilesOperationsClient.ScanAvailable() Then
 		AddingFromScannerParameters = FilesOperationsClient.AddingFromScannerParameters();
-		AddingFromScannerParameters.OwnerForm1 = ThisObject;
+		AddingFromScannerParameters.OwnerForm = ThisObject;
 		AddingFromScannerParameters.ResultHandler = New NotifyDescription("ScanSheetCompletion", ThisObject);
 		AddingFromScannerParameters.ResultType = FilesOperationsClient.ConversionResultTypeFileName();
 		AddingFromScannerParameters.OneFileOnly = True; 

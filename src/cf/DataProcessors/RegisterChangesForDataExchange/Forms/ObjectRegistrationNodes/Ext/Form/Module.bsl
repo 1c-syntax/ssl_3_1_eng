@@ -67,7 +67,7 @@ Procedure ExchangeNodesTreeSelection(Item, RowSelected, Field, StandardProcessin
 	EndIf;
 	
 	CurrentData = Items.ExchangeNodesTree.CurrentData;
-	Notification = New NotifyDescription("ExchangeNodeTreeChoiceCompletion", ThisObject, New Structure);
+	Notification = New NotifyDescription("ExchangeNodesTreeSelectionCompletion", ThisObject, New Structure);
 	Notification.AdditionalParameters.Insert("Node", CurrentData.Ref);
 	
 	ToolTip = NStr("en = 'Sent message number';"); 
@@ -226,7 +226,7 @@ EndProcedure
 //
 
 &AtClient
-Procedure ExchangeNodeTreeChoiceCompletion(Val Number, Val AdditionalParameters) Export
+Procedure ExchangeNodesTreeSelectionCompletion(Val Number, Val AdditionalParameters) Export
 	If Number = Undefined Then 
 		// 
 		Return;

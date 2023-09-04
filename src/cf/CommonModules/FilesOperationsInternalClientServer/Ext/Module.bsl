@@ -314,7 +314,7 @@ Procedure FillSignatureStatus(SignatureRow, CurrentDate) Export
 		SignatureRow.Status = NStr("en = 'Was valid on the date of signature';");
 	ElsIf SignatureRow.SignatureCorrect Then
 		SignatureRow.Status = NStr("en = 'Valid';");
-	ElsIf SignatureRow.CheckRequired2 Then
+	ElsIf SignatureRow.IsVerificationRequired Then
 		SignatureRow.Status = NStr("en = 'Verification required';");
 	Else
 		SignatureRow.Status = NStr("en = 'Invalid';");

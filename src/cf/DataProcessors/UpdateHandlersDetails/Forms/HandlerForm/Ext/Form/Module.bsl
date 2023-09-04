@@ -410,7 +410,7 @@ Procedure ObjectsToReadSelection(Item, RowSelected, Field, StandardProcessing)
 		OpenForm(HandlerFormName,
 			FormParameters,
 			ThisObject,
-			ThisObject.UUID,
+			UUID,
 			,
 			,
 			,
@@ -438,7 +438,7 @@ Procedure ExecutionPrioritiesSelection(Item, RowSelected, Field, StandardProcess
 		OpenForm(HandlerFormName,
 			FormParameters,
 			ThisObject,
-			ThisObject.UUID,
+			UUID,
 			,
 			,
 			,
@@ -827,7 +827,7 @@ Procedure SelectMetadataObject(Item, CurrentValue = "", TableName = Undefined)
 	EndIf;
 	FormParameters.Insert("CurrentRow", CurrentValue);
 	FormParameters.Insert("MainMetadataObject", Undefined);
-	If ThisObject.CurrentItem.Name = Items.ObjectsToRead.Name Then
+	If CurrentItem.Name = Items.ObjectsToRead.Name Then
 		FormParameters.Insert("MainMetadataObject", MainMetadataObject);
 	EndIf;
 	
@@ -842,7 +842,7 @@ Procedure SelectMetadataObject(Item, CurrentValue = "", TableName = Undefined)
 	OpenForm(ChoiceFormName,
 		FormParameters,
 		Item,
-		ThisObject.UUID,
+		UUID,
 		,
 		,
 		ChoiceHandler,
@@ -1086,9 +1086,9 @@ Procedure FillHandlerIntersections(CurrentHandler, ConflictingHandler)
 		Filter = New Structure("MetadataObject,WriteProcedure,ReadOrWriteProcedure2", 
 							Conflict.MetadataObject, Conflict.ReadOrWriteProcedure2, Conflict.WriteProcedure);
 		ReverseConflicts = Intersections.FindRows(Filter);
-		If Conflict.WriterHandler = CurrentHandler
+		If Conflict.HandlerWriter = CurrentHandler
 				And Conflict.ReadOrWriteHandler2 = ConflictingHandler
-			Or Conflict.WriterHandler = ConflictingHandler
+			Or Conflict.HandlerWriter = ConflictingHandler
 				And Conflict.ReadOrWriteHandler2 = CurrentHandler 
 			And ReverseConflicts.Count() = 0 Then
 			NewIntersection = Intersections.Add();
@@ -1170,7 +1170,7 @@ Procedure PickMetadataObjects(Text, ChoiceData, StandardProcessing, IncludingCom
 	IncludingCommonModules = True;
 	MetadataObjects = FindMetadataObjects(Text, IncludingCommonModules, CommonModules);
 	
-	If ThisObject.CurrentItem.Name = Items.ObjectsToRead.Name Then
+	If CurrentItem.Name = Items.ObjectsToRead.Name Then
 		IndexOf = MetadataObjects.Find(MainMetadataObject);
 		If IndexOf <> Undefined Then
 			MetadataObjects.Delete(IndexOf);

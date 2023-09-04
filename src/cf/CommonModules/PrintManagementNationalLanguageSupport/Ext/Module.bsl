@@ -295,7 +295,7 @@ Procedure FillInTheLanguageSubmenu(Form, CurrentLanguage = Undefined, Val Filter
 		FormButton.Visible = TemplateInCurrLang Or Not IsEditorForm;
 		
 		If IsEditorForm Then
-			Command = Commands.Add("AddLang_" + LocalizationCode);
+			Command = Commands.Add("AddLanguage_" + LocalizationCode);
 			Command.Action = "Attachable_SwitchLanguage";
 			Command.Title = NStr("en = 'Add:';") + " " + LanguagePresentation;
 			

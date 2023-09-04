@@ -489,13 +489,13 @@ EndProcedure
 &AtClient
 Procedure AcceptVersionDeclined(Command)
 	
-	NotifyDescription = New NotifyDescription("AcceptVersionNotAcceptedCompletion", ThisObject);
+	NotifyDescription = New NotifyDescription("AcceptVersionDeclinedCompletion", ThisObject);
 	ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to accept the version even though import is restricted?';"), QuestionDialogMode.YesNo, , DialogReturnCode.No);
 	
 EndProcedure
 
 &AtClient
-Procedure AcceptVersionNotAcceptedCompletion(Response, AdditionalParameters) Export
+Procedure AcceptVersionDeclinedCompletion(Response, AdditionalParameters) Export
 	
 	If Response <> DialogReturnCode.Yes Then
 		Return;

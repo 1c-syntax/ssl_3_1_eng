@@ -1148,7 +1148,7 @@ Function MessagesSupportedHasRightsToLogIn()
 	
 	ConnectionParametersToSM = New Structure;
 	ConnectionParametersToSM.Insert("URL", SettingsStructure.WSWebServiceURL);
-	ConnectionParametersToSM.Insert("UserName", SettingsStructure.WSUsername);
+	ConnectionParametersToSM.Insert("UserName", SettingsStructure.WSUserName);
 	ConnectionParametersToSM.Insert("Password", SettingsStructure.WSPassword);
 	
 	SupportedVersions = Common.GetInterfaceVersions(ConnectionParametersToSM, "UserHandler");

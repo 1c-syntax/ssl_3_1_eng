@@ -1472,6 +1472,9 @@ application without setting the safe mode.</v8:content>
 				<v8:Type>cfg:EnumRef.ReportOptionPurposes</v8:Type>
 			</Type>
 		</Attribute>
+		<Attribute name="PropertiesParameters" id="21">
+			<Type/>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="LoadFromFile" id="1">

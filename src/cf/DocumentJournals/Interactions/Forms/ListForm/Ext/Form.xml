@@ -3765,7 +3765,7 @@ FROM
 				<xr:Ref>CommonPicture.SetInteractionSubject</xr:Ref>
 				<xr:LoadTransparent>false</xr:LoadTransparent>
 			</Picture>
-			<Action>SubjectExecute</Action>
+			<Action>SubjectOfExecute</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 		<Command name="DeferReview" id="6">

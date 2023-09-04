@@ -278,13 +278,13 @@ Procedure Attachable_OperatorsDragEnd(Item, DragParameters, StandardProcessing)
 	
 	If FormulasConstructorClient.TheSelectedFieldInTheFieldList(ThisObject, NameOfTheListOfOperators()).DataPath = "Format" Then
 		RowFormat = New FormatStringWizard;
-		RowFormat.Show(New NotifyDescription("OperatorsEndDragCompletion", ThisObject, New Structure("RowFormat", RowFormat)));
+		RowFormat.Show(New NotifyDescription("OperatorsDragEndCompletion", ThisObject, New Structure("RowFormat", RowFormat)));
 	EndIf;
 	
 EndProcedure
 
 &AtClient
-Procedure OperatorsEndDragCompletion(Text, AdditionalParameters) Export
+Procedure OperatorsDragEndCompletion(Text, AdditionalParameters) Export
 	
 	RowFormat = AdditionalParameters.RowFormat;
 	

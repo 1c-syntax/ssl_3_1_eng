@@ -349,9 +349,9 @@ Procedure ChangeNodeTransportInWS(Node, Endpoint, CorrespondentDataArea) Export
 	RecordStructure = New Structure;
 	RecordStructure.Insert("Peer", Node);
 	RecordStructure.Insert("DefaultExchangeMessagesTransportKind", Enums.ExchangeMessagesTransportTypes.WS);
-	RecordStructure.Insert("WSPeerEndpoint", Endpoint);
+	RecordStructure.Insert("WSCorrespondentEndpoint", Endpoint);
 	RecordStructure.Insert("WSRememberPassword", True);
-	RecordStructure.Insert("WSPeerDataArea", CorrespondentDataArea);
+	RecordStructure.Insert("WSCorrespondentDataArea", CorrespondentDataArea);
 	RecordStructure.Insert("WSUseLargeVolumeDataTransfer", True);
 		
 	Try
@@ -1017,7 +1017,7 @@ Procedure TestCorrespondentConnection(Parameters, ResultAddress) Export
 				ConnectionSettings.CorrespondentExchangePlanName,
 				ConnectionSettings.SourceInfobaseID,
 				ErrorMessage,
-				ConnectionSettings.WSPeerDataArea,
+				ConnectionSettings.WSCorrespondentDataArea,
 				AdditionalParameters);
   
 			CorrespondentParameters = XDTOSerializer.ReadXDTO(InfoBaseAdmParams);
@@ -1364,10 +1364,10 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 			
 			If ValueIsFilled(ConnectionSettings.WSEndpoint) Then
 				SetPrivilegedMode(True);
-				CorrespondentConnectionSettings.WSPeerEndpoint = 
+				CorrespondentConnectionSettings.WSCorrespondentEndpoint = 
 					Common.ObjectAttributeValue(ConnectionSettings.WSEndpoint, "Code");
 				SetPrivilegedMode(False);
-				CorrespondentConnectionSettings.WSPeerDataArea = ConnectionSettings.WSDataArea;
+				CorrespondentConnectionSettings.WSCorrespondentDataArea = ConnectionSettings.WSDataArea;
 			EndIf;
 			
 			ConnectionParameters = New Structure;
@@ -1376,7 +1376,7 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 			
 			Try
 				DataExchangeWebService.CreateExchangeNode(WSProxy, AdditionalParameters.CurrentVersion, 
-					ConnectionParameters, ConnectionSettings.WSPeerDataArea);
+					ConnectionParameters, ConnectionSettings.WSCorrespondentDataArea);
 			Except
 				Cancel = True;
 				Result.ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
@@ -1626,7 +1626,7 @@ Procedure ConfigureDataExchange(ConnectionSettings) Export
 			
 			Constants.SubordinateDIBNodeSetupCompleted.Set(True);
 			Constants.UseDataSynchronization.Set(True);
-			Constants.DoNotUseSeparationByDataAreas.Set(True);
+			Constants.NotUseSeparationByDataAreas.Set(True);
 			
 			DataExchangeServer.SetDefaultDataImportTransactionItemsCount();
 			
@@ -2075,14 +2075,14 @@ Procedure UpdateDataExchangeTransportSettings(ConnectionSettings)
 	RecordStructure.Insert("COMOperatingSystemAuthentication");
 	RecordStructure.Insert("COMInfobaseOperatingMode");
 	RecordStructure.Insert("COM1CEnterpriseServerSideInfobaseName");
-	RecordStructure.Insert("COMUsername");
+	RecordStructure.Insert("COMUserName");
 	RecordStructure.Insert("COM1CEnterpriseServerName");
 	RecordStructure.Insert("COMInfobaseDirectory");
 	RecordStructure.Insert("COMUserPassword");
 	
 	RecordStructure.Insert("EMAILMaxMessageSize");
 	RecordStructure.Insert("EMAILCompressOutgoingMessageFile");
-	RecordStructure.Insert("EMAIL_Account");
+	RecordStructure.Insert("EMAILAccount");
 	RecordStructure.Insert("EMAILTransliterateExchangeMessageFileNames");
 	
 	RecordStructure.Insert("FILEDataExchangeDirectory");
@@ -2099,12 +2099,12 @@ Procedure UpdateDataExchangeTransportSettings(ConnectionSettings)
 	RecordStructure.Insert("FTPTransliterateExchangeMessageFileNames");
 	
 	RecordStructure.Insert("WSWebServiceURL");
-	RecordStructure.Insert("WSUsername");
+	RecordStructure.Insert("WSUserName");
 	RecordStructure.Insert("WSPassword");
 	RecordStructure.Insert("WSRememberPassword");
 
-	RecordStructure.Insert("WSPeerDataArea");
-	RecordStructure.Insert("WSPeerEndpoint");
+	RecordStructure.Insert("WSCorrespondentDataArea");
+	RecordStructure.Insert("WSCorrespondentEndpoint");
 			
 	RecordStructure.Insert("WSUseLargeVolumeDataTransfer", True);
 	
@@ -2118,14 +2118,14 @@ EndProcedure
 
 Function AuthenticationSettingsStructure(ConnectionSettings)
 	
-	Result = New Structure("WSWebServiceURL,WSUsername,WSPassword");
+	Result = New Structure("WSWebServiceURL,WSUserName,WSPassword");
 	
-	If ValueIsFilled(ConnectionSettings.WSPeerEndpoint) Then
+	If ValueIsFilled(ConnectionSettings.WSCorrespondentEndpoint) Then
 		
 		SetPrivilegedMode(True);
 		
 		ModuleMessagesExchangeTransportSettings = Common.CommonModule("InformationRegisters.MessageExchangeTransportSettings");
-		Settings = ModuleMessagesExchangeTransportSettings.TransportSettingsWS(ConnectionSettings.WSPeerEndpoint);
+		Settings = ModuleMessagesExchangeTransportSettings.TransportSettingsWS(ConnectionSettings.WSCorrespondentEndpoint);
 		
 		SetPrivilegedMode(False);
 		
@@ -2260,7 +2260,7 @@ Procedure FillConnectionSettingsFromXMLString(ConnectionSettings,
 		ModuleEmailOperationsInternal = Common.CommonModule("EmailOperationsInternal");
 		ThisInfobaseAccount = ModuleEmailOperationsInternal.ThisInfobaseAccountByCorrespondentAccountData(
 			EmailAccount);
-		ConnectionSettings.EMAIL_Account = ThisInfobaseAccount.Ref;
+		ConnectionSettings.EMAILAccount = ThisInfobaseAccount.Ref;
 		
 	EndIf;
 	
@@ -2369,7 +2369,7 @@ Procedure WriteConnectionParameters(XMLWriter, ConnectionSettings)
 		
 		AddXMLRecord(XMLWriter, ConnectionSettings.EMAILMaxMessageSize, "EMAILМаксимальныйДопустимыйРазмерСообщения"); // @Non-NLS
 		AddXMLRecord(XMLWriter, ConnectionSettings.EMAILCompressOutgoingMessageFile,        "EMAILСжиматьФайлИсходящегоСообщения"); // @Non-NLS
-		AddXMLRecord(XMLWriter, ConnectionSettings.EMAIL_Account,                         "EMAILУчетнаяЗапись"); // @Non-NLS
+		AddXMLRecord(XMLWriter, ConnectionSettings.EMAILAccount,                         "EMAILУчетнаяЗапись"); // @Non-NLS
 		
 	EndIf;
 	
@@ -2411,7 +2411,7 @@ Procedure WriteConnectionParameters(XMLWriter, ConnectionSettings)
 		AddXMLRecord(XMLWriter, NameOf1CEnterpriseServer,                     "COMИмяСервера1СПредприятия"); // @Non-NLS
 		AddXMLRecord(XMLWriter, InfobaseDirectory,                   "COMКаталогИнформационнойБазы"); // @Non-NLS
 		AddXMLRecord(XMLWriter, OSAuthentication,                            "COMАутентификацияОперационнойСистемы"); // @Non-NLS
-		AddXMLRecord(XMLWriter, UserName,                             "COMUsername");
+		AddXMLRecord(XMLWriter, UserName,                             "COMUserName");
 		
 	EndIf;
 	
@@ -2455,13 +2455,13 @@ EndFunction
 
 Procedure WriteEmailAccount(XMLWriter, ConnectionSettings)
 	
-	EMAIL_Account = Undefined;
-	If ValueIsFilled(ConnectionSettings.EMAIL_Account) Then
-		EMAIL_Account = ConnectionSettings.EMAIL_Account.GetObject();
+	EMAILAccount = Undefined;
+	If ValueIsFilled(ConnectionSettings.EMAILAccount) Then
+		EMAILAccount = ConnectionSettings.EMAILAccount.GetObject();
 	EndIf;
 	
 	XMLWriter.WriteStartElement("EmailAccount");
-	WriteXML(XMLWriter, EMAIL_Account);
+	WriteXML(XMLWriter, EMAILAccount);
 	XMLWriter.WriteEndElement(); // УчетнаяЗаписьЭлектроннойПочты
 	
 EndProcedure

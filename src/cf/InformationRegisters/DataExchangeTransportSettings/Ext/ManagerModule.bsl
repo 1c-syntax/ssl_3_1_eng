@@ -67,10 +67,10 @@ Function TransportSettingsWS(Peer, AuthenticationParameters = Undefined) Export
 	
 	Result.Insert("SourceInfobaseID", "");
 	
-	If ValueIsFilled(Result.WSPeerEndpoint) Then
+	If ValueIsFilled(Result.WSCorrespondentEndpoint) Then
 		
 		ModuleMessagesExchangeTransportSettings = Common.CommonModule("InformationRegisters.MessageExchangeTransportSettings");
-		Settings = ModuleMessagesExchangeTransportSettings.TransportSettingsWS(Result.WSPeerEndpoint);
+		Settings = ModuleMessagesExchangeTransportSettings.TransportSettingsWS(Result.WSCorrespondentEndpoint);
 		
 		Result.Insert("WSPassword");
 		FillPropertyValues(Result, Settings);
@@ -93,7 +93,7 @@ Function TransportSettingsWS(Peer, AuthenticationParameters = Undefined) Export
 		
 		If AuthenticationParameters.UseCurrentUser Then
 			
-			Result.WSUsername = InfoBaseUsers.CurrentUser().Name;
+			Result.WSUserName = InfoBaseUsers.CurrentUser().Name;
 			
 		EndIf;
 		
@@ -382,7 +382,7 @@ Function ConfiguredTransportTypes(InfobaseNode) Export
 			Result.Add(Enums.ExchangeMessagesTransportTypes.COM);
 		EndIf;
 		
-		If ValueIsFilled(TransportSettings.EMAIL_Account) Then
+		If ValueIsFilled(TransportSettings.EMAILAccount) Then
 			Result.Add(Enums.ExchangeMessagesTransportTypes.EMAIL);
 		EndIf;
 		

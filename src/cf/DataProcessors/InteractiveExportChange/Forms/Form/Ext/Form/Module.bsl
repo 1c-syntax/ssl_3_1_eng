@@ -106,7 +106,7 @@ Procedure AdditionalRegistrationBeforeDeleteRow(Item, Cancel)
 	
 	QuestionTitle = NStr("en = 'Confirm operation';");
 	
-	Notification = New NotifyDescription("AdditionalRegistrationBeforeDeleteEnd", ThisObject, New Structure);
+	Notification = New NotifyDescription("AdditionalRegistrationBeforeDeleteRowCompletion", ThisObject, New Structure);
 	Notification.AdditionalParameters.Insert("SelectedRows", Selected3);
 	
 	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo, , ,QuestionTitle);
@@ -130,7 +130,7 @@ Procedure AdditionalRegistrationChoiceProcessing(Item, ValueSelected, StandardPr
 				QueryText  = StrReplace(QueryText, "%1", SettingPresentation);
 				TitleText = NStr("en = 'Confirm operation';");
 				
-				Notification = New NotifyDescription("AdditionalRegistrationChoiceProcessingEnd", ThisObject, New Structure);
+				Notification = New NotifyDescription("AdditionalRegistrationChoiceProcessingCompletion", ThisObject, New Structure);
 				Notification.AdditionalParameters.Insert("SettingPresentation", SettingPresentation);
 				
 				ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo, , , TitleText);
@@ -234,7 +234,7 @@ Procedure FiltersSettingsOptionSelectionCompletion(Val SelectedElement, Val Addi
 		QueryText   = NStr("en = 'Do you want to restore ""%1"" settings?';");
 		QueryText   = StrReplace(QueryText, "%1", SettingPresentation);
 		
-		Notification = New NotifyDescription("FilterSettingsCompletion", ThisObject, New Structure);
+		Notification = New NotifyDescription("FiltersSettingsCompletion", ThisObject, New Structure);
 		Notification.AdditionalParameters.Insert("SettingPresentation", SettingPresentation);
 		
 		ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo, , , TitleText);
@@ -258,7 +258,7 @@ Procedure FiltersSettingsOptionSelectionCompletion(Val SelectedElement, Val Addi
 EndProcedure
 
 &AtClient
-Procedure FilterSettingsCompletion(Val QuestionResult, Val AdditionalParameters) Export
+Procedure FiltersSettingsCompletion(Val QuestionResult, Val AdditionalParameters) Export
 	If QuestionResult <> DialogReturnCode.Yes Then
 		Return;
 	EndIf;
@@ -267,7 +267,7 @@ Procedure FilterSettingsCompletion(Val QuestionResult, Val AdditionalParameters)
 EndProcedure
 
 &AtClient
-Procedure AdditionalRegistrationChoiceProcessingEnd(Val QuestionResult, Val AdditionalParameters) Export
+Procedure AdditionalRegistrationChoiceProcessingCompletion(Val QuestionResult, Val AdditionalParameters) Export
 	If QuestionResult <> DialogReturnCode.Yes Then
 		Return;
 	EndIf;
@@ -276,7 +276,7 @@ Procedure AdditionalRegistrationChoiceProcessingEnd(Val QuestionResult, Val Addi
 EndProcedure
 
 &AtClient
-Procedure AdditionalRegistrationBeforeDeleteEnd(Val QuestionResult, Val AdditionalParameters) Export
+Procedure AdditionalRegistrationBeforeDeleteRowCompletion(Val QuestionResult, Val AdditionalParameters) Export
 	If QuestionResult <> DialogReturnCode.Yes Then
 		Return;
 	EndIf;

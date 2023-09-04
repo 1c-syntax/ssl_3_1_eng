@@ -104,7 +104,7 @@
 						<Event name="OnChange">CloseThisWindowAfterMoveToReportOnChange</Event>
 					</Events>
 				</CheckBoxField>
-				<CommandBar name="CommandBarGroup" id="10">
+				<CommandBar name="GroupCommandBar" id="10">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>

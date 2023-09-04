@@ -167,7 +167,7 @@
 			<Explanation>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Stores the status of the latest successful data exchange operation for each node.</v8:content>
+					<v8:content>Stores the state of the latest successful data exchange operation for each node.</v8:content>
 				</v8:item>
 			</Explanation>
 			<DataHistory>DontUse</DataHistory>

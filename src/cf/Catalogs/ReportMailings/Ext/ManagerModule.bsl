@@ -491,13 +491,13 @@ Function PrintFormReportDistributionPasswords(Parameters, PrintObjects)
 	|
 	|////////////////////////////////////////////////////////////////////////////////
 	|SELECT ALLOWED
-	|	RecipientsCatalog.Description AS Recipient,
+	|	CatalogRecipients.Description AS Recipient,
 	|	Recipients.Email,
 	|	Recipients.ArchivePassword
 	|FROM
 	|	TableRecipients AS Recipients
-	|	LEFT JOIN Catalog.Users AS RecipientsCatalog
-	|		ON RecipientsCatalog.Ref = Recipients.Recipient";
+	|	LEFT JOIN Catalog.Users AS CatalogRecipients
+	|		ON CatalogRecipients.Ref = Recipients.Recipient";
 
 	RecipientsMetadata = Common.MetadataObjectByID(Parameters.MetadataObjectID,
 		False);

@@ -113,7 +113,7 @@ Procedure ConfirmSoftwareLicense()
 	
 	StandardSubsystemsClient.SetFormStorageOption(ThisObject, False);
 	
-	ExecuteNotifyProcessing(ThisObject.OnCloseNotifyDescription, True);
+	ExecuteNotifyProcessing(OnCloseNotifyDescription, True);
 	
 EndProcedure
 

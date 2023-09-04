@@ -179,7 +179,7 @@
 						</CheckBoxField>
 					</ChildItems>
 				</ColumnGroup>
-				<ColumnGroup name="UpdateRightGroup" id="33">
+				<ColumnGroup name="RightGroup2Update" id="33">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>

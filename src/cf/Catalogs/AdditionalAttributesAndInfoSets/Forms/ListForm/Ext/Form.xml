@@ -700,7 +700,7 @@
 				<Field>PropertiesSets.AttributesCount</Field>
 				<Field>PropertiesSets.InfoCount</Field>
 				<Field>PropertiesSets.IsFolder</Field>
-				<Field>PropertiesSets.NumberOfTags</Field>
+				<Field>PropertiesSets.LabelCount</Field>
 				<Field>PropertiesSets.Parent</Field>
 				<Field>PropertiesSets.PropertyKind</Field>
 				<Field>PropertiesSets.Ref</Field>
@@ -731,7 +731,7 @@
 	END AS PictureNumber,
 	SetsOverridable.AttributesCount AS AttributesCount,
 	SetsOverridable.InfoCount AS InfoCount,
-	SetsOverridable.NumberOfTags AS NumberOfTags
+	SetsOverridable.LabelCount AS LabelCount
 FROM
 	Catalog.AdditionalAttributesAndInfoSets AS SetsOverridable
 WHERE
@@ -792,8 +792,8 @@ WHERE
 					<dcssch:field>InfoCount</dcssch:field>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
-					<dcssch:dataPath>NumberOfTags</dcssch:dataPath>
-					<dcssch:field>NumberOfTags</dcssch:field>
+					<dcssch:dataPath>LabelCount</dcssch:dataPath>
+					<dcssch:field>LabelCount</dcssch:field>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>PredefinedSetName</dcssch:dataPath>
@@ -992,7 +992,7 @@ WHERE
 		<Attribute name="FormColor" id="4">
 			<Type/>
 		</Attribute>
-		<Attribute name="CurrentSet" id="5">
+		<Attribute name="Current_Set" id="5">
 			<Type>
 				<v8:Type>cfg:CatalogRef.AdditionalAttributesAndInfoSets</v8:Type>
 			</Type>
@@ -1292,7 +1292,7 @@ WHERE
 		</Command>
 	</Commands>
 	<Parameters>
-		<Parameter name="CurrentSet">
+		<Parameter name="Current_Set">
 			<Type>
 				<v8:Type>cfg:CatalogRef.AdditionalAttributesAndInfoSets</v8:Type>
 			</Type>

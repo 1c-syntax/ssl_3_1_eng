@@ -286,19 +286,19 @@
 							<ShowTitle>false</ShowTitle>
 							<ExtendedTooltip name="GroupSaveReportsSnapshotsExtendedTooltip" id="51"/>
 							<ChildItems>
-								<Button name="SaveReportSnapshotsImageButton" id="62">
+								<Button name="ButtonSaveReportsSnapshotsPicture" id="62">
 									<Type>UsualButton</Type>
 									<Representation>Picture</Representation>
 									<CommandName>Form.Command.UpdateReportsSnapshots</CommandName>
 									<ShapeRepresentation>None</ShapeRepresentation>
-									<ExtendedTooltip name="SaveReportSnapshotsImageButtonExtendedTooltip" id="63"/>
+									<ExtendedTooltip name="ButtonSaveReportsSnapshotsPictureExtendedTooltip" id="63"/>
 								</Button>
-								<Button name="SaveReportSnapshotsButton" id="64">
+								<Button name="ButtonSaveReportsSnapshots" id="64">
 									<Type>UsualButton</Type>
 									<Representation>Text</Representation>
 									<CommandName>Form.Command.UpdateReportsSnapshots</CommandName>
 									<ShapeRepresentation>None</ShapeRepresentation>
-									<ExtendedTooltip name="SaveReportSnapshotsButtonExtendedTooltip" id="65"/>
+									<ExtendedTooltip name="ButtonSaveReportsSnapshotsExtendedTooltip" id="65"/>
 								</Button>
 							</ChildItems>
 						</UsualGroup>

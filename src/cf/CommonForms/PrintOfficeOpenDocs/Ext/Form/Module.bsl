@@ -106,7 +106,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ChangeTemplateButton.Visible = False;
 		Items.SignedAndSealedFlag.TitleLocation = FormItemTitleLocation.Auto;
 		Items.MergeDocsFlag.TitleLocation = FormItemTitleLocation.Auto;
-		Items.CommandBarGroup.Group = ChildFormItemsGroup.Vertical;
+		Items.GroupCommandBar.Group = ChildFormItemsGroup.Vertical;
 		Items.ConfigureSignatureAndStamp.Group = ChildFormItemsGroup.Vertical;
 		Items.PrintForms.Header = False;
 		Items.DontShowAgain.Visible = False;
@@ -390,8 +390,8 @@ Procedure SetFormHeader()
 	EndIf;
 	
 	If ValueIsFilled(CurrentLanguage) Then 
-		CurrentLangPresentation = Items["Language_"+CurrentLanguage].Title; 
-		FormCaption = FormCaption + " ("+CurrentLangPresentation+")";
+		CurrentLanguagePresentation = Items["Language_"+CurrentLanguage].Title; 
+		FormCaption = FormCaption + " ("+CurrentLanguagePresentation+")";
 	EndIf;
 	
 	Title = FormCaption;

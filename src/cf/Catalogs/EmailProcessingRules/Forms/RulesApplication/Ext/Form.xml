@@ -69,7 +69,7 @@
 			</CommandSet>
 			<RowFilter xsi:nil="true"/>
 			<ContextMenu name="RulesContextMenu" id="2"/>
-			<AutoCommandBar name="RulesCommandBar" id="3">
+			<AutoCommandBar name="EmailRulesCommandBar" id="3">
 				<Autofill>false</Autofill>
 				<ChildItems>
 					<Button name="RulesApply" id="13">

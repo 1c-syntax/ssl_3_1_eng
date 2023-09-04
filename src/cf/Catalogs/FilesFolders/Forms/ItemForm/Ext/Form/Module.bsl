@@ -90,7 +90,7 @@ EndProcedure
 &AtServer
 Procedure BeforeWriteAtServer(Cancel, CurrentObject)
 	
-	CurrentObject.AdditionalProperties.Insert("WorkingDirectory", ThisObject.WorkingDirectory);
+	CurrentObject.AdditionalProperties.Insert("WorkingDirectory", WorkingDirectory);
 	
 	// StandardSubsystems.Properties
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then

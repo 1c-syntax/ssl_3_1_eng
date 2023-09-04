@@ -418,7 +418,7 @@ Function SaveAtServer(RowsIDs, PathToDirectory = "")
 				Prefix = "";
 			EndIf;
 			Name = Prefix + Extension.Name + "_" + Extension.Version + ".cfe";
-			Location = PutToTempStorage(Extension.GetData(), ThisObject.UUID);
+			Location = PutToTempStorage(Extension.GetData(), UUID);
 			TransferableFileDescription = New TransferableFileDescription(Name, Location);
 			FilesToSave.Add(TransferableFileDescription);
 		EndIf;
@@ -858,10 +858,10 @@ Procedure LoadExtensionCompletion()
 		
 		Buttons = New ValueList;
 		Buttons.Add("Replace",   NStr("en = 'Replace';"));
-		Buttons.Add("DoNotReplace", NStr("en = 'Do not replace';"));
+		Buttons.Add("NotReplace", NStr("en = 'Do not replace';"));
 		
 		QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
-		QuestionParameters.DefaultButton = "DoNotReplace";
+		QuestionParameters.DefaultButton = "NotReplace";
 		QuestionParameters.PromptDontAskAgain = False;
 		
 		StandardSubsystemsClient.ShowQuestionToUser(CompletionHandler,

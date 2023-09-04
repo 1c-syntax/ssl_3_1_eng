@@ -37,7 +37,6 @@ Procedure OnWriteEmailAccount(Source, Cancel) Export
 
 EndProcedure
 
-// Gets choice data for interaction documents.
 Procedure ChoiceDataGetProcessing(DocumentName, ChoiceData, Parameters, StandardProcessing) Export
 	
 	StandardProcessing = False;

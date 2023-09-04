@@ -155,8 +155,8 @@ Procedure GenerateReportOnChanges(ReportParameters, ResultAddress) Export
 	// 
 	// 
 	// 
-	AttributeChangeTable = New ValueTable;
-	PrepareAttributeChangeTableColumns(AttributeChangeTable, VersionNumberArray);
+	ChangesTableBankingDetails_ = New ValueTable;
+	PrepareAttributeChangeTableColumns(ChangesTableBankingDetails_, VersionNumberArray);
 	
 	// 
 	// 
@@ -175,7 +175,7 @@ Procedure GenerateReportOnChanges(ReportParameters, ResultAddress) Export
 	
 	// 
 	// 
-	ObjectVersionPrev = CountInitialAttributeAndTabularSectionValues(AttributeChangeTable, TabularSectionChangeTable,
+	ObjectVersionPrev = CountInitialAttributeAndTabularSectionValues(ChangesTableBankingDetails_, TabularSectionChangeTable,
 		ObjectVersionCount, VersionNumberArray, ObjectReference);
 	
 	SpreadsheetDocuments.Add(ObjectVersionPrev.SpreadsheetDocuments);
@@ -194,11 +194,11 @@ Procedure GenerateReportOnChanges(ReportParameters, ResultAddress) Export
 		
 		// Filling the attribute report table.
 		FillAttributeChangingCharacteristic(ComparisonResult["Attributes"]["And"],
-			"And", AttributeChangeTable, CurrentVersionColumnName, ObjectVersion);
+			"And", ChangesTableBankingDetails_, CurrentVersionColumnName, ObjectVersion);
 		FillAttributeChangingCharacteristic(ComparisonResult["Attributes"]["d"],
-			"D", AttributeChangeTable, CurrentVersionColumnName, ObjectVersion);
+			"D", ChangesTableBankingDetails_, CurrentVersionColumnName, ObjectVersion);
 		FillAttributeChangingCharacteristic(ComparisonResult["Attributes"]["u"],
-			"U", AttributeChangeTable, CurrentVersionColumnName, ObjectVersion);
+			"U", ChangesTableBankingDetails_, CurrentVersionColumnName, ObjectVersion);
 		
 		// Changes in tabular sections.
 		TabularSectionChanges1 = ComparisonResult["TabularSections"]["And"];
@@ -316,7 +316,7 @@ Procedure GenerateReportOnChanges(ReportParameters, ResultAddress) Export
 	EndDo;
 	
 	Parameters = New Structure;
-	Parameters.Insert("AttributeChangeTable", AttributeChangeTable);
+	Parameters.Insert("ChangesTableBankingDetails_", ChangesTableBankingDetails_);
 	Parameters.Insert("TabularSectionChangeTable", TabularSectionChangeTable);
 	Parameters.Insert("SpreadsheetDocumentChangeTable", SpreadsheetDocumentChangeTable);
 	Parameters.Insert("counterUniqueID", counterUniqueID);
@@ -332,13 +332,13 @@ Procedure GenerateReportOnChanges(ReportParameters, ResultAddress) Export
 	PutToTempStorage(ReportTS, ResultAddress);
 EndProcedure
 
-Procedure OutputAttributeChanges(ReportTS, AttributeChangeTable, VersionNumberArray, CommonTemplate, ObjectReference)
+Procedure OutputAttributeChanges(ReportTS, ChangesTableBankingDetails_, VersionNumberArray, CommonTemplate, ObjectReference)
 	
 	AttributeHeaderArea = CommonTemplate.GetArea("AttributeHeader");
 	ReportTS.Put(AttributeHeaderArea);
 	ReportTS.StartRowGroup("AttributeGroup");
 	
-	For Each ModAttributeItem In AttributeChangeTable Do
+	For Each ModAttributeItem In ChangesTableBankingDetails_ Do
 		If ModAttributeItem.VersioningModification = True Then
 			
 			DescriptionDetailsStructure = ObjectsVersioning.DisplayedAttributeDescription(ObjectReference, ModAttributeItem.Description);
@@ -669,7 +669,7 @@ Procedure OutputSpreadsheetDocumentsChanges(ReportTS, VersionNumberArray, Spread
 EndProcedure
 
 Procedure OutputCompositionResultsInReportLayout(Parameters)
-	AttributeChangeTable = Parameters.AttributeChangeTable;
+	ChangesTableBankingDetails_ = Parameters.ChangesTableBankingDetails_;
 	TabularSectionChangeTable = Parameters.TabularSectionChangeTable;
 	SpreadsheetDocumentChangeTable = Parameters.SpreadsheetDocumentChangeTable;
 	counterUniqueID = Parameters.counterUniqueID;
@@ -680,7 +680,7 @@ Procedure OutputCompositionResultsInReportLayout(Parameters)
 	
 	VersionNumberArray = VersionsList.UnloadValues();
 	
-	ChangedAttributeCount = CalculateChangedAttributeCount(AttributeChangeTable, VersionNumberArray);
+	ChangedAttributeCount = CalculateChangedAttributeCount(ChangesTableBankingDetails_, VersionNumberArray);
 	VersionsCount = VersionNumberArray.Count();
 	
 	ReportTS.Clear();
@@ -694,7 +694,7 @@ Procedure OutputCompositionResultsInReportLayout(Parameters)
 		ReportTS.Put(AttributesUnchangedSection);
 		ReportTS.EndRowGroup();
 	Else
-		OutputAttributeChanges(ReportTS, AttributeChangeTable, VersionNumberArray, CommonTemplate, ObjectReference);
+		OutputAttributeChanges(ReportTS, ChangesTableBankingDetails_, VersionNumberArray, CommonTemplate, ObjectReference);
 	EndIf;
 	
 	OutputTabularSectionChanges(ReportTS, TabularSectionChangeTable, VersionNumberArray, counterUniqueID, CommonTemplate, ObjectReference);
@@ -1194,11 +1194,11 @@ Function GetVersionDetails(ObjectReference, VersionNumber)
 	
 EndFunction
 
-Function CalculateChangedAttributeCount(AttributeChangeTable, VersionNumberArray)
+Function CalculateChangedAttributeCount(ChangesTableBankingDetails_, VersionNumberArray)
 	
 	Result = 0;
 	
-	For Each VTItem1 In AttributeChangeTable Do
+	For Each VTItem1 In ChangesTableBankingDetails_ Do
 		If VTItem1.VersioningModification <> Undefined And VTItem1.VersioningModification = True Then
 			Result = Result + 1;
 		EndIf;
@@ -1216,11 +1216,11 @@ Function IncreaseCounter(counterUniqueID, TableName);
 	
 EndFunction
 
-Function GetUUID(TSChangeTable, VersionColumnName)
+Function GetUUID(ChangesTableTS, VersionColumnName)
 	
 	MapUUID = New Map;
 	
-	For Each ItemMap In TSChangeTable Do
+	For Each ItemMap In ChangesTableTS Do
 		MapUUID[ItemMap.Key] = Number(ItemMap.Value[VersionColumnName].Count());
 	EndDo;
 	
@@ -1230,16 +1230,16 @@ EndFunction
 
 Procedure FillAttributeChangingCharacteristic(SingleAttributeChangeTable, 
                                                     ChangeFlag,
-                                                    AttributeChangeTable,
+                                                    ChangesTableBankingDetails_,
                                                     CurrentVersionColumnName,
                                                     ObjectVersion)
 	
 	For Each Item In SingleAttributeChangeTable Do
 		Description = Item.Value;
-		AttributeChange = AttributeChangeTable.Find (Description, "Description");
+		AttributeChange = ChangesTableBankingDetails_.Find (Description, "Description");
 		
 		If AttributeChange = Undefined Then
-			AttributeChange = AttributeChangeTable.Add();
+			AttributeChange = ChangesTableBankingDetails_.Add();
 			AttributeChange.Description = Description;
 		EndIf;
 		
@@ -1281,8 +1281,8 @@ Function GenerateTSRowSector(CommonTemplate, Val FillingValues, Val OutputType =
 		Value = Item;
 		If HasDetails And OutputType = "And" Then
 			Value = Item.Presentation;
-			HasChange = Item.Value;
-			Template = ?(HasChange, TemplateHasChange, TemplateNoChanges);
+			IsUpdate = Item.Value;
+			Template = ?(IsUpdate, TemplateHasChange, TemplateNoChanges);
 		EndIf;
 		Template.Parameters.AttributeValue = Value;
 		SpreadsheetDocument.Put(Template);
@@ -1376,7 +1376,7 @@ EndProcedure
 
 Function FindSimilarTableRows(Table1, Val Table2, Val RequiredDifferenceCount = 0, Val MaxDifferences = Undefined, Table1RowsAndTable2RowsMap = Undefined)
 	
-	Ignore = "Skip_";
+	Ignore = "Ignore_";
 	
 	Table2 = Table2.Copy();
 	If Table2.Columns.Find(Ignore) = Undefined Then

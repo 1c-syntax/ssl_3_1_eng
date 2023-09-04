@@ -89,11 +89,11 @@
 					<ShowTitle>false</ShowTitle>
 					<ExtendedTooltip name="FilesGroup1ExtendedTooltip" id="2209"/>
 					<ChildItems>
-						<Button name="CatalogFiles1" id="2212">
+						<Button name="CatalogFiles" id="2212">
 							<Type>Hyperlink</Type>
-							<CommandName>Form.Command.CatalogFiles1</CommandName>
+							<CommandName>Form.Command.CatalogFiles</CommandName>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
-							<ExtendedTooltip name="CatalogFiles1ExtendedTooltip" id="2213"/>
+							<ExtendedTooltip name="CatalogFilesExtendedTooltip" id="2213"/>
 						</Button>
 					</ChildItems>
 				</UsualGroup>
@@ -1191,7 +1191,7 @@ You will be able to search for text within such files.</v8:content>
 			</Title>
 			<Action>FileTransfer</Action>
 		</Command>
-		<Command name="CatalogFiles1" id="38">
+		<Command name="CatalogFiles" id="38">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -1204,7 +1204,7 @@ You will be able to search for text within such files.</v8:content>
 					<v8:content>Set a structure for file folders and access rights to them, place file templates.</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>CatalogFiles1</Action>
+			<Action>CatalogFiles</Action>
 		</Command>
 	</Commands>
 </Form>

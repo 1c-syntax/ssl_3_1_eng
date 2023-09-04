@@ -372,16 +372,16 @@ Procedure Write(Val ObjectReference, Val Settings, Val Inherit) Export
 				EndDo;
 				
 				CommonRead    = RightDetails.ReadInTables.Find(   CommonRightsTable) <> Undefined;
-				CommonChange = RightDetails.ChangeInTables.Find(CommonRightsTable) <> Undefined;
+				CommonUpdate = RightDetails.ChangeInTables.Find(CommonRightsTable) <> Undefined;
 				
-				If Not CommonRead And Not CommonChange And AddedIndividualTablesSettings Then
+				If Not CommonRead And Not CommonUpdate And AddedIndividualTablesSettings Then
 					NewRightsSettings.Delete(RightsSetting);
 				Else
 					If CommonRead Then
 						RightsSetting.ReadingPermissionLevel = RightsSetting.RightPermissionLevel;
 						RightsSetting.ReadingProhibitionLevel = RightsSetting.RightProhibitionLevel;
 					EndIf;
-					If CommonChange Then
+					If CommonUpdate Then
 						RightsSetting.ChangingPermissionLevel = RightsSetting.RightPermissionLevel;
 						RightsSetting.ChangingProhibitionLevel = RightsSetting.RightProhibitionLevel;
 					EndIf;

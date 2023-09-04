@@ -206,7 +206,7 @@
 							</CommandSet>
 							<RowFilter xsi:nil="true"/>
 							<ContextMenu name="DescriptionOfReportOptionsContextMenu" id="39"/>
-							<AutoCommandBar name="DescriptionOfReportOptionsCommandBar" id="40">
+							<AutoCommandBar name="ReportsOptionsDetailsCommandBar" id="40">
 								<Autofill>false</Autofill>
 							</AutoCommandBar>
 							<ExtendedTooltip name="DescriptionOfReportOptionsExtendedTooltip" id="41"/>

@@ -102,7 +102,7 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	InformationRegisters.RolesRights.CheckRegisterData();
 	
 	DataParameters = SettingsComposer.GetSettings().DataParameters;
-	UserOrGroup = SelectionUser();
+	UserOrGroup = FilterUser();
 	AccessRightsDetailedInfo = DataParameters.Items.Find("AccessRightsDetailedInfo").Value;
 	If TypeOf(AccessRightsDetailedInfo) <> Type("Boolean") Then
 		AccessRightsDetailedInfo = False;
@@ -180,7 +180,7 @@ EndProcedure
 
 #Region Private
 
-Function SelectionUser()
+Function FilterUser()
 	
 	Filter = SettingsComposer.GetSettings().Filter;
 	For Each Item In Filter.Items Do 
@@ -1564,7 +1564,7 @@ Procedure OutputIBUserProperties(Val Template, Val UserOrGroup)
 		Area = Template.GetArea("IBUserPropertiesDetails2");
 		Area.Parameters.Fill(IBUserProperies);
 		
-		Area.Parameters.PresentationLanguage =
+		Area.Parameters.LanguagePresentation =
 		LanguagePresentation(IBUserProperies.Language);
 		
 		Area.Parameters.RunModePresentation =

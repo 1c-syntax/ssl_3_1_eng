@@ -111,8 +111,6 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Populate the questionnaire tree.
 
-// Updates a question chart preview.
-//
 // Parameters:
 //  Questions - See Catalog.QuestionnaireTemplates.Form.TableQuestionsWizardForm.Questions
 //  Replies - See Catalog.QuestionnaireTemplates.Form.TableQuestionsWizardForm.Replies
@@ -305,8 +303,7 @@ Procedure UpdateTabularQuestionPreview(Questions, Replies, TabularQuestionType, 
 
 EndProcedure
 
-// The procedure sets a root item to the questionnaire template tree.
-// Called upon creating forms, in which the questionnaire template is reflected.
+// 
 //
 Procedure SetQuestionnaireTreeRootItem(QuestionnaireTree) Export
 
@@ -319,8 +316,6 @@ Procedure SetQuestionnaireTreeRootItem(QuestionnaireTree) Export
 
 EndProcedure
 
-// Sets introduction and conclusion items for sections tree.
-//
 // Parameters:
 //  QuestionnaireTree - FormDataTree - a tree, to which an introduction or conclusion item is added.
 //  Wording - String - a localized presentation of a tree's element - either "introduction" or "conclusion".
@@ -337,8 +332,6 @@ Procedure SetQuestionnaireSectionsTreeItemIntroductionConclusion(QuestionnaireTr
 
 EndProcedure
 
-// Fills in the questionnaire template tree.
-//
 // Parameters:
 //  Form                   - ClientApplicationForm - a form for which the tree is filled in.
 //  QuestionnaireTreeName         - String - a name of the form attribute, which will contain the questionnaire tree.
@@ -369,8 +362,6 @@ Procedure FillQuestionnaireTemplateTree(Form, QuestionnaireTreeName, Questionnai
 
 EndProcedure
 
-// Called recursively and adds rows to the questionnaire tree.
-//
 // Parameters:
 //  Selection        - QueryResultSelection - the current query result selection.
 //  ParentRow - ValueTreeRow - a parent row of the value tree:
@@ -520,8 +511,6 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Generating a questionnaire filling form.
 
-// Creates a form according to the questionnaire template section.
-//
 // Parameters:
 //  Form  - See Document.Questionnaire.Form.DocumentForm
 //                              See CommonForm.QuestionnaireBySectionWizard
@@ -583,8 +572,6 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Creating attributes of the questionnaire filling form.
 
-// Generates an array of attributes to be added.
-//
 // Parameters:
 //  AttributesToBeAdded - Array - used to accumulate form attributes to be created.
 //  Form                - ClientApplicationForm - a form, for which an array of attributes is generated.
@@ -599,8 +586,6 @@ Procedure GenerateAttributesToAddForSection(AttributesToBeAdded, Form)
 
 EndProcedure
 
-// Adds form attributes for simple questions.
-//
 // Parameters:
 //  TreeRow         - ValueTreeRow - a row of the questionnaire template tree.
 //  AttributesToBeAdded - Array - used to accumulate form attributes to be added.
@@ -689,7 +674,7 @@ Procedure AddAttributesForQuestion(TreeRow, AttributesToBeAdded, Form)
 
 		If TreeRow.ShouldUseRefusalToAnswer Then
 			BooleanTypeDetails = New TypeDescription("Boolean");
-			AttributesToBeAdded.Add(New FormAttribute(QuestionName + "_UseRefusalToAnswer",
+			AttributesToBeAdded.Add(New FormAttribute(QuestionName + "_ShouldUseRefusalToAnswer",
 				BooleanTypeDetails, , TreeRow.RefusalToAnswerText));
 		EndIf;
 
@@ -697,8 +682,6 @@ Procedure AddAttributesForQuestion(TreeRow, AttributesToBeAdded, Form)
 
 EndProcedure
 
-// Adds form attributes to question charts.
-//
 // Parameters:
 //  TreeRow         - ValueTreeRow - a row of the questionnaire template tree.
 //  AttributesToBeAdded - Array - used to accumulate form attributes to be added.
@@ -787,8 +770,6 @@ Procedure AddAttributesTabularQuestion(TreeRow, AttributesToBeAdded, Form)
 
 EndProcedure
 
-// Adds form attributes for complex questions.
-//
 // Parameters:
 //  TreeRow         - ValueTreeRow - a row of the questionnaire template tree.
 //  AttributesToBeAdded - Array - used to accumulate form attributes to be added.
@@ -796,7 +777,7 @@ EndProcedure
 Procedure AddAttributesComplexQuestion(TreeRow, AttributesToBeAdded, Form)
 
 	QuestionName = SurveysClientServer.QuestionName(TreeRow.Composite);
-	For Each ComplexQuestionRow In TreeRow.ComplexQuestionComposition Do // LineOfATabularSection: см. СправочникТабличнаяЧасть.ВопросыШаблонаАнкеты.СоставКомплексногоВопроса
+	For Each ComplexQuestionRow In TreeRow.ComplexQuestionComposition Do // LineOfATabularSection of See СправочникТабличнаяЧасть.ВопросыШаблонаАнкеты.CatalogTabularSection.ВопросыШаблонаАнкеты.СоставКомплексногоВопроса
 
 		FoundRows = Form.QuestionsPresentationTypes.FindRows(New Structure("DoQueryBox",
 			ComplexQuestionRow.ElementaryQuestion));
@@ -854,7 +835,6 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Creating questionnaire filling form items.
 
-// Generates questionnaire filling form items for the selected section.
 Procedure GenerateFormItemsForSection(Form)
 
 	For Each TableRow In Form.SectionQuestionsTable Do
@@ -864,8 +844,6 @@ Procedure GenerateFormItemsForSection(Form)
 
 EndProcedure
 
-// Sets focus on the first question of the section that opens.
-//
 // Parameters:
 //   Form - See Document.Questionnaire.Form.DocumentForm
 //
@@ -894,8 +872,6 @@ Procedure PositionOnFirstSectionQuestion(Form)
 
 EndProcedure
 
-// Analyzes the type of a questionnaire tree row and calls the function to add form items.
-//
 // Parameters:
 //  TreeRow    - ValueTreeRow - a row of the questionnaire template tree.
 //  GroupItem   - FormGroup          - a form group, for which attributes being added are subordinated.
@@ -911,8 +887,6 @@ Procedure AddFormItemsByTableRow(TableRow, GroupItem, Form)
 
 EndProcedure
 
-// Adds form items for sections.
-//
 // Parameters:
 //  TreeRow    - ValueTreeRow - a row of the questionnaire template tree.
 //  GroupItem   - FormGroup - a form group, for which attributes being added are subordinated.
@@ -930,8 +904,6 @@ Procedure AddItemsSection(TableRow, GroupItem, Form)
 
 EndProcedure
 
-// Adds form items for questions.
-//
 // Parameters:
 //  TableRow - FormDataCollectionItem - a row of the section questions table.
 //  GroupItem - FormGroup - a form group, for which attributes being added are subordinated.
@@ -1005,7 +977,8 @@ Procedure AddQuestionItems(TableRow, GroupItem1, Form)
 
 	Else
 
-		If TableRow.ReplyType = Enums.TypesOfAnswersToQuestion.String Then
+		If TableRow.ReplyType = Enums.TypesOfAnswersToQuestion.String
+			Or TableRow.ReplyType = Enums.TypesOfAnswersToQuestion.InfobaseValue Then
 
 			Item = Form.Items.Add(QuestionName, Type("FormField"), QuestionGroupItemComment);
 			Item.Type                        = FormFieldType.InputField;
@@ -1091,7 +1064,7 @@ Procedure AddQuestionItems(TableRow, GroupItem1, Form)
 				ItemGroupRangeSlider.Group         = ChildFormItemsGroup.AlwaysHorizontal;
 				ItemGroupRangeSlider.ShowTitle = False;
 
-				ItemSlider = Form.Items.Add(QuestionName + "_RangeSlider", Type("FormField"),
+				ItemSlider = Form.Items.Add(QuestionName + "_TrackBar", Type("FormField"),
 					ItemGroupRangeSlider);
 				ItemSlider.Type = FormFieldType.TrackBarField;
 				ItemSlider.MarkingAppearance = TrackBarMarkingAppearance.BothSides;
@@ -1126,16 +1099,6 @@ Procedure AddQuestionItems(TableRow, GroupItem1, Form)
 
 			EndIf;
 
-		ElsIf TableRow.ReplyType = Enums.TypesOfAnswersToQuestion.InfobaseValue Then
-
-			Item = Form.Items.Add(QuestionName, Type("FormField"), QuestionGroupItemComment);
-			Item.Type                        = FormFieldType.InputField;
-			Item.TitleLocation         = FormItemTitleLocation.None;
-			Item.AutoMarkIncomplete  = TableRow.IsRequired;
-			Item.DataPath                = QuestionName;
-			Item.AutoMaxWidth     = False;
-			Item.HorizontalStretch   = False;
-
 		ElsIf TableRow.ReplyType = Enums.TypesOfAnswersToQuestion.OneVariantOf Then
 
 			OptionsOfAnswersToQuestion = OptionsOfAnswersToQuestion(TableRow.ElementaryQuestion, Form);
@@ -1148,7 +1111,7 @@ Procedure AddQuestionItems(TableRow, GroupItem1, Form)
 			AnswersOptionsGroupItem.Group         = ChildFormItemsGroup.AlwaysHorizontal;
 			AnswersOptionsGroupItem.ShowTitle = False;
 
-			ItemQuestionsGroup = Form.Items.Add(QuestionName + "_GroupQuestions", Type("FormGroup"),
+			ItemQuestionsGroup = Form.Items.Add(QuestionName + "_QuestionsGroup", Type("FormGroup"),
 				AnswersOptionsGroupItem);
 			ItemQuestionsGroup.Type = FormGroupType.UsualGroup;
 			ItemQuestionsGroup.Representation = UsualGroupRepresentation.None;
@@ -1185,7 +1148,7 @@ Procedure AddQuestionItems(TableRow, GroupItem1, Form)
 
 			EndDo;
 
-			ItemGroupTooltip = Form.Items.Add(QuestionName + "_GroupTooltip", Type("FormGroup"),
+			ItemGroupTooltip = Form.Items.Add(QuestionName + "_TooltipGroup", Type("FormGroup"),
 				AnswersOptionsGroupItem);
 			ItemGroupTooltip.Type = FormGroupType.UsualGroup;
 			ItemGroupTooltip.Representation = UsualGroupRepresentation.None;
@@ -1248,14 +1211,13 @@ Procedure AddQuestionItems(TableRow, GroupItem1, Form)
 
 		If TableRow.ShouldUseRefusalToAnswer And TableRow.ReplyType
 			<> Enums.TypesOfAnswersToQuestion.Boolean Then
-			Item = Form.Items.Add(QuestionName + "_UseRefusalToAnswer", Type("FormField"),
+			Item = Form.Items.Add(QuestionName + "_ShouldUseRefusalToAnswer", Type("FormField"),
 				QuestionGroupItem);
 			Item.Type = FormFieldType.CheckBoxField;
-			Item.DataPath = QuestionName + "_UseRefusalToAnswer";
+			Item.DataPath = QuestionName + "_ShouldUseRefusalToAnswer";
 			Item.TitleLocation = FormItemTitleLocation.Right;
 		EndIf;
 		
-		// Comments to questions.
 		If (TableRow.ReplyType <> Enums.TypesOfAnswersToQuestion.MultipleOptionsFor)
 			And (TableRow.CommentRequired) Then
 
@@ -1274,8 +1236,6 @@ Procedure AddQuestionItems(TableRow, GroupItem1, Form)
 
 EndProcedure
 
-// Adds form items to question charts.
-//
 // Parameters:
 //  TableRow - FormDataCollectionItem - a row of the section questions table.
 //  GroupItem - FormGroup - a form group, for which attributes being added are subordinated.
@@ -1287,7 +1247,6 @@ Procedure AddTabularQuestionItems(TableRow, GroupItem1, Form)
 	QuestionName = SurveysClientServer.QuestionName(TableRow.Composite);
 	TableName = QuestionName + "_Table";
 	
-	// Creating a table form item.
 	ItemTable = Form.Items.Add(TableName, Type("FormTable"), GroupItem1);
 
 	If TabularQuestionType = Enums.TabularQuestionTypes.Composite Then
@@ -1302,7 +1261,6 @@ Procedure AddTabularQuestionItems(TableRow, GroupItem1, Form)
 	ItemTable.HorizontalStretch = True;
 	ItemTable.VerticalStretch   = False;
 	
-	// Adding columns to the table form item.
 	QuestionTable = Form.FormAttributeToValue(TableName);
 
 	If TableRow.TabularQuestionType = Enums.TabularQuestionTypes.PredefinedAnswersInRowsAndColumns
@@ -1426,8 +1384,8 @@ Procedure AddTabularQuestionItems(TableRow, GroupItem1, Form)
 
 	EndDo;
 	
-	// Populate table rows.
-	If TabularQuestionType = Enums.TabularQuestionTypes.PredefinedAnswersInRows Then
+	If TabularQuestionType = Enums.TabularQuestionTypes.PredefinedAnswersInRows 
+		Or TabularQuestionType = Enums.TabularQuestionTypes.PredefinedAnswersInRowsAndColumns Then
 
 		AnswersArray1 = TableRow.PredefinedAnswers.FindRows(New Structure("ElementaryQuestion",
 			TableRow.TableQuestionComposition[0].ElementaryQuestion));
@@ -1448,24 +1406,10 @@ Procedure AddTabularQuestionItems(TableRow, GroupItem1, Form)
 
 		EndDo;
 
-	ElsIf TabularQuestionType = Enums.TabularQuestionTypes.PredefinedAnswersInRowsAndColumns Then
-
-		AnswersArray1 = TableRow.PredefinedAnswers.FindRows(New Structure("ElementaryQuestion",
-			TableRow.TableQuestionComposition[0].ElementaryQuestion));
-
-		For Each AnswerRow In AnswersArray1 Do
-
-			NewRow = QuestionTable.Add();
-			NewRow[TableName + "_Column_1"] = AnswerRow.Response;
-
-		EndDo;
-
 	EndIf;
 
 	If TabularQuestionType <> Enums.TabularQuestionTypes.Composite Then
-
 		ItemTable.HeightInTableRows = QuestionTable.Count() + 1;
-
 	EndIf;
 
 	Form.ValueToFormAttribute(QuestionTable, TableName);
@@ -1473,12 +1417,14 @@ Procedure AddTabularQuestionItems(TableRow, GroupItem1, Form)
 EndProcedure
 
 // Parameters:
-//   Form - ClientApplicationForm
+//  TableRow - FormDataCollectionItem
+//  GroupItem1 - FormGroup
+//  Form - ClientApplicationForm
 //
 Procedure AddComplexQuestionItems(TableRow, GroupItem1, Form)
 
 	QuestionName = SurveysClientServer.QuestionName(TableRow.Composite);
-	For Each ComplexQuestionRow In TableRow.ComplexQuestionComposition Do // LineOfATabularSection: см. СправочникТабличнаяЧасть.ВопросыШаблонаАнкеты.СоставКомплексногоВопроса
+	For Each ComplexQuestionRow In TableRow.ComplexQuestionComposition Do // LineOfATabularSection of See СправочникТабличнаяЧасть.ВопросыШаблонаАнкеты.CatalogTabularSection.ВопросыШаблонаАнкеты.СоставКомплексногоВопроса
 
 		FoundRows = Form.QuestionsPresentationTypes.FindRows(New Structure("DoQueryBox",
 			ComplexQuestionRow.ElementaryQuestion));
@@ -1518,7 +1464,8 @@ Procedure AddComplexQuestionItems(TableRow, GroupItem1, Form)
 			<> Enums.TypesOfAnswersToQuestion.Boolean);
 		Item.Font = StyleFonts.SmallTextFont;
 
-		If ElementaryQuestionAttributes.ReplyType = Enums.TypesOfAnswersToQuestion.String Then
+		If ElementaryQuestionAttributes.ReplyType = Enums.TypesOfAnswersToQuestion.String 
+			Or TableRow.ReplyType = Enums.TypesOfAnswersToQuestion.InfobaseValue Then
 
 			Item = Form.Items.Add(QuestionName + "_Response_" + Format(ComplexQuestionRow.LineNumber,
 				"NG="), Type("FormField"), GroupItem1);
@@ -1607,18 +1554,6 @@ Procedure AddComplexQuestionItems(TableRow, GroupItem1, Form)
 
 			EndIf;
 
-		ElsIf TableRow.ReplyType = Enums.TypesOfAnswersToQuestion.InfobaseValue Then
-
-			Item = Form.Items.Add(QuestionName + "_Response_" + Format(ComplexQuestionRow.LineNumber,
-				"NG="), Type("FormField"), GroupItem1);
-			Item.Type                       = FormFieldType.InputField;
-			Item.TitleLocation        = FormItemTitleLocation.None;
-			Item.AutoMarkIncomplete = TableRow.IsRequired;
-			Item.DataPath               = QuestionName + "_Response_" + Format(ComplexQuestionRow.LineNumber,
-				"NG=");
-			Item.AutoMaxWidth    = False;
-			Item.HorizontalStretch  = False;
-
 		ElsIf ElementaryQuestionAttributes.ReplyType = Enums.TypesOfAnswersToQuestion.OneVariantOf Then
 
 			OptionsOfAnswersToQuestion = OptionsOfAnswersToQuestion(ComplexQuestionRow.ElementaryQuestion, Form);
@@ -1695,7 +1630,6 @@ Procedure AddComplexQuestionItems(TableRow, GroupItem1, Form)
 
 		EndIf;
 		
-		// Comments to questions.
 		If (ElementaryQuestionAttributes.ReplyType <> Enums.TypesOfAnswersToQuestion.MultipleOptionsFor)
 			And (ComplexQuestionRow.CommentRequired) Then
 
@@ -1719,8 +1653,6 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Auxiliary procedures of a questionnaire filling form.
 
-// Gets the options of the answer to the question.
-//
 // Parameters:
 //  ElementaryQuestion - ChartOfCharacteristicTypesRef.QuestionsForSurvey -
 //  Form              - ClientApplicationForm - the form from which the call originates.
@@ -1734,8 +1666,6 @@ Function OptionsOfAnswersToQuestion(ElementaryQuestion, Form) Export
 
 EndFunction
 
-// Generates rows from a formulation and full row code.
-//
 // Parameters:
 //   TableRow - FormDataCollectionItem - a row of the section questions table:
 //   * Description - String
@@ -1750,8 +1680,8 @@ Function FullCodeDescription(TableRow)
 
 EndFunction
 
-// Sets parameters values and the StartChoice event handler
-// for the form field used for text input.
+// 
+// 
 //
 // Parameters:
 //  Item - FormField - an item, for which parameters are set.
@@ -1764,8 +1694,6 @@ Procedure SetTextCellItemParameters(Item)
 
 EndProcedure
 
-// Sets parameters values for the form field used for text input.
-//
 // Parameters:
 //  Item - FormField - an item, for which parameters are set.
 //  ElementaryQuestionAttributes - FormDataCollectionItem - contains parameters values.
@@ -1806,11 +1734,9 @@ Procedure DeleteFillingFormItems(Form, AttributesToBeDeleted)
 
 EndProcedure
 
-// Fills in the sections tree on the form.
-//
 // Parameters:
-//  Form           - ClientApplicationForm - a form, for which the operation is executed.
-//  SectionsTree  - FormDataTree - a tree, for which the data is obtained.
+//  Form          - ClientApplicationForm - a form, for which the operation is executed.
+//  SectionsTree - FormDataTree - a tree, for which the data is obtained.
 //
 Procedure FillSectionsTree(Form, SectionsTree) Export
 
@@ -1819,10 +1745,8 @@ Procedure FillSectionsTree(Form, SectionsTree) Export
 
 EndProcedure
 
-// Gets a hierarchical selection based on the questionnaire template.
-//
 // Parameters:
-//  QuestionnaireTemplate  - CatalogRef.QuestionnaireTemplates -
+//  QuestionnaireTemplate - CatalogRef.QuestionnaireTemplates -
 //
 // Returns:
 //   QueryResultSelection
@@ -1869,11 +1793,9 @@ Function SectionSelectionByQuestionnaireTemplate(QuestionnaireTemplate)
 
 EndFunction
 
-// Adds rows to the sections tree.
-//
 // Parameters:
-//  SectionsSelection - QueryResultSelection   - a hierarchical selection by questionnaire template sections.
-//  Parent       - FormDataTreeItem     - a parent item of the tree for which rows are added.
+//  SectionsSelection - QueryResultSelection - a hierarchical selection by questionnaire template sections.
+//  Parent       - FormDataTreeItem   - a parent item of the tree for which rows are added.
 //
 Procedure AddRowsToSectionsTree(SectionsSelection, Parent)
 
@@ -2070,10 +1992,8 @@ Procedure GetInformationOnQuestionnaireQuestions(Form, QuestionnaireTemplate, Se
 
 	QueryResultsArray1 = Query.ExecuteBatch();
 
-	// 
 	Form.QuestionsPresentationTypes.Load(QueryResultsArray1[0].Unload());
 	
-	// Questions of a questionnaire template section.
 	QuestionsByQuestionnaireSectionSelection = QueryResultsArray1[1].Select();
 	QuestionsCounter = 0;
 
@@ -2099,13 +2019,10 @@ Procedure GetInformationOnQuestionnaireQuestions(Form, QuestionnaireTemplate, Se
 
 	EndDo;
 	
-	// 
 	Form.PossibleAnswers.Load(QueryResultsArray1[2].Unload());
 
 EndProcedure
 
-// Generates a table of questions subordination.
-//
 // Parameters:
 //   Form  - ClientApplicationForm - a form for which subordination table is generated.
 //
@@ -2248,7 +2165,6 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Miscellaneous.
 
-// The procedure deletes previous question items of the questionnaire template.
 Procedure DeleteQuestionnaireTemplateQuestions(OwnerRef) Export
 
 	SetPrivilegedMode(True);
@@ -2372,8 +2288,6 @@ Function PresentationOfQuestionChartGeneralQuestions(QuestionnaireTemplate) Expo
 
 EndFunction
 
-// Gets a table of questionnaires currently available to a respondent.
-//
 // Parameters:
 //  Respondent  - CatalogRef - a respondent, for whom the list of questionnaires is obtained.
 //

@@ -435,7 +435,7 @@ Procedure AddFileByTemplate(Command)
 	AddingOptions = New Structure;
 	AddingOptions.Insert("ResultHandler",          Undefined);
 	AddingOptions.Insert("FileOwner",                 FileOwner);
-	AddingOptions.Insert("OwnerForm1",                 ThisObject);
+	AddingOptions.Insert("OwnerForm",                 ThisObject);
 	AddingOptions.Insert("FilesStorageCatalogName", FilesStorageCatalogName);
 	FilesOperationsInternalClient.AddBasedOnTemplate(AddingOptions);
 	
@@ -453,8 +453,8 @@ Procedure AddFileFromScanner(Command)
 	
 	AddingOptions = FilesOperationsClient.AddingFromScannerParameters();
 	AddingOptions.FileOwner = FileOwner;
-	AddingOptions.OwnerForm1 = ThisObject;
-	AddingOptions.DontOpenCardAfterCreateFromFIle = True;
+	AddingOptions.OwnerForm = ThisObject;
+	AddingOptions.NotOpenCardAfterCreateFromFile = True;
 	AddingOptions.IsFile = False;
 	FilesOperationsClient.AddFromScanner(AddingOptions);
 	
@@ -579,7 +579,7 @@ Procedure Print(Command)
 	
 	SelectedRows = Items.List.SelectedRows;
 	If SelectedRows.Count() > 0 Then
-		FilesOperationsClient.PrintFiles(SelectedRows, ThisObject.UUID);
+		FilesOperationsClient.PrintFiles(SelectedRows, UUID);
 	EndIf;
 	
 EndProcedure
@@ -797,9 +797,19 @@ Procedure Sign(Command)
 		Return;
 	EndIf;
 	
+	If Not CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		Return;
+	EndIf;
+	
 	NotifyDescription      = New NotifyDescription("AddSignaturesCompeltion", ThisObject);
 	AdditionalParameters = New Structure("ResultProcessing", NotifyDescription);
-	FilesOperationsClient.SignFile(Items.List.SelectedRows, UUID, AdditionalParameters);
+	
+	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
+	SigningParameters = ModuleDigitalSignatureClient.NewSignatureType();
+	SigningParameters.ChoosingAuthorizationLetter = True;
+	
+	FilesOperationsClient.SignFile(Items.List.SelectedRows, UUID,
+		AdditionalParameters, SigningParameters);
 	
 EndProcedure
 

@@ -77,7 +77,7 @@ EndFunction
 
 Procedure ToSupplementTheTableOfUnnecessaryFiles(UnusedFilesTable, ClearingSetup, ExceptionsArray)
 	
-	If ClearingSetup.Action = Enums.FilesCleanupOptions.DontClear Then
+	If ClearingSetup.Action = Enums.FilesCleanupOptions.NotClear Then
 		Return;
 	EndIf;
 	

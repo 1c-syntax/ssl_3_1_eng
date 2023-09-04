@@ -247,9 +247,9 @@ Procedure ApplyFilterByLabel(Form, CommandName) Export
 		EndIf;
 	EndDo;
 	
-	PlacemarkName = StrReplace(CommandName, "FilterLabel_", "");
+	NameOfLabel = StrReplace(CommandName, "FilterLabel_", "");
 	LabelsLegendDetails = Form.Properties_LabelsLegendDetails;
-	LegendLabels = LabelsLegendDetails.FindRows(New Structure("PlacemarkName", PlacemarkName));
+	LegendLabels = LabelsLegendDetails.FindRows(New Structure("NameOfLabel", NameOfLabel));
 	
 	If LegendLabels.Count() = 0 Then
 		Return;

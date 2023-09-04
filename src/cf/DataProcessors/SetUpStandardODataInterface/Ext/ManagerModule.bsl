@@ -463,20 +463,20 @@ Function RightsKindsForStandardODataInterface(Val MetadataObject, Val AllowReadi
 	
 	AllRightsKinds = AllowedRightsForMetadataObject(MetadataObject);
 	
-	RightsFilter = New Structure();
-	RightsFilter.Insert("Interactive", False);
-	RightsFilter.Insert("InfobaseAdministration", False);
-	RightsFilter.Insert("DataAreaAdministration", False);
+	FilterRight = New Structure();
+	FilterRight.Insert("Interactive", False);
+	FilterRight.Insert("InfobaseAdministration", False);
+	FilterRight.Insert("DataAreaAdministration", False);
 	
 	If AllowReadingData And Not AllowChangingData Then
-		RightsFilter.Insert("Read", AllowReadingData);
+		FilterRight.Insert("Read", AllowReadingData);
 	EndIf;
 	
 	If AllowChangingData And Not AllowReadingData Then
-		RightsFilter.Insert("Update", AllowChangingData);
+		FilterRight.Insert("Update", AllowChangingData);
 	EndIf;
 	
-	RequiredRightsKinds = AllRightsKinds.Copy(RightsFilter);
+	RequiredRightsKinds = AllRightsKinds.Copy(FilterRight);
 	
 	Return RequiredRightsKinds.UnloadColumn("Name");
 	

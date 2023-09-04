@@ -111,7 +111,7 @@ Procedure AddTemplateParametersFormItems(Template)
 		AttributesList.Add(TemplateParameter.Name);
 	EndDo;
 	
-	ThisObject.Height = 3 + TemplateParametersTable.Count() * 2;
+	Height = 3 + TemplateParametersTable.Count() * 2;
 	
 EndProcedure
 

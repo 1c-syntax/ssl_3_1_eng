@@ -47,7 +47,7 @@ Procedure RefreshExecute(Command)
 EndProcedure
 
 &AtClient
-Procedure TasksComplete(Command)
+Procedure TasksExecute(Command)
 	OpenRoutePointTasksList();
 EndProcedure
 

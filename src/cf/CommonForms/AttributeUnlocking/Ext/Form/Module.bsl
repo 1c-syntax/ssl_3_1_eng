@@ -89,7 +89,7 @@ Procedure Validate(Command)
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	
-	CompletionNotification2 = New NotifyDescription("CheckCompletion", ThisObject);
+	CompletionNotification2 = New NotifyDescription("ValidateCompletion", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters);
 	
 EndProcedure
@@ -331,7 +331,7 @@ Function AreObjectsUsed()
 EndFunction
 
 &AtClient
-Procedure CheckCompletion(Result, Context) Export
+Procedure ValidateCompletion(Result, Context) Export
 	
 	Items.Pages.CurrentPage = Items.Main_Page;
 	If Result = Undefined Then

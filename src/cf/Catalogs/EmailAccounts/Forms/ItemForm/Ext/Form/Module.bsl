@@ -563,9 +563,9 @@ EndProcedure
 Function PasswordCheckExecuted(WriteParameters)
 	
 	If Not WriteParameters.Property("PasswordEntered") Then
-		AttributeValuesBeforeWrite = New Structure(AttributesRequiringPasswordToChange);
-		FillPropertyValues(AttributeValuesBeforeWrite, Object);
-		Return Not PasswordCheckIsRequired(Object.Ref, AttributeValuesBeforeWrite);
+		AttributesValuesBeforeWrite = New Structure(AttributesRequiringPasswordToChange);
+		FillPropertyValues(AttributesValuesBeforeWrite, Object);
+		Return Not PasswordCheckIsRequired(Object.Ref, AttributesValuesBeforeWrite);
 	EndIf;
 	
 	Return True;
@@ -643,7 +643,7 @@ Procedure FillSettings()
 		SetPrivilegedMode(True);
 		PasswordIsSet = Common.ReadDataFromSecureStorage(Object.Ref) <> "";
 		SetPrivilegedMode(False);
-		Password = ?(PasswordIsSet, ThisObject.UUID, "");
+		Password = ?(PasswordIsSet, UUID, "");
 		PasswordChanged = False;
 		EmailOperationsInternal.CheckoutPasswordField(Items.Password);
 		

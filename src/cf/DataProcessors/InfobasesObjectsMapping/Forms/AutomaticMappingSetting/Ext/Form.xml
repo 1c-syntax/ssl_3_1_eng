@@ -103,7 +103,7 @@
 					<ContextMenu name="MapFieldsListCheckMarkContextMenu" id="7"/>
 					<ExtendedTooltip name="MapFieldsListCheckMarkExtendedTooltip" id="18"/>
 				</CheckBoxField>
-				<InputField name="MapFieldsListPresentation" id="14">
+				<InputField name="MappingFieldsListPresentation" id="14">
 					<DataPath>MappingFieldsList.Presentation</DataPath>
 					<ReadOnly>true</ReadOnly>
 					<Title>

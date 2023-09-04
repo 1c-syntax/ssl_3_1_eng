@@ -554,7 +554,7 @@ EndProcedure
 //                          
 //    * Skipped3 - Number -
 //
-Function AddToList2(Val DestinationList, Val SourceList, Val ShouldSkipValuesOfOtherTypes = Undefined, 
+Function SupplementList(Val DestinationList, Val SourceList, Val ShouldSkipValuesOfOtherTypes = Undefined, 
 	Val AddNewItems = True) Export
 	
 	Result = New Structure;

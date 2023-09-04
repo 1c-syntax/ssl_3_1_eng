@@ -164,7 +164,7 @@ Procedure FindCommandExecute()
 EndProcedure
 
 &AtClient
-Procedure FindInListFromFoundContactsListExecute()
+Procedure FindInListFromFoundItemsListExecute()
 	
 	If Items.FoundContacts.CurrentData <> Undefined Then
 		SetContactAsCurrent(Items.FoundContacts.CurrentData.Ref);
@@ -173,7 +173,7 @@ Procedure FindInListFromFoundContactsListExecute()
 EndProcedure
 
 &AtClient
-Procedure FindInListFromSubjectListExecute()
+Procedure FindInListFromSubjectsListExecute()
 	
 	If Items.ContactsBySubject.CurrentData <> Undefined Then
 		SetContactAsCurrent(Items.ContactsBySubject.CurrentData.Ref);

@@ -77,7 +77,7 @@ Procedure ImportFiles()
 	
 	FieldsNotFilled = False;
 	
-	PseudoFileSystem = New Map; // Соответствие путь к директории - 
+	PseudoFileSystem = New Map;
 	
 	SelectedFiles = New ValueList;
 	For Each FileNested In FilesTree.GetItems() Do

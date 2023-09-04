@@ -461,7 +461,7 @@
 											</Title>
 											<RowFilter xsi:nil="true"/>
 											<ContextMenu name="CertificateDataDetails1ContextMenu" id="752"/>
-											<AutoCommandBar name="CertificateDataDetails1CommandBar" id="753">
+											<AutoCommandBar name="DetailsOfCertificateDataCommandBar" id="753">
 												<Autofill>false</Autofill>
 											</AutoCommandBar>
 											<ExtendedTooltip name="CertificateDataDetails1ExtendedTooltip" id="754"/>

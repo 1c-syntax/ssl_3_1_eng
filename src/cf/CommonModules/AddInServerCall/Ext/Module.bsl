@@ -43,7 +43,7 @@ Function AddInInformation(Id, Version = Undefined) Export
 	
 	Information = AddInsInternal.SavedAddInInformation(Id, Version);
 	
-	If Information.State = "IsNotFound" Then
+	If Information.State = "NotFound1" Then
 		Result.ErrorDescription = NStr("en = 'The add-in does not exist';");
 		Return Result;
 	EndIf;

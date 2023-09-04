@@ -70,7 +70,7 @@
 					</Title>
 					<RowFilter xsi:nil="true"/>
 					<ContextMenu name="CertificateDataDetails1ContextMenu" id="56"/>
-					<AutoCommandBar name="CertificateDataDetails1CommandBar" id="57">
+					<AutoCommandBar name="DetailsOfCertificateDataCommandBar" id="57">
 						<Autofill>false</Autofill>
 					</AutoCommandBar>
 					<ExtendedTooltip name="CertificateDataDetails1ExtendedTooltip" id="58"/>

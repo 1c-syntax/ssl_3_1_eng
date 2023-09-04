@@ -268,11 +268,11 @@ EndProcedure
 &AtClient
 Procedure SearchStringEditTextChange(Item, Text, StandardProcessing)
 	SearchStringText = Text;
-	AttachIdleHandler("SearchStringFinish", 0.1, True);
+	AttachIdleHandler("SearchStringCompletion", 0.1, True);
 EndProcedure
 
 &AtClient
-Procedure SearchStringFinish()
+Procedure SearchStringCompletion()
 
 	If Not ValueIsFilled(SearchStringText) Then
 		Items.UsersSelectionPages.CurrentPage = Items.UsersAndGroupsSelectionPage;
@@ -507,7 +507,7 @@ Procedure UsersGroupsDrag(Item, DragParameters, StandardProcessing, String, Fiel
 	AdditionalParameters.Insert("String", String);
 	AdditionalParameters.Insert("Move", Move);
 	
-	Notification = New NotifyDescription("UserGroupsDragCompletion", ThisObject, AdditionalParameters);
+	Notification = New NotifyDescription("UsersGroupsDragCompletion", ThisObject, AdditionalParameters);
 	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo, 60, DialogReturnCode.Yes);
 	
 EndProcedure
@@ -786,25 +786,25 @@ Procedure PasteFromClipboard(Command)
 	SearchParameters.Insert("Scenario", "RefsSearch");
 	
 	ExecutionParameters = New Structure;
-	Handler = New NotifyDescription("PasteFromClipboardCompletion1", ThisObject, ExecutionParameters);
+	Handler = New NotifyDescription("PasteFromClipboardCompletion", ThisObject, ExecutionParameters);
 	
 	ModuleDataImportFromFileClient = CommonClient.CommonModule("ImportDataFromFileClient");
 	ModuleDataImportFromFileClient.ShowRefFillingForm(SearchParameters, Handler);
 EndProcedure
 
 &AtClient
-Procedure PasteFromClipboardCompletion1(FoundObjects, ExecutionParameters) Export
+Procedure PasteFromClipboardCompletion(FoundObjects, ExecutionParameters) Export
 	
 	If FoundObjects = Undefined Then
 		Return;
 	EndIf;
 	
-	PasteFromClipboardCompletion1Server(FoundObjects);
+	PasteFromClipboardCompletionServer(FoundObjects);
 	
 EndProcedure
 
 &AtServer
-Procedure PasteFromClipboardCompletion1Server(FoundObjects)
+Procedure PasteFromClipboardCompletionServer(FoundObjects)
 
 	For Each Value In FoundObjects Do
 		SelectedUsersAndGroups.Add().User = Value;
@@ -978,7 +978,6 @@ EndFunction
 &AtServer
 Procedure ApplyConditionalAppearanceAndHideInvalidUsers()
 	
-	// Appearance.
 	AppearanceItem = UsersList.SettingsComposer.Settings.ConditionalAppearance.Items.Add();
 	AppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
@@ -992,7 +991,6 @@ Procedure ApplyConditionalAppearanceAndHideInvalidUsers()
 	FilterElement.RightValue = True;
 	FilterElement.Use  = True;
 	
-	// Скрытие.
 	CommonClientServer.SetDynamicListFilterItem(
 		UsersList, "Invalid", False, , , True);
 	
@@ -1161,7 +1159,7 @@ Procedure ChangeExtendedPickFormParameters()
 		Items.GroupsAndUsers.Group                 = ChildFormItemsGroup.Vertical;
 		Items.UsersList.Height                       = 5;
 		Items.UserGroups.Height                      = 3;
-		ThisObject.Height                                        = 17;
+		Height                                        = 17;
 		Items.SelectGroupGroup.Visible                   = True;
 		// 
 		Items.UserGroups.TitleLocation          = FormItemTitleLocation.Top;
@@ -1396,7 +1394,7 @@ EndFunction
 //    * Move - Boolean
 //
 &AtClient
-Procedure UserGroupsDragCompletion(Response, AdditionalParameters) Export
+Procedure UsersGroupsDragCompletion(Response, AdditionalParameters) Export
 	
 	If Response = DialogReturnCode.No Then
 		Return;

@@ -309,7 +309,7 @@ Procedure Change(Command)
 		If CurrentChangeStatus = Undefined Or TimeConsumingOperation = Undefined Then
 			Return;
 		EndIf;
-		CurrentChangeStatus.AbortChange = True;
+		CurrentChangeStatus.AbortUpdate = True;
 		Items.FormChange.Enabled = False;
 		If Not TimeConsumingOperation.Status = "Completed2" Then
 			CompleteObjectChange();
@@ -1036,7 +1036,7 @@ Procedure ChangeObjects1()
 	CurrentChangeStatus.Insert("ObjectsCountForProcessing",  ObjectsCountForProcessing);
 	CurrentChangeStatus.Insert("StopChangeOnError", Object.InterruptOnError);
 	CurrentChangeStatus.Insert("ShowProcessedItemsPercentage",   ShowProcessedItemsPercentage);
-	CurrentChangeStatus.Insert("AbortChange", False);
+	CurrentChangeStatus.Insert("AbortUpdate", False);
 	
 	AttachIdleHandler("ChangeObjectsBatch", 0.1, True);
 	
@@ -1104,16 +1104,16 @@ Procedure OnCompleteChange(Result, AdditionalParameters) Export
 	
 	For Each ChangeResult In ResultsOfChanges Do
 		
-		ResultOfPortionExecution = ChangeResult.Value;
-		If ResultOfPortionExecution.Status = StatusError Then
+		ResultOfBatchExecution = ChangeResult.Value;
+		If ResultOfBatchExecution.Status = StatusError Then
 			ErrorText = SubstituteParametersToString(
 				NStr("en = 'The thread background job completed with error:
 				           |%1';"),
-				ResultOfPortionExecution.DetailErrorDescription);
+				ResultOfBatchExecution.DetailErrorDescription);
 			Raise ErrorText;
 		Else
 			
-			ResultOfBatchChange = GetFromTempStorage(ResultOfPortionExecution.ResultAddress);
+			ResultOfBatchChange = GetFromTempStorage(ResultOfBatchExecution.ResultAddress);
 			If TypeOf(ResultOfBatchChange) <> Type("Structure") Then
 				ErrorText = NStr("en = 'The thread background job did not return a result';");
 				Raise ErrorText;
@@ -1173,7 +1173,7 @@ Procedure ProcessChangeResult(ChangeResult = Undefined, ContinueProcessing = Und
 	
 	ItemsAvailableForProcessing = ?(CurrentChangeStatus.CurrentPosition < CurrentChangeStatus.ObjectsCountForProcessing, True, False);
 	
-	If ItemsAvailableForProcessing And Not CurrentChangeStatus.AbortChange Then
+	If ItemsAvailableForProcessing And Not CurrentChangeStatus.AbortUpdate Then
 		AttachIdleHandler("ChangeObjectsBatch", 0.1, True);
 	Else
 		AttachIdleHandler("CompleteObjectChange", 0.1, True);
@@ -1230,7 +1230,7 @@ Procedure CompleteObjectChange()
 	
 	If Object.ChangeInTransaction And Not ProcessingCompleted Then
 		SkippedItemsCount = CurrentChangeStatus.ObjectsCountForProcessing - CurrentChangeStatus.ErrorsCount;
-		If SkippedItemsCount > 0 And Not CurrentChangeStatus.AbortChange Then
+		If SkippedItemsCount > 0 And Not CurrentChangeStatus.AbortUpdate Then
 			TableRow = ObjectsThatCouldNotBeChanged.Add();
 			TableRow.Object = SubstituteParametersToString(NStr("en = '… and other items (%1)';"), SkippedItemsCount);
 			TableRow.Cause = NStr("en = 'Cannot modify some items. The items were skipped.';");
@@ -1983,11 +1983,11 @@ Function AttributesToSkip()
 		MetadataObject = Metadata.FindByFullName(KindOfObjectsToChange);
 		AttributesEditingSettings = DataProcessorObject.AttributesEditingSettings(MetadataObject);
 		ToEdit = AttributesEditingSettings.ToEdit;
-		ToSkip = AttributesEditingSettings.ToSkip;
+		NotToEdit = AttributesEditingSettings.NotToEdit;
 		
-		If ValueIsFilled(ToSkip) Then
-			If ToSkip.Find("*") = Undefined Then
-				For Each AttributeName In ToSkip Do
+		If ValueIsFilled(NotToEdit) Then
+			If NotToEdit.Find("*") = Undefined Then
+				For Each AttributeName In NotToEdit Do
 					AttributesNames.Insert(AttributeName);
 				EndDo;
 				Continue;
@@ -2000,16 +2000,16 @@ Function AttributesToSkip()
 			EndIf;
 		EndIf;
 		
-		ToSkip = New Array;
+		NotToEdit = New Array;
 		MetadataObject = Metadata.FindByFullName(KindOfObjectsToChange);
 		StandardAttributesDetails = MetadataObject.StandardAttributes;// Array of StandardAttributeDescription
 		For Each AttributeDetails In StandardAttributesDetails Do
-			ToSkip.Add(AttributeDetails.Name);
+			NotToEdit.Add(AttributeDetails.Name);
 		EndDo;
 		
 		AttributesDetails1 = MetadataObject.Attributes;// Array of MetadataObjectAttribute
 		For Each AttributeDetails In AttributesDetails1 Do
-			ToSkip.Add(AttributeDetails.Name);
+			NotToEdit.Add(AttributeDetails.Name);
 		EndDo;
 		
 		For Each TabularSection In MetadataObject.TabularSections Do
@@ -2018,19 +2018,19 @@ Function AttributesToSkip()
 			EndIf;
 			TabularSectionAttributesDetails = TabularSection.Attributes;// Array of MetadataObjectAttribute
 			For Each Attribute In TabularSectionAttributesDetails Do
-				ToSkip.Add(TabularSection.Name + "." + Attribute.Name);
+				NotToEdit.Add(TabularSection.Name + "." + Attribute.Name);
 			EndDo;
 		EndDo;
 		
 		For Each NameOfAttributeToEdit In ToEdit Do
-			IndexOf = ToSkip.Find(NameOfAttributeToEdit);
+			IndexOf = NotToEdit.Find(NameOfAttributeToEdit);
 			If IndexOf = Undefined Then
 				Continue;
 			EndIf;
-			ToSkip.Delete(IndexOf);
+			NotToEdit.Delete(IndexOf);
 		EndDo;
 		
-		For Each AttributeName In ToSkip Do
+		For Each AttributeName In NotToEdit Do
 			AttributesNames.Insert(AttributeName);
 		EndDo;
 	EndDo;
@@ -2460,7 +2460,7 @@ Procedure UpdateItemsVisibility()
 EndProcedure
 
 &AtServer
-Procedure FillObjectAttributes(AttributesToLock, ToSkip, DisabledAttributes, AvailableAttributes)
+Procedure FillObjectAttributes(AttributesToLock, NotToEdit, DisabledAttributes, AvailableAttributes)
 	
 	ObjectAttributes.Clear();
 	
@@ -2470,7 +2470,7 @@ Procedure FillObjectAttributes(AttributesToLock, ToSkip, DisabledAttributes, Ava
 	EndIf;
 	
 	AttributesSets = New Structure;
-	AttributesSets.Insert("ToSkip", ToSkip);
+	AttributesSets.Insert("NotToEdit", NotToEdit);
 	AttributesSets.Insert("Disabled2", DisabledAttributes);
 	AttributesSets.Insert("ToLock", AttributesToLock);
 	AttributesSets.Insert("Available2", AvailableAttributes);
@@ -2594,7 +2594,7 @@ EndFunction
 Procedure AddAttributesToSet(AttributesSets, MetadataObject)
 	
 	Attributes = AttributesSets.AttributesDetails2;
-	ToSkip = AttributesSets.ToSkip;
+	NotToEdit = AttributesSets.NotToEdit;
 	DisabledAttributes = AttributesSets.Disabled2;
 	AttributesToLock = AttributesSets.ToLock;
 	ListAvailableAttributes = AttributesSets.Available2;
@@ -2614,7 +2614,7 @@ Procedure AddAttributesToSet(AttributesSets, MetadataObject)
 			EndIf;
 		EndIf;
 		
-		If ToSkip.Find(AttributeDetails.Name) <> Undefined Then
+		If NotToEdit.Find(AttributeDetails.Name) <> Undefined Then
 			Continue;
 		EndIf;
 		

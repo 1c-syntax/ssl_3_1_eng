@@ -16,7 +16,7 @@ Procedure OnReadAtServer(CurrentObject)
 		SetPrivilegedMode(True);
 		PasswordIsSet = Common.ReadDataFromSecureStorage(Object.Ref) <> "";
 		SetPrivilegedMode(False);
-		ApplicationPassword = ?(PasswordIsSet, ThisObject.UUID, "");
+		ApplicationPassword = ?(PasswordIsSet, UUID, "");
 		PasswordChanged = False;
 		EmailOperationsInternal.CheckoutPasswordField(Items.ApplicationPassword);
 	EndIf;

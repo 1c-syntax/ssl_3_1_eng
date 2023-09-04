@@ -43,7 +43,7 @@ EndFunction
 //     * ExchangeManagerFormatVersion - String - the number of a module format version with conversion rules.
 //     * ExchangeDirection - String - "Sending" or "Receiving".
 //     * IsExchangeViaExchangePlan - Boolean - indicates whether the exchange by the exchange plan is completed.
-//     * ErrorFlag - Boolean - indicates whether an error occurred upon the exchange operation.
+//     * FlagErrors - Boolean - indicates whether an error occurred upon the exchange operation.
 //     * ErrorMessageString - String - details of an error occurred upon the exchange operation.
 //     * EventLogMessageKey - String - name of an event to write error reports to the event log.
 //     * UseHandshake - Boolean - indicates whether the confirmation is used for deleting the change registration.
@@ -87,7 +87,7 @@ Function InitializeExchangeComponents(ExchangeDirection) Export
 		
 	ExchangeComponents.Insert("ExchangeDirection", ExchangeDirection);
 	ExchangeComponents.Insert("IsExchangeViaExchangePlan", True);
-	ExchangeComponents.Insert("ErrorFlag", False);
+	ExchangeComponents.Insert("FlagErrors", False);
 	ExchangeComponents.Insert("ErrorMessageString", "");
 	ExchangeComponents.Insert("EventLogMessageKey", DataExchangeServer.DataExchangeEventLogEvent());
 	ExchangeComponents.Insert("UseHandshake", True);
@@ -272,7 +272,7 @@ EndFunction
 //
 Procedure InitializeTabularSectionsProperties(ConversionRule, ColumnName = "TabularSectionsProperties") Export
 	TabularSectionsProperties = New ValueTable;
-	TabularSectionsProperties.Columns.Add("ConfigurationTabularSection",          New TypeDescription("String"));
+	TabularSectionsProperties.Columns.Add("TSConfigurations",          New TypeDescription("String"));
 	TabularSectionsProperties.Columns.Add("FormatTS",               New TypeDescription("String"));
 	TabularSectionsProperties.Columns.Add("Properties",                New TypeDescription("ValueTable"));
 	TabularSectionsProperties.Columns.Add("UsesConversionAlgorithm", New TypeDescription("Boolean"));
@@ -420,7 +420,7 @@ Function WriteToExecutionProtocol(ExchangeComponents,
 	
 	If SetErrorFlag1 Then
 		
-		ExchangeComponents.ErrorFlag = True;
+		ExchangeComponents.FlagErrors = True;
 		If ExchangeComponents.DataExchangeState.ExchangeExecutionResult = Undefined Then
 			ExchangeComponents.DataExchangeState.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error;
 		EndIf;
@@ -576,7 +576,7 @@ Procedure ExecuteDataExport(ExchangeComponents) Export
 		
 	EndIf;
 	
-	If ExchangeComponents.ErrorFlag Then
+	If ExchangeComponents.FlagErrors Then
 		
 		// 
 		// 
@@ -829,7 +829,7 @@ Procedure ExportSelectionObject(ExchangeComponents, Object, ProcessingRule = Und
 	EndIf;
 	
 	If SetErrorFlag Then
-		ExchangeComponents.ErrorFlag = True;
+		ExchangeComponents.FlagErrors = True;
 		ExchangeComponents.DataExchangeState.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error;
 	EndIf;
 	
@@ -1179,15 +1179,15 @@ Function XDTODataFromIBData(ExchangeComponents, Source, Val ConversionRule, Expo
 		// PCR execution for tabular sections (direct conversion).
 		If ExportStack.Count() = 1 Then
 			For Each TSAndProperties In ConversionRule.TabularSectionsProperties Do
-				If Not (ValueIsFilled(TSAndProperties.ConfigurationTabularSection) And ValueIsFilled(TSAndProperties.FormatTS)) Then
+				If Not (ValueIsFilled(TSAndProperties.TSConfigurations) And ValueIsFilled(TSAndProperties.FormatTS)) Then
 					Continue;
 				EndIf;
 				// Empty table.
-				If Source[TSAndProperties.ConfigurationTabularSection].Count() = 0 Then
+				If Source[TSAndProperties.TSConfigurations].Count() = 0 Then
 					Continue;
 				EndIf;
 				NewDestinationTS = CreateDestinationTSByPCR(TSAndProperties.Properties);
-				For Each ConfigurationTSRow In Source[TSAndProperties.ConfigurationTabularSection] Do
+				For Each ConfigurationTSRow In Source[TSAndProperties.TSConfigurations] Do
 					DestinationTSRow = NewDestinationTS.Add();
 					For Each PCR In TSAndProperties.Properties Do
 						If PCR.UsesConversionAlgorithm Then
@@ -2058,7 +2058,7 @@ Procedure RunReadingData(ExchangeComponents, TablesToImport = Undefined) Export
 	Results = Undefined;
 	ReadExchangeMessage(ExchangeComponents, Results, TablesToImport);
 	
-	If Not ExchangeComponents.ErrorFlag
+	If Not ExchangeComponents.FlagErrors
 		And ExchangeComponents.DataImportToInfobaseMode Then
 		
 		DataExchangeInternal.DisableAccessKeysUpdate(True);
@@ -2075,7 +2075,7 @@ Procedure RunReadingData(ExchangeComponents, TablesToImport = Undefined) Export
 		
 		ExchangeComponents.ObjectsMarkedForDeletion = Common.CopyRecursive(Results.ArrayOfObjectsToDelete);
 		
-		If Not ExchangeComponents.ErrorFlag Then
+		If Not ExchangeComponents.FlagErrors Then
 			Try
 				ExchangeComponents.ExchangeManager.AfterConvert(ExchangeComponents);
 			Except
@@ -2144,7 +2144,7 @@ Procedure OpenImportFile(ExchangeComponents, ExchangeFileName) Export
 	
 	XMLReader = New XMLReader;
 	
-	ExchangeComponents.ErrorFlag = True;
+	ExchangeComponents.FlagErrors = True;
 	
 	StopCycle = False;
 	While Not StopCycle Do
@@ -2369,11 +2369,11 @@ Procedure OpenImportFile(ExchangeComponents, ExchangeFileName) Export
 			XMLReader.Read(); // Body
 		EndIf;
 		
-		ExchangeComponents.ErrorFlag = False;
+		ExchangeComponents.FlagErrors = False;
 		
 	EndDo;
 	
-	If ExchangeComponents.ErrorFlag Then
+	If ExchangeComponents.FlagErrors Then
 		XMLReader.Close();
 	Else
 		ExchangeComponents.Insert("ExchangeFile", XMLReader);
@@ -3042,7 +3042,7 @@ EndFunction
 
 Procedure AfterOpenImportFile(ExchangeComponents, Cancel, InitializeRulesTables = True) Export
 	
-	If ExchangeComponents.ErrorFlag Then
+	If ExchangeComponents.FlagErrors Then
 		FinishKeepExchangeProtocol(ExchangeComponents);
 		If ExchangeComponents.Property("ExchangeFile") Then
 			ExchangeComponents.ExchangeFile.Close();
@@ -3753,7 +3753,7 @@ Function ConversionRulesTable(ExchangeComponents)
 				TabularSectionsPropertiesRow.UsesConversionAlgorithm = True;
 				TabularSectionsPropertiesRow.Properties = TS.Value;
 				If ExchangeComponents.ExchangeDirection = "Receive" Then
-					TabularSectionsPropertiesRow.ConfigurationTabularSection = TS.Key;
+					TabularSectionsPropertiesRow.TSConfigurations = TS.Key;
 				Else
 					TabularSectionsPropertiesRow.FormatTS = TS.Key;
 				EndIf;
@@ -5123,16 +5123,16 @@ Function ReadXDTOValue(XDTODataValue, PropertyType1 = Undefined)
 	
 EndFunction
 
-Function ReadComplexTypeXDTOValue(XDTODataValue, ComplexType, PropertyType1 = Undefined)
+Function ReadComplexTypeXDTOValue(XDTODataValue, ComplicatedType, PropertyType1 = Undefined)
 
 	PropertyType1 = ?(PropertyType1 = Undefined, XDTODataValue.Type(), PropertyType1);
 		
 	XDTOStructure = New Structure;
-	XDTOStructure.Insert("IsReference", ComplexType = "Ref");
-	XDTOStructure.Insert("IsEnum", ComplexType = "Enum");
+	XDTOStructure.Insert("IsReference", ComplicatedType = "Ref");
+	XDTOStructure.Insert("IsEnum", ComplicatedType = "Enum");
 	XDTOStructure.Insert("XDTOValueType", PropertyType1);
 		
-	If ComplexType = "Enum" Then
+	If ComplicatedType = "Enum" Then
 		Value = BroadcastName(XDTODataValue.Value, "en");
 		XDTOStructure.Insert("Value", Value);
 	Else
@@ -5471,7 +5471,7 @@ Procedure ConversionOfXDTOObjectStructureProperties(
 		// Convert tables.
 		For Each TS In ConversionRule.TabularSectionsProperties Do
 			
-			If StageNumber = 1 And ValueIsFilled(TS.ConfigurationTabularSection) And ValueIsFilled(TS.FormatTS) Then
+			If StageNumber = 1 And ValueIsFilled(TS.TSConfigurations) And ValueIsFilled(TS.FormatTS) Then
 				
 				// 
 				FormatTS = Undefined; // ValueTable
@@ -5490,7 +5490,7 @@ Procedure ConversionOfXDTOObjectStructureProperties(
 				For LineNumber = 1 To FormatTS.Count() Do
 					
 					XDTORowData = FormatTS[LineNumber - 1];
-					TSRow = ReceivedData[TS.ConfigurationTabularSection].Add();
+					TSRow = ReceivedData[TS.TSConfigurations].Add();
 					XDTORowDataStructure = New Structure(ColumnsNamesAsString);
 					FillPropertyValues(XDTORowDataStructure, XDTORowData);
 					
@@ -5512,18 +5512,18 @@ Procedure ConversionOfXDTOObjectStructureProperties(
 			EndIf;
 			
 			If StageNumber = 2 And TS.UsesConversionAlgorithm
-				And ValueIsFilled(TS.ConfigurationTabularSection)
-				And ReceivedData.AdditionalProperties.Property(TS.ConfigurationTabularSection) Then
- 				StructuresArrayWithRowsData = ReceivedData.AdditionalProperties[TS.ConfigurationTabularSection];
-				ConfigurationTSRowsCount = ReceivedData[TS.ConfigurationTabularSection].Count();
+				And ValueIsFilled(TS.TSConfigurations)
+				And ReceivedData.AdditionalProperties.Property(TS.TSConfigurations) Then
+ 				StructuresArrayWithRowsData = ReceivedData.AdditionalProperties[TS.TSConfigurations];
+				ConfigurationTSRowsCount = ReceivedData[TS.TSConfigurations].Count();
 				
 				For LineNumber = 1 To StructuresArrayWithRowsData.Count() Do
 					
 					// The string might have been added upon direct conversion.
 					If LineNumber <= ConfigurationTSRowsCount Then
-						TSRow = ReceivedData[TS.ConfigurationTabularSection][LineNumber - 1];
+						TSRow = ReceivedData[TS.TSConfigurations][LineNumber - 1];
 					Else
-						TSRow = ReceivedData[TS.ConfigurationTabularSection].Add();
+						TSRow = ReceivedData[TS.TSConfigurations].Add();
 					EndIf;
 					
 					For Each PCR In TS.Properties Do
@@ -5539,7 +5539,7 @@ Procedure ConversionOfXDTOObjectStructureProperties(
 							TSRow,
 							PCR,
 							StageNumber, 
-							TS.ConfigurationTabularSection);
+							TS.TSConfigurations);
 						
 					EndDo;
 					
@@ -5899,7 +5899,7 @@ Procedure FillIBDataByReceivedData(IBData, ReceivedData, ConversionRule)
 	
 	For Each TSConversions In ConversionRule.TabularSectionsProperties Do
 		
-		TSName = TSConversions.ConfigurationTabularSection;
+		TSName = TSConversions.TSConfigurations;
 		
 		If IsBlankString(TSName) Then
 			Continue;
@@ -6506,7 +6506,7 @@ Procedure ReadExchangeMessage(ExchangeComponents, Results, TablesToImport = Unde
 	EndDo;
 	
 	If SetErrorFlag Then
-		ExchangeComponents.ErrorFlag = True;
+		ExchangeComponents.FlagErrors = True;
 		ExchangeComponents.DataExchangeState.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error;
 	EndIf;
 	

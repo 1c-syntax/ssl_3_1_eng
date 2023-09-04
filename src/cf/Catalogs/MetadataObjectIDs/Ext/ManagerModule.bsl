@@ -1119,7 +1119,6 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	MetadataObjectCollectionProperties.Columns.Add("Id",             New TypeDescription("UUID"));
 	MetadataObjectCollectionProperties.Columns.Add("ExtensionsObjects",         New TypeDescription("Boolean"));
 	
-	// Constants
 	String = MetadataObjectCollectionProperties.Add();
 	String.Id   = New UUID("627a6fb8-872a-11e3-bb87-005056c00008");
 	String.Name             = "Constants";
@@ -1128,7 +1127,6 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Constant';");
 	String.ExtensionsObjects = True;
 	
-	// Подсистемы
 	String = MetadataObjectCollectionProperties.Add();
 	String.Id   = New UUID("cdf5ac50-08e8-46af-9a80-4e63fd4a88ff");
 	String.Name             = "Subsystems";
@@ -1139,7 +1137,6 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.NoMetadataObjectKey = True;
 	String.ExtensionsObjects = True;
 	
-	// Роли
 	String = MetadataObjectCollectionProperties.Add();
 	String.Id   = New UUID("115c4f55-9c20-4e86-a6d0-d0167ec053a1");
 	String.Name             = "Roles";
@@ -1150,7 +1147,6 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.NoMetadataObjectKey = False;
 	String.ExtensionsObjects = True;
 	
-	// ПланыОбмена
 	String = MetadataObjectCollectionProperties.Add();
 	String.Id   = New UUID("269651e0-4b06-4f9d-aaab-a8d2b6bc6077");
 	String.Name             = "ExchangePlans";
@@ -1159,7 +1155,6 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Exchange plan';");
 	String.ExtensionsObjects = True;
 	
-	// Справочники
 	String = MetadataObjectCollectionProperties.Add();
 	String.Id   = New UUID("ede89702-30f5-4a2a-8e81-c3a823b7e161");
 	String.Name             = "Catalogs";
@@ -1168,7 +1163,6 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Catalog';");
 	String.ExtensionsObjects = True;
 	
-	// Документы
 	String = MetadataObjectCollectionProperties.Add();
 	String.Id   = New UUID("96c6ab56-0375-40d5-99a2-b83efa3dac8b");
 	String.Name             = "Documents";
@@ -1177,7 +1171,6 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Document';");
 	String.ExtensionsObjects = True;
 	
-	// ЖурналыДокументов
 	String = MetadataObjectCollectionProperties.Add();
 	String.Id   = New UUID("07938234-e29b-4cff-961a-9af07a4c6185");
 	String.Name             = "DocumentJournals";
@@ -1186,7 +1179,6 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Document journal';");
 	String.NoData       = True;
 	
-	// Отчеты
 	String = MetadataObjectCollectionProperties.Add();
 	String.Id   = New UUID("706cf832-0ae5-45b5-8a4a-1f251d054f3b");
 	String.Name             = "Reports";
@@ -1196,7 +1188,6 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.NoData       = True;
 	String.ExtensionsObjects = True;
 	
-	// Обработки
 	String = MetadataObjectCollectionProperties.Add();
 	String.Id   = New UUID("ae480426-487e-40b2-98ba-d207777449f3");
 	String.Name             = "DataProcessors";
@@ -1206,7 +1197,6 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.NoData       = True;
 	String.ExtensionsObjects = True;
 	
-	// ПланыВидовХарактеристик
 	String = MetadataObjectCollectionProperties.Add();
 	String.Id   = New UUID("8b5649b9-cdd1-4698-9aac-12ba146835c4");
 	String.Name             = "ChartsOfCharacteristicTypes";
@@ -1215,7 +1205,6 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Chart of characteristic types';");
 	String.ExtensionsObjects = True;
 	
-	// ПланыСчетов
 	String = MetadataObjectCollectionProperties.Add();
 	String.Id   = New UUID("4295af27-543f-4373-bcfc-c0ace9b7620c");
 	String.Name             = "ChartsOfAccounts";
@@ -1224,7 +1213,6 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Chart of accounts.';");
 	String.ExtensionsObjects = True;
 	
-	// ПланыВидовРасчета
 	String = MetadataObjectCollectionProperties.Add();
 	String.Id   = New UUID("fca3e7e1-1bf1-49c8-9921-aafb4e787c75");
 	String.Name             = "ChartsOfCalculationTypes";
@@ -1233,7 +1221,6 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Chart of calculation types.';");
 	String.ExtensionsObjects = True;
 	
-	// РегистрыСведений
 	String = MetadataObjectCollectionProperties.Add();
 	String.Id   = New UUID("d7ecc1e9-c068-44dd-83c2-1323ec52dbbb");
 	String.Name             = "InformationRegisters";
@@ -1242,7 +1229,6 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Information register';");
 	String.ExtensionsObjects = True;
 	
-	// РегистрыНакопления
 	String = MetadataObjectCollectionProperties.Add();
 	String.Id   = New UUID("74083488-b01e-4441-84a6-c386ce88cdb5");
 	String.Name             = "AccumulationRegisters";
@@ -1251,7 +1237,6 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Accumulation register';");
 	String.ExtensionsObjects = True;
 	
-	// РегистрыБухгалтерии
 	String = MetadataObjectCollectionProperties.Add();
 	String.Id   = New UUID("9a0d75ff-0eda-454e-b2b7-d2412ffdff18");
 	String.Name             = "AccountingRegisters";
@@ -1260,7 +1245,6 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Accounting register';");
 	String.ExtensionsObjects = True;
 	
-	// РегистрыРасчета
 	String = MetadataObjectCollectionProperties.Add();
 	String.Id   = New UUID("f330686a-0acf-4e26-9cda-108f1404687d");
 	String.Name             = "CalculationRegisters";
@@ -1269,7 +1253,6 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Calculation register';");
 	String.ExtensionsObjects = True;
 	
-	// БизнесПроцессы
 	String = MetadataObjectCollectionProperties.Add();
 	String.Id   = New UUID("a8cdd0e0-c27f-4bf0-9718-10ec054dc468");
 	String.Name             = "BusinessProcesses";
@@ -1277,7 +1260,6 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularName     = "BusinessProcess";
 	String.SingularSynonym = NStr("en = 'Business process';");
 	
-	// Задачи
 	String = MetadataObjectCollectionProperties.Add();
 	String.Id   = New UUID("8d9153ad-7cea-4e25-9542-a557ee59fd16");
 	String.Name             = "Tasks";
@@ -2225,7 +2207,7 @@ EndFunction
 // 
 // Returns:
 //   Structure:
-//     * DoesntCorrespond            - Boolean
+//     * NotRespond            - Boolean
 //     * MetadataObjectKey      - Arbitrary
 //     * MetadataObject           - MetadataObject
 //     * RemoteMetadataObject - MetadataObject
@@ -2234,7 +2216,7 @@ EndFunction
 Function MetadataObjectKeyMatchesFullName(IDProperties)
 	
 	CheckResult = New Structure;
-	CheckResult.Insert("DoesntCorrespond", True);
+	CheckResult.Insert("NotRespond", True);
 	CheckResult.Insert("MetadataObjectKey", Undefined);
 	CheckResult.Insert("MetadataObject", Undefined);
 	CheckResult.Insert("RemoteMetadataObject", Undefined);
@@ -2252,7 +2234,7 @@ Function MetadataObjectKeyMatchesFullName(IDProperties)
 			IDProperties.ExtensionID,
 			IDProperties.ExtensionHashsum);
 		If MetadataObject <> Undefined Then
-			CheckResult.DoesntCorrespond = MetadataObject.FullName() <> IDProperties.FullName;
+			CheckResult.NotRespond = MetadataObject.FullName() <> IDProperties.FullName;
 		EndIf;
 	Else
 		// 
@@ -2265,10 +2247,10 @@ Function MetadataObjectKeyMatchesFullName(IDProperties)
 			
 			If String <> Undefined Then
 				MetadataObject = Metadata[String.Name];
-				CheckResult.DoesntCorrespond = String.Name <> IDProperties.FullCollectionName;
+				CheckResult.NotRespond = String.Name <> IDProperties.FullCollectionName;
 			EndIf;
 		Else
-			CheckResult.DoesntCorrespond = False;
+			CheckResult.NotRespond = False;
 		EndIf;
 	EndIf;
 	
@@ -3255,7 +3237,7 @@ Function MetadataObjectIDsWithoutRetryAttempt(FullMetadataObjectsNames,
 		// Checking whether the metadata object key matches the metadata object full name.
 		TableRow = FoundRows[0];
 		CheckResult = MetadataObjectKeyMatchesFullName(TableRow);
-		If CheckResult.DoesntCorrespond Then
+		If CheckResult.NotRespond Then
 			CatalogDescription = CatalogDescription(IsExtensionsObject(TableRow.Ref));
 			
 			If CheckResult.MetadataObject = Undefined Then
@@ -3596,7 +3578,7 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 	// Checking whether the metadata object key matches the metadata object full name.
 	For Each Properties In Upload0 Do
 		CheckResult = MetadataObjectKeyMatchesFullName(Properties);
-		If CheckResult.DoesntCorrespond Then
+		If CheckResult.NotRespond Then
 			
 			If CheckResult.MetadataObject = Undefined Then
 				If ValueIsFilled(CheckResult.ViewOfTheRemote) Then

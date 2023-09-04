@@ -524,7 +524,7 @@
 															</Button>
 														</ChildItems>
 													</ContextMenu>
-													<AutoCommandBar name="UsersGroupsCommandBar" id="27"/>
+													<AutoCommandBar name="UserGroupsCommandBar" id="27"/>
 													<ExtendedTooltip name="UsersGroupsExtendedTooltip" id="111"/>
 													<SearchStringAddition name="UsersGroupsSearchString" id="165">
 														<AdditionSource>

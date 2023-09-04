@@ -254,6 +254,7 @@
 					<v8:content>Connection settings</v8:content>
 				</v8:item>
 			</Title>
+			<Group>Vertical</Group>
 			<Behavior>Usual</Behavior>
 			<ExtendedTooltip name="ConnectionSettings1ExtendedTooltip" id="97"/>
 			<ChildItems>

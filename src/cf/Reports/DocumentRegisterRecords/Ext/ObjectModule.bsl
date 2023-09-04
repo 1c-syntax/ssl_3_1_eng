@@ -966,14 +966,14 @@ Procedure PrepareHorizontalOptionOfAccountingRegisters(DCSettings, DCDataSet, Da
 	
 	StandardAttributesStructure = DataElement.StandardAttributes;
 	DimensionStructure             = DataElement.Dimensions;
-	DrDimensionsStructure           = DataElement.DimensionsDr;
-	CrDimensionsStructure           = DataElement.DimensionsCr;
+	DimensionStructureDr           = DataElement.DimensionsDr;
+	DimensionStructureCr           = DataElement.DimensionsCr;
 	ResourcesStructure              = DataElement.Resources;
-	DrResourcesStructure            = DataElement.ResourcesDr;
-	CrResourcesStructure            = DataElement.ResourcesCr;
+	ResourcesStructureDr            = DataElement.ResourcesDr;
+	ResourcesStructureCr            = DataElement.ResourcesCr;
 	ExtDimensionStructure              = DataElement.ExtDimension;
-	DrExtDimensionStructure            = DataElement.ExtDimensionDr;
-	CrExtDimensionStructure            = DataElement.ExtDimensionCr;
+	ExtDimensionStructureDr            = DataElement.ExtDimensionDr;
+	ExtDimensionStructureCr            = DataElement.ExtDimensionCr;
 	AttributesStructure1            = DataElement.Attributes;
 	
 	UserHeader = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Accounting register %1';"),
@@ -1006,7 +1006,7 @@ Procedure PrepareHorizontalOptionOfAccountingRegisters(DCSettings, DCDataSet, Da
 	
 	EndIf;
 	
-	If DrDimensionsStructure.Count() > 0 Then
+	If DimensionStructureDr.Count() > 0 Then
 	
 		GroupParameters = New Structure;
 		GroupParameters.Insert("GroupName",                    "DimensionsDr");
@@ -1014,7 +1014,7 @@ Procedure PrepareHorizontalOptionOfAccountingRegisters(DCSettings, DCDataSet, Da
 		GroupParameters.Insert("SelectedGroupEmpty",         True);
 		GroupParameters.Insert("SelectedGroupPresentation", "");
 		
-		PlaceDSCFieldsGroup(DrDimensionsStructure, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
+		PlaceDSCFieldsGroup(DimensionStructureDr, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
 	
 	EndIf;
 	
@@ -1030,7 +1030,7 @@ Procedure PrepareHorizontalOptionOfAccountingRegisters(DCSettings, DCDataSet, Da
 	
 	EndIf;
 	
-	If DrExtDimensionStructure.Count() > 0 Then
+	If ExtDimensionStructureDr.Count() > 0 Then
 	
 		GroupParameters = New Structure;
 		GroupParameters.Insert("GroupName",                    "ExtDimensionDr");
@@ -1038,11 +1038,11 @@ Procedure PrepareHorizontalOptionOfAccountingRegisters(DCSettings, DCDataSet, Da
 		GroupParameters.Insert("SelectedGroupEmpty",         True);
 		GroupParameters.Insert("SelectedGroupPresentation", "");
 		
-		PlaceDSCFieldsGroup(DrExtDimensionStructure, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
+		PlaceDSCFieldsGroup(ExtDimensionStructureDr, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
 	
 	EndIf;
 	
-	If DrResourcesStructure.Count() > 0 Then
+	If ResourcesStructureDr.Count() > 0 Then
 	
 		GroupParameters = New Structure;
 		GroupParameters.Insert("GroupName",                    "ResourcesDr");
@@ -1050,11 +1050,11 @@ Procedure PrepareHorizontalOptionOfAccountingRegisters(DCSettings, DCDataSet, Da
 		GroupParameters.Insert("SelectedGroupEmpty",         True);
 		GroupParameters.Insert("SelectedGroupPresentation", "");
 		
-		PlaceDSCFieldsGroup(DrResourcesStructure, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
+		PlaceDSCFieldsGroup(ResourcesStructureDr, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
 	
 	EndIf;
 	
-	If CrDimensionsStructure.Count() > 0 Then
+	If DimensionStructureCr.Count() > 0 Then
 	
 		GroupParameters = New Structure;
 		GroupParameters.Insert("GroupName",                    "DimensionsCr");
@@ -1062,11 +1062,11 @@ Procedure PrepareHorizontalOptionOfAccountingRegisters(DCSettings, DCDataSet, Da
 		GroupParameters.Insert("SelectedGroupEmpty",         True);
 		GroupParameters.Insert("SelectedGroupPresentation", "");
 		
-		PlaceDSCFieldsGroup(CrDimensionsStructure, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
+		PlaceDSCFieldsGroup(DimensionStructureCr, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
 	
 	EndIf;
 	
-	If CrExtDimensionStructure.Count() > 0 Then
+	If ExtDimensionStructureCr.Count() > 0 Then
 	
 		GroupParameters = New Structure;
 		GroupParameters.Insert("GroupName",                    "ExtDimensionCr");
@@ -1074,11 +1074,11 @@ Procedure PrepareHorizontalOptionOfAccountingRegisters(DCSettings, DCDataSet, Da
 		GroupParameters.Insert("SelectedGroupEmpty",         True);
 		GroupParameters.Insert("SelectedGroupPresentation", "");
 		
-		PlaceDSCFieldsGroup(CrExtDimensionStructure, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
+		PlaceDSCFieldsGroup(ExtDimensionStructureCr, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
 	
 	EndIf;
 	
-	If CrResourcesStructure.Count() > 0 Then
+	If ResourcesStructureCr.Count() > 0 Then
 	
 		GroupParameters = New Structure;
 		GroupParameters.Insert("GroupName",                    "ResourcesCr");
@@ -1086,7 +1086,7 @@ Procedure PrepareHorizontalOptionOfAccountingRegisters(DCSettings, DCDataSet, Da
 		GroupParameters.Insert("SelectedGroupEmpty",         True);
 		GroupParameters.Insert("SelectedGroupPresentation", "");
 		
-		PlaceDSCFieldsGroup(CrResourcesStructure, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
+		PlaceDSCFieldsGroup(ResourcesStructureCr, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
 	
 	EndIf;
 	
@@ -1323,13 +1323,13 @@ Function FieldsPresentationNames(RegisterFields, Val ExcludedFields = Undefined)
 		ExcludedFields = New Array;
 	EndIf;
 	
-	TypeToExclude = Type("ValueStorage");
+	IsExcludableType = Type("ValueStorage");
 	
 	Result = New Structure;
 	For Each RegisterField In RegisterFields Do
 	
 		If ExcludedFields.Find(RegisterField.Name) = Undefined
-			And Not RegisterField.Type.ContainsType(TypeToExclude) Then 
+			And Not RegisterField.Type.ContainsType(IsExcludableType) Then 
 			
 			Result.Insert(RegisterField.Name, RegisterField.Presentation());
 		EndIf;
@@ -2065,7 +2065,7 @@ Function RecordsCountByRecorder(Recorder, DocumentRegisterRecords)
 		
 		FullRegisterName = RegisterMetadata.FullName();
 		
-		QueryTextLayout =
+		QueryTextTemplate =
 		"SELECT ALLOWED
 		|	""&FullRegisterName"" AS FullRegisterName,
 		|	COUNT(*) AS Count
@@ -2075,17 +2075,17 @@ Function RecordsCountByRecorder(Recorder, DocumentRegisterRecords)
 		|	&Condition";
 		
 		ConditionText = StringFunctionsClientServer.SubstituteParametersToString("%1 = &OwnerDocument", Movement.Value);
-		QueryTextLayout = StrReplace(QueryTextLayout, "&FullRegisterName", StrReplace(FullRegisterName, ".", "_"));
-		QueryTextLayout = StrReplace(QueryTextLayout, "&Condition", ConditionText);
-		QueryTextLayout = StrReplace(QueryTextLayout, "&CurrentTable", FullRegisterName);
+		QueryTextTemplate = StrReplace(QueryTextTemplate, "&FullRegisterName", StrReplace(FullRegisterName, ".", "_"));
+		QueryTextTemplate = StrReplace(QueryTextTemplate, "&Condition", ConditionText);
+		QueryTextTemplate = StrReplace(QueryTextTemplate, "&CurrentTable", FullRegisterName);
 		
 		If ValueIsFilled(QueryText) Then
 			
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				"%1 UNION ALL  %2", QueryText, StrReplace(QueryTextLayout, "SELECT ALLOWED", "SELECT")); // @query-
+				"%1 UNION ALL  %2", QueryText, StrReplace(QueryTextTemplate, "SELECT ALLOWED", "SELECT")); // @query-
 			
 		Else
-			QueryText = QueryTextLayout;
+			QueryText = QueryTextTemplate;
 		EndIf;
 		
 	EndDo;

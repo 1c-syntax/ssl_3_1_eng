@@ -519,7 +519,7 @@ Procedure CalculateIndicators(Form, SpreadsheetDocumentName, CurrentCommand = ""
 		EndIf;
 		
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(Form);
-		IdleParameters.OwnerForm1 = Form;
+		IdleParameters.OwnerForm = Form;
 		IdleParameters.OutputIdleWindow = False;
 		
 		AdditionalParameters = New Structure;
@@ -832,7 +832,7 @@ Procedure CommentInputCompletion(Val EnteredText, Val AdditionalParameters) Expo
 		Return;
 	EndIf;	
 	
-	FormAttribute = AdditionalParameters.OwnerForm1;
+	FormAttribute = AdditionalParameters.OwnerForm;
 	
 	PathToFormAttribute = StrSplit(AdditionalParameters.AttributeName, ".");
 	// If the type of the attribute is "Object.Comment" and so on
@@ -843,7 +843,7 @@ Procedure CommentInputCompletion(Val EnteredText, Val AdditionalParameters) Expo
 	EndIf;	
 	
 	FormAttribute[PathToFormAttribute[PathToFormAttribute.Count() - 1]] = EnteredText;
-	AdditionalParameters.OwnerForm1.Modified = True;
+	AdditionalParameters.OwnerForm.Modified = True;
 	
 EndProcedure
 

@@ -131,7 +131,6 @@ EndProcedure
 &AtServer
 Procedure CreateFormAccordingToSection()
 	
-	// Determine the section.
 	CurrentDataSectionsTree = SectionsTree.FindByID(Items.SectionsTree.CurrentRow);
 	If CurrentDataSectionsTree = Undefined Then
 		Return;
@@ -202,7 +201,6 @@ Procedure ChangeSectionsTreeVisibility()
 
 EndProcedure 
 
-// Controls form items availability.
 &AtClient
 Procedure AvailabilityControlSubordinateQuestions()
 	
@@ -229,8 +227,6 @@ Procedure AvailabilityControlSubordinateQuestions()
 	
 EndProcedure 
 
-// Sets values of form attributes defined in a questionnaire template.
-//
 &AtServer
 Procedure SetFormAttributesValuesAccordingToQuestionnaireTemplate()
 

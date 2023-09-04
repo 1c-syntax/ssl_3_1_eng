@@ -906,11 +906,11 @@ EndProcedure
 Procedure CancelApprovedMappingAtServer(Filter)
 	
 	If DataExchangeServer.IsXDTOExchangePlan(Object.InfobaseNode) Then
-		PublicIDsFilter = New Structure("InfobaseNode, Id, Ref",
+		FilterPublicIDs = New Structure("InfobaseNode, Id, Ref",
 			Object.InfobaseNode,
 			Filter.DestinationUUID,
 			Filter.SourceUUID);
-		InformationRegisters.SynchronizedObjectPublicIDs.DeleteRecord(PublicIDsFilter);
+		InformationRegisters.SynchronizedObjectPublicIDs.DeleteRecord(FilterPublicIDs);
 	Else
 		Filter.Insert("InfobaseNode", Object.InfobaseNode);
 	

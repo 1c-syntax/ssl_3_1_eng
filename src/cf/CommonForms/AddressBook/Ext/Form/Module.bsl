@@ -195,7 +195,7 @@ EndProcedure
 // with selected recipient addresses and closes the form. 
 //
 &AtClient
-Procedure OKCommandExecute()
+Procedure OkCommandExecute()
 	
 	Result = New Array;
 	
@@ -222,7 +222,7 @@ EndProcedure
 // Moves the contact from the Contacts by subject list to the Email recipients list. 
 //
 &AtClient
-Procedure AddFromSubjectListExecute()
+Procedure AddFromSubjectsListExecute()
 
 	AddRecipientFromListBySubject();
 
@@ -240,7 +240,7 @@ EndProcedure
 // Changes the current group of email recipients to CC group. 
 //
 &AtClient
-Procedure ChangeGroupCCExecute()
+Procedure ChangeCcGroupExecute()
 
 	ChangeGroup("Cc");
 
@@ -249,7 +249,7 @@ EndProcedure
 // Changes the current group of email recipients to BCC group. 
 //
 &AtClient
-Procedure ChangeGroupBCCExecute()
+Procedure ChangeBCCGroupExecute()
 
 	ChangeGroup("Hidden1");
 
@@ -290,7 +290,7 @@ EndProcedure
 // from the Found contacts list.
 //
 &AtClient
-Procedure FindInListFromFoundContactsListExecute()
+Procedure FindInListFromFoundItemsListExecute()
 	
 	CurrentData = Items.FoundContacts.CurrentData;
 	If CurrentData <> Undefined And ValueIsFilled(CurrentData.Ref) Then
@@ -316,7 +316,7 @@ EndProcedure
 // from Contacts by subject list.
 //
 &AtClient
-Procedure FindInListFromSubjectListExecute()
+Procedure FindInListFromSubjectsListExecute()
 	
 	CurrentData = Items.ContactsBySubject.CurrentData;
 	If CurrentData <> Undefined Then

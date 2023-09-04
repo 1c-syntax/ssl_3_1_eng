@@ -131,7 +131,7 @@ Procedure PasteFromClipboard(Command)
 	SearchParameters.Insert("Scenario", "RefsSearch");
 	
 	ExecutionParameters = New Structure;
-	Handler = New NotifyDescription("PasteFromClipboardCompletion1", ThisObject, ExecutionParameters);
+	Handler = New NotifyDescription("PasteFromClipboardCompletion", ThisObject, ExecutionParameters);
 	
 	ModuleDataImportFromFileClient = CommonClient.CommonModule("ImportDataFromFileClient");
 	ModuleDataImportFromFileClient.ShowRefFillingForm(SearchParameters, Handler);
@@ -246,7 +246,7 @@ Function ChoicePickupDragItemToTabularSection(AttributeValue)
 EndFunction
 
 &AtClient
-Procedure PasteFromClipboardCompletion1(Result, Parameter) Export
+Procedure PasteFromClipboardCompletion(Result, Parameter) Export
 
 	If Result <> Undefined Then 
 		For Each Recipient In Result Do 

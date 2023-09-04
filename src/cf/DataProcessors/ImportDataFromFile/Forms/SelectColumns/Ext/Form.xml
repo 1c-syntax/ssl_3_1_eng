@@ -45,7 +45,7 @@
 				<ExcludedCommand>SortListDesc</ExcludedCommand>
 			</CommandSet>
 			<ContextMenu name="ColumnsList1ContextMenu" id="2"/>
-			<AutoCommandBar name="ColumnsList1CommandBar" id="3">
+			<AutoCommandBar name="ColumnsListCommandBar" id="3">
 				<ChildItems>
 					<Button name="FormSelectCommand" id="11">
 						<Type>CommandBarButton</Type>

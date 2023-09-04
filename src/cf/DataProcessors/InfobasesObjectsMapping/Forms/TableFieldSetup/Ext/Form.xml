@@ -81,7 +81,7 @@
 					<ContextMenu name="FieldsListCheckMarkContextMenu" id="7"/>
 					<ExtendedTooltip name="FieldsListCheckMarkExtendedTooltip" id="15"/>
 				</CheckBoxField>
-				<InputField name="FieldsListPresentation" id="12">
+				<InputField name="FieldListPresentation" id="12">
 					<DataPath>FieldList.Presentation</DataPath>
 					<ReadOnly>true</ReadOnly>
 					<Title>

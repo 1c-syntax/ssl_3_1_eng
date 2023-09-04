@@ -636,7 +636,7 @@ End</presentationExpression>
 		<objectName>RightsRolesOnObject</objectName>
 	</dataSet>
 	<dataSet xsi:type="DataSetObject">
-		<name>SelectionRole</name>
+		<name>FilterRoles</name>
 		<field xsi:type="DataSetFieldField">
 			<dataPath>NameOfRole4</dataPath>
 			<field>NameOfRole</field>
@@ -664,7 +664,7 @@ End</presentationExpression>
 			</title>
 		</field>
 		<dataSource>DataSource1</dataSource>
-		<objectName>SelectionRole</objectName>
+		<objectName>FilterRoles</objectName>
 	</dataSet>
 	<dataSetLink>
 		<sourceDataSet>Hierarchy</sourceDataSet>

@@ -45,8 +45,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ClientID = Parameters.ClientID;
 	
-	If Parameters.Property("DontOpenCardAfterCreateFromFIle") Then
-		DontOpenCardAfterCreateFromFIle = Parameters.DontOpenCardAfterCreateFromFIle;
+	If Parameters.Property("NotOpenCardAfterCreateFromFile") Then
+		NotOpenCardAfterCreateFromFile = Parameters.NotOpenCardAfterCreateFromFile;
 	EndIf;
 	
 	FileNumber = FilesOperationsInternal.GetNewNumberToScan(FileOwner);
@@ -58,7 +58,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		FillPropertyValues(ThisObject, Parameters.ScanningParameters);
 	EndIf;
 	
-	If SaveToPDF Then
+	If ShouldSaveAsPDF Then
 		PictureFormat = "PDF";
 	Else	
 		PictureFormat = String(ScannedImageFormat);
@@ -109,7 +109,7 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 		ScannedImageFormat = ValueSelected.ScannedImageFormat;
 		JPGQuality                     = ValueSelected.JPGQuality;
 		TIFFCompressionEnum          = ValueSelected.TIFFDeflation;
-		SaveToPDF                   = ValueSelected.SaveToPDF;
+		ShouldSaveAsPDF                   = ValueSelected.ShouldSaveAsPDF;
 		MultipageStorageFormat   = ValueSelected.MultipageStorageFormat;
 		
 		TransformCalculationsToParametersAndGetPresentation();
@@ -234,7 +234,7 @@ Procedure Save(Command)
 	Context.Insert("PathToFileLocal", PathToFileLocal);
 	Context.Insert("ResultBinaryData", "");
 	
-	If SaveToPDF Then
+	If ShouldSaveAsPDF Then
 		
 #If Not WebClient And Not MobileClient Then
 		ExecutionParameters.ResultFile = GetTempFileName("pdf"); // See AcceptCompletion.
@@ -281,7 +281,7 @@ Procedure Setting(Command)
 	FormParameters.Insert("ScannedImageFormat",     ScannedImageFormat);
 	FormParameters.Insert("JPGQuality",                         JPGQuality);
 	FormParameters.Insert("TIFFDeflation",                          TIFFCompressionEnum);
-	FormParameters.Insert("SaveToPDF",        SaveToPDF);
+	FormParameters.Insert("ShouldSaveAsPDF",        ShouldSaveAsPDF);
 	FormParameters.Insert("MultipageStorageFormat",       MultipageStorageFormat);
 	
 	OpenForm("DataProcessor.Scanning.Form.SetupScanningForSession", FormParameters, ThisObject);
@@ -342,7 +342,7 @@ Procedure SaveAllAsSeparateFiles(Command)
 	
 	TableOfFiles.Clear(); // Not to delete files in OnClose.
 	
-	If SaveToPDF Then
+	If ShouldSaveAsPDF Then
 		ResultExtension = "pdf";
 	Else
 		ResultExtension = String(ScannedImageFormat);
@@ -353,8 +353,8 @@ Procedure SaveAllAsSeparateFiles(Command)
 	AddingOptions.Insert("FileOwner", FileOwner);
 	AddingOptions.Insert("UUID", UUID);
 	AddingOptions.Insert("FormIdentifier", UUID);
-	AddingOptions.Insert("OwnerForm1", ThisObject);
-	AddingOptions.Insert("DontOpenCardAfterCreateFromFIle", True);
+	AddingOptions.Insert("OwnerForm", ThisObject);
+	AddingOptions.Insert("NotOpenCardAfterCreateFromFile", True);
 	AddingOptions.Insert("FullFileName", "");
 	AddingOptions.Insert("NameOfFileToCreate", "");
 	AddingOptions.Insert("IsFile", IsFile);
@@ -394,11 +394,11 @@ Procedure BeforeOpen()
 	OpeningParameters.Insert("CurrentStep", 1);
 	OpeningParameters.Insert("ShowDialogBox", Undefined);
 	OpeningParameters.Insert("SelectedDevice", Undefined);
-	PreparingForScanning(Undefined, OpeningParameters);
+	PrepareForScanning(Undefined, OpeningParameters);
 EndProcedure
 
 &AtClient
-Procedure PreparingForScanning(Result, OpeningParameters) Export
+Procedure PrepareForScanning(Result, OpeningParameters) Export
 
 	If OpeningParameters.CurrentStep = 2 Then
 		Rescanning = Undefined;
@@ -411,7 +411,7 @@ Procedure PreparingForScanning(Result, OpeningParameters) Export
 	EndIf;
 	
 	If OpeningParameters.CurrentStep = 1 Then
-		NotifyDescription = New NotifyDescription("PreparingForScanningAfterInitialization", ThisObject, OpeningParameters);
+		NotifyDescription = New NotifyDescription("PrepareForScanningAfterInitialization", ThisObject, OpeningParameters);
 		FilesOperationsInternalClient.InitAddIn(NotifyDescription, True);
 		Return;
 	EndIf;
@@ -420,7 +420,7 @@ Procedure PreparingForScanning(Result, OpeningParameters) Export
 EndProcedure
 		
 &AtClient
-Procedure PreparingForScanningAfterInitialization(InitializationCheckResult, OpeningParameters) Export
+Procedure PrepareForScanningAfterInitialization(InitializationCheckResult, OpeningParameters) Export
 	
 	IsAddInInitialized = InitializationCheckResult.Attached;
 	If Not IsAddInInitialized Then
@@ -444,7 +444,7 @@ Procedure BeforeOpenAutomatFollowUp(OpeningParameters)
 		OpeningParameters.SelectedDevice = ScannerName;
 		
 		If OpeningParameters.SelectedDevice = "" Then
-			Handler = New NotifyDescription("PreparingForScanning", ThisObject, OpeningParameters);
+			Handler = New NotifyDescription("PrepareForScanning", ThisObject, OpeningParameters);
 			FormOpenParameters = New Structure("Rescanning", True);
 			OpenForm("DataProcessor.Scanning.Form.ScanningSettings", FormOpenParameters , ThisObject, , , , Handler, FormWindowOpeningMode.LockWholeInterface);
 			Return;
@@ -554,7 +554,7 @@ Procedure TransformCalculationsToParametersAndGetPresentation()
 	// 
 	
 	
-	If SaveToPDF Then
+	If ShouldSaveAsPDF Then
 		PictureFormat = String(ScannedImageFormat);
 		
 		Presentation = Presentation + NStr("en = 'Save as:';") + " ";
@@ -664,7 +664,7 @@ Procedure ExternalEvent(Source, Event, Data)
 		EndIf;
 		
 	ElsIf Source = "TWAIN" And Event = "UserPressedCancel" Then	
-		If ThisObject.IsOpen() Then
+		If IsOpen() Then
 			Close();
 		EndIf;
 	EndIf;
@@ -747,9 +747,9 @@ Procedure SaveAfterMergingCompletion(Context)
 			AddingOptions.Insert("ResultHandler", Handler);
 			AddingOptions.Insert("FullFileName", PathToFileLocal);
 			AddingOptions.Insert("FileOwner", FileOwner);
-			AddingOptions.Insert("OwnerForm1", ThisObject);
+			AddingOptions.Insert("OwnerForm", ThisObject);
 			AddingOptions.Insert("NameOfFileToCreate", FileName);
-			AddingOptions.Insert("DontOpenCardAfterCreateFromFIle", DontOpenCardAfterCreateFromFIle);
+			AddingOptions.Insert("NotOpenCardAfterCreateFromFile", NotOpenCardAfterCreateFromFile);
 			AddingOptions.Insert("FormIdentifier", UUID);
 			AddingOptions.Insert("IsFile", IsFile);
 			
@@ -849,10 +849,10 @@ Procedure SaveAllAsSingleFileCompletion(MergeResult, Context) Export
 			AddingOptions = New Structure;
 			AddingOptions.Insert("ResultHandler", Handler);
 			AddingOptions.Insert("FileOwner", FileOwner);
-			AddingOptions.Insert("OwnerForm1", ThisObject);
+			AddingOptions.Insert("OwnerForm", ThisObject);
 			AddingOptions.Insert("FullFileName", ExecutionParameters.ResultFile);
 			AddingOptions.Insert("NameOfFileToCreate", FileName);
-			AddingOptions.Insert("DontOpenCardAfterCreateFromFIle", DontOpenCardAfterCreateFromFIle);
+			AddingOptions.Insert("NotOpenCardAfterCreateFromFile", NotOpenCardAfterCreateFromFile);
 			AddingOptions.Insert("FormIdentifier", UUID);
 			AddingOptions.Insert("UUID", UUID);
 			AddingOptions.Insert("IsFile", IsFile);

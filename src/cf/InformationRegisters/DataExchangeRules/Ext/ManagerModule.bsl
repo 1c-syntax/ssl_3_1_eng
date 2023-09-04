@@ -251,7 +251,7 @@ Procedure ImportObjectRegistrationRules(BinaryData, FileName, ExchangePlanName)
 	ReadRegistrationRules   = ChangeRecordRuleImport.ObjectsRegistrationRules;
 	RegistrationRulesInformation = ChangeRecordRuleImport.RulesInformation();
 	
-	If ChangeRecordRuleImport.ErrorFlag Then
+	If ChangeRecordRuleImport.FlagErrors Then
 		Raise NStr("en = 'An error occurred when importing registration rules.';");
 	EndIf;
 	
@@ -546,7 +546,7 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 		
 		RulesInformation = InfobaseObjectConversion.RulesInformation(False);
 		
-		If InfobaseObjectConversion.ErrorFlag() Then
+		If InfobaseObjectConversion.FlagErrors() Then
 			Cancel = True;
 		EndIf;
 		
@@ -565,7 +565,7 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 		
 		CorrespondentRulesInformation = InfobaseObjectConversion.RulesInformation(True);
 		
-		If InfobaseObjectConversion.ErrorFlag() Then
+		If InfobaseObjectConversion.FlagErrors() Then
 			Cancel = True;
 		EndIf;
 		
@@ -586,7 +586,7 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 		
 		RulesInformation = ChangeRecordRuleImport.RulesInformation();
 		
-		If ChangeRecordRuleImport.ErrorFlag Then
+		If ChangeRecordRuleImport.FlagErrors Then
 			Cancel = True;
 		EndIf;
 		
@@ -725,7 +725,7 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 	
 	SourceRulesInformation = InfobaseObjectConversion.RulesInformation(False);
 	
-	If InfobaseObjectConversion.ErrorFlag() Then
+	If InfobaseObjectConversion.FlagErrors() Then
 		Cancel = True;
 	EndIf;
 	
@@ -742,7 +742,7 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 	
 	CorrespondentRulesInformation = InfobaseObjectConversion.RulesInformation(True);
 	
-	If InfobaseObjectConversion.ErrorFlag() Then
+	If InfobaseObjectConversion.FlagErrors() Then
 		Cancel = True;
 	EndIf;
 	
@@ -766,7 +766,7 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 	ReadRegistrationRules   = ChangeRecordRuleImport.ObjectsRegistrationRules;
 	RegistrationRulesInformation = ChangeRecordRuleImport.RulesInformation();
 	
-	If ChangeRecordRuleImport.ErrorFlag Then
+	If ChangeRecordRuleImport.FlagErrors Then
 		Cancel = True;
 	EndIf;
 	

@@ -14,7 +14,7 @@
 		<xr:Item>
 			<xr:Presentation/>
 			<xr:CheckState>0</xr:CheckState>
-			<xr:Value xsi:type="xs:string">CommandBarGroup</xr:Value>
+			<xr:Value xsi:type="xs:string">GroupCommandBar</xr:Value>
 		</xr:Item>
 	</MobileDeviceCommandBarContent>
 	<CommandSet>
@@ -235,7 +235,7 @@ If the editor is not installed yet, we recommend that you install %2.</v8:conten
 				</Page>
 			</ChildItems>
 		</Pages>
-		<UsualGroup name="CommandBarGroup" id="89">
+		<UsualGroup name="GroupCommandBar" id="89">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>

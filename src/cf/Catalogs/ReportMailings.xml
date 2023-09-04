@@ -401,7 +401,7 @@ It can be mentioned in email subject or body.</v8:content>
 			</Attribute>
 			<Attribute uuid="497cbe4d-586d-48a2-8e98-d20e3e09ed42">
 				<Properties>
-					<Name>FTPUsername</Name>
+					<Name>FTPLogin</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>

@@ -18,7 +18,7 @@ Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 	FormParameters = New Structure();
 	
 	If BackupParameters.Property("CopyingResult") Then
-		FormParameters.Insert("WorkMode", ?(BackupParameters.CopyingResult = True, "CompletedSuccessfully1", "NotCompleted"));
+		FormParameters.Insert("WorkMode", ?(BackupParameters.CopyingResult = True, "CompletedSuccessfully1", "NotCompleted2"));
 		FormParameters.Insert("BackupFileName", BackupParameters.BackupFileName);
 	EndIf;
 	

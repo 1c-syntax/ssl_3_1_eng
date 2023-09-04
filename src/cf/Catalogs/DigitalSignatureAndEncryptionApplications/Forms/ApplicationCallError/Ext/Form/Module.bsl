@@ -82,9 +82,8 @@ Procedure OnOpen(Cancel)
 		
 		Cancel = True;
 		
-		Stream = New MemoryStream;
-		Stream.BeginGetSize(
-			New NotifyDescription("OnOpenFollowUp", ThisObject));
+		Notification = New NotifyDescription("OnOpenFollowUp", ThisObject);
+		StandardSubsystemsClient.StartProcessingNotification(Notification);
 		
 	EndIf;
 	

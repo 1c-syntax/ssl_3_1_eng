@@ -117,7 +117,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		And TypeOf(Parameter) = Type("Structure")
 		And Parameter.Property("Event")
 		And (Parameter.Event = "EditFinished"
-		Or Parameter.Event = "EditingCanceled") Then
+		Or Parameter.Event = "EditCanceled") Then
 		
 		UpdateObject();
 	EndIf;
@@ -383,6 +383,10 @@ EndProcedure
 &AtClient
 Procedure Sign(Command)
 	
+	If Not CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		Return;
+	EndIf;
+	
 	If IsNew()
 		Or ValueIsFilled(ThisObject.Object.BeingEditedBy)
 		Or ThisObject.Object.Encrypted Then
@@ -397,8 +401,13 @@ Procedure Sign(Command)
 	
 	NotifyDescription      = New NotifyDescription("OnGetSignature", ThisObject);
 	AdditionalParameters = New Structure("ResultProcessing", NotifyDescription);
+	
+	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
+	SigningParameters = ModuleDigitalSignatureClient.NewSignatureType();
+	SigningParameters.ChoosingAuthorizationLetter = True;
+	
 	FilesOperationsClient.SignFile(
-		CurrentRefToFile(), UUID, AdditionalParameters);
+		CurrentRefToFile(), UUID, AdditionalParameters, SigningParameters);
 	
 EndProcedure
 
@@ -782,7 +791,7 @@ Procedure Release(Command)
 	CurrentObjectRef = CurrentRefToFile();
 	UnlockFile();
 	NotifyChanged(CurrentObjectRef);
-	Notify("Write_File", New Structure("Event", "EditingCanceled"), CurrentObjectRef);
+	Notify("Write_File", New Structure("Event", "EditCanceled"), CurrentObjectRef);
 	FilesOperationsInternalClient.ChangeLockedFilesCount();
 	
 EndProcedure

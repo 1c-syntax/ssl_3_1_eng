@@ -227,11 +227,11 @@ Function ReportDistributionHistoryData(BulkEmail, Period, AdditionalParameters)
 		|	ReportsDistributionHistory.ReportMailing = &ReportMailing
 		|	AND ReportsDistributionHistory.Period BETWEEN &StartDate AND &EndDate";
 
-	Query.SetParameter("ReportMailing", BulkEmail); 
-	Query.SetParameter("StartDate", Period.StartDate); 
+	Query.SetParameter("ReportMailing", BulkEmail);
+	Query.SetParameter("StartDate", Period.StartDate);
 	Query.SetParameter("EndDate", ?(ValueIsFilled(Period.EndDate),Period.EndDate,'39991231235959'));
 	
-	If AdditionalParameters.Recipients.Use Then      
+	If AdditionalParameters.Recipients.Use Then
 		QueryText = QueryText + " AND ReportsDistributionHistory.Recipient IN (&Recipients)";
 		Query.SetParameter("Recipients", AdditionalParameters.Recipients.ParameterValue); 
 	EndIf;
@@ -243,18 +243,18 @@ Function ReportDistributionHistoryData(BulkEmail, Period, AdditionalParameters)
 	DistributionHistory = New ValueTable;
 	DistributionHistory.Columns.Add("ReportMailing", New TypeDescription("CatalogRef.ReportMailings")); 
 	DistributionHistory.Columns.Add("Recipient", Metadata.DefinedTypes.BulkEmailRecipient.Type);
-	DistributionHistory.Columns.Add("Sent", New TypeDescription("Date"));   
+	DistributionHistory.Columns.Add("Sent", New TypeDescription("Date"));
 	DistributionHistory.Columns.Add("EMAddress", New TypeDescription("String", , New StringQualifiers(100)));
 	DistributionHistory.Columns.Add("Success", New TypeDescription("Boolean"));
 	DistributionHistory.Columns.Add("Comment", New TypeDescription("String"));
 	DistributionHistory.Columns.Add("SessionNumber",New TypeDescription("String",,,New NumberQualifiers(25)));
-	DistributionHistory.Columns.Add("StartDistribution", New TypeDescription("Date"));  
-	DistributionHistory.Columns.Add("DeliveryDate", New TypeDescription("Date"));   
+	DistributionHistory.Columns.Add("StartDistribution", New TypeDescription("Date"));
+	DistributionHistory.Columns.Add("DeliveryDate", New TypeDescription("Date"));
 	DistributionHistory.Columns.Add("MethodOfObtaining", New TypeDescription("String", , New StringQualifiers(500)));
-	If Common.SubsystemExists("StandardSubsystems.Interactions") Then	
+	If Common.SubsystemExists("StandardSubsystems.Interactions") Then
 		DistributionHistory.Columns.Add("OutgoingEmail", New TypeDescription("DocumentRef.OutgoingEmail"));   
 	Else
-		DistributionHistory.Columns.Add("MethodOfObtaining", New TypeDescription("String", , New StringQualifiers(10)));
+		DistributionHistory.Columns.Add("OutgoingEmail", New TypeDescription("String", , New StringQualifiers(10)));
 	EndIf;
 		
 	While Selection.Next() Do
@@ -262,7 +262,7 @@ Function ReportDistributionHistoryData(BulkEmail, Period, AdditionalParameters)
 		RowFilter = New Structure;
 		RowFilter.Insert("ReportMailing", Selection.ReportMailing);
 		RowFilter.Insert("Recipient", Selection.Recipient);
-		RowFilter.Insert("StartDistribution", Selection.StartDistribution); 
+		RowFilter.Insert("StartDistribution", Selection.StartDistribution);
 		RowFilter.Insert("EMAddress", Selection.EMAddress);
 
 		LinesOfHistory = DistributionHistory.FindRows(RowFilter);
@@ -272,37 +272,37 @@ Function ReportDistributionHistoryData(BulkEmail, Period, AdditionalParameters)
 			HistoryRow.Sent = Max(HistoryRow.Sent, Selection.Sent);
 			HistoryRow.Success = Max(HistoryRow.Success, Selection.Success);
 			If Selection.Status = Enums.EmailMessagesStatuses.NotDelivered Then
-				HistoryRow.Success = False;	
+				HistoryRow.Success = False;
 			EndIf;
 			HistoryRow.Comment = ?(ValueIsFilled(HistoryRow.Comment), HistoryRow.Comment
 				+ Chars.LF + Selection.Comment, Selection.Comment);
 			If ValueIsFilled(Selection.OutgoingEmail) Then
 				HistoryRow.OutgoingEmail = Selection.OutgoingEmail;
-			EndIf;              
-			If ValueIsFilled(Selection.DeliveryDate) Then 
-				HistoryRow.DeliveryDate = Selection.DeliveryDate;  
+			EndIf;
+			If ValueIsFilled(Selection.DeliveryDate) Then
+				HistoryRow.DeliveryDate = Selection.DeliveryDate;
 			EndIf;
 		Else
 			HistoryRow = DistributionHistory.Add();
 			FillPropertyValues(HistoryRow, Selection);
 		EndIf;
 
-	EndDo;    
+	EndDo;
 		
-	Sent = 0; 
+	Sent = 0;
 	NotSent = 0;
 	For Each HistoryField In DistributionHistory Do
 		If HistoryField.Success Then
 			Sent = Sent + 1;
 		Else
 			NotSent = NotSent + 1;
-		EndIf;		
+		EndIf;
 	EndDo;
 	
-	ReportData = New Structure;    
+	ReportData = New Structure;
 	ReportData.Insert("DistributionHistory", DistributionHistory);
-	ReportData.Insert("Sent", Sent);  
-	ReportData.Insert("NotSent", NotSent); 
+	ReportData.Insert("Sent", Sent);
+	ReportData.Insert("NotSent", NotSent);
 	ReportData.Insert("Total", Sent + NotSent);
 	
 	Return ReportData;
