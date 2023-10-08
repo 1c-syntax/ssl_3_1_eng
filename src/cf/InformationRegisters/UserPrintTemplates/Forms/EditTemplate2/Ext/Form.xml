@@ -453,6 +453,12 @@ If the editor is not installed yet, we recommend that you install %2.</v8:conten
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
+		<Attribute name="DataSources" id="14">
+			<Type>
+				<v8:Type>v8:ValueListType</v8:Type>
+			</Type>
+			<Settings xsi:type="v8:TypeDescription"/>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="ExitAppUpdate" id="1">

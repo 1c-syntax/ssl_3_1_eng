@@ -82,7 +82,7 @@ Function DatesByCalendar(Val WorkScheduleCalendar, Val DateFrom, Val DaysArray, 
 	If Selection.Count() < ShiftDays.Maximum Then
 		If RaiseException1 Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Производственный календарь ""%1"" не заполнен с даты %2 на указанное количество рабочих дней.';"), 
+				NStr("en = 'Business calendar ""%1"" is not filled in for the specified number of workdays after %2.';"), 
 				WorkScheduleCalendar, 
 				Format(DateFrom, "DLF=D"));
 		Else
@@ -790,11 +790,12 @@ Function ClassifierData() Export
 	
 	If FileInfo2.Version < CalendarsVersion() Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process retrieved calendar data due to version conflict.
-                  |Calendar versions:
-                  |- In the retrieved classifier: %1.
-                  |- In the configuration: %2.
-                  |- In the previously imported classifier: %3.';"),
+			NStr("en = 'Не удалось обработать полученные данные календаря из-за конфликта версий.
+                  |Версия календарей
+                  |- полученного классификатора %1, 
+                  |- встроенных в конфигурацию %2, 
+                  |- загруженного ранее классификатора %3.
+                  |Рекомендуется выполнить обновление классификаторов.';"),
 			FileInfo2.Version,
 			CalendarsVersion(),
 			LoadedCalendarsVersion());

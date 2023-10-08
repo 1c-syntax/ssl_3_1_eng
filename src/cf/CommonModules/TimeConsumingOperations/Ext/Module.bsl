@@ -673,8 +673,7 @@ Function ExecuteInBackground(Val ProcedureName, Val ProcedureParameters, Val Exe
 			Result.Status = "Completed2";
 		Except
 			Result.Status = "Error";
-			Result.BriefErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
-			Result.DetailErrorDescription = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+			SetErrorProperties(Result, ErrorInfo());
 			WriteLogEvent(NStr("en = 'Long-running operations.Runtime error';", Common.DefaultLanguageCode()),
 				EventLogLevel.Error, , , Result.DetailErrorDescription);
 		EndTry;
@@ -691,11 +690,9 @@ Function ExecuteInBackground(Val ProcedureName, Val ProcedureParameters, Val Exe
 	Except
 		Result.Status = "Error";
 		If Job <> Undefined And Job.ErrorInfo <> Undefined Then
-			Result.BriefErrorDescription = ErrorProcessing.BriefErrorDescription(Job.ErrorInfo);
-			Result.DetailErrorDescription = ErrorProcessing.DetailErrorDescription(Job.ErrorInfo);
+			SetErrorProperties(Result, Job.ErrorInfo);
 		Else
-			Result.BriefErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
-			Result.DetailErrorDescription = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+			SetErrorProperties(Result, ErrorInfo());
 		EndIf;
 		Return Result;
 	EndTry;
@@ -703,8 +700,7 @@ Function ExecuteInBackground(Val ProcedureName, Val ProcedureParameters, Val Exe
 	
 	If Job <> Undefined And Job.ErrorInfo <> Undefined Then
 		Result.Status = "Error";
-		Result.BriefErrorDescription = ErrorProcessing.BriefErrorDescription(Job.ErrorInfo);
-		Result.DetailErrorDescription = ErrorProcessing.DetailErrorDescription(Job.ErrorInfo);
+		SetErrorProperties(Result, Job.ErrorInfo);
 		Return Result;
 	EndIf;
 	
@@ -1198,8 +1194,7 @@ Function ActionCompleted(Val JobID, Job = Undefined) Export
 		
 		Result.Status = "Error";
 		If Job.ErrorInfo <> Undefined Then
-			Result.BriefErrorDescription   = ErrorProcessing.BriefErrorDescription(Job.ErrorInfo);
-			Result.DetailErrorDescription = ErrorProcessing.DetailErrorDescription(Job.ErrorInfo);
+			SetErrorProperties(Result, Job.ErrorInfo);
 		EndIf;
 		Return Result;
 	EndIf;
@@ -1437,6 +1432,25 @@ Function MainJobID(BackgroundJob, ProcessID = Undefined)
 	
 EndFunction
 
+// Parameters:
+//  Properties - Structure:
+//   * BriefErrorDescription
+//   * DetailErrorDescription
+//  Error - ErrorInfo
+//
+Procedure SetErrorProperties(Properties, Error)
+	
+	BriefErrorDescription = ErrorProcessing.BriefErrorDescription(Error);
+	DetailErrorDescription = ErrorProcessing.DetailErrorDescription(Error);
+	
+	Properties.BriefErrorDescription = CommonClientServer.ReplaceProhibitedXMLChars(
+		BriefErrorDescription);
+	
+	Properties.DetailErrorDescription = CommonClientServer.ReplaceProhibitedXMLChars(
+		DetailErrorDescription);
+	
+EndProcedure
+
 // 
 // 
 // Parameters:
@@ -1660,10 +1674,8 @@ Procedure ExecuteWithClientContext(AllParameters) Export
 		EndIf;
 		Result.Status = "Completed2";
 	Except
-		ErrorInfo = ErrorInfo();
 		Result.Status = "Error";
-		Result.BriefErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo);
-		Result.DetailErrorDescription = ErrorProcessing.DetailErrorDescription(ErrorInfo);
+		SetErrorProperties(Result, ErrorInfo());
 		SetFullNameOfAppliedProcedure(NameOfLongRunningOperationBackgroundJobProcedure());
 		SendClientNotification("TimeConsumingOperationCompleted", Result);
 		Raise;
@@ -2436,11 +2448,8 @@ Procedure UpdateInfoAboutThread(Stream, RunResult = Undefined)
 			If Job <> Undefined Then
 				RunResult.Status = StatusFromState(Job.State);
 				
-				If Job.ErrorInfo  <> Undefined Then
-					RunResult.BriefErrorDescription =
-						ErrorProcessing.BriefErrorDescription(Job.ErrorInfo);
-					RunResult.DetailErrorDescription =
-						ErrorProcessing.DetailErrorDescription(Job.ErrorInfo);
+				If Job.ErrorInfo <> Undefined Then
+					SetErrorProperties(RunResult, Job.ErrorInfo);
 				EndIf;
 			Else
 				RunResult.Status = TimeConsumingOperationStatus().Error;

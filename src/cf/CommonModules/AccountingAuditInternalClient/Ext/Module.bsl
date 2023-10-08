@@ -123,7 +123,8 @@ Procedure OnProcessCommand(ReportForm, Command, Result) Export
 	
 	If ReportForm.ReportSettings.FullName = "Report.AccountingCheckResults" Then
 		UnsuccessfulActionText = NStr("en = 'Select a line with an object with issues.';");
-		Details = ReportForm.ReportSpreadsheetDocument.CurrentArea.Details;
+		Details = ?(ReportForm.ReportSpreadsheetDocument.CurrentArea.AreaType = SpreadsheetDocumentCellAreaType.Rectangle,
+			ReportForm.ReportSpreadsheetDocument.CurrentArea.Details, Undefined);
 		If Command.Name = "AccountingAuditObjectChangeHistory" Then
 			Result = AccountingAuditServerCall.DataForObjectChangeHistory(ReportForm.ReportDetailsData, ReportForm.ReportSpreadsheetDocument, Details);
 			If Result <> Undefined Then

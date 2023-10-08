@@ -14,7 +14,7 @@ Var JobActive;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)

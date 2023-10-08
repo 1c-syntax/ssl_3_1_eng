@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -157,7 +157,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure CreateInitialImage(Command)
@@ -192,7 +192,7 @@ Procedure CreateInitialImage(Command)
 				+ ?(ValueIsFilled(ClusterAdministratorPassword), "SPwd=""" + ClusterAdministratorPassword + """;", "")
 				+ "Ref="""      + BaseName + """;"
 				+ "DBMS="""     + DBMSType + """;"
-				+ "DBSrvr="""   + DataBaseServer + """;"
+				+ "DBSrvr="""   + DatabaseServer + """;"
 				+ "DB="""       + DataBaseName + """;"
 				+ "DBUID="""    + DatabaseUser + """;"
 				+ "DBPwd="""    + UserPassword + """;"
@@ -327,7 +327,7 @@ Function PrepareDataToCreateInitialImage(JobParameters, InfobaseKind)
 		Cancel = False;
 		
 		DataExchangeCreationWizard = DataProcessors["DataExchangeCreationWizard"].Create();
-		DataExchangeCreationWizard.Initialization(JobParameters.Node);
+		DataExchangeCreationWizard.Initialize(JobParameters.Node);
 		
 		Try
 			DataProcessors["DataExchangeCreationWizard"].ExportConnectionSettingsForSubordinateDIBNode(

@@ -11,7 +11,7 @@
 //     
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -137,7 +137,7 @@ EndProcedure
 
 #EndRegion
 
-#Region UsageInstancesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersUsageInstances
 
 &AtClient
 Procedure UsageInstancesSelection(Item, RowSelected, Field, StandardProcessing)
@@ -213,7 +213,7 @@ EndProcedure
 
 #EndRegion
 
-#Region UnsuccessfulReplacementsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersUnsuccessfulReplacements
 
 &AtClient
 Procedure UnsuccessfulReplacementsOnActivateRow(Item)
@@ -238,7 +238,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure WizardButtonHandler(Command)

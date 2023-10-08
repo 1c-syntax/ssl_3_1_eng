@@ -18,7 +18,7 @@ Var PrioritizingMetadataTypes;
 
 #EndRegion
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	
@@ -2315,7 +2315,7 @@ EndFunction
 
 #EndRegion
 
-#Region Initialization
+#Region Initialize
 
 ConstantsInitialization();
 FillInMetaDataTypePriorities();

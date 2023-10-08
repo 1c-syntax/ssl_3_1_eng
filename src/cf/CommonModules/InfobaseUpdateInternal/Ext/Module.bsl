@@ -588,7 +588,6 @@ Procedure ExecuteDeferredUpdateNow(ParametersOfUpdate = Undefined) Export
 		HandlersExecutedEarlier = ExecuteDeferredUpdateHandler(ParametersOfUpdate); // @skip-
 		
 		QueuesToClear = QueuesToClear(ProcessedItems); // @skip-
-		CommonClientServer.ArraysDifference(QueuesToClear, ProcessedItems);
 		ClearProcessedQueues(QueuesToClear, ProcessedItems, UpdateInfo);
 		
 		If HandlersExecutedEarlier Then
@@ -3697,7 +3696,6 @@ Procedure ExecuteDeferredUpdate() Export
 				Stream = AddDeferredUpdateHandlerThread(UpdateInfo); // @skip-
 				
 				QueuesToClear = QueuesToClear(ProcessedItems); // @skip-
-				CommonClientServer.ArraysDifference(QueuesToClear, ProcessedItems);
 				ClearProcessedQueues(QueuesToClear, ProcessedItems, UpdateInfo);
 				
 				If TypeOf(Stream) = Type("ValueTableRow") Then
@@ -4652,14 +4650,14 @@ EndFunction
 //
 Function AddDeferredUpdateDataRegistrationThread(DataToProcessDetails)
 	
-	DescriptionTemplate1 = NStr("en = 'Register data of %1 update handler';");
+	DescriptionTemplate = NStr("en = 'Register data of %1 update handler';");
 	DataToProcessDetails.Status = "Running";
 	
 	Stream = NewThread();
 	Stream.ProcedureParameters = DataToProcessDetails;
 	Stream.CompletionProcedureParameters = DataToProcessDetails;
 	Stream.Group = DeferredUpdateDataRegistrationThreadsGroup();
-	Stream.Description = StringFunctionsClientServer.SubstituteParametersToString(DescriptionTemplate1,
+	Stream.Description = StringFunctionsClientServer.SubstituteParametersToString(DescriptionTemplate,
 		DataToProcessDetails.HandlerName);
 	
 	SaveUpdateThread(Stream);
@@ -4835,8 +4833,8 @@ Function AddDatasearchThreadForUpdate(Stream, Handler, HandlerContext, UpdateInf
 			LongDesc.SearchCompleted = False;
 		EndIf;
 		
-		DescriptionTemplate1 = NStr("en = 'Searching data for the %1 update handler';");
-		Stream.Description = StringFunctionsClientServer.SubstituteParametersToString(DescriptionTemplate1, HandlerName);
+		DescriptionTemplate = NStr("en = 'Searching data for the %1 update handler';");
+		Stream.Description = StringFunctionsClientServer.SubstituteParametersToString(DescriptionTemplate, HandlerName);
 		Stream.Group = BatchesSearchThreadsGroup();
 		Stream.CompletionPriority = 1;
 		
@@ -4889,8 +4887,8 @@ EndFunction
 Procedure AddUpdateHandlerThread(Stream, HandlerContext)
 	
 	HandlerName = HandlerContext.HandlerName;
-	DescriptionTemplate1 = NStr("en = 'Run the %1 update handler';");
-	Stream.Description = StringFunctionsClientServer.SubstituteParametersToString(DescriptionTemplate1, HandlerName);
+	DescriptionTemplate = NStr("en = 'Run the %1 update handler';");
+	Stream.Description = StringFunctionsClientServer.SubstituteParametersToString(DescriptionTemplate, HandlerName);
 	Stream.Group = DeferredUpdateThreadsGroup();
 	Stream.ProcedureParameters = HandlerContext;
 	Stream.CompletionProcedureParameters = HandlerContext;
@@ -5637,6 +5635,12 @@ Procedure FindBatchToUpdate(SearchParameters, ResultAddress) Export
 	SelectionParameters.OptimizeSelectionByPages = Not HasOrderingByExternalTables(OrderFields);
 	Maximum = InfobaseUpdate.MaxRecordsCountInSelection();
 	IterationParameters = DataIterationParametersForUpdate(SearchParameters);
+	SearchFromBeginning = SearchParameters.LastSelectedRecord = Undefined And SearchParameters.FirstRecord = Undefined;
+	
+	If Not SearchFromBeginning Then
+		NextIterationParameters(IterationParameters, False);
+	EndIf;
+
 	Iterator = CurrentIterationParameters(IterationParameters);
 	SearchResult = NewBatchSearchResult();
 	DataSet = NewDataSetForUpdate();
@@ -6290,7 +6294,7 @@ Function SplitSearchResultIntoParticles(SearchResult, Val ParticlesCount)
 			EndIf;
 		EndDo;
 		
-		Particle.FirstRecord = FirstDataSetRowRecordKey(Particle.DataSet);
+		Particle.FirstRecord = LastDataSetRowRecordKey(Particle.DataSet);
 	EndDo;
 	
 	Return Particles;
@@ -11844,6 +11848,7 @@ Function QueuesToClear(ProcessedItems)
 	Query.SetParameter("ExecutionMode", Enums.HandlersExecutionModes.Deferred);
 	Query.SetParameter("Status", Enums.UpdateHandlersStatuses.Completed);
 	Query.SetParameter("DeferredHandlerExecutionMode", Enums.DeferredHandlersExecutionModes.Parallel);
+	Query.SetParameter("ProcessedItems", ProcessedItems);
 	Query.Text =
 		"SELECT DISTINCT
 		|	UpdateHandlers.DeferredProcessingQueue AS Queue
@@ -11853,6 +11858,7 @@ Function QueuesToClear(ProcessedItems)
 		|	UpdateHandlers.ExecutionMode = &ExecutionMode
 		|	AND UpdateHandlers.DeferredHandlerExecutionMode = &DeferredHandlerExecutionMode
 		|	AND UpdateHandlers.Status = &Status
+		|	AND NOT UpdateHandlers.DeferredProcessingQueue IN (&ProcessedItems)
 		|	AND NOT TRUE IN
 		|			(SELECT TOP 1
 		|				TRUE

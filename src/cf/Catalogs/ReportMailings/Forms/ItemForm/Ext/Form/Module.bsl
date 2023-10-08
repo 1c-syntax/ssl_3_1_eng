@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnReadAtServer(CurrentObject)
@@ -18,7 +18,7 @@ Procedure OnReadAtServer(CurrentObject)
 			ModuleAttachableCommandsClientServer = Common.CommonModule("AttachableCommandsClientServer");
 			ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
 		EndIf;
-	// 
+	// End StandardSubsystems.AttachableCommands
 
 	// Read value storage .
 	If CurrentObject.HTMLFormatEmail Then
@@ -33,9 +33,10 @@ Procedure OnReadAtServer(CurrentObject)
 	If Rereading Then
 		FillReportTableInfo();
 		ReadJobSchedule();
-		DoDisplayImportance();
 		AddCommandsAddTextAdditionalParameters();
 	EndIf;
+	
+	DoDisplayImportance();
 	
 	For Each String In Object.Reports Do
 		String.DoNotSendIfEmpty = Not String.SendIfEmpty;
@@ -79,14 +80,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
 	EndIf;
-	// 
+	// End StandardSubsystems.AttachableCommands
 	
 	// 
 	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
 		ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");
 		ModuleObjectsVersioning.OnCreateAtServer(ThisObject);
 	EndIf;
-	// 
+	// End StandardSubsystems.ObjectsVersioning
 	
 	If Object.DeletionMark Then
 		ReadOnly = True;
@@ -152,7 +153,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		// Report distribution author.
 		CurrentUser = Users.CurrentUser();
 		Object.Author = CurrentUser;
-		Object.EmailImportance = "Ordinary";
+		Object.EmailImportance = EmailOperationsInternalClientServer.UsualImportanceOfInternetMail();
 		Object.ShouldAttachReports = True;
 		If Not ValueIsFilled(Object.Author) Then
 			Cancel = True;
@@ -333,7 +334,7 @@ Procedure OnOpen(Cancel)
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
 	EndIf;
-	// 
+	// End StandardSubsystems.AttachableCommands
 	
 	If ValueIsFilled(PopupAlertTextOnOpen) Then
 		ShowUserNotification(PopupAlertTextOnOpen, , , PictureLib.ExecuteTask)
@@ -445,7 +446,7 @@ Procedure AfterWrite(WriteParameters)
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.AfterWrite(ThisObject, Object, WriteParameters);
 	EndIf;
-	// 
+	// End StandardSubsystems.AttachableCommands
 EndProcedure
 
 &AtServer
@@ -1109,7 +1110,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ReportsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersReports
 
 &AtClient
 Procedure ReportsChoiceProcessing(Item, ValueSelected, StandardProcessing)
@@ -1120,7 +1121,7 @@ Procedure ReportsChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	FillingStructure.Insert("SendIfEmpty", False);
 	FillingStructure.Insert("DoNotSendIfEmpty", True);
 	FillingStructure.Insert("Enabled", True);  
-	FillingStructure.Insert("DescriptionTemplate1", "[ReportDescription1] [ReportFormat]");
+	FillingStructure.Insert("DescriptionTemplate", "[ReportDescription1] [ReportFormat]");
 	
 	NewRowArray = ChoicePickupDragToTabularSection(
 		ValueSelected,
@@ -1228,7 +1229,7 @@ EndProcedure
 
 #EndRegion
 
-#Region UserSettingsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersUserSettings
 
 &AtClient
 Procedure UserSettingsOnChange(Item)
@@ -1282,7 +1283,7 @@ EndProcedure
 
 #EndRegion
 
-#Region CurrentReportSettingsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersCurrentReportSettings
 
 &AtClient
 Procedure CurrentReportSettingsValueOnChange(Item)
@@ -1306,7 +1307,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ReportFormatsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersReportFormats
 
 &AtClient
 Procedure ReportFormatsBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parameter)
@@ -1394,7 +1395,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
 // 
@@ -2135,7 +2136,7 @@ EndProcedure
 
 &AtClient
 Procedure ImportanceHigh(Command)
-	Object.EmailImportance = "High";
+	Object.EmailImportance = EmailOperationsInternalClientServer.HighImportanceOfInternetMail();
 	Items.SeverityGroup.Picture = PictureLib.ImportanceHigh;
 	Items.SeverityGroup.ToolTip = NStr("en = 'High importance';");
 	Modified = True;
@@ -2143,7 +2144,7 @@ EndProcedure
 
 &AtClient
 Procedure ImportanceNormal(Command)
-	Object.EmailImportance = "Ordinary";
+	Object.EmailImportance = EmailOperationsInternalClientServer.UsualImportanceOfInternetMail();
 	Items.SeverityGroup.Picture = PictureLib.ImportanceNotSpecified;
 	Items.SeverityGroup.ToolTip = NStr("en = 'Normal importance';");
 	Modified = True;
@@ -2151,7 +2152,7 @@ EndProcedure
 
 &AtClient
 Procedure ImportanceLow(Command)
-	Object.EmailImportance = "Low";
+	Object.EmailImportance = EmailOperationsInternalClientServer.LowImportanceOfInternetMail();
 	Items.SeverityGroup.Picture = PictureLib.ImportanceLow;
 	Items.SeverityGroup.ToolTip = NStr("en = 'Low importance';");
 	Modified = True;
@@ -2509,19 +2510,19 @@ Procedure AddChangeMailingDateTemplateCompletion(ResultRow, Variables1) Export
 	If Variables1.Property("ChangeReportDescriptionTemplateMultiply")
 	   And Variables1.ChangeReportDescriptionTemplateMultiply Then
 		If Variables1.PreviousFragmentFound Then
-			DescriptionTemplate1 = StrReplace(Variables1.PreviousText1, PreviousFragment, NewFragment);
+			DescriptionTemplate = StrReplace(Variables1.PreviousText1, PreviousFragment, NewFragment);
 		Else
-			DescriptionTemplate1 = Variables1.PreviousText1 + NewFragment;
+			DescriptionTemplate = Variables1.PreviousText1 + NewFragment;
 		EndIf;
-		SetDescriptionTemplatesForAllReports(Variables1.TemplateName, DescriptionTemplate1);
+		SetDescriptionTemplatesForAllReports(Variables1.TemplateName, DescriptionTemplate);
 	ElsIf Variables1.Property("ShouldChangeReportDescriptionTemplate") And Variables1.ShouldChangeReportDescriptionTemplate Then
 		If Variables1.PreviousFragmentFound Then
 			If ResultRow = Variables1.FormatText Then
 				Return;
 			EndIf;
-			Items.ReportFormats.CurrentData.DescriptionTemplate1 = StrReplace(Variables1.PreviousText1, PreviousFragment, NewFragment);
+			Items.ReportFormats.CurrentData.DescriptionTemplate = StrReplace(Variables1.PreviousText1, PreviousFragment, NewFragment);
 		Else
-			Items.ReportFormats.CurrentData.DescriptionTemplate1 = Variables1.PreviousText1 + NewFragment;
+			Items.ReportFormats.CurrentData.DescriptionTemplate = Variables1.PreviousText1 + NewFragment;
 		EndIf;
 	ElsIf Variables1.Item = Items.EmailTextFormattedDocument Then
 		ReplacementExecuted = False;
@@ -2829,7 +2830,7 @@ Procedure SetDescriptionTemplates(TemplateName, MultipleChange = False)
 		SetDescriptionTemplatesForAllReports(TemplateName);
 	Else
 		Templates = DescriptionsTemplates();
-		Items.ReportFormats.CurrentData.DescriptionTemplate1 = Templates.Get(TemplateName);
+		Items.ReportFormats.CurrentData.DescriptionTemplate = Templates.Get(TemplateName);
 	EndIf;
 	
 	Modified = True;
@@ -3095,7 +3096,7 @@ EndProcedure
 
 
 &AtClient
-Procedure SetDescriptionTemplatesForAllReports(TemplateName, DescriptionTemplate1 = "")
+Procedure SetDescriptionTemplatesForAllReports(TemplateName, DescriptionTemplate = "")
 	
 	Templates = DescriptionsTemplates();
 	
@@ -3104,14 +3105,14 @@ Procedure SetDescriptionTemplatesForAllReports(TemplateName, DescriptionTemplate
 		If IsPeriodUsed Then
 			RowID = RowReport.GetID();
 			If Not RowReport.ThereIsPeriod Then
-				RowReport.DescriptionTemplate1 = Templates.Get("ReportDescriptionFormat");
+				RowReport.DescriptionTemplate = Templates.Get("ReportDescriptionFormat");
 				Continue;
 			EndIf;
 		EndIf;
-		If ValueIsFilled(DescriptionTemplate1) Then
-			RowReport.DescriptionTemplate1 = DescriptionTemplate1;
+		If ValueIsFilled(DescriptionTemplate) Then
+			RowReport.DescriptionTemplate = DescriptionTemplate;
 		Else
-			RowReport.DescriptionTemplate1 = Templates.Get(TemplateName);
+			RowReport.DescriptionTemplate = Templates.Get(TemplateName);
 		EndIf;
 	EndDo;
 	
@@ -3151,8 +3152,14 @@ Function PasswordHidden()
 	Return "********";
 EndFunction
 
+// Parameters:
+//  Form - ClientApplicationForm:
+//    * Schedule - JobSchedule
+//  Changes - String 
+//
 &AtClientAtServerNoContext
 Procedure VisibilityAvailabilityCorrectness(Form, Changes = "")
+	
 	Object = Form.Object;
 	Items = Form.Items;
 	
@@ -3386,7 +3393,7 @@ Procedure VisibilityAvailabilityCorrectness(Form, Changes = "")
 			Or EnumerationName = "Monthly") Then
 			
 			// 
-			Form.Schedule.StartDate = '00010101';
+			Form.Schedule.BeginDate = '00010101';
 			Form.Schedule.EndDate  = '00010101';
 			Form.Schedule.EndTime = '00010101';
 			Form.Schedule.CompletionTime = '00010101';
@@ -3537,8 +3544,14 @@ Function RecipientsPresentation1(Form)
 	Balance       = 75 - DisabledPresentation.LengthOfShort;
 	Presentation = ReportMailingClientServer.ListPresentation(Included_SSLy, "Recipient", Balance);
 	
-	NumberOfRecipients = RecipientsCountIncludingGroups(Form.Object.Recipients,
-		Form.Object.MailingRecipientType);
+	RecipientsParameters = ReportMailingClientServer.RecipientsParameters();
+	RecipientsParameters.Ref = Form.Object.Ref;
+	RecipientsParameters.RecipientsEmailAddressKind = Form.Object.RecipientsEmailAddressKind;
+	RecipientsParameters.Personal = Form.Object.Personal;
+	RecipientsParameters.MailingRecipientType = Form.Object.MailingRecipientType;
+	RecipientsParameters.Recipients = Form.Object.Recipients;
+	
+	NumberOfRecipients = RecipientsCountIncludingGroups(RecipientsParameters);
 	
 	If NumberOfRecipients.Total = 0 Then
 		Presentation.Short = NStr("en = '<Specify recipients>';");
@@ -3552,7 +3565,7 @@ Function RecipientsPresentation1(Form)
 		Presentation.Short = Presentation.Short + ", ...";
 	EndIf;
 	
-	If NumberOfRecipients.ExcludedCount > 0 Then
+	If NumberOfRecipients.ExcludedCount <> Undefined And NumberOfRecipients.ExcludedCount > 0 Then
 		SplitTemplate = NStr("en = 'Except';")+ ": ";
 		Presentation.Full = Presentation.Full + ";" + Chars.LF + SplitTemplate + DisabledPresentation.Full;
 		If Presentation.LengthOfShort + DisabledPresentation.LengthOfShort <= 75 Then
@@ -3561,7 +3574,7 @@ Function RecipientsPresentation1(Form)
 	EndIf;
 	If Presentation.MaximumExceeded
 		Or DisabledPresentation.MaximumExceeded Then
-		If NumberOfRecipients.ExcludedCount > 0 Then
+		If NumberOfRecipients.ExcludedCount <> Undefined And NumberOfRecipients.ExcludedCount > 0 Then
 			EndTemplate = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = '(total %1 not including %2)';"),
 				NumberOfRecipients.Total,
@@ -3578,9 +3591,9 @@ Function RecipientsPresentation1(Form)
 EndFunction
 
 &AtServerNoContext
-Function RecipientsCountIncludingGroups(Val Recipients, Val MetadataObjectID)
+Function RecipientsCountIncludingGroups(RecipientsParameters)
 
-	Return Catalogs.ReportMailings.RecipientsCountIncludingGroups(Recipients, MetadataObjectID);
+	Return Catalogs.ReportMailings.RecipientsCountIncludingGroups(RecipientsParameters);
 
 EndFunction
 
@@ -4095,118 +4108,32 @@ EndProcedure
 
 &AtServer
 Function GetFirstRecipient()
-
+	
+	RecipientsParameters = ReportMailingClientServer.RecipientsParameters();
+	RecipientsParameters.Recipients = Object.Recipients;
+	RecipientsParameters.Author = Object.Author;
+	RecipientsParameters.Personal = Object.Personal;
+	RecipientsParameters.MailingRecipientType = Object.MailingRecipientType;
+	RecipientsParameters.RecipientsEmailAddressKind = Object.RecipientsEmailAddressKind;
+	
+	MailingListOfRecipients = ReportMailing.GenerateMailingRecipientsList(RecipientsParameters, Undefined);
+	
 	RecipientsMetadata = Common.MetadataObjectByID(Object.MailingRecipientType, False);
 	RecipientsType = Object.MailingRecipientType.MetadataObjectKey.Get();
 
-	Query = New Query;
-
-	If RecipientsType = Type("CatalogRef.Users") Then
-
-		QueryText =
-		"SELECT
-		|	TableOfRecipients.Recipient,
-		|	TableOfRecipients.Excluded
-		|INTO TableOfRecipients
-		|FROM
-		|	&TableOfRecipients AS TableOfRecipients
-		|;
-		|
-		|////////////////////////////////////////////////////////////////////////////////
-		|SELECT ALLOWED DISTINCT
-		|	User.Ref AS Recipient,
-		|	MAX(TableOfRecipients.Excluded) AS Excluded,
-		|	Users.Description
-		|INTO Recipients
-		|FROM
-		|	TableOfRecipients AS TableOfRecipients
-		|		LEFT JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
-		|		ON UserGroupCompositions.UsersGroup = TableOfRecipients.Recipient
-		|		LEFT JOIN Catalog.Users AS Users
-		|		ON Users.Ref = UserGroupCompositions.User
-		|WHERE
-		|	NOT Users.DeletionMark
-		|	AND NOT Users.Invalid
-		|	AND NOT Users.IsInternal
-		|GROUP BY
-		|	User.Ref,
-		|	Users.Description
-		|;
-		|
-		|////////////////////////////////////////////////////////////////////////////////
-		|SELECT ALLOWED DISTINCT TOP 1
-		|	Recipients.Recipient AS Recipient,
-		|	Recipients.Description AS Description
-		|FROM
-		|	Recipients AS Recipients
-		|WHERE
-		|	NOT Recipients.Excluded
-		|
-		|ORDER BY
-		|	Description";
-
-	Else
-
-		QueryText =
-		"SELECT
-		|	TableOfRecipients.Recipient,
-		|	TableOfRecipients.Excluded
-		|INTO TableOfRecipients
-		|FROM
-		|	&TableOfRecipients AS TableOfRecipients
-		|;
-		|
-		|////////////////////////////////////////////////////////////////////////////////
-		|SELECT ALLOWED DISTINCT TOP 1
-		|	Recipients.Ref AS Recipient,
-		|	Recipients.Description AS Description
-		|FROM
-		|	Catalog.Users AS Recipients
-		|WHERE
-		|	Recipients.Ref IN HIERARCHY
-		|		(SELECT
-		|			Recipient
-		|		FROM
-		|			TableOfRecipients
-		|		WHERE
-		|			NOT Excluded)
-		|	AND NOT Recipients.DeletionMark
-		|	AND &ThisIsNotGroup
-		|
-		|ORDER BY
-		|	Description";
-
-		If Not RecipientsMetadata.Hierarchical Then
-			// 
-			QueryText = StrReplace(QueryText, "IN HIERARCHY", "In");
-			QueryText = StrReplace(QueryText, "AND &ThisIsNotGroup", "");
-		ElsIf RecipientsMetadata.HierarchyType = Metadata.ObjectProperties.HierarchyType.HierarchyOfItems Then
-			// 
-			QueryText = StrReplace(QueryText, "AND &ThisIsNotGroup", "");
-		Else
-			// 
-			QueryText = StrReplace(QueryText, "AND &ThisIsNotGroup", "AND NOT Recipients.IsFolder");
-		EndIf;
-
-		QueryText = StrReplace(QueryText, "Catalog.Users", RecipientsMetadata.FullName());
-
-	EndIf;
-	
-	Query.SetParameter("TableOfRecipients", Object.Recipients.Unload());
-	Query.Text = QueryText;
-
 	FirstRecipient = New Structure ("Description, Ref", "", New (RecipientsType));
 	
-	QueryResult = Query.Execute();
-	Selection = QueryResult.Select();
-
-	If Selection.Next() Then
-		FirstRecipient.Description = Selection.Description;
-		FirstRecipient.Ref = Selection.Recipient;
+	For Each Recipient In MailingListOfRecipients Do
+		FirstRecipient.Ref = Recipient.Key;
+		Break;
+	EndDo;
+	
+	If ValueIsFilled(FirstRecipient.Ref) Then
+		FirstRecipient.Description = Common.ObjectAttributeValue(FirstRecipient.Ref, "Description");
 	EndIf;
 	
 	Return FirstRecipient;
-
+	
 EndFunction
 
 &AtServer
@@ -4252,7 +4179,7 @@ Function ReportsPlannedListInAttachments()
 		For Each Format In FormatsOfReport Do
 			FormatParameters = FormatsParameters.Get(Format);
 			FullFileName = ReportMailing.FullFileNameFromTemplate(
-			"", RowReport.Presentation, FormatParameters, DeliveryParameters, RowReport.DescriptionTemplate1, Period);
+			"", RowReport.Presentation, FormatParameters, DeliveryParameters, RowReport.DescriptionTemplate, Period);
 
 			// 
 			ReportMailingOverridable.BeforeSaveSpreadsheetDocumentToFormat(
@@ -4349,7 +4276,7 @@ Procedure SetConditionalAppearance()
 	ItemField.Field = New DataCompositionField(Items.ReportsFormatsDescriptionTemplate.Name);
 
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
-	ItemFilter.LeftValue = New DataCompositionField("Object.Reports.DescriptionTemplate1");
+	ItemFilter.LeftValue = New DataCompositionField("Object.Reports.DescriptionTemplate");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = "";
 
@@ -4779,10 +4706,10 @@ EndProcedure
 &AtServer
 Procedure DoDisplayImportance()
 
-	If Object.EmailImportance = "High" Then
+	If Object.EmailImportance = EmailOperationsInternalClientServer.HighImportanceOfInternetMail() Then
 		Items.SeverityGroup.Picture = PictureLib.ImportanceHigh;
 		Items.SeverityGroup.ToolTip = NStr("en = 'High importance';");
-	ElsIf Object.EmailImportance = "Low" Then
+	ElsIf Object.EmailImportance = EmailOperationsInternalClientServer.LowImportanceOfInternetMail() Then
 		Items.SeverityGroup.Picture = PictureLib.ImportanceLow;
 		Items.SeverityGroup.ToolTip = NStr("en = 'Low importance';");
 	Else
@@ -5012,7 +4939,7 @@ Procedure Attachable_UpdateCommands()
 		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
 	EndIf;
 EndProcedure
-// 
+// End StandardSubsystems.AttachableCommands
 
 ////////////////////////////////////////////////////////////////////////////////
 // 

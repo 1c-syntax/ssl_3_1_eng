@@ -146,6 +146,7 @@
 		<Attribute name="ReportRef" id="3">
 			<Type>
 				<v8:Type>cfg:CatalogRef.ExtensionObjectIDs</v8:Type>
+				<v8:Type>cfg:CatalogRef.AdditionalReportsAndDataProcessors</v8:Type>
 				<v8:Type>cfg:CatalogRef.MetadataObjectIDs</v8:Type>
 			</Type>
 		</Attribute>

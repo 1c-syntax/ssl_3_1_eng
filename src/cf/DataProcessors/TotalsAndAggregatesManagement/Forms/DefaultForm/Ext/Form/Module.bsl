@@ -14,7 +14,7 @@ Var ChoiceContext;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -143,7 +143,7 @@ EndProcedure
 
 #EndRegion
 
-#Region TotalsListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersTotalsList
 
 &AtClient
 Procedure TotalsListOnActivateRow(Item)
@@ -216,7 +216,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure EnableTotalsUsage(Command)

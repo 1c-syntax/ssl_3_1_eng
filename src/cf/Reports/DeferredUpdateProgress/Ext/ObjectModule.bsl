@@ -9,7 +9,7 @@
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
-#Region EventsHandlers
+#Region EventHandlers
 
 // This procedure is called in the OnLoadVariantAtServer event handler of a report form after executing the form code.
 //

@@ -17,7 +17,7 @@ Var IsGlobalDataProcessor;
 
 #EndRegion
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	If IsFolder Then

@@ -20,7 +20,7 @@ Var FirstOpeningOfForm; // Boolean
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -306,7 +306,7 @@ EndFunction
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure BackButtonClick(Command)

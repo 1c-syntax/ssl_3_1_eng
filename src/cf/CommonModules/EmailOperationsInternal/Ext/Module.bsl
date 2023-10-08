@@ -255,6 +255,18 @@ Function AccountSettingsForSendingMail(Account) Export
 	
 EndFunction
 
+Function ImportanceOfInternetMailMessageFromString(Importance) Export
+	
+	If StrCompare(Importance, EmailOperationsInternalClientServer.HighImportanceOfInternetMail()) = 0 Then
+		Return InternetMailMessageImportance.High;
+	ElsIf StrCompare(Importance, EmailOperationsInternalClientServer.LowImportanceOfInternetMail()) = 0 Then
+		Return InternetMailMessageImportance.Low;
+	Else
+		Return InternetMailMessageImportance.Normal;
+	EndIf;
+	
+EndFunction 
+
 // Restore password.
 
 Procedure UpdateMailRecoveryServerSettings(Ref) Export

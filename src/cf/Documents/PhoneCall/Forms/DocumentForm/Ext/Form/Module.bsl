@@ -14,7 +14,7 @@ Var ChoiceContext;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -139,7 +139,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.BeforeWriteAtServer(ThisObject, CurrentObject);
 	EndIf;
-	// 
+	// End StandardSubsystems.Properties
 	
 	Interactions.BeforeWriteInteractionFromForm(ThisObject, CurrentObject, ContactsChanged);
 	
@@ -176,7 +176,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 			ModulePropertyManagerClient.AfterImportAdditionalAttributes(ThisObject);
 		EndIf;
 	EndIf;
-	// 
+	// End StandardSubsystems.Properties
 	
 	InteractionsClient.DoProcessNotification(ThisObject,EventName, Parameter, Source);
 	InteractionsClientServer.CheckContactsFilling(Object, ThisObject, "PhoneCall");
@@ -199,7 +199,7 @@ Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);
 	EndIf;
-	// 
+	// End StandardSubsystems.AccessManagement
 	
 	Items.CommentPage.Picture = CommonClientServer.CommentPicture(Object.Comment);
 	
@@ -339,7 +339,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure CreateContactExecute()
@@ -371,7 +371,7 @@ Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined
 	
 EndProcedure
 
-// 
+// End StandardSubsystems.Properties
 
 // StandardSubsystems.StoredFiles
 &AtClient
@@ -466,7 +466,7 @@ Procedure UpdateAdditionalAttributesDependencies()
 	
 EndProcedure
 
-// 
+// End StandardSubsystems.Properties
 
 &AtClient
 Procedure CheckContactCreationAvailability()

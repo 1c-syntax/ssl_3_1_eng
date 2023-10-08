@@ -14,7 +14,7 @@ Var AdditionalInformation;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -136,7 +136,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure UpdateFromThePortal(Command)
@@ -350,7 +350,7 @@ EndProcedure
 
 // Server logic of the ImportAddInFromFile procedure.
 &AtServer
-Function ImportAddInFromFileOnServer(ImportParameters)
+Function ImportAddInFromFileOnServer(Val ImportParameters)
 	
 	If Not Users.IsFullUser(,, False) Then
 		Raise NStr("en = 'Insufficient rights to import an add-in.';");

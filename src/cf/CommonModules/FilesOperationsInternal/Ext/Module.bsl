@@ -671,11 +671,13 @@ Function FileStorageCatalogNames(FilesOwner, NotRaiseException1 = False) Export
 		FilesOwnerType = TypeOf(FilesOwner);
 	EndIf;
 	
+	CatalogSuffix = FilesOperationsClientServer.CatalogSuffixAttachedFiles();
+	
 	OwnerMetadata = Metadata.FindByType(FilesOwnerType);
 	CatalogNames = New Map;
 	If OwnerMetadata <> Undefined Then
 		StandardMainCatalogName = OwnerMetadata.Name
-			+ ?(StrEndsWith(OwnerMetadata.Name, "AttachedFiles"), "", "AttachedFiles");
+			+ ?(StrEndsWith(OwnerMetadata.Name, CatalogSuffix), "", CatalogSuffix);
 			
 		If Metadata.Catalogs.Find(StandardMainCatalogName) <> Undefined Then
 			CatalogNames.Insert(StandardMainCatalogName, True);
@@ -701,13 +703,13 @@ Function FileStorageCatalogNames(FilesOwner, NotRaiseException1 = False) Export
 					|contains the catalog ""%2"" that does not exist.';"),
 				String(FilesOwnerType), String(KeyAndValue.Key)));
 				
-		ElsIf Not StrEndsWith(KeyAndValue.Key, "AttachedFiles") And Not KeyAndValue.Key ="Files" Then
+		ElsIf Not StrEndsWith(KeyAndValue.Key, CatalogSuffix) And Not KeyAndValue.Key ="Files" Then
 			
 			Errors.Add(StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'File location of type ""%1""
 					|contains a name of catalog ""%2""
 					|without the required postfix ""%3"".';"),
-				String(FilesOwnerType), String(KeyAndValue.Key), "AttachedFiles"));
+				String(FilesOwnerType), String(KeyAndValue.Key), CatalogSuffix));
 			
 		ElsIf KeyAndValue.Value = Undefined Then
 			CatalogNames.Insert(KeyAndValue.Key, False);
@@ -1017,7 +1019,7 @@ Function IsFilesOrFilesVersionsCatalog(FullName) Export
 		Return False;
 	EndIf;
 	
-	If StrEndsWith(Upper(NameParts[1]), Upper("AttachedFiles"))
+	If StrEndsWith(Upper(NameParts[1]), Upper(FilesOperationsClientServer.CatalogSuffixAttachedFiles()))
 	 Or Upper(NameParts[1]) = Upper("Files")
 	 Or Upper(NameParts[1]) = Upper("FilesVersions") Then
 		
@@ -1181,7 +1183,7 @@ Procedure MoveSignaturesCheckResults(SignaturesInForm, SignedFile) Export
 	EndIf;
 		
 	ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
-	SignaturesInObject = ModuleDigitalSignature.SetSignatures(SignedFile);
+	SignaturesInObject = ModuleDigitalSignature.SetSignatures(SignedFile, Undefined, True);
 	
 	If SignaturesInForm.Count() <> SignaturesInObject.Count() Then
 		Return; // If the object was changed, the test results are not transferred.
@@ -1192,14 +1194,27 @@ Procedure MoveSignaturesCheckResults(SignaturesInForm, SignedFile) Export
 	EndIf;
 	
 	Properties = New Structure("SignatureValidationDate, SignatureCorrect, IsVerificationRequired", Null, Null, Null);
-	FillPropertyValues(Properties, SignaturesInObject[0]);
+	Properties.Insert("SignatureType", Null);
+	Properties.Insert("DateActionLastTimestamp", Null);
+	Properties.Insert("ResultOfSignatureVerificationByMCHD", Null);
+	
+	FillPropertyValues(Properties, SignaturesInForm[0]);
 	If Properties.SignatureValidationDate = Null
 	 Or Properties.SignatureCorrect = Null Then
-		Return; // If the object does not have check attributes, the check results are not transferred.
+		Return; // 
 	EndIf;
 	
 	If Properties.IsVerificationRequired = Null Then
 		Properties.Delete("IsVerificationRequired");
+	EndIf;
+	If Properties.SignatureType = Null Then
+		Properties.Delete("SignatureType");
+	EndIf;
+	If Properties.DateActionLastTimestamp = Null Then
+		Properties.Delete("DateActionLastTimestamp");
+	EndIf;
+	If Properties.ResultOfSignatureVerificationByMCHD = Null Then
+		Properties.Delete("ResultOfSignatureVerificationByMCHD");
 	EndIf;
 	
 	For Each String In SignaturesInForm Do
@@ -1221,10 +1236,13 @@ Procedure MoveSignaturesCheckResults(SignaturesInForm, SignedFile) Export
 		FillPropertyValues(Properties, RowInObject);
 		HasChanges = False;
 		For Each KeyAndValue In Properties Do
+			
+			
 			If String[KeyAndValue.Key] <> Properties[KeyAndValue.Key] Then
 				HasChanges = True;
 			EndIf;
 		EndDo;
+		
 		If Not HasChanges Then
 			Continue; // Do not set the modification if the test results match.
 		EndIf;
@@ -2603,7 +2621,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	NewRow = Handler.ExecutionPriorities.Add();
 	NewRow.Procedure = "Catalogs.Files.ProcessDataForMigrationToNewVersion";
 	NewRow.Order = "After";
-	
 	
 	FilesOperationsInVolumesInternal.OnAddUpdateHandlers(Handlers);
 	
@@ -5622,13 +5639,16 @@ Function DigitalSignaturesList(Source, UUID)
 		If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
 			
 			ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
-			DigitalSignatures = ModuleDigitalSignature.SetSignatures(Source.Ref);
+			DigitalSignatures = ModuleDigitalSignature.SetSignatures(Source.Ref, Undefined, True);
+			
 			
 			For Each FileDigitalSignature In DigitalSignatures Do
 				
 				FileDigitalSignature.Insert("Object", Source.Ref);
 				SignatureAddress = PutToTempStorage(FileDigitalSignature.Signature, UUID);
 				FileDigitalSignature.Insert("SignatureAddress", SignatureAddress);
+				
+				
 			EndDo;
 	
 		EndIf;
@@ -6646,10 +6666,10 @@ Function CallGETMethod(FileAddressHRef, EtagID, SynchronizationParameters, FileM
 	FileWithBinaryData = SynchronizationParameters.Response.GetBodyAsBinaryData(); // BinaryData
 	
 	// ACC:216-off External service IDs contain Latin and Cyrillic letters.
-	Var_645_HTTPHeaders = StandardSubsystemsServer.HTTPHeadersInLowercase(SynchronizationParameters.Response.Headers);
-	EtagID = ?(Var_645_HTTPHeaders["etagid"] = Undefined, "", Var_645_HTTPHeaders["etagid"]);
-	FileModificationDate = ?(Var_645_HTTPHeaders["last-modified"] = Undefined, CurrentUniversalDate(), 
-		CommonClientServer.RFC1123Date(Var_645_HTTPHeaders["last-modified"]));
+	Var_646_HTTPHeaders = StandardSubsystemsServer.HTTPHeadersInLowercase(SynchronizationParameters.Response.Headers);
+	EtagID = ?(Var_646_HTTPHeaders["etagid"] = Undefined, "", Var_646_HTTPHeaders["etagid"]);
+	FileModificationDate = ?(Var_646_HTTPHeaders["last-modified"] = Undefined, CurrentUniversalDate(), 
+		CommonClientServer.RFC1123Date(Var_646_HTTPHeaders["last-modified"]));
 	FileLength = FileWithBinaryData.Size();
 	// ACC:216-on
 	

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 //
 
 &AtServer
@@ -45,7 +45,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 // Selects a node and passes the selected values to the calling form.
 &AtClient

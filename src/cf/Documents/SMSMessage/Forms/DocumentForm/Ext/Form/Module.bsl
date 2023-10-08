@@ -14,7 +14,7 @@ Var ChoiceContext;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -88,7 +88,7 @@ Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);
 	EndIf;
-	// 
+	// End StandardSubsystems.AccessManagement
 	
 	Items.CommentPage.Picture = CommonClientServer.CommentPicture(Object.Comment);
 
@@ -165,7 +165,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 			ModulePropertyManagerClient.AfterImportAdditionalAttributes(ThisObject);
 		EndIf;
 	EndIf;
-	// 
+	// End StandardSubsystems.Properties
 	
 	InteractionsClient.DoProcessNotification(ThisObject, EventName, Parameter, Source);
 	InteractionsClientServer.CheckContactsFilling(Object, ThisObject, "SMSMessage");
@@ -195,7 +195,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteMode)
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.BeforeWriteAtServer(ThisObject, CurrentObject);
 	EndIf;
-	// 
+	// End StandardSubsystems.Properties
 	
 	Interactions.BeforeWriteInteractionFromForm(ThisObject, CurrentObject, ContactsChanged);
 	
@@ -343,7 +343,7 @@ EndProcedure
 
 #EndRegion
 
-#Region SMSMessageRecipientsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersSMSMessageRecipients
 
 &AtClient
 Procedure RecipientsOnChange(Item)
@@ -450,7 +450,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure CreateContactExecute()
@@ -501,7 +501,7 @@ Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined
 	
 EndProcedure
 
-// 
+// End StandardSubsystems.Properties
 
 // StandardSubsystems.StoredFiles
 &AtClient
@@ -513,7 +513,7 @@ Procedure Attachable_AttachedFilesPanelCommand(Command)
 	EndIf;
 	
 EndProcedure
-// 
+// End StandardSubsystems.FilesOperations
 
 // 
 
@@ -595,7 +595,7 @@ Procedure UpdateAdditionalAttributesDependencies()
 	
 EndProcedure
 
-// 
+// End StandardSubsystems.Properties
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -890,7 +890,7 @@ Procedure Attachable_UpdateCommands()
 	ModuleAttachableCommandsClientServer = CommonClient.CommonModule("AttachableCommandsClientServer");
 	ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
 EndProcedure
-// 
+// End StandardSubsystems.AttachableCommands
 
 // 
 

@@ -343,7 +343,7 @@ EndProcedure
 
 #EndRegion
 
-#Region EventsHandlers
+#Region EventHandlers
 
 // Parameters:
 //  ResultDocument - SpreadsheetDocument
@@ -684,7 +684,7 @@ Function DetailedObjectPermissions(Fill, ProfilesInsteadofRoles)
 	ObjectPresentation     = Context.ObjectPresentation;
 	RightsList               = Context.RightsDetails.RightsList;
 	MetadataObject         = Context.MetadataObject;
-	TheNameOfTheStandardProps = Context.TheNameOfTheStandardProps;
+	StandardAttributeName = Context.StandardAttributeName;
 	
 	FoundPermissions = New Map;
 	SelectedPermissions_ = ValuesofSelectedParameter("Right");
@@ -700,7 +700,7 @@ Function DetailedObjectPermissions(Fill, ProfilesInsteadofRoles)
 			ProfileRightsStrings = New Map;
 		EndIf;
 		For Each RoleDetails In RolesDetails Do
-			HasRight = AccessRight(RightDetails.Value, MetadataObject, RoleDetails.Metadata, TheNameOfTheStandardProps);
+			HasRight = AccessRight(RightDetails.Value, MetadataObject, RoleDetails.Metadata, StandardAttributeName);
 			If Not HasRight Then
 				Continue;
 			EndIf;
@@ -836,7 +836,7 @@ EndFunction
 //    * FullObjectName         - String
 //    * RightsDetails             - See RightsDetails
 //    * MetadataObject         - MetadataObject
-//    * TheNameOfTheStandardProps - String
+//    * StandardAttributeName - String
 //    * ObjectPresentation     - String
 //  Undefined.
 //
@@ -886,7 +886,7 @@ Function ReportContextByObject(FillOnlyDescriptionPermissions = False)
 	If FullObjectName = "Configuration" Then
 		ObjectPresentation = TreeRow.ObjectPresentation;
 	Else
-		TheNameOfTheStandardProps = Undefined;
+		StandardAttributeName = Undefined;
 		ObjectPresentation      = "";
 		ObjectsKindPresentation = "";
 		NameParts = StrSplit(FullObjectName, ".");
@@ -900,7 +900,7 @@ Function ReportContextByObject(FillOnlyDescriptionPermissions = False)
 		For NameNumber = 1 To NumberofNames Do
 			IndexOf = (NameNumber - 1) * 2;
 			If NameParts[IndexOf] = "StandardTabularSection" Then
-				TheNameOfTheStandardProps = NameParts[IndexOf + 1];
+				StandardAttributeName = NameParts[IndexOf + 1];
 				StandardTabularSection = StandardTabularSection(MetadataObject, NameParts[IndexOf + 1]);
 				If StandardTabularSection = Undefined Then
 					Return Undefined;
@@ -908,8 +908,8 @@ Function ReportContextByObject(FillOnlyDescriptionPermissions = False)
 				CurrentObjectRepresentation = StandardTabularSection.Presentation();
 				
 			ElsIf NameParts[IndexOf] = "StandardAttribute" Then
-				TheNameOfTheStandardProps = ?(ValueIsFilled(TheNameOfTheStandardProps),
-					TheNameOfTheStandardProps + ".", "") + NameParts[IndexOf + 1];
+				StandardAttributeName = ?(ValueIsFilled(StandardAttributeName),
+					StandardAttributeName + ".", "") + NameParts[IndexOf + 1];
 				StandardAttribute = StandardAttribute(?(StandardTabularSection = Undefined,
 					MetadataObject, StandardTabularSection), NameParts[IndexOf + 1]);
 				If StandardAttribute = Undefined Then
@@ -944,14 +944,14 @@ Function ReportContextByObject(FillOnlyDescriptionPermissions = False)
 	EndIf;
 	
 	Context.Insert("MetadataObject",         MetadataObject);
-	Context.Insert("TheNameOfTheStandardProps", TheNameOfTheStandardProps);
+	Context.Insert("StandardAttributeName", StandardAttributeName);
 	Context.Insert("ObjectPresentation",     ObjectPresentation);
 
 	Return Context;
 	
 EndFunction
 
-Function StandardTabularSection(MetadataObject, NameOfTheStandardTablePart)
+Function StandardTabularSection(MetadataObject, StandardTabularSectionName)
 	
 	ObjectProperties = New Structure("StandardTabularSections");
 	FillPropertyValues(ObjectProperties, MetadataObject);
@@ -962,7 +962,7 @@ Function StandardTabularSection(MetadataObject, NameOfTheStandardTablePart)
 	
 	For Each StandardTabularSection In ObjectProperties.StandardTabularSections Do
 		StandardTabularSection = StandardTabularSection; // StandardTabularSectionDescription
-		If StandardTabularSection.Name = NameOfTheStandardTablePart Then
+		If StandardTabularSection.Name = StandardTabularSectionName Then
 			Return StandardTabularSection;
 		EndIf;
 	EndDo;
@@ -971,7 +971,7 @@ Function StandardTabularSection(MetadataObject, NameOfTheStandardTablePart)
 	
 EndFunction
 
-Function StandardAttribute(MetadataObject, TheNameOfTheStandardProps)
+Function StandardAttribute(MetadataObject, StandardAttributeName)
 	
 	ObjectProperties = New Structure("StandardAttributes");
 	FillPropertyValues(ObjectProperties, MetadataObject);
@@ -982,7 +982,7 @@ Function StandardAttribute(MetadataObject, TheNameOfTheStandardProps)
 	
 	For Each StandardAttribute In ObjectProperties.StandardAttributes Do
 		StandardAttribute = StandardAttribute; // StandardAttributeDescription
-		If StandardAttribute.Name = TheNameOfTheStandardProps Then
+		If StandardAttribute.Name = StandardAttributeName Then
 			Return StandardAttribute;
 		EndIf;
 	EndDo;
@@ -1045,7 +1045,7 @@ Function RightsRolesOnObject(Fill)
 	EndIf;
 	AccessLevels            = Context.RightsDetails.AccessLevels;
 	MetadataObject         = Context.MetadataObject;
-	TheNameOfTheStandardProps = Context.TheNameOfTheStandardProps;
+	StandardAttributeName = Context.StandardAttributeName;
 	
 	Context.Insert("Rights", Rights);
 	Context.Insert("RoleProfiles", RoleProfiles());
@@ -1066,7 +1066,7 @@ Function RightsRolesOnObject(Fill)
 					EndIf;
 				EndDo;
 			Else
-				HasRight = AccessRight(LevelDescription.Right, MetadataObject, RoleDetails.Metadata, TheNameOfTheStandardProps);
+				HasRight = AccessRight(LevelDescription.Right, MetadataObject, RoleDetails.Metadata, StandardAttributeName);
 			EndIf;
 			If Not HasRight Then
 				Continue;
@@ -1681,7 +1681,7 @@ Function ThisParentSubsystem(SelectedMetadataObjects, FullSubsystemName, AddWIer
 EndFunction
 
 Procedure AddRights(Context, MetadataObject, TreeRow, ElementCode, HasRights,
-			withlimit = False, TheNameOfTheStandardProps = Undefined)
+			withlimit = False, StandardAttributeName = Undefined)
 	
 	If Not ValueIsFilled(TreeRow.RightsDetails) Then
 		Return;
@@ -1731,7 +1731,7 @@ Procedure AddRights(Context, MetadataObject, TreeRow, ElementCode, HasRights,
 						EndIf;
 					EndDo;
 				Else
-					HasRight = AccessRight(LevelDescription.Right, MetadataObject, Role, TheNameOfTheStandardProps);
+					HasRight = AccessRight(LevelDescription.Right, MetadataObject, Role, StandardAttributeName);
 				EndIf;
 				If Not HasRight Then
 					Continue;
@@ -1746,7 +1746,7 @@ Procedure AddRights(Context, MetadataObject, TreeRow, ElementCode, HasRights,
 	Else
 		For Each Role In RolesMetadata Do
 			For Each Right In RightsLevels Do
-				If AccessRight(Right, MetadataObject, Role, TheNameOfTheStandardProps) Then
+				If AccessRight(Right, MetadataObject, Role, StandardAttributeName) Then
 					LevelDescription = AccessLevels[RightsLevels.Find(Right)];
 					HasRights = True;
 					If ValueIsFilled(LevelDescription.RightWithRestriction) Then

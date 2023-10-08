@@ -285,6 +285,19 @@ This has no effect in distributed infobases.</v8:content>
 								</Title>
 							</ExtendedTooltip>
 						</Button>
+						<Button name="RemovingDataSynchronizationAlerts" id="2082">
+							<Type>Hyperlink</Type>
+							<CommandName>Form.Command.RemovingDataSynchronizationAlerts</CommandName>
+							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+							<ExtendedTooltip name="RemovingDataSynchronizationAlertsExtendedTooltip" id="2083">
+								<Title formatted="false">
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Data processor is used for the synchronization warning list with numerous records that cause long opening or system unavailability.</v8:content>
+									</v8:item>
+								</Title>
+							</ExtendedTooltip>
+						</Button>
 					</ChildItems>
 				</UsualGroup>
 				<UsualGroup name="EnterpriseDataLoadingGroup" id="2069">
@@ -321,6 +334,54 @@ This has no effect in distributed infobases.</v8:content>
 								</Title>
 							</ExtendedTooltip>
 						</Button>
+						<UsualGroup name="PerformanceMonitorGroup" id="2087">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Performance monitor</v8:content>
+								</v8:item>
+							</Title>
+							<ToolTip>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Enable performance monitoring for synchronization in the EnterpriseData format.</v8:content>
+								</v8:item>
+							</ToolTip>
+							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="PerformanceMonitorGroupExtendedTooltip" id="2088"/>
+							<ChildItems>
+								<CheckBoxField name="UsePerformanceEvaluation" id="2084">
+									<DataPath>ConstantsSet.UsePerformanceMonitoringOfDataSynchronization</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Performance monitor</v8:content>
+										</v8:item>
+									</Title>
+									<TitleLocation>Right</TitleLocation>
+									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="UsePerformanceEvaluationContextMenu" id="2085"/>
+									<ExtendedTooltip name="UsePerformanceEvaluationExtendedTooltip" id="2086"/>
+									<Events>
+										<Event name="OnChange">Attachable_OnChangeAttribute</Event>
+									</Events>
+								</CheckBoxField>
+								<Button name="ExchangeSessions" id="2089">
+									<Type>Hyperlink</Type>
+									<CommandName>Catalog.DataExchangesSessions.Command.DataExchangesSessions</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Exchange sessions</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="ExchangeSessionsExtendedTooltip" id="2090"/>
+								</Button>
+							</ChildItems>
+						</UsualGroup>
 					</ChildItems>
 				</UsualGroup>
 			</ChildItems>
@@ -334,6 +395,7 @@ This has no effect in distributed infobases.</v8:content>
 			</Title>
 			<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 			<Width>43</Width>
+			<Group>AlwaysHorizontal</Group>
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
@@ -344,6 +406,7 @@ This has no effect in distributed infobases.</v8:content>
 			<ChildItems>
 				<InputField name="DistributedInfobaseNodePrefix" id="1995">
 					<DataPath>ConstantsSet.DistributedInfobaseNodePrefix</DataPath>
+					<ReadOnly>true</ReadOnly>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -355,27 +418,12 @@ This has no effect in distributed infobases.</v8:content>
 					<ExtendedTooltip name="DistributedInfobaseNodePrefixExtendedTooltip" id="2035">
 						<AutoMaxWidth>false</AutoMaxWidth>
 					</ExtendedTooltip>
-					<Events>
-						<Event name="OnChange">DistributedInfobaseNodePrefixOnChange</Event>
-					</Events>
 				</InputField>
-				<PictureDecoration name="WaitForPrefixChangeDecoration" id="2073">
-					<Width>2</Width>
-					<Height>1</Height>
-					<Title formatted="false">
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Waiting for prefix change decoration</v8:content>
-						</v8:item>
-					</Title>
-					<Picture>
-						<xr:Ref>CommonPicture.CheckInProgress</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
-					</Picture>
-					<FileDragMode>AsFile</FileDragMode>
-					<ContextMenu name="WaitForPrefixChangeDecorationContextMenu" id="2074"/>
-					<ExtendedTooltip name="WaitForPrefixChangeDecorationExtendedTooltip" id="2075"/>
-				</PictureDecoration>
+				<Button name="ChangeIBPrefix" id="2080">
+					<Type>Hyperlink</Type>
+					<CommandName>Form.Command.ChangeIBPrefix</CommandName>
+					<ExtendedTooltip name="ChangeIBPrefixExtendedTooltip" id="2081"/>
+				</Button>
 			</ChildItems>
 		</UsualGroup>
 		<UsualGroup name="TemporaryServerClusterDirectoriesGroup" id="2040">
@@ -489,6 +537,7 @@ This has no effect in distributed infobases.</v8:content>
 				<Field>ConstantsSet.UseNotes</Field>
 				<Field>ConstantsSet.UseObjectsVersioning</Field>
 				<Field>ConstantsSet.UseOtherInteractions</Field>
+				<Field>ConstantsSet.UsePerformanceMonitoringOfDataSynchronization</Field>
 				<Field>ConstantsSet.UseReviewedFlag</Field>
 				<Field>ConstantsSet.UseTaskStartDate</Field>
 				<Field>ConstantsSet.UseUserGroups</Field>
@@ -541,6 +590,30 @@ This has no effect in distributed infobases.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>DataSyncSettings</Action>
+		</Command>
+		<Command name="ChangeIBPrefix" id="3">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Change</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Change the infobase prefix</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>ChangeIBPrefix</Action>
+		</Command>
+		<Command name="RemovingDataSynchronizationAlerts" id="4">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Delete data synchronization warnings</v8:content>
+				</v8:item>
+			</Title>
+			<Action>RemovingDataSynchronizationAlerts</Action>
 		</Command>
 	</Commands>
 </Form>

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -26,14 +26,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		If DataSeparationEnabled Then
 			Items.InfobaseMoved.Title = NStr("en = 'Moved application';");
 			Items.IsInfobaseCopy.Title = NStr("en = 'Application copy';");
-			Title = NStr("en = 'The application has been moved or restored from backup';");
+			Title = NStr("en = 'Moved or restored application';");
 		EndIf;
 		
 		If Not DataSeparationEnabled And Not DataSeparationChanged Then
 			
 			ScalableClusterClarification = ?(Common.FileInfobase(), "",
-				NStr("en = '• When using a scalable cluster, to prevent false starts due to change of computers acting
-				           | as working servers, turn off the computer name check, click <b>More actions - Check server name.</b>';"));
+				NStr("en = '• For scalable clusters, to prevent false starts due to change of computers acting as production servers
+				           |, disable the computer name check by clicking <b>More > Check server name.</b>';"));
 			
 			WarningLabel = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Scheduled online activities such as data synchronization and emailing are disabled
@@ -54,8 +54,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				UnlockText);
 		ElsIf Not DataSeparationEnabled And DataSeparationChanged Then
 			WarningLabel = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Scheduled online activities such as data synchronization and emailing are disabled to prevent conflicts
-				           |with the web application.
+				NStr("en = 'Scheduled online activities such as data synchronization and emailing are disabled
+				           |to prevent conflicts with the web application.
 				           |
 				           |<b>This infobase was imported from the web application</b>.
 				           |
@@ -66,8 +66,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				UnlockText);
 		ElsIf DataSeparationEnabled And Not DataSeparationChanged Then
 			WarningLabel = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Scheduled online activities such as data synchronization and emailing are disabled to prevent conflicts
-				           |with the web application.
+				NStr("en = 'Scheduled online activities such as data synchronization and emailing are disabled
+				           |to prevent conflicts with the web application.
 				           |
 				           |<b>The application was moved.</b>
 				           |
@@ -78,8 +78,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				UnlockText);
 		Else // 
 			WarningLabel = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Scheduled online activities such as data synchronization and emailing are disabled to prevent conflicts
-				           |with the local version.
+				NStr("en = 'Scheduled online activities such as data synchronization and emailing are disabled
+				           |to prevent conflicts with the local version.
 				           |
 				           |The application was imported from the local version.
 				           |
@@ -125,7 +125,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure InfobaseMoved(Command)

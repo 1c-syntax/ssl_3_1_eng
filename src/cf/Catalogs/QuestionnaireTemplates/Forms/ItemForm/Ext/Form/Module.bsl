@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel,StandardProcessing)
@@ -126,7 +126,7 @@ EndProcedure
 
 #EndRegion
 
-#Region QuestionnaireTreeFormFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersQuestionnaireTreeForm
 
 &AtClient
 Procedure QuestionnaireTreeFormBeforeDeleteRow(Item, Cancel)
@@ -414,7 +414,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure EndEdit(Command)

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -103,7 +103,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Done(Command)
@@ -224,9 +224,9 @@ EndProcedure
 &AtClient
 Procedure ShowEventHandlersInWindow()
 	
-	EventsHandlers = EventsHandlers();
-	If EventsHandlers <> Undefined Then
-		EventsHandlers.Show(NStr("en = 'Handler debugging module';"));
+	EventHandlers = EventHandlers();
+	If EventHandlers <> Undefined Then
+		EventHandlers.Show(NStr("en = 'Handler debugging module';"));
 	EndIf;
 	
 	
@@ -238,17 +238,17 @@ Procedure ShowEventHandlersInWindow()
 EndProcedure
 
 &AtServer
-Function EventsHandlers()
+Function EventHandlers()
 	
-	EventsHandlers = Undefined;
+	EventHandlers = Undefined;
 	
 	HandlerFile = New File(Object.EventHandlersTempFileName);
 	If HandlerFile.Exists() And HandlerFile.Size() <> 0 Then
-		EventsHandlers = New TextDocument;
-		EventsHandlers.Read(Object.EventHandlersTempFileName);
+		EventHandlers = New TextDocument;
+		EventHandlers.Read(Object.EventHandlersTempFileName);
 	EndIf;
 	
-	Return EventsHandlers;
+	Return EventHandlers;
 	
 EndFunction
 

@@ -14800,7 +14800,7 @@ EndFunction
 
 #EndRegion
 
-#Region Initialization
+#Region Initialize
 
 InitAttributesAndModuleVariables();
 SupplementInternalTablesWithColumns();

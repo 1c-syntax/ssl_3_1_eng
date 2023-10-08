@@ -47,6 +47,7 @@ Function SessionParametersSetting(SessionParametersNames) Export
 			BlankTheClientSettings = New Map;
 			BlankTheClientSettings.Insert("TheFirstServerCallIsMade",
 				?(CurrentRunMode() = Undefined, Undefined, False));
+			BlankTheClientSettings.Insert("StateBeforeAuthorizeCurrentUserCall", True);
 			SessionParameters.ClientParametersAtServer = New FixedMap(BlankTheClientSettings);
 		EndIf;
 		Catalogs.ExtensionsVersions.SessionParametersSetting(SessionParametersNames, SpecifiedParameters);

@@ -23,7 +23,7 @@ Var SearchStringText;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -353,7 +353,7 @@ EndProcedure
 
 #EndRegion
 
-#Region UserGroupsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersUserGroups
 
 &AtClient
 Procedure UsersGroupsOnChange(Item)
@@ -525,7 +525,7 @@ EndProcedure
 
 #EndRegion
 
-#Region UsersListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersUsersList
 
 &AtClient
 Procedure UsersListOnChange(Item)
@@ -621,7 +621,7 @@ EndProcedure
 
 #EndRegion
 
-#Region SelectedUsersAndGroupsListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersSelectedUsersAndGroupsList
 
 &AtClient
 Procedure SelectedUsersAndGroupsListSelection(Item, RowSelected, Field, StandardProcessing)
@@ -657,7 +657,7 @@ EndProcedure
 
 #EndRegion
 
-#Region UsersListSearchFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersUsersListSearch
 
 &AtClient
 Procedure UsersListSearchOnActivateRow(Item)
@@ -675,7 +675,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure CreateUsersGroup(Command)

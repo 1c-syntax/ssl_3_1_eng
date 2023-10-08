@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -56,7 +56,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ListUsersFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersListUsers
 
 &AtServerNoContext
 Procedure ListUsersOnGetDataAtServer(TagName, Settings, Rows)
@@ -67,7 +67,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ListRolesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersListRoles
 
 &AtClient
 Procedure ListUsersValueChoice(Item, Value, StandardProcessing)
@@ -87,7 +87,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Select(Command)

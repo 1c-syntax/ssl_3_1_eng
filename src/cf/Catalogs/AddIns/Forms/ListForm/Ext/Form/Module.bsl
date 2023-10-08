@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -18,7 +18,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.BulkAdd.Visible = False;
 		Items.FormUpdateFromFile.Visible = False;
 		Items.FormSaveAs.Visible = False;
-		Items.PerformUpdateFrom1CITSPortal.Visible = False;
+		Items.ОбновитьССайта.Visible = False;
 		Items.ListContextMenuUpdateFromFile.Visible = False;
 		Items.ListContextMenuSaveAs.Visible = False;
 	Else
@@ -27,8 +27,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not AddInsInternal.CanImportFromPortal() Then
 		Items.AddFromService.Visible = False;
-		Items.UpdateFrom1CITSPortal.Visible = False;
-		Items.PerformUpdateFrom1CITSPortal.Visible = False;
+		Items.ОбновлятьССайта.Visible = False;
+		Items.ОбновитьССайта.Visible = False;
 	Else
 		Items.AddFromService.Visible = AddInsInternal.CanImportFromPortalInteractively();
 	EndIf;
@@ -76,7 +76,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersList
 
 &AtClient
 Procedure ListBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parameter)
@@ -89,7 +89,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure UpdateFromThePortal(Command)
@@ -273,7 +273,7 @@ Procedure DownloadAddInsAfterSafetyWarning(Response, PlacedFiles) Export
 EndProcedure
 
 &AtServer
-Function DownloadAddInsAtServer(PlacedFiles)
+Function DownloadAddInsAtServer(Val PlacedFiles)
 	
 	ErrorsDescription = New Array;
 	
@@ -376,7 +376,7 @@ Procedure DeleteUnusedAddIns()
 EndProcedure
 
 &AtServerNoContext
-Function IsFileOfService(FileAddress)
+Function IsFileOfService(Val FileAddress)
 	
 	If AddInsInternal.CanImportFromPortalInteractively() Then
 		

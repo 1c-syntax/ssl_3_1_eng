@@ -16,7 +16,7 @@ Var CurrencyCodes;
 
 #EndRegion
 
-#Region EventsHandlers
+#Region EventHandlers
 
 // The dependent currency rates are controlled while writing.
 //

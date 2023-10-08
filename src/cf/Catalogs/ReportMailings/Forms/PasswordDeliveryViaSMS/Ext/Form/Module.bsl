@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -59,7 +59,7 @@ EndProcedure
 
 #EndRegion
 
-#Region RecipientsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersRecipients
 
 &AtClient
 Procedure RecipientsSelection(Item, RowSelected, Field, StandardProcessing)
@@ -99,7 +99,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Send(Command)

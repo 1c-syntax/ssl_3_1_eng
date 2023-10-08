@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -20,7 +20,7 @@ EndProcedure
 
 #EndRegion
 
-#Region AllUsersFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersAllUsers
 
 &AtClient
 Procedure AllUsersDrag(Item, DragParameters, StandardProcessing, String, Field)
@@ -42,7 +42,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ShortListUsersFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersShortListUsers
 
 &AtClient
 Procedure ShortListUsersDrag(Item, DragParameters, StandardProcessing, String, Field)
@@ -64,7 +64,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure RevokeCommandAccessFromAllUsers(Command)

@@ -14,7 +14,7 @@ Var InternalData, PasswordProperties, DataDetails, ObjectForm, ProcessingAfterWa
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -119,6 +119,7 @@ Procedure ChoosingAuthorizationLetterWhenChanging(Item)
 	
 	If Not ByAuthorizationLetter Then
 		MachineReadableAuthorizationLetter = Undefined;
+		ResultOfCheckingMCHDForSigning = Undefined;
 	Else
 		AttachIdleHandler("Attachable_PickUpAuthorizationLetter", 0.1, True);
 	EndIf;
@@ -287,7 +288,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Sign(Command)
@@ -374,18 +375,8 @@ Procedure SetSignatureType(Val ParameterSignatureType)
 	Items.SignatureType.Visible = ParameterSignatureType.Visible;
 	Items.SignatureType.Enabled = ParameterSignatureType.Enabled;
 	
-	If Common.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
-		Items.PowerOfAttorneyGroup.Visible = ParameterSignatureType.ChoosingAuthorizationLetter;
-		If ParameterSignatureType.ChoosingAuthorizationLetter Then
-			Items.GroupPages.CurrentPage = ?(ByAuthorizationLetter, Items.AuthorizationLetterSelectionPage,
-				Items.PageWithoutAuthorizationLetter);
-			If ByAuthorizationLetter Then
-				PickUpAuthorizationLetter();
-			EndIf;
-		EndIf;
-	Else
-		Items.PowerOfAttorneyGroup.Visible = False;
-	EndIf;
+	Items.PowerOfAttorneyGroup.Visible = False;
+	
 	
 	If Items.SignatureType.Visible Then
 		TypesList = New ValueList;
@@ -624,32 +615,10 @@ EndProcedure
 &AtServer
 Procedure PickUpAuthorizationLetter()
 	
-	If Not Common.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
+	If Not IsTempStorageURL(AddressOfCertificate) Then
 		Return;
 	EndIf;
 		
-	MachineReadableAuthorizationLetter = Undefined;
-	Items.MachineReadableAuthorizationLetter.ChoiceList.Clear();
-	Items.MachineReadableAuthorizationLetter.ListChoiceMode = False;
-	
-	ModuleMachineReadableAuthorizationLettersOfFederalTaxService = Common.CommonModule("MachineReadableAuthorizationLettersOfFederalTaxService");
-	CryptoCertificate = New CryptoCertificate(GetFromTempStorage(AddressOfCertificate));
-	SelectionForAuthorizationLettersByCertificate = ModuleMachineReadableAuthorizationLettersOfFederalTaxService.SelectionForAuthorizationLettersByCertificate(CryptoCertificate);
-	SelectedFields = New Array;
-	SelectedFields.Add("MachineReadableAuthorizationLetter");
-	SelectedFields.Add("Presentation");
-	SelectedFields.Add("DateOfIssue1");
-	LettersOfAuthority = ModuleMachineReadableAuthorizationLettersOfFederalTaxService.AuthorizationLettersWithSelection(SelectionForAuthorizationLettersByCertificate, SelectedFields);
-	
-	If LettersOfAuthority.Count() > 0 Then
-		Items.MachineReadableAuthorizationLetter.ListChoiceMode = True;
-		Items.MachineReadableAuthorizationLetter.ChoiceList.Clear();
-		For Each String In LettersOfAuthority Do
-			Items.MachineReadableAuthorizationLetter.ChoiceList.Add(String.MachineReadableAuthorizationLetter,
-				StrTemplate("%1, %2", String.Presentation, Format(String.DateOfIssue1, "DLF=D")));
-		EndDo;
-		MachineReadableAuthorizationLetter = Items.MachineReadableAuthorizationLetter.ChoiceList[0].Value;
-	EndIf;
 
 EndProcedure
 
@@ -689,6 +658,7 @@ Procedure SignData(Notification)
 		HandleError(Context.Notification, Context.ErrorAtClient, Context.ErrorAtServer,,AdditionalErrorData);
 		Return;
 	EndIf;
+	
 	
 	If ValueIsFilled(CertificationAuthorityAuditResult)
 		And Not CertificationAuthorityAuditResult.Valid_SSLyf Then
@@ -835,6 +805,7 @@ Procedure SignDataAfterInvalidSignatureWarning(Result, AdditionalParameters) Exp
 	SelectedCertificate.Insert("Data",    AddressOfCertificate);
 	DataDetails.Insert("SelectedCertificate",   SelectedCertificate);
 	DataDetails.Insert("SelectedAuthorizationLetter", MachineReadableAuthorizationLetter);
+	DataDetails.Insert("ResultOfCheckingMCHDForSigning", ResultOfCheckingMCHDForSigning);
 	
 	If DataDetails.Property("BeforeExecute")
 	   And TypeOf(DataDetails.BeforeExecute) = Type("NotifyDescription") Then

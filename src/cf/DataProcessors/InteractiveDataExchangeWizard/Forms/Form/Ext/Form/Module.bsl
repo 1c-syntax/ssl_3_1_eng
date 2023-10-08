@@ -31,7 +31,7 @@ Var SkipCurrentPageCancelControl;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -296,7 +296,7 @@ EndProcedure
 
 #EndRegion
 
-#Region StatisticsInformationTreeFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersStatisticsInformationTree
 
 &AtClient
 Procedure StatisticsInformationTreeSelection(Item, RowSelected, Field, StandardProcessing)
@@ -307,7 +307,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure NextCommand(Command)
@@ -1196,7 +1196,7 @@ Procedure InitializeExchangeMessagesTransportSettings()
 EndProcedure
 
 &AtServer
-Procedure OnChangeExchangeMessagesTransportKind(Initialization = False, ConfiguredTransportTypes = Undefined)
+Procedure OnChangeExchangeMessagesTransportKind(Initialize = False, ConfiguredTransportTypes = Undefined)
 	
 	ExchangeOverExternalConnection = (Object.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.COM);
 	ExchangeOverWebService         = (Object.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WS);
@@ -1211,7 +1211,7 @@ Procedure OnChangeExchangeMessagesTransportKind(Initialization = False, Configur
 	
 	UseProgressBar = Not ExchangeOverWebService And Not ExchangeBetweenSaaSApplications And Not ExchangeViaInternalPublication;
 	
-	If Initialization Then
+	If Initialize Then
 		SkipTransportPage = SkipTransportPage And (Not ExchangeOverWebService Or WSRememberPassword);
 		FillNavigationTable();
 		

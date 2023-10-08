@@ -87,7 +87,7 @@ Function ExecuteReportsMailing(BulkEmail, LogParameters = Undefined, AdditionalS
 		Page1 = ReportsTable.Add();
 		Page1.Report = RowReport.Report;
 		Page1.SendIfEmpty = RowReport.SendIfEmpty;
-		Page1.DescriptionTemplate1 = RowReport.DescriptionTemplate1;
+		Page1.DescriptionTemplate = RowReport.DescriptionTemplate;
 		
 		// Settings.
 		Settings = RowReport.Settings.Get();
@@ -178,17 +178,17 @@ Function ExecuteReportsMailing(BulkEmail, LogParameters = Undefined, AdditionalS
 		DeliveryParameters.TextTemplate1 = ?(BulkEmailObject.HTMLFormatEmail,
 			BulkEmailObject.EmailTextInHTMLFormat, BulkEmailObject.EmailText);
 		
-		TheRecipientsOfTheMailingListAreSelected = TheRecipientsOfTheMailingListAreSelected(
+		MailingRecipientsSelected = MailingRecipientsSelected(
 			BulkEmail, DeliveryParameters, LogParameters, AdditionalSettings);
 		
-		If Not TheRecipientsOfTheMailingListAreSelected Then 
+		If Not MailingRecipientsSelected Then 
 			Return False;
 		EndIf;
 		
 		DeliveryParameters.EmailParameters.TextType = ?(BulkEmailObject.HTMLFormatEmail, "HTML", "PlainText");
 		DeliveryParameters.EmailParameters.ReplyToAddress = BulkEmailObject.ReplyToAddress;
 		DeliveryParameters.EmailParameters.Importance = ?(ValueIsFilled(BulkEmailObject.EmailImportance),
-			InternetMailMessageImportance[BulkEmailObject.EmailImportance],
+			EmailOperationsInternal.ImportanceOfInternetMailMessageFromString(BulkEmailObject.EmailImportance),
 			InternetMailMessageImportance.Normal);
 		
 		If BulkEmail.HTMLFormatEmail Then
@@ -277,7 +277,7 @@ Function ExecuteBulkEmail(Var_Reports, DeliveryParameters, MailingDescription = 
 			EndIf;
 		EndDo;
 	Else
-		ReportsTree = GenerateReportsInMultipleThreads(Var_Reports, DeliveryParameters, MailingDescription, LogParameters); 
+		ReportsTree = GenerateReports(Var_Reports, DeliveryParameters, MailingDescription, LogParameters); 
 	EndIf;
 
 	If TypeOf(LogParameters.Metadata) = Type("String") And ValueIsFilled(LogParameters.Metadata) Then
@@ -299,7 +299,7 @@ Function ExecuteBulkEmail(Var_Reports, DeliveryParameters, MailingDescription = 
 			EventLogLevel.Warning,
 			NStr("en = 'Report distribution failed. Reports are empty or cannot be generated.';"));
 			
-		FileSystem.DeleteTemporaryDirectory(DeliveryParameters.TempFilesDir);
+		DeleteTempFiles(DeliveryParameters.TempFilesDir, LogParameters);
 		Return False;
 	EndIf;
 	
@@ -345,6 +345,7 @@ Function ExecuteBulkEmail(Var_Reports, DeliveryParameters, MailingDescription = 
 	SentCount = 0;
 	For Each RecipientRow In ReportsTree.Rows Do
 		If RecipientRow = DeliveryParameters.GeneralReportsRow Then
+			QuantityToSend = QuantityToSend - 1;
 			Continue; // Ignore the general reports tree row.
 		EndIf;
 		
@@ -530,15 +531,15 @@ Function ExecuteBulkEmail(Var_Reports, DeliveryParameters, MailingDescription = 
 					|%4';"),
 					DeliveryParameters.Recipients.Count(), SenderSRepresentation, 
 					AdditionalInfo, RecipientPresentation1);
-				LogRecord(LogParameters,, MessageText);  					
+				LogRecord(LogParameters,, MessageText);
 			EndIf;
 		EndIf;
 	EndIf;
 
 	If MailingExecuted Then
-		LogRecord(LogParameters, , NStr("en = 'Report distribution completed';"));
+		LogRecord(LogParameters, , NStr("en = 'Report distribution completed.';"));
 	Else
-		LogRecord(LogParameters, , NStr("en = 'Report distribution failed';"));
+		LogRecord(LogParameters, , NStr("en = 'Report distribution failed.';"));
 	EndIf;
 	
 	If Not IsAutoRedistribution And IsReportsDistributionCatalog Then
@@ -546,7 +547,7 @@ Function ExecuteBulkEmail(Var_Reports, DeliveryParameters, MailingDescription = 
 		ResendByEmail(Var_Reports, DeliveryParameters, LogParameters.Data, LogParameters);
 	EndIf;
 	
-	FileSystem.DeleteTemporaryDirectory(DeliveryParameters.TempFilesDir);
+	DeleteTempFiles(DeliveryParameters.TempFilesDir, LogParameters);
 	
 	// Result.
 	If LogParameters.Property("HadErrors") Then
@@ -597,7 +598,7 @@ EndFunction
 //                     
 //       * Formats - Array of EnumRef.ReportSaveFormats - formats in which the report must be saved and
 //                                                                           sent.
-//       * DescriptionTemplate1 - String -
+//       * DescriptionTemplate - String -
 //
 Function MailingListReports() Export
 	
@@ -612,7 +613,7 @@ Function MailingListReports() Export
 	
 	ReportsTable.Columns.Add("Settings", New TypeDescription(SettingTypesArray));
 	ReportsTable.Columns.Add("Formats", New TypeDescription("Array"));
-	ReportsTable.Columns.Add("DescriptionTemplate1", New TypeDescription("String", New StringQualifiers(150)));
+	ReportsTable.Columns.Add("DescriptionTemplate", New TypeDescription("String", New StringQualifiers(150)));
 	Return ReportsTable;
 	
 EndFunction
@@ -716,7 +717,7 @@ Function DeliveryParameters() Export
 	DeliveryParameters = ReportMailingClientServer.DeliveryParameters();
 	DeliveryParameters.ExecutionDate = CurrentSessionDate();
 	DeliveryParameters.Author = Users.CurrentUser();
-	DeliveryParameters.TempFilesDir = FileSystem.CreateTemporaryDirectory("RP");
+	DeliveryParameters.TempFilesDir = FileSystem.SharedDirectoryOfTemporaryFiles("RP" + New UUID);
 	DeliveryParameters.EmailParameters.Importance = InternetMailMessageImportance.Normal;
 	
 	If GetFunctionalOption("RetainReportDistributionHistory") Then
@@ -1103,9 +1104,12 @@ EndProcedure
 //   ToDoList - See ToDoListServer.ToDoList.
 //
 Procedure OnFillToDoList(ToDoList) Export
+	
 	If Not InsertRight1() Then
 		Return;
 	EndIf;
+	
+	AddToToDoListSetTemporaryFileDirectory(ToDoList);
 	
 	ToDoName = "ReportMailingIssues";
 	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
@@ -1387,6 +1391,8 @@ Function GenerateMailingRecipientsList(BulkEmail, LogParameters = Undefined) Exp
 	
 	RecipientsEmailAddressKind = BulkEmail.RecipientsEmailAddressKind;
 	
+	RecipientsList = New Map;
+	
 	If BulkEmail.Personal Then
 		
 		RecipientsType = TypeOf(BulkEmail.Author);
@@ -1398,13 +1404,18 @@ Function GenerateMailingRecipientsList(BulkEmail, LogParameters = Undefined) Exp
 		EndDo;
 		TableOfRecipients.Add().Recipient = BulkEmail.Author;
 		
-	Else
+	Else 
+		If BulkEmail.MailingRecipientType = Undefined Then
+			 Return RecipientsList;
+		EndIf;
 		RecipientsMetadata = Common.MetadataObjectByID(BulkEmail.MailingRecipientType, False);
 		RecipientsType = BulkEmail.MailingRecipientType.MetadataObjectKey.Get();
-		TableOfRecipients = BulkEmail.Recipients.Unload();
+		If TypeOf(BulkEmail.Recipients) = Type("ValueTable") Then
+			TableOfRecipients = BulkEmail.Recipients;
+		Else
+			TableOfRecipients = BulkEmail.Recipients.Unload();
+		EndIf;
 	EndIf;
-	
-	RecipientsList = New Map;
 	
 	Query = New Query;
 	If RecipientsType = Type("CatalogRef.Users") Then
@@ -1726,7 +1737,7 @@ Function GenerateArrayOfDistributionRecipients(BulkEmail, LogParameters)
 	
 EndFunction
 
-Function TheRecipientsOfTheMailingListAreSelected(BulkEmail, DeliveryParameters, LogParameters, AdditionalSettings)
+Function MailingRecipientsSelected(BulkEmail, DeliveryParameters, LogParameters, AdditionalSettings)
 	
 	Recipients = GenerateMailingRecipientsList(BulkEmail, LogParameters);
 	
@@ -2674,7 +2685,7 @@ Procedure GenerateAndSaveReport(LogParameters, ReportParameters, ReportsTree, De
 		And Not DeliveryParameters.UseNetworkDirectory And Not DeliveryParameters.UseFTPResource Then
 	
 		ReportParametersForEmailText = ReportParametersForEmailText(RecipientsDirectory, ReportPresentation,
-			ReportParameters.DescriptionTemplate1, RecipientRef, RowReport.Value);
+			ReportParameters.DescriptionTemplate, RecipientRef, RowReport.Value);
 		PrepareReportForEmailText(DeliveryParameters, ReportParametersForEmailText, LogParameters);
 	Else
 		Period = GetPeriodFromUserSettings(ReportParameters.DCUserSettings);
@@ -2691,7 +2702,7 @@ Procedure GenerateAndSaveReport(LogParameters, ReportParameters, ReportsTree, De
 
 			FullFileName = FullFileNameFromTemplate(
 			RecipientsDirectory, RowReport.Key, FormatParameters, DeliveryParameters,
-				ReportParameters.DescriptionTemplate1, Period);
+				ReportParameters.DescriptionTemplate, Period);
 
 			FindFreeFileName(FullFileName);
 
@@ -2792,7 +2803,7 @@ Procedure GenerateAndSaveReport(LogParameters, ReportParameters, ReportsTree, De
 				If (DeliveryParameters.HTMLFormatEmail And Format = Enums.ReportSaveFormats.HTML)
 				   Or (Not DeliveryParameters.HTMLFormatEmail And Format = Enums.ReportSaveFormats.TXT) Then
 					ReportParametersForEmailText = ReportParametersForEmailText(RecipientsDirectory, ReportPresentation,
-						ReportParameters.DescriptionTemplate1, RecipientRef, RowReport.Value);
+						ReportParameters.DescriptionTemplate, RecipientRef, RowReport.Value);
 					PrepareReportForEmailText(DeliveryParameters, ReportParametersForEmailText,
 						LogParameters, FullFileName);
 					IsReportPreparedForEmailText = True;
@@ -2803,7 +2814,7 @@ Procedure GenerateAndSaveReport(LogParameters, ReportParameters, ReportsTree, De
 		
 		If DeliveryParameters.UseEmail And DeliveryParameters.ShouldInsertReportsIntoEmailBody And Not IsReportPreparedForEmailText Then
 			ReportParametersForEmailText = ReportParametersForEmailText(RecipientsDirectory, ReportPresentation,
-				ReportParameters.DescriptionTemplate1, RecipientRef, RowReport.Value);
+				ReportParameters.DescriptionTemplate, RecipientRef, RowReport.Value);
 			PrepareReportForEmailText(DeliveryParameters, ReportParametersForEmailText, LogParameters);
 		EndIf;
 
@@ -2815,12 +2826,12 @@ Procedure GenerateAndSaveReport(LogParameters, ReportParameters, ReportsTree, De
 	
 EndProcedure
 
-Function ReportParametersForEmailText(RecipientsDirectory, ReportPresentation, DescriptionTemplate1, Recipient, SpreadsheetDocument)
+Function ReportParametersForEmailText(RecipientsDirectory, ReportPresentation, DescriptionTemplate, Recipient, SpreadsheetDocument)
 	
-	ReportParameters = New Structure("RecipientsDirectory, ReportPresentation, DescriptionTemplate1, Recipient, SpreadsheetDocument");
+	ReportParameters = New Structure("RecipientsDirectory, ReportPresentation, DescriptionTemplate, Recipient, SpreadsheetDocument");
 	ReportParameters.RecipientsDirectory = RecipientsDirectory;
 	ReportParameters.ReportPresentation = ReportPresentation;
-	ReportParameters.DescriptionTemplate1 = DescriptionTemplate1;
+	ReportParameters.DescriptionTemplate = DescriptionTemplate;
 	ReportParameters.Recipient = Recipient;
 	ReportParameters.SpreadsheetDocument = SpreadsheetDocument;
 	
@@ -2859,7 +2870,7 @@ Function PathToTempReportFileForEmailText(DeliveryParameters, ReportParameters, 
 	EndIf;
 
 	FullFileName = FullFileNameFromTemplate(ReportParameters.RecipientsDirectory, ReportParameters.ReportPresentation,
-		FormatParameters, DeliveryParameters, ReportParameters.DescriptionTemplate1, Undefined);
+		FormatParameters, DeliveryParameters, ReportParameters.DescriptionTemplate, Undefined);
 
 	FindFreeFileName(FullFileName);
 	ErrorTitle = NStr("en = 'Error saving report %1 as %2:';");
@@ -3721,15 +3732,15 @@ Function WriteSpreadsheetDocumentToFormatParameters(Format) Export
 	Return Result;
 EndFunction
 
-Function FullFileNameFromTemplate(Directory, ReportDescription1, Format, DeliveryParameters, DescriptionTemplate1, Period) Export
+Function FullFileNameFromTemplate(Directory, ReportDescription1, Format, DeliveryParameters, DescriptionTemplate, Period) Export
 	
 	FileNameParameters = New Structure("ReportDescription1, ReportFormat, MailingDate, FileExtention");
 	FileNameParameters.ReportDescription1 = ReportDescription1;
 	FileNameParameters.ReportFormat = Format.Name;
 	FileNameParameters.FileExtention = ?(Format.Extension = Undefined, "", Format.Extension);
 	
-	If ValueIsFilled(DescriptionTemplate1) Then
-		FileNameTemplate = DescriptionTemplate1 + "[FileExtention]";
+	If ValueIsFilled(DescriptionTemplate) Then
+		FileNameTemplate = DescriptionTemplate + "[FileExtention]";
 		FileNameParameters.MailingDate = CurrentSessionDate();
 		If Period <> Undefined Then
 			FileNameParameters.Insert("Period", Period);
@@ -4441,7 +4452,7 @@ Function TextTemplate1() Export
 EndFunction
 
 Function GetPeriodFromUserSettings(DCUserSettings) Export
-	If DCUserSettings = Undefined Then
+	If TypeOf(DCUserSettings) <> Type("DataCompositionUserSettings") Then
 		Return Undefined;
 	EndIf;
 
@@ -4458,6 +4469,9 @@ Function GetPeriodFromUserSettings(DCUserSettings) Export
 	
 EndFunction
 
+// Parameters:
+//  Form - ClientApplicationForm
+//
 Procedure AddCommandsAddTextAdditionalParameters(Form) Export
 
 	If Form.EmailTextAdditionalParameters = Undefined Then
@@ -4495,7 +4509,7 @@ Procedure AddCommandsAddTextAdditionalParameters(Form) Export
 		Button = Form.Items.Add(ButtonNameText, Type("FormButton"), GroupParameters);
 		Button.Title  = TextParameter.Value;
 		Button.CommandName = CommandName;
-		Form.Items.MoveTo(Button, GroupParameters, Form.Items.AddDefaultTemplate);
+		Form.Items.Move(Button, GroupParameters, Form.Items.AddDefaultTemplate);
 		
 		GroupParameters = Form.Items.EmailTextFormattedDocumentAddTemplateParameters;
 		HTMLButtonName = "EmailTextFormattedDocumentAddTemplate" + CommandName;
@@ -4503,14 +4517,14 @@ Procedure AddCommandsAddTextAdditionalParameters(Form) Export
 		Button.Title  = TextParameter.Value;
 		Button.CommandName = CommandName;
 		
-		Form.Items.MoveTo(Button, GroupParameters, Form.Items.EmailTextFormattedDocumentAddDefaultTemplate);
+		Form.Items.Move(Button, GroupParameters, Form.Items.EmailTextFormattedDocumentAddDefaultTemplate);
 
 		GroupParameters = Form.Items.EmailSubjectContextMenuSubmenuParameter;
 		ButtonNameContextMenuSubject = "EmailSubjectContextMenuAddTemplate" + CommandName;
 		Button = Form.Items.Add(ButtonNameContextMenuSubject, Type("FormButton"), GroupParameters);
 		Button.Title  = TextParameter.Value;
 		Button.CommandName = CommandName;
-		Form.Items.MoveTo(Button, GroupParameters, Form.Items.EmailSubjectContextMenuAddDefaultTemplate);
+		Form.Items.Move(Button, GroupParameters, Form.Items.EmailSubjectContextMenuAddDefaultTemplate);
 		
 		ParameterDetails = New Structure();
 		ParameterDetails.Insert("Name", TextParameter.Key);
@@ -4696,6 +4710,163 @@ Procedure ResendByEmail(ReportsTable, DeliveryParameters, BulkEmail, LogParamete
 	
 EndProcedure
 
+Function GenerateReports(Var_Reports, DeliveryParameters, MailingDescription, LogParameters) 
+
+	ExecuteInMultipleThreads = FileSystem.SharedDirectoryOfTemporaryFiles() <> TempFilesDir();
+	
+	If ExecuteInMultipleThreads Then
+		Return GenerateReportsInMultipleThreads(Var_Reports, DeliveryParameters, MailingDescription, LogParameters);
+	Else
+		If Not Common.FileInfobase() And Not Common.DataSeparationEnabled() Then
+			LogRecord(LogParameters, EventLogLevel.Warning, NStr(
+				"en = 'Reports can be sent faster. To send reports in multiple threads, specify a directory of temporary files of the 1C:Enterprise server cluster.';"));
+		EndIf;
+		
+		Return GenerateReportsInOneStream(Var_Reports, DeliveryParameters, MailingDescription, LogParameters);
+	EndIf;
+
+EndFunction 
+
+Function GenerateReportsInOneStream(Var_Reports, DeliveryParameters, MailingDescription, LogParameters)
+
+	// 
+	ReportsTree = CreateReportsTree();
+	
+	// 
+	DeliveryParameters.GeneralReportsRow = DefineTreeRowForRecipient(ReportsTree, Undefined, DeliveryParameters);
+	
+	For Each RowReport In Var_Reports Do
+		LogText = NStr("en = 'Generating report: %1';");
+		If RowReport.Settings = Undefined Then
+			LogText = LogText + Chars.LF + NStr("en = '(user settings are not set)';");
+		EndIf;
+		
+		ReportPresentation = String(RowReport.Report);
+		
+		LogRecord(LogParameters,
+			EventLogLevel.Note,
+			StringFunctionsClientServer.SubstituteParametersToString(LogText, ReportPresentation));
+		
+		// 
+		ReportParameters = New Structure("Report, Settings, Formats, SendIfEmpty, DescriptionTemplate");
+		FillPropertyValues(ReportParameters, RowReport);
+		If Not InitializeReport(LogParameters, ReportParameters, DeliveryParameters.Personalized) Then
+			Continue;
+		EndIf;
+		
+		If DeliveryParameters.Personalized And Not ReportParameters.IsPersonalized Then
+			ReportParameters.Errors = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Cannot generate report ""%1"". Recipient is required.';"),
+				ReportPresentation);
+			
+			LogRecord(LogParameters, EventLogLevel.Error, ReportParameters.Errors);
+			Return Undefined;
+		EndIf;
+		
+		// 
+		Try
+			If ReportParameters.IsPersonalized Then
+				// 
+				For Each KeyAndValue In DeliveryParameters.Recipients Do
+					GenerateAndSaveReport(
+						LogParameters,
+						ReportParameters,
+						ReportsTree,
+						DeliveryParameters,
+						KeyAndValue.Key);
+				EndDo;
+			Else
+				// 
+				GenerateAndSaveReport(
+					LogParameters,
+					ReportParameters,
+					ReportsTree,
+					DeliveryParameters,
+					Undefined);
+			EndIf;
+			
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'The ""%1"" report is successfully generated.';"), ReportPresentation);
+			
+			LogRecord(LogParameters, EventLogLevel.Note, MessageText);
+		Except
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Report ""%1"" was not generated:';"), ReportPresentation);
+			
+			LogRecord(LogParameters, , MessageText, ErrorProcessing.DetailErrorDescription(
+				ErrorInfo()));
+		EndTry;
+	EndDo;
+	
+	Return ReportsTree;
+	
+EndFunction 
+
+// Parameters:
+//   ToDoList - See ToDoListServer.ToDoList.
+//
+Procedure AddToToDoListSetTemporaryFileDirectory(ToDoList)
+	
+	If Not Users.IsFullUser() 
+	   Or Common.FileInfobase()
+	   Or FileSystem.SharedDirectoryOfTemporaryFiles() <> TempFilesDir()
+	   Or Common.DataSeparationEnabled()
+	   Or Not Common.SubsystemExists("StandardSubsystems.ApplicationSettings") Then
+		Return;
+	EndIf;
+	
+	ToDoName = "MailingReportsCanWorkFaster";
+	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
+	If ModuleToDoListServer.UserTaskDisabled(ToDoName) Then
+		Return;
+	EndIf;
+
+	Query = New Query;
+	Query.Text =
+	"SELECT
+	|	ReportMailings.Ref AS Ref
+	|FROM
+	|	Catalog.ReportMailings AS ReportMailings
+	|WHERE
+	|	NOT ReportMailings.IsFolder";
+
+	QueryResult = Query.Execute();
+	If QueryResult.IsEmpty() Then
+		Return;
+	EndIf;
+
+	Sections = ModuleToDoListServer.SectionsForObject(Metadata.Catalogs.ReportMailings.FullName());
+	For Each Section In Sections Do
+		IdMailoutOfReports = "ReportMailing";
+		ToDoItem = ToDoList.Add();
+		ToDoItem.Id  = ToDoName + StrReplace(Section.FullName(), ".", "");
+		ToDoItem.HasToDoItems       = True;
+		ToDoItem.Presentation  = NStr("en = 'Reports can be sent faster';");
+		ToDoItem.Owner       = Section;
+		ToDoItem.ToolTip  = NStr("en = 'To send reports in multiple threads, specify a directory of temporary files of the 1C:Enterprise server cluster.';");	
+		If Common.SubsystemExists("StandardSubsystems.ApplicationSettings") Then
+			AppSettingsModule = Common.CommonModule("ApplicationSettings");
+			ToDoItem.Form = AppSettingsModule.FormNameGeneralSettings();
+		EndIf;
+	EndDo;
+
+EndProcedure
+
+Procedure DeleteTempFiles(Val Path, LogParameters)
+	
+	Try
+		DeleteFiles(Path);
+	Except
+		LogRecord(LogParameters, EventLogLevel.Warning,
+		StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Cannot delete temporary file %1. Reason:
+					|%2';"),
+				Path,
+				ErrorProcessing.DetailErrorDescription(ErrorInfo())));
+	EndTry;
+	
+EndProcedure
+
 #Region MultiThreadedReportGeneration
 
 Function GenerateReportsInMultipleThreads(Var_Reports, DeliveryParameters, MailingDescription, LogParameters)
@@ -4719,7 +4890,7 @@ Function GenerateReportsInMultipleThreads(Var_Reports, DeliveryParameters, Maili
 			StringFunctionsClientServer.SubstituteParametersToString(LogText, ReportPresentation));
 		
 		// 
-		ReportParameters = New Structure("Report, Settings, Formats, SendIfEmpty, DescriptionTemplate1");
+		ReportParameters = New Structure("Report, Settings, Formats, SendIfEmpty, DescriptionTemplate");
 		FillPropertyValues(ReportParameters, RowReport);
 		If Not InitializeReport(LogParameters, ReportParameters, DeliveryParameters.Personalized) Then
 			Continue;
@@ -4736,7 +4907,7 @@ Function GenerateReportsInMultipleThreads(Var_Reports, DeliveryParameters, Maili
 		
 		If ReportParameters.IsPersonalized Then
 			For Each KeyAndValue In DeliveryParameters.Recipients Do
-				ReportParametersStructure = New Structure("Report, Settings, Formats, SendIfEmpty, DescriptionTemplate1");
+				ReportParametersStructure = New Structure("Report, Settings, Formats, SendIfEmpty, DescriptionTemplate");
 				FillPropertyValues(ReportParametersStructure, RowReport);
 				
 				If PersonalizedReports.Get(KeyAndValue.Key) = Undefined Then
@@ -4746,7 +4917,7 @@ Function GenerateReportsInMultipleThreads(Var_Reports, DeliveryParameters, Maili
 			EndDo;
 			
 		Else
-			ReportParametersStructure = New Structure("Report, Settings, Formats, SendIfEmpty, DescriptionTemplate1");
+			ReportParametersStructure = New Structure("Report, Settings, Formats, SendIfEmpty, DescriptionTemplate");
 			FillPropertyValues(ReportParametersStructure, RowReport);
 			
 			NotPersonalizedReports.Add(ReportParametersStructure);
@@ -4793,7 +4964,7 @@ Function GenerateReportsInMultipleThreads(Var_Reports, DeliveryParameters, Maili
 			PortionNumber = PortionNumber + 1;
 		EndIf;
 	EndDo;
-	
+
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID());
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Report distribution';");
 	ExecutionParameters.WaitCompletion = Undefined;
@@ -4807,7 +4978,7 @@ Function GenerateReportsInMultipleThreads(Var_Reports, DeliveryParameters, Maili
 		MethodParameters);
 	
 	ReportsTree = CreateReportsTree();
-
+	
 	// 
 	DeliveryParameters.GeneralReportsRow = DefineTreeRowForRecipient(ReportsTree, Undefined, DeliveryParameters);
 	
@@ -4828,7 +4999,7 @@ Function GenerateReportsInMultipleThreads(Var_Reports, DeliveryParameters, Maili
 				MergeReportsForEmailTextFromMultipleThreads(DeliveryParameters, ResultsFromThread.ReportsForEmailText);
 			EndIf;
 		EndIf;
-				
+		
 	EndDo;
 	
 	Return ReportsTree;
@@ -4857,7 +5028,7 @@ Function ReportsBatchGenerationResult(Var_Reports, LogParameters, DeliveryParame
 		ReportPresentation = String(RowReport.Report);
 		
 		// 
-		ReportParameters = New Structure("Report, Settings, Formats, SendIfEmpty, DescriptionTemplate1");
+		ReportParameters = New Structure("Report, Settings, Formats, SendIfEmpty, DescriptionTemplate");
 		FillPropertyValues(ReportParameters, RowReport);
 		If Not InitializeReport(LogParameters, ReportParameters, DeliveryParameters.Personalized) Then
 			Continue;
@@ -4893,7 +5064,7 @@ Function ReportsBatchGenerationResult(Var_Reports, LogParameters, DeliveryParame
 			EndIf;
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Report ""%1"" is generated successfully';"), ReportPresentation);
+				NStr("en = 'The ""%1"" report is successfully generated.';"), ReportPresentation);
 			
 			LogRecord(LogParameters, EventLogLevel.Note, MessageText);
 		Except

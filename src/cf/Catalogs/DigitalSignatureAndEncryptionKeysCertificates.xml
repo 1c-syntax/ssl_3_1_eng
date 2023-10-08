@@ -1154,7 +1154,7 @@ This option is required for private keys of certificates covered by OS advanced 
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Added</v8:content>
+							<v8:content>Added by</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -26,7 +26,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersList
 
 &AtClient
 Procedure ListBeforeDeleteRow(Item, Cancel)
@@ -35,7 +35,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure UpdateAllStandardRules(Command)

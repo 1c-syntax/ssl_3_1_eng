@@ -14,7 +14,7 @@ Var InternalData, PasswordProperties;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -55,6 +55,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		CertificateAttributeParameters.Insert("Organization", Parameters.Organization);
 	EndIf;
 	ExecuteAtServer = Parameters.ExecuteAtServer;
+	
+	LinkSelectionMode = Parameters.LinkSelectionMode;
 	
 	HasCloudSignature = DigitalSignatureInternal.UseCloudSignatureService();
 	
@@ -133,6 +135,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		SelectedCertificateThumbprintNotFound = True;
 	EndIf;
+	
+	Items.CommandsSelectCancel.Visible = LinkSelectionMode;
+	Items.SelectLink.DefaultButton = LinkSelectionMode;
+	Items.CommandsNextAndCancel.Visible = Not LinkSelectionMode;
+	Items.Next.DefaultButton = Not LinkSelectionMode;
 	
 EndProcedure
 
@@ -305,12 +312,16 @@ EndProcedure
 
 #EndRegion
 
-#Region CertificatesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersCertificates
 
 &AtClient
 Procedure CertificatesSelection(Item, RowSelected, Field, StandardProcessing)
 	
-	Next(Undefined);
+	If LinkSelectionMode Then
+		SelectLink(Undefined);
+	Else
+		Next(Undefined);
+	EndIf;
 	
 EndProcedure
 
@@ -327,7 +338,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Refresh(Command)
@@ -457,6 +468,41 @@ Procedure Select(Command)
 		
 	EndIf;
 	
+EndProcedure
+
+&AtClient
+Procedure SelectLink(Command)
+	
+	CurrentData = Items.Certificates.CurrentData;
+	If CurrentData = Undefined Then
+		Return;
+	EndIf;
+	
+	CurrentData = Items.Certificates.CurrentData;
+	If CurrentData = Undefined Then
+		Return;
+	EndIf;
+	
+	CompletionNotification = New NotifyDescription("SelectLinkCompletion", ThisObject);
+	
+	If CurrentData.LocationType = 3 Then
+		TheDSSCryptographyServiceModuleClientServer = CommonClient.CommonModule("DSSCryptographyServiceClientServer");
+		TheDSSCryptographyServiceModuleClient = CommonClient.CommonModule("DSSCryptographyServiceClient");
+		CertificateThumbprint = New Structure();
+		CertificateThumbprint.Insert("Thumbprint", TheDSSCryptographyServiceModuleClientServer.TransformFingerprint(CurrentData.Thumbprint));
+		
+		OperationParametersList = New Structure;
+		OperationParametersList.Insert("GetBinaryData", True);
+		TheDSSCryptographyServiceModuleClient.FindCertificate(CompletionNotification, CertificateThumbprint, OperationParametersList);
+	Else
+		DigitalSignatureInternalClient.GetCertificateByThumbprint(CompletionNotification, CurrentData.Thumbprint, False);
+	EndIf;
+EndProcedure
+
+// 
+&AtClient
+Procedure SelectLinkCompletion(Result, Context) Export 
+	Close(Result.Unload());
 EndProcedure
 
 // Continues the Select procedure.

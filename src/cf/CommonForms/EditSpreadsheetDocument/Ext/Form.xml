@@ -69,30 +69,6 @@
 								</Button>
 							</ChildItems>
 						</ButtonGroup>
-						<ButtonGroup name="GroupUndoRedo" id="470">
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Group Undo/redo</v8:content>
-								</v8:item>
-							</Title>
-							<Representation>Compact</Representation>
-							<ExtendedTooltip name="GroupUndoRedoExtendedTooltip" id="471"/>
-							<ChildItems>
-								<Button name="Cancel" id="472">
-									<Type>CommandBarButton</Type>
-									<CommandName>Form.Item.SpreadsheetDocument.StandardCommand.Undo</CommandName>
-									<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-									<ExtendedTooltip name="CancelExtendedTooltip" id="473"/>
-								</Button>
-								<Button name="Redo" id="474">
-									<Type>CommandBarButton</Type>
-									<CommandName>Form.Item.SpreadsheetDocument.StandardCommand.Redo</CommandName>
-									<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-									<ExtendedTooltip name="RedoExtendedTooltip" id="475"/>
-								</Button>
-							</ChildItems>
-						</ButtonGroup>
 						<Button name="Preview1" id="611">
 							<Type>CommandBarButton</Type>
 							<Representation>Picture</Representation>
@@ -1422,6 +1398,10 @@
 														</v8:item>
 													</Title>
 													<TitleLocation>None</TitleLocation>
+													<CommandSet>
+														<ExcludedCommand>Save</ExcludedCommand>
+														<ExcludedCommand>SaveAs</ExcludedCommand>
+													</CommandSet>
 													<ShowGrid>true</ShowGrid>
 													<ShowHeaders>true</ShowHeaders>
 													<VerticalScrollBar>true</VerticalScrollBar>
@@ -2178,6 +2158,7 @@
 					<v8:content>Save the changes.</v8:content>
 				</v8:item>
 			</ToolTip>
+			<Shortcut>Ctrl+S</Shortcut>
 			<Picture>
 				<xr:Ref>StdPicture.SaveFile</xr:Ref>
 				<xr:LoadTransparent>true</xr:LoadTransparent>
@@ -2459,7 +2440,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Save to file…</v8:content>
+					<v8:content>Export to file...</v8:content>
 				</v8:item>
 			</Title>
 			<Action>SaveToFile</Action>

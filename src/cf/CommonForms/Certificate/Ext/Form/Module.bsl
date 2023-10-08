@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -174,7 +174,7 @@ EndProcedure
 
 #EndRegion
 
-#Region RevocationListsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersRevocationLists
 
 &AtClient
 Procedure RevocationListsSelection(Item, RowSelected, Field, StandardProcessing)
@@ -185,7 +185,7 @@ EndProcedure
 
 #EndRegion
 
-#Region RootCertificatesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersRootCertificates
 
 &AtClient
 Procedure RootCertificatesChoice(Item, RowSelected, Field, StandardProcessing)
@@ -207,7 +207,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure SaveToFile(Command)
@@ -254,15 +254,15 @@ Procedure InstallCertificate(Command)
 			InstallationOptions = New ValueList;
 			InstallationOptions.Add("ROOT", NStr("en = 'Trusted root certificates';"));
 			InstallationOptions.Add("CA", NStr("en = 'Intermediate certificates';"));
-			InstallationOptions.Add("MY", NStr("en = 'Personal certificate storage';"));
-			InstallationOptions.Add("Container", NStr("en = 'Container and personal storage';"));
+			InstallationOptions.Add("MY", NStr("en = 'Personal certificate store';"));
+			InstallationOptions.Add("Container", NStr("en = 'Container and Personal store';"));
 			CertificateInstallationParameters.InstallationOptions = InstallationOptions;
 		ElsIf CurrentData.GetID() <> CertificationPath[CertificationPath.Count() - 1].GetID() Then
 			InstallationOptions = New ValueList;
 			InstallationOptions.Add("CA", NStr("en = 'Intermediate certificates';"));
 			InstallationOptions.Add("ROOT", NStr("en = 'Trusted root certificates';"));
-			InstallationOptions.Add("MY", NStr("en = 'Personal certificate storage';"));
-			InstallationOptions.Add("Container", NStr("en = 'Container and personal storage';"));
+			InstallationOptions.Add("MY", NStr("en = 'Personal certificate store';"));
+			InstallationOptions.Add("Container", NStr("en = 'Container and Personal store';"));
 			CertificateInstallationParameters.InstallationOptions = InstallationOptions;
 		EndIf;
 	EndIf;

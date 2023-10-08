@@ -318,15 +318,33 @@
 							</ChildItems>
 						</UsualGroup>
 						<UsualGroup name="PowerOfAttorneyGroup" id="496">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group Letter of authority</v8:content>
+								</v8:item>
+							</Title>
 							<Representation>NormalSeparation</Representation>
 							<ShowTitle>false</ShowTitle>
 							<ExtendedTooltip name="PowerOfAttorneyGroupExtendedTooltip" id="497"/>
 							<ChildItems>
 								<Pages name="GroupPages" id="504">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Pages</v8:content>
+										</v8:item>
+									</Title>
 									<PagesRepresentation>None</PagesRepresentation>
 									<ExtendedTooltip name="GroupPagesExtendedTooltip" id="505"/>
 									<ChildItems>
 										<Page name="PageWithoutAuthorizationLetter" id="510">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Page Select letter of authority</v8:content>
+												</v8:item>
+											</Title>
 											<Group>AlwaysHorizontal</Group>
 											<ExtendedTooltip name="PageWithoutAuthorizationLetterExtendedTooltip" id="511"/>
 											<ChildItems>
@@ -344,11 +362,29 @@
 											</ChildItems>
 										</Page>
 										<Page name="AuthorizationLetterSelectionPage" id="508">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Page Select letter of authority</v8:content>
+												</v8:item>
+											</Title>
+											<ToolTip>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Page Without letter of authority</v8:content>
+												</v8:item>
+											</ToolTip>
 											<Group>AlwaysHorizontal</Group>
 											<ExtendedTooltip name="AuthorizationLetterSelectionPageExtendedTooltip" id="509"/>
 											<ChildItems>
 												<CheckBoxField name="ByAuthorizationLetter" id="498">
 													<DataPath>ByAuthorizationLetter</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Under letter of authority:</v8:content>
+														</v8:item>
+													</Title>
 													<TitleLocation>Right</TitleLocation>
 													<GroupVerticalAlign>Center</GroupVerticalAlign>
 													<CheckBoxType>Auto</CheckBoxType>
@@ -362,6 +398,24 @@
 													<DataPath>MachineReadableAuthorizationLetter</DataPath>
 													<TitleLocation>None</TitleLocation>
 													<AutoMaxWidth>false</AutoMaxWidth>
+													<DropListButton>true</DropListButton>
+													<ChooseType>false</ChooseType>
+													<ChoiceParameterLinks>
+														<xr:Link>
+															<xr:Name>RepresentativeCertificate</xr:Name>
+															<xr:DataPath xsi:type="xs:string">Certificate</xr:DataPath>
+															<xr:ValueChange>Clear</xr:ValueChange>
+														</xr:Link>
+													</ChoiceParameterLinks>
+													<ChoiceParameters>
+														<app:item name="OnlyValidOnes">
+															<app:value xsi:type="FormChoiceListDesTimeValue">
+																<Presentation/>
+																<Value xsi:type="xs:boolean">true</Value>
+															</app:value>
+														</app:item>
+													</ChoiceParameters>
+													<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>
 													<ContextMenu name="MachineReadableAuthorizationLetterContextMenu" id="502"/>
 													<ExtendedTooltip name="MachineReadableAuthorizationLetterExtendedTooltip" id="503"/>
 												</InputField>
@@ -665,11 +719,23 @@
 			<Type/>
 		</Attribute>
 		<Attribute name="ByAuthorizationLetter" id="27">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Under letter of authority</v8:content>
+				</v8:item>
+			</Title>
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
 		<Attribute name="MachineReadableAuthorizationLetter" id="28">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Electronic letter of authority</v8:content>
+				</v8:item>
+			</Title>
 			<Type>
 				<v8:Type>xs:string</v8:Type>
 				<v8:StringQualifiers>
@@ -677,6 +743,9 @@
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
+		</Attribute>
+		<Attribute name="ResultOfCheckingMCHDForSigning" id="29">
+			<Type/>
 		</Attribute>
 	</Attributes>
 	<Commands>

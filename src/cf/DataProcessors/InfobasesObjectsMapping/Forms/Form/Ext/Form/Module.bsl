@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -335,7 +335,7 @@ EndProcedure
 
 #EndRegion
 
-#Region MappingTableFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersMappingTable
 
 &AtClient
 Procedure MappingTableSelection(Item, RowSelected, Field, StandardProcessing)
@@ -353,7 +353,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Refresh(Command)

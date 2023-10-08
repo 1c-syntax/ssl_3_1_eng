@@ -17,7 +17,7 @@ Var PreparedData1;
 
 #EndRegion
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure BeforeWrite(Cancel, Replacing)
 	
@@ -104,7 +104,7 @@ EndProcedure
 
 #EndRegion
 
-#Region Initialization
+#Region Initialize
 
 DataToWrite = New ValueTable();
 VerificationRequired = Common.DataSeparationEnabled() And Common.SeparatedDataUsageAvailable();

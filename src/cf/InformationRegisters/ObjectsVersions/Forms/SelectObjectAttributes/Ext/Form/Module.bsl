@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -49,7 +49,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ObjectAttributesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersObjectAttributes
 
 &AtClient
 Procedure ObjectAttributesCheckOnChange(Item)
@@ -61,7 +61,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure CheckAll(Command)

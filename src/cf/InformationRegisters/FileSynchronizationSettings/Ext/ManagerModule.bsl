@@ -84,7 +84,7 @@ Procedure RefreshSynchronizationSettings()
 			NewRow  = FilesOwnersTable.Add();
 			NewRow.FileOwner = FileOwner;
 			NewRow.FileOwnerType= Common.MetadataObjectID(Catalog);
-			NewRow.IsFile = Not StrEndsWith(Catalog.Name, "AttachedFiles");
+			NewRow.IsFile = Not StrEndsWith(Catalog.Name, FilesOperationsClientServer.CatalogSuffixAttachedFiles());
 		EndDo;
 	EndDo;
 	

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -155,7 +155,7 @@ EndProcedure
 
 #EndRegion
 
-#Region RespondentsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersRespondents
 
 &AtClient
 Procedure RespondentsRespondentStartChoice(Item, ChoiceData, StandardProcessing)
@@ -180,7 +180,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure PickRespondents(Command)

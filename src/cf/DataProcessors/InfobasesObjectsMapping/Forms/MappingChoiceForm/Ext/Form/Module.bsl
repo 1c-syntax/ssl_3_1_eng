@@ -32,7 +32,7 @@
 // 
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -54,7 +54,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ChoiceTableFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersChoiceTable
 
 &AtClient
 Procedure ChoiceTableSelection(Item, RowSelected, Field, StandardProcessing)
@@ -64,7 +64,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Select(Command)

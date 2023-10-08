@@ -207,15 +207,11 @@
 											<CheckBoxType>Auto</CheckBoxType>
 											<ContextMenu name="ShowScannerDialogContextMenu" id="2"/>
 											<ExtendedTooltip name="ShowScannerDialogExtendedTooltip" id="77">
-												<Title formatted="true">
-													<v8:item>
-														<v8:lang>en</v8:lang>
-														<v8:content>
-You cannot disable the scanner dialog box on WIA devices (see scanner settings in the operating system).
-</v8:content>
-													</v8:item>
-												</Title>
+												<Title formatted="true"/>
 											</ExtendedTooltip>
+											<Events>
+												<Event name="OnChange">ShowScannerDialogOnChange</Event>
+											</Events>
 										</CheckBoxField>
 									</ChildItems>
 								</UsualGroup>

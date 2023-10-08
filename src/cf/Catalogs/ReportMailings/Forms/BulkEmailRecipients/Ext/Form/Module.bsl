@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -48,7 +48,7 @@ EndProcedure
 
 #EndRegion
 
-#Region RecipientsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersRecipients
 
 &AtClient
 Procedure PickRecipients(Command)
@@ -112,7 +112,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure OK(Command)
@@ -263,7 +263,7 @@ EndProcedure
 &AtServer
 Procedure FillMailAddresses()
 	
-	RecipientsParameters = New Structure("Ref, RecipientsEmailAddressKind, Personal, Recipients, MailingRecipientType");
+	RecipientsParameters = ReportMailingClientServer.RecipientsParameters();
 	FillPropertyValues(RecipientsParameters, ThisObject);
 	RecipientsParameters.Personal = False;
 	RecipientsParameters.MailingRecipientType = MetadataObjectID;
@@ -328,19 +328,29 @@ EndProcedure
 
 &AtClientAtServerNoContext
 Procedure RefreshRecipientCount(Form)
+	
+	RecipientsParameters = ReportMailingClientServer.RecipientsParameters();
+	FillPropertyValues(RecipientsParameters, Form);
+	RecipientsParameters.Personal = False;
+	RecipientsParameters.MailingRecipientType = Form.MetadataObjectID;
 
-	NumberOfRecipients = RecipientsCountIncludingGroups(Form.Recipients,
-		Form.MetadataObjectID);
+	NumberOfRecipients = RecipientsCountIncludingGroups(RecipientsParameters);
 
 	Form.ResultTotalCount = NumberOfRecipients.Total;
-	Form.ResultExcludedCount = NumberOfRecipients.ExcludedCount;
+	If NumberOfRecipients.ExcludedCount <> Undefined Then
+		Form.ResultExcludedCount = NumberOfRecipients.ExcludedCount;
+		Form.Items.ResultExcludedCount.Visible = True;
+	Else
+		Form.ResultExcludedCount = 0;
+		Form.Items.ResultExcludedCount.Visible = False;
+	EndIf;
 
 EndProcedure
 
 &AtServerNoContext
-Function RecipientsCountIncludingGroups(Val Recipients, Val MetadataObjectID)
+Function RecipientsCountIncludingGroups(Val RecipientsParameters)
 
-	Return Catalogs.ReportMailings.RecipientsCountIncludingGroups(Recipients, MetadataObjectID);
+	Return Catalogs.ReportMailings.RecipientsCountIncludingGroups(RecipientsParameters);
 
 EndFunction
 

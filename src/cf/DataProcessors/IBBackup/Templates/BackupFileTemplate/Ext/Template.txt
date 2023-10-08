@@ -181,7 +181,7 @@ function log1CInternal (connection, text, failed) {
   }
 }
 
-// Initialization
+// Initialize
 function initialize () {
   clearLogFile()
   appendLog()

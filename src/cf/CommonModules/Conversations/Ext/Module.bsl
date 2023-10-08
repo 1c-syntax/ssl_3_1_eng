@@ -555,9 +555,7 @@ Function IsInteractionSystemConnectError(ErrorInfo) Export
 	
 	MultiLangStrings = New Array;
 	
-	// ACC:1297-
-	// 
-	// 
+	// ACC:1036-
 	
 	MultiLangStrings.Add(
 	"az = 'Qarşılıqlı fəaliyyət sistmei qeydə alınmayıb';
@@ -605,8 +603,6 @@ Function IsInteractionSystemConnectError(ErrorInfo) Export
 	|uk = 'Невозможно установить соединение с сервером системы взаимодействия';
 	|fr = 'Невозможно установить соединение с сервером системы взаимодействия'"); // @Non-NLS
 	
-	// 
-	// 
 	// 
 	
 	BriefErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo);

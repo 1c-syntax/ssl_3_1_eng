@@ -2895,7 +2895,7 @@
 																	</ChildItems>
 																</ColumnGroup>
 																<InputField name="ReportsFormatsDescriptionTemplate" id="1230">
-																	<DataPath>Object.Reports.DescriptionTemplate1</DataPath>
+																	<DataPath>Object.Reports.DescriptionTemplate</DataPath>
 																	<DropListButton>true</DropListButton>
 																	<InputHint>
 																		<v8:item>

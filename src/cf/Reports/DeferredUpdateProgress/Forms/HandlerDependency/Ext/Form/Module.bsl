@@ -14,7 +14,7 @@ Var PriorityTable, ProcessorQueue, ProgressProcessing;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -79,12 +79,12 @@ EndProcedure
 
 &AtClient
 Procedure OnOpen(Cancel)
-	AttachIdleHandler("Plugin_ExpandStrings", 0.1, True);
+	AttachIdleHandler("Attachable_ExpandLines", 0.1, True);
 EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure RegisteredData(Command)
@@ -184,7 +184,7 @@ Procedure SetHandlerStatus(String, Status)
 EndProcedure
 
 &AtClient
-Procedure Plugin_ExpandStrings()
+Procedure Attachable_ExpandLines()
 	
 	MainProcessorBranch = DependencyTree.GetItems()[0];
 	Id = MainProcessorBranch.GetID();

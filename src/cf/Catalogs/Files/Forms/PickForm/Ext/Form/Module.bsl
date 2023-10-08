@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -55,7 +55,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FoldersFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersFolders
 
 &AtClient
 Procedure FoldersOnActivateRow(Item)
@@ -71,7 +71,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersList
 
 &AtClient
 Procedure ListValueChoice(Item, Value, StandardProcessing)

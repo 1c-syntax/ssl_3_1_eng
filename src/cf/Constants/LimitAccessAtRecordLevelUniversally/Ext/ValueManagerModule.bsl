@@ -11,11 +11,11 @@
 
 #Region Variables
 
-Var PreviousValue2;
+Var PreviousValue2, NewValue;
 
 #EndRegion
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure BeforeWrite(Cancel)
 	
@@ -25,6 +25,16 @@ Procedure BeforeWrite(Cancel)
 	
 	PreviousValue2 = Constants.LimitAccessAtRecordLevelUniversally.Get();
 	
+	If Not AccessManagementInternal.ScriptVariantRussian() Then
+		Value = True;
+	EndIf;
+	
+	NewValue = Value;
+	
+	If Value And Not PreviousValue2 Then // Включено.
+		InformationRegisters.AccessRestrictionParameters.UpdateRegisterData();
+	EndIf;
+	
 EndProcedure
 
 Procedure OnWrite(Cancel)
@@ -33,13 +43,15 @@ Procedure OnWrite(Cancel)
 		Return;
 	EndIf;
 	
-	If Not AccessManagementInternal.ScriptVariantRussian() Then
-		Value = True;
+	If NewValue <> Value Then
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Cannot change the %1 constant value in the %2 event subscription handlers.';"),
+			"LimitAccessAtRecordLevelUniversally", "BeforeWrite");
+		Raise ErrorText;
 	EndIf;
 	
 	If Value And Not PreviousValue2 Then // Включено.
 		AccessManagementInternal.ClearLastAccessUpdate();
-		InformationRegisters.AccessRestrictionParameters.UpdateRegisterData();
 		PlanningParameters = AccessManagementInternal.AccessUpdatePlanningParameters();
 		PlanningParameters.LongDesc = "EnabledRestrictAccessAtTheRecordLevelUniversally";
 		AccessManagementInternal.ScheduleAccessUpdate(Undefined, PlanningParameters);

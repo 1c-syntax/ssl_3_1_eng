@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -111,7 +111,7 @@ EndProcedure
 
 #EndRegion
 
-#Region TemplatesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersTemplates
 
 &AtClient
 Procedure TemplatesBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parameter)
@@ -166,7 +166,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Generate(Command)

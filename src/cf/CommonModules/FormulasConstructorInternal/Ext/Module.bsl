@@ -2109,10 +2109,14 @@ Procedure AddAGroupOfItemsToADataset(ItemsCollection, DataSet, Parent = Undefine
 			Field = DataSet.Fields.Add(Type("DataCompositionSchemaDataSetFieldFolder"));
 		ElsIf Item.Table Then 
 			Field = DataSet.Fields.Add(Type("DataCompositionSchemaNestedDataSet"));
+			Field.Field = Item.Id;
 		Else
 			Field = DataSet.Fields.Add(Type("DataCompositionSchemaDataSetField"));
 			Field.ValueType = Item.ValueType;
 			Field.Field = Item.Id;
+			If TypeOf(Parent) = Type("DataCompositionSchemaNestedDataSet") Then
+				Field.Field = Parent.DataPath + "." + Item.Id;
+			EndIf;
 			IsFolder = Item.Rows.Count() > 0 And Not ValueIsFilled(Item.ValueType);			
 			
 			AdditionalParameters = New Structure("Order,IsFolder,IsFunction,Hidden,ExpressionToInsert");

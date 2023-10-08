@@ -1353,8 +1353,8 @@ Function WorldCountryData(Val CountryCode = Undefined, Val Description = Undefin
 	EndIf;
 	
 	If Description <> Undefined Then
-		DescriptionTemplate = " (Description = %1 OR InternationalDescription = %1)";
-		SearchCondition.Add(StringFunctionsClientServer.SubstituteParametersToString(DescriptionTemplate,
+		Template_Description = " (Description = %1 OR InternationalDescription = %1)";
+		SearchCondition.Add(StringFunctionsClientServer.SubstituteParametersToString(Template_Description,
 			CheckQuotesInString(Description)));
 		
 		ClassifierFilter.Insert("Description", Description);
@@ -4859,15 +4859,20 @@ EndProcedure
 Procedure SetEntryFieldsProperties(CIKindInformation, Item, Form, AttributeName, URLProcessing)
 	
 	If CIKindInformation.Type = Enums.ContactInformationTypes.Address Then
-		If CIKindInformation.EditingOption = "InputField" Then
-			Item.DropListButton = True;
-			Item.Width = 70;
-		ElsIf CIKindInformation.EditingOption = "Dialog" Then
+		If Item.Type = FormFieldType.InputField Then
+			If CIKindInformation.EditingOption = "InputField" Then
+				Item.DropListButton = True;
+				Item.Width = 70;
+			ElsIf CIKindInformation.EditingOption = "Dialog" Then
+				Item.Width = 73;
+			Else
+				Item.DropListButton = True;
+				Item.Width = 68;
+			EndIf;
+		ElsIf Item.Type = FormFieldType.LabelField Then
 			Item.Width = 73;
-		Else
-			Item.DropListButton = True;
-			Item.Width = 68;
 		EndIf;
+		
 	ElsIf CIKindInformation.Type = Enums.ContactInformationTypes.Phone
 		Or CIKindInformation.Type = Enums.ContactInformationTypes.Fax Then
 		
@@ -5389,6 +5394,24 @@ Function ContactInformationConversionSettings() Export
 	Result.Insert("UpdateIDs",             True);
 	Result.Insert("ShouldRestoreContactInfo", True);
 	Result.Insert("Presentation",                       "");
+	Return Result;
+	
+EndFunction
+
+Function БазовыеСведенияКонтактнойИнформации(ContactInformation = Undefined) Export
+	
+	Result = ContactsManagerClientServer.БазовыеПоляКонтактнойИнформации();
+	If ContactInformation = Undefined Then
+		Return Result;
+	EndIf;
+	
+	ПоляКонактнойИнформации = ContactsManagerInternal.ContactInformationToJSONStructure(ContactInformation);
+	ContactInformationType = ContactInformationType(ContactInformation);
+	
+	Result.Presentation           = String(ПоляКонактнойИнформации.value);
+	Result.Comment             = String(ПоляКонактнойИнформации.comment);
+	Result.ContactInformationType = ContactInformationType;
+	
 	Return Result;
 	
 EndFunction
@@ -6931,7 +6954,7 @@ EndFunction
 //
 Function PictureContactInfoType(ContactInformationType)
 	
-	Return ContactsManagerInternalCached.PicturesOfContactInfoTypes()[ContactInformationType];
+	Return ContactsManagerInternalCached.PicturesOfContactInfoTypes().Get(ContactInformationType);
 		
 EndFunction
 

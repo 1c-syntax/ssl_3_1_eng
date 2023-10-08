@@ -474,12 +474,15 @@ Function ExecuteAtServerSide(Val Parameters, ResultAddress, OperationStarted, Er
 
 			// Localization
 			
-			If ValueIsFilled(Parameters.SelectedAuthorizationLetter)
+			If ValueIsFilled(Parameters.ResultOfCheckingMCHDForSigning)
 				And Common.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
-					ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternalClientServer = Common.CommonModule("MachineReadableAuthorizationLettersOfFederalTaxServiceInternalClientServer");
-					ResultOfSignatureVerificationByMCHD = ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternalClientServer.ResultOfSignatureVerificationByMCHD(
-						Parameters.SelectedAuthorizationLetter);
+				ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal = Common.CommonModule("MachineReadableAuthorizationLettersOfFederalTaxServiceInternal");
+				ResultOfSignatureVerificationByMCHD = ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal.ResultOfSignatureVerificationByMCHD(
+					Parameters.SelectedAuthorizationLetter, Parameters.DataItemForSErver.Object, CertificateProperties.BinaryData, CurrentSessionDate(),
+					Parameters.ResultOfCheckingMCHDForSigning);
+				If ValueIsFilled(ResultOfSignatureVerificationByMCHD) Then
 					SignatureProperties.Insert("ResultOfSignatureVerificationByMCHD", ResultOfSignatureVerificationByMCHD);
+				EndIf;
 			EndIf;
 			
 			//EndLocalization

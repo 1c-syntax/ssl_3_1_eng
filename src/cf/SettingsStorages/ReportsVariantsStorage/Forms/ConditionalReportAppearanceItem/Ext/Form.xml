@@ -86,7 +86,7 @@
 												<v8:content>Field</v8:content>
 											</v8:item>
 										</Presentation>
-										<Value xsi:type="xs:string">Fields</Value>
+										<Value xsi:type="xs:string">Field</Value>
 									</xr:Value>
 								</xr:Item>
 								<xr:Item>

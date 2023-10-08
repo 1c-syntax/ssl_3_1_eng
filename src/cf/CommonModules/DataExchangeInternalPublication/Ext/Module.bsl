@@ -365,7 +365,7 @@ Procedure CancelTaskQueue(Node, Scenario, ExchangeID) Export
 	For Each TaskID__ In SourceTasks Do
 		
 		Filter = New Structure("Key", TaskID__); 
-		Jobs = ModuleJobsQueue.GetTasks(Filter);
+		Jobs = ModuleJobsQueue.GetJobs(Filter);
 		
 		If Jobs.Count() = 0 Then
 			Continue;

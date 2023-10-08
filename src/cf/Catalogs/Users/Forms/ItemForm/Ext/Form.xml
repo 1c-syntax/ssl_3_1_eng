@@ -885,7 +885,7 @@ username and password.</v8:content>
 																		<v8:item>
 																			<v8:lang>en</v8:lang>
 																			<v8:content>Prevent limited-access user from changing
-their password, even during sign-in
+their password, even during sign-in.
 </v8:content>
 																		</v8:item>
 																	</ToolTip>

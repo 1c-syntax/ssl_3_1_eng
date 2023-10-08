@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -158,7 +158,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure SyncSettings(Command)
@@ -332,7 +332,7 @@ Procedure Attachable_OnChangeAdditionalAttribute(Item)
 	
 EndProcedure
 
-// 
+// End StandardSubsystems.Properties
 
 &AtServer
 Function SynchronizationSettingsParameters(FileOwner)

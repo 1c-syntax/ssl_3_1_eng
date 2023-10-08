@@ -236,7 +236,7 @@ Procedure OnFillAccessRestriction(Restriction) Export
 	
 EndProcedure
 
-// 
+// End StandardSubsystems.AccessManagement
 
 #EndRegion
 

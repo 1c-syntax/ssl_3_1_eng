@@ -14,7 +14,7 @@ Var AdministrationParameters, CurrentLockValue;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -106,7 +106,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure ActiveUsers(Command)
@@ -181,13 +181,7 @@ Procedure ApplyCompletion(Response, Variant) Export
 	
 	CurrentSessionDate = CommonClient.SessionDate();
 	
-	If Variant = "LockTimeTooSoon" Then
-		If Response = DialogReturnCode.Yes Then
-			Object.LockEffectiveFrom = CurrentSessionDate + 10 * 60;
-		ElsIf Response <> DialogReturnCode.No Then
-			Return;
-		EndIf;
-	ElsIf Variant = "LockTimeTooLate" Then
+	If Variant = "LockTimeTooSoon" Or Variant = "LockTimeTooLate" Then
 		If Response = DialogReturnCode.Yes Then
 			Object.LockEffectiveFrom = CurrentSessionDate + 10 * 60;
 		ElsIf Response <> DialogReturnCode.No Then

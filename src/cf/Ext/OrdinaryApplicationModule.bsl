@@ -32,7 +32,7 @@ Var ApplicationParameters Export;
 
 #EndRegion
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure BeforeStart()
 	

@@ -44,12 +44,12 @@
 //      24 - Datamatrix GS1ASCII:
 //   * ShowText - Boolean - display the HRI text for a barcode.
 //   * FontSize - Number - font size of the HRI text for a barcode.
-//   * AngleOfRotation - Number - rotation angle.
+//   * CanvasRotation - Number - rotation angle.
 //      Possible values: 0, 90, 180, 270.
 //   * Barcode - String - a barcode value as a row or Base64.
 //   * InputDataType - Number - input data type 
 //      Possible values: 0 - Row, 1 - Base64
-//   * Transparent - Boolean - transparent background of a barcode image.
+//   * BgTransparent - Boolean - transparent background of a barcode image.
 //   * QRErrorCorrectionLevel - Number - correction level of the QR barcode.
 //      Possible values: 0 - L, 1 - M, 2 - Q, 3 - H.
 //   * Zoomable - Boolean - scale a barcode image.
@@ -69,9 +69,9 @@ Function BarcodeGenerationParameters() Export
 	BarcodeParameters.Insert("CodeType"           , 99);
 	BarcodeParameters.Insert("ShowText"   , True);
 	BarcodeParameters.Insert("FontSize"      , 12);
-	BarcodeParameters.Insert("AngleOfRotation"      , 0);
+	BarcodeParameters.Insert("CanvasRotation"      , 0);
 	BarcodeParameters.Insert("Barcode"          , "");
-	BarcodeParameters.Insert("Transparent"     , True);
+	BarcodeParameters.Insert("BgTransparent"     , True);
 	BarcodeParameters.Insert("QRErrorCorrectionLevel", 1);
 	BarcodeParameters.Insert("Zoomable"           , False);
 	BarcodeParameters.Insert("MaintainAspectRatio"       , False);
@@ -220,7 +220,7 @@ Function ToConnectAComponentGeneratingAnImageOfTheBarcode() Export
 	Else
 		// 
 		// 
-		For Cnt = 0 To AddIn.NumberOfFonts -1 Do
+		For Cnt = 0 To AddIn.FontCount -1 Do
 			// 
 			CurrentFont = AddIn.FontAt(Cnt);
 			// 
@@ -285,7 +285,7 @@ Function PrepareABarcodeImage(AddIn, BarcodeParameters)
 	EndIf;
 	
 	If BarcodeParameters.Property("Transparent") Then
-		AddIn.BgTransparent = BarcodeParameters.Transparent;
+		AddIn.BgTransparent = BarcodeParameters.BgTransparent;
 	EndIf;
 	
 	If BarcodeParameters.Property("InputDataType") Then
@@ -304,7 +304,7 @@ Function PrepareABarcodeImage(AddIn, BarcodeParameters)
 	// 
 	AddIn.CodeValue = TimeBarcode;
 	// 
-	AddIn.CanvasRotation = ?(BarcodeParameters.Property("AngleOfRotation"), BarcodeParameters.AngleOfRotation, 0);
+	AddIn.CanvasRotation = ?(BarcodeParameters.Property("CanvasRotation"), BarcodeParameters.CanvasRotation, 0);
 	// 
 	AddIn.QRErrorCorrectionLevel = ?(BarcodeParameters.Property("QRErrorCorrectionLevel"), BarcodeParameters.QRErrorCorrectionLevel, 1);
 	

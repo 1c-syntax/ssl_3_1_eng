@@ -440,4 +440,33 @@ Function EmailSendOptions() Export
 	
 EndFunction
 
+// 
+//
+// Returns:
+//   Structure - 
+//     * Ref - CatalogRef.ReportMailings
+//     * Author - CatalogRef.Users
+//     * RecipientsEmailAddressKind - CatalogRef.ContactInformationKinds
+//     * Personal - Boolean
+//     * Recipients - CatalogTabularSection.ReportMailings.Recipients
+//                    - ValueTable:
+//                      ** Recipient - DefinedType.BulkEmailRecipient
+//                      ** Excluded - Boolean
+//     * MailingRecipientType - CatalogRef.MetadataObjectIDs
+//                              - CatalogRef.ExtensionObjectIDs
+//
+Function RecipientsParameters() Export
+	
+	RecipientsParameters = New Structure;
+	RecipientsParameters.Insert("Ref", PredefinedValue("Catalog.ReportMailings.EmptyRef"));
+	RecipientsParameters.Insert("Author", PredefinedValue("Catalog.Users.EmptyRef"));
+	RecipientsParameters.Insert("RecipientsEmailAddressKind", PredefinedValue("Catalog.ContactInformationKinds.EmptyRef"));
+	RecipientsParameters.Insert("Personal", False);
+	RecipientsParameters.Insert("Recipients", Undefined);
+	RecipientsParameters.Insert("MailingRecipientType", Undefined);
+	
+	Return RecipientsParameters;
+	
+EndFunction
+
 #EndRegion

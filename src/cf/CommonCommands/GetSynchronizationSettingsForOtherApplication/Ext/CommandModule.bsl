@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventsHandlers
+#Region EventHandlers
 
 &AtClient
 Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
@@ -45,7 +45,7 @@ EndProcedure
 Procedure GetSecondInfobaseDataExchangeSettingsAtServer(Cancel, TempStorageAddress, InfobaseNode)
 	
 	DataExchangeCreationWizard = DataExchangeServer.ModuleDataExchangeCreationWizard().Create();
-	DataExchangeCreationWizard.Initialization(InfobaseNode);
+	DataExchangeCreationWizard.Initialize(InfobaseNode);
 	DataExchangeCreationWizard.ExportWizardParametersToTempStorage(Cancel, TempStorageAddress);
 	
 EndProcedure

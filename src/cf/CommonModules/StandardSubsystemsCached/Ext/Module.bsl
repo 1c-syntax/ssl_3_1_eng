@@ -104,7 +104,7 @@ Function SubsystemsDetails() Export
 			EndDo;
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot prepare subsystem descriptions.
-				           |Subsystem ""%1"" does not exist. It is required for the following subsystems:%2.';"),
+				           |Subsystem ""%1"" does not exist. It is required for the following subsystems: %2.';"),
 				KeyAndValue.Key,
 				DependentSubsystems);
 			Raise ErrorText;

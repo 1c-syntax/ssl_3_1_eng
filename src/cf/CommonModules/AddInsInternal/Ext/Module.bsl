@@ -472,11 +472,12 @@ EndProcedure
 Procedure OnAddUpdateHandlers(Handlers) Export
 	
 	Handler = Handlers.Add();
-	Handler.Version = "3.1.6.48";
+	Handler.Version = "3.1.9.163";
 	Handler.Id = New UUID("cb3e8653-f1d2-4439-afdd-b1d27f6dcc2f");
 	Handler.Procedure = "Catalogs.AddIns.ProcessDataForMigrationToNewVersion";
+	Handler.InitialFilling = True;
 	Handler.Comment = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Fill in the ""%1"", ""%2"", ""%3"" attributes, which were previously not filled in by mistake';"),
+		NStr("en = 'Заполнение реквизитов ""%1"", ""%2"", ""%3"", которые ранее ошибочно были не заполнены, а также регистрация стандартных компонент для их автоматического обновления.';"),
 		"MacOS_x86_64_Safari", "MacOS_x86_64_Chrome", "MacOS_x86_64_Firefox");
 	Handler.ExecutionMode = "Deferred";
 	Handler.UpdateDataFillingProcedure = "Catalogs.AddIns.RegisterDataToProcessForMigrationToNewVersion";

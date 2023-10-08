@@ -20,7 +20,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersList
 
 &AtClient
 Procedure ListSelection(Item, RowSelected, Field, StandardProcessing)
@@ -32,7 +32,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure OpenObject(Command)

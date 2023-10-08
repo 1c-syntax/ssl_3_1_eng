@@ -18,7 +18,7 @@ Var ModifiedPerformersGroups; // Array of CatalogRef.TaskPerformersGroups -
 
 #EndRegion
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure BeforeWrite(Cancel, Replacing)
 	

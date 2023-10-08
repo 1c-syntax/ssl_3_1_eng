@@ -21,8 +21,8 @@ Procedure Initialize(ExchangeComponents, Analysis = False) Export
 	
 	DefaultLanguageCode = Common.DefaultLanguageCode();
 	
-	DescriptionTemplate1 = NStr("en = '%1 on %2 for %3 (%4)';", DefaultLanguageCode); // 
-	Description = StrTemplate(DescriptionTemplate1,
+	DescriptionTemplate = NStr("en = '%1 on %2 for %3 (%4)';", DefaultLanguageCode); // 
+	Description = StrTemplate(DescriptionTemplate,
 		ExchangeComponents.ExchangeDirection,
 		CurrentSessionDate(),
 		ExchangeComponents.CorrespondentNode,

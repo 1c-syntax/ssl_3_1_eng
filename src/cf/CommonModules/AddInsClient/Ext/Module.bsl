@@ -448,7 +448,7 @@ Async Function AttachAddInFromWindowsRegisterAsync(Id,
 	
 EndFunction
 
-// 
+// End EquipmentSupport
 
 #EndRegion
 

@@ -28,7 +28,7 @@ Var DownloadParametersBeforeSetCurrentOption;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -760,7 +760,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure AllSettings(Command)
@@ -1417,7 +1417,7 @@ Async Procedure Generate()
 
 	If ValueIsFilled(PathToExternalReportFileAtClient) And Not ValueIsFilled(ExternalReportBinaryDataAddress) Then
 		Result = Await PutFileToServerAsync(,,, PathToExternalReportFileAtClient, UUID);
-		If TypeOf(Result) = Type("PlacedFileDescription") And Not Result.FilePuttingCanceled Then
+		If TypeOf(Result) = Type("StoredFileDescription") And Not Result.FilePuttingCanceled Then
 			ExternalReportBinaryDataAddress = Result.Address;
 		EndIf;
 	EndIf;
@@ -1548,7 +1548,9 @@ Procedure AfterGenerate(Result, GenerationParameters) Export
 	If IDBackgroundJob <> GenerationParameters.JobID Or Not IsOpen() Then
 		Return;
 	EndIf;
-
+	
+	IDBackgroundJob = Undefined;
+	
 	If Result = Undefined Then
 
 		ShowGenerationErrors(NStr("en = 'Report generation is canceled by the administrator';"));
@@ -1723,7 +1725,6 @@ Procedure ImportReportGenerationResult()
 
 	DeleteFromTempStorage(BackgroundJobStorageAddress);
 	BackgroundJobStorageAddress = Undefined;
-	IDBackgroundJob = Undefined;
 
 	If Result = Undefined Then
 		ShowGenerationErrors(NStr("en = 'Cannot generate the report (empty result)';"));
@@ -2752,8 +2753,8 @@ Function AdditionalDataOfTheQueryTextForTheSearchObject(Object)
 	AdditionalData = New Array;
 
 	Exceptions = New Array;
-	Exceptions.Add(NStr("en = 'Description';"));
-	Exceptions.Add(NStr("en = 'Number';"));
+	Exceptions.Add("Description");
+	Exceptions.Add("Number");
 
 	Fields = Object.InputByString; // FieldList
 
@@ -4668,12 +4669,9 @@ Procedure UpdateOptionsSelectionCommands()
 
 	If ReportSettings.Contextual Then
 		SearchParameters.Insert("Context", OptionContext);
-		SearchParameters.Insert("OnlyPersonal", True);
-	Else
-		AvailableSubsystems = ReportsOptionsCached.CurrentUserSubsystems().List;
-		SearchParameters.Insert("Subsystems", AvailableSubsystems);
-		SearchParameters.Insert("OnlyItemsVisibleInReportPanel", True);
 	EndIf;
+	
+	SearchParameters.Insert("OnlyPersonal", True);
 
 	VariantsTable = ReportsOptions.ReportOptionTable(SearchParameters);
 	If VariantsTable.Columns.Find("Description") = Undefined Then

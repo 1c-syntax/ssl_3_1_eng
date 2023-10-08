@@ -150,7 +150,7 @@
 								<Presentation>
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>Personal storage</v8:content>
+										<v8:content>Personal store</v8:content>
 									</v8:item>
 								</Presentation>
 								<Value xsi:type="xs:string">MY</Value>
@@ -176,7 +176,7 @@
 								<Presentation>
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>Container and personal storage</v8:content>
+										<v8:content>Container and Personal store</v8:content>
 									</v8:item>
 								</Presentation>
 								<Value xsi:type="xs:string">Container</Value>
@@ -188,10 +188,10 @@
 						<Title formatted="true">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>&lt;b&gt;Certificate storages&lt;/&gt; are operating system areas that store certificates. 
-&lt;b&gt;Personal certificates&lt;/&gt; must be installed in the personal certificate storage.
-Trusted root authority&lt;b&gt; certificates&lt;/&gt; must be installed in the trusted root certificate storage. If you install a certificate in the trusted root certificates, it means that you will automatically trust any certificate issued using this certificate.
-To perform operations with a private key, for example, sign and decrypt data, install a certificate in the private key container that was created along with the certificate request.</v8:content>
+								<v8:content>&lt;b&gt;Certificate stores&lt;/&gt; are specifically designated areas within an operating system where certificates are kept.
+&lt;b&gt;Personal certificates&lt;/&gt; must be installed in the Personal certificate store.
+&lt;b&gt;Trusted root certificates&lt;/&gt; must be installed in the Trusted Root Certification Authorities certificate store. By installing a certificate in the trusted root certificates, you establish automatic trust in any certificates issued using that specific certificate.
+To perform operations with a private key, such as data signing and decryption, ensure that you install the certificate in the private key container that was created alongside the certificate request.</v8:content>
 							</v8:item>
 						</Title>
 					</ExtendedTooltip>

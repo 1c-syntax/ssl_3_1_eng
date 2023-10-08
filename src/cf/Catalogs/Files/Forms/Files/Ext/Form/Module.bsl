@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -191,7 +191,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersList
 
 &AtClient
 Procedure ListSelection(Item, RowSelected, Field, StandardProcessing)
@@ -265,7 +265,7 @@ EndProcedure
 &AtClient
 Procedure ListOnActivateRow(Item)
 	
-	If Items.List.CurrentData <> Undefined Then
+	If StandardSubsystemsClient.IsDynamicListItem(Items.List) Then
 		URL = GetURL(Items.List.CurrentData.Ref);
 	EndIf;
 	IdleHandlerSetFileCommandsAccessibility();
@@ -288,7 +288,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FoldersFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersFolders
 
 &AtClient
 Procedure FoldersOnActivateRow(Item)
@@ -324,7 +324,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure FilesImportExecute()
@@ -772,13 +772,10 @@ EndProcedure
 &AtClient
 Procedure Delete(Command)
 	
-	If Items.List.CurrentRow = Undefined Then
-		Return;
-	EndIf;
+	SelectedRows = SelectedRows();
 	
-	FilesOperationsInternalClient.DeleteData(
-		New NotifyDescription("AfterDeleteData", ThisObject),
-		Items.List.CurrentData.Ref, UUID);
+	NotifyDescription = New NotifyDescription("AfterDeleteData", ThisObject);
+	FilesOperationsInternalClient.УдалитьДанныеФайлов(NotifyDescription, SelectedRows, UUID);
 	
 EndProcedure
 
@@ -1635,5 +1632,19 @@ Procedure Attachable_UpdateCommands()
 EndProcedure
 
 // End StandardSubsystems.AttachableCommands
+
+&AtClient
+Function SelectedRows()
+	SelectedRows = New Array;
+	
+	For Each SelectedRow In Items.List.SelectedRows Do
+		If TypeOf(SelectedRow) <> Type("DynamicListGroupRow") Then
+			SelectedRows.Add(SelectedRow);
+		EndIf;
+	EndDo;
+	
+	Return SelectedRows
+	
+EndFunction
 
 #EndRegion

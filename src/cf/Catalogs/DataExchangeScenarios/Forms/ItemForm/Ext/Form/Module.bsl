@@ -17,7 +17,7 @@ Var RowsCount;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -154,7 +154,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ExchangeSettingsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersExchangeSettings
 
 &AtClient
 Procedure ExchangeSettingsExchangeTransportKindStartChoice(Item, ChoiceData, StandardProcessing)
@@ -184,7 +184,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure ExecuteExchange(Command)

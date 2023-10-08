@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 //
 
 &AtServer
@@ -53,7 +53,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ExchangeNodesTreeFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersExchangeNodesTree
 //
 
 &AtClient
@@ -81,7 +81,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 //
 
 &AtClient

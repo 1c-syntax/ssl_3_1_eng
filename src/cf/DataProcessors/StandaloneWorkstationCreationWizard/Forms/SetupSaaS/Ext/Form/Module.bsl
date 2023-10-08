@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -146,7 +146,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 // 
 
@@ -951,7 +951,7 @@ Function Attachable_EndOnOpen(Cancel, SkipPage, IsMoveNext)
 EndFunction
 
 &AtClient
-Function PlugInThePresenceOfExtensionsThatChangeTheDataStructureWhenOpened(Cancel, SkipPage, IsMoveNext)
+Function Attachable_PresenceOfExtensionsThatChangeDataStructure_WhenOpened(Cancel, SkipPage, IsMoveNext)
 	
 	Extensions = ExtensionsThatChangeDataStructure();
 	SkipPage = Extensions.Count() = 0;
@@ -971,7 +971,7 @@ Procedure StandaloneWorkstationCreatingScript()
 	NavigationTable.Clear();
 	
 	NewNavigation = NavigationTableNewRow("HasExtensionsThatChangeDataStructure", "NavigationEndPage");
-	NewNavigation.OnOpenHandlerName = "PlugInThePresenceOfExtensionsThatChangeTheDataStructureWhenOpened";
+	NewNavigation.OnOpenHandlerName = "Attachable_PresenceOfExtensionsThatChangeDataStructure_WhenOpened";
 	
 	NewNavigation = NavigationTableNewRow("Begin", "NavigationStartPage");
 	

@@ -15,7 +15,7 @@ Var OldRecords, ReminderPeriodBoundary;
 
 #EndRegion
 
-#Region EventsHandlers
+#Region EventHandlers
 
 // ACC:75-off Notify about each reminder change.
 Procedure BeforeWrite(Cancel, Replacing)

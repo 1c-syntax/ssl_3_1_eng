@@ -15,7 +15,7 @@ Var ValueChanged;
 
 #EndRegion
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure BeforeWrite(Cancel)
 	

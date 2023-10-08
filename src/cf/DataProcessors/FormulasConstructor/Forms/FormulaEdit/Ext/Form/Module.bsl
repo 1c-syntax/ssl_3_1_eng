@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -23,7 +23,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ParametersForAddingAListOfFields.HintForEnteringTheSearchString = NStr("en = 'Find operand…';");
 	ParametersForAddingAListOfFields.UseIdentifiersForFormulas = Not ForQuery;
 	ParametersForAddingAListOfFields.ViewBrackets = BracketsOperands;
-	ParametersForAddingAListOfFields.ListHandlers.Insert("Selection", "PlugInListOfSelectionFields");
+	ParametersForAddingAListOfFields.ListHandlers.Insert("Selection", "Attachable_ListOfFieldsSelection");
 	ParametersForAddingAListOfFields.UseBackgroundSearch = True;
 	FormulasConstructorInternal.AddAListOfFieldsToTheForm(ThisObject, ParametersForAddingAListOfFields);
 	
@@ -33,7 +33,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ParametersForAddingAListOfFields.LocationOfTheList = Items.OperatorsAndFunctionsGroup;
 	ParametersForAddingAListOfFields.HintForEnteringTheSearchString = NStr("en = 'Find operator or function…';");
 	ParametersForAddingAListOfFields.ViewBrackets = False;
-	ParametersForAddingAListOfFields.ListHandlers.Insert("Selection", "PlugInListOfSelectionFields");
+	ParametersForAddingAListOfFields.ListHandlers.Insert("Selection", "Attachable_ListOfFieldsSelection");
 	ParametersForAddingAListOfFields.ListHandlers.Insert("DragStart", "Attachable_OperatorsDragStart");
 	ParametersForAddingAListOfFields.ListHandlers.Insert("DragEnd", "Attachable_OperatorsDragEnd");
 	FormulasConstructorInternal.AddAListOfFieldsToTheForm(ThisObject, ParametersForAddingAListOfFields);
@@ -80,7 +80,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure CompleteEditing(Command)
@@ -253,7 +253,7 @@ EndProcedure
 //  Item - FormTable
 //
 &AtClient
-Procedure PlugInListOfSelectionFields(Item, RowSelected, Field, StandardProcessing)
+Procedure Attachable_ListOfFieldsSelection(Item, RowSelected, Field, StandardProcessing)
 	
 	StandardProcessing = False;
 	SelectedField = FormulasConstructorClient.TheSelectedFieldInTheFieldList(ThisObject);

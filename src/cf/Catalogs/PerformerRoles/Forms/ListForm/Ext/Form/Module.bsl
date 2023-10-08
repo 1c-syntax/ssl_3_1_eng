@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -46,7 +46,7 @@ Procedure ConfigureRoleListRepresentation()
 	|		ON TaskPerformers.PerformerRole = CatalogPerformerRoles.Ref
 	|;";
 		
-	If GetFunctionalOption("UseExternalUsers") Then
+	If Not GetFunctionalOption("UseExternalUsers") Then
 		
 		QueryText = QueryText + "SELECT
 		|	CatalogPerformerRoles.Ref,
@@ -79,7 +79,15 @@ Procedure ConfigureRoleListRepresentation()
 		
 	Else
 		
-		QueryText = QueryText + "SELECT
+		QueryText = QueryText + "
+		|SELECT DISTINCT
+		|	ExecutorRolesAssignment.Ref AS Ref,
+		|	ExecutorRolesAssignment.UsersType AS UsersType
+		|INTO ExecutorRolesAssignment
+		|FROM
+		|	Catalog.PerformerRoles.Purpose AS ExecutorRolesAssignment
+		|;
+		|SELECT
 		|	CatalogPerformerRoles.Ref,
 		|	CatalogPerformerRoles.DeletionMark,
 		|	CatalogPerformerRoles.Predefined,
@@ -106,7 +114,7 @@ Procedure ConfigureRoleListRepresentation()
 		|	CatalogPerformerRoles.ExternalRole,
 		|	CatalogPerformerRoles.BriefPresentation
 		|FROM
-		|	Catalog.PerformerRoles.Purpose AS ExecutorRolesAssignment
+		|	ExecutorRolesAssignment AS ExecutorRolesAssignment
 		|		LEFT JOIN Catalog.PerformerRoles AS CatalogPerformerRoles
 		|		ON ExecutorRolesAssignment.Ref = CatalogPerformerRoles.Ref
 		|WHERE

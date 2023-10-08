@@ -27,7 +27,7 @@ Var PreviousStepResult;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -194,7 +194,7 @@ EndProcedure
 
 #EndRegion
 
-#Region MarkedForDeletionItemsTreeFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersMarkedForDeletionItemsTree
 
 &AtClient
 Procedure MarkedForDeletionItemsTreeCheckOnChange(Item)
@@ -214,7 +214,7 @@ EndProcedure
 
 #EndRegion
 
-#Region NotTrashFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersNotTrash
 
 &AtClient
 Procedure NotDeletedItemsOnActivateRow(Item)
@@ -293,7 +293,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Refresh(Command)
@@ -2196,7 +2196,7 @@ EndFunction
 
 #EndRegion
 
-#Region Initialization
+#Region Initialize
 
 DeletionResultsInfo = MarkedObjectsDeletionInternalClientServer.NewDeletionResultsInfo(); 
 PresentationOperation = "";

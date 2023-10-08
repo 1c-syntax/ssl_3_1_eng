@@ -14,7 +14,7 @@ Var RecipientsHistory;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -259,7 +259,7 @@ EndProcedure
 
 #EndRegion
 
-#Region RecipientsMailAddressesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersRecipientsMailAddresses
 
 &AtClient
 Procedure RecipientPostalAddressesBeforeDelete(Item, Cancel)
@@ -339,7 +339,7 @@ EndProcedure
 #EndRegion
 
 
-#Region AttachmentsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersAttachments
 
 // Removes an attachment from the list and also calls the function
 // that updates the table of attachment presentations.
@@ -444,7 +444,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure OpenFile(Command)
@@ -517,7 +517,7 @@ EndProcedure
 
 &AtClient
 Procedure ImportanceHigh(Command)
-	EmailImportance = "High";
+	EmailImportance = EmailOperationsInternalClientServer.HighImportanceOfInternetMail();
 	Items.SeverityGroup.Picture = PictureLib.ImportanceHigh;
 	Items.SeverityGroup.ToolTip = NStr("en = 'High importance';");
 	Modified = True;
@@ -525,7 +525,7 @@ EndProcedure
 
 &AtClient
 Procedure ImportanceNormal(Command)
-	EmailImportance = "Ordinary";
+	EmailImportance = EmailOperationsInternalClientServer.UsualImportanceOfInternetMail();
 	Items.SeverityGroup.Picture = PictureLib.ImportanceNotSpecified;
 	Items.SeverityGroup.ToolTip = NStr("en = 'Normal importance';");
 	Modified = True;
@@ -533,7 +533,7 @@ EndProcedure
 
 &AtClient
 Procedure ImportanceLow(Command)
-	EmailImportance = "Low";
+	EmailImportance = EmailOperationsInternalClientServer.LowImportanceOfInternetMail();
 	Items.SeverityGroup.Picture = PictureLib.ImportanceLow;
 	Items.SeverityGroup.ToolTip = NStr("en = 'Low importance';");
 	Modified = True;
@@ -553,7 +553,7 @@ Procedure GenerateFromTemplate(Command)
 	
 EndProcedure
 
-// 
+// End StandardSubsystems.MessageTemplates
 
 #EndRegion
 
@@ -811,7 +811,7 @@ Function GenerateEmailParameters()
 	EmailParameters.Insert("Body", EmailBody);
 	EmailParameters.Insert("Attachments", Attachments());
 	EmailParameters.Insert("Importance", ?(ValueIsFilled(EmailImportance),
-		InternetMailMessageImportance[EmailImportance], InternetMailMessageImportance.Normal));
+		EmailOperationsInternal.ImportanceOfInternetMailMessageFromString(EmailImportance), InternetMailMessageImportance.Normal));
 	
 	Return EmailParameters;
 	

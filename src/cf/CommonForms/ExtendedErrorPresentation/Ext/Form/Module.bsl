@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -137,7 +137,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure OpenApplicationsSettings(Command)
@@ -203,12 +203,10 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 		EndIf;
 		
 		If ValueIsFilled(HaveReasonAndSolution) Then
-			ClassifierError = New Structure;
-			ClassifierError.Insert("Ref", "");
+			ClassifierError = DigitalSignatureInternal.ErrorPresentation();
 			Cause = HaveReasonAndSolution.Cause; // String
-			ClassifierError.Insert("Cause", FormattedString(Cause));
-			ClassifierError.Insert("Decision", FormattedString(HaveReasonAndSolution.Decision));
-			ClassifierError.Insert("Remedy", "");
+			ClassifierError.Cause = FormattedString(Cause);
+			ClassifierError.Decision = FormattedString(HaveReasonAndSolution.Decision);
 		Else
 			ClassifierError = DigitalSignatureInternal.ClassifierError(ErrorText, ErrorLocation = "Server");
 		EndIf;
@@ -217,6 +215,21 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 		
 		ReasonsAndDecisionsGroup.Visible = IsKnownError;
 		If IsKnownError Then
+			
+			If ValueIsFilled(ClassifierError.RemedyActions) Then
+				If ClassifierError.RemedyActions.Find(
+					"SpecifyLinkToCertificateAuthorityInDecision") <> Undefined Then
+					CertificatePublisher = CertificatePublisher();
+					If ValueIsFilled(CertificatePublisher) Then
+						Decision = New Array;
+						Decision.Add(ClassifierError.Decision);
+						Decision.Add(Chars.LF);
+						Decision.Add(StringFunctionsClientServer.SubstituteParametersToString(
+							NStr("en = 'Удостоверяющий центр, выдавший сертификат: %1.';"), CertificatePublisher));
+						ClassifierError.Decision = New FormattedString(Decision);
+					EndIf;
+				EndIf;
+			EndIf;
 			
 			CommonClientServer.SetFormItemProperty(Items,
 				InstructionItem.Name, "Title", NStr("en = 'Details';"));
@@ -266,6 +279,47 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 	EndIf;
 	
 EndProcedure
+
+&AtServer
+Function CertificatePublisher()
+	
+	If Not ValueIsFilled(AdditionalData) Then
+		Return Undefined;
+	EndIf;
+	
+	CertificateData = CommonClientServer.StructureProperty(AdditionalData, "CertificateData", Undefined);
+	If ValueIsFilled(CertificateData) Then
+		If TypeOf(CertificateData) = Type("String") Then
+			CertificateData = GetFromTempStorage(CertificateData);
+		EndIf;
+	Else
+		Certificate = CommonClientServer.StructureProperty(AdditionalData, "Certificate", Undefined);
+		If ValueIsFilled(Certificate) Then
+			If TypeOf(Certificate) = Type("Array") Then
+				If Certificate.Count() > 0 Then
+					If TypeOf(Certificate[0]) = Type("CatalogRef.DigitalSignatureAndEncryptionKeysCertificates") Then
+						CertificateData = CertificateData(Certificate[0], Undefined);
+					Else
+						CertificateData = GetFromTempStorage(Certificate[0]);
+					EndIf;
+				EndIf;
+			ElsIf TypeOf(Certificate) = Type("CatalogRef.DigitalSignatureAndEncryptionKeysCertificates") Then
+				CertificateData = CertificateData(Certificate, Undefined);
+			ElsIf TypeOf(Certificate) = Type("BinaryData") Then
+				CertificateData = Certificate;
+			Else
+				CertificateData = GetFromTempStorage(Certificate);
+			EndIf;
+		EndIf;
+	EndIf;
+	
+	If ValueIsFilled(CertificateData) Then
+		CertificateAuthorityProperties = DigitalSignature.CertificateIssuerProperties(New CryptoCertificate(CertificateData));
+		Return CertificateAuthorityProperties.CommonName;
+	EndIf;
+	
+	Return Undefined;
+EndFunction
 
 &AtClient
 Function AdditionalData()
@@ -321,7 +375,11 @@ Function CertificateData(Certificate, UUID)
 	
 	CertificateData = Common.ObjectAttributeValue(Certificate, "CertificateData").Get();
 	If ValueIsFilled(CertificateData) Then
-		Return PutToTempStorage(CertificateData, UUID);
+		If ValueIsFilled(UUID) Then
+			Return PutToTempStorage(CertificateData, UUID);
+		Else
+			Return CertificateData;
+		EndIf;
 	Else
 		Return Undefined;
 	EndIf;

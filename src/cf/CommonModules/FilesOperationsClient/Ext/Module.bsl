@@ -911,12 +911,14 @@ EndProcedure
 //
 Procedure AttachmentsControlCommand(Form, Command) Export
 	
-	CommandNameParts = StrSplit(Command.Name, "_");
-	If CommandNameParts.Count() <= 1 Then
+	Position = StrFind(Command.Name, "_",SearchDirection.FromEnd);
+	If Position = 0 Then
 		Return;
 	EndIf;
 	
-	ItemNumber = Number(StrReplace(CommandNameParts[1], FilesOperationsClientServer.OneFileOnlyText(), ""));
+	NumAsString = Mid(Command.Name, Position + 1);
+	
+	ItemNumber = Number(StrReplace(NumAsString, FilesOperationsClientServer.OneFileOnlyText(), ""));
 	AttachedFilesOwner = AttachedFileParameterValue(Form, ItemNumber, "PathToOwnerData");
 	If Not ValueIsFilled(AttachedFilesOwner) Then
 		
@@ -1216,7 +1218,9 @@ Procedure OpenScanSettingFormCompletion(InitializationCheckResult, ExecutionPara
 	AddInInstalled = InitializationCheckResult.Attached;
 	
 	If Not AddInInstalled Then
-		ShowMessageBox(, InitializationCheckResult.ErrorDescription);
+		If ValueIsFilled(InitializationCheckResult.ErrorDescription) Then
+			ShowMessageBox(, InitializationCheckResult.ErrorDescription);
+		EndIf;
 		Return;
 	EndIf;
 	
@@ -1595,7 +1599,7 @@ Procedure AttachmentsControlCommandCompletion(Form, Command, AttachedFilesOwner)
 					AttachedFilesOwner);
 		EndIf;
 	EndIf;
-	// 
+	// End IntegrationWith1CDocumentManagementSubsystem
 	
 	If StrStartsWith(CommandName, "OpenList") Then
 		
@@ -1604,7 +1608,7 @@ Procedure AttachmentsControlCommandCompletion(Form, Command, AttachedFilesOwner)
 			// ИнтеграцияС1СДокументооборотом
 			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient.OpenAttachedFiles(
 				AttachedFilesOwner);
-			// 
+			// End IntegrationWith1CDocumentManagementSubsystem
 			
 		Else
 			
@@ -1624,7 +1628,7 @@ Procedure AttachmentsControlCommandCompletion(Form, Command, AttachedFilesOwner)
 			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient.AddFileFromDiskoISObject(
 				AttachedFilesOwner,
 				Form.UUID);
-			// 
+			// End IntegrationWith1CDocumentManagementSubsystem
 			
 		Else
 			

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -48,7 +48,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersList
 
 &AtClient
 Procedure ListOnActivateRow(Item)
@@ -81,7 +81,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Create(Command)
@@ -118,7 +118,7 @@ Procedure Attachable_UpdateCommands()
 	ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Items.List);
 EndProcedure
 
-// 
+// End StandardSubsystems.AttachableCommands
 
 // Parameters:
 //  SelectedLanguages - Array of Structure:

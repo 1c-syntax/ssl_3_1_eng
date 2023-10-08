@@ -17,7 +17,7 @@ Var OperationsContextsTempStorage;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtClient
 Procedure OnOpen(Cancel)

@@ -11,7 +11,7 @@
 
 #If Not MobileStandaloneServer Then
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure Filling(FillingData, FillingText, StandardProcessing)
 

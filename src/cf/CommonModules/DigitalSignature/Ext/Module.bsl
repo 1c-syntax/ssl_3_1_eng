@@ -73,11 +73,12 @@ EndFunction
 //
 //  SequenceNumber - Number
 //                  - Array of Number
+//  ReturnMCHDData - Boolean -
 //
 // Returns:
 //  Array of See DigitalSignatureClientServer.NewSignatureProperties 
 //
-Function SetSignatures(Object, SequenceNumber = Undefined) Export
+Function SetSignatures(Object, SequenceNumber = Undefined, ReturnMCHDData = False) Export
 	
 	CheckParameterObject(Object, "DigitalSignature.SetSignatures", True);
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
@@ -131,12 +132,15 @@ Function SetSignatures(Object, SequenceNumber = Undefined) Export
 	QueryResult = Query.Execute();
 	SelectionDetailRecords = QueryResult.Select();
 	
+	
 	DigitalSignaturesArray = New Array;
 	While SelectionDetailRecords.Next() Do
 		SignatureProperties = DigitalSignatureClientServer.NewSignatureProperties();
 		SignatureProperties.SignedObject = Object;
 		FillPropertyValues(SignatureProperties, SelectionDetailRecords);
 		SignatureProperties.Signature = SignatureProperties.Signature.Get();
+		
+		
 		DigitalSignaturesArray.Add(SignatureProperties);
 	EndDo;
 	
@@ -285,6 +289,7 @@ Procedure UpdateSignature(Object, Val SignatureProperties, UpdateByOrderNumber =
 		EndIf;
 		For Each ObjectSignature In ObjectSignatures Do
 			SignatureBinaryData = ObjectSignature.Signature;
+			ResultOfSignatureVerificationByMCHD = Undefined;
 			If UpdateByOrderNumber And ObjectSignature.SequenceNumber = SignatureProperties.SequenceNumber 
 				// If binary data matches, the signature must be refreshed.
 				Or SignatureBinaryData = SignatureProperties.Signature Then
@@ -303,9 +308,17 @@ Procedure UpdateSignature(Object, Val SignatureProperties, UpdateByOrderNumber =
 							Or KeyAndValue.Key = "SignedObject"
 							Or KeyAndValue.Key = "SignatureDate"
 							Or KeyAndValue.Key = "SequenceNumber"
-							Or KeyAndValue.Key = "ResultOfSignatureVerificationByMCHD" Then
+							Or KeyAndValue.Key = "SignatureID" Then
 							Continue;
 						EndIf;
+						
+						If KeyAndValue.Key = "ResultOfSignatureVerificationByMCHD" Then
+							If ValueIsFilled(KeyAndValue.Value) Then
+								ResultOfSignatureVerificationByMCHD = KeyAndValue.Value;
+							EndIf;
+							Continue;
+						EndIf;
+						
 						If KeyAndValue.Value <> Undefined Then
 							If KeyAndValue.Key = "Signature" Then
 								SignatureToRefresh.Signature = New ValueStorage(KeyAndValue.Value);
@@ -319,7 +332,15 @@ Procedure UpdateSignature(Object, Val SignatureProperties, UpdateByOrderNumber =
 					For Each KeyAndValue In SignatureProperties Do
 						If KeyAndValue.Key = "Certificate"
 							Or KeyAndValue.Key = "Signature"
-							Or KeyAndValue.Key = "ResultOfSignatureVerificationByMCHD" Then
+							Or KeyAndValue.Key = "SignatureID"
+								And ValueIsFilled(SignatureToRefresh.SignatureID) Then
+							Continue;
+						EndIf;
+						
+						If KeyAndValue.Key = "ResultOfSignatureVerificationByMCHD" Then
+							If ValueIsFilled(KeyAndValue.Value) Then
+								ResultOfSignatureVerificationByMCHD = KeyAndValue.Value;
+							EndIf;
 							Continue;
 						EndIf;
 						
@@ -344,6 +365,8 @@ Procedure UpdateSignature(Object, Val SignatureProperties, UpdateByOrderNumber =
 				
 				RecordSet.Write(True);
 			EndIf;
+			
+			
 		EndDo;
 		CommitTransaction();
 	Except
@@ -1835,12 +1858,17 @@ Function VerifySignature(CryptoManager, RawData, Signature, ErrorDescription = N
 		
 	CertificateVerificationResult = DigitalSignatureInternal.CheckCertificate(
 		CryptoManagerToCheck, Certificate, ErrorDescription, DateToVerifySignatureCertificate, AdditionalParameters);
-		
-	CertificateRevoked = IsSignatureCertificateRevoked(ErrorDescription, ResultStructure);
-	If Not CertificateRevoked Then
-		FillSignatureVerificationResult(CertificateVerificationResult, ResultStructure, IsSignatureVerificationRequired(ErrorDescription, ResultStructure));
+	
+	If CertificateVerificationResult = True Then
+		FillSignatureVerificationResult(CertificateVerificationResult, ResultStructure);
 	Else
-		FillSignatureVerificationResult(CertificateVerificationResult, ResultStructure, False, True);
+		CertificateRevoked = IsSignatureCertificateRevoked(ErrorDescription, ResultStructure);
+		If Not CertificateRevoked Then
+			FillSignatureVerificationResult(ErrorDescription, ResultStructure, IsSignatureVerificationRequired(
+				ErrorDescription, ResultStructure));
+		Else
+			FillSignatureVerificationResult(CertificateVerificationResult, ResultStructure, False, True);
+		EndIf;
 	EndIf;
 	
 	Return CertificateVerificationResult;
@@ -1880,7 +1908,7 @@ EndFunction
 //
 // Parameters:
 //   Thumbprint              - String - a Base64 coded certificate thumbprint.
-//   InPersonalStorageOnly - Boolean - if True, search in the personal storage, otherwise, search everywhere.
+//   InPersonalStorageOnly - Boolean - if True, search in the Personal store, otherwise, search everywhere.
 //
 // Returns:
 //   CryptoCertificate - 
@@ -2152,7 +2180,7 @@ Function DEREncodedSignature(SignatureData) Export
 		DeleteFiles(TempFileFullName);
 	Except
 		WriteLogEvent(
-			NStr("en = 'Электронная подпись.Удаление временного файла';",
+			NStr("en = 'Digital signature.Delete temporary file';",
 				Common.DefaultLanguageCode()),
 			EventLogLevel.Error, , ,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
@@ -2174,7 +2202,7 @@ Function DEREncodedSignature(SignatureData) Export
 		Except
 			ErrorInfo = ErrorInfo();
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Не удалось получить данные из файла подписи по причине:
+					NStr("en = 'Cannot get data from the signature file. Reason:
 						|%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		EndTry;
 	EndIf;

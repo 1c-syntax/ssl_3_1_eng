@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -95,7 +95,7 @@ EndProcedure
 
 #EndRegion
 
-#Region VisibilityConditionsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersVisibilityConditions
 
 &AtClient
 Procedure VisibilityConditionsOnActivateRow(Item)

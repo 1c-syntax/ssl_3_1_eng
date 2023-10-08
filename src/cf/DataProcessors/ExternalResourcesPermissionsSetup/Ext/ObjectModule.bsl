@@ -1293,7 +1293,7 @@ EndFunction
 
 #EndRegion
 
-#Region Initialization
+#Region Initialize
 
 RequestsIDs = New Array();
 

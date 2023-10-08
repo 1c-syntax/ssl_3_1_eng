@@ -55,12 +55,20 @@ EndFunction
 //
 Function TransformContactInformationXML(Val Data) Export
 	
+	Result = ContactsManagerClientServer.ПоляКонтактнойИнформацииДляПреобразования();
+	
 	If ContactsManagerInternalCached.IsLocalizationModuleAvailable() Then
 		ModuleContactsManagerLocalization = Common.CommonModule("ContactsManagerLocalization");
 		Return ModuleContactsManagerLocalization.TransformContactInformationXML(Data);
 	EndIf;
 	
-	Return New Structure("ContactInformationType, XMLData1", Undefined, "");
+	If ContactsManagerClientServer.IsJSONContactInformation(Data.FieldValues) Then
+		ContactInformationFields = ContactsManager.БазовыеСведенияКонтактнойИнформации(Data.FieldValues);
+		FillPropertyValues(Result, ContactInformationFields);
+	EndIf;
+	
+	Return Result;
+
 	
 EndFunction
 

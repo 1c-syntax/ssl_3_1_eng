@@ -30,7 +30,7 @@
 //                    
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -120,7 +120,7 @@ EndProcedure
 
 #EndRegion
 
-#Region SearchRulesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersSearchRules
 
 &AtClient
 Procedure SearchRulesSelection(Item, RowSelected, Field, StandardProcessing)
@@ -149,7 +149,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure CompleteEditing(Command)

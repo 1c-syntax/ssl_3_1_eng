@@ -594,7 +594,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Is valid signature</v8:content>
+							<v8:content>Valid signature</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -729,7 +729,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Signed by</v8:content>
+							<v8:content>Signature set by</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -742,7 +742,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>User who signed the file.</v8:content>
+							<v8:content>User who set the signature.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -858,7 +858,12 @@
 			<Attribute uuid="b896cd10-5da4-4c90-b2cf-5b98bd173122">
 				<Properties>
 					<Name>SignatureID</Name>
-					<Synonym/>
+					<Synonym>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Signature ID</v8:content>
+						</v8:item>
+					</Synonym>
 					<Comment/>
 					<Type>
 						<v8:Type>v8:UUID</v8:Type>

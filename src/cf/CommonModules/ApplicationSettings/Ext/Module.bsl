@@ -241,6 +241,16 @@ EndProcedure
 
 #EndRegion
 
+#Region Internal
+
+Function FormNameGeneralSettings() Export
+	
+	Return "DataProcessor.SSLAdministrationPanel.Form.CommonSettings";
+	
+EndFunction
+
+#EndRegion
+
 #Region Private
 
 #Region MonitoringCenter

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -43,7 +43,7 @@ EndProcedure
 
 #EndRegion
 
-#Region SettingsComposerSettingsFilterFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersSettingsComposerSettingsFilter
 
 &AtClient
 Procedure SettingsComposerSettingsFilterOnStartEdit(Item, NewRow, Copy)
@@ -96,7 +96,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersList
 
 &AtClient
 Procedure ListSelection(Item, RowSelected, Field, StandardProcessing)
@@ -107,7 +107,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure OK(Command)

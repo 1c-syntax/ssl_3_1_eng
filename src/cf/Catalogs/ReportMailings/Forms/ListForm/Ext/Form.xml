@@ -15,6 +15,55 @@
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 	</Events>
 	<ChildItems>
+		<UsualGroup name="MailingGroupsCanWorkFaster" id="176">
+			<Visible>false</Visible>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Group reports can be sent faster</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTipRepresentation>ShowLeft</ToolTipRepresentation>
+			<Representation>None</Representation>
+			<ShowTitle>false</ShowTitle>
+			<ExtendedTooltip name="MailingGroupsCanWorkFasterExtendedTooltip" id="177"/>
+			<ChildItems>
+				<PictureDecoration name="WarningPicture" id="178">
+					<Title formatted="false">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Picture Warning</v8:content>
+						</v8:item>
+					</Title>
+					<Picture>
+						<xr:Ref>CommonPicture.Warning</xr:Ref>
+						<xr:LoadTransparent>false</xr:LoadTransparent>
+					</Picture>
+					<ContextMenu name="WarningPictureContextMenu" id="179"/>
+					<ExtendedTooltip name="WarningPictureExtendedTooltip" id="180"/>
+				</PictureDecoration>
+				<LabelDecoration name="TitleAccelerationOfMailouts" id="181">
+					<AutoMaxWidth>false</AutoMaxWidth>
+					<AutoMaxHeight>false</AutoMaxHeight>
+					<Title formatted="false">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Reports can be sent faster</v8:content>
+						</v8:item>
+					</Title>
+					<ToolTip>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>To send reports in multiple threads, specify a directory of temporary files of the 1C:Enterprise server cluster.</v8:content>
+						</v8:item>
+					</ToolTip>
+					<ToolTipRepresentation>ShowRight</ToolTipRepresentation>
+					<TitleHeight>1</TitleHeight>
+					<ContextMenu name="TitleAccelerationOfMailoutsContextMenu" id="182"/>
+					<ExtendedTooltip name="TitleAccelerationOfMailoutsExtendedTooltip" id="183"/>
+				</LabelDecoration>
+			</ChildItems>
+		</UsualGroup>
 		<UsualGroup name="GroupFilters" id="157">
 			<Title>
 				<v8:item>

@@ -9,7 +9,7 @@
 
 #Region Public
 
-#Region EventHandlers
+#Region FormsEventsHandlers
 
 // Handler of the "OnCreateAtServer" document form event.
 //

@@ -6,7 +6,7 @@
 // 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -58,7 +58,7 @@ EndProcedure
 
 #EndRegion
 
-#Region PropertyValueTableFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersPropertyValueTable
 
 &AtClient
 Procedure LabelsOnChange(Item)
@@ -69,7 +69,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure CompleteEditing(Command)

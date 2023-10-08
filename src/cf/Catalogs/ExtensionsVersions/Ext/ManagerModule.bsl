@@ -446,13 +446,6 @@ Procedure DeleteObsoleteParametersVersions() Export
 
 EndProcedure
 
-// This procedure is called from an extension form.
-Procedure OnRemoveAllExtensions() Export
-
-	EnableDeleteObsoleteExtensionsVersionsParametersJob(True);
-
-EndProcedure
-
 // Enables and disables the DeleteObsoleteExtensionsVersionsParameters scheduled job.
 Procedure EnableDeleteObsoleteExtensionsVersionsParametersJob(Enable) Export
 
@@ -603,7 +596,7 @@ Procedure DeleteExtensions(ExtensionsIDs, ErrorText) Export
 			If Common.SeparatedDataUsageAvailable()
 				And ConfigurationExtensions.Get().Count() = 0 Then
 
-				Catalogs.ExtensionsVersions.OnRemoveAllExtensions();
+				EnableDeleteObsoleteExtensionsVersionsParametersJob(True);
 			EndIf;
 		Except
 			ErrorInfo = ErrorInfo();

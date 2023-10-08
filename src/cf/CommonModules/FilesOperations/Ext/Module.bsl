@@ -190,6 +190,7 @@ Function FileData(Val AttachedFile, Val AdditionalParameters = Undefined,
 		FilesOperationsInternal.BorrowFileToEditServer(FileObject1);
 	EndIf;
 	
+	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
 	RefToBinaryFileData = Undefined;
@@ -771,6 +772,7 @@ EndFunction
 //
 Function MaxFileSize() Export
 	
+	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
 	SeparationEnabledAndAvailableUsage = (Common.DataSeparationEnabled()
@@ -802,6 +804,7 @@ EndFunction
 //
 Function MaxFileSizeCommon() Export
 	
+	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
 	MaxFileSize = Constants.MaxFileSize.Get();
@@ -909,6 +912,7 @@ Function ConvertFilesToAttachedFiles(Val FilesOwner, CatalogName = Undefined) Ex
 	
 	SourceFiles = FilesOperationsInternal.GetAllSubordinateFiles(FilesOwner);
 	
+	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	AttachedFilesManager = Catalogs[CatalogName];
 	
@@ -1515,7 +1519,7 @@ Function GetUserScanSettings(ClientID) Export
 	
 	UserScanSettings.UseImageMagickToConvertToPDF =  Common.CommonSettingsStorageLoad(
 		"ScanningSettings1/UseImageMagickToConvertToPDF", 
-		ClientID);
+		ClientID, False);
 		
 	UserScanSettings.JPGQuality = Common.CommonSettingsStorageLoad(
 		"ScanningSettings1/JPGQuality", 
@@ -1666,7 +1670,8 @@ Procedure ChangeFilesStoragecatalog(Val FilesOwner, CatalogName = Undefined) Exp
 	ErrorTitle = NStr("en = 'Error converting attachments.';");
 	CatalogName = FilesOperationsInternal.FileStoringCatalogName(
 		FilesOwner, CatalogName, ErrorTitle);
-		
+	
+	SetSafeModeDisabled(True);	
 	SetPrivilegedMode(True);
 	
 	SourceFiles = FilesOperationsInternal.GetAllSubordinateFiles(FilesOwner);
@@ -1907,6 +1912,7 @@ Procedure MarkToDeleteAttachedFiles(Val Source, CatalogName = Undefined)
 		Return;
 	EndIf;
 	
+	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
 	Try
@@ -2008,6 +2014,7 @@ EndFunction
 //
 Function FileFromInfobaseStorage(FileRef) Export
 	
+	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
 	Query = New Query;
@@ -2140,12 +2147,14 @@ Procedure ExecuteActionsBeforeWriteAttachedFile(Source, Cancel) Export
 				Object = Source.CurrentVersion.GetObject();
 				
 				If Object <> Undefined Then
+					SetSafeModeDisabled(True);
 					SetPrivilegedMode(True);
 					Object.Description = Source.Description;
 					// 
 					Object.AdditionalProperties.Insert("FileRenaming", True);
 					Object.Write();
 					SetPrivilegedMode(False);
+					SetSafeModeDisabled(False);
 				EndIf;
 			EndIf;
 			
@@ -2618,11 +2627,23 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 	
 	If ItemToAdd.ShowCommandBar Then
 		
-		GroupCommandBar = Form.Items.Add("AttachedFilesManagementCommandBar" + ItemNumber,
-			Type("FormGroup"), HeaderGroup);
+		GroupCommandBar = Form.Items.Find("GroupCommandBar" + ItemToAdd.Location);
+		GroupOfSuppliedItems = Undefined;
+		If GroupCommandBar = Undefined Then
+			GroupCommandBar = Form.Items.Add("AttachedFilesManagementCommandBar" + ItemNumber,
+				Type("FormGroup"), HeaderGroup);
 		
-		GroupCommandBar.Type = FormGroupType.CommandBar;
-		GroupCommandBar.HorizontalStretch = True;
+			GroupCommandBar.Type = FormGroupType.CommandBar;
+			GroupCommandBar.HorizontalStretch = True;
+		Else
+			Form.Items.Move(GroupCommandBar, HeaderGroup);
+			GroupOfSuppliedItems = Form.Items.Add("GroupOfSuppliedCommandsForManagingAttachedFiles" + ItemNumber,
+				Type("FormGroup"), GroupCommandBar);
+			GroupOfSuppliedItems.Type = FormGroupType.ButtonGroup;
+			For Each SuppliedItem In GroupCommandBar.ChildItems Do
+				Form.Items.Move(SuppliedItem, GroupOfSuppliedItems);
+			EndDo;
+		EndIf;
 		
 		SubmenuAdd = Form.Items.Add("AddingFileSubmenu" + ItemNumber,
 			Type("FormGroup"), GroupCommandBar);
@@ -2878,6 +2899,11 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		EndIf;
 		
 	EndIf;
+	
+	If ItemToAdd.ShowCommandBar And GroupOfSuppliedItems <> Undefined Then
+		 Form.Items.Move(GroupOfSuppliedItems, GroupCommandBar);
+	EndIf;
+	
 EndProcedure
 
 Procedure SetEditingAvailability(FileData, EditButton1, CancelButton1, PlaceButton)

@@ -264,16 +264,17 @@ Function ClassifierError(TextToSearchInClassifier, ErrorAtServer) Export
 	
 		If StrFind(SearchText, ClassifierRow.ErrorTextLowerCase) <> 0 Then
 			
-			ErrorPresentation = ErrorPresentation();
+			ErrorPresentation = DigitalSignatureInternal.ErrorPresentation();
 			FillPropertyValues(ErrorPresentation, ClassifierRow);
 			ErrorPresentation.RemedyActions = ActionsToFixErrorsRead(
 				ErrorPresentation.Remedy);
-			SupplementSolutionWithAutomaticActions(ErrorPresentation.Decision, ErrorPresentation.RemedyActions);
-				
+			If Not ErrorAtServer Then
+				SupplementSolutionWithAutomaticActions(ErrorPresentation.Decision, ErrorPresentation.RemedyActions);
+			EndIf;
 			ErrorPresentation.Cause = StringFunctions.FormattedString(ErrorPresentation.Cause);
 			ErrorPresentation.Decision = StringFunctions.FormattedString(ErrorPresentation.Decision);
 			
-			Return ErrorPresentation;
+			Return New FixedStructure(ErrorPresentation);
 			
 		EndIf;
 		
@@ -305,7 +306,7 @@ Procedure SupplementSolutionWithAutomaticActions(Decision, RemedyActions)
 				|%2';"), Action, Decision);
 		ElsIf Action = "InstallCertificate" Then
 			Decision = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '- <a href=%1>Install a certificate</a> in the Personal certificate storage of an operating system user automatically.
+				NStr("en = '- <a href=%1>Install the certificate</a> in the Personal certificate store of an operating system user automatically.
 				|%2';"), Action, Decision);
 		ElsIf Action = "InstallCertificateIntoContainer" Then
 			Decision = StringFunctionsClientServer.SubstituteParametersToString(
@@ -326,21 +327,6 @@ Function ActionsToFixErrorsRead(Val Remedy)
 	
 	Remedy = Common.JSONValue(Remedy, , False); // Structure
 	Return Remedy.TroubleshootingMethods;
-	
-EndFunction
-
-Function ErrorPresentation()
-	
-	ErrorPresentation = New Structure;
-	ErrorPresentation.Insert("Ref", "");
-	ErrorPresentation.Insert("Cause", "");
-	ErrorPresentation.Insert("Decision", "");
-	ErrorPresentation.Insert("Remedy", "");
-	ErrorPresentation.Insert("RemedyActions");
-	ErrorPresentation.Insert("IsCheckRequired", False);
-	ErrorPresentation.Insert("CertificateRevoked", False);
-	
-	Return ErrorPresentation;
 	
 EndFunction
 

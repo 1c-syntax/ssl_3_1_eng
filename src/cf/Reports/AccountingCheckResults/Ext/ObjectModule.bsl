@@ -197,7 +197,7 @@ Procedure BeforeLoadVariantAtServer(Form, NewDCSettings) Export
 		
 		RightFilterValue = Filter.RightValue;// ValueList 
 		RightFilterValue.Add(Users.CurrentUser());
-		RightFilterValue.Add(Catalogs.Users.EmptyRef());
+		RightFilterValue.Add(Catalogs.Users.EmptyRef(), NStr("en = 'Without person responsible';"));
 		Filter.ViewMode = DataCompositionSettingsItemViewMode.QuickAccess;
 		If Users.IsFullUser() Then
 			Filter.UserSettingID = New UUID;
@@ -226,7 +226,7 @@ EndProcedure
 
 #EndRegion
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -142,7 +142,7 @@ EndProcedure
 
 #EndRegion
 
-#Region BackgroundJobsTableFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersBackgroundJobsTable
 
 &AtClient
 Procedure BackgroundJobsTableSelection(Item, RowSelected, Field, StandardProcessing)
@@ -153,7 +153,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ScheduledJobsTableFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersScheduledJobsTable
 
 &AtClient
 Procedure ScheduledJobsTableSelection(Item, RowSelected, Field, StandardProcessing)
@@ -204,7 +204,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure UpdateScheduledJobs(Command)

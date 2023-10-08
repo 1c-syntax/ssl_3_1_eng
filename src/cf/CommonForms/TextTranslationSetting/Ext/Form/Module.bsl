@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -56,7 +56,7 @@ Procedure TextTranslationServiceOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure PlugInAuthorizationParameterChangingTheEditText(Item, Text, StandardProcessing)
+Procedure Attachable_AuthorizationParameterChangeOfEditingText(Item, Text, StandardProcessing)
 	Item.ChoiceButton = True;
 EndProcedure
 
@@ -64,7 +64,7 @@ EndProcedure
 //  Item - FormField
 //
 &AtClient
-Procedure PlugInAuthorizationParameterStartOfSelection(Item, ChoiceData, StandardProcessing)
+Procedure Attachable_AuthorizationParameterStartOfSelection(Item, ChoiceData, StandardProcessing)
 	
 	IndexOf = AuthorizationParameters.IndexOf(AuthorizationParameters.FindByValue(Item.Name));
 	SwitchPasswordMode(Item, AuthorizationParameters[IndexOf].Presentation, StandardProcessing);
@@ -73,7 +73,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure WriteAndClose(Command)
@@ -118,8 +118,8 @@ Procedure FillSettings()
 		InputField.DataPath = "AuthorizationParameters[" + IndexOf + "].Presentation";
 		InputField.ToolTipRepresentation = ParameterDetails.ToolTipRepresentation;
 		InputField.ExtendedTooltip.Title = ParameterDetails.ToolTip;
-		InputField.SetAction("StartChoice", "PlugInAuthorizationParameterStartOfSelection");
-		InputField.SetAction("EditTextChange", "PlugInAuthorizationParameterChangingTheEditText");
+		InputField.SetAction("StartChoice", "Attachable_AuthorizationParameterStartOfSelection");
+		InputField.SetAction("EditTextChange", "Attachable_AuthorizationParameterChangeOfEditingText");
 		InputField.PasswordMode = True;
 		InputField.ChoiceButton = Not ValueIsFilled(ParameterValue);
 		InputField.ChoiceButtonPicture = PictureLib.CharsBeingTypedShown;

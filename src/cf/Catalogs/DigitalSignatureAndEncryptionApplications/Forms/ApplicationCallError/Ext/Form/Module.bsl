@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -118,7 +118,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ErrorsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersErrors
 
 &AtClient
 Procedure ErrorsSelection(Item, RowSelected, Field, StandardProcessing)
@@ -145,7 +145,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure OpenApplicationsSettings(Command)
@@ -257,17 +257,20 @@ Procedure AddErrors(ErrorsDescription, ErrorAtServer = False)
 		ErrorsProperties = ErrorsDescription.Errors; // Array of See DigitalSignatureInternalClientServer.NewErrorProperties
 		For Each ErrorProperties In ErrorsProperties Do
 			
+			NewErrorProperties = DigitalSignatureInternalClientServer.NewErrorProperties();
+			FillPropertyValues(NewErrorProperties, ErrorProperties);
+			
 			DetailsWithTitle = "";
-			If ValueIsFilled(ErrorProperties.ErrorTitle) Then
-				DetailsWithTitle = ErrorProperties.ErrorTitle + Chars.LF;
+			If ValueIsFilled(NewErrorProperties.ErrorTitle) Then
+				DetailsWithTitle = NewErrorProperties.ErrorTitle + Chars.LF;
 			ElsIf ValueIsFilled(ErrorsDescription.ErrorTitle) Then
 				DetailsWithTitle = ErrorsDescription.ErrorTitle + Chars.LF;
 			EndIf;
 			LongDesc = "";
-			If ValueIsFilled(ErrorProperties.Application) Then
-				LongDesc = LongDesc + String(ErrorProperties.Application) + ":" + Chars.LF;
+			If ValueIsFilled(NewErrorProperties.Application) Then
+				LongDesc = LongDesc + String(NewErrorProperties.Application) + ":" + Chars.LF;
 			EndIf;
-			LongDesc = LongDesc + ErrorProperties.LongDesc;
+			LongDesc = LongDesc + NewErrorProperties.LongDesc;
 			DetailsWithTitle = DetailsWithTitle + LongDesc;
 			
 			ErrorString = Errors.Add();

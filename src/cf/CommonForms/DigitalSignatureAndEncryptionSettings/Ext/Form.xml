@@ -498,7 +498,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Certificate in personal storage</v8:content>
+											<v8:content>Certificate in Personal store</v8:content>
 										</v8:item>
 									</Title>
 									<Group>AlwaysHorizontal</Group>
@@ -510,7 +510,7 @@
 											<Title formatted="false">
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Certificate in personal storage</v8:content>
+													<v8:content>Certificate in Personal store</v8:content>
 												</v8:item>
 											</Title>
 											<Picture>
@@ -525,7 +525,7 @@
 											<Title formatted="false">
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Certificate is in personal storage on the computer or available on server</v8:content>
+													<v8:content>Certificate is kept in the Personal store on the computer or available on the server</v8:content>
 												</v8:item>
 											</Title>
 											<ToolTipRepresentation>Button</ToolTipRepresentation>
@@ -550,7 +550,7 @@
 											<Title formatted="false">
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Certificate in personal storage</v8:content>
+													<v8:content>Certificate in Personal store</v8:content>
 												</v8:item>
 											</Title>
 											<Picture>
@@ -1921,7 +1921,7 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Only to encrypt from personal storage...</v8:content>
+					<v8:content>Only to encrypt from Personal store...</v8:content>
 				</v8:item>
 			</Title>
 			<Picture>
@@ -1931,7 +1931,20 @@ WHERE
 			<Action>AddToEncryptOnly</Action>
 			<Representation>TextPicture</Representation>
 		</Command>
-		<Command name="OpenMachineReadableAuthorizationLetters" id="12"/>
+		<Command name="OpenMachineReadableAuthorizationLetters" id="12">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Electronic letters of authority</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Open electronic letters of authority</v8:content>
+				</v8:item>
+			</ToolTip>
+		</Command>
 	</Commands>
 	<Parameters>
 		<Parameter name="CertificatesShow">

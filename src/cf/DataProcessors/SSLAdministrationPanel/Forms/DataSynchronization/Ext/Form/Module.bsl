@@ -14,7 +14,7 @@ Var RefreshInterface;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -58,78 +58,6 @@ Procedure UseDataSynchronizationOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure DistributedInfobaseNodePrefixOnChange(Item)
-	
-	BackgroundJob = StartIBPrefixChangeInBackgroundJob();
-	
-	If BackgroundJob <> Undefined
-		And BackgroundJob.Status = "Running" Then
-		
-		Items.DistributedInfobaseNodePrefix.Enabled = False;
-		Items.WaitForPrefixChangeDecoration.Visible = True;
-		
-	EndIf;
-	
-	WaitSettings = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-	WaitSettings.OutputIdleWindow = False;
-	
-	Handler = New NotifyDescription("AfterChangePrefix", ThisObject);
-	TimeConsumingOperationsClient.WaitCompletion(BackgroundJob, Handler, WaitSettings);
-	
-EndProcedure
-
-&AtServer
-Function StartIBPrefixChangeInBackgroundJob()
-	
-	ProcedureParameters = New Structure("NewIBPrefix, ContinueNumbering",
-		ConstantsSet.DistributedInfobaseNodePrefix, True);
-		
-	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Change prefix';");
-	ExecutionParameters.WaitCompletion = 0;
-	
-	Return TimeConsumingOperations.ExecuteInBackground("ObjectsPrefixesInternal.ChangeIBPrefix", ProcedureParameters, ExecutionParameters);
-	
-EndFunction
-
-&AtClient
-Procedure AfterChangePrefix(BackgroundJob, AdditionalParameters) Export
-
-	If Not Items.DistributedInfobaseNodePrefix.Enabled Then
-		Items.DistributedInfobaseNodePrefix.Enabled = True;
-	EndIf;
-	If Items.WaitForPrefixChangeDecoration.Visible Then
-		Items.WaitForPrefixChangeDecoration.Visible = False;
-	EndIf;
-	
-	If BackgroundJob <> Undefined
-		And BackgroundJob.Status = "Completed2" Then
-		
-		ShowUserNotification(NStr("en = 'The prefix is changed.';"));
-		
-	Else
-		
-		ConstantsSet.DistributedInfobaseNodePrefix = PrefixReadFromInfobase();
-		Items.DistributedInfobaseNodePrefix.UpdateEditText();
-		
-		If BackgroundJob <> Undefined Then
-			ErrorText = NStr("en = 'Cannot change the prefix.
-				|For details, see the Event Log.';");
-			CommonClient.MessageToUser(ErrorText);
-		EndIf;
-		
-	EndIf;
-
-EndProcedure
-
-&AtServerNoContext
-Function PrefixReadFromInfobase()
-	
-	Return Constants.DistributedInfobaseNodePrefix.Get();
-	
-EndFunction
-
-&AtClient
 Procedure DataExchangeMessageDirectoryForWindowsOnChange(Item)
 	
 	RefreshSecurityProfilesPermissions(Item);
@@ -145,7 +73,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure DataSyncSettings(Command)
@@ -167,6 +95,16 @@ Procedure ConfigureImportRestrictionDates(Command)
 	
 EndProcedure
 
+&AtClient
+Procedure ChangeIBPrefix(Command)
+	
+	FormParameters = New Structure("Prefix", ConstantsSet.DistributedInfobaseNodePrefix);
+	
+	OpenForm("DataProcessor.DataExchangeCreationWizard.Form.ChangeInfobaseNodePrefix",FormParameters,,,,,, 
+		FormWindowOpeningMode.LockOwnerWindow);
+	
+EndProcedure
+
 // Processing notifications from other open forms.
 //
 // Parameters:
@@ -183,6 +121,20 @@ EndProcedure
 Procedure NotificationsHandler(EventName, Parameter, Source)
 	
 	
+	
+EndProcedure
+
+&AtClient
+Procedure RemovingDataSynchronizationAlerts(Command)
+	
+	OpeningParameters = New Structure;
+	OpeningParameters.Insert("ArrayOfExchangePlanNodes", New Array);
+	OpeningParameters.Insert("SelectionByDateOfOccurrence", New StandardPeriod);
+	OpeningParameters.Insert("SelectionOfExchangeNodes", New Array);
+	OpeningParameters.Insert("SelectingTypesOfWarnings", New Array); 
+	OpeningParameters.Insert("OnlyHiddenRecords", False);
+	
+	OpenForm("InformationRegister.DataExchangeResults.Form.ObsoleteWarningsDeletion", OpeningParameters, ThisObject);
 	
 EndProcedure
 
@@ -359,6 +311,8 @@ Procedure SetVisibility1()
 			Items.TemporaryServerClusterDirectoriesGroup.Visible = False;
 			
 			Items.DistributedInfobaseNodePrefix.Title = NStr("en = 'Prefix in this application';");
+			
+			Items.PerformanceMonitorGroup.Visible = False;
 		Else
 			Items.TemporaryServerClusterDirectoriesGroup.Visible = Not Common.FileInfobase()
 				And Users.IsFullUser(, True);
@@ -385,9 +339,7 @@ Procedure SetVisibility1()
 	Else
 		Items.ImportRestrictionDatesGroup.Visible = False;
 	EndIf;
-	
-	Items.WaitForPrefixChangeDecoration.Visible = False;
-	
+		
 EndProcedure
 
 &AtServer
@@ -401,6 +353,13 @@ Procedure SetAvailability(DataPathAttribute = "")
 			
 	EndIf;
 	
+	If (DataPathAttribute = "ConstantsSet.UsePerformanceMonitoringOfDataSynchronization"
+			Or DataPathAttribute = "")  Then
+		
+		Items.ExchangeSessions.Enabled = ConstantsSet.UsePerformanceMonitoringOfDataSynchronization;
+			
+	EndIf;
+	
 	If (DataPathAttribute = "ConstantsSet.UseDataSynchronization"
 			Or DataPathAttribute = "")
 		And SubsystemExistsDataExchange Then
@@ -409,9 +368,11 @@ Procedure SetAvailability(DataPathAttribute = "")
 		Items.ImportRestrictionDatesGroup.Enabled               = ConstantsSet.UseDataSynchronization;
 		Items.DataSynchronizationResults.Enabled           = ConstantsSet.UseDataSynchronization;
 		Items.TemporaryServerClusterDirectoriesGroup.Enabled = ConstantsSet.UseDataSynchronization;
+		Items.PerformanceMonitorGroup.Enabled          = ConstantsSet.UseDataSynchronization;
 		
 	EndIf;
 	
 EndProcedure
+
 
 #EndRegion

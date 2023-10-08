@@ -133,13 +133,13 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 			
 EndProcedure 
 
-// 
+// End StandardSubsystems.ReportsOptions
 
 #EndRegion
 
 #EndRegion
 		
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	

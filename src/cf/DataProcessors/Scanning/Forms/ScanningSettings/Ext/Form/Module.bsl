@@ -14,7 +14,7 @@ Var Attachable_Module;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -49,6 +49,7 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	RefreshStatus();
+	ProcessUseOfScanDialog();
 EndProcedure
 
 #EndRegion
@@ -131,9 +132,16 @@ Procedure DeviceNameStartChoice(Item, StandardProcessing)
 	EndIf;
 EndProcedure
 
+&AtClient
+Procedure ShowScannerDialogOnChange(Item)
+	
+	ProcessUseOfScanDialog();
+	
+EndProcedure
+
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure OK(Command)
@@ -301,6 +309,7 @@ Procedure ReadScannerSettings()
 	ConvertScannerParametersToEnums(
 		PermissionNumber, ChromaticityNumber, RotationNumber, PaperSizeNumber);
 		
+	ProcessUseOfScanDialog();
 EndProcedure
 
 &AtServerNoContext
@@ -362,6 +371,20 @@ Procedure AfterCheckInstalledConversionApp(RunResult, UserScanSettings) Export
 			NStr("en = 'Specified path to the %1 application is incorrect.';"), "ImageMagick"); 
 		CommonClient.MessageToUser(MessageText, , "PathToConverterApplication");
 	EndIf;
+EndProcedure
+
+&AtClient
+Procedure ProcessUseOfScanDialog()
+	
+	Items.Resolution.Enabled = Not ShowScannerDialog;
+	Items.Chromaticity.Enabled = Not ShowScannerDialog;
+	Items.Rotation.Enabled = Not ShowScannerDialog;
+	Items.PaperSize.Enabled = Not ShowScannerDialog;
+	Items.DuplexScanning.Enabled = Not ShowScannerDialog;
+	Items.ScannedImageFormat.Enabled = Not ShowScannerDialog;
+	Items.JPGQuality.Enabled = Not ShowScannerDialog;
+	Items.TIFFDeflation.Enabled = Not ShowScannerDialog;
+
 EndProcedure
 
 #EndRegion

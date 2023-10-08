@@ -153,7 +153,7 @@ Function ODataInterfaceRole() Export
 	
 EndFunction
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure BeforeExportData(Container) Export
 	

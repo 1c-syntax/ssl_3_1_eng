@@ -520,7 +520,7 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Cloud archive is running</v8:content>
+											<v8:content>Cloud Backup enabled</v8:content>
 										</v8:item>
 									</Title>
 									<Width>86</Width>
@@ -537,7 +537,7 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 											<Title formatted="false">
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Icon cloud archive is running</v8:content>
+													<v8:content>Icon Cloud Backup enabled</v8:content>
 												</v8:item>
 											</Title>
 											<FileDragMode>AsFile</FileDragMode>
@@ -568,7 +568,7 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Page cloud archive</v8:content>
+									<v8:content>Page Cloud Backup</v8:content>
 								</v8:item>
 							</Title>
 							<ExtendedTooltip name="CloudArchivePageExtendedTooltip" id="2251"/>
@@ -577,7 +577,7 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>State pages cloud archive</v8:content>
+											<v8:content>Cloud Backup state pages</v8:content>
 										</v8:item>
 									</Title>
 									<HorizontalStretch>true</HorizontalStretch>
@@ -588,7 +588,7 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Page cloud archive is running</v8:content>
+													<v8:content>Page Cloud Backup enabled</v8:content>
 												</v8:item>
 											</Title>
 											<HorizontalStretch>true</HorizontalStretch>
@@ -599,7 +599,7 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Cloud archive save restore</v8:content>
+															<v8:content>Cloud Backup save restore</v8:content>
 														</v8:item>
 													</Title>
 													<Group>Vertical</Group>
@@ -725,7 +725,7 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Page cloud archive is not enabled</v8:content>
+													<v8:content>Page Cloud Backup not enabled</v8:content>
 												</v8:item>
 											</Title>
 											<HorizontalStretch>true</HorizontalStretch>
@@ -745,7 +745,7 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 														<Title formatted="false">
 															<v8:item>
 																<v8:lang>en</v8:lang>
-																<v8:content>Connect to 1C:Cloud Archive service.</v8:content>
+																<v8:content>Connect to 1C:Cloud Backup.</v8:content>
 															</v8:item>
 														</Title>
 													</ExtendedTooltip>
@@ -756,7 +756,7 @@ Rebuild, populate, and optimize aggregates.</v8:content>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Page cloud archive is locked</v8:content>
+													<v8:content>Page Cloud Backup locked</v8:content>
 												</v8:item>
 											</Title>
 											<HorizontalStretch>true</HorizontalStretch>

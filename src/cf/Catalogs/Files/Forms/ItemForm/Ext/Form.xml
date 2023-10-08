@@ -1054,6 +1054,7 @@
 											<DataPath>DigitalSignatures.ErrorDescription</DataPath>
 											<TitleLocation>None</TitleLocation>
 											<EditMode>EnterOnInput</EditMode>
+											<AutoMaxHeight>false</AutoMaxHeight>
 											<ContextMenu name="DigitalSignaturesErrorDescriptionContextMenu" id="194"/>
 											<ExtendedTooltip name="DigitalSignaturesErrorDescriptionExtendedTooltip" id="195"/>
 										</InputField>
@@ -1064,6 +1065,14 @@
 											<Width>10</Width>
 											<ContextMenu name="DigitalSignaturesSignatureValidationDateContextMenu" id="152"/>
 											<ExtendedTooltip name="DigitalSignaturesSignatureValidationDateExtendedTooltip" id="153"/>
+										</InputField>
+										<InputField name="DigitalSignaturesMachineReadableAuthorizationLetter" id="315">
+											<DataPath>DigitalSignatures.MachineReadableAuthorizationLetter</DataPath>
+											<TitleLocation>None</TitleLocation>
+											<ShowInHeader>false</ShowInHeader>
+											<AutoMaxHeight>false</AutoMaxHeight>
+											<ContextMenu name="DigitalSignaturesMachineReadableAuthorizationLetterContextMenu" id="316"/>
+											<ExtendedTooltip name="DigitalSignaturesMachineReadableAuthorizationLetterExtendedTooltip" id="317"/>
 										</InputField>
 									</ChildItems>
 								</ColumnGroup>
@@ -1371,7 +1380,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Date submitted</v8:content>
+							<v8:content>Date verified</v8:content>
 						</v8:item>
 					</Title>
 					<Type>
@@ -1432,6 +1441,29 @@
 							<v8:content>Verification is required</v8:content>
 						</v8:item>
 					</Title>
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+				<Column name="ResultOfSignatureVerificationByMCHD" id="23">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="MachineReadableAuthorizationLetter" id="24">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Machine-readable letter of authority</v8:content>
+						</v8:item>
+					</Title>
+					<Type/>
+				</Column>
+				<Column name="MachineReadableAuthorizationLetterIsCorrect" id="25">
 					<Type>
 						<v8:Type>xs:boolean</v8:Type>
 					</Type>

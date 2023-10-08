@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -19,7 +19,7 @@ EndProcedure
 
 #EndRegion
 
-#Region AvailableFieldsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersAvailableFields
 
 #Region PlugInListOfFields
 
@@ -52,7 +52,7 @@ Procedure FillInTheListOfAvailableFields(FillParameters)
 EndProcedure
 
 &AtClient
-Procedure PlugInListOfSelectionFields(Item, RowSelected, Field, StandardProcessing)
+Procedure Attachable_ListOfFieldsSelection(Item, RowSelected, Field, StandardProcessing)
 	
 	SelectAndClose();
 	
@@ -162,7 +162,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Select(Command)
@@ -328,7 +328,7 @@ Procedure InitializeTheListOfAvailableFields()
 	
 	ParametersForAddingAListOfFields.FieldsCollections = FieldsCollections();
 	
-	ParametersForAddingAListOfFields.ListHandlers.Insert("Selection", "PlugInListOfSelectionFields");
+	ParametersForAddingAListOfFields.ListHandlers.Insert("Selection", "Attachable_ListOfFieldsSelection");
 	ParametersForAddingAListOfFields.ListHandlers.Insert("OnActivateRow", "APlugInListOfFieldsWhenActivatingALine");
 	ParametersForAddingAListOfFields.UseBackgroundSearch = True;
 	

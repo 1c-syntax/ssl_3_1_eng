@@ -14,7 +14,7 @@ Var ApplicationsCheckPerformed;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -357,7 +357,7 @@ EndProcedure
 
 #EndRegion
 
-#Region CertificatesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersCertificates
 
 &AtClient
 Procedure CertificatesBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parameter)
@@ -438,7 +438,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ProgramsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersPrograms
 
 &AtClient
 Procedure ApplicationsOnActivateRow(Item)
@@ -545,7 +545,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Refresh(Command)

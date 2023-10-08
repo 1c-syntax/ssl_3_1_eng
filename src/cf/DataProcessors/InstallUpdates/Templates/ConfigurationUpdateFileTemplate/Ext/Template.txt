@@ -190,7 +190,7 @@ function appendLogUTF8 () {
   return (text && text.length > 0)
 }
 
-// Initialization
+// Initialize
 function initialize () {
   log(format('[TheMessageIsThePathToTheScriptFile]', thisFileName))
   log(format('[UpdateFileCounterMessage]', cfgFileNames.length))

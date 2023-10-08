@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -281,7 +281,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure ShowAutoPopulatedAttributes(Command)
@@ -747,7 +747,7 @@ Procedure EnableCertificateStatusVisibility(Form, CurrentDate)
 		Form.Items.CertificateStatus.Title = NStr("en = 'Certificate is expiring';");
 	Else
 		Form.Items.CertificateImage.Picture = PictureLib.CertificatePersonalStorage;
-		Form.Items.CertificateStatus.Title = NStr("en = 'Certificate in personal storage';");
+		Form.Items.CertificateStatus.Title = NStr("en = 'Certificate in Personal store';");
 	EndIf;
 		
 	If Form.IssuedCertificates.Count() > 0 Then

@@ -397,6 +397,28 @@
 								</Button>
 							</ChildItems>
 						</CommandBar>
+						<CommandBar name="CommandsSelectCancel" id="876">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Commands select cancel</v8:content>
+								</v8:item>
+							</Title>
+							<HorizontalLocation>Right</HorizontalLocation>
+							<ExtendedTooltip name="CommandsSelectCancelExtendedTooltip" id="877"/>
+							<ChildItems>
+								<Button name="SelectLink" id="880">
+									<Type>CommandBarButton</Type>
+									<CommandName>Form.Command.SelectLink</CommandName>
+									<ExtendedTooltip name="SelectLinkExtendedTooltip" id="881"/>
+								</Button>
+								<Button name="Cancel" id="878">
+									<Type>CommandBarButton</Type>
+									<CommandName>Form.StandardCommand.Cancel</CommandName>
+									<ExtendedTooltip name="CancelExtendedTooltip" id="879"/>
+								</Button>
+							</ChildItems>
+						</CommandBar>
 					</ChildItems>
 				</Page>
 				<Page name="PromptForCertificatePropertiesPage" id="241">
@@ -1162,6 +1184,11 @@ to check the key before certificate selection.</v8:content>
 				<v8:TypeSet>cfg:DefinedType.Individual</v8:TypeSet>
 			</Type>
 		</Attribute>
+		<Attribute name="LinkSelectionMode" id="31">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="Next" id="1">
@@ -1286,6 +1313,21 @@ to check the key before certificate selection.</v8:content>
 			</Picture>
 			<Action>PickIndividual</Action>
 		</Command>
+		<Command name="SelectLink" id="2">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Select</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Select a link</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>SelectLink</Action>
+		</Command>
 	</Commands>
 	<Parameters>
 		<Parameter name="ToEncryptAndDecrypt">
@@ -1331,6 +1373,11 @@ to check the key before certificate selection.</v8:content>
 		</Parameter>
 		<Parameter name="FilterByCompany">
 			<Type/>
+		</Parameter>
+		<Parameter name="LinkSelectionMode">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
 		</Parameter>
 	</Parameters>
 </Form>

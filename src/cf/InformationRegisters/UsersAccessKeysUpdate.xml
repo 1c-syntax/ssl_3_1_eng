@@ -186,7 +186,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Atomic job</v8:content>
+							<v8:content>Targeted job</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -199,7 +199,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>An atomic job refers to the master access key for updating
+							<v8:content>A targeted job refers to the master access key for updating
 only the access keys that refer to this master access key.</v8:content>
 						</v8:item>
 					</ToolTip>
@@ -246,7 +246,7 @@ only the access keys that refer to this master access key.</v8:content>
 							<v8:lang>en</v8:lang>
 							<v8:content>Stores a structure with a reference to the last access key
 (only when the unique key is empty),
-as well as references to master access keys of atomic jobs.</v8:content>
+as well as references to master access keys of targeted jobs.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -295,7 +295,7 @@ as well as references to master access keys of atomic jobs.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>1 - atomic job.
+							<v8:content>1 - targeted job.
 2 - update of obsolete items.
 3 - update from the beginning.</v8:content>
 						</v8:item>

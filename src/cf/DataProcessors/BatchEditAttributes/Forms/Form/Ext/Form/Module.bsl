@@ -14,7 +14,7 @@ Var CurrentSelectedAttribute;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -178,7 +178,7 @@ EndProcedure
 
 #EndRegion
 
-#Region SettingsComposerSettingsFilterFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersSettingsComposerSettingsFilter
 
 &AtClient
 Procedure UpdateLabel()
@@ -194,7 +194,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ObjectsThatCouldNotBeChangedFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersObjectsThatCouldNotBeChanged
 
 &AtClient
 Procedure ObjectsThatCouldNotBeChangedBeforeRowChange(Item, Cancel)
@@ -213,7 +213,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ObjectAttributesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersObjectAttributes
 
 &AtClient
 Procedure ObjectAttributesDragCheck(Item, DragParameters, StandardProcessing, String, Field)
@@ -271,7 +271,7 @@ EndFunction
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Change(Command)
@@ -1053,7 +1053,7 @@ Async Procedure ChangeObjectsBatch()
 		Result = Await PutFileToServerAsync(,,,
 			ExternalProcessorFilePathAtClient, UUID);
 		
-		If TypeOf(Result) = Type("PlacedFileDescription")
+		If TypeOf(Result) = Type("StoredFileDescription")
 		   And Not Result.FilePuttingCanceled Then
 			Object.ExternalDataProcessorBinaryDataAddress = Result.Address;
 		EndIf;

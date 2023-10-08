@@ -196,7 +196,7 @@ EndFunction
 
 #EndRegion
 
-#Region Initialization
+#Region Initialize
 
 ObjectsTree = New ValueTree();
 ObjectsTree.Columns.Add("FullName", New TypeDescription("String"));

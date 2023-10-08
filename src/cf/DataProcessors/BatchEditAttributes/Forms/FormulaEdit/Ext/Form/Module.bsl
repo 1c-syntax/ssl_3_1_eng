@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -93,7 +93,7 @@ EndProcedure
 
 #EndRegion
 
-#Region OperandsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersOperands
 
 &AtClient
 Procedure OperandsSelection(Item, RowSelected, Field, StandardProcessing)
@@ -185,7 +185,7 @@ EndProcedure
 
 #EndRegion
 
-#Region OperandsTreeFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersOperandsTree
 
 &AtClient
 Procedure OperandsTreeDragStart(Item, DragParameters, Perform)
@@ -208,7 +208,7 @@ EndProcedure
 
 #EndRegion
 
-#Region OperatorsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersOperators
 
 &AtClient
 Procedure OperatorsSelection(Item, RowSelected, Field, StandardProcessing)
@@ -254,7 +254,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure OK(Command)

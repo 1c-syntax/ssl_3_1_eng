@@ -20,7 +20,7 @@ Var DataRepresentationRefreshed;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -88,7 +88,7 @@ EndProcedure
 
 #EndRegion
 
-#Region SignaturesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersSignatures
 
 &AtClient
 Procedure SignaturesBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parameter)
@@ -111,7 +111,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure OK(Command)

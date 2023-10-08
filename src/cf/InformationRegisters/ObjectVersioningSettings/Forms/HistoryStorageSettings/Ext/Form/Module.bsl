@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -34,7 +34,7 @@ EndProcedure
 
 #EndRegion
 
-#Region MetadataObjectsTreeFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersMetadataObjectsTree
 
 &AtClient
 Procedure MetadataObjectsTreeBeforeRowChange(Item, Cancel)
@@ -58,7 +58,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure SetVersioningOptionDontVersionize(Command)

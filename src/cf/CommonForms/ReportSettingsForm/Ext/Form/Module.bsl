@@ -18,7 +18,7 @@ Var List_BeforeStartChanges;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -467,7 +467,7 @@ EndProcedure
 
 #EndRegion
 
-#Region SortFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersSort
 
 &AtClient
 Procedure SortSelection(Item, RowID, Field, StandardProcessing)
@@ -637,7 +637,7 @@ EndProcedure
 
 #EndRegion
 
-#Region SelectedFieldsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersSelectedFields
 
 &AtClient
 Procedure SelectedFieldsSelection(Item, RowID, Field, StandardProcessing)
@@ -848,7 +848,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FiltersFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersFilters
 
 &AtClient
 Procedure Filters_Group(Command)
@@ -1359,7 +1359,7 @@ EndProcedure
 
 #EndRegion
 
-#Region SelectedFieldsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersSelectedFields
 
 &AtClient
 Procedure ChangeFormula(Command)
@@ -1414,7 +1414,7 @@ EndProcedure
 
 #EndRegion
 
-#Region OptionStructureFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersOptionStructure
 
 &AtClient
 Procedure OptionStructureOnActivateRow(Item)
@@ -1835,7 +1835,7 @@ EndFunction
 
 #EndRegion
 
-#Region GroupingCompositionFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersGroupingComposition
 
 &AtClient
 Procedure GroupCompositionUseOnChange(Item)
@@ -1923,7 +1923,7 @@ EndProcedure
 
 #EndRegion
 
-#Region AppearanceFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersAppearance
 
 &AtClient
 Procedure AppearanceBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parameter)
@@ -2010,7 +2010,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure GenerateAndClose(Command)

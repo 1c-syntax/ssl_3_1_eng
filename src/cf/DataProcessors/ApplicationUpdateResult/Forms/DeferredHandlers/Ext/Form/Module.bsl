@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -121,7 +121,7 @@ EndProcedure
 
 #EndRegion
 
-#Region DeferredHandlersFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersDeferredHandlers
 
 &AtClient
 Procedure DeferredHandlersSelection(Item, RowSelected, Field, StandardProcessing)
@@ -145,7 +145,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure CloseForm(Command)

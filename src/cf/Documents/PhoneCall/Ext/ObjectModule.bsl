@@ -60,7 +60,7 @@ EndProcedure
 
 #EndRegion
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure Filling(FillingData, FillingText, StandardProcessing)
 	

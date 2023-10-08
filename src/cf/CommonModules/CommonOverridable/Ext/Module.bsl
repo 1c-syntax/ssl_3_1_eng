@@ -128,27 +128,25 @@ Procedure OnAddClientParameters(Parameters) Export
 	
 EndProcedure
 
+//  
 // 
+//
+//  
 // 
 // 
 //
 // 
-// 
-// 
-// 
-//
-// 
-// 
-// 
-// 
+//  
 // 
 //
 // 
+//
+//  
 // 
 // 
+//  
 // 
-// 
-// 
+//
 Procedure BeforeStartApplication() Export
 
 EndProcedure

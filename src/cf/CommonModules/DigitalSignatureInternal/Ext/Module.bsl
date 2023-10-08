@@ -788,6 +788,10 @@ Function VisibilityOfRefToAppsTroubleshootingGuide() Export
 	
 EndFunction
 
+Function ПолучитьДанныеКомпоненты(TemplateName) Export
+	Return Catalogs.DigitalSignatureAndEncryptionKeysCertificates.GetTemplate(TemplateName);
+EndFunction
+
 #Region SuppliedData
 
 // See SuppliedDataOverridable.GetHandlersForSuppliedData
@@ -884,18 +888,6 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Procedure = "Catalogs.DigitalSignatureAndEncryptionApplications.FillInitialSettings";
 	Handler.ExecutionMode = "Exclusively";
 	
-	If Common.SubsystemExists("StandardSubsystems.AddIns")
-		And Not Common.DataSeparationEnabled() Then
-		Handler = Handlers.Add();
-		Handler.InitialFilling = True;
-		Handler.Version = "3.1.5.220";
-		Handler.Comment = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-			"en = 'Add add-in %1 to catalog Add-ins.';"), "ExtraCryptoAPI");
-		Handler.Id = New UUID("9fcfccd5-ec23-4ba9-8b2c-8f0ae269c271");
-		Handler.Procedure = "DigitalSignatureInternal.AddAnExtraCryptoAPIComponent";
-		Handler.ExecutionMode = "Seamless";
-	EndIf;
-
 	Handler = Handlers.Add();
 	Handler.Version = "3.1.6.20";
 	Handler.Procedure = "DigitalSignatureInternal.ReplaceRoleAddingChangeElectronicSignaturesAndEncryption";
@@ -950,7 +942,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	
 	Handler = Handlers.Add();
 	Handler.Version = "3.1.9.122";
-	Handler.Comment = NStr("en = 'Удаление путей из заполненных имен файлов подписей. Заполнение идентификатора подписи в регистре Электронные подписи.';");
+	Handler.Comment = NStr("en = 'Delete paths from filled in signature file names. Populate the signature ID in the ""Digital signatures"" register.';");
 	Handler.Id = New UUID("927d1ffb-682a-474d-b3ea-5a40fd20ff08");
 	Handler.Procedure = "InformationRegisters.DigitalSignatures.ProcessDataForMigrationToNewVersion";
 	Handler.ExecutionMode = "Deferred";
@@ -1629,7 +1621,7 @@ EndFunction
 //
 // Parameters:
 //   Thumbprint              - String - a Base64 coded certificate thumbprint.
-//   InPersonalStorageOnly - Boolean - if True, search in the personal storage, otherwise, search everywhere.
+//   InPersonalStorageOnly - Boolean - if True, search in the Personal store, otherwise, search everywhere.
 //
 // Returns:
 //   CryptoCertificate - 
@@ -2422,7 +2414,7 @@ EndFunction
 // For internal use only.
 // 
 // Parameters:
-//  CertificatesList - ValueList - Certificate list to add personal storage certificates to.
+//  CertificatesList - ValueList - Certificate list to add Personal store certificates to.
 //  Error - String - Error.
 //
 Procedure AddListofCertificatesInPersonalStorageOnServer(CertificatesList, Error = "") Export
@@ -2826,7 +2818,7 @@ Function CertificateFromBinaryData(CertificateData) Export
 		DeleteFiles(TempFileFullName);
 	Except
 		WriteLogEvent(
-			NStr("en = 'Digital signature.Remove temporary file';",
+			NStr("en = 'Digital signature.Delete temporary file';",
 				Common.DefaultLanguageCode()),
 			EventLogLevel.Error, , ,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
@@ -3861,10 +3853,10 @@ Function CryptoProviderProperties(CryptoManager)
 	If ApplicationDetails = Undefined Then
 		If Not IsBlankString(ErrorDescription) Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot define a type of cryptographic service provider %1. %2';"), CryptoModuleInformation.Name, ErrorDescription);
+				NStr("en = 'Cannot determine the type of cryptographic service provider %1. %2';"), CryptoModuleInformation.Name, ErrorDescription);
 		Else
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot define a type of cryptographic service provider %1';"), CryptoModuleInformation.Name);
+				NStr("en = 'Cannot determine the type of cryptographic service provider %1';"), CryptoModuleInformation.Name);
 		EndIf;
 		Raise ErrorText;
 	EndIf;
@@ -5050,37 +5042,6 @@ Function SupplyThePathToTheProgramModules() Export
 	Return New Structure;
 	
 EndFunction
-
-// Runs when a configuration is updated to v.3.1.5.220 and during the initial data population.
-// 
-Procedure AddAnExtraCryptoAPIComponent() Export
-	
-	If Not Common.SubsystemExists("StandardSubsystems.AddIns") Then
-		Return;
-	EndIf;	
-	
-	ComponentDetails = DigitalSignatureInternalClientServer.ComponentDetails();
-	TheComponentOfTheLatestVersionFromTheLayout = StandardSubsystemsServer.TheComponentOfTheLatestVersion(
-		ComponentDetails.ObjectName, ComponentDetails.FullTemplateName);
-	
-	LayoutLocationSplit = StrSplit(TheComponentOfTheLatestVersionFromTheLayout.Location, ".");
-	BinaryData = Catalogs.DigitalSignatureAndEncryptionKeysCertificates.GetTemplate(
-		LayoutLocationSplit.Get(LayoutLocationSplit.UBound()));
-		
-	ModuleAddInsInternal = Common.CommonModule("AddInsInternal");
-	AddInParameters = ModuleAddInsInternal.ImportParameters();
-	AddInParameters.Id = ComponentDetails.ObjectName;
-	AddInParameters.Description = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = '%1 for 1C:Enterprise';", Common.DefaultLanguageCode()), "ExtraCryptoAPI");
-	AddInParameters.Version = TheComponentOfTheLatestVersionFromTheLayout.Version;
-	AddInParameters.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Added by the %1 update handler.';", Common.DefaultLanguageCode()), CurrentSessionDate());
-	AddInParameters.UpdateFrom1CITSPortal = True;
-	AddInParameters.Data = BinaryData;
-	
-	ModuleAddInsInternal.LoadAComponentFromBinaryData(AddInParameters, False);
-	
-EndProcedure
 
 // Runs when a configuration is updated to v.3.1.5.220 and during the initial data population.
 // 
@@ -6347,8 +6308,32 @@ EndProcedure
 
 Function ClassifierError(TextToSearchInClassifier, ErrorAtServer = False) Export
 	
-	Return DigitalSignatureInternalCached.ClassifierError(
+	ClassifierError = DigitalSignatureInternalCached.ClassifierError(
 		TextToSearchInClassifier, ErrorAtServer);
+		
+	If ClassifierError = Undefined Then
+		Return Undefined;
+	EndIf;
+	
+	ErrorPresentation = ErrorPresentation();
+	FillPropertyValues(ErrorPresentation, ClassifierError);
+	
+	Return ErrorPresentation;
+	
+EndFunction
+
+Function ErrorPresentation() Export
+	
+	ErrorPresentation = New Structure;
+	ErrorPresentation.Insert("Ref", "");
+	ErrorPresentation.Insert("Cause", "");
+	ErrorPresentation.Insert("Decision", "");
+	ErrorPresentation.Insert("Remedy", "");
+	ErrorPresentation.Insert("RemedyActions");
+	ErrorPresentation.Insert("IsCheckRequired", False);
+	ErrorPresentation.Insert("CertificateRevoked", False);
+	
+	Return ErrorPresentation;
 	
 EndFunction
 
@@ -6387,7 +6372,7 @@ Function CryptoErrorsClassifier() Export
 	
 	If TypeOf(ClassifierData) = Type("Structure") Then
 		Try
-			If CommonClientServer.CompareVersions(ClassifierData.Version, "3.0.1.0") < 0 Then
+			If CommonClientServer.CompareVersions(ClassifierData.Version, "3.0.1.11") < 0 Then
 				Version = Undefined;
 			Else
 				Version = ClassifierData.Version;

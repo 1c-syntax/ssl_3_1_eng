@@ -33,7 +33,7 @@ if (useComConnector) {
   var comConnectorCached = new ActiveXObject(comConnectorName) //
 }
 
-// Initialization
+// Initialize
 var oFileSystemObject = new ActiveXObject('Scripting.FileSystemObject')
 
 var thisFileName
@@ -178,7 +178,7 @@ function log1CInternal (connection, text, failed) {
   }
 }
 
-// Initialization
+// Initialize
 function initialize () {
   clearLogFile()
   appendLog()

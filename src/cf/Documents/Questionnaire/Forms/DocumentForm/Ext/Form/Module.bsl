@@ -5,7 +5,7 @@
 // 
 // 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -262,7 +262,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure ResponseFormWrite(Command)
@@ -437,10 +437,11 @@ Procedure SetSimpleQuestionAttributeValue(DoQueryBox, SelectionQuestion, TreeRow
 
 		EndDo;
 
-	ElsIf TreeRow.ReplyType = Enums.TypesOfAnswersToQuestion.OneVariantOf Then
-
+	ElsIf TreeRow.ReplyType = Enums.TypesOfAnswersToQuestion.OneVariantOf
+		And TreeRow.RadioButtonType = Enums.RadioButtonTypesInQuestionnaires.RadioButton Then
+			
 		OptionsOfAnswersToQuestion = Surveys.OptionsOfAnswersToQuestion(TreeRow.ElementaryQuestion, ThisObject);
-
+		
 		While SelectionQuestion.Next() Do
 			AnswerParameters = FindAnswerInArray(SelectionQuestion.Response, OptionsOfAnswersToQuestion);
 			If AnswerParameters <> Undefined Then
@@ -1035,7 +1036,8 @@ Procedure FillAnswerSimpleQuestion(TreeRow)
 
 		EndDo;
 
-	ElsIf TreeRow.ReplyType = Enums.TypesOfAnswersToQuestion.OneVariantOf Then
+	ElsIf TreeRow.ReplyType = Enums.TypesOfAnswersToQuestion.OneVariantOf
+		And TreeRow.RadioButtonType = Enums.RadioButtonTypesInQuestionnaires.RadioButton Then
 
 		OptionsOfAnswersToQuestion = Surveys.OptionsOfAnswersToQuestion(TreeRow.ElementaryQuestion, ThisObject);
 
@@ -1526,7 +1528,8 @@ Procedure SetOnChangeEventHandlerForQuestions()
 			SetOnChangeEventHandlerForComplexQuestions(TableRow, QuestionName);
 		Else
 			If TableRow.ReplyType = Enums.TypesOfAnswersToQuestion.MultipleOptionsFor
-				Or TableRow.ReplyType = Enums.TypesOfAnswersToQuestion.OneVariantOf Then
+				Or (TableRow.ReplyType = Enums.TypesOfAnswersToQuestion.OneVariantOf
+				And TableRow.RadioButtonType = Enums.RadioButtonTypesInQuestionnaires.RadioButton) Then
 				OptionsOfAnswersToQuestion = Surveys.OptionsOfAnswersToQuestion(TableRow.ElementaryQuestion,
 					ThisObject);
 				For IndexOf = 1 To OptionsOfAnswersToQuestion.Count() Do
@@ -1743,6 +1746,6 @@ Procedure Attachable_UpdateCommands()
 	AttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
 EndProcedure
 
-// 
+// End StandardSubsystems.AttachableCommands
 
 #EndRegion

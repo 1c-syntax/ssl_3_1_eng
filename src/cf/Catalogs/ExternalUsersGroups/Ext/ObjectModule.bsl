@@ -31,7 +31,7 @@ Var IsNew; //
 
 #EndRegion
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	

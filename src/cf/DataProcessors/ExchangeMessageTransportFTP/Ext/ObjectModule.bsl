@@ -117,7 +117,7 @@ EndFunction
 // Parameters:
 //  No.
 // 
-Procedure Initialization() Export
+Procedure Initialize() Export
 	
 	InitMessages();
 	
@@ -718,7 +718,7 @@ EndFunction
 
 #EndRegion
 
-#Region Initialization
+#Region Initialize
 
 InitMessages();
 ErrorMessageInitialization();

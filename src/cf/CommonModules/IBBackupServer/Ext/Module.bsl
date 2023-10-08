@@ -587,7 +587,7 @@ Function ScriptMessages()
 	Messages["[MessageBackupFileSizeInMb]"] = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Infobase ""%1"" file size: {0} MB';"), "1Cv8.1CD");
 	Messages["[TheMessageFailedToCompressTheBackupFileINZIP]"] = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Infobase ""%1"" file size exceeds 2 GB. It won''t be compressed to a ZIP archive';"), "1Cv8.1CD");
+		NStr("en = 'Infobase ""%1"" file size exceeds 2 GB. It will not be compressed to a ZIP archive.';"), "1Cv8.1CD");
 	Messages["[TheMessageTheBeginningOfCreatingABackupCopyOfTheDatabase]"] = NStr("en = 'Backup started…';");
 	Messages["[TheMessageFailureToCreateABackupCopyOfTheDatabaseInDetail]"] = NStr("en = 'Exception when backing up the infobase: {0}, {1}';");
 	Messages["[TheMessageAssumptionOfADatabaseBackupError]"] = NStr("en = 'After 15 minutes of runtime, no backup file has been created (size is {0} byte). Probably, an error has occurred. Back up is canceled.';");

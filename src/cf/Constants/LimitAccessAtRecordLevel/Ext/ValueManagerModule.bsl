@@ -19,7 +19,7 @@ Var AccessRestrictionAtRecordLevelChanged; //
 
 #EndRegion
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure BeforeWrite(Cancel)
 	

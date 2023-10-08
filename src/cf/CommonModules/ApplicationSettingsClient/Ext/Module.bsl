@@ -276,6 +276,16 @@ EndProcedure
 
 #EndRegion
 
+#Region Internal
+
+Procedure OpenGeneralSettings() Export
+	
+	OpenForm("DataProcessor.SSLAdministrationPanel.Form.CommonSettings");
+	
+EndProcedure
+
+#EndRegion
+
 #Region Private
 
 Procedure OnlineSupportAndServicesOnChangeOfChatConnectionStatus(

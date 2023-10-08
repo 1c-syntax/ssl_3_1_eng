@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -102,7 +102,7 @@ EndProcedure
 
 #EndRegion
 
-#Region RightsGroupsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersRightsGroups
 
 &AtClient
 Procedure RightsGroupsOnChange(Item)
@@ -259,7 +259,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure WriteAndClose(Command)

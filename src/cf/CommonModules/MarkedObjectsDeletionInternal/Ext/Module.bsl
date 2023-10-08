@@ -1248,17 +1248,29 @@ EndFunction
 
 Function MarkedForDeletionItemsTreeWithoutDeletedItems(MarkedForDeletion, Trash)
 	Result = MarkedForDeletion.Copy();
-
+	
+	УдаленныеЭлементы = New Map();
+	For Each Item In Trash Do
+		УдаленныеЭлементы.Insert(Item, True);
+	EndDo; 
+	
 	ModifiedParents = New Map;
 	ObjectsToDelete = Result.Rows.FindRows(New Structure("Check", 1), True);
 	For Each Item In ObjectsToDelete Do
-		If Item.Parent <> Undefined And (Trash.Find(Item.ItemToDeleteRef) <> Undefined
-			Or Not Item.IsMetadataObjectDetails And Item.Technical) Then
+		If Item.Parent <> Undefined And (Item.Technical And Not Item.IsMetadataObjectDetails 
+			Or УдаленныеЭлементы[Item.ItemToDeleteRef] <> Undefined) Then
 			ModifiedParents.Insert(Item.Parent);
+			УдаленныеЭлементы.Delete(Item.ItemToDeleteRef);
 			Item.Parent.Rows.Delete(Item);
 		EndIf;
 	EndDo;
-
+	
+	For Each УдаленныйЭлемент In УдаленныеЭлементы Do
+		Item = Result.Rows.Find(УдаленныйЭлемент.Key, "ItemToDeleteRef", True);
+		ModifiedParents.Insert(Item.Parent);
+		Item.Parent.Rows.Delete(Item);
+	EndDo;
+	
 	For Each ValueParent In ModifiedParents Do
 		Parent = ValueParent.Key;
 		If Parent.Rows.Count() = 0 Then

@@ -36,7 +36,7 @@ EndProcedure
 
 #EndRegion
 
-#Region EventsHandlers
+#Region EventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
 // Business process event handlers.

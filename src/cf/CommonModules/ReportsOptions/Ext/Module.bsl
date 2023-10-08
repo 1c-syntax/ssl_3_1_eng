@@ -6259,7 +6259,7 @@ Function FindReportsOptions(Val SearchParameters, Val GetSummaryTable = False, V
 	HasFilterByVisibility = HasFilterBySubsystems
 		And SearchParameters.Property("OnlyItemsVisibleInReportPanel") 
 		And SearchParameters.OnlyItemsVisibleInReportPanel = True;
-	
+		
 	OnlyItemsNotMarkedForDeletion = ?(SearchParameters.Property("DeletionMark"), SearchParameters.DeletionMark, True);
 	
 	If HasFilterByReports Then
@@ -6279,6 +6279,8 @@ Function FindReportsOptions(Val SearchParameters, Val GetSummaryTable = False, V
 		ShowPersonalReportsOptionsByOtherAuthors = ShowPersonalReportsOptionsByOtherAuthors And Not SearchParameters.OnlyPersonal;
 	EndIf;
 	
+	OnlyPersonal = ?(SearchParameters.Property("OnlyPersonal"), SearchParameters.OnlyPersonal, False);
+	
 	Query = New Query;
 	Query.SetParameter("CurrentUser",          CurrentUser);
 	Query.SetParameter("UserReports",           FilterByReports);
@@ -6297,6 +6299,8 @@ Function FindReportsOptions(Val SearchParameters, Val GetSummaryTable = False, V
 	Query.SetParameter("LanguageCode",                     CurrentLanguage().LanguageCode);
 	Query.SetParameter("SubsystemsPresentations",       ReportsOptionsCached.SubsystemsPresentations());
 	Query.SetParameter("Context",                     ?(HasFilterByContext, SearchParameters.Context, ""));
+	Query.SetParameter("OnlyPersonal",                 OnlyPersonal);
+
 	If HasFilterBySubsystems Or HasSearchString Or SearchOnlyOptionsWithoutSubsystems Then
 		
 		If HasFilterBySubsystems Then
@@ -6974,7 +6978,8 @@ Function ReportsWithSimpleFiltersQueryText()
 		|		OR NOT ReportsOptions.DeletionMark)
 		|	AND (&ShowPersonalReportsOptionsByOtherAuthors
 		|		OR NOT ReportsOptions.AuthorOnly AND ISNULL(AvailableReportsOptions.User, UNDEFINED) IN (GroupsOfTheCurrentUser.UsersGroup, UNDEFINED)
-		|		OR ReportsOptions.Author = &CurrentUser)
+		|		OR ReportsOptions.Author = &CurrentUser AND ReportsOptions.AuthorOnly AND &OnlyPersonal
+		|		OR ReportsOptions.Author = &CurrentUser AND NOT &OnlyPersonal)
 		|	AND ISNULL(AvailableReportsOptions.Visible, TRUE)
 		|	AND (&HasFilterByContext
 		|		AND (ReportsOptions.PredefinedOption IN (&DIsabledApplicationOptions)
@@ -7079,7 +7084,8 @@ Function ReportsWithSimpleFiltersQueryText()
 		|		OR NOT ReportsOptions.DeletionMark)
 		|	AND (&ShowPersonalReportsOptionsByOtherAuthors
 		|		OR NOT ReportsOptions.AuthorOnly AND ISNULL(AvailableReportsOptions.User, UNDEFINED) IN (GroupsOfTheCurrentUser.UsersGroup, UNDEFINED)
-		|		OR ReportsOptions.Author = &CurrentUser)
+		|		OR ReportsOptions.Author = &CurrentUser AND ReportsOptions.AuthorOnly AND &OnlyPersonal
+		|		OR ReportsOptions.Author = &CurrentUser AND NOT &OnlyPersonal)
 		|	AND ISNULL(AvailableReportsOptions.Visible, TRUE)
 		|	AND (&HasFilterByContext
 		|		AND (ReportsOptions.PredefinedOption IN (&DIsabledApplicationOptions)
@@ -9032,10 +9038,10 @@ Function AvailableReportOptionDescription(Report, Val Description)
 	|	Catalog.ReportsOptions AS ReportsOptions
 	|WHERE
 	|	ReportsOptions.Report = &Report
-	|	AND ReportsOptions.Description LIKE &DescriptionTemplate1 ESCAPE ""~""");
+	|	AND ReportsOptions.Description LIKE &DescriptionTemplate ESCAPE ""~""");
 	
 	Query.SetParameter("Report", Report);
-	Query.SetParameter("DescriptionTemplate1", 
+	Query.SetParameter("DescriptionTemplate", 
 		Common.GenerateSearchQueryString(Description) + "%");
 	
 	Result = Query.Execute();	
@@ -9051,15 +9057,15 @@ Function AvailableReportOptionDescription(Report, Val Description)
 	DescriptionsOccupied.Reset();
 	
 	CopiesCounterTemplate = " (%1)";
-	DescriptionTemplate1 = ReportOptionDescriptionTemplate(DescriptionsOccupied, Description, CopiesCounterTemplate);
+	DescriptionTemplate = ReportOptionDescriptionTemplate(DescriptionsOccupied, Description, CopiesCounterTemplate);
 	
-	If Not StrEndsWith(DescriptionTemplate1, CopiesCounterTemplate) Then 
-		Return DescriptionTemplate1;
+	If Not StrEndsWith(DescriptionTemplate, CopiesCounterTemplate) Then 
+		Return DescriptionTemplate;
 	EndIf;
 	
 	MaxCopiesCount = DescriptionsOccupied.Count();	
 	For CopyNumber = 1 To MaxCopiesCount Do 
-		Description = StringFunctionsClientServer.SubstituteParametersToString(DescriptionTemplate1, CopyNumber);
+		Description = StringFunctionsClientServer.SubstituteParametersToString(DescriptionTemplate, CopyNumber);
 		
 		If Not DescriptionsOccupied.FindNext(Description, "Description") Then 
 			Return Description;

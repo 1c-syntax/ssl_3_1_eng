@@ -110,31 +110,99 @@ EndFunction
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
-	QueryText ="SELECT
-	|	AddIns.Ref
-	|FROM
-	|	Catalog.AddIns AS AddIns";
+	If CommonClientServer.CompareVersions(Parameters.SubsystemVersionAtStartUpdates, "3.1.6.48") < 0 Then
 	
-	Query = New Query(QueryText);
-	
-	InfobaseUpdate.MarkForProcessing(Parameters, Query.Execute().Unload().UnloadColumn("Ref"));
+		QueryText ="SELECT
+		|	AddIns.Ref
+		|FROM
+		|	Catalog.AddIns AS AddIns";
+		
+		Query = New Query(QueryText);
+		
+		InfobaseUpdate.MarkForProcessing(Parameters, Query.Execute().Unload().UnloadColumn("Ref"));
+
+	EndIf;
 	
 EndProcedure
 
-// Update handler to v.3.1.6.48: update:
-// - Populates compatibility attributes for MacOS browsers in the "Add-ins" catalog.
+// 
+// 
+// 
+// 
 //
 Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
-	Selection = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue, "Catalog.AddIns");
-	If Selection.Count() > 0 Then
-		ProcessExternalComponents(Selection);
-	EndIf;
+	If CommonClientServer.CompareVersions(Parameters.SubsystemVersionAtStartUpdates, "3.1.6.48") < 0 Then
+		
+		Selection = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue, "Catalog.AddIns");
+		If Selection.Count() > 0 Then
+			ProcessExternalComponents(Selection);
+		EndIf;
 
-	ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue,
-		"Catalog.AddIns");
-	Parameters.ProcessingCompleted = ProcessingCompleted;
+		ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue,
+			"Catalog.AddIns");
+		Parameters.ProcessingCompleted = ProcessingCompleted;
+	EndIf;
+	
+	If CommonClientServer.CompareVersions(Parameters.SubsystemVersionAtStartUpdates, "3.1.5.220") < 0
+		And Common.SubsystemExists("StandardSubsystems.DigitalSignature")
+		And Not Common.DataSeparationEnabled() Then
+		
+		ModuleDigitalSignatureInternalClientServer = Common.CommonModule("DigitalSignatureInternalClientServer");
+		ModuleDigitalSignatureInternal = Common.CommonModule("DigitalSignatureInternal");
+		
+		ComponentDetails = ModuleDigitalSignatureInternalClientServer.ComponentDetails();
+		TheComponentOfTheLatestVersionFromTheLayout = StandardSubsystemsServer.TheComponentOfTheLatestVersion(
+			ComponentDetails.ObjectName, ComponentDetails.FullTemplateName);
+		
+		LayoutLocationSplit = StrSplit(TheComponentOfTheLatestVersionFromTheLayout.Location, ".");
+		
+		BinaryData = ModuleDigitalSignatureInternal.ПолучитьДанныеКомпоненты(
+			LayoutLocationSplit.Get(LayoutLocationSplit.UBound()));
 			
+		AddInParameters = AddInsInternal.ImportParameters();
+		AddInParameters.Id = ComponentDetails.ObjectName;
+		AddInParameters.Description = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = '%1 для 1C:Enterprise';", Common.DefaultLanguageCode()), "ExtraCryptoAPI");
+		AddInParameters.Version = TheComponentOfTheLatestVersionFromTheLayout.Version;
+		AddInParameters.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Добавлена автоматически %1.';", Common.DefaultLanguageCode()), CurrentSessionDate());
+		AddInParameters.UpdateFrom1CITSPortal = True;
+		AddInParameters.Data = BinaryData;
+		
+		AddInsInternal.LoadAComponentFromBinaryData(AddInParameters, False);
+	
+		Parameters.ProcessingCompleted = True;
+	EndIf;
+	
+	If CommonClientServer.CompareVersions(Parameters.SubsystemVersionAtStartUpdates, "3.1.9.163") < 0
+		And Common.SubsystemExists("StandardSubsystems.FilesOperations")
+		And Not Common.DataSeparationEnabled() Then
+		
+		ModuleFilesOperationsInternalClientServer = Common.CommonModule("FilesOperationsInternalClientServer");
+		
+		ComponentDetails = ModuleFilesOperationsInternalClientServer.ComponentDetails();
+		TheComponentOfTheLatestVersionFromTheLayout = StandardSubsystemsServer.TheComponentOfTheLatestVersion(
+			ComponentDetails.ObjectName, ComponentDetails.FullTemplateName);
+		
+		LayoutLocationSplit = StrSplit(TheComponentOfTheLatestVersionFromTheLayout.Location, ".");
+		BinaryData = GetCommonTemplate(LayoutLocationSplit.Get(LayoutLocationSplit.UBound()));
+			
+		AddInParameters = AddInsInternal.ImportParameters();
+		AddInParameters.Id = ComponentDetails.ObjectName;
+		AddInParameters.Description = NStr("en = 'Компонента для сканирования документов и изображений';");
+		AddInParameters.Version = TheComponentOfTheLatestVersionFromTheLayout.Version;
+		AddInParameters.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Добавлена автоматически %1.';"), CurrentSessionDate());
+		AddInParameters.UpdateFrom1CITSPortal = True;
+		AddInParameters.Data = BinaryData;
+		
+		AddInsInternal.LoadAComponentFromBinaryData(AddInParameters, False);
+		
+		Parameters.ProcessingCompleted = True;
+		
+	EndIf;
+	
 EndProcedure
 
 // Parameters:

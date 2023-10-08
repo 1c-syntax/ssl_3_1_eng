@@ -14,7 +14,7 @@ Var InternalData, ClientParameters, PasswordProperties, ContextExecutionParamete
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -326,7 +326,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Validate(Command)
@@ -786,7 +786,7 @@ Procedure CheckAtClientSideAfterCertificateSearchInSaaSMode(Result, Context) Exp
 	EndIf;
 	SetItem(ThisObject, "CertificateExists", True, ErrorDescription, , MergeResults);
 	
-	// If the certificate is not found in the certificate storage, checks stop.
+	// If the certificate is not found in the certificate store, checks stop.
 	If Not IsBlankString(ErrorDescription) Then
 		ExecuteNotifyProcessing(Context.Notification);
 		Return;
@@ -2134,7 +2134,7 @@ Function StandardItemTitle(TagName)
 		Return NStr("en = 'Compliance with legislation of the Russian Federation';");
 		
 	ElsIf TagName = "CertificateExistsLabel" Then
-		Return NStr("en = 'Existence of certificate in the private list';");
+		Return NStr("en = 'Certificate is available in the Personal list';");
 		
 	ElsIf TagName = "CertificateDataLabel" Then
 		Return NStr("en = 'Certificate data accuracy';");

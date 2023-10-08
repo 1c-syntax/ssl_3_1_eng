@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -48,8 +48,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 EndProcedure
 
 &AtClient
-Procedure JPGQualityOnChange(Item)
-	Items.JPGQuality.Title = StrTemplate(NStr("en = 'Quality (%1)';"), JPGQuality);
+Procedure OnOpen(Cancel)
+	ProcessUseOfScanDialog();
 EndProcedure
 
 #EndRegion
@@ -65,9 +65,19 @@ Procedure ScannedImageFormatOnChange(Item)
 	
 EndProcedure
 
+&AtClient
+Procedure JPGQualityOnChange(Item)
+	Items.JPGQuality.Title = StrTemplate(NStr("en = 'Quality (%1)';"), JPGQuality);
+EndProcedure
+
+&AtClient
+Procedure ShowScannerDialogOnChange(Item)
+	ProcessUseOfScanDialog();
+EndProcedure
+
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure OK(Command)
@@ -127,6 +137,20 @@ Procedure InstallHints()
 	
 	Items.SinglePageDocumentFormatDetails.Title = FormatTooltip;
 	
+EndProcedure
+
+&AtClient
+Procedure ProcessUseOfScanDialog()
+	
+	Items.Resolution.Enabled = Not ShowScannerDialog;
+	Items.Chromaticity.Enabled = Not ShowScannerDialog;
+	Items.Rotation.Enabled = Not ShowScannerDialog;
+	Items.PaperSize.Enabled = Not ShowScannerDialog;
+	Items.DuplexScanning.Enabled = Not ShowScannerDialog;
+	Items.ScannedImageFormat.Enabled = Not ShowScannerDialog;
+	Items.JPGQuality.Enabled = Not ShowScannerDialog;
+	Items.TIFFDeflation.Enabled = Not ShowScannerDialog;
+
 EndProcedure
 
 #EndRegion

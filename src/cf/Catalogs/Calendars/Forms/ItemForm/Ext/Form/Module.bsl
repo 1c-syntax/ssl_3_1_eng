@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -287,7 +287,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FillingTemplateFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersFillingTemplate
 
 &AtClient
 Procedure FillingTemplateSelection(Item, RowSelected, Field, StandardProcessing)
@@ -309,7 +309,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure FillFromTemplate(Command)

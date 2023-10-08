@@ -647,7 +647,7 @@ Function TaskStatus(TaskID)
 	JobParameters = New Structure("Key", TaskID);
 	
 	ModuleJobsQueue = Common.CommonModule("JobsQueue");
-	Jobs = ModuleJobsQueue.GetTasks(JobParameters);
+	Jobs = ModuleJobsQueue.GetJobs(JobParameters);
 	
 	If Jobs.Count() > 0 Then
 		
@@ -680,7 +680,7 @@ Function StopTasks(TasksID, Zone)
 		
 		Filter = New Structure("Key", TaskID__);
 		ModuleJobsQueue = Common.CommonModule("JobsQueue");
-		Jobs = ModuleJobsQueue.GetTasks(Filter);
+		Jobs = ModuleJobsQueue.GetJobs(Filter);
 		
 		If Jobs.Count() = 0 Then
 			Continue;

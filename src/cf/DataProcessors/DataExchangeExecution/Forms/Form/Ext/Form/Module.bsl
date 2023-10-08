@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -189,7 +189,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure GoToEventLog(Command)
@@ -821,7 +821,7 @@ Procedure CancelQueueAndResume(Command)
 EndProcedure
 
 &AtClient
-Function PluggableWaitingForSynchronizationToStartProcessingALongOperation(Cancel, GoToNext)
+Function Attachable_WaitingForSynchronizationToStart_ProcessingLongRunningOperation(Cancel, GoToNext)
 	
 	If Not IsNodeLocked Then
 		GoToNext = False;
@@ -1410,14 +1410,14 @@ Function BackgroundJobStartAtServer(JobParameters, VersionDifferenceErrorOnGetDa
 			DataExchangeServer.InitializeVersionDifferenceCheckParameters(CheckVersionDifference);
 		EndIf;
 		
-		DescriptionTemplate1 = NStr("en = 'Importing data from %1';");
+		DescriptionTemplate = NStr("en = 'Importing data from %1';");
 		
 	Else
-		DescriptionTemplate1 = NStr("en = 'Exporting data to %1';");
+		DescriptionTemplate = NStr("en = 'Exporting data to %1';");
 	EndIf;
 	
 	JobDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		DescriptionTemplate1, JobParameters.InfobaseNode);
+		DescriptionTemplate, JobParameters.InfobaseNode);
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.BackgroundJobDescription = JobDescription;
@@ -1584,7 +1584,7 @@ Procedure FillNavigationTable()
 		NavigationTableNewRow("PageCheckExchangeTasks", "Attachable_PageDataExchangeJobCheck_OnOpen");	
 	EndIf;
 
-	NavigationTableNewRow("WaitForSynchronizationToStart", "", True, "PluggableWaitingForSynchronizationToStartProcessingALongOperation");
+	NavigationTableNewRow("WaitForSynchronizationToStart", "", True, "Attachable_WaitingForSynchronizationToStart_ProcessingLongRunningOperation");
 	
 	// Initializing the current exchange scenario.
 	If HasErrors Then

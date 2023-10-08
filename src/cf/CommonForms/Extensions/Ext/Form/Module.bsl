@@ -14,7 +14,7 @@ Var CurrentContext;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -81,7 +81,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ExtensionsListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersExtensionsList
 
 &AtClient
 Procedure ExtensionsListOnActivateRow(Item)
@@ -163,7 +163,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Refresh(Command)

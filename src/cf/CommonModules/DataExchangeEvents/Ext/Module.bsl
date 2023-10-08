@@ -1110,7 +1110,7 @@ Procedure ClearRefsToInfobaseNode(Source, Cancel) Export
 			Filter.Insert("DataArea", ModuleSaaSOperations.SessionSeparatorValue());
 			Filter.Insert("Key",          JobKey);
 			
-			JobTable = ModuleJobsQueue.GetTasks(Filter);
+			JobTable = ModuleJobsQueue.GetJobs(Filter);
 			For Each JobRow In JobTable Do
 				ModuleJobsQueue.DeleteJob(JobRow.Id);
 			EndDo;

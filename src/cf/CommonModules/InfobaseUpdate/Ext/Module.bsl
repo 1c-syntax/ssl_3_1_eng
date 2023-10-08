@@ -1080,7 +1080,7 @@ Function CreateTemporaryTableOfRegisterRecordersToProcess(Queue, FullDocumentNam
 	If FullDocumentName = Undefined Then 
 		If AdditionalParameters.SelectInBatches Then
 			QueryText =
-			"SELECT TOP 10000
+			"SELECT TOP 1000
 			|	RegisterTableChanges.Recorder AS Recorder,
 			|	MAX(ISNULL(RegisterTable.Period, DATETIME(3000, 1, 1))) AS Period
 			|INTO #TTToProcessRecorder
@@ -1142,7 +1142,7 @@ Function CreateTemporaryTableOfRegisterRecordersToProcess(Queue, FullDocumentNam
 	Else
 		FragmentsOfTheQuery = New Array;
 		QueryFragment =
-			"SELECT TOP 10000
+			"SELECT TOP 1000
 			|	DocumentTable.Ref AS Recorder
 			|INTO #TTToProcessRecorder
 			|FROM
@@ -1276,7 +1276,7 @@ Function SelectRegisterRecordersToProcess(Queue, FullDocumentName, FullRegisterN
 	HasSelectionFilter = False;
 	If FullDocumentName = Undefined Then
 		QueryText =
-		"SELECT TOP 10000
+		"SELECT TOP 1000
 		|	&SelectedFields
 		|FROM
 		|	#RegisterTableChanges AS RegisterTableChanges
@@ -1311,7 +1311,7 @@ Function SelectRegisterRecordersToProcess(Queue, FullDocumentName, FullRegisterN
 		SetRegisterOrderingFields(BuildParameters);
 	Else
 		QueryText =
-		"SELECT TOP 10000
+		"SELECT TOP 1000
 		|	&SelectedFields
 		|FROM
 		|	#RegisterTableChanges AS RegisterTableChanges
@@ -1440,7 +1440,7 @@ Function SelectRefsToProcess(Queue, FullObjectName, AdditionalParameters = Undef
 	BuildParameters = SelectionBuildParameters(AdditionalParameters);
 	
 	QueryText =
-	"SELECT TOP 10000
+	"SELECT TOP 1000
 	|	&SelectedFields
 	|FROM
 	|	#ObjectTableChanges AS ChangesTable
@@ -1556,7 +1556,7 @@ Function CreateTemporaryTableOfRefsToProcess(Queue, FullObjectName, TempTablesMa
 	FragmentsOfTheQuery = New Array;
 	
 	QueryFragment =
-		"SELECT TOP 10000
+		"SELECT TOP 1000
 		|	ObjectTable.Ref AS Ref
 		|INTO #TTToProcessRef
 		|FROM
@@ -1577,7 +1577,7 @@ Function CreateTemporaryTableOfRefsToProcess(Queue, FullObjectName, TempTablesMa
 		|	AND &ConditionUpToDateData";
 	
 	If Not AdditionalParameters.SelectInBatches Then
-		QueryFragment = StrReplace(QueryFragment, "SELECT TOP 10000", "SELECT"); // @query-part-1 @query-part-2
+		QueryFragment = StrReplace(QueryFragment, "SELECT TOP 1000", "SELECT"); // @query-part-1 @query-part-2
 	EndIf;
 	
 	FilterOfUpToDateData = InfobaseUpdateInternal.FilterOfUpToDateData(Undefined, "ObjectTable");
@@ -1694,7 +1694,7 @@ Function SelectStandaloneInformationRegisterDimensionsToProcess(Queue, FullObjec
 	
 	Query = New Query;
 	QueryText =
-		"SELECT TOP 10000
+		"SELECT TOP 1000
 		|	&SelectedFields
 		|FROM
 		|	#ObjectTableChanges AS ChangesTable
@@ -1820,7 +1820,7 @@ Function CreateTemporaryTableOfStandaloneInformationRegisterDimensionsToProcess(
 	
 	Query = New Query;
 	QueryText =
-		"SELECT TOP 10000
+		"SELECT TOP 1000
 		|	&DimensionSelectionText
 		|INTO #TTToProcessDimensions
 		|FROM
@@ -1837,7 +1837,7 @@ Function CreateTemporaryTableOfStandaloneInformationRegisterDimensionsToProcess(
 		|DROP #TTLockedDimensions";
 	
 	If Not AdditionalParameters.SelectInBatches Then
-		QueryText = StrReplace(QueryText, "SELECT TOP 10000", "SELECT"); // @query-part-1 @query-part-2
+		QueryText = StrReplace(QueryText, "SELECT TOP 1000", "SELECT"); // @query-part-1 @query-part-2
 	EndIf;
 	
 	MeasurementsWithBasicSelection = New Array;
@@ -3324,7 +3324,7 @@ EndFunction
 //
 Function MaxRecordsCountInSelection() Export
 	
-	Return 10000;
+	Return 1000;
 	
 EndFunction
 
@@ -3347,10 +3347,23 @@ Function DataToUpdateInMultithreadHandler(Parameters) Export
 	DataSet = Parameters.DataToUpdate.DataSet;
 	
 	If DataSet.Count() > 0 Then
-		Return DataSet[0].Data;
-	Else
-		Return New ValueTable;
+		Data = DataSet[0].Data.Copy();
+		
+		For IndexOf = 1 To DataSet.Count() - 1 Do
+			Set = DataSet[IndexOf];
+			
+			For Each SetData In Set.Data Do
+				DataString1 = Data.Add();
+				FillPropertyValues(DataString1, SetData);
+			EndDo;
+		EndDo;
+		
+		If Data.Count() > 0 Then
+			Return Data;
+		EndIf;
 	EndIf;
+	
+	Return New ValueTable;
 	
 EndFunction
 
@@ -4703,9 +4716,9 @@ Procedure RegisterChangesToADataItem(Data, RegistrationParameters)
 		Try
 			ExchangePlans.RecordChanges(RegistrationParameters.Node, Data);
 		Except
-			ExceptionText = NStr("en = 'Не удалось зарегистрировать данные для обработки. Возможно, таблицы, по которым
-				|выполняется регистрация данных, не включены в состав плана обмена ""%1"".
-				|Для выявления таких ошибок рекомендуется использовать инструмент ""%2"".
+			ExceptionText = NStr("en = 'Cannot register data for processing. The tables for which the data is registered
+				|might not be included in the ""%1"" exchange plan.
+				|To detect such errors, use the %2 tool.
 				|
 				|%3';");
 			ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(ExceptionText, 
@@ -4749,9 +4762,9 @@ Procedure RegisterADataPackage(RegistrationParameters, Data, Forcibly = False, P
 		Try
 			ExchangePlans.RecordChanges(RegistrationParameters.Node, Data);
 		Except
-			ExceptionText = NStr("en = 'Не удалось зарегистрировать данные для обработки. Возможно, таблицы, по которым
-				|выполняется регистрация данных, не включены в состав плана обмена ""%1"".
-				|Для выявления таких ошибок рекомендуется использовать инструмент ""%2"".
+			ExceptionText = NStr("en = 'Cannot register data for processing. The tables for which the data is registered
+				|might not be included in the ""%1"" exchange plan.
+				|To detect such errors, use the %2 tool.
 				|
 				|%3';");
 			ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(ExceptionText, 
@@ -6020,7 +6033,7 @@ EndFunction
 Procedure SetSelectionSize(QueryText, Parameters)
 	
 	SelectionSize = ?(Parameters.SelectInBatches, Parameters.MaxSelection, Undefined);
-	ChangeSelectionMax(QueryText, 10000, SelectionSize);
+	ChangeSelectionMax(QueryText, 1000, SelectionSize);
 	
 EndProcedure
 

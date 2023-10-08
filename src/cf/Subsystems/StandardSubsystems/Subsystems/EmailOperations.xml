@@ -33,6 +33,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">Catalog.InternetServicesAuthorizationSettings</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">ScheduledJob.GetStatusesOfEmailMessages</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Enum.EmailMessagesStatuses</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.EmailOperationsInternalClientServer</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

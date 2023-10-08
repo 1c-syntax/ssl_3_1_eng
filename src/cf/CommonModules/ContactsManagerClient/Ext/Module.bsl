@@ -331,30 +331,49 @@ EndFunction
 //
 Procedure CreateEmailMessage(Val FieldValues, Val Presentation = "", ExpectedKind = Undefined, ContactInformationSource = Undefined, AttributeName = "") Export
 	
-	ContactInformationDetails = ContactsManagerClientServer.ContactInformationDetails(
-		FieldValues, Presentation, ExpectedKind);
-	
-	ContactInformation = ContactsManagerInternalServerCall.TransformContactInformationXML(ContactInformationDetails);
+	MailAddr = "";
+	If ValueIsFilled(Presentation) Then
 		
-	InformationType = ContactInformation.ContactInformationType;
-	If InformationType <> PredefinedValue("Enum.ContactInformationTypes.Email") Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot create an email from contact information of the ""%1"" type.';"), InformationType);
-	EndIf;
-	
-	If FieldValues = "" And IsBlankString(Presentation) Then
-		If ValueIsFilled(AttributeName) Then
-			CommonClient.MessageToUser(
-				NStr("en = 'To send an email, enter an email address.';"), , AttributeName);
-		Else
-			ShowMessageBox( , NStr("en = 'To send an email, enter an email address.';"));
+		If CommonClientServer.EmailAddressMeetsRequirements(Presentation, True) Then
+			MailAddr = Presentation;
 		EndIf;
-		Return;
+		
 	EndIf;
 	
-	XMLData = ContactInformation.XMLData1;
-	MailAddr = ContactsManagerInternalServerCall.ContactInformationCompositionString(XMLData);
-	If TypeOf(MailAddr) <> Type("String") Then
-		Raise NStr("en = 'Error getting email address. Invalid contact information type.';");
+	If IsBlankString(MailAddr) Then
+		
+		ContactInformationDetails = ContactsManagerClientServer.ContactInformationDetails(
+			FieldValues, Presentation, ExpectedKind);
+		
+		ContactInformation = ContactsManagerInternalServerCall.TransformContactInformationXML(ContactInformationDetails);
+		
+		If ValueIsFilled( ContactInformation.Presentation) Then
+			MailAddr = ContactInformation.Presentation;
+		Else
+			MailAddr = ContactsManagerInternalServerCall.ContactInformationCompositionString(ContactInformation.XMLData1);
+		EndIf;
+		
+		ErrorText = "";
+		InformationType = ContactInformation.ContactInformationType;
+		If IsBlankString(MailAddr) 
+		  Or Not CommonClientServer.EmailAddressMeetsRequirements(Presentation, True) Then
+			ErrorText= NStr("en = 'Для отправки письма введите адрес электронной почты.';");
+		ElsIf TypeOf(MailAddr) <> Type("String") Or InformationType = Undefined Then
+			ErrorText =  NStr("en = 'Ошибка получения адреса электронной почты, неверный тип контактной информации';");
+		ElsIf InformationType <> PredefinedValue("Enum.ContactInformationTypes.Email") Then
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Нельзя создать письмо по контактной информацию с типом ""%1""';"), InformationType);
+		EndIf;
+		
+		If ValueIsFilled(ErrorText) Then
+			If ValueIsFilled(AttributeName) Then
+				CommonClient.MessageToUser(ErrorText,, AttributeName);
+			Else
+				ShowMessageBox(, ErrorText );
+			EndIf;
+			Return
+		EndIf;
+		
 	EndIf;
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.EmailOperations") Then

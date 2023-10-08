@@ -56,7 +56,7 @@ EndFunction
 
 #EndIf
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure PresentationGetProcessing(Data, Presentation, StandardProcessing)
 	

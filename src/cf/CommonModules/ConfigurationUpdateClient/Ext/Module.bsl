@@ -549,7 +549,32 @@ Function GetUpdateAdministratorAuthenticationParameters(AdministrationParameters
 	ClusterPort = AdministrationParameters.ClusterPort;
 	CurrentConnections = IBConnectionsServerCall.ConnectionsInformation(True,
 		ApplicationParameters["StandardSubsystems.MessagesForEventLog"], ClusterPort);
+	
+	ConnectionString = CurrentConnections.InfoBaseConnectionString;
+	PathToTheDatabase = "";
+	If StrFind(ConnectionString, "'") > 0 Then
+		FileInfobase1 = CommonClient.FileInfobase(ConnectionString);
+		If FileInfobase1 Then
+			PathToTheDatabase = StrReplace(StrReplace(ConnectionString, "File=", ""), ";", "");
+			ErrorText = NStr("en = 'Cannot update the application as the infobase
+				|directory contains an incorrect single quote character "" '' "":
+				|%1%2';");
+			Postfix = NStr("en = 'Move the infobase to another directory and retry the update.';");
+		Else
+			PathToTheDatabase = ConnectionString;
+			ErrorText = NStr("en = 'Cannot update the application as the server address
+				|or the infobase name contains an incorrect single quote character "" '' "":
+				|%1%2';");
+			Postfix = NStr("en = 'Move the infobase to another server or rename it and then retry the update.';");
+		EndIf;
+		ErrorText = StrConcat(StrSplit(ErrorText, Chars.LF), " ");
 		
+		ErrorText = ErrorText + Chars.LF + Chars.LF + Postfix;
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText, Chars.LF, PathToTheDatabase);
+		
+		Raise ErrorText;
+	EndIf;
+	
 	Result.InfoBaseConnectionString = CurrentConnections.InfoBaseConnectionString;
 	Result.StringForConnection = "Usr=""{0}"";Pwd=""{1}""";
 	

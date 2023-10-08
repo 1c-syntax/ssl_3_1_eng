@@ -14,7 +14,7 @@ Var TempDirectoryNameClient;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -448,7 +448,7 @@ EndProcedure
 
 #EndRegion
 
-#Region PrintFormsSettingsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersPrintFormsSettings
 
 &AtClient
 Procedure PrintFormsSettingsOnChange(Item)
@@ -505,7 +505,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Save(Command)
@@ -1412,7 +1412,7 @@ Procedure SavePrintFormToFile()
 	FilesInTempStorage = PutSpreadsheetDocumentsInTempStorage(SettingsForSaving);
 	FilesInTempStorage = PutFilesToArchive(FilesInTempStorage, SettingsForSaving);
 	
-	DCSPrint = FilesInTempStorage[0].PrintObject <> Undefined;
+	DCSPrint = FilesInTempStorage.Count() And FilesInTempStorage[0].PrintObject <> Undefined;
 	
 	If DCSPrint And UseOfficeDocPrintDialog() Then
 		OpeningParameters = New Structure("OfficeDocuments, PrintFormSettingsAddress,OutputParameters");
@@ -1542,12 +1542,12 @@ Procedure OpenOfficeDocsAfterTempDirReceived(ObtainedTempDir, Context) Export
 	For Each FileToWrite In Context.FilesInTempStorage Do
 		Call = New Array;
 		Call.Add("RunApp");
-		Call.Add(ObtainedTempDir+FileToWrite.Presentation);
+		Call.Add(ObtainedTempDir+GetPathSeparator()+FileToWrite.Presentation);
 		Call.Add();
 		Call.Add(False);
 		Calls.Add(Call);
 		
-		ArrayOfFilesToTransfer.Add(New TransferableFileDescription(ObtainedTempDir+FileToWrite.Presentation, FileToWrite.AddressInTempStorage));
+		ArrayOfFilesToTransfer.Add(New TransferableFileDescription(ObtainedTempDir+GetPathSeparator()+FileToWrite.Presentation, FileToWrite.AddressInTempStorage));
 	EndDo;
 	
 	Call = New Array;

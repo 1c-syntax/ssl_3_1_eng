@@ -154,6 +154,12 @@
 			<ChildItems>
 				<InputField name="DataAreaAuxiliaryData" id="71">
 					<DataPath>List.DataAreaAuxiliaryData</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Service data of data area</v8:content>
+						</v8:item>
+					</Title>
 					<ContextMenu name="DataAreaAuxiliaryDataContextMenu" id="72"/>
 					<ExtendedTooltip name="DataAreaAuxiliaryDataExtendedTooltip" id="73"/>
 				</InputField>

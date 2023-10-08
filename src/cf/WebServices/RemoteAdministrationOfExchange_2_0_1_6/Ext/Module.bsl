@@ -48,7 +48,7 @@ Function ScheduleDataExchangeExecution(DataExchangeAreasXDTO)
 		Try
 			ModuleJobsQueue.AddJob(JobParameters);
 		Except
-			If ErrorInfo().Description <> ModuleJobsQueue.GetDuplicateTaskExceptionTextWithSameKey() Then
+			If ErrorInfo().Description <> ModuleJobsQueue.GetExceptionTextJobsWithSameKeyDuplication() Then
 				Raise;
 			EndIf;
 		EndTry;
@@ -113,7 +113,7 @@ Function ExecuteDataExchangeScenarioActionInFirstInfobase(ScenarioRowIndex, Data
 			SetPrivilegedMode(True);
 			ModuleJobsQueue.AddJob(JobParameters);
 		Except
-			If ErrorInfo().Description <> ModuleJobsQueue.GetDuplicateTaskExceptionTextWithSameKey() Then
+			If ErrorInfo().Description <> ModuleJobsQueue.GetExceptionTextJobsWithSameKeyDuplication() Then
 				Raise;
 			EndIf;
 		EndTry;
@@ -181,7 +181,7 @@ Function ExecuteDataExchangeScenarioActionInSecondInfobase(ScenarioRowIndex, Dat
 			SetPrivilegedMode(True);
 			ModuleJobsQueue.AddJob(JobParameters);
 		Except
-			If ErrorInfo().Description <> ModuleJobsQueue.GetDuplicateTaskExceptionTextWithSameKey() Then
+			If ErrorInfo().Description <> ModuleJobsQueue.GetExceptionTextJobsWithSameKeyDuplication() Then
 				Raise;
 			EndIf;
 		EndTry;

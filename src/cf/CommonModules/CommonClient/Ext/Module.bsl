@@ -94,7 +94,7 @@ EndProcedure
 //       "ChartOfAccounts.SelfFinancing.Materials"
 //       "ChartOfCalculationTypes.Accruals.SalaryPayments".
 //
-// Returns: 
+// Returns: 	
 //   AnyRef - 
 //   
 //

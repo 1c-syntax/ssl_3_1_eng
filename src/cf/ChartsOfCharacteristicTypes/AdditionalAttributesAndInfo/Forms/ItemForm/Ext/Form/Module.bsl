@@ -14,7 +14,7 @@ Var ProcessingEndOfRecording, ContinuationHandlerOnWriteError, CancelOnWrite;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -555,7 +555,7 @@ EndProcedure
 
 #EndRegion
 
-#Region PropertiesSetsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersPropertiesSets
 
 &AtClient
 Procedure PropertiesSetsOnActivateRow(Item)
@@ -569,7 +569,7 @@ EndProcedure
 
 #EndRegion
 
-#Region PropertiesSelectionFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersPropertiesSelection
 
 &AtClient
 Procedure PropertiesSelection(Item, RowSelected, Field, StandardProcessing)
@@ -580,7 +580,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ValuesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersValues
 
 &AtClient
 Procedure ValuesOnChange(Item)
@@ -638,7 +638,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure NextCommand(Command)
@@ -1583,7 +1583,7 @@ Procedure WriteObject(QuestionTextVariant, FollowUpHandler, AdditionalParameters
 	
 	If ValueIsFilled(Object.Ref) Then
 		ProcessingEndOfRecording = New NotifyDescription("WriteObjectContinuation", ThisObject, WriteParameters);
-		AttachIdleHandler("Pluggable_EndObjectRecording", 0.1, True);
+		AttachIdleHandler("Attachable_EndOfObjectRecording", 0.1, True);
 		Return;
 	EndIf;
 	
@@ -1605,7 +1605,7 @@ Procedure WriteObject(QuestionTextVariant, FollowUpHandler, AdditionalParameters
 EndProcedure
 
 &AtClient
-Procedure Pluggable_EndObjectRecording()
+Procedure Attachable_EndOfObjectRecording()
 	
 	ExecuteNotifyProcessing(ProcessingEndOfRecording, "Write");
 	

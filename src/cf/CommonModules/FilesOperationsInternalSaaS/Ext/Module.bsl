@@ -378,7 +378,7 @@ Procedure HandleTextExtractionQueue() Export
 	|	NOT TextExtractionQueue.DataAreaAuxiliaryData IN (&DataAreasToProcess)
 	|	AND DataAreas.Status = VALUE(Enum.DataAreaStatuses.Used)";
 	Query = New Query(QueryText);
-	Query.SetParameter("DataAreasToProcess", ModuleJobsQueue.GetTasks(
+	Query.SetParameter("DataAreasToProcess", ModuleJobsQueue.GetJobs(
 		New Structure("MethodName", SeparatedMethodName)));
 		
 	If TransactionActive() Then

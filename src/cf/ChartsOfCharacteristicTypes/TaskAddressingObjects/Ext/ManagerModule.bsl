@@ -38,7 +38,7 @@ EndFunction
 #EndIf
 
 
-#Region EventsHandlers
+#Region EventHandlers
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 

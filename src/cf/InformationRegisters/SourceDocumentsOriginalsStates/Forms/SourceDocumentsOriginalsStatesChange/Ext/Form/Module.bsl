@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -93,7 +93,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormTableItemEventHandlers
+#Region FormTableItemsEventHandlers
 
 &AtClient
 Procedure PrintFormsSetSelection(Item, RowSelected, Field, StandardProcessing)
@@ -159,7 +159,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure OK(Command)

@@ -437,7 +437,7 @@ Function DefaultSettings()
 	
 	SubsystemSettings = New Structure;
 	SubsystemSettings.Insert("UnlockCommandPlacement",
-		NStr("en = 'You can release the lock later in <b>Administration — Support and service</b>.';"));
+		NStr("en = 'You can release the lock later in <b>Administration > Support and service</b>.';"));
 	
 	Return SubsystemSettings;
 	

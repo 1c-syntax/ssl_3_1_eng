@@ -76,7 +76,7 @@ EndProcedure
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -333,7 +333,7 @@ EndProcedure
 
 #EndRegion
 
-#Region MetadataTreeFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersMetadataTree
 //
 
 &AtClient
@@ -351,7 +351,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ConstantsListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersConstantsList
 
 &AtClient
 Procedure ConstantsListOnActivateRow(Item)
@@ -379,7 +379,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ReferenceListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersReferenceList
 
 &AtClient
 Procedure ReferenceListOnActivateRow(Item)
@@ -458,7 +458,7 @@ EndProcedure
 
 #EndRegion
 
-#Region RecordSetsListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersRecordSetsList
 
 &AtClient
 Procedure RecordSetsListOnActivateRow(Item)
@@ -486,7 +486,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 //
 
 &AtClient

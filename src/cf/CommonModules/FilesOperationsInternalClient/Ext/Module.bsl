@@ -664,8 +664,9 @@ EndFunction
 // 
 // Parameters:
 //  Form - ClientApplicationForm - with attributes:
-//    * Object - FormDataStructure - as the object with Ref and Encrypted properties has.
-//                  For example, CatalogObject.File, CatalogObject.DocumentAttachedFiles.
+//    * Object - FormDataStructure -
+//                  
+//               
 //
 //    * DigitalSignatures - FormDataCollection:
 //       * SignatureValidationDate - Date - return value. Check date.
@@ -677,18 +678,24 @@ EndFunction
 //
 //  SelectedRows - Array - a property of the DigitalSignatures parameter form table.
 //                   - Undefined - 
+//  FileData      - See FilesOperations.FileData
 //
-Procedure VerifySignatures(Form, RefToBinaryData, SelectedRows = Undefined) Export
+Procedure VerifySignatures(Form, RefToBinaryData, SelectedRows = Undefined, FileData = Undefined) Export
 	
 	// 
 	// 
 	
-	FormObject = Form.Object; // DefinedType.AttachedFileObject
+	If FileData = Undefined Then
+		FileData = Form.Object; // DefinedType.AttachedFileObject
+	EndIf;
+	
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("Form", Form);
 	AdditionalParameters.Insert("SelectedRows", SelectedRows);
+	AdditionalParameters.Insert("SignedObject", FileData.Ref);
+	AdditionalParameters.Insert("LinesToCheckByMCHD", New Array);
 	
-	If Not FormObject.Encrypted Then
+	If Not FileData.Encrypted Then
 		CheckSignaturesAfterPrepareData(RefToBinaryData, AdditionalParameters);
 		Return;
 	EndIf;
@@ -701,8 +708,8 @@ Procedure VerifySignatures(Form, RefToBinaryData, SelectedRows = Undefined) Expo
 	DataDetails.Insert("Operation",              NStr("en = 'Decrypt file';"));
 	DataDetails.Insert("DataTitle",       NStr("en = 'File';"));
 	DataDetails.Insert("Data",                RefToBinaryData);
-	DataDetails.Insert("Presentation",         FormObject.Ref);
-	DataDetails.Insert("EncryptionCertificates", FormObject.Ref);
+	DataDetails.Insert("Presentation",         FileData.Ref);
+	DataDetails.Insert("EncryptionCertificates", FileData.Ref);
 	DataDetails.Insert("NotifyOnCompletion",   False);
 	
 	FollowUpHandler = New NotifyDescription("AfterFileDecryptionOnCheckSignature", ThisObject, AdditionalParameters);
@@ -717,12 +724,38 @@ Procedure CheckSignaturesAfterCheckRow(SignatureVerificationResult, AdditionalPa
 	
 	Result = SignatureVerificationResult.Result;
 	SignatureRow = AdditionalParameters.SignatureRow;
-	SignatureRow.SignatureValidationDate = CommonClient.SessionDate();
-	SignatureRow.SignatureCorrect      = (Result = True);
-	SignatureRow.IsVerificationRequired = SignatureVerificationResult.IsVerificationRequired;
-	SignatureRow.ErrorDescription    = ?(SignatureRow.SignatureCorrect, "", Result);
 	
-	FilesOperationsInternalClientServer.FillSignatureStatus(SignatureRow, CommonClient.SessionDate());
+	RowData = SignatureLineData();
+	FillPropertyValues(RowData, SignatureRow);
+	
+	RowData.SignatureValidationDate = CommonClient.SessionDate();
+	RowData.SignatureCorrect      = (Result = True);
+	RowData.IsVerificationRequired = SignatureVerificationResult.IsVerificationRequired;
+	RowData.ErrorDescription    = ?(RowData.SignatureCorrect, "", Result);
+	If ValueIsFilled(SignatureVerificationResult.SignatureType) Then
+		RowData.SignatureType        = SignatureVerificationResult.SignatureType;
+	EndIf;
+	If ValueIsFilled(SignatureVerificationResult.DateActionLastTimestamp) Then
+		RowData.DateActionLastTimestamp = SignatureVerificationResult.DateActionLastTimestamp;
+	EndIf;
+	
+	// Localization
+	If ValueIsFilled(RowData.ResultOfSignatureVerificationByMCHD)
+		And CommonClient.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
+		
+		Structure = New Structure;
+		Structure.Insert("Certificate", SignatureVerificationResult.Certificate);
+		Structure.Insert("SignatureDate", RowData.SignatureDate);
+		Structure.Insert("IndexOf", AdditionalParameters.IndexOf);
+		Structure.Insert("ResultOfSignatureVerificationByMCHD", RowData.ResultOfSignatureVerificationByMCHD);
+		
+		AdditionalParameters.LinesToCheckByMCHD.Add(Structure);
+	EndIf;
+	// EndLocalization
+	
+	FilesOperationsInternalClientServer.FillSignatureStatus(RowData, CommonClient.SessionDate());
+	
+	FillPropertyValues(SignatureRow, RowData);
 	
 	CheckSignaturesLoopStart(AdditionalParameters);
 	
@@ -1202,6 +1235,22 @@ EndProcedure
 Procedure CheckSignaturesLoopStart(AdditionalParameters)
 	
 	If AdditionalParameters.Collection.Count() <= AdditionalParameters.IndexOf + 1 Then
+		
+		// Localization
+		
+		If AdditionalParameters.LinesToCheckByMCHD.Count() > 0 Then
+			Result = FilesOperationsInternalServerCall.CheckSignaturesByMCHD(
+				AdditionalParameters.LinesToCheckByMCHD, AdditionalParameters.SignedObject);
+			For Each CheckResult In Result Do
+				Item = AdditionalParameters.Collection[CheckResult.IndexOf];
+				SignatureRow = ?(TypeOf(Item) <> Type("Number"), Item,
+					AdditionalParameters.Form.DigitalSignatures.FindByID(Item));
+				FillPropertyValues(SignatureRow, CheckResult);
+			EndDo;
+		EndIf;
+		
+		//EndLocalization
+		
 		Return;
 	EndIf;
 	
@@ -1516,36 +1565,40 @@ Procedure CheckSignaturesAfterPrepareData(Data, AdditionalParameters)
 		SignatureRow = ?(TypeOf(Item) <> Type("Number"), Item,
 			AdditionalParameters.Form.DigitalSignatures.FindByID(Item));
 		
-		RowData = New Structure;
-		RowData.Insert("SignatureAddress",        SignatureRow.SignatureAddress);
-		RowData.Insert("Status",              SignatureRow.Status);
-		RowData.Insert("SignatureCorrect",        SignatureRow.SignatureCorrect);
-		RowData.Insert("SignatureDate",         SignatureRow.SignatureDate);
-		RowData.Insert("ErrorDescription",      SignatureRow.ErrorDescription);
-		RowData.Insert("SignatureValidationDate", SignatureRow.SignatureValidationDate);
-		RowData.Insert("SignatureType",          SignatureRow.SignatureType);
-		RowData.Insert("DateActionLastTimestamp",
-			SignatureRow.DateActionLastTimestamp);
-				
+		RowData = SignatureLineData();
+		FillPropertyValues(RowData, SignatureRow);
 		RowsData.Add(RowData);
+		
 	EndDo;
 	
-	FilesOperationsInternalServerCall.VerifySignatures(DataAddress, RowsData);
+	FilesOperationsInternalServerCall.VerifySignatures(DataAddress, RowsData, AdditionalParameters.SignedObject);
 	
 	IndexOf = 0;
 	For Each Item In Collection Do
 		SignatureRow = ?(TypeOf(Item) <> Type("Number"), Item,
 			AdditionalParameters.Form.DigitalSignatures.FindByID(Item));
-		
-		SignatureRow.SignatureCorrect        = RowsData[IndexOf].SignatureCorrect;
-		SignatureRow.SignatureValidationDate = RowsData[IndexOf].SignatureValidationDate;
-		SignatureRow.ErrorDescription      = RowsData[IndexOf].ErrorDescription;
-		
-		FilesOperationsInternalClientServer.FillSignatureStatus(SignatureRow, CommonClient.SessionDate());
+		FillPropertyValues(SignatureRow, RowsData[IndexOf]);
 		IndexOf = IndexOf + 1;
 	EndDo;
 	
 EndProcedure
+
+Function SignatureLineData()
+	
+	RowData = New Structure;
+	RowData.Insert("SignatureAddress");
+	RowData.Insert("Status");
+	RowData.Insert("SignatureCorrect");
+	RowData.Insert("SignatureDate");
+	RowData.Insert("ErrorDescription");
+	RowData.Insert("SignatureValidationDate");
+	RowData.Insert("SignatureType");
+	RowData.Insert("IsVerificationRequired");
+	RowData.Insert("DateActionLastTimestamp");
+	RowData.Insert("ResultOfSignatureVerificationByMCHD");
+	Return RowData;
+	
+EndFunction
 
 // 
 //
@@ -10542,8 +10595,9 @@ Procedure InitAddIn(NotificationOfReturn, SuggestInstall = False) Export
 	ConnectionParameters = CommonClient.AddInAttachmentParameters();
 	ConnectionParameters.ExplanationText = NStr("en = 'To continue, attach a scanning add-in.';");
 	ConnectionParameters.SuggestInstall = SuggestInstall;
-
-	CommonClient.AttachAddInFromTemplate(NotificationOfReturn, "AddInNativeExtension", "CommonTemplate.TwainComponent", ConnectionParameters);
+	
+	ComponentDetails = FilesOperationsInternalClientServer.ComponentDetails();
+	CommonClient.AttachAddInFromTemplate(NotificationOfReturn, ComponentDetails.ObjectName, ComponentDetails.FullTemplateName, ConnectionParameters);
 	
 EndProcedure
 
@@ -11048,6 +11102,71 @@ Procedure ChangeFilterByDeletionMark(Area, CommandButton) Export
 		
 EndProcedure
 
+Procedure УдалитьДанныеФайлов(CompletionHandler, ФайлыИлиВерсии, UUID) Export
+	
+	If ФайлыИлиВерсии.Count() = 0 Then
+		ExecuteNotifyProcessing(CompletionHandler, Undefined);
+	EndIf;
+	
+	Context = New Structure;
+	Context.Insert("ФайлыИлиВерсии",           ФайлыИлиВерсии);
+	Context.Insert("CompletionHandler",    CompletionHandler);
+	Context.Insert("UUID", UUID);
+	
+	FileOrVersion = ФайлыИлиВерсии[0];
+	If ФайлыИлиВерсии.Count() = 1 Then
+		QueryText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Удалить файл %1 без возможности восстановления?';"),
+			String(FileOrVersion));
+		TitleText = NStr("en = 'Удаление файла';");
+	Else
+		QueryText = NStr("en = 'Удалить файлы без возможности восстановления?';");
+		TitleText = NStr("en = 'Удаление файлов';");
+	EndIf;
+	
+	ShowQueryBox(New NotifyDescription("УдалитьДанныеФайловПослеОтветаНаВопрос", ThisObject, Context),
+		QueryText, QuestionDialogMode.YesNo,, DialogReturnCode.No, TitleText, DialogReturnCode.No);
+EndProcedure
+
+Procedure УдалитьДанныеФайловПослеОтветаНаВопрос(Response, Context) Export
+	
+	If Response <> DialogReturnCode.Yes Then
+		Return;
+	EndIf;
+	
+	DeletionResults = FilesOperationsInternalServerCall.РезультатУдаленияФайлов(
+		Context.ФайлыИлиВерсии, Context.UUID);
+		
+	Warnings = New Map;
+	Result = New Structure("Files,FileToRemoveIndex,CompletionHandler,WarningText", New Array, 0);
+	
+	For Each DeletionResult In DeletionResults Do
+		If DeletionResult.Value.Files.Count() > 0 Then
+			CommonClientServer.SupplementArray(Result.Files, DeletionResult.Value.Files);
+		Else
+			Warnings.Insert(DeletionResult.Key, DeletionResult.Value.WarningText);
+		EndIf;
+	EndDo;
+	
+	If Result.Files.Count() > 0 Then
+		
+		Result.Insert("FileToRemoveIndex", 0);
+		Result.Insert("CompletionHandler", Context.CompletionHandler);
+		
+		StartRemoveFileFromCache(Result);
+		
+	EndIf;
+	
+	If Warnings.Count() > 0 Then
+		WarningText = "";
+		For Each Warning In Warnings Do
+			WarningText = ?(WarningText = "", "", Chars.LF)
+				+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1: %2';"), Warning.Key, Warning.Value);
+		EndDo;
+		NotifyOfDataDeletion(Context.CompletionHandler, WarningText);
+	EndIf;
+	
+EndProcedure
+	
 #EndRegion
 
 #EndRegion

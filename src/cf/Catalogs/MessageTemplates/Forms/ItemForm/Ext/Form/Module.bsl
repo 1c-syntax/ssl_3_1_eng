@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -450,7 +450,7 @@ EndProcedure
 
 #EndRegion
 
-#Region AttachmentsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersAttachments
 
 &AtClient
 Procedure AttachmentsBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parameter)
@@ -516,7 +516,7 @@ EndProcedure
 
 #EndRegion
 
-#Region AttributesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersAttributes
 
 &AtClient
 Procedure AttributesBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parameter)
@@ -627,7 +627,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure EmailPlainText(Command)

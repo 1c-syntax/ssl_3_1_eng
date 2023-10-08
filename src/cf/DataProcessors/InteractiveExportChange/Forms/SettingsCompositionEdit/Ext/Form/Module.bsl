@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 //
 
 &AtServer
@@ -38,7 +38,7 @@ EndProcedure
 
 #EndRegion
 
-#Region SettingVariantsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersSettingVariants
 //
 
 &AtClient
@@ -74,7 +74,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 //
 
 &AtClient

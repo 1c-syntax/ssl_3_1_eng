@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtClient
 Procedure OnOpen(Cancel)
@@ -18,7 +18,7 @@ EndProcedure
 
 #EndRegion
 
-#Region AdditionalPropertiesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersAdditionalProperties
 
 &AtClient
 Procedure ObjectPropertiesOnChange(Item)

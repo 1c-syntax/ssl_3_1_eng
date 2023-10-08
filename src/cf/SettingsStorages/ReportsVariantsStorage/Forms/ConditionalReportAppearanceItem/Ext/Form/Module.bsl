@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -209,7 +209,7 @@ EndProcedure
 
 #EndRegion
 
-#Region AppearanceFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersAppearance
 
 &AtClient
 Procedure AppearanceOnChange(Item)
@@ -220,7 +220,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FilterFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersFilter
 
 &AtClient
 Procedure FilterOnChange(Item)
@@ -247,7 +247,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormattedFieldsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersFormattedFields
 
 &AtClient
 Procedure FormattedFieldsOnChange(Item)
@@ -272,7 +272,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Select(Command)

@@ -101,7 +101,9 @@ EndProcedure
 //       * Value - String -
 // 
 Procedure BeforeGenerateMailingRecipientsList(RecipientsParameters, Query, StandardProcessing, Result) Export
+
 	
+
 EndProcedure
 
 // Allows you to exclude reports that are not ready for integration with mailing.

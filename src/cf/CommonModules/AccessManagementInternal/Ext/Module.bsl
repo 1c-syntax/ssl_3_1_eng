@@ -6483,7 +6483,15 @@ Function CurrentUsersProperties(UsersArray)
 	EndDo;
 	
 	Total.Insert("IBUsersIDs", QueriesResults[LastResult-2].Unload());
-	Total.IBUsersIDs.Indexes.Add("User");
+	
+	If UsersInternal.StateBeforeAuthorizeCurrentUserCall(True) Then
+		Filter = New Structure("IBUserID",
+			InfoBaseUsers.CurrentUser().UUID);
+		FoundRows = Total.IBUsersIDs.FindRows(Filter);
+		If ValueIsFilled(FoundRows) Then
+			Total.Administrators.Insert(FoundRows[0].User, True);
+		EndIf;
+	EndIf;
 	
 	Total.Insert("UsersRoles", QueriesResults[LastResult].Unload());
 	Total.UsersRoles.Indexes.Add("User");
@@ -22675,9 +22683,9 @@ Function ThereIsAnAccessRightInTheRolesOfTheAccessGroupProfile(Condition, Contex
 	FullName = Condition.FullMetadataObjectName;
 	LongDesc = Context.MetadataObjectsFunctionsAccessRights.Get(FullName);
 	If LongDesc = Undefined Then
-		LongDesc = New Structure("MetadataObject, TheNameOfTheStandardProps");
+		LongDesc = New Structure("MetadataObject, StandardAttributeName");
 		LongDesc.MetadataObject = MetadataObjectByFullNameForCheckingTheRight(
-			FullName, LongDesc.TheNameOfTheStandardProps);
+			FullName, LongDesc.StandardAttributeName);
 		Context.MetadataObjectsFunctionsAccessRights.Insert(FullName, LongDesc);
 	EndIf;
 	
@@ -22714,7 +22722,7 @@ Function ThereIsAnAccessRightInTheRolesOfTheAccessGroupProfile(Condition, Contex
 					Context.MetadataObjectsFunctionsAccessRights.Insert(FullNameOfTheRole, Role);
 				EndIf;
 				ThereIsARightInTheRole = AccessRight(Condition.NameOfRight, LongDesc.MetadataObject, Role,
-					LongDesc.TheNameOfTheStandardProps);
+					LongDesc.StandardAttributeName);
 			Else
 				ThereIsARightInTheRole = False;
 			EndIf;
@@ -30378,12 +30386,12 @@ Procedure AddDependencyOnRoles(Context, CalculationCondition)
 		Return;
 	EndIf;
 	
-	TheNameOfTheStandardProps = Undefined;
+	StandardAttributeName = Undefined;
 	MetadataObject = MetadataObjectByFullNameForCheckingTheRight(
-		CalculationCondition.FullMetadataObjectName, TheNameOfTheStandardProps);
+		CalculationCondition.FullMetadataObjectName, StandardAttributeName);
 	
 	For Each Role In Metadata.Roles Do
-		If AccessRight(CalculationCondition.NameOfRight, MetadataObject, Role, TheNameOfTheStandardProps) Then
+		If AccessRight(CalculationCondition.NameOfRight, MetadataObject, Role, StandardAttributeName) Then
 			Context.LeadingRoles.Insert(Role.Name, True);
 		EndIf;
 	EndDo;
@@ -41076,8 +41084,8 @@ Procedure CheckTheNameOfTheMetadataObjectRight(NameOfRight, SourceOfLaw, ObjectN
 		Return;
 	EndIf;
 	
-	TheNameOfTheStandardProps = Undefined;
-	MetadataObject = MetadataObjectByFullNameForCheckingTheRight(ObjectName, TheNameOfTheStandardProps);
+	StandardAttributeName = Undefined;
+	MetadataObject = MetadataObjectByFullNameForCheckingTheRight(ObjectName, StandardAttributeName);
 	If MetadataObject = Undefined Then
 		SetErrorInRow(ObjectSource, StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Metadata object ""%1"" does not exist';"), ObjectName));
@@ -41086,7 +41094,7 @@ Procedure CheckTheNameOfTheMetadataObjectRight(NameOfRight, SourceOfLaw, ObjectN
 	
 	ErrorText = "";
 	Try
-		AccessRight(NameOfRight, MetadataObject, , TheNameOfTheStandardProps);
+		AccessRight(NameOfRight, MetadataObject, , StandardAttributeName);
 	Except
 		ErrorInfo = ErrorInfo();
 		ErrorText = ErrorProcessing.BriefErrorDescription(ErrorInfo);
@@ -41102,7 +41110,7 @@ Procedure CheckTheNameOfTheMetadataObjectRight(NameOfRight, SourceOfLaw, ObjectN
 EndProcedure
 
 // For the CheckMetadataObjectRightName procedure.
-Function MetadataObjectByFullNameForCheckingTheRight(FullName, TheNameOfTheStandardProps = Undefined)
+Function MetadataObjectByFullNameForCheckingTheRight(FullName, StandardAttributeName = Undefined)
 	
 	MetadataObject = Common.MetadataObjectByFullName(FullName);
 	If MetadataObject <> Undefined Then
@@ -41128,9 +41136,9 @@ Function MetadataObjectByFullNameForCheckingTheRight(FullName, TheNameOfTheStand
 		If Properties.StandardTabularSections = Undefined Then
 			Return Undefined;
 		EndIf;
-		NameOfTheStandardTablePart = NameParts[3];
+		StandardTabularSectionName = NameParts[3];
 		For Each StandardTabularSection In Properties.StandardTabularSections Do
-			If Upper(StandardTabularSection.Name) = Upper(NameOfTheStandardTablePart) Then
+			If Upper(StandardTabularSection.Name) = Upper(StandardTabularSectionName) Then
 				StandardAttributes = StandardTabularSection.StandardAttributes;
 				Break;
 			EndIf;
@@ -41156,13 +41164,13 @@ Function MetadataObjectByFullNameForCheckingTheRight(FullName, TheNameOfTheStand
 	If Properties.StandardAttributes = Undefined Then
 		Return Undefined;
 	EndIf;
-	TheNameOfTheStandardProps = NameParts[3];
+	StandardAttributeName = NameParts[3];
 	StandardAttributes = Properties.StandardAttributes; // StandardAttributeDescriptions
 	
 	For Each StandardAttribute In StandardAttributes Do
-		If Upper(StandardAttribute.Name) = Upper(TheNameOfTheStandardProps) Then
-			If ValueIsFilled(NameOfTheStandardTablePart) Then
-				TheNameOfTheStandardProps = NameOfTheStandardTablePart + "." + TheNameOfTheStandardProps;
+		If Upper(StandardAttribute.Name) = Upper(StandardAttributeName) Then
+			If ValueIsFilled(StandardTabularSectionName) Then
+				StandardAttributeName = StandardTabularSectionName + "." + StandardAttributeName;
 			EndIf;
 			Return MainMetadataObject;
 		EndIf;

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -29,7 +29,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	OwnerType = TypeOf(Parameters.FileOwner);
 	If Metadata.DefinedTypes.FilesOwner.Type.ContainsType(OwnerType) Then
 		FullOwnerName = Metadata.FindByType(OwnerType).Name;
-		If Metadata.Catalogs.Find(FullOwnerName + "AttachedFiles") = Undefined Then
+		If Metadata.Catalogs.Find(FullOwnerName + FilesOperationsClientServer.CatalogSuffixAttachedFiles()) = Undefined Then
 			IsFilesCatalogItemsOwner = True;
 		EndIf;
 	EndIf;
@@ -242,7 +242,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersList
 
 &AtClient
 Procedure ListSelection(Item, RowSelected, Field, StandardProcessing)
@@ -417,7 +417,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 ///////////////////////////////////////////////////////////////////////////////////
 // 
@@ -545,16 +545,27 @@ EndProcedure
 
 &AtClient
 Procedure SetDeletionMark(Command)
+	
+	SelectedRows = SelectedRows();
+
+	If SelectedRows.Count() = 0 Or Not StandardSubsystemsClient.IsDynamicListItem(Items.List) Then
+		Return;
+	EndIf;
+	
 	CurrentData = CurrentData();
-	If CurrentData <> Undefined Then
+	If SelectedRows.Count() = 1 Then
 		QuestionTemplate = ?(CurrentData.DeletionMark,
 			NStr("en = 'Do you want to clear the deletion mark from ""%1""?';"),
 			NStr("en = 'Do you want to mark ""%1"" for deletion?';"));
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(QuestionTemplate, CurrentData.Description);
-		AdditionalParameters = New Structure("FileRef", CurrentData.Ref);
-		Notification = New NotifyDescription("AfterQuestionAboutDeletionMark", ThisObject, AdditionalParameters);
-		ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo);
+	Else
+		QueryText = ?(CurrentData.DeletionMark,
+			NStr("en = 'Снять с выбранных файлов пометку на удаление?';"),
+			NStr("en = 'Пометить выбранные файлы на удаление?';"));
 	EndIf;
+	AdditionalParameters = New Structure("Files", SelectedRows);
+	Notification = New NotifyDescription("SetDeletionMarkCompletion", ThisObject, AdditionalParameters);
+	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo);
 EndProcedure
 
 &AtClient
@@ -1097,16 +1108,11 @@ EndProcedure
 &AtClient
 Procedure Delete(Command)
 	
-	If Items.List.CurrentRow = Undefined Then
-		Return;
-	EndIf;
+	SelectedRows = SelectedRows();
 	
-	CurrentData = CurrentData();
-	
-	FilesOperationsInternalClient.DeleteData(
-		New NotifyDescription("AfterDeleteData", ThisObject),
-		CurrentData.Ref, UUID);
-	
+	NotifyDescription = New NotifyDescription("AfterDeleteData", ThisObject);
+	FilesOperationsInternalClient.УдалитьДанныеФайлов(NotifyDescription, SelectedRows, UUID);
+
 EndProcedure
 
 &AtClient
@@ -1450,16 +1456,15 @@ Procedure SetFileCommandsAvailability(Result = Undefined, ExecutionParameters = 
 EndProcedure
 
 &AtClient
-Procedure AfterQuestionAboutDeletionMark(Result, AdditionalParameters) Export
+Procedure SetDeletionMarkCompletion(Result, AdditionalParameters) Export
 	
 	If Result = DialogReturnCode.Yes Then
-		SetClearDeletionMark(AdditionalParameters.FileRef);
+		SetClearDeletionMark(AdditionalParameters.Files);
 		Notify("Write_File", New Structure("Event", "FileDataChanged"), Items.List.SelectedRows);
 		Items.List.Refresh();
 	EndIf;
 	
 EndProcedure
-
 
 &AtServer
 Procedure SetUpDynamicList()
@@ -1813,8 +1818,28 @@ Procedure OnSendFilesViaEmail(SendOptions, Val FilesToSend, FilesOwner, UUID)
 EndProcedure
 
 &AtServerNoContext
-Procedure SetClearDeletionMark(FileRef)
-	FileRef.GetObject().SetDeletionMark(Not FileRef.DeletionMark);
+Procedure SetClearDeletionMark(Files)
+	DeletionMark = Undefined;
+	For Each FileRef In Files Do
+		BeginTransaction();
+		Try
+			Block = New DataLock();
+			LockItem = Block.Add(FileRef.Metadata().FullName());
+			LockItem.SetValue("Ref", FileRef);
+			Block.Lock();
+
+			FileObject1 = FileRef.GetObject();
+			If DeletionMark = Undefined Then
+				DeletionMark = Not FileObject1.DeletionMark;
+			EndIf;
+			FileObject1.SetDeletionMark(DeletionMark);
+
+			CommitTransaction();
+		Except
+			RollbackTransaction();
+			Raise;
+		EndTry;
+	EndDo;
 EndProcedure
 
 &AtClient
@@ -2006,11 +2031,11 @@ Procedure Attachable_UpdateCommands()
 	ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Items.List);
 EndProcedure
 
-// 
+// End StandardSubsystems.AttachableCommands
 
 &AtClient
 Function CurrentData()
-	If Items.List.CurrentData = Undefined Then
+	If Not StandardSubsystemsClient.IsDynamicListItem(Items.List) Then
 		Return Undefined;
 	ElsIf Items.List.CurrentData.FileOwner = FileOwner Then
 		Return Items.List.CurrentData;
@@ -2022,6 +2047,20 @@ EndFunction
 &AtServerNoContext
 Function FileGroup_(File)
 	Return File.Parent;
+EndFunction
+
+&AtClient
+Function SelectedRows()
+	SelectedRows = New Array;
+	
+	For Each SelectedRow In Items.List.SelectedRows Do
+		If TypeOf(SelectedRow) <> Type("DynamicListGroupRow") Then
+			SelectedRows.Add(SelectedRow);
+		EndIf;
+	EndDo;
+	
+	Return SelectedRows
+	
 EndFunction
 
 #EndRegion

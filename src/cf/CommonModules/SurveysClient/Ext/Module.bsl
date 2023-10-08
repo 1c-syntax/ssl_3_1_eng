@@ -290,7 +290,8 @@ Procedure HighlightAnsweredQuestion(Form, DoQueryBox, QuestionName)
 	EndIf;
 
 	If DoQueryBox.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.MultipleOptionsFor")
-		Or DoQueryBox.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.OneVariantOf") Then
+		Or (DoQueryBox.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.OneVariantOf")
+		And DoQueryBox.RadioButtonType = PredefinedValue("Enum.RadioButtonTypesInQuestionnaires.RadioButton")) Then
 		Form.Items[QuestionName + "GroupOptions"].Enabled = Not IsUnanswered;
 		AnswerExists = HasAnswerToQuestionWithAnswerOptions(Form, DoQueryBox, QuestionName);
 	Else

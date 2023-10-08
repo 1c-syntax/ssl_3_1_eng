@@ -357,7 +357,7 @@ Procedure GenerateFilterPresentation(FilterPresentation, EventLogFilter,
 		ElsIf Upper(RestrictionName) = Upper("DataPresentation") Then
 			RestrictionName = NStr("en = 'Data presentation';");
 		ElsIf Upper(RestrictionName) = Upper("ServerName") Then
-			RestrictionName = NStr("en = 'Working server';");
+			RestrictionName = NStr("en = 'Production server';");
 		ElsIf Upper(RestrictionName) = Upper("PrimaryIPPort") Then
 			RestrictionName = NStr("en = 'IP port';");
 		ElsIf Upper(RestrictionName) = Upper("SyncPort") Then

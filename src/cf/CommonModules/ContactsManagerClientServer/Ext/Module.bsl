@@ -314,6 +314,41 @@ Function ContactInformationDetails(FieldValues, Presentation, ContactInformation
 	
 EndFunction
 
+// Returns:
+//  Structure:
+//    * Presentation - String
+//    * ContactInformationType - EnumRef.ContactInformationTypes
+//                              - Undefined
+//    * Comment - String
+//
+Function БазовыеПоляКонтактнойИнформации() Export
+	
+	ContactInformationFields = New Structure;
+	ContactInformationFields.Insert("Presentation",           "");
+	ContactInformationFields.Insert("ContactInformationType", Undefined);
+	ContactInformationFields.Insert("Comment",             "");
+	
+	Return ContactInformationFields;
+	
+EndFunction
+
+// Returns:
+//  Structure -  
+//   * ContactInformationType - EnumRef.ContactInformationTypes
+//                           - Undefined
+//   * XMLData1 - String
+//   * Presentation - String 
+//
+Function ПоляКонтактнойИнформацииДляПреобразования() Export
+
+	Result = New Structure;
+	Result.Insert("ContactInformationType", Undefined);
+	Result.Insert("XMLData1",               "");
+	Result.Insert("Presentation",           "");
+	
+	Return Result;
+	
+EndFunction
 
 Function ContactInformationTypeToString(Val ContactInformationType)
 	

@@ -45,7 +45,7 @@
 									<v8:content>Scheduled online activities such as data synchronization and emailing are disabled
 to prevent conflicts with the main infobase.
 
-The &lt;b&gt;Text messaging&lt;/&gt; scheduled job is locked on server &lt;b&gt;Server-1C2&lt;/&gt; on &lt;b&gt;01/10/2019 3:00 PM&lt;/&gt;.
+The &lt;b&gt;Text messaging&lt;/&gt; scheduled job was locked on server &lt;b&gt;Server-1C2&lt;/&gt; on &lt;b&gt;01/10/2019 at 3:00 PM&lt;/&gt;.
 
 The infobase location has been changed. Old location:
 &lt;b&gt;C:\1c\db\&lt;/&gt;&lt;b&gt;
@@ -56,10 +56,10 @@ The infobase location has been changed. Old location:
 
  • If you are going to use the infobase for accounting, select &lt;b&gt;Moved infobase&lt;/&gt;.
  • If this is an infobase copy, select &lt;b&gt;Infobase copy&lt;/&gt;&lt;b&gt;.&lt;/&gt;
- • For scalable clusters, to prevent false starts due to change of hosting machines
-, disable the machine name check by clicking &lt;b&gt;More — Check server name&lt;/&gt;.
+ • For scalable clusters, to prevent false starts due to change of computers acting as production servers
+, disable the machine name check by clicking &lt;b&gt;More &gt; Check server name&lt;/&gt;.
 
-You can release the lock later in &lt;b&gt;Administration&lt;/&gt;&lt;b&gt; — &lt;/&gt;&lt;b&gt;Support and service&lt;/&gt;.</v8:content>
+You can release the lock later in &lt;b&gt;Administration&lt;/&gt;&lt;b&gt; &gt; &lt;/&gt;&lt;b&gt;Support and service&lt;/&gt;.</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="WarningLabelContextMenu" id="2"/>

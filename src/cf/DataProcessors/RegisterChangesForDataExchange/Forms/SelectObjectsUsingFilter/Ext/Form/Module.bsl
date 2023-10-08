@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 //
 
 &AtServer
@@ -101,7 +101,7 @@ EndProcedure
 
 #EndRegion
 
-#Region DataListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersDataList
 //
 
 &AtClient
@@ -112,7 +112,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 //
 
 &AtClient

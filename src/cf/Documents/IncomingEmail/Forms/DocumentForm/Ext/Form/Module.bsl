@@ -14,7 +14,7 @@ Var ChoiceContext;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -179,7 +179,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 			ModulePropertyManagerClient.AfterImportAdditionalAttributes(ThisObject);
 		EndIf;
 	EndIf;
-	// 
+	// End StandardSubsystems.Properties
 	
 	InteractionsClient.DoProcessNotification(ThisObject, EventName, Parameter, Source);
 	
@@ -239,7 +239,7 @@ Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);
 	EndIf;
-	// 
+	// End StandardSubsystems.AccessManagement
 	
 	Items.CommentPage.Picture = CommonClientServer.CommentPicture(Object.Comment);
 	
@@ -423,7 +423,7 @@ EndProcedure
 
 #EndRegion
 
-#Region AttachmentsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersAttachments
 
 &AtClient
 Procedure AttachmentsSelection(Item, RowSelected, Field, StandardProcessing)
@@ -449,7 +449,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure OpenAttachmentExecute()
@@ -764,7 +764,7 @@ Procedure UpdateAdditionalAttributesItems()
 	
 EndProcedure
 
-// 
+// End StandardSubsystems.Properties
 
 &AtClient
 Function EncodingsList()

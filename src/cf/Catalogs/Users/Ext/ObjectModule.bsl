@@ -77,7 +77,7 @@ Var IsNew; //
 //
 // 
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure BeforeWrite(Cancel)
 	

@@ -1415,105 +1415,6 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Use PrintManagerRF.UFEBMFormatString.
-//
-// Generates a format string according to "Unified format for electronic banking messages" for its display
-// as a QR code.
-//
-// Parameters:
-//  DocumentData  - Structure - contains document field values.
-//    The document data will be encoded according to standard 
-//    "Standards for financial transactions. Two-dimensional barcode characters for making payments of individuals".
-//    DocumentData must contain information in the fields described below.
-//    Required structure fields:
-//     * RecipientText             - String - a payee name, up to 160 characters;
-//     * RecipientAccountNumber        - String - a payee account number, up to 20 characters;
-//     * RecipientBankDescription - String - a payee bank name, up to 45 characters;
-//     * RecipientBankBIC          - String - up to 9 characters;
-//     * RecipientBankAccount         - String - a payee bank account number, up to 20 characters;
-//    Additional fields of the following structure:
-//     * AmountAsNumber         - String - a payment amount in dollars, up to 16 characters.
-//     * PaymentPurposes   - String - a payment name (purpose), up to 210 characters;
-//     * RecipientTIN       - String - a payee TIN, up to 12 characters;
-//     * TINOfPayer      - String - a payer TIN, up to 12 characters;
-//     * AuthorStatus   - String - a status of a payment document author, up to 2 characters;
-//     * RecipientCRTR       - String - a payee KPP, up to 9 characters.
-//     * BCCode               - String - BCC, up to 20 characters;
-//     * RNCMTCode            - String - RNCMT, up to 11 characters;
-//     * BasisIndicator - String - a tax payment reason, up to 2 characters;
-//     * PeriodIndicator   - String - a fiscal period, up to 10 characters;
-//     * NumberIndicator    - String - a document number, up to 15 characters;
-//     * DateIndicator      - String - a document date, up to 10 characters.
-//     * TypeIndicator      - String - a payment type, up to 2 characters.
-//    Other additional fields:
-//     * LastPayerName               - String - a payer's last name.
-//     * PayerName                   - String - a payer name.
-//     * PayerMiddleName              - String - a payer's middle name.
-//     * PayerAddress                 - String - payer's address.
-//     * BudgetPayeeAccount  - String - a budget payee account.
-//     * PaymentDocumentIndex        - String - a payment document index.
-//     * SNILS                            - String - an individual insurance account number (SNILS) issued by the Pension Fund.
-//     * ContractNumber                    - String - contract number.
-//     * PayerAccountNumber    - String - a payer account number in the company (in the personal accounting system).
-//     * ApartmentNumber                    - String - an apartment number.
-//     * PhoneNumber                    - String - phone number.
-//     * PayerKind                   - String - a payer identity document kind.
-//     * PayerNumber                  - String - a payer identity document number.
-//     * FullChildName                       - String - a full name of a student or a child.
-//     * BirthDate                     - String - date of birth.
-//     * PaymentTerm                      - String - a payment term or a proforma invoice date.
-//     * PayPeriod                     - String - a payment period.
-//     * PaymentKind                       - String - a payment kind.
-//     * ServiceCode                        - String - a service code or a metering device name.
-//     * MeterNumber                - String - a metering device number.
-//     * MeterValue            - String - a metering device value.
-//     * NotificationNumber                   - String - a notification, accrual, or a proforma invoice number.
-//     * NotificationDate                    - String - a date of notification, accrual, proforma invoice, or order (for State Traffic Safety Inspectorate).
-//     * InstitutionNumber                  - String - an institution (educational, healthcare) number.
-//     * NumberOfGroup                      - String - a number of kindergarten group or school grade.
-//     * FullTeacherName                 - String - a full name of the teacher or the specialist who provides the service.
-//     * InsuranceAmount                   - String - an amount of insurance, additional service, or late payment charge (in cents).
-//     * OrderNumber1               - String - an order ID (for State Traffic Safety Inspectorate).
-//     * EnforcementOrderNumber - String - an enforcement order number.
-//     * PaymentKindCode                   - String - a payment kind code (for example, for payments to Federal Agency for State Registration).
-//     * AccrualID          - String - an accrual UUID.
-//     * TechnicalCode                   - String - a technical code recommended to be filled by a service provider.
-//                                          It can be used by a host company to call the appropriate
-//                                          processing IT system.
-//                                          The code value list is presented below.
-//
-//       Purpose code     a payment purpose
-//       .
-//       
-//          01              Mobile communications, fixed-line telephone.
-//          02              Utility services, housing, and public utilities.
-//          03              State Traffic Safety Inspectorate, taxes, duties, budgetary payments.
-//          04              Security services
-//          05              Services provided by FMS.
-//          06              Pension Fund
-//          07              Loan repayments
-//          08              Educational institutions.
-//          09              Internet and TV
-//          10              Electronic money
-//          11              Recreation and travel.
-//          12              Investment and insurance.
-//          13              Sports and health
-//          14              Charitable and public organizations.
-//          15              Other services.
-//
-// Returns:
-//   String - 
-//
-Function UFEBMFormatString(DocumentData) Export
-	
-	ModulePrintManagerRF = Common.CommonModule("ManagementOfSealOfRussianFederation");
-	If ModulePrintManagerRF <> Undefined Then
-		Return ModulePrintManagerRF.UFEBMFormatString(DocumentData);
-	EndIf;
-	
-	Return "";
-	
-EndFunction
 
 // Deprecated. Outdated. Use BarcodeGeneration.QRCodeData 
 // or BarcodeGeneration.BarcodeImage.
@@ -2048,7 +1949,6 @@ Function GeneratePrintFormsInBackground(BackgroundPrintingOptions) Export
 	
 	ResultOfFormation = New Structure("PrintFormsCollection,BackgroundJobParameters,OfficeDocuments,
 	|PrintObjects,OutputParameters,PrintParameters,Messages");
-	ResultOfFormation.PrintFormsCollection = Common.ValueTableToArray(Result);
 	ResultOfFormation.OutputParameters = OutputParameters;
 	ResultOfFormation.BackgroundJobParameters = BackgroundPrintingOptions;
 	ResultOfFormation.PrintParameters = PrintParameters; 
@@ -2056,11 +1956,18 @@ Function GeneratePrintFormsInBackground(BackgroundPrintingOptions) Export
 	
 	For Each ResultString1 In Result Do
 		If ValueIsFilled(ResultString1.OfficeDocuments) Then
+			ResultString1.OfficeDocuments.Delete(Undefined);
 			For Each OfficeDocument In ResultString1.OfficeDocuments Do
 				OfficeDocuments.Insert(OfficeDocument.Key, GetFromTempStorage(OfficeDocument.Key));
 			EndDo;
+			If ResultString1.OfficeDocuments.Count() = 0 Then
+				ResultString1.OfficeDocuments = Undefined;
+			EndIf;
 		EndIf;
 	EndDo;
+	
+	ResultOfFormation.PrintFormsCollection = Common.ValueTableToArray(Result);
+	
 	ResultOfFormation.OfficeDocuments = OfficeDocuments;
 	ResultOfFormation.PrintObjects = PrintObjects;
 	ResultOfFormation.Messages = GetUserMessages();	
@@ -4933,10 +4840,26 @@ Procedure FillDataPrint(PrintData, FieldsDetails, FieldHierarchy, Objects, Langu
 						For Each FieldData In  SourceData_[DataSource] Do
 							Field = FieldData.Key;
 							Simple = FieldData.Value;
+							
 							If FieldSource = "Ref" Then
-								PrintData[Object][Field] = Simple;
+								FieldDataPath = Field;
 							Else
-								PrintData[Object][PathToFieldSourceData + "." + Field] = Simple;
+								FieldDataPath = PathToFieldSourceData + "." + Field;
+							EndIf;
+							
+							If PrintData[Object][FieldDataPath] = Undefined Then
+								PrintData[Object][FieldDataPath] = Simple;
+							ElsIf TypeOf(PrintData[Object][FieldDataPath]) = Type("Map") And TypeOf(Simple) = Type("Map") Then
+								For Each SourceRow In Simple Do
+									DestinationRow = PrintData[Object][FieldDataPath][SourceRow.Key];
+									If DestinationRow = Undefined Then
+										DestinationRow = New Map;
+										PrintData[Object][FieldDataPath][SourceRow.Key] = DestinationRow;
+									EndIf;
+									For Each LineField In SourceRow.Value Do
+										DestinationRow[LineField.Key] = LineField.Value;
+									EndDo;
+								EndDo;
 							EndIf;
 						EndDo;
 					EndIf;
@@ -5407,7 +5330,7 @@ Function ComposeData(Parameters)
 	DataCompositionTemplate = TemplateComposer.Execute(DataCompositionSchema, ComposerSettings, DetailsData);
 	
 	DataCompositionProcessor = New DataCompositionProcessor;
-	DataCompositionProcessor.Initialize(DataCompositionTemplate, ExternalDataSets, DetailsData);
+	DataCompositionProcessor.Initialize(DataCompositionTemplate, ExternalDataSets, DetailsData, True);
 	
 	OutputProcessor = New DataCompositionResultSpreadsheetDocumentOutputProcessor;
 	OutputProcessor.SetDocument(ResultDocument);
@@ -7178,7 +7101,7 @@ EndFunction
 Procedure AddGroupOfFunctionOperatorsForTables(ListOfOperators)
 	Group = ListOfOperators.Rows.Add();
 	Group.Id = "TableFunctions";
-	Group.Presentation = NStr("en = 'Функции для табличных частей';");
+	Group.Presentation = NStr("en = 'Functions for tables';");
 	Group.Order = 5;
 	Group.Picture = PictureLib.TypeFunction;
 	
@@ -7186,11 +7109,11 @@ Procedure AddGroupOfFunctionOperatorsForTables(ListOfOperators)
 	
 	Prefix = NameOfPrintModule() + CommandSeparator();
 	
-	AddAnOperatorToAGroup(Group, Prefix + "SumByColumn", NStr("en = 'Сумма по колонке';"), Type, True);
-	AddAnOperatorToAGroup(Group, Prefix + "RowsCount", NStr("en = 'Количество строк';"), Type, True);
-	AddAnOperatorToAGroup(Group, Prefix + "ColumnMax", NStr("en = 'Максимум по колонке';"), Type, True);
-	AddAnOperatorToAGroup(Group, Prefix + "ColumnMin", NStr("en = 'Минимум по колонке';"), Type, True);
-	AddAnOperatorToAGroup(Group, Prefix + "ColumnAverage", NStr("en = 'Среднее по колонке';"), Type, True);
+	AddAnOperatorToAGroup(Group, Prefix + "SumByColumn", NStr("en = 'Column sum';"), Type, True);
+	AddAnOperatorToAGroup(Group, Prefix + "RowsCount", NStr("en = 'Number of rows';"), Type, True);
+	AddAnOperatorToAGroup(Group, Prefix + "ColumnMax", NStr("en = 'Column max';"), Type, True);
+	AddAnOperatorToAGroup(Group, Prefix + "ColumnMin", NStr("en = 'Column min';"), Type, True);
+	AddAnOperatorToAGroup(Group, Prefix + "ColumnAverage", NStr("en = 'Column average';"), Type, True);
 	
 EndProcedure
 

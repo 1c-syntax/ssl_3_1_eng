@@ -61,7 +61,7 @@ Procedure FixMailingExecutionResult(BulkEmail, ExecutionResult) Export
 		RecordManager.Read();
 		
 		RecordManager.BulkEmail = BulkEmail;
-		RecordManager.WithErrors = ExecutionResult.HadErrors Or ExecutionResult.HasWarnings;
+		RecordManager.WithErrors = ExecutionResult.HadErrors;
 		RecordManager.Executed = ExecutionResult.ExecutedToFolder
 			Or ExecutionResult.ExecutedToNetworkDirectory
 			Or ExecutionResult.ExecutedAtFTP

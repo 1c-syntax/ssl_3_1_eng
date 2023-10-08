@@ -14,7 +14,7 @@ Var CombinedDocStructure;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -87,7 +87,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				ModuleOnlineInteraction.WhenDisplayingNavigationLinkInFormOfInformationSecurityObject(AdditionalInformation, ReferencesArrray);
 			EndIf;
 	EndIf;
-	// 
+	// End ElectronicInteraction
 	
 	Items.AdditionalInformation.Title = StringFunctions.FormattedString(AdditionalInformation.Text);
 	Items.PictureOfInformation.Picture = AdditionalInformation.Picture;
@@ -210,7 +210,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Print(Command)

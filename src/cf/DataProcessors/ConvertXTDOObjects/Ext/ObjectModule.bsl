@@ -962,7 +962,7 @@ EndProcedure
 
 #EndRegion
 
-#Region Initialization
+#Region Initialize
 
 Parameters = New Structure;
 

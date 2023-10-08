@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -123,7 +123,7 @@ EndProcedure
 
 #EndRegion
 
-#Region UserSettingsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersUserSettings
 
 &AtClient
 Procedure UserSettingsOnChange(Item)
@@ -143,7 +143,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ReportsOptionsDetailsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersReportsOptionsDetails
 
 &AtClient
 Procedure DescriptionOfReportOptionsBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parameter)
@@ -161,7 +161,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Save(Command) 

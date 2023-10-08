@@ -127,7 +127,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>AJ</v8:content>
+							<v8:content>TJ</v8:content>
 						</v8:item>
 					</Title>
 					<CheckBoxType>Auto</CheckBoxType>
@@ -157,7 +157,7 @@
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>Job size:
-1 - atomic job.
+1 - targeted job.
 2 - update of obsolete items.
 3 - update from the beginning.</v8:content>
 						</v8:item>

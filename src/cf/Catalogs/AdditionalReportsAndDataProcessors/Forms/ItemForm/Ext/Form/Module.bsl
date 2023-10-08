@@ -14,7 +14,7 @@ Var ClientCache;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -384,7 +384,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ObjectCommandsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersObjectCommands
 
 &AtClient
 Procedure ObjectCommandsQuickAccessPresentationStartChoice(Item, ChoiceData, StandardProcessing)
@@ -434,7 +434,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure CommandSaveAndClose(Command)

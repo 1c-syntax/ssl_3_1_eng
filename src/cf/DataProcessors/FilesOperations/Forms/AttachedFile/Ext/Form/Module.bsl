@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -122,6 +122,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		UpdateObject();
 	EndIf;
 	
+	
 	If EventName = "Write_Signature" Then
 		OnGetSignatures(Undefined, Undefined);
 	EndIf;
@@ -147,7 +148,7 @@ EndProcedure
 
 #EndRegion
 
-#Region DigitalSignaturesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersDigitalSignatures
 
 &AtClient
 Procedure DigitalSignaturesSelection(Item, RowSelected, Field, StandardProcessing)
@@ -173,7 +174,7 @@ EndProcedure
 
 #EndRegion
 
-#Region EncryptionCertificatesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersEncryptionCertificates
 
 &AtClient
 Procedure EncryptionCertificatesSelection(Item, RowSelected, Field, StandardProcessing)
@@ -185,7 +186,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 ///////////////////////////////////////////////////////////////////////////////////
 // 
@@ -375,7 +376,7 @@ Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined
 	
 EndProcedure
 
-// 
+// End StandardSubsystems.Properties
 
 ///////////////////////////////////////////////////////////////////////////////////
 // 
@@ -573,9 +574,7 @@ Procedure VerifyDigitalSignature(Command)
 		FileData.RefToBinaryFileData,
 		Items.DigitalSignatures.SelectedRows);
 		
-	If Items.FormStandardWriteAndClose.Visible And Items.FormStandardWriteAndClose.Enabled Then
-		Modified = True;
-	EndIf;
+	DetermineIfModified();
 	
 EndProcedure
 
@@ -589,11 +588,16 @@ Procedure CheckEverything(Command)
 	FileData = FileData(CurrentRefToFile(), UUID);
 	FilesOperationsInternalClient.VerifySignatures(ThisObject, FileData.RefToBinaryFileData);
 	
+	DetermineIfModified();
+	
+EndProcedure
+
+&AtClient
+Procedure DetermineIfModified()
 	If Items.FormStandardWriteAndClose.Visible And Items.FormStandardWriteAndClose.Enabled Then
 		Modified = True;
 	EndIf;
-	
-EndProcedure  
+EndProcedure
 
 &AtClient
 Procedure ExtendActionSignatures(Command)
@@ -839,7 +843,7 @@ Procedure Attachable_OnChangeAdditionalAttribute(Item)
 	
 EndProcedure
 
-// 
+// End StandardSubsystems.Properties
 
 &AtClient
 Procedure Delete(Command)
@@ -1675,7 +1679,7 @@ Procedure Attachable_UpdateCommands()
 	ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, ThisObject.Object);
 EndProcedure
 
-// 
+// End StandardSubsystems.AttachableCommands
 
 &AtServerNoContext
 Procedure OnSendFilesViaEmail(SendOptions, Val FilesToSend, FilesOwner, UUID)

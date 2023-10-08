@@ -2349,7 +2349,7 @@ Procedure AfterSelectingAField(SelectedField, AdditionalParameters) Export
 	Action = AdditionalParameters.Action;
 	FieldRoles = Form.ReportSettings.ResultProperties.FieldRoles;
 	
-	If StrStartsWith(Action, "InsertAField") Then 
+	If StrCompare(Action, "InsertFieldLeft") = 0 Or StrCompare(Action, "InsertFieldRight") = 0 Then
 		
 		AddFormula(Settings, Settings.SelectionAvailableFields, Field);
 		InsertAField(Settings, Settings2, Field, Action, TitleProperties, FieldRoles);

@@ -601,8 +601,8 @@ username and password.</v8:content>
 																	<ToolTip>
 																		<v8:item>
 																			<v8:lang>en</v8:lang>
-																			<v8:content>Disable password recovery
-for this external user</v8:content>
+																			<v8:content>Disable password change
+for this external user.</v8:content>
 																		</v8:item>
 																	</ToolTip>
 																	<CheckBoxType>Auto</CheckBoxType>

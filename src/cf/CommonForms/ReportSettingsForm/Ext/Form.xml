@@ -2163,7 +2163,7 @@
 									<Title formatted="true">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>&lt;bgcolor #ffec9d&gt;&lt;color #9d5600&gt;The appearance set for report groupings on tab&lt;/&gt;&lt;/&gt;&lt;b&gt;&lt;color #9d5600&gt;Structure&lt;/&gt;&lt;/&gt;&lt;bgcolor #ffec9d&gt;&lt;color #9d5600&gt; has a higher priority.&lt;/&gt;&lt;/&gt;</v8:content>
+											<v8:content>&lt;bgcolor #ffec9d&gt;&lt;color #9d5600&gt;The appearance set for report groupings on tab &lt;/&gt;&lt;/&gt;&lt;b&gt;&lt;color #9d5600&gt;Structure&lt;/&gt;&lt;/&gt;&lt;bgcolor #ffec9d&gt;&lt;color #9d5600&gt; has a higher priority.&lt;/&gt;&lt;/&gt;</v8:content>
 										</v8:item>
 									</Title>
 									<BackColor>style:AttentionBackColor</BackColor>

@@ -64,7 +64,7 @@ EndProcedure
 
 #EndIf
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure PresentationFieldsGetProcessing(Fields, StandardProcessing)
 	

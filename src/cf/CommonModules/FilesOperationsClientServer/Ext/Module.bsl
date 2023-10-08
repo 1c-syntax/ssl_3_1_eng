@@ -170,6 +170,10 @@ Function FileInfo1(Val Mode, Val SourceFile = Undefined) Export
 	
 EndFunction
 
+Function CatalogSuffixAttachedFiles() Export
+	Return "AttachedFiles";
+EndFunction
+
 #EndRegion
 
 #Region Private

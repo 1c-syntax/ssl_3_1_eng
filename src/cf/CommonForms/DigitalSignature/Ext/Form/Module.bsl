@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -18,11 +18,15 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		SignedObject = Parameters.SignatureProperties.Object;
 	EndIf;
 	
+	Items.MCHDGroup.Visible = False;
+	
+	
 	If Parameters.SignatureProperties.SignatureCorrect Then
+		Items.ErrorDescription.Visible = ValueIsFilled(ErrorDescription);
 		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, "");
 		Items.Instruction.Visible     = False;
-		Items.ErrorDescription.Visible = False;
 	Else
+		Items.ErrorDescription.Visible = ValueIsFilled(ErrorDescription);
 		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, "ErrorDescription");
 		Items.Instruction.Visible     = 
 			DigitalSignatureInternal.VisibilityOfRefToAppsTroubleshootingGuide();
@@ -56,9 +60,10 @@ Procedure InstructionClick(Item)
 	
 EndProcedure
 
+
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure SaveToFile(Command)

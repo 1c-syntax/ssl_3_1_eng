@@ -1757,7 +1757,7 @@
 							<Synonym>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Signed by</v8:content>
+									<v8:content>Signature set by</v8:content>
 								</v8:item>
 							</Synonym>
 							<Comment/>
@@ -1770,7 +1770,7 @@
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>User who signed the file.</v8:content>
+									<v8:content>User who set the signature.</v8:content>
 								</v8:item>
 							</ToolTip>
 							<MarkNegatives>false</MarkNegatives>

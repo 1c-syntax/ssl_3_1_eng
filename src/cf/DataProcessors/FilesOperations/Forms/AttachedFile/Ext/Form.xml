@@ -1130,6 +1130,12 @@
 											<ContextMenu name="DigitalSignaturesSignatureValidationDateContextMenu" id="152"/>
 											<ExtendedTooltip name="DigitalSignaturesSignatureValidationDateExtendedTooltip" id="153"/>
 										</InputField>
+										<InputField name="DigitalSignaturesMachineReadableAuthorizationLetter" id="303">
+											<DataPath>DigitalSignatures.MachineReadableAuthorizationLetter</DataPath>
+											<TitleLocation>None</TitleLocation>
+											<ContextMenu name="DigitalSignaturesMachineReadableAuthorizationLetterContextMenu" id="304"/>
+											<ExtendedTooltip name="DigitalSignaturesMachineReadableAuthorizationLetterExtendedTooltip" id="305"/>
+										</InputField>
 									</ChildItems>
 								</ColumnGroup>
 								<InputField name="DigitalSignaturesComment" id="39">
@@ -1430,7 +1436,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Date submitted</v8:content>
+							<v8:content>Date verified</v8:content>
 						</v8:item>
 					</Title>
 					<Type>
@@ -1493,6 +1499,29 @@
 					</Title>
 					<Type>
 						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+				<Column name="MachineReadableAuthorizationLetter" id="24">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Machine-readable letter of authority</v8:content>
+						</v8:item>
+					</Title>
+					<Type/>
+				</Column>
+				<Column name="MachineReadableAuthorizationLetterIsCorrect" id="25">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+				<Column name="ResultOfSignatureVerificationByMCHD" id="26">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
 					</Type>
 				</Column>
 			</Columns>

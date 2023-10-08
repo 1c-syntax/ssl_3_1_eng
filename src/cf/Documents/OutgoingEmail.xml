@@ -2678,9 +2678,9 @@
 							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>A number that corresponds to a set of rows in an Access Rights table.
-When verifying rows in the set, the lines are joined with logical AND.
-When verifying object's sets, the results are joined with logical OR.</v8:content>
+									<v8:content>A number that corresponds to a set of rows in the Access value sets table.
+Access values with the same set number are checked using logical AND,
+while access values with different set numbers are checked using logical OR.</v8:content>
 								</v8:item>
 							</ToolTip>
 							<MarkNegatives>false</MarkNegatives>

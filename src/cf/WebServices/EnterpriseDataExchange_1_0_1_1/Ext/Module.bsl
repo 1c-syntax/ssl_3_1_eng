@@ -40,7 +40,7 @@ Function ConnectionCheckUp(ExchangePlanName, ExchangePlanNodeCode, ErrorMessage)
 	// Checking whether the exchange plan node exists (it might be deleted).
 	If ExchangePlans[ExchangePlanName].FindByCode(ExchangePlanNodeCode).IsEmpty() Then
 		
-		ErrorMessage = NStr("en = 'Presetting not found. Please contact with application administrator.';", Common.DefaultLanguageCode());
+		ErrorMessage = NStr("en = 'The specified exchange plan node is not found. Please contact the application administrator.';", Common.DefaultLanguageCode());
 		Return False;
 		
 	EndIf;

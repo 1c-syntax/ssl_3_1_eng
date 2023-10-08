@@ -12,7 +12,7 @@
 Var Measurement;
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -303,7 +303,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Customize(Command)
@@ -1882,12 +1882,10 @@ Function AddSubsystemsGroup(FillParameters, OutputOrderRow, ToGroup)
 	Subsystem.ItemNumber = Subsystem.ItemNumber + 1;
 	SubsystemsGroupName = Subsystem.TagName + "_" + Format(Subsystem.ItemNumber, "NG=0");
 	
-	If Not FillParameters.CurrentSectionOnly Then
-		While Items.Find(SubsystemsGroupName) <> Undefined Do
-			Subsystem.ItemNumber = Subsystem.ItemNumber + 1;
-			SubsystemsGroupName = Subsystem.TagName + "_" + Format(Subsystem.ItemNumber, "NG=0");
-		EndDo;
-	EndIf;
+	While Items.Find(SubsystemsGroupName) <> Undefined Do
+		Subsystem.ItemNumber = Subsystem.ItemNumber + 1;
+		SubsystemsGroupName = Subsystem.TagName + "_" + Format(Subsystem.ItemNumber, "NG=0");
+	EndDo;
 	
 	// Insert a left indent.
 	If OutputOrderRow.NestingLevel > 1 Then

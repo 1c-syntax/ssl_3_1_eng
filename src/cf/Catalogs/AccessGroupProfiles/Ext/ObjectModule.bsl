@@ -15,7 +15,7 @@ Var PreviousValues1; // See PreviousValues1
 
 #EndRegion
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure BeforeWrite(Cancel)
 	

@@ -14,7 +14,7 @@ Var RefreshInterface;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -68,7 +68,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ThisIsTheAdministrator = Users.IsFullUser(, True);
 		Items.UseCloudSignatureService.Visible = ThisIsTheAdministrator;
 		Items.UseCloudSignatureService.ExtendedTooltip.Title = StringFunctions.FormattedString(
-					"Allows_ use for signings services signatures DSS. Use service for formations qualified electronic_ signatures requires <a href = ""DSSSettings"">additional_3 ofsettings</a>.")
+					"Allows_ use for signings services signatures DSS. Use ofservice for formations ofqualified ofelectronic signatures requires <a href = ""DSSSettings"">additional_3 ofsettings</a>.")
 	Else	
 		Items.CloudSignatureGroup.Visible = False;
 	EndIf;
@@ -406,7 +406,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure SecurityProfilesUsage(Command)

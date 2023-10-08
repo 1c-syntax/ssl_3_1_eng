@@ -366,7 +366,7 @@ It is recommended that you use signature key qualified certificates (SKQS) that 
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Existence of certificate in the private list</v8:content>
+											<v8:content>Certificate is available in the Personal list</v8:content>
 										</v8:item>
 									</Title>
 									<ContextMenu name="CertificateExistsLabelContextMenu" id="47"/>
@@ -374,7 +374,7 @@ It is recommended that you use signature key qualified certificates (SKQS) that 
 										<Title formatted="false">
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Shows whether the certificate is installed to the private list (personal store) on the computer. To be able to sign and decrypt data, install the certificate to the private list on the computer and link it to the private key.</v8:content>
+												<v8:content>Shows whether the certificate is added to the Personal list (Personal store) on the computer. For signing and decryption to be possible, the certificate must be installed in the Personal list and linked to the private key.</v8:content>
 											</v8:item>
 										</Title>
 									</ExtendedTooltip>

@@ -341,7 +341,7 @@ Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val 
 	Value = New Array;
 	Value.Add("1CV8");               // 
 	Value.Add("1CV8C");              // 
-	Value.Add("WebClient");          // идентификатор приложения 1С:Предприятие в режиме запуска "Веб-
+	Value.Add("WebClient");          // идентификатор приложения 1C:Enterprise в режиме запуска "Веб-
 	Value.Add("Designer");           // 
 	Value.Add("COMConnection");      // 
 	Value.Add("WSConnection");       // идентификатор сессии Web-

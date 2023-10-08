@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -78,7 +78,7 @@ EndProcedure
 
 #EndRegion
 
-#Region AttachmentsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersAttachments
 
 &AtClient
 Procedure AttachmentsSelection(Item, RowSelected, Field, StandardProcessing)
@@ -89,7 +89,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Print(Command)

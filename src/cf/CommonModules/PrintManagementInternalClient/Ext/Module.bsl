@@ -256,7 +256,8 @@ Procedure OpenPrintDocumentsForm(BackgroundOperationResult, OpeningParameters) E
 		ResultStructure1 = GetFromTempStorage(BackgroundOperationResult.ResultAddress);
 		
 		OpeningParameters.Insert("PrintObjects", ResultStructure1.PrintObjects);
-		OpeningParameters.Insert("OutputParameters", ResultStructure1.OutputParameters); 
+		OpeningParameters.Insert("OutputParameters", ResultStructure1.OutputParameters);
+		OpeningParameters.Insert("PrintParameters", ResultStructure1.PrintParameters); 
 		
 		PrintFormsCollection	 = ResultStructure1.PrintFormsCollection;
 		OfficeDocuments		 = ResultStructure1.OfficeDocuments;
@@ -271,8 +272,10 @@ Procedure OpenPrintDocumentsForm(BackgroundOperationResult, OpeningParameters) E
 		EndDo;
 		
 		OpeningParameters.Insert("PrintFormsCollection", PrintFormsCollection);
-		
-		If ResultStructure1.Property("Messages") Then
+
+		If BackgroundOperationResult.Messages.Count() <> 0 Then
+			OpeningParameters.Insert("Messages", BackgroundOperationResult.Messages);
+		Else
 			OpeningParameters.Insert("Messages", ResultStructure1.Messages);
 		EndIf;
 		

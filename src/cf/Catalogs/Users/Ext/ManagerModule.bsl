@@ -93,7 +93,7 @@ EndFunction
 
 #EndRegion
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure ChoiceDataGetProcessing(ChoiceData, Parameters, StandardProcessing)
 	

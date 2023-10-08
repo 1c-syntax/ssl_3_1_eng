@@ -30,7 +30,7 @@ Var LastItem;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -258,7 +258,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ExternalUsersGroupsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersExternalUsersGroups
 
 &AtClient
 Procedure ExternalUsersGroupsOnChange(Item)
@@ -450,7 +450,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ExternalUsersFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersExternalUsers
 
 &AtClient
 Procedure ExternalUsersListOnChange(Item)
@@ -542,7 +542,7 @@ EndProcedure
 
 #EndRegion
 
-#Region SelectedUsersAndGroupsListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersSelectedUsersAndGroupsList
 
 &AtClient
 Procedure SelectedUsersAndGroupsListSelection(Item, RowSelected, Field, StandardProcessing)
@@ -559,7 +559,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure CreateExternalUsersGroup(Command)

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -36,7 +36,7 @@ EndProcedure
 
 #EndRegion
 
-#Region EncodingsListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersEncodingsList
 
 &AtClient
 Procedure EncodingsListSelection(Item, RowSelected, Field, StandardProcessing)
@@ -47,7 +47,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure SelectEncoding(Command)

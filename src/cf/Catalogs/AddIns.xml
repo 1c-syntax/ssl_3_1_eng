@@ -1535,8 +1535,6 @@
 			</Attribute>
 			<Form>ItemForm</Form>
 			<Form>ListForm</Form>
-			<Form>SearchForComponentOn1CITSPortal</Form>
-			<Form>ComponentsUpdateFrom1CITSPortal</Form>
 		</ChildObjects>
 	</Catalog>
 </MetaDataObject>

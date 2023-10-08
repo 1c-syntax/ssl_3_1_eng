@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -26,7 +26,7 @@ EndProcedure
 
 #EndRegion
 
-#Region QuickSettingsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersQuickSettings
 
 &AtClient
 Procedure QuickSettingsOnChange(Item)
@@ -54,7 +54,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure SetMark(Command)

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -21,7 +21,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FilesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersFiles
 
 &AtClient
 Procedure FilesSelection(Item, RowSelected, Field, StandardProcessing)

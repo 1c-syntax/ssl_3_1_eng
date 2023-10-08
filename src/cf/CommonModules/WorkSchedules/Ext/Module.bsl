@@ -61,7 +61,7 @@ Function DatesBySchedule(Val WorkScheduleCalendar, Val DateFrom, Val DaysArray,
 	If Selection.Count() < ShiftDays.Maximum Then
 		If RaiseException1 Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'График работы ""%1"" не заполнен с даты %2 на указанное количество рабочих дней.';"), 
+				NStr("en = 'Work schedule ""%1"" is not filled in for the specified number of workdays after %2.';"), 
 				WorkScheduleCalendar, 
 				Format(DateFrom, "DLF=D"));
 		Else

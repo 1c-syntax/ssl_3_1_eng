@@ -33,7 +33,7 @@ EndProcedure
 
 #EndRegion
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing, StorageAddress)
 	

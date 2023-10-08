@@ -14,7 +14,7 @@ Var CurrentContext;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -77,7 +77,7 @@ EndProcedure
 
 #EndRegion
 
-#Region InstalledPatchesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersInstalledPatches
 
 &AtClient
 Procedure InstalledPatchesBeforeDeleteRow(Item, Cancel)
@@ -164,7 +164,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure SaveAs(Command)

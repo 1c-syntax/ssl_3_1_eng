@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -28,14 +28,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
 	EndIf;
-	// 
+	// End StandardSubsystems.AttachableCommands
 	
 	// 
 	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
 		ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");
 		ModuleObjectsVersioning.OnCreateAtServer(ThisObject);
 	EndIf;
-	// 
+	// End StandardSubsystems.ObjectsVersioning
 	
 	// 
 	CommonClientServer.SetDynamicListFilterItem(
@@ -88,6 +88,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Not AccessRight("EventLog", Metadata) Then
 		Items.MailingEvents.Visible = False;
 	EndIf;
+	
+	ShowHintReportMailoutsCanWorkFaster();
+	
 EndProcedure
 
 &AtServer
@@ -116,7 +119,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersList
 
 &AtClient
 Procedure ListDrag(Item, DragParameters, StandardProcessing, String, Field)
@@ -133,13 +136,13 @@ Procedure ListOnActivateRow(Item)
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
 	EndIf;
-	// 
+	// End StandardSubsystems.AttachableCommands
 	
 EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure ChangeSelectedItems(Command)
@@ -211,6 +214,34 @@ Procedure SetListFilter(FilterParameters)
 	
 EndProcedure
 
+&AtServer
+Procedure ShowHintReportMailoutsCanWorkFaster()
+	
+	If Common.FileInfobase() Or Common.DataSeparationEnabled() Then
+		Items.MailingGroupsCanWorkFaster.Visible = False;
+	Else
+		If FileSystem.SharedDirectoryOfTemporaryFiles() = TempFilesDir() Then
+			Items.MailingGroupsCanWorkFaster.Visible = True;
+			If Users.IsFullUser() 
+			   And Common.SubsystemExists("StandardSubsystems.ApplicationSettings") Then
+				Items.TitleAccelerationOfMailouts.Hyperlink = True;
+				Items.TitleAccelerationOfMailouts.SetAction("Click", "Attachable_HeaderAccelerationOfMailoutsClick");
+			EndIf;
+		Else
+			Items.MailingGroupsCanWorkFaster.Visible = False;
+		EndIf;
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure Attachable_HeaderAccelerationOfMailoutsClick(Item)
+	If CommonClient.SubsystemExists("StandardSubsystems.ApplicationSettings") Then
+		AppSettingsModuleClient = CommonClient.CommonModule("ApplicationSettingsClient");
+		AppSettingsModuleClient.OpenGeneralSettings();
+	EndIf;
+EndProcedure
+
 // Standard subsystems.Pluggable commands
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
@@ -241,6 +272,6 @@ Procedure Attachable_UpdateCommands()
 	EndIf;
 EndProcedure
 
-// 
+// End StandardSubsystems.AttachableCommands
 
 #EndRegion

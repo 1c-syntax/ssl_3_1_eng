@@ -936,6 +936,7 @@ the purpose description is used instead of the certificate presentation, for exa
 				<xr:LoadTransparent>true</xr:LoadTransparent>
 			</Picture>
 			<Action>PickIndividual</Action>
+			<ModifiesSavedData>true</ModifiesSavedData>
 		</Command>
 	</Commands>
 	<CommandInterface>

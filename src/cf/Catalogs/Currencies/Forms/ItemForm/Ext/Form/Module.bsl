@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -243,7 +243,7 @@ Procedure FillInTheCurrencyRegistrationParametersSubmenu()
 			Command.Title = NStr("en = 'In other languages…';");
 		EndIf;
 
-		Command.Action = "PlugInOpenTheCurrencyRegistrationParametersForm";
+		Command.Action = "Attachable_OpenCurrencyRegistrationParametersForm";
 
 		Button = Items.Add(CommandName, Type("FormButton"), Items.GroupCurrencyInWordsParameters);
 		Button.Type = FormButtonType.CommandBarButton;
@@ -256,7 +256,7 @@ EndProcedure
 //   Command - FormCommand
 //
 &AtClient
-Procedure PlugInOpenTheCurrencyRegistrationParametersForm(Command)
+Procedure Attachable_OpenCurrencyRegistrationParametersForm(Command)
 
 	IndexOf = Number(Mid(Command.Name, StrLen("CurrencyInWordsParameters_") + 1));
 	OpenCurrencyRegistrationParameters(IndexOf);

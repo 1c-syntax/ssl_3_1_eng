@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -100,7 +100,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure StandardWrite(Command)
@@ -325,7 +325,7 @@ EndProcedure
 Procedure RefreshInformationAboutChange()
 	
 	ChangedStatus = StringFunctions.FormattedString(NStr("en = '<a href=""%1"">%2</a>';"),
-		GetURL(ThisObject["Object"].ChangedBy), String(ThisObject["Object"].ChangedBy));
+		GetURL(ThisObject.Object.ChangedBy), String(ThisObject.Object.ChangedBy));
 	
 EndProcedure
 

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtClient
 Procedure OnOpen(Cancel)
@@ -18,7 +18,7 @@ EndProcedure
 
 #EndRegion
 
-#Region DomainsTableFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersDomainsTable
 
 &AtClient
 Procedure DomainsTableOnActivateRow(Item)
@@ -47,7 +47,7 @@ EndProcedure
 
 #EndRegion
 
-#Region UsersTableFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersUsersTable
 
 &AtClient
 Procedure DomainUsersTableSelection(Item, RowSelected, Field, StandardProcessing)
@@ -58,7 +58,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Select(Command)

@@ -30,7 +30,7 @@ Function AttributesToEditInBatchProcessing() Export
 	
 EndFunction
 
-// 
+// End StandardSubsystems.BatchEditObjects
 
 // Registers the objects to be updated in the InfobaseUpdate exchange plan.
 // 

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -81,11 +81,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				Items.DataPresentations.CurrentPage = Items.AccessActionDeniedData;
 				Items.AccessActionDeniedData.Visible = True;
 				AccessActionDenied = EventData.Action;
-				ТаблицаДанные = Undefined;
+				TableData_ = Undefined;
 				If EventData.Property("Data") Then
-					ТаблицаДанные = EventData.Data;
+					TableData_ = EventData.Data;
 				EndIf;
-				CreateFormTable("AccessActionDeniedDataTable", "DataTable", ТаблицаДанные);
+				CreateFormTable("AccessActionDeniedDataTable", "DataTable", TableData_);
 				Items.Comment.VerticalStretch = False;
 				Items.Comment.Height = 1;
 			EndIf;
@@ -165,7 +165,7 @@ EndProcedure
 
 #EndRegion
 
-#Region AccessActionDeniedDataTableFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersAccessActionDeniedDataTable
 
 &AtClient
 Procedure DataTableChoice(Item, RowSelected, Field, StandardProcessing)

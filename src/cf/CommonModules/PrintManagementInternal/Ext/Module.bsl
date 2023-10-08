@@ -2294,7 +2294,48 @@ Procedure AssignValToDoc(Node, ReplacementCompliance, TreeOfTemplate, ShouldAddL
 			BookmarkEndNode.NameTag = "w:bookmarkEnd";
 			BookmarkEndNode.Attributes.Delete("w:name");
 		Else
-			Node.Text = StrReplace(Node.Text, ReplacementCompliance.Key, ReplacementCompliance.Value);
+			ValueStrings_ = StrSplit(ReplacementCompliance.Value, Chars.LF, True);
+			LinesOfText = New Array;
+			NodeText = Node.Text;
+			KeyLength = StrLen(ReplacementCompliance.Key);
+			OccurrencePosition = StrFind(NodeText, ReplacementCompliance.Key);
+			While OccurrencePosition <> 0 Do
+				If OccurrencePosition > 1 Then
+					LinesOfText.Add(Left(NodeText, OccurrencePosition-1));
+				EndIf;
+				
+				LinesOfText.Add(ReplacementCompliance.Key);
+				NodeText = Mid(NodeText, OccurrencePosition + KeyLength);
+				OccurrencePosition = StrFind(NodeText, ReplacementCompliance.Key);
+			EndDo;
+			
+			If StrLen(NodeText) > 0 Then
+				LinesOfText.Add(NodeText);
+			EndIf;
+			Node.Text = "";
+			ParentOfNode = Node.Parent;
+			
+			For Each TextString In LinesOfText Do
+				If TextString = ReplacementCompliance.Key Then
+					For IndexOfValueString = 0 To ValueStrings_.UBound() Do
+						ValueRow = ValueStrings_[IndexOfValueString];
+						If IndexOfValueString = 0 Then
+							Node.Text = Node.Text + ValueRow;
+						Else
+							NewlineSubAsset = ParentOfNode.Rows.Insert(ParentOfNode.Rows.IndexOf(Node)+1);
+							NewlineSubAsset.IndexOf = Node.IndexOf + (1 - Node.IndexOf + Int(Node.IndexOf))/2; 
+							NewlineSubAsset.NameTag = "w:br";
+							
+							Node = MakeCopyNode(ParentOfNode, ParentOfNode.Rows.IndexOf(Node)+2, Node);
+							Node.IndexOf = NewlineSubAsset.IndexOf + (1 - NewlineSubAsset.IndexOf + Int(NewlineSubAsset.IndexOf))/2;
+							Node.Text = ValueRow;
+						EndIf;
+					EndDo;
+				Else
+					Node.Text = Node.Text + TextString;
+				EndIf;
+			EndDo;
+			
 		EndIf;
 		
 	Else

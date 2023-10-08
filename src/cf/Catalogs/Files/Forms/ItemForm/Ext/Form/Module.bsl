@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -116,6 +116,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	If EventName = "Write_Signature" Then
 		OnGetSignatures(Undefined, Undefined);
 	EndIf;
+	
 	
 	// StandardSubsystems.Properties
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties") Then
@@ -281,7 +282,7 @@ EndProcedure
 
 #EndRegion
 
-#Region DigitalSignaturesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersDigitalSignatures
 
 &AtClient
 Procedure DigitalSignaturesSelection(Item, RowSelected, Field, StandardProcessing)
@@ -307,7 +308,7 @@ EndProcedure
 
 #EndRegion
 
-#Region EncryptionCertificatesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersEncryptionCertificates
 
 &AtClient
 Procedure EncryptionCertificatesSelection(Item, RowSelected, Field, StandardProcessing)
@@ -320,7 +321,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 ///////////////////////////////////////////////////////////////////////////////////
 // 
@@ -430,7 +431,7 @@ Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined
 	
 EndProcedure
 
-// 
+// End StandardSubsystems.Properties
 
 ///////////////////////////////////////////////////////////////////////////////////
 // 
@@ -619,9 +620,7 @@ Procedure VerifyDigitalSignature(Command)
 		FileData.RefToBinaryFileData,
 		Items.DigitalSignatures.SelectedRows);
 	
-	If Items.FormWriteAndClose.Visible And Items.FormWriteAndClose.Enabled Then
-		Modified = True;
-	EndIf;
+	DetermineIfModified();
 		
 EndProcedure
 
@@ -634,10 +633,15 @@ Procedure CheckEverything(Command)
 	
 	FileData = FileData(Object.Ref, UUID);
 	FilesOperationsInternalClient.VerifySignatures(ThisObject, FileData.RefToBinaryFileData);
+	DetermineIfModified();
+	
+EndProcedure
+
+&AtClient
+Procedure DetermineIfModified()
 	If Items.FormWriteAndClose.Visible And Items.FormWriteAndClose.Enabled Then
 		Modified = True;
 	EndIf;
-	
 EndProcedure
 
 &AtClient
@@ -904,7 +908,7 @@ Procedure Attachable_OnChangeAdditionalAttribute(Item)
 	
 EndProcedure
 
-// 
+// End StandardSubsystems.Properties
 
 &AtClient
 Procedure Send(Command)

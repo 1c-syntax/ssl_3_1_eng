@@ -14,7 +14,7 @@ Var RecipientOfDraggedValue, WaitHanderParametersAddress;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -144,9 +144,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		AddingOptions.FieldsCollections = FieldsCollections(DataSources.UnloadValues());
 		AddingOptions.HintForEnteringTheSearchString = PromptInputStringSearchFieldList();
 		AddingOptions.WhenDefiningAvailableFieldSources = "PrintManagement";
-		AddingOptions.ListHandlers.Insert("Selection", "PlugInListOfSelectionFields");
-		AddingOptions.ListHandlers.Insert("BeforeRowChange", "Plugin_AvailableFieldsBeforeStartChanges");
-		AddingOptions.ListHandlers.Insert("OnEditEnd", "PlugIn_AvailableFieldsAtEndOfEditing");
+		AddingOptions.ListHandlers.Insert("Selection", "Attachable_ListOfFieldsSelection");
+		AddingOptions.ListHandlers.Insert("BeforeRowChange", "Attachable_AvailableFieldsBeforeStartOfChange");
+		AddingOptions.ListHandlers.Insert("OnEditEnd", "Attachable_AvailableFieldsAtEndOfEditing");
 		AddingOptions.UseBackgroundSearch = True;
 		
 		ModuleConstructorFormula.AddAListOfFieldsToTheForm(ThisObject, AddingOptions);
@@ -157,7 +157,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		AddingOptions.FieldsCollections.Add(ListOfOperators());			
 		AddingOptions.HintForEnteringTheSearchString = NStr("en = 'Find operator or function…';");
 		AddingOptions.ViewBrackets = False;
-		AddingOptions.ListHandlers.Insert("Selection", "PlugInListOfSelectionFields");
+		AddingOptions.ListHandlers.Insert("Selection", "Attachable_ListOfFieldsSelection");
 		AddingOptions.ListHandlers.Insert("DragStart", "Attachable_OperatorsDragStart");
 		AddingOptions.ListHandlers.Insert("DragEnd", "Attachable_OperatorsDragEnd");
 		
@@ -295,7 +295,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 // 
 
@@ -1855,7 +1855,7 @@ Procedure FillInTheListOfAvailableFields(FillParameters)
 			CurrentData = ThisObject[FillParameters.ListName].FindByID(FillParameters.RowID);
 			SetExamplesValues(CurrentData);
 			SetFormatValuesDefault(CurrentData);
-			If CurrentData.Folder Or CurrentData.Table And CurrentData.GetParent() = Undefined Then
+			If (CurrentData.Folder Or CurrentData.Table) And CurrentData.GetParent() = Undefined Then
 				MarkCommonFields(CurrentData);
 			Else
 				SetCommonFIeldFlagForSubordinateFields(CurrentData);
@@ -1984,7 +1984,7 @@ EndFunction
 //  StandardProcessing - Boolean
 //
 &AtClient
-Procedure PlugInListOfSelectionFields(Item, RowSelected, Field, StandardProcessing)
+Procedure Attachable_ListOfFieldsSelection(Item, RowSelected, Field, StandardProcessing)
 	
 	ModuleConstructorFormulaClient = Undefined;
 	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
@@ -2527,7 +2527,7 @@ Procedure ExpandFieldList()
 	
 	FieldList = Items[NameOfTheFieldList()];
 	FieldList.Header = True;
-	FieldList.SetAction("OnActivateRow", "PlugIn_AvailableFieldsWhenActivatingLine");
+	FieldList.SetAction("OnActivateRow", "Attachable_AvailableFieldsWhenLineIsActivated");
 	
 	ColumnNamePresentation = NameOfTheFieldList() + "Presentation";
 	If Common.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
@@ -2542,7 +2542,7 @@ Procedure ExpandFieldList()
 	ColumnPattern.DataPath = NameOfTheFieldList() + "." + "Pattern";
 	ColumnPattern.Type = FormFieldType.InputField;
 	ColumnPattern.Title = NStr("en = 'Preview';");
-	ColumnPattern.SetAction("OnChange", "Pluggable_SampleWhenChanging");
+	ColumnPattern.SetAction("OnChange", "Attachable_SampleWhenChanging");
 	ColumnPattern.ShowInFooter = False;
 	ColumnPattern.ClearButton = True;
 	
@@ -2591,7 +2591,7 @@ Procedure ExpandFieldList()
 EndProcedure
 
 &AtClient
-Procedure PlugIn_AvailableFieldsWhenActivatingLine(Item)
+Procedure Attachable_AvailableFieldsWhenLineIsActivated(Item)
 	
 	CurrentData = Items[NameOfTheFieldList()].CurrentData;
 	If CurrentData = Undefined Then
@@ -2618,7 +2618,7 @@ Procedure PlugIn_AvailableFieldsWhenActivatingLine(Item)
 EndProcedure
 
 &AtClient
-Procedure Plugin_AvailableFieldsBeforeStartChanges(Item, Cancel)
+Procedure Attachable_AvailableFieldsBeforeStartOfChange(Item, Cancel)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
@@ -2668,7 +2668,7 @@ Procedure WhenFormatFieldSelection(Format, AdditionalParameters) Export
 EndProcedure
 
 &AtClient
-Procedure PlugIn_AvailableFieldsAtEndOfEditing(Item, NewRow, CancelEdit)
+Procedure Attachable_AvailableFieldsAtEndOfEditing(Item, NewRow, CancelEdit)
 	
 	CurrentData = Items[NameOfTheFieldList()].CurrentData;
 	If ValueIsFilled(CurrentData.Format) Then
@@ -2683,7 +2683,7 @@ Procedure PlugIn_AvailableFieldsAtEndOfEditing(Item, NewRow, CancelEdit)
 EndProcedure
 
 &AtClient
-Procedure Pluggable_SampleWhenChanging(Item)
+Procedure Attachable_SampleWhenChanging(Item)
 	
 	CurrentData = Items[NameOfTheFieldList()].CurrentData;
 	CurrentData.Value = CurrentData.Pattern;

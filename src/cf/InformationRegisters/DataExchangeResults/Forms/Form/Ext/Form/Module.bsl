@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -164,7 +164,7 @@ EndProcedure
 
 #EndRegion
 
-#Region UnpostedDocumentsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersUnpostedDocuments
 
 &AtClient
 Procedure UnpostedDocumentsSelection(Item, RowSelected, Field, StandardProcessing)
@@ -184,7 +184,7 @@ EndProcedure
 
 #EndRegion
 
-#Region BlankAttributesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersBlankAttributes
 
 &AtClient
 Procedure BlankAttributesSelection(Item, RowSelected, Field, StandardProcessing)
@@ -224,7 +224,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ConflictsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersConflicts
 
 &AtClient
 Procedure ConflictsBeforeRowChange(Item, Cancel)
@@ -294,7 +294,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ErrorOnExecuteSendingHandlersCodeFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersErrorOnExecuteSendingHandlersCode
 
 &AtClient
 Procedure ErrorOnExecuteSendingHandlersCodeBeforeRowChange(Item, Cancel)
@@ -306,7 +306,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ErrorOnExecuteSendingHandlersCodeFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersErrorOnExecuteSendingHandlersCode
 
 &AtClient
 Procedure ErrorOnExecuteGettingHandlersCodeBeforeRowChange(Item, Cancel)
@@ -318,7 +318,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure ShowInformationForTechnicians(Command)

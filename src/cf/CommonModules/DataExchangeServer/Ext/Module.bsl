@@ -454,7 +454,7 @@ Function CorrespondentTablesData(Tables, Val ExchangePlanName) Export
 			
 			If AttributeTypes.Count() <> 1 Then
 				
-				MessageString = NStr("en = 'Default values don''t support composite data types.
+				MessageString = NStr("en = 'Default values don''t support flexible data types.
 					|Attribute: %1.';");
 				MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, Attribute.FullName());
 				Raise MessageString;
@@ -1336,7 +1336,7 @@ Procedure OnSaveExternalSystemConnectionSettings(Context, ConnectionParameters, 
 						Filter = New Structure("DataArea, MethodName, Key");
 						FillPropertyValues(Filter, JobParameters);
 						
-						JobTable = ModuleJobsQueue.GetTasks(Filter);
+						JobTable = ModuleJobsQueue.GetJobs(Filter);
 						If JobTable.Count() > 0 Then
 							ModuleJobsQueue.ChangeJob(JobTable[0].Id, JobParameters);
 						Else
@@ -2547,7 +2547,7 @@ Procedure CheckExchangeMessageTransportDataProcessorAttachment(Cancel,
 	EndIf;
 	
 	// 
-	DataProcessorObject.Initialization();
+	DataProcessorObject.Initialize();
 	
 	// Check the connection.
 	If Not DataProcessorObject.ConnectionIsSet() Then
@@ -10486,7 +10486,7 @@ Procedure InitExchangeMessageTransportDataProcessor(ExchangeSettingsStructure)
 	FillPropertyValues(ExchangeMessageTransportDataProcessor, ExchangeSettingsStructure.TransportSettings);
 	
 	// 
-	ExchangeMessageTransportDataProcessor.Initialization();
+	ExchangeMessageTransportDataProcessor.Initialize();
 	
 	ExchangeSettingsStructure.Insert("ExchangeMessageTransportDataProcessor", ExchangeMessageTransportDataProcessor);
 	
@@ -10821,7 +10821,7 @@ Procedure InitMessagesOfExchangeWithExternalSystemTransportProcessing(ExchangeSe
 			ExchangeSettingsStructure.InfobaseNode);
 		
 		// 
-		ExchangeMessageTransportDataProcessor.Initialization(ConnectionParameters);
+		ExchangeMessageTransportDataProcessor.Initialize(ConnectionParameters);
 		
 		ExchangeSettingsStructure.Insert("ExchangeMessageTransportDataProcessor", ExchangeMessageTransportDataProcessor);
 		

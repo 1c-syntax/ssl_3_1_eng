@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -71,7 +71,7 @@ EndProcedure
 
 #EndRegion
 
-#Region MetadataObjectsTreeFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersMetadataObjectsTree
 
 &AtClient
 Procedure MetadataObjectsTreeBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parameter)
@@ -179,7 +179,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure IrrelevantFilesVolume(Command)
@@ -451,7 +451,7 @@ Procedure FillObjectTypesInValueTree()
 				NewRow.DetailedInfoAvailable = True;
 			EndIf;
 			
-			If Not StrEndsWith(Catalog.Name, "AttachedFiles") Then
+			If Not StrEndsWith(Catalog.Name, FilesOperationsClientServer.CatalogSuffixAttachedFiles()) Then
 				NewRow.IsFile = True;
 			EndIf;
 			

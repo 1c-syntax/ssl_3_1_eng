@@ -1963,6 +1963,11 @@ Procedure OnAddServerNotifications(Notifications) Export
 		ModuleUserReminderInternal.OnAddServerNotifications(Notifications);
 	EndIf;
 	
+	If Common.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
+		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal = Common.CommonModule("MachineReadableAuthorizationLettersOfFederalTaxServiceInternal");
+		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal.OnAddServerNotifications(Notifications);
+	EndIf;
+	
 	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnAddServerNotifications Then
 		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
 		ModuleCTLSubsystemsIntegration.OnAddServerNotifications(Notifications);

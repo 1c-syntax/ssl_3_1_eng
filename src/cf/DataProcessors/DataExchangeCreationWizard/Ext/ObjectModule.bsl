@@ -348,7 +348,7 @@ EndProcedure
 
 // Initializes exchange node settings.
 //
-Procedure Initialization(Node) Export
+Procedure Initialize(Node) Export
 	
 	InfobaseNode = Node;
 	InfobaseNodeParameters = Common.ObjectAttributesValues(Node, "Code, Description");

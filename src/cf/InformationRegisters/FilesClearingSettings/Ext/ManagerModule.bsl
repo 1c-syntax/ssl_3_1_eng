@@ -80,7 +80,7 @@ Procedure RefreshClearSettings()
 			NewRow = FilesOwnersTable.Add();
 			NewRow.FileOwner = Common.MetadataObjectID(OwnerType);
 			NewRow.FileOwnerType = Common.MetadataObjectID(Catalog);
-			If Not StrEndsWith(Catalog.Name, "AttachedFiles") Then
+			If Not StrEndsWith(Catalog.Name, FilesOperationsClientServer.CatalogSuffixAttachedFiles()) Then
 				NewRow.IsFile = True;
 			EndIf;
 			

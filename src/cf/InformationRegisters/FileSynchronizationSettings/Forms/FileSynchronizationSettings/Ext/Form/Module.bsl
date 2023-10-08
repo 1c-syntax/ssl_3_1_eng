@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -55,7 +55,7 @@ EndProcedure
 
 #EndRegion
 
-#Region MetadataObjectsTreeFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersMetadataObjectsTree
 
 &AtClient
 Procedure MetadataObjectsTreeSynchronizeOnChange(Item)
@@ -136,7 +136,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure SetUpSchedule(Command)
@@ -280,7 +280,7 @@ Procedure FillObjectTypesInValueTree()
 			NewRow.FileOwnerType      = Catalog;
 			NewRow.FileOwnerName      = OwnerMetadata.FullName();
 			NewRow.DetailedInfoAvailable = True;
-			NewRow.IsFile                = Not StrEndsWith(Catalog.Name, "AttachedFiles");
+			NewRow.IsFile                = Not StrEndsWith(Catalog.Name, FilesOperationsClientServer.CatalogSuffixAttachedFiles());
 			
 		EndDo;
 		

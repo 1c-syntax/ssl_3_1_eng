@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -17,7 +17,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	TemplateMetadataObjectName = Parameters.TemplateMetadataObjectName;
-	
+	DataSources.LoadValues(PrintManagement.TemplateDataSource(TemplateMetadataObjectName));
 	NameParts = StrSplit(TemplateMetadataObjectName, ".");
 	TemplateName = NameParts[NameParts.UBound()];
 	
@@ -84,7 +84,11 @@ Procedure OnClose(Exit)
 		EventName = "Write_UserPrintTemplates";
 	EndIf;
 	
-	Notify(EventName, New Structure("TemplateMetadataObjectName", TemplateMetadataObjectName), ThisObject);
+	NotificationParameters = New Structure;
+	NotificationParameters.Insert("TemplateMetadataObjectName", TemplateMetadataObjectName);
+	NotificationParameters.Insert("DataSources", DataSources.UnloadValues());
+	
+	Notify(EventName, NotificationParameters, ThisObject);
 	
 EndProcedure
 
@@ -99,7 +103,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Change(Command)

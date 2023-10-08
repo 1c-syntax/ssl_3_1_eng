@@ -910,4 +910,20 @@ Function Encodings() Export
 
 EndFunction
 
+// 
+//
+// Returns:
+//  Structure:
+//   * FullTemplateName - String
+//   * ObjectName      - String
+//
+Function ComponentDetails() Export
+	
+	Parameters = New Structure;
+	Parameters.Insert("ObjectName", "AddInNativeExtension");
+	Parameters.Insert("FullTemplateName", "CommonTemplate.TwainComponent");
+	Return Parameters;
+	
+EndFunction
+
 #EndRegion

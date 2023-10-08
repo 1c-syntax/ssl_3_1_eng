@@ -14,7 +14,7 @@
 //                                            Can be a list of items that have a "Ref" field.
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -171,7 +171,7 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // TABLE List
 
-#Region ListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersList
 
 &AtClient
 Procedure ListOnActivateRow(Item)
@@ -191,7 +191,7 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // TABLE UnsuccessfulReplacements
 
-#Region UnsuccessfulReplacementsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersUnsuccessfulReplacements
 
 &AtClient
 Procedure UnsuccessfulReplacementsOnActivateRow(Item)
@@ -219,7 +219,7 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // COMMANDS
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure WizardButtonHandler(Command)

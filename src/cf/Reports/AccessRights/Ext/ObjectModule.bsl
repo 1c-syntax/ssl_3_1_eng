@@ -83,7 +83,7 @@ EndProcedure
 
 #EndRegion
 
-#Region EventsHandlers
+#Region EventHandlers
 
 // Parameters:
 //  ResultDocument - SpreadsheetDocument

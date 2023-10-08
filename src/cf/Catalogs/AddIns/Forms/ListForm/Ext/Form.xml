@@ -202,10 +202,10 @@
 									</Title>
 									<ExtendedTooltip name="ActionGroupExtendedTooltip" id="66"/>
 									<ChildItems>
-										<Button name="PerformUpdateFrom1CITSPortal" id="67">
+										<Button name="ОбновитьССайта" id="67">
 											<Type>CommandBarButton</Type>
-											<CommandName>Form.Command.PerformUpdateFrom1CITSPortal</CommandName>
-											<ExtendedTooltip name="PerformUpdateFrom1CITSPortalExtendedTooltip" id="68"/>
+											<CommandName>Form.Command.ОбновитьССайта</CommandName>
+											<ExtendedTooltip name="ОбновитьССайтаExtendedTooltip" id="68"/>
 										</Button>
 										<Button name="FormUpdateFromFile" id="58">
 											<Type>CommandBarButton</Type>
@@ -313,7 +313,7 @@
 									<ContextMenu name="VersionContextMenu" id="23"/>
 									<ExtendedTooltip name="VersionExtendedTooltip" id="24"/>
 								</LabelField>
-								<CheckBoxField name="UpdateFrom1CITSPortal" id="28">
+								<CheckBoxField name="ОбновлятьССайта" id="28">
 									<DataPath>List.UpdateFrom1CITSPortal</DataPath>
 									<TitleLocation>None</TitleLocation>
 									<HorizontalAlign>Center</HorizontalAlign>
@@ -323,8 +323,8 @@
 									</HeaderPicture>
 									<HeaderHorizontalAlign>Center</HeaderHorizontalAlign>
 									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="UpdateFrom1CITSPortalContextMenu" id="29"/>
-									<ExtendedTooltip name="UpdateFrom1CITSPortalExtendedTooltip" id="30"/>
+									<ContextMenu name="ОбновлятьССайтаContextMenu" id="29"/>
+									<ExtendedTooltip name="ОбновлятьССайтаExtendedTooltip" id="30"/>
 								</CheckBoxField>
 								<LabelField name="Description" id="52">
 									<DataPath>List.Description</DataPath>
@@ -487,19 +487,7 @@ FROM
 			<Action>SaveAs</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
-		<Command name="PerformUpdateFrom1CITSPortal" id="1">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Update</v8:content>
-				</v8:item>
-			</Title>
-			<ToolTip>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Update from 1C:ITS Portal</v8:content>
-				</v8:item>
-			</ToolTip>
+		<Command name="ОбновитьССайта" id="1">
 			<Picture>
 				<xr:Ref>CommonPicture.AddInsUpdateFromWebsite</xr:Ref>
 				<xr:LoadTransparent>false</xr:LoadTransparent>

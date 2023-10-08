@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -30,7 +30,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			TableRow.Type = ContactInformationType;
 			TableRow.Kind = ContactInformationKind;
 		EndDo;
-		Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'История изменений (%1)';"), ContactInformationPresentation);
+		Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Change history (%1)';"), ContactInformationPresentation);
 		Items.HistoryPresentation.Title = ContactInformationPresentation;
 	Else
 		Cancel = True;
@@ -73,7 +73,7 @@ EndProcedure
 
 #EndRegion
 
-#Region HistoryFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersHistory
 
 &AtClient
 Procedure HistoryPresentationOnChange(Item)
@@ -168,7 +168,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure OK(Command)

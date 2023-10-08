@@ -18145,7 +18145,7 @@ EndProcedure
 
 #EndRegion
 
-#Region Initialization
+#Region Initialize
 
 InitAttributesAndModuleVariables();
 

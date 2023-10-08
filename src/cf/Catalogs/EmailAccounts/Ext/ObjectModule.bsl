@@ -9,7 +9,7 @@
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure Filling(FillingData, FillingText, StandardProcessing)
 	

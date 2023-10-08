@@ -12,7 +12,7 @@
 //  
 ////////////////////////////////////////////////////////////////////////////////
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -63,7 +63,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ExchangePlansNodesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersExchangePlansNodes
 
 &AtClient
 Procedure ExchangePlansNodesSelection(Item, RowSelected, Field, StandardProcessing)
@@ -80,7 +80,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Select(Command)

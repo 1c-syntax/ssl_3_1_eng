@@ -14,7 +14,7 @@ Var ChoiceContext;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -63,7 +63,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	PlacementParameters = AttachableCommands.PlacementParameters();
 	PlacementParameters.Insert("CommandBar", Items.NavigationPanelListGroup.ChildItems.NavigationOptionCommandBar);
 	AttachableCommands.OnCreateAtServer(ThisObject, PlacementParameters);
-	// 
+	// End StandardSubsystems.AttachableCommands
 	
 	Interactions.FillListOfDocumentsAvailableForCreation(DocumentsAvailableForCreation);
 	UnsafeContentDisplayInEmailsProhibited = Interactions.UnsafeContentDisplayInEmailsProhibited();
@@ -854,7 +854,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Refresh(Command)
@@ -4220,7 +4220,7 @@ EndProcedure
 Procedure Attachable_UpdateCommands()
 	AttachableCommandsClientServer.UpdateCommands(ThisObject, Items.List);
 EndProcedure
-// 
+// End StandardSubsystems.AttachableCommands
 
 &AtClient
 Procedure WarningAboutUnsafeContentURLProcessing(Item, FormattedStringURL, StandardProcessing)

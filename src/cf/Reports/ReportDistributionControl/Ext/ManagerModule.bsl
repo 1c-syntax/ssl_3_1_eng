@@ -39,7 +39,7 @@ Procedure OnDefineObjectsWithReportCommands(Objects) Export
 	
 EndProcedure
 
-// 
+// End StandardSubsystems.ReportsOptions
 
 #EndRegion
 

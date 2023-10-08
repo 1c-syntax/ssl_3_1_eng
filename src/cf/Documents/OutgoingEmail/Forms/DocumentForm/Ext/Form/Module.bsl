@@ -14,7 +14,7 @@ Var ChoiceContext;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -100,7 +100,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 			ModulePropertyManagerClient.AfterImportAdditionalAttributes(ThisObject);
 		EndIf;
 	EndIf;
-	// 
+	// End StandardSubsystems.Properties
 	
 	InteractionsClient.DoProcessNotification(ThisObject, EventName, Parameter, Source);
 
@@ -414,7 +414,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteMode, PostingMode)
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.BeforeWriteAtServer(ThisObject, CurrentObject);
 	EndIf;
-	// 
+	// End StandardSubsystems.Properties
 	
 	Interactions.BeforeWriteInteractionFromForm(ThisObject, CurrentObject, ContactsChanged);
 	
@@ -675,7 +675,7 @@ EndProcedure
 
 #EndRegion
 
-#Region AttachmentsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersAttachments
 
 &AtClient
 Procedure AttachmentsSelection(Item, RowSelected, Field, StandardProcessing)
@@ -732,7 +732,7 @@ EndProcedure
 
 #EndRegion
 
-#Region RecipientsListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersRecipientsList
 
 &AtClient
 Procedure RecipientsListPresentationStartChoice(Item, ChoiceData, StandardProcessing)
@@ -873,7 +873,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure SendForwardExecute(Command)
@@ -1028,7 +1028,7 @@ Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined
 	
 EndProcedure
 
-// 
+// End StandardSubsystems.Properties
 
 // 
 
@@ -3068,7 +3068,7 @@ Procedure UpdateAdditionalAttributesDependencies()
 	
 EndProcedure
 
-// 
+// End StandardSubsystems.Properties
 
 // 
 
@@ -3102,7 +3102,7 @@ Procedure DeterminePossibilityToFillEmailByTemplate()
 	
 EndProcedure
 
-// 
+// End StandardSubsystems.MessageTemplates
 
 &AtServer
 Procedure SetSecurityWarningVisiblity()
@@ -3143,7 +3143,7 @@ Procedure Attachable_UpdateCommands()
 	ModuleAttachableCommandsClientServer = CommonClient.CommonModule("AttachableCommandsClientServer");
 	ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
 EndProcedure
-// 
+// End StandardSubsystems.AttachableCommands
 
 &AtClient
 Procedure CheckEmailsSendingStatus()

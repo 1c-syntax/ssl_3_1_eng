@@ -123,7 +123,7 @@ EndFunction
 // Parameters:
 //  No.
 // 
-Procedure Initialization() Export
+Procedure Initialize() Export
 	
 	DataExchangeDirectory = New File(FILEDataExchangeDirectory);
 	
@@ -598,7 +598,7 @@ EndProcedure
 
 #EndRegion
 
-#Region Initialization
+#Region Initialize
 
 InitMessages();
 ErrorMessageInitialization();

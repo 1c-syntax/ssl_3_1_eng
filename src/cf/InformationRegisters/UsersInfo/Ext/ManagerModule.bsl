@@ -290,7 +290,7 @@ Function UserNewProperties(User, Selection,
 	If IBUser <> Undefined Then
 		CanSignIn = Users.CanSignIn(IBUser);
 		FillPropertyValues(Properties, IBUser,,
-			"Language, UnsafeActionProtection" + ?(CanSignIn, "",
+			"OSUser, Language, UnsafeActionProtection" + ?(CanSignIn, "",
 				"," + AuthenticationPropertiesNames));
 		
 		If Not CanSignIn
@@ -300,6 +300,9 @@ Function UserNewProperties(User, Selection,
 			FillPropertyValues(Properties, Selection, AuthenticationPropertiesNames);
 		EndIf;
 		
+		If Not StandardSubsystemsServer.IsTrainingPlatform() Then
+			Properties.OSUser = IBUser.OSUser;
+		EndIf;
 		If TypeOf(IBUser.Language) = Type("MetadataObject") Then
 			Properties.Language = IBUser.Language.Name;
 		EndIf;
@@ -665,7 +668,8 @@ Procedure ResetAuthenticationForInvalidUser(UserObject)
 	IBUser = InfoBaseUsers.FindByUUID(
 		UserObject.IBUserID);
 	
-	If IBUser = Undefined Then
+	If IBUser = Undefined
+	 Or Not ValueIsFilled(IBUser.Name) Then
 		Return;
 	EndIf;
 	
@@ -711,7 +715,8 @@ Procedure ResetUnwantedOpenIDConnectAuthentication(UserObject)
 	IBUser = InfoBaseUsers.FindByUUID(
 		UserObject.IBUserID);
 	
-	If IBUser = Undefined Then
+	If IBUser = Undefined
+	 Or Not ValueIsFilled(IBUser.Name) Then
 		Return;
 	EndIf;
 	

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -57,7 +57,7 @@ EndProcedure
 
 #EndRegion
 
-#Region CurrenciesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersCurrencies
 
 &AtServerNoContext
 Procedure CurrenciesOnGetDataAtServer(TagName, Settings, Rows)
@@ -94,7 +94,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure PickFromClassifier(Command)

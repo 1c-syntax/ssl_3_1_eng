@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -78,7 +78,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersList
 
 &AtClient
 Procedure ListSelection(Item, RowSelected, Field, StandardProcessing)
@@ -143,7 +143,7 @@ Procedure FillFileStorageNames()
 		FileStorageNames.Add(MetadataCatalogs.FilesVersions.Name, MetadataCatalogs.FilesVersions.Presentation());
 		
 		For Each Catalog In Metadata.Catalogs Do
-			If StrEndsWith(Catalog.Name, "AttachedFiles") Then
+			If StrEndsWith(Catalog.Name, FilesOperationsClientServer.CatalogSuffixAttachedFiles()) Then
 				FileStorageNames.Add(Catalog.Name, Catalog.Presentation());
 			EndIf;
 		EndDo;

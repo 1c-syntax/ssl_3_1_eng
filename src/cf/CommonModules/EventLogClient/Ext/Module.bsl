@@ -303,6 +303,12 @@ EndFunction
 #Region Private
 
 // For internal use only.
+// 
+// Parameters:
+//  Data - FormDataCollectionItem: см. Обработка.ЖурналРегистрации.Форма.ЖурналРегистрации.Журнал
+// 
+// Returns:
+//  Structure
 //
 Function EventLogEventToStructure(Data)
 	
@@ -325,7 +331,7 @@ Function EventLogEventToStructure(Data)
 	FormParameters.Insert("TransactionStatus",        Data.TransactionStatus);
 	FormParameters.Insert("Session",                   Data.Session);
 	FormParameters.Insert("ServerName",           Data.ServerName);
-	FormParameters.Insert("PrimaryIPPort",          Data.PrimaryIPPort);
+	FormParameters.Insert("PrimaryIPPort",          Data.Port);
 	FormParameters.Insert("SyncPort",   Data.SyncPort);
 	FormParameters.Insert("Level",                 Data.Level);
 	

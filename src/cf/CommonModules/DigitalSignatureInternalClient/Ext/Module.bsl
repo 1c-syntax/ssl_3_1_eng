@@ -213,6 +213,111 @@ Function CertificateInstallationParameters(Certificate) Export
 	
 EndFunction
 
+// 
+// 
+// Parameters:
+//  FormCaption - String -
+//  ErrorTitle - String -
+//  ErrorAtClient - Structure:
+//   * Errors - Array
+//  ErrorAtServer - Structure
+//  AdditionalParameters - 
+//    
+//  ContinuationHandler - NotifyDescription -
+//
+Procedure ShowApplicationCallError(FormCaption, ErrorTitle, ErrorAtClient, ErrorAtServer,
+				AdditionalParameters = Undefined, ContinuationHandler = Undefined) Export
+	
+	If TypeOf(ErrorAtClient) <> Type("Structure") Then
+		Raise StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Procedure ""%1""
+			           |has parameter with invalid type ""%2"".';"),
+				"ShowApplicationCallError", "ErrorAtClient");
+	EndIf;
+	
+	If TypeOf(ErrorAtServer) <> Type("Structure") Then
+		Raise StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Procedure ""%1""
+			           |has parameter with invalid type ""%2"".';"),
+				"ShowApplicationCallError", "ErrorAtServer");
+	EndIf;
+	
+	FormParameters = New Structure;
+	FormParameters.Insert("ShowInstruction",                False);
+	FormParameters.Insert("ShowOpenApplicationsSettings", False);
+	FormParameters.Insert("ShowExtensionInstallation",       False);
+	
+	AdditionalData = New Structure;
+	AdditionalData.Insert("UnsignedData");
+	AdditionalData.Insert("Certificate");
+	AdditionalData.Insert("Signature");
+	AdditionalData.Insert("AdditionalDataChecksOnClient");
+	AdditionalData.Insert("AdditionalDataChecksOnServer");
+	
+	If TypeOf(AdditionalParameters) = Type("Structure") Then
+		FillPropertyValues(FormParameters, AdditionalParameters);
+		FillPropertyValues(AdditionalData, AdditionalParameters);
+	EndIf;
+	
+	FormParameters.Insert("AdditionalData", AdditionalData);
+	
+	FormParameters.Insert("FormCaption",  FormCaption);
+	FormParameters.Insert("ErrorTitle", ErrorTitle);
+	
+	FormParameters.Insert("ErrorAtClient", ErrorAtClient);
+	FormParameters.Insert("ErrorAtServer", ErrorAtServer);
+	
+	Context = New Structure;
+	Context.Insert("FormParameters", FormParameters);
+	Context.Insert("ContinuationHandler", ContinuationHandler);
+	
+	BeginAttachingCryptoExtension(New NotifyDescription(
+		"ShowApplicationCallErrorAfterAttachExtension", ThisObject, Context));
+	
+EndProcedure
+
+
+// 
+// 
+// Parameters:
+//  ServerParameters1 - Structure:
+//   * Organization - DefinedType.Organization 
+//   * Individual - DefinedType.Individual
+//   * CertificateBasis - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates 
+//   * ToEncryptAndDecrypt - 
+//   * CanAddToList - Boolean
+//   * PersonalListOnAdd - Boolean 
+//   * Organization - DefinedType.Organization 
+//  NewFormOwner - Undefined, Form -
+//  CompletionHandler - 
+//
+Procedure SelectSigningOrDecryptionCertificate(ServerParameters1, NewFormOwner = Undefined, CompletionHandler = Undefined) Export
+	
+	If NewFormOwner = Undefined Then
+		NewFormOwner = New UUID;
+	EndIf;
+	
+	Context = New Structure;
+	Context.Insert("ServerParameters1", ServerParameters1);
+	Context.Insert("NewFormOwner", NewFormOwner);
+	Context.Insert("CompletionHandler", CompletionHandler);
+	
+	If DigitalSignatureClient.GenerateDigitalSignaturesAtServer()
+	   And ServerParameters1.Property("ExecuteAtServer")
+	   And ServerParameters1.ExecuteAtServer = True Then
+		
+		Result = New Structure;
+		Result.Insert("CertificatesPropertiesAtClient", New Array);
+		Result.Insert("ErrorOnGetCertificatesAtClient", New Structure);
+		
+		ChooseCertificateToSignOrDecryptFollowUp(Result, Context);
+	Else
+		GetCertificatesPropertiesAtClient(New NotifyDescription(
+			"ChooseCertificateToSignOrDecryptFollowUp", ThisObject, Context), True, False);
+	EndIf;
+	
+EndProcedure
+
 #EndRegion
 
 #Region Private
@@ -964,7 +1069,7 @@ EndProcedure
 // Returns:
 //  Structure - 
 //   * IsNew - Boolean - Add certificate to the catalog.
-//   * Is_Specified - Boolean - Certificate is installed to the personal storage.
+//   * Is_Specified - Boolean - Certificate is installed to the Personal store.
 //   * Revoked - Boolean -
 //
 Function ParametersNotificationWhenWritingCertificate() Export
@@ -987,7 +1092,7 @@ EndFunction
 //     = Structure              - an error details as a structure.
 //
 //   Thumbprint              - String - a Base64 coded certificate thumbprint.
-//   InPersonalStorageOnly - Boolean - if True, search in the personal storage, otherwise, search everywhere.
+//   InPersonalStorageOnly - Boolean - if True, search in the Personal store, otherwise, search everywhere.
 //                          - CryptoCertificateStoreType - 
 //
 //   ShowError - Boolean - show the crypto manager creation error.
@@ -3440,58 +3545,6 @@ Async Procedure AddCertificateOnlyToEncryptFromFileAfterSelectDirectory(Selected
 		
 EndProcedure
 
-// For internal use only.
-Procedure ShowApplicationCallError(FormCaption, ErrorTitle, ErrorAtClient, ErrorAtServer,
-				AdditionalParameters = Undefined, ContinuationHandler = Undefined) Export
-	
-	If TypeOf(ErrorAtClient) <> Type("Structure") Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Procedure ""%1""
-			           |has parameter with invalid type ""%2"".';"),
-				"ShowApplicationCallError", "ErrorAtClient");
-	EndIf;
-	
-	If TypeOf(ErrorAtServer) <> Type("Structure") Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Procedure ""%1""
-			           |has parameter with invalid type ""%2"".';"),
-				"ShowApplicationCallError", "ErrorAtServer");
-	EndIf;
-	
-	FormParameters = New Structure;
-	FormParameters.Insert("ShowInstruction",                False);
-	FormParameters.Insert("ShowOpenApplicationsSettings", False);
-	FormParameters.Insert("ShowExtensionInstallation",       False);
-	
-	AdditionalData = New Structure;
-	AdditionalData.Insert("UnsignedData");
-	AdditionalData.Insert("Certificate");
-	AdditionalData.Insert("Signature");
-	AdditionalData.Insert("AdditionalDataChecksOnClient");
-	AdditionalData.Insert("AdditionalDataChecksOnServer");
-	
-	If TypeOf(AdditionalParameters) = Type("Structure") Then
-		FillPropertyValues(FormParameters, AdditionalParameters);
-		FillPropertyValues(AdditionalData, AdditionalParameters);
-	EndIf;
-	
-	FormParameters.Insert("AdditionalData", AdditionalData);
-	
-	FormParameters.Insert("FormCaption",  FormCaption);
-	FormParameters.Insert("ErrorTitle", ErrorTitle);
-	
-	FormParameters.Insert("ErrorAtClient", ErrorAtClient);
-	FormParameters.Insert("ErrorAtServer", ErrorAtServer);
-	
-	Context = New Structure;
-	Context.Insert("FormParameters", FormParameters);
-	Context.Insert("ContinuationHandler", ContinuationHandler);
-	
-	BeginAttachingCryptoExtension(New NotifyDescription(
-		"ShowApplicationCallErrorAfterAttachExtension", ThisObject, Context));
-	
-EndProcedure
-
 // Continues the ShowApplicationCallError procedure.
 Procedure ShowApplicationCallErrorAfterAttachExtension(Attached, Context) Export
 	
@@ -3689,34 +3742,6 @@ Procedure StartChooseCertificateAtSetFilter(Form) Export
 	EndIf;
 	
 	ShowMessageBox(, Text);
-	
-EndProcedure
-
-// For internal use only.
-Procedure SelectSigningOrDecryptionCertificate(ServerParameters1, NewFormOwner = Undefined, CompletionHandler = Undefined) Export
-	
-	If NewFormOwner = Undefined Then
-		NewFormOwner = New UUID;
-	EndIf;
-	
-	Context = New Structure;
-	Context.Insert("ServerParameters1", ServerParameters1);
-	Context.Insert("NewFormOwner", NewFormOwner);
-	Context.Insert("CompletionHandler", CompletionHandler);
-	
-	If DigitalSignatureClient.GenerateDigitalSignaturesAtServer()
-	   And ServerParameters1.Property("ExecuteAtServer")
-	   And ServerParameters1.ExecuteAtServer = True Then
-		
-		Result = New Structure;
-		Result.Insert("CertificatesPropertiesAtClient", New Array);
-		Result.Insert("ErrorOnGetCertificatesAtClient", New Structure);
-		
-		ChooseCertificateToSignOrDecryptFollowUp(Result, Context);
-	Else
-		GetCertificatesPropertiesAtClient(New NotifyDescription(
-			"ChooseCertificateToSignOrDecryptFollowUp", ThisObject, Context), True, False);
-	EndIf;
 	
 EndProcedure
 
@@ -5246,6 +5271,7 @@ Procedure ExecuteAtSideCycleAfterGetData(Result, Context) Export
 		ParametersForServer.Insert("Comment",    Context.Form.Comment);
 		ParametersForServer.Insert("PasswordValue", Context.PasswordValue);
 		ParametersForServer.Insert("SelectedAuthorizationLetter", Context.DataDetails.SelectedAuthorizationLetter);
+		ParametersForServer.Insert("ResultOfCheckingMCHDForSigning", Context.DataDetails.ResultOfCheckingMCHDForSigning);
 		
 		If Context.DataElement.Property("Object")
 		   And Not TypeOf(Context.DataElement.Object) = Type("NotifyDescription") Then
@@ -6723,10 +6749,10 @@ Async Procedure AfterGetCryptoModuleInformation(CryptoModuleInformation, Context
 	If ApplicationDetails = Undefined Then
 		If Not IsBlankString(ErrorDescription) Then
 			CompleteOperationWithError(Context, StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot define a type of cryptographic service provider %1. %2';"), CryptoModuleInformation.Name, ErrorDescription));
+				NStr("en = 'Cannot determine the type of cryptographic service provider %1. %2';"), CryptoModuleInformation.Name, ErrorDescription));
 		Else
 			CompleteOperationWithError(Context, StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot define a type of cryptographic service provider %1';"), CryptoModuleInformation.Name));
+				NStr("en = 'Cannot determine the type of cryptographic service provider %1';"), CryptoModuleInformation.Name));
 		EndIf;
 		Return;
 	EndIf;
@@ -9852,6 +9878,7 @@ EndProcedure
 // Returns:
 //  Structure - 
 //   * Certificate - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates
+//   * CertificateData - String
 //   * AdditionalDataChecksOnClient - Structure
 //   * AdditionalDataChecksOnServer - Structure
 //

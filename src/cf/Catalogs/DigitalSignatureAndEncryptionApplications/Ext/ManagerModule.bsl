@@ -34,7 +34,7 @@ EndFunction
 
 #EndRegion
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure FormGetProcessing(FormType, Parameters, SelectedForm, AdditionalInformation, StandardProcessing)
 	

@@ -30,7 +30,7 @@ Var PreviousAuthorizationObject; //
 //
 // 
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure BeforeWrite(Cancel)
 	

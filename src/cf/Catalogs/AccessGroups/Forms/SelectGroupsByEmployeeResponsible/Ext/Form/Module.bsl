@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -144,7 +144,7 @@ EndProcedure
 
 #EndRegion
 
-#Region AccessGroupsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersAccessGroups
 
 &AtClient
 Procedure AccessGroupsSelection(Item, RowSelected, Field, StandardProcessing)
@@ -157,7 +157,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Select(Command)

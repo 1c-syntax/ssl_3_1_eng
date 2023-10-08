@@ -14,7 +14,7 @@ Var InternalData, DataDetails, ObjectForm, ProcessingAfterWarning, CurrentPresen
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -221,7 +221,7 @@ EndProcedure
 
 #EndRegion
 
-#Region EncryptionCertificatesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersEncryptionCertificates
 
 &AtClient
 Procedure EncryptionCertificatesChoiceProcessing(Item, ValueSelected, StandardProcessing)
@@ -243,7 +243,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Pick(Command)

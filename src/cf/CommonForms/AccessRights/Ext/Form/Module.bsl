@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -108,7 +108,7 @@ EndProcedure
 
 #EndRegion
 
-#Region AccessGroupsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersAccessGroups
 
 &AtClient
 Procedure AccessGroupsOnActivateRow(Item)
@@ -143,7 +143,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure AddToGroup(Command)

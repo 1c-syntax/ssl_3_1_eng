@@ -1760,7 +1760,7 @@ EndProcedure
 
 Function CheckAttachedFilesObject(MetadataObject)
 	
-	If StrEndsWith(MetadataObject.Name, "AttachedFiles")
+	If StrEndsWith(MetadataObject.Name, FilesOperationsClientServer.CatalogSuffixAttachedFiles())
 		Or MetadataObject.FullName() = "Catalog.FilesVersions" Then
 		
 		Return MetadataObject.Attributes.Find("PathToFile") <> Undefined

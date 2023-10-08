@@ -34,6 +34,7 @@
 //     * IsErrorOccurredDuringAutomaticRenewal - Boolean -
 //     
 //     * SignatureID - UUID
+//     * ResultOfSignatureVerificationByMCHD - Array of Structure, Structure -
 //
 //     
 //     * SignatureType          - EnumRef.CryptographySignatureTypes

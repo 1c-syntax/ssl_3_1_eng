@@ -68,6 +68,10 @@ Function PatchesChanged(IsCheckOnly = False) Export
 		For Each Patch In Corrections Do
 			DeletePatch = True;
 			PatchProperties = PatchProperties(Patch.Name);
+			
+			ThisIsLibraryPatch = False;
+			LibraryName     = "";
+			ListOfAssemblies = Undefined;
 			If PatchProperties = Undefined Then
 				// 
 				DeletePatch = False;
@@ -82,6 +86,11 @@ Function PatchesChanged(IsCheckOnly = False) Export
 					ConfigurationLibraryVersion = ConfigurationLibraries.Get(ApplicabilityInformation.ConfigurationName);
 					If ConfigurationLibraryVersion = Undefined Then
 						Continue;
+					EndIf;
+					If ApplicabilityInformation.ConfigurationName <> Metadata.Name Then
+						ThisIsLibraryPatch = True;
+						LibraryName     = ApplicabilityInformation.ConfigurationName;
+						LibraryVersion  = ConfigurationLibraryVersion;
 					EndIf;
 					
 					ArrayOfAssemblies = StrSplit(TrimAll(ApplicabilityInformation.Versions), ",", False);
@@ -120,8 +129,31 @@ Function PatchesChanged(IsCheckOnly = False) Export
 			EndIf;
 			
 			If DeletePatch Then
-				MessageText = NStr("en = 'Patch ""%1"" is obsolete and will be deleted.';");
-				MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, Patch.Name);
+				ListOfAssembliesByLine = "";
+				If ListOfAssemblies <> Undefined Then
+					Assemblies = New Array;
+					For Each Item In ListOfAssemblies Do
+						Assemblies.Add(Item.Presentation);
+					EndDo;
+					ListOfAssembliesByLine = StrConcat(Assemblies, ", ");
+					
+					If ThisIsLibraryPatch Then
+						MessageText = NStr("en = 'The ""%1"" patch is outdated and will be deleted.
+							|You can use the patch for the ""%2"" builds of the ""%3"" library. Current library version: ""%4"".';");
+					Else
+						LibraryVersion = Metadata.Version;
+						MessageText = NStr("en = 'The ""%1"" patch is outdated and will be deleted.
+							|You can use the patch for the ""%2"" builds. Current configuration version: ""%4"".';");
+					EndIf;
+				Else
+					MessageText = NStr("en = 'Patch ""%1"" is obsolete and will be deleted.';");
+				EndIf;
+				
+				MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText,
+					Patch.Name,
+					ListOfAssembliesByLine,
+					LibraryName,
+					LibraryVersion);
 				WriteLogEvent(NStr("en = 'Patch.Delete';", Common.DefaultLanguageCode()),
 					EventLogLevel.Information, , , MessageText);
 				

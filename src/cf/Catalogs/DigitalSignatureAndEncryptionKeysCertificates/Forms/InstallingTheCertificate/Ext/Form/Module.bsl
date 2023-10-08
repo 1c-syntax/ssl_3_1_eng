@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -21,7 +21,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			ChoiceList.Add(CurrentVariantOfSetting.Value, CurrentVariantOfSetting.Presentation);
 		EndDo;
 	ElsIf Parameters.InstallationOptions = "Container" Then
-		ChoiceList.Add("Container", NStr("en = 'Container and personal storage';"));
+		ChoiceList.Add("Container", NStr("en = 'Container and Personal store';"));
 	ElsIf TypeOf(Parameters.InstallationOptions) = Type("String") Then
 		ChoiceList.Add(Parameters.InstallationOptions);
 	Else
@@ -81,7 +81,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Refresh(Command)
@@ -203,10 +203,10 @@ EndFunction
 Function CertificateInstallationOptions()
 	
 	ValueList = New ValueList;
-	ValueList.Add("MY", NStr("en = 'Personal certificate storage';"));
+	ValueList.Add("MY", NStr("en = 'Personal certificate store';"));
 	ValueList.Add("CA", NStr("en = 'Intermediate certificates';"));
 	ValueList.Add("ROOT", NStr("en = 'Trusted root certificates';"));
-	ValueList.Add("Container", NStr("en = 'Container and personal storage';"));
+	ValueList.Add("Container", NStr("en = 'Container and Personal store';"));
 	Return ValueList;
 	
 EndFunction

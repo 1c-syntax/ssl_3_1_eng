@@ -139,7 +139,7 @@ EndProcedure
 
 #EndIf
 
-#Region EventsHandlers
+#Region EventHandlers
 
 // ACC:362-off Design-based decision.
 

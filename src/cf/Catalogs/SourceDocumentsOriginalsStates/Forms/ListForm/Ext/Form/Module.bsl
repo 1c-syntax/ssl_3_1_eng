@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -20,7 +20,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormTableItemEventHandlers
+#Region FormTableItemsEventHandlers
 
 &AtClient
 Procedure ListOnChange(Item)
@@ -33,7 +33,7 @@ EndProcedure
 #EndRegion
 
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 // Standard subsystems.Pluggable commands
 

@@ -77,7 +77,7 @@ Procedure AddReportCommands(ReportsCommands, Parameters) Export
 	
 EndProcedure
 
-// 
+// End StandardSubsystems.ReportsOptions
 
 // StandardSubsystems.Print
 
@@ -117,7 +117,7 @@ EndProcedure
 Procedure OnDefineObjectVersioningSettings(Settings) Export
 EndProcedure
 
-// 
+// End StandardSubsystems.ObjectsVersioning
 
 #EndRegion
 
@@ -191,7 +191,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			
 			If SetReportsDescriptionTemplates Then
 				
-				FilterParameters = New Structure("DescriptionTemplate1", "");
+				FilterParameters = New Structure("DescriptionTemplate", "");
 				RowsWithoutNamingTemplates = ReportDistributionObject.Reports.FindRows(FilterParameters);
 				
 				If ReportDistributionObject.DeleteIncludeDateInFileName Then
@@ -202,7 +202,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 				EndIf;
 				
 				For Each String In RowsWithoutNamingTemplates Do
-					String.DescriptionTemplate1 = DefaultTemplate;
+					String.DescriptionTemplate = DefaultTemplate;
 				EndDo;
 			EndIf;
 			
@@ -259,7 +259,7 @@ Function SetReportsDescriptionTemplates()
 		|FROM
 		|	Catalog.ReportMailings.Reports AS ReportMailingsReports
 		|WHERE
-		|	ReportMailingsReports.DescriptionTemplate1 <> """"";
+		|	ReportMailingsReports.DescriptionTemplate <> """"";
 	
 	QueryResult = Query.Execute();
 	
@@ -293,21 +293,31 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	
 EndProcedure
 
-Function RecipientsCountIncludingGroups(Val Recipients, Val MetadataObjectID) Export
+Function RecipientsCountIncludingGroups(Val RecipientsParameters) Export
 
-	NumberOfRecipients = New Structure("Total, ExcludedCount", 0, 0);
-
-	If MetadataObjectID = Undefined Then
+	NumberOfRecipients = New Structure("Total, ExcludedCount", 0, Undefined);
+	
+	If RecipientsParameters.MailingRecipientType = Undefined Then
 		Return NumberOfRecipients;
 	EndIf;
-
-	RecipientsMetadata = Common.MetadataObjectByID(MetadataObjectID, False);
+	
+	Query = New Query;
+	RecipientsList = New Map;
+	ReportMailingOverridable.BeforeGenerateMailingRecipientsList(RecipientsParameters, Query, True, RecipientsList);
+	
+	If ValueIsFilled(Query.Text) Then
+		BulkEmailRecipients = ReportMailing.GenerateMailingRecipientsList(RecipientsParameters, Undefined);
+		NumberOfRecipients.Total = BulkEmailRecipients.Count();
+		Return NumberOfRecipients;
+	EndIf;
+	
+	RecipientsMetadata = Common.MetadataObjectByID(RecipientsParameters.MailingRecipientType, False);
 	
 	If RecipientsMetadata = Undefined Or RecipientsMetadata = Null Then
 		Return NumberOfRecipients;
 	EndIf;
 	
-	RecipientsType = MetadataObjectID.MetadataObjectKey.Get();
+	RecipientsType = RecipientsParameters.MailingRecipientType.MetadataObjectKey.Get();
 
 	Query = New Query;
 
@@ -440,7 +450,7 @@ Function RecipientsCountIncludingGroups(Val Recipients, Val MetadataObjectID) Ex
 
 	EndIf;
 
-	Query.SetParameter("TableOfRecipients", Recipients.Unload());
+	Query.SetParameter("TableOfRecipients", RecipientsParameters.Recipients.Unload());
 	Query.Text = QueryText;
 
 	Try

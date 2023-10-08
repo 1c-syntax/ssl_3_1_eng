@@ -302,7 +302,7 @@ EndFunction
 
 Function EnumPresentationOnSchedule()
 	
-	Return NStr("en = 'по расписанию';");
+	Return NStr("en = 'on schedule';");
 	
 EndFunction
 

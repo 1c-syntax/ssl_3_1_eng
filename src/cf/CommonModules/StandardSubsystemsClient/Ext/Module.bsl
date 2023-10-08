@@ -392,7 +392,7 @@ Procedure CollaborationSystemUsersChoiceFormGetProcessing(ChoicePurpose,
 		ModuleConversationsInternalClient.OnGetCollaborationSystemUsersChoiceForm(ChoicePurpose,
 			Form, ConversationID, Parameters, SelectedForm, StandardProcessing);
 	EndIf;
-	// 
+	// End StandardSubsystems.Conversations
 		
 EndProcedure
 

@@ -14,7 +14,7 @@ Var FormClosingConfirmation;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -242,7 +242,7 @@ EndProcedure
 
 #EndRegion
 
-#Region TemplateWithDataFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersTemplateWithData
 
 &AtClient
 Procedure TemplateWithDataOnActivate(Item)
@@ -258,7 +258,7 @@ EndProcedure
 
 #EndRegion
 
-#Region DataMappingTableFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersDataMappingTable
 
 &AtClient
 Procedure DataMappingTableOnEditEnd(Item, NewRow, CancelEdit)
@@ -314,7 +314,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure CancelMapping(Command)
@@ -377,7 +377,7 @@ Procedure StepBack()
 		
 		Items.WizardPages.CurrentPage = Items.SelectCatalogToImport;
 		Items.Back.Visible = False;
-		Title = NStr("en = 'Загрузка данных в справочник';");
+		Title = NStr("en = 'Import data to catalog';");
 		ClearTable();
 		
 	ElsIf Items.WizardPages.CurrentPage = Items.DataToImportMapping

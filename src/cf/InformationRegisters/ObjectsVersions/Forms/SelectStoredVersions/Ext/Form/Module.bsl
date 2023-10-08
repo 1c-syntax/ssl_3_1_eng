@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -57,7 +57,7 @@ EndProcedure
 
 #EndRegion
 
-#Region VersionsListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersVersionsList
 
 &AtClient
 Procedure VersionsTreeSelection(Item, RowSelected, Field, StandardProcessing)
@@ -87,7 +87,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure OpenObjectVersion(Command)

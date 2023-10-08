@@ -16,7 +16,7 @@ Var SettingEnabled; //
 
 #EndRegion
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure BeforeWrite(Cancel)
 	

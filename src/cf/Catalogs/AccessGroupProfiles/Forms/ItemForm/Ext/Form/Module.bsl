@@ -14,7 +14,7 @@ Var WriteParametersBeforeWriteFollowUp;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -270,7 +270,7 @@ EndProcedure
 
 #EndRegion
 
-#Region AccessKindsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersAccessKinds
 
 &AtClient
 Procedure AccessKindsOnChange(Item)
@@ -359,7 +359,7 @@ EndProcedure
 
 #EndRegion
 
-#Region AccessValuesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersAccessValues
 
 &AtClient
 Procedure AccessValuesOnChange(Item)
@@ -427,7 +427,7 @@ EndProcedure
 
 #EndRegion
 
-#Region RolesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersRoles
 
 ////////////////////////////////////////////////////////////////////////////////
 // 
@@ -469,7 +469,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure WriteAndClose(Command)
@@ -721,7 +721,7 @@ Procedure Attachable_UpdateCommands()
 	ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
 EndProcedure
 
-// 
+// End StandardSubsystems.AttachableCommands
 
 ////////////////////////////////////////////////////////////////////////////////
 // 

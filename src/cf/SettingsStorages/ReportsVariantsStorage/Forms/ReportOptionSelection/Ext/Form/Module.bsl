@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -88,7 +88,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ReportOptionsTreeFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersReportOptionsTree
 
 &AtClient
 Procedure ReportOptionsTreeOnActivateRow(Item)
@@ -151,7 +151,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure ShowPersonalReportsOptionsByOtherAuthors(Command)

@@ -1020,7 +1020,7 @@ Function ObjectIssueInfo(ObjectReference) Export
 	Query = New Query;
 	Query.SetParameter("ObjectWithIssue", ObjectReference);
 	Query.Text =
-		"SELECT
+		"SELECT ALLOWED
 		|	AccountingCheckResults.IssueSummary AS IssueText,
 		|	AccountingCheckResults.IssueSeverity AS IssueSeverity
 		|FROM

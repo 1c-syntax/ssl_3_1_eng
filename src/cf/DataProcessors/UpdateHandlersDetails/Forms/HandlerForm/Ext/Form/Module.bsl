@@ -14,7 +14,7 @@ Var ParametersOfTheAttachedHandler;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -319,7 +319,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormTableItemEventHandlers
+#Region FormTableItemsEventHandlers
 
 &AtClient
 Procedure ObjectsOnStartEdit(Item, NewRow, Copy)
@@ -473,7 +473,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure WriteAndClose(Command)

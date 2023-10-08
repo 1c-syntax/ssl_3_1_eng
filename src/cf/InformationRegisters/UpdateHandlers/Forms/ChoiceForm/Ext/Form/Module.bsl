@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -19,7 +19,7 @@ EndProcedure
 
 #EndRegion
 
-#Region HandlerListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersHandlerList
 
 &AtClient
 Procedure HandlerListSelection(Item, RowSelected, Field, StandardProcessing)
@@ -51,7 +51,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Done(Command)

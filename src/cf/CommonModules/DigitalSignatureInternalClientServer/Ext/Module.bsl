@@ -263,6 +263,23 @@ Function AppsRelevantAlgorithms() Export
 	
 EndFunction
 
+// Add-in connection details (ExtraCryptoAPI).
+//
+// Returns:
+//  Structure:
+//   * FullTemplateName - String
+//   * ObjectName      - String
+//
+Function ComponentDetails() Export
+	
+	Parameters = New Structure;
+	Parameters.Insert("ObjectName", "ExtraCryptoAPI");
+	Parameters.Insert("FullTemplateName",
+		"Catalog.DigitalSignatureAndEncryptionKeysCertificates.Template.ComponentExtraCryptoAPI");
+	Return Parameters;
+	
+EndFunction
+
 #EndRegion
 
 #Region Private
@@ -293,7 +310,6 @@ Function SignaturePropertiesUponReadAndVerify() Export
 	Structure.Insert("DateActionLastTimestamp");
 	Structure.Insert("DateSignedFromLabels");
 	Structure.Insert("UnverifiedSignatureDate");
-	Structure.Insert("ResultOfSignatureVerificationByMCHD");
 	
 	Structure.Insert("Certificate");
 	Structure.Insert("Thumbprint");
@@ -2670,22 +2686,6 @@ Function ConvertIssuedToIntoFullName(IssuedTo) Export
 	
 EndFunction
 
-// Add-in connection details (ExtraCryptoAPI).
-//
-// Returns:
-//  Structure:
-//   * FullTemplateName - String
-//   * ObjectName      - String
-//
-Function ComponentDetails() Export
-	
-	Parameters = New Structure;
-	Parameters.Insert("ObjectName", "ExtraCryptoAPI");
-	Parameters.Insert("FullTemplateName",
-		"Catalog.DigitalSignatureAndEncryptionKeysCertificates.Template.ComponentExtraCryptoAPI");
-	Return Parameters;
-	
-EndFunction
 
 Function IdentifiersOfHashingAlgorithmsAndThePublicKey() Export
 	
@@ -3135,14 +3135,16 @@ Function SimplifiedErrorStructure(Error, ErrorTitle)
 				SimplifiedStructure.ErrorTitle = Error.ErrorTitle;
 			EndIf;
 			ErrorProperties = Error.Errors[0]; // See NewErrorProperties
+			NewErrorProperties = NewErrorProperties();
+			FillPropertyValues(NewErrorProperties, ErrorProperties);
 			LongDesc = "";
-			If ValueIsFilled(ErrorProperties.Application) Then
-				LongDesc = LongDesc + String(ErrorProperties.Application) + ":" + Chars.LF;
+			If ValueIsFilled(NewErrorProperties.Application) Then
+				LongDesc = LongDesc + String(NewErrorProperties.Application) + ":" + Chars.LF;
 			EndIf;
-			LongDesc = LongDesc + ErrorProperties.LongDesc;
+			LongDesc = LongDesc + NewErrorProperties.LongDesc;
 			SimplifiedStructure.LongDesc = TrimAll(LongDesc);
 			SimplifiedStructure.ErrorDescription = TrimAll(SimplifiedStructure.ErrorTitle + Chars.LF + LongDesc);
-			If ErrorProperties.NotSupported Then
+			If NewErrorProperties.NotSupported Then
 				SimplifiedStructure.NotSupported = True;
 			EndIf;
 		EndIf;

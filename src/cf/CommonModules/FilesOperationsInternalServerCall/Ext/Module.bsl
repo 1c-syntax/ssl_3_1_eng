@@ -2408,6 +2408,36 @@ Function DataDeletionResult(FileOrVersion, UUID) Export
 	
 EndFunction
 
+Function РезультатУдаленияФайлов(ФайлыИлиВерсии, UUID) Export
+	
+	SetPrivilegedMode(True);
+	
+	DeletionResult = New Map;
+		
+	For Each FileOrVersion In ФайлыИлиВерсии Do
+	
+		Result = New Structure("WarningText, Files", "", New Array);
+	
+		AuthorizedUser = Users.AuthorizedUser();
+		If Common.ObjectAttributeValue(FileOrVersion, "Author") <> AuthorizedUser Then
+			
+			Result.WarningText = NStr("en = 'Только автор может удалить версию файла.';");
+			
+			Continue;
+			
+		EndIf;
+		
+		DeleteFileData(FileOrVersion, UUID, Result, AuthorizedUser);
+				
+		DeletionResult.Insert(FileOrVersion, Result);
+		
+	EndDo;
+		
+	Return DeletionResult;
+	
+EndFunction
+
+
 Procedure DeleteVersionData(FileOrVersion, UUID, Result)
 	
 	Query = New Query;
@@ -2980,26 +3010,91 @@ Procedure RecordTextExtractionResult(FileOrVersionRef,
 EndProcedure
 
 // For internal use only.
-Procedure VerifySignatures(RawData, RowsData) Export
+Procedure VerifySignatures(RawData, RowsData, SignedObject) Export
 	
 	If Not Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
 		Return;
 	EndIf;
 	ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
+	ModuleDigitalSignatureClientServer = Common.CommonModule("DigitalSignatureClientServer");
 	
 	For Each SignatureRow In RowsData Do
+		
+		SignatureVerificationResult = ModuleDigitalSignatureClientServer.SignatureVerificationResult();
 		ErrorDescription = "";
-		SignatureCorrect = ModuleDigitalSignature.VerifySignature(Undefined,
-			RawData, SignatureRow.SignatureAddress, ErrorDescription, SignatureRow.SignatureDate);
+		CheckResult = ModuleDigitalSignature.VerifySignature(Undefined, RawData, SignatureRow.SignatureAddress,
+			ErrorDescription, SignatureRow.SignatureDate, SignatureVerificationResult);
 		
 		SignatureRow.SignatureValidationDate = CurrentSessionDate();
-		SignatureRow.SignatureCorrect   = SignatureCorrect;
-		SignatureRow.ErrorDescription = ErrorDescription;
+		SignatureRow.SignatureCorrect      = (SignatureVerificationResult.Result = True);
+		SignatureRow.ErrorDescription    = ErrorDescription;
+		SignatureRow.IsVerificationRequired = SignatureVerificationResult.IsVerificationRequired;
+		If ValueIsFilled(SignatureVerificationResult.SignatureType) Then
+			SignatureRow.SignatureType        = SignatureVerificationResult.SignatureType;
+		EndIf;
+		If ValueIsFilled(SignatureVerificationResult.DateActionLastTimestamp) Then
+			SignatureRow.DateActionLastTimestamp = SignatureVerificationResult.DateActionLastTimestamp;
+		EndIf;
+		
+		// Localization
+
+		If ValueIsFilled(SignatureRow.ResultOfSignatureVerificationByMCHD) And Common.SubsystemExists(
+			"StandardSubsystems.MachineReadablePowersAttorney") Then
+			ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal = Common.CommonModule(
+				"MachineReadableAuthorizationLettersOfFederalTaxServiceInternal");
+
+			ResultOfCheckingAuthorizationLetters = GetFromTempStorage(SignatureRow.ResultOfSignatureVerificationByMCHD);
+			NewAuthorizationLetterVerificationResult = New Array;
+			For Each Result In ResultOfCheckingAuthorizationLetters Do
+				ResultOfSignatureVerificationByMCHD = ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal.ResultOfSignatureVerificationByMCHD(
+					Result.MachineReadableAuthorizationLetter, SignedObject,
+					SignatureVerificationResult.Certificate, SignatureRow.SignatureDate);
+				NewAuthorizationLetterVerificationResult.Add(ResultOfSignatureVerificationByMCHD);
+				SignatureRow.ResultOfCheckingAuthorizationLetters = PutToTempStorage(
+					NewAuthorizationLetterVerificationResult, SignatureRow.ResultOfSignatureVerificationByMCHD);
+			EndDo;
+		EndIf;
+			
+		//EndLocalization
 		
 		FilesOperationsInternalClientServer.FillSignatureStatus(SignatureRow, CurrentSessionDate());
 	EndDo;
 	
 EndProcedure
+
+// Localization
+
+Function CheckSignaturesByMCHD(Signatures, SignedObject) Export
+	
+	ChecksResults = New Array;
+	
+	If Not Common.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
+		Return New Array;
+	EndIf;
+	
+	ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal = Common.CommonModule(
+			"MachineReadableAuthorizationLettersOfFederalTaxServiceInternal");
+	For Each Signature In Signatures Do
+		
+		ResultOfCheckingAuthorizationLetters = GetFromTempStorage(Signature.ResultOfSignatureVerificationByMCHD);
+		NewAuthorizationLetterVerificationResult = New Array;
+		For Each Result In ResultOfCheckingAuthorizationLetters Do
+			ResultOfSignatureVerificationByMCHD = ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal.ResultOfSignatureVerificationByMCHD(
+					Result.MachineReadableAuthorizationLetter, SignedObject, Signature.Certificate, Signature.SignatureDate);
+			NewAuthorizationLetterVerificationResult.Add(ResultOfSignatureVerificationByMCHD);
+		EndDo;
+		
+		CheckResult = New Structure("IndexOf, ResultOfSignatureVerificationByMCHD", Signature.IndexOf, NewAuthorizationLetterVerificationResult);
+		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal.AddInformationMChD(CheckResult, Signature.ResultOfSignatureVerificationByMCHD);
+		ChecksResults.Add(CheckResult);
+		
+	EndDo;
+	
+	Return ChecksResults;
+
+EndFunction
+
+//EndLocalization
 
 // Enters the number to the ScannedFilesNumbers information register.
 //

@@ -16,7 +16,7 @@ Var ParametersOfTheAttachedHandler;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -203,12 +203,12 @@ EndProcedure
 &AtClient
 Procedure SubsystemChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	
-	AttachIdleHandler("PlugInSubsystemSelectionProcessing", 0.1, True);
+	AttachIdleHandler("Attachable_ProcessingSubsystemSelection", 0.1, True);
 	
 EndProcedure
 
 &AtClient
-Procedure PlugInSubsystemSelectionProcessing()
+Procedure Attachable_ProcessingSubsystemSelection()
 	
 	If ValueIsFilled(CurrentLibrary) Then
 		Filter = New Structure("Subsystem", CurrentLibrary);
@@ -274,7 +274,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormTableItemEventHandlers
+#Region FormTableItemsEventHandlers
 
 &AtClient
 Procedure UpdateHandlersSelection(Item, RowSelected, Field, StandardProcessing)
@@ -375,7 +375,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure ImportHandlers(Command)

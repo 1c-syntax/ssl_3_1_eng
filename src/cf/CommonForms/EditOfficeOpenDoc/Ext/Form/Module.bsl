@@ -14,7 +14,7 @@ Var ReClosing;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -125,9 +125,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		AddingOptions.FieldsCollections = FieldsCollections(DataSources.UnloadValues());
 		AddingOptions.HintForEnteringTheSearchString = PromptInputStringSearchFieldList();
 		AddingOptions.WhenDefiningAvailableFieldSources = "PrintManagement";
-		AddingOptions.ListHandlers.Insert("Selection", "PlugInListOfSelectionFields");
-		AddingOptions.ListHandlers.Insert("BeforeRowChange", "Plugin_AvailableFieldsBeforeStartChanges");
-		AddingOptions.ListHandlers.Insert("OnEditEnd", "PlugIn_AvailableFieldsAtEndOfEditing");
+		AddingOptions.ListHandlers.Insert("Selection", "Attachable_ListOfFieldsSelection");
+		AddingOptions.ListHandlers.Insert("BeforeRowChange", "Attachable_AvailableFieldsBeforeStartOfChange");
+		AddingOptions.ListHandlers.Insert("OnEditEnd", "Attachable_AvailableFieldsAtEndOfEditing");
 		AddingOptions.UseBackgroundSearch = True;
 		
 		If Not IsLinuxClient Then
@@ -142,7 +142,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		AddingOptions.FieldsCollections.Add(ListOfOperators());
 		AddingOptions.HintForEnteringTheSearchString = NStr("en = 'Find operator or function…';");
 		AddingOptions.ViewBrackets = False;
-		AddingOptions.ListHandlers.Insert("Selection", "PlugInListOfSelectionFields");
+		AddingOptions.ListHandlers.Insert("Selection", "Attachable_ListOfFieldsSelection");
 		AddingOptions.ListHandlers.Insert("OnActivateRow", "Attachable_FieldListRowActivation");
 		AddingOptions.ListHandlers.Insert("DragStart", "Attachable_OperatorsDragStart");
 				
@@ -253,7 +253,7 @@ EndProcedure
 #EndRegion
 
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure ShowInstruction(Command)
@@ -333,6 +333,7 @@ EndProcedure
 Procedure PutToClipboard(Command)
 	
 	HTMLDocument = Items.HTMLField.Document;
+	HTMLDocument.defaultView.value_to_copy = GetValueOfCurrentLine();
 	Button = HTMLDocument.getElementById("myb");
 	If Button = Undefined Then
 		ShowMessageBox(,NStr("en = 'Select an object field, operator, or function.';"));
@@ -795,17 +796,18 @@ Procedure SetInHTMLField(Value)
 						|    </div>
 						|    <button id=""myb"" class=""myButton"" onclick=""copytext();"">%4</button>
 						|    <script type=""text/javascript"">
+						|    var value_to_copy = null;
 						|        function onDragStart(event) {
 						|            event
 						|                .dataTransfer
-						|                .setData('text/plain', ""%1"");
+						|                .setData('text/plain', value_to_copy);
 						|        }
 						|
         				|		function copytext() {
 						|            var area = document.createElement('textarea');
 						|
 						|            document.body.appendChild(area);
-						|            area.value = ""%1"";
+						|            area.value = value_to_copy;
 						|            area.select();
 						|            document.execCommand(""copy"");
 						|            document.body.removeChild(area);
@@ -887,16 +889,17 @@ Procedure SetInHTMLField(Value)
 						|    </div>
 						|    <button id=""myb"" class=""myButton"" onclick=""copytext();"">%4</button>
 						|    <script type=""text/javascript"">
+						|    var value_to_copy = null;
 						|        function onDragStart(event) {
 						|            event
 						|                .dataTransfer
-						|                .setData('text/plain', ""%1"");
+						|                .setData('text/plain', value_to_copy);
 						|        }
 						|        function copytext() {
 						|            var area = document.createElement('textarea');
 						|
 						|            document.body.appendChild(area);
-						|            area.value = ""%1"";
+						|            area.value = value_to_copy;
 						|            area.select();
 						|            document.execCommand(""copy"");
 						|            document.body.removeChild(area);
@@ -955,7 +958,7 @@ Procedure SetInHTMLField(Value)
 		NStr("en = 'Drag<br> to the editor';"),
 		NStr("en = 'Copy';"),
 		NStr("en = 'Select a field';"));
-	HTMLField = StrReplace(HTMLField, "%%", "%");	
+	HTMLField = StrReplace(HTMLField, "%%", "%");
 EndProcedure
 
 
@@ -1644,7 +1647,7 @@ Procedure ExpandFieldList()
 	
 	FieldList = Items[NameOfTheFieldList()];
 	FieldList.Header = True;
-	FieldList.SetAction("OnActivateRow", "PlugIn_AvailableFieldsWhenActivatingLine");
+	FieldList.SetAction("OnActivateRow", "Attachable_AvailableFieldsWhenLineIsActivated");
 	
 	ColumnNamePresentation = NameOfTheFieldList() + "Presentation";
 	If Common.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
@@ -1659,7 +1662,7 @@ Procedure ExpandFieldList()
 	ColumnPattern.DataPath = NameOfTheFieldList() + "." + "Pattern";
 	ColumnPattern.Type = FormFieldType.InputField;
 	ColumnPattern.Title = NStr("en = 'Preview';");
-	ColumnPattern.SetAction("OnChange", "Pluggable_SampleWhenChanging");
+	ColumnPattern.SetAction("OnChange", "Attachable_SampleWhenChanging");
 	ColumnPattern.ShowInFooter = False;
 	
 	ButtonSettingsFormat = Items.Add(NameOfTheFieldList() + "ButtonSettingsFormat", Type("FormField"), FieldList);
@@ -1947,7 +1950,7 @@ Procedure FillInTheListOfAvailableFields(FillParameters)
 		CurrentData = ThisObject[NameOfTheFieldList()].FindByID(FillParameters.RowID);
 		SetExamplesValues(CurrentData);
 		SetFormatValuesDefault(CurrentData);
-		If CurrentData.Folder Or CurrentData.Table And CurrentData.GetParent() = Undefined Then
+		If (CurrentData.Folder Or CurrentData.Table) And CurrentData.GetParent() = Undefined Then
 			MarkCommonFields(CurrentData);
 		Else
 			SetCommonFIeldFlagForSubordinateFields(CurrentData);
@@ -2066,7 +2069,7 @@ EndFunction
 #Region AdditionalHandlersForConnectedLists
 
 &AtClient
-Procedure PlugIn_AvailableFieldsWhenActivatingLine(Item)
+Procedure Attachable_AvailableFieldsWhenLineIsActivated(Item)
 	
 	CurrentData = Items[NameOfTheFieldList()].CurrentData;
 
@@ -2083,12 +2086,20 @@ EndProcedure
 &AtClient
 Procedure PopulateHTMLFIeldByCurrField()
 	
+	Value = GetValueOfCurrentLine();
+	
+	SetInHTMLField(Value);
+	
+EndProcedure
+
+&AtClient
+Function GetValueOfCurrentLine()
 	CurrentRow = Items[NameOfTheFieldList()].CurrentRow; 	
 	Attribute = ThisObject[NameOfTheFieldList()].FindByID(CurrentRow);
 	
 	If Attribute.Folder Or Attribute.Table 
 		And Not StrStartsWith(Attribute.DataPath, "CommonAttributes.") Then
-		Return;
+		Return "";
 	EndIf;
 	
 	Value = "[" + Attribute.RepresentationOfTheDataPath + "]";
@@ -2100,12 +2111,12 @@ Procedure PopulateHTMLFIeldByCurrField()
 			"[Format(%1, %2)]", Value, """" + Attribute.Format + """");
 	EndIf;
 	
-	SetInHTMLField(Value);
+	Return Value;
 	
-EndProcedure
+EndFunction
 
 &AtClient
-Procedure Plugin_AvailableFieldsBeforeStartChanges(Item, Cancel)
+Procedure Attachable_AvailableFieldsBeforeStartOfChange(Item, Cancel)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
@@ -2127,7 +2138,7 @@ EndProcedure
 //  StandardProcessing - Boolean
 //
 &AtClient
-Procedure PlugInListOfSelectionFields(Item, RowSelected, Field, StandardProcessing)
+Procedure Attachable_ListOfFieldsSelection(Item, RowSelected, Field, StandardProcessing)
 	
 	ModuleConstructorFormulaClient = Undefined;
 	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
@@ -2222,7 +2233,7 @@ Procedure Attachable_OperatorsDragStart(Item, DragParameters, Perform)
 EndProcedure
 
 &AtClient
-Procedure PlugIn_AvailableFieldsAtEndOfEditing(Item, NewRow, CancelEdit)
+Procedure Attachable_AvailableFieldsAtEndOfEditing(Item, NewRow, CancelEdit)
 	
 	CurrentData = Items[NameOfTheFieldList()].CurrentData;
 	If ValueIsFilled(CurrentData.Format) Then
@@ -2237,7 +2248,7 @@ Procedure PlugIn_AvailableFieldsAtEndOfEditing(Item, NewRow, CancelEdit)
 EndProcedure
 
 &AtClient
-Procedure Pluggable_SampleWhenChanging(Item)
+Procedure Attachable_SampleWhenChanging(Item)
 	
 	CurrentData = Items[NameOfTheFieldList()].CurrentData;
 	CurrentData.Value = CurrentData.Pattern;

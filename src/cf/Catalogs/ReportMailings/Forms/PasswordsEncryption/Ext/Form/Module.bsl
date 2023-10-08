@@ -14,7 +14,7 @@ Var IsPasswordsCertificatesChanged;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -113,7 +113,7 @@ EndProcedure
 
 #EndRegion
 
-#Region RecipientsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersRecipients
 
 &AtClient
 Procedure RecipientsBeforeAddRow(Item, Cancel, Copy, Parent, IsFolder, Parameter)
@@ -183,7 +183,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure PopulateCertificates(Command)
@@ -472,153 +472,23 @@ EndProcedure
 &AtServer
 Procedure PopulateDistributionRecipientsWithEmailAddress(TableOfRecipients)
 	
-	RecipientsMetadata = Common.MetadataObjectByID(MetadataObjectID, False);
-	RecipientsType = MetadataObjectID.MetadataObjectKey.Get();
-		
-	Query = New Query;
+	RecipientsParameters = ReportMailingClientServer.RecipientsParameters();
+	RecipientsParameters.Ref = Ref;
+	RecipientsParameters.Recipients = TableOfRecipients;
+	RecipientsParameters.Author = Undefined;
+	RecipientsParameters.Personal = False;
+	RecipientsParameters.MailingRecipientType = MetadataObjectID;
+	RecipientsParameters.RecipientsEmailAddressKind = RecipientsEmailAddressKind;
 	
-	If RecipientsType = Type("CatalogRef.Users") Then
-	
-		QueryText =
-		"SELECT
-		|	TableOfRecipients.Recipient,
-		|	TableOfRecipients.Excluded
-		|INTO TableOfRecipients
-		|FROM
-		|	&TableOfRecipients AS TableOfRecipients
-		|;
-		|
-		|////////////////////////////////////////////////////////////////////////////////
-		|SELECT ALLOWED DISTINCT
-		|	User.Ref AS Recipient,
-		|	MAX(TableOfRecipients.Excluded) AS Excluded,
-		|	Users.Description
-		|INTO Recipients
-		|FROM
-		|	TableOfRecipients AS TableOfRecipients
-		|		LEFT JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
-		|		ON UserGroupCompositions.UsersGroup = TableOfRecipients.Recipient
-		|		LEFT JOIN Catalog.Users AS Users
-		|		ON Users.Ref = UserGroupCompositions.User
-		|WHERE
-		|	NOT Users.DeletionMark
-		|	AND NOT Users.Invalid
-		|	AND NOT Users.IsInternal
-		|GROUP BY
-		|	User.Ref,
-		|	Users.Description
-		|;
-		|
-		|////////////////////////////////////////////////////////////////////////////////
-		|SELECT ALLOWED DISTINCT
-		|	Recipients.Recipient AS Recipient,
-		|	Contacts.Presentation AS EMail,
-		|	Recipients.Description AS Description
-		|FROM
-		|	Recipients AS Recipients
-		|		LEFT JOIN Catalog.Users.ContactInformation AS Contacts
-		|		ON Contacts.Ref = Recipients.Recipient
-		|		AND Contacts.Kind = &RecipientsEmailAddressKind
-		|WHERE
-		|	NOT Recipients.Excluded
-		|
-		|ORDER BY
-		|	Description
-		|TOTALS
-		|	MAX(Description) AS Description
-		|BY
-		|	Recipient";
-		
-	Else
-		
-		QueryText =
-		"SELECT
-		|	TableOfRecipients.Recipient,
-		|	TableOfRecipients.Excluded
-		|INTO TableOfRecipients
-		|FROM
-		|	&TableOfRecipients AS TableOfRecipients
-		|;
-		|
-		|////////////////////////////////////////////////////////////////////////////////
-		|SELECT ALLOWED DISTINCT
-		|	Recipients.Ref AS Recipient,
-		|	Contacts.Presentation AS EMail,
-		|	Recipients.Description AS Description
-		|FROM
-		|	Catalog.Users AS Recipients
-		|		LEFT JOIN Catalog.Users.ContactInformation AS Contacts
-		|		ON Contacts.Ref = Recipients.Ref
-		|		AND Contacts.Kind = &RecipientsEmailAddressKind
-		|WHERE
-		|	Recipients.Ref IN HIERARCHY
-		|		(SELECT
-		|			Recipient
-		|		FROM
-		|			TableOfRecipients
-		|		WHERE
-		|			NOT Excluded)
-		|	AND NOT Recipients.Ref IN HIERARCHY
-		|		(SELECT
-		|			Recipient
-		|		FROM
-		|			TableOfRecipients
-		|		WHERE
-		|			Excluded)
-		|	AND NOT Recipients.DeletionMark
-		|	AND &ThisIsNotGroup
-		|
-		|ORDER BY
-		|	Description
-		|TOTALS
-		|	MAX(Description) AS Description
-		|BY
-		|	Recipient";
-		
-		If Not RecipientsMetadata.Hierarchical Then
-			// 
-			QueryText = StrReplace(QueryText, "IN HIERARCHY", "In");
-			QueryText = StrReplace(QueryText, "AND &ThisIsNotGroup", "");
-		ElsIf RecipientsMetadata.HierarchyType = Metadata.ObjectProperties.HierarchyType.HierarchyOfItems Then
-			// 
-			QueryText = StrReplace(QueryText, "AND &ThisIsNotGroup", "");
-		Else
-			// 
-			QueryText = StrReplace(QueryText, "AND &ThisIsNotGroup", "AND NOT Recipients.IsFolder");
-		EndIf;
-		
-		QueryText = StrReplace(QueryText, "Catalog.Users", RecipientsMetadata.FullName());
-		
-	EndIf;
-		
-	Query.SetParameter("TableOfRecipients", TableOfRecipients);
-	If ValueIsFilled(RecipientsEmailAddressKind) Then
-		Query.SetParameter("RecipientsEmailAddressKind", RecipientsEmailAddressKind);
-	Else
-		QueryText = StrReplace(QueryText, ".Kind = &RecipientsEmailAddressKind", ".Type = &MailAddressType");
-		Query.SetParameter("MailAddressType", Enums.ContactInformationTypes.Email);
-	EndIf;
-	Query.Text = QueryText;
-	
-	Try
-		QueryResult = Query.Execute();		
-		SampleRecipients = QueryResult.Select(QueryResultIteration.ByGroups);
-	Except
-		Return;
-	EndTry;
+	MailingListOfRecipients = ReportMailing.GenerateMailingRecipientsList(RecipientsParameters, Undefined);
 	
 	ArrayOfRecipients_ = New Array;
-	While SampleRecipients.Next() Do
-		Selection = SampleRecipients.Select();
+	For Each Recipient In MailingListOfRecipients Do
 		RowRecipients = Recipients.Add();
-		RowRecipients.Recipient = SampleRecipients.Recipient;
-		ArrayOfRecipients_.Add(RowRecipients.Recipient);
-		While Selection.Next() Do
-			CurrentAddress = ?(IsBlankString(RowRecipients.Email), "",
-				RowRecipients.Email + "; ");
-			RowRecipients.Email = CurrentAddress + Selection.EMail;
-		EndDo;
-	EndDo;	
+		RowRecipients.Recipient = Recipient.Key;
+		ArrayOfRecipients_.Add(Recipient.Key);
+		RowRecipients.Email = Recipient.Value;
+	EndDo;
 	
 	PopulateArchivePasswordsAndEncryptionCertificates(ArrayOfRecipients_);
 	

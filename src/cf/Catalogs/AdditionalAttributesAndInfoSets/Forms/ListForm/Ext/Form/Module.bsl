@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -117,7 +117,7 @@ EndProcedure
 
 #EndRegion
 
-#Region PropertiesSetsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersPropertiesSets
 
 &AtClient
 Procedure PropertiesSetsOnActivateRow(Item)
@@ -212,7 +212,7 @@ EndProcedure
 
 #EndRegion
 
-#Region PropertiesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersProperties
 
 &AtClient
 Procedure PropertiesOnActivateRow(Item)
@@ -302,7 +302,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure Create(Command = Undefined)

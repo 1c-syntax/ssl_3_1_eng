@@ -94,7 +94,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.SignedEncryptedStatuses</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.DefaultWorkingDirectory</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.EditFile</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">CommonTemplate.TwainComponent</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonTemplate.TwainComponent_3_1_0_1013</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.CreateInitialImageWithFiles</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.FilesInVolume</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.FilesToEdit</xr:Item>

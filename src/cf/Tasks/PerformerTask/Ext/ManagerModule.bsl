@@ -120,7 +120,7 @@ EndFunction
 
 #EndRegion
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure FormGetProcessing(FormType, Parameters, SelectedForm, AdditionalInformation, StandardProcessing)
 	
@@ -141,7 +141,7 @@ EndProcedure
 
 #EndIf
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure PresentationFieldsGetProcessing(Fields, StandardProcessing)
 	

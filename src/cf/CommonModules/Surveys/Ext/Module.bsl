@@ -638,13 +638,17 @@ Procedure AddAttributesForQuestion(TreeRow, AttributesToBeAdded, Form)
 
 		ElsIf TreeRow.ReplyType = Enums.TypesOfAnswersToQuestion.OneVariantOf Then
 
-			OptionsOfAnswersToQuestion = OptionsOfAnswersToQuestion(TreeRow.ElementaryQuestion, Form);
-			Counter = 0;
-			For Each AnswerOption In OptionsOfAnswersToQuestion Do
-				Counter = Counter + 1;
-				AttributesToBeAdded.Add(New FormAttribute(QuestionName + "_Attribute_" + Counter,
-					TreeRow.ValueType, , TreeRow.Wording));
-			EndDo;
+			If TreeRow.RadioButtonType = Enums.RadioButtonTypesInQuestionnaires.RadioButton Then
+				OptionsOfAnswersToQuestion = OptionsOfAnswersToQuestion(TreeRow.ElementaryQuestion, Form);
+				Counter = 0;
+				For Each AnswerOption In OptionsOfAnswersToQuestion Do
+					Counter = Counter + 1;
+					AttributesToBeAdded.Add(New FormAttribute(QuestionName + "_Attribute_" + Counter,
+						TreeRow.ValueType, , TreeRow.Wording));
+					EndDo;
+			Else
+				AttributesToBeAdded.Add(New FormAttribute(QuestionName,TreeRow.ValueType,,TreeRow.Wording))
+			EndIf;
 
 		ElsIf TreeRow.ReplyType = Enums.TypesOfAnswersToQuestion.MultipleOptionsFor Then
 			OptionsOfAnswersToQuestion = OptionsOfAnswersToQuestion(TreeRow.ElementaryQuestion, Form);
@@ -1102,64 +1106,84 @@ Procedure AddQuestionItems(TableRow, GroupItem1, Form)
 		ElsIf TableRow.ReplyType = Enums.TypesOfAnswersToQuestion.OneVariantOf Then
 
 			OptionsOfAnswersToQuestion = OptionsOfAnswersToQuestion(TableRow.ElementaryQuestion, Form);
-			Counter = 0;
+			If TableRow.RadioButtonType = Enums.RadioButtonTypesInQuestionnaires.RadioButton Then
+				AnswersOptionsGroupItem = Form.Items.Add(QuestionName + "GroupOptions", Type("FormGroup"),
+					QuestionGroupItemComment);
+				AnswersOptionsGroupItem.Type                 = FormGroupType.UsualGroup;
+				AnswersOptionsGroupItem.Representation         = UsualGroupRepresentation.None;
+				AnswersOptionsGroupItem.Group         = ChildFormItemsGroup.AlwaysHorizontal;
+				AnswersOptionsGroupItem.ShowTitle = False;
 
-			AnswersOptionsGroupItem = Form.Items.Add(QuestionName + "GroupOptions", Type("FormGroup"),
-				QuestionGroupItemComment);
-			AnswersOptionsGroupItem.Type                 = FormGroupType.UsualGroup;
-			AnswersOptionsGroupItem.Representation         = UsualGroupRepresentation.None;
-			AnswersOptionsGroupItem.Group         = ChildFormItemsGroup.AlwaysHorizontal;
-			AnswersOptionsGroupItem.ShowTitle = False;
+				ItemQuestionsGroup = Form.Items.Add(QuestionName + "_QuestionsGroup", Type("FormGroup"),
+					AnswersOptionsGroupItem);
+				ItemQuestionsGroup.Type = FormGroupType.UsualGroup;
+				ItemQuestionsGroup.Representation = UsualGroupRepresentation.None;
+				ItemQuestionsGroup.Group = ChildFormItemsGroup.Vertical;
+				ItemQuestionsGroup.ShowTitle = False;
+				
+				Counter = 0;
+				For Each AnswerOption In OptionsOfAnswersToQuestion Do
 
-			ItemQuestionsGroup = Form.Items.Add(QuestionName + "_QuestionsGroup", Type("FormGroup"),
-				AnswersOptionsGroupItem);
-			ItemQuestionsGroup.Type = FormGroupType.UsualGroup;
-			ItemQuestionsGroup.Representation = UsualGroupRepresentation.None;
-			ItemQuestionsGroup.Group = ChildFormItemsGroup.Vertical;
-			ItemQuestionsGroup.ShowTitle = False;
+					Counter = Counter + 1;
 
-			For Each AnswerOption In OptionsOfAnswersToQuestion Do
+					AnswerOptionGroupItem = Form.Items.Add(QuestionName + "GroupResponseOption" + XMLString(
+						Counter), Type("FormGroup"), ItemQuestionsGroup);
 
-				Counter = Counter + 1;
+					AnswerOptionGroupItem.Type                        = FormGroupType.UsualGroup;
+					AnswerOptionGroupItem.Representation                = UsualGroupRepresentation.None;
+					AnswerOptionGroupItem.Group                = ChildFormItemsGroup.AlwaysHorizontal;
+					AnswerOptionGroupItem.ShowTitle        = False;
+					AnswerOptionGroupItem.HorizontalStretch   = True;
 
-				AnswerOptionGroupItem = Form.Items.Add(QuestionName + "GroupResponseOption" + XMLString(
-					Counter), Type("FormGroup"), ItemQuestionsGroup);
+					QuestionAttributeName1 = QuestionName + "_Attribute_" + Counter;
+					Item = Form.Items.Add(QuestionAttributeName1, Type("FormField"), AnswerOptionGroupItem);
+					Item.Type                     = FormFieldType.RadioButtonField;
+					Item.TitleLocation      = FormItemTitleLocation.None;
+					Item.DataPath             = QuestionAttributeName1;
+					Item.ColumnsCount       = 1;
+					Item.ItemHeight          = 1;
+					Item.HorizontalAlign = ItemHorizontalLocation.Left;
+					Item.RadioButtonType = RadioButtonType.RadioButton;
+					Item.ColumnsCount = 1;
+					Item.ToolTip          = AnswerOption.ToolTip;
 
-				AnswerOptionGroupItem.Type                        = FormGroupType.UsualGroup;
-				AnswerOptionGroupItem.Representation                = UsualGroupRepresentation.None;
-				AnswerOptionGroupItem.Group                = ChildFormItemsGroup.AlwaysHorizontal;
-				AnswerOptionGroupItem.ShowTitle        = False;
-				AnswerOptionGroupItem.HorizontalStretch   = True;
+					ItemSelectionList = Item.ChoiceList;
+					ItemSelectionList.Add(AnswerOption.Response, AnswerOption.Presentation);
 
-				QuestionAttributeName1 = QuestionName + "_Attribute_" + Counter;
-				Item = Form.Items.Add(QuestionAttributeName1, Type("FormField"), AnswerOptionGroupItem);
+				EndDo;
+
+				ItemGroupTooltip = Form.Items.Add(QuestionName + "_TooltipGroup", Type("FormGroup"),
+					AnswersOptionsGroupItem);
+				ItemGroupTooltip.Type = FormGroupType.UsualGroup;
+				ItemGroupTooltip.Representation = UsualGroupRepresentation.None;
+				ItemGroupTooltip.Group = ChildFormItemsGroup.Vertical;
+				ItemGroupTooltip.ShowTitle = False;
+
+				ItemDrilldown = Form.Items.Add(
+					QuestionName + "_TooltipBreakdown", Type("FormDecoration"), ItemGroupTooltip);
+				ItemDrilldown.AutoMaxWidth = False;
+				ItemDrilldown.HorizontalStretch = True;
+				ItemDrilldown.TextColor = StyleColors.NoteText;
+			
+			Else
+			
+				Item = Form.Items.Add(QuestionName,Type("FormField"),QuestionGroupItemComment);
 				Item.Type                     = FormFieldType.RadioButtonField;
 				Item.TitleLocation      = FormItemTitleLocation.None;
-				Item.DataPath             = QuestionAttributeName1;
+				Item.DataPath             = QuestionName;
 				Item.ColumnsCount       = 1;
 				Item.ItemHeight          = 1;
 				Item.HorizontalAlign = ItemHorizontalLocation.Left;
-				Item.RadioButtonType = RadioButtonType.RadioButton;
-				Item.ColumnsCount = 1;
-				Item.ToolTip          = AnswerOption.ToolTip;
-
-				ItemSelectionList = Item.ChoiceList;
-				ItemSelectionList.Add(AnswerOption.Response, AnswerOption.Presentation);
-
-			EndDo;
-
-			ItemGroupTooltip = Form.Items.Add(QuestionName + "_TooltipGroup", Type("FormGroup"),
-				AnswersOptionsGroupItem);
-			ItemGroupTooltip.Type = FormGroupType.UsualGroup;
-			ItemGroupTooltip.Representation = UsualGroupRepresentation.None;
-			ItemGroupTooltip.Group = ChildFormItemsGroup.Vertical;
-			ItemGroupTooltip.ShowTitle = False;
-
-			ItemDrilldown = Form.Items.Add(
-				QuestionName + "_TooltipBreakdown", Type("FormDecoration"), ItemGroupTooltip);
-			ItemDrilldown.AutoMaxWidth = False;
-			ItemDrilldown.HorizontalStretch = True;
-			ItemDrilldown.TextColor = StyleColors.NoteText;
+				Item.RadioButtonType = RadioButtonType.Tumbler;
+				Item.ColumnsCount = 0;
+				Item.EqualColumnsWidth = False;
+				
+				For Each AnswerOption In OptionsOfAnswersToQuestion Do
+					ItemSelectionList = Item.ChoiceList;
+					ItemSelectionList.Add(AnswerOption.Response,AnswerOption.Presentation);
+				EndDo;
+			
+			EndIf;
 
 		ElsIf TableRow.ReplyType = Enums.TypesOfAnswersToQuestion.MultipleOptionsFor Then
 

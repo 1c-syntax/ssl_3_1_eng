@@ -2744,7 +2744,7 @@ Function UpdateTheProfileOrProfileFolder(ProfileProperties, Trash = Undefined, D
 		
 		If Not Catalogs.ExtensionsVersions.AllExtensionsConnected() Then
 			PreviousValues1 = Common.ObjectAttributesValues(ProfileObject.Ref, "AccessKinds, AccessValues");
-			Catalogs.AccessGroupProfiles.RestoreNonexistentViewsFromAccessValue(PreviousValues1, ProfileObject);
+			RestoreNonexistentViewsFromAccessValue(PreviousValues1, ProfileObject);
 		EndIf;
 		
 		InfobaseUpdate.WriteObject(ProfileObject);

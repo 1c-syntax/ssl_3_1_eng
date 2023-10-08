@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -322,7 +322,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FoundDuplicatesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersFoundDuplicates
 
 &AtClient
 Procedure FoundDuplicatesOnActivateRow(Item)
@@ -427,7 +427,7 @@ EndProcedure
 
 #EndRegion
 
-#Region UnprocessedDuplicatesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersUnprocessedDuplicates
 
 &AtClient
 Procedure UnprocessedDuplicatesOnActivateRow(Item)
@@ -489,7 +489,7 @@ EndProcedure
 
 #EndRegion
 
-#Region UnprocessedItemsUsageInstancesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersUnprocessedItemsUsageInstances
 
 &AtClient
 Procedure UnprocessedItemsUsageInstancesOnActivateRow(Item)
@@ -513,7 +513,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ProbableDuplicateUsageInstancesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersProbableDuplicateUsageInstances
 
 &AtClient
 Procedure ProbableDuplicateUsageInstancesSelection(Item, RowSelected, Field, StandardProcessing)
@@ -525,7 +525,7 @@ EndProcedure
 
 #EndRegion
 
-#Region PossibleDuplicatesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersPossibleDuplicates
 
 &AtClient
 Procedure DisplayedRelationshipOnChange(Item)
@@ -580,7 +580,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure WizardButtonHandler(Command)

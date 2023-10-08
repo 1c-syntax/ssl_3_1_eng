@@ -73,6 +73,8 @@ EndFunction
 //
 Function AuthenticateCurrentUser(OnStart = False, RegisterInLog = False) Export
 	
+	StateBeforeAuthorizeCurrentUserCall(, True);
+	
 	If Not OnStart Then
 		RefreshReusableValues();
 	EndIf;
@@ -188,6 +190,38 @@ Function AuthenticateCurrentUser(OnStart = False, RegisterInLog = False) Export
 		Comment);
 	
 	Return SessionParametersSettingResult(RegisterInLog);
+	
+EndFunction
+
+// Parameters:
+//  CheckAdministratorRolesAreAvailable - Boolean -
+//    
+//  Disconnect - Boolean -
+// 
+// Returns:
+//  Boolean
+//
+Function StateBeforeAuthorizeCurrentUserCall(CheckAdministratorRolesAreAvailable = False,
+			Disconnect = False) Export
+	
+	ParameterName = "StateBeforeAuthorizeCurrentUserCall";
+	
+	SetPrivilegedMode(True);
+	
+	If SessionParameters.ClientParametersAtServer.Get(ParameterName) <> True Then
+		Return False;
+	EndIf;
+	
+	If Not Disconnect Then
+		Return Not CheckAdministratorRolesAreAvailable
+			Or AdministratorRolesAvailable();
+	EndIf;
+	
+	CurrentParameters = New Map(SessionParameters.ClientParametersAtServer);
+	CurrentParameters.Delete("StateBeforeAuthorizeCurrentUserCall");
+	SessionParameters.ClientParametersAtServer = New FixedMap(CurrentParameters);
+	
+	Return False;
 	
 EndFunction
 
@@ -5911,7 +5945,7 @@ Function FindCurrentUserInCatalog()
 	If Selection.Next() Then
 		
 		If Not ExternalUsers.UseExternalUsers() Then
-			Return NStr("en = 'External users are disabled.';");
+			Raise NStr("en = 'External users are disabled.';");
 		EndIf;
 		
 		Result.CurrentUser        = Catalogs.Users.EmptyRef();

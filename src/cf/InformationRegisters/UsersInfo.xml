@@ -1041,7 +1041,7 @@ username and password</v8:content>
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>Prevent limited-access user from changing
-their password, even during sign-in
+their password, even during sign-in.
 </v8:content>
 						</v8:item>
 					</ToolTip>
@@ -1086,7 +1086,7 @@ their password, even during sign-in
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Disable password recovery for this user</v8:content>
+							<v8:content>Disable password recovery for this user.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

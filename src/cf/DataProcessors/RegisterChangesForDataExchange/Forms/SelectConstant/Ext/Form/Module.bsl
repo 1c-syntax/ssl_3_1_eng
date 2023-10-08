@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 //
 
 &AtServer
@@ -41,7 +41,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ConstantsListFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersConstantsList
 //
 
 &AtClient
@@ -53,7 +53,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 //
 
 // Selects a constant

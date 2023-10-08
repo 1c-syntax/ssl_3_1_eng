@@ -20,7 +20,7 @@ Var Attachable_Module;
 
 #EndRegion
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -127,7 +127,7 @@ EndProcedure
 
 #EndRegion
 
-#Region TableOfFilesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersTableOfFiles
 
 &AtClient
 Procedure FilesTable1OnActivateRow(Item)
@@ -175,7 +175,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 // The "Rescan" button replaces the selected picture (or the only picture if there are no more pictures) 
 //  , (or adds new pictures to the end if nothing is selected) with a new image (images).
@@ -427,9 +427,6 @@ Procedure PrepareForScanningAfterInitialization(InitializationCheckResult, Openi
 		Return;
 	EndIf;
 	Attachable_Module = InitializationCheckResult.Attachable_Module;
-	If Not Attachable_Module.IsDevicePresent() Then
-		Return;
-	EndIf;
 	
 	OpeningParameters.CurrentStep = 2;
 	

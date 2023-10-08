@@ -215,7 +215,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Check date</v8:content>
+							<v8:content>Date verified</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -299,7 +299,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Revocation list address</v8:content>
+							<v8:content>CRL address</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>

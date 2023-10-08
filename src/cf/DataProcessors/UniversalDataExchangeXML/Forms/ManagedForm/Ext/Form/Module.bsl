@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -423,7 +423,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ExportRulesTableFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersExportRulesTable
 
 &AtClient
 Procedure ExportRulesTableBeforeRowChange(Item, Cancel)
@@ -458,7 +458,7 @@ EndProcedure
 
 #EndRegion
 
-#Region DataToDeleteFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersDataToDelete
 
 &AtClient
 Procedure DataToDeleteOnChange(Item)
@@ -472,7 +472,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure ConnectionTest(Command)

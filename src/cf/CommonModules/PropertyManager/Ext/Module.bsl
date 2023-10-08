@@ -1165,8 +1165,15 @@ Procedure FillAdditionalAttributesInForm(Form, Object = Undefined, LabelsFields 
 			EndIf;
 		EndIf;
 		
+		TheseArePropertyValues = PropertyDetails.ValueType.Types().Count() = 1
+			And PropertyDetails.ValueType.ContainsType(Type("CatalogRef.ObjectsPropertiesValues"));
+		
 		If Not LabelsFields And Item.Type = FormFieldType.InputField Then
-			Item.ChoiceFoldersAndItems = FoldersAndItems.FoldersAndItems;
+			If TheseArePropertyValues Then
+				Item.ChoiceFoldersAndItems = FoldersAndItems.Items;
+			Else
+				Item.ChoiceFoldersAndItems = FoldersAndItems.FoldersAndItems;
+			EndIf;
 		EndIf;
 		
 		If Not LabelsFields And PropertyDetails.AdditionalValue And Item.Type = FormFieldType.InputField Then
@@ -2002,15 +2009,22 @@ Function PropertiesByAdditionalAttributesKind(Properties, PropertyKind) Export
 	ObjectsPropertiesKinds = Common.ObjectsAttributesValues(ListOfProperties, "PropertyKind");
 	If PropertyKind = Enums.PropertiesKinds.AdditionalAttributes Then
 		For Each Property In ListOfProperties Do
-			ObjectPropertiesKind = ObjectsPropertiesKinds.Get(Property).PropertyKind;
-			If Not ValueIsFilled(ObjectPropertiesKind) Or ObjectPropertiesKind = PropertyKind Then
+			ObjectPropertiesKind = ObjectsPropertiesKinds.Get(Property);
+			If Not ValueIsFilled(ObjectPropertiesKind) Then
+				Continue;
+			EndIf;
+			If Not ValueIsFilled(ObjectPropertiesKind.PropertyKind)
+				Or ObjectPropertiesKind.PropertyKind = PropertyKind Then
 				PropertiesByKind.Add(Property);
 			EndIf;
 		EndDo;
 	ElsIf PropertyKind = Enums.PropertiesKinds.Labels Then
 		For Each Property In ListOfProperties Do
-			ObjectPropertiesKind = ObjectsPropertiesKinds.Get(Property).PropertyKind;
-			If ObjectPropertiesKind = PropertyKind Then
+			ObjectPropertiesKind = ObjectsPropertiesKinds.Get(Property);
+			If Not ValueIsFilled(ObjectPropertiesKind) Then
+				Continue;
+			EndIf;
+			If ObjectPropertiesKind.PropertyKind = PropertyKind Then
 				PropertiesByKind.Add(Property);
 			EndIf;
 		EndDo;

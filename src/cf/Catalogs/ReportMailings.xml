@@ -2277,7 +2277,7 @@ If the check box is cleared, the reports will be attached to emails.</v8:content
 					</Attribute>
 					<Attribute uuid="ab6d8fdd-7788-474d-9645-53008d7fa603">
 						<Properties>
-							<Name>DescriptionTemplate1</Name>
+							<Name>DescriptionTemplate</Name>
 							<Synonym>
 								<v8:item>
 									<v8:lang>en</v8:lang>

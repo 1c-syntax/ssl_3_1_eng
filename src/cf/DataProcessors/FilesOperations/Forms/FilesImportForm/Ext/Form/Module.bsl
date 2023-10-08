@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -47,7 +47,7 @@ EndProcedure
 
 #EndRegion
 
-#Region SelectedFilesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersSelectedFiles
 
 &AtClient
 Procedure SelectedFilesBeforeAddRow(Item, Cancel, Copy)
@@ -56,7 +56,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure AddExecute()

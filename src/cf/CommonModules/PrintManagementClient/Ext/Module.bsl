@@ -43,7 +43,7 @@ Procedure ExecutePrintCommand(PrintManagerName, TemplatesNames, ObjectsArray, Fo
 	TimeConsumingOperation = PrintManagementServerCall.StartGeneratingPrintForms(OpeningParameters);
 	OpeningParameters.FormOwner = FormOwner;
 	
-	CompletionNotification2 = New NotifyDescription("ExecutePrintCommandAfterFormationOfPrintedForms", ThisObject, OpeningParameters);
+	CompletionNotification2 = New NotifyDescription("OpenPrintDocumentsForm", PrintManagementInternalClient, OpeningParameters);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, PrintManagementInternalClient.IdleParameters(FormOwner));	
 EndProcedure
 
@@ -1084,42 +1084,5 @@ Procedure WhenCheckingTheExistenceOfAFile(Exists, PreparationParameters) Export
 	PrepareFileNamesToSaveToADirectory(PreparationParameters);
 	
 EndProcedure
-
-Procedure ExecutePrintCommandAfterFormationOfPrintedForms(BackgroundOperationResult, OpeningParameters) Export
-	If BackgroundOperationResult <> Undefined Then
-		If BackgroundOperationResult.Status = "Error" Then
-			Raise BackgroundOperationResult.BriefErrorDescription;
-		EndIf;
-		ResultStructure1 = GetFromTempStorage(BackgroundOperationResult.ResultAddress);
-		
-		OpeningParameters.Insert("PrintObjects", ResultStructure1.PrintObjects);
-		OpeningParameters.Insert("OutputParameters", ResultStructure1.OutputParameters);
-		OpeningParameters.Insert("PrintParameters", ResultStructure1.PrintParameters); 
-		
-		PrintFormsCollection	 = ResultStructure1.PrintFormsCollection;
-		OfficeDocuments		 = ResultStructure1.OfficeDocuments;
-		For Each PrintForm In PrintFormsCollection Do
-			OfficeDocsNewAddresses = New Map();
-			If ValueIsFilled(PrintForm.OfficeDocuments) Then
-				For Each OfficeDocument In PrintForm.OfficeDocuments Do
-					OfficeDocsNewAddresses.Insert(PutToTempStorage(OfficeDocuments[OfficeDocument.Key], OpeningParameters.StorageUUID), OfficeDocument.Value);
-				EndDo;
-				PrintForm.OfficeDocuments = OfficeDocsNewAddresses;
-			EndIf;
-		EndDo;
-		
-		OpeningParameters.Insert("PrintFormsCollection", PrintFormsCollection);
-		
-		JobMessages = New Array(BackgroundOperationResult.Messages);
-		CommonClientServer.SupplementArray(JobMessages, ResultStructure1.Messages);
-		OpeningParameters.Insert("Messages", JobMessages);
-		
-		FormOwner = OpeningParameters.FormOwner;
-		OpeningParameters.Delete("FormOwner");
-		
-		OpenForm("CommonForm.PrintDocuments", OpeningParameters, FormOwner, String(New UUID));
-	EndIf;
-EndProcedure
-
 
 #EndRegion

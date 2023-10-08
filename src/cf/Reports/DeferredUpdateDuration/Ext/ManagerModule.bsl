@@ -30,7 +30,7 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	OptionSettings.SearchSettings.Keywords = NStr("en = 'Deferred update duration';");
 EndProcedure
 
-// 
+// End StandardSubsystems.ReportsOptions
 
 #EndRegion
 

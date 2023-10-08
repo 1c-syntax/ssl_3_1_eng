@@ -74,7 +74,7 @@ EndFunction
 //    * CertificatesFilter    - Array - (optional) - contains references to the catalog items.
 //                           DigitalSignatureAndEncryptionCertificates that can be selected
 //                           by the user. The filter locks the ability to select other certificates
-//                           from the personal storage.
+//                           from the Personal store.
 //                           - Structure:
 //                             * Organization - DefinedType.Organization - contains a reference to the company,
 //                                 by which the filter will be set in the list of user certificates.
@@ -482,7 +482,8 @@ EndProcedure
 //  Structure:
 //   * ShowCryptoManagerCreationError - Boolean - 
 //              
-//   * ResultAsStructure - See DigitalSignatureClientServer.SignatureVerificationResult
+//   * ResultAsStructure - Boolean -
+//      See DigitalSignatureClientServer.SignatureVerificationResult
 //
 Function SignatureVerificationParameters() Export
 	
@@ -652,7 +653,7 @@ EndProcedure
 //    * CertificatesFilter    - Array - (optional) - contains references to the catalog items.
 //                           DigitalSignatureAndEncryptionCertificates that can be selected
 //                           by the user. The filter locks the ability to select other certificates
-//                           from the personal storage.
+//                           from the Personal store.
 //    * NoConfirmation     - Boolean - (Optional)
 //                           - Skip user confirmation if CertificatesFilter property has one certificate and:
 //                           a) Either the certificate has the flag "Protect digital signature application with password",
@@ -1612,7 +1613,7 @@ EndProcedure
 // If the CreateApplication parameter is True and the FromPersonalStorage parameter is False, opens a new application
 // for certificate issue.
 // If the CreateApplication parameter is False and the FromPersonalStorage parameter is True, adds a certificate
-// from the personal storage.
+// from the Personal store.
 // If the CreateApplication parameter is True and the FromPersonalStorage parameter is True, opens a window for
 // choosing certificate addition method.
 // For usage in DigitalSignatureClient.AddCertificate
@@ -1632,7 +1633,7 @@ EndProcedure
 //                           to create a new application for certificate issue.
 //                           The default value is True.
 //      * FromPersonalStorage - Boolean - if the parameter takes the True value, adds the ability to
-//                           select a certificate from the installed certificates in the personal storage.
+//                           select a certificate from the installed certificates in the Personal store.
 //                           The default value is True.
 //      * Individual     - CatalogRef - the individual for whom you need to create an application
 //                           for certificate issue (when it is filled in, it has priority over the company).
@@ -1669,7 +1670,7 @@ EndFunction
 //                       - See DigitalSignatureClient.CertificateAddingOptions
 //
 // Example:
-//  1) Adding a certificate from installed in the personal storage:
+//  1) Adding a certificate from installed in the Personal store:
 //  AddingOptions = DigitalSignatureClient.CertificateAddingOptions();
 //  AddingOptions.CreateApplication = False;
 //  DigitalSignatureClient.AddCertificate(, AddingOptions);
@@ -1765,7 +1766,7 @@ EndProcedure
 //     = String                 - a text of the crypto manager creation error (or other error).
 //
 //   Thumbprint              - String - a Base64 coded certificate thumbprint.
-//   InPersonalStorageOnly - Boolean - if True, search in the personal storage, otherwise, search everywhere.
+//   InPersonalStorageOnly - Boolean - if True, search in the Personal store, otherwise, search everywhere.
 //   ShowError         - Boolean - if False, hide the error text to be returned.
 //
 Procedure GetCertificateByThumbprint(Notification, Thumbprint, InPersonalStorageOnly, ShowError = True) Export
@@ -1797,7 +1798,7 @@ Procedure GetCertificatesThumbprints(Notification, OnlyPersonal, ShowError = Tru
 	
 EndProcedure
 
-//  The procedure checks whether the certificate is in the personal storage, its expiration date whether the current user
+//  The procedure checks whether the certificate is in the Personal store, its expiration date whether the current user
 //  is specified in the certificate or no one is specified, and also that the application for working with the certificate is filled.
 //
 //  Parameters:
@@ -1979,7 +1980,7 @@ Function CertificatePasswordIsSet(CertificateReference) Export
 EndFunction
 
 // Overrides the usual certificate choice from the catalog to certificate selection
-// from the personal storage with password confirmation and automatic addition to the catalog
+// from the Personal store with password confirmation and automatic addition to the catalog
 // if there is no certificate in the catalog yet.
 //
 // Parameters:
@@ -2116,7 +2117,7 @@ Procedure OpenSignature(CurrentData) Export
 		"SignatureDate, Comment, CertificateOwner, Thumbprint,
 		|SignatureAddress, SignatureSetBy, CertificateAddress,
 		|Status, ErrorDescription, SignatureCorrect, SignatureValidationDate, SignatureType, DateActionLastTimestamp,
-		|Object, SequenceNumber, IsVerificationRequired");
+		|Object, SequenceNumber, IsVerificationRequired, MachineReadableAuthorizationLetter, MachineReadableAuthorizationLetterIsCorrect, ResultOfSignatureVerificationByMCHD");
 	
 	FillPropertyValues(SignatureProperties, CurrentData);
 	

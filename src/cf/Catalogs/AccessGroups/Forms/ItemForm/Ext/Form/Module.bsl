@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -507,7 +507,7 @@ EndProcedure
 
 #EndRegion
 
-#Region UsersFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersUsers
 
 &AtClient
 Procedure UsersOnChange(Item)
@@ -736,7 +736,7 @@ EndProcedure
 
 #EndRegion
 
-#Region AccessKindsFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersAccessKinds
 
 &AtClient
 Procedure AccessKindsSelection(Item, RowSelected, Field, StandardProcessing)
@@ -802,7 +802,7 @@ EndProcedure
 
 #EndRegion
 
-#Region AccessValuesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersAccessValues
 
 &AtClient
 Procedure AccessValuesOnChange(Item)
@@ -870,7 +870,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure WriteAndClose(Command)

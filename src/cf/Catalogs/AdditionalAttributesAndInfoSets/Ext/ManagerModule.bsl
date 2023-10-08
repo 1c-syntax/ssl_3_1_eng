@@ -37,7 +37,7 @@ EndFunction
 
 #EndIf
 
-#Region EventsHandlers
+#Region EventHandlers
 
 Procedure PresentationFieldsGetProcessing(Fields, StandardProcessing)
 	Fields.Add("PredefinedSetName");

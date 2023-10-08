@@ -76,8 +76,9 @@ Procedure CheckAddInAvailability(Notification, Context) Export
 				"CheckAddInAvailabilityAfterSearchingAddInOnPortal",
 				ThisObject, 
 				SearchContext);
-			
-			ComponentSearchOnPortal(NotificationForms, Context);
+				
+			Notification = New NotifyDescription("AddInSearchOnPortalOnGenerateResult", ThisObject, NotificationForms);
+			AddInsClientLocalization.ComponentSearchOnPortal(Notification, Context);
 			
 		Else 
 			Result.ErrorDescription = NStr("en = 'The add-in is missing from the list of allowed add-ins.';");
@@ -437,7 +438,10 @@ Function PresentationOfCurrentClient()
 #If WebClient Then
 	String = SystemInfo.UserAgentInformation;
 	
-	If StrFind(String, "Chrome/") > 0 Then
+	String = SystemInfo.UserAgentInformation;
+	If StrFind(String, "YaBrowser/") > 0 Then
+		Browser = NStr("en = 'Yandex Browser';");
+	ElsIf StrFind(String, "Chrome/") > 0 Then
 		Browser = NStr("en = 'Chrome';");
 	ElsIf StrFind(String, "MSIE") > 0 Then
 		Browser = NStr("en = 'Internet Explorer';");
@@ -949,30 +953,6 @@ EndFunction
 
 #Region ComponentSearchOnPortal
 
-// Parameters:
-//  Notification - NotifyDescription
-//  Context - Structure:
-//      * ExplanationText - String
-//      * Id - String
-//      * Version        - String
-//                      - Undefined
-//      * AutoUpdate - Boolean
-//
-Procedure ComponentSearchOnPortal(Notification, Context)
-	
-	FormParameters = New Structure;
-	FormParameters.Insert("ExplanationText", Context.ExplanationText);
-	FormParameters.Insert("Id", Context.Id);
-	FormParameters.Insert("Version", Context.Version);
-	FormParameters.Insert("AutoUpdate", Context.AutoUpdate);
-	
-	NotificationForms = New NotifyDescription("AddInSearchOnPortalOnGenerateResult", ThisObject, Notification);
-	
-	OpenForm("Catalog.AddIns.Form.SearchForComponentOn1CITSPortal", 
-		FormParameters,,,,, NotificationForms)
-	
-EndProcedure
-
 Procedure AddInSearchOnPortalOnGenerateResult(Result, Notification) Export
 	
 	Imported1 = (Result = True); // 
@@ -990,11 +970,8 @@ EndProcedure
 //
 Procedure UpdateAddInsFromPortal(Notification, AddInsToUpdate) Export
 	
-	FormParameters = New Structure;
-	FormParameters.Insert("AddInsToUpdate", AddInsToUpdate);
 	NotificationForms = New NotifyDescription("UpdateAddInFromPortalOnGenerateResult", ThisObject, Notification);
-	OpenForm("Catalog.AddIns.Form.ComponentsUpdateFrom1CITSPortal", 
-		FormParameters,,,,, NotificationForms);
+	AddInsClientLocalization.UpdateAddInsFromPortal(NotificationForms, AddInsToUpdate);
 	
 EndProcedure
 

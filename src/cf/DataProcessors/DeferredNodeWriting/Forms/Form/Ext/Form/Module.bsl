@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -38,7 +38,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure DoneCommand(Command)
@@ -70,8 +70,8 @@ EndFunction
 Function StartProcedureExecution()
 	
 	ExecutionParameters = TimeConsumingOperations.ProcedureExecutionParameters();
-	DescriptionTemplate1 = NStr("en = '""Long """"%1"""" node saving';");
-	ExecutionParameters.BackgroundJobDescription = StrTemplate(DescriptionTemplate1, String(Node));
+	DescriptionTemplate = NStr("en = '""Long """"%1"""" node saving';");
+	ExecutionParameters.BackgroundJobDescription = StrTemplate(DescriptionTemplate, String(Node));
 	ExecutionParameters.BackgroundJobKey = "DeferredNodeWriting";
 	
 	StructureNode = GetFromTempStorage(NodeStructureAddress);

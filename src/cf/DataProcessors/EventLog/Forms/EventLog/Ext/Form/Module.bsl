@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -184,7 +184,7 @@ EndProcedure
 
 #EndRegion
 
-#Region LogFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersLog
 
 &AtClient
 Procedure LogSelection(Item, RowSelected, Field, StandardProcessing)
@@ -228,7 +228,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure RefreshCurrentList()

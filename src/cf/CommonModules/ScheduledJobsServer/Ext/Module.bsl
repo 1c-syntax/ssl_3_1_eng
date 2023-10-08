@@ -121,7 +121,7 @@ Function FindJobs(Filter) Export
 				EndIf;
 			EndIf;
 			
-			Return UpdatedTaskList(ModuleJobsQueue.GetTasks(FilterCopy));
+			Return UpdatedTaskList(ModuleJobsQueue.GetJobs(FilterCopy));
 			
 		EndIf;
 	Else
@@ -242,7 +242,7 @@ Function AddJob(Parameters) Export
 			ModuleJobsQueue = Common.CommonModule("JobsQueue");
 			Job = ModuleJobsQueue.AddJob(JobParameters);
 			Filter = New Structure("Id", Job);
-			JobsList = UpdatedTaskList(ModuleJobsQueue.GetTasks(Filter));
+			JobsList = UpdatedTaskList(ModuleJobsQueue.GetJobs(Filter));
 			For Each Job In JobsList Do
 				Return Job;
 			EndDo;

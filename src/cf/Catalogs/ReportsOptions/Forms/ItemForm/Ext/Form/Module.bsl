@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -227,7 +227,7 @@ EndProcedure
 
 #EndRegion
 
-#Region OptionUsersFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersOptionUsers
 
 &AtClient
 Procedure OptionUsersOnChange(Item)
@@ -270,7 +270,7 @@ EndProcedure
 
 #EndRegion
 
-#Region SubsystemsTreeFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersSubsystemsTree
 
 &AtClient
 Procedure SubsystemsTreeUseOnChange(Item)
@@ -284,7 +284,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure PickUsers(Command)

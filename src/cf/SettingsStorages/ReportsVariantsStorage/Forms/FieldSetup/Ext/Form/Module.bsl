@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region EventHandlersForm
+#Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
@@ -164,7 +164,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ValuesFormTableItemEventHandlers
+#Region FormTableItemsEventHandlersValues
 
 &AtClient
 Procedure ValuesOnChange(Item)
@@ -195,7 +195,7 @@ EndProcedure
 
 #EndRegion
 
-#Region FormCommandHandlers
+#Region FormCommandsEventHandlers
 
 &AtClient
 Procedure ApplyISform(Command)

@@ -264,7 +264,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.ObjectsToChange  = "Catalog.WorldCountries";
 	Handler.ObjectsToLock = "Catalog.WorldCountries";
 	Handler.CheckProcedure  = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
-	Handler.Comment = NStr("en = 'Updating Countries details against the Country classifier.
+	Handler.Comment = NStr("en = 'Updates Countries details against the Country classifier.
 		|Until it is complete, some country names might not be shown correctly.';");
 
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
@@ -364,12 +364,12 @@ Function ContainsBlankJSONFields(ObjectToCheck)
 	QueryTemplate = "SELECT TOP 1
 		|	TableWithContactInformation.Ref AS Ref
 		|FROM
-		|	&FullNameOfObjectWithContactDetails AS TableWithContactInformation
+		|	&ObjectWithContactInformationFullName AS TableWithContactInformation
 		|WHERE
 		|	(CAST(TableWithContactInformation.Value AS STRING(1))) = """"
 		|	AND TableWithContactInformation.Ref = &Ref";
 	
-	QueryTextSet = StrReplace(QueryTemplate, "&FullNameOfObjectWithContactDetails",
+	QueryTextSet = StrReplace(QueryTemplate, "&ObjectWithContactInformationFullName",
 			MetadataObject.FullName() + ".ContactInformation");
 			
 	Query = New Query(QueryTextSet);
@@ -581,7 +581,7 @@ Function CorrectContactInformationKindsBatch(Val ObjectsWithIssues, Validation)
 	|	ContactInformation.Kind AS Kind
 	|FROM
 	|	ObjectsWithIssues AS ObjectsWithIssues
-	|		LEFT JOIN &FullNameOfObjectWithContactDetails AS ContactInformation
+	|		LEFT JOIN &ObjectWithContactInformationFullName AS ContactInformation
 	|		ON (ContactInformation.Kind = ObjectsWithIssues.Ref)
 	|WHERE
 	|	NOT ContactInformation.Ref IS NULL
@@ -590,7 +590,7 @@ Function CorrectContactInformationKindsBatch(Val ObjectsWithIssues, Validation)
 	|	ContactInformation.Kind";
 	
 	For Each MetadataObject In MetadataObjects Do
-		QueryTextSet.Add(StrReplace(QueryTemplate, "&FullNameOfObjectWithContactDetails", 
+		QueryTextSet.Add(StrReplace(QueryTemplate, "&ObjectWithContactInformationFullName", 
 		MetadataObject.Metadata().FullName() + ".ContactInformation"));
 	EndDo;
 	
