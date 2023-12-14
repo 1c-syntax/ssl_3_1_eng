@@ -1149,6 +1149,33 @@ WHERE User = &amp;AuthorizedUser
 		</right>
 	</object>
 	<object>
+		<name>Configuration.StandardSubsystemsLibrary</name>
+		<right>
+			<name>MainWindowModeNormal</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeEmbeddedWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeFullscreenWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeKiosk</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>AnalyticsSystemClient</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>SessionParameter.DefaultLanguage</name>
 		<right>
 			<name>Get</name>
@@ -1299,33 +1326,6 @@ WHERE Ref = &amp;CurrentExternalUser
 		</right>
 		<right>
 			<name>View</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>Configuration.StandardSubsystemsLibrary</name>
-		<right>
-			<name>MainWindowModeNormal</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeEmbeddedWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeFullscreenWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeKiosk</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>AnalyticsSystemClient</name>
 			<value>true</value>
 		</right>
 	</object>
@@ -1859,6 +1859,17 @@ WHERE Ref = VALUE(Catalog.ExternalUsersGroups.AllExternalUsers)
 		</right>
 	</object>
 	<object>
+		<name>InformationRegister.CommonSuppliedPrintTemplates</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>Constant.DeferredMasterNodeUpdateCompleted</name>
 		<right>
 			<name>Read</name>
@@ -2142,6 +2153,17 @@ WHERE Ref = VALUE(Catalog.ExternalUsersGroups.AllExternalUsers)
 	</object>
 	<object>
 		<name>Constant.InfoBaseID</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>InformationRegister.SuppliedPrintTemplates</name>
 		<right>
 			<name>Read</name>
 			<value>true</value>

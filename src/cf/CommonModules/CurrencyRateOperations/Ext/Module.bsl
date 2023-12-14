@@ -17,7 +17,7 @@
 //   Codes - Array - numeric codes for the currencies to be added.
 //
 // Returns:
-//   Array, CatalogRef.Currencies - 
+//   Array, CatalogRef.Currencies - references to the created currencies.
 //
 Function AddCurrenciesByCode(Val Codes) Export
 	
@@ -80,7 +80,7 @@ EndFunction
 //                       The default value is the configuration language.
 //
 // Returns:
-//   String - 
+//   String - the amount in words.
 //
 Function GenerateAmountInWords(AmountAsNumber, Currency, OmitFractionalPart = False, Val LanguageCode = Undefined) Export
 	
@@ -102,7 +102,7 @@ EndFunction
 //  Date           - Date - the exchange rate date.
 //
 // Returns:
-//  Number - 
+//  Number - the converted amount.
 //
 Function ConvertToCurrency(Sum, SourceCurrency, NewCurrency, Date) Export
 	
@@ -118,7 +118,7 @@ EndFunction
 //  AllowedSignOfField - AllowedSign - indicates the allowed sign of a number. Value by default - AllowedSign.Any.
 // 
 // Returns:
-//  TypeDescription - 
+//  TypeDescription - type of a value for a money field.
 //
 Function MoneyFieldTypeDescription(Val AllowedSignOfField = Undefined) Export
 	
@@ -173,8 +173,8 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	RatesUpToDate = RatesUpToDate();
 	
-	// 
-	// 
+	
+	
 	Sections = ModuleToDoListServer.SectionsForObject(MetadataObject.FullName());
 	
 	For Each Section In Sections Do
@@ -219,7 +219,7 @@ EndProcedure
 // See UsersOverridable.OnDefineRoleAssignment.
 Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	
-	// СовместноДляПользователейИВнешнихПользователей.
+	// BothForUsersAndExternalUsers.
 	RolesAssignment.BothForUsersAndExternalUsers.Add(
 		Metadata.Roles.ReadCurrencyRates.Name);
 	
@@ -277,7 +277,7 @@ EndProcedure
 // If they are not available, sets them both to one.
 //
 // Parameters:
-//  Currency - 
+//  Currency - a reference to a Currencies catalog item.
 //
 Procedure CheckCurrencyRateAvailabilityFor01011980(Currency) Export
 	
@@ -551,7 +551,7 @@ EndFunction
 //
 Function ShouldNotifyWhenExchageRatesOutdated()
 	
-	// 
+	
 	If Common.DataSeparationEnabled() Or Common.IsStandaloneWorkplace() 
 		Or Not CurrencyRateOperationsInternal.HasRightToChangeExchangeRates() Then
 		Return False;

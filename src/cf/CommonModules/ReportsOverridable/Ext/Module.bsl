@@ -9,19 +9,19 @@
 
 #Region Public
 
-// Called in the event handler of the report form after executing the form code.
-// See "ClientApplicationForm.OnCreateAtServer" in Syntax Assistant and ReportsClientOverridable.CommandHandler.
+// 
+// 
 //
 // Parameters:
-//   Form - ClientApplicationForm - report form.
+//   Form - ClientApplicationForm - Report form.
 //         - ManagedFormExtensionForReports
 //         - Structure:
 //           * ReportSettings - See ReportsClientServer.DefaultReportSettings
-//   Cancel - Boolean - indicates that the form creation is canceled.
-//   StandardProcessing - Boolean - indicates whether standard (system) event processing is executed.
+//   Cancel - Boolean - Flag indicating that the form creation is canceled.
+//   StandardProcessing - Boolean - Flag indicating whether standard (system) event processing is executed.
 //
 // Example:
-//	//Adding a command with a handler to ReportsClientOverridable.CommandHandler:
+//	Add a command with a handler to ReportsClientOverridable.CommandHandler:
 //	Command = ReportForm.Commands.Add("MySpecialCommand");
 //	Command.Action = Attachable_Command;
 //	Command.Header = NStr("en = 'My command…'");
@@ -42,7 +42,7 @@ EndProcedure
 //
 // Parameters:
 //   Form - ClientApplicationForm - Report form or a report settings form.
-//   NewDCSettings - DataCompositionSettings - settings to load into the settings composer.
+//   NewDCSettings - DataCompositionSettings - Settings to load into the Settings Composer.
 //
 Procedure BeforeLoadVariantAtServer(Form, NewDCSettings) Export
 	
@@ -50,26 +50,26 @@ Procedure BeforeLoadVariantAtServer(Form, NewDCSettings) Export
 	
 EndProcedure
 
-//  
-// 
-// 
+// Called in the report form and report settings form before displaying the setting 
+// for specifying additional choice parameters.
+// Obsolete, use the AfterLoadSettingsInLinker event of the report module instead.
 // 
 // Parameters:
 //  Form - ClientApplicationForm
 //        - ManagedFormExtensionForReports
-//        - Undefined - report form.
-//  SettingProperties - Structure - details of the report setup that will be displayed in the report form where:
+//        - Undefined - Report form.
+//  SettingProperties - Structure - Details of the report setting to be displayed in the report form, where::
 //      * DCField - DataCompositionField - Setting to be output.
 //      * TypeDescription - TypeDescription - Type of a setting to be output.
-//      * ValuesForSelection - ValueList - specify objects that will be offered to a user in the choice list.
+//      * ValuesForSelection - ValueList - Objects to be prompted to a user in the choice list.
 //                            The parameter adds items to the list of objects previously selected by a user.
-//                            However, do not assign a new value list to this parameter.
-//      * SelectionValuesQuery - Query - specify a query to select objects that are required to be added into 
-//                               ValuesForSelection. As the first column (with 0 index), select the object,
+//                            Note: Do not assign new value lists to this parameter.
+//      * SelectionValuesQuery - Query - Query to obtain objects to be added to ValuesForSelection. 
+//                               As the first column (with 0 index), select the object,
 //                               that has to be added to the ValuesForSelection.Value.
-//                               To disable autofilling, write a blank string
-//                               to the SelectionValuesQuery.Text property.
-//      * RestrictSelectionBySpecifiedValues - Boolean - specify True to restrict user selection
+//                               To disable autofilling, assign the SelectionValuesQuery.Text property
+//                               to a blank string.
+//      * RestrictSelectionBySpecifiedValues - Boolean - Pass True to restrict user selection
 //                                                with values specified in ValuesForSelection (its final state).
 //      * Type - String
 //
@@ -99,8 +99,8 @@ EndProcedure
 // "Insert field to the left", "Insert grouping below", etc.  
 //
 // Parameters:
-//   Form - ClientApplicationForm - report form.
-//   MainField - Array of String - names of frequently used report fields.
+//   Form - ClientApplicationForm - Report form.
+//   MainField - Array of String - Names of the most frequently used report fields.
 //
 Procedure WhenDefiningTheMainFields(Form, MainField) Export 
 	

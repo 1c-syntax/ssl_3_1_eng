@@ -44,7 +44,7 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 		           |IP address of the resource
 		           |Port';");
 	
-	// 
+	// Filters and parameters are not available for the report.
 	OptionSettings.SearchSettings.FilterParameterDescriptions = "#";
 	
 EndProcedure
@@ -282,8 +282,8 @@ EndProcedure
 //
 // Parameters:
 //  SpreadsheetDocument - SpreadsheetDocument - a document, in which an operation presentation will be displayed,
-//  PermissionsSets - See DataProcessors.ExternalResourcesPermissionsSetup.ТаблицыРазрешений(),
-//  Template - SpreadsheetDocument - a document received from the PermissionsPresentations report template,
+//  PermissionsSets - See DataProcessors.ExternalResourcesPermissionsSetup.ТаблицыРазрешений
+//  
 //  AsRequired - Boolean - indicates whether terms of "the following resources are required" kind are used in the presentation instead of
 //                          "the following resources will be granted."
 //
@@ -418,8 +418,8 @@ EndFunction
 //
 // Returns:
 //   Structure:
-//                         * Nominative - 
-//                         * Genitive - 
+//                         * Nominative - a module kind synonym in the nominative case.
+//                         * Genitive - a module kind synonym in the genitive case.
 //
 Function ConfigurationModuleDictionary()
 	

@@ -9,8 +9,8 @@
 
 #Region Public
 
-// 
-// 
+// Permanently deletes objects marked for deletion ensuring reference integrity.
+// It must be called outside of transactions as the function manages transactions and batching.
 //
 // Parameters:
 //  ObjectsToDelete - Array of ExchangePlanRef 
@@ -19,13 +19,13 @@
 //                   - Array of ChartOfAccountsRef
 //                   - Array of ChartOfCalculationTypesRef
 //                   - Array of BusinessProcessRef
-//                   - Array of TaskRef - objects to delete.
-//  DeletionMode - String -
-//		 
-//					    
-//		
-//					    
-//		
+//                   - Array of TaskRef - the objects for deletion.
+//  DeletionMode - String - Deletion method. Takes the following values:
+//		Standard - Deletes objects and ensures the reference integrity and multi-user work. 
+//					    Exclusive - Deletes objects and ensures the reference integrity with the exclusive mode.
+//		If it fails to set the exclusive mode, an exception is raised.
+//					    Simplified - Deletes objects ensuring the reference integrity of the objects that are not marked for deletion.
+//		Clears the references to the objects being deleted in the objects marked for deletion objects.
 //					    
 //
 // Returns:	
@@ -34,9 +34,9 @@
 //      * ObjectsPreventingDeletion - ValueTable - the objects that have references to the objects to be deleted:
 //        ** ItemToDeleteRef - AnyRef
 //        ** UsageInstance1 - AnyRef - a reference to the object that prevents deletion.
-//									  - Undefined -  
-//									  	
-//									  	
+//									  - Undefined - — the object is used in a constant or 
+//									  	an error occurred while deleting. The constant details are specified in the Metadata field.
+//									  	Error details are specified in the ErrorDescription field.
 //        ** ErrorDescription - String - error details upon the object deletion.
 //        ** DetailedErrorDetails - String - detailed error description upon the object deletion.
 //        ** Metadata - MetadataObject - metadata details on the object that prevents deletion.
@@ -55,7 +55,7 @@ EndFunction
 //   MetadataFilter - ValueList of String - the list of full metadata names where
 // 												 the marked for deletion ones will be searched for.
 // 												 For example, "Catalog._DemoProducts".
-//                   - Undefined - 
+//                   - Undefined - — filter by metadata objects will not be applied.
 //
 //  SearchForTechnologicalObjects - Boolean - if True, the search will be carried out in the metadata objects
 //											added to the reference search exceptions. 
@@ -184,7 +184,7 @@ Function MarkedObjectsDisplaySettings() Export
 EndFunction
 
 // Returns information on the setting of marked object deletion on schedule.
-// See the usage example in the documentation. 
+// See the usage example in the documentation.
 // 
 // Returns:
 //   Structure:
@@ -211,20 +211,20 @@ EndProcedure
 
 #EndRegion
 
-// 
-// 
-//  
-//   
+// Returns a list of objects being deleted and whose references are present in the Source object.
+// For records that are subordinate to a register, always returns a empty Ref list in order to:
+//  - Mitigate the performance downgrade.
+//  - Ensure the stability of the automatic record generation. For example, when closing a month. 
 //
 // Parameters:
 //   Source - CatalogObject
 //            - DocumentObject
-//            - InformationRegisterRecordSet - 
+//            - InformationRegisterRecordSet - Object to search in for the objects to be deleted.
 //
 // Returns:
 //   Map of KeyAndValue:
-//   * Key - AnyRef -
-//   * Value - String -
+//   * Key - AnyRef - Object to be deleted whose reference is present in Source.
+//   * Value - String - Reference presentation.
 //
 Function RefsToObjectsToDelete(Source) Export
 	RefsToObjectsToDelete = New Map;
@@ -266,7 +266,7 @@ EndFunction
 // Use instead MarkedObjectsDeletion.ModeDeleteOnSchedule.
 //
 // Returns: 
-//   Boolean - 
+//   Boolean - a value.
 //
 Function DeleteOnScheduleCheckBoxValue() Export
 
@@ -294,7 +294,7 @@ EndFunction
 //   Form - ClientApplicationForm
 //   ItemList - FormTable
 //   MetadataTypes - Array of String
-//                  - Undefined -  
+//                  - Undefined - — the main dynamic list table by default 
 //
 // Returns:
 //   See MarkedObjectsDisplaySettings

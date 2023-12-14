@@ -22,7 +22,7 @@ EndProcedure
 
 // Determines the list of configuration objects in whose manager modules this procedure is available 
 // AddCreateOnBasisCommands, which generates commands of creation based on objects.
-// See the help for the AddCreateOnBasisCommands procedure syntax. 
+// See the help for the AddCreateOnBasisCommands procedure syntax.
 //
 // Parameters:
 //   Objects - Array - metadata objects (MetadataObject) with commands of creation on basis.
@@ -41,9 +41,9 @@ EndProcedure
 // Here you can define generation commands that are common for most configuration objects.
 //
 // Parameters:
-//   GenerationCommands - ValueTable - generated commands to be shown in the submenu:
+//   GenerationCommands - ValueTable - :
 //     
-//     Common settings:
+//     
 //       * Id - String - a command ID.
 //     
 //     Appearance settings:
@@ -70,9 +70,9 @@ EndProcedure
 //     
 //     Execution process settings:
 //       * MultipleChoice - Boolean
-//                            - Undefined - 
-//             
-//             
+//                            - Undefined - if True, then the command supports multiple choice.
+//             In this case, the parameter is passed via a list.
+//             Optional. Default value is False.
 //       * WriteMode - String - actions associated with object writing that are executed before the command handler.
 //             "DoNotWrite"          - do not write the object and pass
 //                                       the full form in the handler parameters instead of references. In this mode, we recommend that you operate directly with a form
@@ -91,7 +91,7 @@ EndProcedure
 //       * FormName - String - name of the form to be retrieved for the command execution.
 //             If Handler is not specified, the "Open" form method is called.
 //       * FormParameters - Undefined
-//                        - FixedStructure - 
+//                        - FixedStructure - -- optional. Form parameters specified in FormName.
 //       * Handler - String - details of the procedure that handles the main action of the command.
 //             Format "<CommonModuleName>.<ProcedureName>" is used when the procedure is in a common module.
 //             Format "<ProcedureName>" is used in the following cases:

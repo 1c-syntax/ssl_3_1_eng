@@ -131,10 +131,10 @@ EndProcedure
 //
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
-//  IBAdministrationParameters - Structure - describes infobase connection parameters.
-//    details - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters.
-//    The parameter can be skipped if the same fields have been filled in the structure passed
-//    as the ClusterAdministrationParameters parameter value,
+//  IBAdministrationParameters - Structure - 
+//     See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters.
+//    
+//    
 //  CheckClusterAdministrationParameters - Boolean - Indicates whether a check of cluster
 //                                                administration parameters is required,
 //  CheckClusterAdministrationParameters - Boolean - Indicates whether cluster administration
@@ -273,7 +273,7 @@ EndProcedure
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.ФильтрСеансов, Array Of See ClusterAdministration.SessionsFilter
+//   Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
 //
 // Returns:
 //   Array of See ClusterAdministrationClientServer.SessionProperties
@@ -307,7 +307,7 @@ EndFunction
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.ФильтрСеансов, Array Of See ClusterAdministration.SessionsFilter
+//   Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
 //
 Procedure DeleteInfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -381,7 +381,7 @@ EndProcedure
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.ФильтрСоединений, Array Of See ClusterAdministration.JoinsFilters
+//   Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
 //
 // Returns:
 //   Array of See ClusterAdministrationClientServer.ConnectionProperties
@@ -416,7 +416,7 @@ EndFunction
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.ФильтрСоединений, Array Of See ClusterAdministration.JoinsFilters
+//   Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
 //
 Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -434,14 +434,14 @@ Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val 
 		ClusterAdministrationParameters.ClusterAdministratorPassword);
 		
 	Value = New Array;
-	Value.Add("1CV8");               // 
-	Value.Add("1CV8C");              // 
-	Value.Add("WebClient");          // идентификатор приложения 1C:Enterprise в режиме запуска "Веб-
-	Value.Add("Designer");           // 
-	Value.Add("COMConnection");      // 
-	Value.Add("WSConnection");       // идентификатор сессии Web-
-	Value.Add("BackgroundJob");      // 
-	Value.Add("WebServerExtension"); // идентификатор расширения Web-
+	Value.Add("1CV8");               
+	Value.Add("1CV8C");              // ID of 1C:Enterprise application running in thin client mode.
+	Value.Add("WebClient");          // ID of 1C:Enterprise application running in web client mode.
+	Value.Add("Designer");           // Designer ID.
+	Value.Add("COMConnection");      // ID of 1C:Enterprise external COM connection session.
+	Value.Add("WSConnection");       // Web service session ID.
+	Value.Add("BackgroundJob");      // ID of job processing session.
+	Value.Add("WebServerExtension"); // Web server extension ID.
 
 	ClusterAdministrationClientServer.AddFilterCondition(Filter, "ClientApplicationID", ComparisonType.InList, Value);
 		
@@ -505,8 +505,8 @@ EndProcedure
 //   IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
 //
 // Returns:
-//   String - 
-//            
+//   String - name of the security profile set for the infobase. If
+//            the infobase is not assigned with a security profile, returns an empty string.
 //
 Function InfobaseSecurityProfile(Val ClusterAdministrationParameters, Val IBAdministrationParameters) Export
 	
@@ -556,9 +556,9 @@ EndFunction
 //   IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
 //
 // Returns:
-//   String - 
-//            
-//            
+//   String - name of the security profile set for the infobase as the safe mode security
+//            profile. If the infobase is not assigned with a security profile, returns
+//            an empty string.
 //
 Function InfobaseSafeModeSecurityProfile(Val ClusterAdministrationParameters, Val IBAdministrationParameters) Export
 	
@@ -751,37 +751,37 @@ Function SecurityProfile(Val ClusterAdministrationParameters, Val ProfileName) E
 		SecurityProfile,
 		SecurityProfilePropertiesDictionary());
 	
-	// 
+	// Virtual directories.
 	Result.Insert("VirtualDirectories",
 		COMAdministratorObjectModelObjectsDetails(
 			GetVirtualDirectories(IServerAgentConnection, Cluster, ProfileName),
 			VirtualDirectoryPropertiesDictionary()));
 	
-	// Разрешенные COM-
+	// Allowed COM classes.
 	Result.Insert("COMClasses",
 		COMAdministratorObjectModelObjectsDetails(
 			GetCOMClasses(IServerAgentConnection, Cluster, ProfileName),
 			COMClassPropertiesDictionary()));
 	
-	// 
+	// Add-ins.
 	Result.Insert("AddIns",
 		COMAdministratorObjectModelObjectsDetails(
 			GetAddIns1(IServerAgentConnection, Cluster, ProfileName),
 			AddInPropertiesDictionary()));
 	
-	// 
+	// External modules.
 	Result.Insert("ExternalModules",
 		COMAdministratorObjectModelObjectsDetails(
 			GetExternalModules(IServerAgentConnection, Cluster, ProfileName),
 			ExternalModulePropertiesDictionary()));
 	
-	// 
+	// OS applications.
 	Result.Insert("OSApplications",
 		COMAdministratorObjectModelObjectsDetails(
 			GetOSApplications(IServerAgentConnection, Cluster, ProfileName),
 			OSApplicationPropertiesDictionary()));
 	
-	// Интернет-Resources
+	// Internet resources.
 	Result.Insert("InternetResources",
 		COMAdministratorObjectModelObjectsDetails(
 			GetInternetResources(IServerAgentConnection, Cluster, ProfileName),
@@ -1042,13 +1042,13 @@ Function GetConnections(COMConnector, IServerAgentConnection, Cluster, IBAdminis
 		WorkingProcessConnectionString = IWorkingProcessInfo.HostName + ":" + Format(IWorkingProcessInfo.MainPort, "NG=");
 		IWorkingProcessConnection = COMConnector.ConnectWorkingProcess(WorkingProcessConnectionString);
 		
-		// 
+		
 		For Each InfoBase In IWorkingProcessConnection.GetInfoBases() Do
 			
 			// This is a required infobase.
 			If Lower(InfoBase.Name) = Lower(NameInCluster) Then
 				
-				// 
+				// Authentication is required to get infobase connection data.
 				IWorkingProcessConnection.AddAuthentication(IBAdministratorName, IBAdministratorPassword);
 				
 				// Getting infobase connections.
@@ -1482,7 +1482,7 @@ Function AddInPropertiesDictionary()
 	Result = New Structure();
 	Result.Insert("Name", "Name");
 	Result.Insert("LongDesc", "Descr");
-	Result.Insert("HashSum", "AddInHash"); // 
+	Result.Insert("HashSum", "AddInHash"); 
 	Return New FixedStructure(Result);
 	
 EndFunction
@@ -1493,7 +1493,7 @@ Function ExternalModulePropertiesDictionary()
 	
 	Result.Insert("Name", "Name");
 	Result.Insert("LongDesc", "Descr");
-	Result.Insert("HashSum", "ExternalModuleHash"); // 
+	Result.Insert("HashSum", "ExternalModuleHash"); 
 	Return New FixedStructure(Result);
 	
 EndFunction

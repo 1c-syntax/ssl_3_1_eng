@@ -34,7 +34,7 @@ Function UserWorkingDirectory() Export
 			FilesOperationsInternalClient.SetUserWorkingDirectory(DirectoryName);
 		Else
 			ApplicationParameters["StandardSubsystems.WorkingDirectoryAccessCheckExecuted"] = True;
-			Return ""; // Web client without file system extension
+			Return ""; // Web client without the file system extension for working with 1C:Enterprise Extension.
 		EndIf;
 	EndIf;
 	
@@ -42,8 +42,8 @@ Function UserWorkingDirectory() Export
 	
 	// Create a directory for files.
 	Try
-		// 
-		// 
+		
+		
 		InformationAboutTheCatalog = New File(DirectoryName);
 		If Not InformationAboutTheCatalog.Exists() Then
 			Raise NStr("en = 'Directory does not exist.';");
@@ -54,8 +54,8 @@ Function UserWorkingDirectory() Export
 		CreateDirectory(TestDirectoryName);
 		DeleteFiles(TestDirectoryName);
 	Except
-		// 
-		// 
+		
+		
 		EventLogMessage = NStr("en = 'Working directory %1 is not found or there is no save permission. Default settings are restored.';");
 		EventLogMessage = StringFunctionsClientServer.SubstituteParametersToString(EventLogMessage, DirectoryName);
 		DirectoryName = FilesOperationsInternalClient.SelectPathToUserDataDirectory();
@@ -82,6 +82,10 @@ Function IsDirectoryFiles(FilesOwner) Export
 	
 	Return FilesOperationsInternalServerCall.IsDirectoryFiles(FilesOwner);
 	
+EndFunction
+
+Function StartOfCurrentSession() Export
+	Return FilesOperationsInternalServerCall.StartOfCurrentSession();
 EndFunction
 
 #EndRegion

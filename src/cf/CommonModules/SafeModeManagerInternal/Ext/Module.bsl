@@ -12,7 +12,7 @@
 // Checks whether the security profiles can be set up for the current infobase.
 //
 // Returns: 
-//   Boolean - 
+//   Boolean - True if the setting is available.
 //
 Function CanSetUpSecurityProfiles() Export
 	
@@ -46,8 +46,8 @@ EndFunction
 //    the attaching mode is requested.
 //
 // Returns:
-//   String - 
-//  
+//   String - a name of the security profile to be used for attaching
+//  the external module. If the attachment mode is not registered for the external module, Undefined is returned.
 //
 Function ExternalModuleAttachmentMode(Val ExternalModule) Export
 	
@@ -85,7 +85,7 @@ EndFunction
 //    When requesting permissions for external modules, permissions are added in replacement mode.
 //
 // Returns:
-//   Array of UUID - 
+//   Array of UUID - IDs of the created requests.
 //
 Function PermissionsRequestForExternalModule(Val ProgramModule, Val NewPermissions = Undefined) Export
 	
@@ -124,12 +124,12 @@ EndFunction
 //
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
+
+
 //
-// 
-// 
-// 
+
+
+
 //
 
 // Generates parameters for storing references in permission registers.
@@ -170,9 +170,9 @@ EndFunction
 Function PermissionsToUseExternalResourcesPresentation(Val ProgramModuleType, 
 	Val ModuleID, Val OwnerType, Val OwnerID, Val Permissions) Export
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	
 	BeginTransaction();
 	Try
@@ -195,7 +195,7 @@ Function PermissionsToUseExternalResourcesPresentation(Val ProgramModuleType,
 		Raise;
 	EndTry;
 	
-	// ACC:326-
+	// ACC:326-on
 	
 	Return Manager.Presentation(True);
 	
@@ -260,7 +260,7 @@ EndProcedure
 //    permissions are being requested (Undefined if permissions are requested for configurations, not for external modules).
 //
 // Returns:
-//   UUID - 
+//   UUID - an ID of the created request.
 //
 Function RequestForSecurityProfileCreation(Val ProgramModule)
 	
@@ -464,7 +464,7 @@ EndFunction
 //    permissions are being requested (Undefined if permissions are requested for configurations, not for external modules).
 //
 // Returns:
-//   UUID - 
+//   UUID - an ID of the created request.
 //
 Function PermissionChangeRequest(Val Owner, Val ReplacementMode, Val PermissionsToAdd = Undefined, 
 	Val PermissionsToDelete = Undefined, Val ProgramModule = Undefined) Export
@@ -501,7 +501,7 @@ EndFunction
 //    permissions are being requested (Undefined if permissions are requested for configurations, not for external modules).
 //
 // Returns:
-//   UUID - 
+//   UUID - an ID of the created request.
 //
 Function RequestToDeleteSecurityProfile(Val ProgramModule) Export
 	
@@ -535,8 +535,8 @@ EndFunction
 //    for the current infobase to the result.
 //
 // Returns: 
-//   Array of UUID - 
-//                                       
+//   Array of UUID - request IDs for updating the
+//                                       configuration permissions to the currently required ones.
 //
 Function RequestsToUpdateApplicationPermissions(Val IncludingIBProfileCreationRequest = True) Export
 	

@@ -178,7 +178,7 @@ EndFunction
 //
 // Parameters:
 //  CommandLinePattern - String - a template of an application command line.
-//                                 For more information, see the platform documentation. 
+//                                 For more information, see the platform documentation.
 //  LongDesc - String - details on the reason to grant the permission.
 //
 // Returns:
@@ -316,9 +316,9 @@ EndFunction
 //					  
 //
 // Returns:
-//  UUID - 
-//     
-//    
+//  UUID - a reference to the permission request written to the infobase. When
+//    all requests for permission changes are created, the changes must be applied by calling the SafeModeManagerClient.ApplyExternalResourcesRequests 
+//    procedure.
 //
 Function RequestToCancelPermissionsToUseExternalResources(Val Owner, Val PermissionsToCancel) Export
 	
@@ -342,9 +342,9 @@ EndFunction
 //    it is recommended that you use a reference to the MetadataObjectIDs catalog item.
 //
 // Returns:
-//  UUID - 
-//     
-//    
+//  UUID - a reference to the permission request written to the infobase. When
+//    all requests for permission changes are created, the changes must be applied by calling the SafeModeManagerClient.ApplyExternalResourcesRequests 
+//    procedure.
 //
 Function RequestToClearPermissionsToUseExternalResources(Val Owner) Export
 	
@@ -355,15 +355,15 @@ Function RequestToClearPermissionsToUseExternalResources(Val Owner) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
+
+
 //
 
 // Checks whether the safe mode is enabled ignoring the security profile safe mode
 //  that is used as a security profile with the configuration privilege level.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True if the safe mode is enabled.
 //
 Function SafeModeSet() Export
 	
@@ -402,8 +402,8 @@ EndFunction
 //    for the current infobase to the result.
 //
 // Returns:
-//  Array - 
-//           
+//  Array - request IDs for updating the
+//           configuration permissions to the currently required ones.
 //
 Function RequestsToUpdateApplicationPermissions(Val IncludingIBProfileCreationRequest = True) Export
 	
@@ -417,7 +417,7 @@ EndFunction
 //   TemplateName - String - a configuration template name.
 //
 // Returns:
-//   FixedMap of KeyAndValue - 
+//   FixedMap of KeyAndValue - :
 //     * Key - String - file name,
 //     * Value - String - checksum.
 //

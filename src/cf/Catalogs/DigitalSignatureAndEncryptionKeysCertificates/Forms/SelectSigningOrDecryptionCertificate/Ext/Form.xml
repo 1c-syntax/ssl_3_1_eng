@@ -397,7 +397,7 @@
 								</Button>
 							</ChildItems>
 						</CommandBar>
-						<CommandBar name="CommandsSelectCancel" id="876">
+						<CommandBar name="SelectCancelCommands" id="876">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -405,7 +405,7 @@
 								</v8:item>
 							</Title>
 							<HorizontalLocation>Right</HorizontalLocation>
-							<ExtendedTooltip name="CommandsSelectCancelExtendedTooltip" id="877"/>
+							<ExtendedTooltip name="SelectCancelCommandsExtendedTooltip" id="877"/>
 							<ChildItems>
 								<Button name="SelectLink" id="880">
 									<Type>CommandBarButton</Type>
@@ -451,6 +451,7 @@
 											<v8:content>Certificate description</v8:content>
 										</v8:item>
 									</Title>
+									<Group>Vertical</Group>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
@@ -463,7 +464,7 @@
 											<Width>51</Width>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<MaxWidth>51</MaxWidth>
-											<Height>4</Height>
+											<HeightControlVariant>UseContentHeight</HeightControlVariant>
 											<RowSelectionMode>Row</RowSelectionMode>
 											<Header>false</Header>
 											<HorizontalScrollBar>DontUse</HorizontalScrollBar>
@@ -531,8 +532,8 @@
 											</ChildItems>
 										</Table>
 										<Button name="ShowCertificateData" id="744">
-											<Type>UsualButton</Type>
-											<Representation>Picture</Representation>
+											<Type>Hyperlink</Type>
+											<Representation>PictureAndText</Representation>
 											<SkipOnInput>true</SkipOnInput>
 											<CommandName>Form.Command.ShowCertificateData</CommandName>
 											<ExtendedTooltip name="ShowCertificateDataExtendedTooltip" id="745"/>
@@ -641,7 +642,7 @@ the purpose description is used instead of the certificate presentation, for exa
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Horizontal group 2</v8:content>
+													<v8:content>Horizontal group</v8:content>
 												</v8:item>
 											</Title>
 											<Behavior>Usual</Behavior>
@@ -696,7 +697,7 @@ to check the key before certificate selection.</v8:content>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Vertical group 3</v8:content>
+													<v8:content>Vertical group</v8:content>
 												</v8:item>
 											</Title>
 											<Group>Vertical</Group>
@@ -709,7 +710,7 @@ to check the key before certificate selection.</v8:content>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Vertical group 2</v8:content>
+															<v8:content>Vertical group</v8:content>
 														</v8:item>
 													</Title>
 													<Group>Vertical</Group>

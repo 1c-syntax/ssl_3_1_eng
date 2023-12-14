@@ -12,26 +12,14 @@
 // 
 //
 // Parameters:
-//  Name - String -
+//  Name - String - 
 //
 // Returns:
 //  Structure:
-//   * Name - String -
+//   * Name - String - 
 //
-//   * NotificationSendModuleName - String -
+//   * NotificationSendModuleName - String - 
 //                    
-//                    
-//                    
-//                    
-//                    
-//                    
-//                    
-//
-//   * NotificationReceiptModuleName - String -
-//                    
-//                    
-//
-//   * Parameters - Arbitrary -
 //                    
 //                    
 //                    
@@ -39,7 +27,19 @@
 //                    
 //                    
 //
-//   * VerificationPeriod - Number -
+//   * NotificationReceiptModuleName - String - 
+//                    
+//                    
+//
+//   * Parameters - Arbitrary - 
+//                    
+//                    
+//                    
+//                    
+//                    
+//                    
+//
+//   * VerificationPeriod - Number - 
 //                         
 //                         
 //                         
@@ -66,19 +66,19 @@ EndFunction
 // 
 //
 // Parameters:
-//  NameOfAlert - String -
+//  NameOfAlert - String - 
 //  
-//  Result - Arbitrary -
+//  Result - Arbitrary - 
 //             
 //             
 //
-//  SMSMessageRecipients - Undefined -
+//  SMSMessageRecipients - Undefined - 
 //               
 //           - Map of KeyAndValue:
-//              * Key - UUID - ID of the IB user.
+//              * Key - UUID - infobase user ID.
 //              * Value - Array of See ServerNotifications.SessionKey
 //
-//  SendImmediately - Boolean -
+//  SendImmediately - Boolean - 
 //               
 //               
 //               
@@ -124,8 +124,8 @@ EndProcedure
 //
 // Parameters:
 //  Results - See CommonOverridable.OnReceiptRecurringClientDataOnServer.Results
-//  StartMoment - Number -
-//  ProcedureName - String -
+//  StartMoment - Number - 
+//  ProcedureName - String - 
 //
 // Example:
 //	
@@ -166,11 +166,11 @@ Function SessionKey(Session = Undefined) Export
 		Session = GetCurrentInfoBaseSession();
 	EndIf;
 	
-	// ACC:1367-
-	// 
+	
+	
 	Return Format(Session.SessionStarted, "DF='yyyy.MM.dd HH:mm:ss'") + " "
 		+ Format(Session.SessionNumber, "NZ=0; NG=");
-	// 
+	// ACC:1367-on
 	
 EndFunction
 
@@ -181,7 +181,7 @@ EndFunction
 #Region Internal
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Configuration subsystems event handlers.
 
 // See CommonOverridable.OnAddClientParametersOnStart.
 Procedure OnAddClientParametersOnStart(Parameters) Export
@@ -212,24 +212,24 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Main procedures and functions.
 
 // Returns:
 //  Structure:
-//    * GroupID  - UUID -
+//    * GroupID  - UUID - 
 //                           - Undefined - 
-//    * NotificationTypeInGroup - UUID -
+//    * NotificationTypeInGroup - UUID - 
 //                           - Undefined - 
-//    * DeliveryDeferral     - Number  -
+//    * DeliveryDeferral     - Number  - 
 //                                      
 //                                      
-//    * Replace             - Boolean -
+//    * Replace             - Boolean - 
 //                                      
 //                                      
 //
-//    * LogEventOnDeliveryDeferral     - String -
+//    * LogEventOnDeliveryDeferral     - String - 
 //                                                
-//    * LogCommentOnDeliveryDeferral - String -
+//    * LogCommentOnDeliveryDeferral - String - 
 //
 Function AdditionalSendingParameters() Export
 	
@@ -251,7 +251,7 @@ EndFunction
 //  SMSMessageRecipients       - See SendServerNotification.SMSMessageRecipients
 //  SendImmediately - See SendServerNotification.SendImmediately
 //
-//  See AdditionalSendingParameters
+//   See AdditionalSendingParameters
 //
 Procedure SendServerNotificationWithGroupID(NameOfAlert, Result, SMSMessageRecipients,
 			SendImmediately, AdditionalSendingParameters = Undefined) Export
@@ -461,10 +461,10 @@ Function Milliseconds()
 EndFunction
 
 // Parameters:
-//  GroupID  - UUID -
+//  GroupID  - UUID - 
 //                           
 //
-//  NotificationTypeInGroup - UUID -
+//  NotificationTypeInGroup - UUID - 
 //                           
 //
 //  LastAlert  - See NewServerNotificationToClient
@@ -612,7 +612,7 @@ EndProcedure
 //      ** Result     - See SendServerNotification.Result
 //   * LastNotificationDate - Date
 //   * MinCheckInterval - Number
-//   * AdditionalResults - Map -
+//   * AdditionalResults - Map - 
 //       
 //   * CollaborationSystemConnected - Boolean
 //   * ShouldRegisterIndicators - Boolean
@@ -974,7 +974,7 @@ EndFunction
 // Returns:
 //  Map of KeyAndValue:
 //   ** 
-//   ** See ServerNotificationToSave
+//   **  See ServerNotificationToSave
 //
 Function RepeatedNotificationToSave(RecurringNotifications)
 	
@@ -993,11 +993,11 @@ EndFunction
 //
 // Returns:
 //  Structure:
-//   * NotificationSendModuleName - String -
-//   * Parameters         - Arbitrary -
+//   * NotificationSendModuleName - String - 
+//   * Parameters         - Arbitrary - 
 //                           
 //
-//   * VerificationPeriod    - Number -
+//   * VerificationPeriod    - Number - 
 //                           
 //
 Function ServerNotificationToSave(Notification)
@@ -1178,12 +1178,12 @@ EndProcedure
 //   * NameOfAlert           - See SendServerNotification.NameOfAlert
 //   * Result               - See SendServerNotification.Result
 //   * SMSMessageRecipients                - See SendServerNotification.SMSMessageRecipients
-//   * NotificationID - String -
-//   * AddedOn          - Date -
+//   * NotificationID - String - 
+//   * AddedOn          - Date - 
 //   * Errors - Map of KeyAndValue:
-//       ** Key - UUID - ID of the IB user.
-//       ** Value - Date -
-//   * WasSentFromQueue - Boolean -
+//       ** Key - UUID - infobase user ID.
+//       ** Value - Date - 
+//   * WasSentFromQueue - Boolean - 
 //       
 //
 Function MessageNewData() Export
@@ -1284,9 +1284,9 @@ EndFunction
 
 // Returns:
 //  Structure:
-//   * Parameters - Arbitrary -
+//   * Parameters - Arbitrary - 
 //   * SMSMessageRecipients - Map of KeyAndValue:
-//      ** Key - UUID - ID of the IB user.
+//      ** Key - UUID - infobase user ID.
 //      ** Value - Array of See ServerNotifications.SessionKey
 //
 Function ServerNotificationNewParametersVariant()
@@ -1305,10 +1305,10 @@ EndFunction
 
 // Returns:
 //  Map of KeyAndValue:
-//   * Key - String -
+//   * Key - String - 
 //   * Value - Structure:
-//      ** NotificationSendModuleName - String -
-//      ** VerificationPeriod - Number -
+//      ** NotificationSendModuleName - String - 
+//      ** VerificationPeriod - Number - 
 //      ** ParametersVariants - See StandardSubsystemsServer.OnSendServerNotification.ParametersVariants
 //
 Function PeriodicServerNotifications(MaxIntervalByUser)
@@ -1439,7 +1439,7 @@ EndProcedure
 //
 // Returns:
 //  Map of KeyAndValue:
-//   * Key     - String -
+//   * Key     - String - 
 //   * Value - See ServerNotifications.NewServerNotification
 //
 Function RecurringServerNotificationsAboutSession(NotificationsStorage)
@@ -1462,15 +1462,15 @@ EndFunction
 //   * LastCheckDate - Date
 //   * MinCheckInterval - Number
 //   * CheckDatesByNotificationNames - Map of KeyAndValue:
-//       ** Key     - String -
+//       ** Key     - String - 
 //       ** Value - Date
-//   * LastNotificationDate - Date -
-//   * FailedNotificationDate   - Date -
+//   * LastNotificationDate - Date - 
+//   * FailedNotificationDate   - Date - 
 //   * FailedNotificationsDatesByUsers - Map of KeyAndValue:
-//       ** Key     - UUID - ID of the IB user.
-//       ** Value - Date -
+//       ** Key     - UUID - infobase user ID.
+//       ** Value - Date - 
 //   * SuccessfullNotificationsDatesByUsers - Map of KeyAndValue:
-//       ** Key     - UUID - ID of the IB user.
+//       ** Key     - UUID - infobase user ID.
 //       ** Value - Date
 //   * BackgroundJobIdentifier - UUID
 //   * LastMessageClearDate - Date
@@ -1667,8 +1667,8 @@ EndProcedure
 Procedure StartDeliverDeferredServerNotifications(Launched = False)
 	
 	If Not IsCurrentUserRegisteredInInteractionSystem()
-	 Or Common.FileInfobase() // 
-	 Or ExclusiveMode() // 
+	 Or Common.FileInfobase() 
+	 Or ExclusiveMode() 
 	 Or InfobaseUpdate.InfobaseUpdateRequired()
 	 Or IsDeferredServerAlertsDeliveryRunning() Then
 		Return;
@@ -1853,15 +1853,15 @@ EndFunction
 // Returns:
 //  Structure:
 //   * SessionKey - See SessionKey
-//   * IBUserID - UUID -
+//   * IBUserID - UUID - 
 //   * LastNotificationDate - Date
 //   * Notifications - See CommonOverridable.OnAddServerNotifications.Notifications
-//   * MinimumPeriod - Number -
+//   * MinimumPeriod - Number - 
 //   * CollaborationSystemConnected - Boolean
-//   * PersonalChatID - Undefined -
+//   * PersonalChatID - Undefined - 
 //                                    - CollaborationSystemConversationID - 
 //                                        
-//   * GlobalChatID - Undefined -
+//   * GlobalChatID - Undefined - 
 //                                   - CollaborationSystemConversationID - 
 //                                        
 //   * ServiceAdministratorSession - Boolean
@@ -1974,10 +1974,10 @@ EndFunction
 
 Function CurrSessionStartInCurrSessionDateTimeZone()
 	
-	// 
-	// 
+	
+	
 	TimeShift = CurrentSessionDate() - CurrentDate();
-	// ACC:143-
+	// ACC:143-on
 	
 	Return GetCurrentInfoBaseSession().SessionStarted + TimeShift;
 	
@@ -1985,10 +1985,10 @@ EndFunction
 
 // Returns:
 //  Structure:
-//   * PersonalChatID - Undefined -
+//   * PersonalChatID - Undefined - 
 //                                    - CollaborationSystemConversationID - 
 //                                        
-//   * GlobalChatID - Undefined -
+//   * GlobalChatID - Undefined - 
 //                                   - CollaborationSystemConversationID - 
 //                                        
 // 

@@ -12,7 +12,7 @@
 // Namespace of the current (used by the calling code) message interface version.
 //
 // Returns:
-//   String - name space.
+//   String - a namespace.
 //
 Function Package() Export
 	
@@ -23,7 +23,7 @@ EndFunction
 // The current (used by the calling code) message interface version.
 //
 // Returns:
-//   String - 
+//   String - a message interface version.
 //
 Function Version() Export
 	
@@ -34,7 +34,7 @@ EndFunction
 // The name of the application message interface.
 //
 // Returns:
-//   String - 
+//   String - the name of the application message interface.
 //
 Function Public() Export
 	
@@ -72,7 +72,7 @@ EndProcedure
 //                                the message type is being received.
 //
 // Returns:
-//   XDTOObjectType - 
+//   XDTOObjectType - a message object type.
 //
 Function SetUpExchangeStep1Message(Val PackageToUse = Undefined) Export
 	
@@ -87,7 +87,7 @@ EndFunction
 //                                the message type is being received.
 //
 // Returns:
-//   XDTOObjectType - 
+//   XDTOObjectType - a message object type.
 //
 Function SetUpExchangeStep2Message(Val PackageToUse = Undefined) Export
 	
@@ -102,7 +102,7 @@ EndFunction
 //                                the message type is being received.
 //
 // Returns:
-//   XDTOObjectType - 
+//   XDTOObjectType - a message object type.
 //
 Function ImportExchangeMessageMessage(Val PackageToUse = Undefined) Export
 	
@@ -117,7 +117,7 @@ EndFunction
 //                                the message type is being received.
 //
 // Returns:
-//   XDTOObjectType - 
+//   XDTOObjectType - a message object type.
 //
 Function GetCorrespondentDataMessage(Val PackageToUse = Undefined) Export
 	
@@ -132,7 +132,7 @@ EndFunction
 //                                the message type is being received.
 //
 // Returns:
-//   XDTOObjectType - 
+//   XDTOObjectType - a message object type.
 //
 Function GetCommonDataOfCorrespondentNodeMessage(Val PackageToUse = Undefined) Export
 	
@@ -147,7 +147,7 @@ EndFunction
 //                                the message type is being received.
 //
 // Returns:
-//   XDTOObjectType - 
+//   XDTOObjectType - a message object type.
 //
 Function GetCorrespondentAccountingParametersMessage(Val PackageToUse = Undefined) Export
 	

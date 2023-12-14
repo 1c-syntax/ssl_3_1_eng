@@ -12,7 +12,7 @@
 // Gets the name of the additional property that shows whether priority check is skipped when writing key operations.
 //
 // Returns:
-//  String - 
+//  String - an additional property name.
 //
 Function DoNotCheckPriority() Export
 	
@@ -46,7 +46,7 @@ EndFunction
 //                          <schema>://<username>:<password>@<host>:<port>/<path>?<parameters>#<anchor>.
 //
 // Returns:
-//     Structure - 
+//     Structure - composite parts of the URI according to the format:
 //         * Schema         - String
 //         * Login         - String
 //         * Password        - String
@@ -122,8 +122,8 @@ EndFunction
 // Adds a composition item into a composition item container.
 //
 // Parameters:
-//  AreaToAddTo - 
-//                  
+//  AreaToAddTo - container with items and filter groups, e.g.
+//                  List.Filter or a group in the filter.
 //  FieldName                 - String - a data composition field name. Required.
 //  RightValue          - Arbitrary - the value to compare to.
 //  ComparisonType            - DataCompositionComparisonType - a comparison type.
@@ -164,9 +164,9 @@ Function AddCompositionItem(AreaToAddTo,
 		Item.Use = Use;
 	EndIf;
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	If UserSettingID <> Undefined Then
 		Item.UserSettingID = UserSettingID;
 	ElsIf Item.ViewMode <> DataCompositionSettingsItemViewMode.Inaccessible Then
@@ -239,8 +239,8 @@ EndFunction
 // Adds or replaces the existing filter item.
 //
 // Parameters:
-//  WhereToAdd - 
-//                  
+//  WhereToAdd - container with items and filter groups, e.g.
+//                  List.Filter or a group in the filter.
 //  FieldName                 - String - a data composition field name. Required.
 //  RightValue          - Arbitrary - the value to compare to.
 //  Var_ComparisonType            - DataCompositionComparisonType - comparison type.
@@ -300,11 +300,11 @@ EndProcedure
 //       QuickAccess - in the Quick Settings bar on top of the list;
 //       Normal       - in the list settings (submenu More);
 //       Inaccessible   - prevent users from changing the filter.
-//   UserSettingID - String - the filter UUID.
-//       Used to link user settings.
+//   UserSettingID - String - 
+//       
 //
-// See also:
-//   Same name properties of the DataCompositionFilterItem item in the syntax assistant.
+// :
+//   
 //
 Procedure SetDynamicListFilterItem(DynamicList, FieldName,
 	RightValue = Undefined,
@@ -377,7 +377,7 @@ EndProcedure
 //  IncludingSpaces        - Boolean - if True, ignore spaces.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True - the string contains only numbers or is empty, False - the string contains other characters.
 //
 Function OnlyNumbersInString(Val CheckString, Val IncludingLeadingZeros = True, Val IncludingSpaces = True)
 	
@@ -402,8 +402,8 @@ Function OnlyNumbersInString(Val CheckString, Val IncludingLeadingZeros = True, 
 		CheckString = Mid(CheckString, Position);
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	Return StrLen(
 		StrReplace( StrReplace( StrReplace( StrReplace( StrReplace(
 		StrReplace( StrReplace( StrReplace( StrReplace( StrReplace( 
@@ -415,11 +415,11 @@ EndFunction
 //
 // Parameters:
 //  WithWordSeparators - Boolean - if True, treat word separators as legit characters.
-//  AllowedChars - string to check.
+//  AllowedChars - a string to check.
 //
 // Returns:
-//  Boolean - 
-//           
+//  Boolean - True if the string contains Cyrillic or allowed chars only or is empty;
+//           False otherwise.
 //
 Function OnlyLatinInString(Val CheckString, Val WithWordSeparators = True, AllowedChars = "") Export
 	
@@ -432,8 +432,8 @@ Function OnlyLatinInString(Val CheckString, Val WithWordSeparators = True, Allow
 	EndIf;
 	
 	ValidCharCodes = New Array;
-	ValidCharCodes.Add(1105); // "ё"
-	ValidCharCodes.Add(1025); // "Ё"
+	ValidCharCodes.Add(1105); 
+	ValidCharCodes.Add(1025); // "ё"
 	
 	For IndexOf = 1 To StrLen(AllowedChars) Do
 		ValidCharCodes.Add(CharCode(Mid(AllowedChars, IndexOf, 1)));
@@ -459,8 +459,8 @@ EndFunction
 //  AllowedChars - String - for check.
 //
 // Returns:
-//  Boolean - 
-//           
+//  Boolean - True if the string contains Latin or allowed chars only;
+//           False otherwise.
 //
 Function OnlyRomanInString(Val CheckString, Val WithWordSeparators = True, AllowedChars = "") Export
 	
@@ -498,7 +498,7 @@ EndFunction
 //  WordSeparators - String - separator characters.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the char is a separator.
 //
 Function IsWordSeparator(CharCode, WordSeparators = Undefined)
 	
@@ -507,13 +507,13 @@ Function IsWordSeparator(CharCode, WordSeparators = Undefined)
 	EndIf;
 		
 	Ranges = New Array;
-	Ranges.Add(New Structure("Min,Max", 48, 57)); 		// цифры
-	Ranges.Add(New Structure("Min,Max", 65, 90)); 		// 
-	Ranges.Add(New Structure("Min,Max", 97, 122)); 		// 
-	Ranges.Add(New Structure("Min,Max", 1040, 1103)); 	// кириллица
-	Ranges.Add(New Structure("Min,Max", 1025, 1025)); 	// 
-	Ranges.Add(New Structure("Min,Max", 1105, 1105)); 	// 
-	Ranges.Add(New Structure("Min,Max", 95, 95)); 		// 
+	Ranges.Add(New Structure("Min,Max", 48, 57)); 		// Digits
+	Ranges.Add(New Structure("Min,Max", 65, 90)); 		// Uppercase Latin characters.
+	Ranges.Add(New Structure("Min,Max", 97, 122)); 		// Lowercase Latin characters.
+	Ranges.Add(New Structure("Min,Max", 1040, 1103)); 	// Cyrillic characters.
+	Ranges.Add(New Structure("Min,Max", 1025, 1025)); 	// Cyrillic letter "Ё".
+	Ranges.Add(New Structure("Min,Max", 1105, 1105)); 	// Cyrillic letter "Ё".
+	Ranges.Add(New Structure("Min,Max", 95, 95)); 		// Underline ( _ ) character.
 	
 	For Each Span In Ranges Do
 		If CharCode >= Span.Min And CharCode <= Span.Max Then
@@ -534,7 +534,7 @@ EndFunction
 //  Parameter<n>   - String - parameter value to insert.
 //
 // Returns:
-//  String   - 
+//  String   - text string with parameters inserted.
 //
 // Example:
 //  StringFunctionsClientServer.SubstituteParametersToString(NStr("en='%1 went to %2'"), "Jane", "the zoo") = "Jane went

@@ -15,7 +15,7 @@
 //   XDTOSetup - Boolean - True if the exchange via the XDTO is configured.
 // 
 // Returns:
-//   Structure - 
+//   Structure - :
 //     * ExchangePlanName - String - an exchange plan name.
 //     * CorrespondentExchangePlanName - String - a peer exchange plan name.
 //     * SettingID - String - the setting option name as it is specified in the exchange plan manager module.
@@ -91,7 +91,7 @@ Procedure SetUpExchangeStep13011(Parameters, TempStorageAddress) Export
 	
 	BeginTransaction();
 	Try
-		// 
+		// Creating an exchange setting in the current infobase.
 		DataExchangeSaaS.CreateExchangeSetting_3_0_1_1(ConnectionSettings);
 		
 		// Send a message to a peer infobase.
@@ -801,7 +801,7 @@ Procedure OnStartDisconnectingFromSM(Settings, HandlerParameters, ContinueWait) 
 	
 	BeginTransaction();
 	Try
-		// 
+		// Sending a message to the service manager.
 		Message = ModuleMessagesSaaS.NewMessage(
 			MessagesDataExchangeAdministrationManagementInterface.MessageDisableSyncOverSM());
 			
@@ -1380,7 +1380,7 @@ Procedure DeleteUnnecessarySynchronizationSettingsRows(SynchronizationSettingsFr
 				Continue;
 			EndIf;
 			
-			// 
+			// Excluding a possibility of creating a new data synchronization using an obsolete exchange plan.
 			SettingFromServiceManager.DeleteSettingItem = Not SettingFromServiceManager.SynchronizationConfigured
 				And ValueIsFilled(SettingFromServiceManager.ExchangePlanNameToMigrateToNewExchange);
 			

@@ -18,7 +18,7 @@
 //  MailMessage - InternetMailMessage - an email to be sent.
 //
 // Returns:
-//  Structure - result of sending a message:
+//  Structure - an email sending result:
 //   * WrongRecipients - Map of KeyAndValue - recipient addresses with errors:
 //    ** Key     - String - a recipient address.
 //    ** Value - String - an error text.
@@ -66,21 +66,21 @@ EndFunction
 //  EmailParameters - Structure - contains all email data:
 //
 //   * Whom - Array
-//          - String - 
-//          - Array - a collection of structures, addresses:
+//          - String - an email address of the email recipient.
+//          - Array - Collection of address structures:
 //              * Address         - String - an email address (required).
 //              * Presentation - String - a recipient's name.
-//          - String - 
+//          - String - recipient email addresses, separator - ";".
 //
 //   * MessageRecipients - Array - array of structures describing recipients:
 //      ** Address - String - an email recipient address.
 //      ** Presentation - String - an addressee presentation.
 //
 //   * Cc        - Array
-//                  - String - 
+//                  - String - email addresses of copy recipients. See the "To" field description.
 //
 //   * BCCs - Array
-//                  - String - 
+//                  - String - email addresses of BCC recipients. See the "To" field description.
 //
 //   * Subject       - String - (mandatory) email subject.
 //   * Body       - String - (mandatory) email text (plain text, win1251 encoded).
@@ -100,17 +100,17 @@ EndFunction
 //   * RequestReadReceipt - Boolean - shows whether a read notification is required.
 //   * TextType   - String
 //                 - EnumRef.EmailTextTypes
-//                 - InternetMailTextType - 
-//                  
-//                  
-//                  
-//                                                 
-//                                                 
-//                  
-//                                                 
+//                 - InternetMailTextType - specifies the type
+//                  of the passed text, possible values::
+//                  HTML/EmailTextTypes.HTML. Email text in HTML format.
+//                  PlainText/EmailTextTypes.PlainText. Plain text of an email message.
+//                                                 Displayed "as is" (default
+//                                                 value).
+//                  MarkedUpText/EmailTextTypes.MarkedUpText. Email message in
+//                                                 Rich Text format.
 //
 // Returns:
-//  InternetMailMessage - 
+//  InternetMailMessage - a prepared email.
 //
 Function PrepareEmail(Account, EmailParameters) Export
 	
@@ -157,12 +157,12 @@ Function PrepareEmail(Account, EmailParameters) Export
 	
 EndFunction
 
-// 
-// 
-// 
+// Loads messages from the server for the specified email.
+// Before loading, checks if email settings are filled correctly.
+// The function might throw an exception which must be handled.
 //
 // Parameters:
-//   Account - CatalogRef.EmailAccounts -
+//   Account - CatalogRef.EmailAccounts - email from which the emails are loaded.
 //
 //   ImportParameters - Structure:
 //     * Columns - Array - array of strings
@@ -171,14 +171,14 @@ EndFunction
 //     * TestMode - Boolean - used to check server connection.
 //     * GetHeaders - Boolean - if True, the returned set only
 //                                       includes message headers.
-//     * Filter - Structure -
+//     * Filter - Structure - corresponds to the FilterParameters parameter of the InternetMail.GetHeaders built-in function.
 //     * HeadersIDs - Array - headers or IDs of the messages whose full
 //                                    texts are to be retrieved.
 //     * CastMessagesToType - Boolean - return a set of received email messages
 //                                    as a value table with simple types. The default value is True.
 //
 // Returns:
-//  ValueTable, Boolean - 
+//  ValueTable, Boolean - list of emails with the following columns:
 //   * Importance - InternetMailMessageImportance
 //   * Attachments - InternetMailAttachments - if any of the attachments are email messages,
 //                 they are not returned but their attachments, binary
@@ -223,9 +223,9 @@ EndFunction
 //   IncludingSystemEmailAccount - Boolean - include the system account if it is configured for sending and receiving emails.
 //
 // Returns:
-//  ValueTable - 
+//  ValueTable - description of accounts:
 //   * Ref       - CatalogRef.EmailAccounts - an account.
-//   * Description - String -
+//   * Description - String - email name.
 //   * Address        - String - an email address.
 //
 Function AvailableEmailAccounts(Val ForSending = Undefined,
@@ -294,7 +294,7 @@ Function AvailableEmailAccounts(Val ForSending = Undefined,
 	
 EndFunction
 
-// 
+// Receives email settings for mass notification from the program.
 //
 // Returns:
 //  CatalogRef.EmailAccounts
@@ -305,7 +305,7 @@ Function SystemAccount() Export
 	
 EndFunction
 
-// 
+// Checks whether the email is available for mass notification.
 //
 // Returns:
 //  Boolean
@@ -316,8 +316,8 @@ Function CheckSystemAccountAvailable() Export
 	
 EndFunction
 
-// 
-// 
+// Returns True if at least one configured email account is available
+// or user has sufficient access rights to configure the email.
 //
 // Returns:
 //  Boolean
@@ -361,7 +361,7 @@ EndFunction
 //  ForReceiving - Boolean - check parameters used to receive email.
 // 
 // Returns:
-//  Boolean - 
+//  Boolean - True if the account is configured.
 //
 Function AccountSetUp(Account, Val ForSending = Undefined, Val ForReceiving = Undefined) Export
 	
@@ -380,12 +380,12 @@ Function AccountSetUp(Account, Val ForSending = Undefined, Val ForReceiving = Un
 		
 EndFunction
 
-// 
+// Checks email settings.
 //
 // Parameters:
-//  Account     - CatalogRef.EmailAccounts -
-//  ErrorMessage - String -
-//  AdditionalMessage - String -
+//  Account     - CatalogRef.EmailAccounts - email to check.
+//  ErrorMessage - String - an error message text or an empty string if no errors occurred.
+//  AdditionalMessage - String - messages that contain information on the checks made for the email.
 //
 Procedure CheckSendReceiveEmailAvailability(Account, ErrorMessage, AdditionalMessage) Export
 	
@@ -400,7 +400,7 @@ EndProcedure
 //  HTMLDocument - HTMLDocument - an HTML document to be checked.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if an HTML document has external resources.
 //
 Function HasExternalResources(HTMLDocument) Export
 	
@@ -453,6 +453,72 @@ Function ExtendedErrorPresentation(ErrorInfo, LanguageCode, EnableVerboseReprese
 	
 EndFunction
 
+// Returns the list of field names of the InternetMailMessage object.
+//
+// Returns:
+//  Structure:
+//    * DeliveryReceiptAddresses - String
+//    * ReadReceiptAddresses - String
+//    * Importance - String
+//    * Attachments - String
+//    * PostingDate - String
+//    * DateReceived - String
+//    * Header - String
+//    * UID - String
+//    * MessageID - String
+//    * SenderName - String
+//    * Categories - String
+//    * Encoding - String
+//    * Cc - String
+//    * ReplyTo - String
+//    * From - String
+//    * To - String
+//    * Size - String
+//    * Bcc - String
+//    * PostingDateOffset - String
+//    * ParseStatus - String
+//    * Subject - String
+//    * Texts - String
+//    * NonASCIISymbolsEncodingMode - String
+//    * RequestDeliveryReceipt - String
+//    * RequestReadReceipt - String
+//    * Partial - String
+//
+Function InternetMailMessageFields() Export
+	
+	MessageFields = New Structure;
+
+	MessageFields.Insert("DeliveryReceiptAddresses", "DeliveryReceiptAddresses"); 
+	MessageFields.Insert("ReadReceiptAddresses", "ReadReceiptAddresses");
+	MessageFields.Insert("Importance", "Importance");
+	MessageFields.Insert("Attachments", "Attachments");
+	MessageFields.Insert("PostingDate", "PostingDate");
+	MessageFields.Insert("DateReceived", "DateReceived");
+	MessageFields.Insert("Header", "Header");
+	MessageFields.Insert("SenderName", "SenderName");
+	MessageFields.Insert("UID", "UID");
+	MessageFields.Insert("MessageID", "MessageID");
+	MessageFields.Insert("Categories", "Categories");
+	MessageFields.Insert("Encoding", "Encoding");
+	MessageFields.Insert("Cc", "Cc");
+	MessageFields.Insert("ReplyTo", "ReplyTo");
+	MessageFields.Insert("From", "From");
+	MessageFields.Insert("To", "To");
+	MessageFields.Insert("Size", "Size");
+	MessageFields.Insert("Bcc", "Bcc");
+	MessageFields.Insert("PostingDateOffset", "PostingDateOffset");
+	MessageFields.Insert("ParseStatus", "ParseStatus");
+	MessageFields.Insert("Subject", "Subject");
+	MessageFields.Insert("Texts", "Texts");
+	MessageFields.Insert("NonASCIISymbolsEncodingMode", "NonASCIISymbolsEncodingMode");
+	MessageFields.Insert("RequestDeliveryReceipt", "RequestDeliveryReceipt");
+	MessageFields.Insert("RequestReadReceipt", "RequestReadReceipt");
+	MessageFields.Insert("Partial", "Partial");
+	
+	Return MessageFields;
+	
+EndFunction
+
 #Region ObsoleteProceduresAndFunctions
 
 // Sends emails.
@@ -464,21 +530,21 @@ EndFunction
 //  SendOptions - Structure - contains all email data:
 //
 //   * Whom - Array
-//          - String - 
-//          - Array - a collection of structures, addresses:
+//          - String - an email address of the email recipient.
+//          - Array - Collection of address structures:
 //              * Address         - String - an email address (required).
 //              * Presentation - String - a recipient's name.
-//          - String - 
+//          - String - recipient email addresses, separator - ";".
 //
 //   * MessageRecipients - Array - array of structures describing recipients:
 //      ** Address - String - an email recipient address.
 //      ** Presentation - String - an addressee presentation.
 //
 //   * Cc        - Array
-//                  - String - 
+//                  - String - email addresses of copy recipients. See the "To" field description.
 //
 //   * BCCs - Array
-//                  - String - 
+//                  - String - email addresses of BCC recipients. See the "To" field description.
 //
 //   * Subject       - String - (mandatory) email subject.
 //   * Body       - String - (mandatory) email text (plain text, win1251 encoded).
@@ -498,14 +564,14 @@ EndFunction
 //   * RequestReadReceipt - Boolean - shows whether a read notification is required.
 //   * TextType   - String
 //                 - EnumRef.EmailTextTypes
-//                 - InternetMailTextType - 
-//                  
-//                  
-//                  
-//                                                 
-//                                                 
-//                  
-//                                                 
+//                 - InternetMailTextType - specifies the type
+//                  of the passed text, possible values::
+//                  HTML/EmailTextTypes.HTML. Email text in HTML format.
+//                  PlainText/EmailTextTypes.PlainText. Plain text of an email message.
+//                                                 Displayed "as is" (default
+//                                                 value).
+//                  MarkedUpText/EmailTextTypes.MarkedUpText. Email message in
+//                                                 Rich Text format.
 //   * Join - InternetMail - an existing connection to a mail server. If not specified, a new one is created.
 //   * MailProtocol - String - if "IMAP" is specified, IMAP is used.
 //                              If "All" is specified, both SMTP and IMAP are used. If nothing is specified,
@@ -516,13 +582,13 @@ EndFunction
 //   * MessageIDIMAPSending - String - (return parameter) ID of the sent
 //                                         email on IMAP server.
 //   * WrongRecipients - Map - (return parameter) list of addresses that sending was failed to. 
-//                                          (See return value of method InternetMail.Send() in Syntax Assistant.
+//                                          (See return value of the InternetMail.Send() method in the Syntax Assistant.
 //
-//  DeleteConnection - InternetMail - obsolete, see parameter SendingParameters.Connection. 
-//  DeleteMailProtocol - String     - obsolete, see parameter SendingParameters.MailProtocol. 
+//  DeleteConnection - InternetMail - obsolete, see parameter SendingParameters.Connection.
+//  DeleteMailProtocol - String     - obsolete, see parameter SendingParameters.MailProtocol.
 //
 // Returns:
-//  String - 
+//  String - sent message ID.
 //
 Function SendEmailMessage(Val Account, Val SendOptions,
 	Val DeleteConnection = Undefined, DeleteMailProtocol = "") Export

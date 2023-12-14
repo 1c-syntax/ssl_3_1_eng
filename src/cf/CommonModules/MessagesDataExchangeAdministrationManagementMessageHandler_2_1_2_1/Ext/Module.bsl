@@ -12,7 +12,7 @@
 // Namespace of message interface version.
 //
 // Returns:
-//   String - name space.
+//   String - a namespace.
 //
 Function Package() Export
 	
@@ -23,7 +23,7 @@ EndFunction
 // Message interface version supported by the handler.
 //
 // Returns:
-//   String - 
+//   String - a message interface version.
 //
 Function Version() Export
 	
@@ -34,7 +34,7 @@ EndFunction
 // Base type for version messages.
 //
 // Returns:
-//   XDTOObjectType - 
+//   XDTOObjectType - a base type of message body.
 //
 Function BaseType() Export
 	
@@ -117,7 +117,7 @@ Procedure ConnectCorrespondent(Message, Sender)
 	// Checking whether correspondent is connected.
 	Peer = DataExchangeSaaS.EndpointsExchangePlanManager().FindByCode(Body.RecipientId);
 	
-	If Peer.IsEmpty() Then // 
+	If Peer.IsEmpty() Then // Connecting a correspondent endpoint.
 		
 		Cancel = False;
 		ConnectedCorrespondent = Undefined;
@@ -140,7 +140,7 @@ Procedure ConnectCorrespondent(Message, Sender)
 									Body.RecipientName,
 									Body.SenderName);
 		
-		If Cancel Then // 
+		If Cancel Then // Sending an error message to the service manager.
 			
 			ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Peer infobase endpoint connection error. Endpoint ID: %1.';"),
@@ -155,8 +155,8 @@ Procedure ConnectCorrespondent(Message, Sender)
 		
 		If ConnectedCorrespondentCode <> Body.RecipientId Then
 			
-			// 
-			// 
+			
+			
 			ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Peer infobase endpoint connection error.
 				|Unexpected endpoint ID.
@@ -190,7 +190,7 @@ Procedure ConnectCorrespondent(Message, Sender)
 		    Raise;
 		EndTry;
 		
-	Else // 
+	Else // Updating the correspondent and the endpoint connection settings.
 		
 		Cancel = False;
 		
@@ -210,7 +210,7 @@ Procedure ConnectCorrespondent(Message, Sender)
 									SenderConnectionSettings,
 									RecipientConnectionSettings);
 		
-		If Cancel Then // 
+		If Cancel Then // Sending an error message to the service manager.
 			
 			ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Endpoint connection failed.

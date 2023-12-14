@@ -12,7 +12,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	If Parameters.Property("Parent") Then
+	If ValueIsFilled(Parameters.Parent) Then
 		Object.Parent = Parameters.Parent;
 	EndIf;
 	
@@ -183,7 +183,7 @@ Procedure SyncSettings(Command)
 	
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -225,14 +225,14 @@ Procedure FileSystemExtensionAttachedOwnerWorkingDirectorySelectionStartFollowUp
 		DirectoryName = OpenFileDialog.Directory;
 		DirectoryName = CommonClientServer.AddLastPathSeparator(DirectoryName);
 		
-		// Creating a directory for files
+		// Create a directory for files
 		Try
 			CreateDirectory(DirectoryName);
 			TestDirectoryName = DirectoryName + "CheckAccess\";
 			CreateDirectory(TestDirectoryName);
 			DeleteFiles(TestDirectoryName);
 		Except
-			// Not authorized to create a directory, or this path does not exist.
+			// Insufficient rights to create a directory, or this path does not exist.
 			
 			ErrorText =
 				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Invalid path or insufficient rights to save to folder ""%1""';"), DirectoryName);
@@ -300,7 +300,7 @@ Procedure UpdateCommandsAvailabilityByRightsSetting()
 	
 EndProcedure
 
-// 
+
 
 &AtServer
 Procedure UpdateAdditionalAttributesItems()
@@ -335,7 +335,7 @@ EndProcedure
 // End StandardSubsystems.Properties
 
 &AtServer
-Function SynchronizationSettingsParameters(FileOwner)
+Function SynchronizationSettingsParameters(Val FileOwner)
 	
 	FileOwnerType = Common.MetadataObjectID(Type("CatalogRef.Files"));
 	
@@ -419,7 +419,7 @@ Procedure UpdateCloudServiceNote()
 EndProcedure
 
 &AtServerNoContext
-Function OwnerWorkingDirectoryClearingAtServer(Ref, ParentReference, Description)
+Function OwnerWorkingDirectoryClearingAtServer(Val Ref, Val ParentReference, Val Description)
 	
 	ParentWorkingDirectory = FilesOperationsInternalServerCall.FolderWorkingDirectory(ParentReference);
 	
@@ -428,11 +428,11 @@ Function OwnerWorkingDirectoryClearingAtServer(Ref, ParentReference, Description
 	
 	If IsBlankString(ParentWorkingDirectory) Then
 		
-		WorkingDirectory = ""; // 
+		WorkingDirectory = ""; 
 		
 	Else
 		
-		WorkingDirectory = InheritedFolderWorkingDirectory; // 
+		WorkingDirectory = InheritedFolderWorkingDirectory; 
 		
 	EndIf;
 	

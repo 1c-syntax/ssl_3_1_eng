@@ -74,8 +74,8 @@ Procedure GenerateDataAreaUpdatePlan(LibraryID, AllHandlers,
 		UpdatePlanEmpty = DataAreaUpdatePlan.Rows.Count() = 0;
 		
 		If LibraryID = Metadata.Name Then
-			// 
-			// 
+			
+			
 			UpdatePlanEmpty = False;
 			
 			// Checking whether each plan is empty.
@@ -202,8 +202,8 @@ Procedure GenerateDataAreaUpdatePlan(LibraryID, AllHandlers,
 		
 		If UpdatePlanEmpty Then
 			
-			// 
-			// 
+			
+			
 			DeferredFilterParameters = InfobaseUpdateInternal.HandlerFIlteringParameters();
 			DeferredFilterParameters.GetSeparated = True;
 			DeferredFilterParameters.UpdateMode = "Deferred";
@@ -695,7 +695,7 @@ Procedure OnSendSubsystemVersions(DataElement, ItemSend, Val InitialImageCreatin
 			
 		Else
 			
-			// 
+			// Exporting the register during the initial image creation only.
 			ItemSend = DataItemSend.Ignore;
 			
 		EndIf;
@@ -750,8 +750,8 @@ Procedure AfterUpdateInfobase(Val PreviousVersion, Val CurrentVersion,
 		Try
 			BackgroundJobs.Execute(Job.Metadata.MethodName, , Job.Key, Job.Description);
 		Except
-			// 
-			// 
+			
+			
 		EndTry;
 		// ACC:280-on
 	EndIf;
@@ -775,7 +775,7 @@ EndProcedure
 //
 // Parameters:
 //  Container - DataProcessorObject.ExportImportDataContainerManager - a container
-//    manager used for data export. For more information, see the comment 
+//    manager used for data export. For more information, see the comment
 //    to ExportImportDataContainerManager handler interface.
 //
 Procedure BeforeExportData(Container) Export
@@ -803,7 +803,7 @@ EndProcedure
 //
 // Parameters:
 //  Container - DataProcessorObject.ExportImportDataContainerManager - Container manager used for data import.
-//    For details, see comments to the API of ExportImportDataContainerManager. 
+//    For details, see comments to the API of ExportImportDataContainerManager.
 //    
 //
 Procedure BeforeImportData(Container) Export
@@ -871,7 +871,7 @@ EndFunction
 // Returns the record key for DataAreasSubsystemsVersions information register.
 //
 // Returns: 
-//   InformationRegisterRecordKeyInformationRegisterName - 
+//   InformationRegisterRecordKeyInformationRegisterName - the DataAreasSubsystemsVersions information register record key.
 //
 Function SubsystemVersionsRecordKey()
 	
@@ -916,8 +916,8 @@ Procedure ScheduleDataAreaUpdate()
 	
 	SharedDataVersion = InfobaseUpdateInternal.IBVersion(Metadata.Name, True);
 	If InfobaseUpdateInternal.UpdateRequired(MetadataVersion, SharedDataVersion) Then
-		// 
-		// 
+		
+		
 		Return;
 	EndIf;
 	
@@ -942,7 +942,7 @@ Procedure ScheduleDataAreaUpdate()
 	Query.SetParameter("SubsystemName", Metadata.Name);
 	Query.SetParameter("Version", MetadataVersion);
 	Result = ExecuteQueryOutsideTransaction(Query);
-	If Result.IsEmpty() Then // 
+	If Result.IsEmpty() Then // Preliminary reading, perhaps with dirty read parts.
 		Return;
 	EndIf;
 	
@@ -1131,8 +1131,8 @@ Procedure DataAreasUpdate() Export
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	
 	ScheduleDataAreaUpdate();
 	
@@ -1240,7 +1240,7 @@ Function DataAreaLockResult(RecordKey, AttemptNumber)
 		If AttemptNumber = 1 Then
 			IdleTimeEnd = CurrentSessionDate() + 20;
 			While CurrentSessionDate() < IdleTimeEnd Do
-				// 
+				
 			EndDo;
 			Return "Repeat";
 		EndIf;
@@ -1305,9 +1305,9 @@ Function ExecuteQueryOutsideTransaction(Val Query)
 	Result = Undefined;
 	While True Do
 		Try
-			Result = Query.Execute(); // 
-			                                // 
-			                                // 
+			Result = Query.Execute(); 
+			                                
+			                                
 			Break;
 		Except
 			AttemptsNumber = AttemptsNumber + 1;

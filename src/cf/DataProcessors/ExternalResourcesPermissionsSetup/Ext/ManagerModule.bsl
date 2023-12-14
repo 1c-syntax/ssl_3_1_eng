@@ -124,7 +124,7 @@ EndProcedure
 //
 Procedure ExecuteRecoveryRequestProcessing(Val TempStorageAddress, Val StateTemporaryStorageAddress) Export
 	
-	BeginTransaction(); // 	
+	BeginTransaction(); // ACC:326 - Transactions open only for a rollback.	
 	Try
 		ClearPermissions(, False);
 		
@@ -155,7 +155,7 @@ Function ExecuteApplicabilityCheckRequestsProcessing() Export
 		Raise NStr("en = 'Transaction is active';");
 	EndIf;
 	
-	BeginTransaction(); // 
+	BeginTransaction(); // ACC:326 - Transactions open only for a rollback.
 	Try
 	
 		RequestsIDs = New Array;
@@ -227,8 +227,8 @@ Procedure CommitRequests(Val State) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
+
+
 //
 
 // Sets an exclusive managed lock for tables of all registers used

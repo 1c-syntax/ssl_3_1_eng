@@ -109,8 +109,8 @@ EndProcedure
 // Creates form items based on questions passed to a user.
 //
 // Parameters:
-//     Questions - Array - structures containing the question value parameters.
-//                        See StandardSubsystems.Core\BeforeExit.
+//     
+//                        
 //
 &AtServer
 Procedure InitializeItemsInForm(Val Warnings)
@@ -171,12 +171,12 @@ Function WarningTable(Val Warnings)
 		EndIf;
 	EndDo;
 	
-	// 
+	
 	If SingleWarnings.Count() > 0 Then
 		Result = Result.Copy(SingleWarnings);
 	EndIf;
 	
-	// 
+	// The higher the priority the higher the position of the warning in the list.
 	Result.Sort("Priority DESC");
 	
 	Return Result;

@@ -12,8 +12,8 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// 
-	// 
+	
+	
 	If Object.Ref.IsEmpty() Then
 		InitializeTheForm();
 	EndIf;
@@ -305,7 +305,7 @@ Procedure WriteBusinessProcessAttributes(TaskObject)
 		LockDataForEdit(BusinessProcessObject.Ref);
 
 		BusinessProcessObject.Completed2 = JobCompleted;
-		BusinessProcessObject.Write(); // 
+		BusinessProcessObject.Write(); 
 
 		CommitTransaction();
 	Except

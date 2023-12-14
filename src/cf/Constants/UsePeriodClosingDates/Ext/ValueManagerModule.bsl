@@ -13,8 +13,8 @@
 
 Procedure OnWrite(Cancel)
 	
-	// 
-	// 
+	
+	
 	If Not AdditionalProperties.Property("SkipPeriodClosingDatesVersionUpdate") Then
 		PeriodClosingDatesInternal.UpdatePeriodClosingDatesVersion();
 	EndIf;

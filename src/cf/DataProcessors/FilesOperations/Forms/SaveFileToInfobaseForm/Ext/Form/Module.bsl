@@ -16,7 +16,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	VersionComment = Parameters.VersionComment;
 	CreateNewVersion = Parameters.CreateNewVersion;
 	
-	If File.StoreVersions Then
+	If Common.ObjectAttributeValue(File, "StoreVersions") Then
 		CreateNewVersion = True;
 		Items.CreateNewVersion.Enabled = Parameters.CreateNewVersionAvailability;
 		If Not Parameters.CreateNewVersionAvailability Then

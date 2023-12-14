@@ -223,7 +223,8 @@ Function ProcessWriteFileVersionCommand()
 	Modified = False;
 	RepresentDataChange(Object.Ref, DataChangeType.Update);
 	NotifyChanged(Object.Ref);
-	Notify("Write_File", New Structure("Event", "VersionSaved"), Object.Owner);
+	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters("VersionSaved");
+	Notify("Write_File", FileRecordingNotificationParameters, Object.Owner);
 	Notify("Write_FileVersion", New Structure("IsNew", False), Object.Ref);
 	
 	Return True;

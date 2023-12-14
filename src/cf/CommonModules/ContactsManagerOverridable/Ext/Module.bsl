@@ -19,7 +19,7 @@
 //  Settings - Structure:
 //    * ShouldShowIcons - Boolean
 //    * DetailsOfCommands - See ContactsManager.DetailsOfCommands
-//    * PositionOfAddButton - ItemHorizontalLocation -
+//    * PositionOfAddButton - ItemHorizontalLocation - 
 //                                                                  
 //                                                                  
 //                                                                  
@@ -27,7 +27,7 @@
 //                                                                         
 //                                                                         
 //                                                                         
-//    * CommentFieldWidth - Number -
+//    * CommentFieldWidth - Number - 
 //                                      
 //                                      
 //

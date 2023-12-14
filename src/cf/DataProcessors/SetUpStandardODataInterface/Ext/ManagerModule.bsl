@@ -180,7 +180,7 @@ Procedure WriteAuthorizationSettingsForStandardODataInterface(Val AuthorizationS
 		
 		If ValueIsFilled(UserProperties.User) Then
 			
-			// 
+			// Lock the infobase user.
 			
 			IBUserDetails = New Structure();
 			IBUserDetails.Insert("Action", "Write");
@@ -256,8 +256,8 @@ EndFunction
 //
 // Returns:
 //   Map of KeyAndValue:
-//     * Key - MetadataObject -
-//     * Value - Array of String - 
+//     * Key - MetadataObject - a metadata object.
+//     * Value - Array of String -  
 //                                     
 //
 Function ReferenceRoleCompositionForStandardODataInterface() Export
@@ -306,7 +306,7 @@ EndFunction
 // OData interface (SaaS).
 //
 // Returns:
-//   Array - 
+//   Array - Errors found in the role.
 //
 Function ODataRoleCompositionErrors(ErrorsByObjects = Undefined) Export
 	

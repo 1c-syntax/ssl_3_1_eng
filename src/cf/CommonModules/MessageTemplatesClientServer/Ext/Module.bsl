@@ -31,7 +31,7 @@ EndProcedure
 // Initializes the message structure that has to be returned by the external data processor from the template.
 //
 // Returns:
-//   Structure - 
+//   Structure - a created structure.
 //
 Function InitializeMessageStructure() Export
 	
@@ -49,7 +49,7 @@ EndFunction
 // Initializes the Recipients structure to fill in possible message recipients.
 //
 // Returns:
-//   Structure - 
+//   Structure - a created structure.
 //
 Function InitializeRecipientsStructure() Export
 	
@@ -60,14 +60,14 @@ EndFunction
 // Template parameter constructor.
 //
 // Returns:
-//  Structure - 
+//  Structure - :
 //   * Subject - String - a subject of templates (for emails).
 //   * Text - String - a template text.
 //   * SignatureAndSeal - Boolean - indicates whether there is a signature and a seal in print forms.
 //   * MessageParameters - Structure - additional message parameters.
 //   * Description - String - a message template description.
 //   * Ref - Undefined - a reference to catalog item.
-//   * TemplateOwner - Undefined - a context template owner.
+//   * TemplateOwner - Undefined -  a context template owner.
 //   * DCSParameters - Map - a parameter set on receiving data using DCS.
 //   * Parameters - Map - template parameters.
 //   * Template - String - a DCS template name.
@@ -148,6 +148,7 @@ EndFunction
 //  Template - CatalogRef.MessageTemplates
 //  SubjectOf - AnyRef
 //  UUID - UUID
+//
 // Returns:
 //  Structure:
 //    * AdditionalParameters - Structure:

@@ -11,7 +11,7 @@
 
 #Region Private
 
-// For forms of directory elements, Users and external Users.
+// For the Users and ExternalUsers document item forms.
 //
 // Parameters:
 //  Form - ClientApplicationForm:
@@ -58,7 +58,7 @@ Procedure ReadUserInfo(Form) Export
 	
 EndProcedure
 
-// For forms of directory elements, Users and external Users.
+// For the Users and ExternalUsers document item forms.
 //
 // Parameters:
 //  Form - ClientApplicationForm
@@ -86,7 +86,7 @@ EndProcedure
 
 // Parameters:
 //  UserDetails - InfoBaseUser
-//                       - UUID - ID of the IB user.
+//                       - UUID - infobase user ID.
 //
 // Returns:
 //  Structure:
@@ -198,7 +198,7 @@ Procedure UpdateRegisterData(User = Undefined, HasChanges = Undefined) Export
 		If Properties = Undefined Then
 			Continue;
 		EndIf;
-		// 
+		
 		UpdateUserInfoRecords(Selection.Ref,,, HasChanges);
 	EndDo;
 	
@@ -356,7 +356,7 @@ EndFunction
 //  IBUser - InfoBaseUser
 //                 - Undefined
 //
-//  HasChanges - Boolean - the return value.
+//  HasChanges - Boolean - a return value.
 //
 Procedure UpdateUserInfoRecords(User, UserObject = Undefined,
 			IBUser = Undefined, HasChanges = False) Export
@@ -517,9 +517,9 @@ Procedure DeleteInfoRecordsOnDeletedUsers(User, HasChanges = False)
 		Query.SetParameter("User", User);
 	EndIf;
 	
-	// 
+	
 	Selection = Query.Execute().Select();
-	// 
+	// ACC:1328-on
 	While Selection.Next() Do
 		RecordSet = InformationRegisters.UsersInfo.CreateRecordSet();
 		RecordSet.Filter.User.Set(Selection.Ref);
@@ -612,7 +612,7 @@ Procedure UpdateUsersInfoAndDisableAuthentication() Export
 		Try
 			Block.Lock();
 			HasChanges = False;
-			// 
+			
 			DeleteInfoRecordsOnDeletedUsers(User, HasChanges);
 			If Not HasChanges Then
 				UserObject = ServiceItem(User);
@@ -627,12 +627,12 @@ Procedure UpdateUsersInfoAndDisableAuthentication() Export
 								UsersInternal.StoredIBUserProperties(PreviousProperties));
 						EndIf;
 					EndIf;
-					// 
+					
 					UpdateUserInfoRecords(User, UserObject);
 					If UserObject.Modified() Then
-						// ACC:1363-
+						
 						UserObject.Write();
-						// 
+						// ACC:1363-on
 					EndIf;
 				EndIf;
 			EndIf;
@@ -763,7 +763,7 @@ Procedure ResetOpenIDConnectAuthenticationForAllUsers()
 		Try
 			IBUser.Write();
 			If String <> Undefined Then
-				// 
+				
 				UpdateUserInfoRecords(String.Ref);
 			EndIf;
 			CommitTransaction();

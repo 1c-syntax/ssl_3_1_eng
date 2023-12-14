@@ -100,11 +100,11 @@ Function TransportSettingsWS(Peer, AuthenticationParameters = Undefined) Export
 		Password = Undefined;
 		
 		If AuthenticationParameters.Property("Password", Password)
-			And Password <> Undefined Then // 
+			And Password <> Undefined Then 
 			
 			Result.WSPassword = Password;
 			
-		Else // 
+		Else // The password is not specified on the client.
 			
 			Password = DataExchangeServer.DataSynchronizationPassword(Peer);
 			
@@ -420,7 +420,7 @@ Function ExchangeTransportSettings(Peer, ExchangeTransportKind)
 	
 	SettingsStructure = New Structure;
 	
-	// 
+	// Common settings for all transport kinds.
 	SettingsStructure.Insert("DefaultExchangeMessagesTransportKind");
 	PasswordsList = "ArchivePasswordExchangeMessages";
 	
@@ -478,8 +478,8 @@ Function GetRegisterDataByStructure(Peer, SettingsStructure)
 		Return SettingsStructure;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	SelectedFields = "";
 	For Each SettingItem In SettingsStructure Do
 		
@@ -487,7 +487,7 @@ Function GetRegisterDataByStructure(Peer, SettingsStructure)
 		
 	EndDo;
 	
-	// 
+	// Delete the last comma ( , ).
 	StringFunctionsClientServer.DeleteLastCharInString(SelectedFields, 2);
 	
 	QueryTextTemplate2 = 
@@ -524,7 +524,7 @@ Function ExchangeTransportSettingsContent(SearchSubstring)
 	TransportSettingsStructure = New Structure;
 	
 	RecordSet = CreateRecordSet();
-	Record = RecordSet.Add(); // 
+	Record = RecordSet.Add(); 
 	
 	For Each Resource In RecordSet.Metadata().Resources Do
 		

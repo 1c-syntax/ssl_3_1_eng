@@ -53,7 +53,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 	EndIf;
 
-	// 
+	// SSLGroup form item is visible if this SSL version is supported.
 	Items.SLGroup.Visible = CurrentObject.ConfigurationSupportsSSL
 	
 EndProcedure

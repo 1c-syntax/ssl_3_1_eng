@@ -27,7 +27,7 @@ EndFunction
 // Parameters:
 //  Respondent   - DefinedType.Respondent - an interviewee.
 //  QuestionnaireTemplate - CatalogRef.QuestionnaireTemplates - a template used for interview.
-//               - Undefined - 
+//               - Undefined - a user selects a template from the catalog.
 //
 Procedure StartInterview(Respondent, QuestionnaireTemplate = Undefined) Export
 

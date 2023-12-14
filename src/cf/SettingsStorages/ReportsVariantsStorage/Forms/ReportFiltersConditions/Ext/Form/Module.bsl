@@ -62,8 +62,8 @@ EndProcedure
 Procedure SetConditionalAppearance()
 	ConditionalAppearance.Items.Clear();
 	
-	// 
-	// 
+	
+	
 	//
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -80,9 +80,9 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.FiltersUserSettingPresentation.Name);
 	
-	// ПредставлениеПользовательскойНастройки - 
-	// 
-	// 
+	
+	
+	
 	//
 	Item = ConditionalAppearance.Items.Add();
 	

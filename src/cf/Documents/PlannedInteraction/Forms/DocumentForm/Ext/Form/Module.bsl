@@ -406,7 +406,7 @@ Procedure CreateContactExecute()
 	
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -486,7 +486,7 @@ Function ContactsAutoSelection(Val SearchString)
 	
 EndFunction
 
-// 
+
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()

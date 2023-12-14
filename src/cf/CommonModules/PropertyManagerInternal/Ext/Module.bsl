@@ -13,11 +13,11 @@
 //
 // Parameters:
 //  ObjectsKind - String - a full name of a metadata object;
-//  PropertyKind  - String -
+//  PropertyKind  - String - "AdditionalAttributes", "AdditionalInfo", or "Labels".
 //
 // Returns:
-//  ValueTable - 
-//  
+//  ValueTable - Property, Description, ValueType, and FormatProperties.
+//  Undefined - The given object kind has no property set.
 //
 Function PropertiesListForObjectsKind(ObjectsKind, Val PropertyKind) Export
 	
@@ -508,7 +508,7 @@ Procedure OnSearchForReferenceReplacement(ReplacementPairs, UnprocessedOriginals
 			RollbackTransaction();
 			WriteLogEvent(NStr("en = 'Reference search and replacement';", Common.DefaultLanguageCode()),
 				EventLogLevel.Error,
-				UnprocessedDuplicate.ValueToReplace.Metadata,,
+				UnprocessedDuplicate.ValueToReplace.Metadata(),,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			
 		EndTry;
@@ -946,7 +946,7 @@ Function GetObjectPropertySets(Val PropertiesOwner, AssignmentKey = Undefined) E
 	PropertiesSets.Columns.Add("Picture");
 	PropertiesSets.Columns.Add("ShowTitle");
 	PropertiesSets.Columns.Add("SharedSet", New TypeDescription("Boolean"));
-	// Устарело:
+	// Obsolete:
 	PropertiesSets.Columns.Add("SlaveItemsWidth");
 	
 	PropertyManagerOverridable.FillObjectPropertiesSets(
@@ -1145,10 +1145,10 @@ Function PropertiesValues(AdditionalObjectProperties, Sets, PropertyKind) Export
 	CurrentLanguageSuffix = Common.CurrentUserLanguageSuffix();
 	If CurrentLanguageSuffix = Undefined Then
 		Query.Text = StrReplace(Query.Text,
-			" AllProperties AS AllProperties
+			"	AllProperties AS AllProperties
 			|		INNER JOIN ChartOfCharacteristicTypes.AdditionalAttributesAndInfo AS AdditionalAttributesAndInfo
 			|		ON AllProperties.Property = AdditionalAttributesAndInfo.Ref",
-			" AllProperties AS AllProperties
+			"	AllProperties AS AllProperties
 			|		INNER JOIN ChartOfCharacteristicTypes.AdditionalAttributesAndInfo AS AdditionalAttributesAndInfo
 			|		ON AllProperties.Property = AdditionalAttributesAndInfo.Ref
 			|		LEFT JOIN ChartOfCharacteristicTypes.AdditionalAttributesAndInfo.Presentations AS PresentationProperties
@@ -1480,7 +1480,7 @@ Procedure BeforeRemoveReferenceObject(Object, Cancel) Export
 	EndIf;
 	
 	If Not Common.SeparatedDataUsageAvailable() Then
-		// 
+		// Do not check in shared mode.
 		Return;
 	EndIf;
 	
@@ -1520,7 +1520,7 @@ EndProcedure
 //  Property - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo
 //
 // Returns:
-//  Boolean -  
+//  Boolean -  True if at least one object is found.
 //
 Function AdditionalPropertyUsed(Property) Export
 	
@@ -1571,7 +1571,7 @@ Function AdditionalPropertyUsed(Property) Export
 	
 	For Each Table In ObjectTables1 Do
 		Query.Text = StrReplace(QueryText, "TableName", Table + ".AdditionalAttributes");
-		If Not Query.Execute().IsEmpty() Then // @skip-
+		If Not Query.Execute().IsEmpty() Then // @skip-check query-in-loop. Query to multiple tables.
 			Return True;
 		EndIf;
 	EndDo;
@@ -1580,9 +1580,9 @@ Function AdditionalPropertyUsed(Property) Export
 	
 EndFunction
 
-// 
-// 
-// 
+// Checks if the metadata object uses properties of a certain kind (except for additional information records).
+// The check is intended to control reference integrity,
+// that is why the embedding check is skipped.
 //
 Function IsMetadataObjectWithProperties(MetadataObject, PropertyKind) Export
 	
@@ -1618,7 +1618,7 @@ EndFunction
 // 
 // Parameters:
 //  Set - CatalogRef.AdditionalAttributesAndInfoSets,
-//        - String - 
+//        - String - a full name of the predefined item.
 //
 Function PredefinedSetDescription(Set) Export
 	
@@ -1751,12 +1751,12 @@ EndProcedure
 // Returns enum values of the specified property.
 //
 // Parameters:
-//  Property - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - property for
-//             which you want to retrieve enum values.
+//  Property - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - a property for
+//             which listed values are to be received.
 //           - Array
 // 
 // Returns:
-//  Array of CatalogRef - 
+//  Array of CatalogRef - property values if any.
 //
 Function AdditionalPropertyValues(Property) Export
 	
@@ -1811,7 +1811,7 @@ Procedure CreatePredefinedPropertiesSets() Export
 		String = TempTable.Add();
 		FillPropertyValues(String, PredefinedSet.Value);
 		If ValueIsFilled(PredefinedSet.Value.Parent) Then
-			// Если изменился дочерний набор - 
+			// If a subordinate set is changed, still select an upper level set for processing.
 			String.Ref      = PredefinedSet.Value.Parent;
 			String.IsChildOne = True;
 		EndIf;
@@ -2282,7 +2282,7 @@ EndFunction
 // Returns the default owner property set.
 //
 // Parameters:
-//  PropertiesOwner - 
+//  PropertiesOwner - a reference or property owner object.
 //
 // Returns:
 //  CatalogRef.AdditionalAttributesAndInfoSets
@@ -2355,8 +2355,8 @@ Function ValueWithoutRef(Value, Presentation)
 	
 EndFunction
 
-// 
-// 
+// Used in the list form of the AdditionalAttributesAndInfoSets catalog
+// and of the AdditionalAttributesAndInfo chart of characteristic types.
 //
 Procedure UpdateCurrentSetPropertiesList(Form, Set, PropertyKind, CurrentEnable = Undefined) Export
 	

@@ -136,7 +136,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		SelectedCertificateThumbprintNotFound = True;
 	EndIf;
 	
-	Items.CommandsSelectCancel.Visible = LinkSelectionMode;
+	Items.SelectCancelCommands.Visible = LinkSelectionMode;
 	Items.SelectLink.DefaultButton = LinkSelectionMode;
 	Items.CommandsNextAndCancel.Visible = Not LinkSelectionMode;
 	Items.Next.DefaultButton = Not LinkSelectionMode;
@@ -179,7 +179,7 @@ EndProcedure
 &AtServer
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
-	// 
+	// Check description for uniqueness.
 	DigitalSignatureInternal.CheckPresentationUniqueness(
 		DescriptionCertificate, Certificate, "DescriptionCertificate", Cancel);
 		
@@ -499,7 +499,7 @@ Procedure SelectLink(Command)
 	EndIf;
 EndProcedure
 
-// 
+// Continues the SelectRef???????????? procedure.
 &AtClient
 Procedure SelectLinkCompletion(Result, Context) Export 
 	Close(Result.Unload());
@@ -652,7 +652,7 @@ EndProcedure
 // CAC:78-off: to securely pass data between forms on the client without sending them to the server.
 &AtClient
 Procedure ContinueOpening(Notification, CommonInternalData) Export
-// ACC:78-
+// CAC:78-on: to securely pass data between forms on the client without sending them to the server.
 	
 	InternalData = CommonInternalData;
 	DigitalSignatureInternalClient.ProcessPasswordInForm(ThisObject, InternalData, PasswordProperties);
@@ -979,14 +979,14 @@ EndProcedure
 
 // Continues the GoToCurrentCertificateChoice procedure.
 &AtClient
-Procedure GoToCurrentCertificateChoiceAfterCertificateExport(ExportedData, Context) Export
+Async Procedure GoToCurrentCertificateChoiceAfterCertificateExport(ExportedData, Context) Export
 	
 	AddressOfCertificate = PutToTempStorage(ExportedData, UUID);
 	
 	ThumbprintOfCertificate = Context.CurrentData.Thumbprint;
 	
 	DigitalSignatureInternalClientServer.FillCertificateDataDetails(DetailsOfCertificateData,
-		DigitalSignatureClient.CertificateProperties(Context.CryptoCertificate));
+		Await DigitalSignatureInternalClient.CertificateProperties(Context.CryptoCertificate));
 	
 	Context.SavedProperties = SavedCertificateProperties(Context.CurrentData.Thumbprint,
 		AddressOfCertificate, CertificateAttributeParameters);

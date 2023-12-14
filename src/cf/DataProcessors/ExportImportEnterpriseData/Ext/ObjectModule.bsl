@@ -17,7 +17,7 @@
 //   ExchangeFormatVersionOnImport1 - String - a format version to be used on data import.
 //
 // Returns:
-//   Structure - 
+//   Structure - exchange components.
 //
 Function ExchangeComponents(ExchangeDirection, ExchangeFormatVersionOnImport1 = "", FormatExtensionOnImport = "") 
 	
@@ -88,7 +88,7 @@ EndFunction
 //   AddressToPlaceResult - String - address in temporary storage.
 // 
 // Returns:
-//   String - 
+//   String - address in the temporary storage where the export result is placed.
 //
 Function ExportToXMLResult(ParametersStructure, AddressToPlaceResult = Undefined) Export
 	
@@ -101,7 +101,8 @@ Function ExportToXMLResult(ParametersStructure, AddressToPlaceResult = Undefined
 	ListExportAddition.Clear();
 	FillListOfObjectsToExport();
 	
-	ExportResult = ExportDataToXML();
+	AddressOnServer = GetTempFileName("xml");
+	ExportResult = ExportDataToXML(AddressOnServer);
 	
 	If ExportResult.HasErrors Then
 		MessageText = NStr("en = 'Operation execution errors';") + ": "
@@ -113,29 +114,29 @@ Function ExportToXMLResult(ParametersStructure, AddressToPlaceResult = Undefined
 		Common.MessageToUser(MessageText);
 	EndIf;
 	
-	If ExportLocation = 0 Then
-		// Into file.
-		TX = New TextDocument;
-		TX.SetText(ExportResult.ExportText);
-		AddressOnServer = GetTempFileName("xml");
-		TX.Write(AddressOnServer);
+	If ExportLocation = 0 Then // Into file.
 		
-		If AddressToPlaceResult = Undefined Then
-			StorageAddress = PutToTempStorage(New BinaryData(AddressOnServer));
-		Else
-			PutToTempStorage(New BinaryData(AddressOnServer), AddressToPlaceResult);
-			StorageAddress = AddressToPlaceResult;
-		EndIf;
-		DeleteFiles(AddressOnServer);
-	Else
-		// Into text.
-		If AddressToPlaceResult = Undefined Then
-			StorageAddress = PutToTempStorage(ExportResult.ExportText);
-		Else
-			PutToTempStorage(ExportResult.ExportText, AddressToPlaceResult);
-			StorageAddress = AddressToPlaceResult;
-		EndIf;
+		StorageContents = New BinaryData(AddressOnServer);
+		
+	Else // Into text.
+		
+		TextDocument = New TextDocument;
+		TextDocument.Read(AddressOnServer);
+		StorageContents = TextDocument.GetText();
+		
 	EndIf;
+	
+	If AddressToPlaceResult = Undefined Then
+		
+		StorageAddress = PutToTempStorage(StorageContents);
+		
+	Else
+		
+		PutToTempStorage(StorageContents, AddressToPlaceResult);
+		StorageAddress = AddressToPlaceResult;
+		
+	EndIf;
+	DeleteFiles(AddressOnServer);
 	
 	Return StorageAddress;
 	
@@ -144,7 +145,7 @@ EndFunction
 // Exports objects by settings specified in the data processor attributes and returns the export result.
 // 
 // Returns:
-//   Structure - 
+//   Structure - :
 //     * ExportText - String - an exchange message text.
 //     * HasExportedObjects - Boolean - True if at least one object is exported.
 //     * HasErrors - Boolean - True if errors occurred during export.
@@ -152,12 +153,12 @@ EndFunction
 //     * ExportedObjects - Array - an array of exported objects by data processor settings.
 //     * ExportedByRefObjects - Array - an array of exported objects by references.
 //
-Function ExportDataToXML()
+Function ExportDataToXML(ExchangeFileName = "")
 	
 	ExchangeComponents = ExchangeComponents("Send");
 	
-	// 
-	DataExchangeXDTOServer.OpenExportFile(ExchangeComponents);
+	// Open an exchange file.
+	DataExchangeXDTOServer.OpenExportFile(ExchangeComponents, ExchangeFileName);
 	
 	HasExportedObjects      = False;
 	HasErrorsBeforeConversion = False;
@@ -225,9 +226,14 @@ Function ExportDataToXML()
 	EndIf;
 	
 	If ListExportAddition.Count() > 0 Then
+		
+		EventStart = NStr("en = 'ExportImportEnterpriseData.Start';", Common.DefaultLanguageCode());
+		EventEnding = NStr("en = 'ExportImportEnterpriseData.End';", Common.DefaultLanguageCode());
+		
 		For Each ListItem In ListExportAddition Do
 			ExportRef = ListItem.Value;
 			ExportRefMetadata = ExportRef.Metadata();
+			ProcessLogging(EventStart, ExportRefMetadata, ExportRef);
 			ProcessingRule = ExchangeComponents.DataProcessingRules.Find(ExportRefMetadata, "SelectionObjectMetadata");
 			If ProcessingRule = Undefined Then
 				Continue;
@@ -238,6 +244,7 @@ Function ExportDataToXML()
 				ObjectForExport = ExportRef;
 			EndIf;
 			DataExchangeXDTOServer.ExportSelectionObject(ExchangeComponents, ObjectForExport, ProcessingRule);
+			ProcessLogging(EventEnding, ExportRefMetadata, ExportRef);
 			HasExportedObjects = True;
 		EndDo;
 	EndIf;
@@ -261,11 +268,9 @@ Function ExportDataToXML()
 	
 	ExchangeComponents.ExchangeFile.WriteEndElement(); // Body
 	ExchangeComponents.ExchangeFile.WriteEndElement(); // Message
-	
-	ExportText = ExchangeComponents.ExchangeFile.Close();
+	ExchangeComponents.ExchangeFile.Close();
 	
 	ExportResult = New Structure;
-	ExportResult.Insert("ExportText",              ExportText);
 	ExportResult.Insert("HasExportedObjects",     HasExportedObjects);
 	ExportResult.Insert("HasErrors",                 ExchangeComponents.FlagErrors);
 	ExportResult.Insert("ErrorText",                ExchangeComponents.ErrorMessageString);
@@ -481,11 +486,11 @@ EndProcedure
 //      Presentation        - String - object presentation in the filter.
 //      Filter                - DataCompositionFilter - a composition filter for filling.
 //      SchemaSavingAddress - String
-//                           - UUID - 
-//                             
+//                           - UUID - a temporary storage address for saving the
+//                             composition schema.
 //
 // Returns:
-//      DataCompositionSettingsComposer - 
+//      DataCompositionSettingsComposer - an initialized composer.
 //
 Function SettingsComposerByTableName(FullMetadataName, Presentation = Undefined, Filter = Undefined, SchemaSavingAddress = Undefined) Export
 	
@@ -517,9 +522,9 @@ EndFunction
 //
 // Parameters:
 //      FullMetadataName - String
-//                          - ValueTree - 
-//                            
-//                            
+//                          - ValueTree - metadata object name (for example Catalog.Currencies), or
+//                            predefined group name
+//                            (for example AllDocuments), or value tree that describes a group.
 //
 // Returns:
 //      Array - metadata names.
@@ -545,7 +550,7 @@ Function EnlargedMetadataGroupComposition(FullMetadataName)
 		MetadataIteration = True;
 		MetaObjects = Metadata.ChartsOfCharacteristicTypes;
 	Else
-		// 
+		// Single metadata table.
 		CompositionTables.Add(FullMetadataName);
 	EndIf;
 	If MetadataIteration Then
@@ -564,7 +569,7 @@ EndFunction
 //      Filter  - DataCompositionFilter - a data composition filter to describe.
 //      EmptyFilterDetails - String - the function returns this value if an empty filter is passed.
 //  Returns:
-//   String - 
+//   String - filter string presentation.
 //
 Function FilterPresentation(Period, Filter, Val EmptyFilterDetails = Undefined) Export
 	OurFilter = ?(TypeOf(Filter)=Type("DataCompositionSettingsComposer"), Filter.Settings.Filter, Filter);
@@ -632,9 +637,9 @@ EndProcedure
 // Prepares a list of objects to be exported in accordance with the settings.
 Procedure FillListOfObjectsToExport() 
 	SetPrivilegedMode(True);
-	// 
-	// 
-	// 
+	
+	
+	
 	MetadataArrayWithoutFilters = New Array;
 	MetadataArrayFilterByPeriod = New Array;
 	For Each String In AdditionalRegistration Do
@@ -664,7 +669,7 @@ EndProcedure
 // Parameters:
 //  ParameterObject - Arbitrary - a string with a full metadata name or a metadata object.
 // Returns:
-//  String - representation of objects.
+//  String - object presentation.
 //
 Function ObjectPresentation(ParameterObject) 
 	
@@ -696,8 +701,8 @@ EndFunction
 //                                      If it is Undefined, all metadata types from node content are used.
 //
 //      SchemaSavingAddress - String
-//                           - UUID - 
-//                             
+//                           - UUID - a temporary storage address for saving the
+//                             composition schema.
 //
 //  Returns:
 //      Structure:
@@ -713,7 +718,7 @@ Function InitializeComposer(MetadataNamesList = Undefined, SchemaSavingAddress =
 	// Sets for each metadata type included in the exchange.
 	SetItemsChanges = CompositionSchema.DataSets.Find("ChangeRecords").Items;
 	While SetItemsChanges.Count() > 1 Do
-		// [0] - 
+		// [0] - Field details.
 		SetItemsChanges.Delete(SetItemsChanges[1]);
 	EndDo;
 	AdditionalChangesTable = AdditionalRegistration;
@@ -813,7 +818,7 @@ Function InitializeComposer(MetadataNamesList = Undefined, SchemaSavingAddress =
 					
 				EndIf;
 
-				// Добавляем элементы отбора с коррекцией полей "Ссылка" -
+				// Adding filter items with field replacement: Ref -> ObjectRef.
 				AddingOptions = New Structure;
 				AddingOptions.Insert("NameOfTableToAdd", NameOfTableToAdd);
 				AddTabularSectionCompositionAdditionalFilters(
@@ -830,9 +835,10 @@ EndFunction
 //  Adds a data set with one Reference field by the table name in the composition schema.
 //
 //  Parameters:
-//      DataCompositionSchema - DataCompositionSchema - the schema that is being added to.
-//      
-//      
+//      DataCompositionSchema - DataCompositionSchema - TableName - String - Data table name.
+//                                                      Presentation - String - Presentation of the Ref field.
+//      TableName - String - Data table name.
+//      Presentation - String - Presentation of the Ref field.
 //
 Procedure AddSetToCompositionSchema(DataCompositionSchema, TableName, Presentation = Undefined)
 	
@@ -1013,14 +1019,14 @@ Procedure AddTabularSectionCompositionAdditionalFilters(DestinationItems, Source
 		MetaTabularSection = MetaObject1.TabularSections.Find(TableName);
 			
 		If Position = 0 Then
-			// 
+			// Header attribute filter is retrieved by reference.
 			FilterElement = DestinationItems.Add(Type);
 			FillPropertyValues(FilterElement, Item);
 			FilterElement.LeftValue = New DataCompositionField("ObjectRef." + FieldName);
 			Continue;
 			
 		ElsIf MetaTabularSection = Undefined Then
-			// 
+			// The table does not match the conditions. Refine the filter.
 			FilterElement = DestinationItems.Add(Type);
 			FillPropertyValues(FilterElement, Item);
 			FilterElement.LeftValue  = New DataCompositionField("FullMetadataName");
@@ -1034,14 +1040,14 @@ Procedure AddTabularSectionCompositionAdditionalFilters(DestinationItems, Source
 		// Setting up filter for a tabular section
 		DataPath = Mid(FieldName, Position + 1);
 		If StrStartsWith(DataPath + ".", "Ref.") Then
-			// 
+			// Redirecting to the parent table.
 			FilterElement = DestinationItems.Add(Type);
 			FillPropertyValues(FilterElement, Item);
 			FilterElement.LeftValue = New DataCompositionField("ObjectRef." + Mid(DataPath, 8));
 			
 		ElsIf DataPath <> "LineNumber" And DataPath <> "Ref"
 			And MetaTabularSection.Attributes.Find(DataPath) = Undefined Then
-			// 
+			// The table is correct but the attribute does not match conditions. Refine the filter.
 			FilterElement = DestinationItems.Add(Type);
 			FillPropertyValues(FilterElement, Item);
 			FilterElement.LeftValue  = New DataCompositionField("FullMetadataName");
@@ -1050,7 +1056,7 @@ Procedure AddTabularSectionCompositionAdditionalFilters(DestinationItems, Source
 			FilterElement.RightValue = "";
 			
 		Else
-			// 
+			// Modify the name.
 			FilterElement = DestinationItems.Add(Type);
 			FillPropertyValues(FilterElement, Item);
 			DataPath = StrReplace(NameOfTableToAdd + TableName, ".", "") + DataPath;
@@ -1118,7 +1124,7 @@ Procedure AddListOfObjectsToExport(MetadataArrayFilter)
 	// Save filter settings.
 	FiltersSettings = CompositionData.SettingsComposer.GetSettings();
 	
-	// 
+	// Apply the selected option.
 	CompositionData.SettingsComposer.LoadSettings(
 		CompositionData.CompositionSchema.SettingVariants["UserData1"].Settings);
 	
@@ -1142,6 +1148,18 @@ Procedure AddListOfObjectsToExport(MetadataArrayFilter)
 			ListExportAddition.Add(SpecificationRow.ObjectRef);
 		EndIf;
 	EndDo;
+EndProcedure
+
+Procedure ProcessLogging(LogEvent, ExportRefMetadata, ExportRef)
+	
+	If Not LogObjectUploads Then
+		
+		Return;
+		
+	EndIf;
+	
+	WriteLogEvent(LogEvent, EventLogLevel.Information, ExportRefMetadata, ExportRef, String(ExportRef));
+	
 EndProcedure
 
 #EndRegion

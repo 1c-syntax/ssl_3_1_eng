@@ -12,7 +12,7 @@
 // Returns the current setting of digital signature usage.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - if True, digital signatures are used.
 //
 Function UseDigitalSignature() Export
 	
@@ -23,7 +23,7 @@ EndFunction
 // Returns the current signature upgrade availability setting.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - if True, digital signatures are used.
 //
 Function AvailableAdvancedSignature() Export
 	
@@ -34,7 +34,7 @@ EndFunction
 // Returns the current setting of encryption usage.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - if True, encryption is used.
 //
 Function UseEncryption() Export
 	
@@ -45,7 +45,7 @@ EndFunction
 // Returns the current setting of digital signature check on the server.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - if True, digital signatures will be checked on the server.
 //
 Function VerifyDigitalSignaturesOnTheServer() Export
 	
@@ -57,7 +57,7 @@ EndFunction
 // The setting also involves encryption and decryption on the server.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - if True, digital signatures will be created on the server.
 //
 Function GenerateDigitalSignaturesAtServer() Export
 	
@@ -73,12 +73,12 @@ EndFunction
 //
 //  SequenceNumber - Number
 //                  - Array of Number
-//  ReturnMCHDData - Boolean -
+//  ReturnMRLOAData - Boolean - If True and there is a machine-readable LoA for the signature, populate the ResultOfSignatureVerificationByMRLOA property
 //
 // Returns:
 //  Array of See DigitalSignatureClientServer.NewSignatureProperties 
 //
-Function SetSignatures(Object, SequenceNumber = Undefined, ReturnMCHDData = False) Export
+Function SetSignatures(Object, SequenceNumber = Undefined, ReturnMRLOAData = False) Export
 	
 	CheckParameterObject(Object, "DigitalSignature.SetSignatures", True);
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
@@ -222,7 +222,7 @@ Procedure AddSignature(Object, Val SignatureProperties, FormIdentifier = Undefin
 		EndIf;
 		
 		If IsReference Then
-			// 
+			// To determine that this is a record to add or remove a signature.
 			DataObject.AdditionalProperties.Insert("WriteSignedObject", True);
 			If DataObject.Modified() Then
 				DataObject.Write();
@@ -258,8 +258,8 @@ EndProcedure
 //
 //  SignatureProperties - String - a temporary storage address that contains the structure described below.
 //                  - Structure - See DigitalSignatureClientServer.NewSignatureProperties.
-//  UpdateByOrderNumber - Boolean -
-//                                
+//  UpdateByOrderNumber - Boolean - Flag indicating whether to update the signature by its sequence number
+//                                as the binary data was changed upon enhancement. By default, False.
 //
 Procedure UpdateSignature(Object, Val SignatureProperties, UpdateByOrderNumber = False) Export
 	
@@ -289,15 +289,15 @@ Procedure UpdateSignature(Object, Val SignatureProperties, UpdateByOrderNumber =
 		EndIf;
 		For Each ObjectSignature In ObjectSignatures Do
 			SignatureBinaryData = ObjectSignature.Signature;
-			ResultOfSignatureVerificationByMCHD = Undefined;
+			ResultOfSignatureVerificationByMRLOA = Undefined;
 			If UpdateByOrderNumber And ObjectSignature.SequenceNumber = SignatureProperties.SequenceNumber 
 				// If binary data matches, the signature must be refreshed.
 				Or SignatureBinaryData = SignatureProperties.Signature Then
 					
 				RecordSet = InformationRegisters.DigitalSignatures.CreateRecordSet();
-				RecordSet.Filter.SequenceNumber.Set(ObjectSignature.SequenceNumber);
+				RecordSet.Filter.SequenceNumber.Set(SignatureProperties.SequenceNumber);
 				RecordSet.Filter.SignedObject.Set(Object);
-				RecordSet.AdditionalProperties.Insert("UpdatingSignature");
+				RecordSet.AdditionalProperties.Insert("SignatureUpdate");
 				RecordSet.Read();
 				
 				SignatureToRefresh = RecordSet[0];
@@ -312,9 +312,9 @@ Procedure UpdateSignature(Object, Val SignatureProperties, UpdateByOrderNumber =
 							Continue;
 						EndIf;
 						
-						If KeyAndValue.Key = "ResultOfSignatureVerificationByMCHD" Then
+						If KeyAndValue.Key = "ResultOfSignatureVerificationByMRLOA" Then
 							If ValueIsFilled(KeyAndValue.Value) Then
-								ResultOfSignatureVerificationByMCHD = KeyAndValue.Value;
+								ResultOfSignatureVerificationByMRLOA = KeyAndValue.Value;
 							EndIf;
 							Continue;
 						EndIf;
@@ -337,9 +337,9 @@ Procedure UpdateSignature(Object, Val SignatureProperties, UpdateByOrderNumber =
 							Continue;
 						EndIf;
 						
-						If KeyAndValue.Key = "ResultOfSignatureVerificationByMCHD" Then
+						If KeyAndValue.Key = "ResultOfSignatureVerificationByMRLOA" Then
 							If ValueIsFilled(KeyAndValue.Value) Then
-								ResultOfSignatureVerificationByMCHD = KeyAndValue.Value;
+								ResultOfSignatureVerificationByMRLOA = KeyAndValue.Value;
 							EndIf;
 							Continue;
 						EndIf;
@@ -385,7 +385,7 @@ EndProcedure
 //           will be changed without locking and writing.
 // 
 //  SequenceNumber      - Number - a signature sequence number.
-//                       - Array - 
+//                       - Array - values of the type specified above.
 //
 //  FormIdentifier - UUID - a form ID that is used for lock
 //                       if an object reference is passed.
@@ -427,7 +427,7 @@ Procedure DeleteSignature(Object, SequenceNumber, FormIdentifier = Undefined,
 		RefreshSignaturesNumbering(DataObject);
 		
 		If IsReference Then
-			// 
+			// To determine that this is a record to add or remove a signature.
 			DataObject.AdditionalProperties.Insert("WriteSignedObject", True);
 			If DataObject.Modified() Then
 				DataObject.Write();
@@ -459,7 +459,7 @@ EndProcedure
 //  Object - DefinedType.SignedObject - a reference to the encrypted object.
 //
 // Returns:
-//   Array - array of structures.
+//   Array - a structure array.
 //
 Function EncryptionCertificates(Object) Export
 	
@@ -516,7 +516,7 @@ EndFunction
 //           will be changed without locking and writing.
 //
 //  EncryptionCertificates - String - a temporary storage address that contains the array described below.
-//                        - Array - 
+//                        - Array - Array of the following structures:
 //                             * Thumbprint     - String - a certificate thumbprint in the Base64 string format.
 //                             * Presentation - String - a saved subject presentation
 //                                                  got from certificate binary data.
@@ -552,7 +552,7 @@ Procedure WriteEncryptionCertificates(Object, Val EncryptionCertificates, FormId
 	Try
 		If IsReference Then
 			LockDataForEdit(ObjectRef, ObjectVersion, FormIdentifier);
-			DataObject = Object.GetObject();//  
+			DataObject = Object.GetObject();// CatalogObject, DocumentObject, ChartOfCharacteristicTypesObject, ChartOfAccountsObject, ChartOfCalculationTypesObject 
 		Else
 			DataObject = Object;
 		EndIf;
@@ -588,12 +588,12 @@ EndProcedure
 // Returns the date extracted from the signature binary data or Undefined.
 //
 // Parameters:
-//  Signature - BinaryData - signature data to extract a date from.
-//  CastToSessionTimeZone - Boolean - cast the universal time to the session time.
+//  Signature - BinaryData - Signature data to extract a date from.
+//  CastToSessionTimeZone - Boolean - Cast the universal time to the session time.
 //
 // Returns:
-//  Date - 
-//  
+//  Date - Successfully extracted signature date.
+//  Undefined - Failed to extract date from the signature data.
 //
 Function SigningDate(Signature, CastToSessionTimeZone = True) Export
 	
@@ -615,13 +615,13 @@ EndFunction
 //
 // Parameters:
 //  Certificate - CryptoCertificate - a certificate.
-//             - BinaryData - binary data of the certificate.
-//             - String - 
-//             - String      - 
+//             - BinaryData - certificate binary data.
+//             - String - string (28) - a certificate thumbprint in the Base64 format.
+//             - String      - an address of a temporary storage that contains certificate binary data.
 //
 // Returns:
-//  Undefined - 
-//  
+//  Undefined - the certificate does not exist in the catalog.
+//  CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - a reference to the found certificate.
 //
 Function CertificateRef(Val Certificate) Export
 	
@@ -659,28 +659,28 @@ Function CertificateRef(Val Certificate) Export
 	
 EndFunction
 
-// Allows you to create and update the DigitalSignatureAndEncryptionKeysCertificates catalog item
+// Intended for creating and updating an item of the DigitalSignatureAndEncryptionKeysCertificates catalog
 // by the specified crypto certificate.
-// To add a certificate at the client See DigitalSignatureClient.ToAddCertificate.
+// To add a certificate at the client, See DigitalSignatureClient.ToAddCertificate.
 //
 // Parameters:
 //  Certificate - CryptoCertificate - a certificate.
-//             - BinaryData - binary data of the certificate.
-//             - String - 
+//             - BinaryData - certificate binary data.
+//             - String - an address of a temporary storage that contains certificate binary data.
 //
 //  AdditionalParameters - Undefined - without additional parameters.
-//                          - Structure - 
-//      * Description - String - a certificate presentation in the list.
+//                          - Structure - Has an arbitrary composition with the following properties:
+//      * Description - String - Certificate presentation in the list.
 //
 //      * User - CatalogRef.Users - a user who owns the certificate.
 //                       The value is used when receiving a list of personal user certificates
 //                       in the forms of signing and data encryption.
 //
 //      * Organization     - DefinedType.Organization - a company that owns the certificate.
-//      * Individual  - DefinedType.Individual -
+//      * Individual  - DefinedType.Individual - Certificate recipient.
 //
-//      * Application - CatalogRef.DigitalSignatureAndEncryptionApplications - an application
-//                      that is required for signature and encryption.
+//      * Application - CatalogRef.DigitalSignatureAndEncryptionApplications - App required for
+//                      signing and encrypting.
 //
 //      * EnterPasswordInDigitalSignatureApplication - Boolean - Flag "Protect digital signature application with password".
 //                      True is required if a certificate was installed on the computer with strong private key protection.
@@ -689,7 +689,7 @@ EndFunction
 //                      
 //
 // Returns:
-//  CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - link to the certificate.
+//  CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - a reference to the certificate.
 // 
 Function WriteCertificateToCatalog(Val Certificate, AdditionalParameters = Undefined) Export
 	
@@ -764,13 +764,15 @@ Function WriteCertificateToCatalog(Val Certificate, AdditionalParameters = Undef
 			EndIf;
 		EndIf;
 		
+		CertificateProperties = Undefined;
 		If AccessRightInsert Then
 			CertificateProperties = CertificateProperties(CryptoCertificate);
+			
 			UpdateValue(CertificateObject.Signing,     CertificateProperties.Signing);
 			UpdateValue(CertificateObject.Encryption,     CertificateProperties.Encryption);
 			UpdateValue(CertificateObject.IssuedTo,      CertificateProperties.IssuedTo);
 			UpdateValue(CertificateObject.IssuedBy,       CertificateProperties.IssuedBy);
-			UpdateValue(CertificateObject.ValidBefore, CertificateProperties.EndDate);
+			UpdateValue(CertificateObject.ValidBefore, CertificateProperties.ValidBefore);
 			
 			SubjectProperties = CertificateSubjectProperties(CryptoCertificate);
 			
@@ -796,10 +798,14 @@ Function WriteCertificateToCatalog(Val Certificate, AdditionalParameters = Undef
 		EndIf;
 		
 		If CertificateObject.IsNew()
-		   And Not AdditionalParameters.Property("Description") Then
+			And Not AdditionalParameters.Property("Description") Then
+		
+			If CertificateProperties = Undefined Then
+				CertificateProperties = CertificateProperties(CryptoCertificate);
+			EndIf;
 			
 			AdditionalParameters.Insert("Description",
-				CertificatePresentation(CryptoCertificate));
+				CertificateProperties.Presentation);
 		EndIf;
 		
 		For Each KeyAndValue In AdditionalParameters Do
@@ -855,12 +861,12 @@ EndFunction
 //  CompanyLogo - Picture - if it is not specified, the standard picture will be used.
 //
 // Returns:
-//  SpreadsheetDocument - 
+//  SpreadsheetDocument - a spreadsheet document that contains the ready digital signature stamp.
 //
 Function DigitalSignatureVisualizationStamp(Certificate, SignatureDate = Undefined, 
 	MarkText = "", CompanyLogo = Undefined) Export
 	
-	If CompanyLogo = Undefined And Common.SubsystemExists("StandardSubsystems.Copmanies") Then
+	If CompanyLogo = Undefined And Common.SubsystemExists("StandardSubsystems.Companies") Then
 		ModuleOrganizationServer = Common.CommonModule("CompaniesServer");
 		CertificateReference = CertificateRef(Certificate);
 		If ValueIsFilled(CertificateReference) Then
@@ -904,18 +910,18 @@ EndFunction
 //
 // Parameters:
 //  Document        - SpreadsheetDocument - a spreadsheet document to add stamps to.
-//  StampsDetails - Array - an array of spreadsheet documents that contain stamps got
+//  StampsDetails - Array - Array of spreadsheets that contain stamps got
 //                             by the DigitalSignature.DigitalSignatureVisualizationStamp function.
 //                             In this case, the passed stamps will be output to the end of the document
 //                             if the template of the spreadsheet document to be signed does not define areas
 //                             for placing stamps that meet the following conditions:
-//                               a) the stamp output area of two columns and seven rows, with
+//                               a) The stamp output area of two columns and seven rows, with
 //                                  an arbitrary column width,
-//                               b) the area name is specified as DSStamp + stamp sequence number,
+//                               b) The area name is specified as DSStamp + stamp sequence number,
 //                                  for example, DSStamp1 and so on.
 //                             In this case, stamps will be output in the specified areas, in the
 //                             order in which the document was signed.
-//                  - Map of KeyAndValue - 
+//                  - Map of KeyAndValue - Describes stamp output locations:
 //                       * Key     - String - an area name, where the stump must be put. For such an area,
 //                                    an arbitrary column width 
 //                                    different from the column width of the rest of the document, must be set.
@@ -1036,7 +1042,7 @@ Procedure AddStampsToSpreadsheetDocument(Document, StampsDetails, CellSize = Und
 					HeightEnd = Document.TableHeight + StampHeight;
 					
 					Document.Area(HeightStart, StartingWidth, HeightEnd, TableWidth).UndoMerge();
-					// 
+					// Row format that won't affect the rest of the document when the column width is changed.
 					Document.Area(HeightStart, , HeightEnd).CreateFormatOfRows();
 					
 					RemainingWidth = StampsRowWidth;
@@ -1110,10 +1116,39 @@ Function IssuerPresentation(Certificate) Export
 	
 EndFunction
 
-// See DigitalSignatureClient.CertificateProperties.
+// Returns the main properties of the certificate as a structure.
+//
+// Parameters:
+//   Certificate - CryptoCertificate -  the certificate cryptography.
+//
+// Returns:
+//   Structure:
+//    * Thumbprint      - String -  the thumbprint of the certificate in Base64 string format.
+//    * SerialNumber  - BinaryData -  certificate property SerialNumber.
+//    * Presentation  - See DigitalSignatureClient.CertificatePresentation.
+//    * IssuedTo      - See DigitalSignatureClient.SubjectPresentation.
+//    * IssuedBy       - See DigitalSignatureClient.IssuerPresentation.
+//    * StartDate     - Date   -  the property of the DataPoint certificate in the session time zone.
+//    * EndDate  - Date   -  property of the end Date certificate in the session time zone.
+//    * StartDateOfPrivateKey     - Date   - 
+//    * EndDateOfPrivateKey  - Date   - 
+//    * ValidBefore - Date - 
+//    * Purpose     - String -  description of the extended property of the EKU certificate.
+//    * Signing     - Boolean -  the certificate property is used for Signing.
+//    * Encryption     - Boolean -  certificate property use for Decryption.
+//
 Function CertificateProperties(Certificate) Export
 	
-	Return DigitalSignatureInternalClientServer.CertificateProperties(Certificate, DigitalSignatureInternal.TimeAddition());
+	If TypeOf(Certificate) = Type("CryptoCertificate") Then
+		CertificateBinaryData = Certificate.Unload();
+	ElsIf TypeOf(Certificate) = Type("FixedStructure") Then
+		CertificateBinaryData = Certificate.Certificate;
+	Else
+		CertificateBinaryData = Undefined;
+	EndIf;
+	
+	Return DigitalSignatureInternalClientServer.CertificateProperties(
+		Certificate, DigitalSignatureInternal.TimeAddition(), CertificateBinaryData);
 	
 EndFunction
 
@@ -1136,12 +1171,12 @@ EndFunction
 //
 // Parameters:
 //   TextToSearchInClassifier - String - the text by which a search is being carried out in the classifier.
-//   ErrorAtServer               - Boolean -
-//                                   
+//   ErrorAtServer               - Boolean - Error context flag (the cause and the solutions
+//                                   might differ on client and on server). By default, False.
 //
 // Returns:
-//   Undefined - 
-//   
+//   Undefined - There is no such error in the classifier.
+//   Structure:
 //     * Cause          - String - possible causes of an error.
 //     * Decision          - String - possible methods to fix the occurred error.
 //     * Remedy - String - the ID of the method of the automatic error fixing.
@@ -1166,20 +1201,20 @@ EndFunction
 // Adds an archive timestamp to the archived signature (CAdES-A).
 // 
 // Parameters:
-//  Signature                      - BinaryData - binary data of the electronic signature.
+//  Signature                      - BinaryData - digital signature binary data.
 //  SignatureType                   - EnumRef.CryptographySignatureTypes - Signature type to upgrade to.
 //                                  If the actual SignatureType is the same or higher, no actions are performed.
 //                                  
-//  AddArchiveTimestamp - Boolean -
-//                                   
+//  AddArchiveTimestamp - Boolean - If True and SignatureType is ArchivalCAdESAv3,
+//                                   a timestamp is added.
 //  AdditionalParameters - Structure:
-//                             * CryptoManager - Undefined -
-//                                                    - CryptoManager - 
-//                             * ShouldIgnoreCertificateValidityPeriod  - Boolean - 
-//                                                      
-//                          - Undefined - get a cryptography Manager for verifying
-//                                 electronic signatures, as configured by the administrator.
-//                          - CryptoManager - 
+//                             * CryptoManager - Undefined - Get a cryptographic manager to check.
+//                                                    - CryptoManager - Cryptographic manager to be used.
+//                             * ShouldIgnoreCertificateValidityPeriod  - Boolean - Flag indicating whether to check the certificate 
+//                                                      validity before enhancement. By default, False.
+//                          - Undefined - get a crypto manager to check
+//                                 digital signatures as it was configured by the administrator.
+//                          - CryptoManager - Cryptographic manager to be used.
 // 
 // Returns:
 //  Structure:
@@ -1232,7 +1267,7 @@ Function EnhanceSignature(Signature, SignatureType, AddArchiveTimestamp = False,
 		Return Result;
 	EndTry;
 	
-	ParametersCryptoSignatures = DigitalSignatureInternalClientServer.ParametersCryptoSignatures(ContainerSignatures,
+	ParametersCryptoSignatures = DigitalSignatureInternal.ParametersCryptoSignatures(ContainerSignatures,
 		DigitalSignatureInternal.TimeAddition(), CurrentSessionDate());
 		
 	If ParametersCryptoSignatures.CertificateLastTimestamp = Undefined Then
@@ -1279,7 +1314,7 @@ Function EnhanceSignature(Signature, SignatureType, AddArchiveTimestamp = False,
 					ErrorInfo()));
 				Return Result;
 			EndTry;
-		Else // 
+		Else // Flag indicating whether there are signatures not requiring enhancement but their properties must be populated.
 			Result.Success = True;
 			Return Result;
 		EndIf;
@@ -1303,7 +1338,7 @@ Function EnhanceSignature(Signature, SignatureType, AddArchiveTimestamp = False,
 		Return Result;
 	EndTry;
 
-	ParametersCryptoSignatures = DigitalSignatureInternalClientServer.ParametersCryptoSignatures(
+	ParametersCryptoSignatures = DigitalSignatureInternal.ParametersCryptoSignatures(
 			ContainerSignatures, DigitalSignatureInternal.TimeAddition(), CurrentSessionDate());
 	
 	CertificateVerificationResult = CheckCertificate(CryptoManager,
@@ -1339,7 +1374,7 @@ EndFunction
 //  SignedObject - DefinedType.SignedObject - Reference to the signature for upgrade and update lock.
 //           
 //
-//  SequenceNumber - Number - serial number of the signature.
+//  SequenceNumber - Number - a signature sequence number.
 //
 //  SignatureType      - EnumRef.CryptographySignatureTypes - Signature type to upgrade to.
 //                    If the actual SignatureType is the same or higher, no actions are performed.
@@ -1352,12 +1387,12 @@ EndFunction
 //                      if an object reference is passed.
 //
 //  AdditionalParameters - Structure:
-//                             * CryptoManager - Undefined, CryptoManager -
-//                             * ShouldIgnoreCertificateValidityPeriod  - Boolean - 
-//                                                      
-//                          - Undefined - get a cryptography Manager for verifying
-//                                 electronic signatures, as configured by the administrator.
-//                          - CryptoManager - 
+//                             * CryptoManager - Undefined, CryptoManager - See details below.
+//                             * ShouldIgnoreCertificateValidityPeriod  - Boolean - Flag indicating whether to check the certificate 
+//                                                      validity before enhancement. By default, False.
+//                          - Undefined - get a crypto manager to check
+//                                 digital signatures as it was configured by the administrator.
+//                          - CryptoManager - Cryptographic manager to be used.
 //
 // Returns:
 //  Structure:
@@ -1431,7 +1466,7 @@ EndFunction
 
 // These procedures and functions are intended for integration with 1C:Electronic document library.
 
-// Returns the crypto manager (on the server) for the specified application.
+// Returns the crypto manager (on the server) for the specified app.
 //
 // Parameters:
 //  Operation       - String - if it is not blank, it needs to contain one of rows that determine
@@ -1443,16 +1478,16 @@ EndFunction
 //  ErrorDescription - String - an error description that is returned when the function returns Undefined.
 //
 //  Application      - Undefined - returns a crypto manager of the first
-//                   application from the catalog for which it was possible to create it.
-//                 - CatalogRef.DigitalSignatureAndEncryptionApplications - 
-//                   
+//                   app from the catalog for which it was possible to create it.
+//                 - CatalogRef.DigitalSignatureAndEncryptionApplications - App for which
+//                   a crypto manager must be created and returned.
 //                 - Structure - See NewApplicationDetails.
-//                 - BinaryData - 
-//                 - String - 
+//                 - BinaryData - DER-encoded data from a signature or certificate used to determine the application.
+//                 - String - Address of the binary data in the temp storage.
 //
 // Returns:
-//   CryptoManager - 
-//   
+//   CryptoManager - -a crypto manager.
+//   Undefined - an error occurred. The error description is in the ErrorDescription parameter.
 //
 Function CryptoManager(Operation, ShowError = True, ErrorDescription = "", Application = Undefined) Export
 	
@@ -1470,29 +1505,29 @@ Function CryptoManager(Operation, ShowError = True, ErrorDescription = "", Appli
 	
 EndFunction
 
-//  
-// 
+// Obtains signature properties from the signature data. If the Cryptography manager failed 
+// to obtain the properties, it returns the properties read from the binary data.
 //
 // Parameters:
-//   Signature - BinaryData -
-//   ShouldReadCertificates - Boolean -
-//                                   
+//   Signature - BinaryData - DER-encoded certificate data.
+//   ShouldReadCertificates - Boolean - If False, don't populate the properties: Certificate, Thumbprint, CertificateOwner, Certificates.
+//                                   By default, True.
 //
 // Returns:
 //   Structure:
-//       * Success       - Boolean, Undefined -
+//       * Success       - Boolean, Undefined - Undefined if the cryptographic service failed to read all properties.
 //                                              
-//       * ErrorText - String -
+//       * ErrorText - String - Filled if "Success" is False or Undefined
 //       * SignatureType  - EnumRef.CryptographySignatureTypes
-//       * DateActionLastTimestamp - Date, Undefined -
-//       * DateSignedFromLabels - Date, Undefined -
-//               
-//       * UnverifiedSignatureDate - Date -
-//                                     - Undefined - 
-//       * Certificate  - BinaryData -
-//       * Thumbprint           - String - the thumbprint of the certificate in Base64 string format.
-//       * CertificateOwner - String - the subject representation obtained from the certificate's binary data. 
-//       * Certificates - Array of BinaryData -
+//       * DateActionLastTimestamp - Date, Undefined - Filled only using the cryptographic manager.
+//       * DateSignedFromLabels - Date, Undefined - Earliest timestamp: CADES-T. If not available but other timestamps exist,
+//               the date is filled only using the cryptographic manager.
+//       * UnverifiedSignatureDate - Date - Unconfirmed signature data.
+//                                     - Undefined - Unconfirmed signature data is missing from the signature data.
+//       * Certificate  - BinaryData - Certificate used for signature validation.
+//       * Thumbprint           - String - a certificate thumbprint in the Base64 string format.
+//       * CertificateOwner - String - a subject presentation received from the certificate binary data. 
+//       * Certificates - Array of BinaryData - Certificates used for signature validation.
 //
 Function SignatureProperties(Signature, ShouldReadCertificates = True) Export
 	
@@ -1500,30 +1535,30 @@ Function SignatureProperties(Signature, ShouldReadCertificates = True) Export
 	
 EndFunction
 
-// 
+// Checks and returns the installed apps.
 // 
 // Parameters:
-//  CheckParameters - 
-//   
-//                          See DigitalSignatureInternalClientServer.AppsRelevantAlgorithms
-//                          
-//                          
-//                               
+//  CheckParameters - Undefined, Structure:
+//   * AppsToCheck - Undefined - By default, returns all installed apps.
+//                          - Boolean - See DigitalSignatureInternalClientServer.AppsRelevantAlgorithms
+//                          - BinaryData - Signature or certificate data used for determining suitable apps.
+//                          - String - Address of the signature or certificate data in the temp storage.
+//                               - Array - Contains values as the DigitalSignature.NewApplicationDetails function returns.
 //                          
 //  Returns:
 //    Structure:
-//     * CheckCompleted - Boolean -
-//                 
-//     * Error - String - error text.
+//     * CheckCompleted - Boolean - If True, the check was executed on computer and the installed cryptographic service providers are obtained.
+//                 If False, the Error is populated.
+//     * Error - String - Error text.
 //     * Programs - Array of Structure:
-//        ** ApplicationName  - String  -
-//        ** ApplicationType  - Number  -
-//        ** Name           - String  -
-//             
-//        ** Version        - String -
-//        ** ILicenseInfo      - Boolean -
-//     * IsConflictPossible - Boolean -
-//             
+//        ** ApplicationName  - String  - Cryptographic service provider's name. For example, "Infotecs GOST 2012/512 Cryptographic Service Provider"
+//        ** ApplicationType  - Number  - Cryptographic service provider. For example, "77"
+//        ** Name           - String  - App presentation as specified in the supplied list.
+//             For example, NStr("en = 'ViPNet CSP'")
+//        ** Version        - String - Library version.
+//        ** ILicenseInfo      - Boolean - Licence presence flag
+//     * IsConflictPossible - Boolean - Flag indicating whether a few cryptographic apps are installed,
+//             which might conflict with each other.
 //
 Function CheckCryptographyAppsInstallation(CheckParameters = Undefined) Export
 	
@@ -1583,12 +1618,12 @@ EndFunction
 // Parameters:
 //   CryptoManager - Undefined - get a crypto manager to check
 //                          digital signatures as it was configured by the administrator.
-//                        - CryptoManager - 
+//                        - CryptoManager - Cryptographic manager to be used.
 //
 //   RawData       - BinaryData - binary data that was signed.
-//                        - String         - 
-//                        - String         - 
-//                                           
+//                        - String         - an address of a temporary storage with binary data.
+//                        - String         - a full name of a file that contains
+//                                           signed binary data.
 //                        - Structure:
 //                           * XMLEnvelope       - String - the signed XMLEnvelope,
 //                                                         see also the XMLEnvelope function.
@@ -1596,27 +1631,27 @@ EndFunction
 //                        - Structure:
 //                           * CMSParameters - See DigitalSignature.CMSParameters
 //                           * Data  - String - an arbitrary string for signing,
-//                                     - BinaryData - 
+//                                     - BinaryData - binary data for signing.
 //
 //   Signature              - BinaryData - digital signature binary data.
-//                        - String         - 
-//                        - String         - 
-//                                           
-//                        - Undefined   - 
+//                        - String         - an address of a temporary storage with binary data.
+//                        - String         - a full name of a file that contains digital signature
+//                                           binary data.
+//                        - Undefined   - if SourceData is a SOAP envelope.
 //
 //   ErrorDescription       - Null - raise an exception if an error occurs during the check.
-//                        - String - 
+//                        - String - contains an error description if an error occurred.
 // 
-//   OnDate               - Date -
-//                          
-//                          
-//                          
+//   OnDate               - Date - Date for checking the certificate if the date cannot be extracted
+//                          from the signature or XMLEnvelope is to be checked.
+//                          If the parameter is not passed, use the current session date
+//                          if the date cannot be extracted from the signature or XMLEnvelope is to be checked.
 //   ResultStructure   - See DigitalSignatureClientServer.SignatureVerificationResult.
 //
 // Returns:
-//  Boolean - 
-//           
-//                   
+//  Boolean - True if the check is completed successfully.
+//           False if the crypto manager is not received (because it is not specified)
+//                   or an error specified in the ErrorDescription parameter has occurred.
 //
 Function VerifySignature(CryptoManager, RawData, Signature, ErrorDescription = Null, OnDate = Undefined, ResultStructure = Undefined) Export
 
@@ -1802,6 +1837,12 @@ Function VerifySignature(CryptoManager, RawData, Signature, ErrorDescription = N
 			Return CheckResult;
 		EndIf;
 		
+		If ResultStructure <> Undefined Then
+			FillPropertyValues(ResultStructure, SignatureProperties);
+		EndIf;
+		
+		Certificate = SignatureProperties.Certificate;
+		
 		DateToVerifySignatureCertificate = DigitalSignatureInternalClientServer.DateToVerifySignatureCertificate(SignatureProperties);
 		If Not ValueIsFilled(DateToVerifySignatureCertificate) Then
 			DateToVerifySignatureCertificate = OnDate;
@@ -1880,22 +1921,22 @@ EndFunction
 //
 // Parameters:
 //   CryptoManager - Undefined - get the crypto manager automatically.
-//                        - CryptoManager - 
+//                        - CryptoManager - Cryptographic manager to be used.
 //
 //   Certificate           - CryptoCertificate - a certificate.
-//                        - BinaryData - binary data of the certificate.
-//                        - String - 
+//                        - BinaryData - certificate binary data.
+//                        - String - an address of a temporary storage that contains certificate binary data.
 //
 //   ErrorDescription       - Null - raise an exception if an error occurs during the check.
-//                        - String - 
+//                        - String - contains an error description if an error occurred.
 //
 //   OnDate               - Date - check the certificate on the specified date.
 //                          If parameter is not specified or a blank date is specified,
 //                          check on the current session date.
 //
 // Returns:
-//  Boolean - 
-//           
+//  Boolean - True if the check is completed successfully.
+//           False if the cryptographic manager is not received (because it is not specified).
 //
 Function CheckCertificate(CryptoManager, Certificate, ErrorDescription = Null, OnDate = Undefined) Export
 	
@@ -1911,8 +1952,8 @@ EndFunction
 //   InPersonalStorageOnly - Boolean - if True, search in the Personal store, otherwise, search everywhere.
 //
 // Returns:
-//   CryptoCertificate - 
-//   
+//   CryptoCertificate - certificate of digital signature and encryption.
+//   Undefined - the certificate does not exist in the storage.
 //
 Function GetCertificateByThumbprint(Thumbprint, InPersonalStorageOnly) Export
 	
@@ -1924,33 +1965,33 @@ EndFunction
 // Supports only 1C:Enterprise tools (CryptoManager).
 //
 // Bundled with ViPNet and CryptoPro.
-// If an application with the given name and type already exists, its properties will be updated.
+// If an app with the given name and type already exists, its properties will be updated.
 // The new property values are not validated.
 //
-// You can use the provided application details stored in ApplicationsSettingsToSupply of the DigitalSignatureAndEncryptionApplications catalog manager module.
+// You can use the provided app details stored in ApplicationsSettingsToSupply of the DigitalSignatureAndEncryptionApplications catalog manager module.
 // 
 // 
 //
 // Parameters:
-//  ApplicationsDetails - Array - contains values of See DigitalSignature.NewApplicationDetails.
-//                              Structure properties type:
-//   * ApplicationName  - String - a unique application name given by its developer,
+//  ApplicationsDetails - Array - For details, See DigitalSignature.NewApplicationDetails.
+//                              Structure properties:
+//   * ApplicationName  - String - a unique app name given by its developer,
 //                       for example, Signal-COM CPGOST Cryptographic Provider.
-//   * ApplicationType  - Number - Number that defines the application type and complements the application name.
-//                       If Name and Type of an application are specified or you need to update individual properties, then the following parameters are required.
+//   * ApplicationType  - Number - Number that defines the app type and complements the app name.
+//                       If Name and Type of an app are specified or you need to update individual properties, then the following parameters are required.
 //
 //   
 //   
 //
-//   * Presentation       - String - an application name that a user will see,
+//   * Presentation       - String - an app name that a user will see,
 //                             for example, Signal-COM CSP (RFC 4357).
-//   * SignAlgorithm     - String - a name of the signature algorithm that
-//                             the specified application supports, for example, ECR3410-CP.
+//   * SignAlgorithm     - String - Name of the signature algorithm that
+//                             the specified app supports. For example, ECR3410-CP.
 //   * HashAlgorithm - String - a name of the data hash algorithm that
-//                             the specified application supports, for example, ENG-HASH-CP. The algorithm is used to create
+//                             the specified app supports, for example, ENG-HASH-CP. The algorithm is used to create
 //                             data on signature generation with the signing algorithm.
 //   * EncryptAlgorithm  - String - a name of the encryption algorithm that the
-//                             specified application supports, for example, GOST28147.
+//                             specified app supports, for example, GOST28147.
 //
 // Example:
 //	ApplicationsDetails = New Array;
@@ -2045,11 +2086,11 @@ EndProcedure
 //
 // Parameters:
 //  ApplicationName - String - a name of the digital signature and encryption application.
-//  ApplicationType - String - an application type.
+//  ApplicationType - String - App type.
 //
 // Returns:
-//  Structure -  
-//              
+//  Structure - To pass in the DigitalSignature.FillApplicationsList procedure 
+//              See the procedure comments for the property details.
 //
 Function NewApplicationDetails(ApplicationName = Undefined, ApplicationType = Undefined) Export
 	
@@ -2093,27 +2134,27 @@ Function CMSParameters() Export
 	
 EndFunction
 
-// 
+// Returns the result of the CA check.
 // 
 // Parameters:
 //  Certificate - CryptoCertificate
-//  OnDate - Undefined, Date -
-//  ThisVerificationSignature - Boolean -
+//  OnDate - Undefined, Date - If not specified, the check uses the session date.
+//  ThisVerificationSignature - Boolean - Signature check flag. The warning (not an error) will not be filled.
 // 
 // Returns:
-//  Structure - 
-//   * Valid_SSLyf - Boolean - 
-//                 
-//   * FoundintheListofCAs - Boolean -
-//   * IsState - Boolean -
-//                                
-//   
-//   * ThisIsQualifiedCertificate - Boolean -
-//   * Warning - Structure -
+//  Structure - Result of the default CA check.:
+//   * Valid_SSLyf - Boolean - Flag indicating whether the CA is valid on the date or the check was not performed 
+//                 (the certificate is unqualified or CA is missing from the list of qualified CAs)
+//   * FoundintheListofCAs - Boolean - Qualified certificate flag
+//   * IsState - Boolean - Flag indicating whether the CA is trusted and some checks must be skipped.
+//                                For example, in Russia, they include: Treasury of the Russian Federation, Bank of Russia,
+//   Federal Tax Service Certification Authority.
+//   * ThisIsQualifiedCertificate - Boolean - Flag indicating whether the certificate was issued by an accredited CA.
+//   * Warning - Structure - Error or warning on the certificate.:
 //                       ** ErrorText - String
-//                       ** PossibleReissue - Boolean -
-//                       ** Cause - String -
-//                       ** Decision - String -
+//                       ** PossibleReissue - Boolean - Flag indicating whether users can apply for a new certificate from the app.
+//                       ** Cause - String - Error reason for display in the extended error form.
+//                       ** Decision - String - Solution for display in the extended error form.
 //
 Function ResultofCertificateAuthorityVerification(Certificate, OnDate = Undefined, ThisVerificationSignature = False) Export
 	
@@ -2157,19 +2198,19 @@ EndFunction
 
 #Region Internal
 
-// 
+// Binary data signature.
 // 
 // Parameters:
 //  SignatureData - BinaryData
-//                - String - 
+//                - String - Address in the temp storage.
 // 
 // Returns:
-//  BinaryData - 
+//  BinaryData - Signature from the DER-encoded binary data.
 //
-Function DEREncodedSignature(SignatureData) Export
+Function DERSignature(SignatureData) Export
 	
 	BinaryData = DigitalSignatureInternalClientServer.BinaryDataFromTheData(SignatureData,
-		"DigitalSignature.DEREncodedSignature");
+		"DigitalSignature.DERSignature");
 	
 	TempFileFullName = GetTempFileName();
 	BinaryData.Write(TempFileFullName);
@@ -2214,7 +2255,7 @@ EndFunction
 // Returns the encrypted data viewability flag.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - If True, users can view encrypted data.
 //
 Function DataDecryption() Export
 	
@@ -2226,7 +2267,7 @@ EndFunction
 // Returns the data encryption availability flag.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - If True, data encryption is available.
 //
 Function EncryptAndDecryptData() Export
 	
@@ -2237,12 +2278,12 @@ EndFunction
 // Returns the digital signature availability flag.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - If True, digital signing is available.
 //
 Function AddEditDigitalSignatures() Export
 	
-	// ACC:515-
-	// 
+	
+	
 	Return UseDigitalSignature() And Users.RolesAvailable("AddEditDigitalSignatures");
 	// ACC:515-on
 	
@@ -2252,7 +2293,7 @@ EndFunction
 // 
 //
 // Returns:
-//  Boolean - 
+//  Boolean - If True, users can manage the notifications.
 //
 Function ManageAlertsCertificates() Export
 	
@@ -2265,24 +2306,24 @@ EndFunction
 // Returns the current user settings to work with the digital signature.
 //
 // Returns:
-//   Structure - 
-//       * ActionsOnSavingWithDS - String - what to do when saving files with a digital signature:
-//           Ask - show the signature selection dialog box to save a signature.
-//           SaveAllSignatures - all signatures, always.
+//   Structure - Personal settings for managing the digital signature:
+//       * ActionsOnSavingWithDS - String - Actions when saving digitally signed files:
+//           Prompt - Show the signature selection dialog box to save a signature.
+//           SaveAllSignatures - Always save signatures.
 //       * PathsToDigitalSignatureAndEncryptionApplications - Map of KeyAndValue:
-//           ** Key     - CatalogRef.DigitalSignatureAndEncryptionApplications - an application.
-//           ** Value - String - an application path on the user computer.
+//           ** Key     - CatalogRef.DigitalSignatureAndEncryptionApplications - App.
+//           ** Value - String - App path on the user's computer.
 //       * SignatureFilesExtension - String - an extension for DS files.
-//       * EncryptedFilesExtension - String - an extension for encrypted files.
+//       * EncryptedFilesExtension - String - Extension for encrypted files.
 //
 // See also:
-//   CommonForm.DigitalSignatureAndEncryptionSettings - a location to determine these parameters and
-//   their text descriptions.
+//   CommonForm.DigitalSignatureAndEncryptionSettings - Location to determine the parameters
+//   and their text descriptions.
 //
 Function PersonalSettings() Export
 	
 	PersonalSettings = New Structure;
-	// 
+	// Initial values.
 	PersonalSettings.Insert("ActionsOnSavingWithDS", "Prompt");
 	PersonalSettings.Insert("PathsToDigitalSignatureAndEncryptionApplications", New Map);
 	PersonalSettings.Insert("SignatureFilesExtension", "p7s");
@@ -2306,7 +2347,7 @@ Function PersonalSettings() Export
 	
 EndFunction
 
-// 
+// Returns encrypted data.
 // 
 // Parameters:
 //  Data - BinaryData
@@ -2574,7 +2615,7 @@ EndProcedure
 // Returns common settings of all users to work with the digital signature.
 //
 // Returns: 
-//   FixedStructure - 
+//   FixedStructure - Common subsystem settings for managing digital signature:
 //     * UseDigitalSignature       - Boolean - if True, digital signatures are used.
 //     * UseEncryption               - Boolean - if True, encryption is used.
 //     * VerifyDigitalSignaturesOnTheServer - Boolean - if True, digital signatures and
@@ -2583,7 +2624,7 @@ EndProcedure
 //                                                       on the server, and if creation failed, they are created on the client.
 //
 //     * ApplicationsDetailsCollection - FixedArray of See DigitalSignatureInternalCached.ApplicationDetails -
-//                          information about supported cryptography applications.
+//                          Information about supported cryptographic apps.
 //
 //     * DescriptionsOfTheProgramsOnTheLink - FixedMap of KeyAndValue:
 //         ** Key - CatalogRef.DigitalSignatureAndEncryptionApplications
@@ -2602,7 +2643,7 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Auxiliary procedures and functions.
 
-// For the procedure, add a Signature.
+// Intended for: AddSignature procedure.
 Procedure AddSignatureRows(DataObject, PropertiesSignatures, EventLogMessage)
 	
 	SetPrivilegedMode(True);
@@ -2698,7 +2739,7 @@ Procedure AddSignatureRows(DataObject, PropertiesSignatures, EventLogMessage)
 	
 EndProcedure
 
-// For the delete Signature procedure.
+// Intended for: DeleteSignature procedure.
 Procedure DeleteSignatureRows(SignedObject, SequenceNumbers, EventLogMessage)
 	
 	HasRightsToDeleteOthersSignatures = Users.IsFullUser() 
@@ -2714,15 +2755,15 @@ Procedure DeleteSignatureRows(SignedObject, SequenceNumbers, EventLogMessage)
 
 	Query = New Query;
 	
-	If Common.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
-		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal = Common.CommonModule("MachineReadableAuthorizationLettersOfFederalTaxServiceInternal");
-		Query.Text = ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal.QueryTextForDeletingElectronicSignatures();
+	If Common.SubsystemExists("StandardSubsystems.MachineReadableLettersOfAuthority") Then
+		ModuleMachineReadableLettersOfAuthorityFTSInternal = Common.CommonModule("MachineReadableLettersOfAuthorityFTSInternal");
+		Query.Text = ModuleMachineReadableLettersOfAuthorityFTSInternal.QueryTextForDigitalSignaturesDeletion();
 	Else
 		Query.Text =
 			"SELECT
 			|	DigitalSignatures.SequenceNumber AS SequenceNumber,
 			|	DigitalSignatures.SignedObject AS SignedObject,
-			|	0 AS ThereAreSignaturesOnMCHD
+			|	0 AS HasMRLOASignatures
 			|FROM
 			|	InformationRegister.DigitalSignatures AS DigitalSignatures
 			|WHERE
@@ -2766,8 +2807,8 @@ Procedure DeleteSignatureRows(SignedObject, SequenceNumbers, EventLogMessage)
 			Raise NStr("en = 'Insufficient rights to delete the signature.';");
 		EndIf;
 		
-		If SelectionDetailRecords.ThereAreSignaturesOnMCHD > 0 Then
-			ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal.DeleteMachineReadableSignatureAuthorizationLetter(
+		If SelectionDetailRecords.HasMRLOASignatures > 0 Then
+			ModuleMachineReadableLettersOfAuthorityFTSInternal.DeleteSignatureMachineReadableLetterOfAuthority(
 				SignedObject.Ref, SelectionDetailRecords.SignatureID);
 		EndIf;
 
@@ -2780,7 +2821,7 @@ Procedure DeleteSignatureRows(SignedObject, SequenceNumbers, EventLogMessage)
 	
 EndProcedure
 
-// For the DeleteSignature procedure.
+// Intended for: DeleteSignature procedure.
 Procedure RefreshSignaturesNumbering(SignedObject)
 	
 	SetPrivilegedMode(True);
@@ -2823,7 +2864,7 @@ Procedure RefreshSignaturesNumbering(SignedObject)
 	
 EndProcedure
 
-// For the WriteCertificateToCatalog procedure.
+// Intended for: WriteCertificateToCatalog procedure.
 Procedure UpdateValue(PreviousValue2, NewValue, SkipNotDefinedValues = False)
 	
 	If NewValue = Undefined And SkipNotDefinedValues Then
@@ -2836,7 +2877,7 @@ Procedure UpdateValue(PreviousValue2, NewValue, SkipNotDefinedValues = False)
 	
 EndProcedure
 
-// For the WriteCertificateToCatalog procedure.
+// Intended for: WriteCertificateToCatalog procedure.
 // 
 // Parameters:
 //  User - CatalogRef.Users - a user

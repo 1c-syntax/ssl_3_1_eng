@@ -212,10 +212,10 @@ EndFunction
 //
 Procedure FillInTheLanguageSubmenu(Form, CurrentLanguage = Undefined, Val Filter = Undefined) Export
 	
-	UseRegionalLanguageRepresentations = True; // 
+	UseRegionalLanguageRepresentations = True; 
 	If Filter = Undefined Then
 		Filter = AvailableLanguages();
-		UseRegionalLanguageRepresentations = False; // 
+		UseRegionalLanguageRepresentations = False; 
 	EndIf;
 	
 	If Not ValueIsFilled(CurrentLanguage) Then

@@ -60,10 +60,10 @@ Function UniqueNameByWay(Val DirectoryName, Val FileName) Export
 			EndIf;
 		EndDo;
 		
-		Subdirectory = ""; // 
+		Subdirectory = ""; 
 		
-		// 
-		// 
+		
+		
 		If  Counter = 0 Then
 			Subdirectory = "";
 		Else
@@ -103,7 +103,7 @@ Function UniqueNameByWay(Val DirectoryName, Val FileName) Export
 		
 		// Checking whether the file name is unique
 		FileOnHardDrive = New File(AttemptFile);
-		If Not FileOnHardDrive.Exists() Then  // 
+		If Not FileOnHardDrive.Exists() Then  // File doesn't exist.
 			FinalPath = Subdirectory + FileName;
 			Success = True;
 		EndIf;
@@ -343,13 +343,13 @@ Function AddressInCloudService(Service, Href) Export
 	
 EndFunction
 
-// 
+// Parameters to lock a file for editing.
 //
 // Returns:
 //   Structure:
-//     * UUID - unique form ID.
+//     * UUID - form UUID.
 //     * User - CatalogRef.Users
-//     * AdditionalProperties - Structure -
+//     * AdditionalProperties - Structure - additional properties for writing a file.
 //
 Function FileLockParameters() Export
 	
@@ -357,7 +357,24 @@ Function FileLockParameters() Export
 	Parameters.Insert("UUID");
 	Parameters.Insert("User");
 	Parameters.Insert("AdditionalProperties");
+	Parameters.Insert("RaiseException1", True);
 	
+	Return Parameters;
+	
+EndFunction
+
+// Scanning add-in attachment details.
+//
+// Returns:
+//  Structure:
+//   * FullTemplateName - String
+//   * ObjectName      - String
+//
+Function ComponentDetails() Export
+	
+	Parameters = New Structure;
+	Parameters.Insert("ObjectName", "ImageScan");
+	Parameters.Insert("FullTemplateName", "CommonTemplate.DocumentScanningAddIn");
 	Return Parameters;
 	
 EndFunction
@@ -419,7 +436,7 @@ Function ExtractOpenDocumentText(PathToFile, Cancel) Export
 		ExtractedText = ExtractTextFromXMLContent(XMLReader);
 		XMLReader.Close();
 	Except
-		// 
+		// This is not an error because the OTF extension, for example, is related both to OpenDocument format and OpenType font format.
 		Archive     = Undefined;
 		XMLReader = Undefined;
 		Cancel = True;
@@ -475,7 +492,7 @@ Function ExtractTextFromXMLContent(XMLReader)
 			
 			If XMLReader.Name = "text:s" Then
 				
-				AdditionString = " "; // пробел
+				AdditionString = " "; // Whitespace
 				
 				If XMLReader.AttributeCount() > 0 Then
 					While XMLReader.ReadAttribute() Do
@@ -483,7 +500,7 @@ Function ExtractTextFromXMLContent(XMLReader)
 							SpaceCount = Number(XMLReader.Value);
 							AdditionString = "";
 							For IndexOf = 0 To SpaceCount - 1 Do
-								AdditionString = AdditionString + " "; // пробел
+								AdditionString = AdditionString + " "; // Whitespace
 							EndDo;
 						EndIf;
 					EndDo
@@ -519,7 +536,7 @@ EndFunction
 //  BasePrefix - String - a base prefix, for example, DM.
 //
 // Returns:
-//  String - 
+//  String - scanned file name, for example, "DM-00000012".
 //
 Function ScannedFileName(FileNumber, BasePrefix) Export
 	
@@ -593,10 +610,10 @@ Procedure AddProperty(Collection, Var_Key, Value = Undefined)
 	
 EndProcedure
 
-// Automatically detects and returns the encoding of a text file.
+// Automatically determines and returns the text file encoding.
 //
 // Parameters:
-//  DataForAnalysis - BinaryData, String -
+//  DataForAnalysis - BinaryData, String - data to determine encoding or data address.
 //  Extension         - String - file extension.
 //
 // Returns:
@@ -640,8 +657,8 @@ EndFunction
 //  BinaryData - BinaryData - binary data of the file.
 //
 // Returns:
-//  String -  
-//           
+//  String - file encoding. If the file does not contain the BOM signature, 
+//           returns an empty string.
 //
 Function EncodingFromBinaryData(BinaryData)
 
@@ -659,8 +676,8 @@ EndFunction
 //  BinaryData - BinaryData- binary data of the file.
 //
 // Returns:
-//  String -  
-//                          
+//  String - file encoding. If  
+//                          the XML notification cannot be read, returns an empty string.
 //
 Function EncodingFromXMLNotification(BinaryData)
 	
@@ -689,14 +706,14 @@ Function EncodingFromXMLNotification(BinaryData)
 	
 EndFunction
 
-// Returns the text encoding obtained from the BOM signature at the beginning.
+// Returns the text encoding received from the BOM signature in the beginning.
 //
 // Parameters:
-//  BinaryDataBuffer - Number - a collection of bytes to determine the encoding.
+//  BinaryDataBuffer - Number - a collection of bytes to define encoding.
 //
 // Returns:
-//  String -  
-//                       
+//  String - file encoding. If the file does not contain the BOM signature, 
+//                       returns an empty string.
 //
 Function BOMEncoding(BinaryDataBuffer)
 	
@@ -764,7 +781,7 @@ EndFunction
 //  TextData - BinaryData - binary data of the file.
 //
 // Returns:
-//  String - 
+//  String - file encoding.
 //
 Function EncodingFromAlphabetMap(TextData)
 	
@@ -806,7 +823,7 @@ Function AlphabetMapPercentage(BinaryData, EncodingToCheck)
 	Alphabet = "AABBBBGgDDHerHerLJZZIIYyKKLlMmNNOOPPPPSSTTUuFFXXCCHHShhShhYyYyEEYyYy"
 		+ "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz"
 		+ "1234567890 ";
-	// 
+	// ACC:1036-on, ACC:163-on
 	
 	AlphabetStream = New MemoryStream();
 	WriteAlphabet = New DataWriter(AlphabetStream);
@@ -823,7 +840,7 @@ Function AlphabetMapPercentage(BinaryData, EncodingToCheck)
 		
 		CurrentChar = AlphabetBufferInEncoding[IndexOf];
 		
-		// 
+		// Cyrillic characters in UTF-8 encoding are double-byte.
 		If EncodingToCheck = "utf-8"
 			And (CurrentChar = 208
 			Or CurrentChar = 209) Then
@@ -878,7 +895,7 @@ EndFunction
 // Returns:
 //   ValueList:
 //     * Value - String - for example, "ibm852".
-//     * Presentation - String - for example, " ibm852 (Central European DOS)".
+//     * Presentation - String - for example, "ibm852 (Central European DOS)".
 //
 Function Encodings() Export
 
@@ -910,19 +927,22 @@ Function Encodings() Export
 
 EndFunction
 
-// 
-//
-// Returns:
-//  Structure:
-//   * FullTemplateName - String
-//   * ObjectName      - String
-//
-Function ComponentDetails() Export
+Function ScanningParameters() Export
 	
-	Parameters = New Structure;
-	Parameters.Insert("ObjectName", "AddInNativeExtension");
-	Parameters.Insert("FullTemplateName", "CommonTemplate.TwainComponent");
-	Return Parameters;
+	ScanningParameters = New Structure; 
+	ScanningParameters.Insert("ShowDialogBox", True);
+	ScanningParameters.Insert("SelectedDevice", "");
+	ScanningParameters.Insert("PictureFormat", "png");
+	ScanningParameters.Insert("Resolution", 200);
+	ScanningParameters.Insert("Chromaticity", 1);
+	ScanningParameters.Insert("Rotation", 0);
+	ScanningParameters.Insert("PaperSize", 1);
+	ScanningParameters.Insert("JPGQuality", 100);
+	ScanningParameters.Insert("TIFFDeflation", 6);
+	ScanningParameters.Insert("DuplexScanning", False);
+	ScanningParameters.Insert("ShouldSaveAsPDF", False);
+	ScanningParameters.Insert("UseImageMagickToConvertToPDF", False);
+	Return ScanningParameters;
 	
 EndFunction
 

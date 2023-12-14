@@ -63,7 +63,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Print forms group1</v8:content>
+									<v8:content>Document list management group</v8:content>
 								</v8:item>
 							</Title>
 							<Representation>Compact</Representation>
@@ -73,7 +73,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Group1</v8:content>
+											<v8:content>Manage check boxes</v8:content>
 										</v8:item>
 									</Title>
 									<Representation>Compact</Representation>
@@ -95,7 +95,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Group1</v8:content>
+											<v8:content>String management</v8:content>
 										</v8:item>
 									</Title>
 									<Representation>Compact</Representation>
@@ -454,7 +454,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Print forms group1</v8:content>
+									<v8:content>Picture</v8:content>
 								</v8:item>
 							</Title>
 							<Group>InCell</Group>

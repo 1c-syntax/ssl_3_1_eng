@@ -54,6 +54,7 @@ EndFunction
 //  Settings - DataCompositionSettings
 //  UserSettings - DataCompositionUserSettings
 //  AvailableValues - Structure
+//  Context - Arbitrary
 //
 // Returns:
 //  Structure:
@@ -63,7 +64,7 @@ EndFunction
 //    * TableName - String
 //    * DataSource - CatalogRef.MetadataObjectIDs
 // 
-Function FixedParameters(Settings, UserSettings, AvailableValues) Export 
+Function FixedParameters(Settings, UserSettings, AvailableValues, Context) Export 
 	FixedParameters = New Structure("Period, DataSource, MetadataObjectType, MetadataObjectName, TableName");
 	AvailableValues = New Structure("MetadataObjectType, MetadataObjectName, TableName");
 	
@@ -75,7 +76,7 @@ Function FixedParameters(Settings, UserSettings, AvailableValues) Export
 		"MetadataObjectType",
 		FixedParameters,
 		Settings, UserSettings,
-		AvailableValues.MetadataObjectType);
+		AvailableValues.MetadataObjectType, Context);
 	
 	AvailableValues.MetadataObjectName = AvailableMetadataObjects(
 		FixedParameters.MetadataObjectType);
@@ -110,7 +111,7 @@ Function FixedParameters(Settings, UserSettings, AvailableValues) Export
 	Return FixedParameters;
 EndFunction
 
-Procedure SetFixedParameter(Id, Parameters, Settings, UserSettings, AvailableValues = Undefined)
+Procedure SetFixedParameter(Id, Parameters, Settings, UserSettings, AvailableValues = Undefined, Context = Undefined)
 	FixedParameter = Parameters[Id];
 	
 	If AvailableValues = Undefined Then 
@@ -156,9 +157,13 @@ Procedure SetFixedParameter(Id, Parameters, Settings, UserSettings, AvailableVal
 		And ValueIsFilled(Parameters.DataSource)
 		And Parameters.DataSource.GetObject() <> Undefined Then 
 		
-		MetadataObject = DataSourceMetadata(Parameters.DataSource);
-		MetadataObjectType = Common.BaseTypeNameByMetadataObject(MetadataObject);
-		If MetadataObjectType <> FixedParameter Then 
+		MetadataObject = DataSourceMetadata(Parameters.DataSource, Context);
+		If MetadataObject <> Undefined Then
+			MetadataObjectType = Common.BaseTypeNameByMetadataObject(MetadataObject);
+			If MetadataObjectType <> FixedParameter Then 
+				Parameters.DataSource = Undefined;
+			EndIf;
+		Else
 			Parameters.DataSource = Undefined;
 		EndIf;
 	EndIf;
@@ -222,8 +227,9 @@ Function TextOfQueryByMetadata(ReportParameters)
 	EndIf;
 	
 	FilterSource1 = "";
-	If ReportParameters.TableName = "BalanceAndTurnovers"
-		Or ReportParameters.TableName = "Turnovers" Then
+	If ReportParameters.TableName = "BalanceAndTurnovers" Then
+		FilterSource1 = "({&BeginOfPeriod}, {&EndOfPeriod}, Auto, RegisterRecords)";
+	ElsIf ReportParameters.TableName = "Turnovers" Then
 		FilterSource1 = "({&BeginOfPeriod}, {&EndOfPeriod}, Auto)";
 	ElsIf ReportParameters.TableName = "Balance"
 		Or ReportParameters.TableName = "SliceLast" Then
@@ -454,9 +460,9 @@ Procedure AddObjectTotals(Val ReportParameters, Val DataCompositionSchema)
 	ObjectPresentation = MetadataObject.Presentation();
 	
 	ReferenceDetails = MetadataObject.StandardAttributes["Ref"];
-	If ValueIsFilled(ReferenceDetails.Synonym) Then 
+	If ValueIsFilled(ReferenceDetails.Synonym) And ReferenceDetails.Synonym <> NStr("en = 'Reference';") Then // ACC:1391 - If the synonym of the "Ref" attribute differs from the standard "Ref", the column header displays the object presentation.
 		ObjectPresentation = ReferenceDetails.Synonym;
-	ElsIf ValueIsFilled(MetadataObject.ObjectPresentation) Then 
+	ElsIf ValueIsFilled(MetadataObject.ObjectPresentation) Then
 		ObjectPresentation = Common.ObjectPresentation(MetadataObject);
 	EndIf;
 	
@@ -471,7 +477,8 @@ Procedure AddObjectTotals(Val ReportParameters, Val DataCompositionSchema)
 	
 	// Add totals by numeric attributes
 	For Each Attribute In MetadataObject.Attributes Do
-		If Not Common.MetadataObjectAvailableByFunctionalOptions(Attribute) Then 
+		If Not Common.MetadataObjectAvailableByFunctionalOptions(Attribute) 
+		   Or Attribute.Type.ContainsType(Type("ValueStorage")) Then
 			Continue;
 		EndIf;
 		
@@ -490,7 +497,8 @@ Procedure AddRegisterTotals(Val ReportParameters, Val DataCompositionSchema)
 	// Add dimensions.
 	For Each Dimension In MetadataObject.Dimensions Do
 		If Common.MetadataObjectAvailableByFunctionalOptions(Dimension) Then 
-			AddDataSetField(DataCompositionSchema.DataSets[0], Dimension.Name, Dimension.Synonym);
+			SetField = AddDataSetField(DataCompositionSchema.DataSets[0], Dimension.Name, Dimension.Synonym);
+			SetField.Role.Dimension = True;
 		EndIf;
 	EndDo;
 	
@@ -508,6 +516,26 @@ Procedure AddRegisterTotals(Val ReportParameters, Val DataCompositionSchema)
 		Or ReportParameters.TableName = "Turnovers" 
 		Or ReportParameters.MetadataObjectType = "AccountingRegisters" And ReportParameters.TableName = "" Then
 		AddPeriodFieldsInDataSet(DataCompositionSchema.DataSets[0]);
+	EndIf;
+	
+	If ReportParameters.TableName = "BalanceAndTurnovers" Then
+		
+		DataSetField = DataCompositionSchema.DataSets[0].Fields.Add(Type("DataCompositionSchemaDataSetField"));
+		DataSetField.Field = "Recorder";
+		DataSetField.Title = NStr("en = 'Recorder';");
+		DataSetField.DataPath = "Recorder";
+		DataSetField.Role.PeriodType = DataCompositionPeriodType.Main;
+		DataSetField.Role.PeriodNumber = 1;
+		DataSetField.Role.IgnoreNULLValues = True;
+		
+		OrderPeriod = DataSetField.OrderExpressions.Add();
+		OrderPeriod.Expression = "TimeIntervals.SecondPeriod";
+		OrderPeriod.OrderType = DataCompositionSortDirection.Asc;
+		
+		OrderRegistrar = DataSetField.OrderExpressions.Add();
+		OrderRegistrar.Expression = "Recorder";
+		OrderRegistrar.OrderType = DataCompositionSortDirection.Asc;
+		
 	EndIf;
 	
 	// For accounting registers, setting up roles is important.
@@ -622,6 +650,13 @@ Procedure AddRegisterTotals(Val ReportParameters, Val DataCompositionSchema)
 				SetField.Role.AccountingBalanceType = DataCompositionAccountingBalanceType.None;
 				SetField.Role.BalanceGroup = "DetldBal" + Resource.Name + "Cr";
 				AddTotalField(DataCompositionSchema, Resource.Name + "OpeningSplittedBalanceCr");
+				
+			ElsIf ReportParameters.MetadataObjectType = "AccumulationRegisters" Then
+				
+				SetField.Role.Balance = True;
+				SetField.Role.BalanceType = DataCompositionBalanceType.OpeningBalance;
+				SetField.Role.BalanceGroup = "Bal" + Resource.Name;
+
 			EndIf;
 			
 			AddDataSetField(DataCompositionSchema.DataSets[0], Resource.Name + "Turnover", Resource.Synonym + " " + NStr("en = 'turnover';"), Resource.Name + "Turnover");
@@ -680,6 +715,11 @@ Procedure AddRegisterTotals(Val ReportParameters, Val DataCompositionSchema)
 				SetField.Role.AccountingBalanceType = DataCompositionAccountingBalanceType.None;
 				SetField.Role.BalanceGroup = "DetldBal" + Resource.Name + "Cr";
 				AddTotalField(DataCompositionSchema, Resource.Name + "ClosingSplittedBalanceCr");
+				
+			ElsIf ReportParameters.MetadataObjectType = "AccumulationRegisters" Then
+				SetField.Role.Balance = True;
+				SetField.Role.BalanceType = DataCompositionBalanceType.ClosingBalance;
+				SetField.Role.BalanceGroup = "Bal" + Resource.Name;
 			EndIf;
 			
 		ElsIf ReportParameters.TableName = "Balance" Then
@@ -781,9 +821,15 @@ Function AddPeriodFieldsInDataSet(DataSet)
 		DataSetField.Title   = Period.Presentation;
 		DataSetField.DataPath = FolderName + "." + Period.Value;
 		DataSetField.Role.PeriodType = PeriodType;
-		DataSetField.Role.PeriodNumber = PeriodsList.IndexOf(Period);
+		DataSetField.Role.PeriodNumber = PeriodsList.Count() - PeriodsList.IndexOf(Period) + 1;
 		DataSetFieldsList.Add(DataSetField);
 		PeriodType = DataCompositionPeriodType.Additional;
+		
+		If Period.Value = "SecondPeriod" Then
+			DataSetField.Role.PeriodType = DataCompositionPeriodType.Main;
+			DataSetField.Role.IgnoreNULLValues = True;
+		EndIf;
+		
 	EndDo;
 	
 	Return DataSetFieldsList;
@@ -860,7 +906,7 @@ Procedure AddIndicators(ReportParameters, DCSettings)
 		SelectedFieldsClosingBalance.Placement = DataCompositionFieldPlacement.Horizontally;
 	EndIf;
 	
-	MetadataObject = Metadata[ReportParameters.MetadataObjectType][ReportParameters.MetadataObjectName]; // 
+	MetadataObject = Metadata[ReportParameters.MetadataObjectType][ReportParameters.MetadataObjectName]; // MetadataObjectInformationRegister, MetadataObjectAccumulationRegister
 	If ReportParameters.MetadataObjectType = "AccumulationRegisters" Then
 		For Each Dimension In MetadataObject.Dimensions Do
 			If Not Common.MetadataObjectAvailableByFunctionalOptions(Dimension) Then 
@@ -891,7 +937,7 @@ Procedure AddIndicators(ReportParameters, DCSettings)
 		EndDo;
 	ElsIf ReportParameters.MetadataObjectType = "InformationRegisters" Or ReportParameters.MetadataObjectType = "CalculationRegisters" Then
 		For Each Dimension In MetadataObject.Dimensions Do
-			If Not Common.MetadataObjectAvailableByFunctionalOptions(Dimension) Then 
+			If Not Common.MetadataObjectAvailableByFunctionalOptions(Dimension) Then
 				Continue;
 			EndIf;
 			
@@ -899,7 +945,8 @@ Procedure AddIndicators(ReportParameters, DCSettings)
 			ReportsServer.AddSelectedField(SelectedFields, Dimension.Name);
 		EndDo;
 		For Each Resource In MetadataObject.Resources Do
-			If Not Common.MetadataObjectAvailableByFunctionalOptions(Resource) Then 
+			If Not Common.MetadataObjectAvailableByFunctionalOptions(Resource) 
+			   Or Resource.Type.ContainsType(Type("ValueStorage")) Then 
 				Continue;
 			EndIf;
 			
@@ -952,6 +999,9 @@ Procedure AddIndicators(ReportParameters, DCSettings)
 		SelectedFields = DCSettings.Selection;
 		ReportsServer.AddSelectedField(SelectedFields, "Ref");
 		For Each Attribute In MetadataObject.Attributes Do
+			If Attribute.Type.ContainsType(Type("ValueStorage")) Then
+				Continue;
+			EndIf;
 			If Common.MetadataObjectAvailableByFunctionalOptions(Attribute) Then 
 				ReportsServer.AddSelectedField(SelectedFields, Attribute.Name);
 			EndIf;
@@ -959,7 +1009,8 @@ Procedure AddIndicators(ReportParameters, DCSettings)
 	ElsIf ReportParameters.MetadataObjectType = "ChartsOfCalculationTypes" Then
 		If ReportParameters.TableName = "" Then
 			For Each Attribute In MetadataObject.Attributes Do
-				If Not Common.MetadataObjectAvailableByFunctionalOptions(Attribute) Then 
+				If Not Common.MetadataObjectAvailableByFunctionalOptions(Attribute) 
+				   Or Attribute.Type.ContainsType(Type("ValueStorage")) Then 
 					Continue;
 				EndIf;
 				
@@ -980,8 +1031,8 @@ EndProcedure
 //
 // Parameters:
 //  ReportParameters - Structure - Description of a metadata object that is a data source
-//  Schema - DataCompositionSchema - main schema of report data composition
-//  Settings - DataCompositionSettings - settings whose structure is being generated.
+//  Schema - DataCompositionSchema - Main schema of the report data composition.
+//  Settings - DataCompositionSettings - Settings whose structure is being generated.
 //
 Procedure GenerateStructure(ReportParameters, Schema, Settings)
 	Settings.Structure.Clear();
@@ -1172,14 +1223,14 @@ EndProcedure
 //  Variant - CatalogObject.ReportsOptions - Report option settings storage.
 //
 // Returns:
-//   DataCompositionSettings, Undefined - 
+//   DataCompositionSettings, Undefined - Updated settings. If the update failed, Undefined.
 //                                            
 //
 Function OptionSettings(Variant) Export
 	Try
 		OptionSettings = Variant.Settings.Get(); // DataCompositionSettings
 	Except
-		// 
+		
 		//  
 		Return Undefined;
 	EndTry;
@@ -1239,13 +1290,13 @@ EndFunction
 // Returns report data source
 //
 // Parameters:
-//  ManagerType - String - a metadata object manager presentation,
-//                 for example, "Catalogs" or "InformationRegisters" and other presentations.
-//  ObjectName  - String - Short name of a metadata object,
-//                for example, "Currencies" or "ExchangeRates", and so on.
+//  ManagerType - String - Metadata object manager presentation.
+//                 For example, "Catalogs" or "InformationRegisters".
+//  ObjectName  - String - Short name of the metadata object.
+//                For example, "Currencies" or "ExchangeRates".
 //
 // Returns:
-//   - CatalogRef.MetadataObjectIDs - 
+//   - CatalogRef.MetadataObjectIDs - Reference to the found catalog item.
 //   - Undefined
 //
 Function DataSource(ManagerType, ObjectName)
@@ -1264,26 +1315,40 @@ Function DataSource(ManagerType, ObjectName)
 	Return Common.MetadataObjectID(FullObjectName);
 EndFunction
 
-Function DataSourceMetadata(DataSource)
+Function DataSourceMetadata(DataSource, Context)
+	
 	Try
 		MetadataObject = Common.MetadataObjectByID(DataSource);
 	Except
-		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot generate the report due to: %1';"),
-			ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Отчет не может быть сформирован по причине: %1 %2';"),
+			ErrorProcessing.BriefErrorDescription(ErrorInfo()),
+			NStr("en = 'Выберите другой справочник или документ.';"));
+		WriteLogEvent(NStr("en = 'Формирование варианта универсального отчета';", Common.DefaultLanguageCode()),
+			EventLogLevel.Warning, Metadata.Reports.UniversalReport,, MessageText);
+		If TypeOf(Context) = Type("ClientApplicationForm") Then
+			RecommendationText = NStr("en = 'Отчет не может быть сформирован. Выберите другой справочник или документ.';");
+			ReportsClientServer.DisplayReportState(
+				Context, RecommendationText);
+			Common.MessageToUser(MessageText);
+		Else
+			Common.MessageToUser(MessageText);
+		EndIf;
+		Return Undefined;
 	EndTry;
 	
 	Return MetadataObject;
+	
 EndFunction
 
 // Returns the type of metadata object by the matching manager type
 //
 // Parameters:
-//  ManagerType - String - a metadata object manager presentation,
-//                 for example, "Catalogs" or "InformationRegisters" and other presentations.
+//  ManagerType - String - Metadata object manager presentation.
+//                 For example, "Catalogs" or "InformationRegisters".
 //
 // Returns:
-//   String - 
+//   String - Metadata object type. For example, "Catalog" or "InformationRegister".
 //
 Function ObjectTypeByManagerType(ManagerType)
 	Types = New Map;
@@ -1648,8 +1713,8 @@ Procedure HideRecordsCountInDetailedRecords(DetailedRecords)
 EndProcedure
 
 // Returns:
-//   Array of String -  
-//                      
+//   Array of String - Collection of element property IDs for the conditional appearance 
+//                      DataCompositionConditionalAppearanceUse.
 //
 Function UseCasesForTheDesign()
 	

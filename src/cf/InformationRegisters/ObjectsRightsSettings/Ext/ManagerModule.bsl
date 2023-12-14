@@ -20,8 +20,8 @@
 Procedure UpdateAvailableRightsForObjectsRightsSettings(HasChanges = Undefined) Export
 	
 	SessionProperties = AccessManagementInternalCached.DescriptionPropertiesAccessTypesSession().SessionProperties;
-	PossibleSessionRights = CheckedPossibleSessionPermissions(SessionProperties);
-	NewValue = HashSumPossiblePermissions(PossibleSessionRights);
+	NewValue = "";
+	CheckedPossibleSessionPermissions(SessionProperties, NewValue);
 	
 	BeginTransaction();
 	Try
@@ -141,7 +141,7 @@ Function Read(Val ObjectReference) Export
 	
 	RightsSettings = New Structure;
 	
-	// 
+	// Getting the inheritance setting value.
 	RightsSettings.Insert("Inherit",
 		InformationRegisters.ObjectRightsSettingsInheritance.SettingsInheritance(ObjectReference));
 	
@@ -343,7 +343,7 @@ Procedure Write(Val ObjectReference, Val Settings, Val Inherit) Export
 				RightsSetting.Table               = CommonRightsTable;
 				RightsSetting.RightIsProhibited        = Not Setting[RightDetails.Name];
 				RightsSetting.InheritanceIsAllowed = Setting.InheritanceIsAllowed;
-				// Кэш-Attributes
+				// Cache attributes.
 				RightsSetting.RightPermissionLevel =
 					?(RightsSetting.RightIsProhibited, 0, ?(RightsSetting.InheritanceIsAllowed, 2, 1));
 				RightsSetting.RightProhibitionLevel =
@@ -723,7 +723,7 @@ EndFunction
 
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
-	// 
+	// Data registration is not required.
 	Return;
 	
 EndProcedure
@@ -792,11 +792,12 @@ EndFunction
 // Parameters:
 //  AccessKindsProperties - See AccessManagementInternal.AccessKindsProperties
 //                       - Undefined.
+//  HashSum - String -  the return value.
 //
 // Returns:
 //   See AccessManagementInternal.RightsForObjectsRightsSettingsAvailable
 //
-Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined) Export
+Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined, HashSum = "") Export
 	
 	AvailableRights = PopulatedPossibleSessionPermissions();
 	
@@ -808,10 +809,8 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined) Ex
 		+ Chars.LF
 		+ Chars.LF;
 	
-	ByTypes              = New Map;
-	ByRefsTypes        = New Map;
-	ByFullNames       = New Map;
-	OwnersTypes       = New Array;
+	OwnersProperties   = New Map;
+	OwnersTypes       = New ValueList;
 	SeparateTables     = New Map;
 	HierarchicalTables = New Map;
 	
@@ -853,8 +852,10 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined) Ex
 		FillIDs("ReadInTables",    AvailableRight, ErrorTitle, SeparateTables, AdditionalParameters);
 		FillIDs("ChangeInTables", AvailableRight, ErrorTitle, SeparateTables, AdditionalParameters);
 		
-		OwnerRights = ByFullNames[AvailableRight.RightsOwner];
-		If OwnerRights = Undefined Then
+		OwnerProperties = OwnersProperties[AvailableRight.RightsOwner];
+		If OwnerProperties <> Undefined Then
+			OwnerRights = OwnerProperties.OwnerRights;
+		Else
 			OwnerRights = OwnerRights();
 			OwnerRightsArray = New Array;
 			
@@ -931,17 +932,20 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined) Ex
 				Raise ErrorText;
 			EndIf;
 			
-			ByFullNames.Insert(AvailableRight.RightsOwner, OwnerRights);
-			ByRefsTypes.Insert(RefType,  OwnerRightsArray);
-			ByTypes.Insert(RefType,  OwnerRights);
-			ByTypes.Insert(ObjectType, OwnerRights);
+			OwnerProperties = New Structure;
+			OwnerProperties.Insert("OwnerRights", OwnerRights);
+			OwnerProperties.Insert("OwnerRightsArray", OwnerRightsArray);
+			OwnerProperties.Insert("RefType", RefType);
+			OwnerProperties.Insert("ObjectType", ObjectType);
+			OwnersProperties.Insert(AvailableRight.RightsOwner, OwnerProperties);
+			
 			If HierarchicalMetadataObject(OwnerMetadataObject) Then
 				HierarchicalTables.Insert(RefType,  True);
 				HierarchicalTables.Insert(ObjectType, True);
 			EndIf;
 			
 			OwnersTypes.Add(Common.ObjectManagerByFullName(
-				AvailableRight.RightsOwner).EmptyRef());
+				AvailableRight.RightsOwner).EmptyRef(), AvailableRight.RightsOwner);
 				
 			OwnersRightsIndexes.Insert(AvailableRight.RightsOwner, 0);
 		EndIf;
@@ -968,20 +972,32 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined) Ex
 			Raise ErrorText;
 		EndDo;
 		
-		AvailableRightProperties = AvailableRightProperties(AvailableRight);
-		AvailableRightProperties.RightIndex = OwnersRightsIndexes[AvailableRight.RightsOwner];
-		OwnersRightsIndexes[AvailableRight.RightsOwner] = AvailableRightProperties.RightIndex + 1;
+		RightIndex = OwnersRightsIndexes[AvailableRight.RightsOwner];
+		OwnersRightsIndexes[AvailableRight.RightsOwner] = RightIndex + 1;
+		AvailableRightProperties = AvailableRightProperties(AvailableRight, RightIndex);
 		
 		OwnerRights.Insert(AvailableRight.Name, AvailableRightProperties);
 		OwnerRightsArray.Add(AvailableRightProperties);
 	EndDo;
 	
-	// Add tables.
 	CommonTable = Catalogs.MetadataObjectIDs.EmptyRef();
-	For Each RightsDetails In ByFullNames Do
-		SeparateRights = AdditionalParameters.IndividualOwnersRights.Get(RightsDetails.Key);
-		For Each RightDetails In RightsDetails.Value Do
-			RightProperties = RightDetails.Value;
+	OwnersTypes.SortByValue();
+	
+	ByTypes        = New Map;
+	ByRefsTypes  = New Map;
+	ByFullNames = New Map;
+	
+	VersionDetails = New Structure("VersionProperties", New Array);
+	AddVersionItem(VersionDetails, "Version", "1");
+	
+	For Each ListItem In OwnersTypes Do
+		OwnerProperties = OwnersProperties.Get(ListItem.Presentation);
+		
+		// Add tables.
+		SeparateRights = AdditionalParameters.IndividualOwnersRights.Get(ListItem.Presentation);
+		IndexOf = -1;
+		For Each RightProperties In OwnerProperties.OwnerRightsArray Do
+			IndexOf = IndexOf + 1;
 			If RightProperties.ChangeInTables.Find(CommonTable) <> Undefined Then
 				For Each KeyAndValue In SeparateTables Do
 					SeparateTable = KeyAndValue.Key;
@@ -989,41 +1005,87 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined) Ex
 					If SeparateRights.ChangeInTables[SeparateTable] = Undefined
 					   And RightProperties.ChangeInTables.Find(SeparateTable) = Undefined Then
 					
-						ChangeInTables = New Array(RightProperties.ChangeInTables);
+						Properties = New Structure(RightProperties);
+						ChangeInTables = New Array(Properties.ChangeInTables);
 						ChangeInTables.Add(SeparateTable);
-						RightProperties.ChangeInTables = New FixedArray(ChangeInTables);
+						Properties.ChangeInTables = New FixedArray(ChangeInTables);
+						RightProperties = New FixedStructure(Properties);
+						OwnerProperties.OwnerRightsArray[IndexOf] = RightProperties;
+						OwnerProperties.OwnerRights[RightProperties.Name] = RightProperties;
 					EndIf;
 				EndDo;
 			EndIf;
 		EndDo;
+		
+		
+		OwnerSLinkType = TypeOf(ListItem.Value);
+		OwnerRights = New FixedMap(OwnerProperties.OwnerRights);
+		OwnerRightsArray = New FixedArray(OwnerProperties.OwnerRightsArray);
+		ByFullNames.Insert(ListItem.Presentation, OwnerRights);
+		ByRefsTypes.Insert(OwnerProperties.RefType, OwnerRightsArray);
+		ByTypes.Insert(RefType,  OwnerRights);
+		ByTypes.Insert(ObjectType, OwnerRights);
+		
+		VersionDetails.VersionProperties.Add("");
+		RightsHolderAdded = False;
+		OwnerRights = ByRefsTypes.Get(OwnerSLinkType);
+		For Each RightProperties In OwnerRightsArray Do
+			If Not RightsHolderAdded Then
+				AddVersionItem(VersionDetails, "RightsOwner", RightProperties.RightsOwner);
+				AddVersionItem(VersionDetails, "RightsOwnerType", OwnerSLinkType);
+				AddVersionItem(VersionDetails, "HierarchyOfRightsHolders",
+					HierarchicalTables.Get(OwnerSLinkType) <> Undefined);
+				RightsHolderAdded = True;
+				VersionDetails.VersionProperties.Add("");
+			EndIf;
+			AddVersionItem(VersionDetails, "Name", RightProperties.Name);
+			AddVersionItem(VersionDetails, "RightIndex", RightProperties.RightIndex);
+			AddVersionItem(VersionDetails, "ReadInTables", RightProperties.ReadInTables);
+			AddVersionItem(VersionDetails, "ChangeInTables", RightProperties.ChangeInTables);
+			VersionDetails.VersionProperties.Add("");
+		EndDo;
 	EndDo;
 	
+	List = New ValueList;
+	For Each KeyAndValue In SeparateTables Do
+		List.Add(KeyAndValue.Key);
+	EndDo;
+	List.SortByValue();
+	AddVersionItem(VersionDetails, "SeparateTables", List.UnloadValues());
+	
+	VersionString = StrConcat(VersionDetails.VersionProperties, Chars.LF);
+	HashSum = AccessManagementInternal.HashAmountsData(VersionString);
+	
 	AvailableRights = New Structure;
-	AvailableRights.Insert("ByTypes",              ByTypes);
-	AvailableRights.Insert("ByRefsTypes",        ByRefsTypes);
-	AvailableRights.Insert("ByFullNames",       ByFullNames);
-	AvailableRights.Insert("OwnersTypes",       OwnersTypes);
-	AvailableRights.Insert("SeparateTables",     SeparateTables);
-	AvailableRights.Insert("HierarchicalTables", HierarchicalTables);
+	AvailableRights.Insert("ByTypes",
+		New FixedMap(ByTypes));
 	
-	Return Common.FixedData(AvailableRights);
+	AvailableRights.Insert("ByRefsTypes",
+		New FixedMap(ByRefsTypes));
+	
+	AvailableRights.Insert("ByFullNames",
+		New FixedMap(ByFullNames));
+	
+	AvailableRights.Insert("OwnersTypes",
+		New FixedArray(OwnersTypes.UnloadValues()));
+	
+	AvailableRights.Insert("SeparateTables",
+		New FixedMap(SeparateTables));
+	
+	AvailableRights.Insert("HierarchicalTables",
+		New FixedMap(HierarchicalTables));
+	
+	Return New FixedStructure(AvailableRights);
 	
 EndFunction
 
-// Parameters:
-//  AvailableRights - See AccessManagementInternal.RightsForObjectsRightsSettingsAvailable
-//  
-// Returns:
-//  String
-//
-Function HashSumPossiblePermissions(AvailableRights) Export
-	
-	Return AccessManagementInternal.HashAmountsData(AvailableRights);
-	
-EndFunction
+// See AccessManagementInternal.AddVersionItem
+Procedure AddVersionItem(Context, FieldName, Value)
+	AccessManagementInternal.AddVersionItem(Context, FieldName, Value);
+EndProcedure
 
 // Returns:
-//  Structure:
+//  FixedStructure:
 //   * RightsOwner - String
 //   * Name          - String
 //   * Title    - String
@@ -1033,7 +1095,7 @@ EndFunction
 //   * ReadInTables    - FixedArray of String
 //   * ChangeInTables - FixedArray of String
 //
-Function AvailableRightProperties(AvailableRight) Export
+Function AvailableRightProperties(AvailableRight, RightIndex) Export
 	
 	AvailableRightProperties = New Structure(
 		"RightsOwner,
@@ -1046,18 +1108,32 @@ Function AvailableRightProperties(AvailableRight) Export
 	
 	FillPropertyValues(AvailableRightProperties, AvailableRight);
 	
+	AvailableRightProperties.RightIndex = RightIndex;
+	
 	AvailableRightProperties.RequiredRights1 =
-		New FixedArray(AvailableRightProperties.RequiredRights1);
+		SortedFixedArray(AvailableRightProperties.RequiredRights1);
 	
 	AvailableRightProperties.ReadInTables =
-		New FixedArray(AvailableRightProperties.ReadInTables);
+		SortedFixedArray(AvailableRightProperties.ReadInTables);
 	
 	AvailableRightProperties.ChangeInTables =
-		New FixedArray(AvailableRightProperties.ChangeInTables);
+		SortedFixedArray(AvailableRightProperties.ChangeInTables);
 	
-	Return AvailableRightProperties;
+	Return New FixedStructure(AvailableRightProperties);
 	
 EndFunction
+
+// 
+Function SortedFixedArray(SourceArray)
+	
+	List = New ValueList;
+	List.LoadValues(SourceArray);
+	List.SortByValue();
+	
+	Return New FixedArray(List.UnloadValues());
+	
+EndFunction
+
 
 // Returns:
 //  Map of KeyAndValue:

@@ -15,8 +15,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ErrorTitle = NStr("en = 'An error occurred when configuring the dynamic list of attachments.';");
 	ErrorEnd = NStr("en = 'Cannot configure the dynamic list.';");
 	
+	FileOwner = Common.ObjectAttributeValue(Parameters.File, "FileOwner");
+	
 	FileVersionsStorageCatalogName = FilesOperationsInternal.FilesVersionsStorageCatalogName(
-		Parameters.File.FileOwner, "", ErrorTitle, ErrorEnd);
+		FileOwner, "", ErrorTitle, ErrorEnd);
 		
 	If Not IsBlankString(FileVersionsStorageCatalogName) Then
 		SetUpDynamicList(FileVersionsStorageCatalogName);
@@ -69,7 +71,8 @@ Procedure MakeActiveExecute()
 		ShowMessageBox(, NStr("en = 'Cannot change the active version because the file is signed.';"));
 	Else
 		ChangeActiveFileVersion(NewActiveVersion);
-		Notify("Write_File", New Structure("Event", "ActiveVersionChanged"), Parameters.File);
+		FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters("ActiveVersionChanged");
+		Notify("Write_File", FileRecordingNotificationParameters, Parameters.File);
 	EndIf;
 	
 EndProcedure
@@ -78,7 +81,6 @@ EndProcedure
 Procedure NotificationProcessing(EventName, Parameter, Source)
 	
 	If EventName = "Write_File"
-		And Parameter.Property("Event")
 		And (Parameter.Event = "EditFinished"
 		Or Parameter.Event = "VersionSaved") Then
 		
@@ -158,7 +160,7 @@ Procedure OpenCard(Command)
 	
 EndProcedure
 
-// Compare two selected versions. 
+// Compare the two selected versions. 
 &AtClient
 Procedure Compare(Command)
 	
@@ -254,25 +256,33 @@ Procedure ChangeActiveFileVersion(Version)
 	
 	BeginTransaction();
 	Try
+		
+		VersionLock = New DataLock;
+		
+		DataLockItem = VersionLock.Add(Metadata.FindByType(TypeOf(Version)).FullName());
+		DataLockItem.SetValue("Ref", Version);
+		DataLockItem.Mode = DataLockMode.Shared;
+		
+		VersionLock.Lock();
+		
+		AttributesOfNewVersion = Common.ObjectAttributesValues(Version, "Owner, TextStorage");
+		
 		Block = New DataLock;
 		
-		DataLockItem = Block.Add(Metadata.FindByType(TypeOf(Version.Owner)).FullName());
-		DataLockItem.SetValue("Ref", Version.Owner);
-		
-		DataLockItem = Block.Add(Metadata.FindByType(TypeOf(Version)).FullName());
-		DataLockItem.SetValue("Ref", Version);
+		DataLockItem = Block.Add(Metadata.FindByType(TypeOf(AttributesOfNewVersion.Owner)).FullName());
+		DataLockItem.SetValue("Ref", AttributesOfNewVersion.Owner);
 		
 		Block.Lock();
 		
-		LockDataForEdit(Version.Owner, , FileCardUUID);
+		LockDataForEdit(AttributesOfNewVersion.Owner, , FileCardUUID);
 		LockDataForEdit(Version, , FileCardUUID);
 		
-		FileObject1 = Version.Owner.GetObject();
+		FileObject1 = AttributesOfNewVersion.Owner.GetObject();
 		If FileObject1.SignedWithDS Then
 			Raise NStr("en = 'Cannot change the active version because the file is signed.';");
 		EndIf;
 		FileObject1.CurrentVersion = Version;
-		FileObject1.TextStorage = Version.TextStorage;
+		FileObject1.TextStorage = AttributesOfNewVersion.TextStorage;
 		FileObject1.Write();
 		
 		VersionObject = Version.GetObject();

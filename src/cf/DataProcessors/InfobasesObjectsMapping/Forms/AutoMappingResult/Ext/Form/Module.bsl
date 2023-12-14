@@ -323,11 +323,11 @@ Procedure SetTableFieldVisible(Val FormTableName, Val MaxUserFieldsCount)
 		ItemSourceField = Items[SourceField]; // FormField
 		ItemDestinationField = Items[DestinationField]; // FormField
 		
-		// 
+		
 		ItemSourceField.Visible = Item.Check;
 		ItemDestinationField.Visible = Item.Check;
 		
-		// 
+		
 		ItemSourceField.Title = Item.Presentation;
 		ItemDestinationField.Title = Item.Presentation;
 		
@@ -361,7 +361,7 @@ Procedure GoBack()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure BackgroundJobIdleHandler()
@@ -392,7 +392,7 @@ Procedure BackgroundJobIdleHandler()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 // Page 1: Automatic object mapping error.
 //
@@ -584,7 +584,7 @@ Procedure RecordError(DetailErrorDescription)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure AutomaticObjectMappingScenario()

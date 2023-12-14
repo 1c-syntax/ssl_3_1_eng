@@ -112,16 +112,16 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure ChoosingAuthorizationLetterWhenChanging(Item)
+Procedure SelectLetterOfAuthorityOnChange(Item)
 	
-	Items.GroupPages.CurrentPage = ?(ByAuthorizationLetter, Items.AuthorizationLetterSelectionPage,
-		Items.PageWithoutAuthorizationLetter);
+	Items.GroupPages.CurrentPage = ?(ByLetterOfAuthority, Items.PageSelectLetterOfAuthority,
+		Items.PageWithoutLetterOfAuthority);
 	
-	If Not ByAuthorizationLetter Then
-		MachineReadableAuthorizationLetter = Undefined;
-		ResultOfCheckingMCHDForSigning = Undefined;
+	If Not ByLetterOfAuthority Then
+		MachineReadableLetterOfAuthority = Undefined;
+		MRLOAVerificationResultForSigning = Undefined;
 	Else
-		AttachIdleHandler("Attachable_PickUpAuthorizationLetter", 0.1, True);
+		AttachIdleHandler("Attachable_PickLetterOfAuthority", 0.1, True);
 	EndIf;
 	
 EndProcedure
@@ -345,7 +345,7 @@ Procedure SetSignatureType(Val ParameterSignatureType)
 		NewParameterSignatureType.Insert("SignatureTypes", New Array);
 		NewParameterSignatureType.Insert("Visible", False);
 		NewParameterSignatureType.Insert("Enabled", False);
-		NewParameterSignatureType.Insert("ChoosingAuthorizationLetter", False);
+		NewParameterSignatureType.Insert("CanSelectLetterOfAuthority", False);
 		If ValueIsFilled(ParameterSignatureType) Then
 			NewParameterSignatureType.SignatureTypes.Add(ParameterSignatureType);
 		EndIf;
@@ -540,7 +540,7 @@ EndFunction
 // CAC:78-off: to securely pass data between forms on the client without sending them to the server.
 &AtClient
 Procedure PerformSigning(ClientParameters, CompletionProcessing) Export
-// ACC:78-
+// CAC:78-on: to securely pass data between forms on the client without sending them to the server.
 	
 	DigitalSignatureInternalClient.RefreshFormBeforeSecondUse(ThisObject, ClientParameters);
 	
@@ -599,8 +599,8 @@ Procedure CertificateOnChangeAtServer(CertificatesThumbprintsAtClient, CheckRef 
 		ModuleCryptographyServiceDSSConfirmationServer.ConfirmationWhenChangingCertificate(ThisObject, Certificate);
 	EndIf;
 	
-	If ByAuthorizationLetter Then
-		PickUpAuthorizationLetter();
+	If ByLetterOfAuthority Then
+		PickLetterOfAuthority();
 	EndIf;
 	
 	RefreshVisibilityWarnings();
@@ -608,12 +608,12 @@ Procedure CertificateOnChangeAtServer(CertificatesThumbprintsAtClient, CheckRef 
 EndProcedure
 
 &AtClient
-Procedure Attachable_PickUpAuthorizationLetter()
-	PickUpAuthorizationLetter()
+Procedure Attachable_PickLetterOfAuthority()
+	PickLetterOfAuthority()
 EndProcedure
 
 &AtServer
-Procedure PickUpAuthorizationLetter()
+Procedure PickLetterOfAuthority()
 	
 	If Not IsTempStorageURL(AddressOfCertificate) Then
 		Return;
@@ -643,9 +643,18 @@ Procedure SignData(Notification)
 	Context.Insert("ErrorAtServer", New Structure);
 	
 	If CertificateExpiresOn < CommonClient.SessionDate() Then
-		Context.ErrorAtClient.Insert("ErrorDescription",
-			NStr("en = 'The selected certificate has expired.
-			           |Select a different certificate.';"));
+		
+		AdditionalCertificateProperties = DigitalSignatureInternalClientServer.AdditionalCertificateProperties(AddressOfCertificate);
+		If ValueIsFilled(AdditionalCertificateProperties.EndDateOfPrivateKey)
+			And AdditionalCertificateProperties.EndDateOfPrivateKey < CommonClient.SessionDate() Then
+				Context.ErrorAtClient.Insert("ErrorDescription",
+				NStr("en = 'У выбранного сертификата истек срок действия закрытого ключа.
+				           |Выберите другой сертификат.';"));
+		Else
+			Context.ErrorAtClient.Insert("ErrorDescription",
+				NStr("en = 'The selected certificate has expired.
+				           |Select a different certificate.';"));
+		EndIf;
 		HandleError(Context.Notification, Context.ErrorAtClient, Context.ErrorAtServer);
 		Return;
 	EndIf;
@@ -692,7 +701,7 @@ Procedure SignData(Notification)
 	
 EndProcedure
 
-// Continue the sign Data procedure.
+// Continues the SignData procedure.
 &AtClient
 Procedure SignDataAfterCAQuestionAnswered(Result, Context) Export
 	
@@ -729,11 +738,11 @@ Procedure SignDataAfterCAQuestionAnswered(Result, Context) Export
 	
 EndProcedure
 
-// Continue the sign Data procedure.
+// Continues the SignData procedure.
 &AtClient
 Procedure SignDataAfterSelectedCertificateVerified(Result, Context) Export
 	
-	If TypeOf(Result) = Type("Structure") Then // 
+	If TypeOf(Result) = Type("Structure") Then // Certificate check error.
 		
 		If Result.CertificateRevoked Then
 			Context.ErrorAtClient.Insert("ErrorDescription", NStr("en = 'The certificate is revoked.
@@ -779,7 +788,7 @@ Procedure SignDataAfterSelectedCertificateVerified(Result, Context) Export
 	
 EndProcedure
 
-// Continue the sign Data procedure.
+// Continues the SignData procedure.
 &AtClient
 Procedure SignDataAfterInvalidSignatureWarning(Result, AdditionalParameters) Export
 	
@@ -794,7 +803,7 @@ Procedure SignDataAfterInvalidSignatureWarning(Result, AdditionalParameters) Exp
 			Context.ErrorAtServer.Insert("ErrorDescription", AdditionalParameters.CertificateVerificationResult.ErrorDescriptionAtServer);
 		EndIf;
 		
-		HandleError(Context.Notification, Context.ErrorAtClient, Context.ErrorAtServer,,,Result.Value = "ShowError");
+		HandleError(Context.Notification, Context.ErrorAtClient, Context.ErrorAtServer,,, Result <> Undefined And Result.Value = "ShowError");
 		Return;
 	
 	EndIf;
@@ -804,8 +813,8 @@ Procedure SignDataAfterInvalidSignatureWarning(Result, AdditionalParameters) Exp
 	SelectedCertificate.Insert("Thumbprint", ThumbprintOfCertificate);
 	SelectedCertificate.Insert("Data",    AddressOfCertificate);
 	DataDetails.Insert("SelectedCertificate",   SelectedCertificate);
-	DataDetails.Insert("SelectedAuthorizationLetter", MachineReadableAuthorizationLetter);
-	DataDetails.Insert("ResultOfCheckingMCHDForSigning", ResultOfCheckingMCHDForSigning);
+	DataDetails.Insert("SelectedLetterOfAuthority", MachineReadableLetterOfAuthority);
+	DataDetails.Insert("MRLOAVerificationResultForSigning", MRLOAVerificationResultForSigning);
 	
 	If DataDetails.Property("BeforeExecute")
 	   And TypeOf(DataDetails.BeforeExecute) = Type("NotifyDescription") Then
@@ -865,7 +874,7 @@ Procedure SignDataAfterProcesssingBeforeExecute(Result, Context) Export
 			CertificateAtServerErrorDescription = New Structure;
 			SignDataAfterExecutionAtServerSide(Result, Context);
 		Else
-			// 
+			// An attempt to sign on the server.
 			DigitalSignatureInternalClient.ExecuteAtSide(New NotifyDescription(
 					"SignDataAfterExecutionAtServerSide", ThisObject, Context),
 				"Signing", "AtServerSide", Context.ExecutionParameters);
@@ -899,7 +908,7 @@ Async Procedure SignDataAfterExecutionAtServerSide(Result, Context) Export
 			EndIf;
 		EndIf;
 		
-		// 
+		// An attempt to sign on the client.
 		DigitalSignatureInternalClient.ExecuteAtSide(New NotifyDescription(
 				"SignDataAfterExecutionAtClientSide", ThisObject, Context),
 			"Signing", "OnClientSide", Context.ExecutionParameters);
@@ -970,8 +979,8 @@ Procedure SignDataAfterExecute(Result)
 	EndIf;
 	
 	If Result.Property("HasProcessedDataItems") Then
-		// 
-		// 
+		
+		
 		Items.Certificate.ReadOnly = True;
 		Items.Comment.ReadOnly = True;
 	EndIf;

@@ -11,7 +11,7 @@
 
 // Determines the list of configuration objects in whose manager modules this procedure is available 
 // AddFillCommands that generates object filling commands.
-// See the manual for the AddFillCommands procedure syntax. 
+// See the manual for the AddFillCommands procedure syntax.
 //
 // Parameters:
 //   Objects - Array of MetadataObject - metadata objects with filling commands.
@@ -26,9 +26,9 @@ EndProcedure
 // Defines general filling commands.
 //
 // Parameters:
-//   FillingCommands - ValueTable - generated commands to be shown in the submenu:
+//   FillingCommands - ValueTable - :
 //     
-//     Common settings:
+//     
 //       * Id - String - a command ID.
 //     
 //     Appearance settings:
@@ -49,10 +49,10 @@ EndProcedure
 //                                        AttachableCommands.AddCommandVisibilityCondition.
 //                                        The conditions are combined by "And".
 //     
-//     
+//     :
 //       * MultipleChoice - Boolean
-//                            - Undefined - 
-//             
+//                            - Undefined - if True (default value), the command supports multiple choice.
+//             In this case, a list of references will be passed in the execution parameter.
 //       * WriteMode - String - actions associated with object writing that are executed before the command handler:
 //            "Write"            - write only new and modified objects (default).
 //                                      Before writing or posting the object, users are asked for confirmation.

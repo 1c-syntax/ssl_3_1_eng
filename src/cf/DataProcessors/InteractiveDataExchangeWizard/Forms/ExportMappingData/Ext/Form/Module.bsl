@@ -123,9 +123,7 @@ Procedure OnStartTestConnection()
 	ContinueWait = True;
 	
 	If ConnectOverExternalConnection Then
-		If CommonClient.FileInfobase() Then
-			CommonClient.RegisterCOMConnector(False);
-		EndIf;
+		DataExchangeClient.CheckAndRegisterCOMConnector(ExchangeNode);
 	EndIf;
 	
 	OnStartTestConnectionAtServer(ContinueWait);

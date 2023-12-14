@@ -17,7 +17,10 @@ Procedure BeforeWrite(Cancel)
 		Return;
 	EndIf;
 	
-	If Owner.DeletionMark Then
+	OwnerMarkedForDeletion = Common.ObjectAttributeValue(Owner, "DeletionMark");
+	
+	If OwnerMarkedForDeletion = Undefined
+		Or OwnerMarkedForDeletion Then
 		PredefinedFolder = False;
 		Return;
 	EndIf;

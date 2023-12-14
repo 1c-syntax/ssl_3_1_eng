@@ -163,8 +163,8 @@ EndProcedure
 //                          Canceling standard processing does not mean canceling the operation.
 //                          Default value is True.
 //   Filter - Array of MetadataObject
-//         - MetadataObject - 
-//           
+//         - MetadataObject - determines a filter for the metadata objects
+//           whose changes are to be registered.
 //
 Procedure InitialDataExportChangesRegistration(Val Recipient, StandardProcessing, Filter) Export
 	
@@ -264,21 +264,39 @@ Procedure WhenChangingOfflineModeOption(PreviousValue, NewCurrent, StandardProce
 	
 EndProcedure
 
+//  
+// (See InformationRegisters.DataExchangeResults.RecordIssueResolved)
+//
+// Parameters:
+//  Types - Array of MetadataObject 
+//	
+Procedure WhenFillingInTypesExcludedFromCheckProblemIsFixed(Types) Export
+	
+	
+	
+EndProcedure
+
+#Region ObsoleteProceduresAndFunctions
+
+// Deprecated. 
+// 
 // 
 // 
 // 
 // Parameters:
-//   ExchangePlanName - String - 
+//   ExchangePlanName - String -  
 //                             
-//   SettingsMode - String -
+//   SettingsMode - String - 
 //                               
-//   ExchangePlanIsRecognized - Boolean -
+//   ExchangePlanIsRecognized - Boolean - 
 //
 Procedure WhenCheckingCorrectnessOfNameOfEnterpriseDataExchangePlan(ExchangePlanName, SettingsMode, ExchangePlanIsRecognized) Export
 	
 	
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 

@@ -52,12 +52,12 @@ EndProcedure
 //
 // Parameters:
 //  AccessGroups - CatalogRef.AccessGroups
-//                - Array - 
-//                - Undefined - 
+//                - Array - values of the type specified above.
+//                - Undefined - without filter.
 //
 //  Tables       - CatalogRef.MetadataObjectIDs
 //                - CatalogRef.ExtensionObjectIDs
-//                - Array - 
+//                - Array - values of the type specified above.
 //
 //  HasChanges - Boolean - (return value) - if recorded,
 //                  True is set, otherwise, it does not change.
@@ -328,7 +328,7 @@ Procedure UpdateRegisterData(AccessGroups = Undefined,
 		If HasCurrentChanges
 		   And AccessManagementInternal.LimitAccessAtRecordLevelUniversally() Then
 			
-			// 
+			// Schedule an access update.
 			AccessManagementInternal.ScheduleAccessUpdateOnChangeAccessGroupsTables(ChangesContent);
 		EndIf;
 		

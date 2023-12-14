@@ -17,7 +17,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		DataCompositionComparisonType.Equal, , ,
 		DataCompositionSettingsItemViewMode.Normal);
 		
-	// 
+	// StandardSubsystems.ObjectsVersioning
 	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
 		ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");
 		ModuleObjectsVersioning.OnCreateAtServer(ThisObject);

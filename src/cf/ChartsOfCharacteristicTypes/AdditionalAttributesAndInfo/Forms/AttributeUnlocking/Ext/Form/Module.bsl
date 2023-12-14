@@ -28,7 +28,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.NoteButtons.Visible = False;
 	Else
 		Items.UserDialogs.CurrentPage = Items.ObjectNotUsed;
-		Items.ObjectUsed.Visible = False; // 
+		Items.ObjectUsed.Visible = False; // For compact form display.
 		
 		Items.OK.DefaultButton = True;
 		

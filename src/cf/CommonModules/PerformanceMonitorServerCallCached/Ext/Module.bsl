@@ -12,7 +12,7 @@
 // Checks whether performance measurement is required.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if measurements must be made, False otherwise.
 //
 Function RunPerformanceMeasurements() Export
 	

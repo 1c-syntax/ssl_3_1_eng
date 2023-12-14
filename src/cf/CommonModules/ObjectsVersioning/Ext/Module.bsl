@@ -15,7 +15,7 @@
 //  ObjectType - String
 //             - Type
 //             - MetadataObject
-//             - CatalogRef.MetadataObjectIDs - 
+//             - CatalogRef.MetadataObjectIDs - metadata object;
 //  VersioningMode - EnumRef.ObjectsVersioningOptions - version recording condition;
 //  VersionLifetime - EnumRef.VersionsLifetimes - period after which versions must be deleted.
 //
@@ -85,7 +85,7 @@ EndProcedure
 //  ObjectName - String - full path to metadata object. For example, "Catalog.Products".
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True, if enabled.
 //
 Function ObjectVersioningEnabled(ObjectName) Export
 	ListOfObjects = CommonClientServer.ValueInArray(ObjectName);
@@ -188,18 +188,18 @@ Procedure EnableObjectsVersioning(Objects) Export
 	
 EndProcedure
 
-// Check box state for an object versioning setup form.
+// 
 //
 // Returns: 
-//   Boolean - 
+//   Boolean
 //
 // Example:
-//	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
-//		ModuleObjectVersioning = Common.CommonModule("ObjectsVersioning");
-//		UseFullTextSearch = ModuleObjectVersioning.StoreHistoryCheckBoxValue();
-//	Else 
-//		Items.ObjectsVersioningControlGroup.Visibility = False;
-//	EndIf;
+//	
+//		
+//		
+//	 
+//		
+//	
 //
 Function StoreHistoryCheckBoxValue() Export
 	
@@ -219,8 +219,8 @@ EndFunction
 //
 Procedure WriteObjectVersion(Val Source, WriteMode = Undefined) Export
 	
-	// 
-	// 
+	
+	
 	If Not GetFunctionalOption("UseObjectsVersioning") Then
 		Return;
 	EndIf;
@@ -388,7 +388,7 @@ Procedure ChangeTheSyncWarning(RegisterEntryParameters, CheckForAnEntry) Export
 		RecordManager.Object = Ref;
 		RecordManager.VersionNumber = VersionNumber;
 		
-		RecordManager.Read(); // 
+		RecordManager.Read(); 
 		If Not RecordManager.Selected() Then
 			
 			// Use case: A user opened the warning dialog and fixed the issue.
@@ -417,7 +417,7 @@ EndProcedure
 //  ExchangeNodes - ExchangePlanRef
 //             - Array
 //             - ValueList
-//             - Undefined - 
+//             - Undefined - filter used to display the number of conflicts.
 //  IsConflictsCount - Boolean - If True, returns the number of conflicts. If False, returns the number of rejected objects.
 //  ShowIgnoredItems - Boolean - indicates whether ignored objects are included.
 //  InfobaseNode - ExchangePlanRef - filter by a specific node.
@@ -493,7 +493,7 @@ Function ConflictOrRejectedItemCount(ExchangeNodes, IsConflictsCount,
 			EndIf;
 		EndIf;
 		
-	Else // 
+	Else // Filtering by comment is not supported.
 		VersionTypes.Add(Enums.ObjectVersionTypes.ConflictDataAccepted);
 		VersionTypes.Add(Enums.ObjectVersionTypes.RejectedConflictData);
 		VersionTypes.Add(Enums.ObjectVersionTypes.RejectedDueToPeriodEndClosingDateObjectExistsInInfobase);
@@ -783,7 +783,7 @@ Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Sender) Exp
 		RecordSet.Read();
 		
 		If Common.ValueToXMLString(DataElement) = Common.ValueToXMLString(RecordSet) Then
-			// 
+			// Consider that there are no conflicts.
 			ItemReceive = DataItemReceive.Ignore;
 			
 			CommitTransaction();
@@ -945,7 +945,7 @@ Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender) Ex
 		RecordSet.Read();
 		
 		If Common.ValueToXMLString(DataElement) = Common.ValueToXMLString(RecordSet) Then
-			// 
+			// Consider that there are no conflicts.
 			ItemReceive = DataItemReceive.Ignore;
 			
 			CommitTransaction();
@@ -975,8 +975,8 @@ Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender) Ex
 		
 		// Writing the resulting version and changing its number taking into account versions that will not be synchronized.
 		If Not HasConflict Then
-			// 
-			// 
+			
+			
 			If RecordSet.Count() = 0 Then
 				Record = RecordSet.Add();
 				Record.Object = Object;
@@ -1190,8 +1190,8 @@ Procedure OnFillToDoList(ToDoList) Export
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.InformationRegisters.ObjectVersioningSettings.FullName());
 	
 	ObsoleteVersionsInformation = ObsoleteVersionsInformation();
@@ -1203,7 +1203,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		// Add a to-do item.
 		ToDoItem = ToDoList.Add();
 		ToDoItem.Id = ObsoleteObjectsID;
-		// 
+		// Displaying a user task if the obsolete data exceeds 1 GB.
 		ToDoItem.HasToDoItems      = ObsoleteVersionsInformation.DataSize > (1024 * 1024 * 1024);
 		ToDoItem.Presentation = NStr("en = 'Obsolete object versions';");
 		ToDoItem.Form         = "InformationRegister.ObjectVersioningSettings.Form.HistoryStorageSettings";
@@ -1361,7 +1361,7 @@ Procedure CreateObjectVersion(Object, ObjectVersionInfo, NormalVersionRecord = T
 			EndIf;
 		EndIf;
 		
-		// 
+		// Saving current version with no data.
 		RecordManager = InformationRegisters.ObjectsVersions.CreateRecordManager();
 		RecordManager.Object = ObjectReference;
 		RecordManager.VersionNumber = ObjectVersionInfo.VersionNumber;
@@ -1379,8 +1379,8 @@ Procedure CreateObjectVersion(Object, ObjectVersionInfo, NormalVersionRecord = T
 		ObjectVersionInfo.Property("SynchronizationWarning", RecordManager.SynchronizationWarning);
 		
 		If Not Object.IsNew() Then
-			// 
-			// 
+			
+			
 			If PostingChanged Then
 				Object.Posted = Not Object.Posted;
 			EndIf;
@@ -1393,7 +1393,7 @@ Procedure CreateObjectVersion(Object, ObjectVersionInfo, NormalVersionRecord = T
 			EndIf;
 		EndIf;
 	Else
-		// 
+		// Saving the previous object version.
 		RecordManager = InformationRegisters.ObjectsVersions.CreateRecordManager();
 		RecordManager.Object = Object.Ref;
 		RecordManager.VersionNumber = PreviousVersionNumber(Object.Ref, ObjectVersionInfo.VersionNumber);
@@ -1417,7 +1417,7 @@ EndProcedure
 // Writes an object version to the infobase.
 //
 // Parameters:
-//  Object - 
+//  Object - to create version.
 //
 Procedure OnCreateObjectVersion(Object, WriteMode)
 	
@@ -1517,7 +1517,7 @@ EndProcedure
 //  ObjectReference - AnyRef
 //
 // Returns:
-//  SpreadsheetDocument - 
+//  SpreadsheetDocument - object print form.
 //
 Function ReportOnObjectVersion(ObjectReference, Val ObjectVersion = Undefined, CustomVersionNumber = Undefined) Export
 	
@@ -1564,7 +1564,7 @@ EndFunction
 //  Ref - AnyRef - reference to an infobase object.
 //
 // Returns:
-//  Number - the version number of the object.
+//  Number - object version number.
 //
 Function LastVersionNumber(Ref, ChangedByUser = False) Export
 	
@@ -1659,7 +1659,7 @@ EndFunction
 //  ErrorMessageText    - String - error text (return value) when the object cannot be restored.
 //
 // Returns:
-//  Arbitrary - 
+//  Arbitrary - the object or Undefined if the object cannot be restored.
 //
 Function RestoreObjectByXML(ObjectData, ErrorMessageText = "")
 	
@@ -1697,13 +1697,13 @@ EndFunction
 //
 // Returns:
 //   Structure:
-//                          
-//                          
+//                          ObjectVersion - BinaryData - saved version of the infobase object.
+//                          VersionAuthor - CatalogRef.Users
 //                                        - CatalogRef.ExternalUsers -
-//                                          
-//                          
+//                                          ObjectVersion - BinaryData - saved version of the infobase object.
+//                          VersionAuthor - CatalogRef.Users
 // 
-// 
+// :
 //  
 //  
 //
@@ -1958,7 +1958,7 @@ Function DeletionBoundary(VersionLifetime)
 		Return AddMonth(CurrentSessionDate(), -1);
 	ElsIf VersionLifetime = Enums.VersionsLifetimes.LastWeek Then
 		Return CurrentSessionDate() - 7*24*60*60;
-	Else // 
+	Else // VersionLifetime = Enums.VersionsLifetimes.Indefinitely
 		Return '000101010000';
 	EndIf;
 EndFunction
@@ -2165,7 +2165,7 @@ EndFunction
 //  Object - Arbitrary - serialized object.
 //
 // Returns:
-//  BinaryData - 
+//  BinaryData - serialized object.
 //
 Function SerializeObject(Object) Export
 	
@@ -2226,12 +2226,12 @@ Function XMLObjectPresentationParsing(VersionData, Ref) Export
 	XMLReader = New FastInfosetReader;
 	XMLReader.SetBinaryData(BinaryData);
 	
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
+	
+	
 	ReadingLevel = 0;
 	
 	ObjectMetadata = Ref.Metadata();
@@ -2241,9 +2241,9 @@ Function XMLObjectPresentationParsing(VersionData, Ref) Export
 	While XMLReader.Read() Do
 		If XMLReader.NodeType = XMLNodeType.StartElement Then
 			ReadingLevel = ReadingLevel + 1;
-			If ReadingLevel = 1 Then // Указатель на первом элементе XML - 
-				// 
-			ElsIf ReadingLevel = 2 Then // Указатель на втором уровне - 
+			If ReadingLevel = 1 Then 
+				
+			ElsIf ReadingLevel = 2 Then // Level-two pointer is an attribute or a tabular section name.
 				AttributeName = XMLReader.Name;
 				
 				// Saving the attribute against a possible case that it may be a tabular section.
@@ -2284,7 +2284,7 @@ Function XMLObjectPresentationParsing(VersionData, Ref) Export
 						NewValue.Type = AttributeDetails.Type.Types()[0];
 					EndIf;
 				EndIf;
-			ElsIf (ReadingLevel = 3) And XMLReader.Name = "Row" Then // 
+			ElsIf (ReadingLevel = 3) And XMLReader.Name = "Row" Then // Pointer to tabular section field.
 				If TabularSections[TabularSectionName] = Undefined Then
 					TabularSections.Insert(TabularSectionName, New ValueTable);
 				EndIf;
@@ -2294,7 +2294,7 @@ Function XMLObjectPresentationParsing(VersionData, Ref) Export
 					If NewValue.AttributeValue = Undefined Then
 						NewValue.AttributeValue = "";
 					EndIf;
-				Else // 
+				Else // Pointer to tabular section field.
 					TSFieldValueType = "";
 					TSFieldName = XMLReader.Name;
 					Table   = TabularSections[TabularSectionName];// ValueTable 
@@ -2320,13 +2320,13 @@ Function XMLObjectPresentationParsing(VersionData, Ref) Export
 		ElsIf XMLReader.NodeType = XMLNodeType.EndElement Then
 			ReadingLevel = ReadingLevel - 1;
 		ElsIf XMLReader.NodeType = XMLNodeType.Text Then
-			If (ReadingLevel = 2) Then // 
+			If (ReadingLevel = 2) Then // Attribute value.
 				Try
 					NewValue.AttributeValue = ?(ValueIsFilled(NewValue.Type), XMLValue(NewValue.Type, XMLReader.Value), XMLReader.Value);
 				Except
 					NewValue.AttributeValue = XMLReader.Value;
 				EndTry;
-			ElsIf (ReadingLevel = 4) Then // 
+			ElsIf (ReadingLevel = 4) Then // Attribute value.
 				If NewValue.Type = Type("TypeDescription") Then
 					TypeAsString = String(FromXMLType(New XMLDataType(XMLReader.Value, "")));
 					If IsBlankString(TypeAsString) Then
@@ -3487,7 +3487,7 @@ Procedure WriteVersionWithNumberChange(DataElement, ItemReceive, Sender, Version
 		Record = RecordSet[0];
 	EndIf;
 	FillPropertyValues(Record, DataElement[0], , "Object,VersionNumber");
-	RecordSet.Write(); // 
+	RecordSet.Write(); 
 	
 	ExchangePlans.DeleteChangeRecords(Sender.Ref, RecordSet);
 	ItemReceive = DataItemReceive.Ignore;

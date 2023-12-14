@@ -65,7 +65,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServerNoContext
 Function ResetAssignmentSettingsServer(Val OptionsToAssign)

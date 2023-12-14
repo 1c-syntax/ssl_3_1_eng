@@ -436,7 +436,7 @@ Procedure SetConditionalAppearance()
 
 	Item.Appearance.SetParameterValue("MarkIncomplete", True);
 
-	// 
+	
 
 	ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -459,7 +459,7 @@ Procedure SetConditionalAppearance()
 	FormattedField.Field = New DataCompositionField("HintsRangeValueUpTo");
 	FormattedField.Use = True;
 	
-	// 
+	
 	
 	ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -684,7 +684,7 @@ Procedure SetDefaultRangeSliderStep()
 		Return;
 	EndIf;
 	
-	// 
+	
 	SliderLength = (Object.MaxValue - Object.MinValue) / Object.RangeSliderStep;
 	If SliderLength <> Int(SliderLength) Then
 		Object.RangeSliderStep = 1;

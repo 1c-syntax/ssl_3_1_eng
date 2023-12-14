@@ -44,22 +44,22 @@ EndProcedure
 //                              of the DigitalSignatureOverridable common module.
 //   * CryptoManager - CryptoManager - a prepared crypto manager to
 //                              perform a check.
-//                         - Undefined - 
-//                              
+//                         - Undefined - if standard checks are disabled in procedure
+//                              OnCreateFormCertificateCheck of the DigitalSignatureOverridable common module.
 //   * ErrorDescription       - String - a return value. An error description received when performing the check.
 //                              User can see the details by clicking the result picture.
 //   * IsWarning    - Boolean - a return value. A picture kind is Error/Warning,
 //                            the initial value is False.
 //   * Password   - String - a password entered by the user.
-//                   - Undefined - 
-//                            
+//                   - Undefined - if the EnterPassword property is set to False in the
+//                            OnCreateFormCertificateCheck procedure of the DigitalSignatureOverridable common module.
 //   * ChecksResults   - Structure:
 //      * Key     - String - a name of a standard or an additional check, or an error name. The property key
 //                 containing an error, contains the check name with the Error ending.
 //      * Value - Undefined - the check was not performed (ErrorDetails is still Undefined).
-//                 - Boolean - 
-//                 - String - 
-//                 
+//                 - Boolean - an additional check execution result.
+//                 - String - when a property key contains the Error ending and check result is False,
+//                 contains details of the error.
 //
 Procedure OnAdditionalCertificateCheck(Parameters) Export
 	
@@ -67,7 +67,7 @@ Procedure OnAdditionalCertificateCheck(Parameters) Export
 	
 EndProcedure
 
-// It is called when opening the instruction on how to work with digital signature and encryption applications.
+// It is called when opening the instruction on how to work with digital signature and encryption apps.
 //
 // Parameters:
 //  Section - String - the initial value of BookkeepingAndTaxAccounting.

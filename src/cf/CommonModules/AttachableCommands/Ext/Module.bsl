@@ -68,8 +68,8 @@ Procedure OnCreateAtServer(Form, Val PlacementParameters = Undefined) Export
 	If HasListParameters <> HasObjectParameters Then
 		IsObjectForm = HasObjectParameters;
 	EndIf;
-	// 
-	// 
+	
+	
 	If SourcesCommaSeparated = "" And SpecifyCommandsSources(FormName) Then
 		If HasObjectParameters Then
 			MetadataObject = Metadata.FindByType(TypeOf(Parameters.Key));
@@ -104,10 +104,10 @@ EndProcedure
 // Constructor of the matching parameter of the AttachableCommands.OnCreateAtServer procedure.
 //
 // Returns:
-//   Structure - 
+//   Structure - :
 //       * Sources - TypeDescription
-//                   - Array of MetadataObject - 
-//           
+//                   - Array of MetadataObject - Command sources.
+//           Used for secondary lists and in object forms that don't provide commands (data processors, common forms).
 //           
 //       * CommandBar - FormGroup - a command bar or a group of commands that displays a submenu.
 //           It is used as a parent to create submenu if it is missing.
@@ -117,7 +117,7 @@ EndProcedure
 //           For the prefix use the form table name, for which commands are output.
 //           For example, if GroupsPrefix = WarehouseDocuments (secondary form table name),
 //           submenus named WarehouseDocumentsSubmenuPrint, WarehouseDocuments SubmenuReports, and so on are used.
-//       * CommandsOwner - FormDataStructure, FormTable -
+//       * CommandsOwner - FormDataStructure, FormTable - 
 //
 Function PlacementParameters() Export
 	
@@ -137,7 +137,7 @@ EndFunction
 //   Form - ClientApplicationForm - a form, from which the command is executed.
 //   CallParameters - Structure
 //   Source - FormTable
-//            - FormDataStructure - 
+//            - FormDataStructure - an object or a form list with the Reference field.
 //   Result - Structure - a command execution result.
 //
 Procedure ExecuteCommand(Val Form, Val CallParameters, Val Source = Undefined, Result = Undefined) Export
@@ -225,7 +225,7 @@ EndProcedure
 //   * Form - ClientApplicationForm - a form the command is called from.
 //   * IsObjectForm - Boolean - True if the command is called from the object form.
 //   * Source - FormTable
-//              - FormDataStructure - 
+//              - FormDataStructure - an object or a form list with the Reference field.
 //
 Function CommandExecuteParameters() Export
 	ExecutionParameters = AttachableCommandsClientServer.CommandExecuteParameters();
@@ -293,7 +293,7 @@ EndFunction
 //   InterfaceSettings4 - See AttachableCommands.AttachableObjectsInterfaceSettings.
 //
 // Returns:
-//  Structure - integration settings for this object:
+//  Structure - :
 //   * Location - Array of MetadataObject - objects to which an object is attached.
 //   * AddPrintCommands     - Boolean - the AddPrintCommands function is defined in the object manager module. 
 //   * AddFillCommands - Boolean - the AddFillCommands function is defined in the object manager module. 
@@ -303,8 +303,8 @@ EndFunction
 //   * Kind - String - metadata object kind and name in uppercase.
 //   * FullName - String - Full name of a metadata object.
 //   * Manager - DataProcessorManager
-//              - ReportManager - 
-//  
+//              - ReportManager - a metadata object manager.
+//  Undefined - if failed to receive the settings.
 //
 Function AttachableObjectSettings(FullName, InterfaceSettings4 = Undefined) Export
 	NameParts = StrSplit(FullName, ".");
@@ -361,7 +361,7 @@ EndFunction
 // Parameters:
 //   Array - Array - a type array.
 //   TypeOrTypeDetails - Type
-//                       - TypeDescription - 
+//                       - TypeDescription - types being added.
 //
 Procedure SupplyTypesArray(Array, TypeOrTypeDetails) Export
 	If TypeOf(TypeOrTypeDetails) = Type("TypeDescription") Then
@@ -381,8 +381,8 @@ EndProcedure
 //   InterfaceSettings4 - See AttachableCommands.AttachableObjectsInterfaceSettings
 //
 // Returns:
-//   ValueTreeRow - 
-//       
+//   ValueTreeRow - metadata object settings. See details of parameter 2
+//       of the AttachableCommandsOverridable.OnDefineCommandsAttachedToObject() procedure.
 //
 Function RegisterSource(MetadataObject, Sources, AttachedObjects, InterfaceSettings4) Export
 	If MetadataObject = Undefined Then
@@ -443,12 +443,12 @@ EndFunction
 // Information template of reports and data processors attached to command sources.
 //
 // Returns:
-//   ValueTable - auxiliary parameter:
+//   ValueTable - :
 //       * FullName  - String           - a full object name. For example: "Document.DocumentName".
 //       * Manager   - Arbitrary     - an object manager module.
 //       * Location - Array           - a list of objects, to which a report or data processor is attached.
 //       * DataRefType - Type
-//                         - TypeDescription - 
+//                         - TypeDescription - a type of objects, to which a report or a data processor is attached..
 //
 Function AttachableObjectsTable(InterfaceSettings4 = Undefined) Export
 	If InterfaceSettings4 = Undefined Then
@@ -484,7 +484,7 @@ EndFunction
 //
 // Returns:
 //   ValueTable - 
-//       
+//       :
 //       * Key             - String        - a setting name.
 //       * TypeDescription    - TypeDescription - setting type.
 //       * AttachableObjectsKinds - String - a metadata object kind in uppercase.
@@ -572,7 +572,7 @@ Function FormCache(FormName, SourcesCommaSeparated, IsObjectForm) Export
 	EndIf;
 	
 	If IsObjectForm = True And SourcesTypes.Count() = 1 And ParentMetadata <> Metadata.FindByType(SourcesTypes[0]) Then
-		IsObjectForm = False; // 
+		IsObjectForm = False; // Object form has a list of another object type.
 	EndIf;
 	
 	If IsObjectForm = Undefined Then
@@ -777,7 +777,7 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 	
 	RootSubmenuAndCommands = AttachedCommands.RootSubmenuAndCommands;
 	
-	// 
+	// Output commands.
 	Commands.Sort("Kind, ImportanceOrder Asc, Order Asc, Presentation Asc");
 	CommandsCounterWithAutonaming = 0;
 	CommandsKinds = AttachableCommandsCached.CommandsKinds();
@@ -1268,15 +1268,15 @@ EndFunction
 // Parameters:
 //  Filter - CatalogRef.MetadataObjectIDs - update configuration cache.
 //                      Structure with the "AttachedObjects" key is written to the AttachableCommandsParameters constant.
-//        - CatalogRef.ExtensionObjectIDs - 
-//                      
+//        - CatalogRef.ExtensionObjectIDs - update cache of extensions.
+//                      Structure with the "AttachedObjects" key is written to the ExtensionVersionParameters register.
 //
 // Returns:
 //   Structure:
 //       * HasChanges - Boolean - True if there were changes made during the update.
 //       * AttachedObjects - Map of KeyAndValue - Cache intended to quickly define a list of objects attached to configuration objects.
-//           
-//           ** Key - 
+//           :
+//           ** Key - CatalogRef.MetadataObjectIDs, CatalogRef.ExtensionObjectIDs.
 //           ** Value - Array of String
 //
 Function CommonDataNonexclusiveUpdate(Filter)
@@ -1369,14 +1369,14 @@ EndFunction
 //   * FunctionalOptions - String
 //   * VisibilityConditions - Array
 //   * ChangesSelectedObjects - Boolean
-//   * MultipleChoice - 
+//   * MultipleChoice - Boolean, Undefined
 //   * WriteMode - String
 //   * FilesOperationsRequired - Boolean
 //   * Manager - String
 //   * Handler - String
 //   * AdditionalParameters - Structure
 //   * FormName - String
-//   * FormParameters - 
+//   * FormParameters - Structure, Undefined
 //   * FormParameterName - String
 //   * ImportanceOrder - Number
 //   * NameOnForm - String
@@ -1512,14 +1512,14 @@ EndFunction
 //   * FunctionalOptions - String
 //   * VisibilityConditions - Array
 //   * ChangesSelectedObjects - Boolean
-//   * MultipleChoice - 
+//   * MultipleChoice - Boolean, Undefined
 //   * WriteMode - String
 //   * FilesOperationsRequired - Boolean
 //   * Manager - String
 //   * Handler - String
 //   * AdditionalParameters - Structure
 //   * FormName - String
-//   * FormParameters - 
+//   * FormParameters - Structure, Undefined
 //   * FormParameterName - String
 //   * ImportanceOrder - Number
 //   * NameOnForm - String
@@ -1530,7 +1530,7 @@ Function CommandsTable()
 	Table = New ValueTable;
 	Table.Columns.Add("Kind", New TypeDescription("String"));
 	Table.Columns.Add("Id", New TypeDescription("String"));
-	// 
+	// Appearance settings:
 	Table.Columns.Add("Presentation", New TypeDescription("String"));
 	Table.Columns.Add("Popup", New TypeDescription("String"));
 	Table.Columns.Add("Importance", New TypeDescription("String"));
@@ -1540,25 +1540,25 @@ Function CommandsTable()
 	Table.Columns.Add("ButtonRepresentation");
 	Table.Columns.Add("OnlyInAllActions", New TypeDescription("Boolean"));
 	Table.Columns.Add("CheckMarkValue", New TypeDescription("String"));
-	// 
+	// Visibility and availability settings:
 	Table.Columns.Add("ParameterType"); // TypeDescription
 	Table.Columns.Add("VisibilityInForms", New TypeDescription("String"));
 	Table.Columns.Add("Purpose", New TypeDescription("String"));
 	Table.Columns.Add("FunctionalOptions", New TypeDescription("String"));
 	Table.Columns.Add("VisibilityConditions", New TypeDescription("Array"));
-	Table.Columns.Add("ChangesSelectedObjects"); // 
-	// 
-	Table.Columns.Add("MultipleChoice"); // 
+	Table.Columns.Add("ChangesSelectedObjects"); 
+	
+	Table.Columns.Add("MultipleChoice"); // Boolean or Undefined.
 	Table.Columns.Add("WriteMode", New TypeDescription("String"));
 	Table.Columns.Add("FilesOperationsRequired", New TypeDescription("Boolean"));
-	// 
+	// Handler settings:
 	Table.Columns.Add("Manager", New TypeDescription("String"));
 	Table.Columns.Add("Handler", New TypeDescription("String"));
 	Table.Columns.Add("AdditionalParameters", New TypeDescription("Structure"));
 	Table.Columns.Add("FormName", New TypeDescription("String"));
-	Table.Columns.Add("FormParameters"); // 
+	Table.Columns.Add("FormParameters"); // Structure or Undefined.
 	Table.Columns.Add("FormParameterName", New TypeDescription("String"));
-	// Internal:
+	// Service:
 	Table.Columns.Add("ImportanceOrder", New TypeDescription("Number"));
 	Table.Columns.Add("NameOnForm", New TypeDescription("String"));
 	Table.Columns.Add("HasVisibilityConditions", New TypeDescription("Boolean"));

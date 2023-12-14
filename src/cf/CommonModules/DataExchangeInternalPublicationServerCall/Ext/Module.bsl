@@ -18,13 +18,13 @@ Function SettingFlagShouldMutePromptToMigrateToWebService(SettingObject1, Value 
 	EndIf;
 	
 	If Value = Undefined Then
-		// Чтение
+		// Read
 		Return Common.CommonSettingsStorageLoad("ApplicationSettings", Var_Key, False,, UserName());
 	EndIf;
 	
 	SettingsDescription = NStr("en = 'Do not offer to switch to a web service';");
 	
-	// Запись
+	// Record
 	Common.CommonSettingsStorageSave("ApplicationSettings", Var_Key, Value, SettingsDescription, UserName());
 	
 EndFunction

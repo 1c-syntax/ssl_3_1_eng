@@ -71,8 +71,8 @@ EndProcedure
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 Procedure FormGetProcessing(FormType, Parameters, SelectedForm, AdditionalInformation, StandardProcessing)
-	// 
-	// 
+	
+	
 	If FormType = "ObjectForm" Then
 		OptionRef1 = CommonClientServer.StructureProperty(Parameters, "Key");
 		If Not ValueIsFilled(OptionRef1) Then
@@ -158,8 +158,8 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Update handlers.
 
-// Registers data for an update in the InfobaseUpdate exchange plan.
-//  See application development standards: Parallel mode of deferred update.
+// This procedure registers data to be updated in the InfobaseUpdate exchange plan.
+//  See "Parallel mode of deferred update" in the application development standards.
 //
 // Parameters:
 //  Parameters - See InfobaseUpdate.MainProcessingMarkParameters
@@ -191,8 +191,8 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	InfobaseUpdate.MarkForProcessing(Parameters, References);
 EndProcedure
 
-// Processes data registered in the InfobaseUpdate exchange plan
-//  see application development standards and methods: parallel mode of deferred update.
+// This procedure processes data registered in the InfobaseUpdate exchange plan.
+//  See "Parallel mode of deferred update" in the application development standards.
 //
 // Parameters:
 //  Parameters - See InfobaseUpdate.MainProcessingMarkParameters
@@ -253,7 +253,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 
 			RollbackTransaction();
 			
-			// 
+			// If a report option procession failed, try again.
 			Declined = Declined + 1;
 
 			If OptionDataSourceSetup Then

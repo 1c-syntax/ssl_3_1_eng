@@ -57,7 +57,7 @@ Procedure CloseForm(Command)
 	
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure TimeConsumingOperationIdleHandler()
@@ -94,7 +94,7 @@ EndProcedure
 
 #Region Private
 
-// 
+
 
 &AtClient
 Procedure ChangeNavigationNumber(Iterator_SSLy)
@@ -395,7 +395,7 @@ Procedure GoBack()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure DeleteStandaloneWorkstation1(Cancel, ErrorMessage = "")
@@ -435,7 +435,7 @@ Procedure WriteErrorToEventLog(ErrorMessageString, Event)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Function Attachable_WaitTimeConsumingOperationProcessing(Cancel, GoToNext)
@@ -494,7 +494,7 @@ Function JobCompleted(JobID)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure SetMainScenario()

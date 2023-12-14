@@ -266,7 +266,7 @@ Procedure ProcessPropertiesSetsForMigrationToNewVersion(Parameters) Export
 					|WHERE
 					|	AdditionalAttributesAndInfoSets.Parent = &Parent
 					|	AND AdditionalAttributesAndInfoSets.Predefined = FALSE";
-				SetsToTransfer = Query.Execute().Unload(); // @skip-
+				SetsToTransfer = Query.Execute().Unload(); 
 				For Each String In SetsToTransfer Do
 					SetObject = String.Ref.GetObject();
 					SetObject.Parent = NewSet;
@@ -414,7 +414,7 @@ EndFunction
 // 
 // Parameters:
 //  PropertiesSets - Map of KeyAndValue:
-//     * Key - 
+//     * Key - String, CatalogRef.AdditionalAttributesAndInfoSets
 //     * Value - See New_SetProperties
 //  Set - ValueTreeRow:
 //     * Name           - String

@@ -30,8 +30,8 @@ Procedure BeforeExportData(Container) Export
 	
 EndProcedure
 
-// It is called before object export.
-// see OnRegisterDataExportHandlers.
+// 
+// 
 //
 // Parameters:
 //  Container - DataProcessorObject.ExportImportDataContainerManager
@@ -108,7 +108,7 @@ EndProcedure
 //
 // Parameters:
 //  Container - DataProcessorObject.ExportImportDataContainerManager - Container manager used for data import.
-//    For details, see comments to the API of ExportImportDataContainerManager. 
+//    For details, see comments to the API of ExportImportDataContainerManager.
 //    
 //
 Procedure BeforeImportData(Container) Export
@@ -200,7 +200,7 @@ EndFunction
 //
 // Parameters:
 //  Container - DataProcessorObject.ExportImportDataContainerManager - a container
-//		manager used for data export. For more information, see the comment 
+//		manager used for data export. For more information, see the comment
 //		to ExportImportDataContainerManager handler interface.
 //  MetadataObject - MetadataObject - Metadata object.
 //  Cancel - Boolean - indicates if the operation is completed.

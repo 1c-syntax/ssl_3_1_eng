@@ -121,7 +121,8 @@ the application update again (recommended).
 							<Title formatted="true">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Click &lt;b&gt;C&lt;/&gt;&lt;b&gt;ontinue&lt;/&gt; to retry the update.</v8:content>
+									<v8:content>Click &lt;b&gt;Continue&lt;/&gt; to try to update the program again.
+</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="DoNotSyncHelpTextContextMenu" id="42"/>

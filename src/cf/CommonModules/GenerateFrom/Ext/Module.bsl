@@ -74,7 +74,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	
 	GenerationCommands.FillValues(True, "Processed1");
 	
-	AllowedTypes = New Array; // 
+	AllowedTypes = New Array; 
 	If StandardProcessing Then
 		ObjectsWithCreationBasedOnCommands = ObjectsWithCreationBasedOnCommands();
 		For Each Source In Sources.Rows Do
@@ -141,7 +141,7 @@ EndProcedure
 // List of objects that use commands of creation on basis.
 //
 // Returns:
-//   Array of String - 
+//   Array of String - names of metadata objects attached to the subsystem.
 //
 Function ObjectsWithCreationBasedOnCommands()
 	

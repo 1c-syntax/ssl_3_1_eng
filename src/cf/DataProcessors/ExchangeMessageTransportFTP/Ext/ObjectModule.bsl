@@ -13,16 +13,16 @@
 Var ErrorMessageString Export;
 Var ErrorMessageStringEL Export;
 
-Var ErrorsMessages; // 
-Var ObjectName;		// 
-Var FTPServerName;		// Адрес FTP сервера - 
-Var DirectoryAtFTPServer;// 
+Var ErrorsMessages; 
+Var ObjectName;		
+Var FTPServerName;		
+Var DirectoryAtFTPServer;// FTP server address is a name or address.
 
-Var TempExchangeMessageFile; // 
-Var TempExchangeMessagesDirectory; // 
+Var TempExchangeMessageFile; 
+Var TempExchangeMessagesDirectory; // Temporary exchange message file for importing and exporting data.
 
-Var SendGetDataTimeout; // 
-Var ConnectionCheckTimeout; // Таймаут, используемый для проверки соединения с FTP-
+Var SendGetDataTimeout; 
+Var ConnectionCheckTimeout; // Timeout that is used for FTP connection when sending and receiving data.
 
 Var DirectoryID;
 #EndRegion
@@ -38,7 +38,7 @@ Var DirectoryID;
 //  No.
 // 
 //  Returns:
-//    Boolean - 
+//    Boolean - True if the function is executed successfully, False if an error occurred.
 // 
 Function ExecuteActionsBeforeProcessMessage() Export
 	
@@ -56,7 +56,7 @@ EndFunction
 //  No.
 // 
 //  Returns:
-//    Boolean - 
+//    Boolean - True if the function is executed successfully, False if an error occurred.
 // 
 Function SendMessage() Export
 	
@@ -78,7 +78,7 @@ EndFunction
 //  ExistenceCheck - Boolean - True if it is necessary to check whether exchange messages exist without their import.
 // 
 //  Returns:
-//    Boolean - 
+//    Boolean - True if the function is executed successfully, False if an error occurred.
 // 
 Function GetMessage(ExistenceCheck = False) Export
 	
@@ -133,12 +133,16 @@ EndProcedure
 //  No.
 // 
 //  Returns:
-//    Boolean - 
+//    Boolean - True if connection can be established. Otherwise, False.
 //
 Function ConnectionIsSet() Export
 	
 	// Function return value.
 	Result = True;
+	
+	If Common.DataSeparationEnabled() Then
+		Return Result;
+	EndIf;
 	
 	InitMessages();
 	
@@ -157,7 +161,7 @@ Function ConnectionIsSet() Export
 	TextWriter.WriteLine(FileNameForDestination);
 	TextWriter.Close();
 	
-	// 
+	// Copying a file to the external resource from the temporary directory.
 	Result = CopyFileToFTPServer(TempConnectionTestFileName, FileNameForDestination, ConnectionCheckTimeout);
 	
 	// Deleting a file from the external resource.
@@ -179,7 +183,7 @@ EndFunction
 // Function for retrieving property: the time of changing the exchange file message.
 //
 // Returns:
-//  Date - 
+//  Date - time exchange message file changed.
 //
 Function ExchangeMessageFileDate() Export
 	
@@ -202,7 +206,7 @@ EndFunction
 // Retrieves the full name of the exchange message file.
 //
 // Returns:
-//  String - 
+//  String - full exchange message file name.
 //
 Function ExchangeMessageFileName() Export
 	
@@ -221,7 +225,7 @@ EndFunction
 // Retrieves the full name of the exchange message directory.
 //
 // Returns:
-//  String - 
+//  String - full exchange message directory name.
 //
 Function ExchangeMessageDirectoryName() Export
 	
@@ -556,14 +560,14 @@ Procedure ErrorMessageInitialization()
 	
 	ErrorsMessages = New Map;
 	
-	// 
+	
 	ErrorsMessages.Insert(001, NStr("en = 'No message file with data was found in the exchange directory.';"));
 	ErrorsMessages.Insert(002, NStr("en = 'Error extracting message file.';"));
 	ErrorsMessages.Insert(003, NStr("en = 'Error packing the exchange message file.';"));
 	ErrorsMessages.Insert(004, NStr("en = 'An error occurred when creating a temporary directory.';"));
 	ErrorsMessages.Insert(005, NStr("en = 'The archive does not contain the exchange message file.';"));
 	
-	// 
+	
 	ErrorsMessages.Insert(101, NStr("en = 'Path on the server is not specified.';"));
 	ErrorsMessages.Insert(102, NStr("en = 'An occurred when initializing connection to the FTP server.';"));
 	ErrorsMessages.Insert(103, NStr("en = 'An error occurred when establishing connection to the FTP server. Check whether the path is specified correctly and access rights are sufficient.';"));
@@ -630,6 +634,10 @@ Function CopyFileToFTPServer(Val SourceFileName, ReceiverFileName, Val Timeout)
 		Return False;
 	EndTry;
 	
+	If Common.DataSeparationEnabled() Then
+		Return True;
+	EndIf;
+	
 	Try
 		FilesArray = FTPConnection.FindFiles(DirectoryAtServer, ReceiverFileName, False);
 	Except
@@ -649,18 +657,33 @@ Procedure CreateDirectoryIfNecessary(FTPConnection, DirectoryAtServer)
 		Return;
 	EndIf;
 	
-	NamesArray = StrSplit(DirectoryAtServer, "/", False);
-	DirectoryName = "";
+	If Common.DataSeparationEnabled() Then
+		
+		
+		 
+		
+		Try
+			FTPConnection.CreateDirectory(DirectoryAtServer);
+		Except
+			
+		EndTry;
+		
+	Else	
+		
+		NamesArray = StrSplit(DirectoryAtServer, "/", False);
+		DirectoryName = "";
+		
+		For Each Name In NamesArray Do
+		
+			DirectoryName = DirectoryName + "/" + Name;
+		
+			If FTPConnection.FindFiles(DirectoryName).Count() = 0 Then
+				FTPConnection.CreateDirectory(DirectoryName);
+			EndIf;
+		
+		EndDo;
 	
-	For Each Name In NamesArray Do
-		
-		DirectoryName = DirectoryName + "/" + Name;
-		
-		If FTPConnection.FindFiles(DirectoryName).Count() = 0 Then
-			FTPConnection.CreateDirectory(DirectoryName);
-		EndIf;
-		
-	EndDo;
+	EndIf;
 	
 EndProcedure
 

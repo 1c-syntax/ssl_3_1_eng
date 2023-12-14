@@ -12,12 +12,7 @@
 			<Comment/>
 			<Group>CommandGroup.DataSyncParameters</Group>
 			<Representation>Auto</Representation>
-			<ToolTip>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Set connection parameters for data exchange</v8:content>
-				</v8:item>
-			</ToolTip>
+			<ToolTip/>
 			<Picture/>
 			<Shortcut/>
 			<IncludeHelpInContents>false</IncludeHelpInContents>

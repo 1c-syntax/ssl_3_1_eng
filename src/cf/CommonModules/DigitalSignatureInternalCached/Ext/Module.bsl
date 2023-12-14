@@ -141,7 +141,7 @@ Function CommonSettings() Export
 		If Selection.UsageMode <> Enums.DigitalSignatureAppUsageModes.Automatically Then
 			ApplicationSearchKeyByNameWithType = DigitalSignatureInternalClientServer.ApplicationSearchKeyByNameWithType(
 				Selection.ApplicationName, Selection.ApplicationType);
-			// 
+			// Replace the 1C-supplied setting with the setting from the catalog.
 			ApplicationsByNamesWithType.Insert(ApplicationSearchKeyByNameWithType, FixedDescription);
 		EndIf;
 		

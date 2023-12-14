@@ -157,7 +157,7 @@ Async Procedure FindContainers()
 	Items.DecorationCurrentContainer.Title= "";
 	
 	ContainersByCertificate = Await DigitalSignatureInternalClient.ContainersByCertificate(
-		Parameters.Certificate); //  An array of See DigitalSignatureInternalClient.ContainerNewProperties
+		Parameters.Certificate); // Array of See DigitalSignatureInternalClient.ContainerNewProperties
 	
 	For Each Container In ContainersByCertificate Do 
 		NewRow = Containers.Add();

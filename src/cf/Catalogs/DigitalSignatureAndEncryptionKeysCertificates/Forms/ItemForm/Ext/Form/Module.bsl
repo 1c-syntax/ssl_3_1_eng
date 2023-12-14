@@ -18,7 +18,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	CloudSignatureCertificate = CloudSignatureInformation(Object.Application);
 	FillApplicationsListServer();
 	
-	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService")
+	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService")
 		And DigitalSignatureInternal.UseCloudSignatureService() Then
 		Items.Application.Title = NStr("en = 'Application or service';");
 	EndIf;
@@ -449,7 +449,7 @@ Procedure OnCreateAtServerOnReadAtServer()
 		Items.FieldsAutoPopulatedFromCertificateData.Visible = True;
 		Items.FormShowAutoPopulatedAttributes.Check = True;
 		If ValueIsFilled(CertificateBinaryData) Then
-			// 
+			// Supporting display of main properties of non-standard certificates (iBank2 system).
 			DigitalSignatureInternalClientServer.FillCertificateDataDetails(CertificateDataDetails, Object);
 		EndIf;
 	EndIf;
@@ -466,12 +466,12 @@ Procedure OnCreateAtServerOnReadAtServer()
 			Items.EditFirstNameAndPatronymic.Visible = False;
 			
 		Else
-			// 
+			// Standard users cannot change access rights.
 			Items.Individual.ReadOnly       =  ValueIsFilled(Object.Individual);
 			Items.PickIndividual.Enabled =  Not Items.Individual.ReadOnly;
 			If Not ThisIsTheAuthor Then
-				// 
-				// 
+				
+				
 				Items.Users.ReadOnly = True;
 				Items.Users.OpenButton = True;
 			EndIf;
@@ -657,6 +657,7 @@ Procedure RefreshVisibilityWarnings(Val CryptoCertificate = Undefined)
 					
 				Items.GroupWarning.Visible = ValueIsFilled(DataWarnings.AdditionalInfo);
 				Items.Warning.Title = DataWarnings.AdditionalInfo;
+				Items.SigningAllowed.Visible = False;
 				
 			Else
 				Items.GroupWarning.Visible = True;
@@ -849,7 +850,7 @@ Function CloudSignatureInformation(CurrentApplication)
 		TheDSSCryptographyServiceModuleInternalServerCall = Common.CommonModule("DSSCryptographyServiceInternalServerCall");
 		AccountData = TheDSSCryptographyServiceModuleInternalServerCall.GetUserSettings(CurrentApplication);
 		Result.CloudSignature = True;
-		Result.ChangePINCode = AccountData.Politics.PINCodeMode <> "Prohibited";
+		Result.ChangePINCode = AccountData.Policy.PINCodeMode <> "Prohibited";
 	EndIf;
 	
 	Return Result;

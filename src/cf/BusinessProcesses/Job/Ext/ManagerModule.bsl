@@ -43,24 +43,23 @@ EndFunction
 // The function is called when opening the task execution form.
 //
 // Parameters:
-//   TaskRef                - TaskRef.PerformerTask -
-//   BusinessProcessRoutePoint - BusinessProcessRoutePointRef.Job -
+//   TaskRef                - TaskRef.PerformerTask - 
+//   BusinessProcessRoutePoint - BusinessProcessRoutePointRef.Job - 
 //
 // Returns:
 //   Structure:
 //    * FormParameters - Structure:
 //      ** Key - TaskRef.PerformerTask
-//    * FormName - String -
+//    * FormName - String - 
 //
 Function TaskExecutionForm(TaskRef, BusinessProcessRoutePoint) Export
 
 	Result = New Structure;
 	Result.Insert("FormParameters", New Structure("Key", TaskRef));
 
-	FormName = ?(BusinessProcessRoutePoint.Name = "Validate",
+	FormName = ?(BusinessProcessRoutePoint = BusinessProcesses.Job.RoutePoints.Validate,
 		Metadata.BusinessProcesses.Job.Forms.ActionCheck.FullName(),
 		Metadata.BusinessProcesses.Job.Forms.ActionExecute.FullName());
-
 	Result.Insert("FormName", FormName);
 
 	Return Result;
@@ -75,11 +74,13 @@ EndFunction
 //
 Procedure OnForwardTask(TaskRef, NewTaskRef) Export
 	
-	// 
-	// 
-	BusinessProcessObject = TaskRef.BusinessProcess.GetObject();
+	
+	
+	TaskInformation = Common.ObjectAttributesValues(TaskRef, 
+		"Ref,BusinessProcess,ExecutionResult,CompletionDate,Performer");
+	BusinessProcessObject = TaskInformation.BusinessProcess.GetObject();
 	LockDataForEdit(BusinessProcessObject.Ref);
-	BusinessProcessObject.ExecutionResult = ExecutionResultOnForward(TaskRef)
+	BusinessProcessObject.ExecutionResult = ExecutionResultOnForward(TaskInformation)
 		+ BusinessProcessObject.ExecutionResult;
 	SetPrivilegedMode(True);
 	BusinessProcessObject.Write();
@@ -117,7 +118,7 @@ Procedure DefaultCompletionHandler(TaskRef, BusinessProcessRef, BusinessProcessR
 			JobObject.Completed2 = True;
 			JobObject.Accepted = True;
 		EndIf;
-		JobObject.Write(); // 
+		JobObject.Write(); 
 
 		CommitTransaction();
 	Except
@@ -240,16 +241,16 @@ Procedure SetTaskFormItemsState(Form) Export
 
 EndProcedure
 
-Function ExecutionResultOnForward(Val TaskRef)
+Function ExecutionResultOnForward(Val TaskInformation)
 
 	StringFormat = "%1, %2 " + NStr("en = 'redirected the task';") + ":
 																	   |%3
 																	   |";
 
-	Comment = TrimAll(TaskRef.ExecutionResult);
+	Comment = TrimAll(TaskInformation.ExecutionResult);
 	Comment = ?(IsBlankString(Comment), "", Comment + Chars.LF);
-	Result = StringFunctionsClientServer.SubstituteParametersToString(StringFormat, TaskRef.CompletionDate,
-		TaskRef.Performer, Comment);
+	Result = StringFunctionsClientServer.SubstituteParametersToString(StringFormat, TaskInformation.CompletionDate,
+		TaskInformation.Performer, Comment);
 	Return Result;
 
 EndFunction

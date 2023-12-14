@@ -19,7 +19,7 @@
 //                        if the deletion substring is located entirely after the separator.
 //
 // Returns:
-//   String  - 
+//   String  - a string resulted from processing.
 //
 Function DeleteLastCharsFromString(IncomingString, DeletionSubstring, Separator = Undefined) Export
 
@@ -40,7 +40,7 @@ Function DeleteLastCharsFromString(IncomingString, DeletionSubstring, Separator 
 EndFunction
 
 // Parameters:
-//  Var_Key  - UUID - the key that will be used to generate the question name.
+//  Var_Key  - UUID - a key, based on which a question name is generated.
 //
 // Returns:
 //  String

@@ -108,7 +108,7 @@ EndFunction
 // 
 //
 // Parameters:
-//  Form - ClientApplicationForm -
+//  Form - ClientApplicationForm - 
 //  PlacementParameters - See PlacementParameters
 //
 Procedure OnCreateAtServer(Form, PlacementParameters) Export
@@ -121,10 +121,10 @@ EndProcedure
 // 
 // Returns:
 //  Structure:
-//   * Group - FormGroup -
-//   * NameOfAttributeWithEventDate - String -
-//   * ReminderInterval - Number -
-//   * ShouldAddFlag - Boolean - 
+//   * Group - FormGroup - 
+//   * NameOfAttributeWithEventDate - String - 
+//   * ReminderInterval - Number - 
+//   * ShouldAddFlag - Boolean -  
 //                                
 //                                
 //                                
@@ -138,7 +138,7 @@ EndFunction
 // 
 //
 // Parameters:
-//  Form - ClientApplicationForm -
+//  Form - ClientApplicationForm - 
 //  CurrentObject       - CatalogObject
 //                      - DocumentObject
 //                      - ChartOfCharacteristicTypesObject
@@ -146,7 +146,7 @@ EndFunction
 //                      - ChartOfCalculationTypesObject
 //                      - BusinessProcessObject
 //                      - TaskObject
-//                      - ExchangePlanObject - the subject of the reminder.
+//                      - ExchangePlanObject - Reminder's subject.
 //
 Procedure OnReadAtServer(Form, CurrentObject) Export
 	
@@ -157,8 +157,8 @@ EndProcedure
 // 
 //
 // Parameters:
-//   Form - ClientApplicationForm -
-//   Cancel - Boolean - indicates that the recording was rejected.
+//   Form - ClientApplicationForm - 
+//   Cancel - Boolean - shows whether writing is canceled.
 //   CurrentObject  - CatalogObject
 //                  - DocumentObject
 //                  - ChartOfCharacteristicTypesObject
@@ -166,9 +166,9 @@ EndProcedure
 //                  - ChartOfCalculationTypesObject
 //                  - BusinessProcessObject
 //                  - TaskObject
-//                  - ExchangePlanObject - the subject of the reminder.
+//                  - ExchangePlanObject - Reminder's subject.
 //   WriteParameters - Structure
-//   ReminderText - String -
+//   ReminderText - String - 
 //                               
 //  
 Procedure OnWriteAtServer(Form, Cancel, CurrentObject, WriteParameters, ReminderText = "") Export

@@ -165,7 +165,7 @@ Procedure WriteInteractionFolderSubjects(Interaction, Attributes, RecordSet = Un
 	
 EndProcedure
 
-// 
+// Locks the InteractionsFoldersSubjects information register.
 // 
 // Parameters:
 //  Block - DataLock - a lock to be set.

@@ -251,7 +251,7 @@ Function TestConnection(SettingsStructureXTDO, TransportKindAsString, ErrorMessa
 	
 	Cancel = False;
 	
-	// 
+	// Testing exchange message transport data processor connection.
 	DataExchangeServer.CheckExchangeMessageTransportDataProcessorAttachment(Cancel,
 		XDTOSerializer.ReadXDTO(SettingsStructureXTDO),
 		Enums.ExchangeMessagesTransportTypes[TransportKindAsString],

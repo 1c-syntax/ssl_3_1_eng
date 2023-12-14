@@ -265,15 +265,15 @@
 								<Event name="BeforeDeleteRow">GroupCompositionBeforeDeleteRow</Event>
 							</Events>
 							<ChildItems>
-								<ColumnGroup name="GroupingCompositionGroup1" id="643">
+								<ColumnGroup name="CompositionOfGroupingIsBasic" id="643">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Grouping content group 1</v8:content>
+											<v8:content>Main</v8:content>
 										</v8:item>
 									</Title>
 									<Group>InCell</Group>
-									<ExtendedTooltip name="GroupContentGroup1ExtendedTooltip" id="644"/>
+									<ExtendedTooltip name="CompositionOfGroupingIsBasicExtendedTooltip" id="644"/>
 									<ChildItems>
 										<CheckBoxField name="GroupCompositionUse" id="659">
 											<DataPath>GroupingComposition.Use</DataPath>
@@ -296,14 +296,14 @@
 										</InputField>
 									</ChildItems>
 								</ColumnGroup>
-								<ColumnGroup name="GroupingCompositionGroup2" id="817">
+								<ColumnGroup name="CompositionOfGroupingIsOptional" id="817">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Grouping content group 2</v8:content>
+											<v8:content>More</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="GroupContentGroup2ExtendedTooltip" id="818"/>
+									<ExtendedTooltip name="CompositionOfGroupingIsOptionalExtendedTooltip" id="818"/>
 									<ChildItems>
 										<InputField name="GroupCompositionGroupType" id="665">
 											<DataPath>GroupingComposition.GroupType</DataPath>
@@ -419,8 +419,8 @@
 													<ShowTitle>false</ShowTitle>
 													<ExtendedTooltip name="PrintOutputParametersExtendedTooltip" id="1398"/>
 													<ChildItems>
-														<CheckBoxField name="OutputTitle" id="1145">
-															<DataPath>OutputTitle</DataPath>
+														<CheckBoxField name="TitleOutput" id="1145">
+															<DataPath>TitleOutput</DataPath>
 															<Title>
 																<v8:item>
 																	<v8:lang>en</v8:lang>
@@ -1422,15 +1422,15 @@
 										<Event name="DragEnd">SelectedFieldsDragEnd</Event>
 									</Events>
 									<ChildItems>
-										<ColumnGroup name="SelectedFieldsGroup1" id="257">
+										<ColumnGroup name="SelectedFieldsGroup" id="257">
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Selected fields group 1</v8:content>
+													<v8:content>Group</v8:content>
 												</v8:item>
 											</Title>
 											<Group>InCell</Group>
-											<ExtendedTooltip name="SelectedFieldsGroup11ExtendedTooltip" id="258"/>
+											<ExtendedTooltip name="SelectedFieldsGroupExtendedTooltip" id="258"/>
 											<ChildItems>
 												<CheckBoxField name="SelectedFieldsUse" id="259">
 													<DataPath>SelectedFields.Use</DataPath>
@@ -1490,16 +1490,34 @@
 												<Button name="SelectedFields_Sorting_Right" id="907">
 													<Type>UsualButton</Type>
 													<CommandName>Form.Command.SelectedFields_Sorting_Right</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Add sort by selected field</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="SelectedFieldsSortingRightExtendedTooltip" id="908"/>
 												</Button>
 												<Button name="SelectedFields_Sorting_Left" id="909">
 													<Type>UsualButton</Type>
 													<CommandName>Form.Command.SelectedFields_Sorting_Left</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Remove selected sorts</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="SelectedFieldsSortingLeftExtendedTooltip" id="910"/>
 												</Button>
 												<Button name="SelectedFields_Sorting_LeftAll" id="911">
 													<Type>UsualButton</Type>
 													<CommandName>Form.Command.SelectedFields_Sorting_LeftAll</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Remove all sorts</v8:content>
+														</v8:item>
+													</Title>
 													<ExtendedTooltip name="SelectedFieldsSortingLeftAllExtendedTooltip" id="912"/>
 												</Button>
 											</ChildItems>
@@ -1783,15 +1801,15 @@
 												<Event name="DragEnd">SortDragEnd</Event>
 											</Events>
 											<ChildItems>
-												<ColumnGroup name="SortGroup1" id="163">
+												<ColumnGroup name="SortGroup" id="163">
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Sorting group 1</v8:content>
+															<v8:content>Group</v8:content>
 														</v8:item>
 													</Title>
 													<Group>InCell</Group>
-													<ExtendedTooltip name="SortingGroup1ExtendedTooltip" id="164"/>
+													<ExtendedTooltip name="SortGroupExtendedTooltip" id="164"/>
 													<ChildItems>
 														<CheckBoxField name="SortUse" id="773">
 															<DataPath>Sort.Use</DataPath>
@@ -2617,15 +2635,15 @@
 								<Event name="Drag">OptionStructureDrag</Event>
 							</Events>
 							<ChildItems>
-								<ColumnGroup name="OptionStructureGroup2" id="448">
+								<ColumnGroup name="OptionStructureGroup" id="448">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Option structure group 2</v8:content>
+											<v8:content>Group</v8:content>
 										</v8:item>
 									</Title>
 									<Group>InCell</Group>
-									<ExtendedTooltip name="OptionStructureGroup2ExtendedTooltip" id="449"/>
+									<ExtendedTooltip name="OptionStructureGroupExtendedTooltip" id="449"/>
 									<ChildItems>
 										<CheckBoxField name="OptionStructureUse" id="494">
 											<DataPath>OptionStructure.Use</DataPath>
@@ -3964,7 +3982,7 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Contains fields or sortings</v8:content>
+							<v8:content>Contains fields or sorts</v8:content>
 						</v8:item>
 					</Title>
 					<Type>
@@ -4322,7 +4340,7 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 		<Attribute name="ParametersForm" id="42">
 			<Type/>
 		</Attribute>
-		<Attribute name="OutputTitle" id="43">
+		<Attribute name="TitleOutput" id="43">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -5554,7 +5572,7 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 				</v8:item>
 			</ToolTip>
 			<Picture>
-				<xr:Ref>CommonPicture.HiddenReportSettingsItem</xr:Ref>
+				<xr:Ref>CommonPicture.GreyCross</xr:Ref>
 				<xr:LoadTransparent>false</xr:LoadTransparent>
 			</Picture>
 			<Action>Filters_DontShow</Action>

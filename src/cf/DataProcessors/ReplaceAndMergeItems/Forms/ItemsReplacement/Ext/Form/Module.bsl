@@ -19,7 +19,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	If Not Parameters.Property("OpenByScenario") Then
+	If Not Parameters.OpenByScenario Then
 		Raise NStr("en = 'The data processor cannot be opened manually.';");
 	EndIf;
 	
@@ -87,7 +87,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Step.BackButton.Title = NStr("en = 'Abort';");
 	Step.BackButton.ToolTip = NStr("en = 'Return to selection of the main item.';");
 	
-	// 
+	// 3. Reference replacement issues.
 	Step = AddWizardStep(Items.RetryReplacementStep);
 	Step.BackButton.Title = NStr("en = '< Back';");
 	Step.BackButton.ToolTip = NStr("en = 'Return to selecting replacement item.';");
@@ -96,13 +96,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Step.CancelButton.Title = NStr("en = 'Close';");
 	Step.CancelButton.ToolTip = NStr("en = 'Close replacement results.';");
 	
-	// 
+	// 4 Runtime errors.
 	Step = AddWizardStep(Items.ErrorOccurredStep);
 	Step.BackButton.Visible = False;
 	Step.NextButton.Visible = False;
 	Step.CancelButton.Title = NStr("en = 'Close';");
 	
-	// 
+	// Update form items.
 	WizardSettings.CurrentStep = StepSelect;
 	VisibleEnabled(ThisObject);
 	
@@ -272,7 +272,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 // Initializes wizard structures.
 // 
@@ -281,7 +281,7 @@ EndProcedure
 // 
 // Returns:
 //   Structure - 
-//     
+//     :
 //       * Steps - Array - description of wizard steps. Read only.
 //           To add steps, use the AddWizardStep function.
 //       * CurrentStep - See AddWizardStep.
@@ -299,16 +299,16 @@ Function StepByStepWizardSettings(Items)
 	WizardSettings.Insert("Steps", New Array);
 	WizardSettings.Insert("CurrentStep", Undefined);
 	
-	// 
+	// Interface part IDs.
 	WizardSettings.Insert("PagesGroup", Items.WizardSteps.Name);
 	WizardSettings.Insert("NextButton",   Items.WizardStepNext.Name);
 	WizardSettings.Insert("BackButton",   Items.WizardStepBack.Name);
 	WizardSettings.Insert("CancelButton",  Items.WizardStepCancel.Name);
 	
-	// 
+	// To process long-running operations.
 	WizardSettings.Insert("ShowDialogBeforeClose", False);
 	
-	// 
+	// Everything is disabled by default.
 	Items.WizardStepNext.Visible  = False;
 	Items.WizardStepBack.Visible  = False;
 	Items.WizardStepCancel.Visible = False;
@@ -322,7 +322,7 @@ EndFunction
 //   Page - FormGroup - a page that contains step items.
 //
 // Returns:
-//   Structure - 
+//   Structure - :
 //       * PageName - String - a page name.
 //       * NextButton - Structure - description of "Next" button, where:
 //           ** Title - String - a button title. The default value is "Next >".
@@ -375,7 +375,7 @@ Procedure VisibleEnabled(Form)
 	WizardSettings = Form.WizardSettings;
 	CurrentStep = WizardSettings.CurrentStep;
 	
-	// 
+	// Navigate to the page.
 	Items[WizardSettings.PagesGroup].CurrentPage = Items[CurrentStep.PageName];
 	
 	// Update buttons.
@@ -390,7 +390,7 @@ EndProcedure
 // Parameters:
 //   StepOrIndexOrFormGroup - Structure
 //                              - Number
-//                              - FormGroup - 
+//                              - FormGroup - a page to navigate to.
 //
 &AtClient
 Procedure GoToWizardStep1(Val StepOrIndexOrFormGroup)
@@ -423,7 +423,7 @@ Procedure GoToWizardStep1(Val StepOrIndexOrFormGroup)
 		EndIf;
 	EndIf;
 	
-	// 
+	// Step switch.
 	WizardSettings.CurrentStep = StepDescription;
 	
 	// Update visibility.
@@ -433,7 +433,7 @@ Procedure GoToWizardStep1(Val StepOrIndexOrFormGroup)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure OnActivateWizardStep()
@@ -528,7 +528,7 @@ Procedure WizardStepCancel()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure StepReplacementItemSelectionOnClickNextButton()
@@ -553,7 +553,7 @@ Procedure StepReplacementItemSelectionOnClickNextButton()
 	EndIf;
 	
 	If AttributeValue(CurrentData, "DeletionMark", False) Then
-		// 
+		// Attempt to replace with an item marked for deletion.
 		Text = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Item %1 is marked for deletion. Continue?';"),
 			CurrentData.Ref);
@@ -683,11 +683,11 @@ Function AttributeValue(Val Data, Val AttributeName, Val ValueIfNotFound = Undef
 	
 	FillPropertyValues(Trial, Data);
 	If Trial[AttributeName] <> Undefined Then
-		// 
+		// There is a value.
 		Return Trial[AttributeName];
 	EndIf;
 	
-	// 
+	// Value in data might be set to Undefined.
 	Trial[AttributeName] = True;
 	FillPropertyValues(Trial, Data);
 	If Trial[AttributeName] <> True Then
@@ -744,7 +744,7 @@ Function RefArrayFromList(Val References)
 EndFunction
 
 &AtServerNoContext
-Function PossibleReferenceCode(Val Ref, MetadataCache)
+Function ObjectCode(Val Ref, MetadataCache)
 	
 	Meta = Ref.Metadata();
 	HasCode = MetadataCache[Meta];
@@ -758,7 +758,7 @@ Function PossibleReferenceCode(Val Ref, MetadataCache)
 		MetadataCache[Meta] = HasCode;
 	EndIf;
 	
-	Return ?(HasCode, Ref.Code, Undefined);
+	Return ?(HasCode, Common.ObjectAttributeValue(Ref, "Code"), Undefined);
 EndFunction
 
 &AtServer
@@ -826,7 +826,7 @@ Procedure InitializeReferencesToReplace(Val ReferencesArrray)
 	Query = New Query(QueryText);
 	Query.SetParameter("RefSet", ReferencesArrray);
 	If HasOwners Then
-		Query.SetParameter("Owner", ReplacementItem.Owner);
+		Query.SetParameter("Owner", Common.ObjectAttributeValue(ReplacementItem, "Owner"));
 	EndIf;
 	
 	Result = Query.ExecuteBatch();
@@ -862,7 +862,7 @@ Procedure InitializeReferencesToReplace(Val ReferencesArrray)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure RunBackgroundJob1Client()
@@ -969,7 +969,7 @@ Function FillUnsuccessfulReplacements(Val ResultAddress)
 			TreeRow = RootRows.Add();
 			TreeRow.Ref = Ref;
 			TreeRow.Data = String(Ref);
-			TreeRow.Code    = String( PossibleReferenceCode(Ref, MetadataCache) );
+			TreeRow.Code    = String(ObjectCode(Ref, MetadataCache));
 			TreeRow.Pictogram = -1;
 			
 			ErrorsByReference = TreeRow.GetItems();
@@ -1002,7 +1002,7 @@ Function FillUnsuccessfulReplacements(Val ResultAddress)
 		EndIf;
 		
 		ErrorString.DetailedReason = ResultString1.ErrorText;
-	EndDo; // 
+	EndDo;
 	
 	Return RootRows.Count() > 0;
 EndFunction
@@ -1017,12 +1017,12 @@ Procedure AfterConfirmCancelJob(Response, ExecutionParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 // Description of wizard button settings.
 //
 // Returns:
-//  Structure - 
+//  Structure - :
 //    * Title         - String - a button title.
 //    * ToolTip         - String - button tooltip.
 //    * Visible         - Boolean - if True, the button is visible. The default value is True.

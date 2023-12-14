@@ -255,12 +255,12 @@ Procedure FillPropertiesValuesTable(FromOnCreateHandler)
 				EndIf;
 			Else
 				IsEditable = False;
-				// Check for reading the property.
+				// Check whether the property is read.
 				If AllowedProperties <> Undefined And AllowedProperties.Find(String.Property) = Undefined Then
 					Continue;
 				EndIf;
 				
-				// Check for writing the property.
+				// Check whether the property is written.
 				BeginTransaction();
 				Try
 					Set = InformationRegisters.AdditionalInfo.CreateRecordSet();
@@ -423,7 +423,7 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.PropertyValueTableValue.Name);
 	
-	// Формат даты - 
+	// Date format - date.
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("PropertyValueTable.ValueType");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
@@ -435,7 +435,7 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.PropertyValueTableValue.Name);
 	
-	// 
+	// Field availability if you have no change rights.
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("PropertyValueTable.IsEditable");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;

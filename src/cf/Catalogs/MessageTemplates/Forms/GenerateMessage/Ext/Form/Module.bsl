@@ -317,8 +317,8 @@ EndFunction
 
 // Parameters:
 //  Result - Map - if data was entered by the user:
-//            - DialogReturnCode - 
-//            - Undefined - 
+//            - DialogReturnCode - — if data input is canceled
+//            - Undefined - — if the window was closed
 //  SendOptions - See MessageTemplatesClientServer.SendOptionsConstructor
 //
 &AtClient

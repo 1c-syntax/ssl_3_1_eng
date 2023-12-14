@@ -360,6 +360,9 @@ Procedure ChangeNodeTransportInWS(Node, Endpoint, CorrespondentDataArea) Export
 	
 		RecordStructure = New Structure("Peer", Node);
 		DataExchangeInternal.DeleteRecordSetFromInformationRegister(RecordStructure,"DataAreaExchangeTransportSettings");
+		
+		JobSchedule = Catalogs.DataExchangeScenarios.DefaultJobSchedule();
+		Catalogs.DataExchangeScenarios.CreateScenario(Node, JobSchedule, True);
 	
 	Except
 		
@@ -453,7 +456,7 @@ Procedure OnStartGetDataExchangeSettingOptions(UUID, HandlerParameters, Continue
 	HandlerParameters = New Structure;
 	HandlerParameters.Insert("ResultAddressDefaultSettings", PutToTempStorage(StandardSettingsTable, UUID));
 	
-	If Common.SubsystemExists("OnlineUserSupport.ОбменДаннымиСВнешнимиСистемами") Then
+	If Common.SubsystemExists("OnlineUserSupport.DataExchangeWithExternalSystems") Then
 		ContinueWait = True;
 		
 		SettingVariants = ExternalSystemsDataExchangeSettingsOptionDetails();
@@ -503,7 +506,7 @@ Procedure OnCompleteGettingDataExchangeSettingsOptions(HandlerParameters, Result
 	If HandlerParameters.Property("HandlerParameterExternalSystems") Then
 		
 		SettingsExternalSystems = New Structure;
-		SettingsExternalSystems.Insert("ErrorCode"); // 
+		SettingsExternalSystems.Insert("ErrorCode"); 
 		SettingsExternalSystems.Insert("ErrorMessage");
 		SettingsExternalSystems.Insert("SettingVariants");
 		
@@ -731,7 +734,7 @@ Function ExchangePlansForSynchronizationSetup()
 		If (Not IsFullUser
 				And DataExchangeCached.IsDistributedInfobaseExchangePlan(ExchangePlanName))
 			Or Not DataExchangeCached.ExchangePlanUsageAvailable(ExchangePlanName) Then
-			// 
+			// Creating a DIB exchange requires system administrator rights.
 			ExchangePlansList.Delete(-Indus);
 		EndIf;
 		
@@ -1131,7 +1134,7 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 	
 	Result = New Structure;
 	Result.Insert("ConnectionSettingsSaved", False);
-	Result.Insert("HasDataToMap",    False); // Только для offline-
+	Result.Insert("HasDataToMap",    False); 
 	Result.Insert("ExchangeNode",                    Undefined);
 	Result.Insert("ErrorMessage",             "");
 	Result.Insert("XMLConnectionSettingsString",  "");
@@ -1244,7 +1247,7 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 		EndIf;
 	EndIf;
 	
-	// 
+	
 	//    
 	If ConnectionSettings.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.COM Then
 		
@@ -1400,16 +1403,16 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 				ExchangeParameters.ExecuteExport2 = False;
 				ExchangeParameters.ExchangeMessagesTransportKind = ConnectionSettings.ExchangeMessagesTransportKind;
 				
-				// 
-				// 
+				
+				
 				CancelReceipt = False;
 				AdditionalParameters = New Structure;
 				Try
 					DataExchangeServer.ExecuteDataExchangeForInfobaseNode(
 						ConnectionSettings.InfobaseNode, ExchangeParameters, CancelReceipt, AdditionalParameters);
 				Except
-					// Возникновение исключения - 
-					// 
+					
+					
 					Cancel = True; 
 					Result.ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 					
@@ -1421,7 +1424,7 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 					Result.HasDataToMap = AdditionalParameters.DataReceivedForMapping;
 				EndIf;
 			Else
-				// 
+				// Sending an exchange message with XDTO settings.
 				ExchangeParameters = DataExchangeServer.ExchangeParameters();
 				ExchangeParameters.ExecuteImport1 = False;
 				ExchangeParameters.ExecuteExport2 = True;
@@ -1630,7 +1633,7 @@ Procedure ConfigureDataExchange(ConnectionSettings) Export
 			
 			DataExchangeServer.SetDefaultDataImportTransactionItemsCount();
 			
-			// 
+			// Importing rules as exchange rules are not migrated to DIB.
 			DataExchangeServer.UpdateDataExchangeRules();
 			
 		EndIf;
@@ -1774,7 +1777,7 @@ Procedure DeleteSynchronizationSettingInCorrespondent(DeletionSettings, Result)
 		EndTry;
 			
 	ElsIf TransportKind = Enums.ExchangeMessagesTransportTypes.ExternalSystem Then
-		If Common.SubsystemExists("OnlineUserSupport.ОбменДаннымиСВнешнимиСистемами") Then
+		If Common.SubsystemExists("OnlineUserSupport.DataExchangeWithExternalSystems") Then
 			
 			Context = New Structure;
 			Context.Insert("Peer", DeletionSettings.ExchangeNode);
@@ -1946,7 +1949,7 @@ Procedure CreateUpdateExchangePlanNodes(ConnectionSettings)
 		
 		NewNode = MasterNode.GetObject();
 		
-		// 
+		// Transferring common data from the predefined node.
 		ThisNodeObject = ThisNode.GetObject();
 		
 		MetadataOfExchangePlan = NewNode.Metadata();
@@ -1995,7 +1998,7 @@ Procedure CreateUpdateExchangePlanNodes(ConnectionSettings)
 		
 	EndIf;
 	
-	// 
+	// Reset message counters.
 	NewNode.SentNo = 0;
 	NewNode.ReceivedNo     = 0;
 	
@@ -2036,7 +2039,7 @@ Procedure CreateUpdateExchangePlanNodes(ConnectionSettings)
 	
 	ConnectionSettings.InfobaseNode = NewNode.Ref;
 	
-	// 
+	// Shared node data.
 	InformationRegisters.CommonInfobasesNodesSettings.UpdatePrefixes(
 		ConnectionSettings.InfobaseNode,
 		?(ConnectionSettings.UsePrefixesForExchangeSettings
@@ -2317,8 +2320,8 @@ Function ConnectionSettingsInXML(ConnectionSettings, FileName = "", TypeOfTheCod
 		DataExchangeXDTOServer.WriteExchangeMessageHeader(XMLWriter, HeaderParameters);
 		
 	Else
-		XMLWriter.WriteStartElement("SetupParameters");
-		XMLWriter.WriteAttribute("FormatVersion", DataExchangeSettingsFormatVersion());
+		XMLWriter.WriteStartElement("ПараметрыНастройки"); // @Non-NLS
+		XMLWriter.WriteAttribute("ВерсияФормата", DataExchangeSettingsFormatVersion()); // @Non-NLS
 		
 		XMLWriter.WriteNamespaceMapping("xsd", "http://www.w3.org/2001/XMLSchema");
 		XMLWriter.WriteNamespaceMapping("xsi", "http://www.w3.org/2001/XMLSchema-instance");
@@ -2334,7 +2337,7 @@ Function ConnectionSettingsInXML(ConnectionSettings, FileName = "", TypeOfTheCod
 			WriteXDTOExchangeParameters(XMLWriter, ConnectionSettings.ExchangePlanName);
 		EndIf;
 		
-		XMLWriter.WriteEndElement(); // ПараметрыНастройки
+		XMLWriter.WriteEndElement(); // SetupParameters
 	EndIf;
 	
 	Return XMLWriter.Close();
@@ -2343,7 +2346,7 @@ EndFunction
 
 Procedure WriteConnectionParameters(XMLWriter, ConnectionSettings)
 	
-	XMLWriter.WriteStartElement("MainExchangeParameters");
+	XMLWriter.WriteStartElement("ОсновныеПараметрыОбмена"); // @Non-NLS
 
 	ExchangePlanName = DataExchangeFormatTranslationCached.BroadcastName(ConnectionSettings.ExchangePlanName, "ru");
 	AddXMLRecord(XMLWriter, ExchangePlanName,                              "ИмяПланаОбмена"); // @Non-NLS
@@ -2357,9 +2360,13 @@ Procedure WriteConnectionParameters(XMLWriter, ConnectionSettings)
 	// Exchange message transport settings.
 	If ValueIsFilled(ConnectionSettings.ExchangeMessagesTransportKind)
 		And ConnectionSettings.ExchangeMessagesTransportKind <> Enums.ExchangeMessagesTransportTypes.WS Then
-		NameOfTypeOfTransport = EnumerationValueName(ConnectionSettings.ExchangeMessagesTransportKind);
-		NameOfTypeOfTransport = DataExchangeFormatTranslationCached.BroadcastName(NameOfTypeOfTransport, "ru");
-		AddXMLRecord(XMLWriter, NameOfTypeOfTransport, "ВидТранспортаСообщенийОбмена"); // @Non-NLS
+		
+		If Metadata.ScriptVariant = Metadata.ObjectProperties.ScriptVariant.Russian Then
+			AddXMLRecord(XMLWriter, ConnectionSettings.ExchangeMessagesTransportKind, "ВидТранспортаСообщенийОбмена"); // @Non-NLS
+		Else
+			AddTransportKindSettingForRussianVersion(XMLWriter, ConnectionSettings.ExchangeMessagesTransportKind);
+		EndIf;
+		
 	Else
 		AddXMLRecord(XMLWriter, Undefined, "ВидТранспортаСообщенийОбмена"); // @Non-NLS
 	EndIf;
@@ -2438,7 +2445,32 @@ Procedure WriteConnectionParameters(XMLWriter, ConnectionSettings)
 		AddXMLRecord(XMLWriter, ReceivedNo, "НомерПринятого"); // @Non-NLS
 	EndIf;
 	
-	XMLWriter.WriteEndElement(); // ОсновныеПараметрыОбмена
+	XMLWriter.WriteEndElement(); // MainExchangeParameters
+	
+EndProcedure
+
+Procedure AddTransportKindSettingForRussianVersion(XMLWriter, ExchangeMessagesTransportKind)
+	
+	MapOfTransportKind = New Map;
+	MapOfTransportKind.Insert(PredefinedValue("Enum.ExchangeMessagesTransportTypes.EMAIL"), "EMAIL"); // @Non-NLS-2
+	MapOfTransportKind.Insert(PredefinedValue("Enum.ExchangeMessagesTransportTypes.FILE"), "FILE"); // @Non-NLS-2
+	MapOfTransportKind.Insert(PredefinedValue("Enum.ExchangeMessagesTransportTypes.FTP"), "FTP"); // @Non-NLS-2
+	MapOfTransportKind.Insert(PredefinedValue("Enum.ExchangeMessagesTransportTypes.WS"), "WS"); // @Non-NLS-2
+	MapOfTransportKind.Insert(PredefinedValue("Enum.ExchangeMessagesTransportTypes.COM"), "COM"); // @Non-NLS-2
+	MapOfTransportKind.Insert(PredefinedValue("Enum.ExchangeMessagesTransportTypes.WSPassiveMode"), "WSПассивныйРежим"); // @Non-NLS-2
+	MapOfTransportKind.Insert(PredefinedValue("Enum.ExchangeMessagesTransportTypes.ExternalSystem"), "ВнешняяСистема"); // @Non-NLS-2
+	
+	TransportKindSettingUp = MapOfTransportKind.Get(ExchangeMessagesTransportKind);
+	
+	If TransportKindSettingUp <> Undefined Then
+	
+		XMLWriter.WriteStartElement("ВидТранспортаСообщенийОбмена"); // @Non-NLS
+		XMLWriter.WriteAttribute("xmlns", "");
+		XMLWriter.WriteAttribute("xsi:type", "EnumRef.ВидыТранспортаСообщенийОбмена"); // @Non-NLS-2
+		XMLWriter.WriteText(TransportKindSettingUp);
+		XMLWriter.WriteEndElement();
+	
+	EndIf;
 	
 EndProcedure
 
@@ -2462,19 +2494,19 @@ Procedure WriteEmailAccount(XMLWriter, ConnectionSettings)
 	
 	XMLWriter.WriteStartElement("EmailAccount");
 	WriteXML(XMLWriter, EMAILAccount);
-	XMLWriter.WriteEndElement(); // УчетнаяЗаписьЭлектроннойПочты
+	XMLWriter.WriteEndElement(); // EmailAccount
 	
 EndProcedure
 
 Procedure WriteXDTOExchangeParameters(XMLWriter, ExchangePlanName)
 	
-	XMLWriter.WriteStartElement("XDTOExchangeParameters");
+	XMLWriter.WriteStartElement("ПараметрыОбменаXDTO"); // @Non-NLS
 	
 	ExchangeFormat = DataExchangeServer.ExchangePlanSettingValue(ExchangePlanName, "ExchangeFormat");
 	
-	WriteXML(XMLWriter, ExchangeFormat, "ExchangeFormat", XMLTypeAssignment.Explicit);
+	WriteXML(XMLWriter, ExchangeFormat, "ФорматОбмена", XMLTypeAssignment.Explicit); // @Non-NLS
 	
-	XMLWriter.WriteEndElement(); // ПараметрыОбменаXDTO
+	XMLWriter.WriteEndElement(); // XDTOExchangeParameters
 	
 EndProcedure
 
@@ -2498,31 +2530,31 @@ Procedure ReadConnectionSettingsFromXMLToStructure(SettingsStructure, FileNameXM
 	While XMLReader.Read() Do
 		
 		If XMLReader.NodeType = XMLNodeType.StartElement 
-			And XMLReader.Name = "SetupParameters" Then
+			And XMLReader.Name = "ПараметрыНастройки" Then // @Non-NLS
 			
-			FormatVersion = XMLReader.GetAttribute("FormatVersion");
+			FormatVersion = XMLReader.GetAttribute("ВерсияФормата"); // @Non-NLS
 			SettingsStructure.Insert("ExchangeDataSettingsFileFormatVersion",
 				?(FormatVersion = Undefined, "1.0", FormatVersion));
 			
 		ElsIf XMLReader.NodeType = XMLNodeType.StartElement 
-			And XMLReader.Name = "MainExchangeParameters" Then
+			And XMLReader.Name = "ОсновныеПараметрыОбмена" Then // @Non-NLS
 			
 			ReadDataToStructure(SettingsStructure, XMLReader);
 			
 		ElsIf XMLReader.NodeType = XMLNodeType.StartElement 
-			And XMLReader.Name = "EmailAccount" Then
+			And XMLReader.Name = "УчетнаяЗаписьЭлектроннойПочты" Then // @Non-NLS
 			
 			If SettingsStructure.Property("UseTransportParametersEMAIL")
 				And SettingsStructure.UseTransportParametersEMAIL Then
 				
 				If Common.SubsystemExists("StandardSubsystems.EmailOperations") Then
 					
-					// 
-					XMLReader.Read(); // 
+					// Reading the EmailAccount node.
+					XMLReader.Read(); // EmailAccount {StartElement}
 					
 					ReadEmailData(SettingsStructure, XMLReader);
 					
-					XMLReader.Read(); // 
+					XMLReader.Read(); // EmailAccount {EndElement}
 					
 				Else
 					
@@ -2533,7 +2565,7 @@ Procedure ReadConnectionSettingsFromXMLToStructure(SettingsStructure, FileNameXM
 			EndIf;
 			
 		ElsIf XMLReader.NodeType = XMLNodeType.StartElement 
-			And XMLReader.Name = "XDTOExchangeParameters" Then
+			And XMLReader.Name = "ПараметрыОбменаXDTO" Then // @Non-NLS
 			
 			ReadXDTOExchangeParameters(SettingsStructure, XMLReader);
 			
@@ -2557,19 +2589,49 @@ Procedure ReadDataToStructure(SettingsStructure, XMLReader)
 				
 		NodeName = DataExchangeFormatTranslationCached.BroadcastName(XMLReader.Name, "en"); 
 		
-		Try
+		If NodeName = "ExchangeMessagesTransportKind"
+			And Metadata.ScriptVariant = Metadata.ObjectProperties.ScriptVariant.English Then
+			ReadTransportKindSettingForEnglishVersion(SettingsStructure, XMLReader)
+		Else
 			SettingsStructure.Insert(NodeName, ReadXML(XMLReader));
-		Except
-			
-			For Cnt = 0 To XMLReader.AttributeCount() Do
-				XMLReader.Read();
-			EndDo;
-	
-		EndTry;
+		EndIf;
 		
 	EndDo;
 		
 	XMLReader.Read();
+	
+EndProcedure
+
+Procedure ReadTransportKindSettingForEnglishVersion(SettingsStructure, XMLReader)
+	
+	MapOfTransportKind = New Map;
+	MapOfTransportKind.Insert("EMAIL", PredefinedValue("Enum.ExchangeMessagesTransportTypes.EMAIL")); // @Non-NLS-1
+	MapOfTransportKind.Insert("FILE", PredefinedValue("Enum.ExchangeMessagesTransportTypes.FILE")); // @Non-NLS-1
+	MapOfTransportKind.Insert("FTP", PredefinedValue("Enum.ExchangeMessagesTransportTypes.FTP")); // @Non-NLS-1
+	MapOfTransportKind.Insert("WS", PredefinedValue("Enum.ExchangeMessagesTransportTypes.WS")); // @Non-NLS-1
+	MapOfTransportKind.Insert("COM", PredefinedValue("Enum.ExchangeMessagesTransportTypes.COM")); // @Non-NLS-1
+	MapOfTransportKind.Insert("WSПассивныйРежим", PredefinedValue("Enum.ExchangeMessagesTransportTypes.WSPassiveMode")); // @Non-NLS-1
+	MapOfTransportKind.Insert("ВнешняяСистема", PredefinedValue("Enum.ExchangeMessagesTransportTypes.ExternalSystem")); // @Non-NLS-1
+	
+	XMLReader.Read();
+			
+	While XMLReader.NodeType <> XMLNodeType.StartElement Do
+		
+		If XMLReader.NodeType = XMLNodeType.Text Then
+			
+			TransportKindSettingUp = XMLReader.Value;
+			
+			TransportKind = MapOfTransportKind.Get(TransportKindSettingUp);
+			
+			If TransportKind <> Undefined Then
+				SettingsStructure.Insert("ExchangeMessagesTransportKind", TransportKind);
+			EndIf;
+				
+		EndIf;
+		
+		XMLReader.Read();
+		
+	EndDo;
 	
 EndProcedure
 

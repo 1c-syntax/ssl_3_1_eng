@@ -9,10 +9,10 @@
 
 #Region Public
 
-// Namespace of the message interface version.
+// Namespace of message interface version.
 //
 // Returns:
-//   String - name space.
+//   String - a namespace.
 //
 Function Package() Export
 	
@@ -20,7 +20,7 @@ Function Package() Export
 	
 EndFunction
 
-// The version of the message interface served by the handler.
+// Message interface version supported by the handler.
 //
 // Returns:
 //   String - 
@@ -48,13 +48,13 @@ Function BaseType() Export
 	
 EndFunction
 
-// Processes incoming messages from the service model
+// Processing incoming SaaS messages
 //
 // Parameters:
-//   Message   - XDTODataObject - incoming message.
-//   Sender - ExchangePlanRef.MessagesExchange - the exchange plan node that corresponds to the sender of the message.
+//   Message   - XDTODataObject - an incoming message.
+//   Sender - ExchangePlanRef.MessagesExchange - exchange plan node that matches the message sender.
 //   MessageProcessed - Boolean - indicates whether the message is successfully processed. The parameter value must be
-//                         set to If True, the message was successfully read in this handler.
+//                         set to True if the message was successfully read in this handler.
 //
 Procedure ProcessSaaSMessage(Val Message, Val Sender, MessageProcessed) Export
 	
@@ -97,13 +97,13 @@ Procedure ConnectCorrespondent(Message, Sender)
 	
 	Body = Message.Body;
 	
-	// 
+	// Checking the endpoint.
 	IsEndpoint = DataExchangeSaaS.EndpointsExchangePlanManager().FindByCode(Body.SenderId);
 	
 	If IsEndpoint.IsEmpty()
 		Or IsEndpoint <> ThisMessageExchangeNode Then
 		
-		// 
+		// Sending an error message to the service manager.
 		ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Endpoint does not match the expected one. Expected endpoint code %1. Current endpoint code %2. ';"),
 			Body.SenderId,
@@ -114,10 +114,10 @@ Procedure ConnectCorrespondent(Message, Sender)
 		
 	EndIf;
 	
-	// 
+	// Checking whether correspondent is connected.
 	Peer = DataExchangeSaaS.EndpointsExchangePlanManager().FindByCode(Body.RecipientId);
 	
-	If Peer.IsEmpty() Then // 
+	If Peer.IsEmpty() Then // Connecting a correspondent endpoint.
 		
 		Cancel = False;
 		ConnectedCorrespondent = Undefined;
@@ -140,7 +140,7 @@ Procedure ConnectCorrespondent(Message, Sender)
 									Body.RecipientName,
 									Body.SenderName);
 		
-		If Cancel Then // 
+		If Cancel Then // Sending an error message to the service manager.
 			
 			ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Peer infobase endpoint connection error. Endpoint ID: %1.';"),
@@ -155,8 +155,8 @@ Procedure ConnectCorrespondent(Message, Sender)
 		
 		If ConnectedCorrespondentCode <> Body.RecipientId Then
 			
-			// 
-			// 
+			
+			
 			ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Peer infobase endpoint connection error.
 				|Unexpected endpoint ID.
@@ -190,7 +190,7 @@ Procedure ConnectCorrespondent(Message, Sender)
 		    Raise;
 		EndTry;
 		
-	Else // 
+	Else // Updating the correspondent and the endpoint connection settings.
 		
 		Cancel = False;
 		
@@ -210,7 +210,7 @@ Procedure ConnectCorrespondent(Message, Sender)
 									SenderConnectionSettings,
 									RecipientConnectionSettings);
 		
-		If Cancel Then // 
+		If Cancel Then // Sending an error message to the service manager.
 			
 			ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Endpoint connection failed.
@@ -230,7 +230,7 @@ Procedure ConnectCorrespondent(Message, Sender)
 		
 	EndIf;
 	
-	// 
+	// Sending a message to the service manager about successful operation completion.
 	BeginTransaction();
 	Try
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(

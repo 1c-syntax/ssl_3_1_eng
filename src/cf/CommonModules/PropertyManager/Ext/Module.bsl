@@ -10,7 +10,7 @@
 #Region Public
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for standard processing of properties.
 
 // Creates main form attributes and fields necessary for work.
 // Fills additional attributes if used.
@@ -19,15 +19,15 @@
 // Parameters:
 //  Form - ClientApplicationForm - where additional attributes with properties will be displayed:
 //    * Object - FormDataStructure - by the object type, with properties:
-//      ** Ref - AnyRef - a reference to the object the properties are attached to.
+//      ** Ref - AnyRef - a reference to the object, to which properties are attached.
 //
 //  AdditionalParameters - Undefined - all additional parameters have default values.
 //                               Earlier the attribute was called Object and had the meaning
 //                               as the structure property of the same name specified below.
-//                          - Structure - 
+//                          - Structure - with optional properties:
 //
 //    * Object - FormDataStructure - by the object type, contains properties:
-//      ** Ref - AnyRef - a reference to the object the properties are attached to.
+//      ** Ref - AnyRef - a reference to the object, to which properties are attached.
 //
 //    * ItemForPlacementName - String - a group name of the form, in which properties will be placed.
 //
@@ -206,8 +206,8 @@ EndProcedure
 //                - TaskObjectTaskName
 //                - ChartOfCalculationTypesObjectChartOfCalculationTypesName
 //                - ChartOfAccountsObjectChartOfAccountsName
-//                - Undefined - 
-//                                  
+//                - Undefined - if the property is not specified or Undefined,
+//                                 the object is taken from the Object form attribute. 
 //
 Procedure FillCheckProcessing(Form, Cancel, CheckedAttributes, Object = Undefined) Export
 	
@@ -331,12 +331,12 @@ Procedure BeforeWriteObjectKind(ObjectKind,
 	
 EndProcedure
 
-// 
+// Deletes dependent sets of additional attributes and information records when deleting an object kind with properties.
 //
 // Parameters:
-//  ObjectKind                - CatalogObjectCatalogName -
-//  PropertySetAttributeName - String - used when there are several property sets, or
-//                              when the name of the main set's props is used, other than"property Set".
+//  ObjectKind                - CatalogObjectCatalogName - for example, a product kind.
+//  PropertySetAttributeName - String - used when there are several property sets or
+//                              an attribute name of the default set that differs from PropertiesSet is used.
 //
 Procedure BeforeDeleteObjectKind(ObjectKind, PropertySetAttributeName = "PropertiesSet") Export
 	
@@ -381,7 +381,7 @@ Procedure BeforeDeleteObjectKind(ObjectKind, PropertySetAttributeName = "Propert
 	
 EndProcedure
 
-// 
+// Updates displayed additional attribute data on the object form with properties.
 // 
 // Parameters:
 //  Form           - ClientApplicationForm - already set in the OnCreateAtServer procedure.
@@ -397,9 +397,9 @@ EndProcedure
 //                  - FormDataStructure
 //
 //  HideDeleted - Undefined - do not change the current hide deleted mode set earlier.
-//                  - Boolean - 
-//                    
-//                    
+//                  - Boolean - enable/disable the hide deleted mode.
+//                    When calling the BeforeWriteAtServer procedure in the hide deleted mode, deleted values
+//                    are cleared (not transferred back to object), and the HideDeleted mode is set to False.
 //
 Procedure UpdateAdditionalAttributesItems(Form, Object = Undefined, HideDeleted = Undefined) Export
 	
@@ -411,15 +411,15 @@ Procedure UpdateAdditionalAttributesItems(Form, Object = Undefined, HideDeleted 
 	
 EndProcedure
 
-// 
-// 
+// Displays columns with labels in the list form.
+// Called from the OnGetDataAtServer event of the list form.
 //
 // Parameters:
-//   Settings              - DataCompositionSettings -
-//   Rows                 - DynamicListRows -
-//   OwnerName           - String                    -
-//                                                        
-//                                                        
+//   Settings              - DataCompositionSettings - contains a copy of full dynamic list settings.
+//   Rows                 - DynamicListRows - the collection contains data and appearance of all rows,
+//   OwnerName           - String                    - a dynamic list row attribute that will
+//                                                        be used to obtain properties. If Undefined,
+//                                                        row keys are used.
 //
 Procedure OnGetDataAtServer(Settings, Rows, OwnerName = Undefined) Export
 	
@@ -489,17 +489,17 @@ Procedure OnGetDataAtServer(Settings, Rows, OwnerName = Undefined) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for managing properties
 
-// 
+// Adds an additional property to the passed object.
 //
 // Parameters:
 //  Owner - MetadataObject
-//           - String - 
-//           - CatalogRef.AdditionalAttributesAndInfoSets - 
+//           - String - a full name of a metadata object or a property set name.
+//           - CatalogRef.AdditionalAttributesAndInfoSets - a property set reference.
 //  Parameters - See PropertyAdditionParameters.
-//  IsInfoRecord - Boolean -
-//                         
+//  IsInfoRecord - Boolean - if True, an additional information record will be added.
+//                         Default value: False. Additional attribute is added.
 //
 Procedure AddProperty(Owner, Parameters, IsInfoRecord = False) Export
 	
@@ -507,7 +507,7 @@ Procedure AddProperty(Owner, Parameters, IsInfoRecord = False) Export
 		PredefinedItemName = StrReplace(Owner.FullName(), ".", "_");
 	ElsIf TypeOf(Owner) = Type("String") Then
 		If StrFind(Owner, ".") = 0 Then
-			// 
+			// This is a property set.
 			PredefinedItemName = Owner;
 		Else
 			PredefinedItemName = StrReplace(Owner, ".", "_");
@@ -543,13 +543,13 @@ Procedure AddProperty(Owner, Parameters, IsInfoRecord = False) Export
 	EndIf;
 	
 	EmptyRef = ChartsOfCharacteristicTypes.AdditionalAttributesAndInfo.EmptyRef();
-	// 
+	// 1. Check that the description is already used.
 	Result = PropertyManagerInternal.DescriptionAlreadyUsed(EmptyRef, PropertiesSet, Parameters.Description);
 	If ValueIsFilled(Result) Then
 		Raise Result;
 	EndIf;
 	
-	// 
+	// 2. Check that the name is already used.
 	If Parameters.Property("Name")
 		And ValueIsFilled(Parameters.Name) Then
 		Result = PropertyManagerInternal.NameAlreadyUsed(Parameters.Name, EmptyRef);
@@ -579,7 +579,7 @@ Procedure AddProperty(Owner, Parameters, IsInfoRecord = False) Export
 		Parameters.Insert("Name", Name);
 	EndIf;
 	
-	// 
+	// 3. Check that the ID for formulas is already used.
 	If Parameters.Property("IDForFormulas")
 		And ValueIsFilled(Parameters.IDForFormulas) Then
 		Result = PropertyManagerInternal.IDForFormulasAlreadyUsed(Parameters.IDForFormulas, EmptyRef);
@@ -602,7 +602,7 @@ Procedure AddProperty(Owner, Parameters, IsInfoRecord = False) Export
 		NewProperty.IsAdditionalInfo = IsInfoRecord;
 		NewProperty.PropertiesSet              = PropertiesSet;
 		
-		// 
+		// For multilingual.
 		NewProperty.TitleLanguage1 = Parameters.Description;
 		NewProperty.TitleLanguage2 = Parameters.Description;
 	
@@ -629,19 +629,19 @@ Procedure AddProperty(Owner, Parameters, IsInfoRecord = False) Export
 	
 EndProcedure
 
-// 
-// 
+// Adds an available value for an attribute with the ObjectsPropertiesValues
+// or ObjectPropertyValueHierarchy type.
 //
 // Parameters:
 //  Owner  - String - Additional attribute's name.
-//            - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo -  
-//                
+//            - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - an additional attribute 
+//                to add a value for.
 //  Parameters - See PropertyValAdditionParameters.
 //  Hierarchy  - Boolean  
 //
 // Returns:
 //  CatalogRef.ObjectsPropertiesValues
-//  
+//  CatalogRef.ObjectPropertyValueHierarchy.
 //
 Function AddPropertyValue(Val Owner, Parameters, Hierarchy = False) Export
 	
@@ -704,12 +704,12 @@ Function AddPropertyValue(Val Owner, Parameters, Hierarchy = False) Export
 	
 EndFunction
 
-// 
+// Returns parameters necessary for adding a property.
 // 
 // Returns:
 //  Structure:
-//     * Description - String -
-//     * Type          - TypeDescription -
+//     * Description - String - required.
+//     * Type          - TypeDescription - required.
 //     * Name          - String
 //     * Comment  - String
 //     * ValueFormTitle       - String
@@ -735,11 +735,11 @@ Function PropertyAdditionParameters() Export
 	
 EndFunction
 
-// 
+// Returns parameters necessary for adding a property value.
 // 
 // Returns:
 //  Structure:
-//     * Description - String -
+//     * Description - String - required.
 //     * FullDescr - String
 //     * Parent - CatalogRef.ObjectsPropertiesValues
 //                - CatalogRef.ObjectPropertyValueHierarchy
@@ -768,8 +768,8 @@ EndFunction
 //  SetName - String - a name of the property set to be got.
 //
 // Returns:
-//  CatalogRef.AdditionalAttributesAndInfoSets - 
-//  
+//  CatalogRef.AdditionalAttributesAndInfoSets - — a reference to a property set.
+//  Undefined — if the predefined set does not exist.
 //
 // Example:
 //  Ref = PropertyManager.PropertiesSetByName('Catalog_Users");
@@ -802,9 +802,9 @@ EndFunction
 //  LabelsFields    - Boolean - if True is specified, then instead of input fields, the label fields are created on the form.
 //
 //  HideDeleted - Undefined - do not change the current hide deleted mode set earlier.
-//                  - Boolean - 
-//                    
-//                    
+//                  - Boolean - enable/disable the hide deleted mode.
+//                    When calling the BeforeWriteAtServer procedure in the hide deleted mode, deleted values
+//                    are cleared (not transferred back to object), and the HideDeleted mode is set to False.
 //
 Procedure FillAdditionalAttributesInForm(Form, Object = Undefined, LabelsFields = False, HideDeleted = Undefined) Export
 	
@@ -867,8 +867,8 @@ Procedure FillAdditionalAttributesInForm(Form, Object = Undefined, LabelsFields 
 			PropertyValueType1 = New TypeDescription("String");
 		ElsIf PropertyValueType1.ContainsType(Type("String"))
 			And PropertyValueType1.StringQualifiers.Length = 0 Then
-			// 
-			// 
+			
+			
 			PropertyValueType1 = New TypeDescription(PropertyDetails.ValueType,
 				,,, New StringQualifiers(1024));
 		EndIf;
@@ -1037,7 +1037,7 @@ Procedure FillAdditionalAttributesInForm(Form, Object = Undefined, LabelsFields 
 			HyperlinkGroup.Group = ChildFormItemsGroup.AlwaysHorizontal;
 			HyperlinkGroup.Title = PropertyDetails.Description;
 			
-			Item = Form.Items.Add(PropertyDetails.ValueAttributeName, Type("FormField"), HyperlinkGroup); // 
+			Item = Form.Items.Add(PropertyDetails.ValueAttributeName, Type("FormField"), HyperlinkGroup); // FormFieldExtensionForALabelField, FormFieldExtensionForATextBox
 			
 			AttributeIsAvailable = AttributeIsAvailableByFunctionalOptions(PropertyDetails);
 			If AttributeIsAvailable And Not LabelsFields Then
@@ -1058,7 +1058,7 @@ Procedure FillAdditionalAttributesInForm(Form, Object = Undefined, LabelsFields 
 				Item.Hyperlink = True;
 			EndIf;
 		Else
-			Item = Form.Items.Add(PropertyDetails.ValueAttributeName, Type("FormField"), Parent); // 
+			Item = Form.Items.Add(PropertyDetails.ValueAttributeName, Type("FormField"), Parent); // FormFieldExtensionForALabelField, FormFieldExtensionForATextBox
 		EndIf;
 		
 		FormPropertyDetails.FormItemAdded = True;
@@ -1165,11 +1165,11 @@ Procedure FillAdditionalAttributesInForm(Form, Object = Undefined, LabelsFields 
 			EndIf;
 		EndIf;
 		
-		TheseArePropertyValues = PropertyDetails.ValueType.Types().Count() = 1
+		ArePropertiesValues = PropertyDetails.ValueType.Types().Count() = 1
 			And PropertyDetails.ValueType.ContainsType(Type("CatalogRef.ObjectsPropertiesValues"));
 		
 		If Not LabelsFields And Item.Type = FormFieldType.InputField Then
-			If TheseArePropertyValues Then
+			If ArePropertiesValues Then
 				Item.ChoiceFoldersAndItems = FoldersAndItems.Items;
 			Else
 				Item.ChoiceFoldersAndItems = FoldersAndItems.FoldersAndItems;
@@ -1243,8 +1243,8 @@ EndProcedure
 // Parameters:
 //  Form        - ClientApplicationForm - already set in the OnCreateAtServer procedure.
 //  Object       - Undefined - take the object from the Object form attribute.
-//               - CatalogObject, DocumentObject, FormDataStructure - 
-//                 
+//               - CatalogObject, DocumentObject, FormDataStructure - — an object with properties or
+//                 a form attribute containing an object.
 //
 Procedure TransferValuesFromFormAttributesToObject(Form, Object = Undefined) Export
 	
@@ -1290,12 +1290,12 @@ Procedure DeleteOldAttributesAndItems(Form) Export
 	
 EndProcedure
 
-// 
+// Returns properties of the specified object.
 //
 // Parameters:
 //  PropertiesOwner      - AnyRef - for example, CatalogRef.Products, DocumentRef.SalesOrder, …
-//                       - CatalogObject, DocumentObject - 
-//                       - FormDataStructure - 
+//                       - CatalogObject, DocumentObject - — any object with properties.
+//                       - FormDataStructure - a collection by property owner object type.
 //  GetAddlAttributes - Boolean - include additional attributes to the result.
 //  GetAddlInfo  - Boolean - include additional info to the result.
 //
@@ -1366,16 +1366,16 @@ EndFunction
 // Returns values of additional object properties.
 //
 // Parameters:
-//  ObjectsWithProperties  - Array      -
-//                                       
-//                       - AnyRef - a link to an object, such as a reference link.Nomenclature,
-//                                       Document link.Customer's order, ...
+//  ObjectsWithProperties  - Array      - objects to obtain additional property values for.
+//                                       You can transfer objects of only one type.
+//                       - AnyRef - a reference to an object, for example, CatalogRef.Product,
+//                                       DocumentRef.SalesOrder, …
 //  GetAddlAttributes - Boolean - include additional attributes to the result. The default value is True.
 //  GetAddlInfo  - Boolean - include additional info to the result. The default value is True.
 //  Properties             - Array of ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - values
 //                            to be received.
-//                       - Array of String -  
-//                       - Undefined - 
+//                       - Array of String - a unique name of an additional property. 
+//                       - Undefined - get values of all owner properties.
 //  LanguageCode             - String - a code of the language in which the property value presentation will be received.
 //                                  If not specified, the current language is used.
 //
@@ -1529,12 +1529,12 @@ EndFunction
 //                           DocumentRef.SalesOrder, …
 //  Property - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - - a reference to
 //                           the additional attribute whose value is to be received.
-//           - String - 
+//           - String - an additional property name.
 //  LanguageCode - String - if specified, then instead of additional property value
 //                      its presentation will be returned in the specified language.
 //
 // Returns:
-//  Arbitrary - 
+//  Arbitrary - any value allowed for the property.
 //
 Function PropertyValue(Object, Property, LanguageCode = "") Export
 	
@@ -1557,7 +1557,7 @@ EndFunction
 //  Property        - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - a property being checked.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - if True, the owner has a property.
 //
 Function CheckObjectProperty(PropertiesOwner, Property) Export
 	
@@ -1587,10 +1587,13 @@ Procedure WriteObjectProperties(PropertiesOwner, PropertyAndValueTable) Export
 	AddlAttributesTable.Columns.Add("Value");
 	AddlAttributesTable.Columns.Add("TextString");
 	
+	Properties = PropertyAndValueTable.UnloadColumn("Property");
+	PropertyTypeMixing = Common.ObjectsAttributeValue(Properties, "IsAdditionalInfo");
+	
 	AdditionalInfoTable1 = AddlAttributesTable.CopyColumns();
 	
 	For Each PropertyTableRow In PropertyAndValueTable Do
-		If PropertyTableRow.Property.IsAdditionalInfo Then
+		If PropertyTypeMixing[PropertyTableRow.Property] = True Then
 			NewRow = AdditionalInfoTable1.Add();
 		Else
 			NewRow = AddlAttributesTable.Add();
@@ -1682,7 +1685,7 @@ EndProcedure
 //  PropertiesOwner - AnyRef - for example, CatalogRef.Products, DocumentRef.SalesOrder, …
 //
 // Returns:
-//  Boolean - 
+//  Boolean - if True, additional attributes are used.
 //
 Function UseAddlAttributes(PropertiesOwner) Export
 	
@@ -1698,7 +1701,7 @@ EndFunction
 //  PropertiesOwner - AnyRef - for example, CatalogRef.Products, DocumentRef.SalesOrder, …
 //
 // Returns:
-//  Boolean - 
+//  Boolean - — if True, additional information is used.
 //
 Function UseAddlInfo(PropertiesOwner) Export
 	
@@ -1710,7 +1713,7 @@ EndFunction
 // Checks subsystem availability for the current user.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if subsystem is available.
 //
 Function PropertiesAvailable() Export
 	Return AccessRight("Read", Metadata.Catalogs.AdditionalAttributesAndInfoSets);
@@ -1724,7 +1727,7 @@ EndFunction
 //                           DocumentRef.SalesOrder, …
 //  Property - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - - a reference to
 //                           the additional attribute whose value is to be received.
-//           - String - 
+//           - String - an additional property name.
 //  LanguageCode - String - a code of the language in which the presentation is to be received.
 //
 // Returns:
@@ -1740,15 +1743,15 @@ EndFunction
 //
 // Parameters:
 //  ObjectsWithProperties  - Array      - objects for which additional property values are to be received.
-//                       - AnyRef - a link to an object, such as a reference link.Nomenclature,
-//                                       Document link.Customer's order, ...
+//                       - AnyRef - a reference to an object, for example, CatalogRef.Product,
+//                                       DocumentRef.SalesOrder, …
 //  LanguageCode             - String - a code of the language in which the presentation is to be received.
 //
 // Returns:
 //  Map of KeyAndValue:
-//   * Key - AnyRef - object reference.
+//   * Key - AnyRef - a reference to an object.
 //   * Value - Structure:
-//        * Key - String - property name.
+//        * Key - String - a reference to an object.
 //        * Value - String - a property presentation in the passed language.
 //
 Function RepresentationsOfPropertyValues(ObjectsWithProperties, LanguageCode = "") Export
@@ -1787,10 +1790,10 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Labels
 
-// 
+// Sets the visibility of the label legend within a session.
 // 
 // Parameters:
-//  Form           - ClientApplicationForm - it is already configured in the procedure for joining the server.
+//  Form           - ClientApplicationForm - already set in the OnCreateAtServer procedure.
 //
 Procedure SetLabelsLegendVisibility(Form) Export
 	
@@ -1813,12 +1816,12 @@ Procedure SetLabelsLegendVisibility(Form) Export
 	
 EndProcedure
 
-// 
+// Fills/refills labels in the property owner form.
 //
 // Parameters:
-//  Form              - ClientApplicationForm - it is already configured in the procedure for joining the server.
+//  Form              - ClientApplicationForm - already set in the OnCreateAtServer procedure.
 //
-//  Object             - Undefined - take an object from the props of the "Object" form.
+//  Object             - Undefined - take the object from the Object form attribute.
 //                     - CatalogObjectCatalogName
 //                     - DocumentObjectDocumentName
 //                     - ChartOfCharacteristicTypesObjectChartOfCharacteristicTypesName
@@ -1828,7 +1831,7 @@ EndProcedure
 //                     - ChartOfAccountsObjectChartOfAccountsName
 //                     - FormDataStructure
 //
-//  ArbitraryObject - Boolean -
+//  ArbitraryObject - Boolean - if True, you cannot edit labels in the form.
 //
 Procedure FillObjectLabels(Form, Object = Undefined, ArbitraryObject = False) Export
 	
@@ -1958,25 +1961,25 @@ Procedure FillObjectLabels(Form, Object = Undefined, ArbitraryObject = False) Ex
 	
 EndProcedure
 
-// 
+// Returns the parameter structure for displaying labels on the form.
 //
 // Returns:
 //  Structure:
 //    
-//    * LabelsDestinationElementName - String -
+//    * LabelsDestinationElementName - String - a group name of the form where labels will be placed.
 //    
-//    * LabelsLegendDestinationElementName - String -
+//    * LabelsLegendDestinationElementName - String - a group name of the form where the label legend will be placed.
 //    
-//    * MaxLabelsOnForm - Number -
+//    * MaxLabelsOnForm - Number - the maximum number of labels to be displayed on the form. By default, there are no restrictions.
 //    
-//    * FilterLabelsCount - Boolean -
+//    * FilterLabelsCount - Boolean - allow to select objects in the list by labels.
 //    
-//    * LabelsDisplayOption - EnumRef.LabelsDisplayOptions -
-//            
-//            
-//            
+//    * LabelsDisplayOption - EnumRef.LabelsDisplayOptions - a label display option on the form.
+//            Miniature color pictures for forms with a small amount of free space or
+//            labels with a colored background to quickly view the label text.
+//            By default, the Picture option is used.
 //    
-//    * ObjectsKind - String -
+//    * ObjectsKind - String - a full name of the metadata object to display the label legend in the list form.
 //
 Function LabelsDisplayParameters() Export
 	
@@ -1992,15 +1995,15 @@ Function LabelsDisplayParameters() Export
 	
 EndFunction
 
-// 
+// Returns properties of a specific kind.
 //
 // Parameters:
-//  Properties   - ValueTable -
+//  Properties   - ValueTable - a property table.
 //
-//  PropertyKind - EnumRef.PropertiesKinds -
+//  PropertyKind - EnumRef.PropertiesKinds - a property kind, additional attributes, or labels.
 //
 // Returns:
-//  Array     - 
+//  Array     - an array of properties of a certain kind.
 //
 Function PropertiesByAdditionalAttributesKind(Properties, PropertyKind) Export
 	
@@ -2034,10 +2037,10 @@ Function PropertiesByAdditionalAttributesKind(Properties, PropertyKind) Export
 	
 EndFunction
 
-// 
+// Returns a flag that shows if there are label owners.
 // 
 // Returns:
-//  Boolean     - 
+//  Boolean     - a flag that shows if there are label owners.
 //
 Function HasLabelsOwners() Export
 	
@@ -2209,11 +2212,11 @@ Function PropertySetParametersStructure() Export
 	
 EndFunction
 
-// 
-// 
-// 
-// 
-// 
+// To use in update handlers. Allows you to save form settings
+// when switching to the description of property sets in the
+// PropertyManagerOverridable.OnGetPredefinedPropertiesSets procedure,
+// if previously they were described in predefined items of the
+// AdditionalAttributesAndInfoSets catalog.
 //
 Procedure RestoreSettingsOfFormsWithAdditionalAttributes() Export
 	
@@ -2287,7 +2290,7 @@ Procedure RestoreSettingsOfFormsWithAdditionalAttributes() Export
 				Sets.Insert(SetName, "PropertySetsKey" + Checksum + "," + LinkID);
 			EndIf;
 		Except
-			// 
+			// Don't handle the exception. The data has no predefined item.
 			Continue;
 		EndTry;
 	EndDo;
@@ -2328,7 +2331,7 @@ EndProcedure
 //  GetAddlInfo  - Boolean - include additional info to the result.
 //  PropertiesArray        - Array of ChartOfCharacteristicTypesRef - additional attributes
 //                            whose values are to be received.
-//                       - Undefined - 
+//                       - Undefined - get values of all owner properties.
 // Returns:
 //  ValueTable:
 //    * Property - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - an owner property.
@@ -2353,7 +2356,7 @@ EndFunction
 //  GetAddlInfo  - Boolean - include additional info to the result.
 //
 // Returns:
-//  Array of ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - 
+//  Array of ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - if available.
 //
 Function GetPropertyList(PropertiesOwner, GetAddlAttributes = True, GetAddlInfo = True) Export
 	Return ObjectProperties(PropertiesOwner, GetAddlAttributes, GetAddlInfo);
@@ -2366,8 +2369,8 @@ EndFunction
 //             which listed values are to be received.
 // 
 // Returns:
-//  Array of CatalogRef.ObjectsPropertiesValues, CatalogRef.ObjectPropertyValueHierarchy - 
-//      
+//  Array of CatalogRef.ObjectsPropertiesValues, CatalogRef.ObjectPropertyValueHierarchy - property
+//      values if any.
 //
 Function GetPropertiesValuesList(Property) Export
 	
@@ -2408,14 +2411,14 @@ Procedure NewMainFormObjects(Form, Context, CreateAdditionalAttributesDetails)
 	AttributeHideDeleted = New FormAttribute("PropertiesHideDeleted", New TypeDescription("Boolean"));
 	Attributes.Add(AttributeHideDeleted);
 	// Additional parameters of the property subsystem.
-	AddAttributesForPropertyParameters = True;
+	ShouldAddPropertiesParametersAttribute = True;
 	For Each Attribute In Form.GetAttributes() Do
 		If Attribute.Name = "PropertiesParameters" Then
-			AddAttributesForPropertyParameters = False;
+			ShouldAddPropertiesParametersAttribute = False;
 			Break;
 		EndIf;
 	EndDo;
-	If AddAttributesForPropertyParameters Then
+	If ShouldAddPropertiesParametersAttribute Then
 		AttributePropertiesParameters = New FormAttribute("PropertiesParameters", New TypeDescription());
 		Attributes.Add(AttributePropertiesParameters);
 	EndIf;
@@ -2426,11 +2429,11 @@ Procedure NewMainFormObjects(Form, Context, CreateAdditionalAttributesDetails)
 		
 		If CreateAdditionalAttributesDetails Then
 			
-			// 
+			// Adding an attribute containing used sets of additional attributes.
 			Attributes.Add(New FormAttribute(
 				"PropertiesObjectAdditionalAttributeSets", New TypeDescription("ValueList")));
 			
-			// Adding a details attribute for created attributes and form items.
+			// Add an attribute for describing attributes and form items to create.
 			DetailsName = "PropertiesAdditionalAttributeDetails";
 			
 			Attributes.Add(New FormAttribute(
@@ -2507,15 +2510,15 @@ Procedure NewMainFormObjects(Form, Context, CreateAdditionalAttributesDetails)
 			Attributes.Add(New FormAttribute(
 				"OutputAsHyperlink", New TypeDescription("Boolean"), DependentAttributesTable));
 			
-			// 
+			// Adding an attribute that contains items of created additional attribute groups.
 			Attributes.Add(New FormAttribute(
 				"PropertiesAdditionalAttributeGroupItems", New TypeDescription("ValueList")));
 			
-			// 
+			// Adding an attribute with name of the item in which input fields will be placed.
 			Attributes.Add(New FormAttribute(
 				"PropertiesItemNameForPlacement", New TypeDescription()));
 			
-			// Метки
+			// Labels
 			Attributes.Add(New FormAttribute("Properties_LabelsDestinationElementName",
 				New TypeDescription("String")));
 			
@@ -2526,7 +2529,7 @@ Procedure NewMainFormObjects(Form, Context, CreateAdditionalAttributesDetails)
 				Attributes.Add(New FormAttribute("Properties_LabelsLegendDestinationElementName",
 					New TypeDescription("String")));
 				
-				// 
+				// Add an attribute for describing labels to create.
 				DetailsName = "Properties_LabelsLegendDetails";
 				Attributes.Add(New FormAttribute(DetailsName, New TypeDescription("ValueTable")));
 				
@@ -2540,8 +2543,8 @@ Procedure NewMainFormObjects(Form, Context, CreateAdditionalAttributesDetails)
 				EndIf;
 			EndIf;
 			
-			// 
-			// 
+			
+			
 			If AccessRight("Update", Metadata.Catalogs.AdditionalAttributesAndInfoSets) Then
 				// Add a command.
 				Command = Form.Commands.Add("EditAdditionalAttributesComposition");
@@ -2576,8 +2579,8 @@ Procedure NewMainFormObjects(Form, Context, CreateAdditionalAttributesDetails)
 	
 	Form.PropertiesParameters = New Structure;
 	If DeferredInitialization Then
-		// 
-		// 
+		
+		
 		Value = ?(OptionUseProperties, False, True);
 		Form.PropertiesParameters.Insert("DeferredInitializationExecuted", Value);
 	EndIf;
@@ -2606,10 +2609,10 @@ Procedure NewMainFormObjects(Form, Context, CreateAdditionalAttributesDetails)
 		EndIf;
 	EndIf;
 	
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
 	If OptionUseProperties
 		And DeferredInitialization
 		And ItemForPlacementName <> "" Then
@@ -2672,7 +2675,7 @@ Procedure PrepareFormForDeferredInitialization(Form, ItemForPlacementName, Index
 		Decoration.ToolTip  = ToolTipText;
 		Decoration.TextColor = StyleColors.ErrorNoteText;
 		
-		// 
+		// Page containing additional attributes.
 		Form.PropertiesParameters.Insert(Parent.Name);
 	EndIf;
 	
@@ -2680,12 +2683,12 @@ Procedure PrepareFormForDeferredInitialization(Form, ItemForPlacementName, Index
 	
 EndProcedure
 
-// 
+// Fills the label legend in the property owner form.
 //
 // Parameters:
-//  Form              - ClientApplicationForm - it is already configured in the procedure for joining the server.
+//  Form              - ClientApplicationForm - already set in the OnCreateAtServer procedure.
 //
-//  Object             - Undefined - take an object from the props of the "Object" form.
+//  Object             - Undefined - take the object from the Object form attribute.
 //                     - CatalogObjectCatalogName
 //                     - DocumentObjectDocumentName
 //                     - ChartOfCharacteristicTypesObjectChartOfCharacteristicTypesName

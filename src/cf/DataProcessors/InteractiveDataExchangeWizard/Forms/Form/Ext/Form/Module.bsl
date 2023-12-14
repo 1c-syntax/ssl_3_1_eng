@@ -229,7 +229,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure ExchangeMessagesTransportKindOnChange(Item)
@@ -253,7 +253,7 @@ Procedure DataExchangeDirectoryClick(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure EndDataMappingOnChange(Item)
@@ -270,7 +270,7 @@ Procedure LoadMessageAfterMappingOnChange(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure ExportAdditionExportVariantOnChange(Item)
@@ -284,13 +284,13 @@ EndProcedure
 
 &AtClient
 Procedure ExportAdditionCommonDocumentsPeriodClearing(Item, StandardProcessing)
-	// 
+	// Forbid period clearing.
 	StandardProcessing = False;
 EndProcedure
 
 &AtClient
 Procedure ExportAdditionNodeScenarioFilterPeriodClearing(Item, StandardProcessing)
-	// 
+	// Forbid period clearing.
 	StandardProcessing = False;
 EndProcedure
 
@@ -326,7 +326,7 @@ EndProcedure
 
 &AtClient
 Procedure DoneCommand(Command)
-	// 
+	// Updating all opened dynamic lists.
 	DataExchangeClient.RefreshAllOpenDynamicLists();
 	
 	Result = New Structure;
@@ -352,8 +352,32 @@ Procedure ContinueSync(Command)
 	
 EndProcedure
 
+&AtClient
+Procedure EndSyncing(Command)
+
+	CompleteSynchronizationOnServer(); 
+	
+	ForceCloseForm = True;
+	Close();
+
+EndProcedure
+
+&AtServer
+Procedure CompleteSynchronizationOnServer()
+
+	ModuleDataExchangeInternalPublication = Common.CommonModule("DataExchangeInternalPublication");
+	ModuleDataExchangeInternalPublication.HasNodeScheduledExchange(
+		Object.InfobaseNode, 
+		ScenarioUsingInternalPublication,
+		IDOfExchangeViaInternalPublication);
+			
+	CancelQueueAndResumeOnServer();
+    
+EndProcedure
+
+
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure OpenDataExchangeDirectory(Command)
@@ -375,7 +399,7 @@ Procedure ConfigureExchangeMessagesTransportParameters(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure RefreshAllMappingInformation(Command)
@@ -489,7 +513,7 @@ Procedure OpenMappingForm(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure GoToDataImportEventLog(Command)
@@ -506,7 +530,7 @@ Procedure GoToDataExportEventLog(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure ExportAdditionGeneralDocumentsFilter(Command)
@@ -565,7 +589,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 ////////////////////////////////////////////////////////////////////////////////
 
 #Region PartToSupply
@@ -878,7 +902,7 @@ EndProcedure
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 ////////////////////////////////////////////////////////////////////////////////
 
 #Region OverridablePart
@@ -959,7 +983,7 @@ Procedure ExportAdditionFilterHistoryMenuSelection(Val SelectedElement, Val Addi
 		ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);
 		
 	ElsIf SettingPresentation=1 Then
-		// 
+		// A save option is selected, opening the form of all settings.
 		DataExchangeClient.OpenExportAdditionFormSaveSettings(ExportAddition, ThisObject);
 		
 	EndIf;
@@ -1109,7 +1133,7 @@ Procedure UpdateMappingByRowDetailsAtServer(Cancel, RowsKeys, RunDataImport = Fa
 		DataProcessorObject.RunDataImport(Cancel, RowIndexes);
 	EndIf;
 	
-	// 
+	// Getting mapping statistic data.
 	DataProcessorObject.GetObjectMappingByRowStats(Cancel, RowIndexes);
 	
 	ValueToFormAttribute(DataProcessorObject, "Object");
@@ -1367,8 +1391,8 @@ Procedure InitializeExportAdditionAttributes()
 	ExportAdditionSettings = DataExchangeServer.InteractiveExportChange(
 		Object.InfobaseNode, ThisObject.UUID, ExportAdditionExtendedMode);
 		
-	// 
-	// 
+	
+	
 	DataExchangeServer.InteractiveExportChangeAttributeBySettings(ThisObject, ExportAdditionSettings, "ExportAddition");
 	
 	AdditionScenarioParameters = ExportAddition.AdditionScenarioParameters;
@@ -1382,20 +1406,20 @@ Procedure InitializeExportAdditionAttributes()
 		
 	If StandardVariantsProhibited Then
 		If AdditionScenarioParameters.AdditionalOption.Use Then
-			// 
+			// A single node scenario option is available.
 			Items.ExportAdditionNodeAsStringExportOption.Visible = True;
 			Items.ExportAdditionNodeExportOption.Visible        = False;
 			Items.CustomGroupIndentDecoration.Visible           = False;
 			ExportAddition.ExportOption = 3;
 		Else
-			// 
+			// Nothing is found. Setting the flag showing that the page is skipped and exiting.
 			ExportAddition.ExportOption = -1;
 			Items.ExportAdditionOptions.Visible = False;
 			Return;
 		EndIf;
 	EndIf;
 	
-	// 
+	// Setting typical input fields.
 	Items.StandardAdditionOptionNone.Visible = AdditionScenarioParameters.OptionDoNotAdd.Use;
 	If Not IsBlankString(AdditionScenarioParameters.OptionDoNotAdd.Title) Then
 		Items.ExportAdditionExportOption0.ChoiceList[0].Presentation = AdditionScenarioParameters.OptionDoNotAdd.Title;
@@ -1490,7 +1514,7 @@ Procedure InitializeExportAdditionAttributes()
 		EndDo;
 	EndIf;
 	
-	// 
+	// Initial view, same as ExportAdditionExportVariantSetVisibility client procedure.
 	Items.AllDocumentsFilterGroup.Enabled  = ExportAddition.ExportOption=1;
 	Items.DetailedFilterGroup.Enabled     = ExportAddition.ExportOption=2;
 	Items.CustomFilterGroup.Enabled = ExportAddition.ExportOption=3;
@@ -1684,7 +1708,7 @@ EndFunction
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure TimeConsumingOperationIdleHandler()
@@ -1703,7 +1727,7 @@ Procedure TimeConsumingOperationIdleHandler()
 			Return;
 	EndIf;
 	Else
-		// 
+		// Exchange via COM connection.
 		ActionState = DataExchangeServerCall.JobState(JobID);
 	EndIf;
 	
@@ -1727,7 +1751,7 @@ Procedure TimeConsumingOperationIdleHandler()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Function GetSelectedRowKeys(SelectedRows)
@@ -1823,7 +1847,7 @@ Procedure ExpandStatisticsTree(Composite = "")
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Function BackgroundJobParameters()
@@ -2015,9 +2039,7 @@ EndFunction
 Function Attachable_ConnectionTestWaitingPageTimeConsumingOperationProcessing(Cancel, GoToNext)
 	
 	If ExchangeOverExternalConnection Then
-		If CommonClient.FileInfobase() Then
-			CommonClient.RegisterCOMConnector(False);
-		EndIf;
+		DataExchangeClient.CheckAndRegisterCOMConnector(Object.InfobaseNode);
 		Return Undefined;
 	EndIf;
 	
@@ -2107,7 +2129,7 @@ Procedure TestConnectionAndSaveSettings(Cancel)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Function Attachable_PageDataExchangeJobCheck_OnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2148,8 +2170,9 @@ EndFunction
 &AtClient
 Function Attachable_PageDataExchangeTasksCheck_OnNavigateNext(Cancel)
 	
-	CancelQueueAndResumeOnServer();
-	ExecuteMoveNext();
+	If HasNodeScheduledExchange Then
+		CancelQueueAndResumeOnServer();
+	EndIf;
 	
 	Return Undefined;
 	
@@ -2166,7 +2189,7 @@ Procedure CancelQueueAndResumeOnServer()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Function Attachable_DataAnalysisWaitingPageOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2292,7 +2315,7 @@ EndProcedure
 &AtServer
 Procedure GetDataToTemporaryDirectoryAtServerCompletion()
 	
-	ErrorMessageTemplate = NStr("en = 'Cannot import data. See the Event log for details.';");
+	ErrorMessageTemplate = NStr("en = 'Cannot import data. See the event log for details.';");
 	MethodExecutionResult = GetFromTempStorage(BackgroundJobExecutionResult.ResultAddress);
 	
 	If MethodExecutionResult = Undefined Then
@@ -2342,7 +2365,7 @@ Procedure GetDataToTemporaryDirectoryAtServerCompletion()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Function Attachable_DataAnalysisPageOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2477,7 +2500,7 @@ Procedure AtalyzeDataAtServerCompletion()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Function Attachable_StatisticsInformationPageOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2510,7 +2533,7 @@ Function Attachable_StatisticsInformationPageOnGoNext(Cancel)
 		Return Undefined;
 	EndIf;
 	
-	// 
+	// Going to the next page after user confirmation.
 	Cancel = True;
 	
 	Buttons = New ValueList;
@@ -2529,7 +2552,7 @@ Function Attachable_StatisticsInformationPageOnGoNext(Cancel)
 	
 EndFunction
 
-// Continuation of the procedure (see above). 
+// Continuation of the procedure (see above).
 &AtClient
 Procedure StatisticsPageOnGoNextQuestionCompletion(Val QuestionResult, Val AdditionalParameters) Export
 	
@@ -2544,14 +2567,14 @@ EndProcedure
 &AtClient
 Procedure Attachable_GoStepForwardWithDeferredProcessing()
 	
-	// 
+	// Going a step forward (forced).
 	SkipCurrentPageCancelControl = True;
 	ChangeNavigationNumber( +1 );
 	
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Function Attachable_DataImportOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2629,13 +2652,13 @@ Procedure DataImportCompletion()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Function Attachable_QuestionAboutExportCompositionPageOnOpen(Cancel, SkipPage, IsMoveNext)
 	
 	If ExportAddition.ExportOption < 0 Then
-		// 
+		// According to the node settings, the addition of export is not performed, go to the next page.
 		SkipPage = True;
 	EndIf;
 	
@@ -2647,7 +2670,7 @@ EndFunction
 Function Attachable_DataRegistrationPageOnOpen(Cancel, SkipPage, IsMoveNext)
 	
 	If ExportAddition.ExportOption < 0 Then
-		// 
+		// According to the node settings, the addition of export is not performed, go to the next page.
 		SkipPage = True;
 	EndIf;
 	
@@ -2773,7 +2796,7 @@ Procedure OnCompleteDataRecordingAtServer(HandlerParameters, DataRegistered, Err
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Function Attachable_DataExportOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -3011,7 +3034,7 @@ Procedure DataExportCompletionAtServer()
 	
 	If MethodExecutionResult.Cancel
 		And Not ValueIsFilled(ErrorMessage) Then
-		ErrorMessage = NStr("en = 'Cannot send data. See the Event log for details.';");
+		ErrorMessage = NStr("en = 'Cannot send data. See the event log for details.';");
 	EndIf;
 	
 	If ValueIsFilled(ErrorMessage) Then
@@ -3078,7 +3101,7 @@ Procedure OnCompleteDataExportViaInternalPublication()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Function Attachable_MappingCompletePageOnOpen(Cancel, SkipPage, Val IsMoveNext)
@@ -3096,7 +3119,7 @@ EndFunction
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure FillNavigationTable()

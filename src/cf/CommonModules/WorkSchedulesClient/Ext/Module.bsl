@@ -37,21 +37,21 @@ Procedure RestoreCollectionRowOrderAfterEditing(RowsCollection, OrderField, Curr
 	// Select the direction in which to shift.
 	Direction = 0;
 	If SourceIndex = 0 Then
-		// вниз
+		// Downward.
 		Direction = 1;
 	EndIf;
 	If SourceIndex = RowsCollection.Count() - 1 Then
-		// вверх
+		// Upward.
 		Direction = -1;
 	EndIf;
 	
 	If Direction = 0 Then
 		If RowsCollection[SourceIndex][OrderField] > RowsCollection[IndexResult + 1][OrderField] Then
-			// вниз
+			// Downward.
 			Direction = 1;
 		EndIf;
 		If RowsCollection[SourceIndex][OrderField] < RowsCollection[IndexResult - 1][OrderField] Then
-			// вверх
+			// Upward.
 			Direction = -1;
 		EndIf;
 	EndIf;

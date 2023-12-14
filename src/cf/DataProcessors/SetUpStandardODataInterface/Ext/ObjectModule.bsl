@@ -134,7 +134,7 @@ Procedure AddNestedTreeRow(Val FullName, Val ReadOnly, Val Use, Val Dependencies
 			String.ObjectName = FullName;
 			String.DependentObjectName = ObjectDependency;
 			
-			// 
+			// If remove the MetadataObject object, then remove the ObjectDependency object.
 			String = DeletionDependencies.Add();
 			String.ObjectName = ObjectDependency;
 			String.DependentObjectName = FullName;

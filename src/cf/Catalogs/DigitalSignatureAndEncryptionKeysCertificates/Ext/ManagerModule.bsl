@@ -110,6 +110,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	|WHERE
 	|	DigitalSignatureAndEncryptionKeysCertificates.DeleteUserNotifiedOfExpirationDate
 	|	OR &StatementCondition
+	|	OR DigitalSignatureAndEncryptionKeysCertificates.ValidBefore > &CurrentDate
 	|	OR NOT OneUserInTableSection.Ref IS NULL";
 
 	
@@ -125,6 +126,8 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	Else
 		Query.Text = StrReplace(Query.Text, "OR &StatementCondition", "");
 	EndIf;
+	
+	Query.SetParameter("CurrentDate", CurrentSessionDate());
 
 	ReferencesArrray = Query.Execute().Unload().UnloadColumn("Ref");
 	InfobaseUpdate.MarkForProcessing(Parameters, ReferencesArrray);
@@ -137,7 +140,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	Selection = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue,
 		"Catalog.DigitalSignatureAndEncryptionKeysCertificates");
 	If Selection.Count() > 0 Then
-		ProcessApplicationsAndCertificateAlerts(Selection);
+		ProcessNotificationStatementsAndValidityOfCertificates(Selection);
 	EndIf;
 
 	ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue,
@@ -150,7 +153,7 @@ EndProcedure
 
 #Region Private
 
-Procedure ProcessApplicationsAndCertificateAlerts(Selection)
+Procedure ProcessNotificationStatementsAndValidityOfCertificates(Selection)
 	
 	ObjectsProcessed = 0;
 	ObjectsWithIssuesCount = 0;
@@ -175,10 +178,12 @@ Procedure ProcessApplicationsAndCertificateAlerts(Selection)
 			LockItem.SetValue("Ref", Selection.Ref);
 			LockItem.Mode = DataLockMode.Shared;
 			Block.Lock();
+			
+			WriteObject = False;
 
 			CertificateObject = Selection.Ref.GetObject(); // CatalogObject.DigitalSignatureAndEncryptionKeysCertificates
 			
-			// Transfer certificate update notifications into the information register.
+			
 			If CertificateObject.DeleteUserNotifiedOfExpirationDate Then
 				AlertRecordset = InformationRegisters.CertificateUsersNotifications.CreateRecordSet();
 				AlertRecordset.Filter.Certificate.Set(Selection.Ref);
@@ -205,23 +210,52 @@ Procedure ProcessApplicationsAndCertificateAlerts(Selection)
 					InfobaseUpdate.WriteRecordSet(AlertRecordset, True);
 				EndIf;
 				CertificateObject.DeleteUserNotifiedOfExpirationDate = False;
+				WriteObject = True;
 			EndIf;
 			
-			// Transfer request data into the information register.
+			
 			If CertificateIssueRequestAvailable
 			   And ValueIsFilled(CertificateObject.DeleteStatementStatement) Then
 				
 				ProcessingApplicationForNewQualifiedCertificateIssue.ProcessDataForMigrationToNewVersion(
-					CertificateObject);
+					CertificateObject, WriteObject);
 
 			EndIf;
 			
 			If CertificateObject.Users.Count() = 1 Then
 				CertificateObject.User = CertificateObject.Users[0].User;
 				CertificateObject.Users.Clear();
+				WriteObject = True;
+			EndIf;
+			
+			If CertificateObject.ValidBefore > CurrentSessionDate() Then
+				CertificateBinaryData = CertificateObject.CertificateData.Get();
+				If TypeOf(CertificateBinaryData) = Type("BinaryData") Then
+					Try
+						Certificate = New CryptoCertificate(CertificateBinaryData);
+					Except
+						Certificate = Undefined;
+					EndTry;
+					
+					If Certificate <> Undefined Then
+						CertificateProperties = DigitalSignatureInternalClientServer.CertificateProperties(
+							Certificate, DigitalSignatureInternal.TimeAddition(), CertificateBinaryData);
+						If CertificateObject.ValidBefore <> CertificateProperties.ValidBefore Then
+							SearchString = Format(CertificateObject.ValidBefore, "DF=MM.yyyy");
+							ReplacementString = Format(CertificateProperties.ValidBefore, "DF=MM.yyyy");
+							CertificateObject.Description = StrReplace(CertificateObject.Description, SearchString, ReplacementString);
+							CertificateObject.ValidBefore = CertificateProperties.ValidBefore;
+							WriteObject = True;
+						EndIf;
+					EndIf;
+				EndIf;
 			EndIf;
 
-			InfobaseUpdate.WriteObject(CertificateObject);
+			If WriteObject Then
+				InfobaseUpdate.WriteObject(CertificateObject);
+			Else
+				InfobaseUpdate.MarkProcessingCompletion(Selection.Ref);
+			EndIf;
 
 			ObjectsProcessed = ObjectsProcessed + 1;
 			CommitTransaction();
@@ -229,11 +263,11 @@ Procedure ProcessApplicationsAndCertificateAlerts(Selection)
 		Except
 
 			RollbackTransaction();
-			// Если не удалось обработать какой-
+			
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Couldn''t process certificate %1. Reason:
+				NStr("en = 'Не удалось обработать сертификат: %1 по причине:
 					 |%2';"), RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(),
@@ -245,7 +279,7 @@ Procedure ProcessApplicationsAndCertificateAlerts(Selection)
 
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) some certificates: %1';"),
+			NStr("en = 'Не удалось обработать некоторые сертификаты (пропущены): %1';"),
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
@@ -253,7 +287,7 @@ Procedure ProcessApplicationsAndCertificateAlerts(Selection)
 			EventLogLevel.Information,
 			Metadata.Catalogs.DigitalSignatureAndEncryptionKeysCertificates,,
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Yet another batch of certificates is processed: %1';"), ObjectsProcessed));
+				NStr("en = 'Обработана очередная порция сертификатов: %1';"), ObjectsProcessed));
 	EndIf;
 	
 EndProcedure

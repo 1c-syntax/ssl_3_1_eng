@@ -41,13 +41,13 @@ Function ClusterAdministrationParameters() Export
 	
 	Result = New Structure();
 	
-	Result.Insert("AttachmentType", "COM"); // 
+	Result.Insert("AttachmentType", "COM"); 
 	
-	// 
+	// For "COM" only
 	Result.Insert("ServerAgentAddress", "");
 	Result.Insert("ServerAgentPort", 1540);
 	
-	// 
+	// For "RAS" only
 	Result.Insert("AdministrationServerAddress", "");
 	Result.Insert("AdministrationServerPort", 1545);
 	
@@ -232,7 +232,7 @@ EndProcedure
 //  IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters.
 //
 // Returns:
-//    Boolean - 
+//    Boolean - True if scheduled jobs are successfully locked, False otherwise.
 //
 Function InfobaseScheduledJobLock(Val ClusterAdministrationParameters, Val IBAdministrationParameters = Undefined) Export
 	
@@ -286,8 +286,8 @@ EndProcedure
 //   * UserName - String - Infobase user's name,
 //   * ClientComputerName - String - name or network address of the computer that established
 //     the session with the infobase,
-//   * ClientApplicationID - String - ID of the application that set up the session
-//     See the description of the ApplicationPresentation global function,
+//   * ClientApplicationID - String - 
+//     
 //   * LanguageID - String - Interface language ID,
 //   * SessionCreationTime - Date - Date and time the session was created,
 //   * LatestSessionActivityTime - Date - Date and time of the session last activity,
@@ -377,8 +377,8 @@ EndFunction
 //                        - Boolean
 //                        - ValueList
 //                        - Array
-//                        - Structure - 
-//               
+//                        - Structure - the value
+//               the matching session property value is compared with.
 //         - Structure - 
 //           
 //           
@@ -416,8 +416,8 @@ EndFunction
 //                        - Boolean
 //                        - ValueList
 //                        - Array
-//                        - Structure - 
-//               
+//                        - Structure - the value
+//               the matching session property value is compared with,
 //         - Structure - 
 //           
 //
@@ -448,7 +448,7 @@ EndProcedure
 //    * Number - Number - a number of infobase connection,
 //    * UserName - String - a name of the 1C:Enterprise user connected to the infobase,
 //    * ClientComputerName - String - a name of the computer that established the connection,
-//    * ClientApplicationID - String - ID of the application that established the connection. See the description of the 
+//    * ClientApplicationID - String - ID of the application that established the connection. See the description of the
 //                                                    ApplicationPresentation global function,
 //    * ConnectionEstablishingTime - Date - the date and time when the connection was established,
 //    * InfobaseConnectionMode - Number - the infobase connection mode (0 
@@ -526,8 +526,8 @@ EndFunction
 //                        - Boolean
 //                        - ValueList
 //                        - Array
-//                        - Structure - 
-//               
+//                        - Structure - the value the matching connection property value
+//               is compared with,
 //         - Structure - 
 //           
 //
@@ -565,8 +565,8 @@ EndFunction
 //                         - Boolean
 //                         - ValueList
 //                         - Array
-//                         - Structure - 
-//                
+//                         - Structure - the value the matching connection property value
+//                is compared with,
 //         - Structure - 
 //           
 //
@@ -597,8 +597,8 @@ EndProcedure
 //  IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters.
 //
 // Returns:
-//  String - 
-//  
+//  String - name of the security profile set for the infobase. If
+//  the infobase is not assigned with a security profile, returns an empty string.
 //
 Function InfobaseSecurityProfile(Val ClusterAdministrationParameters, Val IBAdministrationParameters = Undefined) Export
 	
@@ -623,9 +623,9 @@ EndFunction
 //  IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters.
 //
 // Returns:
-//  String - 
-//  
-//  
+//  String - name of the security profile set for the infobase as the safe mode security
+//  profile. If the infobase is not assigned with a security profile, returns an empty
+//  String
 //
 Function InfobaseSafeModeSecurityProfile(Val ClusterAdministrationParameters, Val IBAdministrationParameters = Undefined) Export
 	
@@ -697,7 +697,7 @@ EndProcedure
 //  ProfileName - String - name of the security profile whose existence is checked.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True if the profile with the specified name exists, False otherwise.
 //
 Function SecurityProfileExists(Val ClusterAdministrationParameters, Val ProfileName) Export
 	
@@ -845,7 +845,7 @@ Function AddInProperties() Export
 	Result = New Structure();
 	Result.Insert("Name");
 	Result.Insert("LongDesc");
-	Result.Insert("HashSum"); // 
+	Result.Insert("HashSum"); 
 	Return Result;
 	
 EndFunction
@@ -865,7 +865,7 @@ Function ExternalModuleProperties() Export
 	Result = New Structure();
 	Result.Insert("Name");
 	Result.Insert("LongDesc");
-	Result.Insert("HashSum"); // 
+	Result.Insert("HashSum"); 
 	Return Result;
 	
 EndFunction
@@ -1010,7 +1010,7 @@ EndProcedure
 //  InfobaseAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters.
 //
 // Returns:
-//   String - internal ID of the information database.
+//   String - Internal infobase ID.
 //
 Function InfoBaseID(Val ClusterID, Val ClusterAdministrationParameters, Val InfobaseAdministrationParameters) Export
 	
@@ -1056,7 +1056,7 @@ EndFunction
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters.
 //
 // Returns:
-//   String - internal ID of the server cluster.
+//   String - Internal server cluster ID.
 //
 Function ClusterID(Val ClusterAdministrationParameters) Export
 	
@@ -1150,8 +1150,8 @@ EndFunction
 //                        - Boolean
 //                        - ValueList
 //                        - Array
-//                        - Structure - 
-//               
+//                        - Structure - the value
+//               the matching session property value is compared with.
 //         - Structure - 
 //           
 //           
@@ -1192,8 +1192,8 @@ EndFunction
 //                        - Boolean
 //                        - ValueList
 //                        - Array
-//                        - Structure - 
-//               
+//                        - Structure - the value the matching connection property value
+//               is compared with.
 //         - Structure - 
 //           
 //           

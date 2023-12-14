@@ -145,14 +145,14 @@
 				<ExtendedTooltip name="ListSearchControl_SSLyExtendedTooltip" id="74"/>
 			</SearchControlAddition>
 			<ChildItems>
-				<ColumnGroup name="VerticalGroup1" id="56" DisplayImportance="VeryHigh">
+				<ColumnGroup name="FirstColumn" id="56" DisplayImportance="VeryHigh">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Vertical group 1</v8:content>
+							<v8:content>First column</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="VerticalGroup1ExtendedTooltip" id="57"/>
+					<ExtendedTooltip name="FirstColumnExtendedTooltip" id="57"/>
 					<ChildItems>
 						<LabelField name="ListDescription" id="4" DisplayImportance="VeryHigh">
 							<DataPath>List.Description</DataPath>
@@ -170,14 +170,14 @@
 						</LabelField>
 					</ChildItems>
 				</ColumnGroup>
-				<ColumnGroup name="VerticalGroup2" id="58">
+				<ColumnGroup name="SecondColumn" id="58">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Vertical group 2</v8:content>
+							<v8:content>Second column</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="VerticalGroup2ExtendedTooltip" id="59"/>
+					<ExtendedTooltip name="SecondColumnExtendedTooltip" id="59"/>
 					<ChildItems>
 						<LabelField name="ListFillOrder" id="6" DisplayImportance="VeryHigh">
 							<DataPath>List.FillOrder</DataPath>
@@ -193,14 +193,14 @@
 						</LabelField>
 					</ChildItems>
 				</ColumnGroup>
-				<ColumnGroup name="VerticalGroup3" id="60">
+				<ColumnGroup name="ThirdColumn" id="60">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Vertical group 3</v8:content>
+							<v8:content>Third column</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="VerticalGroup3ExtendedTooltip" id="61"/>
+					<ExtendedTooltip name="ThirdColumnExtendedTooltip" id="61"/>
 					<ChildItems>
 						<LabelField name="ListFullPathWindows" id="14" DisplayImportance="Usual">
 							<DataPath>List.FullPathWindows</DataPath>

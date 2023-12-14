@@ -60,7 +60,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 			|	UniqueKey";
 		
 		Query.SetParameter("UniqueKey", UniqueKey);
-		Result = Query.Execute().Unload(); // @skip-
+		Result = Query.Execute().Unload(); 
 	
 		InfobaseUpdate.MarkForProcessing(Parameters, Result, AdditionalParameters);
 		

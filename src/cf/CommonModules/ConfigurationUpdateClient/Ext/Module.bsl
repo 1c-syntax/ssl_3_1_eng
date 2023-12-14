@@ -142,7 +142,7 @@ EndProcedure
 //    Parameters - Structure - backup parameters.
 //
 // Returns:
-//    String - 
+//    String - backup creation hyperlink title.
 //
 Function BackupCreationTitle(Parameters) Export
 	
@@ -185,7 +185,7 @@ EndFunction
 //        * ShouldExitApp - Boolean - shows that an update is installed when the application is closed.
 //        * FilesOfUpdate - Array of Structure:
 //           ** UpdateFileFullName - String
-//           ** RunUpdateHandlers - Boolean -
+//           ** RunUpdateHandlers - Boolean - 
 //        * Corrections - Structure:
 //           ** Set - Array - paths to the patch files in a temporary storage
 //                                    .
@@ -220,13 +220,13 @@ Procedure InstallUpdate(Form, Parameters, AdministrationParameters) Export
 		EndIf;
 	EndIf;
 	
-	If Parameters.UpdateMode = 0 Then // 
+	If Parameters.UpdateMode = 0 Then // Update now.
 		RunUpdateScript(Parameters, AdministrationParameters);
-	ElsIf Parameters.UpdateMode = 1 Then // 
+	ElsIf Parameters.UpdateMode = 1 Then // On exit
 		ParameterName = "StandardSubsystems.SuggestInfobaseUpdateOnExitSession";
 		ApplicationParameters.Insert(ParameterName, True);
 		ApplicationParameters.Insert("StandardSubsystems.UpdateFilesNames", UpdateFilesNames(Parameters, Undefined));
-	ElsIf Parameters.UpdateMode = 2 Then // 
+	ElsIf Parameters.UpdateMode = 2 Then // Schedule an update.
 		ScheduleConfigurationUpdate(Parameters, AdministrationParameters);
 	EndIf;
 	
@@ -248,7 +248,7 @@ Procedure ProcessUpdateResult(UpdateResult, ScriptDirectory) Export
 		EventLogClient.AddMessageForEventLog(EventLogEvent(),
 			"Warning", StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'See the update log in the temporary file folder: %1.(digits).';"), "%temp%\1Cv8Update"),, True);
-		UpdateResult = True; // 
+		UpdateResult = True; // Consider the update being successful.
 	Else 
 		EventLogClient.AddMessageForEventLog(EventLogEvent(),
 			"Information", 
@@ -293,7 +293,7 @@ Procedure WriteErrorLogFileAndExit(Val DirectoryName, Val DetailErrorDescription
 	If StrFind(LaunchParameter, "UpdateAndExit") > 0 Then
 		
 		Directory = New File(DirectoryName);
-		If Directory.Exists() And Directory.IsDirectory() Then // ACC:566 синхронные вызовы не в веб-
+		If Directory.Exists() And Directory.IsDirectory() Then // ACC:566 Synchronous calls outside of the web client are allowed.
 			
 			ErrorRegistrationFile = New TextWriter(DirectoryName + "error.txt");
 			ErrorRegistrationFile.Close();
@@ -347,8 +347,8 @@ EndProcedure
 //
 Procedure BeforeExit(Cancel, Warnings) Export
 	
-	// 
-	// 
+	
+	
 	If ApplicationParameters["StandardSubsystems.SuggestInfobaseUpdateOnExitSession"] = True Then
 		WarningParameters = StandardSubsystemsClient.WarningOnExit();
 		WarningParameters.CheckBoxText  = NStr("en = 'Install configuration update';");
@@ -382,14 +382,14 @@ Function UpdateInstallationPossible(Parameters, AdministrationParameters)
 	
 	If IsFileInfobase And Parameters.CreateDataBackup = 2 Then
 		File = New File(Parameters.IBBackupDirectoryName);
-		If Not File.Exists() Or Not File.IsDirectory() Then // ACC:566 синхронные вызовы вне веб-
+		If Not File.Exists() Or Not File.IsDirectory() Then // ACC:566 Synchronous calls outside of the web client are allowed.
 			ShowMessageBox(,
 				NStr("en = 'Please specify an existing folder for storing the infobase backup.';"));
 			Return False;
 		EndIf;
 	EndIf;
 	
-	If Parameters.UpdateMode = 0 Then // 
+	If Parameters.UpdateMode = 0 Then // Update now.
 		ParameterName = "StandardSubsystems.MessagesForEventLog";
 		If IsFileInfobase
 			And ConfigurationUpdateServerCall.HasActiveConnections(ApplicationParameters[ParameterName]) Then
@@ -722,11 +722,11 @@ Procedure ReadDataToEventLog(UpdateResult, ScriptDirectory)
 			
 			Comment = TrimAll(Mid(CurrentRow, StrFind(CurrentRow, "}") + 2));
 			If StrStartsWith(Comment, "UpdateSuccessful") 
-				Or Comment = "RefreshEnabled completed2" Then // 
+				Or Comment = "RefreshEnabled completed2" Then 
 				UpdateResult = True;
 				Continue;
 			ElsIf StrStartsWith(Comment, "UpdateNotExecuted")  
-				Or Comment = "RefreshEnabled not completed2" Then // 
+				Or Comment = "RefreshEnabled not completed2" Then // ACC:1297 Do not localize (a part of a log); for compatibility purposes.
 				UpdateResult = False;
 				Continue;
 			EndIf;
@@ -734,7 +734,7 @@ Procedure ReadDataToEventLog(UpdateResult, ScriptDirectory)
 			For NextLineNumber = LineNumber + 1 To TextDocument.LineCount() Do
 				CurrentRow = TextDocument.GetLine(NextLineNumber);
 				If Mid(CurrentRow, 3, 1) = "." And Mid(CurrentRow, 6, 1) = "." Then
-					// Следующая строка - 
+					// The next line is a new event line.
 					LineNumber = NextLineNumber - 1;
 					Break;
 				EndIf;
@@ -749,10 +749,10 @@ Procedure ReadDataToEventLog(UpdateResult, ScriptDirectory)
 		
 	EndDo;
 	
+	
 	// 
 	// 
-	// 
-	// 
+	
 	If UpdateResult = Undefined Then 
 		UpdateResult = Not ErrorOccurredDuringUpdate;
 	EndIf;
@@ -763,7 +763,7 @@ EndProcedure
 
 Function UpdateProgramFilesEncoding()
 	
-	// wscript.exe может работать только с файлами в кодировке UTF-16 LE.
+	// wscript.exe can process only UTF-16 LE-encoded files.
 	Return TextEncoding.UTF16;
 	
 EndFunction
@@ -864,9 +864,9 @@ Function GenerateUpdateScriptFiles(Val InteractiveMode, Parameters, Administrati
 	
 	Email = ?(Parameters.UpdateMode = 2 And Parameters.EmailReport, Parameters.Email, "");
 	
-	//  
-	// 
-	// 
+	 
+	
+	
 	TempFilesDirForUpdate = TempFilesDir() + "1Cv8Update." + Format(CommonClient.SessionDate(), "DF=yyMMddHHmmss") + "\";
 	
 	If Parameters.CreateDataBackup = 1 Then 
@@ -1071,7 +1071,7 @@ Procedure RunUpdateScriptOnDataCleanUp(Context)
 EndProcedure
 
 // Parameters:
-//  Result - 
+//  Result - Boolean, Undefined
 //  Context - See RunUpdateScriptAfterUpdateFileChecked.Context
 //
 Procedure RunUpdateScriptAfterObsoleteDataPurge(Result, Context) Export
@@ -1113,7 +1113,7 @@ Procedure RunUpdateScriptCompletion(Parameters, AdministrationParameters)
 		ConfigurationUpdateServerCall.DeletePatchesFromScript();
 	EndIf;
 	ReturnCode = Undefined;
-	RunApp(CommandLine1,,, ReturnCode); // 
+	RunApp(CommandLine1,,, ReturnCode); // ACC:534 Start update script.
 	ApplicationParameters.Insert("StandardSubsystems.SkipExitConfirmation", True);
 	Exit(False);
 	
@@ -1151,7 +1151,7 @@ EndProcedure
 // See Common.DebugMode
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if Designer is available.
 //
 Function DesignerBatchModeSupported()
 	
@@ -1160,7 +1160,7 @@ Function DesignerBatchModeSupported()
 #Else
 	Designer1 = BinDir() + StandardSubsystemsClient.ApplicationExecutableFileName(True);
 	DesignerFile = New File(Designer1);
-	Return DesignerFile.Exists(); // ACC:566 синхронные вызовы вне веб-
+	Return DesignerFile.Exists(); 
 #EndIf
 	
 EndFunction

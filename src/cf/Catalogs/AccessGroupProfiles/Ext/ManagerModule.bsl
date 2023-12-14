@@ -111,8 +111,8 @@ Procedure UpdateSuppliedProfilesDescription(HasChanges = Undefined) Export
 	SetPrivilegedMode(True);
 	
 	SessionProperties = AccessManagementInternalCached.DescriptionPropertiesAccessTypesSession().SessionProperties;
-	VerifiedSuppliedSessionProfiles = VerifiedSuppliedSessionProfiles(SessionProperties);
-	NewValue = HashSumProfilesSupplied(VerifiedSuppliedSessionProfiles);
+	NewValue = "";
+	VerifiedSuppliedSessionProfiles(SessionProperties, NewValue);
 	
 	BeginTransaction();
 	Try
@@ -255,12 +255,12 @@ Procedure UpdateNonSuppliedProfilesOnConfigurationChanges() Export
 	
 EndProcedure
 
-// Updates built-in profile folders and profiles.
-// Updates the access groups of the updated profiles if necessary.
-// If any built-in profile folders or access group profiles are not found, they are created.
+// 
+// 
+// 
 //
-// Update details are configured in the OnFillSuppliedAccessGroupProfiles procedure of
-// the AccessManagementOverridable common module (see the comment to the procedure). 
+// 
+// 
 //
 // Parameters:
 //  HasChanges - Boolean - a return value. If recorded,
@@ -271,8 +271,8 @@ EndProcedure
 //
 Procedure UpdateSuppliedProfiles(HasChanges = Undefined, Trash = Undefined) Export
 	
-	// 
-	// 
+	
+	
 	AllRoles = New Array;
 	For Each Role In Metadata.Roles Do
 		AllRoles.Add(Role);
@@ -368,8 +368,8 @@ Procedure OnFillToDoList(ToDoList) Export
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.Catalogs.AccessGroupProfiles.FullName());
 	IncompatibleAccessGroupsProfilesCount = IncompatibleAccessGroupsProfiles().Count();
 	
@@ -452,7 +452,7 @@ EndProcedure
 // of the built-in and predefined Administrator profile.
 //
 // Returns:
-//  String - 
+//  String - a UUID string.
 //
 Function AdministratorProfileID() Export
 	
@@ -615,8 +615,8 @@ EndFunction
 //  WithoutFolders      - Boolean
 //
 // Returns:
-//  CatalogRef.AccessGroupProfiles - 
-//  
+//  CatalogRef.AccessGroupProfiles - — if the built-in profile or profile folder is found in the catalog.
+//  Undefined — if the built-in profile or profile folder does not exist in the catalog.
 //
 Function SuppliedProfileByID(Id, RaiseExceptionIfMissingInDatabase = False, WithoutFolders = False) Export
 	
@@ -918,7 +918,7 @@ EndFunction
 //
 // Parameters:
 //  Profile      - CatalogObject.AccessGroupProfiles
-//               - FormDataStructure - 
+//               - FormDataStructure - generated according to the object.
 //
 // ParentViewOnly - Boolean - a return value — set to True,
 //                 if the built-in profile parent is filled in and
@@ -935,7 +935,7 @@ Function ProfileChangeProhibition(Val Profile, ParentViewOnly = False) Export
 	
 	If Profile.SuppliedDataID =
 			New UUID(AdministratorProfileID()) Then
-		// 
+		// Changing the Administrator profile is always prohibited.
 		Return True;
 	EndIf;
 	
@@ -1009,7 +1009,7 @@ EndProcedure
 // Returns a list of references to profiles containing unavailable roles or roles marked for deletion.
 //
 // Returns:
-//  Array - 
+//  Array - an array of elements CatalogRef.AccessGroupsProfiles.
 //
 Function IncompatibleAccessGroupsProfiles() Export
 	
@@ -1272,8 +1272,8 @@ Procedure RestoreNonexistentViewsFromAccessValue(PreviousValues1, NewValues) Exp
 	EndDo;
 	
 	If HaveRefurbished Then
-		// 
-		// 
+		
+		
 		NewValues.AccessKinds.Add();
 	EndIf;
 	
@@ -1477,19 +1477,21 @@ EndFunction
 
 // Intended to be called from AccessManagementInternalCached.
 // 
+// Parameters:
+//  HashSum - String -  the return value.
+//
 // Returns:
 //   See AccessManagementInternal.StandardExtensionRoles
 //
-Function PreparedStandardRolesSessionExtensions() Export
+Function PreparedStandardRolesSessionExtensions(HashSum) Export
 	
-	Result = New Structure;
-	Result.Insert("CommonRights", New Array);
-	Result.Insert("BasicAccess", New Array);
-	Result.Insert("BasicAccessExternalUsers", New Array);
-	Result.Insert("SystemAdministrator", New Array);
-	Result.Insert("FullAccess", New Array);
-	Result.Insert("All", New Map);
-	Result.Insert("AdditionalAdministratorRoles", New Map);
+	CommonRights                       = New ValueList;
+	BasicAccess                     = New ValueList;
+	BasicAccessExternalUsers = New ValueList;
+	SystemAdministrator             = New ValueList;
+	FullAccess                      = New ValueList;
+	AdditionalAdministratorRoles = New ValueList;
+	AllRoles                          = New Map;
 	
 	DataSeparationEnabled = Common.DataSeparationEnabled();
 	
@@ -1501,41 +1503,100 @@ Function PreparedStandardRolesSessionExtensions() Export
 		NameOfRole = Role.Name;
 		
 		If StrEndsWith(Upper(NameOfRole), Upper("CommonRights")) Then
-			Result.CommonRights.Add(NameOfRole);
-			Result.AdditionalAdministratorRoles.Insert(NameOfRole, True);
-			Result.All.Insert(NameOfRole, "CommonRights");
+			CommonRights.Add(NameOfRole);
+			AdditionalAdministratorRoles.Add(NameOfRole);
+			AllRoles.Insert(NameOfRole, "CommonRights");
 			
 		ElsIf StrEndsWith(Upper(NameOfRole), Upper("FullAccess")) Then
-			Result.FullAccess.Add(NameOfRole);
-			Result.AdditionalAdministratorRoles.Insert(NameOfRole, True);
-			Result.All.Insert(NameOfRole, "FullAccess");
+			FullAccess.Add(NameOfRole);
+			AdditionalAdministratorRoles.Add(NameOfRole);
+			AllRoles.Insert(NameOfRole, "FullAccess");
 			
 		ElsIf StrEndsWith(Upper(NameOfRole), Upper("BasicAccess")) Then
-			Result.BasicAccess.Add(NameOfRole);
-			Result.All.Insert(NameOfRole, "BasicAccess");
+			BasicAccess.Add(NameOfRole);
+			AllRoles.Insert(NameOfRole, "BasicAccess");
 			
 		ElsIf StrEndsWith(Upper(NameOfRole), Upper("BasicAccessExternalUsers")) Then
-			Result.BasicAccessExternalUsers.Add(NameOfRole);
-			Result.All.Insert(NameOfRole, "BasicAccessExternalUsers");
+			BasicAccessExternalUsers.Add(NameOfRole);
+			AllRoles.Insert(NameOfRole, "BasicAccessExternalUsers");
 			
 		ElsIf StrEndsWith(Upper(NameOfRole), Upper("SystemAdministrator")) Then
-			Result.SystemAdministrator.Add(NameOfRole);
-			Result.All.Insert(NameOfRole, "SystemAdministrator");
+			SystemAdministrator.Add(NameOfRole);
+			AllRoles.Insert(NameOfRole, "SystemAdministrator");
 			If Not DataSeparationEnabled Then
-				Result.AdditionalAdministratorRoles.Insert(NameOfRole, True);
+				AdditionalAdministratorRoles.Add(NameOfRole);
 			EndIf;
 		EndIf;
 	EndDo;
 	
-	Return Common.FixedData(Result);
+	CommonRights.SortByValue();
+	BasicAccess.SortByValue();
+	BasicAccessExternalUsers.SortByValue();
+	SystemAdministrator.SortByValue();
+	FullAccess.SortByValue();
+	AdditionalAdministratorRoles.SortByValue();
+	
+	CommonRights = CommonRights.UnloadValues();
+	BasicAccess = BasicAccess.UnloadValues();
+	BasicAccessExternalUsers = BasicAccessExternalUsers.UnloadValues();
+	SystemAdministrator = SystemAdministrator.UnloadValues();
+	FullAccess = FullAccess.UnloadValues();
+	AdditionalAdministratorRoles = AdditionalAdministratorRoles.UnloadValues();
+	
+	AdditionalRoles = New Map;
+	For Each NameOfRole In AdditionalAdministratorRoles Do
+		AdditionalRoles.Insert(NameOfRole, True);
+	EndDo;
+	
+	Properties = New Structure;
+	Properties.Insert("CommonRights",
+		New FixedArray(CommonRights));
+	
+	Properties.Insert("BasicAccess",
+		New FixedArray(BasicAccess));
+	
+	Properties.Insert("BasicAccessExternalUsers",
+		New FixedArray(BasicAccessExternalUsers));
+	
+	Properties.Insert("SystemAdministrator",
+		New FixedArray(SystemAdministrator));
+	
+	Properties.Insert("FullAccess",
+		New FixedArray(FullAccess));
+	
+	Properties.Insert("All",
+		New FixedMap(AllRoles));
+	
+	Properties.Insert("AdditionalAdministratorRoles",
+		New FixedMap(AdditionalRoles));
+	
+	VersionDetails = New Structure("VersionProperties", New Array);
+	AddVersionItem(VersionDetails, "Version", "1");
+	AddVersionItem(VersionDetails, "CommonRights", CommonRights);
+	AddVersionItem(VersionDetails, "BasicAccess", BasicAccess);
+	AddVersionItem(VersionDetails, "BasicAccessExternalUsers", BasicAccessExternalUsers);
+	AddVersionItem(VersionDetails, "SystemAdministrator", SystemAdministrator);
+	AddVersionItem(VersionDetails, "FullAccess", FullAccess);
+	AddVersionItem(VersionDetails, "AdditionalAdministratorRoles", AdditionalAdministratorRoles);
+	
+	Result = New FixedStructure(Properties);
+	
+	VersionString = StrConcat(VersionDetails.VersionProperties, Chars.LF);
+	HashSum = AccessManagementInternal.HashAmountsData(VersionString);
+	
+	Return Result;
 	
 EndFunction
 
-Function HashSumStandardRolesExtensions(StandardRoles) Export
-	
-	Return AccessManagementInternal.HashAmountsData(StandardRoles);
-	
-EndFunction
+// See AccessManagementInternal.AddVersionItem
+Procedure AddVersionItem(Context, FieldName, Value)
+	AccessManagementInternal.AddVersionItem(Context, FieldName, Value);
+EndProcedure
+
+// See AccessManagementInternal.AddVersionProperties
+Procedure AddVersionProperties(Context, Structure, FieldsNames)
+	AccessManagementInternal.AddVersionProperties(Context, Structure, FieldsNames);
+EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
 // Procedures and functions to support data exchange in DIB.
@@ -1595,9 +1656,6 @@ Procedure DeleteExtensionsRolesInAllAccessGroupsProfiles() Export
 	
 	HasChanges = False;
 	
-	// 
-	// 
-	// 
 	Selection = Query.Execute().Select();
 	// ACC:1328-on.
 	
@@ -1637,8 +1695,8 @@ EndProcedure
 //
 Procedure RegisterProfileChangedOnImport(DataElement) Export
 	
-	// 
-	// 
+	
+	
 	
 	PreviousValues1 = Common.ObjectAttributesValues(DataElement.Ref,
 		"Ref, DeletionMark, Roles, Purpose, AccessKinds, AccessValues");
@@ -1708,7 +1766,7 @@ EndProcedure
 Procedure UpdateAuxiliaryProfilesDataChangedOnImport() Export
 	
 	If Common.DataSeparationEnabled() Then
-		// 
+		// Changes to profiles in SWP are blocked and are not imported into the data area.
 		Return;
 	EndIf;
 	
@@ -1753,7 +1811,7 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Initial population.
 
-// See also updating the information base undefined.customizingmachine infillingelements
+// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
 // 
 // Parameters:
 //  Settings - See InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.Settings
@@ -1787,10 +1845,10 @@ EndProcedure
 Function FilledSuppliedProfiles()
 	
 	ParametersOfUpdate = New Structure;
-	// 
+	// Properties of built-in profile updates.
 	ParametersOfUpdate.Insert("UpdateModifiedProfiles", True);
 	ParametersOfUpdate.Insert("DenyProfilesChange", True);
-	// 
+	// Properties of update of built-in profile access groups.
 	ParametersOfUpdate.Insert("UpdatingAccessGroups", True);
 	ParametersOfUpdate.Insert("UpdatingAccessGroupsWithObsoleteSettings", False);
 	
@@ -1861,7 +1919,7 @@ EndProcedure
 // For the FilledSuppliedProfiles function.
 //
 // Parameters:
-//    AdministratorProfileDetails - See AccessManagement.NewDescriptionOfTheAccessGroupProfilesFolder
+//    Descriptionprofile Administrator -  See AccessManagement.NewDescriptionOfTheAccessGroupProfilesFolder
 //
 Procedure FillInTheProfilesFolderAdditionalProfiles(FolderDescription_)
 	
@@ -1878,11 +1936,12 @@ EndProcedure
 // Parameters:
 //  AccessKindsProperties - See AccessManagementInternal.AccessKindsProperties
 //                       - Undefined.
+//  HashSum - String -  the return value.
 //
 // Returns:
 //   See AccessManagementInternal.SuppliedProfiles
 //
-Function VerifiedSuppliedSessionProfiles(AccessKindsProperties = Undefined) Export
+Function VerifiedSuppliedSessionProfiles(AccessKindsProperties = Undefined, HashSum = "") Export
 	
 	FilledSuppliedProfiles = FilledSuppliedProfiles();
 	ParametersOfUpdate = FilledSuppliedProfiles.ParametersOfUpdate;
@@ -1915,13 +1974,13 @@ Function VerifiedSuppliedSessionProfiles(AccessKindsProperties = Undefined) Expo
 		AccessKindsProperties = AccessManagementInternal.AccessKindsProperties();
 	EndIf;
 	
-	// 
-	// 
-	AllNames               = New Map;
-	AllIDs      = New Map;
-	ProfileFolderNames     = New Map;
-	ProfilesProperties       = New Map;
-	ProfilesDetailsArray = New Array;
+	
+	
+	AllNames           = New Map;
+	AllIDs  = New Map;
+	ProfileFolderNames = New Map;
+	ProfileList     = New ValueList;
+	
 	For Each ProfileDetails In ProfilesDetails Do
 		ProfileDetails.Delete("LongDesc");
 		IsFolder = Not ProfileDetails.Property("Roles");
@@ -1949,7 +2008,6 @@ Function VerifiedSuppliedSessionProfiles(AccessKindsProperties = Undefined) Expo
 		ProfileProperties.Insert("Parent",      "");
 		ProfileProperties.Insert("Id", "");
 		ProfileProperties.Insert("Description",  "");
-		ProfileProperties.Insert("Roles",          New Array);
 		FillPropertyValues(ProfileProperties, ProfileDetails);
 		ProfileProperties.Insert("IsFolder", IsFolder);
 		
@@ -1960,8 +2018,7 @@ Function VerifiedSuppliedSessionProfiles(AccessKindsProperties = Undefined) Expo
 			Raise ErrorText;
 		EndIf;
 		AllIDs.Insert(Upper(ProfileProperties.Id), True);
-		ProfilesProperties.Insert(ProfileProperties.Id, ProfileProperties);
-		ProfilesDetailsArray.Add(ProfileProperties);
+		ProfileList.Add(ProfileProperties, Lower(ProfileProperties.Id));
 		
 		If IsFolder And Not ValueIsFilled(ProfileProperties.Name) Then
 			ErrorText =  ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
@@ -1983,7 +2040,6 @@ Function VerifiedSuppliedSessionProfiles(AccessKindsProperties = Undefined) Expo
 				Raise ErrorText;
 			EndIf;
 			AllNames.Insert(Upper(ProfileProperties.Name), True);
-			ProfilesProperties.Insert(ProfileProperties.Name, ProfileProperties);
 		EndIf;
 		
 		If IsFolder Then
@@ -2057,29 +2113,84 @@ Function VerifiedSuppliedSessionProfiles(AccessKindsProperties = Undefined) Expo
 		EndDo;
 	EndDo;
 	
-	SuppliedProfiles = New Structure;
-	SuppliedProfiles.Insert("ParametersOfUpdate",    ParametersOfUpdate);
-	SuppliedProfiles.Insert("ProfilesDetails",       ProfilesProperties);
-	SuppliedProfiles.Insert("ProfilesDetailsArray", ProfilesDetailsArray);
-	SuppliedProfiles.Insert("FoldersByParents",       FoldersByParents);
-	
-	Return Common.FixedData(SuppliedProfiles);
-	
-EndFunction
-
-// Parameters:
-//  SuppliedProfiles - See AccessManagementInternal.SuppliedProfiles
-//  
-// Returns:
-//  String
-//
-Function HashSumProfilesSupplied(SuppliedProfiles) Export
-	
-	DataForHashing = New Structure(SuppliedProfiles);
-	DataForHashing.Insert("PredefinedItemsNames",
+	VersionDetails = New Structure("VersionProperties", New Array);
+	AddVersionItem(VersionDetails, "Version", "1");
+	AddVersionItem(VersionDetails, "PredefinedItemsNames",
 		Metadata.Catalogs.AccessGroupProfiles.GetPredefinedNames());
 	
-	Return AccessManagementInternal.HashAmountsData(DataForHashing);
+	AddVersionProperties(VersionDetails, ParametersOfUpdate,
+		"UpdateModifiedProfiles,
+		|DenyProfilesChange,
+		|UpdatingAccessGroups,
+		|UpdatingAccessGroupsWithObsoleteSettings");
+	
+	ProfileList.SortByPresentation();
+	ProfilesProperties = New Map;
+	ProfilesDetailsArray = New Array;
+	DataSeparationEnabled = Common.DataSeparationEnabled();
+	
+	For Each ProfileDetails In ProfileList Do
+		ProfileProperties = New FixedStructure(ProfileDetails.Value);
+		ProfilesDetailsArray.Add(ProfileProperties);
+		ProfilesProperties.Insert(ProfileProperties.Id, ProfileProperties);
+		If ValueIsFilled(ProfileProperties.Name) Then
+			ProfilesProperties.Insert(ProfileProperties.Name, ProfileProperties);
+		EndIf;
+		VersionDetails.VersionProperties.Add("");
+		AddVersionProperties(VersionDetails, ProfileProperties,
+			"Name, Parent, Id, Description");
+		If ProfileProperties.IsFolder Then
+			Continue;
+		EndIf;
+		AddVersionProperties(VersionDetails, ProfileProperties, "Purpose, Roles");
+		If DataSeparationEnabled Then
+			RolesUnavailableInService = New ValueList;
+			For Each RoleDetails In ProfileProperties.RolesUnavailableInService Do
+				RolesUnavailableInService.Add(RoleDetails.Key);
+			EndDo;
+			RolesUnavailableInService.SortByValue();
+			AddVersionItem(VersionDetails,
+				"RolesUnavailableInService", RolesUnavailableInService.UnloadValues());
+		EndIf;
+		AccessKinds = New ValueList;
+		For Each KeyAndValue In ProfileProperties.AccessKinds Do
+			AccessValues = New ValueList;
+			AccessKinds.Add(AccessValues, KeyAndValue.Key + " (" + KeyAndValue.Value + ")");
+			For Each ValueDescription In ProfileProperties.AccessValues Do
+				If ValueDescription.AccessKind = KeyAndValue.Key Then
+					AccessValues.Add(ValueDescription.AccessValue);
+				EndIf;
+			EndDo;
+			AccessValues.SortByValue();
+		EndDo;
+		AccessKinds.SortByPresentation();
+		For Each ListItem In AccessKinds Do
+			If ValueIsFilled(ListItem.Value) Then
+				AddVersionItem(VersionDetails,
+					ListItem.Presentation, ListItem.Value.UnloadValues());
+			Else
+				VersionDetails.VersionProperties.Add(ListItem.Presentation);
+			EndIf;
+		EndDo;
+	EndDo;
+	
+	VersionString = StrConcat(VersionDetails.VersionProperties, Chars.LF);
+	HashSum = AccessManagementInternal.HashAmountsData(VersionString);
+	
+	Result = New Structure;
+	Result.Insert("ParametersOfUpdate",
+		New FixedStructure(ParametersOfUpdate));
+	
+	Result.Insert("ProfilesDetails",
+		New FixedMap(ProfilesProperties));
+	
+	Result.Insert("ProfilesDetailsArray",
+		New FixedArray(ProfilesDetailsArray));
+	
+	Result.Insert("FoldersByParents",
+		Common.FixedData(FoldersByParents));
+	
+	Return New FixedStructure(Result);
 	
 EndFunction
 
@@ -2089,7 +2200,7 @@ Procedure PrepareThePurposeOfTheSuppliedProfile(ProfileProperties, ProfileDetail
 	If ProfileDetails.Purpose.Count() = 0 Then
 		ProfileDetails.Purpose.Add(Type("CatalogRef.Users"));
 	EndIf;
-	AssignmentsArray = New Array;
+	PurposeList = New ValueList;
 	For Each Type In ProfileDetails.Purpose Do
 		If TypeOf(Type) = Type("TypeDescription") Then
 			Types = Type.Types();
@@ -2121,10 +2232,13 @@ Procedure PrepareThePurposeOfTheSuppliedProfile(ProfileProperties, ProfileDetail
 			EndIf;
 			RefTypeDetails = New TypeDescription(CommonClientServer.ValueInArray(Type));
 			Value = RefTypeDetails.AdjustValue(Undefined);
-			AssignmentsArray.Add(Value);
+			PurposeList.Add(Value);
 		EndDo;
 	EndDo;
-	ProfileProperties.Insert("Purpose", AssignmentsArray);
+	
+	PurposeList.SortByValue();
+	ProfileProperties.Insert("Purpose",
+		New FixedArray(PurposeList.UnloadValues()));
 	
 EndProcedure
 
@@ -2172,9 +2286,15 @@ Procedure PrepareTheRolesOfTheSuppliedProfile(ProfileProperties, ProfileDetails,
 	FillStandardExtensionRoles(ProfileDetails.Roles,
 		AccessManagementInternalCached.DescriptionStandardRolesSessionExtensions().SessionRoles);
 	
+	RolesList = New ValueList;
+	RolesList.LoadValues(ProfileDetails.Roles);
+	RolesList.SortByValue();
+	ProfileProperties.Insert("Roles",
+		New FixedArray(RolesList.UnloadValues()));
+	
 	If Common.DataSeparationEnabled() Then
-		// 
-		// 
+		
+		
 		ProfileProperties.Insert("RolesUnavailableInService",
 			ProfileRolesUnavailableInService(ProfileDetails, ProfileAssignment));
 	EndIf;
@@ -2242,7 +2362,7 @@ Procedure PrepareTheTypesOfAccessForTheSuppliedProfile(ProfileProperties, Profil
 		EndIf;
 		AccessKinds.Insert(AccessKindName, AccessKindClarification);
 	EndDo;
-	ProfileProperties.Insert("AccessKinds", AccessKinds);
+	ProfileProperties.Insert("AccessKinds", New FixedMap(AccessKinds));
 	
 EndProcedure
 
@@ -2355,9 +2475,9 @@ Procedure PrepareTheAccessValuesOfTheSuppliedProfile(ProfileProperties, ProfileD
 				AccessValue);
 			Raise ErrorText;
 		EndIf;
-		AccessValues.Add(Filter);
+		AccessValues.Add(New FixedStructure(Filter));
 	EndDo;
-	ProfileProperties.Insert("AccessValues", AccessValues);
+	ProfileProperties.Insert("AccessValues", New FixedArray(AccessValues));
 
 EndProcedure
 
@@ -2465,11 +2585,11 @@ Procedure UpdateTheSuppliedProfileFolders(Parent, CurrentProfileFolders, Supplie
 		If LineOfTheCurrentFolder <> Undefined Then
 			LineOfTheCurrentFolder.Found = True;
 		EndIf;
-		// 
+		
 		If UpdateTheProfileOrProfileFolder(ProfileProperties, Trash, True) Then
 			HasChanges = True;
 		EndIf;
-		// 
+		
 		UpdateTheSuppliedProfileFolders(KeyAndValue.Key,
 			CurrentProfileFolders, SuppliedProfiles, Trash, HasChanges);
 	EndDo;
@@ -2535,12 +2655,12 @@ Procedure UpdateTheSuppliedProfilesWithoutFolders(UpdatedProfiles, CurrentProfil
 		ProfileUpdated = False;
 		
 		If CurrentProfileRow = Undefined Then
-			// 
-			// 
+			
+			
 			If UpdateTheProfileOrProfileFolder(ProfileProperties, Trash, True) Then
 				HasChanges = True;
 			EndIf;
-			// 
+			
 			Profile = SuppliedProfileByID(ProfileProperties.Id);
 			
 		Else
@@ -2549,8 +2669,8 @@ Procedure UpdateTheSuppliedProfilesWithoutFolders(UpdatedProfiles, CurrentProfil
 			Profile = CurrentProfileRow.Ref;
 			If Not CurrentProfileRow.SuppliedProfileChanged
 			 Or ParametersOfUpdate.UpdateModifiedProfiles Then
-				// 
-				// 
+				
+				
 				ProfileUpdated = UpdateTheProfileOrProfileFolder(ProfileProperties, Trash, True);
 			EndIf;
 		EndIf;
@@ -2663,7 +2783,7 @@ Function UpdateTheProfileOrProfileFolder(ProfileProperties, Trash = Undefined, D
 			// The built-in item is not found and must be created.
 			ProfileObject = ?(ProfileProperties.IsFolder, CreateFolder(), CreateItem());
 		Else
-			// 
+			// The built-in item is associated with a predefined item.
 			ProfileObject = ProfileReference.GetObject();
 		EndIf;
 		

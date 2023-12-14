@@ -301,7 +301,7 @@ Procedure ChooseFileAfterCreateCryptoManager(CryptoManager, Context) Export
 	
 EndProcedure
 
-// Continue the select File procedure.
+// Continues the SelectFile procedure.
 &AtClient
 Procedure SelectFileAfterSignaturePropertiesRead(Result, Context) Export
 	
@@ -357,11 +357,11 @@ EndProcedure
 
 // Continues the SelectFile procedure.
 &AtClient
-Procedure SelectFileAfterGettingContainerSignature(ContainerSignatures, Context) Export
+Async Procedure SelectFileAfterGettingContainerSignature(ContainerSignatures, Context) Export
 	
 	SessionDate = CommonClient.SessionDate();
 	TimeAddition = SessionDate - CommonClient.UniversalDate();
-	SignatureParameters = DigitalSignatureInternalClientServer.ParametersCryptoSignatures(
+	SignatureParameters = Await DigitalSignatureInternalClient.ParametersCryptoSignatures(
 		ContainerSignatures, TimeAddition, SessionDate);
 			
 	Context.Insert("SignatureParameters", SignatureParameters);
@@ -433,9 +433,9 @@ EndProcedure
 
 // Continues the SelectFile procedure.
 &AtClient
-Procedure ChooseFileAfterCertificateExport(CertificateData, Context) Export
+Async Procedure ChooseFileAfterCertificateExport(CertificateData, Context) Export
 	
-	CertificateProperties = DigitalSignatureClient.CertificateProperties(Context.Certificate);
+	CertificateProperties = Await DigitalSignatureInternalClient.CertificateProperties(Context.Certificate);
 	CertificateProperties.Insert("BinaryData", CertificateData);
 	
 	SignatureProperties = DigitalSignatureInternalClientServer.SignatureProperties(Context.SignatureData,
@@ -519,7 +519,7 @@ Function AddRowAtServer(Address, FileName, AddNewRow, ErrorAtServer,
 			SignatureData, SignatureDate, SignaturePropertiesAddress)
 	
 	Try
-		SignatureData = DigitalSignature.DEREncodedSignature(Address);
+		SignatureData = DigitalSignature.DERSignature(Address);
 	Except
 		ErrorInfo = ErrorInfo();
 		ErrorAtServer.Insert("ErrorDescription", ErrorProcessing.BriefErrorDescription(ErrorInfo));
@@ -548,7 +548,7 @@ Function AddRowAtServer(Address, FileName, AddNewRow, ErrorAtServer,
 	SignatureParameters = Undefined;
 	If DigitalSignature.CommonSettings().AvailableAdvancedSignature Then
 		ContainerSignatures = CryptoManager.GetCryptoSignaturesContainer(SignatureData);
-		SignatureParameters = DigitalSignatureInternalClientServer.ParametersCryptoSignatures(ContainerSignatures,
+		SignatureParameters = DigitalSignatureInternal.ParametersCryptoSignatures(ContainerSignatures,
 			DigitalSignatureInternal.TimeAddition(), CurrentSessionDate());
 		
 		If ValueIsFilled(SignatureParameters.UnverifiedSignatureDate) Then

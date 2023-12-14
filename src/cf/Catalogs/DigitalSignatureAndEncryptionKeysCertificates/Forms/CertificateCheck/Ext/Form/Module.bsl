@@ -364,7 +364,7 @@ EndProcedure
 // CAC:78-off: to securely pass data between forms on the client without sending them to the server.
 &AtClient
 Procedure ContinueOpening(Notification, CommonInternalData, IncomingClientParameters) Export
-// ACC:78-
+// CAC:78-on: to securely pass data between forms on the client without sending them to the server.
 	
 	InternalData = CommonInternalData;
 	ClientParameters = IncomingClientParameters;
@@ -629,7 +629,7 @@ Procedure CheckAtClientSideAfterAttachCryptoExtension(Attached, Context) Export
 		
 	EndIf;
 	
-	// 
+	// Checking certificate data.
 	Context.Insert("CertificateData", CertificateData);
 	
 	CryptoCertificate = New CryptoCertificate;
@@ -713,7 +713,7 @@ Procedure CheckAtClientSideAfterInitializeCertificate(CryptoCertificate, Context
 			CreationParameters.SignAlgorithm = Context.SignAlgorithm;
 			CreationParameters.ShowError = False;
 	
-			// 
+			// Checking certificate data.
 			DigitalSignatureInternalClient.CreateCryptoManager(
 				New NotifyDescription("CheckAtClientSideAfterCreateAnyCryptoManager",
 				ThisObject, Context), "CertificateCheck", CreationParameters);
@@ -757,7 +757,7 @@ Procedure CheckAtClientSideAfterCertificateSearch(Result, Context) Export
 	CreationParameters.SignAlgorithm = Context.SignAlgorithm;
 	CreationParameters.ShowError = False;
 	
-	// 
+	// Checking certificate data.
 	DigitalSignatureInternalClient.CreateCryptoManager(New NotifyDescription(
 		"CheckAtClientSideAfterCreateAnyCryptoManager", ThisObject, Context),
 		"CertificateCheck", CreationParameters);
@@ -838,7 +838,7 @@ Async Procedure CheckAtClientSideAfterCertificateCheck(Result, Context) Export
 		Return;
 	EndIf;
 	
-	// Application availability.
+	// App availability.
 	If ValueIsFilled(Application) Then
 		
 		CreationParameters = DigitalSignatureInternalClient.CryptoManagerCreationParameters();
@@ -897,7 +897,7 @@ Procedure CheckAtClientSideAfterCertificateCheckInSaaSMode(Result, Context) Expo
 		Return;
 	EndIf;
 	
-	// Application availability.
+	// App availability.
 	If ValueIsFilled(Application) Then
 		CheckAtClientSideInSaaSMode("CryptographyService", Context);
 	Else
@@ -909,7 +909,7 @@ EndProcedure
 
 // Continues the CheckAtClientSide procedure.
 &AtClient
-Procedure CheckAtClientSideAfterCreateCryptoManager(Result, Context) Export
+Async Procedure CheckAtClientSideAfterCreateCryptoManager(Result, Context) Export
 	
 	Context.Insert("CryptoManager", Undefined);
 	
@@ -932,9 +932,8 @@ Procedure CheckAtClientSideAfterCreateCryptoManager(Result, Context) Export
 		Context.CryptoManager.PrivateKeyAccessPassword = PasswordProperties.Value;
 	EndIf;
 	
-	ErrorDescription = "";
-	AdditionalCheckOnthePossibilityofSigning(Context.CryptoCertificate, False, ErrorDescription);
-	
+	ErrorDescription = Await AdditionalCheckOnthePossibilityofSigning(Context.CryptoCertificate, False);
+		
 	// Signing
 	If ChecksAtClient.CertificateExists = True And Not ValueIsFilled(ErrorDescription) Then
 		Context.CryptoManager.BeginSigning(New NotifyDescription(
@@ -949,7 +948,7 @@ EndProcedure
 
 // Continues the CheckAtClientSide procedure.
 &AtClient
-Procedure CheckAtClientSideInSaaSMode(Result, Context)
+Async Procedure CheckAtClientSideInSaaSMode(Result, Context)
 	
 	Context.Insert("CryptoManager", Undefined);
 	
@@ -968,8 +967,7 @@ Procedure CheckAtClientSideInSaaSMode(Result, Context)
 		Return;
 	EndIf;
 	
-	ErrorDescription = "";
-	AdditionalCheckOnthePossibilityofSigning(Context.CryptoCertificate, True, ErrorDescription);
+	ErrorDescription = Await AdditionalCheckOnthePossibilityofSigning(Context.CryptoCertificate, True);
 	
 	// Signing.
 	If ChecksAtClient.CertificateExists = True And Not ValueIsFilled(ErrorDescription) Then
@@ -1241,7 +1239,7 @@ EndProcedure
 &AtClient
 Procedure CheckAtClientSideAdditionalChecks(Context)
 	
-	// 
+	// Additional checks.
 	Context.Insert("IndexOf", -1);
 	
 	CheckAtClientSideLoopStart(Context);
@@ -1402,7 +1400,7 @@ EndProcedure
 
 // Continues the CheckAtClientSide procedure.
 &AtClient
-Procedure VerifyClientSideCloudSignature(Result, Context)
+Async Procedure VerifyClientSideCloudSignature(Result, Context)
 	
 	Context.Insert("CryptoManager", Undefined);
 	
@@ -1423,8 +1421,7 @@ Procedure VerifyClientSideCloudSignature(Result, Context)
 		Return;
 	EndIf;
 	
-	ErrorDescription = "";
-	AdditionalCheckOnthePossibilityofSigning(Context.CryptoCertificate, True, ErrorDescription);
+	ErrorDescription = Await AdditionalCheckOnthePossibilityofSigning(Context.CryptoCertificate, True);
 	
 	// Signing
 	If ChecksAtServer.CertificateExists = True And Not ValueIsFilled(ErrorDescription) Then
@@ -1653,7 +1650,7 @@ Procedure CheckAtServerSide(Val PasswordValue)
 	
 	SetItem(ThisObject, "CertificateData", True, ErrorDescription, True, MergeResults);
 	
-	// Application availability.
+	// App availability.
 	If ValueIsFilled(Application) Then
 		CreationParameters = DigitalSignatureInternal.CryptoManagerCreationParameters();
 		CreationParameters.Application = Application;
@@ -1955,7 +1952,7 @@ EndProcedure
 Procedure SetItem(Form, StartElement, AtServer,
 	ErrorDescription = Undefined, IsError = False, MergeResults = "DontMerge")
 	
-	ItemLabel = Form.Items[StartElement + "Label"]; // 
+	ItemLabel = Form.Items[StartElement + "Label"]; // FormDecoration, FormDecorationExtensionForALabel
 	
 	If MergeResults = "MergeByAnd"
 		Or MergeResults = "MergeByOr" Then
@@ -2007,7 +2004,7 @@ Procedure SetItem(Form, StartElement, AtServer,
 			ItemPicture1.ToolTip = ErrorDescription;
 			ItemLabel.Hyperlink = True;
 			
-			ElementInscriptionError = Form.Items[StartElement + ?(AtServer, "ErrorServer", "ErrorClient") + "Label"]; // 
+			ElementInscriptionError = Form.Items[StartElement + ?(AtServer, "ErrorServer", "ErrorClient") + "Label"]; // FormDecoration, FormDecorationExtensionForALabel
 			ElementInscriptionError.Title = ErrorDescription;
 		
 			If WarningAfterCheckingUC = Undefined Then
@@ -2232,7 +2229,9 @@ Function AdditionalData(ErrorName = Undefined)
 EndFunction
 
 &AtClient
-Procedure AdditionalCheckOnthePossibilityofSigning(CryptoCertificate, ExecutionSide, ErrorDescription)
+Async Function AdditionalCheckOnthePossibilityofSigning(CryptoCertificate, ExecutionSide)
+	
+	ErrorDescription = "";
 	
 	If Revoked Then
 		ErrorCertificateMarkedAsRevoked = ErrorCertificateMarkedAsRevoked();
@@ -2240,7 +2239,7 @@ Procedure AdditionalCheckOnthePossibilityofSigning(CryptoCertificate, ExecutionS
 		SetItem(ThisObject, "Signing", ExecutionSide, ErrorCertificateMarkedAsRevoked, True, MergeResults);
 	Else
 		
-		ResultofCertificateAuthorityVerification = DigitalSignatureInternalClient.ResultofCertificateAuthorityVerification(CryptoCertificate);
+		ResultofCertificateAuthorityVerification = Await DigitalSignatureInternalClient.ResultofCertificateAuthorityVerification(CryptoCertificate);
 		
 		If Not ResultofCertificateAuthorityVerification.Valid_SSLyf Then
 			
@@ -2255,7 +2254,9 @@ Procedure AdditionalCheckOnthePossibilityofSigning(CryptoCertificate, ExecutionS
 		EndIf;
 	EndIf;
 	
-EndProcedure
+	Return ErrorDescription;
+	
+EndFunction
 
 &AtServerNoContext
 Function ErrorCertificateMarkedAsRevoked()

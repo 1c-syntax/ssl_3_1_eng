@@ -9,8 +9,8 @@
 
 #Region Private
 
-// Creates a COM connection to a Word.Application COM object, creates
-// a single document in it.
+// Creates a COM connection to a Word.Application COM object and creates a single document in it.
+// 
 //
 Function InitializeMSWordPrintForm(Template) Export
 	
@@ -36,10 +36,10 @@ Function InitializeMSWordPrintForm(Template) Export
 		FailedToGeneratePrintForm(ErrorInfo());
 	EndTry;
 	
-	TemplatePagesSettings = Template; // 
+	TemplatePagesSettings = Template; 
 	If TypeOf(Template) = Type("Structure") Then
 		TemplatePagesSettings = Template.TemplatePagesSettings;
-		// 
+		// Copy styles from the template.
 		Template.COMJoin.ActiveDocument.Close();
 		Handler.COMJoin.ActiveDocument.CopyStylesFromTemplate(Template.FileName);
 		
@@ -53,11 +53,11 @@ Function InitializeMSWordPrintForm(Template) Export
 			Try
 				COMObject.ActiveDocument.PageSetup[Setting.Key] = Setting.Value;
 			Except
-				// Skipping if the setting is not supported in this application version.
+				// Skip if the setting is not supported in this application version.
 			EndTry;
 		EndDo;
 	EndIf;
-	// 
+	// Remember the document view kind.
 	Handler.Insert("ViewType", COMObject.Application.ActiveWindow.View.Type);
 	
 #EndIf
@@ -71,9 +71,9 @@ EndFunction
 // passed in the function parameters.
 //
 // Parameters:
-//   BinaryTemplateData - BinaryData - a binary template data.
+//   BinaryTemplateData - BinaryData - Binary template data.
 // Returns:
-//   Structure - 
+//   Structure - Template reference.
 //
 Function GetMSWordTemplate(Val BinaryTemplateData, Val TempFileName) Export
 	
@@ -91,7 +91,7 @@ Function GetMSWordTemplate(Val BinaryTemplateData, Val TempFileName) Export
 	FilesDetails1 = New Array;
 	FilesDetails1.Add(New TransferableFileDescription(TempFileName, PutToTempStorage(BinaryTemplateData)));
 	TempDirectory = PrintManagementInternalClient.CreateTemporaryDirectory("MSWord");
-	If Not GetFiles(FilesDetails1, , TempDirectory, False) Then // ACC:1348 - 
+	If Not GetFiles(FilesDetails1, , TempDirectory, False) Then // ACC:1348 - For backward compatibility purposes.
 		Return Undefined;
 	EndIf;
 	TempFileName = CommonClientServer.AddLastPathSeparator(TempDirectory) + TempFileName;
@@ -123,7 +123,7 @@ Function GetMSWordTemplate(Val BinaryTemplateData, Val TempFileName) Export
 		Try
 			Handler.TemplatePagesSettings.Insert(SettingName, COMObject.ActiveDocument.PageSetup[SettingName]);
 		Except
-			// Skipping if the setting is not supported in this application version.
+			// Skip if the setting is not supported in this application version.
 		EndTry;
 	EndDo;
 #EndIf
@@ -134,8 +134,8 @@ EndFunction
 
 // Closes connection to the Word.Application COM object.
 // Parameters:
-//   Handler - 
-//   CloseApplication - Boolean - shows whether it is necessary to close the application.
+//   Handler - Reference to a print form or a template.
+//   CloseApplication - Boolean - Flag indicating whether the application must be closed.
 //
 Procedure CloseConnection(Handler, Val CloseApplication) Export
 	
@@ -156,14 +156,14 @@ EndProcedure
 // Sets a visibility property for the Microsoft Word application.
 // 
 // Parameters:
-//  Handler - Structure - a reference to a print form.
+//  Handler - Structure - Print form reference.
 //
 Procedure ShowMSWordDocument(Val Handler) Export
 	
 	COMJoin = Handler.COMJoin;
 	COMJoin.Application.Selection.Collapse();
 	
-	// Restoring a document view kind.
+	// Restore the document view kind.
 	If Handler.Property("ViewType") Then
 		COMJoin.Application.ActiveWindow.View.Type = Handler.ViewType;
 	EndIf;
@@ -176,22 +176,22 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Functions for getting areas from a template.
 
-// Gets an area from the template.
+// Gets an area from a template.
 //
 // Parameters:
-//  Handler - 
-//  AreaName - name of the area in the layout.
-//  OffsetStart    - Number - overrides an area start boundary when the area starts not after
-//                              the operator parenthesis but after a few characters.
-//                              Default value: 1 — a newline character 
-//                                                         is expected after the operator parenthesis of the area opening. The newline character is not to be included in
-//                                                         the area.
-//  OffsetEnd - Number - overrides an area end boundary when the area ends not
-//                              before the operator parenthesis but a few characters before. The value must 
-//                              be negative.
-//                              Default value:–1 — a newline character
-//                                                         is expected before the operator parenthesis of the area closing. The newline character is not to be included in
-//                                                         the area.
+//  Handler - Template reference.
+//  AreaName - Name of the template area.
+//  OffsetStart    - Number - Overrides an area start boundary when the area doesn't begin right after the statement,
+//                              but is separated by one or more characters.
+//                              By default, 1 (a newline character is expected after the statement parenthesis of the area opening, 
+//                                                         the newline character is not to be included in the area).
+//                                                         
+//  OffsetEnd - Number - Overrides an area start boundary when the area doesn't end right before the statement,
+//                              but one or more characters before it. 
+//                              By default, -1 (a newline character is expected before the statement parenthesis of the area end,
+//                              the newline character is not to be included in the area).
+//                                                         
+//                                                         
 //
 Function GetMSWordTemplateArea(Val Handler,
 									Val AreaName,
@@ -217,9 +217,9 @@ EndFunction
 
 // Gets a header area of the first template area.
 // Parameters:
-//   Handler - 
-// 
-//   
+//   Handler - Template reference.
+// Returns:
+//   Header reference.
 //
 Function GetHeaderArea(Val Handler) Export
 	
@@ -229,9 +229,9 @@ EndFunction
 
 // Gets a footer area of the first template area.
 // Parameters:
-//   Handler - 
-// 
-//   
+//   Handler - Template reference.
+// Returns:
+//   Footer reference.
 //
 Function GetFooterArea(Handler) Export
 	
@@ -242,12 +242,12 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Functions for adding areas to the print form.
 
-// Start: operations with Microsoft Word document headers and footers.
+// Start: Operations with Microsoft Word document headers and footers.
 
 // Adds a footer from a template to a print form.
 // Parameters:
-//   PrintForm - Structure - a reference to a print form.
-//   HandlerArea - COMObject - a reference to an area in the template.
+//   PrintForm - Structure - Print form reference.
+//   HandlerArea - COMObject - Reference to a template area.
 //
 Procedure AddFooter(Val PrintForm, Val HandlerArea) Export
 	
@@ -258,10 +258,10 @@ EndProcedure
 
 // Adds a header from a template to a print form.
 // Parameters:
-//   PrintForm - 
-//   
-//   
-//   ObjectData - object data to fill in.
+//   PrintForm - Print form reference.
+//   AreaHandler - Template area reference.
+//   Parameters - List of parameters to be replaced with values.
+//   ObjectData - Object data for filling.
 //
 Procedure FillFooterParameters(Val PrintForm, Val ObjectData = Undefined) Export
 	
@@ -283,10 +283,10 @@ EndFunction
 
 // Adds a header from a template to a print form.
 // Parameters:
-//   PrintForm - link to the printed form.
-//   HandlerArea - 
-//   
-//   
+//   PrintForm - Print form reference.
+//   HandlerArea - Reference to an area in the template.
+//   Parameters - List of parameters to be replaced with values.
+//   ObjectData - Data for filling.
 //
 Procedure AddHeader(Val PrintForm, Val HandlerArea) Export
 	
@@ -297,10 +297,10 @@ EndProcedure
 
 // Adds a header from a template to a print form.
 // Parameters:
-//   PrintForm - 
-//   
-//   
-//   ObjectData - object data to fill in.
+//   PrintForm - Print form reference.
+//   AreaHandler - Template area reference.
+//   Parameters - List of parameters to be replaced with values.
+//   ObjectData - Object data for filling.
 //
 Procedure FillHeaderParameters(Val PrintForm, Val ObjectData = Undefined) Export
 	
@@ -320,16 +320,16 @@ Function Header(PrintForm)
 	Return PrintForm.COMJoin.ActiveDocument.Sections(1).Headers.Item(1).Range;
 EndFunction
 
-// End: operations with Microsoft Word document headers and footers.
+// End: Operations with Microsoft Word document headers and footers.
 
 // Adds an area from a template to a print form, replacing
 // the area parameters with the object data values.
 // The procedure is used upon output of a single area.
 //
 // Parameters:
-//   PrintForm - link to the printed form.
-//   HandlerArea - link to the area in the layout.
-//   GoToNextRow - Boolean - shows if it is required to add a line break after the area output.
+//   PrintForm - Print form reference.
+//   HandlerArea - Reference to a template area.
+//   GoToNextRow - Boolean - Flag indicating whether to insert a newline character after the area.
 //
 // Returns:
 //   Structure:
@@ -354,7 +354,7 @@ Function AttachArea(Val PrintForm,
 		InsertionArea.Paste();
 	EndIf;
 	
-	// Returning boundaries of the inserted area.
+	// Return boundaries of the inserted area.
 	Result = New Structure("Document, Start, End",
 							PFActiveDocument,
 							DocumentEndPosition-1,
@@ -373,7 +373,7 @@ EndFunction
 // It is applied upon list data output (bullet or numbered list).
 //
 // Parameters:
-//   PrintFormArea - COMObject - a reference to an area in a print form.
+//   PrintFormArea - COMObject - Reference a print form area.
 //   ObjectData - Structure
 //
 Procedure FillParameters_(Val PrintFormArea, Val ObjectData = Undefined) Export
@@ -390,18 +390,18 @@ Procedure FillParameters_(Val PrintFormArea, Val ObjectData = Undefined) Export
 	
 EndProcedure
 
-// Start: operations with collections.
+// Start: Operations with collections.
 
 // Adds a list area from a template to a print form, replacing
 // the area parameters with the values from the object data.
 // It is applied upon list data output (bullet or numbered list).
 //
 // Parameters:
-//   PrintForm - Structure - a reference to a print form.
-//   HandlerArea - COMObject - a reference to an area in the template.
-//   Parameters - String - a list of parameters to be replaced.
+//   PrintForm - Structure - Print form reference.
+//   HandlerArea - COMObject - Area reference.
+//   Parameters - String - List of parameters to be replaced.
 //   ObjectData - Array of Structure
-//   GoToNextRow - Boolean - shows if it is required to add a line break after the area output.
+//   GoToNextRow - Boolean - Flag indicating whether to insert a newline character after the area.
 //
 Procedure JoinAndFillSet(Val PrintForm,
 									  Val HandlerArea,
@@ -437,11 +437,11 @@ EndProcedure
 // Used when outputting a table row.
 //
 // Parameters:
-//   PrintForm - Structure - a reference to a print form.
-//   HandlerArea - COMObject - a reference to an area in the template.
-//   TableName - a table name (for data access).
+//   PrintForm - Structure - Print form reference.
+//   HandlerArea - COMObject - Area reference.
+//   TableName - Table name (for data access).
 //   ObjectData - Structure
-//   GoToNextRow - Boolean - shows if it is required to add a line break after the area output.
+//   GoToNextRow - Boolean - Flag indicating whether to insert a newline character after the area.
 //
 Procedure JoinAndFillTableArea(Val PrintForm,
 												Val HandlerArea,
@@ -458,8 +458,8 @@ Procedure JoinAndFillTableArea(Val PrintForm,
 	
 	ActiveDocument = PrintForm.COMJoin.ActiveDocument;
 	
-	// 
-	// 
+	
+	
 	InsertBreakAtNewLine(PrintForm); 
 	InsertPosition = ActiveDocument.Range().End;
 	InsertionArea = ActiveDocument.Range(InsertPosition-1, InsertPosition-1);
@@ -500,11 +500,11 @@ Procedure JoinAndFillTableArea(Val PrintForm,
 	
 EndProcedure
 
-// End: operations with collections.
+// End: Operations with collections.
 
-// Inserts a line break to the next row.
+// Inserts a line break to the next line.
 // Parameters:
-//   Handler - 
+//   Handler - Reference to the Microsoft Word document where the line break is to be inserted.
 //
 Procedure InsertBreakAtNewLine(Val Handler) Export
 	ActiveDocument = Handler.COMJoin.ActiveDocument;
@@ -630,7 +630,7 @@ Procedure Replace(Object, Val SearchString, Val ReplacementString)
 			
 			FilesDetails1 = New Array;
 			FilesDetails1.Add(New TransferableFileDescription(TempFileName, ReplacementString));
-			If GetFiles(FilesDetails1, , TempDirectory, False) Then // ACC:1348 - 
+			If GetFiles(FilesDetails1, , TempDirectory, False) Then // ACC:1348 - For backward compatibility purposes.
 				Selection.Range.InlineShapes.AddPicture(TempFileName);
 			Else
 				Selection.TypeText("");

@@ -433,7 +433,7 @@ Procedure SetScheduledJobUsage(Val SynchronizeDataBySchedule)
 	
 EndProcedure
 
-// 
+
 
 &AtServerNoContext
 Function PredefinedScheduleOption1() // Every 15 minutes
@@ -464,14 +464,14 @@ Function PredefinedScheduleOption1() // Every 15 minutes
 	Schedule = New JobSchedule;
 	Schedule.Months                   = Months;
 	Schedule.WeekDays                = WeekDays;
-	Schedule.RepeatPeriodInDay = 60*15; // 
-	Schedule.DaysRepeatPeriod        = 1; // 
+	Schedule.RepeatPeriodInDay = 60*15; 
+	Schedule.DaysRepeatPeriod        = 1; // Every day.
 	
 	Return Schedule;
 EndFunction
 
 &AtServerNoContext
-Function PredefinedScheduleOption2() // 
+Function PredefinedScheduleOption2() // Every hour.
 	
 	Return StandaloneModeInternal.DefaultDataSynchronizationSchedule();
 	
@@ -505,7 +505,7 @@ Function PredefinedScheduleOption3() // Every day at 10:00 AM except for Sa and 
 	Schedule.Months            = Months;
 	Schedule.WeekDays         = WeekDays;
 	Schedule.BeginTime       = Date('00010101100000'); // 10:00
-	Schedule.DaysRepeatPeriod = 1; // 
+	Schedule.DaysRepeatPeriod = 1; // Every day.
 	
 	Return Schedule;
 EndFunction

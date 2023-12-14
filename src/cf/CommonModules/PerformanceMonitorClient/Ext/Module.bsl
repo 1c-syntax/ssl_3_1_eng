@@ -16,24 +16,24 @@
 // some of the measurements may be lost if the session is terminated.
 //
 // Parameters:
-//  KeyOperation - String - 	name of the key operation. If Undefined, the key operation
-//									must be specified explicitly by calling the
-//									SetMeasurementKeyOperation procedure.
-//  RecordWithError - Boolean -	indicates automatic error recording. 
-//									True - if the measurement was stopped automatically, it will be stored
-//									with the "Completed with error" flag. If an error
-//									cannot occur in a certain code chunk, you must stop the measurement explicitly using the
-//									StopTimeMeasurement, or set the error flag False using the
-//									SetMeasurementErrorFlag.
-//									False - the measurement will be considered correct upon automatic completion.
-//  AutoCompletion - Boolean	 - 		indicates whether the measurement must be completed automatically.
-//									True - the measurement will be completed automatically
-//									via the global idle handler.
-//									False - the measurement must be completed explicitly by calling the
-//									StopTimeMeasurement procedure.
+//  KeyOperation - String - 	 	name of the key operation. If Undefined, the key operation
+//									must be specified explicitly by calling the procedure
+//									Set the key operation of the camera.
+//  RecordWithError - Boolean -		indicates whether an error is automatically fixed. 
+//									True - when the measurement is completed automatically, it will be recorded
+//									with the "Failed"sign. At the point in the code where the error
+//									cannot occur explicitly, you must either explicitly complete the measurement method
+//									End timestamp, or remove the error flag using the method
+//									Set the camera's error sign.
+//									False-the measurement will be considered correct when completed automatically.
+//  AutoCompletion - Boolean	 - 		 	indicates whether the measurement is completed automatically.
+//									The truth - the completion of the measurement will be performed automatically
+//									through the global handler expectations.
+//									False - the measurement must be completed explicitly by calling the procedure
+//									Complete the timestamp.
 //
 // Returns:
-//  UUID - 
+//  UUID - a unique measurement ID.
 //
 Function TimeMeasurement(KeyOperation = Undefined, RecordWithError = False, AutoCompletion = True) Export
 	
@@ -54,17 +54,17 @@ EndFunction
 // The measurement result will be recorded in InformationRegister.TimeMeasurements.
 //
 // Parameters:
-//  AutoCompletion - Boolean	 - 	indicates whether the measurement must be completed automatically.
-//								True - the measurement will be completed automatically
-//								via the global idle handler.
-//								False - the measurement must be completed explicitly by calling the
-//								StopTimeMeasurement procedure.
+//  AutoCompletion - Boolean	 - 	 	indicates whether the measurement is completed automatically.
+//								The truth - the completion of the measurement will be performed automatically
+//								through the global handler expectations.
+//								False - the measurement must be completed explicitly by calling the procedure
+//								Complete the timestamp.
 //  KeyOperation - String - name of the key operation. If Undefined> the key operation
 //								must be specified explicitly by calling the
 //								SetMeasurementKeyOperation procedure.
 //
 // Returns:
-//  UUID - 
+//  UUID - a unique measurement ID.
 //
 Function StartTechologicalTimeMeasurement(AutoCompletion = True, KeyOperation = Undefined) Export
 	
@@ -120,11 +120,11 @@ EndProcedure
 //  MeasurementUUID	- UUID - a measurement UUID.
 //  MeasurementParameters	- Structure:
 //    * KeyOperation - String		- name of the key operation.
-//    * MeasurementWeight		- Number			-
+//    * MeasurementWeight		- Number			- 
 //    * Comment		- String
-//						- Map - 
-//    * IsFailed - Boolean			- indicates whether the measurement was completed with an error,
-//											see SetMeasurementErrorFlag.
+//						- Map - any additional information about the measurement.
+//    * IsFailed - Boolean			- 
+//											
 //
 Procedure SetMeasurementParameters(MeasurementUUID, MeasurementParameters) Export
 	
@@ -197,11 +197,11 @@ EndProcedure
 //  MeasurementUUID   - UUID - a measurement UUID.
 //  Comment - String
 //              - Map of KeyAndValue - 
-//                               
+//                               :
 //                                            * Key     - String - name of the additional parameter.
 //                                            * Value - String
 //                                                       - Number
-//                                                       - Boolean - 
+//                                                       - Boolean - value of the additional parameter.
 //
 Procedure SetMeasurementComment(MeasurementUUID, Comment) Export
 		
@@ -234,29 +234,29 @@ EndProcedure
 //
 // Parameters:
 //  KeyOperation - String - name of the key operation. 
-//  RecordWithError - Boolean -	indicates automatic error recording. 
-//									True - if the measurement was stopped automatically, it will be stored
-//									with the "Completed with error" flag. If an error
-//									cannot occur in a certain code chunk, you must stop the measurement explicitly using the
-//									StopTimeMeasurement method, or set the error flag False using the
-//									SetMeasurementErrorFlag method
-//									False - the measurement will be considered correct upon automatic completion.
-//									StopTimeMeasurement.
-//  AutoCompletion - Boolean	 - 		indicates whether the measurement must be completed automatically.
-//									True - the measurement will be completed automatically
-//									via the global idle handler.
-//									False - the measurement must be completed explicitly by calling the
-//									StopTimeMeasurement procedure.
-//  LastStepName - String - 	name of the key operation last step. The parameter is useful when
-//									running a measurement with automatic completion. Otherwise, the last 
-//									actions executed between RecordTimeConsumingOperationMeasurement and 
-//									idle handler will be recorded under the name "Last step".
+//  RecordWithError - Boolean -		indicates whether an error is automatically fixed. 
+//									True - when the measurement is completed automatically, it will be recorded
+//									with the "Failed"sign. At the point in the code where the error
+//									cannot occur explicitly, you must either explicitly complete the measurement method
+//									End timestamp, or remove the error flag using the method
+//									Set the error sign of the camera
+//									False-the measurement will be considered correct when completed automatically.
+//									Complete the timestamp.
+//  AutoCompletion - Boolean	 - 		 	indicates whether the measurement is completed automatically.
+//									The truth - the completion of the measurement will be performed automatically
+//									through the global handler expectations.
+//									False - the measurement must be completed explicitly by calling the procedure
+//									Complete the timestamp.
+//  LastStepName - String - 	 	name of the last step of the key operation. It is advisable to use it if
+//									the measurement is started with automatic completion. In the opposite case, the last 
+//									actions performed between the commit of the delay Operation and 
+//									the triggering of the wait handler will be recorded under the name "Last step".
 //
 // Returns:
 //   Map of KeyAndValue:
 //     * Key - String
 //     * Value - Arbitrary
-//    
+//   : 
 //     
 //     
 //     
@@ -315,13 +315,13 @@ Procedure FixTimeConsumingOperationMeasure(MeasurementDetails, DataVolume, StepN
 		NestedMeasurementStep.Insert("Duration", 0.0);	
 		NestedMeasurementStep.Insert("MeasurementWeight", 0);
 	EndIf;                                                            
-	// 
+	// Writing the nested measurement data.
 	NestedMeasurementStep = NestedMeasurements[StepName];
 	NestedMeasurementStep.Insert("EndTime", CurrentTime);
 	NestedMeasurementStep.Insert("Duration", Duration + NestedMeasurementStep["Duration"]);
 	NestedMeasurementStep.Insert("MeasurementWeight", DataVolumeInStep + NestedMeasurementStep["MeasurementWeight"]);
 	
-	// 
+	// Writing the data for a durable measurement.
 	MeasurementDetails.Insert("LastMeasurementTime", CurrentTime);
 	MeasurementDetails.Insert("MeasurementWeight", DataVolumeInStep + MeasurementDetails["MeasurementWeight"]);
 	
@@ -378,17 +378,17 @@ EndProcedure
 // some of the measurements may be lost if the session is terminated.
 //
 // Parameters:
-//  AutoCompletion - Boolean	 - 	indicates whether the measurement must be completed automatically.
-//								True - the measurement will be completed automatically
-//								via the global idle handler.
-//								False - the measurement must be completed explicitly by calling the
-//								StopTimeMeasurement procedure.
+//  AutoCompletion - Boolean	 - 	 	indicates whether the measurement is completed automatically.
+//								The truth - the completion of the measurement will be performed automatically
+//								through the global handler expectations.
+//								False - the measurement must be completed explicitly by calling the procedure
+//								Complete the timestamp.
 //  KeyOperation - String - name of the key operation. If Undefined> the key operation
 //								must be specified explicitly by calling the
 //								SetMeasurementKeyOperation procedure.
 //
 // Returns:
-//  UUID - 
+//  UUID - a unique measurement ID.
 //
 Function StartTimeMeasurement(AutoCompletion = True, KeyOperation = Undefined) Export
 	
@@ -457,18 +457,18 @@ EndProcedure
 // The result is recorded in the TimeMeasurements information register.
 //
 // Parameters:
-//  Offset - Number	 	 - 	measurement start date and time in milliseconds (see the CurrentUniversalDateInMilliseconds). 
-//  AutoCompletion - Boolean	 - 	indicates whether the measurement must be completed automatically.
-//								True - the measurement will be completed automatically
-//								via the global idle handler.
-//								False - the measurement must be completed explicitly by calling the
-//								StopTimeMeasurement procedure.
+//  Offset - Number	 	 - 	
+//  AutoCompletion - Boolean	 - 	 	indicates whether the measurement is completed automatically.
+//								The truth - the completion of the measurement will be performed automatically
+//								through the global handler expectations.
+//								False - the measurement must be completed explicitly by calling the procedure
+//								Complete the timestamp.
 //  KeyOperation - String - name of the key operation. If Undefined> the key operation
 //								must be specified explicitly by calling the
 //								SetMeasurementKeyOperation procedure.
 //
 // Returns:
-//  UUID - 
+//  UUID - a unique measurement ID.
 //
 Function StartTimeMeasurementWithOffset(Offset, AutoCompletion = True, KeyOperation = Undefined)
 	
@@ -571,7 +571,7 @@ Procedure StartTimeMeasurementAtClientInternal(Parameters)
 			DateAndTimeAtClient = CurrentUniversalDateInMilliseconds();
 			TimeMeasurements.ClientDateOffset = DateAndTimeAtServer - DateAndTimeAtClient;
 		Else
-			CurrentRecordingPeriod = Undefined; // 
+			CurrentRecordingPeriod = Undefined; 
 			StandardSubsystemsApplicationParameters = ApplicationParameters[StandardSubsystemsParameterName];
 			If StandardSubsystemsApplicationParameters.Property("PerformanceMonitor") Then
 				TimeMeasurements.ClientDateOffset = StandardSubsystemsApplicationParameters["ClientDateOffset"];
@@ -601,7 +601,7 @@ Procedure StartTimeMeasurementAtClientInternal(Parameters)
 		EndIf;
 	EndIf;
 	
-	// 
+	
 	If Parameters.Offset > 0 Then
 		BeginTime = Parameters.Offset + TimeMeasurements.ClientDateOffset;
 	Else
@@ -713,7 +713,7 @@ Procedure WriteResultsAutoNotGlobal(BeforeCompletion = False) Export
 	
 	StandardSubsystemsParameterName = "StandardSubsystems.ClientParameters";
 	If ApplicationParameters[StandardSubsystemsParameterName] = Undefined Then
-		// 
+		
 		AttachIdleHandler("WriteResultsAuto", NewRecordingPeriod, True);
 	EndIf;
 	

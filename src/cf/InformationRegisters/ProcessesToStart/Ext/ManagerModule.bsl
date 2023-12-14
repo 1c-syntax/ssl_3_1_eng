@@ -14,7 +14,7 @@
 // Adds information about successful process start.
 //
 // Parameters:
-//   - 
+//   - BusinessProcess - BusinessProcessRef.
 //
 Procedure RegisterProcessStart(Process_) Export
 	
@@ -33,7 +33,7 @@ EndProcedure
 // Adds information about process start cancellation.
 //
 // Parameters:
-//   - 
+//   - BusinessProcess - BusinessProcessRef.
 //
 Procedure RegisterStartCancellation(Process_, CancellationReason) Export
 	

@@ -161,7 +161,7 @@ Procedure OnProcessDisableDiscussionError(ErrorInfo, StandardProcessing, Context
 		"Error",
 		ErrorProcessing.DetailErrorDescription(ErrorInfo),, True);
 	
-	ErrorProcessing.ShowErrorInfo(ErrorInfo);
+	StandardSubsystemsClient.ShowErrorInformationAndContinue(ErrorInfo);
 	
 EndProcedure
 

@@ -37,7 +37,7 @@ Procedure OnOpen(Cancel)
 	If TimeConsumingOperation <> Undefined Then
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 		IdleParameters.OutputIdleWindow = False;
-		IdleParameters.Interval = 2; // 
+		IdleParameters.Interval = 2; 
 		CompletionNotification2 = New NotifyDescription("GenerateToDoListInBackgroundCompletion", ThisObject);
 		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters);
 	EndIf;
@@ -137,7 +137,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure UpdateCurrentToDosAutomatically()
@@ -156,8 +156,8 @@ Procedure GenerateToDoList(ToDoList)
 	ToDoList.Sort("IsSection Desc, SectionPresentation Asc, Important Desc, Presentation");
 	PutToTempStorage(ToDoList, UserTasksToStorage);
 	
-	// 
-	// 
+	
+	
 	If ViewSettings.SectionsVisibility.Count() = 0 Then
 		ToDoListInternal.SetInitialSectionsOrder(ToDoList);
 	EndIf;
@@ -175,7 +175,7 @@ Procedure GenerateToDoList(ToDoList)
 				SectionCollapsed = CollapsedSections[ToDoItem.OwnerID];
 				If SectionCollapsed = Undefined Then
 					If ViewSettings.SectionsVisibility.Count() = 0 And CurrentCommonGroup <> "" Then
-						// 
+						// Cannot collapse the first group.
 						CollapsedSections.Insert(ToDoItem.OwnerID, True);
 						SectionCollapsed = True;
 					Else
@@ -278,7 +278,7 @@ Procedure OrderToDoList()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Function GenerateToDoListInBackground()
@@ -296,11 +296,11 @@ Function GenerateToDoListInBackground()
 	EndIf;
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.WaitCompletion = 0; // 
+	ExecutionParameters.WaitCompletion = 0; 
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update to-do list';");
 	ExecutionParameters.ResultAddress = UserTasksToStorage;
-	// 
-	// 
+	
+	
 	ExecutionParameters.RunInBackground = True;
 	
 	Result = TimeConsumingOperations.ExecuteInBackground("ToDoListInternal.GenerateToDoListForUser",
@@ -405,7 +405,7 @@ Procedure GenerateToDoListInBackgroundCompletion(Result, AdditionalParameters) E
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure GoToImportantUserTaskFromNotificationCenter(Id) Export
@@ -421,8 +421,8 @@ EndProcedure
 &AtClient
 Procedure StartToDoListUpdate(AutoUpdate = False, UpdateSilently = False)
 	
-	// 
-	// 
+	
+	
 	If Not AutoUpdate Then
 		DetachIdleHandler("UpdateCurrentToDosAutomatically");
 	EndIf;
@@ -443,7 +443,7 @@ Procedure StartToDoListUpdate(AutoUpdate = False, UpdateSilently = False)
 	
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
-	IdleParameters.Interval = 2; // 
+	IdleParameters.Interval = 2; 
 	CompletionNotification2 = New NotifyDescription("GenerateToDoListInBackgroundCompletion", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters);
 	
@@ -501,7 +501,7 @@ EndProcedure
 &AtServer
 Procedure CreateCaption(ToDoItem, Var_Group, SectionCollapsed)
 	
-	// 
+	
 	Item = Items.Add("Picture" + ToDoItem.OwnerID, Type("FormDecoration"), Var_Group); // FormFieldExtensionForALabelField
 	Item.Type = FormDecorationType.Picture;
 	Item.Hyperlink = True;
@@ -522,7 +522,7 @@ Procedure CreateCaption(ToDoItem, Var_Group, SectionCollapsed)
 	Item.SetAction("Click", "Attachable_ProcessPictureClick");
 	Item.ToolTip = NStr("en = 'Expand or collapse the section.';");
 	
-	// 
+	// Create a section title.
 	Item = Items.Add("Title" + ToDoItem.OwnerID, Type("FormDecoration"), Var_Group);
 	Item.Type = FormDecorationType.Label;
 	Item.HorizontalAlign = ItemHorizontalLocation.Left;

@@ -60,8 +60,8 @@ EndProcedure
 //
 // Parameters:
 //  AccessGroups - CatalogRef.AccessGroups
-//                - Array - 
-//                - Undefined - 
+//                - Array - array of values of the types specified above.
+//                - Undefined - without filter.
 //
 //  HasChanges - Boolean - (return value) - if recorded,
 //                  True is set, otherwise, it does not change.
@@ -92,11 +92,11 @@ Procedure UpdateRegisterData(AccessGroups = Undefined, HasChanges = Undefined) E
 		LockItem = Block.Add("InformationRegister.UsedAccessKinds");
 		LockItem.Mode = DataLockMode.Shared;
 		If TransactionActive() Then
-			// ACC:1320-
-			// 
-			// 
+			
+			
+			
 			Block.Lock();
-			// 
+			// ACC:1320-on
 		EndIf;
 	EndIf;
 	
@@ -656,7 +656,7 @@ Procedure UpdateDefaultAllowedValues(UsedAccessKinds,
 		If HasCurrentChanges
 		   And AccessManagementInternal.LimitAccessAtRecordLevelUniversally() Then
 			
-			// 
+			// Schedule an access update.
 			ChangesContent = Data.EditStringContent.Copy(, "AccessGroup, AccessValuesType");
 			ChangesContent.GroupBy("AccessGroup, AccessValuesType");
 			

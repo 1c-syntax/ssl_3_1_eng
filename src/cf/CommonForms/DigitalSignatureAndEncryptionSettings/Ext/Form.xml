@@ -474,11 +474,11 @@
 								</LabelField>
 							</ChildItems>
 						</Table>
-						<Button name="OpenMachineReadableAuthorizationLetters" id="476">
+						<Button name="OpenMachineReadableLettersOfAuthority" id="476">
 							<Type>Hyperlink</Type>
 							<Visible>false</Visible>
-							<CommandName>Form.Command.OpenMachineReadableAuthorizationLetters</CommandName>
-							<ExtendedTooltip name="OpenMachineReadableAuthorizationLettersExtendedTooltip" id="477"/>
+							<CommandName>Form.Command.OpenMachineReadableLettersOfAuthority</CommandName>
+							<ExtendedTooltip name="OpenMachineReadableLettersOfAuthorityExtendedTooltip" id="477"/>
 						</Button>
 						<UsualGroup name="LegendGroup" id="379">
 							<Title>
@@ -1931,7 +1931,7 @@ WHERE
 			<Action>AddToEncryptOnly</Action>
 			<Representation>TextPicture</Representation>
 		</Command>
-		<Command name="OpenMachineReadableAuthorizationLetters" id="12">
+		<Command name="OpenMachineReadableLettersOfAuthority" id="12">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>

@@ -11,11 +11,11 @@
 
 Function Connected2() Export
 	
-	// 
-	//  
-	// 
+	
+	 
+	
 	//
-	// 
+	
 	CanUse = CollaborationSystem.CanUse();
 	
 	Return CanUse And Not Locked2();
@@ -138,7 +138,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Id = New UUID("b3be68c5-708d-42c9-a019-818036d09d06");
 	Handler.Procedure = "ConversationsInternal.LockInvalidUsersInCollaborationSystem";
 	Handler.ExecutionMode = "Deferred";
-	Handler.Comment = NStr("en = 'Lock invalid users in the collaboration system.';");
+	Handler.Comment = NStr("en = 'Disable inactive users in the Collaboration System.';");
 	Handler.UpdateDataFillingProcedure = "ConversationsInternal.UsersToBlockInteractionsInTheSystem";
 	Handler.ObjectsToRead = "Catalog.Users";
 	Handler.ObjectsToChange = "CollaborationSystemUser";
@@ -169,7 +169,7 @@ Function BlockAnInteractionSystemUser(User) Export
 		UserIDCollaborationSystem = CollaborationSystem.GetUserID(
 			IBUserID);
 	Except
-		// 
+		
 	EndTry;
 	
 	If UserIDCollaborationSystem = Undefined Then
@@ -182,7 +182,7 @@ Function BlockAnInteractionSystemUser(User) Export
 		CollaborationSystemUser.IsLocked = True;
 		CollaborationSystemUser.Write();
 		WriteLogEvent(
-			EventLogEvent(NStr("en = 'Lock invalid users';", Common.DefaultLanguageCode())),
+			EventLogEvent(NStr("en = 'Disable inactive users';", Common.DefaultLanguageCode())),
 			EventLogLevel.Information,, User,
 			StringFunctionsClientServer.SubstituteParametersToString(ThePatternOfLogRecording, User));
 	Except
@@ -245,13 +245,13 @@ Procedure LockInvalidUsersInCollaborationSystem(ParametersOfUpdate) Export
 	If ObjectsWithErrors > 0 Then
 		
 		LogError = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot lock users in the collaboration system: %1.
-					|The collaboration system might be temporarily unavailable.
-					|To lock users, click ""Lock invalid users in the collaboration system"" from the ""More actions"" submenu in the user list.';") + Chars.LF,
+			NStr("en = 'Cannot disable users in the Collaboration System: %1.
+					|The Collaboration System might be temporarily unavailable.
+					|To disable users, click ""Disable inactive users in Collaboration System"" in the ""More actions"" menu of the user list.';") + Chars.LF,
 			ObjectsWithErrors);
 
 		WriteLogEvent(
-			EventLogEvent(NStr("en = 'Lock invalid users';", Common.DefaultLanguageCode())),
+			EventLogEvent(NStr("en = 'Disable inactive users';", Common.DefaultLanguageCode())),
 			EventLogLevel.Warning,,,
 			StringFunctionsClientServer.SubstituteParametersToString(LogError, ObjectsWithErrors)
 			+ Chars.LF + TextOfTheLastError);

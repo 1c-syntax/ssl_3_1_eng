@@ -54,8 +54,8 @@ Procedure OnWrite(Cancel)
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	If ThisIsTheLatestVersionComponent() Then
 		RewriteComponentsOfEarlierVersions();
 	EndIf;

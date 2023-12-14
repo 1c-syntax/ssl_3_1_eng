@@ -108,7 +108,7 @@ Procedure SetValuesOrderByProperties(List)
 	
 	Var Order;
 	
-	// Order
+	// Order.
 	Order = List.SettingsComposer.Settings.Order;
 	Order.UserSettingID = "DefaultOrder";
 	

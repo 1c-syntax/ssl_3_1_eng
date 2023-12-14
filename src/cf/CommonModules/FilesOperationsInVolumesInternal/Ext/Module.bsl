@@ -13,7 +13,7 @@
 // If at least one file storage volume is available, returns True.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - if True, at least one working volume exists.
 //
 Function HasFileStorageVolumes() Export
 	
@@ -40,9 +40,9 @@ EndFunction
 //                     instead of raising an exception. The default value is True.
 //
 // Returns:
-//   BinaryData, Undefined - 
-//                               
-//                               
+//   BinaryData, Undefined - binary data of the attachment. If the binary data of the file is not found
+//                               in the infobase or volumes, an exception is thrown. If the binary data is not found and the ShouldRaiseException parameter is set to False,
+//                               the return value is Undefined.
 //                               
 //
 Function FileData(AttachedFile, Val RaiseException1 = True) Export
@@ -58,7 +58,7 @@ Function FileData(AttachedFile, Val RaiseException1 = True) Export
 	
 EndFunction
 
-// Data structure constructor of the attachment. For details, See AppendFile.
+// Constructor of attached file data structure. For details,  See AppendFile.
 // 
 // Returns:
 //   Structure:
@@ -101,16 +101,16 @@ EndFunction
 //
 // Parameters:
 //   AttachedFile  - See FilesOperationsInVolumesInternal.FileAddingOptions
-//                       
-//                         
+//                       - TypeToDefine.AttachedFileObject is an attachment catalog
+//                         item or a structure with properties whose data is saved to a volume.
 //   BinaryDataOrPath - BinaryData
-//                         - String - 
+//                         - String - binary data of the file or the full file path.
 //   FileDateInVolume - Date - if not specified, set it so the current session date.
 //   FillInternalStorageAttribute - Boolean - if the parameter is True, also store
 //                                       the binary file data to the FileStorage internal attribute.
 //   VolumeForPlacement - CatalogRef.FileStorageVolumes
-//                    - Undefined - 
-//                                     
+//                    - Undefined - If the parameter is filled, files will be placed to a specified volume.
+//                                     Otherwise, the volume will be selected automatically.
 //
 Procedure AppendFile(AttachedFile, BinaryDataOrPath,
 	FileDateInVolume = Undefined, FillInternalStorageAttribute = False, VolumeForPlacement = Undefined) Export
@@ -133,17 +133,17 @@ EndProcedure
 // 
 // Parameters:
 //   AttachedFile  - See FilesOperationsInVolumesInternal.FileAddingOptions
-//                       
-//                                     
-//                                     
+//                       - TypeToDefine.AttachedFileObject is an attachment catalog
+//                                     item whose data is saved
+//                                     to a volume or a structure with properties required to save data to the volume.
 //   BinaryDataOrPath - BinaryData
-//                         - String - 
+//                         - String - binary data of the file or the full file path.
 //   FileDateInVolume - Date - if it is not specified, the current session time is used.
 //   FillInternalStorageAttribute - Boolean - if the parameter is True, binary data of the file
 //                                        will be additionally placed in the FileStorage internal attribute.
 //   VolumeToPlace - CatalogRef.FileStorageVolumes
-//                    - Undefined - 
-//                                     
+//                    - Undefined - If the parameter is filled, files will be placed to a specified volume.
+//                                     Otherwise, the volume will be selected automatically.
 //
 Procedure FillInTheFileDetails(AttachedFile, BinaryDataOrPath, 
 	FileDateInVolume = Undefined, FillInternalStorageAttribute = False) Export
@@ -258,8 +258,8 @@ Procedure CopyAttachedFile(AttachedFile, FilePathDestination) Export
 	
 	FileCopy(FilePathSource, FilePathDestination);
 	
-	//  
-	// 
+	 
+	
 	FileDestination = New File(FilePathDestination);
 	If FileDestination.Exists() And FileDestination.GetReadOnly() Then
 		FileDestination.SetReadOnly(False);
@@ -319,10 +319,10 @@ EndFunction
 // Parameters:
 //   AttachedFile      - DefinedType.AttachedFile - a reference to the catalog item with file.
 //   NewName                - String - a name that will be set to the file in the volume.
-//   OldName               - String - the current file name in the volume. If the parameter is not filled in, the attachment description will be considered the current
+//   OldName               - String - the current file name in the volume. If the parameter is not filled in, the description of the attached file will be considered the current
 //                           name.
-//   UUID - UUID - a form ID to lock the attachment
-//                           when writing a new file path to the volume.
+//   UUID - UUID - a form ID to lock the attached
+//                           file when writing a new file path to the volume.
 //
 Procedure RenameFile(AttachedFile,Val NewName,
 	Val OldName = "", UUID = Undefined) Export
@@ -375,8 +375,8 @@ EndProcedure
 //
 // Parameters:
 //   File - DefinedType.AttachedFile
-//        - Undefined - 
-//          
+//        - Undefined - If the parameter value is filled,
+//          properties are filled with values of respective file attributes of the same name. Otherwise, the properties take the Undefined values.
 //
 // Returns:
 //   Structure:
@@ -502,10 +502,11 @@ EndFunction
 //   Volume - CatalogRef.FileStorageVolumes - the volume whose root directory path is to be received.
 //
 // Returns:
-//   String - 
+//   String - Full path to the volume's root directory.
 //
 Function FullVolumePath(Volume) Export
-	
+
+	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
 	RootDirectory1 = Common.ObjectAttributeValue(Volume,
@@ -537,7 +538,7 @@ EndFunction
 //   Volume - CatalogRef.FileStorageVolumes - a volume whose size must be calculated.
 //
 // Returns:
-//   Number - 
+//   Number - Total size of the volume files.
 //
 Function VolumeSize(Volume) Export
 	
@@ -597,10 +598,10 @@ Function VolumeSize(Volume) Export
 	
 EndFunction
 
-// 
+// Checks whether the file is on the computer.
 //
 // Parameters:
-//   AttachedFile - DefinedType.AttachedFile -
+//   AttachedFile - DefinedType.AttachedFile - catalog item with a file.
 //
 // Returns:
 //   Boolean
@@ -673,7 +674,7 @@ Procedure ReferenceToNonexistingFilesInVolumeCheck(Validation, CheckParameters) 
 			If Not CheckAttachedFilesObject(MetadataObject) Then
 				Continue;
 			EndIf;
-			// 
+			// @skip-check query-in-loop - Batch processing of a large amount of data.
 			SearchRefsToNonExistingFilesInVolumes(MetadataObject, CheckParameters, AvailableVolumes);
 		EndDo;
 	EndDo;
@@ -684,7 +685,7 @@ EndProcedure
 
 #Region StorageParameters
 
-// 
+// Returns a flag that files can be stored in volumes.
 //
 // Returns:
 //  Boolean
@@ -737,7 +738,7 @@ EndProcedure
 
 #Region Private
 
-// 
+// Returns sizes of all files in each specified volume in bytes.
 //
 // Parameters:
 //   Volumes - Array of CatalogRef.FileStorageVolumes
@@ -818,7 +819,7 @@ Function SizesOfVolumes(Volumes)
 	
 EndFunction
 
-// For the function See FullVolumePath.
+// For the function, See FullVolumePath.
 // 
 // Returns:
 //  Boolean
@@ -827,18 +828,17 @@ Function VolumePathIgnoreRegionalSettings() Export
 	Return FilesOperationsInternalCached.VolumePathIgnoreRegionalSettings();
 EndFunction
 
-// Saves binary data of the file to a volume, or copies data from the file by the passed path.
-// You need to fill in the file information before calling (See FillInTheFileDetails)
+// Saves the binary file data to a volume, or copies data from the file by the passed path.
+// Before calling, fill in the file information (See FillInTheFileDetails)
 // 
 // .
 // 
-// Cannot be called with the safe mode enabled. 
-// Throws exceptions.
+// Cannot be called with the safe mode enabled (throws exceptions). 
 // 
 // Parameters:
 //   AttachedFile - DefinedType.AttachedFileObject
 //   BinaryDataOrPath - BinaryData
-//                         - String - 
+//                         - String - binary data of the file or the full file path.
 //
 Procedure WriteTheFileDataToTheVolume(AttachedFile, BinaryDataOrPath)
 	
@@ -905,7 +905,7 @@ Procedure WriteTheFileDataToTheVolume(AttachedFile, BinaryDataOrPath)
 			
 		Else
 			
-			// 
+			// Message to end user.
 			ExceptionString = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot add file:
 				|""%1.%2"".
@@ -935,7 +935,7 @@ Procedure ClearDeletedFiles() Export
 	DescriptionOfVolumes = Common.ObjectsAttributesValues(ProcessedVolumes, 
 		"Ref, LastFilesCleanupTime, DeletionMark, FullPathLinux, FullPathWindows");
 		
-	ProcessedDirectories = New Map; // 
+	ProcessedDirectories = New Map; 
 	For Each VolumeDescription In DescriptionOfVolumes Do
 		RootDirectory1 = FullVolumePath(VolumeDescription.Key);
 		
@@ -949,7 +949,7 @@ Procedure ClearDeletedFiles() Export
 	EndDo;
 	
 	For Each Volume In ProcessedDirectories Do
-		// 
+		// @skip-check query-in-loop - Insignificant number of calls.
 		ClearDeletedFilesInTheVolume(Volume.Value);
 	EndDo;
 EndProcedure
@@ -958,7 +958,7 @@ EndProcedure
 //  Path - String - Path.
 // 
 // Returns:
-//  Structure - 
+//  Structure - directory of search of files to delete:
 //   * Path - String
 //   * Volumes - ValueTable:
 //   ** Ref - CatalogRef.FileStorageVolumes
@@ -992,8 +992,8 @@ Procedure AddVolume(SearchDirectoryForDeletedFiles, Volume)
 		Return;
 	EndIf;
 	
-	//  
-	// 
+	 
+	
 	If Common.DataSeparationEnabled() 
 			And (ValueIsFilled(Volume.FullPathLinux) And StrFind(Volume.FullPathLinux, "%z") = 0
 				Or ValueIsFilled(Volume.FullPathWindows) And StrFind(Volume.FullPathWindows, "%z") = 0) Then
@@ -1093,9 +1093,9 @@ Function DeletedFiles(Volumes, RootDirectory1, FilesForDeletion)
 	Return Result;
 EndFunction
 
-// 
-// 
-// 
+// File length in the query is limited:
+// Metadata name (80) + date (6) + subdirectory to exclude repetition (6) + file name (150).
+// Total: 242 characters.
 //
 Function RequestToVerifyTheExistenceOfFiles(Val TableFiles)
 	TableManager = New TempTablesManager();
@@ -1193,7 +1193,7 @@ Procedure BeforeUpdatingTheFileData(Context) Export
 	FilePropertiesContainer = FileAddingOptions();
 	FilePropertiesContainer.Ref = Context.AttachedFile;
 	FillPropertyValues(FilePropertiesContainer, Context.FileAddingOptions,,"Ref");
-	FilePropertiesContainer.PathToFile = ""; // 
+	FilePropertiesContainer.PathToFile = ""; 
 	
 	SetSafeModeDisabled(True);
 	AppendFile(FilePropertiesContainer, Context.FileData);
@@ -1244,20 +1244,28 @@ Procedure AfterUpdatingTheFileData(Context, Success) Export
 		ThisIsAnEncryptedFile = Common.HasObjectAttribute("Encrypted", MainFile.Metadata())
 			And Common.ObjectAttributeValue(MainFile, "Encrypted");
 			
-		// 
-		//  
-		// See FilesOperationsInternal.WriteEncryptionInformation.
+		
+		 
+		// см. РаботаСФайламиСлужебный.ЗаписатьИнформациюОШифровании.
 		If ThisIsAnEncryptedFile Or Not TransactionActive() Then
-			SetSafeModeDisabled(True);
-			DeleteFile(Context.OldFilePath);
-			SetSafeModeDisabled(False);
+			
+			FileProperties = FilePropertiesInVolume(AttachedFile);
+			NewFilePath = FullFileNameInVolume(FileProperties);
+			
+			If NewFilePath <> Context.OldFilePath Then
+
+				SetSafeModeDisabled(True);
+				DeleteFile(Context.OldFilePath);
+				SetSafeModeDisabled(False);
+
+			EndIf;
 		EndIf;
 	EndIf;
 EndProcedure
 
 #Region FilesStorageInVolumesSettings
 
-// 
+// Returns a flag that files can be stored in volumes and in the infobase.
 //
 // Returns:
 //   Boolean
@@ -1323,7 +1331,7 @@ Procedure AddFilesToVolumes(WindowsArchivePath, PathToArchiveLinux) Export
 	
 	For Each ZIPItem In ZipFile.Items Do
 		FullFilePath1 = DirectoryName + "\" + ZIPItem.Name;
-		// Generate file name. See FilesOperationsInternal.ПриОтправкеФайлаСозданиеНачальногоОбраза
+		// For filename generation, See FilesOperationsInternal.ПриОтправкеФайлаСозданиеНачальногоОбраза
 		CatalogUUID = ZIPItem.Name;
 		
 		FilesPathsMap.Insert(CatalogUUID, FullFilePath1);
@@ -1345,7 +1353,7 @@ EndProcedure
 // Adds a file to volumes when executing the "store initial image files" command.
 //
 // Parameters:
-//   FilesPathsMap - Map -
+//   FilesPathsMap - Map - mapping of the UUID of the file and the path to the file.
 //   FileStorageType        - EnumRef.FileStorageTypes - file storage type.
 //
 Procedure AddFilesToVolumesOnPlace(FilesPathsMap, FileStorageType)
@@ -1378,8 +1386,8 @@ Procedure AddFilesToVolumesOnPlace(FilesPathsMap, FileStorageType)
 			
 			If FileStorageType = Enums.FileStorageTypes.InInfobase Then
 				
-				// В базе-
-				// 
+				
+				
 				
 				Object.Volume = Catalogs.FileStorageVolumes.EmptyRef();
 				Object.PathToFile = "";
@@ -1390,7 +1398,7 @@ Procedure AddFilesToVolumesOnPlace(FilesPathsMap, FileStorageType)
 				
 			Else
 				
-				// 
+				// In the destination base, files must be stored in volumes. Move the unzipped file to the volume.
 				FileSource = New File(FullFilePathOnHardDrive);
 				FileName = CommonClientServer.GetNameWithExtension(Object.Description, Object.Extension);
 				Common.ShortenFileName(FileName);
@@ -1401,7 +1409,7 @@ Procedure AddFilesToVolumesOnPlace(FilesPathsMap, FileStorageType)
 				
 			EndIf;
 			
-			Object.AdditionalProperties.Insert("FilePlacementInVolumes", True); // 
+			Object.AdditionalProperties.Insert("FilePlacementInVolumes", True); 
 			InfobaseUpdate.WriteObject(Object);
 			
 			CommitTransaction();
@@ -1439,7 +1447,7 @@ EndFunction
 
 #Region CleanUpUnusedFiles
 
-// 
+// The table constructor containing extraneous files in volumes.
 // 
 // Returns:
 //   ValueTable:
@@ -1450,7 +1458,7 @@ EndFunction
 //      * Path               - String
 //      * Volume                - String
 //      * Extension         - String
-//      * CheckStatus     - String -
+//      * CheckStatus     - String - "OK", "UnnecessaryFileInVolume", "NoFileInVolume"
 //      * Count         - String
 //      * WasEditedBy     - String
 //      * EditDate - String
@@ -1579,7 +1587,7 @@ Procedure FillInExtraFiles(FilesTableOnHardDrive, Volume) Export
 
 EndProcedure
 
-// 
+// For the VolumeIntegrityCheck DCS report.
 Function ViewStatusChecks(Val CheckStatus) Export
 	If CheckStatus = "OK" Then
 		Return NStr("en = 'Data integrity check passed';");
@@ -1751,7 +1759,7 @@ Procedure SearchRefsToNonExistingFilesInVolumes(MetadataObject, CheckParameters,
 		EndDo;
 		
 		Query.SetParameter("Ref", ResultString1.ObjectWithIssue);
-		// @skip-
+		// @skip-check query-in-loop - Batch processing of data
 		Result = Query.Execute().Unload();
 		
 	EndDo;
@@ -1874,7 +1882,7 @@ Procedure UpdateVolumePathLinux() Export
 	
 EndProcedure
 
-// For the function See FullVolumePath
+// For the function, See FullVolumePath
 //
 Procedure SetTheWayToFormTheVolumePath() Export
 	Constants.VolumePathIgnoreRegionalSettings.Set(True);
@@ -1890,11 +1898,11 @@ EndProcedure
 //
 // Parameters:
 //   FileOwner - DefinedType.AttachedFilesOwner
-//                 - DefinedType.FilesOwner - 
-//                 
+//                 - DefinedType.FilesOwner - reference to
+//                 the file owner whose metadata is used to form the subdirectory name.
 //
 // Returns:
-//   String - directory name.
+//   String - a directory name.
 //
 Function FileOwnerDirectoryName(FileOwner)
 	
@@ -1922,10 +1930,10 @@ EndFunction
 //   FileExtention - String - an extension of the file being added.
 //
 // Returns:
-//   EnumRef.FileStorageTypes - 
-//      
-//      
-//      
+//   EnumRef.FileStorageTypes - If the file storage method in the settings is InVolumesOnHardDrive,
+//      the return value is InVolumesOnHardDrive. If the file storage method is
+//       InInfobaseAndVolumesOnHardDrive, the return value is InInfobase
+//      when the file matches the infobase storage parameters. Otherwise, the return value is InVolumesOnHardDrive.
 //
 Function FileStorageType(Val FileSize, Val FileExtention) Export
 	
@@ -1951,7 +1959,7 @@ Function FileStorageType(Val FileSize, Val FileExtention) Export
 	
 EndFunction
 
-// 
+// Returns the first volume, to which you can place the specified file, in the filling order.
 //
 // Parameters:
 //   AttachedFile - DefinedType.AttachedFileObject
@@ -1995,7 +2003,7 @@ Function FreeVolume(AttachedFile)
 		EndIf;
 
 		If SizesOfVolumes = Undefined Then
-			// @skip-
+			// @skip-check query-in-loop - One-time call
 			SizesOfVolumes = SizesOfVolumes(FileStorageVolumes.UnloadColumn("Ref"));
 		EndIf;
 		VolumeSize = SizesOfVolumes[FileStorageVolume.Ref];

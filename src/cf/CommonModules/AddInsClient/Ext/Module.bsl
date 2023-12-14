@@ -20,13 +20,13 @@
 //      * ObjectsCreationIDs - Array - string array of object module instance.
 //                Use it only for add-ins with several object creation IDs.
 //                On specify, the ID parameter is used only to determine add-in.
-//      * Isolated - Boolean, Undefined -
+//      * Isolated - Boolean, Undefined - 
 //                
 //                
+//                :
 //                
-//                
-//                See https://its.1c.eu/db/v83doc#bookmark:dev:TI000001866
-//      * AutoUpdate - Boolean -
+//                See https://its.1c.eu/db/v83doc
+//      * AutoUpdate - Boolean - 
 //                
 //
 // Example:
@@ -61,7 +61,7 @@ EndFunction
 //          ** Attached - Boolean - attachment flag;
 //          ** Attachable_Module - AddInObject - an instance of the add-in;
 //                                - FixedMap of KeyAndValue - 
-//                                      
+//                                      :
 //                                    *** Key - String - the add-in ID;
 //                                    *** Value - AddInObject - an instance of the add-in.
 //          ** ErrorDescription - String - brief error message. Empty string on cancel by user.
@@ -248,8 +248,8 @@ Procedure InstallAddInSSL(Notification, Id, Version = Undefined,
 EndProcedure
 
 
-// Returns a parameter structure to describe search rules of additional information within an add-in.
-// See the ImportAddInFromFile procedure.
+// 
+// 
 //
 // Returns:
 //  Structure:
@@ -358,19 +358,19 @@ EndProcedure
 // 
 //
 // Parameters:
-//  Id - String -
-//  Version        - String - version of the component.
+//  Id - String - the add-in identification code.
+//  Version        - String - an add-in version.
 //  ConnectionParameters - See AddInsClient.ConnectionParameters.
 //
 //  Returns:  
-//  	Structure - result of connecting components:
-//          * Attached - Boolean - the sign connection;
-//          * Attachable_Module - AddInObject - instance of an external component object;
+//  	Structure - :
+//          * Attached - Boolean - attachment flag.
+//          * Attachable_Module - AddInObject - an instance of the add-in;
 //                                - FixedMap of KeyAndValue - 
-//                                      
+//                                      :
 //                                    *** 
 //                                    *** 
-//          * ErrorDescription - String - brief description of the error. When canceled by the user, an empty string.
+//          * ErrorDescription - String - brief error message. Empty string on cancel by user.
 //
 Async Function AttachExtAddInAsync(Id, Version = Undefined,
 	ConnectionParameters = Undefined) Export
@@ -392,14 +392,14 @@ EndFunction
 // Checking whether the add-in can be executed on the current user client.
 //
 // Parameters:
-//  Id - String -
-//  Version - String - version of the component.
+//  Id - String - the add-in identification code.
+//  Version - String - an add-in version.
 //  InstallationParameters - See InstallationParameters.
 //
 //  Returns:
-//    Structure - result of installing components:
-//          * IsSet - Boolean - indicates the installation.
-//          * ErrorDescription - String - brief description of the error. When canceled by the user, an empty string.
+//    Structure - :
+//          * IsSet - Boolean - Installation flag.
+//          * ErrorDescription - String - brief error message. Empty string on cancel by user.
 //
 Async Function InstallExtAddInAsync(Id, Version = Undefined, 
 	InstallationParameters = Undefined) Export
@@ -423,19 +423,19 @@ EndFunction
 // (not recommended for backward compatibility with 1C:Enterprise 7.7 add-ins). 
 //
 // Parameters:
-//  Id - String -
+//  Id - String - the add-in identification code.
 //  ObjectCreationID - String - object creation ID of object module instance
 //          (only for add-ins with object creation ID different from ProgID).
 //
 //  Returns:
-//  	Structure - result of connecting components:
-//          * Attached - Boolean - the sign connection;
-//          * Attachable_Module - AddInObject - instance of an external component object;
+//  	Structure - :
+//          * Attached - Boolean - attachment flag.
+//          * Attachable_Module - AddInObject - an instance of the add-in;
 //                                - FixedMap of KeyAndValue - 
-//                                      
+//                                      :
 //                                    *** 
 //                                    *** 
-//          * ErrorDescription - String - brief description of the error. When canceled by the user, an empty string.
+//          * ErrorDescription - String - brief error message. Empty string on cancel by user.
 //
 Async Function AttachAddInFromWindowsRegisterAsync(Id,
 	ObjectCreationID = Undefined) Export 

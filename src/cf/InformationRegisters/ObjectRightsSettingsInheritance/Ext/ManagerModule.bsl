@@ -17,11 +17,11 @@
 // Parameters:
 //  RightsSettingsOwners - DefinedType.RightsSettingsOwner - for example, CatalogRef.FilesFolders
 //                          or another type used to configure the rights directly.
-//                        - Array - 
-//                        - Undefined - 
-//                        - DefinedType.RightsSettingsOwnerObject - 
-//                          
-//                          
+//                        - Array - array of values of the types specified above.
+//                        - Undefined - no filtering for all types.
+//                        - DefinedType.RightsSettingsOwnerObject - — for example, CatalogObject.FilesFolders,
+//                          when passing an object, update is possible only if the object is to be written and
+//                          the parent is changed.
 //
 //  HasChanges         - Boolean - (return value) - if recorded,
 //                          True is set, otherwise, it does not change.
@@ -41,11 +41,11 @@ Procedure UpdateRegisterData(Val RightsSettingsOwners = Undefined, HasChanges = 
 		For Each KeyAndValue In AvailableRights.ByFullNames Do
 			
 			Query.Text = StrReplace(QueryText, "&CurrentTable", KeyAndValue.Key);
-			// 
+			
 			Selection = Query.Execute().Select();
 			
 			While Selection.Next() Do
-				// 
+				
 				UpdateOwnerParents(Selection.Ref, HasChanges);
 			EndDo;
 		EndDo;
@@ -53,7 +53,7 @@ Procedure UpdateRegisterData(Val RightsSettingsOwners = Undefined, HasChanges = 
 	ElsIf TypeOf(RightsSettingsOwners) = Type("Array") Then
 		
 		For Each RightsSettingsOwner In RightsSettingsOwners Do
-			// 
+			
 			UpdateOwnerParents(RightsSettingsOwner, HasChanges);
 		EndDo;
 	Else
@@ -72,9 +72,9 @@ EndProcedure
 // Parameters:
 //  RightsSettingsOwner - DefinedType.RightsSettingsOwner - for example, CatalogRef.FilesFolders
 //                          or another type used to configure the rights directly.
-//                       - DefinedType.RightsSettingsOwnerObject - 
-//                         
-//                         
+//                       - DefinedType.RightsSettingsOwnerObject - — for example, CatalogObject.FilesFolders,
+//                         when passing an object, update is possible only if the object is to be written and
+//                         the parent is changed.
 //
 //  HasChanges        - Boolean - (return value) - if recorded,
 //                         True is set, otherwise, it does not change.
@@ -202,7 +202,7 @@ EndProcedure
 // Parameters:
 //  Ref                  - DefinedType.RightsSettingsOwner - a reference in the ObjectRef hierarchy or ObjectRef.
 //  ObjectRef2           - DefinedType.RightsSettingsOwner
-//                          - Undefined - 
+//                          - Undefined - a reference to the initial object.
 //  ObjectParentProperties - Structure:
 //                            * Ref      - DefinedType.RightsSettingsOwner - a reference to the source object parent
 //                                            that can differ from the parent
@@ -256,7 +256,7 @@ Function ObjectParents(Ref, ObjectRef2 = Undefined, ObjectParentProperties = "",
 			Break;
 		EndIf;
 		
-		// @skip-
+		
 		CurrentParentProperties = ParentProperties(CurrentParentProperties.Ref);
 	EndDo;
 	
@@ -304,7 +304,7 @@ Procedure UpdateOwnerHierarchy(Ref, HasChanges, ObjectsWithChanges)
 	
 	Selection = Query.Execute().Select();
 	While Selection.Next() Do
-		// 
+		
 		NewRecords = ObjectParents(Selection.SubordinateRef, Ref);
 		
 		RecordSet = CreateRecordSet();

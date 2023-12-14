@@ -3,7 +3,12 @@
 	<CommonModule uuid="1a3ad05f-77b5-467e-99fe-c2b5e734ba87">
 		<Properties>
 			<Name>PersonsClientServerLocalization</Name>
-			<Synonym/>
+			<Synonym>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Individuals client server localization</v8:content>
+				</v8:item>
+			</Synonym>
 			<Comment/>
 			<Global>false</Global>
 			<ClientManagedApplication>true</ClientManagedApplication>

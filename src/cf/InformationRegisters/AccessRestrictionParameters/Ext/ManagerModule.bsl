@@ -418,7 +418,7 @@ Procedure ScheduleUpdate_00_00263154(LongDesc)
 	
 EndProcedure
 
-// For the procedure update the data of the register of configuration Changes.
+// For the UpdateRegisterDataByConfigurationChanges procedure.
 Procedure ScheduleUpdate_00_00463430(LongDesc)
 	
 	If Not AccessManagementInternal.LimitAccessAtRecordLevelUniversally() Then
@@ -521,7 +521,7 @@ EndProcedure
 
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
-	// 
+	// Data registration is not required.
 	Return;
 	
 EndProcedure

@@ -18,7 +18,7 @@ Procedure ShowPutFileOnAttachFileSystemExtension(ExtensionAttached, Context) Exp
 	
 	If Not ExtensionAttached
 		And Not Interactively Then
-		Raise NStr("en = 'Cannot upload the file because the file system extension is not installed.';");
+		Raise NStr("en = 'Cannot import the file as the 1C:Enterprise extension is not installed.';");
 	EndIf;
 		
 	Try
@@ -246,12 +246,12 @@ EndProcedure
 // 
 //
 // Parameters:
-//  PathToFile        - String -
-//  Notification        - NotifyDescription - notification of the opening result.
-//                    if no notification is set, a warning will be displayed in case of an error:
-//   * ApplicationStarted      - Boolean - True if the external application did not cause errors when opening.
-//   * AdditionalParameters - Arbitrary - the value that was specified when creating the message Description object.
-//  ForEditing - Boolean - True if the file is opened for editing, otherwise False.
+//  PathToFile        - String - 
+//  Notification        - NotifyDescription - 
+//                    :
+//   * ApplicationStarted      - Boolean - True if the external application opened successfully.
+//   * AdditionalParameters - Arbitrary - a value that was specified on creating the NotifyDescription object.
+//  ForEditing - Boolean - True to open the file for editing, False otherwise.
 //
 Procedure OpenFileInViewer(PathToFile, Val Notification = Undefined,
 		Val ForEditing = False)
@@ -459,9 +459,9 @@ Function IsExecutableFileExtension(Val Extension)
 	Return Extension = ".BAT" // Batch File
 		Or Extension = ".BIN" // Binary Executable
 		Or Extension = ".CMD" // Command Script
-		Or Extension = ".COM" // Приложение MS-DOS
+		Or Extension = ".COM" // MS-DOS application.
 		Or Extension = ".CPL" // Control Panel Extension
-		Or Extension = ".EXE" // 
+		Or Extension = ".EXE" // Executable file.
 		Or Extension = ".GADGET" // Binary Executable
 		Or Extension = ".HTA" // HTML Application
 		Or Extension = ".INF1" // Setup Information File
@@ -474,7 +474,7 @@ Function IsExecutableFileExtension(Val Extension)
 		Or Extension = ".MSI" // Windows Installer Package
 		Or Extension = ".MSP" // Windows Installer Patch
 		Or Extension = ".MST" // Windows Installer Setup Transform File
-		Or Extension = ".OTM" // 
+		Or Extension = ".OTM" // Microsoft Outlook macro.
 		Or Extension = ".PAF" // Portable Application Installer File
 		Or Extension = ".PIF" // Program Information File
 		Or Extension = ".PS1" // Windows PowerShell Cmdlet
@@ -493,24 +493,24 @@ Function IsExecutableFileExtension(Val Extension)
 	// Linux
 		Or Extension = ".CSH" // C Shell Script
 		Or Extension = ".KSH" // Unix Korn Shell Script
-		Or Extension = ".OUT" // 
-		Or Extension = ".RUN" // 
+		Or Extension = ".OUT" // Executable file.
+		Or Extension = ".RUN" // Executable file.
 		Or Extension = ".SH"  // Shell Script
 	// macOS
 		Or Extension = ".ACTION" // Automator Action
-		Or Extension = ".APP" // 
+		Or Extension = ".APP" // Executable file.
 		Or Extension = ".COMMAND" // Terminal Command
-		Or Extension = ".OSX" // 
-		Or Extension = ".WORKFLOW" // 
-	// 
-		Or Extension = ".AIR" // 
-		Or Extension = ".COFFIE" // 
-		Or Extension = ".JAR" // 
+		Or Extension = ".OSX" // Executable file.
+		Or Extension = ".WORKFLOW" 
+	
+		Or Extension = ".AIR" // Adobe AIR distribution package
+		Or Extension = ".COFFIE" // CoffeeScript (JavaScript) script.
+		Or Extension = ".JAR" // Java archive.
 		Or Extension = ".JS"  // JScript File
 		Or Extension = ".JSE" // JScript Encoded File
-		Or Extension = ".PLX" // 
-		Or Extension = ".PYC" // 
-		Or Extension = ".PYO"; // 
+		Or Extension = ".PLX" // Perl executable file
+		Or Extension = ".PYC" // Python compiled file
+		Or Extension = ".PYO"; // Python optimized code.
 	
 EndFunction
 
@@ -617,7 +617,7 @@ Procedure OpenURLAfterCheckFileSystemExtension(ExtensionAttached, Context) Expor
 		
 	Else
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot follow the link ""%1"" because the file system extension is not installed.';"),
+			NStr("en = 'Cannot follow the link ""%1"" as the 1C:Enterprise extension is not installed.';"),
 			URL);
 		OpenURLNotifyOnError(ErrorDescription, Context);
 	EndIf;
@@ -737,7 +737,7 @@ Procedure StartApplicationAfterCheckFileSystemExtension(ExtensionAttached, Conte
 		EndIf;
 		
 	Else
-		ErrorDescription = NStr("en = 'Cannot start the application because 1C:Enterprise Extension is not installed.';");
+		ErrorDescription = NStr("en = 'Cannot start the application as the 1C:Enterprise extension is not installed.';");
 		StartApplicationNotifyOnError(ErrorDescription, Context);
 	EndIf;
 	
@@ -1158,7 +1158,7 @@ Procedure StartFileSystemExtensionAttachingOnSetExtension(Attached, Context) Exp
 		Return;
 	EndIf;
 	
-	// 
+	
 	If CommonClient.IsMacOSClient() 
 			And Not AnExtensionForWorkingWithFilesIsAvailable() Then
 		ExecuteNotifyProcessing(Context.NotifyDescriptionCompletion);

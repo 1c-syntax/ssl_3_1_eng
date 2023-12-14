@@ -87,14 +87,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		SearchInAllSections = True;
 	EndIf;
 	
-	// Populate the panel.
 	DefineSubsystemsAndTitle(Parameters);
 	TimeConsumingOperation = UpdateReportPanelAtServer();
+
 EndProcedure
 
 &AtClient
 Procedure OnOpen(Cancel)
-	If TimeConsumingOperation.Status = "Running" Then
+	If TimeConsumingOperation <> Undefined And TimeConsumingOperation.Status = "Running" Then
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 		IdleParameters.OutputIdleWindow = False;
 		End = New NotifyDescription("UpdateReportPanelCompletion", ThisObject);
@@ -461,7 +461,7 @@ Procedure AddRemoveOptionFromQuickAccess(Variant, Item, QuickAccess)
 		Return;
 	EndIf;
 	
-	// 
+	// Register the result for writing.
 	Variant.QuickAccess = QuickAccess;
 	
 	// Related action: If the option to be added to the quick access list is hidden, show this option.
@@ -496,6 +496,10 @@ Function UpdateReportPanelAtClient(Event = "")
 	EndIf;
 	
 	Items.Pages.CurrentPage = Items.Waiting;
+	If TimeConsumingOperation <> Undefined And TimeConsumingOperation.Status = "Running" Then
+		Return False;	
+	EndIf;
+	
 	TimeConsumingOperation = UpdateReportPanelAtServer(Event);
 	If TimeConsumingOperation <> Undefined And TimeConsumingOperation.Status = "Running" Then
 		End = New NotifyDescription("UpdateReportPanelCompletion", ThisObject);
@@ -509,11 +513,8 @@ Function UpdateReportPanelAtClient(Event = "")
 		EndMeasurement(Measurement);
 	EndIf;
 	
-	If TimeConsumingOperation = Undefined Then
-		Return False;
-	EndIf;
-	
-	Return True;
+	Return TimeConsumingOperation <> Undefined;
+
 EndFunction
 
 &AtClient
@@ -530,7 +531,7 @@ Function StartMeasurement(Event, Comment = Undefined)
 		If SetupMode Or Event = "DisableSetupMode" Then
 			Measurement.Name = "ReportPanel.SetupMode";
 		ElsIf ValueIsFilled(SearchString) Then
-			Measurement.Name = "ReportPanel.Search"; // 
+			Measurement.Name = "ReportPanel.Search"; 
 		EndIf;
 		Comment.Insert("SubsystemPath", ClientParameters.SubsystemPath);
 		Comment.Insert("ShowTooltips", ShowTooltips);
@@ -579,7 +580,7 @@ Function FindOptionByItemName(LabelName)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClientAtServerNoContext
 Function FindSubsystemByRef(Form, Ref)
@@ -596,7 +597,7 @@ Function FindSubsystemByRef(Form, Ref)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure MoveQuickAccessOption(Val OptionID, Val QuickAccess)
@@ -660,10 +661,6 @@ EndProcedure
 
 &AtServer
 Function UpdateReportPanelAtServer(Val Event = "")
-	
-	If ValueIsFilled(Event) And TimeConsumingOperation <> Undefined And TimeConsumingOperation.Status = "Running" Then 
-		Return Undefined;
-	EndIf;
 	
 	If Event = "ResetSettings" Then
 		InformationRegisters.ReportOptionsSettings.ResetUsesrSettingsInSection(CurrentSectionRef);
@@ -739,8 +736,8 @@ Function UpdateReportPanelAtServer(Val Event = "")
 		TableRow.VisibleOptionsCount = 0;
 	EndDo;
 	
-	// 
 	Return FillReportPanelInBackground();
+	
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -942,11 +939,11 @@ Procedure SaveSettingsOfThisReportPanel()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Function FillReportPanelInBackground()
-	// 
+	// Clear information on changes in user settings.
 	AddedOptions.Clear();
 	
 	SearchParameters = New Structure;
@@ -973,16 +970,16 @@ Function FillReportPanelInBackground()
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.RunNotInBackground1 = (ReportsOptions.PresentationsFilled() = "Filled1");
-	TimeConsumingOperation = TimeConsumingOperations.ExecuteInBackground("ReportsOptions.FindReportOptionsForOutput", SearchParameters, ExecutionParameters);
-	If TimeConsumingOperation.Status = "Error" Then
-		Raise TimeConsumingOperation.BriefErrorDescription;
+	Result = TimeConsumingOperations.ExecuteInBackground("ReportsOptions.FindReportOptionsForOutput", SearchParameters, ExecutionParameters);
+	If Result.Status = "Error" Then
+		Raise Result.BriefErrorDescription;
 	EndIf;	
-	If TimeConsumingOperation.Status <> "Completed2" Then
-		Return TimeConsumingOperation;
+	If Result.Status <> "Completed2" Then
+		Return Result;
 	EndIf;	
 	
-	FillReportPanel(TimeConsumingOperation.ResultAddress);
-	Return TimeConsumingOperation;
+	FillReportPanel(Result.ResultAddress);
+	Return Result;
 	
 EndFunction
 
@@ -1012,7 +1009,7 @@ Procedure FillReportPanel(FillingParametersTempStorage)
 		For Each SectionReference In FillParameters.OtherSections Do
 			OutputSectionOptions(FillParameters, SectionReference);
 		EndDo;
-		If FillParameters.NotDisplayed > 0 Then // 
+		If FillParameters.NotDisplayed > 0 Then // Show the note.
 			LabelTitle = NStr("en = 'Limited to first %1 reports. Please narrow your search.';");
 			LabelTitle = StringFunctionsClientServer.SubstituteParametersToString(LabelTitle, FillParameters.OutputLimit);
 			Label = Items.Insert("OutputLimitExceeded", Type("FormDecoration"), Items.OtherSectionsSearchResults);
@@ -1177,7 +1174,7 @@ Procedure OutputSectionOptions(FillParameters, SectionReference)
 	Else
 		SectionSubsystems = FillParameters.SubsystemsTable.Copy(FilterBySection);
 	EndIf;
-	SectionSubsystems.Sort("Priority ASC"); // 
+	SectionSubsystems.Sort("Priority ASC"); 
 	
 	FillParameters.Insert("SectionReference",      SectionReference);
 	FillParameters.Insert("SectionSubsystems", SectionSubsystems);
@@ -1205,7 +1202,7 @@ Procedure OutputSectionOptions(FillParameters, SectionReference)
 		EndIf;
 		
 		If Not FillParameters.CurrentSectionOptionsDisplayed Then
-			// 
+			// Restrict options output.
 			FillParameters.RemainsToOutput = FillParameters.RemainsToOutput - GroupParameters.Count;
 			If FillParameters.RemainsToOutput < 0 Then
 				// Remove rows that exceed the limit.
@@ -1254,7 +1251,7 @@ EndProcedure
 
 &AtServer
 Procedure DefineGroupsAndDecorationsForOptionsOutput(FillParameters)
-	// 
+	// This procedure defines substitutions of standard groups and items.
 	FillParameters.Insert("Prefix", "");
 	If FillParameters.CurrentSectionOptionsDisplayed Then
 		Return;
@@ -1292,7 +1289,7 @@ Procedure DefineGroupsAndDecorationsForOptionsOutput(FillParameters)
 		TitleOfSection = InformationOnSection.Presentation + SectionSuffix;
 	EndIf;
 	
-	SectionTitle = SectionGroup.ExtendedTooltip; // 
+	SectionTitle = SectionGroup.ExtendedTooltip; // FormDecoration, FormDecorationExtensionForALabel
 	SectionTitle.Title   = TitleOfSection;
 	SectionTitle.Font       = SectionFont;
 	SectionTitle.TextColor  = SectionColor;
@@ -1311,7 +1308,7 @@ Procedure DefineGroupsAndDecorationsForOptionsOutput(FillParameters)
 	
 	// Previously, an output limit was reached in other groups, so there is no need to generate subordinate items.
 	If FillParameters.RemainsToOutput = 0 Then
-		SectionTitle.Height = 1; // 
+		SectionTitle.Height = 1; 
 		Return;
 	EndIf;
 	
@@ -1365,7 +1362,7 @@ Procedure OutputOptionsWithGroup(FillParameters)
 	
 	OutputWithoutGroups = (Level2GroupName = "QuickAccess" Or Level2GroupName = "SeeAlso");
 	
-	// 
+	// Sorting options (there are groups and important objects).
 	Variants.Sort("SubsystemPriority ASC, Important DESC, Description ASC");
 	ParentsFound = Variants.FindRows(New Structure("TopLevel", True));
 	For Each ParentOption In ParentsFound Do
@@ -1435,7 +1432,7 @@ Procedure OutputOptionsWithGroup(FillParameters)
 		
 	EndDo;
 	
-	// 
+	// Calculating the location column and determining for each subsystem if it is to be moved based on count data.
 	FillParameters.Insert("MaxNestingLevel", MaxNestingLevel);
 	DistributionTree.Columns.Add("FormGroup");
 	DistributionTree.Columns.Add("OutputStarted", New TypeDescription("Boolean"));
@@ -1529,8 +1526,8 @@ EndProcedure
 // The constructor of the collection for modeling distribution of report options considering subsystems nesting.
 //
 // Returns:
-//   ValueTree - Collection to model the distribution of report options considering subsystems nesting, where:
-//       * Subsystem - ValueTableRow - Subsystem description.
+//   ValueTree - Collection for simulating the distribution of report options considering subsystem nesting, where:
+//       * Subsystem - ValueTableRow - Subsystem details.
 //       * SubsystemRef - CatalogRef.MetadataObjectIDs
 //                          - CatalogRef.ExtensionObjectIDs
 //       * Variants - Array of ValueTableRow:
@@ -1566,8 +1563,8 @@ EndProcedure
 //       * TotalNestedOptions- Number - Subordinate report option counter.
 //       * TotalNestedSubsystems- Number - Subordinate subsystem counter.
 //       * TotalNestedBlankRows- Number - Additional counter.
-//       * NestingLevel- Number - Hierarchy level number.
-//       * TopLevel- Boolean - Top-level record flag.
+//       * NestingLevel- Number - Hierarchical number.
+//       * TopLevel- Boolean - Flag indicating that this is a top-level record.
 //
 &AtServer
 Function DistributionTree()
@@ -1605,7 +1602,7 @@ EndFunction
 //       * IsFollowUp - Boolean
 //       * IsOption - Boolean
 //       * IsBlankRow - Boolean
-//       * TreeRow - ValueTreeRow - see …
+//       * TreeRow - ValueTreeRow - See …
 //       * Subsystem - ValueTableRow:
 //           ** Ref - CatalogRef.MetadataObjectIDs
 //                     - CatalogRef.ExtensionObjectIDs
@@ -1675,18 +1672,18 @@ EndFunction
 &AtServer
 Procedure FillOutputOrder(OutputOrder, ParentLevelRow, TreeRow, Recursion, FillParameters)
 	
-	If Not Recursion.IsLastColumn And Recursion.FreeRows <= 0 Then // 
-		// 
-		Recursion.TotaItemsLeftToOutput = Recursion.TotaItemsLeftToOutput - 1; // 
+	If Not Recursion.IsLastColumn And Recursion.FreeRows <= 0 Then 
+		
+		Recursion.TotaItemsLeftToOutput = Recursion.TotaItemsLeftToOutput - 1; // Empty group that shouldn't be output.
 		Recursion.CurrentColumnNumber = Recursion.CurrentColumnNumber + 1;
 		Recursion.IsLastColumn = (Recursion.CurrentColumnNumber = Recursion.ColumnsCount);
 		FreeColumns = Recursion.ColumnsCount - Recursion.CurrentColumnNumber + 1;
-		// 
+		// Number of options to output per column.
 		Recursion.Level3GroupCutoff = Max(Int(Recursion.TotaItemsLeftToOutput / FreeColumns), 2);
-		Recursion.FreeRows = Recursion.Level3GroupCutoff; // 
+		Recursion.FreeRows = Recursion.Level3GroupCutoff; // Number of options to output per column.
 		
-		// 
-		// 
+		
+		
 		CurrentParent = ParentLevelRow;
 		While CurrentParent <> Undefined And CurrentParent.SubsystemRef <> FillParameters.SectionReference Do
 			
@@ -1707,7 +1704,7 @@ Procedure FillOutputOrder(OutputOrder, ParentLevelRow, TreeRow, Recursion, FillP
 	EndIf;
 	
 	If (TreeRow.OptionsCount > 0 Or TreeRow.TotalNestedOptions > 0) And Recursion.OutputInCurrentColumnIsStarted And ParentLevelRow.OutputStarted Then
-		// 
+		// Output a blank row.
 		Recursion.TotaItemsLeftToOutput = Recursion.TotaItemsLeftToOutput - 1;
 		OutputBlankRow = OutputOrder.Add();
 		OutputBlankRow.ColumnNumber        = Recursion.CurrentColumnNumber;
@@ -1716,7 +1713,7 @@ Procedure FillOutputOrder(OutputOrder, ParentLevelRow, TreeRow, Recursion, FillP
 		OutputBlankRow.SubsystemPriority = TreeRow.Subsystem.Priority;
 		FillPropertyValues(OutputBlankRow, TreeRow, "Subsystem, SubsystemRef, NestingLevel");
 		
-		// 
+		// Counting rows occupied by a blank row.
 		Recursion.FreeRows = Recursion.FreeRows - 1;
 	EndIf;
 	
@@ -1732,7 +1729,7 @@ Procedure FillOutputOrder(OutputOrder, ParentLevelRow, TreeRow, Recursion, FillP
 	
 	If TreeRow.OptionsCount > 0 Then
 		
-		// 
+		// Counting a row occupied by a group.
 		Recursion.TotaItemsLeftToOutput = Recursion.TotaItemsLeftToOutput - 1;
 		Recursion.FreeRows = Recursion.FreeRows - 1;
 		
@@ -1750,7 +1747,7 @@ Procedure FillOutputOrder(OutputOrder, ParentLevelRow, TreeRow, Recursion, FillP
 			
 		Else
 			
-			// 
+			// Partial output to the current column and proceeding in the next column.
 			CanContinue = True;
 			CountToCurrentColumn = Max(Recursion.FreeRows + 2, 3);
 			
@@ -1760,22 +1757,22 @@ Procedure FillOutputOrder(OutputOrder, ParentLevelRow, TreeRow, Recursion, FillP
 		OutputOptionsCount = 0;
 		VisibleOptionsCount = 0;
 		For Each Variant In TreeRow.Variants Do
-			// 
-			// 
-			// 
-			// 
+			
+			
+			
+			
 			
 			If CanContinue
 				And Not Recursion.IsLastColumn
 				And Not Variant.OutputWithMainReport
 				And OutputOptionsCount >= CountToCurrentColumn Then
-				// 
+				// Navigate to the new column.
 				Recursion.CurrentColumnNumber = Recursion.CurrentColumnNumber + 1;
 				Recursion.IsLastColumn = (Recursion.CurrentColumnNumber = Recursion.ColumnsCount);
 				FreeColumns = Recursion.ColumnsCount - Recursion.CurrentColumnNumber + 1;
-				// 
+				// Number of options to output per column.
 				Recursion.Level3GroupCutoff = Max(Int(Recursion.TotaItemsLeftToOutput / FreeColumns), 2);
-				Recursion.FreeRows = Recursion.Level3GroupCutoff; // 
+				Recursion.FreeRows = Recursion.Level3GroupCutoff; // Number of options to output per column.
 				
 				If Recursion.IsLastColumn Then
 					CountToCurrentColumn = -1;
@@ -1784,11 +1781,11 @@ Procedure FillOutputOrder(OutputOrder, ParentLevelRow, TreeRow, Recursion, FillP
 				EndIf;
 				OutputOptionsCount = 0;
 				
-				// 
+				// Copy the hierarchy with the "(continue)" postfix.
 				CurrentParent = ParentLevelRow;
 				While CurrentParent <> Undefined And CurrentParent.SubsystemRef <> FillParameters.SectionReference Do
 					
-					// 
+					// Recursion.TotalObjectsToOutput will not decrease as continuation output increases the number of rows.
 					OutputSubsystem = OutputOrder.Add();
 					OutputSubsystem.ColumnNumber        = Recursion.CurrentColumnNumber;
 					OutputSubsystem.IsSubsystem       = True;
@@ -1800,8 +1797,8 @@ Procedure FillOutputOrder(OutputOrder, ParentLevelRow, TreeRow, Recursion, FillP
 					CurrentParent = CurrentParent.Parent;
 				EndDo;
 				
-				// 
-				// 
+				
+				
 				OutputSubsystem = OutputOrder.Add();
 				OutputSubsystem.ColumnNumber        = Recursion.CurrentColumnNumber;
 				OutputSubsystem.IsSubsystem       = True;
@@ -1810,7 +1807,7 @@ Procedure FillOutputOrder(OutputOrder, ParentLevelRow, TreeRow, Recursion, FillP
 				OutputSubsystem.SubsystemPriority = TreeRow.Subsystem.Priority;
 				FillPropertyValues(OutputSubsystem, TreeRow, "Subsystem, SubsystemRef, NestingLevel");
 				
-				// 
+				// Counting a row occupied by a group.
 				Recursion.FreeRows = Recursion.FreeRows - 1;
 			EndIf;
 			
@@ -1832,7 +1829,7 @@ Procedure FillOutputOrder(OutputOrder, ParentLevelRow, TreeRow, Recursion, FillP
 				VisibleOptionsCount = VisibleOptionsCount + 1;
 			EndIf;
 			
-			// 
+			// Count rows containing options.
 			Recursion.FreeRows = Recursion.FreeRows - 1;
 		EndDo;
 		
@@ -1905,7 +1902,7 @@ Function AddSubsystemsGroup(FillParameters, OutputOrderRow, ToGroup)
 			IndentPicture1.Visible = False;
 		EndIf;
 		
-		// 
+		// Substitute a higher-level group.
 		ToGroup = IndentGroup1;
 		
 		TitleFont = NormalGroupFont;
@@ -2255,7 +2252,7 @@ Function GenerateRowWithHighlighting(SearchArea, Content = Undefined)
 	HighlightStartPosition = 0;
 	For Each ListItem In SearchArea.WordHighlighting Do
 		If TextIsShortened And ListItem.Value > TextLength Then
-			ListItem.Value = TextLength; // 
+			ListItem.Value = TextLength; 
 		EndIf;
 		Highlight = (ListItem.Presentation = "+");
 		CountOpen = CountOpen + ?(Highlight, 1, -1);
@@ -2275,7 +2272,7 @@ Function GenerateRowWithHighlighting(SearchArea, Content = Undefined)
 	EndIf;
 	
 	If ReturnFormattedRow Then
-		Return New FormattedString(Content); // 
+		Return New FormattedString(Content); // ACC:1356 Don't create a new string. Instead, process the existing string.
 	Else
 		Return Undefined;
 	EndIf;

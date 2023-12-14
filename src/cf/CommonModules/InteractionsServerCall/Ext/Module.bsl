@@ -85,8 +85,9 @@ Function ContactDescriptionAndEmailAddresses(Contact) Export
 	
 	ContactMetadata = Contact.Metadata();
 	
-	If ContactMetadata.Hierarchical Then
-		If Contact.IsFolder Then
+	If ContactMetadata.Hierarchical
+		And ContactMetadata.HierarchyType = Metadata.ObjectProperties.HierarchyType.HierarchyFoldersAndItems Then
+		If Common.ObjectAttributeValue(Contact, "IsFolder") = True Then
 			Return Undefined;
 		EndIf;
 	EndIf;
@@ -322,7 +323,7 @@ Procedure SetSubjectForInteractionsArray(InteractionsArray, SubjectOf, CheckIfTh
 	EndTry;	
 EndProcedure
 
-// 
+// Convert an email message into binary data and prepares it for saving to the hard drive.
 //
 // Parameters:
 //  MailMessage                  - DocumentRef.IncomingEmail

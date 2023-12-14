@@ -15,7 +15,7 @@
 //  String - String - URL.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - check result.
 //
 Function IsURL(String) Export
 	
@@ -31,7 +31,7 @@ EndFunction
 // In this case, the following string will be passed to the script: /TestClient -TPort 48050 /C DebugMode.
 //
 // Returns:
-//  String - parameter value.
+//  String - a parameter value.
 //
 Function EnterpriseStartupParametersFromScript() Export
 	
@@ -51,30 +51,30 @@ EndFunction
 // Add-in attachment context.
 // 
 // Returns:
-//  Structure - 
+//  Structure - :
 //   * Notification - Undefined, NotifyDescription - notification.
 //   * Id - String - an add-in object ID, add-in ID.
 //   * Version - Undefined, String - an add-in version.
 //   * Location - String - template location or an add-in reference.
 //   * OriginalLocation - String - Initial call location, for cache storage.
-//   * Cached - Boolean -
+//   * Cached - Boolean -  
 //                 
 //                 
 //   * SuggestInstall - Boolean - prompt to install the add-in.
-//   * WasInstallationAttempt - Boolean -
+//   * WasInstallationAttempt - Boolean - 
 //   * SuggestToImport - Boolean - prompt to import the add-in from the ITS website.
 //   * ExplanationText - String - a text that describes the add-in purpose and which functionality requires the add-in. 
 //   * ObjectsCreationIDs - Array -the creation IDs of object module instances.
 //                 Applicable only with add-ins that have a number of object creation IDs.
 //                 Ignored if the ID parameter is specified.
 //   * ASearchForANewVersionHasBeenPerformed - Boolean - a new add-in version was searched.
-//   * Isolated - Boolean, Undefined -
+//   * Isolated - Boolean, Undefined - 
 //                
 //                
+//                :
 //                
-//                
-//                See https://its.1c.eu/db/v83doc#bookmark:dev:TI000001866
-//    * AutoUpdate - Boolean - 
+//                See https://its.1c.eu/db/v83doc
+//    * AutoUpdate - Boolean -  
 //                
 //
 Function AddInAttachmentContext() Export
@@ -114,9 +114,9 @@ Async Function AttachExtAddInAsync(Context) Export
 				           |Either %2 or %3 must be specified.';"), 
 				Context.Location, "Id", "ObjectsCreationIDs");
 		Else
-			// 
-			// 
-			// 
+			
+			
+			
 			Context.Id = StrConcat(Context.ObjectsCreationIDs, ", ");
 		EndIf;
 	EndIf;
@@ -136,7 +136,7 @@ Async Function AttachExtAddInAsync(Context) Export
 				Return Result;
 			EndIf;
 			
-			// 
+			// Checking the connection of the external add in in this session earlier.
 			SymbolicName = GetAddInSymbolicNameFromCache(Context.Location);
 
 			If SymbolicName <> Undefined Then
@@ -148,7 +148,7 @@ Async Function AttachExtAddInAsync(Context) Export
 			
 		EndIf;
 	
-		// 
+		// Search templates and the catalog for a newer version of the add-in.
 		If IsTemplate(Context.Location) Then
 			
 			AddInSearchResult = Undefined;
@@ -168,7 +168,7 @@ Async Function AttachExtAddInAsync(Context) Export
 				ComponentValidationContext.OriginalLocation = Context.OriginalLocation;
 				ComponentValidationContext.ObjectsCreationIDs = Context.ObjectsCreationIDs;
 
-				AddInSearchResult = ModuleAddInsInternalClient.AddInAvailabilityCheckResult(
+				AddInSearchResult = Await ModuleAddInsInternalClient.AddInAvailabilityCheckResult(
 					ComponentValidationContext);
 			
 			EndIf;
@@ -189,7 +189,7 @@ Async Function AttachExtAddInAsync(Context) Export
 		EndIf;
 	EndIf;
 	
-	// 
+	// Generate a unique name.
 	SymbolicName = "From1" + StrReplace(String(New UUID), "-", "");
 	Context.Insert("SymbolicName", SymbolicName);
 	
@@ -236,9 +236,9 @@ Procedure AttachAddInSSL(Context) Export
 				           |Either %2 or %3 must be specified.';"), 
 				Context.Location, "Id", "ObjectsCreationIDs");
 		Else
-			// 
-			// 
-			// 
+			
+			
+			
 			Context.Id = StrConcat(Context.ObjectsCreationIDs, ", ");
 		EndIf;
 	EndIf;
@@ -296,7 +296,7 @@ Procedure AttachAddInSSL(Context) Export
 		EndIf;
 	EndIf;
 	
-	// 
+	// Generate a unique name.
 	SymbolicName = "From1" + StrReplace(String(New UUID), "-", "");
 	Context.Insert("SymbolicName", SymbolicName);
 	
@@ -392,8 +392,8 @@ Procedure InstallAddInSSL(Context) Export
 		
 	Else 
 		
-		// 
-		// 
+		
+		
 		Result = AddInInstallationResult();
 		Result.Insert("IsSet", True);
 		ExecuteNotifyProcessing(Context.Notification, Result);
@@ -420,7 +420,7 @@ Async Function InstallExtAddInAsync(Context) Export
 	
 	CheckTheLocationOfTheComponent(Context.Id, Context.Location);
 	
-	// 
+	// Checking the connection of the external add in in this session earlier.
 	SymbolicName = GetAddInSymbolicNameFromCache(Context.Location);
 	
 	If SymbolicName = Undefined Then 
@@ -462,8 +462,8 @@ Async Function InstallExtAddInAsync(Context) Export
 		EndIf;
 	Else 
 		
-		// Если в кэше уже есть символическое имя - 
-		// 
+		
+		
 		
 		Result = AddInInstallationResult();
 		Result.IsSet = True;
@@ -545,8 +545,8 @@ EndProcedure
 //
 // Parameters:
 //  FormItems - FormItems
-//  Visible - Boolean - Indicates whether an indicator panel is visible.
-//              See also Syntax Assistant: FormGroup.Visibility.
+//  Visible - Boolean - 
+//              
 //
 Procedure SetIndicatorsPanelVisibiility(FormItems, Visible = False) Export 
 	
@@ -563,7 +563,7 @@ EndProcedure
 // 
 // 
 // Parameters:
-//  FileName - String -
+//  FileName - String - File name including the extension.
 //
 Procedure ShortenFileName(FileName) Export
 
@@ -615,17 +615,17 @@ EndProcedure
 // 
 // 
 // Returns:
-//  Structure - 
-//   * PackToArchive - Boolean -
+//  Structure - :
+//   * PackToArchive - Boolean - 
 //   * SaveFormats - Array of See StandardSubsystemsServer.SpreadsheetDocumentSaveFormatsSettings
 //   * Recipients - Array of Structure:
-//                            * ContactInformationSource - CatalogRef - owner of the contact information.
-//                            * Address - String - email address of the message recipient.
-//                            * Presentation - String - representation of the addressee.
-//   * TransliterateFilesNames - Boolean - 
+//                            * ContactInformationSource - CatalogRef - a contact information owner.
+//                            * Address - String - an email recipient address.
+//                            * Presentation - String - Addressee presentation.
+//   * TransliterateFilesNames - Boolean -  
 //   * Sign  - Undefined, 
 // 				- Boolean - 
-//   * SignatureAndSeal - Boolean -
+//   * SignatureAndSeal - Boolean - 
 //
 Function PrintFormFormatSettings() Export
 	Result = New Structure;
@@ -907,6 +907,16 @@ Procedure AttachAddInSSLAfterAttachmentAttempt(Attached, Context) Export
 		
 		If Context.SuggestInstall And Not Context.WasInstallationAttempt Then 
 			AttachAddInSSLStartInstallation(Context);
+		ElsIf Not Context.SuggestInstall Then
+			Notification = Context.Notification;
+			Result = AddInAttachmentResult();
+			ErrorText =  StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Не удалось подключить внешнюю компоненту ""%1"".
+				|Возможно компонента не установлена.';"), Context.Id);
+			
+			Result.ErrorDescription = ErrorText;
+			
+			ExecuteNotifyProcessing(Notification, Result);
 		Else 
 			ErrorText =  StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot apply add-in ""%1"".
@@ -959,13 +969,13 @@ EndProcedure
 Procedure AttachAddInSSLAfterInstallation(Result, Context) Export 
 	
 	If Result.IsSet Then 
-		// 
-		// 
+		
+		
 		Context.WasInstallationAttempt = True;
 		AttachAddInSSL(Context);
 	Else 
-		// 
-		// 
+		
+		
 		AttachAddInSSLNotifyOnError(Result.ErrorDescription, Context);
 	EndIf;
 	
@@ -1069,7 +1079,7 @@ EndFunction
 // Continue the InstallAddInSSL procedure.
 Procedure InstallAddInSSLAfterAnswerToInstallationQuestion(Response, Context) Export
 	
-	//  
+	 
 	// 
 	// 
 	// 
@@ -1165,7 +1175,7 @@ Async Function AttachAddInAfterTriedAttachAsync(Attached, Context)
 	
 	If Attached Then 
 		
-		// 
+		// Saving the fact of attaching the external add-in to this session.
 		
 		OriginalLocation = ?(ValueIsFilled(Context.OriginalLocation),
 			Context.OriginalLocation, Context.Location);
@@ -1177,15 +1187,18 @@ Async Function AttachAddInAfterTriedAttachAsync(Attached, Context)
 		Try
 			Attachable_Module = NewAddInObject(Context);
 		Except
-			// 
+			// The error text has already been composed to the NewAddInObject, you just need to notify.
 			ErrorText = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 			Return AddInAttachmentError(ErrorText);
 		EndTry;
 		
 #If WebClient Then
-			PauseAsinx(2);
+		SystemInfo = New SystemInfo;
+		If CommonClientServer.CompareVersions(SystemInfo.AppVersion, "8.3.24.0") >= 0 Then
+				Await PauseAsinx(2);
+		EndIf;
 #EndIf
-		
+
 		If Context.Cached Then 
 			WriteAddInObjectToCache(OriginalLocation, Attachable_Module)
 		EndIf;
@@ -1206,17 +1219,26 @@ Async Function AttachAddInAfterTriedAttachAsync(Attached, Context)
 			InstallResult = Await InstallExtAddInAsync(InstallationContext);
 			
 			If InstallResult.IsSet Then 
-				// 
-				// 
+				
+				
 				Context.WasInstallationAttempt = True;
 				Return AttachExtAddInAsync(Context);
 			Else 
-				// 
-				// 
+				
+				
 				
 				Return AddInAttachmentError(InstallResult.ErrorDescription);
 			EndIf;
+		ElsIf Not Context.SuggestInstall Then
+			Notification = Context.Notification;
+			Result = AddInAttachmentResult();
+			ErrorText =  StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Не удалось подключить внешнюю компоненту ""%1"".
+				|Возможно компонента не установлена.';"), Context.Id);
 			
+			Result.ErrorDescription = ErrorText;
+			
+			Return Result;	
 		Else 
 			ErrorText =  StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot apply add-in ""%1"".
@@ -1237,8 +1259,8 @@ EndFunction
 
 Async Function PauseAsinx(TimeInSeconds)
 	
-	EndDate = CurrentDate() + TimeInSeconds; // 
-	While CurrentDate() < EndDate Do         // 
+	EndDate = CurrentDate() + TimeInSeconds; 
+	While CurrentDate() < EndDate Do         
 		Await 1;
 	EndDo;
 	
@@ -1299,7 +1321,7 @@ Procedure WriteAddInSymbolicNameToCache(ObjectKey, SymbolicName)
 	
 	If TypeOf(CachedSymbolicNames) = Type("FixedMap") Then
 		
-		If CachedSymbolicNames.Get(ObjectKey) <> Undefined Then // 
+		If CachedSymbolicNames.Get(ObjectKey) <> Undefined Then // It is already in the cache.
 			Return;
 		EndIf;
 		
@@ -1615,7 +1637,7 @@ EndProcedure
 
 #Region StringHashByMD5Algorithm
 
-//  
+ 
 
 // 
 //
@@ -1635,18 +1657,18 @@ EndProcedure
 //
 Function CalculateStringHashByMD5Algorithm(Val String)
 	
-	a = 1732584193; // 
+	a = 1732584193; 
 	b = 4023233417; // 89 AB CD EF;
-	c = 2562383102; // FE DC BA 98;
-	d = 271733878;  // 76 54 32 10;
+	c = 2562383102; // 89 AB CD EF;
+	d = 271733878;  // FE DC BA 98;
 	
-	X = New Array(16); // X - 
+	X = New Array(16); 
 	
 	EmptyByte = GetBinaryDataFromHexString("00");
 	EndByte = GetBinaryDataFromHexString("80");
 	BinaryData = AddToBinaryData(GetBinaryDataFromString(String, "UTF-8"), EndByte);
 	
-	// 
+	
 	BlocksArrayFromString = SplitBinaryData(BinaryData, 64);
 	
 	LastBlock = BlocksArrayFromString[BlocksArrayFromString.UBound()];
@@ -1661,7 +1683,7 @@ Function CalculateStringHashByMD5Algorithm(Val String)
 		BlocksArrayFromString.Add(0);
 	EndIf;
 
-	// 
+	
 	For BlockNumber = 0 To BlocksArrayFromString.Count() - 1 Do 
 		Block = BlocksArrayFromString[BlockNumber];
 		
@@ -1678,11 +1700,11 @@ Function CalculateStringHashByMD5Algorithm(Val String)
 			EndDo;
 		EndIf;
  
-		// 
+		
 		If BlockNumber = BlocksArrayFromString.Count() - 1 Then
 			StringSizeInBits = GetBinaryDataFromString(String).Size()* 8;
-			X[14] = StringSizeInBits % Pow(2,32); // 
-			X[15] = Int(StringSizeInBits / Pow(2,32)) % Pow(2,64); // если длина превосходит (2^64 - 
+			X[14] = StringSizeInBits % Pow(2,32); 
+			X[15] = Int(StringSizeInBits / Pow(2,32)) % Pow(2,64); 
 		EndIf;
 		CalculateBlock(a, b, c, d, X);
 	EndDo;
@@ -1714,7 +1736,7 @@ Procedure CalculateBlock(a, b, c, d, X)
 	cc = c;
 	dd = d;
 	
-	// 
+	
 	ExecuteOperationWithFunctionF(a,b,c,d, X[ 0],  7, 3614090360); // 0xd76aa478 /* 1 */
 	ExecuteOperationWithFunctionF(d,a,b,c, X[ 1], 12, 3905402710); // 0xe8c7b756 /* 2 */
 	ExecuteOperationWithFunctionF(c,d,a,b, X[ 2], 17,  606105819); // 0x242070db /* 3 */
@@ -1732,7 +1754,7 @@ Procedure CalculateBlock(a, b, c, d, X)
 	ExecuteOperationWithFunctionF(c,d,a,b, X[14], 17, 2792965006); // 0xa679438e /* 15 */
 	ExecuteOperationWithFunctionF(b,c,d,a, X[15], 22, 1236535329); // 0x49b40821 /* 16 */
 	
-	// 
+	
 	ExecuteOperationWithFunctionG(a,b,c,d, X[ 1],  5, 4129170786); // 0xf61e2562 /* 17 */
 	ExecuteOperationWithFunctionG(d,a,b,c, X[ 6],  9, 3225465664); // 0xc040b340 /* 18 */
 	ExecuteOperationWithFunctionG(c,d,a,b, X[11], 14,  643717713); // 0x265e5a51 /* 19 */
@@ -1750,7 +1772,7 @@ Procedure CalculateBlock(a, b, c, d, X)
 	ExecuteOperationWithFunctionG(c,d,a,b, X[ 7], 14, 1735328473); // 0x676f02d9 /* 31 */
 	ExecuteOperationWithFunctionG(b,c,d,a, X[12], 20, 2368359562); // 0x8d2a4c8a /* 32 */
 	
-	// 
+	
 	ExecuteOperationWithFunctionH(a,b,c,d, X[ 5],  4, 4294588738); // 0xfffa3942 /* 33 */
 	ExecuteOperationWithFunctionH(d,a,b,c, X[ 8], 11, 2272392833); // 0x8771f681 /* 34 */
 	ExecuteOperationWithFunctionH(c,d,a,b, X[11], 16, 1839030562); // 0x6d9d6122 /* 35 */
@@ -1768,7 +1790,7 @@ Procedure CalculateBlock(a, b, c, d, X)
 	ExecuteOperationWithFunctionH(c,d,a,b, X[15], 16,  530742520); // 0x1fa27cf8 /* 47 */
 	ExecuteOperationWithFunctionH(b,c,d,a, X[ 2], 23, 3299628645); // 0xc4ac5665 /* 48 */
 	
-	// 
+	
 	ExecuteOperationWithFunctionI(a,b,c,d, X[ 0],  6, 4096336452); // 0xf4292244 /* 49 */
 	ExecuteOperationWithFunctionI(d,a,b,c, X[ 7], 10, 1126891415); // 0x432aff97 /* 50 */
 	ExecuteOperationWithFunctionI(c,d,a,b, X[14], 15, 2878612391); // 0xab9423a7 /* 51 */
@@ -1843,7 +1865,7 @@ Function AddToBinaryData(BinaryData, Create)
 	Return ConcatBinaryData(BinaryDataArray);
 EndFunction
 
-//  
+ 
 
 #EndRegion
 

@@ -152,7 +152,7 @@ Procedure ImportSuppliedRules(ExchangePlanName, RulesFileName) Export
 		Raise NStr("en = 'Extraction failed.';");
 	EndIf;
 	
-	// 
+	// Delete the temp archive and temp directory.
 	FileSystem.DeleteTempFile(TempDirectoryName);
 	
 	ConversionRulesInformation = "[SourceRulesInformation]
@@ -162,7 +162,7 @@ Procedure ImportSuppliedRules(ExchangePlanName, RulesFileName) Export
 	// Getting the temporary conversion file name in the local file system at server.
 	TempFileName = GetTempFileName("xml");
 	
-	// 
+	// Getting the conversion rule file.
 	BinaryData.Write(TempFileName);
 	
 	// Read conversion rules.
@@ -176,10 +176,10 @@ Procedure ImportSuppliedRules(ExchangePlanName, RulesFileName) Export
 	
 	// Getting name of the temporary correspondent conversion file in the local file system on the server.
 	CorrespondentTempFileName = GetTempFileName("xml");
-	// 
+	// Getting the conversion rule file.
 	CorrespondentBinaryData.Write(CorrespondentTempFileName);
 	
-	// 
+	// Read conversion rules.
 	InfobaseObjectConversion = NewDataProcessorInfobaseObjectConversion("Load", ExchangePlanName);
 	
 	// Data processor methods.
@@ -190,7 +190,7 @@ Procedure ImportSuppliedRules(ExchangePlanName, RulesFileName) Export
 	ConversionRulesInformation = StrReplace(ConversionRulesInformation, "[SourceRulesInformation]", SourceRulesInformation);
 	ConversionRulesInformation = StrReplace(ConversionRulesInformation, "[CorrespondentRulesInformation]", CorrespondentRulesInformation);
 	
-	// 
+	// Deleting temporary rule files.
 	FileSystem.DeleteTempFile(TempFileName);
 	FileSystem.DeleteTempFile(CorrespondentTempFileName);
 	
@@ -219,8 +219,8 @@ EndProcedure
 // 
 //
 // Parameters:
-//  ExchangePlanName - String - name of the exchange plan that the rules are being loaded for.
-//  RulesFileName - String -
+//  ExchangePlanName - String - a name of the exchange plan for which the rules are being imported.
+//  RulesFileName - String - 
 //
 Procedure DownloadSuppliedObjectRegistrationRules(ExchangePlanName, RulesFileName) Export
 	
@@ -235,18 +235,18 @@ EndProcedure
 
 Procedure ImportObjectRegistrationRules(BinaryData, FileName, ExchangePlanName)
 	
-	// 
+	// Getting the temporary registration file name in the local file system on the server.
 	TempRegistrationFileName = GetTempFileName("xml");
-	// 
+	// Getting the conversion rule file.
 	BinaryData.Write(TempRegistrationFileName);
 	
-	// 
+	// Read registration rules.
 	ChangeRecordRuleImport = DataProcessors.ObjectsRegistrationRulesImport.Create();
 	
-	// 
+	// Data processor properties.
 	ChangeRecordRuleImport.ExchangePlanNameForImport = ExchangePlanName;
 	
-	// 
+	// Data processor methods.
 	ChangeRecordRuleImport.ImportRules(TempRegistrationFileName);
 	ReadRegistrationRules   = ChangeRecordRuleImport.ObjectsRegistrationRules;
 	RegistrationRulesInformation = ChangeRecordRuleImport.RulesInformation();
@@ -255,10 +255,10 @@ Procedure ImportObjectRegistrationRules(BinaryData, FileName, ExchangePlanName)
 		Raise NStr("en = 'An error occurred when importing registration rules.';");
 	EndIf;
 	
-	// 
+	// Deleting temporary rule files.
 	FileSystem.DeleteTempFile(TempRegistrationFileName);
 	
-	// 
+	// Writing registration rules.
 	RegistrationRuleWriting = CreateRecordManager();
 	RegistrationRuleWriting.ExchangePlanName = ExchangePlanName;
 	RegistrationRuleWriting.RulesKind = Enums.DataExchangeRulesTypes.ObjectsRegistrationRules;
@@ -290,7 +290,7 @@ EndProcedure
 // 
 //
 // Parameters:
-//  ExchangePlanName - String - name of the exchange plan for which the rules are being deleted.
+//  ExchangePlanName - String - a name of the exchange plan for which the rules are being deleted.
 //
 Procedure DeleteSuppliedObjectRegistrationRules(ExchangePlanName) Export
 	
@@ -321,7 +321,7 @@ EndProcedure
 //  ExchangePlanName - String - a name of the exchange plan for which the rules are being imported.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - if True, the rules are used. Otherwise, False.
 //
 Function StandardRulesUsed(ExchangePlanName) Export
 	QueryText = "
@@ -513,12 +513,12 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 				
 			EndIf;
 			
-		Else // Если не удалось распаковать файл - 
+		Else // Canceling import if unpacking the file failed.
 			NString = NStr("en = 'Extraction failed.';");
 			DataExchangeServer.ReportError(NString, Cancel);
 		EndIf;
 		
-		// 
+		// Delete the temp archive and temp directory.
 		FileSystem.DeleteTempFile(TempDirectoryName);
 		FileSystem.DeleteTempFile(TemporaryArchiveName);
 		
@@ -531,7 +531,7 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 	// Getting the temporary file name in the local file system on the server.
 	TempFileName = GetTempFileName("xml");
 	
-	// 
+	// Getting the conversion rule file.
 	BinaryData.Write(TempFileName);
 	
 	If AreConversionRules Then
@@ -552,10 +552,10 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 		
 		// Getting the temporary file name in the local file system on the server.
 		CorrespondentTempFileName = GetTempFileName("xml");
-		// 
+		// Getting the conversion rule file.
 		CorrespondentBinaryData.Write(CorrespondentTempFileName);
 		
-		// 
+		// Read conversion rules.
 		InfobaseObjectConversion = NewDataProcessorInfobaseObjectConversion("Load", Record.ExchangePlanName);
 		
 		// Data processor methods.
@@ -576,10 +576,10 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 		// Read registration rules.
 		ChangeRecordRuleImport = DataProcessors.ObjectsRegistrationRulesImport.Create();
 		
-		// 
+		// Data processor properties.
 		ChangeRecordRuleImport.ExchangePlanNameForImport = Record.ExchangePlanName;
 		
-		// 
+		// Data processor methods.
 		ChangeRecordRuleImport.ImportRules(TempFileName);
 		
 		RulesAreRead = ChangeRecordRuleImport.ObjectsRegistrationRules;
@@ -592,7 +592,7 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 		
 	EndIf;
 	
-	// 
+	// Deleting the temporary rule file.
 	FileSystem.DeleteTempFile(TempFileName);
 	
 	If Not Cancel Then
@@ -682,12 +682,12 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 			EndDo;
 			
 		Else 
-			// Если не удалось распаковать файл - 
+			// Canceling import if unpacking the file failed.
 			NString = NStr("en = 'Extraction failed.';");
 			DataExchangeServer.ReportError(NString, Cancel);
 		EndIf;
 		
-		// 
+		// Delete the temp archive and temp directory.
 		FileSystem.DeleteTempFile(TempDirectoryName);
 		FileSystem.DeleteTempFile(TemporaryArchiveName);
 		
@@ -704,7 +704,7 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 	// Getting the temporary conversion file name in the local file system at server.
 	TempFileName = GetTempFileName("xml");
 	
-	// 
+	// Getting the conversion rule file.
 	BinaryData.Write(TempFileName);
 	
 	// Read conversion rules.
@@ -731,10 +731,10 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 	
 	// Getting name of the temporary correspondent conversion file in the local file system on the server.
 	CorrespondentTempFileName = GetTempFileName("xml");
-	// 
+	// Getting the conversion rule file.
 	CorrespondentBinaryData.Write(CorrespondentTempFileName);
 	
-	// 
+	// Read conversion rules.
 	InfobaseObjectConversion = NewDataProcessorInfobaseObjectConversion("Load", CovnersionRuleWriting.ExchangePlanName);
 	
 	// Data processor methods.
@@ -751,17 +751,17 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 	
 	// Getting the temporary registration file name in the local file system on the server.
 	TempRegistrationFileName = GetTempFileName("xml");
-	// 
+	// Getting the conversion rule file.
 	RegistrationBinaryData.Write(TempRegistrationFileName);
 
 	
 	// Read registration rules.
 	ChangeRecordRuleImport = DataProcessors.ObjectsRegistrationRulesImport.Create();
 	
-	// 
+	// Data processor properties.
 	ChangeRecordRuleImport.ExchangePlanNameForImport = RegistrationRuleWriting.ExchangePlanName;
 	
-	// 
+	// Data processor methods.
 	ChangeRecordRuleImport.ImportRules(TempRegistrationFileName);
 	ReadRegistrationRules   = ChangeRecordRuleImport.ObjectsRegistrationRules;
 	RegistrationRulesInformation = ChangeRecordRuleImport.RulesInformation();
@@ -770,14 +770,14 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 		Cancel = True;
 	EndIf;
 	
-	// 
+	// Deleting temporary rule files.
 	FileSystem.DeleteTempFile(TempFileName);
 	FileSystem.DeleteTempFile(CorrespondentTempFileName);
 	FileSystem.DeleteTempFile(TempRegistrationFileName);
 	
 	If Not Cancel Then
 		
-		// 
+		// Writing conversion rules.
 		CovnersionRuleWriting.XMLRules                      = New ValueStorage(BinaryData, New Deflation());
 		CovnersionRuleWriting.RulesAreRead               = New ValueStorage(RulesAreRead);
 		CovnersionRuleWriting.XMLCorrespondentRules        = New ValueStorage(CorrespondentBinaryData, New Deflation());
@@ -787,7 +787,7 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 		CovnersionRuleWriting.RulesAreImported                = True;
 		CovnersionRuleWriting.ExchangePlanNameFromRules          = CovnersionRuleWriting.ExchangePlanName;
 		
-		// 
+		// Writing registration rules.
 		RegistrationRuleWriting.XMLRules             = New ValueStorage(RegistrationBinaryData, New Deflation());
 		RegistrationRuleWriting.RulesAreRead      = New ValueStorage(ReadRegistrationRules);
 		RegistrationRuleWriting.RulesInformation    = RegistrationRulesInformation;
@@ -805,8 +805,8 @@ EndProcedure
 //  ExchangePlanName - String - a name of the exchange plan as a metadata object.
 // 
 // Returns:
-//  ПравилаЗачитанные - 
-//  
+//  ПравилаЗачитанные - ValueStorage - read object conversion rules.
+//  Undefined - if conversion rules were not imported to the base for an exchange plan.
 //
 Function ParsedRulesOfObjectConversion(Val ExchangePlanName, GetCorrespondentRules = False) Export
 	
@@ -906,7 +906,7 @@ Function BinaryDataFromConfigurationTemplate(Cancel, ExchangePlanName, TemplateN
 	
 	BinaryData = New BinaryData(TempFileName);
 	
-	// 
+	// Deleting the temporary rule file.
 	FileSystem.DeleteTempFile(TempFileName);
 	
 	Return BinaryData;

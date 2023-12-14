@@ -93,7 +93,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure MainCurrencyStartChoice(Item, ChoiceData, StandardProcessing)
@@ -138,8 +138,8 @@ EndProcedure
 &AtServerNoContext
 Procedure PrepareSubordinateCurrencyChoiceData(ChoiceData, Ref)
 	
-	// 
-	// 
+	
+	
 
 	ChoiceData = New ValueList;
 

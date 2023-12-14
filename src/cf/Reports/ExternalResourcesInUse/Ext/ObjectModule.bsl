@@ -44,7 +44,7 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	StandardProcessing = False;
 	ResultDocument.Clear();
 	
-	BeginTransaction(); // 
+	BeginTransaction(); // ACC:326 - Transactions open only for a rollback.
 	Try
 		SetPrivilegedMode(True);
 		

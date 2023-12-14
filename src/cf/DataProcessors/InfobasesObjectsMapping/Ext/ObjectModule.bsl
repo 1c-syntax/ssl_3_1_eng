@@ -71,8 +71,8 @@ Procedure ExecuteDefaultAutomaticMapping(Cancel) Export
 	
 	SetPrivilegedMode(True);
 	
-	// 
-	// 
+	
+	
 	MappingFieldsList = UsedFieldsList.Copy();
 	
 	ExecuteDefaultAutomaticInfobaseObjectMapping(Cancel, MappingFieldsList);
@@ -214,7 +214,7 @@ EndProcedure
 //
 Procedure Designer() Export
 	
-	// 
+	// Filling table field list. Fields from this list can be mapped and displayed (search fields).
 	TableFieldsList.LoadValues(StrSplit(DestinationTableFields, ",", False));
 	
 	SearchFieldArray = StrSplit(DestinationTableSearchFields, ",", False);
@@ -279,7 +279,7 @@ EndProcedure
 // Object mapping table.
 //
 // Returns:
-//      ValueTable - 
+//      ValueTable - object mapping table.
 //
 Function MappingTable() Export
 	
@@ -299,7 +299,7 @@ EndFunction
 // Retrieves the number of objects of the current data type in the exchange message file.
 //
 // Returns:
-//     Number - 
+//     Number - retrieves the number of objects of the current data type in the exchange message file.
 //
 Function ObjectCountInSource() Export
 	
@@ -310,7 +310,7 @@ EndFunction
 // Number of objects of the current data type in this infobase.
 //
 // Returns:
-//     Number - 
+//     Number - number of objects of the current data type in this infobase.
 //
 Function ObjectCountInDestination() Export
 	
@@ -321,7 +321,7 @@ EndFunction
 // Number of objects that are mapped for the current data type.
 //
 // Returns:
-//     Number - 
+//     Number - number of objects that are mapped for the current data type.
 //
 Function MappedObjectCount() Export
 	
@@ -332,7 +332,7 @@ EndFunction
 // Number of objects that are not mapped for the current data type.
 //
 // Returns:
-//     Number - 
+//     Number - number of objects that are not mapped for the current data type.
 //
 Function UnmappedObjectsCount() Export
 	
@@ -343,7 +343,7 @@ EndFunction
 // Retrieves object mapping percentage for the current data type.
 //
 // Returns:
-//     Number - 
+//     Number - retrieves object mapping percentage for the current data type.
 //
 Function MappedObjectPercentage() Export
 	
@@ -358,7 +358,7 @@ Function MappingDigest()
 	
 	If TypeOf(MappingDigestField) <> Type("Structure") Then
 		
-		// 
+		// Initializing object mapping digest structure.
 		MappingDigestField = New Structure;
 		MappingDigestField.Insert("ObjectCountInSource",       0);
 		MappingDigestField.Insert("ObjectCountInDestination",       0);
@@ -376,7 +376,7 @@ Function ObjectMappingStatistics()
 	
 	If TypeOf(ObjectMappingStatisticsField) <> Type("Structure") Then
 		
-		// 
+		// Initializing statistic data structure.
 		ObjectMappingStatisticsField = New Structure;
 		ObjectMappingStatisticsField.Insert("MappedByRegisterSourceObjectCount",    0);
 		ObjectMappingStatisticsField.Insert("CountOfMappedByRegisterDestinationObjects",    0);
@@ -426,7 +426,7 @@ Procedure ExecuteInfobaseObjectMapping(Cancel)
 	// Getting object mapping digest data.
 	GetMappingDigest(TempTablesManager);
 	
-	// 
+	// Generate map table.
 	MappingTableField = ObjectMappingResult(SourceTable2, UserFields, TempTablesManager);
 	
 	TempTablesManager.Close();
@@ -447,10 +447,10 @@ Procedure ExecuteAutomaticInfobaseObjectMapping(Cancel, MappingFieldsList)
 		Return;
 	EndIf;
 	
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
 	UserFields = New Array;
 	
 	For Each Item In UsedFieldsList Do
@@ -488,7 +488,7 @@ Procedure ExecuteAutomaticInfobaseObjectMapping(Cancel, MappingFieldsList)
 	// Getting the table of automatic mapping.
 	AutimaticMappingData(SourceTable2, MappingFieldListNew, UserFields, TempTablesManager);
 	
-	// 
+	// Loading the table of automatically mapped objects into the form attribute.
 	AutomaticallyMappedObjectsTable.Load(AutomaticallyMappedObjectsTableGet(TempTablesManager, UserFields));
 	
 	TempTablesManager.Close();
@@ -514,7 +514,7 @@ Procedure ExecuteDefaultAutomaticInfobaseObjectMapping(Cancel, MappingFieldsList
 	// Getting the table of automatic mapping.
 	AutimaticMappingData(SourceTable2, MappingFieldsList, UserFields, TempTablesManager);
 	
-	// 
+	// Loading updated unapproved mapping table into the object attribute
 	UnapprovedMappingTable.Load(MergeUnapprovedMappingTableAndAutomaticMappingTable(TempTablesManager));
 	
 	TempTablesManager.Close();
@@ -523,25 +523,25 @@ EndProcedure
 
 Procedure ObjectsMappingData(SourceTable2, UserFields, TempTablesManager)
 	
-	// 
+	
 	//
-	// 
-	// 
-	// 
+	
+	
+	
 	//
-	// 
-	// 
-	// 
+	
+	
+	
 	//
-	// 
+	
 	//
-	// 
-	// 
+	
+	
 	//
 	//
 	
-	// 
-	//  
+	
+	 
 	
 	QueryText = "
 	|//////////////////////////////////////////////////////////////////////////////// {SourceTable2}
@@ -1439,9 +1439,9 @@ EndProcedure
 
 Procedure AutimaticMappingDataByGUID(UserFields, TempTablesManager)
 	
-	// 
+	
 	//
-	// 
+	
 	
 	QueryText = "
 	|//////////////////////////////////////////////////////////////////////////////// {AutomaticallyMappedObjectsTable}
@@ -1510,24 +1510,24 @@ EndProcedure
 
 Procedure AutimaticMappingDataByGUIDPlusBySearchFields(SourceTable2, MappingFieldsList, UserFields, TempTablesManager)
 	
-	// 
-	//
-	// 
-	// 
-	// 
-	// 
-	// 
-	//
-	// 
-	// 
-	// 
 	
-	// 
 	//
-	// 
-	// 
+	
+	
+	
+	
+	
 	//
-	// 
+	
+	
+	
+	
+	
+	//
+	
+	
+	//
+	
 	
 	QueryText = "
 	|//////////////////////////////////////////////////////////////////////////////// {ТаблицаАвтоматическиСопоставленныхОбъектовПоGUID}
@@ -2108,7 +2108,7 @@ Function SourceInfobaseData(Cancel)
 	
 	DataTableKey = DataExchangeServer.DataTableKey(SourceTypeString, DestinationTypeString, IsObjectDeletion);
 	
-	// 
+	// Perhaps the data table is already imported and is placed in the DataExchangeDataProcessor data processor cache
 	DataTable = DataExchangeDataProcessor.DataTablesExchangeMessages().Get(DataTableKey);
 	
 	// Importing the data table if it is not imported earlier
@@ -2117,7 +2117,7 @@ Function SourceInfobaseData(Cancel)
 		TablesToImport = New Array;
 		TablesToImport.Add(DataTableKey);
 		
-		// 
+		// IMPORTING DATA IN THE MAPPING MODE (importing data into the value table.
 		DataExchangeDataProcessor.ExecuteDataImportIntoValueTable(TablesToImport);
 		
 		If DataExchangeDataProcessor.FlagErrors() Then
@@ -2167,7 +2167,7 @@ Function GetSortingFieldsAtServer()
 	// Function return value.
 	SortFields = "";
 	
-	FieldPattern = "SortFieldNN #SortDirection"; // 
+	FieldPattern = "SortFieldNN #SortDirection"; 
 	
 	For Each TableRow In SortTable Do
 		
@@ -2259,8 +2259,8 @@ Procedure FillSortTable(SourceValueList)
 		TableRow = SortTable.Add();
 		
 		TableRow.FieldName               = Item.Value;
-		TableRow.Use         = IsFirstField; // 
-		TableRow.SortDirection = True; // 
+		TableRow.Use         = IsFirstField; 
+		TableRow.SortDirection = True; // Ascending.
 		
 	EndDo;
 	

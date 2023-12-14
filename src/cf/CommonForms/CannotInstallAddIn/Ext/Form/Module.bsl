@@ -34,3 +34,15 @@ Procedure NoteDecorationURLProcessing(Item, FormattedStringURL, StandardProcessi
 EndProcedure
 
 #EndRegion
+
+#Region FormCommandsEventHandlers
+
+&AtClient
+Procedure ContinueInstallationAttempt(Command)
+	
+	Close(True);
+	
+EndProcedure
+
+#EndRegion
+

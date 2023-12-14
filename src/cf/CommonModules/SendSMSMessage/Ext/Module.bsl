@@ -116,7 +116,7 @@ EndFunction
 //  MessageID - String - ID assigned to the outgoing text message.
 //
 // Returns:
-//  String - 
+//  String - :
 //           
 //           
 //           
@@ -143,7 +143,7 @@ EndFunction
 // This function checks whether saved text message sending settings are correct.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if text message sending is set up.
 //
 Function SMSMessageSendingSetupCompleted() Export
 	
@@ -179,7 +179,7 @@ EndFunction
 // This function checks whether the current user can send text messages.
 // 
 // Returns:
-//  Boolean - 
+//  Boolean - True if text message sending is set up and the current user has sufficient rights to send text messages.
 //
 Function CanSendSMSMessage() Export
 	

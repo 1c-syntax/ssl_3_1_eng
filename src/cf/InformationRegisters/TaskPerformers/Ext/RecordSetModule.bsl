@@ -11,10 +11,10 @@
 
 #Region Variables
 
-// 
+
 Var ModifiedPerformersGroups; // Array of CatalogRef.TaskPerformersGroups -
-                                    // 
-// 
+                                    
+
 
 #EndRegion
 

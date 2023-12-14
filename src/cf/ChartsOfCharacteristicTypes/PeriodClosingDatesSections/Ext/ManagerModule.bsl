@@ -145,7 +145,7 @@ Function ClosingDatesSectionsProperties() Export
 		EndIf;
 	EndDo;
 	
-	// 
+	// Adding a blank section (a common date).
 	SectionProperties = SectionProperties(EmptyRef());
 	SectionProperties = New FixedStructure(SectionProperties);
 	ClosingDatesSections.Insert(SectionProperties.Name,    SectionProperties);

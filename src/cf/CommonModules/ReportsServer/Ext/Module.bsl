@@ -9,38 +9,38 @@
 
 #Region Public
 
-// Sets the passed schema to the report and initializes the settings composer based on the schema.
-// If a report (settings) form is the context, the procedure refreshes the main form attribute - Report.
+// Sets the passed schema to the report and initializes Settings Composer based on the schema.
+// If a report form is the context, the procedure refreshes the main form attribute (Report).
 // The result is that the object context and the report form get synchronized.
 // For example, it is called from the BeforeImportSettingsToComposer handler of an object of the universal report
 // in order to set the schema generated programmatically based on another metadata object.
 //
 // Parameters:
 //  Report - ReportObject
-//        - ExternalReport - 
+//        - ExternalReport - Target DCS report.
 //  Context - ClientApplicationForm - Report form or a report settings form.
-//             It is passed "as is" from the BeforeImportSettingsToComposer event parameter.
+//             It is passed as is from the BeforeImportSettingsToComposer event parameter.
 //           - Structure:
 //               * RefOfReport - Arbitrary     - Report reference.
 //               * FullName - String           - Full name of a report.
-//               * Metadata - MetadataObject - report metadata.
+//               * Metadata - MetadataObject - Report metadata.
 //               * Object - ReportObject
-//                        - ExternalReport - 
-//                            ** SettingsComposer - DataCompositionSettingsComposer - report settings.
+//                        - ExternalReport - Report object.:
+//                            ** SettingsComposer - DataCompositionSettingsComposer - Report settings.
 //                            ** DataCompositionSchema - DataCompositionSchema - Report schema.
 //               * VariantKey - String - Predefined report option name or a user report option ID.
-//               * SchemaURL - String - Address in the temporary storage where the report schema is placed.
+//               * SchemaURL - String - Address in the temporary storage where the report schema is located.
 //               * Success - Boolean - True if the report is attached.
-//               * ErrorText - String - error text.
+//               * ErrorText - String - Error text.
 //       
 //       
-//  Schema - DataCompositionSchema - Schema to set to the report.
-//  SchemaKey - String - new schema ID that will be written to additional properties 
-//                       of user settings.
+//  Schema - DataCompositionSchema - Schema to apply to the report.
+//  SchemaKey - String - ID of the new schema to be written to the user settings additional properties. 
+//                       
 //
 // Example:
-//  // In report object handler BeforeImportSettingsToComposer, the settings composer
-//  // is initialized based on schema from the common templates:
+//  In the object handler of the BeforeImportSettingsToComposer report, Settings Composer
+//  is initialized based on schema from the common templates:
 //  If SchemaKey <> "1" Then
 //  	  SchemaKey = "1";
 //  	  Schema = GetCommonTemplate("MyCommonCompositionSchema");
@@ -81,16 +81,16 @@ Procedure AttachSchema(Report, Context, Schema, SchemaKey) Export
 	EndIf;
 EndProcedure
 
-// Initializes data composition settings composer with exception handling.
+// Initializes a data composition Settings Composer with exception handling.
 //
 // Parameters:
-//  SettingsComposer - DataCompositionSettingsComposer - the settings composer to initialize.
+//  SettingsComposer - DataCompositionSettingsComposer - Settings Composer to initialize.
 //  Schema - DataCompositionSchema
 //        - String
 //  Report - ReportObject
-//        - Undefined - 
+//        - Undefined - Report whose composer to be initialized.
 //  ReportVariant - CatalogRef.ReportsOptions
-//                - Undefined - 
+//                - Undefined - Report option storage.
 //
 Procedure InitializeSettingsComposer(SettingsComposer, Schema, Report = Undefined, ReportVariant = Undefined) Export 
 	Try
@@ -121,7 +121,7 @@ EndProcedure
 //
 // Parameters:
 //   ReportForm - ClientApplicationForm
-//               - ManagedFormExtensionForReports - 
+//               - ManagedFormExtensionForReports - Form, where::
 //     * ConstantAttributes - ValueList
 //     * ConstantCommands - ValueList
 //   CommandOrCommands - FormCommand     - Command, to which the displayed buttons will be connected.
@@ -130,17 +130,17 @@ EndProcedure
 //                       If the Action property contains a string of the "<CommonClientModuleName>.<ExportProcedureName>" kind,
 //                       when the command is executed in the specified module, the specified procedure with two parameters
 //                       will be called, similar to the first two parameters of the ReportsClientOverridable.CommandHandler procedure.
-//                     - Array - 
-//   GroupType - String - conditional name of the group, in which a button is to be output.
+//                     - Array - Set of commands (FormCommand) that will be output to the given group.
+//   GroupType - String - Conditional name of the group that will host the button.
 //               "Main" - Group with the "Generate" and "Generate now" buttons.
 //               "Settings" - Group with buttons "Settings", "Change report options", and so on.
 //               "SpreadsheetDocumentOperations" - Group with buttons "Find", "Expand all groups", and so on.
-//               "Integration"      - Group with such buttons as "Print, Save, Send", and so on.
+//               "Integration" - Group with such buttons as "Print," "Save", and "Send".
 //               "SubmenuSend" - Submenu in the "Integration" group to send via email.
-//               "Other"          - Group with such buttons as "Change form", "Help", and so on.
+//               "Other" - Group with such buttons as "Change form" and "Help".
 //   ToGroupBeginning - Boolean - If True, the button will be output to the beginning of the group. Otherwise, a button will be output to group end.
-//   OnlyInAllActions - Boolean - If True, a button will be output only to the "More actions" submenu.
-//                           Otherwise, a button will be output both to the "More actions" submenu and to the form command bar.
+//   OnlyInAllActions - Boolean - If True, the button will be output only to the "More actions" submenu.
+//                           Otherwise, the button will be output both to the "More actions" submenu and to the form command bar.
 //   SubgroupSuffix - String - If it is filled, commands will be merged into a subgroup.
 //                      SubgroupSuffix is added to the right subgroup name.
 //
@@ -225,21 +225,21 @@ EndProcedure
 // Hyperlinks the cell and fills address fields and reference presentations.
 //
 // Parameters:
-//   Cell      - SpreadsheetDocumentRange - spreadsheet document area.
+//   Cell      - SpreadsheetDocumentRange - Spreadsheet area.
 //   HyperlinkAddress - String                          - Address of the hyperlink to be displayed in the specified cell.
-//			       Hyperlinks of the following formats automatically open in a standard report form:
+//			       Hyperlinks of the following formats automatically open in a standard report form::
 //			       "http://<address>", "https://<address>", "e1cib/<address>", "e1c://<address>"
 //			       Such hyperlinks are opened using the CommonClient.OpenURL procedure.
-//			       See also URLPresentation.URL in Syntax Assistant.
-//			       To open hyperlinks of other formats write code
-//			       in the ReportsClientOverridable.SpreadsheetDocumentChoiceProcessing procedure.
+//			       See URLPresentation.URL in Syntax Assistant.
+//			       To open hyperlinks of other formats write code in the
+//			       ReportsClientOverridable.SpreadsheetDocumentChoiceProcessing procedure.
 //   RepresentationOfTheReference - String
-//                       - Undefined - 
-//                                        
+//                       - Undefined - Description to be displayed in the given cell.
+//                                        If Undefined, HyperlinkAddress is displayed as is.
 //
 Procedure OutputHyperlink(Cell, HyperlinkAddress, RepresentationOfTheReference = Undefined) Export
 	Cell.Hyperlink = True;
-	Cell.Font       = New Font(Cell.Font, , , , , True); // 
+	Cell.Font       = New Font(Cell.Font, , , , , True); // ACC:1345 The font is based on the cell font. It can be a custom font and depends on the template appearance.
 	Cell.TextColor  = Metadata.StyleItems.HyperlinkColor.Value;
 	Cell.Details = HyperlinkAddress;
 	Cell.Text       = ?(RepresentationOfTheReference = Undefined, HyperlinkAddress, RepresentationOfTheReference);
@@ -249,11 +249,11 @@ EndProcedure
 //
 // Parameters:
 //   ReportObject - ReportObject
-//               - ExternalReport - 
+//               - ExternalReport - Report to be checked.
 //   DCProcessor - DataCompositionProcessor - Object composing the data in the report.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True if the report is blank. False if the report contains data.
 //
 Function ReportIsBlank(ReportObject, DCProcessor = Undefined) Export
 	If DCProcessor = Undefined Then
@@ -273,33 +273,33 @@ Function ReportIsBlank(ReportObject, DCProcessor = Undefined) Export
 			Return False;
 		EndIf;
 		
-		// 
+		// Object that composes data.
 		DCProcessor = New DataCompositionProcessor;
 		
-		// 
+		// Initialize an object.
 		DCProcessor.Initialize(DCTemplate, , , True);
 		
 	Else
 		
-		// 
+		// Move to the beginning of the composition.
 		DCProcessor.Reset();
 		
 	EndIf;
 	
-	// The object to output a composition result to the spreadsheet document.
+	// Object for outputting the composition result into the spreadsheet.
 	DCResultOutputProcessor = New DataCompositionResultSpreadsheetDocumentOutputProcessor;
 	
-	// 
+	// Determines the spreadsheet document in which the result has to be displayed.
 	DCResultOutputProcessor.SetDocument(New SpreadsheetDocument);
 	
-	// 
+	// Sequential output.
 	DCResultOutputProcessor.BeginOutput();
 	
 	// Gets the next item of the composition result.
 	DCResultItem = DCProcessor.Next();
 	While DCResultItem <> Undefined Do
 		
-		// 
+		// Output the item of the report composition result into the document.
 		DCResultOutputProcessor.OutputItem(DCResultItem);
 		
 		// Determine a non-empty result.
@@ -307,7 +307,7 @@ Function ReportIsBlank(ReportObject, DCProcessor = Undefined) Export
 			Try
 				ValueIsFilled = ValueIsFilled(DCTemplateParameterValue.Value);
 			Except
-				ValueIsFilled = False; // 
+				ValueIsFilled = False; 
 			EndTry;
 			If ValueIsFilled Then
 				DCResultOutputProcessor.EndOutput();
@@ -316,7 +316,7 @@ Function ReportIsBlank(ReportObject, DCProcessor = Undefined) Export
 		EndDo;
 		
 		Try
-			// 
+			// Gets the next item of the composition result.
 			DCResultItem = DCProcessor.Next();
 		Except
 			Return False;
@@ -324,7 +324,7 @@ Function ReportIsBlank(ReportObject, DCProcessor = Undefined) Export
 		
 	EndDo;
 	
-	// 
+	// Indicate to the object that the output of the result is complete.
 	DCResultOutputProcessor.EndOutput();
 	
 	Return True;
@@ -388,7 +388,7 @@ Function SettingsFormItemsProperties(FormType, SettingsComposer, AdditionalParam
 			Continue;
 		EndIf;
 
-		SettingItem = FoundInfo.SettingItem; //  
+		SettingItem = FoundInfo.SettingItem; // DataCompositionGroup, DataCompositionTableGroup, DataCompositionChartGroup 
 		If SettingItem = Undefined
 			Or UnavailableStructureItems.Get(TypeOf(SettingItem)) = FormType
 			Or AvailableModes.Find(SettingItem.ViewMode) = Undefined Then 
@@ -450,21 +450,21 @@ EndFunction
 // The wizard of group items properties of user settings form.
 //
 // Returns:
-//   Structure - 
-//    * Representation - UsualGroupRepresentation - see the UsualGroupPresentation syntax assistant.
-//    * Group - ChildFormItemsGroup - the number of the item column groups:
-//       ** Vertical - ChildFormItemsGroup - equals to one column;
-//       ** HorizontalIfPossible - ChildFormItemsGroup - equals to two columns;
-//       ** AlwaysHorizontal - ChildFormItemsGroup - the number of columns equals to the number of items
-//                                                                        in the group.
-//    * Title - String - See Syntax Assistant for FormGroup.Title.
-//    * BackColor - Color - See Syntax Assistant for FormGroup.BackColor.
-//    * ToolTip - String - See Syntax Assistant for FormGroup.Tooltip.
-//    * ToolTipRepresentation - ToolTipRepresentation - See Syntax Assistant for FormGroup.TooltipRepresentation.
-//    * Height - Number - See Syntax Assistant for FormGroup.Height.
-//    * Width - Number - See Syntax Assistant for FormGroup.Width.
-//    * VerticalStretch - Undefined, Boolean - See Syntax Assistant for FormGroup.VerticalStretch.
-//    * HorizontalStretch - Undefined, Boolean - See Syntax Assistant for FormGroup.HorizontalStretch.
+//   Structure - Contains property values of the group:
+//    * Representation - UsualGroupRepresentation - 
+//    * Group - ChildFormItemsGroup - Number of the item groups (columns)::
+//       ** Vertical - ChildFormItemsGroup - Equals to one column.
+//       ** HorizontalIfPossible - ChildFormItemsGroup - Equals to two columns.
+//       ** AlwaysHorizontal - ChildFormItemsGroup - Number of columns equals to the number of group items.
+//                                                                        
+//    * Title - String - 
+//    * BackColor - Color - 
+//    * ToolTip - String - 
+//    * ToolTipRepresentation - ToolTipRepresentation - 
+//    * Height - Number - 
+//    * Width - Number - 
+//    * VerticalStretch - Undefined, Boolean - 
+//    * HorizontalStretch - Undefined, Boolean - 
 //
 Function FormItemsGroupProperties() Export 
 	GroupProperties = New Structure;
@@ -563,8 +563,8 @@ Function AvailableSettings(ImportParameters, ReportSettings) Export
 			Try
 				Settings = Common.ValueFromXMLString(ReportSettings.NewXMLSettings);
 				
-				// 
-				//  
+				
+				//   (см. синтакс-помощник: ЗначенияПараметровДанныхКомпоновкиДанных)
 				SettingsComposer = New DataCompositionSettingsComposer;
 				InitializeSettingsComposer(SettingsComposer, ReportSettings.SchemaURL);
 				SettingsComposer.LoadSettings(Settings);
@@ -697,36 +697,17 @@ Procedure SetAvailableValues(Report, Form) Export
 			
 			SettingDetails = ReportsClientServer.FindAvailableSetting(
 				SettingsComposer.Settings, MainSettingItem);
+			// @skip-check query-in-loop - Query multiple tables.
+			SetAvailableSettingsValues(Form, Report, SettingsComposer, UserSettingItem, MainSettingItem, SettingDetails);
 			
-			SettingProperties = UserSettingsItemProperties(
-				SettingsComposer, UserSettingItem, MainSettingItem, SettingDetails);
-			
-			// 
-			SSLSubsystemsIntegration.OnDefineSelectionParametersReportsOptions(Undefined, SettingProperties);
-			
-			// 
-			ReportsOverridable.OnDefineSelectionParameters(Undefined, SettingProperties);
-			
-			// Local override for a report.
-			If Form.ReportSettings.Events.OnDefineSelectionParameters Then 
-				Report.OnDefineSelectionParameters(Form, SettingProperties);
+			If TypeOf(MainSettingItem) = Type("DataCompositionFilterItem") Then
+				SettingDetails = SettingsComposer.Settings.StructureItemsFilterAvailableFields.FindField(MainSettingItem.LeftValue);
+				If SettingDetails <> Undefined Then
+					// @skip-check query-in-loop - Query multiple tables.
+					SetAvailableSettingsValues(Form, Report, SettingsComposer, UserSettingItem, MainSettingItem, SettingDetails);
+				EndIf;
 			EndIf;
-			
-			// Populate automatically.
-			If SettingProperties.SelectionValuesQuery.Text <> "" Then
-				// 
-				ValuesToAdd = SettingProperties.SelectionValuesQuery.Execute().Unload().UnloadColumn(0);
-				For Each Item In ValuesToAdd Do
-					ReportsClientServer.AddUniqueValueToList(
-						SettingProperties.ValuesForSelection, Item, Undefined, False);
-				EndDo;
-				SettingProperties.ValuesForSelection.SortByPresentation(SortDirection.Asc);
-			EndIf;
-			
-			If TypeOf(SettingProperties.ValuesForSelection) = Type("ValueList")
-				And SettingProperties.ValuesForSelection.Count() > 0 Then 
-				SettingDetails.AvailableValues = SettingProperties.ValuesForSelection;
-			EndIf;
+
 		EndDo;
 	EndDo;
 EndProcedure
@@ -752,9 +733,9 @@ EndFunction
 //  * Show filter;
 //
 // Parameters:
-//  Context - Structure - information on report option and its metadata ID.
-//  Settings - DataCompositionSettings - settings whose output parameters are being set.
-//  Reset - Boolean - indicates that output parameters must be returned to the original state.
+//  Context - Structure - Information on the report option and its metadata ID.
+//  Settings - DataCompositionSettings - Settings whose output parameters are being set.
+//  Reset - Boolean - Flag indicating that output parameters must be returned to the original state.
 //
 Procedure InitializePredefinedOutputParameters(Context, Settings, Reset = False) Export 
 	If Settings = Undefined Then 
@@ -770,7 +751,7 @@ Procedure InitializePredefinedOutputParameters(Context, Settings, Reset = False)
 	
 	OutputParameters = Settings.OutputParameters.Items;
 	
-	// The Title parameter is always available but in report setting form only.
+	// The "Title" parameter is always available but only in the report setting form.
 	Object = OutputParameters.Find("TITLE");
 	Object.ViewMode = DataCompositionSettingsItemViewMode.Normal;
 	Object.UserSettingID = "";
@@ -789,7 +770,7 @@ Procedure InitializePredefinedOutputParameters(Context, Settings, Reset = False)
 		LinkedObject.Value = DataCompositionTextOutputType.DontOutput;
 	EndIf;
 	
-	// 
+	// The "OutputParameters" parameter is always available but only in the report setting form.
 	Object = OutputParameters.Find("DATAPARAMETERSOUTPUT");
 	Object.ViewMode = DataCompositionSettingsItemViewMode.Normal;
 	Object.UserSettingID = "";
@@ -799,7 +780,7 @@ Procedure InitializePredefinedOutputParameters(Context, Settings, Reset = False)
 		Object.Value = DataCompositionTextOutputType.Auto;
 	EndIf;
 	
-	// 
+	// Parameter OutputTitle is always disabled. The property values repeat the OutputDataParameters parameter.
 	LinkedObject = OutputParameters.Find("FILTEROUTPUT");
 	LinkedObject.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	LinkedObject.UserSettingID = "";
@@ -1089,10 +1070,10 @@ EndProcedure
 //  SettingsComposer - DataCompositionSettingsComposer - Relevant composer.
 //
 // Returns:
-//   Structure - 
-//     * QuickAccessSettingsCount - Number - number of settings with the QuickAccess or Auto display modes;
-//     * Typical - Number - number of settings with the Typical display mode;
-//     * Total - Number - total amount of available settings.
+//   Structure - Number of user settings broken down by display modes:
+//     * QuickAccessSettingsCount - Number - Number of settings with the "QuickAccess" or "Auto" display modes.
+//     * Typical - Number - Number of settings with the "Typical" display mode.
+//     * Total - Number - Total number of available settings.
 //
 Function CountOfAvailableSettings(SettingsComposer) Export 
 	AvailableSettings = New Structure;
@@ -1215,10 +1196,10 @@ EndFunction
 // Creates and returns an instance of the report by full metadata object name.
 //
 // Parameters:
-//  FullName - String - full name of a metadata object. Example: "Report.BusinessProcesses".
+//  FullName - String - Full name of the metadata object. Example: "Report.BusinessProcesses".
 //
 // Returns:
-//  ReportObject - 
+//  ReportObject - Report instance.
 //
 Function ReportObject(Id) Export
 	FullName = Id;
@@ -1557,7 +1538,7 @@ Function InfoKinds()
 	Return New Structure("Settings, SettingItem, SettingDetails");
 EndFunction
 
-// Regrouping form items connected to user settings.
+// Regroup form items associated to user settings.
 
 // Generates collections of attribute names grouped by styles: Period, CheckBox, or List.
 // 
@@ -1609,7 +1590,7 @@ EndFunction
 Procedure PrepareFormToRegroupItems(Form, ItemsHierarchyNode, AttributesNames, StyylizedItemsKinds)
 	Items = Form.Items;
 	
-	// Regrouping predefined form items.
+	// Regroup predefined form items.
 	PredefinedItemsProperties = StrSplit("Indent, Pickup, PasteFromClipboard1", ", ", False);
 	PredefinedItemsProperties.Add("");
 	
@@ -1626,7 +1607,7 @@ Procedure PrepareFormToRegroupItems(Form, ItemsHierarchyNode, AttributesNames, S
 		EndDo;
 	EndDo;
 	
-	// Deleting dynamic form items.
+	// Delete dynamic form items.
 	ItemsHierarchyNodes = New Array;
 	ItemsHierarchyNodes.Add(ItemsHierarchyNode);
 	
@@ -2153,7 +2134,7 @@ Procedure SetSettingsFormItemsProperties(Form, SettingsItems, ItemsProperties)
 			
 			LinkedField.TitleLocation = FormItemTitleLocation.None;
 			Field.Title = LinkedField.Title;
-		Else // 
+		Else // Input field.
 			FieldProperties = ItemsProperties.Fields.Find(Item.SettingIndex, "SettingIndex");
 			FillPropertyValues(Field, FieldProperties,, "TitleLocation");
 			
@@ -2822,7 +2803,7 @@ Procedure OutputSettingsPeriods(Form, SettingsItems, AttributesNames)
 			Separator = Items.Add(TagName, Type("FormDecoration"), Group);
 		EndIf;
 		Separator.Type = FormDecorationType.Label;
-		Separator.Title = Char(8211); // 
+		Separator.Title = Char(8211); 
 		Separator.Visible = ThisIsTheStandardRepresentation;
 		
 		AddAPeriodField(Items, Group, ItemNameTemplate, "EndDate", Field.Title, ThisIsTheStandardRepresentation);
@@ -2984,7 +2965,7 @@ Function InitializePeriod(Form, IndexOf)
 	Path = Form.PathToItemsData.ByIndex[IndexOf];
 	If TypeOf(SettingItem) = Type("DataCompositionSettingsParameterValue") Then 
 		Period = SettingItem.Value;
-	Else // 
+	Else // Filter element.
 		Period = SettingItem.RightValue;
 	EndIf;
 	
@@ -3203,8 +3184,8 @@ Procedure InitializeList(Form, IndexOf, Field, SettingItem)
 	Else
 		SelectedValues = ReportsClientServer.ValuesByList(SettingItem[ValueFieldName]);
 		If SelectedValues.Count() > 0 Then 
-			// 
-			// 
+			
+			
 			SettingItem[ValueFieldName] = SelectedValues;
 		EndIf;
 	EndIf;
@@ -3298,7 +3279,7 @@ Procedure InitializeCheckBox(Form, IndexOf)
 	Path = Form.PathToItemsData.ByIndex[IndexOf];
 	If TypeOf(SettingItem) = Type("DataCompositionSettingsParameterValue") Then 
 		Form[Path] = SettingItem.Value;
-	Else // 
+	Else // Filter element.
 		Form[Path] = SettingItem.RightValue;
 	EndIf;
 EndProcedure
@@ -3401,7 +3382,7 @@ EndProcedure
 //   DataSets - DataCompositionTemplateDataSets - Collection of data sets to be checked.
 //
 // Returns: 
-//   Boolean - 
+//   Boolean - True if is has external data sets.
 //
 Function ThereIsExternalDataSet(DataSets)
 	
@@ -3499,13 +3480,13 @@ EndProcedure
 //   Where_SSLy - DataCompositionSettingsComposer
 //        - DataCompositionSettings
 //        - DataCompositionSelectedFields -
-//       
+//       Collection to add the selected field to.
 //   DCNameOrField - String
-//                - DataCompositionField - field name.
-//   Title    - String - field presentation.
+//                - DataCompositionField - Field name.
+//   Title    - String - Field presentation.
 //
 // Returns:
-//   DataCompositionSelectedField - 
+//   DataCompositionSelectedField - Selected added field.
 //
 Function AddSelectedField(Where_SSLy, DCNameOrField, Title = "") Export
 	
@@ -3779,7 +3760,7 @@ EndFunction
 //   - DataCompositionTableStructureItemCollection
 //   - DataCompositionTableGroup
 //   - DataCompositionChartStructureItemCollection
-//   - DataCompositionChartGroup - 
+//   - DataCompositionChartGroup - Found settings node.
 //
 Function SettingsItemByFullPath(Val Settings, Val FullPathToItem) Export
 	Indexes = StrSplit(FullPathToItem, "/", False);
@@ -3831,6 +3812,40 @@ Procedure SetFiltersConditions(ImportParameters, SettingsComposer) Export
 		
 		FillPropertyValues(SettingItem, UserSettingItem, "ComparisonType, RightValue");
 	EndDo;
+EndProcedure
+
+Procedure SetAvailableSettingsValues(Form, Report, SettingsComposer, UserSettingItem, MainSettingItem, SettingDetails)
+		
+	SettingProperties = UserSettingsItemProperties(
+	SettingsComposer, UserSettingItem, MainSettingItem, SettingDetails);
+	
+	// Extension functionality.
+	SSLSubsystemsIntegration.OnDefineSelectionParametersReportsOptions(Undefined, SettingProperties);
+	
+	// Global settings of type output.
+	ReportsOverridable.OnDefineSelectionParameters(Undefined, SettingProperties);
+	
+	// Local override for a report.
+	If Form.ReportSettings.Events.OnDefineSelectionParameters Then 
+		Report.OnDefineSelectionParameters(Form, SettingProperties);
+	EndIf;
+	
+	// Populate automatically.
+	If SettingProperties.SelectionValuesQuery.Text <> "" Then
+		// @skip-check query-in-loop - Query multiple tables.
+		ValuesToAdd = SettingProperties.SelectionValuesQuery.Execute().Unload().UnloadColumn(0);
+		For Each Item In ValuesToAdd Do
+			ReportsClientServer.AddUniqueValueToList(
+			SettingProperties.ValuesForSelection, Item, Undefined, False);
+		EndDo;
+		SettingProperties.ValuesForSelection.SortByPresentation(SortDirection.Asc);
+	EndIf;
+	
+	If TypeOf(SettingProperties.ValuesForSelection) = Type("ValueList")
+		And SettingProperties.ValuesForSelection.Count() > 0 Then 
+		SettingDetails.AvailableValues = SettingProperties.ValuesForSelection;
+	EndIf;
+	
 EndProcedure
 
 #EndRegion

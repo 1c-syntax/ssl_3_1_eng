@@ -83,7 +83,7 @@ Procedure Filling(FillingData, FillingText, StandardProcessing)
 		If TypeOf(FillingData) = Type("CatalogRef.Users") Then
 			Performer = FillingData;
 		Else
-			// 
+			// For auto completion in a blank Assignee field.
 			Performer = Catalogs.Users.EmptyRef();
 		EndIf;
 	EndIf;
@@ -94,7 +94,7 @@ Procedure Filling(FillingData, FillingText, StandardProcessing)
 		If TypeOf(FillingData) <> Type("TaskRef.PerformerTask") Then
 			SubjectOf = FillingData;
 		Else
-			SubjectOf = FillingData.SubjectOf;
+			SubjectOf = Common.ObjectAttributeValue(FillingData, "SubjectOf");
 		EndIf;
 
 	EndIf;
@@ -266,8 +266,8 @@ Procedure ChangeUncompletedTasksAttributes() Export
 			TaskObject.Description = ?(TaskObject.RoutePoint = BusinessProcesses.Job.RoutePoints.Execute,
 				TaskDescriptionForExecution(), TaskDescriptionForCheck());
 			TaskObject.Author = Author;
-			// 
-			// 
+			
+			
 			TaskObject.Write();
 		EndDo;
 
@@ -302,8 +302,8 @@ Procedure ChangeTaskSubject()
 		While SelectionDetailRecords.Next() Do
 			TaskObject = SelectionDetailRecords.Ref.GetObject(); // TaskObject
 			TaskObject.SubjectOf = SubjectOf;
-			// 
-			// 
+			
+			
 			TaskObject.Write();
 		EndDo;
 		CommitTransaction();
@@ -385,7 +385,7 @@ EndFunction
 
 Procedure FillDefaultAccessValuesSets(Table)
 	
-	// 
+	
 	// 
 	// 
 	
@@ -398,13 +398,13 @@ Procedure FillDefaultAccessValuesSets(Table)
 	String.Update       = True;
 	String.AccessValue = Author;
 	
-	// 
+	// Reading: set No. 2.
 	String = Table.Add();
 	String.SetNumber     = 2;
 	String.Read          = True;
 	String.AccessValue = TaskPerformersGroup;
 	
-	// 
+	// Reading: set No. 3.
 	String = Table.Add();
 	String.SetNumber     = 3;
 	String.Read          = True;

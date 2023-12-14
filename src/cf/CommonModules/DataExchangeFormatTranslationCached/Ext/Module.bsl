@@ -11,7 +11,7 @@
 
 // Parameters:
 //  Name - String
-//  DirectionOfTranslation - String -
+//  DirectionOfTranslation - String - 
 // 
 // Returns:
 //  String
@@ -46,7 +46,7 @@ Function Dictionary_ru_en() Export
 	
 	Dictionary = New Map;
 	
-	// ACC:1036-
+	
 	Dictionary.Insert("fileкаталогобменаинформацией", "FILEDataExchangeDirectory"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("fileсжиматьфайлисходящегосообщения", "FILECompressOutgoingMessageFile"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("skuконтрагента", "SKUCounterparty_"); // @NON-NLS-1 @NON-NLS-2
@@ -56,6 +56,7 @@ Function Dictionary_ru_en() Export
 	Dictionary.Insert("авансовыйотчетссылка", "AdvanceReportLink"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("авансы", "Prepayments"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("автоматически", "Automatically"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("автор", "Author"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("агент", "Agent"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("агентские", "Agency"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("агентскоевознаграждение", "AgencyFee"); // @NON-NLS-1 @NON-NLS-2
@@ -226,6 +227,7 @@ Function Dictionary_ru_en() Export
 	Dictionary.Insert("да", "Yes"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("давальческиесырьеиматериалы", "GiverRawMaterialsAndSupplies"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("данныевходящегодокумента", "IncomingDocumentData"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("данныегтд", "CCDData"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("данныеклассификатора", "ClassifierData"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("данныеноменклатуры", "ProductData_1"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("данныеотчета", "ReportData"); // @NON-NLS-1 @NON-NLS-2
@@ -315,6 +317,7 @@ Function Dictionary_ru_en() Export
 	Dictionary.Insert("долястоимости", "CostShare"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("дооборудование", "FurtherEquipping"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("доплата", "ExtraPay"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("дополнительнаяинформация", "AdditionalInformation"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("дополнительныезначенияиспользуются", "AdditionalValuesUsed"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("дополнительныезначениясвесом", "AdditionalValuesWithWeight"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("дополнительныереквизиты", "AdditionalAttributes"); // @NON-NLS-1 @NON-NLS-2
@@ -509,6 +512,7 @@ Function Dictionary_ru_en() Export
 	Dictionary.Insert("кредитбанка", "BankCredit"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("кредитконтрагента", "CounterpartyCredit"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("кредиторскаязадолженность", "AccountsPayable"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("кредитыизаймы", "LoansAndBorrowings"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("кредитыполученные", "LoansReceived_"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("крепость", "Strength"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("креслаколяски", "Wheelchairs"); // @NON-NLS-1 @NON-NLS-2
@@ -545,6 +549,7 @@ Function Dictionary_ru_en() Export
 	Dictionary.Insert("модернизация", "Modernization"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("модернизацияос", "FixedAssetsCostAdditions"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("мол", "FinanciallyLiablePerson"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("молочнаяпродукция", "MilkAndMilkProducts"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("молочнаяпродукциябезветис", "MilkAndDairyProductsWithoutVetIS"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("молочнаяпродукцияветис", "VETISDairyProducts"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("монотоварнаяупаковка", "SingleProductPackage"); // @NON-NLS-1 @NON-NLS-2
@@ -588,6 +593,7 @@ Function Dictionary_ru_en() Export
 	Dictionary.Insert("напрочиедоходы", "OnOtherIncome"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("напрочиерасходы", "ForOtherExpenses"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("настройкирасчета", "CalculationSettings"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("наутверждении", "AwaitingConfirmation"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("наценка", "Markup"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("началодиапазонамагнитногокода", "StartOfMagneticCodeRange"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("началодиапазонаштрихкода", "StartOfBarcodeRange"); // @NON-NLS-1 @NON-NLS-2
@@ -629,6 +635,7 @@ Function Dictionary_ru_en() Export
 	Dictionary.Insert("нет", "None"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("никотиносодержащаяпродукция", "NicotineContainingProducts"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("номенклатура", "Products"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("номенклатураотбор", "NomenclatureSelection"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("номер", "Number"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("номеракцизноймарки", "ExciseStampNumber"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("номербилета", "TicketNumber"); // @NON-NLS-1 @NON-NLS-2
@@ -839,6 +846,13 @@ Function Dictionary_ru_en() Export
 	Dictionary.Insert("полугодье", "HalfYear_"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("получениеналичных", "ReceivingCash"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("пользователь", "User"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("пользовательскаякиskype", "UserCISkype"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("пользовательскаякиадрес", "UserCIAddress"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("пользовательскаякиадресэлектроннойпочты", "UserCIEmail"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("пользовательскаякивебстраница", "UserCIWebPage"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("пользовательскаякидругое", "UserCIOther"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("пользовательскаякителефон", "UserCIPhone"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("пользовательскаякифакс", "UserCIFax"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("помещение", "Premise"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("понаработке", "ByAssetActivity"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("поручениеэкспедиторувпункте", "InstructionForShippingAgentAtPoint"); // @NON-NLS-1 @NON-NLS-2
@@ -1099,6 +1113,7 @@ Function Dictionary_ru_en() Export
 	Dictionary.Insert("суммарезерва", "ReserveAmount_"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("суммаскидки", "DiscountAmount"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("суммасучетомскидки", "AmountIncludingDiscount"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("суммауслуг", "AmountOfServices"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("суммаучет", "AmountAccounting_"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("суммафакт", "SumReal"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("счетафактурывыданныепокупателям", "InvoicesIssuedToCustomers"); // @NON-NLS-1 @NON-NLS-2
@@ -1176,6 +1191,7 @@ Function Dictionary_ru_en() Export
 	Dictionary.Insert("типупаковки", "PackageType"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("типуслуги", "ServiceType"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("типцен", "PriceType_"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("типцены", "PriceType"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("типштрихкода", "BarcodeType"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("типыплатежнойсистемыккт", "TypesOfCashRegisterPaymentSystem"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("тмц", "Inventory"); // @NON-NLS-1 @NON-NLS-2
@@ -1228,6 +1244,7 @@ Function Dictionary_ru_en() Export
 	Dictionary.Insert("упакованнаявода", "PackagedWater"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("упаковка", "Package"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("упаковканоменклатуры", "ProductPackaging"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("упаковкаотбор", "PackagingSelection"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("уполномоченноелицо", "AuthorizedPerson"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("уполномоченноелицоотбор", "AuthorizedPersonSelection"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("уполномоченныйпредставитель", "AuthorizedRepresentativeInTaxAuthority"); // @NON-NLS-1 @NON-NLS-2
@@ -1259,6 +1276,7 @@ Function Dictionary_ru_en() Export
 	Dictionary.Insert("ффомс", "InsuranceContributionsToFCMIF"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("характеристика", "Characteristic"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("характеристиканоменклатуры", "ProductCharacteristic"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("характеристикаотбор", "FeatureSelection"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("характеристикапродукции", "ItemVariant"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("хранимыйфайл", "StoredFile"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("цена", "Price"); // @NON-NLS-1 @NON-NLS-2
@@ -1287,6 +1305,7 @@ Function Dictionary_ru_en() Export
 	Dictionary.Insert("штраф", "Penalty"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("штрихкод", "Barcode"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("штрихкодотбор", "BarcodeSelection"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("эквайер", "Acquirer"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("эквайрер", "Acquirer"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("эквайринговыетерминалы", "POSTerminals"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("эквайринговыйтерминал", "POSTerminal"); // @NON-NLS-1 @NON-NLS-2
@@ -1310,7 +1329,7 @@ Function Dictionary_ru_en() Export
 	Dictionary.Insert("являетсярнпт", "IsRNPT"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("являетсяудостоверяющимличность", "IsIdentityDocument"); // @NON-NLS-1 @NON-NLS-2
 
-	// ACC:1036-
+	
 	
 	Return Dictionary;
 	
@@ -1323,7 +1342,7 @@ Function Dictionary_en_ru() Export
 	
 	Dictionary = New Map;
 	
-	// ACC:1036-
+	
 	Dictionary.Insert("abbreviateddescription", "НаименованиеСокращенное"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("accelerationfactoraccounting", "КоэффициентУскоренияБУ"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("accepted", "Принят"); // @NON-NLS-1 @NON-NLS-2
@@ -1362,7 +1381,12 @@ Function Dictionary_en_ru() Export
 	Dictionary.Insert("accumulateddepreciationtaxaccounting", "НакопленнаяАмортизацияНУ"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("accumulateddepreciationtd", "НакопленнаяАмортизацияВР"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("accuracyofunitofmeasure", "ТочностьЕдиницыИзмерения"); // @NON-NLS-1 @NON-NLS-2
-	Dictionary.Insert("acquirer", "Эквайрер"); // @NON-NLS-1 @NON-NLS-2
+
+	Array = New Array;
+	Array.Add("Эквайер"); // @NON-NLS-1
+	Array.Add("Эквайрер"); // @NON-NLS-1
+	Dictionary.Insert("acquirer", Array);
+
 	Dictionary.Insert("acquirerscontract", "ДоговорЭквайрера"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("acreserve", "РезервБУ"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("actionsarerequired", "ТребуютсяДействия"); // @NON-NLS-1 @NON-NLS-2
@@ -1373,6 +1397,7 @@ Function Dictionary_en_ru() Export
 	Dictionary.Insert("actualaddress", "ФактическийАдрес"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("additionalattribute", "ДополнительныйРеквизит"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("additionalattributes", "ДополнительныеРеквизиты"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("additionalinformation", "ДополнительнаяИнформация"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("additionalvaluesowner", "ВладелецДополнительныхЗначений"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("additionalvaluesused", "ДополнительныеЗначенияИспользуются"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("additionalvalueswithweight", "ДополнительныеЗначенияСВесом"); // @NON-NLS-1 @NON-NLS-2
@@ -1413,6 +1438,7 @@ Function Dictionary_en_ru() Export
 	Dictionary.Insert("amountofaccountsreceivable", "СуммаДебиторскойЗадолженности"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("amountofbonuspoints", "СуммаБонусныхБаллов"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("amountofrevaluation_", "СуммаПереоценки"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("amountofservices", "СуммаУслуг"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("amountofvatbeforeadjustment", "СуммаНДСДоКорректировки"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("amountvatremuneration", "СуммаНДСВознаграждения"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("analyticalgroup", "ГруппаАналитическогоУчета"); // @NON-NLS-1 @NON-NLS-2
@@ -1438,12 +1464,14 @@ Function Dictionary_en_ru() Export
 	Dictionary.Insert("atexpenseofthirdpartycompany", "ЗаСчетСтороннейКомпании"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("attorney", "Поверенный"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("auction12", "ТОРГ12"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("author", "Автор"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("authorizationcode", "КодАвторизации"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("authorizedperson", "УполномоченноеЛицо"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("authorizedpersonselection", "УполномоченноеЛицоОтбор"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("authorizedrepresentativeintaxauthority", "УполномоченныйПредставитель"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("authorstatus", "СтатусСоставителя"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("automatically", "Автоматически"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("awaitingconfirmation", "НаУтверждении"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("bank", "Банк"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("bankaccount", "БанковскийСчет"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("bankaccountpayment", "Безналичная"); // @NON-NLS-1 @NON-NLS-2
@@ -1523,6 +1551,7 @@ Function Dictionary_en_ru() Export
 	Dictionary.Insert("cashregistersalesreceiptnumber", "НомерЧекаККМПродажи"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("cashregistershift", "КассоваяСмена"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("cashshiftnumber", "НомерКассовойСмены"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("ccddata", "ДанныеГТД"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("ccdnumber", "НомерГТД"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("ccdnumberbeforechange", "НомерГТДДоИзменения"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("certificate", "Сертификат"); // @NON-NLS-1 @NON-NLS-2
@@ -1784,6 +1813,7 @@ Function Dictionary_en_ru() Export
 	Dictionary.Insert("facost", "СтоимостьОС"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("fax", "Факс"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("feacncode", "КодТНВЭД"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("featureselection", "ХарактеристикаОтбор"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("fee", "Комиссия"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("feeamount", "СуммаКомиссии"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("feminine", "Женский"); // @NON-NLS-1 @NON-NLS-2
@@ -1931,6 +1961,7 @@ Function Dictionary_en_ru() Export
 	Dictionary.Insert("linear", "Линейный"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("linenumber", "НомерСтроки"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("loans_", "Займы"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("loansandborrowings", "КредитыИЗаймы"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("loansreceived", "ЗаймыПолученные"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("loansreceived_", "КредитыПолученные"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("loantocounterparty", "ЗаймКонтрагенту"); // @NON-NLS-1 @NON-NLS-2
@@ -1968,6 +1999,7 @@ Function Dictionary_en_ru() Export
 	Dictionary.Insert("methodofrepaymentofcostofinventory", "СпособПогашенияСтоимостиТМЦ"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("middlename", "Отчество"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("milkanddairyproductswithoutvetis", "МолочнаяПродукцияБезВЕТИС"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("milkandmilkproducts", "МолочнаяПродукция"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("modernization", "Модернизация"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("modernizationdocumentname", "НазваниеДокументаМодернизации"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("modernizationdocumentnumber", "НомерДокументаМодернизации"); // @NON-NLS-1 @NON-NLS-2
@@ -1988,6 +2020,7 @@ Function Dictionary_en_ru() Export
 	Dictionary.Insert("newnodecode", "КодНовогоУзла"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("nicotinecontainingproducts", "НикотиносодержащаяПродукция"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("noactionsneeded", "ДействийНеТребуется"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("nomenclatureselection", "НоменклатураОтбор"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("nominal", "Номинал"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("nonautomatedpointofsale", "НеавтоматизированнаяТорговаяТочка"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("none", "Нет"); // @NON-NLS-1 @NON-NLS-2
@@ -2068,6 +2101,7 @@ Function Dictionary_en_ru() Export
 	Dictionary.Insert("packagemarking", "МаркировкаУпаковки"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("packagemarkings", "МаркировкиУпаковок"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("packagetype", "ТипУпаковки"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("packagingselection", "УпаковкаОтбор"); // @NON-NLS-1 @NON-NLS-2
 
 	Array = New Array;
 	Array.Add("Оплачен"); // @NON-NLS-1
@@ -2190,6 +2224,7 @@ Function Dictionary_en_ru() Export
 	Dictionary.Insert("priceperpackaging", "ЦенаЗаУпаковку"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("pricesettingdocument", "ДокументУстановкиЦен"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("pricesetup", "УстановкаЦенНоменклатуры"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("pricetype", "ТипЦены"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("pricetype_", "ТипЦен"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("principal", "Принципал"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("productbatchid", "РНПТ"); // @NON-NLS-1 @NON-NLS-2
@@ -2515,6 +2550,13 @@ Function Dictionary_en_ru() Export
 	Dictionary.Insert("usefullifemonthsta", "СрокПолезногоИспользованияНУ"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("usepaymentbycards", "ИспользоватьОплатуПлатежнымиКартами"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("user", "Пользователь"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("userciaddress", "ПользовательскаяКИАдрес"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("userciemail", "ПользовательскаяКИАдресЭлектроннойПочты"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("usercifax", "ПользовательскаяКИФакс"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("userciother", "ПользовательскаяКИДругое"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("userciphone", "ПользовательскаяКИТелефон"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("userciskype", "ПользовательскаяКИSkype"); // @NON-NLS-1 @NON-NLS-2
+	Dictionary.Insert("userciwebpage", "ПользовательскаяКИВебСтраница"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("useshelflifeonbatchregistration", "ИспользоватьСрокГодностиСерии"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("usetransportparametersemail", "ИспользоватьПараметрыТранспортаEMAIL"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("usetransportparametersfile", "ИспользоватьПараметрыТранспортаFILE"); // @NON-NLS-1 @NON-NLS-2
@@ -2603,7 +2645,7 @@ Function Dictionary_en_ru() Export
 	Dictionary.Insert("zoomratio8", "Коэффициент8"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("zoomratio9", "Коэффициент9"); // @NON-NLS-1 @NON-NLS-2
 
-	// ACC:1036-
+	
 	
 	Return Dictionary;
 	

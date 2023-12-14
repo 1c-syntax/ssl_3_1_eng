@@ -51,9 +51,9 @@ EndProcedure
 // See StandardSubsystemsServer.OnSendServerNotification
 Procedure OnSendServerNotification(NameOfAlert, ParametersVariants) Export
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	
 	UpdateRemindersList(False);
 	
@@ -162,7 +162,7 @@ Function GetStandardSchedulesForReminder()
 	Schedule.WeekDays = WeekDays;
 	Result.Insert(NStr("en = 'on Mondays at 9.00 AM';"), Schedule);
 	
-	// 
+	// On Fridays at 3 p.m.
 	Schedule = New JobSchedule;
 	Schedule.DaysRepeatPeriod = 1;
 	Schedule.WeeksPeriod = 1;
@@ -172,7 +172,7 @@ Function GetStandardSchedulesForReminder()
 	Schedule.WeekDays = WeekDays;
 	Result.Insert(NStr("en = 'on Fridays at 3.00 PM';"), Schedule);
 	
-	// 
+	// Every day at 9:00 a.m.
 	Schedule = New JobSchedule;
 	Schedule.DaysRepeatPeriod = 1;
 	Schedule.WeeksPeriod = 1;
@@ -198,7 +198,7 @@ EndFunction
 // Checks if the user has the right to change the UserReminders information register.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the user has the right.
 //
 Function HasRightToUseReminders()
 	Return AccessRight("Update", Metadata.InformationRegisters.UserReminders); 
@@ -572,7 +572,7 @@ Procedure UpdateRemindersForSubjects(Subjects) Export
 	For Each TableRow In ResultTable2 Do
 		SubjectDate = Common.ObjectAttributeValue(TableRow.Source, TableRow.SourceAttributeName);
 		If (SubjectDate - TableRow.ReminderInterval) <> TableRow.EventTime Then
-			// 
+			
 			DisableReminder(TableRow, False);
 			TableRow.ReminderTime = SubjectDate - TableRow.ReminderInterval;
 			TableRow.EventTime = SubjectDate;
@@ -582,7 +582,7 @@ Procedure UpdateRemindersForSubjects(Subjects) Export
 			
 			ReminderParameters = Common.ValueTableRowToStructure(TableRow);
 			ReminderParameters.Schedule = TableRow.Schedule.Get();
-			// 
+			
 			Reminder = CreateReminder(ReminderParameters);
 			AttachReminder(Reminder);
 		EndIf;
@@ -943,35 +943,35 @@ Procedure UpdateRemindersList(OnStart)
 			Continue;
 		EndIf;
 		
-		// 
+		
 		EventScheduleForYear = EventSchedule(Schedule, Reminder.EventTime, AddMonth(Reminder.EventTime, 12) - 1);
-		// 
+		
 		ComingEventTime = EventSchedule(Schedule, Reminder.EventTime + 1, CurrentSessionDate());
 		
-		// - 
+		// - The next scheduled event time has come.
 		If ComingEventTime.Count() > 0
-			// - 
+			// - Deadline is specified in the job schedule and it is overdue.
 			Or ValueIsFilled(Schedule.CompletionTime) And CurrentSessionDate() > (Reminder.EventTime + (Schedule.CompletionTime - Schedule.BeginTime))
-			// - 
+			// - The reminder is annual and the event happened a month ago.
 			Or EventScheduleForYear.Count() = 1 And CurrentSessionDate() > AddMonth(Reminder.EventTime, 1)
-			// - 
+			// - The reminder is annual and the event happened a week ago.
 			Or EventScheduleForYear.Count() = 12 And CurrentSessionDate() > Reminder.EventTime + 60*60*24*7 Then
 				BeginTransaction();
 				Try
 					If ComingEventTime.Count() > 0 Then
-						// 
+						
 						DisableReminder(Reminder, False, OnStart);
 						
 						ReminderParameters = Common.ValueTableRowToStructure(Reminder);
 						ReminderParameters.Schedule = Reminder.Schedule.Get();
-						// @skip-
+						
 						Reminder = CreateReminder(ReminderParameters);
 						Reminder.EventTime = ComingEventTime[ComingEventTime.UBound()];
 						Reminder.ReminderTime = Reminder.EventTime - Reminder.ReminderInterval;
 						
 						AttachReminder(Reminder,, OnStart);
 					EndIf;
-					// 
+					
 					DisableReminder(Reminder, True, OnStart);
 					CommitTransaction();
 				Except
@@ -1260,7 +1260,7 @@ Procedure DeleteRemindersBySubject(SubjectOf, AttributeName)
 	RemindersBySubject = UserReminders.FindReminders(SubjectOf);
 	For Each Reminder In RemindersBySubject Do
 		If Lower(Reminder.SourceAttributeName) = Lower(AttributeName) Then
-			// 
+			
 			DisableReminder(Reminder, False);
 		EndIf;
 	EndDo;

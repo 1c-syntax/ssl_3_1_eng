@@ -39,7 +39,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 			|	Ref";
 			
 		Query.SetParameter("Ref", Ref);
-		// 
+		// @skip-check query-in-loop - Batch processing of data
 		ReferencesArrray = Query.Execute().Unload().UnloadColumn("Ref"); 
 	
 		InfobaseUpdate.MarkForProcessing(Parameters, ReferencesArrray);
@@ -98,7 +98,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			CommitTransaction();
 		Except
 			RollbackTransaction();
-			// Если не удалось обработать какой-
+			// If you fail to process a document, try again.
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(

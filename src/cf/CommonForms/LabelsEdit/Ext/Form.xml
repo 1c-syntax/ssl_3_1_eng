@@ -124,6 +124,8 @@
 				<ExtendedTooltip name="LabelsSearchControlExtendedTooltip" id="10"/>
 			</SearchControlAddition>
 			<Events>
+				<Event name="BeforeAddRow">LabelsBeforeAddRow</Event>
+				<Event name="BeforeDeleteRow">LabelsBeforeDeleteRow</Event>
 				<Event name="OnChange">LabelsOnChange</Event>
 			</Events>
 			<ChildItems>

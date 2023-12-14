@@ -13,7 +13,7 @@
 // the following general details: name, version, update handler list,
 // and its dependence on other libraries.
 //
-// See the composition of the mandatory procedures of such a module in the InfobaseUpdateSSL common module 
+// See the composition of the mandatory procedures of such a module in the InfobaseUpdateSSL common module
 // (Public area).
 // There is no need to add
 // the InfobaseUpdateSSL module of the Library of standard subsystems to the SubsystemModules array.

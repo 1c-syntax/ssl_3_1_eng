@@ -54,7 +54,7 @@ Procedure AddColors(GroupName, StringOfColors)
 		Red = NumberFromHexString("0x" + Mid(Color, 1, 2));
 		Green = NumberFromHexString("0x" + Mid(Color, 3, 2));
 		B = NumberFromHexString("0x" + Mid(Color, 5, 2));
-		// @skip-
+		
 		ColorDecoration.BackColor = New Color(Red, Green, B); 
 		ColorDecoration.Title = "  ";
 		ColorDecoration.Width = 4;

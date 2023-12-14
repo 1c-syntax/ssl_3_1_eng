@@ -12,7 +12,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Not TotalsAndAggregatesManagementInternal.MustMoveTotalsBorder() Then
-		Cancel = True; // 
+		Cancel = True; // The period is already set in the session of another user.
 		Return;
 	EndIf;
 EndProcedure

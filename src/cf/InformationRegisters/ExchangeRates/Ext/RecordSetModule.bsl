@@ -53,7 +53,7 @@ Procedure UpdateSubordinateCurrenciesRates()
 	
 	For Each BaseCurrencyRecord In ThisObject Do
 	
-		If SelectedCurrency <> Undefined Then // 
+		If SelectedCurrency <> Undefined Then // Only the given currency's rate must be updated.
 			BlockDependentCurrencyRate(SelectedCurrency, BaseCurrencyRecord.Period); 
 		Else
 			DependentCurrencies = CurrencyRateOperations.DependentCurrenciesList(BaseCurrencyRecord.Currency, AdditionalProperties);
@@ -66,7 +66,7 @@ Procedure UpdateSubordinateCurrenciesRates()
 	
 	For Each BaseCurrencyRecord In ThisObject Do
 
-		If SelectedCurrency <> Undefined Then // 
+		If SelectedCurrency <> Undefined Then // Only the given currency's rate must be updated.
 			UpdatedPeriods = Undefined;
 			If Not AdditionalProperties.Property("UpdatedPeriods", UpdatedPeriods) Then
 				UpdatedPeriods = New Map;
@@ -77,7 +77,7 @@ Procedure UpdateSubordinateCurrenciesRates()
 				UpdateSubordinateCurrencyRate(SelectedCurrency, BaseCurrencyRecord); 
 				UpdatedPeriods.Insert(BaseCurrencyRecord.Period, True);
 			EndIf;
-		Else	// 
+		Else	// Refresh the rate for all dependent currencies.
 			DependentCurrencies = CurrencyRateOperations.DependentCurrenciesList(BaseCurrencyRecord.Currency, AdditionalProperties);
 			For Each DependentCurrency In DependentCurrencies Do
 				UpdateSubordinateCurrencyRate(DependentCurrency, BaseCurrencyRecord); 

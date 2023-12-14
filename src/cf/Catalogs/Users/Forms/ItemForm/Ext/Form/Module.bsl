@@ -103,9 +103,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			// Copy item.
 			CopyingValue = Parameters.CopyingValue;
 			Object.Description = "";
+			SourceIBUserID = Common.ObjectAttributeValue(
+				CopyingValue, "IBUserID");
 			
 			If Not UsersInternal.UserAccessLevelAbove(CopyingValue, AccessLevel) Then
-				ReadIBUser(ValueIsFilled(CopyingValue.IBUserID));
+				ReadIBUser(ValueIsFilled(SourceIBUserID));
 			Else
 				ReadIBUser();
 			EndIf;
@@ -389,7 +391,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 		Return;
 	EndIf;
 	
-	// 
+	
 	If CommonClient.DataSeparationEnabled()
 		And SynchronizationWithServiceRequired
 		And Not WriteParameters.Property("AfterAuthenticationPasswordRequestInService") Then
@@ -974,7 +976,7 @@ Procedure PhotoClickCompletion(Result, AdditionalParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure Attachable_EMailOnChange(Item)
@@ -1154,7 +1156,7 @@ EndProcedure
 #Region FormTableItemsEventHandlersRoles
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure RolesCheckOnChange(Item)
@@ -1226,7 +1228,7 @@ Procedure ClearPhoto(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure ShowSelectedRolesOnly(Command)
@@ -1422,7 +1424,7 @@ Procedure CustomizeForm(CurrentObject, OnCreateAtServer = False, WriteParameters
 			CurrentObject.Ref);
 	EndIf;
 	
-	// 
+	// Viewability settings.
 	Items.ContactInformation.Visible   = ValueIsFilled(ActionsOnForm.ContactInformation);
 	Items.IBUserProperies.Visible = ValueIsFilled(ActionsOnForm.IBUserProperies);
 	Items.GroupName_SSLy.Visible              = ValueIsFilled(ActionsOnForm.IBUserProperies);
@@ -1711,23 +1713,23 @@ Procedure DefineActionsOnForm()
 	
 	ActionsOnForm = New Structure;
 	
-	// 
+	// "", "View," "Edit."
 	ActionsOnForm.Insert("Roles", "");
 	
-	// 
+	// "", "View," "Edit."
 	ActionsOnForm.Insert("ContactInformation", "View");
 	
-	// 
+	// "", "ViewAll", "Edit".
 	ActionsOnForm.Insert("IBUserProperies", "");
 	
-	// 
+	// "", "View," "Edit."
 	ActionsOnForm.Insert("ItemProperties", "View");
 	
 	If Not AccessLevel.SystemAdministrator
 	   And AccessLevel.FullAccess
 	   And Users.IsFullUser(Object.Ref, True) Then
 		
-		// 
+		// The system administrator is read-only.
 		ActionsOnForm.Roles                   = "View";
 		ActionsOnForm.IBUserProperies = "View";
 	
@@ -1745,8 +1747,8 @@ Procedure DefineActionsOnForm()
 		EndIf;
 		
 		If AccessLevel.ListManagement Then
-			// 
-			// 
+			
+			
 			//  
 			ActionsOnForm.IBUserProperies = "Edit";
 			ActionsOnForm.ContactInformation   = "Edit";
@@ -2015,7 +2017,7 @@ Procedure CloseForm()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure UpdateContactInformation(Result)
@@ -2085,7 +2087,7 @@ Function ContactInformationKindUserEmail()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()
@@ -2128,7 +2130,7 @@ Procedure UpdateAdditionalAttributesItems()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Function InitialIBUserDetails()
@@ -2288,8 +2290,8 @@ EndProcedure
 &AtServer
 Procedure FindUserAndIBUserDifferences(WriteParameters = Undefined)
 	
-	// 
-	// 
+	
+	
 	
 	ShowDifference = True;
 	ShowDifferenceResolvingCommands = False;
@@ -2419,7 +2421,7 @@ Procedure FindUserAndIBUserDifferences(WriteParameters = Undefined)
 	If AccessLevel.ListManagement Then
 		Items.MappingMismatchProcessing.Visible = HasMappingToNonexistentIBUser;
 	Else
-		// 
+		// Cannot change the mapping.
 		Items.MappingMismatchProcessing.Visible = False;
 	EndIf;
 	
@@ -2493,7 +2495,7 @@ Procedure FillInTheMailFieldForPasswordRecoveryFromTheInformationSecuritySystem(
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClientAtServerNoContext
 Procedure SetPropertiesAvailability(Form)
@@ -2503,7 +2505,7 @@ Procedure SetPropertiesAvailability(Form)
 	AccessLevel = Form.AccessLevel;
 	ActionsWithSaaSUser = Form.ActionsWithSaaSUser;
 	
-	// 
+	
 	If Form.CanSignIn Then
 		Items.GroupNoRights.Visible         = Form.WhetherRightsAreAssigned.HasNoRights;
 		Items.GroupNoStartupRights.Visible = Not Form.WhetherRightsAreAssigned.HasNoRights
@@ -2517,7 +2519,7 @@ Procedure SetPropertiesAvailability(Form)
 		Items.GroupNoLogonRights.Visible   = False;
 	EndIf;
 	
-	// 
+	// Setting editing options.
 	Items.CanSignIn.ReadOnly =
 		Not (  Items.IBUserProperies.ReadOnly = False
 		    And (    AccessLevel.ChangeAuthorizationPermission
@@ -2531,7 +2533,7 @@ Procedure SetPropertiesAvailability(Form)
 	
 	UpdateUsername(Form);
 	
-	// 
+	// Setting availability of related items.
 	Items.CanSignIn.Enabled    = Not Object.Invalid;
 	Items.IBUserProperies.Enabled    = Not Object.Invalid;
 	Items.GroupName_SSLy.Enabled                 = Not Object.Invalid;
@@ -2682,7 +2684,7 @@ EndProcedure
 // End StandardSubsystems.AttachableCommands
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure ProcessRolesInterface(Action, MainParameter = Undefined)

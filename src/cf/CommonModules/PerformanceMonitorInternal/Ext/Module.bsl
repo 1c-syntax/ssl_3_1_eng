@@ -59,7 +59,7 @@ EndProcedure
 // See UsersOverridable.OnDefineRoleAssignment
 Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	
-	// ТолькоДляПользователейСистемы.
+	// ForSystemUsersOnly.
 	RolesAssignment.ForSystemUsersOnly.Add(
 		Metadata.Roles.PerformanceSetupAndMonitoring.Name);
 	
@@ -125,7 +125,7 @@ Procedure OnAddClientParametersOnStart(Parameters) Export
 	
 	If ClientRunParameters.RunPerformanceMeasurements
 	   And SessionParameters.TimeMeasurementComment <> Undefined Then
-		Return; // 
+		Return; 
 	EndIf;
 	
 EndProcedure
@@ -233,7 +233,7 @@ EndFunction
 // Finds and returns the scheduled job for exporting time measurements.
 //
 // Returns:
-//  ScheduledJob - 
+//  ScheduledJob - ScheduledJob.PerformanceMonitorDataExport - retrieved job.
 //
 Function PerformanceMonitorDataExportScheduledJob() Export
 	
@@ -954,7 +954,7 @@ EndFunction
 //    value as the Parameters variable.
 //
 // Returns: 
-//   Arbitrary - 
+//   Arbitrary - the result of the expression calculation.
 //
 Function CalculateInSafeMode(Val Expression, Val Parameters = Undefined)
 	

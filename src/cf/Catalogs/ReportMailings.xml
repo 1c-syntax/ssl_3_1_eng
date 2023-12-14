@@ -2643,7 +2643,7 @@ even if user is listed for distribution.</v8:content>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Report distribution events…</v8:content>
+							<v8:content>Show events…</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -2657,7 +2657,7 @@ even if user is listed for distribution.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Go to the event log and set filter by the distribution.</v8:content>
+							<v8:content>View event log records filtered by the report distribution.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Picture>

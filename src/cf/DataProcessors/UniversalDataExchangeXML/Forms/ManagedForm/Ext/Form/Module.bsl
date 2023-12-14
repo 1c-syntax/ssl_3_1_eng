@@ -51,7 +51,7 @@ Procedure OnOpen(Cancel)
 	
 	If SavedImportMode Then
 		
-		// 
+		// Set the right page.
 		Items.FormMainPanel.CurrentPage = Items.FormMainPanel.ChildItems.Load;
 		
 	EndIf;
@@ -780,7 +780,7 @@ Procedure OpenInApplication(FileName, StandardProcessing = False)
 	
 EndProcedure
 
-// Continuation of the procedure (see above). 
+// Continuation of the procedure (see above).
 &AtClient
 Procedure AfterDetermineFileExistence(Exists, AdditionalParameters) Export
 	
@@ -936,7 +936,7 @@ EndProcedure
 &AtServer
 Function ObjectVersionAsStringAtServer()
 	
-	Return FormAttributeToValue("Object").ObjectVersionAsString();
+	Return FormAttributeToValue("Object").ObjectVersion();
 	
 EndFunction
 
@@ -1105,7 +1105,7 @@ EndProcedure
 //   SelectedFiles - Array of String - a file choice result.
 //   AdditionalParameters - Structure - arbitrary additional parameters:
 //     * StorageObject - Structure
-//                      - ClientApplicationForm - 
+//                      - ClientApplicationForm - a destination for the property storage.
 //     * PropertyName - String - a name of the storage object property.
 //     * Item - FormField - a source of the file choice event.
 //
@@ -1229,8 +1229,8 @@ Procedure OpenImportFileAtServer(FileAddress)
 		
 		BinaryData = GetFromTempStorage(FileAddress); // BinaryData
 		AddressOnServer = GetTempFileName(".xml");
-		// 
-		// 
+		
+		
 		BinaryData.Write(AddressOnServer);
 		Object.ExchangeFileName = AddressOnServer;
 		
@@ -1407,8 +1407,8 @@ Procedure ExecuteImportAtServer(FileAddress, FileNameForExtension)
 		If IsTempStorageURL(ImportRulesFileAddressInStorage) Then
 			BinaryData = GetFromTempStorage(ImportRulesFileAddressInStorage); // BinaryData
 			AddressOnServer = GetTempFileName("xml");
-			// 
-			// 
+			
+			
 			BinaryData.Write(AddressOnServer);
 			Object.ExchangeRulesFileName = AddressOnServer;
 		Else
@@ -1461,8 +1461,8 @@ Function FileNameAtServerOrClient(Var_AttributeName ,Val FileAddress, Val FileNa
 			Extension = FileExtention(FileNameForExtension);
 			BinaryData = GetFromTempStorage(FileAddress); // BinaryData
 			AddressOnServer = GetTempFileName(Extension);
-			// 
-			// 
+			
+			
 			BinaryData.Write(AddressOnServer);
 			FileName = AddressOnServer;
 			

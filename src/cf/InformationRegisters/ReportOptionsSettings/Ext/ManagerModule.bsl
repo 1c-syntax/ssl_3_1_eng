@@ -610,8 +610,8 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Update handlers.
 
-// Registers data for an update in the InfobaseUpdate exchange plan.
-//  See application development standards: Parallel mode of deferred update.
+// This procedure registers data to be updated in the InfobaseUpdate exchange plan.
+//  See "Parallel mode of deferred update" in the application development standards.
 //
 // Parameters:
 //  Parameters - See InfobaseUpdate.MainProcessingMarkParameters
@@ -670,8 +670,8 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
 EndProcedure
 
-// Processes data registered in the InfobaseUpdate exchange plan
-//  see application development standards and methods: parallel mode of deferred update.
+// This procedure processes data registered in the InfobaseUpdate exchange plan.
+//  See "Parallel mode of deferred update" in the application development standards.
 //
 // Parameters:
 //  Parameters - See InfobaseUpdate.MainProcessingMarkParameters

@@ -145,8 +145,8 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 	
 	If Not WriteParameters.Property("WhenIDForFormulasIsAlreadyUsed")
 		And ValueIsFilled(Object.IDForFormulas) Then
-		// 
-		// 
+		
+		
 		QueryText = IDForFormulasAlreadyUsed(
 			Object.IDForFormulas, Object.Ref, Object.Parent);
 		

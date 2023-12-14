@@ -17,10 +17,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	MailingDescription = Parameters.MailingDescription;
 	MetadataObjectID = Parameters.MetadataObjectID;
 	
-	// ACC:1223-
+	// ACC:1223-off - This is an example of a text message.
 	Items.DecorationHint.ToolTip = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'A text message example: Your password: ******* to receive the ""%1"" report distribution.';"), MailingDescription);
-	// 
+	// ACC:1223-on
 	
 	If Not IsTempStorageURL(Parameters.RecipientsAddress) Then
 		Return;
@@ -135,11 +135,11 @@ Procedure Send(Command)
 		
 		PrepareSMS = New Structure("Recipient, SMSMessageText, PhoneNumbers");
 		PrepareSMS.Recipient = RowRecipients.Recipient;
-		// ACC:1223-
+		// ACC:1223-off - This is a text message.
 		PrepareSMS.SMSMessageText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Your password: %1 to receive the ""%2"" report distribution.';"), RowRecipients.ArchivePassword,
 		MailingDescription);
-		// ACC:1223-
+		// ACC:1223-on
 		PrepareSMS.PhoneNumbers = CommonClientServer.ValueInArray(RowRecipients.Phone);
 		PreparedSMSMessages.Add(PrepareSMS);
 		

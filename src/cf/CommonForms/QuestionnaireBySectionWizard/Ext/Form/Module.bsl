@@ -218,7 +218,7 @@ Procedure AvailabilityControlSubordinateQuestions()
 					ItemOfSubordinateQuestion.AutoMarkIncomplete = 
 						ThisObject[QuestionName] And SubordinateQuestion.IsRequired;
 				Except
-					// 
+					
 				EndTry;
 				
 			EndIf;

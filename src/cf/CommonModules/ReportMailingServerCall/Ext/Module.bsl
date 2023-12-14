@@ -65,7 +65,7 @@ Function RunBackgroundJob1(Val MethodParameters, Val UUID) Export
 	Return TimeConsumingOperations.ExecuteInBackground(MethodName, MethodParameters, StartSettings1);
 EndFunction
 
-// 
+// Starts the background job that sends out text messages with archive passwords (required for opening the attachments).
 Function RunBackgroundJobToSendSMSWithPasswords(Val MethodParameters, Val UUID) Export
 	MethodName = "ReportMailing.SendBulkSMSMessagesWithReportDistributionArchivePasswordsInBackgroundJob";
 	                             
@@ -75,7 +75,7 @@ Function RunBackgroundJobToSendSMSWithPasswords(Val MethodParameters, Val UUID) 
 	Return TimeConsumingOperations.ExecuteInBackground(MethodName, MethodParameters, StartSettings1);
 EndFunction  
 
-// 
+// Starts the background job that purges the report distribution history.
 Function RunBackgroundJobToClearUpReportDistributionHistory(Val MethodParameters, Val UUID) Export
 	MethodName = "ReportMailing.ClearUpReportDistributionHistoryInBackgroundJob";
 	

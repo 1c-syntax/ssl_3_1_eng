@@ -13,8 +13,8 @@
 //
 // Parameters:
 //  Table - ValueTable - TabularSectionDetails with columns.
-//          - String - 
-//              
+//          - String - to receive a column list of the tabular section,
+//              specify its full name as a string as in metadata, for example "Documents.ProformaInvoice.TabularSections.Goods".
 //  Columns - String - a list of comma-separated extracted columns. For example: "Number, Goods, Quantity".
 // 
 // Returns:
@@ -70,7 +70,7 @@ Function GenerateColumnDetails(Table, Columns = Undefined) Export
 			Position = Position + 1;
 		EndDo;
 	ElsIf TypeOf(InternalTable) = Type("String") Then
-		Object = Common.MetadataObjectByFullName(InternalTable); //  
+		Object = Common.MetadataObjectByFullName(InternalTable); // MetadataObjectCatalog, MetadataObjectDocument 
 		For Each Column In Object.Attributes Do
 			If DontExtractAllColumns And ColumnsListForExtraction.Find(Column.Name) = Undefined Then
 				Continue;
@@ -108,7 +108,7 @@ EndFunction
 // 
 // Parameters:
 //  DataToImport - ValueTable
-//  MappingObjectTypeDetails - TypeDescription - details of a mapping object type.
+//  MappingObjectTypeDetails - TypeDescription -  details of a mapping object type.
 //  ColumnHeaderOfTheMappingObject - String - Mapping object column header.
 // 
 // Returns:
@@ -170,7 +170,7 @@ EndFunction
 // 
 //
 // Parameters:
-//  ObjectReference - AnyRef -
+//  ObjectReference - AnyRef - 
 //  TableRow - ValueTableRow of See ImportDataFromFile.DescriptionOfTheUploadedDataForReferenceBooks
 //
 Procedure WritePropertiesOfObject(ObjectReference, TableRow) Export

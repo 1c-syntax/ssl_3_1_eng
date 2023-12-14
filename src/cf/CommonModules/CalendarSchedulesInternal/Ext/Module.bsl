@@ -51,8 +51,8 @@ EndProcedure
 // The procedure for calling from a job queue. Add it to PlanUpdateOfDataDependentOnBusinessCalendars.
 // 
 // Parameters:
-//  UpdateConditions - 
-//  FileID - 
+//  UpdateConditions - a ValueTable with schedule update conditions.
+//  FileID - a file UUID of provided master data being processed.
 //
 Procedure UpdateDataDependentOnBusinessCalendars(Val UpdateConditions, Val FileID) Export
 	
@@ -76,8 +76,8 @@ EndProcedure
 //
 // Parameters:
 //  UpdateConditions - ValueTable - a table with schedule update conditions.
-//  AreasForUpdate - 
-//  FileID - 
+//  AreasForUpdate - an array of area codes.
+//  FileID - a file UUID of processed rates.
 //  HandlerCode - String - a handler code.
 //
 Procedure DistributeBusinessCalendarsDataToDependentData(Val UpdateConditions, 
@@ -98,8 +98,8 @@ Procedure DistributeBusinessCalendarsDataToDependentData(Val UpdateConditions,
 			ModuleSaaSOperations.SignInToDataArea(DataArea);
 			SetPrivilegedMode(False);
 		Except
-			// 
-			// 
+			
+			
 			SetPrivilegedMode(True);
 			ModuleSaaSOperations.SignOutOfDataArea();
 			SetPrivilegedMode(False);

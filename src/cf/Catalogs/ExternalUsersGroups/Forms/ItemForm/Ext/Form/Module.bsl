@@ -42,7 +42,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	DefineActionsOnForm();
 	
-	// 
+	// Making the properties always visible.
 	
 	Items.Description.Visible     = ValueIsFilled(ActionsOnForm.ItemProperties);
 	Items.Parent.Visible         = ValueIsFilled(ActionsOnForm.ItemProperties);
@@ -91,8 +91,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	UpdateInvalidUsersList(True);
 	FillUserStatuses();
 	
-	If ValueIsFilled(Object.Parent) And FormAttributeToValue("Object").IsNew()  Then
-		Object.Purpose.Load(Object.Parent.Purpose.Unload());
+	If ValueIsFilled(Object.Parent) And Not ValueIsFilled(Object.Ref) Then
+		ParentAssignment = Common.ObjectAttributeValue(Object.Parent, "Purpose");
+		If TypeOf(ParentAssignment) = Type("QueryResult") Then
+			Object.Purpose.Load(ParentAssignment.Unload());
+		Else
+			Object.Purpose.Clear();
+		EndIf;
 	EndIf;
 	UsersInternal.UpdateAssignmentOnCreateAtServer(ThisObject, False);
 	
@@ -126,7 +131,7 @@ EndProcedure
 &AtServer
 Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
-	// 
+	// Filling object roles from the collection.
 	CurrentObject.Roles.Clear();
 	For Each String In RolesCollection Do
 		CurrentObject.Roles.Add().Role = Common.MetadataObjectID(
@@ -161,7 +166,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	VerifiedObjectAttributes = New Array;
 	Errors = Undefined;
 	
-	// 
+	// Checking whether the metadata contains roles.
 	VerifiedObjectAttributes.Add("Roles.Role");
 	If Not Items.Roles.ReadOnly Then
 		TreeItems = Roles.GetItems();
@@ -253,7 +258,7 @@ EndProcedure
 #Region FormTableItemsEventHandlersRoles
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure RolesCheckOnChange(Item)
@@ -359,7 +364,7 @@ Procedure SelectPurpose(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure ShowSelectedRolesOnly(Command)
@@ -461,30 +466,30 @@ Procedure DefineActionsOnForm()
 	
 	ActionsOnForm = New Structure;
 	
-	// 
+	// "", "View," "Edit."
 	ActionsOnForm.Insert("Roles", "");
 	
-	// 
+	// "", "View," "Edit."
 	ActionsOnForm.Insert("GroupComposition1", "");
 	
-	// 
+	// "", "View," "Edit."
 	ActionsOnForm.Insert("ItemProperties", "");
 	
 	If Users.IsFullUser()
 	 Or AccessRight("Insert", Metadata.Catalogs.Users) Then
-		// IRegUserInfo
+		// Administrator.
 		ActionsOnForm.Roles             = "Edit";
 		ActionsOnForm.GroupComposition1     = "Edit";
 		ActionsOnForm.ItemProperties = "Edit";
 		
 	ElsIf AccessRight("Edit", Metadata.Catalogs.ExternalUsersGroups) Then
-		// 
+		// Can manage external users.
 		ActionsOnForm.Roles             = "";
 		ActionsOnForm.GroupComposition1     = "Edit";
 		ActionsOnForm.ItemProperties = "Edit";
 		
 	Else
-		// 
+		// Can read external users.
 		ActionsOnForm.Roles             = "";
 		ActionsOnForm.GroupComposition1     = "View";
 		ActionsOnForm.ItemProperties = "View";
@@ -755,7 +760,7 @@ Procedure AfterAssignmentChoice(TypesArray, AdditionalParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure ProcessRolesInterface(Action, MainParameter = Undefined)

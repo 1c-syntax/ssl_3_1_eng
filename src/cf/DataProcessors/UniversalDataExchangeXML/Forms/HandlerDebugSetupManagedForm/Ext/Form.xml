@@ -253,80 +253,51 @@
 			<Behavior>Usual</Behavior>
 			<ExtendedTooltip name="GroupStep4ExtendedTooltip" id="45"/>
 			<ChildItems>
-				<Pages name="Step4Pages" id="50">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Step 4 pages</v8:content>
-						</v8:item>
-					</Title>
-					<PagesRepresentation>None</PagesRepresentation>
-					<ExtendedTooltip name="Step4PagesExtendedTooltip" id="51"/>
+				<UsualGroup name="Group1" id="62">
+					<Representation>None</Representation>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="Group1ExtendedTooltip" id="63"/>
 					<ChildItems>
-						<Page name="GreenPage" id="52">
+						<InputField name="EventHandlerExternalDataProcessorFileName" id="15">
+							<DataPath>Object.EventHandlerExternalDataProcessorFileName</DataPath>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Green page</v8:content>
+									<v8:content>An external data processor file with the debugging module (on the server):</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="GreenPageExtendedTooltip" id="53"/>
-							<ChildItems>
-								<LabelDecoration name="Decoration1" id="56">
-									<Title formatted="false">
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>An external data processor file with the debugging module (on the server):</v8:content>
-										</v8:item>
-									</Title>
-									<ContextMenu name="Decoration1ContextMenu" id="57"/>
-									<ExtendedTooltip name="Decoration1ExtendedTooltip" id="58"/>
-								</LabelDecoration>
-							</ChildItems>
-						</Page>
-						<Page name="RedPage" id="54">
-							<Title>
+							<TitleLocation>None</TitleLocation>
+							<ToolTip>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Red page</v8:content>
+									<v8:content>123</v8:content>
 								</v8:item>
-							</Title>
-							<ExtendedTooltip name="RedPageExtendedTooltip" id="55"/>
-							<ChildItems>
-								<LabelDecoration name="Decoration2" id="59">
-									<TextColor>style:SpecialTextColor</TextColor>
-									<Font ref="style:NormalTextFont" kind="StyleItem"/>
-									<Title formatted="false">
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>An external data processor file with the debugging module (on the server):</v8:content>
-										</v8:item>
-									</Title>
-									<ContextMenu name="Decoration2ContextMenu" id="60"/>
-									<ExtendedTooltip name="Decoration2ExtendedTooltip" id="61"/>
-								</LabelDecoration>
-							</ChildItems>
-						</Page>
+							</ToolTip>
+							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<ChoiceButton>true</ChoiceButton>
+							<ContextMenu name="EventHandlerExternalDataProcessorFileNameContextMenu" id="16"/>
+							<ExtendedTooltip name="EventHandlerExternalDataProcessorFileNameExtendedTooltip" id="46">
+								<Width>48</Width>
+								<Title formatted="false">
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Path to the external data processor with the debug module on the server or on a shared network folder. Or a name of the configuration data processor with the debug module</v8:content>
+									</v8:item>
+								</Title>
+							</ExtendedTooltip>
+							<Events>
+								<Event name="OnChange">EventHandlerExternalDataProcessorFileNameOnChange</Event>
+								<Event name="StartChoice">EventHandlerExternalDataProcessorFileNameStartChoice</Event>
+							</Events>
+						</InputField>
+						<Button name="CheckAvailability" id="64">
+							<Type>UsualButton</Type>
+							<CommandName>Form.Command.CheckAvailability</CommandName>
+							<ExtendedTooltip name="CheckAvailabilityExtendedTooltip" id="65"/>
+						</Button>
 					</ChildItems>
-				</Pages>
-				<InputField name="EventHandlerExternalDataProcessorFileName" id="15">
-					<DataPath>Object.EventHandlerExternalDataProcessorFileName</DataPath>
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>An external data processor file with the debugging module (on the server):</v8:content>
-						</v8:item>
-					</Title>
-					<TitleLocation>None</TitleLocation>
-					<AutoMaxWidth>false</AutoMaxWidth>
-					<ChoiceButton>true</ChoiceButton>
-					<ContextMenu name="EventHandlerExternalDataProcessorFileNameContextMenu" id="16"/>
-					<ExtendedTooltip name="EventHandlerExternalDataProcessorFileNameExtendedTooltip" id="46"/>
-					<Events>
-						<Event name="OnChange">EventHandlerExternalDataProcessorFileNameOnChange</Event>
-						<Event name="StartChoice">EventHandlerExternalDataProcessorFileNameStartChoice</Event>
-					</Events>
-				</InputField>
+				</UsualGroup>
 			</ChildItems>
 		</UsualGroup>
 		<CommandBar name="BottomCommandBar" id="17">
@@ -420,6 +391,21 @@
 			</ToolTip>
 			<Action>Done</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="CheckAvailability" id="4">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Check availability</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Check availability</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>CheckAvailability</Action>
 		</Command>
 	</Commands>
 	<Parameters>

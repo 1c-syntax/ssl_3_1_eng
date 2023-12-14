@@ -50,10 +50,11 @@ Function GenerateMessage(SendOptions) Export
 			TemplateParameters.TemplateType = SendOptions.AdditionalParameters.MessageKind;
 		EndIf;
 	Else
-		If SendOptions.Template.ForSMSMessages Then
-			SendOptions.AdditionalParameters.Insert("MessageKind", "SMSMessage");
-		Else
+		ForSMSMessages = Common.ObjectAttributeValue(SendOptions.Template, "ForSMSMessages");
+		If ForSMSMessages <> True Then
 			SendOptions.AdditionalParameters.Insert("MessageKind", "Email");
+		Else
+			SendOptions.AdditionalParameters.Insert("MessageKind", "SMSMessage");
 		EndIf;
 	EndIf;
 	
@@ -317,7 +318,7 @@ EndFunction
 // Returns a list of metadata objects the "Message templates" subsystem is attached to.
 //
 // Returns:
-//  Array - 
+//  Array - a list of items of the MetadataObject type.
 //
 Function MessageTemplatesSources() Export
 	
@@ -416,7 +417,7 @@ Procedure OnFillMetadataObjectsAccessRestrictionKinds(LongDesc) Export
 	
 EndProcedure
 
-// See also updating the information base undefined.When defining settings
+// See also InfobaseUpdateOverridable.OnDefineSettings
 //
 // Parameters:
 //  Objects - Array of MetadataObject
@@ -1230,8 +1231,8 @@ Procedure AddSelectedPrintFormsToAttachments(SendOptions, TemplateInfo, Attachme
 			PrintParameters    = AttachmentPrintForm.PrintParameters;
 			ObjectsArray     = New Array;
 			
-			// 
-			// 
+			
+			
 			SubjectOf = SendOptions.AdditionalParameters.ArbitraryParameters[NameOfParameterWithPrintFormInTemplate];
 			If SubjectOf = Undefined Then
 				ObjectsArray.Add(SendOptions.SubjectOf);
@@ -1321,7 +1322,7 @@ EndFunction
 //  FileName  - String - a name of the file to get the extension for.
 //
 // Returns:
-//   String   - 
+//   String   - an extension received from the passed file.
 //
 Function GetFileExtension(Val FileName)
 	
@@ -1464,7 +1465,7 @@ Function TemplateParameters(Template) Export
 	
 	If ValueIsFilled(Result.FullAssignmentTypeName) 
 		And Not ObjectIsTemplateSubject(Result.FullAssignmentTypeName) Then
-		// 
+		// The object does not belong to the list of template objects, that is why the template can be common only.
 		Result.FullAssignmentTypeName = "";
 		Result.Purpose              = "";
 	EndIf;
@@ -1556,7 +1557,7 @@ EndProcedure
 //  TemplateParameters - Structure - template information.
 //
 // Returns:
-//  Map - 
+//  Map - mapping of message text parameters.
 //
 Function ParametersFromMessageText(TemplateParameters) Export
 	
@@ -2119,7 +2120,7 @@ EndFunction
 // Receives the HTMLDocument object from an HTML text.
 //
 // Parameters:
-//  HTMLText  - String - an HTML text.
+//  HTMLText  - String -  an HTML text.
 //  Encoding - String - text encoding
 //
 // Returns:

@@ -70,6 +70,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.Rename.Visible = ValueIsFilled(Parameters.Ref) 
 		Or IsBlankString(IdentifierOfTemplate) And IsBlankString(Parameters.PathToFile);
 	
+	Items.DeleteLayoutLanguage.Visible = Not ValueIsFilled(Parameters.Ref) And IsBlankString(Parameters.PathToFile);
+
 	If Parameters.SpreadsheetDocument = Undefined Then
 		If Not IsBlankString(IdentifierOfTemplate) Then
 			EditingDenied = Not Parameters.Edit;
@@ -114,8 +116,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.Language.Enabled = (IsPrintForm Or AvailableTranslationLayout) And ValueIsFilled(IdentifierOfTemplate);
 	
 	Items.Translate.Visible = AutomaticTranslationAvailable;
-	Items.ButtonShowHideOriginal.Visible = Items.Translate.Visible;
-	Items.ButtonShowHideOriginal.Enabled = CurrentLanguage <> Common.DefaultLanguageCode();
 	
 	If Common.IsMobileClient() Then
 		CommonClientServer.SetFormItemProperty(Items, "CommandBar", "Visible", False);
@@ -141,7 +141,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		AddingOptions = ModuleConstructorFormula.ParametersForAddingAListOfFields();
 		AddingOptions.ListName = NameOfTheFieldList();
 		AddingOptions.LocationOfTheList = Items.AvailableFieldsGroup;
-		AddingOptions.FieldsCollections = FieldsCollections(DataSources.UnloadValues());
+		AddingOptions.FieldsCollections = FieldsCollections(DataSources.UnloadValues(), EditParameters());
 		AddingOptions.HintForEnteringTheSearchString = PromptInputStringSearchFieldList();
 		AddingOptions.WhenDefiningAvailableFieldSources = "PrintManagement";
 		AddingOptions.ListHandlers.Insert("Selection", "Attachable_ListOfFieldsSelection");
@@ -192,7 +192,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Items.Header.Visible = False;
 	Items.Footer.Visible = False;
-	Items.DeleteLayoutLanguage.Visible = False;
 
 	Items.GroupTemplateAssignment.Visible = IsPrintForm;
 	Items.GroupTemplateAssignment.Enabled = Parameters.IsValAvailable;
@@ -297,7 +296,7 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-// 
+
 
 &AtClient
 Procedure WriteAndClose(Command)
@@ -370,7 +369,7 @@ Procedure ChangeFont(Command)
 	
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure IncreaseFontSize(Command)
@@ -378,7 +377,7 @@ Procedure IncreaseFontSize(Command)
 	For Each Area In AreaListForChangingFont() Do
 		Size = Area.Font.Size;
 		Size = Size + IncreaseFontSizeChangeStep(Size);
-		Area.Font = New Font(Area.Font,,Size); // ACC:1345 - 
+		Area.Font = New Font(Area.Font,,Size); 
 	EndDo;
 	
 EndProcedure
@@ -392,7 +391,7 @@ Procedure DecreaseFontSize(Command)
 		If Size < 1 Then
 			Size = 1;
 		EndIf;
-		Area.Font = New Font(Area.Font,,Size); // ACC:1345 - 
+		Area.Font = New Font(Area.Font,,Size); 
 	EndDo;
 	
 EndProcedure
@@ -405,7 +404,7 @@ Procedure Strikeout(Command)
 		If ValueToSet = Undefined Then
 			ValueToSet = Not Area.Font.Strikeout = True;
 		EndIf;
-		Area.Font = New Font(Area.Font,,,,,,ValueToSet); // ACC:1345 - 
+		Area.Font = New Font(Area.Font,,,,,,ValueToSet); 
 	EndDo;
 	
 	UpdateCommandBarButtonMarks();
@@ -582,7 +581,6 @@ Procedure LoadSpreadsheetDocumentFromMetadata(Val LanguageCode = Undefined)
 		
 		AutomaticTranslationAvailable = PrintManagementModuleNationalLanguageSupport.AutomaticTranslationAvailable(CurrentLanguage);
 		Items.Translate.Visible = AutomaticTranslationAvailable;
-		Items.ButtonShowHideOriginal.Visible = Items.Translate.Visible;
 	EndIf;
 	
 EndProcedure
@@ -619,7 +617,7 @@ Procedure UpdateCommandBarButtonMarks();
 	Items.SpreadsheetUnderlineAllActions.Check = Items.SpreadsheetDocumentUnderline.Check;
 	Items.StrikethroughAllActions.Check = Font <> Undefined And Font.Strikeout = True;
 	
-	// 
+	// Horizontal orientation.
 	Items.SpreadsheetDocumentAlignLeft.Check = Area.HorizontalAlign = HorizontalAlign.Left;
 	Items.SpreadsheetDocumentAlignCenter.Check = Area.HorizontalAlign = HorizontalAlign.Center;
 	Items.SpreadsheetDocumentAlignRight.Check = Area.HorizontalAlign = HorizontalAlign.Right;
@@ -630,7 +628,7 @@ Procedure UpdateCommandBarButtonMarks();
 	Items.SpreadsheetAlignRightAllActions.Check = Items.SpreadsheetDocumentAlignRight.Check;
 	Items.SpreadsheetJustifyAllActions.Check = Items.SpreadsheetDocumentJustify.Check;
 	
-	// 
+	// Vertical orientation.
 	Items.AlignTop.Check = Area.VerticalAlign = VerticalAlign.Top;
 	Items.AlignMiddle.Check = Area.VerticalAlign = VerticalAlign.Center;
 	Items.AlignBottom.Check = Area.VerticalAlign = VerticalAlign.Bottom;
@@ -968,7 +966,7 @@ Procedure UpdateSpreadsheetDocument(ImportedSpreadsheetDocument)
 EndProcedure
 
 &AtServerNoContext
-Procedure FillSpreadsheetDocument(SpreadsheetDocument, ImportedSpreadsheetDocument)
+Procedure FillSpreadsheetDocument(SpreadsheetDocument, Val ImportedSpreadsheetDocument)
 	For LineNumber = 1 To ImportedSpreadsheetDocument.TableHeight Do
 		For ColumnNumber = 1 To ImportedSpreadsheetDocument.TableWidth Do
 			OriginalCell = ImportedSpreadsheetDocument.Area(LineNumber, ColumnNumber, LineNumber, ColumnNumber);
@@ -1053,11 +1051,19 @@ Procedure Attachable_SwitchLanguage(Command)
 	If CommonClient.SubsystemExists("StandardSubsystems.Print") Then
 		ModulePrintManagerClient = CommonClient.CommonModule("PrintManagementClient");
 		ModulePrintManagerClient.SwitchLanguage(ThisObject, Command);
-		Items.DeleteLayoutLanguage.Visible = CurrentLanguage <> CommonClient.DefaultLanguageCode();
-		Items.ButtonShowHideOriginal.Enabled = CurrentLanguage <> CommonClient.DefaultLanguageCode()
-			And SuppliedTemplate.TableHeight > 0;
+		
+		Items.DeleteLayoutLanguage.Visible = Not ValueIsFilled(Parameters.Ref) 
+			Or CurrentLanguage <> CommonClient.DefaultLanguageCode();
+			
+		Items.ButtonShowHideOriginal.Enabled = SuppliedTemplate.TableHeight > 0;
 		If IsPrintForm Then
 			FillSpreadsheetDocument(SpreadsheetDocument, ReadLayout());
+		EndIf;
+		
+		If CurrentLanguage = CommonClient.DefaultLanguageCode() Then
+			Items.DeleteLayoutLanguage.Title = NStr("en = 'Delete all template changes';");
+		Else
+			Items.DeleteLayoutLanguage.Title = NStr("en = 'Delete template in current language';");
 		EndIf;
 	EndIf;
 	
@@ -1066,17 +1072,14 @@ EndProcedure
 &AtClient
 Procedure DeleteLayoutLanguage(Command)
 	
-	If CurrentLanguage = CommonClient.DefaultLanguageCode() Then
-		Return;
-	EndIf;
-	
 	DeleteLayoutInCurrentLanguage();
 
 	WritingCompleted = True;
 	NotifyAboutTheTableDocumentEntry();
 
-	Items.DeleteLayoutLanguage.Visible = CurrentLanguage <> CommonClient.DefaultLanguageCode();
-	Items.ButtonShowHideOriginal.Enabled = False;
+	Items.DeleteLayoutLanguage.Visible = Not ValueIsFilled(Parameters.Ref)
+		Or CurrentLanguage <> CommonClient.DefaultLanguageCode();
+	
 	SetHeader();
 EndProcedure
 
@@ -1153,8 +1156,10 @@ Procedure SynchronizeTheLayoutViewport()
 		Return;
 	EndIf;
 	
-	ManagedElement.CurrentArea = ThisObject[CurrentItem.Name].Area(
-		Area.Top, Area.Left, Area.Bottom, Area.Right);
+	If TypeOf(Area) = Type("SpreadsheetDocumentRange") Then
+		ManagedElement.CurrentArea = ThisObject[CurrentItem.Name].Area(
+			Area.Top, Area.Left, Area.Bottom, Area.Right);
+	EndIf;
 	
 EndProcedure
 
@@ -1303,6 +1308,12 @@ Procedure SpreadsheetDocumentDrag(Item, DragParameters, StandardProcessing, Area
 		EndIf;
 		
 		PlaceFigureInSpreadsheetDocument(SelectedField, StandardProcessing, Area.Left, Area.Top);
+		
+		If StandardProcessing Then
+			StandardProcessing = False;
+			Area = SpreadsheetDocument.Area(Area.Top, Area.Left); 
+			Area.Text = ?(ValueIsFilled(Area.Text), TrimR(Area.Text) + " ", "") + DragParameters.Value;
+		EndIf;
 	EndIf;
 	RecipientOfDraggedValue = Item;
 
@@ -1604,7 +1615,12 @@ Procedure SetExamplesValues(FieldsCollection = Undefined, PrintData = Undefined)
 		Objects = CommonClientServer.ValueInArray(Pattern);
 		DisplayedFields = FillListDisplayedFields(FieldsCollection);
 		If Common.SubsystemExists("StandardSubsystems.Print") Then
-			PrintData = ModulePrintManager.PrintData(Objects, DisplayedFields, CurrentLanguage);
+			Try
+				PrintData = ModulePrintManager.PrintData(Objects, DisplayedFields, CurrentLanguage);
+			Except
+				UnlockDataForEdit(KeyOfEditObject, UUID);
+				Raise ErrorProcessing.DetailErrorDescription(ErrorInfo());
+			EndTry;
 			GetUserMessages(True);
 		Else
 			Return;
@@ -1794,11 +1810,16 @@ Procedure CurrentValueOnChange(Item)
 EndProcedure
 
 &AtServerNoContext
-Function FieldsCollections(DataSources)
+Function FieldsCollections(DataSources, EditParameters)
 	
 	If Common.SubsystemExists("StandardSubsystems.Print") Then
 		ModulePrintManager = Common.CommonModule("PrintManagement");
-		Return ModulePrintManager.CollectionOfDataSourcesFields(DataSources);
+		Try
+			Return ModulePrintManager.CollectionOfDataSourcesFields(DataSources);
+		Except
+			UnlockDataForEdit(EditParameters.KeyOfEditObject, EditParameters.UUID);
+			Raise ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		EndTry
 	EndIf;
 
 	Return New Array;
@@ -1838,7 +1859,7 @@ Procedure Attachable_ExpandTheCurrentFieldListItem()
 EndProcedure
 
 &AtClient
-Procedure Attachable_FillInTheListOfAvailableFields(FillParameters) Export // ACC:78 - 
+Procedure Attachable_FillInTheListOfAvailableFields(FillParameters) Export // ACC:78 - Called from FormulaConstructorClient.
 	
 	FillInTheListOfAvailableFields(FillParameters);
 	
@@ -1939,7 +1960,7 @@ Procedure Attachable_FormulaEditorHandlerServer(Parameter, AdditionalParameters)
 EndProcedure
 
 &AtClient
-Procedure Attachable_FormulaEditorHandlerClient(Parameter, AdditionalParameters = Undefined) Export // 
+Procedure Attachable_FormulaEditorHandlerClient(Parameter, AdditionalParameters = Undefined) Export 
 	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
 		ModuleConstructorFormulaClient.FormulaEditorHandler(ThisObject, Parameter, AdditionalParameters);
@@ -2029,9 +2050,9 @@ Procedure Attachable_OperatorsDragStart(Item, DragParameters, Perform)
 		Operator = ModuleConstructorFormulaClient.TheSelectedFieldInTheFieldList(ThisObject, NameOfTheListOfOperators());
 		DragParameters.Value = ModuleConstructorFormulaClient.ExpressionToInsert(Operator);
 		If Operator.DataPath = "PrintControl_NumberofLines" Then
-			CurrentTableName = GetNameOfCurrTable();
-			Perform = CurrentTableName <> Undefined;
-			DragParameters.Value = StrReplace(DragParameters.Value, "()", "(["+CurrentTableName+"])");
+			PresentationOfCurrentTable = PresentationOfCurrentTable();
+			Perform = PresentationOfCurrentTable <> Undefined;
+			DragParameters.Value = StrReplace(DragParameters.Value, "()", "(["+PresentationOfCurrentTable+"])");
 		EndIf;
 	EndIf;
 	
@@ -2105,12 +2126,12 @@ Procedure SetValAfterDragging()
 EndProcedure
 
 &AtClient
-Function GetNameOfCurrTable()
+Function PresentationOfCurrentTable()
 	For Each AttachedFieldList In ThisObject["ConnectedFieldLists"] Do
 		If AttachedFieldList.NameOfTheFieldList <> NameOfTheListOfOperators() Then
 			If Items[AttachedFieldList.NameOfTheFieldList].CurrentData <> Undefined
 				And Items[AttachedFieldList.NameOfTheFieldList].CurrentData.Table Then
-					Return Items[AttachedFieldList.NameOfTheFieldList].CurrentData.DataPath;
+					Return Items[AttachedFieldList.NameOfTheFieldList].CurrentData.RepresentationOfTheDataPath;
 			EndIf;			
 		EndIf;
 	EndDo;	
@@ -2390,10 +2411,10 @@ Function CopySpreadsheetDocument(SpreadsheetDocument, LanguageCode)
 			EndIf;
 			
 			Cell = Result.Area(LineNumber, ColumnNumber, LineNumber, ColumnNumber);
+			FillPropertyValues(Cell, CellToCopy);
+			
 			If CellToCopy.FillType = SpreadsheetDocumentAreaFillType.Template Then
 				Cell.Text = CellToCopy.Text;
-			Else
-				FillPropertyValues(Cell, CellToCopy);
 			EndIf;
 		EndDo;
 	EndDo;
@@ -2408,7 +2429,8 @@ Function CopySpreadsheetDocument(SpreadsheetDocument, LanguageCode)
 	For Each Area In Result.Areas Do
 		If TypeOf(Area) = Type("SpreadsheetDocumentRange")
 			And Area.AreaType = SpreadsheetDocumentCellAreaType.Rows
-			Or TypeOf(Area) = Type("SpreadsheetDocumentDrawing") Then
+			Or TypeOf(Area) = Type("SpreadsheetDocumentDrawing") 
+			And Area.DrawingType <> SpreadsheetDocumentDrawingType.Group Then
 				CopyArea = SpreadsheetDocument.Areas.Find(Area.Name);
 				If CopyArea = Undefined Then
 					Continue;
@@ -2574,7 +2596,7 @@ Procedure ExpandFieldList()
 		EndDo;
 	EndDo;
 	
-	// 
+	
 	
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -2758,7 +2780,7 @@ Procedure ViewPrintableForm(Command)
 	
 	Items.ViewPrintableForm.Check = Not Items.ViewPrintableForm.Check;
 	Items.SettingsCurrentRegion.Visible = Not Items.ViewPrintableForm.Check;
-	Items.CommandBar2.Enabled = Not Items.ViewPrintableForm.Check;
+	Items.SecondCommandPanel.Enabled = Not Items.ViewPrintableForm.Check;
 	Items.ShowHeadersAndFooters.Enabled = Not Items.ViewPrintableForm.Check;
 	Items.ActionsWithDocument.Enabled = Not Items.ViewPrintableForm.Check;
 	Items.Language.Enabled = Not Items.ViewPrintableForm.Check;
@@ -2787,7 +2809,7 @@ Procedure DeleteStampEP(Command)
 		If StrStartsWith(Area.Name, "DSStamp") Then
 			Area.Name = "";
 			#If WebClient Then
-				// 
+				
 				Area.Protection = Area.Protection;
 			#EndIf
 		EndIf;
@@ -2801,6 +2823,17 @@ Procedure DeleteLayoutInCurrentLanguage()
 	If Common.SubsystemExists("StandardSubsystems.Print") Then
 		ModulePrintManager = Common.CommonModule("PrintManagement");
 		ModulePrintManager.DeleteTemplate(IdentifierOfTemplate, CurrentLanguage);
+	EndIf;
+	
+	LoadSpreadsheetDocumentFromMetadata(CurrentLanguage);
+	If IsPrintForm Then
+		FillSpreadsheetDocument(SpreadsheetDocument, ReadLayout());
+	EndIf;
+	
+	Modified = False;
+	
+	If Not ValueIsFilled(CurrentLanguage) Or CurrentLanguage = Common.DefaultLanguageCode() Then
+		Return;
 	EndIf;
 	
 	MenuLang = Items.Language;
@@ -2825,13 +2858,6 @@ Procedure DeleteLayoutInCurrentLanguage()
 	EndDo;
 	
 	Items.Language.Title = Items["Language_"+CurrentLanguage].Title;
-	
-	LoadSpreadsheetDocumentFromMetadata(CurrentLanguage);
-	If IsPrintForm Then
-		FillSpreadsheetDocument(SpreadsheetDocument, ReadLayout());
-	EndIf;
-	
-	Modified = False;
 	
 EndProcedure
 
@@ -2970,7 +2996,7 @@ Procedure UpdateListOfAvailableFields()
 	If Common.SubsystemExists("StandardSubsystems.Print") Then
 		ModulePrintManager = Common.CommonModule("PrintManagement");
 		ModulePrintManager.UpdateListOfAvailableFields(ThisObject, 
-			FieldsCollections(DataSources.UnloadValues()), NameOfTheFieldList());
+			FieldsCollections(DataSources.UnloadValues(), EditParameters()), NameOfTheFieldList());
 		
 		SetUpFieldSample();
 		MarkCommonFields();
@@ -3078,5 +3104,12 @@ Procedure SetAvailabilityRecursively(Item, Var_Enabled = Undefined)
 	EndDo;
 EndProcedure
 
-#EndRegion
+&AtServer
+Function EditParameters()
+	Result = New Structure;
+	Result.Insert("KeyOfEditObject", KeyOfEditObject);
+	Result.Insert("UUID", UUID);
+	Return Result;
+EndFunction
 
+#EndRegion

@@ -101,7 +101,7 @@ Procedure RunConnectedPrintCommandCompletion(FileSystemExtensionAttached1, Addit
 		CommandDetails.Insert("Form", Form);
 		HandlerName = CommandDetails.Handler;
 		If StrOccurrenceCount(HandlerName, ".") = 0 And IsReportOrDataProcessor(CommandDetails.PrintManager) Then
-			DefaultForm = GetForm(CommandDetails.PrintManager + ".Form", , Form, True);// ACC:65 - 
+			DefaultForm = GetForm(CommandDetails.PrintManager + ".Form", , Form, True);
 			HandlerName = "DefaultForm." + HandlerName;
 		EndIf;
 		PrintParameters = PrintManagementClient.DescriptionOfPrintParameters();
@@ -255,6 +255,12 @@ Procedure OpenPrintDocumentsForm(BackgroundOperationResult, OpeningParameters) E
 		EndIf;
 		ResultStructure1 = GetFromTempStorage(BackgroundOperationResult.ResultAddress);
 		
+		For Each PrintForm In ResultStructure1.PrintFormsCollection Do
+			If TypeOf(PrintForm.SpreadsheetDocument) = Type("SpreadsheetDocument") Then
+				PrintForm.SpreadsheetDocument.Protection = PrintForm.Protection;
+			EndIf;
+		EndDo;
+		
 		OpeningParameters.Insert("PrintObjects", ResultStructure1.PrintObjects);
 		OpeningParameters.Insert("OutputParameters", ResultStructure1.OutputParameters);
 		OpeningParameters.Insert("PrintParameters", ResultStructure1.PrintParameters); 
@@ -309,7 +315,7 @@ EndFunction
 //
 Function CreateTemporaryDirectory(Val Extension = "") Export 
 	
-	DirectoryName = TempFilesDir() + "v8_" + String(New UUID);// 
+	DirectoryName = TempFilesDir() + "v8_" + String(New UUID);
 	If Not IsBlankString(Extension) Then 
 		DirectoryName = DirectoryName + "." + Extension;
 	EndIf;

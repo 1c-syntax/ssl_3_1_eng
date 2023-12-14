@@ -9,13 +9,13 @@
 
 #Region Public
 
-// 
-// 
+// Constructor of the SignatureProperties parameter. Intended for adding and updating signature data.
+// Contains the signature's extended details.
 // 
 // Returns:
 //   Structure:
-//     * Signature             - BinaryData - the result of the signing.
-//                           - String - 
+//     * Signature             - BinaryData - Signing result.
+//                           - String - Signed XMLEnvelope (if it was passed in the data).
 //     * SignatureSetBy - CatalogRef.Users - a user who
 //                           signed the infobase object.
 //     * Comment         - String - a comment if it was entered upon signing.
@@ -23,26 +23,26 @@
 //     * SignatureDate         - Date - a signature date. It makes sense
 //                           when the date cannot be extracted from signature data.
 //     * SignatureValidationDate - Date - Date when the signature was last verified.
-//     * SignatureCorrect        - Boolean - result of the last signature check.
-//     * IsVerificationRequired   - Boolean -
+//     * SignatureCorrect        - Boolean - Last signature check result.
+//     * IsVerificationRequired   - Boolean - Verification failure flag.
 //
-//     
+//     Intended for updating enhanced signatures.:
 //     * SignedObject   - DefinedType.SignedObject - Object the signature associated with.
 //                             Ignored in methods there this object is a parameter.
 //     * SequenceNumber     - Number - Signature ID that used for list sorting.
 //                             Empty if the signature is not associated with an object.
-//     * IsErrorOccurredDuringAutomaticRenewal - Boolean -
-//     
+//     * IsErrorOccurredDuringAutomaticRenewal - Boolean - Do no use. This is an internal parameter, which is filled by the scheduled job.
+//     Intended for linking with the machine-readable letter of authority.:
 //     * SignatureID - UUID
-//     * ResultOfSignatureVerificationByMCHD - Array of Structure, Structure -
+//     * ResultOfSignatureVerificationByMRLOA - Array of Structure, Structure - MachineReadableLettersOfAuthorityFTS.ResultOfSignatureVerificationByMRLOA
 //
-//     
+//     Derived signature properties:
 //     * SignatureType          - EnumRef.CryptographySignatureTypes
-//     * DateActionLastTimestamp - Date -
-//                                           
-//                                           
-//     * Certificate          - ValueStorage - contains an upload of the certificate
-//                             that was used for signing (contained in the signature).
+//     * DateActionLastTimestamp - Date - атValidity period of the certificate that the last timestamp was signed with.
+//                                           Empty date if there's no timestamp.
+//                                           Applicable if the period was determined using CryptoManager.
+//     * Certificate          - ValueStorage - contains export of the certificate
+//                             that was used for signing (it is in the signature).
 //                           - BinaryData
 //     * Thumbprint           - String - a certificate thumbprint in the Base64 string format.
 //     * CertificateOwner - String - a subject presentation received from the certificate binary data.
@@ -78,33 +78,33 @@ Function NewSignatureProperties() Export
 	
 	Structure.Insert("IsErrorOccurredDuringAutomaticRenewal", False);
 	Structure.Insert("SignatureID");
-	Structure.Insert("ResultOfSignatureVerificationByMCHD");
+	Structure.Insert("ResultOfSignatureVerificationByMRLOA");
 	
 	Return Structure;
 	
 EndFunction
 
-// 
+// Signature verification result.
 // 
 // Returns:
 //  Structure:
-//   * Result - Boolean     -
-//             - String       - 
-//             - Undefined - 
-//   * SignatureCorrect        - Boolean, Undefined - result of the last signature check.
-//   * CertificateRevoked   - Boolean -
-//   * IsVerificationRequired   - Boolean -
-//   * SignatureType          - EnumRef.CryptographySignatureTypes -
-//   * DateActionLastTimestamp - Date -
-//    
-//   * UnverifiedSignatureDate - Date -
-//                               - Undefined - 
-//                                                
-//   * DateSignedFromLabels  - Date -
-//                       - Undefined - 
-//   * Certificate          - BinaryData -
-//   * Thumbprint           - String - the thumbprint of the certificate in Base64 string format.
-//   * CertificateOwner - String - the subject representation obtained from the certificate's binary data.
+//   * Result - Boolean     - True if the check is passed.
+//             - String       - Check error details.
+//             - Undefined - Failed to get the cryptographic manager (when it is not specified).
+//   * SignatureCorrect        - Boolean, Undefined - Last signature check result.
+//   * CertificateRevoked   - Boolean - Flag indicating whether the error occurred because the certificate was revoked.
+//   * IsVerificationRequired   - Boolean - Signature verification failure flag.
+//   * SignatureType          - EnumRef.CryptographySignatureTypes - Not filled when checking XML envelope signatures.
+//   * DateActionLastTimestamp - Date - Validity period of the certificate that the last timestamp was signed with.
+//    Empty date if there's no timestamp. Applicable if the period was determined using CryptoManager.
+//   * UnverifiedSignatureDate - Date - Unconfirmed signature data.
+//                               - Undefined - Unconfirmed signature data is missing from the signature data
+//                                                and for the XML envelope.
+//   * DateSignedFromLabels  - Date - Date of the earliest timestamp.
+//                       - Undefined - Timestamp is missing from the signature data during the XML envelope check.
+//   * Certificate          - BinaryData - Signatory's certificate
+//   * Thumbprint           - String - a certificate thumbprint in the Base64 string format.
+//   * CertificateOwner - String - a subject presentation received from the certificate binary data.
 //
 Function SignatureVerificationResult() Export
 	
@@ -123,7 +123,7 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated.Dated.
+// Deprecated.
 // See DigitalSignatureClient.CertificatePresentation.
 // See DigitalSignature.CertificatePresentation.
 //
@@ -145,7 +145,7 @@ Function CertificatePresentation(Certificate, MiddleName = False, ValidityPeriod
 	
 EndFunction
 
-// Deprecated.Dated.
+// Deprecated.
 // See DigitalSignatureClient.SubjectPresentation.
 // See DigitalSignature.SubjectPresentation.
 //
@@ -159,7 +159,7 @@ Function SubjectPresentation(Certificate, MiddleName = True) Export
 	
 EndFunction
 
-// Deprecated.Dated.
+// Deprecated.
 // See DigitalSignatureClient.IssuerPresentation.
 // See DigitalSignature.IssuerPresentation.
 //
@@ -173,7 +173,7 @@ Function IssuerPresentation(Certificate) Export
 	
 EndFunction
 
-// Deprecated.Dated.
+// Deprecated.
 // See DigitalSignatureClient.CertificateProperties.
 // See DigitalSignature.CertificateProperties.
 //
@@ -187,7 +187,7 @@ Function FillCertificateStructure(Certificate) Export
 	
 EndFunction
 
-// Deprecated.Dated.
+// Deprecated.
 // See DigitalSignatureClient.CertificateSubjectProperties.
 // See DigitalSignature.CertificateSubjectProperties.
 //
@@ -201,7 +201,7 @@ Function CertificateSubjectProperties(Certificate) Export
 	
 EndFunction
 
-// Deprecated.Dated.
+// Deprecated.
 // See DigitalSignatureClient.CertificateIssuerProperties.
 // See DigitalSignature.CertificateIssuerProperties.
 //
@@ -215,7 +215,7 @@ Function CertificateIssuerProperties(Certificate) Export
 	
 EndFunction
 
-// Deprecated.Dated.
+// Deprecated.
 // See DigitalSignatureClient.XMLDSigParameters.
 // See DigitalSignature.XMLDSigParameters.
 //

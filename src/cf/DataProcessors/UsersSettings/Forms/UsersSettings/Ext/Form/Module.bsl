@@ -436,7 +436,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure UpdateSettingsList()
@@ -467,7 +467,7 @@ Function UpdatingSettingsList()
 	TimeConsumingOperationParameters = TimeConsumingOperationParameters();
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.WaitCompletion = 0; // 
+	ExecutionParameters.WaitCompletion = 0; 
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update user settings';");
 	
 	ExecutionResult = TimeConsumingOperations.ExecuteInBackground("UsersInternal.FillSettingsLists",
@@ -514,7 +514,7 @@ Procedure FillSettings()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure CalculateSettingsCount()
@@ -573,7 +573,7 @@ Function SettingsInTreeCount(SettingsList)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure CopyAtServer(UsersDestination, ReportPersonalizationCount, Report)
@@ -619,7 +619,7 @@ Procedure CopyAtServer(UsersDestination, ReportPersonalizationCount, Report)
 			Result.SettingsArray,
 			NotCopiedReportSettings);
 		
-		// 
+		// Copy report options.
 		DataProcessors.UsersSettings.CopyReportOptions(Result.ReportOptionArray,
 			UserReportOptionTable, InfoBaseUser, UsersDestination);
 			
@@ -837,7 +837,7 @@ Procedure ClearCompletion(Response, SettingsTree) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure Attachable_ExecuteNotifyProcessing()
@@ -1382,7 +1382,7 @@ Function SelectedSettings1()
 				Item.Check = True;
 			EndDo;
 			CurrentReportOption = SelectedSetting.Keys.Copy();
-			// 
+			// Filling the array of user-defined report options.
 			ReportOptionArray.Add(SelectedSetting.Keys);
 			
 		ElsIf SelectedSetting.Type = "StandardOptionPersonal" Then

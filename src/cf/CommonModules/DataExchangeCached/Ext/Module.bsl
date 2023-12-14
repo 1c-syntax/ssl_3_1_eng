@@ -11,8 +11,7 @@
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Use the new one (See DataExchangeServer.IsStandaloneWorkplace)
-// .
+// Deprecated. (See DataExchangeServer.IsStandaloneWorkplace)
 //
 Function IsStandaloneWorkplace() Export
 	
@@ -20,8 +19,7 @@ Function IsStandaloneWorkplace() Export
 	
 EndFunction
 
-// Deprecated. Obsolete. Use the new one (See DataExchangeServer.ExchangePlanNodeByCode)
-// .
+// Deprecated. (See DataExchangeServer.ExchangePlanNodeByCode)
 //
 Function FindExchangePlanNodeByCode(ExchangePlanName, NodeCode) Export
 	
@@ -167,7 +165,7 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 // 
 // Returns:
-//  String - 
+//  String - a code of a predefined exchange plan node.
 //
 Function GetThisNodeCodeForExchangePlan(ExchangePlanName) Export
 	
@@ -181,7 +179,7 @@ EndFunction
 //  InfobaseNode - ExchangePlanRef - an exchange plan node.
 // 
 // Returns:
-//  String - 
+//  String - a name of a predefined exchange plan node.
 //
 Function ThisNodeDescription(Val InfobaseNode) Export
 	
@@ -195,7 +193,7 @@ EndFunction
 //  No.
 // 
 // Returns:
-//   Array - 
+//   Array - an array of exchange plan name items.
 //
 Function SSLExchangePlans() Export
 	
@@ -361,7 +359,7 @@ EndFunction
 //  TemplateName - String - a name of the template to check for existence.
 //
 //  Returns:
-//    Boolean - 
+//    Boolean - True if the exchange plan contains the specified template. Otherwise, False.
 //
 Function HasExchangePlanTemplate(Val ExchangePlanName, Val TemplateName) Export
 	
@@ -375,7 +373,7 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 //
 //  Returns:
-//    Boolean - 
+//    Boolean - True if the exchange plan belongs to the DIB exchange plan. Otherwise, False.
 //
 Function IsDistributedInfobaseExchangePlan(ExchangePlanName) Export
 	
@@ -431,7 +429,7 @@ EndFunction
 //  ExchangePlanNode - ExchangePlanRef - an exchange plan node.
 // 
 // Returns:
-//  Имя - 
+//  Имя - String - a name of the exchange plan as a metadata object.
 //
 Function GetExchangePlanName(ExchangePlanNode) Export
 	
@@ -464,7 +462,7 @@ EndFunction
 //  No.
 // 
 // Returns:
-//   Array - 
+//   Array - an array of elements of separated exchange plan names.
 //
 Function SeparatedSSLExchangePlans() Export
 	
@@ -532,7 +530,7 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 //
 //  Returns:
-//    Boolean - 
+//    Boolean - If True, the exchange plan has a registration module. Otherwise, False.
 //                                                            
 Function RulesForRegisteringInManager(Val ExchangePlanName) Export
 	
@@ -548,7 +546,7 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 //
 //  Returns:
-//    Boolean - 
+//    Boolean - If True, the exchange plan has a registration module. Otherwise, False.
 // 
 Function RegistrationManagerName(Val ExchangePlanName) Export
 	
@@ -561,7 +559,7 @@ EndFunction
 // 
 //
 // Parameters:
-//  ExchangePlanName - String - name of the exchange plan as specified in the Configurator.
+//  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 //
 //  Returns:
 //    Boolean - 
@@ -577,10 +575,10 @@ EndFunction
 //  
 //
 // Parameters:
-//  ExchangePlanName - String - name of the exchange plan as specified in the Configurator.
+//  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 //
 //  Returns:
-//    Boolean - 
+//    Boolean
 // 
 Function ThisIsGlobalExchangeThroughUniversalFormat(Val ExchangePlanName) Export
 	
@@ -606,7 +604,7 @@ EndFunction
 //                    for which the registration rules are to be received.
 //
 // Returns:
-//   ValueTable - 
+//   ValueTable - a table of registration rules for current exchange plan.
 //
 Function ExchangePlanObjectsRegistrationRules(Val ExchangePlanName) Export
 	
@@ -623,7 +621,7 @@ EndFunction
 //                   for which registration rules are to be received.
 //
 // Returns:
-//   ValueTable - 
+//   ValueTable - a table of object registration rules for the specified exchange plan.
 //
 Function ObjectRegistrationRules(Val ExchangePlanName, Val FullObjectName) Export
 	
@@ -641,7 +639,7 @@ EndFunction
 //                   whose registration rules must be checked for existence.
 //
 //  Returns:
-//     Boolean - 
+//     Boolean - True if the object registration rules exist. Otherwise, False.
 //
 Function ObjectRegistrationRulesExist(Val ExchangePlanName, Val FullObjectName) Export
 	
@@ -657,9 +655,9 @@ EndFunction
 //  FullObjectName - String - a full name of the metadata object whose automatic registration flag must be checked.
 //
 //  Returns:
-//    Boolean - 
-//   
-//          
+//    Boolean - True if metadata object automatic registration is allowed in the exchange plan;
+//   False if metadata object auto registration is denied in the exchange plan
+//          or the exchange plan does not include the metadata object.
 //
 Function AutoRegistrationAllowed(Val ExchangePlanName, Val FullObjectName) Export
 	
@@ -679,7 +677,7 @@ EndFunction
 //  FullObjectName - String - a full name of the metadata object whose automatic registration flag is to be checked.
 //
 //  Returns:
-//    Boolean - 
+//    Boolean - True if the exchange plan includes the object. Otherwise, False.
 //
 Function ExchangePlanContainsObject(Val ExchangePlanName, Val FullObjectName) Export
 	
@@ -729,7 +727,7 @@ Function UserExchangePlanComposition(Val Recipient) Export
 		ObjectRules = Rules.FindRows(New Structure("MetadataObjectName3", ObjectName));
 		ExportMode = Undefined;
 		
-		If ObjectRules.Count() = 0 Then // 
+		If ObjectRules.Count() = 0 Then // Registration rules are not set.
 			
 			ExportMode = Enums.ExchangeObjectExportModes.ExportAlways;
 			
@@ -762,11 +760,11 @@ EndFunction
 // Returns the object export mode based on the custom exchange plan content (user settings).
 //
 // Parameters:
-//  ObjectName - 
+//  ObjectName - a metadata object full name. Export mode is retrieved for this metadata object;
 //  Recipient - ExchangePlanRef - an exchange plan node reference. The function gets custom content from this node.
 //
 // Returns:
-//   EnumRef.ExchangeObjectExportModes - mode of discharge of the object.
+//   EnumRef.ExchangeObjectExportModes - object export mode.
 //
 Function ObjectExportMode(Val ObjectName, Val Recipient) Export
 	
@@ -809,7 +807,7 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 // 
 // Returns:
-//  ЭтотУзел - 
+//  ЭтотУзел - ExchangePlanRef - a predefined exchange plan node.
 //
 Function GetThisExchangePlanNode(ExchangePlanName) Export
 	
@@ -823,7 +821,7 @@ EndFunction
 //  InfobaseNode - ExchangePlanRef - an exchange plan node that requires receiving the function value.
 //
 //  Returns:
-//    Boolean - 
+//    Boolean - If True, the node belongs to the exchange plan of the distributed infobase. Otherwise, False.
 //
 Function IsDistributedInfobaseNode(Val InfobaseNode) Export
 
@@ -837,7 +835,7 @@ EndFunction
 //  ExchangePlanName - String - a name of the exchange plan which requires the function value.
 //
 //  Returns:
-//    Boolean - 
+//    Boolean - True if the node belongs to the standard exchange plan. Otherwise, False.
 //
 Function IsStandardDataExchangeNode(ExchangePlanName) Export
 	
@@ -856,7 +854,7 @@ EndFunction
 //  InfobaseNode - ExchangePlanRef - an exchange plan node that requires receiving the function value.
 //
 //  Returns:
-//    Boolean - 
+//    Boolean - True if the node belongs to the universal exchange plan. Otherwise, False.
 //
 Function IsUniversalDataExchangeNode(InfobaseNode) Export
 	
@@ -873,11 +871,11 @@ EndFunction
 //
 // Parameters:
 //  InfobaseNode - ExchangePlanRef
-//                         - ExchangePlanObject - 
-//                           
+//                         - ExchangePlanObject - an exchange plan node that requires receiving
+//                           the function value.
 //
 //  Returns:
-//    Boolean - 
+//    Boolean - True if the node belongs to the exchange plan that uses the SSL functionality. Otherwise, False.
 //
 Function IsSSLDataExchangeNode(Val InfobaseNode) Export
 	
@@ -891,7 +889,7 @@ EndFunction
 //  InfobaseNode - ExchangePlanRef - an exchange plan node that requires receiving the function value.
 //
 //  Returns:
-//    Boolean - 
+//    Boolean - True if the node belongs to the separated exchange plan that uses the SSL functionality. Otherwise, False.
 //
 Function IsSeparatedSSLDataExchangeNode(InfobaseNode) Export
 	
@@ -905,7 +903,7 @@ EndFunction
 //  InfobaseNode - ExchangePlanRef - an exchange plan node that requires receiving the function value.
 //
 //  Returns:
-//    Boolean - 
+//    Boolean - True if the node belongs to the message exchange plan. Otherwise, False.
 //
 Function IsMessagesExchangeNode(InfobaseNode) Export
 	
@@ -924,7 +922,7 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 // 
 // Returns:
-//  СписокПравил - 
+//  СписокПравил - ValueList - a list of templates of standard exchange rules.
 //
 Function ConversionRulesForExchangePlanFromConfiguration(ExchangePlanName) Export
 	
@@ -939,7 +937,7 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 // 
 // Returns:
-//  СписокПравил - 
+//  СписокПравил - ValueList - a list of templates of standard registration rules.
 //
 Function RegistrationRulesForExchangePlanFromConfiguration(ExchangePlanName) Export
 	
@@ -954,7 +952,7 @@ EndFunction
 //  No.
 // 
 // Returns:
-//  СписокПлановОбмена - 
+//  СписокПлановОбмена - ValueList - a list of configuration exchange plans.
 //
 Function SSLExchangePlansList() Export
 	
@@ -1063,7 +1061,7 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 //
 // Returns:
-//  ExchangePlanManager - 
+//  ExchangePlanManager - an exchange plan manager.
 //
 Function GetExchangePlanManagerByName(ExchangePlanName) Export
 	
@@ -1118,7 +1116,7 @@ EndFunction
 //  SettingsMode       - String           - ID of data synchronization setup option.
 // 
 //  Returns:
-//   Array - 
+//   Array - message transports that are used for the specified exchange plan node.
 //
 Function UsedExchangeMessagesTransports(InfobaseNode, Val SettingsMode = "") Export
 	
@@ -1137,7 +1135,7 @@ Function UsedExchangeMessagesTransports(InfobaseNode, Val SettingsMode = "") Exp
 		Result = DataExchangeServer.AllConfigurationExchangeMessagesTransports();
 	EndIf;
 	
-	// 
+	
 	//  
 	//  
 	//  
@@ -1153,7 +1151,7 @@ Function UsedExchangeMessagesTransports(InfobaseNode, Val SettingsMode = "") Exp
 			
 	EndIf;
 	
-	// 
+	
 	//  
 	//
 	If DataExchangeCached.IsDistributedInfobaseExchangePlan(ExchangePlanName)
@@ -1164,7 +1162,7 @@ Function UsedExchangeMessagesTransports(InfobaseNode, Val SettingsMode = "") Exp
 		
 	EndIf;
 	
-	// 
+	
 	//  
 	//  
 	//
@@ -1176,7 +1174,7 @@ Function UsedExchangeMessagesTransports(InfobaseNode, Val SettingsMode = "") Exp
 		
 	EndIf;
 	
-	// 
+	
 	//  
 	//  
 	If Common.SubsystemExists("StandardSubsystems.EmailOperations") Then
@@ -1244,8 +1242,8 @@ EndFunction
 //  ExchangePlanName - String - name of the exchange plan to get the flag for.
 //
 // Returns:
-//   Boolean - 
-//  
+//   Boolean - True if the exchange plan can be used.
+//  False - it cannot be used.
 //
 Function ExchangePlanUsageAvailable(Val ExchangePlanName) Export
 	
@@ -1280,8 +1278,8 @@ EndFunction
 // 
 // Parameters:
 //   Peer - Structure
-//                 - ExchangePlanRef - 
-//                 
+//                 - ExchangePlanRef - Exchange plan node that corresponds
+//                 the correspondent infobase.
 //
 // Returns:
 //   Array of version numbers that are supported by correspondent API.
@@ -1329,7 +1327,7 @@ EndFunction
 
 Function StandaloneModeExchangePlans()
 	
-	// 
+	
 	// 
 	// 
 	// 
@@ -1401,7 +1399,7 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 // 
 // Returns:
-//  СписокПравил - 
+//  СписокПравил - ValueList - a list of templates of standard rules for data exchange.
 //
 Function RulesForExchangePlanFromConfiguration(ExchangePlanName, TemplateNameLiteral)
 	
@@ -1535,7 +1533,7 @@ EndFunction
 // Returns the name of the temporary file directory.
 //
 // Returns:
-//  String - 
+//  String - a path to the temporary file directory.
 //
 Function TempFilesStorageDirectory(SafeMode = Undefined) Export
 	

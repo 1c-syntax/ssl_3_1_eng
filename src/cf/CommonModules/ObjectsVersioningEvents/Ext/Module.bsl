@@ -17,8 +17,8 @@
 //
 Procedure WriteObjectVersion(Source, Cancel) Export
 	
-	// 
-	// 
+	
+	
 	If Source.DataExchange.Load And Source.DataExchange.Sender = Undefined Then
 		Return;
 	EndIf;
@@ -39,8 +39,8 @@ EndProcedure
 //
 Procedure WriteDocumentVersion(Source, Cancel, WriteMode, PostingMode) Export
 	
-	// 
-	// 
+	
+	
 	If Source.DataExchange.Load And Source.DataExchange.Sender = Undefined Then
 		Return;
 	EndIf;

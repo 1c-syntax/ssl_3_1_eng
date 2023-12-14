@@ -53,8 +53,8 @@ EndProcedure
 //
 Procedure ChangeIBPrefix(Parameters, ResultAddress = "") Export
 	
-	// 
-	// 
+	
+	
 	If Not Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 		Return;
 	EndIf;
@@ -99,14 +99,14 @@ EndProcedure
 // Returns the flag that shows whether the object's company or date is changed.
 //
 // Parameters:
-//  Ref - 
-//  DateAfterChange - 
-//  CompanyAfterChange - 
+//  Ref - a reference to an infobase object.
+//  DateAfterChange - an object date after change.
+//  CompanyAfterChange - an object company after change.
 //
 //  Returns:
-//    Boolean - 
-//            
-//   
+//    Boolean - True - the object's company was changed, or a new object date
+//            was set in a different periodicity interval than the previous date.
+//   False - the company and the document date were not changed.
 //
 Function ObjectDateOrCompanyChanged(Ref, Val DateAfterChange, Val CompanyAfterChange) Export
 	
@@ -135,7 +135,7 @@ Function ObjectDateOrCompanyChanged(Ref, Val DateAfterChange, Val CompanyAfterCh
 	CompanyPrefixAfterChange = Undefined;
 	ObjectsPrefixesEvents.OnDetermineCompanyPrefix(CompanyAfterChange, CompanyPrefixAfterChange);
 	
-	// 
+	// If an empty reference to a company is specified.
 	CompanyPrefixAfterChange = ?(CompanyPrefixAfterChange = False, "", CompanyPrefixAfterChange);
 	
 	Return Selection.CompanyPrefixBeforeChange <> CompanyPrefixAfterChange
@@ -146,11 +146,11 @@ EndFunction
 // Returns whether the object company is changed.
 //
 // Parameters:
-//  Ref - 
-//  CompanyAfterChange - 
+//  Ref - a reference to an infobase object.
+//  CompanyAfterChange - an object company after change.
 //
 //  Returns:
-//    Boolean - 
+//    Boolean - True - the object's company was changed. False - the company was not changed.
 //
 Function ObjectCompanyChanged(Ref, Val CompanyAfterChange) Export
 	
@@ -178,7 +178,7 @@ Function ObjectCompanyChanged(Ref, Val CompanyAfterChange) Export
 	CompanyPrefixAfterChange = Undefined;
 	ObjectsPrefixesEvents.OnDetermineCompanyPrefix(CompanyAfterChange, CompanyPrefixAfterChange);
 	
-	// 
+	// If an empty reference to a company is specified.
 	CompanyPrefixAfterChange = ?(CompanyPrefixAfterChange = False, "", CompanyPrefixAfterChange);
 	
 	Return Selection.CompanyPrefixBeforeChange <> CompanyPrefixAfterChange;
@@ -189,12 +189,12 @@ EndFunction
 // Dates are considered to be equal if they belong to the same period of time: Year, Month, Day, and etc.
 //
 // Parameters:
-//   Date1 - 
-//   Date2 - 
-//   
+//   Date1 - the first date for comparison.
+//   Date2 - the second date for comparison.
+//   ObjectMetadata - metadata of an object for which a function value is to be got.
 //
 //  Returns:
-//    Boolean - 
+//    Boolean - True - the object dates belong to the same period; False - the object dates belong to different periods.
 //
 Function ObjectDatesOfSamePeriod(Val Date1, Val Date2, Ref) Export
 	
@@ -216,7 +216,7 @@ Function ObjectDatesOfSamePeriod(Val Date1, Val Date2, Ref) Export
 		
 		DateDiff = BegOfDay(Date1) - BegOfDay(Date2);
 		
-	Else // ПериодичностьНомераДокументаНеопределено
+	Else // DocumentNumberPeriodicityUndefined
 		
 		DateDiff = 0;
 		
@@ -264,8 +264,8 @@ Function MetadataUsingPrefixesDetails(DiagnosticsMode = False) Export
 				IsSeparatedMetadataObject = ModuleSaaSOperations.IsSeparatedMetadataObject(FullObjectName);
 			EndIf;
 			
-			// 
-			// 
+			
+			
 			If Not DiagnosticsMode Then
 				
 				If Result.Find(FullObjectName, "FullName") <> Undefined Then
@@ -286,7 +286,7 @@ Function MetadataUsingPrefixesDetails(DiagnosticsMode = False) Export
 			ObjectDetails.IBPrefixUsed = IBPrefixUsed;
 			ObjectDetails.CompanyPrefixIsUsed = CompanyPrefixIsUsed;
 		
-			// 
+			// Possible data types with a code or number.
 			ObjectDetails.IsCatalog             = Common.IsCatalog(SourceMetadata);
 			ObjectDetails.IsChartOfCharacteristicTypes = Common.IsChartOfCharacteristicTypes(SourceMetadata);
 			ObjectDetails.IsDocument               = Common.IsDocument(SourceMetadata);
@@ -384,7 +384,7 @@ Function ProcessDataToContinueNumbering(Val NewIBPrefix = "", DataAnalysisMode =
 			DataLock.Lock();
 		EndIf;
 		
-		// 
+		// @skip-check query-in-loop - Batch processing of a large amount of data.
 		ObjectDataForLastItemRenumbering = OneKindObjectDataForLastItemsRenumbering(
 			ObjectDetails, CurrentIBPrefix);
 		If ObjectDataForLastItemRenumbering.IsEmpty() Then
@@ -517,7 +517,7 @@ Function OneKindObjectDataForLastItemsRenumbering(Val ObjectDetails, Val Previou
 		Query.SetParameter("Date", BegOfDay(FromDate));
 	EndIf;
 	
-	// 
+	// Processing objects created only in the current infobase.
 	Query.SetParameter("Prefix", 
 		"%" + Common.GenerateSearchQueryString(PreviousPrefix) + "-%");
 	

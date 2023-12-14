@@ -174,9 +174,9 @@ EndProcedure
 //
 Procedure UpdateWorkSchedulesAccordingToBusinessCalendars(UpdateConditions) Export
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	
 	QueryText = 
 		"SELECT
@@ -333,7 +333,7 @@ Procedure UpdateWorkSchedulesAccordingToBusinessCalendars(UpdateConditions) Expo
 			FillParameters.StartingDate = SelectionBySchedule.StartingDate;
 			DaysIncludedInSchedule = InformationRegisters.CalendarSchedules.DaysIncludedInSchedule(
 				SelectionBySchedule.StartDate, SelectionBySchedule.EndDate, FillParameters);
-			// 
+			
 			WriteScheduleDataToRegister(SelectionBySchedule.WorkScheduleCalendar, DaysIncludedInSchedule, 
 				SelectionBySchedule.StartDate, SelectionBySchedule.EndDate);
 		EndDo;
@@ -348,7 +348,7 @@ EndProcedure
 //  YearNumber		- Number of the year for which the schedule is to be read.
 //
 // Returns:
-//   Map - Key is date.
+//   Map - - Key is date.
 //
 Function ReadScheduleDataFromRegister(WorkScheduleCalendar, YearNumber) Export
 	
@@ -385,10 +385,10 @@ EndFunction
 // Parameters:
 //  WorkScheduleCalendar	- reference to the current catalog item.
 //  YearNumber		- Number of the year for which the schedule is to be recorded.
-//  DaysIncludedInSchedule - 
+//  DaysIncludedInSchedule - the map of the date and the data related thereto.
 //
-// 
-//  
+// Returns
+//  No
 //
 Procedure WriteScheduleDataToRegister(WorkScheduleCalendar, DaysIncludedInSchedule, StartDate, EndDate, 
 	ReplaceManualChanges = False) Export
@@ -396,9 +396,9 @@ Procedure WriteScheduleDataToRegister(WorkScheduleCalendar, DaysIncludedInSchedu
 	SetDays = InformationRegisters.CalendarSchedules.CreateRecordSet();
 	SetDays.Filter.Calendar.Set(WorkScheduleCalendar);
 	
-	// 
-	// 
-	//  
+	
+	
+	 
 	//  
 	// 
 	// 
@@ -419,7 +419,7 @@ Procedure WriteScheduleDataToRegister(WorkScheduleCalendar, DaysIncludedInSchedu
 	// Process data by years.
 	For Each KeyAndValue In DataByYears Do
 		Year = KeyAndValue.Key;
-		// 
+		// Read sets for the year
 		SetDays.Filter.Year.Set(Year);
 		BeginTransaction();
 		Try
@@ -463,7 +463,7 @@ Procedure FillDaysSetForYear(SetDays, DaysIncludedInSchedule, Year, WorkSchedule
 	While DayDate <= TraversalEnd Do
 		
 		If ManualChanges <> Undefined And ManualChanges[DayDate] <> Undefined Then
-			// 
+			// Leave manual adjustments in the set without change.
 			DayDate = DayDate + DayDurationInSeconds();
 			Continue;
 		EndIf;
@@ -481,7 +481,7 @@ Procedure FillDaysSetForYear(SetDays, DaysIncludedInSchedule, Year, WorkSchedule
 		// If the day is included in the schedule, fill in the intervals.
 		DayData = DaysIncludedInSchedule.Get(DayDate);
 		If DayData = Undefined Then
-			// Удаляем строку из набора, если день - 
+			// Remove the row from the set if the day is a non-working day.
 			SetDays.Delete(SetRowDays);
 			SetRowsDays.Delete(DayDate);
 		Else
@@ -496,10 +496,10 @@ Procedure FillDaysSetForYear(SetDays, DaysIncludedInSchedule, Year, WorkSchedule
 	While DateCounter <= EndOfYear Do
 		SetRowDays = SetRowsDays[DateCounter];
 		If SetRowDays <> Undefined Then
-			// 
+			// Day included in schedule
 			DaysCountInScheduleSinceBegOfYear = DaysCountInScheduleSinceBegOfYear + 1;
 		Else
-			// 
+			// The day is not included in the schedule.
 			SetRowDays = SetDays.Add();
 			SetRowDays.Calendar = WorkScheduleCalendar;
 			SetRowDays.Year = Year;
@@ -561,7 +561,7 @@ Function DaysIncludedInSchedule(StartDate, EndDate, FillParameters) Export
 	EndIf;
 	
 	If Not ValueIsFilled(EndDate) Then
-		// 
+		// If the end date is not specified, filling till the end of the year.
 		EndDate = EndOfYear(StartDate);
 		If ValueIsFilled(FillParameters.BusinessCalendar) Then
 			// If the business calendar is specified, filling till the end of the calendar.
@@ -604,7 +604,7 @@ Function DaysIncludedInScheduleByWeeks(Years, FillParameters,
 		For Each Year In Years Do
 			If BusinessCalendarData.FindRows(New Structure("Year", Year)).Count() 
 				<> DayOfYear(Date(Year, 12, 31)) Then
-				// 
+				// If the business calendar is specified but filled incorrectly, the schedule cannot be filled by weeks.
 				YearsCalendarIsNotFilledIn.Add(Year);
 			EndIf;
 		EndDo;

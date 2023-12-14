@@ -16,12 +16,12 @@
 // Parameters:
 //  Tables       - CatalogRef.MetadataObjectIDs
 //                - CatalogRef.ExtensionObjectIDs
-//                - Array - 
-//                - Undefined - 
+//                - Array - values of the type specified above.
+//                - Undefined - without filter.
 //
 //  AccessValuesTypes - DefinedType.AccessValue
-//                      - Array - 
-//                      - Undefined - 
+//                      - Array - values of the type specified above.
+//                      - Undefined - without filter.
 //
 //  HasChanges - Boolean - (return value) - if recorded,
 //                  True is set, otherwise, it does not change.

@@ -109,9 +109,9 @@ Function InstalledExtensions(OnStart = False) Export
 		ModuleConfigurationUpdate = Undefined;
 	EndIf;
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	SharedMode = Common.DataSeparationEnabled()
 		And Not Common.SeparatedDataUsageAvailable();
 
@@ -218,7 +218,7 @@ EndFunction
 // Parameters:
 //  InstalledExtensionsOnStartup - See InstalledExtensionsOnStartup
 //                                    - Undefined - Get for the current session.
-//  IsCheckInCurrentSession - Boolean -
+//  IsCheckInCurrentSession - Boolean - 
 //                                    
 //
 // Returns:
@@ -314,8 +314,8 @@ Procedure RegisterExtensionsVersionUsage(OnFirstSetSessionParameters = False) Ex
 	|	AND ExtensionsVersions.Ref = &ExtensionsVersion
 	|	AND ExtensionsVersions.DateOfLastUse < &DateOfLastUse";
 	
-	// 
-	// 
+	
+	
 	Block = New DataLock;
 	LockItem = Block.Add("Catalog.ExtensionsVersions");
 	LockItem.SetValue("Ref", ExtensionsVersion);
@@ -454,7 +454,7 @@ Procedure EnableDeleteObsoleteExtensionsVersionsParametersJob(Enable) Export
 
 EndProcedure
 
-// For General Extension forms, set Corrections.
+// For common forms Extensions and InstalledPatches.
 //
 Procedure ToggleExtensionUsage(ExtensionID, CurrentUsage) Export
 
@@ -794,8 +794,8 @@ Function ExtensionsVersion()
 	|WHERE
 	|	NOT ExtensionsVersions.DeletionMark";
 	
-	// 
-	// 
+	
+	
 	Block = New DataLock;
 	LockItem = Block.Add("Catalog.ExtensionsVersions");
 	LockItem.SetValue("Ref", FlagOfAddingNewVersion());
@@ -821,8 +821,8 @@ Function ExtensionsVersion()
 		BeginTransaction();
 		Try
 			Block.Lock();
-			// 
-			// 
+			
+			
 			QueryResult = Query.Execute();
 			Selection = QueryResult.Select();
 			If VersionFound(Selection, ExtensionsDetails) Then
@@ -930,8 +930,8 @@ Function OtherExtensionsVersion(MinSessionStartDate = '39991231')
 	|	AND ExtensionsVersions.DateOfLastUse < &MinSessionStartDate
 	|	AND NOT ExtensionsVersions.DeletionMark";
 	
-	// 
-	// 
+	
+	
 	Block = New DataLock;
 	LockItem = Block.Add("Catalog.ExtensionsVersions");
 	LockItem.Mode = DataLockMode.Shared;

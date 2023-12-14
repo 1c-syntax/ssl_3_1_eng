@@ -75,7 +75,7 @@ Procedure OnOpen(Cancel)
 	
 EndProcedure
 
-// Continuation of the procedure (see above). 
+// Continuation of the procedure (see above).
 &AtClient
 Procedure AfterCheckFileSystemExtension(Result, AdditionalParameters) Export
 	
@@ -91,7 +91,7 @@ Procedure AfterCheckFileSystemExtension(Result, AdditionalParameters) Export
 	
 EndProcedure
 
-// Continuation of the procedure (see above). 
+// Continuation of the procedure (see above).
 &AtClient
 Procedure DetermineFileExists(Exists, AdditionalParameters) Export
 
@@ -141,7 +141,7 @@ Procedure DetermineFileExists(Exists, AdditionalParameters) Export
 	
 EndProcedure
 
-// Continuation of the procedure (see above). 
+// Continuation of the procedure (see above).
 &AtClient
 Procedure DetermineDirectoryExists(Exists, AdditionalParameters) Export
 	
@@ -154,7 +154,7 @@ Procedure DetermineDirectoryExists(Exists, AdditionalParameters) Export
 	
 EndProcedure
 
-// Continuation of the procedure (see above). 
+// Continuation of the procedure (see above).
 &AtClient
 Procedure SetInformationTitleOnReceive(AdditionalParameters)
 	ToolTipText = SubstituteParametersInFormattedString(AdditionalParameters.TooltipTemplate, 
@@ -554,7 +554,7 @@ Procedure ImportRulesAtServer(Cancel, TempStorageAddress, RulesFileName, ErrorDe
 		
 		Modified = False;
 		
-		// 
+		// Open session cache for the registration mechanism has become obsolete.
 		DataExchangeInternal.ResetObjectsRegistrationMechanismCache();
 		RefreshReusableValues();
 		UpdateRuleInfo();
@@ -604,16 +604,16 @@ Function GetRuleArchiveTempStorageAddressAtServer()
 			
 			If Selection.RulesKind = Enums.DataExchangeRulesTypes.ObjectsConversionRules Then
 				
-				// 
+				
 				RuleBinaryData = Selection.XMLRules.Get(); // BinaryData
 				RuleBinaryData.Write(PathToFile + ".xml");
 				
-				// 
+				
 				CorrespondentRulesBinaryData = Selection.XMLCorrespondentRules.Get(); // BinaryData
 				CorrespondentRulesBinaryData.Write(CorrespondentFilePath + ".xml");
 				
 			Else
-				// 
+				
 				RegistrationRulesBinaryData = Selection.XMLRules.Get(); // BinaryData
 				RegistrationRulesBinaryData.Write(RegistrationFilePath + ".xml");
 			EndIf;
@@ -785,7 +785,7 @@ EndFunction
 //             - Undefined - Value to set.
 //
 // Returns:
-//     FormattedString - 
+//     FormattedString - Generated from input parameters.
 //
 Function SubstituteParametersInFormattedString(Val Template,
 	Val String1 = Undefined, Val String2 = Undefined)

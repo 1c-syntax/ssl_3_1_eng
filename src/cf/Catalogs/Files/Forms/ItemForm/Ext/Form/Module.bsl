@@ -33,7 +33,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	PrintWithStampAvailable =
 		  Common.SubsystemExists("StandardSubsystems.DigitalSignature")
-		And Object.Extension = "mxl"
+		And (Lower(Object.Extension) = "mxl" Or Lower(Object.Extension) = "docx")
 		And Object.SignedWithDS;
 	
 	Items.PrintWithStamp.Visible = PrintWithStampAvailable;
@@ -213,7 +213,9 @@ Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
 	If DescriptionBeforeWrite <> CurrentObject.Description Then
 		
-		If CurrentObject.CurrentVersion.FileStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive Then
+		FileStorageType = Common.ObjectAttributeValue(CurrentObject.CurrentVersion, "FileStorageType");
+		
+		If FileStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive Then
 			FilesOperationsInVolumesInternal.RenameFile(CurrentObject.CurrentVersion,
 				CurrentObject.Description, DescriptionBeforeWrite, UUID);
 		EndIf;
@@ -324,7 +326,7 @@ EndProcedure
 #Region FormCommandsEventHandlers
 
 ///////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure ShowInList(Command)
@@ -419,7 +421,7 @@ Procedure StandardSetDeletionMarkAnswerReceived(QuestionResult, AdditionalParame
 	
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -434,7 +436,7 @@ EndProcedure
 // End StandardSubsystems.Properties
 
 ///////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure Sign(Command)
@@ -457,7 +459,7 @@ Procedure Sign(Command)
 	AdditionalParameters = New Structure("ResultProcessing", NotifyDescription);
 	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
 	SigningParameters = ModuleDigitalSignatureClient.NewSignatureType();
-	SigningParameters.ChoosingAuthorizationLetter = True;
+	SigningParameters.CanSelectLetterOfAuthority = True;
 	FilesOperationsClient.SignFile(Object.Ref, UUID, AdditionalParameters, SigningParameters);
 	
 EndProcedure
@@ -540,7 +542,8 @@ Procedure EncryptAfterEncryptAtClient(Result, ExecutionParameters) Export
 		Object.Ref);
 		
 	NotifyChanged(Object.Ref);
-	Notify("Write_File", New Structure, Object.Ref);
+	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
+	Notify("Write_File", FileRecordingNotificationParameters, Object.Ref);
 	
 	SetAvaliabilityOfEncryptionList();
 	
@@ -704,7 +707,8 @@ Procedure DeleteDigitalSignatureAnswerReceived(QuestionResult, AdditionalParamet
 	Write();
 	DeleteFromSignatureListAndWriteFile();
 	NotifyChanged(Object.Ref);
-	Notify("Write_File", New Structure, Object.Ref);
+	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
+	Notify("Write_File", FileRecordingNotificationParameters, Object.Ref);
 	SetAvaliabilityOfDSCommandsList();
 	
 EndProcedure
@@ -746,7 +750,7 @@ Procedure SetAvaliabilityOfEncryptionList()
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure Lock(Command)
@@ -782,7 +786,8 @@ Procedure Edit(Command)
 	If Not FileBeingEdited Then
 		UpdateObject();
 		NotifyChanged(Object.Ref);
-		Notify("Write_File", New Structure, Object.Ref);
+		FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
+		Notify("Write_File", FileRecordingNotificationParameters, Object.Ref);
 	EndIf;
 	
 EndProcedure
@@ -815,7 +820,8 @@ Procedure EndEditingPuttingCompleted(FileInfo, AdditionalParameters) Export
 	UpdateObject();
 	
 	NotifyChanged(Object.Ref);
-	Notify("Write_File", New Structure, Object.Ref);
+	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
+	Notify("Write_File", FileRecordingNotificationParameters, Object.Ref);
 	
 EndProcedure
 
@@ -848,7 +854,8 @@ Procedure ReleaseCompletion(QuestionResult, AdditionalParameters) Export
 		
 	UnlockFile();
 	NotifyChanged(Object.Ref);
-	Notify("Write_File", New Structure("Event", "EditCanceled"), Object.Ref);
+	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters("EditCanceled");
+	Notify("Write_File", FileRecordingNotificationParameters, Object.Ref);
 	FilesOperationsInternalClient.ChangeLockedFilesCount();
 	
 EndProcedure
@@ -866,7 +873,7 @@ Procedure SaveChanges(Command)
 	
 EndProcedure
 
-// 
+
 
 &AtServer
 Procedure UpdateAdditionalAttributesItems()
@@ -934,10 +941,9 @@ EndProcedure
 &AtClient
 Procedure PrintWithStamp(Command)
 	
-	If ValueIsFilled(Object.Ref)
-		Or Write() Then
-		DocumentWithStamp = FilesOperationsInternalServerCall.SpreadsheetDocumentWithStamp(Object.Ref, Object.Ref);
-		FilesOperationsInternalClient.PrintFileWithStamp(DocumentWithStamp);
+	If ValueIsFilled(Object.Ref) Or Write() Then
+		DocumentWithStamp = FilesOperationsInternalServerCall.DocumentWithStamp(Object.Ref);
+		FilesOperationsInternalClient.PrintFileWithStamp(DocumentWithStamp, Object.Description);
 	EndIf;
 	
 EndProcedure
@@ -1126,7 +1132,7 @@ Function OtherCommandsNames()
 	
 	CommandsNames = New Array;
 	
-	// 
+	// Simple commands that are available to any user that reads the files
 	CommandsNames.Add("SaveWithDigitalSignature");
 	
 	CommandsNames.Add("OpenCertificate");
@@ -1367,7 +1373,9 @@ Function HandleFileRecordCommand()
 	RepresentDataChange(Object.Ref, DataChangeType.Update);
 	NotifyChanged(Object.Ref);
 	NotifyChanged(Object.FileOwner);
-	Notify("Write_File", New Structure("IsNew", FileCreated), Object.Ref);
+	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
+	FileRecordingNotificationParameters.IsNew = FileCreated;
+	Notify("Write_File", FileRecordingNotificationParameters, Object.Ref);
 	
 	SetAvaliabilityOfDSCommandsList();
 	SetAvaliabilityOfEncryptionList();
@@ -1459,7 +1467,8 @@ Procedure UpdateFromFileOnHardDriveCompletion(Result, ExecutionParameters) Expor
 	
 	UpdateObject();
 	NotifyChanged(Object.Ref);
-	Notify("Write_File", New Structure, Object.Ref);
+	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
+	Notify("Write_File", FileRecordingNotificationParameters, Object.Ref);
 	
 EndProcedure
 
@@ -1528,29 +1537,35 @@ EndProcedure
 &AtServer
 Procedure CreateVersionCopy(Receiver, Source)
 	
-	If Source.CurrentVersion.IsEmpty() Then
+	SourceAttributes = Common.ObjectAttributesValues(Source, 
+		"CurrentVersion,Encrypted,UniversalModificationDate");
+	
+	If SourceAttributes.CurrentVersion.IsEmpty() Then
 		Return;
 	EndIf;
 		
 	FileStorage1 = Undefined;
-	If Source.CurrentVersion.FileStorageType = Enums.FileStorageTypes.InInfobase Then
-		FileStorage1 = FilesOperations.FileFromInfobaseStorage(Source.CurrentVersion);
+	CurrentVersionAttributes = Common.ObjectAttributesValues(SourceAttributes.CurrentVersion, 
+		"FileStorageType,Size,Extension,TextStorage");
+	
+	If CurrentVersionAttributes.FileStorageType = Enums.FileStorageTypes.InInfobase Then
+		FileStorage1 = FilesOperations.FileFromInfobaseStorage(SourceAttributes.CurrentVersion);
 	EndIf;
 	
 	FileInfo1 = FilesOperationsClientServer.FileInfo1("FileWithVersion");
 	FileInfo1.BaseName = Object.Description;
-	FileInfo1.Size = Source.CurrentVersion.Size;
-	FileInfo1.ExtensionWithoutPoint = Source.CurrentVersion.Extension;
+	FileInfo1.Size = CurrentVersionAttributes.Size;
+	FileInfo1.ExtensionWithoutPoint = CurrentVersionAttributes.Extension;
 	FileInfo1.TempFileStorageAddress = FileStorage1;
-	FileInfo1.TempTextStorageAddress = Source.CurrentVersion.TextStorage;
-	FileInfo1.RefToVersionSource = Source.CurrentVersion;
-	FileInfo1.Encrypted = Source.Encrypted;
-	FileInfo1.ModificationTimeUniversal = Source.UniversalModificationDate;
+	FileInfo1.TempTextStorageAddress = CurrentVersionAttributes.TextStorage;
+	FileInfo1.RefToVersionSource = SourceAttributes.CurrentVersion;
+	FileInfo1.Encrypted = SourceAttributes.Encrypted;
+	FileInfo1.ModificationTimeUniversal = SourceAttributes.UniversalModificationDate;
 	FileInfo1.Modified = ModificationDate;
 	
 	Version = FilesOperationsInternal.CreateVersion(Receiver, FileInfo1);
 	FilesOperationsInternal.UpdateVersionInFile(
-		Receiver, Version, Source.CurrentVersion.TextStorage, UUID);
+		Receiver, Version, CurrentVersionAttributes.TextStorage, UUID);
 	UpdateObject();
 	
 EndProcedure

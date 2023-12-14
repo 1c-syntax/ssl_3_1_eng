@@ -16,7 +16,7 @@ Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 	SettingID = "";
 	
 	If DataExchangeWithExternalSystem(Peer, SettingID) Then
-		If CommonClient.SubsystemExists("OnlineUserSupport.ОбменДаннымиСВнешнимиСистемами") Then
+		If CommonClient.SubsystemExists("OnlineUserSupport.DataExchangeWithExternalSystems") Then
 			
 			Context = New Structure;
 			Context.Insert("SettingID", SettingID);

@@ -47,19 +47,19 @@ Function SetPropertiesTypes(Ref, ConsiderDeletionMark = True) Export
 		Return SetPropertiesTypes;
 	EndIf;
 	
-	// 
+	// Checking additional attributes usage.
 	SetPropertiesTypes.Insert(
 		"AdditionalAttributes",
 		OwnerMetadata <> Undefined
 		And OwnerMetadata.TabularSections.Find("AdditionalAttributes") <> Undefined);
 	
-	// 
+	// Checking additional info usage.
 	SetPropertiesTypes.Insert(
 		"AdditionalInfo",
 		      Metadata.CommonCommands.Find("AdditionalInfoCommandBar") <> Undefined
 		    And Metadata.CommonCommands.AdditionalInfoCommandBar.CommandParameterType.ContainsType(RefType));
 	
-	// 
+	// Check label usage.
 	LabelsOwners = Metadata.DefinedTypes.LabelsOwner.Type;
 	SetPropertiesTypes.Insert(
 		"Labels",

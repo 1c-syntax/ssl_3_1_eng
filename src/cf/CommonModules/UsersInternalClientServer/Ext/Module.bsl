@@ -150,11 +150,11 @@ Procedure CheckPasswordSet(Form, PasswordIsSet, AuthorizedUser) Export
 	If PasswordIsSet Then
 		Items.PasswordExistsLabel.Title = NStr("en = 'The password is set.';");
 		Items.UserMustChangePasswordOnAuthorization.Title =
-			NStr("en = 'User must change password at next sign-in';");
+			NStr("en = 'User must change password at next logon';");
 	Else
 		Items.PasswordExistsLabel.Title = NStr("en = 'Blank password';");
 		Items.UserMustChangePasswordOnAuthorization.Title =
-			NStr("en = 'Require to set a password upon authorization';");
+			NStr("en = 'User must set password at next logon';");
 	EndIf;
 	
 	If PasswordIsSet

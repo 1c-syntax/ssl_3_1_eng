@@ -45,6 +45,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		If TypeOf(Parameters.Signature) = Type("Structure") Then
 			If ValueIsFilled(Parameters.Signature.SignedObject) Then
 				SignedObject = Parameters.Signature.SignedObject;
+				
+				If Not Users.IsFullUser()
+					And Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+					ModuleAccessManagement = Common.CommonModule("AccessManagement");
+					ModuleAccessManagement.CheckChangeAllowed(SignedObject);
+				EndIf;
+				
 				SequenceNumber = Parameters.Signature.SequenceNumber; 
 				Items.SignedObject.Visible = True; 
 			EndIf;
@@ -309,7 +316,15 @@ Procedure DetermineTypeSignaturesObject()
 	EndDo;
 	
 	If ThereIsArchivalSignature Then
-		Items.AddArchiveTimestamp.Visible = True;
+		If Not ThereIsBasicSignature And Not ThereIsSignatureWithTimestamp Then
+			Items.AddArchiveTimestamp.Visible = False;
+			Items.DecorationAddingTimestamps.Visible = True; 
+			Items.DecorationAddingTimestamps.Title = NStr("en = 'Archive timestamps will be added to the signatures';");
+			Items.SignatureType.Visible = False;
+			AddArchiveTimestamp = True;
+		Else
+			Items.AddArchiveTimestamp.Visible = True;
+		EndIf;
 	ElsIf ThereIsSignatureWithTimestamp Or ThereIsBasicSignature Then
 		Items.AddArchiveTimestamp.Visible = False;
 	EndIf;

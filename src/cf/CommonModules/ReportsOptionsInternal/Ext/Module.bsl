@@ -18,9 +18,9 @@
 //     * FieldRoles - See ReportFieldRoles
 //     * FieldsIndex - See IndexOfFieldsInTheReportStructure
 //     * MainField - Array of See MainReportFields
-//     * FinalSettings - DataCompositionSettings - see Syntax Assistant DataCompositionSettingsComposer();
-//     * SettingsComposer - DataCompositionSettingsComposer -
-//     * SettingsComposerWithoutAutoFields - DataCompositionSettingsComposer -
+//     * FinalSettings - DataCompositionSettings - 
+//     * SettingsComposer - DataCompositionSettingsComposer - Without executing the ExpandAutoFields method.
+//     * SettingsComposerWithoutAutoFields - DataCompositionSettingsComposer - After executing the ExpandAutoFields method.
 //     * LayoutsAreDescribed - Boolean
 //     * FormationTime - Number
 //
@@ -166,7 +166,7 @@ Function RepresentationOfAStructureElement(Item) Export
 		
 		ElementType = TypeOf(Item);
 		
-		HeaderUsageParameter = Item.OutputParameters.Items.Find("OutputTitle");
+		HeaderUsageParameter = Item.OutputParameters.Items.Find("TitleOutput");
 		HeaderParameter = Item.OutputParameters.Items.Find("Title");
 		
 		If ValueIsFilled(HeaderParameter.Value)
@@ -352,8 +352,8 @@ Function SortingView(Sort) Export
 EndFunction
 
 // Parameters:
-//  Item - 
-//  Sort - 
+//  Item - DataCompositionOrderItem, DataCompositionAutoOrderItem
+//  Sort - Undefined, DataCompositionOrder
 // 
 // Returns:
 //  String
@@ -395,7 +395,7 @@ Function ReportOptionEmptyAssignment() Export
 	
 EndFunction
 
-// 
+// Determines the default report option assignment.
 // Returns:
 //  EnumRef.ReportOptionPurposes
 //
@@ -543,7 +543,7 @@ Procedure IndexReportSections(FinalSettings, Settings, IndexOfTheReportStructure
 EndProcedure
 
 // Parameters:
-//  See NewReportStructureIndex
+//  ReportsSectionsIndex See NewReportStructureIndex
 // 
 // Returns:
 //  Structure:
@@ -572,8 +572,8 @@ Procedure IndexReportDimensions(FinalSettings, FinalSettings2, IndexOfTheReportS
 		
 		Settings = FinalSettings.GetObjectByID(SectionIndex.IDOfTheSettings);
 		Settings2 = FinalSettings2.GetObjectByID(SectionIndex.IDOfTheSettings);
-		Section = Settings.GetObjectByID(SectionIndex.SectionID); // 
-		Section2 = Settings2.GetObjectByID(SectionIndex.SectionID); // 
+		Section = Settings.GetObjectByID(SectionIndex.SectionID); // DataCompositionGroup, DataCompositionTable
+		Section2 = Settings2.GetObjectByID(SectionIndex.SectionID); // DataCompositionGroup, DataCompositionTable
 		
 		If TypeOf(Section2) = Type("DataCompositionChart") Then 
 			Continue;
@@ -1579,7 +1579,7 @@ EndProcedure
 
 Function ReportSectionBoundaries(ReportResult, HeaderPropertiesSection)
 	
-	Borders = New ValueList;
+	Boundaries = New ValueList;
 	
 	UpperBounds = HeaderPropertiesSection.Copy();
 	UpperBounds.GroupBy("Top");
@@ -1594,14 +1594,14 @@ Function ReportSectionBoundaries(ReportResult, HeaderPropertiesSection)
 		EndIf;
 		
 		If (Record.Top - UpperBounds[IndexOf - 1].Top) > 1 Then 
-			Borders.Add(Max(0, Record.Top - 1));
+			Boundaries.Add(Max(0, Record.Top - 1));
 		EndIf;
 		
 	EndDo;
 	
-	Borders.Add(ReportResult.TableHeight);
+	Boundaries.Add(ReportResult.TableHeight);
 	
-	Return Borders;
+	Return Boundaries;
 	
 EndFunction
 

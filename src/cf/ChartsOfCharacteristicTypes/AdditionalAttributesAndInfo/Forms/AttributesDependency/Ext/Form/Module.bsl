@@ -48,7 +48,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Parent = PropertiesSet;
 	EndIf;
 	
-	AdditionalAttributesSet = Parent.AdditionalAttributes;
+	AdditionalAttributesSet = Common.ObjectAttributeValue(Parent, "AdditionalAttributes").Unload();
 	
 	PredefinedPropertiesSets = PropertyManagerCached.PredefinedPropertiesSets();
 	SetDetails = PredefinedPropertiesSets.Get(Parent); // See Catalogs.AdditionalAttributesAndInfoSets.SetProperties
@@ -367,7 +367,7 @@ Procedure SetConditionalAppearance()
 	
 	ComparisonValues = New ValueList;
 	ComparisonValues.Add("Filled");
-	ComparisonValues.Add("NotFilled"); // 
+	ComparisonValues.Add("NotFilled"); 
 	
 	DataFilterItem = ConditionalAppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	DataFilterItem.LeftValue  = New DataCompositionField("AttributesDependencies.Condition");

@@ -36,7 +36,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ExportForPeriod = True;
 	Else
 		ExportForPeriod = False;
-		// 
+		// Disabling period selection.
 		Items.DataPeriod.Visible = False;
 	EndIf;
 	

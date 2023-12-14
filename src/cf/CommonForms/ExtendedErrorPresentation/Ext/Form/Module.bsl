@@ -168,21 +168,21 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 		InstructionItem = Items.InstructionServer;
 		ReasonItemText = Items.ReasonsServerText;
 		ItemDecisionText = Items.DecisionsServerText;
-		ReasonsAndDecisionsGroup = Items.PossibleCausesAndSolutionsServer;
+		ReasonsAndDecisionsGroup = Items.PossibleReasonsAndSolutionsServer;
 	ElsIf ErrorLocation = "Client" Then
 		ItemError = Items.ErrorClient;
 		ErrorTextElement = Items.ErrorTextClient;
 		InstructionItem = Items.InstructionClient;
 		ReasonItemText = Items.ReasonsClientText;
 		ItemDecisionText = Items.DecisionsClientText;
-		ReasonsAndDecisionsGroup = Items.PossibleCausesAndSolutionsClient;
+		ReasonsAndDecisionsGroup = Items.PossibleReasonsAndSolutionsClient;
 	Else
 		ItemError = Items.Error;
 		ErrorTextElement = Items.ErrorText;
 		InstructionItem = Items.Instruction;
 		ReasonItemText = Items.ReasonsText;
 		ItemDecisionText = Items.SolutionsText;
-		ReasonsAndDecisionsGroup = Items.PossibleCausesAndSolutions;
+		ReasonsAndDecisionsGroup = Items.PossibleReasonsAndSolutions;
 	EndIf;
 	
 	ItemError.Visible = Not IsBlankString(ErrorText);
@@ -191,15 +191,15 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 		HaveReasonAndSolution = Undefined;
 		If TypeOf(AdditionalData) = Type("Structure") Then
 			If ErrorLocation = "Server" Then
-				CheckSuffix_ = "AtServer";
+				ChecksSuffix = "AtServer";
 			ElsIf ErrorLocation = "Client" Then
-				CheckSuffix_ = "AtClient";
+				ChecksSuffix = "AtClient";
 			Else
-				CheckSuffix_ = "";
+				ChecksSuffix = "";
 			EndIf;
 				
 			HaveReasonAndSolution = CommonClientServer.StructureProperty(AdditionalData, 
-				"Additional_DataChecks" + CheckSuffix_, Undefined); // See DigitalSignatureInternalClientServer.WarningWhileVerifyingCertificateAuthorityCertificate
+				"Additional_DataChecks" + ChecksSuffix, Undefined); // See DigitalSignatureInternalClientServer.WarningWhileVerifyingCertificateAuthorityCertificate
 		EndIf;
 		
 		If ValueIsFilled(HaveReasonAndSolution) Then
@@ -225,7 +225,7 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 						Decision.Add(ClassifierError.Decision);
 						Decision.Add(Chars.LF);
 						Decision.Add(StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'Удостоверяющий центр, выдавший сертификат: %1.';"), CertificatePublisher));
+							NStr("en = 'Certificate authority that issued the certificate: %1.';"), CertificatePublisher));
 						ClassifierError.Decision = New FormattedString(Decision);
 					EndIf;
 				EndIf;
@@ -235,8 +235,12 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 				InstructionItem.Name, "Title", NStr("en = 'Details';"));
 			
 			If ValueIsFilled(ClassifierError.Cause) Then
-				CommonClientServer.SetFormItemProperty(Items,
-				ReasonItemText.Name, "Title", ClassifierError.Cause);
+				If TypeOf(ReasonItemText) = Type("FormDecoration") Then
+					CommonClientServer.SetFormItemProperty(Items,
+					ReasonItemText.Name, "Title", ClassifierError.Cause);
+				Else
+					ThisObject[ReasonItemText.DataPath] = ClassifierError.Cause;
+				EndIf;
 			Else
 				CommonClientServer.SetFormItemProperty(Items,
 				ReasonItemText.Name, "Visible", False);

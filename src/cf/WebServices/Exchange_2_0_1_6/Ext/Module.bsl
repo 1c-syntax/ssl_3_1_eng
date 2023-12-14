@@ -122,7 +122,7 @@ Function CreateDataExchange(ExchangePlanName, ParametersString1, FiltersSettings
 	
 	Cancel = False;
 	
-	// 
+	// Loading wizard parameters from a string to the wizard data processor.
 	DataExchangeCreationWizard.ImportWizardParameters(Cancel, ParametersString1);
 	
 	If Cancel Then
@@ -140,7 +140,7 @@ Function CreateDataExchange(ExchangePlanName, ParametersString1, FiltersSettings
 	DataExchangeCreationWizard.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WS;
 	DataExchangeCreationWizard.SourceInfobasePrefixIsSet = ValueIsFilled(GetFunctionalOption("InfobasePrefix"));
 	
-	// 
+	// Creating an exchange setting.
 	DataExchangeCreationWizard.SetUpNewDataExchangeWebService(
 											Cancel,
 											XDTOSerializer.ReadXDTO(FiltersSettingsXDTO),
@@ -431,7 +431,7 @@ EndFunction
 
 // Matches the Ping web service operation.
 Function Ping()
-	// 
+	// Test connection.
 	Return "";
 EndFunction
 

@@ -241,8 +241,8 @@ EndProcedure
 Procedure RefreshTasksListOnServer()
 	
 	BusinessProcessesAndTasksServer.SetTaskAppearance(List);
-	// 
-	// 
+	
+	
 	SetConditionalAppearance();
 	Items.List.Refresh();
 	

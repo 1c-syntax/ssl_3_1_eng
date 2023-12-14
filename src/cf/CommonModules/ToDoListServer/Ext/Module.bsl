@@ -13,9 +13,9 @@
 // Is passed to the OnFillToDoList handlers.
 //
 // Returns:
-//  ValueTable - 
-//    * Id  - String - an internal to-do item ID used by the subsystem.
-//    * HasToDoItems       - Boolean - if True, the to-do item is displayed in the user to-do list.
+//  ValueTable - :
+//    * Id  - String - an internal to-do ID used by the subsystem.
+//    * HasToDoItems       - Boolean - if True, the to-do item is displayed in the user's to-do list.
 //    * Important         - Boolean - if True, the to-do item is highlighted in red.
 //    * OutputInNotifications - Boolean - if True, the notification of the item will be duplicated in a pop-up
 //                             notification and displayed in the notification center.
@@ -24,13 +24,13 @@
 //                            nonrecurring to-do items. Once completed, these to-do items are
 //                            no longer displayed in the infobase.
 //    * Presentation  - String - a to-do item presentation displayed to a user.
-//    * Count     - Number  - a quantitative indicator of a to-do item displayed in its title.
+//    * Count     - Number  - a number related to a to-do item; it is displayed in a to-do item's title.
 //    * Form          - String - a full path to the form that is displayed by clicking on the
 //                                to-do item hyperlink in the "To-do list" panel.
 //    * FormParameters - Structure - parameters for opening the indicator form.
 //    * Owner       - String
-//                     - MetadataObject - string ID of the case that will be the owner for the current
-//                       or metadata object subsystem.
+//                     - MetadataObject - String ID of the to-do item that is the owner of the current to-do item,
+//                       or a subsystem metadata object.
 //    * ToolTip      - String - a tooltip text.
 //    * ToDoOwnerObject - String - the full name of the metadata object where the handler of the to-do list filling is placed.
 //
@@ -49,7 +49,7 @@ Function ToDoList() Export
 	UserTasks1.Columns.Add("Owner");
 	UserTasks1.Columns.Add("ToolTip", New TypeDescription("String", New StringQualifiers(250)));
 	UserTasks1.Columns.Add("ToDoOwnerObject", New TypeDescription("String", New StringQualifiers(256)));
-	UserTasks1.Columns.Add("HasUserTasks"); // 
+	UserTasks1.Columns.Add("HasUserTasks"); 
 	
 	Return UserTasks1;
 	
@@ -62,7 +62,7 @@ EndFunction
 //  MetadataObjectName - String - Full name of a metadata object.
 //
 // Returns: 
-//  Array - 
+//  Array - an array of command interface subsystems.
 //
 Function SectionsForObject(MetadataObjectName) Export
 	ObjectsBelonging = ToDoListInternalCached.ObjectsBelongingToCommandInterfaceSections();
@@ -88,7 +88,7 @@ EndFunction
 //  ToDoItemID - String - a to-do item ID to be checked against the list of disabled to-do items.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - Boolean - True if a to-do was disabled programmatically and it should not be shown to the user.
 //
 Function UserTaskDisabled(ToDoItemID) Export
 	ToDoItemsToDisable = New Array;
@@ -104,7 +104,7 @@ EndFunction
 // Returns:
 //  Structure:
 //    * User - CatalogRef.Users
-//                   - CatalogRef.ExternalUsers - 
+//                   - CatalogRef.ExternalUsers - current user.
 //    * IsFullUser - Boolean - True if it is a full access user.
 //    * CurrentDate - Date - a current session date.
 //    * DateEmpty  - Date - a blank date.

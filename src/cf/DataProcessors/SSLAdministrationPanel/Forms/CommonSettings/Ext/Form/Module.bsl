@@ -64,7 +64,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 	EndIf;
 	
-	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
 		ThisIsTheAdministrator = Users.IsFullUser(, True);
 		Items.UseCloudSignatureService.Visible = ThisIsTheAdministrator;
 		Items.UseCloudSignatureService.ExtendedTooltip.Title = StringFunctions.FormattedString(
@@ -370,7 +370,7 @@ EndProcedure
 &AtClient
 Procedure UseCloudSignatureServiceOnChange(Item)
 	
-	If Not CommonClient.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
+	If Not CommonClient.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
 		Return;
 	EndIf;
 	
@@ -622,7 +622,7 @@ Procedure CheckIfDSSUsageEnabled(SelectionResult, CycleParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Function OnChangeAttributeServer(TagName)
@@ -647,14 +647,16 @@ Function SaveAttributeValue(DataPathAttribute)
 		Return "";
 	EndIf;
 	
-	NameParts = StrSplit(DataPathAttribute, ".");
+	TermConstant = "Constant";
+	NameParts      = StrSplit(DataPathAttribute, ".");
 	
 	If NameParts.Count() = 2 Then
 		ConstantName = NameParts[1];
 		ConstantValue = ConstantsSet[ConstantName];
-	ElsIf NameParts.Count() = 1 And Lower(Left(DataPathAttribute, 9)) = Lower("Constant") Then
-		ConstantName = Mid(DataPathAttribute, 10);
-		ConstantValue = ThisObject[DataPathAttribute];
+	ElsIf NameParts.Count() = 1
+			And StrCompare(Left(DataPathAttribute, StrLen(TermConstant)), TermConstant) = 0 Then
+				ConstantName = Mid(DataPathAttribute, StrLen(TermConstant) + 1);
+				ConstantValue = ThisObject[DataPathAttribute];
 	Else
 		Return "";
 	EndIf;
@@ -721,7 +723,7 @@ Procedure SetAvailability(DataPathAttribute = "")
 		Or DataPathAttribute = "ConstantsSet.UseEncryption"
 		Or DataPathAttribute = "ConstantsSet.UseDSSService"
 		Or DataPathAttribute = "")
-		And Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
+		And Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
 		
 		CloudSignatureAvailability = (ConstantsSet.UseDigitalSignature Or ConstantsSet.UseEncryption)
 			And (ConstantsSet.UseDSSService);

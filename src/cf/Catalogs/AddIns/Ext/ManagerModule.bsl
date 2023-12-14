@@ -43,7 +43,7 @@ EndFunction
 //  Version        - String - Add-in version.
 //
 // Returns:
-//  CatalogRef.AddIns - 
+//  CatalogRef.AddIns - a reference to an add-in container in the infobase.
 //
 Function FindByID(Id, Version = Undefined) Export
 	
@@ -110,7 +110,7 @@ EndFunction
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
-	If CommonClientServer.CompareVersions(Parameters.SubsystemVersionAtStartUpdates, "3.1.6.48") < 0 Then
+	If CommonClientServer.CompareVersions(Parameters.SubsystemVersionAtStartUpdates, "3.1.9.221") < 0 Then
 	
 		QueryText ="SELECT
 		|	AddIns.Ref
@@ -128,11 +128,79 @@ EndProcedure
 // 
 // 
 // 
-// 
 //
 Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
+	Parameters.ProcessingCompleted = True;
 	
-	If CommonClientServer.CompareVersions(Parameters.SubsystemVersionAtStartUpdates, "3.1.6.48") < 0 Then
+	If CommonClientServer.CompareVersions(Parameters.SubsystemVersionAtStartUpdates, "3.1.5.220") < 0
+		And Common.SubsystemExists("StandardSubsystems.DigitalSignature")
+		And Common.SubsystemExists("OnlineUserSupport.GetAddIns")
+		And Not Common.DataSeparationEnabled() Then
+		
+		ComponentsToUse = AddInsServer.ComponentsToUse("ForImport");
+		
+		If ComponentsToUse.Find("ExtraCryptoAPI", "Id") = Undefined Then 
+		
+			ModuleDigitalSignatureInternalClientServer = Common.CommonModule("DigitalSignatureInternalClientServer");
+			ModuleDigitalSignatureInternal = Common.CommonModule("DigitalSignatureInternal");
+			
+			ComponentDetails = ModuleDigitalSignatureInternalClientServer.ComponentDetails();
+			TheComponentOfTheLatestVersionFromTheLayout = StandardSubsystemsServer.TheComponentOfTheLatestVersion(
+				ComponentDetails.ObjectName, ComponentDetails.FullTemplateName);
+			
+			LayoutLocationSplit = StrSplit(TheComponentOfTheLatestVersionFromTheLayout.Location, ".");
+			
+			BinaryData = ModuleDigitalSignatureInternal.GetTheseComponents(
+				LayoutLocationSplit.Get(LayoutLocationSplit.UBound()));
+				
+			AddInParameters = AddInsInternal.ImportParameters();
+			AddInParameters.Id = ComponentDetails.ObjectName;
+			AddInParameters.Description = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = '%1 for 1C:Enterprise';", Common.DefaultLanguageCode()), "ExtraCryptoAPI");
+			AddInParameters.Version = TheComponentOfTheLatestVersionFromTheLayout.Version;
+			AddInParameters.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Added automatically on %1.';", Common.DefaultLanguageCode()), CurrentSessionDate());
+			AddInParameters.UpdateFrom1CITSPortal = True;
+			AddInParameters.Data = BinaryData;
+			
+			AddInsInternal.LoadAComponentFromBinaryData(AddInParameters, False);
+		EndIf;
+	
+	EndIf;
+	
+	If CommonClientServer.CompareVersions(Parameters.SubsystemVersionAtStartUpdates, "3.1.9.163") < 0
+		And Common.SubsystemExists("StandardSubsystems.FilesOperations")
+		And Common.SubsystemExists("OnlineUserSupport.GetAddIns")
+		And Not Common.DataSeparationEnabled() Then
+		
+		ComponentsToUse = AddInsServer.ComponentsToUse("ForImport");
+		ModuleFilesOperationsInternalClientServer = Common.CommonModule("FilesOperationsInternalClientServer");
+			
+		ComponentDetails = ModuleFilesOperationsInternalClientServer.ComponentDetails();
+		
+		If ComponentsToUse.Find(ComponentDetails.ObjectName, "Id") = Undefined Then 
+		
+			TheComponentOfTheLatestVersionFromTheLayout = StandardSubsystemsServer.TheComponentOfTheLatestVersion(
+				ComponentDetails.ObjectName, ComponentDetails.FullTemplateName);
+			
+			LayoutLocationSplit = StrSplit(TheComponentOfTheLatestVersionFromTheLayout.Location, ".");
+			BinaryData = GetCommonTemplate(LayoutLocationSplit.Get(LayoutLocationSplit.UBound()));
+				
+			AddInParameters = AddInsInternal.ImportParameters();
+			AddInParameters.Id = ComponentDetails.ObjectName;
+			AddInParameters.Description = NStr("en = 'Add-in to scan documents and images';");
+			AddInParameters.Version = TheComponentOfTheLatestVersionFromTheLayout.Version;
+			AddInParameters.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Added automatically on %1.';"), CurrentSessionDate());
+			AddInParameters.UpdateFrom1CITSPortal = True;
+			AddInParameters.Data = BinaryData;
+			
+			AddInsInternal.LoadAComponentFromBinaryData(AddInParameters, False);
+		EndIf;
+		
+	EndIf;
+	
+	If CommonClientServer.CompareVersions(Parameters.SubsystemVersionAtStartUpdates, "3.1.9.221") < 0 Then
 		
 		Selection = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue, "Catalog.AddIns");
 		If Selection.Count() > 0 Then
@@ -142,64 +210,38 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue,
 			"Catalog.AddIns");
 		Parameters.ProcessingCompleted = ProcessingCompleted;
+	
 	EndIf;
 	
-	If CommonClientServer.CompareVersions(Parameters.SubsystemVersionAtStartUpdates, "3.1.5.220") < 0
-		And Common.SubsystemExists("StandardSubsystems.DigitalSignature")
+	If CommonClientServer.CompareVersions(Parameters.SubsystemVersionAtStartUpdates, "3.1.9.224") < 0
+		And Common.SubsystemExists("StandardSubsystems.BarcodeGeneration")
+		And Common.SubsystemExists("OnlineUserSupport.GetAddIns")
 		And Not Common.DataSeparationEnabled() Then
 		
-		ModuleDigitalSignatureInternalClientServer = Common.CommonModule("DigitalSignatureInternalClientServer");
-		ModuleDigitalSignatureInternal = Common.CommonModule("DigitalSignatureInternal");
-		
-		ComponentDetails = ModuleDigitalSignatureInternalClientServer.ComponentDetails();
-		TheComponentOfTheLatestVersionFromTheLayout = StandardSubsystemsServer.TheComponentOfTheLatestVersion(
-			ComponentDetails.ObjectName, ComponentDetails.FullTemplateName);
-		
-		LayoutLocationSplit = StrSplit(TheComponentOfTheLatestVersionFromTheLayout.Location, ".");
-		
-		BinaryData = ModuleDigitalSignatureInternal.ПолучитьДанныеКомпоненты(
-			LayoutLocationSplit.Get(LayoutLocationSplit.UBound()));
+		ComponentsToUse = AddInsServer.ComponentsToUse("ForImport");
+		BarcodeGenerationModule = Common.CommonModule("BarcodeGeneration");
 			
-		AddInParameters = AddInsInternal.ImportParameters();
-		AddInParameters.Id = ComponentDetails.ObjectName;
-		AddInParameters.Description = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 для 1C:Enterprise';", Common.DefaultLanguageCode()), "ExtraCryptoAPI");
-		AddInParameters.Version = TheComponentOfTheLatestVersionFromTheLayout.Version;
-		AddInParameters.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Добавлена автоматически %1.';", Common.DefaultLanguageCode()), CurrentSessionDate());
-		AddInParameters.UpdateFrom1CITSPortal = True;
-		AddInParameters.Data = BinaryData;
+		ComponentDetails = BarcodeGenerationModule.ComponentDetails();
 		
-		AddInsInternal.LoadAComponentFromBinaryData(AddInParameters, False);
-	
-		Parameters.ProcessingCompleted = True;
-	EndIf;
-	
-	If CommonClientServer.CompareVersions(Parameters.SubsystemVersionAtStartUpdates, "3.1.9.163") < 0
-		And Common.SubsystemExists("StandardSubsystems.FilesOperations")
-		And Not Common.DataSeparationEnabled() Then
+		If ComponentsToUse.Find(ComponentDetails.ObjectName, "Id") = Undefined Then 
 		
-		ModuleFilesOperationsInternalClientServer = Common.CommonModule("FilesOperationsInternalClientServer");
-		
-		ComponentDetails = ModuleFilesOperationsInternalClientServer.ComponentDetails();
-		TheComponentOfTheLatestVersionFromTheLayout = StandardSubsystemsServer.TheComponentOfTheLatestVersion(
-			ComponentDetails.ObjectName, ComponentDetails.FullTemplateName);
-		
-		LayoutLocationSplit = StrSplit(TheComponentOfTheLatestVersionFromTheLayout.Location, ".");
-		BinaryData = GetCommonTemplate(LayoutLocationSplit.Get(LayoutLocationSplit.UBound()));
+			TheComponentOfTheLatestVersionFromTheLayout = StandardSubsystemsServer.TheComponentOfTheLatestVersion(
+				ComponentDetails.ObjectName, ComponentDetails.FullTemplateName);
 			
-		AddInParameters = AddInsInternal.ImportParameters();
-		AddInParameters.Id = ComponentDetails.ObjectName;
-		AddInParameters.Description = NStr("en = 'Компонента для сканирования документов и изображений';");
-		AddInParameters.Version = TheComponentOfTheLatestVersionFromTheLayout.Version;
-		AddInParameters.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Добавлена автоматически %1.';"), CurrentSessionDate());
-		AddInParameters.UpdateFrom1CITSPortal = True;
-		AddInParameters.Data = BinaryData;
-		
-		AddInsInternal.LoadAComponentFromBinaryData(AddInParameters, False);
-		
-		Parameters.ProcessingCompleted = True;
+			LayoutLocationSplit = StrSplit(TheComponentOfTheLatestVersionFromTheLayout.Location, ".");
+			BinaryData = GetCommonTemplate(LayoutLocationSplit.Get(LayoutLocationSplit.UBound()));
+				
+			AddInParameters = AddInsInternal.ImportParameters();
+			AddInParameters.Id = ComponentDetails.ObjectName;
+			AddInParameters.Description = NStr("en = 'Add-in to generate barcodes';");
+			AddInParameters.Version = TheComponentOfTheLatestVersionFromTheLayout.Version;
+			AddInParameters.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Added automatically on %1.';"), CurrentSessionDate());
+			AddInParameters.UpdateFrom1CITSPortal = True;
+			AddInParameters.Data = BinaryData;
+			
+			AddInsInternal.LoadAComponentFromBinaryData(AddInParameters, False);
+		EndIf;
 		
 	EndIf;
 	
@@ -217,13 +259,10 @@ Procedure ProcessExternalComponents(Selection)
 	While Selection.Next() Do
 
 		AddInAttributes = Common.ObjectAttributesValues(Selection.Ref,
-			"AddInStorage, MacOS_x86_64_Safari, MacOS_x86_64_Chrome, MacOS_x86_64_Firefox");
-		If TypeOf(AddInAttributes.AddInStorage) <> Type("ValueStorage") Then
-			InfobaseUpdate.MarkProcessingCompletion(Selection.Ref);
-			ObjectsProcessed = ObjectsProcessed + 1;
-			Continue;
-		EndIf;
-			
+			"AddInStorage, TargetPlatforms");
+		
+		TargetPlatforms = AddInAttributes.TargetPlatforms.Get();
+		
 		ComponentBinaryData = AddInAttributes.AddInStorage.Get();
 		
 		If TypeOf(ComponentBinaryData) <> Type("BinaryData") Then
@@ -242,18 +281,12 @@ Procedure ProcessExternalComponents(Selection)
 		
 		Attributes = InformationOnAddInFromFile.Attributes;
 		
-		If AddInAttributes.MacOS_x86_64_Safari = ?(Attributes.MacOS_x86_64_Safari = Undefined, False,
-				Attributes.MacOS_x86_64_Safari)
-			And AddInAttributes.MacOS_x86_64_Chrome = ?(Attributes.MacOS_x86_64_Chrome = Undefined, False,
-				Attributes.MacOS_x86_64_Chrome)
-			And AddInAttributes.MacOS_x86_64_Firefox = ?(Attributes.MacOS_x86_64_Firefox = Undefined, False,
-				Attributes.MacOS_x86_64_Firefox) Then
-			
+		If TargetPlatforms <> Undefined And Common.IdenticalCollections(TargetPlatforms, Attributes.TargetPlatforms) Then
 			InfobaseUpdate.MarkProcessingCompletion(Selection.Ref);
 			ObjectsProcessed = ObjectsProcessed + 1;
-			
 			Continue;
 		EndIf;
+		
 		RepresentationOfTheReference = String(Selection.Ref);
 		BeginTransaction();
 		Try
@@ -265,9 +298,7 @@ Procedure ProcessExternalComponents(Selection)
 			Block.Lock();
 
 			ComponentObject_SSLs = Selection.Ref.GetObject(); // CatalogObject.AddIns
-			ComponentObject_SSLs.MacOS_x86_64_Safari = Attributes.MacOS_x86_64_Safari;
-			ComponentObject_SSLs.MacOS_x86_64_Chrome = Attributes.MacOS_x86_64_Chrome;
-			ComponentObject_SSLs.MacOS_x86_64_Firefox = Attributes.MacOS_x86_64_Firefox;
+			ComponentObject_SSLs.TargetPlatforms = New ValueStorage(Attributes.TargetPlatforms);
 			InfobaseUpdate.WriteObject(ComponentObject_SSLs);
 
 			ObjectsProcessed = ObjectsProcessed + 1;
@@ -276,7 +307,7 @@ Procedure ProcessExternalComponents(Selection)
 		Except
 
 			RollbackTransaction();
-			// 
+			// If add-in procession failed, try again.
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(

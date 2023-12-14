@@ -45,25 +45,24 @@ Procedure OnFillAccessKinds(AccessKinds) Export
 	
 EndProcedure
 
-// Allows specifying the metadata objects for which the data access restriction logic is set.
-// In manager modules of the specified lists, there is a handler procedure, for example:
+// 
+// 
 //
-////Parameters:
-//// Constraint — See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
-////
-////
-//	
-//  The OnFillAccessRestriction(Constraint) procedure Export
-//  Constraint.Text =
-//  "AllowReadEdit
-//  |WHERE
-//  |	ValueAllowed(Company)
-//	
-//|	AND ValueAllowed(Counterparty)";
 //
-// EndProcedure
-// The data access restriction logic can also be overridden in
-// the AccessManagementOverridable.OnFillAccessRestriction procedure.
+// See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
+////
+//
+//	
+//  
+//  
+//  
+//  
+//  
+//	
+//
+//
+// 
+// 
 //
 // Parameters:
 //  Lists - Map of KeyAndValue - lists with access restriction:
@@ -229,10 +228,10 @@ EndProcedure
 //    * TextForExternalUsers1      - String - access restriction for external users.
 //                                          If the string is blank, access denied.
 //    * ByOwnerWithoutSavingAccessKeys - Undefined - define automatically.
-//                                        - Boolean - 
-//                                          
-//                                          
-//                                          
+//                                        - Boolean - if False, always write access keys.
+//                                          If True, do not write access keys,
+//                                          but use owner access keys (the restriction
+//                                          must be by the owner object only).
 //   * ByOwnerWithoutSavingAccessKeysForExternalUsers - Undefined, Boolean - the same
 //                                          as the ByOwnerWithoutSavingAccessKeys parameter.
 //

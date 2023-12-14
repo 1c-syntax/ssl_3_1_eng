@@ -98,7 +98,7 @@ Procedure DialogueFileSelectionShow(Result, AdditionalParameters) Export
 		EndIf;
 		
 	Else
-		MessageToUser(NStr("en = 'To manage files, you need to install File system extension.';"), "Object");
+		MessageToUser(NStr("en = 'To manage files, install the 1C:Enterprise extension.';"), "Object");
 	EndIf;
 EndProcedure
 
@@ -175,6 +175,24 @@ EndProcedure
 &AtServer
 Function SaveKeyOperationsProfileToServer()
     
+    Query = New Query;
+    Query.Text =
+		"SELECT DISTINCT
+		|	KeyOperations.Ref AS Ref,
+		|	KeyOperations.Name AS Name
+		|FROM
+		|	Catalog.KeyOperations AS KeyOperations
+		|WHERE
+		|	KeyOperations.Ref IN (&SelectedKeyOperationsOfOperations)";
+	Query.SetParameter("SelectedKeyOperationsOfOperations", 
+		Object.ProfileKeyOperations.Unload().UnloadColumn("KeyOperation"));
+    
+    Selection = Query.Execute().Select();
+    SelectedKeyOperationsOfOperations = New Map;
+    While Selection.Next() Do
+    		SelectedKeyOperationsOfOperations[Selection.Ref] = Selection.Name;
+    EndDo;
+
     TempFileName = GetTempFileName("xml");
     
     XMLWriter = New XMLWriter;
@@ -186,7 +204,7 @@ Function SaveKeyOperationsProfileToServer()
     
     For Each CurRow In Object.ProfileKeyOperations Do
         XMLWriter.WriteStartElement("Item");
-        XMLWriter.WriteAttribute("Name", CurRow.KeyOperation.Name);
+        XMLWriter.WriteAttribute("Name", SelectedKeyOperationsOfOperations[CurRow.KeyOperation]);
         XMLWriter.WriteAttribute("ResponseTimeThreshold", Format(CurRow.ResponseTimeThreshold, "NG=0"));
         XMLWriter.WriteAttribute("Importance", Format(CurRow.Priority, "NG=0"));
         XMLWriter.WriteEndElement();

@@ -18,8 +18,8 @@ Procedure BeforeWrite(Cancel)
 	If AdditionalProperties.Property("NoteDeletionMark") And AdditionalProperties.NoteDeletionMark Then
 		Return;
 	EndIf;
-		
-	If ValueIsFilled(Parent) And Parent.Author <> Author Then
+	
+	If ValueIsFilled(Parent) And Common.ObjectAttributeValue(Parent, "Author") <> Author Then
 		Common.MessageToUser(NStr("en = 'You cannot specify a group that belongs to another user.';"));
 		Cancel = True;
 		Return;

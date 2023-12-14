@@ -75,16 +75,16 @@ Function ServerNotificationName() Export
 	
 EndFunction
 
-// Returns a text representation of the time interval specified in seconds.
+// Returns a text presentation of a time interval specified in seconds.
 //
 // Parameters:
 //
-//  Time - Number - time interval in seconds.
+//  Time - Number - Time interval in seconds.
 //
-//  FullPresentation	- Boolean - Short or full time presentation.
-//		For example, interval of 1,000,000 seconds:
-//		1) Full presentation:  11 days 13 hours 46 minutes 40 seconds;
-//		2) Short presentation: 11 days 13 hours.
+//  FullPresentation	- Boolean - 
+//		:
+//		
+//		
 //  
 //  OutputSeconds - Boolean - False if seconds are not required.
 //  
@@ -175,14 +175,14 @@ Function ReminderSettingsInForm(Form) Export
 	
 EndFunction
 
-// Gets the time interval in seconds from the text description.
+// Gets a time interval in seconds from text details.
 //
 // Parameters:
 //  StringWithTime - String - text details of time, where numbers are written in digits
 //								and units of measure are written as a string. 
 //
 // Returns:
-//  Number - time interval in seconds.
+//  Number - Time interval in seconds.
 // 
 Function TimeIntervalFromString(Val StringWithTime) Export
 	
@@ -249,7 +249,7 @@ EndFunction
 // the function returns the number of seconds contained in the time unit of measure.
 //
 // Parameters:
-//  Unit - String - the analyzed word.
+//  Unit - String - Word being analyzed.
 //
 // Returns:
 //  Number - 
@@ -259,7 +259,7 @@ Function ReplaceUnitOfMeasureByMultiplier(Val Unit)
 	Result = 0;
 	Unit = Lower(Unit);
 	
-	AllowedChars = NStr("en = 'abcdefghijklmnopqrstuvwxyz';"); // 
+	AllowedChars = NStr("en = 'abcdefghijklmnopqrstuvwxyz';"); 
 	ProhibitedChars = StrConcat(StrSplit(Unit, AllowedChars, False), "");
 	If ProhibitedChars <> "" Then
 		Unit = StrConcat(StrSplit(Unit, ProhibitedChars, False), "");

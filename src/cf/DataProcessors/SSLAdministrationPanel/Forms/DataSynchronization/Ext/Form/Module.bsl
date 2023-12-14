@@ -253,7 +253,7 @@ Procedure RefreshSecurityProfilesPermissionsCompletion(Result, Item) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Function OnChangeAttributeServer(TagName)
@@ -350,25 +350,28 @@ Procedure SetAvailability(DataPathAttribute = "")
 		And SubsystemExistsPeriodClosingDates Then
 		
 		Items.ConfigureImportRestrictionDates.Enabled = ConstantsSet.UseImportForbidDates;
-			
+		
 	EndIf;
 	
-	If (DataPathAttribute = "ConstantsSet.UsePerformanceMonitoringOfDataSynchronization"
-			Or DataPathAttribute = "")  Then
-		
-		Items.ExchangeSessions.Enabled = ConstantsSet.UsePerformanceMonitoringOfDataSynchronization;
+	If SubsystemExistsDataExchange Then
+		 
+		If (DataPathAttribute = "ConstantsSet.UsePerformanceMonitoringOfDataSynchronization"
+				Or DataPathAttribute = "")  Then
 			
-	EndIf;
-	
-	If (DataPathAttribute = "ConstantsSet.UseDataSynchronization"
-			Or DataPathAttribute = "")
-		And SubsystemExistsDataExchange Then
+			Items.ExchangeSessions.Enabled = ConstantsSet["UsePerformanceMonitoringOfDataSynchronization"];
+			
+		EndIf;
 		
-		Items.DataSyncSettings.Enabled            = ConstantsSet.UseDataSynchronization;
-		Items.ImportRestrictionDatesGroup.Enabled               = ConstantsSet.UseDataSynchronization;
-		Items.DataSynchronizationResults.Enabled           = ConstantsSet.UseDataSynchronization;
-		Items.TemporaryServerClusterDirectoriesGroup.Enabled = ConstantsSet.UseDataSynchronization;
-		Items.PerformanceMonitorGroup.Enabled          = ConstantsSet.UseDataSynchronization;
+		If (DataPathAttribute = "ConstantsSet.UseDataSynchronization"
+				Or DataPathAttribute = "") Then
+			
+			Items.DataSyncSettings.Enabled            = ConstantsSet["UseDataSynchronization"];
+			Items.ImportRestrictionDatesGroup.Enabled               = ConstantsSet["UseDataSynchronization"];
+			Items.DataSynchronizationResults.Enabled           = ConstantsSet["UseDataSynchronization"];
+			Items.TemporaryServerClusterDirectoriesGroup.Enabled = ConstantsSet["UseDataSynchronization"];
+			Items.PerformanceMonitorGroup.Enabled          = ConstantsSet["UseDataSynchronization"];
+			
+		EndIf;
 		
 	EndIf;
 	

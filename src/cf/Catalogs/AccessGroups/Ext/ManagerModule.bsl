@@ -306,7 +306,7 @@ Procedure MarkForDeletionSelectedProfilesAccessGroups(HasChanges = Undefined) Ex
 			InfobaseUpdate.WriteObject(AccessGroupObject);
 			InformationRegisters.AccessGroupsTables.UpdateRegisterData(Selection.Ref);
 			InformationRegisters.AccessGroupsValues.UpdateRegisterData(Selection.Ref);
-			// 
+			
 			UsersForUpdate = UsersForRolesUpdate(Undefined, AccessGroupObject);
 			AccessManagement.UpdateUserRoles(UsersForUpdate);
 			HasChanges = True;
@@ -331,8 +331,8 @@ EndProcedure
 //  UpdatingAccessGroupsWithObsoleteSettings - Boolean - update access groups.
 //
 // Returns:
-//  Boolean - 
-//           
+//  Boolean - if True, an access group is changed,
+//           if False, nothing is changed.
 //
 Function UpdateProfileAccessGroups(Profile, UpdatingAccessGroupsWithObsoleteSettings = False) Export
 	
@@ -363,7 +363,7 @@ Function UpdateProfileAccessGroups(Profile, UpdatingAccessGroupsWithObsoleteSett
 	|				AND NOT(&Profile = &ProfileAdministrator
 	|						AND AccessGroups.Ref = &AdministratorsAccessGroup))";
 	
-	Query.SetParameter("Profile", Profile.Ref);
+	Query.SetParameter("Profile", Profile);
 	Selection = Query.Execute().Select();
 	
 	While Selection.Next() Do
@@ -372,7 +372,7 @@ Function UpdateProfileAccessGroups(Profile, UpdatingAccessGroupsWithObsoleteSett
 		
 		If AccessGroup.Ref = AccessManagement.AdministratorsAccessGroup()
 		   And AccessGroup.Profile <> AccessManagement.ProfileAdministrator() Then
-			// 
+			// Setting the Administrator profile if it is not set.
 			AccessGroup.Profile = AccessManagement.ProfileAdministrator();
 		EndIf;
 		
@@ -395,8 +395,8 @@ Function UpdateProfileAccessGroups(Profile, UpdatingAccessGroupsWithObsoleteSett
 		If AccessKindsContentChanged1
 		   And ( UpdatingAccessGroupsWithObsoleteSettings
 		       Or Not HasAccessKindsToDeleteWithSpecifiedAccessValues ) Then
-			// 
-			// 
+			
+			
 			CurrentRowNumber1 = AccessGroup.AccessKinds.Count()-1;
 			While CurrentRowNumber1 >= 0 Do
 				CurrentAccessKind = AccessGroup.AccessKinds[CurrentRowNumber1].AccessKind;
@@ -461,7 +461,7 @@ EndFunction
 //  ItemsGroupDescription - String
 //
 // Returns:
-//  CatalogRef.AccessGroups - 
+//  CatalogRef.AccessGroups - a parent group reference.
 //
 Function PersonalAccessGroupsParent(Val DoNotCreate = False, ItemsGroupDescription = "") Export
 	
@@ -549,7 +549,7 @@ Function UsersForRolesUpdate(PreviousValues1, DataElement) Export
 	 Or DataElement.Profile         <> PreviousValues1.Profile
 	 Or DataElement.DeletionMark <> PreviousValues1.DeletionMark Then
 		
-		// 
+		// Selecting all access group members.
 		Query.Text =
 		"SELECT DISTINCT
 		|	UserGroupCompositions.User AS User
@@ -559,7 +559,7 @@ Function UsersForRolesUpdate(PreviousValues1, DataElement) Export
 		|	(UserGroupCompositions.UsersGroup IN (&OldMembers)
 		|			OR UserGroupCompositions.UsersGroup IN (&NewMembers))";
 	Else
-		// 
+		// Selecting changes of access group members.
 		Query.Text =
 		"SELECT
 		|	Data.User AS User
@@ -631,7 +631,7 @@ Function RolesForUpdatingRights(PreviousValues1, DataElement) Export
 	If TypeOf(DataElement) = Type("ObjectDeletion")
 	 Or DataElement.DeletionMark <> PreviousValues1.DeletionMark Then
 		
-		// 
+		// Select all roles of the old or new access group profile.
 		Query.Text =
 		"SELECT DISTINCT
 		|	ProfilesRoles.Role AS Role
@@ -640,7 +640,7 @@ Function RolesForUpdatingRights(PreviousValues1, DataElement) Export
 		|WHERE
 		|	ProfilesRoles.Ref IN (&OldProfile, &NewProfile)";
 	Else
-		// 
+		// Select access group role changes.
 		Query.Text =
 		"SELECT
 		|	Data.Role AS Role
@@ -921,7 +921,7 @@ EndProcedure
 Procedure UpdateAccessGroupsAuxiliaryDataChangedOnImport() Export
 	
 	If Common.DataSeparationEnabled() Then
-		// 
+		// Changes of the access groups in SWP are blocked and are not imported into the data area.
 		Return;
 	EndIf;
 	
@@ -1013,7 +1013,7 @@ EndProcedure
 Procedure UpdateAuxiliaryDataOfUserGroupsChangedOnImport() Export
 	
 	If Common.DataSeparationEnabled() Then
-		// 
+		// Changes of the access groups in SWP are blocked and are not imported into the data area.
 		Return;
 	EndIf;
 	
@@ -1073,7 +1073,7 @@ EndProcedure
 Procedure UpdateUsersRolesChangedOnImport() Export
 	
 	If Common.DataSeparationEnabled() Then
-		// 
+		// Changes to profiles in SWP are blocked and are not imported into the data area.
 		Return;
 	EndIf;
 	

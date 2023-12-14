@@ -94,7 +94,7 @@ Procedure DuplicatesSearchParameters(SearchParameters, AdditionalParameters = Un
 	Restriction.Insert("AdditionalFields", "Parent, Type, Used");
 	SearchParameters.ComparisonRestrictions.Add(Restriction);
 	
-	// 
+	// Table size to be passed to the handler.
 	SearchParameters.ItemsCountToCompare = 100;
 	
 EndProcedure
@@ -248,7 +248,7 @@ EndProcedure
 // See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.
 //
 // Parameters:
-//  Object                  - CatalogObject.ContactInformationKinds - the object to be filled in.
+//  Object                  - CatalogObject.ContactInformationKinds - Object to populate.
 //  Data                  - ValueTableRow - object filling data.
 //  AdditionalParameters - Structure:
 //   * PredefinedData - ValueTable - Data filled in the OnInitialItemsFilling procedure.
@@ -366,7 +366,7 @@ EndProcedure
 //   CurrentObjectRef - CatalogRef.ContactInformationKinds - a reference to the current item.
 //   Parent - CatalogRef.ContactInformationKinds - a reference to the current object parent.
 // Returns:
-//   String - 
+//   String - — a unique ID value for formulas.
 //
 Function UUIDForFormulas(ObjectPresentation, CurrentObjectRef, Parent) Export
 
@@ -472,7 +472,7 @@ EndFunction
 //  PresentationRow - String - description, the string from which it is required to receive an ID. 
 //
 // Returns:
-//  String - 
+//  String - — an ID matching the ID naming rules.
 //
 Function IDForFormulas(PresentationRow) Export
 	
@@ -638,7 +638,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		Except
 			RollbackTransaction();
 			
-			// Если не удалось обработать какой-
+			// If you cannot process any kind of contact information, try again.
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(

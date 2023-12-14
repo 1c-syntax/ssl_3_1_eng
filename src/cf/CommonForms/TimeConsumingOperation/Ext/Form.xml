@@ -24,7 +24,7 @@
 		<ChildItems>
 			<Button name="FormClose" id="16">
 				<Type>CommandBarButton</Type>
-				<CommandName>Form.StandardCommand.Close</CommandName>
+				<CommandName>Form.Command.CancelAndClose</CommandName>
 				<Title>
 					<v8:item>
 						<v8:lang>en</v8:lang>
@@ -158,7 +158,29 @@
 				<v8:Type>v8:UUID</v8:Type>
 			</Type>
 		</Attribute>
+		<Attribute name="CancelWhenClosing" id="2">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
 	</Attributes>
+	<Commands>
+		<Command name="CancelAndClose" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Cancel and close</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Cancel and close</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>CancelAndClose</Action>
+		</Command>
+	</Commands>
 	<Parameters>
 		<Parameter name="WaitCompletion">
 			<Type>
@@ -253,6 +275,12 @@
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
+		</Parameter>
+		<Parameter name="StandbyWindowOpeningMode">
+			<Type/>
+		</Parameter>
+		<Parameter name="ShouldCancelWhenOwnerFormClosed">
+			<Type/>
 		</Parameter>
 	</Parameters>
 </Form>

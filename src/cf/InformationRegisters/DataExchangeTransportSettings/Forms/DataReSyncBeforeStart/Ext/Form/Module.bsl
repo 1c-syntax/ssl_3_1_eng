@@ -29,7 +29,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	NodeNameLabel = NStr("en = 'Cannot install the application update received from
 		|""%1"".
-		|See the <a href = ""%2"">Event Log</a> for technical information.';");
+		|See <a href = ""%2"">Event log</a> for technical information.';");
 	Items.NodeNameHelpText.Title = 
 		StringFunctions.FormattedString(NodeNameLabel, InfobaseNode.Description, "EventLog");
 	
@@ -126,7 +126,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure SynchronizeAndContinueWithoutIBUpdate()
@@ -148,12 +148,12 @@ EndProcedure
 &AtServer
 Procedure SynchronizeAndContinueWithoutIBUpdateCompletion()
 	
+	
+	
+	
 	// 
-	// 
-	// 
-	// 
-	// 
-	// 
+	
+	
 	//   
 	// 
 	//   
@@ -173,8 +173,8 @@ Procedure SynchronizeAndContinueWithoutIBUpdateCompletion()
 		Try
 			ExportMessageAfterInfobaseUpdate();
 		Except
-			// 
-			// 
+			
+			
 			EventLogMessageKey = DataExchangeServer.DataExchangeEventLogEvent();
 			WriteLogEvent(EventLogMessageKey,
 				EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
@@ -204,7 +204,7 @@ EndProcedure
 &AtServer
 Procedure ExportMessageAfterInfobaseUpdate()
 	
-	// 
+	// The repeat mode can be disabled if messages are imported and the infobase is updated successfully.
 	DataExchangeServer.DisableDataExchangeMessageImportRepeatBeforeStart();
 	
 	Try
@@ -294,7 +294,7 @@ Procedure ImportMessageBeforeInfobaseUpdate()
 			DataExchangeServer.SetDataExchangeMessageImportModeBeforeStart("ImportPermitted", True);
 			SetPrivilegedMode(False);
 			
-			// 
+			// Updating object registration rules before importing data.
 			DataExchangeServer.UpdateDataExchangeRules();
 			
 			TransportKind = InformationRegisters.DataExchangeTransportSettings.DefaultExchangeMessagesTransportKind(InfobaseNode);
@@ -336,7 +336,7 @@ Procedure ImportMessageBeforeInfobaseUpdate()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure SynchronizeAndContinueWithIBUpdate()
@@ -485,7 +485,7 @@ Procedure ImportPriorityDataToSubordinateDIBNode()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure DoNotSyncAndContinueAtServer()
@@ -505,7 +505,7 @@ Procedure DoNotSyncAndContinueAtServer()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure CheckUpdateRequired()

@@ -42,7 +42,7 @@ EndProcedure
 //                      
 //
 // Returns:
-//      String - full name of the form.
+//      String - Form full name.
 //
 Function ContactInformationInputFormName(Val InformationKind)
 	

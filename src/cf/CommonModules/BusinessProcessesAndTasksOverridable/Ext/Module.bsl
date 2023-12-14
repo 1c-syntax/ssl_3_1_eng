@@ -50,7 +50,7 @@ EndProcedure
 //  BusinessProcessRoutePoint - BusinessProcessRoutePointRef.Job - action.
 //  FormParameters              - Structure:
 //   * FormName       -  
-//   * FormParameters - 
+//   * FormParameters - parameters of the form to be opened.
 //
 // Example:
 //  If BusinessProcessName = "Job" Then
@@ -86,7 +86,7 @@ EndProcedure
 // It is called from the BusinessProcessesAndTasks subsystem object modules
 // to set up restriction logic in the application.
 //
-// For the example of filling access value sets, see comments 
+// For the example of filling access value sets, see comments
 // to AccessManagement.FillAccessValuesSets.
 //
 // Parameters:
@@ -124,7 +124,7 @@ EndProcedure
 // 
 //
 // Parameters:
-//  Object                  - CatalogObject.PerformerRoles - the object to be filled in.
+//  Object                  - CatalogObject.PerformerRoles - Object to populate.
 //  Data                  - ValueTableRow - filling data.
 //  AdditionalParameters - Structure
 //
@@ -159,7 +159,7 @@ EndProcedure
 // 
 //
 // Parameters:
-//  Object                  - ChartOfCharacteristicTypesObject.TaskAddressingObjects - the object to be filled in.
+//  Object                  - ChartOfCharacteristicTypesObject.TaskAddressingObjects - Object to populate.
 //  Data                  - ValueTableRow - filling data.
 //  AdditionalParameters - Structure
 //

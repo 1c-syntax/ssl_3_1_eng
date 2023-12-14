@@ -185,7 +185,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		AttachmentsNamesToIDsMapsTable = New ValueList;
 		AttachmentsStructure = New Structure;
 		
-		HTMLTemplateText = ""; // 
+		HTMLTemplateText = ""; 
 		EmailBodyInHTML.GetHTML(HTMLTemplateText, AttachmentsStructure);
 		For Each Attachment In AttachmentsStructure Do
 			AttachmentsNamesToIDsMapsTable.Add(Attachment.Key, New UUID,, Attachment.Value);
@@ -269,7 +269,7 @@ Function ProcessTemplateText()
 	EndIf;
 	
 	If Object.TemplateByExternalDataProcessor Then
-		Return Result; // 
+		Return Result; 
 	EndIf;
 	
 	// Check.
@@ -359,6 +359,8 @@ Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	
 	FillArbitraryParametersFromObject(CurrentObject);
 	ShowFormItems();
+	
+	SetTemplateText(CurrentObject);
 	
 EndProcedure
 
@@ -934,7 +936,7 @@ Procedure InitializeNewMessagesTemplate(Val MessageTemplatesSettings)
 	If ValueIsFilled(Parameters.FullBasisTypeName)
 		 And MessageTemplatesInternal.ObjectIsTemplateSubject(Parameters.FullBasisTypeName) Then
 		
-		// The shortcut challenge
+		// Context call
 		Object.InputOnBasisParameterTypeFullName = Parameters.FullBasisTypeName;
 		If Not Parameters.CanChangeAssignment Then
 			Items.AssignmentGroup.Visible = False;
@@ -1267,7 +1269,7 @@ Procedure SetHTMLForFormattedDocument(HTMLEmailTemplateText, CurrentObjectRef, L
 	
 EndProcedure
 
-// 
+
 
 &AtServer
 Procedure GenerateAttributesAndPrintFormsList()
@@ -1428,7 +1430,7 @@ Procedure FIllAttributeTree(Receiver, Source, AreCommonOrArbitraryAttributes = U
 	
 EndProcedure
 
-// 
+
 
 &AtServer
 Procedure SetHTMLEmail(TextWrappingRequired = False)
@@ -1521,7 +1523,7 @@ EndProcedure
 //  FileName  - String - a name of the file to get the extension for.
 //
 // Returns:
-//   String   - 
+//   String   - an extension received from the passed file.
 //
 &AtClientAtServerNoContext
 Function GetFileExtension(Val FileName)
@@ -1889,7 +1891,7 @@ Procedure FillArbitraryParametersFromObject(Val CurrentObject)
 
 EndProcedure
 
-// 
+
 
 &AtServer
 Procedure FillTemplateByExternalDataProcessor()
@@ -1900,7 +1902,12 @@ Procedure FillTemplateByExternalDataProcessor()
 		ClearTemplate(ThisObject);
 		ExternalObject = ModuleAdditionalReportsAndDataProcessors.ExternalDataProcessorObject(Object.ExternalDataProcessor);
 		
-		If Not ModuleAdditionalReportsAndDataProcessors.IsDataProcessorTypeForMessageTemplates(Object.ExternalDataProcessor.Kind) Then
+		If ExternalObject = Undefined Then
+			Return;
+		EndIf;
+		
+		DataProcessorKind = Common.ObjectAttributeValue(Object.ExternalDataProcessor, "Kind");
+		If Not ModuleAdditionalReportsAndDataProcessors.IsDataProcessorTypeForMessageTemplates(DataProcessorKind) Then
 			Return;
 		EndIf;
 		
@@ -1955,8 +1962,6 @@ EndProcedure
 
 &AtClientAtServerNoContext
 Function DefineMessageTemplatesubject(NameToAssignment, Val MessageTemplatesSettings)
-	
-	Var TemplateAssignment;
 	
 	TemplateAssignment = MessageTemplatesSettings.TemplatesSubjects.Find(NameToAssignment, "Presentation");
 	If TemplateAssignment = Undefined Then

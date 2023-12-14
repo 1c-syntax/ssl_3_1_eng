@@ -73,7 +73,7 @@ Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
 	
 EndProcedure
 
-// 
+// Called before importing new settings. Used for modifying DCS reports.
 //
 // Parameters:
 //   Context - Arbitrary
@@ -687,7 +687,7 @@ Function DetailedObjectPermissions(Fill, ProfilesInsteadofRoles)
 	StandardAttributeName = Context.StandardAttributeName;
 	
 	FoundPermissions = New Map;
-	SelectedPermissions_ = ValuesofSelectedParameter("Right");
+	SelectedPermissions = ValuesofSelectedParameter("Right");
 	
 	If ProfilesInsteadofRoles Then
 		RoleProfiles = RoleProfiles();
@@ -704,8 +704,8 @@ Function DetailedObjectPermissions(Fill, ProfilesInsteadofRoles)
 			If Not HasRight Then
 				Continue;
 			EndIf;
-			If SelectedPermissions_ <> Undefined
-			   And SelectedPermissions_.FindByValue(RightDetails.Value) = Undefined Then
+			If SelectedPermissions <> Undefined
+			   And SelectedPermissions.FindByValue(RightDetails.Value) = Undefined Then
 				Continue;
 			EndIf;
 			FoundPermissions.Insert(RightDetails, True);
@@ -767,8 +767,8 @@ Function DetailedObjectPermissions(Fill, ProfilesInsteadofRoles)
 			If RightsList.Count() > 0 Then
 				FirstRight = Undefined;
 				For Each RightDetails In RightsList Do
-					If SelectedPermissions_ = Undefined
-					 Or SelectedPermissions_.FindByValue(FirstRight.Value) <> Undefined Then
+					If SelectedPermissions = Undefined
+					 Or SelectedPermissions.FindByValue(FirstRight.Value) <> Undefined Then
 						FirstRight = RightDetails;
 						Break;
 					EndIf;
@@ -809,8 +809,8 @@ Function DetailedObjectPermissions(Fill, ProfilesInsteadofRoles)
 	
 	For Each RightDetails In RightsList Do
 		If FoundPermissions.Get(RightDetails) <> Undefined
-		 Or SelectedPermissions_ <> Undefined
-		   And SelectedPermissions_.FindByValue(RightDetails.Value) = Undefined Then
+		 Or SelectedPermissions <> Undefined
+		   And SelectedPermissions.FindByValue(RightDetails.Value) = Undefined Then
 			Continue;
 		EndIf;
 		NewRow = Rights.Add();
@@ -1142,7 +1142,7 @@ EndFunction
 //  Profiles - Array of CatalogRef.AccessGroupProfiles
 //
 // Returns:
-//  Array of String - 
+//  Array of String - Role names.
 //
 Function ListRoleNamesProfiles(Profiles)
 	
@@ -1181,7 +1181,7 @@ EndFunction
 //  Profiles - Array of CatalogRef.AccessGroupProfiles
 //
 // Returns:
-//  Array of CatalogRef.AccessGroupProfiles - 
+//  Array of CatalogRef.AccessGroupProfiles - Profiles without a group.
 //
 Function ProfileListWithoutGroups(Profiles)
 	
@@ -1867,7 +1867,7 @@ Function MetadataTree(WithFields)
 	Tree.Columns.Add("HasHierarchy",         New TypeDescription("Boolean"));
 	Tree.Columns.Add("WithoutDecryption",       New TypeDescription("Boolean"));
 	Tree.Columns.Add("PathToObject",         StringType(255));
-	Tree.Columns.Add("ParentMetadataAttachments"); // 
+	Tree.Columns.Add("ParentMetadataAttachments"); 
 	
 	// Configuration
 	ConfigurationString = Tree.Rows.Add();
@@ -2210,11 +2210,11 @@ Function MetadataTree(WithFields)
 	StringCube.Presentation        = NStr("en = 'Cubes';");
 	StringCube.ObjectPresentation = NStr("en = 'Cube';");
 	
-	// 
+	
 	RowTableDimensions = StringCube.Rows.Add();
 	RowTableDimensions.Name                  = "DimensionTables";
 	RowTableDimensions.AttachmentName          = "DimensionTables";
-	RowTableDimensions.PathToObject         = "ExternalDataSource.*.Cube.*.Table_Measurements.*";
+	RowTableDimensions.PathToObject         = "ExternalDataSource.*.Cube.*.DimensionTable.*";
 	RowTableDimensions.RightsDetails         = PermissionsCubeAndDimensionTables();
 	RowTableDimensions.Presentation        = NStr("en = 'Dimension tables';");
 	RowTableDimensions.ObjectPresentation = NStr("en = 'Dimension table';");
@@ -3097,7 +3097,7 @@ EndProcedure
 Function Images()
 	
 	Images = New ValueList;
-	Images.Add(""); // 
+	Images.Add(""); 
 	Images.Add("Configuration",,,              PictureLib.MetadataConfiguration);
 	Images.Add("Overall",,,                     PictureLib.MetadataCommon);
 	Images.Add("Subsystems",,,                PictureLib.MetadataSubsystems);

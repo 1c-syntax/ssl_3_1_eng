@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-// 
+
 //
 //      
 //       
@@ -37,7 +37,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Raise NStr("en = 'The data processor cannot be opened manually.';");
 	EndIf;
 	
-	// 
+	// Form settings.
 	Parameters.Property("ReturnValueList", ReturnValueList);
 	
 	MainCountry           = MainCountry();
@@ -54,8 +54,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	FieldValues = DefineAddressValue(Parameters);
 	
 	If IsBlankString(FieldValues) Then
-		LocalityDetailed = ContactsManager.NewContactInformationDetails(Enums.ContactInformationTypes.Address); // 
+		LocalityDetailed = ContactsManager.NewContactInformationDetails(Enums.ContactInformationTypes.Address); // New address.
 		LocalityDetailed.AddressType = ContactsManagerClientServer.CustomFormatAddress();
+		LocalityDetailed.value       = Parameters.Presentation;
 	ElsIf ContactsManagerClientServer.IsJSONContactInformation(FieldValues) Then
 		AddressData = ContactsManagerInternal.JSONToContactInformationByFields(FieldValues, Enums.ContactInformationTypes.Address);
 		LocalityDetailed = PrepareAddressForInput(AddressData);
@@ -139,7 +140,7 @@ Procedure CountryTextInputEnd(Item, Text, ChoiceData, StandardProcessing)
 	EndIf;
 	
 #If WebClient Then
-	// 
+	// Bypass platform features.
 	StandardProcessing = False;
 	ChoiceData         = New ValueList;
 	ChoiceData.Add(Country);
@@ -173,7 +174,7 @@ Procedure ForeignAddressPresentationOnChange(Item)
 	
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure AddressOnDateAutoComplete(Item, Text, ChoiceData, DataGetParameters, Waiting, StandardProcessing)
@@ -314,7 +315,7 @@ Procedure ConfirmAndClose(Result = Undefined, AdditionalParameters = Undefined) 
 		SaveFormState();
 		
 	ElsIf Comment <> CommentCopy Then
-		// 
+		// Only the comment was modified, attempting to revert.
 		Result = CommentChoiceOnlyResult(Parameters.FieldValues, Parameters.Presentation, Comment);
 		Result = Result.ChoiceData;
 		
@@ -377,8 +378,12 @@ Procedure ProcessContactInformationWithHistory(Result)
 		Filter = New Structure("ValidFrom, Kind", AddressValidFrom, Result.Kind);
 		StringsWithAddress = ContactInformationAdditionalAttributesDetails.FindRows(Filter);
 		
-		EditableAddressPresentation = ?(StringsWithAddress.Count() > 0, StringsWithAddress[0].Presentation, "");
-		If StrCompare(Result.Presentation, EditableAddressPresentation) <> 0 Then
+		EditableAddressPresentation = ?(StringsWithAddress.Count() > 0, StringsWithAddress[0].Presentation, ""); 
+		CommentPresentation          = ?(StringsWithAddress.Count() > 0, StringsWithAddress[0].Comment,   "");
+		AddRow = StrCompare(Result.Presentation, EditableAddressPresentation) <> 0
+					 Or StrCompare(Result.Comment, CommentPresentation) <> 0;
+		
+		If AddRow Then
 			NewContactInformation = ContactInformationAdditionalAttributesDetails.Add();
 			FillPropertyValues(NewContactInformation, Result);
 			NewContactInformation.FieldValues           = Result.ContactInformation;
@@ -400,9 +405,11 @@ Procedure ProcessContactInformationWithHistory(Result)
 				Result.ContactInformation         = ValidAddressString.FieldValues;
 				Result.Value = ValidAddressString.Value;
 			EndIf;
-		ElsIf StrCompare(Result.Comment, ValidAddressString.Comment) <> 0 And StringsWithAddress.Count() > 0 Then
-			// 
-			StringsWithAddress[0].Comment = Result.Comment;
+		ElsIf ValidAddressString <> Undefined
+				And StrCompare(Result.Comment, ValidAddressString.Comment) <> 0 
+				And StringsWithAddress.Count() > 0 Then
+					// Only the comment is modified.
+					StringsWithAddress[0].Comment = Result.Comment;
 		EndIf;
 	Else
 		If StrCompare(Result.Presentation, ValidAddressString.Presentation) <> 0
@@ -537,9 +544,7 @@ Function SelectionResult(Context, ReturnValueList = False)
 	Result.ChoiceData.Insert("EnteredInFreeFormat",
 		ContactsManagerInternal.AddressEnteredInFreeFormat(LocalityDetailed));
 		
-		
-	
-	// 
+	// Population errors.
 	Result.FillingErrors = New Array;
 		
 	If Context.ContactInformationKind.Type = Enums.ContactInformationTypes.Address 
@@ -550,7 +555,7 @@ Function SelectionResult(Context, ReturnValueList = False)
 	EndIf;
 	Result.ChoiceData.Insert("AsHyperlink", AsHyperlink);
 	
-	// 
+	// Suppressing line breaks in the separately returned presentation.
 	Result.ChoiceData.Presentation = TrimAll(StrReplace(Result.ChoiceData.Presentation, Chars.LF, " "));
 	Result.ChoiceData.Insert("Kind", 	ContactInformationKindDetails(Context).Ref);
 	Result.ChoiceData.Insert("Type", Context.ContactInformationKind.Type);
@@ -590,9 +595,9 @@ Function CommentChoiceOnlyResult(ContactInfo, Presentation, Comment)
 		AddressEnteredInFreeFormat = False;
 		
 	ElsIf ContactsManagerClientServer.IsXMLContactInformation(ContactInfo) Then
-		// Копия
+		// A copy.
 		NewContactInfo = ContactInfo;
-		// 
+		// Modifying the NewContactInfo value.
 		ContactsManager.SetContactInformationComment(NewContactInfo, Comment);
 		AddressEnteredInFreeFormat = ContactsManagerInternal.AddressEnteredInFreeFormat(ContactInfo);
 		
@@ -619,13 +624,13 @@ EndProcedure
 &AtServer
 Procedure SetAttributesValueByContactInformation(AddressInfo3, AddressData)
 	
-	// 
+	// Common attributes.
 	AddressInfo3.AddressPresentation = AddressData.Value;
 	If AddressData.Property("Comment") Then
 		AddressInfo3.Comment         = AddressData.Comment;
 	EndIf;
 	
-	// 
+	// Comment copy used to analyze changes.
 	AddressInfo3.CommentCopy = AddressInfo3.Comment;
 	
 	RefToMainCountry = MainCountry();
@@ -635,29 +640,16 @@ Procedure SetAttributesValueByContactInformation(AddressInfo3, AddressData)
 	EndIf;
 	
 	If CountryData1 = Undefined Then
-		// 
+		// Country data is found neither in the catalog nor in the ARCC.
 		AddressInfo3.Country    = RefToMainCountry;
-		AddressInfo3.CountryCode = RefToMainCountry.Code;
+		CountryCode = Common.ObjectAttributeValue(RefToMainCountry, "Code");
+		If CountryCode <> Undefined Then
+			AddressInfo3.CountryCode = CountryCode;
+		EndIf;
 	Else
 		AddressInfo3.Country    = CountryData1.Ref;
 		AddressInfo3.CountryCode = CountryData1.Code;
 	EndIf;
-	
-	AddressItems = New Array;
-	If ValueIsFilled(AddressData.city) Then
-		AddressItems.Add(AddressData.city);
-	EndIf;
-	If ValueIsFilled(AddressData.street) Then
-		AddressItems.Add(AddressData.street);
-	EndIf;
-	
-	// address fields are blank but the presentation is filled in
-	If AddressItems.Count() = 0 And ValueIsFilled(AddressData.value) Then
-		AddressData.street = AddressData.value;
-		AddressItems.Add(AddressData.street);
-	EndIf;
-	
-	AddressInfo3.AddressPresentation = StrConcat(AddressItems, ", ");
 	
 EndProcedure
 

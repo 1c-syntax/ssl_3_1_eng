@@ -22,8 +22,8 @@
 //              - Array of CollaborationSystemUser
 //   Message - See MessageDetails
 //   ConversationContext - AnyRef - the message will be sent to a context conversation.
-//                      - CollaborationSystemConversationID - 
-//                      - Undefined - 
+//                      - CollaborationSystemConversationID - the message will be sent to the specified conversation.
+//                      - Undefined - the message will be sent to the conversation between the author and the recipient.
 //
 // Example:
 // Message = Conversations.MessageDetails("Hello, world!");
@@ -46,7 +46,7 @@ Procedure SendMessage(Val Author, Val Recipients, Message, ConversationContext =
 	
 	If TypeOf(Recipients[0]) = Type("CatalogRef.Users") Then
 		AddresseesByRef = CollaborationSystemUsers(Recipients);
-		Recipients = New Array; // Array of CollaborationSystemUser
+		Recipients = New Array; 
 		For Each KeyAndValue In AddresseesByRef Do
 			Recipient = KeyAndValue.Value;
 			If TypeOf(Recipient) = Type("CollaborationSystemUser") Then
@@ -118,7 +118,7 @@ EndProcedure
 //         - CollaborationSystemUser
 //   Message - See MessageDetails.
 //   ConversationContext - AnyRef - the message will be sent to a context conversation.
-//                      - CollaborationSystemConversationID - 
+//                      - CollaborationSystemConversationID - the message will be sent to the specified conversation.
 //
 // Example:
 // Message = Conversations.MessageDetails("Hello, world!");
@@ -194,7 +194,7 @@ EndProcedure
 //
 Function CollaborationSystemConnected() Export
 	
-	// 
+	
 	Registered1 = CollaborationSystem.InfoBaseRegistered();
 	
 	Return Registered1 And Not ConversationsInternal.Locked2();
@@ -341,7 +341,7 @@ EndFunction
 //  User - CatalogRef.Users
 //               - CatalogObject.Users
 //
-//  IDOnly - Boolean -
+//  IDOnly - Boolean - 
 //                                 
 //
 // Returns:
@@ -492,8 +492,8 @@ EndProcedure
 //   Structure:
 //   * Text - FormattedString
 //   * Attachments - Array of See AttachmentDetails
-//   * Data - Undefined - see CollaborationSystemMessage in the Syntax Assistant
-//   * Actions - ValueList - see CollaborationSystemMessage in the Syntax Assistant
+//   * Data - Undefined - 
+//   * Actions - ValueList - 
 //
 Function MessageDetails(Val Text) Export
 	LongDesc = New Structure;
@@ -516,7 +516,7 @@ EndFunction
 //   Stream - Stream - a stream from which a Collaboration system attachment will be created.
 //         - MemoryStream
 //         - FileStream
-//   Description - String -
+//   Description - String - 
 // 
 // Returns:
 //   Structure:
@@ -555,7 +555,7 @@ Function IsInteractionSystemConnectError(ErrorInfo) Export
 	
 	MultiLangStrings = New Array;
 	
-	// ACC:1036-
+	
 	
 	MultiLangStrings.Add(
 	"az = 'Qarşılıqlı fəaliyyət sistmei qeydə alınmayıb';
@@ -603,7 +603,7 @@ Function IsInteractionSystemConnectError(ErrorInfo) Export
 	|uk = 'Невозможно установить соединение с сервером системы взаимодействия';
 	|fr = 'Невозможно установить соединение с сервером системы взаимодействия'"); // @Non-NLS
 	
-	// 
+	
 	
 	BriefErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 	

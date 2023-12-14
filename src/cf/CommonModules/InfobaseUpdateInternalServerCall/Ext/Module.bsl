@@ -20,8 +20,8 @@ Function UpdateInfobase(OnClientStart = False, Restart = False, ExecuteDeferredH
 	Try
 		Result = InfobaseUpdateInternal.UpdateInfobase(ParametersOfUpdate);
 	Except
-		// 
-		// 
+		
+		
 		If Common.SubsystemExists("StandardSubsystems.DataExchange")
 		   And Common.IsSubordinateDIBNode() Then
 			ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");

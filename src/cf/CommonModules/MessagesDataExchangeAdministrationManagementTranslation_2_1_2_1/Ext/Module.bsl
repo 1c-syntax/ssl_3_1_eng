@@ -9,7 +9,7 @@
 
 #Region Public
 
-// Returns the version number that the handler is intended to broadcast from.
+// Returns a version number, from which the translation by handler is used.
 //
 // Returns:
 //   String
@@ -31,7 +31,7 @@ Function SourceVersionPackage() Export
 	
 EndFunction
 
-// Returns the version number that the handler is intended to translate to.
+// Returns a version number, to which the translation by handler is used.
 //
 // Returns:
 //   String
@@ -53,10 +53,10 @@ Function ResultingVersionPackage() Export
 	
 EndFunction
 
-// Handler for checking the execution of standard translation processing
+// Handler of standard translation processing execution check
 //
 // Parameters:
-//  SourceMessage - XDTODataObject - broadcast message,
+//  SourceMessage - XDTODataObject - a message being translated,
 //  StandardProcessing - Boolean - set
 //    this parameter to False within this procedure to cancel standard translation processing.
 //    The function is called instead of the standard translation processing
@@ -71,7 +71,7 @@ EndProcedure
 //  was set to False.
 //
 // Parameters:
-//  SourceMessage - XDTODataObject - broadcast message.
+//  SourceMessage - XDTODataObject - a message being translated.
 //
 // Returns:
 //  XDTODataObject - 

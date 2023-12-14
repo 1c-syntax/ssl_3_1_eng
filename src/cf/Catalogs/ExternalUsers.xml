@@ -378,7 +378,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Invalid</v8:content>
+							<v8:content>Inactive</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -392,7 +392,7 @@
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>The external user does not have access to the application but their data is still stored.
-Invalid external users are hidden from the user lists.
+Inactive external users are hidden from the user lists.
 </v8:content>
 						</v8:item>
 					</ToolTip>

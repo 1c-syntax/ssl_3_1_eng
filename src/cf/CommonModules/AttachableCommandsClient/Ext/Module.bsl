@@ -15,7 +15,7 @@
 //   Form - ClientApplicationForm - a form where the command is executed.
 //   Command - FormCommand - a running command.
 //   Source - FormTable
-//            - FormDataStructure - 
+//            - FormDataStructure - an object or a form list with the Reference field.
 //
 Procedure StartCommandExecution(Form, Command, Val Source = Undefined) Export
 	CommandName = Command.Name;
@@ -32,7 +32,7 @@ Procedure StartCommandExecution(Form, Command, Val Source = Undefined) Export
 	ExecutionParameters.Source        = Source;
 	
 	ExecutionParameters.IsObjectForm = TypeOf(Source) = Type("FormDataStructure");
-	// 
+	// Service parameters.
 	ExecutionParameters.WritingRequired         = ExecutionParameters.IsObjectForm And CommandDetails.WriteMode <> "NotWrite";
 	ExecutionParameters.PostingRequired     = (CommandDetails.WriteMode = "Post");
 	ExecutionParameters.FilesOperationsRequired = CommandDetails.FilesOperationsRequired;
@@ -49,8 +49,8 @@ EndProcedure
 //   Source - FormTable
 //            - FormDataStructure
 //            - AnyRef
-//            - Array - 
-//                       
+//            - Array - an object or a form list with the Reference field,
+//                       Reference or array of references.
 //
 Procedure ExecuteCommand(Form, Command, Source) Export
 	CommandName = Command.Name;
@@ -62,7 +62,7 @@ Procedure ExecuteCommand(Form, Command, Source) Export
 	ExecutionParameters.Form           = Form;
 	ExecutionParameters.Source        = Source;
 	ExecutionParameters.IsObjectForm = TypeOf(Source) = Type("FormDataStructure");
-	// 
+	// Service parameters.
 	ExecutionParameters.WritingRequired  = ExecutionParameters.IsObjectForm And CommandDetails.WriteMode <> "NotWrite";
 	ExecutionParameters.PostingRequired = (CommandDetails.WriteMode = "Post");
 	ExecutionParameters.FilesOperationsRequired = CommandDetails.FilesOperationsRequired;
@@ -85,8 +85,8 @@ EndProcedure
 // Parameters:
 //  Form - ClientApplicationForm - a form where the command is executed.
 //  Object - FormDataStructure
-//         - AnyRef - 
-//  WriteParameters - Structure - arbitrary save parameters. See the AfterWrite event details in Syntax Assistant. 
+//         - AnyRef - a form object with the Reference field.
+//  WriteParameters - Structure - arbitrary save parameters. See the AfterWrite event details in Syntax Assistant.
 //
 Procedure AfterWrite(Form, Object, WriteParameters) Export
 	
@@ -116,12 +116,12 @@ EndProcedure
 //           - ManagedFormExtensionForDocuments
 //   * IsObjectForm - Boolean - True if the command is called from the object form.
 //   * Source - FormTable
-//              - FormDataStructure - 
+//              - FormDataStructure - :
 //     ** Ref - AnyRef
 //
 Function CommandExecuteParameters() Export
 	Result = AttachableCommandsClientServer.CommandExecuteParameters();
-	// 
+	// Service parameters.
 	Result.Insert("WritingRequired", False);
 	Result.Insert("PostingRequired", False);
 	Result.Insert("FilesOperationsRequired", False);
@@ -150,7 +150,7 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 	Source = ExecutionParameters.Source;
 	CommandDetails = ExecutionParameters.CommandDetails;
 	
-	// Installing file system extension.
+	
 	If ExecutionParameters.FilesOperationsRequired Then
 		ExecutionParameters.FilesOperationsRequired = False;
 		Handler = New NotifyDescription("ContinueExecutionCommandAfterSetFileExtension", ThisObject, ExecutionParameters);
@@ -367,7 +367,7 @@ Procedure ContinueCommandExecutionAfterConfirmContinuation(Response, Context) Ex
 	ContinueCommandExecution(Context);
 EndProcedure
 
-// The procedure branch that is going after the file system extension installation.
+// 
 Procedure ContinueExecutionCommandAfterSetFileExtension(FileSystemExtensionAttached1, Context) Export
 	If Not FileSystemExtensionAttached1 Then
 		Return;

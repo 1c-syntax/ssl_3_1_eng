@@ -15,17 +15,17 @@
 //  Parameters       - Structure - Empty structure.
 //  ResultAddress - String    - an address of a temporary storage where a user's
 //                                to-do list is saved - ValueTable:
-//    * Id - String - an internal to-do item ID used by the To-do list component.
-//    * HasToDoItems      - Boolean - if True, the to-do item is displayed in the user to-do list.
+//    * Id - String - an internal to-do ID used by the To-do list algorithm.
+//    * HasToDoItems      - Boolean - if True, the to-do item is displayed in the user's to-do list.
 //    * Important        - Boolean - if True, the to-do item is highlighted in red.
 //    * Presentation - String - a to-do item presentation displayed to a user.
-//    * Count    - Number  - a quantitative indicator of a to-do item displayed in its title.
+//    * Count    - Number  - a number related to a to-do item; it is displayed in a to-do item's title.
 //    * Form         - String - a full path to the form that is displayed by clicking on the
 //                               to-do item hyperlink in the "To-do list" panel.
 //    * FormParameters- Structure - parameters for opening the indicator form.
 //    * Owner      - String
-//                    - MetadataObject - string ID of the case that will be the owner for the current
-//                      or metadata object subsystem.
+//                    - MetadataObject - String ID of the to-do item that is the owner of the current to-do item,
+//                      or a subsystem metadata object.
 //    * ToolTip     - String - a tooltip text.
 //
 Procedure GenerateToDoListForUser(Parameters, ResultAddress) Export
@@ -103,7 +103,7 @@ EndFunction
 // See UsersOverridable.OnDefineRoleAssignment
 Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	
-	// СовместноДляПользователейИВнешнихПользователей.
+	// BothForUsersAndExternalUsers.
 	RolesAssignment.BothForUsersAndExternalUsers.Add(
 		Metadata.Roles.UseCurrentToDosProcessor.Name);
 	
@@ -127,8 +127,8 @@ EndProcedure
 
 Function NumericUserTasksIndicators(Query, CommonQueryParameters = Undefined) Export
 	
-	// 
-	// 
+	
+	
 	If Not CommonQueryParameters = Undefined Then
 		SetCommonQueryParameters(Query, CommonQueryParameters);
 	EndIf;
@@ -162,7 +162,7 @@ EndFunction
 // Returns a structure of common values used for calculating current to-do items.
 //
 // Returns:
-//  Structure - 
+//  Structure - a value name and a value.
 //
 Function CommonQueryParameters() Export
 	
@@ -179,7 +179,7 @@ EndFunction
 // Sets common query parameters for calculating to-do items.
 //
 // Parameters:
-//  Query - the request being executed.
+//  Query - a running query.
 //  CommonQueryParameters - Structure - common values for calculating indicators.
 //
 Procedure SetCommonQueryParameters(Query, CommonQueryParameters) Export
@@ -294,7 +294,7 @@ Procedure TransformToDoListTable(ToDoList, ViewSettings)
 			EndIf;
 		EndIf;
 		
-		// 
+		// Backward compatibility.
 		If TypeOf(ToDoItem.HasUserTasks) = Type("Boolean") Then
 			ToDoItem.HasToDoItems = ToDoItem.HasUserTasks;
 		EndIf;

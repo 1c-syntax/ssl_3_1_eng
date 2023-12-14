@@ -330,7 +330,7 @@ Function MakeChanges(Val ObjectData, Val ObjectToChange, Val Parameters)
 	For Each Operation In Parameters.AttributesToChange Do
 		
 		Value = EvalExpression(Operation.Value, ObjectToChange, Parameters.AvailableAttributes);
-		If Operation.OperationKind = 1 Then // 
+		If Operation.OperationKind = 1 Then // Change an attribute.
 			
 			If ObjectToChange[Operation.Name] = Null Then
 				Continue;
@@ -339,7 +339,7 @@ Function MakeChanges(Val ObjectData, Val ObjectToChange, Val Parameters)
 			ObjectToChange[Operation.Name] = Value;
 			Result.ObjectAttributesToChange.Add(Operation.Name);
 			
-		ElsIf Operation.OperationKind = 2 Then // 
+		ElsIf Operation.OperationKind = 2 Then // Change an additional attribute.
 			
 			If Not PropertyMustChange(ObjectToChange.Ref, Operation.Property, Parameters) Then
 				Continue;
@@ -369,7 +369,7 @@ Function MakeChanges(Val ObjectData, Val ObjectToChange, Val Parameters)
 			FormAttributeName = AddAttributeNamePrefix() + StrReplace(String(Operation.Property.UUID()), "-", "_");
 			Result.AdditionalObjectAttributesToChange.Insert(FormAttributeName, Value);
 			
-		ElsIf Operation.OperationKind = 3 Then // 
+		ElsIf Operation.OperationKind = 3 Then // Change an additional information record.
 			
 			If Not PropertyMustChange(ObjectToChange.Ref, Operation.Property, Parameters) Then
 				Continue;
@@ -403,7 +403,7 @@ Procedure RunAlgorithmCode(Val Object, Val AlgorithmCode, Val ExecuteInSafeMode)
 		|" + AlgorithmCode;
 		ExecuteInSafeMode(AlgorithmCode, Object);
 	Else
-		Execute AlgorithmCode; // 
+		Execute AlgorithmCode; // ACC:487 In error correction scenarios, the code can be executed on behalf of an Administrator.
 	EndIf;
 	
 EndProcedure
@@ -650,13 +650,13 @@ Function AttributesEditingSettings(MetadataObject, ObjectsManagers = Null) Expor
 				ToEdit = ObjectManager.AttributesToEditInBatchProcessing();
 		EndIf;
 	Else
-		// 
-		// 
+		
+		
 		ObjectManager = ObjectManagerByFullName(MetadataObject.FullName());
 		Try
 			ToEdit = ObjectManager.AttributesToEditInBatchProcessing();
 		Except
-			// 
+			// Method not found.
 			ToEdit = Undefined;
 		EndTry;
 	EndIf;
@@ -671,12 +671,12 @@ Function AttributesEditingSettings(MetadataObject, ObjectsManagers = Null) Expor
 		EndIf;
 		
 	Else
-		// 
-		// 
+		
+		
 		Try
 			NotToEdit = ObjectManager.AttributesToSkipInBatchProcessing();
 		Except
-			// 
+			// Method not found.
 			NotToEdit = Undefined;
 		EndTry;
 	EndIf;
@@ -736,7 +736,7 @@ Function SSLVersionMatchesRequirements() Export
 	Try
 		ModuleStandardSubsystemsServer = CommonModule("StandardSubsystemsServer");
 	Except
-		// 
+		// Module doesn't exist.
 		ModuleStandardSubsystemsServer = Undefined;
 	EndTry;
 	If ModuleStandardSubsystemsServer = Undefined Then 
@@ -759,7 +759,7 @@ EndFunction
 //  VersionString2  - String - the second version.
 //
 // Returns:
-//   Number   - 
+//   Number   - if VersionString1 > VersionString2, it is a positive number. If they are equal, it is 0.
 //
 Function CompareVersions(Val VersionString1, Val VersionString2) Export
 	
@@ -794,7 +794,7 @@ EndFunction
 //  FullName - String - a full name of metadata object. Example: "Catalog.Company".
 //
 // Returns:
-//  CatalogManager, DocumentManager, DataProcessorManager, InformationRegisterManager - 
+//  CatalogManager, DocumentManager, DataProcessorManager, InformationRegisterManager - an object manager.
 // 
 // Example:
 //  CatalogManager = Common.ObjectManagerByFullName("Catalog.Companies");
@@ -851,7 +851,7 @@ Function ObjectManagerByFullName(FullName) Export
 		
 	ElsIf Upper(MOClass) = "CALCULATIONREGISTER" Then
 		If NameParts.Count() = 2 Then
-			// 
+			// Calculation register.
 			Manager = CalculationRegisters;
 		Else
 			SubordinateMOClass = NameParts[2];
@@ -975,7 +975,7 @@ EndFunction
 // Does not regard business process route points.
 //
 // Parameters:
-//  Type       - the type of application object defined in the configuration.
+//  Type       - an applied object type defined in the configuration.
 //
 // Returns:
 //  String       - Metadata object kind name. For example, Catalog or Document.
@@ -1130,17 +1130,17 @@ EndFunction
 //              according to structure requirements.
 //              Example: "Code, Description, Parent".
 //            - Structure
-//            - FixedStructure - 
-//              
-//              
-//              
+//            - FixedStructure - keys are field aliases used for resulting structure
+//              keys, values (optional) are field names. If a value is empty,
+//              it is considered equal to the key.
+//              If a value is empty, it is considered equal to the key.
 //            - Array
-//            - FixedArray - 
-//              
+//            - FixedArray - attribute names formatted according to
+//              structure property requirements.
 //
 // Returns:
-//  Structure - 
-//              
+//  Structure - contains names (keys) and values of the requested attributes.
+//              If the string of the requested attributes is empty, an empty structure is returned.
 //
 Function ObjectAttributesValues(Ref, Val Attributes) Export
 	
@@ -1280,7 +1280,7 @@ EndFunction
 Function CommonModule(Name) Export
 	
 	If Metadata.CommonModules.Find(Name) <> Undefined Then
-		Module = Eval(Name); // 
+		Module = Eval(Name); 
 	Else
 		Module = Undefined;
 	EndIf;
@@ -1303,8 +1303,8 @@ Function SubstituteParametersToString(Val SubstitutionString,
 	Return SubstitutionString;
 EndFunction
 
-// 
-// 
+
+
 
 // Executes an arbitrary algorithm in the 1C:Enterprise script, setting
 //  the safe mode of script execution and the safe mode of data separation
@@ -1351,7 +1351,7 @@ EndProcedure
 //    Value1 and Value2 that were passed to Parameters as properties.
 //
 // Returns:
-//   Arbitrary - 
+//   Arbitrary - the result of the expression calculation.
 //
 // Example:
 //
@@ -1390,8 +1390,8 @@ EndFunction
 // Returns an array of the separators that are in the configuration.
 //
 // Returns:
-//   FixedArray of String - 
-//  
+//   FixedArray of String - an array of names of common attributes which
+//  serve as separators.
 //
 Function ConfigurationSeparators() Export
 	
@@ -1409,7 +1409,7 @@ EndFunction
 
 #Region MultiThreadedObjectModification
 
-// APK:581-Export is off, as it is called from a background task.
+// ACC:581-off Export as it is called from a background job.
 Function ObjectsBatchChangeResult(ObjectsToProcess, ChangeResult, ModificationSettings) Export
 
 	Ref         = Undefined;
@@ -1453,11 +1453,11 @@ Function ObjectsBatchChangeResult(ObjectsToProcess, ChangeResult, ModificationSe
 					Changes = MakeChanges(ObjectData, ObjectToChange, ModificationSettings);
 				EndIf;
 				
-				// 
+				// Write mode.
 				IsDocument = Metadata.Documents.Contains(ObjectToChange.Metadata());
 				WriteMode = DetermineWriteMode(ObjectToChange, IsDocument, ModificationSettings.DeveloperMode);
 				
-				// 
+				// Validate value population.
 				If Not ModificationSettings.DeveloperMode Then
 					If Not IsDocument Or WriteMode = DocumentWriteMode.Posting Then
 						If Not ObjectToChange.CheckFilling() Then
@@ -1466,7 +1466,7 @@ Function ObjectsBatchChangeResult(ObjectsToProcess, ChangeResult, ModificationSe
 					EndIf;
 				EndIf;
 				
-				// 
+				// Write additional info.
 				If Changes <> Undefined And Changes.AddInfoRecordsArray.Count() > 0 Then
 					For Each RecordManager In Changes.AddInfoRecordsArray Do
 						RecordManager.Write(True);
@@ -1479,7 +1479,7 @@ Function ObjectsBatchChangeResult(ObjectsToProcess, ChangeResult, ModificationSe
 				MustWriteObject = ModificationSettings.ObjectWriteOption <> "NotWrite"
 					And (ObjectToChange.Modified() Or Not ChangesAreConfigured);
 				
-				// 
+				// Write the object.
 				If MustWriteObject Then
 					If WriteMode <> Undefined Then
 						ObjectToChange.Write(WriteMode);
@@ -1538,7 +1538,7 @@ Function ObjectsBatchChangeResult(ObjectsToProcess, ChangeResult, ModificationSe
 	Return ChangeResult;
 	
 EndFunction
-// 
+// ACC:581-on
 
 Function RunObjectsChangeInMultipleThreads(Parameters, ObjectsToProcess, ChangeResult,
 		StopChangeOnError, RunAlgorithmCodeInSafeMode)

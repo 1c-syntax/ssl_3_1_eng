@@ -11,7 +11,7 @@
 
 // Specify the metadata objects whose list forms will
 // output the show marked objects and go to objects marked for deletion commands.
-// See MarkedObjectsDeletionClient.ShowObjectsMarkedForDeletion and MarkedObjectsDeletionClient.GoToMarkedForDeletionItems. 
+// See MarkedObjectsDeletionClient.ShowObjectsMarkedForDeletionand MarkedObjectsDeletionClient.GoToMarkedForDeletionItems. 
 //
 // Parameters:
 //  Objects - Array of MetadataObject - the metadata objects to whose list forms the hide marked
@@ -51,11 +51,11 @@ EndProcedure
 #Region ObsoleteProceduresAndFunctions
 
 // Deprecated. Obsolete. Called before searching for the objects marked for deletion.
-// Handler cleans up obsolete dimension keys and other infobase objects that are no longer needed.
+// The handler cleans up obsolete dimension keys and other infobase objects that are no longer needed.
 // Instead, use either the BeforeDelete event of the objects to be deleted or specify SubordinateObjects.
 // 
 //  
-// See Common.SubordinateObjects.
+//  See Common.SubordinateObjects.
 //
 // Parameters:
 //   Parameters - Structure:

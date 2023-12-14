@@ -38,7 +38,7 @@ EndFunction
 // Checks whether the add-ins import from the portal is allowed.
 //
 // Returns:
-//  Boolean - the availability criterion.
+//  Boolean - flag of availability.
 //
 Function CanImportFromPortal() Export
 
@@ -66,8 +66,8 @@ EndFunction
 //      * BinaryData - BinaryData - add-in file export.
 //      * AdditionalInformation - Map - information received by passed search parameters.
 //      * ErrorDescription - String - an error text if Disassembled = False.
-//      * ErrorInfo - ErrorInfo, Undefined -
-//      * IsFileOfService - Boolean -
+//      * ErrorInfo - ErrorInfo, Undefined - 
+//      * IsFileOfService - Boolean - 
 //
 Function InformationOnAddInFromFile(BinaryData, ParseInfoFile = True,
 	Val AdditionalInformationSearchParameters = Undefined) Export
@@ -101,7 +101,7 @@ Function InformationOnAddInFromFile(BinaryData, ParseInfoFile = True,
 
 		If ArchiveItem.Encrypted Then
 
-			// 
+			// Clear temporary files and memory.
 			FileSystem.DeleteTemporaryDirectory(TempDirectory);
 			ReadingArchive.Close();
 			Stream.Close();
@@ -128,7 +128,7 @@ Function InformationOnAddInFromFile(BinaryData, ParseInfoFile = True,
 
 				ReadingArchive.Extract(ArchiveItem, TempDirectory);
 				ManifestXMLFile = TempDirectory + GetPathSeparator() + ArchiveItem.FullName;
-				FillAttributesByManifestXML(ManifestXMLFile, Attributes);
+				FillAttributesByManifestXML(ManifestXMLFile, Attributes.TargetPlatforms);
 
 				ManifestIsFound = True;
 
@@ -171,7 +171,7 @@ Function InformationOnAddInFromFile(BinaryData, ParseInfoFile = True,
 		EndTry;
 	EndDo;
 
-	// 
+	// Clear temporary files and memory.
 	FileSystem.DeleteTemporaryDirectory(TempDirectory);
 	ReadingArchive.Close();
 	Stream.Close();
@@ -202,8 +202,8 @@ Procedure CheckTheLocationOfTheComponent(Id, Location) Export
 		EndIf;
 	EndIf;
 
-	//  
-	// 
+	 
+	
 	If Not (Common.DataSeparationEnabled()
 			And Common.SeparatedDataUsageAvailable()) Then
 		If Not StrStartsWith(Location, "e1cib/data/Catalog.AddIns.AddInStorage") Then
@@ -318,7 +318,7 @@ Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True, UsedAdd
 			Try
 				TheResultOfComparingVersions = CommonClientServer.CompareVersions(Object.Version, Parameters.Version);
 			Except
-				// 
+				// Overwrite components if failed to compare the versions.
 				TheResultOfComparingVersions = -1;
 			EndTry;
 			If TheResultOfComparingVersions >= 0 Then
@@ -327,20 +327,21 @@ Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True, UsedAdd
 			EndIf;
 		Else
 			Object = Catalogs.AddIns.CreateItem();
-			// 
-			Object.Fill(Undefined); // 
+			// Create an add-in instance.
+			Object.Fill(Undefined); 
 		EndIf;
 		
 		 // According to manifest data.
 		FillPropertyValues(Object, Information.Attributes, , "Description, Version, FileName");
 		
 		Object.Id = Id;
-		// 
+		// If parameters Description, Version, and FileName are not assigned values, get the values from the information records.
 		Object.Description = ?(ValueIsFilled(Parameters.Description), Parameters.Description, Information.Attributes.Description);
 		Object.Version = ?(ValueIsFilled(Parameters.Version), Parameters.Version, Information.Attributes.Version);
 		Object.FileName = ?(ValueIsFilled(Parameters.FileName), Parameters.FileName, Information.Attributes.FileName);
 		Object.ErrorDescription = Parameters.ErrorDescription;
 		Object.UpdateFrom1CITSPortal = Parameters.UpdateFrom1CITSPortal;
+		Object.TargetPlatforms = New ValueStorage(Information.Attributes.TargetPlatforms);
 		
 		If UsedAddIns <> Undefined Then
 			RowOfAddIn = UsedAddIns.Find(Id, "Id");
@@ -437,7 +438,7 @@ Procedure OnAddServerNotifications(Notifications) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// ToDoList subsystem event handlers.
 
 // Parameters:
 //   ToDoList - See ToDoListServer.ToDoList.
@@ -472,13 +473,11 @@ EndProcedure
 Procedure OnAddUpdateHandlers(Handlers) Export
 	
 	Handler = Handlers.Add();
-	Handler.Version = "3.1.9.163";
-	Handler.Id = New UUID("cb3e8653-f1d2-4439-afdd-b1d27f6dcc2f");
+	Handler.Version = "3.1.9.226";
+	Handler.Id = New UUID("664e552f-4552-4eb2-970b-d63f66cc1c71");
 	Handler.Procedure = "Catalogs.AddIns.ProcessDataForMigrationToNewVersion";
 	Handler.InitialFilling = True;
-	Handler.Comment = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Заполнение реквизитов ""%1"", ""%2"", ""%3"", которые ранее ошибочно были не заполнены, а также регистрация стандартных компонент для их автоматического обновления.';"),
-		"MacOS_x86_64_Safari", "MacOS_x86_64_Chrome", "MacOS_x86_64_Firefox");
+	Handler.Comment = NStr("en = 'Fill the add-in compatibility attributes and add standard add-ins to the Add-ins catalog.';");
 	Handler.ExecutionMode = "Deferred";
 	Handler.UpdateDataFillingProcedure = "Catalogs.AddIns.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.ObjectsToRead      = "Catalog.AddIns";
@@ -512,7 +511,7 @@ EndFunction
 // 
 //
 // Returns:
-//  Boolean - the availability criterion.
+//  Boolean - flag of availability.
 //
 Function CanImportFromPortalInteractively() Export
 
@@ -533,7 +532,7 @@ EndFunction
 // 
 //
 // Parameters:
-//  Variant - String -
+//  Variant - String - :
 //    
 //    
 //
@@ -766,7 +765,7 @@ EndProcedure
 //   ConnectionParameters - See AddInsServer.ConnectionParameters.
 //
 // Returns:
-//   String - brief description of the error. 
+//   String - brief error message. 
 //
 Function CheckAddInAttachmentAbility(Val Id,
 		Val Version = Undefined,
@@ -792,7 +791,7 @@ Function CheckAddInAttachmentAbility(Val Id,
 	Result.Insert("ErrorDescription", "");
 	Result.Insert("Version", "");
 
-	Information = AddInsInternalServerCall.SavedAddInInformation(Id, Version);
+	Information = AddInsInternalServerCall.SavedAddInInformation(Id, Version, ConnectionParameters.FullTemplateName);
 	Result.Insert("Version", Version);
 	If Information.State = "DisabledByAdministrator" Then
 		Result.ErrorDescription = NStr("en = 'The add-in is disabled by the administrator.';");
@@ -800,11 +799,12 @@ Function CheckAddInAttachmentAbility(Val Id,
 	ElsIf Information.State = "NotFound1" Then
 		Result.ErrorDescription = NStr("en = 'The add-in is missing from the list of allowed add-ins.';");
 		Return Result;
-	ElsIf Not OperatingSystemSupportedByAddInn(Information.Attributes) Then
+	ElsIf Information.TargetPlatformsAreFull And Not OperatingSystemSupportedByAddInn(Information.Attributes.TargetPlatforms) Then
 		SystemInfo = New SystemInfo;
 		Result.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The add-in does not work in the %1 operating system.';"), String(SystemInfo.PlatformType));
 		Return Result;
 	EndIf;
+	
 	CheckTheLocationOfTheComponent(Id, Information.Location);
 	Result.Location = Information.Location;
 	Return Result;
@@ -816,17 +816,43 @@ EndFunction
 Function OperatingSystemSupportedByAddInn(AddInAttributes)
 
 	SystemInfo = New SystemInfo;
+	
+	NameOfThePlatformType = CommonClientServer.NameOfThePlatformType(SystemInfo.PlatformType);
 
-	If SystemInfo.PlatformType = PlatformType.Linux_x86 Then
+	If NameOfThePlatformType = "Linux_x86" Then
 		Return AddInAttributes.Linux_x86;
-	ElsIf SystemInfo.PlatformType = PlatformType.Linux_x86_64 Then
+	ElsIf NameOfThePlatformType = "Linux_x86_64" Then
 		Return AddInAttributes.Linux_x86_64;
-	ElsIf SystemInfo.PlatformType = PlatformType.MacOS_x86_64 Then
+	ElsIf NameOfThePlatformType = "MacOS_x86" Then
+		Return AddInAttributes.MacOS_x86;
+	ElsIf NameOfThePlatformType = "MacOS_x86_64" Then
 		Return AddInAttributes.MacOS_x86_64;
-	ElsIf SystemInfo.PlatformType = PlatformType.Windows_x86 Then
+	ElsIf NameOfThePlatformType = "Windows_x86" Then
 		Return AddInAttributes.Windows_x86;
-	ElsIf SystemInfo.PlatformType = PlatformType.Windows_x86_64 Then
+	ElsIf NameOfThePlatformType = "Windows_x86_64" Then
 		Return AddInAttributes.Windows_x86_64;
+	ElsIf NameOfThePlatformType = "Linux_ARM64" Then
+		Return AddInAttributes.Linux_ARM64;
+	ElsIf NameOfThePlatformType = "Linux_E2K" Then
+		Return AddInAttributes.Linux_E2K;
+	ElsIf NameOfThePlatformType = "Android_ARM" Then
+		Return AddInAttributes.Android_ARM;
+	ElsIf NameOfThePlatformType = "Android_ARM_64" Then
+		Return AddInAttributes.Android_ARM64;
+	ElsIf NameOfThePlatformType = "Android_x86" Then
+		Return AddInAttributes.Android_x86;
+	ElsIf NameOfThePlatformType = "Android_x86_64" Then
+		Return AddInAttributes.Android_x86_64;
+	ElsIf NameOfThePlatformType = "iOS_ARM" Then
+		Return AddInAttributes.iOS_ARM;
+	ElsIf NameOfThePlatformType = "iOS_ARM_64" Then
+		Return AddInAttributes.iOS_ARM64;
+	ElsIf NameOfThePlatformType = "WinRT_ARM" Then
+		Return AddInAttributes.WindowsRT_ARM;
+	ElsIf NameOfThePlatformType = "WinRT_x86" Then
+		Return AddInAttributes.WindowsRT_x86;
+	ElsIf NameOfThePlatformType = "WinRT_x86_64" Then
+		Return AddInAttributes.WindowsRT_x86_64;
 	EndIf;
 
 	Return False;
@@ -842,10 +868,10 @@ EndFunction
 // Parameters:
 //   Id - String               - the add-in identification code.
 //   Version        - String
-//                 - Undefined - version of the component.
+//                 - Undefined - an add-in version.
 //   ThePathToTheLayoutToSearchForTheLatestVersion 
-//                 - 
-//                 
+//                 - Undefined
+//                  -String
 //
 // Returns:
 //  Structure:
@@ -855,6 +881,7 @@ EndFunction
 //    * Location - String
 //    * Ref - AnyRef
 //    * Attributes - See AddInAttributes
+//    * TargetPlatformsAreFull - Boolean
 //    * TheLatestVersionOfComponentsFromTheLayout 
 //    		- See StandardSubsystemsCached.TheLatestVersionOfComponentsFromTheLayout
 //    		- Undefined
@@ -869,6 +896,7 @@ Function SavedAddInInformation(Id, Version = Undefined, ThePathToTheLayoutToSear
 	Result.Insert("ImportFromFileIsAvailable", ImportFromFileIsAvailable());
 	Result.Insert("CanImportFromPortal", CanImportFromPortal());
 	Result.Insert("TheLatestVersionOfComponentsFromTheLayout");
+	Result.Insert("TargetPlatformsAreFull", False);
 
 	If Common.DataSeparationEnabled()
 		And Common.SubsystemExists("StandardSubsystems.SaaSOperations.AddInsSaaS") Then
@@ -901,8 +929,22 @@ Function SavedAddInInformation(Id, Version = Undefined, ThePathToTheLayoutToSear
 	If Result.State = "FoundInSharedStorage" Then
 		Attributes.Delete("FileName");
 	EndIf;
-
+	Attributes.TargetPlatforms = Undefined;
+	
 	ObjectAttributes = Common.ObjectAttributesValues(Result.Ref, Attributes);
+	
+	ObjectAttributes.TargetPlatforms = ObjectAttributes.TargetPlatforms.Get();
+	If ObjectAttributes.TargetPlatforms = Undefined Then
+		
+		WarningText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'The %1 add-in compatibility information is not filled.';"), Id);
+		WriteLogEvent(NStr("en = 'Add-in compatibility check';",
+			Common.DefaultLanguageCode()), EventLogLevel.Warning, , Result.Ref, WarningText);
+		
+		ObjectAttributes.TargetPlatforms = TargetPlatforms();
+	Else
+		Result.TargetPlatformsAreFull = True;
+	EndIf;
 
 	FillPropertyValues(Result.Attributes, ObjectAttributes);
 	Result.Location = GetURL(Result.Ref, "AddInStorage");
@@ -914,6 +956,29 @@ Function SavedAddInInformation(Id, Version = Undefined, ThePathToTheLayoutToSear
 	EndIf;
 	
 	Return Result;
+
+EndFunction
+
+// Returns:
+//  Structure:
+//    * TargetPlatforms - See TargetPlatforms
+//    * Id - String
+//    * Description - String
+//    * Version - String
+//    * VersionDate - Date
+//    * FileName - String
+//
+Function AddInAttributes()
+
+	Attributes = New Structure;
+	Attributes.Insert("Id");
+	Attributes.Insert("Description");
+	Attributes.Insert("Version");
+	Attributes.Insert("VersionDate");
+	Attributes.Insert("FileName");
+	Attributes.Insert("TargetPlatforms", TargetPlatforms());
+
+	Return Attributes;
 
 EndFunction
 
@@ -939,42 +1004,63 @@ EndFunction
 //    * Linux_x86_YandexBrowser - Boolean
 //    * Linux_x86_64_YandexBrowser - Boolean
 //    * MacOS_x86_64_YandexBrowser - Boolean
-//    * Id - String
-//    * Description - String
-//    * Version - String
-//    * VersionDate - Date
-//    * FileName - String
+//    * Linux_E2K - Boolean
+//    * Linux_E2K_Firefox - Boolean
+//    * Linux_E2K_YandexBrowser - Boolean
+//    * Linux_E2K_Chrome - Boolean
+//    * Linux_ARM64 - Boolean
+//    * iOS_ARM - Boolean
+//    * iOS_ARM64 - Boolean
+//    * Android_ARM - Boolean
+//    * Android_x86_64 - Boolean
+//    * Android_x86 - Boolean
+//    * Android_ARM64 - Boolean
+//    * WindowsRT_ARM - Boolean
+//    * WindowsRT_x86 - Boolean
+//    * WindowsRT_x86_64 - Boolean
 //
-Function AddInAttributes()
+Function TargetPlatforms()
 
 	Attributes = New Structure;
-	Attributes.Insert("Windows_x86");
-	Attributes.Insert("Windows_x86_64");
-	Attributes.Insert("Linux_x86");
-	Attributes.Insert("Linux_x86_64");
-	Attributes.Insert("Windows_x86_Firefox");
-	Attributes.Insert("Linux_x86_Firefox");
-	Attributes.Insert("Linux_x86_64_Firefox");
-	Attributes.Insert("Windows_x86_MSIE");
-	Attributes.Insert("Windows_x86_64_MSIE");
-	Attributes.Insert("Windows_x86_Chrome");
-	Attributes.Insert("Linux_x86_Chrome");
-	Attributes.Insert("Linux_x86_64_Chrome");
-	Attributes.Insert("MacOS_x86_64");
-	Attributes.Insert("MacOS_x86_64_Safari");
-	Attributes.Insert("MacOS_x86_64_Chrome");
-	Attributes.Insert("MacOS_x86_64_Firefox");
-	Attributes.Insert("Windows_x86_YandexBrowser");
-	Attributes.Insert("Windows_x86_64_YandexBrowser");
-	Attributes.Insert("Linux_x86_YandexBrowser");
-	Attributes.Insert("Linux_x86_64_YandexBrowser");
-	Attributes.Insert("MacOS_x86_64_YandexBrowser");
-	Attributes.Insert("Id");
-	Attributes.Insert("Description");
-	Attributes.Insert("Version");
-	Attributes.Insert("VersionDate");
-	Attributes.Insert("FileName");
-
+	Attributes.Insert("Windows_x86",                  False);
+	Attributes.Insert("Windows_x86_64",               False);
+	Attributes.Insert("Linux_x86",                    False);
+	Attributes.Insert("Linux_x86_64",                 False);
+	Attributes.Insert("Windows_x86_Firefox",          False);
+	Attributes.Insert("Linux_x86_Firefox",            False);
+	Attributes.Insert("Linux_x86_64_Firefox",         False);
+	Attributes.Insert("Windows_x86_MSIE",             False);
+	Attributes.Insert("Windows_x86_64_MSIE",          False);
+	Attributes.Insert("Windows_x86_Chrome",           False);
+	Attributes.Insert("Linux_x86_Chrome",             False);
+	Attributes.Insert("Linux_x86_64_Chrome",          False);
+	Attributes.Insert("MacOS_x86_64",                 False);
+	Attributes.Insert("MacOS_x86_64_Safari",          False);
+	Attributes.Insert("MacOS_x86_64_Chrome",          False);
+	Attributes.Insert("MacOS_x86_64_Firefox",         False);
+	Attributes.Insert("Windows_x86_YandexBrowser",    False);
+	Attributes.Insert("Windows_x86_64_YandexBrowser", False);
+	Attributes.Insert("Linux_x86_YandexBrowser",      False);
+	Attributes.Insert("Linux_x86_64_YandexBrowser",   False);
+	Attributes.Insert("MacOS_x86_64_YandexBrowser",   False);
+	Attributes.Insert("Linux_E2K",                    False);
+	Attributes.Insert("Linux_E2K_Firefox",            False);
+	Attributes.Insert("Linux_E2K_YandexBrowser",      False);
+	Attributes.Insert("Linux_E2K_Chrome",             False);
+	Attributes.Insert("Linux_ARM64",                  False);
+	Attributes.Insert("Linux_ARM64_Firefox",          False);
+	Attributes.Insert("Linux_ARM64_YandexBrowser",    False);
+	Attributes.Insert("Linux_ARM64_Chrome",           False);
+	Attributes.Insert("iOS_ARM",                      False);
+	Attributes.Insert("iOS_ARM64",                    False);
+	Attributes.Insert("Android_ARM",                  False);
+	Attributes.Insert("Android_x86_64",               False);
+	Attributes.Insert("Android_x86",                  False);
+	Attributes.Insert("Android_ARM64",                False);
+	Attributes.Insert("WindowsRT_ARM",                False);
+	Attributes.Insert("WindowsRT_x86",                False);
+	Attributes.Insert("WindowsRT_x86_64",             False);
+	
 	Return Attributes;
 
 EndFunction
@@ -998,165 +1084,211 @@ Procedure FillAttributesByManifestXML(ManifestXMLFileName, Attributes)
 				PlatformArchitecture = Lower(XMLReader.AttributeValue("arch"));
 				Viewer = Lower(XMLReader.AttributeValue("client"));
 
-				If OperatingSystem = "windows" And PlatformArchitecture = "i386"
-						And (ComponentType = "native" Or ComponentType = "com") Then
+				If OperatingSystem = "windows" And (ComponentType = "native" Or ComponentType = "com") Then
 
-					Attributes.Windows_x86 = True;
+					If PlatformArchitecture = "i386" Then
+						Attributes.Windows_x86 = True;
+						Continue;
+					EndIf;
+
+					If PlatformArchitecture = "x86_64" Then
+						Attributes.Windows_x86_64 = True;
+						Continue;
+					EndIf;
+					
 					Continue;
 				EndIf;
-
-				If OperatingSystem = "windows" And PlatformArchitecture = "x86_64"
-						And (ComponentType = "native" Or ComponentType = "com") Then
-
-					Attributes.Windows_x86_64 = True;
+				
+				If OperatingSystem = "linux" And ComponentType = "native" Then
+				
+					If PlatformArchitecture = "i386" Then
+						Attributes.Linux_x86 = True;
+						Continue;
+					EndIf;
+	
+					If PlatformArchitecture = "x86_64" Then
+						Attributes.Linux_x86_64 = True;
+						Continue;
+					EndIf;
+					
+					If PlatformArchitecture = "arm64" Then
+						Attributes.Linux_ARM64 = True;
+						Continue;
+					EndIf;
+					
+					If PlatformArchitecture = "e2k" Then
+						Attributes.Linux_E2K = True;
+						Continue;
+					EndIf;
+					
 					Continue;
 				EndIf;
-
-				If OperatingSystem = "linux" And PlatformArchitecture = "i386"
-						And ComponentType = "native" Then
-
-					Attributes.Linux_x86 = True;
-					Continue;
-				EndIf;
-
-				If OperatingSystem = "linux" And PlatformArchitecture = "x86_64"
-						And ComponentType = "native" Then
-
-					Attributes.Linux_x86_64 = True;
-					Continue;
-				EndIf;
-
-				If OperatingSystem = "windows" And PlatformArchitecture = "i386"
-						And ComponentType = "plugin" And Viewer = "firefox" Then
-
-					Attributes.Windows_x86_Firefox = True;
-					Continue;
-				EndIf;
-
-				If OperatingSystem = "linux" And PlatformArchitecture = "i386"
-						And ComponentType = "plugin" And Viewer = "firefox" Then
-
-					Attributes.Linux_x86_Firefox = True;
-					Continue;
-				EndIf;
-
-				If OperatingSystem = "linux" And PlatformArchitecture = "x86_64"
-						And ComponentType = "plugin" And Viewer = "firefox" Then
-
-					Attributes.Linux_x86_64_Firefox = True;
-					Continue;
-				EndIf;
-
-				If OperatingSystem = "windows" And PlatformArchitecture = "i386"
-						And ComponentType = "plugin" And Viewer = "msie" Then
-
-					Attributes.Windows_x86_MSIE = True;
-					Continue;
-				EndIf;
-
-				If OperatingSystem = "windows" And PlatformArchitecture = "x86_64"
-						And ComponentType = "plugin" And Viewer = "msie" Then
-
-					Attributes.Windows_x86_64_MSIE = True;
-					Continue;
-				EndIf;
-
-				If OperatingSystem = "windows" And PlatformArchitecture = "i386"
-						And ComponentType = "plugin" And (Viewer = "chrome" 
-						Or Viewer = "anychromiumbased") Then
-
-					Attributes.Windows_x86_Chrome = True;
-
-				EndIf;
-
-				If OperatingSystem = "linux" And PlatformArchitecture = "i386"
-						And ComponentType = "plugin" And (Viewer = "chrome" 
-						Or Viewer = "anychromiumbased") Then
-
-					Attributes.Linux_x86_Chrome = True;
-
-				EndIf;
-
-				If OperatingSystem = "linux" And PlatformArchitecture = "x86_64"
-						And ComponentType = "plugin" And (Viewer = "chrome" 
-						Or Viewer = "anychromiumbased") Then
-
-					Attributes.Linux_x86_64_Chrome = True;
-
-				EndIf;
-
-				If OperatingSystem = "macos" And (PlatformArchitecture = "x86_64"
-						Or PlatformArchitecture = "universal") And ComponentType = "native" Then
-
+				
+				If OperatingSystem = "macos" And ComponentType = "native" And (PlatformArchitecture = "x86_64"
+						Or PlatformArchitecture = "universal") Then
 					Attributes.MacOS_x86_64 = True;
 					Continue;
 				EndIf;
+				
+				If OperatingSystem = "windowsruntime" Then
 
-				If OperatingSystem = "macos" And (PlatformArchitecture = "x86_64"
-						Or PlatformArchitecture = "universal") And ComponentType = "plugin"
-						And Viewer = "safari" Then
+					If PlatformArchitecture = "arm" Then
+						Attributes.WindowsRT_ARM = True;
+					ElsIf PlatformArchitecture = "x86_64" Then
+						Attributes.WindowsRT_x86_64 = True;
+					ElsIf PlatformArchitecture = "x86" Then
+						Attributes.WindowsRT_x86 = True;
+					EndIf;
+					
+					Continue;
+					
+				EndIf;
+				
+				If OperatingSystem = "android" Then
 
-					Attributes.MacOS_x86_64_Safari = True;
+					If PlatformArchitecture = "arm" Then
+						Attributes.Android_ARM = True;
+					ElsIf PlatformArchitecture = "arm64" Then
+						Attributes.Android_ARM64 = True;
+					ElsIf PlatformArchitecture = "x86_64" Then
+						Attributes.Android_x86_64 = True;
+					ElsIf PlatformArchitecture = "i386" Then
+						Attributes.Android_x86 = True;
+					EndIf;
+					
+					Continue;
+					
+				EndIf;
+				
+				If OperatingSystem = "ios" Then
+
+					If PlatformArchitecture = "arm" Or PlatformArchitecture = "universal" Then
+						Attributes.iOS_ARM = True;
+					EndIf;
+					
+					If PlatformArchitecture = "arm64" Or PlatformArchitecture = "universal" Then
+						Attributes.iOS_ARM64 = True;
+					EndIf;
+					
+					Continue;
+					
+				EndIf;
+				
+				If OperatingSystem = "linux" And ComponentType = "plugin" Then
+
+					If PlatformArchitecture = "i386" And Viewer = "firefox" Then
+						Attributes.Linux_x86_Firefox = True;
+						Continue;
+					EndIf;
+
+					If PlatformArchitecture = "x86_64" And Viewer = "firefox" Then
+						Attributes.Linux_x86_64_Firefox = True;
+						Continue;
+					EndIf;
+					
+					If PlatformArchitecture = "arm64" And Viewer = "firefox" Then
+						Attributes.Linux_ARM64_Firefox = True;
+						Continue;
+					EndIf;
+					
+					If PlatformArchitecture = "e2k" And Viewer = "firefox" Then
+						Attributes.Linux_E2K_Firefox = True;
+						Continue;
+					EndIf;
+					
+					If PlatformArchitecture = "i386" And (Viewer = "yandexbrowser" Or Viewer = "anychromiumbased") Then
+						Attributes.Linux_x86_YandexBrowser = True;
+					EndIf;
+					
+					If PlatformArchitecture = "i386" And (Viewer = "chrome" Or Viewer = "anychromiumbased") Then
+						Attributes.Linux_x86_Chrome = True;
+					EndIf;
+
+					If PlatformArchitecture = "x86_64" And (Viewer = "yandexbrowser" Or Viewer = "anychromiumbased") Then
+						Attributes.Linux_x86_64_YandexBrowser = True;
+					EndIf;
+
+					If PlatformArchitecture = "x86_64" And (Viewer = "chrome" Or Viewer = "anychromiumbased") Then
+						Attributes.Linux_x86_64_Chrome = True;
+					EndIf;
+					
+					If PlatformArchitecture = "arm64" And (Viewer = "yandexbrowser" Or Viewer = "anychromiumbased") Then
+						Attributes.Linux_ARM64_YandexBrowser = True;
+					EndIf;
+
+					If PlatformArchitecture = "arm64" And (Viewer = "chrome" Or Viewer = "anychromiumbased") Then
+						Attributes.Linux_ARM64_Chrome = True;
+					EndIf;
+					
+					If PlatformArchitecture = "e2k" And (Viewer = "yandexbrowser" Or Viewer = "anychromiumbased") Then
+						Attributes.Linux_E2K_YandexBrowser = True;
+					EndIf;
+
+					If PlatformArchitecture = "e2k" And (Viewer = "chrome" Or Viewer = "anychromiumbased") Then
+						Attributes.Linux_E2K_Chrome = True;
+					EndIf;
+					
 					Continue;
 				EndIf;
 				
-				If OperatingSystem = "macos" And (PlatformArchitecture = "x86_64"
-						Or PlatformArchitecture = "universal") And ComponentType = "plugin"
-						And (Viewer = "chrome" Or Viewer = "anychromiumbased") Then
-
-					Attributes.MacOS_x86_64_Chrome = True;
-
-				EndIf;
-				
-				If OperatingSystem = "macos" And (PlatformArchitecture = "x86_64"
-						Or PlatformArchitecture = "universal") And ComponentType = "plugin"
-						And Viewer = "firefox" Then
-
-					Attributes.MacOS_x86_64_Firefox = True;
+				If OperatingSystem = "windows" And ComponentType = "plugin" Then
+					
+					If PlatformArchitecture = "i386" And Viewer = "msie" Then
+						Attributes.Windows_x86_MSIE = True;
+						Continue;
+					EndIf;
+	
+					If PlatformArchitecture = "x86_64" And Viewer = "msie" Then
+						Attributes.Windows_x86_64_MSIE = True;
+						Continue;
+					EndIf;
+					
+					If PlatformArchitecture = "i386" And Viewer = "firefox" Then
+						Attributes.Windows_x86_Firefox = True;
+						Continue;
+					EndIf;
+					
+					If PlatformArchitecture = "i386" And (Viewer = "chrome" Or Viewer = "anychromiumbased") Then
+						Attributes.Windows_x86_Chrome = True;
+					EndIf;
+					
+					If PlatformArchitecture = "i386" And (Viewer = "yandexbrowser" Or Viewer = "anychromiumbased") Then
+						Attributes.Windows_x86_YandexBrowser = True;
+					EndIf;
+					
+					If PlatformArchitecture = "x86_64" And (Viewer = "yandexbrowser" Or Viewer = "anychromiumbased") Then
+						Attributes.Windows_x86_64_YandexBrowser = True;
+					EndIf;
+		
 					Continue;
+					
 				EndIf;
 				
-				If OperatingSystem = "windows" And PlatformArchitecture = "i386"
-						And ComponentType = "plugin" And (Viewer = "yandexbrowser" 
-						Or Viewer = "anychromiumbased") Then
+				If OperatingSystem = "macos" And ComponentType = "plugin" Then
 
-					Attributes.Windows_x86_YandexBrowser = True;
-
+					If  (PlatformArchitecture = "x86_64" Or PlatformArchitecture = "universal") And Viewer = "safari" Then
+						Attributes.MacOS_x86_64_Safari = True;
+						Continue;
+					EndIf;
+								
+					If (PlatformArchitecture = "x86_64" Or PlatformArchitecture = "universal") And Viewer = "firefox" Then
+						Attributes.MacOS_x86_64_Firefox = True;
+						Continue;
+					EndIf;
+					
+					If (PlatformArchitecture = "x86_64" Or PlatformArchitecture = "universal") And (Viewer = "chrome" Or Viewer = "anychromiumbased") Then
+						Attributes.MacOS_x86_64_Chrome = True;
+					EndIf;
+					
+					If (PlatformArchitecture = "x86_64" Or PlatformArchitecture = "universal") And (Viewer = "yandexbrowser" 
+							Or Viewer = "anychromiumbased") Then
+						Attributes.MacOS_x86_64_YandexBrowser = True;
+					EndIf;
+				
+					Continue;
+					
 				EndIf;
 				
-				If OperatingSystem = "windows" And PlatformArchitecture = "x86_64"
-						And ComponentType = "plugin" And (Viewer = "yandexbrowser" 
-						Or Viewer = "anychromiumbased") Then
-
-					Attributes.Windows_x86_64_YandexBrowser = True;
-
-				EndIf;
-
-				If OperatingSystem = "linux" And PlatformArchitecture = "i386"
-						And ComponentType = "plugin" And (Viewer = "yandexbrowser" 
-						Or Viewer = "anychromiumbased") Then
-
-					Attributes.Linux_x86_YandexBrowser = True;
-
-				EndIf;
-
-				If OperatingSystem = "linux" And PlatformArchitecture = "x86_64"
-						And ComponentType = "plugin" And (Viewer = "yandexbrowser" 
-						Or Viewer = "anychromiumbased") Then
-
-					Attributes.Linux_x86_64_YandexBrowser = True;
-
-				EndIf;
-				
-				If OperatingSystem = "macos" And (PlatformArchitecture = "x86_64"
-						Or PlatformArchitecture = "universal") And ComponentType = "plugin"
-						And (Viewer = "yandexbrowser" 
-						Or Viewer = "anychromiumbased") Then
-
-					Attributes.MacOS_x86_64_YandexBrowser = True;
-
-				EndIf;
-
 			EndIf;
 		EndDo;
 	EndIf;
@@ -1194,7 +1326,7 @@ Procedure FillAttributesByInfoXML(InfoXMLFileName, Attributes)
 		Return;
 	EndIf;
 
-	// 
+	// Trying to parse by EDL format.
 	XMLReader = New XMLReader;
 	XMLReader.OpenFile(InfoXMLFileName);
 
@@ -1339,15 +1471,15 @@ Procedure NewAddInsFromPortal(ProcedureParameters, ResultAddress) Export
 		Try
 			// Create an add-in instance.
 			Object = Catalogs.AddIns.CreateItem();
-			Object.Fill(Undefined); // 
+			Object.Fill(Undefined); 
 			FillPropertyValues(Object, Information.Attributes); // According to manifest data.
-			FillPropertyValues(Object, ResultString1); // 
+			FillPropertyValues(Object, ResultString1); // By data from the website.
 			Object.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Imported from 1C:ITS Portal. %1.';"), CurrentSessionDate());
-
+			Object.TargetPlatforms = New ValueStorage(Information.Attributes.TargetPlatforms);
 			Object.AdditionalProperties.Insert("ComponentBinaryData", Information.BinaryData);
 
-			If Not ValueIsFilled(Version) Then // Если запрос конкретной версии - 
+			If Not ValueIsFilled(Version) Then // If the specific version is requested, then skip.
 				Object.UpdateFrom1CITSPortal = Object.ThisIsTheLatestVersionComponent()
 					And ProcedureParameters.AutoUpdate;
 			EndIf;

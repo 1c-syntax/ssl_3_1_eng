@@ -72,7 +72,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.Account.ChoiceList.SortByPresentation();
 		Account = EmailAccountList[0].Value;
 		
-		// 
+		// Selecting accounts from the passed account list.
 		Items.Account.DropListButton = True;
 	EndIf;
 	
@@ -159,12 +159,15 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If ValueIsFilled(ReplyToAddress) Then
 		FillReplyToAddressAutomatically = False;
 	Else
-		If Account.UseForReceiving Then
+		AccountAttributes = Common.ObjectAttributesValues(Account,
+			"UseForReceiving,UserName,Email");
+		
+		If AccountAttributes.UseForReceiving Then
 			// Setting default email address
-			If ValueIsFilled(Account.UserName) Then 
-				ReplyToAddress = Account.UserName + " <" + Account.Email + ">";
+			If ValueIsFilled(AccountAttributes.UserName) Then 
+				ReplyToAddress = AccountAttributes.UserName + " <" + AccountAttributes.Email + ">";
 			Else
-				ReplyToAddress = Account.Email;
+				ReplyToAddress = AccountAttributes.Email;
 			EndIf;
 		EndIf;
 		
@@ -517,7 +520,7 @@ EndProcedure
 
 &AtClient
 Procedure ImportanceHigh(Command)
-	EmailImportance = EmailOperationsInternalClientServer.HighImportanceOfInternetMail();
+	EmailImportance = EmailOperationsInternalClientServer.HighImportanceOfInternetMailCommunication();
 	Items.SeverityGroup.Picture = PictureLib.ImportanceHigh;
 	Items.SeverityGroup.ToolTip = NStr("en = 'High importance';");
 	Modified = True;
@@ -539,7 +542,7 @@ Procedure ImportanceLow(Command)
 	Modified = True;
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure GenerateFromTemplate(Command)
@@ -553,7 +556,7 @@ Procedure GenerateFromTemplate(Command)
 	
 EndProcedure
 
-// End StandardSubsystems.MessageTemplates
+// End StandardSubsystems.MessagesTemplates
 
 #EndRegion
 
@@ -674,7 +677,7 @@ EndFunction
 Function GetSpreadsheetDocumentByBinaryData(Val BinaryData)
 	
 	If TypeOf(BinaryData) = Type("String") Then
-		// 
+		// Transferring binary data address to temporary storage.
 		BinaryData = GetFromTempStorage(BinaryData); // BinaryData
 	EndIf;
 	
@@ -741,7 +744,7 @@ Procedure RefreshAttachmentPresentation()
 		EndIf;
 		
 		PresentationRow["Attachment" + Format(IndexOf + 1, "NG=0")] = Attachment.Presentation;
-		If Items.Attachment2.Visible Then // 
+		If Items.Attachment2.Visible Then // For mobile client.
 			IndexOf = IndexOf + 1;
 			If IndexOf = 2 Then 
 				IndexOf = 0;
@@ -751,8 +754,8 @@ Procedure RefreshAttachmentPresentation()
 	
 EndProcedure
 
-// Checks whether the message can be sent and, if
-// possible, generates the sending parameters.
+// Checks whether it is possible to send the email.
+// If it is possible, sending parameters are generated.
 //
 &AtServer
 Function GenerateEmailParameters()
@@ -886,7 +889,7 @@ EndProcedure
 &AtServerNoContext
 Procedure SaveReplyTo(Val ReplyToAddress, Val AddAddressToList = True)
 	
-	// 
+	// Getting the list of addresses that the user previously used.
 	ReplyToList = Common.CommonSettingsStorageLoad(
 		"EditNewEmailMessage",
 		"ReplyToList");

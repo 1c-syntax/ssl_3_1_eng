@@ -74,7 +74,7 @@
 					<ContextMenu name="ErrorTextClientContextMenu" id="10"/>
 					<ExtendedTooltip name="ErrorTextClientExtendedTooltip" id="11"/>
 				</InputField>
-				<UsualGroup name="PossibleCausesAndSolutionsClient" id="53">
+				<UsualGroup name="PossibleReasonsAndSolutionsClient" id="53">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -230,7 +230,7 @@
 					<ContextMenu name="ErrorTextServerContextMenu" id="38"/>
 					<ExtendedTooltip name="ErrorTextServerExtendedTooltip" id="39"/>
 				</InputField>
-				<UsualGroup name="PossibleCausesAndSolutionsServer" id="55">
+				<UsualGroup name="PossibleReasonsAndSolutionsServer" id="55">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -328,7 +328,7 @@
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="ErrorExtendedTooltip" id="82"/>
 			<ChildItems>
-				<UsualGroup name="PossibleCausesAndSolutions" id="99">
+				<UsualGroup name="PossibleReasonsAndSolutions" id="99">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -339,7 +339,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="PossibleCausesAndSolutionsExtendedTooltip" id="100"/>
+					<ExtendedTooltip name="PossibleReasonsAndSolutionsExtendedTooltip" id="100"/>
 					<ChildItems>
 						<UsualGroup name="PossibleReasons" id="86">
 							<Title>
@@ -352,20 +352,14 @@
 							<Representation>None</Representation>
 							<ExtendedTooltip name="PossibleReasonsExtendedTooltip" id="87"/>
 							<ChildItems>
-								<LabelDecoration name="ReasonsText" id="88">
+								<InputField name="ReasonsText" id="101">
+									<DataPath>ReasonsText</DataPath>
+									<TitleLocation>None</TitleLocation>
 									<AutoMaxWidth>false</AutoMaxWidth>
-									<Title formatted="false">
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Possible reasons</v8:content>
-										</v8:item>
-									</Title>
-									<ContextMenu name="ReasonsTextContextMenu" id="89"/>
-									<ExtendedTooltip name="ReasonsTextExtendedTooltip" id="90"/>
-									<Events>
-										<Event name="URLProcessing">ReasonsClientTextURLProcessing</Event>
-									</Events>
-								</LabelDecoration>
+									<MultiLine>true</MultiLine>
+									<ContextMenu name="ReasonsTextContextMenu" id="102"/>
+									<ExtendedTooltip name="ReasonsTextExtendedTooltip" id="103"/>
+								</InputField>
 							</ChildItems>
 						</UsualGroup>
 						<UsualGroup name="PossibleSolutions" id="91">
@@ -401,6 +395,12 @@
 					<DataPath>ErrorText</DataPath>
 					<ReadOnly>true</ReadOnly>
 					<SkipOnInput>true</SkipOnInput>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Technical details</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>Top</TitleLocation>
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<MultiLine>true</MultiLine>
@@ -588,6 +588,21 @@ If you cannot find a solution, contact 1C support team and provide &lt;link %2&g
 			</Type>
 		</Attribute>
 		<Attribute name="ErrorAnchor" id="8">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="ReasonsText" id="9">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Reasons text</v8:content>
+				</v8:item>
+			</Title>
 			<Type>
 				<v8:Type>xs:string</v8:Type>
 				<v8:StringQualifiers>

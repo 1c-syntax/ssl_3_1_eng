@@ -27,13 +27,13 @@ Procedure BeforeWrite(Cancel)
 	EndIf;
 	
 	If IsNew() Or CurrentFolder.Parent <> Parent Then
-		// Check rights to a source folder.
+		// Check rights for the source folder.
 		If Not FilesOperationsInternal.HasRight("FoldersModification", CurrentFolder.Parent) Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Insufficient rights to move files from the ""%1"" folder.';"),
 				String(?(ValueIsFilled(CurrentFolder.Parent), CurrentFolder.Parent, NStr("en = 'Folders';"))));
 		EndIf;
-		// Check rights to a destination folder.
+		// Check rights for the destination folder.
 		If Not FilesOperationsInternal.HasRight("FoldersModification", Parent) Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Insufficient rights to add subfolders to the ""%1"" folder.';"),
@@ -43,7 +43,7 @@ Procedure BeforeWrite(Cancel)
 	
 	If DeletionMark And CurrentFolder.DeletionMark <> True Then
 		
-		// Checking the "Deletion mark" right.
+		// Check the "Deletion mark" right.
 		If Not FilesOperationsInternal.HasRight("FoldersModification", Ref) Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Insufficient rights to change the ""%1"" file folder.';"),
@@ -52,7 +52,7 @@ Procedure BeforeWrite(Cancel)
 	EndIf;
 	
 	If DeletionMark <> CurrentFolder.DeletionMark And Not Ref.IsEmpty() Then
-		// Filtering files and trying to mark them for deletion.
+		// Filter files and try to mark them for deletion.
 		Query = New Query;
 		Query.Text = 
 			"SELECT
@@ -90,7 +90,7 @@ Procedure BeforeWrite(Cancel)
 			FolerParentWorkingDirectory = FilesOperationsInternalServerCall.FolderWorkingDirectory(CurrentFolder.Parent);
 			If FolerParentWorkingDirectory <> "" Then
 				
-				// 
+				// Add a slash at the end (unless it is already there).
 				FolerParentWorkingDirectory = CommonClientServer.AddLastPathSeparator(
 					FolerParentWorkingDirectory);
 				
@@ -158,7 +158,7 @@ Procedure OnWrite(Cancel)
 			FolderWorkingDirectory = FilesOperationsInternalServerCall.FolderWorkingDirectory(Parent);
 			If FolderWorkingDirectory <> "" Then
 				
-				// 
+				// Add a slash at the end (unless it is already there).
 				FolderWorkingDirectory = CommonClientServer.AddLastPathSeparator(
 					FolderWorkingDirectory);
 				

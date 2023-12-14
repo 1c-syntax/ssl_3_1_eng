@@ -46,9 +46,9 @@ Procedure BeforeWrite(Cancel)
 		IsPrepared = False;
 	EndIf;
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	GroupIncludedIntoPersonalDistributionHierarchy = ReportMailing.IsMemberOfPersonalReportGroup(Parent);
 	If Personal <> GroupIncludedIntoPersonalDistributionHierarchy Then
 		Parent = ?(Personal, Catalogs.ReportMailings.PersonalMailings, Catalogs.ReportMailings.EmptyRef());

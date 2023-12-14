@@ -59,8 +59,8 @@ Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		YearNumber = CurrentYearNumber;
 	EndIf;
 	
-	//  
-	// 
+	 
+	
 	
 	If ResultModified Then
 		InformationRegisters.CalendarSchedules.WriteScheduleDataToRegister(CurrentObject.Ref, ScheduleDays, 
@@ -266,16 +266,16 @@ EndProcedure
 Procedure WorkHoursSelection(Item, SelectedDate)
 	
 	If ScheduleDays.Get(SelectedDate) = Undefined Then
-		// 
+		// Include in the schedule.
 		WorkSchedulesClient.InsertIntoFixedMap(ScheduleDays, SelectedDate, True);
 		DayAddedToSchedule = True;
 	Else
-		// Исключаем of графика
+		// Exclude from the schedule.
 		WorkSchedulesClient.DeleteFromFixedMap(ScheduleDays, SelectedDate);
 		DayAddedToSchedule = False;
 	EndIf;
 	
-	// 
+	// Save the manual change as of the date.
 	WorkSchedulesClient.InsertIntoFixedMap(ChangedDays, SelectedDate, DayAddedToSchedule);
 	
 	Items.WorkScheduleCalendar.Refresh();
@@ -726,8 +726,8 @@ Procedure FillByTemplateAtServer(PreserveManualEditing = False)
 		EndIf;
 	EndIf;
 	
-	//  
-	// 
+	 
+	
 	ScheduleDaysMap = New Map(ScheduleDays);
 	DayDate = Object.StartDate;
 	EndDate = Object.EndDate;
@@ -1056,7 +1056,7 @@ Procedure CompleteDayScheduleFilling(ValueSelected, ChoiceContext) Export
 	
 	If ChoiceContext.TemplateRowID <> Undefined Then
 		TemplateRow = Object.FillingTemplate.FindByID(ChoiceContext.TemplateRowID);
-		TemplateRow.DayAddedToSchedule = ValueSelected.WorkSchedule.Count() > 0; // 
+		TemplateRow.DayAddedToSchedule = ValueSelected.WorkSchedule.Count() > 0; 
 		TemplateRow.SchedulePresentation = DaySchedulePresentation(ThisObject, ChoiceContext.DayNumber);
 	EndIf;
 	

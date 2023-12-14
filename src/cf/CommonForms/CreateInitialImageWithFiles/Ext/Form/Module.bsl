@@ -177,7 +177,7 @@ Procedure CreateInitialImage(Command)
 		JobParameters.Insert("PathToVolumeFilesArchiveLinux", PathToVolumeFilesArchiveLinux);
 		
 		If InfobaseKind = 0 Then
-			// 
+			// File initial image.
 			JobParameters.Insert("FormUniqueID", UUID);
 			JobParameters.Insert("Language", Language);
 			JobParameters.Insert("FullWindowsFileInfobaseName", FullWindowsFileInfobaseName);
@@ -192,7 +192,7 @@ Procedure CreateInitialImage(Command)
 				+ ?(ValueIsFilled(ClusterAdministratorPassword), "SPwd=""" + ClusterAdministratorPassword + """;", "")
 				+ "Ref="""      + BaseName + """;"
 				+ "DBMS="""     + DBMSType + """;"
-				+ "DBSrvr="""   + DatabaseServer + """;"
+				+ "DBSrvr="""   + DataBaseServer + """;"
 				+ "DB="""       + DataBaseName + """;"
 				+ "DBUID="""    + DatabaseUser + """;"
 				+ "DBPwd="""    + UserPassword + """;"
@@ -345,12 +345,12 @@ Function PrepareDataToCreateInitialImage(JobParameters, InfobaseKind)
 	EndIf;
 	
 	If InfobaseKind = 0 Then
-		// 
-		// 
+		
+		
 		Result = FilesOperationsInternal.PrepareDataToCreateFileInitialImage(JobParameters);
 	Else
-		// 
-		// 
+		
+		
 		Result = FilesOperationsInternal.PrepareDataToCreateServerInitialImage(JobParameters);
 	EndIf;
 	

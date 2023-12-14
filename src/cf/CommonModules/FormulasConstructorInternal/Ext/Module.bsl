@@ -346,7 +346,7 @@ EndProcedure
 //    * 
 // 
 // Returns:
-//  Undefined, Structure - 
+//  Undefined, Structure - :
 //   * ItemsTree 
 //   * FoundItems1 - Array
 //
@@ -585,7 +585,7 @@ Procedure AddAListOfFieldsToTheForm(Form, Parameters) Export
 	
 	FieldList = Form.Items.Find(NameOfTheFieldList);
 	
-	SearchGroup1 = Form.Items.Add("Group"+NameOfTheSearchString, Type("FormGroup"), LocationOfTheSearchString);
+	SearchGroup1 = Form.Items.Add("Group" + NameOfTheSearchString, Type("FormGroup"), LocationOfTheSearchString);
 	SearchGroup1.Type = FormGroupType.UsualGroup;
 	SearchGroup1.Representation = UsualGroupRepresentation.None;
 	SearchGroup1.ShowTitle = False; 
@@ -593,9 +593,9 @@ Procedure AddAListOfFieldsToTheForm(Form, Parameters) Export
 	
 	SearchString = Form.Items.Add(NameOfTheSearchString, Type("FormField"), SearchGroup1);
 	
-	NameOfCleanupCommand = NameOfTheSearchString+"Clearing";
+	NameOfCleanupCommand = NameOfTheSearchString + "Clearing";
 	If Form.Commands.Find(NameOfCleanupCommand) = Undefined Then
-		Command = Form.Commands.Add(NameOfTheSearchString+"Clearing");
+		Command = Form.Commands.Add(NameOfTheSearchString + "Clearing");
 		Command.Action = "Attachable_SearchStringClearing";
 		Command.Representation = ButtonRepresentation.Picture;
 	EndIf;
@@ -606,6 +606,7 @@ Procedure AddAListOfFieldsToTheForm(Form, Parameters) Export
 	SearchCleanUpButton.VerticalAlignInGroup = ItemVerticalAlign.Center;
 	SearchCleanUpButton.CommandName = NameOfCleanupCommand;
 	SearchCleanUpButton.ShapeRepresentation = ButtonShapeRepresentation.WhenActive;
+	SearchCleanUpButton.Title = NStr("en = 'Clear';");
 	
 	If FieldList <> Undefined Then
 		Form.Items.Move(SearchGroup1, LocationOfTheSearchString, FieldList);
@@ -618,6 +619,7 @@ Procedure AddAListOfFieldsToTheForm(Form, Parameters) Export
 	SearchString.SetAction("EditTextChange", "Attachable_SearchStringEditTextChange");
 	SearchString.AutoMaxWidth = False;
 	SearchString.EditTextUpdate = EditTextUpdate.DontUse;
+	SearchString.Title = NStr("en = 'Find';");
 	
 	If FieldList = Undefined Then
 		FieldList = Form.Items.Add(NameOfTheFieldList, Type("FormTable"), AddingOptions.LocationOfTheList);
@@ -655,11 +657,13 @@ Procedure AddAListOfFieldsToTheForm(Form, Parameters) Export
 	FieldPicture.DataPath = NameOfTheFieldList + ".Picture";
 	FieldPicture.Type = FormFieldType.PictureField;
 	FieldPicture.ShowInHeader = False;
+	FieldPicture.Title = NStr("en = 'Picture';");
 	
 	FieldPresentation = Form.Items.Add(ColumnNamePresentation(NameOfTheFieldList), Type("FormField"), ColumnGroup);
 	FieldPresentation.DataPath = NameOfTheFieldList + ".Title";
 	FieldPresentation.Type = FormFieldType.InputField;
 	FieldPresentation.ReadOnly = True;
+	FieldPresentation.Title = NStr("en = 'Title';");
 	
 	FieldPresentation = Form.Items.Add(NameOfTheFieldList + "RepresentationOfTheDataPath", Type("FormField"), ColumnGroup);
 	FieldPresentation.DataPath = NameOfTheFieldList + ".RepresentationOfTheDataPath";
@@ -2094,7 +2098,7 @@ Function FindTextInALine(Val String, Val Text)
 	EndIf;
 	
 	FormattedStrings.Add(SearchString);
-	HighlightedString = New FormattedString(FormattedStrings); // ACC:1356 - Can use a compound format string as the string array consists of the passed text.
+	HighlightedString = New FormattedString(FormattedStrings); 
 	
 	Return HighlightedString;
 	
@@ -2323,10 +2327,10 @@ Function ExpressionToCheck(Form, FormulaPresentation, NameOfTheListOfOperands) E
 						Operand = """" + Operand + """";
 					EndIf;
 					If TypeOf(Operand) = Type("Boolean") Then
-						Operand = Format(Operand, "BF=False; BT=True"); // 
+						Operand = Format(Operand, "BF=False; BT=True"); 
 					EndIf;
 					If TypeOf(Operand) = Type("Date") Then
-						Operand = "'" + Format(CurrentSessionDate(), "DF=yyyyMMddHHmm") +  "'"; // 
+						Operand = "'" + Format(CurrentSessionDate(), "DF=yyyyMMddHHmm") +  "'"; // Used in the Calculate() expression.
 					EndIf;
 					If Common.IsReference(TypeOf(Operand)) Then
 						Operand = "1";

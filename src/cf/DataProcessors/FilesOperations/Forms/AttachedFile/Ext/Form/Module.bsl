@@ -113,9 +113,6 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	
 	If EventName = "Write_File"
 		And Source = CurrentRefToFile()
-		And Parameter <> Undefined
-		And TypeOf(Parameter) = Type("Structure")
-		And Parameter.Property("Event")
 		And (Parameter.Event = "EditFinished"
 		Or Parameter.Event = "EditCanceled") Then
 		
@@ -189,7 +186,7 @@ EndProcedure
 #Region FormCommandsEventHandlers
 
 ///////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure ShowInList(Command)
@@ -320,8 +317,7 @@ Procedure StandardCommandsCopy(Command)
 		Return;
 	EndIf;
 	
-	OpenForm(
-		"DataProcessor.FilesOperations.Form.AttachedFile",
+	OpenForm("DataProcessor.FilesOperations.Form.AttachedFile",
 		New Structure("CopyingValue", CurrentRefToFile()));
 	
 EndProcedure
@@ -329,8 +325,9 @@ EndProcedure
 &AtClient
 Procedure Print(Command)
 	
-	If ValueIsFilled(CurrentRefToFile()) Or HandleFileRecordCommand() Then
-		Files = CommonClientServer.ValueInArray(CurrentRefToFile());
+	File = CurrentRefToFile();
+	If ValueIsFilled(File) Or HandleFileRecordCommand() Then
+		Files = CommonClientServer.ValueInArray(File);
 		FilesOperationsClient.PrintFiles(Files, ThisObject.UUID);
 	EndIf;
 	
@@ -339,14 +336,10 @@ EndProcedure
 &AtClient
 Procedure PrintWithStamp(Command)
 	
-	CurrentObjectRef = CurrentRefToFile();
-	If ValueIsFilled(CurrentObjectRef)
-		Or HandleFileRecordCommand() Then
-		
-		DocumentWithStamp = FilesOperationsInternalServerCall.SpreadsheetDocumentWithStamp(
-			CurrentObjectRef, CurrentObjectRef);
-		FilesOperationsInternalClient.PrintFileWithStamp(DocumentWithStamp);
-		
+	File = CurrentRefToFile();
+	If ValueIsFilled(File) Or HandleFileRecordCommand() Then
+		DocumentWithStamp = FilesOperationsInternalServerCall.DocumentWithStamp(File);
+		FilesOperationsInternalClient.PrintFileWithStamp(DocumentWithStamp, CurrentFileDescription());
 	EndIf;
 	
 EndProcedure
@@ -354,17 +347,16 @@ EndProcedure
 &AtClient
 Procedure Send(Command)
 	
-	CurrentObjectRef = CurrentRefToFile();
-	If ValueIsFilled(CurrentObjectRef)
-		Or HandleFileRecordCommand() Then
-		Files = CommonClientServer.ValueInArray(CurrentObjectRef);
+	File = CurrentRefToFile();
+	If ValueIsFilled(File) Or HandleFileRecordCommand() Then
+		Files = CommonClientServer.ValueInArray(File);
 		OnSendFilesViaEmail(SendOptions, Files, ThisObject.Object.FileOwner, UUID);
 		FilesOperationsInternalClient.SendFilesViaEmail(Files, UUID, SendOptions);
 	EndIf;
 	
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -379,7 +371,7 @@ EndProcedure
 // End StandardSubsystems.Properties
 
 ///////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure Sign(Command)
@@ -405,7 +397,7 @@ Procedure Sign(Command)
 	
 	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
 	SigningParameters = ModuleDigitalSignatureClient.NewSignatureType();
-	SigningParameters.ChoosingAuthorizationLetter = True;
+	SigningParameters.CanSelectLetterOfAuthority = True;
 	
 	FilesOperationsClient.SignFile(
 		CurrentRefToFile(), UUID, AdditionalParameters, SigningParameters);
@@ -487,14 +479,13 @@ Procedure EncryptAfterEncryptAtClient(Result, ExecutionParameters) Export
 		FilesArrayInWorkingDirectoryToDelete,
 		WorkingDirectoryName);
 	
-	CurrentObjectRef = CurrentRefToFile();
-	FilesOperationsInternalClient.InformOfEncryption(
-		FilesArrayInWorkingDirectoryToDelete,
-		ExecutionParameters.FileData.Owner,
-		CurrentObjectRef);
+	File = CurrentRefToFile();
+	FilesOperationsInternalClient.InformOfEncryption(FilesArrayInWorkingDirectoryToDelete,
+		ExecutionParameters.FileData.Owner, File);
 		
-	NotifyChanged(CurrentObjectRef);
-	Notify("Write_File", New Structure, CurrentObjectRef);
+	NotifyChanged(File);
+	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
+	Notify("Write_File", FileRecordingNotificationParameters, File);
 	
 	SetAvaliabilityOfEncryptionList();
 	
@@ -656,10 +647,11 @@ Procedure DeleteDigitalSignatureAnswerReceived(QuestionResult, AdditionalParamet
 		Return;
 	EndIf;
 	
-	CurrentObjectRef = CurrentRefToFile();
+	File = CurrentRefToFile();
 	DeleteFromSignatureListAndWriteFile();
-	NotifyChanged(CurrentObjectRef);
-	Notify("Write_File", New Structure, CurrentObjectRef);
+	NotifyChanged(File);
+	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
+	Notify("Write_File", FileRecordingNotificationParameters, File);
 	SetAvaliabilityOfDSCommandsList();
 	
 EndProcedure
@@ -701,7 +693,7 @@ Procedure SetAvaliabilityOfEncryptionList()
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure Lock(Command)
@@ -742,7 +734,8 @@ Procedure Edit(Command)
 	If Not FileBeingEdited Then
 		UpdateObject();
 		NotifyChanged(FileRef);
-		Notify("Write_File", New Structure, FileRef);
+		FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
+		Notify("Write_File", FileRecordingNotificationParameters, FileRef);
 	EndIf;
 	
 EndProcedure
@@ -776,9 +769,10 @@ Procedure EndEditingPuttingCompleted(FileInfo, AdditionalParameters) Export
 	
 	UpdateObject();
 	
-	CurrentObjectRef = CurrentRefToFile();
-	NotifyChanged(CurrentObjectRef);
-	Notify("Write_File", New Structure, CurrentObjectRef);
+	File = CurrentRefToFile();
+	NotifyChanged(File);
+	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
+	Notify("Write_File", FileRecordingNotificationParameters, File);
 	
 EndProcedure
 
@@ -792,10 +786,11 @@ Procedure Release(Command)
 		Return;
 	EndIf;
 	
-	CurrentObjectRef = CurrentRefToFile();
+	File = CurrentRefToFile();
 	UnlockFile();
-	NotifyChanged(CurrentObjectRef);
-	Notify("Write_File", New Structure("Event", "EditCanceled"), CurrentObjectRef);
+	NotifyChanged(File);
+	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters("EditCanceled");
+	Notify("Write_File", FileRecordingNotificationParameters, File);
 	FilesOperationsInternalClient.ChangeLockedFilesCount();
 	
 EndProcedure
@@ -1082,7 +1077,7 @@ Function OtherCommandsNames()
 	
 	CommandsNames = New Array;
 	
-	// 
+	// Simple commands that are available to any user that reads the files
 	CommandsNames.Add("SaveWithDigitalSignature");
 	
 	CommandsNames.Add("OpenCertificate");
@@ -1151,6 +1146,10 @@ Function NamesOfCommandsForChangingFileData()
 	ItemsNames = New Array;
 	ItemsNames.Add("FormSaveChanges");
 	CommandsNames.Insert("SaveChanges", ItemsNames);
+	
+	ItemsNames = New Array;
+	ItemsNames.Add("DigitalSignaturesExtendActionSignatures");
+	CommandsNames.Insert("ExtendActionSignatures", ItemsNames);
 	
 	ItemsNames = New Array;
 	ItemsNames.Add("FormUpdateFromFileOnHardDrive");
@@ -1381,14 +1380,16 @@ Function HandleFileRecordCommand()
 	NotifyChanged(ThisObject.Object.Ref);
 	NotifyChanged(ThisObject.Object.FileOwner);
 	
-	Notify("Write_File", New Structure("IsNew, Event", FileCreated, "Record"), ThisObject.Object.Ref);
+	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters("Record");
+	FileRecordingNotificationParameters.IsNew = FileCreated;
+	Notify("Write_File", FileRecordingNotificationParameters, ThisObject.Object.Ref);
 	
 	SetAvaliabilityOfDSCommandsList();
 	SetAvaliabilityOfEncryptionList();
 	
 	If DescriptionBeforeWrite <> ThisObject.Object.Description Then
 		
-		// 
+		// update file in cache
 		FilesOperationsInternalClient.RefreshInformationInWorkingDirectory(
 			ThisObject.Object.Ref, ThisObject.Object.Description);
 		
@@ -1413,7 +1414,10 @@ Function WriteFile(Val ParameterObject = Undefined)
 		BeginTransaction();
 		Try
 			BinaryData = FilesOperations.FileBinaryData(CopyingValue);
-			FileStorageType = FilesOperationsInternal.FileStorageType(CopyingValue.Size, CopyingValue.Extension);
+			AttributesOfCopyValue = Common.ObjectAttributesValues(CopyingValue, 
+				"Size, Extension");
+			FileStorageType = FilesOperationsInternal.FileStorageType(AttributesOfCopyValue.Size, 
+				AttributesOfCopyValue.Extension);
 			If FileStorageType = Enums.FileStorageTypes.InInfobase Then
 				RefToNew = Catalogs[CatalogName].GetRef();
 				ObjectToWrite.SetNewObjectRef(RefToNew);
@@ -1554,7 +1558,8 @@ Procedure UpdateFromFileOnHardDriveCompletion(Result, ExecutionParameters) Expor
 	
 	CurrentFile = CurrentRefToFile();
 	NotifyChanged(CurrentFile);
-	Notify("Write_File", New Structure, CurrentFile);
+	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
+	Notify("Write_File", FileRecordingNotificationParameters, CurrentFile);
 	
 EndProcedure
 

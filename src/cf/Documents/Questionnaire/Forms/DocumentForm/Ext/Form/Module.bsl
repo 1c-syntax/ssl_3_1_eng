@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2023, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 #Region FormEventHandlers
 
 &AtServer
@@ -324,7 +325,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure SetSectionFillingFormAttributesValues()
@@ -703,7 +704,7 @@ Procedure SetAttributeValuesComplexQuestion(DoQueryBox, SelectionQuestion, TreeR
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Function EndEditFillingForm(WriteMode)
@@ -1103,23 +1104,24 @@ EndProcedure
 Procedure FillAnswersComplexQuestion(TreeRow)
 
 	QuestionName = SurveysClientServer.QuestionName(TreeRow.Composite);
+	TypesOfResponses = Common.ObjectsAttributeValue(
+		TreeRow.ComplexQuestionComposition.Unload().UnloadColumn("ElementaryQuestion"), "ReplyType");
 
 	For Each ComplexQuestionRow In TreeRow.ComplexQuestionComposition Do
 
 		AttributeName =  QuestionName + "_Response_" + Format(ComplexQuestionRow.LineNumber, "NG=");
-
-		If ComplexQuestionRow.ElementaryQuestion.ReplyType
-			<> Enums.TypesOfAnswersToQuestion.MultipleOptionsFor Then
+		ReplyType = TypesOfResponses[ComplexQuestionRow.ElementaryQuestion];
+		If ReplyType <> Enums.TypesOfAnswersToQuestion.MultipleOptionsFor Then
 
 			NewRow = Object.Content.Add();
-			NewRow.DoQueryBox             = TreeRow.TemplateQuestion;
+			NewRow.DoQueryBox = TreeRow.TemplateQuestion;
 			NewRow.ElementaryQuestion = ComplexQuestionRow.ElementaryQuestion;
-			If ComplexQuestionRow.ElementaryQuestion.ReplyType = Enums.TypesOfAnswersToQuestion.Text Then
+			If ReplyType = Enums.TypesOfAnswersToQuestion.Text Then
 				NewRow.OpenAnswer = ThisObject[AttributeName];
 			Else
-				NewRow.Response              = ThisObject[AttributeName];
+				NewRow.Response = ThisObject[AttributeName];
 				If ComplexQuestionRow.CommentRequired Then
-					NewRow.OpenAnswer	= ThisObject[QuestionName + "_Comment_" + Format(
+					NewRow.OpenAnswer = ThisObject[QuestionName + "_Comment_" + Format(
 						ComplexQuestionRow.LineNumber, "NG=")];
 				EndIf;
 			EndIf;
@@ -1441,7 +1443,7 @@ Procedure AvailabilityControlSubordinateQuestions(SetModification = True)
 				Try
 					ItemOfSubordinateQuestion.AutoMarkIncomplete = ValueAutoMarkUnfilled;
 				Except
-					// 
+					
 				EndTry;
 			EndIf;
 		EndDo;
@@ -1725,7 +1727,7 @@ Procedure ChangeFormItemsVisibility(Form)
 
 EndProcedure
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	AttachableCommandsClient.StartCommandExecution(ThisObject, Command, Object);

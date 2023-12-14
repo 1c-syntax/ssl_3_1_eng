@@ -50,7 +50,7 @@ EndProcedure
 //  Name - String - the entry transaction status.
 //
 // Returns:
-//  EventLogEntryTransactionStatus - 
+//  EventLogEntryTransactionStatus - transaction status value.
 //
 Function EventLogEntryTransactionStatusValueByName(Name) Export
 	
@@ -74,7 +74,7 @@ EndFunction
 //  Name - String - event log level.
 //
 // Returns:
-//  EventLogLevel - 
+//  EventLogLevel - event log level value.
 //
 Function EventLogLevelValueByName(Name) Export
 	

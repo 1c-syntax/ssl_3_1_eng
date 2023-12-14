@@ -147,7 +147,7 @@ Procedure FTPExportDirectoryOnChange(Item)
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure SetExportSchedule(Command)
@@ -214,7 +214,7 @@ EndProcedure
 //  NewValue - Boolean - new value.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - old value (before the change).
 //
 &AtServerNoContext
 Function SetScheduledJobUsage(NewValue)
@@ -233,7 +233,7 @@ EndFunction
 // Returns the current schedule for a scheduled job.
 //
 // Returns:
-//  JobSchedule - 
+//  JobSchedule - the current schedule.
 //
 &AtServerNoContext
 Function PerformanceMonitorDataExportSchedule()

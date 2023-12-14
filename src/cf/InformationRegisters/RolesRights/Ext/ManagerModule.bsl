@@ -165,12 +165,12 @@ EndFunction
 // Parameters:
 //  MetadataObject   - MetadataObject - an object that requires returning fields.
 //  IBObject           - Undefined - use the current configuration,
-//                     - COMObject - 
+//                     - COMObject - use COM connection to configuration.
 //  GetNamesArray - Boolean - a result type.
 //
 // Returns:
-//  String - 
-//  
+//  String - comma-separated names, if GetNamesArray = False.
+//  Array - an array with values of the String type if GetNamesArray = True.
 //
 Function AllFieldsOfMetadataObjectAccessRestriction(MetadataObject,
 			FullName, IBObject = Undefined, GetNamesArray = False) Export
@@ -345,9 +345,9 @@ Procedure AddFieldOfMetadataObjectAccessRestriction(MetadataObject, FieldName,
 		EndIf;
 		CanGetAccessParameters = True;
 	Except
-		// 
-		// 
-		// 
+		
+		
+		
 		CanGetAccessParameters = False;
 	EndTry;
 	
@@ -471,7 +471,7 @@ Function ChangesQuery(ExtensionsObjects) Export
 	
 	RolesFilterValue = ?(ExtensionsObjects, "&RoleFilterCriterion", Undefined);
 	
-	// 
+	// Preparing the selected fields with optional filter.
 	Fields = New Array;
 	Fields.Add(New Structure("MetadataObject"));
 	Fields.Add(New Structure("Role", RolesFilterValue));
@@ -528,8 +528,8 @@ Function RolesRightsTable(ExtensionsObjects = False, LineChangeType = False, AsQ
 	EndIf;
 	
 	If ExtensionsObjects Then
-		// 
-		// 
+		
+		
 		
 		Types = New Array;
 		Types.Add(Type("CatalogRef.MetadataObjectIDs"));

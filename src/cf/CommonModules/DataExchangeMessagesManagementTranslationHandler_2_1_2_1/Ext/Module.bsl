@@ -12,7 +12,7 @@
 // Version number, from which the translation by handler is used.
 //
 // Returns:
-//   String - 
+//   String - a source version of message interface.
 //
 Function SourceVersion() Export
 	
@@ -23,7 +23,7 @@ EndFunction
 // Namespace of the version, from which the translation by handler is used.
 //
 // Returns:
-//   String - name space.
+//   String - a namespace.
 //
 Function SourceVersionPackage() Export
 	
@@ -34,7 +34,7 @@ EndFunction
 // Version number, to which the translation by handler is used.
 //
 // Returns:
-//   String - 
+//   String - a resulting version of message interface.
 //
 Function ResultingVersion() Export
 	
@@ -45,7 +45,7 @@ EndFunction
 // Namespace of the version, to which the translation by handler is used.
 //
 // Returns:
-//   String - name space.
+//   String - a namespace.
 //
 Function ResultingVersionPackage() Export
 	
@@ -82,7 +82,7 @@ EndProcedure
 //   SourceMessage - XDTODataObject - a message being translated.
 //
 // Returns:
-//   XDTODataObject - 
+//   XDTODataObject - a result of arbitrary message translation.
 //
 Function MessageTranslation(Val SourceMessage) Export
 	

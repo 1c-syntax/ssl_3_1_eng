@@ -59,9 +59,9 @@ Function SubsystemsDetails() Export
 		LongDesc.Insert("MainServerModule", ModuleName);
 		
 		SubsystemsDetails.ByNames.Insert(LongDesc.Name, LongDesc);
-		// 
+		// Setting up the subsystem order according to the adding order of main modules.
 		SubsystemsDetails.Order.Add(LongDesc.Name);
-		// 
+		
 		For Each RequiredSubsystem In LongDesc.RequiredSubsystems1 Do
 			If AllRequiredSubsystems.Get(RequiredSubsystem) = Undefined Then
 				AllRequiredSubsystems.Insert(RequiredSubsystem, New Array);
@@ -287,7 +287,7 @@ Function DIBNodes(FilterByPurpose = "") Export
 		|	NOT ExchangePlan.ThisNode
 		|	AND NOT ExchangePlan.DeletionMark";
 		Query.Text = StrReplace(Query.Text, "&ExchangePlanName", "ExchangePlan" + "." + ExchangePlanName);
-		// 
+		
 		NodeSelection = Query.Execute().Select();
 		While NodeSelection.Next() Do
 			NodesList.Add(NodeSelection.Ref);
@@ -363,13 +363,13 @@ EndFunction
 //  ExchangePlanName - String - exchange plan to check.
 //
 // Returns:
-//  Undefined - 
-//  
-//  
-//                               
-//  
-//                               
-//                               
+//  Undefined - exchange plan does not include the object,
+//  "AutoRecord" - object is included in the exchange plan content, autorecord is enabled,
+//  "AutoRecordDisabled" - the object is included in an exchange plan content, autorecord is disabled,
+//                               objects are processed when creating of the initial DIB image.
+//  "ProgramRegistration" - object is included in the exchange plan content, autorecord is disabled,
+//                               registering in the script using event subscriptions,
+//                               objects are processed when the initial DIB image is created.
 //
 Function ExchangePlanDataRegistrationMode(FullObjectName, ExchangePlanName) Export
 	
@@ -382,8 +382,8 @@ Function ExchangePlanDataRegistrationMode(FullObjectName, ExchangePlanName) Expo
 		Return "AutoRecordEnabled";
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	For Each Subscription In Metadata.EventSubscriptions Do
 		SubscriptionTitleBeginning = ExchangePlanName + "Registration";
 		If Upper(Left(Subscription.Name, StrLen(SubscriptionTitleBeginning))) = Upper(SubscriptionTitleBeginning) Then
@@ -443,7 +443,7 @@ EndFunction
 //  Location - String - full name of the metadata template
 // 
 // Returns:
-//  FixedStructure - 
+//  FixedStructure - :
 //   * Version - String
 //   * Location - String
 //
@@ -531,6 +531,13 @@ Function TheLatestVersionOfComponentsFromTheLayout(Location) Export
 	Parameters.Insert("Location", VersionTable[0].FullTemplateName);
 
 	Return New FixedStructure(Parameters);
+	
+EndFunction
+
+// See Catalogs.MetadataObjectIDs.MetadataObjectCollectionProperties
+Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
+	
+	Return Catalogs.MetadataObjectIDs.MetadataObjectCollectionProperties(ExtensionsObjects);
 	
 EndFunction
 
@@ -644,8 +651,8 @@ Function CollectionNamesByBaseTypeNames() Export
 	CollectionsNames.Insert(Upper("XDTOPackage"), "XDTOPackages");
 	CollectionsNames.Insert(Upper("WebService"), "WebServices");
 	CollectionsNames.Insert(Upper("HTTPService"), "HTTPServices");
-	CollectionsNames.Insert(Upper("WSRef"), "WSReferences");
-	CollectionsNames.Insert(Upper("ServiceIntegration"), "IntegrationServices");
+	CollectionsNames.Insert(Upper("WSReference"), "WSReferences");
+	CollectionsNames.Insert(Upper("IntegrationService"), "IntegrationServices");
 	CollectionsNames.Insert(Upper("StyleItem"), "StyleItems");
 	CollectionsNames.Insert(Upper("Style"), "Styles");
 	CollectionsNames.Insert(Upper("Language"), "Languages");
@@ -696,9 +703,9 @@ EndFunction
 
 // Returns:
 //  FixedMap of KeyAndValue:
-//    * Key - String -
+//    * Key - String - 
 //                      
-//    * Value - Boolean - the value is True.
+//    * Value - Boolean - the True value.
 //  
 Function QueueJobTemplates() Export
 	
@@ -731,13 +738,6 @@ EndFunction
 Function RenamingTableForCurrentVersion() Export
 	
 	Return Catalogs.MetadataObjectIDs.RenamingTableForCurrentVersion();
-	
-EndFunction
-
-// See Catalogs.MetadataObjectIDs.MetadataObjectCollectionProperties
-Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
-	
-	Return Catalogs.MetadataObjectIDs.MetadataObjectCollectionProperties(ExtensionsObjects);
 	
 EndFunction
 
@@ -776,11 +776,11 @@ EndFunction
 //                 - ChartOfCharacteristicTypesRef
 //                 - ChartOfAccountsRef
 //                 - ChartOfCalculationTypesRef
-//                 - Null - 
+//                 - Null - a reference of the redefined item or Null if the object is not in infobase.
 //
-//  
-//  
-//  
+//  If there is an error in the metadata name or an inappropriate metadata type, Undefined is returned.
+//  If metadata has no predefined items, empty fixed map is returned.
+//  If the predefined item is defined in metadata, but it is not created in infobase, Null is returned for it in the map.
 //
 Function RefsByPredefinedItemsNames(FullMetadataObjectName) Export
 	
@@ -866,20 +866,20 @@ Function NewSubsystemDescription() Export
 	LongDesc.Insert("RequiredSubsystems1", New Array);
 	LongDesc.Insert("OnlineSupportID", "");
 	
-	// 
+	// The property is set automatically.
 	LongDesc.Insert("IsConfiguration", False);
 	
-	// 
-	// 
+	
+	
 	LongDesc.Insert("MainServerModule", "");
 	
-	// 
-	// 
+	
+	
 	LongDesc.Insert("DeferredHandlersExecutionMode", "Sequentially");
 	LongDesc.Insert("ParallelDeferredUpdateFromVersion", "");
 	
-	// 
-	// 
+	
+	
 	LongDesc.Insert("FillDataNewSubsystemsWhenSwitchingFromAnotherProgram", False);
 	
 	Return LongDesc;

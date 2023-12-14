@@ -113,7 +113,7 @@ Procedure SetConditionalAppearance()
 	
 	ConditionalAppearance.Items.Clear();
 	
-	// 
+	// Resume registration
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -129,7 +129,7 @@ Procedure SetConditionalAppearance()
 	Item.Appearance.SetParameterValue("ReadOnly", True);
 	Item.Appearance.SetParameterValue("TextColor", WebColors.Blue);
 	
-	// 
+	// Terminate registration
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -145,7 +145,7 @@ Procedure SetConditionalAppearance()
 	Item.Appearance.SetParameterValue("ReadOnly", True);
 	Item.Appearance.SetParameterValue("TextColor", WebColors.Blue);
 
-	// Перейти
+	// GoTo
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();

@@ -37,14 +37,16 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	If MainAddressingObjectTypesAreSet And MainAddressingObject = Undefined Then
 		
 		Common.MessageToUser( 
-		    StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The ""%1"" field is required.';"), Role.MainAddressingObjectTypes.Description ),,,
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The ""%1"" field is required.';"), 
+				Common.ObjectAttributeValue(Role, "MainAddressingObjectTypes")),,,
 				"MainAddressingObject", Cancel);
 				
 	ElsIf TypesOfAditionalAddressingObjectAreSet And AdditionalAddressingObject = Undefined Then
 		
 		Common.MessageToUser(
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The ""%1"" field is required.';"), Role.AdditionalAddressingObjectTypes.Description ),,, 
-			"AdditionalAddressingObject", Cancel);
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The ""%1"" field is required.';"), 
+				Common.ObjectAttributeValue(Role, "AdditionalAddressingObjectTypes")),,, 
+				"AdditionalAddressingObject", Cancel);
 			
 	EndIf;
 	
@@ -89,10 +91,21 @@ EndProcedure
 &AtServer
 Procedure SetAddressingObjectTypes()
 	
-	MainAddressingObjectTypes = Role.MainAddressingObjectTypes.ValueType;
-	AdditionalAddressingObjectTypes = Role.AdditionalAddressingObjectTypes.ValueType;
-	UsedByAddressingObjects = Role.UsedByAddressingObjects;
-	UsedWithoutAddressingObjects = Role.UsedWithoutAddressingObjects;
+	MainAddressingObjectTypes = Undefined;
+	AdditionalAddressingObjectTypes = Undefined;
+	UsedByAddressingObjects = False;
+	UsedWithoutAddressingObjects = False;
+	
+	If Not Role.IsEmpty() Then
+		RoleInformation = Common.ObjectAttributesValues(Role, 
+			"UsedByAddressingObjects,UsedWithoutAddressingObjects,MainAddressingObjectTypes,AdditionalAddressingObjectTypes");
+		UsedByAddressingObjects = RoleInformation.UsedByAddressingObjects;
+		UsedWithoutAddressingObjects = RoleInformation.UsedWithoutAddressingObjects;
+		If UsedByAddressingObjects Then
+			MainAddressingObjectTypes = Common.ObjectAttributeValue(RoleInformation.MainAddressingObjectTypes, "ValueType");
+			AdditionalAddressingObjectTypes = Common.ObjectAttributeValue(RoleInformation.AdditionalAddressingObjectTypes, "ValueType");
+		EndIf;
+	EndIf;
 	
 EndProcedure
 
@@ -104,20 +117,21 @@ Procedure SetItemsState()
 	TypesOfAditionalAddressingObjectAreSet = UsedByAddressingObjects 
 		And ValueIsFilled(AdditionalAddressingObjectTypes);
 		
-	Items.MainAddressingObject.Title = Common.ObjectAttributeValue(
-		Role.MainAddressingObjectTypes, "Description",, CurrentLanguage().LanguageCode);
+	RoleInformation = Common.ObjectAttributesValues(Role, 
+		"MainAddressingObjectTypes,AdditionalAddressingObjectTypes");
+
+	Items.MainAddressingObject.Title = String(RoleInformation.MainAddressingObjectTypes);
 	Items.MainAddressingObject.Enabled = MainAddressingObjectTypesAreSet; 
 	Items.MainAddressingObject.AutoMarkIncomplete = MainAddressingObjectTypesAreSet
 		And Not UsedWithoutAddressingObjects;
 	Items.MainAddressingObject.TypeRestriction = MainAddressingObjectTypes;
 		
-	Items.AdditionalAddressingObject.Title = Common.ObjectAttributeValue(
-		Role.AdditionalAddressingObjectTypes, "Description",, CurrentLanguage().LanguageCode);
+	Items.AdditionalAddressingObject.Title = String(RoleInformation.AdditionalAddressingObjectTypes);
 	Items.AdditionalAddressingObject.Enabled = TypesOfAditionalAddressingObjectAreSet; 
 	Items.AdditionalAddressingObject.AutoMarkIncomplete = TypesOfAditionalAddressingObjectAreSet
 		And Not UsedWithoutAddressingObjects;
 	Items.AdditionalAddressingObject.TypeRestriction = AdditionalAddressingObjectTypes;
-	                        
+
 EndProcedure
 
 &AtServer

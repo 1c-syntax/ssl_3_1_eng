@@ -309,9 +309,9 @@ Procedure StartSelectedProcedureForDebug(HandlerName)
 	Handler.Status = Enums.UpdateHandlersStatuses.NotPerformed;
 	Handler.ExecutionStatistics = New ValueStorage(New Map);
 	
-	// ACC:1327-
+	// ACC:1327-off No competitive usage of the register.
 	RecordSet.Write();
-	// ACC:1327-
+	// ACC:1327-on
 	InfobaseUpdateInternal.ExecuteDeferredUpdateNow(Undefined);
 	
 EndProcedure
@@ -780,7 +780,7 @@ Function HandlersToChange(Handler, ProcessedDataTable, Queue, SpeedPriority, Lis
 			CurrentHandler = String.Handler;
 			Continue;
 		EndIf;
-		NewArrayOfHandlersToChange = HandlersToChange(String.Handler, // @skip-
+		NewArrayOfHandlersToChange = HandlersToChange(String.Handler, 
 			ProcessedDataTable,
 			String.Queue,
 			SpeedPriority,

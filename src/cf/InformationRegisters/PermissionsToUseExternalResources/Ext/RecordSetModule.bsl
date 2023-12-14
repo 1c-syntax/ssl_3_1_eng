@@ -13,8 +13,8 @@
 
 Procedure BeforeWrite(Cancel, Replacing)
 	
-	// 
-	// 
+	
+	
 	SafeModeManagerInternal.OnSaveInternalData(ThisObject);
 	
 	If DataExchange.Load Then

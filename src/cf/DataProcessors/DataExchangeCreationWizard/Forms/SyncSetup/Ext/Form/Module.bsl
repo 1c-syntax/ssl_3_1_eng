@@ -43,7 +43,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	If ValueIsFilled(ExchangeNode) Then
 		SettingCompleted = SynchronizationSetupCompleted(ExchangeNode, RefExists);
 		If Not RefExists Then
-			// 
+			// Closing form when deleting synchronization setup.
 			Return;
 		EndIf;
 	EndIf;
@@ -95,7 +95,7 @@ Procedure SetUpConnectionParameters(Command)
 	ClosingNotification1 = New NotifyDescription("SetUpConnectionParametersCompletion", ThisObject);
 	
 	If DataExchangeWithExternalSystem Then
-		If CommonClient.SubsystemExists("OnlineUserSupport.ОбменДаннымиСВнешнимиСистемами") Then
+		If CommonClient.SubsystemExists("OnlineUserSupport.DataExchangeWithExternalSystems") Then
 			Context = New Structure;
 			Context.Insert("SettingID", SettingID);
 			Context.Insert("ConnectionParameters", ExternalSystemConnectionParameters);
@@ -151,7 +151,7 @@ Procedure GetConnectionConfirmation(Command)
 		Return;
 	EndIf;
 	
-	If CommonClient.SubsystemExists("OnlineUserSupport.ОбменДаннымиСВнешнимиСистемами") Then
+	If CommonClient.SubsystemExists("OnlineUserSupport.DataExchangeWithExternalSystems") Then
 		Context = New Structure;
 		Context.Insert("Mode",                  "ConfirmConnection");
 		Context.Insert("Peer",          ExchangeNode);
@@ -180,8 +180,8 @@ Procedure ConfigureDataExportImportRules(Command)
 	
 	ContinueNotification = New NotifyDescription("SetDataSendingAndReceivingRulesFollowUp", ThisObject);
 	
-	// 
-	// 
+	
+	
 	If XDTOSetup Then
 		AbortSetup = False;
 		ExecuteXDTOSettingsImportIfNecessary(AbortSetup, ContinueNotification);
@@ -269,7 +269,7 @@ Procedure BeforePerformingTheInitialUpload(Cancel)
 	ArrayOfValues = New Array(3);
 	ArrayOfValues[0] = PredefinedValue("Enum.ExchangeMessagesTransportTypes.COM");
 	ArrayOfValues[1] = PredefinedValue("Enum.ExchangeMessagesTransportTypes.WS");
-	// 
+	
 	//                    
 	
 	ModeOfTransportSupportsDirectConnection = (ArrayOfValues.Find(TransportKind) <> Undefined);
@@ -916,7 +916,7 @@ Procedure FillSetupStagesTable()
 	
 	AddSetupStage("ConnectionSetup", "SetUpConnectionParameters", FormItems, TheStageIsUsed);
 
-	// 	
+	// Confirm connection.	
 	TheStageIsUsed = DataExchangeWithExternalSystem;
 	
 	FormItems = New Structure;
@@ -928,7 +928,7 @@ Procedure FillSetupStagesTable()
 	
 	AddSetupStage("ConfirmConnection", "GetConnectionConfirmation", FormItems, TheStageIsUsed);
 		
-	// 
+	// Configure synchronization rules.
 	FormItems = New Structure;
 	FormItems.Insert("Group"			, Items.RulesSetupGroup.Name);
 	FormItems.Insert("Panel"			, Items.RulesSetupPanel.Name);
@@ -938,7 +938,7 @@ Procedure FillSetupStagesTable()
 	
 	AddSetupStage("RulesSetting", "SetSendingAndReceivingRules", FormItems, True);
 		
-	// 	
+	// Initial DIB image	
 	TheStageIsUsed = Not DataExchangeWithExternalSystem
 		And DIBSetup
 		And Not ContinueSetupInSubordinateDIBNode
@@ -953,7 +953,7 @@ Procedure FillSetupStagesTable()
 	
 	AddSetupStage("InitialDIBImage", "CreateInitialDIBImage", FormItems, TheStageIsUsed);
 		
-	// 	
+	// Map and import data	
 	TheStageIsUsed = Not DataExchangeWithExternalSystem 
 		And Not DIBSetup
 		And Not UniversalExchangeSetup
@@ -969,7 +969,7 @@ Procedure FillSetupStagesTable()
 	
 	AddSetupStage("MapAndImport", "MapAndExportData", FormItems, TheStageIsUsed);
 		
-	// 
+	// Initial data export
 	TheStageIsUsed = Not DataExchangeWithExternalSystem
 		And InteractiveSendingAvailable
 		And (TransportSettingsAvailable

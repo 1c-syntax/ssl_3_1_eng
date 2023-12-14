@@ -13,7 +13,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// To set up a report form.
+// Set report form settings.
 //
 // Parameters:
 //   Form - ClientApplicationForm
@@ -403,10 +403,10 @@ Function NextColor(Colors, HandlerName, Generator, Precise)
 			Red = Generator.RandomNumber(32, 192);
 			Green = Generator.RandomNumber(32, 192);
 			B = Generator.RandomNumber(32, 192);
-			Color = New Color(Red, Green, B); //@skip-
+			Color = New Color(Red, Green, B);
 		Else
 			Gray = Generator.RandomNumber(32, 192);
-			Color = New Color(Gray, Gray, Gray); //@skip-
+			Color = New Color(Gray, Gray, Gray);
 		EndIf;
 		
 		Handler[HandlerName] = Color;

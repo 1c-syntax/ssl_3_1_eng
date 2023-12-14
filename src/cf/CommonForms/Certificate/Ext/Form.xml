@@ -66,13 +66,26 @@
 							<ContextMenu name="IssuedByContextMenu" id="5"/>
 							<ExtendedTooltip name="IssuedByExtendedTooltip" id="17"/>
 						</InputField>
-						<InputField name="ValidityPeriod" id="6">
-							<DataPath>ValidBefore</DataPath>
-							<ReadOnly>true</ReadOnly>
-							<SkipOnInput>true</SkipOnInput>
-							<ContextMenu name="ValidityPeriodContextMenu" id="7"/>
-							<ExtendedTooltip name="ValidityPeriodExtendedTooltip" id="18"/>
-						</InputField>
+						<UsualGroup name="ValidityGroup" id="272">
+							<ShowTitle>false</ShowTitle>
+							<ThroughAlign>Use</ThroughAlign>
+							<ExtendedTooltip name="ValidityGroupExtendedTooltip" id="273"/>
+							<ChildItems>
+								<InputField name="ValidityPeriod" id="6">
+									<DataPath>EndDate</DataPath>
+									<ReadOnly>true</ReadOnly>
+									<SkipOnInput>true</SkipOnInput>
+									<ContextMenu name="ValidityPeriodContextMenu" id="7"/>
+									<ExtendedTooltip name="ValidityPeriodExtendedTooltip" id="18"/>
+								</InputField>
+								<InputField name="EndDateOfPrivateKey" id="274">
+									<DataPath>EndDateOfPrivateKey</DataPath>
+									<ReadOnly>true</ReadOnly>
+									<ContextMenu name="EndDateOfPrivateKeyContextMenu" id="275"/>
+									<ExtendedTooltip name="EndDateOfPrivateKeyExtendedTooltip" id="276"/>
+								</InputField>
+							</ChildItems>
+						</UsualGroup>
 						<InputField name="SignAlgorithm" id="168">
 							<DataPath>SignAlgorithm</DataPath>
 							<ReadOnly>true</ReadOnly>
@@ -84,7 +97,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Assignment</v8:content>
+									<v8:content>Purpose</v8:content>
 								</v8:item>
 							</Title>
 							<Group>AlwaysHorizontal</Group>
@@ -130,7 +143,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>All assignment codes (OID)</v8:content>
+											<v8:content>All purpose codes (OID)</v8:content>
 										</v8:item>
 									</Title>
 									<TitleLocation>Top</TitleLocation>
@@ -347,170 +360,6 @@
 						</Table>
 					</ChildItems>
 				</Page>
-				<Page name="PageInternalContent" id="26">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Internal content</v8:content>
-						</v8:item>
-					</Title>
-					<ExtendedTooltip name="PageInternalContentExtendedTooltip" id="27"/>
-					<ChildItems>
-						<InputField name="InternalFieldsGroup" id="92">
-							<DataPath>InternalFieldsGroup</DataPath>
-							<HorizontalStretch>false</HorizontalStretch>
-							<ListChoiceMode>true</ListChoiceMode>
-							<ChoiceList>
-								<xr:Item>
-									<xr:Presentation/>
-									<xr:CheckState>0</xr:CheckState>
-									<xr:Value xsi:type="FormChoiceListDesTimeValue">
-										<Presentation>
-											<v8:item>
-												<v8:lang>en</v8:lang>
-												<v8:content>Common</v8:content>
-											</v8:item>
-										</Presentation>
-										<Value xsi:type="xs:string">Overall</Value>
-									</xr:Value>
-								</xr:Item>
-								<xr:Item>
-									<xr:Presentation/>
-									<xr:CheckState>0</xr:CheckState>
-									<xr:Value xsi:type="FormChoiceListDesTimeValue">
-										<Presentation>
-											<v8:item>
-												<v8:lang>en</v8:lang>
-												<v8:content>Subject</v8:content>
-											</v8:item>
-										</Presentation>
-										<Value xsi:type="xs:string">Subject</Value>
-									</xr:Value>
-								</xr:Item>
-								<xr:Item>
-									<xr:Presentation/>
-									<xr:CheckState>0</xr:CheckState>
-									<xr:Value xsi:type="FormChoiceListDesTimeValue">
-										<Presentation>
-											<v8:item>
-												<v8:lang>en</v8:lang>
-												<v8:content>Certificate authority</v8:content>
-											</v8:item>
-										</Presentation>
-										<Value xsi:type="xs:string">Issuer</Value>
-									</xr:Value>
-								</xr:Item>
-								<xr:Item>
-									<xr:Presentation/>
-									<xr:CheckState>0</xr:CheckState>
-									<xr:Value xsi:type="FormChoiceListDesTimeValue">
-										<Presentation>
-											<v8:item>
-												<v8:lang>en</v8:lang>
-												<v8:content>Extended properties</v8:content>
-											</v8:item>
-										</Presentation>
-										<Value xsi:type="xs:string">Extensions</Value>
-									</xr:Value>
-								</xr:Item>
-							</ChoiceList>
-							<BackColor>style:MasterFieldBackground</BackColor>
-							<ContextMenu name="InternalFieldsGroupContextMenu" id="93"/>
-							<ExtendedTooltip name="InternalFieldsGroupExtendedTooltip" id="94"/>
-							<Events>
-								<Event name="OnChange">InternalFieldsGroupOnChange</Event>
-								<Event name="Clearing">InternalFieldsGroupClearing</Event>
-							</Events>
-						</InputField>
-						<Table name="InternalContent" id="95">
-							<Representation>List</Representation>
-							<ReadOnly>true</ReadOnly>
-							<AutoInsertNewRow>true</AutoInsertNewRow>
-							<EnableStartDrag>true</EnableStartDrag>
-							<EnableDrag>true</EnableDrag>
-							<FileDragMode>AsFile</FileDragMode>
-							<DataPath>InternalContent</DataPath>
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Internal content</v8:content>
-								</v8:item>
-							</Title>
-							<CommandSet>
-								<ExcludedCommand>Add</ExcludedCommand>
-								<ExcludedCommand>Change</ExcludedCommand>
-								<ExcludedCommand>Copy</ExcludedCommand>
-								<ExcludedCommand>Delete</ExcludedCommand>
-								<ExcludedCommand>EndEdit</ExcludedCommand>
-								<ExcludedCommand>MoveDown</ExcludedCommand>
-								<ExcludedCommand>MoveUp</ExcludedCommand>
-								<ExcludedCommand>SortListAsc</ExcludedCommand>
-								<ExcludedCommand>SortListDesc</ExcludedCommand>
-							</CommandSet>
-							<RowFilter xsi:nil="true"/>
-							<ContextMenu name="InternalContentContextMenu" id="96"/>
-							<AutoCommandBar name="InternalContentCommandBar" id="97">
-								<Autofill>false</Autofill>
-							</AutoCommandBar>
-							<ExtendedTooltip name="InternalContentExtendedTooltip" id="98"/>
-							<SearchStringAddition name="InternalContentSearchString" id="156">
-								<AdditionSource>
-									<Item>InternalContent</Item>
-									<Type>SearchStringRepresentation</Type>
-								</AdditionSource>
-								<ContextMenu name="InternalContentSearchStringContextMenu" id="157"/>
-								<ExtendedTooltip name="InternalContentSearchStringExtendedTooltip" id="158"/>
-							</SearchStringAddition>
-							<ViewStatusAddition name="InternalContentViewStatus" id="159">
-								<AdditionSource>
-									<Item>InternalContent</Item>
-									<Type>ViewStatusRepresentation</Type>
-								</AdditionSource>
-								<ContextMenu name="InternalContentViewStatusContextMenu" id="160"/>
-								<ExtendedTooltip name="InternalContentViewStatusExtendedTooltip" id="161"/>
-							</ViewStatusAddition>
-							<SearchControlAddition name="InternalContentSearchControl" id="162">
-								<AdditionSource>
-									<Item>InternalContent</Item>
-									<Type>SearchControl</Type>
-								</AdditionSource>
-								<ContextMenu name="InternalContentSearchControlContextMenu" id="163"/>
-								<ExtendedTooltip name="InternalContentSearchControlExtendedTooltip" id="164"/>
-							</SearchControlAddition>
-							<ChildItems>
-								<InputField name="InternalContentProperty" id="99">
-									<DataPath>InternalContent.Property</DataPath>
-									<EditMode>EnterOnInput</EditMode>
-									<Width>15</Width>
-									<ContextMenu name="InternalContentPropertyContextMenu" id="100"/>
-									<ExtendedTooltip name="InternalContentPropertyExtendedTooltip" id="101"/>
-								</InputField>
-								<InputField name="InternalContentId" id="165">
-									<DataPath>InternalContent.Id</DataPath>
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>OID</v8:content>
-										</v8:item>
-									</Title>
-									<EditMode>EnterOnInput</EditMode>
-									<Width>15</Width>
-									<HorizontalStretch>false</HorizontalStretch>
-									<ContextMenu name="InternalContentIDContextMenu" id="166"/>
-									<ExtendedTooltip name="InternalContentIDExtendedTooltip" id="167"/>
-								</InputField>
-								<InputField name="InternalContentValue" id="102">
-									<DataPath>InternalContent.Value</DataPath>
-									<EditMode>EnterOnInput</EditMode>
-									<AutoCellHeight>true</AutoCellHeight>
-									<Width>30</Width>
-									<ContextMenu name="InternalContentValueContextMenu" id="103"/>
-									<ExtendedTooltip name="InternalContentValueExtendedTooltip" id="104"/>
-								</InputField>
-							</ChildItems>
-						</Table>
-					</ChildItems>
-				</Page>
 				<Page name="PageRootCertificates" id="240">
 					<Title>
 						<v8:item>
@@ -703,6 +552,170 @@
 						</LabelField>
 					</ChildItems>
 				</Page>
+				<Page name="PageInternalContent" id="26">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Internal content</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="PageInternalContentExtendedTooltip" id="27"/>
+					<ChildItems>
+						<InputField name="InternalFieldsGroup" id="92">
+							<DataPath>InternalFieldsGroup</DataPath>
+							<HorizontalStretch>false</HorizontalStretch>
+							<ListChoiceMode>true</ListChoiceMode>
+							<ChoiceList>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Common</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:string">Overall</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Subject</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:string">Subject</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Certificate authority</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:string">Issuer</Value>
+									</xr:Value>
+								</xr:Item>
+								<xr:Item>
+									<xr:Presentation/>
+									<xr:CheckState>0</xr:CheckState>
+									<xr:Value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Extended properties</v8:content>
+											</v8:item>
+										</Presentation>
+										<Value xsi:type="xs:string">Extensions</Value>
+									</xr:Value>
+								</xr:Item>
+							</ChoiceList>
+							<BackColor>style:MasterFieldBackground</BackColor>
+							<ContextMenu name="InternalFieldsGroupContextMenu" id="93"/>
+							<ExtendedTooltip name="InternalFieldsGroupExtendedTooltip" id="94"/>
+							<Events>
+								<Event name="OnChange">InternalFieldsGroupOnChange</Event>
+								<Event name="Clearing">InternalFieldsGroupClearing</Event>
+							</Events>
+						</InputField>
+						<Table name="InternalContent" id="95">
+							<Representation>List</Representation>
+							<ReadOnly>true</ReadOnly>
+							<AutoInsertNewRow>true</AutoInsertNewRow>
+							<EnableStartDrag>true</EnableStartDrag>
+							<EnableDrag>true</EnableDrag>
+							<FileDragMode>AsFile</FileDragMode>
+							<DataPath>InternalContent</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Internal content</v8:content>
+								</v8:item>
+							</Title>
+							<CommandSet>
+								<ExcludedCommand>Add</ExcludedCommand>
+								<ExcludedCommand>Change</ExcludedCommand>
+								<ExcludedCommand>Copy</ExcludedCommand>
+								<ExcludedCommand>Delete</ExcludedCommand>
+								<ExcludedCommand>EndEdit</ExcludedCommand>
+								<ExcludedCommand>MoveDown</ExcludedCommand>
+								<ExcludedCommand>MoveUp</ExcludedCommand>
+								<ExcludedCommand>SortListAsc</ExcludedCommand>
+								<ExcludedCommand>SortListDesc</ExcludedCommand>
+							</CommandSet>
+							<RowFilter xsi:nil="true"/>
+							<ContextMenu name="InternalContentContextMenu" id="96"/>
+							<AutoCommandBar name="InternalContentCommandBar" id="97">
+								<Autofill>false</Autofill>
+							</AutoCommandBar>
+							<ExtendedTooltip name="InternalContentExtendedTooltip" id="98"/>
+							<SearchStringAddition name="InternalContentSearchString" id="156">
+								<AdditionSource>
+									<Item>InternalContent</Item>
+									<Type>SearchStringRepresentation</Type>
+								</AdditionSource>
+								<ContextMenu name="InternalContentSearchStringContextMenu" id="157"/>
+								<ExtendedTooltip name="InternalContentSearchStringExtendedTooltip" id="158"/>
+							</SearchStringAddition>
+							<ViewStatusAddition name="InternalContentViewStatus" id="159">
+								<AdditionSource>
+									<Item>InternalContent</Item>
+									<Type>ViewStatusRepresentation</Type>
+								</AdditionSource>
+								<ContextMenu name="InternalContentViewStatusContextMenu" id="160"/>
+								<ExtendedTooltip name="InternalContentViewStatusExtendedTooltip" id="161"/>
+							</ViewStatusAddition>
+							<SearchControlAddition name="InternalContentSearchControl" id="162">
+								<AdditionSource>
+									<Item>InternalContent</Item>
+									<Type>SearchControl</Type>
+								</AdditionSource>
+								<ContextMenu name="InternalContentSearchControlContextMenu" id="163"/>
+								<ExtendedTooltip name="InternalContentSearchControlExtendedTooltip" id="164"/>
+							</SearchControlAddition>
+							<ChildItems>
+								<InputField name="InternalContentProperty" id="99">
+									<DataPath>InternalContent.Property</DataPath>
+									<EditMode>EnterOnInput</EditMode>
+									<Width>15</Width>
+									<ContextMenu name="InternalContentPropertyContextMenu" id="100"/>
+									<ExtendedTooltip name="InternalContentPropertyExtendedTooltip" id="101"/>
+								</InputField>
+								<InputField name="InternalContentId" id="165">
+									<DataPath>InternalContent.Id</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>OID</v8:content>
+										</v8:item>
+									</Title>
+									<EditMode>EnterOnInput</EditMode>
+									<Width>15</Width>
+									<HorizontalStretch>false</HorizontalStretch>
+									<ContextMenu name="InternalContentIDContextMenu" id="166"/>
+									<ExtendedTooltip name="InternalContentIDExtendedTooltip" id="167"/>
+								</InputField>
+								<InputField name="InternalContentValue" id="102">
+									<DataPath>InternalContent.Value</DataPath>
+									<EditMode>EnterOnInput</EditMode>
+									<AutoCellHeight>true</AutoCellHeight>
+									<Width>30</Width>
+									<ContextMenu name="InternalContentValueContextMenu" id="103"/>
+									<ExtendedTooltip name="InternalContentValueExtendedTooltip" id="104"/>
+								</InputField>
+							</ChildItems>
+						</Table>
+					</ChildItems>
+				</Page>
 			</ChildItems>
 		</Pages>
 	</ChildItems>
@@ -737,13 +750,7 @@
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="ValidBefore" id="3">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Expiration date</v8:content>
-				</v8:item>
-			</Title>
+		<Attribute name="EndDate" id="3">
 			<Type>
 				<v8:Type>xs:dateTime</v8:Type>
 				<v8:DateQualifiers>
@@ -755,7 +762,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Assignment codes</v8:content>
+					<v8:content>Purpose codes</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1102,6 +1109,17 @@
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
+		</Attribute>
+		<Attribute name="EndDateOfPrivateKey" id="43">
+			<Type>
+				<v8:Type>xs:dateTime</v8:Type>
+				<v8:DateQualifiers>
+					<v8:DateFractions>Date</v8:DateFractions>
+				</v8:DateQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="AdditionalCertificateProperties" id="44">
+			<Type/>
 		</Attribute>
 	</Attributes>
 	<Commands>

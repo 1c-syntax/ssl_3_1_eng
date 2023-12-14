@@ -37,7 +37,7 @@ EndFunction
 //  TypeToCheck - Type - Data type being checked.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True - if the type is primitive.
 //
 Function IsReferenceType(Val TypeToCheck) Export
 	
@@ -145,7 +145,7 @@ Function IsRecordSet(Val MetadataObject) Export
 EndFunction
 
 // Returns:
-//  MetadataObject - role.
+//  MetadataObject -  role.
 //
 Function ODataInterfaceRole() Export
 	

@@ -18,6 +18,82 @@
 		<Event name="BeforeWriteAtServer">BeforeWriteAtServer</Event>
 	</Events>
 	<ChildItems>
+		<UsualGroup name="ScriptGroupIsDisabled" id="172">
+			<Visible>false</Visible>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Group Scenario disabled</v8:content>
+				</v8:item>
+			</Title>
+			<HorizontalStretch>true</HorizontalStretch>
+			<Group>AlwaysHorizontal</Group>
+			<Representation>None</Representation>
+			<ShowTitle>false</ShowTitle>
+			<BackColor>style:WarningBackColor</BackColor>
+			<ExtendedTooltip name="ScriptGroupIsDisabledExtendedTooltip" id="173"/>
+			<ChildItems>
+				<PictureDecoration name="Decoration5" id="174">
+					<Picture>
+						<xr:Ref>CommonPicture.Warning32</xr:Ref>
+						<xr:LoadTransparent>false</xr:LoadTransparent>
+					</Picture>
+					<ContextMenu name="Decoration5ContextMenu" id="175"/>
+					<ExtendedTooltip name="Decoration5ExtendedTooltip" id="176"/>
+				</PictureDecoration>
+				<LabelDecoration name="Decoration6" id="177">
+					<AutoMaxWidth>false</AutoMaxWidth>
+					<HorizontalStretch>true</HorizontalStretch>
+					<Title formatted="false">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>The scenario is disabled due to synchronization errors. Enable it after fixing the issues.</v8:content>
+						</v8:item>
+					</Title>
+					<GroupVerticalAlign>Center</GroupVerticalAlign>
+					<ContextMenu name="Decoration6ContextMenu" id="178"/>
+					<ExtendedTooltip name="Decoration6ExtendedTooltip" id="179"/>
+				</LabelDecoration>
+			</ChildItems>
+		</UsualGroup>
+		<UsualGroup name="GroupOfSettingsInformationInSameDatabase" id="164">
+			<Visible>false</Visible>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Group Configuration information in one database</v8:content>
+				</v8:item>
+			</Title>
+			<HorizontalStretch>true</HorizontalStretch>
+			<VerticalAlign>Center</VerticalAlign>
+			<Representation>None</Representation>
+			<ShowTitle>false</ShowTitle>
+			<BackColor>web:LightGreen</BackColor>
+			<ExtendedTooltip name="GroupOfSettingsInformationInSameDatabaseExtendedTooltip" id="165"/>
+			<ChildItems>
+				<PictureDecoration name="Decoration3" id="166">
+					<Width>3</Width>
+					<Height>2</Height>
+					<PictureSize>Proportionally</PictureSize>
+					<Picture>
+						<xr:Ref>StdPicture.Information</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
+					</Picture>
+					<ContextMenu name="Decoration3ContextMenu" id="167"/>
+					<ExtendedTooltip name="Decoration3ExtendedTooltip" id="168"/>
+				</PictureDecoration>
+				<LabelDecoration name="Decoration4" id="169">
+					<Title formatted="false">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>It is enough to configure the scenario in only one area (base)</v8:content>
+						</v8:item>
+					</Title>
+					<ContextMenu name="Decoration4ContextMenu" id="170"/>
+					<ExtendedTooltip name="Decoration4ExtendedTooltip" id="171"/>
+				</LabelDecoration>
+			</ChildItems>
+		</UsualGroup>
 		<UsualGroup name="CodeDescriptionGroup" id="103">
 			<Title>
 				<v8:item>
@@ -416,27 +492,23 @@ The exact scenario execution time depends on the application workload.</v8:conte
 			<Item>
 				<Command>0</Command>
 				<Type>Added</Type>
-				<Attribute>Items.ScheduleComposition.CurrentData.InfobaseNode</Attribute>
 				<DefaultVisible>false</DefaultVisible>
 			</Item>
 			<Item>
 				<Command>0</Command>
 				<Type>Added</Type>
-				<Attribute>Items.ScheduleComposition.CurrentData.InfobaseNode</Attribute>
 				<Index>3</Index>
 				<DefaultVisible>false</DefaultVisible>
 			</Item>
 			<Item>
 				<Command>0</Command>
 				<Type>Added</Type>
-				<Attribute>Items.ScheduleComposition.CurrentData.InfobaseNode</Attribute>
 				<Index>1</Index>
 				<DefaultVisible>false</DefaultVisible>
 			</Item>
 			<Item>
 				<Command>0</Command>
 				<Type>Added</Type>
-				<Attribute>Items.ScheduleComposition.CurrentData.InfobaseNode</Attribute>
 				<Index>2</Index>
 				<DefaultVisible>false</DefaultVisible>
 			</Item>

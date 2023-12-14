@@ -1183,7 +1183,7 @@ End</presentationExpression>
 						<dcsat:appearance>
 							<dcscor:item>
 								<dcscor:parameter>Формат</dcscor:parameter>
-								<dcscor:value xsi:type="xs:string">BSF=</dcscor:value>
+								<dcscor:value xsi:type="xs:string">ЧФ=</dcscor:value>
 							</dcscor:item>
 						</dcsat:appearance>
 					</dcsat:item>
@@ -5464,7 +5464,7 @@ End</presentationExpression>
 						<dcsat:appearance>
 							<dcscor:item>
 								<dcscor:parameter>Формат</dcscor:parameter>
-								<dcscor:value xsi:type="xs:string">BSF=</dcscor:value>
+								<dcscor:value xsi:type="xs:string">ЧФ=</dcscor:value>
 							</dcscor:item>
 						</dcsat:appearance>
 					</dcsat:item>

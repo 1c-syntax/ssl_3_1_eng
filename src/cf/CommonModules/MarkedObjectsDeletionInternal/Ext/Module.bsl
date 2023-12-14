@@ -265,8 +265,8 @@ Procedure SetDeletionScheduleTagged() Export
 	Schedule = New JobSchedule;
 	Schedule.DaysRepeatPeriod = 1;
 	Schedule.WeeksPeriod = 1;
-	Schedule.BeginTime = '00010101040000'; //  
-	Schedule.EndTime = '00010101060000'; //  
+	Schedule.BeginTime = '00010101040000';  
+	Schedule.EndTime = '00010101060000'; // At 6:00. 
 	Schedule.CompletionTime = '00010101060000'; // 06:00 
 
 	JobParameters = New Structure;
@@ -364,7 +364,7 @@ Procedure MarkedObjectsDeletionControl() Export
 				HasDeletionSession = True;
 			EndIf;
 			Try
-				// 
+				// @skip-check query-in-loop - Batch processing of a large amount of data.
 				UnlockUsageOfObjectsToDelete(SelectionDetailRecords.SessionID, ?(
 					HasDeletionSession, SelectionDetailRecords.LockTime, Undefined));
 			Except
@@ -380,7 +380,7 @@ Procedure MarkedObjectsDeletionControl() Export
 		Query.Text = QueryTextWithCondition;
 		Query.SetParameter("LockTime", SelectionDetailRecords.LockTime);
 		Query.SetParameter("UnlockTime", UnlockTime);
-		QueryResult = Query.Execute().Unload(); // @skip-
+		QueryResult = Query.Execute().Unload(); 
 
 	EndDo;
 
@@ -421,13 +421,13 @@ EndFunction
 //
 // Returns:
 //  Structure:
-//    * FullName - String -
-//    * ItemPresentation - String -
-//    * ListPresentation - String -
-//    * Kind - String -
-//    * Referential - Boolean - True if the object is of the reference type.
-//    * Technical - Boolean -
-//    * Separated1 - Boolean - 
+//    * FullName - String - Upper-case full metadata object name. For example, "CATALOG.CURRENCIES".
+//    * ItemPresentation - String - For example. "Currency".
+//    * ListPresentation - String - For example. "Currencies".
+//    * Kind - String - Upper-case metadata object type. For example, "CATALOG".
+//    * Referential - Boolean - True if the object is a reference type object.
+//    * Technical - Boolean - True if the object must not be added to the list.
+//    * Separated1 - Boolean - Filled only in the SaaS mode. 
 //
 Function TypeInformation(ObjectType, ComplementableInfoAboutTypes = Undefined) Export
 
@@ -474,8 +474,8 @@ EndFunction
 //
 // Returns:
 //   Map of KeyAndValue:
-//     
-//     See TypeInformation 
+//     Key - Type - Metadata object type. For example, MetadataCatalog.Currencies.
+//     Value - See TypeInformation 
 //
 Function TypesInformation(Objects, ComplementableInfoAboutTypes = Undefined) Export
 
@@ -529,6 +529,28 @@ Function AdditionalAttributesNumber(Settings) Export
 	EndIf;
 
 	Return Result;
+EndFunction
+
+Function ThereAreCurrentlyBlockedObjects()
+
+	TheLifetimeOfALock = TheLifetimeOfALock();
+	UnlockTime = CurrentSessionDate() - TheLifetimeOfALock;
+	
+	Query = New Query();
+	Query.Text =
+	"SELECT DISTINCT TOP 1
+	|	ObjectsToDelete.SessionID AS SessionID,
+	|	ObjectsToDelete.Period AS LockTime
+	|FROM
+	|	InformationRegister.ObjectsToDelete AS ObjectsToDelete
+	|WHERE
+	|	ObjectsToDelete.Period > &UnlockTime";
+	
+	Query.SetParameter("UnlockTime", UnlockTime);
+	QueryResult = Query.Execute();
+	
+	Return Not QueryResult.IsEmpty();
+	
 EndFunction
 
 #Region MarkedObjectsDeletionFormCommandHandlers
@@ -608,7 +630,7 @@ EndFunction
 //   DeletionMode - String
 //   AdditionalAttributesSettings - ValueTable
 //   PreviousStepResult - See ObjectsToDeleteProcessingResult
-//   JobID - UUID -
+//   JobID - UUID - 
 // 													  
 // 													 
 //
@@ -617,7 +639,9 @@ EndFunction
 //
 Function ToDeleteMarkedObjects(Val ObjectsToDeleteSource, DeletionMode, AdditionalAttributesSettings,
 	PreviousStepResult, JobID) Export
-
+	
+	MarkedObjectsDeletionControl();
+	
 	If TypeOf(ObjectsToDeleteSource) = Type("ValueList") Then
 		ObjectsToDeleteSource = MarkedForDeletionItemsTree(ObjectsToDeleteSource.UnloadValues(),
 			AdditionalAttributesSettings, New Array);
@@ -1015,8 +1039,8 @@ EndFunction
 
 Procedure ProhibitUsageOfObjectsToDelete(Source, Cancel)
 	
-	// 
-	// 
+	
+	
 
 	If ExclusiveMode() Then
 		Return;
@@ -1038,6 +1062,10 @@ Procedure ProhibitUsageOfObjectsToDelete(Source, Cancel)
 	SetPrivilegedMode(True);
 
 	If Not CheckIfObjectsToDeleteAreUsed() Then
+		Return;
+	EndIf;
+	
+	If Not ThereAreCurrentlyBlockedObjects() Then
 		Return;
 	EndIf;
 
@@ -1249,26 +1277,28 @@ EndFunction
 Function MarkedForDeletionItemsTreeWithoutDeletedItems(MarkedForDeletion, Trash)
 	Result = MarkedForDeletion.Copy();
 	
-	УдаленныеЭлементы = New Map();
+	DeletedItems = New Map();
 	For Each Item In Trash Do
-		УдаленныеЭлементы.Insert(Item, True);
+		DeletedItems.Insert(Item, True);
 	EndDo; 
 	
 	ModifiedParents = New Map;
 	ObjectsToDelete = Result.Rows.FindRows(New Structure("Check", 1), True);
 	For Each Item In ObjectsToDelete Do
 		If Item.Parent <> Undefined And (Item.Technical And Not Item.IsMetadataObjectDetails 
-			Or УдаленныеЭлементы[Item.ItemToDeleteRef] <> Undefined) Then
+			Or DeletedItems[Item.ItemToDeleteRef] <> Undefined) Then
 			ModifiedParents.Insert(Item.Parent);
-			УдаленныеЭлементы.Delete(Item.ItemToDeleteRef);
+			DeletedItems.Delete(Item.ItemToDeleteRef);
 			Item.Parent.Rows.Delete(Item);
 		EndIf;
 	EndDo;
 	
-	For Each УдаленныйЭлемент In УдаленныеЭлементы Do
-		Item = Result.Rows.Find(УдаленныйЭлемент.Key, "ItemToDeleteRef", True);
-		ModifiedParents.Insert(Item.Parent);
-		Item.Parent.Rows.Delete(Item);
+	For Each DeletedItem In DeletedItems Do
+		Item = Result.Rows.Find(DeletedItem.Key, "ItemToDeleteRef", True);
+		If Item <> Undefined Then
+			ModifiedParents.Insert(Item.Parent);
+			Item.Parent.Rows.Delete(Item);
+		EndIf;
 	EndDo;
 	
 	For Each ValueParent In ModifiedParents Do
@@ -1364,7 +1394,7 @@ Procedure AddNotDeletedItemRelationsRow(NotDeletedItemsLinksTable, Cause, TypesI
 				+ TypeInformation.ItemPresentation + ")";
 		EndIf;
 		InfoAboutDeletable = TypeInformation(TypeOf(Cause.ItemToDeleteRef), TypesInformation);
-		If InfoAboutDeletable.Technical Then // 
+		If InfoAboutDeletable.Technical Then // Intended for optimization
 			TableRow.PresentationItemToDelete = InfoAboutDeletable.ItemPresentation;
 		Else
 			TableRow.PresentationItemToDelete = String(Cause.ItemToDeleteRef);
@@ -1504,7 +1534,7 @@ EndFunction
 //   Status - String
 //
 // Returns:
-//   Number - 
+//   Number - — picture index
 //
 Function PictureNumber(Val ReferenceOrData, Val ReferenceType, Val Kind, Val Status) Export
 
@@ -1555,7 +1585,7 @@ EndFunction
 
 Procedure SetExclusiveModeIfNecessary(ExclusiveModeValue, JobID)
 	If ValueIsFilled(JobID) Then
-		// 
+		// Use the form to manage the standalone mode.
 		Return;
 	EndIf;
 
@@ -1615,13 +1645,13 @@ EndFunction
 //   * PresentationItemToDelete - String
 //   * PictureNumber - Number
 //   * HadErrorsOnDelete - Boolean
-//   * IsMetadataObjectDetails - Boolean - for conditional registration
+//   * IsMetadataObjectDetails - Boolean - for conditional appearance.
 //   * LinkCount - Number
-//   * Count - Number - number of elements in the metadata object node (for the view)
-//   * Modified - Boolean - the group's composition changed
-//   * Technical - Boolean -
-//   * Attribute1 - Arbitrary - 
-//                                
+//   * Count - Number - the amount of items in the metadata object node (for presentation)
+//   * Modified - Boolean - the group content was modified
+//   * Technical - Boolean - True if the object must not be added to the list.
+//   * Attribute1 - Arbitrary - Additional attribute value. 
+//                                Support multiple columns: Attribute2, Attribute3, and so on.
 //
 Function NewTreeOfDeletableObjects(AdditionalAttributesNumber = 0)
 	Result = New ValueTree;
@@ -1675,7 +1705,7 @@ EndFunction
 //   ValueTable:
 //   * ItemToDeleteRef - AnyRef - an object to be deleted, the column is being indexed.
 //   * FoundItemReference - AnyRef - the object that has references to the object to be deleted.
-// 						  - String - 
+// 						  - String - — a detailed error description, if an error occurred while deleting an object.
 //   * PresentationItemToDelete - String - presentation of the object to be deleted.
 //   * Presentation - String - occurrence presentation or details of the error occurred when deleting an object. 
 //

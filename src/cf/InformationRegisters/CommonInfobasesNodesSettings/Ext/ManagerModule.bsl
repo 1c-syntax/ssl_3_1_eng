@@ -10,10 +10,10 @@
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
-// 
-// 
+
+
+
+
 
 #Region Internal
 

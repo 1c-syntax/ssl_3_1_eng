@@ -28,7 +28,7 @@ Procedure OnAddMetadataObjectsRenaming(Total) Export
 EndProcedure
 
 // Defines sections, where the report panel is available.
-//   For more information, see details of the UsedSections procedure 
+//   For more information, see details of the UsedSections procedure
 //   of the ReportsOptions common module.
 //
 // Parameters:

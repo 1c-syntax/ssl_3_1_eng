@@ -106,15 +106,15 @@
 				<Event name="Selection">SearchRulesSelection</Event>
 			</Events>
 			<ChildItems>
-				<ColumnGroup name="SearchRulesGroup1" id="46">
+				<ColumnGroup name="SearchRulesBasicGroup" id="46">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Search rules group 1</v8:content>
+							<v8:content>Main</v8:content>
 						</v8:item>
 					</Title>
 					<Group>InCell</Group>
-					<ExtendedTooltip name="SearchRulesGroup1ExtendedTooltip" id="47"/>
+					<ExtendedTooltip name="SearchRulesBasicGroupExtendedTooltip" id="47"/>
 					<ChildItems>
 						<CheckBoxField name="SearchRulesUse" id="30">
 							<DataPath>SearchRules.Use</DataPath>

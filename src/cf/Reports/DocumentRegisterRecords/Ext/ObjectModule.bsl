@@ -12,8 +12,7 @@
 #Region Variables
 
 Var CurrentVariantKey; // String
-                            // 
-                            // 
+
 Var ParentOptionKey; // String
 Var RegistersProperties; // See NewRegisterProperties
 Var Remarks; // See NotesPropertiesPalette
@@ -48,7 +47,7 @@ Procedure DefineFormSettings(Form, VariantKey, Settings) Export
 	
 EndProcedure
 
-// 
+// Called before importing new settings. Used for modifying DCS reports.
 //
 // Parameters:
 //   Context - Arbitrary
@@ -1129,7 +1128,7 @@ EndProcedure
 //               - String
 //
 // Returns:
-//   DataCompositionSchemaDataSetField, DataCompositionSchemaDataSetFieldFolder - LongDesc
+//   DataCompositionSchemaDataSetField, DataCompositionSchemaDataSetFieldFolder - Details
 //
 Function AddDataSetField(DataSet, Field, Title, DataPath = Undefined)
 	
@@ -1372,7 +1371,7 @@ Procedure RegisterResult(Settings, ResultDocument, DocumentRecorder)
 	
 	For LineNumber = 1 To ResultDocument.TableHeight Do
 		
-		For ColumnNumber = 1 To 2 Do // 
+		For ColumnNumber = 1 To 2 Do 
 	
 			Area = ResultDocument.Area(LineNumber, ColumnNumber);
 			
@@ -1639,7 +1638,7 @@ Procedure GetRegistersProperties(Context, OwnerDocument = Undefined)
 	
 	For Each Movement In DocumentRegisterRecords Do
 		
-		RegisterMetadata = Movement.Key; // 
+		RegisterMetadata = Movement.Key; // MetadataObjectInformationRegister, MetadataObjectAccumulationRegister, MetadataObjectCalculationRegister
 		
 		RegisterProperties = RegistersProperties.Add();
 		RegisterProperties.RecorderFieldName = Movement.Value;
@@ -2082,7 +2081,7 @@ Function RecordsCountByRecorder(Recorder, DocumentRegisterRecords)
 		If ValueIsFilled(QueryText) Then
 			
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				"%1 UNION ALL  %2", QueryText, StrReplace(QueryTextTemplate, "SELECT ALLOWED", "SELECT")); // @query-
+				"%1 UNION ALL  %2", QueryText, StrReplace(QueryTextTemplate, "SELECT ALLOWED", "SELECT")); 
 			
 		Else
 			QueryText = QueryTextTemplate;

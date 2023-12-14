@@ -31,7 +31,7 @@
 //   * InternationalDescription - String
 //   * CityInternationalFormat - String
 //   * InternationalAddress - String
-//   * Country - 
+//   * Country - String, CatalogRef.WorldCountries
 //   * CashSettlementCenterBIC - String
 //   * TheNameOfTheRomanCatholicChurch - String
 //   * CorrespondentAccountOfTheRCC - String
@@ -91,7 +91,7 @@ EndFunction
 //  BIC          - String - Bank ID.
 //  CorrAccount     - String - Bank's correspondent account.
 //  RecordAboutBank - CatalogRef
-//               - String - 
+//               - String - a found bank (returned).
 //
 Procedure GetClassifierData(BIC = "", CorrAccount = "", RecordAboutBank = "") Export
 	
@@ -130,7 +130,7 @@ EndProcedure
 //  Bank - CatalogRef.BankClassifier - the bank to get the text comment for.
 //
 // Returns:
-//  FormattedString - 
+//  FormattedString - the comment.
 //
 Function InvalidBankNote(Bank) Export
 	
@@ -195,7 +195,7 @@ EndProcedure
 // See UsersOverridable.OnDefineRoleAssignment.
 Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	
-	// ТолькоДляПользователейСистемы.
+	// ForSystemUsersOnly.
 	RolesAssignment.ForSystemUsersOnly.Add(
 		Metadata.Roles.AddEditBanks.Name);
 	
@@ -232,8 +232,8 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	Result = DataProcessors[DataProcessorName].RelevanceOfBankClassifier();
 	
-	// 
-	// 
+	
+	
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.Catalogs.BankClassifier.FullName());
 	
 	For Each Section In Sections Do

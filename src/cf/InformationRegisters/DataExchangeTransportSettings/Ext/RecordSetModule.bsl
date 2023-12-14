@@ -40,8 +40,8 @@ Procedure OnWrite(Cancel, Replacing)
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	RefreshReusableValues();
 	
 EndProcedure

@@ -295,7 +295,7 @@ Procedure ExecuteCursorPositioning(RowIndex)
 				
 			EndIf;
 			
-			// 
+			// Place the mouse pointer.
 			Items.StandaloneWorkstationsList.CurrentRow = StandaloneWorkstationsList[RowIndex].GetID();
 			
 		EndIf;

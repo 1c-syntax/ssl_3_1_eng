@@ -15,14 +15,14 @@
 
 Procedure BeforeWrite(Cancel)
 	
-	// 
+	// The DataExchange.Import check is performed in the nested procedure.
 	Catalogs.MetadataObjectIDs.BeforeWriteObject(ThisObject);
 	
 EndProcedure
 
 Procedure BeforeDelete(Cancel)
 	
-	// 
+	// The DataExchange.Import check is performed in the nested procedure.
 	Catalogs.MetadataObjectIDs.BeforeDeleteObject(ThisObject);
 	
 EndProcedure

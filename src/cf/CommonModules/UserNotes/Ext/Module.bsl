@@ -11,7 +11,7 @@
 
 // Adds a flag of changing document deletion mark.
 // Procedure parameters correspond to subscription for the BeforeWrite event of the Document object.
-// See details in Syntax Assistant. 
+// See details in Syntax Assistant.
 //
 // Parameters:
 //  Source  - DocumentObject - a subscription event source.
@@ -26,7 +26,7 @@ EndProcedure
 
 // Adds a flag of changing object deletion mark.
 // Procedure parameters correspond to the BeforeWrite event subscription of any objects except for documents.
-// See details in Syntax Assistant. 
+// See details in Syntax Assistant.
 //
 // Parameters:
 //  Source - CatalogObject - a subscription event source.

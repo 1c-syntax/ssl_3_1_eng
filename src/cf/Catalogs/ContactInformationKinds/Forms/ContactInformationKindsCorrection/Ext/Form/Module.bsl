@@ -54,7 +54,7 @@ Procedure SetCurrentPage(Form, PageName)
 		FormItems.TroubleshootingSuccessIndicatorGroup.Visible = True;
 		FormItems.ResolveIssue.Visible                  = False;
 		FormItems.Close.DefaultButton                    = True;
-	Else // "Вопрос"
+	Else // "Question"
 		FormItems.TroubleshootingIndicatorGroup.Visible         = False;
 		FormItems.TroubleshootingStartIndicatorGroup.Visible   = True;
 		FormItems.TroubleshootingSuccessIndicatorGroup.Visible = False;

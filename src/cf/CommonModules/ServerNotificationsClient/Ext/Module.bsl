@@ -13,10 +13,10 @@
 // 
 //
 // Parameters:
-//  CounterName   - String -
-//  Timeout - Number -
-//  FirstTime     - Boolean -
-//  SessionDate    - Date -
+//  CounterName   - String - 
+//  Timeout - Number - 
+//  FirstTime     - Boolean - 
+//  SessionDate    - Date - 
 //
 // Returns:
 //  Boolean - 
@@ -86,8 +86,8 @@ EndProcedure
 // 
 //
 // Parameters:
-//  StartMoment - Number -
-//  ProcedureName - String -
+//  StartMoment - Number - 
+//  ProcedureName - String - 
 //
 // Example:
 //	
@@ -145,7 +145,7 @@ Procedure AttachServerNotificationReceiptCheckHandler(Interval = 1) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Configuration subsystems event handlers.
 
 // See CommonClientOverridable.BeforeStart.
 Procedure BeforeStart(Parameters) Export
@@ -567,25 +567,25 @@ EndFunction
 
 // Returns:
 //  Structure:
-//   * IsCheckAllowed - Boolean -
+//   * IsCheckAllowed - Boolean - 
 //   * ShouldRegisterIndicators - Boolean
 //   * ServiceAdministratorSession - Boolean
-//   * IsRecurringDataSendEnabled - Boolean -
+//   * IsRecurringDataSendEnabled - Boolean - 
 //   * RepeatedDateExportMinInterval - See ServerNotifications.МинимальныйИнтервалПериодическойОтправкиДанных
 //   * SessionKey - See ServerNotifications.SessionKey
 //   * IBUserID - UUID
 //   * StatusUpdateDate - Date
 //   * LastReceivedMessageDate - Date
-//   * MinimumPeriod - Number -
+//   * MinimumPeriod - Number - 
 //   * LastNotificationDate - Date
 //   * Notifications - See CommonOverridable.OnAddServerNotifications.Notifications
-//   * ReceivedNotifications - Array of String -
+//   * ReceivedNotifications - Array of String - 
 //   * CollaborationSystemConnected - Boolean
-//   * PersonalChatID - Undefined -
+//   * PersonalChatID - Undefined - 
 //                                    - CollaborationSystemConversationID - 
 //        
 //
-//   * GlobalChatID - Undefined -
+//   * GlobalChatID - Undefined - 
 //                                   - CollaborationSystemConversationID - 
 //        
 //   * IsNewPersonalMessageHandlerAttached - Boolean
@@ -594,8 +594,8 @@ EndFunction
 //   * CurrentSessionDateToCheckWaitingCounter - Date
 //   * WaitingCountersDateAlignmentSecondsNumber - Number
 //   * WaitCounters - Map of KeyAndValue:
-//      ** Key - String -
-//      ** Value - Date -
+//      ** Key - String - 
+//      ** Value - Date - 
 //
 Function NewReceiptStatus()
 	

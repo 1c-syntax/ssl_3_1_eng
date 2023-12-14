@@ -35,7 +35,7 @@ Procedure AddFilesOperationsSettings(CommonSettings, PersonalSettings)
 	
 	SetPrivilegedMode(True);
 	
-	// 
+	// Populate common settings.
 	
 	CommonSettings.Insert(
 		"ExtractTextFilesOnServer", FilesOperationsInternal.ExtractTextFilesOnServer());
@@ -57,7 +57,7 @@ Procedure AddFilesOperationsSettings(CommonSettings, PersonalSettings)
 	LocalFileCacheMaxSize = Common.CommonSettingsStorageLoad(
 		"LocalFileCache", "LocalFileCacheMaxSize");
 	If LocalFileCacheMaxSize = Undefined Then
-		LocalFileCacheMaxSize = 100*1024*1024; // 
+		LocalFileCacheMaxSize = 100*1024*1024; 
 		Common.CommonSettingsStorageSave("LocalFileCache",
 			"LocalFileCacheMaxSize", LocalFileCacheMaxSize);
 	EndIf;
@@ -66,8 +66,8 @@ Procedure AddFilesOperationsSettings(CommonSettings, PersonalSettings)
 	
 	PathToLocalFileCache = Common.CommonSettingsStorageLoad(
 		"LocalFileCache", "PathToLocalFileCache");
-	// 
-	// 
+	
+	
 	PersonalSettings.Insert("PathToLocalFileCache", PathToLocalFileCache);
 	
 	DeleteFileFromLocalFileCacheOnCompleteEdit =
@@ -197,7 +197,7 @@ EndFunction
 //  FullExchangePlanName - String - an exchange plan string that requires receiving the function value.
 //
 //  Returns:
-//    Boolean - 
+//    Boolean - If True, the node belongs to the exchange plan of the distributed infobase. Otherwise, False.
 //
 Function IsDistributedInfobaseNode(FullExchangePlanName) Export
 
@@ -205,7 +205,7 @@ Function IsDistributedInfobaseNode(FullExchangePlanName) Export
 	
 EndFunction
 
-// For the function, see FullVolumePath. 
+// For the function, see FullVolumePath.
 // 
 // Returns:
 //  Boolean

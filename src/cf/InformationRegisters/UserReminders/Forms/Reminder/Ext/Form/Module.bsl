@@ -380,7 +380,7 @@ Procedure FillSourceAttributesList()
 		EndIf;
 	EndDo;
 	
-	// 
+	// Get an overridden array of attributes.
 	SSLSubsystemsIntegration.OnFillSourceAttributesListWithReminderDates(Object.Source, AttributesWithDates);
 	UserRemindersOverridable.OnFillSourceAttributesListWithReminderDates(Object.Source, AttributesWithDates);
 	

@@ -21,7 +21,7 @@
 //                                     which means that the default server cluster port is set.
 //
 // Returns:
-//   String   - the connection string is.
+//   String   - an infobase connection string.
 //
 Function InfobasePath(FileModeFlag = Undefined, Val ServerClusterPort = 0) Export
 	
@@ -29,7 +29,7 @@ Function InfobasePath(FileModeFlag = Undefined, Val ServerClusterPort = 0) Expor
 	
 	SearchPosition = StrFind(Upper(ConnectionString), "FILE=");
 	
-	If SearchPosition = 1 Then // 
+	If SearchPosition = 1 Then // A file infobase.
 		
 		IBPath = Mid(ConnectionString, 6, StrLen(ConnectionString) - 6);
 		FileModeFlag = True;
@@ -51,7 +51,7 @@ Function InfobasePath(FileModeFlag = Undefined, Val ServerClusterPort = 0) Expor
 		
 		ConnectionString = Mid(ConnectionString, SemicolonPosition + 1);
 		
-		// 
+		// Server name position.
 		SearchPosition = StrFind(Upper(ConnectionString), "REF=");
 		
 		If Not (SearchPosition = 1) Then
@@ -87,7 +87,7 @@ EndProcedure
 // The function is used for localization purposes.
 //
 // Returns:
-//  String - 
+//  String - text intended for the administrator.
 //
 Function TextForAdministrator() Export
 	
@@ -101,7 +101,7 @@ EndFunction
 //   Message - String - full message.
 // 
 // Returns:
-//  String - 
+//  String - lock message.
 //
 Function ExtractLockMessage(Val Message) Export
 	

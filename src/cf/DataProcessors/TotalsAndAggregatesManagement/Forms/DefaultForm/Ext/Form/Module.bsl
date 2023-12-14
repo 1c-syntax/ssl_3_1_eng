@@ -83,7 +83,7 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 		EndIf;
 		
 		TotalsParameters = New Structure;
-		TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Setting calculated totals period …';"));
+		TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Setting calculated totals period…';"));
 		TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Setting of calculated totals period is complete';"));
 		TotalsParameters.Insert("Action",               "SetTotalPeriod");
 		TotalsParameters.Insert("RowsArray",            Items.TotalsList.SelectedRows);
@@ -106,7 +106,7 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 			MinimumEffect   = ValueSelected.MinimumEffect;
 			
 			TotalsParameters = New Structure;
-			TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Rebuilding aggregates …';"));
+			TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Rebuilding aggregates…';"));
 			TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Aggregates are rebuilt';"));
 			TotalsParameters.Insert("Action",               "RebuildAggregates");
 			TotalsParameters.Insert("RowsArray",            Items.AggregatesByRegisters.SelectedRows);
@@ -222,8 +222,8 @@ EndProcedure
 Procedure EnableTotalsUsage(Command)
 	
 	TotalsParameters = New Structure;
-	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Enable totals usage…';"));
-	TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Enabling usage of totals is completed';"));
+	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Enabling totals…';"));
+	TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Totals are enabled';"));
 	TotalsParameters.Insert("Action",               "SetTotalsUsing");
 	TotalsParameters.Insert("RowsArray",            Items.TotalsList.SelectedRows);
 	TotalsParameters.Insert("Field",                   "UseTotals");
@@ -239,8 +239,8 @@ EndProcedure
 Procedure EnableCurrentTotalsUsage(Command)
 	
 	TotalsParameters = New Structure;
-	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Enabling usage of the current totals…';"));
-	TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Enabling usage of the current totals is completed';"));
+	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Enabling current totals…';"));
+	TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Current totals are enabled';"));
 	TotalsParameters.Insert("Action",               "UseCurrentTotals");
 	TotalsParameters.Insert("RowsArray",            Items.TotalsList.SelectedRows);
 	TotalsParameters.Insert("Field",                   "UseCurrentTotals");
@@ -256,8 +256,8 @@ EndProcedure
 Procedure DisableTotalsUsage(Command)
 	
 	TotalsParameters = New Structure;
-	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Disable totals usage…';"));
-	TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Disabling usage of totals is completed';"));
+	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Disabling totals…';"));
+	TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Totals are disabled';"));
 	TotalsParameters.Insert("Action",               "SetTotalsUsing");
 	TotalsParameters.Insert("RowsArray",            Items.TotalsList.SelectedRows);
 	TotalsParameters.Insert("Field",                   "UseTotals");
@@ -273,8 +273,8 @@ EndProcedure
 Procedure DisableCurrentTotalsUsage(Command)
 	
 	TotalsParameters = New Structure;
-	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Disabling usage of the current totals …';"));
-	TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Disabling usage of the current totals is completed';"));
+	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Disabling current totals…';"));
+	TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Current totals are disabled';"));
 	TotalsParameters.Insert("Action",               "UseCurrentTotals");
 	TotalsParameters.Insert("RowsArray",            Items.TotalsList.SelectedRows);
 	TotalsParameters.Insert("Field",                   "UseCurrentTotals");
@@ -379,8 +379,8 @@ EndProcedure
 Procedure EnableAggregateMode(Command)
 	
 	TotalsParameters = New Structure;
-	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Enable aggregate mode …';"));
-	TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Enabling of aggregate mode is completed';"));
+	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Enabling aggregates mode…';"));
+	TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Aggregates mode is enabled';"));
 	TotalsParameters.Insert("Action",               "SetAggregatesMode");
 	TotalsParameters.Insert("RowsArray",            Items.AggregatesByRegisters.SelectedRows);
 	TotalsParameters.Insert("Field",                   "AggregateMode");
@@ -396,8 +396,8 @@ EndProcedure
 Procedure EnableTotalsMode(Command)
 	
 	TotalsParameters = New Structure;
-	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Enabling the totals mode…';"));
-	TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Enabling of the totals mode is completed';"));
+	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Enabling totals mode…';"));
+	TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Totals mode is enabled';"));
 	TotalsParameters.Insert("Action",               "SetAggregatesMode");
 	TotalsParameters.Insert("RowsArray",            Items.AggregatesByRegisters.SelectedRows);
 	TotalsParameters.Insert("Field",                   "AggregateMode");
@@ -413,8 +413,8 @@ EndProcedure
 Procedure EnableAggregatesUsage(Command)
 	
 	TotalsParameters = New Structure;
-	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Enable aggregate usage…';"));
-	TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Enabling of aggregate usage is completed';"));
+	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Enabling aggregates…';"));
+	TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Aggregates are enabled';"));
 	TotalsParameters.Insert("Action",               "SetAggregatesUsing");
 	TotalsParameters.Insert("RowsArray",            Items.AggregatesByRegisters.SelectedRows);
 	TotalsParameters.Insert("Field",                   "AgregateUsage");
@@ -430,8 +430,8 @@ EndProcedure
 Procedure DisableAggregatesUsage(Command)
 	
 	TotalsParameters = New Structure;
-	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Disable aggregate usage…';"));
-	TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Disabling aggregation usage is completed';"));
+	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Disabling aggregates…';"));
+	TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Aggregates are disabled';"));
 	TotalsParameters.Insert("Action",               "SetAggregatesUsing");
 	TotalsParameters.Insert("RowsArray",            Items.AggregatesByRegisters.SelectedRows);
 	TotalsParameters.Insert("Field",                   "AgregateUsage");
@@ -513,7 +513,7 @@ Procedure SetTotalsPeriod(Command)
 	EndIf;
 	
 	TotalsParameters = New Structure;
-	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Setting calculated totals period …';"));
+	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Setting calculated totals period…';"));
 	TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Setting of calculated totals period is complete';"));
 	TotalsParameters.Insert("Action",               "SetTotalPeriod");
 	TotalsParameters.Insert("RowsArray",            ActionsArray);
@@ -540,8 +540,8 @@ Procedure EnableTotalsUsageQuickAccess(Command)
 	EndIf;
 	
 	TotalsParameters = New Structure;
-	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Enable totals usage…';"));
-	TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Enabling usage of totals is completed';"));
+	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Enabling totals…';"));
+	TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Totals are enabled';"));
 	TotalsParameters.Insert("Action",               "SetTotalsUsing");
 	TotalsParameters.Insert("RowsArray",            ActionsArray);
 	TotalsParameters.Insert("Field",                   "");
@@ -567,7 +567,7 @@ Procedure FillAggregatesAndPerformRebuild(Command)
 	EndIf;
 	
 	TotalsParameters = New Structure;
-	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Rebuilding aggregates …';"));
+	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Rebuilding aggregates…';"));
 	TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Aggregates are rebuilt';"));
 	TotalsParameters.Insert("Action",               "RebuildAggregates");
 	TotalsParameters.Insert("RowsArray",            ActionsArray);
@@ -602,7 +602,7 @@ EndProcedure
 Procedure RecalcTotals(Command)
 	
 	TotalsParameters = New Structure;
-	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Recalculating totals …';"));
+	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Recalculating totals…';"));
 	TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Totals are recalculated.';"));
 	TotalsParameters.Insert("Action",               "RecalcTotals");
 	TotalsParameters.Insert("RowsArray",            Items.TotalsList.SelectedRows);
@@ -619,7 +619,7 @@ EndProcedure
 Procedure RecalcPresentTotals(Command)
 	
 	TotalsParameters = New Structure;
-	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Recalculating the current totals …';"));
+	TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Recalculating current totals…';"));
 	TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Current totals recalculation completed.';"));
 	TotalsParameters.Insert("Action",               "RecalcPresentTotals");
 	TotalsParameters.Insert("RowsArray",            Items.TotalsList.SelectedRows);
@@ -742,7 +742,7 @@ Procedure SetConditionalAppearance()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure ClearAggregatesByRegistersCompletion(Response, AdditionalParameters) Export
@@ -750,7 +750,7 @@ Procedure ClearAggregatesByRegistersCompletion(Response, AdditionalParameters) E
 	If Response = DialogReturnCode.Yes Then
 		
 		TotalsParameters = New Structure;
-		TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Clearing aggregates …';"));
+		TotalsParameters.Insert("ProcessTitle",  NStr("en = 'Clearing aggregates…';"));
 		TotalsParameters.Insert("AfterProcess1",          NStr("en = 'Aggregates are cleared';"));
 		TotalsParameters.Insert("Action",               "ClearAggregates");
 		TotalsParameters.Insert("RowsArray",            Items.AggregatesByRegisters.SelectedRows);
@@ -1049,7 +1049,7 @@ Procedure GetOptimalAggregatesClientCompletion(ObtainedFiles, ExecutionResult) E
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClientAtServerNoContext
 Function EndOfPeriod(Val Date)
@@ -1066,7 +1066,7 @@ Function Prefix()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Function GetOptimalAggregatesServer()
@@ -1158,7 +1158,7 @@ Function GetOptimalAggregatesServer()
 	// Prepare message texts.
 	If Total = 1 Then
 		
-		// 
+		// If there is only one register.
 		ListItem = Collection[0];
 		RegisterName = ListItem.Description;
 		If Result.HasErrors Then
@@ -1172,7 +1172,7 @@ Function GetOptimalAggregatesServer()
 		
 	ElsIf Success = 0 Then
 		
-		// 
+		// That did not work.
 		Result.HasErrors = True;
 		Result.MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot receive ideal aggregates of accumulation registers due to:
@@ -1180,7 +1180,7 @@ Function GetOptimalAggregatesServer()
 		
 	ElsIf Result.HasErrors Then
 		
-		// 
+		// Partially succeeded.
 		Result.MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Aggregates are successfully received for %1 of %2 registers.
 				|Not received for %3 due to:
@@ -1192,7 +1192,7 @@ Function GetOptimalAggregatesServer()
 		
 	Else
 		
-		// 
+		// Successfully completed.
 		Result.MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Accumulation registers (%1)';"), Success);
 			
@@ -1300,7 +1300,7 @@ Function SetRegisterParametersAtServer(Val RegisterType,
                                              Val RegisterName,
                                              Val Action,
                                              Val Value1,
-                                             Val Value2, // 
+                                             Val Value2, // The default value is Undefined.
                                              Val ErrorField,
                                              Val ErrorMessage)
 	

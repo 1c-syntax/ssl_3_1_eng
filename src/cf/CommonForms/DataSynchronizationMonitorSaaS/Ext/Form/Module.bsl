@@ -133,7 +133,7 @@ Procedure ExecuteCursorPositioning(RowIndex)
 				
 			EndIf;
 			
-			// 
+			// Place the mouse pointer.
 			Items.NodesStateList.CurrentRow = NodesStateList[RowIndex].GetID();
 			
 		EndIf;

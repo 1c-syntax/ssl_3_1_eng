@@ -340,7 +340,7 @@ Procedure Write(ConfigurationStatistics, Area) Export
 	OperationsRefs = New Map;
 	For Each CurObject In ConfigurationStatistics Do
 		If CurObject.Value["StatisticsKind"] = 0 Then
-			QueryResult = GetResult(CurObject.Value["Query"]);  // @skip-
+			QueryResult = GetResult(CurObject.Value["Query"]);  
 			StatisticsOperations = GetStatisticsOperationResult(CurObject.Key, QueryResult);
 		ElsIf CurObject.Value["StatisticsKind"] = 1 Then
 			Value = ?(Constants[CurObject.Value["Query"].Name].Get(), 1, 0);
@@ -409,7 +409,7 @@ Procedure WriteSeparated(ConfigurationStatistics)
 				
 			EndTry;
 			
-			Write(ConfigurationStatistics, DataAreaRef); // 
+			Write(ConfigurationStatistics, DataAreaRef); 
 			
 			If CoreSaaSAvailable Then
 				ModuleSaaSOperations.SignOutOfDataArea();

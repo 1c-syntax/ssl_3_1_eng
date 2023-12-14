@@ -200,7 +200,7 @@ EndProcedure
 //
 // Parameters:
 //  Item - ClientApplicationForm
-//          - FormTable - 
+//          - FormTable - an item to process selection.
 //  ValueSelected - Arbitrary - see the SelectedValue parameter description of the ChoiceProcessing event.
 //  FormDataCollection - FormDataCollection - for picking from list.
 //
@@ -248,7 +248,7 @@ EndProcedure
 //  Table - ValueTable - a table to be checked.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - the flag that indicates using all items.
 //
 Function AllRowsMarkedInTable(Table) Export
 	
@@ -290,7 +290,7 @@ EndProcedure
 // Parameters:
 //  Form - ClientApplicationForm - an exchange plan node.
 //  Cancel - Boolean - indicates whether the exchange plan node save is canceled.
-//  WriteParameters - Structure - arbitrary save parameters. See the AfterWrite event details in Syntax Assistant. 
+//  WriteParameters - Structure - arbitrary save parameters. See the AfterWrite event details in Syntax Assistant.
 //
 Procedure BeforeWrite(Form, Cancel, WriteParameters) Export
 	
@@ -332,9 +332,9 @@ EndProcedure
 // 
 //
 // Parameters:
-//  Form - ClientApplicationForm - the site plan of exchange.
+//  Form - ClientApplicationForm - an exchange plan node.
 //  Item - FormItems
-//  URL -  String -
+//  URL -  String - 
 //  StandardProcessing - Boolean
 //
 Procedure HandleURLInNodeForm(Form, Item, URL, StandardProcessing) Export
@@ -346,6 +346,52 @@ Procedure HandleURLInNodeForm(Form, Item, URL, StandardProcessing) Export
 		ModuleDataExchangeInternalPublicationClient.HandleURLInNodeForm(
 			Form, URL, StandardProcessing);
 	EndIf;
+	
+EndProcedure
+
+// 
+//
+// Parameters:
+//  CommandParameter - Structure
+//                  - Undefined
+//  CommandExecuteParameters - CommandExecuteParameters
+//
+Procedure OpenDataSynchronizationPanel(CommandParameter, CommandExecuteParameters) Export
+	
+	DataProcessorName      = "";
+	DataProcessorFormName = "";
+	
+	If StandardSubsystemsClient.ClientRunParameters().SeparatedDataUsageAvailable Then
+		If CommonClient.SubsystemExists("ОбменДаннымиНастройкиПрограммы") Then
+			DataProcessorName      = "DSLAdministrationPanel";
+			DataProcessorFormName = "DataSynchronization";
+		ElsIf CommonClient.SubsystemExists("StandardSubsystems.ApplicationSettings") Then
+			DataProcessorName      = "SSLAdministrationPanel";
+			DataProcessorFormName = "DataSynchronization";
+		EndIf;	
+	Else
+		If Not CommonClient.SubsystemExists("CloudTechnology") Then
+			Return;
+		EndIf;
+		
+		DataProcessorName      = "SSLAdministrationPanelSaaS";
+		DataProcessorFormName = "DataSynchronizationForServiceAdministrator";
+	EndIf;
+	
+	If DataProcessorName = "" Then
+		Return;
+	EndIf;
+	
+	NameOfFormToOpen_ = "DataProcessor.[DataProcessorName].Form.[DataProcessorFormName]";
+	NameOfFormToOpen_ = StrReplace(NameOfFormToOpen_, "[DataProcessorName]", DataProcessorName);
+	NameOfFormToOpen_ = StrReplace(NameOfFormToOpen_, "[DataProcessorFormName]", DataProcessorFormName);
+	
+	OpenForm(
+		NameOfFormToOpen_,
+		New Structure,
+		CommandExecuteParameters.Source,
+		NameOfFormToOpen_ + ?(CommandExecuteParameters.Window = Undefined, ".SingleWindow", ""),
+		CommandExecuteParameters.Window);
 	
 EndProcedure
 
@@ -368,7 +414,7 @@ EndProcedure
 // Returns the name of the message form that contains a notification about an infobase update error that occurs due to an ORR error.
 // 
 // Returns:
-//  String - 
+//  String - a name of failed update message form.
 //
 Function FailedUpdateMessageFormName() Export
 	
@@ -398,7 +444,7 @@ Procedure OpenCompositionOfDataToSend(Val InfobaseNode) Export
 	FormParameters.Insert("ExchangeNode", InfobaseNode);
 	FormParameters.Insert("SelectExchangeNodeProhibited", True);
 	
-	// 
+	// Internal data that cannot be modified if the data processor is called from a command.
 	FormParameters.Insert("NamesOfMetadataToHide", New ValueList);
 	FormParameters.NamesOfMetadataToHide.Add("InformationRegister.InfobaseObjectsMaps");
 	
@@ -423,10 +469,10 @@ Procedure BeforeStart(Parameters) Export
 				
 	EndIf;
 	
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
 	
 	ClientParameters = StandardSubsystemsClient.ClientParametersOnStart();
 	
@@ -642,7 +688,7 @@ EndProcedure
 // to be displayed in the infobase object mapping wizard.
 //
 // Returns:
-//     Number - 
+//     Number - maximum number of fields for mapping.
 //
 Function MaxObjectsMappingFieldsCount() Export
 	
@@ -854,7 +900,7 @@ Procedure FileDirectoryChoiceHandler(Object, Val PropertyName, StandardProcessin
 	
 EndProcedure
 
-// Continuation of the procedure (see above). 
+// Continuation of the procedure (see above).
 // 
 Procedure FileDirectoryChoiceHandlerCompletionAfterChoiceInDialog(PathToDirectory, AdditionalParameters) Export
 	
@@ -882,10 +928,10 @@ EndProcedure
 //     CompletionNotification  - NotifyDescription - an optional notification that is called with the following
 //                                                  parameters:
 //                                 Result               - String
-//                                                         - Undefined - 
-//                                                                          
-//                                                                          
-//                                 
+//                                                         - Undefined - the selected value (array of strings
+//                                                                          if multiple selection is used), or
+//                                                                          Undefined if nothing was selected;
+//                                 AdditionalParameters - Undefined.
 //
 //
 Procedure FileSelectionHandler(Object, Val PropertyName, StandardProcessing = False, Val DialogParameters = Undefined, CompletionNotification = Undefined) Export
@@ -954,7 +1000,7 @@ EndProcedure
 //     DialogParameters     - Structure                       - optional additional parameters of file selection
 //                                                              dialog.
 //     FormIdentifier   - String
-//                          - UUID - 
+//                          - UUID - a parameter for the storage.
 //
 Procedure SelectAndSendFileToServer(CompletionNotification, Val DialogParameters = Undefined, Val FormIdentifier = Undefined) Export
 	
@@ -1059,8 +1105,8 @@ EndFunction
 Procedure OpenObjectsMappingWizardCommandProcessing(InfobaseNode,
 		Owner, AdditionalParameters = Undefined) Export
 	
-	// 
-	// 
+	
+	
 	FormParameters = New Structure("InfobaseNode", InfobaseNode);
 	FormParameters.Insert("AdvancedExportAdditionMode", True);
 	
@@ -1217,7 +1263,7 @@ EndProcedure
 //
 // Parameters:
 //     ExportAddition           - Structure
-//                                  - FormDataStructure - 
+//                                  - FormDataStructure - export settings.
 //     Owner, Uniqueness, Window - parameters for opening the form window.
 //
 // Returns:
@@ -1238,7 +1284,7 @@ EndFunction
 //
 // Parameters:
 //     ExportAddition           - Structure
-//                                  - FormDataStructure - 
+//                                  - FormDataStructure - export settings.
 //     Owner, Uniqueness, Window - parameters for opening the form window.
 //
 // Returns:
@@ -1265,7 +1311,7 @@ EndFunction
 //
 // Parameters:
 //     ExportAddition           - Structure
-//                                  - FormDataStructure - 
+//                                  - FormDataStructure - export settings.
 //     Owner, Uniqueness, Window - parameters for opening the form window.
 //
 // Returns:
@@ -1286,7 +1332,7 @@ EndFunction
 //
 // Parameters:
 //     ExportAddition           - Structure
-//                                  - FormDataStructure - 
+//                                  - FormDataStructure - export settings.
 //     Owner, Uniqueness, Window - parameters for opening the form window.
 //
 // Returns:
@@ -1308,7 +1354,7 @@ EndFunction
 //
 // Parameters:
 //     ExportAddition           - Structure
-//                                  - FormDataStructure - 
+//                                  - FormDataStructure - export settings.
 //     Owner, Uniqueness, Window - parameters for opening the form window.
 //
 // Returns:
@@ -1317,7 +1363,7 @@ EndFunction
 Function OpenExportAdditionFormSaveSettings(Val ExportAddition, Val Owner=Undefined, Val Uniqueness=Undefined, Val Window=Undefined) Export
 	FormParameters = New Structure("CloseOnChoice, ChoiceAction", True, 3);
 	
-	// 
+	// Composer is not passed to the form being opened.
 	ExportAddition.AllDocumentsFilterComposer = Undefined;
 	
 	FormParameters.Insert("CurrentSettingsItemPresentation", ExportAddition.CurrentSettingsItemPresentation);
@@ -1334,27 +1380,27 @@ EndFunction
 //     ValueSelected  - Arbitrary                    - selection result.
 //     ChoiceSource     - ClientApplicationForm                - a form that made the selection.
 //     ExportAddition - Structure
-//                        - FormDataCollection - 
+//                        - FormDataCollection - selection addition settings that are being changed.
 //
 // Returns:
-//     Boolean - 
+//     Boolean - True if the selection is called from one of the export addition forms, otherwise it is False.
 //
 Function ExportAdditionChoiceProcessing(Val ValueSelected, Val ChoiceSource, ExportAddition) Export
 	
 	If ChoiceSource.FormName="DataProcessor.InteractiveExportChange.Form.PeriodAndFilterEdit" Then
-		// 
+		// Changing the "All documents" predefined filter. The action is determined by SelectedValue.
 		Return ExportAdditionStandardOptionChoiceProcessing(ValueSelected, ExportAddition);
 		
 	ElsIf ChoiceSource.FormName="DataProcessor.InteractiveExportChange.Form.Form" Then
-		// 
+		// Changing the "In detail" predefined filter. The effect is determined by SelectedValue.
 		Return ExportAdditionStandardOptionChoiceProcessing(ValueSelected, ExportAddition);
 		
 	ElsIf ChoiceSource.FormName="DataProcessor.InteractiveExportChange.Form.SettingsCompositionEdit" Then
-		// 
+		// Settings whose effect is determined by SelectedValue.
 		Return ExportAdditionStandardOptionChoiceProcessing(ValueSelected, ExportAddition);
 		
 	ElsIf ChoiceSource.FormName=ExportAddition.AdditionScenarioParameters.AdditionalOption.FilterFormName Then
-		// 
+		// Changing settings according to the node scenario.
 		Return ExportAdditionNodeScenarioChoiceProcessing(ValueSelected, ExportAddition);
 		
 	EndIf;
@@ -1410,7 +1456,7 @@ Procedure FillStructureData(Form)
 	
 	Form.Context.NodeFiltersSetting = SettingsStructure;
 	
-	// 
+	// Saving values entered in another application.
 	SettingsStructure = Form.Context.CorrespondentInfobaseNodeFilterSetup;
 	MatchingAttributes = Form.NamesOfCorrespondentsDatabaseDetails;
 	
@@ -1470,7 +1516,7 @@ Function ExportAdditionStandardOptionChoiceProcessing(Val ValueSelected, ExportA
 	If TypeOf(ValueSelected)=Type("Structure") Then 
 		
 		If ValueSelected.ChoiceAction=1 Then
-			// 
+			// FIlter and period for all documents.
 			ExportAddition.AllDocumentsFilterComposer = Undefined;
 			ExportAddition.AllDocumentsComposerAddress = ValueSelected.SettingsComposerAddress;
 			ExportAddition.AllDocumentsFilterPeriod      = ValueSelected.DataPeriod;
@@ -1487,7 +1533,7 @@ Function ExportAdditionStandardOptionChoiceProcessing(Val ValueSelected, ExportA
 			Result = True;
 			
 		ElsIf ValueSelected.ChoiceAction=3 Then
-			// 
+			// Settings are saved, saving the current name.
 			ExportAddition.CurrentSettingsItemPresentation = ValueSelected.SettingPresentation;
 			Result = True;
 			
@@ -1511,6 +1557,18 @@ Function ExportAdditionNodeScenarioChoiceProcessing(Val ValueSelected, ExportAdd
 	EndDo;
 	
 	Return True;
+EndFunction
+
+Function CheckAndRegisterCOMConnector(Val StructureOfSettings, Notification = Undefined) Export
+	
+	If Not CommonClient.FileInfobase() Then
+		Return True;
+	EndIf;
+	
+	If Not DataExchangeServerCall.CheckAndRegisterCOMConnector(StructureOfSettings) Then
+		CommonClient.RegisterCOMConnector(False, Notification);
+	EndIf;
+	
 EndFunction
 
 #EndRegion

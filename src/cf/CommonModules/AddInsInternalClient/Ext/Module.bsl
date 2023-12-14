@@ -48,11 +48,11 @@ Procedure CheckAddInAvailability(Notification, Context) Export
 	
 	Context.Location = Information.Location;
 	
-	// 
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
+	
 	
 	Result = AddInAvailabilityResult();
 	Result.TheComponentOfTheLatestVersion = Information.TheLatestVersionOfComponentsFromTheLayout;
@@ -87,39 +87,49 @@ Procedure CheckAddInAvailability(Notification, Context) Export
 		
 	Else
 		
-		If CurrentClientIsSupportedByAddIn(Information.Attributes) Then
+		Result.Insert("Version", Information.Attributes.Version);
 			
-			Result.Available = True;
-			Result.Insert("Version", Information.Attributes.Version);
-			
-			If SearchForAComponentOfTheLatestVersion Then
-				VersionParts = StrSplit(Result.Version, ".");
-				If VersionParts.Count() = 4 Then
-					// The component version is later than the template version.
-					If CommonClientServer.CompareVersions(Result.Version,
-						Result.TheComponentOfTheLatestVersion.Version) > 0 Then
-						Result.TheComponentOfTheLatestVersion = New Structure("Id, Version, Location",
-							Context.Id, Result.Version, Information.Location);
-					EndIf;
-				Else
-					// 
+		If SearchForAComponentOfTheLatestVersion Then
+			VersionParts = StrSplit(Result.Version, ".");
+			If VersionParts.Count() = 4 Then
+				// The component version is later than the template version.
+				If CommonClientServer.CompareVersions(Result.Version,
+					Result.TheComponentOfTheLatestVersion.Version) > 0 Then
 					Result.TheComponentOfTheLatestVersion = New Structure("Id, Version, Location",
 						Context.Id, Result.Version, Information.Location);
 				EndIf;
+			Else
+				// If the add-in version mismatch the template, take an add-in from the catalog.
+				Result.TheComponentOfTheLatestVersion = New Structure("Id, Version, Location",
+					Context.Id, Result.Version, Information.Location);
 			EndIf;
+		EndIf;
+		
+		
+		If Not Information.TargetPlatformsAreFull Or CurrentClientIsSupportedByAddIn(Information.Attributes.TargetPlatforms) Then
 			
+			Result.Available = True;
 			ExecuteNotifyProcessing(Notification, Result);
 			
 		Else 
 			
+			NotificationParameters = New Structure;
+			NotificationParameters.Insert("Notification", Notification);
+			NotificationParameters.Insert("Result", Result);
+			
 			NotificationForms = New NotifyDescription(
 				"CheckAddInAvailabilityAfterDisplayingAvailableClientTypes",
 				ThisObject,
-				Notification);
+				NotificationParameters);
+				
+			If Not Context.SuggestInstall Then
+				ExecuteNotifyProcessing(NotificationForms, False);
+				Return;
+			EndIf;
 			
 			FormParameters = New Structure;
 			FormParameters.Insert("ExplanationText", Context.ExplanationText);
-			FormParameters.Insert("SupportedClients", Information.Attributes);
+			FormParameters.Insert("SupportedClients", Information.Attributes.TargetPlatforms);
 			
 			OpenForm("CommonForm.CannotInstallAddIn",
 				FormParameters,,,,, NotificationForms);
@@ -133,7 +143,7 @@ EndProcedure
 // Parameters:
 //  Context - See CommonInternalClient.AddInAttachmentContext
 //
-Function AddInAvailabilityCheckResult(Context) Export
+Async Function AddInAvailabilityCheckResult(Context) Export
 	
 	ThePathToTheLayoutToSearchForTheLatestVersion = Undefined;
 	SearchForAComponentOfTheLatestVersion = ValueIsFilled(Context.OriginalLocation) And Not Context.ASearchForANewVersionHasBeenPerformed; 
@@ -146,11 +156,11 @@ Function AddInAvailabilityCheckResult(Context) Export
 	
 	Context.Location = Information.Location;
 	
-	// 
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
+	
 	
 	Result = AddInAvailabilityResult();
 	Result.TheComponentOfTheLatestVersion = Information.TheLatestVersionOfComponentsFromTheLayout;
@@ -169,32 +179,58 @@ Function AddInAvailabilityCheckResult(Context) Export
 		
 	Else
 		
-		If CurrentClientIsSupportedByAddIn(Information.Attributes) Then
+		Result.Insert("Version", Information.Attributes.Version);
 			
-			Result.Available = True;
-			Result.Insert("Version", Information.Attributes.Version);
-			
-			If SearchForAComponentOfTheLatestVersion Then
-				VersionParts = StrSplit(Result.Version, ".");
-				If VersionParts.Count() = 4 Then
-					// 
-					If CommonClientServer.CompareVersions(Result.Version,
-						Result.TheComponentOfTheLatestVersion.Version) > 0 Then
-						Result.TheComponentOfTheLatestVersion = New Structure("Id, Version, Location",
-							Context.Id, Result.Version, Information.Location);
-					EndIf;
-				Else
-					// 
+		If SearchForAComponentOfTheLatestVersion Then
+			VersionParts = StrSplit(Result.Version, ".");
+			If VersionParts.Count() = 4 Then
+				// The component version is later than the template version.
+				If CommonClientServer.CompareVersions(Result.Version,
+					Result.TheComponentOfTheLatestVersion.Version) > 0 Then
 					Result.TheComponentOfTheLatestVersion = New Structure("Id, Version, Location",
 						Context.Id, Result.Version, Information.Location);
 				EndIf;
+			Else
+				// If the add-in version mismatch the template, take an add-in from the catalog.
+				Result.TheComponentOfTheLatestVersion = New Structure("Id, Version, Location",
+					Context.Id, Result.Version, Information.Location);
 			EndIf;
+		EndIf;
+		
+		If Not Information.TargetPlatformsAreFull Or CurrentClientIsSupportedByAddIn(Information.Attributes.TargetPlatforms) Then
 			
+			Result.Available = True;
 			Return Result;
 		
 		Else
 			
-			Result.ErrorDescription = TextCannotInstallAddIn(Context.ExplanationText);
+			ErrorDescription = StringFunctionsClient.FormattedString(
+				NStr("en = 'The add-in is not designed to work 
+					 |in the <b>%1</b> client application.
+					 |Contact the add-in developer.';"), PresentationOfCurrentClient());
+
+			If Not Context.SuggestInstall Then
+				Result.Available = False;
+				Result.ErrorDescription = ErrorDescription;
+			Else
+				QuestionButtons = New ValueList;
+				QuestionButtons.Add("Close", NStr("en = 'Close';"));
+				QuestionButtons.Add("ContinueInstallationAttempt", NStr("en = 'Continue trying to install';"));
+
+				QuestionTitle = Context.ExplanationText;
+				If IsBlankString(QuestionTitle) Then
+					QuestionTitle = NStr("en = 'Cannot install the add-in.';");
+				EndIf;
+
+				Response = Await DoQueryBoxAsync(ErrorDescription, QuestionButtons,, "Close", QuestionTitle);
+
+				If Response = "ContinueInstallationAttempt" Then
+					Result.Available = True;
+				Else
+					Result.Available = False;
+					Result.ErrorDescription = ErrorDescription;
+				EndIf;
+			EndIf;
 			
 		EndIf;
 		
@@ -239,9 +275,11 @@ Procedure CheckAddInAvailabilityAfterSearchingAddInOnPortal(Imported1, SearchCon
 	
 EndProcedure
 
-Procedure CheckAddInAvailabilityAfterDisplayingAvailableClientTypes(Result, Notification) Export
+Procedure CheckAddInAvailabilityAfterDisplayingAvailableClientTypes(Result, Context) Export
 	
-	ExecuteNotifyProcessing(Notification, AddInAvailabilityResult());
+	AddInAvailabilityResult = Context.Result;
+	AddInAvailabilityResult.Available = Result = True;
+	ExecuteNotifyProcessing(Context.Notification, AddInAvailabilityResult);
 	
 EndProcedure
 
@@ -277,7 +315,7 @@ EndFunction
 Function CurrentClientIsSupportedByAddIn(Attributes)
 	
 	SystemInfo = New SystemInfo;
-	Browser = Undefined;                        
+	Browser = Undefined;
 #If WebClient Then
 	String = SystemInfo.UserAgentInformation;
 	If StrFind(String, "YaBrowser/") > 0 Then
@@ -292,8 +330,10 @@ Function CurrentClientIsSupportedByAddIn(Attributes)
 		Browser = "Firefox";
 	EndIf;
 #EndIf
+
+	NameOfThePlatformType = CommonClientServer.NameOfThePlatformType(SystemInfo.PlatformType);
 	
-	If SystemInfo.PlatformType = PlatformType.Linux_x86 Then
+	If NameOfThePlatformType = "Linux_x86" Then
 		
 		If Browser = Undefined Then
 			Return Attributes.Linux_x86;
@@ -310,8 +350,8 @@ Function CurrentClientIsSupportedByAddIn(Attributes)
 		If Browser = "YandexBrowser" Then
 			Return Attributes.Linux_x86_YandexBrowser;
 		EndIf;
-			
-	ElsIf SystemInfo.PlatformType = PlatformType.Linux_x86_64 Then
+	
+	ElsIf NameOfThePlatformType = "Linux_x86_64" Then
 		
 		If Browser = Undefined Then
 			Return Attributes.Linux_x86_64;
@@ -328,8 +368,8 @@ Function CurrentClientIsSupportedByAddIn(Attributes)
 		If Browser = "YandexBrowser" Then
 			Return Attributes.Linux_x86_64_YandexBrowser;
 		EndIf;
-		
-	ElsIf SystemInfo.PlatformType = PlatformType.MacOS_x86_64 Then
+	
+	ElsIf NameOfThePlatformType = "MacOS_x86_64" Then
 		
 		If Browser = Undefined Then
 			Return Attributes.MacOS_x86_64;
@@ -350,8 +390,8 @@ Function CurrentClientIsSupportedByAddIn(Attributes)
 		If Browser = "YandexBrowser" Then
 			Return Attributes.MacOS_x86_64_YandexBrowser;
 		EndIf;
-		
-	ElsIf SystemInfo.PlatformType = PlatformType.Windows_x86 Then
+	
+	ElsIf NameOfThePlatformType = "Windows_x86" Then
 		
 		If Browser = Undefined Then
 			Return Attributes.Windows_x86;
@@ -373,7 +413,7 @@ Function CurrentClientIsSupportedByAddIn(Attributes)
 			Return Attributes.Windows_x86_YandexBrowser;
 		EndIf;
 		
-	ElsIf SystemInfo.PlatformType = PlatformType.Windows_x86_64 Then
+	ElsIf NameOfThePlatformType = "Windows_x86_64" Then
 		
 		If Browser = Undefined Then
 			Return Attributes.Windows_x86_64;
@@ -395,7 +435,7 @@ Function CurrentClientIsSupportedByAddIn(Attributes)
 			Return Attributes.Windows_x86_64_YandexBrowser;
 		EndIf;
 	
-	ElsIf SystemInfo.PlatformType = PlatformType.MacOS_x86 Then
+	ElsIf NameOfThePlatformType = "MacOS_x86" Then
 		// Browsers may misdefine the OS.
 	
 		If Browser = "Firefox" Then
@@ -410,6 +450,78 @@ Function CurrentClientIsSupportedByAddIn(Attributes)
 			Return Attributes.MacOS_x86_64_YandexBrowser;
 		EndIf;
 		
+	ElsIf NameOfThePlatformType = "Linux_E2K" Then
+		
+		If Browser = Undefined Then
+			Return Attributes.Linux_E2K;
+		EndIf;
+	
+		If Browser = "Firefox" Then
+			Return Attributes.Linux_E2K_Firefox;
+		EndIf;
+		
+		If Browser = "Chrome" Then
+			Return Attributes.Linux_E2K_Chrome;
+		EndIf;
+		
+		If Browser = "YandexBrowser" Then
+			Return Attributes.Linux_E2K_YandexBrowser;
+		EndIf;
+		
+	ElsIf NameOfThePlatformType = "Linux_ARM64" Then
+	
+		If Browser = Undefined Then
+			Return Attributes.Linux_ARM64;
+		EndIf;
+	
+		If Browser = "Firefox" Then
+			Return Attributes.Linux_ARM64_Firefox;
+		EndIf;
+		
+		If Browser = "Chrome" Then
+			Return Attributes.Linux_ARM64_Chrome;
+		EndIf;
+		
+		If Browser = "YandexBrowser" Then
+			Return Attributes.Linux_ARM64_YandexBrowser;
+		EndIf;
+		
+	ElsIf NameOfThePlatformType = "iOS_ARM" Then
+	
+		Return Attributes.iOS_ARM;
+	
+	ElsIf NameOfThePlatformType = "iOS_ARM64" Then
+	
+		Return Attributes.iOS_ARM64;
+	
+	ElsIf NameOfThePlatformType = "Android_ARM" Then
+	
+		Return Attributes.Android_ARM;
+	
+	ElsIf NameOfThePlatformType = "Android_ARM_64" Then
+	
+		Return Attributes.Android_ARM64;
+		
+	ElsIf NameOfThePlatformType = "Android_x86" Then
+	
+		Return Attributes.Android_x86;
+		
+	ElsIf NameOfThePlatformType = "Android_x86_64" Then
+	
+		Return Attributes.Android_x86_64;
+		
+	ElsIf NameOfThePlatformType = "WinRT_ARM" Then
+	
+		Return Attributes.WindowsRT_ARM;
+		
+	ElsIf NameOfThePlatformType = "WinRT_x86" Then
+	
+		Return Attributes.WindowsRT_x86;
+		
+	ElsIf NameOfThePlatformType = "WinRT_x86_64" Then
+	
+		Return Attributes.WindowsRT_x86_64;
+	
 	EndIf;
 	
 	Return False;
@@ -438,7 +550,6 @@ Function PresentationOfCurrentClient()
 #If WebClient Then
 	String = SystemInfo.UserAgentInformation;
 	
-	String = SystemInfo.UserAgentInformation;
 	If StrFind(String, "YaBrowser/") > 0 Then
 		Browser = NStr("en = 'Yandex Browser';");
 	ElsIf StrFind(String, "Chrome/") > 0 Then
@@ -463,24 +574,47 @@ Function PresentationOfCurrentClient()
 #ElsIf ThickClientManagedApplication Then
 	Package = NStr("en = 'thick client';");
 #EndIf
-	
-	If SystemInfo.PlatformType = PlatformType.Windows_x86 Then 
+
+	NameOfThePlatformType = CommonClientServer.NameOfThePlatformType(SystemInfo.PlatformType);
+	If NameOfThePlatformType = "Windows_x86" Then
 		Platform = NStr("en = 'Windows x86';");
-	ElsIf SystemInfo.PlatformType = PlatformType.Windows_x86_64 Then 
+	ElsIf NameOfThePlatformType = "Windows_x86_64" Then
 		Platform = NStr("en = 'Windows x86-64';");
-	ElsIf SystemInfo.PlatformType = PlatformType.Linux_x86 Then 
+	ElsIf NameOfThePlatformType = "Linux_x86" Then
 		Platform = NStr("en = 'Linux x86';");
-	ElsIf SystemInfo.PlatformType = PlatformType.Linux_x86_64 Then 
+	ElsIf NameOfThePlatformType = "Linux_x86_64" Then
 		Platform = NStr("en = 'Linux x86-64';");
-	ElsIf SystemInfo.PlatformType = PlatformType.MacOS_x86 Then 
+	ElsIf NameOfThePlatformType = "MacOS_x86" Then
 		Platform = NStr("en = 'macOS x86';");
-	ElsIf SystemInfo.PlatformType = PlatformType.MacOS_x86_64 Then 
+	ElsIf NameOfThePlatformType = "MacOS_x86_64" Then
 		Platform = NStr("en = 'macOS x86-64';");
+	ElsIf NameOfThePlatformType = "Linux_ARM64" Then
+		Platform = NStr("en = 'Linux ARM64';");
+	ElsIf NameOfThePlatformType = "Linux_E2K" Then
+		Platform = NStr("en = 'Linux E2K';");
+	ElsIf NameOfThePlatformType = "Android_ARM" Then
+		Platform = NStr("en = 'Android ARM';");
+	ElsIf NameOfThePlatformType = "Android_ARM_64" Then
+		Platform = NStr("en = 'Android_ARM64';");
+	ElsIf NameOfThePlatformType = "Android_x86" Then
+		Platform = NStr("en = 'Android x86';");
+	ElsIf NameOfThePlatformType = "Android_x86_64" Then
+		Platform = NStr("en = 'Android x86-64';");
+	ElsIf NameOfThePlatformType = "iOS_ARM" Then
+		Platform = NStr("en = 'iOS ARM';");
+	ElsIf NameOfThePlatformType = "iOS_ARM_64" Then
+		Platform = NStr("en = 'iOS ARM64';");
+	ElsIf NameOfThePlatformType = "WinRT_ARM" Then
+		Platform = NStr("en = 'WinRT ARM';");
+	ElsIf NameOfThePlatformType = "WinRT_x86" Then
+		Platform = NStr("en = 'WinRT x86';");
+	ElsIf NameOfThePlatformType = "WinRT_x86_64" Then
+		Platform = NStr("en = 'WinRT x86-64';");
 	EndIf;
 	
-	// Например:
-	// 
-	// 
+	
+	
+	
 	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 %2';"), Package, Platform);
 	
 EndFunction
@@ -494,7 +628,7 @@ EndFunction
 //
 Async Function AttachExtAddInAsync(Context) Export 
 	
-	Result = AddInAvailabilityCheckResult(Context);
+	Result = Await AddInAvailabilityCheckResult(Context);
 	
 	If Result.Available Then 
 		Return Await CommonInternalClient.AttachExtAddInAsync(Context);
@@ -660,7 +794,7 @@ Async Function AttachAddInFromWindowsRegisterAsync(Context) Export
 	
 EndFunction
 
-// See AddInsClient.AttachAddInFromWindowsRegistry.
+//  See AddInsClient.AttachAddInFromWindowsRegistry.
 // 
 // Parameters:
 //  Context - See ConnectionContextComponentsFromTheWindowsRegistry.
@@ -790,7 +924,7 @@ EndFunction
 //
 Async Function InstallExtAddInAsync(Context) Export
 	
-	CheckResult = AddInAvailabilityCheckResult(Context);
+	CheckResult = Await AddInAvailabilityCheckResult(Context);
 	
 	If CheckResult.Available Then 
 		Return Await CommonInternalClient.InstallExtAddInAsync(Context);
@@ -918,7 +1052,7 @@ EndProcedure
 // ImportAComponentFromAFile procedure continuation.
 Procedure ImportAddInFromFileAfterImport(Result, Context) Export
 	
-	//  
+	 
 	// 
 	//  
 	
@@ -955,7 +1089,7 @@ EndFunction
 
 Procedure AddInSearchOnPortalOnGenerateResult(Result, Notification) Export
 	
-	Imported1 = (Result = True); // 
+	Imported1 = (Result = True); 
 	ExecuteNotifyProcessing(Notification, Imported1);
 	
 EndProcedure
@@ -1016,7 +1150,7 @@ Procedure SaveAddInToFile(AddInRef) Export
 	
 EndProcedure
 
-// Continue with the save component File procedure.
+// Continuation of the SaveAddInToFile procedure.
 Procedure SaveAddInsToFileAfterDirectorySelected(Directory, FilesDetails) Export
 	
 	If IsBlankString(Directory) Then

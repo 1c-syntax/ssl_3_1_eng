@@ -21,19 +21,21 @@ Procedure EnableDisableScheduledJob(Command)
 	CurrentData = Items.List.CurrentData;
 	
 	ScenariosCollection = New Array;
-	For Each RowData In SelectedRows Do
+	For Each Scenario In SelectedRows Do
+		
+		RowData = Items.List.RowData(Scenario);
 		
 		If RowData.DeletionMark Then
 			Continue;
 		EndIf;
 		
-		ScenariosCollection.Add(RowData.Ref);
+		ScenariosCollection.Add(Scenario);
 		
 	EndDo;
 	
 	EnableDisableScheduledJobAtServer(ScenariosCollection, Not CurrentData.UseScheduledJob);
 	
-	// 
+	// Update list data.
 	Items.List.Refresh();
 	
 EndProcedure

@@ -24,7 +24,7 @@
 //                      - BusinessProcessObject
 //                      - TaskObject
 //                      - ExchangePlanObject
-//                      - InformationRegisterRecordManager - 
+//                      - InformationRegisterRecordManager - a record manager.
 //  ReadOnly - Boolean - a ReadOnly form property.
 //
 Procedure ObjectOnReadAtServer(CurrentObject, ReadOnly) Export
@@ -58,7 +58,7 @@ EndProcedure
 //   SettingDetails - Structure - takes a value for the setting description.
 //
 // Returns:
-//   Boolean, Undefined - 
+//   Boolean, Undefined - a setting value of the display warning of long-running synchronization.
 //
 Function LongSynchronizationQuestionSetupFlag(FlagValue1 = Undefined, SettingDetails = Undefined) Export
 	
@@ -69,7 +69,7 @@ EndFunction
 // Returns the password recovery address of the online application account.
 //
 // Returns:
-//   String - 
+//   String - an address for account password recovery.
 //
 Function AccountPasswordRecoveryAddress() Export
 	
@@ -85,7 +85,7 @@ EndFunction
 //   Parameters - Structure - a parameter structure.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - indicates whether it is possible to continue standalone workstation setup.
 //
 Function ContinueStandaloneWorkstationSetup(Parameters) Export
 	

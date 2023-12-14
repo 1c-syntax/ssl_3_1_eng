@@ -19,13 +19,13 @@
 //   WriteError1   - Boolean - if True, write file download errors to the event log.
 //
 // Returns:
-//   Structure - 
+//   Structure - information on a received file:
 //      * Status            - Boolean - True if a file is successfully received.
 //      * Path              - String - path to the file on the client. This key is used only if Status is True.
 //      * ErrorMessage - String - error message if Status is False.
 //      * Headers         - Map - see details of the Headers parameter of the HTTPResponse object in Syntax Assistant.
-//      * StatusCode      - Number - adds in case of an error.
-//                                    See details of the StateCode parameter of the HTTPResponse object in Syntax Assistant.
+//      * StatusCode      - Number - added in case of an error.
+//                                    For more information on the StateCode parameter of the HTTPResponse object, see the Syntax Assistant.
 //
 Function DownloadFileAtClient(Val URL, Val ReceivingParameters = Undefined, Val WriteError1 = True) Export
 	
@@ -40,13 +40,13 @@ Function DownloadFileAtClient(Val URL, Val ReceivingParameters = Undefined, Val 
 		
 		PathForSaving = ReceivingParameters.PathForSaving;
 	Else
-		PathForSaving = GetTempFileName(); // 
+		PathForSaving = GetTempFileName(); 
 	EndIf;
 	
 	If Result.Status Then
 		// ACC:1348-off FileSystemClient.SaveFiles is not used for compatibility (synchronous call).
 		GetFile(Result.Path, PathForSaving, False); 
-		// ACC:1348-
+		// ACC:1348-on
 		Result.Path = PathForSaving;
 	EndIf;
 	

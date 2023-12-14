@@ -429,7 +429,7 @@ Procedure EventLogEvents(Command)
 		EndIf;
 		If Not ValueIsFilled(CurrentData.StartDate) And Not ValueIsFilled(CurrentData.EndDate)
 			Or (CurrentData.StartDate = TextUndefined And CurrentData.EndDate = TextUndefined) Then
-			ShowMessageBox(, NStr("en = 'The scheduled job has not run yet. There are no related records in the Event Log.';"));
+			ShowMessageBox(, NStr("en = 'The scheduled job has not run yet. There are no related records in the event log.';"));
 			Return;
 		EndIf;
 		EventFilter.Insert("StartDate", CurrentData.StartDate);
@@ -648,8 +648,8 @@ Procedure FillFormSettings(Val Settings)
 		Settings.Insert("ScheduledJobForFilterID", BlankID);
 	EndIf;
 	
-	// 
-	// 
+	
+	// См. также 
 	If Settings.Get("FilterKindByPeriod") = Undefined
 	 Or Settings.Get("FilterPeriodFrom")       = Undefined
 	 Or Settings.Get("FilterPeriodFor")      = Undefined Then
@@ -666,7 +666,7 @@ Procedure FillFormSettings(Val Settings)
 	
 	FillPropertyValues(ThisObject, DefaultSettings);
 	
-	// 
+	// Setting visibility and accessibility.
 	Items.SettingArbitraryPeriod.Visible = (FilterKindByPeriod = 4);
 	Items.FilterPeriodFrom.ReadOnly  = Not (FilterKindByPeriod = 4);
 	Items.FilterPeriodFor.ReadOnly = Not (FilterKindByPeriod = 4);
@@ -801,7 +801,7 @@ Procedure UpdateScheduledJobChoiceList()
 	For Each Job In Table Do
 		If IndexOf >= List.Count()
 		 Or List[IndexOf].Value <> Job.Id Then
-			// 
+			// Insert a new job.
 			List.Insert(IndexOf, Job.Id, Job.Description);
 		Else
 			List[IndexOf].Presentation = Job.Description;
@@ -908,7 +908,7 @@ Procedure LockOfOperationsWithExternalResourcesURLProcessingAtServerNote()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure ImportScheduledJobs(JobID = Undefined, UpdateSilently = False)
@@ -961,7 +961,7 @@ Function ScheduledJobsImport(JobID)
 	If JobID <> Undefined Then
 		ExecutionParameters.RunNotInBackground1 = True;
 	EndIf;
-	ExecutionParameters.WaitCompletion = 0; // 
+	ExecutionParameters.WaitCompletion = 0; 
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Generate scheduled job list';");
 	
 	Return TimeConsumingOperations.ExecuteInBackground("ScheduledJobsInternal.GenerateScheduledJobsTable",
@@ -1021,7 +1021,7 @@ Procedure ProcessResult(JobParameters)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure UpdateBackgroundJobsTableAtClient()
@@ -1139,7 +1139,7 @@ Procedure UpdateBackgroundJobTable(ResultAddress = Undefined)
 		 Or Table.Get(IndexOf).Id <> Job.Id Then
 			// Insert a new job.
 			ToUpdate = Table.Insert(IndexOf);
-			// 
+			// Assign a UUID.
 			ToUpdate.Id = Job.Id;
 		Else
 			ToUpdate = Table[IndexOf];
@@ -1160,12 +1160,12 @@ Procedure UpdateBackgroundJobTable(ResultAddress = Undefined)
 			ToUpdate.ScheduledJobID = TextUndefined;
 		EndIf;
 		
-		// 
+		// Getting error details.
 		ToUpdate.MessagesToUserAndErrorDescription 
 			= ScheduledJobsInternal.BackgroundJobMessagesAndErrorDescriptions(
 				ToUpdate.Id, Job);
 		
-		// 
+		// Index increase.
 		IndexOf = IndexOf + 1;
 	EndDo;
 	

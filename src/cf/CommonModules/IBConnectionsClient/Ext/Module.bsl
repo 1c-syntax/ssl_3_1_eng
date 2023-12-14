@@ -134,8 +134,8 @@ Procedure AfterStart() Export
 	If LockMode.Use 
 		 And (Not ValueIsFilled(LockMode.Begin) Or CurrentTime >= LockMode.Begin) 
 		 And (Not ValueIsFilled(LockMode.End) Or CurrentTime <= LockMode.End) Then
-		// 
-		// 
+		
+		
 		Return;
 	EndIf;
 	
@@ -242,7 +242,7 @@ EndProcedure
 
 // Parameters:
 //  Parameters - See CommonOverridable.ПередПериодическойОтправкойДанныхКлиентаНаСервер.Параметры
-//  AreNotificationsReceived - Boolean -
+//  AreNotificationsReceived - Boolean - 
 //                                
 //
 Procedure BeforeRecurringClientDataSendToServer(Parameters, AreNotificationsReceived) Export
@@ -305,7 +305,7 @@ EndProcedure
 
 Function IsSubsystemUsed()
 	
-	// 
+	//  
 	Return Not CommonClient.DataSeparationEnabled();
 	
 EndFunction
@@ -382,13 +382,13 @@ Procedure SessionTerminationModeManagement(CurrentMode)
 	LockBeginTime = CurrentMode.Begin;
 	LockEndTime = CurrentMode.End;
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	WaitTimeout    = CurrentMode.SessionTerminationTimeout;
 	ExitWithConfirmationTimeout = WaitTimeout / 3;
-	StopTimeoutSaaS = 60; // 
-	StopTimeout        = 0; // 
+	StopTimeoutSaaS = 60; 
+	StopTimeout        = 0; 
 	CurrentMoment             = CurrentMode.CurrentSessionDate;
 	
 	If LockEndTime <> '00010101' And CurrentMoment > LockEndTime Then
@@ -450,9 +450,9 @@ Procedure EndUserSessions(CurrentMode)
 	EndIf;
 	
 	If SessionCount <= 1 Then
-		// 
-		// 
-		// 
+		
+		
+		
 		SetUserTerminationInProgressFlag(False);
 		Notify("UsersSessions",
 			New Structure("Status, SessionCount", "Done", SessionCount));
@@ -465,15 +465,15 @@ Procedure EndUserSessions(CurrentMode)
 		Return;
 	EndIf;
 	
-	// 
+	
 	If CommonClient.FileInfobase() Then
 		Notify("UsersSessions",
 			New Structure("Status, SessionCount", "RefreshEnabled", SessionCount));
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	
 	Try
 		AdministrationParameters = SavedAdministrationParameters();
@@ -630,9 +630,9 @@ EndProcedure
 // Continues from the above procedure.
 Procedure AfterAnswerToPromptToAuthorizeOrUnlock(Response, Parameters) Export
 	
-	If Response = DialogReturnCode.Yes Then // 
+	If Response = DialogReturnCode.Yes Then // Logging on to the locked application.
 		
-	ElsIf Response = DialogReturnCode.No Then // 
+	ElsIf Response = DialogReturnCode.No Then // Removing the application lock and logging on.
 		IBConnectionsServerCall.SetDataAreaSessionLock(
 			New Structure("Use", False));
 	Else
@@ -750,10 +750,10 @@ EndProcedure
 //
 // Parameters:
 //  LaunchParameterValue - String - main launch parameter.
-//  StartupParameters          - Array of String -
+//  StartupParameters          - Array of String - 
 //
 // Returns:
-//   Boolean   - 
+//   Boolean   - True if system start must be canceled.
 //
 Function ProcessStartParameters(Val StartupParameters)
 
@@ -781,9 +781,6 @@ Function ProcessStartParameters(Val StartupParameters)
 		Exit(False);
 		Return True;
 		
-	//  
-	// 
-	// 
 	ElsIf TheKeyIsContainedInTheStartupParameters(StartupParameters, ParameterNameShutdownUsers) Then
 		
 		AdditionalParameters = AdditionalParametersForUserShutdown();
@@ -844,7 +841,7 @@ EndFunction
 //                                               regardless of the lock.
 //                                               Cannot be used for data area session locks.
 //     * WaitingForTheStartOfBlockingMin  - Number -  delay time of the lock start in minutes.
-//     * BlockingDurationMin    - Number - lock duration in minutes.
+//     * BlockingDurationMin    - Number -  lock duration in minutes.
 //
 Function AdditionalParametersForUserShutdown() 
 	

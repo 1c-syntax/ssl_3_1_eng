@@ -13,20 +13,19 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	IsNewGroup = Parameters.IsNewGroup;
-	
 	If IsNewGroup Then
 		
 		ObjectValue = Catalogs[Parameters.FilesStorageCatalogName].CreateFolder();
-		If Parameters.Property("Parent")
-			And Parameters.Parent <> Undefined
+		If Parameters.Parent <> Undefined
 			And TypeOf(Parameters.Parent) = TypeOf(ObjectValue.Ref) Then
 			
-			If Parameters.Parent.IsFolder Then
+			ParentProperties = Common.ObjectAttributesValues(Parameters.Parent, "IsFolder,Parent");
+			If ParentProperties.IsFolder Then
 				ObjectValue.Parent = Parameters.Parent;
-			ElsIf Parameters.Parent.Parent <> Undefined
-				And TypeOf(Parameters.Parent.Parent) = TypeOf(ObjectValue.Ref) Then
+			ElsIf ParentProperties.Parent <> Undefined
+				And TypeOf(ParentProperties.Parent) = TypeOf(ObjectValue.Ref) Then
 				
-				ObjectValue.Parent = Parameters.Parent.Parent; // 
+				ObjectValue.Parent = ParentProperties.Parent; 
 			EndIf;
 			
 		Else
@@ -252,7 +251,9 @@ Function HandleFileRecordCommand()
 	Modified = False;
 	RepresentDataChange(ThisObject.Object.Ref, DataChangeType.Update);
 	NotifyChanged(ThisObject.Object.Ref);
-	Notify("Write_File", New Structure("IsNew", FileCreated), ThisObject.Object.Ref);
+	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
+	FileRecordingNotificationParameters.IsNew = FileCreated;
+	Notify("Write_File", FileRecordingNotificationParameters, ThisObject.Object.Ref);
 	
 	Return True;
 	

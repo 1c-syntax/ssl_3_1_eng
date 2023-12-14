@@ -14,8 +14,8 @@
 // Parameters:
 //     ItemsToMerge - FormTable
 //                          - Array of AnyRef
-//                          - ValueList - 
-//                            
+//                          - ValueList - List of items to merge.
+//                            Alternatively can take a collection of items with the Reference attribute.
 //     AdditionalParameters - See AttachableCommandsClient.CommandExecuteParameters 
 //
 Procedure MergeSelectedItems(Val ItemsToMerge, AdditionalParameters = Undefined) Export
@@ -23,20 +23,15 @@ Procedure MergeSelectedItems(Val ItemsToMerge, AdditionalParameters = Undefined)
 	FormParameters = New Structure;
 	FormParameters.Insert("RefSet", ReferencesArrray(ItemsToMerge));
 	
-	FormOpenParameters = New Structure("Owner, Uniqueness, Window, URL, OnCloseNotifyDescription, WindowOpeningMode");
+	FormOpenParameters = New Structure("Owner,Uniqueness,Window,URL,OnCloseNotifyDescription,WindowOpeningMode");
 	If AdditionalParameters <> Undefined Then
 		FillPropertyValues(FormOpenParameters, AdditionalParameters);
 	EndIf;
 
-	OpenForm(
-		"DataProcessor.ReplaceAndMergeItems.Form.ItemsMerge",
-		FormParameters,
-		FormOpenParameters.Owner,
-		FormOpenParameters.Uniqueness,
-		FormOpenParameters.Window,
-		FormOpenParameters.URL,
-		FormOpenParameters.OnCloseNotifyDescription,
-		FormOpenParameters.WindowOpeningMode);
+	OpenForm("DataProcessor.ReplaceAndMergeItems.Form.ItemsMerge", FormParameters,
+		FormOpenParameters.Owner, FormOpenParameters.Uniqueness,
+		FormOpenParameters.Window, FormOpenParameters.URL,
+		FormOpenParameters.OnCloseNotifyDescription, FormOpenParameters.WindowOpeningMode);
 	
 EndProcedure
 
@@ -45,30 +40,25 @@ EndProcedure
 // Parameters:
 //     ReplacedItems - FormTable
 //                        - Array
-//                        - ValueList - 
-//                          
+//                        - ValueList - List of items to replace and delete.
+//                          Alternatively can take a collection of items with the Reference attribute.
 //     AdditionalParameters - See AttachableCommandsClient.CommandExecuteParameters 
 //
 Procedure ReplaceSelected(Val ReplacedItems, AdditionalParameters = Undefined) Export
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("RefSet", ReferencesArrray(ReplacedItems));
-	FormParameters.Insert("OpenByScenario");
+	FormParameters.Insert("OpenByScenario", True);
 	
-	FormOpenParameters = New Structure("Owner, Uniqueness, Window, URL, OnCloseNotifyDescription, WindowOpeningMode");
+	FormOpenParameters = New Structure("Owner,Uniqueness,Window,URL,OnCloseNotifyDescription,WindowOpeningMode");
 	If AdditionalParameters <> Undefined Then
 		FillPropertyValues(FormOpenParameters, AdditionalParameters);
 	EndIf;
 
-	OpenForm(
-		"DataProcessor.ReplaceAndMergeItems.Form.ItemsReplacement",
-		FormParameters,
-		FormOpenParameters.Owner,
-		FormOpenParameters.Uniqueness,
-		FormOpenParameters.Window,
-		FormOpenParameters.URL,
-		FormOpenParameters.OnCloseNotifyDescription,
-		FormOpenParameters.WindowOpeningMode);
+	OpenForm("DataProcessor.ReplaceAndMergeItems.Form.ItemsReplacement",
+		FormParameters, FormOpenParameters.Owner, FormOpenParameters.Uniqueness,
+		FormOpenParameters.Window, FormOpenParameters.URL, 
+		FormOpenParameters.OnCloseNotifyDescription, FormOpenParameters.WindowOpeningMode);
 	
 EndProcedure
 
@@ -79,10 +69,10 @@ EndProcedure
 //     Items - FormTable
 //              - FormDataCollection
 //              - Array of AnyRef
-//              - ValueList - 
+//              - ValueList - List of items to analyze.
+//         Alternatively can take a collection of items with the Reference attribute.
+//     OpeningParameters - Structure -  
 //         
-//     OpeningParameters - Structure - Form opening parameters. Contains a set of optional fields.
-//         Owner, Uniqueness, Window, URL, OnCloseNotifyDetails, WindowOpeningMode corresponding to the OpenForm parameters.
 //         
 // 
 Procedure ShowUsageInstances(Val Items, Val OpeningParameters = Undefined) Export
@@ -91,20 +81,15 @@ Procedure ShowUsageInstances(Val Items, Val OpeningParameters = Undefined) Expor
 	FormParameters.Insert("Filter", New Structure);
 	FormParameters.Filter.Insert("RefSet", ReferencesArrray(Items));
 	
-	FormOpenParameters = New Structure("Owner, Uniqueness, Window, URL, OnCloseNotifyDescription, WindowOpeningMode");
+	FormOpenParameters = New Structure("Owner,Uniqueness,Window,URL,OnCloseNotifyDescription,WindowOpeningMode");
 	If OpeningParameters <> Undefined Then
 		FillPropertyValues(FormOpenParameters, OpeningParameters);
 	EndIf;
 	
-	OpenForm(
-		"Report.SearchForReferences.Form",
-		FormParameters,
-		FormOpenParameters.Owner,
-		FormOpenParameters.Uniqueness,
-		FormOpenParameters.Window,
-		FormOpenParameters.URL,
-		FormOpenParameters.OnCloseNotifyDescription,
-		FormOpenParameters.WindowOpeningMode);
+	OpenForm("Report.SearchForReferences.Form", FormParameters,
+		FormOpenParameters.Owner, FormOpenParameters.Uniqueness,
+		FormOpenParameters.Window, FormOpenParameters.URL,
+		FormOpenParameters.OnCloseNotifyDescription, FormOpenParameters.WindowOpeningMode);
 	
 EndProcedure
 

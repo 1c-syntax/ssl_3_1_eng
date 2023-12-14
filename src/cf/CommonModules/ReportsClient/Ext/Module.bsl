@@ -13,8 +13,8 @@
 //  When the generation is completed, CompletionHandler is called.
 //
 // Parameters:
-//   ReportForm - ClientApplicationForm - report form.
-//   CompletionHandler - NotifyDescription - a handler to be called once the report is generated.
+//   ReportForm - ClientApplicationForm - Report form.
+//   CompletionHandler - NotifyDescription - Handler to be called once the report is generated.
 //     To the first parameter of the procedure, specified in CompletionHandler,
 //     the following parameter is passed: ReportGenerated (Boolean) - indicates that a report was generated successfully.
 //
@@ -41,8 +41,8 @@ Function ValueTypeRestrictedByLinkByType(Settings, UserSettings, SettingItem, Se
 		ValueType = SettingItemDetails.ValueType;
 	EndIf;
 
-	If ValueType = New TypeDescription("Date") Then
-       	ValueType = New TypeDescription("StandardBeginningDate");
+	If ValueType = New TypeDescription("Date") And Not ReportsClientServer.IsListComparisonKind(SettingItem.ComparisonType) Then
+		ValueType = New TypeDescription("StandardBeginningDate");
 	EndIf;
 
 	TypeLink = SettingItemDetails.TypeLink;
@@ -227,13 +227,13 @@ EndFunction
 //
 // Parameters:
 //  Condition - DataCompositionComparisonType
-//          - Undefined - 
-//  
-//                   - FoldersAndItems - 
-//                     
+//          - Undefined - Current comparison kind value.
+//  SourceValue - FoldersAndItemsUse
+//                   - FoldersAndItems - Current value of the
+//                     ChoiceFoldersAndItems property.
 //
 // Returns:
-//   FoldersAndItemsUse - 
+//   FoldersAndItemsUse - Member of the FoldersAndItemsUse enumeration.
 //
 Function ValueOfFoldersAndItemsUseType(SourceValue, Condition = Undefined) Export
 	If Condition <> Undefined Then 
@@ -378,8 +378,8 @@ EndProcedure
 //
 // Parameters:
 //  SelectionResult - Structure:
-//                  - StandardPeriod - 
-//  Context - Structure - it contains a report form (of settings) and a period value path.
+//                  - StandardPeriod - Value returned by the dialog box.
+//  Context - Structure - Contains a report form (settings form) and a period value path.
 //
 Procedure SelectPeriodCompletion(SelectionResult, Context) Export 
 	If SelectionResult = Undefined Then 
@@ -439,7 +439,7 @@ Procedure SetPeriod(Form, Val Path) Export
 	
 	If TypeOf(UserSettingItem) = Type("DataCompositionSettingsParameterValue") Then 
 		UserSettingItem.Value = Period;
-	Else // 
+	Else // Filter element.
 		UserSettingItem.RightValue = Period;
 	EndIf;
 	
@@ -545,8 +545,8 @@ EndFunction
 //                   - DataCompositionFilterItemGroup
 //
 // Returns:
-//   String - 
-//   
+//   String - Full path of the item. Can be used in the FindItemByFullPath() function.
+//   Undefined if failed to build the path.
 //
 Function FullPathToSettingsItem(Val Settings, Val SettingsItem) Export
 	Result = New Array;

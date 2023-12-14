@@ -566,7 +566,7 @@ Procedure OnCompleteGettingApplicationsListForConnectionAtServer(Cancel = False)
 	ApplicationsTable = CompletionStatus.Result; // ValueTable
 	
 	ApplicationsTable.Columns.Add("PictureUseMode", New TypeDescription("Number"));
-	ApplicationsTable.FillValues(1, "PictureUseMode"); // 
+	ApplicationsTable.FillValues(1, "PictureUseMode"); 
 	ApplicationsSaaS.Load(ApplicationsTable);
 	
 EndProcedure
@@ -1086,7 +1086,7 @@ Procedure OnStartSaveConnectionSettingsAtServer(ContinueWait)
 		
 	Else
 		
-		// 
+		// Connection settings in the attribute structure format of the data exchange creation wizard.
 		ConnectionSettings = New Structure;
 		FillWizardConnectionParametersStructure(ConnectionSettings);
 		
@@ -1204,7 +1204,7 @@ EndProcedure
 &AtServer
 Procedure FillWizardConnectionParametersStructure(WizardSettingsStructure, WithoutCorrespondent = False)
 	
-	// 
+	// Transforming structure of form attributes to structure of wizard attributes.
 	WizardSettingsStructure.Insert("ExchangePlanName",               ExchangePlanName);
 	WizardSettingsStructure.Insert("CorrespondentExchangePlanName", CorrespondentExchangePlanName);
 	WizardSettingsStructure.Insert("ExchangeSetupOption", SettingID);
@@ -1249,9 +1249,9 @@ Procedure FillWizardConnectionParametersStructure(WizardSettingsStructure, Witho
 	WizardSettingsStructure.Insert("ExchangeFormatVersion", ExchangeFormatVersion);
 	WizardSettingsStructure.Insert("SupportedObjectsInFormat", SupportedCorrespondentFormatObjects);
 	
-	// 	
+	// Transport settings.	
 	WizardSettingsStructure.Insert("COMOperatingSystemAuthentication",
-		ExternalConnectionAuthenticationKind = 0); // 
+		ExternalConnectionAuthenticationKind = 0); // Operating system
 	WizardSettingsStructure.Insert("COMInfobaseOperatingMode",
 		?(ExternalConnectionInfobaseOperationMode = "File", 0, 1));
 	WizardSettingsStructure.Insert("COM1CEnterpriseServerSideInfobaseName",
@@ -1401,7 +1401,7 @@ Procedure ReadWizardConnectionParametersStructure(WizardSettingsStructure)
 	
 	// Transport settings.
 	ExternalConnectionAuthenticationKind =
-		?(WizardSettingsStructure.COMOperatingSystemAuthentication, 0, 1); // 
+		?(WizardSettingsStructure.COMOperatingSystemAuthentication, 0, 1); 
 	ExternalConnectionInfobaseOperationMode =
 		?(WizardSettingsStructure.COMInfobaseOperatingMode = 0, "File", "ClientServer1");
 	ExternalConnectionInfobaseName =
@@ -1630,8 +1630,8 @@ Procedure FillAvailableTransportKinds()
 		ExchangePlans[ExchangePlanName].EmptyRef(), SettingID);
 		
 	For Each CurrentTransportKind In UsedExchangeMessagesTransports Do
-		// 
-		// 	
+		
+			
 		If SaaSModel Then
 			If CurrentTransportKind <> Enums.ExchangeMessagesTransportTypes.WS
 				And CurrentTransportKind <> Enums.ExchangeMessagesTransportTypes.WSPassiveMode Then
@@ -1880,7 +1880,7 @@ Procedure InitializeFormAttributes()
 		ConnectionKind = "ExternalConnection";
 		
 		ExternalConnectionInfobaseOperationMode = "File";
-		ExternalConnectionAuthenticationKind = 1; // 
+		ExternalConnectionAuthenticationKind = 1; 
 	ElsIf AvailableTransportKinds.Property("WS") Then
 		ConnectionKind = "Internet";
 	ElsIf AvailableTransportKinds.Property("FILE")
@@ -1904,8 +1904,8 @@ Procedure InitializeFormAttributes()
 		RegularCommunicationChannelsFTPPassiveMode = True;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	If XDTOSetup 
 		And Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then 
 		
@@ -2215,11 +2215,11 @@ Procedure OnChangeExternalConnectionAuthenticationKind()
 	
 	CommonClientServer.SetFormItemProperty(Items,
 		"ExternalConnectionUsername",
-		"Enabled", ExternalConnectionAuthenticationKind = 1); // 
+		"Enabled", ExternalConnectionAuthenticationKind = 1); 
 		
 	CommonClientServer.SetFormItemProperty(Items,
 		"ExternalConnectionPassword",
-		"Enabled", ExternalConnectionAuthenticationKind = 1); // 
+		"Enabled", ExternalConnectionAuthenticationKind = 1); 
 	
 EndProcedure
 
@@ -2611,7 +2611,18 @@ Function Attachable_ConnectionCheckPageTimeConsumingOperation(Cancel, GoToNext)
 		If ConnectionKind = "ExternalConnection"
 			And CommonClient.FileInfobase() Then
 			Notification = New NotifyDescription("RegisterCOMConnectorCompletion", ThisObject);
-			CommonClient.RegisterCOMConnector(False, Notification);
+			
+			ConnectionStructure = New Structure;
+			ConnectionStructure.Insert("COMInfobaseOperatingMode",ExternalConnectionInfobaseOperationMode);
+			ConnectionStructure.Insert("COMInfobaseDirectory", ExternalConnectionInfobaseDirectory);
+			ConnectionStructure.Insert("COM1CEnterpriseServerName", ExternalConnectionServerCluster);
+			ConnectionStructure.Insert("COM1CEnterpriseServerSideInfobaseName",ExternalConnectionInfobaseName);
+			ConnectionStructure.Insert("COMOperatingSystemAuthentication", ExternalConnectionAuthenticationKind);
+			ConnectionStructure.Insert("COMUserName", ExternalConnectionUsername);
+			ConnectionStructure.Insert("COMUserPassword", ExternalConnectionPassword);
+			
+			DataExchangeClient.CheckAndRegisterCOMConnector(ConnectionStructure, Notification);
+
 		Else
 			OnStartCheckConnectionOnline();
 		EndIf;

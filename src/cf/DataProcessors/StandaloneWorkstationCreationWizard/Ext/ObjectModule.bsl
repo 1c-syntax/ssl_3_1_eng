@@ -183,24 +183,24 @@ Procedure WriteInstallationPackageToTempStorage(WriteParameters)
 	StandaloneWorkstationObject.AdditionalProperties.Insert("MetadataProperties1", New Map);
 	StandaloneWorkstationObject.AdditionalProperties.Insert("ExportingParameters", ExportingParameters);
 	
-	// 
+	// Updating cached object registration mechanism values.
 	DataExchangeInternal.CheckObjectsRegistrationMechanismCache();
 	
 	Try
 		ExchangePlans.CreateInitialImage(StandaloneWorkstationObject, ConnectionString);
-		// 
+		// Storing standalone workstation settings in the infobase is unsafe.
 		Constants.SubordinateDIBNodeSettings.Set("");
 	Except
 		WriteLogEvent(EventLogEvent(),
 			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		
-		// 
+		// Storing standalone workstation settings in the infobase is unsafe.
 		Constants.SubordinateDIBNodeSettings.Set("");
 		
 		ExportingParameters.ExportedData = Undefined;
 		ExportingParameters.DestinationStream = Undefined;
 		
-		// 
+		// Deleting a standalone workstation
 		StandaloneModeInternal.DeleteStandaloneWorkstation1(New Structure("StandaloneWorkstation", StandaloneWorkstation), "");
 		
 		Raise;
@@ -306,7 +306,7 @@ Function NewStandaloneWorkstation(Settings)
 	StandaloneWorkstationObject.RegisterChanges = True;
 	StandaloneWorkstationObject.DataExchange.Load = True;
 	
-	// 
+	// Setting filter values on the node
 	DataExchangeEvents.SetNodeFilterValues(StandaloneWorkstationObject, Settings);
 	
 	StandaloneWorkstationObject.Write();
@@ -356,8 +356,8 @@ Function ExportParametersToXMLString(StandaloneWorkstationPrefix, Val InitialIma
 		WriteXML(XMLWriter, 0, "DataArea", XMLTypeAssignment.Explicit);
 	EndIf;
 	
-	XMLWriter.WriteEndElement(); // ПараметрыАвтономногоРабочегоМеста
-	XMLWriter.WriteEndElement(); // Параметры
+	XMLWriter.WriteEndElement(); // StandaloneWorkstationParameters
+	XMLWriter.WriteEndElement(); // Parameters
 	
 	Return XMLWriter.Close();
 	
@@ -457,7 +457,7 @@ Function DataUploadParameterStructure()
 	ExportingParameters.Insert("WrittenItemsAfterCheckFileSize", 0);
 	ExportingParameters.Insert("MaximumNumberOfElements", 50000);
 	ExportingParameters.Insert("NumberofItemsFileSizeCheck", 1000);
-	ExportingParameters.Insert("MaxFileSize", 1024 * 1024 * 100); // 
+	ExportingParameters.Insert("MaxFileSize", 1024 * 1024 * 100); 
 	
 	Return ExportingParameters;
 	

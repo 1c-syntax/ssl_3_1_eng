@@ -12,28 +12,22 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
-	If Parameters.Property("Owner")
-		And TypeOf(Parameters.Owner) = Type("ChartOfCharacteristicTypesRef.QuestionsForSurvey")
-		And Not Parameters.Owner.IsEmpty() Then
-
-		Object.Owner = Parameters.Owner;
-
-	Else
-
-		MessageText = NStr("en = 'This form is opened from the form of the item of the chart of characteristic types ""Survey questions"".';");
+	If Parameters.Owner.IsEmpty() Then
+		MessageText = NStr("en = 'This form can be opened only from survey questions.';");
 		Common.MessageToUser(MessageText);
 		Cancel = True;
 		Return;
-
 	EndIf;
 
-	If Parameters.Property("ReplyType") Then
+	Object.Owner = Parameters.Owner;
+	If Not Parameters.ReplyType.IsEmpty() Then
 		Items.OpenEndedQuestion.Visible = (Parameters.ReplyType = Enums.TypesOfAnswersToQuestion.MultipleOptionsFor);
 	Else
-		Items.OpenEndedQuestion.Visible = (Object.Owner.ReplyType = Enums.TypesOfAnswersToQuestion.MultipleOptionsFor);
+		ReplyType = Common.ObjectAttributeValue(Object.Owner, "ReplyType");
+		Items.OpenEndedQuestion.Visible = (ReplyType = Enums.TypesOfAnswersToQuestion.MultipleOptionsFor);
 	EndIf;
 
-	If Parameters.Property("Description") Then
+	If Not IsBlankString(Parameters.Description) Then
 		Object.Description = Parameters.Description;
 	EndIf;
 

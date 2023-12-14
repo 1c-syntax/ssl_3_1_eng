@@ -45,7 +45,7 @@ Procedure SetConditionalAppearance()
 
 	ConditionalAppearance.Items.Clear();
 	
-	// 
+	
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -58,7 +58,7 @@ Procedure SetConditionalAppearance()
 	
 	Item.Appearance.SetParameterValue("Font", New Font(,,True));
 		
-	// 
+	// Background color
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();

@@ -914,7 +914,7 @@ Function AddModuleProcedure(Code)
 				ThereIsALibraryDescriptionProcedure = True;
 				Break;
 			EndIf;
-			// 
+			// "The OnAddUpdateHandlers%1(Handlers) Export"
 			TitleTemplate1 = StrReplace(SimpleDescriptionProcedureTitle, "(", "%1(");
 			FoundTheProcedureTitle = StringFunctionsClientServer.SubstituteParametersToString(TitleTemplate1, LibraryName);
 			If ModuleStrings.Find(FoundTheProcedureTitle) <> Undefined Then
@@ -934,8 +934,8 @@ Function AddModuleProcedure(Code)
 		Return ProcedureAdded;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	IndexOf = ModuleStrings.Find("#Area InfobaseUpdate");
 	If IndexOf <> Undefined Then
 		IndexOf = IndexOf + 1;
@@ -2212,7 +2212,7 @@ Procedure AddModuleVersion(ModulesVersions, ModuleHandlers)
 		NewConfigurationVersion = FirstConfigurationDigit + "." + StrConcat(NumbersMax, ".");
 	EndIf;
 	
-	// 
+	// Check the build number the user provided.
 	ConfigurationNumbers = StrSplit(NewConfigurationVersion, ".");
 	If IsLibraryToDevelop
 		And NewConfigurationBuildNumber > Number(ConfigurationNumbers[3]) Then
@@ -2893,7 +2893,7 @@ Function FillObjectsTags(ObjectNameAttribute, HandlerObjects, CodeLayout, Extern
 				ExternalTags = UsedObject.Tags1 + ?(IsBlankString(UsedObject.Tags1),"",",") + UsedObject.UpdateModuleTags;
 				UsedObject.UpdateModuleTags = ExternalTags;
 			EndIf;
-		EndIf;// 
+		EndIf;// Object's tags are found.
 	EndDo;
 	SortFields = ObjectNameAttribute;
 	If SortByTags Then
@@ -2926,7 +2926,7 @@ Function FillModulesTagsBySubsystems(ManagersModules, CodeLayout)
 				EndIf;
 			EndDo;
 			ObjectModule.ExternalTags = StrConcat(ModuleTags, ",");
-		EndIf;// 
+		EndIf;// Object's tags are found.
 	EndDo;
 	ManagersModules.Sort(ObjectNameAttribute);
 	
@@ -2952,7 +2952,7 @@ Function UnnecessaryTagsInArea(ExternalTags, CodeLayout)
 		EndDo;
 	EndDo;
 	CommonClientServer.SupplementArray(UnnecessaryTags, NestedTags, True);
-	// 
+	// Don't add pivot library tags to the module.
 	NestedLibrariesTags = CodeLayout.Tags1.NestedLibraries[CodeLayout.ConfigurationName];
 	If NestedLibrariesTags <> Undefined And Not CodeLayout.IsManagerModule Then
 		CommonClientServer.SupplementArray(UnnecessaryTags, NestedLibrariesTags, True);
@@ -3271,7 +3271,7 @@ EndProcedure
 // Parameters:
 //   Settings - Arbitrary
 // Returns:
-//   KeyAndValue - 
+//   KeyAndValue - LongDesc:
 //   * Key - String - tag description
 //   * Value - See TagDetails
 //
@@ -3653,13 +3653,13 @@ Function RussianClassesNames()
 	Result.Insert("ChartOfCalculationTypes", "ChartOfCalculationTypes");
 	Result.Insert("ChartOfCharacteristicTypes", "ChartOfCharacteristicTypes");
 	Result.Insert("Constant", "Constant");
-	Result.Insert("CommonModule", "CommonModule");// 
+	Result.Insert("CommonModule", "CommonModule");
 	Result.Insert("Document", "Document");
 	Result.Insert("ExchangePlan", "ExchangePlan");
 	Result.Insert("InformationRegister", "InformationRegister");
 	Result.Insert("Task", "Task");
 	Result.Insert("Sequence", "Sequence");
-	Result.Insert("Report", "Report");// 
+	Result.Insert("Report", "Report");// Specified in locked objects.
 	
 	Return Result;
 	
@@ -3880,7 +3880,7 @@ Function CreateErrorDescription()
 	Error.Insert("PlaybackOrder", "");
 	Error.Insert("ExpectedBehavior", "");
 	Error.Insert("EmployeeResponsible", "");
-	Error.Insert("DetectionCredibility", "Low"); // 
+	Error.Insert("DetectionCredibility", "Low"); 
 	Error.Insert("RepositoryAddress", "");
 	
 	#If Client Or ThickClientManagedApplication Or ThinClient Or WebClient  Then
@@ -3897,8 +3897,8 @@ Function CreateErrorDescription()
 	#EndIf
 	
 	Error.Insert("DetectionDate",   Date(1,1,1));
-	Error.Insert("MetadataObjects", New Array); // 
-	// 
+	Error.Insert("MetadataObjects", New Array); 
+	
 	Error.Insert("MetadataObject", "");
 	Error.Insert("LocationClarification", "");
 	Error.Insert("ScenarioCode", "");
@@ -4635,7 +4635,7 @@ EndFunction
 &AtServer
 Procedure CalculateQueueAtServer()
 	
-	UpdateIterations = Undefined; // ОбновлениеИнформационнойБазыСлужебный.ИтерацииОбновления();
+	UpdateIterations = Undefined; 
 	If UpdateIterations <> Undefined Then
 		DataProcessor = DataProcessorObject2();
 		DataProcessor.FillQueueNumber(UpdateIterations);

@@ -50,9 +50,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Object.Description      = "";
 			Object.AuthorizationObject = Undefined;
 			IBUserEmailAddress = "";
+			SourceIBUserID = Common.ObjectAttributeValue(
+				CopyingValue, "IBUserID");
 			
 			If Not UsersInternal.UserAccessLevelAbove(CopyingValue, AccessLevel) Then
-				ReadIBUser(ValueIsFilled(CopyingValue.IBUserID));
+				ReadIBUser(ValueIsFilled(SourceIBUserID));
 			Else
 				ReadIBUser();
 			EndIf;
@@ -399,9 +401,12 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
 	// StandardSubsystems.ContactInformation
 	If Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
-		AccountNameAuthorizationObject = AccountNameAuthorizationObject(TypeOf(Object.AuthorizationObject));
 		ModuleContactsManager = Common.CommonModule("ContactsManager");
-		ModuleContactsManager.BeforeWriteAtServer(ThisObject, ThisObject[AccountNameAuthorizationObject]);
+		If ModuleContactsManager.ContainsContactInformation(Object.AuthorizationObject) Then
+			AccountNameAuthorizationObject = AccountNameAuthorizationObject(TypeOf(Object.AuthorizationObject));
+			ModuleContactsManager = Common.CommonModule("ContactsManager");
+			ModuleContactsManager.BeforeWriteAtServer(ThisObject, ThisObject[AccountNameAuthorizationObject]);
+		EndIf;
 	EndIf;
 	// End StandardSubsystems.ContactInformation
 	
@@ -771,7 +776,7 @@ Procedure UserMustChangePasswordOnAuthorizationExtendedTooltipURLProcessing(Item
 	OpenForm("CommonForm.UserAuthorizationSettings", FormParameters, ThisObject);
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure Attachable_ContactInformationOnChange(Item)
@@ -863,7 +868,7 @@ EndProcedure
 #Region FormTableItemsEventHandlersRoles
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure RolesCheckOnChange(Item)
@@ -875,7 +880,7 @@ Procedure RolesCheckOnChange(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -912,7 +917,7 @@ Procedure ChangePassword(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure ShowSelectedRolesOnly(Command)
@@ -1121,7 +1126,7 @@ Procedure CustomizeForm(CurrentObject, OnCreateAtServer = False, WriteParameters
 	
 	ProcessRoleInterfaceSetRoleViewOnly(CurrentObject);
 	
-	// 
+	// Making the properties always visible.
 	Items.IBUserProperies.Visible =
 		ValueIsFilled(ActionsOnForm.IBUserProperies);
 	
@@ -1253,13 +1258,13 @@ Procedure DefineActionsOnForm()
 	
 	ActionsOnForm = New Structure;
 	
-	// 
+	// "", "View," "Edit."
 	ActionsOnForm.Insert("Roles", "");
 	
-	// 
+	// "", "View," "Edit."
 	ActionsOnForm.Insert("IBUserProperies", "");
 	
-	// 
+	// "", "View," "Edit."
 	ActionsOnForm.Insert("ItemProperties", "View");
 	
 	If AccessLevel.ChangeCurrent Or AccessLevel.ListManagement Then
@@ -1435,7 +1440,7 @@ Procedure CloseForm()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()
@@ -1489,7 +1494,7 @@ Procedure AfterRequestingAPasswordToChangeTheMail(Result, AdditionalParameters) 
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure ReadIBUserRoles()
@@ -1658,8 +1663,8 @@ EndProcedure
 &AtServer
 Procedure FindUserAndIBUserDifferences(WriteParameters = Undefined)
 	
-	// 
-	// 
+	
+	
 	
 	ShowDifference = True;
 	ShowDifferenceResolvingCommands = False;
@@ -1788,7 +1793,7 @@ Procedure FindUserAndIBUserDifferences(WriteParameters = Undefined)
 	If AccessLevel.ListManagement Then
 		Items.MappingMismatchProcessing.Visible = HasMappingToNonexistentIBUser;
 	Else
-		// 
+		// Cannot change the mapping.
 		Items.MappingMismatchProcessing.Visible = False;
 	EndIf;
 	
@@ -1809,7 +1814,7 @@ Procedure FindUserAndIBUserDifferences(WriteParameters = Undefined)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClientAtServerNoContext
 Procedure SetPropertiesAvailability(Form)
@@ -1819,7 +1824,7 @@ Procedure SetPropertiesAvailability(Form)
 	ActionsOnForm = Form.ActionsOnForm;
 	AccessLevel = Form.AccessLevel;
 	
-	// 
+	
 	If Form.CanSignIn Then
 		Items.GroupNoRights.Visible         = Form.WhetherRightsAreAssigned.HasNoRights;
 		Items.GroupNoStartupRights.Visible = Not Form.WhetherRightsAreAssigned.HasNoRights
@@ -1833,7 +1838,7 @@ Procedure SetPropertiesAvailability(Form)
 		Items.GroupNoLogonRights.Visible   = False;
 	EndIf;
 	
-	// 
+	// Setting editing options.
 	Items.AuthorizationObject.ReadOnly
 		=   ActionsOnForm.ItemProperties <> "Edit"
 		Or Form.AuthorizationObjectSetOnOpen
@@ -1876,7 +1881,7 @@ Procedure SetPropertiesAvailability(Form)
 	
 	UpdateUsername(Form);
 	
-	// 
+	// Setting availability of related items.
 	Items.CanSignIn.Enabled         = Not Object.Invalid;
 	Items.IBUserProperies.Enabled         = Not Object.Invalid;
 	Items.GroupName_SSLy.Enabled                      = Not Object.Invalid;
@@ -1938,7 +1943,7 @@ Function IBUserWritingRequired(Form, UseStandardName = True)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure ProcessRolesInterface(Action, MainParameter = Undefined)

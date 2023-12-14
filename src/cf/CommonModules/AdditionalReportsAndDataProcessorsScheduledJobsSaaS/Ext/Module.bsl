@@ -14,7 +14,7 @@
 // Deprecated. Obsolete. Use ScheduledJobsServer.AddJob().
 //
 // Returns:
-//   Undefined - 
+//   Undefined - use ScheduledJobsServer.AddJob().
 //
 Function CreateNewJob() Export
 	
@@ -28,7 +28,7 @@ EndFunction
 //   Job - ScheduledJob - a scheduled job.
 //
 // Returns:
-//   Undefined - 
+//   Undefined - use ScheduledJobsServer.UUID().
 //
 Function GetJobID(Val Job) Export
 	
@@ -56,7 +56,7 @@ EndProcedure
 //   Job - ScheduledJob - a scheduled job.
 //
 // Returns:
-//   Undefined - 
+//   Undefined - Use ScheduledJobsServer.FindJobs().
 //
 Function GetJobParameters(Val Job) Export
 	
@@ -70,7 +70,7 @@ EndFunction
 //   Id - UUID - a scheduled job ID.
 //
 // Returns:
-//   Undefined - 
+//   Undefined - Use ScheduledJobsServer.FindJobs().
 //
 Function FindJob(Val Id) Export
 	

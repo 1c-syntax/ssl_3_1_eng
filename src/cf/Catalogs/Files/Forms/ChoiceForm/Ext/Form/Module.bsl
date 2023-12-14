@@ -57,24 +57,19 @@ EndProcedure
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
 	
-	If EventName = "Write_File" And Parameter.Property("IsNew") And Parameter.IsNew Then
-		
-		If Parameter <> Undefined Then
-			FileOwner = Undefined;
-			If Parameter.Property("Owner", FileOwner) Then
-				If FileOwner = Items.Folders.CurrentRow Then
-					Items.List.Refresh();
-					
-					CreatedFile = Undefined;
-					If Parameter.Property("File", CreatedFile) Then
-						Items.List.CurrentRow = CreatedFile;
-					EndIf;
+	If EventName = "Write_File" Then
+				
+		If Parameter.IsNew = True Then
+			If Parameter.Owner = Items.Folders.CurrentRow Then
+				Items.List.Refresh();
+				
+				If ValueIsFilled(Parameter.File) Then
+					Items.List.CurrentRow = Parameter.File;
 				EndIf;
 			EndIf;
+			
+			Items.List.Refresh();
 		EndIf;
-		
-		Items.List.Refresh();
-		
 	EndIf;
 	
 	If Upper(EventName) = Upper("Write_ConstantsSet")

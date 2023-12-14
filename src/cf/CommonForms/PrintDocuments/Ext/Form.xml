@@ -577,7 +577,7 @@
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Print form settings group1</v8:content>
+												<v8:content>Manage check boxes</v8:content>
 											</v8:item>
 										</Title>
 										<ExtendedTooltip name="FlagsManagementExtendedTooltip" id="287"/>
@@ -600,7 +600,7 @@
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Print form settings group1</v8:content>
+												<v8:content>String management</v8:content>
 											</v8:item>
 										</Title>
 										<ExtendedTooltip name="LineManagementExtendedTooltip" id="289"/>
@@ -1064,6 +1064,15 @@
 					</Type>
 				</Column>
 				<Column name="AvailableLanguages" id="15">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="TextOfGenerationError" id="32">
 					<Type>
 						<v8:Type>xs:string</v8:Type>
 						<v8:StringQualifiers>
@@ -1696,6 +1705,12 @@
 			<Type/>
 		</Parameter>
 		<Parameter name="PrintObjects">
+			<Type/>
+		</Parameter>
+		<Parameter name="OutputParameters">
+			<Type/>
+		</Parameter>
+		<Parameter name="Messages">
 			<Type/>
 		</Parameter>
 	</Parameters>

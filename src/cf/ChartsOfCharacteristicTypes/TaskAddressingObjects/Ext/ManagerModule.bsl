@@ -130,7 +130,7 @@ EndProcedure
 // See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.
 //
 // Parameters:
-//  Object                  - the object to fill in.
+//  Object                  - Object to populate.
 //  Data                  - ValueTableRow - object filling data.
 //  AdditionalParameters - Structure:
 //   * PredefinedData - ValueTable - Data filled in the OnInitialItemsFilling procedure.

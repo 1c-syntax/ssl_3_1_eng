@@ -1093,7 +1093,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show users that belong to subgroups and invalid users</v8:content>
+					<v8:content>Show subgroup users and inactive users</v8:content>
 				</v8:item>
 			</Title>
 			<Behavior>Usual</Behavior>
@@ -1173,7 +1173,7 @@
 								<v8:item>
 									<v8:lang>en</v8:lang>
 									<v8:content>User will be blocked from signing in
-after a certain date or a period of inactivity</v8:content>
+after a certain date or a period of inactivity.</v8:content>
 								</v8:item>
 							</ToolTip>
 							<ContextMenu name="LabelLogonRestrictredContextMenu" id="343"/>
@@ -1638,7 +1638,7 @@ FROM
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show invalid users</v8:content>
+					<v8:content>Show inactive users</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1918,13 +1918,13 @@ FROM
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Lock invalid users in the collaboration system</v8:content>
+					<v8:content>Disable inactive users in Collaboration System</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Lock invalid users in the collaboration system</v8:content>
+					<v8:content>Disable inactive users in the Collaboration System.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>LockInvalidUsersInCollaborationSystem</Action>

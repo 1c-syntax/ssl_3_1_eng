@@ -39,17 +39,17 @@ Procedure OnGetDefaultEnvelopeVariant(XMLEnvelope) Export
 	
 EndProcedure
 
-// 
+// Address of the revokation list located on a different resource.
 // 
 // Parameters:
-//  CertificateAuthorityName - String -
+//  CertificateAuthorityName - String - Name of the certificate authority (low-case, in Latin letters)
 //  Certificate  - BinaryData
 //              - String
 // 
 // Returns:
 //  Structure:
-//   * InternalAddress - String -
-//   * ExternalAddress - String -
+//   * InternalAddress - String - ID for searching within the infobase
+//   * ExternalAddress - String - Resource address (for downloading)
 //
 Function RevocationListInternalAddress(CertificateAuthorityName, Certificate) Export
 	
@@ -61,14 +61,14 @@ Function RevocationListInternalAddress(CertificateAuthorityName, Certificate) Ex
 EndFunction
 
 // Returns:
-//  Undefined, Structure - 
+//  Undefined, Structure - Certificate authority data:
 //   * IsState - Boolean
 //   * AllowedUncredited - Boolean
-//   * ActionPeriods - 
+//   * ActionPeriods - Undefined, Array of Structure
 //     **DateFrom - Date
-//     **DateBy - 
-//   * ValidityEndDate - 
-//   * UpdateDate  - 
+//     **DateBy - Date, Undefined
+//   * ValidityEndDate - Undefined, Date
+//   * UpdateDate  - Undefined, Date
 //   * FurtherSettings - Map
 //
 Function CertificationAuthorityData(SearchValues, AccreditedCertificationCenters) Export

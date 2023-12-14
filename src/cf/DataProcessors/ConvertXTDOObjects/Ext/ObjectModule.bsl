@@ -21,7 +21,7 @@ Var DataImportDataProcessorField;
 
 // Function for retrieving property: the result of data exchange.
 //  Returns:
-//      EnumRef.ExchangeExecutionResults - the result of the data exchange.
+//      EnumRef.ExchangeExecutionResults - data exchange result.
 //
 Function ExchangeExecutionResult() Export
 	
@@ -41,7 +41,7 @@ EndFunction
 // Function for retrieving property: the result of data exchange.
 //
 //  Returns: 
-//      String - the result of the data exchange.
+//      String - data exchange result.
 //
 Function ExchangeExecutionResultString() Export
 	
@@ -53,7 +53,7 @@ EndFunction
 // Function for retrieving property: the number of imported objects.
 //
 //  Returns:
-//      Number - 
+//      Number - number of imported objects.
 //
 Function ImportedObjectCounter() Export
 	
@@ -68,7 +68,7 @@ EndFunction
 // Function for retrieving property: the amount of exported objects.
 //
 //  Returns:
-//      Number - 
+//      Number - number of exported objects.
 //
 Function ExportedObjectCounter() Export
 	
@@ -83,7 +83,7 @@ EndFunction
 // Function for retrieving properties: a data exchange error message string.
 //
 //  Returns:
-//      String - 
+//      String - a data exchange error message string.
 //
 Function ErrorMessageString() Export
 	
@@ -98,7 +98,7 @@ EndFunction
 // Function for retrieving property: a flag that shows a data exchange execution error.
 //
 //  Returns:
-//     Boolean - 
+//     Boolean - a flag that shows a data exchange execution error.
 //
 Function FlagErrors() Export
 	
@@ -109,7 +109,7 @@ EndFunction
 // Function for retrieving property: a number of data exchange message.
 //
 //  Returns:
-//      Number - 
+//      Number - a number of the data exchange message.
 //
 Function MessageNo() Export
 	
@@ -120,7 +120,7 @@ EndFunction
 // Function for retrieving properties: a value table with incoming exchange message statistics and extra information.
 //
 //  Returns:
-//      ValueTable - 
+//      ValueTable - contains statistics and extra information on the incoming exchange message.
 //
 Function PackageHeaderDataTable() Export
 	
@@ -135,7 +135,7 @@ EndFunction
 // Function for retrieving properties: map with data tables of the received data exchange message.
 //
 //  Returns:
-//      Map - 
+//      Map - contains data tables of the received data exchange message.
 //
 Function DataTablesExchangeMessages() Export
 	
@@ -159,6 +159,8 @@ EndFunction
 //
 Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 	
+	DataExchangeServer.ClearErrorsListOnExportData(NodeForExchange);
+	
 	DataImportDataProcessorField = DataProcessorForDataImport;
 	
 	ExchangeComponents = DataExchangeXDTOServer.InitializeExchangeComponents("Send");
@@ -180,7 +182,11 @@ Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 	
 	DataExchangeXDTOServer.AfterInitializationOfTheExchangeComponents(ExchangeComponents);
 	
-	If Not ExchangeComponents.XDTOSettingsOnly Then
+	If ExchangeComponents.XDTOSettingsOnly Then
+		
+		DataExchangeXDTOServer.FillXDTOSettingsStructure(ExchangeComponents);
+		
+	Else
 		
 		ExchangeComponents.ExchangeManager = DataExchangeXDTOServer.FormatVersionExchangeManager(
 			ExchangeComponents.ExchangeFormatVersion, ExchangeComponents.CorrespondentNode);
@@ -197,13 +203,7 @@ Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 		ExchangeComponents.SkipObjectsWithSchemaCheckErrors = DataExchangeXDTOServer.SkipObjectsWithSchemaCheckErrors(
 			ExchangeComponents.CorrespondentNode);
 		
-	Else
-		
-		DataExchangeXDTOServer.FillXDTOSettingsStructure(ExchangeComponents);
-		
 	EndIf;
-	
-	FormatExtensionsToExchangeComponents(ExchangeComponents);
 	
 	#EndRegion
 	
@@ -228,7 +228,7 @@ Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 		
 	EndIf;
 	
-	// 
+	// Open an exchange file.
 	DataExchangeXDTOServer.OpenExportFile(ExchangeComponents, ExchangeFileName);
 	
 	Try
@@ -329,9 +329,11 @@ EndProcedure
 //
 // Parameters:
 //  ImportParameters - Structure
-//                    - Undefined - the service parameter. Not intended for use.
+//                    - Undefined - For internal use only.
 //
 Procedure RunDataImport(ImportParameters = Undefined) Export
+	
+	DataExchangeServer.ClearErrorsListOnDataImport(NodeForExchange);
 	
 	If ImportParameters = Undefined Then
 		ImportParameters = New Structure;
@@ -373,7 +375,7 @@ Procedure RunDataImport(ImportParameters = Undefined) Export
 	DataExchangeXDTOServer.OpenImportFile(ExchangeComponents, ExchangeFileName);
 	
 	// Format extension can be initialized following reading the format version from a message file.
-	FormatExtensionsToExchangeComponents(ExchangeComponents);
+	DataExchangeXDTOServer.FormatExtensionsToExchangeComponents(ExchangeComponents);
 	
 	Cancel = False;
 	AfterOpenImportFile(Cancel);
@@ -527,7 +529,7 @@ Procedure ExecuteDataImportForInfobase(TablesToImport) Export
 	EndTry;
 	DataExchangeInternal.DisableAccessKeysUpdate(False);
 	
-	// 
+	// Record in the event log.
 	MessageString = NStr("en = 'Action to execute: %1;
 		|Completion status: %2;
 		|Objects processed: %3.';",
@@ -582,7 +584,7 @@ Procedure ExecuteExchangeMessageAnalysis(AnalysisParameters = Undefined) Export
 	DataExchangeXDTOServer.OpenImportFile(ExchangeComponents, ExchangeFileName);
 	
 	// Format extension can be initialized following reading the format version from a message file.
-	FormatExtensionsToExchangeComponents(ExchangeComponents);
+	DataExchangeXDTOServer.FormatExtensionsToExchangeComponents(ExchangeComponents);
 	
 	Cancel = False;
 	AfterOpenImportFile(Cancel);
@@ -593,7 +595,7 @@ Procedure ExecuteExchangeMessageAnalysis(AnalysisParameters = Undefined) Export
 	
 	Try
 		
-		// 
+		// Reading data from the exchange message.
 		DataExchangeXDTOServer.ReadDataInAnalysisMode(ExchangeComponents, AnalysisParameters);
 		
 		PackageHeaderDataTable = ExchangeComponents.PackageHeaderDataTable; // ValueTable
@@ -602,7 +604,7 @@ Procedure ExecuteExchangeMessageAnalysis(AnalysisParameters = Undefined) Export
 		TemporaryPackageHeaderDataTable = PackageHeaderDataTable.Copy(, "SourceTypeString, DestinationTypeString, SearchFields, TableFields");
 		TemporaryPackageHeaderDataTable.GroupBy("SourceTypeString, DestinationTypeString, SearchFields, TableFields");
 		
-		// 
+		// Collapsing a table of a data batch title.
 		PackageHeaderDataTable.GroupBy(
 			"ObjectTypeString, SourceTypeString, DestinationTypeString, SynchronizeByID, IsClassifier, IsObjectDeletion, UsePreview",
 			"ObjectCountInSource");
@@ -672,7 +674,7 @@ Procedure ExecuteDataImportIntoValueTable(TablesToImport) Export
 	DataExchangeXDTOServer.OpenImportFile(ExchangeComponents, ExchangeFileName);
 	
 	// Format extension can be initialized following reading the format version from a message file.
-	FormatExtensionsToExchangeComponents(ExchangeComponents);
+	DataExchangeXDTOServer.FormatExtensionsToExchangeComponents(ExchangeComponents);
 	
 	Cancel = False;
 	AfterOpenImportFile(Cancel, InitializeRulesTables);
@@ -779,7 +781,7 @@ Function InitExchangeMessageDataTable(ObjectType)
 	
 	Columns = ExchangeMessageDataTable.Columns;
 	
-	// 
+	// Required fields.
 	Columns.Add("UUID", New TypeDescription("String",, New StringQualifiers(36)));
 	Columns.Add("TypeAsString",              New TypeDescription("String",, New StringQualifiers(255)));
 	
@@ -829,7 +831,7 @@ Procedure AfterOpenExportFile(Cancel = False)
 	EndIf;
 	
 	If ExchangeComponents.XDTOSettingsOnly Then
-		// 
+		// XDTO settings are sent only for file communication channels.
 		ExchangeComponents.ExchangeFile.WriteEndElement(); // Message
 		ExchangeComponents.ExchangeFile.Close();
 		Cancel = True;
@@ -942,19 +944,6 @@ Procedure CheckNodesCodes(DataAnalysisResultToExport, InfobaseNode)
 		RollbackTransaction();
 		Raise;
 	EndTry;
-	
-EndProcedure
-
-Procedure FormatExtensionsToExchangeComponents(ExchangeComponents)
-	
-	AvailableFormatExtensions = DataExchangeXDTOServer.AvailableFormatExtensions(ExchangeComponents.ExchangeFormatVersion);
-	For Each ExpandingTheExchangeFormat In AvailableFormatExtensions Do
-		
-		DataExchangeXDTOServer.IncludeNamespace(ExchangeComponents,
-			ExpandingTheExchangeFormat.Key,
-			ExpandingTheExchangeFormat.Value);
-		
-	EndDo;
 	
 EndProcedure
 

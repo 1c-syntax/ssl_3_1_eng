@@ -122,7 +122,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		AddingOptions = ModuleConstructorFormula.ParametersForAddingAListOfFields();
 		AddingOptions.ListName = NameOfTheFieldList();
 		AddingOptions.LocationOfTheList = Items.AvailableFieldsGroup;
-		AddingOptions.FieldsCollections = FieldsCollections(DataSources.UnloadValues());
+		AddingOptions.FieldsCollections = FieldsCollections(DataSources.UnloadValues(), EditParameters());
 		AddingOptions.HintForEnteringTheSearchString = PromptInputStringSearchFieldList();
 		AddingOptions.WhenDefiningAvailableFieldSources = "PrintManagement";
 		AddingOptions.ListHandlers.Insert("Selection", "Attachable_ListOfFieldsSelection");
@@ -333,7 +333,7 @@ EndProcedure
 Procedure PutToClipboard(Command)
 	
 	HTMLDocument = Items.HTMLField.Document;
-	HTMLDocument.defaultView.value_to_copy = GetValueOfCurrentLine();
+	HTMLDocument.defaultView.value_to_copy = GetCurrentRowValue();
 	Button = HTMLDocument.getElementById("myb");
 	If Button = Undefined Then
 		ShowMessageBox(,NStr("en = 'Select an object field, operator, or function.';"));
@@ -1693,7 +1693,7 @@ Procedure ExpandFieldList()
 		EndDo;
 	EndDo;
 	
-	// 
+	// Color of the fields that are not common for the selected objects.
 	
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -1748,7 +1748,12 @@ Procedure SetExamplesValues(FieldsCollection = Undefined, PrintData = Undefined)
 		Objects = CommonClientServer.ValueInArray(Pattern);
 		DisplayedFields = FillListDisplayedFields(FieldsCollection);
 		If Common.SubsystemExists("StandardSubsystems.Print") Then
-			PrintData = ModulePrintManager.PrintData(Objects, DisplayedFields, CurrentLanguage);
+			Try
+				PrintData = ModulePrintManager.PrintData(Objects, DisplayedFields, CurrentLanguage);
+			Except
+				UnlockDataForEdit(KeyOfEditObject, UUID);
+				Raise ErrorProcessing.DetailErrorDescription(ErrorInfo());
+			EndTry;
 			GetUserMessages(True);
 		Else
 			Return;
@@ -1847,11 +1852,16 @@ Function LayoutOwner()
 EndFunction
 
 &AtServerNoContext
-Function FieldsCollections(DataSources)
+Function FieldsCollections(DataSources, EditParameters)
 	
 	If Common.SubsystemExists("StandardSubsystems.Print") Then
 		ModulePrintManager = Common.CommonModule("PrintManagement");
-		Return ModulePrintManager.CollectionOfDataSourcesFields(DataSources);
+		Try
+			Return ModulePrintManager.CollectionOfDataSourcesFields(DataSources);
+		Except
+			UnlockDataForEdit(EditParameters.KeyOfEditObject, EditParameters.UUID);
+			Raise ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		EndTry
 	EndIf;
 
 	Return New Array;
@@ -1934,7 +1944,7 @@ Procedure Attachable_ExpandTheCurrentFieldListItem()
 EndProcedure
 
 &AtClient
-Procedure Attachable_FillInTheListOfAvailableFields(FillParameters) Export // ACC:78 - 
+Procedure Attachable_FillInTheListOfAvailableFields(FillParameters) Export // ACC:78 - Called from FormulaConstructorClient.
 	
 	FillInTheListOfAvailableFields(FillParameters);
 	
@@ -2029,7 +2039,7 @@ Procedure Attachable_FormulaEditorHandlerServer(Parameter, AdditionalParameters)
 EndProcedure
 
 &AtClient
-Procedure Attachable_FormulaEditorHandlerClient(Parameter, AdditionalParameters = Undefined) Export  // 
+Procedure Attachable_FormulaEditorHandlerClient(Parameter, AdditionalParameters = Undefined) Export  // ACC:78 - Procedure is called from FormulaConstructorClient.StartSearchInFieldsList.
 	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
 		ModuleConstructorFormulaClient.FormulaEditorHandler(ThisObject, Parameter, AdditionalParameters);
@@ -2086,14 +2096,14 @@ EndProcedure
 &AtClient
 Procedure PopulateHTMLFIeldByCurrField()
 	
-	Value = GetValueOfCurrentLine();
+	Value = GetCurrentRowValue();
 	
 	SetInHTMLField(Value);
 	
 EndProcedure
 
 &AtClient
-Function GetValueOfCurrentLine()
+Function GetCurrentRowValue()
 	CurrentRow = Items[NameOfTheFieldList()].CurrentRow; 	
 	Attribute = ThisObject[NameOfTheFieldList()].FindByID(CurrentRow);
 	
@@ -2224,9 +2234,9 @@ Procedure Attachable_OperatorsDragStart(Item, DragParameters, Perform)
 		DragParameters.Value = ModuleConstructorFormulaClient.ExpressionToInsert(Operator);
 		
 		If Operator.DataPath = "PrintControl_NumberofLines" Then
-			CurrentTableName = GetNameOfCurrTable();
-			Perform = CurrentTableName <> Undefined;
-			DragParameters.Value = StrReplace(DragParameters.Value, "()", "(["+CurrentTableName+"])");
+			PresentationOfCurrentTable = PresentationOfCurrentTable();
+			Perform = PresentationOfCurrentTable <> Undefined;
+			DragParameters.Value = StrReplace(DragParameters.Value, "()", "(["+PresentationOfCurrentTable+"])");
 		EndIf;
 	EndIf;
 	
@@ -2302,12 +2312,12 @@ Function GetPrintForm()
 EndFunction
 
 &AtClient
-Function GetNameOfCurrTable()
+Function PresentationOfCurrentTable()
 	For Each AttachedFieldList In ThisObject["ConnectedFieldLists"] Do
 		If AttachedFieldList.NameOfTheFieldList <> NameOfTheListOfOperators() Then
 			If Items[AttachedFieldList.NameOfTheFieldList].CurrentData <> Undefined
 				And Items[AttachedFieldList.NameOfTheFieldList].CurrentData.Table Then
-					Return Items[AttachedFieldList.NameOfTheFieldList].CurrentData.DataPath;
+					Return Items[AttachedFieldList.NameOfTheFieldList].CurrentData.RepresentationOfTheDataPath;
 			EndIf;			
 		EndIf;
 	EndDo;	
@@ -2380,7 +2390,7 @@ Procedure UpdateListOfAvailableFields()
 	If Common.SubsystemExists("StandardSubsystems.Print") Then
 		ModulePrintManager = Common.CommonModule("PrintManagement");
 		ModulePrintManager.UpdateListOfAvailableFields(ThisObject, 
-			FieldsCollections(DataSources.UnloadValues()), NameOfTheFieldList());
+			FieldsCollections(DataSources.UnloadValues(), EditParameters()), NameOfTheFieldList());
 		
 		SetUpFieldSample();
 		MarkCommonFields();
@@ -2501,6 +2511,14 @@ Procedure SetAvailabilityRecursively(Item, Var_Enabled = Undefined)
 		EndIf;
 	EndDo;
 EndProcedure
+
+&AtServer
+Function EditParameters()
+	Result = New Structure;
+	Result.Insert("KeyOfEditObject", KeyOfEditObject);
+	Result.Insert("UUID", UUID);
+	Return Result;
+EndFunction
 
 #EndRegion
 

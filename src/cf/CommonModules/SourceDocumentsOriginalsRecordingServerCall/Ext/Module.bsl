@@ -32,31 +32,33 @@ EndProcedure
 
 #Region Private
 
-// Writes the new state of the document original
+// Records the new state of the original document.
 //	
-//	Parameters:
-//  RecordData - Array of Structure - an array that contains data on the original state to be changed:
+// Parameters:
+//  RecordData - Array of Structure - :
 //                 * OverallState 						- Boolean - True if the current state is overall;
-//                 * Ref 								- DocumentRef - link to the document for which you want to change the state of the original;
+//                 * Ref 								- DocumentRef -  link to the document for which you want to change the state of the original;
 //                 * SourceDocumentOriginalState - CatalogRef.SourceDocumentsOriginalsStates -
 //                                                           a current state of the source document original.
 //                 * SourceDocument 					- String - a source document ID. It is specified if this state is not overall;
 //                 * FromOutside 								- Boolean - True if the source document was added by the user manually. Specified if this state is not overall. 
-//               - Structure - structure containing data about the changeable state of the original:
-//                 * Ref - DocumentRef - a link to the document for which you want to change the state of the original.
-//  StateName - String - a state to be set.
-//  IsChanged - Boolean - True if the document original state is non-repeatable and was saved. The default value is
-//                      False.
+//               - DocumentRef -  a link to the document for which you want to change the state of the original.
+//  StateName - String -  set state.
+// 
+// Returns:
+//  String - 
+//            
+//            
 //
-Procedure SetNewOriginalState(RecordData, StateName, IsChanged = False) Export
+Function SetNewOriginalState(Val RecordData, Val StateName) Export
 
-	SourceDocumentsOriginalsRecording.SetNewOriginalState(RecordData, StateName, IsChanged);
+	Return SourceDocumentsOriginalsRecording.SetNewOriginalState(RecordData, StateName);
 
-EndProcedure
+EndFunction
 
 // Returns a reference to the document by the spreadsheet document barcode
 //
-//	Parameters:
+// Parameters:
 //  Barcode - String - the scanned document barcode.
 //
 Procedure ProcessBarcode(Barcode) Export
@@ -71,7 +73,7 @@ EndProcedure
 //  DocumentRef - DocumentRef - a reference to the document whose overall state details must be received. 
 //
 //  Returns:
-//    Structure - 
+//    Structure - :
 //    * Ref - DocumentRef - document reference;
 //    * SourceDocumentOriginalState - CatalogRef.SourceDocumentsOriginalsStates - the current
 //        state of a document original.
@@ -106,44 +108,17 @@ Procedure FillOriginalStatesChoiceList(OriginalStatesChoiceList) Export
 	EndDo;
 EndProcedure
 
-// Checks and returns a flag indicating whether the document by reference is a document with originals recording 
-//
-//	Returns:
-//   See SourceDocumentsOriginalsRecording.CanWriteObjects
-//
-Function CanWriteObjects(ReferencesArrray) Export
-	
-	Return SourceDocumentsOriginalsRecording.CanWriteObjects(ReferencesArrray);
-
-EndFunction
-
 // Checks and returns a flag indicating whether the document by reference is a document with originals recording.
 //
 //	Parameters:
 //  ObjectRef - DocumentRef - a reference to the document to be checked.
 //
 //	Returns:
-//  Boolean - 
+//  Boolean - True if the document is an object with originals recording.
 //
 Function IsAccountingObject(ObjectRef) Export
 	
 	Return SourceDocumentsOriginalsRecording.IsAccountingObject(ObjectRef);
-
-EndFunction
-
-// Checks and returns a flag indicating whether the current user has the right to change the state
-//
-//	Returns:
-//  Boolean - 
-//
-Function RightsToChangeState() Export
-	
-	If AccessRight("Edit",Metadata.InformationRegisters.SourceDocumentsOriginalsStates) 
-		And AccessRight("Update",Metadata.InformationRegisters.SourceDocumentsOriginalsStates) Then
-		Return True 
-	Else
-		Return False
-	EndIf;
 
 EndFunction
 
@@ -153,7 +128,7 @@ EndFunction
 //  DocumentRef - DocumentRef - a reference to the document for which a record key of overall state must be received.
 //
 //	Returns:
-//  InformationRegisterRecordKey.SourceDocumentsOriginalsStates - 
+//  InformationRegisterRecordKey.SourceDocumentsOriginalsStates - a record key of the register of overall document original state.
 //
 Function OverallStateRecordKey(DocumentRef) Export
 

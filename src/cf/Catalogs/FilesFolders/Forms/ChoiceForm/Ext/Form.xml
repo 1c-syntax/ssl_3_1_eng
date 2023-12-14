@@ -199,6 +199,13 @@ FROM
 			</Settings>
 		</Attribute>
 	</Attributes>
+	<Parameters>
+		<Parameter name="CurrentFolder">
+			<Type>
+				<v8:Type>cfg:CatalogRef.FilesFolders</v8:Type>
+			</Type>
+		</Parameter>
+	</Parameters>
 	<CommandInterface>
 		<CommandBar>
 			<Item>

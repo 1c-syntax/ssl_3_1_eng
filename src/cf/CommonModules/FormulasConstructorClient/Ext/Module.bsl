@@ -27,14 +27,14 @@ EndProcedure
 //  Structure:
 //   * Formula - String
 //   * Operands - String - an address in the temporary operand collection storage. The collection type can be: 
-//                         ValueTable - see FieldsTable 
-//                         ValueTree - see FieldsTree 
+//                         ValueTable - see FieldsTable
+//                         ValueTree - see FieldsTree
 //                         DataCompositionSchema - the operand list is taken from the FilterAvailableFields collection
 //                                                  of the Settings Composer. You can override the collection name
 //                                                  in the DCSCollectionName parameter.
 //   * Operators - String - an address in the temporary operator collection storage. The collection type can be: 
-//                         ValueTable - see FieldsTable 
-//                         ValueTree - see FieldsTree 
+//                         ValueTable - see FieldsTable
+//                         ValueTree - see FieldsTree
 //                         DataCompositionSchema - the operand list is taken from the FilterAvailableFields collection
 //                                                  of the Settings Composer. You can override the collection name
 //                                                  in the DCSCollectionName parameter.
@@ -45,8 +45,8 @@ EndProcedure
 //                                          if a data composition schema is passed in the Operators parameter.
 //                                          The default value is FilterAvailableFields.
 //   * Description - Undefined - the description is not used for the formula and the field is not available.
-//                  - String       - 
-//                                   
+//                  - String       - a formula description. If it is filled in or empty, the field is displayed
+//                                   on the constructor form.
 //   * ForQuery   - Boolean - the formula is for inserting in a query. This parameter affects the default operator list
 //                             and the selection of the formula check algorithm.
 //
@@ -193,8 +193,8 @@ EndProcedure
 // 
 // Parameters:
 //  Form   - ClientApplicationForm - the list owner.
-//  Item - FormButton -
-//  DeleteStandardDataProcessor - Boolean -
+//  Item - FormButton - 
+//  DeleteStandardDataProcessor - Boolean - 
 //
 Procedure SearchStringClearing(Form, Item, DeleteStandardDataProcessor = Undefined) Export
 
@@ -264,7 +264,7 @@ EndFunction
 
 // 
 // Parameters:
-//  Form   - ClientApplicationForm -
+//  Form   - ClientApplicationForm - 
 //
 Procedure StartSearchInFieldsList(Form) Export
 	
@@ -333,7 +333,7 @@ EndProcedure
 //  Result - See TimeConsumingOperationsClient.WaitCompletion.CompletionNotification2.Результат.
 //  CompletionParameters - Structure:
 //    * Form - ClientApplicationForm
-//    * JobID - UUID - ID of the background task.
+//    * JobID - UUID - a background job ID.
 //
 Procedure CompletionChangeBorderColor(Result, CompletionParameters) Export
 			
@@ -373,7 +373,7 @@ EndProcedure
 // 
 // Parameters:
 //  Result - See TimeConsumingOperationsClient.WaitCompletion.CompletionNotification2.Результат
-//  Form - ClientApplicationForm -
+//  Form - ClientApplicationForm - 
 //
 Procedure HandleSearchInFieldsList(Result, Form) Export
 	If Result = Undefined Then
@@ -454,7 +454,7 @@ EndProcedure
 // 
 // Returns:
 //  Structure:
-//   * RunAtServer - Boolean -
+//   * RunAtServer - Boolean - 
 //   * OperationKey - String 
 //
 Function HandlerParameters() Export

@@ -17,15 +17,9 @@
 //
 Procedure Attachable_SetOriginalState(Ref, Parameters) Export
 	
-	If Not SourceDocumentsOriginalsRecordingServerCall.RightsToChangeState() Then
-		ShowMessageBox(, NStr("en = 'The user has insufficient rights to change source document original state';"));
-		Return;
-	EndIf;
-	
 	List = Parameters.Source;
-	
 	If List.SelectedRows.Count() = 0 Then
-		ShowMessageBox(, NStr("en = 'No document, for which the selected state can be set, is selected';"));
+		ShowMessageBox(, NStr("en = 'No document, for which the selected state can be set, is selected.';"));
 		Return;
 	EndIf;
 
@@ -74,11 +68,6 @@ EndProcedure
 //  List - FormTable - a form list where the state will be changed.
 //
 Procedure SetOriginalState(Command, Form, List) Export
-	
-	If Not SourceDocumentsOriginalsRecordingServerCall.RightsToChangeState() Then
-		ShowMessageBox(, NStr("en = 'The user has insufficient rights to change source document original state';"));
-		Return;
-	EndIf;
 
 	If List.SelectedRows.Count() = 0 Then
 		ShowMessageBox(, NStr("en = 'No document, for which the selected state can be set, is selected';"));
@@ -130,15 +119,10 @@ EndProcedure
 //	Parameters:
 //  Form - ClientApplicationForm:
 //   * Object - FormDataStructure, DocumentObject - Form's main attribute.
-//  Source - FormTable -
+//  Source - FormTable - 
 //                              
 //
 Procedure OpenStateSelectionMenu(Val Form, Val Source = Undefined) Export 
-		
-	If Not SourceDocumentsOriginalsRecordingServerCall.RightsToChangeState() Then
-		ShowMessageBox(, NStr("en = 'The user has insufficient rights to change source document original state';"));
-		Return;
-	EndIf;
 	
 	If TypeOf(Source) = Undefined Then
 		Source = Form.Items.Find("OriginalStateDecoration");
@@ -150,30 +134,27 @@ Procedure OpenStateSelectionMenu(Val Form, Val Source = Undefined) Export
 		UnpostedDocuments = CommonServerCall.CheckDocumentsPosting(
 			CommonClientServer.ValueInArray(RecordData.Ref));
 		If UnpostedDocuments.Count() = 1 Then
-			ShowMessageBox(,NStr("en = 'To run the command, post the document first.';"));
+			ShowMessageBox(, NStr("en = 'To run the command, post the document first.';"));
 			Return;
 		EndIf;
 		
 		RecordsArray = CommonClientServer.ValueInArray(RecordData);
 		NotifyDescription = New NotifyDescription("OpenStateSelectionMenuCompletion", ThisObject, RecordsArray);
+		ClarifyByPrintForms = Form.OriginalStatesChoiceList.FindByValue("ClarifyByPrintForms");
 
 		If RecordData.OverallState Or Not ValueIsFilled(RecordData.SourceDocumentOriginalState) Then
-			ClarifyByPrintForms = Form.OriginalStatesChoiceList.FindByValue("ClarifyByPrintForms");
 			If ClarifyByPrintForms = Undefined Then
 				Form.OriginalStatesChoiceList.Add("ClarifyByPrintForms",
 					NStr("en = 'Specify for print forms…';"),,
 					PictureLib.SetSourceDocumentOriginalStateByPrintForms);
 			EndIf;
-			Form.ShowChooseFromMenu(NotifyDescription, Form.OriginalStatesChoiceList,
-				Form.Items.SourceDocumentOriginalState);
 		Else
-			ClarifyByPrintForms = Form.OriginalStatesChoiceList.FindByValue("ClarifyByPrintForms");
 			If ClarifyByPrintForms <> Undefined Then
 				Form.OriginalStatesChoiceList.Delete(ClarifyByPrintForms);
 			EndIf;
-			Form.ShowChooseFromMenu(NotifyDescription, Form.OriginalStatesChoiceList,
-				Form.Items.SourceDocumentOriginalState);
 		EndIf;
+		Form.ShowChooseFromMenu(NotifyDescription, Form.OriginalStatesChoiceList,
+			Form.Items.SourceDocumentOriginalState);
 	Else
 		If Form.Object.Ref.IsEmpty() Then
 			ShowMessageBox(,NStr("en = 'To run the command, post the document first.';"));
@@ -258,11 +239,7 @@ Procedure ListSelection(FieldName, Form, List, StandardProcessing) Export
 	
 	If FieldName = "SourceDocumentOriginalState" Or FieldName = "StateOriginalReceived" Then
 		StandardProcessing = False;
-		If Not SourceDocumentsOriginalsRecordingServerCall.RightsToChangeState() Then
-			ShowMessageBox(, NStr("en = 'The user has insufficient rights to change source document original state';"));
-			Return;
-		EndIf;
-			If SourceDocumentsOriginalsRecordingServerCall.IsAccountingObject(List.CurrentData.Ref) Then
+		If SourceDocumentsOriginalsRecordingServerCall.IsAccountingObject(List.CurrentData.Ref) Then
 			If FieldName = "SourceDocumentOriginalState" Then
 				OpenStateSelectionMenu(Form, List);
 			ElsIf FieldName = "StateOriginalReceived" Then
@@ -356,14 +333,13 @@ Procedure OpenPrintFormsStatesChangeForm(DocumentRef) Export
 	RegisterRecordKey = SourceDocumentsOriginalsRecordingServerCall.OverallStateRecordKey(DocumentRef);
 	
 	TransmittedParameters = New Structure;
-	
 	If RegisterRecordKey = Undefined Then
-		TransmittedParameters.Insert("DocumentRef",DocumentRef);
-		OpenForm("InformationRegister.SourceDocumentsOriginalsStates.Form.SourceDocumentsOriginalsStatesChange",TransmittedParameters);
+		TransmittedParameters.Insert("DocumentRef", DocumentRef);
 	Else
 		TransmittedParameters.Insert("Key", RegisterRecordKey);
-		OpenForm("InformationRegister.SourceDocumentsOriginalsStates.Form.SourceDocumentsOriginalsStatesChange",TransmittedParameters);
 	EndIf;
+	OpenForm("InformationRegister.SourceDocumentsOriginalsStates.Form.SourceDocumentsOriginalsStatesChange",
+		TransmittedParameters);
 
 EndProcedure
 
@@ -428,30 +404,29 @@ Procedure SetOriginalStateCompletion(Response, AdditionalParameters) Export
 		Return;
 	EndIf;
 
-	RowsArray = New Array;
+	WritingObjects = New Array; // See SourceDocumentsOriginalsRecordingServerCall.SetNewOriginalState.ОбъектыЗаписи
 	For Each ListLine In List.SelectedRows Do
 		RowData = List.RowData(ListLine);
-		RowsArray.Add(RowData);
+		Ref = CommonClientServer.StructureProperty(RowData, "Ref");
+		If ValueIsFilled(Ref) Then
+			WritingObjects.Add(RowData);
+		EndIf;
 	EndDo;
 	
-	WritingObjects = SourceDocumentsOriginalsRecordingServerCall.CanWriteObjects(RowsArray); // Array of DocumentRef-
-	If Not TypeOf(WritingObjects) = Type("Array") Then
-		ShowMessageBox(, NStr("en = 'To run the command, post all selected documents first.';"));
+	IsChanged = SourceDocumentsOriginalsRecordingServerCall.SetNewOriginalState(WritingObjects, StateName);
+	If IsChanged = "NotCarriedOut" Then
+		ShowMessageBox(, NStr("en = 'To set the original state, post the selected documents first.';"));
+		Return;
+	ElsIf IsChanged = "NotIsChanged" Then
 		Return;
 	EndIf;
 
-	IsChanged = False;
-	SourceDocumentsOriginalsRecordingServerCall.SetNewOriginalState(WritingObjects, StateName, IsChanged);
-
-	If WritingObjects.Count() = 1 And IsChanged Then 
-		NotifyUserOfStatesSetting(1,WritingObjects[0].Ref);
-	ElsIf IsChanged Then
-		NotifyUserOfStatesSetting(WritingObjects.Count(),,StateName);
-	EndIf;
-	
-	If IsChanged Then
-		Notify("SourceDocumentOriginalStateChange");
-	EndIf;
+	If WritingObjects.Count() = 1 Then 
+		NotifyUserOfStatesSetting(1, WritingObjects[0].Ref);
+	Else
+		NotifyUserOfStatesSetting(WritingObjects.Count(),, StateName);
+	EndIf; 
+	Notify("SourceDocumentOriginalStateChange");
 
 EndProcedure
 
@@ -466,60 +441,30 @@ EndProcedure
 //
 Procedure OpenStateSelectionMenuCompletion(SelectedStateFromList, AdditionalParameters) Export
 
-	If Not SelectedStateFromList = Undefined Then
-		If TypeOf(AdditionalParameters)= Type("Array")Then
-			OpenStatusSelectionMenuCompletionArray(SelectedStateFromList, AdditionalParameters);
-		Else
-			OpenStatusSelectionMenuCompletionStructure(SelectedStateFromList, AdditionalParameters);
-		EndIf;
-	Else
+	If SelectedStateFromList = Undefined Then
 		Return;
 	EndIf;
-
-EndProcedure
-
-// Handler of the notification that was called after completing the OpenStateSelectionMenu(…) procedure.
-//	
-//	Parameters:
-//  SelectedStateFromList - String - the original state selected by the user.
-//  AdditionalParameters - Array of DocumentRef:
-//                            * Ref - DocumentRef - a reference to a document to set the original state.
-//
-Procedure OpenStatusSelectionMenuCompletionArray(SelectedStateFromList, AdditionalParameters)
-
-	IsChanged = False;
 	
-	If SelectedStateFromList.Value = "ClarifyByPrintForms" Then
-		OpenPrintFormsStatesChangeForm(AdditionalParameters[0].Ref);
+	If TypeOf(AdditionalParameters) = Type("Array")Then
+		Ref = CommonClientServer.StructureProperty(AdditionalParameters[0], "Ref");
+		Value = AdditionalParameters;  
 	Else
-		SourceDocumentsOriginalsRecordingServerCall.SetNewOriginalState(AdditionalParameters,SelectedStateFromList.Value, IsChanged);
-		If IsChanged Then
-			NotifyUserOfStatesSetting(1,AdditionalParameters[0].Ref,SelectedStateFromList.Value);
-			Notify("SourceDocumentOriginalStateChange");
-		EndIf;
+		Ref = AdditionalParameters.Ref;
+		Value = Ref;
 	EndIf;
 
-EndProcedure
-
-// Handler of the notification that was called after completing the OpenStateSelectionMenu(…) procedure.
-//	
-//	Parameters:
-//  SelectedStateFromList - String - the original state selected by the user.
-//  AdditionalParameters - Structure - the information required to set the original state:
-//                            * Ref - DocumentRef - a reference to a document to set the original state.
-//
-Procedure OpenStatusSelectionMenuCompletionStructure(SelectedStateFromList, AdditionalParameters)
-
-	IsChanged = False;
-	
 	If SelectedStateFromList.Value = "ClarifyByPrintForms" Then
-		OpenPrintFormsStatesChangeForm(AdditionalParameters.Ref);
-	Else
-		SourceDocumentsOriginalsRecordingServerCall.SetNewOriginalState(AdditionalParameters.Ref,SelectedStateFromList.Value, IsChanged);
-		If IsChanged Then
-			NotifyUserOfStatesSetting(1,AdditionalParameters.Ref,SelectedStateFromList.Value);
-			Notify("SourceDocumentOriginalStateChange");
-			EndIf;
+		OpenPrintFormsStatesChangeForm(Ref);
+		Return;
+	EndIf;
+	
+	IsChanged = SourceDocumentsOriginalsRecordingServerCall.SetNewOriginalState(Value, 
+		SelectedStateFromList.Value);
+	If IsChanged = "IsChanged" Then
+		NotifyUserOfStatesSetting(1, Ref, SelectedStateFromList.Value);
+		Notify("SourceDocumentOriginalStateChange");
+	ElsIf IsChanged = "NotCarriedOut" Then
+		ShowMessageBox(, NStr("en = 'To set the original state, post the selected documents first.';"));
 	EndIf;
 
 EndProcedure

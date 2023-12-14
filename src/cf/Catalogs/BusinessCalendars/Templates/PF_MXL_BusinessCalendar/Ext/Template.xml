@@ -8,6 +8,11 @@
 			<code>Русский</code>
 			<description>Русский</description>
 		</languageInfo>
+		<languageInfo>
+			<id>en</id>
+			<code>Английский</code>
+			<description/>
+		</languageInfo>
 	</languageSettings>
 	<columns>
 		<size>3</size>
@@ -716,6 +721,6 @@
 	</format>
 	<picture>
 		<index>0</index>
-		<picture ref="v8ui:Warning32"/>
+		<picture t="false" ref="v8ui:Warning32"/>
 	</picture>
 </document>

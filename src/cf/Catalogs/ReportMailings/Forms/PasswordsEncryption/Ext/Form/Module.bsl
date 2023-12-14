@@ -345,7 +345,7 @@ Procedure PopulateRecipientsCertificatesAtServer(ShouldRepopulateCertificates)
 			EndIf;
 		EndDo;
 	Else
-		// 
+		// Clear up certificates.
 		CertificatesEmptyRef = New (TableRecipients.Columns["CertificateToEncrypt"].ValueType.Types()[0]);
 		For Each RowRecipients In Recipients Do
 			If ValueIsFilled(RowRecipients.CertificateToEncrypt) Then
@@ -480,10 +480,10 @@ Procedure PopulateDistributionRecipientsWithEmailAddress(TableOfRecipients)
 	RecipientsParameters.MailingRecipientType = MetadataObjectID;
 	RecipientsParameters.RecipientsEmailAddressKind = RecipientsEmailAddressKind;
 	
-	MailingListOfRecipients = ReportMailing.GenerateMailingRecipientsList(RecipientsParameters, Undefined);
+	DistributionRecipientsList = ReportMailing.GenerateMailingRecipientsList(RecipientsParameters, Undefined);
 	
 	ArrayOfRecipients_ = New Array;
-	For Each Recipient In MailingListOfRecipients Do
+	For Each Recipient In DistributionRecipientsList Do
 		RowRecipients = Recipients.Add();
 		RowRecipients.Recipient = Recipient.Key;
 		ArrayOfRecipients_.Add(Recipient.Key);

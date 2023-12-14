@@ -27,8 +27,8 @@ EndProcedure
 &AtServer
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	
-	// 
-	// 
+	
+	
 	RefreshReusableValues();
 	
 EndProcedure

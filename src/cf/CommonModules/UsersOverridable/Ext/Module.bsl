@@ -23,10 +23,10 @@
 //          in profiles of users, external users, and groups of external users.
 //          This affects both regular users and administrators. Default value is True.
 //
-//   * IndividualUsed - Boolean -
+//   * IndividualUsed - Boolean - 
 //          
 //
-//   * IsDepartmentUsed  - Boolean -
+//   * IsDepartmentUsed  - Boolean - 
 //          
 //
 Procedure OnDefineSettings(Settings) Export
@@ -39,29 +39,29 @@ EndProcedure
 //
 // Parameters:
 //  RolesAssignment - Structure:
-//   * ForSystemAdministratorsOnly - Array - role names that, when separation is disabled,
-//     are intended for any users other than external users, and in separated mode,
-//     are intended only for service administrators, for example:
-//       Administration, UpdateDatabaseConfiguration, SystemAdministrator,
-//     and also all roles with the rights:
-//       Administration,
-//       Administration of configuration extensions,
-//       Update database configuration.
-//     Such roles are usually available in SSL and not available in applications.
+//   * ForSystemAdministratorsOnly - Array - 
+//     
+//     :
+//       
+//     
+//       
+//       
+//       
+//     
 //
-//   * ForSystemUsersOnly - Array - role names that, when separation is disabled,
-//     are intended for any users other than external users, and in separated mode,
-//     are intended only for non-separated users (technical support stuff
-//     and service administrators), for example:
-//       AddEditAddressInfo, AddEditBanks,
-//     and all roles with rights to change non-separated data and those that have the following rules:
-//       Thick client,
-//       External connection,
-//       Automation,
-//       Mode "All functions",
-//       Interactive open external data processors,
-//       Interactive open external reports.
-//     Such roles are mainly available in SSL. However, they might be available in applications.
+//   * ForSystemUsersOnly - Array - 
+//     
+//     
+//     :
+//       
+//     
+//       
+//       
+//       
+//       
+//       
+//       
+//     
 //
 //   * ForExternalUsersOnly - Array - role names that are intended
 //     only for external users (roles with a specially developed set of rights), for example:
@@ -88,8 +88,8 @@ EndProcedure
 // Parameters:
 //  UserOrGroup - CatalogRef.Users
 //                        - CatalogRef.ExternalUsers
-//                        - CatalogRef.ExternalUsersGroups - 
-//                          
+//                        - CatalogRef.ExternalUsersGroups - reference to the user,
+//                          external user, or external user group at the time of form creation.
 //
 //  ActionsOnForm - Structure:
 //         * Roles                   - String - "", "View," "Edit."
@@ -155,13 +155,12 @@ Procedure OnSetInitialSettings(InitialSettings1) Export
 	
 EndProcedure
 
-// Allows you to add an arbitrary setting on the Others tab to the UsersSettings
-// handler interface so that other users can delete or copy it.
-// To be able to manage the setting, write a code for its copying (See OnSaveOtherSetings)
-// and deleting (See OnDeleteOtherSettings)
+// 
+// 
+//  (See OnSaveOtherSetings)
+//  (See OnDeleteOtherSettings)
 //
-// that will be called upon performing interactive actions involving the setting.
-// For example, a flag that indicates whether to show a warning when closing the application.
+// 
 //
 // Parameters:
 //  UserInfo - Structure - string and referential user presentation:
@@ -174,7 +173,7 @@ EndProcedure
 //                             for copying and clearing the setting.
 //       * Value - Structure:
 //              ** SettingName1  - String - name to be displayed in the setting tree.
-//              ** PictureSettings  - Picture -  picture to be displayed in the tree of settings.
+//              ** PictureSettings  - Picture - picture to be displayed in the tree of settings.
 //              ** SettingsList     - ValueList - a list of received settings.
 //
 Procedure OnGetOtherSettings(UserInfo, Settings) Export
@@ -183,8 +182,8 @@ Procedure OnGetOtherSettings(UserInfo, Settings) Export
 	
 EndProcedure
 
-// Saves arbitrary settings of the specified user.
-// Also see OnGetOtherSettings.
+// 
+// 
 //
 // Parameters:
 //  Settings - Structure:
@@ -202,8 +201,8 @@ Procedure OnSaveOtherSetings(UserInfo, Settings) Export
 	
 EndProcedure
 
-// Clears an arbitrary setting of a passed user.
-// Also see OnGetOtherSettings.
+// 
+// 
 //
 // Parameters:
 //  Settings - Structure:

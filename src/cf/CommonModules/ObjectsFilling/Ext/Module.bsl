@@ -12,7 +12,7 @@
 // List of objects, in which the filling commands are used.
 //
 // Returns:
-//   Array of MetadataObject - metadata objects with fill-in commands.
+//   Array of MetadataObject - metadata objects with filling commands.
 //
 Function ObjectsWithFillingCommands() Export
 	Array = New Array;
@@ -51,7 +51,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	ObjectsFillingOverridable.BeforeAddFillCommands(FillingCommands, FormSettings, StandardProcessing);
 	FillingCommands.FillValues(True, "Processed1");
 	
-	AllowedTypes = New Array; // 
+	AllowedTypes = New Array; 
 	If StandardProcessing Then
 		ObjectsWithFillingCommands = ObjectsWithFillingCommands();
 		For Each Source In Sources.Rows Do

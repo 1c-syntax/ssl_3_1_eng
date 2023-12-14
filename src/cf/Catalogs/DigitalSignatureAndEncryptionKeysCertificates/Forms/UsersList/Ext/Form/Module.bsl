@@ -47,6 +47,37 @@ EndProcedure
 
 #EndRegion
 
+#Region FormTableItemsEventHandlersSelectedUsers
+
+&AtClient
+Procedure SelectedUsersBeforeAddRow(Item, Cancel, Copy, Parent, IsFolder, Parameter)
+	
+	Cancel = True;
+	PickingParameters = New Structure;
+	PickingParameters.Insert("ChoiceMode", True);
+	PickingParameters.Insert("CloseOnChoice", False);
+	PickingParameters.Insert("MultipleChoice", True);
+	PickingParameters.Insert("AdvancedPick", True);
+	PickingParameters.Insert("HideUsersWithoutMatchingIBUsers", True);
+	
+	SelectedItems = New Array;
+	For Each String In SelectedUsers Do
+		SelectedItems.Add(String.User);
+	EndDo;
+	
+	PickingParameters.Insert("SelectedUsers", SelectedItems);
+	PickingParameters.Insert("PickFormHeader",
+		NStr("en = 'Select users who will see the certificate in the choice list';"));
+	PickingParameters.Insert("PickingCompletionButtonTitle", NStr("en = 'Select';"));
+	
+	Handler = New NotifyDescription("AddUsers", ThisObject);
+	
+	OpenForm("Catalog.Users.ChoiceForm", PickingParameters,,,,, Handler);
+	
+EndProcedure
+
+#EndRegion
+
 #Region FormCommandsEventHandlers
 
 &AtClient
@@ -60,11 +91,17 @@ Procedure OK(Command)
 		Result.Insert("User", PredefinedValue("Catalog.Users.EmptyRef"));
 		
 		If ChoiceMode = "UsersList" Then
-			For Each UserRow1 In UsersTable Do
-				If UserRow1.Check Then
+			If Items.UsersTable.Visible Then
+				For Each UserRow1 In UsersTable Do
+					If UserRow1.Check Then
+						Result.Users.Add(UserRow1.User);
+					EndIf;
+				EndDo;
+			Else
+				For Each UserRow1 In SelectedUsers Do
 					Result.Users.Add(UserRow1.User);
-				EndIf;
-			EndDo;
+				EndDo;
+			EndIf;
 		Else
 			Result.User = UsersClient.CurrentUser();	
 		EndIf;
@@ -97,6 +134,24 @@ EndProcedure
 #Region Private
 
 &AtClient
+Procedure AddUsers(Result, AdditionalParameters) Export
+	
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	SelectedUsers.Clear();
+	For Each User In Result Do
+		NewRow = SelectedUsers.Add();
+		NewRow.User = User;
+		If User = CertificateRecipient Then
+			NewRow.Main = True;
+		EndIf;
+	EndDo;
+
+EndProcedure
+
+&AtClient
 Procedure ChangeTheListLabels(CheckMarkValue)
 	
 	For Each UserRow1 In UsersTable Do
@@ -108,21 +163,41 @@ EndProcedure
 &AtServer
 Procedure ConfigureConditionalFormatting()
 	
-	ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
+	If Items.UsersTable.Visible Then
+		ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
+		
+		AppearanceColorItem = ConditionalAppearanceItem.Appearance.Items.Find("BackColor");
+		AppearanceColorItem.Value = StyleColors.AddedAttributeBackground;
+		AppearanceColorItem.Use = True;
+		
+		DataFilterItem = ConditionalAppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
+		DataFilterItem.LeftValue  = New DataCompositionField("UsersTable.Main");
+		DataFilterItem.ComparisonType   = DataCompositionComparisonType.Equal;
+		DataFilterItem.RightValue = True;
+		DataFilterItem.Use  = True;
+		
+		DesignFieldElement = ConditionalAppearanceItem.Fields.Items.Add();
+		DesignFieldElement.Field = New DataCompositionField("UsersTable");
+		DesignFieldElement.Use = True;
+	EndIf;
 	
-	AppearanceColorItem = ConditionalAppearanceItem.Appearance.Items.Find("BackColor");
-	AppearanceColorItem.Value = StyleColors.AddedAttributeBackground;
-	AppearanceColorItem.Use = True;
-	
-	DataFilterItem = ConditionalAppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
-	DataFilterItem.LeftValue  = New DataCompositionField("UsersTable.Main");
-	DataFilterItem.ComparisonType   = DataCompositionComparisonType.Equal;
-	DataFilterItem.RightValue = True;
-	DataFilterItem.Use  = True;
-	
-	DesignFieldElement = ConditionalAppearanceItem.Fields.Items.Add();
-	DesignFieldElement.Field = New DataCompositionField("UsersTable");
-	DesignFieldElement.Use = True;
+	If Items.UsersTable.Visible Then
+		ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
+		
+		AppearanceColorItem = ConditionalAppearanceItem.Appearance.Items.Find("BackColor");
+		AppearanceColorItem.Value = StyleColors.AddedAttributeBackground;
+		AppearanceColorItem.Use = True;
+		
+		DataFilterItem = ConditionalAppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
+		DataFilterItem.LeftValue  = New DataCompositionField("SelectedUsers.Main");
+		DataFilterItem.ComparisonType   = DataCompositionComparisonType.Equal;
+		DataFilterItem.RightValue = True;
+		DataFilterItem.Use  = True;
+		
+		DesignFieldElement = ConditionalAppearanceItem.Fields.Items.Add();
+		DesignFieldElement.Field = New DataCompositionField("SelectedUsers");
+		DesignFieldElement.Use = True;
+	EndIf;
 	
 EndProcedure
 
@@ -171,7 +246,23 @@ Procedure FillInTheFullList(CertificateUsers, CertificateRecipient)
 	Query.SetParameter("EmptyIDOfTheIBUser", New UUID("00000000-0000-0000-0000-000000000000"));
 	Query.SetParameter("CertificateRecipient", CertificateRecipient);
 	
-	UsersTable.Load(Query.Execute().Unload());
+	Result = Query.Execute().Unload();
+	If Result.Count() > 30 Then
+		SelectedUsers.Clear();
+		For Each User In UsersArray Do
+			NewRow = SelectedUsers.Add();
+			NewRow.User = User;
+			If User = CertificateRecipient Then
+				NewRow.Main = True;
+			EndIf;
+		EndDo;
+		Items.UsersTable.Visible = False;
+		Items.SelectedUsers.Visible = True;
+	Else
+		UsersTable.Load(Result);
+		Items.UsersTable.Visible = True;
+		Items.SelectedUsers.Visible = False;
+	EndIf;
 	
 EndProcedure
 
@@ -182,10 +273,12 @@ Procedure FormControl(TheFormContext)
 	
 	If TheFormContext.ViewMode Then
 		FormItems.UsersTable.ReadOnly = True;
+		FormItems.SelectedUsers.ReadOnly = True;
 		FormItems.ChoiceMode.ReadOnly = True;
 		FormItems.SelectionMethodList.ReadOnly = True;
 	Else	
 		FormItems.UsersTable.ReadOnly = Not TheFormContext.ChoiceMode = "UsersList";
+		FormItems.SelectedUsers.ReadOnly = Not TheFormContext.ChoiceMode = "UsersList";
 	EndIf;	
 	
 	FormItems.UsersSelectAll.Enabled = Not FormItems.UsersTable.ReadOnly;

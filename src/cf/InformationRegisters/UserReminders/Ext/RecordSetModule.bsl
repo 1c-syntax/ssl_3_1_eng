@@ -50,7 +50,7 @@ Procedure OnWrite(Cancel, Replacing)
 	EndIf;
 	
 EndProcedure
-// 
+// ACC:75-on
 
 #EndRegion
 

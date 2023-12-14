@@ -9,7 +9,7 @@
 
 #Region Private
 
-// See StandardSubsystemsClient.ПараметрыРаботыКлиентаПриЗапуске().
+// See StandardSubsystemsClient.ClientParametersOnStart().
 Function ClientParametersOnStart() Export
 	
 	CheckIfAppStartupFinished(True);
@@ -49,7 +49,7 @@ Function ClientParametersOnStart() Export
 	
 	StandardSubsystemsClient.FillClientParameters(ClientParameters);
 	
-	// 
+	// Updating the desktop hiding status on client by the state on server.
 	StandardSubsystemsClient.HideDesktopOnStart(
 		Parameters.HideDesktopOnStart, True);
 	
@@ -57,7 +57,7 @@ Function ClientParametersOnStart() Export
 	
 EndFunction
 
-// See StandardSubsystemsClient.ПараметрыРаботыКлиента().
+// See StandardSubsystemsClient.ClientRunParameters().
 Function ClientRunParameters() Export
 	
 	CheckIfAppStartupFinished();

@@ -228,7 +228,7 @@ EndProcedure
 //   ObjectPresentation - String - a presentation from which an ID for formulas will be formed.
 //   CurrentObjectRef - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - a reference to the current item.
 // Returns:
-//   String - 
+//   String - — a unique ID value for formulas.
 //
 Function UUIDForFormulas(ObjectPresentation, CurrentObjectRef) Export
 
@@ -308,7 +308,7 @@ EndFunction
 //  PresentationRow - String - description, the string from which it is required to receive an ID. 
 //
 // Returns:
-//  String - 
+//  String - — an ID matching the ID naming rules.
 //
 Function IDForFormulas(PresentationRow) Export
 	
@@ -518,14 +518,14 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 			LockItem = Block.Add("InformationRegister.AdditionalInfo");
 			LockItem.SetValue("Property", ObjectProperty.Ref);
 			
-			// 
-			// 
-			// 
+			
+			
+			
 			//
-			// 
-			// 
-			// 
-			// 
+			
+			
+			
+			
 			
 			OwnerWithAdditionalAttributes = False;
 			
@@ -574,8 +574,8 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 			Query = New Query;
 			
 			If Property = ObjectProperty.Ref Then
-				// 
-				// 
+				
+				
 				Query.TempTablesManager = New TempTablesManager;
 				
 				ValueTable = New ValueTable;
@@ -608,8 +608,8 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 			// Replace additional information records.
 			
 			If Property = ObjectProperty.Ref Then
-				// 
-				// 
+				
+				
 				Query.Text =
 				"SELECT TOP 1000
 				|	AdditionalInfo.Object
@@ -621,8 +621,8 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 				|			AND (AdditionalInfo.Property = &Property)
 				|			AND AdditionalInfo.Value = PreviousValues1.Value";
 			Else
-				// 
-				// 
+				
+				
 				Query.Text =
 				"SELECT TOP 1000
 				|	AdditionalInfo.Object
@@ -654,7 +654,7 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 						AnalysisQuery.SetParameter("AllSetsForObject",
 							PropertyManagerInternal.GetObjectPropertySets(
 								Selection.Object).UnloadColumn("Set"));
-						// @skip-
+						// @skip-check query-in-loop. Batch processing of a large amount of data.
 						Replace = AnalysisQuery.Execute().IsEmpty();
 					EndIf;
 					OldRecordSet.Filter.Object.Set(Selection.Object);
@@ -704,8 +704,8 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 				EndIf;
 				
 				If Property = ObjectProperty.Ref Then
-					// 
-					// 
+					
+					
 					Query.Text =
 					"SELECT TOP 1000
 					|	CurrentTable.Ref AS Ref
@@ -716,8 +716,8 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 					|			AND (CurrentTable.Property = &Property)
 					|			AND CurrentTable.Value = PreviousValues1.Value";
 				Else
-					// 
-					// 
+					
+					
 					Query.Text =
 					"SELECT TOP 1000
 					|	CurrentTable.Ref AS Ref
@@ -744,7 +744,7 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 							AnalysisQuery.SetParameter("AllSetsForObject",
 								PropertyManagerInternal.GetObjectPropertySets(
 									Selection.Ref).UnloadColumn("Set"));
-							// @skip-
+							// @skip-check query-in-loop. Batch processing of a large amount of data.
 							Replace = AnalysisQuery.Execute().IsEmpty();
 						EndIf;
 						For Each String In CurrentObject.AdditionalAttributes Do
@@ -896,7 +896,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			Object = Ref.GetObject();
 			
 			If Not ValueIsFilled(Object.Name) Then
-				// 
+				// @skip-check query-in-loop. Batch processing of a large amount of data.
 				SetAttributeName(Selection, Object);
 			Else
 				PropertyManagerInternal.DeleteDisallowedCharacters(Object.Name);
@@ -924,7 +924,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			
 			If Not ValueIsFilled(Object.IDForFormulas) Then
 				TitleForFormulas = TitleForIDGeneration(Object.Title, Object.Presentations);
-				// @skip-
+				// @skip-check query-in-loop. Batch processing of a large amount of data.
 				Object.IDForFormulas = UUIDForFormulas(TitleForFormulas, Object.Ref);
 			EndIf;
 			

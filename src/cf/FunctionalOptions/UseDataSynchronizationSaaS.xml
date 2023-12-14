@@ -15,6 +15,7 @@
 			<Content>
 				<xr:Object>CommonForm.DataSynchronizationMonitorSaaS</xr:Object>
 				<xr:Object>Catalog.DataExchangeScenarios</xr:Object>
+				<xr:Object>CommonCommand.MigrationToExchangeOverInternetWizardInternalPublication</xr:Object>
 			</Content>
 		</Properties>
 	</FunctionalOption>

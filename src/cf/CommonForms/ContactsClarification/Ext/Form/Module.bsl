@@ -760,7 +760,7 @@ Procedure ChangeContactInformationForSelectedContacts()
 			Query.SetParameter("Address", Selection.Address);
 			Query.SetParameter("MailMessage", MailMessage);
 			
-			//  
+			// @skip-check query-in-loop - Batch processing of great number of email messages by contacts. 
 			Result = Query.Execute();
 			OutgoingEmailsArray = New Array;
 			IncomingEmailsArray  = New Array;

@@ -54,6 +54,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	ReadSettings();
 	
+	Items.FormSetting.Visible = Not ShowScannerDialog;
+	
 	If Parameters.Property("ScanningParameters") Then
 		FillPropertyValues(ThisObject, Parameters.ScanningParameters);
 	EndIf;
@@ -68,6 +70,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	TIFFormat = Enums.ScannedImageFormats.TIF;
 	
 	TransformCalculationsToParametersAndGetPresentation();
+	
+	ScanJobParameters = Common.CommonSettingsStorageLoad("ScanningComponent", "ScanJobParameters", Undefined);
+	Items.ScanningError.Visible = ScanJobParameters <> Undefined;
 	
 EndProcedure
 
@@ -113,7 +118,8 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 		MultipageStorageFormat   = ValueSelected.MultipageStorageFormat;
 		
 		TransformCalculationsToParametersAndGetPresentation();
-		
+	ElsIf Upper(ChoiceSource.FormName) = Upper("DataProcessor.Scanning.Form.ScanningError") Then
+		Items.ScanningError.Visible = FilesOperationsInternalClient.ThereWasScanError();
 	EndIf;
 	
 EndProcedure
@@ -237,7 +243,7 @@ Procedure Save(Command)
 	If ShouldSaveAsPDF Then
 		
 #If Not WebClient And Not MobileClient Then
-		ExecutionParameters.ResultFile = GetTempFileName("pdf"); // See AcceptCompletion.
+		ExecutionParameters.ResultFile = GetTempFileName("pdf");
 #EndIf
 		
 		GraphicDocumentConversionParameters = FilesOperationsClient.GraphicDocumentConversionParameters();
@@ -258,9 +264,8 @@ EndProcedure
 &AtClient
 Procedure Setting(Command)
 	
-	DuplexScanningNumber = FilesOperationsInternalClient.GetSetting(Attachable_Module,
+	DuplexScanningNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module,
 		ScannerName, "DUPLEX");
-	
 	DuplexScanningAvailable = (DuplexScanningNumber <> -1);
 	
 	FormParameters = New Structure;
@@ -276,8 +281,8 @@ Procedure Setting(Command)
 	
 	FormParameters.Insert("RotationAvailable",       RotationAvailable);
 	FormParameters.Insert("PaperSizeAvailable",  PaperSizeAvailable);
-	
 	FormParameters.Insert("DuplexScanningAvailable", DuplexScanningAvailable);
+	
 	FormParameters.Insert("ScannedImageFormat",     ScannedImageFormat);
 	FormParameters.Insert("JPGQuality",                         JPGQuality);
 	FormParameters.Insert("TIFFDeflation",                          TIFFCompressionEnum);
@@ -319,7 +324,7 @@ Procedure SaveAllAsSingleFile(Command)
 #If Not WebClient And Not MobileClient Then
 	ResultExtension = String(MultipageStorageFormat);
 	ResultExtension = Lower(ResultExtension); 
-	ExecutionParameters.ResultFile = GetTempFileName(ResultExtension); // See AcceptAllAsOneFileCompletion
+	ExecutionParameters.ResultFile = GetTempFileName(ResultExtension);
 	GraphicDocumentConversionParameters.ResultFormat = ResultExtension;
 #EndIf
 		
@@ -381,6 +386,33 @@ Procedure Scan(Command)
 		
 EndProcedure
 
+&AtClient
+Procedure ScanErrorTextURLProcessing(Item, FormattedStringURL, StandardProcessing)
+	If FormattedStringURL = "TechnicalInformation" Then
+		AfterReceivingTechnicalInformation = New NotifyDescription("AfterReceivingTechnicalInformation", ThisObject);
+		FilesOperationsInternalClient.GetTechnicalInformation(NStr("en = 'The last scan attempt failed.';"),
+			AfterReceivingTechnicalInformation);
+		StandardProcessing = False;
+	EndIf;
+EndProcedure
+
+&AtClient
+Procedure HelpIsNeededClick(Item)
+	
+	ErrorText = StringFunctionsClient.FormattedString(StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Scanning with device %1 is underway.
+						|Try any of the following:
+						| • Check whether the scanner is connected and try again.
+						| • Specify the available scanner in the <a href = ""%2"">scanner settings</a>.
+						| • If the issue persists, contact 1C technical support and 
+						| provide <a href = ""%3"">technical information</a> about the issue.';"), 
+					ScannerName, "OpenSettings", "TechnicalInformation"));
+	
+	FilesOperationsInternalClient.ShowScanError(Attachable_Module, ThisObject, 
+		NStr("en = 'Scanning problem';"), 
+		NStr("en = 'The user called help dialog box during scanning.';"), ErrorText, True);
+EndProcedure
+
 #EndRegion
 
 #Region Private
@@ -427,7 +459,8 @@ Procedure PrepareForScanningAfterInitialization(InitializationCheckResult, Openi
 		Return;
 	EndIf;
 	Attachable_Module = InitializationCheckResult.Attachable_Module;
-	
+	FilesOperationsInternalClient.EnableLoggingComponents(Attachable_Module, True);
+
 	OpeningParameters.CurrentStep = 2;
 	
 	BeforeOpenAutomatFollowUp(OpeningParameters);
@@ -443,7 +476,8 @@ Procedure BeforeOpenAutomatFollowUp(OpeningParameters)
 		If OpeningParameters.SelectedDevice = "" Then
 			Handler = New NotifyDescription("PrepareForScanning", ThisObject, OpeningParameters);
 			FormOpenParameters = New Structure("Rescanning", True);
-			OpenForm("DataProcessor.Scanning.Form.ScanningSettings", FormOpenParameters , ThisObject, , , , Handler, FormWindowOpeningMode.LockWholeInterface);
+			OpenForm("DataProcessor.Scanning.Form.ScanningSettings", FormOpenParameters , ThisObject, , , , 
+				Handler, FormWindowOpeningMode.LockWholeInterface);
 			Return;
 		EndIf;
 		
@@ -452,46 +486,20 @@ Procedure BeforeOpenAutomatFollowUp(OpeningParameters)
 	
 	If OpeningParameters.CurrentStep = 3 Then
 		If OpeningParameters.SelectedDevice = "" Then 
-			Return; // 
+			Return; // Do not open the form.
 		EndIf;
 		
-		If Resolution = -1 Or Chromaticity = -1 Or Rotation = -1 Or PaperSize = -1 Then
-			
-			Resolution = FilesOperationsInternalClient.GetSetting(Attachable_Module,
-				OpeningParameters.SelectedDevice,
-				"XRESOLUTION");
-			
-			Chromaticity = FilesOperationsInternalClient.GetSetting(Attachable_Module,
-				OpeningParameters.SelectedDevice,
-				"PIXELTYPE");
-			
-			Rotation = FilesOperationsInternalClient.GetSetting(Attachable_Module,
-				OpeningParameters.SelectedDevice,
-				"ROTATION");
-			
-			PaperSize = FilesOperationsInternalClient.GetSetting(Attachable_Module,
-				OpeningParameters.SelectedDevice,
-				"SUPPORTEDSIZES");
-			
-			DuplexScanningNumber = FilesOperationsInternalClient.GetSetting(Attachable_Module,
-				OpeningParameters.SelectedDevice,
-				"DUPLEX");
-			
-			RotationAvailable = (Rotation <> -1);
-			PaperSizeAvailable = (PaperSize <> -1);
-			DuplexScanningAvailable = (DuplexScanningNumber <> -1);
-			
-			SystemInfo = New SystemInfo();
-			ClientID = SystemInfo.ClientID;
-			
-		Else
-			
-			RotationAvailable = Not RotationEnum.IsEmpty();
-			PaperSizeAvailable = Not PaperSizeEnum.IsEmpty();
-			DuplexScanningAvailable = True;
-			
-		EndIf;
+		RotationNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module,
+			OpeningParameters.SelectedDevice, "ROTATION");
+		PaperSizeNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module,
+			OpeningParameters.SelectedDevice, "SUPPORTEDSIZES");
+		DuplexScanningNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module,
+			OpeningParameters.SelectedDevice, "DUPLEX");
 		
+		RotationAvailable = (RotationNumber <> -1);
+		PaperSizeAvailable = (PaperSizeNumber <> -1);
+		DuplexScanningAvailable = (DuplexScanningNumber <> -1);
+			
 		Items.Save.Enabled = False;
 		
 		DeflateParameter = ?(Upper(PictureFormat) = "JPG", JPGQuality, TIFFDeflation);
@@ -535,69 +543,94 @@ EndProcedure
 
 &AtServer
 Procedure TransformCalculationsToParametersAndGetPresentation()
-
-	ScanningSettings1 = FilesOperationsInternalServerCall.ScanningParameters();
-	ScanningSettings1.Resolution 	= ResolutionEnum;
-	ScanningSettings1.Chromaticity		= ColorDepthEnum;
-	ScanningSettings1.Rotation		= RotationEnum;
-	ScanningSettings1.PaperSize	= PaperSizeEnum;
-	ScanningSettings1.TIFFDeflation	= TIFFCompressionEnum;
-	PrimitiveScanSettings = FilesOperationsInternalServerCall.ConvertScanSettings(ScanningSettings1);
-	FillPropertyValues(ThisObject, PrimitiveScanSettings, "Resolution, Chromaticity, Rotation, PaperSize, TIFFDeflation");
 	
 	Presentation = "";
-	// 
-	// 
-	// 
-	
-	
-	If ShouldSaveAsPDF Then
-		PictureFormat = String(ScannedImageFormat);
 		
-		Presentation = Presentation + NStr("en = 'Save as:';") + " ";
-		Presentation = Presentation + "PDF";
-		Presentation = Presentation + ". ";
-		Presentation = Presentation + NStr("en = 'Scanning format:';") + " ";
-		Presentation = Presentation + PictureFormat;
-		Presentation = Presentation + ". ";
-	Else	
-		PictureFormat = String(ScannedImageFormat);
-		Presentation = Presentation + NStr("en = 'Save as:';") + " ";
-		Presentation = Presentation + PictureFormat;
-		Presentation = Presentation + ". ";
-	EndIf;
+		
+		
 	
+	If Not ShowScannerDialog Then
+	
+		ScanningSettings1 = FilesOperationsInternalClientServer.ScanningParameters();
+		ScanningSettings1.Resolution 	= ResolutionEnum;
+		ScanningSettings1.Chromaticity		= ColorDepthEnum;
+		ScanningSettings1.Rotation		= RotationEnum;
+		ScanningSettings1.PaperSize	= PaperSizeEnum;
+		ScanningSettings1.TIFFDeflation	= TIFFCompressionEnum;
+		PrimitiveScanSettings = FilesOperationsInternal.ConvertScanSettings(ScanningSettings1);
+		FillPropertyValues(ThisObject, PrimitiveScanSettings, 
+			"Resolution, Chromaticity, Rotation, PaperSize, TIFFDeflation");
+		
+		If ShouldSaveAsPDF Then
+			PictureFormat = String(ScannedImageFormat);
+			
+			Presentation = Presentation + NStr("en = 'Save as:';") + " ";
+			Presentation = Presentation + "PDF";
+			Presentation = Presentation + ". ";
+			Presentation = Presentation + NStr("en = 'Scanning format:';") + " ";
+			Presentation = Presentation + PictureFormat;
+			Presentation = Presentation + ". ";
+		Else	
+			PictureFormat = String(ScannedImageFormat);
+			Presentation = Presentation + NStr("en = 'Save as:';") + " ";
+			Presentation = Presentation + PictureFormat;
+			Presentation = Presentation + ". ";
+		EndIf;
+		
 
-	If Upper(PictureFormat) = "JPG" Then
-		Presentation = Presentation +  NStr("en = 'Quality:';") + " " + String(JPGQuality) + ". ";
-	EndIf;	
-	
-	If Upper(PictureFormat) = "TIF" Then
-		Presentation = Presentation +  NStr("en = 'Compression:';") + " " + String(TIFFCompressionEnum) + ". ";
+		If Upper(PictureFormat) = "JPG" Then
+			Presentation = Presentation +  NStr("en = 'Quality:';") + " " + String(JPGQuality) + ". ";
+		EndIf;	
+		
+		If Upper(PictureFormat) = "TIF" Then
+			Presentation = Presentation +  NStr("en = 'Compression:';") + " " + String(TIFFCompressionEnum) + ". ";
+		EndIf;
+		
+		Presentation = Presentation + NStr("en = 'Save as a multipage image:';") + " ";
+		Presentation = Presentation + String(MultipageStorageFormat);
+		Presentation = Presentation + ". ";
+		
+		If Resolution <> -1 Then
+			Presentation = Presentation + StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Resolution: %1 dpi. %2.';") + " ",
+				String(Resolution), String(ColorDepthEnum));
+		Else
+			Presentation = Presentation + StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Resolution: Not set. Color scale: %2.';") + " ",
+				String(ColorDepthEnum));
+		EndIf;
+		
+		If Not RotationEnum.IsEmpty() Then
+			Presentation = Presentation +  NStr("en = 'Rotation:';")+ " " + String(RotationEnum) + ". ";
+		EndIf;	
+		
+		If Not PaperSizeEnum.IsEmpty() Then
+			Presentation = Presentation +  NStr("en = 'Paper size:';") + " " + String(PaperSizeEnum) + ". ";
+		EndIf;	
+		
+		If DuplexScanning = True Then
+			Presentation = Presentation +  NStr("en = 'Scan both sides';") + ". ";
+		EndIf;	
+		
+	Else
+		If ShouldSaveAsPDF Then
+			PictureFormat = String(ScannedImageFormat);
+			
+			Presentation = Presentation + NStr("en = 'Save as:';") + " ";
+			Presentation = Presentation + "PDF";
+			Presentation = Presentation + ". ";
+		EndIf;
+		
+		Presentation = Presentation + NStr("en = 'Save as a multipage image:';") + " ";
+		Presentation = Presentation + String(MultipageStorageFormat);
+		Presentation = Presentation + ". ";
+		
+		Presentation = Presentation + NStr("en = 'Scan settings are set in the scanner dialog box.';");
+		
 	EndIf;
-	
-	Presentation = Presentation + NStr("en = 'Save as a multipage image:';") + " ";
-	Presentation = Presentation + String(MultipageStorageFormat);
-	Presentation = Presentation + ". ";
-	
-	Presentation = Presentation + StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Resolution: %1 dpi. %2.';") + " ",
-		String(Resolution), String(ColorDepthEnum));
-	
-	If Not RotationEnum.IsEmpty() Then
-		Presentation = Presentation +  NStr("en = 'Rotation:';")+ " " + String(RotationEnum) + ". ";
-	EndIf;	
-	
-	If Not PaperSizeEnum.IsEmpty() Then
-		Presentation = Presentation +  NStr("en = 'Paper size:';") + " " + String(PaperSizeEnum) + ". ";
-	EndIf;	
-	
-	If DuplexScanning = True Then
-		Presentation = Presentation +  NStr("en = 'Scan both sides';") + ". ";
-	EndIf;	
 	
 	SettingsText = Presentation;
-	
+		
 	Items.SettingsTextChange.Title = SettingsText + "Change";
 	
 EndProcedure
@@ -606,14 +639,16 @@ EndProcedure
 Procedure ExternalEvent(Source, Event, Data)
 	
 #If Not WebClient And Not MobileClient Then
-		
+	If Source = "TWAIN" Then
+		FilesOperationsInternalClient.WriteScanLog("ScannerEvent", 
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Event %1, data %2';"), Event, Data));
+	EndIf;
+	
 	If Source = "TWAIN" And Event = "ImageAcquired" Then
 		
 		PictureFileName = Data;
 		Items.Save.Enabled = True;
-		
 		RowsNumberBeforeAdd = TableOfFiles.Count();
-		
 		TableRow = Undefined;
 		
 		If InsertionPosition = Undefined Then
@@ -659,12 +694,26 @@ Procedure ExternalEvent(Source, Event, Data)
 			RowID = TableOfFiles[TableOfFiles.Count() - 1].GetID();
 			Items.TableOfFiles.CurrentRow = RowID;
 		EndIf;
-		
-	ElsIf Source = "TWAIN" And Event = "UserPressedCancel" Then	
+		FilesOperationsInternalClient.RemoveScanError(Attachable_Module);
+	ElsIf Source = "TWAIN" And Event = "UserPressedCancel" Then
 		If IsOpen() Then
-			Close();
+			CurrentDate = CurrentDate(); 
+			If CurrentDate < StartScanning_ + 3 Then
+				ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Scanning is canceled (event %1) in %2 sec. See %3';"), Event, 
+					CurrentDate - StartScanning_, "ImageScan.log");
+				FilesOperationsInternalClient.WriteScanLog("ScannerEvent" + "." + Event, 
+					ErrorPresentation, True);
+				FilesOperationsInternalClient.ShowScanError(Attachable_Module, ThisObject, 
+					NStr("en = 'Cannot scan the document';"), ErrorPresentation);
+			Else
+				FilesOperationsInternalClient.RemoveScanError(Attachable_Module);
+				Close();
+			EndIf;
 		EndIf;
 	EndIf;
+	
+	Items.ScanningError.Visible = FilesOperationsInternalClient.ThereWasScanError();
 	
 #EndIf
 
@@ -722,17 +771,12 @@ Procedure SaveAfterMergingCompletion(Context)
 		Return;
 	ElsIf ResultType = FilesOperationsClient.ConversionResultTypeFileName() Then
 		Result.FileName = Context.PathToFileLocal;
-		DeletionIndexes = New Array();
-		For FileIndex = 0 To ExecutionParameters.FileArrayCopy.UBound() Do
-			If ExecutionParameters.FileArrayCopy[0].PathToFile = Context.PathToFileLocal Then
-				DeletionIndexes.Insert(0, FileIndex);
+		For FileIndex = -ExecutionParameters.FileArrayCopy.UBound() To 0 Do
+			If ExecutionParameters.FileArrayCopy[-FileIndex].PathToFile <> Context.PathToFileLocal Then
+				ExecutionParameters.FileArrayCopy.Delete(-FileIndex);
 			EndIf;
 		EndDo;	
 		
-		For Each DeletionIndex In DeletionIndexes Do
-			ExecutionParameters.FileArrayCopy.Delete(DeletionIndex);
-		EndDo;
-			
 		ExecutionParameters.ResultFile = "";
 		AcceptCompletion(Result, ExecutionParameters);
 		Return;
@@ -871,7 +915,7 @@ Procedure SaveAsSeparateFilesRecursively(Context)
 	AddingOptions = Context.AddingOptions;
 	ScannedFiles = Context.ScannedFiles;
 	
-	// 
+	// All pictures are processed here. Each of them is accepted as a separate file.
 	If Context.FileIndex <= Context.FilesArray.UBound() Then
 		String = Context.FilesArray[Context.FileIndex];
 		
@@ -882,10 +926,10 @@ Procedure SaveAsSeparateFilesRecursively(Context)
 		If ResultExtension = "pdf" Then
 			
 #If Not WebClient And Not MobileClient Then
-		// ACC:441-
-		// 
+		
+		
 		Context.ResultFile = GetTempFileName("pdf");
-		// 
+		// ACC:441-on
 #EndIf
 			GraphicDocumentConversionParameters = FilesOperationsClient.GraphicDocumentConversionParameters();
 			GraphicDocumentConversionParameters.ResultFileName = Context.ResultFile;
@@ -1008,16 +1052,47 @@ EndProcedure
 &AtClient
 Procedure StartScanAfterAddInObtained(InitializationResult, Context) Export
 	If InitializationResult.Attached Then
-		ShowDialogBox = ShowScannerDialog;
-		SelectedDevice = ScannerName;
-		DeflateParameter = ?(Upper(PictureFormat) = "JPG", JPGQuality, TIFFDeflation);
 		
-		InitializationResult.Attachable_Module.BeginScan(
-		ShowDialogBox, SelectedDevice, PictureFormat, 
-		Resolution, Chromaticity, Rotation, PaperSize, 
-		DeflateParameter,
-		DuplexScanning);
+		Attachable_Module = InitializationResult.Attachable_Module;
+		ScanningParameters = FilesOperationsInternalClientServer.ScanningParameters();
+		ScanningParameters.ShowDialogBox = ShowScannerDialog;
+		ScanningParameters.SelectedDevice = ScannerName;
+		ScanningParameters.PictureFormat = PictureFormat;
+		ScanningParameters.Resolution = Resolution;
+		ScanningParameters.Chromaticity = Chromaticity;
+		ScanningParameters.Rotation = Rotation;
+		ScanningParameters.PaperSize = PaperSize;
+		ScanningParameters.JPGQuality = JPGQuality;
+		ScanningParameters.TIFFDeflation = TIFFDeflation;
+		ScanningParameters.DuplexScanning = DuplexScanning;
+		StartScanning_ = CurrentDate();// ACC:143 - Intended for calculation time intervals
+		ScanJobParameters = New Structure();
+		ScanJobParameters.Insert("StartScanning_", StartScanning_);
+		ScanJobParameters.Insert("ScanningParameters", ScanningParameters);
+		
+		PictureAddress = PutToTempStorage(PictureLib.TimeConsumingOperation48.GetBinaryData(), UUID);
+		CommonServerCall.CommonSettingsStorageSave("ScanningComponent", "ScanJobParameters", 
+			ScanJobParameters,,,True);
+		FilesOperationsInternalClient.BeginScan(ThisObject, Attachable_Module, ScanningParameters);
+		
 	EndIf;
+EndProcedure
+
+&AtClient
+Procedure AfterClosingErrorForm(ClosingResult, Context) Export
+	If ClosingResult = "RepeatScan" Then
+		ReadSettings();
+		Rescan(Undefined);
+	ElsIf ClosingResult = DialogReturnCode.Cancel And Not Context.ModeNeedsHelp Then
+		If IsOpen() Then
+			Close();
+		EndIf;
+	EndIf;
+EndProcedure
+
+&AtClient
+Procedure AfterReceivingTechnicalInformation(Result, Context) Export
+	Items.ScanningError.Visible = False;
 EndProcedure
 
 #EndRegion

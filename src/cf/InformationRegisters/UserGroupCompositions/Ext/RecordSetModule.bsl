@@ -13,8 +13,8 @@
 
 Procedure OnWrite(Cancel, Replacing)
 	
-	// 
-	// 
+	
+	
 	If DataExchange.Load Then
 		If Not AdditionalProperties.Property("SkipPeriodClosingDatesVersionUpdate") Then
 			UpdatePeriodClosingDatesVersionOnDataImport();
@@ -30,8 +30,8 @@ EndProcedure
 
 Procedure UpdatePeriodClosingDatesVersionOnDataImport()
 	
-	// 
-	// 
+	
+	
 	
 	If Common.SubsystemExists("StandardSubsystems.PeriodClosingDates") Then
 		ModulePeriodClosingDatesInternal = Common.CommonModule("PeriodClosingDatesInternal");

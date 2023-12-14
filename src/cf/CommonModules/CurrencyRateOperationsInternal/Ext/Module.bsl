@@ -38,7 +38,7 @@ EndProcedure
 // Is called when the currency rate setting method is changed.
 //
 // Parameters:
-//  Currency - CatalogRef.Currencies
+//  Currency - CatalogObject.Currencies
 //
 Procedure ScheduleCopyCurrencyRates(Val Currency) Export
 	
@@ -126,7 +126,7 @@ Procedure CopyCurrencyRates(Val CurrencyCode_) Export
 	
 	InformationRegisters.ExchangeRates.RecalcTotals();
 	
-	// 
+	// Checks whether the exchange rate and multiplier as of January 1, 1980, are available.
 	CurrencyRateOperations.CheckCurrencyRateAvailabilityFor01011980(CurrencyRef);
 
 EndProcedure
@@ -146,10 +146,10 @@ Procedure UpdateCurrencyRates() Export
 	|	Currencies.RateSource = VALUE(Enum.RateSources.DownloadFromInternet)";
 	Selection = Query.Execute().Select();
 	
-	// 
-	//  
-	// 
-	// 
+	
+	 
+	
+	
 	While Selection.Next() Do
 		CopyCurrencyRates(Selection.Code);
 	EndDo;
@@ -169,17 +169,17 @@ EndProcedure
 //
 Procedure NewDataAvailable(Val Descriptor, ToImport) Export
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	//
 	If Descriptor.DataType = "CurrencyRatesForDay" Then
 		ToImport = True;
-	//  
-	//  
-	// 
-	// 
-	// 
+	 
+	 
+	
+	
+	
 	ElsIf Descriptor.DataType = "ExchangeRates" Then
 		ToImport = True;
 	EndIf;
@@ -285,7 +285,7 @@ EndProcedure
 //
 // Parameters:
 //  RateTable - ValueTable - with the following columns Code, Date, Multiplier, Rate.
-//  File - 
+//  File - String, TextWriter
 //
 Procedure SaveRateTable(Val RateTable, Val File)
 	
@@ -496,9 +496,9 @@ EndProcedure
 //
 // Parameters:
 //  RatesDate - Date, Undefined - the rates are added for the specified date or for all time.
-//  RateTable - 
-//  AreasForUpdate - 
-//  FileID - 
+//  RateTable - ValueTable containing rates.
+//  AreasForUpdate - an array of area codes.
+//  FileID - file UUID of processed rates.
 //  HandlerCode - String - handler code.
 //
 Procedure DistributeRatesByDataAreas(Val RatesDate, Val RateTable, Val AreasForUpdate, Val FileID, Val HandlerCode)
@@ -543,7 +543,7 @@ Procedure DistributeRatesByDataAreas(Val RatesDate, Val RateTable, Val AreasForU
 		
 		BeginTransaction();
 		Try
-			// 
+			
 			ProcessTransactionedAreaRates(CommonQuery, AreaCurrencies, RateTable);
 			ModuleSaaSOperations.SignOutOfDataArea();
 			ModuleSuppliedData.AreaProcessed(FileID, HandlerCode, DataArea);
@@ -652,14 +652,14 @@ Procedure ProcessTransactionedAreaRates(CommonQuery, AreaCurrencies, RateTable)
 	|WHERE
 	|	Currencies.RateSource = VALUE(Enum.RateSources.DownloadFromInternet)";
 	
-	CurrencySelection1 = CurrencyQuery.Execute().Select(); // ACC:1328 - 
+	CurrencySelection1 = CurrencyQuery.Execute().Select(); 
 	
 	While CurrencySelection1.Next() Do
 		
 		CommonQuery.SetParameter("Currency", CurrencySelection1.Ref);
 		CommonQuery.SetParameter("CurrencyCode_", CurrencySelection1.Code);
 		
-		// 
+		
 		CurrencyProperties = SuppliedCurrencyProperties(AreaCurrencies, CurrencySelection1.Code, RateTable, CommonQuery);
 		
 		If Not CurrencyProperties.Supplied_3 Then
@@ -716,7 +716,7 @@ Procedure ProcessTransactionedAreaRates(CommonQuery, AreaCurrencies, RateTable)
 		
 		CommonQuery.Text = StrReplace(QueryText, "NNN", CurrencyProperties.SequenceNumber);
 		
-		// 
+		
 		CommonResult1 = CommonQuery.Execute();
 		CommonSelection = CommonResult1.Select();
 		
@@ -740,7 +740,7 @@ Procedure ProcessTransactionedAreaRates(CommonQuery, AreaCurrencies, RateTable)
 			RecordSet.Filter.Currency.Set(CurrencySelection1.Ref);
 			RecordSet.Filter.Period.Set(CommonSelection.Date);
 			If Not CommonQuery.Parameters.OneDayOnly Then
-				// 
+				// Block the ineffective associated currency update.
 				RecordSet.DataExchange.Load = True;
 			EndIf;
 			
@@ -774,7 +774,7 @@ Procedure ProcessTransactionedAreaRates(CommonQuery, AreaCurrencies, RateTable)
 			
 		EndDo;
 		
-		// 
+		// Checks whether the exchange rate and multiplier as of January 1, 1980, are available.
 		CurrencyRateOperations.CheckCurrencyRateAvailabilityFor01011980(CurrencySelection1.Ref);
 		
 	EndDo;

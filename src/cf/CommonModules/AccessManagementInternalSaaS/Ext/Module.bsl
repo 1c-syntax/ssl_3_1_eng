@@ -60,9 +60,9 @@ EndProcedure
 // See ExportImportDataOverridable.AfterImportData.
 Procedure AfterImportData(Container) Export
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	If Not Common.DataSeparationEnabled() Then
 		Catalogs.AccessGroupProfiles.UpdateSuppliedProfiles();
 		Catalogs.AccessGroupProfiles.UpdateUnshippedProfiles();

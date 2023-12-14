@@ -54,8 +54,8 @@ Procedure GetExchangeMessageToTemporaryDirectory(Parameters, TempStorageAddress)
 			
 			File = New File(TempFileName);			
 			If File.Exists() And File.IsFile() Then
-				// 
-				// 
+				
+				
 				DataExchangeServer.PutFileInStorage(TempFileName, CommonSettings.MessageForDataMapping);
 				
 				DataPackageFileID = File.GetModificationTime();
@@ -79,7 +79,7 @@ Procedure GetExchangeMessageToTemporaryDirectory(Parameters, TempStorageAddress)
 		EndIf;
 		
 		If IsBlankString(StructureOfData.ExchangeMessageFileName) Then
-			// 
+			// A message file for mapping is not found.
 			Cancel = True;
 			
 			ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
@@ -331,7 +331,7 @@ Procedure RegisterDataforExport(Parameters, ResultAddress) Export
 		ExportAddition.AllDocumentsComposerAddress = PutToTempStorage(StructureAddition.AllDocumentsComposer);
 	EndIf;
 	
-	// 
+	// Saving export addition settings.
 	DataExchangeServer.InteractiveExportChangeSaveSettings(ExportAddition, 
 		DataExchangeServer.ExportAdditionSettingsAutoSavingName());
 	
@@ -551,7 +551,7 @@ Function StatisticsTableExchangeMessages(Parameters,
 	ExchangeMessageFileName              = Parameters.ExchangeMessageFileName;
 	
 	If IsBlankString(TempExchangeMessagesDirectoryName) Then
-		// 
+		// Data from the correspondent infobase cannot be received.
 		Cancel = True;
 		Return StatisticsInformation;
 	EndIf;
@@ -584,7 +584,7 @@ Function StatisticsTableExchangeMessages(Parameters,
 		FillPropertyValues(StatisticsInformationString, BatchTitleDataLine);
 	EndDo;
 	
-	// 
+	// Supplying the statistic table with utility data
 	ErrorMessage = "";
 	SupplementStatisticTable(StatisticsInformation, Cancel, ErrorMessage);
 	
@@ -630,8 +630,8 @@ Function AutomaticDataMappingResult(Val Peer,
 	Result.Insert("ErrorMessage",         "");
 	Result.Insert("ExchangeExecutionResult", Undefined);
 	
-	// 
-	// 
+	
+	
 	SetPrivilegedMode(True);
 	
 	DataExchangeServer.InitializeVersionDifferenceCheckParameters(CheckVersionDifference);
@@ -662,7 +662,7 @@ Function AutomaticDataMappingResult(Val Peer,
 	
 	InteractiveDataExchangeWizard.StatisticsInformation.Load(StatisticsInformation);
 	
-	// 
+	// Mapping data and getting statistics.
 	InteractiveDataExchangeWizard.ExecuteDefaultAutomaticMappingAndGetMappingStatistics(Result.Cancel);
 	
 	If Result.Cancel Then

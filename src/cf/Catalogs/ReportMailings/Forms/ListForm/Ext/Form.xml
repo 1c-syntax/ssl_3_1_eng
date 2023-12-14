@@ -42,7 +42,7 @@
 					<ContextMenu name="WarningPictureContextMenu" id="179"/>
 					<ExtendedTooltip name="WarningPictureExtendedTooltip" id="180"/>
 				</PictureDecoration>
-				<LabelDecoration name="TitleAccelerationOfMailouts" id="181">
+				<LabelDecoration name="TitleAccelerationOfMailings" id="181">
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<AutoMaxHeight>false</AutoMaxHeight>
 					<Title formatted="false">
@@ -59,8 +59,8 @@
 					</ToolTip>
 					<ToolTipRepresentation>ShowRight</ToolTipRepresentation>
 					<TitleHeight>1</TitleHeight>
-					<ContextMenu name="TitleAccelerationOfMailoutsContextMenu" id="182"/>
-					<ExtendedTooltip name="TitleAccelerationOfMailoutsExtendedTooltip" id="183"/>
+					<ContextMenu name="TitleAccelerationOfMailingsContextMenu" id="182"/>
+					<ExtendedTooltip name="TitleAccelerationOfMailingsExtendedTooltip" id="183"/>
 				</LabelDecoration>
 			</ChildItems>
 		</UsualGroup>

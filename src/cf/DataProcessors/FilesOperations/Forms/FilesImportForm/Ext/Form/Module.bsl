@@ -93,9 +93,9 @@ Procedure AddExecute()
 		Files.Add(LongDesc);
 		CallDetails.Add(Files);
 		
-		CallDetails.Add(Undefined); // 
-		CallDetails.Add(Undefined); // 
-		CallDetails.Add(False);         // 
+		CallDetails.Add(Undefined); 
+		CallDetails.Add(Undefined); // Obsolete.
+		CallDetails.Add(False);         // Interactively = False
 		
 		OperationArray.Add(CallDetails);
 	EndDo;
@@ -164,7 +164,9 @@ Procedure AddExecuteCompletion(Result, ExecutionParameters) Export
 	If AddedFilesCount > 0 Then
 		Source = Result.AddedFiles[AddedFilesCount - 1].FileRef;
 	EndIf;
-	Notify("Write_File", New Structure("IsNew", True), Source);
+	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
+	FileRecordingNotificationParameters.IsNew = True;
+	Notify("Write_File", FileRecordingNotificationParameters, Source);
 EndProcedure
 
 &AtClient

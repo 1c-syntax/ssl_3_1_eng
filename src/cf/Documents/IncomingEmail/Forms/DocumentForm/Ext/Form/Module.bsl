@@ -538,7 +538,7 @@ Procedure AttachmentProperties(Command)
 	
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure UpdateAdditionalAttributesDependencies()
@@ -732,7 +732,7 @@ Procedure SelectEncodingAfterCompletion(SelectedElement, AdditionalParameters) E
 
 EndProcedure
 
-// 
+
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()

@@ -8,7 +8,7 @@
 //
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,7 +18,7 @@
 // a lank setting form is returned.
 //
 // Returns:
-//   Structure - 
+//   Structure - Values of header and footer settings.
 //
 Function HeaderOrFooterSettings() Export
 	Var Settings;
@@ -60,12 +60,12 @@ EndProcedure
 // Sets the ReportDescription and User parameter values in template row.
 //
 // Parameters:
-//   Template - String - setting a header or footer whose parameter values are not set yet.
+//   Template - String - Header/footer setting whose parameter values are not set yet.
 //   ReportTitle - String - Parameter value that will be inserted to the template.
 //   User - CatalogRef.Users - Parameter value that will be inserted to the template.
 //
 // Returns:
-//   String - 
+//   String - Settings of a header or footer with the template values.
 //
 Function PropertyValueFromTemplate(Template, ReportTitle, User)
 	Result = StrReplace(Template, "[&ReportTitle]", TrimAll(ReportTitle));
@@ -80,7 +80,7 @@ EndFunction
 //  SpreadsheetDocument - SpreadsheetDocument - Document that requires setting headers and footers.
 //  ReportTitle - String - Parameter value that will be inserted to the template.
 //  User - CatalogRef.Users - Parameter value that will be inserted to the template.
-//  HeaderOrFooterSettings - Structure - individual settings of headers and footers.
+//  HeaderOrFooterSettings - Structure - Individual settings of headers and footers.
 //
 Procedure SetHeadersAndFooters(SpreadsheetDocument, ReportTitle = "", User = Undefined, HeaderOrFooterSettings = Undefined) Export
 	If User = Undefined Then
@@ -105,10 +105,10 @@ EndProcedure
 // Returns the flag of setting up header and footer.
 //
 // Parameters:
-//  HeaderOrFooter - SpreadsheetDocumentHeaderFooter - a header or footer of a spreadsheet document.
+//  HeaderOrFooter - SpreadsheetDocumentHeaderFooter - Spreadsheet header or footer.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - Flag indicating whether a header and footer is set.
 //
 Function HeaderOrFooterSet(HeaderOrFooter)
 	Return ValueIsFilled(HeaderOrFooter.LeftText)
@@ -124,7 +124,7 @@ EndFunction
 //  User - CatalogRef.Users - Value to be inserted to the [&User] template.
 //
 // Returns:
-//   Structure - 
+//   Structure - Values of header and footer settings.
 //
 Function HeaderOrFooterProperties(HeaderOrFooterSettings1, ReportTitle, User)
 	HeaderOrFooterProperties = New Structure;
@@ -157,7 +157,7 @@ EndFunction
 // Headers and footers settings wizard.
 //
 // Returns:
-//   Structure - 
+//   Structure - Settings of headers and footers with the default values.
 //
 Function BlankHeaderOrFooterSettings()
 	Header = New Structure;
@@ -213,7 +213,7 @@ EndProcedure
 //  Settings - See HeaderOrFooterSettings
 //
 // Returns:
-//   Structure - 
+//   Structure - Information on the header or footer setting status:
 //     * Standard1 - Boolean - True if passed settings correspond to standard (common)
 //                     settings that are stored in the HeaderOrFooterSettings constant.
 //     * Empty1 - Boolean - True if passed settings correspond to blank settings

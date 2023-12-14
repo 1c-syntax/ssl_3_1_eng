@@ -56,6 +56,10 @@ Procedure BeforeWrite(Cancel)
 			EndIf;
 			
 			Property = PropertiesKinds.Get(AdditionalAttribute.Property);
+			If Not ValueIsFilled(Property) Then
+				Continue;
+			EndIf;
+			
 			If Property.PropertyKind = Enums.PropertiesKinds.Labels Then
 				LabelsCount = LabelsCount + 1;
 			Else

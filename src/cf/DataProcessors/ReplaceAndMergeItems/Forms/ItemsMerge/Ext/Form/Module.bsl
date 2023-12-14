@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-// 
+
 //     
 //
 
@@ -19,7 +19,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	InitializeReferencesToMerge(Parameters.RefSet);
 	
-	ObjectMetadata = MainItem.Ref.Metadata();
+	ObjectMetadata = MainItem.Metadata();
 	HasRightToDeletePermanently = AccessRight("DataAdministration", Metadata) 
 		Or AccessRight("InteractiveDelete", ObjectMetadata);
 	ReplacementNotificationEvent        = DataProcessors.ReplaceAndMergeItems.ReplacementNotificationEvent();
@@ -45,14 +45,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Step.CancelButton.Title = NStr("en = 'Cancel';");
 	Step.CancelButton.ToolTip = NStr("en = 'Cancel merging.';");
 	
-	// 
+	// 3. Waiting for process.
 	Step = AddWizardStep(Items.MergeStep);
 	Step.CancelButton.Visible = False;
 	Step.NextButton.Visible = False;
 	Step.BackButton.Title = NStr("en = 'Cancel';");
 	Step.BackButton.ToolTip = NStr("en = 'Return to selection of the main item.';");
 	
-	// 
+	// 4. Merged successfully.
 	Step = AddWizardStep(Items.SuccessfulCompletionStep);
 	Step.BackButton.Visible = False;
 	Step.NextButton.Visible = False;
@@ -60,7 +60,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Step.CancelButton.Title = NStr("en = 'Close';");
 	Step.CancelButton.ToolTip = NStr("en = 'Close merge results.';");
 	
-	// 
+	// 5. Reference replacement issues.
 	Step = AddWizardStep(Items.RetryMergeStep);
 	Step.BackButton.Title = NStr("en = '< To Beginning';");
 	Step.BackButton.ToolTip = NStr("en = 'Return to selection of the main item.';");
@@ -70,13 +70,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Step.CancelButton.Title = NStr("en = 'Cancel';");
 	Step.CancelButton.ToolTip = NStr("en = 'Close merge results.';");
 	
-	// 
+	// 6 Runtime errors.
 	Step = AddWizardStep(Items.ErrorOccurredStep);
 	Step.BackButton.Visible = False;
 	Step.NextButton.Visible = False;
 	Step.CancelButton.Title = NStr("en = 'Close';");
 	
-	// 
+	// Update form items.
 	WizardSettings.CurrentStep = SearchStep;
 	SetVisibilityAvailability(ThisObject);
 EndProcedure
@@ -324,7 +324,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure InitializeStepByStepWizardSettings()
@@ -332,16 +332,16 @@ Procedure InitializeStepByStepWizardSettings()
 	WizardSettings.Insert("Steps", New Array);
 	WizardSettings.Insert("CurrentStep", Undefined);
 	
-	// 
+	// Interface part IDs.
 	WizardSettings.Insert("PagesGroup", Items.WizardSteps.Name);
 	WizardSettings.Insert("NextButton",   Items.WizardStepNext.Name);
 	WizardSettings.Insert("BackButton",   Items.WizardStepBack.Name);
 	WizardSettings.Insert("CancelButton",  Items.WizardStepCancel.Name);
 	
-	// 
+	// To process long-running operations.
 	WizardSettings.Insert("ShowDialogBeforeClose", False);
 	
-	// 
+	// Everything is disabled by default.
 	Items.WizardStepNext.Visible  = False;
 	Items.WizardStepBack.Visible  = False;
 	Items.WizardStepCancel.Visible = False;
@@ -353,7 +353,7 @@ EndProcedure
 //   Page - FormGroup - a page that contains step items.
 //
 // Returns:
-//   Structure - 
+//   Structure - :
 //       * PageName - String - a page name.
 //       * NextButton - Structure - description of "Next" button, where:
 //           ** Title - String - a button title. The default value is "Next >".
@@ -404,7 +404,7 @@ Procedure SetVisibilityAvailability(Form)
 	WizardSettings = Form.WizardSettings;
 	CurrentStep = WizardSettings.CurrentStep;
 	
-	// 
+	// Navigate to the page.
 	Items[WizardSettings.PagesGroup].CurrentPage = Items[CurrentStep.PageName];
 	
 	// Update buttons.
@@ -419,7 +419,7 @@ EndProcedure
 // Parameters:
 //   StepOrIndexOrFormGroup - Structure
 //                              - Number
-//                              - FormGroup - 
+//                              - FormGroup - a page to navigate to.
 //
 &AtClient
 Procedure GoToWizardStep1(Val StepOrIndexOrFormGroup)
@@ -452,7 +452,7 @@ Procedure GoToWizardStep1(Val StepOrIndexOrFormGroup)
 		EndIf;
 	EndIf;
 	
-	// 
+	// Step switch.
 	WizardSettings.CurrentStep = StepDescription;
 	
 	// Update visibility.
@@ -462,7 +462,7 @@ Procedure GoToWizardStep1(Val StepOrIndexOrFormGroup)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure OnActivateWizardStep()
@@ -548,7 +548,7 @@ Procedure WizardStepCancel()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure SetConditionalAppearance()
@@ -848,8 +848,8 @@ Procedure AddUsageInstancesRows(Val ReferencesArrray)
 EndProcedure
 
 // Returns:
-//   String -  
-//   
+//   String - Catalog code if specified, 
+//   Undefined if there is no code.
 //
 &AtServerNoContext
 Function ObjectCode(Val Ref, MetadataCache)
@@ -858,8 +858,8 @@ Function ObjectCode(Val Ref, MetadataCache)
 EndFunction
 
 // Returns:
-//   CatalogRef -  
-//   
+//   CatalogRef - Catalog owner if specified, 
+//   Undefined if there is no owner.
 //
 &AtServerNoContext
 Function ObjectOfOwner(Val Ref, MetadataCache)
@@ -931,7 +931,7 @@ Function CheckCanReplaceReferences()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure StartDeterminingUseLocations()
@@ -1073,24 +1073,25 @@ Procedure FillUsageInstances(Val ResultAddress)
 	
 	MaxReference = Undefined;
 	MaxInstances   = -1;
+	DeletionMarks = Common.ObjectsAttributeValue(
+		UsageTable.UnloadColumn("Ref"), "DeletionMark");
 	For Each String In UsageTable Do
-		Ref = String.Ref;
 		
-		UsageRow = NewUsageInstances.Find(Ref, "Ref");
+		UsageRow = NewUsageInstances.Find(String.Ref, "Ref");
 		If UsageRow = Undefined Then
 			UsageRow = NewUsageInstances.Add();
-			UsageRow.Ref = Ref;
+			UsageRow.Ref = String.Ref;
 		EndIf;
 		
 		Instances = String.Occurrences;
-		If Instances > MaxInstances And Not Ref.DeletionMark Then
-			MaxReference = Ref;
+		If Instances > MaxInstances And Not DeletionMarks[String.Ref] Then
+			MaxReference = String.Ref;
 			MaxInstances   = Instances;
 		EndIf;
 		
 		UsageRow.UsageInstancesCount = Instances;
-		UsageRow.Code      = ObjectCode(Ref, MetadataCache);
-		UsageRow.Owner = ObjectOfOwner(Ref, MetadataCache);
+		UsageRow.Code      = ObjectCode(String.Ref, MetadataCache);
+		UsageRow.Owner = ObjectOfOwner(String.Ref, MetadataCache);
 		
 		UsageRow.NotUsed = ?(Instances = 0, NStr("en = 'Not applicable';"), "");
 	EndDo;
@@ -1171,12 +1172,12 @@ Procedure AfterConfirmCancelJob(Response, ExecutionParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 // Description of wizard button settings.
 //
 // Returns:
-//  Structure - 
+//  Structure - :
 //    * Title         - String - a button title.
 //    * ToolTip         - String - button tooltip.
 //    * Visible         - Boolean - if True, the button is visible. The default value is True.

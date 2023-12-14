@@ -327,6 +327,13 @@ Procedure UseInternalMessageDirectory(Command)
 	
 EndProcedure
 
+&AtClient
+Procedure LogObjectUploads(Command)
+	
+	Items.FormLogObjectUploads.Check = Not Items.FormLogObjectUploads.Check;
+	
+EndProcedure
+
 #EndRegion
 
 #Region Private
@@ -440,7 +447,7 @@ EndProcedure
 
 // Parameters:
 //   ObtainedFiles - Array of TransferredFileDescription
-//                   - Undefined - 
+//                   - Undefined - a result of receiving a file.
 //   AdditionalParameters - Arbitrary - arbitrary additional parameters.
 // 
 &AtClient
@@ -532,15 +539,16 @@ Function ExportDataAtServer()
 	ParametersStructure.Insert("ExchangeNode", DataProcessorObject.ExchangeNode);
 	ParametersStructure.Insert("AllDocumentsFilterPeriod", DataProcessorObject.AllDocumentsFilterPeriod);
 	ParametersStructure.Insert("AdditionalRegistration", DataProcessorObject.AdditionalRegistration);
-
+	ParametersStructure.Insert("LogObjectUploads", Items.FormLogObjectUploads.Check);
+	
 	JobParameters = New Structure;
 	JobParameters.Insert("DataProcessorName", DataProcessorName);
 	JobParameters.Insert("MethodName", "ExportToXMLResult");
 	JobParameters.Insert("ExecutionParameters", ParametersStructure);
 	JobParameters.Insert("IsExternalDataProcessor", False);
-
+	
 	MethodToExecute = "TimeConsumingOperations.RunDataProcessorObjectModuleProcedure";
-
+	
 	ModuleTimeConsumingOperations = Common.CommonModule("TimeConsumingOperations");
 	ExecutionParameters = ModuleTimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Export EnterpriseData data';");
@@ -564,14 +572,13 @@ Function ImportDataAtServer()
 		If UseDataExchangeMessageDirectory = True Then
 			
 			TempFilesStorageDirectory = DataExchangeCached.TempFilesStorageDirectory();
-			AddressOnServer = CommonClientServer.GetFullFileName(
-				TempFilesStorageDirectory, String(New UUID) + ".xml")
+			AddressOnServer = TempFilesStorageDirectory + "\" + String(New UUID) + ".xml";
 			
 		Else
 			
 			AddressOnServer = GetTempFileName("xml");
-			// 
-			// 
+			
+			
 			
 		EndIf;
 		
@@ -775,7 +782,7 @@ EndProcedure
 &AtClient
 Procedure SetVisibility1()
 	Items.FormAbort.Visible = False;
-	// 
+	// Operation type.
 	Items.ExportImport.CurrentPage = ?(OperationKind = "Load", Items.Load, Items.Upload0);
 	// A limited option of using the data processor.
 	If ValueIsFilled(FormOpenOption) Then

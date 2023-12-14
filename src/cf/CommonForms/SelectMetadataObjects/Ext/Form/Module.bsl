@@ -10,29 +10,29 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                          
 //
-// 
-// 
+
+
 //
-// 
-// 
+
+
 //				
 //				
 //					
 //					
 //					
 //				
-// 
+
 //				
 //				
 //				
-// 
+
 // 				 
-//  
+ 
 //				
-// 
+
 //              
 //              
-// 
+
 //              
 //
 
@@ -458,9 +458,9 @@ Function AddMetadataObjectTreeItem(ItemParameters, Subsystems = Undefined, Check
 		
 		If Metadata[ItemParameters.Name].Count() = 0 Then
 			
-			//  
-			// 
-			// 
+			 
+			
+			
 			Return Undefined;
 			
 		EndIf;
@@ -490,7 +490,7 @@ Function AddMetadataObjectTreeItem(ItemParameters, Subsystems = Undefined, Check
 	EndIf;
 		
 	If Subsystems.Count() = 0 And ItemParameters.Name = "Subsystems" Then
-		// 
+		// If no subsystems are found, the Subsystems root should not be added.
 		Return Undefined;
 	EndIf;
 	
@@ -731,6 +731,7 @@ Procedure OutputCollection(Val Branch1, Val MetadataObjectCollection)
 		If TypeOf(Branch1) = Type("FormDataTreeItem") And MetadataObject.FullName() = Branch1.FullName Then
 			Continue;
 		EndIf;
+		
 		If Not MetadataObjectAvailable(MetadataObject) Then
 			Continue;
 		EndIf;
@@ -741,6 +742,7 @@ Procedure OutputCollection(Val Branch1, Val MetadataObjectCollection)
 		NewBranch.Presentation = MetadataObject.Presentation();
 		NewBranch.Picture = PictureInInterface(MetadataObject);
 		NewBranch.Address = ?(TypeOf(Branch1) = Type("FormDataTreeItem"), Branch1.Address + "/", "") + NewBranch.Presentation;
+		
 		If ValueIsFilled(SelectedObjectsAddresses) Then
 			NewBranch.Check = ?(SelectedObjectsAddresses.FindByValue(NewBranch.Address) = Undefined, 0, 1);
 		Else
@@ -801,7 +803,10 @@ EndFunction
 &AtServer
 Function MetadataObjectAvailable(MetadataObject)
 	
-	If Not IsSubsystem(MetadataObject) Then
+	IsSubsystem = IsSubsystem(MetadataObject);
+	IsDocumentJournal = Common.IsDocumentJournal(MetadataObject);
+	
+	If Not IsSubsystem Then
 		IsObjectToSelect = Not ValueIsFilled(MetadataObjectsToSelectCollection);
 		For Each ObjectKind In MetadataObjectsToSelectCollection.UnloadValues() Do
 			If Metadata[ObjectKind].Contains(MetadataObject) Then
@@ -817,7 +822,7 @@ Function MetadataObjectAvailable(MetadataObject)
 	
 	If Not Common.IsCatalog(MetadataObject)
 		And Not Common.IsDocument(MetadataObject)
-		And Not Common.IsDocumentJournal(MetadataObject)
+		And Not IsDocumentJournal
 		And Not Common.IsChartOfCharacteristicTypes(MetadataObject)
 		And Not Common.IsInformationRegister(MetadataObject)
 		And Not Common.IsAccountingRegister(MetadataObject)
@@ -828,7 +833,14 @@ Function MetadataObjectAvailable(MetadataObject)
 		And Not Common.IsChartOfCalculationTypes(MetadataObject)
 		And Not Common.IsBusinessProcess(MetadataObject)
 		And Not Common.IsTask(MetadataObject)
-		And Not IsSubsystem(MetadataObject) Then
+		And Not IsSubsystem Then
+		Return False;
+	EndIf;
+	
+	If ValueIsFilled(FilterByMetadataObjects)
+		And Not IsSubsystem
+		And Not IsDocumentJournal
+		And FilterByMetadataObjects.FindByValue(MetadataObject.FullName()) = Undefined Then
 		Return False;
 	EndIf;
 	
@@ -839,14 +851,14 @@ Function MetadataObjectAvailable(MetadataObject)
 	FillPropertyValues(MetadataProperties, MetadataObject);
 	
 	If MetadataProperties.FullTextSearch = Undefined Then 
-		FullTextSearchUsing = True; // Если свойства нет - 
+		FullTextSearchUsing = True; 
 	Else 
 		FullTextSearchUsing = (MetadataProperties.FullTextSearch = 
 			Metadata.ObjectProperties.FullTextSearchUsing.Use);
 	EndIf;
 	
 	If MetadataProperties.IncludeInCommandInterface = Undefined Then 
-		IncludeInCommandInterface = True; // Если свойства нет - 
+		IncludeInCommandInterface = True; 
 	Else 
 		IncludeInCommandInterface = MetadataProperties.IncludeInCommandInterface;
 	EndIf;
@@ -995,46 +1007,46 @@ EndFunction
 &AtClientAtServerNoContext
 Function NextItemCheckMarkValue(TreeItem)
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	//
-	// 
+	
 	//
-	// 
-	// 
-	// 
+	
+	
+	
 	//
 	//    
 	//   
 	//  
 	//
-	// 
+	
 	//
-	// 
-	// 
+	
+	
 	//
-	// 
+	
 	//
-	// 
+	
 	//
-	// 
-	// 
-	// 
-	//
-	//      
-	// 
-	//
-	// 
-	//
-	// 
-	// 
-	// 
+	
+	
+	
 	//
 	//      
-	// 
+	
 	//
-	// 
+	
+	//
+	
+	
+	
+	//
+	//      
+	
+	//
+	
 	
 	// At the time of checking, the platform has already changed the check box value.
 	
@@ -1050,7 +1062,7 @@ Function NextItemCheckMarkValue(TreeItem)
 		Return MarkCheckBoxIsNotSelected();
 	EndIf;
 	
-	// Во всех остальных случаях - 
+	// In all other cases, the platform sets a value.
 	Return TreeItem.Check;
 	
 EndFunction
@@ -1097,12 +1109,12 @@ Function CheckMarkValueRelativeToNestedItems(TreeItem)
 	
 	If TreeItem.IsMetadataObject Then 
 		
-		// 
-		// 
-		// 
+		
+		
+		
 		
 		If TreeItem.Check = MarkCheckBoxIsSelected() Then 
-			// 
+			// Leave the check box selected, regardless of nested items.
 			Return MarkCheckBoxIsSelected();
 		EndIf;
 		
@@ -1118,8 +1130,8 @@ Function CheckMarkValueRelativeToNestedItems(TreeItem)
 		
 	Else 
 		
-		//  
-		// 
+		 
+		
 		
 		If HasMarkedItems Then
 			
@@ -1162,9 +1174,9 @@ Function NestedItemsState(TreeItem)
 			
 			If NestedItem.IsMetadataObject Then 
 				
-				// 
-				// 
-				// 
+				
+				
+				
 				
 				State = NestedItemsState(NestedItem);
 				HasMarkedItems   = HasMarkedItems   Or State.HasMarkedItems;
@@ -1200,8 +1212,8 @@ Function RequiredToMarkNestedItems(TreeItem)
 	
 	If TreeItem.IsMetadataObject Then 
 		
-		// 
-		// 
+		
+		
 		
 		NestedItemsState = NestedItemsState(TreeItem);
 		

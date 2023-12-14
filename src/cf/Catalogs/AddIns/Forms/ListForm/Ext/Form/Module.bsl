@@ -18,7 +18,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.BulkAdd.Visible = False;
 		Items.FormUpdateFromFile.Visible = False;
 		Items.FormSaveAs.Visible = False;
-		Items.ОбновитьССайта.Visible = False;
+		Items.UpdateFromSite_.Visible = False;
 		Items.ListContextMenuUpdateFromFile.Visible = False;
 		Items.ListContextMenuSaveAs.Visible = False;
 	Else
@@ -27,8 +27,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not AddInsInternal.CanImportFromPortal() Then
 		Items.AddFromService.Visible = False;
-		Items.ОбновлятьССайта.Visible = False;
-		Items.ОбновитьССайта.Visible = False;
+		Items.UpdateFromSite.Visible = False;
+		Items.UpdateFromSite_.Visible = False;
 	Else
 		Items.AddFromService.Visible = AddInsInternal.CanImportFromPortalInteractively();
 	EndIf;
@@ -141,7 +141,7 @@ Procedure AddFromDirectory(Command)
 	
 	Notification = New NotifyDescription("AddAddInsFromDirectoryAfterExtensionsAttached", ThisObject);
 		
-	SuggestionText =  NStr("en = 'To import add-ins from the directory, install the File System extension.';");
+	SuggestionText =  NStr("en = 'To import add-ins from the directory, install the 1C:Enterprise extension.';");
 	FileSystemClient.AttachFileOperationsExtension(Notification, SuggestionText, False);
 		
 EndProcedure
@@ -185,7 +185,7 @@ EndProcedure
 
 #Region Private
 
-// 
+
 
 &AtClient
 Procedure AddAddInsFromDirectoryAfterExtensionsAttached(Result, CreationParameters) Export
@@ -200,7 +200,7 @@ Procedure AddAddInsFromDirectoryAfterExtensionsAttached(Result, CreationParamete
 	
 EndProcedure
 
-// 
+
 
 &AtClient
 Async Procedure AddAddInsAfterDirectorySelected(SelectedDirectory, AdditionalParameters) Export
@@ -329,7 +329,7 @@ Procedure AfterUpdateAddInFromPortal(Result, AdditionalParameters) Export
 EndProcedure
 
 /////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure SetFilter()

@@ -177,10 +177,12 @@ EndFunction
 Procedure OnPrepareObjectData(Object, AdditionalAttributes) Export 
 	
 	If Object.Metadata().TabularSections.Find("ContactInformation") <> Undefined Then
-		For Each Contact In ContactsManager.ObjectContactInformation(Object.Ref,, CurrentSessionDate(), False) Do
+		ObjectContactInformation = ContactsManager.ObjectContactInformation(Object.Ref,, CurrentSessionDate(), False);
+		TypesOfCIName = Common.ObjectsAttributeValue(ObjectContactInformation.UnloadColumn("Kind"), "Description");
+		For Each Contact In ObjectContactInformation Do
 			If ValueIsFilled(Contact.Kind) Then
 				Attribute = AdditionalAttributes.Add();
-				Attribute.Description = Contact.Kind.Description;
+				Attribute.Description = TypesOfCIName.Get(Contact.Kind);
 				Attribute.Value = Contact.Presentation;
 			EndIf;
 		EndDo;
@@ -390,7 +392,6 @@ Function FillContactInformationJSONFieldsForRef(Ref)
 	Block = New DataLock;
 	LockItem = Block.Add(MetadataObject.FullName());
 	LockItem.SetValue("Ref", Ref);
-	LockItem.Mode = DataLockMode.Exclusive;
 	
 	BeginTransaction();
 	Try
@@ -506,10 +507,6 @@ Procedure FormattingAutoCompleteResults(ChoiceData, Val Text, HighlightOutdatedA
 			If ValueIsFilled(DataString1.Value.Address) And TypeOf(DataString1.Value.Address) = Type("String") Then
 				Address = JSONToContactInformationByFields(DataString1.Value.Address, Enums.ContactInformationTypes.Address);
 				DataString1.Value.Presentation = ModuleAddressManagerClientServer.AddressPresentation(Address, False);
-			EndIf;
-			
-			If HighlightOutdatedAddresses Then
-				ObsoleteAddress = Not DataString1.Value.Municipal;
 			EndIf;
 			
 		EndIf;
@@ -715,7 +712,7 @@ Procedure CorrectContactInformationKindsInBackground(Val CheckParameters, Storag
 		
 		LastObjectWithIssue = ObjectsWithIssues.Get(ObjectsWithIssues.Count() - 1).ObjectWithIssue;
 		TotalObjectCount = TotalObjectCount + ObjectsWithIssues.Count();
-		// @skip-
+		// @skip-check query-in-loop - Batch processing of a large amount of data.
 		TotalObjectsCorrected = TotalObjectsCorrected + CorrectContactInformationKindsBatch(ObjectsWithIssues, Validation);
 		ObjectsWithIssues = ModuleAccountingAudit.ObjectsWithIssues(Validation, LastObjectWithIssue);
 	
@@ -866,7 +863,7 @@ EndProcedure
 
 Procedure UpdatePhoneExtensionSettings() Export
 	
-	// 
+	
 	Query = New Query;
 	Query.Text = 
 		"SELECT
@@ -1135,7 +1132,7 @@ Function GenerateAddressByPresentation(Presentation, SplitByFields = False)
 	If HasAddressManagerClientServer Then
 		ModuleAddressManagerClientServer = Common.CommonModule("AddressManagerClientServer");
 		Address = ModuleAddressManagerClientServer.NewContactInformationDetails(Enums.ContactInformationTypes.Address);
-		DescriptionMainCountry = TrimAll(ModuleAddressManagerClientServer.MainCountry().Description);
+		DescriptionMainCountry = TrimAll(Common.ObjectAttributeValue(ModuleAddressManagerClientServer.MainCountry(), "Description"));
 	Else
 		Address = ContactsManagerClientServer.NewContactInformationDetails(Enums.ContactInformationTypes.Address);
 		DescriptionMainCountry = "";
@@ -1418,7 +1415,7 @@ EndFunction
 
 Function TextWordsAsTable(Val Text, Val Separators = Undefined)
 	
-	// Удаление of текста спец. символов "точек", "номеров".
+	// Deleting special characters (dots and numbers) from the text.
 	Text = StrReplace(Text, "№", "");
 	
 	WordBeginning = 0;
@@ -1629,7 +1626,7 @@ Function AddressPresentation(Val Address, Val InformationKind)
 				For IndexOf = 0 To PresentationAsArray.UBound() Do
 					PresentationAsArray[IndexOf] = TrimAll(PresentationAsArray[IndexOf]);
 				EndDo;
-				PresentationAsArray.Delete(0); // 
+				PresentationAsArray.Delete(0); 
 				Presentation = StrConcat(PresentationAsArray, ", ");
 			EndIf;
 		EndIf;
@@ -1722,6 +1719,7 @@ EndFunction
 
 // Parameters:
 //   Object - CatalogObject
+///
 ///
 Procedure UpdateCotactsForListsForObject(Object) Export
 	
@@ -1893,7 +1891,7 @@ Procedure UpdateContactInformationForLists() Export
 				|	ContactInformation.Presentation TOTALS BY Kind";
 			
 			Query.SetParameter("ContactInformation", ContactInformation);
-			QueryResult = Query.Execute(); // @skip-
+			QueryResult = Query.Execute(); 
 			SelectionKind = QueryResult.Select(QueryResultIteration.ByGroups);
 			
 			While SelectionKind.Next() Do
@@ -2062,7 +2060,6 @@ Procedure AddContactInformationForRef(Ref, ValueOrPresentation, ContactInformati
 	Block = New DataLock;
 	LockItem = Block.Add(MetadataObject.FullName());
 	LockItem.SetValue("Ref", Ref);
-	LockItem.Mode = DataLockMode.Exclusive;
 	
 	BeginTransaction();
 	Try
@@ -2254,7 +2251,6 @@ Procedure SetObjectContactInformationForRef(Ref, Val ContactInformation, Metadat
 	Block = New DataLock;
 	LockItem = Block.Add(MetadataObject.FullName());
 	LockItem.SetValue("Ref", Ref);
-	LockItem.Mode = DataLockMode.Exclusive;
 	
 	BeginTransaction();
 	Try
@@ -2264,7 +2260,7 @@ Procedure SetObjectContactInformationForRef(Ref, Val ContactInformation, Metadat
 		Object.Lock();
 		
 		If ContactInformation.Count() = 0 Then
-			// 
+			// Clearing contact information using a blank table.
 			Object.ContactInformation.Clear();
 		Else
 			SetObjectContactInformation(Object, ContactInformation, MetadataObject, Replace);
@@ -2287,7 +2283,6 @@ Procedure SetObjectsContactInformationForRef(ContactInformationOwner, ObjectCont
 	Block = New DataLock;
 	LockItem = Block.Add(MetadataObject.FullName());
 	LockItem.SetValue("Ref", Ref);
-	LockItem.Mode = DataLockMode.Exclusive;
 	
 	BeginTransaction();
 	Try
@@ -2356,7 +2351,7 @@ EndProcedure
 
 Function MultipleValuesInputProhibited(ContactInformationKind, ContactInformation, Date, Periodic, TabularSectionRowID = Undefined)
 	
-	If ContactInformationKind.AllowMultipleValueInput Then
+	If Common.ObjectAttributeValue(ContactInformationKind, "AllowMultipleValueInput") Then
 		Return False;
 	EndIf;
 	
@@ -2427,7 +2422,7 @@ EndProcedure
 //
 Procedure FillTabularSectionAttributesForAddress(LineOfATabularSection, Address)
 	
-	// Умолчания
+	// Default values.
 	LineOfATabularSection.Country = "";
 	LineOfATabularSection.State = "";
 	LineOfATabularSection.City  = "";
@@ -2476,7 +2471,7 @@ Procedure FillTabularSectionAttributesForPhone(LineOfATabularSection, Phone)
 		Return;
 	EndIf;
 	
-	// Умолчания
+	// Default values.
 	LineOfATabularSection.PhoneNumberWithoutCodes = "";
 	LineOfATabularSection.PhoneNumber         = "";
 	
@@ -2512,7 +2507,7 @@ EndProcedure
 //
 Procedure FillTabularSectionAttributesForWebPage(LineOfATabularSection, Source)
 	
-// Умолчания
+// Default values.
 	LineOfATabularSection.ServerDomainName = "";
 	
 	If TypeOf(Source) = Type("Structure") Then
@@ -2532,7 +2527,7 @@ Procedure FillTabularSectionAttributesForWebPage(LineOfATabularSection, Source)
 		
 	EndIf;
 	
-	// 
+	
 	Position = StrFind(AddressAsString, "://");
 	ServerAddress = ?(Position = 0, AddressAsString, Mid(AddressAsString, Position + 3));
 	
@@ -2546,7 +2541,7 @@ EndProcedure
 //    PhoneNumber - String - a phone or fax number.
 //
 // Returns:
-//     String - 
+//     String - a phone or fax number without separators.
 //
 Function RemoveSeparatorsFromPhoneNumber(Val PhoneNumber)
 	
@@ -2750,8 +2745,8 @@ Function PhoneFaxDeserializationInJSON(FieldValues, Presentation = "", ExpectedT
 	
 	// Parsing from the presentation.
 	
-	//  
-	// 
+	 
+	
 	Position = 1;
 	Data.CountryCode  = FindDigitSubstring(Presentation, Position);
 	CityBeginning = Position;
@@ -2774,7 +2769,7 @@ Function PhoneFaxDeserializationInJSON(FieldValues, Presentation = "", ExpectedT
 	// Fix possible errors.
 	If IsBlankString(Data.Number) Then
 		If StrStartsWith(TrimL(Presentation), "+") Then
-			// 
+			// An attempt to specify the area code explicitly is detected. Leaving the area code "as is".
 			Data.AreaCode  = "";
 			Data.Number      = RemoveNonDigitCharacters(Mid(Presentation, CityBeginning));
 			Data.ExtNumber = "";
@@ -2820,7 +2815,7 @@ Function FindDigitSubstring(Text, StartPosition = Undefined, AllowedBesidesNumbe
 		StartPosition = StartPosition + 1;
 	EndDo;
 	
-	// 
+	// Discarding possible hanging separators on the right.
 	Return RemoveNonDigitCharacters(Result, AllowedBesidesNumbers, False);
 	
 EndFunction
@@ -2834,7 +2829,7 @@ Function RemoveNonDigitCharacters(Text, AllowedBesidesNumbers = "", Direction = 
 		End  = 1 + Length;
 		Step    = 1;
 	Else
-		//     
+		// Right trim.    
 		IndexOf = Length;
 		End  = 0;
 		Step    = -1;
@@ -2850,11 +2845,11 @@ Function RemoveNonDigitCharacters(Text, AllowedBesidesNumbers = "", Direction = 
 	EndDo;
 	
 	If Direction Then
-		// 
+		// Left trim.
 		Return Right(Text, Length - IndexOf + 1);
 	EndIf;
 	
-	// 
+	// Right trim.
 	Return Left(Text, IndexOf);
 	
 EndFunction
@@ -2951,7 +2946,7 @@ Function ToJSONStringStructure(Value) Export
 	
 	For Each StructureItem In Value Do
 		If IsBlankString(StructureItem.Value) And StructureItem.Value <> "" Then
-			// 
+			// Converting undefined, NULL, and insignificant characters to an empty string.
 			Value[StructureItem.Key] = "";
 		ElsIf TypeOf(StructureItem.Value) = Type("Array") Then
 			
@@ -3014,7 +3009,7 @@ EndFunction
 //
 Function JSONToContactInformationByFields(Val Value, ContactInformationType) Export
 	
-	Value = StrReplace(Value, "\R\N", "\r\n"); // 
+	Value = StrReplace(Value, "\R\N", "\r\n"); // Fix newline characters.
 	
 	Result = New Structure();
 	

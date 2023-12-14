@@ -19,7 +19,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Parameters.ChoiceMode Then
 		WindowOpeningMode = FormWindowOpeningMode.LockOwnerWindow;
 		
-		// 
+		// Hide the Administrator profile.
 		CommonClientServer.SetDynamicListFilterItem(
 			List, "Ref", AccessManagement.ProfileAdministrator(),
 			DataCompositionComparisonType.NotEqual, , True);
@@ -28,7 +28,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		AutoTitle = False;
 		If Parameters.CloseOnChoice = False Then
-			// 
+			// Pick mode.
 			Items.List.MultipleChoice = True;
 			Items.List.SelectionMode = TableSelectionMode.MultiRow;
 			

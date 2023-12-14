@@ -238,7 +238,7 @@ Function UserActivityReportParameters(ReportSettings)
 EndFunction
 
 Procedure ScheduledJobsDuration(ReportSettings, ResultDocument, Var_SettingsComposer, ServerTimeOffset)
-	OutputTitle = ReportSettings.OutputParameters.Items.Find("TitleOutput");
+	TitleOutput = ReportSettings.OutputParameters.Items.Find("TitleOutput");
 	FilterOutput = ReportSettings.OutputParameters.Items.Find("FilterOutput");
 	ReportHeader = ReportSettings.OutputParameters.Items.Find("Title");
 	DayPeriod = ReportSettings.DataParameters.Items.Find("DayPeriod").Value;
@@ -287,7 +287,7 @@ Procedure ScheduledJobsDuration(ReportSettings, ResultDocument, Var_SettingsComp
 	FillParameters.Insert("MinScheduledJobSessionDuration", 
 								  MinScheduledJobSessionDuration.Value);
 	FillParameters.Insert("DisplayBackgroundJobs", DisplayBackgroundJobs.Value);
-	FillParameters.Insert("OutputTitle", OutputTitle);
+	FillParameters.Insert("TitleOutput", TitleOutput);
 	FillParameters.Insert("FilterOutput", FilterOutput);
 	FillParameters.Insert("ReportHeader", ReportHeader);
 	FillParameters.Insert("HideScheduledJobs", HideScheduledJobs.Value);

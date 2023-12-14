@@ -9,11 +9,10 @@
 
 #Region Public
 
-// The function deletes obsolete patches and sets correct
-// properties for new patches. Call the function before executing configuration update
-// in batch mode (See InfobaseUpdate.UpdateInfobase)
-// .
-// Important: The executed actions will be applied after session restart.
+// 
+// 
+//  (See InfobaseUpdate.UpdateInfobase)
+// 
 //
 // Parameters:
 //  IsCheckOnly - Boolean - if True, obsolete patches will not be deleted.
@@ -30,7 +29,7 @@ Function PatchesChanged(IsCheckOnly = False) Export
 	Result.Insert("ChangesDetails", "");
 	
 	If Common.IsSubordinateDIBNode() Then
-		// 
+		// In a subordinate node, patches are changed when synchronizing.
 		Return Result;
 	EndIf;
 	
@@ -73,7 +72,7 @@ Function PatchesChanged(IsCheckOnly = False) Export
 			LibraryName     = "";
 			ListOfAssemblies = Undefined;
 			If PatchProperties = Undefined Then
-				// 
+				// The patch is not applied yet.
 				DeletePatch = False;
 			ElsIf PatchProperties = "ReadingError" Then
 				DeletePatch = True;
@@ -100,7 +99,7 @@ Function PatchesChanged(IsCheckOnly = False) Export
 						Try
 							VersionWeight = VersionWeightFromStringArray(StrSplit(Assembly, ".", False));
 						Except
-							// 
+							// The list contains a build with an invalid number. Skip it.
 							VersionWeight = Undefined;
 						EndTry;
 						If VersionWeight = Undefined Then
@@ -205,7 +204,7 @@ Function PatchesChanged(IsCheckOnly = False) Export
 		EndDo;
 	EndIf;
 	
-	// 
+	// Deleting patches that are not attached without checking their versions.
 	Extensions = ConfigurationExtensions.Get(, ConfigurationExtensionsSource.SessionDisabled);
 	For Each Extension In Extensions Do
 		If IsPatch(Extension) Then
@@ -335,10 +334,10 @@ EndProcedure
 // Returns details of patches installed in the configuration.
 //
 // Returns:
-//  Array - 
+//  Array - :
 //     * Id - String - a patch UUID.
-//                     - Undefined - 
-//                                
+//                     - Undefined - if a patch was installed
+//                                in the current session and the application has not been restarted yet.
 //     * Description  - String - a patch description.
 //
 Function InstalledPatches() Export
@@ -565,7 +564,7 @@ EndFunction
 // Checks whether extensions that are not patches are present.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - check result.
 //
 Function WarnAboutExistingExtensions() Export 
 	
@@ -853,7 +852,7 @@ EndProcedure
 
 Procedure CheckUpdateStatus(UpdateResult, ScriptDirectory, InstalledPatches) Export
 	
-	// 
+	// If it is the first start after a configuration update, storing and resetting status.
 	UpdateResult = ConfigurationUpdateSuccessful(ScriptDirectory, InstalledPatches);
 	If UpdateResult <> Undefined Then
 		ResetConfigurationUpdateStatus();
@@ -960,7 +959,7 @@ Procedure SendUpdateNotification(Val UserName, Val DestinationAddress, Val Succe
 	Subject = StringFunctionsClientServer.SubstituteParametersToString(Subject, Metadata.BriefInformation, Metadata.Version);
 	
 	Details_ = ?(SuccessfulUpdate, NStr("en = 'Application has been updated.';"), 
-		NStr("en = 'Application has failed to update. See the Event Log for details.';"));
+		NStr("en = 'Application has failed to update. See the event log for details.';"));
 	Text = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1
 		|
 		|Application: %2

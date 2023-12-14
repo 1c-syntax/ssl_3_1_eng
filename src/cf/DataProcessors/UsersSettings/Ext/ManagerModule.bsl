@@ -27,7 +27,7 @@ Function AllFormSettings(UserName)
 	
 	FormsList = MetadataObjectForms1();
 	
-	// 
+	// Adding standard forms to the list.
 	FormsList.Add("ExternalDataProcessor.StandardEventLog.Form.EventsJournal", 
 		PrefixOfStandardForms() + "." + NStr("en = 'Event log';") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardEventLog.Form.EventForm", 
@@ -933,8 +933,8 @@ Procedure CopyReportAndPersonalSettings(SettingsManager, SourceUser,
 							
 							If CurrentUser = Undefined Then
 								TableRow = NotCopiedReportSettings.Add();
-								TableRow.User = DestinationUser.Description;
-								CurrentUser = DestinationUser.Description;
+								TableRow.User = DestinationUser;
+								CurrentUser = DestinationUser;
 							EndIf;
 							
 							If TableRow.ReportsList.FindByValue(ReportKey[0]) = Undefined Then
@@ -1491,7 +1491,7 @@ EndFunction
 //                                   whose report access rights are checked.
 //
 // Returns:
-//   Array - 
+//   Array - Result - Array - keys of reports available to the passed user.
 //
 Function ReportsAvailableToUser(IBUserName, UserRef)
 	Result = New Array;
@@ -1524,8 +1524,8 @@ EndFunction
 //                        of an infobase user.
 //
 // Returns:
-//   String, Undefined - 
-//                          
+//   String, Undefined - a name of an infobase user or Undefined
+//                          if the Infobase user is not found.
 // 
 Function IBUserName(UserRef) Export
 	
@@ -2010,7 +2010,7 @@ Function CreateReportOnCopyingSettings(NotCopiedReportSettings,
 		
 		For Each TableRow In NotCopiedReportSettings Do
 			TabDoc.Put(TabTemplate.GetArea("IsBlankString"));
-			AreaContent.Parameters.Name1 = TableRow.User + ":";
+			AreaContent.Parameters.Name1 = String(TableRow.User) + ":";
 			TabDoc.Put(AreaContent);
 			For Each ReportTitle In TableRow.ReportsList Do
 				AreaContent.Parameters.Name1 = ReportTitle.Value;
@@ -2038,7 +2038,7 @@ Function SkipSettingsItem(ObjectKey, SettingsKey)
 	ExceptionsByObjectKey = New Array;
 	ExceptionsBySettingsKey = New Array;
 	
-	// 
+	// Exceptions. Non-copyable settings.
 	ExceptionsByObjectKey.Add("LocalFileCache");
 	ExceptionsBySettingsKey.Add("PathToLocalFileCache");
 	
@@ -2128,7 +2128,7 @@ Procedure FillReportSettingsList(Parameters)
 				?(Not FoundReportOption.StandardProcessing, "SettingsItemPersonal", "StandardSettingsItemPersonal"), "StandardReportSettings");
 		NewRowSettingsItem.RowType = ReportOptionPresentation + SettingName1;
 		NewRowSettingsItem.Keys.Add(SettingObject, SettingsItemKey);
-		// 
+		// Filling object key and settings item key for a report option.
 		NewRowReportOption.Keys.Add(SettingObject, SettingsItemKey);
 		
 		CurrentObject = ReportOptionPresentation;
@@ -2270,7 +2270,7 @@ EndProcedure
 
 Procedure FillOtherSettingsList(Parameters)
 	
-	// ACC:1391-
+	// ACC:1391-off Search by setting presentation described in the code.
 	
 	Parameters.OtherSettingsTree.Rows.Clear();
 	Settings = ReadSettingsFromStorage(CommonSettingsStorage, Parameters.InfoBaseUser);
@@ -2293,7 +2293,7 @@ Procedure FillOtherSettingsList(Parameters)
 		AddTreeRow(Parameters.OtherSettingsTree, Setting, Picture, Keys, SettingType);
 	EndIf;
 	
-	// 
+	// Filling print settings and favorites settings.
 	Settings = ReadSettingsFromStorage(SystemSettingsStorage, Parameters.InfoBaseUser);
 	
 	Keys.Clear();
@@ -2408,7 +2408,7 @@ Procedure AddDesktopAndCommandInterfaceSettings(Parameters, SettingsTree)
 	InterfaceSettingsKeys = New ValueList;
 	AllSettingsKeys = New ValueList; 
 	
-	SuffixKeySettings = "SettingsWindowThinClient";
+	SuffixKeySettings = "ThinClientWindowSettings";
 	
 	For Each Setting In Settings Do
 		SettingName = StrSplit(Setting.ObjectKey, "/", False);
@@ -2447,7 +2447,7 @@ Procedure AddDesktopAndCommandInterfaceSettings(Parameters, SettingsTree)
 			
 		ElsIf SettingName[0] = "HomePage" Then
 			
-			// 
+			// Dialog settings.
 			DesktopSettingsKeys.Add(Setting.ObjectKey, "Interface");
 			AllSettingsKeys.Add(Setting.ObjectKey, "Interface");
 			
@@ -2481,7 +2481,7 @@ Procedure AddDesktopAndCommandInterfaceSettings(Parameters, SettingsTree)
 	EndIf;
 	
 	If InterfaceSettingsKeys.Count() > 0 Then
-		// 
+		// Creating a command interface settings row.
 		NewSubordinateInterfaceRow = NewInterfaceRow.Rows.Add();
 		NewSubordinateInterfaceRow.Setting = NStr("en = 'Command interface';");
 		NewSubordinateInterfaceRow.Picture = PictureLib.Picture;

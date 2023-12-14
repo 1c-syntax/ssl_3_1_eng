@@ -156,20 +156,20 @@ Procedure SetApplicationNameForTemplateOpening()
 	
 	FileType = Lower(TemplateType);
 	If FileType = "mxl" Then
-		ApplicationNameForTemplateOpening = NStr("en = '""1C:Enterprise. File management""';");
+		ApplicationNameForTemplateOpening = NStr("en = '1C:Enterprise - Работа с файлами';");
 		TemplateOpeningApplicationAddress = "http://v8.1c.ru/metod/fileworkshop.htm";
 	ElsIf FileType = "doc" Then
-		ApplicationNameForTemplateOpening = NStr("en = '""Microsoft Word""';");
+		ApplicationNameForTemplateOpening = NStr("en = 'Microsoft Word';");
 		TemplateOpeningApplicationAddress = "http://office.microsoft.com/ru-ru/word";
 	ElsIf FileType = "odt" Then
-		ApplicationNameForTemplateOpening = NStr("en = '""OpenOffice Writer""';");
+		ApplicationNameForTemplateOpening = NStr("en = 'OpenOffice Writer';");
 		TemplateOpeningApplicationAddress = "http://www.openoffice.org/product/writer.html";
 	ElsIf FileType = "docx" Then
 		ApplicationNameForTemplateOpening = NStr("en = 'any editors that support Office Open XML documents';");
 		TemplateOpeningApplicationAddress = "";
 	EndIf;
 	
-	NavigateToAppPage = NStr("en = 'Open the %1 installation page';");
+	NavigateToAppPage = NStr("en = 'Перейти на веб-страницу %1 для установки';");
 	NavigateToAppPage = StringFunctionsClientServer.SubstituteParametersToString(NavigateToAppPage, ApplicationNameForTemplateOpening);
 	Items.LinkToApplicationPageBeforeDownloadWebClient.Title = NavigateToAppPage;
 	Items.LinkToApplicationPageBeforeDownloadNotWebClient.Title = NavigateToAppPage;
@@ -183,35 +183,35 @@ Procedure SetApplicationNameForTemplateOpening()
 	
 	If Parameters.OpenOnly Then
 		Items.BeforeDownloadTemplateApplicationWebClientLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" template file is prepared to be imported to the computer and opened using another application.
+			NStr("en = 'Файл макета ""%1"" подготовлен для загрузки на компьютер и открытия с помощью другой программы.
 				 |
-				 |If the editor is not installed yet, we recommend that you install %2.';"), TemplatePresentation,
+				 |Если программа для редактирования еще не установлена, рекомендуется установить %2.';"), TemplatePresentation,
 				ApplicationNameForTemplateOpening);
 	Else
 		Items.BeforeDownloadTemplateApplicationWebClientLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" template file is prepared to be imported to the computer and edited using another application.
+			NStr("en = 'Файл макета ""%1"" подготовлен для загрузки на компьютер и внесения изменений с помощью другой программы.
 				 |
-				 |If the editor is not installed yet, we recommend that you install %2.';"), TemplatePresentation,
+				 |Если программа для редактирования еще не установлена, рекомендуется установить %2.';"), TemplatePresentation,
 				ApplicationNameForTemplateOpening);
 	EndIf;
 	
 	Items.BeforeDownloadTemplateApplicationNotWebClientLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'The ""%1"" template file is prepared to be edited using another application. If the editor is not installed yet, we recommend that you install %2.';"), 
+		NStr("en = 'Файл макета ""%1"" подготовлен для внесения изменений с помощью другой программы. Если программа для редактирования еще не установлена, рекомендуется установить %2.';"), 
 		TemplatePresentation, ApplicationNameForTemplateOpening);
 	
 	Items.ApplyChangesLabelWebClient.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Please wait until the template file is imported, then open and edit it.
+		NStr("en = 'Дождитесь окончания загрузки файла макета, затем откройте и отредактируйте его.
 			 |
-			 |Once you complete editing, confirm the changes and close the template file. Then click ""Apply changes"" and select this file in the next dialog box.
+			 |После завершения редактирования, закройте файл макета, подтвердив изменения. Затем нажмите на кнопку ""Завершить изменение"" и выберите этот файл в следующем диалоге.
 			 |
-			 |If the editor is not installed yet, we recommend that you install %1.';"), ApplicationNameForTemplateOpening);
+			 |Если программа для редактирования еще не установлена, рекомендуется установить %1.';"), ApplicationNameForTemplateOpening);
 	
 	Items.ApplyChangesLabelNotWebClient.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Please wait until the template is opened in the editor.
+		NStr("en = 'Дождитесь открытия макета в программе для редактирования.
 	    	 |
-			 |Once you complete editing, confirm the changes and close the template. Then click ""Apply changes"".
+			 |После завершения редактирования, закройте макет, подтвердив изменения. Затем нажмите на кнопку ""Завершить изменение"".
 			 |
-			 |If the editor is not installed yet, we recommend that you install %1.';"), ApplicationNameForTemplateOpening);
+			 |Если программа для редактирования еще не установлена, рекомендуется установить %1.';"), ApplicationNameForTemplateOpening);
 		
 	LinkToAplicationPageVisibility = (Common.IsWebClient() Or FileType <> "mxl") And FileType <> "docx";
 	Items.LinkToApplicationPageBeforeDownloadWebClient.Visible = LinkToAplicationPageVisibility;
@@ -334,7 +334,7 @@ EndProcedure
 
 &AtServer
 Function TemplateFromTempStorage()
-	Template = GetFromTempStorage(TemplateFileAddressInTemporaryStorage); //  
+	Template = GetFromTempStorage(TemplateFileAddressInTemporaryStorage); // SpreadsheetDocument, BinaryData 
 	If Lower(TemplateType) = "mxl" And TypeOf(Template) <> Type("SpreadsheetDocument") Then
 		TempFileName = GetTempFileName();
 		Template.Write(TempFileName);

@@ -81,7 +81,6 @@ EndProcedure
 Procedure NotificationProcessing(EventName, Parameter, Source)
 	
 	If EventName = "Write_File"
-	   And Parameter.Property("Event")
 	   And Parameter.Event = "FileWasEdited"
 	   And Source = File Then
 		
@@ -90,7 +89,6 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	EndIf;
 	
 	If EventName = "Write_File"
-	   And Parameter.Property("Event")
 	   And Parameter.Event = "FileDataChanged"
 	   And Source = File Then
 		
@@ -454,7 +452,7 @@ Procedure ExecuteCompareFiles(Result, ExecutionParameters) Export
 			Return;
 		EndIf;
 		
-		// Сравнение.
+		// Comparison.
 		FilesOperationsInternalClient.ExecuteCompareFiles(
 			ExecutionParameters.FullFileNameLeft,
 			FileToOpenName,

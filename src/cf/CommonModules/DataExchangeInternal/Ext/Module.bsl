@@ -44,8 +44,8 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 		// Procedure for updating cached values and session parameters.
 		RefreshObjectsRegistrationMechanismCache();
 		
-		// 
-		// 
+		
+		
 		SpecifiedParameters.Add("ObjectsRegistrationRules");
 		SpecifiedParameters.Add("ORMCachedValuesRefreshDate");
 
@@ -124,7 +124,7 @@ Procedure RefreshObjectsRegistrationMechanismCache() Export
 		
 	EndIf;
 	
-	// 
+	// Getting date value for checking whether cached data is up-to-date.
 	SessionParameters.ORMCachedValuesRefreshDate = 
 		GetFunctionalOption("ORMCachedValuesLatestUpdate");
 
@@ -139,10 +139,10 @@ Procedure ResetObjectsRegistrationMechanismCache() Export
 	If Common.SeparatedDataUsageAvailable() Then
 
 		SetPrivilegedMode(True);
-		// Записываем универсальную дату и время компьютера сервера - 
-		// 
-		// 
-		// 
+		
+		
+		
+		
 		Constants.ORMCachedValuesRefreshDate.Set(CurrentUniversalDate());
 
 	EndIf;
@@ -152,7 +152,7 @@ EndProcedure
 // Returns the list of priority exchange data items.
 //
 // Returns:
-//  Array - 
+//  Array - a collection of references to priority exchange data items.
 //
 Function PriorityExchangeData() Export
 
@@ -212,7 +212,7 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the exchange plan is being used, False if it is not being used.
 //
 Function DataExchangeEnabled(Val ExchangePlanName, Val Sender) Export
 
@@ -224,7 +224,7 @@ EndFunction
 // Returns the value of session parameter ObjectsRegistrationRules obtained in privileged mode.
 //
 // Returns:
-//  ValueStorage - 
+//  ValueStorage - the value of the ObjectsRegistrationRules session parameter.
 //
 Function SessionParametersObjectsRegistrationRules() Export
 
@@ -237,7 +237,7 @@ EndFunction
 // Returns the flag that indicates whether data changes are registered for the specified recipient.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if there is registered data, False - if there is none.
 //
 Function ChangesRegistered(Val Recipient) Export
 
@@ -457,7 +457,7 @@ Procedure PrepareDataForExportFromInfobase(ProcedureParameters, StorageAddress) 
 	FullFileName         = CommonClientServer.GetFullFileName(
 		TempFilesDir, FileName);
 		
-	// 
+	// Open an exchange file.
 	DataExchangeXDTOServer.OpenExportFile(ExchangeComponents, FullFileName);
 
 	If ExchangeComponents.FlagErrors Then
@@ -772,8 +772,8 @@ Procedure PutMessageForDataMapping(ExchangeNode, MessageID) Export
 				Try
 					DeleteFiles(TempFileName);
 				Except
-					// 
-					// 
+					
+					
 					DataExchangeServer.PutFileInStorage(TempFileName,
 						CommonSettings.MessageForDataMapping);
 				EndTry;
@@ -858,7 +858,7 @@ EndFunction
 // Returns the table of predefined infobase data.
 //
 // Returns:
-//   ValueTable - 
+//   ValueTable - :
 //     * TableName - String - infobase table name.
 //     * XMLTypeName1 - String - the name of a serialized object type.
 //     * Ref - AnyRef - a reference to the predefined data item.
@@ -940,8 +940,8 @@ EndFunction
 //          - DocumentObject
 //          - ChartOfAccountsObject
 //          - ChartOfCalculationTypesObject
-//          - InformationRegisterRecordSet -data object.
-//            
+//          - InformationRegisterRecordSet -
+//            a data object.
 //   PredefinedDataTable - See DataExchangeInternal.PredefinedDataTable1
 // 
 Procedure MarkRefsToPredefinedData(Data, PredefinedDataTable) Export
@@ -995,7 +995,7 @@ EndProcedure
 //   Data - CatalogObject
 //          - DocumentObject
 //          - ChartOfAccountsObject
-//          - InformationRegisterRecordSet - 
+//          - InformationRegisterRecordSet - an arbitrary data object.
 //   PredefinedDataTable - See DataExchangeInternal.PredefinedDataTable1
 // 
 Procedure ReplaceRefsToPredefinedItems(Data, PredefinedDataTable) Export
@@ -1089,7 +1089,7 @@ EndProcedure
 //  NodeCode - String - an exchange plan node code.
 // 
 // Returns:
-//  Number - 
+//  Number - area number.
 //
 Function DataAreaNumberFromExchangePlanNodeCode(Val NodeCode) Export
 
@@ -1108,7 +1108,7 @@ EndFunction
 //  QueryResult - QueryResult - a query result containing the data to be processed.
 // 
 // Returns:
-//  Structure - 
+//  Structure - a structure with the result.
 //
 Function QueryResultToStructure(Val QueryResult) Export
 
@@ -1164,7 +1164,7 @@ Procedure AddRecordToInformationRegister(RecordStructure, Val RegisterName, Load
 
 	RecordSet.DataExchange.Load = Load;
 	
-	// 
+	// Writing a record set
 	RecordSet.Write();
 
 EndProcedure
@@ -1196,13 +1196,13 @@ Procedure UpdateInformationRegisterRecord(RecordStructure, Val RegisterName) Exp
 
 	EndDo;
 	
-	// 
+	// Reading a record from the infobase.
 	RecordManager.Read();
 	
 	// Filling record property values from the passed structure.
 	FillPropertyValues(RecordManager, RecordStructure);
 	
-	// 
+	// Write the record manager.
 	RecordManager.Write();
 
 EndProcedure
@@ -1219,7 +1219,7 @@ Procedure DeleteRecordSetFromInformationRegister(RecordStructure, RegisterName, 
 
 	RecordSet.DataExchange.Load = Load;
 	
-	// 
+	// Write a record set.
 	RecordSet.Write();
 
 EndProcedure
@@ -1232,7 +1232,7 @@ EndProcedure
 //  RegisterName     - String - an information register name.
 //  
 // Returns:
-//   InformationRegisterRecordSet - 
+//   InformationRegisterRecordSet - a register record set by the specified filter.
 // 
 Function CreateInformationRegisterRecordSet(RecordStructure, RegisterName) Export
 
@@ -1417,7 +1417,7 @@ Procedure CheckMarkPredefinedDataRef(Value, PredefinedDataTable)
 
 	PredefinedDataRow = PredefinedDataTable.Find(Value, "Ref");
 	If PredefinedDataRow = Undefined Then
-		// 
+		// Value is not a predeifined item.
 		Return;
 	EndIf;
 

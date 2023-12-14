@@ -18,7 +18,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		SignedObject = Parameters.SignatureProperties.Object;
 	EndIf;
 	
-	Items.MCHDGroup.Visible = False;
+	Items.MRLOAGroup.Visible = False;
 	
 	
 	If Parameters.SignatureProperties.SignatureCorrect Then
@@ -36,8 +36,18 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Return;
 	EndIf;
 	
+	SignatureAlgorithmDoesNotComplyWithGOST = "";
 	SignAlgorithm = DigitalSignatureInternalClientServer.GeneratedSignAlgorithm(
-		SignatureAddress, True);
+		SignatureAddress, True, False, SignatureAlgorithmDoesNotComplyWithGOST);
+		
+	If ValueIsFilled(SignatureAlgorithmDoesNotComplyWithGOST) Then
+		SignAlgorithm = SignatureAlgorithmDoesNotComplyWithGOST;
+		Items.SignAlgorithm.Visible = False;
+		Items.SignatureAlgorithmWarning.Visible = True;
+	Else
+		Items.SignAlgorithm.Visible = True;
+		Items.SignatureAlgorithmWarning.Visible = False;
+	EndIf;
 	
 	HashAlgorithm = DigitalSignatureInternalClientServer.HashAlgorithm(
 		SignatureAddress, True);
@@ -196,7 +206,7 @@ Async Procedure AfterSignaturePropertiesRead(Result, AdditionalParameters) Expor
 			
 			CryptoCertificate = New CryptoCertificate;
 			Await CryptoCertificate.InitializeAsync(CertificateData);
-			CertificateProperties = DigitalSignatureClient.CertificateProperties(CryptoCertificate);
+			CertificateProperties = Await DigitalSignatureInternalClient.CertificateProperties(CryptoCertificate);
 			NewRow.IssuedTo = CertificateProperties.Presentation;
 			NewRow.CertificateData = PutToTempStorage(CertificateData, UUID);
 			If CertificateData = Result.Certificate Then
@@ -212,7 +222,7 @@ Async Procedure AfterSignaturePropertiesRead(Result, AdditionalParameters) Expor
 			
 			CryptoCertificate = New CryptoCertificate;
 			Await CryptoCertificate.InitializeAsync(Result.Certificate);
-			CertificateProperties = DigitalSignatureClient.CertificateProperties(CryptoCertificate);
+			CertificateProperties = Await DigitalSignatureInternalClient.CertificateProperties(CryptoCertificate);
 			NewRow.IssuedTo = CertificateProperties.Presentation;
 			NewRow.CertificateData = PutToTempStorage(Result.Certificate, UUID);
 			NewRow.IsSignatureCertificate = True;

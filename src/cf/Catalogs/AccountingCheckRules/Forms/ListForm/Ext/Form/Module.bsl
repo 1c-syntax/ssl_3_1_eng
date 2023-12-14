@@ -46,7 +46,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				Items.PresentationOfCommonSchedule.ToolTip = ToolTipText;
 			Else
 				If IsSystemAdministrator Then
-					CommonSchedulePresentation = String(CommonScheduledJob.Template.Schedule.Get());
+					CommonSchedulePresentation = String(Common.ObjectAttributeValue(CommonScheduledJob.Template, "Schedule").Get());
 					Items.ScheduledJobPresentation.Visible = True;
 				Else
 					Items.ScheduledJobPresentation.Visible = False;
@@ -380,7 +380,7 @@ Function GenerateRowWithSchedule()
 			CommonSchedulePresentation = String(CommonScheduledJob.Schedule);
 		Else
 			If Users.IsFullUser(, True) Then
-				CommonSchedule              = CommonScheduledJob.Template.Schedule.Get();
+				CommonSchedule              = Common.ObjectAttributeValue(CommonScheduledJob.Template, "Schedule").Get();
 				CommonSchedulePresentation = String(CommonSchedule);
 			Else
 				CommonSchedule = Undefined;

@@ -69,10 +69,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Title = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Synchronize data with %1';"), CorrespondentDescription);
 	
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
 	UseCurrentUserForAuthentication = False;
 	UseSavedAuthenticationParameters    = False;
 	SynchronizationPasswordSpecified                          = False;
@@ -89,7 +89,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			
 		Else
 			
-			// 
+			// If the current infobase is not a DIB node, reading transport settings from the infobase.
 			TransportSettings = InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(InfobaseNode);
 			SynchronizationPasswordSpecified = TransportSettings.WSRememberPassword;
 			If SynchronizationPasswordSpecified Then
@@ -135,6 +135,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			ScenarioUsingInternalPublication,
 			IDOfExchangeViaInternalPublication);
 	EndIf;
+		
+	Items.GroupWarningWhenSharingViaInternalPublishing.Visible = ExchangeViaInternalPublication;
 	
 EndProcedure
 
@@ -240,7 +242,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 ////////////////////////////////////////////////////////////////////////////////
 
 &AtClient
@@ -525,11 +527,11 @@ Function NavigationTableNewRow(MainPageName,
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure RunMoveNext()
@@ -818,6 +820,27 @@ EndProcedure
 Procedure CancelQueueAndResume(Command)
 	CancelQueueAndResumeOnServer();
 	ExecuteMoveNext();
+EndProcedure
+
+&AtClient
+Procedure EndSyncing(Command)
+
+	CompleteSynchronizationOnServer(); 
+	Close();
+
+EndProcedure
+
+&AtServer
+Procedure CompleteSynchronizationOnServer()
+
+	ModuleDataExchangeInternalPublication = Common.CommonModule("DataExchangeInternalPublication");
+	ModuleDataExchangeInternalPublication.HasNodeScheduledExchange(
+		InfobaseNode, 
+		ScenarioUsingInternalPublication,
+		IDOfExchangeViaInternalPublication);
+		
+	CancelQueueAndResumeOnServer();
+	
 EndProcedure
 
 &AtClient
@@ -1139,7 +1162,7 @@ Function Attachable_ExchangeCompletionOnOpen(Cancel, SkipPage, IsMoveNext)
 		
 	EndIf;
 	
-	// 
+	// Updating all opened dynamic lists.
 	DataExchangeClient.RefreshAllOpenDynamicLists();
 	
 	Return Undefined;
@@ -1165,7 +1188,7 @@ Function Attachable_ExchangeCompletionTimeConsumingOperationProcessing(Cancel, G
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Function Attachable_UserPasswordRequestOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -1195,9 +1218,7 @@ EndFunction
 Function Attachable_ConnectionTestWaitingTimeConsumingOperationProcessing(Cancel, GoToNext)
 	
 	If ConnectOverExternalConnection Then
-		If CommonClient.FileInfobase() Then
-			CommonClient.RegisterCOMConnector(False);
-		EndIf;
+		DataExchangeClient.CheckAndRegisterCOMConnector(InfobaseNode);
 		Return Undefined;
 	EndIf;
 	
@@ -1217,7 +1238,7 @@ Function Attachable_ConnectionTestWaitingTimeConsumingOperationProcessing(Cancel
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure BackgroundJobStartClient(Action, JobName, Cancel)
@@ -1300,8 +1321,8 @@ Procedure BackgroundJobExecutionResult()
 	
 	BackgroundJobGetResultAtServer();
 	
-	// 
-	// 
+	
+	
 	If TimeConsumingOperation Then
 		RetryCountOnConnectionError = 0;
 		AttachIdleHandler("TimeConsumingOperationIdleHandler", 0.1, True);
@@ -1367,8 +1388,8 @@ Procedure TimeConsumingOperationCompletion()
 			ErrorMessage);
 	Else
 		
-		// 
-		// 
+		
+		
 		If BackgroundJobCurrentAction = 1 
 			And ValueIsFilled(MessageFileIDInService) Then
 				
@@ -1393,7 +1414,7 @@ Procedure AfterCompleteBackgroundJob()
 	If BackgroundJobCompleteResult.AdditionalResultData.Property("ForceCloseForm") 
 		And BackgroundJobCompleteResult.AdditionalResultData.ForceCloseForm Then
 		FormReopeningParameters = BackgroundJobCompleteResult.AdditionalResultData.FormReopeningParameters;
-		Close();
+		ThisObject.Close();
 	EndIf;
 	
 	// Go further with a one second delay to display the progress bar 100%.
@@ -1464,7 +1485,7 @@ Procedure BackgroundJobGetResultAtServer()
 	ErrorMessage = "";
 	
 	StandardErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Cannot %1. See the Event log for details.';"),
+		NStr("en = 'Cannot %1. See the event log for details.';"),
 		?(BackgroundJobCurrentAction = 1, NStr("en = 'receive data';"), NStr("en = 'send data';")));
 	
 	If BackgroundJobCompleteResult.Status = "Error" Then
@@ -1571,7 +1592,7 @@ Function TimeConsumingOperationStateForInfobaseNode(
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure FillNavigationTable()
@@ -1649,10 +1670,10 @@ Procedure DecorationErrorAssigningAnIdToANodeURLProcessing(Item, FormattedString
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure StatusOfUnavailableSynchronizationURLProcessing(Item, FormattedStringURL, StandardProcessing)
@@ -1666,6 +1687,7 @@ Procedure StatusOfUnavailableSynchronizationURLProcessing(Item, FormattedStringU
 	EndIf;
 	
 EndProcedure
+
 
 
 #EndRegion

@@ -184,8 +184,8 @@ Function MoveItem(ItemList, CurrentItemRef, Direction) Export
 	Information = ItemOrderSetup.GetInformationForMoving(CurrentItemRef.Metadata());
 	DataCompositionSettings = ItemList.GetPerformingDataCompositionSettings();
 	
-	// 
-	// 
+	
+	
 	RepresentedAsList = ItemList.Representation = TableRepresentation.List;
 	If Information.HasParent And RepresentedAsList And Not ListContainsFilterByParent(DataCompositionSettings) Then
 		Return NStr("en = 'To change the item sequence, set the view mode to Tree or Hierarchical list.';");
@@ -246,7 +246,7 @@ Function MoveItem(ItemList, CurrentItemRef, Direction) Export
 	
 	CurrentItemIndex = Parent.Rows.IndexOf(ValueTreeRow);
 	NeighborItemIndex = CurrentItemIndex;
-	If Direction = "Up" Then
+	If Direction = ItemOrderSetup.DirectionOfMovingElementUp() Then
 		If CurrentItemIndex > 0 Then
 			NeighborItemIndex = CurrentItemIndex - 1;
 		EndIf;
@@ -261,7 +261,15 @@ Function MoveItem(ItemList, CurrentItemRef, Direction) Export
 		NeighborItemRef = NeighborRow.Ref;
 		
 		If Not Information.HasGroups Or Information.ForGroups Or Not NeighborItemRef.IsFolder Then
-			SwapItems(CurrentItemRef, NeighborItemRef, Information.FullName);
+			ErrorText = "";
+			StandardProcessing = True;
+			SSLSubsystemsIntegration.BeforeMovingItem(CurrentItemRef, NeighborItemRef, Direction, ErrorText, StandardProcessing);
+			
+			If StandardProcessing Then
+				SwapItems(CurrentItemRef, NeighborItemRef, Information.FullName);
+			Else
+				Return ErrorText;
+			EndIf;
 		EndIf;
 	EndIf;
 	

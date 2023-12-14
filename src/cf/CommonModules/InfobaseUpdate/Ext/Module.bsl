@@ -92,7 +92,7 @@ EndProcedure
 //   RecordSet - InformationRegisterRecordSet
 //                - AccumulationRegisterRecordSet
 //                - AccountingRegisterRecordSet
-//                - CalculationRegisterRecordSet - 
+//                - CalculationRegisterRecordSet - the record set to be written.
 //   Replace     - Boolean - defines the record replacement mode in accordance with
 //                           the current filter criteria. True - the existing
 //                           records are deleted before writing. False - the new records are appended to the existing
@@ -145,7 +145,7 @@ EndProcedure
 // Returns a string constant for generating event log messages.
 //
 // Returns:
-//   String - 
+//   String - the text of an event in the event log.
 //
 Function EventLogEvent() Export
 	
@@ -312,7 +312,7 @@ Function ObjectProcessed(Data) Export
 	If MetadataAndFilter <> Undefined
 		And AvailableToEdit <> Undefined
 		And AvailableToEdit.Find(MetadataAndFilter.Filter) <> Undefined Then
-		Return Result; // 
+		Return Result; 
 	EndIf;
 	
 	BlockUpdate = False;
@@ -335,7 +335,7 @@ Function ObjectProcessed(Data) Export
 		ElsIf TypeOf(Data) = Type("String") Then
 			Processed = False;
 		Else
-			// ACC:488-
+			// ACC:488-off Safe mode is not required.
 			Processed = Eval(HandlerProperties.CheckProcedure + "(MetadataAndFilter)");
 			// ACC:488-on
 		EndIf;
@@ -372,8 +372,8 @@ Function ObjectProcessed(Data) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
+
+
 //
 
 // Checking that the passed data is updated.
@@ -382,8 +382,8 @@ EndFunction
 //  Data - AnyRef
 //         - Array
 //         - InformationRegisterRecordSet, AccumulationRegisterRecordSet, AccountingRegisterRecordSet
-//         - CalculationRegisterRecordSet - 
-//         - ValueTable - 
+//         - CalculationRegisterRecordSet - the data the changes to be recorded for.
+//         - ValueTable - :
 //                              
 //                              
 //                                
@@ -392,8 +392,8 @@ EndFunction
 //                              
 //  AdditionalParameters - See InfobaseUpdate.AdditionalProcessingMarkParameters.
 //  Queue - Number
-//          - Undefined - 
-//                           
+//          - Undefined - the position in a processing queue where the current handler is running. By default, you do not have to
+//                           pass the position as its value is obtained from the parameters of the session that runs the update handler.
 //
 Procedure MarkProcessingCompletion(Data, AdditionalParameters = Undefined, Queue = Undefined) Export
 	If Queue = Undefined Then
@@ -562,7 +562,7 @@ EndFunction
 //          - AccountingRegisterRecordSet
 //          - CalculationRegisterRecordSet
 //          - AnyRef
-//          - FormDataStructure - 
+//          - FormDataStructure - the value of the input Data parameter.
 //  AdditionalParameters - See InfobaseUpdate.AdditionalProcessingMarkParameters
 // 
 // Returns:
@@ -577,13 +577,13 @@ EndFunction
 //             - AccountingRegisterRecordSet
 //             - CalculationRegisterRecordSet
 //             - AnyRef
-//             - FormDataStructure -  
+//             - FormDataStructure - the data to be analyzed. 
 //    * ObjectMetadata   - MetadataObject - the metadata object that matches the Data parameter.
-//    * FullName           - String      - the metadata object full name (see method MetadataObject.FullName). 
+//    * FullName           - String      - 
 //    * Filter               - AnyRef - if Data is a reference object, it is the reference value. 
 //                                            If Data is a recorder subordinate register, it is the recorder filter value.
-//			   	              - Structure   -  
-//                                            
+//			   	              - Structure   - if Data is an independent information register, it is the structure that matches 
+//                                            the filters set for the dimensions.
 //    * IsNew            - Boolean      - if Data is a reference object, it is a new object flag. 
 //                                            For other data types, it is always False.
 //	
@@ -699,8 +699,8 @@ EndFunction
 //  Data            - AnyRef
 //                    - Array
 //                    - InformationRegisterRecordSet, AccumulationRegisterRecordSet, AccountingRegisterRecordSet
-//                    - CalculationRegisterRecordSet - 
-//                    - ValueTable - 
+//                    - CalculationRegisterRecordSet - the data the changes to be recorded for.
+//                    - ValueTable - :
 //                        
 //                        
 //                        
@@ -791,7 +791,7 @@ Procedure MarkForProcessing(MainParameters, Data, AdditionalParameters = Undefin
 		Else
 			Recorders = Data;
 			
-			// 
+			
 			For Each Recorder In Recorders Do
 				TableType = TypeOf(Recorder);
 				If Recorder.IsEmpty() Then
@@ -872,20 +872,20 @@ EndProcedure
 //   * TempTableName - String - the parameter is valid for methods that create temporary tables. If the name is not specified
 //                           (the default scenario), the temporary table is created with the name specified
 //                           in the method description.
-//   * AdditionalDataSources - Map of KeyAndValue -
+//   * AdditionalDataSources - Map of KeyAndValue - 
 //                                     
-//                                     
-//                                     
-//                                        
-//                                        
+//                                     :
 //                                     
 //                                        
 //                                        
+//                                     
+//                                        
+//                                        
 //                                        
 //                                     
 //                                     
 //                                     
-//                                     
+//                                     See SetDataSource
 //   * OrderFields  - Array - the name of independent information register fields used to organize
 //                                    a query result.
 //   * MaxSelection - Number - the maximum number of selecting records.
@@ -912,10 +912,10 @@ EndFunction
 // 
 // Returns:
 //   Structure:
-//      * FilterField   - String -
-//      * ComparisonType - ComparisonType -
+//      * FilterField   - String - 
+//      * ComparisonType - ComparisonType - 
 //                                      
-//      * Value     - Arbitrary -
+//      * Value     - Arbitrary - 
 //
 Function UpToDateDataSelectionParameters() Export
 	
@@ -931,7 +931,7 @@ EndFunction
 // Additional parameters for the data selected for multithread processing.
 //
 // Returns:
-//  Structure - 
+//  Structure - :
 //   * FullNamesOfObjects - String - full names of updated objects (for example, documents) separated by commas.
 //   * FullRegistersNames - String - full registers names separated by commas.
 //   * OrderingFieldsOnUserOperations - Array - ordering fields that are used when updating
@@ -1016,7 +1016,7 @@ EndProcedure
 //  Register - String - register name (full or short).
 //
 // Returns:
-//  Map - 
+//  Map - data sources for the specified document and register.
 //
 Function DataSources(AdditionalDataSources, Object = "", Register = "") Export
 	
@@ -1059,7 +1059,7 @@ EndFunction
 //  AdditionalParameters	 - See InfobaseUpdate.AdditionalProcessingDataSelectionParameters.
 // 
 // Returns:
-//  Structure - 
+//  Structure - :
 //   * HasRecordsInTemporaryTable - Boolean - the created table has at least one record. 
 //                                             There are two reasons records can be missing:
 //                                             all references have been processed or the references to be processed are locked by 
@@ -1251,14 +1251,14 @@ EndFunction
 //  AdditionalParameters	 - See InfobaseUpdate.AdditionalProcessingDataSelectionParameters.
 // 
 // Returns:
-//   QueryResultSelection - 
+//   QueryResultSelection - :
 //     * Recorder - DocumentRef
 //     * Period - Date - if the full document name is passed, the date of the document.
 //                       Otherwise, the maximum period of the recorder.
 //     * Posted - Boolean
-//                - Undefined - 
-//                                 
-//   
+//                - Undefined - the Posted attribute value of the document if the full document name is passed,
+//                                 or Undefined if the document name is not passed.
+//   ValueTable - data that must be processed, column names match the register dimension names.
 //
 Function SelectRegisterRecordersToProcess(Queue, FullDocumentName, FullRegisterName, AdditionalParameters = Undefined) Export
 	
@@ -1419,7 +1419,7 @@ EndFunction
 //  AdditionalParameters	 - See InfobaseUpdate.AdditionalProcessingDataSelectionParameters.
 // 
 // Returns:
-//   QueryResultSelection - 
+//   QueryResultSelection - :
 //     * Ref - AnyRef
 //   ValueTable - data that must be processed, column names map the register dimension names.
 //
@@ -1537,7 +1537,7 @@ EndFunction
 //  AdditionalParameters - See InfobaseUpdate.AdditionalProcessingDataSelectionParameters.
 // 
 // Returns:
-//  Structure - 
+//  Structure - :
 //   * HasRecordsInTemporaryTable - Boolean - the created table has at least one record. There are
 //                                            two reasons records can be missing:
 //                                             all references have been processed or the references to be processed are locked by
@@ -1673,10 +1673,10 @@ EndFunction
 //  AdditionalParameters - See InfobaseUpdate.AdditionalProcessingDataSelectionParameters.
 // 
 // Returns:
-//   QueryResultSelection - 
-//                                 
-//                                 
-//   
+//   QueryResultSelection - the selection from dimension values that require processing. The field names match the register dimension
+//                                 names. If a dimension is not in the processing queue,
+//                                 this dimension selection value is blank.
+//   ValueTable - data that must be processed, column names map the register dimension names.
 //
 Function SelectStandaloneInformationRegisterDimensionsToProcess(Queue, FullObjectName, AdditionalParameters = Undefined) Export
 	If AdditionalParameters = Undefined Then
@@ -1801,7 +1801,7 @@ EndFunction
 //  AdditionalParameters	 - See InfobaseUpdate.AdditionalProcessingDataSelectionParameters.
 // 
 // Returns:
-//  Structure - 
+//  Structure - :
 //   * HasRecordsInTemporaryTable - Boolean - the created table has at least one record. There are
 //                                            two reasons records can be missing:
 //                                              all references have been processed or the references to be processed are locked by
@@ -1913,26 +1913,26 @@ EndFunction
 // Parameters:
 //  Queue    - Number        - the position in the queue the handler and the data
 //                              it will process are assigned to.
-//             - Undefined - 
-//             - Array       - 
+//             - Undefined - checked if general processing is complete;
+//             - Array       - checked if there is data to be processed in the queues list.
 //  FullObjectNameMetadata - String
-//                             - MetadataObject -  
-//                              
-//                             - Array - 
-//                              
+//                             - MetadataObject - a full name of an object being processed or 
+//                              its metadata. For example, "Document.GoodsReceipt"
+//                             - Array - an array of full names of metadata objects;
+//                              an array cannot have independent information registers.
 //  Filter - AnyRef
 //        - Structure
 //        - Undefined
-//        - Array - 
-//                   
-//                   
-//                   
-//                   
-//                   
-//                   
+//        - Array - filters data to be checked.
+//                   If passed Undefined - checked for the whole object type.
+//                   If an object is a register subordinate to a recorder, then a reference
+//                   to a recorder or an array of references is filtered.
+//                   If an object is of a reference type, then either a reference or an array of references is filtered.
+//                   If an object is an independent information register, then a structure containing values of dimensions is filtered.
+//                   Structure key - dimension name, value - filter value (an array of values can be passed).
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if not all data is processed.
 //
 Function HasDataToProcess(Queue, FullObjectNameMetadata, Filter = Undefined) Export
 	
@@ -2130,9 +2130,9 @@ Function HasDataToProcess(Queue, FullObjectNameMetadata, Filter = Undefined) Exp
 		EndIf;
 		
 		If Queue = Undefined Then
-			NodeFilterCriterion = " ChangesTable.Node REFS ExchangePlan.InfobaseUpdate ";
+			NodeFilterCriterion = "	ChangesTable.Node REFS ExchangePlan.InfobaseUpdate ";
 		Else
-			NodeFilterCriterion = " ChangesTable.Node IN (&Nodes) ";
+			NodeFilterCriterion = "	ChangesTable.Node IN (&Nodes) ";
 			If TypeOf(Queue) = Type("Array") Then
 				Query.SetParameter("Nodes", Queue);
 			Else
@@ -2150,7 +2150,7 @@ Function HasDataToProcess(Queue, FullObjectNameMetadata, Filter = Undefined) Exp
 		
 		SetSafeModeDisabled(True);
 		SetPrivilegedMode(True);
-		If Not Query.Execute().IsEmpty() Then // @skip-
+		If Not Query.Execute().IsEmpty() Then 
 			Return True;
 		EndIf;
 		SetPrivilegedMode(False);
@@ -2165,26 +2165,26 @@ EndFunction
 // Parameters:
 //  Queue    - Number        - the position in the queue the handler and the data
 //                              it will process are assigned to.
-//             - Undefined - 
-//             - Array       - 
+//             - Undefined - checked if general processing is complete;
+//             - Array       - checked if there is data to be processed in the queues list.
 //  FullObjectNameMetadata - String
-//                             - MetadataObject -  
-//                              
-//                             - Array - 
-//                              
+//                             - MetadataObject - a full name of an object being processed or 
+//                              its metadata. For example, "Document.GoodsReceipt"
+//                             - Array - an array of full names of metadata objects;
+//                              an array cannot have independent information registers.
 //  Filter - AnyRef
 //        - Structure
 //        - Undefined
-//        - Array - 
-//                   
-//                   
-//                   
-//                   
-//                   
-//                   
+//        - Array - filters data to be checked.
+//                   If passed Undefined - checked for the whole object type.
+//                   If an object is a register subordinate to a recorder, then a reference
+//                   to a recorder or an array of references is filtered.
+//                   If an object is of a reference type, then either a reference or an array of references is filtered.
+//                   If an object is an independent information register, then a structure containing values of dimensions is filtered.
+//                   Structure key - dimension name, value - filter value (an array of values can be passed).
 // 
 // Returns:
-//  Boolean - 
+//  Boolean - True if all data is processed.
 //
 Function DataProcessingCompleted(Queue, FullObjectNameMetadata, Filter = Undefined) Export
 	
@@ -2196,16 +2196,16 @@ EndFunction
 //
 // Parameters:
 //  Queue - Number
-//          - Undefined - 
-//                           
+//          - Undefined - the position in the queue the handler and
+//                           the data it will process are assigned to.
 //  FullObjectNameMetadata - String
-//                             - MetadataObject - 
-//                                        
-//                             - Array - 
-//                                        
+//                             - MetadataObject - a full name of an object being processed or
+//                                        its metadata. For example, "Document.GoodsReceipt"
+//                             - Array - an array of full names of metadata objects;
+//                                        an array cannot have independent information registers.
 // 
 // Returns:
-//  Boolean - 
+//  Boolean - True if processing of the object is locked by smaller queues.
 //
 Function HasDataLockedByPreviousQueues(Queue, FullObjectNameMetadata) Export
 	
@@ -2218,21 +2218,21 @@ EndFunction
 // Parameters:
 //  Queue    - Number        - the position in the queue the handler and the data
 //                              it will process are assigned to.
-//             - Undefined - 
-//             - Array       - 
+//             - Undefined - checked if general processing is complete;
+//             - Array       - checked if there is data to be processed in the queues list.
 //  Data     - AnyRef
 //             - InformationRegisterRecordSet, AccumulationRegisterRecordSet
 //             - AccountingRegisterRecordSet, CalculationRegisterRecordSet
 //             - CatalogObject, DocumentObject, ChartOfCharacteristicTypesObject, BusinessProcessObject, TaskObject
-//             - FormDataStructure - 
-//                              
-//                              
-//                              
+//             - FormDataStructure - a reference to an object, an object proper,
+//                              or a set of records to be checked.
+//                              If ExtendedParameters.IsRegisterRecords = True, then Data is a recorder of a register
+//                              specified in AdditionalParameters.
 //  AdditionalParameters   - See InfobaseUpdate.AdditionalProcessingMarkParameters.
 //  MetadataAndFilter          - See InfobaseUpdate.MetadataAndFilterByData.
 // 
 // Returns:
-//  Boolean - 
+//  Boolean - True if the passed object is updated to a new version and can be changed.
 //
 Function CanReadAndEdit(Queue, Data, AdditionalParameters = Undefined, MetadataAndFilter = Undefined) Export
 	
@@ -2268,8 +2268,8 @@ EndFunction
 //
 // Parameters:
 //  Queue                 - Number
-//                          - Undefined - 
-//                             
+//                          - Undefined - the position in a processing queue where the current handler is running.
+//                             If passed Undefined, then checked in all queues.
 //  FullObjectName        - String - full name of an object, for which the check is run
 //                             (for instance, Catalog.Products).
 //  TempTablesManager - TempTablesManager - manager, in which the temporary table is created.
@@ -2288,7 +2288,7 @@ Function CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, FullOb
 	
 	Query = New Query;
 	Query.TempTablesManager = TempTablesManager;
-	ObjectMetadata = Common.MetadataObjectByFullName(FullObjectName); // 
+	ObjectMetadata = Common.MetadataObjectByFullName(FullObjectName); // MetadataObjectCatalog, MetadataObjectDocument
 	NameOfTheDimensionToSelect = AdditionalParameters.NameOfTheDimensionToSelect;
 	DeferredUpdateCompletedSuccessfully = GetFunctionalOption("DeferredUpdateCompletedSuccessfully");
 	
@@ -2357,8 +2357,18 @@ Function CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, FullOb
 				EndIf;
 				
 				DimensionsNames.Add("ChangesTable." + Dimension.Name);
-				AliasesOfMeasurements.Add(Dimension.Name);
+				If Not (Dimension.Type.Types().Count() > 1
+					And (Dimension.Type.Types().Find(Type("Boolean")) <> Undefined
+						Or Dimension.Type.Types().Find(Type("String")) <> Undefined
+						Or Dimension.Type.Types().Find(Type("Date")) <> Undefined)) Then
+					
+					AliasesOfMeasurements.Add(Dimension.Name);
+				EndIf;
 			EndDo;
+			
+			If AliasesOfMeasurements.Count() = 0 Then
+				QueryText = StrReplace(QueryText, "INDEX BY", "");
+			EndIf;
 			
 			QueryText = StrReplace(QueryText, "&IndexedDimensions", OrderingsForQuery(AliasesOfMeasurements));
 		EndIf;
@@ -2417,9 +2427,9 @@ Function CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, FullOb
 	If Not DeferredUpdateCompletedSuccessfully Then
 		
 		If Queue = Undefined Then
-			NodeFilterCriterion = " ChangesTable.Node REFS ExchangePlan.InfobaseUpdate ";
+			NodeFilterCriterion = "	ChangesTable.Node REFS ExchangePlan.InfobaseUpdate ";
 		Else
-			NodeFilterCriterion = " ChangesTable.Node IN (&Nodes) ";
+			NodeFilterCriterion = "	ChangesTable.Node IN (&Nodes) ";
 			Query.SetParameter("Nodes", EarlierQueueNodes(Queue));
 		EndIf;	
 		QueryText = StrReplace(QueryText, "&NodeFilterCriterion", NodeFilterCriterion);
@@ -2457,12 +2467,12 @@ EndFunction
 //
 // Parameters:
 //  Queue                 - Number
-//                          - Undefined - 
-//                             
+//                          - Undefined - the position in a processing queue where
+//                             the current handler is running. If passed Undefined, then checked in all queues.
 //  FullNamesOfObjects     - String
-//                          - Array - 
-//                             
-//                             
+//                          - Array - full name of an object, for which the check is run
+//                             (for instance, Catalog.Products).
+//                             It is allowed to pass objects of a reference type or registers subordinate to a recorder.
 //  TempTablesManager - TempTablesManager - manager, in which the temporary table is created.
 //  AdditionalParameters - See InfobaseUpdate.AdditionalProcessingDataSelectionParameters
 //
@@ -2594,9 +2604,9 @@ Function CreateTemporaryTableOfRefsProhibitedFromReadingAndEditing(Queue, FullNa
 		EndIf;
 		
 		If Queue = Undefined Then
-			NodeFilterCriterion = " ChangesTable.Node REFS ExchangePlan.InfobaseUpdate ";
+			NodeFilterCriterion = "	ChangesTable.Node REFS ExchangePlan.InfobaseUpdate ";
 		Else
-			NodeFilterCriterion = " ChangesTable.Node IN (&Nodes) ";
+			NodeFilterCriterion = "	ChangesTable.Node IN (&Nodes) ";
 			Query.SetParameter("Nodes", EarlierQueueNodes(Queue));
 		EndIf;	
 		QueryText = StrReplace(QueryText, "&NodeFilterCriterion", NodeFilterCriterion);
@@ -2631,14 +2641,14 @@ EndFunction
 //
 // Parameters:
 //  Queue                 - Number
-//                          - Undefined - 
-//                             
-//                             
+//                          - Undefined - the position in a processing queue where
+//                             the current handler is running. If passed Undefined,
+//                             then checked in all queues.
 //  FullRegisterName       - String - the name of the register that requires record update.
 //                             For example, AccumulationRegister.ProductStock
 //  Dimensions               - String
-//                          - Array - 
-//                             
+//                          - Array - the name of dimensions by which the lock must be checked,
+//                             separated by commas, or an array of names.
 //  TempTablesManager - TempTablesManager - manager, in which the temporary table is created.
 //  AdditionalParameters - See InfobaseUpdate.AdditionalProcessingDataSelectionParameters
 //
@@ -2706,9 +2716,9 @@ Function CreateTemporaryTableOfLockedDimensionValues(Queue, FullRegisterName, Di
 		QueryText = StrReplace(QueryText, "#RegisterTable", FullRegisterName);
 		
 		If Queue = Undefined Then
-			NodeFilterCriterion = " ChangesTable.Node REFS ExchangePlan.InfobaseUpdate ";
+			NodeFilterCriterion = "	ChangesTable.Node REFS ExchangePlan.InfobaseUpdate ";
 		Else
-			NodeFilterCriterion = " ChangesTable.Node IN (&Nodes) ";
+			NodeFilterCriterion = "	ChangesTable.Node IN (&Nodes) ";
 			Query.SetParameter("Nodes", EarlierQueueNodes(Queue));
 		EndIf;	
 		
@@ -2744,7 +2754,7 @@ EndFunction
 //  MetadataAndFilter - See InfobaseUpdate.MetadataAndFilterByData.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the object is updated and available for changing.
 //
 Function DataUpdatedForNewApplicationVersion(MetadataAndFilter) Export
 	
@@ -2755,7 +2765,7 @@ EndFunction
 // Data selection through SelectStandaloneInformationRegisterDimensionsToProcess().
 //
 // Returns:
-//  String - 
+//  String - the "IndependentInfoRegistryMeasurements" constant.
 //
 Function SelectionMethodOfIndependentInfoRegistryMeasurements() Export
 	
@@ -2766,7 +2776,7 @@ EndFunction
 // Data selection through SelectRegisterRecordersToProcess().
 //
 // Returns:
-//  String - 
+//  String - the "RegisterRecorders" constant.
 //
 Function RegisterRecordersSelectionMethod() Export
 	
@@ -2777,7 +2787,7 @@ EndFunction
 // Data selection through SelectRefsToProcess().
 //
 // Returns:
-//  String - 
+//  String - the "Refs" constant.
 //
 Function RefsSelectionMethod() Export
 	
@@ -2791,7 +2801,7 @@ EndFunction
 // Checks if the infobase update is required when the configuration version is changed.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True if an update is required.
 //
 Function InfobaseUpdateRequired() Export
 	
@@ -2802,7 +2812,7 @@ EndFunction
 // Returns True if the infobase is being updated.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True if an update is in progress.
 //
 Function InfobaseUpdateInProgress() Export
 	
@@ -2820,11 +2830,11 @@ EndFunction
 // Parameters:
 //  SubsystemsNames - String - if it is passed, the result of completing
 //                            update for the transferred subsystem will be checked, and not for the entire configuration.
-//                 - Array - 
-//                            
+//                 - Array - if it is required to check update completion of the several
+//                            subsystems at once.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if an update is in completed.
 //
 Function DeferredUpdateCompleted(Val SubsystemsNames = Undefined) Export
 	
@@ -2869,7 +2879,7 @@ EndFunction
 //                               is checked.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the function is called from the update handler.
 //
 Function IsCallFromUpdateHandler(HandlerExecutionMode = "") Export
 	
@@ -2889,7 +2899,7 @@ EndFunction
 // Returns an empty table of update handlers and initial infobase filling handlers. 
 //
 // Returns:
-//   ValueTable   - 
+//   ValueTable   - :
 //    
 //
 //     * InitialFilling - Boolean - if True, then a handler is started on a launch with an empty base.
@@ -2900,11 +2910,11 @@ EndFunction
 //     * Procedure           - String - the full name of an update handler or initial filling handler. 
 //                                      For example, "MEMInfobaseUpdate.FillNewAttribute"
 //                                      Must be an export procedure.
-//     * ExecutionMode     - String - update handler run mode. The following values are available:
-//                                      Exclusive, Deferred, Seamless. If this value is not specified, the handler
-//                                      is considered exclusive.
+//     * ExecutionMode     - String - :
+//                                      
+//                                      
 //
-//    2. For SaaS update handlers:
+//    
 //
 //     * SharedData         - Boolean - if True, the handler is executed prior to
 //                                      other handlers that use shared data.
@@ -2931,18 +2941,18 @@ EndFunction
 //                                      and not required for others. Full names of objects separated by commas. 
 //                                      These names must be locked from changing until data processing procedure is finalized.
 //                                      If it is not empty, then the CheckProcedure property must also be filled in.
-//     * NewObjects        - String -
+//     * NewObjects        - String - 
 //                                       
 //                                      
-//     * CheckProcedure   - String - it must be filled in only for deferred update handlers
-//                                      and not required for others. Name of a function that defines if data processing procedure is finalized 
-//                                      for the passed object. 
-//                                      If the passed object is fully processed, it must acquire the True value. 
-//                                      Called from the InfobaseUpdate.CheckObjectProcessed procedure.
-//                                      Parameters that are passed to the function:
-//                                         Parameters - See InfobaseUpdate.MetadataAndFilterByData.
+//     * CheckProcedure   - String - 
+//                                       
+//                                       
+//                                       
+//                                      
+//                                      :
+//                                          See InfobaseUpdate.MetadataAndFilterByData.
 //
-//    4) For update handlers in libraries (configurations) with a parallel mode of deferred handlers execution:
+//    
 //
 //     * UpdateDataFillingProcedure - String - the procedure for registering data
 //                                      to be updated by this handler must be specified.
@@ -2956,17 +2966,17 @@ EndFunction
 //     * ObjectsToRead              - String - objects to be read by the update handler while processing data.
 //     * ObjectsToChange            - String - objects to be changed by the update handler while processing data.
 //     * ExecutionPriorities         - ValueTable - table of execution priorities for deferred handlers
-//                                      changing or reading the same data. For more information, see the commentary 
+//                                      changing or reading the same data. For more information, see the commentary
 //                                      to the InfobaseUpdate.HandlerExecutionPriorities function.
-//     * Multithreaded                - Boolean -
+//     * Multithreaded                - Boolean - 
 //     * Order  - EnumRef.OrderOfUpdateHandlers
 //    
-//    
-//     * DoNotExecuteWhenSwitchingFromAnotherProgram - Boolean -
+//    :
+//     * DoNotExecuteWhenSwitchingFromAnotherProgram - Boolean - 
 //                                          
 //                                          
 //
-//    
+//    :
 //
 //     * ExecuteInMandatoryGroup - Boolean - specify this parameter if the handler must be
 //                                      executed in the group that contains handlers for the "*" version.
@@ -2979,7 +2989,7 @@ EndFunction
 //     * ExclusiveMode    - Undefined
 //                           - Boolean -  
 //                                      
-//                                      
+//                                      :
 //                                        
 //                                        
 //                                      
@@ -3004,24 +3014,24 @@ EndFunction
 Function NewUpdateHandlerTable() Export
 	
 	Handlers = New ValueTable;
-	// 
+	// Common properties.
 	Handlers.Columns.Add("InitialFilling", New TypeDescription("Boolean"));
 	Handlers.Columns.Add("Version",    New TypeDescription("String", , New StringQualifiers(0)));
 	Handlers.Columns.Add("Procedure", New TypeDescription("String", , New StringQualifiers(0)));
 	Handlers.Columns.Add("ExecutionMode", New TypeDescription("String"));
-	// 
+	// For libraries.
 	Handlers.Columns.Add("ExecuteInMandatoryGroup", New TypeDescription("Boolean"));
 	Handlers.Columns.Add("Priority", New TypeDescription("Number", New NumberQualifiers(2)));
-	// 
+	// For the service model.
 	Handlers.Columns.Add("SharedData",             New TypeDescription("Boolean"));
 	Handlers.Columns.Add("HandlerManagement", New TypeDescription("Boolean"));
-	// 
+	// For deferred update handlers.
 	Handlers.Columns.Add("Comment", New TypeDescription("String", , New StringQualifiers(0)));
 	Handlers.Columns.Add("Id", New TypeDescription("UUID"));
 	Handlers.Columns.Add("CheckProcedure", New TypeDescription("String"));
 	Handlers.Columns.Add("ObjectsToLock", New TypeDescription("String"));
 	Handlers.Columns.Add("NewObjects", New TypeDescription("String"));
-	// 
+	// For the Parallel execution mode of the deferred update.
 	Handlers.Columns.Add("UpdateDataFillingProcedure", New TypeDescription("String", , New StringQualifiers(0)));
 	Handlers.Columns.Add("DeferredProcessingQueue",  New TypeDescription("Number", New NumberQualifiers(4)));
 	Handlers.Columns.Add("ExecuteInMasterNodeOnly",  New TypeDescription("Boolean"));
@@ -3031,10 +3041,10 @@ Function NewUpdateHandlerTable() Export
 	Handlers.Columns.Add("ExecutionPriorities");
 	Handlers.Columns.Add("Multithreaded", New TypeDescription("Boolean"));
 	Handlers.Columns.Add("Order", New TypeDescription("EnumRef.OrderOfUpdateHandlers"));
-	// 
+	
 	Handlers.Columns.Add("DoNotExecuteWhenSwitchingFromAnotherProgram", New TypeDescription("Boolean"));
 	
-	// 
+	// Obsolete. Reverse compatibility with edition 2.2.
 	Handlers.Columns.Add("Optional");
 	Handlers.Columns.Add("ExclusiveMode");
 	
@@ -3081,7 +3091,7 @@ EndFunction
 //   SeamlessUpdate     - Boolean       - True if an update is seamless.
 //
 // Returns:
-//   ValueTree   - 
+//   ValueTree   - executed update handlers.
 //
 Function ExecuteUpdateIteration(Val LibraryID, Val IBMetadataVersion, 
 	Val UpdateHandlers, Val HandlerExecutionProgress, Val SeamlessUpdate = False) Export
@@ -3098,20 +3108,20 @@ Function ExecuteUpdateIteration(Val LibraryID, Val IBMetadataVersion,
 	
 EndFunction
 
-// Runs noninteractive infobase update.
-// This function is intended for calling through an external connection.
-// When calling the method containing extensions that modify the configuration role, an exception will be thrown.
-// Warning: Before calling the method, you must start deleting obsolete patches,
-//  see the ConfigurationUpdate.PatchesChanged() function.
 // 
-// To be used in other libraries and configurations.
+// 
+// 
+// 
+// 
+// 
+// 
 //
 // Parameters:
 //  ExecuteDeferredHandlers1 - Boolean - if True, then a deferred update will be executed
 //    in the default update mode. Only for a client-server mode.
 //
 // Returns:
-//  String -  
+//  String -  :
 //           
 //
 Function UpdateInfobase(ExecuteDeferredHandlers1 = False) Export
@@ -3296,12 +3306,12 @@ EndProcedure
 // Parameters:
 //  NameOrID - String
 //                      - UUID - 
-//                        
+//                         See NewUpdateHandlerTable
 //                        
 //
 // Returns:
-//  Number, Undefined - 
-//                        
+//  Number, Undefined - queue number of a passed handler. If
+//                        a handler is not found, the Undefined value will be returned.
 //
 Function DeferredUpdateHandlerQueue(NameOrID) Export
 	
@@ -3320,7 +3330,7 @@ EndFunction
 // Max records quantity in data selection for update.
 //
 // Returns:
-//  Number - 
+//  Number - constant 1000.
 //
 Function MaxRecordsCountInSelection() Export
 	
@@ -3335,7 +3345,7 @@ EndFunction
 //  Parameters - Structure - the parameter that is passed in update handler.
 //
 // Returns:
-//  ValueTable - 
+//  ValueTable - :
 //     * Ref - AnyRef - a reference to the object to be updated.
 //     * Date   - Date - the column is present only for documents.
 //  
@@ -3370,7 +3380,7 @@ EndFunction
 // Returns the current value of deferred data processing priority.
 //
 // Returns:
-//  String - 
+//  String - possible values of DataProcessing and UserWork.
 //
 Function DeferredProcessingPriority() Export
 	UpdateInfo = InfobaseUpdateInternal.InfobaseUpdateInfo();
@@ -3415,10 +3425,10 @@ EndProcedure
 //
 // If this number is specified in the UpdateThreadsCount command-line parameter, the parameter is returned.
 // Otherwise, the value of the InfobaseUpdateThreadCount constant is returned (if defined).
-// Otherwise, returns the default value (see DefaultInfobaseUpdateThreadCount()). 
+// Otherwise, returns the default value (see DefaultInfobaseUpdateThreadCount()).
 //
 // Returns:
-//  Number - 
+//  Number - number of threads.
 //
 Function UpdateThreadsCount() Export
 	Return InfobaseUpdateInternal.InfobaseUpdateThreadCount();
@@ -3437,7 +3447,7 @@ EndProcedure
 // You can enable multithread updates in InfobaseUpdateOverridable.OnDefineSettings().
 //
 // Returns:
-//  Boolean - 
+//  Boolean - multithread updates are allowed if True. The default value is False (for backward compatibility).
 //
 Function MultithreadUpdateAllowed() Export
 	Return InfobaseUpdateInternal.MultithreadUpdateAllowed();
@@ -3829,10 +3839,10 @@ EndFunction
 //
 // Parameters:
 //  Objects - Map of KeyAndValue:
-//   * Key - String -
-//   * Value - Boolean, Map -
+//   * Key - String - 
+//   * Value - Boolean, Map - 
 //
-//  Object - String -
+//  Object - String - 
 //     
 //     
 //     
@@ -3840,7 +3850,7 @@ EndFunction
 //     
 //     
 //
-//  Refinement - Boolean -
+//  Refinement - Boolean - 
 //               
 //               
 //            - TypeDescription, Type, EnumRef, BusinessProcessRoutePointRef - 
@@ -3876,10 +3886,10 @@ EndProcedure
 // Returns status of deferred update handlers.
 //
 // Returns:
-//  String - 
-//           
-//           
-//           
+//  String - an empty string if all handlers are executed successfully.
+//           "UncompletedStatus" - some handlers are not executed.
+//           "ErrorStatus" - all handlers are completed, but there is at least one handler with an error.
+//           "StatusSuspended" - all handlers are completed, but there is at least one suspended handler.
 //
 Function DeferredUpdateStatus() Export
 	
@@ -3904,13 +3914,13 @@ EndFunction
 // Parameters:
 //  Parameters        - Structure - update handler service parameters.
 //  MetadataObject - MetadataObject
-//                   - Undefined - 
+//                   - Undefined - objects to be updated
 //  AdditionalParameters - Structure:
 //   *  UpdateMode  - String - defines registration options of predefined items to update. Options:
 //                              All - registers all predefined items;
 //                              NewAndChanged - updates only new and changed items;
 //                              MultilingualStrings - if changes were made in multilanguage attributes.
-//   * SkipEmpty  - Boolean - if True, empty strings in default master data are excluded from the check for changes.
+//   * SkipEmpty  - Boolean -  if True, empty strings in default master data are excluded from the check for changes.
 //                            For example, an object will not be registered when an attribute in the infobase is filled in, and the code contains an empty string.
 //   * CompareTabularSections - Boolean - if False, tabular sections are ignored and not compared for differences.
 //
@@ -3924,7 +3934,7 @@ EndProcedure
 //
 // Parameters:
 //  Parameters           - Structure- update handler service parameters.
-//  MetadataObject    - MetadataObject - the object to be filled in.
+//  MetadataObject    - MetadataObject - Object to populate.
 //  PopulationSettings - See PopulationSettings
 //
 Procedure FillItemsWithInitialData(Parameters, MetadataObject, PopulationSettings = Undefined) Export
@@ -3946,7 +3956,7 @@ EndProcedure
 // 
 // Parameters:
 //  ObjectToFillIn - CatalogObject
-//                    - ChartOfCharacteristicTypesObject - 
+//                    - ChartOfCharacteristicTypesObject - Object to populate.
 //  PopulationSettings - See PopulationSettings
 // 
 Procedure FillObjectInitialData(ObjectToFillIn, PopulationSettings) Export
@@ -4048,7 +4058,7 @@ EndProcedure
 //  Filter - Structure:
 //             * Key     - String - Subsystem name.
 //             * Value - String - Version number.
-//        - Array - 
+//        - Array - Names of update handlers to be re-started.
 //
 Procedure RelaunchDeferredUpdate(Filter = Undefined) Export
 	
@@ -4061,7 +4071,7 @@ Procedure RelaunchDeferredUpdate(Filter = Undefined) Export
 		Raise NStr("en = 'The dataset is missing the list of subsystems that require restart of deferred handlers.';");
 	EndIf;
 	
-	// 
+	// Deferred update handlers.
 	InfobaseUpdateInternal.OnEnableDeferredUpdate(False);
 	
 	If Not Common.DataSeparationEnabled() Then
@@ -4161,7 +4171,7 @@ Procedure RelaunchDeferredUpdate(Filter = Undefined) Export
 	InfobaseUpdateInternal.WriteLockedObjectsInfo(LockedObjectsInfo);
 	InfobaseUpdateInternal.FillDataForParallelDeferredUpdate1(RegistrationParameters);
 	
-	// 
+	
 	TempQueues = RequestTemporary.Execute().Unload();
 	
 	// Copy queues.
@@ -4386,7 +4396,7 @@ Procedure AddAdditionalSourceLockCheck(Queue, QueryText, FullObjectName, FullReg
 						TemporaryTablesOfLockedAdditionalSources[SourceMetadata] = LockedAdditionalSourceTTName;
 						AdditionalParametersForTTCreation = AdditionalProcessingDataSelectionParameters();
 						AdditionalParametersForTTCreation.TempTableName = LockedAdditionalSourceTTName;
-						CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, // 
+						CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, 
 							FullSourceName,
 							TempTablesManager,
 							AdditionalParametersForTTCreation); 
@@ -4460,7 +4470,7 @@ Procedure AddAdditionalSourceLockCheck(Queue, QueryText, FullObjectName, FullReg
 					
 					AdditionalParametersForTTCreation = AdditionalProcessingDataSelectionParameters();
 					AdditionalParametersForTTCreation.TempTableName = LockedAdditionalSourceTTName;
-					CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, DataSource, TempTablesManager, AdditionalParametersForTTCreation); // @skip-
+					CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, DataSource, TempTablesManager, AdditionalParametersForTTCreation); 
 					
 					TemporaryTablesOfLockedAdditionalSources.Insert(SourceMetadata, LockedAdditionalSourceTTName);
 				EndIf;
@@ -4512,7 +4522,7 @@ Procedure AddAdditionalSourceLockCheckForStandaloneRegister(Queue, QueryText, Fu
 		RegisterMetadata = Common.MetadataObjectByFullName(FullRegisterName);
 		ConditionsForAdditionalSourcesLinks = New Array;
 		TemplateConditionsForAdditionalSourcesLinks =
-			" NOT TRUE IN (
+			"	NOT TRUE IN (
 			|		SELECT TOP 1
 			|			TRUE
 			|		FROM
@@ -4541,7 +4551,7 @@ Procedure AddAdditionalSourceLockCheckForStandaloneRegister(Queue, QueryText, Fu
 			TempTableName = "TTLocked" + DataSource;
 			AdditionalParametersForTTCreation.TempTableName = TempTableName;
 			
-			CreateTemporaryTableOfRefsProhibitedFromReadingAndEditing(Queue, MetadataObjectsArray, TempTablesManager, AdditionalParametersForTTCreation); // 
+			CreateTemporaryTableOfRefsProhibitedFromReadingAndEditing(Queue, MetadataObjectsArray, TempTablesManager, AdditionalParametersForTTCreation); 
 			
 			ConditionByAdditionalSourcesRefs = StringFunctionsClientServer.SubstituteParametersToString(
 				TemplateConditionsForAdditionalSourcesLinks,
@@ -4862,7 +4872,7 @@ Procedure DeleteTheRegistrationOfChangesToTheSubordinateRegister(Node, Recorders
 		Set = GetAReusedSet(DeletionParameters.ReusedSets);
 		Set.Filter.Recorder.Set(Recorder);
 		
-		WriteProgressProgressHandler(Set, Node); // 
+		WriteProgressProgressHandler(Set, Node); 
 		DeleteRegistrationOfDataItemChanges(Set, DeletionParameters);
 	EndDo;
 	
@@ -4891,7 +4901,7 @@ Procedure DeleteRegistrationOfIndependentRegisterChanges(Node, Records, FullObje
 			Set.Filter[Column.Name].Use = True;
 		EndDo;
 		
-		WriteProgressProgressHandler(Set, Node, RegisterMetadata); // 
+		WriteProgressProgressHandler(Set, Node, RegisterMetadata); 
 		DeleteRegistrationOfDataItemChanges(Set, DeletionParameters);
 	EndDo;
 	
@@ -4961,7 +4971,7 @@ EndProcedure
 // Checks whether it is required to save update data to the file when a DIB with filters is used.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True - data must be saved to the file for DIB.
 //
 Function WriteUpdateDataToAFile(Parameters)
 	
@@ -5117,7 +5127,7 @@ EndFunction
 //  Manager - InformationRegisterManager
 //           - AccumulationRegisterManager
 //           - CalculationRegisterManager
-//           - AccountingRegisterManager - 
+//           - AccountingRegisterManager - manager to create a record set.
 //  Size - Number
 //
 // Returns:
@@ -5147,7 +5157,7 @@ EndFunction
 //  - InformationRegisterRecordSet
 //  - AccumulationRegisterRecordSet
 //  - CalculationRegisterRecordSet
-//  - AccountingRegisterRecordSet - 
+//  - AccountingRegisterRecordSet - a set ready for use.
 //
 Function GetAReusedSet(ReusedSets)
 	
@@ -5434,8 +5444,8 @@ EndProcedure
 //  BuildParameters - See SelectionBuildParameters
 //
 // Returns:
-//   QueryResultSelection - 
-//   
+//   QueryResultSelection - in case of usual selection.
+//   ValueTable - in case of selection by page.
 //
 Function SelectDataToProcess(Query, BuildParameters)
 	
@@ -5455,7 +5465,7 @@ EndFunction
 //  BuildParameters - See SelectionBuildParameters
 //
 // Returns:
-//  ValueTable - 
+//  ValueTable - data for update handler (multithread).
 //
 Function SelectDataByPage(Query, BuildParameters)
 	
@@ -5508,7 +5518,7 @@ Function SelectDataByPage(Query, BuildParameters)
 					Query.Text = Query.Text + TemporaryTablesDropQueryText;
 				EndIf;
 				
-				Upload0 = Query.Execute().Unload(); // @skip-
+				Upload0 = Query.Execute().Unload(); 
 				
 				If Result = Undefined Then
 					Result = Upload0;
@@ -5540,7 +5550,7 @@ EndFunction
 //  QueryText - String - the modified query text.
 //
 // Returns:
-//  String - 
+//  String - text fragment with temporary tables deletion.
 //
 Function CutTemporaryTablesDrop(QueryText)
 	
@@ -5669,7 +5679,7 @@ EndProcedure
 //  SelectionFields1 - Array - fields selected by query.
 //  Parameters - See InfobaseUpdate.AdditionalProcessingMarkParameters.
 //  Directions - Array - ordering directions (ASC, and DESC) in the quantity equal to the SelectionFields quantity.
-//              - Undefined - 
+//              - Undefined - order is not specified (always ASC).
 //
 // Returns:
 //   See NewConditionsOfSelectionByPage
@@ -5707,7 +5717,7 @@ EndFunction
 //  SelectionFields1 - Array - fields selected by query.
 //  Parameters - See InfobaseUpdate.AdditionalProcessingMarkParameters.
 //  Directions - Array - ordering directions (ASC, and DESC) in the quantity equal to the SelectionFields quantity.
-//              - Undefined - 
+//              - Undefined - order is not specified (always ASC).
 //
 // Returns:
 //   See NewConditionsOfSelectionByPage
@@ -5760,7 +5770,7 @@ Function PageRangeConditions(SelectionFields1, Parameters, Directions)
 				EndIf;
 			EndIf;
 			
-			// 
+			// Selection by the first record
 			FirstConditions[FieldColumnName] = OperatorFirst;
 			
 			// Selection by the last record
@@ -5784,7 +5794,7 @@ EndFunction
 //  FieldsCount - Number - applied fields quantity in the record key.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the records are equal.
 //
 Function RecordsAreEqual(FirstRecord, LatestRecord, FieldsCount)
 	
@@ -5806,11 +5816,11 @@ EndFunction
 //                 In this case, additional columns are added for the lower range condition.
 //
 // Returns:
-//  ValueTable - 
-//                    
-//                    
-//                    
-//                    
+//  ValueTable - table columns describe query fields, where a full field name is stored in the title.
+//                    Column names are generated dynamically from query selection fields.
+//                    Each row describes conditions for one query that selects data batches for a page
+//                    or condition group upon the selection via OR. The following conditions are stored in the table cells:
+//                    ("=", ">", "<", ">=", "<=")..
 // 
 Function NewConditionsOfSelectionByPage(SelectionFields1, ForRange = False)
 	
@@ -5836,7 +5846,7 @@ EndFunction
 //  FieldName - String - Field name.
 //
 // Returns:
-//  String - 
+//  String - a field name for the condition by the range bottom.
 //
 Function RangeColumnName(FieldName)
 	
@@ -5850,7 +5860,7 @@ EndFunction
 //  Name - String - a full query field name (it can be point-separated).
 //
 // Returns:
-//  String - field name.
+//  String - Field name.
 //
 Function ColumnNameFromSelectionField(Name)
 	
@@ -5866,13 +5876,13 @@ Function ColumnNameFromSelectionField(Name)
 	
 EndFunction
 
-// Field name received from table columns of the selection by pages. See NewConditionsOfSelectionByPage.
+//  See NewConditionsOfSelectionByPage.
 //
 // Parameters:
 //  FieldName - String - Field name.
 //
 // Returns:
-//  String - 
+//  String - a field name without service characters.
 //
 Function ColumnNameForQuery(FieldName)
 	
@@ -5890,7 +5900,7 @@ EndFunction
 //  FieldName - String - Field name.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if this field describes the selection by page range end.
 //
 Function IsRangeEndColumnName(FieldName)
 	
@@ -5922,13 +5932,13 @@ EndProcedure
 // Parameters:
 //  FieldsNames - Array - field names as an array.
 //  Aliases - Array - aliases as an array with the same number of elements, as FieldsNames has.
-//             - Undefined - 
+//             - Undefined - in this case aliases are equal to field names.
 //  TableName - String - a name of a table that contains fields.
 //                        if a blank row is specified, a table name is not inserted.
 //  Additional - Boolean - True, if these are not the first fields in the selection and they require "," before them.
 //
 // Returns:
-//  String - 
+//  String - a query text fragment with fields to select.
 //
 Function FieldsForQuery(FieldsNames, Aliases = Undefined, TableName = "", Additional = False)
 	
@@ -5983,13 +5993,13 @@ EndFunction
 // Parameters:
 //  FieldsNames - Array - field names as an array.
 //  Directions - Array - ordering directions (ASC, and DESC) in the quantity equal to the FieldsNames quantity.
-//              - Undefined - 
+//              - Undefined - order is not specified (always ASC).
 //  TableName - String - a name of a table that contains fields.
 //                        if a blank row is specified, a table name is not inserted.
 //  Additional - Boolean - True, if these are not the first fields in the selection and they require "," before them.
 //
 // Returns:
-//  String - 
+//  String - a query text fragment for ordering.
 //
 Function OrderingsForQuery(FieldsNames, Directions = Undefined, TableName = "", Additional = False)
 	
@@ -6043,7 +6053,7 @@ EndProcedure
 //  QueryText - String - text of a query to be modified.
 //  CurrentCount - Number - the amount specified in the current query text.
 //  NewCount - Number - a new value for "FIRST N".
-//                  - Undefined - 
+//                  - Undefined - Select all (without FIRST N).
 //
 Procedure ChangeSelectionMax(QueryText, CurrentCount, NewCount)
 	
@@ -6081,13 +6091,13 @@ EndProcedure
 // Set selection order considering multithread update handlers.
 //
 // Parameters:
-//  Query - Query - a query to be modified.
-//  FieldsNames - Array - names of fields to select.
-//  Parameters - See InfobaseUpdate.AdditionalProcessingDataSelectionParameters.
-//  TableName - String - a name of a table that contains fields.
-//                        if a blank row is specified, a table name is not inserted.
-//  Directions - Array - ordering directions (ASC, and DESC) in the quantity equal to the FieldsNames quantity.
-//              - Undefined - 
+//  Query - Query - 
+//  
+//   See InfobaseUpdate.AdditionalProcessingDataSelectionParameters.
+//  
+//                        
+//  
+//              - Undefined - order is not specified (always ASC).
 //
 Procedure SetOrderByPages(Query, BuildParameters)
 	
@@ -6116,7 +6126,7 @@ EndProcedure
 //   Parameters - See InfobaseUpdate.AdditionalProcessingDataSelectionParameters.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the selection is multithread.
 //
 Function IsSelectionByPages(Parameters)
 	
@@ -6130,7 +6140,7 @@ EndFunction
 //  Direction - String - an ordering direction to check.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if ordering is ascending, otherwise False.
 //
 Function OrderingAscending(Direction)
 	
@@ -6139,7 +6149,7 @@ Function OrderingAscending(Direction)
 	Else
 		OrderInReg = Upper(Direction);
 	
-		// 
+		// DontTranslate: "DESC".
 		Return Not (OrderInReg = "DESC" Or OrderInReg = "DESC");
 	EndIf;
 	
@@ -6151,7 +6161,7 @@ EndFunction
 //  Direction - String - an ordering direction to check.
 //
 // Returns:
-//  String - 
+//  String - the ">", operator if Order = ASC, otherwise "<".
 //
 Function OperatorGreater(Direction)
 	
@@ -6165,7 +6175,7 @@ EndFunction
 //  Direction - String - an ordering direction to check.
 //
 // Returns:
-//  String - 
+//  String - the "<", operator if Order = ASC, otherwise ">".
 //
 Function OperatorLess(Direction)
 	
@@ -6179,7 +6189,7 @@ EndFunction
 //  Direction - String - an ordering direction to check.
 //
 // Returns:
-//  String - 
+//  String - operator ">=", if Order = ASC, otherwise "<=".
 //
 Function OperatorGreaterOrEqual(Direction)
 	
@@ -6193,7 +6203,7 @@ EndFunction
 //  Direction - String - an ordering direction to check.
 //
 // Returns:
-//  String - 
+//  String - operator "<=", if Order = ASC, otherwise ">=".
 //
 Function OperatorLessOrEqual(Direction)
 	
@@ -6207,7 +6217,7 @@ EndFunction
 //  FullName - String - Full name of a metadata object.
 //
 // Returns:
-//  String - 
+//  String - a metadata object name (after fullstop).
 //
 Function MetadataObjectName(FullName)
 	
@@ -6231,15 +6241,14 @@ Function OrderingFieldsAreSet(AdditionalParameters)
 	
 EndFunction
 
-// Returns a data source kind. See AdditionalProcessingDataSelectionParameters
-//  See items 1 and 2.
+//  See AdditionalProcessingDataSelectionParameters
 //
 // Parameters:
 //  AdditionalDataSources - See AdditionalProcessingDataSelectionParameters
 //
 // Returns:
-//  Boolean - 
-//           
+//  Boolean - True if it is a simple set of sources as in clause 1, False if it is a map hierarchy
+//           as in clause 2.
 //
 Function IsSimpleDataSource(AdditionalDataSources)
 	
@@ -6294,7 +6303,7 @@ EndProcedure
 //
 // Parameters:
 //   Collection - Map
-//             - Structure - 
+//             - Structure - a collection in which a value is searched for.
 //   Var_Key - Arbitrary - a key to search the value.
 //   Type - String - type of the value to be created.
 //
@@ -6319,10 +6328,10 @@ EndFunction
 // Parameters:
 //  Queries - Array - query texts that must be merged.
 //  TheSeparatorQueries - String
-//                      - Undefined - 
+//                      - Undefined - a query separator text (by default, the same as the constructor has).
 //
 // Returns:
-//  String - 
+//  String - queries that are merged into a package.
 //
 Function CombineRequestsIntoABatch(Queries, TheSeparatorQueries = Undefined)
 	
@@ -6610,7 +6619,7 @@ EndFunction
 //  Dimensions - Array - names of dimensions to be filtered.
 //
 // Returns:
-//  String - 
+//  String - text of a filter criterion.
 //
 Function ConditionForSelectingUnblockedMeasurements(Dimensions)
 	
@@ -6620,7 +6629,7 @@ Function ConditionForSelectingUnblockedMeasurements(Dimensions)
 		|				OR ChangesTable.%1 = &EmptyValueOfDimension%1
 		|				OR TTLockedDimensions.%1 = &EmptyValueOfDimension%1)";
 	ThePatternConditionForTheSelectionOfUnlocked =
-		" NOT TRUE IN (
+		"	NOT TRUE IN (
 		|		SELECT TOP 1
 		|			TRUE
 		|		FROM
@@ -6724,25 +6733,19 @@ Procedure WriteProgressProgressHandler(Data, Node, ObjectMetadata = Undefined)
 		Return;
 	EndIf;
 	
-	UpdateHandlerParameters = SessionParameters.UpdateHandlerParameters;
+	NewSessionParameters = InfobaseUpdateInternal.NewUpdateHandlerParameters();
+	FillPropertyValues(NewSessionParameters, SessionParameters.UpdateHandlerParameters);
+	NewSessionParameters.ProcessedObjectsCount1 = NewSessionParameters.ProcessedObjectsCount1 + ObjectsProcessed;
 	
-	CurrentDate = CurrentSessionDate();
-	IntervalHour = BegOfHour(CurrentDate);
-	
-	RecordManager = InformationRegisters.UpdateProgress.CreateRecordManager();
-	RecordManager.HandlerName = UpdateHandlerParameters.HandlerName;
-	RecordManager.RecordKey = UpdateHandlerParameters.KeyRecordProgressUpdates;
-	RecordManager.IntervalHour = IntervalHour;
-	RecordManager.Read();
-	If Not RecordManager.Selected() Then
-		RecordManager.HandlerName = UpdateHandlerParameters.HandlerName;
-		RecordManager.RecordKey = UpdateHandlerParameters.KeyRecordProgressUpdates;
-		RecordManager.IntervalHour = IntervalHour;
-		RecordManager.ObjectsProcessed = ObjectsProcessed;
-	Else
-		RecordManager.ObjectsProcessed = RecordManager.ObjectsProcessed + ObjectsProcessed;
+	If NewSessionParameters.DateOfLastProgressRecord = Undefined
+		Or CurrentSessionDate() - NewSessionParameters.DateOfLastProgressRecord > 15 Then 
+		InfobaseUpdateInternal.WriteProgressProgressHandler(NewSessionParameters);
+		
+		NewSessionParameters.ProcessedObjectsCount1 = 0;
+		NewSessionParameters.DateOfLastProgressRecord = CurrentSessionDate();
 	EndIf;
-	RecordManager.Write();
+	
+	SessionParameters.UpdateHandlerParameters = New FixedStructure(NewSessionParameters);
 	
 EndProcedure
 

@@ -32,18 +32,18 @@ EndFunction
 // Returns:
 //  FixedStructure:
 //    * SessionProperties - See AccessManagementInternal.AccessKindsProperties
-//    * HashAmounts       - See AccessManagementInternal.HashSumAccessTypeProperties
+//    * HashAmounts       - See AccessManagementInternal.NewHashSumAccessTypeProperties
 //    * Validation       - Structure:
 //        ** Date - Date
 // 
 Function DescriptionPropertiesAccessTypesSession() Export
 	
-	SessionProperties = AccessManagementInternal.CheckedSessionAccessViewProperties();
-	HashAmounts = AccessManagementInternal.HashSumAccessTypeProperties(SessionProperties);
+	HashAmounts = AccessManagementInternal.NewHashSumAccessTypeProperties();
+	SessionProperties = AccessManagementInternal.CheckedSessionAccessViewProperties(HashAmounts);
 	
 	Result = New Structure;
 	Result.Insert("SessionProperties", SessionProperties);
-	Result.Insert("HashAmounts", HashAmounts);
+	Result.Insert("HashAmounts", New FixedStructure(HashAmounts));
 	Result.Insert("Validation", New Structure("Date", '00010101'));
 	
 	Return New FixedStructure(Result);
@@ -68,8 +68,8 @@ EndFunction
 // 
 Function DescriptionPossibleSessionRightsForSettingObjectRights() Export
 	
-	PossibleSessionRights = InformationRegisters.ObjectsRightsSettings.CheckedPossibleSessionPermissions();
-	HashSum = InformationRegisters.ObjectsRightsSettings.HashSumPossiblePermissions(PossibleSessionRights);
+	HashSum = "";
+	PossibleSessionRights = InformationRegisters.ObjectsRightsSettings.CheckedPossibleSessionPermissions(, HashSum);
 	
 	Result = New Structure;
 	Result.Insert("PossibleSessionRights", PossibleSessionRights);
@@ -98,8 +98,8 @@ EndFunction
 // 
 Function DescriptionSuppliedSessionProfiles() Export
 	
-	SuppliedSessionProfiles = Catalogs.AccessGroupProfiles.VerifiedSuppliedSessionProfiles();
-	HashSum = Catalogs.AccessGroupProfiles.HashSumProfilesSupplied(SuppliedSessionProfiles);
+	HashSum = "";
+	SuppliedSessionProfiles = Catalogs.AccessGroupProfiles.VerifiedSuppliedSessionProfiles(, HashSum);
 	
 	Result = New Structure;
 	Result.Insert("SuppliedSessionProfiles", SuppliedSessionProfiles);
@@ -121,8 +121,8 @@ EndFunction
 // 
 Function DescriptionStandardRolesSessionExtensions() Export
 	
-	SessionRoles = Catalogs.AccessGroupProfiles.PreparedStandardRolesSessionExtensions();
-	HashSum = Catalogs.AccessGroupProfiles.HashSumStandardRolesExtensions(SessionRoles);
+	HashSum = "";
+	SessionRoles = Catalogs.AccessGroupProfiles.PreparedStandardRolesSessionExtensions(HashSum);
 	
 	Result = New Structure;
 	Result.Insert("SessionRoles", SessionRoles);
@@ -156,9 +156,7 @@ Function SessionRoleIds() Export
 	EndDo;
 	List.SortByValue();
 	
-	Hashing = New DataHashing(HashFunction.SHA256);
-	Hashing.Append(ValueToStringInternal(List.UnloadValues()));
-	HashSum = Base64String(Hashing.HashSum);
+	HashSum = AccessManagementInternal.HashAmountsData(List.UnloadValues());
 	
 	Result = New Structure;
 	Result.Insert("HashSum", HashSum);
@@ -872,7 +870,7 @@ EndFunction
 
 Function MaxBasicRegisterFieldsCount() Export
 	
-	// 
+	// When changing, synchronously change the access restriction template ForRegister.
 	Return Number(5);
 	
 EndFunction

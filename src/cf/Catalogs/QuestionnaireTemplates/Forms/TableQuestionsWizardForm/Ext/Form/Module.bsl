@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-// 
+
 //   
 //    
 //    
@@ -671,7 +671,7 @@ Procedure SetLinkOfAnswersAndQuestionsChoiceParameter(AnswerFieldName, QuestionA
 EndProcedure
 
 // Parameters:
-//   Item - FormTable -
+//   Item - FormTable - 
 //
 &AtClient
 Procedure OnChangeAnswers(Item)

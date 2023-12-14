@@ -67,7 +67,7 @@ EndFunction
 // Returns the default interval settings table
 //
 // Returns:
-//   ValueTable - 
+//   ValueTable - :
 //    * LowerBound  - Number
 //    * UpperBound - Number
 //    * Step            - Number
@@ -79,8 +79,8 @@ Function IntervalsSettingsTable()
 	IntervalsSettingsTable.Columns.Add("UpperBound", New TypeDescription("Number",,, New NumberQualifiers(10, 3, AllowedSign.Nonnegative)));
 	IntervalsSettingsTable.Columns.Add("Step", New TypeDescription("Number",,, New NumberQualifiers(10, 3, AllowedSign.Nonnegative)));
 	
-	// 
-	// 
+	
+	
 	
 	// Less than 0.5 sec.
 	NewSettingsRow = IntervalsSettingsTable.Add();
@@ -88,85 +88,85 @@ Function IntervalsSettingsTable()
 	NewSettingsRow.UpperBound	 = 0.5;
 	NewSettingsRow.Step				 = 0;
 
-	// 
+	// 0.5 to 5 s with a step of 0.25 s
 	NewSettingsRow = IntervalsSettingsTable.Add();
 	NewSettingsRow.LowerBound	 = 0.5;
 	NewSettingsRow.UpperBound	 = 5;
 	NewSettingsRow.Step				 = 0.25;
 
-	// 
+	// 5 to 7 s with a step of 0.5 s
 	NewSettingsRow = IntervalsSettingsTable.Add();
 	NewSettingsRow.LowerBound	 = 5;
 	NewSettingsRow.UpperBound	 = 7;
 	NewSettingsRow.Step				 = 0.5;
 
-	// 
+	// 7 to 12 s with a step of 1 s
 	NewSettingsRow = IntervalsSettingsTable.Add();
 	NewSettingsRow.LowerBound	 = 7;
 	NewSettingsRow.UpperBound	 = 12;
 	NewSettingsRow.Step				 = 1;
 
-	// 
+	// 12 to 20 s with a step of 2 s
 	NewSettingsRow = IntervalsSettingsTable.Add();
 	NewSettingsRow.LowerBound	 = 12;
 	NewSettingsRow.UpperBound	 = 20;
 	NewSettingsRow.Step				 = 2;
 
-	// 
+	// 20 to 30 s with a step of 5 s
 	NewSettingsRow = IntervalsSettingsTable.Add();
 	NewSettingsRow.LowerBound	 = 20;
 	NewSettingsRow.UpperBound	 = 30;
 	NewSettingsRow.Step				 = 5;
 
-	// 
+	// 30 to 80 s with a step of 10 s
 	NewSettingsRow = IntervalsSettingsTable.Add();
 	NewSettingsRow.LowerBound	 = 30;
 	NewSettingsRow.UpperBound	 = 80;
 	NewSettingsRow.Step				 = 10;
 
-	// 
+	// 80 to 120 s with a step of 20 s
 	NewSettingsRow = IntervalsSettingsTable.Add();
 	NewSettingsRow.LowerBound	 = 80;
 	NewSettingsRow.UpperBound	 = 120;
 	NewSettingsRow.Step				 = 20;
 
-	// 
+	// 120 to 300 s with a step of 30 s
 	NewSettingsRow = IntervalsSettingsTable.Add();
 	NewSettingsRow.LowerBound	 = 120;
 	NewSettingsRow.UpperBound	 = 300;
 	NewSettingsRow.Step				 = 30;
 
-	// 
+	// 300 to 600 s with a step of 60 s
 	NewSettingsRow = IntervalsSettingsTable.Add();
 	NewSettingsRow.LowerBound	 = 300;
 	NewSettingsRow.UpperBound	 = 600;
 	NewSettingsRow.Step				 = 60;
 
-	// 
+	// 600 to 1800 s with a step of 300 s
 	NewSettingsRow = IntervalsSettingsTable.Add();
 	NewSettingsRow.LowerBound	 = 600;
 	NewSettingsRow.UpperBound	 = 1800;
 	NewSettingsRow.Step				 = 300;
 
-	// 
+	// 1800 to 3600 s with a step of 600 s
 	NewSettingsRow = IntervalsSettingsTable.Add();
 	NewSettingsRow.LowerBound	 = 1800;
 	NewSettingsRow.UpperBound	 = 3600;
 	NewSettingsRow.Step				 = 600;
 
-	// 
+	// 3600 to 7200 s with a step of 1800 s
 	NewSettingsRow = IntervalsSettingsTable.Add();
 	NewSettingsRow.LowerBound	 = 3600;
 	NewSettingsRow.UpperBound	 = 7200;
 	NewSettingsRow.Step				 = 1800;
 
-	// 
+	// 7200 to 42300 s with a step of 3600 s
 	NewSettingsRow = IntervalsSettingsTable.Add();
 	NewSettingsRow.LowerBound	 = 7200;
 	NewSettingsRow.UpperBound	 = 43200;
 	NewSettingsRow.Step				 = 3600;
 
-	// 
+	// More than 42300 sec.
 	NewSettingsRow = IntervalsSettingsTable.Add();
 	NewSettingsRow.LowerBound	 = 43200;
 	NewSettingsRow.UpperBound	 = 0;
@@ -183,8 +183,8 @@ EndFunction
 //                 Must contain the following Number columns: LowerBound, UpperBound, Step.
 //
 // Returns:
-//   ValueTable - 
-//						
+//   ValueTable - with lower and upper bounds for each of the intervals.
+//						Columns: LowerBound, UpperBound.
 //
 Function IntervalsTableForSettings(SettingsTable)
 	
@@ -192,17 +192,17 @@ Function IntervalsTableForSettings(SettingsTable)
 	IntervalsTable.Columns.Add("LowerBound", New TypeDescription("Number",,, New NumberQualifiers(10, 3, AllowedSign.Nonnegative)));
 	IntervalsTable.Columns.Add("UpperBound", New TypeDescription("Number",,, New NumberQualifiers(10, 3, AllowedSign.Nonnegative)));
 	
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
 	MaxIntervalsCount = 80;
 	TotalIntervals = 0;
 		
 	For Each SettingsString In SettingsTable Do
 		
-		// 
-		// 
+		
+		
 		If SettingsString.LowerBound >= SettingsString.UpperBound And SettingsString.Step <> 0
 			Or SettingsString.LowerBound = SettingsString.UpperBound Then
 			Continue;		
@@ -257,7 +257,7 @@ EndFunction
 Function QueryTextSubstringForIntervals(IntervalsTable, SourceTableName, SourceColumnName, WithName)
 	
 	QueryText = "";	
-	StringPattern = " WHEN %1 %2 THEN %3";
+	StringPattern = "	WHEN %1 %2 THEN %3";
 	
 	For Each IntervalString In IntervalsTable Do
 		
@@ -277,10 +277,10 @@ Function QueryTextSubstringForIntervals(IntervalsTable, SourceTableName, SourceC
 		
 	EndDo;
 	
-	// @query-
-	// 
+	
+	
 	QueryText = "CASE " + QueryText + ?(IsBlankString(QueryText), "", Chars.LF) + " Else 0 End" + ?(WithName, " AS ExecutionTime, ", ",");
-	// ACC:1297-
+	// ACC:1297-on
 	
 	Return QueryText;
 	

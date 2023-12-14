@@ -64,7 +64,9 @@ EndProcedure
 
 Procedure FormGetProcessing(FormType, Parameters, SelectedForm, AdditionalInformation, StandardProcessing)
 	If FormType = "ListForm" Then
+		// ACC:1417-off - Structure with a dynamic property list.
 		CurrentRow = CommonClientServer.StructureProperty(Parameters, "CurrentRow");
+		// ACC:1417-on
 		If TypeOf(CurrentRow) = Type("CatalogRef.FilesFolders") And Not CurrentRow.IsEmpty() Then
 			StandardProcessing = False;
 			Parameters.Delete("CurrentRow");

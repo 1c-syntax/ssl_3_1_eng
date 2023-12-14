@@ -23,7 +23,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		InitialFolder = Parameters.Folder;
 	Else
 		InitialFolder = Common.FormDataSettingsStorageLoad("Files", "CurrentFolder");
-		If InitialFolder = Undefined Then // 
+		If InitialFolder = Undefined Then // An attempt to import settings, saved in the previous versions.
 			InitialFolder = Common.FormDataSettingsStorageLoad("FileStorage2", "CurrentFolder");
 		EndIf;
 	EndIf;
@@ -131,7 +131,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		And TypeOf(Source) <> Type("Array") Then
 		
 		Items.List.Refresh();
-		If TypeOf(Parameter) = Type("Structure") And Parameter.Property("File") Then
+		If ValueIsFilled(Parameter.File) Then
 			Items.List.CurrentRow = Parameter.File;
 		ElsIf Source <> Undefined Then
 			Items.List.CurrentRow = Source;
@@ -156,7 +156,8 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 		FilesOperationsInternalClient.MoveFilesToFolder(SelectedRows, ValueSelected);
 		
 		For Each SelectedRow In SelectedRows Do
-			Notify("Write_File", New Structure("Event", "FileDataChanged"), SelectedRow);
+			FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters("FileDataChanged");
+			Notify("Write_File", FileRecordingNotificationParameters, SelectedRow);
 		EndDo;
 		
 		Items.List.Refresh();
@@ -282,7 +283,8 @@ EndProcedure
 &AtClient
 Procedure ListOnChange(Item)
 	
-	Notify("Write_File", New Structure("Event", "FileDataChanged"), Item.SelectedRows);
+	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters("FileDataChanged");
+	Notify("Write_File", FileRecordingNotificationParameters, Item.SelectedRows);
 	
 EndProcedure
 
@@ -596,7 +598,7 @@ Procedure Sign(Command)
 	
 	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
 	SigningParameters = ModuleDigitalSignatureClient.NewSignatureType();
-	SigningParameters.ChoosingAuthorizationLetter = True;
+	SigningParameters.CanSelectLetterOfAuthority = True;
 
 	FilesOperationsClient.SignFile(Items.List.SelectedRows, UUID, AdditionalParameters,
 		SigningParameters);
@@ -775,7 +777,7 @@ Procedure Delete(Command)
 	SelectedRows = SelectedRows();
 	
 	NotifyDescription = New NotifyDescription("AfterDeleteData", ThisObject);
-	FilesOperationsInternalClient.УдалитьДанныеФайлов(NotifyDescription, SelectedRows, UUID);
+	FilesOperationsInternalClient.DeleteFileData(NotifyDescription, SelectedRows, UUID);
 	
 EndProcedure
 
@@ -1035,9 +1037,9 @@ Procedure AfterDeleteData(Result, AdditionalParameters) Export
 EndProcedure
 
 &AtServer
-Procedure EncryptServer(DataArrayToStoreInDatabase, ThumbprintsArray, 
-	FilesArrayInWorkingDirectoryToDelete,
-	WorkingDirectoryName, ObjectRef)
+Procedure EncryptServer(Val DataArrayToStoreInDatabase, Val ThumbprintsArray, 
+	Val FilesArrayInWorkingDirectoryToDelete,
+	Val WorkingDirectoryName, Val ObjectRef)
 	
 	EncryptionInformationWriteParameters = FilesOperationsInternal.EncryptionInformationWriteParameters();
 	EncryptionInformationWriteParameters.WorkingDirectoryName = WorkingDirectoryName;
@@ -1232,8 +1234,8 @@ EndFunction
 Procedure FolderIdleHandlerOnActivateRow()
 	
 	If Items.Folders.CurrentRow <> List.Parameters.Items.Find("Owner").Value Then
-		// 
-		// 
+		
+		
 		UpdateAndSaveFilesListParameters();
 	Else
 		// The procedure of calling the OnActivateRow handler of the List table is performed by the application.

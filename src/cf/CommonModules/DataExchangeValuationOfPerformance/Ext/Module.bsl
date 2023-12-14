@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2023, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 
 #Region Internal
 
@@ -21,7 +22,7 @@ Procedure Initialize(ExchangeComponents, Analysis = False) Export
 	
 	DefaultLanguageCode = Common.DefaultLanguageCode();
 	
-	DescriptionTemplate = NStr("en = '%1 on %2 for %3 (%4)';", DefaultLanguageCode); // 
+	DescriptionTemplate = NStr("en = '%1 on %2 for %3 (%4)';", DefaultLanguageCode); 
 	Description = StrTemplate(DescriptionTemplate,
 		ExchangeComponents.ExchangeDirection,
 		CurrentSessionDate(),
@@ -48,7 +49,7 @@ Procedure Initialize(ExchangeComponents, Analysis = False) Export
 	ExchangeComponents.ExchangeSession = ExchangeSession;
 	
 	Directory = DataExchangeCached.TempFilesStorageDirectory();
-	NameOfTemporaryMeasurementFile = Directory + "log.txt"; //
+	NameOfTemporaryMeasurementFile = Directory + "log.txt";
 	ExchangeComponents.NameOfTemporaryMeasurementFile = NameOfTemporaryMeasurementFile;
 	ExchangeComponents.RecordingMeasurements = New TextWriter(NameOfTemporaryMeasurementFile, TextEncoding.UTF8);
 	
@@ -136,7 +137,7 @@ Procedure ExitApp(ExchangeComponents) Export
 	
 	DefaultLanguageCode = Common.DefaultLanguageCode();
 	
-	// Шапка
+	// Header
 	RecordingResults.WriteLine(NStr("en = '--- Exchange session ---';", DefaultLanguageCode));
 	RecordingResults.WriteLine(NStr("en = 'Exchange direction:';", DefaultLanguageCode) + ExchangeComponents.ExchangeDirection);
 	
@@ -150,7 +151,7 @@ Procedure ExitApp(ExchangeComponents) Export
 	RecordingResults.WriteLine(NStr("en = 'Runtime (sec):';", DefaultLanguageCode) + (EndTime - BeginTime));
 	RecordingResults.WriteLine("");
 	
-	// 
+	
 	RecordingResults.WriteLine(NStr("en = '--- Totals by event type ---';", DefaultLanguageCode));
 	RecordingResults.WriteLine(NStr("en = 'Event type; Runtime';", DefaultLanguageCode));
 	
@@ -170,7 +171,7 @@ Procedure ExitApp(ExchangeComponents) Export
 	
 	RecordingResults.WriteLine("");
 	
-	// 
+	
 	RecordingResults.WriteLine(NStr("en = '--- Totals by event ---';", DefaultLanguageCode));
 	RecordingResults.WriteLine(NStr("en = 'Percentage; Average time; Time; Number of events; Event type; Event';", DefaultLanguageCode));
 	
@@ -227,7 +228,7 @@ Procedure ExitApp(ExchangeComponents) Export
 	ExchangeSession.PerformanceMeasurements = New ValueStorage(New BinaryData(ArchiveTempFileName));
 	ExchangeSession.Write();
 	
-	// 
+	
 	DeleteFiles(NameOfTemporaryTotalsFile);
 	DeleteFiles(ArchiveTempFileName);
 	DeleteFiles(NameOfTemporaryMeasurementFile);
@@ -253,7 +254,7 @@ Procedure FinishMeasurement(BeginTime, Event, Object, ExchangeComponents, EventT
 	
 	ObjectPresentation = ObjectPresentation(Object);
 	
-	// 
+	
 	StringPattern = "%1; %2; %3; %4; %5";
 		
 	String = StrTemplate(StringPattern,
@@ -266,7 +267,7 @@ Procedure FinishMeasurement(BeginTime, Event, Object, ExchangeComponents, EventT
 	RecordingMeasurements = ExchangeComponents.RecordingMeasurements;
 	RecordingMeasurements.WriteLine(String);
 	
-	// 
+	
 	MeasurementsTable = ExchangeComponents.TableOfMeasurementsByEvents;
 	Measurement = MeasurementsTable.Find(Event, "Event");
 	

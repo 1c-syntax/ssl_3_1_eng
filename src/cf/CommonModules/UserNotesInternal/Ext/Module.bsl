@@ -40,8 +40,8 @@ Procedure OnFillToDoList(ToDoList) Export
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.Catalogs.Notes.FullName());
 	
 	NumberOfNotes = NumberOfNotes();

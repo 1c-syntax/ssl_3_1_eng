@@ -112,7 +112,7 @@ Procedure MoveBinaryFileDataToTheDataRegisterBinaryFileData(Selection)
 			CommitTransaction();
 		Except
 			RollbackTransaction();
-			// Если не удалось обработать какой-
+			// If you fail to process a document, try again.
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -190,7 +190,7 @@ Procedure ToCreateTheMissingVersionFile(Selection)
 		Except
 			
 			RollbackTransaction();
-			// Если не удалось обработать какой-
+			// If a file cannot be processed, try again.
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(

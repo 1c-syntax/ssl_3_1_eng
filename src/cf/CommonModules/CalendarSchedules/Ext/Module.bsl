@@ -14,8 +14,8 @@
 //
 // Parameters:
 //   WorkScheduleCalendar	- CatalogRef.Calendars
-//	             	- CatalogRef.BusinessCalendars -  
-//                    
+//	             	- CatalogRef.BusinessCalendars - a schedule or 
+//                    business calendar to be used to calculate dates.
 //   DateFrom			- Date - a date starting from which the number of days is to be calculated.
 //   DaysArray		- Array of Number - a number of days by which the start date is to be increased.
 //   CalculateNextDateFromPrevious	- Boolean - shows whether the following date is to be calculated
@@ -23,8 +23,8 @@
 //   RaiseException1 - Boolean - if True, throw an exception if the schedule is not filled in.
 //
 // Returns:
-//   Undefined, Array - 
-//	                        
+//   Undefined, Array - an array of dates increased by the number of days included in the schedule.
+//	                        If schedule WorkSchedule is not filled in and RaiseException = False, Undefined returns.
 //
 Function DatesByCalendar(Val WorkScheduleCalendar, Val DateFrom, Val DaysArray, Val CalculateNextDateFromPrevious = False, RaiseException1 = True) Export
 	
@@ -45,15 +45,15 @@ Function DatesByCalendar(Val WorkScheduleCalendar, Val DateFrom, Val DaysArray, 
 	
 	ShiftDays = DaysIncrement(DaysArray, CalculateNextDateFromPrevious);
 	
-	TypesOfDaysIncludedInCalculation = New Array();
-	TypesOfDaysIncludedInCalculation.Add(Enums.BusinessCalendarDaysKinds.Work); 
-	TypesOfDaysIncludedInCalculation.Add(Enums.BusinessCalendarDaysKinds.Preholiday);
+	KindsOfDaysIncludedInCalculation = New Array();
+	KindsOfDaysIncludedInCalculation.Add(Enums.BusinessCalendarDaysKinds.Work); 
+	KindsOfDaysIncludedInCalculation.Add(Enums.BusinessCalendarDaysKinds.Preholiday);
 	
 	Query = New Query();
 	Query.SetParameter("BusinessCalendar", WorkScheduleCalendar);
 	Query.SetParameter("DateFrom", BegOfDay(DateFrom));
 	Query.SetParameter("Days", ShiftDays.DaysIncrement.UnloadColumn("DaysCount"));
-	Query.SetParameter("DaysKinds", TypesOfDaysIncludedInCalculation);
+	Query.SetParameter("DaysKinds", KindsOfDaysIncludedInCalculation);
 	Query.Text =
 		"SELECT TOP 0
 		|	CalendarSchedules.Date AS Date
@@ -67,7 +67,7 @@ Function DatesByCalendar(Val WorkScheduleCalendar, Val DateFrom, Val DaysArray, 
 		|ORDER BY
 		|	Date";
 
-	// 
+	
 	QuerySchema = New QuerySchema();
 	QuerySchema.SetQueryText(Query.Text);
 	QuerySchema.QueryBatch[0].Operators[0].RetrievedRecordsCount = ShiftDays.Maximum;
@@ -114,15 +114,15 @@ EndFunction
 //
 // Parameters:
 //   WorkScheduleCalendar	- CatalogRef.Calendars
-//	             	- CatalogRef.BusinessCalendars -  
-//                    
+//	             	- CatalogRef.BusinessCalendars - a schedule or 
+//                    business calendar to be used to calculate dates.
 //   DateFrom			- Date - a date starting from which the number of days is to be calculated.
 //   DaysCount	- Number - a number of days by which the start date is to be increased.
 //   RaiseException1 - Boolean - if True, throw an exception if the schedule is not filled in.
 //
 // Returns:
-//   Date, Undefined - 
-//	                      
+//   Date, Undefined - a date increased by the number of days included in the schedule.
+//	                      If the selected schedule is not filled in and RaiseException = False, Undefined returns.
 //
 Function DateByCalendar(Val WorkScheduleCalendar, Val DateFrom, Val DaysCount, RaiseException1 = True) Export
 	
@@ -152,15 +152,15 @@ EndFunction
 //
 // Parameters:
 //   WorkScheduleCalendar	- CatalogRef.Calendars
-//	             	- CatalogRef.BusinessCalendars -  
-//                    
+//	             	- CatalogRef.BusinessCalendars - a schedule or 
+//                    business calendar to be used to calculate days.
 //   StartDate		- Date - a period start date.
 //   EndDate	- Date - a period end date.
 //   RaiseException1 - Boolean - if True, throw an exception if the schedule is not filled in.
 //
 // Returns:
-//   Number		- 
-//	              
+//   Number		- a number of days between the start and end dates.
+//	              If schedule WorkSchedule is not filled in and RaiseException = False, Undefined returns.
 //
 Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate, RaiseException1 = True) Export
 
@@ -186,8 +186,8 @@ Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate
 		EndDate = Vrem;
 	EndIf;
 	
-	//  
-	// 
+	 
+	
 	Years = New Array();
 	Year = Year(StartDate);
 	While Year <= Year(EndDate) Do
@@ -250,10 +250,10 @@ EndFunction
 // 
 // Returns:
 //  Structure:
-//   * GetPrevious - Boolean - a method of getting the closest date:
-//       if True, workdays preceding the ones passed in the InitialDates parameter are defined.
-//       If False, the nearest workdays following the start dates are defined.
-//       The default value is False:
+//   * GetPrevious - Boolean - :
+//       
+//       
+//       
 //   * ConsiderNonWorkPeriods - Boolean - defines a relation to the dates that fall on non-work periods of the calendar.
 //       If True, the dates that fall on a non-work period will be considered non-work ones.
 //       If False, non-work periods will be ignored.
@@ -322,7 +322,7 @@ Function NearestWorkDates(BusinessCalendar, InitialDates, ReceivingParameters = 
 			|	&InitialDate AS Date
 			|INTO TTInitialDates";
 		QueryText = StrReplace(
-			QueryText, "&InitialDate", StrTemplate("DATETIME(%1)", Format(InitialDate, "DF=yyyy,MM,dd"))); // 
+			QueryText, "&InitialDate", StrTemplate("DATETIME(%1)", Format(InitialDate, "DF=yyyy,MM,dd"))); 
 		If QueriesTexts.Count() > 0 Then
 			QueryText = StrReplace(QueryText, "INTO TTInitialDates", "");
 		EndIf;
@@ -462,8 +462,8 @@ EndProcedure
 // Returns a main business calendar used in accounting.
 //
 // Returns:
-//   CatalogRef.BusinessCalendars, Undefined -  
-//                                                              
+//   CatalogRef.BusinessCalendars, Undefined - a main business calendar or 
+//                                                              Undefined if it is not found.
 //
 Function MainBusinessCalendar() Export
 		
@@ -483,7 +483,7 @@ EndFunction
 //   BusinessCalendar - CatalogRef.BusinessCalendars - the calendar that is a source.
 //   PeriodFilter - StandardPeriod - a time interval within which you need to define non-work periods.
 // Returns:
-//   Array - 
+//   Array - :
 //    * Number     - Number - a sequence number of a period, which can be used for identification.
 //    * Period    - StandardPeriod - a non-work period.
 //    * Basis - String - a regulation a non-work period is based on.
@@ -561,8 +561,8 @@ EndProcedure
 //
 // Parameters:
 //    Schedule	- CatalogRef.Calendars
-//	        	- CatalogRef.BusinessCalendars -  
-//                    
+//	        	- CatalogRef.BusinessCalendars - a schedule or 
+//                    business calendar to be used for calculations.
 //    InitialDates 				- Array - an array of dates (Date).
 //    GetPrevious		- Boolean - a method of getting the closest date:
 //										if True, workdays preceding the ones passed in the InitialDates parameter are defined, 
@@ -610,8 +610,8 @@ EndFunction
 // 
 // 
 // Parameters:
-//  DaysArray - Array of Number -
-//  CalculateNextDateFromPrevious - Boolean -
+//  DaysArray - Array of Number - 
+//  CalculateNextDateFromPrevious - Boolean - 
 // 
 // Returns:
 //  Structure:
@@ -689,7 +689,7 @@ EndProcedure
 // Returns the internal classifier ID for the ClassifiersOperations subsystem.
 //
 // Returns:
-//  String - 
+//  String - a classifier ID.
 //
 Function ClassifierID() Export
 	Return "Calendars20";
@@ -698,7 +698,7 @@ EndFunction
 // Defines a version of data related to calendars built in the configuration.
 //
 // Returns:
-//   Number - version number.
+//   Number - Version number.
 //
 Function CalendarsVersion() Export
 	
@@ -714,7 +714,7 @@ EndFunction
 // Returns the version of classifier data imported to the infobase.
 //
 // Returns:
-//   Number - 
+//   Number - the version number of the imported data, or 0 if the classifier operations subsystem is unavailable.
 //
 Function LoadedCalendarsVersion() Export
 	
@@ -740,10 +740,10 @@ EndFunction
 //  Structure:
 //   * BusinessCalendars - Structure:
 //     * TableName - String          - a table name.
-//     * Data     - ValueTable - a calendar table converted from XML.
+//     * Data     - ValueTable - 
 //   * BusinessCalendarsData - Structure:
 //     * TableName - String          - a table name.
-//     * Data     - ValueTable - a calendar table converted from XML.
+//     * Data     - ValueTable -  converted calendar data table from XML.
 //
 Function ClassifierData() Export
 	
@@ -790,12 +790,12 @@ Function ClassifierData() Export
 	
 	If FileInfo2.Version < CalendarsVersion() Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Не удалось обработать полученные данные календаря из-за конфликта версий.
-                  |Версия календарей
-                  |- полученного классификатора %1, 
-                  |- встроенных в конфигурацию %2, 
-                  |- загруженного ранее классификатора %3.
-                  |Рекомендуется выполнить обновление классификаторов.';"),
+			NStr("en = 'Cannot process the retrieved calendar data due to the version conflict.
+                  |Calendar versions:
+                  |- In the retrieved classifier: %1.
+                  |- In the configuration: %2.
+                  |- In the previously imported classifier: %3.
+                  |Update the classifiers.';"),
 			FileInfo2.Version,
 			CalendarsVersion(),
 			LoadedCalendarsVersion());
@@ -870,7 +870,7 @@ EndProcedure
 // See UsersOverridable.OnDefineRoleAssignment
 Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	
-	// ТолькоДляПользователейСистемы.
+	// ForSystemUsersOnly.
 	RolesAssignment.ForSystemUsersOnly.Add(
 		Metadata.Roles.AddEditCalendarSchedules.Name);
 	
@@ -1291,14 +1291,14 @@ EndProcedure
 Procedure AddHandlerOfDataDependentOnBusinessCalendars(Handlers)
 	
 	If Common.DataSeparationEnabled() Then
-		// 
+		// In SaaS, it is done in a different way.
 		Return;
 	EndIf;
 	
 	ObjectsToChange = New Array;
 	FillObjectsToChangeDependentOnBusinessCalendars(ObjectsToChange);
 	If ObjectsToChange.Count() = 0 Then
-		// 
+		// No dependent objects.
 		Return;
 	EndIf;
 	

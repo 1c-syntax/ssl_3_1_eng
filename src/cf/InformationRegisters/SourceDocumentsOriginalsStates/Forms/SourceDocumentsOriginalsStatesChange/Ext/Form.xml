@@ -450,38 +450,54 @@
 						</InputField>
 					</ChildItems>
 				</ColumnGroup>
-				<PictureField name="OriginalReceivedPicture" id="138">
-					<DataPath>PrintFormsSet.OriginalReceivedPicture</DataPath>
-					<TitleLocation>None</TitleLocation>
-					<EditMode>EnterOnInput</EditMode>
-					<HeaderPicture>
-						<xr:Ref>CommonPicture.SourceDocumentOriginalStateOriginalReceived</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
-					</HeaderPicture>
-					<ValuesPicture>
-						<xr:Ref>CommonPicture.IconsCollectionSourceDocumentOriginalAvailable</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
-					</ValuesPicture>
-					<ContextMenu name="OriginalReceivedPictureContextMenu" id="139"/>
-					<ExtendedTooltip name="OriginalReceivedPictureExtendedTooltip" id="140"/>
-				</PictureField>
-				<InputField name="PrintFormsSetState" id="64">
-					<DataPath>PrintFormsSet.State</DataPath>
+				<ColumnGroup name="KitOfPrintedFormsGroupState" id="166">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Original state</v8:content>
+							<v8:content>State</v8:content>
 						</v8:item>
 					</Title>
-					<EditMode>EnterOnInput</EditMode>
-					<DropListWidth>5</DropListWidth>
-					<ContextMenu name="PrintFormsSetStateContextMenu" id="65"/>
-					<ExtendedTooltip name="PrintFormsSetStateExtendedTooltip" id="66"/>
-					<Events>
-						<Event name="OnChange">PrintFormsSetStateOnChange</Event>
-						<Event name="ChoiceProcessing">PrintFormsSetStateChoiceProcessing</Event>
-					</Events>
-				</InputField>
+					<Group>InCell</Group>
+					<ExtendedTooltip name="KitOfPrintedFormsGroupStateExtendedTooltip" id="167"/>
+					<ChildItems>
+						<PictureField name="OriginalReceivedPicture" id="138">
+							<DataPath>PrintFormsSet.OriginalReceivedPicture</DataPath>
+							<TitleLocation>None</TitleLocation>
+							<EditMode>EnterOnInput</EditMode>
+							<HeaderPicture>
+								<xr:Ref>CommonPicture.SourceDocumentOriginalStateOriginalReceived</xr:Ref>
+								<xr:LoadTransparent>false</xr:LoadTransparent>
+							</HeaderPicture>
+							<ValuesPicture>
+								<xr:Ref>CommonPicture.IconsCollectionSourceDocumentOriginalAvailable</xr:Ref>
+								<xr:LoadTransparent>false</xr:LoadTransparent>
+							</ValuesPicture>
+							<ContextMenu name="OriginalReceivedPictureContextMenu" id="139"/>
+							<ExtendedTooltip name="OriginalReceivedPictureExtendedTooltip" id="140"/>
+						</PictureField>
+						<InputField name="PrintFormsSetState" id="64">
+							<DataPath>PrintFormsSet.State</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Original state</v8:content>
+								</v8:item>
+							</Title>
+							<EditMode>EnterOnInput</EditMode>
+							<HeaderPicture>
+								<xr:Ref>CommonPicture.SourceDocumentOriginalStateOriginalReceived</xr:Ref>
+								<xr:LoadTransparent>false</xr:LoadTransparent>
+							</HeaderPicture>
+							<DropListWidth>5</DropListWidth>
+							<ContextMenu name="PrintFormsSetStateContextMenu" id="65"/>
+							<ExtendedTooltip name="PrintFormsSetStateExtendedTooltip" id="66"/>
+							<Events>
+								<Event name="OnChange">PrintFormsSetStateOnChange</Event>
+								<Event name="ChoiceProcessing">PrintFormsSetStateChoiceProcessing</Event>
+							</Events>
+						</InputField>
+					</ChildItems>
+				</ColumnGroup>
 				<InputField name="PrintFormsSetLastChangeDate" id="157">
 					<DataPath>PrintFormsSet.LastChangeDate</DataPath>
 					<ReadOnly>true</ReadOnly>
@@ -795,4 +811,11 @@
 			<Action>OK</Action>
 		</Command>
 	</Commands>
+	<Parameters>
+		<Parameter name="DocumentRef">
+			<Type>
+				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+			</Type>
+		</Parameter>
+	</Parameters>
 </Form>

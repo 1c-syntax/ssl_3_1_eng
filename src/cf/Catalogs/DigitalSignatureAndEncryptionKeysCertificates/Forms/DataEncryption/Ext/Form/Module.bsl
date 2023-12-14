@@ -23,8 +23,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		SpecifiedImmutableCertificateSet = True;
 		FillEncryptionCertificatesFromSet(Parameters.CertificatesSet);
 		If CertificatesSet.Count() = 0 And Parameters.ChangeSet Then
-			// 
-			// 
+			
+			
 			SpecifiedImmutableCertificateSet = False;
 		EndIf;
 	EndIf;
@@ -534,6 +534,7 @@ Procedure FillEncryptionApplicationAtServer()
 	Else
 		ErrorText = DigitalSignatureInternalClientServer.ErrorTextFailedToDefineApp(
 			CertificateApplicationResult.Error);
+		CertificateAtServerErrorDescription = New Structure;
 		CertificateAtServerErrorDescription.Insert("ErrorDescription", ErrorText);
 	EndIf;
 	
@@ -840,7 +841,7 @@ EndFunction
 // CAC:78-off: to securely pass data between forms on the client without sending them to the server.
 &AtClient
 Procedure ExecuteEncryption(ClientParameters, CompletionProcessing) Export
-// ACC:78-
+// CAC:78-on: to securely pass data between forms on the client without sending them to the server.
 	
 	DigitalSignatureInternalClient.RefreshFormBeforeSecondUse(ThisObject, ClientParameters);
 	
@@ -953,7 +954,7 @@ Async Procedure EncryptData(Notification)
 	ExecutionParameters.Insert("DataDetails",     DataDetails);
 	ExecutionParameters.Insert("Form",              ThisObject);
 	ExecutionParameters.Insert("FormIdentifier", Context.FormIdentifier);
-	ExecutionParameters.Insert("AddressOfCertificate",    AddressOfCertificate); // 
+	ExecutionParameters.Insert("AddressOfCertificate",    AddressOfCertificate); 
 	
 	Context.Insert("ExecutionParameters", ExecutionParameters);
 	
@@ -965,7 +966,7 @@ Async Procedure EncryptData(Notification)
 			CertificateAtServerErrorDescription = New Structure;
 			EncryptDataAfterExecuteAtServerSide(Result, Context);
 		Else
-			// 
+			// An attempt to encrypt on the server.
 			DigitalSignatureInternalClient.ExecuteAtSide(New NotifyDescription(
 					"EncryptDataAfterExecuteAtServerSide", ThisObject, Context),
 				"Encryption", "AtServerSide", Context.ExecutionParameters);
@@ -999,7 +1000,7 @@ Async Procedure EncryptDataAfterExecuteAtServerSide(Result, Context) Export
 			EndIf;
 		EndIf;
 		
-		// 
+		// An encryption attempt on the client.
 		DigitalSignatureInternalClient.ExecuteAtSide(New NotifyDescription(
 				"EncryptDataAfterExecuteAtClientSide", ThisObject, Context),
 			"Encryption", "OnClientSide", Context.ExecutionParameters);
@@ -1061,8 +1062,8 @@ EndProcedure
 Procedure EncryptDataAfterExecute(Result)
 	
 	If Result.Property("HasProcessedDataItems") Then
-		// 
-		// 
+		
+		
 		Items.Certificate.ReadOnly = True;
 		Items.EncryptionCertificates.ReadOnly = True;
 	EndIf;

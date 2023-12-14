@@ -219,10 +219,10 @@ EndFunction
 
 Function QueryText()
 	
-	// ACC:494-
-	// 
-	// 
-	// 
+	
+	
+	
+	
 	Return
 	"SELECT
 	|	PeriodClosingDates.Section AS Section,
@@ -462,8 +462,8 @@ Function QueryText()
 	|	AND (FALSE IN (&SpecifiedObjects)
 	|			OR ClosingDates.Object = ClosingDates.Section
 	|			OR ClosingDates.Object IN (&SpecifiedObjects))";
-	// 
-	// 
+	
+	
 	
 EndFunction
 

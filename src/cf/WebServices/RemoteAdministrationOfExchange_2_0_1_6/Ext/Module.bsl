@@ -199,7 +199,7 @@ Function TestConnection(SettingsStructureXTDO, TransportKindAsString, ErrorMessa
 	
 	Cancel = False;
 	
-	// 
+	// Testing exchange message transport data processor connection
 	DataExchangeServer.CheckExchangeMessageTransportDataProcessorAttachment(Cancel,
 			XDTOSerializer.ReadXDTO(SettingsStructureXTDO),
 			Enums.ExchangeMessagesTransportTypes[TransportKindAsString],
@@ -215,7 +215,7 @@ EndFunction
 // Matches the Ping web service operation
 Function Ping()
 	
-	// 
+	// Stub. Used to prevent error during the configuration checking.
 	Return Undefined;
 	
 EndFunction

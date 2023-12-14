@@ -15,6 +15,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	CheckParameters = Catalogs.ExtensionsVersions.DynamicallyChangedExtensions();
 	CheckParameters.Insert("DataBaseConfigurationChangedDynamically", DataBaseConfigurationChangedDynamically());
 	
+	NumberOfNewPatches = 0;
 	If CheckParameters.Corrections <> Undefined And CheckParameters.Corrections.NewItemsList.Count() > 0 Then
 		StorageAddress = PutToTempStorage(Undefined, UUID);
 		MethodParameters = New Array;
@@ -26,15 +27,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		BackgroundJob.WaitForExecutionCompletion(Undefined);
 		
 		NewPatchesDetails = GetFromTempStorage(StorageAddress);
-		LinkToDetails = " " + NStr("en = '<a href = ""%1"">Detailed information</a>';");
-	Else
-		LinkToDetails = "Ref";
+		NumberOfNewPatches = CheckParameters.Corrections.NewItemsList.Count();
 	EndIf;
 	
-	Message = StandardSubsystemsServer.MessageTextOnDynamicUpdate(CheckParameters,
-		LinkToDetails);
-	
-	Items.Text.Title = StringFunctions.FormattedString(Message, "LinkAction");
+	SetMainText(CheckParameters, NumberOfNewPatches);
+	SetVisibilityAvailability(ThisObject);
 	
 	WithASchedule = True;
 	If CheckParameters.Corrections = Undefined
@@ -61,6 +58,16 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, Var_Key);
 	
+	RestartTime = Common.CommonSettingsStorageLoad(
+		"UserCommonSettings", 
+		"TimeToRestartApplicationToApplyFixes",,,
+		UserName());
+	
+	If Not ValueIsFilled(RestartTime) Then
+		RestartTime = Date(1, 1, 1, 23, 00, 00);
+	EndIf;
+
+	
 EndProcedure
 
 &AtClient
@@ -80,7 +87,22 @@ Procedure TextURLProcessing(Item, FormattedStringURL, StandardProcessing)
 	
 	Document = New TextDocument;
 	Document.SetText(NewPatchesDetails);
-	Document.Show(NStr("en = 'New bug fixes';"));
+	Document.Show(NStr("en = 'New patches';"));
+EndProcedure
+
+&AtClient
+Procedure RestartOptionOnChange(Item)
+	SetVisibilityAvailability(ThisObject);
+EndProcedure
+
+&AtClient
+Procedure PlanOptionOnChange(Item)
+	SetVisibilityAvailability(ThisObject);
+EndProcedure
+
+&AtClient
+Procedure OptionToRemindTomorrowOnChange(Item)
+	SetVisibilityAvailability(ThisObject);
 EndProcedure
 
 &AtClient
@@ -100,16 +122,18 @@ EndProcedure
 #Region FormCommandsEventHandlers
 
 &AtClient
-Procedure Restart(Command)
-	SaveSchedule();
-	StandardSubsystemsClient.SkipExitConfirmation();
-	Exit(True, True);
-EndProcedure
-
-&AtClient
-Procedure RemindLater(Command)
-	RemindMeTomorrow();
-	Close();
+Procedure ExecuteAction(Command)
+	If PossibleAction = 0 Then
+		SaveSchedule();
+		StandardSubsystemsClient.SkipExitConfirmation();
+		Exit(True, True);
+	ElsIf PossibleAction = 1 Then
+		ScheduleRestart();
+	ElsIf PossibleAction = 2 Then
+		StandardSubsystemsClient.DisableScheduledRestart();
+		RemindMeTomorrow();
+		Close();
+	EndIf;
 EndProcedure
 
 &AtClient
@@ -195,7 +219,7 @@ Procedure FillInTheFormDisplaySchedule()
 		CurrentSchedule.Insert("Presentation");
 		CurrentSchedule.Insert("Schedule");
 		CurrentSchedule.Insert("LastAlert");
-		SchedulePresentation = NStr("en = 'by default (every 20 minutes)';");
+		SchedulePresentation = NStr("en = 'once a day';");
 	Else
 		SchedulePresentation = CurrentSchedule.Presentation;
 	EndIf;
@@ -218,5 +242,116 @@ Procedure FillInTheFormDisplaySchedule()
 	StandardSchedule.Insert("Twice", TwiceADay);
 	
 EndProcedure
+
+&AtServer
+Procedure SetMainText(CheckParameters, NumberOfNewPatches)
+	
+	OutputDetails = False;
+
+	If NumberOfNewPatches > 5 Then
+		NumberOfPatchesToOutput = 5;
+	Else
+		NumberOfPatchesToOutput = NumberOfNewPatches;
+		OutputDetails = True;
+	EndIf;
+	
+	DescriptionOfPatches = NewPatchesDetails;
+	BriefDescriptionsOfPatches = New Array;
+	For PatchNumber = 1 To NumberOfPatchesToOutput Do
+		CountOfCharacters = StrFind(DescriptionOfPatches, Chars.LF);
+		CountOfCharacters = ?(CountOfCharacters = 0, StrLen(DescriptionOfPatches), CountOfCharacters);
+		ShortDescription = TrimAll(Left(DescriptionOfPatches, CountOfCharacters));
+		DescriptionOfPatches = TrimAll(Mid(DescriptionOfPatches, CountOfCharacters));
+		DescriptionShortened = False;
+		If StrLen(ShortDescription) > 150 Then
+			ShortDescription = Left(ShortDescription, 151);
+			CountOfCharacters = StrFind(ShortDescription, " ", SearchDirection.FromEnd);
+			ShortDescription = Left(ShortDescription, CountOfCharacters);
+			ShortDescription = ShortDescription + "...";
+			DescriptionShortened = True;
+			OutputDetails = True;
+		EndIf;
+		
+		StartOfNextPatch = StrFind(DescriptionOfPatches, "EF_");
+		
+		If StartOfNextPatch <> 0 Then 
+			DescriptionOfPatches = Mid(DescriptionOfPatches, StartOfNextPatch);
+			If Not DescriptionShortened And StartOfNextPatch > 1 Then
+				ShortDescription = ShortDescription + "...";
+				OutputDetails = True;
+			EndIf;
+		Else
+			MultiLineDescription = ?(StrFind(DescriptionOfPatches, Chars.LF) = 0, False, True);
+			If Not DescriptionShortened And MultiLineDescription Then
+				ShortDescription = ShortDescription + "...";
+				OutputDetails = True;
+			EndIf;
+		EndIf;
+		BriefDescriptionsOfPatches.Add(TrimAll(ShortDescription));
+	EndDo;
+	
+	BriefDescriptionOfPatches = StrConcat(BriefDescriptionsOfPatches, Chars.LF);
+		
+	PartsOfMessage = New Array;
+	PartsOfMessage.Add(StandardSubsystemsServer.MessageTextOnDynamicUpdate(CheckParameters)); 
+	If ValueIsFilled(NewPatchesDetails) Then
+		PartsOfMessage.Add("");
+		PartsOfMessage.Add(BriefDescriptionOfPatches);
+		If OutputDetails Then
+			PartsOfMessage.Add("...");
+			PartsOfMessage.Add("");
+			PartsOfMessage.Add(NStr("en = '<a href = ""%1"">Detailed</a>';"));
+		EndIf; 
+	EndIf;
+	Message = StrConcat(PartsOfMessage, Chars.LF);
+	
+	Items.Text.Title = StringFunctions.FormattedString(Message, "LinkAction");
+	
+EndProcedure
+
+&AtClientAtServerNoContext
+Procedure SetVisibilityAvailability(Form)
+	
+	If Form.PossibleAction = 0 Then
+		TitleOfPerformActionButton = NStr("en = 'Restart';");
+		Form.Items.RestartTime.Enabled = False;
+	ElsIf Form.PossibleAction = 1 Then
+		TitleOfPerformActionButton = NStr("en = 'Schedule';");
+		Form.Items.RestartTime.Enabled = True;
+	ElsIf Form.PossibleAction = 2 Then
+		TitleOfPerformActionButton = NStr("en = 'Remind me tomorrow';");
+		Form.Items.RestartTime.Enabled = False;
+	EndIf;
+	
+	Form.Items.FormExecuteAction.Title = TitleOfPerformActionButton;
+	
+EndProcedure
+
+&AtClient
+Procedure ScheduleRestart()
+	StandardSubsystemsClient.DisableScheduledRestart();
+	SessionDate = CommonClient.SessionDate();
+	SessionTime =  Date('00010101') + (SessionDate-BegOfDay(SessionDate));
+	SecondsBeforeRestart = RestartTime - SessionTime;
+	If SecondsBeforeRestart < 560 Then
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Minimum restart time: %1';"), Format(SessionTime + 600, "DF=HH:mm"));
+		CommonClient.MessageToUser(MessageText,,"RestartTime");
+		Return;
+	EndIf;
+	StandardSubsystemsClient.EnablingHandlersForWaitingForNotificationsToBeDisplayedAndRestarting(SecondsBeforeRestart);
+	SaveApplicationRestartTimeSettingToApplyFixes(RestartTime);
+	RemindTomorrowOnServer();
+	Close();
+EndProcedure 
+
+&AtServerNoContext
+Procedure SaveApplicationRestartTimeSettingToApplyFixes(RestartTime)
+	Common.CommonSettingsStorageSave("UserCommonSettings",
+		"TimeToRestartApplicationToApplyFixes",
+		RestartTime);
+EndProcedure
+
+
 
 #EndRegion

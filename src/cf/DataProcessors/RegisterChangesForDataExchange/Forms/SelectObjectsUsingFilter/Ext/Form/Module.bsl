@@ -77,7 +77,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 			
 	Else
-		// 
+		// No columns?
 		Return;
 	EndIf;
 	

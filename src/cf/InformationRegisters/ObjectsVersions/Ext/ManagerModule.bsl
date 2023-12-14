@@ -121,15 +121,15 @@ Procedure DeleteVersionAuthorInfo(Val VersionAuthor) Export
 			Break;
 		EndIf;
 		
-		Selection = Query.Execute().Select(); // @skip-
+		Selection = Query.Execute().Select(); 
 	EndDo;
 	
 EndProcedure
 
 
 Procedure GenerateReportOnChanges(ReportParameters, ResultAddress) Export
-	// 
-	// 
+	
+	
 	Var ObjectVersion;
 	
 	// Global ID used for string changes between versions.
@@ -141,30 +141,30 @@ Procedure GenerateReportOnChanges(ReportParameters, ResultAddress) Export
 	CommonTemplate = GetTemplate("StandardObjectPresentationTemplate");
 	ReportTS = New SpreadsheetDocument;
 	
-	// 
-	// 
+	
+	
 	VersionNumberArray = VersionsList.UnloadValues();
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	ObjectVersionCount = VersionNumberArray.Count();
 	
-	// 
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
+	
 	ChangesTableBankingDetails_ = New ValueTable;
 	PrepareAttributeChangeTableColumns(ChangesTableBankingDetails_, VersionNumberArray);
 	
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
+	
+	
+	
 	TabularSectionChangeTable = New Map;
 	
 	SpreadsheetDocuments = New ValueList;
@@ -173,8 +173,8 @@ Procedure GenerateReportOnChanges(ReportParameters, ResultAddress) Export
 	SpreadsheetDocumentChangeTable.Columns.Add("Presentation");
 	//
 	
-	// 
-	// 
+	
+	
 	ObjectVersionPrev = CountInitialAttributeAndTabularSectionValues(ChangesTableBankingDetails_, TabularSectionChangeTable,
 		ObjectVersionCount, VersionNumberArray, ObjectReference);
 	
@@ -375,7 +375,7 @@ Procedure OutputAttributeChanges(ReportTS, ChangesTableBankingDetails_, VersionN
 						AttributeValue = ChangeCharacteristicStructure.Value.AttributeValue;
 						AttributeValuePresentation = String(AttributeValue);
 					EndIf;
-					// 
+					// Getting the attribute change structure for the current version.
 					Update = ChangeCharacteristicStructure.ChangeKind;
 				EndIf;
 				
@@ -439,13 +439,13 @@ Procedure OutputTabularSectionChanges(ReportTS, TabularSectionChangeTable, Versi
 			
 			UUIDStringChanged = False;
 			
-			//  
-			// 
-			// 
+			 
+			
+			
 			IndexByVersions = VersionNumberArray.Count();
 			
 			// -
-			// 
+			
 			
 			RowModified = False;
 			
@@ -474,19 +474,19 @@ Procedure OutputTabularSectionChanges(ReportTS, TabularSectionChangeTable, Versi
 				Continue;
 			EndIf;
 			
-			// --------------------------------------------------------------------------------
+			// ---------------------------------------------------------------------------------
 			
-			// 
+			// Displaying the versions as a spreadsheet document.
 			IndexByVersions = VersionNumberArray.Count();
 			
 			IntervalBetweenFillings = 0;
 			
-			// 
-			// 
+			
+			
 			While IndexByVersions >= 1 Do
 				IntervalBetweenFillings = IntervalBetweenFillings + 1;
 				CurrentTSVersionColumn = "Version" + Format(VersionNumberArray[IndexByVersions-1], "NG=0");
-				// 
+				// Tabular section of the current version (table of modified values).
 				CurrentVersionTS = CurrentTSVersions[CurrentTSVersionColumn];// ValueTable
 				FoundRow = CurrentVersionTS.Find(CurrCounterUUID, "VersioningRowID");
 				
@@ -563,7 +563,7 @@ Procedure OutputTabularSectionChanges(ReportTS, TabularSectionChangeTable, Versi
 					
 					IntervalBetweenFillings = 0;
 					
-					// 
+					// Filling the next changed table row.
 					FillArray = New ValueList;
 					For Each Column In CurrentVersionTS.Columns Do
 						If StrFind(Column.Name, InternalColumnPrefix) = 1 Then
@@ -770,7 +770,7 @@ Function CalculateChanges(VersionNumber, VersionParsingResult0, VersionParsingRe
 	Attributes_0      = VersionParsingResult0.Attributes;
 	TabularSections_0 = VersionParsingResult0.TabularSections;
 	
-	// 
+	// Parsing the latest version.
 	VersionParsingResult1 = ObjectsVersioning.ParseVersion(ObjectReference, VersionNumber);
 	AddRowNumbersToTabularSections(VersionParsingResult1.TabularSections);
 	
@@ -934,7 +934,7 @@ Procedure PrepareAttributeChangeTableColumns(ValueTable,
 	
 	ValueTable.Columns.Add("Description");
 	ValueTable.Columns.Add("VersioningModification");
-	ValueTable.Columns.Add("VersioningValueType"); // 
+	ValueTable.Columns.Add("VersioningValueType"); // Expected value type.
 	
 	For IndexOf = 1 To VersionNumberArray.Count() Do
 		ValueTable.Columns.Add("Version" + Format(VersionNumberArray[IndexOf-1], "NG=0"));
@@ -1652,16 +1652,15 @@ Procedure ClearVersionWarnings(DeletionParameters, EventName) Export
 		BeginTransaction();
 		Try
 			
-			 // 
-			 // 
-			 // 
+			 
+			 
+			 
 			DataLock = New DataLock;
 			DataLockItem = DataLock.Add("InformationRegister.ObjectsVersions");
-			DataLockItem.Mode = DataLockMode.Exclusive;
 			DataLockItem.SetValue("Object", SelectionOfObjects.BlockingObject);
 			DataLock.Lock();
 			
-			// 
+			// 3. Read the information register.
 			RecordsetResults.Filter.Object.Set(SelectionOfObjects.BlockingObject, True);
 			
 			SelectingTheVersionNumber = SelectionOfObjects.Select();
@@ -1669,7 +1668,7 @@ Procedure ClearVersionWarnings(DeletionParameters, EventName) Export
 				
 				RecordsetResults.Filter.VersionNumber.Set(SelectingTheVersionNumber.VersionNumber, True);
 				
-				// 
+				// 4. Write the information register.
 				RecordsetResults.Write(True);
 				
 			EndDo;
@@ -1677,7 +1676,7 @@ Procedure ClearVersionWarnings(DeletionParameters, EventName) Export
 			SampleIterator = SampleIterator + 1;
 			If Round(SampleIterator * Proportion, 0) <> Round((SampleIterator - 1) * Proportion, 0) Then 
 				
-				// 
+				// Increase the step proportionally (when the number of iterations multiplied by the ratio change the value).
 				DeletionParameters.NumberOfOperationsCurrentStep = DeletionParameters.NumberOfOperationsCurrentStep + 1;
 				
 			EndIf;
@@ -1688,8 +1687,8 @@ Procedure ClearVersionWarnings(DeletionParameters, EventName) Export
 			
 		Except
 			
-			// 
-			// 
+			
+			
 			RollbackTransaction();
 			
 			WriteLogEvent(EventName, EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));

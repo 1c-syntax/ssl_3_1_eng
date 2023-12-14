@@ -48,7 +48,7 @@ Procedure RunDataExchangeByScenario(ExchangeScenarioCode) Export
 		Return;
 	EndIf;
 	
-	// 
+	
 	If Not IsTaskQueueCompleted(Scenario) Then
 		Return;
 	EndIf;
@@ -87,6 +87,8 @@ Procedure RunDataExchangeManually(Node, ExchangeParameters, ExportAddition = Und
 	JobParameters.Insert("Use", True);
 	JobParameters.Insert("ScheduledStartTime", CurrentUniversalDate());
 	JobParameters.Insert("Parameters", ProcedureParameters);
+	JobParameters.Insert("RestartCountOnFailure", 3);
+	JobParameters.Insert("RestartIntervalOnFailure", 300);
 
 	ModuleJobsQueue = Common.CommonModule("JobsQueue");
 	ModuleJobsQueue.AddJob(JobParameters);
@@ -118,7 +120,7 @@ Procedure RunTaskQueue(Task, JobPrev = "") Export
 	
 	EndIf;
 	
-	// 
+	
 	ActionsInSource = New Array;
 	ActionsInSource.Add(Enums.ActionsAtCancelInternalPublication.DataExport);
 	ActionsInSource.Add(Enums.ActionsAtCancelInternalPublication.DataImport);
@@ -143,7 +145,7 @@ Procedure RunTaskQueue(Task, JobPrev = "") Export
 			
 		EndIf;
 		
-		// 
+		
 		If CurrTask = Undefined Then
 			Break;
 		EndIf;
@@ -290,8 +292,6 @@ Procedure CancelTaskQueue(Node, Scenario, ExchangeID) Export
 		|		INNER JOIN InformationRegister.DataExchangeTasksInternalPublication AS Tasks
 		|		ON ttLastScenario.CreationDate = Tasks.CreationDate
 		|			AND ttLastScenario.ExchangeID = Tasks.ExchangeID
-		|			AND (NOT Tasks.OperationSuccessful)
-		|			AND (NOT Tasks.OperationFailed)
 		|;
 		|
 		|////////////////////////////////////////////////////////////////////////////////
@@ -317,12 +317,7 @@ Procedure CancelTaskQueue(Node, Scenario, ExchangeID) Export
 		Record = InformationRegisters.DataExchangeTasksInternalPublication.CreateRecordManager();
 		FillPropertyValues(Record, Selection);
 		Record.Read();
-		
-		If Record.Selected() Then
-			Record.OperationFailed = True;
-			Record.Error = NStr("en = 'Canceled by user';");
-			Record.Write();
-		EndIf;
+		Record.Delete();
 		
 	EndDo;
 	
@@ -504,7 +499,7 @@ Procedure ExportToFileTransferServiceForInfobaseNode(ExchangePlanName, InfobaseN
 EndProcedure
 
 Procedure ImportFromFileTransferServiceForInfobaseNode(ExchangePlanName, InfobaseNodeCode, TaskID__, FileID) Export
-	
+		
 	SetPrivilegedMode(True);
 	
 	MessageFileName = DataExchangeServer.GetFileFromStorage(FileID);
@@ -586,7 +581,7 @@ Function ExchangeSettingsForInfobaseNode(Node, Action, Cancel) Export
 		Node, ActionOnExchange, Enums.ExchangeMessagesTransportTypes.WS, False);
 	
 	If ExchangeSettingsStructure.Cancel Then
-		// 
+		// If a setting contains errors, canceling the exchange, Canceled status.
 		DataExchangeServer.WriteExchangeFinish(ExchangeSettingsStructure);
 		Cancel = True;
 		Return Undefined;
@@ -606,7 +601,7 @@ EndFunction
 
 Procedure DeleteObsoleteTasks(Scenario = Undefined, ManualExchange = False)
 	
-	// 
+	
 	Query = New Query;
 	Query.Text = 
 		"SELECT DISTINCT TOP 5
@@ -667,7 +662,8 @@ Function DisableScenarioOnDemand(Scenario)
 		"SELECT DISTINCT TOP 3
 		|	Tasks.CreationDate AS CreationDate,
 		|	Tasks.Scenario AS Scenario,
-		|	Tasks.ExchangeID AS ExchangeID
+		|	Tasks.ExchangeID AS ExchangeID,
+		|	Tasks.InfobaseNode AS InfobaseNode
 		|INTO TTDates
 		|FROM
 		|	InformationRegister.DataExchangeTasksInternalPublication AS Tasks
@@ -680,7 +676,9 @@ Function DisableScenarioOnDemand(Scenario)
 		|
 		|////////////////////////////////////////////////////////////////////////////////
 		|SELECT
-		|	Tasks.CreationDate AS CreationDate
+		|	Tasks.CreationDate AS CreationDate,
+		|	Tasks.InfobaseNode AS InfobaseNode,
+		|	Tasks.Error AS Error
 		|FROM
 		|	TTDates AS TTDates
 		|		INNER JOIN InformationRegister.DataExchangeTasksInternalPublication AS Tasks
@@ -731,9 +729,73 @@ Function DisableScenarioOnDemand(Scenario)
 	
 EndFunction
 
+Procedure DeleteTasksAccordingToScriptWithError(Scenario) Export
+	
+	Query = New Query;
+	Query.Text = 
+		"SELECT
+		|	Tasks.ExchangeID AS ExchangeID
+		|INTO TT_Tasks
+		|FROM
+		|	InformationRegister.DataExchangeTasksInternalPublication AS Tasks
+		|WHERE
+		|	Tasks.Scenario = &Scenario
+		|	AND Tasks.OperationFailed
+		|;
+		|
+		|////////////////////////////////////////////////////////////////////////////////
+		|SELECT
+		|	DataExchangeTasksInternalPublication.CreationDate AS CreationDate,
+		|	DataExchangeTasksInternalPublication.InfobaseNode AS InfobaseNode,
+		|	DataExchangeTasksInternalPublication.TaskNumber AS TaskNumber,
+		|	DataExchangeTasksInternalPublication.ExchangeID AS ExchangeID,
+		|	DataExchangeTasksInternalPublication.TaskID__ AS TaskID__
+		|FROM
+		|	TT_Tasks AS TT_Tasks
+		|		LEFT JOIN InformationRegister.DataExchangeTasksInternalPublication AS DataExchangeTasksInternalPublication
+		|		ON TT_Tasks.ExchangeID = DataExchangeTasksInternalPublication.ExchangeID";
+	
+	Query.SetParameter("Scenario", Scenario);
+	
+	Selection = Query.Execute().Select();
+	
+	BeginTransaction();	
+	
+	Try
+			
+		Block = New DataLock;
+		LockItem = Block.Add("Catalog.DataExchangeScenarios");
+		LockItem.SetValue("Ref", Scenario);
+		LockItem.Mode = DataLockMode.Exclusive;
+		Block.Lock();
+		
+		While Selection.Next() Do
+			
+			Record = InformationRegisters.DataExchangeTasksInternalPublication.CreateRecordManager();
+			FillPropertyValues(Record, Selection);
+			Record.Read();
+			Record.Delete();
+			
+		EndDo;
+		
+		CommitTransaction();
+		
+	Except
+		
+		RollbackTransaction();
+		
+		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		
+		WriteLogEvent(EventLogEventScenarioDisabled(),
+			EventLogLevel.Error, , , ErrorMessage);
+			
+	EndTry;
+	
+EndProcedure	
+
 Function IsTaskQueueCompleted(Scenario = "", ExchangeID = "", Error = "")
 	
-	//  
+	 
 	
 	Query = New Query;
 	Query.Text = 
@@ -798,20 +860,20 @@ Function IsTaskQueueCompleted(Scenario = "", ExchangeID = "", Error = "")
 	
 	Result = Query.ExecuteBatch();
 	
-	// 
+	
 	Selection = Result[1].Select();
 	If Selection.Next() Then
 		Error = Selection.Error;
 		Return True;
 	EndIf;
 	
-	// 
+	
 	Selection = Result[2].Select();
 	If Selection.Next() Then
 		Return True;
 	EndIf;
 	
-	// 
+	
 	Selection = Result[3].Select();
 	
 	If Selection.Next() Then
@@ -857,7 +919,7 @@ Procedure RunTaskByScenario(Scenario, FirstTask = Undefined)
 	
 	Query.SetParameter("Ref", Scenario);
 	
-	Selection = Query.Execute().Select(); // ACC:1328 - 
+	Selection = Query.Execute().Select(); 
 	
 	TaskNumber = 1;
 	
@@ -947,7 +1009,7 @@ Procedure PopulatesTasksForManualExchange(InfobaseNode, ExchangeID, FirstTask, E
 	
 	TaskNumber = 1;
 			
-	// 
+	
 	Record.Action = Enums.ActionsAtCancelInternalPublication.DataExportPeer;
 	Record.TaskID__ = String(New UUID);
 	Record.TaskNumber = TaskNumber;
@@ -958,7 +1020,7 @@ Procedure PopulatesTasksForManualExchange(InfobaseNode, ExchangeID, FirstTask, E
 			
 	FirstTask = Common.CopyRecursive(Record, False);
 	
-	// 
+	
 	Record.Action = Enums.ActionsAtCancelInternalPublication.DataImport;
 	Record.TaskID__ = String(New UUID);
 	Record.TaskNumber = TaskNumber;
@@ -967,7 +1029,7 @@ Procedure PopulatesTasksForManualExchange(InfobaseNode, ExchangeID, FirstTask, E
 	
 	TaskNumber = TaskNumber + 1;
 	
-	// 
+	// Additional registration
 	If ExportAddition <> Undefined Then
 
 		Record.Action = Enums.ActionsAtCancelInternalPublication.AdditionalRegistration;
@@ -981,7 +1043,7 @@ Procedure PopulatesTasksForManualExchange(InfobaseNode, ExchangeID, FirstTask, E
 	
 	EndIf;
 		
-	// 
+	
 	Record.Action = Enums.ActionsAtCancelInternalPublication.DataExport;
 	Record.TaskID__ = String(New UUID);
 	Record.TaskNumber = TaskNumber;
@@ -990,7 +1052,7 @@ Procedure PopulatesTasksForManualExchange(InfobaseNode, ExchangeID, FirstTask, E
 	
 	TaskNumber = TaskNumber + 1;
 		
-	// 
+	
 	Record.Action = Enums.ActionsAtCancelInternalPublication.DataImportPeer;
 	Record.TaskID__ = String(New UUID);
 	Record.TaskNumber = TaskNumber;	
@@ -1015,7 +1077,7 @@ EndProcedure
 
 Procedure ExecuteTask(Task, ExchangeParameters, Cancel) Export
 	
-	// 
+	
 	If Task.OperationFailed Then
 		Cancel = True;
 		Return;
@@ -1036,7 +1098,6 @@ Procedure ExecuteTask(Task, ExchangeParameters, Cancel) Export
 		ExchangeSettingsStructure = ExchangeSettingsForInfobaseNode(Node, Action, Cancel);
 		ProxyInitialization(Proxy, ProxyParameters, ExchangeSettingsStructure, Cancel, Error);
 		RunTaskExportDataPeer(Task, Proxy, ExchangeSettingsStructure, Cancel, Error);
-		MarkTaskAsCompleted(Task, Error);
 		
 	ElsIf Action = Enums.ActionsAtCancelInternalPublication.DataImport Then
 		
@@ -1234,11 +1295,11 @@ Procedure PerformTaskAdditionalRegistration(Task, Cancel, Error)
 		ObjectExportAddition.AllDocumentsComposerAddress = PutToTempStorage(ExportAddition.AllDocumentsComposer);
 	EndIf;
 	
-	// 
+	// Saving export addition settings.
 	DataExchangeServer.InteractiveExportChangeSaveSettings(ObjectExportAddition, 
 		DataExchangeServer.ExportAdditionSettingsAutoSavingName());
 	
-	// 
+	// Register additional data.
 	Try
 		DataExchangeServer.InteractiveExportChangeRegisterAdditionalData(ObjectExportAddition);
 	Except
@@ -1444,7 +1505,10 @@ Function ExchangeResultCompletedWithError(ExchangeSettingsStructure, Cancel, Err
 		Or ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.ErrorMessageTransport Then
 		
 		Cancel = True;
-		Error = ExchangeSettingsStructure.ErrorMessageString;
+		
+		If ValueIsFilled(ExchangeSettingsStructure.ErrorMessageString) Then
+			Error = ExchangeSettingsStructure.ErrorMessageString;
+		EndIf;
 		
 		Return True;
 		

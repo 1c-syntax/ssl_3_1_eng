@@ -33,8 +33,8 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	// 
-	// 
+	
+	
 	FolderForExport = FilesOperationsInternalClient.DumpDirectory();
 	
 EndProcedure
@@ -56,7 +56,7 @@ EndProcedure
 &AtClient
 Procedure FolderForExportStartChoice(Item, ChoiceData, StandardProcessing)
 	
-	// 
+	// Open the window of saving folder selection.
 	StandardProcessing = False;
 	SelectingFile = New FileDialog(FileDialogMode.ChooseDirectory);
 	SelectingFile.Multiselect = False;
@@ -99,7 +99,7 @@ Procedure SaveFolder()
 		FullExportPath = StringFunctionsClient.LatinString(FullExportPath);
 	EndIf;
 	
-	// 
+	// If exported folder does not exist, create it.
 	DumpDirectory = New File(FullExportPath);
 	If Not DumpDirectory.Exists() Then
 		ErrorText = "";
@@ -152,7 +152,7 @@ EndProcedure
 #Region Private
 
 &AtServer
-Procedure GenerateFilesTree(FolderParent)
+Procedure GenerateFilesTree(Val FolderParent)
 	
 	Query = New Query;
 	QueryText =
@@ -211,32 +211,32 @@ Procedure GenerateFilesTree(FolderParent)
 	
 EndProcedure
 
-// 
+// Recursive function that exports files to the computer.
 //
 // Parameters:
 //   ResultHandler - NotifyDescription
 //                        - Structure
-//                        - Undefined - 
-//                          
+//                        - Undefined - description of the procedure that receives
+//                          the method result.
 //   TableOfFiles - FormDataTree
-//                 - FormDataTreeItem - 
+//                 - FormDataTreeItem - value tree with files to export.
 //   BaseSaveDirectory - String - a row with the folder name, to which files are saved.
 //                 It recreates the folder structure (as in the file tree)
 //                 if necessary.
 //   ParentFolder - CatalogRef.FilesFolders - items to save.
 //   CommonParameters - Structure:
 //       * ForAllFiles - Boolean -
-//                 
-//                 
-//                 
-//                 
+//                 True if the user picks an action when overwriting the file and
+//                 selects the "For all" check box. No more questions are asked.
+//                 False if a question is asked every time a file in the infobase
+//                 has the same name as a file on the computer.
 //       * BaseAction - DialogReturnCode -
-//                 
-//                 
-//                 
-//                 
-//                 
-//                 
+//                 when performing one action for all conflicts
+//                 when writing a file (the ForAllFiles parameter is True),
+//                 the action specified by this parameter is performed).
+//                 DialogReturnCode.Yes - rewrite.
+//                 .DialogReturnCode.Skip - skip a file.
+//                 .DialogReturnCode.Cancel - cancel export.
 //
 &AtClient
 Procedure ProcessFilesTree(ResultHandler, TableOfFiles, BaseSaveDirectory, ParentFolder, CommonParameters)
@@ -248,18 +248,13 @@ Procedure ProcessFilesTree(ResultHandler, TableOfFiles, BaseSaveDirectory, Paren
 		CommonParameters.Insert("NotMetFolderToBeExportedYet", True);
 	EndIf;
 	
-	ExecutionParameters = ExecutionParameters(
-		ResultHandler,
-		TableOfFiles,
-		BaseSaveDirectory,
-		ParentFolder,
-		CommonParameters);
+	ExecutionParameters = ExecutionParameters(ResultHandler, TableOfFiles, BaseSaveDirectory,
+		ParentFolder, CommonParameters);
 	
 	CompletionHandler = New NotifyDescription("ProcessFilesTree2", ThisObject);
 	FilesOperationsInternalClient.RegisterCompletionHandler(ExecutionParameters, CompletionHandler);
 	
-	// Start the loop.
-	ProcessFilesTreeLoopStart(ExecutionParameters);
+	StartTraversingFileTree(ExecutionParameters);
 EndProcedure
 
 // Returns:
@@ -275,10 +270,11 @@ EndProcedure
 //   * UBound - Number
 //   * IndexOf - Number
 //   * LoopStartRequired - Boolean
-//   * WritingFile - CatalogRef.Files
+//   * WritingFile - FormDataTreeItem of See DataProcessor.FilesOperations.Form.ExportFolderForm.FilesTree
 //
 &AtClient
 Function ExecutionParameters(Val ResultHandler, Val TableOfFiles, Val BaseSaveDirectory, Val ParentFolder, Val CommonParameters)
+	
 	ExecutionParameters = New Structure;
 	ExecutionParameters.Insert("ResultHandler", ResultHandler);
 	ExecutionParameters.Insert("TableOfFiles", TableOfFiles);
@@ -286,10 +282,10 @@ Function ExecutionParameters(Val ResultHandler, Val TableOfFiles, Val BaseSaveDi
 	ExecutionParameters.Insert("ParentFolder", ParentFolder);
 	ExecutionParameters.Insert("CommonParameters", CommonParameters);
 	
-	// 
+	// Result parameters.
 	ExecutionParameters.Insert("Success", False);
 	
-	// 
+	// Loop parameters.
 	ExecutionParameters.Insert("Items", ExecutionParameters.TableOfFiles.GetItems());
 	ExecutionParameters.Insert("UBound", ExecutionParameters.Items.Count()-1);
 	ExecutionParameters.Insert("IndexOf",   -1);
@@ -297,28 +293,29 @@ Function ExecutionParameters(Val ResultHandler, Val TableOfFiles, Val BaseSaveDi
 
 	ExecutionParameters.Insert("WritingFile", Undefined);
 
-	Return ExecutionParameters
+	Return ExecutionParameters;
+
 EndFunction
 
-
 &AtClient
-Procedure ProcessFilesTreeLoopStart(ExecutionParameters)
-	If ExecutionParameters.LoopStartRequired Then
-		If FilesOperationsInternalClient.LockingFormOpen(ExecutionParameters) Then
-			Return; // If one more dialog box was opened, a loop start is not required.
-		EndIf;
-		ExecutionParameters.IndexOf = ExecutionParameters.IndexOf + 1;
-		ExecutionParameters.LoopStartRequired = False;
-	Else
-		Return; // Loop is already started.
+Procedure StartTraversingFileTree(ExecutionParameters)
+	If Not ExecutionParameters.LoopStartRequired Then
+		Return;
 	EndIf;
+
+	If FilesOperationsInternalClient.LockingFormOpen(ExecutionParameters) Then
+		Return;
+	EndIf;
+	
+	ExecutionParameters.IndexOf = ExecutionParameters.IndexOf + 1;
+	ExecutionParameters.LoopStartRequired = False;
 	
 	For IndexOf = ExecutionParameters.IndexOf To ExecutionParameters.UBound Do
 		ExecutionParameters.WritingFile = ExecutionParameters.Items[IndexOf];
 		ExecutionParameters.IndexOf = IndexOf;
 		ProcessFilesTree1(ExecutionParameters);
 		If FilesOperationsInternalClient.LockingFormOpen(ExecutionParameters) Then
-			Return; // Pause the loop. Clear the stack.
+			Return;
 		EndIf;
 	EndDo;
 	
@@ -339,15 +336,11 @@ Procedure ProcessFilesTree1(ExecutionParameters)
 		CompletionHandler = New NotifyDescription("ProcessFilesTree2", ThisObject);
 		FilesOperationsInternalClient.RegisterCompletionHandler(ExecutionParameters, CompletionHandler);
 		
-		ProcessFilesTree(
-			ExecutionParameters,
-			ExecutionParameters.WritingFile,
-			ExecutionParameters.BaseSaveDirectory,
-			ExecutionParameters.WritingFile.Folder,
-			ExecutionParameters.CommonParameters);
+		ProcessFilesTree(ExecutionParameters, ExecutionParameters.WritingFile, ExecutionParameters.BaseSaveDirectory, 
+			ExecutionParameters.WritingFile.Folder, ExecutionParameters.CommonParameters);
 		
 		If FilesOperationsInternalClient.LockingFormOpen(ExecutionParameters) Then
-			Return; // Pause the loop. Clear the stack.
+			Return;
 		EndIf;
 		
 		ProcessFilesTree2(ExecutionParameters.AsynchronousDialog.ResultWhenNotOpen, ExecutionParameters);
@@ -366,12 +359,12 @@ Procedure ProcessFilesTree2(Result, ExecutionParameters) Export
 	
 	If Result.Success <> True Then
 		ExecutionParameters.Success = False;
-		ExecutionParameters.LoopStartRequired = False; // 
+		ExecutionParameters.LoopStartRequired = False; // Loop restart is not required.
 		FilesOperationsInternalClient.ReturnResult(ExecutionParameters.ResultHandler, ExecutionParameters);
 		Return;
 	EndIf;
 	
-	ProcessFilesTreeLoopStart(ExecutionParameters);
+	StartTraversingFileTree(ExecutionParameters);
 EndProcedure
 
 &AtClient
@@ -424,15 +417,13 @@ Procedure ProcessFilesTree5(Response, ExecutionParameters) Export
 	EndIf;
 	
 	If Response = DialogReturnCode.Abort Then
-		// 
 		ExecutionParameters.Success = False;
-		ExecutionParameters.LoopStartRequired = False; // 
+		ExecutionParameters.LoopStartRequired = False; 
 		FilesOperationsInternalClient.ReturnResult(ExecutionParameters.ResultHandler, ExecutionParameters);
 		Return;
 	ElsIf Response = DialogReturnCode.Ignore Then
-		// 
 		ExecutionParameters.Success = True;
-		ExecutionParameters.LoopStartRequired = False; // 
+		ExecutionParameters.LoopStartRequired = False; 
 		FilesOperationsInternalClient.ReturnResult(ExecutionParameters.ResultHandler, ExecutionParameters);
 		Return;
 	EndIf;
@@ -443,22 +434,19 @@ EndProcedure
 
 &AtClient
 Procedure ProcessFilesTree6(ExecutionParameters)
-	// Only if there is at least one file in this folder.
+
 	SubordinateItems = ExecutionParameters.WritingFile.GetItems();
 	If SubordinateItems.Count() > 0 Then
 		
 		CompletionHandler = New NotifyDescription("ProcessFilesTree7", ThisObject);
 		FilesOperationsInternalClient.RegisterCompletionHandler(ExecutionParameters, CompletionHandler);
 		
-		ProcessFilesTree(
-			ExecutionParameters,
-			ExecutionParameters.WritingFile,
-			ExecutionParameters.SaveFileBaseDirectory,
-			ExecutionParameters.WritingFile.Folder,
+		ProcessFilesTree(ExecutionParameters, ExecutionParameters.WritingFile,
+			ExecutionParameters.SaveFileBaseDirectory, ExecutionParameters.WritingFile.Folder,
 			ExecutionParameters.CommonParameters);
 		
 		If FilesOperationsInternalClient.LockingFormOpen(ExecutionParameters) Then
-			Return; // Pause the loop. Clear the stack.
+			Return;
 		EndIf;
 		
 		ProcessFilesTree7(ExecutionParameters.AsynchronousDialog.ResultWhenNotOpen, ExecutionParameters);
@@ -470,6 +458,7 @@ EndProcedure
 
 &AtClient
 Procedure ProcessFilesTree7(Result, ExecutionParameters) Export
+	
 	If FilesOperationsInternalClient.LockingFormOpen(ExecutionParameters) Then
 		ExecutionParameters.LoopStartRequired = True;
 		FilesOperationsInternalClient.SetLockingFormFlag(ExecutionParameters, False);
@@ -485,19 +474,20 @@ Procedure ProcessFilesTree7(Result, ExecutionParameters) Export
 	// Continue processing the item.
 	ProcessFilesTree8(ExecutionParameters);
 	
-	// Restart loop if an asynchronous dialog box was opened.
-	ProcessFilesTreeLoopStart(ExecutionParameters);
+	// Restart if the dialog was open.
+	StartTraversingFileTree(ExecutionParameters);
+	
 EndProcedure
 
 &AtClient
 Procedure ProcessFilesTree8(ExecutionParameters)
 	If (ExecutionParameters.WritingFile.CurrentVersion <> Undefined
 		And ExecutionParameters.WritingFile.CurrentVersion.IsEmpty()) Or ExecutionParameters.WritingFile.CurrentVersion = Undefined Then
-		// Это элемент справочника Файлы без файла - 
+		// This is an item of Files catalog without a file. Skip it.
 		Return;
 	EndIf;
 	
-	// 
+	// Writing file to the base directory.
 	ExecutionParameters.Insert("FileNameWithExtension", Undefined);
 	ExecutionParameters.FileNameWithExtension = CommonClientServer.GetNameWithExtension(
 		ExecutionParameters.WritingFile.FullDescr,
@@ -531,7 +521,7 @@ Procedure ProcessFilesTree9(ExecutionParameters)
 		Return;
 	EndIf;
 	
-	// Файла нет - 
+	// There is no file, proceed to the next step.
 	ExecutionParameters.Result = DialogReturnCode.Retry;
 	ProcessFilesTree11(ExecutionParameters);
 EndProcedure
@@ -553,12 +543,12 @@ Procedure ProcessFilesTree10(Response, ExecutionParameters) Export
 		Return;
 	EndIf;
 	
-	// 
+	// Continue processing the item.
 	ExecutionParameters.Result = DialogReturnCode.Cancel;
 	ProcessFilesTree11(ExecutionParameters);
 	
-	// Restart loop if an asynchronous dialog box was opened.
-	ProcessFilesTreeLoopStart(ExecutionParameters);
+	// Restart if the dialog was open.
+	StartTraversingFileTree(ExecutionParameters);
 EndProcedure
 
 // Parameters:
@@ -567,7 +557,7 @@ EndProcedure
 &AtClient
 Procedure ProcessFilesTree11(ExecutionParameters)
 	If ExecutionParameters.Result = DialogReturnCode.Cancel Then
-		// 
+		// Ignoring the file named like a folder.
 		Return;
 	EndIf;
 	
@@ -614,7 +604,7 @@ Procedure ProcessFilesTree11(ExecutionParameters)
 		EndIf;
 	EndIf;
 	
-	// 
+	// If there is no file, do not ask.
 	ExecutionParameters.Result = DialogReturnCode.Yes;
 	ProcessFilesTree14(ExecutionParameters);
 EndProcedure
@@ -638,19 +628,19 @@ Procedure ProcessFilesTree12(Result, ExecutionParameters) Export
 	ProcessFilesTree13(ExecutionParameters);
 	
 	// Restart loop if an asynchronous dialog box was opened.
-	ProcessFilesTreeLoopStart(ExecutionParameters);
+	StartTraversingFileTree(ExecutionParameters);
 EndProcedure
 
 &AtClient
 Procedure ProcessFilesTree13(ExecutionParameters)
 	If ExecutionParameters.Result = DialogReturnCode.Abort Then
-		// 
+		// Abort export.
 		ExecutionParameters.Success = False;
-		ExecutionParameters.LoopStartRequired = False; // 
+		ExecutionParameters.LoopStartRequired = False; // Loop restart is not required.
 		FilesOperationsInternalClient.ReturnResult(ExecutionParameters.ResultHandler, ExecutionParameters);
 		Return;
 	ElsIf ExecutionParameters.Result = DialogReturnCode.Ignore Then
-		// 
+		// Skip the file.
 		Return;
 	EndIf;
 	
@@ -664,9 +654,9 @@ EndProcedure
 
 &AtClient
 Procedure ProcessFilesTree14(ExecutionParameters)
+
 	ExecutionParameters.FileOnHardDrive = New File(ExecutionParameters.FullFileName);
 	If ExecutionParameters.FileOnHardDrive.Exists() Then
-		// 
 		ExecutionParameters.FileOnHardDrive.SetReadOnly(False);
 		
 		// Always delete and then generate again.
@@ -708,11 +698,11 @@ Procedure ProcessFilesTree14(ExecutionParameters)
 		
 	If ObtainedFiles.Count() = 0 
 		Or IsBlankString(ObtainedFiles[0].Name) Then
-		// 
+		// File was not received.
 		Return;
 	EndIf;
 	
-	// 
+	// For the option of storing files in volumes, delete the file from the temporary storage after receiving it.
 	If IsTempStorageURL(FileAddressToOpen) Then
 		DeleteFromTempStorage(FileAddressToOpen);
 	EndIf;
@@ -721,7 +711,7 @@ Procedure ProcessFilesTree14(ExecutionParameters)
 	
 	Try
 		ExecutionParameters.FileOnHardDrive.SetReadOnly(True);
-		// Поставим время модификации - 
+		// Setting the modification time as in the infobase.
 		ExecutionParameters.FileOnHardDrive.SetModificationUniversalTime(
 			ExecutionParameters.WritingFile.UniversalModificationDate);
 	Except
@@ -755,14 +745,14 @@ EndProcedure
 &AtClient
 Procedure ProcessFilesTree16(Response, ExecutionParameters) Export
 	If Response = DialogReturnCode.Abort Then
-		// 
+		// Just exit with an error.
 		ExecutionParameters.Success = False;
-		ExecutionParameters.LoopStartRequired = False; // 
-		// 
+		ExecutionParameters.LoopStartRequired = False; 
+		
 		FilesOperationsInternalClient.ReturnResult(ExecutionParameters.ResultHandler, ExecutionParameters);
 		Return;
 	ElsIf Response = DialogReturnCode.Ignore Then
-		// 
+		// Skipping this file and proceeding to the next step.
 		Return;
 	EndIf;
 	

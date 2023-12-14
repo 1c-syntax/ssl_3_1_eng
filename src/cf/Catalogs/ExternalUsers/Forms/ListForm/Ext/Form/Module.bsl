@@ -10,12 +10,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                          
 //
-// 
+
 //
-// 
+
 //  
 //  
-// 
+
 //  
 //  
 //  
@@ -49,7 +49,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		WindowOpeningMode = FormWindowOpeningMode.LockOwnerWindow;
 		
 	ElsIf Users.IsFullUser() Then
-		// 
+		// Adding the filter by users added by the person responsible for the list.
 		CommonClientServer.SetDynamicListFilterItem(
 			ExternalUsersList, "Prepared", True, ,
 			NStr("en = 'Users are submitted for authorization';"), False,
@@ -108,7 +108,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ExternalUsersGroups.ChoiceMode =
 			StoredParameters.SelectExternalUsersGroups;
 		
-		// 
+		// Disabling dragging users in the "select users" and "pick users" forms.
 		Items.ExternalUsersList.EnableStartDrag = False;
 		
 		If Parameters.Property("NonExistingIBUsersIDs") Then
@@ -120,7 +120,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 		
 		If Parameters.CloseOnChoice = False Then
-			// 
+			// Pick mode.
 			Items.ExternalUsersList.MultipleChoice = True;
 			
 			If StoredParameters.AdvancedPick Then
@@ -657,7 +657,7 @@ Procedure ExternalUsersInfo(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure ChangeSelectedItems(Command)
@@ -763,7 +763,7 @@ Procedure SetAllExternalUsersGroupOrder(List)
 	
 	Var Order;
 	
-	// Order
+	// Order.
 	Order = List.SettingsComposer.Settings.Order;
 	Order.UserSettingID = "DefaultOrder";
 	
@@ -877,10 +877,10 @@ Procedure ChangeExtendedPickFormParameters()
 	EndIf;
 	StoredParameters.Insert("PickFormHeader", ExtendedPickFormParameters.PickFormHeader);
 	Users.FillUserPictureNumbers(SelectedUsersAndGroups, "User", "PictureNumber");
-	// 
+	// Setting parameters of the extended pick form.
 	Items.EndAndClose.Visible                      = True;
 	Items.SelectUserGroup.Visible              = True;
-	// 
+	// Making the list of selected users visible.
 	Items.SelectedUsersAndGroups.Visible           = True;
 	UseUserGroups = GetFunctionalOption("UseUserGroups");
 	Items.SelectGroupGroup.Visible                    = UseUserGroups;
@@ -897,7 +897,7 @@ Procedure ChangeExtendedPickFormParameters()
 		Items.ExternalUsersList.Height                = 5;
 		Items.ExternalUsersGroups.Height               = 3;
 		Height                                        = 17;
-		// 
+		// Making the titles of UsersList and UserGroups lists visible.
 		Items.ExternalUsersGroups.TitleLocation   = FormItemTitleLocation.Top;
 		Items.ExternalUsersList.TitleLocation    = FormItemTitleLocation.Top;
 		Items.ExternalUsersList.Title             = NStr("en = 'Users in group';");
@@ -1078,8 +1078,8 @@ Procedure ConfigureUserGroupsUsageForm(GroupUsageChanged = False)
 	
 	RefreshFormContentOnGroupChange(ThisObject);
 	
-	// 
-	// 
+	
+	
 	Items.ExternalUsersGroups.Visible = False;
 	Items.ExternalUsersGroups.Visible = True;
 	
@@ -1195,7 +1195,7 @@ Procedure ListOnChangeAtServer()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 // A question handler.
 // 

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-// 
+
 //
 //    
 //
@@ -82,7 +82,7 @@ Procedure ResultDetailProcessing(Item, Details, StandardProcessing)
 			DetailsType = TypeOf(DetailsParameters.RegistrationObject);
 			
 			If DetailsType = Type("Array") Or DetailsType = Type("ValueList") Then
-				// 
+				// List details.
 				DetailsParameters.Insert("ObjectSettings", Object);
 				DetailsParameters.Insert("SimplifiedMode", SimplifiedMode);
 				
@@ -95,7 +95,7 @@ Procedure ResultDetailProcessing(Item, Details, StandardProcessing)
 			OpenForm(DetailsParameters.FullMetadataName + ".ObjectForm", FormParameters);
 
 		ElsIf Not IsBlankString(DetailsParameters.ListPresentation) Then
-			// 
+			// Opening this form with new parameters.
 			DetailsParameters.Insert("ObjectSettings", Object);
 			DetailsParameters.Insert("SimplifiedMode", SimplifiedMode);
 			

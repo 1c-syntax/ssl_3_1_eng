@@ -165,7 +165,7 @@ Procedure ApplyRules(ExportingParameters, StorageAddress) Export
 				QueryRule.Parameters.Insert(Parameter.Name, Parameter.Value);
 			EndDo;
 			
-			// 
+			// @skip-check query-in-loop - Batch processing of email messages by user accounts.
 			EmailResult = QueryRule.Execute();
 		
 		Except

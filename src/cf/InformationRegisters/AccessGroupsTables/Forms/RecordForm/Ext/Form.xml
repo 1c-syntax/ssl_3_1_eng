@@ -43,18 +43,18 @@
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="RightGroupExtendedTooltip" id="49"/>
 			<ChildItems>
-				<UsualGroup name="VerticalGroup1" id="50">
+				<UsualGroup name="FirstColumn" id="50">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Vertical group 1</v8:content>
+							<v8:content>First column</v8:content>
 						</v8:item>
 					</Title>
 					<Group>Vertical</Group>
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="VerticalGroup1ExtendedTooltip" id="51"/>
+					<ExtendedTooltip name="FirstColumnExtendedTooltip" id="51"/>
 					<ChildItems>
 						<CheckBoxField name="ReadRight" id="20">
 							<DataPath>ReadRight</DataPath>
@@ -86,18 +86,18 @@
 						</CheckBoxField>
 					</ChildItems>
 				</UsualGroup>
-				<UsualGroup name="VerticalGroup2" id="52">
+				<UsualGroup name="SecondColumn" id="52">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Vertical group 2</v8:content>
+							<v8:content>Second column</v8:content>
 						</v8:item>
 					</Title>
 					<Group>Vertical</Group>
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="VerticalGroup2ExtendedTooltip" id="53"/>
+					<ExtendedTooltip name="SecondColumnExtendedTooltip" id="53"/>
 					<ChildItems>
 						<CheckBoxField name="UnrestrictedReadRight" id="30">
 							<DataPath>Record.UnrestrictedReadRight</DataPath>

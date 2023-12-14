@@ -320,8 +320,8 @@ Function AreObjectsUsed()
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Unlock attributes: Check the object reference usage';");
-	// 
-	// 
+	
+	
 	ExecutionParameters.RunInBackground = True;
 	ExecutionParameters.WaitCompletion = 0;
 	

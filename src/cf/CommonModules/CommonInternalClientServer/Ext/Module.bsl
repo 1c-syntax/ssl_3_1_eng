@@ -60,7 +60,7 @@ EndFunction
 //   SelectedAreas - Array of See CommonClientServer.CellsIndicatorsCalculationParameters.
 //
 // Returns:
-//   Structure - 
+//   Structure - :
 //       * Count         - Number - selected cells count.
 //       * NumericCellsCount - Number - numeric cells count.
 //       * Sum      - Number - a sum of the selected cells with numbers.
@@ -285,7 +285,7 @@ EndFunction
 
 Function UseStandardGettingPredefinedItemFunction(FullPredefinedItemName) Export
 	
-	// 
+	
 	//   
 	//  
 	//  
@@ -612,15 +612,15 @@ Function LatinString(Val Value, TransliterationRules) Export
 	
 	For Position = 1 To StrLen(Value) Do
 		Char = Mid(Value, Position, 1);
-		LatinChar = TransliterationRules[Lower(Char)]; // 
+		LatinChar = TransliterationRules[Lower(Char)]; 
 		If LatinChar = Undefined Then
-			// 
+			
 			LatinChar = Char;
 		Else
 			If OnlyUppercaseInString Then 
-				LatinChar = Upper(LatinChar); // 
+				LatinChar = Upper(LatinChar); 
 			ElsIf Char = Upper(Char) Then
-				LatinChar = Title(LatinChar); // 
+				LatinChar = Title(LatinChar); 
 			EndIf;
 		EndIf;
 		Result = Result + LatinChar;
@@ -658,7 +658,7 @@ EndFunction
 //                    The default value is False.
 //
 // Returns:
-//   String - 
+//   String - a period presentation in the required format and register.
 //
 Function PeriodPresentationInText(StartDate, EndDate, FormatString, Capitalize) Export 
 	
@@ -726,20 +726,20 @@ EndProcedure
 //  CellText - String - the value of the selected cell.
 //
 // Returns: 
-//   Boolean - 
+//   Boolean - if True, the text looks like a scientific notation.
 //
 Function TheTextOfACellOfTheFormForScientificNotation(Val CellText)
 	
 	NumberOfOccurrences = 0;
 	CellText = StrReplace(Upper(CellText), Chars.NBSp, "");
 	
-	// 
-	CellText = StrReplace(CellText, Char(44), ""); // 
-	CellText = StrReplace(CellText, Char(46), ""); // 
+	// Replace decimal separator characters.
+	CellText = StrReplace(CellText, Char(44), ""); // Comma ( , ).
+	CellText = StrReplace(CellText, Char(46), ""); // Dot ( . ).
 	
 	ExponentCharacterCodes = New Array;
-	ExponentCharacterCodes.Add(1045); // 
-	ExponentCharacterCodes.Add(69);   // 
+	ExponentCharacterCodes.Add(1045); 
+	ExponentCharacterCodes.Add(69);   // Latin "E".
 	
 	For Each Code In ExponentCharacterCodes Do 
 		

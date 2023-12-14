@@ -13,8 +13,8 @@
 Procedure CalculateTotals() Export
 	
 	SessionDate = CurrentSessionDate();
-	AccumulationRegisterPeriod  = EndOfMonth(AddMonth(SessionDate, -1)); // 
-	AccountingRegisterPeriod = EndOfMonth(SessionDate); // 
+	AccumulationRegisterPeriod  = EndOfMonth(AddMonth(SessionDate, -1)); 
+	AccountingRegisterPeriod = EndOfMonth(SessionDate); 
 	
 	Cache = SplitCheckCache();
 	
@@ -90,8 +90,8 @@ Procedure AfterUpdateInfobase(Val PreviousVersion, Val CurrentVersion,
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	
 	GenerateTotalsAndAggregatesParameters();
 	
@@ -194,7 +194,7 @@ Procedure UpdateAggregates()
 			Or Not AccumulationRegisterManager.GetAggregatesUsing() Then
 			Continue;
 		EndIf;
-		// 
+		// Update aggregates.
 		AccumulationRegisterManager.UpdateAggregates();
 	EndDo;
 EndProcedure
@@ -218,7 +218,7 @@ Procedure RebuildAggregates()
 			Or Not AccumulationRegisterManager.GetAggregatesUsing() Then
 			Continue;
 		EndIf;
-		// 
+		// Rebuild aggregates.
 		AccumulationRegisterManager.RebuildAggregatesUsing();
 	EndDo;
 EndProcedure
@@ -251,7 +251,7 @@ EndFunction
 Function GenerateTotalsAndAggregatesParameters()
 	Parameters = New Structure;
 	Parameters.Insert("HasTotalsRegisters", False);
-	Parameters.Insert("TotalsCalculationDate",  '39991231235959'); // 
+	Parameters.Insert("TotalsCalculationDate",  '39991231235959'); 
 	
 	KindBalance = Metadata.ObjectProperties.AccumulationRegisterType.Balance;
 	For Each MetadataRegister In Metadata.AccumulationRegisters Do
@@ -314,7 +314,7 @@ EndProcedure
 //   Schedule - JobSchedule - scheduled job schedule.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True if the job schedule is set.
 //
 Function ScheduleFilled(Schedule)
 	Return Schedule <> Undefined

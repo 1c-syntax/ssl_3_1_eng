@@ -74,9 +74,9 @@ EndProcedure
 // See "Managed form extension for reports.BeforeLoadOptionAtServer" in Syntax Assistant.
 //
 // Parameters:
-//   Form - ClientApplicationForm - report form.
-//   Settings - DataCompositionSettings - settings to load into the settings composer.
-//   BeforeDownloadingSettings - Boolean -
+//   Form - ClientApplicationForm - Report form.
+//   Settings - DataCompositionSettings - Settings to be loaded to Settings Composer.
+//   BeforeDownloadingSettings - Boolean - True if the call came from the BeforeImportSettingsToComposer procedure.
 //
 Procedure BeforeLoadVariantAtServer(Form, Settings, BeforeDownloadingSettings = False) Export
 	CurrentSchemaKey = Undefined;
@@ -132,7 +132,7 @@ Procedure BeforeLoadVariantAtServer(Form, Settings, BeforeDownloadingSettings = 
 	EndIf;
 EndProcedure
 
-// 
+// Called before importing new settings. Used for modifying DCS reports.
 //
 // Parameters:
 //   Context - Arbitrary
@@ -188,14 +188,14 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 	ElsIf Not NewDCSettings.AdditionalProperties.Property("ReportInitialized")
 	        And TypeOf(NewDCUserSettings) = Type("DataCompositionUserSettings") Then
 		
-		// 
-		// 
+		
+		
 		SchemaKey = "";
 	EndIf;
 	
 	AvailableValues = Undefined;
 	FixedParameters = Reports.UniversalReport.FixedParameters(
-		NewDCSettings, NewDCUserSettings, AvailableValues);
+		NewDCSettings, NewDCUserSettings, AvailableValues, Context);
 	
 	If NewDCSettings.AdditionalProperties.Property("DownloadedXMLSettings") Then
 		DownloadedXMLSettings = NewDCSettings.AdditionalProperties.DownloadedXMLSettings;
@@ -252,7 +252,7 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 		EndIf;
 		
 		If TypeOf(Context) = Type("ClientApplicationForm") Then
-			// Переопределение.
+			// Override.
 			SSLSubsystemsIntegration.BeforeLoadVariantAtServer(Context, NewDCSettings);
 			ReportsOverridable.BeforeLoadVariantAtServer(Context, NewDCSettings);
 			BeforeLoadVariantAtServer(Context, NewDCSettings, True);
@@ -268,7 +268,7 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 		EndIf;
 		AvailableValues = Undefined;
 		FixedParameters = Reports.UniversalReport.FixedParameters(
-			NewDCSettings, NewDCUserSettings, AvailableValues);
+			NewDCSettings, NewDCUserSettings, AvailableValues, Context);
 	Else
 		Reports.UniversalReport.SetFixedParameters(
 			ThisObject, FixedParameters, NewDCSettings, NewDCUserSettings);
@@ -278,16 +278,21 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 	
 	Reports.UniversalReport.SetStandardReportHeader(
 		Context, NewDCSettings, FixedParameters, AvailableValues);
+	
+	If TypeOf(Context) = Type("Structure") Then
+		ЗаменитьЗначенияПараметров(NewDCSettings, NewDCSettings.AdditionalProperties.AvailableValues);
+	EndIf;
+		
 EndProcedure
 
-// It is called after defining form item properties connected to user settings.
-// See ReportsServer.СвойстваЭлементовФормыНастроек()
-// It allows to override properties for report personalization purposes.
+// 
+// See ReportsServer.SettingsFormItemsProperties
+// 
 //
 // Parameters:
-//  FormType - ReportFormType - See Syntax Assistant.
+//  FormType - ReportFormType - 
 //  ItemsProperties - See ReportsServer.SettingsFormItemsProperties
-//  UserSettings - DataCompositionUserSettingsItemCollection - items of current
+//  UserSettings - DataCompositionUserSettingsItemCollection - Items of the current
 //                              user settings that affect the creation of linked form items.
 //
 Procedure OnDefineSettingsFormItemsProperties(FormType, ItemsProperties, UserSettings) Export 
@@ -340,12 +345,17 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	
 	Reports.UniversalReport.OutputSubordinateRecordsCount(Settings, DataCompositionSchema, StandardProcessing);
 	
+	ИсходныеЗначенияПараметров = Undefined;
+	ЗаменитьЗначенияПараметров(Settings, Settings.AdditionalProperties.AvailableValues, ИсходныеЗначенияПараметров);
+	
 	If StandardProcessing Then 
 		Return;
 	EndIf;
 	
 	TemplateComposer = New DataCompositionTemplateComposer;
 	CompositionTemplate = TemplateComposer.Execute(DataCompositionSchema, Settings, DetailsData);
+	
+	ЗаменитьЗначенияПараметров(DetailsData.Settings, Settings.AdditionalProperties.AvailableValues, ИсходныеЗначенияПараметров);
 	
 	CompositionProcessor = New DataCompositionProcessor;
 	CompositionProcessor.Initialize(CompositionTemplate,, DetailsData);
@@ -363,13 +373,49 @@ EndProcedure
 // Returns binary data hash.
 //
 // Parameters:
-//   BinaryData - BinaryData - data, from which hash is calculated.
+//   BinaryData - BinaryData - Data whose hash is calculated.
 //
 Function BinaryDataHash(BinaryData)
 	DataHashing = New DataHashing(HashFunction.MD5);
 	DataHashing.Append(BinaryData);
 	Return StrReplace(DataHashing.HashSum, " ", "") + "_" + Format(BinaryData.Size(), "NG=");
 EndFunction
+
+Procedure ЗаменитьЗначенияПараметров(Settings, AvailableValues, ИсходныеЗначения = Undefined)
+	
+	ЗаменятьНаПредставления = ИсходныеЗначения = Undefined;
+	If ИсходныеЗначения = Undefined Then
+		ИсходныеЗначения = New Map;
+	EndIf;
+	
+	ParameterNames = New Array;
+	ParameterNames.Add("MetadataObjectType");
+	ParameterNames.Add("MetadataObjectName");
+	ParameterNames.Add("TableName");
+
+	For Each ParameterName In ParameterNames Do
+		Parameter = Settings.DataParameters.Items.Find(ParameterName);
+		If Parameter = Undefined Then
+			Continue;
+		EndIf;
+		If ЗаменятьНаПредставления Then
+			If AvailableValues.Property(ParameterName) Then
+				AvailableParameterValues = AvailableValues[ParameterName];
+				DescriptionOfParameterValue = AvailableParameterValues.FindByValue(Parameter.Value);
+				If DescriptionOfParameterValue <> Undefined Then
+					Parameter.Value = DescriptionOfParameterValue.Presentation;
+					ИсходныеЗначения.Insert(DescriptionOfParameterValue.Presentation, DescriptionOfParameterValue.Value);
+				EndIf;
+			EndIf;
+		Else
+			SourceValue = ИсходныеЗначения.Get(Parameter.Value);
+			If SourceValue <> Undefined Then
+				Parameter.Value = SourceValue;
+			EndIf;
+		EndIf;
+	EndDo;
+	
+EndProcedure
 
 #EndRegion
 

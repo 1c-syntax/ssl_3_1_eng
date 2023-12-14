@@ -62,7 +62,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 	EndIf;
 	
-	// 
+	// Populate algorithm lists.
 	Filter = New Structure("ApplicationName, ApplicationType", Object.ApplicationName, Object.ApplicationType);
 	Rows = SettingsToSupply.FindRows(Filter);
 	SettingToSupply = ?(Rows.Count() = 0, Undefined, Rows[0]);
@@ -92,8 +92,8 @@ EndProcedure
 &AtServer
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	
-	// 
-	// 
+	
+	
 	RefreshReusableValues();
 	
 EndProcedure
@@ -340,8 +340,8 @@ EndProcedure
 &AtClient
 Procedure FillSelectedApplicationAlgorithmsAfterGetInformation(ModuleInfo, Context) Export
 	
-	// 
-	// 
+	
+	
 	
 	If ModuleInfo <> Undefined
 	   And Object.ApplicationName <> ModuleInfo.Name

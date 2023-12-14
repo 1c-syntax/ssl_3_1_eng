@@ -150,7 +150,7 @@ EndFunction
 
 Function CanImportDataFromFile(Catalog)
 	
-	If StrStartsWith(Upper(Catalog.Name), "DELETE") Then
+	If StrStartsWith(Upper(Catalog.Name), Upper("DELETE")) Then
 		Return False;
 	EndIf;
 	
@@ -202,7 +202,7 @@ Procedure SetInsertModeFromClipboard(TemplateWithData, ColumnsInformation, TypeD
 	ObjectsTypesSupportingInputByString = ObjectsTypesSupportingInputByString();
 	
 	For Each Type In TypeDescription.Types() Do
-		MetadataObject = Metadata.FindByType(Type); // 
+		MetadataObject = Metadata.FindByType(Type); // MetadataObjectCatalog, MetadataObjectDocument
 		
 		If MetadataObject <> Undefined Then
 			ObjectStructure = SplitFullObjectName(MetadataObject.FullName());
@@ -264,7 +264,7 @@ Procedure MapAutoColumnValue(MappingTable, ColumnName) Export
 	QueryText = "";
 	
 	For Each Type In Types Do
-		MetadataObject = Metadata.FindByType(Type); // 
+		MetadataObject = Metadata.FindByType(Type); // MetadataObjectCatalog, MetadataObjectDocument
 		If MetadataObject <> Undefined And AccessRight("Read", MetadataObject) Then
 			ObjectStructure = SplitFullObjectName(MetadataObject.FullName());
 			
@@ -337,12 +337,12 @@ Procedure MapAutoColumnValue(MappingTable, ColumnName) Export
 
 		If FoundOptions.Count() = 1 Then
 			DataString1.MappingObject = FoundOptions[0];
-			DataString1.RowMappingResult = "RowMapped";
+			DataString1.RowMappingResult =  ImportDataFromFileClientServer.StatusMatched();
 		ElsIf FoundOptions.Count() > 1 Then
 			DataString1.ConflictsList.LoadValues(FoundOptions);
-			DataString1.RowMappingResult = "Conflict1";
+			DataString1.RowMappingResult = ImportDataFromFileClientServer.StatusAmbiguity();
 		Else
-			DataString1.RowMappingResult = "NotMapped";
+			DataString1.RowMappingResult = ImportDataFromFileClientServer.StatusIsNotMatched();
 		EndIf;
 		
 	EndDo;
@@ -480,7 +480,7 @@ Procedure FillMappingTableWithDataToImport(TemplateWithData, TableColumnsInforma
 		EmptyTableRow = True;
 		NewRow = MappingTable.Add();
 		NewRow.Id = LineNumber - 1 - IDAdjustment;
-		NewRow.RowMappingResult = "NotMatched";
+		NewRow.RowMappingResult = ImportDataFromFileClientServer.StatusIsNotMatched();
 		
 		For ColumnNumber = 1 To TemplateWithData.TableWidth Do
 			
@@ -495,7 +495,6 @@ Procedure FillMappingTableWithDataToImport(TemplateWithData, TableColumnsInforma
 				DataType = TypeOf(NewRow[ColumnName]);
 				
 				If DataType <> Type("String") And DataType <> Type("Boolean") And DataType <> Type("Number") And DataType <> Type("Date")  And DataType <> Type("UUID") Then 
-					//@skip-
 					CellData = CellValue(Column, Cell.Text);
 				Else
 					If DataType = Type("Boolean") Then
@@ -555,7 +554,6 @@ Function CellValue(Column, CellValue)
 				CellData = Catalogs[ObjectDetails.NameOfObject].FindByCode(CellValue, True);
 			EndIf;
 			If Not ValueIsFilled(CellData) And ValueIsFilled(CellValue) Then
-				//@skip-
 				CellData = FindByDescription(CellValue, MetadataObject, Column);
 			EndIf;
 			If Not ValueIsFilled(CellData) Then 
@@ -697,7 +695,7 @@ Procedure ColumnsInformationFromCatalogAttributes(ImportParameters, ColumnsInfor
 	ColumnsInformation.Clear();
 	Position = 1;
 	
-	CatalogMetadata= Common.MetadataObjectByFullName(ImportParameters.FullObjectName); // 
+	CatalogMetadata= Common.MetadataObjectByFullName(ImportParameters.FullObjectName); // MetadataObjectCatalog, MetadataObjectDocument
 	
 	If Not CatalogMetadata.Autonumbering And CatalogMetadata.CodeLength > 0  Then
 		CreateStandardAttributesColumn(ColumnsInformation, CatalogMetadata, "Code", Position);
@@ -1304,7 +1302,6 @@ Procedure SpreadsheetDocumentIntoValuesTable(TemplateWithData, ColumnsInformatio
 				ColumnName = FoundColumn.ColumnName;
 				NewRow[ColumnName] = AdjustValueToType(Cell.Text, FoundColumn.ColumnType);
 				If Not ValueIsFilled(NewRow[ColumnName]) And ValueIsFilled(Cell.Text) Then
-					//@skip-
 					NewRow[ColumnName] = CellValue(FoundColumn, Cell.Text);
 				EndIf;
 				If EmptyTableRow Then
@@ -1946,7 +1943,7 @@ Procedure GenerateReportOnBackgroundImport(ExportingParameters, StorageAddress) 
 		String = MappedData.Get(LineNumber - 1);
 		
 		Cell = TableReport.GetArea(LineNumber + 1, 1, LineNumber + 1, 1);
-		Cell.CurrentArea.Text = String.RowMappingResult;
+		Cell.CurrentArea.Text = PresentationOfDownloadStatus(String.RowMappingResult);
 		Cell.CurrentArea.Details = String.MappingObject;
 		Cell.CurrentArea.Comment.Text = String.ErrorDescription;
 		If String.RowMappingResult = "Created" Then 
@@ -2024,6 +2021,20 @@ Procedure GenerateReportTemplate(TableReport, TemplateWithData)
 	
 	TableReport.FixedTop = 1;
 EndProcedure
+
+Function PresentationOfDownloadStatus(Status)
+	
+	If Status = "Created" Then
+		Return NStr("en = 'Created';");
+	ElsIf Status = "Updated" Then
+		Return NStr("en = 'Updated';");
+	ElsIf Status = "Skipped" Then
+		Return NStr("en = 'Skipped';");
+	EndIf;
+	
+	Return "";
+	
+EndFunction
 
 #EndRegion
 

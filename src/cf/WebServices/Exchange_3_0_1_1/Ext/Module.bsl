@@ -352,10 +352,10 @@ Function PutMessageForDataMatching(ExchangePlanName, NodeID, FileID)
 	
 	DataExchangeInternal.PutMessageForDataMapping(ExchangeNode, FileID);
 	
-	//  
-	// 
-	// 
-	// 
+	 
+	
+	
+	
 	MoveTheMessageFileForTheFileIB(FileID);
 	
 	Return "";
@@ -364,7 +364,7 @@ EndFunction
 
 // Matches the Ping web service operation.
 Function Ping()
-	// 
+	// Test connection.
 	Return "";
 EndFunction
 

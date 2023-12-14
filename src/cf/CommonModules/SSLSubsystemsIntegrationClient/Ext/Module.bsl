@@ -12,8 +12,8 @@
 #Region ForCallsFromOtherSubsystems
 
 #Region CTLEventHandlers
-// 
-// 
+
+
 
 // Defines events, to which this library is subscribed.
 //
@@ -28,8 +28,8 @@ EndProcedure
 #EndRegion
 
 #Region OSLEventHandlers
-// 
-// 
+
+
 
 // Defines events, to which this library is subscribed.
 //
@@ -71,19 +71,19 @@ Procedure BeforeStart(Parameters) Export
 		Parameters.Modules.Add(ModulePerformanceMonitorClient);
 	EndIf;
 	
-	// 
+	// Checking whether the user has minimum rights to access the application.
 	Parameters.Modules.Add(UsersInternalClient);
 	
-	// 
+	// Checking whether the infobase is locked for updating.
 	Parameters.Modules.Add(InfobaseUpdateClient);
 	
-	// 
+	// Checking whether the current version is equal or higher than the recommended one.
 	Parameters.Modules.Add(New Structure("Module, Number", StandardSubsystemsClient, 2));
 	
-	// 
+	// Checking whether reconnection the master node is necessary. 
 	Parameters.Modules.Add(New Structure("Module, Number", StandardSubsystemsClient, 3));
 	
-	// 
+	// Checking whether it is necessary to select initial unchanged infobase settings (main language and time zone).
 	Parameters.Modules.Add(New Structure("Module, Number", StandardSubsystemsClient, 4));
 
 	// Checking whether updating the infobase is legal.
@@ -102,12 +102,12 @@ Procedure BeforeStart(Parameters) Export
 		Parameters.Modules.Add(ModuleDataExchangeClient);
 	EndIf;
 	
-	// 
+	// Checking the status for deferred update handler.
 	Parameters.Modules.Add(New Structure("Module, Number", InfobaseUpdateClient, 2));
 	
 	Parameters.Modules.Add(ServerNotificationsClient);
 	
-	// 
+	// Exporting and updating application operating settings.
 	Parameters.Modules.Add(New Structure("Module, Number", InfobaseUpdateClient, 3));
 	
 	// Initial standalone workstation setup.
@@ -118,7 +118,7 @@ Procedure BeforeStart(Parameters) Export
 		Parameters.Modules.Add(ModuleStandaloneModeInternalClient);
 	EndIf;
 	
-	// 
+	// Checking user authorization.
 	Parameters.Modules.Add(New Structure("Module, Number", UsersInternalClient, 2));
 	
 	// Checking for locks to access the infobase.
@@ -127,13 +127,13 @@ Procedure BeforeStart(Parameters) Export
 		Parameters.Modules.Add(ModuleIBConnectionsClient);
 	EndIf;
 	
-	// 
+	// Updating an infobase.
 	Parameters.Modules.Add(New Structure("Module, Number", InfobaseUpdateClient, 4));
 	
-	// 
+	// Handling the UpdateAndExit startup key.
 	Parameters.Modules.Add(New Structure("Module, Number", InfobaseUpdateClient, 5));
 	
-	// 
+	
 	Parameters.Modules.Add(New Structure("Module, Number", UsersInternalClient, 3));
 	
 	If SSLSubsystemsIntegrationClientCached.SubscriptionsCTL().BeforeStart Then
@@ -746,14 +746,14 @@ EndProcedure
 // Defines events, to which other libraries can subscribe.
 //
 // Returns:
-//   Structure - 
-//               
+//   Structure - structure property keys are names of events, to which
+//               libraries can be subscribed.
 //
 Function SSLEvents() Export
 	
 	Events = New Structure;
 	
-	// БазоваяФункциональность
+	// Core
 	Events.Insert("BeforeStart", False);
 	Events.Insert("OnStart", False);
 	Events.Insert("AfterStart", False);
@@ -762,7 +762,7 @@ Function SSLEvents() Export
 	Events.Insert("BeforeRecurringClientDataSendToServer", False);
 	Events.Insert("AfterRecurringReceiptOfClientDataOnServer", False);
 	
-	// ВариантыОтчетов
+	// ReportsOptions
 	Events.Insert("AfterGenerate", False);
 	Events.Insert("AtStartValueSelection", False);
 	Events.Insert("OnProcessDetails", False);
@@ -773,18 +773,18 @@ Function SSLEvents() Export
 	Events.Insert("OnProcessNotification", False);
 	Events.Insert("OnClickPeriodSelectionButton", False);
 	
-	// ЗавершениеРаботыПользователей
+	// UsersSessions
 	Events.Insert("OnEndSessions", False);
 	
-	// Печать
+	// PrintTools
 	Events.Insert("PrintDocumentsAfterOpen", False);
 	Events.Insert("PrintDocumentsURLProcessing", False);
 	Events.Insert("PrintDocumentsExecuteCommand", False);
 	
-	// ПрофилиБезопасности
+	// SecurityProfiles
 	Events.Insert("OnConfirmRequestsToUseExternalResources", False);
 	
-	// РезервноеКопированиеИБ
+	// IBBackup
 	Events.Insert("OnCheckIfCanBackUpInUserMode", False);
 	Events.Insert("OnPromptUserForBackup", False);
 	

@@ -103,7 +103,7 @@ Procedure ExtractAll(Command)
 	#If Not WebClient And Not MobileClient Then
 		UnextractedTextFileCountBeforeOperation = UnextractedTextFileCount;
 		Status = "";
-		PortionSize = 0; // 
+		PortionSize = 0; 
 		TextExtractionClient(PortionSize);
 		
 		ShowMessageBox(, StringFunctionsClientServer.SubstituteParametersToString(
@@ -270,7 +270,7 @@ EndProcedure
 
 #If Not WebClient And Not MobileClient Then
 	
-// 
+// Extracts text from files for full-text search.
 &AtClient
 Procedure TextExtractionClient(PortionSize = Undefined)
 	

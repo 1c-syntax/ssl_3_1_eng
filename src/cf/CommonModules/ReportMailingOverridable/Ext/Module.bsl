@@ -9,8 +9,8 @@
 
 #Region Public
 
-// Allows for changing default formats and specify pictures.
-// See ReportMailing.SetFormatsParameters.
+// Intended for changing formats and set pictures.
+// For details about changing formats, See ReportMailing.SetFormatsParameters.
 //
 // Parameters:
 //   FormatsList - ValueList:
@@ -20,8 +20,8 @@
 //       * Picture      - Picture - a picture of the format.
 //
 // Example:
-//	
-//	
+//	ReportMailing.SetFormatParameters(FormatsList, HTML, , False).
+//	ReportMailing.SetFormatParameters(FormatsList, XLS, , True).
 //
 Procedure OverrideFormatsParameters(FormatsList) Export
 	
@@ -29,16 +29,16 @@ Procedure OverrideFormatsParameters(FormatsList) Export
 	
 EndProcedure
 
-// Allows you to add the details of cross-object links of types for mailing recipients.
-// To register type parameters, See ReportMailing.AddItemToRecipientsTypesTable.
-// Other examples of usage see the ReportMailingCached.RecipientTypesTable. 
-// Important:
-//   Use this mechanism only if:
-//   1. It is required to describe and present several types as one (as in the Users and
-//   UserGroups catalog).
-//   2. It is required to change the type representation without changing the metadata synonym.
-//   3. It is required to specify the type of email contact information by default.
-//   4. t is required to define a group of contact information.
+// Intended for adding the details of cross-object links of types for recipients.
+// To register type parameters,  See ReportMailing.AddItemToRecipientsTypesTable.
+// For other usage examples, see ReportsMailingCached.RecipientTypesTable.
+// NOTE:
+//   Use this mechanism only if you need to:
+//   1. Describe and present several types as one (as in the Users and UserGroups catalog).
+//   2. Change the type representation without changing the metadata synonym.
+//   3.Specify the type of email contact information by default.
+//   4. Define a group of contact information.
+//   
 //
 // Parameters:
 //   TypesTable  - ValueTable - type details table.
@@ -68,11 +68,11 @@ EndProcedure
 //       Passed without an extension if the format was added in the applied configuration.
 //
 // Example:
-//	
-//		
-//		
-//		
-//	
+//	If Format = Enumeration.ReportSaveFormats.HTML Then
+//		StandardProcessing = False.
+//		FullFileName = FullFileName +.html.
+//		SpreadsheetDocument.Write(FullFileName, SpreadsheetDocumentFileType.HTML5).
+//	EndIf;
 //
 Procedure BeforeSaveSpreadsheetDocumentToFormat(StandardProcessing, SpreadsheetDocument, Format, FullFileName) Export
 	
@@ -80,25 +80,25 @@ Procedure BeforeSaveSpreadsheetDocumentToFormat(StandardProcessing, SpreadsheetD
 	
 EndProcedure
 
-// 
-// 
-// 
-//  
-//   
-// 
-// 
-//  
-//   
+// Intended for overriding the list of report distribution recipients.
+// If StandardProcessing = True, the recipient list is generated as follows:
+// - If the distribution is personal, the list contains only the distribution author.
+// - If the recipients is a hierarchical catalog, and a parent item is passed, 
+//   all its child items are also included in the distribution (except for groups).
+// - Recipients marked as excluded or marked for deletion are excluded from the distribution.
+// - If recipients are users, than service and inactive users are excluded from the distribution.
+// - Email addresses of the recipients are taken from RecipientsEmailAddressKind 
+//   of the RecipientsParameters parameter.
 //
 // Parameters:
 //   RecipientsParameters - CatalogRef.ReportMailings
-//                        - Structure - parameters for creating mailing list recipients.
-//   Query - Query -
-//   StandardProcessing - Boolean -
-//   Result - Map of KeyAndValue -
-//                                               
-//       * Key     - CatalogRef -
-//       * Value - String -
+//                        - Structure - Parameters for generating a recipient list.
+//   Query - Query - Query to be executed if StandardProcessing = True.
+//   StandardProcessing - Boolean - Set to False if the result must be populated by this handler.
+//   Result - Map of KeyAndValue - Return value.
+//                                               If StandardProcessing = True, populate the list with recipients and their addresses.:
+//       * Key     - CatalogRef - Distribution recipient. For example, a user or a counterparty.
+//       * Value - String - Semicolon-delimited email addresses. For example: "email@server.com; email2@server2.com".
 // 
 Procedure BeforeGenerateMailingRecipientsList(RecipientsParameters, Query, StandardProcessing, Result) Export
 
@@ -137,23 +137,23 @@ Procedure OnPrepareReportGenerationParameters(GenerationParameters, AdditionalPa
 	
 EndProcedure
 
-// 
-// 
+// Intended for adding additional parameters required for generating the distribution subject and body.
+// Use together with OnReceiveEmailTextParameters.
 // 
 // Parameters:
-//   BulkEmailType - String -
+//   BulkEmailType - String - Report distribution kind. Valid values: Shared3, Personalized, Personal.
 //   MailingRecipientType        - TypeDescription
-//                                 - Undefined - 
-//   AdditionalTextParameters - Structure -
-//     * Key     - String -
-//     * Value - String - representation of the argument.
+//                                 - Undefined - If BulkEmailType = Personal
+//   AdditionalTextParameters - Structure - Details of additional parameters of the subject and body:
+//     * Key     - String - Parameter name.
+//     * Value - String - a parameter presentation.
 //
 //  Example:
-//	
-//		
-//		
-//		
-//	
+//	If BulkEmailType = "Personalized" And MailingRecipientType
+//		= New TypesDetails("CatalogRef.Persons") Then
+//		AdditionalTextParameters.Insert("Name", NStr("ru='Name'"));
+//		AdditionalTextParameters.Insert("MiddleName", NStr("ru='Middle name'"));
+//	EndIf;
 //
 Procedure OnDefineEmailTextParameters(BulkEmailType, MailingRecipientType, AdditionalTextParameters) Export
 	
@@ -161,25 +161,25 @@ Procedure OnDefineEmailTextParameters(BulkEmailType, MailingRecipientType, Addit
 	
 EndProcedure
 
-// 
-// 
+// Intended for setting arbitrary values for additional parameters to generate distribution subject and body.
+// Use together with OnDefineEmailTextParameters.
 // 
 // Parameters:
-//   BulkEmailType - String -
+//   BulkEmailType - String - Report distribution kind. Valid values: Shared3, Personalized, Personal.
 //   MailingRecipientType - TypeDescription
-//   Recipient - DefinedType.BulkEmailRecipient -
-//              - Undefined - 
-//   AdditionalTextParameters - Structure -
-//     * Key     - String -
-//     * Value - String - representation of the argument.
+//   Recipient - DefinedType.BulkEmailRecipient - If BulkEmailType is "Personalized".
+//              - Undefined - If BulkEmailType is "Personal" or "Shared3".
+//   AdditionalTextParameters - Structure - Details of additional parameters of the topic and body:
+//     * Key     - String - Parameter name.
+//     * Value - String - a parameter presentation.
 // 
 // Example:
-//	
-//		
-//		
-//		
-//		
-//	
+//	If BulkEmailType = "Personalized" And MailingRecipientType
+//		= New TypesDetails("CatalogRef.Persons") And Recipient <> Undefined Then
+//		AttributesOfIndividual = Common.ObjectAttributesValues(Recipient, "Name, MiddleName");
+//		AdditionalTextParameters.Name = AttributesOfIndividual.Name;
+//		AdditionalTextParameters.MiddleName = AttributesOfIndividual.MiddleName;
+//	EndIf;
 //
 Procedure OnReceiveEmailTextParameters(BulkEmailType, MailingRecipientType, Recipient, AdditionalTextParameters) Export
 	

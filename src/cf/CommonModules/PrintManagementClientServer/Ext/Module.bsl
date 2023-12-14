@@ -30,6 +30,8 @@ Function PrintFormsCollectionFieldsNames() Export
 	Fields.Add("PrintFormFileName");
 	Fields.Add("OfficeDocuments");
 	Fields.Add("OutputInOtherLanguagesAvailable");
+	Fields.Add("TextOfGenerationError");
+	Fields.Add("Protection");
 	
 	Return Fields;
 	

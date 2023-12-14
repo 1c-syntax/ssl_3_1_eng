@@ -27,7 +27,7 @@ EndProcedure
 //   The UseFullTextSearch functional option is checked in the calling code.
 //
 // Returns: 
-//   Boolean - 
+//   Boolean - True - full-text search contains relevant data.
 //
 Function SearchIndexIsRelevant() Export
 	
@@ -39,7 +39,7 @@ EndFunction
 // Check box state for the full-text search setup form.
 //
 // Returns: 
-//   Number - 
+//   Number - 0 - disabled, 1 - enabled, 2 - settings error; settings are not synchronized.
 //
 // Example:
 //	If Common.SubsystemExists("StandardSubsystems.FullTextSearch") Then
@@ -72,7 +72,7 @@ EndFunction
 // Does not throw exceptions.
 //
 // Returns:
-//  String - 
+//  String - :
 //    
 //    
 //    
@@ -101,15 +101,15 @@ Function FullTextSearchStatus() Export
 			EndIf;
 			
 		Else 
-			// 
-			// 
+			
+			
 			Return "SearchSettingsError";
 		EndIf;
 		
 	Else
 		If FullTextSearch.GetFullTextSearchMode() = FullTextSearchMode.Enable Then
-			// 
-			// 
+			
+			
 			Return "SearchSettingsError";
 		Else 
 			Return "SearchProhibited";
@@ -121,7 +121,7 @@ EndFunction
 // Metadata object with functional option of full text search usage.
 //
 // Returns:
-//   MetadataObjectFunctionalOption -  
+//   MetadataObjectFunctionalOption - a functional option metadata 
 //
 Function UseFullTextSearchFunctionalOption() Export
 	
@@ -132,7 +132,7 @@ EndFunction
 // Returns the state of functional option of full text search usage.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - — if True, full-text search is used.
 //
 Function UseFullTextSearch() Export
 	
@@ -189,7 +189,7 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	If State = "IndexUpdateRequired" Then 
 		IndexUpdateDate = FullTextSearch.UpdateDate();
-		CurrentDate = CurrentDate(); // 
+		CurrentDate = CurrentDate(); 
 		
 		If IndexUpdateDate > CurrentDate Then
 			Interval = NStr("en = 'less than one day ago';");
@@ -449,7 +449,7 @@ Function FullTextSearchResults(SearchResultsList)
 		Try
 			Ref = GetURL(Value);
 		Except
-			Ref = "#"; // 
+			Ref = "#"; 
 		EndTry;
 		
 		ResultString1 = New Structure;
@@ -469,8 +469,8 @@ Function HTMLSearchResultStrings(SearchResultsList)
 	
 	HTMLListDisplay = SearchResultsList.GetRepresentation(FullTextSearchRepresentationType.HTMLText);
 	
-	// 
-	// 
+	
+	
 	HTMLReader = New HTMLReader;
 	HTMLReader.SetString(HTMLListDisplay);
 	DOMBuilder = New DOMBuilder;
@@ -528,18 +528,18 @@ Function PresentationStrings(AnchorDOMItemsList)
 	
 EndFunction
 
-// Allows to override:
-// - Value
-// - Presentation
+// 
+// 
+// 
 //
-// See the FullTextSearchListItem data type 
+//  
 //
 Procedure OverridableOnGetByFullTextSearch(ObjectMetadata, Value, Presentation)
 	
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then 
 		
-		// 
-		// 
+		
+		
 		
 		If ObjectMetadata = Metadata.InformationRegisters["AdditionalInfo"] Then 
 			
@@ -597,7 +597,7 @@ EndProcedure
 //   LogLevel - EventLogLevel - message importance for the administrator.
 //   CommentWithParameters - String - a comment that can contain parameters %1.
 //   ErrorInfo - ErrorInfo
-//                      - String - 
+//                      - String - error information placed after the comment.
 //   Parameter - String - replaces %1 in CommentWithParameters.
 //
 Procedure LogRecord(

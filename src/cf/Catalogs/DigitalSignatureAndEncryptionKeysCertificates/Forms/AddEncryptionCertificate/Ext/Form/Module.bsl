@@ -129,7 +129,7 @@ EndProcedure
 &AtServer
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
-	// 
+	// Checking description for uniqueness.
 	DigitalSignatureInternal.CheckPresentationUniqueness(
 		DescriptionCertificate, Certificate, "DescriptionCertificate", Cancel);
 	
@@ -342,12 +342,12 @@ EndProcedure
 
 // Continues the Next procedure.
 &AtClient
-Procedure NextAfterCertificateExport(ExportedData, CryptoCertificate) Export
+Async Procedure NextAfterCertificateExport(ExportedData, CryptoCertificate) Export
 	
 	ShowCertificatePropertiesAdjustmentPage(ThisObject,
 		CryptoCertificate,
 		ExportedData,
-		DigitalSignatureClient.CertificateProperties(CryptoCertificate));
+		Await DigitalSignatureInternalClient.CertificateProperties(CryptoCertificate));
 	
 EndProcedure
 

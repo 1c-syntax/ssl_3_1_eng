@@ -61,7 +61,7 @@ Procedure SetCurrentPage(Form, PageName)
 		FormItems.TroubleshootingIndicatorGroup.Visible         = False;
 		FormItems.TroubleshootingStartIndicatorGroup.Visible   = False;
 		FormItems.TroubleshootingSuccessIndicatorGroup.Visible = True;
-	Else // "Вопрос"
+	Else // "Question"
 		FormItems.TroubleshootingIndicatorGroup.Visible         = False;
 		FormItems.TroubleshootingStartIndicatorGroup.Visible   = True;
 		FormItems.TroubleshootingSuccessIndicatorGroup.Visible = False;
@@ -145,7 +145,7 @@ Procedure RestoreMissingPredefinedItems(CheckID)
 			Query.Text = StrReplace(Query.Text,
 				"ISNULL(SpecifiedTableAlias.Parent.PredefinedDataName, """")", """""");
 		EndIf;
-		NameTable = Query.Execute().Unload(); // @skip-
+		NameTable = Query.Execute().Unload(); 
 		
 		If NameTable.Count() = 0 Then
 			Continue; // All predefined items are missing, restoration in a regular way.
@@ -178,7 +178,7 @@ Procedure RestoreMissingPredefinedItems(CheckID)
 			|WHERE
 			|	NOT SpecifiedTableAlias.Predefined";
 		Query.Text = StrReplace(Query.Text, "&CurrentTable", FullName);
-		AllNonPredefinedItems = Query.Execute().Unload(); // @skip-
+		AllNonPredefinedItems = Query.Execute().Unload(); 
 		AllNonPredefinedItems.Indexes.Add("Description, Parent");
 		
 		If PredefinedItemsInMetadata.Count() > 0 Then
@@ -216,7 +216,7 @@ Procedure RestoreMissingPredefinedItems(CheckID)
 		EndIf;
 	EndDo;
 	
-	// 
+	// 2. If an item is not found, create a new predefined item.
 	StandardSubsystemsServer.RestorePredefinedItems();
 	
 EndProcedure
@@ -257,7 +257,7 @@ Function MissingPredefinedItemsProperties(MetadataObject, PredefinedItemsInData,
 		For Each String In PredefinedItemsInData Do
 			Object = String.Ref.GetObject();
 			Object.PredefinedDataName = "";
-			// 
+			// Competitive operations on the invalid predefined item is not expected.
 			InfobaseUpdate.WriteData(Object); // ACC:1327
 		EndDo;
 		Manager = Common.ObjectManagerByFullName(MetadataObject.FullName());

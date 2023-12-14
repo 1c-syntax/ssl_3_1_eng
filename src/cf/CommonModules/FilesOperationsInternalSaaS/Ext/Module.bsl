@@ -390,9 +390,9 @@ Procedure HandleTextExtractionQueue() Export
 	Result = Undefined;
 	While True Do
 		Try
-			Result = Query.Execute(); // 
-			                                // 
-			                                // 
+			Result = Query.Execute(); 
+			                                
+			                                
 			Break;
 		Except
 			AttemptsNumber = AttemptsNumber + 1;

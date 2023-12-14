@@ -163,8 +163,8 @@ Function CalculateResponseTimeThresholdAtServer(PickingParameters)
 		And Counter < MaxNumberOfIterations
 		Do
 		Counter = Counter + 1;
-		DataMin = DeviationAPDEX(Minimum, CurrentResponseTimeThreshold, TTM, PickingParameters.TargetAPDEX); // @skip-
-		DataMax = DeviationAPDEX(Maximum, CurrentResponseTimeThreshold, TTM, PickingParameters.TargetAPDEX); // @skip-
+		DataMin = DeviationAPDEX(Minimum, CurrentResponseTimeThreshold, TTM, PickingParameters.TargetAPDEX); 
+		DataMax = DeviationAPDEX(Maximum, CurrentResponseTimeThreshold, TTM, PickingParameters.TargetAPDEX); 
 		
 		If Maximum - Minimum <= 0.002 Then
 			Break;

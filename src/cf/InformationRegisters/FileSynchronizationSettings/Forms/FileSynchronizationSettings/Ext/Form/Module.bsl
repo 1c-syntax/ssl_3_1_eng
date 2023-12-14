@@ -14,7 +14,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	SetConditionalAppearance();
 	
-	If Parameters.Property("FileOwner") Then
+	If ValueIsFilled(Parameters.FileOwner) Then
 		CurrentFileOwner = Common.MetadataObjectID(TypeOf(Parameters.FileOwner));
 		FileOwner        = Parameters.FileOwner;
 	EndIf;
@@ -845,7 +845,7 @@ Procedure ClearSettingDataAtServer(Val CurrentRow)
 		
 		SettingsItemParent = SettingToDelete.GetParent();
 		If SettingsItemParent <> Undefined Then
-			// 
+			// You do not need to remove the parent setting from the tree; you only have to clear the custom fields.
 			SettingToDelete.CloudServiceSubfolder = "";
 			SettingToDelete.FilterRule            = "";
 			SettingToDelete.Synchronize         = False;

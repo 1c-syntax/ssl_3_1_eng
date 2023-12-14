@@ -47,12 +47,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		WindowOpeningMode = FormWindowOpeningMode.Independent;
 	EndIf;
 	
-	// 
+	
 	DataProcessorObject  = FormAttributeToValue("Object");
 	ObjectStructure = New Structure("UsedFileName", Undefined);
 	FillPropertyValues(ObjectStructure, DataProcessorObject);
 	
-	// 
+	
 	If Not ValueIsFilled(AdditionalDataProcessorRef)
 	   And ValueIsFilled(ObjectStructure.UsedFileName)
 	   And Not StrStartsWith(ObjectStructure.UsedFileName, "e1cib/")
@@ -370,7 +370,7 @@ Procedure ConfigureChangeParameters(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure Attachable_ValueOnChange(FormField)
@@ -486,7 +486,7 @@ Procedure SetConditionalAppearance()
 	Item.Appearance.SetParameterValue("Text", NoteOnAutonumbering);
 	Item.Appearance.SetParameterValue("TextColor", WebColors.Gray);
 	
-	// 
+	// Locked attribute.
 	
 	Item = ConditionalAppearance.Items.Add();
 
@@ -499,7 +499,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.RightValue = True;
 
 	//@skip-check new-color
-	Item.Appearance.SetParameterValue("TextColor", New Color(192, 192, 192)); // ACC:1346 - 
+	Item.Appearance.SetParameterValue("TextColor", New Color(192, 192, 192)); 
 	
 	// Notes for linked attributes
 	
@@ -632,7 +632,7 @@ Procedure ExecuteActionsOnContextOpen()
 	ObjectCount = Parameters.ObjectsArray.Count();
 	Title = SubstituteParametersToString(TitleTemplate1, TypePresentation, ObjectCount);
 	
-	// 
+	// Hiding all settings-related actions if there are no write permissions for settings.
 	Items.PreviouslyChangedAttributes.Visible = AccessRight("SaveUserData", Metadata);
 	
 	KindsOfObjectsToChange = StrConcat(ObjectsTypes.UnloadValues(), ",");
@@ -767,7 +767,7 @@ Procedure AskForAttributeUnlockConfirmation(SelectedAttribute)
 	Buttons = New ValueList;
 	Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Allow editing';"));
 	QueryText = SubstituteParametersToString(
-		NStr("en = 'To prevent data inconsistency, attribute %1 is locked .
+		NStr("en = 'To prevent data inconsistency, attribute %1 has been locked.
 			|
 			|Before you allow editing, view the occurrences of the selected items
 			|and consider possible data implications.
@@ -1025,14 +1025,14 @@ Procedure ChangeObjects1()
 	
 	CurrentChangeStatus.Insert("ItemsAvailableForProcessing", True);
 	
-	// Позиция последнего обработанного элемента. 1 - 
+	// Position of the last processed item, where 1 is the first item.
 	CurrentChangeStatus.Insert("CurrentPosition", 0);
 	
-	// 
+	
 	CurrentChangeStatus.Insert("PortionSize", ObjectsCountForProcessing);
 	
-	CurrentChangeStatus.Insert("ErrorsCount", 0);            // 
-	CurrentChangeStatus.Insert("ChangedCount", 0);        // 
+	CurrentChangeStatus.Insert("ErrorsCount", 0);            // Initialize the error counter.
+	CurrentChangeStatus.Insert("ChangedCount", 0);        // Initialize the changed item counter.
 	CurrentChangeStatus.Insert("ObjectsCountForProcessing",  ObjectsCountForProcessing);
 	CurrentChangeStatus.Insert("StopChangeOnError", Object.InterruptOnError);
 	CurrentChangeStatus.Insert("ShowProcessedItemsPercentage",   ShowProcessedItemsPercentage);
@@ -1054,7 +1054,7 @@ Async Procedure ChangeObjectsBatch()
 			ExternalProcessorFilePathAtClient, UUID);
 		
 		If TypeOf(Result) = Type("StoredFileDescription")
-		   And Not Result.FilePuttingCanceled Then
+		   And Not Result.PutFileCanceled Then
 			Object.ExternalDataProcessorBinaryDataAddress = Result.Address;
 		EndIf;
 		
@@ -1886,7 +1886,7 @@ Procedure GenerateNoteAboutAutonumbering()
 	
 	Autonumbering = Undefined;
 	For Each TypeName In StrSplit(KindsOfObjectsToChange, ",", False) Do
-		MetadataObject = Metadata.FindByFullName(TypeName); // 
+		MetadataObject = Metadata.FindByFullName(TypeName); // MetadataObjectCatalog, MetadataObjectDocument
 		
 		If Metadata.ExchangePlans.Contains(MetadataObject) 
 			Or Metadata.ChartsOfCalculationTypes.Contains(MetadataObject)
@@ -1943,13 +1943,13 @@ Function LockedAttributes()
 			Continue;
 		EndIf;
 		
-		//  
-		// 
+		 
+		
 		ObjectManager = ObjectManagerByFullName(ObjectsKind);
 		Try
 			AttributesToLockDetails = ObjectManager.GetObjectAttributesToLock();
 		Except
-			// 
+			// Method not found.
 			AttributesToLockDetails = Undefined;
 		EndTry;
 	
@@ -2716,7 +2716,7 @@ Function FilterAttributes()
 	Filter.ObjectType = "*";
 	Filter.Attribute = "ContactInformation.*";
 
-	// Справочники.
+	// Catalogs.
 	Filter = Result.Add();
 	Filter.ObjectType = "Catalogs";
 	Filter.Attribute = "PredefinedDataName";
@@ -2737,7 +2737,7 @@ Function FilterAttributes()
 	Filter.ObjectType = "Catalogs";
 	Filter.Attribute = "AddlOrderingAttribute";
 	
-	// Документы.
+	// Documents.
 	Filter = Result.Add();
 	Filter.ObjectType = "Documents";
 	Filter.Attribute = "Number";
@@ -2746,7 +2746,7 @@ Function FilterAttributes()
 	Filter.ObjectType = "Documents";
 	Filter.Attribute = "Posted";
 	
-	// 
+	// Charts of characteristic types.
 	Filter = Result.Add();
 	Filter.ObjectType = "ChartsOfCharacteristicTypes";
 	Filter.Attribute = "PredefinedDataName";
@@ -2767,7 +2767,7 @@ Function FilterAttributes()
 	Filter.ObjectType = "ChartsOfCharacteristicTypes";
 	Filter.Attribute = "ValueType";
 	
-	// 
+	// Charts of accounts.
 	Filter = Result.Add();
 	Filter.ObjectType = "ChartsOfAccounts";
 	Filter.Attribute = "PredefinedDataName";
@@ -2784,7 +2784,7 @@ Function FilterAttributes()
 	Filter.ObjectType = "ChartsOfAccounts";
 	Filter.Attribute = "Order";
 
-	// 
+	// Charts of calculation types.
 	Filter = Result.Add();
 	Filter.ObjectType = "ChartsOfCalculationTypes";
 	Filter.Attribute = "PredefinedDataName";
@@ -2801,12 +2801,12 @@ Function FilterAttributes()
 	Filter.ObjectType = "ChartsOfCalculationTypes";
 	Filter.Attribute = "ActionPeriodIsBasic";
 	
-	// Задачи.
+	// Tasks.
 	Filter = Result.Add();
 	Filter.ObjectType = "Tasks";
 	Filter.Attribute = "Number";
 	
-	// Бизнес-
+	// Business processes.
 	Filter = Result.Add();
 	Filter.ObjectType = "BusinessProcesses";
 	Filter.Attribute = "Number";
@@ -2815,7 +2815,7 @@ Function FilterAttributes()
 	Filter.ObjectType = "BusinessProcesses";
 	Filter.Attribute = "Date";
 	
-	// 
+	// Exchange plans.
 	Filter = Result.Add();
 	Filter.ObjectType = "ExchangePlans";
 	Filter.Attribute = "Code";
@@ -2944,11 +2944,11 @@ Procedure GenerateNoteOnConfiguredChanges()
 		Explanation = NStr("en = 'No items selected.';");
 	Else
 		If AttributesToChange.Count() = 1 Then
-			NoteTemplate = NStr("en = 'Change the %1 attribute for the selected items';") // 
+			NoteTemplate = NStr("en = 'Change the %1 attribute for the selected items';") 
 		ElsIf AttributesToChange.Count() > 3 Then
-			NoteTemplate = NStr("en = 'Change attributes (%1) for the selected items';"); // 
+			NoteTemplate = NStr("en = 'Change attributes (%1) for the selected items';"); 
 		ElsIf AttributesToChange.Count() > 1 Then
-			NoteTemplate = NStr("en = 'Change the %1 attributes for the selected items';"); // 
+			NoteTemplate = NStr("en = 'Change the %1 attributes for the selected items';"); 
 		Else	
 			NoteTemplate = "";
 		EndIf;
@@ -3145,7 +3145,7 @@ Procedure SetChangeSetting(Val Setting)
 	For Each AttributeToChange In Setting.Attributes Do
 		TheStructureOfTheSearch = New Structure;
 		TheStructureOfTheSearch.Insert("OperationKind", AttributeToChange.OperationKind);
-		If AttributeToChange.OperationKind = 1 Then // 
+		If AttributeToChange.OperationKind = 1 Then // Object attribute.
 			TheStructureOfTheSearch.Insert("Name", AttributeToChange.AttributeName);
 		Else
 			TheStructureOfTheSearch.Insert("Property", AttributeToChange.Property);
@@ -3380,13 +3380,13 @@ Procedure OnUnlockAttributes(UnlockedAttributes, AdditionalParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 // Saves a setting to the common settings storage.
 // 
 // Parameters:
 //   As for the CommonSettingsStorageSave.Save method, 
-//   see StorageSave() parameters. 
+//   see StorageSave() parameters.
 // 
 &AtServerNoContext
 Procedure CommonSettingsStorageSave(ObjectKey, SettingsKey, Value,
@@ -3408,7 +3408,7 @@ EndProcedure
 //
 // Parameters:
 //   As for the CommonSettingsStorage.Loadmethod,
-//   see StorageLoad() parameters. 
+//   see StorageLoad() parameters.
 //
 &AtServerNoContext
 Function CommonSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefined, 
@@ -3487,7 +3487,7 @@ EndFunction
 //                 for example, "Catalog.Companies".
 //
 // Returns:
-//  CatalogManager, DocumentManager, DataProcessorManager, InformationRegisterManager - 
+//  CatalogManager, DocumentManager, DataProcessorManager, InformationRegisterManager - an object manager.
 //
 &AtServerNoContext
 Function ObjectManagerByFullName(FullName)
@@ -3541,12 +3541,12 @@ Function ObjectManagerByFullName(FullName)
 		
 	ElsIf Upper(MOClass) = "CALCULATIONREGISTER" Then
 		If NameParts.Count() = 2 Then
-			// 
+			// Calculation register.
 			Manager = CalculationRegisters;
 		Else
 			SubordinateMOClass = NameParts[2];
 			If Upper(SubordinateMOClass) = "RECALCULATION" Then
-				// Перерасчет
+				// Recalculate.
 				Manager = CalculationRegisters[MetadataObjectName1].Recalculations;
 			Else
 				Raise SubstituteParametersToString(NStr("en = 'Unknown metadata object type: %1.';"), FullName);
@@ -3814,7 +3814,7 @@ EndFunction
 //  MetadataObject - MetadataObject - to use for identifying the base type.
 // 
 // Returns:
-//  String - 
+//  String - name of the base type for the passed metadata object value.
 //
 &AtServerNoContext
 Function BaseTypeNameByMetadataObject(MetadataObject)
@@ -4101,12 +4101,12 @@ EndFunction
 //              If a value is undefined, it repeats the key.
 //              
 //            - Array
-//            - FixedArray - 
-//              
+//            - FixedArray - attribute names formatted according to
+//              structure property requirements.
 //
 // Returns:
-//  Structure - 
-//              
+//  Structure - contains names (keys) and values of the requested attributes.
+//              If the string of the requested attributes is empty, an empty structure is returned.
 //
 &AtServerNoContext
 Function ObjectAttributesValues(Ref, Val Attributes)
@@ -4218,7 +4218,7 @@ Function CommonModule(Name)
 		Raise SubstituteParametersToString(NStr("en = 'Common module ""%1"" does not exist.';"), Name);
 	EndIf;
 #EndIf
-// ACC:488-
+// ACC:488-on
 	
 	Return Module;
 	
@@ -4463,7 +4463,7 @@ Function FormattedString(Val String)
 		
 		If RowPart.Check Then
 			//@skip-check new-font
-			RowArray.Add(New FormattedString(RowPart.Value, New Font(,,True))); // ACC:1345 - 
+			RowArray.Add(New FormattedString(RowPart.Value, New Font(,,True))); 
 		ElsIf Not IsBlankString(RowPart.Presentation) Then
 			RowArray.Add(New FormattedString(RowPart.Value,,,, RowPart.Presentation));
 		Else
@@ -4472,7 +4472,7 @@ Function FormattedString(Val String)
 		
 	EndDo;
 	
-	Return New FormattedString(RowArray); // ACC:1356 - 
+	Return New FormattedString(RowArray); // ACC:1356 Can use a compound format string as the string array consists of the passed text.
 	
 EndFunction
 
@@ -4485,10 +4485,10 @@ EndFunction
 //  Number           - Number - a number to be inserted instead of the "%1" parameter.
 //  Kind             - NumericValueType - defines a kind of the numeric value for which a presentation is formed. 
 //                             Cardinal (default) or Ordinal.
-//  FormatString - String - a string of formatting parameters. See similar example for StringWithNumber.  
+//  FormatString - String - a string of formatting parameters. See similar example for StringWithNumber. 
 //
 // Returns:
-//  String - 
+//  String - presentation of the number string in the requested format.
 //
 // Example:
 //  
@@ -4515,7 +4515,7 @@ EndFunction
 // Returns a flag that shows whether this is the base configuration.
 //
 // Returns:
-//   Boolean   - 
+//   Boolean   - True if this is the basic configuration.
 //
 &AtServerNoContext
 Function IsBaseConfigurationVersion()
@@ -4641,7 +4641,7 @@ Function ChoiceData(String, ChoiceList)
 			//@skip-check new-font
 			//@skip-check new-color
 			FormattedStrings.Add(New FormattedString(OccurenceSubstring,
-				New Font( , , True), New Color(0,128,0))); // ACC:1345 ACC:1346 - 
+				New Font( , , True), New Color(0,128,0))); 
 		EndDo;
 		
 		If Not ValueIsFilled(FormattedStrings) Then
@@ -4649,7 +4649,7 @@ Function ChoiceData(String, ChoiceList)
 		EndIf;
 		
 		FormattedStrings.Add(SearchString);
-		HighlightedString = New FormattedString(FormattedStrings); // ACC:1356 - Can use a compound format string as the string array consists of the passed text.
+		HighlightedString = New FormattedString(FormattedStrings); 
 		
 		Result.Add(Item.Value, HighlightedString);
 	EndDo;

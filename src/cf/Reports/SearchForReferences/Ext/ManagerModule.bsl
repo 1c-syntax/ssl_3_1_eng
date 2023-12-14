@@ -36,7 +36,7 @@ EndProcedure
 //   ReportsCommands - See ReportsOptionsOverridable.BeforeAddReportCommands.ReportsCommands
 //
 // Returns:
-//   ValueTableRow, Undefined - 
+//   ValueTableRow, Undefined - an added command or Undefined if there are no rights to view the report.
 //
 Function AddUsageInstanceCommand(ReportsCommands) Export
 	If Not AccessRight("View", Metadata.Reports.SearchForReferences) Then

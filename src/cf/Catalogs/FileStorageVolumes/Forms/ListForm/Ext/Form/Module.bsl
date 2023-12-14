@@ -125,12 +125,12 @@ Procedure PrepareSetClearDeletionMark(Volume, AdditionalParameters)
 	AdditionalParameters.DeletionMark = VolumeProperties.DeletionMark;
 	
 	If AdditionalParameters.DeletionMark Then
-		// Deletion mark is set, and it is to be cleared.
+		// Clear the deletion mark as it's required.
 		
 		Query = Catalogs.FileStorageVolumes.RequestToUseExternalResourcesForVolume(
 			Volume, VolumeProperties.FullPathWindows, VolumeProperties.FullPathLinux);
 	Else
-		// Deletion mark is not set, and it is to be set.
+		// Set a deletion mark as it's required.
 		If Common.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
 			ModuleSafeModeManager = Common.CommonModule("SafeModeManager");
 			Query = ModuleSafeModeManager.RequestToClearPermissionsToUseExternalResources(Volume)

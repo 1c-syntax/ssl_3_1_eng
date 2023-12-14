@@ -146,7 +146,7 @@ EndProcedure
 //                    of a metadata object in an extension.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if disabled.
 //
 Function ExtensionObjectDisabled(Id) Export
 	

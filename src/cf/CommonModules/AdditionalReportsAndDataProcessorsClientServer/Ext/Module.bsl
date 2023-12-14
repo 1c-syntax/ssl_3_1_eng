@@ -15,7 +15,7 @@
 // Print form.
 //
 // Returns:
-//   String - 
+//   String - a name of the additional print form kind.
 //
 Function DataProcessorKindPrintForm() Export
 	
@@ -26,7 +26,7 @@ EndFunction
 // Filling an object.
 //
 // Returns:
-//   String - 
+//   String - a name of the additional filling data processor kind.
 //
 Function DataProcessorKindObjectFilling() Export
 	
@@ -37,7 +37,7 @@ EndFunction
 // Create related objects.
 //
 // Returns:
-//   String - 
+//   String - a name of a kind of additional data processors for related object creation.
 //
 Function DataProcessorKindRelatedObjectCreation() Export
 	
@@ -48,7 +48,7 @@ EndFunction
 // Assignable report.
 //
 // Returns:
-//   String - 
+//   String - a name of the additional context report kind.
 //
 Function DataProcessorKindReport() Export
 	
@@ -59,7 +59,7 @@ EndFunction
 // Create related objects.
 //
 // Returns:
-//   String - 
+//   String - a name of the additional context report kind.
 //
 Function DataProcessorKindMessageTemplate() Export
 	
@@ -70,7 +70,7 @@ EndFunction
 // Additional data processor.
 //
 // Returns:
-//   String - 
+//   String - a name of the additional global data processor kind.
 //
 Function DataProcessorKindAdditionalDataProcessor() Export
 	
@@ -81,7 +81,7 @@ EndFunction
 // Additional report.
 //
 // Returns:
-//   String - 
+//   String - a name of the additional global report kind.
 //
 Function DataProcessorKindAdditionalReport() Export
 	
@@ -103,7 +103,7 @@ EndFunction
 //       //   CommandID - String    - a command name determined using function ExternalDataProcessorInfo().
 //       //   ExecutionParameters - Structure - command execution context.
 //       //       * AdditionalDataProcessorRef - CatalogRef.AdditionalReportsAndDataProcessors - a data processor reference.
-//       //           Can be used for reading data processor parameters. 
+//       //           Can be used for reading data processor parameters.
 //       //           See an example in the comment to function AdditionalReportsAndDataProcessorsClientServer.CommandTypeOpenForm().
 //       //       * ExecutionResult - Structure - a command execution result.
 //       //           Can be used for passing the result from server or from a background job to the initial point.
@@ -127,7 +127,7 @@ EndFunction
 //       //       The parameter is used for passing function PrintManagement.PrintFormInfo() in the parameters.
 //       //   PrintObjects - ValueList - a map between objects and names of spreadsheet document areas.
 //       //       The parameter is used for passing procedure PrintManagement.SetDocumentPrintArea() in the parameters.
-//       //   OutputParameters - Structure - additional parameters of generated spreadsheet documents. 
+//       //   OutputParameters - Structure - additional parameters of generated spreadsheet documents.
 //       //
 //       //       * AdditionalDataProcessorRef - CatalogRef.AdditionalReportsAndDataProcessors - a data processor reference.
 //       //           Can be used for reading data processor parameters.
@@ -159,7 +159,7 @@ EndFunction
 //       // Server command handler.
 //       //
 //       // Parameters:
-//       //   CommandID - String - a command name determined using function ExternalDataProcessorInfo(). 
+//       //   CommandID - String - a command name determined using function ExternalDataProcessorInfo().
 //       //   RelatedObjects - Array - references to the objects the command is called for.
 //       //   CreatedObjects - Array - references to the objects created while executing the command.
 //       //   ExecutionParameters - Structure - command execution context.
@@ -181,7 +181,7 @@ EndFunction
 //       EndProcedure
 //       For filling data processors (Kind = "ObjectFilling"):
 //       // Server command handler.
-//       // 
+//       //
 //       // Parameters:
 //       //   CommandID - String - a command name determined using function ExternalDataProcessorInfo().
 //       //   RelatedObjects - Array - references to the objects the command is called for.
@@ -203,7 +203,7 @@ EndFunction
 // EndProcedure
 //
 // Returns:
-//   String - 
+//   String - a name of the command type with a server method call.
 //
 Function CommandTypeServerMethodCall() Export
 	
@@ -241,10 +241,10 @@ EndFunction
 //   Additionally, (for all kinds) in the AdditionalDataProcessorRef form parameter, a reference to this object is passed
 //     (an AdditionalReportsAndDataProcessors catalog item matching the object).
 //     The reference can be used for running long-running operations in the background.
-//     For more information, see subsystem help, section "Running long-running operations in the background" (in Russian). 
+//     For more information, see subsystem help, section "Running long-running operations in the background" (in Russian).
 //
 // Returns:
-//   String - 
+//   String - a name of the command type with a client method call.
 //
 Function CommandTypeClientMethodCall() Export
 	
@@ -260,7 +260,7 @@ EndFunction
 //       AdditionalDataProcessorRef - CatalogRef.AdditionalReportsAndDataProcessors - a reference to the object.
 //           Can be used for reading and saving data processor parameters.
 //           It can also be used for running long-running operations in the background.
-//           For more information, see subsystem help, section "Running long-running operations in the background" (in Russian). 
+//           For more information, see subsystem help, section "Running long-running operations in the background" (in Russian).
 //       FormName - String - a name of the owner form the command is called from.
 //   
 //   Auxiliary parameters for data processors of related object creation (Kind = "RelatedObjectsCreation"),
@@ -287,7 +287,7 @@ EndFunction
 //       AdditionalDataProcessorObject.Write().
 //
 // Returns:
-//   String - 
+//   String - a name of a type of commands for opening a form.
 //
 Function CommandTypeOpenForm() Export
 	
@@ -308,7 +308,7 @@ EndFunction
 //       //   ExecutionParameters - Structure - command execution context.
 //       //       * ThisForm - ClientApplicationForm - a form.  The parameter is required for commands of FillingForm type.
 //       //       * AdditionalDataProcessorRef - CatalogRef.AdditionalReportsAndDataProcessors - a data processor reference.
-//       //           Can be used for reading data processor parameters. 
+//       //           Can be used for reading data processor parameters.
 //       //
 //       //           See an example in the comment to function AdditionalReportsAndDataProcessorsClientServer.CommandTypeOpenForm().
 //       	//
@@ -317,7 +317,7 @@ EndFunction
 // EndProcedure
 //
 // Returns:
-//   String - 
+//   String - a name of a type of commands for filling a form.
 //
 Function CommandTypeFormFilling() Export
 	
@@ -383,7 +383,7 @@ EndFunction
 // EndProcedure
 //
 // Returns:
-//   String - 
+//   String - a name of a type of commands for importing data from a file.
 //
 Function CommandTypeDataImportFromFile() Export
 	
@@ -397,7 +397,7 @@ EndFunction
 // List form ID.
 //
 // Returns:
-//   String - 
+//   String - an ID of list forms.
 //
 Function ListFormType() Export
 	
@@ -408,7 +408,7 @@ EndFunction
 // Object form ID.
 //
 // Returns:
-//   String - 
+//   String - an ID of object forms.
 //
 Function ObjectFormType() Export
 	
@@ -422,7 +422,7 @@ EndFunction
 // Filter for dialog boxes used to select or save additional reports or data processors.
 //
 // Returns:
-//   String - 
+//   String - filter for dialog boxes used to select or save additional reports or data processors.
 //
 Function SelectingAndSavingDialogFilter() Export
 	
@@ -435,7 +435,7 @@ EndFunction
 // Name of the section that matches the start page.
 //
 // Returns:
-//   String - 
+//   String - name of the section that matches the start page.
 //
 Function StartPageName() Export
 	
@@ -469,7 +469,7 @@ EndFunction
 //   Schedule - JobSchedule - scheduled job schedule.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True if the job schedule is set.
 //
 Function ScheduleSpecified(Schedule) Export
 	

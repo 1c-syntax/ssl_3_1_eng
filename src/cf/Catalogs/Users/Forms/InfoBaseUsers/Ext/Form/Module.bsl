@@ -385,7 +385,7 @@ Procedure FillIBUsers()
 		NewRow.OSUser               = PropertiesIBUser.OSUser;
 		
 		If String = Undefined Then
-			// 
+			// The infobase user is not in the catalog.
 			NewRow.AddedInDesigner = True;
 		Else
 			NewRow.Ref                           = String.Ref;

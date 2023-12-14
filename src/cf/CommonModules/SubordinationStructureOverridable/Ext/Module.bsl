@@ -48,9 +48,9 @@ EndProcedure
 // of the SubordinationStructureOverridable.OnDefineSettings procedure.
 //
 // Parameters:
-//  DataType - AnyRef - a reference type of the output object. See the RelatedDocuments filter criteria type property. 
+//  DataType - AnyRef - a reference type of the output object. See the RelatedDocuments filter criteria type property.
 //  Data    - QueryResultSelection
-//            - Structure - 
+//            - Structure - :
 //               * Ref - AnyRef - a reference of the object being output in the list of related documents.
 //               * AdditionalAttribute1 - Arbitrary - a value of the first attribute specified in array 
 //                 AttributesForPresentation of the Settings parameter in the OnDefineSettings procedure.
@@ -93,15 +93,15 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Use SubordinationStructureOverridable.OnDefineSettings.
-// See AttributesForPresentation property of the Settings parameter.
-// Generates an array of document attributes. 
+// Deprecated.
+// 
+//  
 // 
 // Parameters: 
 //  DocumentName - String - a document name.
 //
 // Returns:
-//   Array -  
+//   Array - an array of document attribute descriptions. 
 //
 Function ObjectAttributesArrayForPresentationGeneration(DocumentName) Export
 	
@@ -120,8 +120,8 @@ EndFunction
 //
 // Returns:
 //   - String
-//   - Undefined - 
-//                    
+//   - Undefined - an overridden document presentation or Undefined,
+//                    if it is not specified for this document type.
 //
 Function ObjectPresentationForReportOutput(Selection) Export
 	
@@ -129,20 +129,20 @@ Function ObjectPresentationForReportOutput(Selection) Export
 	
 EndFunction
 
-// Deprecated. Obsolete. Use SubordinationStructureOverridable.OnDefineSettings.
-// See the Attributes property of the Settings parameter.
-// Returns the name of the document attribute that contains information about Amount and Currency of the document for output to
-// the hierarchy.
-// The default attributes are Currency and DocumentAmount. If other
-// attributes are
-// used for a particular document or configuration, you can change default values using this function.
+// Deprecated.
+// 
+// 
+// 
+// 
+// 
+// 
 //
 // Parameters:
 //  DocumentName  - String - name of the document whose attribute name is required.
 //  Attribute      - String - a string, possible values are Currency and DocumentAmount.
 //
 // Returns:
-//   String   - 
+//   String   - a name of an attribute of the document that contains information about Currency or Amount.
 //
 Function DocumentAttributeName(DocumentName, Attribute) Export
 	

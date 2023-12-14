@@ -26,7 +26,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Not IsBlankString(MonitoringCenterID) Then
 		Id = MonitoringCenterID;
 	Else
-		// Идентификатора нет по какой-
+		// There is no ID for some reason, get it again.
 		Items.IDGroup.CurrentPage = Items.GetIDPage;
 	EndIf;
 	

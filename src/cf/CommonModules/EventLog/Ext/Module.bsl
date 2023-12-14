@@ -61,16 +61,16 @@ EndProcedure
 //                    - Date
 //                    - Boolean
 //                    - Undefined
-//                    - Type - 
-//                      
-//                      
+//                    - Type - data that the event is related to.
+//                      It is recommended to specify references to the data objects (catalog items, documents that the event
+//                      refers to).
 //   Comment      - String - the comment to the log event.
 //
 Procedure AddMessageForEventLog(Val EventName, Val Level,
 		Val MetadataObject = Undefined, Val Data = Undefined, Val Comment = "") Export
 		
 	If IsBlankString(EventName) Then
-		EventName = "Event"; // 
+		EventName = "Event"; // not localized to prevent startup from stopping in a partially translated configuration
 	EndIf;
 
 	WriteLogEvent(EventName, Level, MetadataObject, Data, Comment, EventLogEntryTransactionMode.Independent);
@@ -96,7 +96,7 @@ EndProcedure
 //     StorageAddress - String
 //                    - UUID - 
 //
-// 
+// :
 //     
 //
 Procedure ReadEventLogEvents(ReportParameters, StorageAddress) Export
@@ -157,11 +157,11 @@ Procedure ReadEventLogEvents(ReportParameters, StorageAddress) Export
 	For Each LogEvent In LogEvents Do
 		LogEvent.Date = LogEvent.DateAtServer - ServerTimeOffset;
 		
-		// 
+		// Filling numbers of row pictures.
 		OwnerManager.SetPictureNumber(LogEvent);
 		
 		If AddAdditionalColumns Then
-			// 
+			// Filling additional fields that are defined for the owner only.
 			OwnerManager.FillInAdditionalEventColumns(LogEvent);
 		EndIf;
 		
@@ -405,17 +405,85 @@ EndProcedure
 // Determines the server time offset relative to the application time.
 //
 // Returns:
-//   Number - 
-//       
-//       
+//   Number - time offset, in seconds.
+//       Can be used to convert log filters to the server date
+//       and also to convert dates obtained from the log to the application dates.
 //
 Function ServerTimeOffset() Export
 	
-	ServerTimeOffset = CurrentDate() - CurrentSessionDate(); // 
+	ServerTimeOffset = CurrentDate() - CurrentSessionDate(); 
 	If ServerTimeOffset >= -1 And ServerTimeOffset <= 1 Then
 		ServerTimeOffset = 0;
 	EndIf;
 	Return ServerTimeOffset;
+	
+EndFunction
+
+// 
+// 
+// 
+// 
+// Parameters:
+//  EventLogFilter - Structure:
+//   * StartDate - Date
+//   * EndDate - Date
+//   * Level - EventLogLevel
+//   * ApplicationName - String
+//                   - Array of String
+//                   - ValueList
+//   * User - InfoBaseUser
+//                  - String
+//                  - Array of InfoBaseUser
+//                  - ValueList
+//   * Computer - String
+//               - Array of String
+//                - ValueList
+//   * Event - String
+//             - ValueList
+//             - Array of String - 
+//   * Metadata - MetadataObject 
+//                - Array of MetadataObject
+//                - ValueList
+//   * Data - AnyRef
+//   * DataPresentation - String
+//   * Comment - String
+//   * TransactionStatus - EventLogEntryTransactionStatus
+//   * Transaction - String 
+//   * Session - Number
+//           - Array of Number
+//           - ValueList
+//   * ServerName - String
+//                   - Array of String
+//                   - ValueList
+//   * PrimaryIPPort - Number
+//                    - Array of Number
+//                    - ValueList
+//   * SyncPort - Number
+//                    - Array of Number
+//                    - ValueList
+//   * SessionDataSeparation - ValueList -  
+//                            - Structure
+//  EventCount1 - Number
+//  UUID - UUID - 
+// 
+// Returns:
+//  String 
+//
+Function TechnicalSupportLog(EventLogFilter, EventCount1, UUID = Undefined) Export
+	
+	Filter = New Structure;
+	For Each FilterElement In EventLogFilter Do
+		Filter.Insert(FilterElement.Key, FilterElement.Value);
+	EndDo;
+	ServerTimeOffset = ServerTimeOffset();
+	FilterTransformation(Filter, ServerTimeOffset);
+	
+	TempFile = GetTempFileName("xml");
+	UnloadEventLog(TempFile, Filter, , , EventCount1);
+	BinaryData = New BinaryData(TempFile);
+	DeleteFiles(TempFile);
+	
+	Return PutToTempStorage(BinaryData, UUID);
 	
 EndFunction
 
@@ -454,8 +522,8 @@ EndProcedure
 Procedure FilterItemTransform(Filter, FilterElement)
 	
 	FilterStructureKey = FilterElement.Key;
-	// 
-	// 
+	
+	
 	If Upper(FilterStructureKey) = Upper("SessionDataSeparation") Then
 		NewValue = New Structure;
 	Else
@@ -466,10 +534,10 @@ Procedure FilterItemTransform(Filter, FilterElement)
 	
 	For Each ValueFromList In FilterElement.Value Do
 		If Upper(FilterStructureKey) = Upper("Level") Then
-			// 
+			// Message text level is a string, it must be converted into an enumeration.
 			NewValue.Add(DataProcessors.EventLog.EventLogLevelValueByName(ValueFromList.Value));
 		ElsIf Upper(FilterStructureKey) = Upper("TransactionStatus") Then
-			// 
+			// Transaction status is a string, it must be converted into an enumeration.
 			NewValue.Add(DataProcessors.EventLog.EventLogEntryTransactionStatusValueByName(ValueFromList.Value));
 		ElsIf Upper(FilterStructureKey) = Upper("SessionDataSeparation") Then
 			SeparatorValueArray = New Array;
@@ -587,25 +655,6 @@ Procedure AddRestrictionToFilterPresentation(EventLogFilter, FilterPresentation,
 	FilterPresentation = FilterPresentation + Restriction;
 	
 EndProcedure
-
-Function TechnicalSupportLog(EventLogFilter, EventCount1, UUID = Undefined) Export
-	
-	Filter = New Structure;
-	For Each FilterElement In EventLogFilter Do
-		Filter.Insert(FilterElement.Key, FilterElement.Value);
-	EndDo;
-	ServerTimeOffset = ServerTimeOffset();
-	FilterTransformation(Filter, ServerTimeOffset);
-	
-	// Exporting the selected events and generating the table structure.
-	TempFile = GetTempFileName("xml");
-	UnloadEventLog(TempFile, Filter, , , EventCount1);
-	BinaryData = New BinaryData(TempFile);
-	DeleteFiles(TempFile);
-	
-	Return PutToTempStorage(BinaryData, UUID);
-	
-EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
 // Auxiliary procedures and functions.

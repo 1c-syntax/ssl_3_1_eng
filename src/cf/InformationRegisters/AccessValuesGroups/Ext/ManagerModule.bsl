@@ -46,8 +46,8 @@
 //  Authorization object - for example, CatalogRef.Individuals.
 //
 // Parameters:
-//  Parameters     - Undefined - update all without filter.
-//                  see options above.
+//  Parameters     - Undefined - 
+//                  
 //
 //  HasChanges - Boolean - (return value) - if recorded,
 //                  True is set, otherwise, it does not change.
@@ -175,11 +175,11 @@ EndProcedure
 // Parameters:
 //  AccessValues - CatalogObject
 //                  - CatalogRef
-//                  - Array - 
-//                  - Undefined - 
-//                    
-//                    
-//                    
+//                  - Array - array of values of the types specified above.
+//                  - Undefined - without filter.
+//                    Value type must be included in the AccessValue dimension types
+//                    of the AccessValuesGroups information register.
+//                    If Object is passed, the update is performed only when it is changed.
 //
 //  HasChanges   - Boolean - (return value) - if recorded,
 //                    True is set, otherwise, it does not change.
@@ -204,7 +204,7 @@ Procedure UpdateAccessValuesGroups(AccessValues = Undefined,
 		For Each TableName In AccessValuesWithGroups.NamesOfTablesToUpdate Do
 			
 			Query.Text = StrReplace(QueryText, "&CurrentTable", TableName);
-			// 
+			
 			Selection = Query.Execute().Select();
 			
 			ObjectManager = Common.ObjectManagerByFullName(TableName);
@@ -252,7 +252,7 @@ EndProcedure
 
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
-	// 
+	// Data registration is not required.
 	Return;
 	
 EndProcedure
@@ -287,12 +287,12 @@ Procedure DeleteUnusedRecords(HasChanges = Undefined)
 		String.ValuesGroupsType = KeyAndValue.Value;
 	EndDo;
 	
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
+	
+	
 	
 	
 	Query = New Query;
@@ -985,8 +985,8 @@ Procedure UpdatePerformersGroups(PerformersGroups = Undefined,
 	
 	SetPrivilegedMode(True);
 	
-	// 
-	// 
+	
+	
 	
 	Query = New Query;
 	Query.TempTablesManager = New TempTablesManager;
@@ -1031,7 +1031,7 @@ Procedure UpdatePerformersGroups(PerformersGroups = Undefined,
 		Return;
 	EndIf;
 	
-	// 
+	// Preparing selected links of assignees and assignee groups.
 	Query.SetParameter("EmptyValueGroupsReferences",
 		AccessManagementInternalCached.BlankSpecifiedTypesRefsTable(
 			"InformationRegister.AccessValuesGroups.Dimension.AccessValuesGroup").Get());
@@ -1091,8 +1091,8 @@ Procedure UpdatePerformersGroups(PerformersGroups = Undefined,
 	If PerformersGroups = Undefined
 	   And Assignees <> Undefined Then
 		
-		// 
-		// 
+		
+		
 		QueryText =
 		"SELECT
 		|	AssigneeGroupsUsers.PerformersGroup
@@ -1105,7 +1105,7 @@ Procedure UpdatePerformersGroups(PerformersGroups = Undefined,
 		|	ExternalPerformerGroupUsers.PerformersGroup
 		|FROM
 		|	ExternalPerformerGroupUsers AS ExternalPerformerGroupUsers";
-		// ACC:96-
+		// ACC:96-on
 		
 		Query.Text = TemporaryTablesQueriesText + "
 		|;

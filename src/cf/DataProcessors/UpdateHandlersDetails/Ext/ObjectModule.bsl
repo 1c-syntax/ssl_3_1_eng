@@ -145,7 +145,7 @@ EndProcedure
 // and updates the data on whether handler execution priorities are specified.
 //
 // Returns:
-//   ValueTable - 
+//   ValueTable - new data of the UpdateHandlers tabular section
 //
 Function UpdateHandlersConflictsInfo() Export
 	
@@ -226,7 +226,7 @@ EndFunction
 //   RaiseException - Boolean - throw an exception if errors occurred
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True if no errors occurred when building the queue
 //
 Function BuildQueue(RaiseException = False) Export
 	
@@ -878,6 +878,38 @@ Function ConflictsDataUpdateQueryText()
 	|		AND Editable1.Order <> VALUE(Enum.OrderOfUpdateHandlers.Crucial))
 	|	OR (ItemsToRead.Order = VALUE(Enum.OrderOfUpdateHandlers.Normal)
 	|		AND Editable1.Order = VALUE(Enum.OrderOfUpdateHandlers.Noncritical))
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT DISTINCT
+	|	LowPriorityReading.Reader AS Reader,
+	|	LowPriorityReading.MetadataObject AS MetadataObject,
+	|	LowPriorityReading.OrderReader AS OrderReader,
+	|	LowPriorityReading.OrderWriter AS OrderWriter,
+	|	LowPriorityReading.OrderReader.Order AS NumberOrderReader,
+	|	LowPriorityReading.OrderWriter.Order AS NumberOrderWriter,
+	|	Priorities.Order AS PrioritiesOrder,
+	|	LowPriorityReading.Writer AS Writer,
+	|	HandlersReaders.ObjectName AS ReaderObject,
+	|	WriteHandlers.ObjectName AS ObjectWriter,
+	|	LowPriorityReading.ReaderProcedure AS ReaderProcedure,
+	|	LowPriorityReading.WriteProcedure AS WriteProcedure
+	|INTO TTTTLowOrderReadingWithPriorityFilter
+	|FROM 
+	|	TTLowPriorityReading AS LowPriorityReading
+	|	LEFT JOIN NewPriorities AS Priorities
+	|	ON LowPriorityReading.Reader = Priorities.HandlerWriter
+	|	AND LowPriorityReading.Writer = Priorities.ReadOrWriteHandler2
+	|
+	|	LEFT JOIN Handlers AS HandlersReaders
+	|	ON LowPriorityReading.Reader = HandlersReaders.Ref
+	|
+	|	LEFT JOIN Handlers AS WriteHandlers
+	|	ON LowPriorityReading.Writer = WriteHandlers.Ref
+	|WHERE
+	|	NOT (HandlersReaders.ObjectName = WriteHandlers.ObjectName
+	|		AND LowPriorityReading.OrderReader.Order < LowPriorityReading.OrderWriter.Order
+	|		AND Priorities.Order = ""Before"")
 	|";
 	#EndRegion
 	
@@ -910,7 +942,7 @@ Function ConflictsDataUpdateQueryText()
 	|		TRUE AS ExecutionOrderSpecified,
 	|		TRUE AS LowPriorityReading
 	|	FROM 
-	|		TTLowPriorityReading AS LowPriorityReading) AS Issues
+	|		TTTTLowOrderReadingWithPriorityFilter AS LowPriorityReading) AS Issues
 	|
 	|GROUP BY
 	|	Issues.Handler
@@ -926,11 +958,17 @@ Function ConflictsDataUpdateQueryText()
 	|	LowPriorityReading.MetadataObject AS MetadataObject,
 	|	LowPriorityReading.OrderReader AS OrderReader,
 	|	LowPriorityReading.OrderWriter AS OrderWriter,
+	|	LowPriorityReading.OrderReader.Order AS NumberOrderReader,
+	|	LowPriorityReading.OrderWriter.Order AS NumberOrderWriter,
+	|	LowPriorityReading.PrioritiesOrder AS PrioritiesOrder,
 	|	LowPriorityReading.Writer AS Writer,
+	|	LowPriorityReading.ReaderObject AS ReaderObject,
+	|	LowPriorityReading.ObjectWriter AS ObjectWriter,
 	|	LowPriorityReading.ReaderProcedure AS ReaderProcedure,
 	|	LowPriorityReading.WriteProcedure AS WriteProcedure
 	|	
-	|FROM TTLowPriorityReading AS LowPriorityReading
+	|FROM 
+	|	TTTTLowOrderReadingWithPriorityFilter AS LowPriorityReading
 	|";
 	#EndRegion
 	
@@ -1011,7 +1049,7 @@ Function ConflictsDataUpdateQueryText()
 	|	Procedure1,
 	|	Procedure2";
 	#EndRegion
-	
+
 	#Region TextDescription
 	TextDescription = 
 	"SELECT
@@ -1700,7 +1738,7 @@ Procedure UpdateTempTable(TempTableManager, TableName, NewTable, IndexingFields 
 	
 	FieldArray = New Array;
 	For Each Column In NewTable.Columns Do
-		FieldArray.Add(StringFunctionsClientServer.SubstituteParametersToString(" T.%1 AS %1", Column.Name));
+		FieldArray.Add(StringFunctionsClientServer.SubstituteParametersToString("	T.%1 AS %1", Column.Name));
 	EndDo;
 	
 	TableFieldText = StrConcat(FieldArray, "," + Chars.LF);
@@ -1780,7 +1818,7 @@ EndProcedure
 // Checks whether the execution cycle is available for all handlers by priority data.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True if the execution cycle is available
 //
 Function HasHandlersExecutionCycle(TheHandlerBeingChecked = Undefined, Val HandlerPriorities = Undefined, ReportErrors = False)
 
@@ -2143,7 +2181,7 @@ Procedure SetQueueNumber(UpdateIterations)
 		
 		Filter = New Structure("ExecutionMode", "Deferred");
 		Filter.Insert("DeferredProcessingQueue", 0);
-		DeferredHandlers = Library.Handlers.FindRows(Filter); // See InfobaseUpdate.НоваяТаблицаОбработчиковОбновления()
+		DeferredHandlers = Library.Handlers.FindRows(Filter); // See InfobaseUpdate.NewUpdateHandlerTable()
 		For Each Handler In DeferredHandlers Do
 			Filter = New Structure;
 			Filter.Insert("Version", Handler.Version);
@@ -2153,9 +2191,9 @@ Procedure SetQueueNumber(UpdateIterations)
 			For Each LongDesc In FoundADescriptionOf Do
 				Handler.DeferredProcessingQueue = LongDesc.NewQueue;
 			EndDo;
-		EndDo;// 
+		EndDo;
 		
-	EndDo;// 
+	EndDo;
 	
 EndProcedure
 
@@ -2164,8 +2202,8 @@ EndProcedure
 // if StartTime = 0, transforms the date to the time format and returns the TimeStructure parameter if required.
 //
 // Parameters:
-//   EndTime - Date - end time.
-//   BeginTime - Date - start time.
+//   EndTime - Date -  end time.
+//   BeginTime - Date -  start time.
 //   TimeStructure - Structure - separate components:
 //    * Hours1 - Number
 //    * Minutes1 - Number
@@ -2197,7 +2235,7 @@ EndFunction
 //   Version - String - a version number in the Х.Х.ХХ.ХХХ format 
 //
 // Returns:
-//   Number - 
+//   Number - a version number converted into an integer
 //
 Function VersionAsNumber(Version) Export
 	
@@ -2227,13 +2265,13 @@ EndFunction
 // Returns the list of subsystems to be developed in the configuration 
 //
 // Returns:
-//   Array of String - 
+//   Array of String - subsystem names as they were set in the InfobaseUpdateXXX common modules
 //
 Function SubsystemsToDevelop() Export
 	
 	Result = New Array;
 	InfobaseUpdateOverridable.WhenFormingAListOfSubsystemsUnderDevelopment(Result);
-	InfobaseUpdateOverridable.OnGenerateListOfSubsystemsToDevelop(Result); // 
+	InfobaseUpdateOverridable.OnGenerateListOfSubsystemsToDevelop(Result); // ACC:222 For backward compatibility.
 	Return Result;
 	
 EndFunction

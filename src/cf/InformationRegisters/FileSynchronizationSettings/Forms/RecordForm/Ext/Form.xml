@@ -485,5 +485,15 @@ Alternatively, you can set the file synchronization files.</v8:content>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Parameter>
+		<Parameter name="FileOwner">
+			<Type>
+				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+			</Type>
+		</Parameter>
+		<Parameter name="FileOwnerType">
+			<Type>
+				<v8:Type>cfg:CatalogRef.MetadataObjectIDs</v8:Type>
+			</Type>
+		</Parameter>
 	</Parameters>
 </Form>

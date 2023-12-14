@@ -63,7 +63,7 @@ Procedure AfterRecurringReceiptOfClientDataOnServer(Results) Export
 	EndIf;
 	If Result.Get("DumpsSendingRequest") = True Then
 		DumpsInformation = Result.Get("DumpsInformation");
-		// 
+		
 		If DumpsInformation <> ApplicationParametersMonitoringCenter["DumpsInformation"] Then
 			NotifyRequestForSendingDumps();
 			SetApplicationParametersMonitoringCenter("DumpsInformation", DumpsInformation);

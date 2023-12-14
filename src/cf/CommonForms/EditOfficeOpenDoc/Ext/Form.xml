@@ -23,7 +23,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Group1</v8:content>
+					<v8:content>Main group</v8:content>
 				</v8:item>
 			</Title>
 			<Group>AlwaysHorizontal</Group>
@@ -36,7 +36,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Group1</v8:content>
+							<v8:content>Instructions group</v8:content>
 						</v8:item>
 					</Title>
 					<Group>AlwaysHorizontal</Group>
@@ -60,7 +60,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Group1</v8:content>
+							<v8:content>Editor group</v8:content>
 						</v8:item>
 					</Title>
 					<Group>Vertical</Group>
@@ -73,7 +73,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Group1</v8:content>
+									<v8:content>Editor instruction</v8:content>
 								</v8:item>
 							</Title>
 							<Group>AlwaysHorizontal</Group>
@@ -86,7 +86,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Group1</v8:content>
+											<v8:content>Template actions</v8:content>
 										</v8:item>
 									</Title>
 									<HorizontalStretch>false</HorizontalStretch>
@@ -146,7 +146,7 @@
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Group8</v8:content>
+															<v8:content>Translation</v8:content>
 														</v8:item>
 													</Title>
 													<ExtendedTooltip name="LangsToAddExtendedTooltip" id="129"/>
@@ -179,7 +179,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Group1</v8:content>
+											<v8:content>Formatting bar</v8:content>
 										</v8:item>
 									</Title>
 									<CommandSource>Item.AvailableFields</CommandSource>
@@ -206,7 +206,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Group1</v8:content>
+													<v8:content>Import export</v8:content>
 												</v8:item>
 											</Title>
 											<ExtendedTooltip name="ImportExportExtendedTooltip" id="127"/>
@@ -231,7 +231,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Group1</v8:content>
+											<v8:content>Group Help</v8:content>
 										</v8:item>
 									</Title>
 									<Width>3</Width>
@@ -493,7 +493,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Group1</v8:content>
+											<v8:content>HTML pages</v8:content>
 										</v8:item>
 									</Title>
 									<PagesRepresentation>None</PagesRepresentation>
@@ -503,7 +503,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Group1</v8:content>
+													<v8:content>Page for thin client</v8:content>
 												</v8:item>
 											</Title>
 											<ExtendedTooltip name="PageThinClientExtendedTooltip" id="59"/>
@@ -512,7 +512,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Group1</v8:content>
+													<v8:content>Page for web client</v8:content>
 												</v8:item>
 											</Title>
 											<ExtendedTooltip name="PageWebClientExtendedTooltip" id="61"/>

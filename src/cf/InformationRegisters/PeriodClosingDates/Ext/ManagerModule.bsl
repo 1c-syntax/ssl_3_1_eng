@@ -20,7 +20,7 @@
 //
 Procedure OnFillAccessRestriction(Restriction) Export
 	
-	// ACC:336-
+	
 	Restriction.Text =
 	"AllowRead
 	|WHERE
@@ -59,7 +59,7 @@ Procedure OnFillAccessRestriction(Restriction) Export
 	|	AND User <> UNDEFINED
 	|	AND User <> VALUE(Enum.PeriodClosingDatesPurposeTypes.EmptyRef)
 	|	AND User <> VALUE(Enum.PeriodClosingDatesPurposeTypes.ForAllUsers)";
-	// 
+	// ACC:336-on
 	
 EndProcedure
 

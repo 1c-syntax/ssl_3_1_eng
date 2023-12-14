@@ -23,9 +23,15 @@ Procedure BeforeWrite(Cancel)
 		
 	EndIf;
 	
-	If UseScheduledJob And IsAutoDisabled Then
+	DataSeparationEnabled = Common.DataSeparationEnabled();
+	
+	If DataSeparationEnabled 
+		And UseScheduledJob 
+		And IsAutoDisabled Then
 		
 		IsAutoDisabled = False;
+		
+		DataExchangeInternalPublication.DeleteTasksAccordingToScriptWithError(Ref);
 		
 	EndIf;
 	
@@ -44,8 +50,8 @@ Procedure OnWrite(Cancel)
 		
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	RefreshReusableValues();
 	
 EndProcedure

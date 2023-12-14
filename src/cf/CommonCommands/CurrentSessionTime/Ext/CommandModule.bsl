@@ -24,7 +24,7 @@ Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 				|%4.';"),
 			Format(CommonClient.SessionDate(), "DLF=T"),
 			Format(AdditionalInformation.ServerDate, "DLF=T"),
-			Format(CurrentDate(), "DLF=T"), // 
+			Format(CurrentDate(), "DLF=T"), 
 			AdditionalInformation.TimeZonePresentation));
 	
 EndProcedure
@@ -37,7 +37,7 @@ EndProcedure
 Function AdditionalInformation()
 	Result = New Structure;
 	Result.Insert("TimeZonePresentation", TimeZonePresentation(SessionTimeZone()));
-	Result.Insert("ServerDate", CurrentDate()); // 
+	Result.Insert("ServerDate", CurrentDate()); 
 	Return Result;
 EndFunction
 

@@ -1122,9 +1122,9 @@ EndProcedure
 &AtClient
 Procedure AfterGroupProcessingOfWarnings(Result, AdditionalParameters) Export
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	UpdateTheFormList();
 	
 EndProcedure

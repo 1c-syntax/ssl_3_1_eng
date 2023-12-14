@@ -23,7 +23,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.StartDate.Format = ?(UseDateAndTimeInTaskDeadlines, "DLF=DT", "DLF=D");
 	Items.Date.Format = ?(UseDateAndTimeInTaskDeadlines, "DLF=DT", "DLF=D");
 	
-	// 
+	// Setting dynamic list filter.
 	CommonClientServer.SetDynamicListFilterItem(
 		List, "DeletionMark", False, DataCompositionComparisonType.Equal, , ,
 		DataCompositionSettingsItemViewMode.Normal);
@@ -142,7 +142,7 @@ Procedure SetConditionalAppearance()
 
 	Item = ConditionalAppearance.Items.Add();
 
-	// 
+	
 	TaskListColumns = New Array();  // Array of FormField
 	SelectAllSubordinateItems(Items.ColumnsGroup, TaskListColumns);
 	For Each FormItem In TaskListColumns Do
@@ -203,8 +203,8 @@ EndProcedure
 Procedure RefreshTasksListOnServer()
 	
 	BusinessProcessesAndTasksServer.SetMyTasksListParameters(List);
-	// 
-	// 
+	
+	
 	SetConditionalAppearance();
 	Items.List.Refresh();
 	

@@ -207,18 +207,18 @@
 											<Group>HorizontalIfPossible</Group>
 											<ExtendedTooltip name="FillClientServerModeInfobaseParametersExtendedTooltip" id="59"/>
 											<ChildItems>
-												<UsualGroup name="VerticalGroup1" id="75">
+												<UsualGroup name="MainParametersOfServerDatabase" id="75">
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Vertical group 1</v8:content>
+															<v8:content>Main server infobase parameters</v8:content>
 														</v8:item>
 													</Title>
 													<Group>Vertical</Group>
 													<Behavior>Usual</Behavior>
 													<Representation>None</Representation>
 													<ShowTitle>false</ShowTitle>
-													<ExtendedTooltip name="VerticalGroup1ExtendedTooltip" id="76"/>
+													<ExtendedTooltip name="MainParametersOfServerDatabaseExtendedTooltip" id="76"/>
 													<ChildItems>
 														<InputField name="Server" id="9">
 															<DataPath>Server</DataPath>
@@ -309,18 +309,18 @@
 														</CheckBoxField>
 													</ChildItems>
 												</UsualGroup>
-												<UsualGroup name="VerticalGroup2" id="77">
+												<UsualGroup name="AdditionalServerDatabaseParameters" id="77">
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Vertical group 2</v8:content>
+															<v8:content>Additional server infobase parameters</v8:content>
 														</v8:item>
 													</Title>
 													<Group>Vertical</Group>
 													<Behavior>Usual</Behavior>
 													<Representation>None</Representation>
 													<ShowTitle>false</ShowTitle>
-													<ExtendedTooltip name="VerticalGroup2ExtendedTooltip" id="78"/>
+													<ExtendedTooltip name="AdditionalServerDatabaseParametersExtendedTooltip" id="78"/>
 													<ChildItems>
 														<InputField name="DBMSType" id="15">
 															<DataPath>DBMSType</DataPath>
@@ -388,8 +388,8 @@
 																<Event name="OnChange">DBMSTypeOnChange</Event>
 															</Events>
 														</InputField>
-														<InputField name="DatabaseServer" id="17">
-															<DataPath>DatabaseServer</DataPath>
+														<InputField name="DataBaseServer" id="17">
+															<DataPath>DataBaseServer</DataPath>
 															<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
 															<Wrap>false</Wrap>
 															<ContextMenu name="DataBaseServerContextMenu" id="18"/>
@@ -676,7 +676,7 @@
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="DatabaseServer" id="7">
+		<Attribute name="DataBaseServer" id="7">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>

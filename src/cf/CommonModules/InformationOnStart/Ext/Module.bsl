@@ -32,15 +32,15 @@ Function Refresh(Settings = Undefined) Export
 			If Common.SeparatedDataUsageAvailable() Then
 				Default.SharedData       = False;
 				Default.SeparatedData = True;
-			Else // 
+			Else // Shared session.
 				Default.SharedData       = True;
 				Default.SeparatedData = False;
 			EndIf;
 		Else
-			If Common.IsStandaloneWorkplace() Then // АРМ.
+			If Common.IsStandaloneWorkplace() Then // SWP.
 				Default.SharedData       = False;
 				Default.SeparatedData = True;
-			Else // Коробка.
+			Else // Box.
 				Default.SharedData       = True;
 				Default.SeparatedData = True;
 			EndIf;
@@ -141,7 +141,7 @@ Procedure UpdateFirstShowCache(TemplatesMedia)
 		Record.Content = New ValueStorage(PackageKit);
 	EndDo;
 	
-	// 
+	// Metadata is recorded to the register under number 0.
 	Record = RecordSet.Add();
 	Record.Number  = 0;
 	Record.Content = New ValueStorage(PagesPackages);
@@ -156,12 +156,12 @@ Function GlobalSettings()
 	Settings = New Structure;
 	Settings.Insert("Show", True);
 	
-	// 
+	
 	Settings.Show = (Metadata.DataProcessors.InformationOnStart.Templates.Count() > 0)
 		And (StandardSubsystemsServer.IsBaseConfigurationVersion() Or ShowAtStartup());
 	
 	If Settings.Show Then
-		// 
+		
 		If Common.SubsystemExists("StandardSubsystems.IBVersionUpdate") Then
 			ModuleUpdatingInfobaseInternal = Common.CommonModule("InfobaseUpdateInternal");
 			If ModuleUpdatingInfobaseInternal.ShowChangeHistory1() Then
@@ -171,7 +171,7 @@ Function GlobalSettings()
 	EndIf;
 	
 	If Settings.Show Then
-		// 
+		
 		If Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 			ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
 			If ModuleDataExchangeServer.OpenDataExchangeCreationWizardForSubordinateNodeSetup() Then
@@ -282,7 +282,7 @@ Function PagesPackages(TemplatesMedia) Export
 		TableRow.ShowFrom              = CellData(SpreadsheetDocument, RowPrefix, 5, "Date", '00010101');
 		TableRow.ShowTill           = CellData(SpreadsheetDocument, RowPrefix, 6, "Date", '29990101');
 		
-		If Lower(TableRow.Section) = Lower(NStr("en = 'Ads';")) Then // 
+		If Lower(TableRow.Section) = Lower(NStr("en = 'Ads';")) Then // ACC:1391 Localizable section.
 			TableRow.Priority = 0;
 		Else
 			TableRow.Priority = CellData(SpreadsheetDocument, RowPrefix, 7, "Number", 0);
@@ -415,8 +415,8 @@ Function ExtractPackageFiles(TemplatesMedia, TemplateName) Export
 	While Left > 0 Do
 		Left = Left - 1;
 		Directory = FilesDirectories[0];
-		DirectoryFullPath        = Directory.Value; // 
-		DirectoryRelativePath = Directory.Presentation; // 
+		DirectoryFullPath        = Directory.Value; 
+		DirectoryRelativePath = Directory.Presentation; 
 		FilesDirectories.Delete(0);
 		
 		FoundItems = FindFiles(DirectoryFullPath, "*", False);
@@ -430,7 +430,7 @@ Function ExtractPackageFiles(TemplatesMedia, TemplateName) Export
 				Continue;
 			EndIf;
 			
-			// 
+			// Clear the ReadOnly flag to avoid mistakes during the deletion.
 			File.SetReadOnly(False);
 			
 			Extension = StrReplace(Lower(File.Extension), ".", "");
@@ -451,7 +451,7 @@ Function ExtractPackageFiles(TemplatesMedia, TemplateName) Export
 		EndDo;
 	EndDo;
 	
-	// 
+	// Delete temporary files (all files were moved to the temporary storage).
 	FileSystem.DeleteTemporaryDirectory(TempFilesDir);
 	
 	Result = New Structure;

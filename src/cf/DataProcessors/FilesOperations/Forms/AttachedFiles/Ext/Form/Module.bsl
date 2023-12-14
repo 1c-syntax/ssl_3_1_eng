@@ -204,7 +204,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 			Return;
 		EndIf;
 		
-		If Parameter.Property("IsNew") And Parameter.IsNew Then
+		If Parameter.IsNew = True Then
 			
 			Items.List.CurrentRow = FileRef;
 			SetFileCommandsAvailability();
@@ -399,8 +399,10 @@ Procedure ListDrag(Item, DragParameters, StandardProcessing, String, Field)
 			TransferOrCopyAttachedFiles(FileNamesArray, Parameters.FileOwner, Action);
 			
 			NotifyChanged(Parameters.FileOwner);
-			Notify("Write_File", New Structure("IsNew, FileOwner", True, Parameters.FileOwner),
-				FileNamesArray);
+			FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
+			FileRecordingNotificationParameters.IsNew = True;
+			FileRecordingNotificationParameters.Owner = Parameters.FileOwner;
+			Notify("Write_File", FileRecordingNotificationParameters, FileNamesArray);
 			
 		EndIf;
 	EndIf;
@@ -411,7 +413,8 @@ EndProcedure
 Procedure ListOnChange(Item)
 	
 	NotifyChanged(FileOwner);
-	Notify("Write_File", New Structure("Event", "FileDataChanged"), Item.SelectedRows);
+	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters("FileDataChanged");
+	Notify("Write_File", FileRecordingNotificationParameters, Item.SelectedRows);
 	
 EndProcedure
 
@@ -420,7 +423,7 @@ EndProcedure
 #Region FormCommandsEventHandlers
 
 ///////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure Add(Command)
@@ -560,8 +563,8 @@ Procedure SetDeletionMark(Command)
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(QuestionTemplate, CurrentData.Description);
 	Else
 		QueryText = ?(CurrentData.DeletionMark,
-			NStr("en = 'Снять с выбранных файлов пометку на удаление?';"),
-			NStr("en = 'Пометить выбранные файлы на удаление?';"));
+			NStr("en = 'Do you want to clear the deletion mark from the selected files?';"),
+			NStr("en = 'Do you want to mark the selected files for deletion?';"));
 	EndIf;
 	AdditionalParameters = New Structure("Files", SelectedRows);
 	Notification = New NotifyDescription("SetDeletionMarkCompletion", ThisObject, AdditionalParameters);
@@ -603,13 +606,9 @@ Procedure PrintWithStamp(Command)
 		Return;
 	EndIf;
 	
-	If CurrentData.Extension = "mxl" Then
-		DocumentWithStamp = FilesOperationsInternalServerCall.SpreadsheetDocumentWithStamp(CurrentData.Ref, CurrentData.Ref);
-		FilesOperationsInternalClient.PrintFileWithStamp(DocumentWithStamp);
-	ElsIf CurrentData.Extension = "docx" Then
-		DocumentWithStamp = FilesOperationsInternalServerCall.StampedOfficeDoc(CurrentData.Ref, CurrentData.Ref);
-		FileSystemClient.OpenFile(DocumentWithStamp, , CurrentData.Description+".docx");
-	EndIf;
+	DocumentWithStamp = FilesOperationsInternalServerCall.DocumentWithStamp(CurrentData.Ref);
+	FilesOperationsInternalClient.PrintFileWithStamp(DocumentWithStamp, CurrentData.Description);
+	
 EndProcedure
 
 &AtClient
@@ -701,7 +700,7 @@ Procedure ImportFiles(Command)
 	FilesGroup = Undefined;
 	If CurrentData <> Undefined And CurrentData.IsFolder Then
 		FilesGroup = CurrentData.Ref;
-	ElsIf CurrentData <> Undefined Then
+	ElsIf CurrentData <> Undefined And Not IsFilesCatalogItemsOwner Then
 		FilesGroup = FileGroup_(CurrentData.Ref);
 	EndIf;
 	FormParameters.Insert("FilesGroup",                  FilesGroup);
@@ -799,7 +798,7 @@ Procedure ShowServiceFiles(Command)
 EndProcedure
 
 //////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure Sign(Command)
@@ -817,7 +816,7 @@ Procedure Sign(Command)
 	
 	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
 	SigningParameters = ModuleDigitalSignatureClient.NewSignatureType();
-	SigningParameters.ChoosingAuthorizationLetter = True;
+	SigningParameters.CanSelectLetterOfAuthority = True;
 	
 	FilesOperationsClient.SignFile(Items.List.SelectedRows, UUID,
 		AdditionalParameters, SigningParameters);
@@ -1005,7 +1004,7 @@ Procedure DecryptServer(DataArrayToStoreInDatabase,
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure Edit(Command)
@@ -1111,7 +1110,7 @@ Procedure Delete(Command)
 	SelectedRows = SelectedRows();
 	
 	NotifyDescription = New NotifyDescription("AfterDeleteData", ThisObject);
-	FilesOperationsInternalClient.УдалитьДанныеФайлов(NotifyDescription, SelectedRows, UUID);
+	FilesOperationsInternalClient.DeleteFileData(NotifyDescription, SelectedRows, UUID);
 
 EndProcedure
 
@@ -1164,7 +1163,7 @@ Procedure SetConditionalAppearance()
 	
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	
-	// 
+	// Appearance of the file that is being edited by the current user
 	
 	Item = List.ConditionalAppearance.Items.Add();
 	
@@ -1193,7 +1192,7 @@ Procedure SetConditionalAppearance()
 		Item.Appearance.SetParameterValue("Show", False);
 	EndIf;
 	
-	// 
+	// Service files.
 	
 	Item = List.ConditionalAppearance.Items.Add();
 	Item.Use = True;
@@ -1214,7 +1213,7 @@ Procedure AppendFile()
 	FilesGroup = Undefined;
 	If CurrentData <> Undefined And CurrentData.IsFolder Then
 		FilesGroup = CurrentData.Ref;
-	ElsIf CurrentData <> Undefined Then
+	ElsIf CurrentData <> Undefined And Not IsFilesCatalogItemsOwner Then
 		FilesGroup = FileGroup_(CurrentData.Ref);
 	EndIf;
 	If IsFilesCatalogItemsOwner Then
@@ -1292,7 +1291,7 @@ Procedure OpenFileAfterConfirm(Result, AdditionalParameters) Export
 	
 	If Result <> Undefined And Result = "Continue" Then
 		
-		CurrentData = AdditionalParameters.CurrentData; // See ОбработкаОбъект.DataProcessorObject.ПоискИУдалениеДублей.DuplicatesGroups
+		CurrentData = AdditionalParameters.CurrentData; // See DataProcessorObject.DuplicateObjectsDetection.DuplicatesGroups
 		
 		FileBeingEdited = CurrentData.FileBeingEdited And CurrentData.CurrentUserEditsFile;
 		
@@ -1460,7 +1459,8 @@ Procedure SetDeletionMarkCompletion(Result, AdditionalParameters) Export
 	
 	If Result = DialogReturnCode.Yes Then
 		SetClearDeletionMark(AdditionalParameters.Files);
-		Notify("Write_File", New Structure("Event", "FileDataChanged"), Items.List.SelectedRows);
+		FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters("FileDataChanged");
+		Notify("Write_File", FileRecordingNotificationParameters, Items.List.SelectedRows);
 		Items.List.Refresh();
 	EndIf;
 	
@@ -1602,7 +1602,7 @@ Function NamesOfFormCommands()
 	
 	Result = ObjectChangeCommandsNames();
 
-	// 
+	// Commands that are available to any user reading the files.
 	Result.Insert("OpenFileDirectory", True);
 	Result.Insert("OpenFileForViewing", True);
 	Result.Insert("SaveAs", True);
@@ -1616,7 +1616,7 @@ Function ObjectChangeCommandsNames()
 	
 	Result = New Map;
 	
-	// 
+	// Commands that depend on object states.
 	Result.Insert("EndEdit", True);
 	Result.Insert("Lock", True);
 	Result.Insert("Release", True);
@@ -1639,7 +1639,7 @@ Function ObjectChangeCommandsNames()
 	
 	Result.Insert("UpdateFromFileOnHardDrive", True);
 	
-	// 
+	// Commands that do not depend on object states.
 	Result.Insert("Add", True);
 	Result.Insert("AddFromFileOnHardDrive", True);
 	Result.Insert("AddFileByTemplate", True);
@@ -1889,7 +1889,7 @@ Procedure UpdateCloudServiceNote()
 	
 	If GetFunctionalOption("UseFileSync") Then
 		
-		SynchronizationInfo = FilesOperationsInternal.SynchronizationInfo(FileOwner.Ref);
+		SynchronizationInfo = FilesOperationsInternal.SynchronizationInfo(FileOwner);
 		
 		If SynchronizationInfo.Count() > 0  Then
 			
@@ -2046,7 +2046,11 @@ EndFunction
 
 &AtServerNoContext
 Function FileGroup_(File)
-	Return File.Parent;
+	If File.Metadata().Hierarchical Then
+		Return Common.ObjectAttributeValue(File, "Parent");
+	Else
+		Return Undefined;
+	EndIf;
 EndFunction
 
 &AtClient

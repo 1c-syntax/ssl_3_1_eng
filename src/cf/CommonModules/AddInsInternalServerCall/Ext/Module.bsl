@@ -13,7 +13,7 @@
 //  Id - String
 //  Version - String
 //         - Undefined
-//  ThePathToTheLayoutToSearchForTheLatestVersion - 
+//  ThePathToTheLayoutToSearchForTheLatestVersion - Undefined, String
 //
 // Returns:
 //   See AddInsInternal.SavedAddInInformation

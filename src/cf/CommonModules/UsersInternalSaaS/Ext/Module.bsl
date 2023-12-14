@@ -12,7 +12,7 @@
 // Returns a flag that shows whether user modification is available.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True if user modification is available. Otherwise, False.
 //
 Function CanChangeUsers() Export
 	
@@ -129,7 +129,7 @@ Procedure WriteSaaSUser(Val User, Val CreateServiceUser, Val ServiceUserPassword
 	
 	If ValueIsFilled(UserObject.IBUserID) Then
 		IBUser = InfoBaseUsers.FindByUUID(UserObject.IBUserID);
-		AccessAllowed = IBUser <> Undefined And Users.CanSignIn(IBUser);
+		AccessAllowed = ApplicationCanBeLaunched(IBUser);
 	Else
 		AccessAllowed = False;
 	EndIf;
@@ -181,15 +181,24 @@ EndProcedure
 
 // 
 // 
+// 
 // Parameters:
 //  User - CatalogRef.Users
-//  HasRights    - Boolean -
+//  IBUser - InfoBaseUser
+//  OldInformationSecurityUser - Undefined - 
+//                       - InfoBaseUser - 
 //
-Procedure NotifyHasRightsToLogIn(User, HasRights) Export
+Procedure ReportAppLaunchChanged(User, IBUser, OldInformationSecurityUser = Undefined) Export
 	
 	If Not Common.SubsystemExists("CloudTechnology.Core")
 	 Or Not Common.SubsystemExists("CloudTechnology.MessagesExchange")
 	 Or Not MessagesSupportedHasRightsToLogIn() Then
+		Return;
+	EndIf;
+	
+	PossibleLaunch = ApplicationCanBeLaunched(IBUser);
+	If OldInformationSecurityUser <> Undefined
+	   And PossibleLaunch = ApplicationCanBeLaunched(OldInformationSecurityUser) Then
 		Return;
 	EndIf;
 	
@@ -203,7 +212,7 @@ Procedure NotifyHasRightsToLogIn(User, HasRights) Export
 	User_Info.Insert("DataArea", ModuleSaaSOperations.SessionSeparatorValue());
 	User_Info.Insert("IBUserID", Attributes.IBUserID);
 	User_Info.Insert("ServiceUserID", Attributes.ServiceUserID);
-	User_Info.Insert("HasRights", HasRights);
+	User_Info.Insert("HasRights", PossibleLaunch);
 	User_Info.Insert("DateUTC", CurrentUniversalDate());
 	
 	BeginTransaction();
@@ -285,8 +294,8 @@ EndFunction
 Procedure OnNoCurrentUserInCatalog(CreateUser) Export
 	
 	If IsSharedIBUser() Then
-		// 
-		// 
+		
+		
 		CreateUser = True;
 	EndIf;
 	
@@ -362,8 +371,8 @@ Procedure OnStartIBUserProcessing(ProcessingParameters, IBUserDetails) Export
 	        And UserRegisteredAsShared(
 	              IBUserDetails.UUID) Then
 		
-		// 
-		// 
+		
+		
 		ProcessingParameters.Delete("Action");
 		
 		If IBUserDetails.Count() > 2
@@ -483,7 +492,7 @@ Procedure AfterStartIBUserProcessing(UserObject, ProcessingParameters) Export
 			ProcessingParameters.Insert("CreateServiceUser", True);
 			UserObject.ServiceUserID = New UUID;
 			
-			// 
+			// Updating value of the attribute that is checked during the writing
 			AutoAttributes.ServiceUserID = UserObject.ServiceUserID;
 		EndIf;
 	EndIf;
@@ -530,6 +539,7 @@ Procedure OnEndIBUserProcessing(UserObject, ProcessingParameters, UpdateRoles) E
 	
 	If ProcessingParameters.Property("RemoteAdministrationChannelMessageProcessing") Then
 		UpdateRoles = False;
+		Return;
 	EndIf;
 	
 	IBUserDetails = UserObject.AdditionalProperties.IBUserDetails;
@@ -545,13 +555,23 @@ Procedure OnEndIBUserProcessing(UserObject, ProcessingParameters, UpdateRoles) E
 			SetPrivilegedMode(False);
 			
 		Else // IBUserAdded or IBUserChanged.
-			UpdateSaaSUser(UserObject, ProcessingParameters.CreateServiceUser);
 			
-			If Not ProcessingParameters.Property("RemoteAdministrationChannelMessageProcessing")
-				And ProcessingParameters.CreateServiceUser Then
+			SetPrivilegedMode(True);
+			If UserObject.AdditionalProperties.Property("SynchronizeWithService")
+			   And UserObject.AdditionalProperties.SynchronizeWithService Then
 				
+				WriteSaaSUser(UserObject,
+					ProcessingParameters.CreateServiceUser,
+					UserObject.AdditionalProperties.ServiceUserPassword);
+			Else
+				ReportAppLaunchChanged(UserObject.Ref,
+					ProcessingParameters.NewIBUser,
+					ProcessingParameters.OldInformationSecurityUser);
+			EndIf;
+			SetPrivilegedMode(False);
+			
+			If ProcessingParameters.CreateServiceUser Then
 				SSLSubsystemsIntegration.OnEndIBUserProcessing(UserObject.Ref);
-				
 			EndIf;
 		EndIf;
 	EndIf;
@@ -571,8 +591,8 @@ Procedure OnDefineUserAlias(UserIdentificator, Alias) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
+
+
 
 // See ExportImportDataOverridable.OnFillTypesThatRequireRefAnnotationOnImport.
 Procedure OnFillTypesThatRequireRefAnnotationOnImport(Types) Export
@@ -771,7 +791,7 @@ EndFunction
 // For internal use only.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True if the user has the right.
 //
 Function HasRightToAddUsers()
 	
@@ -820,28 +840,25 @@ Procedure UpdateDetailsSaasManagerWebService()
 	
 EndProcedure
 
-// For the OnCompleteInfobaseUserProcessing procedure.
-Procedure UpdateSaaSUser(UserObject, CreateServiceUser)
+// Parameters:
+//  IBUser - 
+//
+// Returns:
+//  Boolean
+//
+Function ApplicationCanBeLaunched(IBUser)
 	
-	If Not UserObject.AdditionalProperties.Property("SynchronizeWithService")
-		Or Not UserObject.AdditionalProperties.SynchronizeWithService Then
-		
-		Return;
-	EndIf;
+	Return IBUser <> Undefined
+		And Users.CanSignIn(IBUser)
+		And Users.HasRightsToLogIn(IBUser,, False);
 	
-	SetPrivilegedMode(True);
-	
-	WriteSaaSUser(UserObject, 
-		CreateServiceUser, 
-		UserObject.AdditionalProperties.ServiceUserPassword);
-	
-EndProcedure
+EndFunction
 
 // For internal use only.
 //
 // Parameters:
 //  ServiceUserPassword - String
-//                            - Undefined - 
+//                            - Undefined - If an error occurs, set to Undefined.
 //
 // Returns:
 //  ValueTable:
@@ -1129,7 +1146,7 @@ Procedure HandleWebServiceErrorInfo(Val ErrorInfo, Val OperationName)
 		ModuleSaaSOperations.HandleWebServiceErrorInfo(
 			ErrorInfo,
 			Subsystem.Name,
-			"ManageApplication", // 
+			"ManageApplication", // Not localizable.
 			OperationName);
 		
 	EndIf;

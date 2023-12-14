@@ -12,7 +12,7 @@
 // Namespace of the current (used by the calling code) message interface version.
 //
 // Returns:
-//   String - name space.
+//   String - a namespace.
 //
 Function Package() Export
 	
@@ -23,7 +23,7 @@ EndFunction
 // The current (used by the calling code) message interface version.
 //
 // Returns:
-//   String - 
+//   String - a message interface version.
 //
 Function Version() Export
 	
@@ -34,7 +34,7 @@ EndFunction
 // The name of the application message interface.
 //
 // Returns:
-//   String - 
+//   String - the name of the application message interface.
 //
 Function Public() Export
 	
@@ -69,7 +69,7 @@ EndProcedure
 //                                the message type is being received.
 //
 // Returns:
-//   XDTOObjectType - 
+//   XDTOObjectType - a message object type.
 //
 Function CorrespondentConnectionCompletedMessage(Val PackageToUse = Undefined) Export
 	
@@ -84,7 +84,7 @@ EndFunction
 //                                the message type is being received.
 //
 // Returns:
-//   XDTOObjectType - 
+//   XDTOObjectType - a message object type.
 //
 Function CorrespondentConnectionErrorMessage(Val PackageToUse = Undefined) Export
 	
@@ -99,7 +99,7 @@ EndFunction
 //                                the message type is being received.
 //
 // Returns:
-//   XDTOObjectType - 
+//   XDTOObjectType - a message object type.
 //
 Function DataSynchronizationSettingsReceivedMessage(Val PackageToUse = Undefined) Export
 	
@@ -114,7 +114,7 @@ EndFunction
 //                                the message type is being received.
 //
 // Returns:
-//   XDTOObjectType - 
+//   XDTOObjectType - a message object type.
 //
 Function DataSynchronizationSettingsReceivingErrorMessage(Val PackageToUse = Undefined) Export
 	
@@ -129,7 +129,7 @@ EndFunction
 //                                the message type is being received.
 //
 // Returns:
-//   XDTOObjectType - 
+//   XDTOObjectType - a message object type.
 //
 Function SynchronizationEnabledSuccessfullyMessage(Val PackageToUse = Undefined) Export
 	
@@ -144,7 +144,7 @@ EndFunction
 //                                the message type is being received.
 //
 // Returns:
-//   XDTOObjectType - 
+//   XDTOObjectType - a message object type.
 //
 Function SynchronizationDisabledMessage(Val PackageToUse = Undefined) Export
 	
@@ -159,7 +159,7 @@ EndFunction
 //                                the message type is being received.
 //
 // Returns:
-//   XDTOObjectType - 
+//   XDTOObjectType - a message object type.
 //
 Function SynchronizationEnablingErrorMessage(Val PackageToUse = Undefined) Export
 	
@@ -174,7 +174,7 @@ EndFunction
 //                                the message type is being received.
 //
 // Returns:
-//   XDTOObjectType - 
+//   XDTOObjectType - a message object type.
 //
 Function SynchronizationDisablingErrorMessage(Val PackageToUse = Undefined) Export
 	
@@ -189,7 +189,7 @@ EndFunction
 //                                the message type is being received.
 //
 // Returns:
-//   XDTOObjectType - 
+//   XDTOObjectType - a message object type.
 //
 Function SynchronizationDoneMessage(Val PackageToUse = Undefined) Export
 	

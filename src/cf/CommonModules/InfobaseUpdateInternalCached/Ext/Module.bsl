@@ -12,7 +12,7 @@
 // Returns the earliest infobase version used across all data areas.
 //
 // Returns:
-//  String - 
+//  String - for example, "2.3.1.4".
 //
 Function EarliestIBVersion() Export
 	

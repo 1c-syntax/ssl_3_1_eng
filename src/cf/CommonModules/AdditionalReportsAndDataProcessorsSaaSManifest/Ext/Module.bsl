@@ -22,15 +22,15 @@
 //    * Purpose - ValueTable:
 //       ** SectionOrGroup - String - for mapping with the MetadataObjectIDs catalog item.
 //       ** Important - Boolean - True, if it is displayed in the important group.
-//       ** SeeAlso - Boolean - True, if it is displayed in the See also group.
+//       ** SeeAlso - Boolean - 
 //  CommandsSchedules - Structure - the keys contain the command IDs and the values contain the schedule.
 //  DataProcessorPermissions - Array of XDTODataObject
 //                      - CatalogTabularSection.AdditionalReportsAndDataProcessors.Permissions
 //                      - Undefined
 //
 // Returns:
-//  XDTODataObject - 
-//    
+//  XDTODataObject - XDTODataObject {http://www.1c.ru/1cFresh/ApplicationExtensions/Manifest/a.b.c.d}ExtensionManifest - an
+//    additional report or data processor manifest.
 //
 Function GenerateManifest(Val DataProcessorObject2, Val VersionObject1, Val ReportOptions = Undefined, 
 	Val CommandsSchedules = Undefined, Val DataProcessorPermissions = Undefined) Export
@@ -303,7 +303,7 @@ EndFunction
 //    * Purpose - ValueTable:
 //       ** SectionOrGroup - String - for mapping with the MetadataObjectIDs catalog item,
 //       ** Important - Boolean  - True, if it is displayed in the important group.
-//       ** SeeAlso - Boolean - True, if it is displayed in the See also group.
+//       ** SeeAlso - Boolean - 
 //
 Procedure ReadManifest(Val Manifest, DataProcessorObject2, VersionObject1, ReportOptions) Export
 	

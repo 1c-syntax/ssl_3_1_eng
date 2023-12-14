@@ -149,7 +149,7 @@ Procedure ValueChoiceProcessing1()
 		Return
 	EndIf;
 	
-	// 
+	
 	//     
 	//     
 	

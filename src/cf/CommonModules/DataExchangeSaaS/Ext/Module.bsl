@@ -18,7 +18,7 @@
 //
 // Parameters:
 //   Data         - CatalogObject
-//                  - DocumentObject - 
+//                  - DocumentObject - an object for getting values of attributes and other properties.
 //   Recipients     - Array of ExchangePlanRef - exchange plan nodes.
 //   ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 //
@@ -69,8 +69,8 @@ Procedure AfterDetermineRecipients(Data, Recipients, ExchangePlanName) Export
 		
 	Else
 		
-		// 
-		// 
+		
+		
 		If StandaloneModeInternal.IsStandaloneWorkplace()
 			And Not ModuleSaaSOperations.IsSeparatedMetadataObject(Data.Metadata(),
 				ModuleSaaSOperations.MainDataSeparator()) Then
@@ -107,8 +107,8 @@ EndProcedure
 // Generates the list of infobase parameters.
 //
 // Parameters:
-//   ParametersTable - ValueTable - a table describing parameters. For column content details, 
-//                                         See SaaSOperations.ПолучитьТаблицуПараметровИБ().
+//   ParametersTable - ValueTable -  
+//                                         See SaaSOperations.ПолучитьТаблицуПараметровИБ
 //
 Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 	
@@ -119,10 +119,10 @@ Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 	
 EndProcedure
 
-// Fills in a structure with arrays of supported versions of the subsystems that can have versions.
-// Subsystem names are used as structure keys.
-// Implements the InterfaceVersion web service functionality.
-// This procedure must return current version sets, therefore its body must be changed accordingly before use. See the example below. 
+// 
+// 
+// 
+// 
 //
 // Parameters:
 //   SupportedVersionsStructure - Structure - subsystem names and their corresponding sets of supported versions.
@@ -157,7 +157,7 @@ EndProcedure
 // Gets a list of message handlers that are processed by the library subsystems.
 // 
 // Parameters:
-//  Handlers - ValueTable - See the field list in MessageExchange.NewMessagesHandlersTable. 
+//  Handlers - ValueTable - See the field list in MessageExchange.NewMessagesHandlersTable.
 // 
 Procedure OnDefineMessagesChannelsHandlers(Handlers) Export
 	
@@ -168,8 +168,8 @@ EndProcedure
 // Adds parameters of client logic upon system startup for the data exchange subsystem in SaaS mode.
 //
 // Parameters:
-//   Parameters - Structure - names and values of the client startup parameters that should be set.
-//                           For more information, See CommonOverridable.OnAddClientParametersOnStart.
+//   Parameters - Structure -  the names and values of parameters client at startup you need to set that.
+//                           More detailed  See CommonOverridable.OnAddClientParametersOnStart.
 //
 Procedure OnAddClientParametersOnStart(Parameters) Export
 	
@@ -455,8 +455,8 @@ EndProcedure
 //	
 // 
 // Parameters:
-//  Object - Arbitrary -
-//  Cancel - Boolean -
+//  Object - Arbitrary - 
+//  Cancel - Boolean - 
 //
 Procedure BeforeWriteCommonData(Object, Cancel) Export
 	
@@ -493,10 +493,10 @@ EndProcedure
 
 Procedure ChangeTheIndicationOfTheNeedForDataExchangeInTheServiceModel(ItIsNecessaryToPerformAnExchange, AdditionalParameters = Undefined) Export
 	
-	ItIsNecessaryToPerformAnExchange = (ItIsNecessaryToPerformAnExchange = True); // 
+	ItIsNecessaryToPerformAnExchange = (ItIsNecessaryToPerformAnExchange = True); // Protect from non-Boolean values.
 	
-	IdleInterval = 180; // 
-	AttemptsNumber = 65; // 
+	IdleInterval = 180; 
+	AttemptsNumber = 65; 
 	If TypeOf(AdditionalParameters) = Type("Structure") Then
 		
 		If AdditionalParameters.Property("IdleInterval") Then
@@ -932,7 +932,7 @@ EndFunction
 //   AreaNumber - Number - a separator value. 
 //
 // Returns:
-//   String -  
+//   String - an exchange plan node code for the specified data area. 
 //
 Function ExchangePlanNodeCodeInService(Val AreaNumber) Export
 	
@@ -1542,14 +1542,14 @@ Function SuppliedDataKindID()
 	
 EndFunction
 
-// Returns the ID of the supplied data type for data exchange rules
+// Returns the ID of a built-in data kind for data exchange rules.
 //
 // Returns:
 //   String
 //
 Function IdOfTypeOfDataSuppliedRegistrationRules()
 	
-	Return "RR"; // 
+	Return "RR"; // Not localizable.
 	
 EndFunction
 
@@ -1820,7 +1820,7 @@ Procedure CreateExchangeSetting(ConnectionSettings,
 			DataExchangeInternal.UpdateInformationRegisterRecord(RecordStructure, "XDTODataExchangeSettings");
 		EndIf;
 		
-		// 
+		// Shared node data.
 		InformationRegisters.CommonInfobasesNodesSettings.UpdatePrefixes(
 			CorrespondentObject.Ref,
 			ConnectionSettings.Prefix);
@@ -1973,7 +1973,7 @@ Procedure CreateExchangeSetting_3_0_1_1(ConnectionSettings,
 			
 		EndIf;
 		
-		// 
+		// Shared node data.
 		InformationRegisters.CommonInfobasesNodesSettings.UpdatePrefixes(
 			Peer,
 			ConnectionSettings.Prefix,
@@ -2114,7 +2114,7 @@ Procedure UpdateDataAreaTransportSettings(Parameters)
 			FTPConnection.CreateDirectory(AbsoluteDataExchangeDirectory);
 		EndIf;
 		
-		// 
+		// Saving exchange message transfer settings for the current data area
 		RecordStructure = New Structure;
 		RecordStructure.Insert("Peer", Peer);
 		RecordStructure.Insert("CorrespondentEndpoint", CorrespondentEndpoint);
@@ -2147,7 +2147,7 @@ Procedure UpdateExchangeSetting(
 		LockDataForEdit(Peer);
 		CorrespondentObject = Peer.GetObject();
 
-	    //  
+	    // Set default values. 
 		DataExchangeEvents.SetDefaultNodeValues(CorrespondentObject, DefaultNodeValues);
 		
 		CorrespondentObject.AdditionalProperties.Insert("GettingExchangeMessage");
@@ -2230,7 +2230,7 @@ Function RequiredPlatformVersion() Export
 	SystemInfo = New SystemInfo;
 	PlatformVersion = StrSplit(SystemInfo.AppVersion, ".");
 	
-	// 
+	// Deleting an additional number (last number) from the version number
 	PlatformVersion.Delete(3);
 	Return StrConcat(PlatformVersion, ".");
 	
@@ -2558,7 +2558,7 @@ Function FindInfobaseNode(Val ExchangePlanName, Val NodeCode)
 	
 	If Result = Undefined Then
 		
-		// 
+		// Searching for a node by old 0000123 node code format
 		Result = DataExchangeServer.ExchangePlanNodeByCode(ExchangePlanName, NodeCode);
 		
 	EndIf;
@@ -2695,7 +2695,7 @@ Function RefAddressFromInformationCenter(Val Id)
 	Try
 		RefData = ModuleInformationCenterServer.ContextualLinkByID(Id);
 	Except
-		// 
+		// In case the method is not found.
 		RefData = Undefined;
 	EndTry;
 	

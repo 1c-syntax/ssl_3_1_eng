@@ -732,9 +732,9 @@ Function AssignOptionsToSubsystem(PlacementParameters)
 				DestinationRow.Subsystem = Receiver.Ref;
 			EndIf;
 			
-			// 
-			// 
-			// 
+			
+			
+			
 			If PlacementParameters.Action = "Move" Then
 				For Each SubsystemToExclude In SubsystemsToExclude Do
 					SourceRow = OptionObject.Location.Find(SubsystemToExclude, "Subsystem");

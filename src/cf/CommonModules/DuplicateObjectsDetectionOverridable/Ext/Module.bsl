@@ -38,9 +38,9 @@ Procedure OnDefineObjectsWithSearchForDuplicates(Objects) Export
 	
 EndProcedure
 
-// Identify the objects whose list forms
-// will display commands for duplicate merging, reference replacement,
-// See DuplicateObjectsDetectionClient.MergeSelectedItems and the DuplicateObjectsDetectionClient.ReplaceSelected command
+// 
+// 
+// See DuplicateObjectsDetectionClient.MergeSelectedItems
 // 
 // Parameters:
 //     Objects - Array of MetadataObject
@@ -111,7 +111,7 @@ EndProcedure
 //         ** Presentation      - String - text details of a restriction rule.
 //         ** AdditionalFields - String - a list of comma-separated attributes, the values of which
 //                                          are required for analysis in the OnDuplicatesSearch.
-//       * ItemsCountToCompare - Number -
+//       * ItemsCountToCompare - Number - 
 //                                                   
 //     AdditionalParameters - Arbitrary - Value passed when calling DuplicateObjectsDetection.FindItemDuplicates.
 //                               When calling from the DuplicateObjectsDetection data processor, the value is Undefined.
@@ -131,18 +131,18 @@ EndProcedure
 // Parameters:
 //     MetadataObjectName - String - a full name of reference metadata object whose items are replaced.
 //                                     For example, "Catalog.Counterparties".
-//     ItemsDuplicates - ValueTable -
-//         * Ref1  - AnyRef - link to the first element.
-//         * Ref2  - AnyRef - link to the second element.
-//         * IsDuplicates - Boolean      - indicates that the candidates are duplicates. False by default. 
-//                                    Can be set to True to mark duplicates.
-//         * Fields1    - Structure   -
+//     ItemsDuplicates - ValueTable - :
+//         * Ref1  - AnyRef - a reference to the first item.
+//         * Ref2  - AnyRef - a reference to the second item.
+//         * IsDuplicates - Boolean      - indicates whether the candidates are duplicates. Default value is False. 
+//                                    It can be set to True to mark duplicates.
+//         * Fields1    - Structure   - 
 //                                    
-//                                    
+//                                    :
 //             ** Code - String 
 //             ** Description - String
 //             ** DeletionMark - Boolean
-//         * Fields2    - Structure   -
+//         * Fields2    - Structure   - :
 //             ** Code - String 
 //             ** Description - String
 //             ** DeletionMark - Boolean

@@ -25,9 +25,10 @@
 //               * FillChecking - Boolean - if you set True, filling will be checked.
 //               * Visible          - Boolean - if you set True, the attribute will become hidden.
 //               * FillValue - Arbitrary - an initial attribute value of the new object.
-//                                    - Undefined - 
+//                                    - Undefined - filling is not required.
 //
 Procedure BeforeStartEditKeyCertificate(Ref, Certificate, AttributesParameters) Export
+	
 	
 	
 	
@@ -90,19 +91,19 @@ EndProcedure
 //                              of the DigitalSignatureOverridable common module.
 //   * CryptoManager - CryptoManager - a prepared crypto manager to
 //                              perform a check.
-//                         - Undefined - 
-//                              
+//                         - Undefined - if standard checks are disabled in procedure
+//                              OnCreateFormCertificateCheck of the DigitalSignatureOverridable common module.
 //   * ErrorDescription       - String - a return value. An error description received when performing the check.
 //                              User can see the details by clicking the result picture.
 //   * IsWarning    - Boolean - a return value. A picture kind is Error/Warning,
 //                            the initial value is False.
 //   * Password               - String - a password entered by the user.
-//                         - Undefined - 
-//                              
+//                         - Undefined - if the EnterPassword property is set to False in the
+//                              OnCreateFormCertificateCheck procedure of the DigitalSignatureOverridable common module.
 //   * ChecksResults   - Structure:
 //      * Key     - String - a name of the additional check that is already performed.
 //      * Value - Undefined - an additional check was not performed (ErrorDetails is still Undefined).
-//                 - Boolean - 
+//                 - Boolean - an additional check execution result.
 //
 Procedure OnAdditionalCertificateCheck(Parameters) Export
 	

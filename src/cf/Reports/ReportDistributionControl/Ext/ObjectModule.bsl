@@ -13,9 +13,9 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.ReportsOptions
 
-// To set up a report form.
+// Set report form settings.
 //
 // Parameters:
 //   Form - ClientApplicationForm
@@ -78,7 +78,7 @@ Procedure BeforeLoadVariantAtServer(Form, NewDCSettings) Export
 	
 EndProcedure
 
-// 
+// Called before importing new settings. Used for modifying DCS reports.
 //
 // Parameters:
 //   Context - Arbitrary
@@ -102,7 +102,7 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 		Return;
 	EndIf;
 	
-	// 
+	// Disable all filters.
 	For Each Item In NewDCSettings.Filter.Items Do
 		Item.Use = False;
 		If Not ValueIsFilled(Item.UserSettingID) Then
@@ -232,7 +232,7 @@ Function ReportDistributionHistoryData(BulkEmail, Period, AdditionalParameters)
 	Query.SetParameter("EndDate", ?(ValueIsFilled(Period.EndDate),Period.EndDate,'39991231235959'));
 	
 	If AdditionalParameters.Recipients.Use Then
-		QueryText = QueryText + " AND ReportsDistributionHistory.Recipient IN (&Recipients)";
+		QueryText = QueryText + "	AND ReportsDistributionHistory.Recipient IN (&Recipients)";
 		Query.SetParameter("Recipients", AdditionalParameters.Recipients.ParameterValue); 
 	EndIf;
 	

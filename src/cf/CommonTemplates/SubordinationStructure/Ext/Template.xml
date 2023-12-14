@@ -8,6 +8,11 @@
 			<code>Русский</code>
 			<description>Русский</description>
 		</languageInfo>
+		<languageInfo>
+			<id>en</id>
+			<code>Английский</code>
+			<description/>
+		</languageInfo>
 	</languageSettings>
 	<columns>
 		<size>25</size>
@@ -2591,146 +2596,146 @@
 	</format>
 	<picture>
 		<index>0</index>
-		<picture ref="v8ui:DocumentWrittenConnectorLeft"/>
+		<picture t="false" ref="v8ui:DocumentWrittenConnectorLeft"/>
 	</picture>
 	<picture>
 		<index>1</index>
-		<picture ref="v8ui:DocumentPostedConnectorLeft"/>
+		<picture t="false" ref="v8ui:DocumentPostedConnectorLeft"/>
 	</picture>
 	<picture>
 		<index>2</index>
-		<picture ref="v8ui:DocumentMarkedForDeletionConnectorLeft"/>
+		<picture t="false" ref="v8ui:DocumentMarkedForDeletionConnectorLeft"/>
 	</picture>
 	<picture>
 		<index>3</index>
-		<picture ref="v8ui:ConnectorTopRight"/>
+		<picture t="false" ref="v8ui:ConnectorTopRight"/>
 	</picture>
 	<picture>
 		<index>4</index>
-		<picture ref="v8ui:ConnectorTopRightBottom"/>
+		<picture t="false" ref="v8ui:ConnectorTopRightBottom"/>
 	</picture>
 	<picture>
 		<index>5</index>
-		<picture ref="v8ui:ConnectorLeftRight"/>
+		<picture t="false" ref="v8ui:ConnectorLeftRight"/>
 	</picture>
 	<picture>
 		<index>6</index>
-		<picture ref="v8ui:ConnectorLeftBottomRight"/>
+		<picture t="false" ref="v8ui:ConnectorLeftBottomRight"/>
 	</picture>
 	<picture>
 		<index>7</index>
-		<picture ref="v8ui:ConnectorRightBottom"/>
+		<picture t="false" ref="v8ui:ConnectorRightBottom"/>
 	</picture>
 	<picture>
 		<index>8</index>
-		<picture ref="v8ui:ConnectorTopBottom"/>
+		<picture t="false" ref="v8ui:ConnectorTopBottom"/>
 	</picture>
 	<picture>
 		<index>9</index>
-		<picture ref="v8ui:DocumentPostedConnectorTop"/>
+		<picture t="false" ref="v8ui:DocumentPostedConnectorTop"/>
 	</picture>
 	<picture>
 		<index>10</index>
-		<picture ref="v8ui:DocumentPostedConnectorBottom"/>
+		<picture t="false" ref="v8ui:DocumentPostedConnectorBottom"/>
 	</picture>
 	<picture>
 		<index>11</index>
-		<picture ref="v8ui:DocumentPostedConnectorTopBottom"/>
+		<picture t="false" ref="v8ui:DocumentPostedConnectorTopBottom"/>
 	</picture>
 	<picture>
 		<index>12</index>
-		<picture ref="v8ui:DocumentPostedConnectorLeftTop"/>
+		<picture t="false" ref="v8ui:DocumentPostedConnectorLeftTop"/>
 	</picture>
 	<picture>
 		<index>13</index>
-		<picture ref="v8ui:DocumentPostedConnectorLeftBottom"/>
+		<picture t="false" ref="v8ui:DocumentPostedConnectorLeftBottom"/>
 	</picture>
 	<picture>
 		<index>14</index>
-		<picture ref="v8ui:DocumentMarkedForDeletionConnectorTop"/>
+		<picture t="false" ref="v8ui:DocumentMarkedForDeletionConnectorTop"/>
 	</picture>
 	<picture>
 		<index>15</index>
-		<picture ref="v8ui:DocumentMarkedForDeletionConnectorBottom"/>
+		<picture t="false" ref="v8ui:DocumentMarkedForDeletionConnectorBottom"/>
 	</picture>
 	<picture>
 		<index>16</index>
-		<picture ref="v8ui:DocumentMarkedForDeletionConnectorTopBottom"/>
+		<picture t="false" ref="v8ui:DocumentMarkedForDeletionConnectorTopBottom"/>
 	</picture>
 	<picture>
 		<index>17</index>
-		<picture ref="v8ui:DocumentMarkedForDeletionConnectorLeftBottom"/>
+		<picture t="false" ref="v8ui:DocumentMarkedForDeletionConnectorLeftBottom"/>
 	</picture>
 	<picture>
 		<index>18</index>
-		<picture ref="v8ui:DocumentMarkedForDeletionConnectorLeftTop"/>
+		<picture t="false" ref="v8ui:DocumentMarkedForDeletionConnectorLeftTop"/>
 	</picture>
 	<picture>
 		<index>19</index>
-		<picture ref="v8ui:DocumentWrittenConnectorTop"/>
+		<picture t="false" ref="v8ui:DocumentWrittenConnectorTop"/>
 	</picture>
 	<picture>
 		<index>20</index>
-		<picture ref="v8ui:DocumentWrittenConnectorDown"/>
+		<picture t="false" ref="v8ui:DocumentWrittenConnectorDown"/>
 	</picture>
 	<picture>
 		<index>21</index>
-		<picture ref="v8ui:DocumentWrittenConnectorTopBottom"/>
+		<picture t="false" ref="v8ui:DocumentWrittenConnectorTopBottom"/>
 	</picture>
 	<picture>
 		<index>22</index>
-		<picture ref="v8ui:DocumentWrittenConnectorLeftBottom"/>
+		<picture t="false" ref="v8ui:DocumentWrittenConnectorLeftBottom"/>
 	</picture>
 	<picture>
 		<index>23</index>
-		<picture ref="v8ui:DocumentWrittenConnectorLeftTop"/>
+		<picture t="false" ref="v8ui:DocumentWrittenConnectorLeftTop"/>
 	</picture>
 	<picture>
 		<index>24</index>
-		<picture ref="v8ui:CatalogCCTConnectorLeft"/>
+		<picture t="false" ref="v8ui:CatalogCCTConnectorLeft"/>
 	</picture>
 	<picture>
 		<index>25</index>
-		<picture ref="v8ui:CatalogCCTConnectorBottom"/>
+		<picture t="false" ref="v8ui:CatalogCCTConnectorBottom"/>
 	</picture>
 	<picture>
 		<index>26</index>
-		<picture ref="v8ui:CatalogCCTConnectorLeftBottom"/>
+		<picture t="false" ref="v8ui:CatalogCCTConnectorLeftBottom"/>
 	</picture>
 	<picture>
 		<index>27</index>
-		<picture ref="v8ui:CatalogCCTConnectorLeftTop"/>
+		<picture t="false" ref="v8ui:CatalogCCTConnectorLeftTop"/>
 	</picture>
 	<picture>
 		<index>28</index>
-		<picture ref="v8ui:CatalogCCTMarkedForDeletionConnectorLeft"/>
+		<picture t="false" ref="v8ui:CatalogCCTMarkedForDeletionConnectorLeft"/>
 	</picture>
 	<picture>
 		<index>29</index>
-		<picture ref="v8ui:CatalogCCTMarkedForDeletionConnectorTop"/>
+		<picture t="false" ref="v8ui:CatalogCCTMarkedForDeletionConnectorTop"/>
 	</picture>
 	<picture>
 		<index>30</index>
-		<picture ref="v8ui:CatalogCCTMarkedForDeletionConnectorBottom"/>
+		<picture t="false" ref="v8ui:CatalogCCTMarkedForDeletionConnectorBottom"/>
 	</picture>
 	<picture>
 		<index>31</index>
-		<picture ref="v8ui:CatalogCCTMarkedForDeletionConnectorTopBottom"/>
+		<picture t="false" ref="v8ui:CatalogCCTMarkedForDeletionConnectorTopBottom"/>
 	</picture>
 	<picture>
 		<index>32</index>
-		<picture ref="v8ui:CatalogCCTMarkedForDeletionConnectorLeftBottom"/>
+		<picture t="false" ref="v8ui:CatalogCCTMarkedForDeletionConnectorLeftBottom"/>
 	</picture>
 	<picture>
 		<index>33</index>
-		<picture ref="v8ui:CatalogCCTMarkedForDeletionConnectorLeftTop"/>
+		<picture t="false" ref="v8ui:CatalogCCTMarkedForDeletionConnectorLeftTop"/>
 	</picture>
 	<picture>
 		<index>34</index>
-		<picture ref="v8ui:CatalogCCTConnectorTopBottom"/>
+		<picture t="false" ref="v8ui:CatalogCCTConnectorTopBottom"/>
 	</picture>
 	<picture>
 		<index>35</index>
-		<picture ref="v8ui:CCTCatalogConnectorUp"/>
+		<picture t="false" ref="v8ui:CCTCatalogConnectorUp"/>
 	</picture>
 </document>

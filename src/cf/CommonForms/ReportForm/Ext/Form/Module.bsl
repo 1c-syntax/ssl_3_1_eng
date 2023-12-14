@@ -113,7 +113,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 			ModuleReportDistribution = Common.CommonModule("ReportMailing");
 			ModuleReportDistribution.ReportFormAddCommands(ThisObject, Cancel, StandardProcessing);
-		Else // 
+		Else // If the submenu contains only one command, the dropdown list is not shown.
 			Items.SendByEmail.Title = Items.SendGroup.Title + "...";
 			Items.Move(Items.SendByEmail, Items.SendGroup.Parent, Items.SendGroup);
 		EndIf;
@@ -166,8 +166,8 @@ Procedure OnOpen(Cancel)
 #EndIf
 	RunMeasurements = False;
 	
-	// 
-	// 
+	
+	
 	Directly = ReportSettings.External Or ReportSettings.Safe;
 	GeneratingOnOpen = False;
 	IdleInterval = ?(GetClientConnectionSpeed() = ClientConnectionSpeed.Low, 1, 0.2);
@@ -328,7 +328,7 @@ EndProcedure
 
 &AtServer
 Procedure OnLoadVariantAtServer(NewDCSettings)
-	// 
+	// If the report is not a DCS report and no settings were imported.
 	If Not ReportsOptionsInternalClientServer.ReportOptionMode(CurrentVariantKey) And NewDCSettings = Undefined Then
 		Return;
 	EndIf;
@@ -349,8 +349,8 @@ Procedure OnLoadVariantAtServer(NewDCSettings)
 		EndIf;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	If ReportsOptions.ItIsAcceptableToSetContext(ThisObject) And TypeOf(ParametersForm.Filter) = Type("Structure") Then
 
 		ReportsServer.SetFixedFilters(ParametersForm.Filter, Report.SettingsComposer.Settings,
@@ -531,7 +531,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure Attachable_SettingItem_OnChange(Item)
@@ -684,8 +684,8 @@ Procedure ReportSpreadsheetDocumentSelection(Item, Area, StandardProcessing)
 			DetailsValue = Area.Details;
 		Except
 			DetailsValue = Undefined;
-			// 
-			// 
+			
+			
 		EndTry;
 
 		If DetailsValue <> Undefined And GoToLink(DetailsValue) Then
@@ -913,7 +913,7 @@ Procedure EditResourcePlacement(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure ImportSchema(Command)
@@ -967,7 +967,7 @@ Procedure RestoreDefaultSchema(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure SaveReportOptionToFile(Command)
@@ -1000,14 +1000,12 @@ Procedure ShareSettings(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure SaveReport(Command)
 
-	SuggestionText = NStr("en = 'To save a report result to a file, it is recommended that you
-		|install a file system extension.';");
-
+	SuggestionText = NStr("en = 'We recommend that you install the 1C:Enterprise extension before you save the report result to a file.';");
 	Handler = New NotifyDescription("SaveReportCompletion", ThisObject);
 	FileSystemClient.AttachFileOperationsExtension(Handler, SuggestionText);
 
@@ -1035,7 +1033,7 @@ Procedure ReportsSnapshots(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure GroupBySelectedField(Command)
@@ -1187,7 +1185,7 @@ Procedure ApplyAppearanceMore(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure SelectAnIndicatorClick(Item)
@@ -1234,7 +1232,7 @@ Procedure CollapseIndicators(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 // Parameters:
 //  Command - FormCommand
@@ -1416,8 +1414,8 @@ EndProcedure
 Async Procedure Generate()
 
 	If ValueIsFilled(PathToExternalReportFileAtClient) And Not ValueIsFilled(ExternalReportBinaryDataAddress) Then
-		Result = Await PutFileToServerAsync(,,, PathToExternalReportFileAtClient, UUID);
-		If TypeOf(Result) = Type("StoredFileDescription") And Not Result.FilePuttingCanceled Then
+		Result = Await PutFileToServerAsync(,,, PathToExternalReportFileAtClient, UUID); // StoredFileDescription
+		If TypeOf(Result) = Type("StoredFileDescription") And Not Result.PutFileCanceled Then
 			ExternalReportBinaryDataAddress = Result.Address;
 		EndIf;
 	EndIf;
@@ -2048,7 +2046,7 @@ Procedure AfterSelectingTheIndicator(TheSelectedIndicator, AdditionalParameters)
 
 EndProcedure
 
-// Calculate functions for the selected cell range.
+// This procedure calculates functions for the selected cell range.
 // See the ReportSpreadsheetDocumentOnActivateArea event handler.
 //
 &AtClient
@@ -2438,10 +2436,13 @@ Procedure FindSuitableUniversalSearchValues(SuitableValues, SearchFieldsByType, 
 			FieldAttribute = New DataCompositionField(DataPath);
 			SearchProperties = UniversalSearchProperties(
 				FieldAttribute, SearchParameters.SearchString, SearchParameters.ControlCharacters);
-
+				
+			DataPathPresentation = StringFunctionsClientServer.SubstituteParametersToString(
+				"%1.%2", FieldForSearch.Value, Selection.FieldByCondition);	
+				
 			SearchOptions = New Array;
 			SearchOptions.Add(SearchProperties);
-			AdditionalValues.Add(SearchOptions, ViewSearchResult(DataPath,
+			AdditionalValues.Add(SearchOptions, ViewSearchResult(DataPathPresentation,
 				SearchProperties.ComparisonType, SearchParameters.SearchString));
 
 			IndexOfAdditionalValues.Insert(FieldForSearch.Key, True);
@@ -2476,7 +2477,7 @@ Procedure FindSuitableValuesBooleanUniversalSearch(SuitableValues, SearchFieldsB
 
 	ValuesSuitableForBoolean = New ValueList;
 	
-	// 
+	// Search by column name.
 	For Each FieldForSearch In SearchFields Do
 		If StrStartsWith(Upper(FieldForSearch.Value), Upper(SearchParameters.SearchString)) Then
 			SearchProperties = UniversalSearchProperties(FieldForSearch.Key, True, SearchParameters.ControlCharacters);
@@ -2492,8 +2493,8 @@ Procedure FindSuitableValuesBooleanUniversalSearch(SuitableValues, SearchFieldsB
 		EndIf;
 	EndDo;
 	
-	// 
-	// 
+	
+	
 	If StrCompare(SearchParameters.SearchString, NStr("en = 'Yes';")) = 0 
 		Or StrCompare(SearchParameters.SearchString, NStr("en = 'True';")) = 0 
 		Or StrCompare(SearchParameters.SearchString, NStr("en = 'Enabled';")) = 0 Then
@@ -2515,7 +2516,7 @@ Procedure FindSuitableValuesBooleanUniversalSearch(SuitableValues, SearchFieldsB
 				FieldForSearch.Value, SearchProperties.ComparisonType, SearchProperties.RightValue));
 		EndDo;
 	EndIf;
-	// ACC:1391-
+	// ACC:1391-on
 
 	ValuesSuitableForBoolean.SortByPresentation();
 	CommonClientServer.SupplementList(SuitableValues, ValuesSuitableForBoolean);
@@ -2530,7 +2531,7 @@ Procedure FindSuitableValuesStringUniversalSearch(SuitableValues, SearchFieldsBy
 		Return;
 	EndIf;
 	
-	// 
+	// ACC:1391-off. Validate user entries.
 	If StrCompare(SearchParameters.SearchString, NStr("en = 'Yes';")) = 0 
 		Or StrCompare(SearchParameters.SearchString, NStr("en = 'True';")) = 0 
 		Or StrCompare(SearchParameters.SearchString, NStr("en = 'Enabled';")) = 0
@@ -2539,7 +2540,7 @@ Procedure FindSuitableValuesStringUniversalSearch(SuitableValues, SearchFieldsBy
 		Or StrCompare(SearchParameters.SearchString, NStr("en = 'Disabled';")) = 0 Then
 		Return;
 	EndIf;
-	// 
+	// ACC:1391-on
 
 	For Each FindType In SearchFieldsByType Do
 		For Each FieldForSearch In FindType.Value Do
@@ -2659,11 +2660,11 @@ Function TheFieldOfTheQueryTextForTheSearchObject(Object, SearchParameters)
 		If Not AttributeType.ContainsType(Type("String")) Then
 			Continue;
 		EndIf;
-
+		
 		FieldByCondition = StringFunctionsClientServer.SubstituteParametersToString(
 			"WHEN CAST(%1 AS STRING(150)) LIKE %2 ESCAPE ""~"" THEN ""%3""", Field.Name, """%"
 			+ Common.GenerateSearchQueryString(SearchParameters.TheSearchStringIsNormalized) + "%""",
-			Field.Name);
+			FieldPresentation(Field.Name, Object));
 		DescriptionOfTheFieldByCondition.Add(FieldByCondition);
 
 	EndDo;
@@ -2678,6 +2679,29 @@ Function TheFieldOfTheQueryTextForTheSearchObject(Object, SearchParameters)
 
 	Return StrConcat(DescriptionOfTheFieldByCondition, " ");
 
+EndFunction
+
+&AtServerNoContext
+Function FieldPresentation(FieldName, Object)
+	
+	ObjectAttribute = Object.Attributes.Find(FieldName);
+	
+	If ObjectAttribute = Undefined Then
+		For Each StandardAttribute In Object.StandardAttributes Do
+			If StrCompare(StandardAttribute.Name, FieldName) = 0 Then
+				ObjectAttribute = StandardAttribute;
+				Break;
+			EndIf;
+		EndDo;
+	EndIf;
+	
+	If ObjectAttribute <> Undefined Then
+		Return ObjectAttribute.Presentation();
+	EndIf;
+	
+	
+	Return FieldName;
+	
 EndFunction
 
 // Parameters:
@@ -2699,7 +2723,7 @@ Function TheConditionOfTheQueryTextForTheSearchObject(Object, SearchParameters)
 		FieldsNames.Add(Field.Name);
 	EndDo;
 	
-	// 
+	// Extend the list of document fields.
 	FullNameParts1 = StrSplit(Object.FullName(), ".");
 	If FullNameParts1[0] = "Document" Then
 		If Fields.Find("Date") = Undefined Then
@@ -2770,7 +2794,7 @@ Function AdditionalDataOfTheQueryTextForTheSearchObject(Object)
 			Continue;
 		EndIf;
 
-		Data = """" + Field.Name + ": "" + " + Field.Name;
+		Data = """" + FieldPresentation(Field.Name, Object) + ": "" + " + Field.Name;
 		AdditionalData.Add(Data);
 
 	EndDo;
@@ -3333,7 +3357,7 @@ Procedure FillInTheMenuOfGroupingLevels(IndexOfTheReportStructure)
 		Button.Title = Properties.RepresentationOfTheGroupingLevel;
 		Button.LocationInCommandBar = ButtonLocationInCommandBar.InCommandBar;
 		
-		// 
+		// "More actions" submenu.
 		Button = Items.Add(Properties.CommandName + "More", Type("FormButton"), Items.GroupsLevelsGroupMore);
 		Button.Type = FormButtonType.CommandBarButton;
 		Button.CommandName = Properties.CommandName;
@@ -3861,7 +3885,7 @@ EndProcedure
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure SetVisibilityAvailability()
@@ -4166,8 +4190,8 @@ Procedure SetCurrentOptionKey(ReportFullName, ReportObject)
 
 	EndIf;
 	
-	// 
-	//  (See Catalog.PredefinedReportsOptions.Включен = Ложь)
+	
+	//   (см. Справочник.ПредопределенныеВариантыОтчетов.Включен = Ложь)
 	If ValueIsFilled(OptionContext) Then
 		ContextOption = ?(ValueIsFilled(Parameters.VariantKey), Parameters.VariantKey, CurrentVariantKey);
 		ContextOptions.Add(ContextOption);
@@ -4430,8 +4454,8 @@ Procedure ImportSettingsToComposer(ImportParameters)
 	SettingsImported = ReportsClientServer.LoadSettings(Report.SettingsComposer, AvailableSettings.Settings, 
 		AvailableSettings.UserSettings, AvailableSettings.FixedSettings);
 	
-	// 
-	// 
+	
+	
 	If SettingsImported And ReportsOptions.ItIsAcceptableToSetContext(ThisObject) 
 		And TypeOf(ParametersForm.Filter) = Type("Structure") Then
 
@@ -4723,7 +4747,7 @@ Procedure UpdateOptionsSelectionCommands()
 			Button.CommandName = FormOption.CommandName;
 			Button.Title = TableRow.Description;
 			
-			// 
+			// "More actions" submenu.
 			MoreButton = Items.Add(FormOption.CommandName + "More", Type("FormButton"),
 				Items.MoreCommandBarReportOptionsGroup);
 			MoreButton.Type = FormButtonType.CommandBarButton;
@@ -4746,7 +4770,7 @@ Procedure UpdateOptionsSelectionCommands()
 		Button.Check = False;
 		Button.Visible = False;
 		
-		// 
+		// "More actions" submenu (All actions).
 		MoreButton = Items.Find(FormOption.CommandName + "More");
 		MoreButton.Check = False;
 		MoreButton.Visible = False;
@@ -4787,7 +4811,7 @@ Procedure UpdateInfoOnReportOption()
 		Selection = Query.Execute().Select();
 		If Not Selection.Next() Then
 		
-			//  
+			// The report is not attached to the Report options subsystem. Its functionality is limited. 
 			Return;
 
 		EndIf;
@@ -5213,7 +5237,7 @@ EndFunction
 Procedure RefineReportAutoGenerationSign(ParametersOfUpdate)
 
 	If Not CommonClientServer.StructureProperty(ParametersOfUpdate, "Regenerate", False) Then
-		AllowableTimeForReportAutoGeneration = 5; // секунд
+		AllowableTimeForReportAutoGeneration = 5; // Seconds
 		ReportGenerationTime = ReportSettings.ResultProperties.FormationTime;
 		ParametersOfUpdate.Insert("Regenerate", 
 			ReportGenerationTime <= AllowableTimeForReportAutoGeneration);

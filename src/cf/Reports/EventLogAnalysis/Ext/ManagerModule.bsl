@@ -36,7 +36,7 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 		|(detailed).';");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "EventLogMonitor");
-	OptionSettings.LongDesc = NStr("en = 'Event Log records with ""Critical"" importance.';");
+	OptionSettings.LongDesc = NStr("en = 'Critical events in the system event log.';");
 	OptionSettings.SearchSettings.TemplatesNames = "EvengLogErrorReportTemplate";
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "ScheduledJobsDuration");
@@ -71,8 +71,8 @@ EndProcedure
 //    * OutputBusinessProcesses - Boolean - Flag indicating whether to get data on business processes from the Event Log.
 //
 // Returns:
-//  ValueTable - 
-//     
+//  ValueTable - a table with ungrouped user activity data
+//     from the event log.
 //
 Function EventLogData1(ReportParameters) Export
 	
@@ -130,9 +130,9 @@ Function EventLogData1(ReportParameters) Export
 	
 	Events = New Array;
 	Events.Add("_$Session$_.Start"); //  
-	Events.Add("_$Session$_.Finish"); //    
-	Events.Add("_$Data$_.New"); // 
-	Events.Add("_$Data$_.Update"); // 
+	Events.Add("_$Session$_.Finish"); //  End session.  
+	Events.Add("_$Data$_.New"); // Add data.
+	Events.Add("_$Data$_.Update"); // Modify data.
 	
 	ApplicationName = New Array;
 	ApplicationName.Add("1CV8C");
@@ -461,7 +461,7 @@ Function EventLogData1(ReportParameters) Export
 				EndIf;
 			EndIf;
 			
-			// 
+			// Reading the counter value and comparing it with the maximum value.
 			Counter = Max(Counter, 0);
 			If Counter > ConcurrentUsers Then
 				MaxUsersArray = New Array;
@@ -478,7 +478,7 @@ Function EventLogData1(ReportParameters) Export
 				ConcurrentUsers, CurrentDate);
 		EndIf;
 		
-		// 
+		// Calculating the number of errors and warnings.
 		EventLogData = Undefined;
 		Errors1 					 = 0;
 		Warnings			 = 0;
@@ -683,7 +683,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 	EndDate = FillParameters.EndDate;
 	MinScheduledJobSessionDuration = 
 		FillParameters.MinScheduledJobSessionDuration;
-	OutputTitle = FillParameters.OutputTitle;
+	TitleOutput = FillParameters.TitleOutput;
 	FilterOutput = FillParameters.FilterOutput;
 	
 	Result = New Structure;
@@ -705,9 +705,9 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 	BackColors.Add(WebColors.NavajoWhite);
 	
 	// Generate a report header.
-	If OutputTitle.Value = DataCompositionTextOutputType.Output
-		And OutputTitle.Use
-		Or Not OutputTitle.Use Then
+	If TitleOutput.Value = DataCompositionTextOutputType.Output
+		And TitleOutput.Use
+		Or Not TitleOutput.Use Then
 		Report.Put(TemplateAreaDetails(Template, "ReportHeader1"));
 	EndIf;
 	
@@ -778,7 +778,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 	
 	Report.Put(TemplateAreaDetails(Template, "IsBlankString"));
 	
-	// 
+	// Getting a Gantt chart and specifying the parameters required to fill the chart.
 	Area = TemplateAreaDetails(Template, "Chart");
 	GanttChart = Area.Drawings.GanttChart.Object; // GanttChart
 	GanttChart.RefreshEnabled = False;  
@@ -863,7 +863,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 	
 	If ScheduledJobStarts <> 0
 		And ValueIsFilled(Point.Details) Then
-		// 
+		
 		DetailsPoint = Point.Details; // Array
 		DetailsPoint.Add(ScheduledJobStarts);
 		DetailsPoint.Add(OverallScheduledJobsDuration);
@@ -988,7 +988,7 @@ Function DataForScheduledJobsDurationsReport(FillParameters)
 	// The maximum number of concurrent scheduled jobs sessions.
 	ConcurrentSessionsData = ConcurrentScheduledJobs(ConcurrentSessionsParameters);
 	
-	// 
+	// Select values from the ConcurrentSessions table.
 	ConcurrentSessionsData.Sort("ConcurrentScheduledJobs Desc");
 	
 	TotalConcurrentScheduledJobsRow = Undefined;
@@ -1132,8 +1132,8 @@ Function ConcurrentScheduledJobs(ConcurrentSessionsParameters)
 				EndIf;
 			EndIf;    						
 			ScheduledJobsArray.Delete(ScheduledJobIndex);
-			ScheduledJobsArray.Delete(ScheduledJobIndex); // 
-			ScheduledJobsArray.Delete(ScheduledJobIndex); // 
+			ScheduledJobsArray.Delete(ScheduledJobIndex); 
+			ScheduledJobsArray.Delete(ScheduledJobIndex); // Delete date value.
 			Counter = Counter - 1;
 		EndIf;
 		
@@ -1275,7 +1275,7 @@ EndFunction
 
 // Generates a report for a single scheduled job.
 // Parameters:
-//   Details - 
+//   Details - scheduled job details.
 //
 Function ScheduledJobDetails1(Details) Export
 	Result = New Structure;
@@ -1362,11 +1362,11 @@ EndFunction
 // Sets interval and background colors for a Gantt chart.
 //
 // Parameters:
-//   StartDate - 
+//   StartDate - the day for which a chart is generated.
 //   GanttChart - GanttChart, Type - SpreadsheetDocumentDrawing.
 //   ConcurrentSessionsData - ValueTable - a value table with data on the number of
 // 		concurrent scheduled jobs during the day.
-//   BackColors - 
+//   BackColors - an array of colors for background intervals.
 //
 Procedure GanttChartColors(StartDate, GanttChart, ConcurrentSessionsData, BackColors)
 	// Adding colors of background intervals.
@@ -1504,7 +1504,7 @@ Function GenerateEventLogMonitorReport(StartDate, EndDate, ServerTimeOffset) Exp
 	EventLogData = EventLogErrorsInformation(StartDate, EndDate, ServerTimeOffset);
 	EventLogRecordsCount = EventLogData.Count();
 	
-	ReportIsBlank = (EventLogRecordsCount = 0); // 
+	ReportIsBlank = (EventLogRecordsCount = 0); 
 		
 	///////////////////////////////////////////////////////////////////////////////
 	// Data preparation block.
@@ -1598,7 +1598,7 @@ Function InfobasePresentation()
 	
 	DatabaseConnectionString = Mid(DatabaseConnectionString, SemicolonPosition + 1);
 	
-	// 
+	// Server name position.
 	SearchPosition = StrFind(Upper(DatabaseConnectionString), "REF=");
 	If SearchPosition <> 1 Then
 		Return Undefined;

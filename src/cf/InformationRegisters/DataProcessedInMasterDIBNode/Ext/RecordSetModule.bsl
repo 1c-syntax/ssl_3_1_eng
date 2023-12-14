@@ -14,8 +14,8 @@
 Procedure BeforeWrite(Cancel, Replacing)
 	
 	If DataExchange.Load Then
-		// 
-		// 
+		
+		
 		
 		If Common.IsSubordinateDIBNode() And Not InfobaseUpdate.InfobaseUpdateRequired() Then 
 			MarkDataUpdatedInMasterNode();

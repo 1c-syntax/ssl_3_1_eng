@@ -338,7 +338,7 @@ Function ViewPage(ActionType, Parameter = Undefined)
 	
 	CurrentLineIndex = NewRowIndex;
 	
-	// 
+	// Visibility and availability.
 	Items.FormBack.Enabled = (CurrentLineIndex > 0);
 	Items.FormGoForward.Enabled = (CurrentLineIndex < BrowseHistory.Count() - 1);
 	
@@ -366,17 +366,17 @@ Procedure PlacePackagePages(PagesPackage, PackageFiles)
 			If IsBlankString(Picture.Address) Then
 				Picture.Address = PutToTempStorage(Picture.Data, UUID);
 			EndIf;
-			// 
-			// 
+			
+			
 			PathToPicture = Picture.RelativeName;
 			If Length > 0 And StrStartsWith(PathToPicture, WebPage.RelativeDirectory) Then
 				PathToPicture = Mid(PathToPicture, Length + 1);
 			EndIf;
-			// 
+			// Replace relative paths of the picture to addresses in temporary storage.
 			HTMLText = StrReplace(HTMLText, PathToPicture, Picture.Address);
 		EndDo;
 		
-		// 
+		// Replace relative embedded references to absolute ones for this infobase.
 		HTMLText = StrReplace(HTMLText, "v8config://", StandardPrefix + "e1cib/helpservice/topics/v8config/");
 		
 		// Register online help hyperlinks.

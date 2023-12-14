@@ -59,7 +59,7 @@ EndProcedure
 // Parameters:
 //  Text - String - Reminder text.
 //  EventTime - Date - Date and time of the event, which needs a reminder;
-//               - JobSchedule - 
+//               - JobSchedule - a schedule of a periodic event;
 //               - String - Name of the subject's attribute that contains the event time.
 //  IntervalTillEvent - Number - time in seconds, prior to which it is necessary to remind of the event time;
 //  SubjectOf - AnyRef - Reminder's subject.
@@ -96,8 +96,8 @@ EndProcedure
 // 
 //
 // Parameters:
-//   Item - FormField -
-//   Form - ClientApplicationForm -
+//   Item - FormField - 
+//   Form - ClientApplicationForm - 
 //	
 Procedure OnChangeReminderSettings(Item, Form) Export
 	
@@ -124,11 +124,11 @@ EndProcedure
 // 
 //
 // Parameters:
-//   Form - ClientApplicationForm -
+//   Form - ClientApplicationForm - 
 //   EventName  - String
 //   Parameter    - See UserRemindersClientServer.ReminderDetails
 //   Source    - ClientApplicationForm
-//               - Arbitrary - event source.
+//               - Arbitrary - Event source.
 //	
 Procedure NotificationProcessing(Form, EventName, Parameter, Source) Export
 	
@@ -223,8 +223,8 @@ EndProcedure
 
 // Opens a form with notifications.
 Procedure OpenNotificationForm() Export
-	// 
-	// 
+	
+	
 	ParameterName = "StandardSubsystems.NotificationForm";
 	If ApplicationParameters[ParameterName] = Undefined Then
 		NotificationFormName = "InformationRegister.UserReminders.Form.NotificationForm";
@@ -308,10 +308,10 @@ EndFunction
 //
 // Parameters:
 //  TimeAsString - String - text details of time, where numbers are written in digits
-//							and units of measure are written as String.
+//							and units of measure are written as a string.
 //
 // Returns:
-//  String - 
+//  String - an arranged time presentation.
 //
 Function FormatTime(TimeAsString) Export
 	Return TimePresentation(GetTimeIntervalFromString(TimeAsString));

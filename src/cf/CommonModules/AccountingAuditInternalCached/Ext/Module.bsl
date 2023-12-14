@@ -26,7 +26,7 @@ Function AccountingChecks() Export
 	SSLSubsystemsIntegration.OnDefineChecks(ChecksGroups, Checks);
 	AccountingAuditOverridable.OnDefineChecks(ChecksGroups, Checks);
 	
-	// 
+	// For backward compatibility purposes.
 	AccountingAuditOverridable.OnDefineAppliedChecks(ChecksGroups, Checks);
 	ProvideReverseCompatibility(Checks);
 	
@@ -37,7 +37,7 @@ EndFunction
 // Returns an array of types that includes all possible configuration object types.
 //
 // Returns:
-//    Array - 
+//    Array - an array of object types.
 //
 Function TypeDetailsAllObjects() Export
 	
@@ -122,13 +122,6 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 			|• Terminate all user sessions, lock the application, and create an infobase backup.
 			|• Open Designer, open Administration – Verify and Repair menu, select the check boxes for logical integrity check and referential integrity check.
 			| For more information, see ITS: https://its.1c.ru/db/v83doc#bookmark:adm:TI000000142.
-			|• Wait for verification and repair to complete, and unlock the application.
-			|
-			|For distributed infobases, run the repair procedure for the master node only.
-			|After that, perform synchronization with subordinate nodes.To clear references to deleted data, do the following:
-			|• Terminate all user sessions, lock the application, and create an infobase backup.
-			|• Open Designer, open Administration – Verify and Repair menu, select the check boxes for logical integrity check and referential integrity check.
-			| For more information, see ITS: https://its.1c.eu/db/v83doc#bookmark:adm:TI000000142.
 			|• Wait for verification and repair to complete, and unlock the application.
 			|
 			|For distributed infobases, run the repair procedure for the master node only.
@@ -222,10 +215,10 @@ EndProcedure
 //      * GroupID          - String - a string ID of the check group, for example: 
 //                                       "SystemChecks", "MonthEndClosing", "VATChecks", and so on.
 //                                       Required.
-//      * Id                - String - a string ID of the check group. Required.
-//                                       The ID format has to be as follows:
-//                                       <Software name>.<Check ID>.For example:
-//                                       StandardSubsystems.SystemChecks.
+//      * Id                - String - 
+//                                       :
+//                                       
+//                                       
 //      * AccountingChecksContext - DefinedType.AccountingChecksContext - a value that additionally
 //                                       specifies the belonging of a data integrity check group to a certain category.
 //      * Comment                  - String - a comment to a check group.
@@ -255,10 +248,10 @@ EndFunction
 //      * Reasons                                - String - a description of possible reasons that result in issue
 //                                                 appearing.
 //      * Recommendation                           - String - a recommendation on solving an appeared issue.
-//      * Id                          - String - an item string ID. Required.
-//                                                 The ID format has to be as follows:
-//                                                 <Software name>.<Check ID>.For example:
-//                                                 StandardSubsystems.SystemChecks.
+//      * Id                          - String - 
+//                                                 :
+//                                                 
+//                                                 
 //      * CheckStartDate                     - Date - a threshold date that indicates the boundary of the checked
 //                                                 objects (only for objects with a date). Do not check objects whose date is less
 //                                                 than the specified one. It is not filled in by default (

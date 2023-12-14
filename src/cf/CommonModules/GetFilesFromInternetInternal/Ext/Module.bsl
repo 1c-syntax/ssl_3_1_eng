@@ -38,8 +38,8 @@ Procedure OnFillPermissionsToAccessExternalResources(PermissionsRequests) Export
 	
 	Permissions = New Array();
 	
-	// 
-	// 
+	
+	
 	If Common.IsWindowsServer() Then
 		Permissions.Add(ModuleSafeModeManager.PermissionToUseOperatingSystemApplications("cmd /S /C ""%(ping %)%""",
 			NStr("en = 'Permission for ping';", Common.DefaultLanguageCode())));
@@ -153,22 +153,22 @@ EndFunction
 // ProxySettings - Map of KeyAndValue:
 //     * Key - String
 //     * Value - Arbitrary
-//    
-//		
-//		
-//		
-//		
-//		
-//		
-//		
-//		
+//    Keys:
+//		# UseProxy - Boolean - indicates whether to use the proxy server.
+//		# BypassProxyOnLocal - indicates whether to use the proxy server for local addresses.
+//		# UseSystemSettings - Boolean - indicates whether to use system settings of the proxy server.
+//		# Server - String - a proxy server address.
+//		# Port - String - a proxy server port.
+//		# User - String - a username to authorize on the proxy server.
+//		# Password - String - a user password.
+//		# UseOSAuthentication - Boolean - indicates that authentication by operating system is used.
 //
-// 
-//		
-//			
-//			
-//		
-//			
+// SavingSetting - Map - contains parameters to save the downloaded file.
+//		StorageLocation - String - can include
+//			"Server" - server,
+//			"TemporaryStorage" - a temporary storage.
+//		Path - String (optional parameter) - a path to a directory on the client or on the server,
+//			or an address in the temporary storage, will be automatically generated if not set.
 //
 // Returns:
 //   Structure:
@@ -221,7 +221,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 	If SavingSetting["Path"] <> Undefined Then
 		PathForSaving = SavingSetting["Path"];
 	Else
-		PathForSaving = GetTempFileName(); // 
+		PathForSaving = GetTempFileName(); 
 	EndIf;
 	
 	If Timeout = Undefined Then 
@@ -293,7 +293,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 					           |Secure connection: %2
 					           |Timeout: %3';"),
 					ErrorText,
-					Format(Join.Secure, NStr("en = 'BF=No; BT=Yes';")),
+					Format(Join.SecureConnection, NStr("en = 'BF=No; BT=Yes';")),
 					Format(Join.Timeout, "NG=0"));
 					
 				WriteErrorToEventLog(ErrorMessage);
@@ -374,7 +374,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 			
 			If HTTPResponse.StatusCode = 301 // 301 Moved Permanently
 				Or HTTPResponse.StatusCode = 302 // 302 Found, 302 Moved Temporarily
-				Or HTTPResponse.StatusCode = 303 // 303 See Other by GET 
+				Or HTTPResponse.StatusCode = 303 // 303 See Other by GET
 				Or HTTPResponse.StatusCode = 307 // 307 Temporary Redirect
 				Or HTTPResponse.StatusCode = 308 Then // 308 Permanent Redirect
 				
@@ -404,7 +404,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 					
 					Redirections.Add(URL);
 					If Not StrStartsWith(NewURL1, "http") Then
-						// <схема>://<хост>:<порт>/<путь>
+						// <scheme>://<host>:<port>/<path>
 						NewURL1 = StringFunctionsClientServer.SubstituteParametersToString(
 							"%1://%2:%3/%4", Protocol, Server, Format(Port, "NG="), NewURL1);
 					EndIf;
@@ -492,7 +492,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 					           |Timeout: %3
 					           |OS authentication: %4';"),
 					ErrorText,
-					Format(Join.Secure, NStr("en = 'BF=No; BT=Yes';")),
+					Format(Join.SecureConnection, NStr("en = 'BF=No; BT=Yes';")),
 					Format(Join.Timeout, "NG=0"),
 					Format(Join.UseOSAuthentication, NStr("en = 'BF=No; BT=Yes';")));
 				
@@ -831,17 +831,17 @@ EndFunction
 //
 // Parameters:
 //   ProxyServerSetting - Map of KeyAndValue:
-//    * Key - String - 
+//    * Key - String - see the list of available keys below.
 //    * Value - Arbitrary
-//    
-//    
-//    
-//    
-//    
-//    
-//    
-//    
-//    
+//    UseProxy - Boolean - indicates whether to use the proxy server.
+//    BypassProxyOnLocal - indicates whether to use the proxy server for local addresses.
+//    BypassProxyOnAddresses - Array from String
+//    UseSystemSettings - Boolean - indicates whether to use system settings of the proxy server.
+//    Server - String - a proxy server address.
+//    Port - String - a proxy server port.
+//    User - String - a username to authorize on the proxy server.
+//    Password - String - a user password.
+//    UseOSAuthentication - Boolean - indicates that authentication by operating system is used.
 //   URLOrProtocol - String - resource address or protocol for which proxy server parameters are set, for example
 //                             "https://1ci.com", "http", "https", "ftp", "ftps".
 //
@@ -851,19 +851,19 @@ EndFunction
 Function NewInternetProxy(ProxyServerSetting, URLOrProtocol) Export
 	
 	If ProxyServerSetting = Undefined Then
-		// Системные установки прокси-
+		// Proxy server system settings.
 		Return Undefined;
 	EndIf;
 	
 	UseProxy = ProxyServerSetting.Get("UseProxy");
 	If Not UseProxy Then
-		// Не использовать прокси-
+		// Do not use a proxy server.
 		Return New InternetProxy(False);
 	EndIf;
 	
 	UseSystemSettings = ProxyServerSetting.Get("UseSystemSettings");
 	If UseSystemSettings Then
-		// Системные настройки прокси-
+		// Proxy server system settings.
 		Return New InternetProxy(True);
 	EndIf;
 	
@@ -1034,17 +1034,17 @@ Function CheckServerAvailability(ServerAddress) Export
 		Return Result; 
 	EndTry;	
 	
-	// 
+	
 	// 
 	// 
 	AvailabilityLog = RunResult.OutputStream + RunResult.ErrorStream;
 	
 	If Common.IsWindowsServer() Then
-		Available = StrFind(AvailabilityLog, "Destination host unreachable") = 0 // 
+		Available = StrFind(AvailabilityLog, "Destination host unreachable") = 0 
 			And (StrFind(AvailabilityLog, "(0% loss)") > 0 // Do not localize.
 			Or StrFind(AvailabilityLog, "(25% loss)") > 0); // Do not localize.
 	Else 
-		Available = StrFind(AvailabilityLog, "Destination Host Unreachable") = 0 // 
+		Available = StrFind(AvailabilityLog, "Destination Host Unreachable") = 0 // Do not localize.
 			And (StrFind(AvailabilityLog, "(0% packet loss)") > 0 // Do not localize.
 			Or StrFind(AvailabilityLog, "(25% packet loss)") > 0); // Do not localize.
 	EndIf;
@@ -1080,9 +1080,9 @@ Function ServerRouteTraceLog(ServerAddress) Export
 	If Common.IsWindowsServer() Then
 		CommandTemplate = "tracert -w 100 -h 15 %1";
 	Else 
-		// Если вдруг пакет traceroute не установлен - 
-		// 
-		// 
+		
+		
+		
 		CommandTemplate = "traceroute -w 100 -m 100 %1";
 	EndIf;
 	

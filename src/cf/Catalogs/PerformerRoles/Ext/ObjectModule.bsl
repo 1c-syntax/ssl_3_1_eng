@@ -48,7 +48,7 @@ Procedure BeforeWrite(Cancel)
 	
 	If Not GetFunctionalOption("UseExternalUsers") Then
 		If Purpose.Find(Catalogs.Users.EmptyRef(), "UsersType") = Undefined Then
-			// 
+			// If external users are disconnected, the role must be assigned to users.
 			Purpose.Add().UsersType = Catalogs.Users.EmptyRef();
 		EndIf;
 	EndIf;

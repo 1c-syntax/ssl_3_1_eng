@@ -28,11 +28,11 @@ Function LongSynchronizationQuestionSetupFlag(FlagValue1 = Undefined, SettingDet
 	FillPropertyValues(SettingsDescription, SettingDetails);
 	
 	If FlagValue1 = Undefined Then
-		// Чтение
+		// Read
 		Return Common.CommonSettingsStorageLoad(SettingsDescription.ObjectKey, SettingsDescription.SettingsKey, True);
 	EndIf;
 	
-	// Запись
+	// Write
 	Common.CommonSettingsStorageSave(SettingsDescription.ObjectKey, SettingsDescription.SettingsKey, FlagValue1, SettingsDescription);
 EndFunction
 
@@ -286,15 +286,15 @@ Function GenerateStandaloneWorkstationPrefix(Val LastPrefix = "") Export
 	
 	If CharPosition = 0 Or IsBlankString(LastStandaloneWorkstationChar) Then
 		
-		Char = Left(AllowedChars, 1); // 
+		Char = Left(AllowedChars, 1); 
 		
 	ElsIf CharPosition >= StrLen(AllowedChars) Then
 		
-		Char = Right(AllowedChars, 1); // 
+		Char = Right(AllowedChars, 1); 
 		
 	Else
 		
-		Char = Mid(AllowedChars, CharPosition + 1, 1); // 
+		Char = Mid(AllowedChars, CharPosition + 1, 1); 
 		
 	EndIf;
 	
@@ -513,7 +513,7 @@ Procedure PerformStandaloneWorkstationSetupOnFirstStart(DataImport = False) Expo
 	Else
 		DoImportParametersFromInitialImage();
 		
-		// 
+		// Importing rules as exchange rules are not migrated to DIB.
 		DataExchangeServer.UpdateDataExchangeRules();
 	EndIf;
 	
@@ -609,8 +609,8 @@ Function DefaultDataSynchronizationSchedule() Export // Every hour.
 	Schedule = New JobSchedule;
 	Schedule.Months                   = Months;
 	Schedule.WeekDays                = WeekDays;
-	Schedule.RepeatPeriodInDay = 60*60; // 
-	Schedule.DaysRepeatPeriod        = 1; // 
+	Schedule.RepeatPeriodInDay = 60*60; 
+	Schedule.DaysRepeatPeriod        = 1; // Every day.
 	
 	Return Schedule;
 EndFunction
@@ -633,7 +633,7 @@ EndFunction
 
 // For internal use
 // 
-Function SynchronizationWithServiceNotExecutedLongTime(Val Interval = 3600) Export // 
+Function SynchronizationWithServiceNotExecutedLongTime(Val Interval = 3600) Export // Default interval value is 1 hour
 	
 	Return True;
 	
@@ -888,8 +888,8 @@ EndProcedure
 Procedure SetRegistersTotalsUsage(Flagusage)
 	
 	SessionDate = CurrentSessionDate();
-	AccumulationRegisterPeriod  = EndOfMonth(AddMonth(SessionDate, -1)); // 
-	AccountingRegisterPeriod = EndOfMonth(SessionDate); // 
+	AccumulationRegisterPeriod  = EndOfMonth(AddMonth(SessionDate, -1)); 
+	AccountingRegisterPeriod = EndOfMonth(SessionDate); 
 	
 	KindBalance = Metadata.ObjectProperties.AccumulationRegisterType.Balance;
 	
@@ -1009,7 +1009,7 @@ Procedure DoImportParametersFromInitialImage()
 		Raise;
 	EndTry;
 	
-	// 
+	// Assign the created node the master node.
 	ExchangePlans.SetMasterNode(MasterNodeRef);
 	StandardSubsystemsServer.SaveMasterNode();
 	
@@ -1032,7 +1032,7 @@ Procedure DoImportParametersFromInitialImage()
 			
 		EndIf;
 		
-		// 
+		// The constant value must be True to call the standalone workstation setup wizard.
 		Constants.SubordinateDIBNodeSetupCompleted.Set(True);
 		
 		// Adding a record to exchange transport information register.
@@ -1044,7 +1044,7 @@ Procedure DoImportParametersFromInitialImage()
 		
 		InformationRegisters.DataExchangeTransportSettings.AddRecord(RecordStructure);
 		
-		// 
+		// Adding a record to the information register of common infobase node settings.
 		RecordStructure = New Structure;
 		RecordStructure.Insert("InfobaseNode", ApplicationInSaaS());
 		RecordStructure.Insert("SettingCompleted", True);
@@ -1054,7 +1054,7 @@ Procedure DoImportParametersFromInitialImage()
 		EndIf;
 		DataExchangeInternal.AddRecordToInformationRegister(RecordStructure, "CommonInfobasesNodesSettings");
 		
-		// 
+		// Setting an initial image creation date as the date of the first successful synchronization.
 		RecordStructure = New Structure;
 		RecordStructure.Insert("InfobaseNode", ApplicationInSaaS());
 		RecordStructure.Insert("ActionOnExchange", Enums.ActionsOnExchange.DataExport);
@@ -1067,8 +1067,8 @@ Procedure DoImportParametersFromInitialImage()
 		RecordStructure.Insert("EndDate", Parameters.InitialImageCreationDate);
 		InformationRegisters.SuccessfulDataExchangesStates.AddRecord(RecordStructure);
 		
-		// 
-		// 
+		
+		
 		ScheduledJobsServer.SetScheduledJobUsage(Metadata.ScheduledJobs.DataSynchronizationWithWebApplication, False);
 		ScheduledJobsServer.SetJobSchedule(Metadata.ScheduledJobs.DataSynchronizationWithWebApplication, DefaultDataSynchronizationSchedule());
 		
@@ -1172,10 +1172,10 @@ Procedure ImportInitialImageData()
 	DataExchangeInternal.DisableAccessKeysUpdate(True, False);
 	SetRegistersTotalsUsage(False);
 	
-	//  
-	// 
-	// 
-	// 
+	 
+	
+	
+	
 	SetsOfAccountingRegisters = New Array;
 	
 	For Each DataFileName In DataFileList Do
@@ -1203,10 +1203,6 @@ Procedure ImportInitialImageData()
 				
 			EndDo;
 			
-			For Each Set In SetsOfAccountingRegisters Do
-				Set.Write();
-			EndDo;
-			
 		Except
 			
 			DataExchangeInternal.DisableAccessKeysUpdate(False, False);
@@ -1228,6 +1224,23 @@ Procedure ImportInitialImageData()
 		EndTry;
 		
 	EndDo;
+	
+	Try
+		
+		For Each Set In SetsOfAccountingRegisters Do
+			Set.Write();
+		EndDo;
+		
+	Except
+		
+		DataExchangeInternal.DisableAccessKeysUpdate(False, False);
+		
+		WriteLogEvent(StandaloneWorkstationCreationEventLogMessageText(),
+			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		
+		Raise;
+		
+	EndTry;
 	
 	SetRegistersTotalsUsage(True);
 	DataExchangeInternal.DisableAccessKeysUpdate(False, False);
@@ -1307,10 +1320,10 @@ Function GetParametersFromInitialImage()
 	XMLReader = New XMLReader;
 	XMLReader.SetString(XMLLine);
 	
-	XMLReader.Read(); // Параметры
+	XMLReader.Read(); // Parameters
 	FormatVersion = XMLReader.GetAttribute("FormatVersion");
 	
-	XMLReader.Read(); // ПараметрыАвтономногоРабочегоМеста
+	XMLReader.Read(); // StandaloneWorkstationParameters
 	
 	Result = ReadDataToStructure(XMLReader);
 	
@@ -1364,10 +1377,10 @@ Function MetadataObjectIsException(Val MetadataObject)
 		Return True;
 	EndIf;
 	
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
 	If MetadataObject = Metadata.Catalogs.MetadataObjectIDs Then
 		Return True;
 	EndIf;

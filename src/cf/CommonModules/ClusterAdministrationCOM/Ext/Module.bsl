@@ -197,7 +197,7 @@ EndProcedure
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //
 // Returns: 
-//   Boolean - 
+//   Boolean - the lock state.
 //
 Function InfobaseScheduledJobLock(Val ClusterAdministrationParameters, Val IBAdministrationParameters) Export
 	
@@ -266,7 +266,7 @@ EndProcedure
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //   Filter - See ClusterAdministration.SessionsFilter
-//          See ClusterAdministration.SessionsFilter
+//           See ClusterAdministration.SessionsFilter
 //
 // Returns: 
 //   Array of See ClusterAdministration.SessionProperties
@@ -301,7 +301,7 @@ EndFunction
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //   Filter - See ClusterAdministration.SessionsFilter
-//          See ClusterAdministration.SessionsFilter
+//           See ClusterAdministration.SessionsFilter
 //
 Procedure DeleteInfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -376,7 +376,7 @@ EndProcedure
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //   Filter - See ClusterAdministration.JoinsFilters
-//          See ClusterAdministration.JoinsFilters
+//           See ClusterAdministration.JoinsFilters
 //
 // Returns: 
 //   Array of See ClusterAdministration.ConnectionProperties
@@ -413,7 +413,7 @@ EndFunction
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //   Filter - See ClusterAdministration.JoinsFilters
-//          See ClusterAdministration.JoinsFilters
+//           See ClusterAdministration.JoinsFilters
 //
 Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val IBAdministrationParameters, 
 	Val Filter = Undefined) Export
@@ -432,14 +432,14 @@ Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val 
 		ClusterAdministrationParameters.ClusterAdministratorPassword);
 		
 	Value = New Array;
-	Value.Add("1CV8");               // 
-	Value.Add("1CV8C");              // 
-	Value.Add("WebClient");          // идентификатор приложения 1C:Enterprise в режиме запуска "Веб-
-	Value.Add("Designer");           // 
-	Value.Add("COMConnection");      // 
-	Value.Add("WSConnection");       // идентификатор сессии Web-
-	Value.Add("BackgroundJob");      // 
-	Value.Add("WebServerExtension"); // идентификатор расширения Web-
+	Value.Add("1CV8");               
+	Value.Add("1CV8C");              // ID of 1C:Enterprise application running in thin client mode.
+	Value.Add("WebClient");          // ID of 1C:Enterprise application running in web client mode.
+	Value.Add("Designer");           // Designer ID.
+	Value.Add("COMConnection");      // ID of 1C:Enterprise external COM connection session.
+	Value.Add("WSConnection");       // Web service session ID.
+	Value.Add("BackgroundJob");      // ID of job processing session.
+	Value.Add("WebServerExtension"); // Web server extension ID.
 
 	ClusterAdministration.AddFilterCondition(Filter, "ClientApplicationID", ComparisonType.InList, Value);
 		
@@ -503,8 +503,8 @@ EndProcedure
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //
 // Returns: 
-//   String - 
-//                  
+//   String - name of the security profile set for the infobase. If the infobase is not assigned
+//                  with a security profile, returns an empty string.
 //
 Function InfobaseSecurityProfile(Val ClusterAdministrationParameters, Val IBAdministrationParameters) Export
 	
@@ -544,8 +544,8 @@ EndFunction
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //
 // Returns: 
-//   String - 
-//                  
+//   String - name of the security profile set for the infobase as the safe
+//                  mode security profile. If the infobase is not assigned with a security profile, an empty string is returned.
 //
 Function InfobaseSafeModeSecurityProfile(Val ClusterAdministrationParameters, Val IBAdministrationParameters) Export
 	
@@ -709,37 +709,37 @@ Function SecurityProfile(Val ClusterAdministrationParameters, Val ProfileName) E
 		SecurityProfile,
 		SecurityProfilePropertiesDictionary());
 	
-	// 
+	// Virtual directories.
 	Result.Insert("VirtualDirectories",
 		COMAdministratorObjectModelObjectsDetails(
 			GetVirtualDirectories(IServerAgentConnection, Cluster, ProfileName),
 			VirtualDirectoryPropertiesDictionary()));
 	
-	// Разрешенные COM-
+	// Allowed COM classes.
 	Result.Insert("COMClasses",
 		COMAdministratorObjectModelObjectsDetails(
 			GetCOMClasses(IServerAgentConnection, Cluster, ProfileName),
 			COMClassPropertiesDictionary()));
 	
-	// 
+	// Add-ins.
 	Result.Insert("AddIns",
 		COMAdministratorObjectModelObjectsDetails(
 			GetAddIns1(IServerAgentConnection, Cluster, ProfileName),
 			AddInPropertiesDictionary()));
 	
-	// 
+	// External modules.
 	Result.Insert("ExternalModules",
 		COMAdministratorObjectModelObjectsDetails(
 			GetExternalModules(IServerAgentConnection, Cluster, ProfileName),
 			ExternalModulePropertiesDictionary()));
 	
-	// 
+	// OS applications.
 	Result.Insert("OSApplications",
 		COMAdministratorObjectModelObjectsDetails(
 			GetOSApplications(IServerAgentConnection, Cluster, ProfileName),
 			OSApplicationPropertiesDictionary()));
 	
-	// Интернет-Resources
+	// Internet resources.
 	Result.Insert("InternetResources",
 		COMAdministratorObjectModelObjectsDetails(
 			GetInternetResources(IServerAgentConnection, Cluster, ProfileName),

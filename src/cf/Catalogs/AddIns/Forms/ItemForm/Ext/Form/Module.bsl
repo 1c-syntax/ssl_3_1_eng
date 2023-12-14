@@ -63,6 +63,7 @@ Procedure OnReadAtServer(CurrentObject)
 	
 	ComponentBinaryDataAddress = Undefined;
 	SetVisibilityAvailability();
+	TargetPlatforms = CurrentObject.TargetPlatforms.Get();
 	
 EndProcedure
 
@@ -75,12 +76,14 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		CurrentObject.AdditionalProperties.Insert("ComponentBinaryData", ComponentBinaryData);
 	EndIf;
 	
+	CurrentObject.TargetPlatforms = New ValueStorage(TargetPlatforms);
+	
 EndProcedure
 
 &AtServer
 Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
-	Saved = True; // 
+	Saved = True; // Saving means successful closing,
 	Parameters.ShowImportFromFileDialogOnOpen = False; // Preventing closing form on error.
 	
 EndProcedure
@@ -175,34 +178,9 @@ EndProcedure
 
 &AtClient
 Procedure SupportedClientApplications(Command)
-	
-	Attributes = New Structure;
-	Attributes.Insert("Windows_x86");
-	Attributes.Insert("Windows_x86_64");
-	Attributes.Insert("Linux_x86");
-	Attributes.Insert("Linux_x86_64");
-	Attributes.Insert("Windows_x86_Firefox");
-	Attributes.Insert("Linux_x86_Firefox");
-	Attributes.Insert("Linux_x86_64_Firefox");
-	Attributes.Insert("Windows_x86_MSIE");
-	Attributes.Insert("Windows_x86_64_MSIE");
-	Attributes.Insert("Windows_x86_Chrome");
-	Attributes.Insert("Linux_x86_Chrome");
-	Attributes.Insert("Linux_x86_64_Chrome");
-	Attributes.Insert("MacOS_x86_64");
-	Attributes.Insert("MacOS_x86_64_Safari");
-	Attributes.Insert("MacOS_x86_64_Chrome");
-	Attributes.Insert("MacOS_x86_64_Firefox");
-	Attributes.Insert("Windows_x86_YandexBrowser");
-	Attributes.Insert("Windows_x86_64_YandexBrowser");
-	Attributes.Insert("Linux_x86_YandexBrowser");
-	Attributes.Insert("Linux_x86_64_YandexBrowser");
-	Attributes.Insert("MacOS_x86_64_YandexBrowser");
-	
-	FillPropertyValues(Attributes, Object);
-	
+
 	FormParameters = New Structure;
-	FormParameters.Insert("SupportedClients", Attributes);
+	FormParameters.Insert("SupportedClients", TargetPlatforms);
 	
 	OpenForm("CommonForm.SupportedClientApplications", FormParameters);
 	
@@ -232,7 +210,7 @@ EndProcedure
 &AtClient
 Procedure ImportAddInAfterSecurityWarning(Response, Context) Export
 	
-	//  
+	 
 	// 
 	// 
 	// 
@@ -384,10 +362,12 @@ Function ImportAddInFromFileOnServer(Val ImportParameters)
 	EndIf;
 	
 	FillPropertyValues(ObjectOfCatalog, Information.Attributes,, "Id"); // According to manifest data.
+	TargetPlatforms = Information.Attributes.TargetPlatforms;
+	
 	If Not ValueIsFilled(ObjectOfCatalog.Id) Then 
 		ObjectOfCatalog.Id = Information.Attributes.Id;
 	EndIf;
-	ObjectOfCatalog.FileName =  ImportParameters.FileName;          // 
+	ObjectOfCatalog.FileName =  ImportParameters.FileName;          
 	ComponentBinaryDataAddress = PutToTempStorage(Information.BinaryData,
 		UUID);
 	
@@ -461,7 +441,7 @@ Procedure SetVisibilityAvailability()
 		Items.Version.WarningOnEditRepresentation = NotDisplayWarning;
 	EndIf;
 	
-	// 
+	// "Save to file" button availability.
 	Items.FormSaveAs.Enabled = Not IsNew;
 	
 	// Dependence of using and automatic update.

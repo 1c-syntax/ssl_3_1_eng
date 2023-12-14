@@ -8,6 +8,11 @@
 			<code>Русский</code>
 			<description>Русский</description>
 		</languageInfo>
+		<languageInfo>
+			<id>en</id>
+			<code>Английский</code>
+			<description/>
+		</languageInfo>
 	</languageSettings>
 	<columns>
 		<size>1</size>
@@ -265,6 +270,7 @@
 	</rowsItem>
 	<rowsItem>
 		<index>13</index>
+		<indexTo>14</indexTo>
 		<row>
 			<empty>true</empty>
 		</row>

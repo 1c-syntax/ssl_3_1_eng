@@ -228,7 +228,7 @@ EndProcedure
 &AtClient
 Procedure ExchangeNodesTreeSelectionCompletion(Val Number, Val AdditionalParameters) Export
 	If Number = Undefined Then 
-		// 
+		// Cancel input.
 		Return;
 	EndIf;
 	

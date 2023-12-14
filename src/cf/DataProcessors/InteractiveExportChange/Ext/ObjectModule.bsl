@@ -20,7 +20,7 @@
 //       SimplifiedMode     - Boolean - template selection.
 //
 //  Returns:
-//      SpreadsheetDocument - 
+//      SpreadsheetDocument - report.
 //
 Function GenerateUserSpreadsheetDocument(FullMetadataName = "", Presentation = "", SimplifiedMode = False) Export
 	SetPrivilegedMode(True);
@@ -38,7 +38,7 @@ Function GenerateUserSpreadsheetDocument(FullMetadataName = "", Presentation = "
 	// Save filter settings.
 	FiltersSettings = CompositionData.SettingsComposer.GetSettings();
 	
-	// 
+	// Apply the selected option.
 	CompositionData.SettingsComposer.LoadSettings(
 		CompositionData.CompositionSchema.SettingVariants[VariantName].Settings);
 	
@@ -101,7 +101,7 @@ EndFunction
 //      MetadataNamesList - Array - an array of full metadata names for restricting a query.
 //                                      This parameter can contain a collection of objects that have the FullMetadataName field.
 //  Returns:
-//      ValueTree - 
+//      ValueTree - a two-level tree where the first level contains metadata types and the second level contains metadata objects.
 //
 Function GenerateValueTree(MetadataNamesList = Undefined) Export
 	SetPrivilegedMode(True);
@@ -127,10 +127,10 @@ EndFunction
 //
 //  Parameters:
 //      Source - String
-//               - UUID - 
+//               - UUID - an address in a temporary storage where the source object is placed or data.
 //
 //  Returns:
-//    DataProcessorObject.InteractiveExportChange - 
+//    DataProcessorObject.InteractiveExportChange - InteractiveExportModification.
 //
 Function InitializeThisObject(Val Source = "") Export
 	
@@ -171,10 +171,10 @@ EndFunction
 //
 //  Parameters:
 //      StorageAddress - String
-//                     - UUID - 
+//                     - UUID - a storage form ID or an address.
 //
 //  Returns:
-//      String - 
+//      String - an address of saved.
 //
 Function SaveThisObject(Val StorageAddress) Export
 	Data = New Structure;
@@ -194,8 +194,8 @@ EndFunction
 //
 //  Parameters:
 //      SchemaSavingAddress - String
-//                           - UUID - 
-//                             
+//                           - UUID - a temporary storage address for saving the
+//                             composition schema.
 //
 // Returns:
 //      Structure:
@@ -226,11 +226,11 @@ EndFunction
 //      Presentation        - String - object presentation in the filter.
 //      Filter                - DataCompositionFilter - a composition filter for filling.
 //      SchemaSavingAddress - String
-//                           - UUID - 
-//                             
+//                           - UUID - a temporary storage address for saving the
+//                             composition schema.
 //
 // Returns:
-//      DataCompositionSettingsComposer - 
+//      DataCompositionSettingsComposer - an initialized composer.
 //
 Function SettingsComposerByTableName(FullMetadataName, Presentation = Undefined, Filter = Undefined, SchemaSavingAddress = Undefined) Export
 	
@@ -259,21 +259,21 @@ Function SettingsComposerByTableName(FullMetadataName, Presentation = Undefined,
 EndFunction
 
 // Returns:
-//     String - 
+//     String - a prefix to receive form names of the current object.
 //
 Function BaseNameForForm() Export
 	Return Metadata().FullName() + "."
 EndFunction
 
 // Returns:
-//     String - 
+//     String - a title to generate presentation by all documents.
 //
 Function AllDocumentsFilterGroupTitle() Export
 	Return NStr("en = 'All documents';");
 EndFunction
 
 // Returns:
-//     String - 
+//     String - a title for presentation generation by all catalogs.
 //
 Function AllCatalogsFilterGroupTitle() Export
 	Return NStr("en = 'All catalogs';");
@@ -286,7 +286,7 @@ EndFunction
 //      Filter  - DataCompositionFilter - a data composition filter to describe.
 //      EmptyFilterDetails - String - the function returns this value if an empty filter is passed.
 // Returns:
-//     String - 
+//     String - presentation of period and filter.
 //
 Function FilterPresentation(Period, Filter, Val EmptyFilterDetails = Undefined) Export
 	Return DataExchangeServer.ExportAdditionFilterPresentation(Period, Filter, EmptyFilterDetails);
@@ -297,7 +297,7 @@ EndFunction
 //  Parameters:
 //      EmptyFilterDetails - String - the function returns this value if an empty filter is passed.
 // Returns:
-//     String - 
+//     String - detailed filter presentation by the AdditionalRegistration attribute.
 //
 Function DetailedFilterPresentation(Val EmptyFilterDetails=Undefined)
 	Return DataExchangeServer.DetailedExportAdditionPresentation(AdditionalRegistration, EmptyFilterDetails);
@@ -305,18 +305,18 @@ EndFunction
 
 // The "All documents" metadata object internal group ID.
 // Returns:
-//     String - 
+//     String - The "All documents" metadata object internal group ID.
 //
 Function AllDocumentsID() Export
-	// 
+	// The ID must not be identical to the full metadata name.
 	Return DataExchangeServer.ExportAdditionAllDocumentsID();
 EndFunction
 
 // Returns:
-//     String - 
+//     String - The "All catalogs" metadata object internal group ID.
 //
 Function AllCatalogsID() Export
-	// 
+	// The ID must not be identical to the full metadata name.
 	Return DataExchangeServer.ExportAdditionAllCatalogsID();
 EndFunction
 
@@ -326,8 +326,8 @@ EndFunction
 //      DestinationItems - DataCompositionFilterItemCollection - destination.
 //      SourceItems - DataCompositionFilterItemCollection - source.
 //      FieldsMap - Map of KeyAndValue - determines the composition of the filter fields to be replaced:
-//                          * Key -  
-//                          * Value - 
+//                          * Key - an initial path to the field data. 
+//                          * Value - a path for the result.
 //                          For example, to replace type fields.
 //                          "Ref.Description" -> "RegistrationObject.Description".
 //                          pass New Structure("Ref", "RegistrationObject").
@@ -370,8 +370,8 @@ EndProcedure
 //      Presentation  - String         - search parameter.
 //
 // Returns:
-//   - ValueListItem - 
-//   - Undefined  - 
+//   - ValueListItem - Item found.
+//   - Undefined  - Item found.
 //
 Function FindByPresentationListItem(ValueList, Presentation)
 	For Each ListItem In ValueList Do
@@ -387,7 +387,7 @@ EndFunction
 Procedure RecordAdditionalChanges() Export
 	
 	If ExportOption <= 0 Then
-		// 
+		// No changes.
 		Return;
 	EndIf;
 	
@@ -413,7 +413,7 @@ EndProcedure
 //                                      0 - without filter, 1 - all document filter, 2 - detailed, 3 - node scenario.
 //
 //  Returns:
-//      ValueList - 
+//      ValueList - possible settings.
 //
 Function ReadSettingsListPresentations(ExchangeNode = Undefined, Variants = Undefined) Export
 	
@@ -443,10 +443,10 @@ EndFunction
 //      Variants            - Array - if specified, the settings are filtered as follows
 //                                     0 - without filter, 1 - all document filter, 2 - detailed, 3 - node scenario.
 //      FormStorageAddress - String
-//                          - UUID - 
+//                          - UUID - an optional address for saving.
 //
 // Returns:
-//      Boolean - 
+//      Boolean - True - restored, False - the setting is not found.
 //
 Function RestoreCurrentAttributesFromSettings(Presentation, Variants = Undefined, FormStorageAddress = Undefined) Export
 	
@@ -528,9 +528,9 @@ EndProcedure
 //
 // Parameters:
 //      FullMetadataName - String
-//                          - ValueTree - 
-//                            
-//                            
+//                          - ValueTree - metadata object name (for example Catalog.Currencies), or
+//                            predefined group name
+//                            (for example AllDocuments), or value tree that describes a group.
 //
 // Returns:
 //      Array - metadata names.
@@ -552,12 +552,12 @@ Function EnlargedMetadataGroupComposition(FullMetadataName) Export
 		CompositionTables = AllData.UnloadColumn("FullMetadataName");
 		
 	ElsIf FullMetadataName = AllCatalogsID() Then
-		// 
+		// All catalogs in this node.
 		AllData = DataExchangeCached.ExchangePlanContent(InfobaseNode.Metadata().Name, False, True);
 		CompositionTables = AllData.UnloadColumn("FullMetadataName");
 		
 	Else
-		// 
+		// Single metadata table.
 		CompositionTables = New Array;
 		CompositionTables.Add(FullMetadataName);
 		
@@ -585,7 +585,7 @@ EndFunction
 //      IndexList1 - String - a list of table indexes separated by commas.
 //
 // Returns:
-//      ValueTable - 
+//      ValueTable - a generated table.
 //
 Function ValueTable(ColumnsList, IndexList1 = "")
 	ResultTable2 = New ValueTable;
@@ -661,8 +661,8 @@ EndProcedure
 //                                                  for export item filter.
 //
 //      SchemaSavingAddress - String
-//                           - UUID - 
-//                             
+//                           - UUID - a temporary storage address for saving the
+//                             composition schema.
 //
 //  Returns:
 //      Structure:
@@ -681,7 +681,7 @@ Function InitializeComposer(MetadataNamesList = Undefined, LimitUsageWithFilter 
 	// Sets for each metadata type included in the exchange.
 	SetItemsChanges = CompositionSchema.DataSets.Find("ChangeRecords").Items;
 	While SetItemsChanges.Count() > 1 Do
-		// [0] - 
+		// [0] - Field details.
 		SetItemsChanges.Delete(SetItemsChanges[1]);
 	EndDo;
 	DataSource = CompositionSchema.DataSources.Get(0).Name;
@@ -770,11 +770,11 @@ Function InitializeComposer(MetadataNamesList = Undefined, LimitUsageWithFilter 
 		String.Filter               = AllDocumentsFilterComposer.Settings.Filter;
 		
 	ElsIf ExportOption = 2 Then
-		// 
+		// Refined filter.
 		AdditionalChangesTable = AdditionalRegistration;
 		
 	Else
-		// 
+		// Additional filter options are not being used.
 		AdditionalChangesTable = New ValueTable;
 		
 	EndIf;
@@ -915,7 +915,7 @@ Function InitializeComposer(MetadataNamesList = Undefined, LimitUsageWithFilter 
 					EndIf;
 				EndIf;
 				
-				// Добавляем элементы отбора с коррекцией полей "Ссылка" -
+				// Adding filter items with field replacement: "Ref" -> "RegistrationObject.
 				AddingOptions = New Structure;
 				AddingOptions.Insert("NameOfTableToAdd", NameOfTableToAdd);
 				AddTabularSectionCompositionAdditionalFilters(
@@ -1075,14 +1075,14 @@ Procedure AddTabularSectionCompositionAdditionalFilters(DestinationItems, Source
 		If Position = 0
 			Or MetaAttributes <> Undefined
 			Or Common.IsStandardAttribute(MetaObject1.StandardAttributes, TableName) Then
-			// 
+			// Header attribute filter is retrieved by reference.
 			FilterElement = DestinationItems.Add(Type);
 			FillPropertyValues(FilterElement, Item);
 			FilterElement.LeftValue = New DataCompositionField("RegistrationObject." + FieldName);
 			Continue;
 			
 		ElsIf MetaTabularSection = Undefined Then
-			// 
+			// The table does not match the conditions. Refine the filter.
 			FilterElement = DestinationItems.Add(Type);
 			FillPropertyValues(FilterElement, Item);
 			FilterElement.LeftValue  = New DataCompositionField("FullMetadataName");
@@ -1096,14 +1096,14 @@ Procedure AddTabularSectionCompositionAdditionalFilters(DestinationItems, Source
 		// Setting up filter for a tabular section
 		DataPath = Mid(FieldName, Position + 1);
 		If StrStartsWith(DataPath + ".", "Ref.") Then
-			// 
+			// Redirecting to the parent table.
 			FilterElement = DestinationItems.Add(Type);
 			FillPropertyValues(FilterElement, Item);
 			FilterElement.LeftValue = New DataCompositionField("RegistrationObject." + Mid(DataPath, 8));
 			
 		ElsIf DataPath <> "LineNumber" And DataPath <> "Ref"
 			And MetaTabularSection.Attributes.Find(DataPath) = Undefined Then
-			// 
+			// The table is correct but the attribute does not match the conditions. Refine the filter.
 			FilterElement = DestinationItems.Add(Type);
 			FillPropertyValues(FilterElement, Item);
 			FilterElement.LeftValue  = New DataCompositionField("FullMetadataName");
@@ -1112,7 +1112,7 @@ Procedure AddTabularSectionCompositionAdditionalFilters(DestinationItems, Source
 			FilterElement.RightValue = "";
 			
 		Else
-			// 
+			// Modify the name.
 			FilterElement = DestinationItems.Add(Type);
 			FillPropertyValues(FilterElement, Item);
 			DataPath = StrReplace(NameOfTableToAdd + TableName, ".", "") + DataPath;
@@ -1156,7 +1156,7 @@ EndFunction
 //                                      the current InfobaseNode attribute value is used.
 //
 //  Returns:
-//      SettingsDescription - 
+//      SettingsDescription - settings description.
 //
 Function SettingsParameterStructure(ExchangeNode = Undefined)
 	Node = ?(ExchangeNode=Undefined,  InfobaseNode, ExchangeNode);
@@ -1187,7 +1187,7 @@ EndFunction
 //                          0 - without filter, 1 - all document filter, 2 - detailed, 3 - node scenario.
 //
 //  Returns:
-//      ValueList - customization.
+//      ValueList - settings.
 //
 Function ReadSettingsList(Variants = Undefined)
 	SettingsParameters = SettingsParameterStructure();
@@ -1240,7 +1240,7 @@ EndProcedure
 Function AdditionalParameterText()
 	
 	If ExportOption = 0 Then
-		// 
+		// All automatic data.
 		Return NStr("en = 'No additional data.';");
 		
 	ElsIf ExportOption = 1 Then
@@ -1269,10 +1269,10 @@ Function ThisObjectInStructureForBackgroundJob() Export
 		
 		ResultStructure1.Insert(AttributeName, ThisObject[AttributeName]);
 	EndDo;
-	// Передаем пусто - 
+	// If an empty item is passed, it will be excluded from the data processor.
 	ResultStructure1.Insert("AllDocumentsFilterComposer");
 
-	// Отдельно настройки КомпоновщикОтбораВсехДокументов - 
+	// Filling the structure with the AllDocumentsFilterComposer settings. Filter only.
 	ResultStructure1.Insert("AllDocumentsFilterComposerSettings1", AllDocumentsFilterComposer.Settings);
 	
 	Return ResultStructure1;

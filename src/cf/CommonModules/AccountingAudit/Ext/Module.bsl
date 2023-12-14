@@ -16,7 +16,7 @@
 //
 // Parameters:
 //   Validation                    - CatalogRef.AccountingCheckRules
-//                               - String - Check rule to run, or its string ID.
+//                               - String - - Check rule to run, or its string ID.
 //                                 
 //   CheckExecutionParameters - Structure
 //                               - Array - Custom additional check parameters that define the check procedure and object.
@@ -204,10 +204,10 @@ EndFunction
 //   ChecksKind                - CatalogRef.ChecksKinds - a reference to a check kind.
 //                              - String - 
 //                              - Array of String - 
-//   SearchByExactMap - Boolean - if True, the check kind is determined by the exact match of
-//                                all property values in the ChecksKind parameter (see example 2). 
-//                                If False, the check kind is determined both by the specified property values
-//                                and by any values of the unspecified properties in the ViewCheck parameter (see Example No. 3). 
+//   SearchByExactMap - Boolean - 
+//                                
+//                                
+//                                
 //
 // Returns:
 //   ValueTable:
@@ -252,8 +252,8 @@ EndFunction
 //   Id - String - a check string ID. For example, "CheckRefIntegrity".
 //
 // Returns: 
-//   CatalogRef.AccountingCheckRules -  
-//      
+//   CatalogRef.AccountingCheckRules - a reference to a check or a blank reference 
+//      if a check with such ID does not exist.
 //
 Function CheckByID(Id) Export
 	
@@ -384,7 +384,7 @@ EndFunction
 //                   - Boolean
 //                   - Number
 //                   - String
-//                   - Date - 
+//                   - Date - Check kind's last parameter.
 //
 // Example:
 //     1. Parameters = CheckExecutionParameters("SystemChecks");
@@ -432,8 +432,7 @@ EndProcedure
 //   CheckParameters - Structure - parameters of the check being performed, whose value needs to be taken from the similarly named 
 //                                   parameter of the check handler procedure:
 //     * Validation         - CatalogRef.AccountingCheckRules - Completed check.
-//     * CheckKind      - CatalogRef.ChecksKinds - a reference to
-//                                                          a check kind.
+//     * CheckKind      - CatalogRef.ChecksKinds - 
 //     * IssueSeverity   - EnumRef.AccountingIssueSeverity - Severity level that you need to assign to
 //                            the found data integrity issue:
 //                            Information, Warning, Error, UsefulTip, or ImportantInformation.
@@ -443,12 +442,12 @@ EndProcedure
 //                            the specified one. Not filled in by default (check all).
 //     * IssuesLimit       - Number - Number of objects to check.
 //                            By default, 1,000. To check all the objects, set it to 0.
-//     * CheckKind        - CatalogRef.ChecksKinds - a reference to
-//                            a check kind.
+//     * CheckKind        - CatalogRef.ChecksKinds -  a reference to the type of check
+//                            that the performed check belongs to.
 //
 // Returns:
 //   Structure:
-//     * ObjectWithIssue         - AnyRef -
+//     * ObjectWithIssue         - AnyRef - 
 //     * Validation                 - CatalogRef.AccountingCheckRules - a reference to the executed check.
 //                                  Taken from the CheckParameters structure.
 //     * CheckKind              - CatalogRef.ChecksKinds - Reference to the completed check's kind.
@@ -462,8 +461,8 @@ EndProcedure
 //                                - Undefined - Arbitrary issue details.
 //                                  By default, Undefined.
 //     * EmployeeResponsible            - CatalogRef.Users
-//                                - Undefined -  
-//                                  
+//                                - Undefined - it is filled in if the problematic object 
+//                                  has its own responsible person. Default value is Undefined.
 //
 // Example:
 //  Issue = AccountingAudit.IssueDetails(DocumentWithIssue, CheckParameters);
@@ -542,7 +541,7 @@ EndProcedure
 //   Form                  - ClientApplicationForm - list form.
 //   ListsNames           - String - dynamic list names, separated with commas.
 //   AdditionalProperties - Structure
-//                          - Undefined - 
+//                          - Undefined - :
 //      * ProblemIndicatorFieldID - String - a dynamic list field name that
 //                            will be used to show an object problem
 //                            indicator.
@@ -610,7 +609,7 @@ Procedure OnCreateListFormAtServer(Form, ListsNames, AdditionalProperties = Unde
 		
 		If ProblemIndicatorFieldID = Undefined Then
 			DynamicListPropertiesStructure = Common.DynamicListPropertiesStructure();
-			FieldToAdd = " 0 AS " + ColumnName + ",";
+			FieldToAdd = "	0 AS " + ColumnName + ",";
 			QueryAsArray = StrSplit(QueryText, Chars.LF);
 			InsertionPosition = Undefined;
 			If StrOccurrenceCount(QueryText, "SELECT") > 1 Then // @query-part-1
@@ -672,8 +671,8 @@ EndProcedure
 //                            got in the list, except for the grouping rows.
 //   KeyFieldName       - String - "Ref" or the specified column name that contains an object reference.
 //   AdditionalProperties - Structure
-//                          - Undefined - 
-//                            
+//                          - Undefined - contains additional properties in case
+//                            you need to use them.
 //
 Procedure OnGetDataAtServer(Settings, Rows, KeyFieldName = "Ref", AdditionalProperties = Undefined) Export
 	

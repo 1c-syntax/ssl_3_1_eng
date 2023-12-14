@@ -51,7 +51,7 @@ EndProcedure
 //  Cancel - Boolean - indicates whether the application closing must be canceled. If the parameter
 //                   is set to True in the handler, the application is not closed.
 //  Warnings - Array - you can add elements of the Structure type to the array,
-//                            the structure properties are listed in StandardSubsystemsClient.BeforeExit. 
+//                            the structure properties are listed in StandardSubsystemsClient.BeforeExit.
 //
 Procedure BeforeExit(Cancel, Warnings) Export
 	

@@ -13,17 +13,17 @@
 //
 // Parameters:
 //  Settings - Structure:
-//   * UseSignaturesAndSeals - Boolean - if it is set to False, the ability to set signatures 
-//                                           and seals in print forms is disabled.
-//   * HideSignaturesAndSealsForEditing - Boolean - delete pictures of signatures and seals of spreadsheet documents when
-//                                           unchecking the "Signatures and Seals" checkbox in the "Print Documents" form
-//                                           so that they do not interfere with editing the text below them.
-//   * CheckPostingBeforePrint    - Boolean -
-//                                        
+//   * UseSignaturesAndSeals - Boolean - If False, the inserting signatures and stamps in print forms is disabled. 
+//                                           
+//   * HideSignaturesAndSealsForEditing - Boolean - If True, remove the images of signatures and stamps when a user clears the
+//                                           "Stamps and signatures" checkbox to be able to edit the text behind them.
+//                                           
+//   * CheckPostingBeforePrint    - Boolean - Flag indicating whether to check if documents are posted before printing out.
+//                                        By default, True for the Print command. Unposted documents are not printed.
 //                                        See PrintManagement.CreatePrintCommandsCollection.
+//                                        If the parameters is not passed, the check is skipped.
 //                                        
-//                                        
-//   * PrintObjects - Array -
+//   * PrintObjects - Array - Managers of objects with the OnDefinePrintSettings procedure.
 //
 Procedure OnDefinePrintSettings(Settings) Export
 	
@@ -61,7 +61,7 @@ EndProcedure
 // Allows to set additional print command settings in document journals.
 //
 // Parameters:
-//  ListSettings - Structure - print command list modifiers:
+//  ListSettings - Structure - Modifiers of print command lists::
 //   * PrintCommandsManager     - CommonModule - an object manager, in which the list of print commands is generated;
 //   * AutoFilling - Boolean - filling print commands from the objects included in the journal.
 //                                         If the value is False, the list of journal print commands will be
@@ -86,17 +86,17 @@ EndProcedure
 // Parameters:
 //  ObjectsArray - Array of AnyRef - a list of objects for which the print command is being executed;
 //  PrintParameters - Structure - arbitrary parameters passed when calling the print command;
-//  PrintFormsCollection - ValueTable - a return parameter, a collection of generated print forms:
+//  PrintFormsCollection - ValueTable - Return parameter. A collection of generated print forms:
 //   * TemplateName - String - print form ID;
 //   * TemplateSynonym - String - a print form name;
 //
-//   * SpreadsheetDocument - SpreadsheetDocument - one or several print forms output to one spreadsheet document
-//                         To layout print forms inside a spreadsheet document, after outputting every print form,
-//                         call the PrintManagement.SetDocumentPrintArea procedure;
-//                         The parameter is not used if print forms are output in the office document format
-//                         (see the "OfficeDocuments" parameter);
+//   * SpreadsheetDocument - SpreadsheetDocument - Print forms output to a spreadsheet.
+//                         To layout print forms inside a spreadsheet, after outputting every print form,
+//                         call the PrintManagement.SetDocumentPrintArea procedure.
+//                         The parameter is not used if print forms are output in an office document.
+//                         See the OfficeDocuments parameter.
 //
-//   * OfficeDocuments - Map of KeyAndValue - a collection of print forms in the format of office documents:
+//   * OfficeDocuments - Map of KeyAndValue - Collection of print forms in the format of office documents:
 //                         ** Key - String - an address in the temporary storage of binary data of the print form;
 //                         ** Value - String - a print form file name.
 //
@@ -105,7 +105,7 @@ EndProcedure
 //                                      By default, a file name is set as
 //                                      "[НазваниеПечатнойФормы] # [Номер] from [Дата]" for documents and
 //                                      "[НазваниеПечатнойФормы] — [ПредставлениеОбъекта] — [ТекущаяДата]" for objects.
-//                           - Map of KeyAndValue - 
+//                           - Map of KeyAndValue - Filenames for each object:
 //                              ** Key - AnyRef - a reference to a print object from the ObjectsArray collection;
 //                              ** Value - String - file name;
 //
@@ -115,15 +115,15 @@ EndProcedure
 //   * OutputInOtherLanguagesAvailable - Boolean - set to True if the print form is adapted
 //                                            for output in an arbitrary language.
 //  
-//  PrintObjects - ValueList - an output parameter, mapping between objects and area names in spreadsheet
-//                                   documents is filled in automatically
-//                                   upon calling PrintManagement.SetDocumentPrintArea:
+//  PrintObjects - ValueList - Output parameter. A mapping between objects and area names in spreadsheets
+//                                   . It is filled automatically upon calling
+//                                   PrintManagement.SetDocumentPrintArea::
 //   * Value - AnyRef - a reference from the ObjectsArray collection,
 //   * Presentation - String - an area name with the object in spreadsheet documents;
 //
-//  OutputParameters - Structure - print form output settings:
-//   * SendOptions - Structure - for automatic filling fields in the message creation form upon sending 
-//                                     generated print forms by email:
+//  OutputParameters - Structure - Print form output settings:
+//   * SendOptions - Structure - Interned for autofilling fields in the message creation form upon sending generated print forms by email 
+//                                     :
 //     ** Recipient - See EmailOperationsClient.EmailSendOptions.Получатель
 //     ** Subject       - See EmailOperationsClient.EmailSendOptions.Тема
 //     ** Text      - See EmailOperationsClient.EmailSendOptions.Текст
@@ -156,12 +156,12 @@ Procedure OnPrint(ObjectsArray, PrintParameters, PrintFormsCollection, PrintObje
 	
 EndProcedure
 
-// 
+// Intended for overriding print form data before it's generated.
 //
 // Parameters:
-//  PrintFormID - String - ID of the printed form;
-//  PrintObjects      - Array    - collection of links to print objects;
-//  PrintParameters - Structure - custom parameters passed when calling the print command;
+//  PrintFormID - String - print form ID;
+//  PrintObjects      - Array    - a collection of references to print objects;
+//  PrintParameters - Structure - arbitrary parameters passed when calling the print command;
 //
 Procedure BeforePrint(Val PrintFormID, PrintObjects, PrintParameters) Export 
 	
@@ -182,7 +182,7 @@ EndProcedure
 //    ** Presentation - String - an attachment file name.
 //  PrintObjects - Array - a collection of objects, by which print forms are generated.
 //  OutputParameters - Structure - the OutputParameters parameter when calling the Print procedure.
-//  PrintForms - ValueTable - a collection of spreadsheet documents:
+//  PrintForms - ValueTable - Collection of spreadsheet documents:
 //   * Name1 - String - a print form name;
 //   * SpreadsheetDocument - SpreadsheetDocument - print form.
 //
@@ -192,17 +192,17 @@ Procedure BeforeSendingByEmail(SendOptions, OutputParameters, PrintObjects, Prin
 	
 EndProcedure
 
-// Defines a set of signatures and seals for documents.
+// Defines a set of signatures and stamps for documents.
 //
 // Parameters:
 //  Var_Documents      - Array    - a collection of references to print objects;
-//  SignaturesAndSeals - Map of KeyAndValue - a collection of print objects and their sets of signatures/and seals:
+//  SignaturesAndSeals - Map of KeyAndValue - Collection of print objects and their sets of signatures and stamps:
 //   * Key     - AnyRef - a reference to the print object;
-//   * Value - Structure   - a set of signatures and seals:
-//     ** Key     - String - an ID of signature or seal in print form template. 
-//                            It must start with "Signature…", "Seal…", or "Facsimile",
-//                            for example, ManagerSignature or CompanySeal;
-//     ** Value - Picture - a picture of signature or seal.
+//   * Value - Structure   - Set of signatures and stamps:
+//     ** Key     - String - Identifier of a signature or stamp in print form template. 
+//                            It must end with "Signature…", "Stamp…", or "Facsimile".
+//                            For example, ManagerSignature or CompanyStamp.
+//     ** Value - Picture - Signature or stamp image.
 //
 Procedure OnGetSignaturesAndSeals(Var_Documents, SignaturesAndSeals) Export
 	
@@ -299,18 +299,18 @@ Procedure PrintDocumentsOnExecuteCommand(Form, AdditionalParameters) Export
 	
 EndProcedure
 
-// 
-// 
-// 
-// 
+// Determines the used print data template for metadata objects and individual fields.
+// By default, the PrintData template is used for Ref data.
+// If the template is missing in metadata, 1C:Enterprise generates it based on the set of the selected object attributes.
+// The procedure allows for overriding the printable fields for the entire object or individual fields.
 //
 // Parameters:
 //  Object - String - Full name of a metadata object.
 //                      Or the name of the field from the PrintData template in the format "FullMetadataName.FieldName".
 //  PrintDataSources - ValueList:
-//    * Value - DataCompositionSchema -
-//                                         
-//                                         
+//    * Value - DataCompositionSchema - Print data schema. It determines the list of fields subordinate to an object or another field.
+//                                         It is used for obtaining print data, which filters values by the Ref field.
+//                                         Therefore, the Ref field is mandatory for data composition schemas event if the data it contains has another type.
 //                                         
 //                                         
 //                                         
@@ -343,10 +343,10 @@ Procedure WhenPreparingPrintData(DataSources, ExternalDataSets, DataCompositionS
 	
 EndProcedure
 
-// 
+// Allows to specify additional print command settings.
 //
 // Parameters:
-//   FullMetadataObjectName   - MetadataObject -
+//   FullMetadataObjectName   - MetadataObject - Object the command sources are attached to
 //   PrintCommands 		- See PrintManagement.CreatePrintCommandsCollection
 //
 Procedure OnReceivePrintCommands(Val FullMetadataObjectName, PrintCommands) Export
@@ -357,10 +357,10 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated.
-// 
-// 
-// 
+// Deprecated. Use PrintManagementOverridable.OnDefinePrintSettings instead.
+// Defines configuration objects, in whose manager modules the AddPrintCommands procedure is placed.
+// The procedure generates a print command list provided by this object.
+// See the AddPrintCommands procedure in the subsystem documentation.
 //
 // Parameters:
 //  ListOfObjects - Array - object managers with the AddPrintCommands procedure.

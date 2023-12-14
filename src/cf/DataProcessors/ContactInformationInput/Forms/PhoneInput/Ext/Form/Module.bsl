@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-// 
+
 //
 //      
 //       
@@ -296,7 +296,7 @@ Procedure ConfirmAndClose(Result = Undefined, AdditionalParameters = Undefined) 
 		NotifyChoice(Result);
 		
 	ElsIf Comment <> CommentCopy Then
-		// 
+		// Only the comment was modified, attempting to revert.
 		Result = CommentChoiceOnlyResult();
 		
 		ClearModifiedOnChoice();

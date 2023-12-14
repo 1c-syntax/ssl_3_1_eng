@@ -27,7 +27,6 @@
 				<v8:Type>cfg:ConstantValueManager.UseOptimizedStandaloneWorkstationCreationWriting</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.UseDataSynchronizationSaaSWithLocalApplication</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.SubordinateDIBNodeSetupCompleted</v8:Type>
-				<v8:Type>cfg:CatalogObject.DataExchangesSessions</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.LoadExtensionsThatChangeDataStructure</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.LoadDataExchangeMessage</v8:Type>
 			</Source>

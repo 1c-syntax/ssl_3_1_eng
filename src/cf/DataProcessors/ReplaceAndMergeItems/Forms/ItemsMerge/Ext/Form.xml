@@ -225,14 +225,14 @@ Searching for occurrences…</v8:content>
 							<ContextMenu name="UsageInstancesContextMenu" id="2">
 								<Autofill>false</Autofill>
 								<ChildItems>
-									<ButtonGroup name="UsageInstancesContextMenuGroup1" id="158">
+									<ButtonGroup name="PlacesOfUseContextMenuGroupMain" id="158">
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Occurrences context menu group 1</v8:content>
+												<v8:content>Main</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="UsageInstancesContextMenuGroup1ExtendedTooltip" id="159"/>
+										<ExtendedTooltip name="PlacesOfUseContextMenuGroupMainExtendedTooltip" id="159"/>
 										<ChildItems>
 											<Button name="UsageInstancesContextMenuSetAsMain" id="154">
 												<Type>CommandBarButton</Type>
@@ -266,14 +266,14 @@ Searching for occurrences…</v8:content>
 										<CommandName>Form.Item.UsageInstances.StandardCommand.CopyToClipboard</CommandName>
 										<ExtendedTooltip name="UsageInstancesContextMenuCopyToClipboardExtendedTooltip" id="188"/>
 									</Button>
-									<ButtonGroup name="UsageInstancesContextMenuGroup2" id="222">
+									<ButtonGroup name="PlacesOfUseContextMenuGroupSort" id="222">
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Occurrences context menu group 2</v8:content>
+												<v8:content>Sort</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="UsageInstancesContextMenuGroup2ExtendedTooltip" id="223"/>
+										<ExtendedTooltip name="PlacesOfUseContextMenuGroupSortExtendedTooltip" id="223"/>
 										<ChildItems>
 											<Button name="UsageInstancesContextMenuSortListAsc" id="198">
 												<Type>CommandBarButton</Type>
@@ -676,15 +676,15 @@ Merging items…</v8:content>
 									<Group>Horizontal</Group>
 									<ExtendedTooltip name="UnsuccessfulReplacementsDataCodeExtendedTooltip" id="151"/>
 									<ChildItems>
-										<ColumnGroup name="UnsuccessfulReplacementsGroup1" id="178">
+										<ColumnGroup name="UnsuccessfulReplacementsGroup" id="178">
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Unsuccessful replacements group 1</v8:content>
+													<v8:content>Unsuccessful replacements group</v8:content>
 												</v8:item>
 											</Title>
 											<Group>InCell</Group>
-											<ExtendedTooltip name="UnsuccessfulReplacementsGroup1ExtendedTooltip" id="179"/>
+											<ExtendedTooltip name="UnsuccessfulReplacementsGroupExtendedTooltip" id="179"/>
 											<ChildItems>
 												<PictureField name="UnsuccessfulReplacementsIcon1" id="175">
 													<DataPath>UnsuccessfulReplacements.Pictogram</DataPath>

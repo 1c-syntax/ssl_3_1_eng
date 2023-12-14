@@ -13,12 +13,12 @@
 Var ErrorMessageString Export;
 Var ErrorMessageStringEL Export;
 
-Var ErrorsMessages; // 
-Var ObjectName; // 
+Var ErrorsMessages; 
+Var ObjectName; 
 
-Var TempExchangeMessageFile; // 
-Var TempExchangeMessagesDirectory; // 
-Var DataExchangeDirectory; // 
+Var TempExchangeMessageFile; 
+Var TempExchangeMessagesDirectory; 
+Var DataExchangeDirectory; 
 
 Var DirectoryID;
 #EndRegion
@@ -34,7 +34,7 @@ Var DirectoryID;
 //  No.
 // 
 //  Returns:
-//    Boolean - 
+//    Boolean - True if the function is executed successfully, False if an error occurred.
 // 
 Function ExecuteActionsBeforeProcessMessage() Export
 	
@@ -52,7 +52,7 @@ EndFunction
 //  No.
 // 
 //  Returns:
-//    Boolean - 
+//    Boolean - True if the function is executed successfully, False if an error occurred.
 // 
 Function SendMessage() Export
 	
@@ -82,7 +82,7 @@ EndFunction
 //   ExistenceCheck - Boolean
 // 
 //  Returns:
-//    Boolean - 
+//    Boolean - True if the function is executed successfully, False if an error occurred.
 // 
 Function GetMessage(ExistenceCheck = False) Export
 	
@@ -135,7 +135,7 @@ EndProcedure
 //  No.
 // 
 //  Returns:
-//    Boolean - 
+//    Boolean - True if connection can be established. Otherwise, False.
 //
 Function ConnectionIsSet() Export
 	
@@ -176,7 +176,7 @@ EndFunction
 // Retrieves the full name of the exchange message file.
 //
 // Returns:
-//  String - 
+//  String - full exchange message file name.
 //
 Function ExchangeMessageFileName() Export
 	
@@ -195,7 +195,7 @@ EndFunction
 // Retrieves the full name of the exchange message directory.
 //
 // Returns:
-//  String - 
+//  String - full exchange message directory name.
 //
 Function ExchangeMessageDirectoryName() Export
 	
@@ -214,7 +214,7 @@ EndFunction
 // Retrieves the full name of the data exchange directory local or network.
 //
 // Returns:
-//  String - 
+//  String - the full name of the information exchange directory (local or network).
 //
 Function DataExchangeDirectoryName() Export
 	
@@ -233,7 +233,7 @@ EndFunction
 // Function for retrieving property: the time of changing the exchange file message.
 //
 // Returns:
-//  Date - 
+//  Date - time exchange message file changed.
 //
 Function ExchangeMessageFileDate() Export
 	

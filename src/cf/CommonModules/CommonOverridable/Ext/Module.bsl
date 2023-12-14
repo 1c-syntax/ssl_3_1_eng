@@ -32,7 +32,7 @@
 //      * RecommendedPlatformVersion            - String - a recommended platform version for the application startup.
 //                                                           For example, "8.3.8.2137".
 //                                                           You can specify multiple semicolon-separated platform versions
-//                                                           . See the MinPlatformVersion parameter as an example. 
+//                                                           . See the MinPlatformVersion parameter as an example.
 //      * DisableMetadataObjectsIDs - Boolean - disables completing the MetadataObjectIDs
 //              and ExtensionObjectIDs catalogs, as well as the export/import procedure for DIB nodes.
 //              For partial embedding certain library functions into the configuration without enabling support.
@@ -40,8 +40,8 @@
 //                                                      By default, 4 GB.
 //
 //    Instead, use MinimumPlatformVersion and RecommendedPlatformVersion properties:
-//      * MinPlatformVersion1    - String -
-//                                                           
+//      * MinPlatformVersion1    - String - Full platform version required to start the application.
+//                                                           For example, "8.3.4.365".
 //      * MustExit               - Boolean - the initial value is False.
 //
 Procedure OnDetermineCommonCoreParameters(CommonParameters) Export
@@ -50,29 +50,28 @@ Procedure OnDetermineCommonCoreParameters(CommonParameters) Export
 	
 EndProcedure
 
-// Defines the map between session parameter names and their installing handlers.
-// Called to initialize session parameters from the event handler of the SessionParametersSetting session module
-// (for more information about it, see Syntax Assistant). 
-//
-// In the specified modules, there must be a handler procedure the parameters are being passed to:
-//  ParameterName           - String - a parameter name of session to be set.
-//  SpecifiedParameters - Array - the names of parameters that are already specified.
 // 
-// The following is an example of a handler procedure for copying to the specified modules.
+// 
+// 
 //
-//// Parameters:
-////  ParameterName  - String
-////  SpecifiedParameters - Array of String
+// 
+//  
+//  
+// 
+// 
+//
+//
+//
+//
 ////
-////
+//
 //	
-//  The SessionParametersSetting procedure(ParameterName, SpecifiedParameters) Export
-//		If ParameterName = "CurrentUser", Then
-//		SessionParameters.CurrentUser = Value;
-//  SpecifiedParameters.Add ("CurrentUser);
+//  
+//		
+//		
+//  
 //	
-//EndIf;
-// EndProcedure
+//
 //
 // Parameters:
 //  Handlers - Map of KeyAndValue:
@@ -151,35 +150,35 @@ Procedure BeforeStartApplication() Export
 
 EndProcedure
 
-// Defines metadata objects and separate attributes that are excluded from the results of reference search
-// and not included in exclusive delete marked, changing references and in the report of usage locations.
-// See also: Common.RefsSearchExclusions.
+// 
+// 
+// 
 //
-// For example, the Object versioning subsystem and the Properties subsystem are attached to the Sales of goods and services document.
-// This document can also be specifier in other metadata objects - document or registers.
-// Some of them are important for business logic (like register records) and must be shown to user.
-// Other part is "technical" references, referred to the document from the Object versioning and the Properties subsystems.
-// Such technical references must be hidden from users when deleting, analyzing locations of usage, or prohibiting to edit key attributes.
-// The list of technical objects must be specified in this procedure.
+// 
+// 
+// 
+// 
+// 
+// 
 //
-// At the same time, in order to avoid the appearance of references to non-existent objects,
-// it is recommended to provide a procedure for clearing the specified metadata objects.
-//   * For information register dimensions select the Master check box,
-//     this deletes the register record data once the respective reference specified in a dimension is deleted.
-//   * For other attributes of the specified objects, use the BeforeDelete subscription event of all metadata
-//     object types that can be recorded to the attributes of the specified metadata objects.
-//     It is required to find the "technical" objects in the handler that contain the reference to the object to be deleted in the attributes
-//     and select the way of reference clearing: clear the attribute value, delete the row, or delete the whole object.
-// For more information see the documentation to the "Deletion of marked objects" subsystem. 
+// 
+// 
+//   
+//     
+//   
+//     
+//     
+//     
+// 
 //
-// When excluding registers, you can exclude only Dimensions.
-// If you need to exclude values from the search in the resources
-// or in the register attributes, it is required to exclude the entire register.
+// 
+// 
+// 
 //
 // Parameters:
-//   RefSearchExclusions - Array - metadata objects or their attributes (MetadataObject, String)
-//       that are not considered in the business logic.
-//       Standard attributes and tabular sections can be specified only as string names (see the example below). 
+//   RefSearchExclusions - Array - 
+//       
+//       
 //
 // Example:
 //   RefsSearchExclusions.Add(Metadata.InformationRegisters.ObjectsVersions);
@@ -238,13 +237,13 @@ Procedure AfterReplaceRefs(Result, ExecutionParameters, SearchTable) Export
 
 EndProcedure
 
-// It is called when the infobase is updated to account to consider renaming subsystems and roles in the configuration.
-// Otherwise, there will be an asynchronization between the configuration metadata and 
-// the items of the MetadataObjectIDs directory, which will lead to various errors when the configuration is running.
-// See also: Common.MetadataObjectID, Common.MetadataObjectIDs.
+// 
+//  
+// 
+// 
 //
-// In this procedure, specify renaming only for the subsystems and roles for each version of the configuration. 
-// Do not specify renaming of the remaining metadata objects, since they are processed automatically.
+//  
+// 
 //
 // Parameters:
 //  Total - ValueTable - a table of renamings that requires filling.
@@ -317,13 +316,13 @@ Procedure OnDefineSupportedInterfaceVersions(SupportedVersions) Export
 	
 EndProcedure
 
-// Specifies parameters of the functional options that affect the interface and the desktop.
-// For example, if the functional option values are stored in resources of an information register,
-// the functional option parameters can define filters by register dimensions
-// that are taken into account during reading values of this functional option.
+// 
+// 
+// 
+// 
 //
-// See GetInterfaceFunctionalOption,
-// SetInterfaceFunctionalOptionsParameters, and GetInterfaceFunctionalOptionsParameters methods in the Syntax Assistant.
+// 
+// 
 //
 // Parameters:
 //   InterfaceOptions - Structure - parameter values of functional options that are set for the command interface.
@@ -341,7 +340,7 @@ EndProcedure
 //
 // Parameters:
 //  Notifications - Map of KeyAndValue:
-//   * Key     - String -
+//   * Key     - String - 
 //   * Value - See ServerNotifications.NewServerNotification
 //
 // Example:
@@ -371,11 +370,11 @@ EndProcedure
 //
 // Parameters:
 //  Parameters - Map of KeyAndValue:
-//    * Key     - String       -
-//    * Value - Arbitrary -
+//    * Key     - String       - 
+//    * Value - Arbitrary - 
 //  Results - Map of KeyAndValue:
-//    * Key     - String       -
-//    * Value - Arbitrary -
+//    * Key     - String       - 
+//    * Value - Arbitrary - 
 //
 // Example:
 //	

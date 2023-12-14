@@ -23,8 +23,10 @@
 // 
 Procedure RunDataImport(Cancel, Val ImportOnlyParameters, ErrorMessage = "") Export
 	
+	DataExchangeServer.ClearErrorsListOnDataImport(InfobaseNode);
+	
 	If Not IsDistributedInfobaseNode() Then
-		// 
+		// The exchange must follow the conversion rules.
 		ErrorMessage = DataExchangeKindError();
 		WriteExchangeFinish(Cancel, , DataExchangeKindError());
 		Return;
@@ -67,7 +69,7 @@ Procedure RunDataImport(Cancel, Val ImportOnlyParameters, ErrorMessage = "") Exp
 	Try
 		XMLReader.OpenFile(ExchangeMessageFileName());
 	Except
-		// 
+		// Error opening the exchange message file.
 		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		WriteExchangeFinish(Cancel, ErrorMessage, ErrorOpeningExchangeMessageFile());
 		Return;
@@ -93,8 +95,10 @@ EndProcedure
 // 
 Procedure RunDataExport(Cancel, ErrorMessage = "") Export
 	
+	DataExchangeServer.ClearErrorsListOnExportData(InfobaseNode);
+	
 	If Not IsDistributedInfobaseNode() Then
-		// 
+		// The exchange must follow the conversion rules.
 		ErrorMessage = DataExchangeKindError();
 		WriteExchangeFinish(Cancel, , ErrorMessage);
 		Return;
@@ -105,7 +109,7 @@ Procedure RunDataExport(Cancel, ErrorMessage = "") Export
 	Try
 		XMLWriter.OpenFile(ExchangeMessageFileName());
 	Except
-		// 
+		// Error opening the exchange message file.
 		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		WriteExchangeFinish(Cancel, ErrorMessage, ErrorOpeningExchangeMessageFile());
 		Return;
@@ -140,9 +144,9 @@ Procedure ReadExchangeMessageFile(Cancel, XMLReader, Val ImportOnlyParameters, V
 	Try
 		MessageReader.BeginRead(XMLReader, AllowedMessageNo.Greater);
 	Except
-		// 
-		// 
-		// 
+		
+		
+		
 		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		WriteExchangeFinish(Cancel, ErrorMessage, ErrorStartRedingTheExchangeMessageFile());
 		Return;
@@ -163,13 +167,13 @@ Procedure ReadExchangeMessageFile(Cancel, XMLReader, Val ImportOnlyParameters, V
 					"ImportApplicationParameters", True);
 				SetPrivilegedMode(False);
 				
-				// 
+				// Receiving configuration changes and ignoring data changes
 				ExchangePlans.ReadChanges(MessageReader, TransactionItemsCount);
 				
 				// Reading priority data (predefined items, metadata object IDs).
 				ReadPriorityChangesFromExchangeMessage(MessageReader, CommonDataNode);
 				
-				// 
+				// Pretending the message is still not received. Interrupting the data reading.
 				MessageReader.CancelRead();
 				
 				SetPrivilegedMode(True);
@@ -192,7 +196,7 @@ Procedure ReadExchangeMessageFile(Cancel, XMLReader, Val ImportOnlyParameters, V
 			
 			Try
 				
-				// 
+				// Skipping configuration changes and data changes in the exchange message.
 				MessageReader.XMLReader.Skip(); // <Changes>...</Changes>
 				
 				MessageReader.XMLReader.Read(); // </Changes>
@@ -200,7 +204,7 @@ Procedure ReadExchangeMessageFile(Cancel, XMLReader, Val ImportOnlyParameters, V
 				// Reading priority data (predefined items, metadata object IDs).
 				ReadPriorityChangesFromExchangeMessage(MessageReader, CommonDataNode);
 				
-				// 
+				// Pretending the message is still not received. Interrupting the data reading.
 				MessageReader.CancelRead();
 			Except
 				MessageReader.CancelRead();
@@ -219,16 +223,16 @@ Procedure ReadExchangeMessageFile(Cancel, XMLReader, Val ImportOnlyParameters, V
 		
 		Try
 				
-			// 
+			// Receiving configuration changes and data changes from the exchange message.
 			ExchangePlans.ReadChanges(MessageReader, TransactionItemsCount);
 			
 			// Reading priority data (predefined items, metadata object IDs).
 			ReadPriorityChangesFromExchangeMessage(MessageReader, CommonDataNode);
 			
-			// 
+			// Consider the message received.
 			MessageReader.EndRead();
 			
-	        // 
+	        // If an exchange message was processed successfully, don't upload extensions.
 			DataExchangeInternal.DisableLoadingExtensionsThatChangeTheDataStructure();
 						
 		Except
@@ -316,11 +320,11 @@ Procedure WriteChangesToExchangeMessageFile(Cancel, XMLWriter, ErrorMessage = ""
 	Try
 		DataExchangeInternal.ClearPriorityExchangeData();
 		
-		// 
+		// Writing configuration changes and data changes to the exchange message.
 		ExchangePlans.WriteChanges(WriteMessage1, TransactionItemsCount);
 		
-		// 
-		// 
+		
+		
 		WritePriorityChangesToExchangeMessage(WriteMessage1);
 		
 		WriteMessage1.EndWrite();
@@ -338,7 +342,7 @@ EndProcedure
 //
 Procedure WritePriorityChangesToExchangeMessage(Val WriteMessage1)
 	
-	// 
+	// Write the <Parameters> element.
 	WriteMessage1.XMLWriter.WriteStartElement("Parameters");
 	
 	If WriteMessage1.Recipient <> ExchangePlans.MasterNode() Then
@@ -372,7 +376,7 @@ Procedure WritePriorityChangesToExchangeMessage(Val WriteMessage1)
 		
 		If Not StandardSubsystemsCached.DisableMetadataObjectsIDs() Then
 			
-			// 
+			// Exporting the metadata object IDs catalog.
 			ChangesSelection = DataExchangeServer.SelectChanges(
 				WriteMessage1.Recipient,
 				WriteMessage1.MessageNo,
@@ -473,9 +477,9 @@ Procedure ReadPriorityChangesFromExchangeMessage(Val MessageReader, CommonDataNo
 					
 				Else // Type("ObjectDeletion")
 					
-					// 
+					
 					//    
-					// 
+					
 					Continue;
 				EndIf;
 				
@@ -528,7 +532,7 @@ Procedure ReadPriorityChangesFromExchangeMessage(Val MessageReader, CommonDataNo
 		
 	Else
 		
-		// 
+		// Skipping the application execution parameters.
 		MessageReader.XMLReader.Skip(); // <Parameters>...</Parameters>
 		
 		MessageReader.XMLReader.Read(); // </Parameters>
@@ -541,7 +545,7 @@ Procedure WriteExchangeFinish(Cancel, ErrorDescription = "", ContextErrorDescrip
 	
 	Cancel = True;
 	
-	Comment = "[ContextErrorDescription]: [ErrorDescription]"; // 
+	Comment = "[ContextErrorDescription]: [ErrorDescription]"; 
 	
 	Comment = StrReplace(Comment, "[ContextErrorDescription]", ContextErrorDescription);
 	Comment = StrReplace(Comment, "[ErrorDescription]", ErrorDescription);

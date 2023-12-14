@@ -40,7 +40,7 @@
 Procedure OnAddSubsystem(LongDesc) Export
 	
 	LongDesc.Name    = "DataSyncLibrary";
-	LongDesc.Version = "1.0.3.209";
+	LongDesc.Version = "1.0.3.376";
 	LongDesc.OnlineSupportID = "DSL";
 	LongDesc.DeferredHandlersExecutionMode = "Parallel";
 	LongDesc.ParallelDeferredUpdateFromVersion = "1.0.1.1";
@@ -120,13 +120,13 @@ EndProcedure
 //                                      and not required for others. Full names of objects separated by commas. 
 //                                      These names must be locked from changing until data processing procedure is finalized.
 //                                      If it is not empty, then the CheckProcedure property must also be filled in.
-//     * CheckProcedure   - String - it must be filled in only for deferred update handlers
-//                                      and not required for others. Name of a function that defines if data processing procedure is finalized 
-//                                      for the passed object. 
-//                                      If the passed object is fully processed, it must acquire the True value. 
-//                                      Called from the InfobaseUpdate.CheckObjectProcessed procedure.
-//                                      Parameters that are passed to the function:
-//                                         Parameters - See InfobaseUpdate.MetadataAndFilterByData.
+//     * CheckProcedure   - String - 
+//                                       
+//                                       
+//                                       
+//                                      
+//                                      :
+//                                          See InfobaseUpdate.MetadataAndFilterByData.
 //     * UpdateDataFillingProcedure - String - the procedure for registering data
 //                                      to be updated by this handler must be specified.
 //     * ExecuteInMasterNodeOnly  - Boolean - only for deferred update handlers with a Parallel execution mode.
@@ -139,7 +139,7 @@ EndProcedure
 //     * ObjectsToRead              - String - objects to be read by the update handler while processing data.
 //     * ObjectsToChange            - String - objects to be changed by the update handler while processing data.
 //     * ExecutionPriorities         - ValueTable - table of execution priorities for deferred handlers
-//                                      changing or reading the same data. For more information, see the commentary 
+//                                      changing or reading the same data. For more information, see the commentary
 //                                      to the InfobaseUpdate.HandlerExecutionPriorities function.
 //     * ExecuteInMandatoryGroup - Boolean - specify this parameter if the handler must be
 //                                      executed in the group that contains handlers for the "*" version.
@@ -149,7 +149,7 @@ EndProcedure
 //     * ExclusiveMode    - Undefined
 //                           - Boolean -  
 //                                      
-//                                      
+//                                      :
 //                                        
 //                                        
 //                                      

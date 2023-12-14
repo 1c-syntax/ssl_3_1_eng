@@ -110,8 +110,8 @@ Procedure OnWrite(Cancel)
 		EndDo;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	ObjectProperties = Common.ObjectAttributesValues(Ref, "DeletionMark");
 	Query = New Query;
 	Query.Text =
@@ -190,7 +190,7 @@ Procedure BeforeDelete(Cancel)
 			EndIf;
 			IndexOf = IndexOf - 1;
 		EndDo;
-		// 
+		// Delete additional information records.
 		IndexOf = CurrentObject.AdditionalInfo.Count()-1;
 		While IndexOf >= 0 Do
 			If CurrentObject.AdditionalInfo[IndexOf].Property = Ref Then

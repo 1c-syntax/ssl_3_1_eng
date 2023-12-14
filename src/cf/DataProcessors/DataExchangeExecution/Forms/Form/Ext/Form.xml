@@ -412,38 +412,121 @@ Please wait…</v8:content>
 							<v8:content>Data synchronization in progress</v8:content>
 						</v8:item>
 					</Title>
-					<Group>HorizontalIfPossible</Group>
 					<ExtendedTooltip name="DataSynchronizationWaitExtendedTooltip" id="97"/>
 					<ChildItems>
-						<PictureDecoration name="TimeConsumingOperation" id="4">
-							<Title formatted="false">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Long-running operation</v8:content>
-								</v8:item>
-							</Title>
-							<Picture>
-								<xr:Ref>CommonPicture.DataSyncTimeConsumingOperation48</xr:Ref>
-								<xr:LoadTransparent>false</xr:LoadTransparent>
-							</Picture>
-							<FileDragMode>AsFile</FileDragMode>
-							<ContextMenu name="TimeConsumingOperationContextMenu" id="5"/>
-							<ExtendedTooltip name="TimeConsumingOperationExtendedTooltip" id="98"/>
-						</PictureDecoration>
-						<LabelDecoration name="DataImportStatus" id="6">
-							<AutoMaxWidth>false</AutoMaxWidth>
-							<Height>3</Height>
-							<Title formatted="false">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Synchronizing data.
+						<UsualGroup name="Group5" id="263">
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="Group5ExtendedTooltip" id="264"/>
+							<ChildItems>
+								<PictureDecoration name="TimeConsumingOperation" id="4">
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Long-running operation</v8:content>
+										</v8:item>
+									</Title>
+									<Picture>
+										<xr:Ref>CommonPicture.DataSyncTimeConsumingOperation48</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<FileDragMode>AsFile</FileDragMode>
+									<ContextMenu name="TimeConsumingOperationContextMenu" id="5"/>
+									<ExtendedTooltip name="TimeConsumingOperationExtendedTooltip" id="98"/>
+								</PictureDecoration>
+								<LabelDecoration name="DataImportStatus" id="6">
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<Height>3</Height>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Synchronizing data.
 Please wait…</v8:content>
+										</v8:item>
+									</Title>
+									<VerticalAlign>Center</VerticalAlign>
+									<ContextMenu name="DataImportStatusContextMenu" id="7"/>
+									<ExtendedTooltip name="DataImportStatusExtendedTooltip" id="99"/>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="GroupWarningWhenSharingViaInternalPublishing" id="265">
+							<Visible>false</Visible>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group Warning upon exchange via internal publication</v8:content>
 								</v8:item>
 							</Title>
-							<VerticalAlign>Center</VerticalAlign>
-							<ContextMenu name="DataImportStatusContextMenu" id="7"/>
-							<ExtendedTooltip name="DataImportStatusExtendedTooltip" id="99"/>
-						</LabelDecoration>
+							<Group>Vertical</Group>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GroupWarningWhenSharingViaInternalPublishingExtendedTooltip" id="266"/>
+							<ChildItems>
+								<UsualGroup name="Group6" id="278">
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="Group6ExtendedTooltip" id="279"/>
+									<ChildItems>
+										<PictureDecoration name="Decoration5" id="273">
+											<Width>1</Width>
+											<Height>1</Height>
+											<ContextMenu name="Decoration5ContextMenu" id="274"/>
+											<ExtendedTooltip name="Decoration5ExtendedTooltip" id="275"/>
+										</PictureDecoration>
+										<PictureDecoration name="Decoration9" id="285">
+											<Width>3</Width>
+											<Height>2</Height>
+											<Title formatted="false">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Decoration9</v8:content>
+												</v8:item>
+											</Title>
+											<PictureSize>Proportionally</PictureSize>
+											<Picture>
+												<xr:Ref>StdPicture.Information</xr:Ref>
+												<xr:LoadTransparent>true</xr:LoadTransparent>
+											</Picture>
+											<FileDragMode>AsFile</FileDragMode>
+											<ContextMenu name="Decoration9ContextMenu" id="286"/>
+											<ExtendedTooltip name="Decoration9ExtendedTooltip" id="287"/>
+										</PictureDecoration>
+										<LabelDecoration name="Decoration11" id="288">
+											<AutoMaxWidth>false</AutoMaxWidth>
+											<Height>3</Height>
+											<Title formatted="false">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>When you close the window, synchronization will occur in the background. 
+To stop, click Finish synchronization</v8:content>
+												</v8:item>
+											</Title>
+											<VerticalAlign>Center</VerticalAlign>
+											<ContextMenu name="Decoration11ContextMenu" id="289"/>
+											<ExtendedTooltip name="Decoration11ExtendedTooltip" id="290"/>
+										</LabelDecoration>
+									</ChildItems>
+								</UsualGroup>
+								<UsualGroup name="Group7" id="280">
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="Group7ExtendedTooltip" id="281"/>
+									<ChildItems>
+										<LabelDecoration name="Decoration6" id="282">
+											<HorizontalStretch>true</HorizontalStretch>
+											<ContextMenu name="Decoration6ContextMenu" id="283"/>
+											<ExtendedTooltip name="Decoration6ExtendedTooltip" id="284"/>
+										</LabelDecoration>
+										<Button name="EndSyncing" id="276">
+											<Type>UsualButton</Type>
+											<CommandName>Form.Command.EndSyncing</CommandName>
+											<ExtendedTooltip name="EndSyncingExtendedTooltip" id="277"/>
+										</Button>
+									</ChildItems>
+								</UsualGroup>
+							</ChildItems>
+						</UsualGroup>
 					</ChildItems>
 				</Page>
 				<Page name="DataSynchronizationWaitProgressBarImport" id="170">
@@ -1592,6 +1675,21 @@ To continue with the changes made, restart the application.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>RestartApplication</Action>
+		</Command>
+		<Command name="EndSyncing" id="8">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Finish synchronization</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Finish synchronization</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>EndSyncing</Action>
 		</Command>
 	</Commands>
 	<Parameters>

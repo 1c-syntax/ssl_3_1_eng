@@ -111,7 +111,7 @@ Procedure LogErrorGettingDataFromMessage(Val LongDesc) Export
 EndProcedure
 
 // Parameters:
-//  Comment - String -
+//  Comment - String - 
 //
 Procedure WritePerformanceIndicators(Val Comment) Export
 	

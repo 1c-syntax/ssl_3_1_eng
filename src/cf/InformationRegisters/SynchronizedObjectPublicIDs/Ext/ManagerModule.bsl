@@ -25,10 +25,10 @@ EndProcedure
 //     * InfobaseNode - ExchangePlanRef - an exchange plan node.
 //     * Ref - DocumentRef
 //              - ChartOfCharacteristicTypesRef
-//              - CatalogRef - object reference.
+//              - CatalogRef - a reference to an object.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True if the register contains records for the specified filter.
 //
 Function RecordIsInRegister(RecordStructure) Export
 	
@@ -61,12 +61,12 @@ EndProcedure
 // Otherwise UID of the passed reference is returned.
 // 
 // Parameters:
-//  InfobaseNode - 
-//  ObjectReference - 
-//                   
+//  InfobaseNode - a reference to the exchange plan node to which data is exported.
+//  ObjectReference - a reference to an infobase object, that requires
+//                   a XDTO object UUID.
 //
 // Returns:
-//  String - 
+//  String - object UUID.
 //
 Function PublicIDByObjectRef(InfobaseNode, ObjectReference) Export
 	

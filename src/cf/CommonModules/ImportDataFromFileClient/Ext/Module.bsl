@@ -12,7 +12,7 @@
 // Creates a new structure of parameters for importing data from a file to a tabular section.
 //
 // Returns:
-//   Structure - 
+//   Structure - :
 //    * FullTabularSectionName - String   - a full path to the document tabular section 
 //                                           formatted as DocumentName.TabularSectionName.
 //    * Title               - String   - a header of the form for importing data from a file.

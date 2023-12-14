@@ -530,7 +530,7 @@ Procedure FoldersBeforeDeleteRow(Item, Cancel)
 EndProcedure
 
 &AtServer
-Function DeleteFolderServer(Folder)
+Function DeleteFolderServer(Val Folder)
 	
 	ErrorDescription = "";
 	Interactions.ExecuteEmailsFolderDeletion(Folder, ErrorDescription);
@@ -676,7 +676,7 @@ EndProcedure
 
 
 ////////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure SubjectsDragCheck(Item, DragParameters, StandardProcessing, String, Field)
@@ -1559,10 +1559,10 @@ Procedure SetConditionalAppearance()
 EndProcedure
 
 /////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
-Procedure ChangeFilterInteractionTypeServer(CommandName)
+Procedure ChangeFilterInteractionTypeServer(Val CommandName)
 
 	InteractionType = Interactions.InteractionTypeByCommandName(CommandName, OnlyEmail);
 	OnChangeTypeServer();
@@ -1570,7 +1570,7 @@ Procedure ChangeFilterInteractionTypeServer(CommandName)
 EndProcedure
 
 &AtServer
-Procedure OnChangeStatusServer(UpdateNavigationPanel)
+Procedure OnChangeStatusServer(Val UpdateNavigationPanel)
 	
 	DateForFilter = CurrentSessionDate();
 	InteractionsClientServer.QuickFilterListOnChange(ThisObject, "Status", DateForFilter);
@@ -1599,7 +1599,7 @@ Procedure OnChangeStatusServer(UpdateNavigationPanel)
 EndProcedure
 
 &AtServer
-Procedure ChangeFilterStatusServer(CommandName)
+Procedure ChangeFilterStatusServer(Val CommandName)
 	Status = StatusByCommandName(CommandName);
 	OnChangeStatusServer(True);
 EndProcedure
@@ -1622,7 +1622,7 @@ Function StatusByCommandName(CommandName)
 EndFunction
 
 &AtServer
-Procedure OnChangeEmployeeResponsibleServer(UpdateNavigationPanel)
+Procedure OnChangeEmployeeResponsibleServer(Val UpdateNavigationPanel)
 
 	InteractionsClientServer.QuickFilterListOnChange(ThisObject,"EmployeeResponsible");
 
@@ -1953,9 +1953,9 @@ Procedure DisplayInteractionPreview(InteractionsDocumentRef, CurrentPageName)
 		
 		CurrentPageName = Items.PreviewPlainTextPage.Name;
 		If TypeOf(InteractionsDocumentRef) = Type("DocumentRef.SMSMessage") Then
-			Preview = InteractionsDocumentRef.MessageText;
+			Preview = Common.ObjectAttributeValue(InteractionsDocumentRef, "MessageText");
 		Else
-			Preview = InteractionsDocumentRef.LongDesc;
+			Preview = Common.ObjectAttributeValue(InteractionsDocumentRef, "LongDesc");
 		EndIf;
 		HTMLPreview = "<HTML><BODY></BODY></HTML>";
 		
@@ -3403,7 +3403,7 @@ Procedure PositionOnRowAccordingToSavedValue(CurrentRowValue,
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////
-// 
+
 
 // Set a responsible person for selected interactions - the server part.
 // Parameters:
@@ -3451,7 +3451,7 @@ EndProcedure
 //  Interactions - a list of selected interactions.
 //
 &AtServer
-Procedure SetReviewedFlag(Val DataForProcessing, FlagValue)
+Procedure SetReviewedFlag(Val DataForProcessing, Val FlagValue)
 	
 	UpdateNavigationPanel = False;
 	
@@ -3465,12 +3465,12 @@ Procedure SetReviewedFlag(Val DataForProcessing, FlagValue)
 			EndIf;
 		EndDo;
 		
-		Interactions.MarkAsReviewed(InteractionsArray,FlagValue, UpdateNavigationPanel);
+		Interactions.MarkAsReviewed(InteractionsArray, FlagValue, UpdateNavigationPanel);
 		
 	Else
 		
 		InteractionsArray = GetInteractionsByListFilter(FlagValue, "Reviewed");
-		Interactions.MarkAsReviewed(InteractionsArray,FlagValue, UpdateNavigationPanel);
+		Interactions.MarkAsReviewed(InteractionsArray, FlagValue, UpdateNavigationPanel);
 		
 	EndIf;
 	
@@ -3562,12 +3562,14 @@ Function AddToTabsServer(Val DataForProcessing, FormItemName)
 			
 		ElsIf FormItemName = "Properties" Then
 			
+			NameOfCurrentProperty = Common.ObjectAttributeValue(CurrentPropertyOfNavigationPanel, "Description");
+			
 			If TypeOf(DataForProcessing.Value) = Type("String") 
 				And DataForProcessing.Value = "NotSpecified" Then
-				TabDescription       = CurrentPropertyOfNavigationPanel.Description + " " + NStr("en = 'not specified';");
+				TabDescription       = NameOfCurrentProperty + " " + NStr("en = 'not specified';");
 				Result.ItemPresentation = ?(OnlyEmail, NStr("en = 'Mail messages';"), NStr("en = 'Interactions';"));
 			Else
-				TabDescription       = CurrentPropertyOfNavigationPanel.Description + " = " + String(DataForProcessing.Value);
+				TabDescription       = NameOfCurrentProperty + " = " + String(DataForProcessing.Value);
 				Result.ItemPresentation = ?(OnlyEmail, 
 				                                   NStr("en = 'Mail messages with the property: %1';"), 
 				                                   NStr("en = 'Interactions with the property: %1';"));
@@ -3747,7 +3749,8 @@ Function GetInteractionsByListFilter(AdditionalFilterAttributeValue = Undefined,
 	
 	Query = New Query;
 	
-	If Items.NavigationPanelPages.CurrentPage = Items.ContactPage Then
+	If Items.NavigationPanelPages.CurrentPage = Items.ContactPage
+		Or Items.NavigationPanelPages.CurrentPage = Items.TabsPage Then
 		FilterScheme = DocumentJournals.Interactions.GetTemplate("SchemaFilterInteractionsContact");
 	Else
 		FilterScheme = DocumentJournals.Interactions.GetTemplate("SchemaInteractionsFilter");
@@ -3784,7 +3787,7 @@ Function GetInteractionsByListFilter(AdditionalFilterAttributeValue = Undefined,
 EndFunction
 
 &AtServer
-Procedure SetFolderParent(Folder, NewParent)
+Procedure SetFolderParent(Val Folder, Val NewParent)
 	
 	Interactions.SetFolderParent(Folder, NewParent);
 	RefreshNavigationPanel();
@@ -3792,7 +3795,7 @@ Procedure SetFolderParent(Folder, NewParent)
 EndProcedure
 
 &AtServer
-Procedure ExecuteTransferToEmailsArrayFolder(Val EmailsArray, Folder)
+Procedure ExecuteTransferToEmailsArrayFolder(Val EmailsArray, Val Folder)
 
 	Interactions.SetFolderForEmailsArray(EmailsArray, Folder);
 	RefreshNavigationPanel(Folder);
@@ -3800,7 +3803,7 @@ Procedure ExecuteTransferToEmailsArrayFolder(Val EmailsArray, Folder)
 EndProcedure
 
 /////////////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure DetermineAvailabilityFullTextSearch() 
@@ -3968,7 +3971,7 @@ Function InteractionSearchResultFullTextSearch()
 		NumberOfFoundListItem = Items.SearchString.ChoiceList.FindByValue(SearchString);
 	EndDo;
 	
-	// 
+	// And put it on top.
 	Items.SearchString.ChoiceList.Insert(0, SearchString);
 	While Items.SearchString.ChoiceList.Count() > 100 Do
 		Items.SearchString.ChoiceList.Delete(Items.SearchString.ChoiceList.Count() - 1);
@@ -4175,24 +4178,21 @@ Procedure PrepareFormSettingsForCurrentRefOutput(CurrentRef)
 EndProcedure
 
 &AtServer
-Procedure NavigationProcessingAtServer(CurrentRef)
+Procedure NavigationProcessingAtServer(Val CurrentRef)
 	PrepareFormSettingsForCurrentRefOutput(CurrentRef);
 	
 	If SearchString <> "" Then
 		SearchString = "";
 		AdvancedSearch = False;
-		CommonClientServer.SetDynamicListFilterItem(
-			List, 
-			"Search",
-			Undefined,
-			DataCompositionComparisonType.Equal,,False);
+		CommonClientServer.SetDynamicListFilterItem(List, "Search", Undefined,
+			DataCompositionComparisonType.Equal,, False);
 		Items.DetailsFoundByFullTextSearch.Visible = AdvancedSearch;
 	EndIf;
 	
 	InteractionType = "All";
 	Status = "All";
 	EmployeeResponsible = Undefined;
-	InteractionsClientServer.QuickFilterListOnChange(ThisObject,"EmployeeResponsible");
+	InteractionsClientServer.QuickFilterListOnChange(ThisObject, "EmployeeResponsible");
 	OnChangeTypeServer(True);
 	
 	NavigationPanelHidden = False;

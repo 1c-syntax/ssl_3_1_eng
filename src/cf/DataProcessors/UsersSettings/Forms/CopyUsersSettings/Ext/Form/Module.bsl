@@ -240,8 +240,8 @@ Procedure Copy(Command)
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	OpenFormsToCopy = OpenFormsToCopy();
 	CheckActiveUsers();
 	If CheckResult = "HasActiveUsersRecipients"

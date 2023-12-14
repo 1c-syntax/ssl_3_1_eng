@@ -37,8 +37,7 @@ EndProcedure
 Procedure NotificationProcessing(EventName, Parameter, Source)
 	
 	If EventName = "Write_File"
-	   And Parameter.Property("Event")
-	   And (    Parameter.Event = "EditFinished"
+	   And (Parameter.Event = "EditFinished"
 	      Or Parameter.Event = "VersionSaved") Then
 		
 		Items.List.Refresh();

@@ -47,13 +47,13 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-// Selects a node and passes the selected values to the calling form.
+// Opens the object form that is specified in the configuration for the exchange plan where the node belongs.
 &AtClient
 Procedure SelectNode(Command)
 	PerformNodeChoice();
 EndProcedure
 
-// Opens the node form specified in the configuration.
+// Opens node form that specified as an object form.
 &AtClient
 Procedure ChangeNode(Command)
 	

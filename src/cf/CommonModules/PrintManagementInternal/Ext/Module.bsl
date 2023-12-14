@@ -74,22 +74,22 @@ Function GeneratePrintForms(TableOfPrintedForms, GenerationParameters, OfficeDoc
 EndFunction
 
 //////////////////////////////////////////////////////////////////////////////////
-// 
+
 //
-// 
+
 //
-// 
+
 //  
 //  
 //                                     
 //
-// 
+
 //  
 //                           
 //  
 //                                     
 //
-// 
+
 //  
 //  
 //  
@@ -103,18 +103,18 @@ EndFunction
 //  
 //  
 //
-// 
+
 //  
 //                                 
 //  
 //  
 //
-// 
+
 //  
 //  
 //  
 //
-// 
+
 //  
 //  
 //  
@@ -161,7 +161,7 @@ EndFunction
 //  BinaryTemplateData - BinaryData - a binary template data.
 //
 // Returns:
-//  Structure - layout of the printed form.
+//  Structure - a print form template.
 //
 Function TemplateFromBinaryData(BinaryTemplateData) Export
 	
@@ -205,7 +205,7 @@ EndFunction
 // 
 // Returns:
 //  Structure:
-//    * DirectoryName - String -
+//    * DirectoryName - String - Temporary directory
 //    * DocumentStructure - See InitializeDCSDoc
 //
 Function TemplateFromDCSBinaryData(BinaryTemplateData) Export
@@ -242,10 +242,10 @@ Function TemplateFromDCSBinaryData(BinaryTemplateData) Export
 EndFunction
 
 
-// 
+// Initialize the DCS document.
 // 
 // Returns:
-//  Structure - 
+//  Structure - :
 //   * HeaderFooter - Map 
 //   * ContentTypes1 - See DocumentTree
 //   * ContentRelations - See DocumentTree
@@ -277,7 +277,7 @@ Function InitializeDCSDoc()
 	
 EndFunction
 
-// 
+// Table of template areas.
 // 
 // Returns:
 //  ValueTable:
@@ -301,7 +301,7 @@ Function TableOfTemplateAreas()
 EndFunction
 
 
-// 
+// Convert parameters.
 // 
 // Parameters:
 //  DocumentTree - See PrintManagementInternal.ReadXMLIntoTree
@@ -390,7 +390,7 @@ EndProcedure
 //  PrintForm - Structure
 //
 // Returns:
-//  String - 
+//  String - Address of the generated document in a temporary storage.
 //
 Function GenerateDocument(PrintForm) Export
 	
@@ -428,7 +428,7 @@ EndFunction
 //  AreaName - String - an area name in the template.
 //
 // Returns:
-//  Structure - 
+//  Structure - Template area.
 //
 Function GetTemplateArea(Template, Val AreaName) Export
 	
@@ -444,7 +444,7 @@ EndFunction
 //  SectionNumber   - Number - a number of the section, to which the header belongs.
 //
 // Returns:
-//  Structure - 
+//  Structure - Header area.
 //
 Function GetHeaderArea(Template, Val AreaName = "Header", Val SectionNumber = 1) Export
 	
@@ -470,7 +470,7 @@ EndFunction
 //  SectionNumber   - Number - a number of the section, to which the footer belongs.
 //
 // Returns:
-//  Structure - the footer area.
+//  Structure - a footer area.
 //
 Function GetFooterArea(Template, Val AreaName = "Footer", Val SectionNumber = 1) Export
 	
@@ -498,7 +498,7 @@ EndFunction
 //  Footer - Structure - a footer area.
 //
 // Returns:
-//  Structure - 
+//  Structure - Area the header/footer is added to.
 //
 Function AddFooter(PrintForm, Footer) Export
 	
@@ -534,7 +534,7 @@ EndProcedure
 //  Header - Structure - a header or a footer area.
 //
 // Returns:
-//  Structure - 
+//  Structure - Area the header/footer is added to.
 //
 Function AddHeader(PrintForm, Header) Export
 	
@@ -573,7 +573,7 @@ EndProcedure
 //  GoToNextRow - Boolean - determines whether you need to add a line break after the area output.
 //
 // Returns:
-//  Structure - 
+//  Structure - Attached area.
 //
 Function AttachArea(PrintForm, TemplateArea, Val GoToNextRow = False) Export
 	
@@ -644,7 +644,7 @@ Procedure JoinAndFillSet(PrintForm, TemplateArea, ObjectData = Undefined,
 	
 EndProcedure
 
-// Inserts a line break to the next row.
+// Inserts a line break to the next line.
 //
 // Parameters:
 //  PrintForm - Structure
@@ -1047,10 +1047,10 @@ Function ReadXMLStringToTree(XMLLine)
 	Return ReadXMLIntoTree(XMLReader);
 EndFunction
 
-// 
+// Put the tree to the XML record.
 // 
 // Parameters:
-//  XMLWriter - XMLWriter -
+//  XMLWriter - XMLWriter - XML record
 //  Tree - ValueTree:
 //   * NameTag - String
 //   * Text - String
@@ -1153,18 +1153,18 @@ EndProcedure
 
 #EndRegion
 
-// 
+// Builds a tree value from XML.
 // 
 // Parameters:
 //  XMLReader - XMLReader
 // 
 // Returns:
 //  ValueTree:
-//   * NameTag - String -
-//   * Text - String -
-//   * WholeText - String -
-//   * Attributes - Map -
-//  
+//   * NameTag - String - XML tag name.
+//   * Text - String - Tag text value.
+//   * WholeText - String - Text of all child nodes
+//   * Attributes - Map - Node attributes
+//  Hyperlinks - Map
 //
 Function ReadXMLIntoTree(XMLReader, Hyperlinks = Undefined) Export
 	XMLReader.IgnoreWhitespace = False;
@@ -1178,11 +1178,11 @@ EndFunction
 
 // Returns:
 //  ValueTree:
-//   * NameTag - String -
-//   * Text - String -
-//   * WholeText - String -
-//   * Attributes - Map -
-//   * IndexOf - Number - 
+//   * NameTag - String - XML tag name
+//   * Text - String - Text the XML tag contains
+//   * WholeText - String - Text of all child nodes
+//   * Attributes - Map - XML node attributes
+//   * IndexOf - Number - Field to be indexed 
 //
 Function DocumentTree()
 	Var Tree;
@@ -1588,14 +1588,14 @@ Function ArrayIntoMap(Array)
 	Return Map;
 EndFunction 
 
-// 
+// Searches for the first node in a value tree or row.
 // 
 // Parameters:
 //  TreeRow - See DocumentTree
-//  NameTag - String -
-//  See DocumentTree
-//  AttributeName - Undefined, String -
-//  ValuesOfAttribute - Undefined, String, Array, Arbitrary -
+//  NameTag - String - Tag name
+//  NodesArray - See DocumentTree
+//  AttributeName - Undefined, String - Attribute name
+//  ValuesOfAttribute - Undefined, String, Array, Arbitrary - Attribute value
 // 
 // Returns:
 //   See DocumentTree
@@ -1614,7 +1614,7 @@ Function FindNodeByContent(TreeRow, NameTag, AttributeName = Undefined, Val Valu
 	EndIf;	
 EndFunction
 
-// 
+// Node search parameters.
 // 
 // Returns:
 //  Structure:
@@ -1632,11 +1632,11 @@ Function NodesSearchParameters() Export
 	Return ParametersStructure;
 EndFunction
 
-// 
+// Searches for nodes in a value tree or row.
 // 
 // Parameters:
 //  TreeRow - See DocumentTree
-//  NameTag - String -
+//  NameTag - String - Tag name
 //  NodesArray - See DocumentTree
 //  SearchParameters - See NodesSearchParameters
 //
@@ -1756,7 +1756,7 @@ Function FindParentNode(Node, Name)
 	EndIf;
 EndFunction
 
-// 
+// Copy the node.
 // 
 // Parameters:
 //  NodeOfParent - ValueTreeRow:
@@ -1764,12 +1764,12 @@ EndFunction
 //   * Text - String
 //   * WholeText - String
 //   * Attributes - Map
-//  IndexOf - Number - IndexOf
-//  Node - 
-//   
-//   
-//   
-//   
+//  IndexOf - Number - Index.
+//  Node - Undefined, ValueTreeRow:
+//   * TagName - String
+//   * Text - String
+//   * FullText - String
+//   * Attributes - Map
 // 
 // Returns:
 //  ValueTreeRow:
@@ -1791,11 +1791,11 @@ Function MakeCopyNode(NodeOfParent, IndexOf, Node) Export
 	Return NodeOfClone;
 EndFunction
 
-//  
+// Creates copies of the child nodes in the destination node. 
 // 
 // Parameters:
-//  See PrintManagementInternal.ReadXMLIntoTree
-//  See PrintManagementInternal.ReadXMLIntoTree
+//  Destination - See PrintManagementInternal.ReadXMLIntoTree
+//  Source - See PrintManagementInternal.ReadXMLIntoTree
 //
 Procedure CreateLowerLevelNodes(NewRow, CurrentRow, LowerIndex = Undefined) Export
 	
@@ -1820,7 +1820,7 @@ Procedure GetAreasFromTree(TreePointer, Areas, TabularSectionNames, EndRegion = 
 				GetAreasFromTree(String, Areas, TabularSectionNames, IsAreaEnd);
 			EndIf;
 			
-			// 
+			// Search for area conditions.
 			EdgeArea = Areas[Areas.Count()-1];
 			If EdgeArea <> Undefined And StrFind(String.WholeText, "{"+TagNameCondition()) And StrFind(String.WholeText, "}") And EdgeArea.AreaCondition = Undefined Then
 				ConditionArrayStart = StrSplit(String.WholeText, "{", False);
@@ -2142,14 +2142,14 @@ Function GetPrintForm(TreeOfTemplate, StorageAddress = Undefined) Export
 	Return PrintFormStorageAddress;
 EndFunction
 
-// 
+// Compile an office document file.
 // 
 // Parameters:
 //  TreeOfTemplate - See PrintManagementInternal.ИнициализироватьДокументСКД.
 //  Encoding - String - Encoding
 // 
 // Returns:
-//  String - 
+//  String - Path to the generated document
 //
 Function CollectOfficeDocumentFile(TreeOfTemplate, Encoding = "UTF-8") Export
 	DocumentStructure = TreeOfTemplate.DocumentStructure;
@@ -2183,13 +2183,13 @@ Function CollectOfficeDocumentFile(TreeOfTemplate, Encoding = "UTF-8") Export
 		HeadersOrFootersFilesArray.Add(HeaderOrFooter.Key);
 	EndDo;
 	
-	// 
+	// Process content links.
 	
 	XMLWriter = InitializeXMLRecord("", FilesToChange.Get("ContentRelations"));
 	PutTreeToXMLEntry(XMLWriter, DocumentStructure.ContentRelations);
 	XMLWriter.Close();
 	
-	// 
+	// Process content types.
 	
 	XMLWriter = InitializeXMLRecord("", FilesToChange.Get("ContentTypes1"));
 	PutTreeToXMLEntry(XMLWriter, DocumentStructure.ContentTypes1);
@@ -2313,7 +2313,7 @@ Procedure AssignValToDoc(Node, ReplacementCompliance, TreeOfTemplate, ShouldAddL
 				LinesOfText.Add(NodeText);
 			EndIf;
 			Node.Text = "";
-			ParentOfNode = Node.Parent;
+			ParentOfSUBAsset = Node.Parent;
 			
 			For Each TextString In LinesOfText Do
 				If TextString = ReplacementCompliance.Key Then
@@ -2322,11 +2322,11 @@ Procedure AssignValToDoc(Node, ReplacementCompliance, TreeOfTemplate, ShouldAddL
 						If IndexOfValueString = 0 Then
 							Node.Text = Node.Text + ValueRow;
 						Else
-							NewlineSubAsset = ParentOfNode.Rows.Insert(ParentOfNode.Rows.IndexOf(Node)+1);
+							NewlineSubAsset = ParentOfSUBAsset.Rows.Insert(ParentOfSUBAsset.Rows.IndexOf(Node)+1);
 							NewlineSubAsset.IndexOf = Node.IndexOf + (1 - Node.IndexOf + Int(Node.IndexOf))/2; 
 							NewlineSubAsset.NameTag = "w:br";
 							
-							Node = MakeCopyNode(ParentOfNode, ParentOfNode.Rows.IndexOf(Node)+2, Node);
+							Node = MakeCopyNode(ParentOfSUBAsset, ParentOfSUBAsset.Rows.IndexOf(Node)+2, Node);
 							Node.IndexOf = NewlineSubAsset.IndexOf + (1 - NewlineSubAsset.IndexOf + Int(NewlineSubAsset.IndexOf))/2;
 							Node.Text = ValueRow;
 						EndIf;
@@ -2395,8 +2395,8 @@ Procedure AssignValToDoc(Node, ReplacementCompliance, TreeOfTemplate, ShouldAddL
 				TableCellWidth = 0;
 			ElsIf PCTType And Not TableWidth = 0 Then
 				
-				// 5000 - 
-				// 
+				
+				
 				
 				TableCellWidth = TableWidth * TableCellWidth / 50 / 100;
 				
@@ -2761,7 +2761,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 	
 	PrintForm.DocumentStructure.ContentRelations = XMLWriter.Close(); 
 	
-	// 
+	// Process content types.
 	
 	XMLReader = InitializeXMLReader(PrintForm.DocumentStructure.ContentTypes1);
 	XMLWriter = InitializeXMLRecord("", FilesToChange.Get("ContentTypes1"));
@@ -2845,7 +2845,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 			
 		EndIf;
 		
-		// 
+		// Write the body.
 		
 		XMLReader = InitializeXMLReader(Area.Text);
 		
@@ -2884,8 +2884,8 @@ Function AssembleDOCXDocumentFile(PrintForm)
 		
 	EndDo;
 	
-	XMLWriter.WriteEndElement(); // 
-	XMLWriter.WriteEndElement(); // 
+	XMLWriter.WriteEndElement(); 
+	XMLWriter.WriteEndElement(); // Closing the </w:document> tag
 	
 	XMLWriter.Close();
 	
@@ -3281,7 +3281,7 @@ EndProcedure
 //   * Text - String
 //   * SectionNumber - Number
 //   * Hyperlinks - Array of See HyperlinkStructure
-//  ObjectData - 
+//  ObjectData - Structure, Undefined, KeyAndValue
 //
 Procedure PopulateHyperlinkParameters(PrintForm, Area, ObjectData)
 	
@@ -3402,8 +3402,8 @@ Procedure SetFieldWidth(XMLReader, Width, Val TableWidth = 0)
 		Width = 0;
 	ElsIf PCTType And Not TableWidth = 0 Then
 		
-		// 5000 - 
-		// 
+		
+		
 		
 		Width = TableWidth * Width / 50 / 100;
 		
@@ -3469,14 +3469,14 @@ EndFunction
 
 Procedure PreparePictureTemplate(TemplatePicture, StructurePicture)
 	
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
+	
+	
+	
+	
 	ProcessedPictureTemplate = StringFunctionsClientServer.SubstituteParametersToString(TemplatePicture, 
 		"0",
 		StructurePicture.IconName,
@@ -3547,7 +3547,7 @@ EndProcedure
 
 Procedure IncludePictureTextToDocument(XMLWriter, StructurePicture)
 	
-	XMLWriter.WriteEndElement(); // 
+	XMLWriter.WriteEndElement(); // Closing a text tag of the w:t parameter.
 	XMLWriter.WriteRaw(StructurePicture.PictureText);
 	XMLWriter.WriteStartElement("w:t");
 	
@@ -4819,13 +4819,13 @@ EndProcedure
 
 Procedure AnalyzeParametersInString(Val String, XMLParseStructure)
 	
-	// 
-	// 
-	// 
 	
-	// 
-	// 
-	// 
+	
+	
+	
+	
+	
+	
 	
 	FlagOf1CTagStart = "{v8 ";
 	FlagOf1CTagEnd  = "{/v8 ";
@@ -5020,7 +5020,7 @@ EndFunction
 #Region ImagesOperations
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Functions of image files processing
 
 // Returns a width, a height, and a type of image for GIF, JPG, PNG, BMP, and TIFF files
 Function GetImageAttributes(ReadingData)
@@ -5352,10 +5352,10 @@ EndProcedure
 //
 // Parameters:
 //  DataOrStructure - BinaryData
-//                     - Structure - 
+//                     - Structure - Document file or a command table row.
 //
 // Returns:
-//  String, Undefined -  
+//  String, Undefined - Extension of binary data file. Or Undefined, if cannot define the extension. 
 //
 Function DefineDataFileExtensionBySignature(DataOrStructure) Export
 	

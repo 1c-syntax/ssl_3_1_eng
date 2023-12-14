@@ -33,11 +33,11 @@ Procedure OnWrite(Cancel)
 		Return;
 	EndIf;
 	
-	If Not Value And PreviousValue2 Then // Выключено.
+	If Not Value And PreviousValue2 Then // Disabled.
 		AccessManagementInternal.EnableDataFillingForAccessRestriction();
 	EndIf;
 	
-	If Value <> PreviousValue2 Then // Изменено.
+	If Value <> PreviousValue2 Then // Modified.
 		AccessManagementInternal.UpdateSessionParameters();
 	EndIf;
 	

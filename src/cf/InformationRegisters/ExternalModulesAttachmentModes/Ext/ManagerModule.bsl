@@ -18,14 +18,14 @@
 //    the attaching mode is requested.
 //
 // Returns:
-//   String - 
-//  
+//   String - a name of the security profile to be used for attaching
+//  the external module. If the attachment mode is not registered for the external module, Undefined is returned.
 //
 Function ExternalModuleAttachmentMode(Val ProgramModule) Export
 	
 	If SafeModeManager.SafeModeSet() Then
-		// При установленном выше по стеку безопасном режиме - 
-		// 
+		
+		
 		Return SafeMode();
 	EndIf;
 		

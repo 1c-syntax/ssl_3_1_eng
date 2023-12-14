@@ -11,7 +11,7 @@
 
 #Region Internal
 
-// 
+
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -28,7 +28,7 @@ EndProcedure
 // End StandardSubsystems.AccessManagement
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Update handlers.
 
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
@@ -52,7 +52,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 		|	BusinessProcessesData.Owner > &BusinessProcess
 		|	AND BusinessProcessesData.State = VALUE(Enum.BusinessProcessStates.EmptyRef)";
 		Query.SetParameter("BusinessProcess", BusinessProcess);
-		// 
+		// @skip-check query-in-loop - Batch processing of data
 		RegisterDimensions = Query.Execute().Unload();
 		
 		AdditionalParameters = InfobaseUpdate.AdditionalProcessingMarkParameters();

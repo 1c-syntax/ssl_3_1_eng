@@ -160,7 +160,7 @@ Procedure UpdateVersionCacheData(Val Id, Val DataType, Val ReceivingParameters) 
 	Try
 		LockDataForEdit(Var_Key);
 	Except
-		// 
+		// The data is being updated from another session.
 		Return;
 	EndTry;
 	
@@ -272,7 +272,7 @@ EndFunction
 //  Name   - String - resource name.
 //
 // Returns:
-//  String - 
+//  String - version cache record ID.
 //
 Function VersionCacheRecordID(Val Address, Val Name) Export
 	
@@ -332,7 +332,7 @@ EndFunction
 Function InterfaceCacheCurrent(UpdateDate)
 	
 	If ValueIsFilled(UpdateDate) Then
-		Return UpdateDate + 24 * 60 * 60 > CurrentUniversalDate(); // 
+		Return UpdateDate + 24 * 60 * 60 > CurrentUniversalDate(); // caching no more than for 24 hours.
 	EndIf;
 	
 	Return False;
@@ -343,7 +343,7 @@ Function WSDefinitions(Val WSDLAddress, Val UserName, Val Password, Val Timeout 
 	
 	If Not Common.SubsystemExists("StandardSubsystems.GetFilesFromInternet") Then
 		Try
-			InternetProxy = Undefined; // 
+			InternetProxy = Undefined; 
 			Definitions = New WSDefinitions(WSDLAddress, UserName, Password, InternetProxy, Timeout, SecureConnection);
 		Except
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(

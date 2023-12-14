@@ -110,7 +110,7 @@ EndFunction
 Procedure FormGetProcessing(FormType, Parameters, SelectedForm, AdditionalInformation, StandardProcessing)
 	
 	If Parameters.Count() = 0 Then
-		SelectedForm = "Files"; // 
+		SelectedForm = "Files"; // Opening the file list because the specific file is not specified.
 		StandardProcessing = False;
 	EndIf;
 	If FormType = "ListForm" Then
@@ -167,7 +167,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 			|	Ref";
 		
 		Query.SetParameter("Ref", Ref);
-		// 
+		// @skip-check query-in-loop - Batch processing of a large amount of data.
 		ReferencesArrray = Query.Execute().Unload().UnloadColumn("Ref");
 		
 		InfobaseUpdate.MarkForProcessing(Parameters, ReferencesArrray);
@@ -199,19 +199,26 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		BeginTransaction();
 		Try
 			
-			DataLock = New DataLock;
-			DataLockItem = DataLock.Add("Catalog.Files");
+			LockingDataFile = New DataLock;
+			DataLockItem = LockingDataFile.Add("Catalog.Files");
 			DataLockItem.SetValue("Ref", String.Ref);
-			
-			DataLockItem = DataLock.Add("Catalog.FilesVersions");
-			DataLockItem.SetValue("Ref", String.Ref.CurrentVersion);
 			DataLockItem.Mode = DataLockMode.Shared;
+			LockingDataFile.Lock();
 			
+			CurrentVersion = Common.ObjectAttributeValue(String.Ref, "CurrentVersion");
+			
+			DataLock = New DataLock;
+			DataLockItem = DataLock.Add("Catalog.FilesVersions");
+			DataLockItem.SetValue("Ref", CurrentVersion);
+			DataLockItem.Mode = DataLockMode.Shared;
 			DataLock.Lock();
 			
+			CurrentVersionAttributes = Common.ObjectAttributesValues(CurrentVersion, 
+				"UniversalModificationDate,FileStorageType");
+			
 			FileToUpdate = String.Ref.GetObject(); // CatalogObject.Files
-			FileToUpdate.UniversalModificationDate = FileToUpdate.CurrentVersion.UniversalModificationDate;
-			FileToUpdate.FileStorageType             = FileToUpdate.CurrentVersion.FileStorageType;
+			FileToUpdate.UniversalModificationDate = CurrentVersionAttributes.UniversalModificationDate;
+			FileToUpdate.FileStorageType             = CurrentVersionAttributes.FileStorageType;
 			
 			RecordSet = InformationRegisters.FilesInfo.CreateRecordSet();
 			RecordSet.Filter.File.Set(String.Ref);
@@ -243,7 +250,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			CommitTransaction();
 		Except
 			RollbackTransaction();
-			// Если не удалось обработать какой-
+			// If you fail to process a document, try again.
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(

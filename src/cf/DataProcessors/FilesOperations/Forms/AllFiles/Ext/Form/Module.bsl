@@ -37,7 +37,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		Items.List.Refresh();
 	ElsIf EventName = "Write_File" Then
 		Items.List.Refresh();
-		If TypeOf(Parameter) = Type("Structure") And Parameter.Property("File") Then
+		If ValueIsFilled(Parameter.File) Then
 			Items.List.CurrentRow = Parameter.File;
 		ElsIf Source <> Undefined Then
 			Items.List.CurrentRow = Source;

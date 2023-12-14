@@ -12,7 +12,7 @@
 // Namespace of message interface version.
 //
 // Returns:
-//   String - name space.
+//   String - a namespace.
 //
 Function Package() Export
 	
@@ -23,7 +23,7 @@ EndFunction
 // Message interface version supported by the handler.
 //
 // Returns:
-//   String - 
+//   String - a message interface version.
 //
 Function Version() Export
 	
@@ -34,7 +34,7 @@ EndFunction
 // Base type for version messages.
 //
 // Returns:
-//   XDTOObjectType - 
+//   XDTOObjectType - a base type of message body.
 //
 Function BaseType() Export
 	
@@ -172,7 +172,7 @@ Procedure ConfigureExchangeStep1(Message, Sender)
 		ConnectionSettings.Insert("CorrespondentEndpoint", CorrespondentEndpoint);
 		ConnectionSettings.Insert("Settings",                   NodeFiltersSetting);
 		ConnectionSettings.Insert("Prefix",                     Prefix);
-		ConnectionSettings.Insert("Peer"); // 
+		ConnectionSettings.Insert("Peer"); 
 		
 		DataExchangeSaaS.CreateExchangeSetting(
 			ConnectionSettings,
@@ -182,7 +182,7 @@ Procedure ConfigureExchangeStep1(Message, Sender)
 			
 		Peer = ConnectionSettings.Peer;
 		
-		// 
+		// Registering catalogs to export
 		DataExchangeServer.RegisterOnlyCatalogsForInitialExport(Peer);
 		
 		// Start data export.
@@ -247,11 +247,11 @@ Procedure ConfigureExchangeStep2(Message, Sender)
 		
 		Peer = ExchangeCorrespondent(Body.ExchangePlan, Body.CorrespondentCode);
 		
-		// 
+		// Update the exchange setting.
 		DataExchangeSaaS.UpdateExchangeSetting(Peer,
 			DataExchangeServer.GetFilterSettingsValues(XDTOSerializer.ReadXDTO(Body.AdditionalSettings)));
 		
-		// 
+		// Registering all infobase data for exporting, except for catalogs
 		DataExchangeServer.RegisterAllDataExceptCatalogsForInitialExport(Peer);
 		
 		// Sending a response message that notifies about successful setup
@@ -272,7 +272,7 @@ Procedure ConfigureExchangeStep2(Message, Sender)
 		WriteLogEvent(DataExchangeSaaS.EventLogEventDataSynchronizationSetup(),
 			EventLogLevel.Error,,, ErrorPresentation);
 		
-		// 
+		// Sending a response error message
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.ExchangeSetupErrorStep2Message());
 		ResponseMessage.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
@@ -324,7 +324,7 @@ Procedure ImportExchangeMessage(Message, Sender)
 				String(Peer));
 		EndIf;
 		
-		// 
+		// Sending a response message that notifies about successful setup
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.ExchangeMessageImportCompletedMessage());
 		ResponseMessage.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
@@ -338,7 +338,7 @@ Procedure ImportExchangeMessage(Message, Sender)
 		WriteLogEvent(DataExchangeSaaS.EventLogEventDataSynchronizationSetup(),
 			EventLogLevel.Error,,, ErrorPresentation);
 		
-		// 
+		// Sending a response error message
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.ExchangeMessageImportErrorMessage());
 		ResponseMessage.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
@@ -399,7 +399,7 @@ Procedure GetCorrespondentData(Message, Sender)
 		WriteLogEvent(DataExchangeSaaS.EventLogEventDataSynchronizationSetup(),
 			EventLogLevel.Error,,, ErrorPresentation);
 		
-		// 
+		// Sending a response error message
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.CorrespondentDataGettingErrorMessage());
 		ResponseMessage.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
@@ -461,7 +461,7 @@ Procedure GetCommonDataOfCorrespondentNodes1(Message, Sender)
 		WriteLogEvent(DataExchangeSaaS.EventLogEventDataSynchronizationSetup(),
 			EventLogLevel.Error,,, ErrorPresentation);
 		
-		// 
+		// Sending a response error message
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.CorrespondentNodeCommonDataGettingErrorMessage());
 		ResponseMessage.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
@@ -536,7 +536,7 @@ Procedure GetCorrespondentAccountingParameters(Message, Sender)
 		WriteLogEvent(DataExchangeSaaS.EventLogEventDataSynchronizationSetup(),
 			EventLogLevel.Error,,, ErrorPresentation);
 		
-		// 
+		// Sending a response error message
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.CorrespondentAccountingParametersGettingErrorMessage());
 		ResponseMessage.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();

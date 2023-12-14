@@ -78,9 +78,9 @@ Procedure FilterAuthorOnChange(Item)
 				HasEnabledItems = False;
 			EndIf;
 		EndDo;
-		If HasEnabledItems = Undefined Then // 
+		If HasEnabledItems = Undefined Then // Group is an option.
 			GroupOrOption.HiddenByFilter = FilterEnabled And GroupOrOption.Author <> FilterAuthor;
-		Else // 
+		Else // This is a group.
 			GroupOrOption.HiddenByFilter = HasEnabledItems;
 		EndIf;
 	EndDo;
@@ -269,7 +269,7 @@ Procedure OpenOptionForChange()
 		Return;
 	EndIf;
 	If Not OptionChangeRight(Variant, FullRightsToOptions) Then
-		WarningText = NStr("en = 'Insufficient rights to modify report option %1.';");
+		WarningText = NStr("en = 'Insufficient rights to modify option ""%1"".';");
 		WarningText = StringFunctionsClientServer.SubstituteParametersToString(WarningText, Variant.Description);
 		ShowMessageBox(, WarningText);
 		Return;
@@ -315,7 +315,7 @@ Procedure FillOptionsList()
 		FilterReports, False, Not ShowPersonalReportsOptionsByOtherAuthors);
 	VariantsTable = ReportsOptions.ReportOptionTable(SearchParameters);
 	
-	// 
+	// Populate autocalculated columns.
 	VariantsTable.Columns.Add("CurrentUserIsAuthor", New TypeDescription("Boolean"));	
 	VariantsTable.Columns.Add("PictureIndex", New TypeDescription("Number", New NumberQualifiers(1, 0, AllowedSign.Any)));	
 	VariantsTable.Columns.Add("Order", New TypeDescription("Number", New NumberQualifiers(1, 0, AllowedSign.Any)));	

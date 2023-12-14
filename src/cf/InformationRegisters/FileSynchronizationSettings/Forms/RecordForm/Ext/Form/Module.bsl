@@ -1,30 +1,29 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2023, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	If Parameters.Property("FileOwner") Then
+	If ValueIsFilled(Parameters.FileOwner) Then
 		Record.FileOwner = Parameters.FileOwner;
-		
 		If Not ValueIsFilled(Parameters.Key) Then
 			InitializeComposer();
 		EndIf;
-		
 	EndIf;
 	
 	If AttributesArrayWithDateType.Count() = 0 Then
 		Items.AddConditionByDate.Enabled = False;
 	EndIf;
 	
-	If Parameters.Property("FileOwnerType") Then
+	If ValueIsFilled(Parameters.FileOwnerType) Then
 		Record.FileOwnerType = Parameters.FileOwnerType;
 	EndIf;
 	
@@ -51,7 +50,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		SynchronizationObject = "OnlyItemFiles";
 		
 		FilesOwnerID = Common.MetadataObjectID(TypeOf(Record.FileOwner));
-		PresentationFilesOwnerType = Record.FileOwnerType.Description;
+		PresentationFilesOwnerType = Common.ObjectAttributeValue(Record.FileOwnerType, "Description");
 		OwnerPresentationForTitle = Common.SubjectString(Record.FileOwner);
 		CatalogItem = Record.FileOwner;
 		
@@ -59,13 +58,15 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	Else
 		
-		ExistingSettingsList.LoadValues(ExistingSynchronizationObjects(TypeOf(Record.FileOwner.EmptyRefValue)));
+		OwnerProperties = Common.ObjectAttributesValues(Record.FileOwner, 
+			"Description,EmptyRefValue");
+		ExistingSettingsList.LoadValues(ExistingSynchronizationObjects(TypeOf(OwnerProperties.EmptyRefValue)));
 		SynchronizationObject = "AllFiles";
 		
 		FilesOwnerID = Record.FileOwner;
-		PresentationFilesOwnerType = Record.FileOwner.Description;
+		PresentationFilesOwnerType = OwnerProperties.Description;
 		OwnerPresentationForTitle = PresentationFilesOwnerType;
-		CatalogItem = Record.FileOwner.EmptyRefValue;
+		CatalogItem = OwnerProperties.EmptyRefValue;
 		
 	EndIf;
 	
@@ -145,14 +146,14 @@ EndProcedure
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	
 	ReturnValue = New Structure;
-	
 	If SynchronizationObject = "OnlyItemFiles" Then
-		ReturnValue.Insert("ObjectDescriptionSynonym", CurrentObject.FileOwner);
+		ObjectDescriptionSynonym = CurrentObject.FileOwner;
 		HasFilterRules = False;
 	Else
-		ReturnValue.Insert("ObjectDescriptionSynonym", FilesOwnerID.Synonym);
+		ObjectDescriptionSynonym = Common.ObjectAttributeValue(FilesOwnerID, "Synonym");
 		HasFilterRules = Rule.GetSettings().Filter.Items.Count() > 0;
 	EndIf;
+	ReturnValue.Insert("ObjectDescriptionSynonym", ObjectDescriptionSynonym);
 	ReturnValue.Insert("NewSetting",    NewSetting);
 	ReturnValue.Insert("FileOwner",     CurrentObject.FileOwner);
 	ReturnValue.Insert("FileOwnerType", CurrentObject.FileOwnerType);
@@ -250,7 +251,7 @@ Function GetQueryText()
 		"SELECT
 		|	&FileOwnerFields
 		|FROM
-		|	&FullNameFileOwner";
+		|	#FullNameFileOwner";
 	
 	FileOwnerFields = ObjectType.Name + ".Ref";
 	If AllCatalogs.ContainsType(TypeOf(ObjectType.EmptyRefValue)) Then
@@ -272,7 +273,7 @@ Function GetQueryText()
 	EndIf;
 	
 	QueryText = StrReplace(QueryText, "&FileOwnerFields", FileOwnerFields);
-	QueryText = StrReplace(QueryText, "&FullNameFileOwner", ObjectType.FullName + " AS " + ObjectType.Name);
+	QueryText = StrReplace(QueryText, "#FullNameFileOwner", ObjectType.FullName + " AS " + ObjectType.Name);
 	Return QueryText;
 	
 EndFunction

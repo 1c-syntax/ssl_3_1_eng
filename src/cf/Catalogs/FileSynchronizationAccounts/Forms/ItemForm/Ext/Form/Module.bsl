@@ -157,9 +157,7 @@ EndProcedure
 &AtClient
 Procedure CheckCanSyncWithCloudService()
 	
-	ResultStructure1 = Undefined;
-	
-	ExecuteConnectionCheck(Object.Ref, ResultStructure1);
+	ResultStructure1 = ExecuteConnectionCheck(Object.Ref);
 	
 	ResultProtocol = ResultStructure1.ResultProtocol;
 	ResultText = ResultStructure1.ResultText;
@@ -195,9 +193,9 @@ Procedure CheckCanSyncWithCloudService()
 			Recommendations.Insert(0, NStr("en = 'Check whether the username and password are valid.';"));
 		ElsIf ResultStructure1.ErrorCode = 10404 Then
 			ResultStructure1.ErrorCode = ResultStructure1.ErrorCode - 10000;
-			// 
+			// The server does not allow saving additional file properties
 		ElsIf ResultStructure1.ErrorCode = 501 Then
-			// 
+			// No WebDAV protocol method is implemented on the server
 		Else
 			Recommendations.Insert(0, NStr("en = 'Check the validity of the data you entered.';"));
 		EndIf;
@@ -244,12 +242,14 @@ Procedure CheckCanSyncWithCloudService()
 EndProcedure
 
 &AtServer
-Procedure ExecuteConnectionCheck(Account, ResultStructure1)
+Function ExecuteConnectionCheck(Val Account)
+	ResultStructure1 = Undefined;
 	FilesOperationsInternal.ExecuteConnectionCheck(Account, ResultStructure1);
-EndProcedure
+	Return ResultStructure1; 
+EndFunction
 
 &AtServerNoContext
-Function CheckConnection(Service, ProtocolText)
+Function CheckConnection(Val Service, Val ProtocolText)
 	
 	If Common.SubsystemExists("StandardSubsystems.GetFilesFromInternet") Then
 		ModuleNetworkDownload = Common.CommonModule("GetFilesFromInternet");

@@ -13,9 +13,9 @@
 //
 // Parameters:
 //   Form     - ClientApplicationForm - a report form.
-//   Command   - FormCommand     - a command that was called.
+//   Command   - FormCommand     - Command that was called.
 //
-// Usage locations:
+// Usage locations::
 //   CommonForm.ReportForm.Attachable_Command().
 //
 Procedure CreateNewBulkEmailFromReport(Form, Command) Export
@@ -26,9 +26,9 @@ EndProcedure
 //
 // Parameters:
 //   Form     - ClientApplicationForm - a report form.
-//   Command   - FormCommand     - a command that was called.
+//   Command   - FormCommand     - Command that was called.
 //
-// Usage locations:
+// Usage locations::
 //   CommonForm.ReportForm.Attachable_Command().
 //
 Procedure AttachReportToExistingBulkEmail(Form, Command) Export
@@ -44,9 +44,9 @@ EndProcedure
 //
 // Parameters:
 //   Form     - ClientApplicationForm - a report form.
-//   Command   - FormCommand     - a command that was called.
+//   Command   - FormCommand     - Command that was called.
 //
-// Usage locations:
+// Usage locations::
 //   CommonForm.ReportForm.Attachable_Command().
 //
 Procedure OpenBulkEmailsWithReport(Form, Command) Export
@@ -65,7 +65,7 @@ EndProcedure
 //   ChoiceSource    - ClientApplicationForm - a form where the choice is made.
 //   Result         - Boolean           - True if the selection result is processed.
 //
-// Usage locations:
+// Usage locations::
 //   CommonForm.ReportForm.ChoiceProcessing().
 //
 Procedure ChoiceProcessingReportForm(Form, ValueSelected, ChoiceSource, Result) Export
@@ -323,7 +323,7 @@ EndFunction
 //   FTPAddress - String - a full path to the ftp resource.
 //
 // Returns:
-//   Structure - 
+//   Structure - Result - Structure - Result of parsing the full path:
 //       * Login - String - ftp user name.
 //       * Password - String - ftp user password.
 //       * Server - String - Server name.
@@ -341,20 +341,20 @@ Function ParseFTPAddress(FullFTPAddress) Export
 	
 	FTPAddress = FullFTPAddress;
 	
-	// 
+	// Trim "ftp://".
 	Pos = StrFind(FTPAddress, "://");
 	If Pos > 0 Then
 		FTPAddress = Mid(FTPAddress, Pos + 3);
 	EndIf;
 	
-	// Каталог.
+	// Directory.
 	Pos = StrFind(FTPAddress, "/");
 	If Pos > 0 Then
 		Result.Directory = Mid(FTPAddress, Pos);
 		FTPAddress = Left(FTPAddress, Pos - 1);
 	EndIf;
 	
-	// 
+	// Username and password.
 	Pos = StrFind(FTPAddress, "@");
 	If Pos > 0 Then
 		UsernamePassword = Left(FTPAddress, Pos - 1);
@@ -369,7 +369,7 @@ Function ParseFTPAddress(FullFTPAddress) Export
 		EndIf;
 	EndIf;
 	
-	// 
+	// Server and port.
 	Pos = StrFind(FTPAddress, ":");
 	If Pos > 0 Then
 		
@@ -389,13 +389,13 @@ Function ParseFTPAddress(FullFTPAddress) Export
 	
 EndFunction
 
-// 
+// Sends out text messages with archive passwords in the background.
 Procedure SendBulkSMSMessages(Parameters) Export
 	Handler = New NotifyDescription("SendBulkSMSMessagesInBackground", ThisObject, Parameters);
 	ExecuteNotifyProcessing(Handler, Undefined);
 EndProcedure
 
-// Starts a background task, called when all parameters are ready.
+// Runs background job, it is called when all parameters are ready.
 Procedure SendBulkSMSMessagesInBackground(Recipients, Parameters) Export
 
 	MethodParameters = New Structure;
@@ -414,14 +414,14 @@ Procedure SendBulkSMSMessagesInBackground(Recipients, Parameters) Export
 
 EndProcedure
 
-// Accepts the result of a background task.
+// Accepts the background job result.
 //
 // Parameters:
 //   Job - See TimeConsumingOperations.ExecuteInBackground
 //   Parameters - Structure:
 //     * UnsentCount - Number
 //     * PreparedSMSMessages - Array of Structure:
-//         ** PhoneNumbers - Array of String -
+//         ** PhoneNumbers - Array of String - Report recipient's phone numbers.
 //         ** SMSMessageText - String
 //         ** Recipient - DefinedType.BulkEmailRecipient	
 //     * Form - ClientApplicationForm:
@@ -432,7 +432,7 @@ EndProcedure
 Procedure SendBulkSMSMessagesInBackgroundCompletion(Job, Parameters) Export
 	
 	If Job = Undefined Then
-		Return; // 
+		Return; // Canceled.
 	EndIf;
 		
 	Form = Parameters.Form;     
@@ -472,7 +472,7 @@ Procedure ResponseClearUpReportDistributionHistory(Result, Parameters) Export
 	
 EndProcedure
 
-// Starts a background task, called when all parameters are ready.
+// Runs background job, it is called when all parameters are ready.
 Procedure ClearUpReportDistributionHistoryInBackground(Parameters, AdditionalParameters) Export
 
 	MethodParameters = New Structure;
@@ -492,7 +492,7 @@ EndProcedure
 Procedure ClearUpReportDistributionHistoryCompletion(Job, Parameters) Export
 	
 	If Job = Undefined Then
-		Return; // 
+		Return; // Canceled.
 	EndIf;
 	
 	If Job.Status = "Completed2" Then

@@ -175,17 +175,17 @@ Function CurrentSecurityProfilesUsageMode()
 		
 		If Constants.AutomaticallyConfigurePermissionsInSecurityProfiles.Get() Then
 			
-			Result = 2; // 
+			Result = 2; 
 			
 		Else
 			
-			Result = 1; // 
+			Result = 1; 
 			
 		EndIf;
 		
 	Else
 		
-		Result = 0; // 
+		Result = 0; 
 		
 	EndIf;
 	

@@ -146,7 +146,7 @@ EndProcedure
 Procedure ProcessTheChangeRegisteredDuringTheUpload() Export
 	
 	If Common.DataSeparationEnabled() Then
-		// 
+		// SWP right settings are locked for editing. Cannot import them into the data area.
 		Return;
 	EndIf;
 	

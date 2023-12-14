@@ -14,14 +14,14 @@
 // Defines events, to which other libraries can subscribe.
 //
 // Returns:
-//   Structure - 
-//               
+//   Structure - structure property keys are names of events, to which
+//               libraries can be subscribed.
 //
 Function SSLEvents() Export
 
 	Events = New Structure;
 	
-	// БазоваяФункциональность
+	// Core
 	Events.Insert("OnAddSubsystems", False);
 	Events.Insert("OnSetSessionParameters", False);
 	Events.Insert("OnAddSessionParameterSettingHandlers", False);
@@ -42,10 +42,10 @@ Function SSLEvents() Export
 	Events.Insert("OnAddServerNotifications", False);
 	Events.Insert("OnReceiptRecurringClientDataOnServer", False);
 	
-	// Банки
+	// Banks
 	Events.Insert("OnDefineBankClassifiersImportSettings");
 	
-	// ВариантыОтчетов
+	// ReportsOptions
 	Events.Insert("OnDefineReportsOptionsSettings", False);
 	Events.Insert("OnDefineSectionsWithReportOptions", False);
 	Events.Insert("OnSetUpReportsOptions", False);
@@ -56,49 +56,49 @@ Function SSLEvents() Export
 	Events.Insert("OnCreateAtServerReportsOptions", False);
 	Events.Insert("BeforeLoadVariantAtServer", False);
 	
-	// ВнешниеКомпоненты
+	// AddIns
 	Events.Insert("OnDefineUsedAddIns", False);
 	
-	// ГрупповоеИзменениеОбъектов
+	// BatchObjectsModification
 	Events.Insert("OnDefineObjectsWithEditableAttributes", False);
 	Events.Insert("OnDefineEditableObjectAttributes", False);
 	
-	// ДатыЗапретаИзменений
+	// PeriodClosingDates
 	Events.Insert("OnFillPeriodClosingDatesSections", False);
 	Events.Insert("OnFillDataSourcesForPeriodClosingCheck", False);
 	
-	// ДополнительныеОтчетыИОбработки
+	// AdditionalReportsAndDataProcessors
 	Events.Insert("OnSetAdditionalReportOrDataProcessorAttachmentModeInDataArea", False);
 	
-	// ЗагрузкаДанныхИзФайла
+	// ImportDataFromFile
 	Events.Insert("OnDefineCatalogsForDataImport", False);
 	
-	// ЗапретРедактированияРеквизитовОбъектов
+	// ObjectAttributesLock
 	Events.Insert("OnDefineObjectsWithLockedAttributes", False);
 	
-	// ИнтерфейсOData
+	// ODataInterface
 	Events.Insert("OnFillTypesExcludedFromExportImportOData", False);
 	Events.Insert("OnPopulateDependantTablesForODataImportExport", False);
 	
-	// КонтрольВеденияУчета
+	// AccountingAudit
 	Events.Insert("OnDefineChecks", False);
 	
-	// НапоминанияПользователя
+	// UserReminders
 	Events.Insert("OnFillSourceAttributesListWithReminderDates", False);
 	
-	// ОбменДанными
+	// DataExchange
 	Events.Insert("OnSetUpSubordinateDIBNode", False);
 	
-	// ОбновлениеВерсииИБ
-	Events.Insert("OnAddUpdateHandlers", False); // 
+	// IBVersionUpdate
+	Events.Insert("OnAddUpdateHandlers", False); 
 	Events.Insert("AfterUpdateInfobase", False);
 	Events.Insert("OnGetUpdatePriority", False);
 	Events.Insert("OnPopulateObjectsPlannedForDeletion", False);
 	
-	// Печать
+	// Print
 	Events.Insert("OnDefinePrintSettings", False);
 	Events.Insert("OnPrepareTemplateListInOfficeDocumentServerFormat", False);
-	Events.Insert("OnDefineObjectsWithPrintCommands", False); // Устарела. 
+	Events.Insert("OnDefineObjectsWithPrintCommands", False); // екПечати. 
 	Events.Insert("BeforeAddPrintCommands", False);
 	Events.Insert("OnGetPrintCommandListSettings", False);
 	Events.Insert("OnPrint", False);
@@ -111,7 +111,7 @@ Function SSLEvents() Export
 	Events.Insert("OnDefinePrintDataSources", False);
 	Events.Insert("WhenPreparingPrintData", False);
 	
-	// ПодключаемыеКоманды
+	// AttachableCommands
 	Events.Insert("OnDefineAttachableCommandsKinds", False);
 	Events.Insert("OnDefineAttachableObjectsSettingsComposition", False);
 	Events.Insert("OnDefineCommandsAttachedToObject", False);
@@ -119,7 +119,7 @@ Function SSLEvents() Export
 	Events.Insert("BeforeAddGenerationCommands", False);
 	Events.Insert("OnAddGenerationCommands", False);
 	
-	// Пользователи
+	// Users
 	Events.Insert("OnDefineSettings", False);
 	Events.Insert("OnDefineRoleAssignment", False);
 	Events.Insert("OnDefineActionsInForm", False);
@@ -128,7 +128,7 @@ Function SSLEvents() Export
 	Events.Insert("OnDeleteOtherSettings", False);
 	Events.Insert("OnEndIBUserProcessing", False);
 	
-	//ПрофилиБезопасности
+	//SecurityProfiles
 	Events.Insert("OnCheckCanSetupSecurityProfiles", False);
 	Events.Insert("OnRequestPermissionsToUseExternalResources", False);
 	Events.Insert("OnRequestToCreateSecurityProfile", False);
@@ -137,22 +137,22 @@ Function SSLEvents() Export
 	Events.Insert("OnEnableSecurityProfiles", False);
 	Events.Insert("OnFillPermissionsToAccessExternalResources", False);
 	
-	// РаботаСПочтовымиСообщениями  
+	// EmailOperations  
 	Events.Insert("BeforeGetEmailMessagesStatuses", False); 
 	Events.Insert("AfterGetEmailMessagesStatuses", False);	
 	
-	// РаботаСФайлами
+	// StoredFiles
 	Events.Insert("OnDefineFileSynchronizationExceptionObjects", False);
 	
-	// РегламентныеЗадания
+	// ScheduledJobs
 	Events.Insert("OnDefineScheduledJobSettings", False);
 	Events.Insert("WhenYouAreForbiddenToWorkWithExternalResources", False);
 	Events.Insert("WhenAllowingWorkWithExternalResources", False);
 	
-	// Свойства
+	// Properties
 	Events.Insert("OnGetPredefinedPropertiesSets", False);
 	
-	// ТекущиеДела
+	// ToDoList
 	Events.Insert("OnDetermineToDoListHandlers", False);
 	Events.Insert("OnFillToDoList", False);
 	Events.Insert("OnDetermineCommandInterfaceSectionsOrder", False);
@@ -160,7 +160,7 @@ Function SSLEvents() Export
 	Events.Insert("OnDefineToDoListSettings", False);
 	Events.Insert("OnSetCommonQueryParameters", False);
 	
-	// УправлениеДоступом
+	// AccessManagement
 	Events.Insert("OnFillAccessKinds", False);
 	Events.Insert("OnFillListsWithAccessRestriction", False);
 	Events.Insert("OnFillSuppliedAccessGroupProfiles", False);
@@ -169,7 +169,7 @@ Function SSLEvents() Export
 	Events.Insert("OnFillAccessKindUsage", False);
 	Events.Insert("OnFillMetadataObjectsAccessRestrictionKinds", False);
 	
-	// ЦентрМониторинга
+	// MonitoringCenter
 	Events.Insert("OnCollectConfigurationStatisticsParameters", False);
 
 	Return Events;
@@ -178,8 +178,8 @@ EndFunction
 
 #Region CTLEventHandlers
 
-// 
-// 
+
+
 
 // Defines events, to which this library is subscribed.
 //
@@ -188,10 +188,10 @@ EndFunction
 //
 Procedure OnDefineEventsSubscriptionsCTL(Subscriptions) Export
 	
-	// БазоваяФункциональность
+	// Core
 	Subscriptions.OnAddCTLUpdateHandlers = True;
 	
-	// ВыгрузкаЗагрузкаДанных
+	// ExportImportData
 	Subscriptions.OnFillTypesThatRequireRefAnnotationOnImport = True;
 	Subscriptions.OnFillCommonDataTypesSupportingRefMappingOnExport = True;
 	Subscriptions.OnFillCommonDataTypesThatDoNotRequireMappingRefsOnImport = True;
@@ -205,22 +205,22 @@ Procedure OnDefineEventsSubscriptionsCTL(Subscriptions) Export
 	Subscriptions.AfterImportInfobaseUser = True;
 	Subscriptions.AfterImportInfobaseUsers = True;
 	
-	// РаботаВМоделиСервиса_БазоваяФункциональностьВМоделиСервиса
+	// SaaS_CoreSaaS
 	Subscriptions.OnFillIIBParametersTable = True;
 	Subscriptions.OnDefineSharedDataExceptions = True;
 	Subscriptions.OnDefineUserAlias = True;
 
-	// РаботаВМоделиСервиса_ОбменСообщениями
+	// SaaS_MessageExchange
 	Subscriptions.OnDefineMessagesChannelsHandlers  = True;
 	Subscriptions.RecordingIncomingMessageInterfaces  = True;
 	Subscriptions.RecordingOutgoingMessageInterfaces = True;
 	
-	// РаботаВМоделиСервиса_ОчередьЗаданий
+	// SaaS_JobsQueue
 	Subscriptions.OnGetTemplateList = True;
 	Subscriptions.OnDefineHandlerAliases = True;
 	Subscriptions.OnDefineScheduledJobsUsage = True;
 	
-	// РаботаВМоделиСервиса_ПоставляемыеДанные
+	// SaaS_SuppliedData
 	Subscriptions.OnDefineSuppliedDataHandlers = True;
 
 EndProcedure
@@ -294,6 +294,10 @@ EndProcedure
 // See ExportImportDataOverridable.OnFillTypesExcludedFromExportImport.
 Procedure OnFillTypesExcludedFromExportImport(Types) Export
 
+	If Not Common.SubsystemExists("CloudTechnology.ExportImportData") Then
+		Return;
+	EndIf;
+	
 	StandardSubsystemsServer.OnFillTypesExcludedFromExportImport(Types);
 	ServerNotifications.OnFillTypesExcludedFromExportImport(Types);
 	
@@ -364,7 +368,7 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 		ModuleMarkedObjectsDeletionInternal.OnFillTypesExcludedFromExportImport(Types);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnFillTypesExcludedFromExportImport(Types);
 	EndIf;
@@ -537,17 +541,17 @@ Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 		ModuleIBConnections.OnFillIIBParametersTable(ParametersTable);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnFillIIBParametersTable(ParametersTable);
 	EndIf;
 	
 EndProcedure
 
-//  
+// Overrides shared data exceptions for the SaaSTechnology subsystem 
 // 
 // Parameters:
-//  Exceptions - Array of MetadataObject - exceptions.
+//  Exceptions - Array of MetadataObject - Exceptions.
 //
 Procedure OnDefineSharedDataExceptions(Exceptions) Export
 
@@ -676,9 +680,9 @@ Procedure OnGetTemplateList(JobTemplates) Export
 		ModuleDigitalSignatureInternal.OnGetTemplateList(JobTemplates);
 	EndIf;
 	
-	If Common.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
-		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal = Common.CommonModule("MachineReadableAuthorizationLettersOfFederalTaxServiceInternal");
-		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal.OnGetTemplateList(JobTemplates);
+	If Common.SubsystemExists("StandardSubsystems.MachineReadableLettersOfAuthority") Then
+		ModuleMachineReadableLettersOfAuthorityFTSInternal = Common.CommonModule("MachineReadableLettersOfAuthorityFTSInternal");
+		ModuleMachineReadableLettersOfAuthorityFTSInternal.OnGetTemplateList(JobTemplates);
 	EndIf;
 	
 EndProcedure
@@ -823,8 +827,8 @@ EndProcedure
 #EndRegion
 
 #Region OSLEventHandlers
-// 
-// 
+
+
 
 // Defines events, to which this library is subscribed.
 //
@@ -834,15 +838,15 @@ EndProcedure
 //
 Procedure OnDefineEventsSubscriptionsOSL(Subscriptions) Export
 	
-	// БазоваяФункциональность
+	// Core
 	Subscriptions.OnChangeOnlineSupportAuthenticationData = True;
 	
-	// РаботаСКлассификаторами
+	// ClassifiersOperations
 	Subscriptions.OnAddClassifiers = True;
 	Subscriptions.OnImportClassifier = True;
 	Subscriptions.OnProcessDataArea = True;
 	
-	// ЭлектроннаяПодпись
+	// DigitalSignature
 	Subscriptions.OnDefineAddInsVersionsToUse = True;
 	
 EndProcedure
@@ -1083,14 +1087,14 @@ Procedure OnAddSessionParameterSettingHandlers(Handlers) Export
 		ModuleOSLSubsystemsIntegration.OnAddSessionParameterSettingHandlers(Handlers);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnAddSessionParameterSettingHandlers(Handlers);
 	EndIf;
 	
-	If Common.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
-		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal = Common.CommonModule("MachineReadableAuthorizationLettersOfFederalTaxServiceInternal");
-		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal.OnAddSessionParameterSettingHandlers(Handlers);
+	If Common.SubsystemExists("StandardSubsystems.MachineReadableLettersOfAuthority") Then
+		ModuleMachineReadableLettersOfAuthorityFTSInternal = Common.CommonModule("MachineReadableLettersOfAuthorityFTSInternal");
+		ModuleMachineReadableLettersOfAuthorityFTSInternal.OnAddSessionParameterSettingHandlers(Handlers);
 	EndIf;
 	
 EndProcedure
@@ -1188,7 +1192,7 @@ EndProcedure
 //
 // Parameters:
 //  ReplacementPairs		 - See Common.ReplaceReferences.ReplacementPairs
-//  ReplacementParameters - See Common.RefsReplacementParameters
+//   See Common.RefsReplacementParameters
 //
 Procedure BeforeSearchForUsageInstances(ReplacementPairs, ExecutionParameters) Export
 
@@ -1673,7 +1677,7 @@ Procedure OnDefineSupportedInterfaceVersions(SupportedVersions) Export
 
 	UsersInternal.OnDefineSupportedInterfaceVersions(SupportedVersions);
 	
-	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnDefineSupportedInterfaceVersions(SupportedVersions);
 	EndIf;
@@ -1854,7 +1858,7 @@ Procedure OnAddClientParameters(Parameters) Export
 		ModuleOSLSubsystemsIntegration.OnAddClientParameters(Parameters);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnAddClientParameters(Parameters);
 	EndIf;
@@ -1963,9 +1967,9 @@ Procedure OnAddServerNotifications(Notifications) Export
 		ModuleUserReminderInternal.OnAddServerNotifications(Notifications);
 	EndIf;
 	
-	If Common.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
-		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal = Common.CommonModule("MachineReadableAuthorizationLettersOfFederalTaxServiceInternal");
-		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal.OnAddServerNotifications(Notifications);
+	If Common.SubsystemExists("StandardSubsystems.MachineReadableLettersOfAuthority") Then
+		ModuleMachineReadableLettersOfAuthorityFTSInternal = Common.CommonModule("MachineReadableLettersOfAuthorityFTSInternal");
+		ModuleMachineReadableLettersOfAuthorityFTSInternal.OnAddServerNotifications(Notifications);
 	EndIf;
 	
 	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnAddServerNotifications Then
@@ -2143,7 +2147,7 @@ Procedure OnSetUpReportsOptions(Settings) Export
 		ModuleOSLSubsystemsIntegration.OnSetUpReportsOptions(Settings);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnSetUpReportsOptions(Settings);
 	EndIf;
@@ -2188,7 +2192,7 @@ Procedure OnDefineObjectsWithReportCommands(Objects) Export
 		ModuleOSLSubsystemsIntegration.OnDefineObjectsWithReportCommands(Objects);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnDefineObjectsWithReportCommands(Objects);
 	EndIf;
@@ -2284,9 +2288,9 @@ EndProcedure
 #Region AddIns
 
 // Parameters:
-//  Components - ValueTable -
-//      * Id          - String -
-//      * AutoUpdate - Boolean -
+//  Components - ValueTable - :
+//      * Id          - String - 
+//      * AutoUpdate - Boolean - 
 //
 Procedure OnDefineUsedAddIns(Components) Export
 	
@@ -2416,7 +2420,7 @@ Procedure OnDefineObjectsWithEditableAttributes(Objects) Export
 		ModuleOSLSubsystemsIntegration.OnDefineObjectsWithEditableAttributes(Objects);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnDefineObjectsWithEditableAttributes(Objects);
 	EndIf;
@@ -2713,8 +2717,8 @@ EndProcedure
 //  StandardProcessing - Boolean - Indicates whether the standard processing is required to attach an
 //    external data processor.
 //  Result - ExternalDataProcessor
-//            - ExternalReport - 
-//    
+//            - ExternalReport - an object of the attached external report or
+//    data processor (provided that the handler StandardProcessing parameter is set to False).
 //
 Procedure OnCreateExternalDataProcessor(Val Ref, StandardProcessing, Result) Export
 
@@ -2736,9 +2740,9 @@ EndProcedure
 //   Job - ScheduledJob
 //           - ValueTableRow - 
 //       
-//   Changes - Structure - job attribute values to be modified.
-//       See details of the second parameter of the ScheduledJobsServer.ChangeJob procedure.
-//       If the value is Undefined, the scheduled job stays unchanged.
+//   Changes - Structure - 
+//       
+//       
 //
 Procedure BeforeUpdateJob(Object, Command, Job, Changes) Export
 
@@ -2820,7 +2824,7 @@ Procedure OnDefineCatalogsForDataImport(CatalogsToImport) Export
 		ModuleOSLSubsystemsIntegration.OnDefineCatalogsForDataImport(CatalogsToImport);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnDefineCatalogsForDataImport(CatalogsToImport);
 	EndIf;
@@ -3003,6 +3007,20 @@ EndProcedure
 
 #EndRegion
 
+#Region ItemOrderSetup
+
+Procedure BeforeMovingItem(ItemToMove, AdjacentElement, Direction, ErrorText, StandardProcessing) Export
+	
+	If Common.SubsystemExists("StandardSubsystems.SourceDocumentsOriginalsRecording") Then
+		ModuleSourceDocumentsOriginalsAccounting = Common.CommonModule("SourceDocumentsOriginalsRecording");
+		ModuleSourceDocumentsOriginalsAccounting.BeforeMovingItem(
+			ItemToMove, AdjacentElement, Direction, ErrorText, StandardProcessing);
+	EndIf;
+	
+EndProcedure
+
+#EndRegion
+
 #Region DataExchange
 
 // See DataExchangeOverridable.OnSetUpSubordinateDIBNode.
@@ -3120,7 +3138,12 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 		ModuleAccountingAuditInternal = Common.CommonModule("AccountingAuditInternal");
 		ModuleAccountingAuditInternal.OnAddUpdateHandlers(Handlers);
 	EndIf;
-
+	
+	If Common.SubsystemExists("StandardSubsystems.MachineReadableLettersOfAuthority") Then
+		ModuleMachineReadableLettersOfAuthorityFTSInternal = Common.CommonModule("MachineReadableLettersOfAuthorityFTSInternal");
+		ModuleMachineReadableLettersOfAuthorityFTSInternal.OnAddUpdateHandlers(Handlers);
+	EndIf;
+	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 		ModuleNationalLanguageSupportServer.OnAddUpdateHandlers(Handlers);
@@ -3163,6 +3186,11 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then
 		ModuleDataExchangeSaaS = Common.CommonModule("DataExchangeSaaS");
 		ModuleDataExchangeSaaS.OnAddUpdateHandlers(Handlers);
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.AddInsSaaS") Then
+		ModuleAddInsSaaSInternal = Common.CommonModule("AddInsSaaSInternal");
+		ModuleAddInsSaaSInternal.OnAddUpdateHandlers(Handlers);
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.EmailOperations") Then
@@ -3348,9 +3376,9 @@ Procedure OnDefinePrintSettings(PrintSettings) Export
 		ModulePersonalDataProtection.OnDefinePrintSettings(PrintSettings);
 	EndIf;
 	
-	If Common.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
-		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal = Common.CommonModule("MachineReadableAuthorizationLettersOfFederalTaxServiceInternal");
-		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal.OnDefinePrintSettings(PrintSettings);
+	If Common.SubsystemExists("StandardSubsystems.MachineReadableLettersOfAuthority") Then
+		ModuleMachineReadableLettersOfAuthorityFTSInternal = Common.CommonModule("MachineReadableLettersOfAuthorityFTSInternal");
+		ModuleMachineReadableLettersOfAuthorityFTSInternal.OnDefinePrintSettings(PrintSettings);
 	EndIf;
 	
 	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnDefinePrintSettings Then
@@ -4232,7 +4260,7 @@ EndProcedure
 //  Ref     - CatalogRef.Users
 //             - CatalogRef.UserGroups
 //             - CatalogRef.ExternalUsers
-//             - CatalogRef.ExternalUsersGroups - 
+//             - CatalogRef.ExternalUsersGroups - changed object.
 //
 //  IsNew   - Boolean - the object is added if True, modified otherwise.
 //
@@ -4283,7 +4311,7 @@ EndProcedure
 // Parameters:
 //  ExternalUser     - CatalogRef.ExternalUsers - external user.
 //  PreviousAuthorizationObject - Null - used when adding an external user.
-//                          - DefinedType.ExternalUser - the type of object authorization.
+//                          - DefinedType.ExternalUser - the authorization object type.
 //  NewAuthorizationObject  - DefinedType.ExternalUser - the authorization object type.
 //
 Procedure AfterChangeExternalUserAuthorizationObject(ExternalUser, PreviousAuthorizationObject,
@@ -4667,7 +4695,9 @@ EndProcedure
 
 // See ScheduledJobsOverridable.OnDefineScheduledJobSettings.
 Procedure OnDefineScheduledJobSettings(Settings) Export
-
+	
+	StandardSubsystemsServer.OnDefineScheduledJobSettings(Settings);
+	
 	If Common.SubsystemExists("StandardSubsystems.BusinessProcessesAndTasks") Then
 		ModuleBusinessProcessesAndTasksServer = Common.CommonModule("BusinessProcessesAndTasksServer");
 		ModuleBusinessProcessesAndTasksServer.OnDefineScheduledJobSettings(Settings);
@@ -4748,9 +4778,9 @@ Procedure OnDefineScheduledJobSettings(Settings) Export
 		ModuleDigitalSignatureInternal.OnDefineScheduledJobSettings(Settings);
 	EndIf;
 	
-	If Common.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
-		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal = Common.CommonModule("MachineReadableAuthorizationLettersOfFederalTaxServiceInternal");
-		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal.OnDefineScheduledJobSettings(Settings);
+	If Common.SubsystemExists("StandardSubsystems.MachineReadableLettersOfAuthority") Then
+		ModuleMachineReadableLettersOfAuthorityFTSInternal = Common.CommonModule("MachineReadableLettersOfAuthorityFTSInternal");
+		ModuleMachineReadableLettersOfAuthorityFTSInternal.OnDefineScheduledJobSettings(Settings);
 	EndIf;
 	
 	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnDefineScheduledJobSettings Then
@@ -4951,8 +4981,8 @@ Procedure OnDetermineToDoListHandlers(ToDoList) Export
 		ToDoList.Add(Common.CommonModule("DigitalSignatureInternal"));
 	EndIf;
 	
-	If Common.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
-		ToDoList.Add(Common.CommonModule("MachineReadableAuthorizationLettersOfFederalTaxServiceInternal"));
+	If Common.SubsystemExists("StandardSubsystems.MachineReadableLettersOfAuthority") Then
+		ToDoList.Add(Common.CommonModule("MachineReadableLettersOfAuthorityFTSInternal"));
 	EndIf;
 	
 	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnDetermineToDoListHandlers Then
@@ -5058,7 +5088,7 @@ EndProcedure
 // See AccessManagementOverridable.OnFillAccessKinds.
 Procedure OnFillAccessKinds(AccessKinds) Export
 	
-	// 
+	// The first call must be made to the Users subsystems.
 	UsersInternal.OnFillAccessKinds(AccessKinds);
 
 	If Common.SubsystemExists("StandardSubsystems.BusinessProcessesAndTasks") Then
@@ -5183,7 +5213,7 @@ Procedure OnFillListsWithAccessRestriction(Lists) Export
 		ModuleOSLSubsystemsIntegration.OnFillListsWithAccessRestriction(Lists);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnFillListsWithAccessRestriction(Lists);
 	EndIf;
@@ -5328,7 +5358,7 @@ Procedure OnFillMetadataObjectsAccessRestrictionKinds(LongDesc) Export
 		ModuleOSLSubsystemsIntegration.OnFillMetadataObjectsAccessRestrictionKinds(LongDesc);
 	EndIf;
 
-	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
+	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnFillMetadataObjectsAccessRestrictionKinds(LongDesc);
 	EndIf;
@@ -5345,7 +5375,7 @@ EndProcedure
 // Parameters:
 //  TempTablesManager - TempTablesManager - The method puts the following table to the manager
 //                            PerformersGroupTable with the following fields:
-//                              PerformersGroup. For example:
+//                              PerformersGroup. For example
 //                                                   CatalogRef.TaskPerformersGroups.
 //                              User       - CatalogRef.Users
 //                                                 - CatalogRef.ExternalUsers
@@ -5364,7 +5394,7 @@ EndProcedure
 //                          - CatalogRef.Users
 //                          - CatalogRef.ExternalUsers -
 //                              
-//                          - Array - 
+//                          - Array - array of the types specified above.
 //
 //  NoPerformerGroups    - Boolean - If False, TempTablesManager contains a temporary table. Otherwise, does not.
 //

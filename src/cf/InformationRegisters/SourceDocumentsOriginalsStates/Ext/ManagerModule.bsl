@@ -108,9 +108,9 @@ EndProcedure
 //  PrintForm - String - a print form template name.
 //  Presentation - String - a print form description.
 //  State - String - a description of the print form original state
-//            - CatalogRef - 
+//            - CatalogRef - a reference to the print form original state.
 //  FromOutside - Boolean - indicates whether the form belongs to 1C:Enterprise.
-//  Employee - CatalogRef -
+//  Employee - CatalogRef - 
 //
 Procedure WriteDocumentOriginalStateByPrintForms(Document, PrintForm, Presentation, State, 
 	FromOutside, Employee = Undefined) Export
@@ -168,8 +168,7 @@ Procedure WriteCommonDocumentOriginalState(Document, State) Export
 	Try
 		
 		Block = New DataLock();
-		Item = Block.Add("InformationRegister.SourceDocumentsOriginalsStates");
-		Item.Mode = DataLockMode.Exclusive;
+		Block.Add("InformationRegister.SourceDocumentsOriginalsStates");
 		Block.Lock();
 
 		OriginalStateRecord = InformationRegisters.SourceDocumentsOriginalsStates.CreateRecordManager();

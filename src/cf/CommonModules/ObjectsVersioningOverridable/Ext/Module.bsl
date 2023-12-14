@@ -90,7 +90,7 @@ EndProcedure
 //         - ChartOfCalculationTypesObject
 //         - ChartOfAccountsObject
 //         - ChartOfCharacteristicTypesObject -
-//           
+//           :
 //   * Ref - AnyRef
 //  AdditionalAttributes - ValueTable - collection of additional attributes that were saved
 //                                              with the object version:

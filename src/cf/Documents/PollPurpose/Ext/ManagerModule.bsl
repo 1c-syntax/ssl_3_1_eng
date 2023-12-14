@@ -75,7 +75,7 @@ EndProcedure
 //
 // Parameters:
 //  Message - Structure:
-//    * AttributesValues - Map of KeyAndValue - a list of attributes used in the template.
+//    * AttributesValues - Map of KeyAndValue - a list of attributes used in the template.:
 //      ** Key     - String - an attribute name in the template.
 //      ** Value - String - a filling value in the template.
 //    * CommonAttributesValues - Map of KeyAndValue - a list of common attributes used in the template:
@@ -84,9 +84,9 @@ EndProcedure
 //    * Attachments - Map of KeyAndValue:
 //      ** Key     - String - an attachment name in the template.
 //      ** Value - BinaryData
-//                  - String - 
+//                  - String - binary data or an address in a temporary storage of the attachment.
 //  MessageSubject - AnyRef - a reference to an object that is a data source.
-//  AdditionalParameters - Structure - a full name of a message template assignment.
+//  AdditionalParameters - Structure -  a full name of a message template assignment.
 //
 Procedure OnCreateMessage(Message, MessageSubject, AdditionalParameters) Export
 	
@@ -100,7 +100,7 @@ EndProcedure
 //     * Presentation - String - a text message recipient presentation.
 //     * Contact       - Arbitrary - a contact that owns the phone number.
 //  MessageSubject - AnyRef - a reference to an object that is a data source.
-//                   - Structure  - 
+//                   - Structure  - :
 //    * SubjectOf               - AnyRef - a reference to an object that is a data source.
 //    * MessageKind - String - a kind of a message being generated: Email or SMSMessage.
 //    * ArbitraryParameters - Map - a filled list of arbitrary parameters.
@@ -115,12 +115,12 @@ EndProcedure
 //
 // Parameters:
 //   EmailRecipients - ValueTable - a list of mail recipients:
-//     * SendingOption - String -
+//     * SendingOption - String - 
 //     * Address           - String - a recipient email address.
 //     * Presentation   - String - an email recipient presentation.
 //     * Contact         - Arbitrary - a contact that owns the email address.
 //  MessageSubject - AnyRef - a reference to an object that is a data source.
-//                   - Structure  - 
+//                   - Structure  - :
 //    * SubjectOf               - AnyRef - a reference to an object that is a data source.
 //    * MessageKind - String - a kind of a message being generated: Email or SMSMessage.
 //    * ArbitraryParameters - Map - a filled list of arbitrary parameters.

@@ -71,11 +71,11 @@ EndProcedure
 
 #Region Internal
 
-// Registers objects
-// that need to be updated to the new version on the exchange plan for updating the information Database.
+// Registers the objects to be updated in the InfobaseUpdate exchange plan.
+// 
 //
 // Parameters:
-//  Parameters - Structure - service parameter to pass to the information database Update procedure.Mark the processing.
+//  Parameters - Structure - Internal parameter to pass to the InfobaseUpdate.MarkForProcessing procedure.
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 
@@ -100,7 +100,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 		VersionsForProcessing = Result.UnloadColumn("Ref");
 		InfobaseUpdate.MarkForProcessing(Parameters, VersionsForProcessing);
 		Query.SetParameter("Ref", VersionsForProcessing[VersionsForProcessing.UBound()]);
-		//@skip-
+		//@skip-check query-in-loop - Batch data registration for processing
 		Result = Query.Execute().Unload();
 	EndDo;
 

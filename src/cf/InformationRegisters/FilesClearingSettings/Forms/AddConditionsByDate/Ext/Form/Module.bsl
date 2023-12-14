@@ -12,7 +12,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	If Not Parameters.Property("ArrayOfValues") Then // 
+	If Not Parameters.Property("ArrayOfValues") Then // Return if there are no attributes with the date type.
 		Return;
 	EndIf;
 	

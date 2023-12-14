@@ -182,7 +182,7 @@ Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
 		
 	ElsIf Result = "RolesAreModified" Then
 		ShowUserNotification(
-			NStr("en = 'Access rights are updated';"),
+			NStr("en = 'Access rights updated';"),
 			"e1cib/app/CommonForm.InfobaseUserRoleChangeControl",
 			NStr("en = 'Restart the application so that they come into force.';"),
 			PictureLib.Warning32,
@@ -447,7 +447,7 @@ EndProcedure
 //  SettingsCopiedToNote - String - to whom settings are copied.
 //
 // Returns:
-//  String - 
+//  String - a note text when copying settings.
 //
 Function GenerateNoteOnCopy(SettingPresentation, SettingsCount, SettingsCopiedToNote) Export
 	
@@ -484,7 +484,7 @@ EndFunction
 //                            is 1.
 //
 // Returns:
-//  String - 
+//  String - a note about the target user.
 //
 Function UsersNote(UsersCount, User) Export
 	

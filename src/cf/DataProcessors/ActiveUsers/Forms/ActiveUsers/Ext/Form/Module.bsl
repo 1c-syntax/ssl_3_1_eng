@@ -397,7 +397,7 @@ EndFunction
 &AtServerNoContext
 Procedure PopulateRefsByIDs(UsersRefs, UsersIDs)
 
-	// 
+	// Cannot access the separated catalog from a shared session.
 	If Common.DataSeparationEnabled() 
 		And Not Common.SeparatedDataUsageAvailable() Then
 		Return;

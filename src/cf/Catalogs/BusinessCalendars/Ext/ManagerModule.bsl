@@ -77,7 +77,7 @@ EndProcedure
 //  BusinessCalendar - CatalogRef.BusinessCalendars - a calendar.
 //
 // Returns:
-//  Date - 
+//  Date - a date until which the business calendar is filled in. Undefined if the calendar is not filled in.
 //
 Function BusinessCalendarFillingEndDate(BusinessCalendar) Export
 	
@@ -229,7 +229,7 @@ EndProcedure
 //  DataTable - ValueTable - business calendars data.
 // 
 // Returns:
-//  ValueTable - 
+//  ValueTable - :
 //   * BusinessCalendarCode - String - a changed calendar code,
 //   * Year - Number - a year for which the calendar was changed.
 //
@@ -361,7 +361,7 @@ EndFunction
 //  BasicCalendarCode - String - a source calendar code
 // 
 // Returns:
-//  ValueTable - 
+//  ValueTable - :
 //   * BusinessCalendarCode - String
 //   * DayKind - EnumRef.BusinessCalendarDaysKinds
 //   * Year - Number
@@ -373,8 +373,8 @@ Function BusinessCalendarDefaultFillingResult(CalendarCode1, YearNumber, Val Bas
 	DaysKinds = New Map;
 	ShiftedDays = New Map;
 	
-	// 
-	// 
+	
+	
 	CalendarsCodes = New Array;
 	CalendarsCodes.Add(CalendarCode1);
 	HasBasicCalendar = False;
@@ -383,8 +383,8 @@ Function BusinessCalendarDefaultFillingResult(CalendarCode1, YearNumber, Val Bas
 		HasBasicCalendar = True;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	TemplateData = DefaultBusinessCalendarsData(CalendarsCodes, False);
 	
 	RowFilter = New Structure("BusinessCalendarCode,Year");
@@ -423,7 +423,7 @@ Function BusinessCalendarDefaultFillingResult(CalendarCode1, YearNumber, Val Bas
 	// If there are no data in the template, fill in permanent holidays.
 	If Not HasCalendarData Then
 		If HasBasicCalendar And HasBasicCalendarData Then
-			// 
+			// Request permanent holidays of the basic calendar only if they are missing in the template.
 			BasicCalendarCode = Undefined;
 		EndIf;
 		FillPermanentHolidays(DaysKinds, ShiftedDays, YearNumber, CalendarCode1, BasicCalendarCode);
@@ -478,7 +478,7 @@ Function BusinessCalendarsDefaultFillingResult(CalendarsCodes) Export
 		YearsNumbers = Common.UnloadColumn(TemplateCalendarData, "Year", True);
 		CurrentYear = Year(CurrentSessionDate());
 		If YearsNumbers.Find(CurrentYear) = Undefined Then
-			// 
+			// Add the current year by default.
 			YearsNumbers.Add(CurrentYear);
 		EndIf;
 		For Each YearNumber In YearsNumbers Do
@@ -1015,7 +1015,7 @@ EndProcedure
 // of this day in the calendar field.
 // 
 // Returns:
-//  Map - 
+//  Map - a map between day kinds and appearance colors.
 //
 Function BusinessCalendarDayKindsAppearanceColors() Export
 	
@@ -1035,7 +1035,7 @@ EndFunction
 // according to metadata of the BusinessCalendarDaysKinds enumeration.
 // 
 // Returns:
-//  ValueList - 
+//  ValueList - a list containing an enumeration value and its synonym as a presentation.
 //
 Function DayKindsList() Export
 	
@@ -1053,7 +1053,7 @@ EndFunction
 // for using, for example, as a template.
 //
 // Returns:
-//  Array - 
+//  Array - the list of business calendars
 //
 Function BusinessCalendarsList() Export
 
@@ -1140,8 +1140,8 @@ Procedure FillPermanentHolidays(DaysKinds, ShiftedDays, YearNumber, CalendarCode
 	
 	// If not, fill in holidays and their replacements.
 	Holidays = BusinessCalendarHolidays(CalendarCode1, YearNumber);
-	//  
-	// 
+	 
+	
 	NextYearHolidays = BusinessCalendarHolidays(CalendarCode1, YearNumber + 1);
 	CommonClientServer.SupplementTable(NextYearHolidays, Holidays);
 	
@@ -1153,15 +1153,15 @@ Procedure FillPermanentHolidays(DaysKinds, ShiftedDays, YearNumber, CalendarCode
 		CommonClientServer.SupplementTable(NextYearHolidays, Holidays);
 	EndIf;
 	
-	//  
-	//  
-	//  
-	// 	
+	 
+	 
+	 
+		
 	
 	For Each TableRow In Holidays Do
 		PublicHoliday = TableRow.Date;
-		//  
-		// 
+		 
+		
 		If TableRow.AddPreholiday Then
 			PreholidayDate = PublicHoliday - DayLength();
 			If Year(PreholidayDate) = YearNumber Then
@@ -1178,9 +1178,9 @@ Procedure FillPermanentHolidays(DaysKinds, ShiftedDays, YearNumber, CalendarCode
 		EndIf;
 		If DaysKinds[PublicHoliday] <> Enums.BusinessCalendarDaysKinds.Work 
 			And TableRow.ShiftHoliday Then
-			//  
-			//  
-			// 
+			 
+			 
+			
 			DayDate = PublicHoliday;
 			While True Do
 				DayDate = DayDate + DayLength();
@@ -1437,7 +1437,7 @@ Function BusinessCalendarPrintForm(PrintFormPreparationParameters)
 				CumulateColumn(ForYear, ForMonth);
 				MonthColumn = Template.GetArea("MonthColumn");
 				FillAreaParameters(MonthColumn.Parameters, ForMonth);
-				MonthColumn.Parameters.MonthName = Format(Date(YearNumber, SelectionByMonth.CalendarMonth, 1), "DF='MMMM'"); // ACC:1367
+				MonthColumn.Parameters.MonthName = Format(Date(YearNumber, SelectionByMonth.CalendarMonth, 1), "DF='MMMM'"); 
 				SpreadsheetDocument.Join(MonthColumn);
 			EndDo;
 			MonthColumn = Template.GetArea("MonthColumn");

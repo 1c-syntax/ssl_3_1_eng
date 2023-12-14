@@ -145,7 +145,7 @@ Procedure PerformComparison()
 	RowsMapLeft = Maps1[0];
 	RowsMapRight = Maps1[1];
 	
-	// 
+	// Comparing the spreadsheet documents by columns and selecting the matching columns.
 	Maps1 = GenerateMatches(LeftDocumentTable, RightDocumentTable, False);
 	ColumnsMapLeft = Maps1[0];
 	ColumnsMapRight = Maps1[1];
@@ -676,7 +676,7 @@ Function GenerateMatches(LeftTable, RightTable, ByRows)
 			|FROM
 			|	MapsWithConflict AS MapsWithConflict";
 			
-		Selection = Query.Execute().Select(); //@skip-
+		Selection = Query.Execute().Select();
 		Selection.Next();
 		ConflictsLevel = Selection.NumberOfConflicts;
 		
@@ -690,7 +690,7 @@ Function GenerateMatches(LeftTable, RightTable, ByRows)
 		TempTablesToDelete.Add("ReplacementMaxWeight");
 		TempTablesToDelete.Add("FoundOptionsConflicts");
 		
-		DeleteTemporaryTables(Query, TempTablesToDelete); //
+		DeleteTemporaryTables(Query, TempTablesToDelete);
 
 	EndDo;
 	

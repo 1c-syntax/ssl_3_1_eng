@@ -52,9 +52,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Populate the report name for the View command.
 	If Object.ReportType = Enums.ReportsTypes.BuiltIn
 		Or Object.ReportType = Enums.ReportsTypes.Extension Then
-		ReportName = Object.Report.Name;
+		ReportName = Common.ObjectAttributeValue(Object.Report, "Name");
 	ElsIf Object.ReportType = Enums.ReportsTypes.Additional Then
-		ReportName = Object.Report.ObjectName;
+		ReportName = Common.ObjectAttributeValue(Object.Report, "ObjectName");
 	Else
 		ReportName = Object.Report;
 	EndIf;

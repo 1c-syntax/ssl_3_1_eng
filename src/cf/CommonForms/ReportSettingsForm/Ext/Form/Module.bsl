@@ -83,7 +83,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Common.SubsystemExists("StandardSubsystems.MonitoringCenter") Then 
 		
-		// Calculating a number of form creation, a standard separator is a period (".").
+		// Calculate the number of form creations, the standard separator is a period.
 		CurMode = Items.ExtendedMode.ChoiceList.FindByValue(ExtendedMode);
 		Comment = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 mode';"), CurMode.Presentation);
 		
@@ -249,9 +249,9 @@ Procedure TitleOutputOnChange(Item)
 	PredefinedParameters = Report.SettingsComposer.Settings.OutputParameters.Items;
 	
 	SettingItem = PredefinedParameters.Find("TITLE");
-	SettingItem.Use = OutputTitle;
+	SettingItem.Use = TitleOutput;
 	
-	SynchronizePredefinedOutputParameters(OutputTitle, SettingItem);
+	SynchronizePredefinedOutputParameters(TitleOutput, SettingItem);
 	DetermineIfModified();
 EndProcedure
 
@@ -273,7 +273,7 @@ Procedure OutputFiltersOnChange(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure Attachable_Period_OnChange(Item)
@@ -479,11 +479,11 @@ Procedure SortSelection(Item, RowID, Field, StandardProcessing)
 	EndIf;
 	
 	If TypeOf(String.Field) = Type("DataCompositionField") Then
-		If Field = Items.SortField Then // 
+		If Field = Items.SortField Then // Modify the field.
 			#If Not MobileClient Then
 				SortingSelectField(RowID, String);
 			#EndIf
-		ElsIf Field = Items.SortOrderType Then // 
+		ElsIf Field = Items.SortOrderType Then // Change the order.
 			ChangeOrderType(String);
 		EndIf;
 	EndIf;
@@ -651,7 +651,7 @@ Procedure SelectedFieldsSelection(Item, RowID, Field, StandardProcessing)
 		Return;
 	EndIf;
 	
-	If Field = Items.SelectedFieldsField Then // 
+	If Field = Items.SelectedFieldsField Then // Change the order.
 		If TypeOf(String.Field) = Type("DataCompositionField") Then
 			SelectedFieldsSelectField(RowID, String);
 		ElsIf String.IsFolder Then
@@ -739,7 +739,7 @@ Procedure SelectedFields_Ungroup(Command)
 	
 	ChangeGroupingOfSelectedFields(StructureItemProperty, SourceRowParent.GetItems(), SettingsItemsInheritors, RowsInheritors);
 	
-	// 
+	// Deleting basic grouping items.
 	DestinationRowParent1.GetItems().Delete(SourceRowParent);
 	DestinationSettingItemParent.Items.Delete(SourceSettingItemParent);
 	
@@ -931,7 +931,7 @@ Procedure Filters_Ungroup(Command)
 	
 	ChangeFiltersGrouping(StructureItemProperty, SourceRowParent.GetItems(), SettingsItemsInheritors, RowsInheritors);
 	
-	// 
+	// Delete basic grouping items.
 	DestinationRowParent1.GetItems().Delete(SourceRowParent);
 	DestinationSettingItemParent.Items.Delete(SourceSettingItemParent);
 	
@@ -1005,7 +1005,7 @@ Procedure FiltersSelection(Item, RowID, Field, StandardProcessing)
 			FiltersSelectGroup(RowID);
 		EndIf;
 
-	ElsIf Field = Items.FiltersDisplayModePicture Then // 
+	ElsIf Field = Items.FiltersDisplayModePicture Then // Change quick access to the filter.
 		StandardProcessing = False;
 		If String.IsParameter Then 
 			StructureItemProperty = SettingsStructureItemProperty(Report.SettingsComposer, "DataParameters");
@@ -1245,9 +1245,9 @@ Procedure FiltersUserSettingPresentationOnChange(Item)
 	
 	If Not String.IsParameter Then
 		If String.DisplayModePicture = 1 Or String.DisplayModePicture = 3 Then
-			// 
-			// 
-			// 
+			
+			
+			
 			SettingItem.Presentation = String.UserSettingPresentation;
 		Else
 			SettingItem.Presentation = "";
@@ -1553,7 +1553,7 @@ Procedure OptionStructureDragCheck(Item, DragParameters, StandardProcessing, Des
 		Return;
 	EndIf;
 	
-	// Checking compatibility of the source and destination.
+	// Check compatibility of the source and destination.
 	OnlyGroupingsAreAllowed = False;
 	If NewParent.Type = "TableStructureItemCollection"
 		Or NewParent.Type = "ChartStructureItemCollection"
@@ -1597,7 +1597,7 @@ EndProcedure
 
 &AtClient
 Procedure OptionStructureDrag(Item, DragParameters, StandardProcessing, DestinationID, Field)
-	// 
+	// All checks have been passed.
 	StandardProcessing = False;
 	
 	String = OptionStructure.FindByID(DragParameters.Value);
@@ -1772,7 +1772,7 @@ Procedure OptionStructure_MoveTo(Result, ExecutionParameters) Export
 		RowsIDsArrayDown.Add(TableRow.GetID());
 	EndDo;
 	
-	// 
+	// 1. Move the bottom row up to the top row level.
 	Result = MoveOptionStructureItems(TableRowUp, TableRowDown.GetParent(), TableRowDown);
 	TableRowUp = Result.String;
 	
@@ -1788,7 +1788,7 @@ Procedure OptionStructure_MoveTo(Result, ExecutionParameters) Export
 		MoveOptionStructureItems(TableRow, TableRowUp);
 	EndDo;
 	
-	// 
+	// 4. Move the top row down to the bottom row level.
 	RowsUp = TableRowUp.GetItems();
 	If RowsUp.Count() - 1 < IndexOf Then
 		BeforeWhatToInsert = Undefined;
@@ -1953,9 +1953,9 @@ Procedure AppearanceSelection(Item, RowID, Field, StandardProcessing)
 			Handler = New NotifyDescription("AppearanceTitleInputCompletion", ThisObject, RowID);
 			ShowInputString(Handler, String.Value, NStr("en = 'Printing header';"),, True);
 		EndIf;
-	ElsIf Field = Items.AppearanceTitle Then // 
+	ElsIf Field = Items.AppearanceTitle Then // Change the order.
 		AppearanceChangeItem(RowID, String);
-	ElsIf Field = Items.AppearanceAccessPictureIndex Then // 
+	ElsIf Field = Items.AppearanceAccessPictureIndex Then // Change quick access to the filter.
 		StructureItemProperty = SettingsStructureItemProperty(
 			Report.SettingsComposer, "ConditionalAppearance", SettingsStructureItemID);
 		SelectTheDisplayModeForTheLine(StructureItemProperty, "Appearance", RowID, True, False);
@@ -2067,7 +2067,7 @@ Procedure GoToSettingsForTechnician(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure Attachable_SelectPeriod(Command)
@@ -2143,7 +2143,7 @@ EndFunction
 
 #Region GroupFields
 
-// 
+
 
 &AtServer
 Procedure UpdateGroupFields()
@@ -2186,7 +2186,7 @@ Procedure UpdateGroupFields()
 	EndDo;
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure GroupContentSelectField(RowID, String)
@@ -2245,7 +2245,7 @@ Procedure GroupCompositionAfterFieldChoice(SettingDetails, RowID) Export
 	DetermineIfModified();
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure ShiftGroupField(ToBeginning = True)
@@ -2267,7 +2267,7 @@ Procedure ShiftGroupField(ToBeginning = True)
 		IndexOf = SettingsItems.IndexOf(SettingItem);
 		Boundary = SettingsItems.Count() - 1;
 		
-		If ToBeginning Then // 
+		If ToBeginning Then // Shifting to the collection beginning.
 			If IndexOf = 0 Then 
 				SettingsItems.Move(SettingItem, Boundary);
 				Rows.Move(IndexOf, Boundary);
@@ -2293,7 +2293,7 @@ EndProcedure
 
 #Region DataParametersAndFilters
 
-// 
+
 
 &AtServer
 Procedure UpdateDataParameters()
@@ -2426,8 +2426,8 @@ Function SetFiltersRowData(String, StructureItemProperty, SettingItem, SettingDe
 	String.IsPeriod = (TypeOf(String.RightValue) = Type("StandardPeriod"));
 	String.IsUUID = (TypeOf(String.RightValue) = Type("UUID")); 
 
-	If String.ValueType = New TypeDescription("Date") Then
-       String.ValueType = New TypeDescription("StandardBeginningDate");
+	If String.ValueType = New TypeDescription("Date") And Not ReportsClientServer.IsListComparisonKind(SettingItem.ComparisonType) Then
+		String.ValueType = New TypeDescription("StandardBeginningDate");
 	EndIf;
 
 	String.IsFolder = IsFolder;
@@ -2455,7 +2455,7 @@ Function SetFiltersRowData(String, StructureItemProperty, SettingItem, SettingDe
 	Return InstalledSuccessfully1;
 EndFunction
 
-// 
+
 
 &AtClient
 Procedure FiltersSelectGroup(RowID)
@@ -2728,7 +2728,7 @@ Procedure List_AtStartChanges()
 	
 EndProcedure
 
-// 
+
 
 // Returns:
 //  Structure:
@@ -2796,7 +2796,7 @@ Procedure ChangeFiltersGrouping(SettingsNodeFilters, Rows, SettingsItemsInherito
 		If IndexOf < 0 Then 
 			SettingItemDestination = DestinationSettingItemParent.Items.Add(TypeOf(SettingItemSource));
 			DestinationRow = DestinationRowParent1.GetItems().Add();
-		Else // 
+		Else // This is grouping deletion.
 			SettingItemDestination = DestinationSettingItemParent.Items.Insert(IndexOf, TypeOf(SettingItemSource));
 			DestinationRow = DestinationRowParent1.GetItems().Insert(IndexOf);
 		EndIf;
@@ -2834,7 +2834,7 @@ Procedure DeleteBasicFiltersGroupingItems(SettingsNodeFilters, GroupingParameter
 	EndDo;
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure CheckDraggableRowsFromSelections(RowsIDs)
@@ -2949,7 +2949,7 @@ Procedure DragAndDropFilters(SelectedSettingsNodeFields, IndexOf, Rows, Settings
 	EndDo;
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure ShiftFilters(ToBeginning = True)
@@ -2973,7 +2973,7 @@ Procedure ShiftFilters(ToBeginning = True)
 		IndexOf = SettingsItems.IndexOf(SettingItem);
 		Boundary = SettingsItems.Count() - 1;
 		
-		If ToBeginning Then // 
+		If ToBeginning Then // Shifting to the collection beginning.
 			If IndexOf = 0 Then 
 				SettingsItems.Move(SettingItem, Boundary);
 				Rows.Move(IndexOf, Boundary);
@@ -3032,7 +3032,7 @@ EndFunction
 
 #Region SelectedFields
 
-// 
+
 
 &AtServer
 Procedure UpdateSelectedFields(Rows = Undefined, SettingsItems = Undefined)
@@ -3087,7 +3087,7 @@ Procedure UpdateSelectedFields(Rows = Undefined, SettingsItems = Undefined)
 	EndDo;
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure SelectedFieldsSelectGroup(RowID, String)
@@ -3227,7 +3227,7 @@ Procedure SelectedFieldsBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Para
 	SelectField("SelectedFields", Handler);
 EndProcedure
 
-// 
+
 
 // Returns:
 //  - Structure:
@@ -3342,7 +3342,7 @@ Procedure ChangeGroupingOfSelectedFields(SelectedSettingsNodeFields, Rows, Setti
 		If IndexOf < 0 Then 
 			SettingItemDestination = DestinationSettingItemParent.Items.Add(TypeOf(SettingItemSource));
 			DestinationRow = DestinationRowParent1.GetItems().Add();
-		Else // 
+		Else // This is grouping deletion.
 			SettingItemDestination = DestinationSettingItemParent.Items.Insert(IndexOf, TypeOf(SettingItemSource));
 			DestinationRow = DestinationRowParent1.GetItems().Insert(IndexOf);
 		EndIf;
@@ -3395,7 +3395,7 @@ Function SelectedFieldsGroupTitle(SettingItem)
 	Return GroupTitle;
 EndFunction
 
-// 
+
 
 &AtClient
 Procedure CheckRowsToDragFromSelectedFields(RowsIDs)
@@ -3519,7 +3519,7 @@ Procedure DragSelectedFields(SelectedSettingsNodeFields, IndexOf, Rows, Settings
 	EndDo;
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure ShiftSelectedFields(ToBeginning = True)
@@ -3543,7 +3543,7 @@ Procedure ShiftSelectedFields(ToBeginning = True)
 		IndexOf = SettingsItems.IndexOf(SettingItem);
 		Boundary = SettingsItems.Count() - 1;
 		
-		If ToBeginning Then // 
+		If ToBeginning Then // Shifting to the collection beginning.
 			If IndexOf = 0 Then 
 				SettingsItems.Move(SettingItem, Boundary);
 				Rows.Move(IndexOf, Boundary);
@@ -3607,6 +3607,10 @@ Procedure CastValueToComparisonKind(String, SettingItem = Undefined)
 	
 	If String.ValueListAllowed
 		Or ReportsClientServer.IsListComparisonKind(String.ComparisonType) Then 
+		
+		If TypeOf(CurrentValue) = Type("StandardBeginningDate") Then
+			CurrentValue = CurrentValue.Date;
+		EndIf;
 		
 		Value = ReportsClientServer.ValuesByList(CurrentValue);
 		Value.FillChecks(True);
@@ -3818,7 +3822,7 @@ EndProcedure
 
 #Region Order
 
-// 
+
 
 &AtServer
 Procedure UpdateSorting()
@@ -3859,7 +3863,7 @@ Procedure UpdateSorting()
 	EndDo;
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure SortingSelectField(RowID, String)
@@ -3954,7 +3958,7 @@ Procedure ChangeOrderType(String)
 	DetermineIfModified();
 EndProcedure
 
-// 
+
 
 // Parameters:
 //  Rows - Array of FormDataTreeItem:
@@ -4105,7 +4109,7 @@ Function FindSelectedField(SelectedSettingsNodeFields, Field)
 	Return FoundField;
 EndFunction
 
-// 
+
 
 &AtClient
 Procedure ShiftSorting(ToBeginning = True)
@@ -4134,7 +4138,7 @@ Procedure ShiftSorting(ToBeginning = True)
 		IndexOf = SettingsItems.IndexOf(SettingItem);
 		Boundary = SettingsItems.Count() - 1;
 		
-		If ToBeginning Then // 
+		If ToBeginning Then // Shifting to the collection beginning.
 			If IndexOf = 0 Then 
 				SettingsItems.Move(SettingItem, Boundary);
 				Rows.Move(IndexOf, Boundary);
@@ -4160,7 +4164,7 @@ EndProcedure
 
 #Region Appearance
 
-// 
+
 
 &AtServer
 Procedure UpdateAppearance()
@@ -4212,7 +4216,7 @@ Function AppearanceItemIsMarkedForDeletion(Fields)
 	Return False;
 EndFunction
 
-// Defines output parameter properties that affect the display of title, data parameters, and filters.
+// Defines properties of output parameter that affect the display of the title, data parameters, and filters.
 //  See also ReportsServer.InitializePredefinedOutputParameters().
 //
 &AtServer
@@ -4237,7 +4241,7 @@ Procedure ReadPredefinedAppearanceParameters()
 	String.DisplayModePicture = 4;
 	String.IsOutputParameter = True;
 	
-	// 
+	// Output parameter OutputParameters.
 	Object = PredefinedParameters.DATAPARAMETERSOUTPUT.Object;
 	LinkedObject = PredefinedParameters.FILTEROUTPUT.Object;
 	
@@ -4252,7 +4256,7 @@ Procedure ReadPredefinedAppearanceParameters()
 	String.IsOutputParameter = True;
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure AppearanceChangeItem(RowID = Undefined, String = Undefined)
@@ -4385,7 +4389,7 @@ Procedure AppearanceTitleInputCompletion(Value, Id) Export
 	DetermineIfModified();
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure ShiftAppearance(ToBeginning = True)
@@ -4425,7 +4429,7 @@ Procedure ShiftAppearance(ToBeginning = True)
 		IndexOf = SettingsItems.IndexOf(SettingItem);
 		Boundary = SettingsItems.Count() - 1;
 		
-		If ToBeginning Then // 
+		If ToBeginning Then // Shifting to the collection beginning.
 			If IndexOf = 0 Then 
 				SettingsItems.Move(SettingItem, Boundary);
 				Rows.Move(IndexOf + BorderOfTheBeginningOfTheDesignElements, Boundary);
@@ -4447,7 +4451,7 @@ Procedure ShiftAppearance(ToBeginning = True)
 	DetermineIfModified();
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure ChangePredefinedOutputParametersUsage(Use = True)
@@ -4469,8 +4473,8 @@ Procedure ChangePredefinedOutputParametersUsage(Use = True)
 	EndDo;
 EndProcedure
 
-// Handler of closing the HeaderAndFooterSettings common form.
-//  See Syntax Assistant: OpenForm - OnCloseNotifyDescription.
+// 
+//  
 //
 &AtClient
 Procedure RememberHeaderFooterSettings(Settings, AdditionalParameters) Export 
@@ -4488,7 +4492,7 @@ EndProcedure
 
 #Region Structure
 
-// 
+
 
 &AtServer
 Procedure UpdateStructure()
@@ -4735,7 +4739,7 @@ Procedure SetFlagsOfNestedSettingsItems(StructureItem, StructureItemProperties)
 	EndIf;
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure AddOptionStructureGrouping(NextLevel = True)
@@ -4880,7 +4884,7 @@ Procedure OptionStructureAfterSelectField(SettingDetails, ExecutionParameters) E
 	SettingItem.Order.Items.Add(Type("DataCompositionAutoOrderItem"));
 	
 	If SettingDetails = "<>" Then
-		// Detailed records - you do not need to add a field.
+		// Detailed records: no need to add a field.
 		Presentation = NStr("en = '<Detailed records>';");
 	Else
 		GroupingField = SettingItem.GroupFields.Items.Add(Type("DataCompositionGroupField"));
@@ -4951,7 +4955,7 @@ Function InsertSettingsStructureItem(ElementType, String, NextLevel)
 		
 		SettingsItems = SettingsItems(StructureItemProperty, SettingItem, CollectionName);
 		SettingItemIndex = Undefined
-	Else // 
+	Else // Inserting it on the same level as the row.
 		Parent = GetParent("OptionStructure", String);
 		Rows = Parent.GetItems();
 		IndexOf = Rows.IndexOf(String) + 1;
@@ -5222,14 +5226,13 @@ EndProcedure
 Function ListFillingParameters(Var_CloseOnChoice = False, MultipleChoice = True, AddRow1 = True)
 	FillParameters = New Structure("ListPath, IndexOf, Owner, SelectedType, ChoiceFoldersAndItems");
 	FillParameters.Insert("AddRow1", AddRow1);
-	// 
+	// Standard form parameters.
 	FillParameters.Insert("CloseOnChoice", Var_CloseOnChoice);
 	FillParameters.Insert("CloseOnOwnerClose", True);
 	FillParameters.Insert("Filter", New Structure);
-	// 
 	FillParameters.Insert("MultipleChoice", MultipleChoice);
 	FillParameters.Insert("ChoiceMode", True);
-	// 
+	// Expected attributes.
 	FillParameters.Insert("WindowOpeningMode", FormWindowOpeningMode.LockOwnerWindow);
 	FillParameters.Insert("EnableStartDrag", False);
 	
@@ -5849,8 +5852,8 @@ EndFunction
 
 &AtClient
 Procedure DefineSelectedRows(Context)
-	Context.Insert("TreeRows", New Array); // 
-	Context.Insert("CurrentRow", Undefined); // 
+	Context.Insert("TreeRows", New Array); // Selected rows (not IDs).
+	Context.Insert("CurrentRow", Undefined); // An active row (not an ID).
 	TableItem = Items[Context.NameOfTable];
 	TableAttribute1 = ThisObject[Context.NameOfTable];
 	IDCurrentRow = TableItem.CurrentRow;
@@ -5898,7 +5901,7 @@ Procedure DefineSelectedRows(Context)
 		EndIf;
 	EndIf;
 	
-	// Removing all subordinate rows whose parents are enabled from the list of rows to be removed.
+	// Remove all subordinate rows whose parents are enabled from the list of rows to be removed.
 	If Context.Action = "Delete" And Specifics.CanBeGroups And HadGroups Then
 		Count = Context.TreeRows.Count();
 		For Number = 1 To Count Do
@@ -5975,9 +5978,9 @@ Procedure ShiftRows(Context)
 	UpperRowsBound = ParentRows.Count() - 1;
 	RowsSelectedCount = Context.TreeRows.Count();
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	MoveAsc = (Context.Direction < 0);
 	
 	For Number = 1 To RowsSelectedCount Do
@@ -5992,10 +5995,10 @@ Procedure ShiftRows(Context)
 		
 		IndexInTree = ParentRows.IndexOf(TreeRow);
 		WhereRowWillBe = IndexInTree + Context.Direction;
-		If WhereRowWillBe < 0 Then // 
+		If WhereRowWillBe < 0 Then // Moving rows "to the end".
 			ParentRows.Move(IndexInTree, UpperRowsBound - IndexInTree);
 			DCParentRows.Move(DCItem, UpperRowsBound - IndexInTree);
-		ElsIf WhereRowWillBe > UpperRowsBound Then // 
+		ElsIf WhereRowWillBe > UpperRowsBound Then // Moving rows "to the beginning".
 			ParentRows.Move(IndexInTree, -IndexInTree);
 			DCParentRows.Move(DCItem, -IndexInTree);
 		Else
@@ -6066,7 +6069,7 @@ Function TheseAreSubordinateElements(ParentElementOfTree, TreeItem)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure SelectTheDisplayModeForRows(PropertiesOfSettingsElements, CollectionName, ShowCheckBoxesModes = False, CurrentDisplayMode = Undefined)
@@ -6154,7 +6157,7 @@ Function AvailableDisplayModes(ShowCheckBoxesModes)
 		AvailableDisplayModes.Add("ShowOnlyCheckBoxInReportSettings", NStr("en = 'Only check box in report settings';"), , PictureLib.NormalAccessWithCheckBox);
 	EndIf;
 	
-	AvailableDisplayModes.Add("NotShow", NStr("en = 'Hide';"), , PictureLib.HiddenReportSettingsItem);
+	AvailableDisplayModes.Add("NotShow", NStr("en = 'Hide';"), , PictureLib.GreyCross);
 	
 	Return AvailableDisplayModes;
 	
@@ -6199,9 +6202,9 @@ Procedure SetDisplayMode(CollectionName, String, SettingItem, DisplayModePicture
 	
 	If CollectionName = "Filters" And Not String.IsParameter Then
 		If DisplayModePicture = 1 Or DisplayModePicture = 3 Then
-			// 
-			// 
-			// 
+			
+			
+			
 			SettingItem.Presentation = String.Title;
 		Else
 			SettingItem.Presentation = "";
@@ -6214,17 +6217,17 @@ Procedure SetDisplayMode(CollectionName, String, SettingItem, DisplayModePicture
 		// CA feature: UserSettingPresentation can be cleared after GetSettings().
 		If String.IsPredefinedTitle Then
 			If DisplayModePicture = 1 Or DisplayModePicture = 3 Then
-				// 
-				// 
-				// 
+				
+				
+				
 				SettingItem.Presentation = String.Title;
 			Else
 				SettingItem.Presentation = "";
 			EndIf;
 		Else
-			// 
-			// 
-			// 
+			
+			
+			
 			SettingItem.Presentation = String.Title;
 		EndIf;
 	EndIf;
@@ -6262,7 +6265,7 @@ Function SettingItemDisplayModePicture(SettingItem)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 // Parameters:
 //  SettingsNode - DataCompositionSettings
@@ -6487,7 +6490,7 @@ Procedure UpdateOptionStructureItemTitle(String)
 		Return;
 	EndIf;
 	
-	ParameterValue = SettingItem.OutputParameters.FindParameterValue(New DataCompositionParameter("OutputTitle"));
+	ParameterValue = SettingItem.OutputParameters.FindParameterValue(New DataCompositionParameter("TitleOutput"));
 	If ParameterValue <> Undefined Then
 		ParameterValue.Use = True;
 		If ValueIsFilled(String.Title) Then
@@ -6505,7 +6508,7 @@ Procedure UpdateOptionStructureItemTitle(String)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClientAtServerNoContext
 Function ArraySort(SourceArray, Direction = Undefined)
@@ -6521,7 +6524,7 @@ Function ArraySort(SourceArray, Direction = Undefined)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure UpdateForm(ParametersOfUpdate = Undefined)
@@ -6546,7 +6549,7 @@ EndProcedure
 
 &AtServer
 Procedure UpdateSettingsFormCollections()
-	// 
+	// Clear settings.
 	GroupingComposition.GetItems().Clear();
 	Filters.GetItems().Clear();
 	SelectedFields.GetItems().Clear();
@@ -6565,7 +6568,7 @@ Procedure UpdateSettingsFormCollections()
 	UpdateAppearance();
 	UpdateStructure();
 	
-	// 
+	// Searching for items marked for deletion.
 	MarkedForDeletion.Clear();
 	FindFieldsMarkedForDeletion();
 EndProcedure
@@ -6609,7 +6612,7 @@ Procedure UpdateFormItemsProperties()
 	Items.IsMain.Visible = Not IsExtendedMode;
 	Items.More.Visible = Not IsExtendedMode And Not IsMobileClient;
 	
-	Items.OutputTitle.Visible = Not IsExtendedMode;
+	Items.TitleOutput.Visible = Not IsExtendedMode;
 	Items.OutputFilters.Visible = Not IsExtendedMode;
 	
 	#EndRegion
@@ -7474,8 +7477,8 @@ Procedure ImportSettingsToComposer(ImportParameters)
 		AvailableSettings.UserSettings,
 		AvailableSettings.FixedSettings);
 	
-	// 
-	// 
+	
+	
 	If SettingsImported
 	   And ReportsOptions.ItIsAcceptableToSetContext(ThisObject)
 	   And TypeOf(ParametersForm.Filter) = Type("Structure") Then
@@ -7556,9 +7559,9 @@ Procedure InitializePredefinedOutputParametersAttributes()
 	PredefinedParameters = Report.SettingsComposer.Settings.OutputParameters.Items;
 	
 	Object = PredefinedParameters.Find("TITLE");
-	OutputTitle = Object.Use;
+	TitleOutput = Object.Use;
 	
-	HeaderOutputField = Items.Find("OutputTitle");
+	HeaderOutputField = Items.Find("TitleOutput");
 	
 	If HeaderOutputField <> Undefined Then 
 		HeaderOutputField.Title = StringFunctionsClientServer.SubstituteParametersToString(
@@ -7663,7 +7666,7 @@ EndProcedure
 
 #Region ProcessFieldsMarkedForDeletion
 
-// 
+
 
 &AtServer
 Procedure FindFieldsMarkedForDeletion(Val StructureItems = Undefined)
@@ -7903,7 +7906,7 @@ Function RepresentationOfACollectionOfAStructureElement(CollectionName)
 	
 EndFunction
 
-// 
+
 
 &AtClient
 Procedure DeleteFiedsMarkedForDeletion()
@@ -7954,7 +7957,7 @@ EndProcedure
 
 #EndRegion
 
-// 
+
 
 // Parameters:
 //  Collection - FormDataTree

@@ -19,10 +19,6 @@
 				<CommandName>Form.Command.RegisteredData</CommandName>
 				<ExtendedTooltip name="FormRegisteredDataExtendedTooltip" id="40"/>
 			</Button>
-			<ButtonGroup name="FormGroup1" id="41">
-				<CommandSource>Item.DependencyTree</CommandSource>
-				<ExtendedTooltip name="FormGroup1ExtendedTooltip" id="42"/>
-			</ButtonGroup>
 		</ChildItems>
 	</AutoCommandBar>
 	<Events>

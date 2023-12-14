@@ -13,22 +13,22 @@
 Var ErrorMessageString Export;
 Var ErrorMessageStringEL Export;
 
-// 
+
 Var ErrorsMessages;                 // Map
 
-Var ObjectName;                      // 
+Var ObjectName;                      
 
-Var TempExchangeMessageFile;    // 
+Var TempExchangeMessageFile;    
 
-Var TempExchangeMessagesDirectory; // 
+Var TempExchangeMessagesDirectory; 
 
-Var MessageSubject1;                   // 
+Var MessageSubject1;                   
 
-Var SimpleBody;            // Текст тела сообщения с вложением - 
+Var SimpleBody;            
 
-Var CompressedBody;             // Текст тела сообщения с вложением - 
+Var CompressedBody;             
 
-Var BatchBody;           // Текст тела сообщения с вложением - 
+Var BatchBody;           
 
 Var EmailOperationsCommonModule;
 Var DirectoryID;
@@ -46,7 +46,7 @@ Var DirectoryID;
 //  No.
 // 
 //  Returns:
-//    Boolean - 
+//    Boolean - True if the function is executed successfully, False if an error occurred.
 // 
 Function ExecuteActionsBeforeProcessMessage() Export
 	
@@ -64,7 +64,7 @@ EndFunction
 //  No.
 // 
 //  Returns:
-//    Boolean - 
+//    Boolean - True if the function is executed successfully, False if an error occurred.
 // 
 Function SendMessage() Export
 	
@@ -86,7 +86,7 @@ EndFunction
 //  ExistenceCheck - Boolean - True if it is necessary to check whether exchange messages exist without their import.
 // 
 //  Returns:
-//    Boolean - 
+//    Boolean - True if the function is executed successfully, False if an error occurred.
 // 
 Function GetMessage(ExistenceCheck = False) Export
 	
@@ -129,7 +129,7 @@ Procedure Initialize() Export
 	
 	InitMessages();
 	
-	MessageSubject1 = "Exchange message (%1)"; // 
+	MessageSubject1 = "Exchange message (%1)"; 
 	MessageSubject1 = StringFunctionsClientServer.SubstituteParametersToString(MessageSubject1, MessageFileNameTemplate);
 	
 	SimpleBody	= NStr("en = 'Data exchange message';");
@@ -144,7 +144,7 @@ EndProcedure
 //  No.
 // 
 //  Returns:
-//    Boolean - 
+//    Boolean - True if connection can be established. Otherwise, False.
 //
 Function ConnectionIsSet() Export
 	
@@ -165,7 +165,7 @@ EndFunction
 // Time exchange message file changed.
 //
 // Returns:
-//  String - 
+//  String - time exchange message file changed.
 //
 Function ExchangeMessageFileDate() Export
 	
@@ -188,7 +188,7 @@ EndFunction
 // Full exchange message file name.
 //
 // Returns:
-//  String - 
+//  String - full exchange message file name.
 //
 Function ExchangeMessageFileName() Export
 	
@@ -207,7 +207,7 @@ EndFunction
 // Full exchange message directory name.
 //
 // Returns:
-//  String - 
+//  String - full exchange message directory name.
 //
 Function ExchangeMessageDirectoryName() Export
 	
@@ -342,7 +342,7 @@ Function SendExchangeMessage()
 EndFunction
 
 // Returns:
-//   ValueTable - 
+//   ValueTable - :
 //     * Id - Array of String - a message ID collection.
 //     * PostingDate - Date - message sending date.
 //
@@ -443,7 +443,7 @@ Function GetExchangeMessage(ExistenceCheck)
 			FilePacked = False;
 		EndIf;
 		
-		// 
+		// The message name can be in the format of Message_[prеfix]_UID1_UID2.
 		FilePacked = False;
 		SearchTemplate = StrReplace(MessageFileNameTemplate, "Message_","");
 		For Each CurAttachment In MessageSet[0].Attachments Do
@@ -589,7 +589,7 @@ Procedure ErrorMessageInitialization()
 	
 	ErrorsMessages = New Map;
 	
-	// 
+	
 	ErrorsMessages.Insert(001, NStr("en = 'Exchange messages are not detected.';"));
 	ErrorsMessages.Insert(002, NStr("en = 'Error extracting message file.';"));
 	ErrorsMessages.Insert(003, NStr("en = 'Error packing the exchange message file.';"));
@@ -597,7 +597,7 @@ Procedure ErrorMessageInitialization()
 	ErrorsMessages.Insert(005, NStr("en = 'The archive does not contain the exchange message file.';"));
 	ErrorsMessages.Insert(006, NStr("en = 'Couldn''t send the message. Message size exceeds the limit.';"));
 	
-	// 
+	
 	ErrorsMessages.Insert(101, NStr("en = 'Initialization error: the exchange message transport email account is not specified.';"));
 	ErrorsMessages.Insert(102, NStr("en = 'Error sending the email message.';"));
 	ErrorsMessages.Insert(103, NStr("en = 'Error receiving message headers from the email server.';"));

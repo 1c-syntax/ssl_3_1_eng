@@ -77,7 +77,7 @@ EndProcedure
 
 // Parameters:
 //   SelectedFiles - Array of String
-//                  - Undefined - result of the file selection.
+//                  - Undefined - a file choice result.
 //   AdditionalParameters - Structure:
 //     * Item - FormField - a source of the file choice.
 //
@@ -98,6 +98,30 @@ EndProcedure
 Procedure EventHandlerExternalDataProcessorFileNameOnChange(Item)
 	
 	SetVisibility1();
+	
+EndProcedure
+
+&AtClient
+Procedure CheckAvailability(Command)
+	CheckAvailabilityOnServer();
+EndProcedure
+
+&AtServer
+Procedure CheckAvailabilityOnServer()
+	
+	File = New File(Object.EventHandlerExternalDataProcessorFileName);
+	
+	If File.Exists() Then
+		
+		MessageText = NStr("en = 'Data processor is available';");
+		
+	Else
+		
+		MessageText = NStr("en = 'Data processor is unavailable';");
+		
+	EndIf;
+	
+	MessageToUser(MessageText);
 	
 EndProcedure
 
@@ -159,17 +183,7 @@ Procedure SetVisibility1()
 	
 	OnChangeOfChangeDebugMode();
 	
-	// Highlighting wizard steps that require corrections with red color.
-	SelectExternalDataProcessorName(IsBlankString(Object.EventHandlerExternalDataProcessorFileName));
-	
 	Items.OpenFile.Enabled = Not IsBlankString(Object.EventHandlersTempFileName);
-	
-EndProcedure
-
-&AtClient
-Procedure SelectExternalDataProcessorName(NeedToSelect = False) 
-	
-	Items.Step4Pages.CurrentPage = ?(NeedToSelect, Items.RedPage, Items.GreenPage);
 	
 EndProcedure
 

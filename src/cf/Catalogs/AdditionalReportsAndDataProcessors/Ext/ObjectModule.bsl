@@ -42,7 +42,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 		EndIf;
 	EndIf;
 	
-	//  
+	 
 	//     
 	If Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.Used Then
 		
@@ -130,7 +130,7 @@ Procedure BeforeWrite(Cancel)
 		Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled;
 	EndIf;
 	
-	// 
+	// Cache of standard checks.
 	AdditionalProperties.Insert("PublicationAvailable", Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.Used);
 	
 	If IsGlobalDataProcessor() Then
@@ -235,7 +235,7 @@ Procedure BeforeWriteGlobalDataProcessors(Cancel)
 	
 	// Clearing jobs whose commands are deleted from the table.
 	If Not IsNew() Then
-		For Each ObsoleteCommand In Ref.Commands Do
+		For Each ObsoleteCommand In Common.ObjectAttributeValue(Ref, "Commands").Unload() Do
 			If ValueIsFilled(ObsoleteCommand.GUIDScheduledJob)
 				And CommandsTable.Find(ObsoleteCommand.GUIDScheduledJob, "GUIDScheduledJob") = Undefined Then
 				ScheduledJobsServer.DeleteJob(ObsoleteCommand.GUIDScheduledJob);
@@ -257,7 +257,7 @@ Procedure BeforeWriteGlobalDataProcessors(Cancel)
 		EndIf;
 		
 		Job = ScheduledJobsServer.Job(RelevantCommand.GUIDScheduledJob);
-		If Job = Undefined Then // 
+		If Job = Undefined Then // Not found.
 			If Use Then
 				// Create and register a scheduled job.
 				JobParameters = New Structure;
@@ -271,10 +271,10 @@ Procedure BeforeWriteGlobalDataProcessors(Cancel)
 			EndIf;
 		Else // Found.
 			If Use Then
-				// Зарегистрировать.
+				// Register.
 				JobsToUpdate.Insert(RelevantCommand, Job);
 			Else
-				// Удалить.
+				// Delete.
 				ScheduledJobsServer.DeleteJob(RelevantCommand.GUIDScheduledJob);
 				Command.GUIDScheduledJob = CommonClientServer.BlankUUID();
 			EndIf;
@@ -328,12 +328,12 @@ EndProcedure
 // Operations with scheduled jobs.
 
 Function ScheduleSetupRight()
-	// 
+	// Checks whether a user has rights to schedule the execution of additional reports and data processors.
 	Return AccessRight("Update", Metadata.Catalogs.AdditionalReportsAndDataProcessors);
 EndFunction
 
 Function JobPresentation(Command)
-	// 
+	// '[ObjectKind]: [ObjectDescription] / Command: [CommandPresentation]'
 	Return (
 		TrimAll(Kind)
 		+ ": "
@@ -355,7 +355,7 @@ Procedure BeforeWriteAssignableDataProcessor(Cancel)
 	MetadataObjectsRefs = AssignmentTable.UnloadColumn("RelatedObject");
 	
 	If Not IsNew() Then
-		For Each TableRow In Ref.Purpose Do
+		For Each TableRow In Common.ObjectAttributeValue(Ref, "Purpose").Unload() Do
 			If MetadataObjectsRefs.Find(TableRow.RelatedObject) = Undefined Then
 				MetadataObjectsRefs.Add(TableRow.RelatedObject);
 			EndIf;

@@ -161,7 +161,7 @@ EndProcedure
 // Returns a company prefix.
 //
 // Parameters:
-//  Organization - DefinedType.Organization -
+//  Organization - DefinedType.Organization - 
 //  CompanyPrefix - String - a company prefix.
 //
 Procedure OnDetermineCompanyPrefix(Val Organization, CompanyPrefix) Export
@@ -310,7 +310,7 @@ Function CompanyAttributeAvailable(Object)
 			
 			If Common.IsStandardAttribute(ObjectMetadata.StandardAttributes, CompanyAttributeName) Then
 				
-				// 
+				// The standard attribute is always available both for the item and for the group.
 				Return True;
 				
 			EndIf;

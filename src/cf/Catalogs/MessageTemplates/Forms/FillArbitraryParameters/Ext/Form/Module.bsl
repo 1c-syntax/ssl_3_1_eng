@@ -12,6 +12,11 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
+	If Not ValueIsFilled(Parameters.Template) Then
+		Cancel = True;
+		Return;
+	EndIf;
+	
 	SubjectOf = Parameters.SubjectOf;
 	AddTemplateParametersFormItems(Parameters.Template);
 	
@@ -40,33 +45,9 @@ EndProcedure
 Procedure AddTemplateParametersFormItems(Template)
 	
 	AttributesToBeAdded = New Array;
-	If Template.TemplateByExternalDataProcessor Then
-		
-		If Common.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then
-			ModuleAdditionalReportsAndDataProcessors = Common.CommonModule("AdditionalReportsAndDataProcessors");
-			ExternalObject = ModuleAdditionalReportsAndDataProcessors.ExternalDataProcessorObject(Template.ExternalDataProcessor);
-			TemplateParameters = ExternalObject.TemplateParameters();
-			
-			TemplateParametersTable = New ValueTable;
-			TemplateParametersTable.Columns.Add("Name"                , New TypeDescription("String", , New StringQualifiers(50, AllowedLength.Variable)));
-			TemplateParametersTable.Columns.Add("Type"                , New TypeDescription("TypeDescription"));
-			TemplateParametersTable.Columns.Add("Presentation"      , New TypeDescription("String", , New StringQualifiers(150, AllowedLength.Variable)));
-			
-			For Each TemplateParameter In TemplateParameters Do
-				TypeDetails = TemplateParameter.TypeDetails.Types();
-				If TypeDetails.Count() > 0 Then
-					If TypeDetails[0] <> TypeOf(SubjectOf) Then
-						NewParameter1 = TemplateParametersTable.Add();
-						NewParameter1.Name = TemplateParameter.ParameterName;
-						NewParameter1.Presentation = TemplateParameter.ParameterPresentation;
-						NewParameter1.Type = TemplateParameter.TypeDetails;
-						AttributesToBeAdded.Add(New FormAttribute(TemplateParameter.ParameterName, TemplateParameter.TypeDetails,, TemplateParameter.ParameterPresentation));
-					EndIf;
-					
-				EndIf;
-			EndDo;
-		EndIf;
-	Else
+	
+	InformationRecords = Common.ObjectAttributesValues(Template, "TemplateByExternalDataProcessor, ExternalDataProcessor");
+	If InformationRecords.TemplateByExternalDataProcessor <> True Then
 		Query = New Query;
 		Query.Text = 
 		"SELECT
@@ -96,6 +77,30 @@ Procedure AddTemplateParametersFormItems(Template)
 			AttributesToBeAdded.Add(New FormAttribute(Attribute.Name, DescriptionOfTheParameterType,, Attribute.Presentation));
 			
 		EndDo;
+	ElsIf Common.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") 
+			And InformationRecords.ExternalDataProcessor <> Undefined Then
+			ModuleAdditionalReportsAndDataProcessors = Common.CommonModule("AdditionalReportsAndDataProcessors");
+			ExternalObject = ModuleAdditionalReportsAndDataProcessors.ExternalDataProcessorObject(InformationRecords.ExternalDataProcessor);
+			TemplateParameters = ExternalObject.TemplateParameters();
+			
+			TemplateParametersTable = New ValueTable;
+			TemplateParametersTable.Columns.Add("Name"                , New TypeDescription("String", , New StringQualifiers(50, AllowedLength.Variable)));
+			TemplateParametersTable.Columns.Add("Type"                , New TypeDescription("TypeDescription"));
+			TemplateParametersTable.Columns.Add("Presentation"      , New TypeDescription("String", , New StringQualifiers(150, AllowedLength.Variable)));
+			
+			For Each TemplateParameter In TemplateParameters Do
+				TypeDetails = TemplateParameter.TypeDetails.Types();
+				If TypeDetails.Count() > 0 Then
+					If TypeDetails[0] <> TypeOf(SubjectOf) Then
+						NewParameter1 = TemplateParametersTable.Add();
+						NewParameter1.Name = TemplateParameter.ParameterName;
+						NewParameter1.Presentation = TemplateParameter.ParameterPresentation;
+						NewParameter1.Type = TemplateParameter.TypeDetails;
+						AttributesToBeAdded.Add(New FormAttribute(TemplateParameter.ParameterName, TemplateParameter.TypeDetails,, TemplateParameter.ParameterPresentation));
+					EndIf;
+					
+				EndIf;
+			EndDo;
 	EndIf;
 	
 	ChangeAttributes(AttributesToBeAdded);

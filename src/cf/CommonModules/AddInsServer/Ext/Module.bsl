@@ -16,12 +16,13 @@
 //    * ObjectsCreationIDs - Array of String - IDs of object module instances.
 //              Use it only for add-ins with several object creation IDs.
 //              When specified, the ID parameter is used only to determine an add-in.
-//    * Isolated - Boolean, Undefined -
+//    * Isolated - Boolean, Undefined - 
 //              
 //              
+//              :
 //              
-//              
-//              See https://its.1c.ru/db/v83doc#bookmark:dev:TI000001866
+//              See https://its.1c.ru/db/v83doc
+//    * FullTemplateName - String - 
 //
 //
 Function ConnectionParameters() Export
@@ -29,6 +30,7 @@ Function ConnectionParameters() Export
 	Parameters = New Structure;
 	Parameters.Insert("ObjectsCreationIDs", New Array);
 	Parameters.Insert("Isolated", False);
+	Parameters.Insert("FullTemplateName");
 	
 	Return Parameters;
 	
@@ -44,11 +46,11 @@ EndFunction
 //  ConnectionParameters - See ConnectionParameters.
 //
 // Returns:
-//   Structure - result of connecting components:
+//   Structure - :
 //     * Attached - Boolean - attachment flag.
 //     * Attachable_Module - AddInObject - an instance of the add-in;
 //                          - FixedMap of KeyAndValue - 
-//                            
+//                            :
 //                            ** Key - String - ID.
 //                            ** Value - AddInObject - an instance of the add-in.
 //     * ErrorDescription - String - brief error message. 
@@ -83,7 +85,7 @@ EndFunction
 // 
 //
 // Parameters:
-//  Variant - String -
+//  Variant - String - :
 //    
 //    
 //    
@@ -129,9 +131,9 @@ EndFunction
 //    * FileName - String - file name.
 //    * FileAddress - String - file address.
 //    * ErrorCode - String - error code.
-//  ResultAddress - String -
+//  ResultAddress - String - 
 //      
-//      
+//      :
 //       
 //       
 //         
@@ -269,8 +271,9 @@ Procedure UpdateAddIns(AddInsData, ResultAddress = Undefined) Export
 				EndIf;
 				
 				FillPropertyValues(Object, Information.Attributes); // According to manifest data.
-				FillPropertyValues(Object, ResultString1);     // 
+				FillPropertyValues(Object, ResultString1);     // By data from the website.
 				
+				Object.TargetPlatforms = New ValueStorage(Information.Attributes.TargetPlatforms);
 				Object.AdditionalProperties.Insert("ComponentBinaryData", Information.BinaryData);
 				
 				Object.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(

@@ -51,7 +51,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 	EndIf;
 	
-	// 
+	// Restrict available publication options as specified in the infobase settings.
 	Items.Publication.ChoiceList.Clear();
 	AvaliablePublicationKinds = AdditionalReportsAndDataProcessorsCached.AvaliablePublicationKinds();
 	For Each PublicationKind In AvaliablePublicationKinds Do
@@ -364,7 +364,7 @@ Procedure CommandsLocationClick(Item, StandardProcessing)
 		
 		OpenForm("Catalog.AdditionalReportsAndDataProcessors.Form.PlacementInSections", FormParameters, ThisObject);
 	Else
-		// 
+		// Select metadata objects
 		FormParameters = PrepareMetadataObjectsSelectionFormParameters();
 		OpenForm("CommonForm.SelectMetadataObjects", FormParameters);
 	EndIf;
@@ -723,7 +723,7 @@ Procedure UpdateFromFileAndMessage(RegistrationParameters)
 		NotificationText     = RegistrationParameters.FileName;
 		ShowUserNotification(NotificationTitle1, NotificationRef, NotificationText);
 		UpdateFromFileCompletion(Undefined, RegistrationParameters);
-	ElsIf RegistrationParameters.ObjectNameUsed Then // 
+	ElsIf RegistrationParameters.ObjectNameUsed Then // Checking the reason of canceling data processor import and displaying the reason to the user.
 		ShowConflicts(RegistrationParameters);
 	Else
 		ResultHandler = New NotifyDescription("UpdateFromFileCompletion", ThisObject, RegistrationParameters);
@@ -806,24 +806,24 @@ EndProcedure
 &AtClient
 Procedure UpdateFromFileConflictDecision(Response, RegistrationParameters) Export
 	If Response = "ContinueWithoutPublishing" Then
-		// 
+		// Recall server (Debug mode option) and process the result.
 		RegistrationParameters.DisablePublication = True;
 		UpdateFromFileAndMessage(RegistrationParameters);
 	ElsIf Response = "DisableConflictingItems" Then
-		// 
+		// Repeating server call (switching conflicting items to debug mode) and processing the result.
 		RegistrationParameters.DisableConflicts = True;
 		UpdateFromFileAndMessage(RegistrationParameters);
 	ElsIf Response = "CancelAndOpen" Then
-		// 
-		// 
+		
+		
 		ShowList = (RegistrationParameters.ConflictsCount > 1);
 		If RegistrationParameters.OldObjectName = RegistrationParameters.ObjectName And Not IsNew Then
-			// 
-			// 
-			// 
+			
+			
+			
 			ShowList = True;
 		EndIf;
-		If ShowList Then // 
+		If ShowList Then // List form with a filter by conflicting items.
 			Var_FormName = "Catalog.AdditionalReportsAndDataProcessors.ListForm";
 			FormTitle = NStr("en = 'Additional reports and data processors with name ""%1""';");
 			FormTitle = StringFunctionsClientServer.SubstituteParametersToString(FormTitle, RegistrationParameters.ObjectName);
@@ -833,7 +833,7 @@ Procedure UpdateFromFileConflictDecision(Response, RegistrationParameters) Expor
 			ParametersForm.Filter.Insert("IsFolder", False);
 			ParametersForm.Insert("Title", FormTitle);
 			ParametersForm.Insert("Representation", "List");
-		Else // 
+		Else // Item form.
 			Var_FormName = "Catalog.AdditionalReportsAndDataProcessors.ObjectForm";
 			ParametersForm = New Structure;
 			ParametersForm.Insert("Key", RegistrationParameters.Conflicting[0].Value);
@@ -1078,7 +1078,7 @@ Procedure AfterCompleteExecutingServerCommandInBackground(Job, CommandToExecute)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClientAtServerNoContext
 Function UsersQuickAccessPresentation(UsersCount)
@@ -1095,7 +1095,7 @@ Function UsersQuickAccessPresentation(UsersCount)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServerNoContext
 Function StartExecuteServerCommandInBackground(CommandToExecute, UUID)
@@ -1154,10 +1154,16 @@ Function PrepareMetadataObjectsSelectionFormParameters()
 	FilterByMetadataObjects.LoadValues(MetadataObjectsTable.UnloadColumn("FullName"));
 	
 	SelectedMetadataObjects = New ValueList;
+	RelatedObjects = New Array;
 	For Each AssignmentItem In Object.Purpose Do
 		If MetadataObjectsTable.Find(AssignmentItem.RelatedObject, "Ref") <> Undefined Then
-			SelectedMetadataObjects.Add(AssignmentItem.RelatedObject.FullName);
+			RelatedObjects.Add(AssignmentItem.RelatedObject);
 		EndIf;
+	EndDo;
+	
+	FullNamesOfDestinationObjects = Common.ObjectsAttributeValue(RelatedObjects, "FullName");
+	For Each KeyAndValue In FullNamesOfDestinationObjects Do
+		SelectedMetadataObjects.Add(KeyAndValue.Value);
 	EndDo;
 	
 	FormParameters = New Structure;
@@ -1639,7 +1645,7 @@ Function CommandsPageName()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()

@@ -26,7 +26,7 @@ Procedure UpdateDataByMetadataObjectsRefs(MetadataObjectsRefs) Export
 			RecordManager.Write(True);
 		EndDo;
 		
-		// 
+		// Registering the references being used for further deletion of the unused ones from the register.
 		MetadataObjectsRefs.Delete(MetadataObjectsRefs.Find(ReferencesSelection.RelatedObject));
 	EndDo;
 	

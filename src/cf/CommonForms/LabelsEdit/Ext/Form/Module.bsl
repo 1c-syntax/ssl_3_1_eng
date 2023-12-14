@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2023, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 
 #Region FormEventHandlers
 
@@ -31,7 +32,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.LabelsContextMenuClearAllIetmsCommand.Visible = False;
 	EndIf;
 	
-	// 
+	// Getting the list of available property sets.
 	PropertiesSets = PropertyManagerInternal.GetObjectPropertySets(ObjectReference);
 	For Each String In PropertiesSets Do
 		AvailablePropertySets.Add(String.Set);
@@ -41,7 +42,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Parameters.ObjectDetails.AdditionalAttributes.Unload(),
 		Enums.PropertiesKinds.Labels));
 	
-	// 
+	// Populate a label table.
 	FillLabels();
 	
 EndProcedure
@@ -49,7 +50,7 @@ EndProcedure
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
 	
-	// 
+	// Refill a label table.
 	If EventName = "Write_AdditionalAttributesAndInfo" Then
 		FillLabels();
 	EndIf;
@@ -70,6 +71,21 @@ EndProcedure
 #EndRegion
 
 #Region FormCommandsEventHandlers
+
+&AtClient
+Procedure LabelsBeforeDeleteRow(Item, Cancel)
+	
+	Cancel = True;
+	
+EndProcedure
+
+&AtClient
+Procedure LabelsBeforeAddRow(Item, Cancel, Copy, Parent, IsFolder, Parameter)
+	
+	Cancel = True;
+	OpenLabelCreationForm();
+	
+EndProcedure
 
 &AtClient
 Procedure CompleteEditing(Command)
@@ -93,23 +109,7 @@ EndProcedure
 &AtClient
 Procedure Create(Command)
 	
-	CurrentData = Items.Labels.CurrentData;
-	If CurrentData = Undefined Then
-		If AvailablePropertySets.Count() = 0 Then
-			Return;
-		EndIf;
-		PropertiesSet = AvailablePropertySets[0].Value;
-	Else
-		PropertiesSet = CurrentData.Set;
-	EndIf;
-	
-	FormParameters = New Structure;
-	FormParameters.Insert("PropertiesSet", PropertiesSet);
-	FormParameters.Insert("PropertyKind", PredefinedValue("Enum.PropertiesKinds.Labels"));
-	FormParameters.Insert("CurrentPropertiesSet", PropertiesSet);
-	
-	OpenForm("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo.ObjectForm",
-		FormParameters, ThisObject);
+	OpenLabelCreationForm()
 	
 EndProcedure
 
@@ -148,12 +148,38 @@ EndProcedure
 
 #Region Private
 
+&AtClient
+Procedure OpenLabelCreationForm()
+	
+	CurrentData = Items.Labels.CurrentData;
+	If CurrentData = Undefined Then
+		If AvailablePropertySets.Count() = 0 Then
+			Return;
+		EndIf;
+		PropertiesSet = AvailablePropertySets[0].Value;
+	Else
+		PropertiesSet = CurrentData.Set;
+	EndIf;
+	
+	FormParameters = New Structure;
+	FormParameters.Insert("PropertiesSet", PropertiesSet);
+	FormParameters.Insert("PropertyKind", PredefinedValue("Enum.PropertiesKinds.Labels"));
+	FormParameters.Insert("CurrentPropertiesSet", PropertiesSet);
+	
+	OpenForm("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo.ObjectForm",
+		FormParameters, ThisObject);
+	
+EndProcedure
+
 &AtServer
 Procedure FillLabels()
 	
+	AdditionalAttributes = Common.ObjectAttributeValue(
+		ObjectReference, "AdditionalAttributes", True);
+	
 	Labels.Clear();
 	LabelsValues = PropertyManagerInternal.PropertiesValues(
-		ObjectReference.AdditionalAttributes,
+		AdditionalAttributes.Unload(),
 		AvailablePropertySets,
 		Enums.PropertiesKinds.Labels);
 		

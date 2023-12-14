@@ -12,8 +12,8 @@
 // Checks for active infobase connections.
 //
 // Returns:
-//  Boolean       - 
-//                 
+//  Boolean       - True if there are connections.
+//                 False if there are no connections.
 //
 Function HasActiveConnections(MessagesForEventLog = Undefined) Export
 	
@@ -81,7 +81,7 @@ Function TemplatesTexts(MessagesForEventLog, InteractiveMode, ExecuteDeferredHan
 	ConfigurationUpdateArea.DeleteLine(ConfigurationUpdateArea.LineCount());
 	TemplatesTexts.Insert("ConfigurationUpdateFileTemplate", ConfigurationUpdateArea.GetText());
 	
-	// 
+	// Writing accumulated events to the event log.
 	EventLog.WriteEventsToEventLog(MessagesForEventLog);
 	ExecuteDeferredHandlers = ConfigurationUpdate.ExecuteDeferredHandlers();
 	
@@ -144,7 +144,7 @@ Procedure SaveConfigurationUpdateSettings(Settings) Export
 	ConfigurationUpdate.SaveConfigurationUpdateSettings(Settings);
 EndProcedure
 
-Procedure UpdatePatchesFromScript(NewPatches, PatchesToDelete) Export // 
+Procedure UpdatePatchesFromScript(NewPatches, PatchesToDelete) Export // ACC:557 To call from a script.
 	ConfigurationUpdate.UpdatePatchesFromScript(NewPatches, PatchesToDelete);
 EndProcedure
 
@@ -184,14 +184,14 @@ Procedure DeletePatchesFromScript() Export
 	WriteLogEvent(ConfigurationUpdate.EventLogEvent(), EventLogLevel.Information,,, MessageText);
 	
 EndProcedure
-// 
-// 
+
+
 
 Function ScriptMessages()
 	
 	Messages = New Map;
 		
-	// 
+	// Messages in templates ConfigurationUpdateFileTemplate, NonInteractiveConfigurationUpdate, and ConfigurationUpdateSplash.
 	Messages["[TheStartOfStartupMessage]"] = NStr("en = 'Starting: {0}; parameters: {1}; window: {2}; waiting: {3}';");
 	Messages["[ExceptionDetailsMessage]"] = NStr("en = 'Exception at the application start: {0}, {1}';");
 	Messages["[MessageLaunchResult]"] = NStr("en = 'Return code: {0}';");
@@ -265,7 +265,7 @@ Function ScriptMessages()
 	Messages["[TheConnectionPermissionMessage]"] = NStr("en = 'Allowing new connections';");
 	Messages["[UpdateCompletionMessage]"] = NStr("en = 'Completing';");
 	
-	// 
+	// Messages in template PatchesDeletionScript.
 	Messages["[InitializationFailureMessage]"] = NStr("en = 'Variables are not initialized';");
 	Messages["[MessageCreatingACOMConnectorObject]"] = NStr("en = 'Creating a COM connector object…';");
 	Messages["[MessageFailureToCreateACOMConnectorObject]"] = NStr("en = 'Cannot create a COM connector object:';");

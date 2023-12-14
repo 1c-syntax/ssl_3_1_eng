@@ -185,7 +185,7 @@ Procedure UpdateRemindersTable()
 	
 	SetVisibility1();
 	
-	Interval = 15; // 
+	Interval = 15; 
 	If TimeOfClosest <> Undefined Then 
 		Interval = Max(Min(Interval, TimeOfClosest - CommonClient.SessionDate()), 1); 
 	EndIf;
@@ -224,7 +224,7 @@ Procedure UpdateTimeInRemindersTable()
 		If ValueIsFilled(TableRow.EventTime) Then
 			CurrentDate = CommonClient.SessionDate();
 			Time = CurrentDate - TableRow.EventTime;
-			If TableRow.EventTime - BegOfDay(TableRow.EventTime) < 60 // 
+			If TableRow.EventTime - BegOfDay(TableRow.EventTime) < 60 // Events for the whole day.
 				And BegOfDay(TableRow.EventTime) = BegOfDay(CurrentDate) Then
 					TimePresentation = NStr("en = 'today';");
 			Else
@@ -248,7 +248,7 @@ EndProcedure
 Procedure DeferActiveReminders()
 	TimeInterval = UserRemindersClient.GetTimeIntervalFromString(RepeatedNotificationPeriod);
 	If TimeInterval = 0 Then
-		TimeInterval = 5*60; // 
+		TimeInterval = 5*60; 
 	EndIf;
 	For Each TableRow In Reminders Do
 		TableRow.ReminderTime = CommonClient.SessionDate() + TimeInterval;

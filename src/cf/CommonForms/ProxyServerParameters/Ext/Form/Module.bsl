@@ -52,31 +52,41 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			EndIf;
 			
 			AdditionalProxy = ProxyServerSetting.Get("AdditionalProxySettings");
-			
 			If TypeOf(AdditionalProxy) <> Type("Map") Then
 				AllProtocolsThroughSingleProxy = True;
 			Else
+			
 				
-				// 
-				// 
-				For Each ProtocolServer In AdditionalProxy Do
-					Protocol             = ProtocolServer.Key;
-					ProtocolSettings = ProtocolServer.Value;
-					ThisObject["Server" + Protocol] = ProtocolSettings.Address;
-					ThisObject["Port"   + Protocol] = ProtocolSettings.Port;
-				EndDo;
+								
+				ParameterValue = AdditionalProxy.Get("http");
+				If TypeOf(ParameterValue) = Type("Structure") Then
+					HTTPServer = ParameterValue.Address;
+					HTTPPort   = ParameterValue.Port;
+				EndIf;
 				
+				ParameterValue = AdditionalProxy.Get("https");
+				If TypeOf(ParameterValue) = Type("Structure") Then
+					HTTPSServer = ParameterValue.Address;
+					HTTPSPort   = ParameterValue.Port;
+				EndIf;
+				
+				ParameterValue = AdditionalProxy.Get("ftp");
+				If TypeOf(ParameterValue) = Type("Structure") Then
+					FTPServer = ParameterValue.Address;
+					FTPPort   = ParameterValue.Port;
+				EndIf;
+			
 			EndIf;
 			
 		EndIf;
 		
 	EndIf;
 	
-	// 
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
+	
 	ProxyServerUseCase = ?(UseProxy, ?(UseSystemSettings = True, 1, 2), 0);
 	If ProxyServerUseCase = 0 Then
 		InitializeFormItems(ThisObject, EmptyProxyServerSettings());
@@ -152,11 +162,11 @@ Procedure ProxyServerUseCasesOnChange(Item)
 	UseSystemSettings = (ProxyServerUseCase = 1);
 	
 	ProxySettings = Undefined;
-	// 
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
+	
 	If ProxyServerUseCase = 0 Then
 		ProxySettings = EmptyProxyServerSettings();
 	ElsIf ProxyServerUseCase = 1 Then
@@ -200,8 +210,8 @@ EndProcedure
 &AtClient
 Procedure OKButton(Command)
 	
-	// 
-	// 
+	
+	
 	SaveProxyServerSettings();
 	
 EndProcedure
@@ -237,8 +247,8 @@ Procedure InitializeFormItems(Form, ProxySettings)
 		Form.ExceptionServers.LoadValues(ProxySettings.BypassProxyOnAddresses);
 		Form.UseOSAuthentication = ?(ProxySettings.UseOSAuthentication, 1, 0);
 		
-		// 
-		// 
+		
+		
 		Form.AllProtocolsThroughSingleProxy = (Form.Server = Form.HTTPServer
 			And Form.HTTPServer = Form.HTTPSServer
 			And Form.HTTPSServer = Form.FTPServer
@@ -255,8 +265,8 @@ EndProcedure
 &AtClientAtServerNoContext
 Procedure SetVisibilityAvailability(Form)
 	
-	// 
-	// 
+	
+	
 	Form.EditingAvailable = (Form.ProxyServerUseCase = 2);
 	
 	Form.Items.ServerAddressGroup.Enabled = Form.EditingAvailable;
@@ -418,7 +428,7 @@ EndFunction
 //  ProxyServerAddress - String - proxy server address to normalize.
 //
 // Returns:
-//   String - 
+//   String - a normalized proxy server address.
 //
 &AtClientAtServerNoContext
 Function NormalizedProxyServerAddress(Val ProxyServerAddress)
@@ -426,8 +436,8 @@ Function NormalizedProxyServerAddress(Val ProxyServerAddress)
 	ProxyServerAddress = TrimAll(ProxyServerAddress);
 	SpacePosition = StrFind(ProxyServerAddress, " ");
 	If SpacePosition > 0 Then
-		// 
-		// 
+		
+		
 		ProxyServerAddress = Left(ProxyServerAddress, SpacePosition - 1);
 	EndIf;
 	

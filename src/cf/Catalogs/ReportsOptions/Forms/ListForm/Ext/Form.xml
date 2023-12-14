@@ -30,7 +30,7 @@
 		<xr:Item>
 			<xr:Presentation/>
 			<xr:CheckState>0</xr:CheckState>
-			<xr:Value xsi:type="xs:string">ListGroup1</xr:Value>
+			<xr:Value xsi:type="xs:string"/>
 		</xr:Item>
 		<xr:Item>
 			<xr:Presentation/>
@@ -207,14 +207,14 @@
 					<CommandName>Form.StandardCommand.Help</CommandName>
 					<ExtendedTooltip name="HelpExtendedTooltip" id="108"/>
 				</Button>
-				<ButtonGroup name="ListGroup1" id="188">
+				<ButtonGroup name="ListGroupSearch" id="188">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Group 1</v8:content>
+							<v8:content>Search</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="ListGroup1ExtendedTooltip" id="189"/>
+					<ExtendedTooltip name="ListGroupSearchExtendedTooltip" id="189"/>
 					<ChildItems>
 						<Button name="ListFind" id="190">
 							<Type>CommandBarButton</Type>

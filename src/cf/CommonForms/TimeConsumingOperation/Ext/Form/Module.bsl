@@ -28,11 +28,23 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.TimeConsumingOperationNoteTextDecoration.Title = MessageText;
 	EndIf;
 	
-	If ValueIsFilled(Parameters.Title) Then
+	If Not ValueIsFilled(Parameters.Title) Then
+		Items.MessageOperation.ShowTitle = False;
+		
+	ElsIf Parameters.StandbyWindowOpeningMode = FormWindowOpeningMode.Independent Then
+		Title = Parameters.Title;
+		Items.MessageOperation.ShowTitle = False;
+		CommandBarLocation = FormCommandBarLabelLocation.Top;
+		CommandBar.HorizontalAlign = ItemHorizontalLocation.Left;
+	Else
 		Items.MessageOperation.Title = Parameters.Title;
 		Items.MessageOperation.ShowTitle = True;
+	EndIf;
+	
+	If TypeOf(Parameters.ShouldCancelWhenOwnerFormClosed) = Type("Boolean") Then
+		CancelWhenClosing = Parameters.ShouldCancelWhenOwnerFormClosed;
 	Else
-		Items.MessageOperation.ShowTitle = False;
+		CancelWhenClosing = True;
 	EndIf;
 	
 	If ValueIsFilled(Parameters.JobID) Then
@@ -109,11 +121,23 @@ Procedure OnClose(Exit)
 	EndIf;
 	
 	If StandardCloseAlert Then
-		TimeConsumingOperation = CheckJobAndCancelIfRunning(JobID);
+		TimeConsumingOperation = CheckJobAndCancelIfRunning(JobID, CancelWhenClosing);
 		FinishLongRunningOperationAndCloseForm(TimeConsumingOperation);
 	Else
 		CancelJobExecution(JobID);
 	EndIf;
+	
+EndProcedure
+
+#EndRegion
+
+#Region FormCommandsEventHandlers
+
+&AtClient
+Procedure CancelAndClose(Command)
+	
+	CancelWhenClosing = True;
+	Close();
 	
 EndProcedure
 
@@ -236,7 +260,7 @@ Procedure Attachable_CancelJob()
 	
 	FormClosing = True;
 	
-	TimeConsumingOperation = CheckJobAndCancelIfRunning(JobID);
+	TimeConsumingOperation = CheckJobAndCancelIfRunning(JobID, CancelWhenClosing);
 	FinishLongRunningOperationAndCloseForm(TimeConsumingOperation);
 	
 EndProcedure
@@ -253,11 +277,11 @@ Procedure ShowNotification()
 EndProcedure
 
 &AtServerNoContext
-Function CheckJobAndCancelIfRunning(JobID)
+Function CheckJobAndCancelIfRunning(JobID, CancelWhenClosing)
 	
 	TimeConsumingOperation = TimeConsumingOperations.ActionCompleted(JobID);
 	
-	If TimeConsumingOperation.Status = "Running" Then
+	If TimeConsumingOperation.Status = "Running" And CancelWhenClosing Then
 		CancelJobExecution(JobID);
 		TimeConsumingOperation.Status = "Canceled";
 	EndIf;

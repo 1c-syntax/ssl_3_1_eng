@@ -27,7 +27,7 @@ Function TranslateTheTexts(Texts, TranslationLanguage = Undefined, SourceLanguag
 		TranslationLanguage = Common.DefaultLanguageCode();
 	EndIf;
 	
-	HostName_SSLy = "translation.googleapis.com";
+	HostName = "translation.googleapis.com";
 	
 	SetPrivilegedMode(True);
 	HTTPRequest = New HTTPRequest("/language/translate/v2?key=" + AuthorizationSettings().APIKey);
@@ -43,7 +43,7 @@ Function TranslateTheTexts(Texts, TranslationLanguage = Undefined, SourceLanguag
 	EndIf;
 	
 	HTTPRequest.SetBodyFromString(Common.ValueToJSON(QueryOptions));
-	QueryResult = ExecuteQuery(HTTPRequest, HostName_SSLy);
+	QueryResult = ExecuteQuery(HTTPRequest, HostName);
 	
 	If Not QueryResult.QueryCompleted Then
 		Raise ErrorText(NStr("en = 'Cannot translate text.';"));
@@ -72,13 +72,13 @@ EndFunction
 
 Function AvailableLanguages() Export
 	
-	HostName_SSLy = "translation.googleapis.com";
+	HostName = "translation.googleapis.com";
 	
 	SetPrivilegedMode(True);
 	HTTPRequest = New HTTPRequest("/language/translate/v2/languages?key=" + AuthorizationSettings().APIKey);
 	SetPrivilegedMode(False);
 	
-	QueryResult = ExecuteQuery(HTTPRequest, HostName_SSLy);
+	QueryResult = ExecuteQuery(HTTPRequest, HostName);
 	
 	If Not QueryResult.QueryCompleted Then
 		Raise ErrorText(NStr("en = 'Cannot retrieve the list of available languages.';"));
@@ -95,18 +95,18 @@ Function AvailableLanguages() Export
 	
 EndFunction
 
-Function ExecuteQuery(Val HTTPRequest, Val HostName_SSLy)
+Function ExecuteQuery(Val HTTPRequest, Val HostName)
 	
 	Proxy = GetFilesFromInternet.GetProxy("https");
 	SecureConnection = CommonClientServer.NewSecureConnection();
 	
 	Try
-		Join = New HTTPConnection(HostName_SSLy, , , , Proxy, 60, SecureConnection);
+		Join = New HTTPConnection(HostName, , , , Proxy, 60, SecureConnection);
 		HTTPResponse = Join.Post(HTTPRequest);
 	Except
 		WriteErrorToEventLog(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot establish a connection with server %1 due to:
-			|%2';"), HostName_SSLy, ErrorProcessing.DetailErrorDescription(ErrorInfo())));
+			|%2';"), HostName, ErrorProcessing.DetailErrorDescription(ErrorInfo())));
 		Raise;
 	EndTry;
 	
@@ -185,7 +185,7 @@ EndFunction
 Procedure WriteErrorToEventLog(Comment)
 	
 	WriteLogEvent(NStr("en = 'Translator';", Common.DefaultLanguageCode()),
-		EventLogLevel.Error, , Enums.TextTranslationServices.YandexTranslate, Comment);
+		EventLogLevel.Error, , Enums.TextTranslationServices.GoogleTranslate, Comment);
 	
 EndProcedure
 

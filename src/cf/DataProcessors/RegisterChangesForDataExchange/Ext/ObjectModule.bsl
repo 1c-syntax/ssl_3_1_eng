@@ -22,8 +22,8 @@ Var ObjectsEnabledByOption Export;
 //
 // Parameters:
 //    DataObject - AnyRef
-//                 - Structure - 
-//                   
+//                 - Structure - a reference or a structure that contains record set dimensions. Data to
+//                   analyze exchange nodes. If DataObject is not specified, all metadata objects are used.
 //    TableName   - String - if DataObject is a structure, then the table name is for records set.
 //
 // Returns:
@@ -36,13 +36,13 @@ Var ObjectsEnabledByOption Export;
 //        * ExchangePlanName1                 - String - node exchange plan.
 //        * Ref                        - ExchangePlanRef - a node reference, Undefined for the exchange plan.
 //        * Code                           - Number
-//                                        - String - 
+//                                        - String - node code, Undefined for exchange plan.
 //        * SentNo            - Number - node data.
 //        * ReceivedNo                - Number - node data.
 //        * MessageNo                - Number
-//                                        - Null - 
+//                                        - Null - if an object is specified, then the message number is for it, else NULL.
 //        * NotExported                 - Boolean
-//                                        - Null - 
+//                                        - Null - if an object is specified, it is an export flag, else NULL.
 //        * Check                       - Boolean       - if object is specified, 0 = no registration, 1 = there is a registration, else it is
 //                                                         always 0.
 //        * InitialMark               - Boolean       - similar to the Mark column.
@@ -238,11 +238,11 @@ EndFunction
 //
 // Parameters:
 //    ExchangePlanName - String           - name of the exchange plan metadata that is used to generate a configuration tree.
-//                   - ExchangePlanRef - 
-//                   - Undefined     - 
+//                   - ExchangePlanRef - the configuration tree is generated for its exchange plan.
+//                   - Undefined     - the tree of all configuration is generated.
 //
 // Returns: 
-//    Structure - 
+//    Structure - :
 //         * NamesStructure              - Structure - Key - metadata group (constants, catalogs and so on),
 //                                                    value is an array of full names.
 //         * PresentationsStructure     - Structure - Key - metadata group (constants, catalogs and so on),
@@ -277,9 +277,9 @@ Function GenerateMetadataStructure(ExchangePlanName = Undefined) Export
 	EndIf;
 	CurParameters.Insert("ExchangePlan", ExchangePlan);
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	If ExchangePlan <> Undefined
 		And ExchangePlan.DistributedInfoBase
 		And ConfigurationSupportsSSL Then
@@ -334,10 +334,10 @@ EndFunction
 //
 // Parameters:
 //     TablesList - Structure
-//                  - Array of Structure - 
-//                    
+//                  - Array of Structure - names. Can be a key/value collection
+//                    where values are name arrays.
 //     NodesList  - ExchangePlanRef
-//                  - Array of ExchangePlanRef - 
+//                  - Array of ExchangePlanRef - nodes.
 //
 // Returns:
 //     ValueTable:
@@ -448,12 +448,12 @@ EndFunction
 //    NameOfMetadataObjects - String - a metadata object name, for example, "Catalog.Currencies" or "Constants".
 //
 // Returns:
-//    MetadataObject - 
+//    MetadataObject - search result.
 //
 Function MetadataByFullName(NameOfMetadataObjects) Export
 	
 	If IsBlankString(NameOfMetadataObjects) Then
-		// 
+		// Entire configuration.
 		Return Metadata;
 	EndIf;
 		
@@ -471,12 +471,12 @@ EndFunction
 //    Node              - ExchangePlanRef - an exchange plan node for which we receive information, 
 //    RegistrationObject - String
 //                      - AnyRef
-//                      - Structure - 
-//                        
+//                      - Structure - an object whose data is analyzed.
+//                        The structure contains change values of record set dimensions.
 //    TableName        - String - if RegistrationObject is a structure, then contains a table name for dimensions set.
 //
 // Returns:
-//    Boolean - 
+//    Boolean - the result of the registration.
 //
 Function ObjectRegisteredForNode(Node, RegistrationObject, TableName = Undefined) Export
 	ParameterType = TypeOf(RegistrationObject);
@@ -486,7 +486,7 @@ Function ObjectRegisteredForNode(Node, RegistrationObject, TableName = Undefined
 		CurrentObject = LongDesc.Manager.CreateValueManager();
 		
 	ElsIf ParameterType = Type("Structure") Then
-		// Набор измерений, ИмяТаблицы - 
+		// Dimensions set, TableName - that.
 		LongDesc = MetadataCharacteristics(TableName);
 		CurrentObject = LongDesc.Manager.CreateRecordSet();
 		For Each KeyValue In RegistrationObject Do
@@ -571,7 +571,7 @@ EndFunction
 //         * Node                    - ExchangePlanRef - a reference to the exchange plan node.
 //         * Data                  - AnyRef
 //                                   - String
-//                                   - Structure - 
+//                                   - Structure - data or data array.
 //         * TableName              - String - if Data is a structure, then contains a table name.
 //     StorageAddress - Arbitrary - temporary storage address to save the result on start in a background job.
 //
@@ -579,7 +579,7 @@ EndFunction
 //     Structure:
 //         * Total   - Number - a total object count.
 //         * Success - Number - a number of objects that are processed.
-//         * Command - 
+//         * Command - a value of input parameter Command used to simplify results processing.
 //
 Function ChangeRegistration(JobParameters, StorageAddress = Undefined) Export
 	TableName = Undefined;
@@ -606,7 +606,7 @@ EndFunction
 // Parameters:
 //    CurrentObject - String, DynamicList - whose form name is required. 
 // Returns:
-//    String - full name of the form.
+//    String - Form full name.
 //
 Function GetFormName(CurrentObject = Undefined) Export
 	
@@ -677,7 +677,7 @@ EndProcedure
 //    Data - String - a list of attribute names to read, separated by commas.
 //
 // Returns:
-//    Structure    - 
+//    Structure    - read data.
 //
 Function GetExchangeNodeParameters(Ref, Data) Export
 	
@@ -718,7 +718,7 @@ Procedure SetExchangeNodeParameters(Ref, Data) Export
 	
 	NodeObject = Ref.GetObject();
 	If NodeObject = Undefined Then
-		// 
+		// Reference on deleted object.
 		Return;
 	EndIf;
 	
@@ -763,7 +763,7 @@ EndProcedure
 //   MetadataTableName - String - table name, for example "Catalog.Currencies".
 //
 // Returns:
-//    Structure - 
+//    Structure - :
 //      * IsSequence - Boolean - a sequence flag.
 //      * IsCollection - Boolean - a value collection flag.
 //      * IsConstant - Boolean - a constant flag.
@@ -924,7 +924,7 @@ Function MetadataCharacteristics(MetadataTableName) Export
 	Else
 		MetaParent = Meta.Parent();
 		If MetaParent <> Undefined And Metadata.CalculationRegisters.Contains(MetaParent) Then
-			// Перерасчет
+			// Recalculate.
 			IsRecordsSet = True;
 			Manager = CalculationRegisters[MetaParent.Name].Recalculations[Meta.Name];
 		EndIf;
@@ -1131,10 +1131,10 @@ EndProcedure
 // Returns a detailed object presentation.
 //
 // Parameters:
-//    - 
+//    - PresentationObject - AnyRef - an object whose presentation is being retrieved.
 //
 // Returns:
-//      String - representation of objects.
+//      String - object presentation.
 //
 Function RepresentationOfTheReference(ObjectToGetPresentation) Export
 	
@@ -1148,7 +1148,7 @@ Function RepresentationOfTheReference(ObjectToGetPresentation) Export
 		Return Result;
 	EndIf;
 	
-	// Ссылка
+	// Reference.
 	Result = "";
 	ModuleCommon = CommonModuleCommonUse();
 	If ModuleCommon <> Undefined Then
@@ -1180,7 +1180,7 @@ EndFunction
 
 // Returns a flag specifying whether the infobase runs in file mode.
 // Returns:
-//       Boolean - 
+//       Boolean - a flag specifying whether the infobase runs in file mode.
 //
 Function IsFileInfobase() Export
 	Return StrFind(InfoBaseConnectionString(), "File=") > 0;
@@ -1192,7 +1192,7 @@ EndFunction
 //   DataSource - DynamicList - form attribute.
 //
 // Returns:
-//   ValueTable - 
+//   ValueTable - the current data of the dynamic list.
 //
 Function DynamicListCurrentData(DataSource) Export
 	
@@ -1253,13 +1253,13 @@ Procedure ReadSettings(SettingsKey = "") Export
 	
 	CurrentSettings = CommonSettingsStorage.Load(ObjectKey);
 	If TypeOf(CurrentSettings) <> Type("Map") Then
-		// Умолчания
+		// Default values.
 		CurrentSettings = New Map;
 		CurrentSettings.Insert("RegisterRecordAutoRecordSetting",            False);
 		CurrentSettings.Insert("SequenceAutoRecordSetting", False);
 		CurrentSettings.Insert("QueryExternalDataProcessorAddressSetting",      "");
-		CurrentSettings.Insert("ObjectExportControlSetting",           True); // 
-		CurrentSettings.Insert("MessageNumberOptionSetting",              0);     // 
+		CurrentSettings.Insert("ObjectExportControlSetting",           True); 
+		CurrentSettings.Insert("MessageNumberOptionSetting",              0);     // First exchange execution
 	EndIf;
 	
 	RegisterRecordAutoRecordSetting            = CurrentSettings["RegisterRecordAutoRecordSetting"];
@@ -1318,8 +1318,8 @@ EndProcedure
 // Parameters:
 //      SettingsKey - String - a key of setting to check.
 // Returns:
-//     Structure - 
-//                 
+//     Structure - key - a setting name.
+//                 Value - error description or Undefined.
 //
 Function CheckSettingsCorrectness(SettingsKey = "") Export
 	
@@ -1360,16 +1360,17 @@ EndFunction
 //     Node                    - ExchangePlanRef - a reference to the exchange plan node.
 //     Data                  - AnyRef
 //                             - String
-//                             - Structure - 
+//                             - Structure - data or data array.
 //     TableName              - String - if Data is a structure, then contains a table name.
+//     MetadataNames         - 
 //
 // Returns: 
 //     Structure:
 //         * Total   - Number - a total object count.
 //         * Success - Number - a number of objects that are processed.
-//         * Command - 
+//         * Command - a value of input parameter Command used to simplify results processing.
 //
-Function EditRegistrationAtServer(Command, NoAutoRegistration, Node, Data, TableName = Undefined, MetadataNamesStructure = Undefined) Export
+Function EditRegistrationAtServer(Command, NoAutoRegistration, Node, Data, TableName = Undefined, MetadataNames = Undefined) Export
 	
 	ReadSettings();
 	Result = New Structure("Total, Success", 0, 0);
@@ -1438,31 +1439,37 @@ Function EditRegistrationAtServer(Command, NoAutoRegistration, Node, Data, Table
 			// Entire configuration.
 			
 			If TypeOf(Command) = Type("Boolean") And Command Then
+				
+				If MetadataNames = Undefined Then
+					MetadataNames = GenerateMetadataStructure(Node).NamesStructure;
+				EndIf;
+				
 				// Adding registration in parts.
-				AddResults(Result, EditRegistrationAtServer(Command, NoAutoRegistration, Node, "Constants", TableName, MetadataNamesStructure));
-				AddResults(Result, EditRegistrationAtServer(Command, NoAutoRegistration, Node, "Catalogs", TableName));
-				AddResults(Result, EditRegistrationAtServer(Command, NoAutoRegistration, Node, "Documents", TableName));
-				AddResults(Result, EditRegistrationAtServer(Command, NoAutoRegistration, Node, "Sequences", TableName));
-				AddResults(Result, EditRegistrationAtServer(Command, NoAutoRegistration, Node, "ChartsOfCharacteristicTypes", TableName));
-				AddResults(Result, EditRegistrationAtServer(Command, NoAutoRegistration, Node, "ChartsOfAccounts", TableName));
-				AddResults(Result, EditRegistrationAtServer(Command, NoAutoRegistration, Node, "ChartsOfCalculationTypes", TableName));
-				AddResults(Result, EditRegistrationAtServer(Command, NoAutoRegistration, Node, "InformationRegisters", TableName));
-				AddResults(Result, EditRegistrationAtServer(Command, NoAutoRegistration, Node, "AccumulationRegisters", TableName));
-				AddResults(Result, EditRegistrationAtServer(Command, NoAutoRegistration, Node, "AccountingRegisters", TableName));
-				AddResults(Result, EditRegistrationAtServer(Command, NoAutoRegistration, Node, "CalculationRegisters", TableName));
-				AddResults(Result, EditRegistrationAtServer(Command, NoAutoRegistration, Node, "BusinessProcesses", TableName));
-				AddResults(Result, EditRegistrationAtServer(Command, NoAutoRegistration, Node, "Tasks", TableName));
+				For Each MD In MetadataNames Do
+					AddResults(Result, EditRegistrationAtServer(Command, NoAutoRegistration, Node, MD.Key, TableName, MD.Value));
+				EndDo;
+				
 				Continue;
 			EndIf;
 			
-			// Удаление регистрации - 
+			// Deleting registration with platform method.
 			Values.Add(Undefined);
 			
 		ElsIf Type = Type("String") Then
-			// 
+			// It is metadata, either collection or a certain kind. Autorecord does not matter.
 			LongDesc = MetadataCharacteristics(Item);
 			If SSLFilterRequired Then
-				AddResults(Result, SSLMetadataChangesRegistration(Node, LongDesc, NoAutoRegistration, MetadataNamesStructure));
+				
+				If TypeOf(MetadataNames) = Type("Array") Then
+					MetadataNamesRegistration = MetadataNames;
+				ElsIf TypeOf(MetadataNames) = Type("Structure") And LongDesc.IsCollection Then
+					MetadataNamesRegistration = MetadataNames[LongDesc.TableName];
+				Else
+					MetadataNamesRegistration = Undefined;
+				EndIf;
+				
+				AddResults(Result, SSLMetadataChangesRegistration(Node, LongDesc, NoAutoRegistration, MetadataNamesRegistration));
+					
 				Continue;
 				
 			ElsIf NoAutoRegistration Then
@@ -1477,7 +1484,7 @@ Function EditRegistrationAtServer(Command, NoAutoRegistration, Node, Data, Table
 					If CompositionItem = Undefined Then
 						Continue;
 					EndIf;
-					// Константа?
+					// Constant?
 					Values.Add(LongDesc.Metadata);
 				EndIf;
 				
@@ -1495,7 +1502,7 @@ Function EditRegistrationAtServer(Command, NoAutoRegistration, Node, Data, Table
 					If CompositionItem = Undefined Or CompositionItem.AutoRecord <> AutoChangeRecord.Allow Then
 						Continue;
 					EndIf;
-					// Константа?
+					// Constant?
 					Values.Add(LongDesc.Metadata);
 				EndIf;
 			EndIf;
@@ -1506,7 +1513,7 @@ Function EditRegistrationAtServer(Command, NoAutoRegistration, Node, Data, Table
 			EndDo;
 			
 		ElsIf Type = Type("Structure") Then
-			// 
+			// It is either the specific record set or the result of selecting a reference type by filter.
 			LongDesc = MetadataCharacteristics(TableName);
 			If LongDesc.IsReference Then
 				ItemRef1 = Undefined;
@@ -1553,14 +1560,14 @@ Function EditRegistrationAtServer(Command, NoAutoRegistration, Node, Data, Table
 			
 		EndIf;
 		
-		// 
+		
 		For Each CurValue In Values Do
 			ExecuteObjectRegistrationCommand(Command, Node, CurValue);
 			Result.Success = Result.Success + 1;
 			Result.Total   = Result.Total   + 1;
 		EndDo;
 		
-	EndDo; // 
+	EndDo; // Iterating objects in the data array for registration.
 	Result.Insert("Command", Command);
 	Return Result;
 EndFunction
@@ -1592,14 +1599,14 @@ Procedure ExecuteObjectRegistrationCommand(Val Command, Val Node, Val Registrati
 		If Command Then
 			// Register.
 			If MessageNumberOptionSetting = 1 Then
-				// 
+				// Register an object as a sent one.
 				Command = 1 + Node.SentNo;
 			Else
 				// Register an object as a new one.
 				RecordChanges(Node, RegistrationObject);
 			EndIf;
 		Else
-			// 
+			// Unregister.
 			ExchangePlans.DeleteChangeRecords(Node, RegistrationObject);
 		EndIf;
 	EndIf;
@@ -1610,7 +1617,7 @@ Procedure ExecuteObjectRegistrationCommand(Val Command, Val Node, Val Registrati
 			// Similarly if a new object is being registered.
 			RecordChanges(Node, RegistrationObject)
 		Else
-			// 
+			// Changing the registration number, no SSL check.
 			ExchangePlans.RecordChanges(Node, RegistrationObject);
 			Selection = ExchangePlans.SelectChanges(Node, Command, RegistrationObject);
 			While Selection.Next() Do
@@ -1658,8 +1665,8 @@ Procedure RecordChanges(Val Node, Val RegistrationObject)
 			DimensionFields = Mid(DimensionFields, 2);
 			If IsBlankString(DimensionFields) Then
 				
-				// 
-				// 
+				
+				
 				ExchangePlans.RecordChanges(Node, RegistrationObject);
 				
 			Else
@@ -1690,7 +1697,7 @@ Procedure RecordChanges(Val Node, Val RegistrationObject)
 		Return;
 	EndIf;
 	
-	// 
+	// Common object.
 	ModuleDataExchangeEvents.RecordDataChanges(Node, RegistrationObject, ObjectExportControlSetting);
 EndProcedure
 
@@ -1698,8 +1705,8 @@ EndProcedure
 //   Dimension - MetadataObject
 //
 // Returns:
-//   Boolean - 
-//            
+//   Boolean - True if the register dimension name is invalid
+//            in terms of registration mechanisms.
 //
 Function InvalidRegisterDimensionName(Dimension)
 	
@@ -1782,6 +1789,10 @@ Procedure GenerateMetadataLevel(CurrentRowNumber1, Parameters, PictureIndex, Nod
 			
 			If Item <> Undefined And AccessRight("Read", Meta) Then
 				
+				If NamesOfMetadataToHide.FindByValue(Meta.FullName()) <> Undefined Then
+					Continue;
+				EndIf;
+				
 				If ConfigurationSupportsSSL
 					And CheckORMSubscriptionsContent
 					And ORMSubscriptionsComposition.Find(Meta) = Undefined Then
@@ -1827,7 +1838,7 @@ Procedure GenerateMetadataLevel(CurrentRowNumber1, Parameters, PictureIndex, Nod
 			Parameters.AutoRecordStructure.Insert(MetaName, AutoRecords);
 		EndIf;
 	Else
-		// 
+		// Deleting rows that do not match conditions.
 		AllRows.Delete(GroupString);
 	EndIf;
 	
@@ -1839,7 +1850,7 @@ EndProcedure
 //   MetadataObject - MetadataObject - Metadata object being checked.
 //
 // Returns: 
-//  Boolean - 
+//  Boolean - True if the object is available.
 //
 Function MetadataObjectAvailableByFunctionalOptions(MetadataObject)
 	
@@ -1946,7 +1957,7 @@ Function GetAdditionalRegistrationObjects(RegistrationObject, AutoRecordControlN
 						SetFilterItemValue(Set.Filter, "Recorder", RegistrationObject);
 						Set.Read();
 						Result.Add(Set);
-						// 
+						// Checking the passed set recursively.
 						AdditionalSet = GetAdditionalRegistrationObjects(Set, AutoRecordControlNode, WithoutAutoRecord, TableName);
 						For Each Item In AdditionalSet Do
 							Result.Add(Item);
@@ -1962,7 +1973,7 @@ Function GetAdditionalRegistrationObjects(RegistrationObject, AutoRecordControlN
 				
 				LongDesc = MetadataCharacteristics(Meta);
 				If Meta.Documents.Contains(MetaObject) Then
-					// 
+					// A sequence is being registered for a specific document type.
 					CompositionItem = NodeContent.Find(Meta);
 					If CompositionItem <> Undefined And (WithoutAutoRecord Or CompositionItem.AutoRecord = AutoChangeRecord.Allow) Then
 						// Registering data for the current node.
@@ -1989,7 +2000,7 @@ Function GetAdditionalRegistrationObjects(RegistrationObject, AutoRecordControlN
 		Or Metadata.CalculationRegisters.Contains(MetaObject)) Then
 		For Each Meta In Metadata.Sequences Do
 			If Meta.RegisterRecords.Contains(MetaObject) Then
-				// 
+				// A sequence to be registered for a register record set.
 				CompositionItem = NodeContent.Find(Meta);
 				If CompositionItem <> Undefined And (WithoutAutoRecord Or CompositionItem.AutoRecord = AutoChangeRecord.Allow) Then
 					Result.Add(Meta);
@@ -2008,8 +2019,8 @@ EndFunction
 //     Text - String - string presentation of a number.
 // 
 // Returns:
-//     Number        - 
-//     
+//     Number        - a converted string.
+//     Undefined - if a string cannot be converted.
 //
 Function StringToNumber(Val Text)
 	NumberText = TrimAll(StrReplace(Text, Chars.NBSp, ""));
@@ -2033,7 +2044,7 @@ Function StringToNumber(Val Text)
 		NumberType = New TypeDescription("Number");
 		Result = NumberType.AdjustValue(NumberText);
 		If Result = 0 Then
-			// 
+			// The default result was processed earlier, this is a conversion error.
 			Result = Undefined;
 		EndIf;
 	EndIf;
@@ -2048,7 +2059,7 @@ Function CommonModuleEventDataExchange()
 		Return Undefined;
 	EndIf;
 	
-	// 
+	// Don't call CalculateInSafeMode. Calculation takes a string literal instead.
 	Return Eval("DataExchangeEvents");
 EndFunction
 
@@ -2059,18 +2070,18 @@ Function CommonModuleStandardSubsystemsServer()
 		Return Undefined;
 	EndIf;
 	
-	// 
+	// Don't call CalculateInSafeMode. Calculation takes a string literal instead.
 	Return Eval("StandardSubsystemsServer");
 EndFunction
 
-// Returns the common module of the standard subsystem Server, or Undefined if it is not included in the configuration.
+// Returns the StandardSubsystemsServer common module or Undefined if there is no such module in the configuration.
 //
 Function GeneralModuleStandardSubsystemsOfRepeatIsp()
 	If Metadata.CommonModules.Find("StandardSubsystemsCached") = Undefined Then
 		Return Undefined;
 	EndIf;
 	
-	// 
+	// Calling CalculateInSafeMode is not required as a string literal is being passed for calculation.
 	Return Eval("StandardSubsystemsCached");
 EndFunction
 
@@ -2081,7 +2092,7 @@ Function CommonModuleCommonUse()
 		Return Undefined;
 	EndIf;
 	
-	// 
+	// Don't call CalculateInSafeMode. Calculation takes a string literal instead.
 	Return Eval("Common");
 EndFunction
 
@@ -2112,7 +2123,7 @@ Function SSLRequiredVersionAvailable(Val Version = Undefined)
 	EndIf;
 	
 	If CurrentVersion = Undefined Then
-		// 
+		// The method of determining the version is missing or broken, consider SSL unavailable.
 		Return False
 	EndIf;
 	CurrentVersion = StrReplace(CurrentVersion, ".", Chars.LF);
@@ -2154,7 +2165,7 @@ Function DSL_RequiredVersionIsAvailable(Val Version = Undefined)
 	EndIf;
 	
 	If CurrentVersion = Undefined Then
-		// 
+		
 		Return False
 	EndIf;
 	CurrentVersion = StrReplace(CurrentVersion, ".", Chars.LF);
@@ -2192,7 +2203,7 @@ Function SSLObjectExportControl(Node, RegistrationObject)
 		Return Send = DataItemSend.Auto;
 	EndIf;
 	
-	// 
+	// Unknown SSL version.
 	Return True;
 EndFunction
 
@@ -2211,7 +2222,7 @@ Function SSLRefChangesRegistration(Node, Ref, NoAutoRegistration = True)
 	
 	CompositionItem = ?(NodeContent = Undefined, Undefined, NodeContent.Find(Ref.Metadata()));
 	If CompositionItem = Undefined Or CompositionItem.AutoRecord = AutoChangeRecord.Allow Then
-		// 
+		// Get an object from the Ref.
 		Result.Total = 1;
 		RegistrationObject = Ref.GetObject();
 		// RegistrationObject value is Undefined if a passed reference is invalid.
@@ -2312,32 +2323,22 @@ EndFunction
 // Checks whether a metadata set can be registered in SSL.
 // Returns the structure with the Total and Done fields that describes registration quantity.
 //
-Function SSLMetadataChangesRegistration(Node, LongDesc, NoAutoRegistration, MetadataNamesStructure)
+Function SSLMetadataChangesRegistration(Node, LongDesc, NoAutoRegistration, MetadataNames = Undefined)
 	
 	Result = New Structure("Total, Success", 0, 0);
 	
-	If TypeOf(MetadataNamesStructure) = Type("Structure")
-		And LongDesc.IsConstant
-		And Not MetadataNamesStructure.Property("Constants") Then
-		
-		// 
-		Return Result;
-		
-	EndIf;
-	
-	If MetadataNamesStructure <> Undefined
-		And LongDesc.IsConstant 
+	If MetadataNames <> Undefined 
 		And Not LongDesc.IsCollection 
-		And MetadataNamesStructure.Constants.Find(LongDesc.TableName) = Undefined Then
+		And MetadataNames.Find(LongDesc.TableName) = Undefined Then
 		
 		Return Result;
-
+		
 	EndIf;
 	
 	If LongDesc.IsCollection Then
 		For Each MetaKind In LongDesc.Metadata Do
 			CurDetails = MetadataCharacteristics(MetaKind);
-			AddResults(Result, SSLMetadataChangesRegistration(Node, CurDetails, NoAutoRegistration, MetadataNamesStructure));
+			AddResults(Result, SSLMetadataChangesRegistration(Node, CurDetails, NoAutoRegistration, MetadataNames));
 		EndDo;
 	Else;
 		AddResults(Result, SSLMetadataObjectChangesRegistration(Node, LongDesc, NoAutoRegistration) );
@@ -2355,12 +2356,12 @@ Function SSLMetadataObjectChangesRegistration(Node, LongDesc, NoAutoRegistration
 	
 	CompositionItem = Node.Metadata().Content.Find(LongDesc.Metadata);
 	If CompositionItem = Undefined Then
-		// 
+		// Cannot execute registration.
 		Return Result;
 	EndIf;
 	
 	If (Not NoAutoRegistration) And CompositionItem.AutoRecord <> AutoChangeRecord.Allow Then
-		// 
+		// Auto record is not supported.
 		Return Result;
 	EndIf;
 	
@@ -2379,8 +2380,8 @@ Function SSLMetadataObjectChangesRegistration(Node, LongDesc, NoAutoRegistration
 		EndDo;
 		DimensionFields = Mid(DimensionFields, 2);
 		If IsBlankString(DimensionFields) Then
-			// 
-			// 
+			
+			
 			ExchangePlans.RecordChanges(Node, LongDesc.Metadata);
 			
 			// To calculate the result.
@@ -2465,7 +2466,7 @@ Function SSLUpdateAndRegisterMasterNodeMetadataObjectID(Val Node) Export
 	
 	If (Not DIBModeAvailable)                                      // Current SSL version does not support MOID.
 		Or (ExchangePlans.MasterNode() <> Undefined)              // Current infobase is a subordinate node.
-		Or (Not MetaNodeExchangePlan.DistributedInfoBase) Then // Узел-
+		Or (Not MetaNodeExchangePlan.DistributedInfoBase) Then 
 		Return Result;
 	EndIf;
 	
@@ -2480,7 +2481,7 @@ Function SSLUpdateAndRegisterMasterNodeMetadataObjectID(Val Node) Export
 		Result.Success = Query.Execute().Unload()[0].ItemCount;
 	EndIf;
 	
-	// 
+	// Predefined items.
 	Result.Success = Result.Success 
 		+ RegisterPredefinedObjectChangeForNode(Node, Metadata.Catalogs)
 		+ RegisterPredefinedObjectChangeForNode(Node, Metadata.ChartsOfCharacteristicTypes)

@@ -24,7 +24,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations")
 	   And Users.IsFullUser() Then
 		
-		// 
+		// Visibility settings at startup.
 		Items.AutomaticTextsExtractionGroup.Visible =
 			  Users.IsFullUser(, True)
 			And Not Common.DataSeparationEnabled()
@@ -247,7 +247,7 @@ Procedure ClearTheIndexAfterAnsweringTheQuestion(Result, AdditionalParameters) E
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure UpdateIndexServer()

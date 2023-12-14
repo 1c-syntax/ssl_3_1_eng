@@ -11,11 +11,11 @@
 
 #Region Variables
 
-Var AccessRestrictionAtRecordLevelEnabled; // 
-                                                 // 
+Var AccessRestrictionAtRecordLevelEnabled; 
+                                                 
 
-Var AccessRestrictionAtRecordLevelChanged; // 
-                                                 // 
+Var AccessRestrictionAtRecordLevelChanged; 
+                                                 
 
 #EndRegion
 
@@ -78,7 +78,7 @@ EndProcedure
 Procedure ProcessTheChangeRegisteredDuringTheUpload() Export
 	
 	If Common.DataSeparationEnabled() Then
-		// 
+		// Right settings changes in SWP are locked and cannot be imported into the data area.
 		Return;
 	EndIf;
 	

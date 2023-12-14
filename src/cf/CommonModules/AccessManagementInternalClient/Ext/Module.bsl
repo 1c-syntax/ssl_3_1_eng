@@ -418,8 +418,8 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Event handlers for the ReportForm common form.
 
-// Handler for double click, clicking Enter, or a hyperlink in a report form spreadsheet document.
-// See "Form field extension for a spreadsheet document field.Choice" in Syntax Assistant.
+// 
+// 
 //
 // Parameters:
 //   ReportForm          - ClientApplicationForm - a report form.

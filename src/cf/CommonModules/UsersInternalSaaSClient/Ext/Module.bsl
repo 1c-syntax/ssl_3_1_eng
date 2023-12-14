@@ -43,7 +43,7 @@ Procedure AfterAuthenticationPasswordRequestInService(ServiceUserPassword, Conte
 	Notification = New NotifyDescription(
 		"AfterAuthenticationPasswordRequestInServiceFollowUp", ThisObject, Context);
 	
-	StandardSubsystemsClient.StartProcessingNotification(Notification);
+	StandardSubsystemsClient.StartNotificationProcessing(Notification);
 	
 EndProcedure
 

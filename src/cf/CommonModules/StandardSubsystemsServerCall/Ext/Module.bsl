@@ -101,10 +101,10 @@ EndFunction
 // See InformationRegisters.UsersInfo.ProcessAnswerOnDisconnectingOpenIDConnect
 Procedure ProcessAnswerOnDisconnectingOpenIDConnect(Disconnect) Export
 	
-	// ACC:277-
-	// 
+	
+	
 	InformationRegisters.UsersInfo.ProcessAnswerOnDisconnectingOpenIDConnect(Disconnect);
-	// 
+	// ACC:277-on
 	
 EndProcedure
 
@@ -128,8 +128,8 @@ Function ClientParametersOnStart(Parameters) Export
 	
 	If Parameters.RetrievedClientParameters <> Undefined Then
 		If Not Parameters.Property("SkipClearingDesktopHiding") Then
-			// 
-			// 
+			
+			
 			HideDesktopOnStart(Undefined);
 		EndIf;
 	EndIf;
@@ -364,7 +364,7 @@ Procedure HandleClientParametersAtServer(Val Parameters)
 		If Not Common.DataSeparationEnabled() Then
 			If ExchangePlans.MasterNode() <> Undefined
 				Or ValueIsFilled(Constants.MasterNode.Get()) Then
-				// 
+				
 				// 
 				// 
 				If GetInfoBasePredefinedData()
@@ -374,7 +374,7 @@ Procedure HandleClientParametersAtServer(Val Parameters)
 				EndIf;
 				If ExchangePlans.MasterNode() <> Undefined
 					And Not ValueIsFilled(Constants.MasterNode.Get()) Then
-					// 
+					// Saving the master node for recovery purpose.
 					StandardSubsystemsServer.SaveMasterNode();
 				EndIf;
 			EndIf;
@@ -409,6 +409,15 @@ EndFunction
 Function TheComponentOfTheLatestVersion(Id, Location, AddIn) Export
 	
 	Return StandardSubsystemsServer.TheComponentOfTheLatestVersion(Id, Location, AddIn);
+	
+EndFunction
+
+Function TimeToRestartApplicationToApplyFixes() Export
+	
+	Return Common.CommonSettingsStorageLoad(
+		"UserCommonSettings", 
+		"TimeToRestartApplicationToApplyFixes",,,
+		UserName());
 	
 EndFunction
 

@@ -74,7 +74,7 @@ EndProcedure
 //  SourceMessage - XDTODataObject - a message being translated.
 //
 // Returns:
-//  XDTODataObject - 
+//  XDTODataObject - a result of arbitrary message translation.
 //
 Function MessageTranslation(Val SourceMessage) Export
 	

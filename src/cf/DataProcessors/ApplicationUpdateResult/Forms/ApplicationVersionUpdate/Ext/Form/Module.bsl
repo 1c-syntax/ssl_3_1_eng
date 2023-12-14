@@ -84,7 +84,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure ImportUpdateApplicationParameters(Var_Parameters) Export
@@ -146,8 +146,8 @@ Function ImportApplicationParametersInBackground()
 	StartupParameters = StandardSubsystemsServer.ClientParametersAtServer().Get("LaunchParameter");
 	If Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate")
 		And StrFind(StartupParameters, "UpdateAndExit") = 0 Then
-		// 
-		// 
+		
+		
 		ModuleConfigurationUpdate = Common.CommonModule("ConfigurationUpdate");
 		Try
 			Result = ModuleConfigurationUpdate.PatchesChanged();
@@ -168,7 +168,7 @@ Function ImportApplicationParametersInBackground()
 		Return "ImportApplicationParametersNotRequired";
 	EndIf;
 	
-	// 
+	// Long-running operation call (usually, in a background job).
 	Return InformationRegisters.ApplicationRuntimeParameters.ImportApplicationParametersInBackground(0,
 		UUID, True);
 	
@@ -234,7 +234,7 @@ EndProcedure
 &AtServer
 Function UpdateApplicationParametersInBackground()
 	
-	// 
+	// Long-running operation call (usually, in a background job).
 	Return InformationRegisters.ApplicationRuntimeParameters.UpdateApplicationParametersInBackground(0,
 		UUID, True);
 	
@@ -288,7 +288,7 @@ Function UpdateExtensionVersionParametersInBackground()
 		Return "ExtensionVersionParametersUpdateNotRequired";
 	EndIf;
 	
-	// 
+	// Long-running operation call (usually, in a background job).
 	Return InformationRegisters.ApplicationRuntimeParameters.UpdateExtensionVersionParametersInBackground(0,
 		UUID, True);
 	
@@ -360,7 +360,7 @@ Procedure CompleteUpdatingApplicationParameters(Result, AdditionalParameters) Ex
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure UpdateInfobase1() Export
@@ -453,7 +453,7 @@ Procedure CompleteInfobaseUpdate(Result, AdditionalParameters) Export
 		
 		ProcessRegistrationRuleError(Result.Messages);
 		
-	Else // ошибка
+	Else // Error
 		HandlersExecutionFlag = IBLock.Error;
 	EndIf;
 	
@@ -577,7 +577,7 @@ EndProcedure
 &AtServer
 Procedure UpdateInfobase1CompletionServer(AdditionalParameters)
 	
-	// Если обновление ИБ завершилось - 
+	// If infobase update is completed, unlock the infobase.
 	InfobaseUpdateInternal.UnlockIB(IBLock);
 	InfobaseUpdateInternal.WriteUpdateExecutionTime(
 		AdditionalParameters.UpdateStartTime, AdditionalParameters.UpdateEndTime);
@@ -596,7 +596,7 @@ Procedure CloseForm(Cancel, Restart)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure RegisterDataForDeferredUpdate(Result, AdditionalParameters) Export
@@ -706,7 +706,7 @@ Function FillDataForParallelDeferredUpdate()
 	RegistrationProgress.Insert("TotalProcedureCount", TotalProcedureCount);
 	RegistrationProgress.Insert("ProceduresCompleted", 0);
 	
-	// 
+	// Unlocking the infobase and executing the registration on the exchange plan.
 	InfobaseUpdateInternal.UnlockIB(IBLock);
 	
 	Return StartDeferredHandlerFillingProcedures();
@@ -779,7 +779,7 @@ Function CheckDeferredHandlerFillingProcedures(ControllingBackgroundJobExecution
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure BeginClose() Export

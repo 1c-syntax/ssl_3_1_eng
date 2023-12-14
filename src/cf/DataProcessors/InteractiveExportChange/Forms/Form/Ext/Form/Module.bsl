@@ -98,7 +98,7 @@ Procedure AdditionalRegistrationBeforeDeleteRow(Item, Cancel)
 		Return;
 	EndIf;
 	
-	// 
+	// The AdditionalRegistrationBeforeDeleteEnd procedure is called from the user confirmation dialog.
 	Cancel = True;
 	
 	QueryText = NStr("en = 'Do you want to delete %1 from the additional data?';");    
@@ -118,7 +118,7 @@ Procedure AdditionalRegistrationChoiceProcessing(Item, ValueSelected, StandardPr
 	
 	SelectedValueType = TypeOf(ValueSelected);
 	If SelectedValueType=Type("Array") Then
-		// 
+		// Add a new row.
 		Items.AdditionalRegistration.CurrentRow = AddingRowToAdditionalCompositionServer(ValueSelected);
 		
 	ElsIf SelectedValueType= Type("Structure") Then
@@ -138,7 +138,7 @@ Procedure AdditionalRegistrationChoiceProcessing(Item, ValueSelected, StandardPr
 				CurrentSettingsItemPresentation = SettingPresentation;
 			EndIf;
 		Else
-			// 
+			// Editing filter condition, negative line number.
 			Items.AdditionalRegistration.CurrentRow = FilterStringEditingAdditionalCompositionServer(ValueSelected);
 		EndIf;
 	EndIf;
@@ -477,7 +477,7 @@ Procedure ImportCountsValuesServer()
 		String.Count = Format(CountExport, "NZ=0") + " / " + Format(TotalCount1, "NZ=0");
 	EndDo;
 	
-	// 
+	// Grand totals.
 	DataString1 = CountRows.Find(Undefined, "FullMetadataName", False);
 	UpdateTotalCountLabel(?(DataString1 = Undefined, Undefined, DataString1.ToExportCount));
 	

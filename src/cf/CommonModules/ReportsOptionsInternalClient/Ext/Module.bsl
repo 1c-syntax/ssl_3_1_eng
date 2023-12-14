@@ -157,7 +157,7 @@ Procedure WhenActivatingTheReportResult(Form, Item) Export
 	ReportSettings = Form.ReportSettings; // See ReportsOptions.ReportFormSettings
 	ResultProperties = ReportSettings.ResultProperties; // See ReportsOptionsInternal.PropertiesOfTheReportResult 
 	Items = Form.Items;
-	ReportField = Items.ReportSpreadsheetDocument; // 
+	ReportField = Items.ReportSpreadsheetDocument; // FormField, FormFieldExtensionForASpreadsheetDocumentField
 	
 	TitleProperties = ResultProperties.Headers[Area.Name];
 	ThisIsTheTranscript = Area.AreaType = SpreadsheetDocumentCellAreaType.Rectangle
@@ -580,7 +580,7 @@ Procedure ApplyAppearanceMore(Form, Command, TitleProperties = Undefined, Value 
 	
 	HandlerParameters = New Structure;
 	HandlerParameters.Insert("Form", Form);
-	HandlerParameters.Insert("Command", Command);
+	HandlerParameters.Insert("CommandAction", CommandAction(Command));
 	HandlerParameters.Insert("TitleProperties", TitleProperties);
 	
 	Handler = New NotifyDescription("AfterChangingTheLayoutElementOfTheReportGrouping", ThisObject, HandlerParameters);
@@ -1075,11 +1075,11 @@ Function CollectionOfSectionDimensions(Section, Group, GroupingID, Action)
 		
 	EndIf;
 	
-	Parent = Group.Parent; // 
+	Parent = Group.Parent; // DataCompositionGroup, DataCompositionTableGroup
 	
 	If Parent <> Section Then 
 		
-		Groups = Parent.Structure; // 
+		Groups = Parent.Structure; // DataCompositionSettingStructureItemCollection, DataCompositionTableStructureItemCollection
 		Collection.Groups = Groups;
 		Collection.GroupingIndex = Groups.IndexOf(Group);
 		
@@ -1097,7 +1097,7 @@ Function CollectionOfSectionDimensions(Section, Group, GroupingID, Action)
 		
 	EndIf;
 	
-	Groups = Collection.Groups; //  
+	Groups = Collection.Groups; // DataCompositionSettingStructureItemCollection, DataCompositionTableStructureItemCollection 
 	Collection.GroupingIndex = Groups.IndexOf(Group);
 	
 	Return Collection;
@@ -2140,7 +2140,6 @@ Procedure AfterChangingTheLayoutElementOfTheReportGrouping(Result, AdditionalPar
 	EndIf;
 	
 	Form = AdditionalParameters.Form;
-	Command = AdditionalParameters.Command;
 	TitleProperties = AdditionalParameters.TitleProperties;
 	
 	Settings = SettingsUsed(Form);
@@ -2165,7 +2164,7 @@ Procedure AfterChangingTheLayoutElementOfTheReportGrouping(Result, AdditionalPar
 		ArrangeTheGroupingOfTheReportSection(Section, Section2, Result.DCItem, TitleProperties);
 	EndIf;
 	
-	NotifyAboutTheCompletionOfTheContextSetting(Form, CommandAction(Command));
+	NotifyAboutTheCompletionOfTheContextSetting(Form, AdditionalParameters.CommandAction);
 	
 EndProcedure
 
@@ -2992,11 +2991,11 @@ Function HeadingAreaContextMenu()
 	ContextMenu = New ValueList;
 	ContextMenu.Add(DataCompositionDetailsProcessingAction.OpenValue, NStr("en = 'Open';"));
 	
-	// Фильтровать
+	// Filter.
 	ContextMenu.Add("DisableFilter", NStr("en = 'Clear filter';"));
 	ContextMenu.Add("FilterCommand", NStr("en = 'Filter…';"),, PictureLib.DataCompositionFilter);
 	
-	// Сортировать
+	// Sort.
 	ContextMenu.Add(DataCompositionSortDirection.Asc, NStr("en = 'Sort ascending';"),, PictureLib.SortRowsAsc);
 	ContextMenu.Add(DataCompositionSortDirection.Desc, NStr("en = 'Sort descending';"),, PictureLib.SortRowsDesc);
 	
@@ -3030,7 +3029,7 @@ Function DataAreaContextMenu(TitleProperties, AvailableCompareTypes)
 	SpecifyTheAvailableTypesOfComparison(AvailableCompareTypes);
 	ContextMenu.Add(AvailableCompareTypes, NStr("en = 'Filter';"),, PictureLib.DataCompositionFilter);
 	
-	// Сортировать
+	// Sort.
 	ContextMenu.Add(DataCompositionSortDirection.Asc, NStr("en = 'Sort ascending';"),, PictureLib.SortRowsAsc);
 	ContextMenu.Add(DataCompositionSortDirection.Desc, NStr("en = 'Sort descending';"),, PictureLib.SortRowsDesc);
 	
@@ -3049,7 +3048,7 @@ Function DataAreaContextMenu(TitleProperties, AvailableCompareTypes)
 	
 	ContextMenu.Add(DesignSubmenu, NStr("en = 'Format';"),, PictureLib.DataCompositionConditionalAppearance);
 	
-	// Расшифровать
+	// Decrypt.
 	ContextMenu.Add("DecodeByDetailedRecords", NStr("en = 'Decrypt by detailed records';"));
 	
 	Return ContextMenu;
@@ -3350,7 +3349,7 @@ Function ReportTitleProperties(Form)
 		Or StrEndsWith(Form.FormName, "ReportForm") Then 
 		
 		Headers = ReportHeaders(Form);
-		Field = Form.ReportSpreadsheetDocument; // 
+		Field = Form.ReportSpreadsheetDocument; // FormField, FormFieldExtensionForASpreadsheetDocumentField
 		Area = Field.CurrentArea; // SpreadsheetDocumentRange
 		
 		Return Headers[Area.Name];

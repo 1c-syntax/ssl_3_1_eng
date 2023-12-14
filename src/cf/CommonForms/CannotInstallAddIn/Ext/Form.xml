@@ -7,6 +7,11 @@
 		<HorizontalAlign>Right</HorizontalAlign>
 		<Autofill>false</Autofill>
 		<ChildItems>
+			<Button name="FormContinueInstallationAttempt" id="102">
+				<Type>CommandBarButton</Type>
+				<CommandName>Form.Command.ContinueInstallationAttempt</CommandName>
+				<ExtendedTooltip name="FormContinueInstallationAttemptExtendedTooltip" id="103"/>
+			</Button>
 			<Button name="Close" id="100">
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
@@ -78,6 +83,17 @@ Use a &lt;link about:blank&gt;supported client application&lt;/&gt; or contact t
 		</UsualGroup>
 	</ChildItems>
 	<Attributes/>
+	<Commands>
+		<Command name="ContinueInstallationAttempt" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Continue trying to install</v8:content>
+				</v8:item>
+			</Title>
+			<Action>ContinueInstallationAttempt</Action>
+		</Command>
+	</Commands>
 	<Parameters>
 		<Parameter name="ExplanationText">
 			<Type>

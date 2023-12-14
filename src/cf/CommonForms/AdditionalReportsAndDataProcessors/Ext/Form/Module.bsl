@@ -178,7 +178,7 @@ Procedure RunDataProcessorByParameters()
 	ElsIf DataProcessorData.StartupOption = PredefinedValue("Enum.AdditionalDataProcessorsCallMethods.ServerMethodCall")
 		Or DataProcessorData.StartupOption = PredefinedValue("Enum.AdditionalDataProcessorsCallMethods.SafeModeScenario") Then
 		
-		// 
+		// Change form items.
 		Items.ExplainingDecoration.Title = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Executing command ""%1""…';"),
 			DataProcessorData.Presentation);

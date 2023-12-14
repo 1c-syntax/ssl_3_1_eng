@@ -597,6 +597,12 @@
 															<ChildItems>
 																<HTMLDocumentField name="EmailText" id="25">
 																	<DataPath>EmailText</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Message body</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>None</TitleLocation>
 																	<Height>7</Height>
 																	<ContextMenu name="EmailTextContextMenu" id="26">
@@ -657,6 +663,12 @@
 																</CommandBar>
 																<FormattedDocumentField name="EmailTextFormattedDocument" id="200">
 																	<DataPath>EmailTextFormattedDocument</DataPath>
+																	<Title>
+																		<v8:item>
+																			<v8:lang>en</v8:lang>
+																			<v8:content>Message body in HTML format</v8:content>
+																		</v8:item>
+																	</Title>
 																	<TitleLocation>None</TitleLocation>
 																	<Height>7</Height>
 																	<AutoMaxHeight>false</AutoMaxHeight>
@@ -817,6 +829,12 @@
 									<ChildItems>
 										<InputField name="Comment" id="284">
 											<DataPath>Object.Comment</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Comment</v8:content>
+												</v8:item>
+											</Title>
 											<TitleLocation>None</TitleLocation>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<Wrap>false</Wrap>

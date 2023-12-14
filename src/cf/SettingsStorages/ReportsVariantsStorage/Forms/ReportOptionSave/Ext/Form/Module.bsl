@@ -317,7 +317,7 @@ Procedure ExecuteBatch(Result, Package) Export
 			EndIf;
 		EndIf;
 		
-		// 
+		// Check is completed.
 		Package.CheckPage1 = False;
 	EndIf;
 	
@@ -333,7 +333,7 @@ Procedure ExecuteBatch(Result, Package) Export
 			Items.Next.Enabled        = False;
 		EndIf;
 		
-		// 
+		// Switch is completed.
 		Package.GoToPage32 = False;
 	EndIf;
 	
@@ -482,7 +482,7 @@ Procedure LongDescStartChoiceCompletion(Val EnteredText, Val AdditionalParameter
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 // Returns the flag of the available report option change rights.
 //
@@ -554,7 +554,7 @@ Procedure FillOptionsListDeferred()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServerNoContext
 Function NumberOfUsersReportOption(OptionUsers)
@@ -755,7 +755,7 @@ Procedure FillOptionsList()
 	
 	ReportsServer.AddContextOptions(Context.ReportRef, VariantsTable, ContextOptions);
 	
-	// 
+	// Populate autocalculated columns.
 	ReportOptions.Load(VariantsTable);
 	For Each Variant In ReportOptions Do
 		Variant.CurrentUserIsAuthor = (Variant.Author = Context.CurrentUser);

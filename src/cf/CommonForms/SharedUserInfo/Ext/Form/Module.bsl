@@ -13,9 +13,9 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Items.SharedUser.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'View of user information %1 is not available as it is a 
-		           |service account provided for SaaS administrators.';"),
-		Parameters.Key.Description);
+		NStr("en = 'Cannot display information on user %1.
+		           |This is a service account reserved for SaaS administrators.';"),
+		String(Parameters.Key));
 	
 EndProcedure
 

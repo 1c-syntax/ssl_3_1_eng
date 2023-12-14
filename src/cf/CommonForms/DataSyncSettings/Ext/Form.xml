@@ -344,7 +344,7 @@ Please contact the administrator.</v8:content>
 					<ContextMenu name="DisabledScenariosWarningDetailsContextMenu" id="794"/>
 					<ExtendedTooltip name="DisabledScenariosWarningDetailsExtendedTooltip" id="795"/>
 					<Events>
-						<Event name="URLProcessing">WarnAboutLoopDetailsURLProcessing</Event>
+						<Event name="URLProcessing">DisabledScenariosWarningDetailsURLProcessing</Event>
 					</Events>
 				</LabelDecoration>
 			</ChildItems>

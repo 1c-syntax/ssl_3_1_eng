@@ -3,7 +3,7 @@
 	<Title>
 		<v8:item>
 			<v8:lang>en</v8:lang>
-			<v8:content>Event Log</v8:content>
+			<v8:content>Event log</v8:content>
 		</v8:item>
 	</Title>
 	<AutoTitle>false</AutoTitle>
@@ -245,7 +245,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Event Log</v8:content>
+							<v8:content>Event log</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="EventLogExtendedTooltip" id="139"/>
@@ -1224,6 +1224,15 @@
 				<v8:Type xmlns:mxl="http://v8.1c.ru/8.2/data/spreadsheet">mxl:SpreadsheetDocument</v8:Type>
 			</Type>
 			<Settings xmlns:mxl="http://v8.1c.ru/8.2/data/spreadsheet" xsi:type="mxl:SpreadsheetDocument">
+				<mxl:languageSettings>
+					<mxl:currentLanguage/>
+					<mxl:defaultLanguage/>
+					<mxl:languageInfo>
+						<mxl:id>en</mxl:id>
+						<mxl:code>Английский</mxl:code>
+						<mxl:description/>
+					</mxl:languageInfo>
+				</mxl:languageSettings>
 				<mxl:columns>
 					<mxl:size>0</mxl:size>
 				</mxl:columns>

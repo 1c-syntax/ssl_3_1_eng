@@ -23,21 +23,21 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Raise ErrorTextOnOpen;
 	EndIf;
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
 	EndIf;
 	// End StandardSubsystems.AttachableCommands
 	
-	// 
+	// StandardSubsystems.ObjectsVersioning
 	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
 		ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");
 		ModuleObjectsVersioning.OnCreateAtServer(ThisObject);
 	EndIf;
 	// End StandardSubsystems.ObjectsVersioning
 	
-	// 
+	// Set dynamic list filters.
 	CommonClientServer.SetDynamicListFilterItem(
 		List, "ExecuteOnSchedule", False,
 		DataCompositionComparisonType.Equal, , False,
@@ -64,7 +64,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	FillListParameter("CurrentRow");
 	
 	If Not AccessRight("Update", Metadata.Catalogs.ReportMailings) Then
-		// Режим показа только личных рассылок - 
+		// Show only personal mailing. Groups and excess columns are hidden.
 		Items.List.Representation = TableRepresentation.List;
 		CommonClientServer.SetDynamicListFilterItem(List, "IsFolder", False, , , True,
 			DataCompositionSettingsItemViewMode.Inaccessible);
@@ -131,7 +131,7 @@ EndProcedure
 &AtClient
 Procedure ListOnActivateRow(Item)
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -224,8 +224,8 @@ Procedure ShowHintReportMailoutsCanWorkFaster()
 			Items.MailingGroupsCanWorkFaster.Visible = True;
 			If Users.IsFullUser() 
 			   And Common.SubsystemExists("StandardSubsystems.ApplicationSettings") Then
-				Items.TitleAccelerationOfMailouts.Hyperlink = True;
-				Items.TitleAccelerationOfMailouts.SetAction("Click", "Attachable_HeaderAccelerationOfMailoutsClick");
+				Items.TitleAccelerationOfMailings.Hyperlink = True;
+				Items.TitleAccelerationOfMailings.SetAction("Click", "Attachable_HeaderAcceleratingMailingsByClicking");
 			EndIf;
 		Else
 			Items.MailingGroupsCanWorkFaster.Visible = False;
@@ -235,14 +235,14 @@ Procedure ShowHintReportMailoutsCanWorkFaster()
 EndProcedure
 
 &AtClient
-Procedure Attachable_HeaderAccelerationOfMailoutsClick(Item)
+Procedure Attachable_HeaderAcceleratingMailingsByClicking(Item)
 	If CommonClient.SubsystemExists("StandardSubsystems.ApplicationSettings") Then
 		AppSettingsModuleClient = CommonClient.CommonModule("ApplicationSettingsClient");
 		AppSettingsModuleClient.OpenGeneralSettings();
 	EndIf;
 EndProcedure
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then

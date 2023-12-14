@@ -253,8 +253,8 @@ EndProcedure
 &AtServer
 Procedure FillWithDefaultData()
 	
-	//  
-	// 
+	 
+	
 	
 	BasicCalendarCode = Undefined;
 	If ValueIsFilled(Object.BasicCalendar) Then
@@ -273,9 +273,9 @@ EndProcedure
 &AtServer
 Procedure ConvertBusinessCalendarData(BusinessCalendarData)
 	
-	//  
-	// 
-	// 
+	 
+	
+	
 	
 	DaysKindsMap = New Map;
 	ShiftedDaysMap = New Map;
@@ -363,7 +363,7 @@ EndProcedure
 &AtClient
 Procedure ShiftDayKind(ReplacementDate, PurposeDate)
 	
-	// 
+	
 	// 
 	// 
 	//	 
@@ -408,12 +408,12 @@ EndProcedure
 &AtClientAtServerNoContext
 Procedure FillReplacementsPresentation(Form)
 	
-	// 
+	// Generates a holiday replacement presentation as a value list.
 	
 	Form.ReplacementsList.Clear();
 	For Each KeyAndValue In Form.ShiftedDays Do
-		//  
-		// 
+		 
+		
 		SourceDate = KeyAndValue.Key;
 		DestinationDate = KeyAndValue.Value;
 		DayKind = Form.DaysKinds.Get(SourceDate);

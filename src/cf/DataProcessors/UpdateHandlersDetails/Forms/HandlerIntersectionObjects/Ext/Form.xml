@@ -16,7 +16,6 @@
 	</Events>
 	<ChildItems>
 		<Pages name="TablesPages" id="29">
-			<Visible>false</Visible>
 			<Enabled>false</Enabled>
 			<Title>
 				<v8:item>
@@ -182,7 +181,9 @@ or other handlers modify objects readable by this handler.</v8:content>
 							</Title>
 							<RowFilter xsi:nil="true"/>
 							<ContextMenu name="LowPriorityHandlersContextMenu" id="36"/>
-							<AutoCommandBar name="LowPriorityHandlersCommandBar" id="37"/>
+							<AutoCommandBar name="LowPriorityHandlersCommandBar" id="37">
+								<Autofill>false</Autofill>
+							</AutoCommandBar>
 							<ExtendedTooltip name="LowPriorityHandlersExtendedTooltip" id="38"/>
 							<SearchStringAddition name="LowPriorityHandlersSearchString" id="39">
 								<AdditionSource>

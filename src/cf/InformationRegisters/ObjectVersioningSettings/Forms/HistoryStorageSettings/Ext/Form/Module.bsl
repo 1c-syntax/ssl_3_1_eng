@@ -205,8 +205,8 @@ Procedure FillObjectTypesInValueTree()
 	MOTree = FormAttributeToValue("MetadataObjectsTree");
 	MOTree.Rows.Clear();
 	
-	//  
-	// 
+	 
+	
 	TypesArray = Metadata.CommonCommands.ChangeHistory.CommandParameterType.Types();
 	HasBusinessProcesses = False;
 	AllCatalogs = Catalogs.AllRefsType();

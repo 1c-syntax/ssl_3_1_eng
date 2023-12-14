@@ -1,34 +1,34 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
-	<Configuration uuid="9e75e8b0-78f7-47db-b39c-7d70da1f2c9a">
+	<Configuration uuid="911ac11b-f739-4e4e-a032-acb8878a17df">
 		<InternalInfo>
 			<xr:ContainedObject>
 				<xr:ClassId>9cd510cd-abfc-11d4-9434-004095e12fc7</xr:ClassId>
-				<xr:ObjectId>f4429dfd-cb95-49aa-8f7d-cd7881aa8a0c</xr:ObjectId>
+				<xr:ObjectId>eb29471c-0cfe-4da2-83bd-cb006b3cc828</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>9fcd25a0-4822-11d4-9414-008048da11f9</xr:ClassId>
-				<xr:ObjectId>f2dd2323-5099-41b6-9f83-0b0795030552</xr:ObjectId>
+				<xr:ObjectId>fbb749c4-7828-4672-bf7e-e4dd4ef14a27</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>e3687481-0a87-462c-a166-9f34594f9bba</xr:ClassId>
-				<xr:ObjectId>878d95a5-49f7-4a65-ade1-d35a9936f981</xr:ObjectId>
+				<xr:ObjectId>57b5f253-9ecb-441e-81ea-4275f390022f</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>9de14907-ec23-4a07-96f0-85521cb6b53b</xr:ClassId>
-				<xr:ObjectId>5cd7f3a8-2bde-478f-9d79-9eeb77aa3bc9</xr:ObjectId>
+				<xr:ObjectId>9c10a9e0-e58b-499b-b839-234537bab9f7</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>51f2d5d8-ea4d-4064-8892-82951750031e</xr:ClassId>
-				<xr:ObjectId>257c0a37-1ae1-435f-a7ad-1fa7f0d820d9</xr:ObjectId>
+				<xr:ObjectId>c33ebd75-ec39-4195-bbfe-24f6c3d87d8c</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>e68182ea-4237-4383-967f-90c1e3370bc7</xr:ClassId>
-				<xr:ObjectId>821f6490-44a9-4e5c-8906-136ee32f7b76</xr:ObjectId>
+				<xr:ObjectId>cd810da2-7e14-4707-9123-86f34eefc19f</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>fb282519-d103-4dd3-bc12-cb271d631dfc</xr:ClassId>
-				<xr:ObjectId>a611b11a-d25b-4de2-aa3f-144900be332e</xr:ObjectId>
+				<xr:ObjectId>766fbb40-60b9-492a-aa14-fb5d521077d6</xr:ObjectId>
 			</xr:ContainedObject>
 		</InternalInfo>
 		<Properties>
@@ -53,7 +53,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">Role.InteractiveOpenExtReportsAndDataProcessors</xr:Item>
 			</DefaultRoles>
 			<Vendor>1C Company</Vendor>
-			<Version>3.1.9.170</Version>
+			<Version>3.1.9.237</Version>
 			<UpdateCatalogAddress/>
 			<IncludeHelpInContents>true</IncludeHelpInContents>
 			<UseManagedFormInOrdinaryApplication>false</UseManagedFormInOrdinaryApplication>
@@ -238,7 +238,7 @@
 			<VendorInformationAddress>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>https://1c-dn.com</v8:content>
+					<v8:content>http://www.1c.ru</v8:content>
 				</v8:item>
 			</VendorInformationAddress>
 			<ConfigurationInformationAddress/>
@@ -357,7 +357,6 @@
 			<CommonPicture>AddComplexQuestion</CommonPicture>
 			<CommonPicture>AddConditionalQuestion</CommonPicture>
 			<CommonPicture>AddInIsAvailable</CommonPicture>
-			<CommonPicture>AddInNotAvailable</CommonPicture>
 			<CommonPicture>AddInsUpdateFromWebsite</CommonPicture>
 			<CommonPicture>AdditionalAttributesInfo</CommonPicture>
 			<CommonPicture>AdditionalInfo</CommonPicture>
@@ -539,11 +538,11 @@
 			<CommonPicture>GoogleMaps</CommonPicture>
 			<CommonPicture>GreenDownArrow</CommonPicture>
 			<CommonPicture>GreenRightArrow</CommonPicture>
+			<CommonPicture>GreyCross</CommonPicture>
 			<CommonPicture>Group</CommonPicture>
 			<CommonPicture>HelpDownArrow</CommonPicture>
 			<CommonPicture>HelpHomePage</CommonPicture>
 			<CommonPicture>HelpMoveDown</CommonPicture>
-			<CommonPicture>HiddenReportSettingsItem</CommonPicture>
 			<CommonPicture>HierarchicalList</CommonPicture>
 			<CommonPicture>HTMLFormat</CommonPicture>
 			<CommonPicture>HyperlinkType</CommonPicture>
@@ -1002,7 +1001,8 @@
 			<Role>ViewDocumentRecordsReport</Role>
 			<Role>ViewEventLog</Role>
 			<Role>ViewRelatedDocuments</Role>
-			<CommonTemplate>BarcodePrintingAddIn</CommonTemplate>
+			<CommonTemplate>BarcodePrintingAddIn_10_0_9_1</CommonTemplate>
+			<CommonTemplate>DocumentScanningAddIn_3_0_1_1027</CommonTemplate>
 			<CommonTemplate>EmptyDOCXTemplate</CommonTemplate>
 			<CommonTemplate>GetUpdateHandlersTree</CommonTemplate>
 			<CommonTemplate>GuideHowToSetUpOpenOfficeTemplate</CommonTemplate>
@@ -1015,8 +1015,6 @@
 			<CommonTemplate>QRCodePrintingComponent</CommonTemplate>
 			<CommonTemplate>StringSearchAddIn</CommonTemplate>
 			<CommonTemplate>SubordinationStructure</CommonTemplate>
-			<CommonTemplate>TwainComponent_3_1_0_1013</CommonTemplate>
-			<FilterCriterion>FilesInVolume</FilterCriterion>
 			<FilterCriterion>RelatedDocuments</FilterCriterion>
 			<CommonModule>AccessManagement</CommonModule>
 			<CommonModule>AccessManagementInternal</CommonModule>
@@ -1518,6 +1516,7 @@
 			<XDTOPackage>EnterpriseData_1_11_7</XDTOPackage>
 			<XDTOPackage>EnterpriseData_1_12_1</XDTOPackage>
 			<XDTOPackage>EnterpriseData_1_15_3</XDTOPackage>
+			<XDTOPackage>EnterpriseData_1_16_2</XDTOPackage>
 			<XDTOPackage>EnterpriseData_1_2_3</XDTOPackage>
 			<XDTOPackage>EnterpriseData_1_3_20</XDTOPackage>
 			<XDTOPackage>EnterpriseData_1_4_20</XDTOPackage>

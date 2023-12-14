@@ -16,9 +16,9 @@
 //   DeletionParameters - See InteractiveDeletionParameters
 // 		
 //   Owner - ClientApplicationForm
-//            - Undefined - 
-// 														  
-// 														  
+//            - Undefined - — the form from which deletion was started.
+// 														  If not specified, the detailed information on the deletion results
+// 														  will not be passed to the processing notification about closing.
 // 														   
 //   OnCloseNotifyDescription - NotifyDescription - if specified, after deleting or
 //														  when closing a form, the result
@@ -27,7 +27,7 @@
 //                              * DeletedItemsCount1 - Number - a number of deleted objects.
 //                              * NotDeletedItemsCount1 - Number - a number of not deleted objects.
 //                              * ResultAddress - String - the temporary storage address.
-//								- Undefined - default.
+//								- Undefined - a default value.
 //
 Procedure StartMarkedObjectsDeletion(ObjectsToDelete, DeletionParameters = Undefined, Owner = Undefined,
 	OnCloseNotifyDescription = Undefined) Export
@@ -72,7 +72,7 @@ EndFunction
 //   Form - ClientApplicationForm
 //   FormTable - FormTable
 //                - FormDataStructure
-//                - Undefined - form table associated with a dynamic list
+//                - Undefined - the form table that relates to the dynamic list
 //
 Procedure GoToMarkedForDeletionItems(Form, FormTable = Undefined) Export
 	
@@ -253,7 +253,7 @@ EndProcedure
 //   Form - ClientApplicationForm
 //   FormTable - FormTable
 // Returns:
-//   Boolean - 
+//   Boolean - — a set filter value
 //
 Function ChangeObjectsMarkedForDeletionFilter(Form, FormTable)
 	

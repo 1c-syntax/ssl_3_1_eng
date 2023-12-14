@@ -16,8 +16,8 @@
 //  ExternalModule - AnyRef - a reference to an external module.
 //
 // Returns:
-//   String - 
-//  
+//   String - a template of a security profile name containing characters
+//  "%1". These characters are replaced with a unique ID later.
 //
 Function SecurityProfileNameTemplate(Val ExternalModule) Export
 	
@@ -146,7 +146,7 @@ Function AdditionalDataProcessorsPermissionRequests(Val FOValue = Undefined)
 EndFunction
 
 // Parameters:
-//   Object - CatalogRef.AdditionalReportsAndDataProcessors
+//   Object - CatalogObject.AdditionalReportsAndDataProcessors
 //   FOValue - Boolean
 //              - Undefined
 //   DeletionMark - Boolean

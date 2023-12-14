@@ -303,8 +303,8 @@ Procedure CheckLooping(ExchangePlanName, Mode = "CircuitImport") Export
 			
 	If Mode = "CircuitImport" Then
 		
-		//  
-		// 
+		 
+		
 
 		Query.Text = 
 			"SELECT TOP 1
@@ -353,10 +353,12 @@ EndProcedure
 
 Function HasLoop() Export
 	
+	SetPrivilegedMode(True);
+	
 	Query = New Query;
 	Query.Text = 
 		"SELECT
-		|	SynchronizationCircuit.InfobaseNode AS InfobaseNode
+		|	TRUE AS HasLoop
 		|FROM
 		|	InformationRegister.SynchronizationCircuit AS SynchronizationCircuit
 		|WHERE
@@ -474,7 +476,7 @@ Function CheckLoopRecursively(SynchronizationCircuit, InitialNode, CurrentNode =
 	For Each Node In Nodes Do
 		For Each PeerNode In Node.Rows Do
 			
-			If PeerNode.CorrespondentNodeCode = Parent Then //  
+			If PeerNode.CorrespondentNodeCode = Parent Then  
 				Continue;
 			EndIf;
 			
@@ -517,7 +519,7 @@ Procedure UpdateCircuitFromTree(Tree, ExchangePlanName)
 	
 	For Each TreeNode In Tree.Rows Do
 		
-		// 
+		
 		If TreeNode.NodeCode = ThisNode.Code Then
 			Continue;
 		EndIf;
@@ -525,7 +527,7 @@ Procedure UpdateCircuitFromTree(Tree, ExchangePlanName)
 		Filter = New Structure("NodeCode", TreeNode.NodeCode);
 		CircuitNodes = SynchronizationCircuit.Rows.FindRows(Filter);
 
-		// 
+		// Delete obsolete records
 		If CircuitNodes.Count() > 0 
 			And CircuitNodes[0].LatestUpdate < TreeNode.LatestUpdate
 			And CircuitNodes[0].RecordsCount > 0 Then

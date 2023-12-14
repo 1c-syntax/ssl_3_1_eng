@@ -58,25 +58,44 @@
 			<AutoMaxHeight>false</AutoMaxHeight>
 			<MaxHeight>4</MaxHeight>
 			<MultiLine>true</MultiLine>
+			<TextEdit>false</TextEdit>
 			<BackColor>style:AttentionBackColor</BackColor>
 			<ContextMenu name="ErrorDescriptionContextMenu" id="36"/>
 			<ExtendedTooltip name="ErrorDescriptionExtendedTooltip" id="37"/>
 		</InputField>
-		<UsualGroup name="MCHDGroup" id="69">
+		<UsualGroup name="MRLOAGroup" id="69">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Machine-readable letter of authority</v8:content>
+				</v8:item>
+			</Title>
 			<Group>Vertical</Group>
 			<Behavior>Usual</Behavior>
 			<Collapsed>true</Collapsed>
 			<Representation>NormalSeparation</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="MCHDGroupExtendedTooltip" id="70"/>
+			<ExtendedTooltip name="MRLOAGroupExtendedTooltip" id="70"/>
 			<ChildItems>
 				<LabelDecoration name="MachineReadableAuthorizationLetterDecoration" id="66">
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<HorizontalStretch>true</HorizontalStretch>
+					<Title formatted="false">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Machine-readable letter of authority</v8:content>
+						</v8:item>
+					</Title>
 					<ContextMenu name="MachineReadableAuthorizationLetterDecorationContextMenu" id="67"/>
 					<ExtendedTooltip name="MachineReadableAuthorizationLetterDecorationExtendedTooltip" id="68"/>
 				</LabelDecoration>
 				<UsualGroup name="GroupVerificationProtocol" id="73">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>LOA verification protocol</v8:content>
+						</v8:item>
+					</Title>
 					<Group>Vertical</Group>
 					<Behavior>Collapsible</Behavior>
 					<Collapsed>true</Collapsed>
@@ -124,6 +143,7 @@
 		<InputField name="DateActionLastTimestamp" id="49">
 			<DataPath>DateActionLastTimestamp</DataPath>
 			<ReadOnly>true</ReadOnly>
+			<TitleHeight>2</TitleHeight>
 			<ContextMenu name="DateActionLastTimestampContextMenu" id="50"/>
 			<ExtendedTooltip name="DateActionLastTimestampExtendedTooltip" id="51"/>
 		</InputField>
@@ -141,6 +161,24 @@
 			<Representation>None</Representation>
 			<ExtendedTooltip name="TechnicalInformationExtendedTooltip" id="42"/>
 			<ChildItems>
+				<InputField name="SignatureAlgorithmWarning" id="75">
+					<DataPath>SignAlgorithm</DataPath>
+					<ToolTip>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>The algorithm used to sign strong data hash calculated using the hashing algorithm with the private part of the key.</v8:content>
+						</v8:item>
+					</ToolTip>
+					<ToolTipRepresentation>Button</ToolTipRepresentation>
+					<AutoMaxWidth>false</AutoMaxWidth>
+					<AutoMaxHeight>false</AutoMaxHeight>
+					<MaxHeight>2</MaxHeight>
+					<MultiLine>true</MultiLine>
+					<TextEdit>false</TextEdit>
+					<BackColor>style:AttentionBackColor</BackColor>
+					<ContextMenu name="SignatureAlgorithmWarningContextMenu" id="76"/>
+					<ExtendedTooltip name="SignatureAlgorithmWarningExtendedTooltip" id="77"/>
+				</InputField>
 				<InputField name="SignAlgorithm" id="43">
 					<DataPath>SignAlgorithm</DataPath>
 					<ToolTip>
@@ -150,6 +188,7 @@
 						</v8:item>
 					</ToolTip>
 					<ToolTipRepresentation>Button</ToolTipRepresentation>
+					<TextEdit>false</TextEdit>
 					<ContextMenu name="SignAlgorithmContextMenu" id="44"/>
 					<ExtendedTooltip name="SignAlgorithmExtendedTooltip" id="45"/>
 				</InputField>
@@ -162,6 +201,7 @@
 						</v8:item>
 					</ToolTip>
 					<ToolTipRepresentation>Button</ToolTipRepresentation>
+					<TextEdit>false</TextEdit>
 					<ContextMenu name="HashAlgorithmContextMenu" id="47"/>
 					<ExtendedTooltip name="HashAlgorithmExtendedTooltip" id="48"/>
 				</InputField>
@@ -420,7 +460,7 @@
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="ResultOfSignatureVerificationByMCHD" id="27">
+		<Attribute name="ResultOfSignatureVerificationByMRLOA" id="27">
 			<Type>
 				<v8:Type>xs:string</v8:Type>
 				<v8:StringQualifiers>

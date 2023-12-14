@@ -89,7 +89,7 @@ EndProcedure
 #Region Private
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure OutputSpreadsheetDocument()
@@ -271,7 +271,7 @@ EndProcedure
 //  TreeRow  - FormDataTreeItem - an original value tree row
 //                  that starts the count.
 // Returns:
-//   Boolean   - 
+//   Boolean   - indicates whether output in the vertical connector area is required.
 //
 &AtServer
 Function OutputVerticalConnector(LevelUp, TreeRow, SearchSubordinateDocuments = True)
@@ -331,10 +331,10 @@ EndProcedure
 
 // Parameters:
 //  Selection - QueryResultSelection
-//          - FormDataTreeItem - 
+//          - FormDataTreeItem - a data set used to generate a presentation.
 //
 // Returns:
-//   String - 
+//   String - a generated presentation.
 //
 &AtServer
 Function ObjectPresentationForReportOutput(Selection)
@@ -370,7 +370,7 @@ Procedure OutputSubordinateTreeItems(TreeRows, Template, RecursionLevels = 1)
 		IsInitialObject = (TreeRow.Ref = InitialObject);
 		SubordinateTreeItems = TreeRow.GetItems();
 		
-		// 
+		
 		For Level = 1 To RecursionLevels Do
 			
 			If RecursionLevels > Level Then
@@ -416,7 +416,7 @@ Procedure OutputHierarchy()
 EndProcedure
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure UpdateHierarchicalTree()
@@ -656,14 +656,14 @@ Procedure OutputParentObjects(CurrentObject, ParentTree, DisplayedObjects,
 			If NewRow <> Undefined
 				And Not ObjectToAddIsAmongParents(ParentTree, ObjectToOutput.Ref) Then
 				
-				// 
+				// @skip-check query-in-loop - Recursive algorithm to process a tree.
 				OutputParentObjects(ObjectToOutput.Ref, NewRow, DisplayedObjects,
 					ServiceObjects, IndexOfObjectRelationships);
 				
 			ElsIf ServiceObjects[ObjectToOutput.Ref] = Undefined Then 
 				
 				ServiceObjects[ObjectToOutput.Ref] = True;
-				// 
+				// @skip-check query-in-loop - Recursive algorithm to process a tree.
 				OutputParentObjects(ObjectToOutput.Ref, ParentTree, DisplayedObjects,
 					ServiceObjects, IndexOfObjectRelationships);
 				
@@ -841,7 +841,7 @@ Procedure OutputSubordinateObjects(CurrentObject, ParentTree, DisplayedObjects,
 	ListOfObjects = New Array;
 	For Each TableRow In Table Do
 
-		CurrentRef = TableRow.Ref; // 		
+		CurrentRef = TableRow.Ref; // CatalogRef, DocumentRef		
 		ObjectMetadata = CurrentRef.Metadata();
 		If Not AccessRight("View", ObjectMetadata) Then
 			Continue;
@@ -869,14 +869,14 @@ Procedure OutputSubordinateObjects(CurrentObject, ParentTree, DisplayedObjects,
 		If NewRow <> Undefined
 			And Not ObjectToAddIsAmongParents(ParentTree, ObjectToOutput.Ref) Then
 			
-			// 
+			// @skip-check query-in-loop - Recursive algorithm to process a tree.
 			OutputSubordinateObjects(ObjectToOutput.Ref, NewRow, DisplayedObjects,
 				ServiceObjects, IndexOfObjectRelationships);
 			
 		ElsIf ServiceObjects[ObjectToOutput.Ref] = Undefined Then 
 			
 			ServiceObjects.Insert(ObjectToOutput.Ref, True);
-			// 
+			// @skip-check query-in-loop - Recursive algorithm to process a tree.
 			OutputSubordinateObjects(ObjectToOutput.Ref, ParentTree, DisplayedObjects,
 				ServiceObjects, IndexOfObjectRelationships);
 			
@@ -1017,8 +1017,8 @@ Function DocumentAttributeName(Val ObjectMetadata, Val Var_AttributeName)
 		Return ?(Result <> Undefined, Result, Var_AttributeName);
 	EndIf;	
 	
-	// 
-	DocumentAttributeName = SubordinationStructureOverridable.DocumentAttributeName(ObjectMetadata.Name, Var_AttributeName); // ACC:223
+	// For backward compatibility purposes.
+	DocumentAttributeName = SubordinationStructureOverridable.DocumentAttributeName(ObjectMetadata.Name, Var_AttributeName); 
 	If Var_AttributeName = "DocumentAmount" Then
 		Return ?(DocumentAttributeName = Undefined, "DocumentAmount", DocumentAttributeName);
 	ElsIf Var_AttributeName = "Currency" Then
@@ -1047,7 +1047,7 @@ Function AttributesForPresentation(Val FullMetadataObjectName, Val MetadataObjec
 		Return Result;
 	EndIf;
 	
-	// 
+	// For backward compatibility purposes.
 	Return SubordinationStructureOverridable.ObjectAttributesArrayForPresentationGeneration(MetadataObjectName); // ACC:223
 	
 EndFunction
@@ -1062,13 +1062,13 @@ Function ObjectPresentationForOutput(Data)
 		Return Result;
 	EndIf;
 	
-	// 
+	// For backward compatibility purposes.
 	Return SubordinationStructureOverridable.ObjectPresentationForReportOutput(Data); // ACC:223
 	
 EndFunction
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Function SelectedItems()
@@ -1083,11 +1083,11 @@ Function SelectedItems()
 			Continue;
 		EndIf;
 		
-		Borders = SelectedAreaBorders(SelectedArea1);
+		Boundaries = SelectedAreaBorders(SelectedArea1);
 		
-		For ColumnNumber = Borders.Left To Borders.Right Do
+		For ColumnNumber = Boundaries.Left To Boundaries.Right Do
 			
-			For LineNumber = Borders.Top To Borders.Bottom Do
+			For LineNumber = Boundaries.Top To Boundaries.Bottom Do
 				
 				Cell = ReportTable.Area(LineNumber, ColumnNumber, LineNumber, ColumnNumber);
 				
@@ -1108,30 +1108,30 @@ EndFunction
 &AtClient
 Function SelectedAreaBorders(SelectedArea1)
 	
-	Borders = New Structure("Left, Top, Bottom, Right");
-	FillPropertyValues(Borders, SelectedArea1);
+	Boundaries = New Structure("Left, Top, Bottom, Right");
+	FillPropertyValues(Boundaries, SelectedArea1);
 	
-	If Borders.Left = 0 Then 
-		Borders.Left = 1;
+	If Boundaries.Left = 0 Then 
+		Boundaries.Left = 1;
 	EndIf;
 	
-	If Borders.Top = 0 Then 
-		Borders.Top = 1;
+	If Boundaries.Top = 0 Then 
+		Boundaries.Top = 1;
 	EndIf;
 	
-	If Borders.Bottom = 0 Then 
-		Borders.Bottom = 1;
+	If Boundaries.Bottom = 0 Then 
+		Boundaries.Bottom = 1;
 	EndIf;
 	
-	If Borders.Right = 0 Then 
-		Borders.Right = 1;
+	If Boundaries.Right = 0 Then 
+		Boundaries.Right = 1;
 	EndIf;
 	
-	Return Borders;
+	Return Boundaries;
 	
 EndFunction
 
-// 
+
 
 &AtServerNoContext
 Function StatisticsBySelectedItems(SelectedItems)
@@ -1224,7 +1224,7 @@ Function DeletionMarkEditScenario(SelectedItems, StatisticsBySelectedItems)
 			
 		Else
 			
-			// 
+			// If some of the items are marked for deletion, 1C:Enterprise will process only them and will clear the deletion mark.
 			SelectedItems.Clear();
 			
 			For Each Item In StatisticsBySelectedItems.WithDeletionMark Do 
@@ -1414,7 +1414,7 @@ Function ProcessedDocuments(SelectedDocuments, Mode, Errors)
 	
 EndFunction
 
-// 
+
 
 &AtClient
 Procedure WarnAboutAnErrorWhenChangingElements(Errors, Scenario)

@@ -47,7 +47,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	BigFilesTransferSupported = StandaloneModeInternal.BigFilesTransferSupported();
 	
-	// 
+	// Granting user rights for data synchronization
 	
 	Items.UserRightsSettings.Visible = False;
 	
@@ -97,7 +97,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure TimeConsumingOperationIdleHandler()
@@ -148,7 +148,7 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-// 
+
 
 &AtClient
 Procedure NextCommand(Command)
@@ -180,7 +180,7 @@ Procedure CancelCommand(Command)
 	
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure SetUpDataTransferRestrictions(Command)
@@ -374,7 +374,7 @@ Function ExtensionsThatChangeDataStructure()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure ChangeNavigationNumber(Iterator_SSLy)
@@ -683,7 +683,7 @@ Procedure CancelStandaloneWorkstationGeneration(Result, AdditionalParameters) Ex
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure CreateStandaloneWorkstationInitialImageAtServer(Cancel)
@@ -822,7 +822,7 @@ EndFunction
 Function SynchronizationUsers()
 	
 	Result = New ValueTable;
-	Result.Columns.Add("User"); // 
+	Result.Columns.Add("User"); 
 	Result.Columns.Add("DataSynchronizationPermitted", New TypeDescription("Boolean"));
 	Result.Columns.Add("PermitDataSynchronization", New TypeDescription("Boolean"));
 	
@@ -868,7 +868,7 @@ Function SynchronizationUsers()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Function Attachable_ExportSettingsOnGoNext(Cancel)
@@ -963,7 +963,7 @@ Function Attachable_PresenceOfExtensionsThatChangeDataStructure_WhenOpened(Cance
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure StandaloneWorkstationCreatingScript()

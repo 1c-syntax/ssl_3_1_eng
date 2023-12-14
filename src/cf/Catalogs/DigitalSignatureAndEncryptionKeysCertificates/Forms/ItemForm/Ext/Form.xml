@@ -240,6 +240,7 @@
 					<v8:content>Certificate data</v8:content>
 				</v8:item>
 			</Title>
+			<Group>Vertical</Group>
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
@@ -249,7 +250,7 @@
 					<Representation>List</Representation>
 					<ReadOnly>true</ReadOnly>
 					<SkipOnInput>true</SkipOnInput>
-					<Height>4</Height>
+					<HeightControlVariant>UseContentHeight</HeightControlVariant>
 					<RowSelectionMode>Row</RowSelectionMode>
 					<Header>false</Header>
 					<HorizontalScrollBar>DontUse</HorizontalScrollBar>
@@ -317,28 +318,21 @@
 						</InputField>
 					</ChildItems>
 				</Table>
-				<UsualGroup name="VerticalGroup3" id="261">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Vertical group 3</v8:content>
-						</v8:item>
-					</Title>
-					<Group>Vertical</Group>
-					<Behavior>Usual</Behavior>
-					<Representation>None</Representation>
+				<UsualGroup name="PropertyDiscoveryGroup" id="327">
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="VerticalGroup3ExtendedTooltip" id="262"/>
+					<ExtendedTooltip name="PropertyDiscoveryGroupExtendedTooltip" id="328"/>
 					<ChildItems>
 						<Button name="ShowCertificateData" id="153">
-							<Type>UsualButton</Type>
-							<Representation>Picture</Representation>
+							<Type>Hyperlink</Type>
+							<Representation>PictureAndText</Representation>
 							<SkipOnInput>true</SkipOnInput>
 							<CommandName>Form.Command.ShowCertificateData</CommandName>
 							<ExtendedTooltip name="ShowCertificateDataExtendedTooltip" id="154"/>
 						</Button>
 						<Button name="ShowCertificateApplication" id="263">
-							<Type>UsualButton</Type>
+							<Type>Hyperlink</Type>
+							<Visible>false</Visible>
+							<Representation>PictureAndText</Representation>
 							<Enabled>false</Enabled>
 							<CommandName>Form.Command.ShowCertificateApplication</CommandName>
 							<ExtendedTooltip name="ShowCertificateApplicationExtendedTooltip" id="264"/>
@@ -351,7 +345,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Horizontal group 1</v8:content>
+					<v8:content>Horizontal group</v8:content>
 				</v8:item>
 			</Title>
 			<Group>Vertical</Group>
@@ -390,7 +384,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Horizontal group 2</v8:content>
+											<v8:content>Horizontal group</v8:content>
 										</v8:item>
 									</Title>
 									<Behavior>Usual</Behavior>
@@ -430,7 +424,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Vertical group 3</v8:content>
+											<v8:content>Vertical group</v8:content>
 										</v8:item>
 									</Title>
 									<Behavior>Usual</Behavior>

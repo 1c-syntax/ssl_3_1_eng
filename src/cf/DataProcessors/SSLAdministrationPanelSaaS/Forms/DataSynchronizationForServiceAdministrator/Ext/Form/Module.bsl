@@ -29,7 +29,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	SetPrivilegedMode(True);
 	
-	// 
+	// Visibility settings at startup.
 	Items.ApplySettingsGroup.Visible = Common.IsWebClient();
 	Items.StandaloneMode.Visible = StandaloneModeInternal.StandaloneModeSupported();
 	Items.TemporaryServerClusterDirectoriesGroup.Visible = (Not Common.FileInfobase())
@@ -188,7 +188,7 @@ Procedure RefreshApplicationInterface()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Function OnChangeAttributeServer(TagName)

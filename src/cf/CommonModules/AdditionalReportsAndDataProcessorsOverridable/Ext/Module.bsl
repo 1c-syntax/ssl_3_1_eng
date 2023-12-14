@@ -16,7 +16,7 @@
 //
 // Parameters:
 //   Sections - Array of MetadataObject - section (subsystem) metadata.
-//           - Array of String - 
+//           - Array of String - for the start page.
 //
 Procedure GetSectionsWithAdditionalDataProcessors(Sections) Export
 	
@@ -31,7 +31,7 @@ EndProcedure
 //
 // Parameters:
 //   Sections - Array of MetadataObject - section (subsystem) metadata.
-//           - Array of String - 
+//           - Array of String - for the start page.
 //
 Procedure GetSectionsWithAdditionalReports(Sections) Export
 	

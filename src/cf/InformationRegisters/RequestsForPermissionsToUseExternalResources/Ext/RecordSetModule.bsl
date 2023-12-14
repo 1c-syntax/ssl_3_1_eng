@@ -13,8 +13,8 @@
 
 Procedure OnWrite(Cancel, Replacing)
 	
-	// 
-	// 
+	
+	
 	If SafeModeManager.SafeModeSet() Then
 		
 		CurrentSafeMode = SafeMode();

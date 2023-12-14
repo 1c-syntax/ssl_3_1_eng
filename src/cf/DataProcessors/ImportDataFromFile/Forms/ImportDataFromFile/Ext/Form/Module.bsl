@@ -150,11 +150,14 @@ Procedure SetMappingTableFiltering()
 	Filter = MappingTableFilter;
 	
 	If Filter = "Mapped1" Then
-		Items.DataMappingTable.RowFilter = New FixedStructure("RowMappingResult", "RowMapped");
+		Items.DataMappingTable.RowFilter = New FixedStructure("RowMappingResult", 
+			ImportDataFromFileClientServer.StatusMatched());
 	ElsIf Filter = "Unmapped" Then 
-		Items.DataMappingTable.RowFilter = New FixedStructure("RowMappingResult", "Not");
+		Items.DataMappingTable.RowFilter = New FixedStructure("RowMappingResult", 
+			ImportDataFromFileClientServer.PrefixOfNonMatchedStrings());
 	ElsIf Filter = "Ambiguous" Then 
-		Items.DataMappingTable.RowFilter = New FixedStructure("RowMappingResult", "Conflict1");
+		Items.DataMappingTable.RowFilter = New FixedStructure("RowMappingResult", 
+			ImportDataFromFileClientServer.StatusAmbiguity());
 	Else
 		Items.DataMappingTable.RowFilter = Undefined;
 	EndIf;
@@ -265,20 +268,24 @@ Procedure DataMappingTableOnEditEnd(Item, NewRow, CancelEdit)
 	
 	If ImportType <> "TabularSection" Then
 		If ValueIsFilled(Item.CurrentData.MappingObject) Then 
-			Item.CurrentData.RowMappingResult = "RowMapped";
+			Item.CurrentData.RowMappingResult = ImportDataFromFileClientServer.StatusMatched();
 		Else
-			Item.CurrentData.RowMappingResult = "NotMapped";
+			Item.CurrentData.RowMappingResult = ImportDataFromFileClientServer.StatusIsNotMatched();
 		EndIf;
 	Else
 		Filter = New Structure("IsRequiredInfo", True);
 		RequiredColumns = ColumnsInformation.FindRows(Filter);
-		RowMappingResult = "RowMapped";
+		RowMappingResult    = ImportDataFromFileClientServer.StatusMatched();
+		TablePartPrefix           = ImportDataFromFileClientServer.TablePartPrefix() + "_";
+		
 		For Each TableColumn2 In RequiredColumns Do
-			If Not ValueIsFilled(Item.CurrentData["TS_" + TableColumn2.Parent]) Then
-				RowMappingResult = ?(ValueIsFilled(Item.CurrentData.ErrorDescription), "Conflict1", "NotMapped");
+			If Not ValueIsFilled(Item.CurrentData[TablePartPrefix + TableColumn2.Parent]) Then
+				RowMappingResult = ?(ValueIsFilled(Item.CurrentData.ErrorDescription), 
+					ImportDataFromFileClientServer.StatusAmbiguity(), ImportDataFromFileClientServer.StatusIsNotMatched());
 				Break;
 			EndIf;
 		EndDo;
+		
 		Item.CurrentData.RowMappingResult = RowMappingResult;
 	EndIf;
 	
@@ -292,15 +299,16 @@ Procedure DataMappingTableOnActivateCell(Item)
 	Items.DataMappingTableContextMenuResolveConflict.Enabled = False;
 	
 	If Item.CurrentData <> Undefined And ValueIsFilled(Item.CurrentData.RowMappingResult) Then 
-		If ImportType = "TabularSection" Then 
-			If StrLen(Item.CurrentItem.Name) > 3 And StrStartsWith(Item.CurrentItem.Name, "TS_") Then
+		If ImportType = "TabularSection" Then
+			TablePartPrefix = ImportDataFromFileClientServer.TablePartPrefix() + "_"; 
+			If StrLen(Item.CurrentItem.Name) > 3 And StrStartsWith(Item.CurrentItem.Name, TablePartPrefix) Then
 				ColumnName = Mid(Item.CurrentItem.Name, 4);
 				If StrFind(Item.CurrentData.ErrorDescription, ColumnName) > 0 Then 
 					Items.ResolveConflict.Enabled = True;
 					Items.DataMappingTableContextMenuResolveConflict.Enabled = True;
 				EndIf;
 			EndIf;
-		ElsIf Item.CurrentData.RowMappingResult = "Conflict1" Then 
+		ElsIf Item.CurrentData.RowMappingResult = ImportDataFromFileClientServer.StatusAmbiguity() Then 
 			Items.ResolveConflict.Enabled = True;
 			Items.DataMappingTableContextMenuResolveConflict.Enabled = True;
 		EndIf;
@@ -449,7 +457,6 @@ EndProcedure
 
 #Region Private
 
-//
 
 // Ending the form closing dialog.
 &AtClient
@@ -481,7 +488,7 @@ Procedure ProceedToNextStepOfDataImport()
 		Items.AddToList.Visible = False;
 		FormClosingConfirmation = True;
 		If ImportType = "TabularSection" Then
-			Filter = New Structure("RowMappingResult", "NotMapped");
+			Filter = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusIsNotMatched());
 			Rows = DataMappingTable.FindRows(Filter);
 			If Rows.Count() > 0 Then
 				Notification = New NotifyDescription("AfterAddToTabularSectionPrompt", ThisObject);
@@ -512,21 +519,23 @@ Procedure AfterMappingConflicts(Result, Parameter) Export
 	
 	If ImportType  = "TabularSection" Then
 		If Result <> Undefined Then
-			String = DataMappingTable.FindByID(Parameter.Id);
+			TablePartPrefix = ImportDataFromFileClientServer.TablePartPrefix() + "_";
 			
-			String["TS_" +  Parameter.Name] = Result;
-			String.ErrorDescription = StrReplace(String.ErrorDescription, Parameter.Name+";", "");
-			String.RowMappingResult = ?(StrLen(String.ErrorDescription) = 0, "RowMapped", "NotMapped");
+			String = DataMappingTable.FindByID(Parameter.Id);
+			String[TablePartPrefix + Parameter.Name] = Result;
+			String.ErrorDescription = StrReplace(String.ErrorDescription, Parameter.Name + ";", "");
+			String.RowMappingResult = ?(StrLen(String.ErrorDescription) = 0, 
+				ImportDataFromFileClientServer.StatusMatched(), ImportDataFromFileClientServer.StatusIsNotMatched());
 		EndIf;
 	Else
 		String = DataMappingTable.FindByID(Parameter.Id);
 		String.MappingObject = Result;
 		If Result <> Undefined Then
-			String.RowMappingResult = "RowMapped";
+			String.RowMappingResult = ImportDataFromFileClientServer.StatusMatched();
 			String.ConflictsList = Undefined;
 		Else 
-			If String.RowMappingResult <> "Conflict1" Then 
-				String.RowMappingResult = "NotMapped";
+			If String.RowMappingResult <> ImportDataFromFileClientServer.StatusAmbiguity() Then 
+				String.RowMappingResult = ImportDataFromFileClientServer.StatusIsNotMatched();
 				String.ConflictsList = Undefined;
 			EndIf;
 		EndIf;
@@ -547,7 +556,7 @@ EndProcedure
 
 &AtClient
 Function AllDataMapped()
-	Filter = New Structure("RowMappingResult", "RowMapped");
+	Filter = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusMatched());
 	Result = DataMappingTable.FindRows(Filter);
 	MappedItemsCount = Result.Count();
 	
@@ -562,12 +571,12 @@ EndFunction
 &AtClient
 Function MappingStatistics()
 	
-	Filter                    = New Structure("RowMappingResult", "RowMapped");
+	Filter                    = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusMatched());
 	Result                = DataMappingTable.FindRows(Filter);
 	MappedItemsCount = Result.Count();
 	
 	If ImportType = "PastingFromClipboard" Then
-		Filter                   = New Structure("RowMappingResult", "NotMapped");
+		Filter                   = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusIsNotMatched());
 		Result               = DataMappingTable.FindRows(Filter);
 		ConflictingItemsCount = DataMappingTable.Count() - MappedItemsCount - Result.Count();
 	Else
@@ -649,7 +658,6 @@ Procedure NotifyFormsAboutChange(ReferencesArrray)
 	StandardSubsystemsClient.NotifyFormsAboutChange(ReferencesArrray);
 EndProcedure
 
-//
 
 &AtServer
 Procedure InsertFromClipboardInitialization()
@@ -914,7 +922,7 @@ Procedure ExecuteDataToImportMappingStepAfterMapAtServer(ResultAddress)
 		MapDataExternalDataProcessor(MappingTable);
 	EndIf;
 	
-	Filter                    = New Structure("RowMappingResult", "RowMapped");
+	Filter                    = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusMatched());
 	Result                = MappingTable.FindRows(Filter);
 	
 	If Result.Count() = MappingTable.Count() Then
@@ -1179,14 +1187,16 @@ Procedure ExecuteDataToImportMappingStepClient()
 		If ImportType = "UniversalImport" Then
 			SetAppearanceForMappingPage(True, Items.DataMappingNote, True, NStr("en = 'Import data >';"));
 		ElsIf ImportType = "TabularSection" Then
-			If DataMappingTable.FindRows(New Structure("RowMappingResult", "NotMapped")).Count() = 0
-				And DataMappingTable.FindRows(New Structure("RowMappingResult", "Conflict1")).Count() = 0 Then
+			FilterNotMapped = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusIsNotMatched());
+			FilterConflict1 = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusAmbiguity());
+			If DataMappingTable.FindRows(FilterNotMapped).Count() = 0
+				And DataMappingTable.FindRows(FilterConflict1).Count() = 0 Then
 				// All rows are mapped.
 				ProceedToNextStepOfDataImport();
 			EndIf;
 			
 			SetAppearanceForMappingPage(False, Items.TabularSectionNote, True, NStr("en = 'Import data';"));
-			SetAppearanceForConflictFields(New Structure("RowMappingResult", "Conflict1"));
+			SetAppearanceForConflictFields(FilterConflict1);
 		Else
 			SetAppearanceForMappingPage(False, Items.AppliedImportNote, False, NStr("en = 'Import data >';"));
 		EndIf;
@@ -1223,9 +1233,13 @@ Procedure OpenResolveConflictForm(RowSelected, NameField1, StandardProcessing)
 	String = DataMappingTable.FindByID(RowSelected);
 	
 	If ImportType = "TabularSection" Then
-		If String.RowMappingResult = "Conflict1" And StrLen(String.ErrorDescription) > 0 Then
-			If StrLen(NameField1) > 3 And StrStartsWith(NameField1, "DataMappingTableTabularSection") Then
-				Name = Mid(NameField1, StrLen("DataMappingTableTabularSection") + 1);
+		If String.RowMappingResult = ImportDataFromFileClientServer.StatusAmbiguity()
+		   And StrLen(String.ErrorDescription) > 0 Then
+			PrefixOfBeginningOfTablePart = StringFunctionsClientServer.SubstituteParametersToString("%1_%2_", 
+				ImportDataFromFileClientServer.PrefixOfMappingTable(), 
+				ImportDataFromFileClientServer.TablePartPrefix());
+			If StrLen(NameField1) > 3 And StrStartsWith(NameField1, PrefixOfBeginningOfTablePart) Then
+				Name = Mid(NameField1, StrLen(PrefixOfBeginningOfTablePart) + 1);
 				If StrFind(String.ErrorDescription, Name) Then
 					StandardProcessing = False;
 					TableRow = New Array;
@@ -1259,7 +1273,7 @@ Procedure OpenResolveConflictForm(RowSelected, NameField1, StandardProcessing)
 			EndIf;
 		EndIf;
 	Else
-		If String.RowMappingResult = "Conflict1" Then
+		If String.RowMappingResult = ImportDataFromFileClientServer.StatusAmbiguity() Then
 			StandardProcessing = False;
 			
 			TableRow = New Array;
@@ -1319,7 +1333,7 @@ Procedure MapDataAppliedImport(DataMappingTableServer)
 	ManagerObject.MatchUploadedDataFromFile(DataMappingTableServer);
 	For Each String In DataMappingTableServer Do 
 		If ValueIsFilled(String.MappingObject) Then 
-			String.RowMappingResult = "RowMapped";
+			String.RowMappingResult = ImportDataFromFileClientServer.StatusMatched();
 		EndIf;
 	EndDo;
 	
@@ -1465,7 +1479,8 @@ Function SetAppearanceForConflictFields(Filter)
 	If Rows.Count() > 0 Then
 		ColumnsList = New Array;
 		For Each DataString1 In Rows Do
-			If StrCompare(DataString1.RowMappingResult, "Conflict1") = 0 Then
+			If StrCompare(DataString1.RowMappingResult, 
+				ImportDataFromFileClientServer.StatusAmbiguity()) = 0 Then
 				ColumnsArray1 = StrSplit(DataString1.ErrorDescription, ";", False);
 				For Each ColumnName In ColumnsArray1 Do
 					ColumnsList.Add(ColumnName);
@@ -1508,16 +1523,21 @@ Procedure SetDataAppearance(ColumnsList = Undefined)
 	ConditionalAppearanceItem.Appearance.SetParameterValue("TextColor", ColorObjectNotFound);
 	ConditionalAppearanceItem.Appearance.SetParameterValue("Text", TextObjectNotFound);
 	
+	PrefixOfMappingTable = ImportDataFromFileClientServer.PrefixOfMappingTable();
+	
 	If ValueIsFilled(ColumnsList) Then
+		TablePartPrefix = ImportDataFromFileClientServer.TablePartPrefix();
+		
 		For Each ColumnName In ColumnsList Do
 			ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
 			AppearanceField = ConditionalAppearanceItem.Fields.Items.Add();
-			AppearanceField.Field = New DataCompositionField("DataMappingTableTabularSection" + ColumnName);
+			AppearanceField.Field = New DataCompositionField(StringFunctionsClientServer.SubstituteParametersToString("%1_%2_%3",
+				PrefixOfMappingTable, TablePartPrefix, ColumnName));
 			AppearanceField.Use = True;
 			FilterElement = ConditionalAppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
 			FilterElement.LeftValue = New DataCompositionField("DataMappingTable.RowMappingResult");
 			FilterElement.ComparisonType = DataCompositionComparisonType.Equal;
-			FilterElement.RightValue = "Conflict1";
+			FilterElement.RightValue = ImportDataFromFileClientServer.StatusAmbiguity();
 			FilterElement.Use = True;
 			ConditionalAppearanceItem.Appearance.SetParameterValue("TextColor", ColorConflict);
 			ConditionalAppearanceItem.Appearance.SetParameterValue("ReadOnly", True);
@@ -1526,12 +1546,13 @@ Procedure SetDataAppearance(ColumnsList = Undefined)
 	Else
 		ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
 		AppearanceField = ConditionalAppearanceItem.Fields.Items.Add();
-		AppearanceField.Field = New DataCompositionField("DataMappingTableMappingObject");
+		AppearanceField.Field = New DataCompositionField(StringFunctionsClientServer.SubstituteParametersToString("%1_%2",
+			PrefixOfMappingTable, "MappingObject"));
 		AppearanceField.Use = True;
 		FilterElement = ConditionalAppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
 		FilterElement.LeftValue = New DataCompositionField("DataMappingTable.RowMappingResult");
 		FilterElement.ComparisonType = DataCompositionComparisonType.Equal;
-		FilterElement.RightValue = "Conflict1";
+		FilterElement.RightValue = ImportDataFromFileClientServer.StatusAmbiguity();
 		FilterElement.Use = True;
 		ConditionalAppearanceItem.Appearance.SetParameterValue("TextColor", ColorConflict);
 		ConditionalAppearanceItem.Appearance.SetParameterValue("ReadOnly", True);
@@ -1576,8 +1597,8 @@ Function ConditionsBySelectedColumns(CatalogName)
 	TabularSection = "";
 	FilterWhere       = New Array;
 	ConditionStrings  = New Array;
-	ConditionTemplateContactDetails = "CAST(MappingCatalog.Presentation AS STRING(500)) = CAST(MappingTable.%1 AS STRING(500))";
-	ConditionTemplateAdditionalAttributes = "MappingCatalog.Value =  MappingTable.%1";
+	ContactInformationConditionTemplate = "CAST(MappingCatalog.Presentation AS STRING(500)) = CAST(MappingTable.%1 AS STRING(500))";
+	AdditionalAttributeConditionTemplate = "MappingCatalog.Value =  MappingTable.%1";
 	
 	If Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
 		ModuleContactsManager = Common.CommonModule("ContactsManager");
@@ -1599,10 +1620,15 @@ Function ConditionsBySelectedColumns(CatalogName)
 				FoundKinds = ContactInformationKinds.Find(CIKindName, "Description");
 				
 				TabularSection = "ContactInformation";
-				StringCondition = StringFunctionsClientServer.SubstituteParametersToString(ConditionTemplateContactDetails, Column.ColumnName);
+				StringCondition = StringFunctionsClientServer.SubstituteParametersToString(ContactInformationConditionTemplate, Column.ColumnName);
 				If FoundKinds <> Undefined Then
-					StringCondition = StringCondition + StringFunctionsClientServer.SubstituteParametersToString(
-						" AND MappingCatalog.Kind.Description = ""%1""", FoundKinds.Ref.Description);
+					
+					KindDescription = Common.ObjectAttributeValue(FoundKinds.Ref, "Description");
+					If KindDescription <> Undefined Then
+						StringCondition = StringCondition + StringFunctionsClientServer.SubstituteParametersToString(
+							" AND MappingCatalog.Kind.Description = ""%1""", KindDescription);
+					EndIf;
+					
 				EndIf;
 				ConditionStrings.Add(StringCondition);
 				FilterWhere.Add("MappingCatalog.Presentation <> """"");
@@ -1611,7 +1637,7 @@ Function ConditionsBySelectedColumns(CatalogName)
 			ElsIf StrStartsWith(Column.ColumnName, "AdditionalAttribute_") Then
 				CatalogColumnName = "Value";
 				TabularSection = "AdditionalAttributes";
-				ConditionStrings.Add(StringFunctionsClientServer.SubstituteParametersToString(ConditionTemplateAdditionalAttributes, Column.ColumnName));
+				ConditionStrings.Add(StringFunctionsClientServer.SubstituteParametersToString(AdditionalAttributeConditionTemplate, Column.ColumnName));
 				
 				ColumnType = Column.ColumnType.Types()[0];
 				If TypeOf(ColumnType) = Type("String") And Column.ColumnType.StringQualifiers.Length = 0 Then
@@ -1651,11 +1677,11 @@ Function ConditionsBySelectedColumns(CatalogName)
 					For Each InputString In Catalog.InputByString Do 
 						If InputString.Name = "Code" And Not Catalog.Autonumbering Then 
 							InputByStringConditionText = StringFunctionsClientServer.SubstituteParametersToString(
-								"MappingCatalog.%1.Code %2 MappingTable.%3", // 
+								"MappingCatalog.%1.Code %2 MappingTable.%3", 
 								CatalogColumnName, ComparisonTypeSSL, Column.ColumnName);
 						Else
 							InputByStringConditionText = StringFunctionsClientServer.SubstituteParametersToString(
-								"MappingCatalog.%1.%2 %3 MappingTable.%4", // 
+								"MappingCatalog.%1.%2 %3 MappingTable.%4", 
 								CatalogColumnName, InputString.Name, ComparisonTypeSSL, Column.ColumnName);
 						EndIf;
 						ConditionTextCatalog.Add(InputByStringConditionText);
@@ -1752,13 +1778,13 @@ Procedure ExecuteMappingBySelectedAttribute(MappedItemsCount = 0, MappingColumns
 			While DetailedRecordsSelectionGroup.Next() Do
 				ConflictsList.Add(DetailedRecordsSelectionGroup.Ref);
 			EndDo;
-			String.RowMappingResult = "Conflict1";
+			String.RowMappingResult = ImportDataFromFileClientServer.StatusAmbiguity();
 			String.ErrorDescription = MappingColumnsList;
 			String.ConflictsList = ConflictsList;
 		Else
 			DetailedRecordsSelectionGroup.Next();
 			MappedItemsCount = MappedItemsCount + 1;
-			String.RowMappingResult = "RowMapped";
+			String.RowMappingResult = ImportDataFromFileClientServer.StatusMatched();
 			String.ErrorDescription = "";
 			String.MappingObject = DetailedRecordsSelectionGroup.Ref;
 		EndIf;
@@ -1803,6 +1829,7 @@ Procedure PutDataInMappingTable(ImportedDataAddress, TabularSectionCopyAddress, 
 	For Each Column In TabularSection.Columns Do
 		TabularSectionColumns.Insert(Column.Name, True);
 	EndDo;
+	TablePartPrefix = ImportDataFromFileClientServer.TablePartPrefix() + "_";
 	
 	TemporarySpecification = FormAttributeToValue("DataMappingTable"); // See DataProcessor.ImportDataFromFile.Form.ImportDataFromFile.DataMappingTable
 	For Each String In TabularSection Do
@@ -1811,7 +1838,7 @@ Procedure PutDataInMappingTable(ImportedDataAddress, TabularSectionCopyAddress, 
 		AllRequiredColumnsFilled = True;
 		For Each Column In TabularSection.Columns Do
 			If Column.Name <> "Id" Then
-				NewRow["TS_" + Column.Name] = String[Column.Name];
+				NewRow[TablePartPrefix + Column.Name] = String[Column.Name];
 			EndIf;
 			
 			If ValueIsFilled(RequiredColumns1.Get(Column.Name))
@@ -1821,18 +1848,19 @@ Procedure PutDataInMappingTable(ImportedDataAddress, TabularSectionCopyAddress, 
 			EndIf;
 		EndDo;
 		
-		NewRow["RowMappingResult"] = ?(AllRequiredColumnsFilled, "RowMapped", "NotMapped");
+		NewRow["RowMappingResult"] = ?(AllRequiredColumnsFilled, 
+			ImportDataFromFileClientServer.StatusMatched(), ImportDataFromFileClientServer.StatusIsNotMatched());
 		
 		Filter = New Structure("Id", String.Id); 
 		
 		Conflicts2 = ConflictsList.FindRows(Filter);
 		If Conflicts2.Count() > 0 Then 
-			NewRow["RowMappingResult"] = "Conflict1";
+			NewRow["RowMappingResult"] = ImportDataFromFileClientServer.StatusAmbiguity();
 			For Each Conflict1 In Conflicts2 Do
 				NewRow["ErrorDescription"] = NewRow["ErrorDescription"] + Conflict1.Column+ ";";
 				ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
 				AppearanceField = ConditionalAppearanceItem.Fields.Items.Add();
-				AppearanceField.Field = New DataCompositionField("TS_" + Conflict1.Column);
+				AppearanceField.Field = New DataCompositionField(TablePartPrefix + Conflict1.Column);
 				AppearanceField.Use = True;
 				FilterElement = ConditionalAppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
 				FilterElement.LeftValue = New DataCompositionField("DataMappingTable.ErrorDescription"); 
@@ -1868,10 +1896,11 @@ EndProcedure
 Function MappingTableAddressInStorage()
 	Table = FormAttributeToValue("DataMappingTable");
 	
+	TablePartPrefix = ImportDataFromFileClientServer.TablePartPrefix() + "_";
 	TableForTS = New ValueTable;
 	For Each Column In Table.Columns Do
-		If StrStartsWith(Column.Name, "TS_") Then
-			TableForTS.Columns.Add(Mid(Column.Name, StrLen("TS_") + 1), Column.ValueType, Column.Title, Column.Width);
+		If StrStartsWith(Column.Name, TablePartPrefix) Then
+			TableForTS.Columns.Add(Mid(Column.Name, StrLen(TablePartPrefix) + 1), Column.ValueType, Column.Title, Column.Width);
 		ElsIf  Column.Name = "RowMappingResult" Or Column.Name = "ErrorDescription" Or Column.Name = "Id" Then 
 			TableForTS.Columns.Add(Column.Name, Column.ValueType, Column.Title, Column.Width);
 		EndIf;
@@ -1883,7 +1912,7 @@ Function MappingTableAddressInStorage()
 			If Column.Name = "Id" Then 
 				NewRow[Column.Name] = String[Column.Name];
 			ElsIf Column.Name <> "RowMappingResult" And Column.Name <> "ErrorDescription" Then
-				NewRow[Column.Name] = String["TS_"+ Column.Name];
+				NewRow[Column.Name] = String[TablePartPrefix + Column.Name];
 			EndIf;
 		EndDo;
 	EndDo;
@@ -1983,7 +2012,7 @@ Procedure MapDataExternalDataProcessor(DataMappingTableServer )
 		
 		For Each String In DataMappingTableServer Do
 			If ValueIsFilled(String.MappingObject) Then
-				String.RowMappingResult = "RowMapped";
+				String.RowMappingResult = ImportDataFromFileClientServer.StatusMatched();
 			EndIf;
 		EndDo;
 	EndIf;
@@ -2136,7 +2165,7 @@ Procedure AddStandardColumnsToMappingTable(TemporarySpecification, MappingObject
 		If Not ValueIsFilled(MappingObjectStructure.Synonym) Then
 			ColumnTitle = "";
 			If MappingObjectStructure.MappingObjectTypeDetails.Types().Count() > 1 Then 
-				ColumnTitle = "Objects";
+				ColumnTitle = NStr("en = 'Objects';");
 			Else
 				ColumnTitle = String(MappingObjectStructure.MappingObjectTypeDetails.Types()[0]);
 			EndIf;
@@ -2214,7 +2243,9 @@ Procedure CreateMappingTableByColumnsInformationAuto(MappingObjectTypeDetails)
 	
 	Picture = PictureLib.Change;
 	For Each Column In TemporarySpecification.Columns Do
-		NewItem = Items.Add("DataMappingTable_" + Column.Name, Type("FormField"), Items.DataMappingTable); // FormFieldExtensionForATextBox
+		NewItem = Items.Add(StringFunctionsClientServer.SubstituteParametersToString("%1_%2",
+			ImportDataFromFileClientServer.PrefixOfMappingTable(), Column.Name),
+			Type("FormField"), Items.DataMappingTable); // FormFieldExtensionForATextBox
 		NewItem.Type = FormFieldType.InputField;
 		NewItem.DataPath = "DataMappingTable." + Column.Name;
 		NewItem.Title = Column.Title;
@@ -2293,7 +2324,9 @@ Procedure CreateMappingTableByColumnsInformation()
 	
 	Picture = PictureLib.Change;
 	For Each Column In TemporarySpecification.Columns Do
-		NewItem = Items.Add("DataMappingTable_" + Column.Name, Type("FormField"), Items.DataMappingTable); // FormFieldExtensionForATextBox
+		NewItem = Items.Add(StringFunctionsClientServer.SubstituteParametersToString("%1_%2",
+			ImportDataFromFileClientServer.PrefixOfMappingTable(), Column.Name),
+			Type("FormField"), Items.DataMappingTable); // FormFieldExtensionForATextBox
 		NewItem.Type = FormFieldType.InputField;
 		NewItem.DataPath = "DataMappingTable." + Column.Name;
 		NewItem.Title = Column.Title;
@@ -2343,8 +2376,9 @@ Procedure CreateMappingTableByColumnsInformationForTS()
 	
 	RequiredColumns2 = New Array;
 	ColumnsContainingChoiceParametersLinks = New Map;
-	ObjectTSAttributes = Common.MetadataObjectByFullName(MappingObjectName); // 
+	ObjectTSAttributes = Common.MetadataObjectByFullName(MappingObjectName); // MetadataObjectCatalog,  MetadataObjectDocument
 	TSAttributes = ObjectTSAttributes.Attributes;
+	TablePartPrefix = ImportDataFromFileClientServer.TablePartPrefix() + "_";
 	
 	For Each Column In TSAttributes Do
 		
@@ -2353,7 +2387,7 @@ Procedure CreateMappingTableByColumnsInformationForTS()
 		EndIf;
 		
 		If Column.FillChecking = FillChecking.ShowError Then
-			RequiredColumns2.Add("TS_" + Column.Name);
+			RequiredColumns2.Add(TablePartPrefix + Column.Name);
 		EndIf;
 		
 		If Column.ChoiceParameterLinks.Count() > 0 Then
@@ -2362,8 +2396,8 @@ Procedure CreateMappingTableByColumnsInformationForTS()
 		
 		AttributeType = ?(Column.Type.ContainsType(Type("UUID")), Common.StringTypeDetails(36), Column.Type);
 		
-		TemporarySpecification.Columns.Add("TS_" + Column.Name, AttributeType, Column.Presentation());
-		AttributesArray.Add(New FormAttribute("TS_" + Column.Name, AttributeType, "DataMappingTable", Column.Presentation()));
+		TemporarySpecification.Columns.Add(TablePartPrefix + Column.Name, AttributeType, Column.Presentation());
+		AttributesArray.Add(New FormAttribute(TablePartPrefix + Column.Name, AttributeType, "DataMappingTable", Column.Presentation()));
 		
 	EndDo;
 	
@@ -2381,7 +2415,7 @@ Procedure CreateMappingTableByColumnsInformationForTS()
 	
 	For Each Column In TemporarySpecification.Columns Do
 		
-		If StrStartsWith(Column.Name, "TS_") Then
+		If StrStartsWith(Column.Name, TablePartPrefix) Then
 			TSDataToImportColumnsGroup = Items.Add("DataToImport_" + Column.Name , Type("FormGroup"), DataToImportColumnsGroup);
 			TSDataToImportColumnsGroup.Group = ColumnsGroup.Vertical;
 			Parent = TSDataToImportColumnsGroup;
@@ -2391,14 +2425,15 @@ Procedure CreateMappingTableByColumnsInformationForTS()
 			Parent = DataToImportColumnsGroup;
 		EndIf;
 		
-		NewItem = Items.Add("DataMappingTable_" + Column.Name, Type("FormField"), Parent);
+		NewItem = Items.Add(StringFunctionsClientServer.SubstituteParametersToString("%1_%2",
+			ImportDataFromFileClientServer.PrefixOfMappingTable(), Column.Name), Type("FormField"), Parent);
 		
 		NewItem.Type = FormFieldType.InputField;
 		NewItem.DataPath = "DataMappingTable." + Column.Name;
 		NewItem.Title = Column.Title;
 		NewItem.ChoiceHistoryOnInput = ChoiceHistoryOnInput.DontUse;
 		
-		If StrLen(Column.Name) > 3 And StrStartsWith(Column.Name, "TS_") Then
+		If StrLen(Column.Name) > 3 And StrStartsWith(Column.Name, TablePartPrefix) Then
 			Filter = New Structure("ColumnName", Mid(Column.Name, 4));
 			Columns = ColumnsInformation.FindRows(Filter);
 			If Columns.Count() > 0 Then 
@@ -2418,7 +2453,7 @@ Procedure CreateMappingTableByColumnsInformationForTS()
 			NewItem.AutoMarkIncomplete = True;
 		EndIf;
 		
-		If StrStartsWith(Column.Name, "TS_") Then
+		If StrStartsWith(Column.Name, TablePartPrefix) Then
 			ColumnType = Metadata.FindByType(Column.ValueType.Types()[0]);
 			If ColumnType <> Undefined And StrFind(ColumnType.FullName(), "Catalog") > 0 Then
 				NewItem.HeaderPicture = Picture;
@@ -2431,7 +2466,8 @@ Procedure CreateMappingTableByColumnsInformationForTS()
 					Position = StrFind(ChoiceParameterLink.DataPath, ".", SearchDirection.FromEnd);
 					If Position > 0 Then
 						TagName = Mid(ChoiceParameterLink.DataPath, Position + 1);
-						NewLink = New ChoiceParameterLink(ChoiceParameterLink.Name, "Items.DataMappingTable.CurrentData.TS_" + TagName, ChoiceParameterLink.ValueChange);
+						NewLink = New ChoiceParameterLink(ChoiceParameterLink.Name, "Items.DataMappingTable.CurrentData." 
+							+ TablePartPrefix + TagName, ChoiceParameterLink.ValueChange);
 						NewArray.Add(NewLink);
 					EndIf;
 				EndDo;
@@ -2527,7 +2563,6 @@ Function BatchAttributesModificationAtServer(UpperPosition, LowerPosition)
 	Return ReferencesArrray;
 EndFunction
 
-//
 
 &AtClient
 Procedure AfterFileChoiceForSaving(Result, AdditionalParameters) Export
@@ -2653,7 +2688,7 @@ Procedure AfterCancelMappingPrompt(Result, Parameter) Export
 	If Result = DialogReturnCode.Yes Then
 		For Each TableRow In DataMappingTable Do
 			TableRow.MappingObject = Undefined;
-			TableRow.RowMappingResult = "NotMapped";
+			TableRow.RowMappingResult = ImportDataFromFileClientServer.StatusIsNotMatched();
 			TableRow.ConflictsList = Undefined;
 			TableRow.ErrorDescription = "";
 		EndDo;
@@ -2727,7 +2762,7 @@ EndProcedure
 
 #Region BackgroundJobs
 
-// 
+
 
 &AtServer
 Function ImportFileWithDataToSpreadsheetDocumentAtServer(TempStorageAddress, Extension)
@@ -2775,7 +2810,7 @@ Procedure AfterImportDataFileToSpreadsheetDocument(BackgroundJob, AdditionalPara
 
 EndProcedure
 
-// 
+
 
 &AtServer
 Function MapDataToImportAtServerUniversalImport()
@@ -2815,7 +2850,7 @@ Procedure AfterMapImportedData(BackgroundJob, AdditionalParameters) Export
 
 EndProcedure
 
-// 
+
 
 &AtServer
 Function RecordDataToImportReportUniversalImport()
@@ -2865,7 +2900,7 @@ Procedure FillMappingTableFromTempStorage(AddressInTempStorage, RefsToNotificati
 	
 EndProcedure
 
-// 
+
 
 &AtServer
 Function GenerateReportOnImport(ReportType = "AllItems",  CalculateProgressPercent = False)
@@ -2909,7 +2944,7 @@ Procedure AfterCreateReport(Job, AdditionalResults) Export
 	
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure ExecutionProgress(Result, AdditionalParameters) Export

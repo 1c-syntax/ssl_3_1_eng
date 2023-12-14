@@ -17,12 +17,12 @@
 //  Parameter   - Arbitrary - parameters passed in the event.
 //             - Structure:
 //                  * Ref - CatalogRef.AdditionalAttributesAndInfoSets - a changed property set.
-//                           - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - 
-//                                                                                             
+//                           - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - — a changed additional
+//                                                                                             attribute.
 //
 // Returns:
-//  Boolean - 
-//           
+//  Boolean - if True, it is a notification of property set change, and
+//           it needs to be processed in the form.
 //
 Function ProcessNotifications(Form, EventName, Parameter) Export
 	
@@ -167,12 +167,12 @@ EndProcedure
 //  Form                - ClientApplicationForm - a form with additional attributes preliminarily
 //                          set in the PropertyManager.OnCreateAtServer() procedure.
 //  Item              - FormField
-//                       - FormCommand - 
+//                       - FormCommand - an item whose clicking is to be processed.
 //  StandardProcessing - Boolean - a returned parameter, if interactive
 //                          actions with the user are needed, it is set to False.
-//  Object - FormDataStructure - description of the object to which the properties are connected
-//                                  . if the property is not specified or Undefined, the
-//                                  object will be taken from the "Object"form details.
+//  Object - FormDataStructure - details of the object, to which properties are attached,
+//                                  if the property is not specified or Undefined, the
+//                                  object is taken from the Object form attribute.
 //
 Procedure ExecuteCommand(Form,
 						   Item = Undefined,
@@ -206,13 +206,13 @@ Procedure ExecuteCommand(Form,
 	
 EndProcedure
 
-// 
+// Opens the form for editing labels for an object.
 //
 // Parameters:
-//  Form  - ClientApplicationForm     - the form being processed.
-//  Object - FormDataStructure - description of the object to which the properties are connected
-//                                  . if the property is not specified or Undefined, the
-//                                  object will be taken from the "Object"form details.
+//  Form  - ClientApplicationForm     - a form being processed.
+//  Object - FormDataStructure - details of the object, to which properties are attached,
+//                                  if the property is not specified or Undefined, the
+//                                  object is taken from the Object form attribute.
 //
 Procedure EditLabels(Form, Object = Undefined) Export
 	
@@ -230,11 +230,11 @@ Procedure EditLabels(Form, Object = Undefined) Export
 	
 EndProcedure
 
-// 
+// Sets the filter in the list by label.
 //
 // Parameters:
-//  Form      - ClientApplicationForm     - the form being processed.
-//  CommandName - String -
+//  Form      - ClientApplicationForm     - a form being processed.
+//  CommandName - String - a name of the command to set a filter by label.
 //
 Procedure ApplyFilterByLabel(Form, CommandName) Export
 	
@@ -386,7 +386,7 @@ Procedure EditAttributeHyperlink(Form, HyperlinkAction = False, Item = Undefined
 	AttributeDetails = AttributesDetails1[0];
 	
 	If Not AttributeDetails.RefTypeString Then
-		Item = Form.Items[AttributeName]; // 
+		Item = Form.Items[AttributeName]; // FormFieldExtensionForLabelField, FormFieldExtensionForInputField
 		If Item.Type = FormFieldType.InputField Then
 			Item.Type = FormFieldType.LabelField;
 			Item.Hyperlink = True;

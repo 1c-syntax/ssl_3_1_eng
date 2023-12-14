@@ -572,7 +572,7 @@ Procedure SetConditionalAppearance()
 	ItemField.Field = New DataCompositionField(Items.VersionsTree.Name);
 	
 	
-	// 
+	// Rejected versions.
 	
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -586,7 +586,7 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.VersionsTree.Name);
 	
-	// 
+	// Current version.
 	
 	Item = ConditionalAppearance.Items.Add();
 	

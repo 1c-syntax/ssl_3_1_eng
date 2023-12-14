@@ -2155,7 +2155,7 @@
 						<dcsat:appearance>
 							<dcscor:item>
 								<dcscor:parameter>Формат</dcscor:parameter>
-								<dcscor:value xsi:type="xs:string">BL=; BI=</dcscor:value>
+								<dcscor:value xsi:type="xs:string">БЛ=; БИ=</dcscor:value>
 							</dcscor:item>
 						</dcsat:appearance>
 					</dcsat:item>
@@ -2192,7 +2192,7 @@
 						<dcsat:appearance>
 							<dcscor:item>
 								<dcscor:parameter>Формат</dcscor:parameter>
-								<dcscor:value xsi:type="xs:string">BL=; BI=</dcscor:value>
+								<dcscor:value xsi:type="xs:string">БЛ=; БИ=</dcscor:value>
 							</dcscor:item>
 						</dcsat:appearance>
 					</dcsat:item>
@@ -2229,7 +2229,7 @@
 						<dcsat:appearance>
 							<dcscor:item>
 								<dcscor:parameter>Формат</dcscor:parameter>
-								<dcscor:value xsi:type="xs:string">BL=; BI=</dcscor:value>
+								<dcscor:value xsi:type="xs:string">БЛ=; БИ=</dcscor:value>
 							</dcscor:item>
 						</dcsat:appearance>
 					</dcsat:item>
@@ -2322,7 +2322,7 @@
 						<dcsat:appearance>
 							<dcscor:item>
 								<dcscor:parameter>Формат</dcscor:parameter>
-								<dcscor:value xsi:type="xs:string">BSF=</dcscor:value>
+								<dcscor:value xsi:type="xs:string">ЧФ=</dcscor:value>
 							</dcscor:item>
 						</dcsat:appearance>
 					</dcsat:item>
@@ -2373,7 +2373,7 @@
 						<dcsat:appearance>
 							<dcscor:item>
 								<dcscor:parameter>Формат</dcscor:parameter>
-								<dcscor:value xsi:type="xs:string">BL=; BI=</dcscor:value>
+								<dcscor:value xsi:type="xs:string">БЛ=; БИ=</dcscor:value>
 							</dcscor:item>
 						</dcsat:appearance>
 					</dcsat:item>
@@ -2424,7 +2424,7 @@
 						<dcsat:appearance>
 							<dcscor:item>
 								<dcscor:parameter>Формат</dcscor:parameter>
-								<dcscor:value xsi:type="xs:string">BL=; BI=</dcscor:value>
+								<dcscor:value xsi:type="xs:string">БЛ=; БИ=</dcscor:value>
 							</dcscor:item>
 						</dcsat:appearance>
 					</dcsat:item>
@@ -2475,7 +2475,7 @@
 						<dcsat:appearance>
 							<dcscor:item>
 								<dcscor:parameter>Формат</dcscor:parameter>
-								<dcscor:value xsi:type="xs:string">BL=; BI=</dcscor:value>
+								<dcscor:value xsi:type="xs:string">БЛ=; БИ=</dcscor:value>
 							</dcscor:item>
 						</dcsat:appearance>
 					</dcsat:item>
@@ -2757,7 +2757,7 @@
 						<dcsat:appearance>
 							<dcscor:item>
 								<dcscor:parameter>Формат</dcscor:parameter>
-								<dcscor:value xsi:type="xs:string">BL=; BI=</dcscor:value>
+								<dcscor:value xsi:type="xs:string">БЛ=; БИ=</dcscor:value>
 							</dcscor:item>
 						</dcsat:appearance>
 					</dcsat:item>
@@ -2794,7 +2794,7 @@
 						<dcsat:appearance>
 							<dcscor:item>
 								<dcscor:parameter>Формат</dcscor:parameter>
-								<dcscor:value xsi:type="xs:string">BL=; BI=</dcscor:value>
+								<dcscor:value xsi:type="xs:string">БЛ=; БИ=</dcscor:value>
 							</dcscor:item>
 						</dcsat:appearance>
 					</dcsat:item>
@@ -2831,7 +2831,7 @@
 						<dcsat:appearance>
 							<dcscor:item>
 								<dcscor:parameter>Формат</dcscor:parameter>
-								<dcscor:value xsi:type="xs:string">BL=; BI=</dcscor:value>
+								<dcscor:value xsi:type="xs:string">БЛ=; БИ=</dcscor:value>
 							</dcscor:item>
 						</dcsat:appearance>
 					</dcsat:item>
@@ -3097,7 +3097,7 @@
 						<dcsat:appearance>
 							<dcscor:item>
 								<dcscor:parameter>Формат</dcscor:parameter>
-								<dcscor:value xsi:type="xs:string">BSF=</dcscor:value>
+								<dcscor:value xsi:type="xs:string">ЧФ=</dcscor:value>
 							</dcscor:item>
 						</dcsat:appearance>
 					</dcsat:item>

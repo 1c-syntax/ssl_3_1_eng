@@ -12,7 +12,7 @@
 // ID that is used for the home page in the ReportsOptionsOverridable module.
 //
 // Returns:
-//   String - 
+//   String - ID used for the home page in the ReportsOptionsOverridable module.
 //
 Function HomePageID() Export
 	
@@ -28,8 +28,8 @@ EndFunction
 //
 // Parameters:
 //   Structure - Structure    - Structure to be complemented.
-//   Var_Key      - String       - property name.
-//   Value  - Arbitrary - property value if it is missing in the structure.
+//   Var_Key      - String       - Property name.
+//   Value  - Arbitrary - Property value if it is missing from the structure.
 //
 Procedure AddKeyToStructure(Structure, Var_Key, Value = Undefined) Export
 	If Not Structure.Property(Var_Key) Then
@@ -56,14 +56,14 @@ Function ParseSearchStringIntoWordArray(SearchString) Export
 	QuotationMarkOpened = False;
 	For CharacterNumber = 1 To StringLength Do
 		CharCode = CharCode(SearchString, CharacterNumber);
-		If CharCode = 34 Then // 34 - 
+		If CharCode = 34 Then // 34 - Double quotation mark (").
 			QuotationMarkOpened = Not QuotationMarkOpened;
 		ElsIf QuotationMarkOpened
-			Or (CharCode >= 48 And CharCode <= 57) // цифры
-			Or (CharCode >= 65 And CharCode <= 90) // 
-			Or (CharCode >= 97 And CharCode <= 122) // 
-			Or (CharCode >= 1040 And CharCode <= 1103) // кириллица
-			Or CharCode = 95 Then // 
+			Or (CharCode >= 48 And CharCode <= 57) // Digits
+			Or (CharCode >= 65 And CharCode <= 90) // Uppercase Latin characters
+			Or (CharCode >= 97 And CharCode <= 122) // Lowercase Latin characters
+			Or (CharCode >= 1040 And CharCode <= 1103) // Cyrillic characters.
+			Or CharCode = 95 Then // Underline ( _ ) character.
 			Word = Word + Char(CharCode);
 			WordLength = WordLength + 1;
 		ElsIf Word <> "" Then

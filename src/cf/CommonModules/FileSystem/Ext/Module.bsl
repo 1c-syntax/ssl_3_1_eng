@@ -23,7 +23,7 @@
 //                         It is recommended that you use only Latin characters in this parameter.
 //
 // Returns:
-//   String - 
+//   String - the full path to the directory, including path separators.
 //
 Function CreateTemporaryDirectory(Val Extension = "") Export
 	
@@ -89,7 +89,7 @@ EndProcedure
 //   FileName - String - a full name of the file and folder. For example: "C:\Documents\file.txt".
 //
 // Returns:
-//   String - 
+//   String - For example: "C:\Documents\file (2).txt" if "file.txt" already exists in the folder.
 //
 Function UniqueFileName(Val FileName) Export
 	
@@ -116,14 +116,14 @@ EndFunction
 //    * GetErrorStream - Boolean - False - errors are passed to stderr stream.
 //         Ignored if WaitForCompletion is not specified.
 //    * ThreadsEncoding - TextEncoding
-//                       - String - 
-//         
+//                       - String - an encoding used to read stdout и stderr.
+//         "CP866" is default for Windows and "UTF-8" is default for others.
 //    * ExecutionEncoding - String
-//                          - Number - 
-//             
-//         
-//             
-//         
+//                          - Number - an encoding set in Windows using the chcp command,
+//             the possible values ​​are "OEM", "CP866", "UTF8" or the code page number.
+//         On Linux, it is set by the environment variable "LANGUAGE" for a particular command.
+//             Possible values ​​can be determined by executing the "locale -a" command, for example, "en_EN.UTF-8".
+//         Ignored when under MacOS.
 //
 Function ApplicationStartupParameters() Export
 	
@@ -139,22 +139,22 @@ Function ApplicationStartupParameters() Export
 	
 EndFunction
 
-// Starts up an external application for execution (for example, * .exe, * bat), 
-// or a system command (for example, ping, tracert or traceroute, access the rac client),
-// It also allows you to get a return code and the values ​​of output streams (stdout) and errors (stderr)
+//  
+// 
+// 
 //
-// When an external program is started up in batch mode, the output stream and error stream may return in an unexpected language. 
-// To pass to the external application the language in which the expected result must be, you need to:
-// - specify the language in the startup parameter of this application (if such a parameter is provided). 
-//   For example, batch mode of 1C:Enterprise has the "/L en" key;
-// - In other cases, explicitly set the encoding for the batch command execution.
-//   See the ExecutionEncoding property of return value FileSystem.ApplicationStartupParameters. 
+//  
+// 
+//  
+//   
+// 
+//    
 //
 // Parameters:
 //  StartupCommand - String - application startup command line.
-//                 - Array -  
-//                            
-//                            
+//                 - Array - the first element is the path to the application, 
+//                            the rest of the elements are its startup parameters.
+//                            The procedure generates an argv string from the array.
 //  ApplicationStartupParameters - See FileSystem.ApplicationStartupParameters
 //
 // Returns:
@@ -298,7 +298,7 @@ EndFunction
 // 
 //
 // Parameters:
-//  NestedDirectory - String -
+//  NestedDirectory - String - 
 // 
 // Returns:
 //  String - 
@@ -374,7 +374,7 @@ Procedure DeleteTempFiles(Val Path)
 	Except
 		WriteLogEvent(
 			NStr("en = 'Standard subsystems';", Common.DefaultLanguageCode()),
-			EventLogLevel.Warning,,, // 
+			EventLogLevel.Warning,,, 
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot delete temporary file %1. Reason:
 					|%2';"),
@@ -386,8 +386,8 @@ EndProcedure
 
 Function IsTempFileName(Path)
 	
-	// 
-	// 
+	
+	
 	Return StrStartsWith(StrReplace(Path, "/", "\"), StrReplace(TempFilesDir(), "/", "\"));
 	
 EndFunction

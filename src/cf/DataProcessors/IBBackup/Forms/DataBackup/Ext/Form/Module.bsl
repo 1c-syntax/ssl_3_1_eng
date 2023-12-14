@@ -562,7 +562,7 @@ Procedure AfterStartScript(Result, Context) Export
 EndProcedure
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServerNoContext
 Procedure SetBackupArchivePath(Path)
@@ -602,7 +602,7 @@ Function GenerateScriptFiles()
 	ScriptFileName = BackupParameters.TempFilesDirForUpdate + "main.js";
 	ScriptFile.Write(ScriptFileName, IBBackupClient.IBBackupApplicationFilesEncoding());
 	
-	// 
+	// Auxiliary file: helpers.js.
 	ScriptFile = New TextDocument;
 	ScriptFile.Output = UseOutput.Enable;
 	ScriptFile.SetText(Scripts.AddlBackupFile);

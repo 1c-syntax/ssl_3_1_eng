@@ -11,23 +11,23 @@
 
 #Region Variables
 
-Var PreviousParent; // 
-                      // 
+Var PreviousParent; 
+                      
 
-Var ExternalUserGroupPreviousComposition; // 
-                                              // 
-                                              // 
+Var ExternalUserGroupPreviousComposition; 
+                                              
+                                              
 
-Var ExternalUserGroupPreviousRolesComposition; // 
-                                                   // 
-                                                   // 
+Var ExternalUserGroupPreviousRolesComposition; 
+                                                   
+                                                   
 
-Var AllAuthorizationObjectsPreviousValue; // 
-                                           // 
-                                           // 
+Var AllAuthorizationObjectsPreviousValue; 
+                                           
+                                           
 
-Var IsNew; // 
-                // 
+Var IsNew; 
+                
 
 #EndRegion
 
@@ -50,10 +50,10 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 			"Object.Parent", ErrorText, "");
 	EndIf;
 	
-	// 
+	// Checking for unfilled and duplicate external users.
 	VerifiedObjectAttributes.Add("Content.ExternalUser");
 	
-	// 
+	// Check the group purpose.
 	ErrorText = PurposeCheckErrorText();
 	If ValueIsFilled(ErrorText) Then
 		CommonClientServer.AddUserError(Errors,
@@ -95,15 +95,15 @@ EndProcedure
 
 Procedure BeforeWrite(Cancel)
 	
-	// 
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
+	
 	Block = New DataLock;
 	Block.Add("InformationRegister.UserGroupCompositions");
 	Block.Lock();
-	// 
+	// ACC:75-on
 	
 	If DataExchange.Load Then
 		Return;
@@ -246,7 +246,7 @@ Function ParentCheckErrorText()
 	
 	If Parent = Catalogs.ExternalUsersGroups.AllExternalUsers Then
 		Return
-			NStr("en = 'Cannot use the predefined group ""All external users"" as a parent.';");
+			NStr("en = 'Cannot set the predefined group ""All external users"" as a parent.';");
 	EndIf;
 	
 	If Ref = Catalogs.ExternalUsersGroups.AllExternalUsers Then
@@ -259,7 +259,7 @@ Function ParentCheckErrorText()
 			Return
 				NStr("en = 'Cannot add a subgroup to the predefined group ""All external users.""';");
 			
-		ElsIf Parent.AllAuthorizationObjects Then
+		ElsIf Common.ObjectAttributeValue(Parent, "AllAuthorizationObjects") = True Then
 			Return StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot add a subgroup to the group ""%1""
 				           |because it includes all users.';"), Parent);
@@ -338,8 +338,8 @@ Function PurposeCheckErrorText()
 		EndIf;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	If ValueIsFilled(Parent) Then
 		
 		ParentUsersType = Common.ObjectAttributeValue(
@@ -355,8 +355,8 @@ Function PurposeCheckErrorText()
 		EndDo;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	If AllAuthorizationObjects
 		And ValueIsFilled(Ref) Then
 		Query = New Query;
@@ -377,8 +377,8 @@ Function PurposeCheckErrorText()
 		EndIf;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	If ValueIsFilled(Ref) Then
 		
 		Query = New Query;

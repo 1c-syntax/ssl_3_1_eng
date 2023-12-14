@@ -20,7 +20,7 @@
 //
 Procedure OnlineSupportAndServicesOnOpen(Form, Cancel) Export
 	
-	// 
+	// Update items states.
 	OnlineSupportAndServicesSetAvailability(Form);
 	
 	OnlineSupportAndServicesOnChangeOfChatConnectionStatus(Form);
@@ -32,9 +32,9 @@ EndProcedure
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
-//  EventName - String -
-//  Parameter - Arbitrary - event parameter.
-//  Source - Arbitrary - event source.
+//  EventName - String - 
+//  Parameter - Arbitrary - an event parameter.
+//  Source - Arbitrary - Event source.
 //
 Procedure OnlineSupportAndServicesProcessNotification(Form, EventName, Parameter, Source) Export
 	
@@ -326,7 +326,7 @@ EndProcedure
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
-//  ConstantName - String -
+//  ConstantName - String - 
 //
 Procedure OnlineSupportAndServicesSetAvailability(Form, ConstantName = "")
 	

@@ -41,7 +41,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 	Else
 		FillPropertyCard();
-		// 
+		// Object attribute lock subsystem handler.
 		ObjectAttributesLock.LockAttributes(ThisObject);
 	EndIf;
 	
@@ -117,8 +117,8 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 	
 	If Not WriteParameters.Property("WhenDescriptionAlreadyInUse") Then
 	
-		// 
-		// 
+		
+		
 		If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 			QueryText = DescriptionAlreadyUsed(
 				Object.Title, Object.Ref, CurrentPropertiesSet, Object.Description, Object.TitleLanguage1, Object.TitleLanguage2);
@@ -144,7 +144,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 	
 	If Not WriteParameters.Property("WhenNameAlreadyInUse")
 		And ValueIsFilled(Object.Name) Then
-		// 
+		// Check whether there is a property with the same name.
 		QueryText = NameAlreadyUsed(
 			Object.Name, Object.Ref, Object.Description);
 		
@@ -165,8 +165,8 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 	
 	If Not WriteParameters.Property("WhenIDForFormulasIsAlreadyUsed")
 		And ValueIsFilled(Object.IDForFormulas) Then
-		// 
-		// 
+		
+		
 		QueryText = IDForFormulasAlreadyUsed(
 			Object.IDForFormulas, Object.Ref);
 		
@@ -324,7 +324,7 @@ Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 		WriteAdditionalAttributeValuesOnCopy(CurrentObject);
 	EndIf;
 	
-	// 
+	// Object attribute lock subsystem handler.
 	ObjectAttributesLock.LockAttributes(ThisObject);
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
@@ -1202,7 +1202,7 @@ Procedure FillPropertyCard()
 	PropertyKind = Object.PropertyKind;
 	
 	If CreateAttributeByCopying Then
-		// 
+		// For cases when the attribute is copied from its card using the Copy command.
 		If Not ValueIsFilled(PassedFormParameters.AdditionalValuesOwner) Then
 			PassedFormParameters.AdditionalValuesOwner = PassedFormParameters.CopyingValue;
 		EndIf;
@@ -1953,7 +1953,7 @@ Procedure RefreshFormItemsContent(WarningText = "")
 					String(Type("CatalogRef.ObjectsPropertiesValues")),
 					String(Type("CatalogRef.ObjectPropertyValueHierarchy")) );
 				
-				// 
+				// Deletion of the second type.
 				Object.ValueType = New TypeDescription(
 					Object.ValueType,
 					,
@@ -1968,7 +1968,7 @@ Procedure RefreshFormItemsContent(WarningText = "")
 					String(Type("CatalogRef.ObjectsPropertiesValues")),
 					String(Type("CatalogRef.ObjectPropertyValueHierarchy")) );
 				
-				// 
+				// Deletion of the first type.
 				Object.ValueType = New TypeDescription(
 					Object.ValueType,
 					,
@@ -2395,7 +2395,7 @@ Procedure WriteAdditionalAttributeValuesOnCopyRecursively(Owner, TreeRow, Parent
 		ObjectCopy = TreeItem.Ref.GetObject().Copy();
 		ObjectCopy.Owner = Owner;
 		ObjectCopy.Parent = Parent;
-		ObjectCopy.Write(); // 
+		ObjectCopy.Write(); 
 		
 		SubordinateItems = TreeItem.GetItems();
 		WriteAdditionalAttributeValuesOnCopyRecursively(Owner, SubordinateItems, ObjectCopy.Ref)

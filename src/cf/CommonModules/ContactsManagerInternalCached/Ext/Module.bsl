@@ -26,7 +26,7 @@ EndFunction
 //
 // Returns:
 //  FixedMap of KeyAndValue:
-//    * Key - String -
+//    * Key - String - 
 //    * Value - Boolean
 //
 Function AddressClassifierAvailabilityInfo() Export

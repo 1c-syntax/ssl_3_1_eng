@@ -162,7 +162,7 @@ Procedure DeleteObsoleteOperationsContexts()
 EndProcedure
 
 &AtClient
-Procedure SetCertificatePassword(CertificateReference, Password, PasswordNote) Export // ACC:78 - 
+Procedure SetCertificatePassword(CertificateReference, Password, PasswordNote) Export // CAC:78 - an exception for secure password storage.
 	
 	SpecifiedPasswords = CommonInternalData.Get("SpecifiedPasswords");
 	SpecifiedPasswordsNotes = CommonInternalData.Get("SpecifiedPasswordsNotes");
@@ -191,7 +191,7 @@ Procedure SetCertificatePassword(CertificateReference, Password, PasswordNote) E
 EndProcedure
 
 &AtClient
-Function CertificatePasswordIsSet(CertificateReference) Export // ACC:78 - 
+Function CertificatePasswordIsSet(CertificateReference) Export // CAC:78 - an exception for secure password storage.
 	
 	SpecifiedPasswords = CommonInternalData.Get("SpecifiedPasswords");
 	
@@ -210,7 +210,7 @@ Function CertificatePasswordIsSet(CertificateReference) Export // ACC:78 -
 EndFunction
 
 &AtClient
-Procedure ResetTheCertificatePassword(CertificateReference) Export // ACC:78 - 
+Procedure ResetTheCertificatePassword(CertificateReference) Export // CAC:78 - an exception for secure password storage.
 	
 	PasswordStorage = CommonInternalData.Get("PasswordStorage");
 	If PasswordStorage <> Undefined Then

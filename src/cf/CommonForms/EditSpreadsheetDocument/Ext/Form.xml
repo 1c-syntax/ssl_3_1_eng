@@ -99,7 +99,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Group7</v8:content>
+									<v8:content>Repeat on every page</v8:content>
 								</v8:item>
 							</Title>
 							<Representation>Compact</Representation>
@@ -139,7 +139,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Group8</v8:content>
+													<v8:content>Languages to add</v8:content>
 												</v8:item>
 											</Title>
 											<ExtendedTooltip name="LangsToAddExtendedTooltip" id="688"/>
@@ -195,14 +195,14 @@
 				</CommandBar>
 			</ChildItems>
 		</UsualGroup>
-		<CommandBar name="CommandBar2" id="392">
+		<CommandBar name="SecondCommandPanel" id="392">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
 					<v8:content>Edit command bar</v8:content>
 				</v8:item>
 			</Title>
-			<ExtendedTooltip name="CommandBar2ExtendedTooltip" id="393"/>
+			<ExtendedTooltip name="SecondCommandPanelExtendedTooltip" id="393"/>
 			<ChildItems>
 				<ButtonGroup name="EditingCommands" id="85">
 					<Title>
@@ -371,7 +371,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Group7</v8:content>
+											<v8:content>Vertical alignment</v8:content>
 										</v8:item>
 									</Title>
 									<Representation>Compact</Representation>
@@ -555,7 +555,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Group7</v8:content>
+											<v8:content>Vertical alignment All actions</v8:content>
 										</v8:item>
 									</Title>
 									<Representation>Compact</Representation>
@@ -627,7 +627,7 @@
 								</ButtonGroup>
 							</ChildItems>
 						</Popup>
-						<Popup name="Borders" id="70">
+						<Popup name="Boundaries" id="70">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -729,14 +729,14 @@
 									<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="SpreadsheetDocumentGoToCellExtendedTooltip" id="395"/>
 								</Button>
-								<ButtonGroup name="SpreadsheetDocumentGroup1" id="424">
+								<ButtonGroup name="TabularDocumentGroupMerge" id="424">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
 											<v8:content>Merge cells</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="SpreadsheetDocumentGroup1ExtendedTooltip" id="425"/>
+									<ExtendedTooltip name="TabularDocumentGroupMergeExtendedTooltip" id="425"/>
 									<ChildItems>
 										<Button name="SpreadsheetDocumentMerge" id="263">
 											<Type>CommandBarButton</Type>
@@ -747,14 +747,14 @@
 										</Button>
 									</ChildItems>
 								</ButtonGroup>
-								<ButtonGroup name="SpreadsheetDocumentGroup3" id="428">
+								<ButtonGroup name="SpreadTabularDocumentGroup" id="428">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
 											<v8:content>Insert/split cell</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="SpreadsheetDocumentGroup3ExtendedTooltip" id="429"/>
+									<ExtendedTooltip name="SpreadTabularDocumentGroupExtendedTooltip" id="429"/>
 									<ChildItems>
 										<Button name="SpreadsheetDocumentExpand" id="396">
 											<Type>CommandBarButton</Type>
@@ -770,14 +770,14 @@
 										</Button>
 									</ChildItems>
 								</ButtonGroup>
-								<ButtonGroup name="SpreadsheetDocumentGroup2" id="426">
+								<ButtonGroup name="TableDocumentGroupInsertRows" id="426">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Insert rows</v8:content>
+											<v8:content>Insert/delete rows</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="SpreadsheetDocumentGroup2ExtendedTooltip" id="427"/>
+									<ExtendedTooltip name="TableDocumentGroupInsertRowsExtendedTooltip" id="427"/>
 									<ChildItems>
 										<Button name="SpreadsheetDocumentInsertRowsAbove" id="400">
 											<Type>CommandBarButton</Type>
@@ -807,14 +807,14 @@
 										</Button>
 									</ChildItems>
 								</ButtonGroup>
-								<ButtonGroup name="SpreadsheetDocumentGroup4" id="430">
+								<ButtonGroup name="TabularDocumentGroupInsertColumns" id="430">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Insert columns</v8:content>
+											<v8:content>Insert/delete columns</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="SpreadsheetDocumentGroup4ExtendedTooltip" id="431"/>
+									<ExtendedTooltip name="TabularDocumentGroupInsertColumnsExtendedTooltip" id="431"/>
 									<ChildItems>
 										<Button name="SpreadsheetDocumentInsertColumnsLeft" id="406">
 											<Type>CommandBarButton</Type>
@@ -844,14 +844,14 @@
 										</Button>
 									</ChildItems>
 								</ButtonGroup>
-								<Popup name="SpreadsheetDocumentGroup5" id="432">
+								<Popup name="TabularDocumentGroupCleanup" id="432">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
 											<v8:content>Clear cells</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="SpreadsheetDocumentGroup5ExtendedTooltip" id="433"/>
+									<ExtendedTooltip name="TabularDocumentGroupCleanupExtendedTooltip" id="433"/>
 									<ChildItems>
 										<Button name="SpreadsheetDocumentClearAll" id="412">
 											<Type>CommandBarButton</Type>
@@ -867,14 +867,14 @@
 										</Button>
 									</ChildItems>
 								</Popup>
-								<ButtonGroup name="SpreadsheetDocumentGroup6" id="434">
+								<ButtonGroup name="TabularDocumentGroupHideDisplay" id="434">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
 											<v8:content>Hide/show cells</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="SpreadsheetDocumentGroup6ExtendedTooltip" id="435"/>
+									<ExtendedTooltip name="TabularDocumentGroupHideDisplayExtendedTooltip" id="435"/>
 									<ChildItems>
 										<Button name="SpreadsheetDocumentHide" id="416">
 											<Type>CommandBarButton</Type>
@@ -890,14 +890,14 @@
 										</Button>
 									</ChildItems>
 								</ButtonGroup>
-								<ButtonGroup name="SpreadsheetDocumentGroup7" id="436">
+								<ButtonGroup name="TabularDocumentGroupHeightWidth" id="436">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
 											<v8:content>Row height and column width</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="SpreadsheetDocumentGroup7ExtendedTooltip" id="437"/>
+									<ExtendedTooltip name="TabularDocumentGroupHeightWidthExtendedTooltip" id="437"/>
 									<ChildItems>
 										<Button name="SpreadsheetDocumentRowHeight" id="420">
 											<Type>CommandBarButton</Type>
@@ -1149,7 +1149,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Group7</v8:content>
+									<v8:content>Import export</v8:content>
 								</v8:item>
 							</Title>
 							<ExtendedTooltip name="ImportExportExtendedTooltip" id="628"/>
@@ -1524,7 +1524,7 @@
 									<ContextMenu name="AreaNameContextMenu" id="592"/>
 									<ExtendedTooltip name="AreaNameExtendedTooltip" id="593"/>
 								</InputField>
-								<UsualGroup name="Group4" id="520">
+								<UsualGroup name="GroupTextOfSelectedCell" id="520">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -1534,7 +1534,7 @@
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="Group4ExtendedTooltip" id="521"/>
+									<ExtendedTooltip name="GroupTextOfSelectedCellExtendedTooltip" id="521"/>
 									<ChildItems>
 										<TextDocumentField name="CurrentValue" id="289">
 											<DataPath>CurrentValue</DataPath>
@@ -1554,7 +1554,7 @@
 										</TextDocumentField>
 									</ChildItems>
 								</UsualGroup>
-								<UsualGroup name="Group1" id="518">
+								<UsualGroup name="OutputConditionGroup" id="518">
 									<Visible>false</Visible>
 									<Title>
 										<v8:item>
@@ -1565,7 +1565,7 @@
 									<Behavior>Usual</Behavior>
 									<Collapsed>true</Collapsed>
 									<Representation>None</Representation>
-									<ExtendedTooltip name="Group1ExtendedTooltip" id="519"/>
+									<ExtendedTooltip name="OutputConditionGroupExtendedTooltip" id="519"/>
 									<ChildItems>
 										<TextDocumentField name="OutputCondition" id="512">
 											<DataPath>OutputCondition</DataPath>
@@ -1747,6 +1747,11 @@
 						<mxl:code>Русский</mxl:code>
 						<mxl:description>Русский</mxl:description>
 					</mxl:languageInfo>
+					<mxl:languageInfo>
+						<mxl:id>en</mxl:id>
+						<mxl:code>Английский</mxl:code>
+						<mxl:description/>
+					</mxl:languageInfo>
 				</mxl:languageSettings>
 				<mxl:columns>
 					<mxl:size>0</mxl:size>
@@ -1817,6 +1822,11 @@
 						<mxl:id>ru</mxl:id>
 						<mxl:code>Русский</mxl:code>
 						<mxl:description>Русский</mxl:description>
+					</mxl:languageInfo>
+					<mxl:languageInfo>
+						<mxl:id>en</mxl:id>
+						<mxl:code>Английский</mxl:code>
+						<mxl:description/>
 					</mxl:languageInfo>
 				</mxl:languageSettings>
 				<mxl:columns>
@@ -2224,7 +2234,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show hide original</v8:content>
+					<v8:content>Show or hide built-in template</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ShowHideOriginal</Action>
@@ -2343,7 +2353,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Delete template language</v8:content>
+					<v8:content>Delete all changes</v8:content>
 				</v8:item>
 			</Title>
 			<Picture>

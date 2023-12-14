@@ -138,9 +138,9 @@ Function LoadEmails(EmailsReceived)
 	While Selection.Next() Do
 		ReceivedEmails = 0;
 		EmailsReceived.EmailsReceivedByAccount.Clear();
-		// 
+		// @skip-check query-in-loop - Batch receipt of email messages from mailboxes.
 		GetEmails(Selection, False, ReceivedEmails, EmailsReceived);
-		// 
+		// @skip-check query-in-loop - Batch receipt of email messages from mailboxes.
 		DeterminePreviouslyImportedSubordinateEmails(Selection.Ref, EmailsReceived.EmailsReceivedByAccount);
 	EndDo;
 
@@ -217,7 +217,7 @@ Procedure SendEmailsInternal(Query, AllRecievedEmails, EmailsToDefineFolders, Se
 	
 	While AccountsSelection.Next() Do
 		Account = AccountsSelection.Account;
-		// 
+		// @skip-check query-in-loop - Batch receipt of email messages from mailboxes.
 		If Not LockAccount(Account) Then
 			Continue;
 		EndIf;
@@ -543,10 +543,10 @@ EndProcedure
 //
 // Parameters:
 //   Result - Structure:
-//   * ReceivedEmails               - Number -
-//   * UserAccountsAvailable - Number -
+//   * ReceivedEmails               - Number - The parameter takes the number of received email messages.
+//   * UserAccountsAvailable - Number - The parameter takes the number of the email accounts available to the user.
 //                                   
-//   * HasErrors             - Boolean -
+//   * HasErrors             - Boolean - Flag indicating whether errors occurred when receiving email messages.
 //
 Procedure LoadUserEmail(Result)
 	
@@ -608,11 +608,11 @@ Procedure LoadUserEmail(Result)
 		ReceivedEmails = 0;
 		EmailsReceived = EmailsReceived();
 		
-		// 
+		// @skip-check query-in-loop - Batch receipt of email messages from mailboxes.
 		GetEmails(Selection, Result.HasErrors, ReceivedEmails, EmailsReceived);
 		Result.EmailsReceived1 = Result.EmailsReceived1 + ReceivedEmails;
 		
-		// 
+		// @skip-check query-in-loop - Batch receipt of email messages from mailboxes.
 		DeterminePreviouslyImportedSubordinateEmails(Selection.Ref, EmailsReceived.EmailsReceivedByAccount);
 		Interactions.FillInteractionsArrayContacts(EmailsReceived.AllRecievedEmails);
 		Interactions.SetFoldersForEmailsArray(EmailsReceived.EmailsToDefineFolders);
@@ -818,7 +818,7 @@ EndProcedure
 //  AllIDs - Array of String
 //
 // Returns:
-//  Number - 
+//  Number - Incoming message count.
 //
 Function GetEmailMessagesByIDs(Mail, AccountData, MessagesToImportIDs, 
 	EmailsReceived, AllIDs = Undefined)
@@ -848,7 +848,7 @@ Function GetEmailMessagesByIDs(Mail, AccountData, MessagesToImportIDs,
 			
 			Try
 				Messages = Mail.Get(False, ImportableBatchIDs,
-					?(AccountData.ProtocolForIncomingMail = "IMAP", False, True)); // 
+					?(AccountData.ProtocolForIncomingMail = "IMAP", False, True)); // Array of InternetMailMessage.
 			Except
 				ErrorTextForLog_ = EmailOperations.ExtendedErrorPresentation(
 					ErrorInfo(), Common.DefaultLanguageCode());
@@ -890,7 +890,7 @@ Function GetEmailMessagesByIDs(Mail, AccountData, MessagesToImportIDs,
 					
 					IsOutgoingEmail1 = EmailAddressesEqual(AccountData.Email,
 						InternetEmailMessageSenderAddress(Message.From));
-					// 
+					// @skip-check query-in-loop - Save data object-by-object.
 					CreatedEmail = WriteEmail(AccountData, Message, 
 						EmployeeResponsibleForProcessingEmails, AccountData.PutEmailInBaseEmailFolder,
 						AddToEmailsArrayToGetFolder, IsOutgoingEmail1);
@@ -1038,7 +1038,7 @@ Procedure GetEmailByIMAPProtocol(AccountData, Mail, EmailsReceived1, EmailsRecei
 
 		If IDsTable.Count() > 0 Or TitlesWithEmptyIDs.Count() > 0 Then
 		
-			// 
+			// ACC:96-off - The JOIN keyword (as a single email message might meet the conditions of two queries).
 			Query = New Query;
 			Query.Text = "
 			|SELECT
@@ -1093,13 +1093,13 @@ Procedure GetEmailByIMAPProtocol(AccountData, Mail, EmailsReceived1, EmailsRecei
 			|WHERE
 			|	IncomingEmail.Ref IS NULL
 			|	AND OutgoingEmail.Ref IS NULL";
-			// ACC:96-
+			// ACC:96-on
 			
 			Query.SetParameter("MessagesToImportIDs", IDsTable);
 			Query.SetParameter("EmptyIDsOfEmailMessagesToImport", BlankIDsTable);
 			Query.SetParameter("Account", AccountData.Ref);
 			
-			// 
+			// @skip-check query-in-loop - Batch receipt of email messages from mail folders.
 			MessagesToImportIDs = Query.Execute().Unload().UnloadColumn("IDAtServer");
 			EmailsReceived1 = EmailsReceived1 + GetEmailMessagesByIDs(Mail, AccountData, 
 				MessagesToImportIDs, EmailsReceived);
@@ -1115,18 +1115,18 @@ Procedure GetEmailByPOP3Protocol(AccountData, Mail, EmailsReceived1, EmailsRecei
 
 	IDs = Mail.GetUIDL();
 	If IDs.Count() = 0 And (Not AccountData.KeepCopies) Then
-		// 
-		// 
+		
+		
 		DeleteIDsOfAllPreviouslyReceivedEmails(AccountData.Ref);
 		Return;
 	EndIf;
 
-	// 
+	// Define what messages must be received.
 	MessagesToImportIDs = GetEmailsIDsForImport(IDs, AccountData.Ref);
 	EmailsReceived1 = EmailsReceived1 + GetEmailMessagesByIDs(Mail, AccountData,
 		MessagesToImportIDs, EmailsReceived, IDs);
 	
-	// 
+	// Delete the unwanted messages from the server.
 	RemoveAll = Not AccountData.KeepCopies;
 	If RemoveAll Then
 		MessagesToDelete = IDs;
@@ -1548,8 +1548,9 @@ Function WriteEmail(AccountData, Message, EmployeeResponsibleForProcessingEmails
 			
 		FillEmailDocument(MailMessage, Message, IsOutgoingEmail1);
 		MailMessage.Account = AccountData.Ref;
-		SubjectAndFolder = FillSubjectAndContacts(MailMessage, AccountData.Ref, IsOutgoingEmail1,
-			PutEmailInBaseEmailFolder);
+		SubjectAndFolder = SubjectAndFolderOfMessageBeingUploaded(MailMessage, AccountData.Ref,
+		                                                IsOutgoingEmail1, PutEmailInBaseEmailFolder);
+		FillInContactsInUploadedEmail(MailMessage, IsOutgoingEmail1);
 		MailMessage.EmployeeResponsible = EmployeeResponsibleForProcessingEmails;
 		MailMessage.Write();
 	
@@ -1581,7 +1582,7 @@ Function WriteEmail(AccountData, Message, EmployeeResponsibleForProcessingEmails
 		Raise;
 	EndTry;
 	
-	// 
+	// Write the attachment outside of the email message writing transaction
 	UniqueAttachmentNames = New Map;
 	For Each Attachment In Message.Attachments Do
 		UniqueAttachmentNames[Attachment.FileName] = ?(UniqueAttachmentNames[Attachment.FileName] = Undefined,
@@ -1634,7 +1635,7 @@ Function WriteEmail(AccountData, Message, EmployeeResponsibleForProcessingEmails
 	EndDo;
 	
 	For Each Attachment In Message.Attachments Do
-		If UniqueAttachmentNames[Attachment.FileName] = False Then // 
+		If UniqueAttachmentNames[Attachment.FileName] = False Then // Duplicated names of attachments
 			WriteEmailAttachment(MailMessage, Attachment, New Array, CountOfBlankNamesInAttachments);
 		EndIf;
 	EndDo;
@@ -1651,8 +1652,8 @@ EndFunction
 // 
 // Parameters:
 //  MailMessage             - DocumentObject.IncomingEmail
-//                     - DocumentObject.OutgoingEmail -Email message being created.
-//                       
+//                     - DocumentObject.OutgoingEmail -
+//                       Email message being created.
 //  Message          - InternetMailMessage - a received mail message.
 //  IsOutgoingEmail1 - Boolean - indicates that the mail message is an incoming one.
 //
@@ -1719,11 +1720,11 @@ Function EmailMessageHashSum(Message)
 	
 EndFunction
 
-Function FillSubjectAndContacts(MailMessage, Account, IsOutgoingEmail1, PutEmailInBaseEmailFolder)
+Function SubjectAndFolderOfMessageBeingUploaded(MailMessage, Account, IsOutgoingEmail1, PutEmailInBaseEmailFolder)
 	
 	Result = New Structure("SubjectOf,Folder", MailMessage.Ref, Undefined);
 	
-	// 
+	// Get the IDs of the base messages.
 	ArrayOfIdentifiers = New Array;
 	IDsString = MailMessage.BasisIDs;
 	While Not IsBlankString(IDsString) Do
@@ -1754,11 +1755,15 @@ Function FillSubjectAndContacts(MailMessage, Account, IsOutgoingEmail1, PutEmail
 	If ArrayOfIdentifiers.Find(MailMessage.MessageID) = Undefined 
 		And Not IsBlankString(MailMessage.MessageID) Then
 		ArrayOfIdentifiers.Add(MailMessage.MessageID);
+	EndIf; 
+	
+	If ArrayOfIdentifiers.Count() = 0 Then
+		Return Result;
 	EndIf;
 	
 	IDsTable = CreateTableWithIDs(ArrayOfIdentifiers);
-
-	// 
+	
+	// Get all the base messages
 	Query = New Query;
 	Query.Text =
 	"SELECT
@@ -1766,6 +1771,8 @@ Function FillSubjectAndContacts(MailMessage, Account, IsOutgoingEmail1, PutEmail
 	|INTO IDsTable
 	|FROM
 	|	&IDsTable AS IDsTable
+	|INDEX BY
+	|	Id
 	|;
 	|
 	|////////////////////////////////////////////////////////////////////////////////
@@ -1817,6 +1824,10 @@ Function FillSubjectAndContacts(MailMessage, Account, IsOutgoingEmail1, PutEmail
 	|WHERE
 	|	OutgoingEmail.Account = &Account
 	|	AND OutgoingEmail.BasisID = &MessageID
+	|
+	|INDEX BY
+	|Ref
+	|
 	|;
 	|
 	|////////////////////////////////////////////////////////////////////////////////
@@ -1842,7 +1853,20 @@ Function FillSubjectAndContacts(MailMessage, Account, IsOutgoingEmail1, PutEmail
 	Query.SetParameter("Account", Account);
 	Query.SetParameter("MessageID", MailMessage.MessageID);
 	
+	RequestExecutionStarts = CurrentUniversalDateInMilliseconds();
 	Selection = Query.Execute().Select();
+	RequestCompletionTime =  Round((CurrentUniversalDateInMilliseconds() - RequestExecutionStarts)/1000, 2);
+	
+	If RequestCompletionTime > 1 Then
+		
+		TextOfLogEntry = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'The request to retrieve parent email data for the loaded email took more than %1 seconds, which is longer than expected.';"),
+			RequestCompletionTime);
+		WriteLogEvent(EventLogEvent(), EventLogLevel.Information,
+			MailMessage, TextOfLogEntry);
+		
+	EndIf;
+	
 	If Selection.Next() Then
 		
 		Result.SubjectOf = Selection.SubjectOf;
@@ -1855,12 +1879,18 @@ Function FillSubjectAndContacts(MailMessage, Account, IsOutgoingEmail1, PutEmail
 		
 	EndIf;
 	
+	Return Result;
+	
+EndFunction
+
+Procedure FillInContactsInUploadedEmail(MailMessage, IsOutgoingEmail1)
+	
 	ContactsMap = ContactsInEmailMap(MailMessage.InteractionBasis);
 
 	UndefinedAddresses = New Array;
 	SetContactInEmail(MailMessage, ContactsMap, UndefinedAddresses, IsOutgoingEmail1);
 
-	// 
+	// If some of the addresses are undefined, search them in the contact information.
 	ContactsMap = FindEmailsInContactInformation(UndefinedAddresses);
 	If ContactsMap.Count() > 0 Then
 		SetContactInEmail(MailMessage, ContactsMap, UndefinedAddresses, IsOutgoingEmail1);
@@ -1872,9 +1902,7 @@ Function FillSubjectAndContacts(MailMessage, Account, IsOutgoingEmail1, PutEmail
 		MailMessage.BccRecipientsList  = InteractionsClientServer.GetAddressesListPresentation(MailMessage.CCRecipients, False);
 	EndIf;
 	
-	Return Result;
-	
-EndFunction
+EndProcedure
 
 Function FindEmailsInContactInformation(AddressesArray)
 
@@ -2183,7 +2211,7 @@ Function ActiveFoldersNames(Mail)
 	Try
 		Separator = Mail.DelimeterChar;
 	Except
-		// 
+		// ACC:280 - Some email servers do not support this command.
 	EndTry;
 	
 	IgnorableNamesArray  = EmailFoldersExcludedFromMessageImport();
@@ -2478,7 +2506,7 @@ Procedure WriteEmailAttachment(Object, Attachment,SignaturesArray,CountOfBlankNa
 		For Each AttachmentsSignature In SignaturesArray Do
 			
 			Try
-				SignatureDataAttachments = ModuleDigitalSignature.DEREncodedSignature(AttachmentsSignature.Data);
+				AttachmentSignatureData = ModuleDigitalSignature.DERSignature(AttachmentsSignature.Data);
 			Except
 				EventText = NStr("en = 'Cannot read the %1 attachment signature data: %2';");
 				ErrorSignatureDataCouldNotBeRead = StringFunctionsClientServer.SubstituteParametersToString(
@@ -2488,8 +2516,8 @@ Procedure WriteEmailAttachment(Object, Attachment,SignaturesArray,CountOfBlankNa
 			EndTry;
 			
 			SignatureData = ModuleDigitalSignatureClientServer.NewSignatureProperties();
-			SignatureData.Signature = SignatureDataAttachments;
-			ResultOfReadSignatureProperties = ModuleDigitalSignature.SignatureProperties(SignatureDataAttachments);
+			SignatureData.Signature = AttachmentSignatureData;
+			ResultOfReadSignatureProperties = ModuleDigitalSignature.SignatureProperties(AttachmentSignatureData);
 			
 			If ResultOfReadSignatureProperties.Success <> False Then
 				FillPropertyValues(SignatureData, ResultOfReadSignatureProperties);
@@ -2523,8 +2551,8 @@ EndProcedure
 // Returns:
 //  ValueTable:
 //     * Ref                    - CatalogRef.IncomingEmailAttachedFiles
-//                                 - CatalogRef.OutgoingEmailAttachedFiles -Reference to the attachment. 
-//                                   
+//                                 - CatalogRef.OutgoingEmailAttachedFiles - 
+//                                   Reference to the attachment.
 //     * PictureIndex            - Number  - the displayed picture number.
 //     * SignedWithDS                - Boolean - indicates whether the file is signed with a digital signature.
 //     * Size                    - Number  - file size.
@@ -2605,8 +2633,8 @@ EndFunction
 
 // Parameters:
 //  MailMessage                          - DocumentRef.IncomingEmail
-//                                  - DocumentRef.OutgoingEmail -Email message whose attachment is being written.
-//                                       
+//                                  - DocumentRef.OutgoingEmail -
+//                                       Email message whose attachment is being written.
 //  AddressInTempStorage       - String - the address of the temporary storage where the attachment is placed.
 //  AttachmentParameters               - Structure:
 //     * FileName                  - String - an attachment file name.
@@ -3073,8 +3101,8 @@ Function AvailableAccountsQueryText()
 EndFunction
 
 // Parameters:
-//  Account - CatalogRef.EmailAccounts -
-//                                                                   
+//  Account - CatalogRef.EmailAccounts - Email account where the predefined folders
+//                                                                   will be created.
 //
 Procedure CreatePredefinedEmailsFoldersForAccount(Account) Export
 	
@@ -3113,8 +3141,8 @@ EndProcedure
 //  MailMessage - DocumentRef - an email whose name is defined.
 //
 // Returns:
-//  String - 
-//  
+//  String - Name of the metadata object of the email attachments.
+//  Undefined
 //
 Function MetadataObjectNameOfAttachedEmailFiles(MailMessage) Export
 

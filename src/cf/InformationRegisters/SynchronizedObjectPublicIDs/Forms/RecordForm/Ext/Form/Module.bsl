@@ -12,9 +12,8 @@
 &AtClient
 Procedure BeforeWrite(Cancel, WriteParameters)
 	
-	NewUUID = New UUID(IDAsString);
-	If Record.Id <> NewUUID Then
-		Record.Id = NewUUID;
+	If Record.Id <> IDAsString Then
+		Record.Id = IDAsString;
 	EndIf;
 	
 EndProcedure

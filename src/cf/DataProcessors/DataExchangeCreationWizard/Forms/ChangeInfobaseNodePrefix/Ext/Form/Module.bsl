@@ -468,6 +468,10 @@ EndFunction
 &AtClient
 Procedure AfterChangePrefix(BackgroundJob, AdditionalParameters) Export 
 	
+	If BackgroundJob = Undefined Then
+		Return;
+	EndIf;
+	
 	If BackgroundJob.Status = "Completed2" Then
 				
 		ChangeNavigationNumber(+2);

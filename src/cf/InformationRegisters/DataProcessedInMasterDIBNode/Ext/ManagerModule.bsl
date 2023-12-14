@@ -20,8 +20,8 @@
 //          - AccumulationRegisterRecordSet
 //          - AccountingRegisterRecordSet
 //          - CalculationRegisterRecordSet
-//          - Array of AnyRef - 
-//            
+//          - Array of AnyRef - the data the changes to be recorded for.
+//            Registration by the independent information register is not supported.
 //  AdditionalParameters - See InfobaseUpdate.AdditionalProcessingMarkParameters
 //
 Procedure MarkProcessingCompletion(Queue, Data, AdditionalParameters) Export

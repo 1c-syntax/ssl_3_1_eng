@@ -1213,7 +1213,6 @@
 			<Item>
 				<Command>Document.IncomingEmail.Command.ReplyToAll</Command>
 				<Type>Added</Type>
-				<Attribute>Object.Ref</Attribute>
 				<CommandGroup>CommandGroup.Interactions</CommandGroup>
 				<DefaultVisible>false</DefaultVisible>
 				<Visible>
@@ -1223,7 +1222,6 @@
 			<Item>
 				<Command>Document.IncomingEmail.Command.ForwardMail</Command>
 				<Type>Added</Type>
-				<Attribute>Object.Ref</Attribute>
 				<CommandGroup>CommandGroup.Interactions</CommandGroup>
 				<Index>1</Index>
 				<DefaultVisible>false</DefaultVisible>

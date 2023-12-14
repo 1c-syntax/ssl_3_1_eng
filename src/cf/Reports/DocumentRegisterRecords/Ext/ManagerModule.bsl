@@ -57,7 +57,7 @@ EndProcedure
 //       * VisibilityConditions    - Array - defines the command visibility depending on the context.
 //       * ChangesSelectedObjects - Boolean - defines whether the command is available.
 //       * MultipleChoice - Boolean
-//                            - Undefined - Optional. If True, the command supports multiple option choices.
+//                            - Undefined -  Optional. If True, the command supports multiple option choices.
 //             In this case, the parameter passes a list of references.
 //             By default, True.
 //       * WriteMode - String - actions associated with object writing that are executed before the command handler.
@@ -73,13 +73,13 @@ EndProcedure
 //       * AdditionalParameters - Structure - Handler parameters specified in Handler.
 //  Parameters                   - Structure - a structure containing command connection parameters.
 //  DocumentsWithRecordsReport - Array
-//                              - Undefined - 
-//                                
-//                                
-//                                
+//                              - Undefined - an array of documents in which the
+//                                command of reports opening will be displayed. Undefined if the report is displayed
+//                                for all documents with the Posting property set in Allow
+//                                and filled register records collection.
 //
 // Returns:
-//  ValueTableRow, Undefined - 
+//  ValueTableRow, Undefined - an added command or Undefined if there are no rights to view the report.
 //
 Function AddDocumentRecordsReportCommand(ReportsCommands, Parameters, DocumentsWithRecordsReport = Undefined) Export
 	

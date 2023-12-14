@@ -66,11 +66,17 @@
 				</CommandBar>
 			</ChildItems>
 		</UsualGroup>
-		<UsualGroup name="Group3" id="212">
+		<UsualGroup name="UseFullTextSearchGroup" id="212">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Use full-text search</v8:content>
+				</v8:item>
+			</Title>
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="Group3ExtendedTooltip" id="213"/>
+			<ExtendedTooltip name="UseFullTextSearchGroupExtendedTooltip" id="213"/>
 			<ChildItems>
 				<CheckBoxField name="UseFullTextSearch" id="214">
 					<DataPath>UseFullTextSearch</DataPath>
@@ -84,24 +90,30 @@
 				</CheckBoxField>
 			</ChildItems>
 		</UsualGroup>
-		<UsualGroup name="Group1" id="151">
+		<UsualGroup name="MainGroup3" id="151">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Main</v8:content>
+				</v8:item>
+			</Title>
 			<Group>Vertical</Group>
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="Group1ExtendedTooltip" id="152"/>
+			<ExtendedTooltip name="MainGroup3ExtendedTooltip" id="152"/>
 			<ChildItems>
-				<UsualGroup name="UseFullTextSearchGroup" id="101">
+				<UsualGroup name="GroupActiveUsers" id="101">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Use full-text search</v8:content>
+							<v8:content>Active users</v8:content>
 						</v8:item>
 					</Title>
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="UseFullTextSearchGroupExtendedTooltip" id="114"/>
+					<ExtendedTooltip name="GroupActiveUsersExtendedTooltip" id="114"/>
 					<ChildItems>
 						<Button name="ActiveUsersDataProcessor" id="102">
 							<Type>Hyperlink</Type>
@@ -218,17 +230,17 @@
 							<ContextMenu name="IndexStatusContextMenu" id="4"/>
 							<ExtendedTooltip name="IndexStatusExtendedTooltip" id="119"/>
 						</LabelField>
-						<UsualGroup name="ButtonsGroup1" id="93">
+						<UsualGroup name="ButtonsGroup" id="93">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Buttons 1</v8:content>
+									<v8:content>Buttons</v8:content>
 								</v8:item>
 							</Title>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="ButtonsGroup1ExtendedTooltip" id="120"/>
+							<ExtendedTooltip name="ButtonsGroupExtendedTooltip" id="120"/>
 							<ChildItems>
 								<Button name="UpdateIndex" id="11">
 									<Type>UsualButton</Type>
@@ -277,12 +289,18 @@
 					<ContextMenu name="NoteExtractFilesTextsAtServer4ContextMenu" id="104"/>
 					<ExtendedTooltip name="NoteExtractFilesTextsAtServer4ExtendedTooltip" id="124"/>
 				</LabelDecoration>
-				<UsualGroup name="Group2" id="189">
+				<UsualGroup name="GroupAutomaticTextExtractionMain" id="189">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Main</v8:content>
+						</v8:item>
+					</Title>
 					<Group>Vertical</Group>
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="Group2ExtendedTooltip" id="190"/>
+					<ExtendedTooltip name="GroupAutomaticTextExtractionMainExtendedTooltip" id="190"/>
 					<ChildItems>
 						<UsualGroup name="ColumnsGroup" id="157">
 							<Title>
@@ -345,12 +363,18 @@
 								</Button>
 							</ChildItems>
 						</UsualGroup>
-						<UsualGroup name="Group5" id="171">
+						<UsualGroup name="TextExtractionGroup" id="171">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Extract text</v8:content>
+								</v8:item>
+							</Title>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<United>false</United>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="Group5ExtendedTooltip" id="172"/>
+							<ExtendedTooltip name="TextExtractionGroupExtendedTooltip" id="172"/>
 							<ChildItems>
 								<RadioButtonField name="ExtractFilesTextsAtLinuxServer" id="175">
 									<DataPath>ExtractTextFilesOnServer</DataPath>

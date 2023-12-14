@@ -469,7 +469,7 @@ EndFunction
 // CAC:78-off: to securely pass data between forms on the client without sending them to the server.
 &AtClient
 Procedure ExecuteDecryption(ClientParameters, CompletionProcessing) Export
-// ACC:78-
+// CAC:78-on: to securely pass data between forms on the client without sending them to the server.
 	
 	DigitalSignatureInternalClient.RefreshFormBeforeSecondUse(ThisObject, ClientParameters);
 	
@@ -596,7 +596,7 @@ Async Procedure DecryptDataAfterProcessingBeforeExecute(Result, Context) Export
 	ExecutionParameters.Insert("Form",              ThisObject);
 	ExecutionParameters.Insert("FormIdentifier", Context.FormIdentifier);
 	ExecutionParameters.Insert("PasswordValue",     PasswordProperties.Value);
-	ExecutionParameters.Insert("AddressOfCertificate",    AddressOfCertificate); // 
+	ExecutionParameters.Insert("AddressOfCertificate",    AddressOfCertificate); 
 	
 	Context.Insert("ExecutionParameters", ExecutionParameters);
 	
@@ -608,7 +608,7 @@ Async Procedure DecryptDataAfterProcessingBeforeExecute(Result, Context) Export
 			CertificateAtServerErrorDescription = New Structure;
 			DecryptDataAfterExecuteAtServerSide(Result, Context);
 		Else
-			// 
+			// An attempt to encrypt on the server.
 			DigitalSignatureInternalClient.ExecuteAtSide(New NotifyDescription(
 					"DecryptDataAfterExecuteAtServerSide", ThisObject, Context),
 				"Details", "AtServerSide", Context.ExecutionParameters);
@@ -642,7 +642,7 @@ Async Procedure DecryptDataAfterExecuteAtServerSide(Result, Context) Export
 			EndIf;
 		EndIf;
 		
-		// 
+		// An attempt to sign on the client.
 		DigitalSignatureInternalClient.ExecuteAtSide(New NotifyDescription(
 				"DecryptDataAfterExecuteAtClientSide", ThisObject, Context),
 			"Details", "OnClientSide", Context.ExecutionParameters);

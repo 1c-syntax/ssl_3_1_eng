@@ -38,7 +38,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	IsFileInfobase = Common.FileInfobase();
 	IsSubordinateDIBNode = Common.IsSubordinateDIBNode();
 	
-	// 
+	// If it is the first start after a configuration update, storing and resetting status.
 	Object.UpdateResult = ConfigurationUpdate.ConfigurationUpdateSuccessful(ScriptDirectory);
 	If Object.UpdateResult <> Undefined Then
 		ConfigurationUpdate.ResetConfigurationUpdateStatus();
@@ -171,7 +171,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure UpdateFileRequiredRadioButtonsOnChange(Item)
@@ -187,7 +187,7 @@ Procedure UpdateFileFieldStartChoice(Item, ChoiceData, StandardProcessing)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure ActiveUsersDecorationURLProcessing(Item, FormattedStringURL, StandardProcessing)
@@ -204,7 +204,7 @@ Procedure PatchInstallationErrorLabelURLProcessing(Item, FormattedStringURL, Sta
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure ActionsListLabelClick(Item)
@@ -245,7 +245,7 @@ Procedure AfterCloseBackupForm(Result, AdditionalParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure UpdateRadioButtonsOnChange(Item)
@@ -371,8 +371,8 @@ Procedure BeforeOpenPage(Val NewPage = Undefined)
 	BackButtonAvailable = True;
 	NextButtonAvailable = True;
 	CloseButtonAvailable = True;
-	NextButtonFunction = True; // 
-	CloseButtonFunction = True; // 
+	NextButtonFunction = True; 
+	CloseButtonFunction = True; 
 	
 	Items.NextButton.Representation = ButtonRepresentation.Text;
 	
@@ -390,7 +390,7 @@ Procedure BeforeOpenPage(Val NewPage = Undefined)
 		
 	ElsIf NewPage = Pages.SelectUpdateModeFile Then
 		
-		NextButtonFunction = (Object.UpdateMode = 0);// 
+		NextButtonFunction = (Object.UpdateMode = 0);
 		
 		UpdateConnectionsInformation(Pages.SelectUpdateModeFile);
 		
@@ -407,7 +407,7 @@ Procedure BeforeOpenPage(Val NewPage = Undefined)
 		EndIf;
 	ElsIf NewPage = Pages.UpdateModeSelectionServer Then
 		
-		NextButtonFunction = (Object.UpdateMode = 0);// 
+		NextButtonFunction = (Object.UpdateMode = 0);
 		Object.RestoreInfobase = False;
 		
 		RestartInformationPanelPages = Items.RestartInformationPages.ChildItems;
@@ -1028,7 +1028,7 @@ Function SelectUpdateModePageParametersServer(MessagesForEventLog)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 // Returns a file directory (a partial path without a file name).
 //
@@ -1036,7 +1036,7 @@ EndFunction
 //  PathToFile  - String - File path.
 //
 // Returns:
-//   String   - 
+//   String   - a file directory
 //
 &AtClient
 Function TheDirectoryOfTheUpdateFile(Val PathToFile)

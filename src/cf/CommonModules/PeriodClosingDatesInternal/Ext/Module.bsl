@@ -183,9 +183,9 @@ EndProcedure
 // See ExportImportDataOverridable.OnFillCommonDataTypesSupportingRefMappingOnExport
 Procedure OnFillCommonDataTypesSupportingRefMappingOnExport(Types) Export
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	Types.Add(Metadata.ChartsOfCharacteristicTypes.PeriodClosingDatesSections);
 	
 EndProcedure
@@ -220,7 +220,7 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 		
 	ElsIf ParameterName = "AccessRightsToRestrictionDates" Then
 		Rights = New Array;
-		// 
+		
 		If Users.RolesAvailable("ReadPeriodEndClosingDates, AddEditPeriodClosingDates",, False) Then
 			Rights.Add("ReadPeriodEndClosingDates");
 		EndIf;
@@ -233,7 +233,7 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 		If Users.RolesAvailable("AddEditDataImportRestrictionDates",, False) Then
 			Rights.Add("ChangeDataImportRestrictionDates");
 		EndIf;
-		// 
+		// ACC:515-on
 		If ValueIsFilled(Rights) Then
 			AccessRightsToRestrictionDates = "," + StrConcat(Rights, "," + Chars.LF + ",") + ",";
 		Else
@@ -250,8 +250,8 @@ EndProcedure
 //
 Procedure UpdatingVersionDatesPreventsChangesAfterLoadingDataOnWrite(Source, Cancel) Export
 	
-	// 
-	// 
+	
+	
 	
 	SetPrivilegedMode(True);
 	
@@ -283,7 +283,7 @@ EndProcedure
 //  PeriodEndClosingDateDetails - String - contains details of a relative period-end closing date.
 //  PeriodEndClosingDate         - Date - an absolute date received from the register.
 //  BegOfDay           - Date - a current session date as of the beginning of the day.
-//                      - Undefined - 
+//                      - Undefined - calculate automatically.
 //
 // Returns:
 //  Date
@@ -348,11 +348,11 @@ EndFunction
 //    * PeriodClosingCheck    - Boolean - if you set it to False, period-end closing check for users 
 //                                    will be skipped. Default value is True.
 //    * ImportRestrictionCheckNode - Undefined - (initial value) check data change.
-//                                  - ExchangePlanRef - 
+//                                  - ExchangePlanRef - check data import for the specified node.
 //    * ErrorDescription              - Null      - if returning detected period-end closing details is not required (default).
-//                                  - String    - 
-//                                  - Structure - 
-//                                                
+//                                  - String    - if returning text details is required.
+//                                  - Structure - if it is required to return a structural description of available period-end closing dates.
+//                                                See the PeriodClosingDates.PeriodEndClosingFound function.
 //
 Function PeriodEndClosingDatesCheckParameters() Export
 	
@@ -375,12 +375,12 @@ EndFunction
 //                  - BusinessProcessObject
 //                  - TaskObject
 //                  - ExchangePlanObject
-//                  - DocumentObject - data object.
+//                  - DocumentObject - a data object.
 //                  - InformationRegisterRecordSet
 //                  - AccumulationRegisterRecordSet
 //                  - AccountingRegisterRecordSet
-//                  - CalculationRegisterRecordSet - 
-//                  - ObjectDeletion - 
+//                  - CalculationRegisterRecordSet - record set.
+//                  - ObjectDeletion - object deletion upon importing.
 //
 //  SourceRegister - Boolean - False - a source is a register, otherwise, an object.
 //
@@ -398,7 +398,7 @@ EndFunction
 //    * DataChangesDenied - Boolean - True if the object fails period-end closing date check.
 //    * ErrorDescription     - Null
 //                         - String
-//                         - Structure - 
+//                         - Structure - the result depends on AdditionalParameters.ErrorDescription.
 //
 Function CheckDataImportRestrictionDates1(Source, SourceRegister, Replacing, Delete, 
 	AdditionalParameters = Undefined) Export
@@ -454,10 +454,10 @@ Function CheckDataImportRestrictionDates1(Source, SourceRegister, Replacing, Del
 		EndIf;
 		
 	Else
-		// 
+		
 		//     
-		// 
-		// 
+		
+		
 		If ObjectVersion <> "OldVersion"
 		   And DataChangesDenied(Source, Undefined,	Result.ErrorDescription, ImportRestrictionCheckNode) Then
 			
@@ -472,7 +472,7 @@ EndFunction
 // Checks whether period-end closing or data import restriction need to be checked.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if check is not required.
 //
 Function SkipClosingDatesCheck(Object, PeriodClosingCheck, ImportRestrictionCheckNode, 
 	ObjectVersion) Export
@@ -490,8 +490,8 @@ Function SkipClosingDatesCheck(Object, PeriodClosingCheck, ImportRestrictionChec
 	PeriodClosingDatesOverridable.BeforeCheckPeriodClosing(
 		Object, PeriodClosingCheck, ImportRestrictionCheckNode, ObjectVersion);
 	
-	Return PeriodClosingCheck    = False          // 
-	      And ImportRestrictionCheckNode = Undefined; // 
+	Return PeriodClosingCheck    = False          // DO NOT check period-end closing.
+	      And ImportRestrictionCheckNode = Undefined; // DO NOT check import restriction.
 	
 EndFunction
 
@@ -530,8 +530,8 @@ Function DataChangesDenied(Data, DataID, ErrorDescription, ImportRestrictionChec
 		PeriodEndMessageParameters = PeriodClosingDates.PeriodEndMessageParameters();
 		PeriodEndMessageParameters.NewVersion = False;
 		
-		// 
-		// 
+		
+		
 		
 		If TypeOf(DataID) = Type("Filter") Then
 			FilterStructure = New Structure;
@@ -578,7 +578,7 @@ EndFunction
 //  EffectiveDates - See PeriodClosingDatesInternal.SessionParameterValueEffectivePeriodClosingDates
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if at least one period-end closing is detected.
 //
 Function PeriodEndClosingFound(Val DataToCheck, PeriodEndMessageParameters,
 			ErrorDescription, ImportRestrictionCheckNode, EffectiveDates = Undefined) Export
@@ -666,29 +666,29 @@ Function PeriodEndClosingFound(Val DataToCheck, PeriodEndMessageParameters,
 	EndDo;
 	DataToCheck = SectionsAndObjects;
 	
-	// 
-	// 
-	//    
-	// 
-	//    
-	//    
-	//    
-	// 
+	
+	
 	//    
 	
-	// 
-	// 
 	//    
-	// 
 	//    
-	// 
 	//    
 	
-	// 
-	// 
-	// 
-	// 
-	// 
+	//    
+	
+	
+	
+	//    
+	
+	//    
+	
+	//    
+	
+	
+	
+	
+	
+	
 	
 	PeriodEndClosing = DataToCheck.Copy(New Array);
 	PeriodEndClosing.Columns.Add("Addressee");
@@ -1266,7 +1266,7 @@ Function DataToCheckFromDatabase(Data, DataID, EffectiveDates, ImportRestriction
 	For Each DataSource In DataSources.Content Do
 		Selection = QueryResults[DataSources.Content.Find(DataSource)].Select();
 		While Selection.Next() Do
-			// 
+			
 			AddDataStringFromDatabase(Selection, DataSource, DataToCheck, NoObject);
 		EndDo;
 	EndDo;
@@ -1333,7 +1333,7 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 		EndIf;
 		For Each String In FieldValues Do
 			For Each DataSource In DataSources.Content Do
-				// 
+				
 				AddDataString(String, String, DataSource, DataToCheck, NoObject);
 			EndDo;
 		EndDo;
@@ -1342,22 +1342,22 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 			
 			If Not ValueIsFilled(DataSource.DateField.TabularSection)
 			   And Not ValueIsFilled(DataSource.ObjectField.TabularSection) Then
-				// 
+				
 				AddDataString(Data, Data, DataSource, DataToCheck, NoObject);
 				
 			ElsIf Not ValueIsFilled(DataSource.DateField.TabularSection) Then
 				
 				If NoObject Then
-					// 
+					
 					AddDataString(Data, Undefined, DataSource, DataToCheck, NoObject);
 				Else
-					// 
+					
 					DateString = New Structure("Value", Simple(Data, DataSource.DateField));
 					Field = DataSource.ObjectField.Name;
 					ObjectValues = Data[DataSource.ObjectField.TabularSection].Unload(, Field); // ValueTable
 					ObjectValues.GroupBy(Field);
 					For Each ObjectString In ObjectValues Do
-						// 
+						
 						AddDataString(DateString, ObjectString, DataSource, DataToCheck);
 					EndDo;
 				EndIf;
@@ -1365,14 +1365,14 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 			ElsIf Not ValueIsFilled(DataSource.ObjectField.TabularSection) Then
 				
 				If Not NoObject Then
-					// @skip-
+					
 					ObjectString = New Structure("Value", Simple(Data, DataSource.ObjectField));
 				EndIf;
 				Field = DataSource.DateField.Name;
 				DateValues = Data[DataSource.DateField.TabularSection].Unload(, Field); // ValueTable
 				DateValues.GroupBy(Field);
 				For Each DateString In DateValues Do
-					// 
+					
 					AddDataString(DateString, ObjectString, DataSource, DataToCheck, NoObject);
 				EndDo;
 			
@@ -1386,7 +1386,7 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 				Values = Data[DataSource.DateField.TabularSection].Unload(, Fields); // ValueTable
 				Values.GroupBy(Fields);
 				For Each String In Values Do
-					// 
+					
 					AddDataString(String, String, DataSource, DataToCheck, NoObject);
 				EndDo;
 			Else
@@ -1401,14 +1401,14 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 				EndIf;
 				
 				For Each DateString In DateValues Do
-					// @skip-
+					
 					DateString = New Structure("Value", Simple(DateString, DataSource.DateField));
 					If NoObject Then
-						// 
+						
 						AddDataString(DateString, Undefined, DataSource, DataToCheck, NoObject);
 					Else
 						For Each ObjectString In ObjectValues Do
-							// 
+							
 							AddDataString(DateString, ObjectString, DataSource, DataToCheck);
 						EndDo;
 					EndIf;
@@ -1523,7 +1523,7 @@ Function Simple(FieldValues, Field)
 		Query.Text = StrReplace(QueryText, "PathsField", PathsField);
 		Query.Text = StrReplace(Query.Text, "&CurrentTable", Table);
 		Query.SetParameter("CurrentRef", CurrentRef);
-		// 
+		
 		Selection = Query.Execute().Select();
 		If Not Selection.Next() Then
 			Return Undefined;
@@ -1551,8 +1551,8 @@ EndFunction
 // 
 Function SessionParameterValueEffectivePeriodClosingDates() Export
 	
-	// 
-	// 
+	
+	
 	
 	BegOfDay = BegOfDay(CurrentSessionDate());
 	
@@ -1630,11 +1630,11 @@ Function FindPeriodEndClosingDate(Sections, Data, BlankSection)
 	
 	Objects = Sections.Get(RestrictionSection);
 	If Objects <> Undefined Then
-		// 
+		// Search for a section and object.
 		PeriodEndClosingDate = Objects.Get(RestrictionObject);
 		If PeriodEndClosingDate = Undefined Then
 			RestrictionObject = RestrictionSection;
-			// 
+			// Search for a section and any object.
 			PeriodEndClosingDate = Objects.Get(RestrictionObject);
 		EndIf;
 	EndIf;
@@ -1644,7 +1644,7 @@ Function FindPeriodEndClosingDate(Sections, Data, BlankSection)
 		RestrictionObject = BlankSection;
 		Objects = Sections.Get(RestrictionSection);
 		If Objects <> Undefined Then
-			// 
+			// Search for any section and any object (common date).
 			PeriodEndClosingDate = Objects.Get(RestrictionObject);
 		EndIf;
 	EndIf;
@@ -2090,7 +2090,7 @@ EndFunction
 Function IsDataSetDeletion(Data)
 	
 	If TypeOf(Data) = Type("Structure") And TypeOf(Data.Register) <> Type("String") Then
-		Return Data.Register.Count() = 0; // 
+		Return Data.Register.Count() = 0; // The register dataset being written has no records.
 	EndIf;
 	Return False;
 	
@@ -2100,8 +2100,8 @@ EndFunction
 
 Function PeriodClosingDatesRequest()
 	
-	// 
-	// 
+	
+	
 	Query = New Query;
 	Query.Text =
 	"SELECT
@@ -2172,7 +2172,7 @@ Function PeriodClosingDatesRequest()
 	|TOTALS BY
 	|	User,
 	|	Section";
-	// ACC:1377-
+	// ACC:1377-on
 	
 	Return Query;
 	
@@ -2182,12 +2182,12 @@ EndFunction
 //  FixedStructure:
 //   * ClosingDatesByObjectsNotSpecified - Boolean
 //   * SMSMessageRecipients - FixedMap of KeyAndValue:
-//      ** Key     - DefinedType.PeriodClosingTarget -
+//      ** Key     - DefinedType.PeriodClosingTarget - 
 //      ** Value - FixedMap of KeyAndValue:
-//          *** Key     - String -
+//          *** Key     - String - 
 //          *** Value - FixedMap of KeyAndValue:
-//               **** Key     - Characteristic.PeriodClosingDatesSections - object.
-//               **** Value - Date -
+//               **** Key     - Characteristic.PeriodClosingDatesSections -  object.
+//               **** Value - Date - 
 //  
 Function SetDates(QueryResult, BegOfDay)
 	
@@ -2253,7 +2253,7 @@ EndFunction
 //
 // Returns:
 //  FixedMap of KeyAndValue:
-//   * Key - String -
+//   * Key - String - 
 //   * Value - See ReceiveDataSources
 //
 Function CurrentDataSourceForPeriodClosingCheck(SectionsProperties)

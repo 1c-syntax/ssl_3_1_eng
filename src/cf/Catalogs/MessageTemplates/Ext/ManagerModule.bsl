@@ -94,7 +94,7 @@ EndProcedure
 
 #Region Internal
 
-// See also updating the information base undefined.customizingmachine infillingelements
+// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
 // 
 // Parameters:
 //  Settings - See InfobaseUpdateInternal.ItemsFillingSettings
@@ -121,7 +121,7 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	
 EndProcedure
 
-// See also updating the information base undefined.customizingmachine infillingelements
+// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
 //
 // Parameters:
 //  Object                  - CatalogObject.ContactInformationKinds - Object to populate.
@@ -201,7 +201,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			Block.Lock();
 			
 			TemplateObject1 = Template.Ref.GetObject();
-			If TemplateObject1 = Undefined Then // 
+			If TemplateObject1 = Undefined Then // the object may have been deleted in other sessions
 				InfobaseUpdate.MarkProcessingCompletion(Template.Ref);
 				ObjectsProcessed = ObjectsProcessed + 1;
 				CommitTransaction();

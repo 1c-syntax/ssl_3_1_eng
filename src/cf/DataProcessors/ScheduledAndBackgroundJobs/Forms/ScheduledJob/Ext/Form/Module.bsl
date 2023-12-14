@@ -101,7 +101,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			ScheduledJobsInternal.ScheduledJobPresentation(Job));
 	EndIf;
 	
-	// 
+	
 	UsersArray = InfoBaseUsers.GetUsers(); // Array of InfoBaseUser
 	For Each User In UsersArray Do
 		Items.UserName.ChoiceList.Add(User.Name);
@@ -181,7 +181,7 @@ EndProcedure
 &AtClient
 Procedure SelectNewScheduledJobTemplate()
 	
-	// 
+	// Scheduled job template selection (metadata).
 	ScheduledJobMetadataDetailsCollection.ShowChooseItem(
 		New NotifyDescription("SelectNewScheduledJobTemplateCompletion", ThisObject),
 		NStr("en = 'Select a scheduled job template';"));

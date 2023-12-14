@@ -34,13 +34,13 @@ Function ORRTableInitialization() Export
 	
 	Columns.Add("ObjectPropertiesAsString", New TypeDescription("String"));
 	
-	// 
+	// Flag that shows whether rules are empty.
 	Columns.Add("RuleByObjectPropertiesEmpty",     New TypeDescription("Boolean"));
 	
 	Columns.Add("FilterByExchangePlanProperties", New TypeDescription("ValueTree"));
 	Columns.Add("FilterByObjectProperties",     New TypeDescription("ValueTree"));
 	
-	// 
+	// Event handlers.
 	Columns.Add("BeforeProcess",            New TypeDescription("String"));
 	Columns.Add("OnProcess",               New TypeDescription("String"));
 	Columns.Add("OnProcessAdditional", New TypeDescription("String"));
@@ -77,7 +77,7 @@ Function FilterByExchangePlanPropertiesTableInitialization() Export
 	Columns.Add("NodeParameter",                New TypeDescription("String"));
 	Columns.Add("NodeParameterTabularSection", New TypeDescription("String"));
 	
-	Columns.Add("ConstantValue"); // 
+	Columns.Add("ConstantValue"); 
 	
 	Return TreePattern;
 	
@@ -103,8 +103,8 @@ Function FilterByObjectPropertiesTableInitialization() Export
 	Columns.Add("ObjectPropertyType",  New TypeDescription("String"));
 	Columns.Add("FilterItemKind",   New TypeDescription("String"));
 	
-	Columns.Add("ConstantValue"); // 
-	Columns.Add("PropertyValue");  // 
+	Columns.Add("ConstantValue"); 
+	Columns.Add("PropertyValue");  // Arbitrary type.
 	
 	Return TreePattern;
 	

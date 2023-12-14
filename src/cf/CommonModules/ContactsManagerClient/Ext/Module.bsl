@@ -104,9 +104,9 @@ EndProcedure
 //     ChoiceData             - ValueList - contains a value list that will be used for standard
 //                                                 event processing.
 //     DataGetParameters - Structure
-//                              - Undefined - 
-//                                
-//                                
+//                              - Undefined - contains search parameters that will be passed
+//                                to the GetChoiceData method. For more information, see details of the form field extension for
+//                                the AutoComplete input field in Syntax Assistant.
 //     Waiting -   Number       - an interval in seconds between text input and an event.
 //                                If 0, the event was not triggered by text input
 //                                but it was called to generate a quick selection list. 
@@ -244,7 +244,7 @@ EndProcedure
 //  Structure:
 //   * ContactInformationKind - See ContactsManager.ContactInformationKindParameters
 //   * ReadOnly          - Boolean - if True, the form will be opened in view-only mode.
-//   * Value                - String -
+//   * Value                - String - 
 //   * Presentation           - String - a contact information presentation.
 //   * ContactInformationType - EnumRef.ContactInformationTypes - a contact information type if it was specified
 //                                                                            in the parameters.
@@ -307,7 +307,7 @@ EndFunction
 //      Notification   - NotifyDescription - used to process form closing.
 //
 //  Returns:
-//   ClientApplicationForm - 
+//   ClientApplicationForm - a requested form.
 //
 Function OpenContactInformationForm(Parameters, Owner = Undefined, Notification = Undefined) Export
 	Parameters.Insert("OpenByScenario", True);
@@ -320,12 +320,12 @@ EndFunction
 //  FieldValues - String
 //                - Structure
 //                - Map
-//                - ValueList - value of contact information.
+//                - ValueList - a contact information value.
 //  Presentation - String - a contact information presentation. Used if it is impossible to determine 
 //                              a presentation based on a parameter. FieldValues (the Presentation field is not available).
 //  ExpectedKind  - CatalogRef.ContactInformationKinds
 //                - EnumRef.ContactInformationTypes
-//                - Structure - 
+//                - Structure - used to determine a type if it is impossible to determine it by the FieldsValues field.
 //  ContactInformationSource - Arbitrary - an owner object of contact information.
 //  AttributeName  - String
 //
@@ -357,12 +357,12 @@ Procedure CreateEmailMessage(Val FieldValues, Val Presentation = "", ExpectedKin
 		InformationType = ContactInformation.ContactInformationType;
 		If IsBlankString(MailAddr) 
 		  Or Not CommonClientServer.EmailAddressMeetsRequirements(Presentation, True) Then
-			ErrorText= NStr("en = 'Для отправки письма введите адрес электронной почты.';");
+			ErrorText= NStr("en = 'To send an email, enter an email address.';");
 		ElsIf TypeOf(MailAddr) <> Type("String") Or InformationType = Undefined Then
-			ErrorText =  NStr("en = 'Ошибка получения адреса электронной почты, неверный тип контактной информации';");
+			ErrorText =  NStr("en = 'Error getting email address. Invalid contact information type.';");
 		ElsIf InformationType <> PredefinedValue("Enum.ContactInformationTypes.Email") Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Нельзя создать письмо по контактной информацию с типом ""%1""';"), InformationType);
+				NStr("en = 'Cannot create an email from contact information of the ""%1"" type.';"), InformationType);
 		EndIf;
 		
 		If ValueIsFilled(ErrorText) Then
@@ -401,8 +401,8 @@ EndProcedure
 //                                           FieldValues (the Presentation field is not available).
 //  ExpectedKind                 - CatalogRef.ContactInformationKinds
 //                               - EnumRef.ContactInformationTypes
-//                               - Structure - 
-//                                             
+//                               - Structure - used to determine a type if it is impossible to determine it by
+//                                             the FieldsValues field.
 //  ContactInformationSource - AnyRef - an object that is a contact information source.
 //
 Procedure CreateSMSMessage(Val FieldValues, Val Presentation = "", ExpectedKind = Undefined, ContactInformationSource = "") Export
@@ -469,7 +469,7 @@ Procedure Telephone(PhoneNumber) Export
 	
 	PhoneNumber = StringFunctionsClientServer.ReplaceCharsWithOther("()_- ", PhoneNumber, "");
 	
-	ProtocolName = "tel"; // 
+	ProtocolName = "tel"; 
 	
 	#If MobileClient Then
 		TelephonyTools.DialNumber(PhoneNumber, True);
@@ -705,7 +705,7 @@ EndProcedure
 //     StandardProcessing - Boolean           - a flag indicating that standard processing is required for the form event.
 //
 // Returns:
-//  Undefined - not used, backward compatible.
+//  Undefined - not used, backward compatibility.
 //
 Function PresentationStartChoice(Form, Item, Modified = True, StandardProcessing = False) Export
 	StartChoice(Form, Item, Modified, StandardProcessing);
@@ -719,7 +719,7 @@ EndFunction
 //     AttributeName - String           - a name of a form attribute related to contact information presentation.
 //
 // Returns:
-//  Undefined - not used, backward compatible.
+//  Undefined - not used, backward compatibility.
 //
 Function ClearingPresentation(Form, AttributeName) Export
 	Clearing(Form, AttributeName);
@@ -733,7 +733,7 @@ EndFunction
 //     CommandName - String           - a name of the automatically generated action command.
 //
 // Returns:
-//  Undefined - not used, backward compatible.
+//  Undefined - not used, backward compatibility.
 //
 Function AttachableCommand(Form, CommandName) Export
 	ExecuteCommand(Form, CommandName);
@@ -792,6 +792,7 @@ Procedure AfterClosingHistoryForm(Result, AdditionalParameters) Export
 				ParametersOfUpdate.Insert("IsCommentAddition", True);
 				ParametersOfUpdate.Insert("ItemForPlacementName", AdditionalParameters.ItemForPlacementName);
 				ParametersOfUpdate.Insert("AttributeName", AdditionalParameters.TagName);
+				ParametersOfUpdate.Insert("ContactInformationType", ContactInformationRow.Type);
 			EndIf;
 		EndIf;
 	EndDo;
@@ -954,7 +955,7 @@ EndProcedure
 
 Procedure ContactInformationAddInputFieldCompletion(Val SelectedElement, Val AdditionalParameters) Export
 	If SelectedElement = Undefined Then
-		// 
+		// Cancel selection.
 		Return;
 	EndIf;
 	
@@ -1202,7 +1203,7 @@ Procedure OnExecuteCommand(Val Form, Val CommandName, AsynchronousCall)
 		EndIf;
 	
 		ConsumerRow = FoundRows[0];
-		Comment = ConsumerRow.Comment; // 
+		Comment = ConsumerRow.Comment; 
 		If ConsumerRow.Property("InternationalAddressFormat") And ConsumerRow.InternationalAddressFormat Then
 
 			FillPropertyValues(ConsumerRow, FoundRow, "Comment");
@@ -1317,7 +1318,7 @@ EndProcedure
 // Completes a nonmodal dialog.
 Procedure EnterCommentCompletion(Val Comment, Val AdditionalParameters) Export
 	If Comment = Undefined Or Comment = AdditionalParameters.PreviousComment Then
-		// 
+		// Canceling entry or no changes.
 		Return;
 	EndIf;
 	
@@ -1516,8 +1517,8 @@ EndFunction
 //                          If the parameter is not specified, all protocols are checked. 
 // 
 // Returns:
-//  String - 
-//    
+//  String - a name of an available URI protocol is registered in the registry. Blank string - if a protocol is unavailable.
+//    Undefined if check is impossible.
 //
 Function TelephonyApplicationInstalled(ProtocolName = Undefined)
 	
@@ -1538,8 +1539,8 @@ Function TelephonyApplicationInstalled(ProtocolName = Undefined)
 		EndIf;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	Return ProtocolName;
 EndFunction
 
@@ -1645,10 +1646,10 @@ Function PresentationStartChoiceCompletionAdditionalParameters()
 EndFunction 
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
-// 
-// 
+
+
+
+
 
 Function StringDecoding(String)
 	Result = "";
@@ -1762,7 +1763,7 @@ EndFunction
 
 Procedure UpdateConextMenu(Form, ItemForPlacementName)
 	
-	ContactInformationParameters = Form.ContactInformationParameters[ItemForPlacementName]; // ДанныеФормаКоллекция
+	ContactInformationParameters = Form.ContactInformationParameters[ItemForPlacementName]; 
 	AllRows = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form);
 	FoundRows = AllRows.FindRows( 
 		New Structure("Type, IsTabularSectionAttribute", PredefinedValue("Enum.ContactInformationTypes.Address"), False));
@@ -1770,7 +1771,7 @@ Procedure UpdateConextMenu(Form, ItemForPlacementName)
 	TotalCommands = 0;
 	For Each CIRow In AllRows Do
 		
-		If TotalCommands > 50 Then // 
+		If TotalCommands > 50 Then // Restriction for a large number of addresses on the form
 			Break;
 		EndIf;
 		
@@ -1790,7 +1791,7 @@ Procedure UpdateConextMenu(Form, ItemForPlacementName)
 		
 		For Each Address In FoundRows Do
 			
-			If CommandsCountInSubmenu > 7 Then // 
+			If CommandsCountInSubmenu > 7 Then // Restriction for a large number of addresses on the form
 				Break;
 			EndIf;
 			
@@ -1861,15 +1862,15 @@ EndProcedure
 // 
 // 
 // Parameters:
-//   Presentation - String - presentation of contact information.
-//   Value      - String -
+//   Presentation - String - a contact information presentation.
+//   Value      - String - 
 //   Type           - EnumRef.ContactInformationTypes
 //   Kind           - CatalogRef.ContactInformationKinds
 //
 // Returns:
 //   Structure:
-//     * Presentation - String - presentation of contact information.
-//     * Value      - String -
+//     * Presentation - String - a contact information presentation.
+//     * Value      - String - 
 //     * Type           - EnumRef.ContactInformationTypes
 //     * Kind           - CatalogRef.ContactInformationKinds
 //
@@ -1896,15 +1897,15 @@ EndFunction
 //   Structure:
 //   * ContactInformationOwner - DefinedType.ContactInformationOwner
 //   * Form - ClientApplicationForm
-//   * AttributeName     - String -
-//   * AsynchronousCall - Boolean -
+//   * AttributeName     - String - 
+//   * AsynchronousCall - Boolean - 
 //
 Function CommandRuntimeAdditionalParameters(ContactInformationOwner, Form, AttributeName = "", AsynchronousCall = False)
 	
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("ContactInformationOwner", ContactInformationOwner);
 	AdditionalParameters.Insert("Form", Form);
-	// 
+	
 	AdditionalParameters.Insert("AttributeName", AttributeName);
 	AdditionalParameters.Insert("AsynchronousCall", AsynchronousCall);
 
@@ -1913,7 +1914,7 @@ Function CommandRuntimeAdditionalParameters(ContactInformationOwner, Form, Attri
 EndFunction
 
 // Parameters:
-//   HandlerName - String -
+//   HandlerName - String - 
 //                             
 //   Parameters - Structure:
 //     * ContactInformation    - See ParameterContactInfoForCommandExecution

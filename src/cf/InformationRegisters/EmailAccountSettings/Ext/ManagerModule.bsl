@@ -36,11 +36,11 @@ EndProcedure
 
 #Region Internal
 
-// 
+// Updates email's last usage date.
 //
 // Parameters:
-//  Account     - CatalogRef.EmailAccounts -
-//  DateOfUse - Date -
+//  Account     - CatalogRef.EmailAccounts - Email account being updated.
+//  DateOfUse - Date - Email's last usage date. If nothing is passed, set to the current date.
 //
 Procedure UpdateTheAccountUsageDate(Account, DateOfUse = Undefined) Export
 	

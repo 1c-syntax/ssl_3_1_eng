@@ -396,7 +396,7 @@ Procedure ImportRulesAtServer(Cancel, TempStorageAddress, RulesFileName, IsArchi
 		
 		Modified = False;
 		
-		// 
+		// Open session cache for the registration mechanism has become obsolete.
 		DataExchangeInternal.ResetObjectsRegistrationMechanismCache();
 		RefreshReusableValues();
 	EndIf;
@@ -441,7 +441,7 @@ Function GetRuleArchiveTempStorageAddressAtServer()
 		Selection = Result.Select();
 		Selection.Next();
 		
-		// 
+		
 		RuleBinaryData = Selection.XMLRules.Get(); // BinaryData
 		RuleBinaryData.Write(PathToFile + ".xml");
 		

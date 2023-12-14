@@ -1640,6 +1640,83 @@ Please wait…</v8:content>
 								</UsualGroup>
 							</ChildItems>
 						</UsualGroup>
+						<UsualGroup name="GroupWarningWhenSharingViaInternalPublishing" id="1029">
+							<Visible>false</Visible>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group Warning upon exchange via internal publication</v8:content>
+								</v8:item>
+							</Title>
+							<Group>Vertical</Group>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GroupWarningWhenSharingViaInternalPublishingExtendedTooltip" id="1030"/>
+							<ChildItems>
+								<UsualGroup name="Group6" id="1031">
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="Group6ExtendedTooltip" id="1032"/>
+									<ChildItems>
+										<PictureDecoration name="Decoration6" id="1033">
+											<Width>1</Width>
+											<Height>1</Height>
+											<ContextMenu name="Decoration6ContextMenu" id="1034"/>
+											<ExtendedTooltip name="Decoration6ExtendedTooltip" id="1035"/>
+										</PictureDecoration>
+										<PictureDecoration name="Decoration9" id="1036">
+											<Width>3</Width>
+											<Height>2</Height>
+											<Title formatted="false">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Decoration9</v8:content>
+												</v8:item>
+											</Title>
+											<PictureSize>Proportionally</PictureSize>
+											<Picture>
+												<xr:Ref>StdPicture.Information</xr:Ref>
+												<xr:LoadTransparent>true</xr:LoadTransparent>
+											</Picture>
+											<FileDragMode>AsFile</FileDragMode>
+											<ContextMenu name="Decoration9ContextMenu" id="1037"/>
+											<ExtendedTooltip name="Decoration9ExtendedTooltip" id="1038"/>
+										</PictureDecoration>
+										<LabelDecoration name="Decoration11" id="1039">
+											<AutoMaxWidth>false</AutoMaxWidth>
+											<Height>3</Height>
+											<Title formatted="false">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>When you close the window, synchronization will occur in the background. 
+To stop, click Finish synchronization</v8:content>
+												</v8:item>
+											</Title>
+											<VerticalAlign>Center</VerticalAlign>
+											<ContextMenu name="Decoration11ContextMenu" id="1040"/>
+											<ExtendedTooltip name="Decoration11ExtendedTooltip" id="1041"/>
+										</LabelDecoration>
+									</ChildItems>
+								</UsualGroup>
+								<UsualGroup name="Group7" id="1042">
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="Group7ExtendedTooltip" id="1043"/>
+									<ChildItems>
+										<LabelDecoration name="Decoration7" id="1044">
+											<HorizontalStretch>true</HorizontalStretch>
+											<ContextMenu name="Decoration7ContextMenu" id="1045"/>
+											<ExtendedTooltip name="Decoration7ExtendedTooltip" id="1046"/>
+										</LabelDecoration>
+										<Button name="EndSyncing" id="1047">
+											<Type>UsualButton</Type>
+											<CommandName>Form.Command.EndSyncing</CommandName>
+											<ExtendedTooltip name="EndSyncingExtendedTooltip" id="1048"/>
+										</Button>
+									</ChildItems>
+								</UsualGroup>
+							</ChildItems>
+						</UsualGroup>
 					</ChildItems>
 				</Page>
 				<Page name="DataSynchronizationWaitProgressBarImportPage" id="942">
@@ -3652,6 +3729,21 @@ data synchronization.</v8:content>
 			</ToolTip>
 			<Action>ContinueSync</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="EndSyncing" id="11">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Finish synchronization</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Finish synchronization</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>EndSyncing</Action>
 		</Command>
 	</Commands>
 </Form>

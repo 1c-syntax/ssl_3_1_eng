@@ -48,12 +48,12 @@ Procedure OnFillPeriodClosingDatesSections(Sections) Export
 	
 EndProcedure
 
-// Allows you to specify tables and object fields to check period-end closing.
-// To add a new source to DataSources See PeriodClosingDates.AddRow.
+// 
+//  See PeriodClosingDates.AddRow.
 //
-// Called from the ChangeProhibited procedure of the PeriodClosingDates common module
-// used in the BeforeWrite event subscription of the object to check for period-end
-// closing and canceled restricted object changes.
+// 
+// 
+// 
 //
 // Parameters:
 //  DataSources - ValueTable:
@@ -61,8 +61,8 @@ EndProcedure
 //                   for example, Metadata.Documents.PurchaseInvoice.FullName().
 //   * DateField    - String - an attribute name of an object or a tabular section,
 //                   for example: "Date", "Goods.ShipmentDate".
-//   * Section      - String - a name of a period-end closing date section
-//                   specified in the OnFillPeriodClosingDatesSections procedure (see above). 
+//   * Section      - String - 
+//                   
 //   * ObjectField - String - an attribute name of an object or a tabular section,
 //                   for example: "Company", "Goods.Warehouse".
 //
@@ -89,13 +89,13 @@ EndProcedure
 //               - InformationRegisterRecordSet
 //               - AccumulationRegisterRecordSet
 //               - AccountingRegisterRecordSet
-//               - CalculationRegisterRecordSet -  
-//                 
+//               - CalculationRegisterRecordSet - a data item or a record set to be checked 
+//                 (passed from handlers BeforeWrite and OnReadAtServer).
 //
 //  PeriodClosingCheck    - Boolean - set to False to skip period-end closing check.
 //  ImportRestrictionCheckNode - ExchangePlanRef
-//                              - Undefined -  
-//                                
+//                              - Undefined - set to Undefined 
+//                                to skip data import restriction check.
 //  ObjectVersion               - String - set "OldVersion" or "NewVersion" to check only the old
 //                                object version (in the database) or only the new object version 
 //                                (in the Object parameter).
@@ -126,8 +126,8 @@ EndProcedure
 //                                The value to be checked will be received from the database.
 //
 //  ImportRestrictionCheckNode - Undefined
-//                              - ExchangePlanRef -  
-//                                
+//                              - ExchangePlanRef - if Undefined, check period-end closing; 
+//                                otherwise check data import from the exchange plan node.
 //
 //  DataToCheck - See PeriodClosingDates.DataToCheckTemplate.
 //
@@ -164,8 +164,8 @@ EndProcedure
 //          - CalculationRegisterRecordSet - Data item or record set to be checked.
 //
 //  ImportRestrictionCheckNode - Undefined
-//                              - ExchangePlanRef -  
-//                                
+//                              - ExchangePlanRef - if Undefined, check period-end closing; 
+//                                otherwise check data import from the exchange plan node.
 //
 //  DataToCheck - See PeriodClosingDates.DataToCheckTemplate.
 //

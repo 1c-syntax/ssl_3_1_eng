@@ -13,7 +13,7 @@
 	
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.BatchEditObjects
 
 // Returns object attributes that can be edited using the bulk attribute modification data processor.
 // 
@@ -36,7 +36,7 @@ EndFunction
 // 
 //
 // Parameters:
-//  Parameters - Structure - service parameter to pass to the information database Update procedure.Mark the processing.
+//  Parameters - Structure - Internal parameter to pass to the InfobaseUpdate.MarkForProcessing procedure.
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	

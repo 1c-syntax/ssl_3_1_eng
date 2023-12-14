@@ -18,8 +18,8 @@
 // Parameters:
 //  Object - DocumentObject
 //         - BusinessProcessObject
-//         - TaskObject - 
-//           
+//         - TaskObject - a data object
+//           whose basic number is to be defined.
 //  Number - String - a number of the current object a basic number is to be got from.
 //  BasicNumber - String - a basic object number. 
 //           It is an object number
@@ -46,8 +46,8 @@ EndProcedure
 //
 // Parameters:
 //  Object - CatalogObject
-//         - ChartOfCharacteristicTypesObject - 
-//           
+//         - ChartOfCharacteristicTypesObject - a data object
+//           whose basic code is to be defined.
 //  Code - String - a code of the current object from which a basic code is to be got.
 //  BasicCode - String - a basic object code. It is an object code
 //           without any prefixes (infobase prefix, company prefix,

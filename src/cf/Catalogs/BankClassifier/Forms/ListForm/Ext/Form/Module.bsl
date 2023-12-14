@@ -25,7 +25,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	CanUpdateClassifier = CanUpdateClassifier
 		And Not Common.IsSubordinateDIBNode()   // The distributed infobase node is updated automatically.
-		And AccessRight("Update", Metadata.Catalogs.BankClassifier); // 
+		And AccessRight("Update", Metadata.Catalogs.BankClassifier); // A user with sufficient rights.
 	
 	Items.FormImportClassifier.Visible = CanUpdateClassifier And HasDataImportSource;
 	

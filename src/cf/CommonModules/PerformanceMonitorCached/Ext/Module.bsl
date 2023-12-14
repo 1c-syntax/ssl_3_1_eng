@@ -101,8 +101,8 @@ EndProcedure
 // Returns an array of the separators that are in the configuration.
 //
 // Returns:
-//   FixedArray of String - 
-//  
+//   FixedArray of String - an array of names of common attributes which
+//  serve as separators.
 //
 Function ConfigurationSeparators() Export
 	

@@ -68,15 +68,6 @@ Function PersonalCertificates(CertificatesPropertiesAtClient, Filter, Error = ""
 	EndIf;
 	
 	If DigitalSignatureInternal.UseCloudSignatureService() Then
-		// Localization
-		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
-		CertificatesArray = TheDSSCryptographyServiceModuleInternal.GetCertificateData_(False);
-		
-		PropertiesAddingOptions = New Structure("CloudSignature", True);
-		
-		DigitalSignatureInternalClientServer.AddCertificatesProperties(CertificatesPropertiesTable, CertificatesArray, True,
-			DigitalSignatureInternal.TimeAddition(), CurrentSessionDate(), PropertiesAddingOptions);
-		// EndLocalization
 	EndIf;
 	
 	Return ProcessPersonalCertificates(CertificatesPropertiesTable, Filter);
@@ -404,7 +395,7 @@ Function ExecuteAtServerSide(Val Parameters, ResultAddress, OperationStarted, Er
 			Except
 				ErrorInfo = ErrorInfo();
 			EndTry;
-		Else // Расшифровка.
+		Else // Decryption.
 			CryptoManager.PrivateKeyAccessPassword = Parameters.PasswordValue;
 			Try
 				ResultBinaryData = CryptoManager.Decrypt(Data);
@@ -430,8 +421,10 @@ Function ExecuteAtServerSide(Val Parameters, ResultAddress, OperationStarted, Er
 	
 	If Parameters.Operation = "Signing" Then
 		
+		CertificateBinaryData = CryptoCertificate.Unload();
+		
 		CertificateProperties = DigitalSignature.CertificateProperties(CryptoCertificate);
-		CertificateProperties.Insert("BinaryData", CryptoCertificate.Unload());
+		CertificateProperties.Insert("BinaryData", CertificateBinaryData);
 		
 		If DigitalSignature.AvailableAdvancedSignature() Then
 			SignatureProperties = DigitalSignatureInternal.SignaturePropertiesReadByCryptoManager(
@@ -472,20 +465,6 @@ Function ExecuteAtServerSide(Val Parameters, ResultAddress, OperationStarted, Er
 			SignatureProperties.SignatureID = New UUID;
 			Parameters.DataItemForSErver.Property("ObjectVersion", ObjectVersion);
 
-			// Localization
-			
-			If ValueIsFilled(Parameters.ResultOfCheckingMCHDForSigning)
-				And Common.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
-				ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal = Common.CommonModule("MachineReadableAuthorizationLettersOfFederalTaxServiceInternal");
-				ResultOfSignatureVerificationByMCHD = ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal.ResultOfSignatureVerificationByMCHD(
-					Parameters.SelectedAuthorizationLetter, Parameters.DataItemForSErver.Object, CertificateProperties.BinaryData, CurrentSessionDate(),
-					Parameters.ResultOfCheckingMCHDForSigning);
-				If ValueIsFilled(ResultOfSignatureVerificationByMCHD) Then
-					SignatureProperties.Insert("ResultOfSignatureVerificationByMCHD", ResultOfSignatureVerificationByMCHD);
-				EndIf;
-			EndIf;
-			
-			//EndLocalization
 			
 			ErrorPresentation = AddSignature(Parameters.DataItemForSErver.Object,
 				SignatureProperties, Parameters.FormIdentifier, ObjectVersion);
@@ -699,7 +678,7 @@ Function FindInstalledPrograms(ApplicationsDetails, CheckAtServer1) Export
 	
 EndFunction
 
-// For the FindInstalledApplications procedure.
+// Intended for: FindInstalledApplications procedure.
 Function FillApplicationsListForSearch(ApplicationsDetails)
 	
 	SettingsToSupply = Catalogs.DigitalSignatureAndEncryptionApplications.ApplicationsSettingsToSupply();
@@ -755,7 +734,7 @@ Function FillApplicationsListForSearch(ApplicationsDetails)
 	
 EndFunction
 
-// For the FindInstalledApplications procedure.
+// Intended for: FindInstalledApplications procedure.
 Function ExtendedApplicationDetails()
 	
 	ApplicationDetails = DigitalSignature.NewApplicationDetails();
@@ -796,20 +775,7 @@ Function TheCloudSignatureServiceIsConfigured() Export
 	
 	Result = False;
 	
-	If Common.SubsystemExists("StandardSubsystems.DSSDigitalSignatureService") Then
-		// Localization
-		TheDSSCryptographyServiceModule = Common.CommonModule("DSSCryptographyService");
-		Result = TheDSSCryptographyServiceModule.UseCloudSignatureService();
-		If Result Then
-			AllAccounts = TheDSSCryptographyServiceModule.GetAllAccounts();
-			If AllAccounts.Count() > 0 Then
-				SearchString = New Structure("DeletionMark", True);
-				Result = AllAccounts.FindRows(SearchString).Count() <> AllAccounts.Count();
-			Else
-				Result = False;
-			EndIf;
-		EndIf;
-		// EndLocalization
+	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
 	EndIf;
 	
 	Return Result;
@@ -835,7 +801,7 @@ Function AbbreviatedFileName(FileName, RequiredLength) Export
 	
 EndFunction
 
-// 
+// Looks up for individuals by description.
 // 
 // Parameters:
 //   IssuedTo - Array of String
@@ -926,16 +892,6 @@ Procedure AddADescriptionOfAdditionalData(AdditionalData, FilesDetails, Informat
 		AddASignatureDescription(Signatures, FilesDetails, Text, 1);
 	EndIf;
 	
-	// Localization
-	
-	If Common.SubsystemExists("StandardSubsystems.MachineReadablePowersAttorney") Then
-		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal = Common.CommonModule(
-			"MachineReadableAuthorizationLettersOfFederalTaxServiceInternal");
-		ModuleMachineReadableAuthorizationLettersOfFederalTaxServiceInternal.AddingAdditionalDataDescription(
-			AdditionalData, FilesDetails, InformationRecords, Text);
-	EndIf;
-	
-	// EndLocalization
 	
 	If ValueIsFilled(Text) Then
 		InformationRecords = InformationRecords + Text + Chars.LF;
@@ -974,7 +930,8 @@ Procedure AddADescriptionOfTheCertificate(Certificate, FilesDetails, Information
 		If Not ValueIsFilled(CertificatePresentation) Then
 			Try
 				CryptoCertificate = New CryptoCertificate(CertificateData);
-				CertificatePresentation = DigitalSignature.CertificatePresentation(CryptoCertificate);
+				CertificateProperties = DigitalSignature.CertificateProperties(CryptoCertificate);
+				CertificatePresentation = CertificateProperties.Presentation;
 			Except
 				CertificatePresentation = "";
 			EndTry;
@@ -1180,81 +1137,5 @@ Function StartDownloadFileAtServer(Parameters) Export
 	
 EndFunction
 
-// Localization
-Function GetCryptoProCSPDistribution(Parameters) Export
-	
-	ExecutionParameters = TimeConsumingOperations.FunctionExecutionParameters(New UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Receive the CryptoPro CSP distribution package';");
-	
-	Return TimeConsumingOperations.ExecuteFunction(ExecutionParameters, 
-		"DigitalSignatureInternalLocalization.CryptoProCSPDistribution", Parameters);
-	
-EndFunction
-
-Function GetViPNetCSPDistribution(Parameters) Export
-	
-	ExecutionParameters = TimeConsumingOperations.FunctionExecutionParameters(New UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Receive the VipNet CSP distribution package';");
-	
-	Return TimeConsumingOperations.ExecuteFunction(ExecutionParameters, 
-		"DigitalSignatureInternalLocalization.DistributionKitViPNetCSP", Parameters);
-	
-EndFunction
-
-// 
-// 
-// Parameters:
-//  TimeConsumingOperation - Structure:
-//   * ResultAddress - String -
-//  FormIdentifier 
-// 
-// Returns:
-//  Structure - 
-//   * DistributionData - Structure:
-//   ** DistributionNumber - String
-//   ** Version - String
-//   ** Checksum - String 
-//   ** SerialNumber - String
-//   ** DistributionFileName - String
-//   ** StartupCommand - See FileSystemClient.StartApplication.StartupCommand
-//   ** Distribution - Array of TransferableFileDescription
-//   * Error - String
-//
-Function ResultOfObtainingCryptoproviderDistribution(TimeConsumingOperation, FormIdentifier) Export
-	
-	Result = GetFromTempStorage(TimeConsumingOperation.ResultAddress); // 
-	
-	DistributionData = New Structure;
-	If Result.DistributionOptions <> Undefined And Result.DistributionOptions.Property("Distribution") Then
-		
-		DistributionData.Insert("DistributionNumber", Result.DistributionOptions.DistributionNumber);
-		DistributionData.Insert("Version", Result.DistributionOptions.Version);
-		DistributionData.Insert("Checksum", Result.DistributionOptions.Checksum);
-		DistributionData.Insert("DistributionFileName", Result.DistributionOptions.DistributionFileName);
-		DistributionData.Insert("StartupCommand", Result.DistributionOptions.StartupCommand);
-		
-		If Result.DistributionOptions.Property("SerialNumber") Then
-			DistributionData.Insert("SerialNumber", Result.DistributionOptions.SerialNumber);
-		EndIf;
-		
-		FilesDetails = New Array;
-		
-		For Each File In Result.DistributionOptions.Distribution Do
-			FilesDetails.Add(New TransferableFileDescription(File.Name,
-				PutToTempStorage(File.BinaryData, FormIdentifier)));
-		EndDo;
-		
-		DistributionData.Insert("Distribution", FilesDetails);
-	EndIf;
-	
-	ReturnStructure = New Structure;
-	ReturnStructure.Insert("DistributionData", DistributionData);
-	ReturnStructure.Insert("Error", Result.Error);
-	
-	Return ReturnStructure;
-	
-EndFunction
-
-// EndLocalization
 
 #EndRegion

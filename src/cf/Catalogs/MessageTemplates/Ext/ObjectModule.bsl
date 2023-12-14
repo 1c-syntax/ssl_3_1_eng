@@ -30,11 +30,19 @@ EndProcedure
 
 Procedure FillOnBasisOutgoingEmail(FillingData, FillingText, StandardProcessing)
 	
-	EmailSubject                             = FillingData.Subject;
-	HTMLEmailTemplateText                 = FillingData.HTMLText;
-	MessageTemplateText                     = FillingData.Text;
-	EmailSubject                             = FillingData.Subject;
-	Description                           = FillingData.Subject;
+	TemplateAttributes = New Array;
+	TemplateAttributes.Add("Subject");
+	TemplateAttributes.Add("HTMLText");
+	TemplateAttributes.Add("Text");
+	TemplateAttributes.Add("TextType");
+	
+	TemplateInformation = Common.ObjectAttributesValues(FillingData, TemplateAttributes);
+	
+	EmailSubject                             = TemplateInformation.Subject;
+	HTMLEmailTemplateText                 = TemplateInformation.HTMLText;
+	MessageTemplateText                     = TemplateInformation.Text;
+	EmailSubject                             = TemplateInformation.Subject;
+	Description                           = TemplateInformation.Subject;
 	ForEmails        = True;
 	ForSMSMessages                     = False;
 	InputOnBasisParameterTypeFullName = NStr("en = 'Common';");
@@ -45,8 +53,8 @@ Procedure FillOnBasisOutgoingEmail(FillingData, FillingText, StandardProcessing)
 		HTMLEmailsTextTypes = ModuleEmailOperationsInternal.EmailTextsType("HTML");
 		HTMLEmailsWithPicturesTextsTypes = ModuleEmailOperationsInternal.EmailTextsType("HTMLWithPictures");
 		
-		If FillingData.TextType = HTMLEmailsTextTypes
-			Or FillingData.TextType = HTMLEmailsWithPicturesTextsTypes Then
+		If TemplateInformation.TextType = HTMLEmailsTextTypes
+			Or TemplateInformation.TextType = HTMLEmailsWithPicturesTextsTypes Then
 			EmailTextType = Enums.EmailEditingMethods.HTML;
 		EndIf;
 	

@@ -102,7 +102,7 @@ EndFunction
 // 
 // Parameters:
 //   FieldSource   - See FieldTable
-//                   See FieldTree
+//                    See FieldTree
 //                   
 //                                             
 //                                             
@@ -222,9 +222,9 @@ Function FormulaPresentation(FormulaParameters) Export
 	
 EndFunction
 
-// Generates the formula representation in the user's language.
-// Operators and operands are replaced with their presentations.
-// Intended for the form with default operand lists. (See AddAListOfFieldsToTheForm)
+// 
+// 
+//  (See AddAListOfFieldsToTheForm)
 //
 // Parameters:
 //  Form - ClientApplicationForm
@@ -244,18 +244,18 @@ EndFunction
 // Returns:
 //  Structure:
 //   * Formula - String
-//   * Operands - String - an address in the temporary operand collection storage. The collection type can be: 
-//                         ValueTable - See FieldTable
-//                         ValueTree - See FieldTree
-//                         DataCompositionSchema - the operand list is taken from the FilterAvailableFields collection
-//                                                  of the Settings Composer. You can override the collection name
-//                                                  in the DCSCollectionName parameter.
-//   * Operators - String - an address in the temporary operator collection storage. The collection type can be: 
-//                         ValueTable - See FieldTable
-//                         ValueTree - See FieldTree
-//                         DataCompositionSchema - the operand list is taken from the FilterAvailableFields collection
-//                                                  of the Settings Composer. You can override the collection name
-//                                                  in the DCSCollectionName parameter.
+//   * Operands - String - : 
+//                          See FieldTable
+//                          See FieldTree
+//                         
+//                                                  
+//                                                  
+//   * Operators - String - : 
+//                          See FieldTable
+//                          See FieldTree
+//                         
+//                                                  
+//                                                  
 //   * OperandsDCSCollectionName  - String - a field collection name in the Settings Composer. Use the parameter
 //                                          if a data composition schema is passed in the Operands parameter.
 //                                          The default value is FilterAvailableFields.
@@ -263,8 +263,8 @@ EndFunction
 //                                          if a data composition schema is passed in the Operators parameter.
 //                                          The default value is FilterAvailableFields.
 //   * Description - Undefined - the description is not used for the formula and the field is not available.
-//                  - String       - 
-//                                   
+//                  - String       - a formula description. If it is filled in or empty, the field is displayed
+//                                   on the constructor form.
 //   * BracketsOperands - Boolean - Display operands in square brackets.
 //
 Function FormulaEditingOptions() Export

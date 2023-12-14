@@ -1696,13 +1696,13 @@ Please wait…</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Event Log records</v8:content>
+					<v8:content>Event log records</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show event log records for the selected scheduled job.</v8:content>
+					<v8:content>Show event log records for the selected job.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

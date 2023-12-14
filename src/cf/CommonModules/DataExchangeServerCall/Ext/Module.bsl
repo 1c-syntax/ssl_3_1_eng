@@ -32,7 +32,7 @@ EndProcedure
 //                                                   state for.
 // 
 // Returns:
-//  String - 
+//  String - :
 //   
 //   
 //   
@@ -129,7 +129,7 @@ EndProcedure
 //
 Function RegisterRecordSetIsEmpty(RecordStructure, RegisterName) Export
 	
-	// 
+	
 	RecordSet = InformationRegisters[RegisterName].CreateRecordSet(); // InformationRegisterRecordSet
 	
 	For Each FilterElement In RecordSet.Filter Do
@@ -203,7 +203,7 @@ EndFunction
 //     InfobaseNode - ExchangePlanRef - a reference to the exchange plan node being analyzed.
 //
 // Returns:
-//     Array - 
+//     Array - containing full metadata objects names.
 //
 Function NotExportedNodeObjectsMetadataNames(Val InfobaseNode) Export
 	Result = New Array;
@@ -261,7 +261,7 @@ Procedure DownloadExtensions() Export
 		DataExchangeServer.SetDataExchangeMessageImportModeBeforeStart("DownloadingExtensions", True);
 		SetPrivilegedMode(False);
 		
-		// 
+		// Updating object registration rules before importing data.
 		DataExchangeServer.UpdateDataExchangeRules();
 		
 		TransportKind = InformationRegisters.DataExchangeTransportSettings.DefaultExchangeMessagesTransportKind(InfobaseNode);
@@ -364,6 +364,25 @@ Function CheckTheNeedForADeferredNodeEntry(Val ObjectNode) Export
 	EndIf;
 	
 	Return Result;
+	
+EndFunction
+
+Function CheckAndRegisterCOMConnector(Val StructureOfSettings) Export
+	
+	If TypeOf(StructureOfSettings) <> Type("Structure") Then
+		StructureOfSettings = InformationRegisters.DataExchangeTransportSettings.TransportSettings(
+			StructureOfSettings, Enums.ExchangeMessagesTransportTypes.COM)
+	EndIf;
+		
+	Result = DataExchangeServer.EstablishExternalConnectionWithInfobase(StructureOfSettings);
+	
+	If Result.Join = Undefined Then
+		Return False;
+	EndIf;
+	
+	Result = Undefined;
+	
+	Return True;
 	
 EndFunction
 

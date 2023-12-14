@@ -11,9 +11,9 @@
 
 #Region Variables
 
-Var Registration Export; // 
-Var ObjectsRegistrationRules Export; // 
-Var FlagErrors Export; // 
+Var Registration Export; 
+Var ObjectsRegistrationRules Export; 
+Var FlagErrors Export; // A value table with object registration rules.
 
 Var StringType;
 Var BooleanType;
@@ -21,11 +21,11 @@ Var NumberType;
 Var DateType;
 
 Var BlankDateValue1;
-Var FilterByExchangePlanPropertiesTreePattern;  // 
-                                                // 
-Var FilterByObjectPropertiesTreePattern;      // 
-Var BooleanRootPropertiesGroupValue; // 
-Var ErrorsMessages; // Соответствие. Ключ - 
+Var FilterByExchangePlanPropertiesTreePattern;  
+                                                
+Var FilterByObjectPropertiesTreePattern;      // Value tree template for rules of registration by exchange plan properties.
+Var BooleanRootPropertiesGroupValue; 
+Var ErrorsMessages; 
 
 #EndRegion
 
@@ -51,7 +51,7 @@ Procedure ImportRules(Val FileName, InformationOnly = False) Export
 		Return;
 	EndIf;
 	
-	// 
+	
 	Registration                             = RecordInitialization();
 	ObjectsRegistrationRules              = DataProcessors.ObjectsRegistrationRulesImport.ORRTableInitialization();
 	FilterByExchangePlanPropertiesTreePattern = DataProcessors.ObjectsRegistrationRulesImport.FilterByExchangePlanPropertiesTableInitialization();
@@ -93,7 +93,7 @@ EndProcedure
 // Prepares a row with information about the rules based on the read data from the XML file.
 //
 // Returns:
-//   String - 
+//   String - a string with information on rules.
 //
 Function RulesInformation() Export
 	
@@ -108,7 +108,7 @@ Function RulesInformation() Export
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(InfoString,
 		GetConfigurationPresentationFromRegistrationRules(),
-		Format(Registration.CreationDateTime, "DLF = дд"));
+		Format(Registration.CreationDateTime, "DLF=DD"));
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -178,7 +178,7 @@ Procedure LoadRecord(Rules, InformationOnly)
 			
 		ElsIf NodeName = "ExchangePlan" Then
 			
-			// 
+			
 			Registration.ExchangePlanName = deAttribute(Rules, StringType, "Name");
 			
 			Registration.ExchangePlan = deElementValue(Rules, StringType);
@@ -189,12 +189,12 @@ Procedure LoadRecord(Rules, InformationOnly)
 			
 		ElsIf NodeName = "Configuration" Then
 			
-			// 
+			
 			Registration.PlatformVersion     = deAttribute(Rules, StringType, "PlatformVersion");
 			Registration.ConfigurationVersion  = deAttribute(Rules, StringType, "ConfigurationVersion");
 			Registration.ConfigurationSynonym = deAttribute(Rules, StringType, "ConfigurationSynonym");
 			
-			//  the name of the configuration
+			// Configuration description.
 			Registration.Configuration = deElementValue(Rules, StringType);
 			
 		ElsIf NodeName = "ObjectsRegistrationRules" Then
@@ -313,14 +313,14 @@ Procedure LoadRecordRule(Rules)
 			
 		ElsIf NodeName = "FilterByExchangePlanProperties" Then
 			
-			// 
+			// Initializing a property collection for the current ORR.
 			NewRow.FilterByExchangePlanProperties = FilterByExchangePlanPropertiesTreePattern.Copy();
 			
 			LoadFilterByExchangePlanPropertiesTree(Rules, NewRow.FilterByExchangePlanProperties);
 			
 		ElsIf NodeName = "FilterByObjectProperties" Then
 			
-			// 
+			// Initializing a property collection for the current ORR.
 			NewRow.FilterByObjectProperties = FilterByObjectPropertiesTreePattern.Copy();
 			
 			LoadFilterByObjectPropertiesTree(Rules, NewRow.FilterByObjectProperties);
@@ -460,11 +460,11 @@ Procedure LoadExchangePlanFilterItem(Rules, NewRow)
 			
 		ElsIf NodeName = "ExchangePlanProperty" Then
 			
-			// 
-			// 
-			// 
-			// 
-			// 
+			
+			
+			
+			
+			
 			FullPropertyDescription = deElementValue(Rules, StringType);
 			
 			ExchangePlanTabularSectionName = "";
@@ -537,16 +537,16 @@ Procedure LoadObjectFilterItem(Rules, NewRow)
 			
 			If NewRow.FilterItemKind = DataExchangeServer.FilterItemPropertyConstantValue() Then
 				
-				// 
+				// Primitive types only.
 				NewRow.ConstantValue = deElementValue(Rules, Type(NewRow.ObjectPropertyType));
 				
 			ElsIf NewRow.FilterItemKind = DataExchangeServer.FilterItemPropertyValueAlgorithm() Then
 				
-				NewRow.ConstantValue = deElementValue(Rules, StringType); // String
+				NewRow.ConstantValue = deElementValue(Rules, StringType); // Row.
 				
 			Else
 				
-				NewRow.ConstantValue = deElementValue(Rules, StringType); // String
+				NewRow.ConstantValue = deElementValue(Rules, StringType); // Row.
 				
 			EndIf;
 			
@@ -720,7 +720,7 @@ Procedure PrepareRecordRuleByExchangePlanProperties(ORR) Export
 	             + Chars.LF + "[MandatoryConditions]";
 	//
 	
-	// 
+	// Setting variable values.
 	ORR.QueryText    = QueryText;
 	ORR.ObjectProperties = ObjectProperties;
 	ORR.ObjectPropertiesAsString = GetObjectPropertiesAsString(ObjectProperties);
@@ -816,7 +816,7 @@ Function ORRData(GroupProperties)
 		
 	EndDo;
 	
-	// 
+	// Collapse the table.
 	DataTable.GroupBy("Name");
 	
 	Return DataTable;
@@ -827,9 +827,9 @@ Function GetPropertyConditionText(Rule, ObjectProperties)
 	
 	RuleComparisonKind = Rule.ComparisonType;
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	InvertComparisonType(RuleComparisonKind);
 	
 	TextOperator = GetCompareOperatorText(RuleComparisonKind);
@@ -877,7 +877,7 @@ Function GetPropertyConditionText(Rule, ObjectProperties)
 			
 		Else // String
 			
-			// 
+			// Enclose string in quotation marks.
 			QueryParameterLiteral = """" + Rule.ConstantValue + """";
 			
 		EndIf;
@@ -941,7 +941,7 @@ EndProcedure
 
 Procedure ReportProcessingError(Code = -1, ErrorDescription = "")
 	
-	// 
+	
 	FlagErrors = True;
 	
 	If ErrorsMessages = Undefined Then
@@ -1041,7 +1041,7 @@ Function GetObjectPropertiesAsString(ObjectProperties)
 		
 	EndDo;
 	
-	// 
+	// Deleting the last two characters.
 	StringFunctionsClientServer.DeleteLastCharInString(Result, 2);
 	
 	Return Result;
@@ -1061,7 +1061,7 @@ EndFunction
 //   Name         - String - attribute name.
 //
 // Returns:
-//   Arbitrary - 
+//   Arbitrary - the attribute value received by the name and cast to the specified type.
 //
 Function deAttribute(Object, Type, Name)
 	
@@ -1098,7 +1098,7 @@ EndFunction
 //                     to be used for searching the object: Code, Description, <AttributeName>, Name (predefined value).
 //
 // Returns:
-//   Arbitrary - 
+//   Arbitrary - value of an XML element converted to the relevant type.
 //
 Function deElementValue(Object, Type, SearchByProperty="")
 
@@ -1132,12 +1132,12 @@ EndFunction
 // Skips xml nodes to the end of the specified item (which is currently the default one).
 //
 // Parameters:
-//  Object   - an object of the ReadXml type.
-//  Name      - name of the node to skip elements to the end of.
+//  Object   - an object of the XMLReader type.
+//  Name      - a name of node, to the end of which items are skipped.
 //
 Procedure deSkip(Object, Name = "")
 	
-	AttachmentsCount = 0; // 
+	AttachmentsCount = 0; 
 	
 	If IsBlankString(Name) Then
 	
@@ -1193,7 +1193,7 @@ Procedure InitAttributesAndModuleVariables()
 	
 	FlagErrors = False;
 	
-	// Типы
+	// Types.
 	StringType            = Type("String");
 	BooleanType            = Type("Boolean");
 	NumberType             = Type("Number");
@@ -1201,7 +1201,7 @@ Procedure InitAttributesAndModuleVariables()
 	
 	BlankDateValue1 = Date('00010101');
 	
-	BooleanRootPropertiesGroupValue = "And"; // 
+	BooleanRootPropertiesGroupValue = "And"; 
 	
 EndProcedure
 
@@ -1221,7 +1221,7 @@ Function RecordInitialization()
 	Registration.Insert("ExchangePlanName",      "");
 	Registration.Insert("Comment",         "");
 	
-	// 
+	
 	Registration.Insert("PlatformVersion",     "");
 	Registration.Insert("ConfigurationVersion",  "");
 	Registration.Insert("ConfigurationSynonym", "");

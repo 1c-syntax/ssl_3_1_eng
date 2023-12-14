@@ -272,7 +272,7 @@ Procedure SetUpDynamicList()
 			Continue;
 		EndIf;
 		
-		If Not StrEndsWith(CatalogMetadata.Name, "AttachedFilesVersions") And CatalogMetadata.Name <> "FilesVersions" Then
+		If CatalogMetadata.Name <> "FilesVersions" Then
 			
 			If Not IsBlankString(QueryText) Then
 				QueryText = QueryText + "

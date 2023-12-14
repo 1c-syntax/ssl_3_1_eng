@@ -83,7 +83,7 @@ Function ObjectMappingResult(Parameters)
 		
 	EndIf;
 	
-	// 
+	// Generate map table.
 	ObjectsMapping.MapObjects(Cancel);
 	
 	If Cancel Then
@@ -110,20 +110,20 @@ Function AutomaticObjectMappingResult(Parameters)
 	ObjectsMapping = Create();
 	DataExchangeServer.ImportObjectContext(Parameters.ObjectContext, ObjectsMapping);
 	
-	// 
+	// Defining the UsedFieldsList property.
 	ObjectsMapping.UsedFieldsList.Clear();
 	CommonClientServer.SupplementTable(Parameters.FormAttributes.UsedFieldsList, ObjectsMapping.UsedFieldsList);
 	
-	// 
+	// Defining the TableFieldsList property
 	ObjectsMapping.TableFieldsList.Clear();
 	CommonClientServer.SupplementTable(Parameters.FormAttributes.TableFieldsList, ObjectsMapping.TableFieldsList);
 	
-	// 
+	// Loading the table of unapproved mapping items
 	ObjectsMapping.UnapprovedMappingTable.Load(Parameters.UnapprovedMappingTable);
 	
 	Cancel = False;
 	
-	// 
+	// Receiving the automatic object mapping table.
 	ObjectsMapping.ExecuteAutomaticObjectMapping(Cancel, Parameters.FormAttributes.MappingFieldsList);
 	
 	If Cancel Then

@@ -21,8 +21,8 @@
 //    * Installation - UUID - UUID of the built-in additional data processor installation.
 //      It will be used as the AdditionalReportsAndDataProcessors catalog reference UUID.
 //      
-//  CommandsSettings - ValueTable - Installation command settings for the built-in additional data processor:
-//      
+//  CommandsSettings - ValueTable - Installation command settings for the built-in additional data processor
+//      :
 //    * Id - String - a command ID.
 //    * QuickAccess - Array - UUIDs (UUID)
 //      that determine service users, to which command needs to be included in

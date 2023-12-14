@@ -338,7 +338,7 @@
 									<PagesRepresentation>None</PagesRepresentation>
 									<ExtendedTooltip name="GroupPagesExtendedTooltip" id="505"/>
 									<ChildItems>
-										<Page name="PageWithoutAuthorizationLetter" id="510">
+										<Page name="PageWithoutLetterOfAuthority" id="510">
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
@@ -346,22 +346,22 @@
 												</v8:item>
 											</Title>
 											<Group>AlwaysHorizontal</Group>
-											<ExtendedTooltip name="PageWithoutAuthorizationLetterExtendedTooltip" id="511"/>
+											<ExtendedTooltip name="PageWithoutLetterOfAuthorityExtendedTooltip" id="511"/>
 											<ChildItems>
-												<CheckBoxField name="ByAuthorizationLetter1" id="515">
-													<DataPath>ByAuthorizationLetter</DataPath>
+												<CheckBoxField name="ByLetterOfAuthority1" id="515">
+													<DataPath>ByLetterOfAuthority</DataPath>
 													<TitleLocation>Right</TitleLocation>
 													<GroupVerticalAlign>Center</GroupVerticalAlign>
 													<CheckBoxType>Auto</CheckBoxType>
-													<ContextMenu name="ByAuthorizationLetter1ContextMenu" id="516"/>
-													<ExtendedTooltip name="ByAuthorizationLetter1ExtendedTooltip" id="517"/>
+													<ContextMenu name="ByLetterOfAuthority1ContextMenu" id="516"/>
+													<ExtendedTooltip name="ByLetterOfAuthority1ExtendedTooltip" id="517"/>
 													<Events>
-														<Event name="OnChange">ChoosingAuthorizationLetterWhenChanging</Event>
+														<Event name="OnChange">SelectLetterOfAuthorityOnChange</Event>
 													</Events>
 												</CheckBoxField>
 											</ChildItems>
 										</Page>
-										<Page name="AuthorizationLetterSelectionPage" id="508">
+										<Page name="PageSelectLetterOfAuthority" id="508">
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
@@ -375,10 +375,10 @@
 												</v8:item>
 											</ToolTip>
 											<Group>AlwaysHorizontal</Group>
-											<ExtendedTooltip name="AuthorizationLetterSelectionPageExtendedTooltip" id="509"/>
+											<ExtendedTooltip name="PageSelectLetterOfAuthorityExtendedTooltip" id="509"/>
 											<ChildItems>
-												<CheckBoxField name="ByAuthorizationLetter" id="498">
-													<DataPath>ByAuthorizationLetter</DataPath>
+												<CheckBoxField name="ByLetterOfAuthority" id="498">
+													<DataPath>ByLetterOfAuthority</DataPath>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -388,21 +388,21 @@
 													<TitleLocation>Right</TitleLocation>
 													<GroupVerticalAlign>Center</GroupVerticalAlign>
 													<CheckBoxType>Auto</CheckBoxType>
-													<ContextMenu name="ByAuthorizationLetterContextMenu" id="499"/>
-													<ExtendedTooltip name="ByAuthorizationLetterExtendedTooltip" id="500"/>
+													<ContextMenu name="ByLetterOfAuthorityContextMenu" id="499"/>
+													<ExtendedTooltip name="ByLetterOfAuthorityExtendedTooltip" id="500"/>
 													<Events>
-														<Event name="OnChange">ChoosingAuthorizationLetterWhenChanging</Event>
+														<Event name="OnChange">SelectLetterOfAuthorityOnChange</Event>
 													</Events>
 												</CheckBoxField>
-												<InputField name="MachineReadableAuthorizationLetter" id="501">
-													<DataPath>MachineReadableAuthorizationLetter</DataPath>
+												<InputField name="MachineReadableLetterOfAuthority" id="501">
+													<DataPath>MachineReadableLetterOfAuthority</DataPath>
 													<TitleLocation>None</TitleLocation>
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<DropListButton>true</DropListButton>
 													<ChooseType>false</ChooseType>
 													<ChoiceParameterLinks>
 														<xr:Link>
-															<xr:Name>RepresentativeCertificate</xr:Name>
+															<xr:Name>AgentCertificate</xr:Name>
 															<xr:DataPath xsi:type="xs:string">Certificate</xr:DataPath>
 															<xr:ValueChange>Clear</xr:ValueChange>
 														</xr:Link>
@@ -416,8 +416,8 @@
 														</app:item>
 													</ChoiceParameters>
 													<ChoiceHistoryOnInput>DontUse</ChoiceHistoryOnInput>
-													<ContextMenu name="MachineReadableAuthorizationLetterContextMenu" id="502"/>
-													<ExtendedTooltip name="MachineReadableAuthorizationLetterExtendedTooltip" id="503"/>
+													<ContextMenu name="MachineReadableLetterOfAuthorityContextMenu" id="502"/>
+													<ExtendedTooltip name="MachineReadableLetterOfAuthorityExtendedTooltip" id="503"/>
 												</InputField>
 											</ChildItems>
 										</Page>
@@ -718,7 +718,7 @@
 		<Attribute name="CertificationAuthorityAuditResult" id="26">
 			<Type/>
 		</Attribute>
-		<Attribute name="ByAuthorizationLetter" id="27">
+		<Attribute name="ByLetterOfAuthority" id="27">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -729,7 +729,7 @@
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="MachineReadableAuthorizationLetter" id="28">
+		<Attribute name="MachineReadableLetterOfAuthority" id="28">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -744,7 +744,7 @@
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="ResultOfCheckingMCHDForSigning" id="29">
+		<Attribute name="MRLOAVerificationResultForSigning" id="29">
 			<Type/>
 		</Attribute>
 	</Attributes>

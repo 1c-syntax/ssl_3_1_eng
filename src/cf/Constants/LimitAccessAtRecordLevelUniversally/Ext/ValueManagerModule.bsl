@@ -31,7 +31,7 @@ Procedure BeforeWrite(Cancel)
 	
 	NewValue = Value;
 	
-	If Value And Not PreviousValue2 Then // Включено.
+	If Value And Not PreviousValue2 Then 
 		InformationRegisters.AccessRestrictionParameters.UpdateRegisterData();
 	EndIf;
 	
@@ -50,7 +50,7 @@ Procedure OnWrite(Cancel)
 		Raise ErrorText;
 	EndIf;
 	
-	If Value And Not PreviousValue2 Then // Включено.
+	If Value And Not PreviousValue2 Then // Enabled.
 		AccessManagementInternal.ClearLastAccessUpdate();
 		PlanningParameters = AccessManagementInternal.AccessUpdatePlanningParameters();
 		PlanningParameters.LongDesc = "EnabledRestrictAccessAtTheRecordLevelUniversally";
@@ -64,7 +64,7 @@ Procedure OnWrite(Cancel)
 		AccessManagementInternal.EnableDataFillingForAccessRestriction();
 	EndIf;
 	
-	If Value <> PreviousValue2 Then // Изменено.
+	If Value <> PreviousValue2 Then // Modified.
 		AccessManagementInternal.UpdateSessionParameters();
 	EndIf;
 	

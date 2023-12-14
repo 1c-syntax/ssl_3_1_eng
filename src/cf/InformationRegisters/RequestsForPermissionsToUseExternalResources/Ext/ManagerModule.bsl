@@ -19,7 +19,7 @@
 //  Operation - EnumRef.SecurityProfileAdministrativeOperations
 //
 // Returns:
-//   UUID - 
+//   UUID - an ID of the created request.
 //
 Function PermissionAdministrationRequest(Val ProgramModule, Val Operation) Export
 	
@@ -82,7 +82,7 @@ EndFunction
 //    as parameters are generated using the SafeModeManager.Permission*() functions.
 //
 // Returns:
-//   UUID - 
+//   UUID - an ID of the created request.
 //
 Function RequestToUsePermissions(Val ProgramModule, Val Owner, Val ReplacementMode, Val PermissionsToAdd, Val PermissionsToDelete) Export
 	
@@ -274,14 +274,14 @@ Function CanRequestForPermissionsToUseExternalResources()
 	
 	If Common.FileInfobase(InfoBaseConnectionString()) Or Not GetFunctionalOption("UseSecurityProfiles") Then
 		
-		// 
-		// 
+		
+		
 		Return PrivilegedMode() Or Users.IsFullUser();
 		
 	Else
 		
-		// 
-		// 
+		
+		
 		If Not Users.IsFullUser() Then
 			
 			Raise NStr("en = 'Insufficient access rights to request permissions to use external resources.';");
@@ -301,7 +301,7 @@ EndFunction
 //    as an external module.
 //
 // Returns: 
-//   String - name of the security profile.
+//   String - Security profile name.
 //
 Function SecurityProfileName(Val ProgramModule)
 	
@@ -324,7 +324,7 @@ EndFunction
 //                                 as an external module.
 //
 // Returns: 
-//   String - name of the security profile.
+//   String - Security profile name.
 //
 Function NewSecurityProfileName(Val ProgramModule)
 	
@@ -363,8 +363,8 @@ Procedure ClearObsoleteRequests() Export
 				
 			Except
 				
-				// 
-				// 
+				
+				
 				Continue;
 				
 			EndTry;
@@ -389,8 +389,8 @@ EndProcedure
 // Creates blank replacement requests for all previously granted permissions.
 //
 // Returns:
-//   Array of UUID - 
-//     
+//   Array of UUID - IDs of requests to replace all previously
+//     granted permissions.
 //
 Function ReplacementRequestsForAllGrantedPermissions() Export
 	

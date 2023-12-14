@@ -42,7 +42,7 @@ EndProcedure
 // Returns:
 //   ValueTable:
 //   * FileOwner - DefinedType.FilesOwner
-//   * IrrelevantFilesVolume - Number -
+//   * IrrelevantFilesVolume - Number - size in bytes.
 //
 Function UnusedFilesTable() Export
 	

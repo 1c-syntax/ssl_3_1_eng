@@ -160,7 +160,7 @@ Procedure ExecuteScenario(Command)
 	
 	Cancel = False;
 	
-	// 
+	// Start a data exchange.
 	DataExchangeServerCall.ExecuteDataExchangeByDataExchangeScenario(Cancel, CurrentData.Ref);
 	
 	If Cancel Then

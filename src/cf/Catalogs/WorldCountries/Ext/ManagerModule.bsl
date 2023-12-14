@@ -58,7 +58,7 @@ EndProcedure
 //
 // Parameters:
 //    CountryCode    - String
-//                 - Number - 
+//                 - Number - — a country code by classifier. If not specified, search by code is not executed.
 //    Description - String        - a country description. If not specified, search by description is not performed.
 //
 // Returns:
@@ -80,7 +80,7 @@ EndFunction
 //
 // Parameters:
 //    Code - String
-//        - Number - 
+//        - Number - — a country code by classifier.
 //    CodeType - String - Options: CountryCode (by default), Alpha2, and Alpha3.
 //
 // Returns:
@@ -218,7 +218,7 @@ EndProcedure
 
 Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
-	WorldCountryRef = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue, "Catalog.WorldCountries");
+	CountryOfWorldToProcess = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue, "Catalog.WorldCountries");
 	SettingsOfUpdate = Undefined;
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
@@ -228,24 +228,28 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	ObjectsWithIssuesCount = 0;
 	ObjectsProcessed = 0;
 	
-	While WorldCountryRef.Next() Do
-		RepresentationOfTheReference = String(WorldCountryRef.Ref);
+	While CountryOfWorldToProcess.Next() Do
+		
+		WorldCountryRef = CountryOfWorldToProcess.Ref; // CatalogRef.WorldCountries
+		RepresentationOfTheReference = String(WorldCountryRef);
+		
 		Try
 			
-			ClassifierData = ContactsManager.WorldCountryClassifierDataByCode(WorldCountryRef.Ref.Code);
+			CountryCode = Common.ObjectAttributeValue(WorldCountryRef, "Code");
+			ClassifierData = ContactsManager.WorldCountryClassifierDataByCode(CountryCode);
 			
 			If ClassifierData <> Undefined Then
 				
 				Block = New DataLock();
 				LockItem = Block.Add("Catalog.WorldCountries");
-				LockItem.SetValue("Ref", WorldCountryRef.Ref);
+				LockItem.SetValue("Ref", WorldCountryRef);
 				
 				BeginTransaction();
 				Try
 					
 					Block.Lock();
 					
-					WorldCountry = WorldCountryRef.Ref.GetObject();
+					WorldCountry = WorldCountryRef.GetObject();
 					FillPropertyValues(WorldCountry, ClassifierData);
 					InfobaseUpdate.WriteData(WorldCountry);
 					
@@ -257,7 +261,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 				EndTry;
 				
 			Else
-				InfobaseUpdate.MarkProcessingCompletion(WorldCountryRef.Ref);
+				InfobaseUpdate.MarkProcessingCompletion(WorldCountryRef);
 			EndIf;
 			
 			// Update descriptions.
@@ -271,7 +275,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			ObjectsProcessed = ObjectsProcessed + 1;
 			
 		Except
-			// 
+			// If you cannot process a world country, try again.
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -279,7 +283,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 					|%2';"),
 				RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
-				Metadata.Catalogs.WorldCountries, WorldCountryRef.Ref, MessageText);
+				Metadata.Catalogs.WorldCountries, WorldCountryRef, MessageText);
 		EndTry;
 	EndDo;
 	

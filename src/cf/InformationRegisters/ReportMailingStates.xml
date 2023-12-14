@@ -423,7 +423,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The ID of the session associated with the distribution. Used to filter events in the Event Log.</v8:content>
+							<v8:content>The ID of the session associated with the distribution. Used to filter events in the event log.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

@@ -328,7 +328,7 @@ Procedure DeleteExtensionCompletion()
 		DeleteExtensionsAtServer(Context.ExtensionsIDs);
 	Except
 		ErrorInfo = ErrorInfo();
-		ErrorProcessing.ShowErrorInfo(ErrorInfo);
+		StandardSubsystemsClient.ShowErrorInformationAndContinue(ErrorInfo);
 	EndTry;
 	
 EndProcedure

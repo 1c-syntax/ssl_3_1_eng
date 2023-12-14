@@ -9,14 +9,14 @@
 
 #Region Internal
 
-// 
+// Creates the profile of the passed email for connection to the mail server.
 // 
 // Parameters:
 //  Account - CatalogRef.EmailAccounts
 //
 // Returns:
-//  InternetMailProfile - 
-//  
+//  InternetMailProfile - an account profile.
+//  Undefined - cannot get the account by reference.
 //
 Function InternetMailProfile(Account, ForReceiving = False) Export
 	
@@ -116,16 +116,16 @@ Function InternetMailProfile(Account, ForReceiving = False) Export
 	
 EndFunction
 
-// 
-// 
-// 
-// 
-// 
+// The function is used for integration with the Data exchange subsystem.
+// Returns the email settings that match the
+// email settings of the correspondent infobase for data exchange setup (see parameters).
+// Account search is performed by a predefined item name or by address. If search fails, a new account is created.
+// Email settings of this infobase are matched with the email settings of the correspondent account.
 //
 // Parameters:
-//   CorrespondentAccount1 - CatalogObject.EmailAccounts -
-//                   
-//                   
+//   CorrespondentAccount1 - CatalogObject.EmailAccounts - email settings
+//                   of a correspondent infobase obtained from the data synchronization settings file by deserialization
+//                   using the ReadXML method.
 //
 // Returns:
 //  CatalogObject.EmailAccounts
@@ -193,11 +193,11 @@ Function CanReceiveEmails() Export
 	
 EndFunction
 
-// 
-// 
+// Returns the settings for connecting to the email server for sending emails.
+// If the email settings do not exist or are not accessible by rights, returns an empty structure.
 //
 // Parameters:
-//  Account - CatalogRef.EmailAccounts -
+//  Account - CatalogRef.EmailAccounts - email settings.
 //
 // Returns:
 //  Structure:
@@ -257,7 +257,7 @@ EndFunction
 
 Function ImportanceOfInternetMailMessageFromString(Importance) Export
 	
-	If StrCompare(Importance, EmailOperationsInternalClientServer.HighImportanceOfInternetMail()) = 0 Then
+	If StrCompare(Importance, EmailOperationsInternalClientServer.HighImportanceOfInternetMailCommunication()) = 0 Then
 		Return InternetMailMessageImportance.High;
 	ElsIf StrCompare(Importance, EmailOperationsInternalClientServer.LowImportanceOfInternetMail()) = 0 Then
 		Return InternetMailMessageImportance.Low;
@@ -496,13 +496,13 @@ Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 	
 EndProcedure
 
-// 
+// Encodes a string using the Punycode algorithm
 // 
 // Parameters:
-//  String - String -
+//  String - String - source string
 // 
 // Returns:
-//  String - 
+//  String - encoded string
 //
 Function StringIntoPunycode(Val String) Export
 
@@ -518,10 +518,10 @@ Function StringIntoPunycode(Val String) Export
 	Return Result;
 EndFunction
 
-// 
+// Decodes email addresses using the Punycode algorithm
 // 
 // Parameters:
-//  MailMessage - InternetMailMessage -
+//  MailMessage - InternetMailMessage - email to process
 //
 Procedure DecodeAddressesInEmail(MailMessage) Export
 	DecodeAddressesCollection(MailMessage.ReadReceiptAddresses);
@@ -622,7 +622,8 @@ Procedure DetermineSentEmailsFolder(Join)
 	For Each Mailbox In Mailboxes Do
 		If Lower(Mailbox) = "sentmessages"
 			Or Lower(Mailbox) = "inbox.sent"
-			Or Lower(Mailbox) = "sent" Then
+			Or Lower(Mailbox) = "sent"
+			Or Lower(Mailbox) = "sent items" Then
 			
 			Join.CurrentMailbox = Mailbox;
 			Break;
@@ -744,9 +745,9 @@ Function DownloadMessages(Val Account, Val ImportParameters = Undefined) Export
 	Except
 		Try
 			Join.Logoff();
-		Except // 
-			//  
-			// 
+		Except 
+			 
+			
 		EndTry;
 		Raise;
 	EndTry;
@@ -893,24 +894,26 @@ Function CreateAdaptedEmailMessageDetails(Columns = Undefined)
 		EndDo;
 	EndIf;
 	
+	InternetMailMessageFields = EmailOperations.InternetMailMessageFields();
+	
 	DefaultColumnArray = New Array;
-	DefaultColumnArray.Add("Importance");
-	DefaultColumnArray.Add("Attachments");
-	DefaultColumnArray.Add("PostingDate");
-	DefaultColumnArray.Add("DateReceived");
-	DefaultColumnArray.Add("Title");
-	DefaultColumnArray.Add("SenderName");
-	DefaultColumnArray.Add("Id");
-	DefaultColumnArray.Add("Cc");
-	DefaultColumnArray.Add("ReplyTo");
-	DefaultColumnArray.Add("Sender");
-	DefaultColumnArray.Add("Recipients");
-	DefaultColumnArray.Add("Size");
-	DefaultColumnArray.Add("Subject");
-	DefaultColumnArray.Add("Texts");
-	DefaultColumnArray.Add("Encoding");
-	DefaultColumnArray.Add("NonASCIISymbolsEncodingMode");
-	DefaultColumnArray.Add("Partial");
+	DefaultColumnArray.Add(InternetMailMessageFields.Importance);
+	DefaultColumnArray.Add(InternetMailMessageFields.Attachments);
+	DefaultColumnArray.Add(InternetMailMessageFields.PostingDate);
+	DefaultColumnArray.Add(InternetMailMessageFields.DateReceived);
+	DefaultColumnArray.Add(InternetMailMessageFields.Header);
+	DefaultColumnArray.Add(InternetMailMessageFields.SenderName);
+	DefaultColumnArray.Add(InternetMailMessageFields.UID);
+	DefaultColumnArray.Add(InternetMailMessageFields.Cc);
+	DefaultColumnArray.Add(InternetMailMessageFields.ReplyTo);
+	DefaultColumnArray.Add(InternetMailMessageFields.From);
+	DefaultColumnArray.Add(InternetMailMessageFields.To);
+	DefaultColumnArray.Add(InternetMailMessageFields.Size);
+	DefaultColumnArray.Add(InternetMailMessageFields.Subject);
+	DefaultColumnArray.Add(InternetMailMessageFields.Texts);
+	DefaultColumnArray.Add(InternetMailMessageFields.Encoding);
+	DefaultColumnArray.Add(InternetMailMessageFields.NonASCIISymbolsEncodingMode);
+	DefaultColumnArray.Add(InternetMailMessageFields.Partial);
 	
 	If Columns = Undefined Then
 		Columns = DefaultColumnArray;
@@ -985,13 +988,13 @@ Procedure DisableAccounts()
 	|	EmailAccounts.UseForSending";
 	
 	Query = New Query(QueryText);
-	Selection = Query.Execute().Select(); // 
+	Selection = Query.Execute().Select(); 
 	While Selection.Next() Do
 		Account = Selection.Ref.GetObject();
 		Account.UseForSending = False;
 		Account.UseForReceiving = False;
 		Account.DataExchange.Load = True;
-		Account.Write(); // 
+		Account.Write(); 
 	EndDo;
 	
 EndProcedure
@@ -1300,7 +1303,7 @@ Function AttachmentsDetails(AttachmentCollection) Export
 					BinaryData = New BinaryData(PathToFile);
 				EndIf;
 			EndIf;
-		Else // 
+		Else // TypeOf(Parameters.Attachments) = "array of structures"
 			BinaryData = GetFromTempStorage(Attachment.AddressInTempStorage);
 			FillPropertyValues(AttachmentDetails, Attachment, , "AddressInTempStorage");
 		EndIf;
@@ -1536,9 +1539,9 @@ Function SendEmails(Account, Emails, ExceptionText = Undefined) Export
 	Except
 		Try
 			Join.Logoff();
-		Except // 
-			//  
-			// 
+		Except 
+			 
+			
 		EndTry;
 
 		ErrorText = ExtendedErrorPresentation(ErrorInfo(), Common.DefaultLanguageCode());
@@ -2282,12 +2285,13 @@ Procedure GetStatusesOfEmailMessages() Export
 	
 	MessagesImportParameters = New Structure;
 	ColumnsOfMessagesTable = New Array;
-	ColumnsOfMessagesTable.Add("Title");
-	ColumnsOfMessagesTable.Add("PostingDate");
-	ColumnsOfMessagesTable.Add("Texts");
-	ColumnsOfMessagesTable.Add("Sender");
+	InternetMailMessageFields = EmailOperations.InternetMailMessageFields();
+	ColumnsOfMessagesTable.Add(InternetMailMessageFields.Header);
+	ColumnsOfMessagesTable.Add(InternetMailMessageFields.PostingDate);
+	ColumnsOfMessagesTable.Add(InternetMailMessageFields.Texts);
+	ColumnsOfMessagesTable.Add(InternetMailMessageFields.From);
 	MessagesImportParameters.Insert("Columns", ColumnsOfMessagesTable);
-		
+
 	DeliveryStatuses = New ValueTable;
 	DeliveryStatuses.Columns.Add("Sender",        	 New TypeDescription("CatalogRef.EmailAccounts"));
 	DeliveryStatuses.Columns.Add("EmailID",  New TypeDescription("String",,,,New StringQualifiers(255)));
@@ -2303,15 +2307,15 @@ Procedure GetStatusesOfEmailMessages() Export
 		Selection = SelectionSender.Select();
 		
 		While Selection.Next() Do
-			For Each Message In Messages Do
-				If StrFind(Message.Title, Selection.RecipientAddress) = 0 
-					And StrFind(Message.Title, Selection.EmailID) = 0
-					And StrFind(Message.Sender, "mailer-daemon")= 0 
-					And StrFind(Message.Title, "prod.outlook.com")= 0 Then
+			For Each Message In Messages Do // InternetMailMessage
+				If StrFind(Message.Header, Selection.RecipientAddress) = 0 
+					And StrFind(Message.Header, Selection.EmailID) = 0
+					And StrFind(Message.From, "mailer-daemon")= 0 
+					And StrFind(Message.Header, "prod.outlook.com")= 0 Then
 					Continue;
 				EndIf;
-				If StrFind(Message.Title, Selection.EmailID) > 0 Then
-					If StrFind(Message.Title, Selection.RecipientAddress) > 0 And StrFind(Message.Title, "X-Failed-Recipients") > 0  Then
+				If StrFind(Message.Header, Selection.EmailID) > 0 Then
+					If StrFind(Message.Header, Selection.RecipientAddress) > 0 And StrFind(Message.Header, "X-Failed-Recipients") > 0  Then
 						RowFilter = New Structure("EmailID, RecipientAddress", Selection.EmailID, Selection.RecipientAddress);
 						ExistingStatusesRows = DeliveryStatuses.FindRows(RowFilter);
 						If ExistingStatusesRows.Count() > 0 Then
@@ -2324,10 +2328,10 @@ Procedure GetStatusesOfEmailMessages() Export
 						DeliveryStatusesString.RecipientAddress = Selection.RecipientAddress;
 						DeliveryStatusesString.Status = Enums.EmailMessagesStatuses.NotDelivered;
 						
-						CharNumberReasonLine = StrFind(Message.Title, "X-Mailer-Daemon-Error");
+						CharNumberReasonLine = StrFind(Message.Header, "X-Mailer-Daemon-Error");
 						If CharNumberReasonLine > 0 Then 
 							CharNumberReasonStart = CharNumberReasonLine + StrLen("X-Mailer-Daemon-Error:");
-							Cause = Mid(Message.Title, CharNumberReasonStart);
+							Cause = Mid(Message.Header, CharNumberReasonStart);
 							CharNumberNewLine = StrFind(Cause, Chars.LF);
 							Cause = TrimAll(Left(Cause, CharNumberNewLine));
 							Cause = StringFunctionsClientServer.SubstituteParametersToString(
@@ -2339,9 +2343,9 @@ Procedure GetStatusesOfEmailMessages() Export
 						DeliveryStatusesString.Cause = Cause;
 						DeliveryStatusesString.StatusChangeDate = Message.PostingDate;
 						Break;
-					ElsIf StrFind(Message.Title, "Delivery Status Notification") > 0 Or StrFind(
-						Message.Title, "Disposition-Notification-To") > 0 
-						Or StrFind(Message.Title, "report-type=delivery-status") > 0 Then
+					ElsIf StrFind(Message.Header, "Delivery Status Notification") > 0 Or StrFind(
+						Message.Header, "Disposition-Notification-To") > 0 
+						Or StrFind(Message.Header, "report-type=delivery-status") > 0 Then
 						
 						RowFilter = New Structure("EmailID, RecipientAddress", Selection.EmailID, Selection.RecipientAddress);
 						ExistingStatusesRows = DeliveryStatuses.FindRows(RowFilter);
@@ -2576,7 +2580,7 @@ Function EncodePunycodeString(Val IncomingString)
 		Return IncomingString;
 	EndIf;
 	
-	ThereIsHyphen = ?(Result.Find("-") = Undefined, False, True);
+	HasHyphen = ?(Result.Find("-") = Undefined, False, True);
 	
 	Result.Add("-");
 	OutputCharCount = OutputCharCount + 1;
@@ -2636,7 +2640,7 @@ Function EncodePunycodeString(Val IncomingString)
 	EndDo;
 	EncodedString = "xn--" + StrConcat(Result);
 	
-	If Not ThereIsHyphen Then
+	If Not HasHyphen Then
 		EncodedString = StrReplace(EncodedString, "---", "--");
 	EndIf;
 	
@@ -2717,13 +2721,13 @@ Function DecodePunycodeString(Val EncodedString)
 	Return StrConcat(Result);
 EndFunction
 
-// 
+// Decodes a string using the Punycode algorithm
 // 
 // Parameters:
-//  String - String -
+//  String - String - encoded string
 // 
 // Returns:
-//  String - 
+//  String - decoded string
 //
 Function PunycodeIntoString(Val String) Export
 	URIStructure = CommonClientServer.URIStructure(String);

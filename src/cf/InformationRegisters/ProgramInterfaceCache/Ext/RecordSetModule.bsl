@@ -21,12 +21,12 @@ Var PreparedData1;
 
 Procedure BeforeWrite(Cancel, Replacing)
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	//
-	// 
-	// 
+	
+	
 	
 	If PreparedData1 Then
 		Load(DataToWrite);
@@ -36,12 +36,12 @@ EndProcedure
 
 Procedure OnWrite(Cancel, Replacing)
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	//
-	// 
-	// 
+	
+	
 	
 	If VerificationRequired Then
 		

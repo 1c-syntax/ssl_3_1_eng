@@ -14,8 +14,8 @@
 // of the "ReportsOptions" catalog as a filter for the "Report" attribute.
 //
 // Returns:
-//   Array - 
-//            
+//   Array - References to the reports the current user can access.
+//            See the item type in Catalogs.ReportsOptions.Attributes.Report.
 //
 Function AvailableReports(CheckFunctionalOptions = True) Export
 	
@@ -49,9 +49,11 @@ EndFunction
 // of the "ReportsOptions" catalog as an excluding filter for the "PredefinedOption" attribute.
 //
 // Returns:
-//   Array - 
+//   Array - Report options disabled by functional options.
 //            
+//            See the item type in CatalogRef.PredefinedReportOptions,
 //            
+//            CatalogRef.PredefinedReportOptionsOfExtensions.
 //
 Function DIsabledApplicationOptions() Export
 	
@@ -68,12 +70,12 @@ EndFunction
 // Returns:
 //   FixedStructure:
 //    * Tree - ValueTree:
-//       ** SectionReference  - CatalogRef.MetadataObjectIDs - the link section.
-//       ** Ref        - CatalogRef.MetadataObjectIDs - the reference subsystem.
-//       ** Name           - String - name of the subsystem.
-//       ** FullName     - String - full name of the subsystem.
-//       ** Presentation - String - representation of the subsystem.
-//       ** Priority     - String - priority of the subsystem.
+//       ** SectionReference  - CatalogRef.MetadataObjectIDs - Section reference.
+//       ** Ref        - CatalogRef.MetadataObjectIDs - Subsystem reference.
+//       ** Name           - String - Subsystem name.
+//       ** FullName     - String - Full subsystem name.
+//       ** Presentation - String - Subsystem presentation.
+//       ** Priority     - String - Subsystem priority.
 //    * List - FixedArray of CatalogRef.MetadataObjectIDs
 //
 Function CurrentUserSubsystems() Export
@@ -145,7 +147,7 @@ Function CurrentUserSubsystems() Export
 		If TreeRowsFullNames[TreeRow.FullName] = Undefined Then
 			TreeRowsFullNames.Insert(TreeRow.FullName, TreeRow);
 		Else
-			TreeRowsFullNames.Insert(TreeRow.FullName, True); // 
+			TreeRowsFullNames.Insert(TreeRow.FullName, True); 
 		EndIf;
 		
 		TreeRow.SectionFullName = TreeRow.FullName;
@@ -164,7 +166,7 @@ Function CurrentUserSubsystems() Export
 	SubsystemsReferences = Common.MetadataObjectIDs(FullSubsystemsNames);
 	For Each KeyAndValue In SubsystemsReferences Do
 		TreeRow = TreeRowsFullNames[KeyAndValue.Key];
-		If TreeRow = True Then // 
+		If TreeRow = True Then // A search in the tree is required.
 			FoundItems = Result.Rows.FindRows(New Structure("FullName", KeyAndValue.Key), True);
 			For Each TreeRow In FoundItems Do
 				TreeRow.Ref = KeyAndValue.Value;
@@ -209,7 +211,7 @@ Procedure AddCurrentUserSubsystems(ParentLevelRow, ParentMetadata, FullSubsystem
 		If TreeRowsFullNames[TreeRow.FullName] = Undefined Then
 			TreeRowsFullNames.Insert(TreeRow.FullName, TreeRow);
 		Else
-			TreeRowsFullNames.Insert(TreeRow.FullName, True); // 
+			TreeRowsFullNames.Insert(TreeRow.FullName, True); // A search in the tree is required.
 		EndIf;
 		TreeRow.SectionFullName = ParentLevelRow.SectionFullName;
 		
@@ -320,17 +322,17 @@ Function InsertRight1() Export
 	
 EndFunction
 
-// Subsystem parameters cached upon update (See ReportsOptions.ЗаписатьТаблицуФункциональныхОпций)
+// Subsystem parameters cached during the update (See ReportsOptions.ЗаписатьТаблицуФункциональныхОпций)
 // .
 //
 // Returns:
 //   Structure:
-//     * FunctionalOptionsTable - ValueTable - Association between functional options and predefined report options:
+//     * FunctionalOptionsTable - ValueTable - Association between functional options and predefined report options::
 //       ** Report - CatalogRef.MetadataObjectIDs
 //       ** PredefinedOption - CatalogRef.PredefinedReportsOptions
 //       ** FunctionalOptionName - String
-//     * ReportsWithSettings - Array of CatalogRef.MetadataObjectIDs - reports
-//          whose object module contains procedures of integration with the common report form.
+//     * ReportsWithSettings - Array of CatalogRef.MetadataObjectIDs - Reports whose
+//          object module contains procedures for integrating with the common report form.
 // 
 Function Parameters() Export
 	

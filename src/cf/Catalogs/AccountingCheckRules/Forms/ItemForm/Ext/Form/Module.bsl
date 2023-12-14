@@ -268,7 +268,8 @@ Procedure GenerateRowWithCommonSchedule()
 			CommonSchedulePresentation = String(CommonScheduledJob.Schedule);
 		Else
 			If Users.IsFullUser(, True) Then
-				CommonSchedulePresentation = String(CommonScheduledJob.Template.Schedule.Get());
+				CommonSchedule = Common.ObjectAttributeValue(CommonScheduledJob.Template, "Schedule").Get();
+				CommonSchedulePresentation = String(CommonSchedule);
 			EndIf;
 		EndIf;
 	Else

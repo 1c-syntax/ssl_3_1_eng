@@ -184,7 +184,7 @@ EndFunction
 &AtServer
 Procedure SaveConnectionParameters()
 	
-	// 
+	// Saving the parameters to a constant, clearing the passwords.
 	StandardSubsystemsServer.SetAdministrationParameters(AdministrationParameters);
 	
 EndProcedure
@@ -193,20 +193,13 @@ EndProcedure
 Procedure GetIBAdministrator(IBUser = Undefined)
 	
 	If Common.SeparatedDataUsageAvailable() Then
-		
 		If ValueIsFilled(IBAdministrator) Then
-			
 			IBUser = InfoBaseUsers.FindByUUID(
-				IBAdministrator.IBUserID);
-			
+				Common.ObjectAttributeValue(IBAdministrator, "IBUserID"));
 		Else
-			
 			IBUser = Undefined;
-			
 		EndIf;
-		
 		InfobaseAdministratorName = ?(IBUser = Undefined, "", IBUser.Name);
-		
 	EndIf;
 	
 EndProcedure
@@ -257,9 +250,9 @@ Procedure IsNecessaryToInputAdministrationParameters()
 		
 		If UsersCount > 0 Then
 			
-			// 
-			// 
-			// 
+			
+			
+			
 			CurrentUser = InfoBaseUsers.FindByUUID(
 				InfoBaseUsers.CurrentUser().UUID);
 			

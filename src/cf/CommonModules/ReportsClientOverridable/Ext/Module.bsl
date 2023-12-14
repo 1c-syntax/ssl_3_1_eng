@@ -14,7 +14,7 @@
 //
 // Parameters:
 //   ReportForm - ClientApplicationForm
-//               - ManagedFormExtensionForReports - 
+//               - ManagedFormExtensionForReports - Report form:
 //                   * Report - ReportObject - Form data structure similar to the report object.
 //
 //  ReportCreated - Boolean - True if the report has been successfully generated.
@@ -23,12 +23,12 @@ Procedure AfterGenerate(ReportForm, ReportCreated) Export
 	
 EndProcedure
 
-// Spreadsheet document drill-down handler.
+// Spreadsheet drill-down handler.
 // See "Form field extension for a spreadsheet document field.DetailProcessing" in Syntax Assistant.
 //
 // Parameters:
 //   ReportForm - ClientApplicationForm
-//               - ManagedFormExtensionForReports - Report form:
+//               - ManagedFormExtensionForReports - Report form.:
 //                   * Report - ReportObject - Form data structure similar to the report object.
 //
 //   Item     - FormField        - Spreadsheet document.
@@ -39,28 +39,28 @@ Procedure DetailProcessing(ReportForm, Item, Details, StandardProcessing) Export
 	
 EndProcedure
 
-// The handler of additional details (menu of a spreadsheet document of a report form).
+// Handler of additional details (spreadsheet menu in the report form).
 // See "Form field extension for a spreadsheet document field.AdditionalDetailProcessing" in Syntax Assistant.
 //
 // Parameters:
 //   ReportForm - ClientApplicationForm
-//               - ManagedFormExtensionForReports - 
+//               - ManagedFormExtensionForReports - Report form.:
 //                   * Report - ReportObject - Form data structure similar to the report object.
 //
 //   Item     - FormField        - Spreadsheet document.
-//   Details - Arbitrary     - details value of a point, series, or a chart value.
-//   StandardProcessing - Boolean  - indicates whether standard (system) event processing is executed.
+//   Details - Arbitrary     - Drill-down of a point, series, or chart value.
+//   StandardProcessing - Boolean  - Flag indicating whether standard (system) event processing is executed.
 //
 Procedure AdditionalDetailProcessing(ReportForm, Item, Details, StandardProcessing) Export
 	
 EndProcedure
 
-// Handler of commands that were dynamically added and attached to the Attachable_Command handler.
-// An example of adding a command See ReportsOverridable.ПриСозданииНаСервере().
+// 
+//  See ReportsOverridable.OnCreateAtServer
 //
 // Parameters:
 //   ReportForm - ClientApplicationForm
-//               - ManagedFormExtensionForReports - 
+//               - ManagedFormExtensionForReports - Report form.:
 //                   * Report - ReportObject - Form data structure similar to the report object.
 //
 //   Command     - FormCommand     - Command that was called.
@@ -76,13 +76,13 @@ EndProcedure
 //
 // Parameters:
 //   ReportForm - ClientApplicationForm
-//               - ManagedFormExtensionForReports - 
+//               - ManagedFormExtensionForReports - Report form:
 //                   * Report - ReportObject - Form data structure similar to the report object.
 //
 //   SelectionConditions - Structure:
 //    * FieldName              - String - Name of a parameter or data composition item.
 //    * LayoutItem    - DataCompositionAvailableParameter
-//                           - DataCompositionFilterAvailableField - 
+//                           - DataCompositionFilterAvailableField - Choice item.
 //    * AvailableTypes        - TypeDescription  - Selectable types.
 //    * Marked           - ValueList - Previously selected values.
 //    * ChoiceParameters      - Array of ChoiceParameter - Configured choice parameters.
@@ -99,12 +99,12 @@ Procedure AtStartValueSelection(ReportForm, SelectionConditions, ClosingNotifica
 	
 EndProcedure
 
-// Handler of the subordinate form selection result.
-// See "ClientApplicationForm.ChoiceProcessing" in Syntax Assistant.
+// 
+// 
 //
 // Parameters:
 //   ReportForm - ClientApplicationForm
-//               - ManagedFormExtensionForReports - 
+//               - ManagedFormExtensionForReports - Report form.:
 //                   * Report - ReportObject - Form data structure similar to the report object.
 //
 //   ValueSelected - Arbitrary     - Selection result in a subordinate form.
@@ -115,35 +115,35 @@ Procedure ChoiceProcessing(ReportForm, ValueSelected, ChoiceSource, Result) Expo
 	
 EndProcedure
 
-// Handler for double click, clicking Enter, or a hyperlink in a report form spreadsheet document.
+// Handler of double click, Enter, and hyperlink activation in report form spreadsheets.
 // See "Form field extension for a spreadsheet document field.Choice" in Syntax Assistant.
 //
 // Parameters:
 //   ReportForm - ClientApplicationForm
-//               - ManagedFormExtensionForReports - 
+//               - ManagedFormExtensionForReports - Report form.:
 //                   * Report - ReportObject - Form data structure similar to the report object.
 //
 //   Item     - FormField        - Spreadsheet document.
 //   Area     - SpreadsheetDocumentRange - Selected value.
-//   StandardProcessing - Boolean - indicates whether standard event processing is executed.
+//   StandardProcessing - Boolean - Flag indicating whether standard event processing is executed.
 //
 Procedure SpreadsheetDocumentSelectionHandler(ReportForm, Item, Area, StandardProcessing) Export
 	
 EndProcedure
 
-// Handler of report form broadcast notification.
-// See "ClientApplicationForm.NotificationProcessing" in Syntax Assistant.
+// 
+// 
 //
 // Parameters:
 //   ReportForm - ClientApplicationForm
-//               - ManagedFormExtensionForReports - 
+//               - ManagedFormExtensionForReports - Report form.:
 //                   * Report - ReportObject - Form data structure similar to the report object.
 //
 //   EventName  - String           - Event ID for receiving forms.
-//   Parameter    - Arbitrary     - extended information about an event.
+//   Parameter    - Arbitrary     - Extended information about the event.
 //   Source    - ClientApplicationForm
-//               - Arbitrary - event source.
-//   NotificationProcessed - Boolean - indicates that an event is processed.
+//               - Arbitrary - Event source.
+//   NotificationProcessed - Boolean - Flag indicating that an event is processed.
 //
 Procedure NotificationProcessing(ReportForm, EventName, Parameter, Source, NotificationProcessed) Export
 	
@@ -156,7 +156,7 @@ EndProcedure
 //
 // Parameters:
 //   ReportForm - ClientApplicationForm
-//               - ManagedFormExtensionForReports - 
+//               - ManagedFormExtensionForReports - Report form:
 //                   * Report - ReportObject - Form data structure similar to the report object.
 //
 //   Period - StandardPeriod - Composer setting value that matches the selected period.
@@ -164,10 +164,10 @@ EndProcedure
 //   StandardProcessing - Boolean - If True, the standard period selection dialog box will be used.
 //       If it is set to False, the standard dialog box will not open.
 //
-//   ResultHandler - NotifyDescription - a handler of period selection result.
-//       The following type values can be passed to the ResultHandler as the result:
-//       Undefined - user canceled the period input.
-//       StandardPeriod - the selected period.
+//   ResultHandler - NotifyDescription - Period selection handler.
+//       The following type values can be passed to the ResultHandler as the result::
+//       Undefined - User canceled the period input.
+//       StandardPeriod - Period specified by the user.
 //
 Procedure OnClickPeriodSelectionButton(ReportForm, Period, StandardProcessing, ResultHandler) Export
 	

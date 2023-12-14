@@ -21,7 +21,7 @@
 Procedure OpenAdditionalReportAndDataProcessorCommandsForm(CommandParameter, CommandExecuteParameters, Kind, SectionName = "") Export
 	
 	RelatedObjects = New ValueList;
-	If TypeOf(CommandParameter) = Type("Array") Then // 
+	If TypeOf(CommandParameter) = Type("Array") Then // Assignable data processor.
 		RelatedObjects.LoadValues(CommandParameter);
 	ElsIf CommandParameter <> Undefined Then
 		RelatedObjects.Add(CommandParameter);
@@ -32,7 +32,7 @@ Procedure OpenAdditionalReportAndDataProcessorCommandsForm(CommandParameter, Com
 	Parameters.Kind = Kind;
 	Parameters.SectionName = SectionName;
 	
-	If TypeOf(CommandExecuteParameters.Source) = Type("ClientApplicationForm") Then // 
+	If TypeOf(CommandExecuteParameters.Source) = Type("ClientApplicationForm") Then // Assignable data processor.
 		Parameters.Insert("FormName", CommandExecuteParameters.Source.FormName);
 	EndIf;
 	
@@ -72,7 +72,7 @@ EndProcedure
 //   Ref - CatalogRef.AdditionalReportsAndDataProcessors - a reference to a report or data processor being executed.
 //
 // Returns:
-//   Structure - 
+//   Structure - :
 //      * AdditionalDataProcessorRef - CatalogRef.AdditionalReportsAndDataProcessors - passed "as is" from
 //                                                                                          the form parameters.
 //      * AccompanyingText1 - String - a text of a long-running operation.
@@ -105,19 +105,19 @@ EndFunction
 //       In addition to standard parameters, the procedure can have custom parameters used in the command handler.
 //       It is recommended that you add a prefix, such as "Context…", to custom parameter names
 //       to avoid exact matches with standard parameter names.
-//   Handler - NotifyDescription - details of the procedure that gets the background job result.
-//       See details of the second parameter (CompletionNotification) of procedure TimeConsumingOperationsClient.WaitForCompletion().
-//       Procedure parameters:
+//   Handler - NotifyDescription - 
+//       
+//       :
 //         * Job - Structure
-//                   - Undefined - 
+//                   - Undefined - :
 //             ** Status - String - Completed (the job is completed) or Error (the job threw an exception).
 //             ** ResultAddress - String - an address of the temporary storage for the procedure result.
 //                 The result is filled in the ExecutionParameters.ExecutionResult structure of the command handler.
 //             ** BriefErrorDescription   - String - contains brief description of the exception if Status = "Error".
 //             ** DetailErrorDescription - String - contains detailed description of the exception if Status = "Error".
 //             ** Messages - FixedArray
-//                          - Undefined - 
-//         * AdditionalParameters - the value that was specified when creating the message Description object.
+//                          - Undefined - messages from the background job.
+//         * AdditionalParameters - a value that was specified on creating the NotifyDescription object.
 //
 // Example:
 //	&AtClient
@@ -167,7 +167,7 @@ Procedure ExecuteCommandInBackground(Val CommandID, Val CommandParameters, Val H
 	Else
 		Form = Handler;
 		Handler = Undefined;
-		MustReceiveResult = True; // 
+		MustReceiveResult = True; 
 	EndIf;
 	
 	Job = AdditionalReportsAndDataProcessorsServerCall.StartTimeConsumingOperation(Form.UUID, CommandParameters);
@@ -184,7 +184,7 @@ Procedure ExecuteCommandInBackground(Val CommandID, Val CommandParameters, Val H
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(Form);
 	WaitSettings.MessageText       = AccompanyingText1;
 	WaitSettings.OutputIdleWindow = True;
-	WaitSettings.MustReceiveResult    = MustReceiveResult; // 
+	WaitSettings.MustReceiveResult    = MustReceiveResult; 
 	WaitSettings.OutputMessages    = True;
 	
 	TimeConsumingOperationsClient.WaitCompletion(Job, Handler, WaitSettings);
@@ -245,7 +245,7 @@ EndProcedure
 // External print command handler.
 //
 // Parameters:
-//  CommandToExecute - Structure        - a structure from the command table row, see 
+//  CommandToExecute - Structure        - a structure from the command table row, see
 //                                        AdditionalReportsAndDataProcessors.OnReceivePrintCommands.
 //  Form            - ClientApplicationForm - a form where the print command is executed.
 //
@@ -256,7 +256,7 @@ Procedure ExecuteAssignablePrintCommand(CommandToExecute, Form) Export
 		CommandToExecute.Insert(KeyAndValue.Key, KeyAndValue.Value);
 	EndDo;
 	
-	// 
+	// Writing fixed parameters.
 	CommandToExecute.Insert("IsReport", False);
 	CommandToExecute.Insert("Kind", PredefinedValue("Enum.AdditionalReportsAndDataProcessorsKinds.PrintForm"));
 	
@@ -284,7 +284,7 @@ EndProcedure
 //          ** AdditionalParameters - See AdditionalReportsAndDataProcessors.AdditionalCommandParameters
 //       * Form - ClientApplicationForm - a form where the command is called.
 //       * Source - FormDataStructure
-//                  - FormTable - 
+//                  - FormTable - an object or a form list with the Reference field.
 //
 Procedure OpenCommandList(Val ReferencesArrray, Val ExecutionParameters) Export
 	Context = New Structure;
@@ -309,8 +309,8 @@ Procedure HandlerFillingCommands(Val ReferencesArrray, Val ExecutionParameters) 
 	
 	ShowNotificationOnCommandExecution(CommandToExecute);
 	
-	// 
-	// 
+	
+	
 	If CommandToExecute.StartupOption = PredefinedValue("Enum.AdditionalDataProcessorsCallMethods.OpeningForm") Then
 		
 		ExternalObjectName = AdditionalReportsAndDataProcessorsServerCall.AttachExternalDataProcessor(CommandToExecute.Ref);
@@ -487,10 +487,10 @@ EndProcedure
 Procedure ExecutePrintFormOpening(CommandToExecute, Form, RelatedObjects) Export
 	
 	StandardProcessing = True;
-	// ACC:222-
+	// ACC:222-off For backward compatibility.
 	AdditionalReportsAndDataProcessorsClientOverridable.BeforeExecuteExternalPrintFormPrintCommand(
 		RelatedObjects, StandardProcessing);
-	// 
+	// ACC:222-on
 	If CommonClient.SubsystemExists("StandardSubsystems.Print") Then
 		ModulePrintManagerInternalClient = CommonClient.CommonModule("PrintManagementInternalClient");
 		ModulePrintManagerInternalClient.ExecutePrintFormOpening(

@@ -330,7 +330,7 @@ Function CheckAttributesFilling()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure Timeout2()
@@ -437,7 +437,7 @@ Function GenerateScriptFiles()
 	ScriptFileName = CopyingParameters.TempFilesDirForUpdate + "main.js";
 	ScriptFile.Write(ScriptFileName, IBBackupClient.IBBackupApplicationFilesEncoding());
 	
-	// 
+	// Auxiliary file: helpers.js.
 	ScriptFile = New TextDocument;
 	ScriptFile.Output = UseOutput.Enable;
 	ScriptFile.SetText(Scripts.AddlBackupFile);
@@ -487,6 +487,9 @@ Function GenerateScriptText(ScriptParameters)
 	Script = ScriptTemplate.GetArea("ParametersArea");
 	Script.DeleteLine(1);
 	Script.DeleteLine(Script.LineCount());
+	If StrStartsWith(Script.GetLine(Script.LineCount()), "#") Then
+		Script.DeleteLine(Script.LineCount());
+	EndIf;
 	
 	Text = ScriptTemplate.GetArea("BackupArea");
 	Text.DeleteLine(1);
@@ -502,9 +505,9 @@ Function InsertScriptParameters(Val Text, Val ScriptParameters)
 	
 	TextParameters = IBBackupServer.PrepareCommonScriptParameters(ScriptParameters);
 	TextParameters["[BackupFile]"] = IBBackupServer.PrepareText(Object.BackupImportFile);
-	// ACC:495-
+	// CAC:495-disable TempFilesDir is used as automatic deletion of a temporary directory is not allowed.
 	TextParameters["[TempFilesDir]"] = IBBackupServer.PrepareText(TempFilesDir()); 
-	// ACC:495-
+	// ACC:495-on
 	Return IBBackupServer.SubstituteParametersToText(Text, TextParameters);
 	
 EndFunction

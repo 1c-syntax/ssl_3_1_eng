@@ -31,14 +31,14 @@ EndProcedure
 //
 //   * MessageRecipients - Array - array of structures describing recipients:
 //                            * ContactInformationSource - CatalogRef - a contact information owner.
-//                            * Address - String - email address of the message recipient.
+//                            * Address - String - an email address (required).
 //                            * Presentation - String - an addressee presentation.
 //
 //   * Cc      - Array - a collection of address structures:
-//                   * Address         - String - postal address (must be filled in).
+//                   * Address         - String - an email address (required).
 //                   * Presentation - String - a recipient's name.
 //                  
-//                - String - 
+//                - String - recipient email addresses, separator - ";".
 //
 //   * BCCs - Array
 //                  - String - see the "Cc" field description.
@@ -49,28 +49,28 @@ EndProcedure
 //   * Attachments   - Map of KeyAndValue:
 //                   * Key     - String - an attachment description.
 //                   * Value - BinaryData
-//                              - String - 
+//                              - String -  a binary data address of an attachment in a temporary storage.
 //                              - Structure:
 //                                 * BinaryData - BinaryData - attachment binary data.
 //                                 * Id  - String - an attachment ID, used to store pictures
 //                                                             displayed in the email body.
 //
 //   * ReplyToAddress - Map - see the "To" field description.
-//   * Password      - String -
+//   * Password      - String - email password.
 //   * BasisIDs - String - IDs of the message basis objects.
 //   * ProcessTexts  - Boolean - shows whether message text processing is required on sending.
 //   * RequestDeliveryReceipt  - Boolean - shows whether a delivery notification is required.
 //   * RequestReadReceipt - Boolean - shows whether a read notification is required.
 //   * TextType   - String
 //                 - EnumRef.EmailTextTypes
-//                 - InternetMailTextType - 
-//                  
-//                  
-//                  
-//                                                 
-//                                                 
-//                  
-//                                                 
+//                 - InternetMailTextType - specifies the type
+//                  of the passed text, possible values::
+//                  HTML/EmailTextTypes.HTML. Email text in HTML format.
+//                  PlainText/EmailTextTypes.PlainText. Plain text of an email message.
+//                                                 Displayed "as is" (default
+//                                                 value).
+//                  MarkedUpText/EmailTextTypes.MarkedUpText. Email message in
+//                                                 Rich Text format.
 //
 Procedure AfterEmailSending(EmailParameters) Export
 	
@@ -78,30 +78,30 @@ Procedure AfterEmailSending(EmailParameters) Export
 	
 EndProcedure
 
-// 
-// 
+// Specifies a list of emails to receive the delivered/read status for.
+// For the email list determination example, see ReportsDistribution.BeforeGetEmailMessagesStatuses
 //
 //   Parameters:
 //  EmailMessagesIDs - ValueTable:
 //   * Sender - CatalogRef.EmailAccounts
 //   * EmailID - String
-//   * RecipientAddress - String -
+//   * RecipientAddress - String - recipient email
 //
 Procedure BeforeGetEmailMessagesStatuses(EmailMessagesIDs) Export
 	
 EndProcedure
 
-// 
-// 
+// Returns information only about known delivery statuses (if corresponding emails were received).
+// For an example of processing received email statuses, see ReportsMailing.AfterGetEmailMessagesStatuses
 //
 // Parameters:
 //  DeliveryStatuses - ValueTable:
 //   * Sender - CatalogRef.EmailAccounts
 //   * EmailID - String 
-//   * RecipientAddress - String -
+//   * RecipientAddress - String - recipient email
 //   * Status - EnumRef.EmailMessagesStatuses 
 //   * StatusChangeDate - Date
-//   * Cause - String -
+//   * Cause - String - reason for email non-delivery
 //
 Procedure AfterGetEmailMessagesStatuses(DeliveryStatuses) Export
 	

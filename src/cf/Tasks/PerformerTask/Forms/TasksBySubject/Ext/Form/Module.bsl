@@ -167,8 +167,8 @@ Procedure RefreshTasksList()
 		FillTaskTree();
 	Else
 		Items.List.Refresh();
-		// 
-		// 
+		
+		
 		BusinessProcessesAndTasksServer.SetTaskAppearance(List); 
 	EndIf;
 	
@@ -309,7 +309,7 @@ Procedure AddSubordinateBusinessProcesses(Tree, TasksBySubject)
 
 	While SelectionDetailRecords.Next() Do
 		
-		// 
+		// @skip-check query-in-loop - Recursive algorithm to process a tree.
 		AddSubordinateBusinessProcessTasks(Tree, SelectionDetailRecords.Ref, SelectionDetailRecords.TaskRef);
 		
 	EndDo;

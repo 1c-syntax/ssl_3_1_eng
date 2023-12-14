@@ -17,16 +17,16 @@
 // Used for calling print forms based on office document templates from client modules.
 //
 // Parameters:
-//   PrintManagerName - String - a name for accessing the object manager, for example, "Document.<Document name>".
-//   TemplatesNames       - String - names of templates used for print form generation.
-//   DocumentsComposition   - Array - references to infobase objects (all references must be of the same type).
+//   PrintManagerName - String - Name used for accessing the object manager. For example, "Document.<Document name>".
+//   TemplatesNames       - String - Names of templates used for print form generation.
+//   DocumentsComposition   - Array - References to infobase objects (all references must be of the same type).
 //
 // Returns:
-//  Map of KeyAndValue - 
-//   * Key - AnyRef - reference to an infobase object;
+//  Map of KeyAndValue - Collection of references to objects and their data.:
+//   * Key - AnyRef - Reference to an infobase object.
 //   * Value - Structure:
-//       ** Key - String - template name;
-//       ** Value - Structure - object data.
+//       ** Key - String - Template name.
+//       ** Value - Structure - Object data.
 //
 Function TemplatesAndObjectsDataToPrint(Val PrintManagerName, Val TemplatesNames, Val DocumentsComposition) Export
 	
@@ -40,7 +40,7 @@ EndFunction
 
 // Generates print forms for direct output to a printer.
 //
-// Detailed - for details, see PrintManagement.GeneratePrintFormsForQuickPrint(). 
+// Detailed - See PrintManagement.GeneratePrintFormsForQuickPrint().
 //
 Function GeneratePrintFormsForQuickPrint(PrintManagerName, TemplatesNames, ObjectsArray,	PrintParameters) Export
 	
@@ -51,7 +51,7 @@ EndFunction
 
 // Generates print forms for direct output to a printer in an ordinary application.
 //
-// Detailed - for details, see PrintManagement.GeneratePrintFormsForQuickPrintOrdinaryApplication(). 
+// Detailed - See PrintManagement.GeneratePrintFormsForQuickPrintOrdinaryApplication().
 //
 Function GeneratePrintFormsForQuickPrintOrdinaryApplication(PrintManagerName, TemplatesNames, ObjectsArray, PrintParameters) Export
 	
@@ -97,7 +97,7 @@ Function StartGeneratingPrintForms(ParametersForOpeningIncoming) Export
 				 TypeOf(OpeningParameters.CommandParameter)));
 	EndIf;
 
-	// 
+	// Support of backward compatibility with version 2.1.3.
 	PrintParameters = OpeningParameters.PrintParameters;
 	If OpeningParameters.PrintParameters = Undefined Then
 		PrintParameters = New Structure;

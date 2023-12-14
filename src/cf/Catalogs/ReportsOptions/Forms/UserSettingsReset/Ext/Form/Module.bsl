@@ -69,7 +69,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServerNoContext
 Procedure ResetUserSettingsServer(Val OptionsToAssign)

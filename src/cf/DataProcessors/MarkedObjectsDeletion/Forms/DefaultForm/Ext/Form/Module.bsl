@@ -9,7 +9,7 @@
 
 #Region Variables
 
-// 
+
 &AtClient
 Var CurrentOperation1; // See TimeConsumingOperations.ExecuteFunction
 
@@ -1002,7 +1002,7 @@ EndProcedure
 
 &AtClient
 Procedure AfterSettingTheExclusiveMode(Result, AdditionalParameters) Export
-	If Result = False Then // 
+	If Result = False Then // The exclusive mode is set.
 		AddJob(FormJobs().DeleteMarkedObjects);
 		RunJob();
 	EndIf;
@@ -1080,7 +1080,7 @@ Procedure SetConditionalAppearance()
 	AppearanceField = AppearanceItem.Fields.Items.Add();
 	AppearanceField.Field = New DataCompositionField("NotDeletedItemRelationsAction");
 	
-	// 
+	// Hyperlink color.
 	AppearanceItem = ConditionalAppearanceItems.Add();
 	AppearanceFilter = AppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	AppearanceFilter.LeftValue = New DataCompositionField("NotDeletedItemsUsageInstances.MainReason");
@@ -1095,7 +1095,7 @@ Procedure SetConditionalAppearance()
 	// Column titles.
 	SetConditionalAppearanceOfAdditionalAttributes(ConditionalAppearanceItems, InactiveLabelColor);
 	
-	// 
+	// Action availability.
 	AppearanceItem = ConditionalAppearanceItems.Add();
 	AppearanceFilter = AppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	AppearanceFilter.LeftValue = New DataCompositionField("NotDeletedItemsUsageInstances.MainReason");
@@ -1184,7 +1184,7 @@ Procedure FillNotDeletedObjectsUsageInstances(Form)
 	Form.ReasonsForNotDeletionCache.Clear();
 	
 	If TreeRow = Undefined Or TreeRow.PictureNumber < 1 Then
-		// 
+		// Nothing or a group is selected.
 		Form.ErrorText = NStr("en = 'Select an object to view the reason
 			|why it cannot be deleted.';")
 	Else
@@ -1412,7 +1412,7 @@ EndProcedure
 
 &AtClientAtServerNoContext
 Procedure SetMetadataFilter(Form, Result)
-	Form.MetadataFilter = ?(Result = Undefined, New ValueList, Result.Copy());// ValueList of String
+	Form.MetadataFilter = ?(Result = Undefined, New ValueList, Result.Copy());// ValueList of String.
 	Form.Items.ConfigureFilter.Title = MetadataFilterPresentation(Result);
 EndProcedure
 
@@ -1713,8 +1713,7 @@ Procedure AfterMarkedObjectsDeletionCompletion(Result, AdditionalParameters) Exp
 	ShowDialogBeforeClose = False;
 	
 	If Result.Status = "Error" Then
-		
-		DeletionResultsInfo = ProcessDeletionResultError(ThisObject, Result);
+		DeletionResultsInfo = ProcessDeletionResultError(Result);
 	ElsIf Result.Status = "Completed2" Then 
 		UUIDConsideringOwner = ?(FormOwner = Undefined, UUID, FormOwner.UUID);
 		DeletionResultsInfo = ProcessTheDeletionResultSuccess(Result, 
@@ -1729,10 +1728,10 @@ Procedure AfterMarkedObjectsDeletionCompletion(Result, AdditionalParameters) Exp
 	EndIf;
 EndProcedure
 
-&AtClient
-Function ProcessDeletionResultError(Var_ThisObject, Result)
+&AtServer
+Function ProcessDeletionResultError(Result)
 	SetObjectsMarkedForDeletionSelectionStateWithStatePanel();
-	FillInformationWithBackgroundJobErrors(Var_ThisObject, Result);
+	FillInformationWithBackgroundJobErrors(ThisObject, Result);
 	SetExclusiveModeAtServer(False);
 	Return MarkedObjectsDeletionInternalClientServer.NewDeletionResultsInfo();
 EndFunction
@@ -1740,11 +1739,12 @@ EndFunction
 &AtServer
 Function ProcessTheDeletionResultSuccess(Result, FormUniqueID, DeletionResultsInfo)
 	
-	DeletionResultsInfo = ImportDeletionResult(Result, 
-		FormUniqueID, DeletionResultsInfo);
-	ProcessDeletionExecutionResult(DeletionResultsInfo);
+	DeletionResultsInfo = ImportDeletionResult(Result, FormUniqueID, 
+		DeletionResultsInfo);
+	If DeletionResultsInfo.ResultAddress <> "" Then 
+		ProcessDeletionExecutionResult(DeletionResultsInfo);
+	EndIf;
 	SetExclusiveModeAtServer(False);
-	
 	Return DeletionResultsInfo;
 	
 EndFunction
@@ -1776,6 +1776,7 @@ EndProcedure
 // Parameters:
 //   DeletionResult - Structure:
 //   * ResultAddress - String
+//   
 // Returns:
 //   See MarkedObjectsDeletionInternalClientServer.NewDeletionResultsInfo
 //
@@ -1785,6 +1786,10 @@ Function ImportDeletionResult(DeletionResult, ResultStorageID, ResultInfo)
 	If TypeOf(GeneralOutput) = Type("Structure") Then
 		BackgroundExecutionResult = GeneralOutput;
 	Else
+		If GeneralOutput[0].Status = "Error" Then
+			Return ProcessDeletionResultError(GeneralOutput[0]);
+		EndIf;	
+		
 		BackgroundExecutionResult = GetFromTempStorage(GeneralOutput[0].ResultAddress);
 		For BatchIndex = 1 To BatchesCount - 1 Do
 			BatchResultAddress = GeneralOutput[BatchIndex].ResultAddress;
@@ -1815,12 +1820,12 @@ Function ImportDeletionResult(DeletionResult, ResultStorageID, ResultInfo)
 	Result = GenerateDeletionResult(ResultInfo, BackgroundExecutionResult,
 		ResultStorageID);
 
-	FillFormDataTreeItemCollection(MarkedForDeletionItemsTree,
-		BackgroundExecutionResult.MarkedForDeletionItemsTree);
-	FillFormDataTreeItemCollection(NotTrash, BackgroundExecutionResult.NotTrash);
-
-	NotDeletedItemsLinks.Load(BackgroundExecutionResult.NotDeletedItemsLinks);
-
+	If BackgroundExecutionResult <> Undefined Then
+		FillFormDataTreeItemCollection(MarkedForDeletionItemsTree,
+			BackgroundExecutionResult.MarkedForDeletionItemsTree);
+		FillFormDataTreeItemCollection(NotTrash, BackgroundExecutionResult.NotTrash);
+		NotDeletedItemsLinks.Load(BackgroundExecutionResult.NotDeletedItemsLinks);
+	EndIf;
 	Return Result;
 EndFunction
 
@@ -1915,15 +1920,20 @@ Function GenerateDeletionResult(ResultInfo, BackgroundExecutionResult, ResultSto
 		GetFromTempStorage(Result.ResultAddress),
 		MarkedObjectsDeletionInternal.ObjectsPreventingDeletion());
 	
-	CommonClientServer.SupplementArray(Result.Trash, BackgroundExecutionResult.Trash);
-	Result.DeletedItemsCount1 = BackgroundExecutionResult.DeletedItemsCount + Result.DeletedItemsCount1;
-	Result.NotDeletedItemsCount1 = BackgroundExecutionResult.NotDeletedObjectsCount + Result.NotDeletedItemsCount1;
-	Result.Success = Result.DeletedItemsCount1 > 0 And Result.NotDeletedItemsCount1 = 0;
+	If BackgroundExecutionResult <> Undefined Then
+		CommonClientServer.SupplementArray(Result.Trash, BackgroundExecutionResult.Trash);
+		Result.DeletedItemsCount1 = BackgroundExecutionResult.DeletedItemsCount + Result.DeletedItemsCount1;
+		Result.NotDeletedItemsCount1 = BackgroundExecutionResult.NotDeletedObjectsCount + Result.NotDeletedItemsCount1;
+		Result.Success = Result.DeletedItemsCount1 > 0 And Result.NotDeletedItemsCount1 = 0;
 	
-	NotDeletedResultItemRelations = MarkedObjectsDeletionInternal.TablesMerge(
-			ItemsPreventingDeletionResult,
-			BackgroundExecutionResult.NotDeletedItemsLinks,
-			True);
+		NotDeletedResultItemRelations = MarkedObjectsDeletionInternal.TablesMerge(
+				ItemsPreventingDeletionResult,
+				BackgroundExecutionResult.NotDeletedItemsLinks,
+				True);
+	Else
+		NotDeletedResultItemRelations = ItemsPreventingDeletionResult;
+	EndIf;
+
 	Result.ResultAddress = PutToTempStorage(
 		NotDeletedResultItemRelations, ResultStorageID);
 			

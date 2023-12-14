@@ -15,7 +15,7 @@
 //  FullTableName - String - a name of the table that corresponds to the metadata object.
 // 
 // Returns:
-//  String - 
+//  String - system presentation of a value table containing data of the specified metadata object.
 //
 Function GetTableObjects(FullTableName) Export
 	
@@ -29,7 +29,7 @@ EndFunction
 //  FullTableName - String - a name of the table that corresponds to the metadata object.
 // 
 // Returns:
-//  String - 
+//  String - an XML string of serialized presentation of the value table containing specified metadata object data.
 //
 Function GetTableObjects_2_0_1_6(FullTableName) Export
 	
@@ -43,7 +43,7 @@ EndFunction
 //  FullTableName - String - a name of the table that corresponds to the metadata object.
 // 
 // Returns:
-//  СтруктураНастроек - 
+//  СтруктураНастроек - :
 //    * Synonym - String - synonym.
 //    * Hierarchical - String - the Hierarchical flag.
 //

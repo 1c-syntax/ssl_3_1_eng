@@ -23,8 +23,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	SectionsProperties = PeriodClosingDatesInternal.SectionsProperties();
 	
-	// 
-	// 
+	
+	
 	HasRightToViewPeriodEndClosingDates =
 		Users.RolesAvailable("ReadPeriodEndClosingDates, AddEditPeriodClosingDates",, False);
 	
@@ -37,7 +37,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	HasRightToEditDataImportRestrictionDates = HasRightToViewDataImportRestrictionDates
 		And Users.RolesAvailable("AddEditDataImportRestrictionDates",, False);
-	// 
+	// ACC:515-on
 	If Parameters.DataImportRestrictionDates Then
 		If Not SectionsProperties.ImportRestrictionDatesImplemented Then
 			Raise PeriodClosingDatesInternal.ErrorTextImportRestrictionDatesNotImplemented();
@@ -355,7 +355,7 @@ Procedure PeriodEndClosingDateSettingMethodChoiceProcessing(Item, ValueSelected,
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure PeriodEndClosingDateDetailsOnChange(Item)
@@ -493,8 +493,8 @@ Procedure UsersBeforeRowChange(Item, Cancel)
 	Field          = Item.CurrentItem;
 	
 	If Field <> Items.UsersFullPresentation And Not ValueIsFilled(CurrentData.Presentation) Then
-		// 
-		// 
+		
+		
 		Item.CurrentItem = Items.UsersFullPresentation;
 	EndIf;
 	
@@ -523,7 +523,7 @@ Procedure UsersBeforeDeleteRow(Item, Cancel)
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("CurrentData", CurrentData);
 	
-	// 
+	// Item for all users is always present.
 	AdditionalParameters.Insert("ClosingDatesForAllUsers",
 		CurrentData.User = ValueForAllUsers);
 	
@@ -624,7 +624,7 @@ Procedure UsersChoiceProcessingAtServer(ValueSelected)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure UsersFullPresentationOnChange(Item)
@@ -707,7 +707,7 @@ Procedure UsersFullPresentationTextEditEnd(Item, Text, ChoiceData, StandardProce
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure UsersCommentOnChange(Item)
@@ -785,7 +785,7 @@ Procedure ClosingDatesBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group)
 			
 			If Not CurrentData.IsSection
 			      And Parent <> Undefined Then
-				// 
+				// Adding the object to the section.
 				Cancel = True;
 				Item.CurrentRow = Parent.GetID();
 				Item.AddRow();
@@ -838,8 +838,8 @@ Procedure ClosingDatesBeforeRowChange(Item, Cancel)
 		EndIf;
 	Else
 		If Not ValueIsFilled(CurrentData.Presentation) Then
-			// 
-			// 
+			
+			
 			CurrentItem = Items.ClosingDatesFullPresentation;
 			
 		ElsIf CurrentData.PeriodEndClosingDateDetails <> "Custom"
@@ -870,7 +870,7 @@ Procedure ClosingDatesBeforeRowChange(Item, Cancel)
 		Items.ClosingDatesPeriodEndClosingDateDetailsPresentation.ReadOnly = False;
 		Items.ClosingDatesPeriodEndClosingDate.ReadOnly = False;
 	Else
-		// 
+		// Lock unavailable fields.
 		Items.ClosingDatesFullPresentation.ReadOnly =
 			ValueIsFilled(CurrentData.Presentation);
 		
@@ -1059,7 +1059,7 @@ Procedure ClosingDatesChoiceProcessing(Item, ValueSelected, StandardProcessing)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure ClosingDatesFullPresentationStartChoice(Item, ChoiceData, StandardProcessing)
@@ -1134,7 +1134,7 @@ Procedure ClosingDatesFullPresentationChoiceProcessing(Item, ValueSelected, Stan
 		EndIf;
 	EndIf;
 	
-	// 
+	// Set the selected object.
 	CurrentData.Object = ValueSelected;
 	CurrentData.Presentation = String(CurrentData.Object);
 	CurrentData.FullPresentation = CurrentData.Presentation;
@@ -1147,7 +1147,7 @@ Procedure ClosingDatesFullPresentationChoiceProcessing(Item, ValueSelected, Stan
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure ClosingDatesPeriodEndClosingDateOnChange(Item)
@@ -1241,7 +1241,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = True;
 	
-	// 
+	// Mark the required object.
 	
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -1253,7 +1253,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.LeftValue = New DataCompositionField("ClosingDates.FullPresentation");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.NotFilled;
 	
-	// 
+	// Register an empty date.
 	
 	Item = ConditionalAppearance.Items.Add();
 	ItemField = Item.Fields.Items.Add();
@@ -1291,7 +1291,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = True;
 	
-	// 
+	// Appearance of a period-end closing date value is not set.
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -1311,7 +1311,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = False;
 	
-	// 
+	// Default period-end closing date.
 	Item = ConditionalAppearance.Items.Add();
 	Item.Appearance.SetParameterValue("Text", NStr("en = 'Default settings. Effective when there are no overriding settings.';"));
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
@@ -1458,8 +1458,8 @@ Procedure UsersFullPresentationChoiceProcessingIdleHandler()
 	EndIf;
 	ValueSelected = SelectedUser;
 	
-	// 
-	// 
+	
+	
 	Filter = New Structure("User", ValueSelected);
 	Rows = ClosingDatesUsers.FindRows(Filter);
 	
@@ -1615,7 +1615,7 @@ Procedure ClosingDatesBeforeDeleteRowCompletion(Response, SelectedRows) Export
 	
 	For Each SelectedRow In SelectedRows Do
 		CurrentData = ClosingDates.FindByID(SelectedRow);
-		If CurrentData = Undefined Then // 
+		If CurrentData = Undefined Then // Has already been deleted.
 			Continue;
 		EndIf;
 			
@@ -1625,7 +1625,7 @@ Procedure ClosingDatesBeforeDeleteRowCompletion(Response, SelectedRows) Export
 		EndIf;	
 		
 		CurrentSection = CurrentData.GetParent();
-		// 
+		
 		DeleteUserRecord(LocksAddress, 
 			?(CurrentSection <> Undefined, CurrentSection.Section, Undefined), 
 			CurrentData.Object, CurrentUser);
@@ -1846,7 +1846,7 @@ Procedure ReadUsers()
 	|		ELSE &DataImportRestrictionDates = TRUE
 	|	END";
 	
-	// 
+	
 	// 
 	Upload0 = Query.Execute().Unload();
 	
@@ -1944,7 +1944,7 @@ Procedure ReadUserData(Form, ErrorText, CurrentIndicationMethod = Undefined, Dat
 	If Form.PeriodEndClosingDateSettingMethod = "SingleDate" Then
 		Form.Items.DateSettingMethodBySectionsObjects.Visible = False;
 		Form.Items.DateSettingMethods.CurrentPage = Form.Items.DateSettingMethodSingleDate;
-		// 
+		// For pinning the "Advanced features" group
 		Form.Items.ClosingDates.VerticalStretch = False;
 		
 		FillPropertyValues(Form, Data);
@@ -2024,9 +2024,9 @@ Procedure ReadUserData(Form, ErrorText, CurrentIndicationMethod = Undefined, Dat
 	// Setting the field of the ClosingDates form.
 	If Form.ShowCurrentUserSections Then
 		If Form.AllSectionsWithoutObjects Then
-			// 
-			// 
-			// 
+			
+			
+			
 			Form.Items.ClosingDatesFullPresentation.Title = NStr("en = 'Section';");
 			Form.Items.ClosingDates.Representation = TableRepresentation.List;
 			
@@ -2119,8 +2119,8 @@ Function ReadUserDataWithSections(Val User,
                                               Val BegOfDay,
                                               Val DataImportRestrictionDates)
 	
-	// 
-	// 
+	
+	
 	Query = New Query;
 	Query.SetParameter("User",              User);
 	Query.SetParameter("AllSectionsWithoutObjects",     AllSectionsWithoutObjects);
@@ -2262,8 +2262,8 @@ Function ReadUserDataWithoutSections(Val User, Val SingleSection)
 		Query.SetParameter("User",           User);
 		Query.SetParameter("SingleSection",     SingleSection);
 		Query.SetParameter("SingleDatePresentation", CommonDatePresentationText());
-		// ACC:494-
-		// 
+		
+		
 		Query.Text =
 		"SELECT ALLOWED
 		|	VALUE(ChartOfCharacteristicTypes.PeriodClosingDatesSections.EmptyRef) AS Section,
@@ -2333,8 +2333,8 @@ Function HasInvalidObjectsByUsers(DataImportRestrictionDates)
 	
 	Query = New Query;
 	Query.SetParameter("DataImportRestrictionDates", DataImportRestrictionDates);
-	// ACC:1377-
-	// 
+	
+	
 	Query.Text =
 	"SELECT ALLOWED
 	|	ISNULL(SUM(CASE
@@ -2355,7 +2355,7 @@ Function HasInvalidObjectsByUsers(DataImportRestrictionDates)
 	|				THEN &DataImportRestrictionDates = FALSE
 	|			ELSE &DataImportRestrictionDates = TRUE
 	|		END";
-	// 
+	// ACC:1377-on
 	
 	SetPrivilegedMode(True);
 	Selection = Query.Execute().Select();
@@ -2372,8 +2372,8 @@ EndFunction
 &AtServerNoContext
 Function UnavailableObjects(User)
 	
-	// 
-	// 
+	
+	
 	Query = New Query;
 	Query.SetParameter("User", User);
 	Query.Text =
@@ -2384,7 +2384,7 @@ Function UnavailableObjects(User)
 	|WHERE
 	|	PeriodClosingDates.User = &User
 	|	AND PeriodClosingDates.Object.Ref IS NULL";
-	// 
+	// ACC:1377-on
 	
 	SetPrivilegedMode(True);
 	NonExistentObjects = Query.Execute().Unload().UnloadColumn("Object");
@@ -2880,7 +2880,7 @@ Procedure DeleteUserRecord(Val LocksAddress, Val Section, Val Object, Val User)
 	EndIf;
 	
 	For Each CurrentObject In Objects Do
-		// 
+		
 		LockUserRecordAtServer(LocksAddress,
 			Section, CurrentObject, User);
 	EndDo;
@@ -3424,7 +3424,7 @@ Procedure ChangeSettingOfPeriodEndClosingDate(Val ValueSelected, Val DeleteExtra
 			
 			// Lock records to delete.
 			For Each RecordKeyValues In RecordKeysValues Do
-				// 
+				
 				LockUserRecordAtServer(LocksAddress,
 					RecordKeyValues.Section,
 					RecordKeyValues.Object,
@@ -3433,7 +3433,7 @@ Procedure ChangeSettingOfPeriodEndClosingDate(Val ValueSelected, Val DeleteExtra
 			
 			// Delete locked records.
 			For Each RecordKeyValues In RecordKeysValues Do
-				// 
+				
 				DeleteUserRecord(LocksAddress,
 					RecordKeyValues.Section,
 					RecordKeyValues.Object,
@@ -3556,7 +3556,7 @@ Function CurrentClosingDateIndicationMethod(Val User, Val SingleSection, Val Val
 	EndIf;
 	
 	If QueryResults[0].IsEmpty() Then
-		// 
+		// Absent by objects and sections, when it is blank.
 		CurrentClosingDateIndicationMethod = ?(SingleDateIsRead, "SingleDate", "");
 		
 	ElsIf Not QueryResults[1].IsEmpty() Then
@@ -3564,7 +3564,7 @@ Function CurrentClosingDateIndicationMethod(Val User, Val SingleSection, Val Val
 		
 		If QueryResults[2].IsEmpty()
 		   And ValueIsFilled(SingleSection) Then
-			// 
+			// Only by SingleSection (without section dates), when it is blank.
 			CurrentClosingDateIndicationMethod = "ByObjects";
 		Else
 			CurrentClosingDateIndicationMethod = "BySectionsAndObjects";
@@ -3668,7 +3668,7 @@ Procedure EditPeriodEndClosingDateInFormCompletion(SelectedRows) Export
 	// Locking records of the selected rows.
 	For Each SelectedRow In SelectedRows Do
 		CurrentData = ClosingDates.FindByID(SelectedRow);
-		// 
+		
 		ReadProperties = LockUserRecordAtServer(LocksAddress,
 			CurrentSection(CurrentData), CurrentData.Object, CurrentUser);
 		
@@ -3801,7 +3801,7 @@ Procedure FillByInternalDetailsOfPeriodEndClosingDate(Val Data, Val InternalDeta
 		PeriodEndClosingDateDetails = StrGetLine(InternalDetails, 1);
 		PermissionDaysCount = StrGetLine(InternalDetails, 2);
 		If PeriodClosingDatesInternalClientServer.ClosingDatesDetails()[PeriodEndClosingDateDetails] = Undefined Then
-			Data.PeriodEndClosingDate = '39990303'; // 
+			Data.PeriodEndClosingDate = '39990303'; // Unknown format.
 		Else
 			Data.PeriodEndClosingDateDetails = PeriodEndClosingDateDetails;
 			If ValueIsFilled(PermissionDaysCount) Then
@@ -3849,7 +3849,7 @@ Procedure LockAndWriteBlankDates(LocksAddress, Section, Object, User, Comment)
 	EndIf;
 	
 	For Each CurrentObject In ObjectsForAdding Do
-		// 
+		
 		LockUserRecordAtServer(LocksAddress,
 			Section, CurrentObject, User);
 	EndDo;
@@ -3926,7 +3926,7 @@ Function CurrentUserComment(Form)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClientAtServerNoContext
 Function PresentationTextForAllUsers(Form)

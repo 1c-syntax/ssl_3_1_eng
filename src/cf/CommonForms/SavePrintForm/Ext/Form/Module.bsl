@@ -31,7 +31,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, "");
 	EndIf;
 	
-	// Default save location.
+	// Default save destination.
 	SavingOption = "SaveToFolder";
 	
 	// Visibility setup.
@@ -49,8 +49,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		HasOpportunityToAttach = False;
 	EndIf;
 	
+	AttachmentElement = Items.SavingOption.ChoiceList.FindByValue("Join");
+	
 	If Not HasOpportunityToAttach Then
-		Items.SavingOption.ChoiceList.Delete(1);
+		Items.SavingOption.ChoiceList.Delete(AttachmentElement);
+		AttachmentElement = Undefined;
 		SavingOption = "SaveToFolder";
 		Items.SavingOption.ReadOnly = True;
 	EndIf;
@@ -63,9 +66,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	Items.FolderToSaveFiles.Visible = Parameters.FileOperationsExtensionAttached;
 	
-	If Parameters.PrintObjects.Count() > 1 Then
-		Items.SavingOption.ChoiceList[1].Presentation = NStr("en = 'Attach to documents';")
-								+ " (" + Format(Parameters.PrintObjects.Count(), "NFD=0;") + ")";
+	If Parameters.PrintObjects.Count() > 1 And AttachmentElement <> Undefined Then
+		AttachmentElement.Presentation = NStr("en = 'Attach to documents';")
+				+ " (" + Format(Parameters.PrintObjects.Count(), "NFD=0;") + ")";
 	EndIf;
 	
 	If Common.IsMobileClient() Then
@@ -134,8 +137,8 @@ Procedure FolderToSaveFilesStartChoice(Item, ChoiceData, StandardProcessing)
 	
 EndProcedure
 
-// Handler of saved files directory selection completion.
-//  See FileDialog.Show() in the Syntax Assistant.
+// 
+//  
 //
 &AtClient
 Procedure FolderToSaveFilesSelectionCompletion(Folder, AdditionalParameters) Export 

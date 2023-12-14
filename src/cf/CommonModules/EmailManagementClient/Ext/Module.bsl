@@ -144,7 +144,7 @@ Procedure SendReceiveUserEmailCompletion(Result, AdditionalParameters) Export
 			ExecutionResult = GetFromTempStorage(Result.ResultAddress);
 			If ExecutionResult.HasErrors Then
 				ShowUserNotification(Title, "e1cib/app/DataProcessor.EventLog", 
-					NStr("en = 'Not all the mail has been synced. See the Event Log for details.';"), 
+					NStr("en = 'Not all the mail has been synced. See the event log for details.';"), 
 					PictureLib.Warning, UserNotificationStatus.Important);
 			Else	
 				ShowUserNotification(Title, AdditionalParameters.URL,

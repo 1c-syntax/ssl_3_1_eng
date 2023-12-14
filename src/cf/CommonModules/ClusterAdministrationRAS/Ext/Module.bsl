@@ -164,7 +164,7 @@ EndProcedure
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.ФильтрСеансов, Array Of See ClusterAdministration.SessionsFilter
+//   Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
 //
 // Returns: 
 //   Array of See ClusterAdministration.SessionProperties
@@ -190,11 +190,11 @@ Function InfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrat
 	For Each Process_ In RunCommand(Command, ClusterAdministrationParameters, , , WorkingProcessPropertyTypes()) Do
 		Process_.Insert("license", ProcessLicenses[Process_["process"]]);
 		Process_.Insert("running", ?(Process_["running"], 1, 0));
-		Process_.Insert("use", ?(Process_["use"] = "used", 1, ?(Process_["use"] = "not-used", 0, 2)));  // "not-
+		Process_.Insert("use", ?(Process_["use"] = "used", 1, ?(Process_["use"] = "not-used", 0, 2)));  
 		Processes.Insert(Process_["process"], Process_);
 	EndDo;
 	
-	// 
+	// Connection details.
 	Command = "connection list " + ClusterParameters;
 	ConnectionDetails1 = New Map;
 	For Each Join In RunCommand(Command, ClusterAdministrationParameters, , , ConnectionDetailsPropertyTypes()) Do
@@ -202,7 +202,7 @@ Function InfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrat
 		ConnectionDetails1.Insert(Join["connection"], Join);
 	EndDo;
 	
-	// 
+	// Sessions licenses.
 	Command = "session list --licenses " + ClusterParameters;
 	SessionLicenses = New Map;
 	For Each SessionLicense In RunCommand(Command, ClusterAdministrationParameters, , , LicensePropertyTypes()) Do
@@ -210,7 +210,7 @@ Function InfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrat
 		SessionLicenses.Insert(SessionLicense["session"], SessionLicense);
 	EndDo;
 	
-	// 
+	// Session locks.
 	Command = "lock list --infobase=%1 " + ClusterParameters;
 	SubstituteParametersToCommand(Command, InfoBaseID);
 	SessionLocks = New Map();
@@ -248,7 +248,7 @@ EndFunction
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.ФильтрСеансов, Array Of See ClusterAdministration.SessionsFilter
+//   Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
 //
 Procedure DeleteInfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -311,7 +311,7 @@ EndProcedure
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.ФильтрСоединений, Array Of See ClusterAdministration.JoinsFilters
+//   Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
 //
 // Returns:
 //   Array of See ClusterAdministration.ConnectionProperties
@@ -329,7 +329,7 @@ EndFunction
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.ФильтрСоединений, Array of See ClusterAdministration.JoinsFilters
+//   Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
 //
 Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -339,14 +339,14 @@ Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val 
 	ClusterParameters = ClusterParameters(ClusterAdministrationParameters, ClusterID);
 	
 	Value = New Array;
-	Value.Add("1CV8");               // 
-	Value.Add("1CV8C");              // 
-	Value.Add("WebClient");          // идентификатор приложения 1C:Enterprise в режиме запуска "Веб-
-	Value.Add("Designer");           // 
-	Value.Add("COMConnection");      // 
-	Value.Add("WSConnection");       // идентификатор сессии Web-
-	Value.Add("BackgroundJob");      // 
-	Value.Add("WebServerExtension"); // идентификатор расширения Web-
+	Value.Add("1CV8");               
+	Value.Add("1CV8C");              // ID of 1C:Enterprise application running in thin client mode.
+	Value.Add("WebClient");          // ID of 1C:Enterprise application running in web client mode.
+	Value.Add("Designer");           // Designer ID.
+	Value.Add("COMConnection");      // ID of 1C:Enterprise external COM connection session.
+	Value.Add("WSConnection");       // Web service session ID.
+	Value.Add("BackgroundJob");      // ID of job processing session.
+	Value.Add("WebServerExtension"); // Web server extension ID.
 
 	ClusterAdministration.AddFilterCondition(Filter, "ClientApplicationID", ComparisonType.InList, Value);
 	
@@ -410,8 +410,8 @@ EndProcedure
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //
 // Returns: 
-//   String - 
-//            
+//   String - Name of the security profile assigned for the infobase.
+//            If no profile is assigned, returns an empty string.
 //
 Function InfobaseSecurityProfile(Val ClusterAdministrationParameters, Val IBAdministrationParameters) Export
 	
@@ -435,8 +435,8 @@ EndFunction
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //
 // Returns: 
-//   String - 
-//            
+//   String - Name of the security profile assigned as a safe mode security profile.
+//            If no profile is assigned, returns an empty string.
 //
 Function InfobaseSafeModeSecurityProfile(Val ClusterAdministrationParameters, Val IBAdministrationParameters) Export
 	
@@ -548,27 +548,27 @@ Function SecurityProfile(Val ClusterAdministrationParameters, Val ProfileName, V
 	Result = SecurityProfiles[0];
 	Result = ConvertAccessListsUsagePropertyValues(Result);
 	
-	// 
+	// Virtual directories.
 	Result.Insert("VirtualDirectories",
 		GetVirtualDirectories(ClusterID, ClusterAdministrationParameters, ProfileName));
 	
-	// Разрешенные COM-
+	// Allowed COM classes.
 	Result.Insert("COMClasses",
 		GetAllowedCOMClass(ClusterID, ClusterAdministrationParameters, ProfileName));
 	
-	// 
+	// Add-ins.
 	Result.Insert("AddIns",
 		GetAllowedAddIns(ClusterID, ClusterAdministrationParameters, ProfileName));
 	
-	// 
+	// External modules.
 	Result.Insert("ExternalModules",
 		GetAllowedExternalModules(ClusterID, ClusterAdministrationParameters, ProfileName));
 	
-	// 
+	// OS applications.
 	Result.Insert("OSApplications",
 		GetAllowedOSApplications(ClusterID, ClusterAdministrationParameters, ProfileName));
 	
-	// Интернет-Resources
+	// Internet resources.
 	Result.Insert("InternetResources",
 		GetAllowedInternetResources(ClusterID, ClusterAdministrationParameters, ProfileName));
 	
@@ -649,7 +649,7 @@ EndProcedure
 // Parameters:
 //   ClusterID - String - Internal server cluster ID.
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
-//   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
+//   Parameteradministrationib -  See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //
 // Returns: 
 //   String
@@ -720,7 +720,7 @@ EndFunction
 //   Filter - Structure - Server cluster filter criteria.
 //
 // Returns: 
-//   Array - 
+//   Array - Array of mappings and cluster details in the rac notation.
 //
 Function ClusterProperties(Val ClusterAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -749,7 +749,7 @@ EndFunction
 //   Filter - Structure - Active process filter criteria.
 //
 // Returns: 
-//   Array - 
+//   Array - Array of mappings and running process details in the rac notation.
 //
 Function WorkingProcessesProperties(Val ClusterID, Val ClusterAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -765,7 +765,7 @@ EndFunction
 //   Filter - Structure - Active server filter criteria.
 //
 // Returns: 
-//   Array - 
+//   Array - an array of map, and active process details in the rac notation.
 //
 Function WorkingServerProperties(Val ClusterID, Val ClusterAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -782,9 +782,9 @@ EndFunction
 // Parameters:
 //   ClusterID - String - Internal server cluster ID.
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
-//   InfoBaseID - String - Internal infobase ID.
-//   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.ФильтрСеансов, Array Of See ClusterAdministration.SessionsFilter
+//   InfoBaseID - String -  internal ID of the information database.
+//   Parameteradministrationib -  See ClusterAdministration.ClusterInfobaseAdministrationParameters
+//   Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
 //   UseDictionary - Boolean - If True, the return value is generated using a dictionary.
 //
 // Returns: 
@@ -816,7 +816,7 @@ EndFunction
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   InfoBaseID - String - Internal infobase ID.
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.ФильтрСеансов, Array Of See ClusterAdministration.SessionsFilter
+//   Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
 //   UseDictionary - Boolean - If True, the return value is generated using a dictionary.
 //
 // Returns: 
@@ -880,8 +880,7 @@ Function PathToAdministrationServerClient() Export
 	StartDirectory = PlatformExecutableFilesDirectory();
 	Client = StartDirectory + "rac";
 	
-	SysInfo = New SystemInfo();
-	If (SysInfo.PlatformType = PlatformType.Windows_x86) Or (SysInfo.PlatformType = PlatformType.Windows_x86_64) Then
+	If Common.IsWindowsServer() Then
 		Client = Client + ".exe";
 	EndIf;
 	
@@ -1283,11 +1282,11 @@ Function AdjustValue(Val Value)
 		
 	ElsIf TypeOf(Value) = Type("String") Then
 		
-		// 
-		// 
+		
+		
 		Digits = "0123456789";
 		LatinCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-		CyrillicCharacters = "ABVGDEZHZIYKLMNOPRSTUFKHTSCHSHSHYEYUYaabvgdezhziyklmnoprstufkhtschshyeyu"; // 
+		CyrillicCharacters = "ABVGDEZHZIYKLMNOPRSTUFKHTSCHSHSHYEYUYaabvgdezhziyklmnoprstufkhtschshyeyu"; 
 		AllowedChars = Digits + LatinCharacters + CyrillicCharacters + "-";
 		If StringContainsAllowedCharsOnly(Value, AllowedChars) Then
 			Return Value;
@@ -1360,9 +1359,9 @@ Function CastOutputItem(OutputItem, ElementType)
 		
 	ElsIf ElementType = Undefined Then
 		
-		//  
-		//  
-		// 
+		 
+		 
+		
 		
 		If IsBlankString(OutputItem) Then
 			Return Undefined;
@@ -2092,19 +2091,19 @@ Function LicensePropertyTypes()
 	
 	Types = New Map;
 	
-	// 
+	// Returns only for active process license.
 	Types.Insert("process", Type("String"));
 	Types.Insert("port", Type("Number"));
 	Types.Insert("pid", Type("String"));
 	Types.Insert("host", Type("String"));
 	
-	// 
+	// Returns only for session license.
 	Types.Insert("session", Type("String"));
 	Types.Insert("user-name", Type("String"));
 	Types.Insert("app-id", Type("String"));	
 	Types.Insert("host", Type("String"));
 	
-	// 
+	// Common to all licenses.
 	Types.Insert("full-name", Type("String"));
 	Types.Insert("series", Type("String"));
 	Types.Insert("issued-by-server", Type("Boolean"));

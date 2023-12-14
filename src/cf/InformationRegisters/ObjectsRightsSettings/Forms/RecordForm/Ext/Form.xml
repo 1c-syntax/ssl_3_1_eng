@@ -96,18 +96,18 @@
 					<ShowTitle>false</ShowTitle>
 					<ExtendedTooltip name="HorizontalGroupExtendedTooltip" id="44"/>
 					<ChildItems>
-						<UsualGroup name="VerticalGroup3" id="54">
+						<UsualGroup name="FirstColumn" id="54">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Vertical group 3</v8:content>
+									<v8:content>First column</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Vertical</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="VerticalGroup3ExtendedTooltip" id="55"/>
+							<ExtendedTooltip name="FirstColumnExtendedTooltip" id="55"/>
 							<ChildItems>
 								<InputField name="RightPermissionLevel" id="56">
 									<DataPath>Record.RightPermissionLevel</DataPath>
@@ -121,18 +121,18 @@
 								</InputField>
 							</ChildItems>
 						</UsualGroup>
-						<UsualGroup name="VerticalGroup1" id="32">
+						<UsualGroup name="SecondColumn" id="32">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Vertical group 1</v8:content>
+									<v8:content>Second column</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Vertical</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="VerticalGroup1ExtendedTooltip" id="45"/>
+							<ExtendedTooltip name="SecondColumnExtendedTooltip" id="45"/>
 							<ChildItems>
 								<InputField name="ReadingPermissionLevel" id="13">
 									<DataPath>Record.ReadingPermissionLevel</DataPath>
@@ -146,18 +146,18 @@
 								</InputField>
 							</ChildItems>
 						</UsualGroup>
-						<UsualGroup name="VerticalGroup2" id="33">
+						<UsualGroup name="ThirdColumn" id="33">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Vertical group 2</v8:content>
+									<v8:content>Third column</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Vertical</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="VerticalGroup2ExtendedTooltip" id="50"/>
+							<ExtendedTooltip name="ThirdColumnExtendedTooltip" id="50"/>
 							<ChildItems>
 								<InputField name="ChangingPermissionLevel" id="15">
 									<DataPath>Record.ChangingPermissionLevel</DataPath>

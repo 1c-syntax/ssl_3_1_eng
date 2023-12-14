@@ -54,7 +54,7 @@ Procedure BeforeWrite(Cancel)
 
 	AdditionalProperties.Insert("IsNew", IsNew());
 
-	UserChangedDeletionMark = (Not IsNew() And DeletionMark <> Ref.DeletionMark
+	UserChangedDeletionMark = (Not IsNew() And DeletionMark <> Common.ObjectAttributeValue(Ref, "DeletionMark")
 		And Not AdditionalProperties.Property("PredefinedObjectsFilling"));
 
 	If Not Custom And UserChangedDeletionMark Then
@@ -220,12 +220,15 @@ Procedure CheckPutting()
 	
 	// Remove the subsystems marked for deletion from the table.
 	LinesToDelete = New Array;
-	For Each AssignmentRow2 In Location Do
-
-		If AssignmentRow2.Subsystem.DeletionMark = True Then
-			LinesToDelete.Add(AssignmentRow2);
+	Subsystems = Location.UnloadColumn("Subsystem");
+	Subsystems = Common.ObjectsAttributeValue(Subsystems, "DeletionMark");
+	For Each Subsystem In Subsystems Do
+		If Subsystem.Value Then 
+			AssignmentRow2 = Location.Find(Subsystem.Key, "Subsystem");
+			If AssignmentRow2 <> Undefined Then
+				LinesToDelete.Add(AssignmentRow2);
+			EndIf;
 		EndIf;
-
 	EndDo;
 
 	For Each AssignmentRow2 In LinesToDelete Do

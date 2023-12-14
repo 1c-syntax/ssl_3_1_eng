@@ -16,7 +16,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Interactions.ProcessUserGroupsDisplayNecessity(ThisObject);
 	Interactions.AddContactsPickupFormPages(ThisObject);
 	
-	// 
+	// Filling in contacts by the subject.
 	Interactions.FillContactsBySubject(Items, Parameters.SubjectOf, ContactsBySubject, False);
 	
 	// Filling in a search option list and performing the first search.
@@ -290,7 +290,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 // Generates a value list of the strings, by which search by the current search option will be carried out.
 //
@@ -416,7 +416,7 @@ Function FindByDescriptionBeginning()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 // Sets a contact as the current contact in the dynamic list.
 //

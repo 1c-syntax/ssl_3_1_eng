@@ -12,8 +12,8 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// 
-	// 
+	
+	
 	If ValueIsFilled(Parameters.DetailErrorDescription)
 	   And Common.SubsystemExists("StandardSubsystems.DataExchange")
 	   And Common.IsSubordinateDIBNode() Then
@@ -164,14 +164,14 @@ Function AttachExternalDataProcessor(AddressInTempStorage)
 		Raise NStr("en = 'Insufficient access rights.';");
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	Manager = ExternalDataProcessors;
 	DataProcessorName = Manager.Connect(AddressInTempStorage, , False,
 		Common.ProtectionWithoutWarningsDetails());
 	Return Manager.Create(DataProcessorName, False).Metadata().FullName();
-	// 
-	// 
+	
+	
 	
 EndFunction
 

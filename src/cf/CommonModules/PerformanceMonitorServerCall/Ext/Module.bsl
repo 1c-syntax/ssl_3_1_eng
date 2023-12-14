@@ -12,12 +12,12 @@
 // Parameters:
 //  MeasurementsToWrite - Structure:
 //   * CompletedMeasurements - Map of KeyAndValue:
-//      ** Key - UUID - the unique identifier of the measurement.
+//      ** Key - UUID - a measurement UUID.
 //      ** Value - Map
 //   * UserAgentInformation - String
 //
 // Returns:
-//   Number - 
+//   Number - a current recording period on the server if measurements were recorded, in seconds.
 //
 Function RecordKeyOperationsDuration(MeasurementsToWrite) Export
 	
@@ -190,7 +190,7 @@ EndFunction
 // Performance monitor parameters
 //
 // Returns:
-//   Structure - 
+//   Structure - parameters obtained from the server.
 //
 Function GetParametersAtServer() Export
 	

@@ -243,24 +243,20 @@ Function GetIBAdministrator()
 	EndIf;
 	
 	Return InfoBaseUsers.FindByUUID(
-		IBAdministrator.IBUserID);
+		Common.ObjectAttributeValue(IBAdministrator, "IBUserID"));
 	
 EndFunction
 
 &AtServerNoContext
 Function InfobaseUserName(Val User)
 	
-	If ValueIsFilled(User) Then
-		
-		IBUserID = Common.ObjectAttributeValue(User, "IBUserID");
-		IBUser = InfoBaseUsers.FindByUUID(IBUserID);
-		Return IBUser.Name;
-		
-	Else
-		
+	If Not ValueIsFilled(User) Then
 		Return "";
-		
 	EndIf;
+		
+	IBUserID = Common.ObjectAttributeValue(User, "IBUserID");
+	IBUser = InfoBaseUsers.FindByUUID(IBUserID);
+	Return IBUser.Name;
 	
 EndFunction
 
@@ -300,7 +296,7 @@ Procedure SaveAdministrationParameters()
 	
 	AdministrationParametersToSave = New Structure();
 	
-	// 
+	// Cluster administration parameters.
 	AdministrationParametersToSave.Insert("AttachmentType", AttachmentType);
 	AdministrationParametersToSave.Insert("ServerAgentAddress", ServerAgentAddress);
 	AdministrationParametersToSave.Insert("ServerAgentPort", ServerAgentPort);
@@ -310,7 +306,7 @@ Procedure SaveAdministrationParameters()
 	AdministrationParametersToSave.Insert("ClusterAdministratorName", ClusterAdministratorName);
 	AdministrationParametersToSave.Insert("ClusterAdministratorPassword", "");
 	
-	// 
+	// Infobase administration parameters.
 	AdministrationParametersToSave.Insert("NameInCluster", NameInCluster);
 	AdministrationParametersToSave.Insert("InfobaseAdministratorName", InfobaseUserName(IBAdministrator));
 	AdministrationParametersToSave.Insert("InfobaseAdministratorPassword", "");
@@ -360,7 +356,7 @@ Procedure ApplyPermissionsAtServer(StorageAddress)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 //
 
 // Applies the security profile permission changes in server cluster by the scenario.

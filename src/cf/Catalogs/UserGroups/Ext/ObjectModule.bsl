@@ -11,15 +11,15 @@
 
 #Region Variables
 
-Var PreviousParent; // 
-                      // 
+Var PreviousParent; 
+                      
 
-Var PreviousUserGroupComposition; // 
-                                       // 
-                                       // 
+Var PreviousUserGroupComposition; 
+                                       
+                                       
 
-Var IsNew; // 
-                // 
+Var IsNew; 
+                
 
 #EndRegion
 
@@ -34,11 +34,11 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	If Parent = Catalogs.UserGroups.AllUsers Then
 		CommonClientServer.AddUserError(Errors,
 			"Object.Parent",
-			NStr("en = 'Cannot use the predefined group ""All users"" as a parent.';"),
+			NStr("en = 'Cannot set the predefined group ""All users"" as a parent.';"),
 			"");
 	EndIf;
 	
-	// 
+	// Checking for unfilled and duplicate users.
 	VerifiedObjectAttributes.Add("Content.User");
 	
 	For Each CurrentRow In Content Do;
@@ -76,15 +76,15 @@ EndProcedure
 // Cancels actions that cannot be performed on the "All users" group.
 Procedure BeforeWrite(Cancel)
 	
-	// 
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
+	
 	Block = New DataLock;
 	Block.Add("InformationRegister.UserGroupCompositions");
 	Block.Lock();
-	// 
+	// ACC:75-on
 	
 	If DataExchange.Load Then
 		Return;
@@ -106,8 +106,7 @@ Procedure BeforeWrite(Cancel)
 	Else
 		If Parent = Catalogs.UserGroups.AllUsers Then
 			Raise
-				NStr("en = 'Cannot use the predefined group ""All users""
-				           |as a parent.';");
+				NStr("en = 'Cannot set the predefined group ""All users"" as a parent.';");
 		EndIf;
 		
 		PreviousParent = ?(

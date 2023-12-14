@@ -192,11 +192,11 @@ Procedure FillModelByMetadataObjectDependencies(Val ObjectDependencies, Val Meta
 		
 		// Tables.
 		For Each TabularSection In MetadataObject.TabularSections Do
-			// 
+			
 			For Each StandardAttribute In TabularSection.StandardAttributes Do
 				FillModelByMetadataObjectDependenciesTypes(ObjectDependencies, StandardAttribute.Type);
 			EndDo;
-			// Реквизиты
+			// Attributes.
 			For Each Attribute In TabularSection.Attributes Do
 				FillModelByMetadataObjectDependenciesTypes(ObjectDependencies, Attribute.Type);
 			EndDo;

@@ -14,7 +14,7 @@
 // Returns a list of shared administrators
 //
 // Returns:
-//   ValueList   - 
+//   ValueList   - a list of UUIDs with presentations (usernames).
 //
 Function AdministratorsList() Export
 	
@@ -74,7 +74,7 @@ EndFunction
 // Returns a sequence number of a shared infobase user
 //
 // Parameters:
-//  Id - unique user ID of the information database.
+//  Id - an infobase user UUID.
 //
 // Returns:
 //  Number

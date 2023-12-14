@@ -323,7 +323,7 @@ Procedure BeginFindingFilesCompletion(FilesArray, AdditionalParameters) Export
 		LogFile = FilesArray[0];
 		FileSystemClient.OpenFile(LogFile.FullName);
 	Else
-		// 
+		// If there is no log, open temporary directory of the update script.
 		FileSystemClient.OpenExplorer(ScriptDirectory);
 	EndIf;
 EndProcedure
@@ -492,8 +492,8 @@ EndProcedure
 &AtServer
 Procedure ResetHandlersStatus(Status)
 	
-	// 
-	// 
+	
+	
 	Query = New Query;
 	Query.SetParameter("Status", Status);
 	Query.Text =
@@ -518,8 +518,8 @@ Procedure ResetHandlersStatus(Status)
 		
 		RecordSet.Write();
 	EndDo;
-	// 
-	// 
+	
+	
 	
 EndProcedure
 
@@ -595,11 +595,18 @@ Procedure UpdateInformationOnIssues()
 		TextIndicator = NStr("en = 'No handler issues found';");
 	EndIf;
 	
-	Items.ProblemSituations.Title = TextIndicator; // 
+	Items.ProblemSituations.Title = TextIndicator; // On the update progress page.
 	Items.ProblemSituationsCompleted.Title = TextIndicator; // On the completed handler page.
 	
 	// Display information about the data issue.
-	NumberofProblemswithData = InfobaseUpdateInternal.NumberofProblemswithData();
+	OutputDataProblems = InfobaseUpdateInternal.OutputDataProblems();
+	If OutputDataProblems Then
+		NumberofProblemswithData = InfobaseUpdateInternal.NumberofProblemswithData();
+	Else
+		NumberofProblemswithData = 0; 
+		Items.GroupIndicationofProblemswithData.Visible = False;
+		Items.GroupIndicationofProblemswithDataCompleted.Visible = False;
+	EndIf;
 	If NumberofProblemswithData <> 0 Then
 		TextIndicator = NStr("en = 'Data issues (%1)';");
 		TextIndicator = StringFunctionsClientServer.SubstituteParametersToString(TextIndicator, NumberofProblemswithData);
@@ -607,7 +614,7 @@ Procedure UpdateInformationOnIssues()
 		TextIndicator = NStr("en = 'No data issues found';");
 	EndIf;
 	
-	Items.Problemswithdata.Title = TextIndicator; // 
+	Items.Problemswithdata.Title = TextIndicator; // On the update progress page.
 	Items.IssuesDataCompleted.Title = TextIndicator; // On the completed handler page.
 	
 	// Appearance of data issue elements.
@@ -849,7 +856,7 @@ Procedure ProcessUpdateResultAtClient()
 		ModuleConfigurationUpdateClient.ProcessUpdateResult(UpdateResult, ScriptDirectory);
 		If UpdateResult = False Then
 			Items.UpdateResultsGroup.CurrentPage = Items.UpdateErrorGroup;
-			// 
+			// If the configuration is not updated, the deferred handlers are also not executed.
 			Items.UpdateStatus.Visible = False;
 			Items.WhereToFindThisFormHint.Visible = False;
 		EndIf;
@@ -964,8 +971,8 @@ Procedure CheckPerformDeferredUpdate(UpdateInfo)
 			EndIf;
 			JobActive = False;
 			
-			// 
-			// 
+			
+			
 			If BackgroundJob.End > CurrentDate() - Job.Schedule.RepeatPeriodInDay * 5 Then
 				TaskIsRunning = True;
 			EndIf;

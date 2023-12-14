@@ -69,4 +69,27 @@ Procedure RefreshInterfaceOnFunctionalOptionToggle() Export
 	
 EndProcedure
 
+Procedure RestartingApplication() Export
+	StandardSubsystemsClient.SkipExitConfirmation();
+	Exit(True, True);
+EndProcedure
+
+Procedure NotificationOfUpcomingRestartInFiveMinutes() Export
+
+	StandardSubsystemsClient.NotifyingCurrentUserAboutUpcomingRestart(300);
+
+EndProcedure
+
+Procedure NotificationOfUpcomingRestartInThreeMinutes() Export
+
+	StandardSubsystemsClient.NotifyingCurrentUserAboutUpcomingRestart(180);
+
+EndProcedure
+
+Procedure NotificationOfUpcomingRestartInMinute() Export
+
+	StandardSubsystemsClient.NotifyingCurrentUserAboutUpcomingRestart(60);
+
+EndProcedure
+
 #EndRegion

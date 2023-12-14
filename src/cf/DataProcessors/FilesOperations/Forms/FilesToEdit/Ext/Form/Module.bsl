@@ -308,7 +308,7 @@ Procedure SetUpDynamicList()
 		If Not AccessRight("Update", CatalogMetadata) Then
 			Continue;
 		EndIf;
-		If Not StrEndsWith(CatalogMetadata.Name, "AttachedFilesVersions") And CatalogMetadata.Name <> "FilesVersions" Then
+		If CatalogMetadata.Name <> "FilesVersions" Then
 			QueryFragment = "SELECT ALLOWED
 			|	Files.BeingEditedBy,
 			|	Files.PictureIndex,

@@ -12,7 +12,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// 
+	// Filter groups only.
 	CommonClientServer.SetDynamicListFilterItem(
 		List, "IsFolder", True, , , True);
 	

@@ -66,14 +66,14 @@ EndFunction
 // The function is also called upon entering a data area.
 //
 // Returns:
-//  String - 
-//           
-//                             
-//                             
+//  String - blank string - an authorization is successfully completed.
+//           Otherwise - an error description.
+//                             1C:Enterprise should be stopped
+//                             at application startup.
 //
 Function AuthenticateCurrentUser(OnStart = False, RegisterInLog = False) Export
 	
-	StateBeforeAuthorizeCurrentUserCall(, True);
+	StateBeforeCallAuthenticateCurrentUser(, True);
 	
 	If Not OnStart Then
 		RefreshReusableValues();
@@ -141,7 +141,7 @@ Function AuthenticateCurrentUser(OnStart = False, RegisterInLog = False) Export
 	   And Not AdministratorRolesAvailable()
 	   And Not AccessRight("Administration", Metadata, CurrentIBUser) Then
 		
-		// 
+		// Authorizing user without administrative privileges, which is created earlier in Designer.
 		Return AuthorizationErrorBriefPresentationAfterRegisterInLog(
 			UserNotFoundInCatalogMessageText(CurrentIBUser.Name),
 			, RegisterInLog);
@@ -194,17 +194,17 @@ Function AuthenticateCurrentUser(OnStart = False, RegisterInLog = False) Export
 EndFunction
 
 // Parameters:
-//  CheckAdministratorRolesAreAvailable - Boolean -
+//  ShouldCheckAdministratorRolesAvailable - Boolean - 
 //    
-//  Disconnect - Boolean -
+//  Disconnect - Boolean - 
 // 
 // Returns:
 //  Boolean
 //
-Function StateBeforeAuthorizeCurrentUserCall(CheckAdministratorRolesAreAvailable = False,
+Function StateBeforeCallAuthenticateCurrentUser(ShouldCheckAdministratorRolesAvailable = False,
 			Disconnect = False) Export
 	
-	ParameterName = "StateBeforeAuthorizeCurrentUserCall";
+	ParameterName = "StateBeforeCallAuthenticateCurrentUser";
 	
 	SetPrivilegedMode(True);
 	
@@ -213,12 +213,12 @@ Function StateBeforeAuthorizeCurrentUserCall(CheckAdministratorRolesAreAvailable
 	EndIf;
 	
 	If Not Disconnect Then
-		Return Not CheckAdministratorRolesAreAvailable
+		Return Not ShouldCheckAdministratorRolesAvailable
 			Or AdministratorRolesAvailable();
 	EndIf;
 	
 	CurrentParameters = New Map(SessionParameters.ClientParametersAtServer);
-	CurrentParameters.Delete("StateBeforeAuthorizeCurrentUserCall");
+	CurrentParameters.Delete("StateBeforeCallAuthenticateCurrentUser");
 	SessionParameters.ClientParametersAtServer = New FixedMap(CurrentParameters);
 	
 	Return False;
@@ -310,12 +310,11 @@ EndProcedure
 //
 Function ErrorInsufficientRightsForAuthorization(RegisterInLog = True) Export
 	
-	// 
-	//
+	
 	If IsInRole(Metadata.Roles.FullAccess) Then
 		Return "";
 	EndIf;
-	// 
+	// ACC:336-on
 	
 	If Users.IsExternalUserSession() Then
 		BasicAccessRoleName = Metadata.Roles.BasicSSLRightsForExternalUsers.Name;
@@ -323,12 +322,11 @@ Function ErrorInsufficientRightsForAuthorization(RegisterInLog = True) Export
 		BasicAccessRoleName = Metadata.Roles.BasicSSLRights.Name;
 	EndIf;
 	
-	// 
-	//
+	
 	If IsInRole(BasicAccessRoleName) Then
 		Return "";
 	EndIf;
-	// ACC:336-
+	// ACC:336-on
 	
 	Return AuthorizationErrorBriefPresentationAfterRegisterInLog(
 		NStr("en = 'Insufficient rights to sign in.
@@ -342,7 +340,7 @@ EndFunction
 // of the StandardSubsystemsServerCall common module.
 //
 // Returns:
-//  String - error text.
+//  String - Error text.
 //
 Function ErrorCheckingTheRightsOfTheCurrentUserWhenLoggingIn() Export
 	
@@ -354,7 +352,7 @@ EndFunction
 // Creates a user <Not specified>.
 //
 // Returns:
-//  CatalogRef.Users - 
+//  CatalogRef.Users - a reference to the <Not specified> user.
 // 
 Function CreateUnspecifiedUser() Export
 	
@@ -487,12 +485,12 @@ EndFunction
 // based on the current user's rights and operating mode (local or service model).
 //
 // Parameters:
-//  ForExternalUsers - Boolean - if true, it means for external users.
+//  ForExternalUsers - Boolean -  if true, it means for external users.
 //
 // Returns:
 //  Map of KeyAndValue:
-//   * Key     - String - role name.
-//   * Value - Boolean - Truth.
+//   * Key     - String - a role name.
+//   * Value - Boolean -  Truth.
 //
 Function UnavailableRolesByUserType(ForExternalUsers) Export
 	
@@ -502,8 +500,8 @@ Function UnavailableRolesByUserType(ForExternalUsers) Export
 	ElsIf Not Common.DataSeparationEnabled()
 	        And Users.IsFullUser(, True) Then
 		
-		// 
-		// 
+		
+		
 		UserRolesAssignment = "ForAdministrators";
 	Else
 		UserRolesAssignment = "ForUsers";
@@ -519,7 +517,7 @@ EndFunction
 //  Structure:
 //    * Ref - CatalogRef.Users - Reference to a found catalog object that matches a non-specified user.
 //                 
-//             - Undefined - 
+//             - Undefined - Item is not found.
 //
 //    * StandardRef - CatalogRef.Users - Reference used for searching and creating a non-specified user in the "Users" catalog.
 //                 
@@ -597,13 +595,13 @@ EndFunction
 //  UUID - UUID - infobase user ID.
 //
 //  RefToCurrent - CatalogRef.Users
-//                   - CatalogRef.ExternalUsers - 
-//                       
-//                     
+//                   - CatalogRef.ExternalUsers - exclude
+//                       the specified ref from the search.
+//                     Undefined - search among all catalog items.
 //
 //  FoundUser - Undefined - user does not exist.
 //                        - CatalogRef.Users
-//                        - CatalogRef.ExternalUsers - 
+//                        - CatalogRef.ExternalUsers - return value if the user is found.
 //
 //  ServiceUserID - Boolean
 //                     False - check IBUserID.
@@ -655,6 +653,36 @@ Function UserByIDExists(UUID,
 	EndIf;
 	
 	Return Result;
+	
+EndFunction
+
+// Parameters:
+//  IBUserID - UUID
+//
+Function InformationSecurityUserById(IBUserID) Export
+	
+	If TypeOf(IBUserID) <> Type("UUID") Then
+		Return Undefined;
+	EndIf;
+	
+	If Common.SubsystemExists("CloudTechnology.Core") Then
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		SessionWithoutSeparators = ModuleSaaSOperations.SessionWithoutSeparators();
+	Else
+		SessionWithoutSeparators = True;
+	EndIf;
+	
+	If Common.DataSeparationEnabled()
+	   And SessionWithoutSeparators
+	   And Common.SeparatedDataUsageAvailable()
+	   And IBUserID = InfoBaseUsers.CurrentUser().UUID Then
+		
+		IBUser = InfoBaseUsers.CurrentUser();
+	Else
+		IBUser = InfoBaseUsers.FindByUUID(IBUserID);
+	EndIf;
+	
+	Return IBUser;
 	
 EndFunction
 
@@ -713,21 +741,34 @@ EndProcedure
 //  IBUser  - InfoBaseUser - an object to be written.
 //  IsExternalUser - Boolean - specify True if the infobase user corresponds to an external user
 //                                    (the ExternalUsers item in the directory).
-//  User - Undefined -
+//  User - Undefined - 
 //               - CatalogRef.Users
-//               - CatalogRef.ExternalUsers 
+//               - CatalogRef.ExternalUsers
+//
+//  ShouldNotifyServiceManager - Boolean
 //
 Procedure WriteInfobaseUser(IBUser, IsExternalUser = False,
-			User = Undefined) Export
+			User = Undefined, Val ShouldNotifyServiceManager = True) Export
 	
 	SSLSubsystemsIntegration.BeforeWriteIBUser(IBUser);
+	
+	ShouldNotifyServiceManager = ShouldNotifyServiceManager
+		And Common.DataSeparationEnabled()
+		And Common.SubsystemExists("StandardSubsystems.SaaSOperations.UsersSaaS");
+	
+	ThisIsUpdateOfUserCatalogs = IBUser.UUID
+		= SessionParameters.UsersCatalogsUpdate.Get("IBUserID");
+	
+	If ShouldNotifyServiceManager And Not ThisIsUpdateOfUserCatalogs Then
+		OldInformationSecurityUser = InfoBaseUsers.FindByUUID(
+			IBUser.UUID);
+	EndIf;
 	
 	CheckUserRights(IBUser, "BeforeWrite", IsExternalUser);
 	InfobaseUpdateInternal.SetShowDetailsToNewUserFlag(IBUser.Name);
 	IBUser.Write();
 	
-	If SessionParameters.UsersCatalogsUpdate.Get("IBUserID")
-			<> IBUser.UUID Then
+	If Not ThisIsUpdateOfUserCatalogs Then
 		
 		UpdatedInfobaseUser = InfoBaseUsers.FindByUUID(
 			IBUser.UUID);
@@ -740,6 +781,11 @@ Procedure WriteInfobaseUser(IBUser, IsExternalUser = False,
 		EndIf;
 		If User <> Undefined Then
 			InformationRegisters.UsersInfo.UpdateUserInfoRecords(User,, IBUser);
+			If ShouldNotifyServiceManager Then
+				ModuleUsersInternalSaaS = Common.CommonModule("UsersInternalSaaS");
+				ModuleUsersInternalSaaS.ReportAppLaunchChanged(User,
+					IBUser, OldInformationSecurityUser);
+			EndIf;
 		EndIf;
 	EndIf;
 	
@@ -751,9 +797,9 @@ EndProcedure
 //  RolesAssignment - Undefined
 //  CheckEverything - Boolean
 //  ErrorList - Undefined
-//               - ValueList - 
+//               - ValueList - :
 //                   * Value      - String - a role name.
-//                                   - Undefined - 
+//                                   - Undefined - the role specified in the procedure does not exist in the metadata.
 //                   * Presentation - String - error text.
 //
 Procedure CheckRoleAssignment(RolesAssignment = Undefined, CheckEverything = False, ErrorList = Undefined) Export
@@ -912,7 +958,7 @@ Procedure CopyUserGroups(Source, Receiver) Export
 		Block.Lock();
 		
 		While Selection.Next() Do
-			UsersGroupObject = Selection.UsersGroup.GetObject(); // 
+			UsersGroupObject = Selection.UsersGroup.GetObject(); // CatalogObject.UserGroups, CatalogObject.ExternalUsersGroups
 			Filter = New Structure;
 			Filter.Insert(?(ExternalUser, "ExternalUser", "User"), Receiver);
 			FoundRows = UsersGroupObject.Content.FindRows(Filter);
@@ -1000,8 +1046,9 @@ Function UserDetails(User) Export
 	EndIf;
 	
 	If Not ValueIsFilled(Result.IBUserID) Then
-		UserRef = ?(TypeOf(User) = Type("CatalogObject.Users"),
-			User.Ref, User);
+		If TypeOf(User) = Type("CatalogObject.Users") Then
+			UserRef = User.Ref;
+		EndIf;
 		If UserRef = Users.UnspecifiedUserRef() Then
 			Result.IBUserID = InfoBaseUsers.FindByName("").UUID;
 		EndIf;
@@ -1176,14 +1223,14 @@ Procedure OnFillAccessKinds(AccessKinds) Export
 	AccessKind.Presentation          = NStr("en = 'Users';");
 	AccessKind.ValuesType            = Type("CatalogRef.Users");
 	AccessKind.ValuesGroupsType       = Type("CatalogRef.UserGroups");
-	AccessKind.MultipleValuesGroups = True; // 
+	AccessKind.MultipleValuesGroups = True; 
 	
 	AccessKind = AccessKinds.Add();
 	AccessKind.Name                    = "ExternalUsers";
 	AccessKind.Presentation          = NStr("en = 'External users';");
 	AccessKind.ValuesType            = Type("CatalogRef.ExternalUsers");
 	AccessKind.ValuesGroupsType       = Type("CatalogRef.ExternalUsersGroups");
-	AccessKind.MultipleValuesGroups = True; // 
+	AccessKind.MultipleValuesGroups = True; // Should be True, special case.
 	
 EndProcedure
 
@@ -1273,7 +1320,7 @@ Procedure OnDefineCatalogsForDataImport(CatalogsToImport) Export
 		CatalogsToImport.Delete(TableRow);
 	EndIf;
 	
-	// 
+	// Cannot import to the Users catalog.
 	TableRow = CatalogsToImport.Find(Metadata.Catalogs.Users.FullName(), "FullName");
 	If TableRow <> Undefined Then 
 		CatalogsToImport.Delete(TableRow);
@@ -1371,7 +1418,7 @@ Procedure OnCollectConfigurationStatisticsParameters() Export
 	|	UsersInfo.LastActivityDate >= &SliceDate";
 	
 	Query = New Query(QueryText);
-	Query.SetParameter("SliceDate", BegOfDay(CurrentSessionDate() - 30 *60*60*24)); // 
+	Query.SetParameter("SliceDate", BegOfDay(CurrentSessionDate() - 30 *60*60*24)); 
 	Selection = Query.Execute().Select();
 	Selection.Next();
 	
@@ -1442,7 +1489,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	
 	If Not Common.DataSeparationEnabled() Then
 		
-		// Пользователи
+		// Users
 		Handler = Handlers.Add();
 		Handler.Procedure = "Catalogs.Users.ProcessDataForMigrationToNewVersion";
 		Handler.Version = "3.1.4.25";
@@ -1460,7 +1507,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 			
 			ExecutionPriorities = Handler.ExecutionPriorities; // ValueTable
 			NewRow = ExecutionPriorities.Add();
-			NewRow.Procedure = "ConversationsInternal.LockInvalidUsersInCollaborationSystem"; // ACC:277-
+			NewRow.Procedure = "ConversationsInternal.LockInvalidUsersInCollaborationSystem"; 
 			NewRow.Order = "After";
 		EndIf;
 		
@@ -1515,7 +1562,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 		NStr("en = '- Move obsolete ""(not used) Infobase user properties"" attribute values from the ""Users"" and ""External users"" catalogs to the ""User details"" information register.
 		           |- Update the ""State picture number"" attribute value in the ""User details"" information register.
 		           |- Delete records with non-existing users and external users from the ""User details"" information register.
-		           |- Reset unnecessary %1authentication and invalid user authentication.';"),
+		           |- Reset unnecessary %1authentication and inactive user authentication.';"),
 		"OpenID-Connect");
 	
 	Handler = Handlers.Add();
@@ -1543,7 +1590,7 @@ EndProcedure
 // See CommonOverridable.OnAddClientParameters.
 Procedure OnAddClientParameters(Parameters) Export
 	
-	// 
+	
 	Parameters.Insert("IsFullUser", Users.IsFullUser());
 	Parameters.Insert("IsSystemAdministrator", Users.IsFullUser(, True));
 	
@@ -1597,8 +1644,8 @@ EndProcedure
 //
 Procedure OnFillToDoList(ToDoList) Export
 	
-	// 
-	// 
+	
+	
 	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
 	
 	AddCaseInvalidUsersInfo = Not Common.DataSeparationEnabled()
@@ -1845,19 +1892,19 @@ Function LogonSettings() Export
 			Users.CommonAuthorizationSettingsNewDetails().ShowInList;
 	EndIf;
 	
-	// 
+	// Populate common settings.
 	FillCommonSettingsFromCommonPasswordPolicy(Settings.Overall);
 	If RoundPasswordPolicy Then
 		UpdateCommonPasswordPolicy(Settings.Overall);
 	EndIf;
 	
-	// 
+	
 	FillSettingsFromUsersPasswordPolicy(Settings.Users);
 	If RoundPasswordPolicy Then
 		UpdateUsersPasswordPolicy(Settings.Users);
 	EndIf;
 	
-	// 
+	
 	If Settings.Overall.AreSeparateSettingsForExternalUsers Then
 		FillSettingsFromExternalUsersPasswordPolicy(Settings.ExternalUsers);
 	EndIf;
@@ -2193,10 +2240,10 @@ EndProcedure
 // Parameters:
 //  PasswordParameters - Structure - returns from the PasswordParameters function.
 //  RNG             - RandomNumberGenerator - If it is already used.
-//                  - Undefined - 
+//                  - Undefined - create a new one.
 //
 // Returns:
-//  String - 
+//  String - new password.
 //
 Function CreatePassword(PasswordParameters, RNG = Undefined) Export
 	
@@ -2345,7 +2392,7 @@ EndFunction
 //  Complicated         - Boolean - consider password complexity checking requirements.
 //
 // Returns:
-//  Structure - 
+//  Structure - parameters of password creation.
 //
 Function PasswordParameters(MinLength = 7, Complicated = False) Export
 	
@@ -2372,7 +2419,7 @@ EndFunction
 //
 // Parameters:
 //  User - CatalogRef.Users
-//               - CatalogRef.ExternalUsers - 
+//               - CatalogRef.ExternalUsers - a user to change the password.
 //
 //  AdditionalParameters - Structure - a return value with the following properties:
 //   * ErrorText                 - String - error details if a password cannot be changed.
@@ -2380,7 +2427,7 @@ EndFunction
 //   * IsCurrentIBUser    - Boolean - True if it is the current user.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - False, if you cannot change a password.
 //
 Function CanChangePassword(User, AdditionalParameters = Undefined) Export
 	
@@ -2531,9 +2578,9 @@ EndFunction
 // Parameters:
 //  Parameters - Structure:
 //   * User - CatalogRef.Users
-//                  - CatalogRef.ExternalUsers - 
+//                  - CatalogRef.ExternalUsers - when calling from the ChangePassword form.
 //                  - CatalogObject.Users
-//                  - CatalogObject.ExternalUsers - 
+//                  - CatalogObject.ExternalUsers - when writing an object.
 //
 //   * NewPassword  - String - a password that is planned to be set by the infobase user.
 //   * PreviousPassword - String - a password that is set for the infobase user (to check).
@@ -2546,7 +2593,7 @@ EndFunction
 //                                          from the PasswordChange form, is reset on error.
 //
 // Returns:
-//  String - 
+//  String - the error text, if it is not a blank row.
 //
 Function ProcessNewPassword(Parameters) Export
 	
@@ -2799,8 +2846,8 @@ EndFunction
 //  ToWrite - Boolean - If True, not blank result will be for the blank password.
 //
 // Returns:
-//  String - 
-//           
+//  String - a password hash in the PasswordHash property format
+//           of the InfobaseUser type.
 //
 Function PasswordHashString(Password, ToWrite = False) Export
 	
@@ -2833,7 +2880,7 @@ EndFunction
 //                                password is to be checked.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the password matches without the password complexity control.
 //
 Function PreviousPasswordMatchSaved(Password, IBUserID) Export
 	
@@ -2888,7 +2935,7 @@ EndFunction
 // Parameters:
 //  ObjectDetails - CatalogObject.Users
 //                  - CatalogObject.ExternalUsers
-//                  - FormDataStructure - 
+//                  - FormDataStructure - crated from objects specified above.
 //
 //  ProcessingParameters - Undefined - If Undefined, get data from object description,
 //                       otherwise get data from processing parameters.
@@ -2897,15 +2944,15 @@ EndFunction
 //  Structure:
 //   * SystemAdministrator       - Boolean - any action on any user or its infobase user.
 //   * FullAccess                - Boolean - Same as the SystemAdministrator role but for non-administrator users.
-//   * ListManagement          - Boolean - adding and changing users:
-//                                  a) For new users without the right to sign in to the application,
-//                                     any property can be edited except for granting the right to sign in.
-//                                  b) For users with the right to sign in to the application,
-//                                     any property can be edited, except for granting the right to sign in
-//                                     and the authentication settings (see below). 
+//   * ListManagement          - Boolean - :
+//                                  
+//                                     
+//                                  
+//                                     
+//                                     
 //   * ChangeAuthorizationPermission  - Boolean - Change the "Sign-in allowed" check box state.
 //   * DisableAuthorizationApproval - Boolean - Clear the "Sign-in allowed" check box.
-//   * AuthorizationSettings2          - Boolean -
+//   * AuthorizationSettings2          - Boolean - 
 //                                    
 //                                    
 //                                    
@@ -2916,31 +2963,31 @@ Function UserPropertiesAccessLevel(ObjectDetails, ProcessingParameters = Undefin
 	
 	AccessLevel = New Structure;
 	
-	// 
+	// Full administrator (all data).
 	AccessLevel.Insert("SystemAdministrator", Users.IsFullUser(, True));
 	
-	// 
+	// Full-access user (user data).
 	AccessLevel.Insert("FullAccess", Users.IsFullUser());
 	
 	If TypeOf(ObjectDetails.Ref) = Type("CatalogRef.Users") Then
-		// 
+		// The person responsible for the list of users.
 		AccessLevel.Insert("ListManagement",
 			AccessRight("Insert", Metadata.Catalogs.Users)
 			And (AccessLevel.FullAccess
 			   Or Not Users.IsFullUser(ObjectDetails.Ref)));
-		// 
+		// User of the current infobase user.
 		AccessLevel.Insert("ChangeCurrent",
 			AccessLevel.FullAccess
 			Or AccessRight("Update", Metadata.Catalogs.Users)
 			  And ObjectDetails.Ref = Users.AuthorizedUser());
 		
 	ElsIf TypeOf(ObjectDetails.Ref) = Type("CatalogRef.ExternalUsers") Then
-		// 
+		// The person responsible for the list of external users.
 		AccessLevel.Insert("ListManagement",
 			AccessRight("Insert", Metadata.Catalogs.ExternalUsers)
 			And (AccessLevel.FullAccess
 			   Or Not Users.IsFullUser(ObjectDetails.Ref)));
-		// 
+		// External user of the current infobase user.
 		AccessLevel.Insert("ChangeCurrent",
 			AccessLevel.FullAccess
 			Or AccessRight("Update", Metadata.Catalogs.ExternalUsers)
@@ -3059,7 +3106,7 @@ Procedure StartIBUserProcessing(UserObject,
 	
 	// Catalog attributes that cannot be changed in event subscriptions (checking initial values)
 	AttributesToLock = New Structure;
-	AttributesToLock.Insert("IsInternal", False); // 
+	AttributesToLock.Insert("IsInternal", False); 
 	AttributesToLock.Insert("DeletionMark");
 	AttributesToLock.Insert("Invalid");
 	AttributesToLock.Insert("Prepared");
@@ -3110,7 +3157,7 @@ Procedure StartIBUserProcessing(UserObject,
 		If AccessLevel.ListManagement
 		   And Not ProcessingParameters.OldIBUserExists
 		   And ValueIsFilled(UserObject.IBUserID) Then
-			// 
+			// Clearing infobase user ID.
 			UserObject.IBUserID = Undefined;
 			ProcessingParameters.AutoAttributes.IBUserID =
 				UserObject.IBUserID;
@@ -3186,7 +3233,7 @@ Procedure StartIBUserProcessing(UserObject,
 		
 		If Not ProcessingParameters.Property("Action") Then
 			UserObject.IBUserID = IBUserDetails.UUID;
-			// 
+			// Updating value of the attribute that is checked during the writing
 			ProcessingParameters.AutoAttributes.IBUserID =
 				UserObject.IBUserID;
 		EndIf;
@@ -3206,7 +3253,7 @@ Procedure StartIBUserProcessing(UserObject,
 			Raise ProcessingParameters.InsufficientRightsMessageText;
 		EndIf;
 		
-	ElsIf Not AccessLevel.ListManagement Then // 
+	ElsIf Not AccessLevel.ListManagement Then // Action = "Write"
 		
 		If Not AccessLevel.ChangeCurrent
 		 Or Not ProcessingParameters.OldIBUserCurrent Then
@@ -3227,7 +3274,7 @@ Procedure StartIBUserProcessing(UserObject,
 		// Checking if unavailable properties can be changed
 		If Not AccessLevel.FullAccess Then
 			ValidProperties = New Structure;
-			ValidProperties.Insert("UUID"); // 
+			ValidProperties.Insert("UUID"); 
 			
 			If AccessLevel.ChangeCurrent Then
 				ValidProperties.Insert("Email");
@@ -3274,14 +3321,16 @@ Procedure StartIBUserProcessing(UserObject,
 		DeleteIBUser(UserObject, ProcessingParameters);
 	EndIf;
 	
-	// 
+	// Updating value of the attribute that is checked during the writing
 	ProcessingParameters.AutoAttributes.IBUserID =
 		UserObject.IBUserID;
 	
 	NewIBUserDetails1 = Users.IBUserProperies(UserObject.IBUserID);
+	ProcessingParameters.Insert("NewIBUserExists", NewIBUserDetails1 <> Undefined);
+	ProcessingParameters.Insert("NewIBUser",
+		InformationSecurityUserById(UserObject.IBUserID));
+	
 	If NewIBUserDetails1 <> Undefined Then
-		
-		ProcessingParameters.Insert("NewIBUserExists", True);
 		ProcessingParameters.Insert("NewIBUserDetails1", NewIBUserDetails1);
 		
 		// Checking if user can change users with full access.
@@ -3290,8 +3339,6 @@ Procedure StartIBUserProcessing(UserObject,
 			
 			Raise ProcessingParameters.InsufficientRightsMessageText;
 		EndIf;
-	Else
-		ProcessingParameters.Insert("NewIBUserExists", False);
 	EndIf;
 	
 	// AfterStartIBUserProcessing - SaaS mode support.
@@ -3478,7 +3525,7 @@ Function CreateFirstAdministratorRequired(Val IBUserDetails,
 				Or Roles.Find("FullAccess") = Undefined
 				Or Roles.Find("SystemAdministrator") = Undefined Then
 				
-				// 
+				// Preparing text of the question that is displayed when writing the first administrator.
 				Text =
 					NStr("en = 'You are adding the first user to the list of application users.
 					           |Therefore, the user will be automatically granted ""Full access"" and ""System administrator"" roles.
@@ -3493,7 +3540,7 @@ Function CreateFirstAdministratorRequired(Val IBUserDetails,
 				Return True;
 			EndIf;
 		Else
-			// 
+			// Checking user rights before writing an external user
 			Text =
 				NStr("en = 'The first infobase user must be a full access user.
 				           |External users cannot have full access.
@@ -3510,7 +3557,7 @@ EndFunction
 // 
 // Parameters:
 //  IBUser - InfoBaseUser - Check the given infobase user.
-//                 - Undefined - 
+//                 - Undefined - Check the active infobase user.
 //  
 // Returns:
 //  Boolean
@@ -3520,13 +3567,12 @@ Function AdministratorRolesAvailable(IBUser = Undefined) Export
 	If IBUser = Undefined
 	 Or IBUser = InfoBaseUsers.CurrentUser() Then
 	
-		// ACC:336-
-		//
+		
 		Return IsInRole(Metadata.Roles.FullAccess)
 		     //@skip-check using-isinrole
 		     And (IsInRole(Metadata.Roles.SystemAdministrator)
 		        Or Common.DataSeparationEnabled() );
-		// 
+		// ACC:336-on
 	EndIf;
 	
 	Return IBUser.Roles.Contains(Metadata.Roles.FullAccess)
@@ -3550,7 +3596,7 @@ EndFunction
 //                 are checked for the external user.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True, if no errors occurred.
 //
 Function CheckIBUserDetails(Val IBUserDetails, Cancel, IsExternalUser) Export
 	
@@ -3558,13 +3604,13 @@ Function CheckIBUserDetails(Val IBUserDetails, Cancel, IsExternalUser) Export
 		Name = IBUserDetails.Name;
 		
 		If IsBlankString(Name) Then
-			// 
+			// The settings storage uses only the first 64 characters of the infobase user name.
 			Common.MessageToUser(
 				NStr("en = 'The username is required.';"),, "Name",,Cancel);
 			
 		ElsIf StrLen(Name) > 64 Then
-			// 
-			// 
+			
+			
 			Common.MessageToUser(
 				NStr("en = 'The username exceeds 64 characters.';"),,"Name",,Cancel);
 			
@@ -3697,8 +3743,8 @@ EndFunction
 //  UsersGroup - CatalogRef.UserGroups
 //
 //  User - Undefined                            - for all users.
-//               - Array of CatalogRef.Users - 
-//               - CatalogRef.Users           - 
+//               - Array of CatalogRef.Users - for the specified users.
+//               - CatalogRef.Users           - for the specified user.
 //
 //  ItemsToChange - Undefined - no actions.
 //                     - Map of KeyAndValue:
@@ -3779,15 +3825,15 @@ EndProcedure
 //  ItemsToChange - Undefined - no actions.
 //                     - Map of KeyAndValue:
 //                         * Key - CatalogRef.Users
-//                                - CatalogRef.ExternalUsers - fills in the match
-//                                  with users for whom there are changes.
+//                                - CatalogRef.ExternalUsers - fills in a mapping
+//                                  with users for which changes exist.
 //                         * Value - Undefined
 //
 //  ModifiedGroups   - Undefined - no actions.
 //                     - Map of KeyAndValue:
 //                         * Key - CatalogRef.UserGroups
-//                                - CatalogRef.ExternalUsersGroups - fills in the correspondence
-//                                  with the user groups for which there are changes.
+//                                - CatalogRef.ExternalUsersGroups - fills in the array
+//                                  with groups of users, for which there are changes.
 //                         * Value - Undefined
 //
 Procedure UpdateUserGroupCompositionUsage(Val UserOrGroup,
@@ -3798,8 +3844,8 @@ Procedure UpdateUserGroupCompositionUsage(Val UserOrGroup,
 	
 	Query = New Query;
 	Query.SetParameter("UserOrGroup", UserOrGroup);
-	// ACC:1377-
-	// 
+	
+	
 	Query.Text =
 	"SELECT
 	|	UserGroupCompositions.UsersGroup,
@@ -3911,9 +3957,9 @@ EndProcedure
 //                        automatic groups are updated according to the authorization object types.
 //
 //  ExternalUser - Undefined - for all external users.
-//                      - Array of CatalogRef.ExternalUsers - 
-//                          
-//                      - CatalogRef.ExternalUsers - 
+//                      - Array of CatalogRef.ExternalUsers - for the specified
+//                          external users.
+//                      - CatalogRef.ExternalUsers - for the specified external user.
 //
 //  ItemsToChange - Undefined - no actions.
 //                     - Map of KeyAndValue:
@@ -4038,7 +4084,7 @@ EndProcedure
 Procedure UpdateExternalUsersRoles(Val ExternalUsersArray = Undefined) Export
 	
 	If CannotEditRoles() Then
-		// 
+		// Roles are set using another algorithm, for example, the algorithm from AccessManagement subsystem.
 		Return;
 	EndIf;
 	
@@ -4130,7 +4176,7 @@ Procedure UpdateExternalUsersRoles(Val ExternalUsersArray = Undefined) Export
 			CurrentNumber = CurrentNumber - 1;
 		EndDo;
 		
-		// 
+		// Preparing a list of roles that are missing from the metadata and need to be reset
 		Query = New Query;
 		Query.TempTablesManager = New TempTablesManager;
 		Query.SetParameter("ExternalUsers", ExternalUsersArray);
@@ -4138,8 +4184,8 @@ Procedure UpdateExternalUsersRoles(Val ExternalUsersArray = Undefined) Export
 		Query.SetParameter("OldExternalUserRoles", OldExternalUserRoles);
 		Query.SetParameter("UseExternalUsers",
 			GetFunctionalOption("UseExternalUsers"));
-		// ACC:96-
-		// 
+		
+		
 		Query.Text =
 		"SELECT
 		|	OldExternalUserRoles.ExternalUser,
@@ -4220,9 +4266,9 @@ Procedure UpdateExternalUsersRoles(Val ExternalUsersArray = Undefined) Export
 		|					AllRoles AS AllRoles
 		|				WHERE
 		|					AllRoles.Name = AllNewExternalUserRoles.Role)";
-		// ACC:96-
+		// ACC:96-on
 		
-		// 
+		// Registering role name errors in access group profiles
 		Selection = Query.Execute().Select();
 		While Selection.Next() Do
 			ExternalUser = Selection.ExternalUser; // CatalogRef.ExternalUsers
@@ -4232,7 +4278,7 @@ Procedure UpdateExternalUsersRoles(Val ExternalUsersArray = Undefined) Export
 				          |was not found in metadata while updating roles
 				          |of external user ""%1"".
 				          |';"),
-				TrimAll(ExternalUser.Description),
+				TrimAll(ExternalUser),
 				Selection.Role,
 				String(Selection.ExternalUsersGroup));
 			
@@ -4246,7 +4292,7 @@ Procedure UpdateExternalUsersRoles(Val ExternalUsersArray = Undefined) Export
 				EventLogEntryTransactionMode.Transactional);
 		EndDo;
 		
-		// 
+		// Updating infobase user roles
 		Query.Text =
 		"SELECT
 		|	ModifiedExternalUsersAndRoles.ExternalUser,
@@ -4440,7 +4486,7 @@ EndProcedure
 //  Move         - Boolean - If True, the users are removed from the source group.
 //
 // Returns:
-//  String - 
+//  String - a message about the result of moving.
 //
 Function MoveUserToNewGroup(UsersArray, SourceGroup,
 												DestinationGroup1, Move) Export
@@ -4475,20 +4521,24 @@ Function MoveUserToNewGroup(UsersArray, SourceGroup,
 			Or DestinationGroup1 = Catalogs.ExternalUsersGroups.AllExternalUsers Then
 			
 			If Move Then
-				DeleteUserFromGroup(SourceGroup, UserRef, CompositionColumnName);
+				Removed = False;
+				DeleteUserFromGroup(SourceGroup, UserRef, CompositionColumnName, Removed);
+			Else
+				Removed = True;
 			EndIf;
-			MovedUsersArray.Add(UserRef);
-			
-		ElsIf DestinationGroup1.Content.Find(UserRef, CompositionColumnName) = Undefined Then
-			
-			AddUserToGroup(DestinationGroup1, UserRef, CompositionColumnName);
-			
-			// Removing the user from the source group.
-			If Move Then
-				DeleteUserFromGroup(SourceGroup, UserRef, CompositionColumnName);
+			If Removed Then
+				MovedUsersArray.Add(UserRef);
 			EndIf;
-			
-			MovedUsersArray.Add(UserRef);
+		Else
+			Added = False;
+			AddUserToGroup(DestinationGroup1, UserRef, CompositionColumnName, Added);
+			If Added Then
+				// Removing the user from the source group.
+				If Move Then
+					DeleteUserFromGroup(SourceGroup, UserRef, CompositionColumnName);
+				EndIf;
+				MovedUsersArray.Add(UserRef);
+			EndIf;
 		EndIf;
 		
 	EndDo;
@@ -4519,15 +4569,15 @@ EndFunction
 //
 // Parameters:
 //  DestinationGroup1     - CatalogRef.UserGroups
-//                     - CatalogRef.ExternalUsersGroups - 
+//                     - CatalogRef.ExternalUsersGroups - Group to add the user to.
 //                          
 //
 //  UserRef - CatalogRef.Users
-//                     - CatalogRef.ExternalUsers - 
+//                     - CatalogRef.ExternalUsers - User to add to a group.
 //                         
 //
 // Returns:
-//  Boolean - 
+//  Boolean - if False, user cannot be added to the group.
 //
 Function CanMoveUser(DestinationGroup1, UserRef) Export
 	
@@ -4558,44 +4608,17 @@ Function CanMoveUser(DestinationGroup1, UserRef) Export
 	
 EndFunction
 
-Procedure AddUserToGroup(DestinationGroup1, UserRef, UserType) Export
+Procedure AddUserToGroup(OwnerGroup, UserRef, CompositionColumnName, Added) Export
+	
+	If OwnerGroup = Catalogs.UserGroups.AllUsers
+	 Or OwnerGroup = Catalogs.ExternalUsersGroups.AllExternalUsers Then
+		Return;
+	EndIf;
 	
 	BeginTransaction();
 	Try
 		Block = New DataLock;
-		If UserType = "ExternalUser" Then
-			TableName = "Catalog.ExternalUsersGroups";
-		Else
-			TableName = "Catalog.UserGroups";
-		EndIf;
-		LockItem = Block.Add(TableName);
-		LockItem.SetValue("Ref", DestinationGroup1);
-		Block.Lock();
-		
-		DestinationGroupObject = DestinationGroup1.GetObject();
-		CompositionRow = DestinationGroupObject.Content.Add();
-		If UserType = "ExternalUser" Then
-			CompositionRow.ExternalUser = UserRef;
-		Else
-			CompositionRow.User = UserRef;
-		EndIf;
-		
-		DestinationGroupObject.Write();
-		
-		CommitTransaction();
-	Except
-		RollbackTransaction();
-		Raise;
-	EndTry;
-	
-EndProcedure
-
-Procedure DeleteUserFromGroup(OwnerGroup, UserRef, UserType) Export
-	
-	BeginTransaction();
-	Try
-		Block = New DataLock;
-		If UserType = "ExternalUser" Then
+		If CompositionColumnName = "ExternalUser" Then
 			TableName = "Catalog.ExternalUsersGroups";
 		Else
 			TableName = "Catalog.UserGroups";
@@ -4605,9 +4628,56 @@ Procedure DeleteUserFromGroup(OwnerGroup, UserRef, UserType) Export
 		Block.Lock();
 		
 		OwnerGroupObject = OwnerGroup.GetObject();
-		If OwnerGroupObject.Content.Count() <> 0 Then
-			OwnerGroupObject.Content.Delete(OwnerGroupObject.Content.Find(UserRef, UserType));
+		Properties = New Structure("AllAuthorizationObjects", False);
+		FillPropertyValues(Properties, OwnerGroupObject);
+		
+		CompositionRow = OwnerGroupObject.Content.Find(UserRef, CompositionColumnName);
+		
+		If CompositionRow = Undefined And Not Properties.AllAuthorizationObjects Then
+			CompositionRow = OwnerGroupObject.Content.Add();
+			If CompositionColumnName = "ExternalUser" Then
+				CompositionRow.ExternalUser = UserRef;
+			Else
+				CompositionRow.User = UserRef;
+			EndIf;
 			OwnerGroupObject.Write();
+			Added = True;
+		EndIf;
+		
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
+	
+EndProcedure
+
+Procedure DeleteUserFromGroup(OwnerGroup, UserRef, CompositionColumnName, Removed = False) Export
+	
+	If OwnerGroup = Catalogs.UserGroups.AllUsers
+	 Or OwnerGroup = Catalogs.ExternalUsersGroups.AllExternalUsers Then
+		Return;
+	EndIf;
+	
+	BeginTransaction();
+	Try
+		Block = New DataLock;
+		If CompositionColumnName = "ExternalUser" Then
+			TableName = "Catalog.ExternalUsersGroups";
+		Else
+			TableName = "Catalog.UserGroups";
+		EndIf;
+		LockItem = Block.Add(TableName);
+		LockItem.SetValue("Ref", OwnerGroup);
+		Block.Lock();
+		
+		OwnerGroupObject = OwnerGroup.GetObject();
+		
+		CompositionRow = OwnerGroupObject.Content.Find(UserRef, CompositionColumnName);
+		If CompositionRow <> Undefined Then
+			OwnerGroupObject.Content.Delete(CompositionRow);
+			OwnerGroupObject.Write();
+			Removed = True;
 		EndIf;
 		
 		CommitTransaction();
@@ -4630,7 +4700,7 @@ EndProcedure
 //                        users are transferred.
 //
 // Returns:
-//  String - user message.
+//  String - message to user.
 //
 Function CreateUserMessage(UsersArray, DestinationGroup1,
 	                                      Move, UnmovedUsersArray, SourceGroup = Undefined) Export
@@ -5264,7 +5334,7 @@ EndFunction
 //  Table2   - ValueTable
 //
 // Returns:
-//  Array - 
+//  Array - values that are only present in the column of only one table.
 // 
 Function ColumnValueDifferences(ColumnName, Table1, Table2) Export
 	
@@ -6168,10 +6238,10 @@ EndFunction
 // Returns:
 //  ValueTable:
 //   * Ref - CatalogRef.ExternalUsersGroups
-//            - CatalogRef.UserGroups - 
+//            - CatalogRef.UserGroups - a reference to catalog item.
 //   * Parent - CatalogRef.ExternalUsersGroups
-//              - CatalogRef.UserGroups - 
-//       
+//              - CatalogRef.UserGroups - a reference to the parent
+//       item of the catalog.
 //
 Function ReferencesInParentHierarchy(Table)
 	
@@ -6351,7 +6421,7 @@ Procedure UpdateAllUsersGroupComposition(User,
 				RecordSet.Filter.UsersGroup.Set(Selection.UsersGroup);
 				RecordSet.Filter.User.Set(Selection.User);
 				FillPropertyValues(Record, Selection);
-				RecordSet.Write(); // 
+				RecordSet.Write(); 
 				
 				If ItemsToChange <> Undefined Then
 					ItemsToChange.Insert(Selection.User);
@@ -6476,7 +6546,7 @@ Procedure UpdateGroupCompositionsByAuthorizationObjectType(ExternalUsersGroup,
 		While Selection.Next() Do
 			RecordSet.Filter.UsersGroup.Set(Selection.UsersGroup);
 			RecordSet.Filter.User.Set(Selection.User);
-			RecordSet.Write(); // 
+			RecordSet.Write(); 
 			
 			If ItemsToChange <> Undefined Then
 				ItemsToChange.Insert(Selection.User);
@@ -6500,7 +6570,7 @@ Procedure UpdateGroupCompositionsByAuthorizationObjectType(ExternalUsersGroup,
 			RecordSet.Filter.UsersGroup.Set(Selection.UsersGroup);
 			RecordSet.Filter.User.Set(Selection.User);
 			FillPropertyValues(Record, Selection);
-			RecordSet.Write(); // 
+			RecordSet.Write(); // Adding missing records about relations.
 			
 			If ItemsToChange <> Undefined Then
 				ItemsToChange.Insert(Selection.User);
@@ -6668,7 +6738,7 @@ Procedure UpdateHierarchicalUserGroupCompositions(UsersGroup,
 			
 			Query.SetParameter("UsersGroup", UsersGroup);
 			
-			// 
+			
 			QueryResults = Query.ExecuteBatch();
 			
 			If Not QueryResults[2].IsEmpty() Then
@@ -6678,7 +6748,7 @@ Procedure UpdateHierarchicalUserGroupCompositions(UsersGroup,
 				While Selection.Next() Do
 					RecordSet.Filter.User.Set(Selection.User);
 					RecordSet.Filter.UsersGroup.Set(UsersGroup);
-					RecordSet.Write(); // 
+					RecordSet.Write(); 
 					
 					If ItemsToChange <> Undefined Then
 						ItemsToChange.Insert(Selection.User);
@@ -6699,7 +6769,7 @@ Procedure UpdateHierarchicalUserGroupCompositions(UsersGroup,
 					RecordSet.Filter.User.Set(Selection.User);
 					RecordSet.Filter.UsersGroup.Set(Selection.UsersGroup);
 					FillPropertyValues(Record, Selection);
-					RecordSet.Write(); // 
+					RecordSet.Write(); // Adding missing records about relations.
 					
 					If ItemsToChange <> Undefined Then
 						ItemsToChange.Insert(Selection.User);
@@ -6739,7 +6809,7 @@ EndProcedure
 //                                    when ShouldRaiseException is set to False.
 //
 // Returns:
-//  String - 
+//  String - an error text when ShouldRaiseException is set to False.
 //
 Function CheckUserRights(IBUser, CheckMode, IsExternalUser,
 			RaiseException1 = True, RegisterInLog = True)
@@ -6753,8 +6823,8 @@ Function CheckUserRights(IBUser, CheckMode, IsExternalUser,
 		Return ""; // Do not check user rights in the local mode.
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	If IsExternalUser And CheckMode = "OnStart" Then
 		Return "";
 	EndIf;
@@ -6809,7 +6879,7 @@ Function CheckUserRights(IBUser, CheckMode, IsExternalUser,
 		ElsIf RolesAssignment.ForExternalUsersOnly.Get(NameOfRole) <> Undefined Then
 			TemplateText = NStr("en = '""%1"" (for external users only)';");
 			
-		Else // 
+		Else // This is an external user.
 			TemplateText = NStr("en = '""%1"" (for users only)';");
 		EndIf;
 		
@@ -7001,7 +7071,7 @@ Procedure CopyOtherUserSettings(UserNameSource, UserNameDestination)
 	DestinationUserInfo.Insert("UserRef", UserDestinationRef);
 	DestinationUserInfo.Insert("InfobaseUserName", UserNameDestination);
 	
-	// 
+	
 	OtherUserSettings = New Structure; // See OnGetOtherUserSettings.Settings
 	OnGetOtherUserSettings(SourceUserInfo, OtherUserSettings);
 	Keys = New ValueList;
@@ -7174,8 +7244,8 @@ Function Shared_Data()
 	DataSeparationEnabled = Common.DataSeparationEnabled();
 	SeparatedDataUsageAvailable = Common.SeparatedDataUsageAvailable();
 	
-	For Each KindDetails In MetadataKinds Do // 
-		For Each MetadataObject In KindDetails.Kind Do // 
+	For Each KindDetails In MetadataKinds Do 
+		For Each MetadataObject In KindDetails.Kind Do 
 			If SeparatedMetadataObjects.Get(MetadataObject) <> Undefined Then
 				Continue;
 			EndIf;
@@ -7251,17 +7321,17 @@ EndFunction
 // Returns:
 //  Structure:
 //   * ForSystemAdministratorsOnly - Map of KeyAndValue:
-//      ** Key     - MetadataObject - role.
-//      ** Value - Boolean - Truth.
+//      ** Key     - MetadataObject -  role.
+//      ** Value - Boolean -  Truth.
 //   * ForSystemUsersOnly - Map of KeyAndValue:
-//      ** Key     - MetadataObject - role.
-//      ** Value - Boolean - Truth.
+//      ** Key     - MetadataObject -  role.
+//      ** Value - Boolean -  Truth.
 //   * ForExternalUsersOnly - Map of KeyAndValue:
-//      ** Key     - MetadataObject - role.
-//      ** Value - Boolean - Truth.
+//      ** Key     - MetadataObject -  role.
+//      ** Value - Boolean -  Truth.
 //   * BothForUsersAndExternalUsers - Map of KeyAndValue:
-//      ** Key     - MetadataObject - role.
-//      ** Value - Boolean - Truth.
+//      ** Key     - MetadataObject -  role.
+//      ** Value - Boolean -  Truth.
 //
 Function RolesAssignment()
 	Return New Structure;
@@ -7311,8 +7381,8 @@ Procedure OnDataGet(DataElement, ItemReceive, SendBack, FromSubordinate)
 		
 		If FromSubordinate And Common.DataSeparationEnabled() Then
 			
-			// 
-			// 
+			
+			
 			SendBack = True;
 			ItemReceive = DataItemReceive.Ignore;
 			
@@ -7349,7 +7419,7 @@ Procedure OnDataGet(DataElement, ItemReceive, SendBack, FromSubordinate)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 // 
 // 
@@ -7710,6 +7780,8 @@ Procedure RememberUserProperties(UserObject, ProcessingParameters)
 	PreviousIBUserDetails = Users.IBUserProperies(OldUser.IBUserID);
 	ProcessingParameters.Insert("OldIBUserExists", PreviousIBUserDetails <> Undefined);
 	ProcessingParameters.Insert("OldIBUserCurrent", False);
+	ProcessingParameters.Insert("OldInformationSecurityUser",
+		InformationSecurityUserById(OldUser.IBUserID));
 	
 	If ProcessingParameters.OldIBUserExists Then
 		ProcessingParameters.Insert("PreviousIBUserDetails", PreviousIBUserDetails);
@@ -7766,7 +7838,7 @@ Procedure WriteIBUser(UserObject, ProcessingParameters)
 		CreateNewIBUser = True;
 	EndIf;
 	
-	// 
+	// Filling automatic properties for infobase user.
 	IBUserDetails.Insert("FullName", UserObject.Description);
 	
 	StoredProperties = StoredIBUserProperties(ObjectRef2(UserObject));
@@ -7962,7 +8034,7 @@ Procedure DeleteIBUser(UserObject, ProcessingParameters)
 	IBUserDetails = UserObject.AdditionalProperties.IBUserDetails;
 	OldUser     = ProcessingParameters.OldUser;
 	
-	// 
+	// Clearing infobase user ID.
 	UserObject.IBUserID = Undefined;
 	
 	If ProcessingParameters.OldIBUserExists Then
@@ -7970,7 +8042,7 @@ Procedure DeleteIBUser(UserObject, ProcessingParameters)
 		SetPrivilegedMode(True);
 		Users.DeleteIBUser(OldUser.IBUserID);
 			
-		// 
+		// Setting ID for the infobase user to be removed by the Delete operation
 		IBUserDetails.Insert("UUID", OldUser.IBUserID);
 		IBUserDetails.Insert("ActionResult", "IBUserDeleted");
 		
@@ -8144,10 +8216,6 @@ Procedure DisableInactiveAndOverdueUsers(ForAuthorizedUsersOnly = False,
 	SetPrivilegedMode(True);
 	
 	Settings = LogonSettings();
-	If Not ValueIsFilled(Settings.Users.InactivityPeriodBeforeDenyingAuthorization)
-	   And Not ValueIsFilled(Settings.ExternalUsers.InactivityPeriodBeforeDenyingAuthorization) Then
-		Return;
-	EndIf;
 	
 	Query = New Query;
 	Query.SetParameter("DateEmpty",                                 '00010101');
@@ -8444,7 +8512,7 @@ Procedure SetUpRoleInterfaceOnFormCreate(Parameters)
 	AppearanceFieldItem.Field = New DataCompositionField("Roles");
 	AppearanceFieldItem.Use = True;
 	
-	// 
+	// Conditional appearance of non-existing roles.
 	ConditionalAppearanceItem = Form.ConditionalAppearance.Items.Add();
 	
 	AppearanceColorItem = ConditionalAppearanceItem.Appearance.Items.Find("TextColor");
@@ -8473,8 +8541,8 @@ Procedure SetUpRoleInterfaceOnReadAtServer(Parameters)
 	Form    = Parameters.Form;
 	Items = Form.Items;
 	
-	// 
-	// 
+	
+	
 	Form.ShowRoleSubsystems = False;
 	Items.RolesShowRolesSubsystems.Check = False;
 	

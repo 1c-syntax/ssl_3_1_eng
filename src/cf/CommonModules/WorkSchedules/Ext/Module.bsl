@@ -46,7 +46,7 @@ Function DatesBySchedule(Val WorkScheduleCalendar, Val DateFrom, Val DaysArray,
 		|ORDER BY
 		|	Date";
 
-	// 
+	
 	QuerySchema = New QuerySchema();
 	QuerySchema.SetQueryText(Query.Text);
 	QuerySchema.QueryBatch[0].Operators[0].RetrievedRecordsCount = ShiftDays.Maximum;
@@ -118,15 +118,15 @@ Function DateAccordingToSchedule(Val WorkScheduleCalendar, Val DateFrom, Val Day
 	
 EndFunction
 
-// The constructor of parameters for getting dates nearest to the specified ones and included in the schedule.
-//  See NearestWorkDates.
+// 
+//  
 // 
 // Returns:
 //  Structure:
-//   * GetPrevious - Boolean - a method of getting the closest date:
-//       if True, workdays preceding the ones passed in the InitialDates parameter are defined,
-//       if False, the nearest workdays following the start dates are defined.
-//       The default value is False:
+//   * GetPrevious - Boolean - :
+//       
+//       
+//       
 //   * IgnoreUnfilledSchedule - Boolean - if True, a map returns in any way.
 //       Initial dates whose values are missing because of unfilled schedule will not be included.
 //       False - a default value:
@@ -455,14 +455,14 @@ Procedure CreateTTWorkSchedulesForPeriod(TempTablesManager, Schedules, StartDate
 	|	DaysIncludedInSchedule.WorkScheduleCalendar,
 	|	DaysIncludedInSchedule.ScheduleDate";
 	
-	// 
-	// 
 	
-	// 
-	// 
 	
-	// 
-	// 
+	
+	
+	
+	
+	
+	
 	
 	Query = New Query(QueryText);
 	Query.TempTablesManager = TempTablesManager;
@@ -517,10 +517,10 @@ EndProcedure
 // Defines the number of days included in the schedule for the specified period.
 //
 // Parameters:
-//   WorkScheduleCalendar	- CatalogRef.Calendars -
-//   StartDate		- Date - start date of the period.
-//   EndDate	- Date - end date of the period.
-//   RaiseException1 - Boolean - if True, throw an exception if the graph is empty.
+//   WorkScheduleCalendar	- CatalogRef.Calendars - 
+//   StartDate		- Date - a period start date.
+//   EndDate	- Date - a period end date.
+//   RaiseException1 - Boolean - if True, throw an exception if the schedule is not filled in.
 //
 // Returns:
 //   Number		- 
@@ -541,14 +541,14 @@ Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate
 	ScheduleDates = New Array;
 	ScheduleDates.Add(StartDate);
 	If Year(StartDate) <> Year(EndDate) And EndOfDay(StartDate) <> EndOfYear(StartDate) Then
-		// 
+		// If the dates are from different years, add the year borders.
 		For YearNumber = Year(StartDate) To Year(EndDate) - 1 Do
 			ScheduleDates.Add(Date(YearNumber, 12, 31));
 		EndDo;
 	EndIf;
 	ScheduleDates.Add(EndDate);
 	
-	// 
+	// Generate a query text of the temporary table containing the specified dates.
 	QueryText = "";
 	For Each ScheduleDate In ScheduleDates Do
 		If IsBlankString(QueryText) Then
@@ -565,7 +565,7 @@ Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate
 			|	DATETIME(2020,01,01)";
 		EndIf;
 		QueryText = QueryText + StrReplace(
-			UnionTemplate, "2020,01,01", Format(ScheduleDate, """DF='yyyy,MM,d'")); // 
+			UnionTemplate, "2020,01,01", Format(ScheduleDate, """DF='yyyy,MM,d'")); 
 	EndDo;
 	
 	TempTablesManager = New TempTablesManager;
@@ -574,7 +574,7 @@ Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate
 	Query.TempTablesManager = TempTablesManager;
 	Query.Execute();
 	
-	// 
+	// Prepare temporary tables with initial data.
 	Query.SetParameter("WorkScheduleCalendar", WorkScheduleCalendar);
 	Query.Text =
 	"SELECT DISTINCT
@@ -651,13 +651,13 @@ Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate
 	
 	Selection = Result.Select();
 	
-	//  
-	// 
-	//  
-	// 
-	//  
-	//  
-	// 
+	 
+	
+	 
+	
+	 
+	 
+	
 	
 	DaysCountInSchedule = Undefined;
 	AddFirstDay = False;
@@ -743,7 +743,7 @@ EndProcedure
 // See UsersOverridable.OnDefineRoleAssignment
 Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	
-	// СовместноДляПользователейИВнешнихПользователей.
+	// BothForUsersAndExternalUsers.
 	RolesAssignment.BothForUsersAndExternalUsers.Add(
 		Metadata.Roles.ReadWorkSchedules.Name);
 	

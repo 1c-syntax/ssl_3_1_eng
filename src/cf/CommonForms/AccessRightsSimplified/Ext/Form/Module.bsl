@@ -28,9 +28,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		FilterProfilesOnlyForCurrentUser = False;
 		
 	ElsIf Parameters.User = Users.AuthorizedUser() Then
-		// 
+		// Viewing your profiles and the access rights report.
 		FilterProfilesOnlyForCurrentUser = True;
-		// 
+		// Hiding unused information.
 		Items.Profiles.ReadOnly = True;
 		Items.ProfilesCheck.Visible = False;
 		Items.Access.Visible = False;
@@ -51,7 +51,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ImportData(FilterProfilesOnlyForCurrentUser);
 	
-	// 
+	// Prepare auxiliary data.
 	AccessManagementInternal.OnCreateAtServerAllowedValuesEditForm(ThisObject, , "");
 	
 	For Each ProfileProperties In Profiles Do
@@ -160,8 +160,8 @@ Procedure ProfilesCheckOnChange(Item)
 	
 	If CurrentData <> Undefined
 	   And Not CurrentData.Check Then
-		// 
-		// 
+		
+		
 		ClearMessages();
 		Errors = Undefined;
 		AccessManagementInternalClientServer.ProcessingOfCheckOfFillingAtServerAllowedValuesEditForm(
@@ -231,7 +231,7 @@ Procedure AccessKindsOnEditEnd(Item, NewRow, CancelEdit)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure AccessKindsAllAllowedPresentationOnChange(Item)
@@ -809,7 +809,7 @@ Procedure WriteChangesAtServer(Cancel)
 				AccessGroupObject = Update.PersonalAccessGroup.GetObject();
 				AccessGroupObject.DeletionMark = False;
 			Else
-				// 
+				// Creating a personal access group.
 				AccessGroupObject = Catalogs.AccessGroups.CreateItem();
 				AccessGroupObject.Parent     = Catalogs.AccessGroups.PersonalAccessGroupsParent();
 				AccessGroupObject.Description = Update.ProfileDescription;

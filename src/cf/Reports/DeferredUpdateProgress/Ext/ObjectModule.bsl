@@ -216,13 +216,13 @@ Function RegisteredObjects(SelectedIntervals)
 		FullName        = MetadataObject.FullName();
 		FullNameParts = StrSplit(FullName, ".");
 		
-		// 
-		// 
+		
+		
 		If FullNameParts[0] = "CalculationRegister" And FullNameParts.Count() = 4 And FullNameParts[2] = "Recalculation" Then
-			FullNameParts.Delete(2); // 
+			FullNameParts.Delete(2); 
 			FullName = StrConcat(FullNameParts, ".");
 		EndIf;
-		// 
+		// Contextual translation.
 		QueryText = QueryText + ?(QueryText = "", "", "UNION ALL") + "
 			|SELECT
 			|	""&MetadataTypePresentation"" AS MetadataType,
@@ -246,7 +246,7 @@ Function RegisteredObjects(SelectedIntervals)
 		PresentationMap.Insert(FullNameParts[1], Presentation);
 		If Restriction = 200 Then
 			Query.Text = QueryText;
-			Selection = Query.Execute().Select(); // @skip-
+			Selection = Query.Execute().Select(); 
 			While Selection.Next() Do
 				String = ResultTable2.Add();
 				FillPropertyValues(String, Selection);

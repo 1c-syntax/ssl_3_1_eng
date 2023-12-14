@@ -59,10 +59,10 @@ EndProcedure
 //  Filter             - String - filter of a file being selected, for example, pictures for products.
 //  FilesGroup       - DefinedType.AttachedFile - a catalog group with files, to which 
 //                       a new file will be added.
-//  ResultHandler - NotifyDescription - description of the procedure that will be called
-//                         after adding files with the following parameters:
-//        Result - Array - references to added files. If files were not added, a blank array.
-//        AdditionalParameters - Arbitrary - a value specified when creating notification details.
+//  ResultHandler - NotifyDescription - Details of the procedure that will be called
+//                         after adding files with the following parameters::
+//        Result - Array - References to the added files. If no files added, a blank array.
+//        AdditionalParameters - Arbitrary - Value specified when creating notification details.
 //
 Procedure AddFiles(Val FileOwner, Val FormIdentifier, Val Filter = "", FilesGroup = Undefined,
 	ResultHandler = Undefined) Export
@@ -101,19 +101,19 @@ EndProcedure
 //                 you need to attach the file.
 //   OwnerForm - ClientApplicationForm - a form from which the file creation was called.
 //   CreateMode - Undefined
-//                 - Number - 
-//                 - Undefined - 
-//                 - Number - 
-//                           
-//                           
-//                           
+//                 - Number - file creation mode:
+//                 - Undefined - show a dialog box to select a file creation mode.
+//                 - Number - Create a file using the given method::
+//                           1 - From a template (by copying another file)
+//                           2 - From a computer (from the file system)
+//                           3 - From a scanner.
 //
 //   AddingOptions - Structure - additional parameters of adding files:
 //     * MaximumSize  - Number - a restriction on the size of the file (in megabytes) imported from the file system.
 //                           If the value is 0, size is not checked. The property is ignored
 //                           if its value is bigger than it is specified in the MaxFileSize constant.
 //     * SelectionDialogFilter - String - a filter set in the selection dialog when adding a file.
-//                           See the format description in the Filter property of the FileSelectionDialog object in Syntax Assistant. 
+//                           See the format description in the Filter property of the FileSelectionDialog object in Syntax Assistant.
 //     * NotOpenCard - Boolean - an action after file creation. If it is True, a file card
 //                           will not open after creation, otherwise, it will open.
 //
@@ -224,12 +224,12 @@ EndProcedure
 //  BasisFile - DefinedType.AttachedFile - a file being copied.
 //  AdditionalParameters - Structure - form opening parameters:
 //    * FilesStorageCatalogName - String - defines a catalog to store a file copy.
-//  OnCloseNotifyDescription - NotifyDescription - a description of the procedure to be called once the form
-//                                containing the following parameters is closed:
-//                                <ClosingResult> - a value passed when calling Close() of the form being opened,
-//                                <AdditionalParameters> - a value, specified when creating
-//                                OnCloseNotifyDescription.
-//                                If the parameter is not specified, no procedure will be called on close.
+//  OnCloseNotifyDescription - NotifyDescription - Description of the procedure to be called once the form
+//                                containing the following parameters is closed::
+//                                <ClosingResult> - Value passed when calling Close() of the form.
+//                                <AdditionalParameters> - Value specified when creating OnCloseNotifyDescription.
+//                                If the parameter is not specified, no procedure is called on close.
+//                                
 //
 Procedure CopyAttachedFile(FileOwner, BasisFile, AdditionalParameters = Undefined,
 	OnCloseNotifyDescription = Undefined) Export
@@ -303,10 +303,10 @@ EndProcedure
 // Parameters:
 //   FileData           - See FilesOperations.FileData.
 //   CompletionHandler  - NotifyDescription
-//                         - Undefined - 
-//                           
-//      
-//      
+//                         - Undefined - Description of the procedure to be called once this procedure
+//                           is competed. Has the following parameters::
+//      PathToFile - String - Full path to the saved file.
+//      AdditionalParameters - Arbitrary - Value that was specified when creating the NotifyDescription object.
 //
 Procedure SaveFileAs(Val FileData, CompletionHandler = Undefined) Export
 	
@@ -324,15 +324,15 @@ EndProcedure
 //  FilesOwner - DefinedType.AttachedFilesOwner - a file folder or an object,
 //                   to which files to select are attached.
 //  FormItem   - FormTable
-//                 - FormField - 
-//                   
+//                 - FormField - the form item that will receive
+//                   a selection notification.
 //  StandardProcessing - Boolean - a return value. Always set to False.
-//  ChoiceNotificationDetails - NotifyDescription - a description of the procedure to be called once the form 
-//                                                   containing the following parameters is closed:
+//  ChoiceNotificationDetails - NotifyDescription - Description of the procedure to be called once the form 
+//                                                   containing the following parameters is closed::
 //    ChoiceValue - TypeToDefine.AttachedFile
-//                   - Undefined -  
-//                     
-//    
+//                   - Undefined - if a value has been selected, 
+//                     the selected value is returned. Otherwise, Undefined is returned.
+//    AdditionalParameters - Arbitrary - a value specified when creating OnCloseNotifyDescription.
 //
 Procedure OpenFileChoiceForm(Val FilesOwner, Val FormItem, StandardProcessing = False,
 	ChoiceNotificationDetails = Undefined) Export
@@ -355,11 +355,11 @@ Procedure OpenFileChoiceForm(Val FilesOwner, Val FormItem, StandardProcessing = 
 	
 EndProcedure
 
-// 
+// Opens the file list form.
 //
 // Parameters:
-//  FilesOwner - DefinedType.AttachedFilesOwner - the file folder or object
-//                   that the selected files are attached to.
+//  FilesOwner - DefinedType.AttachedFilesOwner - a file folder or an object,
+//                   to which files to select are attached.
 //
 Procedure OpenFileListForm(Val FilesOwner) Export
 	
@@ -377,12 +377,12 @@ EndProcedure
 //  AttachedFile      - DefinedType.AttachedFile - a reference to the catalog item with file.
 //  StandardProcessing    - Boolean - a return value. Always set to False.
 //  AdditionalParameters - Structure - form opening parameters.
-//  OnCloseNotifyDescription - NotifyDescription - a description of the procedure to be called once the form
-//                                containing the following parameters is closed:
-//                                <ClosingResult> - a value passed when calling Close() of the form being opened,
-//                                <AdditionalParameters> - a value, specified when creating 
-//                                OnCloseNotifyDescription. 
-//                                If the parameter is not specified, no procedure will be called on close.
+//  OnCloseNotifyDescription - NotifyDescription - Description of the procedure to be called once the form
+//                                containing the following parameters is closed::
+//                                <ClosingResult> - Value passed when calling Close() of the form.
+//                                <AdditionalParameters> - Value specified when creating OnCloseNotifyDescription. 
+//                                If the parameter is not specified, no procedure is called on close. 
+//                                
 //
 Procedure OpenFileForm(Val AttachedFile, StandardProcessing = False, AdditionalParameters = Undefined, 
 	OnCloseNotifyDescription = Undefined) Export
@@ -435,17 +435,17 @@ EndProcedure
 // 
 //
 // Parameters:
-//  AttachedFile      - DefinedType.AttachedFile - link to the directory element with the file.
+//  AttachedFile      - DefinedType.AttachedFile - a reference to the catalog item with file.
 //                          - Array of DefinedType.AttachedFile
 //  FormIdentifier      - UUID - a form UUID
 //                            that is used to lock the file.
-//  AdditionalParameters - Undefined - a standard behavior (see below). 
+//  AdditionalParameters - Undefined - Standard behavior (see below).
 //                          - Structure:
 //       * FileData            - See FilesOperations.FileData
 //                                - Array of See FilesOperations.FileData
-//       
-//                                  
-//                                  
+//       * ResultProcessing - NotifyDescription - a value of the Boolean type is passed upon calling.
+//                                  If True, the file is signed. Otherwise, it is not signed.
+//                                  If the property is absent, the notification is not called.
 //  SignatureParameters         - See DigitalSignatureClient.NewSignatureType
 //
 Procedure SignFile(AttachedFile, FormIdentifier, AdditionalParameters = Undefined,
@@ -522,17 +522,17 @@ EndFunction
 // received from the file storage.
 //
 // Parameters:
-//  Notification - NotifyDescription - a notification that runs after the file is received in
-//   the user working directory. As a result the structure is returned with the following properties:
-//     FullFileName - String - a full file name with a path.
-//     ErrorDetails - String - an error text if the file is not received.
+//  Notification - NotifyDescription - Notification that is triggered after the user's working directory
+//   receives the file. The return value is a structure with the following properties::
+//     FullFileName - String - Full file name (with the path).
+//     ErrorDescription - String - Error text if the file was not received.
 //
 //  AttachedFile - DefinedType.AttachedFile - a reference to the catalog item with file.
 //  FormIdentifier - UUID - a form UUID,
 //                       whose temporary storage the file will be placed to.
 //
 //  AdditionalParameters - Undefined - use the default values.
-//                          - Structure - 
+//                          - Structure - with optional properties:
 //         * ForEditing - Boolean    - initial value is False. If True,
 //                                           the file will be locked for editing.
 //         * FileData       - Structure - file properties that can be passed for acceleration
@@ -548,16 +548,16 @@ EndProcedure
 // It is the analogue of the Finish Editing interactive action.
 //
 // Parameters:
-//  Notification - NotifyDescription - a notification that is executed after putting a file to
-//   a file storage. A structure with the property is returned as a result:
-//     ErrorDetails - String - an error text if the file could not be put.
+//  Notification - NotifyDescription - Notification that is triggered after the file storage receives a file.
+//   The return value is a structure with the following property::
+//     ErrorDescription - String - Error text if the file was not received.
 //
 //  AttachedFile - DefinedType.AttachedFile - a reference to the catalog item with file.
 //  FormIdentifier - UUID - a form UUID.
 //          The method puts data to the temporary storage of this form and returns the new address.
 //
 //  AdditionalParameters - Undefined - use the default values.
-//                          - Structure - 
+//                          - Structure - with optional properties:
 //         * FullFileName - String - if filled, the specified file will be placed in the
 //                                     user working directory, and then in the file storage.
 //         * FileData    - Structure - file properties that can be passed for acceleration
@@ -588,15 +588,15 @@ Procedure OpenScanSettingForm() Export
 		
 EndProcedure
 
-// 
+// Constructor of parameters to convert graphic documents to PDF.
 // 
 // Returns:
 //  Structure:
 //   * ResultType - See ConversionResultTypeFileName
 //                   - See ConversionResultTypeBinaryData
 //                   - See ConversionResultTypeAttachedFile
-//   
-//   See ConversionResultTypeFileName
+//   * ResultFormat - String - the format of the resulting file is PDF or TIF
+//   * ResultFormat - String - the format of the resulting file is PDF or TIF See ConversionResultTypeFileName
 //   
 //
 Function GraphicDocumentConversionParameters() Export
@@ -615,47 +615,47 @@ Function GraphicDocumentConversionParameters() Export
 	
 EndFunction
 
-// 
+// Returns the result type of conversion to a file on the client.
 // 
 // Returns:
 //  String
 //
 Function ConversionResultTypeFileName() Export
 	
-	Return FilesOperationsInternalClient.ConversionResultTypeFileName();
+	Return "File";
 	
 EndFunction
 
-// 
+// Returns the result type of conversion to binary data.
 // 
 // Returns:
 //  String
 //
 Function ConversionResultTypeBinaryData() Export
 	
-	Return FilesOperationsInternalClient.ConversionResultTypeBinaryData();
+	Return "BinaryData";
 	
 EndFunction
 
-// 
+// Indicates the result type of conversion to an attachment.
 // 
 // Returns:
 //  String
 //
 Function ConversionResultTypeAttachedFile() Export
 	
-	Return FilesOperationsInternalClient.ConversionResultTypeAttachedFile();
+	Return "AttachedFile";
 	
 EndFunction
 
 
-// 
+// Merge an array of transferred documents into one with the possibility of conversion.
 // 
 // Parameters:
-//  NotificationOfReturn - NotifyDescription -
+//  NotificationOfReturn - NotifyDescription - procedure that will be executed after merging the files.
 //  ObjectsForMerging - Array of BinaryData, DefinedType.AttachedFile, String - 
-//                          
-//                          
+//                          Objects can be input as binary data, a reference to an attachment, or as a path to files
+//                          on the client.
 //  GraphicDocumentConversionParameters - See FilesOperationsClient.GraphicDocumentConversionParameters.
 // 
 Procedure CombineToMultipageFile(NotificationOfReturn, ObjectsForMerging, GraphicDocumentConversionParameters) Export
@@ -687,7 +687,7 @@ Procedure CombineToMultipageFile(NotificationOfReturn, ObjectsForMerging, Graphi
 		Return;
 	EndIf;
 	
-	#If Not WebClient And Not MobileClient Then
+#If Not WebClient And Not MobileClient Then
 		
 	If UseImageMagick Then
 		NotificationOfResult = New NotifyDescription("AfterCheckIfConversionAppInstalled", ThisObject, Context);
@@ -697,71 +697,75 @@ Procedure CombineToMultipageFile(NotificationOfReturn, ObjectsForMerging, Graphi
 	
 	MergeIntoMultipageFileFollowUp(Context);
 	
-	#EndIf
+#EndIf
 EndProcedure
 
-// 
+// Constructor of scanning parameters.
 // 
 // Parameters:
-//  Fill - Boolean -
+//  Fill - Boolean - fill with current values saved for the user.
 // 
 // Returns:
 //  Structure:
-//   * ShowDialogBox - Boolean -
-//                                 
-//   * SelectedDevice - String - name of the scanner.
-//   * PictureFormat - String -
-//   * Resolution - Number -
-//   * Chromaticity - Number -
-//   * Rotation - Number -
-//   * PaperSize - Number -
-//       
-//       
-//       
-//       
-//       
-//       
-//       
-//       
-//       
-//       
-//       
-//       
-//       
-//   * JPGQuality - Number -
-//                           
-//   * TIFFDeflation - Number -
-//       
-//       
-//       
-//       
-//       
-//   * DuplexScanning - Boolean -
+//   * ShowDialogBox - Boolean - indicates whether the scanning dialog box (provided by the scanner driver) with available resolution and other settings
+//                                  is opened.
+//   * SelectedDevice - String - scanner name.
+//   * PictureFormat - String - picture format requested from the driver.
+//   * Resolution - Number - DPI resolution.
+//   * Chromaticity - Number - possible values: 0 (black and white), 1 (grayscale), 2 (colored).
+//   * Rotation - Number - Rotation angle. Valid values: 0, 90, 180, 270. Some scanners do not support rotation. 
+//                       
+//   * PaperSize - Number - Valid values:
+//     0 - Not specified
+//     11 - А3
+//     1 - А4
+//     5 - А5
+//     6 - B4
+//     2 - B5
+//     7 - B6
+//     14 - C4
+//     15 - C5
+//     16 - C6
+//     3 - USLetter
+//     4 - USLegal
+//     10 - USExecutive
+//                            Some scanners do not support paper size.
+//   * JPGQuality - Number - quality for JPG format (from 1 to 100 where 100 is the maximum quality
+//                           and maximum size).
+//   * TIFFDeflation - Number - Compression. Valid values::
+//     2 - LZW
+//     3 - CCITT3
+//     4 - CCITT4
+//     5 - RLE
+//     6 - No compression
+//   * DuplexScanning - Boolean - Scan both sides.
 //   * ShouldSaveAsPDF - Boolean
 //   * UseImageMagickToConvertToPDF - Boolean
 //
 Function ScanningParameters(Fill = False) Export
-	SystemInfo = New SystemInfo();
-	ClientID = SystemInfo.ClientID;
-	ScanningParameters = FilesOperationsInternalServerCall.ScanningParameters(Fill, ClientID);
-	Return ScanningParameters;
+	ScanningParameters = FilesOperationsInternalClientServer.ScanningParameters();
+	ClientID = FilesOperationsInternalClient.ClientID();
 	
+	If Fill And ClientID <> Undefined Then
+		FilesOperationsInternalServerCall.FillInScanSettings(ScanningParameters, ClientID);
+	EndIf;
+	Return ScanningParameters;
 EndFunction
 
-// 
+// Constructor of addition parameters from a scanner.
 // 
 // Returns:
 //  Structure:
-//    * ResultHandler - Undefined, NotifyDescription -
-//    * FileOwner - Undefined, DefinedType.FilesOwner -
-//                                                                     
-//    * OwnerForm - Undefined, Form -
-//    * NotOpenCardAfterCreateFromFile - Boolean -
+//    * ResultHandler - Undefined, NotifyDescription - notification that will be called after getting the images.
+//    * FileOwner - Undefined, DefinedType.FilesOwner - owner of the file to get images
+//                                                                     to attachments.
+//    * OwnerForm - Undefined, Form - form from which the file is added.
+//    * NotOpenCardAfterCreateFromFile - Boolean - for the attachment creation mode.
 //    * IsFile - Boolean
 //    * ResultType - See ConversionResultTypeFileName 
 //                    - See ConversionResultTypeBinaryData
 //                    - See ConversionResultTypeAttachedFile
-//    
+//    * OneFileOnly - Boolean - scan one image only.
 //
 Function AddingFromScannerParameters() Export
 	AddingOptions = New Structure;
@@ -775,8 +779,8 @@ Function AddingFromScannerParameters() Export
 	Return AddingOptions;
 EndFunction
 
-//  
-// 
+// Add from a scanner. If the scanner management is not set up beforehand, 
+// the scanner settings form is called.
 // 
 // Parameters:
 //  AddingOptions - See AddingFromScannerParameters
@@ -797,22 +801,29 @@ Function ScanAvailable() Export
 	Return FilesOperationsInternalClient.ScanAvailable();
 EndFunction
 
+//  
 // 
 // 
 // Parameters:
-//  NotificationOfResult - NotifyDescription -
-//   * Result - Boolean -
-//   * AdditionalParameters - Arbitrary -
+//  NotificationOfResult - NotifyDescription - procedure to which the check result will be passed:
+//   * Result - Boolean - scanner availability flag.
+//   * AdditionalParameters - Arbitrary - value specified when creating notification details.
 //
 Procedure ScanCommandAvailable(NotificationOfResult) Export
-	NotifyDescription = New NotifyDescription("ScanCommandAvailableCompletion", ThisObject, NotificationOfResult);
-	FilesOperationsInternalClient.InitAddIn(NotifyDescription);
+	
+	If ScanAvailable() Then
+		NotifyDescription = New NotifyDescription("ScanCommandAvailableCompletion", ThisObject, NotificationOfResult);
+		FilesOperationsInternalClient.InitAddIn(NotifyDescription);
+	Else
+		ExecuteNotifyProcessing(NotificationOfResult, False);
+	EndIf;
+	
 EndProcedure
 
-// 
+// Gets user scanning settings.
 // 
 // Parameters:
-//  ClientID - UUID -
+//  ClientID - UUID - client iD
 // 
 // Returns:
 //   See FilesOperationsClientServer.UserScanSettings
@@ -820,25 +831,23 @@ EndProcedure
 Function GetUserScanSettings(ClientID = Undefined) Export
 	
 	If ClientID = Undefined Then
-		SystemInfo = New SystemInfo();
-		ClientID = SystemInfo.ClientID;
+		ClientID = FilesOperationsInternalClient.ClientID();
 	EndIf;
 	
 	Return FilesOperationsInternalServerCall.GetUserScanSettings(ClientID);
 	
 EndFunction
 
-// 
+// Saves user scanning settings.
 // 
 // Parameters:
 //  UserScanSettings - See FilesOperationsClientServer.UserScanSettings
-//  ClientID - UUID -
+//  ClientID - UUID - client iD
 //
 Procedure SaveUserScanSettings(UserScanSettings, ClientID = Undefined) Export
 	
 	If ClientID = Undefined Then
-		SystemInfo = New SystemInfo();
-		ClientID = SystemInfo.ClientID;
+		ClientID = FilesOperationsInternalClient.ClientID();
 	EndIf;
 	
 	FilesOperationsInternalServerCall.SaveUserScanSettings(UserScanSettings, ClientID);
@@ -883,7 +892,7 @@ Procedure NotificationProcessing(Form, EventName) Export
 		AttachedFilesCount = FilesOperationsInternalServerCall.AttachedFilesCount(AttachedFilesOwner);
 		AttachedFilesCountAsString = Format(AttachedFilesCount, "NG=");
 		
-		Hyperlink = Form.Items.Find(FilesOperationsClientServer.CommandsPrefix() + FilesOperationsClientServer.NameOfOpenListCommand() + ItemNumber);
+		Hyperlink = Form.Items.Find(FilesOperationsClientServer.CommandsPrefix() + FilesOperationsClientServer.OpenListCommandName() + ItemNumber);
 		If Hyperlink = Undefined Then
 			Continue;
 		EndIf;
@@ -942,9 +951,9 @@ EndProcedure
 //  Form                - ClientApplicationForm - a file owner form.
 //  Item              - FormField - a preview field.
 //  StandardProcessing - Boolean - standard parameter of the Click form field event.
-//  View             - Boolean -
-//                       
-//                       
+//  View             - Boolean - if the parameter value is True, a file
+//                        is opened for view. Otherwise, a file from the computer is loaded.
+//                       The default value is False.
 //
 Procedure PreviewFieldClick(Form, Item, StandardProcessing, View = False) Export
 	
@@ -1037,7 +1046,7 @@ EndProcedure
 // Opens the file form from the file catalog item form. Closes the item form.
 // 
 // Parameters:
-//  Form     - ClientApplicationForm - a form of the attachment catalog.
+//  Form     - ClientApplicationForm - a form of the attached file catalog.
 //
 Procedure GoToFileForm(Val Form) Export
 	
@@ -1152,7 +1161,7 @@ Procedure PrintFilesExecution(ResultHandler, ExecutionParameters) Export
 	
 	If ExecutionParameters.FileData.Property("SpreadsheetDocument") Then
 		ExecutionParameters.FileData.SpreadsheetDocument.Print();
-		// 
+		// proceeding to print the next file.
 		ExecutionParameters.FileNumber = ExecutionParameters.FileNumber + 1;
 		Handler = New NotifyDescription("PrintFilesExecution", ThisObject, ExecutionParameters);
 		ExecuteNotifyProcessing(Handler);
@@ -1172,7 +1181,7 @@ Procedure PrintFilesExecution(ResultHandler, ExecutionParameters) Export
 	EndIf;
 EndProcedure
 
-// 
+// The procedure of printing the File after receiving it to the computer.
 //
 // Parameters:
 //  Result - Structure:
@@ -1195,7 +1204,7 @@ Procedure PrintFileAfterReceiveVersionInWorkingDirectory(Result, ExecutionParame
 		
 	EndIf;
 
-	// 
+	// proceeding to print the next file.
 	ExecutionParameters.FileNumber = ExecutionParameters.FileNumber + 1;
 	Handler = New NotifyDescription("PrintFilesExecution", ThisObject, ExecutionParameters);
 	ExecuteNotifyProcessing(Handler);
@@ -1224,8 +1233,8 @@ Procedure OpenScanSettingFormCompletion(InitializationCheckResult, ExecutionPara
 		Return;
 	EndIf;
 	
-	SystemInfo = New SystemInfo();
-	ClientID = SystemInfo.ClientID;
+	FilesOperationsInternalClient.EnableLoggingComponents(InitializationCheckResult.Attachable_Module);
+	ClientID = FilesOperationsInternalClient.ClientID();
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("AddInInstalled", AddInInstalled);
@@ -1251,9 +1260,9 @@ Function ImagesForMerging(ObjectsForMerging, UseImageMagick = False)
 		For Each ObjectForMerging In ObjectsForMerging Do
 			FileName = Undefined;
 			#If Not WebClient And Not MobileClient Then
-				// 
+				// ACC:441-off the file is a method result
 				TempFileName = GetTempFileName();
-				// 
+				// ACC:441-on
 			#Else
 				TempFileName = Undefined;			
 			#EndIf
@@ -1365,8 +1374,17 @@ Procedure MergeIntoMultipageFileAfterCommandExecuted(ImageMagickResult, Context)
 EndProcedure
 
 Procedure ScanCommandAvailableCompletion(InitializationCheckResult, NotificationOfResult) Export
-	IsAddInInitialized = InitializationCheckResult.Attached;
-	ExecuteNotifyProcessing(NotificationOfResult, IsAddInInitialized);	
+	ScanCommandAvailable = InitializationCheckResult.Attached;
+	Attachable_Module = InitializationCheckResult.Attachable_Module;
+	
+	If ScanCommandAvailable Then
+		FilesOperationsInternalClient.EnableLoggingComponents(InitializationCheckResult.Attachable_Module);
+	EndIf;
+	
+	ScanCommandAvailable = ScanCommandAvailable 
+		And FilesOperationsInternalClient.IsDevicePresent(Undefined, Attachable_Module, False);
+
+	ExecuteNotifyProcessing(NotificationOfResult, ScanCommandAvailable);	
 EndProcedure
 
 Procedure AfterCheckIfConversionAppInstalled(RunResult, Context) Export
@@ -1399,9 +1417,9 @@ Procedure MergeIntoMultipageFileFollowUp(Context)
 	ResultFileName = GraphicDocumentConversionParameters.ResultFileName;
 	
 	If Not ValueIsFilled(ResultFileName) Then
-		// ACC:441-
+		// ACC:441-off the file is not deleted if it is a method result
 		ResultFileName = GetTempFileName(GraphicDocumentConversionParameters.ResultFormat);
-		// 
+		// ACC:441-on
 	EndIf;
 	
 	If Not UseImageMagick Then
@@ -1584,8 +1602,9 @@ Procedure AttachmentsControlCommandCompletion(Form, Command, AttachedFilesOwner)
 		Form.FilesOperationsParameters.FormElementsDetails[ItemNumber].SelectionDialogFilter);
 	FileAddingOptions.Insert("NotOpenCard", True);
 	
-	// IntegrationWith1CDocumentManagementSubsystem
 	UseEDIToStoreObjectFiles = False;
+
+	// IntegrationWith1CDocumentManagement
 	If CommonClient.SubsystemExists("IntegrationWith1CDocumentManagementSubsystem") Then
 		DMILVersion = "1.0.0.0";
 		StandardSubsystemsClient.ClientRunParameters().Property("DMILVersion", DMILVersion);
@@ -1599,16 +1618,16 @@ Procedure AttachmentsControlCommandCompletion(Form, Command, AttachedFilesOwner)
 					AttachedFilesOwner);
 		EndIf;
 	EndIf;
-	// End IntegrationWith1CDocumentManagementSubsystem
+	// End IntegrationWith1CDocumentManagement
 	
 	If StrStartsWith(CommandName, "OpenList") Then
 		
 		If UseEDIToStoreObjectFiles Then
 			
-			// ИнтеграцияС1СДокументооборотом
+			// IntegrationWith1CDocumentManagement
 			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient.OpenAttachedFiles(
 				AttachedFilesOwner);
-			// End IntegrationWith1CDocumentManagementSubsystem
+			// End IntegrationWith1CDocumentManagement
 			
 		Else
 			
@@ -1620,19 +1639,19 @@ Procedure AttachmentsControlCommandCompletion(Form, Command, AttachedFilesOwner)
 			
 		EndIf;
 		
-	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.NameOfCommandUploadFile()) Then
+	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.ImportFileCommandName()) Then
 		
 		If UseEDIToStoreObjectFiles Then
 			
-			// ИнтеграцияС1СДокументооборотом
+			// IntegrationWith1CDocumentManagement
 			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient.AddFileFromDiskoISObject(
 				AttachedFilesOwner,
 				Form.UUID);
-			// End IntegrationWith1CDocumentManagementSubsystem
+			// End IntegrationWith1CDocumentManagement
 			
 		Else
 			
-			CommandName = StrReplace(CommandName, FilesOperationsClientServer.NameOfCommandUploadFile(), "");
+			CommandName = StrReplace(CommandName, FilesOperationsClientServer.ImportFileCommandName(), "");
 			OwnerFiles = FilesOperationsInternalServerCall.AttachedFilesCount(AttachedFilesOwner, True);
 			If StrStartsWith(CommandName, "OneFileOnly")
 				And OwnerFiles.Count > 0 Then
@@ -1661,28 +1680,28 @@ Procedure AttachmentsControlCommandCompletion(Form, Command, AttachedFilesOwner)
 			ExecuteActionWithFile(ExecutionParameters, CompletionHandler);
 		EndIf;
 		
-	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.NameOfCreateByTemplateCommand()) Then
+	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.CreateFromTemplateCommandName()) Then
 		AppendFile(CompletionHandler, AttachedFilesOwner, Form, 1, FileAddingOptions);
-	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.NameOfScanCommand()) Then
+	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.ScanCommandName()) Then
 		AppendFile(CompletionHandler, AttachedFilesOwner, Form, 3, FileAddingOptions);
-	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.NameOfCommandToSelectFile()) Then
+	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.SelectFileCommandName()) Then
 		ExecutionParameters.Action = "SelectFile";
 		OpenFileChoiceForm(AttachedFilesOwner, Undefined, False, CompletionHandler);
-	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.NameOfCommandsViewFile()) Then
+	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.ViewFileCommandName()) Then
 		ExecutionParameters.Action = "ViewFile1";
 		ExecuteActionWithFile(ExecutionParameters, CompletionHandler);
 	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.ClearCommandName()) Then
 		UpdateAttachedFileStorageAttribute(Form, ExecutionParameters.ItemNumber, Undefined);
-	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.NameOfOpenFormCommand()) Then
+	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.OpenFormCommandName()) Then
 		ExecutionParameters.Action = "OpenForm";
 		ExecuteActionWithFile(ExecutionParameters, CompletionHandler);
-	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.NameOfEditFileCommand()) Then
+	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.EditFileCommandName()) Then
 		ExecutionParameters.Action = "EditFile";
 		ExecuteActionWithFile(ExecutionParameters, CompletionHandler);
-	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.NameOfCommandToPlaceFile()) Then
+	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.PutFileCommandName()) Then
 		ExecutionParameters.Action = "PutFile";
 		ExecuteActionWithFile(ExecutionParameters, CompletionHandler);
-	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.NameOfUndoEditingCommand()) Then
+	ElsIf StrStartsWith(CommandName, FilesOperationsClientServer.CancelEditCommandName()) Then
 		ExecutionParameters.Action = "CancelEdit";
 		ExecuteActionWithFile(ExecutionParameters, CompletionHandler);
 	EndIf;
@@ -1953,17 +1972,17 @@ EndProcedure
 Procedure ChangeButtonsAvailability(Form, ItemNumber, EditStart)
 	
 	CommandPrefix                   = FilesOperationsClientServer.CommandsPrefix();
-	NameOfCommandToPlaceFile          = FilesOperationsClientServer.NameOfCommandToPlaceFile();
-	NameOfUndoEditingCommand = FilesOperationsClientServer.NameOfUndoEditingCommand();
-	NameOfEditFileCommand      = FilesOperationsClientServer.NameOfEditFileCommand();
+	PutFileCommandName          = FilesOperationsClientServer.PutFileCommandName();
+	CancelEditCommandName = FilesOperationsClientServer.CancelEditCommandName();
+	EditFileCommandName      = FilesOperationsClientServer.EditFileCommandName();
 	
 	Buttons = New ValueList;
-	Buttons.Add(CommandPrefix + NameOfCommandToPlaceFile + ItemNumber,, EditStart);
-	Buttons.Add(CommandPrefix + NameOfUndoEditingCommand + ItemNumber,, EditStart);
-	Buttons.Add(CommandPrefix + NameOfEditFileCommand + ItemNumber,, Not EditStart);
-	Buttons.Add(NameOfCommandToPlaceFile + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,, EditStart);
-	Buttons.Add(NameOfUndoEditingCommand + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,, EditStart);
-	Buttons.Add(NameOfEditFileCommand + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,, Not EditStart);
+	Buttons.Add(CommandPrefix + PutFileCommandName + ItemNumber,, EditStart);
+	Buttons.Add(CommandPrefix + CancelEditCommandName + ItemNumber,, EditStart);
+	Buttons.Add(CommandPrefix + EditFileCommandName + ItemNumber,, Not EditStart);
+	Buttons.Add(PutFileCommandName + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,, EditStart);
+	Buttons.Add(CancelEditCommandName + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,, EditStart);
+	Buttons.Add(EditFileCommandName + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,, Not EditStart);
 	
 	Items = Form.Items;
 	For Each Button In Buttons Do
@@ -1982,7 +2001,7 @@ Procedure ChangeAdditionalCommandsVisibility(Form)
 	Try
 		HasFileManagementParameters = TypeOf(Form["FilesOperationsParameters"]) = Type("FixedStructure");
 	Except
-		// 
+		// The FilesOperationsParameters attribute is either absent from the form or not initialized.
 		HasFileManagementParameters = False;
 	EndTry;
 	
@@ -1995,16 +2014,16 @@ Procedure ChangeAdditionalCommandsVisibility(Form)
 	For ElementIndex = 0 To Form.FilesOperationsParameters.FormElementsDetails.UBound() Do
 		
 		CommandsSubmenu                 = Form.Items.Find("AddingFileSubmenu" + ElementIndex);
-		CommandSelectButton          = Form.Items.Find(CommandPrefix + FilesOperationsClientServer.NameOfCommandToSelectFile() + ElementIndex);
-		CommandSelectButton          = Form.Items.Find(CommandPrefix + FilesOperationsClientServer.NameOfCommandToSelectFile() + ElementIndex);
-		CommandLoadButton        = Form.Items.Find(CommandPrefix + FilesOperationsClientServer.NameOfCommandUploadFile() + ElementIndex);
-		CommandScanButton      = Form.Items.Find(CommandPrefix + FilesOperationsClientServer.NameOfScanCommand() + ElementIndex);
-		CommandCreateFromTemplateButton = Form.Items.Find(CommandPrefix + FilesOperationsClientServer.NameOfCreateByTemplateCommand() + ElementIndex);
+		CommandSelectButton          = Form.Items.Find(CommandPrefix + FilesOperationsClientServer.SelectFileCommandName() + ElementIndex);
+		CommandSelectButton          = Form.Items.Find(CommandPrefix + FilesOperationsClientServer.SelectFileCommandName() + ElementIndex);
+		CommandLoadButton        = Form.Items.Find(CommandPrefix + FilesOperationsClientServer.ImportFileCommandName() + ElementIndex);
+		CommandScanButton      = Form.Items.Find(CommandPrefix + FilesOperationsClientServer.ScanCommandName() + ElementIndex);
+		CommandCreateFromTemplateButton = Form.Items.Find(CommandPrefix + FilesOperationsClientServer.CreateFromTemplateCommandName() + ElementIndex);
 		
 		If CommandScanButton <> Undefined Then
 			CommandScanButton.Visible = False;
 			CommandScanFromContextMenuButton = Form.Items.Find(FilesOperationsClientServer.CommandsPrefix()
-				+ FilesOperationsClientServer.NameOfScanCommand() + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ElementIndex);
+				+ FilesOperationsClientServer.ScanCommandName() + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ElementIndex);
 			If CommandScanFromContextMenuButton <> Undefined Then
 				CommandScanFromContextMenuButton.Visible = False;
 			EndIf;
@@ -2013,7 +2032,7 @@ Procedure ChangeAdditionalCommandsVisibility(Form)
 		If CommandCreateFromTemplateButton <> Undefined Then
 			CommandCreateFromTemplateButton.Visible = False;
 			CommandCreateFromTemplateFromContextMenuButton = Form.Items.Find(FilesOperationsClientServer.CommandsPrefix() 
-				+ FilesOperationsClientServer.NameOfScanCommand() + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ElementIndex);
+				+ FilesOperationsClientServer.ScanCommandName() + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ElementIndex);
 			If CommandCreateFromTemplateFromContextMenuButton <> Undefined Then
 				CommandCreateFromTemplateFromContextMenuButton.Visible = False;
 			EndIf;

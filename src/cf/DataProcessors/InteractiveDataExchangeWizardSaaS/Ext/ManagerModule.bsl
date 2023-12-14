@@ -622,7 +622,7 @@ EndProcedure
 //
 // Parameters:
 //     ExportProcessing - Structure
-//                       - DataProcessorObject.InteractiveExportChange - 
+//                       - DataProcessorObject.InteractiveExportChange - an initialized object.
 //
 Procedure RegisterAdditionExportData(Val ExportProcessing)
 	
@@ -636,22 +636,22 @@ Procedure RegisterAdditionExportData(Val ExportProcessing)
 	EndIf;
 	
 	If DataProcessor.ExportOption <= 0 Then
-		// 
+		// Do not add.
 		Return;
 		
 	ElsIf DataProcessor.ExportOption = 1 Then
-		// 
+		// For a period with filter, clearing additional registration
 		DataProcessor.AdditionalRegistration.Clear();
 		
 	ElsIf DataProcessor.ExportOption = 2 Then
-		// 
+		// Detailed settings, clearing general parameters
 		DataProcessor.AllDocumentsFilterComposer = Undefined;
 		DataProcessor.AllDocumentsFilterPeriod      = Undefined;
 		
 		DataExchangeServer.FillValueTable(DataProcessor.AdditionalRegistration, ExportProcessing.AdditionalRegistration);
 		
 	ElsIf DataProcessor.ExportOption = 3 Then
-		// 
+		// According to the node scenario, simulating a detailed option.
 		DataProcessor.ExportOption = 2;
 		
 		DataProcessor.AllDocumentsFilterComposer = Undefined;

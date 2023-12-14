@@ -15,18 +15,13 @@
 //  TaskRef - TaskRef.PerformerTask
 //
 // Returns:
-//   Structure
+//   See BusinessProcessesAndTasksOverridable.OnReceiveTaskExecutionForm.FormParameters
 //
 Function TaskExecutionForm(Val TaskRef) Export
 	
-	If TypeOf(TaskRef) <> Type("TaskRef.PerformerTask") Then
-		
-		MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Invalid %1 parameter type (passed: %2, expected: %3)';"),
-			"TaskRef", TypeOf(TaskRef), "TaskRef.PerformerTask");
-		Raise MessageText;
-		
-	EndIf;
-	
+	CommonClientServer.CheckParameter("BusinessProcessesAndTasksServerCall.TaskExecutionForm", 
+		"TaskRef", TaskRef, Type("TaskRef.PerformerTask"));
+
 	Attributes = Common.ObjectAttributesValues(TaskRef, "BusinessProcess,RoutePoint");
 	If Attributes.BusinessProcess = Undefined Or Attributes.BusinessProcess.IsEmpty() Then
 		Return New Structure();
@@ -49,10 +44,10 @@ EndFunction
 //  Details             - String - a cell name.
 //  ReportDetailsData - String - address in temporary storage.
 //  DetailsValue     - TaskRef.PerformerTask
-//                          - Arbitrary - 
+//                          - Arbitrary - details value from the cell.
 // 
 // Returns:
-//  Boolean - 
+//  Boolean - True if it is a task to an assignee.
 //
 Function IsPerformerTask(Val Details, Val ReportDetailsData, DetailsValue) Export
 	
@@ -78,7 +73,6 @@ Procedure ExecuteTask(TaskRef, DefaultAction = False) Export
 		BusinessProcessesAndTasksServer.LockTasks(TaskRef);
 		
 		TaskInfoRecords = Common.ObjectAttributesValues(TaskRef, "Executed, BusinessProcess, RoutePoint");
-		
 		If TaskInfoRecords.Executed Then
 			Raise NStr("en = 'The task was completed earlier.';");
 		EndIf;
@@ -115,7 +109,7 @@ EndProcedure
 //                                       the TasksToRedirect elements if some tasks cannot be forwarded.
 //
 // Returns:
-//   Boolean   - 
+//   Boolean   - - True if the tasks are forwarded successfully.
 //
 Function ForwardTasks(Val RedirectedTasks_SSLs, Val ForwardingInfo, Val IsCheckOnly = False,
 	RedirectedTasks = Undefined) Export
@@ -159,8 +153,8 @@ Function ForwardTasks(Val RedirectedTasks_SSLs, Val ForwardingInfo, Val IsCheckO
 				RedirectedTasks = New Array();
 			EndIf;
 			
-			//  
-			// 
+			 
+			
 			TaskObject = Task.Key.GetObject();
 			
 			SetPrivilegedMode(True);
@@ -268,7 +262,7 @@ Procedure ActivateBusinessProcess(BusinessProcess) Export
 			
 		Object.Lock();
 		Object.State = Enums.BusinessProcessStates.Running;
-		Object.Write(); // 
+		Object.Write(); 
 		CommitTransaction();
 	Except
 		RollbackTransaction();
@@ -332,7 +326,7 @@ Procedure StopBusinessProcess(BusinessProcess) Export
 		
 		Object.Lock();
 		Object.State = Enums.BusinessProcessStates.Suspended;
-		Object.Write(); // 
+		Object.Write(); 
 		CommitTransaction();
 	Except
 		RollbackTransaction();
@@ -371,7 +365,7 @@ Procedure AcceptTasksForExecution(Var_Tasks) Export
 			If Not ValueIsFilled(TaskObject.Performer) Then
 				TaskObject.Performer = Users.AuthorizedUser();
 			EndIf;
-			TaskObject.Write(); // 
+			TaskObject.Write(); 
 			
 			NewTaskArray.Add(Task);
 			
@@ -416,7 +410,7 @@ Procedure CancelAcceptTasksForExecution(Var_Tasks) Export
 			If Not TaskObject.PerformerRole.IsEmpty() Then
 				TaskObject.Performer = Undefined;
 			EndIf;
-			TaskObject.Write(); // 
+			TaskObject.Write(); 
 			
 			NewTaskArray.Add(Task);
 			
@@ -453,7 +447,7 @@ EndFunction
 //  Text - String - a text fragment to search for possible assignees.
 // 
 // Returns:
-//  ValueList - 
+//  ValueList - a selection list containing possible assignees.
 //
 Function GeneratePerformerChoiceData(Text) Export
 	

@@ -42,7 +42,7 @@ Procedure BeforeWrite(Cancel, Replacing)
 		While Selection.Next() Do
 			
 			WorkingDirectory = Path;
-			// Добавляем слэш в конце, если его нет -  
+			 
 			//  
 			WorkingDirectory = CommonClientServer.AddLastPathSeparator(WorkingDirectory);
 			

@@ -127,7 +127,7 @@ Function AttachOnServer(IsExternalDataProcessor)
 		Manager = ExternalReports;
 	EndIf;
 	
-	Return Manager.Connect(DataProcessorFileAddress,, SafeMode); // 
+	Return Manager.Connect(DataProcessorFileAddress,, SafeMode); 
 	
 EndFunction
 

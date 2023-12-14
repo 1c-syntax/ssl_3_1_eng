@@ -65,7 +65,7 @@ Procedure SetMonitoringCenterParameters(Response)
 		ParametersToGet = New Structure("DumpsInformation, DumpInstances");
 		MonitoringCenterParameters = MonitoringCenterInternal.GetMonitoringCenterParameters(ParametersToGet);
 		
-		// 
+		// Add dumps approved by the user to the approved ones.
 		NewParameters.Insert("DumpInstancesApproved", Response.DumpInstancesApproved);
 		For Each Record In Response.DumpInstances Do
 			NewParameters.DumpInstancesApproved.Insert(Record.Key, Record.Value);
@@ -85,7 +85,7 @@ Procedure SetMonitoringCenterParameters(Response)
 		If Response.DoNotAskAgain Then
 			NewParameters.Insert("SendDumpsFiles", 0);
 			NewParameters.Insert("SendingResult", NStr("en = 'User refused to submit full dumps.';"));
-			// 
+			// There is nothing to approve, clear parameters.
 			NewParameters.Insert("DumpsInformation", "");
 			NewParameters.Insert("DumpInstances", New Map);
 		EndIf;

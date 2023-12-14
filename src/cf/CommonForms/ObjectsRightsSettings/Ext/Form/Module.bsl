@@ -190,7 +190,7 @@ Procedure RightsGroupsOnStartEdit(Item, NewRow, Copy)
 	
 	If NewRow Then
 		
-		// 
+		// Set initial values.
 		Items.RightsGroups.CurrentData.SettingsOwner     = Parameters.ObjectReference;
 		Items.RightsGroups.CurrentData.InheritanceIsAllowed = True;
 		Items.RightsGroups.CurrentData.ParentSetting     = False;
@@ -434,7 +434,7 @@ Procedure RereadCompletion(Response, Context) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure UpdateDependentRights(Val Data, Val Right, Val PreviousValue2, Val RecursionDepth = 0)
@@ -453,26 +453,26 @@ Procedure UpdateDependentRights(Val Data, Val Right, Val PreviousValue2, Val Rec
 	
 	If Data[Right] = True Then
 		
-		// 
-		// 
+		
+		
 		DirectRightsDependencies.Property(Right, DependentRights);
 		DependentRightValue = True;
 		
 	ElsIf Data[Right] = False Then
 		
-		// 
-		// 
+		
+		
 		ReverseRightsDependencies.Property(Right, DependentRights);
 		DependentRightValue = False;
 	Else
 		If PreviousValue2 = False Then
-			// 
-			// 
+			
+			
 			DirectRightsDependencies.Property(Right, DependentRights);
 			DependentRightValue = Undefined;
 		Else
-			// 
-			// 
+			
+			
 			ReverseRightsDependencies.Property(Right, DependentRights);
 			DependentRightValue = Undefined;
 		EndIf;
@@ -546,7 +546,7 @@ Procedure AddAttributesOrFormItems(NewAttributes = Undefined)
 			
 			AvailableRights.Insert(RightPresentations.Name);
 			
-			// 
+			// Adding direct and reverse rights dependencies.
 			DirectRightsDependencies.Insert(RightPresentations.Name, RightDetails.RequiredRights1);
 			For Each RequiredRight In RightDetails.RequiredRights1 Do
 				If ReverseRightsDependencies.Property(RequiredRight) Then
@@ -582,7 +582,7 @@ Procedure AddAttributesOrFormItems(NewAttributes = Undefined)
 	EndDo;
 	
 	If NewAttributes = Undefined And Parameters.ObjectReference.Metadata().Hierarchical Then
-		// 
+		// Item RightsGroupsInheritanceAllowed.
 		Item = AddItem("RightsGroupsInheritanceAllowed", Type("FormField"), Items.RightsGroups);
 		Item.Type                           = FormFieldType.LabelField;
 		Item.HeaderHorizontalAlign = ItemHorizontalLocation.Center;
@@ -598,7 +598,7 @@ Procedure AddAttributesOrFormItems(NewAttributes = Undefined)
 		SetCheckboxStyle("RightsGroupsInheritanceAllowed", 1, "RightsGroups.InheritanceIsAllowed", True);
 		SetCheckboxStyle("RightsGroupsInheritanceAllowed", 2, "RightsGroups.InheritanceIsAllowed", False);
 		
-		// 
+		// Item RightsGroupsOwnerSettings.
 		Item = AddItem("RightsGroupsOwnerSettings", Type("FormField"), Items.RightsGroups);
 		Item.Type         = FormFieldType.LabelField;
 		Item.DataPath = "RightsGroups.SettingsOwner";
@@ -686,7 +686,7 @@ Procedure SetCheckboxStyle(TagName, ColorOption, Var_AttributeName, RightValue);
 	FormattedField = ConditionalAppearanceItem.Fields.Items.Add();
 	FormattedField.Field = New DataCompositionField(TagName);
 	
-	// 
+	// Font and text.
 	ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
 	ConditionalAppearanceItem.Appearance.SetParameterValue("Font", Font);
 	ConditionalAppearanceItem.Appearance.SetParameterValue("Text", Char);
@@ -794,8 +794,8 @@ Procedure FillCheckProcessing(Cancel)
 			Return;
 		EndIf;
 		
-		// 
-		// 
+		
+		
 		
 		// Validate value population.
 		If Not ValueIsFilled(CurrentRow["User"]) Then

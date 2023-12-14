@@ -149,8 +149,8 @@ EndProcedure
 // report or data processor to a data area.
 //
 // Parameters:
-//  AdditionalDataProcessor - 
-//    
+//  AdditionalDataProcessor - CatalogObject.AdditionalReportsAndDataProcessors, catalog item
+//    written by user.
 //  Result - Boolean - indicates whether the required rights are granted.
 //  StandardProcessing - Boolean - flag specifying whether
 //    standard processing is used to validate rights.

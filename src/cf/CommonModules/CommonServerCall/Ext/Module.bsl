@@ -21,14 +21,14 @@
 //
 // Parameters:
 //  RefOrRefArray - AnyRef
-//                        - Array - 
+//                        - Array - an object or a list of objects.
 //  SearchInInternalObjects - Boolean - If True, exceptions defined during configuration development
 //      are ignored while searching for references.
 //      For more details on exceptions during reference search
 //      See CommonOverridable.OnAddReferenceSearchExceptions
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if any references to the object are found.
 //
 Function RefsToObjectFound(Val RefOrRefArray, Val SearchInInternalObjects = False) Export
 	
@@ -45,7 +45,7 @@ EndFunction
 //  Var_Documents - Array - documents to check.
 //
 // Returns:
-//  Array - 
+//  Array - unposted documents.
 //
 Function CheckDocumentsPosting(Val Var_Documents) Export
 	
@@ -85,11 +85,11 @@ EndFunction
 // See Common.CommonSettingsStorageSave
 //
 // Parameters:
-//   ObjectKey       - String           - see the Syntax Assistant.
-//   SettingsKey      - String           - see the Syntax Assistant.
-//   Settings         - Arbitrary     - see the Syntax Assistant.
-//   SettingsDescription  - SettingsDescription - see the Syntax Assistant.
-//   UserName   - String           - see the Syntax Assistant.
+//   ObjectKey       - String           - 
+//   SettingsKey      - String           - 
+//   Settings         - Arbitrary     - 
+//   SettingsDescription  - SettingsDescription - 
+//   UserName   - String           - 
 //   RefreshReusableValues - Boolean - the flag that indicates whether to execute the method.
 //
 Procedure CommonSettingsStorageSave(ObjectKey, SettingsKey, Settings,
@@ -146,15 +146,15 @@ EndProcedure
 // See Common.CommonSettingsStorageLoad
 //
 // Parameters:
-//   ObjectKey          - String           - see the Syntax Assistant.
-//   SettingsKey         - String           - see the Syntax Assistant.
+//   ObjectKey          - String           - 
+//   SettingsKey         - String           - 
 //   DefaultValue  - Arbitrary     - the value that is returned if the settings do not exist.
 //                                             If not specified, returns Undefined.
-//   SettingsDescription     - SettingsDescription - see the Syntax Assistant.
-//   UserName      - String           - see the Syntax Assistant.
+//   SettingsDescription     - SettingsDescription - 
+//   UserName      - String           - 
 //
 // Returns: 
-//   Arbitrary - see the Syntax Assistant.
+//   Arbitrary - 
 //
 Function CommonSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefined,
 			SettingsDescription = Undefined,
@@ -179,11 +179,11 @@ EndFunction
 //
 // Parameters:
 //   ObjectKey     - String
-//                   - Undefined - see the Syntax Assistant.
+//                   - Undefined - 
 //   SettingsKey    - String
-//                   - Undefined - see the Syntax Assistant.
+//                   - Undefined - 
 //   UserName - String
-//                   - Undefined - see the Syntax Assistant.
+//                   - Undefined - 
 //
 Procedure CommonSettingsStorageDelete(ObjectKey, SettingsKey, UserName) Export
 	
@@ -199,11 +199,11 @@ EndProcedure
 // See Common.SystemSettingsStorageSave
 //
 // Parameters:
-//   ObjectKey       - String           - see the Syntax Assistant.
-//   SettingsKey      - String           - see the Syntax Assistant.
-//   Settings         - Arbitrary     - see the Syntax Assistant.
-//   SettingsDescription  - SettingsDescription - see the Syntax Assistant.
-//   UserName   - String           - see the Syntax Assistant.
+//   ObjectKey       - String           - 
+//   SettingsKey      - String           - 
+//   Settings         - Arbitrary     - 
+//   SettingsDescription  - SettingsDescription - 
+//   UserName   - String           - 
 //   RefreshReusableValues - Boolean - the flag that indicates whether to execute the method.
 //
 Procedure SystemSettingsStorageSave(ObjectKey, SettingsKey, Settings,
@@ -236,15 +236,15 @@ EndProcedure
 // See Common.SystemSettingsStorageLoad
 //
 // Parameters:
-//   ObjectKey          - String           - see the Syntax Assistant.
-//   SettingsKey         - String           - see the Syntax Assistant.
+//   ObjectKey          - String           - 
+//   SettingsKey         - String           - 
 //   DefaultValue  - Arbitrary     - the value that is returned if the settings do not exist.
 //                                             If not specified, returns Undefined.
-//   SettingsDescription     - SettingsDescription - see the Syntax Assistant.
-//   UserName      - String           - see the Syntax Assistant.
+//   SettingsDescription     - SettingsDescription - 
+//   UserName      - String           - 
 //
 // Returns: 
-//   Arbitrary - see the Syntax Assistant.
+//   Arbitrary - 
 //
 Function SystemSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefined, 
 			SettingsDescription = Undefined,
@@ -268,11 +268,11 @@ EndFunction
 //
 // Parameters:
 //   ObjectKey     - String
-//                   - Undefined - see the Syntax Assistant.
+//                   - Undefined - 
 //   SettingsKey    - String
-//                   - Undefined - see the Syntax Assistant.
+//                   - Undefined - 
 //   UserName - String
-//                   - Undefined - see the Syntax Assistant.
+//                   - Undefined - 
 //
 Procedure SystemSettingsStorageDelete(ObjectKey, SettingsKey, UserName) Export
 	
@@ -289,11 +289,11 @@ EndProcedure
 // See Common.FormDataSettingsStorageSave
 //
 // Parameters:
-//   ObjectKey       - String           - see the Syntax Assistant.
-//   SettingsKey      - String           - see the Syntax Assistant.
-//   Settings         - Arbitrary     - see the Syntax Assistant.
-//   SettingsDescription  - SettingsDescription - see the Syntax Assistant.
-//   UserName   - String           - see the Syntax Assistant.
+//   ObjectKey       - String           - 
+//   SettingsKey      - String           - 
+//   Settings         - Arbitrary     - 
+//   SettingsDescription  - SettingsDescription - 
+//   UserName   - String           - 
 //   RefreshReusableValues - Boolean - the flag that indicates whether to execute the method.
 //
 Procedure FormDataSettingsStorageSave(ObjectKey, SettingsKey, Settings,
@@ -327,15 +327,15 @@ EndProcedure
 // See Common.FormDataSettingsStorageLoad
 //
 // Parameters:
-//   ObjectKey          - String           - see the Syntax Assistant.
-//   SettingsKey         - String           - see the Syntax Assistant.
+//   ObjectKey          - String           - 
+//   SettingsKey         - String           - 
 //   DefaultValue  - Arbitrary     - the value that is returned if the settings do not exist.
 //                                             If not specified, returns Undefined.
-//   SettingsDescription     - SettingsDescription - see the Syntax Assistant.
-//   UserName      - String           - see the Syntax Assistant.
+//   SettingsDescription     - SettingsDescription - 
+//   UserName      - String           - 
 //
 // Returns: 
-//   Arbitrary - see the Syntax Assistant.
+//   Arbitrary - 
 //
 Function FormDataSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefined,
 			SettingsDescription = Undefined,
@@ -360,11 +360,11 @@ EndFunction
 //
 // Parameters:
 //   ObjectKey     - String
-//                   - Undefined - see the Syntax Assistant.
+//                   - Undefined - 
 //   SettingsKey    - String
-//                   - Undefined - see the Syntax Assistant.
+//                   - Undefined - 
 //   UserName - String
-//                   - Undefined - see the Syntax Assistant.
+//                   - Undefined - 
 //
 Procedure FormDataSettingsStorageDelete(ObjectKey, SettingsKey, UserName) Export
 	

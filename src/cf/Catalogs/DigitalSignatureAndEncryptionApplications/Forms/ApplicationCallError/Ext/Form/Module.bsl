@@ -83,7 +83,7 @@ Procedure OnOpen(Cancel)
 		Cancel = True;
 		
 		Notification = New NotifyDescription("OnOpenFollowUp", ThisObject);
-		StandardSubsystemsClient.StartProcessingNotification(Notification);
+		StandardSubsystemsClient.StartNotificationProcessing(Notification);
 		
 	EndIf;
 	

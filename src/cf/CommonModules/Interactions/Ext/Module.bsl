@@ -9,7 +9,7 @@
 
 #Region Public
 
-// 
+// Toggles the email client.
 //
 // Parameters:
 //   Value - Boolean
@@ -20,7 +20,7 @@ Procedure SetEmailClientUsage(Val Value) Export
 
 EndProcedure
 
-// 
+// Checks whether the users can use the email client.
 // 
 // Returns:
 //   Boolean
@@ -31,8 +31,8 @@ Function EmailClientUsed() Export
 	
 EndFunction
 
-// 
-// 
+// Toggles the support of sending HTML messages.
+// If disabled, the users can send only plain-text messages.
 //
 // Parameters:
 //   Value - Boolean
@@ -43,7 +43,7 @@ Procedure EnableSendingHTMLEmailMessages(Val Value) Export
 
 EndProcedure
 
-// 
+// Checks whether email messages can be sent as HTML.
 //
 // Returns:
 //   Boolean
@@ -54,8 +54,8 @@ Function IsSendingHTMLEmailMessagesEnabled() Export
 
 EndFunction
 
-// 
-// 
+// Toggles the support of tracking phone calls, text messages,
+// appointments, and interaction planning.
 //
 // Parameters:
 //   Value - Boolean
@@ -66,7 +66,7 @@ Procedure SetUsageOfOtherInteraction(Val Value) Export
 
 EndProcedure
 
-// 
+// Checks whether the users can track phone calls, text messages, appointments, and interaction planning.
 //
 // Returns:
 //   Boolean
@@ -181,7 +181,7 @@ Procedure OnWriteSubjectFromForm(SubjectOf, Interaction, Cancel) Export
 	
 	OldSubject = GetSubjectValue(Interaction);
 	If SubjectOf = OldSubject Then
-		// 
+		// The subject has already been set
 		Return;
 	EndIf;
 	
@@ -333,8 +333,8 @@ Procedure FillDefaultAccessValuesSets(Object, Table) Export
 		Or TypeOf(Object) = Type("DocumentObject.SMSMessage") 
 		Or TypeOf(Object) = Type("DocumentObject.PhoneCall") Then
 		
-		// 
-		// 
+		
+		
 		
 		SetNumber = 1;
 
@@ -342,7 +342,7 @@ Procedure FillDefaultAccessValuesSets(Object, Table) Export
 		TabRow.SetNumber     = SetNumber;
 		TabRow.AccessValue = Object.Author;
 
-		// 
+		// Restrict by PersonResponsible.
 		SetNumber = SetNumber + 1;
 
 		TabRow = Table.Add();
@@ -351,8 +351,8 @@ Procedure FillDefaultAccessValuesSets(Object, Table) Export
 		
 	ElsIf TypeOf(Object) = Type("DocumentObject.IncomingEmail") Then
 		
-		// 
-		// 
+		
+		
 		
 		SetNumber = 1;
 
@@ -360,7 +360,7 @@ Procedure FillDefaultAccessValuesSets(Object, Table) Export
 		TabRow.SetNumber     = SetNumber;
 		TabRow.AccessValue = Object.Account;
 
-		// 
+		// Restrict by PersonResponsible.
 		SetNumber = SetNumber + 1;
 
 		TabRow = Table.Add();
@@ -369,8 +369,8 @@ Procedure FillDefaultAccessValuesSets(Object, Table) Export
 		
 	ElsIf TypeOf(Object) = Type("DocumentObject.OutgoingEmail") Then
 		
-		// 
-		// 
+		
+		
 
 		SetNumber = 1;
 
@@ -781,7 +781,7 @@ Function CreateEmail(Message, Account, SendImmediately = True) Export
 	
 EndFunction
 
-// 
+// A function creating message parameters.
 // 
 // Returns:
 //  Structure:
@@ -791,16 +791,16 @@ EndFunction
 //    * Importance - InternetMailMessageImportance
 //    * Recipients - ValueTable:
 //      ** Presentation - String
-//      ** Address - String -
+//      ** Address - String - Address in the temp storage.
 //      ** ContactInformationSource - DefinedType.InteractionContact
 //    * ReplyRecipients
-//      ** 
-//      ** 
-//      ** 
+//      ** Address - String - Address in temporary storage.
+//      ** Address - String - Address in temporary storage.
+//      ** Address - String - Address in temporary storage.
 //    * BccRecipients
-//      ** 
-//      ** 
-//      ** 
+//      ** Address - String - Address in temporary storage.
+//      ** Address - String - Address in temporary storage.
+//      ** Address - String - Address in temporary storage.
 //    * Attachments - ValueTable:
 //      ** Presentation - String
 //      ** AddressInTempStorage - String
@@ -926,7 +926,7 @@ EndProcedure
 // Sets the "Outgoing" status for the SMS message document and all messages that it includes.
 //
 // Parameters:
-//  Object - 
+//  Object - DocumentObject.SMSMessage, FormDataStructure
 //
 Procedure SetStateOutgoingDocumentSMSMessage(Object) Export
 	
@@ -1157,8 +1157,8 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	NewEmailsByAccounts = NewEmailsByAccounts();
 	
-	// 
-	// 
+	
+	
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.DocumentJournals.Interactions.FullName());
 	
 	For Each Section In Sections Do
@@ -1337,9 +1337,9 @@ Procedure OnDefineSubordinateObjects(SubordinateObjects) Export
 
 EndProcedure
 
-// 
+// ACC:299-off - Procedure that is called programmatically
 
-// Called when replacing duplicates in the item details.
+// Runs when replacing duplicates in the item attributes.
 //
 // Parameters:
 //  ReplacementPairs - Map - contains the value pairs original and duplicate.
@@ -1370,7 +1370,7 @@ Procedure OnSearchForReferenceReplacement(ReplacementPairs, UnprocessedOriginals
 			RollbackTransaction();
 			WriteLogEvent(NStr("en = 'Find and replace references';", Common.DefaultLanguageCode()),
 				EventLogLevel.Error,
-				UnprocessedDuplicate.ValueToReplace.Metadata,,
+				UnprocessedDuplicate.ValueToReplace.Metadata(),,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
 		
@@ -1490,8 +1490,8 @@ EndProcedure
 // Sets a contact as the current one in the "Address book" and "Select contact" forms.
 //
 // Parameters:
-//  Contact - CatalogRef -
-//  Form   - ClientApplicationForm -
+//  Contact - CatalogRef - Contact on which the cursor must be positioned.
+//  Form   - ClientApplicationForm - Form where the actions are triggered.:
 //   * Items - FormAllItems:
 //    ** UsersList - FormTable - the form item containing the user list.
 //
@@ -1514,10 +1514,11 @@ Procedure SetContactAsCurrent(Contact, Form) Export
 			FormTable = FormTableByName(Form, PrefixTable + ContactDescription.Name);
 			FormTable.CurrentRow = Contact;
 			If ContactDescription.HasOwner Then
+				ContactOwner = Common.ObjectAttributeValue(Contact, "Owner");
 				FormTable = FormTableByName(Form, PrefixTable + ContactDescription.OwnerName);
-				FormTable.CurrentRow = Contact.Owner;
+				FormTable.CurrentRow = ContactOwner;
 				CommonClientServer.SetDynamicListFilterItem(
-					Form["List_" + ContactDescription.Name],"Owner",Contact.Owner,,, True);
+					Form["List_" + ContactDescription.Name],"Owner",ContactOwner,,, True);
 			EndIf;
 		ElsIf ContactDescription.OwnerName = ContactMetadataName Then
 			Form.Items.PagesLists.CurrentPage = 
@@ -1556,8 +1557,8 @@ Function GetDomainAddressForSearch(Address)
 EndFunction
 
 // Parameters:
-//  Presentation - String - the performance of the contact.
-//  Address         - String - the address of the contact.
+//  Presentation - String - contact presentation.
+//  Address         - String - a contact address.
 //
 // Returns:
 //   ValueList
@@ -1630,11 +1631,11 @@ EndFunction
 // based on the passed value table.
 //
 // Parameters:
-//  TableOfContacts   - ValueTable - source value table, contains columns:
-//   * Contact              - DefinedType.InteractionContact - link to the interaction contact.
-//   * Presentation        - String - the performance of the contact.
-//   * Description         - String - name of the contact.
-//   * CatalogName       - String - name of the contact metadata object.
+//  TableOfContacts   - ValueTable - Source value table. Has the following columns:
+//   * Contact              - DefinedType.InteractionContact - a reference to the interaction contact.
+//   * Presentation        - String - contact presentation.
+//   * Description         - String - contact name.
+//   * CatalogName       - String - a contact metadata object name.
 //  FoundContacts - ValueTable - a destination value table contains the following columns:
 //   * Ref               - DefinedType.InteractionContact - a reference to the interaction contact.
 //   * Presentation        - String - contact presentation.
@@ -1696,7 +1697,7 @@ Function ContactsBySubjectOrChain(SubjectOf, IncludeEmail)
 		InteractionsOverridable.OnSearchForContacts(ContactsTableName, QueryTextForSearch);
 		
 		If IsBlankString(QueryTextForSearch) Then
-			// ACC:223-
+			// ACC:223-off For backward compatibility.
 			QueryTextForSearch = InteractionsOverridable.QueryTextContactsSearchBySubject(False, 
 				ContactsTableName, True);
 			// ACC:223-on
@@ -1863,13 +1864,13 @@ Function ConnectionStringForContactsInformationQuery(IncludeEmail, CatalogName)
 	
 EndFunction
 
-// 
+// Generates a field selection row to receive in the email address query.
 //
 // Parameters:
-//  IncludeEmail  - Boolean - indicates whether this request
-//                            requires an email address.
-//  CatalogName - Boolean - name of the directory that the request is being made for.
-//  NameField  - Boolean - indicates that the field in the request must be named.
+//  IncludeEmail  - Boolean - indicates whether it is necessary to get an email
+//                            address in this query.
+//  CatalogName - Boolean - a name of the catalog, for which the query is being executed.
+//  NameField  - Boolean - indicates that the query field must be named.
 //
 // Returns:
 //  String
@@ -2077,7 +2078,7 @@ Function FindContactsWithAddresses(SearchString) Export
 	
 EndFunction
 
-// 
+// Generates a condition template for the query whether the field to be received in the query matches a possible contact type.
 //
 // Returns:
 //  String
@@ -2444,8 +2445,8 @@ EndProcedure
 //  Ref - Reference to the interaction.
 //
 // Returns:
-//   DefinedType.InteractionSubject - 
-//   
+//   DefinedType.InteractionSubject - Interaction topic.
+//   Undefined
 //
 Function GetSubjectValue(Ref) Export
 
@@ -2454,7 +2455,7 @@ Function GetSubjectValue(Ref) Export
 	
 EndFunction
 
-// 
+// Returns information records on interaction's additional attributes
 //
 // Parameters:
 //  Ref - Reference to the interaction.
@@ -2497,7 +2498,7 @@ EndFunction
 //         - DocumentRef.SMSMessage
 //         - DocumentRef.PhoneCall
 //         - DocumentRef.IncomingEmail
-//         - DocumentRef.OutgoingEmail - 
+//         - DocumentRef.OutgoingEmail - Reference to the interaction.
 //
 // Returns:
 //  CatalogRef.EmailMessageFolders
@@ -2825,7 +2826,7 @@ EndProcedure
 
 // Parameters:
 //  Contacts - Array of DefinedType.InteractionContact
-//  RecipientsGroup - String -
+//  RecipientsGroup - String - Name of the group to search email addresses for. For example, "Recipients", "CC".
 //
 // Returns:
 //   ValueTable:
@@ -2841,7 +2842,7 @@ Function ContactsEmailAddresses(Contacts, RecipientsGroup = "") Export
 		Return Undefined;
 	EndIf;
 	
-	// 
+	// ACC:96-off - The JOIN keyword (as the same user might belong to multiple user groups).
 	QueryText = 
 		"SELECT ALLOWED
 		|	ContactInformationTable.EMAddress AS Address,
@@ -2880,7 +2881,7 @@ Function ContactsEmailAddresses(Contacts, RecipientsGroup = "") Export
 		|			WHERE
 		|				UserGroupCompositions.User = ContactTable.Ref
 		|				AND UserGroupCompositions.UsersGroup IN (&ContactsArray))";	
-	// 
+	// ACC:96-on
 	QueryTexts = CommonClientServer.ValueInArray(QueryText);
 	
 	For Each ContactDescription In InteractionsClientServer.ContactsDetails() Do
@@ -3773,18 +3774,18 @@ Procedure AddEmailAttachmentsToEmailMessage(Message, AttachmentsSelection)
 EndProcedure
 
 // Parameters:
-//  MailMessage - DocumentRef.OutgoingEmail -
+//  MailMessage - DocumentRef.OutgoingEmail - Email message whose attachment info needs to be received.
 // 
 // Returns:
 //  ValueTable:
-//   * MailMessage - DocumentRef.OutgoingEmail -
+//   * MailMessage - DocumentRef.OutgoingEmail - Attached email message.
 //   * Size - Number - the attachment size.
 //   * Subject   - String - a subject of the attached email message.
 //   * Date   - Date - the attached email message date.
 //
 Function DataStoredInAttachmentsEmailsDatabase(MailMessage) Export
 
-	// 
+	// ACC:96-off - The JOIN keyword (as the same email message might be attached to multiple email messages).
 	Query = New Query(
 		"SELECT
 		|	EmailOutgoingEmailsAttachments.MailMessage AS MailMessage,
@@ -3815,7 +3816,7 @@ Function DataStoredInAttachmentsEmailsDatabase(MailMessage) Export
 		|		ON EmailOutgoingEmailsAttachments.MailMessage = OutgoingEmail.Ref
 		|WHERE
 		|	EmailOutgoingEmailsAttachments.Ref = &MailMessage");
-	// ACC:96-
+	// ACC:96-on
 	
 	Query.SetParameter("MailMessage", MailMessage);
 	Return Query.Execute().Unload();
@@ -4399,8 +4400,8 @@ Function ProcessHTMLText(MailMessage, DisableExternalResources = True, HasExtern
 	
 	If Not IsBlankString(HTMLText) Then
 		
-		//  
-		// 
+		 
+		
 		If StrOccurrenceCount(HTMLText,"<html") = 0 Then
 			HTMLText = "<html>" + HTMLText + "</html>"
 		EndIf;
@@ -4475,10 +4476,10 @@ EndFunction
 // based on the system settings and the format of the last letter sent by the user.
 // 
 // Parameters:
-//   User - CatalogRef.Users -
+//   User - CatalogRef.Users - User.
 //
-// 
-//   
+// Return value
+//   EnumRef.EmailEditingMethods
 // 
 Function DefaultMessageFormat(User) Export
 	
@@ -4520,7 +4521,7 @@ EndFunction
 //
 // Parameters:
 //  HTMLText     - String - an HTML text to process.
-//  TableOfFiles - ValueTable - a table containing information about attachments.
+//  TableOfFiles - ValueTable - a table containing information about attached files.
 //  Encoding     - String - HTML text encoding.
 //
 // Returns:
@@ -4590,8 +4591,8 @@ EndFunction
 // Returns:
 //   ValueTable:
 //     * Ref                    - CatalogRef.IncomingEmailAttachedFiles
-//                                 - CatalogRef.OutgoingEmailAttachedFiles -Reference to the attachment. 
-//                                   
+//                                 - CatalogRef.OutgoingEmailAttachedFiles - 
+//                                   Reference to the attachment.
 //     * Description              - String - file name.
 //     * Size                    - Number - file size.
 //     * EmailFileID - String - an ID of the picture displayed in the message body.
@@ -4809,14 +4810,14 @@ EndFunction
 // Parameters:
 //  HTMLDocument - HTMLDocument - an HTML document whose header will be complemented.
 //  Selection - QueryResultSelection - a selection by the email data.
-//  IsOutgoingEmail - Boolean -
+//  IsOutgoingEmail - Boolean - True if the message is outgoing.
 //
 Procedure AddPrintFormHeaderToEmailBody(HTMLDocument, Selection, IsOutgoingEmail) Export
 	
 	EmailBodyItem = EmailBodyItem(HTMLDocument);
 	BodyChildNodesArray = ChildNodesWithHTML(EmailBodyItem);
 	
-	// 
+	// Name of the email account user.
 	UserItem = GenerateAccountUsernameItem(EmailBodyItem, Selection);
 	InsertHTMLElementAsFirstChildElement(EmailBodyItem,UserItem, BodyChildNodesArray);
 	
@@ -5511,7 +5512,7 @@ Procedure SendSMS() Export
 			Continue;
 		EndIf;
 		
-		// 
+		// Send outside of transaction.
 		NumbersForSend = MessageAddresseesTable.UnloadColumn("SendingNumber");
 		Try
 			SendingResult = SendSMSMessage.SendSMS(NumbersForSend, MessageText, "", SendInTransliteration);
@@ -5538,7 +5539,7 @@ Procedure SendSMS() Export
 			Block.Lock();
 		
 			DocumentObject = DocumentsSelection.Ref.GetObject();
-			//  
+			// @skip-check query-in-loop - Query for item-by-item data writing. 
 			ReportSMSMessageSendingResultsInDocument(DocumentObject, SendingResult);
 			DocumentObject.AdditionalProperties.Insert("DoNotSaveContacts", True);
 			DocumentObject.Write();
@@ -5668,7 +5669,7 @@ EndProcedure
 // Sets statuses of the "SMS message" document depending on statuses of separate messages to different contacts.
 //
 // Parameters:
-//  DocumentObject     - 
+//  DocumentObject     - DocumentObject.SMSMessage, FormDataStructure
 //  SendingResult  - Structure - the result of sending an SMS message.
 //
 Procedure ReportSMSMessageSendingResultsInDocument(DocumentObject, SendingResult)
@@ -5689,7 +5690,7 @@ EndProcedure
 // Operations with email folders.
 
 // Parameters:
-//  Account  - CatalogRef.EmailAccounts -
+//  Account  - CatalogRef.EmailAccounts - Account where the check is running.
 //
 // Returns:
 //   Boolean   - True is the user is responsible for folder management. Otherwise, False.
@@ -5797,7 +5798,7 @@ Procedure SetFolderParent(Folder, NewParent, DoNotWriteFolder = False) Export
 		
 		If Not NewParent.IsEmpty()Then
 			FolderAttributesValues = Common.ObjectAttributesValues(
-			NewParent,"PredefinedFolder,PredefinedFolderType");
+				NewParent, "PredefinedFolder,PredefinedFolderType");
 			If FolderAttributesValues <> Undefined 
 				And FolderAttributesValues.PredefinedFolder 
 				And FolderAttributesValues.PredefinedFolderType = Enums.PredefinedEmailsFoldersTypes.Trash Then
@@ -6156,7 +6157,7 @@ Function DefineFolderForEmail(MailMessage) Export
 				QueryRule.Parameters.Insert(Parameter.Name, Parameter.Value);
 			EndDo;
 			
-			// @skip-
+			// @skip-check query-in-loop - Run mailbox rules until it finds the first message that meets the rule condition.
 			Result = QueryRule.Execute();
 
 		Except
@@ -6402,16 +6403,16 @@ Procedure SetFoldersForEmailsArray(EmailsArray) Export
 	
 EndProcedure
 
-// 
+// Determines folders for sent email messages.
 //
 // Parameters:
 //  Emails  - Array of DocumentRef.IncomingEmail
 //          - Array of DocumentRef.OutgoingEmail
 //
 // Returns:
-//   ValueTable - 
+//   ValueTable - Maps email messages with folders:
 //    * Folder - CatalogRef.EmailMessageFolders
-//    * MailMessage - 
+//    * MailMessage - DocumentRef.IncomingEmail, DocumentRef.OutgoingEmail
 //
 Function DefineEmailFolders(Emails)
 	
@@ -6486,7 +6487,7 @@ Function DefineEmailFolders(Emails)
 						QueryRule.Parameters.Insert(Parameter.Name, Parameter.Value);
 					EndDo;
 					
-					// 
+					// @skip-check query-in-loop - Batch processing of email messages by user accounts.
 					EmailResult = QueryRule.Execute();
 					
 				Except
@@ -7143,9 +7144,9 @@ EndProcedure
 //                    - QueryResultSelection
 //                    - Array of CatalogRef.EmailMessageFolders
 //                    - Array of DefinedType.InteractionSubject
-//                    - Array of DefinedType.InteractionContact -  
-//                      
-//  AttributeName  - String -
+//                    - Array of DefinedType.InteractionContact - Data to be used to generate 
+//                      a table.
+//  AttributeName  - String - Has the following valid values: "Topic", "Folder" or "Contact".
 //
 // Returns:
 //   ValueTable:
@@ -7294,7 +7295,7 @@ Procedure MarkAsReviewed(InteractionsArray, FlagValue, HasChanges) Export
 
 EndProcedure
 
-// 
+// Checks an array of interactions and keeps only those ones whose review date must be changed.
 //
 // Parameters:
 //  InteractionsArray  - Array - an array of interactions whose review date is proposed to be changed.
@@ -7514,7 +7515,7 @@ EndFunction
 //                 - DocumentObject.SMSMessage
 //                 - DocumentObject.PhoneCall
 //                 - DocumentObject.PlannedInteraction
-//                 - DocumentObject.Meeting - the document that is being recorded.
+//                 - DocumentObject.Meeting - a document to be recorded.
 //
 Procedure OnWriteDocument(DocumentObject) Export
 
@@ -7527,7 +7528,6 @@ Procedure OnWriteDocument(DocumentObject) Export
 	DataLock = New DataLock;
 	DataLockItem = DataLock.Add("InformationRegister.InteractionsContacts");
 	DataLockItem.SetValue("Interaction", DocumentObject.Ref);
-	DataLockItem.Mode = DataLockMode.Exclusive;
 	DataLock.Lock();
 	
 	RecordSet = InformationRegisters.InteractionsContacts.CreateRecordSet();
@@ -7672,7 +7672,7 @@ Procedure FillInteractionsArrayContacts(InteractionsArray, CalculateReviewedItem
 
 	SetPrivilegedMode(True);
 	
-	// 
+	// ACC:96-off - The JOIN keyword (as the same contact might participate in multiple interactions).
 	Query = New Query;
 	Query.Text = "
 	|SELECT DISTINCT
@@ -7827,7 +7827,7 @@ Procedure FillInteractionsArrayContacts(InteractionsArray, CalculateReviewedItem
 	|		ON UniqueContactsOfInteractionOfRepresentation.ContactPresentation = StringContactInteractions.Description
 	|TOTALS BY
 	|	Interaction";
-	// ACC:96-
+	// ACC:96-on
 	Query.SetParameter("InteractionsArray", InteractionsArray);
 	
 	QueryResult = Query.Execute();
@@ -8116,9 +8116,9 @@ EndFunction
 //   * LinkToTheEmail - Undefined - email message was not created.
 //                    - DocumentRef.OutgoingEmail - Reference to the created outgoing email.
 //   * EmailID - String
-//   * WrongRecipients - Map of KeyAndValue - recipient addresses with errors:
-//     ** Key     - String - recipient address;
-//     ** Value - String - error text.
+//   * WrongRecipients - Map of KeyAndValue - Recipient's email addresses with errors.:
+//     ** Key     - String - a recipient address.
+//     ** Value - String - Error text.
 //
 Function EmailSendingResult()
 	
@@ -8433,7 +8433,7 @@ Function FindContactsByPhone(Val Phone, FoundContacts) Export
 EndFunction
 
 // Parameters:
-//  
+//  Description - String - Start of the contact description.
 //
 // Returns:
 //  ValueTable
@@ -8591,11 +8591,11 @@ Function HasDelayInExecutionOfJobOfReceivingAndSendingEmails()
 	
 	Schedule = ScheduledJob.Schedule;
 	
-	If CurrentDate() - Schedule.RepeatPeriodInDay < BackgroundJob.Begin Then // ACC:143 - 
+	If CurrentDate() - Schedule.RepeatPeriodInDay < BackgroundJob.Begin Then // ACC:143 Do not localize.
 		Return False;
 	EndIf;
 	
-	Return Schedule.ExecutionRequired(CurrentDate() - Schedule.RepeatPeriodInDay, // ACC:143 - 
+	Return Schedule.ExecutionRequired(CurrentDate() - Schedule.RepeatPeriodInDay, 
 		BackgroundJob.Begin, BackgroundJob.End);
 	
 EndFunction

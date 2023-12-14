@@ -1184,7 +1184,7 @@ Procedure OnReceiveMailServerResponse(ParametersString1, KeyReceiptAddress)
 		Response = ParametersFromStringURI(ParametersString1);
 	EndIf;
 	
-	AuthorizationCode_ = Response["code"];
+	AuthorizationCode = Response["code"];
 	ErrorCode = Response["error"];
 	ErrorText = Response["error_description"];
 	
@@ -1198,7 +1198,7 @@ Procedure OnReceiveMailServerResponse(ParametersString1, KeyReceiptAddress)
 	ElsIf QueryID <> Response["state"] Then
 		ErrorsMessages = NStr("en = 'Cannot authorize on the mail server. Incorrect response ID.';");
 		ValidationCompletedWithErrors = True;
-	ElsIf Not GetAccessKeysToMailServer(AuthorizationCode_, KeyReceiptAddress) Then
+	ElsIf Not GetAccessKeysToMailServer(AuthorizationCode, KeyReceiptAddress) Then
 		ValidationCompletedWithErrors = True;
 	EndIf;
 	
@@ -1209,7 +1209,7 @@ Procedure OnReceiveMailServerResponse(ParametersString1, KeyReceiptAddress)
 EndProcedure
 
 &AtServer
-Function GetAccessKeysToMailServer(AuthorizationCode_, KeyReceiptAddress, ApplicationCaption = "")
+Function GetAccessKeysToMailServer(AuthorizationCode, KeyReceiptAddress, ApplicationCaption = "")
 	
 	URIStructure = CommonClientServer.URIStructure(KeyReceiptAddress);
 	ServerAddress = URIStructure.Host;
@@ -1224,7 +1224,7 @@ Function GetAccessKeysToMailServer(AuthorizationCode_, KeyReceiptAddress, Applic
 		QueryOptions.Insert("scope", AuthorizationSettings["PermissionsToRequest"]);
 	EndIf;
 
-	QueryOptions.Insert("code", AuthorizationCode_);
+	QueryOptions.Insert("code", AuthorizationCode);
 	QueryOptions.Insert("redirect_uri", RedirectAddress);
 	QueryOptions.Insert("grant_type", "authorization_code");
 	

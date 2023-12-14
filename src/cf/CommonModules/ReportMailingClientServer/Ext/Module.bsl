@@ -9,13 +9,13 @@
 
 #Region Private
 
-// 
+// Inserts the passed parameters into the template.
 //
 // Parameters:
 //   Template - String - an initial template. For example, "Welcome, [ФИО]".
 //   Parameters - Structure:
-//      * Key - String -
-//      * Value - Arbitrary -
+//      * Key - String - a parameter name. For example, Full name.
+//      * Value - Arbitrary - a substitution string. For example, John Smith.
 //
 // Returns: 
 //   String
@@ -25,11 +25,11 @@ Function FillTemplate(Template, Parameters) Export
 	ParameterEnd = "]";
 	StartOfFormat = "("; 
 	EndOfFormat = ")"; 
-	CutBorders = True; // 
+	CutBorders = True; 
 	
 	Result = Template;
 	For Each KeyAndValue In Parameters Do
-		// 
+		// Replace a "[ключ]" with a "value".
 		Result = StrReplace(
 			Result,
 			ParameterStart + KeyAndValue.Key + ParameterEnd, 
@@ -70,7 +70,7 @@ EndFunction
 // Generates the delivery methods presentation according to delivery parameters.
 //
 // Parameters:
-//   DeliveryParameters - 
+//   DeliveryParameters - See ExecuteMailing.DeliveryParameters.
 //
 // Returns:
 //   String
@@ -214,74 +214,84 @@ Function ListPresentation(Collection, ColumnName = "", MaxChars = 60) Export
 EndFunction
 
 // Returns the default subject template for delivery by email.
-Function SubjectTemplate() Export
-	Return StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = '%1 dated %2';"), "[MailingDescription]", "[ExecutionDate(DLF='D')]");
+Function SubjectTemplate(AllParametersOfMessageTextAndFiles = Undefined) Export
+	If AllParametersOfMessageTextAndFiles <> Undefined Then 
+		Return StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = '%1 dated %2';"), "[" + AllParametersOfMessageTextAndFiles.MailingDescription + "]",
+			"[" + AllParametersOfMessageTextAndFiles.ExecutionDate + "(DLF='D')]");
+	Else
+		Return StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = '%1 dated %2';"), "[MailingDescription]", "[ExecutionDate(DLF='D')]");
+	EndIf;
 EndFunction
 
-// Returns the default archive name template.
-Function ArchivePatternName() Export
-	
-	Return StringFunctionsClientServer.SubstituteParametersToString(
+// Returns the default archive description template.
+Function ArchivePatternName(AllParametersOfMessageTextAndFiles = Undefined) Export
+	If AllParametersOfMessageTextAndFiles <> Undefined Then
+		Return StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = '%1 dated %2';"), "[" + AllParametersOfMessageTextAndFiles.MailingDescription + "]",
+			"[" + AllParametersOfMessageTextAndFiles.ExecutionDate + "(DF='yyyy-MM-dd')]");
+	Else
+		Return StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = '%1 dated %2';"), "[MailingDescription]", "[ExecutionDate(DF='yyyy-MM-dd')]");
-	
+	EndIf;
 EndFunction
 
-// Constructor for the value of the delivery parametersthe function perform dispatch.
+// The constructor for the DeliveryParameters parameter value of the ExecuteBulkEmail function.
 //
 // Returns:
-//   Structure - 
-//     
-//       * Author - CatalogRef.Users - author of the mailing list.
-//       * UseFolder            - Boolean - to deliver the reports in a folder of the subsystem "Working with files".
-//       * UseNetworkDirectory   - Boolean - deliver reports to a file system folder.
-//       * UseFTPResource        - Boolean - to deliver reports via FTP.
-//       * UseEmail - Boolean - to deliver reports via e-mail.
+//   Structure - Report delivery method settings. The list of properties depends on the delivery method.
+//     Common properties::
+//       * Author - CatalogRef.Users - a mailing author.
+//       * UseFolder            - Boolean - deliver reports to the "Stored files" subsystem folder.
+//       * UseNetworkDirectory   - Boolean - deliver reports to the file system folder.
+//       * UseFTPResource        - Boolean - deliver reports to the FTP.
+//       * UseEmail - Boolean - Deliver reports via email.
 //
-//     Properties when to use the folder = True:
-//       * Folder - CatalogRef.FilesFolders - the folder of the subsystem "Working with files".
+//     If UseFolder = True, the following properties are used:
+//       * Folder - CatalogRef.FilesFolders - Folder of the "File Management" subsystem.
 //
-//     Properties when to use networkdirectory = True:
-//       * NetworkDirectoryWindows - String - directory of the file system (local on the server or network).
+//     If UseNetworkDirectory = True, the following properties are used:
+//       * NetworkDirectoryWindows - String - a file system directory (local at server or network).
 //       * NetworkDirectoryLinux   - String - a file system directory (local on the server or network).
 //
-//     Properties when UseFTPResource = True:
+//     If UseFTPResource = True, the following properties are used:
 //       * Owner            - CatalogRef.ReportMailings
-//       * Server              - String - name of the FTP server.
-//       * Port                - Number  - port of the FTP server.
-//       * Login               - String - name of the FTP server user.
-//       * Password              - String - password of the FTP server user.
-//       * Directory             - String - path to the folder on the FTP server.
-//       * PassiveConnection - Boolean - use a passive connection.
+//       * Server              - String - an FTP server name.
+//       * Port                - Number  - an FTP server port.
+//       * Login               - String - an FTP server user name.
+//       * Password              - String - an FTP server user password.
+//       * Directory             - String - a path to the directory at the FTP server.
+//       * PassiveConnection - Boolean - Use passive connection.
 //
-//     Properties when to use Electronic Mail = True:
-//       * Account - CatalogRef.EmailAccounts - to send a mail message.
-//       * Recipients - Map of KeyAndValue - set of recipients and their e-mail addresses:
-//           ** Key - CatalogRef - recipient.
-//           ** Value - String - email addresses of the recipient, separated by commas.
+//     If UseEmail = True, the following properties are used:
+//       * Account - CatalogRef.EmailAccounts - to send an email message.
+//       * Recipients - Map of KeyAndValue - List of recipients and their email addresses:
+//           ** Key - CatalogRef - a recipient.
+//           ** Value - String - Recipient's comma-delimited email addresses.
 //
 //     Additional properties:
 //       * Archive - Boolean - archive all generated reports into one archive.
 //                                 Archiving can be required, for example, when mailing schedules in html format.
-//       * ArchiveName    - String - archive name.
-//       * ArchivePassword - String - backup password.
-//       * TransliterateFileNames - Boolean -
-//       * CertificateToEncrypt - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates -
-//           
+//       * ArchiveName    - String - an archive name.
+//       * ArchivePassword - String - an archive password.
+//       * TransliterateFileNames - Boolean - Flag indicating whether to convert Cyrillic filenames to Latin.
+//       * CertificateToEncrypt - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - if the DigitalSignature
+//           subsystem is integrated, Undefined.
 //       * MailingRecipientType - TypeDescription
 //                                - Undefined
 //
-//     
+//     If UseEmail = True, the following optional properties are used:
 //       * Personalized - Boolean - a mailing personalized by recipients.
 //           The default value is False.
 //           If True value is set, each recipient will receive a report with a filter by it.
 //           To do this, in reports, set the "[Получатель]" filter by the attribute that match the recipient type.
 //           Applies only to delivery by mail,
 //           so when setting to the True, other delivery methods are disabled.
-//       * NotifyOnly - Boolean - False - send only notifications (do not attach generated reports).
+//       * NotifyOnly - Boolean - False - send notifications only (do not attach generated reports).
 //       * BCCs    - Boolean - False - if True, when sending fill BCCs instead of To.
-//       * SubjectTemplate      - String -       message subject.
-//       * TextTemplate1    - String -       message body.
+//       * SubjectTemplate      - String -       an email subject.
+//       * TextTemplate1    - String -       an email body.
 //       * FormatsParameters - Map of KeyAndValue:
 //           ** Key - EnumRef.ReportSaveFormats
 //           ** Value - Structure:
@@ -372,49 +382,49 @@ Function DeliveryParameters() Export
 	
 EndFunction
 
-// 
+// Constructor of the structure containing mail-out parameters.
 //
 // Returns:
-//   Structure - contains all the necessary information about the email:
+//   Structure - Contains all email details:
 //     * Whom - Array
-//            - String - 
-//            - Array - a collection of structures, addresses:
-//                * Address         - String - postal address (must be filled in).
-//                * Presentation - String - destination name.
-//            - String - 
+//            - String - Recipients' email addresses and presentation.
+//            - Array - Collection of address structures:
+//                * Address         - String - an email address (required).
+//                * Presentation - String - a recipient's name.
+//            - String - Semicolon-delimited recipient addresses.
 //
-//     * MessageRecipients - Array - array of structures describing the recipients:
-//       ** Address - String - email address of the message recipient.
-//       ** Presentation - String - representation of the addressee.
+//     * MessageRecipients - Array - Array of structures describing recipients:
+//       ** Address - String - an email recipient address.
+//       ** Presentation - String - Addressee presentation.
 //
 //     * Cc        - Array
-//                    - String - 
+//                    - String - Email addresses of the CC recipients. See the "To" field.
 //
 //     * BCCs - Array
-//                    - String - 
+//                    - String - Email addresses of the BCC recipients. See the "To" field.
 //
-//     * Subject       - String - (required) subject of the email message.
-//     * Body       - String - (required) text of the email message (plain text in win-1251 encoding).
+//     * Subject       - String - (mandatory) an email subject.
+//     * Body       - String - (mandatory) an email text (plain text, win1251 encoded).
 //
-//     * Attachments - Array - files to be attached (described as structures):
-//       ** Presentation - String - attachment file name;
-//       ** AddressInTempStorage - String - address of the attachment's binary data in temporary storage.
-//       ** Encoding - String - encoding of the attachment (used if it differs from the encoding of the message).
-//       ** Id - String - (optional) used to mark images displayed in the message body.
+//     * Attachments - Array - Files to be attached (as structures):
+//       ** Presentation - String - an attachment file name;
+//       ** AddressInTempStorage - String - a binary data address of an attachment in a temporary storage.
+//       ** Encoding - String - an attachment encoding (used if it differs from the message encoding).
+//       ** Id - String - (optional) used to store images displayed in the message body.
 //
-//     * ReplyToAddress - String -
-//     * BasisIDs - String - IDs of the bases of this message.
-//     * ProcessTexts  - Boolean - the need to process the message texts when sending.
-//     * RequestDeliveryReceipt  - Boolean - need to request a delivery notification.
-//     * RequestReadReceipt - Boolean - need to request a read notification.
+//     * ReplyToAddress - String - Reply-to email address.
+//     * BasisIDs - String - IDs of the message basis objects.
+//     * ProcessTexts  - Boolean - shows whether message text processing is required on sending.
+//     * RequestDeliveryReceipt  - Boolean - shows whether a delivery notification is required.
+//     * RequestReadReceipt - Boolean - shows whether a read notification is required.
 //     * TextType - String
 //                 - EnumRef.EmailTextTypes
-//                 - InternetMailTextType - 
-//                   
-//                   
-//                   
-//                                                 
-//                   
+//                 - InternetMailTextType - Determines the type of the passed text.
+//                   Valid values::
+//                   HTML/EmailTextTypes.HTML - HTML text.
+//                   PlainText/EmailTextTypes.PlainText - Plain text.
+//                                                 By default, display "as is".
+//                   MarkedUpText/EmailTextTypes.MarkedUpText - Reach text.
 //                                                 
 //     * Importance  - InternetMailMessageImportance
 //
@@ -440,10 +450,10 @@ Function EmailSendOptions() Export
 	
 EndFunction
 
-// 
+// Constructor of the structure containing recipient parameters.
 //
 // Returns:
-//   Structure - 
+//   Structure - Contains all details about the distribution recipients.:
 //     * Ref - CatalogRef.ReportMailings
 //     * Author - CatalogRef.Users
 //     * RecipientsEmailAddressKind - CatalogRef.ContactInformationKinds

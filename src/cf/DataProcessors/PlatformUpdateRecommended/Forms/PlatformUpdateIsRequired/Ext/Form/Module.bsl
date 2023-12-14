@@ -132,7 +132,7 @@ Function PlatformVersionsTable(Platforms, AllDeprecatedVersions)
 	Separator = GetPathSeparator();
 	
 	AllMinOnes = Common.MinPlatformVersion();
-	AllMinOnesByParts = StrSplit(AllMinOnes, ";");
+	AllMinOnesByParts = StrSplit(AllMinOnes, "; ");
 	MinBuildsMap = New Map;
 	For Each Min In AllMinOnesByParts Do
 		MinVersion = CommonClientServer.ConfigurationVersionWithoutBuildNumber(Min);

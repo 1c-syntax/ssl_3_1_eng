@@ -98,7 +98,7 @@ Procedure SetEditorParameters(ListToEdit, ParametersToSelect)
 			EndDo;
 			
 		Else 
-			// 
+			// Getting as a flat list.
 			ListItems = List.GetItems();
 			For Each MapItem In FilterValues Do
 				NewItem = ListItems.Add();
@@ -106,13 +106,13 @@ Procedure SetEditorParameters(ListToEdit, ParametersToSelect)
 				NewItem.Value = MapItem.Key;
 				
 				If (ParametersToSelect = "User" Or ParametersToSelect = "User") Then
-					// 
+					// In this case, the username serves as a key.
 					NewItem.Value = MapItem.Key;
 					NewItem.Presentation = MapItem.Value;
 					NewItem.FullPresentation = MapItem.Value;
 					
 					If NewItem.Value = "" Then
-						// 
+						// In case of default user.
 						NewItem.Value = "";
 						NewItem.FullPresentation = UnspecifiedUserFullName();
 						NewItem.Presentation = UnspecifiedUserFullName();
@@ -141,8 +141,8 @@ Procedure SetEditorParameters(ListToEdit, ParametersToSelect)
 	// Selecting marks of tree items that are mapped to ListToEdit items.
 	SelectFoundItems(List.GetItems(), ListToEdit);
 	
-	// 
-	// 
+	
+	
 	IsTree = False;
 	For Each TreeItem In List.GetItems() Do
 		If TreeItem.GetItems().Count() > 0 Then 
@@ -219,7 +219,7 @@ Function GetTreeBranch(Presentation, ParametersToSelect, Recursion = False)
 			EndIf;
 		EndDo;
 	EndIf;
-	// 
+	// The tree item is not found, it has to be created.
 	AddedBranches.Add(BranchName);
 	
 	TreeItem = TreeItems.Add();

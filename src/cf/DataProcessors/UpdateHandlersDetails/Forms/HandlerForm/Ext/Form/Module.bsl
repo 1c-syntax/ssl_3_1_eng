@@ -1335,7 +1335,7 @@ Function MetadataObjectAttributes1(ObjectName)
 		
 		For Each Attribute In Collection.Value Do
 			FullAttributeName = FullObjectName + "." + EdH[Collection.Key];
-			// 
+			
 			For Each Type In Attribute.Type.Types() Do
 				// If at least one reference type is found.
 				If Common.IsReference(Type) Then // Add it to the list.

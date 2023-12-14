@@ -156,7 +156,7 @@ EndProcedure
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.ФильтрСеансов, Array Of See ClusterAdministration.SessionsFilter
+//  Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
 //
 // Returns:
 //   Array of See ClusterAdministrationClientServer.SessionProperties
@@ -174,7 +174,7 @@ EndFunction
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.ФильтрСеансов, Array Of See ClusterAdministration.SessionsFilter
+//  Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
 //
 Procedure DeleteInfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -241,7 +241,7 @@ EndProcedure
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.ФильтрСоединений, Array Of See ClusterAdministration.JoinsFilters
+//  Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
 //
 // Returns:
 //   Array of See ClusterAdministrationClientServer.ConnectionProperties
@@ -259,7 +259,7 @@ EndFunction
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.ФильтрСоединений, Array Of See ClusterAdministration.JoinsFilters
+//  Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
 //
 Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -276,14 +276,14 @@ Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val 
 	FillIBAuthenticationParameters(IBAdministrationParameters, Parameters);
 	
 	Value = New Array;
-	Value.Add("1CV8");               // 
-	Value.Add("1CV8C");              // 
-	Value.Add("WebClient");          // идентификатор приложения 1C:Enterprise в режиме запуска "Веб-
-	Value.Add("Designer");           // 
-	Value.Add("COMConnection");      // 
-	Value.Add("WSConnection");       // идентификатор сессии Web-
-	Value.Add("BackgroundJob");      // 
-	Value.Add("WebServerExtension"); // идентификатор расширения Web-
+	Value.Add("1CV8");               
+	Value.Add("1CV8C");              // ID of 1C:Enterprise application running in thin client mode.
+	Value.Add("WebClient");          // ID of 1C:Enterprise application running in web client mode.
+	Value.Add("Designer");           // Designer ID.
+	Value.Add("COMConnection");      // ID of 1C:Enterprise external COM connection session.
+	Value.Add("WSConnection");       // Web service session ID.
+	Value.Add("BackgroundJob");      // ID of job processing session.
+	Value.Add("WebServerExtension"); // Web server extension ID.
 
 	ClusterAdministrationClientServer.AddFilterCondition(Filter, "ClientApplicationID", ComparisonType.InList, Value);
 	
@@ -343,8 +343,8 @@ EndProcedure
 //  IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
 //
 // Returns:
-//   String - 
-//  
+//   String - name of the security profile set for the infobase. If
+//  the infobase is not assigned with a security profile, returns an empty string.
 //
 Function InfobaseSecurityProfile(Val ClusterAdministrationParameters, Val IBAdministrationParameters) Export
 	
@@ -368,9 +368,9 @@ EndFunction
 //  IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
 //
 // Returns:
-//   String - 
-//  
-//  
+//   String - name of the security profile set for the infobase as the safe mode security
+//  profile. If the infobase is not assigned with a security profile, returns
+//  an empty string.
 //
 Function InfobaseSafeModeSecurityProfile(Val ClusterAdministrationParameters, Val IBAdministrationParameters) Export
 	
@@ -476,27 +476,27 @@ Function SecurityProfile(Val ClusterAdministrationParameters, Val ProfileName) E
 	Result = SecurityProfiles[0];
 	Result = ConvertAccessListsUsagePropertyValues(Result);
 	
-	// 
+	// Virtual directories.
 	Result.Insert("VirtualDirectories",
 		GetVirtualDirectories(ClusterID, ClusterAdministrationParameters, ProfileName));
 	
-	// Разрешенные COM-
+	// Allowed COM classes.
 	Result.Insert("COMClasses",
 		GetAllowedCOMClass(ClusterID, ClusterAdministrationParameters, ProfileName));
 	
-	// 
+	// Add-ins.
 	Result.Insert("AddIns",
 		GetAllowedAddIns(ClusterID, ClusterAdministrationParameters, ProfileName));
 	
-	// 
+	// External modules.
 	Result.Insert("ExternalModules",
 		GetAllowedExternalModules(ClusterID, ClusterAdministrationParameters, ProfileName));
 	
-	// 
+	// OS applications.
 	Result.Insert("OSApplications",
 		GetAllowedOSApplications(ClusterID, ClusterAdministrationParameters, ProfileName));
 	
-	// Интернет-Resources
+	// Internet resources.
 	Result.Insert("InternetResources",
 		GetAllowedInternetResources(ClusterID, ClusterAdministrationParameters, ProfileName));
 	
@@ -586,7 +586,7 @@ EndProcedure
 //  InfobaseAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
 //
 // Returns:
-//   String - internal ID of the information database.
+//   String - Internal infobase ID.
 //
 Function InfoBaseID(Val ClusterID, Val ClusterAdministrationParameters, Val InfobaseAdministrationParameters) Export
 	
@@ -637,7 +637,7 @@ EndFunction
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //
 // Returns:
-//  String - internal ID of the server cluster.
+//  String - Internal server cluster ID.
 //
 Function ClusterID(Val ClusterAdministrationParameters) Export
 	
@@ -741,9 +741,9 @@ EndFunction
 // Parameters:
 //  ClusterID - String - Internal server cluster ID,
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
-//  InfoBaseID - String - an internal ID of an infobase,
-//  InfobaseAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.ФильтрСеансов, Array Of See ClusterAdministration.SessionsFilter
+//  InfoBaseID - String -  internal ID of the information base,
+//  Parameteradministrationinformation database -  See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
+//  Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
 //  UseDictionary - Boolean - If True, the return value is generated using a dictionary.
 //
 // Returns:
@@ -781,7 +781,7 @@ EndFunction
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  InfoBaseID - String - Internal infobase ID.
 //  InfobaseAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.ФильтрСоединений, Array Of See ClusterAdministration.JoinsFilters
+//  Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
 //  UseDictionary - Boolean - If True, the return value is generated using a dictionary.
 //
 // Returns:
@@ -1059,7 +1059,7 @@ Procedure UpdateSecurityProfileProperties(Val ClusterAdministrationParameters, V
 		CreateAccessManagementListItem(ClusterID, ClusterAdministrationParameters, ProfileName, ListName, CurrentDictionary, VirtualDirectoryToCreate);
 	EndDo;
 	
-	// Разрешенные COM-
+	// Allowed COM classes.
 	ListName = "com";
 	CurrentDictionary = COMClassPropertiesDictionary();
 	If ClearAccessManagementLists Then
@@ -1073,7 +1073,7 @@ Procedure UpdateSecurityProfileProperties(Val ClusterAdministrationParameters, V
 		CreateAccessManagementListItem(ClusterID, ClusterAdministrationParameters, ProfileName, ListName, CurrentDictionary, COMClassToCreate);
 	EndDo;
 	
-	// 
+	// Add-ins.
 	ListName = "addin";
 	CurrentDictionary = AddInPropertiesDictionary();
 	If ClearAccessManagementLists Then
@@ -1087,7 +1087,7 @@ Procedure UpdateSecurityProfileProperties(Val ClusterAdministrationParameters, V
 		CreateAccessManagementListItem(ClusterID, ClusterAdministrationParameters, ProfileName, ListName, CurrentDictionary, AddInToCreate);
 	EndDo;
 	
-	// 
+	// External modules.
 	ListName = "module";
 	CurrentDictionary = ExternalModulePropertiesDictionary();
 	If ClearAccessManagementLists Then
@@ -1101,7 +1101,7 @@ Procedure UpdateSecurityProfileProperties(Val ClusterAdministrationParameters, V
 		CreateAccessManagementListItem(ClusterID, ClusterAdministrationParameters, ProfileName, ListName, CurrentDictionary, ExternalModuleToCreate);
 	EndDo;
 	
-	// 
+	// OS applications.
 	ListName = "app";
 	CurrentDictionary = OSApplicationPropertiesDictionary();
 	If ClearAccessManagementLists Then
@@ -1115,7 +1115,7 @@ Procedure UpdateSecurityProfileProperties(Val ClusterAdministrationParameters, V
 		CreateAccessManagementListItem(ClusterID, ClusterAdministrationParameters, ProfileName, ListName, CurrentDictionary, OSApplicationToCreate);
 	EndDo;
 	
-	// Интернет-Resources
+	// Internet resources.
 	ListName = "inet";
 	CurrentDictionary = InternetResourcePropertiesDictionary();
 	If ClearAccessManagementLists Then
@@ -1276,8 +1276,8 @@ Function CastOutputItem(OutputItem)
 	Try
 		Return XMLValue(Type("Date"), OutputItem);
 	Except
-		// Обработка исключения не требуется. Ожидаемое исключение - 
-		// 
+		
+		
 		Return OutputItem;
 	EndTry;
 	
@@ -1334,13 +1334,13 @@ Function ExecuteCommand(Val Template, Val ClusterAdministrationParameters, Val P
 	// Substituting parameter values to the command line.
 	If ValueIsFilled(ParameterValues) Then
 		For Each Parameter In ParameterValues Do
-			// 
+			// Populate the parameter.
 			CommandLine = StrReplace(CommandLine, "%" + Parameter.Key + "%", AdjustValue(Parameter.Value, Parameter.Key));
 			If ValueIsFilled(Parameter.Value) Then
-				// 
+				// Optional parameters can be used.
 				CommandLine = StrReplace(CommandLine, "%?" + Parameter.Key + "%", AdjustValue(Parameter.Value, Parameter.Key));
 			Else
-				// Если необязательный параметр не установлен - 
+				// Removing the optional parameter from the command line if its value was not specified.
 				CommandLine = StrReplace(CommandLine, "--" + Parameter.Key + "=%?" + Parameter.Key + "%", "");
 			EndIf;
 		EndDo;
@@ -1658,7 +1658,7 @@ Function AddInPropertiesDictionary()
 	Result = New Structure();
 	Result.Insert("Name", "name");
 	Result.Insert("LongDesc", "descr");
-	Result.Insert("HashSum", "hash"); // 
+	Result.Insert("HashSum", "hash"); 
 	Return New FixedStructure(Result);
 	
 EndFunction
@@ -1668,7 +1668,7 @@ Function ExternalModulePropertiesDictionary()
 	Result = New Structure();
 	Result.Insert("Name", "name");
 	Result.Insert("LongDesc", "descr");
-	Result.Insert("HashSum", "hash"); // 	
+	Result.Insert("HashSum", "hash"); 	
 	Return New FixedStructure(Result);
 	
 EndFunction
@@ -1727,12 +1727,12 @@ Function BooleanPropertyFormatDictionary()
 	Result.Insert(Dictionary.SessionsLock, OnOffFormat);
 	Result.Insert(Dictionary.LockScheduledJobs, OnOffFormat);
 	
-	// The properties of the security profile.
+	// Security profile properties.
 	Dictionary = SecurityProfilePropertiesDictionary(False);
 	Result.Insert(Dictionary.SafeModeProfile, YesNoFormat);
 	Result.Insert(Dictionary.FullAccessToPrivilegedMode, YesNoFormat);
 	
-	// 
+	// Virtual directory properties.
 	Dictionary = VirtualDirectoryPropertiesDictionary();
 	Result.Insert(Dictionary.DataReader, YesNoFormat);
 	Result.Insert(Dictionary.DataWriter, YesNoFormat);

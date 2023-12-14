@@ -21,6 +21,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ClientID = Parameters.ClientID;
 	UserScanSettings = FilesOperations.GetUserScanSettings(ClientID);
 	FillPropertyValues(ThisObject, UserScanSettings);
+	Items.ScanLogDirectory.Enabled = UseScanLogDirectory;
 			
 	MethodOfConversionToPDF = ?(UseImageMagickToConvertToPDF, 1, 0);
 		
@@ -44,12 +45,25 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.OK.Title = NStr("en = 'Scan';");
 	EndIf;
 	
+	ScanJobParameters = CommonServerCall.CommonSettingsStorageLoad("ScanningComponent", "ScanJobParameters", Undefined);
+	
+	Items.ScanningError.Visible = ScanJobParameters <> Undefined;
+	
 EndProcedure
 
 &AtClient
 Procedure OnOpen(Cancel)
 	RefreshStatus();
 	ProcessUseOfScanDialog();
+	Items.ScanningError.Visible = Items.ScanningError.Visible And Not ScanFormIsOpen();
+EndProcedure
+
+&AtServer
+Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
+	If ShowScannerDialog Then
+		CheckedAttributes.Delete(CheckedAttributes.Find("Resolution"));
+		CheckedAttributes.Delete(CheckedAttributes.Find("Chromaticity"));
+	EndIf;
 EndProcedure
 
 #EndRegion
@@ -108,35 +122,65 @@ EndProcedure
 
 &AtClient
 Procedure JPGQualityOnChange(Item)
-	Items.JPGQuality.Title = StrTemplate(NStr("en = 'Quality (%1)';"), JPGQuality);
+	Items.JPGQuality.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Quality (%1)';"), JPGQuality);
 EndProcedure
 
 &AtClient
 Procedure DeviceNameStartChoice(Item, StandardProcessing)
-	StandardProcessing = False;
 	Try
-		DeviceArray = FilesOperationsInternalClient.EnumDevices(Attachable_Module);
+		DeviceArray = FilesOperationsInternalClient.EnumDevices(ThisObject, Attachable_Module);
 	Except
 		DeviceArray = New Array;
-	EndTry;
-	If DeviceArray.Count() > 0 Then
-		ChoiceList = New ValueList();
-		For Each String In DeviceArray Do
-			ChoiceList.Add(String);
-		EndDo;
+	EndTry;  
 	
-		NotifyDescription = New NotifyDescription("DeviceNameStartChoiceCompletion", ThisObject, Item);
-		ChoiceList.ShowChooseItem(NotifyDescription, NStr("en = 'Select scanner';"));
+	If DeviceArray.Count() > 0 Then
+		Item.ChoiceList.LoadValues(DeviceArray);
 	Else
+		StandardProcessing = False;
 		ShowMessageBox(,NStr("en = 'No connected scanners are found. Check scanner connection.';"));
 	EndIf;
-EndProcedure
+EndProcedure 
 
 &AtClient
 Procedure ShowScannerDialogOnChange(Item)
 	
 	ProcessUseOfScanDialog();
 	
+EndProcedure
+
+&AtClient
+Procedure ScanErrorTextURLProcessing(Item, FormattedStringURL, StandardProcessing)
+	If FormattedStringURL = "TechnicalInformation" Then
+		AfterReceivingTechnicalInformation = New NotifyDescription("AfterReceivingTechnicalInformation", ThisObject);
+		FilesOperationsInternalClient.GetTechnicalInformation(NStr("en = 'The last scan attempt failed.';"), 
+			AfterReceivingTechnicalInformation);
+		StandardProcessing = False;
+	EndIf;
+EndProcedure
+
+&AtClient
+Procedure ScanLogDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
+
+	If Not FilesOperationsInternalClient.FileSystemExtensionAttached1() Then
+		Return;
+	EndIf;
+	
+	StandardProcessing = False;
+	
+	OpenFileDialog = New FileDialog(FileDialogMode.ChooseDirectory);
+	OpenFileDialog.FullFileName = ScanLogDirectory;
+	OpenFileDialog.Multiselect = False;
+	OpenFileDialog.Title = NStr("en = 'Select a path to save the scan log';");
+	
+	If OpenFileDialog.Choose() Then
+		ScanLogDirectory = OpenFileDialog.Directory;
+	EndIf;
+
+EndProcedure
+
+&AtClient
+Procedure UseScanLogDirectoryOnChange(Item)
+	Items.ScanLogDirectory.Enabled = UseScanLogDirectory;
 EndProcedure
 
 #EndRegion
@@ -162,8 +206,10 @@ Procedure OK(Command)
 			Return;
 		Else
 			Context = New Structure;
-			CheckResultHandler = New NotifyDescription("AfterCheckInstalledConversionApp", ThisObject, UserScanSettings);
-			FilesOperationsClient.StartCheckConversionAppPresence(UserScanSettings.PathToConverterApplication, CheckResultHandler);
+			CheckResultHandler = New NotifyDescription("AfterCheckInstalledConversionApp", ThisObject, 
+				UserScanSettings);
+			FilesOperationsClient.StartCheckConversionAppPresence(UserScanSettings.PathToConverterApplication, 
+				CheckResultHandler);
 			Return;
 		EndIf;
 	EndIf;
@@ -187,7 +233,7 @@ EndProcedure
 &AtClient
 Procedure RefreshStatus()
 	
-	Items.JPGQuality.Title = StrTemplate(NStr("en = 'Quality (%1)';"), JPGQuality);
+	Items.JPGQuality.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Quality (%1)';"), JPGQuality);
 	Items.ScannedImageFormat.Enabled = False;
 	Items.Resolution.Enabled = False;
 	Items.Chromaticity.Enabled = False;
@@ -208,15 +254,15 @@ EndProcedure
 
 &AtClient
 Procedure UpdateStateAfterInitialization(InitializationCheckResult, Context) Export
-	IsAddInInitialized = InitializationCheckResult.Attached;
+	Attachable_Module = InitializationCheckResult.Attached;
 	
-	If Not IsAddInInitialized Then
+	If Not Attachable_Module Then
 		Items.DeviceName.Enabled = False;
 		Return;
 	EndIf;
 	Attachable_Module = InitializationCheckResult.Attachable_Module;
 		
-	If Not FilesOperationsInternalClient.IsReadyForScanning(Attachable_Module) Then
+	If Not FilesOperationsInternalClient.IsReadyForScanning(ThisObject, Attachable_Module) Then
 		Items.DeviceName.InputHint = NStr("en = 'Check scanner connection';");
 		Return;
 	Else
@@ -238,28 +284,18 @@ Procedure UpdateStateAfterInitialization(InitializationCheckResult, Context) Exp
 	Items.MethodOfConversionToPDF.Enabled = True;
 	Items.ShowScannerDialog.Enabled = True;
 	
-	DuplexScanningNumber = FilesOperationsInternalClient.GetSetting(Attachable_Module, 
+	DuplexScanningNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module, 
 		DeviceName, "DUPLEX");
-		
+	PermissionNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module, 
+		DeviceName, "XRESOLUTION");
+	RotationNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module, 
+		DeviceName, "ROTATION");
+	PaperSizeNumber  = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module, 
+		DeviceName, "SUPPORTEDSIZES");
+	
 	Items.DuplexScanning.Enabled = (DuplexScanningNumber <> -1);
-	
-	If Not Resolution.IsEmpty() And Not Chromaticity.IsEmpty() Then
-		Items.Rotation.Enabled = Not Rotation.IsEmpty();
-		Items.PaperSize.Enabled = Not PaperSize.IsEmpty();
-		Return;
-	EndIf;
-	
-	PermissionNumber = FilesOperationsInternalClient.GetSetting(Attachable_Module, DeviceName, "XRESOLUTION");
-	ChromaticityNumber  = FilesOperationsInternalClient.GetSetting(Attachable_Module, DeviceName, "PIXELTYPE");
-	RotationNumber = FilesOperationsInternalClient.GetSetting(Attachable_Module, DeviceName, "ROTATION");
-	PaperSizeNumber  = FilesOperationsInternalClient.GetSetting(Attachable_Module, DeviceName, "SUPPORTEDSIZES");
-	
 	Items.Rotation.Enabled = (RotationNumber <> -1);
 	Items.PaperSize.Enabled = (PaperSizeNumber <> -1);
-	
-	DuplexScanning = ? ((DuplexScanningNumber = 1), True, False);
-	Modified = True;
-	ConvertScannerParametersToEnums(PermissionNumber, ChromaticityNumber, RotationNumber, PaperSizeNumber);
 	
 EndProcedure
 
@@ -285,26 +321,22 @@ Procedure ReadScannerSettings()
 		Items.ShowScannerDialog.Enabled = True;
 	EndIf;
 	
-	PermissionNumber = FilesOperationsInternalClient.GetSetting(Attachable_Module,
+	PermissionNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module,
 		DeviceName, "XRESOLUTION");
-	
-	ChromaticityNumber = FilesOperationsInternalClient.GetSetting(Attachable_Module,
+	ChromaticityNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module,
 		DeviceName, "PIXELTYPE");
-	
-	RotationNumber = FilesOperationsInternalClient.GetSetting(Attachable_Module,
+	RotationNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module,
 		DeviceName, "ROTATION");
-	
-	PaperSizeNumber = FilesOperationsInternalClient.GetSetting(Attachable_Module,
+	PaperSizeNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module,
 		DeviceName, "SUPPORTEDSIZES");
-	
-	DuplexScanningNumber = FilesOperationsInternalClient.GetSetting(Attachable_Module,
+	DuplexScanningNumber = FilesOperationsInternalClient.ConfiguringScanner(ThisObject, Attachable_Module,
 		DeviceName, "DUPLEX");
 	
 	Items.Rotation.Enabled = (RotationNumber <> -1);
 	Items.PaperSize.Enabled = (PaperSizeNumber <> -1);
 	
 	Items.DuplexScanning.Enabled = (DuplexScanningNumber <> -1);
-	DuplexScanning = ? ((DuplexScanningNumber = 1), True, False);
+	UpdateValue(DuplexScanning, ?((DuplexScanningNumber = 1), True, False), Modified);
 	
 	ConvertScannerParametersToEnums(
 		PermissionNumber, ChromaticityNumber, RotationNumber, PaperSizeNumber);
@@ -312,14 +344,15 @@ Procedure ReadScannerSettings()
 	ProcessUseOfScanDialog();
 EndProcedure
 
-&AtServerNoContext
+&AtServer
 Procedure ConvertScannerParametersToEnums(PermissionNumber, ChromaticityNumber, RotationNumber, PaperSizeNumber) 
 	
-	Result = FilesOperationsInternal.ScannerParametersInEnumerations(PermissionNumber, ChromaticityNumber, RotationNumber, PaperSizeNumber);
-	Resolution = Result.Resolution;
-	Chromaticity = Result.Chromaticity;
-	Rotation = Result.Rotation;
-	PaperSize = Result.PaperSize;
+	Result = FilesOperationsInternal.ScannerParametersInEnumerations(PermissionNumber, ChromaticityNumber, 
+		RotationNumber, PaperSizeNumber);
+	UpdateValue(Resolution, Result.Resolution, Modified);
+	UpdateValue(Chromaticity, Result.Chromaticity, Modified);
+	UpdateValue(Rotation, Result.Rotation, Modified);
+	UpdateValue(PaperSize, Result.PaperSize, Modified);
 	
 EndProcedure
 
@@ -348,14 +381,6 @@ Procedure InstallHints()
 EndProcedure
 
 &AtClient
-Procedure DeviceNameStartChoiceCompletion(SelectedElement, Item) Export
-	If SelectedElement <> Undefined Then
-		DeviceName = SelectedElement.Value;
-		DeviceNameOnChange(Item);
-	EndIf;
-EndProcedure
-
-&AtClient
 Procedure OKCompletion(UserScanSettings)
 	FilesOperationsClient.SaveUserScanSettings(UserScanSettings);
 	Result = New Structure("Rescanning", Rescanning);
@@ -376,15 +401,36 @@ EndProcedure
 &AtClient
 Procedure ProcessUseOfScanDialog()
 	
-	Items.Resolution.Enabled = Not ShowScannerDialog;
-	Items.Chromaticity.Enabled = Not ShowScannerDialog;
-	Items.Rotation.Enabled = Not ShowScannerDialog;
-	Items.PaperSize.Enabled = Not ShowScannerDialog;
-	Items.DuplexScanning.Enabled = Not ShowScannerDialog;
+	Items.ScanningParametersGroup.Enabled = Not ShowScannerDialog;
 	Items.ScannedImageFormat.Enabled = Not ShowScannerDialog;
 	Items.JPGQuality.Enabled = Not ShowScannerDialog;
 	Items.TIFFDeflation.Enabled = Not ShowScannerDialog;
+	Items.Resolution.MarkIncomplete = Not ShowScannerDialog;
+	Items.Chromaticity.MarkIncomplete = Not ShowScannerDialog;
 
+EndProcedure
+
+&AtClientAtServerNoContext
+Procedure UpdateValue(Receiver, Source, Modified)
+	Modified = Modified Or Receiver <> Source;
+	Receiver = ?(ValueIsFilled(Source), Source, Receiver);
+EndProcedure
+
+&AtClient
+Function ScanFormIsOpen()
+	For Each ClientApplicationWindow In GetWindows() Do
+		For Each WindowContents In ClientApplicationWindow.Content Do
+			If WindowContents.FormName = "DataProcessor.Scanning.Form.ScanningResult" Then
+				Return True;
+			EndIf;
+		EndDo;
+	EndDo;
+	Return False;
+EndFunction
+
+&AtClient
+Procedure AfterReceivingTechnicalInformation(Result, Context) Export
+	Items.ScanningError.Visible = False;
 EndProcedure
 
 #EndRegion

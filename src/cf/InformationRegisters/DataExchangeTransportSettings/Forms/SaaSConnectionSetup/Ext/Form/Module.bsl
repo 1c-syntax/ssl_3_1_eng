@@ -139,7 +139,7 @@ EndProcedure
 Function DataSynchronizationUsers()
 	
 	Result = New ValueTable;
-	Result.Columns.Add("User"); // 
+	Result.Columns.Add("User"); 
 	Result.Columns.Add("Presentation");
 	
 	QueryText =

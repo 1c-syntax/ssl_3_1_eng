@@ -61,6 +61,15 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
+Procedure UseWebServiceOfAddressesOnChange(Item)
+	
+	If CommonClient.SubsystemExists("StandardSubsystems.ApplicationSettings") Then
+		WhenChangingUseOfWebServiceAddresses(UseWebServiceOfAddresses);
+	EndIf;
+	
+EndProcedure
+
+&AtClient
 Procedure AllowDataSendingOnChange(Item)
 	
 	OnChangeModeOfDataExportToMonitoringCenter(Item);
@@ -157,7 +166,7 @@ Procedure MorpherServiceAccessSetting(Command)
 EndProcedure
 
 &AtClient
-Procedure MonitoringCenterSettings(Command)
+Procedure MonitoringCenter_Settings(Command)
 	
 	ApplicationSettingsClient.OnlineSupportAndServicesMonitoringCenterSettings(
 		ThisObject,
@@ -188,7 +197,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure OnChangeConstantAtServer(ConstantName)
@@ -216,6 +225,13 @@ Procedure MonitoringCenterServiceAddressOnChangeAtServer(TagName)
 	ApplicationSettings.OnlineSupportAndServicesMonitoringCenterOnChange(
 		ThisObject,
 		Items[TagName]);
+	
+EndProcedure
+
+&AtServerNoContext
+Procedure WhenChangingUseOfWebServiceAddresses(UseWebServiceOfAddresses)
+	
+	ApplicationSettings.InternetSupportAndServicesEstablishUseOfWebService(UseWebServiceOfAddresses);
 	
 EndProcedure
 

@@ -12,7 +12,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// 
+	// Prepare auxiliary data.
 	AccessManagementInternal.OnCreateAtServerAllowedValuesEditForm(ThisObject);
 	
 	InitialSettingsOnReadAndCreate(Object);
@@ -30,7 +30,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.Access.Visible = False;
 	EndIf;
 	
-	// 
+	// Setting availability for viewing the form in read-only mode.
 	Items.UsersPick.Enabled                = Not ReadOnly;
 	Items.UsersPickContextMenu.Enabled = Not ReadOnly;
 	
@@ -181,9 +181,9 @@ EndProcedure
 Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
 	If Not Users.IsFullUser() Then
-		// 
-		// 
-		// 
+		
+		
+		
 		RestoreObjectWithoutGroupMembers(CurrentObject);
 	EndIf;
 	
@@ -261,7 +261,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	VerifiedObjectAttributes = New Array;
 	Errors = Undefined;
 	
-	// 
+	// Checking for unfilled and duplicate users.
 	VerifiedObjectAttributes.Add("Users.User");
 	UsersTreeRows = FormAttributeToValue("GroupUsers").Rows;
 	ErrorsCount = ?(Errors = Undefined, 0, Errors.Count());
@@ -427,7 +427,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 			ElsIf TypeOf(CurrentRow.User) = Type("CatalogRef.ExternalUsers") Then
 				SingleErrorText      = NStr("en = 'External user ""%2"" cannot be a member as it does not have the required type.';");
 				SeveralErrorsText = NStr("en = 'External user ""%2"" in line #%1 cannot be a member as it does not have the required type.';");
-			Else // 
+			Else // External user group.
 				SingleErrorText      = NStr("en = 'External user group ""%2"" cannot be a member as it does not have the required type.';");
 				SeveralErrorsText = NStr("en = 'External user group ""%2"" in line #%1 cannot be a member as it does not have the required type.';");
 			EndIf;
@@ -782,7 +782,7 @@ Procedure AccessKindsOnEditEnd(Item, NewRow, CancelEdit)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure AccessKindsAllAllowedPresentationOnChange(Item)
@@ -1068,14 +1068,19 @@ Procedure UpdateAssignment()
 	
 	Purpose.Clear();
 	PurposePresentation = "";
-	For Each Member In Object.Profile.Purpose Do
-		If Member.UsersType <> Undefined Then
-			Purpose.Add(Member.UsersType);
-			TypePresentation = Member.UsersType.Metadata().Synonym;
-			PurposePresentation = ?(IsBlankString(PurposePresentation),
-				TypePresentation, PurposePresentation + ", " + TypePresentation);
-		EndIf;
-	EndDo;
+	ProfilePurpose = Common.ObjectAttributeValue(Object.Profile, "Purpose");
+	If TypeOf(ProfilePurpose) = Type("QueryResult") Then
+		ProfileAssignment = ProfilePurpose.Unload();
+		For Each Member In ProfileAssignment Do
+			If Member.UsersType <> Undefined Then
+				Purpose.Add(Member.UsersType);
+				TypePresentation = Member.UsersType.Metadata().Synonym;
+				PurposePresentation = ?(IsBlankString(PurposePresentation),
+					TypePresentation, PurposePresentation + ", " + TypePresentation);
+			EndIf;
+		EndDo;
+	EndIf;
+	
 	Items.Users.ToolTip = NStr("en = 'Allowed members:';") + " " + PurposePresentation;
 	
 EndProcedure
@@ -1089,9 +1094,20 @@ Procedure DeleteNonTypicalUsers()
 	EndDo;
 	
 	UsersTree = GroupUsers.GetItems();
+	LinksWithAuthorizationObject = New Array; // Array of CatalogRef.ExternalUsers
+	For Each TreeRow In UsersTree Do
+		If TypeOf(TreeRow.User) = Type("CatalogRef.ExternalUsers") Then
+			LinksWithAuthorizationObject.Add(TreeRow.User);
+		EndIf;
+		If TypeOf(TreeRow.User) = Type("CatalogRef.ExternalUsersGroups") Then
+			For Each GroupMember In TreeRow.GetItems() Do
+				LinksWithAuthorizationObject.Add(GroupMember.User);
+			EndDo;
+		EndIf;
+	EndDo;
+	AuthorizationObjects = Common.ObjectsAttributeValue(LinksWithAuthorizationObject, "AuthorizationObject");
 	
 	IndexOf = UsersTree.Count() - 1;
-	
 	While IndexOf >= 0 Do
 		
 		TreeRow = UsersTree.Get(IndexOf);
@@ -1104,15 +1120,15 @@ Procedure DeleteNonTypicalUsers()
 			DeleteRow = True;
 			
 		ElsIf TypeOf(TreeRow.User) = Type("CatalogRef.ExternalUsers")
-			And TypesArray.Find(TypeOf(TreeRow.User.AuthorizationObject)) = Undefined Then
+			And TypesArray.Find(TypeOf(AuthorizationObjects.Get(TreeRow.User))) = Undefined Then
 			
-			UsersTree.Delete(IndexOf);
+			DeleteRow = True;
 			
 		ElsIf TypeOf(TreeRow.User) = Type("CatalogRef.ExternalUsersGroups") Then
 			
 			For Each GroupMember In TreeRow.GetItems() Do
 				
-				If TypesArray.Find(TypeOf(GroupMember.User.AuthorizationObject)) = Undefined Then
+				If TypesArray.Find(TypeOf(AuthorizationObjects.Get(GroupMember.User))) = Undefined Then
 					DeleteRow = True;
 					Break;
 				EndIf;
@@ -1179,7 +1195,7 @@ Procedure RefreshAccessKindsContent(Val OnReadAtServer = False)
 		IndexOf = IndexOf - 1;
 	EndDo;
 	
-	// 
+	// Deleting unused access kinds.
 	IndexOf = Object.AccessKinds.Count() - 1;
 	While IndexOf >= 0 Do
 		
@@ -1271,7 +1287,7 @@ Procedure ShowTypeSelectionUsersOrExternalUsers(ContinuationHandler)
 				
 			EndIf;
 			
-		Else // 
+		Else // for external users only.
 			
 			ExternalUsersSelectionAndPickup = True;
 			
@@ -1552,10 +1568,10 @@ Procedure RestoreObjectWithoutGroupMembers(CurrentObject)
 	// Restoring attributes.
 	FillPropertyValues(CurrentObject, QueriesResults[0].Unload()[0]);
 	
-	// 
+	// Restoring the AccessKinds tabular section.
 	CurrentObject.AccessKinds.Load(QueriesResults[1].Unload());
 	
-	// 
+	// Restoring the AccessValues tabular section.
 	CurrentObject.AccessValues.Load(QueriesResults[2].Unload());
 	
 EndProcedure

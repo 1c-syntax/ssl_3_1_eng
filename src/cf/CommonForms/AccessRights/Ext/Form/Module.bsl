@@ -29,29 +29,29 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		IBUserFull
 		Or Parameters.User = Users.AuthorizedUser();
 	
-	// 
+	// Configuring commands for a limited user.
 	Items.FormAddToGroup.Visible   = IBUserEmployeeResponsible;
 	Items.FormRemoveFromGroup.Visible = IBUserEmployeeResponsible;
 	Items.FormChangeGroup1.Visible    = IBUserEmployeeResponsible;
 	
-	// 
+	// Configuring commands for a full access user.
 	Items.AccessGroupsAddToGroup.Visible   = IBUserFull;
 	Items.AccessGroupsRemoveFromGroup.Visible = IBUserFull;
 	Items.AccessGroupsChangeGroup1.Visible    = IBUserFull;
 	
-	// 
+	// Setting the page tab display.
 	Items.AccessGroupsAndRoles.PagesRepresentation =
 		?(IBUserFull,
 		  FormPagesRepresentation.TabsOnTop,
 		  FormPagesRepresentation.None);
 	
-	// 
+	// Configuring the command bar view for a full access user.
 	Items.AccessGroups.CommandBarLocation =
 		?(IBUserFull,
 		  FormItemCommandBarLabelLocation.Top,
 		  FormItemCommandBarLabelLocation.None);
 	
-	// 
+	// Configuring roles view for a full access user.
 	Items.RolesRepresentation.Visible = IBUserFull;
 	
 	If IBUserFull
@@ -60,7 +60,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		OutputAccessGroups();
 	Else
-		// 
+		// Regular users cannot view other user access settings.
 		Items.AccessGroupsAddToGroup.Visible   = False;
 		Items.AccessGroupsRemoveFromGroup.Visible = False;
 		
@@ -225,7 +225,7 @@ Procedure AccessRightsReport(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure RolesBySubsystemsGroup(Command)
@@ -359,8 +359,8 @@ Procedure OutputAccessGroups()
 	
 	AllAccessGroups = Query.Execute().Unload();
 	
-	// 
-	// 
+	
+	
 	HasProhibitedGroups = False;
 	IndexOf = AllAccessGroups.Count()-1;
 	
@@ -557,7 +557,7 @@ Procedure FillRoles()
 		|		ON Roles.Ref = AccessGroupsUsers_SSLy.Ref.Profile
 		|			AND (NOT Roles.Ref.DeletionMark)";
 	Else
-		// 
+		// User group or External user group.
 		Query.Text =
 		"SELECT DISTINCT
 		|	Roles.Role AS Role
@@ -597,7 +597,7 @@ Procedure FillRoles()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure ProcessRolesInterface(Action, MainParameter = Undefined)

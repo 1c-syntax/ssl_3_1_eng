@@ -82,13 +82,13 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	 Or EventName = "Write_ObjectsPropertiesValues"
 	 Or EventName = "Write_ObjectPropertyValueHierarchy" Then
 		
-		// 
-		// 
+		
+		
 		OnChangeCurrentSetAtServer();
 		
 	ElsIf EventName = "GoAdditionalDataAndAttributeSets" Then
-		// 
-		// 
+		
+		
 		If TypeOf(Parameter) = Type("Structure") Then
 			SelectSpecifiedRows(Parameter);
 		EndIf;
@@ -294,8 +294,8 @@ EndProcedure
 
 &AtClient
 Procedure PropertiesDragStart(Item, DragParameters, Perform)
-	// 
-	// 
+	
+	
 	DragParameters.AllowedActions = DragAllowedActions.Copy;
 	DragParameters.Action           = DragAction.Copy;
 EndProcedure
@@ -464,7 +464,7 @@ Procedure ApplySetsAndPropertiesAppearance()
 	AppearanceFieldItem.Field = New DataCompositionField("Presentation");
 	AppearanceFieldItem.Use = True;
 	
-	// 
+	// Appearance of unavailable set groups that by default are displayed by the platform as a part of group tree.
 	ConditionalAppearanceItem = PropertiesSets.ConditionalAppearance.Items.Add();
 	
 	VisibilityItem = ConditionalAppearanceItem.Appearance.Items.Find("Visible");
@@ -498,7 +498,7 @@ Procedure ApplySetsAndPropertiesAppearance()
 	
 	ConditionalAppearance.Items.Clear();
 	
-	// 
+	// Configuring required properties.
 	ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
 	
 	AppearanceColorItem = ConditionalAppearanceItem.Appearance.Items.Find("Font");
@@ -515,7 +515,7 @@ Procedure ApplySetsAndPropertiesAppearance()
 	AppearanceFieldItem.Field = New DataCompositionField("PropertiesTitle");
 	AppearanceFieldItem.Use = True;
 	
-	// 
+	// Configuring required properties.
 	ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
 	VisibilityItem = ConditionalAppearanceItem.Appearance.Items.Find("Visible");
 	VisibilityItem.Value = False;
@@ -899,7 +899,7 @@ Procedure PropertiesSetCommandAvailability(Context)
 	
 	CommonAvailability = CommonAvailability And Not ShowUnusedAttributes;
 	
-	// 
+	// Customizing commands of command bar.
 	Items.AddFromSet.Enabled           = CommonAvailability;
 	Items.PropertiesCreate.Enabled            = CommonAvailability;
 	
@@ -913,7 +913,7 @@ Procedure PropertiesSetCommandAvailability(Context)
 	Items.CopyAttribute.Enabled         = AvailabilityForString;
 	Items.PasteAttribute.Enabled           = InsertAvailability And Not ShowUnusedAttributes;
 	
-	// 
+	// Customizing commands of context menu.
 	Items.PropertiesContextMenuCreate.Enabled            = CommonAvailability;
 	Items.PropertiesContextMenuAddFromSet.Enabled   = CommonAvailability;
 	
@@ -1133,7 +1133,7 @@ Procedure ChangeDeletionMarkAndValuesOwner(CurrentProperty, PropertyDeletionMark
 	EndIf;
 	
 	If PropertyDeletionMark Then
-		// 
+		
 		// 
 		// 
 		//   
@@ -1176,7 +1176,7 @@ Procedure ChangeDeletionMarkAndValuesOwner(CurrentProperty, PropertyDeletionMark
 			ObjectProperty.DeletionMark = False;
 			ObjectProperty.Write();
 		EndIf;
-		// 
+		
 		// 
 		// 
 		//   

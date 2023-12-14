@@ -1020,7 +1020,7 @@ Function CurrentApplicationsListData()
 		
 	EndIf;
 	
-	If Not ExchangeNodeExists(CurrentData.InfobaseNode) Then // 
+	If Not ExchangeNodeExists(CurrentData.InfobaseNode) Then // If the row has expired.
 		
 		Return Undefined;
 		
@@ -1044,7 +1044,7 @@ Procedure ExecuteCursorPositioning(RowIndex)
 				
 			EndIf;
 			
-			// 
+			// Place the mouse pointer.
 			Items.ApplicationsList.CurrentRow = ApplicationsList[RowIndex].GetID();
 			
 		EndIf;
@@ -1259,6 +1259,31 @@ Procedure WarnAboutLoopDetailsURLProcessing(Item, FormattedStringURL, StandardPr
 		FormWindowOpeningMode.LockOwnerWindow);
 	
 EndProcedure
+	
+&AtClient
+Procedure DisabledScenariosWarningDetailsURLProcessing(Item, FormattedStringURL, StandardProcessing)
+	
+	If FormattedStringURL = "ScenariosList" Then
+		
+		StandardProcessing = False;
+		
+		Notification = New NotifyDescription("AfterSelectingDisabledScript", ThisObject);
+		ShowChooseFromMenu(Notification, DisabledScenarios, Items.DisabledScenariosWarningDetails);
+		
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure AfterSelectingDisabledScript(Result, AdditionalParameters) Export
+	
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	ShowValue(,Result.Value);
+	
+EndProcedure
 
 &AtClient
 Procedure MigrationExchangeOverInternetInfoTextURLProcessing(Item, FormattedStringURL, StandardProcessing)
@@ -1286,7 +1311,7 @@ Function BackgroundJobSettingsOptionsOfDataExchangeWithExternalSystems(ExchangeN
 	
 	BackgroundJob = Undefined;
 	
-	If Common.SubsystemExists("OnlineUserSupport.ОбменДаннымиСВнешнимиСистемами") Then
+	If Common.SubsystemExists("OnlineUserSupport.DataExchangeWithExternalSystems") Then
 		ModuleWizard = DataExchangeServer.ModuleDataExchangeCreationWizard();
 		SettingVariants = ModuleWizard.ExternalSystemsDataExchangeSettingsOptionDetails();
 		
@@ -1361,7 +1386,7 @@ Function ExecutionResultPicture(ExecutionResult)
 		Return 0; // Success
 	EndIf;
 	
-	// 
+	// Without status.
 	Return 0;
 	
 EndFunction
@@ -1515,7 +1540,7 @@ Procedure SetConditionalAppearance()
 	CommonClientServer.AddCompositionItem(Item.Filter, "ApplicationsList.StatePresentation", DataCompositionComparisonType.Equal, NStr("en = 'Not started yet';"));
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	
-	// 
+	// Special font color of the synchronization with incomplete setup.
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -1524,7 +1549,7 @@ Procedure SetConditionalAppearance()
 	CommonClientServer.AddCompositionItem(Item.Filter, "ApplicationsList.StatePresentation", DataCompositionComparisonType.Equal, NStr("en = 'Setup pending';"));
 	Item.Appearance.SetParameterValue("TextColor", WebColors.DarkRed);
 	
-	// Текст "н/д" и тусклый цвет шрифта для отсутствующего префикса программы-
+	// If a peer app prefix is missing, output "N/a" with faded font color.
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -1536,7 +1561,7 @@ Procedure SetConditionalAppearance()
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	Item.Appearance.SetParameterValue("Text", NStr("en = 'n/a';"));
 	
-	// 
+	// Hiding a blank picture of data synchronization state.
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -1549,7 +1574,7 @@ Procedure SetConditionalAppearance()
 	
 	Item.Appearance.SetParameterValue("Show", False);
 	
-	// 
+	// Hiding a blank picture of data export state.
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -1562,7 +1587,7 @@ Procedure SetConditionalAppearance()
 	
 	Item.Appearance.SetParameterValue("Show", False);
 	
-	// 
+	// Hiding a blank picture of data import state.
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -1575,7 +1600,7 @@ Procedure SetConditionalAppearance()
 	
 	Item.Appearance.SetParameterValue("Show", False);
 	
-	// 
+	// Synchronization is unavailable
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -1619,19 +1644,19 @@ EndProcedure
 &AtServer
 Procedure SetFormItemsView()
 	
-	// 
+	// Command bar.
 	Items.ApplicationsListDataExchangeExecutionGroup.Enabled    = HasConfiguredExchanges;
 	Items.ApplicationsListControlGroup.Enabled                 = HasRightsToAdministerExchanges And HasConfiguredExchanges;
 	Items.ApplicationsListExchangeScheduleGroup.Enabled = HasRightsToAdministerExchanges And HasConfiguredExchanges;
 	Items.ApplicationsListCreateSyncSetting.Enabled    = HasRightsToAdministerExchanges;
 	Items.ApplicationsListEventsGroup.Enabled                    = HasViewEventLogRights And HasConfiguredExchanges;
 	
-	// 
+	// Context menu.
 	Items.ApplicationsListContextMenuDataExchangeExecutionGroup.Enabled = HasConfiguredExchanges;
 	Items.ApplicationsListContextMenuControlGroup.Enabled  = HasRightsToAdministerExchanges And HasConfiguredExchanges;
 	Items.ApplicationsListContextMenuEventsGroup.Enabled     = HasViewEventLogRights And HasConfiguredExchanges;
 	
-	// 
+	// Item visibility in the form header.
 	Items.InfoPanelUpdateRequired.Visible = UpdateRequired;
 	
 	If HasConfigurationUpdateRights Then
@@ -1667,17 +1692,19 @@ Procedure SetFormItemsView()
 	
 	If DisabledScenarios.Count() = 1 Then
 		
-		Template = NStr("en = 'A scenario that was disabled due to execution errors is found: %1';");
-		Text = StrTemplate(Template, DisabledScenarios[0].Value);
-		Items.DisabledScenariosWarningDetails.Title = Text;
+		Template = NStr("en = 'The <a href = %1>""%2""</a> scenario was disabled due to synchronization errors. Enable the scenario after you fix the issues.';");
+		
+		Scenario = DisabledScenarios[0].Value;
+		WarningText = StrTemplate(Template, GetURL(Scenario), Scenario);
+		Items.DisabledScenariosWarningDetails.Title = StringFunctions.FormattedString(WarningText);
 		
 	ElsIf DisabledScenarios.Count() > 1 Then
+				
+		WarningText = 
+			NStr("en = 'The <a href = ""ScenarioList"">scenarios</a>disabled due to runtime errors are found. Enable the scenario after you fix the issues.';");
 		
-		Template = NStr("en = 'Scenarios that were disabled due to execution errors are found: %1';");
-		ArrayOfScenarios = DisabledScenarios.UnloadValues();
-		Text = StrTemplate(Template, StrConcat(ArrayOfScenarios, ", "));
-		Items.DisabledScenariosWarningDetails.Title = Text;
-		
+		Items.DisabledScenariosWarningDetails.Title = StringFunctions.FormattedString(WarningText);
+				
 	EndIf;
 	
 EndProcedure
@@ -1748,14 +1775,14 @@ Procedure RefreshApplicationsList(UpdateSaaSApplications = False)
 			
 			If TransportKind = Enums.ExchangeMessagesTransportTypes.WS
 				Or TransportKind = Enums.ExchangeMessagesTransportTypes.ExternalSystem Then
-				ApplicationRow.ApplicationOperationMode = 1; // сервис
+				ApplicationRow.ApplicationOperationMode = 1; // Service
 			Else
 				ApplicationRow.ApplicationOperationMode = 0;
 			EndIf;
 				
 			If Not ValueIsFilled(TransportKind)
 				Or (TransportKind = Enums.ExchangeMessagesTransportTypes.WSPassiveMode) Then
-				// 
+				// Exchange with this infobase is set up via WS.
 				ApplicationRow.StartDataExchangeFromCorrespondent = True;
 			EndIf;
 			
@@ -1791,15 +1818,15 @@ Procedure RefreshApplicationsList(UpdateSaaSApplications = False)
 			EndIf;
 		Else
 			
-			// 
-			// 
+			
+			
 			ApplicationRow.LastSuccessfulExportDatePresentation = "";
 			ApplicationRow.LastSuccessfulImportDatePresentation = "";
 			
 		EndIf;
 		
 		If ApplicationRow.MessageReceivedForDataMapping Then
-			// 
+			// If data for mapping is received, display the message receiving date.
 			ApplicationRow.LastSuccessfulImportDatePresentation = ApplicationRow.MessageDatePresentationForDataMapping;
 			ApplicationRow.ImportStatePicture = 5;
 		EndIf;
@@ -1843,5 +1870,6 @@ Procedure GetDisabledScenarios()
 	DisabledScenarios.LoadValues(Array);
 	
 EndProcedure
+
 
 #EndRegion

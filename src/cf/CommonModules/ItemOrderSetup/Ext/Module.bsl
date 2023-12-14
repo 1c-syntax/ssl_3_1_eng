@@ -118,7 +118,7 @@ EndFunction
 // 
 // Parameters:
 //  Ref - CatalogRef
-//         - ChartOfCharacteristicTypesRef - 
+//         - ChartOfCharacteristicTypesRef - the item to be moved
 //  ExecutionParameters - See AttachableCommandsClientServer.CommandExecuteParameters
 //
 Procedure Attachable_MoveItem(Ref, ExecutionParameters) Export
@@ -159,7 +159,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	
 	Command = Commands.Add();
 	Command.Kind = "ItemOrderSetup";
-	Command.Id = "Up";
+	Command.Id = DirectionOfMovingElementUp();
 	Command.Presentation = NStr("en = 'Move item up';");
 	Command.Order = 1;
 	Command.Picture = PictureLib.MoveUp;
@@ -171,7 +171,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	
 	Command = Commands.Add();
 	Command.Kind = "ItemOrderSetup";
-	Command.Id = "Down";
+	Command.Id = DirectionOfMovingElementDown();
 	Command.Presentation = NStr("en = 'Move item down';");
 	Command.Order = 2;
 	Command.Picture = PictureLib.MoveDown;
@@ -183,6 +183,15 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	
 EndProcedure
 
+Function DirectionOfMovingElementUp() Export
+	Return "Up";
+EndFunction
+
+Function DirectionOfMovingElementDown() Export
+	Return "Down";
+EndFunction
+
+
 #EndRegion
 
 #Region Private
@@ -190,15 +199,15 @@ EndProcedure
 Function ObjectHasAdditionalOrderingAttribute(Object, Information)
 	
 	If Not Information.HasParent Then
-		// 
+		// The catalog is non-hierarchical, it means that the attribute exists.
 		Return True;
 		
 	ElsIf Object.IsFolder And Not Information.ForGroups Then
-		// 
+		// This is a group, but the order is not assigned to groups.
 		Return False;
 		
 	ElsIf Not Object.IsFolder And Not Information.ForItems Then
-		// 
+		// This is an item, the order is not assigned to items.
 		Return False;
 		
 	Else

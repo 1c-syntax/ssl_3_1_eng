@@ -29,7 +29,7 @@ Procedure FixMailingStart(BulkEmail) Export
 		
 		RecordManager.BulkEmail = BulkEmail;
 		RecordManager.LastRunStart = CurrentSessionDate();
-		// На случай если ЗафиксироватьРезультатВыполненияРассылки не будет вызван из-
+		// In case the FixMailingExecutionResult will not be called due to an unprocessed exception.
 		RecordManager.LastRunCompletion = RecordManager.LastRunStart + 30 * 60; 
 		RecordManager.SessionNumber = InfoBaseSessionNumber();
 		RecordManager.Executed = False;

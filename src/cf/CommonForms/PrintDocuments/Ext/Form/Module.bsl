@@ -53,34 +53,33 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndDo;
 	EndIf;
 	
+	OutputParameters = Parameters.OutputParameters;
+	If OutputParameters = Undefined Then
+		OutputParameters = PrintManagement.PrepareOutputParametersStructure();
+	EndIf;
+	
 	If Parameters.PrintFormsCollection = Undefined Then
-		Cancel = True;
-		Return;
+		PrintFormsCollection = GeneratePrintForms(Parameters.TemplatesNames, Cancel);
+		If Cancel Then
+			Return;
+		EndIf;
 	Else
 		PrintFormsCollection = Parameters.PrintFormsCollection;
 		ExcludeOfficeDocsFromSets(PrintFormsCollection);
 		PrintObjects = Parameters.PrintObjects;
 	EndIf;
 	
-	BackgroundJobMessages = Undefined;
-	Parameters.Property("Messages", BackgroundJobMessages);
-	If BackgroundJobMessages <> Undefined Then
-		For Each Message In BackgroundJobMessages Do
+	If Parameters.Messages <> Undefined Then
+		For Each Message In Parameters.Messages Do
 			Common.MessageToUser(Message.Text);
 		EndDo;
-	EndIf;
-	
-	OutputParameters = Undefined;
-	Parameters.Property("OutputParameters", OutputParameters);
-	If OutputParameters = Undefined Then
-		OutputParameters = PrintManagement.PrepareOutputParametersStructure();
 	EndIf;
 	
 	CreateAttributesAndFormItemsForPrintForms(PrintFormsCollection);
 	SaveDefaultSetSettings();
 	ImportCopiesCountSettings();
 	HasOutputAllowed = HasOutputAllowed();
-	SetUpFormItemsVisibility(HasOutputAllowed);
+	SetUpFormItemsVisibility();
 	SetOutputAvailabilityFlagInPrintFormsPresentations(HasOutputAllowed);
 	If Not Common.IsMobileClient() And IsSetPrinting() Then
 		Items.Copies.Title = NStr("en = 'Set copies';");
@@ -154,7 +153,7 @@ Procedure OnOpen(Cancel)
 	EndIf;
 	
 	If ValueIsFilled(SaveFormatSettings) Then
-		Cancel = True; // 
+		Cancel = True; // Interrupt the form opening.
 		SavePrintFormToFile();
 		Return;
 	EndIf;
@@ -191,9 +190,11 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 					If WrittenObjects.Count() > 0 Then
 						NotifyChanged(TypeOf(WrittenObjects[0]));
 					EndIf;
-					For Each WrittenObject In WrittenObjects Do
-						Notify("Write_File", New Structure, WrittenObject);
-					EndDo;
+					If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
+						ModuleFilesOperationsInternalClient = CommonClient.CommonModule("FilesOperationsInternalClient");
+						ModuleFilesOperationsInternalClient.NotifyAboutFileChanges(WrittenObjects);
+					EndIf;
+					
 					ShowUserNotification(, , NStr("en = 'Saved';"), PictureLib.Information32);					
 				EndIf;
 				
@@ -374,9 +375,12 @@ Procedure CompleteSigningFiles(Result, Context) Export
 	If WrittenObjects.Count() > 0 Then
 		NotifyChanged(TypeOf(WrittenObjects[0]));
 	EndIf;
-	For Each WrittenObject In WrittenObjects Do
-		Notify("Write_File", New Structure, WrittenObject);
-	EndDo;
+	
+	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
+		ModuleFilesOperationsInternalClient = CommonClient.CommonModule("FilesOperationsInternalClient");
+		ModuleFilesOperationsInternalClient.NotifyAboutFileChanges(WrittenObjects);
+	EndIf;
+	
 	ShowUserNotification(, , NStr("en = 'Saved and signed';"), PictureLib.Information32);
 	
 EndProcedure
@@ -858,7 +862,7 @@ EndProcedure
 &AtServer
 Procedure CreateAttributesAndFormItemsForPrintForms(PrintFormsCollection)
 	
-	// 
+	// Create attributes for spreadsheets.
 	NewFormAttributes = New Array; // Array of FormAttribute -
 	For PrintFormNumber = 1 To PrintFormsCollection.Count() Do
 		AttributeName = "PrintForm" + Format(PrintFormNumber,"NG=0");
@@ -867,7 +871,7 @@ Procedure CreateAttributesAndFormItemsForPrintForms(PrintFormsCollection)
 	EndDo;
 	ChangeAttributes(NewFormAttributes);
 	
-	// 
+	// Create pages with spreadsheet documents on a form.
 	PrintFormNumber = 0;
 	PrintOfficeDocuments = False;
 	AddedPrintFormsSettings = New Map;
@@ -903,11 +907,11 @@ Procedure CreateAttributesAndFormItemsForPrintForms(PrintFormsCollection)
 		
 		PreviouslyAddedPrintFormSetting = AddedPrintFormsSettings[PrintFormDetails.TemplateName];
 		If PreviouslyAddedPrintFormSetting = Undefined Then
-			// Copying a spreadsheet document to a form attribute.
+			// Copy the spreadsheet to the form attribute.
 			AttributeName = FormAttribute.Name;
 			ThisObject[AttributeName] = PrintFormDetails.SpreadsheetDocument;
 			
-			// Creating pages for spreadsheet documents.
+			// Create pages for spreadsheet documents.
 			PageName = "Page" + AttributeName;
 			Page = Items.Add(PageName, Type("FormGroup"), Items.Pages);
 			Page.Type = FormGroupType.Page;
@@ -916,16 +920,14 @@ Procedure CreateAttributesAndFormItemsForPrintForms(PrintFormsCollection)
 			Page.ToolTip = PrintFormDetails.TemplateSynonym;
 			Page.Visible = ThisObject[AttributeName].TableHeight > 0;
 			
-			// Creating items for displaying spreadsheet documents.
+			// Create items for displaying spreadsheet documents.
 			NewItem = Items.Add(AttributeName, Type("FormField"), Page);
 			NewItem.Type = FormFieldType.SpreadsheetDocumentField;
 			NewItem.TitleLocation = FormItemTitleLocation.None;
 			NewItem.DataPath = AttributeName;
-			NewItem.Output = EvalOutputUsage(PrintFormDetails.SpreadsheetDocument);
-			NewItem.Edit = NewItem.Output = UseOutput.Enable And Not PrintFormDetails.SpreadsheetDocument.ReadOnly;
-			NewItem.Protection = Not Users.RolesAvailable("PrintFormsEdit");
+			SetParametersOfTabularDocumentField(NewItem, PrintFormDetails.SpreadsheetDocument);
 			
-			// 
+			// Print form settings table (continued).
 			NewPrintFormSetting.PageName = PageName;
 			NewPrintFormSetting.AttributeName = AttributeName;
 			
@@ -935,12 +937,22 @@ Procedure CreateAttributesAndFormItemsForPrintForms(PrintFormsCollection)
 			NewPrintFormSetting.AttributeName = PreviouslyAddedPrintFormSetting.AttributeName;
 		EndIf;
 		
+		NewPrintFormSetting.TextOfGenerationError = PrintFormDetails.TextOfGenerationError;
 		PrintFormNumber = PrintFormNumber + 1;
 	EndDo;
 	
 	If PrintOfficeDocuments And Not ValueIsFilled(SaveFormatSettings) Then
 		SaveFormatSettings = New Structure("SpreadsheetDocumentFileType,Presentation,Extension,Filter")
 	EndIf;
+	
+EndProcedure
+
+&AtServer
+Procedure SetParametersOfTabularDocumentField(SpreadsheetDocumentField, SpreadsheetDocument)
+	
+	SpreadsheetDocumentField.Output = EvalOutputUsage(SpreadsheetDocument);
+	SpreadsheetDocumentField.Edit = SpreadsheetDocumentField.Output = UseOutput.Enable And Not SpreadsheetDocument.ReadOnly;
+	SpreadsheetDocumentField.Protection = SpreadsheetDocument.Protection Or Not Users.RolesAvailable("PrintFormsEdit");
 	
 EndProcedure
 
@@ -952,8 +964,9 @@ Procedure SaveDefaultSetSettings()
 EndProcedure
 
 &AtServer
-Procedure SetUpFormItemsVisibility(Val HasOutputAllowed)
+Procedure SetUpFormItemsVisibility()
 	
+	HasOutputAllowed = HasOutputAllowed();
 	HasEditingAllowed = HasEditingAllowed();
 	
 	CanSendEmails = False;
@@ -1014,7 +1027,7 @@ Procedure SetUpFormItemsVisibility(Val HasOutputAllowed)
 	EndIf;
 	
 	CanEditTemplates = AccessRight("Update", Metadata.InformationRegisters.UserPrintTemplates) And HasTemplatesToEdit();
-	Items.ChangeTemplateButton.Visible = CanEditTemplates And HasDataToPrint;
+	Items.ChangeTemplateButton.Visible = CanEditTemplates;
 	
 	Items.SignedAndSealedFlag.Visible = HasPrintFormsWithSignatureAndSeal() And HasSignaturesAndSealsForPrintObjects();
 	
@@ -1123,6 +1136,37 @@ Procedure SetCurrentPage()
 	
 	Items.Language.Enabled = PrintFormSetting.OutputInOtherLanguagesAvailable;
 	
+	ExceptionOccurredDuringFormation = Not PrintFormAvailable And PrintFormSetting <> Undefined 
+		And ValueIsFilled(PrintFormSetting.TextOfGenerationError);
+	
+	If ExceptionOccurredDuringFormation 	And UserTemplateUsed(PrintFormSetting.TemplatePath) Then
+		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Cannot generate the print form. Reason:
+				|%1
+				|
+				|See the event log for details.
+				|
+				|You are using a customized template. Do you want to switch to the standard one?';"),
+			PrintFormSetting.TextOfGenerationError);
+		
+		Buttons = New ValueList;
+		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Use standard template';"));
+		Buttons.Add(DialogReturnCode.Cancel);
+	
+		NotifyDescription = New NotifyDescription("WhenReceivingResponse", ThisObject, PrintFormSetting);
+		ShowQueryBox(NotifyDescription, QueryText, Buttons, , DialogReturnCode.Yes);
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure WhenReceivingResponse(Response, PrintFormSetting) Export
+	
+	If Response = DialogReturnCode.Yes Then
+		DisableUserTemplate(PrintFormSetting.TemplatePath);
+		AttachIdleHandler("RefreshCurrentPrintForm", 0.1, True);
+	EndIf;
+	
 EndProcedure
 
 &AtServer
@@ -1169,7 +1213,7 @@ Procedure RestorePrintFormsSettings(SavedPrintFormsSettings = Undefined)
 		FoundSettings = PrintFormsSettings.FindRows(New Structure("DefaultPosition", SavedSetting.DefaultPosition));
 		For Each PrintFormSetting In FoundSettings Do
 			RowIndex = PrintFormsSettings.IndexOf(PrintFormSetting);
-			PrintFormsSettings.Move(RowIndex, PrintFormsSettings.Count()-1 - RowIndex); // 
+			PrintFormsSettings.Move(RowIndex, PrintFormsSettings.Count()-1 - RowIndex); // Move to the end.
 			PrintFormSetting.Count = SavedSetting.Count;
 			PrintFormSetting.Print = PrintFormSetting.Count > 0;
 		EndDo;
@@ -1335,7 +1379,7 @@ Function PutSpreadsheetDocumentsInTempStorage(PassedSettings)
 				
 				MaxLength = 218; // https://docs.microsoft.com/en-us/office/troubleshoot/office-suite-issues/error-open-document
 				If FileType = SpreadsheetDocumentFileType.XLS And StrLen(FullFileName) > MaxLength Then
-					MaxLength = MaxLength - 5; // us/office/troubleshoot/office-suite-issues/error-open-document
+					MaxLength = MaxLength - 5; 
 					If StrLen(TempDirectoryName) < MaxLength Then
 						FileName = Left(FileName, MaxLength - StrLen(TempDirectoryName) - StrLen(FileExtention) - 1);
 						FileNameWithExtension = FileName + "." + FileExtention;
@@ -1886,7 +1930,7 @@ EndProcedure
 Procedure SetTemplateChangeAvailability()
 	PrintFormAvailable = Items.Pages.CurrentPage <> Items.PrintFormUnavailablePage;
 	PrintFormSetting = CurrentPrintFormSetup();
-	Items.ChangeTemplateButton.Enabled = PrintFormAvailable And Not IsBlankString(PrintFormSetting.TemplatePath);
+	Items.ChangeTemplateButton.Enabled = Not IsBlankString(PrintFormSetting.TemplatePath);
 EndProcedure
 
 &AtClient
@@ -1918,16 +1962,21 @@ Procedure RefreshCurrentPrintForm()
 		Return;
 	EndIf;
 	
-	RegeneratePrintForm(PrintFormSetting.TemplateName, PrintFormSetting.AttributeName);
+	PrintFormSetting.TextOfGenerationError =
+		RegeneratePrintForm(PrintFormSetting.TemplateName, PrintFormSetting.AttributeName);
+		
 	PrintFormSetting.CurrentLanguage = CurrentLanguage;
 	
 	AddDeleteSignatureSeal();
 	DisplayCurrentPrintFormState();
 	
+	SetCurrentPage();
+	SetUpFormItemsVisibility();
+	
 EndProcedure
 
 &AtServer
-Procedure RegeneratePrintForm(TemplateName, Var_AttributeName)
+Function RegeneratePrintForm(TemplateName, Var_AttributeName)
 	
 	Cancel = False;
 	PrintFormsCollection = GeneratePrintForms(TemplateName, Cancel);
@@ -1935,15 +1984,20 @@ Procedure RegeneratePrintForm(TemplateName, Var_AttributeName)
 		Raise NStr("en = 'Print form is not generated.';");
 	EndIf;
 	
+	TextOfGenerationError = "";
 	For Each PrintForm In PrintFormsCollection Do
 		If PrintForm.TemplateName = TemplateName Then
 			ThisObject[Var_AttributeName] = PrintForm.SpreadsheetDocument;
+			TextOfGenerationError = PrintForm.TextOfGenerationError;
+			SetParametersOfTabularDocumentField(Items[Var_AttributeName], PrintForm.SpreadsheetDocument);
 		EndIf;
 	EndDo;
 	
 	SetCurrentSpreadsheetDocument(Var_AttributeName);
 	
-EndProcedure
+	Return TextOfGenerationError;
+	
+EndFunction
 
 &AtClient
 Function CurrentPrintFormSetup()
@@ -1961,7 +2015,7 @@ Procedure GoToDocumentCompletion(SelectedElement, AdditionalParameters) Export
 	SpreadsheetDocument = CurrentPrintForm;
 	SelectedDocumentArea = SpreadsheetDocument.Areas.Find(SelectedElement.Value);
 	
-	SpreadsheetDocumentField.CurrentArea = SpreadsheetDocument.Area("R1C1"); // 
+	SpreadsheetDocumentField.CurrentArea = SpreadsheetDocument.Area("R1C1"); 
 	
 	If SelectedDocumentArea <> Undefined Then
 		SpreadsheetDocumentField.CurrentArea = SpreadsheetDocument.Area(SelectedDocumentArea.Top,,SelectedDocumentArea.Bottom,);
@@ -2281,7 +2335,7 @@ Procedure OnExecuteCommandAtServer(AdditionalParameters)
 	
 EndProcedure
 
-// Calculate functions for the selected cell range.
+// This procedure calculates functions for the selected cell range.
 // See the ReportSpreadsheetDocumentOnActivateArea event handler.
 //
 &AtClient
@@ -2342,25 +2396,16 @@ EndFunction
 &AtClient
 Procedure CurrentPrintFormSelection(Item, Area, StandardProcessing)
 	
-	If TypeOf(Area) = Type("SpreadsheetDocumentRange") Or TypeOf(Area) = Type("SpreadsheetDocumentDrawing") Then
+	If TypeOf(Area) <> Type("SpreadsheetDocumentRange") And TypeOf(Area) <> Type("SpreadsheetDocumentDrawing") Then
+		Return;
+	EndIf;
 		
-		References = New Structure("Text,Details,Mask","","","");
-		FillPropertyValues(References, Area);
-		
-		If GoToLink(References.Text) Then
-			StandardProcessing = False;
-			Return;
-		EndIf;
-		
-		If GoToLink(References.Details) Then
-			StandardProcessing = False;
-			Return;
-		EndIf;
-		
-		If GoToLink(References.Mask) Then
-			StandardProcessing = False;
-			Return;
-		EndIf;
+	References = New Structure("Text,Details,Mask","","","");
+	FillPropertyValues(References, Area);
+	
+	If GoToLink(References.Text) Or GoToLink(References.Details) Or GoToLink(References.Mask) Then
+		StandardProcessing = False;
+		Return;
 	EndIf;
 
 EndProcedure
@@ -2381,6 +2426,19 @@ Function GoToLink(HyperlinkAddress)
 	Return False;
 EndFunction
 
+&AtServerNoContext
+Procedure DisableUserTemplate(TemplatePath)
+	
+	PrintManagement.DisableUserTemplate(TemplatePath);
+	
+EndProcedure
+
+&AtServerNoContext
+Function UserTemplateUsed(TemplatePath)
+	
+	Return PrintManagement.UserTemplateUsed(TemplatePath);
+	
+EndFunction
 
 #EndRegion
 

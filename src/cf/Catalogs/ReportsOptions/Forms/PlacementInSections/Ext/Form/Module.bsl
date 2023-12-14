@@ -16,7 +16,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	MixedImportance = NStr("en = 'Mixed';");
 	
-	// 
+	// The number of report options is checked before opening the form.
 	OptionsToAssign.LoadValues(Parameters.Variants);
 	OptionsCount = OptionsToAssign.Count();
 	FillSections();
@@ -173,7 +173,7 @@ Procedure FillSections()
 	ValueToFormAttribute(DestinationTree, "SubsystemsTree");
 EndProcedure
 
-// Returns data to fill in the sections tree.
+// Returns the data for populating the sections tree.
 //
 // Returns:
 //  Structure:
@@ -396,7 +396,7 @@ Procedure AddSubsystemsToTree(DestinationParent, SourceParent, SubsystemsOccurre
 		ElsIf OccurrencesOfThisSubsystem.Count() = 0 Then
 			Receiver.Importance = "";
 		Else
-			Receiver.Importance = MixedImportance; // 
+			Receiver.Importance = MixedImportance; 
 		EndIf;
 
 		OptionsOccurrences = OccurrencesOfThisSubsystem.Total("Count");

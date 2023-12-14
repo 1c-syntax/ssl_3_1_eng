@@ -172,7 +172,7 @@ EndProcedure
 //                                 If True, restrict the access for external users.
 //                                 This column is applicable only to universal restrictions.
 //   * Table       - CatalogRef.MetadataObjectIDs
-//                   - CatalogRef.ExtensionObjectIDs - 
+//                   - CatalogRef.ExtensionObjectIDs - Table ID.
 //   * AccessKind    - AnyRef - Empty reference of the main access kind value type.
 //   * Presentation - String - Access kind presentation.
 //   * Right         - String - Read, Modify.
@@ -305,8 +305,8 @@ Function AccessRestrictionKinds(ForExternalUsers = Undefined,
 		Query.SetParameter("AccessKindsValuesTypes", AccessKindsValuesTypes);
 		Query.SetParameter("UsedAccessKinds",
 			AccessTypesWithView(AccessKindsValuesTypes, True));
-		// ACC:96-
-		// 
+		
+		
 		Query.Text =
 		"SELECT
 		|	PermanentRestrictionKinds.Table AS Table,

@@ -17,8 +17,8 @@
 //
 Procedure CheckSharedObjectsOnWrite(Source, Cancel) Export
 	
-	// 
-	// 
+	
+	
 	If Not Common.DataSeparationEnabled() Then
 		Return;
 	EndIf;
@@ -39,8 +39,8 @@ EndProcedure
 //
 Procedure CheckSharedRecordsSetsOnWrite(Source, Cancel, Replacing) Export
 	
-	// 
-	// 
+	
+	
 	If Not Common.DataSeparationEnabled() Then
 		Return;
 	EndIf;

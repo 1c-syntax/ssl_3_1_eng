@@ -51,6 +51,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Common.SubsystemExists("OnlineUserSupport.CloudArchive20") Then
 		ModuleCloudArchive20 = Common.CommonModule("CloudArchive20");
 		ModuleCloudArchive20.Обслуживание_ПриСозданииНаСервере(ThisObject);
+	Else
+		Items.CloudArchivePage.Visible = False;
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.PerformanceMonitor") Then
@@ -141,7 +143,7 @@ EndProcedure
 &AtClient
 Procedure BackupRetentionOnChange(Item)
 	
-	// 
+	
 	If CommonClient.SubsystemExists("OnlineUserSupport.CloudArchive20") Then
 		ModuleCloudArchive20Client = CommonClient.CommonModule("CloudArchive20Клиент");
 		ModuleCloudArchive20Client.Обслуживание_ХранениеРезервныхКопийПриИзменении(ThisObject, BackupRetention);
@@ -289,7 +291,7 @@ Procedure RefreshApplicationInterface()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Function OnChangeAttributeServer(TagName)

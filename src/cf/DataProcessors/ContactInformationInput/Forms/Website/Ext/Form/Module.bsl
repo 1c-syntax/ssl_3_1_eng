@@ -35,7 +35,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				ReadResults = New Structure;
 				ContactInformation = ModuleContactsManagerLocalization.ContactsFromXML(FieldValues, ContactInformationType, ReadResults);
 				If ReadResults.Property("ErrorText") Then
-					// 
+					// Recognition errors. A warning must be displayed when opening the form.
 					ContactInformation.Presentation = Parameters.Presentation;
 				EndIf;
 				

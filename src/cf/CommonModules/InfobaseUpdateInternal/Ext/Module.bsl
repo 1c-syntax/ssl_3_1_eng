@@ -45,7 +45,7 @@ EndFunction
 // 
 //
 // Parameters:
-//  UpdateProgress - Structure -
+//  UpdateProgress - Structure - 
 //                         
 //
 // Returns:
@@ -79,11 +79,11 @@ EndFunction
 //                 repeated updates of application operating parameters.
 //                 In case of external call (for example, in external connection session), application
 //                 operating parameters must be updated before the infobase update can proceed.
-//    * Restart             - Boolean    - a return value. Restart is necessary
-//                                  in some OnClientStart cases (for example,
-//                                  in case the subordinate DIB node is being returned to the database configuration).
-//                                  See the common module DataExchangeServer procedure.
-//                                  SynchronizeWithoutInfobaseUpdate.
+//    * Restart             - Boolean    - 
+//                                  
+//                                  
+//                                  
+//                                  
 //    * IBLockSet - See IBLock
 //    * InBackground                     - Boolean    - if an infobase update is executed on
 //                 a background, the True value should be passed, otherwise it will be False.
@@ -91,7 +91,7 @@ EndFunction
 //                 in the default update mode. Only for a client-server mode.
 // 
 // Returns:
-//  String -  
+//  String -  :
 //           
 //
 Function UpdateInfobase(ParametersOfUpdate) Export
@@ -120,18 +120,18 @@ EndFunction
 // that is stored in the infobase.
 //
 // Parameters:
-//  LibraryID   - String - the configuration name or ID of the library.
+//  LibraryID   - String - a configuration name or library ID.
 //                            - Undefined - 
 //  GetSharedDataVersion - Boolean - if you set a True value, a version in shared data will 
 //                                       return for SaaS.
 //
 // Returns:
 //   String   - 
-//   
-//      * Key - String -
-//      * Value - String -
+//   :
+//      * Key - String - 
+//      * Value - String - 
 //
-// 
+// :
 //   
 //
 Function IBVersion(Val LibraryID, Val GetSharedDataVersion = False) Export
@@ -272,10 +272,10 @@ EndProcedure
 // Can only be called before the infobase update starts (returns VersionUpdate otherwise).
 // 
 // Returns:
-//   String   - 
-//              
-//               
-//              
+//   String   - "InitialFilling" in case it is a first opening of an empty database (data area);
+//              "VersionUpdate" in case it is a first start after an infobase configuration update;
+//              "MigrationFromAnotherApplication" in case it is a first start after an infobase configuration update 
+//              where a base configuration name was changed.
 //
 Function DataUpdateMode() Export
 	
@@ -467,7 +467,7 @@ Function ShowChangeHistory1() Export
 	EndIf;
 	
 	If Not AccessRight("SaveUserData", Metadata) Then
-		// 
+		// Hiding "what's new in this version" from anonymous users.
 		Return False;
 	EndIf;
 	
@@ -513,16 +513,16 @@ Function UncompletedHandlersStatus(OnUpdate = False) Export
 		IdenticalSubrevisions = (DataVersionWithoutBuildNumber = MetadataVersionWithoutBuildNumber);
 		
 		If DataVersion = "0.0.0.0" Or IdenticalSubrevisions Then
-			// 
-			// 
+			
+			
 			Return "";
 		EndIf;
 		
 		HandlerTreeVersion = UpdateInfo.HandlerTreeVersion;
 		If HandlerTreeVersion <> "" And CommonClientServer.CompareVersions(HandlerTreeVersion, DataVersion) > 0 Then
-			// 
-			// 
-			// 
+			
+			
+			
 			Return "";
 		EndIf;
 	EndIf;
@@ -559,9 +559,9 @@ Procedure ExecuteDeferredUpdateNow(ParametersOfUpdate = Undefined) Export
 	
 	UpdateInfo = InfobaseUpdateInfo();
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	StartupParameters = StandardSubsystemsServer.ClientParametersAtServer().Get("LaunchParameter");
 	SyncedUpdate = ParametersOfUpdate <> Undefined
 		And (Not ParametersOfUpdate.OnClientStart
@@ -585,9 +585,9 @@ Procedure ExecuteDeferredUpdateNow(ParametersOfUpdate = Undefined) Export
 	HandlersExecutedEarlier = True;
 	ProcessedItems = New Array;
 	While HandlersExecutedEarlier Do
-		HandlersExecutedEarlier = ExecuteDeferredUpdateHandler(ParametersOfUpdate); // @skip-
+		HandlersExecutedEarlier = ExecuteDeferredUpdateHandler(ParametersOfUpdate); 
 		
-		QueuesToClear = QueuesToClear(ProcessedItems); // @skip-
+		QueuesToClear = QueuesToClear(ProcessedItems); 
 		ClearProcessedQueues(QueuesToClear, ProcessedItems, UpdateInfo);
 		
 		If HandlersExecutedEarlier Then
@@ -618,7 +618,7 @@ Function AddClientParametersOnStart(Parameters) Export
 		IsCallBeforeStart, SimplifiedInfobaseUpdateForm);
 	If ValueIsFilled(ErrorDescription) Then
 		Parameters.Insert("InfobaseLockedForUpdate", ErrorDescription);
-		// 
+		// Application will be closed.
 		Return False;
 	EndIf;
 	
@@ -674,10 +674,10 @@ EndFunction
 //  ForPrivilegedMode - Boolean - if set to False, the current user
 //                                    rights check will ignore privileged mode.
 //  OnStart - Boolean
-//  SimplifiedInfobaseUpdateForm - Boolean - the return value.
+//  SimplifiedInfobaseUpdateForm - Boolean - Return value.
 //  
 // Returns:
-//  String - 
+//  String - blank string if the infobase is not locked, or lock reason message otherwise.
 // 
 Function InfobaseLockedForUpdate(ForPrivilegedMode = True,
 			OnStart = Undefined, SimplifiedInfobaseUpdateForm = False) Export
@@ -779,12 +779,12 @@ Function InfobaseLockedForUpdate(ForPrivilegedMode = True,
 	EndIf;
 
 	If DataSeparationEnabled Then
-		// 
+		// Message to service user.
 		Message =
 			NStr("en = 'The application is temporarily unavailable due to version update.
 			           |For details, contact the service administrator.';");
 	Else
-		// 
+		// Message to local mode user.
 		Message =
 			NStr("en = 'The application is temporarily unavailable due to version update.
 			           |For details, contact the service administrator.';");
@@ -1067,11 +1067,11 @@ EndProcedure
 // 
 // Parameters:
 //  Id - String
-//                - UUID - 
-//                  
+//                - UUID - the name or
+//                  unique ID of the handler procedure.
 //
 // Returns:
-//  Structure - 
+//  Structure - saved parameters of the update handler.
 //
 Function DeferredUpdateHandlerParameters(Id) Export
 	HandlerUpdates = HandlerUpdates(Id);
@@ -1093,8 +1093,8 @@ EndFunction
 // 
 // Parameters:
 //  Id - String
-//                - UUID - 
-//                  
+//                - UUID - the name or
+//                  unique ID of the handler procedure.
 //  Parameters     - Structure - parameters to save.
 //
 Procedure WriteDeferredUpdateHandlerParameters(Id, Parameters) Export
@@ -1112,14 +1112,14 @@ Procedure WriteDeferredUpdateHandlerParameters(Id, Parameters) Export
 		New ValueStorage(ExecutionStatistics));
 EndProcedure
 
-// Returns the number of infobase update threads.
+// 
 //
-// If this number is specified in the UpdateThreadsCount command-line parameter, the parameter is returned.
-// Otherwise, the value of the InfobaseUpdateThreadCount constant is returned (if defined).
-// Otherwise, returns the default value. See DefaultInfobaseUpdateThreadsCount.
+// 
+// 
+//  See DefaultInfobaseUpdateThreadsCount.
 //
 // Returns:
-//  Number - 
+//  Number - number of threads.
 //
 Function InfobaseUpdateThreadCount() Export
 	
@@ -1255,7 +1255,7 @@ Procedure UpdateListOfUpdateHandlersToExecute(UpdateIterations, FirstExchangeInD
 		If Common.SeparatedDataUsageAvailable() Then
 			SeparatedHandlersSet = InformationRegisters.UpdateHandlers.CreateRecordSet();
 			If OnlyExclusive Then
-				// 
+				// Keep deferred update handlers. Re-add standalone and real-time update handlers.
 				SeparatedHandlersSet.Read();
 				HandlersTable = SeparatedHandlersSet.Unload();
 				
@@ -1265,7 +1265,7 @@ Procedure UpdateListOfUpdateHandlersToExecute(UpdateIterations, FirstExchangeInD
 				
 				SeparatedHandlersSet.Load(HandlersTable);
 			ElsIf OnlyDeferred Then
-				// 
+				// Keep standalone and real-time update handlers. Re-register only deferred update handlers.
 				SeparatedHandlersSet.Read();
 				HandlersTable = SeparatedHandlersSet.Unload();
 				
@@ -1341,7 +1341,7 @@ Procedure UpdateListOfUpdateHandlersToExecute(UpdateIterations, FirstExchangeInD
 			
 			// Add deferred update handlers.
 			If Common.SeparatedDataUsageAvailable() Then
-				// 
+				// Process the scenario of getting the first exchange message from a subordinate node after an update.
 				PreviousVersion = ?(FirstExchangeInDIB, "1.0.0.0", UpdateIteration.PreviousVersion);
 				DeferredHandlersExecutionMode = LibraryDetailsList[LibraryName].DeferredHandlersExecutionMode;
 				ParallelSinceVersion = LibraryDetailsList[LibraryName].ParallelDeferredUpdateFromVersion;
@@ -1526,8 +1526,8 @@ Function ExecuteUpdateIteration(Val UpdateIteration, Val Parameters) Export
 				
 				If Handler.ExclusiveMode = True Or Handler.ExecutionMode = "Exclusively" Then
 					If Parameters.SeamlessUpdate Then
-						// 
-						// 
+						
+						
 						Continue;
 					EndIf;
 					
@@ -1756,8 +1756,8 @@ Procedure OnFillToDoList(ToDoList) Export
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.DataProcessors.ApplicationUpdateResult.FullName());
 	
 	HandlersStatus           = UncompletedHandlersStatus();
@@ -2071,7 +2071,7 @@ Procedure InitialFillingOfPredefinedData(UpdateMultilanguageStrings = False, Add
 		
 		KeyAttributeName = PopulationSettings.OverriddenSettings.KeyAttributeName;
 		 
-		ExistingItems = ExistingSuppliedItems(PredefinedData, PopulationSettings, ObjectManager, ObjectMetadata); // @skip-
+		ExistingItems = ExistingSuppliedItems(PredefinedData, PopulationSettings, ObjectManager, ObjectMetadata); 
 		
 		TabularSections = New Array;
 		MetadataObjectTabularSections = ObjectMetadata.TabularSections; // MetadataObjectCollection of MetadataObjectTabularSection
@@ -2087,7 +2087,7 @@ Procedure InitialFillingOfPredefinedData(UpdateMultilanguageStrings = False, Add
 		EndIf;
 		
 		HierarchySupported =  PredefinedData.Columns.Find("IsFolder") <> Undefined;
-		ExceptionAttributes.Insert("Parent", True); // 
+		ExceptionAttributes.Insert("Parent", True); 
 		
 		DetailsOfTheExceptionWithTheElements = New Map;
 		If HierarchySupported Then
@@ -2400,8 +2400,8 @@ Function ActionsBeforeUpdateInfobase(ParametersOfUpdate)
 		ModuleInfobaseUpdateInternalSaaS = Common.CommonModule("InfobaseUpdateInternalSaaS");
 		ModuleInfobaseUpdateInternalSaaS.BeforeUpdateInfobase();
 		
-		// 
-		// 
+		
+		
 		If Common.DataSeparationEnabled() And Common.SeparatedDataUsageAvailable() Then
 			SetPrivilegedMode(True);
 		EndIf;
@@ -2489,8 +2489,8 @@ EndFunction
 Procedure ExecuteActionsOnUpdateInfobase(ParametersOfUpdate, AdditionalParameters)
 	
 	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.IBVersionUpdateSaaS") Then
-		// 
-		// 
+		
+		
 		If Common.DataSeparationEnabled() And Common.SeparatedDataUsageAvailable() Then
 			SetPrivilegedMode(True);
 		EndIf;
@@ -2547,7 +2547,7 @@ Procedure ExecuteActionsOnUpdateInfobase(ParametersOfUpdate, AdditionalParameter
 		
 		// Executing all update handlers for configuration subsystems.
 		For Each UpdateIteration In UpdateIterations Do
-			UpdateIteration.CompletedHandlers = ExecuteUpdateIteration(UpdateIteration, Parameters); // @skip-
+			UpdateIteration.CompletedHandlers = ExecuteUpdateIteration(UpdateIteration, Parameters); 
 		EndDo;
 		
 		// Clearing a list of new subsystems.
@@ -2557,8 +2557,8 @@ Procedure ExecuteActionsOnUpdateInfobase(ParametersOfUpdate, AdditionalParameter
 		FillDataForParallelDeferredUpdate1(Parameters);
 		WriteInfobaseUpdateInfo(UpdateInfo);
 		
-		// 
-		// 
+		
+		
 		If ExecuteDeferredUpdateNow Then
 			ExecuteDeferredUpdateNow(Parameters);
 		EndIf;
@@ -2575,8 +2575,8 @@ EndProcedure
 Procedure ExecuteActionsAfterUpdateInfobase(ParametersOfUpdate, AdditionalParameters)
 	
 	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.IBVersionUpdateSaaS") Then
-		// 
-		// 
+		
+		
 		If Common.DataSeparationEnabled() And Common.SeparatedDataUsageAvailable() Then
 			SetPrivilegedMode(True);
 		EndIf;
@@ -2687,7 +2687,7 @@ EndProcedure
 // You can enable multithread updates in InfobaseUpdateOverridable.OnDefineSettings().
 //
 // Returns:
-//  Boolean - 
+//  Boolean - multithread updates are allowed if True. The default value is False (for backward compatibility).
 //
 Function MultithreadUpdateAllowed() Export
 	
@@ -2718,7 +2718,7 @@ EndProcedure
 //  Version - String - Version in string format.
 //
 // Returns:
-//  Number - 
+//  Number - version weight
 //
 Function VersionWeight(Val Version) Export
 	
@@ -2858,9 +2858,9 @@ Function UpdateInfobaseInBackground(FormUniqueID, IBLock) Export
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(FormUniqueID);
 	ExecutionParameters.WaitCompletion = 0;
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update infobase in background';");
-	// 
-	// 
-	// 
+	
+	
+	
 	ExecutionParameters.RunInBackground = True;
 	
 	Result = TimeConsumingOperations.ExecuteInBackground("InfobaseUpdateInternal.RunInfobaseUpdateInBackground",
@@ -2892,8 +2892,8 @@ Procedure RunInfobaseUpdateInBackground(IBUpdateParameters, StorageAddress) Expo
 		Result = UpdateInfobase(ParametersOfUpdate);
 	Except
 		ErrorInfo = ErrorInfo();
-		// 
-		// 
+		
+		
 		If Common.SubsystemExists("StandardSubsystems.DataExchange")
 		   And Common.IsSubordinateDIBNode() Then
 			ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
@@ -2934,7 +2934,7 @@ Function UpdateUnderRestrictedRights(IBLock) Export
 	Except
 		// No exception processing required.
 	EndTry;
-	// ACC:280 -
+	// ACC:280-on
 	
 	Return (Result = "Success" Or Result = "NotRequired2");
 EndFunction
@@ -3025,7 +3025,7 @@ Procedure UnlockIB(IBLock) Export
 		
 	If ExclusiveMode() Then
 		While TransactionActive() Do
-			RollbackTransaction(); // 
+			RollbackTransaction(); 
 		EndDo;
 		
 		SetExclusiveMode(False);
@@ -3086,7 +3086,7 @@ Function ApplicationMigrationHandlers(PreviousConfigurationName, UpdateIteration
 	MigrationHandlers = NewApplicationMigrationHandlerTable();
 	BaseConfigurationName = Metadata.Name;
 	
-	// 
+	// Initial population for new subsystems' objects.
 	MigrationHandlers = NewApplicationMigrationHandlerTable();
 	BaseConfigurationName = Metadata.Name;
 	
@@ -3146,7 +3146,7 @@ Function ApplicationMigrationHandlers(PreviousConfigurationName, UpdateIteration
 		EndDo;
 	EndDo;
 	
-	// 
+	// Add native migration handlers.
 	SubsystemsDetails  = StandardSubsystemsCached.SubsystemsDetails();
 	For Each SubsystemName In SubsystemsDetails.Order Do
 		SubsystemDetails = SubsystemsDetails.ByNames.Get(SubsystemName); // See StandardSubsystemsCached.NewSubsystemDescription
@@ -3161,7 +3161,7 @@ Function ApplicationMigrationHandlers(PreviousConfigurationName, UpdateIteration
 		Module = Common.CommonModule(SubsystemDetails.MainServerModule);
 		Module.OnAddApplicationMigrationHandlers(MigrationHandlers);
 	EndDo;
-	// 
+	// Add mandatory SSL migration handlers.
 	InfobaseUpdateSSL.OnAddApplicationMigrationHandlers(MigrationHandlers);
 	
 	Filter = New Structure("PreviousConfigurationName", "*");
@@ -3202,12 +3202,12 @@ Procedure MigrateFromAnotherApplication(UpdateIterations)
 		|	InformationRegister.SubsystemsVersions AS SubsystemsVersions
 		|WHERE
 		|	SubsystemsVersions.IsMainConfiguration = TRUE";
-		// 
-		// 
+		
+		
 		QueryResult = Query.Execute();
-		// 
+		// ACC:1328-on
 	ElsIf ModuleInfobaseUpdateInternalSaaS = Undefined Then
-		// 
+		// Subsystem IBVersionUpdateSaaS is missing.
 		Return;
 	Else
 		QueryResult = ModuleInfobaseUpdateInternalSaaS.MainConfigurationInDataArea();
@@ -3229,7 +3229,7 @@ Procedure MigrateFromAnotherApplication(UpdateIterations)
 		SubsystemsDetails = StandardSubsystemsCached.SubsystemsDetails();
 		DescriptionPreviousSubsystem = SubsystemsDetails.ByNames.Get(PreviousConfigurationName);
 		If DescriptionPreviousSubsystem = Undefined Then
-			// 
+			// The previous subsystem was deleted.
 			Query = New Query;
 			Query.SetParameter("LibraryName", PreviousConfigurationName);
 			Query.SetParameter("Status", Enums.UpdateHandlersStatuses.Completed);
@@ -3249,7 +3249,7 @@ Procedure MigrateFromAnotherApplication(UpdateIterations)
 				
 				RecordSet[0].LibraryName = Metadata.Name;
 				
-				RecordSet.Write(); // 
+				RecordSet.Write(); 
 			EndDo;
 		EndIf;
 	EndIf;
@@ -3272,7 +3272,7 @@ Procedure MigrateFromAnotherApplication(UpdateIterations)
 				HandlerParameters.Add(New Structure("NewObjects", NewObjects));
 				Common.ExecuteConfigurationMethod(Handler.Procedure, HandlerParameters);
 			Else
-				// 
+				// Run migration handlers.
 				Common.ExecuteConfigurationMethod(Handler.Procedure);
 			EndIf;
 			DisableAccessKeysUpdate(False, SubsystemExists);
@@ -3370,8 +3370,8 @@ Procedure OnCompleteApplicationMigration(PreviousConfigurationName, PreviousConf
 EndProcedure
 
 Procedure IBVersionUpdateBeforeDeleteRefObject(Source, Cancel) Export
-	// 
-	// 
+	
+	
 	
 	If GetFunctionalOption("DeferredUpdateCompletedSuccessfully")
 		Or Not Common.SeparatedDataUsageAvailable() Then
@@ -3598,7 +3598,7 @@ EndFunction
 // provided that change descriptions are available for these versions.
 //
 // Returns:
-//  Array - 
+//  Array - contains strings with version numbers.
 //
 Function NotShownUpdateDetailSections() Export
 	
@@ -3641,8 +3641,8 @@ EndProcedure
 //
 Procedure ScheduleDeferredUpdate()
 	
-	// 
-	// 
+	
+	
 	If Not Common.FileInfobase() Then
 		OnEnableDeferredUpdate(True);
 	EndIf;
@@ -3693,36 +3693,36 @@ Procedure ExecuteDeferredUpdate() Export
 			CancelAllThreadsExecution(Groups);
 			
 			While HandlersExecutedEarlier Do
-				Stream = AddDeferredUpdateHandlerThread(UpdateInfo); // @skip-
+				Stream = AddDeferredUpdateHandlerThread(UpdateInfo); 
 				
-				QueuesToClear = QueuesToClear(ProcessedItems); // @skip-
+				QueuesToClear = QueuesToClear(ProcessedItems); 
 				ClearProcessedQueues(QueuesToClear, ProcessedItems, UpdateInfo);
 				
 				If TypeOf(Stream) = Type("ValueTableRow") Then
 					ExecuteThread(Groups, Stream);
-					WaitForAvailableThread(Groups); // 
+					WaitForAvailableThread(Groups); 
 				ElsIf Stream = True Then
-					WaitForAnyThreadCompletion(Groups); // 
+					WaitForAnyThreadCompletion(Groups); 
 				ElsIf Stream = False Then
 					HandlersExecutedEarlier = False;
-					WaitForAllThreadsCompletion(Groups); // 
+					WaitForAllThreadsCompletion(Groups); 
 					Break;
 				ElsIf Stream = "AbortExecution" Then
-					WaitForAllThreadsCompletion(Groups); // 
+					WaitForAllThreadsCompletion(Groups); 
 					Break;
 				EndIf;
 				
 				If LastCheckDate = Undefined
 					Or CurrentSessionDate() - LastCheckDate > 600 Then
 					LastCheckDate = CurrentSessionDate();
-					ClearProcessingProgressForPreviousDayIntervals(); // 
+					ClearProcessingProgressForPreviousDayIntervals(); 
 				EndIf;
 				
 				Job = ScheduledJobsServer.Job(Metadata.ScheduledJobs.DeferredIBUpdate);
 				ExecutionRequired = Job.Schedule.ExecutionRequired(CurrentSessionDate());
 				
 				If Not ExecutionRequired Or Not ForceUpdate(UpdateInfo) Then
-					WaitForAllThreadsCompletion(Groups); // 
+					WaitForAllThreadsCompletion(Groups); 
 					DeleteAllUpdateThreads();
 					Break;
 				EndIf;
@@ -3793,7 +3793,7 @@ Function HandlersForDeferredDataRegistration(NoFilter1 = False, UpdateRestart = 
 	Query.SetParameter("ExecutionMode", Enums.HandlersExecutionModes.Deferred);
 	Query.SetParameter("NoFilter1", NoFilter1);
 	Query.SetParameter("IsSubordinateDIBNodeWithFilter", IsSubordinateDIBNodeWithFilter);
-	// 
+	// Filters for deferred update restart.
 	Query.SetParameter("ProcessorStatus", Enums.UpdateHandlersStatuses.Completed);
 	Query.SetParameter("RegisteredHandlers", RegisteredHandlers);
 	Query.SetParameter("ClearFilter", (Not UpdateRestart Or RegisteredHandlers.Count() = 0));
@@ -3867,7 +3867,7 @@ Function FindUpdateHandler(HandlerContext, ParametersOfUpdate = Undefined)
 		|	AND UpdateHandlers.ExecutionMode = &ExecutionMode";
 	HandlersGroupsAndDependency = Query.Execute().Unload();
 	
-	// 
+	// Select pending update handlers.
 	Query = New Query;
 	Query.SetParameter("Status", Enums.UpdateHandlersStatuses.Completed);
 	Query.SetParameter("ExecutionMode", Enums.HandlersExecutionModes.Deferred);
@@ -4172,8 +4172,8 @@ Procedure AddDeferredHandlers(LibraryName, HandlersByVersion, UpdateGroup, Error
 		
 		If DeferredHandlersExecutionMode = "Sequentially" Then
 			If CurrentExecutionMode = "Parallel" Then
-				// 
-				// 
+				
+				
 				UpdateGroup = UpdateGroup + 1;
 			EndIf;
 			HandlersGroupsDependence.Insert(UpdateGroup, Iteration <> 1);
@@ -4194,8 +4194,8 @@ Procedure AddDeferredHandlers(LibraryName, HandlersByVersion, UpdateGroup, Error
 			
 			If Result < 0 Then
 				If CurrentExecutionMode = "Parallel" Then
-					// 
-					// 
+					
+					
 					UpdateGroup = UpdateGroup + 1;
 				EndIf;
 				HandlersGroupsDependence.Insert(UpdateGroup, Iteration <> 1);
@@ -4245,7 +4245,7 @@ Procedure AddDeferredHandlers(LibraryName, HandlersByVersion, UpdateGroup, Error
 			If CurrentExecutionMode = "Parallel" And IsSubordinateDIBNodeWithFilter
 				And Not Handler.RunAlsoInSubordinateDIBNodeWithFilters Then
 				HasMasterNodeHandlersOnly = True;
-				// 
+				// Parent node handlers don't run in subordinate DIB nodes.
 				Record.Status = Enums.UpdateHandlersStatuses.Completed;
 			EndIf;
 			
@@ -4261,7 +4261,7 @@ Procedure AddDeferredHandlers(LibraryName, HandlersByVersion, UpdateGroup, Error
 	CurrentValue = Constants.DeferredMasterNodeUpdateCompleted.Get();
 	Constants.DeferredMasterNodeUpdateCompleted.Set(CurrentValue And Not HasMasterNodeHandlersOnly);
 	
-	// ACC:1327-
+	// ACC:1327-off No competitive usage of the register.
 	SeparatedHandlersSet.Write();
 	// ACC:1327-on
 	WriteInfobaseUpdateInfo(UpdateInfo);
@@ -4456,7 +4456,7 @@ Function HandlerForExecution(Handlers, HandlersGroupsAndDependency, UpdateInfo)
 			Continue;
 		EndIf;
 		
-		// 
+		
 		If RunningOnes[Handler.Order] = Undefined Then
 			Continue;
 		ElsIf CurrOrder <> Enums.OrderOfUpdateHandlers.Noncritical
@@ -4466,7 +4466,7 @@ Function HandlerForExecution(Handlers, HandlersGroupsAndDependency, UpdateInfo)
 		EndIf;
 		
 		If Handler.StartIteration = CurrentIteration Then
-			// 
+			// This handler has already been started in this iteration.
 			HasUncompleted = True;
 			Continue;
 		EndIf;
@@ -4487,8 +4487,8 @@ Function HandlerForExecution(Handlers, HandlersGroupsAndDependency, UpdateInfo)
 		If CurrentUpdateGroup = Undefined Then
 			CurrentUpdateGroup = Handler.UpdateGroup;
 		ElsIf CurrentUpdateGroup <> Handler.UpdateGroup Then
-			// 
-			// 
+			
+			
 			If RunningMultithreadHandler <> Undefined Then
 				HandlerForExecution = RunningMultithreadHandler;
 				Break;
@@ -4500,11 +4500,11 @@ Function HandlerForExecution(Handlers, HandlersGroupsAndDependency, UpdateInfo)
 			And Not Handler.BatchProcessingCompleted Then
 			If Handler.Multithreaded Then
 				If HasBatchesForUpdate(Handler) Then
-					// 
-					// 
+					
+					
 					RunningMultithreadHandler = Handler;
 				EndIf;
-			ElsIf UpdateThreads().Count() = 0 Then // 
+			ElsIf UpdateThreads().Count() = 0 Then 
 				HandlerForExecution = Handler;
 			EndIf;
 			HasRunning = True;
@@ -4764,7 +4764,7 @@ EndFunction
 // Adds a deferred update handler thread.
 //
 // Parameters:
-//  ThreadsDetails - see NewDetailsOfDeferredUpdateDataRegistrationThreads 
+//  ThreadsDetails - see NewDetailsOfDeferredUpdateDataRegistrationThreads
 //  UpdateInfo - See InfobaseUpdateInfo
 //
 // Returns:
@@ -4776,7 +4776,7 @@ Function AddDeferredUpdateHandlerThread(UpdateInfo)
 	
 	While Stream = Undefined Do
 		HandlerContext = NewHandlerContext();
-		HandlerUpdates = FindUpdateHandler(HandlerContext); // @skip-
+		HandlerUpdates = FindUpdateHandler(HandlerContext); 
 		
 		If TypeOf(HandlerUpdates) = Type("ValueTableRow") Then
 			If HandlerContext.ExecuteHandler Then
@@ -4796,7 +4796,7 @@ Function AddDeferredUpdateHandlerThread(UpdateInfo)
 					AddUpdateHandlerThread(Stream, HandlerContext);
 				EndIf;
 			Else
-				CompleteDeferredHandlerExecution(HandlerContext, Undefined); // 
+				CompleteDeferredHandlerExecution(HandlerContext, Undefined); 
 				Stream = Undefined;
 			EndIf;
 		Else
@@ -4817,7 +4817,7 @@ EndFunction
 //  UpdateInfo - See InfobaseUpdateInfo
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True, a thread is added, otherwise False.
 //
 Function AddDatasearchThreadForUpdate(Stream, Handler, HandlerContext, UpdateInfo)
 	
@@ -4949,8 +4949,8 @@ EndProcedure
 //
 // Parameters:
 //  HandlerContext - See NewHandlerContext
-//  ResultAddress - String - address of the temporary storage for result returned by ExecuteDeferredHandler().
-//  UpdateInfo - See InfobaseUpdateInfo
+//  ResultAddress - String -  the address of the temporary storage with the result from runcomposed Handler().
+//  Swedenlithuania -  See InfobaseUpdateInfo
 //
 Procedure CompleteDeferredHandlerExecution(HandlerContext, ResultAddress) Export
 	
@@ -5128,7 +5128,7 @@ EndProcedure
 // Update handler execution context.
 //
 // Returns:
-//  Structure - 
+//  Structure - :
 //   * ExecuteHandler - Boolean - if True, the handler is ready for execution.
 //   * HandlerFullDetails - See PrepareUpdateProgressDetails
 //   * HandlerProcedureCompletion - Number - completing the data processing procedure.
@@ -5226,8 +5226,8 @@ EndFunction
 // The default number of update threads.
 //
 // Returns:
-//  Number - 
-//          
+//  Number - the number of threads; it is equal to 1 (for backward compatibility) unless redefined in
+//          InfobaseUpdateOverridable.OnDefineSettings().
 //
 Function DefaultInfobaseUpdateThreadsCount()
 	
@@ -5242,7 +5242,7 @@ EndFunction
 //  UpdateInfo - See InfobaseUpdateInfo
 //
 // Returns:
-//  Boolean - 
+//  Boolean - if True data processing has priority, if False user operations have priority.
 //
 Function ForceUpdate(UpdateInfo)
 	
@@ -5380,7 +5380,7 @@ EndProcedure
 //  Groups - Map
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if one or several threads were stopped, otherwise, False.
 //
 Function StopThreadsWithCompletedBackgroundJobs(Threads, Groups)
 	
@@ -5528,24 +5528,24 @@ EndProcedure
 //
 // Returns:
 //  Structure - General thread details with the following fields:
-//   * Procedure - String - the name of the procedure executing in the background job. Declaration:
-//                 ProcedureName(ProcedureDetails, ResultAddress), where:
-//                   ProcedureDetails - Structure - details of the filling procedure.
-//                   ResultAddress - String - an address of the temporary storage for storing the result.
-//   * CompletionProcedure - String - the name of the procedure executing after the background job has completed. Declaration:
-//                           CompletionProcedure(ProcedureDetails, ResultAddress, AdditionalParameters), where:
-//                             ProcedureDetails - Structure - details of the filling procedure.
-//                             ResultAddress - String - address of the temporary storage used to store the result.
-//                             AdditionalParameters - Arbitrary - the additional parameter.
-//   * OnAbnormalTermination - String - the thread abnormal termination handler. Declaration:
-//                              OnAbnormalTermination(Thread, ErrorInfo, AdditionalParameters), where:
-//                                Stream - See NewThreadsDetails
-//                                ErrorInfo - ErrorInfo - an error description.
-//                                AdditionalParameters - Arbitrary - the additional parameter.
-//   * OnCancelThread - String - the thread cancellation handler. Declaration:
-//                       OnCancelThread(Thread, AdditionalParameters), where:
-//                         Stream - See NewThreadsDetails
-//                         AdditionalParameters - Arbitrary - the additional parameter.
+//   * Procedure - String - :
+//                 
+//                   
+//                   
+//   * CompletionProcedure - String - :
+//                           
+//                             
+//                             
+//                             
+//   * OnAbnormalTermination - String - :
+//                              
+//                                 See NewThreadsDetails
+//                                
+//                                
+//   * OnCancelThread - String - :
+//                       
+//                          See NewThreadsDetails
+//                         
 //
 Function NewThreadsGroupDetails()
 	
@@ -5598,7 +5598,7 @@ EndFunction
 //   Duration - Number - timeout duration, in seconds.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the thread has stopped, False if the thread is still running.
 //
 Function WaitForThreadCompletion(Stream, Duration = 1)
 	
@@ -5635,9 +5635,9 @@ Procedure FindBatchToUpdate(SearchParameters, ResultAddress) Export
 	SelectionParameters.OptimizeSelectionByPages = Not HasOrderingByExternalTables(OrderFields);
 	Maximum = InfobaseUpdate.MaxRecordsCountInSelection();
 	IterationParameters = DataIterationParametersForUpdate(SearchParameters);
-	SearchFromBeginning = SearchParameters.LastSelectedRecord = Undefined And SearchParameters.FirstRecord = Undefined;
+	SearchFromBegin = SearchParameters.LastSelectedRecord = Undefined And SearchParameters.FirstRecord = Undefined;
 	
-	If Not SearchFromBeginning Then
+	If Not SearchFromBegin Then
 		NextIterationParameters(IterationParameters, False);
 	EndIf;
 
@@ -5660,8 +5660,8 @@ Procedure FindBatchToUpdate(SearchParameters, ResultAddress) Export
 			RefObject1,
 			TabularObject);
 		
-		// 
-		// 
+		
+		
 		If Not SelectionParameters.Property("UpdateHandlerParameters") Then
 			SelectionParameters.Insert("UpdateHandlerParameters", SearchParameters.HandlerContext.UpdateHandlerParameters);
 		EndIf;
@@ -5743,10 +5743,10 @@ Procedure SetSelectionStartBorder(SearchParameters, RefIndex, TabularIndex)
 	LastSelectedRecord = SearchParameters.LastSelectedRecord;
 	FirstRecord = SearchParameters.FirstRecord;
 	
-	If RefIndex = 0 And TabularIndex = 0 Then // 
+	If RefIndex = 0 And TabularIndex = 0 Then // A first page in the selection cycle is selected.
 		SelectionParameters.LastSelectedRecord = LastSelectedRecord;
 		SelectionParameters.FirstRecord = FirstRecord;
-	Else // 
+	Else // The following pages in the selection cycle are selected (always in a new object, that is why first).
 		SelectionParameters.LastSelectedRecord = Undefined;
 		SelectionParameters.FirstRecord = Undefined;
 	EndIf;
@@ -5768,9 +5768,9 @@ Procedure SetSelectionEndBorder(SearchParameters, RefObject1, TabularObject)
 	                   And RefObject1 = LatestRecord[0].Value
 	                   And TabularObject = LatestRecord[1].Value;
 	
-	If IsLastObject Then // 
+	If IsLastObject Then // The last object in the metadata iteration cycle (end of selection).
 		SelectionParameters.LatestRecord = LatestRecord;
-	Else // 
+	Else // Intermediate dataset.
 		SelectionParameters.LatestRecord = Undefined;
 	EndIf;
 	
@@ -5785,7 +5785,7 @@ EndProcedure
 //  TabularObject - String - Full name of a table metadata object.
 //
 // Returns:
-//  ValueTable - the data portions.
+//  ValueTable - a batch data.
 //
 Function SelectBatchData(SelectionParameters, Queue, RefObject1, TabularObject)
 	
@@ -5820,7 +5820,7 @@ EndFunction
 //  SearchParameters - See NewBatchSearchParameters
 //
 // Returns:
-//  Structure - 
+//  Structure - :
 //   
 //   
 //   
@@ -5834,26 +5834,26 @@ Function DataIterationParametersForUpdate(SearchParameters)
 	FullRegistersNames = SelectionParameters.FullRegistersNames;
 	FullRegistersNamesStart = FullRegistersNames;
 	
-	If LastSelectedRecord <> Undefined Then // 
+	If LastSelectedRecord <> Undefined Then // Continue selection by pages.
 		FirstReferenced = LastSelectedRecord[0].Value;
 		FirstTabular = LastSelectedRecord[1].Value;
-	ElsIf FirstRecord <> Undefined Then // 
+	ElsIf FirstRecord <> Undefined Then // Duplicate selection (terminated abnormally).
 		FirstReferenced = FirstRecord[0].Value;
 		FirstTabular = FirstRecord[1].Value;
-	Else // 
+	Else // Selection start (first page selection).
 		FirstReferenced = Undefined;
 		FirstTabular = Undefined;
 	EndIf;
 	
-	If Not IsBlankString(FullNamesOfObjects) And Not IsBlankString(FirstReferenced) Then // 
-		// 
+	If Not IsBlankString(FullNamesOfObjects) And Not IsBlankString(FirstReferenced) Then 
+		
 		FullObjectNamesArray = TheRemainderOfTheArray(FullNamesOfObjects, FirstReferenced);
 	Else
 		FullObjectNamesArray = StrSplitTrimAll(FullNamesOfObjects, ",");
 	EndIf;
 	
-	If Not IsBlankString(FullRegistersNamesStart) And Not IsBlankString(FirstTabular) Then // 
-		// 
+	If Not IsBlankString(FullRegistersNamesStart) And Not IsBlankString(FirstTabular) Then 
+		
 		FullRegisterNamesStartArray = TheRemainderOfTheArray(FullRegistersNamesStart, FirstTabular);
 	Else
 		FullRegisterNamesStartArray = StrSplitTrimAll(FullRegistersNamesStart, ",");
@@ -5876,7 +5876,7 @@ EndFunction
 //  IterationParameters - See DataIterationParametersForUpdate
 //
 // Returns:
-//   Structure - 
+//   Structure - :
 //    * RefObject1 - String - a reference object name.
 //    * TabularObject - String - a tabular object name.
 //   Undefined - if iteration is completed.
@@ -5939,7 +5939,7 @@ EndProcedure
 //  SearchParameters - See NewBatchSearchParameters
 //
 // Returns:
-//  String - 
+//  String - Array - ordering fields.
 //
 Function OrderingFieldsOnSearchBatches(SearchParameters)
 	
@@ -5956,7 +5956,7 @@ EndFunction
 //  OrderFields - Array - ordering fields.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True indicates whether there are ordering by the joined tables fields.
 //
 Function HasOrderingByExternalTables(OrderFields)
 	
@@ -5974,8 +5974,8 @@ EndFunction
 //
 // Parameters:
 //  SearchParameters - See NewBatchSearchParameters
-//  ResultAddress - String - an address of the FindBatchToUpdate execution result
-//  UpdateInfo - See InfobaseUpdateInfo
+//  ResultAddress - String -  address of the result of naytiportionfor Updating
+//  Swedenlithuania -  See InfobaseUpdateInfo
 //
 Procedure EndSearchForBatchToUpdate(SearchParameters, ResultAddress) Export
 	
@@ -6030,7 +6030,7 @@ Procedure EndSearchForBatchToUpdate(SearchParameters, ResultAddress) Export
 			Batch.LatestRecord = Particle.LatestRecord;
 			Batch.InProcessing = True;
 			
-			// 
+			
 			UpdateHandlerParameters = New Structure(HandlerContext.UpdateHandlerParameters);
 			UpdateHandlerParameters.KeyRecordProgressUpdates = New UUID;
 			If SearchResult.Property("IsUpToDateDataProcessed")
@@ -6073,8 +6073,8 @@ EndProcedure
 //
 // Parameters:
 //  Stream - See NewThreadsDetails
-//  ErrorInfo - ErrorInfo - an error description.
-//  UpdateInfo - See InfobaseUpdateInfo.
+//  ErrorInfo - ErrorInfo -  description of the error that occurred.
+//  Swedenlithuania -  See InfobaseUpdateInfo.
 //
 Procedure OnBatchToImportSearchThreadAbnormalTermination(Stream, ErrorInfo) Export
 	
@@ -6091,7 +6091,7 @@ EndProcedure
 //
 // Parameters:
 //  Stream - See NewThreadsDetails
-//  UpdateInfo - See InfobaseUpdateInfo
+//  Swedenlithuania -  See InfobaseUpdateInfo
 //
 Procedure OnCancelSearchBatchToUpdate(Stream) Export
 	
@@ -6109,7 +6109,7 @@ EndProcedure
 //
 // Parameters:
 //  HandlerContext - See NewHandlerContext
-//  UpdateInfo - See InfobaseUpdateInfo
+//  Swedenlithuania -  See InfobaseUpdateInfo
 //
 Procedure CompleteMultithreadHandlerExecution(HandlerContext, HandlerName)
 	
@@ -6148,8 +6148,8 @@ EndProcedure
 //     * ProcedureParameters - See NewHandlerContext
 //     * CompletionProcedureParameters - Arbitrary - parameters for CompletionProcedure.
 //     * ResultAddress - String - an address of the temporary storage for storing the background job result.
-//  HandlerUpdates - ValueTreeRow - the update handler represented as a row of the handler tree.
-//  UpdateInfo - See InfobaseUpdateInfo
+//  HandlerUpdates - ValueTreeRow -  update handler as a string in the handler tree.
+//  Swedenlithuania -  See InfobaseUpdateInfo
 //  
 Procedure CancelUpdatingDataOfMultithreadHandler(Stream, HandlerUpdates)
 	
@@ -6257,7 +6257,7 @@ Function SplitSearchResultIntoParticles(SearchResult, Val ParticlesCount)
 	MaxBatchSize = Int(FoundItemsCount / ParticlesCount);
 	ProcessedItemsCount = 0;
 	
-	For ParticleNumber = 1 To ParticlesCount Do // 
+	For ParticleNumber = 1 To ParticlesCount Do 
 		Particle = NewBatchForUpdate();
 		Particle.Id = New UUID;
 		Particle.DataSet = NewDataSetForUpdate();
@@ -6309,7 +6309,7 @@ EndFunction
 //  Count - Number - a number of rows to be cut.
 //
 // Returns:
-//  ValueTable - 
+//  ValueTable - cut rows as a new value table.
 //
 Function CutRowsFromValueTable(Table, Begin, Count)
 	
@@ -6361,7 +6361,7 @@ EndFunction
 //  DataSet - See NewDataSetForUpdate
 //
 // Returns:
-//  ValueList - 
+//  ValueList - a record key.
 //
 Function FirstDataSetRowRecordKey(DataSet)
 	
@@ -6379,7 +6379,7 @@ EndFunction
 //  DataSet - See NewDataSetForUpdate
 //
 // Returns:
-//  ValueList - 
+//  ValueList - a record key.
 //
 Function LastDataSetRowRecordKey(DataSet)
 	
@@ -6425,7 +6425,7 @@ EndFunction
 //  Background - Boolean - True if it is used for FillDeferredHandlerData().
 //
 // Returns:
-//  Structure - 
+//  Structure - :
 //   * HandlerData - Map - data that is registered and processed by the update handler.
 //   * BatchSearchInProgress - Boolean - indicates that there is a thread that searches a data batch for update.
 //   * SelectionParameters - See InfobaseUpdate.AdditionalMultithreadProcessingDataSelectionParameters
@@ -6473,7 +6473,7 @@ EndFunction
 // Otherwise, records are searched between FirstRecord and LastRecord.
 //
 // Returns:
-//  Structure - 
+//  Structure - :
 //   * BatchID - UUID - an ID of the batch, for which data is being searched.
 //   * HandlerContext - See NewHandlerContext
 //   * LastSelectedRecord - ValueList - details of selection start in a page selection:
@@ -6533,7 +6533,7 @@ EndFunction
 //  IndexOf - Number - a data row index to generate a key.
 //
 // Returns:
-//  ValueList - 
+//  ValueList - a record key.
 //
 Function NewRecordKeyFromDataTable(RefObject1, TabularObject, Data, IndexOf)
 	
@@ -6553,7 +6553,7 @@ EndFunction
 // It is the search result for an update.
 //
 // Returns:
-//  ValueTable - 
+//  ValueTable - :
 //   * RefObject1 - String - a reference metadata object name (it can be Undefined).
 //   * TabularObject - String - a tabular metadata object name (it can be Undefined).
 //   * Data - ValueTable - a selection from DBMS as a value table.
@@ -6585,10 +6585,10 @@ EndFunction
 // Data batch details for an update.
 //
 // Returns:
-//  Structure - 
+//  Structure - :
 //   * Id - UUID - Batch ID.
-//   * FirstRecord - ValueList - Key of the first batch of records (see NewRecordKeyFromBatchData()). 
-//   * LatestRecord - ValueList - Key of the last batch of record (see NewRecordKeyFromBatchData()). 
+//   * FirstRecord - ValueList - Key of the first batch of records (see NewRecordKeyFromBatchData()).
+//   * LatestRecord - ValueList - Key of the last batch of record (see NewRecordKeyFromBatchData()).
 //   * DataSet - See NewDataSetForUpdate
 //
 Function NewBatchForUpdate()
@@ -6606,9 +6606,9 @@ EndFunction
 // Batch search execution result.
 //
 // Returns:
-//  Structure - 
+//  Structure - :
 //   
-//   See NewDataSetForUpdate
+//    See NewDataSetForUpdate
 //   
 //
 Function NewBatchSearchResult()
@@ -6655,7 +6655,7 @@ EndFunction
 //  IncludeBlank - Boolean - True if the blank strings are placed into the result.
 //
 // Returns:
-//  Array - 
+//  Array - string items split by the separator.
 //
 Function StrSplitTrimAll(String, Separator, IncludeBlank = True)
 	
@@ -6672,7 +6672,7 @@ EndFunction
 // Determines whether the handler details is multithread.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the details is multithread.
 //
 Function IsMultithreadHandlerDataDetails(LongDesc)
 	
@@ -6746,7 +6746,7 @@ Procedure RegisterPredefinedItemsToUpdate(Parameters, MetadataObject = Undefined
 		QueryText = StrReplace(QueryText, "#Table", MetadataObjectWithItems.FullName());
 		Query = New Query(QueryText);
 		
-		// 
+		
 		QueryResult = Query.Execute();
 		If QueryResult.IsEmpty() Then
 			Continue;
@@ -7042,7 +7042,7 @@ EndProcedure
 //  PopulationSettings - See InfobaseUpdate.PopulationSettings
 // 
 // Returns:
-//  Structure - 
+//  Structure - :
 //   * ObjectsWithIssuesCount - Number
 //   * ObjectsProcessed - Number
 //
@@ -7126,7 +7126,7 @@ Function UpdateItemsOfPredefinedItems(ObjectsRefs, ObjectMetadata, PopulationSet
 			
 		Except
 			RollbackTransaction();
-			// 
+			// If an item cannot be processed, try again.
 			Result.ObjectsWithIssuesCount = Result.ObjectsWithIssuesCount + 1;
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -7294,14 +7294,14 @@ Procedure InstallScheduledJobKey() Export
 			Continue;
 		EndIf;
 		Job.Key = Metadata.ScheduledJobs.DeferredIBUpdate.Key;
-		Job.Write(); // 
+		Job.Write(); 
 	EndDo;
 	
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
+
+
 
 // 
 Procedure ClearObsoleteData() Export
@@ -7513,9 +7513,9 @@ Procedure SetUpObsoleteDataPurgeJobNoAttempt(Enable)
 			ScheduledJobsServer.BlockARoutineTask(JobMetadata);
 			FoundJobs = ScheduledJobsServer.FindJobs(Filter);
 			If FoundJobs.Count() = 0 Then
-				// 
+				
 				NewJob = ScheduledJobs.CreateScheduledJob(JobMetadata);
-				// 
+				// ACC:453-on
 				ParametersOfNewJob = New Structure("Key, RestartIntervalOnFailure,
 				|RestartCountOnFailure, Schedule, Metadata");
 				FillPropertyValues(ParametersOfNewJob, NewJob);
@@ -7694,10 +7694,10 @@ EndFunction
 //
 // Parameters:
 //  NewBatches - Map of KeyAndValue:
-//   * Key - UUID -
-//   * Value - Arbitrary -
+//   * Key - UUID - 
+//   * Value - Arbitrary - 
 //
-//  Context - Structure -
+//  Context - Structure - 
 //                
 //                
 //
@@ -7951,9 +7951,9 @@ Procedure WriteWithAttempt(Data, Delete = False, TableNodes = "", NodesData = Un
 				CurrentObject = Data.GetObject();
 				If CurrentObject <> Undefined Then
 					Common.DisableRecordingControl(CurrentObject, NodesData);
-					// ACC:1327-
+					
 					CurrentObject.Delete();
-					// 
+					// ACC:1327-on
 				EndIf;
 			Else
 				Data = Data; // CatalogObject
@@ -8093,7 +8093,7 @@ Procedure PurgeObsoleteDataInBackground(Parameters, ResultAddress) Export
 				"DataArea");
 			For Each DataArea In DataAreas Do
 				ModuleSaaSOperations.SignInToDataArea(DataArea);
-				PurgeObsoleteDataInBackgroundNoAttempt(Parameters); // @skip-
+				PurgeObsoleteDataInBackgroundNoAttempt(Parameters); // @skip-check query-in-loop - Batch processing of data
 				ModuleSaaSOperations.SignOutOfDataArea();
 				If LastSendOut + 5 < CurrentSessionDate() Then
 					NewPercentage = Int(DataAreas.Find(DataArea) / DataAreas.Count() * 100);
@@ -8177,7 +8177,7 @@ Procedure GenerateObsoleteDataListInBackground(Parameters, ResultAddress) Export
 			For Each DataArea In DataAreas Do
 				AreaObsoleteData = ObsoleteData.Copy(New Array);
 				ModuleSaaSOperations.SignInToDataArea(DataArea);
-				GenerateListOfObsoleteDataInBackgroundNoAttempt(AreaObsoleteData, Parameters); // @skip-
+				GenerateListOfObsoleteDataInBackgroundNoAttempt(AreaObsoleteData, Parameters); // @skip-check query-in-loop - Batch processing of data
 				ModuleSaaSOperations.SignOutOfDataArea();
 				If ValueIsFilled(AreaObsoleteData) Then
 					NewRow = ObsoleteData.Add();
@@ -8221,7 +8221,7 @@ Procedure GenerateListOfObsoleteDataInBackgroundNoAttempt(ObsoleteData, Paramete
 	
 	For Each TableToCleanUp In TablesToClearUp Do
 		Query = DataRequest(TableToCleanUp, True, DisplayQuantity);
-		QueryResult = Query.Execute(); // @skip-
+		QueryResult = Query.Execute(); 
 		Count = 0;
 		If DisplayQuantity Then
 			Selection = QueryResult.Select();
@@ -8284,7 +8284,7 @@ EndProcedure
 //
 // Returns:
 //  Query - 
-//  
+//  :
 //    
 //    
 //
@@ -8504,9 +8504,17 @@ Procedure ApplyFilterToQueryText(FieldsDetails, QueryText, Query, ParameterNameP
 			For Each TypeDetails In TypesToClear Do
 				Filter = Filter + ?(Filter = "", "", "
 				|	OR ");
-				Filter = Filter + StringFunctionsClientServer.SubstituteParametersToString(
-					"VALUETYPE(CurrentTable.%1) = TYPE(%2)",
-					FieldDetails.Key, TypeDetails.Value);
+				If StrFind(TypeDetails.Value, ".") > 0 Then
+					Filter = Filter + StringFunctionsClientServer.SubstituteParametersToString(
+						"VALUETYPE(CurrentTable.%1) = TYPE(%2)",
+						FieldDetails.Key, TypeDetails.Value);
+				Else
+					ParameterName = "Type" + TypeDetails.Value;
+					Query.SetParameter(ParameterName, Type(TypeDetails.Value));
+					Filter = Filter + StringFunctionsClientServer.SubstituteParametersToString(
+						"VALUETYPE(CurrentTable.%1) = &%2",
+						FieldDetails.Key, ParameterName);
+				EndIf;
 			EndDo;
 		EndIf;
 		For Each TypeDetails In ValuesToClear Do
@@ -8539,11 +8547,11 @@ EndProcedure
 //   * Presentation - String
 //   * ClearAll   - Boolean
 //   * IsRegister    - Boolean
-//   * Independent   - Boolean -
+//   * Independent   - Boolean - 
 //   * RegisterFields  - See RegisterNewFields
 //   * ExtdimensionFields  - See RegisterNewFields
 //   * IsExchangePlan - Boolean
-//   * InExchangePlan  - Boolean -
+//   * InExchangePlan  - Boolean - 
 //   * Shared2 - Boolean
 //
 Function TablesToClearUp(RegistersOnly, ShouldConsiderDataSeparation = True)
@@ -8636,7 +8644,7 @@ Function TablesToClearUp(RegistersOnly, ShouldConsiderDataSeparation = True)
 				ElsIf Upper(FieldName) = Upper("Points") Then
 					RouteDotsType = TypeOf(PredefinedValue(FullName + ".RoutePoint.EmptyRef"));
 					DeletedTypes.Insert(RouteDotsType, FullName + ".Points");
-				Else // 
+				Else 
 					FieldParts = StrSplit(FieldName, ".", True);
 					RoutePoint = Undefined;
 					If FieldParts.Count() = 2 Then
@@ -8707,6 +8715,7 @@ Function TablesToClearUp(RegistersOnly, ShouldConsiderDataSeparation = True)
 	Context.Insert("ObjectsKindsOrder",    ObjectsKindsOrder);
 	Context.Insert("ChangeRecords",    ChangeRecords);
 	Context.Insert("RegistersTypesToClear", RegistersTypesToClear);
+	Context.Insert("NamesOfSimpleTypes",       NamesOfSimpleTableFieldTypes());
 	
 	AddRegisterFieldTypesToDelete(Context, "InformationRegisters");
 	AddRegisterFieldTypesToDelete(Context, "AccumulationRegisters");
@@ -8818,6 +8827,20 @@ Function TablesNamesByType()
 	
 EndFunction
 
+Function NamesOfSimpleTableFieldTypes();
+	
+	Names = New Map;
+	Names.Insert(Type("Number"), "Number");
+	Names.Insert(Type("String"), "String");
+	Names.Insert(Type("Date"), "Date");
+	Names.Insert(Type("Boolean"), "Boolean");
+	Names.Insert(Type("ValueStorage"), "ValueStorage");
+	Names.Insert(Type("UUID"), "UUID");
+	
+	Return Names;
+	
+EndFunction
+
 // 
 //
 // Parameters:
@@ -8922,10 +8945,10 @@ EndProcedure
 //
 // Returns:
 //  Map of KeyAndValue:
-//   * Key     - field name.
+//   * Key     - Field name.
 //   * Value - Map of KeyAndValue:
-//      ** Key     - Type - link type.
-//      ** Value - String -
+//      ** Key     - Type - Reference type.
+//      ** Value - String - 
 //                  - Array of String - 
 //
 Function RegisterNewFields()
@@ -8977,7 +9000,22 @@ Procedure AddDeleteableFieldTypes(Fields, Field, FullRegisterName, Context, Regi
 			Else
 				TableName = TablesNamesByType.Get(Type);
 				If TableName = Undefined Then
-					TableName = Metadata.FindByType(Type).FullName();
+					TableName = Context.NamesOfSimpleTypes.Get(Type);
+					If TableName = Undefined Then
+						MetadataTables = Metadata.FindByType(Type);
+						If MetadataTables = Undefined Then
+							ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+								NStr("en = 'Cannot find a metadata object by the %1 type being deleted in the %2 field.';"),
+								String(Type), FullFieldName1);
+							WriteLogEvent(
+								NStr("en = 'Clear obsolete data.Error preparing the list of tables to clear';",
+									Common.DefaultLanguageCode()),
+								EventLogLevel.Error,,, ErrorText);
+							Continue;
+						Else
+							TableName = MetadataTables.FullName();
+						EndIf;
+					EndIf;
 					TablesNamesByType.Insert(Type, TableName);
 				EndIf;
 				If Type = TypeOrValue Then
@@ -9050,7 +9088,7 @@ Procedure SetProcedureForDeferredUpdate() Export
 	
 	If Not Common.DataSeparationEnabled()
 		Or Common.SeparatedDataUsageAvailable() Then
-		// 
+		
 		Jobs = ScheduledJobsServer.FindJobs(New Structure("Metadata", Metadata.ScheduledJobs.SetDeferredUpdateProcedureInSaaS));
 		For Each Job In Jobs Do
 			ScheduledJobsServer.ChangeJob(Job.UUID,
@@ -9089,10 +9127,10 @@ Procedure SetProcedureForDeferredUpdate() Export
 	
 	CommonHandlersCondition = "TRUE";
 	If OrderOfDataToProcess = Enums.OrderOfUpdateHandlers.Normal Then
-		// ACC:1297-
+		
 		CommonHandlersCondition = "(Not UpdateHandlers.IsSeveritySeparationUsed
 			|	Or Not UpdateHandlers.IsUpToDateDataProcessed)";
-		// 
+		// ACC:1297-on
 	EndIf;
 	
 	Query.Text = StrReplace(Query.Text, "&CommonHandlersCondition", CommonHandlersCondition);
@@ -9168,7 +9206,7 @@ Function DataUpdateModeInLocalMode()
 		Return "VersionUpdate"; // IsMainConfiguration attribute is not yet filled.
 	EndIf;
 	
-	// 
+	// Making decision based on the IsMainConfiguration attribute filled earlier
 	Return ?(BatchExecutionResult[2].IsEmpty(), "MigrationFromAnotherApplication", "VersionUpdate");
 	
 EndFunction	
@@ -9177,8 +9215,8 @@ EndFunction
 Function CanExecuteSeamlessUpdate(UpdateIterationsToCheck = Undefined) Export
 	
 	If UpdateIterationsToCheck = Undefined Then
-		// 
-		// 
+		
+		
 		UpdateIterations = UpdateIterations();
 	Else
 		UpdateIterations = UpdateIterationsToCheck;
@@ -9228,8 +9266,8 @@ Function CanExecuteSeamlessUpdate(UpdateIterationsToCheck = Undefined) Export
 				And Common.DataSeparationEnabled() 
 				And Not Common.SeparatedDataUsageAvailable() Then
 				
-				// 
-				// 
+				
+				
 				Continue;
 			EndIf;
 			
@@ -9238,7 +9276,7 @@ Function CanExecuteSeamlessUpdate(UpdateIterationsToCheck = Undefined) Export
 				HandlerProcedures.Add(Handler.Procedure);
 			EndDo;
 			
-			// 
+			
 			For Each Handler In HandlersTree.Rows[0].Rows Do
 				If Handler.RegistrationVersion <> "*" Then
 					HandlerProcedures.Add(Handler.Procedure);
@@ -9322,7 +9360,7 @@ Function GetUpdatePlan(Val LibraryID, Val VersionFrom1, Val VersionTo1)
 		If PlanDetails.VersionFrom1 <> VersionFrom1
 			Or PlanDetails.VersionTo1 <> VersionTo1 Then
 			
-			// 
+			// The update plan is outdated and cannot be applied to the current version.
 			Return Undefined;
 		EndIf;
 		
@@ -9518,7 +9556,7 @@ Procedure WriteUpdateProgressDetails(HandlerDetails)
 	Duration = CurrentUniversalDateInMilliseconds() - HandlerDetails.ValueAtStart;
 	
 	HandlerDetails.Insert("Completed", False);
-	HandlerDetails.Insert("Duration", Duration / 1000); // 
+	HandlerDetails.Insert("Duration", Duration / 1000); // In seconds.
 	
 	ACopyOfTheDescription = Common.CopyRecursive(HandlerDetails);
 	If ACopyOfTheDescription.Property("Parameters") Then
@@ -9544,7 +9582,7 @@ Procedure CheckNestedTransactionWhenExecutingDeferredHandler(HandlerContext, Res
 		Result.HasOpenTransactions = True;
 		
 		While TransactionActive() Do
-			RollbackTransaction(); // 
+			RollbackTransaction(); 
 		EndDo;
 	EndTry;
 	
@@ -9594,7 +9632,7 @@ Procedure ValidateHandlerProperties(UpdateIteration)
 	For Each Handler In UpdateIteration.Handlers Do
 		ErrorDescription = "";
 		
-		// 
+		// Backward compatibility.
 		If Handler.ExecutionMode = "Exclusive" Then
 			Handler.ExecutionMode = "Exclusively";
 		EndIf;
@@ -9783,7 +9821,7 @@ Procedure SelectNewSubsystemHandlers(AllHandlers)
 		EndDo;
 	EndDo;
 	
-	// 
+	// Determines handlers in the new subsystems.
 	AllHandlers.Columns.Add("IsNewSubsystem", New TypeDescription("Boolean"));
 	For Each HandlerDetails In AllHandlers Do
 		Position = StrFind(HandlerDetails.Procedure, ".", SearchDirection.FromEnd);
@@ -9819,7 +9857,7 @@ Procedure OnSendSubsystemVersions(DataElement, ItemSend, Val InitialImageCreatin
 		
 		If Not InitialImageCreating Then
 			
-			// 
+			// Exporting the register during the initial image creation only.
 			ItemSend = DataItemSend.Ignore;
 			
 		EndIf;
@@ -10256,11 +10294,22 @@ EndFunction
 
 Procedure HandlerAccountingChecks(Validation, CheckParameters) Export
 	
-	// 
-	// 
+	
+	
 	Return;
 	
 EndProcedure
+
+Function OutputDataProblems() Export
+	
+	If Common.SubsystemExists("StandardSubsystems.AccountingAudit") Then
+		ModuleAccountingAudit = Common.CommonModule("AccountingAudit");
+		Return ModuleAccountingAudit.SubsystemAvailable();
+	Else
+		Return False;
+	EndIf;
+	
+EndFunction
 
 Function NumberofProblemswithData() Export
 	
@@ -10326,6 +10375,8 @@ Function ExecuteDeferredUpdateHandler(ParametersOfUpdate = Undefined)
 				Iterator = CurrentIterationParameters(IterationParameters);
 				AdditionalDataSources = SelectionParameters.AdditionalDataSources;
 				
+				InitialParametersOfHandler = HandlerContext.UpdateHandlerParameters;
+				
 				While Iterator <> Undefined Do
 					TheHandlerWasExecutedWithoutErrors = False;
 					RefObject1 = Iterator.RefObject1;
@@ -10336,8 +10387,8 @@ Function ExecuteDeferredUpdateHandler(ParametersOfUpdate = Undefined)
 						AdditionalDataSources,
 						RefObject1,
 						TabularObject);
-					// 
-					// 
+					
+					
 					SelectionParameters.Insert("UpdateHandlerParameters", HandlerContext.UpdateHandlerParameters);
 					
 					DataWriter.Data = SelectBatchData(SelectionParameters, Queue, RefObject1, TabularObject);
@@ -10360,14 +10411,17 @@ Function ExecuteDeferredUpdateHandler(ParametersOfUpdate = Undefined)
 						ExecuteDeferredHandler(HandlerContext, ResultAddress);
 					EndIf;
 					TheHandlerWasExecutedWithoutErrors = True;
-					CompleteDeferredHandlerExecution(HandlerContext, ResultAddress); // 
+					CompleteDeferredHandlerExecution(HandlerContext, ResultAddress); 
 					
-					// Если обработчик исчерпал лимит попыток запуска - 
-					HandlerUpdates = HandlerUpdates(HandlerContext.HandlerName); // @skip-
+					
+					HandlerUpdates = HandlerUpdates(HandlerContext.HandlerName); 
 					MaxAttempts = MaxUpdateAttempts(HandlerUpdates);
 					If HandlerUpdates.AttemptCount >= MaxAttempts Then
 						Break;
 					EndIf;
+					
+					
+					HandlerContext.UpdateHandlerParameters = InitialParametersOfHandler;
 					
 					If Count > 0 Then
 						DataToProcess.LastSelectedRecord = LastDataSetRowRecordKey(DataSet);
@@ -10428,8 +10482,8 @@ Procedure EndDeferredUpdateHandlerExecution(HandlerContext)
 		
 	ElsIf HandlerUpdates.Status = Enums.UpdateHandlersStatuses.Running Then
 		
-		// 
-		// 
+		
+		
 		StartsWithPriority = Undefined;
 		If HandlerUpdates.Priority = "HighPriority" Then
 			ExecutionStatistics = HandlerUpdates.ExecutionStatistics.Get();
@@ -10449,8 +10503,8 @@ Procedure EndDeferredUpdateHandlerExecution(HandlerContext)
 	
 	SetHandlerProperties(HandlerUpdates.HandlerName, PropertiesToSet);
 	
-	// 
-	// 
+	
+	
 	If ParallelMode
 		And HandlerUpdates.Status = Enums.UpdateHandlersStatuses.Error
 		And HandlerUpdates.AttemptCount >= MaxUpdateAttempts(HandlerUpdates)
@@ -10478,7 +10532,7 @@ Function AreHandlersToRunMissing()
 	Statuses.Add(Enums.UpdateHandlersStatuses.NotPerformed);
 	Statuses.Add(Enums.UpdateHandlersStatuses.Running);
 	
-	// 
+	
 	Query = New Query;
 	Query.SetParameter("Statuses", Statuses);
 	Query.Text =
@@ -10682,7 +10736,7 @@ Procedure BeforeStartDataProcessingProcedure(HandlerContext,
 		UpdateThreadsCount1                = InfobaseUpdateThreadCount();
 		MaximumNumberOfLaunches        = UpdateThreadsCount1 * 10000;
 		
-		If UpdateProcedureStartCount > MaximumNumberOfLaunches Then // 
+		If UpdateProcedureStartCount > MaximumNumberOfLaunches Then // Loop protection.
 			If ParametersOfUpdate.ParallelMode
 				And Common.IsSubordinateDIBNode()
 				And ParametersOfUpdate.HasMasterNodeHandlers Then
@@ -10725,8 +10779,8 @@ Procedure BeforeStartDataProcessingProcedure(HandlerContext,
 		If ParametersOfUpdate.ParallelMode
 			And Common.IsSubordinateDIBNode()
 			And HandlerUpdates.ExecuteInMasterNodeOnly Then
-			// 
-			// 
+			
+			
 			HandlerContext.SkipProcessedDataCheck = True;
 			DataToProcessDetails = HandlerUpdates.DataToProcess.Get();
 			HandlerData = DataToProcessDetails.HandlerData;
@@ -10808,7 +10862,7 @@ Procedure AfterStartDataProcessingProcedure(HandlerContext, HandlerName)
 			
 			MinQueue = 0;
 			If HasProcessedObjects Then
-				// 
+				
 				TransactionID = SessionParameters.UpdateHandlerParameters.TransactionID;
 				RecordManager = InformationRegisters.CommitDataProcessedByHandlers.CreateRecordManager();
 				RecordManager.TransactionID = TransactionID;
@@ -10819,8 +10873,8 @@ Procedure AfterStartDataProcessingProcedure(HandlerContext, HandlerName)
 				EndIf;
 			EndIf;
 			
-			// 
-			// 
+			
+			
 			ProcessedRecordersTables = SessionParameters.UpdateHandlerParameters.ProcessedRecordersTables;
 			If ValueIsFilled(ProcessedRecordersTables) Then
 				If FillingProcedureDetails.ProcessedRecordersTables = Undefined Then
@@ -10834,7 +10888,7 @@ Procedure AfterStartDataProcessingProcedure(HandlerContext, HandlerName)
 				EndIf;
 			EndIf;
 			
-			// 
+			
 			If Not HasProcessedObjects Then
 				IsAllUpToDateDataProcessed = SessionParameters.UpdateHandlerParameters.IsUpToDateDataProcessed;
 				If IsAllUpToDateDataProcessed = True Then
@@ -10913,6 +10967,8 @@ Procedure EndDataProcessingProcedure(HandlerContext, HandlerName)
 	
 	Parameters = HandlerContext.Parameters;
 	
+	WriteProgressProgressHandler(HandlerContext.UpdateHandlerParameters);
+	
 	// Saving the parameters passed by the update handler, if any.
 	PassedParameters = PassedUpdateHandlerParameters(Parameters);
 	ExecutionStatistics = HandlerUpdates.ExecutionStatistics.Get();
@@ -10922,7 +10978,7 @@ Procedure EndDataProcessingProcedure(HandlerContext, HandlerName)
 		New ValueStorage(ExecutionStatistics));
 	
 	If HandlerContext.HasOpenTransactions Then
-		// 
+		// If a nested transaction is found, the update handler is not called again.
 		HandlerUpdates.Status = Enums.UpdateHandlersStatuses.Error;
 		HandlerUpdates.ErrorInfo = String(HandlerUpdates.ErrorInfo)
 			+ Chars.LF + HandlerContext.ErrorInfo;
@@ -11018,7 +11074,7 @@ Procedure FillDataForParallelDeferredUpdate1(Parameters) Export
 		Box       = Not Common.DataSeparationEnabled();
 		
 		If ClientServer And Box Then
-			// 
+			// Skipping data registration for now.
 			Return;
 		EndIf;
 	EndIf;
@@ -11204,7 +11260,7 @@ Procedure StartDeferredHandlerDataRegistration(FormIdentifier, ResultAddress) Ex
 		CurrentQueue = ?(Handlers.Count() > 0, Handlers[0].DeferredProcessingQueue, 0);
 		For Each Handler In Handlers Do
 			If Handler.DeferredProcessingQueue > CurrentQueue Then
-				WaitForAllThreadsCompletion(Groups); // 
+				WaitForAllThreadsCompletion(Groups); 
 				CurrentQueue = Handler.DeferredProcessingQueue;
 			EndIf;
 			
@@ -11212,7 +11268,7 @@ Procedure StartDeferredHandlerDataRegistration(FormIdentifier, ResultAddress) Ex
 			
 			Stream = AddDeferredUpdateDataRegistrationThread(DataToProcessDetails);
 			ExecuteThread(Groups, Stream, FormIdentifier);
-			WaitForAvailableThread(Groups); // 
+			WaitForAvailableThread(Groups); 
 		EndDo;
 		
 		WaitForAllThreadsCompletion(Groups);
@@ -11243,6 +11299,7 @@ Procedure FillDeferredHandlerData(DataToProcessDetails, ResultAddress) Export
 	
 	ProcessingMarkParameters.Queue = DataToProcessDetails.Queue;
 	ProcessingMarkParameters.HandlerName = DataToProcessDetails.HandlerName;
+	ProcessingMarkParameters.SubsystemVersionAtStartUpdates = DataToProcessDetails.SubsystemVersionAtStartUpdates;
 	ProcessingMarkParameters.Insert("HandlerData", New Map);
 	MultithreadMode = IsMultithreadHandlerDataDetails(DataToProcessDetails);
 	
@@ -11379,6 +11436,8 @@ Function NewUpdateHandlerParameters() Export
 	UpdateHandlerParameters.Insert("UpToDateData", Undefined);
 	UpdateHandlerParameters.Insert("IsUpToDateDataProcessed", Undefined);
 	UpdateHandlerParameters.Insert("ProcessedRecordersTables", Undefined);
+	UpdateHandlerParameters.Insert("DateOfLastProgressRecord", Undefined);
+	UpdateHandlerParameters.Insert("ProcessedObjectsCount1", 0);
 	
 	Return UpdateHandlerParameters;
 EndFunction
@@ -11514,8 +11573,8 @@ EndProcedure
 // 
 //
 // Parameters:
-//  See NewBatchesSetForUpdate
-//  See NewThreadsDetails
+//   See NewBatchesSetForUpdate
+//   See NewThreadsDetails
 //  HandlerContext - See NewHandlerContext
 //
 Procedure ProcessDataFragmentInThread(Particle, Groups, HandlerContext)
@@ -11535,7 +11594,7 @@ EndProcedure
 //  UpdateHandler - ValueTreeRow - the update handler represented as a row of the handler tree.
 //
 // Returns:
-//  Number - 
+//  Number - number of starts.
 //
 Function UpdateProcedureStartCount(ExecutionStatistics)
 	
@@ -11555,7 +11614,7 @@ EndFunction
 //  HandlerUpdates - ValueTableRow - the update handler represented as a row of the handler tree.
 //
 // Returns:
-//  Number - 
+//  Number - maximum number of update attempts.
 //
 Function MaxUpdateAttempts(HandlerUpdates)
 	
@@ -11584,7 +11643,7 @@ EndFunction
 //  Error - Boolean - True if an error has occurred in the update handler.
 //
 // Returns:
-//  Number - 
+//  Number - 0 if it is a multithread handler, to which data for update was not passed. Otherwise the number is 1.
 //
 Function AttemptsCountToAdd(HandlerUpdates, HandlerContext, Error = False)
 	
@@ -11595,9 +11654,9 @@ Function AttemptsCountToAdd(HandlerUpdates, HandlerContext, Error = False)
 			DataToUpdate = Undefined;
 		EndIf;
 		
-		// 
-		// 
-		// 
+		
+		
+		
 		If DataToUpdate <> Undefined Then
 			HasData = DataToUpdate.FirstRecord <> Undefined Or DataToUpdate.LatestRecord <> Undefined;
 			If Not HasData And Not Error Then
@@ -11691,7 +11750,7 @@ EndProcedure
 //  String - String - comma-separated values.
 //
 // Returns:
-//  String - 
+//  String - only ordered unique values separated by commas.
 //
 Function UniqueValuesSeparatedByCommas(String)
 	
@@ -11804,13 +11863,13 @@ Function StepDurationAsString(Val Duration) Export
 		Return StringFunctionsClientServer.SubstituteParametersToString(Template, Int(Duration));
 	ElsIf Duration < 3600 Then
 		Template = NStr("en = '%1 min %2 sec';");
-		Duration = Duration / 60; // 
+		Duration = Duration / 60; 
 		Minutes1 = Int(Duration);
 		Seconds = Int((Duration - Minutes1) * 60);
 		Return StringFunctionsClientServer.SubstituteParametersToString(Template, Minutes1, Seconds);
 	Else
 		Template = NStr("en = '%1 h %2 min';");
-		Duration = Duration / 60 / 60; // 
+		Duration = Duration / 60 / 60; 
 		Hours1 = Int(Duration);
 		Minutes1 = Int((Duration - Hours1) * 60);
 		Return StringFunctionsClientServer.SubstituteParametersToString(Template, Hours1, Minutes1);
@@ -11916,7 +11975,7 @@ Procedure ClearProcessedQueues(QueuesToClear, ProcessedItems, UpdateInfo)
 		Node = ExchangePlans.InfobaseUpdate.NodeInQueue(QueueToClear);
 		For Each FullTableName In AllReadAndModifiedTables Do
 			If QueueObjects.Find(FullTableName) <> Undefined Then
-				// 
+				
 				Continue;
 			EndIf;
 			
@@ -11996,5 +12055,50 @@ Function NetHandlerExecutionDuration(HandlerUpdates, ExecutionStatistics)
 	Return NetDuration * 1000;
 	
 EndFunction
+
+Procedure WriteProgressProgressHandler(HandlerParameters) Export
+	
+	If HandlerParameters = Undefined
+		Or HandlerParameters.ProcessedObjectsCount1 = 0 Then
+		Return;
+	EndIf;
+	
+	CurrentDate = CurrentSessionDate();
+	IntervalHour = BegOfHour(CurrentDate);
+	
+	DataLock = New DataLock;
+	DataLockItem = DataLock.Add("InformationRegister.UpdateProgress");
+	DataLockItem.SetValue("HandlerName", HandlerParameters.HandlerName);
+	DataLockItem.SetValue("RecordKey", HandlerParameters.KeyRecordProgressUpdates);
+	DataLockItem.SetValue("IntervalHour", IntervalHour);
+	BeginTransaction();
+	Try
+		DataLock.Lock();
+		
+		RecordSet = InformationRegisters.UpdateProgress.CreateRecordSet();
+		RecordSet.Filter.HandlerName.Set(HandlerParameters.HandlerName);
+		RecordSet.Filter.RecordKey.Set(HandlerParameters.KeyRecordProgressUpdates);
+		RecordSet.Filter.IntervalHour.Set(IntervalHour);
+		RecordSet.Read();
+		If RecordSet.Count() = 0 Then
+			Record = RecordSet.Add();
+			Record.HandlerName = HandlerParameters.HandlerName;
+			Record.RecordKey = HandlerParameters.KeyRecordProgressUpdates;
+			Record.IntervalHour = IntervalHour;
+			Record.ObjectsProcessed = HandlerParameters.ProcessedObjectsCount1;
+		Else
+			Record = RecordSet[0];
+			Record.ObjectsProcessed = Record.ObjectsProcessed + HandlerParameters.ProcessedObjectsCount1;
+		EndIf;
+		RecordSet.DataExchange.Load = True;
+		RecordSet.DataExchange.Recipients.AutoFill = False;
+		RecordSet.Write();
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
+	
+EndProcedure
 
 #EndRegion

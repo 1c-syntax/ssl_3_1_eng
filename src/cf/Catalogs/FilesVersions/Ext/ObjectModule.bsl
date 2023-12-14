@@ -21,8 +21,10 @@ Procedure BeforeWrite(Cancel)
 		Return;
 	EndIf;
 	
+	DetailsOfOwner = Common.ObjectAttributesValues(Owner, "CurrentVersion, DeletionMark");
+	
 	If IsNew() Then
-		ParentVersion = Owner.CurrentVersion;
+		ParentVersion = DetailsOfOwner.CurrentVersion;
 	EndIf;
 	
 	// Setting an icon index upon object write.
@@ -32,17 +34,17 @@ Procedure BeforeWrite(Cancel)
 		TextExtractionStatus = Enums.FileTextExtractionStatuses.NotExtracted;
 	EndIf;
 	
-	If Owner.CurrentVersion = Ref Then
-		If DeletionMark = True And Owner.DeletionMark <> True Then
+	If DetailsOfOwner.CurrentVersion = Ref Then
+		If DeletionMark = True And DetailsOfOwner.DeletionMark <> True Then
 			Raise NStr("en = 'Cannot delete the active version.';");
 		EndIf;
 	ElsIf ParentVersion.IsEmpty() Then
-		If DeletionMark = True And Owner.DeletionMark <> True Then
+		If DeletionMark = True And DetailsOfOwner.DeletionMark <> True Then
 			Raise NStr("en = 'Cannot delete the first version.';");
 		EndIf;
-	ElsIf DeletionMark = True And Owner.DeletionMark <> True Then
-		//  
-		// 
+	ElsIf DeletionMark = True And DetailsOfOwner.DeletionMark <> True Then
+		 
+		
 		Query = New Query;
 		Query.Text = 
 			"SELECT

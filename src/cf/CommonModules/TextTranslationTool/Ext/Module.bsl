@@ -145,8 +145,8 @@ EndFunction
 //
 // Returns:
 //  ValueList:
-//   * Value - 
-//   * Presentation - 
+//   * Value - language code.
+//   * Presentation - language presentation.
 //
 Function AvailableLanguages() Export
 	

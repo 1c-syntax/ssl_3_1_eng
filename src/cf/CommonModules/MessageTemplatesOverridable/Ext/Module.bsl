@@ -26,7 +26,7 @@
 //                                                    parameters in message templates.
 //    * DCSParametersValues - Structure - common values of DCS parameters for all templates, where the attribute composition
 //                                          is defined using DCS.
-//    * ExtendedRecipientsList - Boolean -
+//    * ExtendedRecipientsList - Boolean - 
 //                                              
 //
 Procedure OnDefineSettings(Settings) Export
@@ -38,7 +38,7 @@ EndProcedure
 // It is called when preparing message templates and allows you to override a list of attributes and attachments.
 //
 // Parameters:
-//  Attributes - ValueTree - a list of template attributes.
+//  Attributes - ValueTree - a list of template attributes.:
 //    * Name            - String - a unique attribute name.
 //    * Presentation  - String - an attribute presentation.
 //    * Type            - Type    - an attribute type.
@@ -64,20 +64,20 @@ EndProcedure
 //
 // Parameters:
 //  Message - Structure:
-//    * AttributesValues - Map of KeyAndValue - a list of attributes used in the template.
+//    * AttributesValues - Map of KeyAndValue - a list of attributes used in the template.:
 //      ** Key     - String - an attribute name in the template.
 //      ** Value - String - a filling value in the template.
-//    * CommonAttributesValues - Map of KeyAndValue - a list of common attributes used in the template.
+//    * CommonAttributesValues - Map of KeyAndValue - a list of common attributes used in the template.:
 //      ** Key     - String - an attribute name in the template.
 //      ** Value - String - a filling value in the template.
 //    * Attachments - Map of KeyAndValue:
 //      ** Key     - String - an attachment name in the template.
 //      ** Value - BinaryData
-//                  - String - 
+//                  - String - binary data or an address in a temporary storage of the attachment.
 //    * AdditionalParameters - Structure - additional message parameters. 
-//  TemplateAssignment - String - a full name of a message template assignment.
+//  TemplateAssignment - String -  a full name of a message template assignment.
 //  MessageSubject - AnyRef - a reference to an object that is a data source.
-//  TemplateParameters - Structure - a full name of a message template assignment.
+//  TemplateParameters - Structure -  a full name of a message template assignment.
 //
 Procedure OnCreateMessage(Message, TemplateAssignment, MessageSubject, TemplateParameters) Export
 	
@@ -94,7 +94,7 @@ EndProcedure
 //     * Contact       - Arbitrary - a contact that owns the phone number.
 //  TemplateAssignment - String - a template assignment ID.
 //  MessageSubject - AnyRef - a reference to an object that is a data source.
-//                   - Structure  - 
+//                   - Structure  - :
 //    * SubjectOf               - AnyRef - a reference to an object that is a data source.
 //    * MessageKind - String - a kind of a message being generated: Email or SMSMessage.
 //    * ArbitraryParameters - Map - a filled list of arbitrary parameters.
@@ -108,14 +108,14 @@ EndProcedure
 // Fills in a list of email recipients upon sending a message generated from a template.
 //
 // Parameters:
-//   EmailRecipients - ValueTable - a list of mail recipients.
-//     * SendingOption - String -
+//   EmailRecipients - ValueTable - a list of mail recipients.:
+//     * SendingOption - String - 
 //     * Address           - String - a recipient email address.
 //     * Presentation   - String - an email recipient presentation.
 //     * Contact         - Arbitrary - a contact that owns the email address.
 //  TemplateAssignment - String - a template assignment ID.
 //  MessageSubject - AnyRef - a reference to an object that is a data source.
-//                   - Structure  - 
+//                   - Structure  - :
 //    * SubjectOf               - AnyRef - a reference to an object that is a data source.
 //    * MessageKind - String - a kind of a message being generated: Email or SMSMessage.
 //    * ArbitraryParameters - Map - a filled list of arbitrary parameters.
@@ -134,7 +134,7 @@ EndProcedure
 
 // Initial population of predefined message templates.
 
-// See also updating the information base undefined.customizingmachine infillingelements
+// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
 // 
 // Parameters:
 //  Settings - See InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.Settings
@@ -156,7 +156,7 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	
 EndProcedure
 
-// See also updating the information base undefined.customizingmachine infillingelements
+// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
 //
 // Parameters:
 //  Object                  - CatalogObject.PerformerRoles - Object to populate.

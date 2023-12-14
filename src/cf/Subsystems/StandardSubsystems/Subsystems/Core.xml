@@ -387,6 +387,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.ImportanceNotSpecified</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.ImportanceLow</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.PersonsClientServerLocalization</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.GreyCross</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

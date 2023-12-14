@@ -9,7 +9,7 @@
 
 #Region Public
 
-// Initializes a parameter structure get file data. See FilesOperations.FileData.
+// Initializes a structure of parameters for getting file data. See FilesOperations.FileData.
 //
 // Returns:
 //  Structure:
@@ -58,12 +58,12 @@ Procedure DetermineAttachedFileForm(Source, FormType, Parameters,
 		
 EndProcedure
 
-// 
+// User scanning settings.
 // 
 // Returns:
-//  Structure - 
+//  Structure - user scanning settings:
 //   * ShowScannerDialog - Boolean
-//   * DeviceName - String -
+//   * DeviceName - String - ScannerDescription
 //   * ScannedImageFormat - EnumRef.ScannedImageFormats
 //   * ShouldSaveAsPDF - Boolean
 //   * MultipageStorageFormat - EnumRef.MultipageFileStorageFormats 
@@ -95,6 +95,8 @@ Function UserScanSettings() Export
 	UserScanSettings.Insert("TIFFDeflation");
 	UserScanSettings.Insert("PathToConverterApplication", "");
 	UserScanSettings.Insert("SinglePageStorageFormat");
+	UserScanSettings.Insert("ScanLogDirectory");
+	UserScanSettings.Insert("UseScanLogDirectory", False);
 	Return UserScanSettings;
 EndFunction
 
@@ -116,11 +118,11 @@ EndFunction
 //    * ModificationTimeUniversal  - Date   - a date and a time of file modification (UTC).
 //    * Size                       - Number  - File size in bytes.
 //    * TempFileStorageAddress  - String
-//                                     - ValueStorage - 
-//                                       
+//                                     - ValueStorage - address in the temporary storage with binary data of the file
+//                                       or binary data of the file.
 //    * TempTextStorageAddress - String
-//                                     - ValueStorage - 
-//                                       
+//                                     - ValueStorage - address in the temporary storage with an extracted text
+//                                       for the full-text search or data with the text.
 //    * IsWebClient                 - Boolean - True if a call comes from the web client.
 //    * Author                        - CatalogRef.Users - a file author. If Undefined, a current
 //                                                                     user.
@@ -186,8 +188,8 @@ EndFunction
 //                            If failed to locked the file, contains error description.
 //
 // Returns:
-//  Boolean - 
-//           
+//  Boolean - if True, the current user can lock the file
+//           or the file is already locked by the current user.
 //
 Function WhetherPossibleLockFile(FileData, MessageText = "") Export
 	
@@ -234,27 +236,27 @@ Function CommandsPrefix() Export
 	Return "AttachedFilesManagement";
 EndFunction
 
-Function NameOfCommandUploadFile() Export
+Function ImportFileCommandName() Export
 	Return "ImportFile_";
 EndFunction
 
-Function NameOfCreateByTemplateCommand() Export
+Function CreateFromTemplateCommandName() Export
 	Return "CreateByTemplate";
 EndFunction
 
-Function NameOfScanCommand() Export
+Function ScanCommandName() Export
 	Return "Scan";
 EndFunction
 
-Function NameOfOpenListCommand() Export
+Function OpenListCommandName() Export
 	Return "OpenList";
 EndFunction
 
-Function NameOfCommandToSelectFile() Export
+Function SelectFileCommandName() Export
 	Return "SelectFile";
 EndFunction
 
-Function NameOfCommandsViewFile() Export
+Function ViewFileCommandName() Export
 	Return "ViewFile1";
 EndFunction
 
@@ -262,19 +264,19 @@ Function ClearCommandName() Export
 	Return "Clear";
 EndFunction
 
-Function NameOfOpenFormCommand() Export
+Function OpenFormCommandName() Export
 	Return "OpenForm";
 EndFunction
 
-Function NameOfEditFileCommand() Export
+Function EditFileCommandName() Export
 	Return "EditFile";
 EndFunction
 
-Function NameOfCommandToPlaceFile() Export
+Function PutFileCommandName() Export
 	Return "PutFile";
 EndFunction
 
-Function NameOfUndoEditingCommand() Export
+Function CancelEditCommandName() Export
 	Return "CancelEdit";
 EndFunction
 

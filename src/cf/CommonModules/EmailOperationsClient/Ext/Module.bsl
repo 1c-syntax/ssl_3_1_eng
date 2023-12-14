@@ -51,21 +51,21 @@ EndProcedure
 // Returns an empty structure with email sending parameters.
 //
 // Returns:
-//  Structure - 
+//  Structure - parameters for filling the sending form for a new message (all optional):
 //   * Sender - CatalogRef.EmailAccounts - account used to
 //                   send the email message.
-//                 - ValueList - 
-//                     ** Presentation - String -
+//                 - ValueList - list of accounts available for selection in the following format:
+//                     ** Presentation - String - email name.
 //                     ** Value - CatalogRef.EmailAccounts - an account.
 //    
 //   * Recipient - String - list of addresses in the following format:
 //                           [RecipientPresentation1] <Address1>; [[RecipientPresentation2] <Address2>;…]
 //                - ValueList:
-//                   ** Presentation - String -
+//                   ** Presentation - String - an addressee presentation.
 //                   ** Value      - String - an email address.
-//                - Array - array of structures describing the recipients:
+//                - Array - Array of structures describing recipients:
 //                   ** Address                        - String - an email recipient address.
-//                   ** Presentation                - String - representation of the addressee;
+//                   ** Presentation                - String - an addressee presentation.
 //                   ** ContactInformationSource - CatalogRef - contact information owner.
 //   
 //   * Cc - ValueList
@@ -100,10 +100,10 @@ Function EmailSendOptions() Export
 	Return EmailParameters;
 EndFunction
 
-// 
-// 
-// 
-// 
+// If a user has no email account configured for sending emails, does one of the following depending on the access rights: starts
+// the email account setup wizard, or displays a message that email cannot be sent.
+// The procedure is intended for scenarios that require email account setup before requesting additional
+// sending parameters.
 //
 // Parameters:
 //  ResultHandler - NotifyDescription - procedure to be executed after the check is completed.
@@ -226,7 +226,7 @@ EndProcedure
 // form for editing new message. Messages sent using simple
 // form are not saved to the infobase.
 //
-// For parameters, see the CreateNewEmailMessage function description. 
+// For parameters, see the CreateNewEmailMessage function description.
 //
 Procedure OpenSimpleSendEmailMessageForm(EmailParameters, OnCloseNotifyDescription)
 	OpenForm("CommonForm.SendMessage", EmailParameters, , , , , OnCloseNotifyDescription);

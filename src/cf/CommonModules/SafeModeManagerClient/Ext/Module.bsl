@@ -64,8 +64,8 @@ EndProcedure
 
 #Region Private
 
-// Checks whether you need to display the assistant for configuring permissions to use
-// external (relative to the 1C server cluster:Enterprises) resources.
+// Checks whether
+// external (relative to 1C:Enterprise server cluster) resource permissions setup wizard must be shown.
 //
 // Returns:
 //   Boolean

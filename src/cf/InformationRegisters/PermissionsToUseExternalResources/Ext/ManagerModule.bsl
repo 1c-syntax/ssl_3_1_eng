@@ -148,7 +148,7 @@ EndFunction
 //  OwnerID - UUID,
 //  PermissionKey - String - a permission key,
 //  Resolution - XDTODataObject - XDTO permission presentation,
-//  PermissionAddition - 
+//  PermissionAddition - Arbitrary (serialized to XDTO).
 //
 Procedure AddPermission(Val ProgramModuleType, Val ModuleID, Val OwnerType, Val OwnerID, Val PermissionKey, Val Resolution, Val PermissionAddition = Undefined) Export
 	

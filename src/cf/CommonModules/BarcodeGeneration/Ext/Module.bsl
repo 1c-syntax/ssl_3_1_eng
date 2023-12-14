@@ -15,33 +15,33 @@
 //   Structure:
 //   * Width - Number - width of a barcode image.
 //   * Height - Number - height of a barcode image.
-//   * CodeType - Number - of a barcode.
-//       Possible values:
-//      99 -  Autoselect
-//      0 - EAN8
-//      1 - EAN13
-//      2 - EAN128
-//      3 - Code39
-//      4 - Code128
-//      5 - Code16k
-//      6 - PDF417
-//      7 - Standart (Industrial) 2 of 5
-//      8 - Interleaved 2 of 5
-//      9 - Code39 Расширение
-//      10 - Code93
-//      11 - ITF14
-//      12 - RSS14
-//      14 - EAN13AddOn2
-//      15 - EAN13AddOn5
-//      16 - QR
-//      17 - GS1DataBarExpandedStacked
-//      18 - Datamatrix ASCII
-//      19 - Datamatrix BASE256
-//      20 - Datamatrix TEXT
-//      21 - Datamatrix C40
-//      22 - Datamatrix X12
-//      23 - Datamatrix EDIFACT
-//      24 - Datamatrix GS1ASCII:
+//   * CodeType - Number - 
+//       :
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//      
 //   * ShowText - Boolean - display the HRI text for a barcode.
 //   * FontSize - Number - font size of the HRI text for a barcode.
 //   * CanvasRotation - Number - rotation angle.
@@ -52,7 +52,7 @@
 //   * BgTransparent - Boolean - transparent background of a barcode image.
 //   * QRErrorCorrectionLevel - Number - correction level of the QR barcode.
 //      Possible values: 0 - L, 1 - M, 2 - Q, 3 - H.
-//   * Zoomable - Boolean - scale a barcode image.
+//   * Zoomable - Boolean -  scale a barcode image.
 //   * MaintainAspectRatio - Boolean - save proportions of a barcode image.                                                              
 //   * VerticalAlignment - Number - vertical alignment of a barcode.
 //      Possible values: 1 - Top, 2 - Center, 3 - Bottom
@@ -133,7 +133,7 @@ EndFunction
 //                     If the smallest possible image size is greater than this parameter, the code is not generated.
 //
 // Returns:
-//  BinaryData  - 
+//  BinaryData  - a buffer that contains the bytes of the QR code image in PNG format.
 // 
 // Example:
 //  
@@ -191,12 +191,15 @@ Function ToConnectAComponentGeneratingAnImageOfTheBarcode() Export
 	SetSafeModeDisabled(True);
 #EndIf
 	AddIn = Undefined;
-	
+	ComponentDetails = ComponentDetails();
 #If Not MobileAppServer Then
 	If Common.SeparatedDataUsageAvailable() Then
 		If Common.SubsystemExists("StandardSubsystems.AddIns") Then
 			ModuleAddInsServer = Common.CommonModule("AddInsServer");
-			ConnectionResult = ModuleAddInsServer.AttachAddInSSL("Barcode");
+			ConnectionParameters = ModuleAddInsServer.ConnectionParameters();
+			ConnectionParameters.FullTemplateName = ComponentDetails.FullTemplateName;
+			ConnectionResult = ModuleAddInsServer.AttachAddInSSL(ComponentDetails.ObjectName,,
+				ConnectionParameters);
 			If ConnectionResult.Attached Then
 				AddIn = ConnectionResult.Attachable_Module;
 			EndIf;
@@ -204,37 +207,53 @@ Function ToConnectAComponentGeneratingAnImageOfTheBarcode() Export
 	EndIf;
 #EndIf
 	
-	If AddIn = Undefined Then 
-		AddIn = Common.AttachAddInFromTemplate("Barcode", "CommonTemplate.BarcodePrintingAddIn");
+	If AddIn = Undefined Then
+		AddIn = Common.AttachAddInFromTemplate(ComponentDetails.ObjectName, ComponentDetails.FullTemplateName);
 	EndIf;
 	
 	If AddIn = Undefined Then 
 		Return Undefined;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	If AddIn.FindFont("Tahoma") Then
-		// 
+		// Set as the picture font.
 		AddIn.Font = "Tahoma";
 	Else
-		// 
-		// 
+		
+		
 		For Cnt = 0 To AddIn.FontCount -1 Do
-			// 
+			// Get another available font.
 			CurrentFont = AddIn.FontAt(Cnt);
-			// 
+			// Search for the font.
 			If CurrentFont <> Undefined Then
-				// 
+				// Set as the barcode font.
 				AddIn.Font = CurrentFont;
 				Break;
 			EndIf;
 		EndDo;
 	EndIf;
-	// 
+	// Set the font size.
 	AddIn.FontSize = 12;
 	
 	Return AddIn;
+	
+EndFunction
+
+// 
+//
+// Returns:
+//  Structure:
+//   * FullTemplateName - String
+//   * ObjectName      - String
+//
+Function ComponentDetails() Export
+	
+	Parameters = New Structure;
+	Parameters.Insert("ObjectName", "Barcode");
+	Parameters.Insert("FullTemplateName", "CommonTemplate.BarcodePrintingAddIn");
+	Return Parameters;
 	
 EndFunction
 
@@ -275,7 +294,7 @@ Function PrepareABarcodeImage(AddIn, BarcodeParameters)
 	AddIn.Height = TheHeightOfTheBarcode;
 	AddIn.AutoType = False;
 	
-	TimeBarcode = String(BarcodeParameters.Barcode); // 
+	TimeBarcode = String(BarcodeParameters.Barcode); 
 	
 	If BarcodeParameters.CodeType = 99 Then
 		AddIn.AutoType = True;
@@ -301,11 +320,11 @@ Function PrepareABarcodeImage(AddIn, BarcodeParameters)
 	EndIf;
 	
 	AddIn.TextVisible = BarcodeParameters.ShowText;
-	// 
+	// Generate a barcode picture.
 	AddIn.CodeValue = TimeBarcode;
-	// 
+	// Barcode rotation angle.
 	AddIn.CanvasRotation = ?(BarcodeParameters.Property("CanvasRotation"), BarcodeParameters.CanvasRotation, 0);
-	// 
+	// QR code error correction levels (L=0, M=1, Q=2, H=3).
 	AddIn.QRErrorCorrectionLevel = ?(BarcodeParameters.Property("QRErrorCorrectionLevel"), BarcodeParameters.QRErrorCorrectionLevel, 1);
 	
 	// For the compatibility with the previous versions of Peripheral Equipment Library.
@@ -375,7 +394,7 @@ Function PrepareABarcodeImage(AddIn, BarcodeParameters)
 	// If the picture is generated successfully.
 	If BinaryPictureData <> Undefined Then
 		OperationResult.BinaryData = BinaryPictureData;
-		OperationResult.Picture = New Picture(BinaryPictureData); // 
+		OperationResult.Picture = New Picture(BinaryPictureData); 
 	EndIf;
 	
 	Return OperationResult;

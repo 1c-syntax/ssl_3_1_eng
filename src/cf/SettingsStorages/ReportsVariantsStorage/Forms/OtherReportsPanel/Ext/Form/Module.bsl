@@ -68,7 +68,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure SaveThisFormSettings()
@@ -313,8 +313,8 @@ Procedure OutputHyperlinkToPanel(OutputTable, Variant, Var_Group, ShowTooltips)
 	
 	StyleItems = Metadata.StyleItems;
 	
-	// 
-	Label = Items.Insert(OutputRow.LabelName, Type("FormDecoration"), OutputRow.Group); // 
+	// Add a report option hyperlink title.
+	Label = Items.Insert(OutputRow.LabelName, Type("FormDecoration"), OutputRow.Group); // FormDecoration, FormDecorationExtensionForALabel
 	Label.Type = FormDecorationType.Label;
 	Label.Hyperlink = True;
 	Label.HorizontalStretch = True;

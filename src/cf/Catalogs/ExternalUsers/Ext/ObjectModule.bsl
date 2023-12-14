@@ -11,24 +11,24 @@
 
 #Region Variables
 
-Var IBUserProcessingParameters; // 
-                                        // 
+Var IBUserProcessingParameters; 
+                                        
 
-Var IsNew; // 
-                // 
+Var IsNew; 
+                
 
-Var PreviousAuthorizationObject; // 
-                               // 
+Var PreviousAuthorizationObject; 
+                               
 
 #EndRegion
 
-// 
+
 //
-// 
+
 //
-// 
+
 //
-// 
+
 
 #Region EventHandlers
 
@@ -88,7 +88,7 @@ Procedure OnWrite(Cancel)
 		Block.Add("Catalog.ExternalUsersGroups");
 		Block.Lock();
 		
-		GroupObject1 = AdditionalProperties.NewExternalUserGroup.GetObject(); // CatalogRef.ExternalUsersGroups
+		GroupObject1 = AdditionalProperties.NewExternalUserGroup.GetObject(); // CatalogObject.ExternalUsersGroups
 		GroupObject1.Content.Add().ExternalUser = Ref;
 		GroupObject1.Write();
 	EndIf;
@@ -151,8 +151,8 @@ EndProcedure
 // For internal use only.
 Procedure CommonActionsBeforeDeleteInNormalModeAndDuringDataExchange() Export
 	
-	// 
-	// 
+	
+	
 	
 	IBUserDetails = New Structure;
 	IBUserDetails.Insert("Action", "Delete");

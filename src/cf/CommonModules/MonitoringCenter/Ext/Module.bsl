@@ -13,7 +13,7 @@
 
 // Check the subsystem state.
 // Returns:
-//  Boolean - 
+//  Boolean - — enabled if set to True, disabled if set to False.
 //
 Function MonitoringCenterEnabled() Export
 	MonitoringCenterParameters = New Structure("EnableMonitoringCenter, ApplicationInformationProcessingCenter");
@@ -54,7 +54,7 @@ EndProcedure
 
 // Returns a string presentation of infobase ID in the Monitoring center.
 // Returns:
-//  String - 
+//  String - an UUID of the infobase in the monitoring center.
 //
 Function InfoBaseID() Export
 
@@ -72,7 +72,7 @@ Function InfoBaseID() Export
 		Return String(MonitoringCenterParameters.InfoBaseID);
 	EndIf;
 	
-	// 
+	// If the data was never sent, an empty string returns.
 	Return "";
 
 EndFunction
@@ -151,7 +151,7 @@ EndProcedure
 
 // Returns a business statistics registration status.
 // Returns:
-//  Boolean - 
+//  Boolean - register business statistics.
 //
 Function WriteBusinessStatisticsOperations() Export
 	MonitoringCenterParameters = New Structure("EnableMonitoringCenter, ApplicationInformationProcessingCenter, RegisterBusinessStatistics");
@@ -172,9 +172,9 @@ EndFunction
 // Parameters:
 //  MetadataNamesMap - Structure:
 //   * Key		- String - 	metadata object name.
-//   * Value	- String - 	data selection query text, it must
-//							contain the Quantity field. If Quantity is equal to zero,
-//                          it is not recorded.
+//   * Value	- String - 	 	the text of the data sampling request
+//							, the Quantity field must be present. If the Quantity is zero,
+//                          then no recording occurs.
 //
 Procedure WriteConfigurationStatistics(MetadataNamesMap) Export
 	Parameters = New Map;

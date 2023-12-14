@@ -35,7 +35,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Position = Position - 1;
 	EndDo;
 	
-	// 
+	// Removing standard metadata picture.
 	AllData.FillValues(-1, "PictureIndex");
 	
 	AddAllObjects(AllData, SelectionTreeRows);

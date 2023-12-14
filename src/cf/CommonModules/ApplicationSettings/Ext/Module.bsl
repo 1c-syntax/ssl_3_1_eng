@@ -29,9 +29,22 @@ Procedure OnlineSupportAndServicesOnCreateAtServer(Form, Cancel, StandardProcess
 		
 		If Common.SubsystemExists("StandardSubsystems.AddressClassifier") Then
 			ModuleAddressClassifierInternal = Common.CommonModule("AddressClassifierInternal");
-			If Not ModuleAddressClassifierInternal.YouHaveRightToChangeAddressInformation() Then
+			If Not ModuleAddressClassifierInternal.HasRightToChangeAddressInformation() Then
 				Items.AddressClassifierSettings.Visible = False;
 			EndIf;
+			
+			FormAttributeValue = New Structure("UseWebServiceOfAddresses", Undefined);
+			FillPropertyValues(FormAttributeValue, Form);
+
+			If FormAttributeValue["UseWebServiceOfAddresses"] <> Undefined Then
+				Form["UseWebServiceOfAddresses"] = ModuleAddressClassifierInternal.ИспользоватьВебСервис();
+			EndIf;
+			
+			CommonClientServer.SetFormItemProperty(
+				Items,
+				"UseWebServiceOfAddresses",
+				"Visible",
+				True);
 		Else
 			Items.AddressClassifierSettings.Visible = False;
 		EndIf;
@@ -47,6 +60,9 @@ Procedure OnlineSupportAndServicesOnCreateAtServer(Form, Cancel, StandardProcess
 	Else
 		Items.ImportCurrenciesRatesDataProcessorGroup.Visible = False;
 	EndIf;
+	
+	Items.ConversationsGroup.Visible = Common.SubsystemExists("StandardSubsystems.Conversations")
+		And Users.IsFullUser();
 	
 	If Common.SubsystemExists("StandardSubsystems.ObjectPresentationDeclension") Then
 		Items.DeclensionsGroup.Visible =
@@ -105,7 +121,7 @@ Procedure OnlineSupportAndServicesOnCreateAtServer(Form, Cancel, StandardProcess
 			EndIf;
 			
 			Items.MonitoringCenterServiceAddress.Enabled = (Form.MonitoringCenterAllowSendingData = 1);
-			Items.MonitoringCenterSettings.Enabled = (Form.MonitoringCenterAllowSendingData <> 2);
+			Items.MonitoringCenter_Settings.Enabled = (Form.MonitoringCenterAllowSendingData <> 2);
 			Items.SendContactInformationGroup.Visible =
 				(MonitoringCenterParameters.ContactInformationRequest <> 2);
 		EndIf;
@@ -114,19 +130,15 @@ Procedure OnlineSupportAndServicesOnCreateAtServer(Form, Cancel, StandardProcess
 	EndIf;
 	
 	AddInsGroupVisibility = False;
-	
-	If Common.SubsystemExists("StandardSubsystems.AddIns") Then 
+	If Common.SubsystemExists("StandardSubsystems.AddIns")
+	   And Users.IsFullUser() Then 
 		
 		ModuleAddInsInternal = Common.CommonModule("AddInsInternal");
 		AddInsGroupVisibility = ModuleAddInsInternal.CanImportFromPortal();
-		
 	EndIf;
-	
 	Items.AddInsGroup.Visible = AddInsGroupVisibility;
 	
 	ApplicationSettingsOverridable.OnlineSupportAndServicesOnCreateAtServer(Form);
-	
-	Items.ConversationsGroup.Visible = Common.SubsystemExists("StandardSubsystems.Conversations");
 	
 EndProcedure
 
@@ -134,7 +146,7 @@ EndProcedure
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
-//  ConstantName - String -
+//  ConstantName - String - 
 //  NewValue - Arbitrary
 //
 Procedure OnlineSupportAndServicesOnConstantChange(Form, ConstantName, NewValue) Export
@@ -153,6 +165,24 @@ Procedure OnlineSupportAndServicesOnConstantChange(Form, ConstantName, NewValue)
 	
 EndProcedure
 
+//  
+// 
+//
+// Parameters:
+//  UseWebServiceOfAddresses - Boolean -  
+//
+Procedure InternetSupportAndServicesEstablishUseOfWebService(UseWebServiceOfAddresses) Export
+	
+	If Common.SubsystemExists("StandardSubsystems.AddressClassifier") Then
+			
+		ModuleAddressClassifierInternal = Common.CommonModule("AddressClassifierInternal");
+		ModuleAddressClassifierInternal.УстановитьИспользованиеВебСервиса(UseWebServiceOfAddresses);
+		RefreshReusableValues();
+			
+	EndIf;
+	
+EndProcedure
+
 // 
 // 
 // 
@@ -160,7 +190,7 @@ EndProcedure
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
 //  Item - FormField
-//  OperationParametersList - Structure of KeyAndValue -
+//  OperationParametersList - Structure of KeyAndValue - 
 //  
 //
 Procedure OnlineSupportAndServicesAllowSendDataOnChange(Form, Item, OperationParametersList) Export
@@ -169,7 +199,7 @@ Procedure OnlineSupportAndServicesAllowSendDataOnChange(Form, Item, OperationPar
 	Items = Form.Items;
 	
 	Items.MonitoringCenterServiceAddress.Enabled = (Form.MonitoringCenterAllowSendingData = 1);
-	Items.MonitoringCenterSettings.Enabled = (Form.MonitoringCenterAllowSendingData <> 2);
+	Items.MonitoringCenter_Settings.Enabled = (Form.MonitoringCenterAllowSendingData <> 2);
 	If Form.MonitoringCenterAllowSendingData = 2 Then
 		MonitoringCenterParameters =
 			New Structure("EnableMonitoringCenter, ApplicationInformationProcessingCenter", False, False);
@@ -219,7 +249,6 @@ Procedure OnlineSupportAndServicesMonitoringCenterOnChange(Form, Item) Export
 			AddressStructure1.Port = ?(AddressStructure1.Schema = "https", 443, 80);
 		EndIf;
 	Except
-		// 
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Service address %1 is not a valid web service address for sending application usage reports.';"),
 			Form.MonitoringCenterServiceAddress);
@@ -265,7 +294,7 @@ Function GetDataSendingRadioButtons(EnableMonitoringCenter, ApplicationInformati
 	ElsIf State = "10" Then
 		Result = 0;
 	ElsIf State = "11" Then
-		// 
+		// But this cannot happen...
 	EndIf;
 	
 	Return Result;

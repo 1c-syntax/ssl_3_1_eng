@@ -126,7 +126,7 @@ Function CreateDataExchange(ExchangePlanName, ParametersString1, FilterSettingAs
 	
 	Cancel = False;
 	
-	// 
+	// Loading wizard parameters from a string to the wizard data processor.
 	DataExchangeCreationWizard.ImportWizardParameters(Cancel, ParametersString1);
 	
 	If Cancel Then
@@ -146,7 +146,7 @@ Function CreateDataExchange(ExchangePlanName, ParametersString1, FilterSettingAs
 										ValueIsFilled(GetFunctionalOption("InfobasePrefix")),
 										ValueIsFilled(DataExchangeCreationWizard.SourceInfobaseID));
 	
-	// 
+	// Creating an exchange setting.
 	DataExchangeCreationWizard.SetUpNewDataExchangeWebService(
 											Cancel,
 											ValueFromStringInternal(FilterSettingAsString),

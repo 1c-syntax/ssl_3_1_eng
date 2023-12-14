@@ -46,20 +46,20 @@ EndFunction
 //
 // Parameters:
 //     SearchParameters - See DuplicateObjectsDetection.DuplicatesSearchParameters
-//     SampleObject - AnyRef, CatalogObject -
+//     SampleObject - AnyRef, CatalogObject - 
 //
 // Returns:
 //   Structure:
 //       * DuplicatesTable - ValueTable:
 //           ** Ref       - AnyRef - an item reference.
 //           ** Code          - String
-//                           - Number - 
+//                           - Number - item code.
 //           ** Description - String - an item description.
 //           ** Parent     - AnyRef - a parent of the duplicates group. If the Parent is empty, the item is
 //                                           parent for the duplicates group.
 //           ** OtherFields - Arbitrary - a value of the corresponding filter fields and criteria for comparing duplicates.
 //       * ErrorDescription - Undefined - No errors occurred.
-//                        - String - 
+//                        - String - details of error occurred during the search for duplicates.
 //     * ReturnedLessThanFound - Boolean - True if the size of the returned batch exceeds the limit.
 //     * UsageInstances - See Common.UsageInstances
 //
@@ -71,7 +71,7 @@ Function DuplicatesGroups(Val SearchParameters, Val SampleObject = Undefined) Ex
 	// Refine the input parameters.
 	ReturnedBatchSize = CommonClientServer.StructureProperty(SearchParameters, "MaxDuplicates");
 	If Not ValueIsFilled(ReturnedBatchSize) Then
-		ReturnedBatchSize = 0; // 
+		ReturnedBatchSize = 0; 
 	EndIf;
 	
 	CalculateUsageInstances = CommonClientServer.StructureProperty(SearchParameters, "CalculateUsageInstances");
@@ -104,8 +104,8 @@ Function DuplicatesGroups(Val SearchParameters, Val SampleObject = Undefined) Ex
 		HasSearchRules = HasSearchRules Or SearchParameters.TakeAppliedRulesIntoAccount;	
 	EndIf;		
 		
-	AdditionalFieldsNames = ""; // 
-	ItemsCountToCompare = 0;  // 
+	AdditionalFieldsNames = ""; 
+	ItemsCountToCompare = 0;  
 	If HasSearchRules Then
 		AllAdditionalFields = New Map;
 		For Each Restriction In AppliedSearchParameters.ComparisonRestrictions Do
@@ -146,7 +146,7 @@ Function DuplicatesGroups(Val SearchParameters, Val SampleObject = Undefined) Ex
 			FilterElement.Value.RightValue = SampleItem[FilterElement.Key];
 		EndDo;
 		
-		// 
+		
 		CandidatesSelection = InitializeDCSelection(QuerySchema.DCSchema, QuerySchema.DCSettings);
 		DuplicatesCandidates = CandidatesSelection.DCOutputProcessor.Output(CandidatesSelection.DCProcessor);
 		
@@ -264,7 +264,7 @@ EndFunction
 //     AreaManager - ManagerCatalog - a manager of the object to be checked.
 //
 // Returns:
-//     Boolean - 
+//     Boolean - True if applied rules are defined.
 //
 Function HasSearchForDuplicatesAreaAppliedRules(Val ObjectName) Export
 	
@@ -305,7 +305,7 @@ EndProcedure
 
 #Region Private
 
-// 
+
 
 // Handler of background deletion of duplicates.
 //
@@ -327,7 +327,7 @@ Function BackgroundDuplicateDeletion(Val Parameters) Export
 	
 EndFunction
 
-// 
+// ACC:299-on
 
 // Converts an object to a table for adding to a query.
 Function ObjectIntoValueTable(Val DataObject, Val AdditionalFieldsDetails)
@@ -470,8 +470,8 @@ Procedure RegisterDuplicate(DuplicatesCollection, Val Item1, Val Item2, Val Requ
 	Duplicate1Registered = (DuplicatesRow1 <> Undefined) Or (NotSignificantDuplicatesRow1 <> Undefined);
 	Duplicate2Registered = (DuplicatesRow2 <> Undefined) Or (NotSignificantDuplicatesRow2 <> Undefined);
 	
-	// 
-	// 
+	
+	
 	If Duplicate1Registered And Duplicate2Registered
 		Or NotSignificantDuplicatesRow1 <> Undefined
 		Or NotSignificantDuplicatesRow2 <> Undefined Then
@@ -534,7 +534,7 @@ EndFunction
 // Miscellaneous.
 
 // Parameters:
-//  MetadataObject 
+//  MetadataObject Metadata object
 // 
 // Returns:
 //  Structure:
@@ -579,8 +579,8 @@ EndFunction
 //
 Function QueryTextForDuplicatesSearch(SearchParameters, Characteristics, AdditionalFieldsNames)
 	
-	FieldsNamesToCompareForEquality = New Array; // 
-	FieldsNamesToCompareForSimilarity   = New Array; // 
+	FieldsNamesToCompareForEquality = New Array; 
+	FieldsNamesToCompareForSimilarity   = New Array; 
 	For Each String In SearchParameters.SearchRules Do
 		If String.Rule = "Equal" Then
 			FieldsNamesToCompareForEquality.Add(String.Attribute);
@@ -589,7 +589,7 @@ Function QueryTextForDuplicatesSearch(SearchParameters, Characteristics, Additio
 		EndIf
 	EndDo;
 	
-	// 
+	// Set aliases of additional fields so that they do not overlap with other fields.
 	FieldsNamesInQuery = AvailableFilterAttributes(Characteristics.MetadataObject);
 	If Not Characteristics.HasCode Then
 		If Characteristics.HasNumber Then 
@@ -668,7 +668,7 @@ Function DuplicateSearchDataCompositionSchema(SearchParameters, Characteristics,
 	DCSettingsComposer.LoadSettings(SearchParameters.PrefilterComposer.Settings);
 	DCSettings = DCSettingsComposer.Settings;
 	
-	// Поля.
+	
 	DCSettings.Selection.Items.Clear();
 	For Each FieldName In RequestStructure.FieldsNamesInChoice Do
 		DCField = New DataCompositionField(TrimAll(FieldName));
@@ -700,12 +700,12 @@ Function DuplicateSearchDataCompositionSchema(SearchParameters, Characteristics,
 		SelectedDCField.Field = New DataCompositionField("Parent");
 	EndIf;
 	
-	// Сортировки.
+	
 	DCSettings.Order.Items.Clear();
 	DCOrderItem = DCSettings.Order.Items.Add(Type("DataCompositionOrderItem"));
 	DCOrderItem.Field = New DataCompositionField("Ref");
 	
-	// 
+	
 	//
 	If Characteristics.MetadataObject = Metadata.Catalogs.Users Then
 		DCFilterItem = DCSettings.Filter.Items.Add(Type("DataCompositionFilterItem"));
@@ -714,13 +714,13 @@ Function DuplicateSearchDataCompositionSchema(SearchParameters, Characteristics,
 		DCFilterItem.RightValue = False;
 	EndIf;
 	
-	// Structure
+	
 	DCSettings.Structure.Clear();
 	DCGroup = DCSettings.Structure.Add(Type("DataCompositionGroup"));
 	DCGroup.Selection.Items.Add(Type("DataCompositionAutoSelectedField"));
 	DCGroup.Order.Items.Add(Type("DataCompositionAutoOrderItem"));
 	
-	// 
+	// Read original data.
 	If SampleObject = Undefined Then
 		SampleObjectsSelection = InitializeDCSelection(DCSchema, DCSettingsComposer.GetSettings());
 	Else
@@ -731,7 +731,7 @@ Function DuplicateSearchDataCompositionSchema(SearchParameters, Characteristics,
 		SampleObjectsSelection = InitializeVTSelection(ValueTable);
 	EndIf;
 	
-	// 
+	// Preparing DCS to read the duplicate data.
 	CandidatesFilters = New Map;
 	For Each FieldName In RequestStructure.FieldsNamesToCompareForEquality Do
 		FieldName = TrimAll(FieldName);

@@ -213,13 +213,13 @@ EndProcedure
 
 &AtServer
 Procedure FillImportanceAndStatus()
-	// 
+	// Filling the Importance form item
 	Importance.Add("Error",         String(EventLogLevel.Error));
 	Importance.Add("Warning", String(EventLogLevel.Warning));
 	Importance.Add("Information",     String(EventLogLevel.Information));
 	Importance.Add("Note",     String(EventLogLevel.Note));
 	
-	// 
+	// Filling the TransactionStatus form item
 	TransactionStatus.Add("NotApplicable", String(EventLogEntryTransactionStatus.NotApplicable));
 	TransactionStatus.Add("Committed", String(EventLogEntryTransactionStatus.Committed));
 	TransactionStatus.Add("Unfinished",   String(EventLogEntryTransactionStatus.Unfinished));
@@ -239,12 +239,12 @@ Procedure FillFilterParameters()
 		Value     = FilterParameter.Value;
 		
 		If Upper(ParameterName) = Upper("StartDate") Then
-			// ДатаНачала/StartDate
+			// StartDate.
 			FilterDateRange.StartDate = Value;
 			FilterPeriodStartDate  = Value;
 			
 		ElsIf Upper(ParameterName) = Upper("EndDate") Then
-			// ДатаОкончания/EndDate
+			// EndDate.
 			FilterDateRange.EndDate = Value;
 			FilterPeriodEndDate  = Value;
 			
@@ -305,7 +305,7 @@ Procedure FillFilterParameters()
 			SecondaryIPPorts = Value;
 			
 		ElsIf Upper(ParameterName) = Upper("Level") Then
-			// Уровень/Level
+			// Level.
 			HasFilterByLevel = True;
 			For Each ValueListItem In Importance Do
 				If Value.FindByValue(ValueListItem.Value) <> Undefined Then
@@ -314,7 +314,7 @@ Procedure FillFilterParameters()
 			EndDo;
 			
 		ElsIf Upper(ParameterName) = Upper("TransactionStatus") Then
-			// СтатусТранзакции/TransactionStatus
+			// TransactionStatus.
 			HasFilterByStatus = True;
 			For Each ValueListItem In TransactionStatus Do
 				If Value.FindByValue(ValueListItem.Value) <> Undefined Then

@@ -98,7 +98,7 @@ Procedure CustomPeriodEndClosingDateOnChange(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure PeriodEndClosingDateDetailsOnChange(Item)

@@ -172,7 +172,7 @@ EndProcedure
 // Checks whether the automatic backup is required.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True if necessary, otherwise False.
 //
 Function NecessityOfAutomaticBackup()
 	
@@ -294,7 +294,7 @@ EndProcedure
 // Returns an event type of the event log for the current subsystem.
 //
 // Returns:
-//   String - 
+//   String - an event type of the event log.
 //
 Function EventLogEvent() Export
 	
@@ -380,7 +380,7 @@ Procedure CheckAccessToInfobaseAfterCOMRegistration(IsRegistered, Context) Expor
 		
 		FillPropertyValues(ConnectionResult, Result);
 		
-		Result.Join = Undefined; // 
+		Result.Join = Undefined; 
 		
 	EndIf;
 	
@@ -500,7 +500,7 @@ EndProcedure
 
 Function IBBackupApplicationFilesEncoding() Export
 	
-	// wscript.exe может работать только с файлами в кодировке UTF-16 LE.
+	// wscript.exe can process only UTF-16 LE-encoded files.
 	Return TextEncoding.UTF16;
 	
 EndFunction
@@ -508,7 +508,7 @@ EndFunction
 // Returns backup script parameters.
 //
 // Returns:
-//   Structure - 
+//   Structure - structure of the backup script.
 //
 Function ClientBackupParameters() Export
 	
@@ -516,8 +516,8 @@ Function ClientBackupParameters() Export
 	ParametersStructure.Insert("ApplicationFileName", StandardSubsystemsClient.ApplicationExecutableFileName());
 	ParametersStructure.Insert("EventLogEvent", NStr("en = 'Infobase backup';"));
 	
-	//  
-	// 
+	 
+	
 	TempFilesDirForUpdate = TempFilesDir() + "1Cv8Backup." + Format(CommonClient.SessionDate(), "DF=yyMMddHHmmss") + "\";
 	ParametersStructure.Insert("TempFilesDirForUpdate", TempFilesDirForUpdate);
 	

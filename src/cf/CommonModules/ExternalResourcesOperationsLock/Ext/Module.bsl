@@ -8,21 +8,21 @@
 //
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // 
 // 
+
 // 
 // 
-// 
-// 
-// 
-// 
+
+
 //
-// 
-// 
-// 
+
+
+
 //
-// 
-// 
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #Region Internal
@@ -460,8 +460,8 @@ Function SetExternalResourcesOperationsLock()
 	
 	LockParameters = SavedLockParameters();
 	
-	// 
-	// 
+	
+	
 	If LockParameters.OperationsWithExternalResourcesLocked = Undefined 
 		Or LockParameters.OperationsWithExternalResourcesLocked = True Then
 		Return True; 
@@ -500,14 +500,14 @@ Function SetExternalResourcesOperationsLock()
 		Return True;
 	EndIf;
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	
 	If IsFileInfobase Then
 		
-		// 
-		// 
+		
+		
 		
 		If Not FileInfobaseIDCheckFileExists() Then
 			MessageText = NStr("en = 'The infobase folder does not contain check file %1.';");
@@ -543,10 +543,10 @@ Function SetExternalResourcesOperationsLock()
 			And WorkingProcessServerName <> SavedWorkingProcessServerName
 			And StrFind(SavedConnectionManagerServerName, ConnectionManagerServerName) = 0;
 		
-		// 
-		// 
-		//  
-		// 
+		
+		
+		 
+		
 		
 		If InfobaseNameChanged Or ComputerNameChanged Then
 			
@@ -583,7 +583,7 @@ Procedure SetFlagShowsNecessityOfLock(LockParameters, MessageText)
 	
 	CurrentBlockingParameters = SavedLockParameters();
 	If CurrentBlockingParameters.OperationsWithExternalResourcesLocked = Undefined Then
-		// 
+		
 		Return;
 	EndIf;
 	
@@ -600,7 +600,7 @@ EndProcedure
 
 Function LockReasonPresentation(LockParameters)
 	
-	CurrentDate = CurrentDate(); // 
+	CurrentDate = CurrentDate(); 
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'The lock was set on server <b>%1</b> on <b>%2</b> at <b>%3</b> %4.

@@ -43,19 +43,15 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
 	If AddressingType = 0 Then
 		If Not ValueIsFilled(Performer) Then
-			Common.MessageToUser(
-				NStr("en = 'The task assignee is not specified.';"),,,
-				"Performer",
-				Cancel);
+			Common.MessageToUser(NStr("en = 'The task assignee is not specified.';"),,,
+				"Performer", Cancel);
 		EndIf;
 		Return;
 	EndIf;
 	
 	If Role.IsEmpty() Then
-		Common.MessageToUser(
-			NStr("en = 'The task assignee role is not specified.';"),,,
-			"Role",
-			Cancel);
+		Common.MessageToUser(NStr("en = 'The task assignee role is not specified.';"),,,
+			"Role", Cancel);
 		Return;
 	EndIf;
 	
@@ -66,15 +62,15 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
 	If MainAddressingObjectTypesAreSet And MainAddressingObject = Undefined Then
 		Common.MessageToUser(
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The ""%1"" field is required.';"),	Role.MainAddressingObjectTypes.Description),,,
-			"MainAddressingObject",
-			Cancel);
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The ""%1"" field is required.';"),	
+				Common.ObjectAttributeValue(Role, "MainAddressingObjectTypes")),,,
+				"MainAddressingObject", Cancel);
 		Return;
 	ElsIf TypesOfAditionalAddressingObjectAreSet And AdditionalAddressingObject = Undefined Then
 		Common.MessageToUser(
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The ""%1"" field is required.';"), Role.AdditionalAddressingObjectTypes.Description),,,
-			"AdditionalAddressingObject",
-			Cancel);
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The ""%1"" field is required.';"), 
+				Common.ObjectAttributeValue(Role, "AdditionalAddressingObjectTypes")),,,
+				"AdditionalAddressingObject", Cancel);
 		Return;
 	EndIf;
 	
@@ -82,8 +78,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 		And Not BusinessProcessesAndTasksServer.HasRolePerformers(Role, MainAddressingObject, AdditionalAddressingObject) Then
 		Common.MessageToUser(
 			NStr("en = 'No assignee is assigned to the specified role. (To ignore this warning, select the check box).';"),,,
-			"Role",
-			Cancel);
+			"Role", Cancel);
 		Items.IgnoreWarnings.Visible = True;
 	EndIf;	
 	
@@ -143,10 +138,21 @@ EndProcedure
 &AtServer
 Procedure SetAddressingObjectTypes()
 	
-	MainAddressingObjectTypes = Role.MainAddressingObjectTypes.ValueType;
-	AdditionalAddressingObjectTypes = Role.AdditionalAddressingObjectTypes.ValueType;
-	UsedByAddressingObjects = Role.UsedByAddressingObjects;
-	UsedWithoutAddressingObjects = Role.UsedWithoutAddressingObjects;
+	MainAddressingObjectTypes = Undefined;
+	AdditionalAddressingObjectTypes = Undefined;
+	UsedByAddressingObjects = False;
+	UsedWithoutAddressingObjects = False;
+	
+	If Not Role.IsEmpty() Then
+		RoleInformation = Common.ObjectAttributesValues(Role, 
+			"UsedByAddressingObjects,UsedWithoutAddressingObjects,MainAddressingObjectTypes,AdditionalAddressingObjectTypes");
+		UsedByAddressingObjects = RoleInformation.UsedByAddressingObjects;
+		UsedWithoutAddressingObjects = RoleInformation.UsedWithoutAddressingObjects;
+		If UsedByAddressingObjects Then
+			MainAddressingObjectTypes = Common.ObjectAttributeValue(RoleInformation.MainAddressingObjectTypes, "ValueType");
+			AdditionalAddressingObjectTypes = Common.ObjectAttributeValue(RoleInformation.AdditionalAddressingObjectTypes, "ValueType");
+		EndIf;
+	EndIf;
 	
 EndProcedure
 
@@ -156,6 +162,7 @@ Procedure SetItemsState()
 	Items.Performer.MarkIncomplete = False;
 	Items.Performer.AutoMarkIncomplete = AddressingType = 0;
 	Items.Performer.Enabled = AddressingType = 0;
+	
 	Items.Role.MarkIncomplete = False;
 	Items.Role.AutoMarkIncomplete = AddressingType <> 0;
 	Items.Role.Enabled = AddressingType <> 0;
@@ -165,8 +172,11 @@ Procedure SetItemsState()
 	TypesOfAditionalAddressingObjectAreSet = UsedByAddressingObjects 
 		And ValueIsFilled(AdditionalAddressingObjectTypes);
 		
-	Items.MainAddressingObject.Title = Role.MainAddressingObjectTypes.Description;
-	Items.OneMainAddressingObject.Title = Role.MainAddressingObjectTypes.Description;
+	RoleInformation = Common.ObjectAttributesValues(Role, 
+		"MainAddressingObjectTypes,AdditionalAddressingObjectTypes");
+	Items.MainAddressingObject.Title = String(RoleInformation.MainAddressingObjectTypes);
+	Items.OneMainAddressingObject.Title = String(RoleInformation.MainAddressingObjectTypes);
+	Items.AdditionalAddressingObject.Title = String(RoleInformation.AdditionalAddressingObjectTypes);
 	
 	If MainAddressingObjectTypesAreSet And TypesOfAditionalAddressingObjectAreSet Then
 		Items.OneAddressingObjectGroup.Visible = False;
@@ -179,8 +189,6 @@ Procedure SetItemsState()
 		Items.TwoAddressingObjectsGroup.Visible = False;
 	EndIf;
 		
-	Items.AdditionalAddressingObject.Title = Role.AdditionalAddressingObjectTypes.Description;
-	
 	Items.MainAddressingObject.AutoMarkIncomplete = MainAddressingObjectTypesAreSet
 		And Not UsedWithoutAddressingObjects;
 	Items.OneMainAddressingObject.AutoMarkIncomplete = MainAddressingObjectTypesAreSet

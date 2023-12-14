@@ -188,14 +188,14 @@
 										<CommandName>Form.Command.AddSection</CommandName>
 										<ExtendedTooltip name="QuestionnaireTreeContextMenuAddSectionExtendedTooltip" id="90"/>
 									</Button>
-									<ButtonGroup name="QuestionnaireTreeFormContextMenuGroup1" id="135">
+									<ButtonGroup name="QuestionnaireTreeFormContextMenuGroupMove" id="135">
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Questionnaire tree form context menu group 1</v8:content>
+												<v8:content>Move</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="QuestionnaireTreeFormContextMenuGroup1ExtendedTooltip" id="136"/>
+										<ExtendedTooltip name="QuestionnaireTreeFormContextMenuGroupMoveExtendedTooltip" id="136"/>
 										<ChildItems>
 											<Button name="QuestionnaireTreeContextMenuMoveUp" id="35">
 												<Type>CommandBarButton</Type>
@@ -211,14 +211,14 @@
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
-									<ButtonGroup name="QuestionnaireTreeFormContextMenuGroup2" id="137">
+									<ButtonGroup name="QuestionnaireTreeFormContextMenuDeleteGroup" id="137">
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Questionnaire tree form context menu group 2</v8:content>
+												<v8:content>Delete</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="QuestionnaireTreeFormContextMenuGroup2ExtendedTooltip" id="138"/>
+										<ExtendedTooltip name="QuestionnaireTreeFormContextMenuDeleteGroupExtendedTooltip" id="138"/>
 										<ChildItems>
 											<Button name="QuestionnaireTreeContextMenuRemove" id="37">
 												<Type>CommandBarButton</Type>
@@ -339,14 +339,14 @@
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
-									<ButtonGroup name="QuestionnaireTreeFormGroup1" id="133">
+									<ButtonGroup name="QuestionnaireTreeFormDeleteGroup" id="133">
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Questionnaire tree form group 1</v8:content>
+												<v8:content>Delete</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="QuestionnaireTreeFormGroup1ExtendedTooltip" id="134"/>
+										<ExtendedTooltip name="QuestionnaireTreeFormDeleteGroupExtendedTooltip" id="134"/>
 										<ChildItems>
 											<Button name="QuestionnaireTreeCommandBarRemove" id="38">
 												<Type>CommandBarButton</Type>

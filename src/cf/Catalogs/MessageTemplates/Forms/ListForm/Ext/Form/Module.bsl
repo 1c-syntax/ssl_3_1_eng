@@ -24,7 +24,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		SendSMSMessageEnabled = Common.SubsystemExists("StandardSubsystems.SendSMSMessage");
 	EndIf;
 	
-	// 
+	// buttons are in the group; if there is one button, the group is not required
 	Items.FormCreateSMSMessageTemplate.Visible = SendSMSMessageEnabled;
 	Items.FormCreateEmailTemplate.Visible = EmailOperationsEnabled;
 	Items.FormShowContextTemplates.Visible = Users.IsFullUser();

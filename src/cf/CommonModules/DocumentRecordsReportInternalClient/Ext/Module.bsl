@@ -9,8 +9,8 @@
 
 #Region Internal
 
-// Handler for double click, clicking Enter, or a hyperlink in a report form spreadsheet document.
-// See "Form field extension for a spreadsheet document field.Choice" in Syntax Assistant.
+// 
+// 
 //
 // Parameters:
 //   ReportForm          - ClientApplicationForm - a report form.
@@ -40,10 +40,10 @@ EndProcedure
 // Parameters:
 //   ReportForm      - ClientApplicationForm - a report form.
 //   Details      - Structure:
-//      * RegisterType - 
-//      * RegisterName - 
-//      * Recorder - 
-//                      
+//      * RegisterType - a register kind: "AccumulationRegister", "InformationRegister", "AccountingRegister", or "CalculationRegister".
+//      * RegisterName - a name of a register as a metadata object.
+//      * Recorder - a reference to a document recorder for which you need to make a filter
+//                      in the opened register form.
 //   StandardProcessing - Boolean  - indicates whether standard (system) event processing is executed.
 //
 Procedure OpenRegisterFormFromRecordsReport(ReportForm, Details, StandardProcessing)
@@ -83,8 +83,8 @@ EndProcedure
 //
 // Parameters:
 //   StructureItem        - DataCompositionSettingsComposer
-//                           - DataCompositionSettings - 
-//   FilterParameters         - Structure - contains data composition filter parameters.
+//                           - DataCompositionSettings - a data composition structure item.
+//   FilterParameters         - Structure - contains data composition filter parameters.:
 //     * Field                - String - a field name, by which a filter is added.
 //     * Value            - Arbitrary - a filter value of data composition (Undefined by default).
 //     * ComparisonType        - DataCompositionComparisonType - a comparison type of data composition (Undefined by default).
@@ -94,7 +94,7 @@ EndProcedure
 //     * ReplaceCurrent       - Boolean - a flag of complete replacement of existing filter by field (True by default).
 //
 // Returns:
-//   DataCompositionFilterItem - 
+//   DataCompositionFilterItem - an added filter.
 //
 Function AddFilter(StructureItem, FilterParameters, AdditionalParameters = Undefined)
 	

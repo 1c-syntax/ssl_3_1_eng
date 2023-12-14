@@ -20,14 +20,14 @@
 //  User        - CatalogRef.Users
 //                      - CatalogRef.ExternalUsers
 //                      - CatalogRef.UserGroups
-//                      - CatalogRef.ExternalUsersGroups - 
+//                      - CatalogRef.ExternalUsersGroups - a member to be included in the access group.
 // 
 //  SuppliedProfile - String - an ID string of a built-in profile.
-//                      - CatalogRef.AccessGroupProfiles - 
-//                        
-//                        
-//                        
-//                        
+//                      - CatalogRef.AccessGroupProfiles - a reference to the profile
+//                        created by description in the AccessControlOverridable module
+//                        in FillAccessGroupsSuppliedProfiles procedure.
+//                        Profiles with a non-blank list of access kinds are not supported.
+//                        Administrator access group profile is not supported.
 // 
 Procedure AddUserToAccessGroup(User, SuppliedProfile) Export
 	
@@ -44,8 +44,8 @@ EndProcedure
 //
 // Parameters:
 //  PerformersGroups - CatalogRef.TaskPerformersGroups - one group,
-//                     - Array of CatalogRef.TaskPerformersGroups - 
-//                     - Undefined - 
+//                     - Array of CatalogRef.TaskPerformersGroups - — several groups,
+//                     - Undefined - without filter.
 //
 Procedure UpdatePerformersGroupsUsers(PerformersGroups = Undefined) Export
 	
@@ -95,23 +95,23 @@ EndFunction
 // Parameters:
 //  Table      - String - a full name of the metadata object, for example, Document.PurchaseInvoice.
 //  ValuesType  - Type    - a type of access values whose allowed values are to be returned.
-//               - Array - 
+//               - Array - array of the types specified above.
 //
 //  Values     - Undefined - do not consider.
-//               - Array - 
+//               - Array - an array of type values specified in the ValuesType parameter.
 //
 //  User - Undefined - return allowed values for the authorized user.
 //               - CatalogRef.Users
-//               - CatalogRef.ExternalUsers - 
-//                   
+//               - CatalogRef.ExternalUsers - return
+//                   allowed values for the specified user.
 //
 //  ReturnAll   - Boolean - if set to True, all values will be returned, even
 //                   if there are more than 100 values.
 //
 // Returns:
-//  Undefined - 
-//                 
-//  
+//  Undefined - either all values are allowed for the types specified in the ValuesType parameter,
+//                 or (when ReturnAll = False) the number of the allowed values exceeds 100.
+//  Array - references of allowed values of the specified types.
 //
 Function AllowedDynamicListValues(Table, ValuesType, Values = Undefined, User = Undefined, ReturnAll = False) Export
 	
@@ -365,10 +365,10 @@ Procedure SetExternalReportsAndDataProcessorsOpenRight(OpenAllowed) Export
 					Continue;
 				EndIf;
 				If SimplifiedInterface Then
-					// 
+					// In the simplified interface, each administrator is added to a separate group.
 					AccessManagement.EnableProfileForUser(User, ProfileProperties.Ref);
 				Else
-					// 
+					// In the extended interface, administrators are added to one group connected to the predefined profile.
 					UsersContent.Add(User);
 				EndIf;
 			EndIf;
@@ -429,7 +429,7 @@ Procedure SetExternalReportsAndDataProcessorsOpenRight(OpenAllowed) Export
 			EndTry;
 		EndDo;
 		
-		// 
+		// Clearing access group members connected to the predefined profile.
 		Query = New Query;
 		Query.Text =
 		"SELECT DISTINCT
@@ -490,9 +490,9 @@ EndFunction
 // Parameters:
 //  UsersDetails - CatalogRef.Users
 //                        - CatalogRef.ExternalUsers
-//                        - Array - 
-//                        - Undefined - 
-//                        - Type - 
+//                        - Array - values of the type specified above.
+//                        - Undefined - update all user roles.
+//                        - Type - :
 //                          
 //                          
 //                          
@@ -507,7 +507,7 @@ Procedure UpdateUserRoles(Val UsersDetails = Undefined,
                                     HasChanges = False) Export
 	
 	If Not UsersInternal.CannotEditRoles() Then
-		// 
+		// Roles are set by tools of Users and ExternalUsers subsystems.
 		Return;
 	EndIf;
 	
@@ -628,7 +628,7 @@ Procedure UpdateUserRoles(Val UsersDetails = Undefined,
 		UnavailableRoles = UsersInternal.UnavailableRolesByUserType(
 			TypeOf(CurrentUser) = Type("CatalogRef.ExternalUsers"));
 		
-		// 
+		
 		For Each String In NewRoles Do
 			
 			If OldRoles[String.Role] <> Undefined Then
@@ -883,7 +883,7 @@ EndFunction
 //
 // Parameters:
 //  ActiveParameters - Undefined - a default value.
-//                       - Structure - 
+//                       - Structure - only to call from the CheckAccessRestrictionResult function.
 //
 // Returns:
 //  Structure:
@@ -1035,8 +1035,8 @@ EndFunction
 //        * TextForExternalUsers1 - String - a new restriction text for external users.
 //        * ConsiderDependencies         - Boolean - consider dependencies between object restrictions.
 //        * AllAccessKindsUsed   - Undefined - find by the current settings.
-//                                       - Boolean - 
-//                                                  
+//                                       - Boolean - True (by default) - all kinds are used,
+//                                                  False - none are used.
 //
 // Returns:
 //  Structure:
@@ -1044,17 +1044,17 @@ EndFunction
 //       If ConsiderDependencies = True, this is a text of the first error when all details are received.
 //
 //   * TextInManagerModule - Undefined - when RestrictionDetailsError is filled in.
-//                           - Boolean - 
-//                               
+//                           - Boolean - returns a restriction text location,
+//                               when True - in the manager module, otherwise, in the overridable module.
 //
 //   * ForUsers - Structure:
 //      ** RestrictionToCheck - Undefined
 //                                - String - 
 //      ** ErrorsDescription         - See ErrorsDescription
 //      ** RestrictionParametersGenerationError - Undefined
-//                                                 - String - error text.
+//                                                 - String - Error text.
 //      ** QueriesTextsGenerationError       - Undefined
-//                                                 - String - error text.
+//                                                 - String - Error text.
 //      ** RestrictionByOwnerPossible     - Undefined
 //                                            - Boolean - 
 //      ** TheOwnerRestrictionIsUsed - Undefined
@@ -1063,9 +1063,9 @@ EndFunction
 //                           - Structure:
 //          *** TemplateForObject - Boolean - if True, the #ForObject template is used,
 //                                          if False, the #ForRegister template is used.
-//          *** Parameters - Array -
-//               **** Value - String - for example, the name of the "Owner" field or
-//                                        the "Company" register reference field.
+//          *** Parameters - Array - :
+//               **** Value - String - for example, the Owner field name, or
+//                                        a name of basic field of the Company register.
 //      ** RestrictionInModule - Undefined
 //                            - String - 
 //      ** ByOwnerWithoutSavingAccessKeys - Undefined
@@ -1083,13 +1083,13 @@ EndFunction
 //
 //   * DimensionTypesForSeparateKeyRegister - Undefined
 //                                           - Structure:
-//      ** InformationRegisterName - String - name of the access key register.
+//      ** InformationRegisterName - String - an access key register name.
 //      ** DimensionsTypes       - String - types for the corresponding register dimensions.
 //
 //   * PredefinedID - Undefined
 //                                   - Structure:
-//      ** CatalogName       - String - the name of the directory identifiers of the metadata objects (or extensions).
-//      ** PredefinedItemName - String - name of the predefined one in the directory.
+//      ** CatalogName       - String - metadata object (or extension) IDs catalog name.
+//      ** PredefinedItemName - String - a predefined item name in the catalog.
 //
 Function AccessRestrictionCheckResult(FullName, AdditionalParameters = Undefined) Export
 	
@@ -1101,10 +1101,10 @@ EndFunction
 // 
 // Parameters:
 //  Lists - Undefined - schedule full access update.
-//         - String - full name of the metadata object.
-//         - CatalogRef.MetadataObjectIDs - ID.
+//         - String - Full name of a metadata object.
+//         - CatalogRef.MetadataObjectIDs - an ID.
 //         - Array
-//         - FixedArray - 
+//         - FixedArray - values of the types specified above, except for Undefined.
 //
 //  PlanningParameters - See AccessUpdatePlanningParameters
 //
@@ -1188,12 +1188,12 @@ Procedure ScheduleAccessUpdate(Lists = Undefined, PlanningParameters = Undefined
 			ListsToUpdate.Add(KeyAndValue.Key);
 		EndDo;
 		
-		// 
-		// 
-		// 
-		// 
-		// 
-		// 
+		
+		
+		
+		
+		
+		
 		//    
 		
 	ElsIf TypeOf(Lists) <> Type("Array")
@@ -1615,25 +1615,25 @@ EndProcedure
 //
 Procedure UpdateAccessRestrictionParameters(HasChanges = Undefined) Export
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.RolesRights.
 	InformationRegisters.RolesRights.UpdateRegisterData(HasChanges);
 	
-	// ЗависимостиПравДоступа
+	// AccessRightsDependencies
 	InformationRegisters.AccessRightsDependencies.UpdateRegisterData(HasChanges);
 	
 	// Parameter StandardSubsystems.AccessManagement.AccessKindsProperties.
 	UpdateAccessKindsPropertiesDetails(HasChanges);
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.RightsForObjectsRightsSettingsAvailable.
 	InformationRegisters.ObjectsRightsSettings.UpdateAvailableRightsForObjectsRightsSettings(HasChanges);
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.SuppliedProfilesDescription.
 	Catalogs.AccessGroupProfiles.UpdateSuppliedProfilesDescription(HasChanges);
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.AccessGroupPredefinedProfiles.
 	Catalogs.AccessGroupProfiles.UpdatePredefinedProfileComposition(HasChanges);
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.AccessRestrictionTextsVersion.
 	InformationRegisters.AccessRestrictionParameters.UpdateAccessRestrictionTextsVersion(HasChanges);
 	
 EndProcedure
@@ -1696,13 +1696,13 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.ExecutionMode = "Seamless";
 	Handler.Procedure = "AccessManagementInternal.FillSeparatedDataHandlers";
 	
-	// 
+	// Separated data update handlers.
 	Handler = Handlers.Add();
 	Handler.Version = "*";
 	Handler.ExecutionMode = "Seamless";
 	Handler.Procedure = "AccessManagementInternal.UpdateAuxiliaryRegisterDataByConfigurationChanges";
 	
-	// 
+	// Executed after the FillSuppliedDataIDs handler.
 	Handler = Handlers.Add();
 	Handler.Version = "1.0.0.1";
 	Handler.InitialFilling = True;
@@ -1787,7 +1787,7 @@ EndProcedure
 // See InfobaseUpdateOverridable.OnPopulateObjectsPlannedForDeletion.
 Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
 	
-	// 
+	
 	AccessRightsDependencies = InformationRegisters.AccessRightsDependencies.AccessRightsDependencies();
 	LeadingTablesTypes = New Array;
 	For Each String In AccessRightsDependencies Do
@@ -1805,7 +1805,7 @@ Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
 	ImplementationSettings = ImplementationSettings();
 	AccessKindsProperties = AccessKindsProperties();
 	
-	// 
+	
 	TypesOfGroupsAndValues = New Array;
 	For Each KeyAndValue In AccessKindsProperties.ByGroupsAndValuesTypes Do
 		TypesOfGroupsAndValues.Add(KeyAndValue.Key);
@@ -1832,7 +1832,7 @@ Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
 	AddObjectPlannedForDeletion(Objects, RequiredAccessValueType,
 		Metadata.InformationRegisters.UsedAccessKindsByTables.Dimensions.AccessValuesType);
 	
-	// 
+	
 	AvailableRights = RightsForObjectsRightsSettingsAvailable();
 	RightsSettingsOwnersTypes = New Array;
 	For Each RightsOwner In AvailableRights.OwnersTypes Do
@@ -1849,12 +1849,12 @@ Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
 	AddObjectPlannedForDeletion(Objects, RequiredTypeOfRightsSettingsOwner,
 		Metadata.InformationRegisters.ObjectRightsSettingsInheritance.Dimensions.Parent);
 	
-	// 
+	
 	AddObjectPlannedForDeletion(Objects,
 		New TypeDescription(StrConcat(ImplementationSettings.AccessKeysValuesOwners.References, ",")),
 		Metadata.InformationRegisters.AccessKeysForObjects.Dimensions.Object);
 	
-	// 
+	
 	For Each KeysRegistersDetails In ImplementationSettings.KeysRegistersDimensionsTypes Do
 		KeysRegisterName = KeysRegistersDetails.Key;
 		KeysRegisterMetadata = Metadata.InformationRegisters[KeysRegisterName];
@@ -1867,7 +1867,7 @@ Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
 		EndDo;
 	EndDo;
 	
-	// 
+	
 	SubscriptionObjectsTypes = AccessManagementInternalCached.ObjectsTypesInSubscriptionsToEvents(
 		"WriteAccessValuesSets");
 	SubscriptionsObjectsRefsTypes = New Array;
@@ -1882,7 +1882,7 @@ Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
 	AddObjectPlannedForDeletion(Objects, RequiredTypeOfTablesWithWritingAccessValueSets,
 		Metadata.InformationRegisters.AccessValuesSets.Dimensions.Object);
 	
-	// 
+	
 	AddObjectPlannedForDeletion(Objects, RequiredAccessValueType,
 		Metadata.InformationRegisters.AccessValuesSets.Dimensions.AccessValue);
 	
@@ -2077,10 +2077,10 @@ EndProcedure
 // See DataExchangeOverridable.OnSetUpSubordinateDIBNode.
 Procedure OnSetUpSubordinateDIBNode() Export
 	
-	// Роли расширений назначаются независимо во всех РИБ-
+	// Extension roles are assigned independently in all DIB nodes.
 	Catalogs.AccessGroupProfiles.DeleteExtensionsRolesInAllAccessGroupsProfiles();
 	
-	// Администраторы назначаются независимо во всех РИБ-
+	// Administrators are assigned independently in all DIB nodes.
 	Catalogs.AccessGroups.DeleteMembersOfAdministratorsAccessGroupWithoutIBUser();
 	
 	If Common.IsStandaloneWorkplace() Then
@@ -2107,8 +2107,8 @@ Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	If Common.IsStandaloneWorkplace()
 	   And (    TypeOf(DataElement) = Type("CatalogObject.AccessGroupProfiles")
 	        And IsProfileOpenExternalReportsAndDataProcessors(DataElement)
@@ -2128,14 +2128,6 @@ EndProcedure
 
 // See StandardSubsystemsServer.OnSendDataToSlave.
 Procedure OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating, Recipient) Export
-	
-	// 
-	// 
-	// 
-	
-	// 
-	// 
-	// 
 	
 	If InitialImageCreating Then
 		Return;
@@ -2191,8 +2183,8 @@ Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Sender) Exp
 	      Or TypeOf(DataElement) = Type("InformationRegisterRecordSet.ObjectsRightsSettings")
 	      Or TypeOf(DataElement) = Type("InformationRegisterRecordSet.UsedAccessKinds") Then
 		
-		// 
-		// 
+		
+		
 		ItemReceive = DataItemReceive.Ignore;
 		SendBack = True;
 	EndIf;
@@ -2222,28 +2214,28 @@ Procedure OnFillAllExtensionParameters() Export
 	UpdateAccessGroupsTablesForEnabledExtensions();
 	
 	If InformationRegisters.ApplicationRuntimeParameters.UpdateRequired1() Then
-		// 
-		// 
-		// 
+		
+		
+		
 		Return;
 	EndIf;
 	
 	// Parameter StandardSubsystems.AccessManagement.AccessKindsProperties.
 	UpdateGroupsAndSetsOfAccessValuesWhenGroupTypesAndValuesChange();
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.RightsForObjectsRightsSettingsAvailable.
 	InformationRegisters.ObjectsRightsSettings.UpdateAuxiliaryRegisterDataByConfigurationChanges1();
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.SuppliedProfilesDescription.
 	Catalogs.AccessGroupProfiles.UpdateSuppliedProfilesByConfigurationChanges();
 	Catalogs.AccessGroupProfiles.UpdateNonSuppliedProfilesOnConfigurationChanges();
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.AccessGroupPredefinedProfiles.
 	Catalogs.AccessGroups.MarkForDeletionSelectedProfilesAccessGroups();
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	UpdateUserRoles();
 	
 	// Parameter StandardSubsystems.AccessManagement.AccessRestrictionTextsVersion.
@@ -2257,8 +2249,8 @@ EndProcedure
 // See UsersOverridable.OnDefineSettings.
 Procedure OnDefineSettings(Settings) Export
 	
-	// 
-	// 
+	
+	
 	Settings.EditRoles = False;
 	
 EndProcedure
@@ -2428,10 +2420,10 @@ Procedure OnCopyRightsToNewUser(Source, Receiver) Export
 		
 		Block = New DataLock;
 		Block.Add("Catalog.AccessGroups");
-		// ACC:1320-
-		// 
-		// 
-		// 
+		
+		
+		
+		
 		Block.Lock();
 		// ACC:1320-on.
 	EndIf;
@@ -2519,7 +2511,7 @@ Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessin
 	
 EndProcedure
 
-// 
+
 
 // See ReportMailingOverridable.DetermineReportsToExclude
 Procedure WhenDefiningExcludedReports(ReportsToExclude) Export
@@ -2844,8 +2836,8 @@ Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object,
 		Catalogs.AccessGroupProfiles.DeleteExtensionsRoles(Object);
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	If Common.DataSeparationEnabled() Then
 		Return;
 	EndIf;
@@ -2868,8 +2860,8 @@ EndProcedure
 // See ExportImportDataOverridable.OnRegisterDataExportHandlers.
 Procedure BeforeExportRecordSet(Container, ObjectExportManager, Serializer, Object, Artifacts, Cancel) Export
 	
-	// 
-	// 
+	
+	
 	If Common.DataSeparationEnabled() Then
 		Return;
 	EndIf;
@@ -2923,8 +2915,8 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 	EndIf;
 	#EndRegion
 	
-	// 
-	// 
+	
+	
 	LimitAccessAtRecordLevel = Constants.LimitAccessAtRecordLevel.Get();
 	InfobaseLockedForUpdate = ValueIsFilled(
 		InfobaseUpdateInternal.InfobaseLockedForUpdate(False));
@@ -3072,8 +3064,8 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 	
 	SpecifiedParameters.Add("DisabledAccessKinds");
 	
-	// 
-	// 
+	
+	
 	SessionParameters.AccessKindsWithoutGroupsForAccessValues =
 		AllAccessKindsCombinations(AccessKindsProperties.NoGroupsForAccessValue);
 	SessionParameters.AccessKindsWithSingleGroupForAccessValue =
@@ -3089,8 +3081,8 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 	SpecifiedParameters.Add("AccessKindsWithSingleGroupForAccessValue");
 	SpecifiedParameters.Add("AccessValuesTypesWithGroups");
 	
-	// 
-	// 
+	
+	
 	AvailableRights = RightsForObjectsRightsSettingsAvailable();
 	SeparateTables = AvailableRights.SeparateTables;
 	TablesWithIndividualRightsSettings = "";
@@ -3336,7 +3328,7 @@ EndFunction
 
 // Parameters:
 //  Objects            - See InfobaseUpdate.AddObjectPlannedForDeletion.Objects
-//  See InfobaseUpdate.AddObjectPlannedForDeletion.Object
+//   See InfobaseUpdate.AddObjectPlannedForDeletion.Object
 //  RequiredTypes      - TypeDescription
 //  
 //
@@ -3448,10 +3440,10 @@ EndProcedure
 //
 Procedure RecordSetsOfWriteAccessValues(Val Object, Cancel) Export
 	
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
 	If Object.DataExchange.Load
 	   And Not Object.AdditionalProperties.Property("WriteAccessValuesSets") Then
 		
@@ -3475,10 +3467,10 @@ EndProcedure
 //
 Procedure WriteDependentSetsOfWriteAccessValues(Val Object, Cancel) Export
 	
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
 	If Object.DataExchange.Load
 	   And Not Object.AdditionalProperties.Property("WriteDependentAccessValuesSets") Then
 		
@@ -3508,7 +3500,7 @@ EndProcedure
 //                  - ChartOfCalculationTypesObject
 //                  - BusinessProcessObject
 //                  - TaskObject
-//                  - ExchangePlanObject - a data object that is passed to the pre-Recording event subscription.
+//                  - ExchangePlanObject - a data object passed to the BeforeWrite event subscription.
 //
 //  Cancel           - Boolean - a parameter passed to the BeforeWrite event subscription.
 //
@@ -3520,10 +3512,10 @@ EndProcedure
 //
 Procedure FillAccessValuesSetsForTabularSections(Source, Cancel = Undefined, WriteMode = Undefined, PostingMode = Undefined) Export
 	
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
 	If Source.DataExchange.Load
 	   And Not Source.AdditionalProperties.Property("WriteAccessValuesSets") Then
 		Return;
@@ -3624,7 +3616,7 @@ Procedure DataFillingForAccessRestriction(DataVolume = 0, OnlyCacheAttributes = 
 				
 				Query.Text = StrReplace(Query.Text, "Catalog.Users", TableName);
 				Query.Text = StrReplace(Query.Text, "&CurrentTable", TableName);
-				// 
+				// @skip-check query-in-loop - Batch processing of data
 				Values = Query.Execute().Unload().UnloadColumn("Ref");
 				
 				InformationRegisters.AccessValuesGroups.UpdateAccessValuesGroups(Values, HasChanges);
@@ -3656,12 +3648,12 @@ Procedure DataFillingForAccessRestriction(DataVolume = 0, OnlyCacheAttributes = 
 					|WHERE
 					|	InformationRegisterAccessValuesSets.Object IS NULL ";
 					Query.Text = StrReplace(Query.Text, "&CurrentTable", Metadata.FindByType(Type).FullName());
-					// 
+					// @skip-check query-in-loop - Batch processing of data
 					Selection = Query.Execute().Select();
 					DataVolume = DataVolume + Selection.Count();
 					
 					While Selection.Next() Do
-						// 
+						// @skip-check query-in-loop - Batch processing of data
 						UpdateAccessValuesSets(Selection.Ref, HasChanges);
 					EndDo;
 				EndIf;
@@ -3806,7 +3798,7 @@ EndProcedure
 //
 // Parameters:
 //  AccessKind - DefinedType.AccessValue - a blank reference of the main access kind value type.
-//             - String - name of the access type.
+//             - String - an access kind name.
 //
 // Returns:
 //  Boolean
@@ -3846,8 +3838,8 @@ EndFunction
 
 // Returns:
 //  Map of KeyAndValue:
-//   * Key - DefinedType.AccessValue - empty link of the main type of access type.
-//   * Value - Boolean - the value is True.
+//   * Key - DefinedType.AccessValue - a blank reference of the main access kind value type.
+//   * Value - Boolean - the True value.
 //
 Function UsedAccessKinds() Export
 	
@@ -3889,7 +3881,7 @@ EndFunction
 //
 // Parameters:
 //  AccessKind - DefinedType.AccessValue - a blank reference of the main access kind value type.
-//             - String - name of the access type.
+//             - String - an access kind name.
 //
 // Returns:
 //   Structure:
@@ -3898,8 +3890,8 @@ EndFunction
 //     * ValuesType - Type
 //     * ValuesGroupsType - Type
 //     * MultipleValuesGroups - Boolean
-//     * AdditionalTypes - Array of See AdditionalAccessKindType
-//     * TypesOfValuesToSelect - Array of Type
+//     * AdditionalTypes - FixedArray of See AdditionalAccessKindType
+//     * TypesOfValuesToSelect - FixedArray of Type
 //   Undefined
 //
 Function AccessKindProperties(AccessKind) Export
@@ -3962,8 +3954,8 @@ EndFunction
 //
 // Parameters:
 //  ReferenceOrObject - AnyRef
-//                  - DefinedType.AccessValuesSetsOwnerObject - 
-//                    
+//                  - DefinedType.AccessValuesSetsOwnerObject - a reference or an object,
+//                    for which access value sets are populated.
 //
 //  HasChanges - Boolean
 //                - Undefined
@@ -4020,9 +4012,9 @@ Procedure UpdateAccessValuesSets(ReferenceOrObject, HasChanges = Undefined, IBUp
 				InfobaseUpdate.WriteData(Object);
 			Else
 				Object.DataExchange.Load = True;
-				// ACC:1327-
-				// 
-				// 
+				
+				
+				
 				Object.Write();
 				// ACC:1327-on
 			EndIf;
@@ -4062,7 +4054,7 @@ Procedure PrepareAccessValuesSetsForWrite(ObjectReference, Table, AddCacheAttrib
 	For Each String In Table Do
 		
 		If AddCacheAttributes Then
-			// 
+			// Setting the Object dimension value.
 			String.Object = ObjectReference;
 			
 			AccessValueType = TypeOf(String.AccessValue);
@@ -4076,8 +4068,8 @@ Procedure PrepareAccessValuesSetsForWrite(ObjectReference, Table, AddCacheAttrib
 			
 		EndIf;
 		
-		// 
-		// 
+		
+		
 		If SetNumber = String.SetNumber Then
 			String.Read    = False;
 			String.Update = False;
@@ -4136,58 +4128,58 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Management of AccessKinds and AccessValues tables in edit forms.
 
-// Fills the auxiliary data required for the form.
-// The data does not depend on the object content or filled for a new object.
+// 
+// 
 //
-// The form has to contain the attributes listed below.
-// Attributes marked with (&) are filled automatically, but they must be created in the form.
-// Attributes marked with a number sign (#) must be created in the form if
-// the CurrentAccessGroup attribute is to be created in the form (see below). 
-// Attributes marked with the at sign (@) are created automatically.
+// 
+// 
+// 
+// 
+// 
 //
-//  CurrentAccessGroup - an optional attribute,
-//                         it is not used unless created in the form.
-//
-//  AccessKinds - a table with the following fields:
-//    #AccessGroup - CatalogRef.AccessGroups,
-//    AccessKind - DefinedType.AccessValue,
-//    PresetAccessKind - Boolean (for the profile only),
-//    AllAllowed - Boolean,
-//    &AccessKindPresentation - String - a setting presentation,
-//    &AllAllowedPresentation - String - a setting presentation,
-//    @IsInUse - Boolean.
-//
-//  AccessValues - a table with the following fields:
-//    #AccessGroup - CatalogRef.AccessGroups,
-//    &AccessKind - DefinedType.AccessValue,
-//    AccessValue - DefinedType.AccessValue,
-//    &RowNumberByKind - Number.
-//
-//  &UseExternalUsers - Boolean - an attribute will be created if it is not in the form.
-//  &AccessKindLabel - String - a presentation of the current access kind in the form.
-//  @IsAccessGroupsProfile - Boolean.
-//  @CurrentAccessKind - DefinedType.AccessValue.
-//  @CurrentTypesOfValuesToSelect - ValueList.
-//  @CurrentTypeOfValuesToSelect - DefinedType.AccessValue.
-//  @TablesStorageAttributeName - String.
-//  @AccessKindUsers - DefinedType.AccessValue.
-//  @AccessKindExternalUsers - DefinedType.AccessValue.
 //  
-//  @AllAccessKinds - a table with the following fields:
-//    @Ref - DefinedType.AccessValue,
-//    @Presentation - String,
-//    @IsInUse - Boolean.
+//                         
 //
-//  @PresentationsAllAllowed - a table with the following fields:
-//    @Name - String,
-//    @Presentation - String.
+//  
+//    
+//    
+//    
+//    
+//    
+//    
+//    
 //
-//  @AllTypesOfValuesToSelect - a table with the following fields:
-//    @AccessKind - DefinedType.AccessValue,
-//    @ValuesType - DefinedType.AccessValue,
-//    @TypePresentation - String,
-//    @TableName - String,
-//    @ItemsHierarchy - Boolean.
+//  
+//    
+//    
+//    
+//    
+//
+//  
+//  
+//  
+//  
+//  
+//  
+//  
+//  
+//  
+//  
+//  
+//    
+//    
+//    
+//
+//  
+//    
+//    
+//
+//  
+//    
+//    
+//    
+//    
+//    
 //
 // Parameters:
 //  Form      - See AccessManagementInternalClientServer.AllowedValuesEditFormParameters
@@ -4195,10 +4187,10 @@ EndProcedure
 //  ThisProfile - Boolean - indicates that access kinds can be set up,
 //               also settings presentation contains 4 values, not 2.
 //
-//  TablesStorageAttributeName - String - containing, for example, the Object row that
-//               contains the AccessKinds and AccessValues tables (see below). 
-//               If a blank row is specified,
-//               the tables are considered to be stored in the form attributes.
+//  TablesStorageAttributeName - String - 
+//               
+//               
+//               
 //
 Procedure OnCreateAtServerAllowedValuesEditForm(Form, ThisProfile = False, TablesStorageAttributeName = "Object") Export
 	
@@ -4391,7 +4383,7 @@ EndProcedure
 // Parameters:
 //  Data - Structure:
 //    * RecordSet           - InformationRegisterRecordSet - a blank or read RecordSet with or without set filter.
-//                             - InformationRegisterManager - the Manager of the register to generate a set of records.
+//                             - InformationRegisterManager - register manager to create a record set.
 //
 //    * NewRecords            - ValueTable - in a register format.
 //
@@ -4415,9 +4407,9 @@ EndProcedure
 //                               the HasChanges property.
 //
 //    * AdditionalProperties - Structure
-//                             - Undefined - 
-//                               
-//                               
+//                             - Undefined - if Structure, all structure parameters will be added
+//                               to the AdditionalProperties property
+//                               of the <Register*>RecordSet objects.
 //
 //    * IBUpdate           - Boolean - if True, write data
 //                               without performing unnecessary and redundant actions with the data.
@@ -4607,36 +4599,36 @@ EndProcedure
 //                                  Source1. The ChangeDate attribute is not included in the list.
 //
 //    * FirstDimensionName       - Undefined - there is no filter by dimension.
-//                                - String       - 
-//                                                 
+//                                - String       - contains the first dimension name, for which
+//                                                 multiple values are set.
 //                                
 //    * FirstDimensionValues  - Undefined - there is no filter by dimension, similar to
 //                                                 FirstDimensionName = Undefined.
-//                                - AnyRef  - 
-//                                                 
-//                                - Array       - 
-//                                                 
-//                                                 
+//                                - AnyRef  - contains one register filter value for
+//                                                 the records being updated.
+//                                - Array       - contains a register filter value array for
+//                                                 the records being updated. If the array is blank,
+//                                                 no action is required.
 //
 //    * SecondDimensionName       - Undefined
-//                                - String - 
+//                                - String - similar to FirstDimensionName.
 //    * SecondDimensionValues  - Undefined
 //                                - AnyRef
-//                                - Array - 
+//                                - Array - similar to FirstDimensionValues.
 //    * ThirdDimensionName      - Undefined
-//                                - String - 
+//                                - String - similar to FirstDimensionName.
 //    * ThirdDimensionValues - Undefined
 //                                - AnyRef
-//                                - Array - 
+//                                - Array - similar to FirstDimensionValues.
 //
 //    * IsCheckOnly            - Boolean - if True, do not write,
 //                                  only find out if writing is required and set
 //                                  the HasChanges property.
 //
 //    * AdditionalProperties    - Undefined
-//                                - Structure - 
-//                                  
-//                                  
+//                                - Structure - if Structure, all structure parameters will be added
+//                                  to the AdditionalProperties property
+//                                  of the <Register*>RecordSet objects.
 //
 //    * IBUpdate              - Boolean - if True, write data
 //                                  without performing unnecessary and redundant actions with the data.
@@ -4687,7 +4679,7 @@ Procedure UpdateRecordSets(Val Data, HasChanges) Export
 	
 	OrderDimensionsParametersGroups(Data);
 	
-	// 
+	// Checking and updating data.
 	Data.Insert("RecordSet",       Data.RegisterManager.CreateRecordSet());
 	Data.Insert("RegisterMetadata", Metadata.FindByType(TypeOf(Data.RecordSet)));
 	Data.Insert("FullRegisterName",  Data.RegisterMetadata.FullName());
@@ -4730,7 +4722,7 @@ Procedure UpdateRecordSets(Val Data, HasChanges) Export
 					If Data.ThirdDimensionName = Undefined Then
 						RecordByMultipleSets = False;
 					Else
-						// @skip-
+						// @skip-check query-in-loop - Batch processing of data
 						RecordByMultipleSets = RecordByMultipleSets(Data,
 							Filter, Data.SecondDimensionName, Data.SecondDimensionValues);
 					EndIf;
@@ -4745,7 +4737,7 @@ Procedure UpdateRecordSets(Val Data, HasChanges) Export
 						EndDo;
 						Data.RecordSet.Filter[Data.SecondDimensionName].Use = False;
 					Else
-						// 
+						// Updating by two dimensions.
 						Data.Insert("CountByValues", CountByFirstDimensionValues);
 						RefreshNewSetRecordsByVariousNewRecords(Data, Filter, HasChanges);
 					EndIf;
@@ -4766,7 +4758,7 @@ Procedure UpdateRecordSets(Val Data, HasChanges) Export
 			UpdateRecordSet(CurrentData, HasChanges);
 			
 		ElsIf Data.SecondDimensionName = Undefined Then
-			// 
+			// Updating by one dimension.
 			Filter = New Structure(Data.FirstDimensionName);
 			For Each Value In Data.FirstDimensionValues Do
 				
@@ -4788,7 +4780,7 @@ Procedure UpdateRecordSets(Val Data, HasChanges) Export
 			EndDo;
 			
 		ElsIf Data.ThirdDimensionName = Undefined Then
-			// 
+			// Updating by two dimensions.
 			FieldList = Data.FirstDimensionName + ", " + Data.SecondDimensionName;
 			Data.NewRecords.Indexes.Add(FieldList);
 			Filter = New Structure(FieldList);
@@ -4806,7 +4798,7 @@ Procedure UpdateRecordSets(Val Data, HasChanges) Export
 					HasChanges);
 			EndDo;
 		Else
-			// 
+			// Updating by three dimensions.
 			FieldList = Data.FirstDimensionName + ", " + Data.SecondDimensionName + ", " + Data.ThirdDimensionName;
 			Data.NewRecords.Indexes.Add(FieldList);
 			Filter = New Structure(FieldList);
@@ -4863,9 +4855,9 @@ EndProcedure
 //                             the HasChanges property.
 //
 //  * AdditionalProperties - Undefined
-//                           - Structure - 
-//                             
-//                             
+//                           - Structure - if Structure, all structure parameters will be added
+//                             to the AdditionalProperties property
+//                             of the <Register*>RecordSet objects.
 //
 //  * IBUpdate           - Boolean - if True, write data
 //                             without performing unnecessary and redundant actions with the data.
@@ -4971,8 +4963,8 @@ EndProcedure
 //
 // Parameters:
 //  MetadataObjectDetails - MetadataObject,
-//                            - Type - 
-//                            - String - full name of the metadata object.
+//                            - Type - — used to find a metadata object,
+//                            - String - Full name of a metadata object.
 // Returns:
 //  AnyRef
 //
@@ -5032,15 +5024,15 @@ EndFunction
 //  FieldsAndFilter - Array of Structure - with the "FieldName", FilterCriterionParameterName properties.
 //
 //  FullRegisterName - String       - a query for old data is generated automatically.
-//                    - Undefined - 
+//                    - Undefined - a query for old data is received from the next parameter.
 //
 //  TemporaryTablesQueriesText - String - a temporary table query if required.
 //
 //  OldDataSelectionQueryText - String       - a query for old data, with nonstandard filters.
-//                           - Undefined - 
+//                           - Undefined - used when a full register name is defined.
 //
 // Returns:
-//  String - 
+//  String - Query text.
 //
 Function ChangesSelectionQueryText(NewDataSelectionQueryText,
                                     FieldsAndFilter,
@@ -5063,7 +5055,7 @@ Function ChangesSelectionQueryText(NewDataSelectionQueryText,
 	SelectedFields = "";
 	FilterConditions = "TRUE";
 	For Each FieldDetails In FieldsAndFilter Do
-		// 
+		// Aggregate the selected fields.
 		SelectedFields = SelectedFields + StrReplace(
 			"
 			|	OldData.Field,",
@@ -5144,14 +5136,14 @@ Function ChangesSelectionQueryText(NewDataSelectionQueryText,
 	SelectedFields = "";
 	GroupFields = "";
 	For Each FieldDetails In FieldsAndFilter Do
-		// 
+		// Aggregate the selected fields.
 		SelectedFields = SelectedFields + StrReplace(
 			"
 			|	AllRows.Field,",
 			"Field",
 			KeyAndValue(FieldDetails).Key);
 		
-		// 
+		// Aggregate the join fields.
 		GroupFields = GroupFields + StrReplace(
 			"
 			|	AllRows.Field,",
@@ -5204,23 +5196,23 @@ EndProcedure
 //
 Procedure UpdateAuxiliaryRegisterDataByConfigurationChanges(Parameters = Undefined) Export
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.RolesRights.
 	InformationRegisters.AccessGroupsTables.UpdateRegisterDataByConfigurationChanges();
 	
 	// Parameter StandardSubsystems.AccessManagement.AccessKindsProperties.
 	UpdateGroupsAndSetsOfAccessValuesWhenGroupTypesAndValuesChange();
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.RightsForObjectsRightsSettingsAvailable.
 	InformationRegisters.ObjectsRightsSettings.UpdateAuxiliaryRegisterDataByConfigurationChanges1();
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.SuppliedProfilesDescription.
 	Catalogs.AccessGroupProfiles.UpdateSuppliedProfilesByConfigurationChanges();
 	Catalogs.AccessGroupProfiles.UpdateNonSuppliedProfilesOnConfigurationChanges();
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.AccessGroupPredefinedProfiles.
 	Catalogs.AccessGroups.MarkForDeletionSelectedProfilesAccessGroups();
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.AccessRestrictionTextsVersion.
 	InformationRegisters.AccessRestrictionParameters.ScheduleAccessUpdateByConfigurationChanges();
 	
 EndProcedure
@@ -5382,8 +5374,8 @@ Procedure UpdateAccessGroupsTablesForEnabledExtensions(ExtensionsRolesRights = U
 		EndIf;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	SetNewExtenstionsRolesRights = False;
 	If ValueIsFilled(SessionParameters.AttachedExtensions) Then
 		ExtensionsRolesRightsStorage = StandardSubsystemsServer.ExtensionParameter(
@@ -5550,8 +5542,8 @@ Procedure OnChangeAccessValuesSets(Val ObjectReference, IBUpdate = False)
 	For Each DependentObjectRef In RefsToDependentObjects Do
 		
 		If DependentObjectRef.Metadata().TabularSections.Find("AccessValuesSets") = Undefined Then
-			// 
-			// 
+			
+			
 			WriteAccessValuesSets(DependentObjectRef, , IBUpdate);
 		Else
 			// Object change is required.
@@ -5572,9 +5564,9 @@ Procedure OnChangeAccessValuesSets(Val ObjectReference, IBUpdate = False)
 					InfobaseUpdate.WriteData(Object);
 				Else
 					Object.DataExchange.Load = True;
-					// ACC:1327-
-					// 
-					// 
+					
+					
+					
 					Object.Write();
 					// ACC:1327-off.
 				EndIf;
@@ -5679,7 +5671,7 @@ Function OpenExternalReportsAndDataProcessorsAccessGroup(ProfileProperties)
 		NStr("en = 'Grants the right to open external reports and data processors from the ""File—Open"" menu.';",
 			Common.DefaultLanguageCode());
 	
-	AccessGroupObject.Write(); // 
+	AccessGroupObject.Write(); 
 	
 	Return AccessGroupObject.Ref;
 	
@@ -5823,16 +5815,16 @@ Procedure OnReceiveDataFromMasterOrSlave(DataElement)
 	EndIf;
 	
 	If TypeOf(DataElement) = Type("CatalogObject.AccessGroupProfiles") Then
-		// Роли расширений назначаются независимо во всех РИБ-
+		// Extension roles are assigned independently in all DIB nodes.
 		Catalogs.AccessGroupProfiles.RestoreExtensionsRolesComponents(DataElement);
-		// 
+		// Registering a modified profile to update auxiliary data.
 		Catalogs.AccessGroupProfiles.RegisterProfileChangedOnImport(DataElement);
 	EndIf;
 	
 	If TypeOf(DataElement) = Type("CatalogObject.AccessGroups") Then
-		// Администраторы назначаются независимо во всех РИБ-
+		// Administrators are assigned independently in all DIB nodes.
 		Catalogs.AccessGroups.RestoreAdministratorsAccessGroupMembers(DataElement);
-		// 
+		// Registering a modified access group to update auxiliary data.
 		Catalogs.AccessGroups.RegisterAccessGroupChangedOnImport(DataElement);
 	EndIf;
 	
@@ -5891,8 +5883,8 @@ Procedure UpdateAuxiliaryDataOfItemsChangedOnImport()
 	
 EndProcedure
 
-// 
-// 
+
+
 
 Function ProcessUserLinkToAccessGroup(User, SuppliedProfile, Enable = Undefined)
 	
@@ -6102,8 +6094,8 @@ Procedure WriteAccessValuesSets(Val Object, HasChanges = Undefined, IBUpdate = F
 	
 	SetPrivilegedMode(True);
 	
-	// 
-	// 
+	
+	
 	Object = ?(Object = Object.Ref, Object.GetObject(), Object);
 	ObjectReference = Object.Ref;
 	ValueTypeObject = TypeOf(Object);
@@ -6159,7 +6151,7 @@ Procedure WriteAccessValuesSets(Val Object, HasChanges = Undefined, IBUpdate = F
 					"FillAccessValuesSetsForTabularSections");
 				Raise ErrorText;
 			EndIf;
-			// 
+			// The object with already filled AccessValuesSets tabular section is written.
 			Table = Object.AccessValuesSets.Unload();
 		EndIf;
 		
@@ -6194,15 +6186,15 @@ Procedure WriteAccessValuesSets(Val Object, HasChanges = Undefined, IBUpdate = F
 		
 		Query.SetParameter("ObjectReference", ObjectReference);
 		
-		// 
-		// 
-		// 
+		
+		
+		
 		If Not Query.Execute().IsEmpty() Then
 		// ACC:1328-on.
 			
-			// 
-			// 
-			// 
+			
+			
+			
 			RecordSet = InformationRegisters.AccessValuesSets.CreateRecordSet();
 			RecordSet.Filter.Object.Set(ObjectReference);
 			RecordSet.Write();
@@ -6245,8 +6237,8 @@ Procedure WriteDependentAccessValuesSets(Val Object, IBUpdate = False)
 	
 	SetPrivilegedMode(True);
 	
-	// 
-	// 
+	
+	
 	Object = ?(Object = Object.Ref, Object.GetObject(), Object);
 	ObjectReference = Object.Ref;
 	ValueTypeObject = TypeOf(Object);
@@ -6268,8 +6260,8 @@ Procedure WriteDependentAccessValuesSets(Val Object, IBUpdate = False)
 	
 EndProcedure
 
-// 
-// 
+
+
 
 // Checks whether shared data was changed for any data area.
 Function HasChangesOfAccessRestrictionParameters()
@@ -6306,8 +6298,8 @@ EndFunction
 //
 // Parameters:
 //  AdditionalRoles - Map of KeyAndValue:
-//    * Key     - String -
-//    * Value - Boolean - Truth.
+//    * Key     - String - 
+//    * Value - Boolean -  Truth.
 //
 Procedure OnPrepareAdminAdditionalRoles(AdditionalRoles)
 	Return;
@@ -6484,7 +6476,7 @@ Function CurrentUsersProperties(UsersArray)
 	
 	Total.Insert("IBUsersIDs", QueriesResults[LastResult-2].Unload());
 	
-	If UsersInternal.StateBeforeAuthorizeCurrentUserCall(True) Then
+	If UsersInternal.StateBeforeCallAuthenticateCurrentUser(True) Then
 		Filter = New Structure("IBUserID",
 			InfoBaseUsers.CurrentUser().UUID);
 		FoundRows = Total.IBUsersIDs.FindRows(Filter);
@@ -6590,7 +6582,7 @@ EndFunction
 //                  - CatalogRef.ExternalUsers
 //   * RoleRef   - CatalogRef.MetadataObjectIDs
 //                  - CatalogRef.ExtensionObjectIDs
-//   * Role         - String - role name.
+//   * Role         - String - a role name.
 //
 Function NewInvalidRoles(NewUsersRoles)
 	
@@ -6706,7 +6698,7 @@ Procedure UpdateIBUsersRoles(IBUsersToUpdate, ServiceUserPassword)
 		
 		If ShouldNotifyServiceManager Then
 			HadFullRights = IBUser.Roles.Contains(Metadata.Roles.FullAccess);
-			HadLogonRights = Users.HasRightsToLogIn(IBUser);
+			HadLogonRights = Users.HasRightsToLogIn(IBUser,, False);
 		EndIf;
 		
 		For Each KeyAndValue In RolesForAdding Do
@@ -6753,15 +6745,15 @@ Procedure ClearUseMainRolesForAllUsersCheckBoxForAllExtensions()
 		EndIf;
 		Catalogs.ExtensionsVersions.DisableSecurityWarnings(Extension);
 		Catalogs.ExtensionsVersions.DisableMainRolesUsageForAllUsers(Extension);
-		// 
-		// 
-		// 
+		
+		
+		
 		Try
 			Extension.Write();
 		Except
 			// Processing is not required.
 		EndTry;
-		// ACC:280-
+		
 	EndDo;
 	
 EndProcedure
@@ -6821,17 +6813,19 @@ Procedure WriteUserOnRolesUpdate(UserRef, IBUser,
 	
 	UsersInternal.WriteInfobaseUser(IBUser,
 		TypeOf(UserRef) = Type("CatalogRef.ExternalUsers"),
-		UserRef);
+		UserRef,
+		False);
 	
 	If HadFullRights = Undefined Then
 		Return;
 	EndIf;
 	
 	HasFullRights = IBUser.Roles.Contains(Metadata.Roles.FullAccess);
-	HasLogonRights = Users.HasRightsToLogIn(IBUser);
+	HasLogonRights = Users.HasRightsToLogIn(IBUser,, False);
 	
 	If HasFullRights = HadFullRights
-	   And HasLogonRights = HadLogonRights Then
+	   And HasLogonRights = HadLogonRights
+	 Or Not Users.CanSignIn(IBUser) Then
 		Return;
 	EndIf;
 	
@@ -6845,42 +6839,41 @@ Procedure WriteUserOnRolesUpdate(UserRef, IBUser,
 			Else
 				SessionWithoutSeparators = True;
 			EndIf;
-			If SessionWithoutSeparators Then
-				Return;
+			If Not SessionWithoutSeparators Then
+				SimplifiedInterface = SimplifiedAccessRightsSetupInterface();
+				
+				If HadFullRights Then
+					Template = NStr("en = 'To disable administrator access for user %1, enter the password of current service user %2.';");
+				Else
+					Template = NStr("en = 'To grant user %1 administrator access, enter the password of current service user %2.';");
+				EndIf;
+				
+				If HadFullRights And SimplifiedInterface Then
+					Refinement = NStr("en = 'This action can be performed only in a user card if the Administrator profile is disabled for them.';");
+				ElsIf Not HadFullRights And SimplifiedInterface Then
+					Refinement = NStr("en = 'This action can be performed only in a user card if the Administrator profile is enabled for them.';");
+				ElsIf HadFullRights Then
+					Refinement = NStr("en = 'This action can be performed only in a card of the Administrators access group or in a user card when the user is removed from the Administrators access group.';");
+				Else
+					Refinement = NStr("en = 'This action can be performed only in a card of the Administrators access group or in a user card when the user is added to the Administrators access group.';");
+				EndIf;
+				
+				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(Template,
+					IBUser.Name, InfoBaseUsers.CurrentUser().Name);
+				ErrorText = ErrorText + Chars.LF + Chars.LF + Refinement;
+				
+				Raise ErrorText;
 			EndIf;
-			
-			SimplifiedInterface = SimplifiedAccessRightsSetupInterface();
-			
-			If HadFullRights Then
-				Template = NStr("en = 'To disable administrator access for user %1, enter the password of current service user %2.';");
-			Else
-				Template = NStr("en = 'To grant user %1 administrator access, enter the password of current service user %2.';");
-			EndIf;
-			
-			If HadFullRights And SimplifiedInterface Then
-				Refinement = NStr("en = 'This action can be performed only in a user card if the Administrator profile is disabled for them.';");
-			ElsIf Not HadFullRights And SimplifiedInterface Then
-				Refinement = NStr("en = 'This action can be performed only in a user card if the Administrator profile is enabled for them.';");
-			ElsIf HadFullRights Then
-				Refinement = NStr("en = 'This action can be performed only in a card of the Administrators access group or in a user card when the user is removed from the Administrators access group.';");
-			Else
-				Refinement = NStr("en = 'This action can be performed only in a card of the Administrators access group or in a user card when the user is added to the Administrators access group.';");
-			EndIf;
-			
-			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(Template,
-				IBUser.Name, InfoBaseUsers.CurrentUser().Name);
-			ErrorText = ErrorText + Chars.LF + Chars.LF + Refinement;
-			
-			Raise ErrorText;
 		Else
 			ModuleUsersInternalSaaS.WriteSaaSUser(UserRef,
 				False, ServiceUserPassword);
+			Return;
 		EndIf;
 	EndIf;
 	
 	If HasLogonRights <> HadLogonRights Then
-		ModuleUsersInternalSaaS.NotifyHasRightsToLogIn(UserRef,
-			HasLogonRights);
+		ModuleUsersInternalSaaS.ReportAppLaunchChanged(UserRef,
+			IBUser);
 	EndIf;
 	
 EndProcedure
@@ -7061,7 +7054,7 @@ Procedure RefreshNewSetRecordsByVariousNewRecords(Val Data, Val Filter, HasChang
 			FoundRows = NewSetRecords.FindRows(FilterByRecordKey);
 			If String.LineChangeType = -1 Then
 				If FoundRows.Count() > 0 Then
-					// 
+					
 					NewSetRecords.Delete(FoundRows[0]);
 				EndIf;
 			Else
@@ -7152,14 +7145,14 @@ Function UpdateEntireRecordSet(CountForReading, RecordsKeys)
 		- (CountOfItemsToDelete + ItemsToChangeCount);
 	
 	FullyRewriteCosts =
-	//                
+	//                Operations:   |Read|Delete|Insert|
 	      CountOfItemsToDelete   * ( 0.05  +  0.1          )
 	    + ItemsToChangeCount  * ( 0.05  +  0.1   +  1   )
 	    + CountOfItemsToAdd * (                   1   )
 	    + NotChangedCount  * ( 0.05  +  0.1   +  1   );
 	
 	CostsToRewriteOneRecord =
-	//                
+	//                Operation:   |Delete|Insert|
 	      CountOfItemsToDelete   * (   0.5          )
 	    + ItemsToChangeCount  * (   0.5  +  1.2  )
 	    + CountOfItemsToAdd * (   0.5  +  1.2  );
@@ -7381,11 +7374,11 @@ Procedure AddAuxiliaryDataAttributesToForm(Form, TablesStorageAttributeName)
 	
 	PathToObject = ?(ValueIsFilled(TablesStorageAttributeName), TablesStorageAttributeName + ".", "");
 	
-	// 
+	// Adding attributes to the AccessKinds table.
 	AttributesToBeAdded.Add(New FormAttribute(
 		"Used", New TypeDescription("Boolean"), PathToObject + "AccessKinds"));
 	
-	// 
+	// Add individual attributes.
 	AttributesToBeAdded.Add(New FormAttribute(
 		"CurrentAccessKind", AccessValuesTypesDetails));
 	
@@ -7412,7 +7405,7 @@ Procedure AddAuxiliaryDataAttributesToForm(Form, TablesStorageAttributeName)
 	AttributesToBeAdded.Add(New FormAttribute(
 		"AccessKindExternalUsers", AccessValuesTypesDetails));
 	
-	// 
+	// Add the AllAccessKinds table.
 	AttributesToBeAdded.Add(New FormAttribute(
 		"AllAccessKinds", New TypeDescription("ValueTable")));
 	
@@ -7425,7 +7418,7 @@ Procedure AddAuxiliaryDataAttributesToForm(Form, TablesStorageAttributeName)
 	AttributesToBeAdded.Add(New FormAttribute(
 		"Used", New TypeDescription("Boolean"), "AllAccessKinds"));
 	
-	// 
+	// Add the PresentationsAllAllowed table.
 	AttributesToBeAdded.Add(New FormAttribute(
 		"PresentationsAllAllowed", New TypeDescription("ValueTable")));
 	
@@ -7435,7 +7428,7 @@ Procedure AddAuxiliaryDataAttributesToForm(Form, TablesStorageAttributeName)
 	AttributesToBeAdded.Add(New FormAttribute(
 		"Presentation", New TypeDescription("String"), "PresentationsAllAllowed"));
 	
-	// 
+	// Add the AllTypesOfValuesToSelect table.
 	AttributesToBeAdded.Add(New FormAttribute(
 		"AllTypesOfValuesToSelect", New TypeDescription("ValueTable")));
 	
@@ -7666,8 +7659,8 @@ EndFunction
 
 Function AllAccessKindsCombinations(UnorderedNamesArray)
 	
-	// 
-	// 
+	
+	
 	MaxCombinationLength = 4;
 	
 	List = New ValueList;
@@ -7716,7 +7709,7 @@ Function AllAccessKindsCombinations(UnorderedNamesArray)
 		
 		While CombinationLength > 0 Do
 			While True Do
-				// 
+				// Adding a combination from the current items.
 				TotalRow = New Array;
 				TotalRow.Add(FirstName);
 				For IndexOf = 0 To CombinationLength-1 Do
@@ -7724,7 +7717,7 @@ Function AllAccessKindsCombinations(UnorderedNamesArray)
 				EndDo;
 				TotalRow.Add(LatestName);
 				RowTotal.Add(TotalRow);
-				// 
+				// Increasing a position in the combination.
 				IndexOf = CombinationLength-1;
 				While IndexOf >= 0 Do
 					If NamesPositionsInCombination[IndexOf] < CountOfNamesInCombination - (CombinationLength - (IndexOf+1)) Then
@@ -7981,7 +7974,6 @@ Function AccessKindsProperties() Export
 	
 	ParameterName = "StandardSubsystems.AccessManagement.AccessKindsProperties";
 	PreviousValue2 = StandardSubsystemsServer.ExtensionParameter(ParameterName, True);
-
 	PreviousValue2 = NewHashSumAccessTypeProperties(PreviousValue2);
 	
 	If PreviousValue2.HashSum <> NewValue.HashSum Then
@@ -8024,22 +8016,26 @@ EndFunction
 //
 // 
 //
+// Parameters:
+//  HashAmounts - See NewHashSumAccessTypeProperties
+//
 // Returns:
 //   See AccessKindsProperties
 //
-Function CheckedSessionAccessViewProperties() Export
+Function CheckedSessionAccessViewProperties(HashAmounts) Export
 	
 	AccessKinds = FilledSessionAccessTypes();
 	
-	// 
-	// 
-	// 
-	// 
-	// 
+	
 	// 
 	// 
 	
-	// 
+	
+	
+	
+	//
+	
+	
 	PropertiesArray         = New Array; // Array of See AccessKindProperties
 	ByRefs             = New Map;
 	ByNames              = New Map;
@@ -8069,6 +8065,10 @@ Function CheckedSessionAccessViewProperties() Export
 	
 	AllValuesTypes      = New Map;
 	AllValuesGroupsTypes = New Map;
+	AllProperties          = New Map;
+	
+	VersionDetails = New Structure("VersionProperties", New Array);
+	AddVersionItem(VersionDetails, "Version", "1");
 	
 	For Each AccessKind In AccessKinds Do
 		If AllAccessKindsNames[Upper(AccessKind.Name)] <> Undefined Then
@@ -8085,9 +8085,9 @@ Function CheckedSessionAccessViewProperties() Export
 		ValidateType(AccessKind, AccessKind.ValuesType,      AllValuesGroupsTypes, Parameters,       , True);
 		ValidateType(AccessKind, AccessKind.ValuesGroupsType, AllValuesTypes,      Parameters, True, True);
 		
-		AdditionalTypes = AccessKind.AdditionalTypes; // See NewAdditionalAccessKindTypesTable
+		TableAdditionalTypes = AccessKind.AdditionalTypes; // See NewAdditionalAccessKindTypesTable
 		
-		For Each String In AdditionalTypes Do
+		For Each String In TableAdditionalTypes Do
 			// Checking for duplicate value types and group types.
 			ValidateType(AccessKind, String.ValuesType,      AllValuesTypes,      Parameters);
 			ValidateType(AccessKind, String.ValuesGroupsType, AllValuesGroupsTypes, Parameters, True);
@@ -8100,6 +8100,26 @@ Function CheckedSessionAccessViewProperties() Export
 			Metadata.FindByType(AccessKind.ValuesType).FullName()).EmptyRef();
 		
 		Properties = NewAccessKindProperties(AccessKind, ValueTypeBlankRef);
+		VersionDetails.VersionProperties.Add("");
+		AddVersionProperties(VersionDetails, Properties,
+			"Name, ValuesType, ValuesGroupsType, MultipleValuesGroups");
+		
+		TypesOfValuesToSelect = New Array;
+		FillAccessValuesWithGroups(Properties, AccessValuesWithGroups, Properties, TypesOfValuesToSelect);
+		AdditionalTypes = New Array;
+		For Each String In TableAdditionalTypes Do
+			AdditionalType = AdditionalAccessKindType(String);
+			AdditionalTypes.Add(AdditionalType);
+			AddVersionProperties(VersionDetails, Properties,
+				"ValuesType, ValuesGroupsType, MultipleValuesGroups");
+			FillAccessValuesWithGroups(String, AccessValuesWithGroups, Properties, TypesOfValuesToSelect);
+		EndDo;
+		
+		Properties.TypesOfValuesToSelect = New FixedArray(TypesOfValuesToSelect);
+		Properties.AdditionalTypes     = New FixedArray(AdditionalTypes);
+		AllProperties.Insert(Properties, New FixedStructure(Properties));
+		Properties = AllProperties.Get(Properties);
+		
 		PropertiesArray.Add(Properties);
 		ByNames.Insert(Properties.Name, Properties);
 		ByRefs.Insert(ValueTypeBlankRef, Properties);
@@ -8108,16 +8128,13 @@ Function CheckedSessionAccessViewProperties() Export
 		If Properties.ValuesGroupsType <> Type("Undefined") Then
 			ByGroupsAndValuesTypes.Insert(Properties.ValuesGroupsType, Properties);
 		EndIf;
-		FillAccessValuesWithGroups(Properties, AccessValuesWithGroups, Properties, Parameters);
 		
 		For Each String In AccessKind.AdditionalTypes Do
-			Properties.AdditionalTypes.Add(AdditionalAccessKindType(String));
 			ByValuesTypes.Insert(String.ValuesType, Properties);
 			ByGroupsAndValuesTypes.Insert(String.ValuesType, Properties);
 			If String.ValuesGroupsType <> Type("Undefined") Then
 				ByGroupsAndValuesTypes.Insert(String.ValuesGroupsType, Properties);
 			EndIf;
-			FillAccessValuesWithGroups(String, AccessValuesWithGroups, Properties, Parameters);
 		EndDo;
 		
 	EndDo;
@@ -8164,8 +8181,9 @@ Function CheckedSessionAccessViewProperties() Export
 		
 		MetadataObject = Metadata.FindByType(TypeRef);
 		If MetadataObject <> Undefined 
-			And (Common.IsCatalog(MetadataObject) Or Common.IsChartOfCharacteristicTypes(MetadataObject))
-			And MetadataObject.Hierarchical Then
+		   And (Common.IsCatalog(MetadataObject)
+		      Or Common.IsChartOfCharacteristicTypes(MetadataObject))
+		   And MetadataObject.Hierarchical Then
 			
 			TypeObject = StandardSubsystemsServer.MetadataObjectOrMetadataObjectRecordSetType(MetadataObject);
 			ByValuesTypesWithHierarchy.Insert(TypeRef, KeyAndValue.Value);
@@ -8184,21 +8202,69 @@ Function CheckedSessionAccessViewProperties() Export
 		NoGroupsForAccessValue.Add(AccessKindProperties.Name);
 	EndDo;
 	
-	AccessKindsProperties = New Structure;
-	AccessKindsProperties.Insert("Array",                          PropertiesArray);
-	AccessKindsProperties.Insert("ByNames",                        ByNames);
-	AccessKindsProperties.Insert("ByRefs",                       ByRefs);
-	AccessKindsProperties.Insert("ByValuesTypes",                 ByValuesTypes);
-	AccessKindsProperties.Insert("ByValuesTypesWithHierarchy",       ByValuesTypesWithHierarchy);
-	AccessKindsProperties.Insert("ByGroupsAndValuesTypes",           ByGroupsAndValuesTypes);
-	AccessKindsProperties.Insert("AccessValuesWithGroups",        AccessValuesWithGroups);
-	AccessKindsProperties.Insert("NoGroupsForAccessValue",      NoGroupsForAccessValue);
-	AccessKindsProperties.Insert("WithOneGroupForAccessValue", WithOneGroupForAccessValue);
-	AccessKindsProperties.Insert("AccessValuesTypesWithGroups",    AccessValuesTypesWithGroups);
-	
 	CheckSubscriptionTypesUpdateAccessValuesGroups(AccessValuesWithGroups);
 	
-	Return Common.FixedData(AccessKindsProperties);
+	
+	
+	AccessValuesWithGroups.NamesOfTablesToUpdate =
+		New FixedArray(AccessValuesWithGroups.NamesOfTablesToUpdate);
+		
+	AccessValuesWithGroups.ValueGroupTypesForUpdate =
+		New FixedMap(AccessValuesWithGroups.ValueGroupTypesForUpdate);
+	
+	For Each PropertyDetails In AccessValuesWithGroups Do
+		CurrentMapping = PropertyDetails.Value;
+		If TypeOf(CurrentMapping) <> Type("Map") Then
+			Continue;
+		EndIf;
+		For Each KeyAndValue In CurrentMapping Do
+			CurrentMapping.Insert(KeyAndValue.Key,
+				AllProperties.Get(KeyAndValue.Value));
+		EndDo;
+		AccessValuesWithGroups[PropertyDetails.Key] =
+			New FixedMap(CurrentMapping);
+	EndDo;
+	
+	AccessKindsProperties = New Structure;
+	AccessKindsProperties.Insert("Array",
+		New FixedArray(PropertiesArray));
+	
+	AccessKindsProperties.Insert("ByNames",
+		New FixedMap(ByNames));
+	
+	AccessKindsProperties.Insert("ByRefs",
+		New FixedMap(ByRefs));
+	
+	AccessKindsProperties.Insert("ByValuesTypes",
+		New FixedMap(ByValuesTypes));
+	
+	AccessKindsProperties.Insert("ByValuesTypesWithHierarchy",
+		New FixedMap(ByValuesTypesWithHierarchy));
+	
+	AccessKindsProperties.Insert("ByGroupsAndValuesTypes",
+		New FixedMap(ByGroupsAndValuesTypes));
+	
+	AccessKindsProperties.Insert("AccessValuesWithGroups",
+		New FixedStructure(AccessValuesWithGroups));
+	
+	AccessKindsProperties.Insert("NoGroupsForAccessValue",
+		New FixedArray(NoGroupsForAccessValue));
+	
+	AccessKindsProperties.Insert("WithOneGroupForAccessValue",
+		New FixedArray(WithOneGroupForAccessValue));
+	
+	AccessKindsProperties.Insert("AccessValuesTypesWithGroups",
+		New FixedMap(AccessValuesTypesWithGroups));
+	
+	Result = New FixedStructure(AccessKindsProperties);
+	
+	HashAmounts.HashSumGroupTypesFromAccessValues =
+		HashSumGroupTypesFromAccessValues(AccessKindsProperties);
+	
+	VersionString = StrConcat(VersionDetails.VersionProperties, Chars.LF);
+	HashAmounts.HashSum = HashAmountsData(VersionString);
+	
+	Return Result;
 	
 EndFunction
 
@@ -8215,8 +8281,8 @@ Function NewAccessKindProperties(AccessKind, ValueTypeBlankRef)
 	Properties.Insert("ValuesType",              AccessKind.ValuesType);
 	Properties.Insert("ValuesGroupsType",         AccessKind.ValuesGroupsType);
 	Properties.Insert("MultipleValuesGroups",   AccessKind.MultipleValuesGroups);
-	Properties.Insert("AdditionalTypes",       New Array);
-	Properties.Insert("TypesOfValuesToSelect",   New Array);
+	Properties.Insert("AdditionalTypes");
+	Properties.Insert("TypesOfValuesToSelect");
 	
 	Return Properties;
 	
@@ -8226,17 +8292,17 @@ EndFunction
 //
 // Returns:
 //   Structure:
-//     * ByTypes - Map of KeyAndValue:
+//     * ByTypes - FixedMap of KeyAndValue:
 //         ** Key - Type
 //         ** Value - See AccessKindProperties
-//     * ByRefsTypes - Map of KeyAndValue:
+//     * ByRefsTypes - FixedMap of KeyAndValue:
 //         ** Key - Type
 //         ** Value - See AccessKindProperties
-//     * NamesOfTablesToUpdate - Array of String
-//     * ValueGroupTypesForUpdate - Map of KeyAndValue:
+//     * NamesOfTablesToUpdate - FixedArray of String
+//     * ValueGroupTypesForUpdate - FixedMap of KeyAndValue:
 //         ** Key - Type
 //         ** Value - CatalogRef
-//     * ByRefTypesForUpdate - Map of KeyAndValue:
+//     * ByRefTypesForUpdate - FixedMap of KeyAndValue:
 //         ** Key - Type
 //         ** Value - See AccessKindProperties
 // 
@@ -8257,7 +8323,7 @@ EndFunction
 // For the AccessKindsProperties function.
 //
 // Returns:
-//   Structure:
+//   FixedStructure:
 //     * ValuesType - Type
 //     * ValuesGroupsType - Type
 //     * MultipleValuesGroups - Boolean
@@ -8269,22 +8335,22 @@ Function AdditionalAccessKindType(String)
 	Item.Insert("ValuesGroupsType",       String.ValuesGroupsType);
 	Item.Insert("MultipleValuesGroups", String.MultipleValuesGroups);
 	
-	Return Item;
+	Return New FixedStructure(Item);
 	
 EndFunction
 
 // For the AccessKindsProperties function.
-Procedure FillAccessValuesWithGroups(String, AccessValuesWithGroups, Properties, Parameters)
+Procedure FillAccessValuesWithGroups(String, AccessValuesWithGroups, Properties, TypesOfValuesToSelect)
 	
 	If Properties.Name = "Users" Then
-		AddToArray(Properties.TypesOfValuesToSelect, Type("CatalogRef.Users"));
-		AddToArray(Properties.TypesOfValuesToSelect, Type("CatalogRef.UserGroups"));
+		AddToArray(TypesOfValuesToSelect, Type("CatalogRef.Users"));
+		AddToArray(TypesOfValuesToSelect, Type("CatalogRef.UserGroups"));
 		Return;
 	EndIf;
 	
 	If Properties.Name = "ExternalUsers" Then
-		AddToArray(Properties.TypesOfValuesToSelect, Type("CatalogRef.ExternalUsers"));
-		AddToArray(Properties.TypesOfValuesToSelect, Type("CatalogRef.ExternalUsersGroups"));
+		AddToArray(TypesOfValuesToSelect, Type("CatalogRef.ExternalUsers"));
+		AddToArray(TypesOfValuesToSelect, Type("CatalogRef.ExternalUsersGroups"));
 		Return;
 	EndIf;
 	
@@ -8301,12 +8367,12 @@ Procedure FillAccessValuesWithGroups(String, AccessValuesWithGroups, Properties,
 	If String.ValuesGroupsType = Type("Undefined") Then
 		AddSubscriptionTypesUpdateAccessValuesGroups(RefType,
 			ObjectType, ValuesTypeMetadata, AccessValuesWithGroups, Properties, Undefined);
-		AddToArray(Properties.TypesOfValuesToSelect, String.ValuesType);
+		AddToArray(TypesOfValuesToSelect, String.ValuesType);
 		Return;
 	EndIf;
 	
 	If String.ValuesGroupsType <> Type("Undefined") Then
-		AddToArray(Properties.TypesOfValuesToSelect, String.ValuesGroupsType);
+		AddToArray(TypesOfValuesToSelect, String.ValuesGroupsType);
 	EndIf;
 	
 	AccessValuesWithGroups.ByTypes.Insert(RefType,  Properties);
@@ -8451,7 +8517,7 @@ Procedure ValidateType(AccessKind, Type, AllTypes, Parameters, CheckGroupsTypes 
 		AllTypes.Insert(Type, AccessKind.Name);
 	EndIf;
 	
-	// 
+	// Checking content of defined types.
 	ErrorDescription = "";
 	If Parameters.DefinedAccessValuesTypes.Get(Type) = Undefined Then
 		If CheckGroupsTypes Then
@@ -8519,10 +8585,16 @@ EndProcedure
 // 
 // 
 //
-// Returns:
-//   See HashSumAccessTypeProperties
+// Parameters:
+//  Value - Undefined
+//           - FixedStructure
 //
-Function NewHashSumAccessTypeProperties(Value = Undefined)
+// Returns:
+//  Structure:
+//   * HashSum - String
+//   * HashSumGroupTypesFromAccessValues - String
+//
+Function NewHashSumAccessTypeProperties(Value = Undefined) Export
 	
 	Result = New Structure;
 	Result.Insert("HashSum", "");
@@ -8537,27 +8609,6 @@ Function NewHashSumAccessTypeProperties(Value = Undefined)
 EndFunction
 
 // 
-//
-// Parameters:
-//  AccessKindsProperties - See AccessKindsProperties
-//
-// Returns:
-//  Structure:
-//   * HashSum - String
-//   * HashSumGroupTypesFromAccessValues - String
-//
-Function HashSumAccessTypeProperties(AccessKindsProperties) Export
-	
-	Result = NewHashSumAccessTypeProperties();
-	Result.HashSum = HashAmountsData(AccessKindsProperties);
-	Result.HashSumGroupTypesFromAccessValues =
-		HashSumGroupTypesFromAccessValues(AccessKindsProperties);
-	
-	Return New FixedStructure(Result);
-	
-EndFunction
-
-// For procedure AddAccessValuesSets.
 Function HashSumGroupTypesFromAccessValues(AccessKindsProperties)
 	
 	Data = New Array;
@@ -8682,17 +8733,17 @@ EndFunction
 //                                 This column is applicable only to universal restrictions.
 //   * FullName      - String - a full table name.
 //   * Table        - CatalogRef.MetadataObjectIDs
-//                    - CatalogRef.ExtensionObjectIDs - 
+//                    - CatalogRef.ExtensionObjectIDs - Table ID.
 //   * AccessKind     - AnyRef - Empty Ref to the main access kind value type.
 //                              Empty Ref to the access right settings owner.
 //   * Right          - String - Read, Modify.
-//                    - Undefined - 
+//                    - Undefined - for the Object access kind.
 //   * ObjectTable - AnyRef - Empty reference of the metadata object used to restrict access with access value sets.
 //                      For example, Catalog.FilesFolders.
-//                    - Undefined - 
-//                      
+//                    - Undefined - If AccessKind is not Undefined.
+//                      This column is applicable only to standard restrictions.
 //
-//  
+//  String - If ForCheck is True, then same as restrictions in the overridden module.
 //
 Function PermanentMetadataObjectsRightsRestrictionsKinds(ForCheck = False) Export
 	
@@ -9080,24 +9131,24 @@ EndFunction
 // Returns:
 //   Structure:
 //     * ByTypes - FixedMap of KeyAndValue:
-//         ** Key - Type - the type of reference or object from the definable Type.Vladimirenergosbyt
+//         ** Key - Type -  the type of reference or object from the definable Type.Vladimirenergosbyt
 //         ** Value - FixedMap of KeyAndValue:
-//             *** Key - String - name of the possible right
+//             *** Key - String - a possible right name
 //             *** Value - See InformationRegisters.ObjectsRightsSettings.AvailableRightProperties
 //     * ByRefsTypes - FixedMap of KeyAndValue:
-//         ** Key - Type -
+//         ** Key - Type - Rights owner (full table name).
 //         ** Value - FixedArray of See InformationRegisters.ObjectsRightsSettings.AvailableRightProperties
 //     * ByFullNames - FixedMap of KeyAndValue:
-//         ** Key - String -
+//         ** Key - String - 
 //         ** Value - See InformationRegisters.ObjectsRightsSettings.AvailableRightProperties
 //     * OwnersTypes - FixedArray of DefinedType.RightsSettingsOwner
 //     * SeparateTables - FixedMap of KeyAndValue:
 //         ** Key - CatalogRef.MetadataObjectIDs
 //                - CatalogRef.ExtensionObjectIDs - 
-//         ** Value - String - full name of the table
+//         ** Value - String - a full table name.
 //     * HierarchicalTables - FixedMap of KeyAndValue:
-//         ** Key - Type - the type of reference or object from the definable Type.Vladimirenergosbyt
-//         ** Value - Boolean - Truth.
+//         ** Key - Type -  the type of reference or object from the definable Type.Vladimirenergosbyt
+//         ** Value - Boolean -  Truth.
 // 
 Function RightsForObjectsRightsSettingsAvailable() Export
 	
@@ -9114,7 +9165,11 @@ EndFunction
 //         ** Key - String
 //         ** Value - See Catalogs.AccessGroupProfiles.SuppliedProfileProperties
 //     * ProfilesDetailsArray - FixedArray of See Catalogs.AccessGroupProfiles.SuppliedProfileProperties
-//     * FoldersByParents - FixedMap
+//     * FoldersByParents - FixedMap of KeyAndValue:
+//         ** Key - String
+//         ** Value - FixedMap of KeyAndValue:
+//              *** Key - String
+//              *** Value - Boolean
 //     * ParametersOfUpdate - FixedStructure:
 //         ** UpdateModifiedProfiles - Boolean
 //         ** DenyProfilesChange - Boolean
@@ -9142,7 +9197,6 @@ EndFunction
 //   * AdditionalAdministratorRoles - FixedMap of KeyAndValue:
 //       ** Key     - String - Name of the extension roles that can be assigned to Administrator.
 //       ** Value - Boolean - True.
-//   * HashSum                         - String
 //
 Function StandardExtensionRoles() Export
 	
@@ -9168,7 +9222,7 @@ EndFunction
 //                  - ChartOfCalculationTypesObject
 //                  - BusinessProcessObject
 //                  - TaskObject
-//                  - ExchangePlanObject - a data object that is passed to the pre-Recording event subscription.
+//                  - ExchangePlanObject - a data object passed to the BeforeWrite event subscription.
 //
 //  Cancel           - Boolean - a parameter passed to the BeforeWrite event subscription.
 //
@@ -9195,8 +9249,8 @@ EndProcedure
 //                  - AccumulationRegisterRecordSet
 //                  - AccountingRegisterRecordSet
 //                  - CalculationRegisterRecordSet
-//                  - RecalculationRecordSet - 
-//                                             
+//                  - RecalculationRecordSet - a record set passed to the BeforeWrite
+//                                             event subscription.
 //
 //  Cancel           - Boolean - a parameter passed to the BeforeWrite event subscription.
 //  Replacing       - Boolean - a parameter passed to the BeforeWrite event subscription.
@@ -9232,7 +9286,7 @@ EndProcedure
 //                  - ChartOfCalculationTypesObject
 //                  - BusinessProcessObject
 //                  - TaskObject
-//                  - ExchangePlanObject - 
+//                  - ExchangePlanObject - a data object passed to the OnWrite event subscription.
 //
 //  Cancel           - Boolean - a parameter passed to the OnWrite event subscription.
 //
@@ -9252,8 +9306,8 @@ EndProcedure
 //                  - AccumulationRegisterRecordSet
 //                  - AccountingRegisterRecordSet
 //                  - CalculationRegisterRecordSet
-//                  - RecalculationRecordSet - 
-//                                             
+//                  - RecalculationRecordSet - a record set passed to the OnWrite
+//                                             event subscription.
 //
 //  Cancel           - Boolean - a parameter passed to the OnWrite event subscription.
 //  Replacing       - Boolean - a parameter passed to the OnWrite event subscription.
@@ -9290,7 +9344,7 @@ EndProcedure
 //           - ChartOfCalculationTypesObject
 //           - BusinessProcessObject
 //           - TaskObject
-//           - ExchangePlanObject - 
+//           - ExchangePlanObject - a data object passed to the BeforeDelete event subscription.
 //
 //  Cancel    - Boolean - a parameter passed to the BeforeDelete event subscription.
 //
@@ -9311,7 +9365,7 @@ EndProcedure
 //  CheckOldVersionOnly - Boolean
 //  User   - CatalogRef.Users
 //                 - CatalogRef.ExternalUsers
-//                 - Undefined - 
+//                 - Undefined - — to check for the current user.
 //
 // Returns:
 //  Boolean
@@ -10960,7 +11014,7 @@ Procedure ScheduleUpdateOfDependentObsoleteAccessKeys(Source, IsRecordSet, Delet
 			QueryResult = ?(QueryResults = Undefined, Undefined, QueryResults[IndexOf]);
 			ChangesByFieldsValues.ChangedTable = FullName + "." + TabularSectionDetails.Name;
 			NewValues = NewTabularSectionValues(Source, TabularSectionDetails, Delete);
-			// 
+			
 			ScheduleUpdateOfDependentObsoleteAccessKeysByFieldsValues(QueryResult,
 				NewValues, TabularSectionDetails.FieldsSets, PlanningParameters);
 			IndexOf = IndexOf + 1;
@@ -11054,7 +11108,7 @@ Procedure ScheduleUpdateOfDependentObsoleteAccessKeysByFieldsValues(QueryResult,
 					CurrentChangesContent.GroupBy(DependentTablesDetails.Key);
 				EndIf;
 				PlanningParameters.LeadingObject.ByFieldsValues.ChangesContent = CurrentChangesContent;
-				// 
+				
 				ScheduleAccessUpdate(DependentTablesDetails.Value, PlanningParameters);
 			EndDo;
 		EndDo;
@@ -11682,22 +11736,22 @@ EndFunction
 //                              be considered incomplete.
 //
 // Returns:
-//  - Undefined - 
+//  - Undefined - an access update is not required or prohibited.
 //  - Structure:
 //   * AlreadyRunning - Boolean - if the update is already running.
 //
 //   * BackgroundJobIdentifier - Undefined - f the update is not running or
 //                                      running not in a background job.
-//                                  - UUID - ID of the background task.
+//                                  - UUID - a background job ID.
 //
 //   * SessionProperties - Undefined - if a background job never started or was just added to the queue.
-//                    - Structure - 
-//                        ** ComputerName - String - properties of the session information Database object of the same name.
-//                        ** SessionNumber   - Number  - properties of the session information Database object of the same name.
-//                        ** SessionStarted  - String - properties of the session information Database object of the same name.
+//                    - Structure - :
+//                        ** ComputerName - String - the InfobaseSession object property of the same name.
+//                        ** SessionNumber   - Number  - the InfobaseSession object property of the same name.
+//                        ** SessionStarted  - String - the InfobaseSession object property of the same name.
 //
 //   * WarningText - Undefined - if a background job never started or a new background job was started.
-//                         - String - 
+//                         - String - a description showing that access update is already started.
 //
 Function StartAccessUpdateAtRecordLevel(IsManualStart = False, ThisIsARestart = False) Export
 	
@@ -11741,8 +11795,8 @@ Function StartAccessUpdateAtRecordLevel(IsManualStart = False, ThisIsARestart = 
 		Result.AlreadyRunning = False;
 		If Common.FileInfobase() Then
 			Try
-				// 
-				// 
+				
+				
 				StandardSubsystemsServer.CheckApplicationVersionDynamicUpdate();
 			Except
 				Result.WarningText = ErrorProcessing.BriefErrorDescription(ErrorInfo());
@@ -11991,13 +12045,13 @@ EndFunction
 // AccessUpdateOnRecordsLevel scheduled job handler.
 Procedure AccessUpdateOnRecordsLevel(UpdateAll = False, RaiseExceptiopnInsteadErrorRegistration = False) Export
 	
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
+	
+	
+	
 	
 	Common.OnStartExecuteScheduledJob(
 		Metadata.ScheduledJobs.AccessUpdateOnRecordsLevel);
@@ -12449,8 +12503,8 @@ Procedure CheckUpdateActiveAccessRestrictionParameters()
 	 Or AccessKindsUsageChanged Then
 		
 		If Common.FileInfobase() Then
-			// 
-			Common.SubsystemExists("StandardSubsystems.AccessManagement"); // StandardSubsystemsПовтИсп.ИменаПодсистем
+			
+			Common.SubsystemExists("StandardSubsystems.AccessManagement"); 
 			AccessManagementInternalCached.ConstantLimitAccessAtRecordLevel();
 			AccessManagementInternalCached.ConstantLimitAccessAtRecordLevelUniversally();
 		EndIf;
@@ -12507,14 +12561,6 @@ Procedure CheckUpdateActiveAccessRestrictionParameters()
 	|	Version DESC,
 	|	CreationDate DESC";
 	
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
 	QueryResult = Query.Execute();
 	// ACC:1328-on.
 	If QueryResult.IsEmpty() Then
@@ -12724,7 +12770,7 @@ Procedure ExecuteAccessUpdate(Val UpdateAll, MainSessionDetails,
 		Context.ProcessingCompleted = True;
 		
 		FillThreadsCount(Context);
-		// 
+		// @skip-check query-in-loop - Batch processing of data
 		ProcessExecutedJobs(Context);
 		
 		If Context.RefreshEnabledCanceled Or Context.SessionRestartRequired Then
@@ -12770,7 +12816,7 @@ Procedure ExecuteAccessUpdate(Val UpdateAll, MainSessionDetails,
 			For Each Job In JobsForStartup Do
 				
 				While LockedThreads.Count() >= Context.ThreadsCount Do
-					// 
+					// @skip-check query-in-loop - Batch processing of data
 					ProcessExecutedJobs(Context);
 					
 					If Context.RefreshEnabledCanceled Or Context.SessionRestartRequired Then
@@ -12784,7 +12830,7 @@ Procedure ExecuteAccessUpdate(Val UpdateAll, MainSessionDetails,
 							AbortPass = True;
 							Break;
 						EndIf;
-						// 
+						// @skip-check query-in-loop - Batch processing of data
 						WaitForThreadToUnlock(Context, True);
 						If Not Context.FirstPass
 						   And CurrentUniversalDateInMilliseconds() > PassAbortionMoment Then
@@ -12797,7 +12843,7 @@ Procedure ExecuteAccessUpdate(Val UpdateAll, MainSessionDetails,
 					Break;
 				EndIf;
 				If LockedThreads.Count() < Context.ThreadsCount Then
-					// 
+					// @skip-check query-in-loop - Batch processing of data
 					StartListAccessUpdate(Job, Context);
 					If ValueIsFilled(Context.CompletionErrorText)
 					 Or Context.RefreshEnabledCanceled
@@ -12809,10 +12855,10 @@ Procedure ExecuteAccessUpdate(Val UpdateAll, MainSessionDetails,
 			If Not Context.HasStartedJob
 			   And (LockedThreads.Count() >= Context.ThreadsCount
 			      Or Not Context.HasDeferredJobs) Then
-				// 
+				// @skip-check query-in-loop - Batch processing of data
 				WaitForThreadToUnlock(Context, True);
 			EndIf;
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			ProcessExecutedJobs(Context);
 			Context.FirstPass = False;
 		EndDo;
@@ -13298,7 +13344,7 @@ Procedure AddAccessUpdateJobs(QueryResults, Context)
 		Rows = Jobs.FindRows(Filter);
 		If Rows.Count() = 0 Then
 			Job = Jobs.Add();
-			Job.DependencyLevel = -1; // 
+			Job.DependencyLevel = -1; 
 			If String.ListID <> Undefined
 			   And Cache.MetadataObjectsByIDs.Get(String.ListID) = Undefined Then
 				ListsIDs.Add(String.ListID);
@@ -13593,8 +13639,8 @@ Procedure FillCommonUpdateParameters(Context)
 	EndDo;
 	
 	If CommonUpdateParameters.InitialUpdate Then
-		// 
-		CommonUpdateParameters.StartDate = BegOfDay(CurrentSessionDate()) - 7 * (60 * 60 * 24); // 
+		// Update start.
+		CommonUpdateParameters.StartDate = BegOfDay(CurrentSessionDate()) - 7 * (60 * 60 * 24); 
 	Else
 		// Continue update.
 		MaximumPeriod = MaxGettingBatchesByQueryPeriod();
@@ -13718,9 +13764,9 @@ EndProcedure
 //
 Function UpdatePeriodToDataPeriod(StartDate, LatestUpdatedItemDate)
 	
-	// ДатаНачала - 
-	// 
-	// 
+	
+	
+	
 	Return ValueIsFilled(LatestUpdatedItemDate)
 		  And StartDate > LatestUpdatedItemDate;
 	
@@ -13787,9 +13833,9 @@ Procedure CompleteAccessUpdate(Context)
 			WaitBoundary = CurrentSessionDate() + 15;
 		EndIf;
 		While Context.LockedThreads.Count() > 0 Do
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			WaitForThreadToUnlock(Context);
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			ProcessExecutedJobs(Context);
 			If CurrentSessionDate() > WaitBoundary Then
 				Break;
@@ -14212,7 +14258,7 @@ Procedure WaitForThreadToUnlock(Context, WaitForJobToComplete = False)
 		 Or Context.LockedThreads.Count() = 0 Then
 			Break;
 		EndIf;
-		// 
+		// @skip-check query-in-loop - Batch processing of data
 		If Not Query.Execute().IsEmpty() Then
 			Break;
 		EndIf;
@@ -15046,20 +15092,20 @@ Procedure AddJobsExecutionIndicators(Indicators)
 	Indicators.Insert("StartFirstAttemptToExecuteJob", 0);
 	Indicators.Insert("JobExecutionStart", 0);
 	
-	// 
+	// Common indicators.
 	Indicators.Insert("CountOfJobsWithRetriesDueToErrors", 0);
 	Indicators.Insert("JobsExecutionTimeWithRetriesDueToErrors", 0);
 	Indicators.Insert("CountOfJobsRetriesDueToErrors", 0);
 	Indicators.Insert("MaxJobRetriesOnErrorCount", 0);
 	Indicators.Insert("ErrorsTextOnRetryAttempts", "");
 	
-	// 
+	// Getting batches or processing a small batch.
 	Indicators.Insert("CompletedJobsWithGetBatchesCount", 0);
 	Indicators.Insert("JobsWithGettingBatchesExecutionTime", 0);
 	Indicators.Insert("JobsWithGettingBatchesMinExecutionTime", 0);
 	Indicators.Insert("JobsWithGettingBatchesMaxExecutionTime", 0);
 	
-	// 
+	// Batch data processors only.
 	Indicators.Insert("CompletedJobsWithoutGettingBatchesCount", 0);
 	Indicators.Insert("JobsWithoutGettingBatchesExecutionTime", 0);
 	Indicators.Insert("JobsWithoutGettingBatchesMinExecutionTime", 0);
@@ -15522,7 +15568,7 @@ Procedure UpdateListAccessWithRetryAttempts(CommonUpdateParameters, Context)
 			ExecutionAttempt = ExecutionAttempt + 1;
 			If ExecutionAttempt < 9 And Not ValueIsFilled(ErrorTextRestartRequired) Then
 				For Counter = 1 To ExecutionAttempt Do
-					// 
+					// @skip-check query-in-loop - Batch processing of data
 					If AccessUpdateCanceled() Then
 						Break;
 					EndIf;
@@ -15535,7 +15581,7 @@ Procedure UpdateListAccessWithRetryAttempts(CommonUpdateParameters, Context)
 						EndDo;
 					EndIf;
 				EndDo;
-				// 
+				// @skip-check query-in-loop - Batch processing of data
 				If Not AccessUpdateCanceled() Then
 					Continue;
 				EndIf;
@@ -15576,8 +15622,8 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 	EndIf;
 	
 	If MetadataObject = Undefined Then
-		// 
-		// 
+		
+		
 		CommonUpdateParameters.Insert("NoJobs", "MetadataObjectDisabled");
 		Return;
 	EndIf;
@@ -15622,7 +15668,7 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 		ParametersOfUpdate.Insert("HasJobs", True);
 		ParametersOfUpdate.Insert("SpotJob", Undefined);
 		ParametersOfUpdate.Insert("LastUpdatedItem", InitialItem(ParametersOfUpdate));
-		// 
+		// @skip-check query-in-loop - Batch processing of data
 		PrepareUpdatePlan(ParametersOfUpdate, PreparationCompleted);
 	EndDo;
 	
@@ -15724,7 +15770,7 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 		EndIf;
 	EndIf;
 	
-	// 
+	// Requesting items for processing.
 	SelectedAllItems = False;
 	
 	If CommonUpdateParameters.GetBatches > 0 Then
@@ -15745,7 +15791,7 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 		Return;
 	EndIf;
 	
-	// 
+	// Process data items.
 	ParametersOfUpdate.Insert("NewLastUpdatedItem",
 		InitialItem(ParametersOfUpdate, , True));
 	
@@ -15815,7 +15861,7 @@ EndFunction
 //   
 //    
 //     * TransactionID - UUID
-//     * DependentListsByAccessKeys - Array of String -
+//     * DependentListsByAccessKeys - Array of String - 
 //     
 //    
 //     * HasRightsChanges - Boolean
@@ -16886,8 +16932,8 @@ Function ItemsForUpdate(ParametersOfUpdate, CountInQuery, SelectedAllItems)
 			Query.SetParameter("LastAccessKey", LastAccessKey);
 			
 			If ParametersOfUpdate.DoNotWriteAccessKeys Then
-				// 
-				// 
+				
+				
 				Query.Text =
 				"SELECT TOP 995
 				|	AccessKeys.Ref AS Ref
@@ -16904,7 +16950,7 @@ Function ItemsForUpdate(ParametersOfUpdate, CountInQuery, SelectedAllItems)
 				
 			ElsIf IsObsoleteItemsDataProcessor(ParametersOfUpdate) Then
 				If ParametersOfUpdate.WithAccessKeyEntryForDependentListsWithoutKeys Then
-					// 
+					
 					Query.Text =
 					"SELECT TOP 995
 					|	AccessKeys.Ref AS Ref
@@ -17830,16 +17876,16 @@ Procedure UpdateGroupsSetsWithObsoleteParameters(DataItems, ParametersOfUpdate, 
 	
 	For Each DataElement In DataItems Do
 		If DataElement.IsAccessGroupsSet Then
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			UpdateGroupsSetsAccessKeys(ParametersOfUpdate, DataElement.CurrentRef,
 				"AccessGroupSetsAccessKeys", "AccessGroups", "AccessGroupsSet");
 			
 		ElsIf Not ParametersOfUpdate.ForExternalUsers Then
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			UpdateGroupsSetsAccessKeys(ParametersOfUpdate, DataElement.CurrentRef,
 				"UsersAccessKeys", "UserGroups", "User");
 		Else
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			UpdateGroupsSetsAccessKeys(ParametersOfUpdate, DataElement.CurrentRef,
 				"ExternalUsersAccessKeys", "ExternalUsersGroups", "ExternalUser");
 		EndIf;
@@ -18134,7 +18180,7 @@ Procedure UpdateGroupsSetsAccessKeys(ParametersOfUpdate, AccessGroupsSet, Rights
 			BeginTransaction();
 			Try
 				Block.Lock();
-				// 
+				// @skip-check query-in-loop - Batch processing of data
 				Selection = Query.Execute().Select();
 				
 				DeletionCompleted = False;
@@ -18769,7 +18815,7 @@ Procedure UpdateGroupsSetsAssingedToUsersInCatalog(DataItems,
 		If String.GroupsSet = Undefined Then
 			GroupsSet = NewGroupsSets.Get(String.GroupsID);
 			If GroupsSet = Undefined Then
-				// @skip-
+				// @skip-check query-in-loop - Batch processing of data
 				String.GroupsSet = NewGroupsSet(String.SetGroups,
 					ParametersOfUpdate.ForExternalUsers,
 					SetItemsType,
@@ -19066,21 +19112,21 @@ Procedure ClearNonExistentAccessGroupsSetsRights(ParametersOfUpdate)
 	
 	Selection = QueryResults[0].Select();
 	While Selection.Next() Do
-		// 
+		// @skip-check query-in-loop - Batch processing of data
 		DeleteRegisterRecordsForSet(Selection.Set,
 			"AccessGroupSetsAccessKeys", "AccessGroupsSet");
 	EndDo;
 	
 	Selection = QueryResults[1].Select();
 	While Selection.Next() Do
-		// 
+		// @skip-check query-in-loop - Batch processing of data
 		DeleteRegisterRecordsForSet(Selection.Set,
 			"UsersAccessKeys", "User");
 	EndDo;
 	
 	Selection = QueryResults[2].Select();
 	While Selection.Next() Do
-		// 
+		// @skip-check query-in-loop - Batch processing of data
 		DeleteRegisterRecordsForSet(Selection.Set,
 			"ExternalUsersAccessKeys", "ExternalUser");
 	EndDo;
@@ -19235,11 +19281,11 @@ Procedure ProcessObsoleteSetsInCatalog(DataItems, ParametersOfUpdate)
 		EndTry;
 		
 		If Not String.Used And String.Delete Then
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			DeleteRegisterRecordsForSet(String.CurrentRef, "AccessGroupSetsAccessKeys",  "AccessGroupsSet");
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			DeleteRegisterRecordsForSet(String.CurrentRef, "UsersAccessKeys",        "User");
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			DeleteRegisterRecordsForSet(String.CurrentRef, "ExternalUsersAccessKeys", "ExternalUser");
 			
 			BeginTransaction();
@@ -19448,7 +19494,7 @@ EndFunction
 // For the UpdateItemsBatch procedure.
 Procedure DeleteObsoleteListDataItems(DataItems, ParametersOfUpdate)
 	
-	PortionSize = 100; // 
+	PortionSize = 100; 
 	DataItemsBatch = Undefined;
 	ItemCount = DataItems.Count();
 	
@@ -19581,7 +19627,7 @@ Procedure DeleteObsoleteListDataItems(DataItems, ParametersOfUpdate)
 			Block.Lock();
 			LockSet = True;
 			If IsVerificationRequired Then
-				// 
+				// @skip-check query-in-loop - Batch processing of data
 				Upload0 = Query.Execute().Unload();
 				If DimensionsFilter = Undefined Then
 					DimensionsToCheckNames = New Array;
@@ -19657,7 +19703,7 @@ Procedure DeleteObjectsOfInvalidTypesInAccessKeysToObjectsRegister()
 			Continue;
 		EndIf;
 		Query.SetParameter("Type", Selection.RefType);
-		// 
+		// @skip-check query-in-loop - Batch processing of data
 		Objects = Query.Execute().Unload().UnloadColumn("Object");
 		For Each Object In Objects Do
 			RecordSet.Filter.Object.Set(Object);
@@ -19687,7 +19733,7 @@ EndProcedure
 // For the UpdateItemsBatch procedure.
 Procedure UpdateListDataItemsWithObsoleteKeys(DataItems, ParametersOfUpdate)
 	
-	PortionSize = 100; // 
+	PortionSize = 100; 
 	
 	IsExistingCombinationsProcessing = Not ParametersOfUpdate.IsReferenceType
 		And ParametersOfUpdate.LastUpdatedItem.DataKeyKind = "ItemsWithObsoleteKeys";
@@ -19739,7 +19785,7 @@ Procedure UpdateListDataItemsWithObsoleteKeys(DataItems, ParametersOfUpdate)
 		EndIf;
 		
 		If DataItemsBatch.Count() > 0 Then
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			UpdateAccessKeysOfListDataItemsBatch(DataItemsBatch, ParametersOfUpdate);
 		EndIf;
 		
@@ -20211,9 +20257,9 @@ Procedure WriteObjectsAccessKeys(ParametersOfUpdate, Context)
 			ParametersOfUpdate.Property("IsBackgroundAccessUpdate"));
 		AfterPlanUpdate(ParametersOfUpdate);
 		
-		// 
-		// 
-		// 
+		
+		
+		
 		BeforeCommitTransaction(ParametersOfUpdate);
 		CommitTransaction();
 		AfterCommitTransaction(ParametersOfUpdate);
@@ -20346,9 +20392,9 @@ Procedure WriteRegistersAccessKeys(ParametersOfUpdate, Context)
 		EndDo;
 		AfterWriteRows(ParametersOfUpdate, ObjectsAccessKeysDetails.Count());
 		
-		// 
-		// 
-		// 
+		
+		
+		
 		BeforeCommitTransaction(ParametersOfUpdate);
 		CommitTransaction();
 		AfterCommitTransaction(ParametersOfUpdate);
@@ -20465,14 +20511,14 @@ EndFunction
 // For the ObjectsRowsValuesKeys function and other.
 Function DataStringForHashing(Data)
 	
-	// 
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
+	
 	//
-	// 
-	// 
+	
+	
 	
 	Return ValueToStringInternal(Data);
 	
@@ -20670,7 +20716,7 @@ Procedure UpdateRightsOfListAccessKeysBatch(AccessKeysDetails, ParametersOfUpdat
 		AccessKey = ValuesRow.Ref;
 		
 		RightsToKey = RightsToListAccessKey(KeyTablesValues, ParametersOfUpdate);
-		// 
+		// @skip-check query-in-loop - Batch processing of data
 		UpdateRightsToListAccessKey(AccessKey, RightsToKey,
 			?(IsNewKeys, AccessKeysDetails, Undefined), ParametersOfUpdate);
 		
@@ -20683,7 +20729,7 @@ EndProcedure
 
 // Returns:
 //  Structure of KeyAndValue:
-//   * Key - String -
+//   * Key - String - 
 //   * Value - ValueTree
 //
 Function KeysTableNewVals()
@@ -20692,7 +20738,7 @@ EndFunction
 
 // Returns:
 //  Structure of KeyAndValue:
-//   * Key - String -
+//   * Key - String - 
 //   * Value - See TableOfKeyNewValues
 //
 Function NewValuesOfKeyTables()
@@ -20772,7 +20818,7 @@ Procedure ProcessObsoleteListAccessKeys(DataItems, ParametersOfUpdate)
 		Ref = ValuesRow.Ref;
 		If Not ThisIsClearingSelectedKeys And String.Used Then
 			KeyUsageQuery.SetParameter("Ref", Ref);
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			If Not KeyUsageQuery.Execute().IsEmpty() Then
 				If ItemsProcessingAbortRequired(ParametersOfUpdate, 1) Then
 					Break;
@@ -20817,7 +20863,7 @@ Procedure ProcessObsoleteListAccessKeys(DataItems, ParametersOfUpdate)
 			EndIf;
 			If DeleteKey Then
 				Query.SetParameter("AccessKey", Ref);
-				// 
+				// @skip-check query-in-loop - Batch processing of data
 				QueryResults = Query.ExecuteBatch();
 				If Not QueryResults[0].IsEmpty() Then
 					KeyAccessGroupsRecordSet.Filter.AccessKey.Set(Ref);
@@ -21278,7 +21324,7 @@ EndProcedure
 
 // Returns:
 //  Map of KeyAndValue:
-//   * Key - Type -
+//   * Key - Type - 
 //   * Value - Structure:
 //      ** AllAllowed - Boolean
 //      ** Values - Map of KeyAndValue:
@@ -21496,7 +21542,7 @@ EndProcedure
 //      ** RestrictionDisabled - Boolean
 //      ** ByAccessGroups - FixedMap of KeyAndValue:
 //          *** Key - CatalogRef.AccessGroups
-//          *** Value - Boolean -
+//          *** Value - Boolean - 
 //
 Function NewRightsForListsOfMasterAccessKeys()
 	Return New Map;
@@ -21509,7 +21555,7 @@ EndFunction
 //      ** Key - CatalogRef.AccessGroups
 //              - CatalogRef.UserGroups
 //              - CatalogRef.ExternalUsersGroups
-//      ** Value - Boolean -
+//      ** Value - Boolean - 
 //
 Function NewRightsToMasterAccessKeys()
 	Return New Map;
@@ -21524,7 +21570,7 @@ EndFunction
 //      ** Key - CatalogRef.AccessGroups
 //              - CatalogRef.UserGroups
 //              - CatalogRef.ExternalUsersGroups
-//      ** Value - Boolean -
+//      ** Value - Boolean - 
 //
 Function NewRightsToMasterLists()
 	Return New Map;
@@ -21637,7 +21683,7 @@ EndProcedure
 //              - CatalogRef.UserGroups
 //              - CatalogRef.ExternalUsers
 //              - CatalogRef.ExternalUsersGroups
-//      ** Value - Boolean -
+//      ** Value - Boolean - 
 //
 Function NewRightsByRightSetupOwners()
 	Return New Map;
@@ -21687,12 +21733,12 @@ EndProcedure
 //   * ProfileRightsFunctionsAccessRights - Map
 //   * RolesOfAccessGroupProfiles - 
 //   * ProfilesAccessGroups - 
-//   * AccessGroup - CatalogRef.AccessGroups -
+//   * AccessGroup - CatalogRef.AccessGroups - 
 //   * AccessGroupValues - See AccessGroupNewValues
 //   * RequiredKeyTablesDetails - Array of Structure:
 //      ** TablesAttributes    - Map of KeyAndValue:
-//          *** Key     - String -
-//          *** Value - Array of String -
+//          *** Key     - String - 
+//          *** Value - Array of String - 
 //      ** TablesValues     - See CurrentKeyTablesValues
 //      ** TablesRowsIndexes - Map
 //   * CurrentKeyTableRows - See NewValuesOfKeyTables
@@ -22187,7 +22233,7 @@ EndProcedure
 //
 // Returns:
 //  Structure of KeyAndValue:
-//   * Key - String -
+//   * Key - String - 
 //   * Value - See KeyTableValues
 //
 Function CurrentKeyTablesValues(Context, RequiredKeyTabularSectionsAttributes)
@@ -22912,9 +22958,9 @@ Procedure UpdateRightsToListAccessKey(AccessKey, RightsToKey, NewKeysDetails, Pa
 			EndIf;
 		EndIf;
 		
-		// 
-		// 
-		// 
+		
+		
+		
 		BeforeCommitTransaction(ParametersOfUpdate);
 		CommitTransaction();
 		AfterCommitTransaction(ParametersOfUpdate);
@@ -23406,24 +23452,24 @@ Procedure RegisterAccessUpdatePlanningInLog(Lists, PlanningParameters)
 	
 	If TypeOf(LeadingObjectDetails) = Type("Structure") Then
 		If LeadingObjectDetails.Property("ByFieldsValues") Then
-			Pointers = LeadingObjectDetails.ByFieldsValues.LongDesc;
+			Points = LeadingObjectDetails.ByFieldsValues.LongDesc;
 			LeadingObject = "ByFieldsValues";
 		ElsIf LeadingObjectDetails.Property("ByAccessKeys") Then
-			Pointers = LeadingObjectDetails.ByAccessKeys;
+			Points = LeadingObjectDetails.ByAccessKeys;
 			LeadingObject = "ByAccessKeys";
 		ElsIf LeadingObjectDetails.Property("ByValuesWithGroups") Then
-			Pointers = LeadingObjectDetails.ByValuesWithGroups;
+			Points = LeadingObjectDetails.ByValuesWithGroups;
 			LeadingObject = "ByValuesWithGroups";
 		EndIf;
 		If LeadingObject <> Undefined Then
-			If TypeOf(Pointers) = Type("Array") And Pointers.Count() > 1 Then
+			If TypeOf(Points) = Type("Array") And Points.Count() > 1 Then
 				LeadingObject = LeadingObject + ":";
-				For Each Pointer In Pointers Do
+				For Each Pointer In Points Do
 					LeadingObject = LeadingObject + Chars.LF + """" + String(Pointer) + """ "
 						+ LeadingObjectPointerDetails(Pointer, PlanningParameters);
 				EndDo;
 			Else
-				Pointer = ?(TypeOf(Pointers) = Type("Array"), Pointers[0], Pointers);
+				Pointer = ?(TypeOf(Points) = Type("Array"), Points[0], Points);
 				LeadingObject = LeadingObject + ": """ + String(Pointer) + """ "
 					+ LeadingObjectPointerDetails(Pointer, PlanningParameters);
 			EndIf;
@@ -23822,8 +23868,8 @@ EndProcedure
 // Returns:
 //  Structure:
 //   * DependentLists      - Map of KeyAndValue:
-//      ** Key     - String -
-//      ** Value - Boolean - Truth.
+//      ** Key     - String - 
+//      ** Value - Boolean -  Truth.
 //   * ByFieldsValues     - See LeadingListByFieldsValues
 //   * ByAccessKeys      - See LeadingListByAccessKeysOrValuesWithGroups
 //   * ByValuesWithGroups - See LeadingListByAccessKeysOrValuesWithGroups
@@ -23874,14 +23920,14 @@ EndFunction
 // Returns:
 //  Structure:
 //   * LeadingListsChecked - Map of KeyAndValue:
-//       ** Key     - String - full name of the list
+//       ** Key     - String - a full list name
 //       ** Value - See AccessManagementInternal.ListPropertiesAsLeadingOne
 //   * ListsRestrictions - Map of KeyAndValue:
-//       ** Key     - String - full name of the list
+//       ** Key     - String - a full list name
 //       ** Value - See AccessManagementInternal.CalculatedRestrictionParameters
 //   * TransactionIDs - Map of KeyAndValue:
 //       ** Key     - UUID - an arbitrary UID.
-//       ** Value - Boolean - the value is True.
+//       ** Value - Boolean - the True value.
 //   * TypesRestrictionsPermissionsForUsers        - Undefined
 //                                                - String
 //   * TypesRestrictionsPermissionsForExternalUsers - Undefined
@@ -24950,9 +24996,9 @@ Function DataRestrictionDetails(CommonContext, FullName, WithoutCallingException
 	EndIf;
 	
 	If IsDocumentJournal(FullName) Or IsFilesCatalog Then
-		// 
-		// 
-		// 
+		
+		
+		
 		Restriction.ByOwnerWithoutSavingAccessKeys = True;
 		Restriction.ByOwnerWithoutSavingAccessKeysForExternalUsers = True;
 	EndIf;
@@ -25984,10 +26030,10 @@ Function AllIDsWithSimilarFullNames(FullNames)
 	EndDo;
 	
 	Query.Text = StrReplace(Query.Text, "&MOIDFilterConditions",
-		StrConcat(MOIDFilterConditions, Chars.LF + " OR ")); // @query-part-1
+		StrConcat(MOIDFilterConditions, Chars.LF + "	OR ")); // @query-part-1
 	
 	Query.Text = StrReplace(Query.Text, "&EOIDFilterConditions",
-		StrConcat(EOIDFilterConditions, Chars.LF + " OR ")); // @query-part-1
+		StrConcat(EOIDFilterConditions, Chars.LF + "	OR ")); // @query-part-1
 	
 	Return Query.Execute().Unload().UnloadColumn("Ref");
 	
@@ -26000,8 +26046,8 @@ EndFunction
 //
 Function CacheStructureVersion()
 	
-	// 
-	// 
+	
+	
 	Return "25" + TranslationVersion();
 	
 EndFunction
@@ -26043,8 +26089,8 @@ EndFunction
 //
 Function VersionOfTheTemplateParameterVersionStructure()
 	
-	// 
-	// 
+	
+	
 	Return "1";
 	
 EndFunction
@@ -26291,7 +26337,7 @@ EndProcedure
 // Parameters:
 //  User   - CatalogRef.Users
 //                 - CatalogRef.ExternalUsers
-//                 - Undefined - 
+//                 - Undefined - a current user.
 //
 // Returns:
 //  Structure:
@@ -26402,12 +26448,12 @@ EndProcedure
 // Returns:
 //  Structure:
 //    * CreationDate                            - Date
-//    * ForWritingObjectsAndCheckingRights          - ValueStorage -
-//    * ForAccessRightsReport                - ValueStorage -
+//    * ForWritingObjectsAndCheckingRights          - ValueStorage - 
+//    * ForAccessRightsReport                - ValueStorage - 
 //    * PersistentParametersHashSum            - String
-//    * ForTemplatesInUsersSessions        - ValueStorage -
-//    * ForTemplatesInExternalUsersSessions - ValueStorage -
-//    * TemplatesParametersVersions                - ValueStorage -
+//    * ForTemplatesInUsersSessions        - ValueStorage - 
+//    * ForTemplatesInExternalUsersSessions - ValueStorage - 
+//    * TemplatesParametersVersions                - ValueStorage - 
 //    * TemplatesParametersHashSum              - String - filled in while writing after update of
 //         the TemplatesParametersVersions parameter and filling the ListsWithRestrictionByFields property of
 //         the ForTemplatesInUsersSessions, ForTemplatesInExternalUsersSessions parameters.
@@ -26527,7 +26573,7 @@ Function StoredAccessRestrictionParameters(CommonContext, ListsRestrictionsVersi
 	AddLeadingRoles(LeadingRoles, "ForUsers", ContextForUsers);
 	AddLeadingRoles(LeadingRoles, "ForExternalUsers", ContextForExternalUsers);
 	
-	// 
+	// Calculation of access restriction versions.
 	ListsRestrictionsVersions = New Map;
 	Versions = New ValueList;
 	Versions.Add(CacheStructureVersion());
@@ -26835,7 +26881,7 @@ Procedure AddStoredRestrictionParametersForUsersKind(Context)
 	For Each String In Rows Do
 		SetDependentListsLevel(String, ListsWithRestriction, New Array, MaxLevel);
 	EndDo;
-	// 
+	// Processing dependent lists being leading for themselves (looped on themselves).
 	Rows = PropertiesTable.FindRows(New Structure("Processed", False));
 	For Each String In Rows Do
 		SetDependentListsLevel(String, ListsWithRestriction, New Array, MaxLevel);
@@ -27180,7 +27226,7 @@ EndFunction
 //     * BasicFields                     - See NewBasicFieldsDetails
 //     * SeparateKeysRegisterName     - String
 //     * CalculateUserRights  - Boolean
-//     * UsedAccessValuesTypes - ValueStorage -
+//     * UsedAccessValuesTypes - ValueStorage - 
 //     * TemplateRestrictionsWithUserAccessKeys              - Boolean
 //     * TemplateRestrictionsWithUserAccessKeysAndAccessGroups - Boolean
 //
@@ -27290,8 +27336,8 @@ EndFunction
 //   Structure:
 //     * AllFields       - Array
 //     * AllFieldsTypes - Map of KeyAndValue:
-//        ** Key - String - field name.
-//        ** Value - ValueStorage -
+//        ** Key - String - Field name.
+//        ** Value - ValueStorage - 
 //     * FieldsSets   - Structure:
 //         ** ForUsers - Boolean
 //         ** ForExternalUsers - Boolean
@@ -27339,9 +27385,9 @@ EndProcedure
 // Returns:
 //   Structure:
 //     * DependentLists      - Map of KeyAndValue:
-//         ** Key     - String - full name of the list
+//         ** Key     - String - a full list name
 //         ** Value - Boolean - True
-//     * ByFieldsValues     - Structure - similar to LeadingListByFieldsValues 
+//     * ByFieldsValues     - Structure - similar to LeadingListByFieldsValues
 //     * ByAccessKeys      - See LeadingListByAccessKeysOrValuesWithGroups
 //     * ByValuesWithGroups - See LeadingListByAccessKeysOrValuesWithGroups
 //
@@ -28124,9 +28170,9 @@ Procedure AddExistingVersionsOfListFields(CurrentVersionsOfTheListFields, NewVer
 	   And (    AccessOptions[0] < 2
 	      Or AccessOptions[0] - Int(AccessOptions[0] / 64) * 64 = RequiredAccessOption) Then
 		
-		// 
-		// 
-		// 
+		
+		
+		
 		If Not ValueIsFilled(Parameters.OldCreationDate) Then
 			ConnectionFields = NewVersion.ConnectionFields;
 			TemplateFields    = NewVersion.ConnectionFields;
@@ -28144,8 +28190,8 @@ Procedure AddExistingVersionsOfListFields(CurrentVersionsOfTheListFields, NewVer
 		
 		CurrentVersionsOfTheListFields.Add(PreviousVersion);
 	Else
-		// 
-		// 
+		
+		
 		For Each AccessOption In AccessOptions Do
 			UnknownVersion = NewVersionOfTemplateParameters();
 			UnknownVersion.CreationDate   = Parameters.OldCreationDate;
@@ -28162,7 +28208,7 @@ EndProcedure
 // For the UpdateListFieldsVersionsUsage and AddListRestrictionFields procedures.
 Function MaximumNumberOfConnectionOptions()
 	
-	// 
+	// When changing, synchronously change the access restriction template ForRegister.
 	Return 3;
 	
 EndFunction
@@ -28623,8 +28669,8 @@ EndFunction
 //     * HasMasterAccessKeys                - Boolean - shows that there are leading access keys in the restriction.
 //     * HasHeadRightsLists              - Boolean - shows that there are leading lists by rights in the restriction.
 //     * ThereIsAFunctionAccessRightOrRoleAvailable - Boolean - indicates whether there are listed functions in the restriction.
-//     * RightsSettingsOwnersTypes        - FixedMap - types of right setting owners used
-//                                                     when calculating rights to access keys (see ByRefsTypes). 
+//     * RightsSettingsOwnersTypes        - FixedMap - 
+//                                                     
 //     * RightSettingsTableID  - CatalogRef.MetadataObjectIDs - list
 //                                             ID if separate right settings or
 //                                             a blank ID are used for it.
@@ -28739,7 +28785,7 @@ Function RestrictionParametersByRestrictionStructure(List, RestrictionStructure,
 	AddVersionProperty(Context, Context, "IsReferenceType");
 	AddVersionProperty(Context, Context, "ListWithDate");
 	
-	// 
+	// Only reference objects require table fields.
 	Context.Insert("ObjectTablesFields", NewObjectTablesFieldsDescription(Result));
 	
 	// Basic fields are not required for reference data types (always Ref).
@@ -28843,7 +28889,7 @@ Function RestrictionParametersByRestrictionStructure(List, RestrictionStructure,
 	
 	If Result.Context.FieldsProperties.Count() = 0
 	   And (Not Result.IsReferenceType
-	      Or Not Result.ThereIsAFunctionAccessRightOrRoleAvailable) Then // 
+	      Or Not Result.ThereIsAFunctionAccessRightOrRoleAvailable) Then 
 		
 		If Result.HasDependantListsWithoutAccessKeysRecords Then
 			ConfigureCreationOfAccessKeyForDependentListsWithoutKeys(Result);
@@ -29007,8 +29053,8 @@ EndFunction
 //
 // Returns:
 //   Structure:
-//     * Node - String -
-//         
+//     * Node - String - A stub for the previous line (to define the type in EDT).
+//         Property of the Selection node (otherwise, can be Undefined).
 //         
 //         
 //         
@@ -29022,33 +29068,33 @@ EndFunction
 //     * Value - Boolean
 //                - Number
 //                - String
-//                - Undefined - 
-//                     
+//                - Undefined - False, True, an arbitrary
+//                     integer number up to 16 digits or an arbitrary string up to 150 characters.
 //
-//    
+//    Properties of the AND, OR nodes.
 //     * Arguments - Array of See RightCalculationStructure
 //
 //    Properties of the Not node.
 //     * Argument - See RightCalculationStructure
 //
-//     * Node - String -
+//     * Node - String - A stub for the previous line (to define the type in EDT).
 //
-//    
+//    Property of the Selection node (otherwise, can be Undefined).
 //     * Else - See RightCalculationStructure
 //     * When - Array of Structure:
 //         ** Condition  - See RightCalculationStructure
 //         ** Value - See RightCalculationStructure
 //      
-//     * Node - String - stub to the previous line (for defining the type in EDT)
+//     * Node - String - A stub for the previous line (to define the type in EDT).
 //     
-//    Node properties value Resolved, this is an authorized User,
-//                   Changeobjectstate, Essentiallyidentical,
-//                   Readespiscare Resolved, Changeespiscare Resolved.
+//    Property of the Selection node (otherwise, can be Undefined).
+//                   
+//                   
 //     * Field - See RightCalculationStructure
 //     * ComparisonClarifications - Map of KeyAndValue:
 //         ** Key     - String
-//                     - Type - 
-//                             
+//                     - Type - — a value to be clarified is "Undefined", "Null", or "BlankRef",
+//                             "Disabled", Type (Reference, Number, Date, Boolean).
 //         ** Value - String - result "False", "True".
 //
 //    Properties of the ForAllLines, ForOneOfLines nodes.
@@ -29134,7 +29180,7 @@ Procedure AddTheVersionPropertyLeadingRoles(Context)
 EndProcedure
 
 // For the DeleteNotUsedAccessKindsFields procedure and AdditionalTablesGroups function.
-Procedure AddVersionProperties(Context, Structure, FieldsNames = "")
+Procedure AddVersionProperties(Context, Structure, FieldsNames = "") Export
 	
 	If ValueIsFilled(FieldsNames) Then
 		StructureToSave = New Structure(FieldsNames);
@@ -29163,7 +29209,7 @@ Procedure AddVersionProperty(Context, Structure, FieldName)
 EndProcedure
 
 // For the AddVersionProperties and AddVersionProperty procedures.
-Procedure AddVersionItem(Context, FieldName, Value)
+Procedure AddVersionItem(Context, FieldName, Value) Export
 	
 	If TypeOf(Value) = Type("String") Then
 		Context.VersionProperties.Add(FieldName + " = " + Value);
@@ -29184,6 +29230,7 @@ Procedure AddVersionItem(Context, FieldName, Value)
 		Context.VersionProperties.Add(FieldName + " = " + DataStringForHashing(New Array(Value)));
 		
 	ElsIf TypeOf(Value) = Type("TypeDescription")
+	      Or TypeOf(Value) = Type("Type")
 	      Or TypeOf(Value) = Type("Array") Then
 		
 		Context.VersionProperties.Add(FieldName + " = " + DataStringForHashing(Value));
@@ -29330,9 +29377,9 @@ EndProcedure
 //  Structure:
 //    * List                          - ValueList
 //    * All                             - Array
-//    * AllItemsTypes                        - Array of ValueStorage -
+//    * AllItemsTypes                        - Array of ValueStorage - 
 //    * UsedItems                    - Array
-//    * UsedItemsTypes                - Array of ValueStorage -
+//    * UsedItemsTypes                - Array of ValueStorage - 
 //    * MaxCount          - Number
 //    * MaxQuantity - Number
 //    * TypesByFieldNames - Map of KeyAndValue:
@@ -29991,10 +30038,10 @@ EndProcedure
 //
 Procedure FillFieldsAndAdditionalTablesGroups(Context)
 	
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
 	
 	LastHeaderAttributeNumberWithSeveralAccessValuesGroups = 0;
 	LastObjectTabularSectionNumber = 0;
@@ -30152,14 +30199,14 @@ Procedure FillFieldsAndAdditionalTablesGroups(Context)
 	
 	// Calculate the FieldsComposition number.
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	//
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
 	
 	FieldsComposition = LastHeaderAttributeNumber;
 	
@@ -30352,7 +30399,7 @@ EndProcedure
 Procedure CalculationConditionField(CalculationCondition, FieldProperties, Context)
 	
 	If Context.FieldsProperties.Find(FieldProperties) = Undefined Then
-		CalculationCondition = Null; // Поле удалено из-
+		CalculationCondition = Null; // Field is deleted due to not used access value types.
 	Else
 		CalculationCondition = New Structure("Node", "Field");
 		CalculationCondition.Insert("Table",  FieldProperties.AccessKeyFieldsGroupName);
@@ -30966,7 +31013,7 @@ Function FieldNameExpandingBasicFieldsByTypes(Alias, FieldNode)
 	
 	NumberOfTables = FieldNode.NextFieldTables[0].Count();
 	
-	If NumberOfTables >= 70 Then // 
+	If NumberOfTables >= 70 Then // 1C:Enterprise limitations.
 		Return Alias + "." + FieldNode.Name;
 	EndIf;
 	
@@ -30993,14 +31040,14 @@ EndFunction
 // For the AccessRestrictionParameters function.
 Procedure FillFieldProperties(Context)
 	
-	// 1. Для полей-
-	// 
+	
+	
+	
 	
 	// 
 	// 
-	// 
 	
-	// 
+	
 	//    
 	
 	Context.BasicFields.Insert("TypesByFieldNames", New Map);
@@ -31470,8 +31517,8 @@ Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 		   And Field.MultipleValuesGroups <> FieldProperties.MultipleValuesGroups Then
 			Continue;
 		EndIf;
-		// 
-		// 
+		
+		
 		For Each Type In FieldProperties.AccessKeySavingTypes Do
 			If Field.ValueSavingTypes.Find(Type)        <> Undefined
 			 Or Field.ValueGroupSavingTypes.Find(Type)   <> Undefined
@@ -31495,8 +31542,8 @@ Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 		If Not Compatible1 Then
 			Continue;
 		EndIf;
-		// 
-		// 
+		
+		
 		For Each Type In FieldProperties.ValueGroupSavingTypes Do
 			If Field.ValueSavingTypes.Find(Type)        <> Undefined
 			 Or Field.TypeSavingTypes.Find(Type)           <> Undefined
@@ -31515,8 +31562,8 @@ Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 				Break;
 			EndIf;
 		EndDo;
-		// 
-		// 
+		
+		
 		For Each Type In FieldProperties.ProhibitedTypeSavingTypes Do
 			If Not IsSimpleType(Type) Then
 				Continue;
@@ -31540,7 +31587,7 @@ Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 		If Not Compatible1 Then
 			Continue;
 		EndIf;
-		// 
+		// Merging clarifications of special values.
 		Field.HasAdjustmentNull =
 			Field.HasAdjustmentNull Or FieldProperties.HasAdjustmentNull;
 		Field.HasAdjustmentUndefined =
@@ -31551,14 +31598,14 @@ Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 			Field.HasRightsSettingsOwnerType Or FieldProperties.HasRightsSettingsOwnerType;
 		Field.HasAuthorizedUserCheck =
 			Field.HasAuthorizedUserCheck Or FieldProperties.HasAuthorizedUserCheck;
-		// 
+		// Merging types of saving of a blank reference.
 		For Each Type In FieldProperties.EmptyRefSavingTypes Do
 			If Field.EmptyRefSavingTypes.Find(Type) <> Undefined Then
 				Continue;
 			EndIf;
 			Field.EmptyRefSavingTypes.Add(Type);
 		EndDo;
-		// 
+		// Merging types of saving of the ValidType value.
 		For Each Type In FieldProperties.AllowedTypeSavingTypes Do
 			If Field.ValueSavingTypes.Find(Type)        <> Undefined
 			 Or Field.TypeSavingTypes.Find(Type)           <> Undefined
@@ -31573,7 +31620,7 @@ Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 			EndIf;
 			Field.AllowedTypeSavingTypes.Add(Type);
 		EndDo;
-		// 
+		// Merging types of saving of the ProhibitedType value.
 		For Each Type In FieldProperties.ProhibitedTypeSavingTypes Do
 			If Field.ValueSavingTypes.Find(Type)        <> Undefined
 			 Or Field.TypeSavingTypes.Find(Type)           <> Undefined
@@ -31588,7 +31635,7 @@ Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 			EndIf;
 			Field.ProhibitedTypeSavingTypes.Add(Type);
 		EndDo;
-		// 
+		// Merging types of saving of a value type.
 		For Each Type In FieldProperties.TypeSavingTypes Do
 			If Field.ValueSavingTypes.Find(Type) <> Undefined
 			 Or Field.TypeSavingTypes.Find(Type)    <> Undefined Then
@@ -31604,7 +31651,7 @@ Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 			EndIf;
 			Field.TypeSavingTypes.Add(Type);
 		EndDo;
-		// 
+		// Merging types of saving a value.
 		For Each Type In FieldProperties.ValueSavingTypes Do
 			If Field.ValueSavingTypes.Find(Type) <> Undefined Then
 				Continue;
@@ -31623,14 +31670,14 @@ Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 			EndIf;
 			Field.ValueSavingTypes.Add(Type);
 		EndDo;
-		// 
+		// Merging not used types of access values.
 		For Each Type In FieldProperties.UnusedAccessValueTypes Do
 			If Field.UnusedAccessValueTypes.Find(Type) <> Undefined Then
 				Continue;
 			EndIf;
 			Field.UnusedAccessValueTypes.Add(Type);
 		EndDo;
-		// 
+		// Merging used access value types.
 		For Each Type In FieldProperties.UsedAccessValuesTypes Do
 			If Field.UsedAccessValuesTypes.Find(Type) <> Undefined Then
 				Continue;
@@ -31655,7 +31702,7 @@ Procedure ClarifyComparisonFieldProperties(Properties, FieldDetails, Context)
 	
 	Parent = FieldDetails.Parents[0];
 	
-	Nodes = ",ValueType,=,<>,In,IsNull,"; // 
+	Nodes = ",ValueType,=,<>,In,IsNull,"; 
 	If StrFind(Nodes, "," + Parent.Node + ",") = 0 Then
 		Return;
 	EndIf;
@@ -31709,7 +31756,7 @@ Procedure ClarifyComparisonFieldProperties(Properties, FieldDetails, Context)
 		Properties.FieldNameForQuery = Properties.FieldNameForQuery + "
 		|	IN (" + ValueList + ")";
 	
-	Else // 
+	Else // Parent.Node = "IsNull".
 		Properties.FieldNameForQuery = Properties.FieldNameForQuery + " IS NULL";
 		Properties.Insert("CheckHasNull");
 	EndIf;
@@ -31731,8 +31778,8 @@ Function WhenConditionFieldsSet(InitialFieldProperties, FieldDetails, Context)
 		Return FieldsSet;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	
 	For Each WhenDetails In Parent.When Do
 		FixedProperties = New FixedStructure(InitialFieldProperties);
@@ -32016,7 +32063,7 @@ Procedure AddFieldTypesProperties(Properties, FieldDetails, Context)
 		Return;
 	EndIf;
 	
-	// 
+	// Only Field nodes are available to receive the Boolean value.
 	Properties.ValueSavingTypes.Add(Type("Boolean"));
 	
 	If Properties.EndFieldType.Types().Count() = 1
@@ -32140,7 +32187,7 @@ Function FieldProperties(FieldNode, Context, FieldProperties = Undefined)
 					FieldNameForQuery = TableAlias + "." + FieldNode.Name;
 				EndIf;
 			EndIf;
-		Else // Первая часть имени поля - 
+		Else // The first part of the field name is a tabular section name.
 			TabularSection = FieldNode.FieldTypes[0];
 			TableAlias = "CurrentList" + TabularSection;
 			NameParts = StrSplit(FieldNode.Name, ".");
@@ -32175,7 +32222,7 @@ Function FieldProperties(FieldNode, Context, FieldProperties = Undefined)
 		Properties.Insert("FieldContainsNull");
 	EndIf;
 	
-	// 
+	// To calculate leading lists.
 	Properties.Insert("TabularSection",    TabularSection);
 	Properties.Insert("AttachmentProperties",  AttachmentProperties);
 	Properties.Insert("FieldNode",          FieldNode);
@@ -32652,7 +32699,7 @@ Function FilterConnectionTextByFieldsValues(Condition, Groups, Context)
 			NextTable = BackwardTablesGroup[IndexOf + 1];
 			TableAndAlias = NextTable.Table + " AS " + NextTable.Alias;
 		EndIf;
-		// @query-part-1
+		// @query-part-1 @query-part-2 @query-part-3
 		JoinText = JoinText + "
 		|	INNER JOIN " + TableAndAlias + "
 		|	On (" + StrConcat(ConnectionConditions, ")
@@ -32866,17 +32913,17 @@ Procedure AddQueryTextsToRestrictionParameters(Result)
 	Context = Result.Context;
 	Result.Delete("Context");
 	
-	// 
+	// Checking the Read and Update object rights or a record set in the database.
 	Result.Insert("ReadEditRightsCheckQueryText");
-	// 
+	// Checking the Read object right or a record set in the database.
 	Result.Insert("ReadRightsCheckQueryText");
-	// 
+	// Text of extracting the owner from an object reference.
 	Result.Insert("OwnerObjectFieldInRightsValidationQuery");
 	
 	AddDateQueryTextOfNextDataItem(Result, Context); 
 	
 	If Result.DoNotWriteAccessKeys Then
-		// 
+		// Query of objects or record filters to delete or set blank keys.
 		Result.Insert("ObsoleteDataItemsQueryText");
 		AddQueryTextOfObsoleteDataItems(Result, Context);
 		
@@ -32888,49 +32935,49 @@ Procedure AddQueryTextsToRestrictionParameters(Result)
 		Return;
 	EndIf;
 	
-	// 
+	// Names of used key tables.
 	Result.Insert("KeyTables");
-	// 
+	// Names of used key table attributes.
 	Result.Insert("KeyTablesAttributes");
 	
-	// 
+	// Query of objects or record filters whose access keys are obsolete.
 	Result.Insert("DataItemWithObsoleteKeysQueryText");
-	// 
+	// Query of record filters that are missing in the register of register access keys upon background update.
 	Result.Insert("DataItemsWithoutAccessKeysQueryText");
-	// 
+	// Query of record filters that are missing in the register of register access keys upon recording a new set.
 	Result.Insert("NewBasicFieldsValuesCombinationsQueryTextForExistingRecords");
 	Result.Insert("NewBasicFieldsValuesCombinationsQueryTextForNewRecords");
-	// 
-	// 
+	
+	
 	Result.Insert("DetailsOfObsoleteAccessKeysForLeadingObjects", New Map);
-	// 
+	// Query of non-existent objects or record filters that are out of use.
 	Result.Insert("ObsoleteDataItemsQueryText");
 	
-	// 
+	// Query of current access keys of register record filters before writing calculated access keys.
 	Result.Insert("CurrentRegisterAccessKeysQueryText");
 	
-	// 
+	// Query of object values or record filters.
 	Result.Insert("DataItemValueForAccessKeysQueryText");
-	// 
+	// Request the memory for object values.
 	Result.Insert("TextOfQueryForInMemoryObjectsValuesForAccessKeys");
-	// 
+	// Query of values from used access keys to compare them with values from objects or record filters.
 	Result.Insert("ValueFromAccessKeysInUseForComparisonQueryText");
-	// 
-	// 
+	
+	
 	Result.Insert("ValueFromAllAccessKeysForComparisonQueryText");
-	// 
+	// Query of checking if access key exists before writing a new key.
 	Result.Insert("KeysForComparisonExistenceQueryText");
 	
-	// 
+	// Query of access keys to update users and access groups, for which they are allowed.
 	Result.Insert("AccessKeysQueryTextToUpdateRights");
-	// 
+	// Query of access keys by leading keys to update users and access groups, for which they are allowed.
 	Result.Insert("KeysQueryTextByLeadingKeysToUpdateRights");
-	// 
+	// Query of values from access keys to calculate users and access groups, for which they are allowed.
 	Result.Insert("ValueFromAccessKeysForRightsCalculationQueryText");
-	// 
+	// Query of not used access keys to set date of not using or deletion.
 	Result.Insert("ObsoleteAccessKeysQueryText");
 	
-	Context.Insert("SeparateRegister", True); // 
+	Context.Insert("SeparateRegister", True); 
 	
 	Context.Insert("KeyTables",                                       New Array);
 	Context.Insert("KeyTablesAttributes",                               KeyTableNewAttributes());
@@ -33207,7 +33254,7 @@ Procedure AddQueryTextOfObsoleteDataItems(Result, Context)
 	BasicFieldsForOrdering = "AccessKeysForRegisters.AccessOption";
 	
 	For Number = 1 To MaxBasicFieldsCount Do
-		// 
+		// Fields for selection.
 		BasicFilterFields = BasicFilterFields + ?(BasicFilterFields = "", "", ",
 		|	") + "AccessKeysForRegisters.Field" + Number + " AS Field" + Number; // @query-part-3
 		
@@ -33226,7 +33273,7 @@ Procedure AddQueryTextOfObsoleteDataItems(Result, Context)
 		BasicFieldsForFilter = BasicFieldsForFilter + ?(BasicFieldsForFilter = "", "", ?(Number = 1, "
 		|	AND ", "")) + Filter; // @query-part-1
 		
-		// 
+		// Fields for ordering.
 		BasicFieldsForOrdering = BasicFieldsForOrdering + ?(BasicFieldsForOrdering = "", "", ",
 		|	") + "AccessKeysForRegisters.Field" + Number;
 	EndDo;
@@ -33280,10 +33327,10 @@ Procedure AddQueryTextOfObsoleteDataItems(Result, Context)
 		BasicFilterFieldsOnCheck = "";
 		BasicFieldsToMap = "";
 		For Each BasicFieldName In BasicFields.UsedItems Do
-			// 
+			// Fields for selection when checking if fields are obsolete before writing.
 			BasicFilterFieldsOnCheck = BasicFilterFieldsOnCheck + ?(BasicFilterFieldsOnCheck = "", "", ",
-			|	") + "AccessKeysForRegisters.Field" + Number + " AS Field" + Number; // @query-
-			// 
+			|	") + "AccessKeysForRegisters.Field" + Number + " AS Field" + Number; 
+			
 			BasicFieldsToMap = BasicFieldsToMap + ?(BasicFieldsToMap = "", "", "
 			|AND ") + "CurrentList." + BasicFieldName + " = AccessKeysForRegisters.Field" + Number; // @query-part-1
 			Number = Number + 1;
@@ -33516,24 +33563,24 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 	
 	If Not ValueIsFilled(Context.SeparateKeysRegisterName) Then
 		Context.SeparateRegister = False;
-		// 
+		// For a new combination query.
 		BasicFieldsConnectionCondition  = "(AccessKeysForRegisters.Register = &RegisterID)";
-		// 
+		// To request current access keys.
 		FilterCriterion                 = "CurrentList.Register = &RegisterID";
-		// 
+		// For other queries.
 		BasicFields.ConnectionCondition = "(CurrentListSource.Register = CurrentList.Register)";
 		BasicFields.ForFilter         = "CurrentList.Register = &RegisterID";
 	EndIf;
 	
-	// 
+	// For a new combination query.
 	BasicFieldsConnectionCondition = BasicFieldsConnectionCondition + ?(BasicFieldsConnectionCondition = "", "", "
 	|			AND ") + "(AccessKeysForRegisters.AccessOption = &AccessOption)"; // @query-part-1
 	
-	// 
+	// To request current access keys.
 	FilterCriterion = FilterCriterion + ?(FilterCriterion = "", "", "
 	|	AND ") + "CurrentList.AccessOption = &AccessOption"; // @query-part-1
 	
-	// 
+	// For other queries.
 	BasicFields.ConnectionCondition = BasicFields.ConnectionCondition + ?(BasicFields.ConnectionCondition = "", "", "
 	|	AND ") + "(CurrentListSource.AccessOption = &AccessOption)"; // @query-part-1
 	
@@ -33544,7 +33591,7 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 	For Each BasicFieldName In BasicFields.UsedItems Do
 		Number = Number + 1;
 		
-		// 
+		// For a new combination query.
 		BasicFieldsForSelection = BasicFieldsForSelection + ?(BasicFieldsForSelection = "", "", ",
 		|	") + "CurrentRegister." + BasicFieldName + " AS Field" + Number; // @query-part-3
 		
@@ -33569,11 +33616,11 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 		BasicFieldsForFilter = BasicFieldsForFilter + ?(BasicFieldsForFilter = "", "", ?(Number = 1, "
 		|	AND ", "")) + Filter; // @query-part-1
 		
-		// 
+		// To request current access keys.
 		FilterCriterion = FilterCriterion + ?(FilterCriterion = "", "", "
 		|	AND ") + "CurrentList.Field" + Number + " = &Field" + Number + "_%1"; // @query-part-1
 		
-		// 
+		// For other queries.
 		BasicFields.ForSelection = BasicFields.ForSelection + ?(BasicFields.ForSelection = "", "", ",
 		|	") + "CurrentList.Field" + Number + " AS Field" + Number; // @query-part-3
 		
@@ -34889,7 +34936,7 @@ Procedure ClarifyKeysRegisterAndConnectionCondition(QueryText, Result, Context, 
 		ConnectionCondition = ConnectionConditions[0];
 	Else
 		FilterCriterion = "AND (" + StrConcat(FilterConditions, Chars.LF + "		OR ") + ")"; // @query-part-1 @query-part-2
-		ConnectionCondition =  "AND (" + StrConcat(ConnectionConditions, Chars.LF + " OR ") + ")"; // @query-part-1 @query-part-2
+		ConnectionCondition =  "AND (" + StrConcat(ConnectionConditions, Chars.LF + "	OR ") + ")"; // @query-part-1 @query-part-2
 	EndIf;
 	
 	QueryText = StrReplace(QueryText,
@@ -35092,7 +35139,7 @@ Procedure AddKeyTabularSectionCheck(Context, KeyTabularSectionNumber)
 	|WHERE
 	|	&QueryCondition)"; // @query-part
 	
-	// 
+	// Direct connection (checking if required records are in the key).
 	Joins = InitialConnections + "
 	|LEFT JOIN Catalog.AccessKeys.TabularSection? AS TabularSection?
 	|ON (TabularSection?.Ref = #DataAccessKeys.#UsersAccessKey)"; // @query-part
@@ -35453,7 +35500,7 @@ Procedure AddRightsFilterConditionForKeyHeader(Context, GroupOfFields, HeaderNum
 		EndIf;
 		If HeaderNumber > 0 Then
 			FilterCriterion = StrReplace(FilterCriterion,
-				"Catalog.AccessKeys AS Header?", "Catalog.AccessKeys.Header AS Header?"); // @query-part-1
+				"Catalog.AccessKeys AS Header?", "Catalog.AccessKeys.Header AS Header?"); // @query-part-1 @query-part-2
 			FilterCriterion = StrReplace(FilterCriterion,
 				"Header?.Ref = KeysBatch.Ref", TextWithIndent(
 				"Header?.Ref = KeysBatch.Ref
@@ -35500,7 +35547,7 @@ Procedure AddKeysChoiceWithoutFieldsInHeader(Context)
 	
 	Context.PartsOfValuesFromObjectsQueryToCompare.Add(QueryText);
 	
-	// 
+	// Checking if access key exists before writing a new key.
 	QueryText =
 	"SELECT
 	|	TRUE AS TrueValue
@@ -35514,7 +35561,7 @@ Procedure AddKeysChoiceWithoutFieldsInHeader(Context)
 	|	AND &QueryPlanClarification";
 	Context.QueryPartsOfKeysExistenceToMap.Add(QueryText);
 	
-	// 
+	// Selecting values from access keys to calculate users and access groups, to which they are allowed.
 	QueryText =
 	"SELECT
 	|	AccessKeys.Ref AS Ref
@@ -35665,8 +35712,8 @@ Procedure AddKeyTabularSectionFilling(Context, KeyTabularSectionNumber)
 			|TOTALS BY
 			|	CurrentRef"; // @query-part-1
 			If ConnectionsInMemory <> ConnectionsInDatabase Then
-				// 
-				// 
+				
+				
 				InMemoryQueryText = // @query-part-1
 				"SELECT DISTINCT
 				|	CurrentList.Ref AS CurrentRef" + TextWithIndent(SelectionFields, "	") + "
@@ -35689,8 +35736,8 @@ Procedure AddKeyTabularSectionFilling(Context, KeyTabularSectionNumber)
 				|ORDER BY
 				|	CurrentRef" + OrderingFields + "
 				|TOTALS BY
-				|	CurrentRef"; // 
-				// 
+				|	CurrentRef"; 
+				
 			EndIf;
 		Else
 			QueryText = // @query-part-1
@@ -35715,7 +35762,7 @@ Procedure AddKeyTabularSectionFilling(Context, KeyTabularSectionNumber)
 	// Query of access keys by leading keys to update users and access groups, for which they are allowed.
 	AddFilterConditionByLeadingAccessKeys(Context, GroupOfFields, , KeyTabularSectionNumber);
 	
-	// 
+	// Selecting values from access keys to compare with the required key values.
 	QueryText =
 	"SELECT
 	|	TabularSection?.Ref AS CurrentRef
@@ -35741,7 +35788,7 @@ Procedure AddKeyTabularSectionFilling(Context, KeyTabularSectionNumber)
 	QueryText = StrReplace(QueryText, "TabularSection?", "TabularSection" + KeyTabularSectionNumber);
 	Context.PartsOfValuesFromObjectsQueryToCompare.Add(QueryText);
 	
-	// 
+	// Selecting values from access keys to calculate users and access groups, to which they are allowed.
 	QueryText =
 	"SELECT
 	|	KeysBatch.Ref AS Ref
@@ -36592,7 +36639,7 @@ EndFunction
 //                                        the restriction purpose for external users.
 //
 // Returns:
-//  String - 
+//  String - a text to call an exception.
 //
 Function ErrorsTextToCallException(FullName, ErrorsDescription, ForExternalUsers, InManagerModule)
 	
@@ -36866,7 +36913,7 @@ EndFunction
 //    * Type           - String - a type for the "KeyWord" and "Operation" kinds.
 //    * Priority     - Number  - a priority for the "KeyWord" and "Operation" kinds.
 //    * Refinement     - Number  - a numeric value for the "Number" kind.
-//                    - String - 
+//                    - String - a name for the "KeyWord" kind, a string of characters for the "ArbitraryString" kind.
 //    * IsReserve     - Boolean - if True, this is a reserved operation or a keyword.
 //    * ErrorPosition - Number  - an error position in a restriction text if the error text is not blank.
 //    * ErrorText   - String - an error text if an error occurs.
@@ -36895,7 +36942,7 @@ Function CharsetsTable(InternalData)
 	LanguageSyntax = InternalData.LanguageSyntax;
 	LanguageChars = LanguageSyntax.LanguageChars;
 	
-	CharsetKind = ""; // 
+	CharsetKind = ""; 
 	CharsetPosition = 0;
 	Charset = New Array;
 	TableRow = Undefined;
@@ -36925,8 +36972,8 @@ Function CharsetsTable(InternalData)
 			Continue;
 		EndIf;
 		If CharsetKind = "Word" Then
-			// 
-			// 
+			
+			
 			CharsetKind = "";
 			AddWordToCharsetsTable(CharsetsTable,
 				Charset, CharsetPosition, LanguageSyntax);
@@ -37003,7 +37050,7 @@ Function CharsetsTable(InternalData)
 	
 	LastRow = CharsetsTable.Add();
 	LastRow.Position = StrLen(RestrictionText) + 1;
-	LastRow.Kind = "End"; // 
+	LastRow.Kind = "End"; 
 	CharsetsTable.Indexes.Add("Kind, Refinement");
 	
 	Return CharsetsTable;
@@ -37188,7 +37235,7 @@ Function LanguageChars()
 	LanguageChars.Insert("<", "OperationChar");
 	LanguageChars.Insert(">", "OperationChar");
 	
-	// 
+	// Not supported.
 	LanguageChars.Insert("+", "OperationChar");
 	LanguageChars.Insert("-", "OperationChar");
 	LanguageChars.Insert("*", "OperationChar");
@@ -37411,7 +37458,7 @@ Function LanguageOperations()
 	AddLanguageWord(LanguageOperations, "=",  "=",  "Connector", , 4);
 	AddLanguageWord(LanguageOperations, "<>", "<>", "Connector", , 4);
 	
-	// 
+	
 	AddLanguageWord(LanguageOperations, "<",  "<",  "Connector", , 4, True);
 	AddLanguageWord(LanguageOperations, "<=", "<=", "Connector", , 4, True);
 	AddLanguageWord(LanguageOperations, ">",  ">",  "Connector", , 4, True);
@@ -37539,7 +37586,7 @@ Function TablesTypes()
 	AddTablesTypeExtension(TablesTypes, TablesTypesNames, "Изменения", // @Non-NLS
 	                                                                        "Changes", "Prohibited");
 	
-	// 
+	// Setting main register properties.
 	TablesTypesNames = "InformationRegister,CalculationRegister";
 	SetTablesTypeProperty(TablesTypes,     TablesTypesNames, "CommonAttributes",       "Allowed2");
 	AddTablesTypeFieldsCollection(TablesTypes, TablesTypesNames, "Resources",              "Allowed2");
@@ -37599,7 +37646,7 @@ Function TablesTypes()
 	TablesTypesNames = "Catalog,Enum,ChartOfCharacteristicTypes,ChartOfAccounts,ChartOfCalculationTypes";
 	SetTablesTypeProperty(TablesTypes, TablesTypesNames, "HasPredefined", True);
 	
-	// 
+	// Clarifying standard fields of table types.
 	TablesTypesNames = "Document,InformationRegister,AccumulationRegister,AccountingRegister";
 	AddTablesTypeField(TablesTypes, TablesTypesNames, "МоментВремени", // @Non-NLS
 	                                                                      "PointInTime", "Illegal");
@@ -38002,11 +38049,11 @@ Function RestrictionParts(InternalData)
 EndFunction
 
 // 
-//  See CharsetsTable
+//   See CharsetsTable
 //           
-//  See CharsetsTable
+//   See CharsetsTable
 //  
-//              See CharsetsTable
+//               See CharsetsTable
 //
 Procedure RowAdd(Parent, String, Context)
 	
@@ -38019,7 +38066,7 @@ Procedure RowAdd(Parent, String, Context)
 EndProcedure
 
 // Parameters:
-//  RowDescription - Number -
+//  RowDescription - Number - 
 //                 - ValueTableRow of See CharsetsTable
 //                 - Structure - See AdditionalString1
 //  Context - Structure:
@@ -38083,17 +38130,17 @@ EndFunction
 //         "AccessRight", 'RoleAvailable'.
 //     
 //     Field node properties.
-//      * Name       - String -
+//      * Name       - String - 
 //      * Table   - String - a table name of this field (or a blank row for the main table).
 //      * Alias - String - an attached table alias name (or a blank row for the main table),
 //                      for example, "SettingInformationRegister" for the "MainCompany" field.
 //      * Cast  - String - a table name (if used), for example, to describe a field as:
 //                     CAST(CAST(Owner AS Catalog.Files).FileOwner AS Catalog.Companies).Ref".
 //      * Attachment  - Structure - the Field node that contains the CAST nested action (with or without IsNull).
-//                  - Undefined - 
+//                  - Undefined - there is no nested field.
 //      * IsNull  - Structure - the Value Or Constant node, for example, to describe an expression of the following type:
 //                      "IsNULL(Owner, Value(Catalog.Files.BlankRef))".
-//                  - Undefined - 
+//                  - Undefined - if IsNull is not used (including when the Attachment property is filled in).
 //      * NameSource      - ValueTableRow
 //                         - Undefined
 //      * CastSource - ValueTableRow
@@ -38102,7 +38149,7 @@ EndFunction
 //                         - Undefined
 //
 //     Properties of the Value and Type nodes.
-//      * Name - String -
+//      * Name - String - 
 //                                               
 //                       
 //
@@ -38110,23 +38157,23 @@ EndFunction
 //      * Value - Boolean
 //                 - Number
 //                 - String
-//                 - Undefined - 
-//                     
+//                 - Undefined - False, True, an arbitrary
+//                     integer number up to 16 digits or an arbitrary string up to 150 characters.
 //
-//     
+//     Properties of the AND, OR nodes (any node except for Value or Constant).
 //      * Arguments - Array of See NodeDetails
 //
 //     Properties of the Not node (any node except for Value or Constant).
 //       * Argument - See NodeDetails
 //       
-//       * Name - String -
+//       * Name - String - 
 //
 //     
 //                           
 //       * FirstArgument - See NodeDetails
 //       * SecondArgument - See NodeDetails
 //       
-//       * Name - String -
+//       * Name - String - 
 //
 //     
 //       * SearchFor  - See NodeDetails
@@ -38135,12 +38182,12 @@ EndFunction
 //     Properties of the IsNull node (the Field node - an expression of the "<Field> IS NULL" kind).
 //       * Argument - See NodeDetails 
 //
-//       * Name - String -
+//       * Name - String - 
 //       
 //     
 //       * Argument - See NodeDetails
 //
-//       * Name - String -
+//       * Name - String - 
 //       
 //     
 //               
@@ -38158,7 +38205,7 @@ EndFunction
 //           ** Value - See NodeDetails
 //       * Else - See NodeDetails
 //
-//       * Name - String - stub to the previous line (for defining the type in EDT)
+//       * Name - String -  stub to the previous line (for defining the type in EDT)
 //       
 //     Node properties value Resolved, this is an authorized User,
 //                    Changeobjectstate, Essentiallyidentical,
@@ -38194,7 +38241,7 @@ Procedure SetRestrictionPart(RestrictionParts, PartProperties)
 		
 		PropertyName = "UpdateRestriction";
 		
-	Else // ПрисоединитьДополнительныеТаблицы.
+	Else // AttachAdditionalTables.
 		
 		PropertyName = "AdditionalTables";
 		RestrictionParts.MainTableAlias = PartProperties.MainTableAlias;
@@ -38222,7 +38269,7 @@ Procedure SetPartBeginningError(PartProperties, ErrorText)
 	
 	RowWithError.ErrorText = ErrorText;
 	
-	// 
+	// Description of the first keyword options of parts is required.
 	RowWithError.ErrorPosition = -1;
 	
 EndProcedure
@@ -38239,7 +38286,7 @@ Procedure SetErrorInsidePart(Rows, RowIndex, ErrorText)
 		RowWithError = Rows[RowIndex];
 	Else
 		RowWithError = Rows[RowIndex - 1];
-		// 
+		// An error in the end of the word.
 		RowWithError.ErrorPosition = StrLen(RowWithError.Chars);
 	EndIf;
 	
@@ -38364,16 +38411,16 @@ Procedure ParseAdditionalTables(PartProperties, InternalData)
 		New Map(New FixedMap(InternalData.Aliases)));
 	
 	For Each Join In Joins Do
-		// 
-		// 
+		
+		
 		ParseConnection(Join, PartProperties, InternalData);
 	EndDo;
 	
 	// Continue parsing after filling in the aliases of all additional tables.
 	For Each IConnectionShort In PartProperties.Content Do
 		InternalData.AvailableAliases.Insert(Upper(IConnectionShort.Alias), True);
-		// 
-		// 
+		
+		
 		ParseConnectionConditionFieldsAndMarkProhibitions(IConnectionShort, InternalData);
 	EndDo;
 	
@@ -38730,7 +38777,7 @@ Procedure MarkIncorrectArgumentsAndProhibitedNodes(Condition, AvailableNodes, Co
 		MarkIncorrectArgumentsAndProhibitedNodes(Condition.Field, AvailableNodes, Context);
 		MarkTypesRepetitionsAmongThoseToCheckAndClarify(Condition, Context);
 		
-		// 
+		
 		Field = Condition.Field; // See NodeDetails
 		Clarifications = New Map;
 		For Each ComparisonClarification In Condition.ComparisonClarifications Do
@@ -38743,7 +38790,7 @@ Procedure MarkIncorrectArgumentsAndProhibitedNodes(Condition, AvailableNodes, Co
 				ComparisonClarification.Key.Chars, ComparisonClarification.Key);
 		EndDo;
 		
-		// 
+		// Delete type sources.
 		Condition.ComparisonClarifications = Clarifications;
 		
 		Types = New Array;
@@ -39200,10 +39247,10 @@ Function FieldNodeOrConstantNodeDetails(String)
 			ElsIf String.Refinement = "False" Then
 				NewDetails.Value = False;
 				
-			Else // 
+			Else // String.Kind = "Undefined".
 				NewDetails.Value = Undefined;
 			EndIf;
-		Else // 
+		Else // ArbitraryString or Number.
 			NewDetails.Value = String.Refinement;
 		EndIf;
 	EndIf;
@@ -39229,8 +39276,8 @@ EndFunction
 // For the ParseExpression procedure.
 Procedure ParseConnector(Context, IsOperation = False)
 	
-	// 
-	// 
+	
+	
 	
 	String = Context.String; // ValueTableRow of See CharsetsTable
 	
@@ -39248,15 +39295,15 @@ Procedure ParseConnector(Context, IsOperation = False)
 		NewDetails.Node = "IsNull";
 		NewDetails.Insert("Argument", Undefined);
 		AddConnector(Context, NewDetails, NewDetails.Argument);
-		// 
-		// 
+		
+		
 		
 	ElsIf String.Kind = "Operation" Then
 		NewDetails.Insert("FirstArgument", Undefined);
 		NewDetails.Insert("SecondArgument", Undefined);
 		AddConnector(Context, NewDetails, NewDetails.FirstArgument);
-		// 
-		// 
+		
+		
 		
 	ElsIf String.Refinement = "As"
 	      Or String.Refinement = "Not"
@@ -39368,7 +39415,7 @@ EndFunction
 // For the ParseConnector, ParseConnectorIn, and InsertConnectorConsideringPriority procedures.
 Procedure AddConnector(Context, NewDetails, FirstArgument);
 	
-	// 
+	
 	
 	LongDesc = Context.LongDesc; // See NodeDetails
 	
@@ -39401,9 +39448,9 @@ Procedure AddConnector(Context, NewDetails, FirstArgument);
 		
 	ElsIf StrFind(",Field,Value,Constant,In,IsNull,Case,", "," + LongDesc.Node + ",") > 0
 	      Or LongDesc.Source.Type = "Function" Then
-		// 
-		// 
-		// 
+		
+		
+		
 		InsertConnectorConsideringPriority(Context, Undefined, NewDetails, FirstArgument);
 	Else
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -39438,7 +39485,7 @@ Procedure InsertConnectorConsideringPriority(Context,
 	If DetailsLastArgument <> Undefined
 	   And Context.String.Priority >= LongDesc.Source.Priority Then
 		
-		// 
+		// Replacing the current node argument with the connector (case "A Or B And ...").
 		NewDetailsFirstArgument = DetailsLastArgument;
 		DetailsLastArgument = NewDetails;
 		
@@ -39448,13 +39495,13 @@ Procedure InsertConnectorConsideringPriority(Context,
 	EndIf;
 	
 	If Attachments.Count() = 0 Then
-		// 
+		// Nesting the current node as the first connector argument (case "A And B Or ...").
 		NewDetailsFirstArgument = Context.LongDesc;
 		Context.LongDesc = NewDetails;
 		Return;
 	EndIf;
 	
-	// 
+	// Nesting the previous node as the first connector argument (case "A And Not B Or ...").
 	Context.LongDesc = Attachments[0];
 	Attachments.Delete(0);
 	
@@ -39961,7 +40008,7 @@ Function FieldNodeDetailsFromExpressFunction(String, Context)
 	ParametersContent = CommaSeparatedParameters(String, Context);
 	
 	If ParametersContent.Count() = 0 Then
-		// 
+		// The parameter missing error is already set in the FunctionsWithExpressionsInParentheses function.
 		Return NewDetails;
 	EndIf;
 	
@@ -40054,7 +40101,7 @@ Function FieldNodeDetailsFromIsNullFunction(String, Context)
 	ParametersContent = CommaSeparatedParameters(String, Context);
 	
 	If ParametersContent.Count() = 0 Then
-		// 
+		// The parameter missing error is already set in the FunctionsWithExpressionsInParentheses function.
 		Return NewDetails;
 	EndIf;
 	
@@ -40289,7 +40336,7 @@ Procedure ParseErrorKeyword(Context)
 	Context.LongDesc = Undefined;
 	
 	If String.Type = "NotDefined" Then
-		// 
+		// The error is already set for the reserved words.
 		Return;
 	EndIf;
 	
@@ -40326,8 +40373,8 @@ EndProcedure
 // For the ParseExpression, ParseOperator, ParseFunction, and ParseChoice procedures.
 Procedure AddArgumentFunctionChoiceOperator(Context, DetailsToAdd)
 	
-	// 
-	// 
+	
+	
 	
 	LongDesc = Context.LongDesc; // See NodeDetails
 	
@@ -40355,17 +40402,17 @@ Procedure AddArgumentFunctionChoiceOperator(Context, DetailsToAdd)
 		
 		If Not ValueIsFilled(LongDesc.SecondArgument) Then
 			LongDesc.SecondArgument = DetailsToAdd;
-			// 
-			// 
+			
+			
 		Else
 			ProcessMissingLogicalOperation(Context, LongDesc.SecondArgument, DetailsToAdd);
 		EndIf;
 		
 	ElsIf StrFind(",Field,Value,Constant,In,IsNull,Case,", "," + LongDesc.Node + ",") > 0
 	      Or LongDesc.Source.Type = "Function" Then
-		// 
-		// 
-		// 
+		
+		
+		
 		ProcessMissingLogicalOperation(Context, Undefined, DetailsToAdd);
 	Else
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -40586,8 +40633,8 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 				DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 				RestoreChoiceStructure(String, Attachments, CurrentAttachment, "Else", Context);
 				
-			Else // 
-				// 
+			Else 
+				
 			EndIf;
 			DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 			DeleteLastAttachment(Attachments, CurrentAttachment, Context);
@@ -40614,7 +40661,7 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 			DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 			RestoreChoiceStructure(CurrentAttachment, Attachments, CurrentAttachment, "Else", Context);
 			
-		Else // 
+		Else // CurrentAttachment.Clarification = "Else"
 			ErrorText = InsertKeywordsIntoString(Context,
 				NStr("en = 'The ""%2"" keyword is missing after the ""%1"" keyword.';"), "Else,End");
 		EndIf;
@@ -40792,8 +40839,8 @@ EndProcedure
 //   * Type - String
 //   * Priority - Number
 //   * Refinement - String
-//   * Rows - Array of Number -
-//   * EndString - Number -
+//   * Rows - Array of Number - 
+//   * EndString - Number - 
 //   * ErrorPosition - Number
 //   * ErrorText - String
 //
@@ -40845,7 +40892,7 @@ EndProcedure
 // For the ParseAdditionalTables and ParseCondition procedures.
 //
 // Parameters:
-//    See CharsetsTable
+//     See CharsetsTable
 //
 Procedure SetAlias(PartRow, IConnectionShort, InternalData)
 	
@@ -40881,7 +40928,7 @@ EndProcedure
 // For the ParseConnection procedure.
 //
 // Parameters:
-//    See CharsetsTable
+//     See CharsetsTable
 //
 Procedure SetTableName(PartRow, IConnectionShort, InternalData)
 	
@@ -41534,14 +41581,14 @@ Procedure CheckNextPointSeparatedField(FieldDetails, IndexOf, CurrentFieldProper
 		CurrentIndex = IndexOf;
 		CheckTableField(FieldDetails, Context, CurrentIndex, False);
 		
-		// 
+		// Restore the current context.
 		Context.MetadataTables  = CurrentTableMetadata;
 		Context.TablesTypeProperties = CurrentTablesTypeProperties;
 		
 		If FieldProperties.FieldWithError = 0 Then
 			FieldFound = True;
 			If NextFieldTables <> Undefined Then
-				// 
+				// See procedure AddFieldTypesAdditional.
 				NextFieldTables.Add(FullName);
 			EndIf;
 		ElsIf FieldProperties.ErrorKind <> "NotFound4" Then
@@ -41632,7 +41679,7 @@ Function FieldOrTabularSectionProperties(FieldOrTabularSectionName, Context, IsF
 			
 			Result.Collection = "SpecialFields";
 			Result.Type = MetadataTables.Type;
-			Result.Insert("DefaultOrder", "001"); // 
+			Result.Insert("DefaultOrder", "001"); //  
 			Return Result;
 		EndIf;
 		
@@ -41643,7 +41690,7 @@ Function FieldOrTabularSectionProperties(FieldOrTabularSectionName, Context, IsF
 		
 			Result.Collection = "SpecialFields";
 			Result.Type = New TypeDescription("Date");
-			Result.Insert("DefaultOrder", "001"); // 
+			Result.Insert("DefaultOrder", "001"); //  
 			Return Result;
 		EndIf;
 		
@@ -41656,7 +41703,7 @@ Function FieldOrTabularSectionProperties(FieldOrTabularSectionName, Context, IsF
 			For Each DocumentMetadata In MetadataSequences.Documents Do
 				Result.Type = New TypeDescription(Result.Type, "DocumentRef." + DocumentMetadata.Name);
 			EndDo;
-			Result.Insert("DefaultOrder", "002"); // 
+			Result.Insert("DefaultOrder", "002"); //  
 			Return Result;
 		EndIf;
 	EndIf;
@@ -41740,7 +41787,7 @@ Function RecalculationFieldProperties(RecalculationFieldName, RecalculationMetad
 		Result.Type = FieldMetadata.RegisterDimension.Type;
 		Result.Collection = "SpecialFields";
 		Number = 200 + RegisterMetadata.Dimensions.IndexOf(FieldMetadata) + 1;
-		Result.Insert("DefaultOrder", Number); // 
+		Result.Insert("DefaultOrder", Number); //  
 		Return Result;
 	EndIf;
 	
@@ -43235,7 +43282,7 @@ Function ExecuteQueriesPackageByParts(QueryDetails)
 	QueriesBatchTexts = New Array;
 	For Each QueryText In QueryDetails.QueryPackageTexts Do
 		If QueriesBatchTexts.Count() = 200 Then
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			AddQueryResults(QueriesPackageResults, QueriesBatchTexts, QueryDetails);
 			QueriesBatchTexts = New Array;
 		EndIf;
@@ -43694,7 +43741,7 @@ Procedure FillRegisterItemsCountShares(ItemsCountShares, Item, RestrictionProper
 			ItemsCountShares.Left1   = 0.1;
 		EndIf;
 		
-	Else // ObsoleteCommonRegisterItems.
+	Else // ObsoleteCommonRegisterItems
 		ItemsCountShares.Processed2 = 0.99;
 		ItemsCountShares.Left1   = 0.01;
 	EndIf;
@@ -43839,8 +43886,8 @@ EndFunction
 
 Function CurrentDateAtServer() Export
 	
-	// ACC:143-
-	// 
+	
+	
 	Return CurrentDate();
 	// ACC:143-on
 	

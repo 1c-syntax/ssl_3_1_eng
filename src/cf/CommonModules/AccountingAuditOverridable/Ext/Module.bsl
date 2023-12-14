@@ -40,7 +40,7 @@ EndProcedure
 //                                       Required.
 //      * Id                - String - a string ID of the check group. Required.
 //                                       For uniqueness, select the ID format as follows:
-//                                       <Software name>.<Check ID>.For example: 
+//                                       <Software name>.<Check ID>.For example 
 //                                       StandardSubsystems.SystemChecks".
 //      * AccountingChecksContext - DefinedType.AccountingChecksContext - a value that additionally
 //                                       specifies the belonging of a data integrity check group to a certain
@@ -54,10 +54,10 @@ EndProcedure
 //      * Description                 - String - a check description displayed to a user.
 //      * Reasons                      - String - a description of possible reasons that result in issue appearing.
 //      * Recommendation                 - String - a recommendation on solving an appeared issue.
-//      * Id                - String - an item string ID. Required.
-//                                                The ID format has to be as follows:
-//                                                <Software name>.<Check ID>.For example:
-//                                                StandardSubsystems.SystemChecks.
+//      * Id                - String - 
+//                                                :
+//                                                
+//                                                
 //      * CheckStartDate           - Date - a threshold date that indicates the boundary of the checked
 //                                              objects (only for objects with a date). Do not check objects whose date is less than 
 //                                              the specified one. Not filled in 
@@ -66,17 +66,17 @@ EndProcedure
 //                                               If 0 is specified, check all objects.
 //      * HandlerChecks           - String - a name of the export handler procedure of the server common
 //                                                module as ModuleName.ProcedureName.
-//      * GoToCorrectionHandler - String - a name of the export handler procedure for client common module
-//                                                  to start correcting an issue in the form of "ModuleName.ProcedureName"
-//                                                  or the full name of the form that needs to be opened to correct the issue.
-//                                                  The handler procedure accepts two parameters for input: 
-//                                                    CorrectionParameters - Structure - a structure with the following properties:
-//                                                      CheckID - String - a string check ID.
-//                                                      CheckKind - CatalogRef.ChecksKinds - a check kind
-//                                                               that narrows the area of issue correction.
-//                                                    AdditionalParameters - Undefined - the parameter is not used.
-//                                                 When a form is opened, the same parameters are passed to it as the properties 
-//                                                 of the above-mentioned CorrectionParameters structure.
+//      * GoToCorrectionHandler - String - 
+//                                                  
+//                                                  
+//                                                  : 
+//                                                    
+//                                                      
+//                                                      
+//                                                               
+//                                                    
+//                                                  
+//                                                 
 //      * NoCheckHandler       - Boolean - a flag of the service check that does not have the handler procedure.
 //      * ImportanceChangeDenied   - Boolean - if True, the administrator cannot change 
 //                                                the importance of this check.
@@ -212,7 +212,7 @@ EndProcedure
 //                                         Check handler parameters:
 //                                           * Validation - CatalogRef.AccountingCheckRules - a check being executed.
 //                                           * CheckParameters - Structure - parameters of the check that needs to be executed.
-//                                                                             For more information, see the documentation. 
+//                                                                             For more information, see the documentation.
 //      * GoToCorrectionHandler - String - a client handler procedure name 
 //                                         in the client common module or a full name of the form that will open to
 //                                         correct an issue. The issue or form correction handler parameters:

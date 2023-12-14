@@ -69,7 +69,7 @@ Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
 	
 EndProcedure
 
-// 
+// Called before importing new settings. Used for modifying DCS reports.
 //
 // Parameters:
 //   Context - Arbitrary
@@ -300,7 +300,6 @@ Procedure FinishOutput(ResultDocument, DetailsData, RightsSettings)
 				StringExplanations.Insert(LineNumber, FieldValues);
 				If FontRightNotAssigned = Undefined Then
 					FontRightNotAssigned = Area.Font;
-					//@skip-
 					FontRightAllowed   = New Font(FontRightNotAssigned,,, True,,,, 120);
 					FontRightForbidden   = FontRightAllowed;
 				EndIf;

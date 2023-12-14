@@ -48,9 +48,9 @@ Procedure GetLockParameters() Export
 		LockEffectiveFrom    = CurrentMode.Begin;
 		LockEffectiveTo = CurrentMode.End;
 	Else
-		// 
-		// 
-		// 
+		
+		
+		
 		LockEffectiveFrom     = BegOfMinute(CurrentSessionDate() + 15 * 60);
 	EndIf;
 	

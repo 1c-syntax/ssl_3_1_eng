@@ -64,10 +64,10 @@ Procedure BeforeWrite(Cancel)
 			Raise NStr("en = 'Cannot perform tasks of suspended business processes.';");
 		EndIf;
 		
-		// 
-		// 
-		// 
-		// 
+		
+		
+		
+		
 		If Not ValueIsFilled(Performer) Then
 			Performer = Users.AuthorizedUser();
 		EndIf;
@@ -150,7 +150,7 @@ Procedure SetSubordinateBusinessProcessesState(NewState)
 			BusinessProcessObject = SubordinateBusinessProcess.GetObject();
 			BusinessProcessObject.Lock();
 			BusinessProcessObject.State = NewState;
-			BusinessProcessObject.Write(); // 
+			BusinessProcessObject.Write(); 
 		EndDo;	
 		CommitTransaction();
 	Except
@@ -163,7 +163,7 @@ EndProcedure
 // Determines whether addressing attributes are filled in: assignee or business role
 // 
 // Returns:
-//  Boolean - 
+//  Boolean - returns True if an assignee or assignee role is specified in the task.
 //
 Function AddressingAttributesAreFilled()
 	

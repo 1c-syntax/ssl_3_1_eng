@@ -12,7 +12,7 @@
 // Recipients types table broken down by storage and user presentation of these types.
 //
 // Returns: 
-//   ValueTable - 
+//   ValueTable - Table of recipient types.:
 //       * MetadataObjectID - CatalogRef.MetadataObjectIDs - a reference that is stored
 //                                                                                              in the database.
 //       * RecipientsType  - TypeDescription - a type by which the recipient and exclusion list values are limited.
@@ -44,7 +44,7 @@ Function RecipientsTypesTable() Export
 	TypesSettings.Insert("AdditionalType", Type("CatalogRef.UserGroups"));
 	ReportMailing.AddItemToRecipientsTypesTable(TypesTable, AvailableTypes, TypesSettings);
 	
-	// 
+	//  Extension mechanism.
 	ReportMailingOverridable.OverrideRecipientsTypesTable(TypesTable, AvailableTypes);
 	
 	// Other catalogs parameters.
@@ -73,6 +73,26 @@ Function ReportsToExclude() Export
 	
 	Return ReportsToExclude;
 	
+EndFunction
+
+Function EmailTextAndFileParameters() Export
+
+	MailingParameters = New Structure;
+	
+	MailingParameters.Insert("Recipient", NStr("en = 'Recipient';"));
+	MailingParameters.Insert("ExecutionDate", NStr("en = 'Fulfillment date';"));
+	MailingParameters.Insert("Author", NStr("en = 'Author';"));
+	MailingParameters.Insert("MailingDescription", NStr("en = 'Distribution description';"));
+	MailingParameters.Insert("GeneratedReports", NStr("en = 'Generated reports';"));
+	MailingParameters.Insert("SystemTitle", NStr("en = 'Application title';"));
+	MailingParameters.Insert("DeliveryMethod", NStr("en = 'Delivery method';"));
+	MailingParameters.Insert("ReportFormat", NStr("en = 'Report format';"));
+	MailingParameters.Insert("Period", NStr("en = 'Period';"));
+	MailingParameters.Insert("MailingDate", NStr("en = 'Send date';"));
+	MailingParameters.Insert("ReportDescription1", NStr("en = 'Report name';"));
+	
+	Return MailingParameters;
+
 EndFunction
 
 #EndRegion

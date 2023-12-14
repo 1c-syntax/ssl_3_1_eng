@@ -35,6 +35,11 @@ Procedure RecordIssueResolved(Source, IssueType, InfobaseNode = Undefined) Expor
 		Return;
 	EndIf;
 	
+	ExceptionTypes = DataExchangeServer.TypesExcludedFromProblemResolutionCheck();
+	If ExceptionTypes.Find(Source.Metadata()) <> Undefined Then
+		Return;
+	EndIf;
+		
 	SetPrivilegedMode(True);
 	
 	If DataExchangeCached.ExchangePlansInUse().Count() > 0
@@ -176,8 +181,8 @@ EndProcedure
 
 Procedure LogAdministratorError(InfobaseNode, WarningDetails) Export
 	
-	// 
-	// 
+	
+	
 	
 	IssueType = Enums.DataExchangeIssuesTypes.ApplicationAdministrativeError;
 	
@@ -445,7 +450,7 @@ Function IssuesCount(SearchParameters = Undefined) Export
 	EndIf;
 	Query.Text = StrReplace(Query.Text, "AND &FilterBySkipped", FIlterRow);
 	
-	// 
+	// Filter by exchange plan node.
 	FIlterRow = "";
 	ExchangePlanNodes = Undefined;
 	If SearchParameters.Property("ExchangePlanNodes", ExchangePlanNodes) 
@@ -455,7 +460,7 @@ Function IssuesCount(SearchParameters = Undefined) Export
 	EndIf;
 	Query.Text = StrReplace(Query.Text, "AND &FilterByExchangePlanNode", FIlterRow);
 	
-	// 
+	// Filter by issue type.
 	FIlterRow = "";
 	IssueType = Undefined;
 	If SearchParameters.Property("IssueType", IssueType)
@@ -465,7 +470,7 @@ Function IssuesCount(SearchParameters = Undefined) Export
 	EndIf;
 	Query.Text = StrReplace(Query.Text, "AND &FilterByProblemType", FIlterRow);
 	
-	// 
+	// Filter by period.
 	FIlterRow = "";
 	Period = Undefined;
 	If SearchParameters.Property("Period", Period) 
@@ -478,7 +483,7 @@ Function IssuesCount(SearchParameters = Undefined) Export
 	EndIf;
 	Query.Text = StrReplace(Query.Text, "AND &FilterByPeriod", FIlterRow);
 	
-	// 
+	// Filter by reason.
 	FIlterRow = "";
 	SearchString = Undefined;
 	If SearchParameters.Property("SearchString", SearchString) 
@@ -488,7 +493,7 @@ Function IssuesCount(SearchParameters = Undefined) Export
 	EndIf;
 	Query.Text = StrReplace(Query.Text, "AND &FilterByReason", FIlterRow);
 	
-	// 
+	// Filter by object.
 	FIlterRow = "";
 	ObjectsWithIssues = Undefined;
 	If SearchParameters.Property("ObjectsWithIssues", ObjectsWithIssues)
@@ -840,8 +845,8 @@ Procedure ClearBypassExchangeWarnings(DeletionParameters)
 		BeginTransaction();
 		Try
 			
-			 // 
-			 // 
+			 
+			 
 			DataLock = New DataLock;
 			DataLockItem = DataLock.Add("InformationRegister.DataExchangeResults");
 			DataLockItem.Mode = DataLockMode.Exclusive;
@@ -864,7 +869,7 @@ Procedure ClearBypassExchangeWarnings(DeletionParameters)
 			SampleIterator = SampleIterator + 1;
 			If Round(SampleIterator * Proportion, 0) <> Round((SampleIterator - 1) * Proportion, 0) Then 
 				
-				// 
+				// Increase the step proportionally (when the number of iterations multiplied by the ratio change the value).
 				DeletionParameters.NumberOfOperationsCurrentStep = DeletionParameters.NumberOfOperationsCurrentStep + 1;
 				
 			EndIf;
@@ -875,8 +880,8 @@ Procedure ClearBypassExchangeWarnings(DeletionParameters)
 			
 		Except
 			
-			// 
-			// 
+			
+			
 			RollbackTransaction();
 			
 			EventName = NStr("en = 'Data exchange';", Common.DefaultLanguageCode());

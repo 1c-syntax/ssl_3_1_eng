@@ -27,7 +27,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Parameters.Property("VariantPresentation") And ValueIsFilled(Parameters.VariantPresentation) Then
 		AutoTitle = False;
-		Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Modify report option %1';"), Parameters.VariantPresentation);
+		Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Modify ""%1"" report option';"), Parameters.VariantPresentation);
 	EndIf;
 	
 	If Parameters.Property("ReportSettings", ReportSettings) Then

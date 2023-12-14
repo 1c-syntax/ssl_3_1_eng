@@ -18,7 +18,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, "SelectionPick");
 		WindowOpeningMode = FormWindowOpeningMode.LockOwnerWindow;
 		
-		// 
+		// Excluding "All external users" group from the list of available parents.
 		CommonClientServer.SetDynamicListFilterItem(
 			List, "Ref", Catalogs.UserGroups.AllUsers,
 			DataCompositionComparisonType.NotEqual, , Parameters.Property("SelectParent"));
@@ -63,7 +63,7 @@ Procedure SetAllUsersGroupOrder(List)
 	
 	Var Order;
 	
-	// Order
+	// Order.
 	Order = List.SettingsComposer.Settings.Order;
 	Order.UserSettingID = "DefaultOrder";
 	

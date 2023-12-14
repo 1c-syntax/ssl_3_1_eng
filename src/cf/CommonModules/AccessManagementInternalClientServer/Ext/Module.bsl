@@ -13,13 +13,13 @@
 //
 // Parameters:
 //  Profile - CatalogObject.AccessGroupProfiles - a profile with the Assignment tabular section.
-//          - FormDataStructure   - 
-//          - Structure              - description of the supplied profile.
-//          - FixedStructure - description of the supplied profile.
+//          - FormDataStructure   - a profile object structure in the form.
+//          - Structure              - a built-in profile details.
+//          - FixedStructure - a built-in profile details.
 //
 // Returns:
-//  String - "For Admins", "For Users", "For External Users",
-//           "For Joint Usersexternal Users".
+//  String - ForAdministrators, ForUsers, ForExternalUsers,
+//            BothForUsersAndExternalUsers.
 //
 Function ProfileAssignment(Profile) Export
 	
@@ -56,7 +56,7 @@ EndFunction
 //
 // Parameters:
 //  AccessKind        - String - an access kind name.
-//                    - DefinedType.AccessValue - 
+//                    - DefinedType.AccessValue - — access kind value type.
 //  ProfileAssignment - String - returned by the ProfileAssignment function.
 //  
 // Returns:
@@ -257,7 +257,7 @@ Procedure OnChangeCurrentAccessKind(Form, ProcessingAtClient = True) Export
 				NStr("en = 'Allowed values (%1)';") );
 		EndIf;
 		
-		// 
+		// Refresh the field AccessKindLabel.
 		Form.AccessKindLabel = StringFunctionsClientServer.SubstituteParametersToString(LabelPattern,
 			String(CurrentData.AccessKindPresentation));
 		
@@ -378,7 +378,7 @@ EndFunction
 //             - DefinedType.AccessValue
 // 
 // Returns:
-//  Filter - 
+//  Filter - Structure:
 //   * AccessGroup - CatalogRef.AccessGroups
 //   * AccessKind - DefinedType.AccessValue - a blank reference of the main access kind value type.
 //
@@ -495,7 +495,7 @@ Procedure ProcessingOfCheckOfFillingAtServerAllowedValuesEditForm(
 			Continue;
 		EndIf;
 		
-		// 
+		// Checking for duplicate access kinds.
 		AccessKindsFilter.Insert("AccessKind", AccessKindRow.AccessKind);
 		FoundAccessKinds = Parameters.AccessKinds.FindRows(AccessKindsFilter);
 		
@@ -539,7 +539,7 @@ Procedure ProcessingOfCheckOfFillingAtServerAllowedValuesEditForm(
 				Continue;
 			EndIf;
 			
-			// 
+			// Checking for duplicate values.
 			AccessValuesFilter.Insert("AccessValue", AccessValueRow.AccessValue);
 			FoundValues = Parameters.AccessValues.FindRows(AccessValuesFilter);
 			

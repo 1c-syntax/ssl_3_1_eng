@@ -38,7 +38,7 @@ Procedure TaskFormOnCreateAtServer(BusinessTaskForm, TaskObject,
 		If Item = Undefined Then
 			Item = BusinessTaskForm.Items.Add("__TaskState", Type("FormDecoration"), Parent);
 			Item.Type = FormDecorationType.Label;
-			Item.Height = 0; // автовысота
+			Item.Height = 0; 
 			Item.AutoMaxWidth = False;
 		EndIf;
 		UseDateAndTimeInTaskDeadlines = GetFunctionalOption("UseDateAndTimeInTaskDeadlines");
@@ -67,7 +67,7 @@ Procedure TaskFormOnCreateAtServer(BusinessTaskForm, TaskObject,
 			Item = BusinessTaskForm.Items.Add("__HeadTask", Type("FormDecoration"), Parent);
 			Item.Type = FormDecorationType.Label;
 			Item.Title = NStr("en = 'This is a head task for nested business processes. It will be completed automatically upon their completion.';");
-			Item.Height = 0; // автовысота
+			Item.Height = 0; // Auto height.
 			Item.AutoMaxWidth = False;
 		EndIf;
 	EndIf;
@@ -78,7 +78,7 @@ EndProcedure
 //
 // Parameters:
 //  TaskListOrItsConditionalAppearance - DynamicList
-//                                      - DataCompositionConditionalAppearance - 
+//                                      - DataCompositionConditionalAppearance - conditional appearance of a task list.
 //
 Procedure SetTaskAppearance(Val TaskListOrItsConditionalAppearance) Export
 	
@@ -101,7 +101,7 @@ Procedure SetTaskAppearance(Val TaskListOrItsConditionalAppearance) Export
 		Items.Delete(ConditionalAppearanceItem);
 	EndDo;
 		
-	// 
+	// Setting appearance for overdue tasks.
 	ConditionalAppearanceItem = ConditionalTaskListAppearance.Items.Add();
 	ConditionalAppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
@@ -126,7 +126,7 @@ Procedure SetTaskAppearance(Val TaskListOrItsConditionalAppearance) Export
 	AppearanceColorItem.Value =  Metadata.StyleItems.OverdueDataColor.Value;   
 	AppearanceColorItem.Use = True;
 	
-	// 
+	// Setting appearance for completed tasks.
 	ConditionalAppearanceItem = ConditionalTaskListAppearance.Items.Add();
 	ConditionalAppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
@@ -140,7 +140,7 @@ Procedure SetTaskAppearance(Val TaskListOrItsConditionalAppearance) Export
 	AppearanceColorItem.Value = Metadata.StyleItems.ExecutedTask.Value; 
 	AppearanceColorItem.Use = True;
 	
-	// 
+	// Setting appearance for tasks that are not accepted for execution.
 	ConditionalAppearanceItem = ConditionalTaskListAppearance.Items.Add();
 	ConditionalAppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
@@ -154,7 +154,7 @@ Procedure SetTaskAppearance(Val TaskListOrItsConditionalAppearance) Export
 	AppearanceColorItem.Value = Metadata.StyleItems.NotAcceptedForExecutionTasks.Value; 
 	AppearanceColorItem.Use = True;
 	
-	// 
+	// Setting appearance for tasks with unfilled Deadline.
 	ConditionalAppearanceItem = ConditionalTaskListAppearance.Items.Add();
 	ConditionalAppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
@@ -220,7 +220,7 @@ Procedure SetBusinessProcessesAppearance(Val BusinessProcessesConditionalAppeara
 	ConditionalAppearanceItem.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'No details';"));
 	
-	// Завершенный бизнес-Process_
+	// Completed business process.
 	ConditionalAppearanceItem = BusinessProcessesConditionalAppearance.Items.Add();
 	ConditionalAppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
@@ -243,7 +243,7 @@ EndProcedure
 //  AdditionalAddressingObject - AnyRef - a reference to the additional business object.
 //
 // Returns:
-//  String - 
+//  String - :
 //           
 //           
 //           
@@ -270,7 +270,7 @@ EndFunction
 //  AdditionalAddressingObject - AnyRef - a reference to the additional business object.
 // 
 // Returns:
-//  String - 
+//  String - :
 //            
 //            
 //            
@@ -451,7 +451,7 @@ Function MainTaskBusinessProcesses(TaskRef, ForChange = False) Export
 		
 		BusinessProcessMetadata = Metadata.FindByType(BusinessProcessType);
 		
-		// У бизнес-
+		// A main task is not required in business process.
 		MainTaskAttribute = BusinessProcessMetadata.Attributes.Find("MainTask");
 		If MainTaskAttribute = Undefined Then
 			Continue;
@@ -597,13 +597,13 @@ Procedure LockTasks(Var_Tasks) Export
 	
 EndProcedure
 
-// Fills MainTask attribute when creating a business process based on another business process.
-// See also BusinessProcessesAndTasksOverridable.OnFillMainBusinessProcessTask.
+// 
+// 
 //
 // Parameters:
 //  BusinessProcessObject	 - DefinedType.BusinessProcessObject
 //  FillingData	 - TaskRef
-//                  	 - Arbitrary - fill-in data that is passed to the fill-in handler.
+//                  	 - Arbitrary - filling data that is passed to the filling handler.
 //
 Procedure FillMainTask(BusinessProcessObject, FillingData) Export
 	
@@ -665,7 +665,7 @@ Function TaskPerformersGroup(PerformerRole, MainAddressingObject, AdditionalAddr
 			LockItem.SetValue("AdditionalAddressingObject", AdditionalAddressingObject);
 			Block.Lock();
 			
-			Selection = Query.Execute().Select(); // 
+			Selection = Query.Execute().Select(); 
 			If Selection.Next() Then
 				
 				PerformersGroup = Selection.Ref;
@@ -729,7 +729,7 @@ Procedure DisableProcessDeferredStart(Process_) Export
 	
 	StartSettings = DeferredProcessParameters(Process_);
 	
-	If StartSettings = Undefined Then // 
+	If StartSettings = Undefined Then // The process does not wait for start.
 		Return;
 	EndIf;
 	
@@ -755,7 +755,7 @@ Procedure StartDeferredProcess(BusinessProcess) Export
 		LockDataForEdit(BusinessProcess);
 		
 		BusinessProcessObject = BusinessProcess.GetObject();
-		// 
+		// Starting a business process and registering it in the register.
 		BusinessProcessObject.Start();
 		InformationRegisters.ProcessesToStart.RegisterProcessStart(BusinessProcess);
 		
@@ -783,7 +783,7 @@ EndProcedure
 //  Process_ - DefinedType.BusinessProcess
 // 
 // Returns:
-//  - Undefined - 
+//  - Undefined - if there is no info.
 //  - Structure:
 //     * BusinessProcess - DefinedType.BusinessProcess
 //     * DeferredStartDate - Date
@@ -874,8 +874,8 @@ Procedure NotifyPerformersOnNewTasks() Export
 	NotificationDate3 = CurrentSessionDate();
 	LatestNotificationDate = Constants.NewTasksNotificationDate.Get();
 	
-	// 
-	// 
+	
+	
 	If (LatestNotificationDate = '00010101000000') 
 		Or (NotificationDate3 - LatestNotificationDate > 24*60*60) Then
 		LatestNotificationDate = NotificationDate3 - 24*60*60;
@@ -1043,7 +1043,7 @@ Procedure FinishUpdateAccessValuesSetsPortions(Parameters) Export
 		StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The ""%1"" procedure has updated access rights for objects: %2';"), 
 			Parameters.ProcedureName, Parameters.ObjectsProcessed));
 	
-	// 
+	// Clearing temporary parameters which are not required to save between the sessions.
 	Parameters.Delete("ObjectsToBeProcessed");
 	Parameters.Delete("ProcedureName");
 	Parameters.Delete("BusinessProcess");
@@ -1219,9 +1219,9 @@ EndProcedure
 // See AccessManagementOverridable.OnFillAccessRightsDependencies.
 Procedure OnFillAccessRightsDependencies(RightsDependencies) Export
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	
 	String = RightsDependencies.Add();
 	String.SubordinateTable = "Task.PerformerTask";
@@ -1294,8 +1294,8 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	PerformerTaskQuantity = PerformerTaskQuantity();
 	
-	// 
-	// 
+	
+	
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.Tasks.PerformerTask.FullName());
 	
 	If Users.IsExternalUserSession()
@@ -1655,7 +1655,7 @@ Function OverdueTasksEmails(OverdueTasks)
 					EmailRecipient = Email(RecipientsAddresses, Performer);
 					FindMessageAndAddText(MessageSetByAddressees, EmailRecipient, Performer, EmailText, "ToPerformer");
 				EndDo;
-			Else	// 
+			Else	// There is no assignee to perform the task.
 				CreateTaskForSettingRoles(OverdueTaskRef, Coordinators);
 			EndIf;
 			
@@ -2000,11 +2000,11 @@ Function ChooseRolePerformers(RoleRef, MainAddressingObject = Undefined,
 	   |	TaskPerformers.PerformerRole = &PerformerRole";
 	If MainAddressingObject <> Undefined Then  
 		QueryText = QueryText 
-			+ " AND TaskPerformers.MainAddressingObject = &MainAddressingObject";
+			+ "	AND TaskPerformers.MainAddressingObject = &MainAddressingObject";
 	EndIf;		
 	If AdditionalAddressingObject <> Undefined Then  
 		QueryText = QueryText 
-			+ " AND TaskPerformers.AdditionalAddressingObject = &AdditionalAddressingObject";
+			+ "	AND TaskPerformers.AdditionalAddressingObject = &AdditionalAddressingObject";
 	EndIf;		
 	
 	Query = New Query(QueryText);
@@ -2117,7 +2117,7 @@ EndProcedure
 //
 Procedure OnChangeTasksState(Var_Tasks, OldState, NewState)
 	
-	// 
+	// Locking nested and subordinate business processes.
 	Block = New DataLock;
 	For Each BusinessProcessMetadata In Metadata.BusinessProcesses Do
 		
@@ -2151,7 +2151,7 @@ Procedure OnChangeTasksState(Var_Tasks, OldState, NewState)
 		|	AND BusinessProcesses.Completed = FALSE";
 	QueryTexts = New Array;
 	
-	// 
+	// Changing state of nested and subordinate business processes.
 	For Each BusinessProcessMetadata In Metadata.BusinessProcesses Do
 		
 		If Not AccessRight("Update", BusinessProcessMetadata) Then
@@ -2189,10 +2189,10 @@ Procedure OnChangeTasksState(Var_Tasks, OldState, NewState)
 		| 	AND BusinessProcesses.Completed = FALSE";
 	QueryTexts = New Array;
 	
-	// 
+	// Changing state of subordinate business processes.
 	For Each BusinessProcessMetadata In Metadata.BusinessProcesses Do
 		
-		// У бизнес-
+		// A main task is not required in business process.
 		MainTaskAttribute = BusinessProcessMetadata.Attributes.Find("MainTask");
 		If MainTaskAttribute = Undefined Then
 			Continue;
@@ -2335,7 +2335,7 @@ EndProcedure
 //  BusinessProcess - DefinedType.BusinessProcessObject
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the user has the rights.
 //
 Function HasRightsToStopBusinessProcess(BusinessProcess)
 	
@@ -2372,7 +2372,7 @@ Procedure SetMyTasksListParameters(List) Export
 	List.Parameters.SetParameterValue("EndOfDay", Today.EndDate);
 	List.Parameters.SetParameterValue("EndOfWeek", ThisWeek.EndDate);
 	List.Parameters.SetParameterValue("EndOfNextWeek", NextWeek.EndDate);
-	List.Parameters.SetParameterValue("Overdue", " " + NStr("en = 'Overdue';")); // 
+	List.Parameters.SetParameterValue("Overdue", " " + NStr("en = 'Overdue';")); // Insert a space for sort purposes.
 	List.Parameters.SetParameterValue("Today", NStr("en = 'Today';"));
 	List.Parameters.SetParameterValue("ThisWeek", NStr("en = 'Till the end of the week';"));
 	List.Parameters.SetParameterValue("NextWeek", NStr("en = 'Next week';"));
@@ -2590,9 +2590,11 @@ EndProcedure
 // 
 Procedure FillPredefinedItemDescriptionAllAddressingObjects() Export
 	
+	Ref = Common.ObjectAttributeValue(ChartsOfCharacteristicTypes.TaskAddressingObjects.AllAddressingObjects, "Ref");
+	
 	Block = New DataLock;
 	LockItem = Block.Add("ChartOfCharacteristicTypes.TaskAddressingObjects");
-	LockItem.SetValue("Ref", ChartsOfCharacteristicTypes.TaskAddressingObjects.AllAddressingObjects.Ref);
+	LockItem.SetValue("Ref", Ref);
 
 	BeginTransaction();
 	Try

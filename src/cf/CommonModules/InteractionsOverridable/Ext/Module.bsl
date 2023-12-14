@@ -33,15 +33,15 @@ EndProcedure
 //         - DocumentRef.OutgoingEmail - Email message whose attachments must be received. 
 //           
 //  AttachedFiles - Structure - specify information on files attached to an email:
-//    * FilesOwner                     - DefinedType.AttachedFile - owner of attachments.
-//    * AttachedFilesCatalogName - String - an attachment metadata object name.
+//    * FilesOwner                     - DefinedType.AttachedFile - Attachment owner.
+//    * AttachedFilesCatalogName - String - an attached file metadata object name.
 //
 Procedure OnReceiveAttachedFiles(MailMessage, AttachedFiles) Export
 
 EndProcedure
 
 // It is called to set logic of interaction access restriction.
-// For the example of filling access value sets, see comments 
+// For the example of filling access value sets, see comments
 // to AccessManagement.FillAccessValuesSets.
 //
 // Parameters:
@@ -89,10 +89,10 @@ EndFunction
 //          - DocumentObject - Email message whose attachments must be received.
 //
 // Returns:
-//  Structure, Undefined  - Undefined if the attachements are stored in the message.
+//  Structure, Undefined  - - Undefined if the attachments are stored in the message.
 //                             Otherwise, Structure:
-//                              * Owner - DefinedType.AttachedFile - owner of attachments.
-//                              * CatalogNameAttachedFiles - String - an attachment metadata object name.
+//                              * Owner - DefinedType.AttachedFile - Attachment owner.
+//                              * CatalogNameAttachedFiles - String - an attached file metadata object name.
 //
 Function AttachedEmailFilesMetadataObjectData(MailMessage) Export
 	

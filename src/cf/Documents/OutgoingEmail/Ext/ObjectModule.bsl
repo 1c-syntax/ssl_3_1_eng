@@ -486,9 +486,6 @@ Procedure FillParametersFromEmail(MailMessage, MoveSenderToRecipients,
 		Query.Text = StrReplace(Query.Text, "&NameOfTheMessageRecipientsTable", "Document." + MetadataObjectName + ".EmailRecipients");
 		Query.Text = StrReplace(Query.Text, "&NameOfTheCopyRecipientsTable",  "Document." + MetadataObjectName + ".CCRecipients");
 
-		
-		Query.SetParameter("ThisMessageSenderAddress",MailMessage.Account.Email);
-		
 		QueryResult = Query.Execute();
 		
 		If Not QueryResult.IsEmpty() Then

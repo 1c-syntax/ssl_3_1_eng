@@ -200,6 +200,47 @@
 				</PictureField>
 			</ChildItems>
 		</UsualGroup>
+		<UsualGroup name="ScanningError" id="66">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Scanning error</v8:content>
+				</v8:item>
+			</Title>
+			<Representation>None</Representation>
+			<ShowTitle>false</ShowTitle>
+			<ExtendedTooltip name="ScanningErrorExtendedTooltip" id="67"/>
+			<ChildItems>
+				<PictureDecoration name="ScanErrorPicture" id="68">
+					<Title formatted="false">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Scanning error picture</v8:content>
+						</v8:item>
+					</Title>
+					<Picture>
+						<xr:Ref>CommonPicture.Warning</xr:Ref>
+						<xr:LoadTransparent>false</xr:LoadTransparent>
+					</Picture>
+					<ContextMenu name="ScanErrorPictureContextMenu" id="69"/>
+					<ExtendedTooltip name="ScanErrorPictureExtendedTooltip" id="70"/>
+				</PictureDecoration>
+				<LabelDecoration name="ScanErrorText" id="71">
+					<AutoMaxWidth>false</AutoMaxWidth>
+					<Title formatted="true">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Scanning crashed. Save the &lt;link TechnicalInformation&gt;information for technical support&lt;/&gt;.</v8:content>
+						</v8:item>
+					</Title>
+					<ContextMenu name="ScanErrorTextContextMenu" id="72"/>
+					<ExtendedTooltip name="ScanErrorTextExtendedTooltip" id="73"/>
+					<Events>
+						<Event name="URLProcessing">ScanErrorTextURLProcessing</Event>
+					</Events>
+				</LabelDecoration>
+			</ChildItems>
+		</UsualGroup>
 		<UsualGroup name="MessageGroup" id="20">
 			<Title>
 				<v8:item>
@@ -272,6 +313,20 @@
 						</Button>
 					</ChildItems>
 				</UsualGroup>
+				<LabelDecoration name="HelpIsNeeded" id="74">
+					<Title formatted="false">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Need help?</v8:content>
+						</v8:item>
+					</Title>
+					<Hyperlink>true</Hyperlink>
+					<ContextMenu name="HelpIsNeededContextMenu" id="75"/>
+					<ExtendedTooltip name="HelpIsNeededExtendedTooltip" id="76"/>
+					<Events>
+						<Event name="Click">HelpIsNeededClick</Event>
+					</Events>
+				</LabelDecoration>
 			</ChildItems>
 		</UsualGroup>
 	</ChildItems>
@@ -588,6 +643,19 @@
 					<v8:Length>0</v8:Length>
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="StartScanning_" id="18">
+			<Type>
+				<v8:Type>xs:dateTime</v8:Type>
+				<v8:DateQualifiers>
+					<v8:DateFractions>DateTime</v8:DateFractions>
+				</v8:DateQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="ScanningStarted" id="33">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
 	</Attributes>

@@ -19,9 +19,9 @@
 //                                The default is True.
 //
 // Returns:
-//  BinaryData, Undefined - 
-//                               
-//                               
+//  BinaryData, Undefined - binary data of the attachment. If the binary data of the file is not found
+//                               in the infobase or volumes, an exception is thrown. If the binary data is not found and the ShouldRaiseException parameter is set to False,
+//                               the return value is Undefined.
 //                               
 //
 // Example:
@@ -88,11 +88,11 @@ EndFunction
 //  DeleteForEditing              - Boolean - obsolete, use AdditionalParameters instead.
 //
 // Returns:
-//  Structure, Undefined - 
-//    
-//    
-//    
-//    
+//  Structure, Undefined - information about the attachment. If the file is not found or
+//    some required information about the file is unavailable and the ShouldRaiseException property of
+//    the AdditionalParameters parameter is set to False, the return value is Undefined. If the file is not found
+//    or some required information about the file is unavailable
+//    and ShouldRaiseException is missing or set to True, an exception is thrown. Structure properties:
 //    * Ref                             - DefinedType.AttachedFile - a reference to the catalog item with file.
 //    * RefToBinaryFileData        - String - Address in the temporary storage where data is located.
 //    * Owner                           - DefinedType.FilesOwner - Reference to the object that is a file owner.
@@ -104,7 +104,7 @@ EndFunction
 //    * Size                             - Number  - File size in bytes.
 //    * BeingEditedBy                        - CatalogRef.Users
 //                                         - CatalogRef.ExternalUsers
-//                                         - Undefined - 
+//                                         - Undefined - a user who locked the file for editing.
 //    * LockedDate                          - Date   - Date and time the file was opened for editing.
 //    * SignedWithDS                         - Boolean - indicates that the file is signed.
 //    * Encrypted                         - Boolean - indicates whether the file is encrypted.
@@ -120,11 +120,11 @@ EndFunction
 //                                                   current file version number, otherwise 0.
 //    * CurrentVersionAuthor                 - CatalogRef.FileSynchronizationAccounts
 //                                         - CatalogRef.Users
-//                                         - CatalogRef.ExternalUsers - 
+//                                         - CatalogRef.ExternalUsers - a user who edited the file.
 //    * Volume                                - CatalogRef.FileStorageVolumes - a volume storing file.
 //    * Author                              - CatalogRef.FileSynchronizationAccounts
 //                                         - CatalogRef.Users
-//                                         - CatalogRef.ExternalUsers - 
+//                                         - CatalogRef.ExternalUsers - a file author.
 //    * TextExtractionStatus             - String - Status of extracting text from file.
 //    * FullVersionDescription           - String - if file catalog supports version creation, it contains full
 //                                              description of the current file version. Otherwise, it contains full
@@ -296,11 +296,11 @@ EndProcedure
 //  CatalogName - Undefined - find catalog by the owner (valid
 //                   if catalog is unique, otherwise, an exception is thrown).
 //
-//                 - String - 
-//                            
+//                 - String - an *AttachedFiles catalog name that differs from
+//                            the standard name <OwnerName>AttachedFiles.
 //  
 // Returns:
-//  DefinedType.AttachedFile - 
+//  DefinedType.AttachedFile - a reference to a new catalog item with a file that is not saved yet.
 //
 Function NewRefToFile(FilesOwner, CatalogName = Undefined) Export
 	
@@ -327,7 +327,7 @@ EndFunction
 //     * Extension                     - String - optional, a new file extension.
 //     * BeingEditedBy                    - AnyRef - optional, a user who edits the file.
 //     * Encoding                      - String - optional, an encoding, in which the file is saved.
-//                                                 See the list of supported encodings in the help 
+//                                                 See the list of supported encodings in the help
 //                                                 to the GetBinaryDataFromString global context method.
 //
 Procedure RefreshFile(Val AttachedFile, Val FileInfo) Export
@@ -343,7 +343,7 @@ EndProcedure
 //                       you need to attach the file.
 //
 // Returns:
-//  String - 
+//  String - a full object form name of attachments by an owner.
 //
 Function FilesObjectFormNameByOwner(Val FilesOwner) Export
 	
@@ -376,7 +376,7 @@ EndFunction
 //                            Otherwise, the catalog name will be defined by the owner.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - if True, files can be attached to the object.
 //
 Function CanAttachFilesToObject(FilesOwner, CatalogName = "") Export
 	
@@ -400,11 +400,11 @@ EndFunction
 // Parameters:
 //   FilesOwner    - DefinedType.AttachedFilesOwner - an object, to which
 //                       you need to attach the file.
-//   FilePathOnHardDrive - String -
-//                       
+//   FilePathOnHardDrive - String - a full path to the file with a file name and extension.
+//                       The file must be located on the server.
 //
 // Returns:
-//  DefinedType.AttachedFile - 
+//  DefinedType.AttachedFile - a reference to a catalog item with the created file.
 //
 Function AddFileFromHardDrive(FilesOwner, FilePathOnHardDrive) Export
 	
@@ -421,7 +421,7 @@ Function AddFileFromHardDrive(FilesOwner, FilePathOnHardDrive) Export
 	TempTextStorageAddress = "";
 	
 	If FilesOperationsInternal.ExtractTextFilesOnServer() Then
-		// 
+		// The scheduled job will extract a text.
 		TempTextStorageAddress = ""; 
 	Else
 		// An attempt to extract a text if the server is under Windows.
@@ -443,7 +443,7 @@ EndFunction
 // Applicable to documents only.
 //
 // Parameters:
-//  Source        - DocumentObject - a document with attachments.
+//  Source        - DocumentObject - a document with attached files.
 //  Cancel           - Boolean - the standard parameter of the BeforeWrite handler. 
 //  WriteMode     - DocumentWriteMode - the standard parameter of the BeforeWrite handler.    
 //  PostingMode - DocumentPostingMode - the standard parameter of the BeforeWrite handler.
@@ -465,7 +465,7 @@ EndProcedure
 // Applicable to reference objects, except for documents.
 //
 // Parameters:
-//  Source - DefinedType.AttachedFilesOwnerObject - the object with attachments.
+//  Source - DefinedType.AttachedFilesOwnerObject - the object with attached files.
 //  Cancel    - Boolean - the standard parameter of the BeforeWrite handler.
 //
 Procedure SetFilesDeletionMarkBeforeWrite(Source, Cancel) Export
@@ -489,18 +489,18 @@ EndProcedure
 // 
 // Parameters:
 //   AdditionalAttributes - String
-//                           - Array - 
-//                           
-//                           - Structure - 
-//                           
+//                           - Array - comma-separated attachment attribute names
+//                           or an array of attribute names.
+//                           - Structure - a collection of additional attributes. Standard properties will be added
+//                           to the collection if there are none.
 //
 // Returns:
 //   Structure:
 //      * Author                       - CatalogRef.Users
 //                                    - CatalogRef.ExternalUsers
-//                                    - CatalogRef.FileSynchronizationAccounts - 
-//                                    
-//                                    
+//                                    - CatalogRef.FileSynchronizationAccounts - a user or
+//                                    an account of file synchronization on whose behalf the file is created.
+//                                    The default value is Undefined.
 //      * FilesOwner              - DefinedType.AttachedFilesOwner - an object, to which
 //                                    you need to attach the file.
 //                                    The default value is Undefined.
@@ -532,13 +532,13 @@ EndFunction
 //   TempTextStorageAddress - String - an address in a temporary storage that points to text extracted from the file.
 //   LongDesc                       - String - a text description of the file.
 //   NewRefToFile              - Undefined - if the file owner has only one file storage catalog.
-//                                  - DefinedType.AttachedFile - 
-//                                    
-//                                    
-//                                    
+//                                  - DefinedType.AttachedFile - a reference to an item of a file storage catalog
+//                                    that must be used for a file to be added.
+//                                    It must match one of the types of file storage catalogs of a file
+//                                    owner. The reference can be received using the NewRefToFile function.
 // 
 // Returns:
-//   DefinedType.AttachedFile - 
+//   DefinedType.AttachedFile - a reference to the created attachment.
 //
 Function AppendFile(FileParameters,
                      Val FileAddressInTempStorage,
@@ -754,8 +754,8 @@ EndFunction
 //    * ShowTooltipsOnEditFiles       - Boolean - show tooltips in web client when
 //                                                                  editing files.
 //    * PathToLocalFileCache                        - String - a path to local file cache.
-//    * IsFullUser                      - Boolean -
-//                                                           
+//    * IsFullUser                      - Boolean - obsolete, use
+//                                                           UsersClient.IsFullUser instead.
 //    * DeleteFileFromLocalFileCacheOnCompleteEdit - Boolean - delete files from the local cache
 //                                                                              when complete editing.
 //
@@ -768,7 +768,7 @@ EndFunction
 // Returns maximum file size.
 //
 // Returns:
-//  Number - 
+//  Number - an integer number of bytes.
 //
 Function MaxFileSize() Export
 	
@@ -783,7 +783,7 @@ Function MaxFileSize() Export
 	MaxFileSize = Constants[ConstantName].Get();
 	
 	If Not ValueIsFilled(MaxFileSize) Then
-		MaxFileSize = 52428800; // 
+		MaxFileSize = 52428800; 
 	EndIf;
 	
 	If SeparationEnabledAndAvailableUsage Then
@@ -800,7 +800,7 @@ EndFunction
 // Returns maximum provider file size.
 //
 // Returns:
-//  Number - 
+//  Number - an integer number of bytes.
 //
 Function MaxFileSizeCommon() Export
 	
@@ -812,7 +812,7 @@ Function MaxFileSizeCommon() Export
 	If MaxFileSize = Undefined
 	 Or MaxFileSize = 0 Then
 		
-		MaxFileSize = 50*1024*1024; // 
+		MaxFileSize = 50*1024*1024; 
 	EndIf;
 	
 	Return MaxFileSize;
@@ -822,7 +822,7 @@ EndFunction
 // Saves settings of operations with files.
 //
 // Parameters:
-//  FilesOperationSettings - Structure - settings of operations with files and their values.
+//  FilesOperationSettings - Structure - settings of operations with files and their values.:
 //     * ShowFileNotModifiedFlag        - Boolean - optional. Show message if the file has
 //                                                      not been modified.
 //     * ShowLockedFilesOnExit      - Boolean - optional. Show files on exit.
@@ -945,7 +945,7 @@ Function ConvertFilesToAttachedFiles(Val FilesOwner, CatalogName = Undefined) Ex
 				EndIf;
 				
 				If CorrectRef Then
-					// 
+					// @skip-check query-in-loop - save files in a transaction object-by-object
 					RefToAttachedFile = CreateAttachedFileBasedOnFile(FilesOwner, 
 						AttachedFilesManager, CurrentVersionObject, SourceFileObject);
 					
@@ -978,7 +978,7 @@ EndFunction
 //  Cancel           - Boolean  - the standard parameter of the form event.
 //  CurrentObject   - DefinedType.AttachedFilesOwnerObject - the standard parameter of the form event.
 //  WriteParameters - Structure - the standard parameter of the form event.
-//  Form           - ClientApplicationForm -
+//  Form           - ClientApplicationForm - a form of an object to save.
 //
 Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters, Form) Export
 	
@@ -997,7 +997,7 @@ Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters, Form) Export
 	If SettingsOfFileManagementInForm.DuplicateAttachedFiles Then
 		
 		FilesOperationsInternal.CopyAttachedFiles(
-			SettingsOfFileManagementInForm.CopyingValue, CurrentObject);
+			SettingsOfFileManagementInForm.CopyingValue, CurrentObject.Ref);
 	EndIf;
 	
 EndProcedure
@@ -1007,10 +1007,10 @@ EndProcedure
 // Parameters:
 //  Form               - ClientApplicationForm - a form for connection.
 //  ItemsToAdd1 - Structure
-//                      - Array - 
-//                      
-//                      See FilesOperations.FilesHyperlink
-//                      
+//                      - Array - Parameters of items that manage
+//                      attachments to be placed on the form or an array of such structures.
+//                      Properties: See FilesOperations.FilesHyperlink
+//                      and StoredFiles.FileField.
 //  SettingsOfFileManagementInForm - See FilesOperations.SettingsOfFileManagementInForm.
 //                      
 //
@@ -1238,26 +1238,26 @@ EndProcedure
 // Initializes parameter structure to place a hyperlink of attachments on the form.
 //
 // Returns:
-//  Structure - 
-//    * Owner                   - String - a name of the attribute containing a reference to the attachment owner.
+//  Structure - parameters for placing a hyperlink. Properties:
+//    * Owner                   - String - a name of the attribute containing a reference to the owner attached files.
 //                                 The default value is Object.Ref.
 //    * Location                 - String
-//                                 - Undefined - 
-//                                 
-//                                 
-//                                 
-//                                 
-//                                 
+//                                 - Undefined - if a form group name or a command panel is specified,
+//                                 the hyperlink is placed into the specified group or panel. If a form item
+//                                 name is specified, the hyperlink is inserted before the specified item. If a parameter
+//                                 value is Undefined or an item is not found, the hyperlink is added to the form
+//                                 after all existing items.
+//                                 The default value is AttachedFilesManagement.
 //    * Title                  - String - a hyperlink title. The default value is Files.
 //    * DisplayTitleRight  - Boolean - if parameter value is True, a title
 //                                 will be displayed after addition commands, otherwise, it will be displayed before addition commands.
 //                                 The default value is True.
 //    * DisplayCount       - Boolean - if parameter is True, it displays
-//                                 the number of attachments in the title. The default value is True.
+//                                 the number of attached files in the title. The default value is True.
 //    * AddFiles2             - Boolean - if you specify False, commands for adding files will be missing.
 //                                 The default value is True.
 //    * ShapeRepresentation          - String - string presentation of the FigureDisplay property for
-//                                 commands of adding attachments. The default value is Auto.
+//                                 commands of adding attached files. The default value is Auto.
 //    * Visible                  - Boolean - if the parameter is False, a hyperlink
 //                                 will not be placed on the form. The parameter makes sense only if visibility
 //                                 in the FilesOperationsOverridable.OnDefineFilesHyperlink procedure is globally disabled.
@@ -1283,35 +1283,35 @@ EndFunction
 // Initializes parameter structure to place an attachment field on the form.
 //
 // Returns:
-//  Structure - 
-//    * Owner                  - String - a name of the attribute containing a reference to the attachment owner.
+//  Structure - Hyperlink placement parameters. Has the following properties:
+//    * Owner                  - String - a name of the attribute containing a reference to the owner attached files.
 //                                The default value is Object.Ref.
 //    * Location                - String
-//                                - Undefined - 
-//                                
-//                                
-//                                
-//                                
+//                                - Undefined - if a form group name is specified,
+//                                the field will be placed in the specified group. If a form item name is specified,
+//                                the field will be inserted before the item. If the parameter value is Undefined
+//                                or an item is not found, the field will be added on the form
+//                                after all existing items. The default value is AttachedFilesManagement.
 //    * DataPath               - String
-//                                - Undefined - 
-//                                
-//                                
-//                                
+//                                - Undefined - a name of a form attribute that contains a reference to a file
+//                                to display. If the parameter is set to Undefined or an attribute is not found,
+//                                it adds a form attribute with the AttachedFileField name
+//                                and the TypeToDefine.AttachedFile type. The default value is AttachedFileField.
 //    * PathToPictureData    - String
-//                                - Undefined - 
-//                                
-//                                
-//                                
+//                                - Undefined - a name of a form attribute with an image
+//                                that will be displayed in the preview field. If the parameter is set to Undefined or an attribute is not found,
+//                                it adds a form attribute with the AttachedFilePictureField name
+//                                and the String type. The default value is Undefined.
 //    * OneFileOnly            - Boolean - if you specify True, you will be able to
 //                                attach only one file using addition commands. After adding the firs file, the Add command
 //                                will replace the existing file with the file selected by the user, and clicking the 
 //                                header will open the file for viewing. The default value is False.
-//    * ShowPreview    - Boolean - if parameter value is True, it adds the attachment preview area
+//    * ShowPreview    - Boolean - if parameter value is True, it adds the attached file preview area
 //                                to the form. The default value is True.
 //    * NonselectedPictureText  - String - it is displayed in the image preview field if 
 //                                the image is missing. The default value is "Add image".
 //    * Title                 - String - if the title is different from the blank string, it adds the
-//                                attachment field title to the form. The default value is "".
+//                                field title of the attached file to the form. The default value is "".
 //    * OutputFileTitle    - Boolean - if the parameter is True, adds a hyperlink,
 //                                whose title matches the short file name. If the "Title"
 //                                parameter value is different from "", the file title will be added after the common title of
@@ -1322,11 +1322,11 @@ EndFunction
 //    * AddFiles2            - Boolean - if you specify False, commands for adding files will be missing.
 //                                The default value is True.
 //    * NeedSelectFile              - Boolean - if True, add a command for selecting from a list
-//                                of attachments. The default value is True.
+//                                of attached files. The default value is True.
 //    * ViewFile         - Boolean - if True, add the command for opening
 //                                a file for viewing. The default value is True.
 //    * EditFile         - String - if InForm, add the command
-//                                for opening the attachment form. If the parameter value is
+//                                for opening the attached file form. If the parameter value is
 //                                Directly, it adds commands for file editing, saving and canceling
 //                                changes. If the value is DontEdit, editing commands
 //                                will not be added. The default value is InForm.
@@ -1337,7 +1337,7 @@ EndFunction
 //                                if its value is bigger than it is specified in the MaxFileSize constant.
 //                                The default value is 0.
 //    * SelectionDialogFilter       - String - a filter set in the selection dialog when adding a file.
-//                                See the format description in the Filter property of the FileSelectionDialog object in Syntax Assistant. 
+//                                See the format description in the Filter property of the FileSelectionDialog object in Syntax Assistant.
 //                                The default value is "All files (*.*)|*.*".
 //
 Function FileField() Export
@@ -1370,7 +1370,7 @@ EndFunction
 // If at least one file storage volume is available, returns True.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - if True, at least one working volume exists.
 //
 Function HasFileStorageVolumes() Export
 	
@@ -1383,7 +1383,7 @@ EndFunction
 //
 // Parameters:
 //  FilesOwnersTableName - String - a full name of the metadata object
-//                            that can own attachments.
+//                            that can own attached files.
 //
 // Returns:
 //  Array of DefinedType.FilesOwner
@@ -1400,7 +1400,7 @@ EndFunction
 //  AttachedFile - DefinedType.AttachedFile - a reference to the catalog item with file.
 //
 //  SignatureProperties    - See DigitalSignatureClientServer.NewSignatureProperties
-//                     
+//                     - Array - an array of the structures described above.
 //                     
 //  FormIdentifier - UUID - if specified, it is used when locking an object.
 //
@@ -1440,8 +1440,8 @@ EndProcedure
 // Source and Recipient must be objects of the same type.
 //
 // Parameters:
-//  Source   - AnyRef - a source object with attachments.
-//  Recipient - AnyRef - an object the attachments are copied to.
+//  Source   - AnyRef - a source object with attached files.
+//  Recipient - AnyRef - an object, to which the attached files are copied to.
 //
 Procedure CopyAttachedFiles(Val Source, Val Recipient) Export
 	
@@ -1449,12 +1449,12 @@ Procedure CopyAttachedFiles(Val Source, Val Recipient) Export
 	
 EndProcedure
 
-// 
+// Initializes a structure of parameters to set up file management on the form.
 //
 // Returns:
-//  Structure - 
-//    * DuplicateAttachedFiles - Boolean -
-//                                   
+//  Structure - parameters to copy files. Properties:
+//    * DuplicateAttachedFiles - Boolean - indicates that attachments are copied when an owner object is copied
+//                                   The default value is False.
 //
 Function SettingsOfFileManagementInForm() Export
 	
@@ -1465,10 +1465,10 @@ Function SettingsOfFileManagementInForm() Export
 	
 EndFunction
 
-// 
+// Gets user scanning settings.
 // 
 // Parameters:
-//  ClientID - UUID -
+//  ClientID - UUID - client iD
 // 
 // Returns:
 //   See FilesOperationsClientServer.UserScanSettings
@@ -1533,13 +1533,21 @@ Function GetUserScanSettings(ClientID) Export
 		"ScanningSettings1/PathToConverterApplication", 
 		ClientID, ""); // ImageMagick
 		
+	UserScanSettings.ScanLogDirectory = Common.CommonSettingsStorageLoad(
+		"ScanningSettings1/ScanLogDirectory", 
+		ClientID, ""); 
+		
+	UserScanSettings.UseScanLogDirectory = Common.CommonSettingsStorageLoad(
+		"ScanningSettings1/UseScanLogDirectory", 
+		ClientID, False);
+		
 	Return UserScanSettings;
 EndFunction
 
-// 
+// Saves user scanning settings.
 // Parameters:
 //  UserScanSettings - See FilesOperationsClientServer.UserScanSettings
-//  ClientID - UUID -
+//  ClientID - UUID - client iD
 //
 Procedure SaveUserScanSettings(UserScanSettings, ClientID) Export
 
@@ -1573,6 +1581,10 @@ Procedure SaveUserScanSettings(UserScanSettings, ClientID) Export
 		UserScanSettings.TIFFDeflation, ClientID));
 	StructuresArray.Add(GenerateSetting("PathToConverterApplication",
 		UserScanSettings.PathToConverterApplication, ClientID));
+	StructuresArray.Add(GenerateSetting("ScanLogDirectory",
+		UserScanSettings.ScanLogDirectory, ClientID));
+	StructuresArray.Add(GenerateSetting("UseScanLogDirectory",
+		UserScanSettings.UseScanLogDirectory, ClientID));
 	
 	If ValueIsFilled(UserScanSettings.SinglePageStorageFormat) Then
 		SinglePageStorageFormat = UserScanSettings.SinglePageStorageFormat;
@@ -1616,11 +1628,11 @@ EndProcedure
 // Parameters:
 //   FilesOwner    - DefinedType.AttachedFilesOwner - a file folder or an object, to which
 //                       you need to attach the file.
-//   FilePathOnHardDrive - String -
-//                       
+//   FilePathOnHardDrive - String - a full path to the file with a file name and extension.
+//                       The file must be located on the server.
 //
 // Returns:
-//  DefinedType.AttachedFile - 
+//  DefinedType.AttachedFile - a reference to a catalog item with the created file.
 //
 Function CreateFileBasedOnFileOnHardDrive(FilesOwner, FilePathOnHardDrive) Export
 	
@@ -1725,7 +1737,7 @@ Procedure ChangeFilesStoragecatalog(Val FilesOwner, CatalogName = Undefined) Exp
 			AttachedFile.FileStorageType             = CurrentVersionObject.FileStorageType;
 			AttachedFile.DeletionMark              = SourceFileObject.DeletionMark;
 			
-			// Если файл хранится на томе - 
+			// If the file is stored in a volume, create a reference to the existing file.
 			AttachedFile.Volume                          = CurrentVersionObject.Volume;
 			AttachedFile.PathToFile                   = CurrentVersionObject.PathToFile;
 			
@@ -1745,7 +1757,7 @@ Procedure ChangeFilesStoragecatalog(Val FilesOwner, CatalogName = Undefined) Exp
 			AttachedFile.Write();
 			
 			If AttachedFile.FileStorageType = Enums.FileStorageTypes.InInfobase Then
-				//  
+				// @skip-check query-in-loop - save data object-by-object 
 				FileStorage1 = FileFromInfobaseStorage(CurrentVersionObject.Ref);
 				
 				RecordManager = InformationRegisters.BinaryFilesData.CreateRecordManager();
@@ -1820,7 +1832,7 @@ Function CreateAttachedFileBasedOnFile(FilesOwner, AttachedFilesManager, Current
 	AttachedFile.FileStorageType             = CurrentVersionObject.FileStorageType;
 	AttachedFile.DeletionMark              = SourceFileObject.DeletionMark;
 	
-	// Если файл хранится на томе - 
+	// If the file is stored in a volume, create a reference to the existing file.
 	AttachedFile.Volume                          = CurrentVersionObject.Volume;
 	AttachedFile.PathToFile                   = CurrentVersionObject.PathToFile;
 	
@@ -1842,8 +1854,8 @@ Function CreateAttachedFileBasedOnFile(FilesOwner, AttachedFilesManager, Current
 	If AttachedFile.FileStorageType = Enums.FileStorageTypes.InInfobase Then
 		FileStorage1 = FileFromInfobaseStorage(CurrentVersionObject.Ref);
 		
-		// 
-		// 
+		
+		
 		If FileStorage1 <> Undefined Then
 			RecordManager = InformationRegisters.BinaryFilesData.CreateRecordManager();
 			RecordManager.File = RefToNew;
@@ -2007,10 +2019,10 @@ EndFunction
 // Returns file binary data from the infobase.
 //
 // Parameters:
-//   FileRef - 
+//   FileRef - a reference to a file or its version.
 //
 // Returns:
-//   ValueStorage - binary data of the file.
+//   ValueStorage - binary file data.
 //
 Function FileFromInfobaseStorage(FileRef) Export
 	
@@ -2132,8 +2144,8 @@ Procedure ExecuteActionsBeforeWriteAttachedFile(Source, Cancel) Export
 			
 			CurrentVersionAttributes = Common.ObjectAttributesValues(Source.CurrentVersion, "Description");
 			
-			// 
-			// 
+			
+			
 			If CurrentVersionAttributes.Description <> Source.Description
 			   And ValueIsFilled(Source.CurrentVersion) Then
 				
@@ -2150,7 +2162,7 @@ Procedure ExecuteActionsBeforeWriteAttachedFile(Source, Cancel) Export
 					SetSafeModeDisabled(True);
 					SetPrivilegedMode(True);
 					Object.Description = Source.Description;
-					// 
+					// So as not to start the CopyFileVersionAttributesToFile subscription.
 					Object.AdditionalProperties.Insert("FileRenaming", True);
 					Object.Write();
 					SetPrivilegedMode(False);
@@ -2262,7 +2274,7 @@ EndProcedure
 // Marks related files for deletion.
 //
 // Parameters:
-//  Source - DefinedType.AttachedFilesOwnerObject - the attachment owner, except for DocumentObject.
+//  Source - DefinedType.AttachedFilesOwnerObject - attached file owner, except for DocumentObject.
 //  Cancel    - Boolean - shows whether writing is canceled.
 // 
 Procedure SetAttachedFilesDeletionMarks(Source, Cancel) Export
@@ -2283,7 +2295,7 @@ EndProcedure
 // Marks related files for deletion.
 //
 // Parameters:
-//  Source        - DocumentObject - the attachment owner.
+//  Source        - DocumentObject - the attached file owner.
 //  Cancel           - Boolean - a parameter passed to the BeforeWrite event subscription.
 //  WriteMode     - Boolean - a parameter passed to the BeforeWrite event subscription.
 //  PostingMode - Boolean - a parameter passed to the BeforeWrite event subscription.
@@ -2326,7 +2338,7 @@ EndProcedure
 
 Function InvalidAuthor(AuthorLink, CurrentUser)
 	
-	// 
+	// Can take two values: empty value or the current user.
 	Return AuthorLink <> Undefined And Not AuthorLink.IsEmpty() 
 		And TypeOf(AuthorLink) <> Type("CatalogRef.FileSynchronizationAccounts")
 		And AuthorLink <> CurrentUser; 
@@ -2343,10 +2355,10 @@ Procedure CreateFilesHyperlink(Form, ItemToAdd, AttachedFilesOwner, HyperlinkPar
 	AdditionAvailable = HyperlinkParameters.AdditionAvailable;
 
 	CommandPrefix             = FilesOperationsClientServer.CommandsPrefix();
-	NameOfCommandUploadFile    = FilesOperationsClientServer.NameOfCommandUploadFile();
-	NameOfCreateByTemplateCommand = FilesOperationsClientServer.NameOfCreateByTemplateCommand();
-	NameOfScanCommand      = FilesOperationsClientServer.NameOfScanCommand();
-	NameOfOpenListCommand    = FilesOperationsClientServer.NameOfOpenListCommand();
+	ImportFileCommandName    = FilesOperationsClientServer.ImportFileCommandName();
+	CreateFromTemplateCommandName = FilesOperationsClientServer.CreateFromTemplateCommandName();
+	ScanCommandName      = FilesOperationsClientServer.ScanCommandName();
+	OpenListCommandName    = FilesOperationsClientServer.OpenListCommandName();
 	
 	FormCommandProperties = New Structure;
 	FormCommandProperties.Insert("Representation", ButtonRepresentation.Text);
@@ -2393,13 +2405,13 @@ Procedure CreateFilesHyperlink(Form, ItemToAdd, AttachedFilesOwner, HyperlinkPar
 		SubmenuAdd.ToolTip   = NStr("en = 'Attach files';");
 		SubmenuAdd.Representation = ButtonRepresentation.Picture;
 		
-		ImportFile_           = Form.Commands.Add(CommandPrefix + NameOfCommandUploadFile + "_" + ItemNumber);
+		ImportFile_           = Form.Commands.Add(CommandPrefix + ImportFileCommandName + "_" + ItemNumber);
 		ImportFile_.Action  = "Attachable_AttachedFilesPanelCommand";
 		CommandTitle = NStr("en = 'Import a file from a computer';");
 		ImportFile_.ToolTip = CommandTitle;
 		ImportFile_.Title = CommandTitle + "...";
 		
-		LoadButton = AddButtonOnForm(Form, CommandPrefix + NameOfCommandUploadFile + ItemNumber, PlacementOnFormGroup, ImportFile_.Name);
+		LoadButton = AddButtonOnForm(Form, CommandPrefix + ImportFileCommandName + ItemNumber, PlacementOnFormGroup, ImportFile_.Name);
 		LoadButton.Picture    = PictureLib.Clip;
 		LoadButton.Visible   = False;
 		LoadButton.Representation = ButtonRepresentation.Picture;
@@ -2410,32 +2422,32 @@ Procedure CreateFilesHyperlink(Form, ItemToAdd, AttachedFilesOwner, HyperlinkPar
 		EndIf;
 		
 		LoadButtonFromSubmenu = AddButtonOnForm(Form, 
-			NameOfCommandUploadFile + FilesOperationsClientServer.NameOfAdditionalCommandFromSubmenu() + ItemNumber, SubmenuAdd, ImportFile_.Name);
+			ImportFileCommandName + FilesOperationsClientServer.NameOfAdditionalCommandFromSubmenu() + ItemNumber, SubmenuAdd, ImportFile_.Name);
 		LoadButtonFromSubmenu.Representation = ButtonRepresentation.Text;
 		
-		CreateByTemplate = Form.Commands.Add(CommandPrefix + NameOfCreateByTemplateCommand + "_" + ItemNumber);
+		CreateByTemplate = Form.Commands.Add(CommandPrefix + CreateFromTemplateCommandName + "_" + ItemNumber);
 		CreateByTemplate.Title = NStr("en = 'Create from template…';");
 		FillPropertyValues(CreateByTemplate, FormCommandProperties);
 		
-		AddButtonOnForm(Form, NameOfCreateByTemplateCommand + ItemNumber, SubmenuAdd, CreateByTemplate.Name);
+		AddButtonOnForm(Form, CreateFromTemplateCommandName + ItemNumber, SubmenuAdd, CreateByTemplate.Name);
 		
-		Scan = Form.Commands.Add(CommandPrefix + NameOfScanCommand + "_" + ItemNumber);
+		Scan = Form.Commands.Add(CommandPrefix + ScanCommandName + "_" + ItemNumber);
 		Scan.Title = NStr("en = 'Scan…';");
 		FillPropertyValues(Scan, FormCommandProperties);
 		
-		AddButtonOnForm(Form, NameOfScanCommand + ItemNumber, SubmenuAdd, Scan.Name);
+		AddButtonOnForm(Form, ScanCommandName + ItemNumber, SubmenuAdd, Scan.Name);
 		
 	EndIf;
 	
-	OpenListCommand = Form.Commands.Add(CommandPrefix + NameOfOpenListCommand + "_" + ItemNumber);
+	OpenListCommand = Form.Commands.Add(CommandPrefix + OpenListCommandName + "_" + ItemNumber);
 	FillPropertyValues(OpenListCommand, FormCommandProperties);
 	
 	If ItemToAdd.DisplayTitleRight
 		Or Not ItemToAdd.AddFiles2 Then
-		GoToHyperlink = AddButtonOnForm(Form, CommandPrefix + NameOfOpenListCommand + ItemNumber,
+		GoToHyperlink = AddButtonOnForm(Form, CommandPrefix + OpenListCommandName + ItemNumber,
 			PlacementOnFormGroup, OpenListCommand.Name);
 	Else
-		GoToHyperlink = Form.Items.Insert(CommandPrefix + NameOfOpenListCommand + ItemNumber,
+		GoToHyperlink = Form.Items.Insert(CommandPrefix + OpenListCommandName + ItemNumber,
 			Type("FormButton"), PlacementOnFormGroup, SubmenuAdd);
 			
 		GoToHyperlink.CommandName = OpenListCommand.Name;
@@ -2529,7 +2541,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 	If ItemToAdd.ShowPreview Then
 		
 		PreviewItem = Form.Items.Add("AttachedFilePictureField" + ItemNumber,
-			Type("FormField"), PlacementOnFormGroup); // FormFieldExtensionForATextBox
+			Type("FormField"), PlacementOnFormGroup); // FormFieldExtensionForInputField
 		
 		PreviewItem.Type                        = FormFieldType.PictureField;
 		PreviewItem.TextColor                 = StyleColors.NotSelectedPictureTextColor;
@@ -2664,15 +2676,15 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 	
 	If ItemToAdd.AddFiles2 Then
 		
-		NameOfCommandWithPrefix = CommandPrefix + FilesOperationsClientServer.NameOfCommandUploadFile();
+		CommandNameWithPrefix = CommandPrefix + FilesOperationsClientServer.ImportFileCommandName();
 		
-		ImportFile_ = Form.Commands.Add(NameOfCommandWithPrefix + "_" + OneFileOnlyText + ItemNumber);
+		ImportFile_ = Form.Commands.Add(CommandNameWithPrefix + "_" + OneFileOnlyText + ItemNumber);
 		ImportFile_.Action  = "Attachable_AttachedFilesPanelCommand";
 		ImportFile_.ToolTip = NStr("en = 'Import a file from a computer';");
 		
 		If ItemToAdd.ShowCommandBar Then
 			
-			LoadButton = AddButtonOnForm(Form, NameOfCommandWithPrefix + ItemNumber,
+			LoadButton = AddButtonOnForm(Form, CommandNameWithPrefix + ItemNumber,
 				GroupCommandBar, ImportFile_.Name);
 			
 			LoadButton.Picture    = PictureAdd1;
@@ -2680,7 +2692,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 			LoadButton.Representation = ButtonRepresentation.Picture;
 			
 			LoadButtonFromSubmenu = AddButtonOnForm(Form, 
-				NameOfCommandWithPrefix + FilesOperationsClientServer.NameOfAdditionalCommandFromSubmenu() + ItemNumber,
+				CommandNameWithPrefix + FilesOperationsClientServer.NameOfAdditionalCommandFromSubmenu() + ItemNumber,
 				SubmenuGroup, ImportFile_.Name);
 			
 			FillPropertyValues(LoadButtonFromSubmenu, LoadButtonProperties);
@@ -2690,7 +2702,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		If ItemToAdd.ShowPreview Then
 			
 			LoadButtonFromContextMenu = AddButtonOnForm(Form, 
-				NameOfCommandWithPrefix + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
+				CommandNameWithPrefix + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
 				ContextMenuAddGroup, ImportFile_.Name);
 			
 			FillPropertyValues(LoadButtonFromContextMenu, LoadButtonProperties);
@@ -2699,36 +2711,36 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		
 		If Not ItemToAdd.OneFileOnly Then
 			
-			NameOfCommandWithPrefix = CommandPrefix + FilesOperationsClientServer.NameOfCreateByTemplateCommand();
+			CommandNameWithPrefix = CommandPrefix + FilesOperationsClientServer.CreateFromTemplateCommandName();
 			
-			CreateByTemplate = Form.Commands.Add(NameOfCommandWithPrefix + "_" + ItemNumber);
+			CreateByTemplate = Form.Commands.Add(CommandNameWithPrefix + "_" + ItemNumber);
 			CreateByTemplate.Title = NStr("en = 'Create from template…';");
 			FillPropertyValues(CreateByTemplate, FormCommandProperties);
 		
 			If ItemToAdd.ShowCommandBar Then
-				AddButtonOnForm(Form, NameOfCommandWithPrefix + ItemNumber,
+				AddButtonOnForm(Form, CommandNameWithPrefix + ItemNumber,
 					SubmenuGroup, CreateByTemplate.Name);
 			EndIf;
 			
 			If ItemToAdd.ShowPreview Then
 				AddButtonOnForm(Form, 
-					NameOfCommandWithPrefix + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
+					CommandNameWithPrefix + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
 					ContextMenuAddGroup, CreateByTemplate.Name);
 			EndIf;
 		
-			NameOfCommandWithPrefix = CommandPrefix + FilesOperationsClientServer.NameOfScanCommand();
+			CommandNameWithPrefix = CommandPrefix + FilesOperationsClientServer.ScanCommandName();
 			
-			Scan = Form.Commands.Add(NameOfCommandWithPrefix + "_" + ItemNumber);
+			Scan = Form.Commands.Add(CommandNameWithPrefix + "_" + ItemNumber);
 			Scan.Title = ?(Common.IsMobileClient(), NStr("en = 'Take a photograph…';"), NStr("en = 'Scan…';"));
 			FillPropertyValues(Scan, FormCommandProperties);
 		
 			If ItemToAdd.ShowCommandBar Then
-				AddButtonOnForm(Form, NameOfCommandWithPrefix + ItemNumber,
+				AddButtonOnForm(Form, CommandNameWithPrefix + ItemNumber,
 					SubmenuGroup, Scan.Name);
 			EndIf;
 			
 			If ItemToAdd.ShowPreview Then
-				AddButtonOnForm(Form, NameOfCommandWithPrefix + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
+				AddButtonOnForm(Form, CommandNameWithPrefix + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
 					ContextMenuAddGroup, Scan.Name);
 			EndIf;
 					
@@ -2739,15 +2751,15 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 	If ItemToAdd.NeedSelectFile
 		And AvailableUpdate Then
 		
-		NameOfCommandWithPrefix = CommandPrefix + FilesOperationsClientServer.NameOfCommandToSelectFile();
+		CommandNameWithPrefix = CommandPrefix + FilesOperationsClientServer.SelectFileCommandName();
 		
-		SelectFile           = Form.Commands.Add(NameOfCommandWithPrefix + "_" + ItemNumber);
+		SelectFile           = Form.Commands.Add(CommandNameWithPrefix + "_" + ItemNumber);
 		SelectFile.Action  = "Attachable_AttachedFilesPanelCommand";
 		SelectFile.ToolTip = NStr("en = 'Select a file from attached ones.';");
 		
 		If ItemToAdd.ShowCommandBar Then
 			
-			ChooseFileButton = AddButtonOnForm(Form, NameOfCommandWithPrefix + ItemNumber,
+			ChooseFileButton = AddButtonOnForm(Form, CommandNameWithPrefix + ItemNumber,
 				SubmenuAdd, SelectFile.Name);
 			
 			FillPropertyValues(ChooseFileButton, SelectionButtonProperties);
@@ -2757,7 +2769,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		If ItemToAdd.ShowPreview Then
 			
 			ChooseFromContextMenuButton = AddButtonOnForm(Form, 
-				FilesOperationsClientServer.NameOfCommandToSelectFile() + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
+				FilesOperationsClientServer.SelectFileCommandName() + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
 				PreviewContextMenu, SelectFile.Name);
 			FillPropertyValues(ChooseFromContextMenuButton, SelectionButtonProperties);
 			
@@ -2767,7 +2779,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 	
 	If ItemToAdd.ViewFile Then
 		
-		ViewFile1 = Form.Commands.Add(CommandPrefix + FilesOperationsClientServer.NameOfCommandsViewFile() + "_" + ItemNumber);
+		ViewFile1 = Form.Commands.Add(CommandPrefix + FilesOperationsClientServer.ViewFileCommandName() + "_" + ItemNumber);
 		ViewFile1.Title = NStr("en = 'View';");
 		FillPropertyValues(ViewFile1, FormCommandProperties);
 		
@@ -2777,7 +2789,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		EndIf;
 		
 		If ItemToAdd.ShowCommandBar Then
-			AddButtonOnForm(Form, FilesOperationsClientServer.NameOfCommandsViewFile() + ItemNumber, GroupCommandBar, ViewFile1.Name);
+			AddButtonOnForm(Form, FilesOperationsClientServer.ViewFileCommandName() + ItemNumber, GroupCommandBar, ViewFile1.Name);
 		EndIf;
 		
 	EndIf;
@@ -2806,39 +2818,39 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 	EditFile = Undefined;
 	If ItemToAdd.EditFile = "InForm" Then
 		
-		EditFile           = Form.Commands.Add(CommandPrefix + FilesOperationsClientServer.NameOfOpenFormCommand() + "_" + ItemNumber);
+		EditFile           = Form.Commands.Add(CommandPrefix + FilesOperationsClientServer.OpenFormCommandName() + "_" + ItemNumber);
 		EditFile.Picture  = PictureLib.InputFieldOpen;
 		EditFile.Title = NStr("en = 'Open card';");
 		EditFile.ToolTip = NStr("en = 'Open the attachment card.';");
 		FillPropertyValues(EditFile, FormCommandPropertiesPicture);
 		
 		If ItemToAdd.ShowCommandBar Then
-			AddButtonOnForm(Form, FilesOperationsClientServer.NameOfEditFileCommand() + ItemNumber, GroupCommandBar, EditFile.Name);
+			AddButtonOnForm(Form, FilesOperationsClientServer.EditFileCommandName() + ItemNumber, GroupCommandBar, EditFile.Name);
 		EndIf;
 		
 		If ItemToAdd.ShowPreview Then
 			AddButtonOnForm(Form, 
-				FilesOperationsClientServer.NameOfEditFileCommand() + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
+				FilesOperationsClientServer.EditFileCommandName() + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
 				PreviewContextMenu, EditFile.Name);
 		EndIf;
 		
 	ElsIf ItemToAdd.EditFile = "Directly"
 		And AvailableUpdate Then
 		
-		EditFile           = Form.Commands.Add(CommandPrefix + FilesOperationsClientServer.NameOfEditFileCommand() + "_" + ItemNumber);
+		EditFile           = Form.Commands.Add(CommandPrefix + FilesOperationsClientServer.EditFileCommandName() + "_" + ItemNumber);
 		EditFile.Picture  = PictureLib.Change;
 		EditFile.Title = NStr("en = 'Edit';");
 		EditFile.ToolTip = NStr("en = 'Open the file for editing.';");
 		FillPropertyValues(EditFile, FormCommandPropertiesPicture);
 		
-		PutFile           = Form.Commands.Add(CommandPrefix + FilesOperationsClientServer.NameOfCommandToPlaceFile() + "_" + ItemNumber);
+		PutFile           = Form.Commands.Add(CommandPrefix + FilesOperationsClientServer.PutFileCommandName() + "_" + ItemNumber);
 		PutFile.Picture  = PictureLib.EndFileEditing;
 		PutFile.Title = NStr("en = 'Commit';");
 		PutFile.ToolTip = NStr("en = 'Save the file and release it in the infobase.';");
 		FillPropertyValues(PutFile, FormCommandPropertiesPicture);
 		
 		CancelEdit = Form.Commands.Add(
-			CommandPrefix + FilesOperationsClientServer.NameOfUndoEditingCommand() + "_" + ItemNumber);
+			CommandPrefix + FilesOperationsClientServer.CancelEditCommandName() + "_" + ItemNumber);
 		
 		CancelEdit.Picture  = PictureLib.UnlockFile;
 		CancelEdit.Title = NStr("en = 'Cancel editing';");
@@ -2861,13 +2873,13 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 			DirectEditingGroup.Representation = ButtonGroupRepresentation.Compact;
 		
 			EditButton1 = AddButtonOnForm(Form,
-				CommandPrefix + FilesOperationsClientServer.NameOfEditFileCommand() + ItemNumber,
+				CommandPrefix + FilesOperationsClientServer.EditFileCommandName() + ItemNumber,
 				DirectEditingGroup, EditFile.Name);
 		
-			PlaceButton = AddButtonOnForm(Form, CommandPrefix + FilesOperationsClientServer.NameOfCommandToPlaceFile() + ItemNumber,
+			PlaceButton = AddButtonOnForm(Form, CommandPrefix + FilesOperationsClientServer.PutFileCommandName() + ItemNumber,
 				DirectEditingGroup, PutFile.Name);
 		
-			CancelButton1 = AddButtonOnForm(Form, CommandPrefix + FilesOperationsClientServer.NameOfUndoEditingCommand() + ItemNumber,
+			CancelButton1 = AddButtonOnForm(Form, CommandPrefix + FilesOperationsClientServer.CancelEditCommandName() + ItemNumber,
 				DirectEditingGroup, CancelEdit.Name);
 			
 			SetEditingAvailability(PlacementFileData, EditButton1, CancelButton1, PlaceButton);
@@ -2883,15 +2895,15 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 			EditingGroupInMenu.Type = FormGroupType.ButtonGroup;
 			
 			EditButton1 = AddButtonOnForm(Form, 
-				FilesOperationsClientServer.NameOfEditFileCommand() + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
+				FilesOperationsClientServer.EditFileCommandName() + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
 				EditingGroupInMenu, EditFile.Name);
 		
 			CancelButton1 = AddButtonOnForm(Form, 
-				FilesOperationsClientServer.NameOfCommandToPlaceFile() + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
+				FilesOperationsClientServer.PutFileCommandName() + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
 				EditingGroupInMenu, PutFile.Name);
 		
 			PlaceButton = AddButtonOnForm(Form, 
-				FilesOperationsClientServer.NameOfUndoEditingCommand() + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
+				FilesOperationsClientServer.CancelEditCommandName() + FilesOperationsClientServer.NameOfAdditionalCommandFromContextMenu() + ItemNumber,
 				EditingGroupInMenu, CancelEdit.Name);
 			
 			SetEditingAvailability(PlacementFileData, EditButton1, CancelButton1, PlaceButton);

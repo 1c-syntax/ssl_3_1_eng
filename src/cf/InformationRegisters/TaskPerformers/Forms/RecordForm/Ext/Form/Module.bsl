@@ -75,14 +75,24 @@ EndProcedure
 &AtServer
 Procedure SetItemsState()
 
-	MainAddressingObjectTypes = Record.PerformerRole.MainAddressingObjectTypes.ValueType;
-	AdditionalAddressingObjectTypes = Record.PerformerRole.AdditionalAddressingObjectTypes.ValueType;
-	UsedByAddressingObjects = Record.PerformerRole.UsedByAddressingObjects;
-	UsedWithoutAddressingObjects = Record.PerformerRole.UsedWithoutAddressingObjects;
-	
+	MainAddressingObjectTypes = Undefined;
+	AdditionalAddressingObjectTypes = Undefined;
+	UsedByAddressingObjects = False;
+	UsedWithoutAddressingObjects = False;
+
 	RoleIsSet = Not Record.PerformerRole.IsEmpty();
-	MainAddressingObjectTitle = ?(RoleIsSet, String(Record.PerformerRole.MainAddressingObjectTypes), "");
-	AdditionalAddressingObjectTitle = ?(RoleIsSet, String(Record.PerformerRole.AdditionalAddressingObjectTypes), "");
+	If RoleIsSet Then
+		RoleProperties = Common.ObjectAttributesValues(Record.PerformerRole,
+			"MainAddressingObjectTypes,AdditionalAddressingObjectTypes,UsedByAddressingObjects,UsedWithoutAddressingObjects");
+		MainAddressingObjectTypes = Common.ObjectAttributeValue(
+			RoleProperties.MainAddressingObjectTypes, "ValueType");
+		AdditionalAddressingObjectTypes = Common.ObjectAttributeValue(
+			RoleProperties.AdditionalAddressingObjectTypes, "ValueType");
+		UsedByAddressingObjects = RoleProperties.UsedByAddressingObjects;
+		UsedWithoutAddressingObjects = RoleProperties.UsedWithoutAddressingObjects;
+	EndIf;
+	MainAddressingObjectTitle = ?(RoleIsSet, String(RoleProperties.MainAddressingObjectTypes), "");
+	AdditionalAddressingObjectTitle = ?(RoleIsSet, String(RoleProperties.AdditionalAddressingObjectTypes), "");
 	
 	MainAddressingObjectTypesAreSet = RoleIsSet And UsedByAddressingObjects
 		And ValueIsFilled(MainAddressingObjectTypes);

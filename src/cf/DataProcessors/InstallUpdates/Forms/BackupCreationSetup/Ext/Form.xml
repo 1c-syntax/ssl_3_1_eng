@@ -191,18 +191,18 @@ the update will be rolled back.</v8:content>
 					</Title>
 					<ExtendedTooltip name="ManualRollbackExtendedTooltip" id="48"/>
 					<ChildItems>
-						<UsualGroup name="VerticalGroup1" id="24">
+						<UsualGroup name="GroupRestoreInformationBase" id="24">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Vertical group 1</v8:content>
+									<v8:content>Restore infobase</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Vertical</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="VerticalGroup1ExtendedTooltip" id="49"/>
+							<ExtendedTooltip name="GroupRestoreInformationBaseExtendedTooltip" id="49"/>
 							<ChildItems>
 								<CheckBoxField name="RestoreInfobase" id="22">
 									<DataPath>Object.RestoreInfobase</DataPath>

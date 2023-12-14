@@ -19,7 +19,7 @@
 //  ToolTip - String - a tooltip displayed in the column header.
 // 
 // Returns:
-//  Structure - 
+//  Structure - :
 //    * Name                       - String - Column name.
 //    * Title                 - String - Column header displayed in the template for import.
 //    * Type                       - TypeDescription - column type.
@@ -94,6 +94,30 @@ EndFunction
 
 Function PresentationOfTextYesForBoolean() Export
 	Return NStr("en = 'Yes';");
+EndFunction
+
+Function PrefixOfMappingTable() Export
+	Return "DataMappingTable";
+EndFunction
+
+Function TablePartPrefix() Export
+	Return "TS";
+EndFunction
+
+Function StatusAmbiguity() Export
+	Return PrefixOfNonMatchedStrings() + "Conflict1";
+EndFunction
+
+Function StatusIsNotMatched() Export
+	Return PrefixOfNonMatchedStrings() + "NotMapped";
+EndFunction
+
+Function StatusMatched() Export
+	Return "RowMapped";
+EndFunction
+
+Function PrefixOfNonMatchedStrings() Export
+	Return "Fix";
 EndFunction
 
 #EndRegion

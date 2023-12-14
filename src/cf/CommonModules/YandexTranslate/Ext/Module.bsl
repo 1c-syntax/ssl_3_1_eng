@@ -31,7 +31,7 @@ Function TranslateTheTexts(Texts, TranslationLanguage = Undefined, SourceLanguag
 	AuthorizationSettings = AuthorizationSettings();
 	SetPrivilegedMode(False);
 	
-	HostName_SSLy = "translate.api.cloud.yandex.net";
+	HostName = "translate.api.cloud.yandex.net";
 	
 	HTTPRequest = New HTTPRequest("/translate/v2/translate");
 	HTTPRequest.Headers.Insert("Content-Type", "application/json");
@@ -47,7 +47,7 @@ Function TranslateTheTexts(Texts, TranslationLanguage = Undefined, SourceLanguag
 	EndIf;
 	
 	HTTPRequest.SetBodyFromString(Common.ValueToJSON(QueryOptions));
-	QueryResult = ExecuteQuery(HTTPRequest, HostName_SSLy);
+	QueryResult = ExecuteQuery(HTTPRequest, HostName);
 	
 	If Not QueryResult.QueryCompleted Then
 		Raise ErrorText(NStr("en = 'Cannot translate text.';"));
@@ -84,7 +84,7 @@ Function IAMToken()
 	
 	If Not ValueIsFilled(TokenParameters.IAMToken) 
 		Or Not ValueIsFilled(TokenParameters.ValidityPeriod)
-		Or TokenParameters.ValidityPeriod <= ToUniversalTime(CurrentDate()) Then // ACC:143
+		Or TokenParameters.ValidityPeriod <= ToUniversalTime(CurrentDate()) Then 
 		TokenParameters = NewIAMToken();
 		SetPrivilegedMode(True);
 		Owner = Common.MetadataObjectID("Constant.TextTranslationService");
@@ -99,7 +99,7 @@ EndFunction
 
 Function NewIAMToken()
 	
-	HostName_SSLy = "iam.api.cloud.yandex.net";
+	HostName = "iam.api.cloud.yandex.net";
 	
 	HTTPRequest = New HTTPRequest("/iam/v1/tokens");
 	HTTPRequest.Headers.Insert("Content-Type", "application/json");
@@ -112,7 +112,7 @@ Function NewIAMToken()
 	
 	HTTPRequest.SetBodyFromString(Common.ValueToJSON(QueryOptions));
 	
-	QueryResult = ExecuteQuery(HTTPRequest, HostName_SSLy);
+	QueryResult = ExecuteQuery(HTTPRequest, HostName);
 	
 	If Not QueryResult.QueryCompleted Then
 		Raise ErrorText(StringFunctionsClientServer.SubstituteParametersToString(NStr(
@@ -133,7 +133,7 @@ EndFunction
 
 Function AvailableLanguages() Export
 	
-	HostName_SSLy = "translate.api.cloud.yandex.net";
+	HostName = "translate.api.cloud.yandex.net";
 	
 	HTTPRequest = New HTTPRequest("/translate/v2/languages");
 	HTTPRequest.Headers.Insert("Content-Type", "application/json");
@@ -148,7 +148,7 @@ Function AvailableLanguages() Export
 	
 	HTTPRequest.SetBodyFromString(Common.ValueToJSON(QueryOptions));
 	
-	QueryResult = ExecuteQuery(HTTPRequest, HostName_SSLy);
+	QueryResult = ExecuteQuery(HTTPRequest, HostName);
 	
 	If Not QueryResult.QueryCompleted Then
 		Raise ErrorText(NStr("en = 'Cannot retrieve the list of available languages.';"));
@@ -167,18 +167,18 @@ Function AvailableLanguages() Export
 	
 EndFunction
 
-Function ExecuteQuery(Val HTTPRequest, Val HostName_SSLy)
+Function ExecuteQuery(Val HTTPRequest, Val HostName)
 	
 	Proxy = GetFilesFromInternet.GetProxy("https");
 	SecureConnection = CommonClientServer.NewSecureConnection();
 	
 	Try
-		Join = New HTTPConnection(HostName_SSLy, , , , Proxy, 60, SecureConnection);
+		Join = New HTTPConnection(HostName, , , , Proxy, 60, SecureConnection);
 		HTTPResponse = Join.Post(HTTPRequest);
 	Except
 		WriteErrorToEventLog(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot establish a connection with server %1 due to:
-			|%2';"), HostName_SSLy, ErrorProcessing.DetailErrorDescription(ErrorInfo())));
+			|%2';"), HostName, ErrorProcessing.DetailErrorDescription(ErrorInfo())));
 		Raise;
 	EndTry;
 	

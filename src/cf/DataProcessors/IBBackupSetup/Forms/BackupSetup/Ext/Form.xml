@@ -88,18 +88,30 @@ only if you use third-party backup tools.</v8:content>
 													<ContextMenu name="Decoration1ContextMenu" id="411"/>
 													<ExtendedTooltip name="Decoration1ExtendedTooltip" id="412"/>
 												</LabelDecoration>
-												<UsualGroup name="Group1" id="424">
+												<UsualGroup name="GroupSelectAutomaticBackupOption" id="424">
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Automatic backup options</v8:content>
+														</v8:item>
+													</Title>
 													<Group>Vertical</Group>
 													<Behavior>Usual</Behavior>
 													<Representation>None</Representation>
 													<ShowTitle>false</ShowTitle>
-													<ExtendedTooltip name="Group1ExtendedTooltip" id="425"/>
+													<ExtendedTooltip name="GroupSelectAutomaticBackupOptionExtendedTooltip" id="425"/>
 													<ChildItems>
-														<UsualGroup name="Group3" id="432">
+														<UsualGroup name="GroupIsScheduledOption" id="432">
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Scheduled option</v8:content>
+																</v8:item>
+															</Title>
 															<Behavior>Usual</Behavior>
 															<Representation>None</Representation>
 															<ShowTitle>false</ShowTitle>
-															<ExtendedTooltip name="Group3ExtendedTooltip" id="433"/>
+															<ExtendedTooltip name="GroupIsScheduledOptionExtendedTooltip" id="433"/>
 															<ChildItems>
 																<RadioButtonField name="OptionScheduled" id="421">
 																	<DataPath>Object.ExecutionOption</DataPath>
@@ -313,11 +325,17 @@ only if you use third-party backup tools.</v8:content>
 											<ContextMenu name="IBAdministrator1ContextMenu" id="256"/>
 											<ExtendedTooltip name="IBAdministrator1ExtendedTooltip" id="295"/>
 										</InputField>
-										<UsualGroup name="Group2" id="396">
+										<UsualGroup name="PasswordGroup" id="396">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Password</v8:content>
+												</v8:item>
+											</Title>
 											<Behavior>Usual</Behavior>
 											<Representation>None</Representation>
 											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="Group2ExtendedTooltip" id="397"/>
+											<ExtendedTooltip name="PasswordGroupExtendedTooltip" id="397"/>
 											<ChildItems>
 												<InputField name="IBAdministratorPassword1" id="257">
 													<DataPath>IBAdministratorPassword</DataPath>
@@ -346,12 +364,18 @@ only if you use third-party backup tools.</v8:content>
 											<ContextMenu name="Decoration3ContextMenu" id="419"/>
 											<ExtendedTooltip name="Decoration3ExtendedTooltip" id="420"/>
 										</LabelDecoration>
-										<UsualGroup name="Group5" id="416">
+										<UsualGroup name="GroupTypeOfFolderRestrictionWithBackups" id="416">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Backup retention limit</v8:content>
+												</v8:item>
+											</Title>
 											<Group>Vertical</Group>
 											<Behavior>Usual</Behavior>
 											<Representation>None</Representation>
 											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="Group5ExtendedTooltip" id="417"/>
+											<ExtendedTooltip name="GroupTypeOfFolderRestrictionWithBackupsExtendedTooltip" id="417"/>
 											<ChildItems>
 												<RadioButtonField name="BackupDirectoryRestrictionType" id="66">
 													<DataPath>Object.RestrictionType</DataPath>
@@ -380,12 +404,18 @@ only if you use third-party backup tools.</v8:content>
 														<Event name="OnChange">BackupDirectoryRestrictionTypeOnChange</Event>
 													</Events>
 												</RadioButtonField>
-												<UsualGroup name="Group6" id="448">
+												<UsualGroup name="FolderRestrictionsGroupWithBackups" id="448">
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Backup retention limits</v8:content>
+														</v8:item>
+													</Title>
 													<Behavior>Usual</Behavior>
 													<Representation>None</Representation>
 													<United>false</United>
 													<ShowTitle>false</ShowTitle>
-													<ExtendedTooltip name="Group6ExtendedTooltip" id="449"/>
+													<ExtendedTooltip name="FolderRestrictionsGroupWithBackupsExtendedTooltip" id="449"/>
 													<ChildItems>
 														<RadioButtonField name="BackupDirectoryRestrictionType1" id="443">
 															<DataPath>Object.RestrictionType</DataPath>
@@ -514,12 +544,18 @@ only if you use third-party backup tools.</v8:content>
 														</UsualGroup>
 													</ChildItems>
 												</UsualGroup>
-												<UsualGroup name="Group7" id="450">
+												<UsualGroup name="GroupMoreFolderRestrictionsWithBackups" id="450">
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Backup retention limits</v8:content>
+														</v8:item>
+													</Title>
 													<Behavior>Usual</Behavior>
 													<Representation>None</Representation>
 													<United>false</United>
 													<ShowTitle>false</ShowTitle>
-													<ExtendedTooltip name="Group7ExtendedTooltip" id="451"/>
+													<ExtendedTooltip name="GroupMoreFolderRestrictionsWithBackupsExtendedTooltip" id="451"/>
 													<ChildItems>
 														<RadioButtonField name="BackupDirectoryRestrictionType2" id="452">
 															<DataPath>Object.RestrictionType</DataPath>

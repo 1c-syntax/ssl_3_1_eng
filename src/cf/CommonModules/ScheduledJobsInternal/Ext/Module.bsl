@@ -18,7 +18,7 @@
 //    If it is not specified, it is generated automatically.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the scheduled job is used.
 //
 Function ScheduledJobAvailableByFunctionalOptions(Job, JobDependencies = Undefined) Export
 	
@@ -84,18 +84,18 @@ EndFunction
 //        The default value is False - if one or more functional options are enabled,
 //        the scheduled job is also enabled.
 //    * EnableOnEnableFunctionalOption - Boolean
-//                                              - Undefined - 
-//        
-//        
-//        
+//                                              - Undefined - if False, the scheduled job
+//        will not be enabled if the functional option is enabled. The
+//        Undefined value corresponds to True.
+//        The default value is Undefined.
 //    * AvailableInSubordinateDIBNode - Boolean
-//                                  - Undefined - 
-//        
-//        
+//                                  - Undefined - True or Undefined if the scheduled
+//        job is available in the DIB node.
+//        The default value is Undefined.
 //    * AvailableSaaS      - Boolean
-//                                  - Undefined - 
-//        
-//        
+//                                  - Undefined - True or Undefined if the scheduled
+//        job is available in the SaaS.
+//        The default value is Undefined.
 //    * UseExternalResources   - Boolean - True if the scheduled job is operating
 //        with external resources (receiving emails, synchronizing data, etc.).
 //        The default value is False.
@@ -178,7 +178,7 @@ Procedure SetScheduledJobsUsageByFunctionalOptions(EnableJobs = False) Export
 		EndDo;
 		
 		If Use = Undefined
-			Or (Use And Not EnableJobs) // 
+			Or (Use And Not EnableJobs) 
 			Or (Not Use And Not DisableJob) Then
 			Continue;
 		EndIf;
@@ -543,7 +543,7 @@ Procedure GenerateScheduledJobsTable(Parameters, StorageAddress) Export
 				// Insert a new job.
 				ToUpdate = Table.Insert(IndexOf);
 				
-				// 
+				// Assign a UUID.
 				ToUpdate.Id = Id;
 			Else
 				ToUpdate = Table[IndexOf];
@@ -592,7 +592,7 @@ Procedure SetScheduledJobProperties(Receiver, JobSource)
 	
 	FillPropertyValues(Receiver, JobSource);
 	
-	// 
+	// Refine the description.
 	Receiver.Description = ScheduledJobPresentation(JobSource);
 	
 	// Setting the Completion date and the Completion state by the last background procedure .
@@ -628,14 +628,14 @@ EndProcedure
 // 
 // Parameters:
 //  Job             - ScheduledJob
-//                      - String - 
+//                      - String - ScheduledJob UUID string.
 //
 // Returns:
 //  Structure:
 //    * StartedAt -   Undefined
-//                    -   Date - 
-//                        
-//                        
+//                    -   Date - for the file infobase, sets the passed time as the
+//                        scheduled job method start time.
+//                        For the server infobase returns the background job start time upon completion.
 //    * BackgroundJobIdentifier - String - for the server infobase, returns the running background job ID.
 //
 Function ExecuteScheduledJobManually(Val Job) Export
@@ -691,7 +691,7 @@ EndFunction
 //
 // Parameters:
 //  Job      - ScheduledJob
-//               - String - 
+//               - String - if a string, a UUID string.
 //
 // Returns:
 //  String
@@ -741,8 +741,8 @@ EndFunction
 //
 // Parameters:
 //  Job      - ScheduledJob
-//               - String - 
-//                 
+//               - String - ScheduledJob
+//                 UUID as a string.
 //
 // Returns:
 //  String
@@ -811,7 +811,7 @@ EndProcedure
 //  PropertiesNames  - String - if filled, returns a structure with the specified properties.
 // 
 // Returns:
-//  ValueTableRow, Structure - 
+//  ValueTableRow, Structure - BackgroundJob properties.
 //
 Function GetBackgroundJobProperties(Id, PropertiesNames = "") Export
 	
@@ -841,7 +841,7 @@ EndFunction
 //
 // Parameters:
 //  ScheduledJob - ScheduledJob
-//                      - String - 
+//                      - String - a ScheduledJob UUID string.
 //
 // Returns:
 //  ValueTableRow:

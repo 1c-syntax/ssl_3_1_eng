@@ -11,8 +11,8 @@
 
 #Region Variables
 
-Var SettingEnabled; // 
-                         // 
+Var SettingEnabled; 
+                         
 
 #EndRegion
 
@@ -30,8 +30,8 @@ EndProcedure
 
 Procedure OnWrite(Cancel)
 	
-	// 
-	// 
+	
+	
 	If Not AdditionalProperties.Property("SkipPeriodClosingDatesVersionUpdate") Then
 		PeriodClosingDatesInternal.UpdatePeriodClosingDatesVersion();
 	EndIf;

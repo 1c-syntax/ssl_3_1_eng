@@ -23,7 +23,7 @@
 //   * SenderName - String - Sender's name that recipients will see instead of the phone number.
 //   * Transliterate - Boolean - If True, transliterate the outgoing message.
 //
-//  StandardProcessing - Boolean - a flag showing whether the standard processing of text message sending is to be executed.
+//  StandardProcessing - Boolean -  a flag showing whether the standard processing of text message sending is to be executed.
 //
 Procedure OnSendSMSMessage(RecipientsNumbers, Text, AdditionalParameters, StandardProcessing) Export
 	

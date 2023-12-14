@@ -158,8 +158,8 @@ Procedure ManageRoleAtServer()
 	
 	IAgreeAtServer();
 	
-	// 
-	// 
+	
+	
 	If Common.DataSeparationEnabled() Then
 		Return;
 	EndIf;

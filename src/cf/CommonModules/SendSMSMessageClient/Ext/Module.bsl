@@ -47,7 +47,7 @@ EndProcedure
 // 
 // 
 // Parameters:
-//  OnCloseNotifyDescription - NotifyDescription -
+//  OnCloseNotifyDescription - NotifyDescription - 
 //
 Procedure OpenSettingsForm(OnCloseNotifyDescription = Undefined) Export
 	
@@ -113,7 +113,7 @@ Procedure CreateNewSMSMessageSettingsCheckCompleted(SMSMessageSendingIsSetUp, Se
 EndProcedure
 
 // Returns:
-//  Structure - additional parameters for sending SMS:
+//  Structure - :
 //   * SenderName - String - Sender's name that recipients will see instead of the phone number.
 //   * Transliterate - Boolean - If True, transliterate the outgoing message.
 //   * SubjectOf - AnyRef - Topic the outgoing message is associated with.

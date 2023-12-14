@@ -10,14 +10,14 @@
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 #Region Private
 
-// 
-// 
+// Returns a flag indicating that the user selected the "Do not remind again" checkbox in the dialog reminding that a certificate
+// must be reissued or cleared the "Remind when ready" checkbox in the application for certificate issue.
 // 
 // Parameters:
 //  Certificate - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates
 // 
 // Returns:
-//  Boolean - 
+//  Boolean - If True, the user in notified. Do not remind anymore.
 //
 Function UserAlerted(Certificate) Export
 

@@ -18,10 +18,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.History.ReadOnly = Parameters.ReadOnly;
 	EndIf;
 	
+	ContactInformationTypeAttributes = Common.ObjectAttributesValues(Parameters.ContactInformationKind,
+		"Description, Type, CheckValidity, EditingOption" );
+	
 	ContactInformationKind = Parameters.ContactInformationKind;
-	ContactInformationType = Parameters.ContactInformationKind.Type;
-	CheckValidity = ContactInformationKind.CheckValidity;
-	ContactInformationPresentation = Parameters.ContactInformationKind.Description;
+	ContactInformationType = ContactInformationTypeAttributes.Type;
+	CheckValidity = ContactInformationTypeAttributes.CheckValidity;
+	ContactInformationPresentation = ContactInformationTypeAttributes.Description;
 	
 	If TypeOf(Parameters.ContactInformationList) = Type("Array") Then
 		For Each ContactInformationRow In Parameters.ContactInformationList Do
@@ -35,10 +38,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Else
 		Cancel = True;
 	EndIf;
-	EditInDialogOnly = ContactInformationKind.EditingOption = "Dialog";
-	If ContactInformationKind.Type = Enums.ContactInformationTypes.Address Then
+	EditInDialogOnly = ContactInformationTypeAttributes.EditingOption = "Dialog";
+	If ContactInformationTypeAttributes.Type = Enums.ContactInformationTypes.Address Then
 		EditFormName = "AddressInput";
-	ElsIf ContactInformationKind.Type = Enums.ContactInformationTypes.Phone Then
+	ElsIf ContactInformationTypeAttributes.Type = Enums.ContactInformationTypes.Phone Then
 		EditFormName = "PhoneInput";
 	Else
 		EditFormName = "";

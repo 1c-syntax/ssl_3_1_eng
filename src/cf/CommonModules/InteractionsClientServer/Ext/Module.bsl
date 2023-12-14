@@ -121,7 +121,7 @@ EndFunction
 //  ObjectRef  - AnyRef - a reference, to which a check is required.
 //
 // Returns:
-//   Boolean   - 
+//   Boolean   - True if the passed reference refers to an interaction document.
 //
 Function IsInteraction(ObjectRef) Export
 	
@@ -162,7 +162,7 @@ EndFunction
 //                               if it is a reference to an interaction subject.
 //
 // Returns:
-//   Boolean   - 
+//   Boolean   - True if the conditions are met.
 //
 Function IsSubject(ObjectRef) Export
 	
@@ -199,7 +199,7 @@ EndFunction
 //  MessageText  - String       - a message text, for which a message is being generated.
 //
 // Returns:
-//   String   - 
+//   String   - a generated information message.
 //
 Function GenerateInfoLabelMessageCharsCount(SendInTransliteration, MessageText) Export
 
@@ -240,7 +240,7 @@ Function ContactsDetails() Export
 	
 EndFunction
 
-// 
+// Checks if contacts are populated in an interaction document and updates the interaction document form
 //
 // Parameters:
 //  Object - DocumentObject - an interaction document being checked.

@@ -28,7 +28,7 @@ Function DeliveryStatus(MessageID) Export
 	ElsIf ValueIsFilled(SMSMessageSendingSettings.Provider) Then
 		SendSMSMessageOverridable.DeliveryStatus(MessageID, SMSMessageSendingSettings.Provider,
 			SMSMessageSendingSettings.Login, SMSMessageSendingSettings.Password, Result);
-	Else // 
+	Else // No provider selected.
 		Result = "Error";
 	EndIf;
 	

@@ -99,7 +99,7 @@ Procedure UpdateSharedAddIn(ComponentDetails) Export
 			SharedAddIn.Lock();
 		EndIf;
 		
-		SharedAddIn.Fill(Undefined); // 
+		SharedAddIn.Fill(Undefined); 
 		
 		ComponentBinaryData = New BinaryData(ComponentDetails.PathToFile);
 		Information = AddInsInternal.InformationOnAddInFromFile(ComponentBinaryData, False);
@@ -116,8 +116,9 @@ Procedure UpdateSharedAddIn(ComponentDetails) Export
 		EndIf;
 		
 		FillPropertyValues(SharedAddIn, Information.Attributes); // By manifest data.
-		FillPropertyValues(SharedAddIn, ComponentDetails);   // 
+		FillPropertyValues(SharedAddIn, ComponentDetails);   // By data from the website.
 		
+		SharedAddIn.TargetPlatforms = New ValueStorage(Information.Attributes.TargetPlatforms);
 		SharedAddIn.AddInStorage = New ValueStorage(ComponentBinaryData);
 		
 		SharedAddIn.Write();
@@ -146,7 +147,7 @@ EndFunction
 //   Result     - See AddInsInternal.SavedAddInInformation
 //   Id - String               - an add-in object ID.
 //   Version – String
-//                 - Undefined - version of the component.
+//                 - Undefined - an add-in version.
 // 
 Procedure FillAddInInformation(Result, Version, Id) Export
 	
@@ -166,8 +167,8 @@ Procedure FillAddInInformation(Result, Version, Id) Export
 			Result.Ref = ReferenceFromStorage;
 		Else
 			If ValueIsFilled(Version) Then
-				// 
-				// 
+				
+				
 				Result.State = "FoundInStorage";
 				Result.Ref = ReferenceFromStorage;
 			Else
@@ -178,8 +179,8 @@ Procedure FillAddInInformation(Result, Version, Id) Export
 					Result.State = "FoundInSharedStorage";
 					Result.Ref = ReferenceFromSharedStorage;
 				Else
-					// 
-					// 
+					
+					
 					Result.State = "FoundInStorage";
 					Result.Ref = ReferenceFromStorage;
 				EndIf;
@@ -202,6 +203,7 @@ Function SharedAddInVersions() Export
 	Return Query.Execute().Select();
 
 EndFunction
+
 
 #Region ConfigurationSubsystemsEventHandlers
 
@@ -258,6 +260,21 @@ Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Sender) Exp
 	
 EndProcedure
 
+// See InfobaseUpdateSSL.OnAddUpdateHandlers.
+Procedure OnAddUpdateHandlers(Handlers) Export
+	
+	Handler = Handlers.Add();
+	Handler.Version = "3.1.9.221";
+	Handler.SharedData = True;
+	Handler.Id = New UUID("a76bc949-68aa-4ba3-b9f3-a03b530da817");
+	Handler.Procedure = "Catalogs.CommonAddIns.ProcessCommonExternalComponents";
+	Handler.Comment = NStr("en = 'Fill compatibility attributes of common add-ins.';");
+	Handler.ExecutionMode = "Seamless";
+	
+EndProcedure
+
 #EndRegion
 
 #EndRegion
+
+

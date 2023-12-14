@@ -303,7 +303,7 @@ Function CheckDirectoryWithBackups()
 			Try
 				DeleteFiles(Object.BackupDirectory, "*.test1From1");
 			Except
-				// 
+				// ACC:280 Not an error if files are not deleted at this step.
 			EndTry;
 			
 		EndIf;
@@ -392,7 +392,7 @@ Procedure ModifyScheduleCompletion(ScheduleResult, AdditionalParameters) Export
 EndProcedure
 
 /////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure SetVisibilityAvailability()

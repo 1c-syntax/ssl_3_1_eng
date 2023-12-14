@@ -174,7 +174,7 @@ Procedure ListSubjectDrag(Item, DragParameters, StandardProcessing, TableRow, Fi
 	
 EndProcedure
 
-// 
+// Saves an email message to the hard drive.
 //
 // Parameters:
 //  MailMessage                  - DocumentRef.IncomingEmail
@@ -301,7 +301,7 @@ Procedure SelectContactTypeOnCompletion(SelectionResult, AdditionalParameters) E
 		If InteractionsClientOverridable.CreateContactNonstandardForm(SelectionResult.Value, FormParameter) Then
 			Return;
 		EndIf;
-		// ACC:223-
+		// ACC:223-on
 		NewContactFormName = "Catalog." + SelectionResult.Value + ".ObjectForm";
 	EndIf;
 	
@@ -507,7 +507,7 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Common event handlers of interaction documents
 
-// 
+// Opens the contact selection form and handles the choice.
 //
 // Parameters:
 //  SubjectOf        - DefinedType.InteractionSubject - interaction topic.
@@ -662,7 +662,7 @@ EndProcedure
 //
 // Parameters:
 //  Object - DocumentObject - a document being checked.
-//  Cancel  - Boolean -
+//  Cancel  - Boolean - True if the attribute values are invalid.
 //
 Procedure CheckOfDeferredSendingAttributesFilling(Object, Cancel) Export
 	
@@ -746,16 +746,16 @@ EndProcedure
 
 // Returns:
 //   Structure:
-//     * BaseEmailDate          - Date -
-//     * UserAccountUsername - String -
+//     * BaseEmailDate          - Date - Date of the base email message.
+//     * UserAccountUsername - String - Name of the user whose email account received the base email message.
 //     * DoNotCallPrintCommand      - Boolean - indicates that it is not required to call OS print command when opening
 //                                               a form.
 //     * EmailBasis              - Undefined
 //                                    - String
 //                                    - DocumentRef.IncomingEmail
-//                                    - DocumentRef.OutgoingEmail - 
-//                                                                                  
-//     * BaseEmailSubject          - String - the subject of the email is grounds.
+//                                    - DocumentRef.OutgoingEmail - Reference to the base email message
+//                                                                                  or the message presentation.
+//     * BaseEmailSubject          - String - a base email subject.
 //
 Function EmailAttachmentParameters() Export
 
@@ -794,7 +794,7 @@ EndProcedure
 //  ObjectRef - AnyRef - a reference, to which a check is required.
 //
 // Returns:
-//   Boolean   - 
+//   Boolean   - True if the passed reference refers to an interaction document.
 //
 Function IsEmail(ObjectRef) Export
 	

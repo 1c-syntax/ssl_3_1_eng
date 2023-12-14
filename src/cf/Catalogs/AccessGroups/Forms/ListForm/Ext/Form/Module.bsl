@@ -56,7 +56,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If Not Users.IsFullUser() Then
-		// 
+		// Hiding the Administrators access group.
 		CommonClientServer.SetDynamicListFilterItem(
 			List, "Ref", AccessManagement.AdministratorsAccessGroup(),
 			DataCompositionComparisonType.NotEqual, , True);
@@ -71,7 +71,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		AutoTitle = False;
 		If Parameters.CloseOnChoice = False Then
-			// 
+			// Pick mode.
 			Items.List.MultipleChoice = True;
 			Items.List.SelectionMode = TableSelectionMode.MultiRow;
 			

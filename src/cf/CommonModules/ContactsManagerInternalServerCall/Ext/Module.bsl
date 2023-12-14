@@ -14,8 +14,8 @@
 //  Parameters:
 //      Text        - String - a contact information presentation
 //      ExpectedType - CatalogRef.ContactInformationKinds
-//                   - EnumRef.ContactInformationTypes - 
-//                     
+//                   - EnumRef.ContactInformationTypes - to
+//                     control types.
 //
 //  Returns:
 //      String - JSON
@@ -30,8 +30,8 @@ EndFunction
 //      XMLData - String - XML of contact information data.
 //
 //  Returns:
-//      String - 
-//      
+//      String - content
+//      Undefined - if a composition value has a complex type.
 //
 Function ContactInformationCompositionString(Val XMLData) Export;
 	
@@ -55,7 +55,7 @@ EndFunction
 //
 Function TransformContactInformationXML(Val Data) Export
 	
-	Result = ContactsManagerClientServer.ПоляКонтактнойИнформацииДляПреобразования();
+	Result = ContactsManager.ContactInformationFieldsForConversion();
 	
 	If ContactsManagerInternalCached.IsLocalizationModuleAvailable() Then
 		ModuleContactsManagerLocalization = Common.CommonModule("ContactsManagerLocalization");
@@ -63,7 +63,7 @@ Function TransformContactInformationXML(Val Data) Export
 	EndIf;
 	
 	If ContactsManagerClientServer.IsJSONContactInformation(Data.FieldValues) Then
-		ContactInformationFields = ContactsManager.БазовыеСведенияКонтактнойИнформации(Data.FieldValues);
+		ContactInformationFields = ContactsManager.BasicInformationOfContactInformation(Data.FieldValues);
 		FillPropertyValues(Result, ContactInformationFields);
 	EndIf;
 	

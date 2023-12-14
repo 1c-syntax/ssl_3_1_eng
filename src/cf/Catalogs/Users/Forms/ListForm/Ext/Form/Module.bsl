@@ -10,7 +10,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                          
 //
-// See UsersOverridable.OnDefineUsersSelectionForm
 //
 
 #Region Variables
@@ -46,7 +45,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		WindowOpeningMode = FormWindowOpeningMode.LockOwnerWindow;
 		
 	ElsIf Users.IsFullUser() Then
-		// 
+		// Adding the filter by users added by the person responsible for the list.
 		CommonClientServer.SetDynamicListFilterItem(
 			UsersList, "Prepared", True, ,
 			NStr("en = 'Users are submitted for authorization';"), False,
@@ -106,7 +105,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 		Items.UsersInfo.Visible = False;
 		Items.UserGroups.ChoiceMode = StoredParameters.UsersGroupsSelection;
-		// 
+		// Disabling dragging users in the "select users" and "pick users" forms.
 		Items.UsersList.EnableStartDrag = False;
 		
 		If Parameters.Property("NonExistingIBUsersIDs") Then
@@ -118,7 +117,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 		
 		If Parameters.CloseOnChoice = False Then
-			// 
+			// Pick mode.
 			Items.UsersList.MultipleChoice = True;
 			
 			If StoredParameters.AdvancedPick Then
@@ -765,7 +764,7 @@ Procedure UsersInfo(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure ChangeSelectedItems(Command)
@@ -830,15 +829,15 @@ EndProcedure
 Procedure LockInvalidUsersInCollaborationSystem(Command)
 	ProcessingResult = BlockInvalidUsersInTheInteractionSystemOnTheServer();
 	If Not IsBlankString(ProcessingResult) Then
-		MessageTemplate = NStr("en = 'Cannot lock users due to:
+		MessageTemplate = NStr("en = 'Cannot disable users due to:
 			|
 			|%1';");
 		ShowMessageBox(,
 			StringFunctionsClientServer.SubstituteParametersToString(MessageTemplate, ProcessingResult),,
-			NStr("en = 'Cannot lock users';"));
+			NStr("en = 'Cannot disable users';"));
 	Else
-		Status(NStr("en = 'Invalid users are
-			|locked.';"),,,PictureLib.Success32);
+		Status(NStr("en = 'Inactive users are
+			|disabled.';"),,,PictureLib.Success32);
 	EndIf;
 EndProcedure
 
@@ -851,7 +850,7 @@ Function BlockInvalidUsersInTheInteractionSystemOnTheServer()
 		BlockingResult = ModuleConversationsInternal.BlockAnInteractionSystemUser(InvalidUser);
 		If BlockingResult <> Undefined Then
 			Result = ErrorProcessing.BriefErrorDescription(BlockingResult);
-			WriteLogEvent(NStr("en = 'Conversations.Lock invalid users';", Common.DefaultLanguageCode()),
+			WriteLogEvent(NStr("en = 'Conversations.Disable inactive users';", Common.DefaultLanguageCode()),
 				EventLogLevel.Error,,,
 				ErrorProcessing.DetailErrorDescription(BlockingResult));
 		EndIf;
@@ -956,7 +955,7 @@ EndFunction
 //   * AdvancedPick - Boolean
 //   * UseGroups - Arbitrary
 //   * AllUsersGroup - CatalogRef.UserGroups
-//   * CurrentRow - 
+//   * CurrentRow - CatalogRef, Undefined
 //   * PickFormHeader - String
 //   * PickingCompletionButtonTitle - String
 //
@@ -1001,7 +1000,7 @@ Procedure SetAllUsersGroupOrder(List)
 	
 	Var Order;
 	
-	// Order
+	// Order.
 	Order = List.SettingsComposer.Settings.Order;
 	Order.UserSettingID = "DefaultOrder";
 	
@@ -1142,10 +1141,10 @@ Procedure ChangeExtendedPickFormParameters()
 		StoredParameters.PickingCompletionButtonTitle = ExtendedPickFormParameters.PickingCompletionButtonTitle;
 	EndIf;
 	
-	// 
+	// Setting parameters of the extended pick form.
 	Items.EndAndClose.Visible         = True;
 	Items.SelectUserGroup.Visible = True;
-	// 
+	// Making the list of selected users visible.
 	Items.SelectedUsersAndGroups.Visible     = True;
 	
 	If Common.IsMobileClient() Then
@@ -1161,7 +1160,7 @@ Procedure ChangeExtendedPickFormParameters()
 		Items.UserGroups.Height                      = 3;
 		Height                                        = 17;
 		Items.SelectGroupGroup.Visible                   = True;
-		// 
+		// Making the titles of UsersList and UserGroups lists visible.
 		Items.UserGroups.TitleLocation          = FormItemTitleLocation.Top;
 		Items.UsersList.TitleLocation           = FormItemTitleLocation.Top;
 		Items.UsersList.Title                    = NStr("en = 'Users in group';");
@@ -1338,8 +1337,8 @@ Procedure ConfigureUserGroupsUsageForm(GroupUsageChanged = False)
 	
 	RefreshFormContentOnGroupChange(ThisObject);
 	
-	// 
-	// 
+	
+	
 	Items.UserGroups.Visible = False;
 	Items.UserGroups.Visible = True;
 	

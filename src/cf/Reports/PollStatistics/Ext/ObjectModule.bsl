@@ -46,8 +46,8 @@ EndProcedure
 //
 Procedure GenerateAnswersAnalysisReport(ReportTable, Survey)
 	
-	AttributesSurvey = Common.ObjectAttributesValues(Survey, "QuestionnaireTemplate,StartDate,EndDate,Presentation");
-	QuestionnaireTemplate = AttributesSurvey.QuestionnaireTemplate;
+	SurveyDetails = Common.ObjectAttributesValues(Survey, "QuestionnaireTemplate,StartDate,EndDate,Presentation");
+	QuestionnaireTemplate = SurveyDetails.QuestionnaireTemplate;
 	QuestionsPresentations = Surveys.PresentationOfQuestionChartGeneralQuestions(QuestionnaireTemplate);
 	
 	QueryResult = ExecuteQueryByQuestionnaireTemplateQuestions(Survey,QuestionnaireTemplate);
@@ -58,20 +58,20 @@ Procedure GenerateAnswersAnalysisReport(ReportTable, Survey)
 	Template = GetTemplate("AnswersTemplate");
 	
 	Area = Template.GetArea("Title"); // SpreadsheetDocument
-	Area.Parameters.Title = QuestionnaireTemplate.Title;
-	Area.Parameters.Survey     = SurveyPresentationForHeader(AttributesSurvey);
-	ReportTable.Put(Area,1);
+	Area.Parameters.Title = Common.ObjectAttributeValue(QuestionnaireTemplate, "Title");
+	Area.Parameters.Survey     = SurveyPresentationForHeader(SurveyDetails);
+	ReportTable.Put(Area, 1);
 	
 	Area = Template.GetArea("IsBlankString");
-	ReportTable.Put(Area,1);
+	ReportTable.Put(Area, 1);
 	ReportTable.StartRowGroup("Annotation");
 	
 	Area = Template.GetArea("Annotation");
-	ReportTable.Put(Area,2);
+	ReportTable.Put(Area, 2);
 	ReportTable.EndRowGroup();
 	
 	Area = Template.GetArea("IsBlankString");
-	ReportTable.Put(Area,1);
+	ReportTable.Put(Area, 1);
 	
 	QuestionnaireTree = QueryResult.Unload(QueryResultIteration.ByGroupsWithHierarchy);
 	If QuestionnaireTree.Rows.Count() > 0 Then
@@ -84,7 +84,7 @@ EndProcedure
 //
 // Parameters:
 //  TreeRows    - ValueTreeRowCollection - tree rows, for which the action is executed.
-//  ReportTable   - SpreadsheetDocument - a document, in which the data is output.
+//  ReportTable   - SpreadsheetDocument -  a document, in which the data is output.
 //  Template           - SpreadsheetDocument - a template used to output the data.
 //  RecursionLevel - Number             - the current recursion level.
 //  ArrayFullCode - Array            - - used to generate a full code of processed rows.
@@ -538,7 +538,7 @@ EndProcedure
 //  QuestionnaireTemplate - CatalogRef.QuestionnaireTemplates - used for the survey.
 //
 // Returns:
-//   QueryResult   - result of the executed request.
+//   QueryResult   - query execution result.
 //
 Function ExecuteQueryByQuestionnaireTemplateQuestions(Survey,QuestionnaireTemplate)
 	
@@ -937,7 +937,7 @@ Procedure OutputRespondersQueryResultToSpreadsheetDocument(QueryResult,Attribute
 	Template = GetTemplate("AnsweredTemplate");
 	
 	Area = Template.GetArea("Title");// SpreadsheetDocument
-	Area.Parameters.Title = AttributesSurvey.QuestionnaireTemplate.Title;
+	Area.Parameters.Title = Common.ObjectAttributeValue(AttributesSurvey.QuestionnaireTemplate, "Title");
 	Area.Parameters.Survey 	= SurveyPresentationForHeader(AttributesSurvey);
 	ReportTable.Put(Area,1);
 	
@@ -1120,27 +1120,27 @@ EndFunction
 
 #Region Other
 
-Function SurveyPresentationForHeader(AttributesSurvey)
+Function SurveyPresentationForHeader(SurveyDetails)
 	
-	If AttributesSurvey.StartDate <> Date(1, 1, 1) And AttributesSurvey.EndDate <> Date(1, 1, 1) Then
+	If SurveyDetails.StartDate <> Date(1, 1, 1) And SurveyDetails.EndDate <> Date(1, 1, 1) Then
 		Result = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'A survey is held from %1 to %2 on a basis of a document %3.';"),
-			Format(AttributesSurvey.StartDate, "DLF=DD"), Format(AttributesSurvey.EndDate, "DLF=DD"),
-			AttributesSurvey.Presentation);
-	ElsIf AttributesSurvey.StartDate <> Date(1, 1, 1) Then
+			Format(SurveyDetails.StartDate, "DLF=DD"), Format(SurveyDetails.EndDate, "DLF=DD"),
+			SurveyDetails.Presentation);
+	ElsIf SurveyDetails.StartDate <> Date(1, 1, 1) Then
 		Result = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'A survey is held from %1 on a basis of a document %2.';"),
-			Format(AttributesSurvey.StartDate, "DLF=DD"), 
-			AttributesSurvey.Presentation);
-	ElsIf AttributesSurvey.EndDate <> Date(1, 1, 1) Then
+			Format(SurveyDetails.StartDate, "DLF=DD"), 
+			SurveyDetails.Presentation);
+	ElsIf SurveyDetails.EndDate <> Date(1, 1, 1) Then
 		Result = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'A survey is held until %1 on a basis of a document %2.';"),
-			Format(AttributesSurvey.EndDate, "DLF=DD"), 
-			AttributesSurvey.Presentation);
+			Format(SurveyDetails.EndDate, "DLF=DD"), 
+			SurveyDetails.Presentation);
 	Else
 		Result = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'A survey is held on a basis of a document %1.';"),
-			AttributesSurvey.Presentation);
+			SurveyDetails.Presentation);
 	EndIf; 
 	Return Result;
 	

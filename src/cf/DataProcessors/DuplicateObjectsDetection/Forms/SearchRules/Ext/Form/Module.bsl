@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-// 
+
 //
 //     
 //     
@@ -24,7 +24,7 @@
 //             
 //                                                  
 //
-// 
+
 //     
 //     
 //                    
@@ -44,14 +44,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	DeleteFromTempStorage(Parameters.SettingsAddress);
 	InitialSettings.Property("TakeAppliedRulesIntoAccount", TakeAppliedRulesIntoAccount);
 	
-	If AppliedRuleDetails = Undefined Then // 
+	If AppliedRuleDetails = Undefined Then // Rules are not defined.
 		Items.AppliedRestrictionsGroup.Visible = False;
 		WindowOptionsKey = "NoAppliedRestrictionsGroup";
 	Else
 		Items.TakeAppliedRulesIntoAccount.Visible = CanCancelAppliedRules();
 	EndIf;
 	
-	// 
+	// Filling and adjusting rules.
 	SearchRules.Load(InitialSettings.SearchRules);
 	For Each RuleRow In SearchRules Do
 		RuleRow.Use = Not IsBlankString(RuleRow.Rule);
@@ -209,13 +209,13 @@ EndProcedure
 Function SelectionErrors()
 	
 	If AppliedRuleDetails <> Undefined And TakeAppliedRulesIntoAccount Then
-		// Есть прикладные правила и они используются - 
+		// There are application rules and they are used. There are no errors.
 		Return Undefined;
 	EndIf;
 	
 	For Each RulesRow In SearchRules Do
 		If RulesRow.Use Then
-			// Задано пользовательское правило - 
+			// User rule is specified. There are no errors.
 			Return Undefined;
 		EndIf;
 	EndDo;
@@ -281,7 +281,7 @@ Procedure SetColorsAndConditionalAppearance()
 		AppearanceItem.Appearance.SetParameterValue("Text", ListItem.Presentation);
 	EndDo;
 	
-	// 
+	// Do not use.
 	AppearanceItem = ConditionalAppearanceItems.Add();
 	
 	AppearanceFilter = AppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));

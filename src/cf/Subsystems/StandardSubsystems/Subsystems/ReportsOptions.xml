@@ -63,7 +63,6 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.QuickAccessWithFlag</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.NormalAccessWithCheckBox</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.PredefinedItem</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.HiddenReportSettingsItem</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.ReportSettingsIcons</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.ComparisonType</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.Filters</xr:Item>

@@ -15,7 +15,7 @@
 // 
 //
 // Parameters:
-//   ExchangePlanName - String - name of the exchange plan.
+//   ExchangePlanName - String - an exchange plan name.
 //
 // Returns:
 //   ПараметрыВыборочнойРегистрации - Structure
@@ -40,11 +40,11 @@ Function SelectiveRegistrationParametersByExchangeNodeName(ExchangePlanName) Exp
 	|	AND DataExchangeRules.ExchangePlanName = &ExchangePlanName";
 	
 	Selection = Query.Execute().Select();
-	If Selection.Next() Then // 
+	If Selection.Next() Then 
 		
 		SelectiveRegistrationParameters = Selection.SelectiveRegistrationParameters.Get();
 		
-		// 
+		
 		// 
 		// 
 		
@@ -63,7 +63,7 @@ EndFunction
 // Returns:
 //   String - 
 //
-// 
+// :
 //
 //   
 //                         (See DataExchangeRegistrationServer.РежимВыборочнойРегистрацииОтключен()
@@ -78,13 +78,13 @@ Function ExchangePlanDataSelectiveRegistrationMode(ExchangePlanName) Export
 	If DataExchangeCached.IsXDTOExchangePlan(ExchangePlanName)
 		And SettingValue = DataExchangeRegistrationServer.SelectiveRegistrationModeByXMLRules() Then
 		
-		// 
-		// 
+		
+		
 		SettingValue = DataExchangeRegistrationServer.SelectiveRegistrationModeModification();
 		
 	ElsIf SettingValue = Undefined Then
 		
-		// 
+		
 		SettingValue = DataExchangeRegistrationServer.SelectiveRegistrationModeModification();
 		
 	EndIf;

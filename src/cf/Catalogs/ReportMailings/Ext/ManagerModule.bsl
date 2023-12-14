@@ -52,15 +52,15 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// 
+// StandardSubsystems.ReportsOptions
 
-// Defines a list of report commands.
+// Determines a report command list.
 //
 // Parameters:
-//   ReportsCommands - ValueTable -
-//       
-//   Parameters - Structure -
-//       
+//   ReportsCommands - ValueTable - a table with report commands. For changing.
+//       See details of parameter 1 of the ReportsOptionsOverridable.BeforeAddReportsCommands() procedure.
+//   Parameters - Structure - auxiliary parameters. For reading.
+//       See details of parameter 2 of the ReportsOptionsOverridable.BeforeAddReportsCommands() procedure.
 //
 Procedure AddReportCommands(ReportsCommands, Parameters) Export
 	
@@ -81,7 +81,7 @@ EndProcedure
 
 // StandardSubsystems.Print
 
-// Generates a printable form.
+// Generates print forms.
 //
 // Parameters:
 //  ObjectsArray - See PrintManagementOverridable.OnPrint.ObjectsArray
@@ -107,12 +107,12 @@ EndProcedure
 
 // End StandardSubsystems.Print
 
-// 
+// StandardSubsystems.ObjectsVersioning
 
-// Defines object settings for the object Versioning subsystem.
+// Defines object settings for the ObjectsVersioning subsystem.
 //
 // Parameters:
-//   Settings - Structure - subsystem settings.
+//   Settings - Structure - Subsystem settings.
 //
 Procedure OnDefineObjectVersioningSettings(Settings) Export
 EndProcedure
@@ -125,7 +125,7 @@ EndProcedure
 
 #Region Private
 
-// 
+// Registers report distributions for processing.
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
@@ -171,8 +171,8 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			
 			ReportDistributionObject = ReportsDistributionRef.Ref.GetObject(); // CatalogObject.ReportMailings
 			
-			// 
-			// 
+			
+			
 			If ReportDistributionObject.IsFolder Then
 				InfobaseUpdate.MarkProcessingCompletion(ReportsDistributionRef.Ref);
 				ObjectsProcessed = ObjectsProcessed + 1;
@@ -221,7 +221,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		Except
 			RollbackTransaction();
 			
-			// 
+			// If failed to process a report distribution, try again.
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -435,14 +435,14 @@ Function RecipientsCountIncludingGroups(Val RecipientsParameters) Export
 		|	NumberOfRecipients AS NumberOfRecipients";
 
 		If Not RecipientsMetadata.Hierarchical Then
-			// 
+			// Not hierarchical item.
 			QueryText = StrReplace(QueryText, "IN HIERARCHY", "In");
 			QueryText = StrReplace(QueryText, "AND &ThisIsNotGroup", "");
 		ElsIf RecipientsMetadata.HierarchyType = Metadata.ObjectProperties.HierarchyType.HierarchyOfItems Then
-			// 
+			// Hierarchy of items.
 			QueryText = StrReplace(QueryText, "AND &ThisIsNotGroup", "");
 		Else
-			// 
+			// Hierarchy of groups.
 			QueryText = StrReplace(QueryText, "AND &ThisIsNotGroup", "AND NOT Recipients.IsFolder");
 		EndIf;
 

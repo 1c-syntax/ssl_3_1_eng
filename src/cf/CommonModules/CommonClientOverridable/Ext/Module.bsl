@@ -27,17 +27,17 @@
 //   * AdditionalParametersOfCommandLine - String - a return value. Has a point when Cancel
 //                              and Restart are True.
 //
-//   * InteractiveHandler - NotifyDescription -
+//   * InteractiveHandler - NotifyDescription - 
 //                              
 //                               
 //
-//   * ContinuationHandler   - NotifyDescription -
+//   * ContinuationHandler   - NotifyDescription - 
 //                               
 //
 //   * Modules                 - Array - references to the modules that will run the procedure after the return.
 //                              You can add modules only by calling an overridable module procedure.
 //                              It helps to simplify the design where a sequence of asynchronous calls
-//                              are made to a number of subsystems. See the example for SSLSubsystemsIntegrationClient.BeforeStart. 
+//                              are made to a number of subsystems. See the example for SSLSubsystemsIntegrationClient.BeforeStart.
 //
 // Example:
 //  The below code opens a window that blocks signing in to an application.
@@ -85,15 +85,15 @@ EndProcedure
 //
 //   * InteractiveHandler - NotifyDescription - a return value. To open the window that locks the application
 //                              start, pass the notification description handler
-//                              that opens the window. See the BeforeStart for an example. 
+//                              that opens the window. See the BeforeStart for an example.
 //
-//   * ContinuationHandler   - NotifyDescription -
+//   * ContinuationHandler   - NotifyDescription - 
 //                              
 //                              
 //   * Modules                 - Array - references to the modules that will run the procedure after the return.
 //                              You can add modules only by calling an overridable module procedure.
 //                              It helps to simplify the design where a sequence of asynchronous calls
-//                              are made to a number of subsystems. See the example for SSLSubsystemsIntegrationClient.BeforeStart. 
+//                              are made to a number of subsystems. See the example for SSLSubsystemsIntegrationClient.BeforeStart.
 //
 Procedure OnStart(Parameters) Export
 	
@@ -108,7 +108,7 @@ EndProcedure
 // 
 //
 // Parameters:
-//  StartupParameters  - Array of String -
+//  StartupParameters  - Array of String - 
 //                      
 //  Cancel             - Boolean - If True, the start is aborted.
 //
@@ -154,8 +154,8 @@ EndProcedure
 // 
 //
 // Parameters:
-//  ApplicationCaption - String -
-//  OnStart          - Boolean -
+//  ApplicationCaption - String - 
+//  OnStart          - Boolean - 
 //                                 
 //                                  
 //                                 
@@ -198,8 +198,8 @@ EndProcedure
 //
 // Parameters:
 //  Parameters - Map of KeyAndValue:
-//    * Key     - String       -
-//    * Value - Arbitrary -
+//    * Key     - String       - 
+//    * Value - Arbitrary - 
 //
 // Example:
 //	
@@ -228,8 +228,8 @@ EndProcedure
 //
 // Parameters:
 //  Results - Map of KeyAndValue:
-//    * Key     - String       -
-//    * Value - Arbitrary -
+//    * Key     - String       - 
+//    * Value - Arbitrary - 
 //
 // Example:
 //	

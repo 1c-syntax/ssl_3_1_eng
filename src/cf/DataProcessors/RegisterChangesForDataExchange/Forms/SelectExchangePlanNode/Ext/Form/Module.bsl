@@ -191,7 +191,7 @@ Function SetFormParameters()
 	
 	Result = New Structure("CurrentRow, Marked");
 	
-	// 
+	// Multiple item selection.
 	Items.ExchangeNodesTreeCheck.Visible = Parameters.MultipleChoice;
 	// Clearing marks if selection type is changed.
 	If Parameters.MultipleChoice <> MultipleChoice Then
@@ -212,7 +212,7 @@ Function SetFormParameters()
 		EndIf;
 			
 	ElsIf Parameters.ChoiceInitialValue <> Undefined Then
-		// 
+		// Single item selection.
 		Result.CurrentRow = RowIDByNode(ExchangeNodesTree, Parameters.ChoiceInitialValue);
 		
 	EndIf;

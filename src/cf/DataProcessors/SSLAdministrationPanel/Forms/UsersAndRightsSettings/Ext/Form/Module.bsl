@@ -123,24 +123,22 @@ Procedure LimitAccessAtRecordLevelUniversallyOnChange(Item)
 	
 	If ConstantsSet.LimitAccessAtRecordLevelUniversally Then
 		QueryText =
-			NStr("en = 'Do you want to enable the High-performance mode of access restriction?
+			NStr("en = 'Do you want to enable the high-performance access restriction mode?
 			           |
-			           |It will be applied after the first update
-			           |(see “Update record-level access”).';");
+			           |The settings will take effect after the first update.
+			           |To monitor the progress, click ""RLS access update progress"".';");
 	ElsIf ConstantsSet.LimitAccessAtRecordLevel Then
 		QueryText =
-			NStr("en = 'Do you want to disable the high-performance mode of access restriction?
+			NStr("en = 'Do you want to disable the high-performance access restriction mode?
 			           |
-			           |This requires data population that will be performed in batches by
-			           |scheduled job ""Populate data for access restriction""
-			           |(see the progress in the Event Log).';");
+			           |This will initiate the ""Populate data for access restriction"" scheduled job to populate data in batches.
+			           |You can monitor the progress in the event log.';");
 	Else
 		QueryText =
-			NStr("en = 'Do you want to disable the high-performance mode of access restriction?
+			NStr("en = 'Do you want to disable the high-performance access restriction mode?
 			           |
-			           |This requires partial data population that will be performed in batches
-			           |by scheduled job ""Populate data for access restriction""
-			           |(see the progress in the Event Log).';");
+			           |This will initiate the ""Populate data for access restriction"" scheduled job to populate some data in batches.
+			           |You can monitor the progress in the event log.';");
 	EndIf;
 	
 	If ValueIsFilled(QueryText) Then
@@ -160,8 +158,8 @@ Procedure LimitAccessAtRecordLevelOnChange(Item)
 	
 	If ConstantsSet.LimitAccessAtRecordLevelUniversally Then
 		QueryText =
-			NStr("en = 'Access groups settings will take effect gradually
-			           |(to view the progress, click ""View record-level access update progress"").
+			NStr("en = 'Access group settings will take effect gradually.
+			           |To monitor the progress, click ""RLS access update progress"".
 			           |
 			           |This might slow down the application and take
 			           |from seconds to a few hours depending on the data volume.';");
@@ -177,12 +175,10 @@ Procedure LimitAccessAtRecordLevelOnChange(Item)
 		QueryText =
 			NStr("en = 'Do you want to enable record-level access restriction?
 			           |
-			           |This requires data population that will be performed in batches
-			           |by scheduled job ""Populate data for access restriction"" 
-			           |(see the progress in the Event Log).
+			           |This will initiate the ""Populate data for access restriction"" scheduled job to populate data in batches.
+			           |You can monitor the progress in the event log.
 			           |
-			           |The processing might slow down the application and take
-			           |from seconds to a few hours depending on the data volume.';");
+			           |The processing might slow down the application and take from seconds to a few hours depending on the data volume.';");
 	Else
 		QueryText = "";
 	EndIf;
@@ -298,6 +294,7 @@ Procedure Attachable_PDDestructionSettingsOnChange(Item)
 	EndIf;
 
 	RefreshInterface = True;
+	AttachIdleHandler("RefreshApplicationInterface", 2, True);
 
 EndProcedure
 
@@ -355,7 +352,7 @@ Procedure UseExternalUsersOnChangeCompletion(Response, Item) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Function OnChangeAttributeServer(TagName)

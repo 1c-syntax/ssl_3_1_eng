@@ -44,7 +44,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.AccessActionDeniedMetadataPresentation.OpenButton = True;
 	EndIf;
 	
-	// 
+	// Processing special event data.
 	Items.AccessData.Visible = False;
 	Items.AccessRightDeniedData.Visible = False;
 	Items.AccessActionDeniedData.Visible = False;

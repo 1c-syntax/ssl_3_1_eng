@@ -42,8 +42,8 @@ Function ExtensionParameter(ParameterName, IgnoreExtensionsVersion = False, IsAl
 	Try
 		Content = Selection.ParameterStorage.Get();
 	Except
-		// 
-		// 
+		
+		
 		ErrorInfo = ErrorInfo();
 		Comment = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'When getting extension version parameter
@@ -614,9 +614,9 @@ Procedure LockForChangeInFileIB() Export
 	If TransactionActive() And Common.FileInfobase() Then
 		Block = New DataLock;
 		Block.Add("InformationRegister.ExtensionVersionParameters");
-		// ACC:1320-
-		// 
-		// 
+		
+		
+		
 		Block.Lock();
 		// ACC:1320-on
 	EndIf;
@@ -637,21 +637,21 @@ EndProcedure
 //   * Users - Structure:
 //      ** UserGroupCompositions - See UpdateParameterProperties.
 //   * AccessManagement - Structure:
-//      ** SuppliedAccessGroupProfiles     - 
-//      ** UnsuppliedAccessGroupProfiles   - 
+//      ** SuppliedAccessGroupProfiles     - See UpdateParameterProperties.
+//      ** UnsuppliedAccessGroupProfiles   - See UpdateParameterProperties.
 //      ** InfobaseUsersRoles - See UpdateParameterProperties.
-//      ** AccessRestrictionParameters         - 
-//      ** AccessGroupsTables                 - 
-//      ** AccessGroupsValues                - 
-//      ** ObjectRightsSettingsInheritance    - 
-//      ** ObjectsRightsSettings               - 
-//      ** AccessValuesGroups               - 
-//      ** AccessValuesSets               - 
+//      ** AccessRestrictionParameters         - See UpdateParameterProperties.
+//      ** AccessGroupsTables                 - See UpdateParameterProperties.
+//      ** AccessGroupsValues                - See UpdateParameterProperties.
+//      ** ObjectRightsSettingsInheritance    - See UpdateParameterProperties.
+//      ** ObjectsRightsSettings               - See UpdateParameterProperties.
+//      ** AccessValuesGroups               - See UpdateParameterProperties.
+//      ** AccessValuesSets               - See UpdateParameterProperties.
 //   * ReportsOptions - Structure:
-//      ** ConfigurationReports              - 
+//      ** ConfigurationReports              - See UpdateParameterProperties.
 //      ** IndexSearchReportsConfiguration - See UpdateParameterProperties.
-//      ** ExtensionReports                - 
-//      ** IndexSearchReportsExtensions   - 
+//      ** ExtensionReports                - See UpdateParameterProperties.
+//      ** IndexSearchReportsExtensions   - See UpdateParameterProperties.
 //   * AccountingAudit - Structure:
 //      ** AccountingCheckRules - See UpdateParameterProperties.
 //
@@ -664,17 +664,17 @@ Function ParametersOfUpdate(ShouldUpdate = False) Export
 	ParametersSubsystems.Insert("ExtensionObjectIDs", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("Core", ParametersSubsystems);
 	
-	// 
+	// StandardSubsystems AttachableCommands
 	ParametersSubsystems = New Structure;
 	ParametersSubsystems.Insert("ConnectableExtensionCommands", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("AttachableCommands", ParametersSubsystems);
 	
-	// 
+	// StandardSubsystems Users
 	ParametersSubsystems = New Structure;
 	ParametersSubsystems.Insert("UserGroupCompositions", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("Users", ParametersSubsystems);
 	
-	// 
+	// StandardSubsystems AccessManagement
 	ParametersSubsystems.Insert("SuppliedAccessGroupProfiles",     NewUpdateParameterProperties(ShouldUpdate));
 	ParametersSubsystems.Insert("UnsuppliedAccessGroupProfiles",   NewUpdateParameterProperties(ShouldUpdate));
 	ParametersSubsystems.Insert("InfobaseUsersRoles", NewUpdateParameterProperties(ShouldUpdate));
@@ -687,14 +687,14 @@ Function ParametersOfUpdate(ShouldUpdate = False) Export
 	ParametersSubsystems.Insert("AccessValuesSets",               NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("AccessManagement", ParametersSubsystems);
 	
-	// 
+	// StandardSubsystems ReportsOptions
 	ParametersSubsystems.Insert("ConfigurationReports",              NewUpdateParameterProperties(ShouldUpdate));
 	ParametersSubsystems.Insert("IndexSearchReportsConfiguration", NewUpdateParameterProperties(ShouldUpdate));
 	ParametersSubsystems.Insert("ExtensionReports",                NewUpdateParameterProperties(ShouldUpdate));
 	ParametersSubsystems.Insert("IndexSearchReportsExtensions",   NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("ReportsOptions", ParametersSubsystems);
 	
-	// 
+	// StandardSubsystems AccountingAudit
 	ParametersSubsystems.Insert("AccountingCheckRules", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("AccountingAudit", ParametersSubsystems);
 	
@@ -867,7 +867,7 @@ Procedure LongOperationHandlerPerformUpdateSplitData(Parameters, ResultAddress) 
 		EndIf;
 		
 		Settings = ModuleReportsOptions.SettingsUpdateParameters();
-		Settings.SharedData = True; // Предопределенные.
+		Settings.SharedData = True; 
 		Settings.SeparatedData = True;
 		Settings.Configuration = False;
 		Settings.Extensions = True;
@@ -1002,7 +1002,7 @@ Procedure EnableFillingExtensionsWorkParameters(Run = True, EnableDefinitely = F
 	
 EndProcedure
 
-// 
+// For the PopulateAllLastExtensionsVersionsParameters procedure.
 Procedure FillActiveBackgroundQuest(ActiveBackgroundJob, JobID)
 	
 	If TypeOf(JobID) = Type("UUID") Then
@@ -1071,7 +1071,7 @@ EndProcedure
 // 
 // 
 // Parameters:
-//  WaitForCompletion - Boolean -
+//  WaitForCompletion - Boolean - 
 //
 Procedure StartFillingWorkParametersExtensions(Comment, WaitForCompletion = False) Export
 	
@@ -1080,8 +1080,8 @@ Procedure StartFillingWorkParametersExtensions(Comment, WaitForCompletion = Fals
 	   And Not WaitForCompletion
 	 Or DataBaseConfigurationChangedDynamically()
 	   And Common.FileInfobase() Then
-		// 
-		// 
+		
+		
 		Return;
 	EndIf;
 	
@@ -1136,7 +1136,7 @@ Procedure AddAdditionalDetails(Comment)
 		ExtensionsDetails.Disabled1,
 		ExtensionsDetails.All,
 		String(SessionParameters.ExtensionsVersion),
-		SessionParameters.ExtensionsVersion.MetadataDetails);
+		Common.ObjectAttributeValue(SessionParameters.ExtensionsVersion, "MetadataDetails"));
 	
 	Comment = Comment + Chars.LF + Chars.LF + AdditionalInfo;
 	

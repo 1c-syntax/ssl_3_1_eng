@@ -210,7 +210,7 @@ EndFunction
 Procedure ImportDataToSubordinateNode(Objects) Export
 	
 	If Common.DataSeparationEnabled() Then
-		// 
+		// Not supported in SaaS mode.
 		Return;
 	EndIf;
 	
@@ -271,16 +271,16 @@ Procedure ImportDataToSubordinateNode(Objects) Export
 				If ItemToImportProperties.MetadataObjectByKey = Undefined
 				   And ItemToImportProperties.MetadataObjectByFullName = Undefined
 				   And Object.DeletionMark <> True Then
-					// Если по какой-
-					// 
+					
+					
 					Object.DeletionMark = True;
 				EndIf;
 			EndIf;
 			
 			If Object.DeletionMark Then
-				// 
-				// 
-				// 
+				
+				
+				
 				UpdateMarkedForDeletionItemProperties(Object);
 			EndIf;
 			
@@ -303,7 +303,7 @@ Procedure ImportDataToSubordinateNode(Objects) Export
 			EndIf;
 			
 			If Properties <> Undefined Then
-				Upload0.Delete(Properties); // 
+				Upload0.Delete(Properties); 
 			EndIf;
 		EndDo;
 		ItemsToImportTable.Indexes.Add("Ref");
@@ -379,7 +379,7 @@ Procedure ImportDataToSubordinateNode(Objects) Export
 			EndIf;
 			
 			If Not Object.DeletionMark Then
-				// 
+				// Searching existing metadata objects for duplicates by full name.
 				Filter = New Structure("FullNameLowerCase", Lower(Object.FullName));
 				FindDuplicatesOnImportDataToSubordinateNode(Upload0, Filter, Object, Ref, ItemsToImportTable);
 			EndIf;
@@ -420,9 +420,9 @@ EndProcedure
 //  FullNameOfDeletedItem - String - for example "Role.ReadBasicRegulatoryData".
 //
 // Returns:
-//  Array - with values:
+//  Array - :
 //   * Value - CatalogRef.MetadataObjectIDs
-//              - CatalogRef.ExtensionObjectIDs - 
+//              - CatalogRef.ExtensionObjectIDs - found reference.
 // 
 Function DeletedMetadataObjectID(FullNameOfDeletedItem) Export
 	
@@ -464,10 +464,10 @@ Function DeletedMetadataObjectID(FullNameOfDeletedItem) Export
 EndFunction
 
 // Parameters:
-//  IDs - Array - Array of values.
+//  IDs - Array - Array of values.:
 //                     * Value - CatalogRef.MetadataObjectIDs
-//                                - CatalogRef.ExtensionObjectIDs - 
-//                                    
+//                                - CatalogRef.ExtensionObjectIDs - the IDs of
+//                                    metadata objects in an application or an extension.
 // Returns:
 //  Map of KeyAndValue:
 //   * Key     - CatalogRef.MetadataObjectIDs
@@ -919,7 +919,7 @@ Procedure AddRenaming(Total, IBVersion, PreviousFullName, NewFullName, LibraryID
 	EndIf;
 	
 	If LibraryVersion = "0.0.0.0" Then
-		// 
+		// No renaming is required during the initial filling.
 		Return;
 	EndIf;
 	
@@ -1108,18 +1108,18 @@ EndFunction
 //
 Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	
-	MetadataObjectCollectionProperties = New ValueTable;
-	MetadataObjectCollectionProperties.Columns.Add("Name",                       New TypeDescription("String",, New StringQualifiers(50)));
-	MetadataObjectCollectionProperties.Columns.Add("SingularName",               New TypeDescription("String",, New StringQualifiers(50)));
-	MetadataObjectCollectionProperties.Columns.Add("Synonym",                   New TypeDescription("String",, New StringQualifiers(255)));
-	MetadataObjectCollectionProperties.Columns.Add("SingularSynonym",           New TypeDescription("String",, New StringQualifiers(255)));
-	MetadataObjectCollectionProperties.Columns.Add("CollectionOrder",          New TypeDescription("Number"));
-	MetadataObjectCollectionProperties.Columns.Add("NoData",                 New TypeDescription("Boolean"));
-	MetadataObjectCollectionProperties.Columns.Add("NoMetadataObjectKey", New TypeDescription("Boolean"));
-	MetadataObjectCollectionProperties.Columns.Add("Id",             New TypeDescription("UUID"));
-	MetadataObjectCollectionProperties.Columns.Add("ExtensionsObjects",         New TypeDescription("Boolean"));
+	Result = New ValueTable;
+	Result.Columns.Add("Name",                       New TypeDescription("String",, New StringQualifiers(50)));
+	Result.Columns.Add("SingularName",               New TypeDescription("String",, New StringQualifiers(50)));
+	Result.Columns.Add("Synonym",                   New TypeDescription("String",, New StringQualifiers(255)));
+	Result.Columns.Add("SingularSynonym",           New TypeDescription("String",, New StringQualifiers(255)));
+	Result.Columns.Add("CollectionOrder",          New TypeDescription("Number"));
+	Result.Columns.Add("NoData",                 New TypeDescription("Boolean"));
+	Result.Columns.Add("NoMetadataObjectKey", New TypeDescription("Boolean"));
+	Result.Columns.Add("Id",             New TypeDescription("UUID"));
+	Result.Columns.Add("ExtensionsObjects",         New TypeDescription("Boolean"));
 	
-	String = MetadataObjectCollectionProperties.Add();
+	String = Result.Add();
 	String.Id   = New UUID("627a6fb8-872a-11e3-bb87-005056c00008");
 	String.Name             = "Constants";
 	String.Synonym         = NStr("en = 'Constants';");
@@ -1127,7 +1127,7 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Constant';");
 	String.ExtensionsObjects = True;
 	
-	String = MetadataObjectCollectionProperties.Add();
+	String = Result.Add();
 	String.Id   = New UUID("cdf5ac50-08e8-46af-9a80-4e63fd4a88ff");
 	String.Name             = "Subsystems";
 	String.Synonym         = NStr("en = 'Subsystems';");
@@ -1137,7 +1137,7 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.NoMetadataObjectKey = True;
 	String.ExtensionsObjects = True;
 	
-	String = MetadataObjectCollectionProperties.Add();
+	String = Result.Add();
 	String.Id   = New UUID("115c4f55-9c20-4e86-a6d0-d0167ec053a1");
 	String.Name             = "Roles";
 	String.Synonym         = NStr("en = 'Roles';");
@@ -1147,7 +1147,7 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.NoMetadataObjectKey = False;
 	String.ExtensionsObjects = True;
 	
-	String = MetadataObjectCollectionProperties.Add();
+	String = Result.Add();
 	String.Id   = New UUID("269651e0-4b06-4f9d-aaab-a8d2b6bc6077");
 	String.Name             = "ExchangePlans";
 	String.Synonym         = NStr("en = 'Exchange plans';");
@@ -1155,7 +1155,7 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Exchange plan';");
 	String.ExtensionsObjects = True;
 	
-	String = MetadataObjectCollectionProperties.Add();
+	String = Result.Add();
 	String.Id   = New UUID("ede89702-30f5-4a2a-8e81-c3a823b7e161");
 	String.Name             = "Catalogs";
 	String.Synonym         = NStr("en = 'Catalogs';");
@@ -1163,7 +1163,7 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Catalog';");
 	String.ExtensionsObjects = True;
 	
-	String = MetadataObjectCollectionProperties.Add();
+	String = Result.Add();
 	String.Id   = New UUID("96c6ab56-0375-40d5-99a2-b83efa3dac8b");
 	String.Name             = "Documents";
 	String.Synonym         = NStr("en = 'Documents';");
@@ -1171,7 +1171,7 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Document';");
 	String.ExtensionsObjects = True;
 	
-	String = MetadataObjectCollectionProperties.Add();
+	String = Result.Add();
 	String.Id   = New UUID("07938234-e29b-4cff-961a-9af07a4c6185");
 	String.Name             = "DocumentJournals";
 	String.Synonym         = NStr("en = 'Document journals';");
@@ -1179,7 +1179,7 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Document journal';");
 	String.NoData       = True;
 	
-	String = MetadataObjectCollectionProperties.Add();
+	String = Result.Add();
 	String.Id   = New UUID("706cf832-0ae5-45b5-8a4a-1f251d054f3b");
 	String.Name             = "Reports";
 	String.Synonym         = NStr("en = 'Reports';");
@@ -1188,7 +1188,7 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.NoData       = True;
 	String.ExtensionsObjects = True;
 	
-	String = MetadataObjectCollectionProperties.Add();
+	String = Result.Add();
 	String.Id   = New UUID("ae480426-487e-40b2-98ba-d207777449f3");
 	String.Name             = "DataProcessors";
 	String.Synonym         = NStr("en = 'Data processors';");
@@ -1197,7 +1197,7 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.NoData       = True;
 	String.ExtensionsObjects = True;
 	
-	String = MetadataObjectCollectionProperties.Add();
+	String = Result.Add();
 	String.Id   = New UUID("8b5649b9-cdd1-4698-9aac-12ba146835c4");
 	String.Name             = "ChartsOfCharacteristicTypes";
 	String.Synonym         = NStr("en = 'Charts of characteristic types';");
@@ -1205,7 +1205,7 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Chart of characteristic types';");
 	String.ExtensionsObjects = True;
 	
-	String = MetadataObjectCollectionProperties.Add();
+	String = Result.Add();
 	String.Id   = New UUID("4295af27-543f-4373-bcfc-c0ace9b7620c");
 	String.Name             = "ChartsOfAccounts";
 	String.Synonym         = NStr("en = 'Charts of accounts';");
@@ -1213,7 +1213,7 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Chart of accounts.';");
 	String.ExtensionsObjects = True;
 	
-	String = MetadataObjectCollectionProperties.Add();
+	String = Result.Add();
 	String.Id   = New UUID("fca3e7e1-1bf1-49c8-9921-aafb4e787c75");
 	String.Name             = "ChartsOfCalculationTypes";
 	String.Synonym         = NStr("en = 'Charts of calculation types';");
@@ -1221,7 +1221,7 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Chart of calculation types.';");
 	String.ExtensionsObjects = True;
 	
-	String = MetadataObjectCollectionProperties.Add();
+	String = Result.Add();
 	String.Id   = New UUID("d7ecc1e9-c068-44dd-83c2-1323ec52dbbb");
 	String.Name             = "InformationRegisters";
 	String.Synonym         = NStr("en = 'Information registers';");
@@ -1229,7 +1229,7 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Information register';");
 	String.ExtensionsObjects = True;
 	
-	String = MetadataObjectCollectionProperties.Add();
+	String = Result.Add();
 	String.Id   = New UUID("74083488-b01e-4441-84a6-c386ce88cdb5");
 	String.Name             = "AccumulationRegisters";
 	String.Synonym         = NStr("en = 'Accumulation registers';");
@@ -1237,7 +1237,7 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Accumulation register';");
 	String.ExtensionsObjects = True;
 	
-	String = MetadataObjectCollectionProperties.Add();
+	String = Result.Add();
 	String.Id   = New UUID("9a0d75ff-0eda-454e-b2b7-d2412ffdff18");
 	String.Name             = "AccountingRegisters";
 	String.Synonym         = NStr("en = 'Accounting registers';");
@@ -1245,7 +1245,7 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Accounting register';");
 	String.ExtensionsObjects = True;
 	
-	String = MetadataObjectCollectionProperties.Add();
+	String = Result.Add();
 	String.Id   = New UUID("f330686a-0acf-4e26-9cda-108f1404687d");
 	String.Name             = "CalculationRegisters";
 	String.Synonym         = NStr("en = 'Calculation registers';");
@@ -1253,32 +1253,32 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.SingularSynonym = NStr("en = 'Calculation register';");
 	String.ExtensionsObjects = True;
 	
-	String = MetadataObjectCollectionProperties.Add();
+	String = Result.Add();
 	String.Id   = New UUID("a8cdd0e0-c27f-4bf0-9718-10ec054dc468");
 	String.Name             = "BusinessProcesses";
 	String.Synonym         = NStr("en = 'Business processes';");
 	String.SingularName     = "BusinessProcess";
 	String.SingularSynonym = NStr("en = 'Business process';");
 	
-	String = MetadataObjectCollectionProperties.Add();
+	String = Result.Add();
 	String.Id   = New UUID("8d9153ad-7cea-4e25-9542-a557ee59fd16");
 	String.Name             = "Tasks";
 	String.Synonym         = NStr("en = 'Tasks';");
 	String.SingularName     = "Task";
 	String.SingularSynonym = NStr("en = 'Task';");
 	
-	For Each String In MetadataObjectCollectionProperties Do
-		String.CollectionOrder = MetadataObjectCollectionProperties.IndexOf(String);
+	For Each String In Result Do
+		String.CollectionOrder = Result.IndexOf(String);
 	EndDo;
 	
 	If ExtensionsObjects Then
-		MetadataObjectCollectionProperties = MetadataObjectCollectionProperties.Copy(
-			New Structure("ExtensionsObjects", True));
+		Result = Result.Copy(New Structure("ExtensionsObjects", True));
 	EndIf;
 	
-	MetadataObjectCollectionProperties.Indexes.Add("Id");
+	Result.Indexes.Add("Id");
+	Result.Indexes.Add("Name");
 	
-	Return MetadataObjectCollectionProperties;
+	Return Result;
 	
 EndFunction
 
@@ -1294,7 +1294,7 @@ Procedure BeforeWriteObject(Object) Export
 	ExtensionsObjects = IsExtensionsObject(Object);
 	StandardSubsystemsCached.MetadataObjectIDsUsageCheck(, ExtensionsObjects);
 	
-	// 
+	// Disabling the object registration mechanism.
 	Object.AdditionalProperties.Insert("DisableObjectChangeRecordMechanism");
 	
 	// Registering the object in all DIB nodes.
@@ -1335,9 +1335,9 @@ Procedure BeforeDeleteObject(Object) Export
 	ExtensionsObjects = IsExtensionsObject(Object);
 	StandardSubsystemsCached.MetadataObjectIDsUsageCheck(, ExtensionsObjects);
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	Object.AdditionalProperties.Insert("DisableObjectChangeRecordMechanism");
 	
 	If Object.DataExchange.Load Then
@@ -1451,17 +1451,17 @@ Procedure UpdateData1(HasChanges, HasDeletedItems, IsCheckOnly,
 	
 	MetadataObjectProperties1 = MetadataObjectProperties1(ExtensionsObjects,, ExtensionKeyIds);
 	
-	// Найден - 
+	// Found - this status indicates that ID is found for the metadata object.
 	MetadataObjectProperties1.Columns.Add("Found", New TypeDescription("Boolean"));
 	
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	ExtensionsVersion = SessionParameters.ExtensionsVersion;
 	
@@ -1484,8 +1484,8 @@ Procedure UpdateData1(HasChanges, HasDeletedItems, IsCheckOnly,
 		MetadataObjectRenamingList = "";
 		If Not ExtensionsObjects
 		   And Not Common.IsSubordinateDIBNode() Then
-			// 
-			// 
+			
+			
 			RenameFullNames(Upload0, MetadataObjectRenamingList, HasCriticalChanges);
 		EndIf;
 		
@@ -1752,8 +1752,8 @@ Procedure ProcessMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extension
 		If ExtensionsObjects
 		   And (    ExtensionProperties.UnattachedExtensionsNames[Lower(Properties.ExtensionName)] <> Undefined
 		      Or ExtensionProperties.UnattachedExtensionsNames[Lower(Properties.ExtensionID)] <> Undefined)Then
-			// 
-			// 
+			
+			
 			Continue;
 		EndIf;
 		
@@ -1774,29 +1774,29 @@ Procedure ProcessMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extension
 		
 		If MetadataObject = Undefined Then
 			If MetadataObjectKey = Type("Undefined") Then
-				// 
+				// If the metadata object has no key, it can be found by the full name only.
 				MetadataObject = MetadataFindByFullName(Properties.FullName);
 				If MetadataObject = Undefined And ExtensionsObjects Then
 					MetadataObject = ExtensionMetadataFindByFullName(Properties);
 				EndIf;
 			EndIf;
 		Else
-			// 
-			// 
-			// 
+			
+			
+			
 			If Upper(Left(MetadataObject.Name, StrLen("Delete"))) =  Upper("Delete")
 			   And Upper(Left(Properties.Name,         StrLen("Delete"))) <> Upper("Delete") Then
 				
 				NewMetadataObject = MetadataFindByFullName(Properties.FullName);
 				If NewMetadataObject <> Undefined Then
 					MetadataObject = NewMetadataObject;
-					MetadataObjectKey = Undefined; // 
+					MetadataObjectKey = Undefined; 
 				EndIf;
 			EndIf;
 		EndIf;
 		
-		// 
-		// 
+		
+		
 		If MetadataObject <> Undefined Then
 			ObjectProperties = MetadataObjectProperties1.Find(MetadataObject.FullName(), "FullName");
 			If ObjectProperties = Undefined Then
@@ -1807,8 +1807,8 @@ Procedure ProcessMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extension
 		EndIf;
 		
 		If MetadataObject = Undefined Or ObjectProperties.Found Then
-			// 
-			// 
+			
+			
 			IsDuplicate = MetadataObject <> Undefined And ObjectProperties.Found;
 			PropertiesUpdated = False;
 			UpdateMarkedForDeletionItemProperties(Properties, PropertiesUpdated, HasDeletedItems, IsDuplicate);
@@ -1816,7 +1816,7 @@ Procedure ProcessMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extension
 				Properties.Updated = True;
 			EndIf;
 		Else
-			// 
+			// Updating properties of the existing metadata objects (if any changes were made).
 			ObjectProperties.Found = True;
 			If Properties.Description              <> ObjectProperties.Description
 			 Or Properties.CollectionOrder          <> ObjectProperties.CollectionOrder
@@ -1869,8 +1869,8 @@ Function ExtensionMetadataFindByFullName(Properties)
 		Return Undefined;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	OriginalFullName = FullNameOfDeletedItem(Properties.FullName);
 	MetadataObject = MetadataFindByFullName(OriginalFullName);
 	
@@ -1954,7 +1954,7 @@ Procedure UpdateMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extensions
 			
 			If ObjectProperties <> Undefined Then
 				If Not ValueIsFilled(ObjectProperties.FullParentName) Then
-					// 
+					// This is a collection of metadata objects.
 					NewParent = ObjectProperties.Parent;
 				Else
 					// This is not a collection of metadata objects. Example: subsystem.
@@ -2008,7 +2008,7 @@ Procedure UpdateMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extensions
 		FillPropertyValues(TableObject, Properties);
 		TableObject.MetadataObjectKey = New ValueStorage(Properties.MetadataObjectKey);
 		TableObject.DataExchange.Load = True;
-		// 
+		
 		CheckObjectBeforeWrite(TableObject, True);
 		TableObject.Write();
 	EndDo;
@@ -2027,8 +2027,8 @@ Procedure UpdateMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extensions
 		EndIf;
 		If RecordsTable.Count() = 0
 		   And ValueIsFilled(ExtensionsVersion) Then
-			// 
-			// 
+			
+			
 			RecordsTable.Add().ExtensionsVersion = ExtensionsVersion;
 			UpdateRecordSet = True;
 		EndIf;
@@ -2074,7 +2074,7 @@ Procedure UpdateMarkedForDeletionItemProperties(Properties, PropertiesUpdated = 
 			HasDeletedItems = True;
 		EndIf;
 		
-		// 
+		// Setting new properties for the metadata object ID.
 		Properties.DeletionMark       = True;
 		Properties.Parent              = EmptyCatalogRef(IsExtensionsObject(Properties.Ref));
 		Properties.Description          = InsertQuestionMark(Properties.Description);
@@ -2122,7 +2122,7 @@ Procedure CheckUpdateCollectionProperties(Val CurrentProperties, ExtensionsObjec
 	 Or CurrentProperties.DeletionMark           <> False
 	 Or CurrentProperties.MetadataObjectKey     <> Undefined Then
 		
-		// 
+		// Set up new properties.
 		CurrentProperties.Description              = CollectionDescription;
 		CurrentProperties.CollectionOrder          = NewProperties.CollectionOrder;
 		CurrentProperties.Name                       = NewProperties.Name;
@@ -2181,7 +2181,7 @@ Function MetadataObjectKey(FullName)
 		Or MetadataObjectClass = Upper("CalculationRegister") Then
 		Return Type(MetadataObjectClass + "RecordKey." + MetadataObjectName);
 	Else
-		// 
+		// No metadata object key.
 		Return Type("Undefined");
 	EndIf;
 	
@@ -2227,7 +2227,7 @@ Function MetadataObjectKeyMatchesFullName(IDProperties)
 	
 	If MetadataObjectKey <> Undefined
 	   And MetadataObjectKey <> Type("Undefined") Then
-		// 
+		// Key is specified; searching for metadata object by the key.
 		CheckResult.MetadataObjectKey = MetadataObjectKey;
 		MetadataObject = MetadataObjectByKey(MetadataObjectKey,
 			IDProperties.ExtensionName,
@@ -2237,7 +2237,7 @@ Function MetadataObjectKeyMatchesFullName(IDProperties)
 			CheckResult.NotRespond = MetadataObject.FullName() <> IDProperties.FullName;
 		EndIf;
 	Else
-		// 
+		// Key is not specified; searching for metadata object by the full name.
 		MetadataObject = MetadataFindByFullName(IDProperties.FullName);
 		If MetadataObject = Undefined Then
 			// A collection might have been specified.
@@ -3198,7 +3198,7 @@ Function MetadataObjectIDsWithoutRetryAttempt(FullMetadataObjectsNames,
 			
 			If DataBaseConfigurationChangedDynamically Then
 				If IDsFromKeys = Undefined Then
-					// @skip-
+					
 					IDsFromKeys = IDsFromKeys();
 				EndIf;
 				Id = IDsFromKeys.Get(FullMetadataObjectName);
@@ -3438,8 +3438,8 @@ Function MetadataObjectsByIDsWithRetryAttempt(IDs, RaiseException1)
 		Except
 			If Not Common.DataSeparationEnabled()
 			 Or Not Common.SeparatedDataUsageAvailable() Then
-				// 
-				// 
+				
+				
 				MetadataObjects = Undefined;
 			Else
 				Raise;
@@ -3540,7 +3540,7 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 				If RaiseException1 Then
 					Break;
 				Else
-					// 
+					// The metadata object does not exist.
 					IDsMetadataObjects.Insert(Id, Null);
 					Continue;
 				EndIf;
@@ -3641,7 +3641,7 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 							           |This means that an error occurred when attaching it.';"),
 							ExtensionName);
 						
-					Else // 
+					Else // ActiveExtensions.Count() > 0
 						TheExtensionObjectDoesNotExist = True;
 						
 						If CheckResult.RemoteMetadataObject <> Undefined
@@ -3682,7 +3682,7 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 				ElsIf DataBaseConfigurationChangedDynamically Then
 					// The metadata object might be available after restart.
 					If RaiseException1 Then
-						// 
+						// Standard exception caused by dynamic update.
 						StandardSubsystemsServer.RequireRestartDueToApplicationVersionDynamicUpdate();
 					Else
 						IDsMetadataObjects.Insert(Properties.Ref, Undefined);
@@ -3690,7 +3690,7 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 					EndIf;
 					
 				ElsIf Not RaiseException1 Then
-					// 
+					// The metadata object does not exist.
 					IDsMetadataObjects.Insert(Properties.Ref, Null);
 					Continue;
 					
@@ -3877,7 +3877,7 @@ EndFunction
 Procedure ReplaceSubordinateNodeDuplicatesFoundOnImport(IsCheckOnly, HasChanges)
 	
 	If Common.DataSeparationEnabled() Then
-		// 
+		// Not supported in SaaS mode.
 		Return;
 	EndIf;
 	
@@ -3977,9 +3977,9 @@ EndProcedure
 //
 Function ExecuteItemReplacement(Val Replaceable, Val RefsTable, Val DisableWriteControl = False, Val ExtensionsObjects = False)
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	Parameters = ItemsReplacementParameters();
 	
 	For Each AccountingRegister In Metadata.AccountingRegisters Do
@@ -4068,7 +4068,7 @@ Function ExecuteItemReplacement(Val Replaceable, Val RefsTable, Val DisableWrite
 					
 					ColumnsNames = New Array;
 					
-					// 
+					
 					For Each Dimension In Movement.Dimensions Do
 						
 						If Dimension.Type.ContainsType(TypeOf(Ref)) Then
@@ -4097,14 +4097,14 @@ Function ExecuteItemReplacement(Val Replaceable, Val RefsTable, Val DisableWrite
 						EndDo;
 					EndIf;
 					
-					// 
+					// Getting names of resources that might contain references.
 					For Each Attribute In Movement.Attributes Do
 						If Attribute.Type.ContainsType(TypeOf(Ref)) Then
 							ColumnsNames.Add(Attribute.Name);
 						EndIf;
 					EndDo;
 					
-					// 
+					// Making replacements in the table.
 					For Each ColumnName In ColumnsNames Do
 						TabSectionRow = SetTable.Find(Ref, ColumnName);
 						While TabSectionRow <> Undefined Do

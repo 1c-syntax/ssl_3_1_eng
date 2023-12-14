@@ -65,7 +65,7 @@ Function AssignedObjectFormParameters(FullFormName, FormType = Undefined) Export
 		Result.IsObjectForm = (Collection.DefaultObjectForm = MetadataForm);
 	EndIf;
 	
-	If Result.IsObjectForm Then // 
+	If Result.IsObjectForm Then // Object form.
 		Result.FormType = AdditionalReportsAndDataProcessorsClientServer.ObjectFormType();
 	Else // List form
 		Result.FormType = AdditionalReportsAndDataProcessorsClientServer.ListFormType();

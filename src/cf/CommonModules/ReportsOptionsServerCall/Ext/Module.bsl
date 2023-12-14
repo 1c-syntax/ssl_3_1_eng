@@ -28,8 +28,8 @@ EndProcedure
 //  ExtDimensionNumber - Number - Extra dimension number.
 //
 // Returns:
-//   TypeDescription - 
-//   
+//   TypeDescription - Extra dimension type.
+//   Undefined if failed to obtain the type (the extra dimension is non-existent or the user has insufficient rights).
 //
 Function ExtDimensionType(Account, ExtDimensionNumber) Export
 	

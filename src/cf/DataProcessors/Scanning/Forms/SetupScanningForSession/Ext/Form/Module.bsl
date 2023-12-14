@@ -25,24 +25,17 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ShouldSaveAsPDF = Parameters.ShouldSaveAsPDF;
 	MultipageStorageFormat = Parameters.MultipageStorageFormat;
 	
-	Items.Rotation.Visible = Parameters.RotationAvailable;
-	Items.PaperSize.Visible = Parameters.PaperSizeAvailable;
-	Items.DuplexScanning.Visible = Parameters.DuplexScanningAvailable;
+	Items.Rotation.Enabled = Parameters.RotationAvailable;
+	Items.PaperSize.Enabled = Parameters.PaperSizeAvailable;
+	Items.DuplexScanning.Enabled = Parameters.DuplexScanningAvailable;
 	
 	JPGFormat = Enums.ScannedImageFormats.JPG;
 	TIFFormat = Enums.ScannedImageFormats.TIF;
 	
-	MultiPageTIFFormat = Enums.MultipageFileStorageFormats.TIF;
-	
-	If Not UseImageMagickToConvertToPDF Then
-		MultipageStorageFormat = MultiPageTIFFormat;
-	EndIf;
-	
-	Items.JPGQuality.Visible = (ScannedImageFormat = JPGFormat);
+	Items.GroupJPGQuantity.Visible = (ScannedImageFormat = JPGFormat);
 	Items.TIFFDeflation.Visible = (ScannedImageFormat = TIFFormat);
 	
-	Items.MultipageStorageFormat.Enabled = UseImageMagickToConvertToPDF;
-	Items.JPGQuality.Title = StrTemplate(NStr("en = 'Quality (%1)';"), JPGQuality);
+	Items.JPGQuality.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Quality (%1)';"), JPGQuality);
 	InstallHints();
 	
 EndProcedure
@@ -67,7 +60,7 @@ EndProcedure
 
 &AtClient
 Procedure JPGQualityOnChange(Item)
-	Items.JPGQuality.Title = StrTemplate(NStr("en = 'Quality (%1)';"), JPGQuality);
+	Items.JPGQuality.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Quality (%1)';"), JPGQuality);
 EndProcedure
 
 &AtClient

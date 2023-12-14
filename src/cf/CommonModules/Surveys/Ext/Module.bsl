@@ -30,7 +30,7 @@ EndProcedure
 // See UsersOverridable.OnDefineRoleAssignment
 Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	
-	// СовместноДляПользователейИВнешнихПользователей.
+	// BothForUsersAndExternalUsers.
 	RolesAssignment.BothForUsersAndExternalUsers.Add(
 		Metadata.Roles.AddEditQuestionnaireQuestionsAnswers.Name);
 	RolesAssignment.BothForUsersAndExternalUsers.Add(
@@ -512,8 +512,8 @@ EndFunction
 // Generating a questionnaire filling form.
 
 // Parameters:
-//  Form  - See Document.Questionnaire.Form.DocumentForm
-//                              See CommonForm.QuestionnaireBySectionWizard
+//  Form                       - See Document.Questionnaire.Form.DocumentForm
+//                              - See CommonForm.QuestionnaireBySectionWizard
 //  CurrentDataSectionsTree - FormDataTreeItem - the current section, for which the filling form is created, where:
 //   * Ref - CatalogRef.QuestionnaireTemplateQuestions
 //
@@ -532,7 +532,7 @@ Procedure CreateFillingFormBySection(Form, CurrentDataSectionsTree) Export
 		Section = CurrentDataSectionsTree.Ref;
 		FullSectionCode = CurrentDataSectionsTree.FullCode;
 		
-		// 
+		// Get questions for this section.
 		Form.SectionQuestionsTable.Clear();
 		GetInformationOnQuestionnaireQuestions(Form, Form.QuestionnaireTemplate, Section, FullSectionCode);
 		GenerateAttributesToAddForSection(AttributesToBeAdded, Form);
@@ -724,7 +724,7 @@ Procedure AddAttributesTabularQuestion(TreeRow, AttributesToBeAdded, Form)
 		
 		// Question, the answers to which will be displayed in columns.
 		QuestionForColumns = TreeRow.TableQuestionComposition[0].ElementaryQuestion;
-		// 
+		// Adding the first column to the table.
 		AttributesToBeAdded.Add(New FormAttribute(NameOfColumnWithoutNumber + "1",
 			New TypeDescription("ChartOfCharacteristicTypesRef.QuestionsForSurvey"), TableName));
 		
@@ -738,7 +738,7 @@ Procedure AddAttributesTabularQuestion(TreeRow, AttributesToBeAdded, Form)
 
 	ElsIf TabularQuestionType = Enums.TabularQuestionTypes.PredefinedAnswersInRowsAndColumns Then
 		
-		// 
+		// Question, the answers to which will be displayed in columns.
 		QuestionForColumns = TreeRow.TableQuestionComposition[1].ElementaryQuestion;
 		
 		// Question that defines the type of cells.
@@ -758,11 +758,11 @@ Procedure AddAttributesTabularQuestion(TreeRow, AttributesToBeAdded, Form)
 		Else
 			Return;
 		EndIf;
-		// 
+		// Adding the first column to the table.
 		AttributesToBeAdded.Add(New FormAttribute(NameOfColumnWithoutNumber + "1",
 			QuestionTypePresentationForRows.Type, TableName, QuestionTypePresentationForRows.Wording));
 		
-		// 
+		// Add other columns.
 		AnswersArray1 = TreeRow.PredefinedAnswers.FindRows(New Structure("ElementaryQuestion",
 			QuestionForColumns));
 		For Indus = 1 To AnswersArray1.Count() Do
@@ -1326,8 +1326,8 @@ Procedure AddTabularQuestionItems(TableRow, GroupItem1, Form)
 		Else
 			Item.Type = FormFieldType.InputField;
 			
-			// 
-			// 
+			
+			
 			If TableRow.TabularQuestionType = Enums.TabularQuestionTypes.Composite Or TableRow.TabularQuestionType
 				= Enums.TabularQuestionTypes.PredefinedAnswersInRows Then
 
@@ -1344,13 +1344,9 @@ Procedure AddTabularQuestionItems(TableRow, GroupItem1, Form)
 					Item.OpenButton = False;
 
 				ElsIf ElementaryQuestionAttributes.ReplyType = Enums.TypesOfAnswersToQuestion.Number Then
-
 					SetNumberCellItemParameters(Item, ElementaryQuestionAttributes);
-
 				ElsIf ElementaryQuestionAttributes.ReplyType = Enums.TypesOfAnswersToQuestion.Text Then
-
 					SetTextCellItemParameters(Item);
-
 				EndIf;
 
 			ElsIf TableRow.TabularQuestionType
@@ -1358,8 +1354,9 @@ Procedure AddTabularQuestionItems(TableRow, GroupItem1, Form)
 
 				If TableRow.TableQuestionComposition.Count() = 3 And Indus <> 1 Then
 
-					If TableRow.TableQuestionComposition[2].ElementaryQuestion.ValueType
-						= New TypeDescription("CatalogRef.QuestionnaireAnswersOptions") Then
+					ValueType = Common.ObjectAttributeValue(TableRow.TableQuestionComposition[2].ElementaryQuestion, 
+						"ValueType");
+					If ValueType = New TypeDescription("CatalogRef.QuestionnaireAnswersOptions") Then
 
 						Item.ListChoiceMode = True;
 						OptionsOfAnswersToQuestion = OptionsOfAnswersToQuestion(
@@ -1373,13 +1370,9 @@ Procedure AddTabularQuestionItems(TableRow, GroupItem1, Form)
 					EndIf;
 
 					If ElementaryQuestionAttributes.ReplyType = Enums.TypesOfAnswersToQuestion.Number Then
-
 						SetNumberCellItemParameters(Item, ElementaryQuestionAttributes);
-
 					ElsIf ElementaryQuestionAttributes.ReplyType = Enums.TypesOfAnswersToQuestion.Text Then
-
 						SetTextCellItemParameters(Item);
-
 					EndIf;
 
 				EndIf;
@@ -1664,7 +1657,9 @@ Procedure AddComplexQuestionItems(TableRow, GroupItem1, Form)
 			Item.DataPath            = QuestionName + "_Comment_" + Format(
 				ComplexQuestionRow.LineNumber, "NG=");
 			Item.AutoMaxWidth = False;
-			Item.InputHint = ComplexQuestionRow.ElementaryQuestion.CommentNote;
+			CommentNote = Common.ObjectAttributeValue(ComplexQuestionRow.ElementaryQuestion, 
+				"CommentNote");
+			Item.InputHint = CommentNote;
 			Item.TitleLocation = FormItemTitleLocation.None;
 			Item.HorizontalStretch = False;
 			Item.ChoiceButton = True;
@@ -1678,8 +1673,8 @@ EndProcedure
 // Auxiliary procedures of a questionnaire filling form.
 
 // Parameters:
-//  ElementaryQuestion - ChartOfCharacteristicTypesRef.QuestionsForSurvey -
-//  Form              - ClientApplicationForm - the form from which the call originates.
+//  ElementaryQuestion - ChartOfCharacteristicTypesRef.QuestionsForSurvey - a question, for which answers are obtained.
+//  Form              - ClientApplicationForm - a form, from which the call is made.
 //
 // Returns:
 //   Array of ValueTableRow
@@ -1704,8 +1699,8 @@ Function FullCodeDescription(TableRow)
 
 EndFunction
 
-// 
-// 
+// Sets parameters values and the StartChoice event handler
+// for the form field used for text input.
 //
 // Parameters:
 //  Item - FormField - an item, for which parameters are set.
@@ -1770,7 +1765,7 @@ Procedure FillSectionsTree(Form, SectionsTree) Export
 EndProcedure
 
 // Parameters:
-//  QuestionnaireTemplate - CatalogRef.QuestionnaireTemplates -
+//  QuestionnaireTemplate - CatalogRef.QuestionnaireTemplates - a questionnaire template used to get a selection.
 //
 // Returns:
 //   QueryResultSelection
@@ -2243,7 +2238,7 @@ EndProcedure
 // (the map will provide question presentations for question charts).
 //
 // Parameters:
-//   QuestionnaireTemplate - CatalogRef.QuestionnaireTemplates - the template used to conduct the survey.
+//   QuestionnaireTemplate - CatalogRef.QuestionnaireTemplates - a template used for the survey.
 //
 // Returns:
 //   Map of KeyAndValue:
@@ -2316,7 +2311,7 @@ EndFunction
 //  Respondent  - CatalogRef - a respondent, for whom the list of questionnaires is obtained.
 //
 // Returns:
-//   ValueTable   - 
+//   ValueTable   - :
 //      * Status        - String
 //      * QuestionnaireSurvey   - DocumentRef.Questionnaire
 //                      - DocumentRef.PollPurpose

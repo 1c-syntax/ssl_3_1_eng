@@ -11,183 +11,183 @@
 
 #Region Variables
 
-// 
-// 
+
+
 //
 Var RequestsIDs;
 
-// 
+
 Var AdministrationOperations; // ValueTable:
 //  * ТипПрограммногоМодуля - CatalogRef.MetadataObjectIDs - 
 //  * ИдентификаторПрограммногоМодуля - UUID - 
 //  * Операция - EnumRef.SecurityProfileAdministrativeOperations - 
-//  * Имя - String - name of the security profile.
+//  * Имя - String -  name of the security profile.
 
-// 
+
 Var RequestsApplicationPlan; // Structure:
-//  * Замещаемые - ValueTable -
+//  * Замещаемые - ValueTable - :
 //      * ТипПрограммногоМодуля - CatalogRef.MetadataObjectIDs,
 //      * ИдентификаторПрограммногоМодуля - UUID,
 //      * ТипВладельца - CatalogRef.MetadataObjectIDs,
 //      * ИдентификаторВладельца - UUID,
-//  * Добавляемые - ValueTable -
+//  * Добавляемые - ValueTable - :
 //      * ТипПрограммногоМодуля - CatalogRef.MetadataObjectIDs,
 //      * ИдентификаторПрограммногоМодуля - UUID,
 //      * ТипВладельца - CatalogRef.MetadataObjectIDs,
 //      * ИдентификаторВладельца - UUID,
-//      * Тип - String - name of the XDTO type that describes permissions,
-//      * Разрешения - Map -
-//         * Ключ - String -
-//             
-//         * Значение - XDTODataObject -
-//      * ДополненияРазрешений - Map -
-//         * Ключ - String -
-//             
-//         * Значение - 
-//             
-//  * Удаляемые - ValueTable -
+//      * Тип - String -  name of the XDTO type that describes permissions,
+//      * Разрешения - Map - :
+//         * Ключ - String - ключ разрешения (см. функцию КлючРазрешения в модуле менеджера регистра.
+//             РазрешенияНаИспользованиеВнешнихРесурсов),
+//         * Значение - XDTODataObject - 
+//      * ДополненияРазрешений - Map - :
+//         * Ключ - String - ключ разрешения (см. функцию КлючРазрешения в модуле менеджера регистра.
+//             РазрешенияНаИспользованиеВнешнихРесурсов),
+//         * Значение - см. функцию ДополнениеРазрешения в модуле менеджера регистра.
+//             РазрешенияНаИспользованиеВнешнихРесурсов),
+//  * Удаляемые - ValueTable - :
 //      * ТипПрограммногоМодуля - CatalogRef.MetadataObjectIDs,
 //      * ИдентификаторПрограммногоМодуля - UUID,
 //      * ТипВладельца - CatalogRef.MetadataObjectIDs,
 //      * ИдентификаторВладельца - UUID,
-//      * Тип - String - name of the XDTO type that describes permissions,
-//      * Разрешения - Map -
-//         * Ключ - String -
-//             
-//         * Значение - XDTODataObject -
-//      * ДополненияРазрешений - Map -
-//         * Ключ - String -
-//             
-//         * Значение - 
-//             
+//      * Тип - String -  name of the XDTO type that describes permissions,
+//      * Разрешения - Map - :
+//         * Ключ - String - ключ разрешения (см. функцию КлючРазрешения в модуле менеджера регистра.
+//             РазрешенияНаИспользованиеВнешнихРесурсов),
+//         * Значение - XDTODataObject - 
+//      * ДополненияРазрешений - Map - :
+//         * Ключ - String - ключ разрешения (см. функцию КлючРазрешения в модуле менеджера регистра.
+//             РазрешенияНаИспользованиеВнешнихРесурсов),
+//         * Значение - см. функцию ДополнениеРазрешения в модуле менеджера регистра.
+//             РазрешенияНаИспользованиеВнешнихРесурсов).
 
-// 
+
 Var SourcePermissionSliceByOwners; // ValueTable:
 // * ТипПрограммногоМодуля - CatalogRef.MetadataObjectIDs,
 // * ИдентификаторПрограммногоМодуля - UUID,
 // * ТипВладельца - CatalogRef.MetadataObjectIDs,
 // * ИдентификаторВладельца - UUID,
-// * Тип - String - name of the XDTO type that describes permissions,
-// * Разрешения - Map -
-//   * Ключ - String -
-//      
-//   * Значение - XDTODataObject -
-// * ДополненияРазрешений - Map - description of the add-permission:
-//   * Ключ - String -
-//      
-//   * Значение - 
-//      
+// * Тип - String -  name of the XDTO type that describes permissions,
+// * Разрешения - Map - :
+//   * Ключ - String - ключ разрешения (см. функцию КлючРазрешения в модуле менеджера регистра.
+//      РазрешенияНаИспользованиеВнешнихРесурсов),
+//   * Значение - XDTODataObject - 
+// * ДополненияРазрешений - Map - :
+//   * Ключ - String - ключ разрешения (см. функцию КлючРазрешения в модуле менеджера регистра.
+//      РазрешенияНаИспользованиеВнешнихРесурсов),
+//   * Значение - см. функцию ДополнениеРазрешения в модуле менеджера регистра.
+//      РазрешенияНаИспользованиеВнешнихРесурсов).
 
-// 
+
 Var SourcePermissionSliceIgnoringOwners; // ValueTable:
 // * ТипПрограммногоМодуля - CatalogRef.MetadataObjectIDs,
 // * ИдентификаторПрограммногоМодуля - UUID,
-// * Тип - String - name of the XDTO type that describes permissions,
-// * Разрешения - Map -
-//   * Ключ - String -
-//      
-//   * Значение - XDTODataObject -
-// * ДополненияРазрешений - Map - description of the add-permission:
-//   * Ключ - String -
-//      
-//   * Значение - 
-//      
+// * Тип - String -  name of the XDTO type that describes permissions,
+// * Разрешения - Map - :
+//   * Ключ - String - ключ разрешения (см. функцию КлючРазрешения в модуле менеджера регистра.
+//      РазрешенияНаИспользованиеВнешнихРесурсов),
+//   * Значение - XDTODataObject - 
+// * ДополненияРазрешений - Map - :
+//   * Ключ - String - ключ разрешения (см. функцию КлючРазрешения в модуле менеджера регистра.
+//      РазрешенияНаИспользованиеВнешнихРесурсов),
+//   * Значение - см. функцию ДополнениеРазрешения в модуле менеджера регистра.
+//      РазрешенияНаИспользованиеВнешнихРесурсов).
 
-// 
+
 Var RequestsApplicationResultByOwners; // ValueTable:
 // * ТипПрограммногоМодуля - CatalogRef.MetadataObjectIDs,
 // * ИдентификаторПрограммногоМодуля - UUID,
 // * ТипВладельца - CatalogRef.MetadataObjectIDs,
 // * ИдентификаторВладельца - UUID,
-// * Тип - String - name of the XDTO type that describes permissions,
-// * Разрешения - Map -
-//   * Ключ - String -
-//      
-//   * Значение - XDTODataObject -
-// * ДополненияРазрешений - Map - description of the add-permission:
-//   * Ключ - String -
-//      
-//   * Значение - 
-//      
+// * Тип - String -  name of the XDTO type that describes permissions,
+// * Разрешения - Map - :
+//   * Ключ - String - ключ разрешения (см. функцию КлючРазрешения в модуле менеджера регистра.
+//      РазрешенияНаИспользованиеВнешнихРесурсов),
+//   * Значение - XDTODataObject - 
+// * ДополненияРазрешений - Map - :
+//   * Ключ - String - ключ разрешения (см. функцию КлючРазрешения в модуле менеджера регистра.
+//      РазрешенияНаИспользованиеВнешнихРесурсов),
+//   * Значение - см. функцию ДополнениеРазрешения в модуле менеджера регистра.
+//      РазрешенияНаИспользованиеВнешнихРесурсов).
 
-// 
+
 Var RequestsApplicationResultIgnoringOwners; // ValueTable:
 // * ТипПрограммногоМодуля - CatalogRef.MetadataObjectIDs,
 // * ИдентификаторПрограммногоМодуля - UUID,
-// * Тип - String - name of the XDTO type that describes permissions,
-// * Разрешения - Map -
-//   * Ключ - String -
-//      
-//   * Значение - XDTODataObject -
-// * ДополненияРазрешений - Map - description of the add-permission:
-//   * Ключ - String -
-//      
-//   * Значение - 
-//      
+// * Тип - String -  name of the XDTO type that describes permissions,
+// * Разрешения - Map - :
+//   * Ключ - String - ключ разрешения (см. функцию КлючРазрешения в модуле менеджера регистра.
+//      РазрешенияНаИспользованиеВнешнихРесурсов),
+//   * Значение - XDTODataObject - 
+// * ДополненияРазрешений - Map - :
+//   * Ключ - String - ключ разрешения (см. функцию КлючРазрешения в модуле менеджера регистра.
+//      РазрешенияНаИспользованиеВнешнихРесурсов),
+//   * Значение - см. функцию ДополнениеРазрешения в модуле менеджера регистра.
+//      РазрешенияНаИспользованиеВнешнихРесурсов).
 
-// 
+
 Var DeltaByOwners; // Structure:
-//  * Добавляемые - ValueTable -
+//  * Добавляемые - ValueTable - :
 //    * ТипПрограммногоМодуля - CatalogRef.MetadataObjectIDs,
 //    * ИдентификаторПрограммногоМодуля - UUID,
 //    * ТипВладельца - CatalogRef.MetadataObjectIDs,
 //    * ИдентификаторВладельца - UUID,
-//    * Тип - String - name of the XDTO type that describes permissions,
-//    * Разрешения - Map -
-//      * Ключ - String -
-//         
-//      * Значение - XDTODataObject -
-//    * ДополненияРазрешений - Map - description of the add-permission:
-//      * Ключ - String -
-//         
-//      * Значение - 
-//         
-//  * Удаляемые - ValueTable -
+//    * Тип - String -  name of the XDTO type that describes permissions,
+//    * Разрешения - Map - :
+//      * Ключ - String - ключ разрешения (см. функцию КлючРазрешения в модуле менеджера регистра.
+//         РазрешенияНаИспользованиеВнешнихРесурсов),
+//      * Значение - XDTODataObject - 
+//    * ДополненияРазрешений - Map - :
+//      * Ключ - String - ключ разрешения (см. функцию КлючРазрешения в модуле менеджера регистра.
+//         РазрешенияНаИспользованиеВнешнихРесурсов),
+//      * Значение - см. функцию ДополнениеРазрешения в модуле менеджера регистра.
+//         РазрешенияНаИспользованиеВнешнихРесурсов).
+//  * Удаляемые - ValueTable - :
 //    * ТипПрограммногоМодуля - CatalogRef.MetadataObjectIDs,
 //    * ИдентификаторПрограммногоМодуля - UUID,
 //    * ТипВладельца - CatalogRef.MetadataObjectIDs,
 //    * ИдентификаторВладельца - UUID,
-//    * Тип - String - name of the XDTO type that describes permissions,
-//    * Разрешения - Map -
-//      * Ключ - String -
-//         
-//      * Значение - XDTODataObject -
-//    * ДополненияРазрешений - Map - description of the add-permission:
-//      * Ключ - String -
-//         
-//      * Значение - 
-//         
+//    * Тип - String -  name of the XDTO type that describes permissions,
+//    * Разрешения - Map - :
+//      * Ключ - String - ключ разрешения (см. функцию КлючРазрешения в модуле менеджера регистра.
+//         РазрешенияНаИспользованиеВнешнихРесурсов),
+//      * Значение - XDTODataObject - 
+//    * ДополненияРазрешений - Map - :
+//      * Ключ - String - ключ разрешения (см. функцию КлючРазрешения в модуле менеджера регистра.
+//         РазрешенияНаИспользованиеВнешнихРесурсов),
+//      * Значение - см. функцию ДополнениеРазрешения в модуле менеджера регистра.
+//         РазрешенияНаИспользованиеВнешнихРесурсов).
 
-// 
+
 Var DeltaIgnoringOwners; // Structure:
-//  * Добавляемые - ValueTable -
+//  * Добавляемые - ValueTable - :
 //    * ТипПрограммногоМодуля - CatalogRef.MetadataObjectIDs,
 //    * ИдентификаторПрограммногоМодуля - UUID,
-//    * Тип - String - name of the XDTO type that describes permissions,
-//    * Разрешения - Map -
-//      * Ключ - String -
-//         
-//      * Значение - XDTODataObject -
-//    * ДополненияРазрешений - Map - description of the add-permission:
-//      * Ключ - String -
-//         
-//      * Значение - 
-//         
-//  * Удаляемые - ValueTable -
+//    * Тип - String -  name of the XDTO type that describes permissions,
+//    * Разрешения - Map - :
+//      * Ключ - String - ключ разрешения (см. функцию КлючРазрешения в модуле менеджера регистра.
+//         РазрешенияНаИспользованиеВнешнихРесурсов),
+//      * Значение - XDTODataObject - 
+//    * ДополненияРазрешений - Map - :
+//      * Ключ - String - ключ разрешения (см. функцию КлючРазрешения в модуле менеджера регистра.
+//         РазрешенияНаИспользованиеВнешнихРесурсов),
+//      * Значение - см. функцию ДополнениеРазрешения в модуле менеджера регистра.
+//         РазрешенияНаИспользованиеВнешнихРесурсов).
+//  * Удаляемые - ValueTable - :
 //    * ТипПрограммногоМодуля - CatalogRef.MetadataObjectIDs,
 //    * ИдентификаторПрограммногоМодуля - UUID,
-//    * Тип - String - name of the XDTO type that describes permissions,
-//    * Разрешения - Map -
-//      * Ключ - String -
-//         
-//      * Значение - XDTODataObject -
-//    * ДополненияРазрешений - Map - description of the add-permission:
-//      * Ключ - String -
-//         
-//      * Значение - 
-//         
+//    * Тип - String -  name of the XDTO type that describes permissions,
+//    * Разрешения - Map - :
+//      * Ключ - String - ключ разрешения (см. функцию КлючРазрешения в модуле менеджера регистра.
+//         РазрешенияНаИспользованиеВнешнихРесурсов),
+//      * Значение - XDTODataObject - 
+//    * ДополненияРазрешений - Map - :
+//      * Ключ - String - ключ разрешения (см. функцию КлючРазрешения в модуле менеджера регистра.
+//         РазрешенияНаИспользованиеВнешнихРесурсов),
+//      * Значение - см. функцию ДополнениеРазрешения в модуле менеджера регистра.
+//         РазрешенияНаИспользованиеВнешнихРесурсов).
 
-// 
+
 Var ClearingPermissionsBeforeApply; // Boolean
 
 #EndRegion
@@ -813,8 +813,8 @@ Procedure CalculateRequestsApplicationResultIgnoringOwners()
 				
 				If ResultString1.Type = "FileSystemAccess" Then
 					
-					// 
-					// 
+					
+					
 					
 					If SourcePermission.AllowedRead Then
 						
@@ -833,7 +833,7 @@ Procedure CalculateRequestsApplicationResultIgnoringOwners()
 							
 						Else
 							
-							// 
+							// Searching for a permission to read and write to the same catalog.
 							PermissionCopy = Common.XDTODataObjectFromXMLString(Common.XDTODataObjectToXMLString(SourcePermission));
 							PermissionCopy.AllowedWrite = True;
 							CopyKey = InformationRegisters.PermissionsToUseExternalResources.PermissionKey(PermissionCopy);
@@ -1215,7 +1215,7 @@ EndFunction
 //    as an external module.
 //
 // Returns: 
-//   String - 
+//   String - details of the security profile.
 //
 Function NewSecurityProfileDetails(Val ProgramModuleType, Val ModuleID)
 	

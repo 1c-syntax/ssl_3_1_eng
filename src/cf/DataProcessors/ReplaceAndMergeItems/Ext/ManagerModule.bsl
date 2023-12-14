@@ -12,7 +12,7 @@
 #Region Internal
 
 // Returns:
-//     String - 
+//     String - an event name to notify of replacement.
 //
 Function ReplacementNotificationEvent() Export
 	Return "LinksReplaced";

@@ -9,15 +9,15 @@
 
 #Region Public
 
-// Attaches an external report or data processor.
-// For more information See AdditionalReportsAndDataProcessors.AttachExternalDataProcessor.
+// Enables external processing (report).
+// More detailed  See AdditionalReportsAndDataProcessors.AttachExternalDataProcessor.
 //
 // Parameters:
 //   Ref - CatalogRef.AdditionalReportsAndDataProcessors - a data processor to attach.
 //
 // Returns: 
-//   String       - 
-//   
+//   String       - a name of the attached report or data processor.
+//   Undefined - if an invalid reference is passed.
 //
 Function AttachExternalDataProcessor(Ref) Export
 	
@@ -25,8 +25,8 @@ Function AttachExternalDataProcessor(Ref) Export
 	
 EndFunction
 
-// Creates and returns an instance of an external data processor (report).
-// For more information See AdditionalReportsAndDataProcessors.ExternalDataProcessorObject.
+// Creates and returns an instance of external processing (report).
+// More detailed  See AdditionalReportsAndDataProcessors.ExternalDataProcessorObject.
 //
 // Parameters:
 //   Ref - CatalogRef.AdditionalReportsAndDataProcessors - a report or a data processor to attach.
@@ -46,8 +46,8 @@ EndFunction
 
 #Region Private
 
-// Executes a data processor command and puts the result in a temporary storage.
-//   For more information- See AdditionalReportsAndDataProcessors.ExecuteCommand.
+// Executes the processing command and puts the result in temporary storage.
+//   More detailed -  See AdditionalReportsAndDataProcessors.ExecuteCommand.
 //
 Function ExecuteCommand(CommandParameters, ResultAddress = Undefined) Export
 	

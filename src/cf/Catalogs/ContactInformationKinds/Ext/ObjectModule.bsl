@@ -88,26 +88,10 @@ Procedure IDCheckForFormulas(Cancel)
 		Else
 			// Set an ID.
 			IDForFormulas = Catalogs.ContactInformationKinds.UUIDForFormulas(
-				DescriptionForIDGeneration(), Ref, Parent);
+				ContactsManager.DescriptionForIDGeneration(ThisObject), Ref, Parent);
 		EndIf;
 	EndIf;
 EndProcedure
-
-Function DescriptionForIDGeneration()
-	
-	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
-		CurrentLanguageSuffix = ModuleNationalLanguageSupportServer.CurrentLanguageSuffix();
-		TitleForID = ?(ValueIsFilled(CurrentLanguageSuffix),
-			ThisObject["Description"+ CurrentLanguageSuffix],
-			Description);
-	Else
-		TitleForID = Description;
-	EndIf;
-	
-	Return TitleForID;
-
-EndFunction
 
 Procedure OnReadPresentationsAtServer() Export
 	

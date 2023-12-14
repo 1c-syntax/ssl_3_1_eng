@@ -42,8 +42,8 @@ EndFunction
 //                         BothForUsersAndExternalUsers.
 //     
 //  Service     - Undefined - determine the current mode automatically.
-//             - Boolean       - 
-//                              
+//             - Boolean       - False - for a local mode (unavailable roles only for assignment),
+//                              True - for SaaS mode (including the roles of shared users).
 //
 // Returns:
 //  Map of KeyAndValue:
@@ -88,23 +88,23 @@ Function UnavailableRoles(Purpose = "ForUsers", Service = Undefined) Export
 	
 EndFunction
 
-// Returns the role assignment defined by the developer.
-// See comment to the OnDetermineRoleAssignment procedure of the UsersOverridable common module.
+// 
+// 
 //
 // Returns:
 //  FixedStructure:
 //   * ForSystemAdministratorsOnly - FixedMap of KeyAndValue:
-//      ** Key     - String - role name.
-//      ** Value - Boolean - Truth.
+//      ** Key     - String - a role name.
+//      ** Value - Boolean -  Truth.
 //   * ForSystemUsersOnly - FixedMap of KeyAndValue:
-//      ** Key     - String - role name.
-//      ** Value - Boolean - Truth.
+//      ** Key     - String - a role name.
+//      ** Value - Boolean -  Truth.
 //   * ForExternalUsersOnly - FixedMap of KeyAndValue:
-//      ** Key     - String - role name.
-//      ** Value - Boolean - Truth.
+//      ** Key     - String - a role name.
+//      ** Value - Boolean -  Truth.
 //   * BothForUsersAndExternalUsers - FixedMap of KeyAndValue:
-//      ** Key     - String - role name.
-//      ** Value - Boolean - Truth.
+//      ** Key     - String - a role name.
+//      ** Value - Boolean -  Truth.
 //
 Function RolesAssignment() Export
 	
@@ -150,7 +150,7 @@ Function IsExternalUserSession() Export
 	
 	If Common.DataSeparationEnabled()
 	   And SessionWithoutSeparators Then
-		// 
+		// Shared users cannot be external users.
 		Return False;
 	EndIf;
 	
@@ -172,13 +172,13 @@ Function IsExternalUserSession() Export
 	|WHERE
 	|	ExternalUsers.IBUserID = &IBUserID";
 	
-	// 
+	// A user who is not found in the ExternalUsers catalog cannot be external.
 	Return Not Query.Execute().IsEmpty();
 	
 EndFunction
 
-// Settings of the Users subsystem operation.
-// See the details of the OnDetermineSettings procedure in the UsersOverridable common module.
+// 
+// 
 //
 // Returns:
 //  Structure:
@@ -191,10 +191,10 @@ EndFunction
 //          hide the role editing interface from profiles of users, external users,
 //          and groups of external users. This affects both regular users and administrators.
 //
-//   * IndividualUsed - Boolean -
+//   * IndividualUsed - Boolean - 
 //                                             
 //
-//   * IsDepartmentUsed  - Boolean -
+//   * IsDepartmentUsed  - Boolean - 
 //                                             
 //
 Function Settings() Export
@@ -319,7 +319,7 @@ Function CurrentIBUserProperties1() Export
 		AccessRight("Administration", Metadata, IBUser),
 		AccessRight("Administration", Metadata)));
 	
-	// ACC:336-
+	
 	
 	//@skip-check using-isinrole
 	Properties.Insert("SystemAdministratorRoleAvailable",
@@ -329,7 +329,7 @@ Function CurrentIBUserProperties1() Export
 	Properties.Insert("RoleAvailableFullAccess",
 		IsInRole(Metadata.Roles.FullAccess));
 	
-	// ACC:336-
+	// ACC:336-on
 	
 	Return New FixedStructure(Properties);
 	
@@ -342,7 +342,7 @@ EndFunction
 // it is ignored.
 //
 // Returns:
-//  FixedArray - with values:
+//  FixedArray - :
 //   * Value - AnyRef - an empty reference of an authorization object type.
 //
 Function BlankRefsOfAuthorizationObjectTypes() Export

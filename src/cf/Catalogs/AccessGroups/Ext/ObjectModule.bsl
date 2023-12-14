@@ -11,8 +11,8 @@
 
 #Region Variables
 
-Var PreviousValues1; // 
-                      // 
+Var PreviousValues1; 
+                      
 
 #EndRegion
 
@@ -98,8 +98,8 @@ Procedure BeforeWrite(Cancel)
 			EndIf;
 		EndIf;
 		
-		// 
-		// 
+		
+		
 		If Not DeletionMark And PreviousValues1.DeletionMark = True Then
 			BeginTransaction();
 			Try
@@ -253,16 +253,8 @@ EndFunction
 
 Procedure UpdateUsersRolesOnChangeAccessGroup()
 	
-	If Common.SubsystemExists("CloudTechnology.Core") Then
-		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
-		SessionWithoutSeparators = ModuleSaaSOperations.SessionWithoutSeparators();
-	Else
-		SessionWithoutSeparators = True;
-	EndIf;
-	
 	If Common.DataSeparationEnabled()
 		And Ref = AccessManagement.AdministratorsAccessGroup()
-		And Not SessionWithoutSeparators
 		And AdditionalProperties.Property("ServiceUserPassword") Then
 		
 		ServiceUserPassword = AdditionalProperties.ServiceUserPassword;

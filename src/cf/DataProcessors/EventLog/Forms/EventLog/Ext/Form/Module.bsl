@@ -335,7 +335,7 @@ EndProcedure
 Procedure ExportLogForTechnicalSupport(Command)
 	
 	FileSavingParameters = FileSystemClient.FileSavingParameters();
-	FileSavingParameters.Dialog.Filter = NStr("en = 'Event Log data';") + "(*.xml)|*.xml";
+	FileSavingParameters.Dialog.Filter = NStr("en = 'Event log data';") + "(*.xml)|*.xml";
 	FileSystemClient.SaveFile(Undefined, ExportRegistrationLog(), "EventLog.xml", FileSavingParameters);
 	
 EndProcedure
@@ -395,7 +395,7 @@ Function ReadEventLog()
 	ReportParameters = ReportParameters();
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.WaitCompletion = 0; // 
+	ExecutionParameters.WaitCompletion = 0; 
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Updating event log';");
 	ExecutionParameters.RunNotInBackground1 = ShouldNotRunInBackground;
 	

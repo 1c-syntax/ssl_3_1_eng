@@ -40,8 +40,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		Object.UseScheduledJob = True;
 	Else
-		// 
-		// 
+		
+		
 		JobSchedule = Catalogs.DataExchangeScenarios.GetDataExchangeExecutionSchedule(Object.Ref);
 	EndIf;
 	
@@ -57,6 +57,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ExchangeSettingsExchangeTransportKind.Visible = False;
 		Items.ExchangeSettingsInfobaseNode.ChoiceHistoryOnInput = ChoiceHistoryOnInput.DontUse;
 		Items.ExchangeSettingsInfobaseNode.DropListButton = False;
+		Items.GroupOfSettingsInformationInSameDatabase.Visible = True;
+		Items.ScriptGroupIsDisabled.Visible = Object.IsAutoDisabled;
 		
 	EndIf;
 		
@@ -272,13 +274,13 @@ EndProcedure
 
 &AtClient
 Procedure EditScheduledJobScheduleCompletion(Schedule, AdditionalParameters) Export
-	
+		
 	If Schedule <> Undefined Then
 		
 		If DataSeparationEnabled 
-			And Schedule.RepeatPeriodInDay < 15*60 Then
+			And Schedule.RepeatPeriodInDay < 15 * 60 Then
 			
-			Schedule.RepeatPeriodInDay = 15*60;
+			Schedule.RepeatPeriodInDay = 15 * 60;
 			WarningText = NStr("en = 'Minimum interval must be over 15 minutes (900 seconds).';");
 			ShowMessageBox(, WarningText);
 			
@@ -316,7 +318,7 @@ EndProcedure
 &AtClient
 Procedure ExecuteDataExchangeAtClient()
 	
-	If NumberOfRowToProcess > RowsCount Then // выход of рекурсии
+	If NumberOfRowToProcess > RowsCount Then // Exit from the recursion.
 		OutputState = (RowsCount > 1);
 		Status(NStr("en = 'Data is synchronized.';"), ?(OutputState, 100, Undefined));
 		Return; // Exit.
@@ -396,7 +398,7 @@ Procedure ExecuteDataExchangeBySettingString(Val IndexOf)
 	
 	Cancel = False;
 	
-	// 
+	// Starting data exchange.
 	DataExchangeServer.ExecuteDataExchangeByDataExchangeScenario(Cancel, Object.Ref, IndexOf);
 	
 	// Updating tabular section data of the data exchange scenario.

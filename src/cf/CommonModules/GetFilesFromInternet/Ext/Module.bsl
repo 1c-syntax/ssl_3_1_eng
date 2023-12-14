@@ -22,8 +22,8 @@
 //      * Path   - String   - path to the file on the server. This key is used only if Status is True.
 //      * ErrorMessage - String - error message if Status is False.
 //      * Headers         - Map - see details of the Headers parameter of the HTTPResponse object in Syntax Assistant.
-//      * StatusCode      - Number - adds in case of an error.
-//                                    See details of the StateCode parameter of the HTTPResponse object in Syntax Assistant.
+//      * StatusCode      - Number - added in case of an error.
+//                                    For more information on the StateCode parameter of the HTTPResponse object, see the Syntax Assistant.
 //
 Function DownloadFileAtServer(Val URL, ReceivingParameters = Undefined, Val WriteError1 = True) Export
 	
@@ -52,8 +52,8 @@ EndFunction
 //                            The key is used only if the status is True.
 //      * ErrorMessage - String - error message if Status is False.
 //      * Headers         - Map - see details of the Headers parameter of the HTTPResponse object in Syntax Assistant.
-//      * StatusCode      - Number - adds in case of an error.
-//                                    See details of the StateCode parameter of the HTTPResponse object in Syntax Assistant.
+//      * StatusCode      - Number - added in case of an error.
+//                                    For more information on the StateCode parameter of the HTTPResponse object, see the Syntax Assistant.
 //
 Function DownloadFileToTempStorage(Val URL, ReceivingParameters = Undefined, Val WriteError1 = True) Export
 	
@@ -72,14 +72,14 @@ EndFunction
 //    Map of KeyAndValue:
 //      * Key - String
 //      * Value - Arbitrary
-//    
-//      
-//      
-//      
-//      
-//      
-//      
-//      
+//    Keys:
+//      # UseProxy - Boolean - indicates whether to use the proxy server.
+//      # BypassProxyOnLocal - Boolean - indicates whether to use the proxy server for local addresses.
+//      # UseSystemSettings - Boolean - indicates whether to use system settings of the proxy server.
+//      # Server - String - a proxy server address.
+//      # Port - Number - a proxy server port.
+//      # User - String - a username to authorize on the proxy server.
+//      # Password - String - a user password.
 //
 Function ProxySettingsAtClient() Export
 	
@@ -87,8 +87,8 @@ Function ProxySettingsAtClient() Export
 	
 	If Common.FileInfobase() Then
 		
-		// 
-		// 
+		
+		
 		
 		CurrentInfobaseSession1 = GetCurrentInfoBaseSession();
 		BackgroundJob = CurrentInfobaseSession1.GetBackgroundJob();
@@ -98,9 +98,9 @@ Function ProxySettingsAtClient() Export
 			
 			If Not ValueIsFilled(BackgroundJob.ScheduledJob.UserName) Then 
 				
-				// 
-				// 
-				// 
+				
+				
+				
 				
 				Sessions = GetInfoBaseSessions(); // Array of InfoBaseSession
 				For Each Session In Sessions Do 
@@ -125,14 +125,14 @@ EndFunction
 //   Map of KeyAndValue:
 //     * Key - String
 //     * Value - Arbitrary
-//    
-//      
-//      
-//      
-//      
-//      
-//      
-//      
+//    Keys:
+//      # UseProxy - Boolean - indicates whether to use the proxy server.
+//      # BypassProxyOnLocal - Boolean - indicates whether to use the proxy server for local addresses.
+//      # UseSystemSettings - Boolean - indicates whether to use system settings of the proxy server.
+//      # Server - String - a proxy server address.
+//      # Port - Number - a proxy server port.
+//      # User - String - a username to authorize on the proxy server.
+//      # Password - String - a user password.
 //
 Function ProxySettingsAtServer() Export
 	
@@ -156,9 +156,9 @@ EndFunction
 //                              or protocol identifier (http, ftp, …).
 //
 // Returns:
-//    InternetProxy - 
-//                     
-//                     
+//    InternetProxy - describes proxy server parameters for various protocols.
+//                     If the network protocol scheme cannot be recognized,
+//                     the proxy will be created based on the HTTP protocol.
 //
 Function GetProxy(Val URLOrProtocol) Export
 	

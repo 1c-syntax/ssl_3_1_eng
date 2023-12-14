@@ -209,7 +209,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure UpdateSettingsList()
@@ -237,7 +237,7 @@ Function UpdatingSettingsList()
 	TimeConsumingOperationParameters = TimeConsumingOperationParameters();
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.WaitCompletion = 0; // 
+	ExecutionParameters.WaitCompletion = 0; 
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update user settings';");
 	
 	ExecutionResult = TimeConsumingOperations.ExecuteInBackground("UsersInternal.FillSettingsLists",
@@ -286,7 +286,7 @@ Procedure FillSettings()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure ChangeMark1(Item)

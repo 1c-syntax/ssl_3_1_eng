@@ -22,7 +22,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ProcessRolesInterface("FillRoles", Object.Roles);
 	ProcessRolesInterface("SetUpRoleInterfaceOnFormCreate", ValueIsFilled(Object.Ref));
 	
-	// 
+	// Prepare auxiliary data.
 	AccessManagementInternal.OnCreateAtServerAllowedValuesEditForm(ThisObject, True);
 	StandardExtensionRoles =
 		AccessManagementInternalCached.DescriptionStandardRolesSessionExtensions().SessionRoles.All;
@@ -47,7 +47,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Items.Description.ReadOnly = WithoutEditingSuppliedValues;
 	
-	// 
+	// Setting up access kind editing.
 	Items.AccessKinds.ReadOnly     = WithoutEditingSuppliedValues;
 	Items.AccessValues.ReadOnly = WithoutEditingSuppliedValues;
 	Items.SelectPurpose.Enabled = Not WithoutEditingSuppliedValues;
@@ -140,7 +140,7 @@ EndProcedure
 &AtServer
 Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
-	// 
+	// Filling object roles from the collection.
 	CurrentObject.Roles.Clear();
 	For Each String In RolesCollection Do
 		CurrentObject.Roles.Add().Role = Common.MetadataObjectID(
@@ -216,7 +216,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	VerifiedObjectAttributes = New Array;
 	Errors = Undefined;
 	
-	// 
+	// Checking whether the metadata contains roles.
 	VerifiedObjectAttributes.Add("Roles.Role");
 	If Not Items.Roles.ReadOnly Then
 		TreeItems = Roles.GetItems();
@@ -243,7 +243,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 		EndDo;
 	EndIf;
 	
-	// 
+	// Checking for blank and duplicate access kinds and values.
 	AccessManagementInternalClientServer.ProcessingOfCheckOfFillingAtServerAllowedValuesEditForm(
 		ThisObject, Cancel, VerifiedObjectAttributes, Errors);
 	
@@ -320,7 +320,7 @@ Procedure AccessKindsOnEditEnd(Item, NewRow, CancelEdit)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure AccessKindsAccessTypePresentationOnChange(Item)
@@ -339,7 +339,7 @@ Procedure AccessKindsAccessTypePresentationChoiceProcessing(Item, ValueSelected,
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure AccessKindsAllAllowedPresentationOnChange(Item)
@@ -430,7 +430,7 @@ EndProcedure
 #Region FormTableItemsEventHandlersRoles
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure RolesCheckOnChange(Item)
@@ -496,7 +496,7 @@ Procedure SnowUnusedAccessKinds(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure ShowSelectedRolesOnly(Command)
@@ -659,7 +659,7 @@ Procedure SetAvailabilityToDescribeAndRestoreSuppliedProfile(CurrentObject = Und
 			Catalogs.AccessGroupProfiles.SuppliedProfileNote(CurrentObject.Ref);
 		
 		If Catalogs.AccessGroupProfiles.SuppliedProfileChanged(CurrentObject) Then
-			// 
+			// Defining the rights to restore based on the initial filling.
 			Items.RestoreByInitialFilling.Visible =
 				Users.IsFullUser(,, False);
 			
@@ -724,7 +724,7 @@ EndProcedure
 // End StandardSubsystems.AttachableCommands
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure ProcessRolesInterface(Action, MainParameter = Undefined)

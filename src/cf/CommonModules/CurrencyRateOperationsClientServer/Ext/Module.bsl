@@ -26,7 +26,7 @@
 //    * Repetition - Number - the multiplier of a currency, into which calculation is being made.
 //
 // Returns: 
-//   Number - 
+//   Number - the amount converted at the new rate.
 //
 Function ConvertAtRate(Sum, SourceRateParameters, NewRateParameters) Export
 	If SourceRateParameters.Currency = NewRateParameters.Currency

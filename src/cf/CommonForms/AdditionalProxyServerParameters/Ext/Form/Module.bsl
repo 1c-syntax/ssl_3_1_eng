@@ -65,8 +65,8 @@ EndProcedure
 Procedure OKButton(Command)
 	
 	If Not Modified Then
-		// 
-		// 
+		
+		
 		NotifyChoice(Undefined);
 		Return;
 	EndIf;
@@ -75,8 +75,8 @@ Procedure OKButton(Command)
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	ReturnValueStructure = New Structure;
 	
 	ReturnValueStructure.Insert("AllProtocolsThroughSingleProxy", AllProtocolsThroughSingleProxy);
@@ -132,8 +132,8 @@ EndProcedure
 // Notifies a user about invalid addresses.
 //
 // Returns:
-//   Boolean - 
-//						  
+//   Boolean - True if the addresses are valid,
+//						  otherwise False.
 //
 &AtClient
 Function ValidateExceptionServerAddresses()

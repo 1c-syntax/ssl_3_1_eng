@@ -12,7 +12,7 @@
 // Generates a list of handlers of messages that are processed by the current subsystem.
 // 
 // Parameters:
-//  Handlers - ValueTable - See the field list in MessageExchange.NewMessagesHandlersTable. 
+//  Handlers - ValueTable - See the field list in MessageExchange.NewMessagesHandlersTable.
 // 
 Procedure GetMessagesChannelsHandlers(Handlers) Export
 	
@@ -117,7 +117,7 @@ Procedure CreateDataExchangeInInfobase(Sender, Settings, NodeFiltersSetting, Def
 		ConnectionSettings.Insert("CorrespondentEndpoint", CorrespondentEndpoint);
 		ConnectionSettings.Insert("Settings",                   NodeFiltersSetting);
 		ConnectionSettings.Insert("Prefix",                     "");
-		ConnectionSettings.Insert("Peer"); // 
+		ConnectionSettings.Insert("Peer"); 
 		
 		DataExchangeSaaS.CreateExchangeSetting(
 			ConnectionSettings,
@@ -134,7 +134,7 @@ Procedure CreateDataExchangeInInfobase(Sender, Settings, NodeFiltersSetting, Def
 		
 		InformationRegisters.DataAreaExchangeTransportSettings.UpdateRecord(RecordStructure);
 		
-		// 
+		// Registering all infobase data for exporting
 		DataExchangeServer.RegisterDataForInitialExport(Peer);
 		
 		// Sending an operation completion message in a managing application

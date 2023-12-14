@@ -13,11 +13,11 @@
 //
 // Parameters:
 //  OwnerForm - ClientApplicationForm
-//                - Undefined - 
+//                - Undefined - Form that opens the report.
 //  Variant - CatalogRef.ReportsOptions
-//          - CatalogRef.AdditionalReportsAndDataProcessors -  
-//             
-//             
+//          - CatalogRef.AdditionalReportsAndDataProcessors - Report option whose form to open. 
+//            If the CatalogRef.AdditionalReportsAndDataProcessors type is passed, 
+//            opens the additional report attached to the application. 
 //  AdditionalParameters - Structure - For internal use only.
 //
 Procedure OpenReportForm(Val OwnerForm, Val Variant, Val AdditionalParameters = Undefined) Export
@@ -102,13 +102,13 @@ Procedure OpenReportForm(Val OwnerForm, Val Variant, Val AdditionalParameters = 
 	EndIf;
 EndProcedure
 
-// Opens the report panel. To use from common command modules.
+// Opens the report panel. Intended for being used from common command modules.
 //
 // Parameters:
 //  SubsystemPath - String - Section name or a path to the subsystem for which the report panel is opened.
 //                    Conforms to the following format: "[.ИмяВложеннойПодсистемы1][.ИмяВложеннойПодсистемы2][...]".
 //                    Section must be described in ReportsOptionsOverridable.DefineSectionsWithReportsOptions.
-//  CommandExecuteParameters - CommandExecuteParameters - parameters of the common command handler.
+//  CommandExecuteParameters - CommandExecuteParameters - Parameters of the common command handler.
 //
 Procedure ShowReportBar(SubsystemPath, CommandExecuteParameters) Export
 	ParametersForm = New Structure("SubsystemPath", SubsystemPath);
@@ -137,7 +137,7 @@ EndProcedure
 // Notifies open report panels and lists of forms and items about changes.
 //
 // Parameters:
-//  Parameter - Arbitrary - you can pass any data.
+//  Parameter - Arbitrary - Takes any data.
 //  Source - Arbitrary - Event source. For example, another form can be passed.
 //
 Procedure UpdateOpenForms(Parameter = Undefined, Source = Undefined) Export
@@ -173,7 +173,7 @@ Procedure OnStart(Parameters) Export
 	
 EndProcedure
 
-// Opens a report option card with the settings that define its placement in the application interface.
+// Opens a report option card where you can set up its location in the application.
 //
 // Parameters:
 //  Variant - CatalogRef.ReportsOptions - Report option reference.
@@ -184,11 +184,11 @@ Procedure ShowReportSettings(Variant) Export
 	OpenForm("Catalog.ReportsOptions.Form.ItemForm", FormParameters);
 EndProcedure
 
-// Opens the several options placement setting dialog in sections.
+// Opens a dialog where you can set up the location of multiple report options in sections.
 //
 // Parameters:
-//   Variants - Array - report options to move (CatalogRef.ReportsOptions).
-//   Owner - ClientApplicationForm - to block the owner window.
+//   Variants - Array - Report options to move (CatalogRef.ReportsOptions).
+//   Owner - ClientApplicationForm - For locking the owner's window.
 //
 Procedure OpenOptionArrangeInSectionsDialog(Variants, Owner = Undefined) Export
 	
@@ -229,8 +229,8 @@ EndProcedure
 // The procedure handles an event of the SubsystemsTree attribute in editing forms.
 //
 // Parameters:
-//   Form - ClientApplicationForm - Form, where the subsystem tree is edited, where:
-//       * Items - FormAllItems - See Syntax Assistant.
+//   Form - ClientApplicationForm - Subsystem tree edit form, where::
+//       * Items - FormAllItems - 
 //   Item - FormField - Field that indicates usage.
 //
 Procedure SubsystemsTreeUseOnChange(Form, Item) Export
@@ -255,13 +255,13 @@ EndProcedure
 // The procedure handles an event of the SubsystemsTree attribute in editing forms.
 //
 // Parameters:
-//   Form - ClientApplicationForm - Form, where the subsystem tree is edited, where:
-//     * Items - FormAllItems - Collection of form items, where:
-//         ** SubsystemsTree - FormTable - a hierarchical collection of subsystems that display a report, where:
-//              *** CurrentData - FormDataTreeItem - data of the current subsystem tree row, where:
-//                    **** Importance - String - importance that can take the following values - "", "Important", "See also".
+//   Form - ClientApplicationForm - Subsystem tree edit form, where::
+//     * Items - FormAllItems - Collection of form items, where::
+//         ** SubsystemsTree - FormTable - Hierarchical collection of subsystems where the report is displayed, where::
+//              *** CurrentData - FormDataTreeItem - Data in the current subsystem tree row, where::
+//                    **** Importance - String - 
 //                    **** Priority - String - Code counter.
-//                    **** Use - Number - indicates whether the report was placed in this subsystem.
+//                    **** Use - Number - Flag indicating whether the subsystem contains the report.
 //   Item - FormField - Field to edit the importance flag.
 //
 Procedure SubsystemsTreeImportanceOnChange(Form, Item) Export
@@ -322,9 +322,9 @@ EndFunction
 // Opens a form to select users or (external) user groups.
 //
 // Parameters:
-//   Form - ClientApplicationForm - Form, where the subsystem tree is edited, where:
+//   Form - ClientApplicationForm - Subsystem tree edit form, where::
 //       * Items - FormAllItems - Collection of form items.
-//   ExternalUsersGroupsPickup - Boolean - indicates whether external user groups are picked.
+//   ExternalUsersGroupsPickup - Boolean - Flag indicating whether external user groups are picked.
 //
 Procedure PickReportOptionUsers(Form, PickUsersGroups = False, ExternalUsersGroupsPickup = False) Export 
 	
@@ -348,21 +348,21 @@ EndProcedure
 // The constructor of parameters to pick report option users.
 //
 // Parameters:
-//   Form - ClientApplicationForm - Form, where the subsystem tree is edited, where:
+//   Form - ClientApplicationForm - Subsystem tree edit form, where::
 //       * Items - FormAllItems - Collection of form items.
-//   ExternalUsersGroupsPickup - Boolean - indicates whether external user groups are picked.
+//   ExternalUsersGroupsPickup - Boolean - Flag indicating whether external user groups are picked.
 //
 // Returns:
-//   Structure - 
-//       * ChoiceMode - Boolean - indicates choice mode (see Syntax Assistant - Catalog extension). 
+//   Structure - Choice form open parameters, where::
+//       * ChoiceMode - Boolean - Choice mode flag. See "Catalog extension" in Syntax Assistant. 
 //       * CurrentRow - CatalogRef.Users
 //                       - CatalogRef.UserGroups
 //                       - CatalogRef.ExternalUsersGroups
-//                       - Undefined - 
-//       * CloseOnChoice - Boolean - indicates whether the selection form must be closed (see Syntax Assistant - Catalog extension). 
-//       * MultipleChoice - Boolean - indicates whether two or more rows are selected.
-//       * AdvancedPick - Boolean - indicates whether extended picking parameters are used.
-//       * PickFormHeader - String - the title of the form for picking users that matches the context.
+//                       - Undefined - Current user or a group of internal or external users.
+//       * CloseOnChoice - Boolean - Flag indicating whether the selection form must be closed. See "Catalog extension" in Syntax Assistant.
+//       * MultipleChoice - Boolean - Flag indicating whether two or more rows are selected.
+//       * AdvancedPick - Boolean - Flag indicating whether extended picking parameters are used.
+//       * PickFormHeader - String - Title of the user selection form, considering the context.
 //       * SelectedUsers - ValueList - Collection of selected users or (external) user groups.
 //
 Function ReportOptionUsersPickingParameters(Form, PickUsersGroups, ExternalUsersGroupsPickup = False)
@@ -583,10 +583,10 @@ EndProcedure
 // The procedure handles an event of the SubsystemsTree attribute in editing forms.
 //
 // Parameters:
-//   Form - ClientApplicationForm - Form, where the subsystem tree is edited, where:
-//       * Items - FormAllItems - Collection of form items, where:
+//   Form - ClientApplicationForm - Subsystem tree edit form, where::
+//       * Items - FormAllItems - Collection of form items, where::
 //             ** OptionUsers - FormTable - List of report option users.
-//   ResetUsageFlag - Boolean - indicates that usage must be disabled.
+//   ResetUsageFlag - Boolean - Flag indicating that usage must be disabled.
 //
 Procedure RegisterReportOptionUsers(Form, ResetUsageFlag = True) Export 
 	
@@ -764,13 +764,13 @@ EndFunction
 // Opens a form to select users or user groups.
 //
 // Parameters:
-//  SettingsDescription - Structure - parameters of opening a form to select users or user groups, where:
-//      * Settings - DataCompositionUserSettings - settings that are exchanged.
+//  SettingsDescription - Structure - Opening parameters of the choice form for selecting users or user groups, where::
+//      * Settings - DataCompositionUserSettings - Settings that are exchanged.
 //      * ReportVariant - CatalogRef.ReportsOptions - Reference to a report option property storage.
 //      * ObjectKey - String - Settings storage dimension.
 //      * SettingsKey - String - Dimension - User settings ID.
 //      * Presentation - String - User settings description.
-//      * VariantModified - Boolean - indicates whether a report option was modified.
+//      * VariantModified - Boolean - Flag indicating whether a report option was modified.
 //
 Procedure ShareUserSettings(SettingsDescription) Export 
 	

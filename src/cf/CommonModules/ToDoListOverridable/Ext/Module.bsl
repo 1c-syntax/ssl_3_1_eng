@@ -9,21 +9,20 @@
 
 #Region Public
 
-// Determines a list of handlers (manager modules or common modules) that generate and update
-// the list of all to-do items available in the configuration.
-//
-// In the specified modules, there must be a handler procedure the parameter is passed to
-// ToDoList — See ToDoListServer.ToDoList.
 // 
-// The following is an example of a handler procedure for copying to the specified modules:
+// 
 //
-//// Parameters:
-//// ToDoList — See ToDoListServer.ToDoList.
-////
+// 
+//  See ToDoListServer.ToDoList.
+// 
+// 
+//
+//
+// See ToDoListServer.ToDoList.
 ////
 //
-//The OnFillToDoList(ToDoList) procedure Export
-// EndProcedure
+//
+//
 //
 // Parameters:
 //  ToDoList - Array - manager modules or common modules,

@@ -42,14 +42,14 @@
 				<CommandName>Form.Command.UncheckAll</CommandName>
 				<ExtendedTooltip name="FormClearAllExtendedTooltip" id="22"/>
 			</Button>
-			<ButtonGroup name="FormGroup1" id="39">
+			<ButtonGroup name="FormGroupOther" id="39">
 				<Title>
 					<v8:item>
 						<v8:lang>en</v8:lang>
-						<v8:content>Form group 1</v8:content>
+						<v8:content>Other</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormGroup1ExtendedTooltip" id="40"/>
+				<ExtendedTooltip name="FormGroupOtherExtendedTooltip" id="40"/>
 				<ChildItems>
 					<Button name="FormApplyDefaultSettings" id="37">
 						<Type>CommandBarButton</Type>
@@ -135,15 +135,15 @@
 				<Event name="Selection">PrintCommandsSelection</Event>
 			</Events>
 			<ChildItems>
-				<ColumnGroup name="PrintCommandsGroup1" id="32">
+				<ColumnGroup name="PrintCommandsVisiblePresentation" id="32">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Print command</v8:content>
+							<v8:content>Visibility and presentation</v8:content>
 						</v8:item>
 					</Title>
 					<Group>InCell</Group>
-					<ExtendedTooltip name="PrintCommandsGroup1ExtendedTooltip" id="33"/>
+					<ExtendedTooltip name="PrintCommandsVisiblePresentationExtendedTooltip" id="33"/>
 					<ChildItems>
 						<CheckBoxField name="PrintCommandsVisible" id="11">
 							<DataPath>PrintCommands.Visible</DataPath>
@@ -178,15 +178,15 @@
 						</InputField>
 					</ChildItems>
 				</ColumnGroup>
-				<ColumnGroup name="PrintCommandsGroup2" id="44">
+				<ColumnGroup name="PrintCommandsCommentGroup" id="44">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Print commands group 2</v8:content>
+							<v8:content>Comment</v8:content>
 						</v8:item>
 					</Title>
 					<Group>InCell</Group>
-					<ExtendedTooltip name="PrintCommandsGroup2ExtendedTooltip" id="45"/>
+					<ExtendedTooltip name="PrintCommandsCommentGroupExtendedTooltip" id="45"/>
 					<ChildItems>
 						<InputField name="PrintCommandsComment" id="34">
 							<DataPath>PrintCommands.Comment</DataPath>

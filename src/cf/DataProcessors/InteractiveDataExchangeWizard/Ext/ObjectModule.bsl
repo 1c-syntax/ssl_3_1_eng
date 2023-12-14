@@ -56,7 +56,7 @@ Procedure GetObjectMappingByRowStats(Cancel, RowIndexes = Undefined) Export
 			Continue;
 		EndIf;
 		
-		// 
+		// Initialize data processor properties.
 		InfobasesObjectsMapping.DestinationTableName            = TableRow.DestinationTableName;
 		InfobasesObjectsMapping.SourceTableObjectTypeName = TableRow.ObjectTypeString;
 		InfobasesObjectsMapping.InfobaseNode         = InfobaseNode;
@@ -65,13 +65,13 @@ Procedure GetObjectMappingByRowStats(Cancel, RowIndexes = Undefined) Export
 		InfobasesObjectsMapping.SourceTypeString = TableRow.SourceTypeString;
 		InfobasesObjectsMapping.DestinationTypeString = TableRow.DestinationTypeString;
 		
-		// конструктор
+		// Constructor.
 		InfobasesObjectsMapping.Designer();
 		
-		// 
+		// Getting mapping digest data.
 		InfobasesObjectsMapping.GetObjectMappingDigestInfo(Cancel);
 		
-		// 
+		// Mapping summary.
 		TableRow.ObjectCountInSource       = InfobasesObjectsMapping.ObjectCountInSource();
 		TableRow.ObjectCountInDestination       = InfobasesObjectsMapping.ObjectCountInDestination();
 		TableRow.MappedObjectCount   = InfobasesObjectsMapping.MappedObjectCount();
@@ -120,8 +120,8 @@ Procedure ExecuteDefaultAutomaticMappingAndGetMappingStatistics(Cancel, RowIndex
 	
 	InfobasesObjectsMapping = DataProcessors.InfobasesObjectsMapping.Create();
 	
-	// 
-	// 
+	
+	
 	For Each RowIndex In RowIndexes Do
 		
 		TableRow = StatisticsInformation[RowIndex];
@@ -130,7 +130,7 @@ Procedure ExecuteDefaultAutomaticMappingAndGetMappingStatistics(Cancel, RowIndex
 			Continue;
 		EndIf;
 		
-		// 
+		// Initialize data processor properties.
 		InfobasesObjectsMapping.DestinationTableName            = TableRow.DestinationTableName;
 		InfobasesObjectsMapping.SourceTableObjectTypeName = TableRow.ObjectTypeString;
 		InfobasesObjectsMapping.DestinationTableFields           = TableRow.TableFields;
@@ -141,16 +141,16 @@ Procedure ExecuteDefaultAutomaticMappingAndGetMappingStatistics(Cancel, RowIndex
 		InfobasesObjectsMapping.SourceTypeString = TableRow.SourceTypeString;
 		InfobasesObjectsMapping.DestinationTypeString = TableRow.DestinationTypeString;
 		
-		// конструктор
+		// Constructor.
 		InfobasesObjectsMapping.Designer();
 		
-		// 
+		// Performing default automatic object mapping.
 		InfobasesObjectsMapping.ExecuteDefaultAutomaticMapping(Cancel);
 		
-		// 
+		// Getting mapping digest data.
 		InfobasesObjectsMapping.GetObjectMappingDigestInfo(Cancel);
 		
-		// 
+		// Mapping summary.
 		TableRow.ObjectCountInSource       = InfobasesObjectsMapping.ObjectCountInSource();
 		TableRow.ObjectCountInDestination       = InfobasesObjectsMapping.ObjectCountInDestination();
 		TableRow.MappedObjectCount   = InfobasesObjectsMapping.MappedObjectCount();
@@ -207,7 +207,7 @@ Procedure RunDataImport(Cancel, RowIndexes = Undefined) Export
 	InfobasesObjectsMapping.ExchangeMessageFileName = ExchangeMessageFileName;
 	InfobasesObjectsMapping.InfobaseNode  = InfobaseNode;
 	
-	// 
+	// Import file.
 	InfobasesObjectsMapping.ExecuteDataImportForInfobase(Cancel, TablesToImport);
 	
 	DataImportedSuccessfully = Not Cancel;
@@ -302,7 +302,7 @@ EndFunction
 // Data of the StatisticsInformation tabular section.
 //
 // Returns:
-//  ValueTable - 
+//  ValueTable - data of the Statistics tabular section.
 //
 Function StatisticsTable() Export
 	

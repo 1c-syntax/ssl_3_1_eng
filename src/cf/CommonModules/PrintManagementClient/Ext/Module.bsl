@@ -12,12 +12,12 @@
 // Generates and displays print forms.
 // 
 // Parameters:
-//  PrintManagerName - String - a print manager for the objects to print;
-//  TemplatesNames       - String - print form IDs;
+//  PrintManagerName - String - Print manager for the objects to print.
+//  TemplatesNames       - String - Print form IDs.
 //  ObjectsArray     - AnyRef
-//                     - Array of AnyRef - 
-//  FormOwner      - ClientApplicationForm - a form from which the printing is executed;
-//  PrintParameters    - Structure - arbitrary parameters to pass to the print manager.
+//                     - Array of AnyRef - Print objects.
+//  FormOwner      - ClientApplicationForm - Form where the printing is executed.
+//  PrintParameters    - Structure - Arbitrary parameters to pass to the print manager.
 //
 // Example:
 //   PrintManagementClient.ExecutePrintCommand("DataProcessor.PrintForm", "GoodsWriteOff", DocumentsForPrinting, ThisObject);
@@ -34,27 +34,25 @@ Procedure ExecutePrintCommand(PrintManagerName, TemplatesNames, ObjectsArray, Fo
 	OpeningParameters.CommandParameter	 = ObjectsArray;
 	OpeningParameters.PrintParameters	 = PrintParameters;
 	
-	If FormOwner = Undefined Then
-		OpeningParameters.StorageUUID = New UUID;
-	Else
-		OpeningParameters.StorageUUID = FormOwner.UUID;
-	EndIf;
+	If TypeOf(PrintParameters) = Type("Structure")
+		And PrintParameters.Property("RunInBackground")
+		And PrintParameters.RunInBackground = True Then
 		
-	TimeConsumingOperation = PrintManagementServerCall.StartGeneratingPrintForms(OpeningParameters);
-	OpeningParameters.FormOwner = FormOwner;
+		ExecutePrintCommandInBackground(FormOwner, OpeningParameters);
+	Else
+		OpenForm("CommonForm.PrintDocuments", OpeningParameters, FormOwner, String(New UUID));
+	EndIf;
 	
-	CompletionNotification2 = New NotifyDescription("OpenPrintDocumentsForm", PrintManagementInternalClient, OpeningParameters);
-	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, PrintManagementInternalClient.IdleParameters(FormOwner));	
 EndProcedure
 
 // Generates and outputs print forms to the printer.
 //
 // Parameters:
-//  PrintManagerName - String - a print manager for the objects to print;
-//  TemplatesNames       - String - print form IDs;
+//  PrintManagerName - String - Print manager for the objects to print.
+//  TemplatesNames       - String - Print form IDs.
 //  ObjectsArray     - AnyRef
-//                     - Array of AnyRef - 
-//  PrintParameters    - Structure - arbitrary parameters to pass to the print manager.
+//                     - Array of AnyRef - Print objects.
+//  PrintParameters    - Structure - Arbitrary parameters to pass to the print manager.
 //
 // Example:
 //   PrintManagementClient.ExecutePrintToPrinterCommand("DataProcessor.PrintForm", "GoodsWriteOff", DocumentsForPrinting);
@@ -109,7 +107,7 @@ EndProcedure
 //  SpreadsheetDocuments           - ValueList - print forms.
 //  PrintObjects                - ValueList - a correspondence between objects and names of spreadsheet document areas.
 //  PrintInSets          - Boolean
-//                               - Undefined - 
+//                               - Undefined - Not used (it's calculated automatically).
 //  SetCopies    - Number - a number of each document set copies.
 //
 Procedure PrintSpreadsheetDocuments(SpreadsheetDocuments, PrintObjects, Val PrintInSets = Undefined, 
@@ -127,9 +125,9 @@ EndProcedure
 // the user whether they want to continue if any of the documents are not posted and at the same time some of the documents are posted.
 //
 // Parameters:
-//  CompletionProcedureDetails - NotifyDescription - a procedure, to which control after
-//                                                     execution is transferred.
-//                                Parameters of the procedure being called:
+//  CompletionProcedureDetails - NotifyDescription - Procedure to which the control needs to be passed after execution.
+//                                                     Parameters of the called procedure:
+//                                :
 //                                  DocumentsList - Array - posted documents;
 //                                  AdditionalParameters - a value specified when creating a notification
 //                                                            object.
@@ -175,7 +173,7 @@ Procedure PrintDocuments(PrintFormsCollection, Val PrintObjects = Undefined,
 		FormOwner = PrintParameters.FormOwner;
 		PrintParameters.Delete("FormOwner");
 	ElsIf TypeOf(AdditionalParameters) = Type("ClientApplicationForm") Then 
-		FormOwner = AdditionalParameters; // 
+		FormOwner = AdditionalParameters; 
 	EndIf;
 	
 	If PrintObjects = Undefined Then
@@ -197,7 +195,7 @@ EndProcedure
 // Constructor of the AdditionalParameters parameter of the PrintDocuments procedure.
 //
 //  Returns:
-//   Structure - 
+//   Structure - Additional parameters for opening a print form:
 //    * FormOwner - ClientApplicationForm - a form from which the printing is executed.
 //    * Title     - String - a title of the PrintDocuments form.
 //
@@ -211,17 +209,17 @@ Function PrintParameters() Export
 	
 EndFunction
 
-// Constructor of the PrintFormsCollection parameter for procedures and functions of this module.
-// See PrintDocuments()
-// See PrintFormDetails().
+// 
+// See PrintDocuments
+// See PrintFormDetails
 //
 // Parameters:
-//  IDs - String - print form IDs.
+//  IDs - String - Print form IDs.
 //
 // Returns:
-//  Array - 
-//           
-//           
+//  Array - Collection of print form descriptions. The collection is designed for use as
+//           the PrintFormsCollection parameter in other procedures of the client software interface of the subsystem.
+//           To access collection items, use the PrintFormDetails function.
 //
 Function NewPrintFormsCollection(Val IDs) Export
 	
@@ -259,16 +257,16 @@ EndFunction
 //  Id         - String - print form ID.
 //
 // Returns:
-//  Structure - 
+//  Structure - Print form details found in the print form collection:
 //   * TemplateSynonym - String - a print form presentation;
 //   * SpreadsheetDocument - SpreadsheetDocument - print form;
 //   * Copies2 - Number - a number of copies to be printed;
 //   * FullTemplatePath - String - used for quick access to print form template editing;
 //   * PrintFormFileName - String - file name;
-//                           - Map of KeyAndValue - 
+//                           - Map of KeyAndValue - Filenames for each object:
 //                              ** Key - AnyRef - a reference to the print object;
 //                              ** Value - String - file name;
-//   * OfficeDocuments - Map of KeyAndValue - a collection of print forms in the format of office documents:
+//   * OfficeDocuments - Map of KeyAndValue - Collection of print forms in the format of office documents:
 //                         ** Key - String - an address in the temporary storage of binary data of the print form;
 //                         ** Value - String - a print form file name.
 //
@@ -289,7 +287,7 @@ Procedure SetActionOnChoosePrintFormTemplate() Export
 	
 EndProcedure
 
-// Opens a form showing how to create a facsimile signature and a seal.
+// Opens a form showing how to create a facsimile signature and a stamp.
 Procedure ShowInstructionOnHowToCreateFacsimileSignatureAndSeal() Export
 	
 	ScanAvailable = False;
@@ -307,11 +305,11 @@ EndProcedure
 // Returns a collection of the current print form parameters in the "Print documents" form (CommonForm.PrintDocuments).
 // 
 // Parameters:
-//  Form - ClientApplicationForm - PrintDocuments form passed in the Form parameter of the common module procedure
-//                             PrintManagementClientOverridable.
+//  Form - ClientApplicationForm - PrintDocuments form passed in the Form parameter of the
+//                             PrintManagementClientOverridable common module procedure.
 //
 // Returns:
-//  FormDataCollectionItem - 
+//  FormDataCollectionItem - Settings of the current print form.
 //
 Function CurrentPrintFormSetup(Form) Export
 	Result = Form.Items.PrintFormsSettings.CurrentData;
@@ -321,18 +319,18 @@ Function CurrentPrintFormSetup(Form) Export
 	Return Result;
 EndFunction
 
-// 
+// Determines the type of the PrintParameters parameter in print command handlers.
 // 
 // Returns:
 //  Structure:
 //   * Form - ClientApplicationForm - a form where printing is executed.
 //   * PrintObjects - Array of AnyRef - objects by which print forms must be generated.
-//   * Id - String - a print command ID. The print manager uses this ID to determine a print
+//   * Id - String - Print command ID. The print manager uses this ID to determine a print
 //                              form to be generated.
 //                              For example, "OrderInvoice".
 //
 //                              To print multiple print forms, you can specify all their
-//                              IDs at once (as a comma-separated string or an array of strings), for example:
+//                              IDs at once (as a comma-separated string or an array of strings), for example::
 //                              "OrderInvoice,WarrantyLetter".
 //
 //                              To set a number of copies for a print form, duplicate its
@@ -350,43 +348,43 @@ EndFunction
 //                              Processing.PrintForm print manager and OrderInvoice is generated in the print manager specified in
 //                              the PrintManager parameter.
 //
-//                   - Array - 
+//                   - Array - List of IDs of print commands.
 //
-//   * PrintManager - String           - (optional) name of the object whose manager module contains
+//   * PrintManager - String           - (Optional) Name of the object whose manager module contains
 //                                        the Print procedure that generates spreadsheet documents for this command.
 //                                        Default value is a name of the object manager module.
 //                                         For example, "Document.ProformaInvoice".
 //
-//   * Handler    - String            - (optional) command client handler
+//   * Handler    - String            - (Optional) Command client handler
 //                                        executed instead of the standard Print command handler. It is used,
 //                                        for example, when the print form is generated on the client.
 //                                        Format "<CommonModuleName>.<ProcedureName>" is used when the procedure is
 //                                        in a common module.
 //                                        The"<ProcedureName>" format is used when the procedure is placed
 //                                        in the main form module of a report or a data processor specified in PrintManager.
-//                                        For example,
+//                                        For example:
 //                                          PrintCommand.Handler = "_DemoStandardSubsystemsClient.PrintProformaInvoices";
-//                                        An example of handler in the form module:
-//                                          // Generates a print form <print form presentation>.
+//                                        An example of handler in the form module::
+//                                          Generates a print form <print form presentation>.
 //                                          //
+//                                          
+//                                          Parameters:
+//                                          PrintParameters - Structure - Print form info.
+//                                          * PrintObjects - Array - Array of selected object references.
+//                                          * Form - ClientApplicationForm - Form, from which the
+//                                          print command is called from.
+//                                          * AdditionalParameters - Structure - Additional print parameters.
+//                                          Other structure keys match the columns of the PrintCommands table,
 //                                          //
-//                                          // Parameters:
-//                                          //   PrintParameters - Structure - a print form info.
-//                                          //       * PrintObjects - Array — an array of selected object references.
-//                                          //       * Form — ClientApplicationForm - a form, from which the
-//                                          //                                              print command is called from.
-//                                          //       * AdditionalParameters — Structure — additional print parameters.
-//                                          //       Other structure keys match the columns of the PrintCommands table, 
-//                                          //
-//                                          //       for more information, see the PrintManagement.CreatePrintCommandsCollection function.
-//                                          //
+//                                          For more information, see the PrintManagement.CreatePrintCommandsCollection function.
+//                                          
 //                                          	&AtClient
 //                                          Function <FunctionName>(PrintParameters) Export
-//                                        // Print handler.
+//                                        Print handler.
 //                                        EndFunction
 //                                        Remember that the handler is called using the Calculate method,
-//                                        so only a function can act as a handler.
-//                                        The return value of the function is not used by the subsystem.
+//                                         so only a function can act as a handler.
+//                                         The return value of the function is not used by the subsystem.
 //
 //   * SkipPreview - Boolean           - (Optional) Flag indicating whether the documents must be sent to a printer without a preview.
 //                                        If not specified, the print command opens the "Print documents" preview form.
@@ -400,9 +398,9 @@ EndFunction
 //                                        In this example, selecting a print command opens a PDF
 //                                        document.
 //
-//   * FormCaption  - String          - (optional) an arbitrary string overriding the standard header of
-//                                         the Print documents form.
-//                                         For example, "Customize set".
+//   * FormCaption  - String          - (Optional) Arbitrary string overriding the standard header of the Print documents form.
+//                                         For example, "Customizable set".
+//                                         
 //
 //   * OverrideCopiesUserSetting - Boolean - (optional) shows whether the option to save or restore the number of copies selected by
 //                                        user for printing in
@@ -410,7 +408,7 @@ EndFunction
 //                                        the option of saving or restoring settings will be applied upon opening the form.
 //                                        PrintDocuments.
 //
-//   * AddExternalPrintFormsToSet - Boolean - (optional) shows whether the document set is to be supplemented
+//   * AddExternalPrintFormsToSet - Boolean - (Optional) Shows whether the document set is to be supplemented
 //                                        with all external print forms connected to the object
 //                                        (the AdditionalReportsAndDataProcessors subsystem). If the parameter is not specified, external
 //                                        print forms are not added to the set.
@@ -419,7 +417,7 @@ EndFunction
 //                                        exclude some print forms from the set in the PrintDocuments form and
 //                                        change the number of copies.
 //
-//   * AdditionalParameters - Structure - (optional) arbitrary parameters to pass to the print manager.
+//   * AdditionalParameters - Structure - (Optional) Arbitrary parameters to pass to the print manager.
 //
 //
 Function DescriptionOfPrintParameters() Export
@@ -457,7 +455,7 @@ EndFunction
 //	
 //						
 //						
-//	
+//	 (см. ниже)
 //	
 //							
 ////////////////////////////////////////////////////////////////////////////////
@@ -481,18 +479,18 @@ EndFunction
 // This function requires 1C:Enterprise Extension installed to operate in the web client.
 //
 // Parameters:
-//  DocumentType            - String - a print form type: DOC or ODT;
-//  TemplatePagesSettings - Map - parameters from the structure returned by the InitializeTemplate function
-//                                           (the parameter is obsolete, skip it and use the Template parameter);
-//  Template                   - Structure - a result of the InitializeTemplate function.
+//  DocumentType            - String - Print form type: DOC or ODT.
+//  TemplatePagesSettings - Map - Parameters from the structure returned by the InitializeTemplate function
+//                                           (the parameter is obsolete, skip it and use the Template parameter).
+//  Template                   - Structure - Result of the InitializeTemplate function.
 //
 // Returns:
-//  Structure - 
+//  Structure - New print form.
 // 
 Function InitializePrintForm(Val DocumentType, Val TemplatePagesSettings = Undefined, Template = Undefined) Export
 	
 	If Upper(DocumentType) = "DOC" Then
-		Parameter = ?(Template = Undefined, TemplatePagesSettings, Template); // 
+		Parameter = ?(Template = Undefined, TemplatePagesSettings, Template); 
 		PrintForm = PrintManagementMSWordClient.InitializeMSWordPrintForm(Parameter);
 		PrintForm.Insert("Type", "DOC");
 		PrintForm.Insert("LastOutputArea", Undefined);
@@ -514,12 +512,12 @@ EndFunction
 // This function requires 1C:Enterprise Extension installed to operate in the web client.
 //
 // Parameters:
-//  BinaryTemplateData - BinaryData - a binary template data;
-//  TemplateType            - String - a print form template type: DOC or ODT;
-//  TemplateName            - String - a name to be used for creating a temporary template file.
+//  BinaryTemplateData - BinaryData - Binary template data.
+//  TemplateType            - String - Print form template type: DOC or ODT.
+//  TemplateName            - String - Name to be used for creating a temporary template file.
 //
 // Returns:
-//  Structure - 
+//  Structure - Template.
 //
 Function InitializeOfficeDocumentTemplate(Val BinaryTemplateData, Val TemplateType, Val TemplateName = "") Export
 	
@@ -596,21 +594,21 @@ Procedure ShowDocument(Val PrintForm) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
+
+
 
 // Deprecated. Obsolete. Use PrintManagement.TemplateArea.
 //
 // Gets a print form template area.
 //
 // Parameters:
-//  RefToTemplate   - Structure - a print form template.
+//  RefToTemplate   - Structure - Print form template.
 //  AreaDetails - Structure:
-//   * AreaName - String -area name;
-//   * AreaTypeType - String - an area type: "Header", "Footer", "Common", "TableRow", "List".
+//   * AreaName - String -Area name.
+//   * AreaTypeType - String - Area type: "Header", "Footer", "Common", "TableRow", "List".
 //   
 // Returns:
-//  Structure - 
+//  Structure - Template area.
 //
 Function TemplateArea(Val RefToTemplate, Val AreaDetails) Export
 	
@@ -703,7 +701,7 @@ Procedure AttachArea(Val PrintForm, Val TemplateArea, Val GoToNextRow1 = True) E
 			AreaDetails.Insert("Area", DerivedArea);
 			AreaDetails.Insert("GoToNextRow1", GoToNextRow1);
 			
-			// 
+			// Contains an area type and area borders (if required).
 			PrintForm.LastOutputArea = AreaDetails;
 			
 		ElsIf PrintForm.Type = "ODT" Then
@@ -721,7 +719,7 @@ Procedure AttachArea(Val PrintForm, Val TemplateArea, Val GoToNextRow1 = True) E
 			Else
 				Raise AreaTypeSpecifiedIncorrectlyText();
 			EndIf;
-			// 
+			// Contains an area type and area borders (if required).
 			PrintForm.LastOutputArea = AreaDetails;
 		EndIf;
 	Except
@@ -739,8 +737,8 @@ EndProcedure
 // Fills parameters of the print form area.
 //
 // Parameters:
-//  PrintForm - Structure - either a print form area or a print form itself.
-//  Data - Structure - filling data.
+//  PrintForm - Structure - Print form or a print form area.
+//  Data - Structure - Autofill data.
 //
 Procedure FillParameters_(Val PrintForm, Val Data) Export
 	
@@ -868,12 +866,12 @@ EndProcedure
 // Defines a format and other settings of writing a spreadsheet document to file.
 // 
 // Returns:
-//  Structure - 
-//   * SaveFormats - Array - a collection of values of the SpreadsheetDocumentFileType type converted into a string;
-//   * PackToArchive   - Boolean - if set to True, one archive file with files of the specified formats will be created;
-//   * TransliterateFilesNames - Boolean - if set to True, names of the received files will be in Latin characters.
-//   * SignatureAndSeal    - Boolean - if it is set to True and a spreadsheet document being saved supports placement of
-//                                  signatures and seals, they will be placed to saved files.
+//  Structure - Settings for writing a spreadsheet to a file:
+//   * SaveFormats - Array - Collection of values of the SpreadsheetDocumentFileType type converted into String.
+//   * PackToArchive   - Boolean - If True, one archive file with files of the specified formats will be created.
+//   * TransliterateFilesNames - Boolean - If True, the names of the received files will be in Latin.
+//   * SignatureAndSeal    - Boolean - If True and the spreadsheet being saved supports
+//                                  signatures and stamps, they will be placed to saved files.
 //
 Function SettingsForSaving() Export
 	
@@ -1082,6 +1080,23 @@ Procedure WhenCheckingTheExistenceOfAFile(Exists, PreparationParameters) Export
 	EndIf;
 	
 	PrepareFileNamesToSaveToADirectory(PreparationParameters);
+	
+EndProcedure
+
+Procedure ExecutePrintCommandInBackground(FormOwner, OpeningParameters)
+	
+	If FormOwner = Undefined Then
+		OpeningParameters.StorageUUID = New UUID;
+	Else
+		OpeningParameters.StorageUUID = FormOwner.UUID;
+	EndIf;
+	
+	TimeConsumingOperation = PrintManagementServerCall.StartGeneratingPrintForms(OpeningParameters);
+	OpeningParameters.FormOwner = FormOwner;
+	
+	CompletionNotification2 = New NotifyDescription("OpenPrintDocumentsForm", PrintManagementInternalClient, OpeningParameters);
+	IdleParameters = PrintManagementInternalClient.IdleParameters(FormOwner);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CompletionNotification2, IdleParameters);
 	
 EndProcedure
 

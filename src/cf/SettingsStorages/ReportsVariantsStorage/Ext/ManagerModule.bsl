@@ -14,15 +14,15 @@
 // Reading handler of report option settings.
 //
 // Parameters:
-//   ReportKey        - String - Full report name with a dot.
+//   ReportKey        - String - Full report name (dot-delimited).
 //   VariantKey      - String - Report option key.
-//   Settings         - Arbitrary     - report option settings.
-//   SettingsDescription  - SettingsDescription - additional details of settings.
-//   User      - String           - Name of an infobase user.
-//       It is not used, because the "Report options" subsystem does not separate options by their authors.
-//       The uniqueness of storage and selection is guaranteed by the uniqueness of pairs of report and options keys.
+//   Settings         - Arbitrary     - Report option settings.
+//   SettingsDescription  - SettingsDescription - Additional details of the settings.
+//   User      - String           - Name of the infobase user.
+//       It is not used, because the "Report options" subsystem does not group report options by their authors.
+//       The uniqueness of storage and selection is guaranteed by the uniqueness of the report key–option key pairs.
 //
-// See also:
+// See also::
 //   "SettingsStorageManager.<Storage name>.LoadProcessing" in Syntax Assistant.
 //
 Procedure LoadProcessing(ReportKey, VariantKey, Settings, SettingsDescription, User)
@@ -66,17 +66,17 @@ EndProcedure
 // Handler of writing report option settings.
 //
 // Parameters:
-//   ReportKey        - String - Full report name with a dot.
+//   ReportKey        - String - Full report name (dot-delimited).
 //   VariantKey      - String - Report option key.
-//   Settings         - Arbitrary         - report option settings.
-//   SettingsDescription  - SettingsDescription     - additional details of settings.
+//   Settings         - Arbitrary         - Report option settings.
+//   SettingsDescription  - SettingsDescription     - Additional details of the settings.
 //   User      - String
-//                     - Undefined - 
-//       
-//       
+//                     - Undefined - Name of the infobase user.
+//       It is not used, because the "Report options" subsystem does not group report options by their authors.
+//       The uniqueness of storage and selection is guaranteed by the uniqueness of the report key–option key pairs.
 //
-// 
-//   
+// See also::
+//   "SettingsStorageManager.<Storage name>.SaveProcessing" in Syntax Assistant.
 //
 Procedure SaveProcessing(ReportKey, VariantKey, Settings, SettingsDescription, User)
 	If Not ReportsOptionsCached.InsertRight1() Then
@@ -145,16 +145,16 @@ EndProcedure
 // Receiving handler of report option settings details.
 //
 // Parameters:
-//   ReportKey       - String - Full report name with a dot.
+//   ReportKey       - String - Full report name (dot-delimited).
 //   VariantKey     - String - Report option key.
-//   SettingsDescription - SettingsDescription     - additional details of settings.
+//   SettingsDescription - SettingsDescription     - Additional details of the settings.
 //   User     - String
-//                    - Undefined - 
-//       
-//       
+//                    - Undefined - Name of the infobase user.
+//       It is not used, because the "Report options" subsystem does not group report options by their authors.
+//       The uniqueness of storage and selection is guaranteed by the uniqueness of the report key–option key pairs.
 //
-// 
-//   
+// See also::
+//   "SettingsStorageManager.<Storage name>.GetDescriptionProcessing" in Syntax Assistant.
 //
 Procedure GetDescriptionProcessing(ReportKey, VariantKey, SettingsDescription, User)
 	If Not ReportsOptionsCached.ReadRight1() Then
@@ -205,14 +205,14 @@ EndProcedure
 // Installation handler of report option settings details.
 //
 // Parameters:
-//   ReportKey       - String - Full report name with a dot.
+//   ReportKey       - String - Full report name (dot-delimited).
 //   VariantKey     - String - Report option key.
-//   SettingsDescription - SettingsDescription - additional details of settings.
-//   User     - String           - Name of an infobase user.
-//       It is not used, because the "Report options" subsystem does not separate options by their authors.
-//       The uniqueness of storage and selection is guaranteed by the uniqueness of pairs of report and options keys.
+//   SettingsDescription - SettingsDescription - Additional details of the settings.
+//   User     - String           - Name of the infobase user.
+//       It is not used, because the "Report options" subsystem does not group report options by their authors.
+//       The uniqueness of storage and selection is guaranteed by the uniqueness of the report key–option key pairs.
 //
-// See also:
+// See also::
 //   "SettingsStorageManager.<Storage name>.SetDescriptionProcessing" in Syntax Assistant.
 //
 Procedure SetDescriptionProcessing(ReportKey, VariantKey, SettingsDescription, User)
@@ -269,12 +269,12 @@ EndProcedure
 
 #Region Private
 
-// 
-// 
+
+
 
 // Returns a list of user report options.
 //
-Function GetList(ReportKey, Val User = Undefined) Export // 
+Function GetList(ReportKey, Val User = Undefined) Export // CAC:307 - Same as the standard setting storage method.
 	List = New ValueList;
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then

@@ -513,7 +513,7 @@ Function OldAndNewValuesOfConstants()
 	
 EndFunction
 
-// 
+
 
 &AtServer
 Procedure FillInTimeZones()
@@ -552,7 +552,7 @@ EndProcedure
 &AtClient
 Function CurrentTimeOnTheClient()
 
-	// ACC:143-
+	// ACC:143-off To calculate the time offset for the form, CurrentDate is required.
 	Return CurrentDate();
 	// ACC:143-on 
 	

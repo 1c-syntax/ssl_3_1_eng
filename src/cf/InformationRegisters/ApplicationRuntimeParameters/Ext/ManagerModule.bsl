@@ -19,7 +19,7 @@
 //                                 if the update is required due to the subordinate DIB node setup.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - returns True, if update or setup of the infobase is required.
 //
 Function UpdateRequired1(SubordinateDIBNodeSetup = False) Export
 	
@@ -27,12 +27,12 @@ Function UpdateRequired1(SubordinateDIBNodeSetup = False) Export
 		// Updating in SaaS.
 		If Common.SeparatedDataUsageAvailable() Then
 			If InfobaseUpdate.InfobaseUpdateRequired() Then
-				// 
+				// Filling separated extension parameters.
 				Return True;
 			EndIf;
 			
 		ElsIf InfobaseUpdateInternal.SharedInfobaseDataUpdateRequired() Then
-			// 
+			// Updating shared application parameters.
 			Return True;
 		EndIf;
 	Else
@@ -45,8 +45,8 @@ Function UpdateRequired1(SubordinateDIBNodeSetup = False) Export
 	If Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 		ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
 		
-		// 
-		// 
+		
+		
 		If ModuleDataExchangeServer.SubordinateDIBNodeSetup() Then
 			SubordinateDIBNodeSetup = True;
 			Return True;
@@ -141,9 +141,9 @@ Function ApplicationParameterChanges(ParameterName) Export
 	If Common.DataSeparationEnabled()
 	   And Not Common.SeparatedDataUsageAvailable() Then
 		
-		// 
-		// 
-		// 
+		
+		
+		
 		
 		// Version of shared (common) data.
 		IBVersion = InfobaseUpdateInternal.IBVersion(Metadata.Name, True);
@@ -171,10 +171,10 @@ Function ApplicationParameterChanges(ParameterName) Export
 	NextVersion = NextVersion(Version);
 	UpdateOutsideIBUpdate = CommonClientServer.CompareVersions(IBVersion, Version) = 0;
 	
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
 	
 	IndexOf = LastChanges.Count()-1;
 	While IndexOf >= 0 Do
@@ -243,10 +243,10 @@ Procedure AddApplicationParameterChanges(ParameterName, Val Changes) Export
 		
 		If ValueIsFilled(Changes) Then
 			
-			// 
-			// 
-			// 
-			// 
+			
+			
+			
+			
 			Version = Metadata.Version;
 			
 			UpdateOutsideIBUpdate =
@@ -264,9 +264,9 @@ Procedure AddApplicationParameterChanges(ParameterName, Val Changes) Export
 		
 		EarliestIBVersion = InfobaseUpdateInternalCached.EarliestIBVersion();
 		
-		// 
-		// 
-		// 
+		
+		
+		
 		IndexOf = LastChanges.Count()-1;
 		While IndexOf >=0 Do
 			RevisionVersion = LastChanges[IndexOf].ConfigurationVersion;
@@ -361,9 +361,9 @@ Function ImportApplicationParametersInBackground(WaitCompletion, FormIdentifier,
 	
 	OperationParametersList = TimeConsumingOperations.BackgroundExecutionParameters(FormIdentifier);
 	OperationParametersList.BackgroundJobDescription = NStr("en = 'Background import of application parameters';");
-	// 
-	// 
-	// 
+	
+	
+	
 	OperationParametersList.RunInBackground = True;
 	OperationParametersList.WaitCompletion = WaitCompletion;
 	
@@ -425,9 +425,9 @@ Function UpdateExtensionVersionParametersInBackground(WaitCompletion, FormIdenti
 	
 	OperationParametersList = TimeConsumingOperations.BackgroundExecutionParameters(FormIdentifier);
 	OperationParametersList.BackgroundJobDescription = NStr("en = 'Update extension version parameters in background';");
-	// 
-	// 
-	// 
+	
+	
+	
 	OperationParametersList.RunInBackground = True;
 	OperationParametersList.WaitCompletion = WaitCompletion;
 	
@@ -468,7 +468,7 @@ Function ProcessedTimeConsumingOperationResult(Result, Operation) Export
 				NStr("en = 'Cannot update application parameters. Reason:
 				           |The update background job is canceled.';");
 			
-		Else // ОбновлениеПараметровРаботыВерсийРасширений.
+		Else // ExtensionVersionParametersUpdate.
 			BriefErrorDescription =
 				NStr("en = 'Cannot update extension version parameters. Reason:
 				           |The update background job is canceled.';");
@@ -492,7 +492,7 @@ Function ProcessedTimeConsumingOperationResult(Result, Operation) Export
 				NStr("en = 'Cannot update application parameters. Reason:
 				           |The update background job has not returned the result.';");
 			
-		Else // ОбновлениеПараметровРаботыВерсийРасширений.
+		Else // ExtensionVersionParametersUpdate.
 			BriefErrorDescription =
 				NStr("en = 'Cannot update extension version parameters. Reason:
 				           |The update background job has not returned the result.';");
@@ -502,7 +502,7 @@ Function ProcessedTimeConsumingOperationResult(Result, Operation) Export
 	        And Result.Status <> "ApplicationParametersImportAndUpdateNotRequired"
 	        And Result.Status <> "ExtensionVersionParametersUpdateNotRequired" Then
 		
-		// 
+		// Background job error.
 		BriefErrorDescription   = Result.BriefErrorDescription;
 		DetailErrorDescription = Result.DetailErrorDescription;
 	EndIf;
@@ -535,20 +535,20 @@ EndFunction
 // Returns:
 //  Structure:
 //   * Core - Structure:
-//      ** MetadataObjectIDs  - 
+//      ** MetadataObjectIDs  - See UpdateParameterProperties.
 //      ** ClearAPIsCache - See UpdateParameterProperties.
 //   * AttachableCommands - Structure:
 //      ** PluginCommandsConfig - See UpdateParameterProperties.
 //   * Users - Structure:
 //      ** CheckRoleAssignment - See UpdateParameterProperties.
 //   * AccessManagement - Structure:
-//      ** RolesRights                                    - 
-//      ** RightsDependencies                               - 
-//      ** AccessKindsProperties                          - 
-//      ** SuppliedAccessGroupProfilesDescription      - 
+//      ** RolesRights                                    - See UpdateParameterProperties.
+//      ** RightsDependencies                               - See UpdateParameterProperties.
+//      ** AccessKindsProperties                          - See UpdateParameterProperties.
+//      ** SuppliedAccessGroupProfilesDescription      - See UpdateParameterProperties.
 //      ** AvailableRightsForObjectsRightSettingsDetails - See UpdateParameterProperties.
 //   * ReportsOptions - Structure:
-//      ** ParametersReportsConfiguration              - 
+//      ** ParametersReportsConfiguration              - See UpdateParameterProperties.
 //      ** ParametersIndexSearchReportsConfiguration - See UpdateParameterProperties.
 //   * InformationOnStart - Structure:
 //      ** InformationPackagesOnStart - See UpdateParameterProperties.
@@ -565,17 +565,17 @@ Function ParametersOfUpdate(ShouldUpdate = False) Export
 	ParametersSubsystems.Insert("ClearAPIsCache", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("Core", ParametersSubsystems);
 	
-	// 
+	// StandardSubsystems AttachableCommands
 	ParametersSubsystems = New Structure;
 	ParametersSubsystems.Insert("PluginCommandsConfig", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("AttachableCommands", ParametersSubsystems);
 	
-	// 
+	// StandardSubsystems Users
 	ParametersSubsystems = New Structure;
 	ParametersSubsystems.Insert("CheckRoleAssignment", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("Users", ParametersSubsystems);
 	
-	// 
+	// StandardSubsystems AccessManagement
 	ParametersSubsystems.Insert("RolesRights",                                    NewUpdateParameterProperties(ShouldUpdate));
 	ParametersSubsystems.Insert("RightsDependencies",                               NewUpdateParameterProperties(ShouldUpdate));
 	ParametersSubsystems.Insert("AccessKindsProperties",                          NewUpdateParameterProperties(ShouldUpdate));
@@ -583,16 +583,16 @@ Function ParametersOfUpdate(ShouldUpdate = False) Export
 	ParametersSubsystems.Insert("AvailableRightsForObjectsRightSettingsDetails", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("AccessManagement", ParametersSubsystems);
 	
-	// 
+	// StandardSubsystems ReportsOptions
 	ParametersSubsystems.Insert("ParametersReportsConfiguration", NewUpdateParameterProperties(ShouldUpdate));
 	ParametersSubsystems.Insert("ParametersIndexSearchReportsConfiguration", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("ReportsOptions", ParametersSubsystems);
 	
-	// 
+	// StandardSubsystems NotificationAtStartup
 	ParametersSubsystems.Insert("InformationPackagesOnStart", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("InformationOnStart", ParametersSubsystems);
 	
-	// 
+	// StandardSubsystems AccountingAudit
 	ParametersSubsystems.Insert("SystemChecksAccounting", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("AccountingAudit", ParametersSubsystems);
 	
@@ -717,12 +717,12 @@ Procedure LongOperationHandlerPerformUpdateUnsharedData(Parameters, ResultAddres
 	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
 		ModuleReportsOptions = Common.CommonModule("ReportsOptions");
 		Settings = ModuleReportsOptions.SettingsUpdateParameters();
-		Settings.SharedData = True; // Предопределенные.
+		Settings.SharedData = True; 
 		Settings.SeparatedData = False;
 		If Parameters.ReportsOptions.ParametersReportsConfiguration.ShouldUpdate Then
 			Settings.Configuration = True;
 			Settings.Extensions = False;
-			Settings.Nonexclusive = True; // 
+			Settings.Nonexclusive = True; // Update presentations and others.
 			Settings.Deferred2 = False;
 			Parameters.ReportsOptions.ParametersReportsConfiguration.HasChanges =
 				ModuleReportsOptions.Refresh(Settings).HasChanges;
@@ -732,8 +732,8 @@ Procedure LongOperationHandlerPerformUpdateUnsharedData(Parameters, ResultAddres
 			Settings.Configuration = True;
 			Settings.Extensions = False;
 			Settings.Nonexclusive = False;
-			Settings.Deferred2 = True; // 
-			Settings.IndexSchema = True; // 
+			Settings.Deferred2 = True; // Update the DCS search index.
+			Settings.IndexSchema = True; // Force-rebuild the index.
 			Parameters.ReportsOptions.ParametersIndexSearchReportsConfiguration.HasChanges =
 				ModuleReportsOptions.Refresh(Settings).HasChanges;
 		EndIf;
@@ -780,8 +780,8 @@ Procedure ApplicationParametersImportLongRunningOperationHandler(ReportProgress,
 		ErrorInfo = ErrorInfo();
 		ExecutionResult.BriefErrorDescription   = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 		ExecutionResult.DetailErrorDescription = ErrorProcessing.DetailErrorDescription(ErrorInfo);
-		// 
-		// 
+		
+		
 		If Common.SubsystemExists("StandardSubsystems.DataExchange")
 		   And Common.IsSubordinateDIBNode() Then
 			ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
@@ -806,8 +806,8 @@ Procedure ApplicationParametersUpdateLongRunningOperationHandler(ReportProgress,
 		ErrorInfo = ErrorInfo();
 		ExecutionResult.BriefErrorDescription   = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 		ExecutionResult.DetailErrorDescription = ErrorProcessing.DetailErrorDescription(ErrorInfo);
-		// 
-		// 
+		
+		
 		If Common.SubsystemExists("StandardSubsystems.DataExchange")
 		   And Common.IsSubordinateDIBNode() Then
 			ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
@@ -832,8 +832,8 @@ Procedure ExtensionsVersionsParametersUpdateLongRunningOperationHandler(ReportPr
 		ErrorInfo = ErrorInfo();
 		ExecutionResult.BriefErrorDescription   = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 		ExecutionResult.DetailErrorDescription = ErrorProcessing.DetailErrorDescription(ErrorInfo);
-		// 
-		// 
+		
+		
 		If Common.SubsystemExists("StandardSubsystems.DataExchange")
 		   And Common.IsSubordinateDIBNode() Then
 			ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
@@ -863,7 +863,7 @@ Procedure LoadProgramOperationParametersTakingIntoAccountExecutionMode(ReportPro
 		Return;
 	EndIf;
 	
-	// 
+	// Run DIB data exchange and update data in the subordinate node.
 	ModulePerformanceMonitor = Undefined;
 	If Common.SubsystemExists("StandardSubsystems.PerformanceMonitor") Then
 		ModulePerformanceMonitor = Common.CommonModule("PerformanceMonitor");
@@ -884,7 +884,7 @@ Procedure LoadProgramOperationParametersTakingIntoAccountExecutionMode(ReportPro
 		If StandardProcessing = True
 		   And Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 			
-			// 
+			// Importing predefined items and metadata object IDs from the master node.
 			ModuleDataExchangeServer.ImportPriorityDataToSubordinateDIBNode();
 		EndIf;
 		
@@ -899,13 +899,13 @@ Procedure LoadProgramOperationParametersTakingIntoAccountExecutionMode(ReportPro
 		TimeConsumingOperations.ReportProgress(5);
 	EndIf;
 	
-	// 
+	// Checking metadata object ID import from the master node.
 	ListOfCriticalChanges = "";
 	Try
 		Catalogs.MetadataObjectIDs.RunDataUpdate(False, False, True, , ListOfCriticalChanges);
 	Except
-		// 
-		// 
+		
+		
 		If Not SubordinateDIBNodeSetup
 		   And Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 			ModuleDataExchangeServer.EnableDataExchangeMessageImportRecurrenceBeforeStart();
@@ -920,8 +920,8 @@ Procedure LoadProgramOperationParametersTakingIntoAccountExecutionMode(ReportPro
 		
 		WriteLogEvent(EventName, EventLogLevel.Error, , , ListOfCriticalChanges);
 		
-		// 
-		// 
+		
+		
 		If Not SubordinateDIBNodeSetup
 		   And Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 			ModuleDataExchangeServer.EnableDataExchangeMessageImportRecurrenceBeforeStart();
@@ -940,12 +940,12 @@ Procedure LoadProgramOperationParametersTakingIntoAccountExecutionMode(ReportPro
 			           |%2';");
 		
 		If SubordinateDIBNodeSetup Then
-			// 
+			// Setting up a subordinate DIB node during the first start.
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
 				"/C" + " " + "StartInfobaseUpdate",
 				NStr("en = '- Then retry creating a subordinate node.';"));
 		Else
-			// 
+			// Updating a subordinate DIB node.
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
 				"/C" + " " + "StartInfobaseUpdate",
 				NStr("en = '- Then repeat data synchronization with this infobase: 
@@ -991,10 +991,10 @@ Procedure UpdateProgramOperationParametersBasedOnExecutionMode(ReportProgress)
 		BeginTime = ModulePerformanceMonitor.StartTimeMeasurement();
 	EndIf;
 	
-	// 
-	// 
-	// 
-	// 
+	
+	
+	
+	
 	UpdateApplicationParameters(ReportProgress);
 	
 	If ModulePerformanceMonitor <> Undefined Then
@@ -1144,8 +1144,8 @@ Function ApplicationParameterStoredData(ParameterName)
 		Try
 			Content = Selection.ParameterStorage.Get();
 		Except
-			// 
-			// 
+			
+			
 			Content = Undefined;
 			ErrorInfo = ErrorInfo();
 			Comment = StringFunctionsClientServer.SubstituteParametersToString(

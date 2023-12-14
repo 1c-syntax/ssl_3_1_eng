@@ -7,21 +7,21 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
+
+
 // 
-// 
-// 
-// 
-// 
+
+
 //                                                  
-// 
+
 //                                                  
 //
-// 
+
 //
-// 
+
 //                                                
 //                                                
-// 
+
 //                                                
 //                                                
 //
@@ -37,9 +37,9 @@ Var MetadataCurrentRow;
 
 #Region ForCallsFromOtherSubsystems
 
-// 
 
-// 
+
+
 
 // Command export handler for the additional reports and data processors subsystem.
 //
@@ -135,7 +135,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	EndIf;
 	
-	// 
+	// Initializing object settings.
 	CurrentObject.ReadSettings();
 	CurrentObject.ReadSSLSupportFlags();
 	CurrentObject.ReadSignsOfBSDSupport();
@@ -146,8 +146,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Return;
 	EndIf;
 	Items.GroupPages.CurrentPage = Items.Main;
-	// 
-	Parameters.Property("NamesOfMetadataToHide", NamesOfMetadataToHide);
+	// Filling the list of prohibited metadata objects based on form parameters.
+	Parameters.Property("NamesOfMetadataToHide", Object.NamesOfMetadataToHide);
 	AddNameOfMetadataToHide();
 	
 	Items.ObjectsListOptions.CurrentPage = Items.BlankPage;
@@ -268,7 +268,7 @@ EndProcedure
 Procedure OnLoadDataFromSettingsAtServer(Settings)
 	
 	If RegistrationObjectParameter <> Undefined Then
-		// 
+		// Another form will be used.
 		Return;
 	EndIf;
 	
@@ -942,7 +942,7 @@ EndProcedure
 &AtClient
 Procedure EditConstantMessageNoCompletion(Val MessageNo, Val AdditionalParameters) Export
 	If MessageNo = Undefined Then
-		// 
+		// Cancel input.
 		Return;
 	EndIf;
 	
@@ -956,7 +956,7 @@ EndProcedure
 //   Ref - ExchangePlanRef
 //
 // Returns:
-//   Structure - 
+//   Structure - Additional parameters.:
 //     * Ref - ExchangePlanRef
 //
 &AtClient
@@ -991,7 +991,7 @@ EndProcedure
 &AtClient
 Procedure EditRefMessageNoCompletion(Val MessageNo, Val AdditionalParameters) Export
 	If MessageNo = Undefined Then
-		// 
+		// Cancel input.
 		Return;
 	EndIf;
 	
@@ -1030,7 +1030,7 @@ EndProcedure
 &AtClient
 Procedure EditMessageNoSetListCompletion(Val MessageNo, Val AdditionalParameters) Export
 	If MessageNo = Undefined Then
-		// 
+		// Cancel input.
 		Return;
 	EndIf;
 	
@@ -1091,7 +1091,7 @@ Procedure ExchangeNodeChoiceProcessingServer()
 	ReadMetadataTree();
 	FillRegistrationCountInTreeRows();
 	
-	// 
+	// Refresh the active page.
 	Items.ObjectsListOptions.CurrentPage = Items.BlankPage;
 	
 	// Setting visibility for related buttons.
@@ -1102,7 +1102,7 @@ Procedure ExchangeNodeChoiceProcessingServer()
 	
 	If Object.DIBModeAvailable                             // Current SSL version supports MOID.
 		And (ExchangePlans.MasterNode() = Undefined)          // Current infobase is a master node.
-		And MetaNodeExchangePlan.DistributedInfoBase Then // Текущий узел - DIB
+		And MetaNodeExchangePlan.DistributedInfoBase Then 
 		Items.FormRegisterMOIDAndPredefinedItems.Visible = True;
 	Else
 		Items.FormRegisterMOIDAndPredefinedItems.Visible = False;
@@ -1381,7 +1381,7 @@ Procedure AddSelectedObjectRegistration(NoAutoRegistration = True)
 	Data = GetSelectedMetadataNames(NoAutoRegistration);
 	Count = Data.MetaNames.Count();
 	If Count = 0 Then
-		// 
+		// Current row.
 		Data = GetCurrentRowMetadataNames(NoAutoRegistration);
 	EndIf;
 	
@@ -1571,7 +1571,7 @@ Procedure BackgroundJobGetResultAtServer()
 	If BackgroundJobCompleteResult <> Undefined Then
 		BackgroundJobCompleteResult.Insert("AdditionalResultData", New Structure);
 		ErrorMessage = "";
-		StandardErrorPresentation = NStr("en = 'Error changing registration state. See the Event log for details.';");
+		StandardErrorPresentation = NStr("en = 'Error changing registration state. See the event log for details.';");
 		
 		If BackgroundJobCompleteResult.Status = "Error" Then
 			ErrorMessage = BackgroundJobCompleteResult.DetailErrorDescription;
@@ -1601,7 +1601,7 @@ EndProcedure
 // Returns a reference to the TimeConsumingOperationsClient common module.
 //
 // Returns:
-//  CommonModule - 
+//  CommonModule - the TimeConsumingOperationsClient common module.
 //
 &AtClient
 Function CommonModuleTimeConsumingOperationsClient()
@@ -1620,7 +1620,7 @@ EndFunction
 // Returns a reference to the TimeConsumingOperations common module.
 //
 // Returns:
-//  CommonModule - 
+//  CommonModule - the TimeConsumingOperations common module.
 //
 &AtServerNoContext
 Function CommonModuleTimeConsumingOperations()
@@ -1641,7 +1641,7 @@ Function CommonModuleTimeConsumingOperations()
 EndFunction
 
 // Returns:
-//   Structure - 
+//   Structure - Additional parameters.:
 //     * Action - Boolean
 //     * FormTable - FormTable
 //     * Data - Arbitrary
@@ -1672,7 +1672,7 @@ Procedure DataChoiceProcessing(FormTable, ValueSelected)
 		If Not (ValueSelected.Property("TableName")
 			And ValueSelected.Property("ChoiceAction")
 			And ValueSelected.Property("ChoiceData")) Then
-			// 
+			// Waiting for the structure in the specified format.
 			Return;
 		EndIf;
 		TableName = ValueSelected.TableName;
@@ -1859,7 +1859,7 @@ Procedure ActionWithQueryResult(ActionCommand)
 		Return;
 	EndIf;
 	
-	// Не настроено или что-
+	// If the query execution handler is not specified, prompting the user to specify it.
 	Text = NStr("en = 'Query data processor not specified.
 	                        |Do you want to specify it now?';");
 	
@@ -1910,7 +1910,7 @@ Procedure ReadMetadataTree()
 	
 	// Deleting rows that cannot be edited.
 	MetaTree = Data.Tree;
-	For Each ListItem In NamesOfMetadataToHide Do
+	For Each ListItem In Object.NamesOfMetadataToHide Do
 		DeleteMetadataValueTreeRows(ListItem.Value, MetaTree.Rows);
 	EndDo;
 	
@@ -1935,7 +1935,7 @@ Procedure DeleteMetadataValueTreeRows(Val MetaFullName, TreeRows)
 			ParentString = TreeRows.Parent;
 			If ParentString.Parent <> Undefined Then
 				ParentString.Parent.Rows.Delete(ParentString);
-				// 
+				// There are no subordinate rows.
 				Return;
 			EndIf;
 		EndIf;
@@ -2049,14 +2049,24 @@ EndFunction
 &AtServer
 Procedure SetUpChangeEditingServer(CurrentRow)
 	
-	Data = MetadataTree.FindByID(CurrentRow);
-	If Data = Undefined Then
-		Return;
+	If CurrentRow = Undefined Then
+		
+		TableName = "";
+		Description = MetadataTree.GetItems()[0].Description;
+		CurrentObject = Undefined;
+		
+	Else
+		
+		Data = MetadataTree.FindByID(CurrentRow);
+		If Data = Undefined Then
+			Return;
+		EndIf;
+		
+		TableName   = Data.MetaFullName;
+		Description = Data.Description;
+		CurrentObject   = ThisObject();
+		
 	EndIf;
-	
-	TableName   = Data.MetaFullName;
-	Description = Data.Description;
-	CurrentObject   = ThisObject();
 	
 	If IsBlankString(TableName) Then
 		Meta = Undefined;
@@ -2303,7 +2313,7 @@ Procedure SetUpRecordSet(TableName, Dimensions, Description)
 	For Each String In Dimensions Do
 		Name = String.Name;
 		ChoiceText = ChoiceText + ",ChangesTable." + Name + " AS " + Prefix + Name + Chars.LF;
-		// 
+		// Adding the prefix to exclude the MessageNumber and NotExported dimensions.
 		String.Name = Prefix + Name;
 	EndDo;
 	
@@ -2360,11 +2370,11 @@ Procedure SetFilterByMessageNo(DynamList, Variant)
 	FilterElement.Use = False;
 	FilterElement.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
-	If Variant = 1 Then 		// Выгруженные
+	If Variant = 1 Then 		// Exported items.
 		FilterElement.RightValue = False;
 		FilterElement.Use  = True;
 		
-	ElsIf Variant = 2 Then	// 
+	ElsIf Variant = 2 Then	// Not exported items.
 		FilterElement.RightValue = True;
 		FilterElement.Use  = True;
 		
@@ -2444,7 +2454,7 @@ Function SerializationText(Serialization)
 			Value = Manager.CreateValueManager();
 			
 		ElsIf Item.TypeFlag = 2 Then
-			// 
+			// Creating record set with a filter
 			Manager = GetManagerByMetadata(RecordSetsListTableName);
 			Value = Manager.CreateRecordSet();
 			For Each NameValue In Item.Data Do
@@ -2453,7 +2463,7 @@ Function SerializationText(Serialization)
 			Value.Read();
 			
 		ElsIf Item.TypeFlag = 3 Then
-			// Ссылка
+			// Reference
 			Value = Item.Data.GetObject();
 			If Value = Undefined Then
 				Value = New ObjectDeletion(Item.Data);
@@ -2493,15 +2503,15 @@ Function GetSelectedMetadataDetails(NoAutoRegistration, MetaGroupName = Undefine
 		Text = NStr("en = 'all items %1 of the metadata type';");
 		
 	ElsIf MetaGroupName <> Undefined And MetaNodeName = Undefined Then
-		// 
+		// Only a group is specified.
 		Text = "%2 %1";
 		
 	ElsIf MetaGroupName = Undefined And MetaNodeName <> Undefined Then
-		// 
+		// Only a node is specified.
 		Text = NStr("en = 'all items %1 of the metadata type';");
 		
 	Else
-		// 
+		// A group and a node are specified, using these values to obtain a metadata presentation.
 		Text = NStr("en = 'all items of type ""%3"" %1';");
 		
 	EndIf;
@@ -2577,7 +2587,7 @@ Function GetSelectedMetadataNames(NoAutoRegistration)
 			If Var_Group.Check = 0 Then
 				Continue;
 			ElsIf Var_Group.Check = 1 Then
-				//	
+				//	Getting data of the selected group.
 				GroupCount = GroupCount + 1;
 				GroupDetails = GetSelectedMetadataDetails(NoAutoRegistration, Var_Group.Description);
 				
@@ -2699,7 +2709,7 @@ Function RecordSetKeyStructure(Val CurrentData)
 	LongDesc = DataProcessorObject.MetadataCharacteristics(RecordSetsListTableName);
 	
 	If LongDesc = Undefined Then
-		// 
+		// Unknown source.
 		Return Undefined;
 	EndIf;
 	
@@ -2726,17 +2736,17 @@ Function RecordSetKeyStructure(Val CurrentData)
 		EndIf;
 		
 	ElsIf Dimensions.Count() = 0 Then
-		// 
+		// Degenerated record set.
 		Result.FormName = RecordSetsListTableName + ".ListForm";
 		
 	Else
-		Set = LongDesc.Manager.CreateRecordSet(); // 
+		Set = LongDesc.Manager.CreateRecordSet(); 
 		For Each KeyValue In Dimensions Do
 			DataProcessorObject.SetFilterItemValue(Set.Filter, KeyValue.Key, KeyValue.Value);
 		EndDo;
 		Set.Read();
 		If Set.Count() = 1 Then
-			// 
+			// Single item.
 			Result.FormName = RecordSetsListTableName + ".RecordForm";
 			Result.Parameter = "Key";
 			
@@ -2747,7 +2757,7 @@ Function RecordSetKeyStructure(Val CurrentData)
 			EndDo;
 			Result.Value = LongDesc.Manager.CreateRecordKey(Var_Key);
 		Else
-			// Список
+			// List
 			Result.FormName = RecordSetsListTableName + ".ListForm";
 			Result.Parameter = "Filter";
 			Result.Value = Dimensions;
@@ -2813,7 +2823,7 @@ Procedure AddNameOfMetadataToHide()
 	For Each InformationRegisterMetadata In Metadata.InformationRegisters Do
 		For Each RegisterDimension In InformationRegisterMetadata.Dimensions Do
 			If Lower(RegisterDimension.Name) = "node" Then
-				NamesOfMetadataToHide.Add("InformationRegister." + InformationRegisterMetadata.Name);
+				Object.NamesOfMetadataToHide.Add("InformationRegister." + InformationRegisterMetadata.Name);
 				Break;
 			EndIf;
 		EndDo;
@@ -2921,22 +2931,22 @@ EndFunction
 
 &AtServer
 Function CommonModuleDataExchangeCached()
-	Return Eval("DataExchangeCached"); // 
+	Return Eval("DataExchangeCached"); 
 EndFunction
 
 &AtServer
 Function CommonModuleDataExchangeRegistrationCached()
-	Return Eval("DataExchangeRegistrationCached"); // 
+	Return Eval("DataExchangeRegistrationCached"); 
 EndFunction
 
 &AtServer
 Function CommonModuleDataExchangeRegistrationServer()
-	Return Eval("DataExchangeRegistrationServer"); // 
+	Return Eval("DataExchangeRegistrationServer"); 
 EndFunction
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Function SubstituteParametersToString(Val SubstitutionString, Val Parameter1, Val Parameter2 = Undefined, Val Parameter3 = Undefined)

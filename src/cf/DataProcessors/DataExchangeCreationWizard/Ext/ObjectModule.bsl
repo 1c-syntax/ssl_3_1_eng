@@ -11,7 +11,7 @@
 
 #Region Variables
 
-Var ErrorMessageStringField; // String - 
+Var ErrorMessageStringField; // String - Error message.
 
 #EndRegion
 
@@ -77,7 +77,7 @@ Procedure ExecuteActionsToSetNewDataExchange(Cancel,
 			Constants.UseDataSynchronization.Set(True);
 			Constants.NotUseSeparationByDataAreas.Set(True);
 			
-			// 
+			// Importing rules as exchange rules are not migrated to DIB.
 			DataExchangeServer.UpdateDataExchangeRules();
 			
 		EndIf;
@@ -89,7 +89,7 @@ Procedure ExecuteActionsToSetNewDataExchange(Cancel,
 		Return;
 	EndTry;
 	
-	// 
+	// Updating cached values of the object registration mechanism.
 	DataExchangeInternal.CheckObjectsRegistrationMechanismCache();
 	
 	Try
@@ -254,7 +254,7 @@ Procedure ExternalConnectionUpdateDataExchangeSettings(DefaultNodeValues) Export
 		LockDataForEdit(InfobaseNode);
 		InfobaseNodeObject = InfobaseNode.GetObject();
 		
-		// 
+		// Setting default values.
 		DataExchangeEvents.SetDefaultNodeValues(InfobaseNodeObject, DefaultNodeValues);
 		
 		InfobaseNodeObject.AdditionalProperties.Insert("GettingExchangeMessage");
@@ -269,7 +269,7 @@ Procedure ExternalConnectionUpdateDataExchangeSettings(DefaultNodeValues) Export
 EndProcedure
 
 // Sets up a new data exchange over a web service.
-// See the detailed description in the SetUpNewDataExchange procedure. 
+// See the detailed description in the SetUpNewDataExchange procedure.
 //
 Procedure SetUpNewDataExchangeWebService(Cancel, NodeFiltersSetting, DefaultNodeValues) Export
 	
@@ -419,7 +419,7 @@ EndProcedure
 // Returns the data exchange error message string.
 //
 // Returns:
-//  String - 
+//  String - a data exchange error message string.
 //
 Function ErrorMessageString() Export
 	
@@ -490,7 +490,7 @@ Procedure CreateUpdateExchangePlanNodes(NodeFiltersSetting, DefaultNodeValues, T
 		
 	Else
 		
-		// 
+		// CREATE/UPDATE NODE
 		NewNode = ManagerExchangePlan.FindByCode(NewNodeCode);
 		CreateNewNode = NewNode.IsEmpty();
 		If CreateNewNode Then
@@ -509,13 +509,13 @@ Procedure CreateUpdateExchangePlanNodes(NodeFiltersSetting, DefaultNodeValues, T
 		
 	EndIf;
 	
-	// 
+	// Setting filter values for the new node.
 	DataExchangeEvents.SetNodeFilterValues(NewNode, NodeFiltersSetting);
 	
-	// 
+	// Setting default values for the new node.
 	DataExchangeEvents.SetDefaultNodeValues(NewNode, DefaultNodeValues);
 	
-	// 
+	// Reset message counters.
 	NewNode.SentNo = 0;
 	NewNode.ReceivedNo     = 0;
 	
@@ -560,7 +560,7 @@ Procedure CreateUpdateExchangePlanNodes(NodeFiltersSetting, DefaultNodeValues, T
 		DataExchangeInternal.UpdateInformationRegisterRecord(RecordStructure, "XDTODataExchangeSettings");
 	EndIf;
 	
-	// 
+	// Shared node data.
 	InformationRegisters.CommonInfobasesNodesSettings.UpdatePrefixes(
 		NewNode.Ref,
 		?(UsePrefixesForExchangeSettings, SourceInfobasePrefix, ""),
@@ -615,7 +615,7 @@ Procedure UpdateExchangeMessagesTransportSettings()
 	SupplementStructureWithAttributeValue(RecordStructure, "WSRememberPassword");
 	SupplementStructureWithAttributeValue(RecordStructure, "ArchivePasswordExchangeMessages");
 	
-	// 
+	// Adding information register record
 	InformationRegisters.DataExchangeTransportSettings.AddRecord(RecordStructure);
 	
 EndProcedure
@@ -634,7 +634,7 @@ Procedure UpdateCOMExchangeMessagesTransportSettings()
 	SupplementStructureWithAttributeValue(RecordStructure, "COMInfobaseDirectory");
 	SupplementStructureWithAttributeValue(RecordStructure, "COMUserPassword");
 	
-	// 
+	// Adding information register record
 	InformationRegisters.DataExchangeTransportSettings.AddRecord(RecordStructure);
 	
 EndProcedure

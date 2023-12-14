@@ -48,7 +48,7 @@ Procedure UpdateRegisterData(HasChanges = Undefined) Export
 				Selection.Ref, , ItemsToChange, ModifiedGroups);
 		EndDo;
 		
-		// 
+		// Updating external user mapping
 		Selection = Catalogs.ExternalUsersGroups.Select();
 		While Selection.Next() Do
 			UsersInternal.UpdateExternalUserGroupCompositions(

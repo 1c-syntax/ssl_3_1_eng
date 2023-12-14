@@ -51,10 +51,10 @@ Procedure StartDataExchangeExecution(JobParameters, StorageAddress) Export
 			JobParameters.AuthenticationParameters             = ExchangeParameters.AuthenticationParameters;
 			
 			If ValueIsFilled(JobParameters.TimeConsumingOperationID) Then
-				// 
+				// If the job is performed at correspondent, then it will be necessary to import the received file to the database later.
 				JobParameters.MessageFileIDInService = ExchangeParameters.FileID;
 			Else
-				// 
+				// File with data is already received and imported to the base, there is no need to import it additionally.
 				JobParameters.MessageFileIDInService = "";
 			EndIf;
 			

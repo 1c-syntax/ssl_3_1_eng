@@ -9,9 +9,9 @@
 
 #Region Public
 
-// Asks the user to confirm that the
-// update is received legally and closes the application if the update is received illegally
-// (see the TerminateApplication parameter).
+// 
+// 
+// 
 //
 // Parameters:
 //  Notification             - NotifyDescription - contains a handler called after
@@ -41,8 +41,8 @@ EndProcedure
 // See CommonClientOverridable.BeforeStart.
 Procedure BeforeStart(Parameters) Export
 	
-	// 
-	// 
+	
+	
 	
 	ClientParameters = StandardSubsystemsClient.ClientParametersOnStart();
 	

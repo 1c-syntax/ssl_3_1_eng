@@ -1,9 +1,9 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+
+ 
+
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -11,19 +11,19 @@
 
 #Region Variables
 
-Var IBUserProcessingParameters; // 
-                                        // 
+Var IBUserProcessingParameters; 
+                                        
 
-Var IsNew; // 
-                // 
+Var IsNew; 
+                
 
 #EndRegion
 
-// 
+
 //
-// 
+
 //
-// 
+
 //   
 //      
 //      
@@ -69,13 +69,13 @@ Var IsNew; //
 //       
 //   
 //
-// 
+
 //   
 //   
 //   
 //   
 //
-// 
+
 
 #Region EventHandlers
 
@@ -164,8 +164,8 @@ EndProcedure
 // For internal use only.
 Procedure CommonActionsBeforeDeleteInNormalModeAndDuringDataExchange() Export
 	
-	// 
-	// 
+	
+	
 	
 	IBUserDetails = New Structure;
 	IBUserDetails.Insert("Action", "Delete");

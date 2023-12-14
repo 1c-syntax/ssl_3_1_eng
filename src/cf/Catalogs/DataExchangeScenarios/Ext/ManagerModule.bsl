@@ -52,7 +52,7 @@ Procedure CreateScenario(
 	
 	DataExchangeScenario = CreateItem();
 	
-	// 
+	// Filling in header attributes
 	DataExchangeScenario.Description = Description;
 	DataExchangeScenario.UseScheduledJob = UseScheduledJob;
 	
@@ -101,8 +101,8 @@ Function DefaultJobSchedule() Export
 	
 	Schedule = New JobSchedule;
 	Schedule.WeekDays                = WeekDays;
-	Schedule.RepeatPeriodInDay = 900; // 
-	Schedule.DaysRepeatPeriod        = 1; // 
+	Schedule.RepeatPeriodInDay = 900; 
+	Schedule.DaysRepeatPeriod        = 1; // Every day.
 	Schedule.Months                   = Months;
 	
 	Return Schedule;
@@ -154,7 +154,7 @@ Procedure UpdateScheduledJobData(Cancel, JobSchedule, CurrentObject) Export
 		// Writing a modified job.
 		WriteScheduledJob(Cancel, ScheduledJobObject);
 		
-		// 
+		// Writing GUID of the scheduled job in the object attribute.
 		CurrentObject.GUIDScheduledJob = String(ScheduledJobObject.UUID);
 	
 	EndIf;
@@ -199,7 +199,7 @@ EndProcedure
 // Parameters:
 //  Cancel                     - Boolean - a cancellation flag. It is set to True
 //                                       if errors occur upon the procedure execution.
-//  ScheduledJobObject - 
+//  ScheduledJobObject - a scheduled job object to record.
 // 
 Procedure WriteScheduledJob(Cancel, ScheduledJobObject)
 	
@@ -207,7 +207,7 @@ Procedure WriteScheduledJob(Cancel, ScheduledJobObject)
 	
 	Try
 		
-		// 
+		// Write a scheduled job.
 		ScheduledJobObject.Write();
 		
 	Except
@@ -279,8 +279,8 @@ EndProcedure
 //  JobUUID - String - a string with the scheduled job GUID.
 // 
 // Returns:
-//  Undefined        - 
-//  
+//  Undefined        - if a scheduled job with the specified GUID is not found or
+//  ScheduledJob - a scheduled job found by GUID.
 //
 Function ScheduledJobByID(Val JobUUID) Export
 	
@@ -469,7 +469,7 @@ Procedure AddDataExchangeScenarioSettingsRows(
 		// Adding data import in a loop.
 		For Each TableRow In ExchangeSettings Do
 			
-			If TableRow.CurrentAction = CurrentAction Then // 
+			If TableRow.CurrentAction = CurrentAction Then // The first import row.
 				
 				NewRow = ExchangeSettings.Insert(ExchangeSettings.IndexOf(TableRow));
 				
@@ -482,7 +482,7 @@ Procedure AddDataExchangeScenarioSettingsRows(
 			
 		EndDo;
 		
-		// 
+		// If the row is not added in the loop, insert the row to the beginning of the table.
 		Filter = New Structure("InfobaseNode, CurrentAction", InfobaseNode, CurrentAction);
 		If ExchangeSettings.FindRows(Filter).Count() = 0 Then
 			

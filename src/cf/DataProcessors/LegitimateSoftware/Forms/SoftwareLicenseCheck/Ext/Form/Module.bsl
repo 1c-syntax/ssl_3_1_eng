@@ -132,8 +132,8 @@ Procedure WriteLegalityAndStatisticsSendingConfirmation(AllowSendStatistics)
 		SendStatisticsParameters = ModuleMonitoringCenterInternal.GetMonitoringCenterParametersExternalCall(SendStatisticsParameters);
 		
 		If (Not SendStatisticsParameters.EnableMonitoringCenter And SendStatisticsParameters.ApplicationInformationProcessingCenter) Then
-			// 
-			// 
+			
+			
 			//
 		Else
 			If AllowSendStatistics Then

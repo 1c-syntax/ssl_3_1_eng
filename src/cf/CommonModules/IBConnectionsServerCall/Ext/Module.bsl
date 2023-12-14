@@ -31,13 +31,13 @@ EndFunction
 //                                      regardless of the lock.
 //                                      Cannot be used for data area session locks.
 //  WaitingForTheStartOfBlocking - Number -  delay time of the lock start in minutes.
-//  LockDuration   - Number - lock duration in minutes.
+//  LockDuration   - Number -  lock duration in minutes.
 //
 // Returns:
-//   Boolean   - 
-//              
+//   Boolean   - True if the lock is set successfully.
+//              False if the lock cannot be set due to insufficient rights.
 //
-Function SetConnectionLock(MessageText = "", KeyCode = "KeyCode", // 
+Function SetConnectionLock(MessageText = "", KeyCode = "KeyCode", 
 	WaitingForTheStartOfBlocking = 0, LockDuration = 0) Export 
 	
 	Return IBConnections.SetConnectionLock(
@@ -48,8 +48,8 @@ EndFunction
 // Removes the infobase lock.
 //
 // Returns:
-//   Boolean   - 
-//              
+//   Boolean   - True if the operation is successful.
+//              False if the operation cannot be performed due to insufficient rights.
 //
 Function AllowUserAuthorization() Export
 	

@@ -23,9 +23,9 @@
 //          the "New UniqueID" platform constructor or use an online generator,
 //          for example, https://www.uuidgenerator.net/version4.
 //     * Used  - Undefined
-//                     - Boolean - 
-//          
-//          
+//                     - Boolean - indicates whether a property set is used.
+//          For example, you can use it to hide a set by functional options.
+//          Default value - Undefined, matches the True value.
 //     * IsFolder     - Boolean - True if the property set is a folder.
 //
 Procedure OnGetPredefinedPropertiesSets(Sets) Export
@@ -55,8 +55,8 @@ EndProcedure
 //
 // Parameters:
 //  Object       - AnyRef      - a reference to an object with properties.
-//               - ClientApplicationForm - 
-//               - FormDataStructure - 
+//               - ClientApplicationForm - a form of the object, to which properties are attached.
+//               - FormDataStructure - details of the object, to which properties are attached.
 //
 //  RefType    - Type - a type of the property owner reference.
 //
@@ -101,15 +101,15 @@ EndProcedure
 //                      separately for different sets.
 //                       For example, for each product kind - its own sets.
 //
-//                   - String - 
-//                      
-//                      
-//                      
+//                   - String - (not more than 32 characters) - use the specified assignment key
+//                      to add it to form property values.
+//                      Blank string - do not change form key properties as
+//                      they are set in the form and already consider differences of sets.
 //
-//                    
-//                    
-//                    
-//                    
+//                    Addition has format "PropertySetKey<AssignmentKey>"
+//                    to be able to update <AssignmentKey> without re-adding.
+//                    Upon automatic calculation, <AssignmentKey> contains reference ID hash
+//                    of ordered property sets.
 //
 Procedure FillObjectPropertiesSets(Val Object, RefType, PropertiesSets, StandardProcessing, AssignmentKey) Export
 	

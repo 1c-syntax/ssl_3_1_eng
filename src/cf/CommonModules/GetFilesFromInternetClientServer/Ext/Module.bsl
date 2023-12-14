@@ -21,9 +21,9 @@
 //     * Timeout                      - Number        - the file download timeout, in seconds.
 //     * SecureConnection         - Boolean       - indicates the use of secure ftps or https connection.
 //                                    - OpenSSLSecureConnection
-//                                    - Undefined - 
+//                                    - Undefined - in case the secure connection is not used.
 //
-//    
+//    Parameters only for HTTP (HTTPS) connection:
 //     * Headers                    - Map - see details of the Headers parameter of the HTTPRequest object in Syntax Assistant.
 //     * UseOSAuthentication - Boolean       - see Syntax Assistant for details of
 //                                                     the UseOSAuthentication parameter of the HTTPConnection object.
@@ -62,9 +62,9 @@ EndFunction
 //                              or protocol identifier (http, ftp, …).
 //
 // Returns:
-//    InternetProxy - 
-//                     
-//                     
+//    InternetProxy - describes proxy server parameters for various protocols.
+//                     If the network protocol scheme cannot be recognized,
+//                     the proxy will be created based on the HTTP protocol.
 //
 Function GetProxy(Val URLOrProtocol) Export
 	
@@ -130,7 +130,7 @@ EndFunction
 //                          <schema>://<username>:<password>@<host>:<port>/<path>?<parameters>#<anchor>.
 //
 // Returns:
-//    Structure - 
+//    Structure - composite parts of the URI according to the format:
 //        * Schema         - String - URI schema.
 //        * Login         - String - username.
 //        * Password        - String - User password.
@@ -199,17 +199,17 @@ EndFunction
 //   ProxyServerSetting -  Map of KeyAndValue:
 //     * Key - String
 //     * Value - Arbitrary
-//    
-//      
-//      
-//      
-//      
-//      
-//      
-//      
-//      
-//      
-//                            
+//    Keys:
+//      # UseProxy - Boolean - indicates whether to use the proxy server.
+//      # BypassProxyOnLocal - Boolean - indicates whether to use the proxy server for local addresses.
+//      # UseSystemSettings - Boolean - indicates whether to use system settings of the proxy server.
+//      # Server - String - a proxy server address.
+//      # Port - Number - a proxy server port.
+//      # User - String - a username to authorize on the proxy server.
+//      # Password - String - a user password.
+//      # UseOSAuthentication - Boolean - indicates that authentication by operating system is used.
+//      # Protocol - String - a protocol for which proxy server parameters, for example, HTTP, HTTPS,
+//                            or FTP are set.
 //
 // Returns:
 //   InternetProxy
@@ -217,19 +217,19 @@ EndFunction
 Function NewInternetProxy(ProxyServerSetting, Protocol)
 	
 	If ProxyServerSetting = Undefined Then
-		// Системные установки прокси-
+		// Proxy server system settings.
 		Return Undefined;
 	EndIf;
 	
 	UseProxy = ProxyServerSetting.Get("UseProxy");
 	If Not UseProxy Then
-		// Не использовать прокси-
+		// Do not use a proxy server.
 		Return New InternetProxy(False);
 	EndIf;
 	
 	UseSystemSettings = ProxyServerSetting.Get("UseSystemSettings");
 	If UseSystemSettings Then
-		// Системные настройки прокси-
+		// Proxy server system settings.
 		Return New InternetProxy(True);
 	EndIf;
 	
@@ -279,7 +279,7 @@ Function ProxyServerSetting()
 	ProxyServerSetting = StandardSubsystemsClient.ClientRunParameters().ProxyServerSettings;
 #EndIf
 	
-	// ACC:547-
+	// ACC:547-on
 	
 	Return ProxyServerSetting;
 	

@@ -42,8 +42,8 @@ Procedure CheckBasicCalendarUse(Cancel)
 		Return;
 	EndIf;
 	
-	//  
-	// 
+	 
+	
 	
 	Query = New Query;
 	Query.SetParameter("Calendar", Ref);

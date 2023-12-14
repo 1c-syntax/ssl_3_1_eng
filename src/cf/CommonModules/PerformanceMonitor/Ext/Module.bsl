@@ -13,7 +13,7 @@
 // EndTimeMeasurement or EndTechnologicalTimeMeasurement.
 //
 // Returns:
-//  Number - 
+//  Number - a 14-character-long number, start time in UTC, accurate to the nearest millisecond.
 //
 Function StartTimeMeasurement() Export
 
@@ -37,7 +37,7 @@ EndFunction
 //								  				  					  returned at the beginning of measurement by the PerformanceMonitor.BeginTimeMeasurement function.
 //  MeasurementWeight			- Number										- a quantitative indicator of the measurement, such as number of rows in a document.
 //  Comment			- String
-//             			- Map - 
+//             			- Map - arbitrary information about the measurement.
 //  CompletedWithError	- Boolean									- indicates that the measurement was not completed to the end,
 //
 Procedure EndTimeMeasurement(KeyOperation, BeginTime, MeasurementWeight = 1, Comment = Undefined,
@@ -71,7 +71,7 @@ EndProcedure
 //								  				  					  returned at the beginning of measurement by the PerformanceMonitor.BeginTimeMeasurement function.
 //  MeasurementWeight			- Number										- a quantitative indicator of the measurement, such as number of rows in a document.
 //  Comment			- String
-//             			- Map - 
+//             			- Map - arbitrary information about the measurement.
 //
 Procedure EndTechnologicalTimeMeasurement(KeyOperation, BeginTime, MeasurementWeight = 1,
 	Comment = Undefined) Export
@@ -136,7 +136,7 @@ Procedure CreateKeyOperations(KeyOperations) Export
 
 	While Selection.Next() Do
 		If Selection.Ref.IsEmpty() Then
-			CreateKeyOperation(Selection.KeyOperationName, Selection.ResponseTimeThreshold); // 
+			CreateKeyOperation(Selection.KeyOperationName, Selection.ResponseTimeThreshold); 
 		EndIf;
 	EndDo;
 EndProcedure
@@ -189,7 +189,6 @@ Procedure SetTimeThreshold(KeyOperations) Export
 		Block = New DataLock;
 		For Each KeyOperation In KeyOperations Do
 			LockItem = Block.Add("Catalog.KeyOperations");
-			LockItem.Mode = DataLockMode.Exclusive;
 			LockItem.SetValue("Name", KeyOperation.KeyOperationName);
 		EndDo;
 		Block.Lock();
@@ -267,10 +266,9 @@ Procedure ChangeKeyOperations(KeyOperations) Export
 		Block = New DataLock;
 		For Each KeyOperation In KeyOperations Do
 			LockItem = Block.Add("Catalog.KeyOperations");
-			LockItem.Mode = DataLockMode.Exclusive;
 			LockItem.SetValue("Name", KeyOperation.NameOfKeyOperationIsOld);
+
 			LockItem = Block.Add("Catalog.KeyOperations");
-			LockItem.Mode = DataLockMode.Exclusive;
 			LockItem.SetValue("Name", KeyOperation.KeyOperationNameNew);
 		EndDo;
 		Block.Lock();
@@ -300,7 +298,7 @@ EndProcedure
 //   Map of KeyAndValue:
 //     * Key - String
 //     * Value - Arbitrary
-//   
+//   :
 //    
 //    
 //    
@@ -350,13 +348,13 @@ Procedure FixTimeConsumingOperationMeasure(MeasurementDetails, DataVolume, StepN
 		NestedMeasurementStep.Insert("Duration", 0.0);
 		NestedMeasurementStep.Insert("MeasurementWeight", 0);
 	EndIf;                                                            
-	// 
+	// Writing the nested measurement data.
 	NestedMeasurementStep = NestedMeasurements[StepName];
 	NestedMeasurementStep.Insert("EndTime", CurrentTime);
 	NestedMeasurementStep.Insert("Duration", Duration + NestedMeasurementStep["Duration"]);
 	NestedMeasurementStep.Insert("MeasurementWeight", DataVolumeInStep + NestedMeasurementStep["MeasurementWeight"]);
 	
-	// 
+	// Writing the data for a durable measurement.
 	MeasurementDetails.Insert("LastMeasurementTime", CurrentTime);
 	MeasurementDetails.Insert("MeasurementWeight", DataVolumeInStep + MeasurementDetails["MeasurementWeight"]);
 
@@ -422,7 +420,7 @@ Procedure EndTimeConsumingOperationMeasurement(MeasurementDetails, DataVolume, S
 		MeasurementsArrayToWrite.Add(MeasurementParameters);
 	EndDo;
 	
-	// 
+	// Committing the key operation's weighted time.
 	MeasurementParameters = New Structure;
 	MeasurementParameters.Insert("KeyOperation", KeyOperationName + ".Specific");
 	MeasurementParameters.Insert("KeyOperationStartDate", MeasurementStartTime);
@@ -435,13 +433,13 @@ Procedure EndTimeConsumingOperationMeasurement(MeasurementDetails, DataVolume, S
 		MeasurementParameters.Insert("Duration", WeightedTimeTotal / 1000);
 		MeasurementParameters.Insert("MeasurementWeight", MeasurementDetails["MeasurementWeight"]);
 	Else
-		// 
+		// If there were no nested measurements, recording the weighted measurement.
 		MeasurementParameters.Insert("Duration", Duration / 1000 / DataVolumeInStep);
 		MeasurementParameters.Insert("MeasurementWeight", DataVolumeInStep);
 	EndIf;
 	MeasurementsArrayToWrite.Add(MeasurementParameters);
 	
-	// 
+	// Recording a long-running operation.
 	MeasurementParameters = New Structure;
 	MeasurementParameters.Insert("KeyOperation", KeyOperationName);
 	MeasurementParameters.Insert("Duration", (Duration) / 1000);
@@ -488,14 +486,13 @@ Procedure SetCompletedWithErrorFlag(KeyOperations) Export
 		Block = New DataLock;
 		For Each KeyOperation In KeyOperations Do
 			LockItem = Block.Add("Catalog.KeyOperations");
-			LockItem.Mode = DataLockMode.Exclusive;
 			LockItem.SetValue("Name", KeyOperation.KeyOperationName);
 		EndDo;
 		Block.Lock();
 
 		For Each KeyOperation In KeyOperations Do
 			Query.SetParameter("Name", KeyOperation.KeyOperationName);
-			QueryResult = Query.Execute(); // @skip-
+			QueryResult = Query.Execute(); 
 			If Not QueryResult.IsEmpty() Then
 				Selection = QueryResult.Select();
 				Selection.Next();
@@ -609,7 +606,7 @@ EndFunction
 // Returns:
 //  String - 
 //
-// 
+// :
 //  
 //  
 //
@@ -661,7 +658,7 @@ EndFunction
 // Returns the period of writing performance measurement results on the server
 //
 // Returns:
-//   Number - 
+//   Number - value in seconds.
 //
 Function RecordPeriod() Export
 	CurrentPeriod = Constants.PerformanceMonitorRecordPeriod.Get();
@@ -726,17 +723,17 @@ Procedure RecordKeyOperationDuration(Parameters)
 
 	Record.KeyOperation = KeyOperationRef;
 	
-	// 
+	// Getting the date in UTC
 	Record.MeasurementStartDate = KeyOperationStartDate;
 	Record.SessionNumber = InfoBaseSessionNumber();
 
-	Record.RunTime = ?(Duration = 0, 0.001, Duration); // 
+	Record.RunTime = ?(Duration = 0, 0.001, Duration); 
 	Record.MeasurementWeight = MeasurementWeight;
 
 	Record.RecordDate = Date(1, 1, 1) + CurrentUniversalDateInMilliseconds() / 1000;
 	Record.RecordDateBegOfHour = BegOfHour(Record.RecordDate);
 	If KeyOperationEndDate <> Undefined Then
-		// 
+		// Getting the date in UTC
 		Record.EndDate = KeyOperationEndDate;
 	EndIf;
 	Record.User = InfoBaseUsers.CurrentUser();
@@ -809,17 +806,17 @@ Procedure WriteTimeMeasurements(MeasurementsArray)
 
 		Record.KeyOperation = KeyOperationRef;
 	
-		// 
+		// Getting the date in UTC
 		Record.MeasurementStartDate = Measurement.KeyOperationStartDate;
 		Record.SessionNumber = SessionNumber;
 
-		Record.RunTime = ?(Measurement.Duration = 0, 0.001, Measurement.Duration); // 
+		Record.RunTime = ?(Measurement.Duration = 0, 0.001, Measurement.Duration); 
 		Record.MeasurementWeight = Measurement.MeasurementWeight;
 
 		Record.RecordDate = RecordDate;
 		Record.RecordDateBegOfHour = RecordDateBegOfHour;
 		If ValueIsFilled(Measurement.KeyOperationEndDate) Then
-			// 
+			// Getting the date in UTC
 			Record.EndDate = Measurement.KeyOperationEndDate;
 		EndIf;
 		Record.User = User;
@@ -967,7 +964,7 @@ Procedure ClearTimeMeasurementsRegisters() Export
 		If DeletionRequired Then
 			DeletionRequired = False;
 
-			Result = TimeMeasurementsQuery.Execute(); // @skip-
+			Result = TimeMeasurementsQuery.Execute(); 
 			Selection = Result.Select();
 			Selection.Next();
 			RecordDateBegOfHour = Selection.RecordDateBegOfHour;
@@ -981,7 +978,7 @@ Procedure ClearTimeMeasurementsRegisters() Export
 
 		If TechnologicalDeletionRequired Then
 			TechnologicalDeletionRequired = False;
-			Result = TechnologicalTimeMeasurementsQuery.Execute(); // @skip-
+			Result = TechnologicalTimeMeasurementsQuery.Execute(); 
 			Selection = Result.Select();
 			Selection.Next();
 			RecordDateBegOfHour = Selection.RecordDateBegOfHour;
@@ -1099,9 +1096,9 @@ EndFunction
 // Saves Apdex calculation result to a file
 //
 // Parameters:
-//  DirectoriesForExport - 
-//  
-//  MeasurementsArrays - a structure with an Array value.
+//  DirectoriesForExport - a structure with Array values.
+//  APDEXSelection - a query result
+//  MeasurementsArrays - a structure with Array values.
 //
 Procedure ExportResults(DirectoriesForExport, MeasurementsArrays, CurDate, FileSequenceNumber)
 
@@ -1138,7 +1135,7 @@ Procedure ExportResults(DirectoriesForExport, MeasurementsArrays, CurDate, FileS
 			Measurements = Comment.Value["Measurements"];
 			For Each Measurement In Measurements Do
 				XMLMeasurement = XDTOFactory.Create(TypeMeasurement);
-				XMLMeasurement.Value = Measurement.value;
+				XMLMeasurement.value = Measurement.value;
 				XMLMeasurement.weight = Measurement.weight;
 				XMLMeasurement.tUTC = Measurement.tUTC;
 				XMLMeasurement.userName = Measurement.userName;
@@ -1248,7 +1245,7 @@ EndFunction
 //  FileGenerationDate - Date - a measurement date and time
 //  ExtentionWithDot - String - a string containing a file extension with a dot. For example, ".xxx". 
 // Returns:
-//  String - 
+//  String - full path to the export file.
 //
 Function ExportFileFullName(Directory, CurDate, FileSequenceNumber, ExtentionWithDot)
 
@@ -1256,10 +1253,10 @@ Function ExportFileFullName(Directory, CurDate, FileSequenceNumber, ExtentionWit
 	FileSequenceNumberFormat = Format(FileSequenceNumber, "ND=5; NLZ=; NG=0");
 
 	Separator = ?(Upper(Left(Directory, 3)) = "FTP", "/", GetPathSeparator());
-	// ACC:1367-
+	
 	Return RemoveSeparatorsAtFileNameEnd(Directory, Separator) + Separator + Format(FileFormationDate,
 		"DF='yyyy-MM-dd HH-mm-ex-" + FileSequenceNumberFormat + "'") + ExtentionWithDot;
-	// 
+	// ACC:1367-on
 
 EndFunction
 
@@ -1317,7 +1314,7 @@ Procedure LoadPerformanceMonitorFile(FileName, StorageAddress) Export
 			XMLReader.OpenFile(File.FullName);
 			XMLReader.MoveToContent();
 
-			// 
+			
 			LoadPerformanceMonitorFileApdexExport(XMLReader, AvailableKeyOperations,
 				KeyOperationsToWrite, RawMeasurementsToWrite);  
 			XMLReader.Close();
@@ -1374,7 +1371,7 @@ Procedure LoadPerformanceMonitorFileApdexExport(XMLReader, AvailableKeyOperation
 
 		KeyOperationRef = AvailableKeyOperations[KeyOperationName1];
 		If KeyOperationRef = Undefined Then
-			KeyOperationRef = CreateKeyOperation(KeyOperationName1, ResponseTimeThreshold, TimeConsuming);  // @skip-
+			KeyOperationRef = CreateKeyOperation(KeyOperationName1, ResponseTimeThreshold, TimeConsuming);  
 			AvailableKeyOperations.Insert(KeyOperationName1, KeyOperationRef);
 		EndIf;
 
@@ -1433,7 +1430,7 @@ EndFunction
 //  Platform - PlatformType - deprecated parameter.
 //
 // Returns:
-//  String - 
+//  String - path to the directory, including the trailing separator.
 //
 // Example:
 //  Result = AddFinalPathSeparator("C:\My directory"); // Returns "C:\My directory\".

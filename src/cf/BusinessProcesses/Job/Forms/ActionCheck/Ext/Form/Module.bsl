@@ -12,8 +12,8 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// 
-	// 
+	
+	
 	If Object.Ref.IsEmpty() Then
 		InitializeTheForm();
 	EndIf;
@@ -316,7 +316,7 @@ Procedure WriteBusinessProcessAttributes(TaskObject)
 
 		JobObject.Completed2 = JobCompleted;
 		JobObject.Accepted = JobConfirmed;
-		JobObject.Write(); // 
+		JobObject.Write(); 
 
 		CommitTransaction();
 	Except

@@ -12,8 +12,8 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// 
-	// 
+	
+	
 	If Object.Ref.IsEmpty() Then
 		InitializeTheForm();
 	EndIf;

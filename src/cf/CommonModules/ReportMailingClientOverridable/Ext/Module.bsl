@@ -24,8 +24,8 @@
 //       Properties for changing:
 //       * UserSettings - DataCompositionUserSettings - all user settings of report.
 //       Other properties for reading only.
-//   DCID - DataCompositionID - a report user setting ID.
-//       Can be used to get user setting data. For example:
+//   DCID - DataCompositionID - ID of the user report setting.
+//       Intended for getting the setting data. For example::
 //       	DCUserSetting = DCSettingsComposer.FindByID(DCID).
 //   ValueViewOnly - Boolean - a flag of capability for direct editing of the Value column.
 //       If set to True, you have to define value choice handler in the OnSettingChoiceStart event.
@@ -49,15 +49,15 @@ EndProcedure
 //       Properties for changing:
 //       * UserSettings - DataCompositionUserSettings - all user settings of report.
 //       Other properties for reading only.
-//   DCID - DataCompositionID - a report user setting ID.
-//       Can be used to get user setting data. For example:
+//   DCID - DataCompositionID - ID of the user report setting.
+//       Intended for getting the setting data. For example::
 //       	DCUserSetting = DCSettingsComposer.FindByID(DCID).
 //   StandardProcessing - Boolean - if True, the standard selection dialog box will be used.
 //       If you use own event handling, you have to set False.
-//   Handler - NotifyDescription - a handler of applied form selection result.
-//       As the 1st parameter (Result), the following types of values can be passed to the handler procedure:
-//       Undefined - a user canceled the selection.
-//       DataCompositionUserSettings - new report settings.
+//   Handler - NotifyDescription - Handler that handles the selection result in an applied form.
+//       The first parameter, Result, takes the following value types:
+//       Undefined - User canceled the selection.
+//       DataCompositionUserSettings - New report settings.
 //
 Procedure OnSettingChoiceStart(Report, DCSettingsComposer, DCID, StandardProcessing, Handler) Export
 	
@@ -78,8 +78,8 @@ EndProcedure
 //       Properties for changing:
 //       * UserSettings - DataCompositionUserSettings - all user settings of report.
 //       Other properties for reading only.
-//   DCID - DataCompositionID - a report user setting ID.
-//       Can be used to get user setting data. For example:
+//   DCID - DataCompositionID - ID of the user report setting.
+//       Intended for getting the setting data. For example::
 //       	DCUserSetting = DCSettingsComposer.FindByID(DCID).
 //   StandardProcessing - Boolean - if True, the setting value will be cleared.
 //       If the setting value must not be cleared, you have to set False.

@@ -56,10 +56,10 @@ EndProcedure
 // 
 // 
 // Parameters:
-//  Object - MetadataObject -
-//  AttributesToEdit - Undefined, Array of String -
+//  Object - MetadataObject - 
+//  AttributesToEdit - Undefined, Array of String - 
 //                                                            
-//  AttributesToSkip - Undefined, Array of String -
+//  AttributesToSkip - Undefined, Array of String - 
 // 
 Procedure OnDefineEditableObjectAttributes(Object, AttributesToEdit, AttributesToSkip) Export
 

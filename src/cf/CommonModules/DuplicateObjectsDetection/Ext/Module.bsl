@@ -15,14 +15,14 @@
 //     SearchArea - String - Data table name (full metadata name) of the search location.
 //                              For example, "Catalog.Products". 
 //                              Supports search in catalogs, charts of characteristic types, calculation types, and charts of accounts.
-//     SampleObject - AnyRef, CatalogObject -
+//     SampleObject - AnyRef, CatalogObject - 
 //     AdditionalParameters - Arbitrary - Parameter to pass to event handlers.
 //
 // Returns:
 //     ValueTable:
 //       * Ref       - AnyRef - Item reference.
 //       * Code          - String
-//                      - Number - 
+//                      - Number - Item code.
 //       * Description - String - Item description.
 //       * Parent     - AnyRef - Parent to the group of duplicates.
 //                                      If Parent is empty, the item is the parent to the group.
@@ -35,7 +35,7 @@ Function FindItemDuplicates(Val SearchArea, Val SampleObject, Val AdditionalPara
 	DuplicatesSearchParameters.Insert("DuplicatesSearchArea", SearchArea);
 	DuplicatesSearchParameters.Insert("TakeAppliedRulesIntoAccount", True);
 	
-	// 
+	// From parameters.
 	DuplicatesSearchParameters.Insert("SearchRules", New ValueTable);
 	DuplicatesSearchParameters.SearchRules.Columns.Add("Attribute", New TypeDescription("String"));
 	DuplicatesSearchParameters.SearchRules.Columns.Add("Rule",  New TypeDescription("String"));
@@ -132,7 +132,7 @@ Procedure SupplementDuplicatesWithLinkedSubordinateObjects(ReplacementPairs, Rep
 		SubordinateObjectLinks = SubordinateObjectsLinks.FindRows(Filter);
 		PackageParts.Add(ObjectsForReplacementQueryText( SubordinateObjectDetails, SubordinateObjectLinks));
 		
-		FoundDuplicatesTables.Insert(SubordinateObjectDetails.Key, PackageParts.Count() * 3 - 1); // 3 -  
+		FoundDuplicatesTables.Insert(SubordinateObjectDetails.Key, PackageParts.Count() * 3 - 1);  
 		Position = Position + SubordinateObjectLinks.Count();
 	
 	EndDo;
@@ -163,10 +163,10 @@ EndProcedure
 // 
 //
 // Parameters:
-//  InitialString - String -
+//  InitialString - String - 
 //                            
-//  SearchString   - String -
-//  Separator    - String -
+//  SearchString   - String - 
+//  Separator    - String - 
 //                            
 //  SearchParameters - See ParametersOfSearchForSimilarStrings.
 //
@@ -206,15 +206,15 @@ EndFunction
 // 
 // 
 // Parameters:
-//  AttachAddInSSL - Boolean -
+//  AttachAddInSSL - Boolean - 
 //                                  
 //                                  
 // 
 // Returns:
 //  Structure:
-//     * StringsMatchPercentage          - Number -
-//     * SmallStringsMatchPercentage - Number -
-//     * SmallStringsLength             - Number -
+//     * StringsMatchPercentage          - Number - 
+//     * SmallStringsMatchPercentage - Number - 
+//     * SmallStringsLength             - Number - 
 //     * ExceptionWords - Array
 //     * SearchAddIn - AddInObject
 //

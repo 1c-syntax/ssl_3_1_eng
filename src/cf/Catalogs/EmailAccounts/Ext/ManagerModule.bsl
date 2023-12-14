@@ -369,7 +369,7 @@ Function DefineDomainMailServersNames(Domain)
 	ApplicationStartupParameters.ExecutionEncoding = "OEM";
 	
 	DNSServerAddresses = EmailOperationsInternal.DNSServerAddresses();
-	DNSServerAddresses.Insert(0, ""); // 
+	DNSServerAddresses.Insert(0, ""); 
 	
 	CommandsStrings = New Array;
 	
@@ -1031,38 +1031,38 @@ Function IMAPServerConnectionSettingsOptions(Email) Export
 		Return Result;
 	EndIf;
 
-	// 
-	// 
+	
+	
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "imap." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 993;
 	SettingsMode.UseSecureConnectionForIncomingMail = True;
 	
-	// 
+	// Server name with the "mail." prefix, secure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "mail." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 993;
 	SettingsMode.UseSecureConnectionForIncomingMail = True;
 	
-	// 
+	// Server name without the "imap." prefix, secure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 993;
 	SettingsMode.UseSecureConnectionForIncomingMail = True;
 	
-	// 
+	// Server name with the "imap." prefix, insecure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "imap." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 143;
 	SettingsMode.UseSecureConnectionForIncomingMail = False;
 	
-	// 
+	// Server name with the "mail." prefix, insecure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "mail." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 143;
 	SettingsMode.UseSecureConnectionForIncomingMail = False;
 	
-	// 
+	// Server name without the "imap." prefix, insecure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 143;
@@ -1082,50 +1082,50 @@ Function POPServerConnectionSettingsOptions(Email)
 	Result.Columns.Add("IncomingMailServerPort");
 	Result.Columns.Add("UseSecureConnectionForIncomingMail");
 	
-	// 
-	// 
+	
+	
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "pop." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 995;
 	SettingsMode.UseSecureConnectionForIncomingMail = True;
 	
-	// 
+	// Server name with the "pop3." prefix, secure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "pop3." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 995;
 	SettingsMode.UseSecureConnectionForIncomingMail = True;
 	
-	// 
+	// Server name with the "mail." prefix, secure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "mail." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 995;
 	SettingsMode.UseSecureConnectionForIncomingMail = True;
 	
-	// 
+	// Server name without a prefix, secure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 995;
 	SettingsMode.UseSecureConnectionForIncomingMail = True;
 	
-	// 
+	// Server name with the "pop." prefix, insecure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "pop." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 110;
 	SettingsMode.UseSecureConnectionForIncomingMail = False;
 	
-	// 
+	// Server name with the "pop3." prefix, insecure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "pop3." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 110;
 	SettingsMode.UseSecureConnectionForIncomingMail = False;
 	
-	// 
+	// Server name with the "mail." prefix, insecure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "mail." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 110;
 	SettingsMode.UseSecureConnectionForIncomingMail = False;
 	
-	// 
+	// Server name without a prefix, insecure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 110;
@@ -1163,56 +1163,56 @@ Function SMTPServerConnectionSettingsOptions(Email) Export
 		Return Result;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	SettingsMode = Result.Add();
 	SettingsMode.OutgoingMailServer = "smtp." + ServerNameInAccount;
 	SettingsMode.OutgoingMailServerPort = 465;
 	SettingsMode.UseSecureConnectionForOutgoingMail = True;
 	
-	// 
+	// Server name with the "mail." prefix, secure connection, port 465.
 	SettingsMode = Result.Add();
 	SettingsMode.OutgoingMailServer = "mail." + ServerNameInAccount;
 	SettingsMode.OutgoingMailServerPort = 465;
 	SettingsMode.UseSecureConnectionForOutgoingMail = True;
 	
-	// 
+	// Server name without a prefix, secure connection, port 465.
 	SettingsMode = Result.Add();
 	SettingsMode.OutgoingMailServer = ServerNameInAccount;
 	SettingsMode.OutgoingMailServerPort = 465;
 	SettingsMode.UseSecureConnectionForOutgoingMail = True;
 	
-	// 
+	// Server name with the "smtp." prefix, secure connection (STARTTLS), port 587
 	SettingsMode = Result.Add();
 	SettingsMode.OutgoingMailServer = "smtp." + ServerNameInAccount;
 	SettingsMode.OutgoingMailServerPort = 587;
 	SettingsMode.UseSecureConnectionForOutgoingMail = False;
 	
-	// 
+	// Server name with the "mail." prefix, secure connection (STARTTLS), port 587
 	SettingsMode = Result.Add();
 	SettingsMode.OutgoingMailServer = "mail." + ServerNameInAccount;
 	SettingsMode.OutgoingMailServerPort = 587;
 	SettingsMode.UseSecureConnectionForOutgoingMail = False;
 	
-	// 
+	// Server name without a prefix, secure connection (STARTTLS), port 587
 	SettingsMode = Result.Add();
 	SettingsMode.OutgoingMailServer = ServerNameInAccount;
 	SettingsMode.OutgoingMailServerPort = 587;
 	SettingsMode.UseSecureConnectionForOutgoingMail = False;
 	
-	// 
+	// Server name with the "smtp." prefix, insecure connection
 	SettingsMode = Result.Add();
 	SettingsMode.OutgoingMailServer = "smtp." + ServerNameInAccount;
 	SettingsMode.OutgoingMailServerPort = 25;
 	SettingsMode.UseSecureConnectionForOutgoingMail = False;
 	
-	// 
+	// Server name with the "mail." prefix, insecure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.OutgoingMailServer = "mail." + ServerNameInAccount;
 	SettingsMode.OutgoingMailServerPort = 25;
 	SettingsMode.UseSecureConnectionForOutgoingMail = False;
 	
-	// 
+	// Server name without a prefix, insecure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.OutgoingMailServer = ServerNameInAccount;
 	SettingsMode.OutgoingMailServerPort = 25;

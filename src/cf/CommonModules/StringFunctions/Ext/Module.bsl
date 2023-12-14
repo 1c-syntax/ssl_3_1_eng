@@ -31,7 +31,7 @@
 //  Parameter<n>  - String - parameter value to insert.
 //
 // Returns:
-//  FormattedString - 
+//  FormattedString - a converted string.
 //
 // Example:
 //  1. StringFunctionsClient.FormattedString(NStr("en='
@@ -60,7 +60,7 @@ EndFunction
 //  Value - String - arbitrary string.
 //
 // Returns:
-//  String - 
+//  String - a string where Cyrillic is replaced by transliteration.
 //
 Function LatinString(Val Value) Export
 	
@@ -85,7 +85,7 @@ EndFunction
 //                    The default value is False.
 //
 // Returns:
-//   String - 
+//   String - a period presentation in the required format and register.
 //
 Function PeriodPresentationInText(StartDate, EndDate, FormatString = "", Capitalize = False) Export 
 	

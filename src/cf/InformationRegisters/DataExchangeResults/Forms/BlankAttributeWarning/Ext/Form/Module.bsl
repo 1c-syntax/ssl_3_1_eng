@@ -119,10 +119,10 @@ Procedure BeforeCloseAtServer()
 	RecordManager.ObjectWithIssue = ObjectWithIssue;
 	RecordManager.UniqueKey = InformationRegisterRecordUniqueKey;
 	
-	RecordManager.Read(); // 
+	RecordManager.Read(); 
 	If Not RecordManager.Selected() Then
 		
-		// 
+		// Use case: A user opened the warning dialog and fixed the issue.
 		Return;
 		
 	EndIf;

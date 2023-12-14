@@ -1579,14 +1579,14 @@ to display in value edit forms. </v8:content>
 															<AutoCommandBar name="AdditionalAttributeValuesCommandBar" id="293">
 																<Autofill>false</Autofill>
 																<ChildItems>
-																	<ButtonGroup name="AdditionalAttributeValues1Group1" id="310">
+																	<ButtonGroup name="ValuesOfAdditionalAttributesGroup" id="310">
 																		<Title>
 																			<v8:item>
 																				<v8:lang>en</v8:lang>
-																				<v8:content>Additional attribute values 1 group 1</v8:content>
+																				<v8:content>Group</v8:content>
 																			</v8:item>
 																		</Title>
-																		<ExtendedTooltip name="AdditionalAttributeValues1Group1ExtendedTooltip" id="311"/>
+																		<ExtendedTooltip name="ValuesOfAdditionalAttributesGroupExtendedTooltip" id="311"/>
 																		<ChildItems>
 																			<Button name="AdditionalAttributeValuesCreate" id="312">
 																				<Type>CommandBarButton</Type>
@@ -2139,7 +2139,8 @@ WHERE
 	END
 	AND Sets.Used
 	AND ISNULL(Sets.Parent.Used, TRUE)
-	AND NOT Sets.Ref IN (&amp;SetsToExclude)</QueryText>
+	AND NOT Sets.Ref IN (&amp;SetsToExclude)
+	AND NOT Sets.DeletionMark</QueryText>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Ref</dcssch:dataPath>
 					<dcssch:field>Ref</dcssch:field>
@@ -2207,10 +2208,6 @@ WHERE
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>AdditionalInfo</dcssch:dataPath>
 					<dcssch:field>AdditionalInfo</dcssch:field>
-				</Field>
-				<Field xsi:type="dcssch:DataSetFieldField">
-					<dcssch:dataPath>Labels</dcssch:dataPath>
-					<dcssch:field>Labels</dcssch:field>
 				</Field>
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Presentations</dcssch:dataPath>

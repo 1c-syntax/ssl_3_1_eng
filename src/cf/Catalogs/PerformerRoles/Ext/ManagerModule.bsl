@@ -53,9 +53,12 @@ Procedure ChoiceDataGetProcessing(ChoiceData, Parameters, StandardProcessing)
 	
 	If Users.IsExternalUserSession() Then
 		CurrentUser = ExternalUsers.CurrentExternalUser();
-		AuthorizationObject = Catalogs[CurrentUser.AuthorizationObject.Metadata().Name].EmptyRef();
+		AttributeValue = Common.ObjectAttributeValue(CurrentUser, "AuthorizationObject");
+		AuthorizationObject = ?(AttributeValue <> Undefined,
+							  Catalogs[AttributeValue.Metadata().Name].EmptyRef(),
+							  Catalogs.Users.EmptyRef());
 	Else
-		AuthorizationObject = Catalogs.Users.EmptyRef();
+		AuthorizationObject =   Catalogs.Users.EmptyRef();
 	EndIf;
 	
 	TextFragmentsSearchForAdditionalLangs = New Array;
@@ -196,7 +199,7 @@ EndProcedure
 // See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.
 //
 // Parameters:
-//  Object                  - CatalogObject.PerformerRoles - the object to be filled in.
+//  Object                  - CatalogObject.PerformerRoles - Object to populate.
 //  Data                  - ValueTableRow - object filling data.
 //  AdditionalParameters - Structure:
 //   * PredefinedData - ValueTable - Data filled in the OnInitialItemsFilling procedure.

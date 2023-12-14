@@ -613,8 +613,7 @@ EndProcedure
 &AtClient
 Function SuggestionText()
 	
-	Return NStr("en = 'To save a report option to file, it is recommended that you
-		|install a file operation extension.';");
+	Return NStr("en = 'It is recommended that you install 1C:Enterprise Extension before you save the report option or data processor to a file.';");
 	
 EndFunction
 

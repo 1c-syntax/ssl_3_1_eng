@@ -72,17 +72,17 @@ EndProcedure
 // Parameters:
 //  Filter - Structure:
 //     * User              - String
-//                                 - ValueList - 
-//                                                    
+//                                 - ValueList - the name of infobase user, or the list of names of infobase
+//                                                    users.
 //     * EventLogEvent - String
-//                                 - Array - 
+//                                 - Array - the ID of the event.
 //     * StartDate                - Date           - the start date of the interval of displayed events.
 //     * EndDate             - Date           - the end date of the interval of displayed events.
 //     * Data                    - Arbitrary   - data of any type.
 //     * Session                     - ValueList - the list of selected sessions.
 //     * Level                   - String
-//                                 - Array - 
-//                                            
+//                                 - Array - presentation of importance level
+//                                            of the log event.
 //     * ApplicationName             - Array         - array of the application IDs.
 //  Owner - ClientApplicationForm - the form used to open the event log.
 //
@@ -114,7 +114,7 @@ Procedure OpenDataForViewing(CurrentData) Export
 		WarningText = NStr("en = 'The event log record is linked to data that cannot be displayed.
 									|%1';");
 		If CurrentData.Event = "_$Data$_.Delete" Then 
-			// это - 
+			// This is a deletion event.
 			WarningText =
 					StringFunctionsClientServer.SubstituteParametersToString(WarningText, NStr("en = 'The data was deleted from the infobase';"));
 		Else
@@ -229,7 +229,7 @@ EndProcedure
 //  ExcludeColumns - ValueList
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the filter is set, False otherwise.
 //
 Function SetFilterByValueInCurrentColumn(CurrentData, CurrentItem, EventLogFilter, ExcludeColumns) Export
 	
@@ -273,11 +273,11 @@ Function SetFilterByValueInCurrentColumn(CurrentData, CurrentItem, EventLogFilte
 	
 	CurrentValue = Undefined;
 	If EventLogFilter.Property(FilterElementName, CurrentValue) Then
-		// 
+		// Filter is already applied.
 		EventLogFilter.Delete(FilterElementName);
 	EndIf;
 	
-	If FilterElementName = "Data" // 
+	If FilterElementName = "Data" // Filter type is not a list but a single value.
 		Or FilterElementName = "Comment"
 		Or FilterElementName = "Transaction"
 		Or FilterElementName = "DataPresentation" Then

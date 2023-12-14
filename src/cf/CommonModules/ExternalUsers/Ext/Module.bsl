@@ -13,7 +13,7 @@
 // (the UseExternalUsers functional option value).
 //
 // Returns:
-//  Boolean - 
+//  Boolean - if True, external users are allowed.
 //
 Function UseExternalUsers() Export
 	
@@ -42,11 +42,11 @@ EndFunction
 //
 // Parameters:
 //  ExternalUser - Undefined - the current external user.
-//                      - CatalogRef.ExternalUsers - 
+//                      - CatalogRef.ExternalUsers - the specified external user.
 //
 // Returns:
-//  AnyRef - 
-//           
+//  AnyRef - authorization object of one of the types specified in the property
+//           "Metadata.Catalogs.ExternalUsers.Attributes.AuthorizationObjects.Type".
 //
 Function GetExternalUserAuthorizationObject(ExternalUser = Undefined) Export
 	
@@ -130,10 +130,10 @@ EndProcedure
 //
 // Returns:
 //  Structure:
-//   * ListName        - String -
-//   * FieldName          - String -
-//   * TagName      - String -
-//   * LegendGroupName - String -
+//   * ListName        - String - 
+//   * FieldName          - String - 
+//   * TagName      - String - 
+//   * LegendGroupName - String - 
 //
 Function ParametersOfExternalUsersListDisplaySetting() Export
 	
@@ -158,7 +158,7 @@ EndFunction
 //  TagName - String
 //  Settings - DataCompositionSettings
 //  Rows - DynamicListRows
-//  FieldName - String -
+//  FieldName - String - 
 //
 Procedure ExternalUserListOnRetrievingDataAtServer(TagName, Settings, Rows,
 			FieldName = "ExternalAccessPicNum") Export

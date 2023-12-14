@@ -404,7 +404,7 @@ Async Procedure FillCertificateDataDetails(Result, CertificateAddress) Export
 	
 	CryptoCertificate = New CryptoCertificate;
 	Await CryptoCertificate.InitializeAsync(GetFromTempStorage(CertificateAddress));
-	CertificateProperties = DigitalSignatureClient.CertificateProperties(CryptoCertificate);
+	CertificateProperties = Await DigitalSignatureInternalClient.CertificateProperties(CryptoCertificate);
 	
 	DigitalSignatureInternalClientServer.FillCertificateDataDetails(
 		DetailsOfCertificateData, CertificateProperties);

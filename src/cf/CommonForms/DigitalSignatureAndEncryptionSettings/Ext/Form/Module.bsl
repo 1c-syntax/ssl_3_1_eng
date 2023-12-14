@@ -19,7 +19,7 @@ Var ApplicationsCheckPerformed;
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	Items.OpenMachineReadableAuthorizationLetters.Visible = False;
+	Items.OpenMachineReadableLettersOfAuthority.Visible = False;
 	
 	
 	DigitalSignatureInternal.SetVisibilityOfRefToAppsTroubleshootingGuide(Items.Instruction);
@@ -58,7 +58,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		UserSelect = Users.CurrentUser();
 	EndIf;
 	
-	// Application page
+	// App page
 	If Not AccessRight("Update", Metadata.Catalogs.DigitalSignatureAndEncryptionApplications) Then
 		Items.Programs.ChangeRowSet = False;
 		
@@ -121,8 +121,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	CertificatesUpdateFilter(ThisObject, StatusApplicationIsNotInOperation);
 	
 	If Common.IsSubordinateDIBNode() Then
-		// 
-		// 
+		
+		
 		Items.Programs.ChangeRowSet = False;
 		Items.ApplicationsMarkForDeletion.Enabled = False;
 		Items.ApplicationsContextMenuApplicationsMarkForDeletion.Enabled = False;
@@ -412,7 +412,7 @@ Procedure CertificatesOnGetDataAtServer(TagName, Settings, Rows)
 			|BY
 			|	Ref";
 			Query.SetParameter("References", Rows.GetKeys());
-			QueryResult = Query.Execute(); // @skip-
+			QueryResult = Query.Execute(); 
 			If QueryResult.IsEmpty() Then
 				Return;
 			EndIf;
@@ -795,7 +795,7 @@ Procedure CertificatesUpdateFilter(Form, StatusApplicationIsNotInOperation, Curr
 		EndIf;
 	EndIf;
 	
-	// 
+	// Filter by user.
 	Items.CertificatesUser.Visible = Not ShowOwnCertificates;
 	Items.UserSelect.Visible = Not ShowOwnCertificates;
 	Form.Certificates.Parameters.SetParameterValue("CertificateUser", ?(ValueIsFilled(
@@ -826,7 +826,7 @@ Procedure CertificatesUpdateFilter(Form, StatusApplicationIsNotInOperation, Curr
 			And Not Form.CertificatesShow = "MyCertificatesWithexpiringValidity";
 		
 		If Items.CertificatesShowRequests.Visible Then
-			// 
+			// Filter certificates by the application status.
 			FilterByApplicationState = ValueIsFilled(Form.CertificatesShowRequests);
 			CommonClientServer.SetDynamicListFilterItem(Form.Certificates,
 				"RequestStatus", Form.CertificatesShowRequests, , , FilterByApplicationState);
@@ -1078,7 +1078,7 @@ EndProcedure
 Procedure IdleHandlerDefineInstalledApplicationsLoopStart(Context)
 	
 	If Programs.Count() <= Context.IndexOf + 1 Then
-		// 
+		// After loop.
 		Items.ApplicationsAndRefreshPages.CurrentPage = Items.AppsListPage;
 		CurrentItem = Items.Programs;
 		UpdateLinuxProgramPath();
@@ -1259,9 +1259,6 @@ Procedure AfterCryptographyAppsChecked(Result, Notification) Export
 		
 		For Each Cryptoprovider In Result.Programs Do
 			
-			If ValueIsFilled(Cryptoprovider.Application) And Not HasAppsToCheck Then
-				HasAppsToCheck = True;
-			EndIf;
 			
 			Found4 = Programs.FindRows(New Structure("ApplicationName, ApplicationType",
 				Cryptoprovider.ApplicationName, Cryptoprovider.ApplicationType));
@@ -1285,12 +1282,6 @@ Procedure AfterCryptographyAppsChecked(Result, Notification) Export
 			
 		EndDo;
 		
-		If Not HasAppsToCheck Then
-			Items.GroupCryptoProvidersHint.Visible = True;
-			Items.DecorationCheckCryptoProviderInstallation.Title = StringFunctionsClient.FormattedString(
-				NStr("en = 'If you plan to use an advanced qualified digital signature, install a certified application (a cryptographic information protection tool) on your computer.
-					|<a href = ""%1"">Install.</a>';"), "CheckCryptographyAppsInstallation");
-		EndIf;
 	EndIf;
 	
 	If Notification <> Undefined Then
@@ -1465,7 +1456,7 @@ Procedure FillApplicationsAndSettings(RefreshCached = False)
 			UpdateValue(String.LocationType, SelectionString.LocationType + ?(SelectionString.DeletionMark, 4, 0));
 		EndIf;
 		
-		If SelectionString.AutoDetect Then // 
+		If SelectionString.AutoDetect Then // The installed cryptographic service provider.
 			UpdateValue(String.LinuxApplicationPath, SelectionString.AppPathAtServerAuto);
 			UpdateValue(String.PictureUsageMode, -1);
 		Else

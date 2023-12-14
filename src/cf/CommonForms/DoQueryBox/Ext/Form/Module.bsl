@@ -31,10 +31,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Parameters.Picture.Type <> PictureType.Empty Then
 		Items.Warning.Picture = Parameters.Picture;
 	Else
-		// 
-		// 
-		// 
-		// 
+		
+		
+		
+		
 		ShowPicture = CommonClientServer.StructureProperty(Parameters, "ShowPicture", True);
 		If Not ShowPicture Then
 			Items.Warning.Visible = False;
@@ -51,7 +51,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.MultilineMessageText.Visible = False;
 		Items.MessageTextFormattedString.Visible = True;
 	ElsIf TypeOf(Parameters.MessageText) = Type("Undefined") Then
-		// 
+		
 		MessageText = "";
 	Else
 		CommonClientServer.CheckParameter(
@@ -86,7 +86,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Setting the countdown timer.
 	TimeoutCounter = Parameters.Timeout;
 	
-	// 
+	// Resetting the form window size and position.
 	StandardSubsystemsServer.ResetWindowLocationAndSize(ThisObject);
 	
 	If Common.IsMobileClient() Then
@@ -300,7 +300,7 @@ Function CountOfRows(Text, CutoffByWidth, BringToFormItemSize = True)
 	EndDo;
 	EstimatedLineCount = CountOfRows + HyphenationCount;
 	If BringToFormItemSize Then
-		ZoomRatio = 2/3; // 
+		ZoomRatio = 2/3; 
 		EstimatedLineCount = Int((EstimatedLineCount+1)*ZoomRatio);
 	EndIf;
 	If EstimatedLineCount = 2 Then

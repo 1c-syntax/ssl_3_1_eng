@@ -176,7 +176,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>User must change password at next sign-in</v8:content>
+							<v8:content>User must change password at next logon</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -1130,7 +1130,7 @@ their password, even during sign-in.
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Show a username in the dialog box selection list of standard 1C:Enterprise authentication.</v8:content>
+							<v8:content>Show the username in the drop-down list of the default 1C:Enterprise authentication window.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

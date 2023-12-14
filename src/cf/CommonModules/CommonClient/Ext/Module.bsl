@@ -11,8 +11,8 @@
 
 #Region UserNotification
 
-//  
-// 
+ 
+
 
 // Generates and displays the message that can relate to a form item.
 //
@@ -95,8 +95,8 @@ EndProcedure
 //       "ChartOfCalculationTypes.Accruals.SalaryPayments".
 //
 // Returns: 	
-//   AnyRef - 
-//   
+//   AnyRef - reference to the predefined item.
+//   Undefined - if the predefined item exists in metadata but not in the infobase.
 //
 Function PredefinedItem(FullPredefinedItemName) Export
 	
@@ -122,7 +122,7 @@ EndFunction
 // or determining the value of the EventName parameter of the EventLogRecord method.
 //
 // Returns:
-//  String - 
+//  String - language code.
 //
 Function DefaultLanguageCode() Export
 	
@@ -137,11 +137,11 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Procedures and functions for calling optional subsystems.
 
-// Returns True if the functional subsystem exists in the configuration.
-// Intended for calling optional subsystems (conditional calls).
-// A subsystem is functional if its "Include in command interface" check box is cleared.
-// See also CommonOverridable.OnDetermineDisabledSubsystems
-// and Common.SubsystemExists to call from the server code.
+// 
+// 
+// 
+// 
+// 
 //
 // Parameters:
 //  FullSubsystemName - String - the full name of the subsystem metadata object
@@ -155,7 +155,7 @@ EndFunction
 //  EndIf;
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if exists.
 //
 Function SubsystemExists(FullSubsystemName) Export
 	
@@ -200,8 +200,8 @@ Function CommonModule(Name) Export
 	
 #If Not WebClient Then
 	
-	// 
-	// 
+	
+	
 	
 	If TypeOf(Module) <> Type("CommonModule") Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
@@ -227,7 +227,7 @@ EndFunction
 // See Common.IsWindowsClient
 //
 // Returns:
-//  Boolean - 
+//  Boolean - False if no client application is available.
 //
 Function IsWindowsClient() Export
 	
@@ -242,13 +242,18 @@ EndFunction
 // See Common.IsLinuxClient
 //
 // Returns:
-//  Boolean - 
+//  Boolean - False if no client application is available.
 //
 Function IsLinuxClient() Export
 	
-	ClientPlatformType = ClientPlatformType();
+	SystemInfo = New SystemInfo;
+	ClientPlatformType = SystemInfo.PlatformType;
+	
 	Return ClientPlatformType = PlatformType.Linux_x86
-		Or ClientPlatformType = PlatformType.Linux_x86_64;
+		Or ClientPlatformType = PlatformType.Linux_x86_64
+		Or CommonClientServer.CompareVersions(SystemInfo.AppVersion, "8.3.22.0") >= 0
+			And (ClientPlatformType = PlatformType["Linux_ARM64"]
+			Or ClientPlatformType = PlatformType["Linux_E2K"]);
 	
 EndFunction
 
@@ -257,7 +262,7 @@ EndFunction
 // See Common.IsMacOSClient
 //
 // Returns:
-//  Boolean - 
+//  Boolean - False if no client application is available.
 //
 Function IsMacOSClient() Export
 	
@@ -272,7 +277,7 @@ EndFunction
 // See Common.ClientConnectedOverWebServer
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the application is connected.
 //
 Function ClientConnectedOverWebServer() Export
 	
@@ -285,7 +290,7 @@ EndFunction
 // See Common.DebugMode
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if debug mode is enabled.
 //
 Function DebugMode() Export
 	
@@ -298,8 +303,8 @@ EndFunction
 // See Common.RAMAvailableForClientApplication
 //
 // Returns:
-//  Number - 
-//  
+//  Number - the number of GB of RAM, with tenths-place accuracy.
+//  Undefined - no client application is available, meaning CurrentRunMode() = Undefined.
 //
 Function RAMAvailableForClientApplication() Export
 	
@@ -318,7 +323,7 @@ EndFunction
 //                 you need to check a connection string for another infobase.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if it is a file infobase.
 //
 Function FileInfobase(Val InfoBaseConnectionString = "") Export
 	
@@ -333,8 +338,8 @@ EndFunction
 // Returns the client platform type.
 //
 // Returns:
-//  PlatformType, Undefined -  
-//                               
+//  PlatformType, Undefined - the type of the platform running a client. In the web client mode, if the actual platform 
+//                               type does not match the PlatformType value, returns Undefined.
 //
 Function ClientPlatformType() Export
 	
@@ -384,25 +389,25 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Functions to work with dates considering the session timezone
 
-// Returns current date in the session time zone.
-// It is designed to be used instead of CurrentDate() function in the client code
-// in cases when it is impossible to transfer algorithm into the server code.
+// 
+// 
+// 
 //
-// The returned time is close to the CurrentSessionDate function result in the server code.
-// The time inaccuracy is associated with the server call execution time.
-// Besides, if you set the time on the client computer, the function will not take this change 
-// into account immediately, but only after you again clear the cache of reused values
-// (see also the UpdateCachedValues method).
-// Why do the algorithms for which the exact time is crucially important must be placed in the server code
-// but not in the client code.
+// 
+// 
+//  
+// 
+// 
+// 
+// 
 //
 // Returns:
-//  Date - the current date of the session.
+//  Date - a current session date.
 //
 Function SessionDate() Export
 	
 	Adjustment = StandardSubsystemsClient.ClientParameter("SessionTimeOffset");
-	Return CurrentDate() + Adjustment; // 
+	Return CurrentDate() + Adjustment; 
 	
 EndFunction
 
@@ -413,7 +418,7 @@ EndFunction
 // The function replaced the obsolete function ToUniversalTime().
 //
 // Returns:
-//  Date - 
+//  Date - the universal session date.
 //
 Function UniversalDate() Export
 	
@@ -432,7 +437,7 @@ EndFunction
 //  LocalDate - Date - a date in the session time zone.
 // 
 // Returns:
-//   String - 
+//   String - date presentation.
 //
 Function LocalDatePresentationWithOffset(LocalDate) Export
 	
@@ -461,10 +466,10 @@ EndFunction
 //           - FixedMap
 //           - Array
 //           - FixedArray
-//           - ValueList - 
+//           - ValueList - an object that needs to be copied.
 //  FixData - Boolean
-//                    - Undefined - 
-//                          
+//                    - Undefined - if it is True, then fix,
+//                          if it is False, remove the fixing, if it is Undefined, do not change.
 //
 // Returns:
 //  Structure
@@ -508,11 +513,11 @@ EndFunction
 // 
 // Parameters:
 //  Parameter     - Array
-//               - AnyRef - 
+//               - AnyRef - the command parameter.
 //  ExpectedType - Type                 - the expected type.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the parameter type matches the expected type.
 //
 // Example:
 // 
@@ -531,7 +536,7 @@ Function CheckCommandParameterType(Val Parameter, Val ExpectedType) Export
 	Result = True;
 	
 	If TypeOf(Parameter) = Type("Array") Then
-		// 
+		// Checking whether the array contains only one element, and its type does not match the expected type.
 		Result = Not (Parameter.Count() = 1 And TypeOf(Parameter[0]) <> ExpectedType);
 	Else
 		Result = TypeOf(Parameter) = ExpectedType;
@@ -601,7 +606,7 @@ Procedure ShowFormClosingConfirmation(
 	Cancel = True;
 	
 	If Exit Then
-		If WarningTextOnExit = "" Then // 
+		If WarningTextOnExit = "" Then // Parameter from BeforeClose is passed.
 			WarningTextOnExit = NStr("en = 'The data has been changed. All changes will be lost.';");
 		EndIf;
 		Return;
@@ -699,8 +704,8 @@ EndProcedure
 //           - InformationRegisterRecordKeyInformationRegisterName
 //           - AccumulationRegisterRecordKeyAccumulationRegisterName
 //           - AccountingRegisterRecordKeyAccountingRegisterName
-//           - CalculationRegisterRecordKeyCalculationRegisterName -  
-//                 
+//           - CalculationRegisterRecordKeyCalculationRegisterName - the reference of the changed object or the key of the changed register 
+//                 record whose update status must be provided to dynamic lists and forms.
 //  AdditionalParameters - Arbitrary - parameters to be passed in the Notify method.
 //
 Procedure NotifyObjectChanged(Source, Val AdditionalParameters = Undefined) Export
@@ -715,10 +720,10 @@ EndProcedure
 //
 // Parameters:
 //  Source - Type
-//           - TypeDescription -  
-//                             
-//           - Array -  
-//                      
+//           - TypeDescription - object type or types, whose update status to be provided to 
+//                             dynamic lists and forms;
+//           - Array - a list of changed references or register record keys, 
+//                      whose update status to be provided to dynamic lists and forms.
 //  AdditionalParameters - Arbitrary - parameters to be passed in the Notify method.
 //
 Procedure NotifyObjectsChanged(Source, Val AdditionalParameters = Undefined) Export
@@ -773,8 +778,8 @@ EndProcedure
 #Region EditingForms
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
+
+
 
 // Opens the multiline text edit form.
 //
@@ -930,13 +935,13 @@ EndFunction
 //      * ObjectsCreationIDs - Array - the creation IDs of object module instances.
 //                 Applicable only with add-ins that have a number of object creation IDs.
 //                 Ignored if the ID parameter is specified.
-//      * Isolated - Boolean, Undefined -
+//      * Isolated - Boolean, Undefined - 
 //                 
 //                 
+//                 :
 //                 
-//                 
-//                 See https://its.1c.eu/db/v83doc#bookmark:dev:TI000001866
-//      * AutoUpdate - Boolean - 
+//                 See https://its.1c.eu/db/v83doc
+//      * AutoUpdate - Boolean -  
 //                 
 //
 //
@@ -971,7 +976,7 @@ EndFunction
 //          ** Attached         - Boolean - attachment flag.
 //          ** Attachable_Module - AddInObject  - an instance of the add-in;
 //                                - FixedMap of KeyAndValue -  
-//                                     
+//                                     :
 //                                    *** Key - String - the add-in ID;
 //                                    *** Value - AddInObject - object instance.
 //          ** ErrorDescription     - String - brief error message. Empty string on cancel by user.
@@ -1113,14 +1118,14 @@ EndProcedure
 // 
 //
 // Parameters:
-//  FullTemplateName    - String                  - the full name of the layout used as the component location.
+//  FullTemplateName    - String                  - the full name of the template used as the add-in location.
 //  InstallationParameters - Structure
-//                     - Undefined - see the function parameterstablement components.
+//                     - Undefined - see the AddInInstallParameters function.
 //
 // Returns:
-//		Structure - result of installing components:
-//          * IsSet    - Boolean - indicates the installation.
-//          * ErrorDescription - String - brief description of the error. When canceled by the user, an empty string.
+//		Structure - :
+//          * IsSet    - Boolean - Installation flag.
+//          * ErrorDescription - String - brief error message. Empty string on cancel by user.
 //
 Async Function InstallAddInFromTemplateAsync(FullTemplateName, InstallationParameters = Undefined) Export
 	
@@ -1142,20 +1147,20 @@ EndFunction
 // 
 //
 // Parameters:
-//  Id        - String -
-//  FullTemplateName      - String - the full name of the layout used as the component location.
+//  Id        - String - the add-in identification code.
+//  FullTemplateName      - String - the full name of the template used as the add-in location.
 //  ConnectionParameters - Structure
 //                       - Undefined - See AddInAttachmentParameters.
 //
 // Returns:
-// 	 Structure - result of connecting components:
-//    * Attached         - Boolean - indicates whether the connection is enabled.
-//    * Attachable_Module - AddInObject  - instance of an external component object;
+// 	 Structure - :
+//    * Attached         - Boolean - attachment flag.
+//    * Attachable_Module - AddInObject  - an instance of the add-in;
 //                         - FixedMap of KeyAndValue -  
-//                           
-//                             ** Key - String - id of the external component;
-//                             ** Value - AddInObject - an instance of the object.
-//    * ErrorDescription     - String - brief description of the error. When canceled by the user, an empty string.
+//                           :
+//                             ** Key - String - the add-in ID;
+//                             ** Value - AddInObject - object instance.
+//    * ErrorDescription     - String - brief error message. Empty string on cancel by user.
 //
 Async Function AttachAddInFromTemplateAsync(Id, FullTemplateName,
 	ConnectionParameters = Undefined) Export
@@ -1174,7 +1179,7 @@ Async Function AttachAddInFromTemplateAsync(Id, FullTemplateName,
 	
 EndFunction
 
-// 
+
 
 #EndRegion
 
@@ -1242,7 +1247,7 @@ EndProcedure
 // Returns:
 //  Structure:
 //    * Join - COMObject
-//                 - Undefined - 
+//                 - Undefined - if the connection is established, returns a COM object reference. Otherwise, returns Undefined;
 //    * BriefErrorDetails - String - brief error description;
 //    * DetailedErrorDetails - String - detailed error description;
 //    * AddInAttachmentError - Boolean - a COM connection error flag.
@@ -1266,7 +1271,7 @@ EndFunction
 // Checks whether the backup can be done in the user mode.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the installation is suggested.
 //
 Function PromptToBackUp() Export
 	
@@ -1387,11 +1392,11 @@ Procedure CheckFileSystemExtensionAttached(OnCloseNotifyDescription, Val Suggest
 	
 EndProcedure
 
-// Deprecated. Instead, use FileSystemClient.AttachFileOperationsExtension
-// Returns the value of the "Suggest file system extension installation" user setting.
+// Deprecated.
+// 
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the installation is suggested.
 //
 Function SuggestFileSystemExtensionInstallation() Export
 	
@@ -1407,7 +1412,7 @@ EndFunction
 // Prevents executable files from opening.
 //
 // Parameters:
-//  PathToFile - String -
+//  PathToFile - String - 
 //  Notification - NotifyDescription - notification on file open attempt.
 //      If the notification is not specified and an error occurs, the method shows a warning:
 //      * ApplicationStarted - Boolean - True if the external application opened successfully.
@@ -1434,7 +1439,7 @@ EndProcedure
 // If a file path is specified, the pointer is placed on the file.
 //
 // Parameters:
-//  PathToDirectoryOrFile - String - full path to the file or directory.
+//  PathToDirectoryOrFile - String - the full path to a file or folder.
 //
 // Example:
 //  // For Windows OS
@@ -1450,14 +1455,14 @@ Procedure OpenExplorer(PathToDirectoryOrFile) Export
 	
 EndProcedure
 
-// Deprecated. Instead, use FileSystemClient.OpenURL
-// Opens a URL in an application associated with URL protocol.
+// Deprecated.
+// 
 //
-// Valid protocols: http, https, e1c, v8help, mailto, tel, skype.
+// 
 //
-// Do not use protocol file:// to open Explorer or a file.
-// - To Open Explorer See OpenExplorer.
-// - To open a file in an associated application See OpenFileInViewer.
+// 
+//  See OpenExplorer.
+//  See OpenFileInViewer.
 //
 // Parameters:
 //  URL - String - a link to open.
@@ -1498,7 +1503,7 @@ EndProcedure
 // Returns True if the client application runs on OS X.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - False if no client application is available.
 //
 Function IsOSXClient() Export
 	

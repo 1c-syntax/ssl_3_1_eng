@@ -29,7 +29,6 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.AddInsServer</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.AddInIsAvailable</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonForm.SupportedClientApplications</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.AddInNotAvailable</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.AddInsClientLocalization</xr:Item>
 			</Content>
 		</Properties>

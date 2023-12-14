@@ -70,8 +70,8 @@ Procedure OnCreateFile(File) Export
 	
 EndProcedure
 
-// 
-// 
+// Called after copying a file from the source file to fill attributes of the new file
+//  manually added to the Files or FilesVersions catalog in the configuration.
 //
 // Parameters:
 //  NewFile    - CatalogRef.Files - a reference to a new file that needs filling.
@@ -104,7 +104,7 @@ EndProcedure
 // Allows you to define the parameters of the email message before sending the file by email.
 //
 // Parameters:
-//  FilesToSend  - Array of DefinedType.AttachedFile - a list of files to send.
+//  FilesToSend  - Array of DefinedType.AttachedFile - List of files to be sent.
 //  SendOptions - See EmailOperationsClient.EmailSendOptions.
 //  FilesOwner    - DefinedType.AttachedFilesOwner - an object that owns files.
 //  UUID - UUID - a UUID
@@ -116,7 +116,7 @@ Procedure OnSendFilesViaEmail(SendOptions, FilesToSend, FilesOwner, UUID) Export
 	
 EndProcedure
 
-// 
+// Allows you to define the parameters of digital signature stamps in a signed spreadsheet document.
 //
 // Parameters:
 //  StampParameters - Structure - the returned parameter with the following properties:
@@ -128,7 +128,7 @@ Procedure OnPrintFileWithStamp(StampParameters, Certificate) Export
 	
 EndProcedure
 
-// 
+// Allows you to change the standard form of the file list.
 //
 // Parameters:
 //    Form - ClientApplicationForm - a file list form.
@@ -137,7 +137,7 @@ Procedure OnCreateFilesListForm(Form) Export
 	
 EndProcedure
 
-// 
+// Allows you to change the standard file form.
 //
 // Parameters:
 //    Form - ClientApplicationForm - a file form.

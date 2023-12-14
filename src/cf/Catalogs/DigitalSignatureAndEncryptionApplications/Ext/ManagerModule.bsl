@@ -88,9 +88,9 @@ Procedure AddMicrosoftEnhancedCSPSettings(Settings) Export
 	Setting.Presentation       = NStr("en = 'Microsoft Enhanced CSP';");
 	Setting.ApplicationName        = "Microsoft Enhanced Cryptographic Provider v1.0";
 	Setting.ApplicationType        = 1;
-	Setting.SignAlgorithm     = "RSA_SIGN"; // 
-	Setting.HashAlgorithm = "MD5";      // Варианты: SHA-1, MD2, MD4, MD5.
-	Setting.EncryptAlgorithm  = "RC2";      // 
+	Setting.SignAlgorithm     = "RSA_SIGN"; 
+	Setting.HashAlgorithm = "MD5";      // Options: SHA-1, MD2, MD4, MD5.
+	Setting.EncryptAlgorithm  = "RC2";      // Options: RC2, RC4, DES, 3DES.
 	Setting.Id       = "MicrosoftEnhanced";
 	
 	Setting.SignAlgorithms.Add("RSA_SIGN");
@@ -110,9 +110,9 @@ Procedure AddMicrosoftEnhancedCSPSettings(Settings) Export
 	Setting.Presentation       = NStr("en = 'Microsoft Enhanced RSA and AES CSP';");
 	Setting.ApplicationName        = "Microsoft Enhanced RSA and AES Cryptographic Provider";
 	Setting.ApplicationType        = 24;
-	Setting.SignAlgorithm     = "RSA_SIGN"; // 
-	Setting.HashAlgorithm = "SHA-256";  // Варианты: SHA-256, SHA-1, MD2, MD4, MD5.
-	Setting.EncryptAlgorithm  = "3DES";     // 
+	Setting.SignAlgorithm     = "RSA_SIGN"; // One option.
+	Setting.HashAlgorithm = "SHA-256";  // Options: SHA-256, SHA-1, MD2, MD4, MD5.
+	Setting.EncryptAlgorithm  = "3DES";     // Options: RC2, RC4, DES, 3DES.
 	Setting.Id       = "MicrosoftEnhanced_RSA_AES";
 	
 	Setting.SignAlgorithms.Add("RSA_SIGN");

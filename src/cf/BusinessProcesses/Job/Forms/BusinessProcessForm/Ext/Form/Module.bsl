@@ -10,9 +10,9 @@
 #Region Variables
 
 &AtClient
-Var PerformerChoiceFormOpened;  // 
+Var PerformerChoiceFormOpened;  
 &AtClient
-Var SupervisorChoiceFormOpened; // 
+Var SupervisorChoiceFormOpened; 
 &AtClient
 Var ChoiceContext;
 
@@ -25,8 +25,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	SetConditionalAppearance();
 	
-	// 
-	// 
+	
+	
 	If Object.Ref.IsEmpty() Then
 		InitializeTheForm();
 	EndIf;

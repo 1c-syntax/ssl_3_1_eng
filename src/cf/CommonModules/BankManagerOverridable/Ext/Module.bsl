@@ -22,7 +22,7 @@ EndProcedure
 //
 // Parameters:
 //  Settings - Structure:
-//   * ShouldProcessDataAreas - Boolean -
+//   * ShouldProcessDataAreas - Boolean - 
 //                                          
 //
 Procedure OnDefineBankClassifiersImportSettings(Settings) Export

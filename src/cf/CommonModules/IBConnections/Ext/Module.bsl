@@ -27,13 +27,13 @@
 //                                      regardless of the lock.
 //                                      Cannot be used for data area session locks.
 //  WaitingForTheStartOfBlocking - Number -  delay time of the lock start in minutes.
-//  LockDuration   - Number - lock duration in minutes.
+//  LockDuration   - Number -  lock duration in minutes.
 //
 // Returns:
-//   Boolean   - 
-//              
+//   Boolean   - True if the lock is set successfully.
+//              False if the lock cannot be set due to insufficient rights.
 //
-Function SetConnectionLock(Val MessageText = "", Val KeyCode = "KeyCode", // 
+Function SetConnectionLock(Val MessageText = "", Val KeyCode = "KeyCode", 
 	Val WaitingForTheStartOfBlocking = 0, Val LockDuration = 0) Export
 	
 	If Common.DataSeparationEnabled() And Common.SeparatedDataUsageAvailable() Then
@@ -86,7 +86,7 @@ EndFunction
 // update of the infobase configuration.
 //
 // Returns:
-//    Boolean - 
+//    Boolean - True if the lock is set, otherwise False.
 //
 Function ConnectionsLocked() Export
 	
@@ -121,8 +121,8 @@ EndFunction
 // Removes the infobase lock.
 //
 // Returns:
-//   Boolean   - 
-//              
+//   Boolean   - True if the operation is successful.
+//              False if the operation cannot be performed due to insufficient rights.
 //
 Function AllowUserAuthorization() Export
 	
@@ -208,9 +208,9 @@ Function ConnectionsInformation(GetConnectionString = False,
 	Result.HasActiveConnections = True;
 	
 	For Each Session In SessionsArray Do
-		If Upper(Session.ApplicationName) = Upper("COMConnection") Then // 
+		If Upper(Session.ApplicationName) = Upper("COMConnection") Then // COM connection.
 			Result.HasCOMConnections = True;
-		ElsIf Upper(Session.ApplicationName) = Upper("Designer") Then // Конфигуратор
+		ElsIf Upper(Session.ApplicationName) = Upper("Designer") Then // Designer.
 			Result.HasDesignerConnection = True;
 		EndIf;
 	EndDo;
@@ -262,7 +262,7 @@ Procedure SetDataAreaSessionLock(Val Parameters, Val LocalTime = True, Val DataA
 		Raise NStr("en = 'Not enough rights to perform the operation.';");
 	EndIf;
 	
-	// 
+	// For backward compatibility purposes.
 	ConnectionsLockParameters = NewConnectionLockParameters();
 	FillPropertyValues(ConnectionsLockParameters, Parameters); 
 	Parameters = ConnectionsLockParameters;
@@ -373,7 +373,7 @@ EndFunction
 
 Function IsSubsystemUsed() Export
 	
-	// 
+	//  
 	Return Not Common.DataSeparationEnabled();
 	
 EndFunction
@@ -385,7 +385,7 @@ EndFunction
 //  Message - String - string to pass.
 //
 // Returns:
-//   String - 
+//   String - connection names.
 //
 Function ActiveSessionsMessage() Export
 	
@@ -409,7 +409,7 @@ EndFunction
 //                               of administrative operations (enabling the exclusive mode, and so on).
 //
 // Returns:
-//   Number - 
+//   Number - number of active infobase sessions.
 //
 Function InfobaseSessionsCount(IncludeConsole = True, IncludeBackgroundJobs = True) Export
 	
@@ -514,8 +514,8 @@ Procedure OnAddClientParametersOnStart(Parameters) Export
 	// The following code is intended for locked data areas only.
 	If InfobaseUpdate.InfobaseUpdateInProgress() 
 		And Users.IsFullUser() Then
-		// 
-		// 
+		
+		
 		Return; 
 	EndIf;
 	
@@ -591,8 +591,8 @@ Procedure OnFillToDoList(ToDoList) Export
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.DataProcessors.ApplicationLock.FullName());
 	
 	LockParameters = SessionLockParameters(False);
@@ -730,7 +730,7 @@ EndProcedure
 //  KeyCode - String - infobase access key code.
 //
 // Returns:
-//   String - 
+//   String - lock message.
 //
 Function GenerateLockMessage(Val Message, Val KeyCode) Export
 	
@@ -769,7 +769,7 @@ EndFunction
 //  CurrentDate - Date - date to check.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if set.
 //
 Function ConnectionsLockedForDate(CurrentMode, CurrentDate)
 	
@@ -826,7 +826,7 @@ EndFunction
 //
 Function CurrentConnectionLockParameters(ShouldReturnUndefinedIfUnspecified = False)
 	
-	CurrentDate = CurrentDate(); // 
+	CurrentDate = CurrentDate(); 
 	
 	SetPrivilegedMode(True);
 	CurrentIBMode = GetSessionsLock();
@@ -876,7 +876,7 @@ EndFunction
 // Returns a string constant for generating event log messages.
 //
 // Returns:
-//   String - 
+//   String - an event description for the event log.
 //
 Function EventLogEvent() Export
 	

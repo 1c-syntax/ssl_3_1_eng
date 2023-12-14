@@ -27,15 +27,15 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	OnlyClassifierData = Parameters.OnlyClassifierData;
 	Parameters.Property("ChoiceMode", ChoiceMode);
 	
-	// 
+	// Allow elements.
 	Items.List.ChoiceMode = ChoiceMode;
 	CommonClientServer.SetFormItemProperty(Items, "ListChoose", "DefaultButton", ChoiceMode);
 	Items.Create.Visible  = CanAddToCatalog;
 	
 	If Not ClassifierDataAvailable Then
-		// 
+		// Showing catalog items only.
 		Items.ListClassifier.Visible = False;
-		// 
+		// Hide classifier's buttons.
 		Items.ListSelectFromClassifier.Visible = False;
 		Items.ListClassifier.Visible           = False;
 		
@@ -57,7 +57,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Else
 				// Showing only items present both in the catalog and in the classifier.
 				SetCatalogAndClassifierIntersectionFilter();
-				// 
+				// Hide classifier's buttons.
 				Items.ListSelectFromClassifier.Visible = False;
 				Items.ListClassifier.Visible           = False;
 			EndIf;
@@ -66,7 +66,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			If CanAddToCatalog Then 
 				// Showing classifier and classifier selection button. These are the default settings.
 			Else
-				// 
+				// Hide classifier's buttons.
 				Items.ListSelectFromClassifier.Visible = False;
 				Items.ListClassifier.Visible           = False;
 			EndIf;

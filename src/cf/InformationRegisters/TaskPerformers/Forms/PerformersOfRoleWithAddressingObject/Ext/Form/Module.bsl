@@ -23,10 +23,19 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.MainAddressingObject.Visible = False;
 	Else
 		Items.MainAddressingObject.Title = MainAddressingObject.Metadata().ObjectPresentation;
-		AdditionalAddressingObject = Parameters.Role.AdditionalAddressingObjectTypes;
+		If Not Parameters.Role.IsEmpty() Then
+			AdditionalAddressingObject = Common.ObjectAttributeValue(
+				Parameters.Role, "AdditionalAddressingObjectTypes");
+		Else
+			AdditionalAddressingObject = ChartsOfCharacteristicTypes.TaskAddressingObjects.EmptyRef();
+		EndIf;
 		Items.AdditionalAddressingObject.Visible = Not AdditionalAddressingObject.IsEmpty();
-		Items.AdditionalAddressingObject.Title = AdditionalAddressingObject.Description;
-		AdditionalAddressingObjectTypes = AdditionalAddressingObject.ValueType;
+		If Not AdditionalAddressingObject.IsEmpty() Then 
+			PropertiesOfAddressingObject = Common.ObjectAttributesValues(AdditionalAddressingObject, 
+				"Description,ValueType");
+			Items.AdditionalAddressingObject.Title = PropertiesOfAddressingObject.Description;
+			AdditionalAddressingObjectTypes = PropertiesOfAddressingObject.ValueType;
+		EndIf;
 	EndIf;
 	
 	Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Users assigned to role ""%1""';"), Role);
@@ -108,8 +117,11 @@ Procedure SetRecordSetFilter()
 	RecordSetObject.Filter.PerformerRole.Set(Role);
 	RecordSetObject.Read();
 	ValueToFormAttribute(RecordSetObject, "RecordSet");
+	
+	RolePerformers = RecordSetObject.UnloadColumn("Performer");
+	PropertiesOfRolePerformers = Common.ObjectsAttributeValue(RolePerformers, "Invalid");
 	For Each Record In RecordSet Do
-		Record.Invalid = Record.Performer.Invalid;
+		Record.Invalid = PropertiesOfRolePerformers[Record.Performer];
 	EndDo;
 
 EndProcedure

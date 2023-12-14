@@ -147,7 +147,7 @@ EndProcedure
 Procedure OnProcessGetRegistrationCodeError(ErrorInfo, StandardProcessing, Context) Export 
 	
 	StandardProcessing = False;
-	ErrorProcessing.ShowErrorInfo(ErrorInfo);
+	StandardSubsystemsClient.ShowErrorInformationAndContinue(ErrorInfo);
 	
 	RegistrationState = "NotRegistered1";
 	OnChangeFormState(ThisObject);
@@ -197,7 +197,7 @@ EndProcedure
 Procedure OnProcessRegistrationError(ErrorInfo, StandardProcessing, Context) Export 
 	
 	StandardProcessing = False;
-	ErrorProcessing.ShowErrorInfo(ErrorInfo);
+	StandardSubsystemsClient.ShowErrorInformationAndContinue(ErrorInfo);
 	
 	RegistrationState = "WaitForConfirmationCodeInput";
 	OnChangeFormState(ThisObject);
@@ -245,11 +245,11 @@ EndProcedure
 #Region PresentationModel
 
 // Returns:
-//   String - 
-//   
-//   
-//   
-//   
+//   String - "CreateAdministratorRequired",
+//   "NotRegistered",
+//   "Registered",
+//   "WaitForConfirmationCodeInput",
+//   "WaitForCollaborationServerResponse".
 //
 &AtServerNoContext
 Function CurrentRegistrationState()

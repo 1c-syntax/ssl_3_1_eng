@@ -9,8 +9,8 @@
 
 #Region Internal
 
-// Used for integration with the subsystem "Configurations update".
-// See the ConfigurationUpdateFileTemplate template for InstallUpdates processing.
+// 
+// 
 //
 Function UpdateInfobase(ExecuteDeferredHandlers1 = False) Export
 	

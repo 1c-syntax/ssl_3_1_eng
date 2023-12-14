@@ -348,11 +348,11 @@ Procedure ToCustomizeTheFormByLimitingThePeriodOf(Form)
 	
 	FirstYear = (BegOfYear(Form.LowLimit) = Form.YearStartDate);
 	
-	// 
+	// Select a year.
 	Form.SelectedYearLimited = FirstYear;
 	
 	Form.Items.GoBackOneYearAvailable.Visible   = Not FirstYear;
-	Form.Items.GoBackOneYearUnavailable.Visible = FirstYear; // 
+	Form.Items.GoBackOneYearUnavailable.Visible = FirstYear; // SelectStandardPeriodButtonBackground picture
 	
 	// Select a quarter.
 	TheMinimumQuarter = ?(Not FirstYear, 1, Month(EndOfQuarter(Form.LowLimit)) / 3);

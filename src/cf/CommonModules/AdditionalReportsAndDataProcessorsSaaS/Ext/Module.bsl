@@ -31,8 +31,8 @@ EndProcedure
 // report or data processor to a data area.
 //
 // Parameters:
-//  AdditionalDataProcessor - 
-//    
+//  AdditionalDataProcessor - CatalogObject.AdditionalReportsAndDataProcessors, catalog item
+//    written by user.
 //  Result - Boolean - indicates whether the required rights are granted.
 //  StandardProcessing - Boolean - flag specifying whether
 //    standard processing is used to validate rights.
@@ -298,16 +298,16 @@ Procedure OnAttachExternalDataProcessor(Val Ref, StandardProcessing, Result) Exp
 		SafeMode = String(ConnectionParameters.GUIDVersion);
 	EndIf;
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	AddressInTempStorage = PutToTempStorage(ConnectionParameters.DataProcessorStorage.Get());
 	Manager = ?(IsReport(Ref), ExternalReports, ExternalDataProcessors);
 	Result = Manager.Connect(AddressInTempStorage, ConnectionParameters.ObjectName, SafeMode, 
 		Common.ProtectionWithoutWarningsDetails()); 
-	// 
-	// 
-	// 
+	
+	
+	
 	
 EndProcedure
 
@@ -318,8 +318,8 @@ EndProcedure
 //  StandardProcessing - Boolean - indicates whether the standard processing is required to attach an
 //                                  external data processor.
 //  Result - ExternalDataProcessor
-//            - ExternalReport - 
-//              
+//            - ExternalReport - a name of the attached external report or data processor
+//              (provided that the handler StandardProcessing parameter is set to False).
 //
 Procedure OnCreateExternalDataProcessor(Val Ref, StandardProcessing, Result) Export
 	
@@ -338,15 +338,15 @@ Procedure OnCreateExternalDataProcessor(Val Ref, StandardProcessing, Result) Exp
 	
 	CheckCanExecute(Ref);
 	
-	// 
-	// 
+	
+	
 	If IsReport(Ref) Then
 		Result = ExternalReports.Create(DataProcessorName);
 	Else
 		Result = ExternalDataProcessors.Create(DataProcessorName);
 	EndIf;
-	// 
-	// 
+	
+	
 	
 EndProcedure
 
@@ -356,11 +356,11 @@ EndProcedure
 //   Object - CatalogObject.AdditionalReportsAndDataProcessors - an object of an additional report or a data processor.
 //   Command - CatalogTabularSectionRow.AdditionalReportsAndDataProcessors.Commands - a command details.
 //   Job - ScheduledJob
-//           - ValueTableRow - 
+//           - ValueTableRow - scheduled job details.
 //       See ScheduledJobsServer.Job.
-//   Changes - Structure - job attribute values to be modified.
-//       See details of the second parameter of the ScheduledJobsServer.ChangeJob procedure.
-//       If the value is Undefined, the scheduled job stays unchanged.
+//   Changes - Structure - 
+//       
+//       
 //
 Procedure BeforeUpdateJob(Object, Command, Job, Changes) Export
 	
@@ -525,8 +525,7 @@ Procedure InstallSuppliedDataProcessorToDataArea(Val InstallationDetails, Val Qu
 		Set.Write();
 		
 		If SuppliedDataProcessorExists Then
-			
-			RelevantCommands = SuppliedDataProcessor.Commands.Unload();
+			RelevantCommands = Common.ObjectAttributeValue(SuppliedDataProcessor, "Commands").Unload();
 			RelevantCommands.Columns.Add("ScheduledJobSchedule", New TypeDescription("ValueList"));
 			RelevantCommands.Columns.Add("ScheduledJobUsage", New TypeDescription("Boolean"));
 			RelevantCommands.Columns.Add("GUIDScheduledJob", New TypeDescription("UUID"));
@@ -540,7 +539,7 @@ Procedure InstallSuppliedDataProcessorToDataArea(Val InstallationDetails, Val Qu
 				
 			EndDo;
 			
-			// 
+			// An item of the AdditionalReportsAndDataProcessors catalog is created. The item acts as a data processor being used.
 			DataProcessorToUseRef = DataProcessorToUse(SuppliedDataProcessor, InstallationDetails.Installation);
 			If ValueIsFilled(DataProcessorToUseRef) Then
 				DataProcessorToUse = DataProcessorToUseRef.GetObject();
@@ -584,8 +583,8 @@ Procedure InstallSuppliedDataProcessorToDataArea(Val InstallationDetails, Val Qu
 			
 			DataProcessorToUse.Write();
 			
-			// 
-			// 
+			
+			
 			If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
 				ModuleReportsOptions = Common.CommonModule("ReportsOptions");
 				For Each AdditionalReportOption In AdditionalReportOptions Do
@@ -629,9 +628,9 @@ Procedure InstallSuppliedDataProcessorToDataArea(Val InstallationDetails, Val Qu
 				
 		Else
 			
-			// 
-			// 
-			// 
+			
+			
+			
 			
 			Context = New Structure;
 			Context.Insert("QuickAccess", QuickAccess);
@@ -754,7 +753,7 @@ Procedure DeleteSuppliedDataProcessorFromDataArea(Val SuppliedDataProcessor, Val
 		ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
 		ModuleSaaSOperationsCTLCached = Common.CommonModule("SaaSOperationsCTLCached");
 		
-		// 
+		// A message about the installation error of data processor to data area is being sent to SaaS
 		Message = ModuleMessagesSaaS.NewMessage(
 			MessagesAdditionalReportsAndDataProcessorsControlInterface.ErrorOfAdditionalReportOrDataProcessorDeletionMessage());
 		
@@ -913,8 +912,8 @@ Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 		ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "IndependentUsageOfAdditionalReportsAndDataProcessorsSaaS");
 		ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "AllowScheduledJobsExecutionSaaS");
 		
-		// 
-		// 
+		
+		
 		ParameterString = ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "AllowScheduledJobsExecutionSaaS");
 		ParameterString.Name = "AllowUseAdditionalReportsAndDataProcessorsByScheduledJobsInSaaSMode";
 		ParameterString = ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "MinimalARADPScheduledJobIntervalSaaS");
@@ -936,8 +935,8 @@ EndProcedure
 //
 Procedure OnSetIBParametersValues(Val ParameterValues) Export
 	
-	// 
-	// 
+	
+	
 	AllowScheduledJobsExecutionSaaS = Undefined;
 	MinimalARADPScheduledJobIntervalSaaS = Undefined;
 	UseSecurityProfilesForARDP = Undefined;
@@ -990,7 +989,7 @@ EndProcedure
 Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 	
 	NamesAndAliasesMap.Insert("AdditionalReportsAndDataProcessorsSaaS.AppliedDataProcessorSettingsUpdate");
-	// 
+	// Compatibility with SSL versions 2.2.1.25 and earlier.
 	NamesAndAliasesMap.Insert("AdditionalReportsAndDataProcessorsSaaS.InstallSuppliedDataProcessorToDataArea", 
 		"AdditionalReportsAndDataProcessorsSaaS.InstallSuppliedDataProcessorOnGet");
 	NamesAndAliasesMap.Insert("AdditionalReportsAndDataProcessorsSaaS.InstallSuppliedDataProcessorOnGet");
@@ -1058,8 +1057,8 @@ EndProcedure
 //
 Procedure OnDefineCorrespondentInterfaceVersion(Val MessageInterface, Val ConnectionParameters, Val RecipientPresentation1, Result) Export
 	
-	// 
-	// 
+	
+	
 	
 	If Common.DataSeparationEnabled()
 		And Result = Undefined
@@ -1537,7 +1536,7 @@ Procedure ProcessSuppliedAdditionalReportsAndDataProcessors(Descriptor, PathToFi
 		SuppliedDataProcessor.DataProcessorStorage = New ValueStorage(
 			DataProcessorBinaryData, New Deflation(9));
 		
-		// 
+		// Table of compatibility with configuration versions
 		SuppliedDataProcessor.ControlCompatibilityWithConfigurationVersions = True;
 		SuppliedDataProcessor.Compatibility.Clear();
 		For Each CompatibilityInformation In CompatibilityTable Do
@@ -1551,7 +1550,7 @@ Procedure ProcessSuppliedAdditionalReportsAndDataProcessors(Descriptor, PathToFi
 			EndIf;
 		EndDo;
 		
-		// 
+		// Write CatalogObject.SuppliedAdditionalReportsAndDataProcessors.
 		SuppliedDataProcessor.GUIDVersion = New UUID(SuppliedDataProcessorDetails.Version);
 		SuppliedDataProcessor.Write();
 		CommitTransaction();
@@ -1680,8 +1679,8 @@ Procedure FillSettingsOfDataProcessorToUse(DataProcessorToUse, SuppliedDataProce
 		
 	EndDo;
 	
-	// 
-	// 
+	
+	
 	CommandsToRemove = New Array();
 	For Each CommandOfDataProcessorToUse In CommandsOfDataProcessorToUse Do
 		
@@ -1727,7 +1726,7 @@ Function GetRegistrationData(Val SuppliedDataProcessor)
 	EndDo;
 	Result.Insert("Purpose", Purpose);
 	
-	// Команды
+	// Commands.
 	Result.Insert("Commands", DataProcessor.Commands.Unload(
 		, "Presentation, Id, Modifier, ShouldShowUserNotification, Use"));
 	

@@ -40,20 +40,20 @@
 //                      - ExchangePlanRef
 //                      - Filter - Reference to a data item or a record set filter to be checked.
 //                                The value to be checked will be received from the database.
-//                      - Undefined -   
-//                                       
+//                      - Undefined - do not get data from the database  
+//                                       and check object data in DataOrFullName instead.
 //
 //  ErrorDescription    - Null      - the default value. Period-end closing data is not required.
-//                    - String    - 
-//                    - Structure - 
-//                                  
+//                    - String    - a return value. Return a text description of available period-end closing dates.
+//                    - Structure - a return value. return a structural description of available period-end closing dates.
+//                                  See the PeriodClosingDates.PeriodEndClosingFound function.
 //
 //  ImportRestrictionCheckNode - Undefined
-//                              - ExchangePlanRef -  
-//                                
+//                              - ExchangePlanRef - if Undefined, check period-end closing; 
+//                                otherwise check data import from the exchange plan node.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if changing data is denied.
 //
 // Call options:
 //   DataChangesDenied(CatalogObject…)        - checks data in a passed object or record set.
@@ -74,7 +74,7 @@ Function DataChangesDenied(DataOrFullName, DataID = Undefined,
 	
 	DataSources = PeriodClosingDatesInternal.DataSourcesForPeriodClosingCheck();
 	If DataSources.Get(MetadataObject.FullName()) = Undefined Then
-		Return False; // 
+		Return False; // Restrictions by dates are not defined for this object type.
 	EndIf;
 	
 	PeriodClosingCheck = ImportRestrictionCheckNode = Undefined;
@@ -139,16 +139,16 @@ EndFunction
 //                      - InformationRegisterRecordSet
 //                      - AccumulationRegisterRecordSet
 //                      - AccountingRegisterRecordSet
-//                      - CalculationRegisterRecordSet - 
+//                      - CalculationRegisterRecordSet - a data item or a record set.
 //
 //  ImportRestrictionCheckNode  - ExchangePlanRef - a node to be checked.
 //
 //  Cancel               - Boolean - the return value. True if import is restricted.
 //
 //  ErrorDescription      - Null      - the default value. Period-end closing data is not required.
-//                      - String    - 
-//                      - Structure - 
-//                                    
+//                      - String    - a return value. Return a text description of available period-end closing dates.
+//                      - Structure - a return value. Return a structural description of available period-end closing dates.
+//                                    See the PeriodClosingDates.PeriodEndClosingFound function.
 //
 Procedure CheckDataImportRestrictionDates(Data, ImportRestrictionCheckNode, Cancel, ErrorDescription = Null) Export
 	
@@ -192,10 +192,10 @@ EndProcedure
 //                      - BusinessProcessObject
 //                      - TaskObject
 //                      - ExchangePlanObject
-//                      - InformationRegisterRecordManager - 
+//                      - InformationRegisterRecordManager - a record manager.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if programmatic period-end closing check was skipped.
 //
 Function ObjectOnReadAtServer(Form, CurrentObject) Export
 	
@@ -263,8 +263,8 @@ EndProcedure
 //                             - Undefined - generating a period-end closing message text is not required.
 //
 //  ErrorDescription    - Null      - the default value. Period-end closing data is not required.
-//                    - String    - 
-//                    - Structure - 
+//                    - String    - a return value. Return a text description of available period-end closing dates.
+//                    - Structure - :
 //                        * DataPresentation - String - a data presentation used in the error title.
 //                        * ErrorTitle     - String - a string similar to the following one:
 //                                                "Order 10 dated 01/01/2017 cannot be changed in the closed period."
@@ -273,7 +273,7 @@ EndProcedure
 //                          ** Section          - String       - a name of the section where period-end closing is searched,
 //                                                 if a string is blank, a date valid for all sections is searched.
 //                          ** Object          - AnyRef  - a reference to the object, in which period-end closing date was searched.
-//                                             - Undefined - 
+//                                             - Undefined - searching for a date valid for all objects.
 //                          ** PeriodEndClosingDate     - Date         - a detected period-end closing date.
 //                          ** SingleDate       - Boolean       - if True, the detected period-end closing date is valid for all
 //                                                 sections, not only for the searched section.
@@ -286,10 +286,10 @@ EndProcedure
 //                            is within the range of period-end closing for all users (common period-end closing date is set)".
 //
 //  ImportRestrictionCheckNode - Undefined - check data change.
-//                              - ExchangePlanRef - 
+//                              - ExchangePlanRef - check data import for the specified node.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - if True, at least one period-end closing is detected.
 //
 Function PeriodEndClosingFound(Val DataToCheck,
                                     PeriodEndMessageParameters = Undefined,
@@ -319,17 +319,17 @@ EndFunction
 //             - InformationRegisterRecordSet
 //             - AccumulationRegisterRecordSet
 //             - AccountingRegisterRecordSet 
-//             - CalculationRegisterRecordSet - 
-//                  
+//             - CalculationRegisterRecordSet - a reference, a data object
+//                  or a register record set whose presentation will be displayed in the period-end closing message.
 //             - Structure:
 //                 ** Register - String - a full register name.
 //                            - InformationRegisterRecordSet
 //                            - AccumulationRegisterRecordSet
 //                            - AccountingRegisterRecordSet 
-//                            - CalculationRegisterRecordSet - 
+//                            - CalculationRegisterRecordSet - register record set.
 //                 ** Filter   - Filter - a record set filter.
-//             - String - 
-//                        
+//             - String - a prepared data presentation,
+//                        which will be used in a period-end closing message.
 //				 
 Function PeriodEndMessageParameters() Export
 	
@@ -454,7 +454,7 @@ EndFunction
 //             - ChartOfCalculationTypesObject
 //             - BusinessProcessObject
 //             - TaskObject
-//             - ExchangePlanObject - a data object that is passed to the pre-Recording event subscription.
+//             - ExchangePlanObject - a data object passed to the BeforeWrite event subscription.
 //
 //  Cancel      - Boolean - a parameter passed to the BeforeWrite event subscription.
 //
@@ -492,7 +492,7 @@ EndProcedure
 //
 // Parameters:
 //  Source   - InformationRegisterRecordSet
-//             - AccumulationRegisterRecordSet - 
+//             - AccumulationRegisterRecordSet - a record set passed to the BeforeWrite event subscription.
 //  Cancel      - Boolean - a parameter passed to the BeforeWrite event subscription.
 //  Replacing  - Boolean - a parameter passed to the BeforeWrite event subscription.
 //
@@ -562,7 +562,7 @@ EndProcedure
 //             - ChartOfCalculationTypesObject
 //             - BusinessProcessObject
 //             - TaskObject
-//             - ExchangePlanObject - a data object that is passed to the pre-Recording event subscription.
+//             - ExchangePlanObject - a data object passed to the BeforeWrite event subscription.
 //
 //  Cancel      - Boolean - a parameter passed to the BeforeWrite event subscription.
 //

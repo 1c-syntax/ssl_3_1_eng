@@ -321,7 +321,7 @@ Procedure ImportRulesAtServer(Cancel, TempStorageAddress, RulesFileName, IsArchi
 		
 		Modified = False;
 		
-		// 
+		// Open session cache for the registration mechanism has become obsolete.
 		DataExchangeInternal.ResetObjectsRegistrationMechanismCache();
 		RefreshReusableValues();
 	EndIf;

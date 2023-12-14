@@ -69,7 +69,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Step.CancelButton.Title = NStr("en = 'Cancel';");
 	Step.CancelButton.ToolTip = NStr("en = 'Cancel duplicate search.';");
 	
-	// 
+	// 3. Process search results and selecting main items.
 	Step = AddWizardStep(Items.MainItemSelectionStep);
 	Step.BackButton.Visible = False;
 	Step.NextButton.Title = NStr("en = 'Delete duplicates >';");
@@ -78,14 +78,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Step.CancelButton.Title = NStr("en = 'Close';");
 	Step.CancelButton.ToolTip = NStr("en = 'Close the form without duplicate search.';");
 	
-	// 
+	// 4. Long-running deletion of duplicates.
 	Step = AddWizardStep(Items.DeletionStep);
 	Step.BackButton.Visible = False;
 	Step.NextButton.Visible = False;
 	Step.CancelButton.Title = NStr("en = 'Cancel';");
 	Step.CancelButton.ToolTip = NStr("en = 'Cancel duplicate deletion.';");
 	
-	// 
+	// 5. Successful deletion.
 	Step = AddWizardStep(Items.SuccessfulDeletionStep);
 	Step.BackButton.Title = NStr("en = 'Search again';");
 	Step.BackButton.ToolTip = NStr("en = 'Start a new duplicate search.';");
@@ -93,27 +93,27 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Step.CancelButton.DefaultButton = True;
 	Step.CancelButton.Title = NStr("en = 'Close';");
 	
-	// 
+	// 6. Incomplete deletion.
 	Step = AddWizardStep(Items.UnsuccessfulReplacementsStep);
 	Step.BackButton.Visible = False;
 	Step.NextButton.Title = NStr("en = 'Delete again >';");
 	Step.NextButton.ToolTip = NStr("en = 'Delete duplicates';");
 	Step.CancelButton.Title = NStr("en = 'Close';");
 	
-	// 
+	// 7. No duplicates found.
 	Step = AddWizardStep(Items.DuplicatesNotFoundStep);
 	Step.BackButton.Visible = False;
 	Step.NextButton.Title = NStr("en = 'Find duplicates >';");
 	Step.NextButton.ToolTip = NStr("en = 'Find duplicates by the specified criteria.';");
 	Step.CancelButton.Title = NStr("en = 'Close';");
 	
-	// 
+	// 8 Runtime errors.
 	Step = AddWizardStep(Items.ErrorOccurredStep);
 	Step.BackButton.Visible = False;
 	Step.NextButton.Visible = False;
 	Step.CancelButton.Title = NStr("en = 'Close';");
 	
-	// 
+	// Update form items.
 	WizardSettings.CurrentStep = SearchStep;
 	SetVisibilityAvailability(ThisObject);
 	
@@ -347,7 +347,7 @@ Procedure UpdateCandidateUsageInstances(Val RowID)
 	CurrentRow = FoundDuplicates.FindByID(RowID);
 	
 	If CurrentRow.GetParent() = Undefined Then
-		// 
+		// Group details.
 		ProbableDuplicateUsageInstances.Clear();
 		
 		OriginalDescription = Undefined;
@@ -691,7 +691,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Procedure InitializeStepByStepWizardSettings()
@@ -699,16 +699,16 @@ Procedure InitializeStepByStepWizardSettings()
 	WizardSettings.Insert("Steps", New Array);
 	WizardSettings.Insert("CurrentStep", Undefined);
 	
-	// 
+	// Interface part IDs.
 	WizardSettings.Insert("PagesGroup", Items.WizardSteps.Name);
 	WizardSettings.Insert("NextButton",   Items.WizardStepNext.Name);
 	WizardSettings.Insert("BackButton",   Items.WizardStepBack.Name);
 	WizardSettings.Insert("CancelButton",  Items.WizardStepCancel.Name);
 	
-	// 
+	// To process long-running operations.
 	WizardSettings.Insert("ShowDialogBeforeClose", False);
 	
-	// 
+	// Everything is disabled by default.
 	Items.WizardStepNext.Visible  = False;
 	Items.WizardStepBack.Visible  = False;
 	Items.WizardStepCancel.Visible = False;
@@ -759,7 +759,7 @@ Procedure SetVisibilityAvailability(Form)
 	WizardSettings = Form.WizardSettings;
 	CurrentStep = WizardSettings.CurrentStep;
 	
-	// 
+	// Navigate to the page.
 	Items[WizardSettings.PagesGroup].CurrentPage = Items[CurrentStep.PageName];
 	
 	// Update buttons.
@@ -800,7 +800,7 @@ Procedure GoToWizardStep1(Val StepOrIndexOrFormGroup)
 		EndIf;
 	EndIf; 
 	
-	// 
+	// Step switch.
 	WizardSettings.CurrentStep = StepDescription;
 	
 	// Update visibility.
@@ -858,7 +858,7 @@ Procedure OnActivateWizardStep()
 		
 		SearchRulesPresentation = RulesText;
 		
-		// Доступность.
+		// Availability.
 		Items.FilterRulesPresentation.Enabled = Not IsBlankString(DuplicatesSearchArea);
 		Items.SearchRulesPresentation.Enabled = Not IsBlankString(DuplicatesSearchArea);
 		
@@ -1055,7 +1055,7 @@ EndProcedure
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtServer
 Function DuplicatesDeletionSearchSettings()
@@ -1207,11 +1207,11 @@ Procedure MarkItemAsOriginal(Val RowData, Val Parent)
 	EndDo;
 	RowData.Main = True;
 	
-	// 
+	// Selected item is always used.
 	RowData.Check = 1;
 	EditCandidatesNotes(RowData);
 	
-	// 
+	// Changing the group name
 	Parent.Description = RowData.Description + " (" + Parent.Count + ")";
 EndProcedure
 
@@ -1267,26 +1267,30 @@ Function SearchRulesSettingsAddress()
 EndFunction
 
 &AtServer
-Procedure UpdateFilterComposer(ResultAddress)
+Procedure UpdateFilterComposer(Val ResultAddress)
+	
 	Result = GetFromTempStorage(ResultAddress);
 	DeleteFromTempStorage(ResultAddress);
 	PrefilterComposer.LoadSettings(Result);
 	PrefilterComposer.Refresh(DataCompositionSettingsRefreshMethod.Full);
 	SaveUserSettingsSSL();
+	
 EndProcedure
 
 &AtServer
-Procedure UpdateSearchRules(ResultAddress)
+Procedure UpdateSearchRules(Val ResultAddress)
+	
 	Result = GetFromTempStorage(ResultAddress);
 	DeleteFromTempStorage(ResultAddress);
 	TakeAppliedRulesIntoAccount = Result.TakeAppliedRulesIntoAccount;
 	HideInsignificantDuplicates = Result.HideInsignificantDuplicates;
 	ValueToFormAttribute(Result.SearchRules, "SearchRules");
 	SaveUserSettingsSSL();
+	
 EndProcedure
 
 &AtServer
-Procedure InitializeFilterComposerAndRules(FormSettings)
+Procedure InitializeFilterComposerAndRules(Val FormSettings)
 	// 1. Clear and initialize information about the metadata object.
 	FilterRulesPresentation = "";
 	SearchRulesPresentation = "";
@@ -1327,14 +1331,10 @@ Procedure InitializeFilterComposerAndRules(FormSettings)
 	If TypeOf(DCSettings) = Type("DataCompositionSettings") Then
 		
 		For Cnt = -(DCSettings.Filter.Items.Count()-1) To 0 Do
-			
 			Filter = DCSettings.Filter.Items[-Cnt];
 			If StrFind(Filter.Presentation, RepresentationOfTheSelectedPlaceOfUse()) > 0 Then
-			
-				CommonClientServer.DeleteFilterItems(DCSettings.Filter,,Filter.Presentation);
-			
+				CommonClientServer.DeleteFilterItems(DCSettings.Filter,, Filter.Presentation);
 			EndIf;	
-		
 		EndDo;
 		
 		PrefilterComposer.LoadSettings(DCSettings);
@@ -1354,16 +1354,11 @@ Procedure InitializeFilterComposerAndRules(FormSettings)
 		EndDo;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	If Not FiltersImported Then
-		CommonClientServer.SetFilterItem(
-			PrefilterComposer.Settings.Filter,
-			"DeletionMark",
-			False,
-			DataCompositionComparisonType.Equal,
-			,
-			False);
+		CommonClientServer.SetFilterItem(	PrefilterComposer.Settings.Filter,
+			"DeletionMark", False, DataCompositionComparisonType.Equal,, False);
 	EndIf;
 		
 	// Filter by processed occurrences (navigate with the "Possible duplicates" mechanism).	
@@ -1374,25 +1369,18 @@ Procedure InitializeFilterComposerAndRules(FormSettings)
 		If SelectedUsageInstances.FilterValue.Count() > 0 Then
 		
 			FilterGroup = CommonClientServer.CreateFilterItemGroup(
-				PrefilterComposer.Settings.Filter.Items	
-				,SelectedUsageInstances.FilterPresentation
-				,DataCompositionFilterItemsGroupType.OrGroup);
+				PrefilterComposer.Settings.Filter.Items,	
+				SelectedUsageInstances.FilterPresentation,
+				DataCompositionFilterItemsGroupType.OrGroup);
 		
 		EndIf;
 			
 		For Each FilterValueAttribute In SelectedUsageInstances.FilterValue Do
-						
-			CommonClientServer.SetFilterItem(
-				FilterGroup,
-				FilterValueAttribute.Key,
-				FilterValueAttribute.Value,
-				DataCompositionComparisonType.InList,
-				"",
-				True);	
-		
+			CommonClientServer.SetFilterItem(FilterGroup,
+				FilterValueAttribute.Key, FilterValueAttribute.Value,
+				DataCompositionComparisonType.InList, "", True);	
 		EndDo;
 		
-					
 		DeleteFromTempStorage(SelectedUsageInstancesAddress);
 		SelectedUsageInstancesAddress = "";
 	
@@ -1494,9 +1482,9 @@ Procedure SetConditionalAppearance()
 	AppearanceField = AppearanceItem.Fields.Items.Add();
 	AppearanceField.Field = New DataCompositionField("FoundDuplicatesCount");
 	
-	// 
+	// 1. Row with the current main group item:
 		
-	// 
+	// Mark cleared.
 	AppearanceItem = ConditionalAppearanceItems.Add();
 	
 	AppearanceFilter = AppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
@@ -1510,7 +1498,7 @@ Procedure SetConditionalAppearance()
 	AppearanceField = AppearanceItem.Fields.Items.Add();
 	AppearanceField.Field = New DataCompositionField("FoundDuplicatesCheck");
 			
-	// 
+	// 2. Occurrences.
 	AppearanceItem = ConditionalAppearanceItems.Add();
 	
 	AppearanceFilter = AppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
@@ -1528,7 +1516,7 @@ Procedure SetConditionalAppearance()
 	AppearanceField = AppearanceItem.Fields.Items.Add();
 	AppearanceField.Field = New DataCompositionField("FoundDuplicatesCount");
 	
-	// 
+	// 4. Inactive row.
 	AppearanceItem = ConditionalAppearanceItems.Add();
 	
 	AppearanceFilter = AppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
@@ -1541,7 +1529,7 @@ Procedure SetConditionalAppearance()
 	AppearanceField = AppearanceItem.Fields.Items.Add();
 	AppearanceField.Field = New DataCompositionField("FoundDuplicates");
 	
-	// 
+	// Possible duplicates.
 	AppearanceItem = ConditionalAppearanceItems.Add();
 	
 	AppearanceFilter = AppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
@@ -1639,7 +1627,7 @@ Function ComparisonOptionsForType(Val AvailableTypes, Val AllComparisonOptions, 
 	
 	IsStorage = AvailableTypes.ContainsType(Type("ValueStorage"));
 	If IsStorage Then 
-		// 
+		// Cannot be compared.
 		Return Undefined;
 	EndIf;
 	
@@ -1648,7 +1636,7 @@ Function ComparisonOptionsForType(Val AvailableTypes, Val AllComparisonOptions, 
 		And AvailableTypes.StringQualifiers.Length <> 0;
 		
 	If IsString And Not IsFixedString Then
-		// 
+		// Cannot be compared.
 		Return Undefined;
 	EndIf;
 	
@@ -1677,7 +1665,7 @@ Function ImageOfTheMetadataType(ImageCache, Kind)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 &AtClient
 Procedure FindAndDeleteDuplicatesClient()
@@ -1798,7 +1786,7 @@ Procedure FindAndRemoveDuplicatesProgress(Progress, AdditionalParameters) Export
 EndProcedure
 
 &AtServer
-Function ProgressText(ProgressParameters, SourceProgressText)
+Function ProgressText(Val ProgressParameters, Val SourceProgressText)
 	
 	ThisIsReplacement = StrStartsWith(SourceProgressText, NStr("en = 'Replacing duplicates';"));
 	ProgressAttributeName = ?(ThisIsReplacement, "ProcessedItemsCount", "DeletedItemsCount");
@@ -1892,8 +1880,8 @@ EndProcedure
 &AtServer
 Function FillDuplicatesSearchResults(Val ResultAddress)
 	
-	// 
-	Data = GetFromTempStorage(ResultAddress); // See ОбработкаОбъект.DataProcessorObject.ПоискИУдалениеДублей.DuplicatesGroups
+	
+	Data = GetFromTempStorage(ResultAddress); // See DataProcessorObject.DuplicateObjectsDetection.DuplicatesGroups
 	DuplicatesSearchErrorDescription = Data.ErrorDescription;
 	
 	FoundDuplicatesTree = FormAttributeToValue("FoundDuplicates");
@@ -1919,7 +1907,7 @@ Function FillDuplicatesSearchResults(Val ResultAddress)
 		TreeGroup.Check = 1;
 		TreeGroup.PictureNumber = -1;
 		
-		OriginalItem = Undefined; // 
+		OriginalItem = Undefined; 
 		MaxUsageInstances = -1;
 		
 		For Each Item In GroupItems1 Do
@@ -2068,7 +2056,7 @@ Function FillDuplicatesDeletionResults(Val ResultAddress)
 		
 		Children = Parent.GetItems();
 		ChildPosition = Children.Count() - 1;
-		MainChild = Children[0];	// 
+		MainChild = Children[0];	
 		
 		While ChildPosition >= 0 Do
 			Child = Children[ChildPosition];
@@ -2079,7 +2067,7 @@ Function FillDuplicatesDeletionResults(Val ResultAddress)
 				Child.Count = ErrorsTable.FindRows(Filter).Count();
 				
 			ElsIf ErrorsTable.Find(Child.Ref, "Ref") = Undefined Then
-				// 
+				// Successfully deleted, no errors.
 				Children.Delete(Child);
 				
 			Else
@@ -2121,6 +2109,8 @@ Procedure FillPossibleDuplicates()
 	ExpectedPossibleDuplicates = GeneratePossibleDuplicates(UsageInstances);
 	
 	PossibleDuplicatesSearchFilter = GeneratePossibleDuplicatesFilter(FormAttributeToValue("FoundDuplicates"));
+	TypeOfObjectBeingProcessed = TypeOf(Common.ObjectAttributeValue(ObjectToProcessID, 
+		"EmptyRefValue"));
 	
 	For Each UsageInstance1 In ExpectedPossibleDuplicates Do
 		
@@ -2130,7 +2120,7 @@ Procedure FillPossibleDuplicates()
 			Continue;
 		EndIf;
 		
-		KeysLinks = KeysMetadataLinks(ObjectToProcessID, UsageInstance1);
+		KeysLinks = KeysMetadataLinks(TypeOfObjectBeingProcessed, UsageInstance1);
 		If KeysLinks.Count() > 0 Then
 			AddPossibleDuplicate(MetadataObjectToProcess, UsageInstance1, KeysLinks, PossibleDuplicatesSearchFilter); 	
 		EndIf;
@@ -2236,8 +2226,8 @@ Procedure AddPossibleDuplicate(MetadataObjectToProcess, UsageInstance1, KeysLink
 	PossibleDuplicate.RelationDegree = ?(KeysLinks.Find(2, "RelationDegree") <> Undefined, 2, 1);
 	PossibleDuplicate.SourcesPresentation = StrConcat(PossibleDuplicate.Sources.UnloadValues(), ", ");
 	
-	// 
-	// 		
+	
+			
 	For Each KeysLinks In KeysLinks Do
 	
 		PossibleDuplicatesFilter = PossibleDuplicatesFilterInformation[KeysLinks.Name];
@@ -2254,17 +2244,16 @@ Procedure AddPossibleDuplicate(MetadataObjectToProcess, UsageInstance1, KeysLink
 
 EndProcedure
 
-// Function — Metadata relationship
-//
+// 
 // 
 // Returns:
-//   - Number - 
-//    
-//    
-//    
+//   - Number - — how metadata objects are linked
+//    0 — not linked
+//    1 — by attribute
+//    2 — by Parent/Owner
 //
 &AtServerNoContext
-Function KeysMetadataLinks(Val ObjectToProcessID, Val UsageInstance1)
+Function KeysMetadataLinks(Val TypeOfObjectBeingProcessed, Val UsageInstance1)
 	
 	Result = New ValueTable;
 	Result.Columns.Add("Name");
@@ -2272,7 +2261,7 @@ Function KeysMetadataLinks(Val ObjectToProcessID, Val UsageInstance1)
 			
 	For Each UsageInstanceAttribute In UsageInstance1.Attributes Do
 		
-		If UsageInstanceAttribute.Type.Types().Find(TypeOf(ObjectToProcessID.EmptyRefValue)) <> Undefined Then
+		If UsageInstanceAttribute.Type.Types().Find(TypeOfObjectBeingProcessed) <> Undefined Then
 			MetadataLink = Result.Add();
 			MetadataLink.Name = UsageInstanceAttribute.Name;
 			MetadataLink.RelationDegree = 1;
@@ -2282,7 +2271,7 @@ Function KeysMetadataLinks(Val ObjectToProcessID, Val UsageInstance1)
 	
 	For Each UsageInstanceAttribute In UsageInstance1.StandardAttributes Do
 		
-		If UsageInstanceAttribute.Type.Types().Find(TypeOf(ObjectToProcessID.EmptyRefValue)) <> Undefined Then
+		If UsageInstanceAttribute.Type.Types().Find(TypeOfObjectBeingProcessed) <> Undefined Then
 			MetadataLink = Result.Add();
 			MetadataLink.Name = UsageInstanceAttribute.Name;
 			MetadataLink.RelationDegree = 2;
@@ -2303,12 +2292,12 @@ Procedure AfterConfirmCancelJob(Response, ExecutionParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+
 
 // Description of wizard button settings.
 //
 // Returns:
-//  Structure - 
+//  Structure - :
 //    * Title         - String - a button title.
 //    * ToolTip         - String - button tooltip.
 //    * Visible         - Boolean - if True, the button is visible. Default value is True.
@@ -2343,7 +2332,7 @@ Procedure UpdateWizardButtonProperties(WizardButton, LongDesc)
 EndProcedure
 
 &AtServer
-Procedure PickSelectedUsageInstances(SelectedType)
+Procedure PickSelectedUsageInstances(Val SelectedType)
 
 	Var FilterAddress;
 	SelectedUsageInstances = New Structure("FilterPresentation, FilterValue","", New Structure);

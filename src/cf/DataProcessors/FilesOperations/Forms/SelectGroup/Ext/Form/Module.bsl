@@ -100,7 +100,8 @@ Procedure ListValueChoice(Item, Value, StandardProcessing)
 	
 	MoveFilesToGroup(Parameters.FilesToMove, Value);
 	NotifyChanged(TypeOf(Parameters.FilesToMove[0]));
-	Notify("Write_File", New Structure, Parameters.FilesToMove);
+	FileRecordingNotificationParameters = FilesOperationsInternalClient.FileRecordingNotificationParameters();
+	Notify("Write_File", FileRecordingNotificationParameters, Parameters.FilesToMove);
 	Close();
 	
 EndProcedure

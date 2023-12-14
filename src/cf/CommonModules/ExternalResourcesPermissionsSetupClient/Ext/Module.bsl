@@ -34,8 +34,8 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
+
+
 //
 
 // Starts external resource permissions setup wizard.
@@ -49,7 +49,7 @@ EndProcedure
 //  IDs - Array of UUID - IDs (UUID) of requests to use external resources,
 //                  for which the wizard is called.
 //  OwnerForm - ClientApplicationForm
-//                - Undefined - 
+//                - Undefined - a form, for which the wizard is opened.
 //  ClosingNotification1 - NotifyDescription, Undefined - details of a notification that must be
 //                        processed after closing the wizard.
 //  EnablingMode - Boolean - indicates that the wizard is called upon enabling usage for the security profile
@@ -150,8 +150,8 @@ Procedure AfterInitializeRequestForPermissionsToUseExternalResources(Result, Sta
 			
 		Else
 			
-			// 
-			// 
+			
+			
 			CompleteSetUpPermissionsToUseExternalResourcesAsynchronously(State.NotifyDescription);
 			
 		EndIf;
@@ -305,9 +305,9 @@ Procedure CompleteSetUpPermissionsToUseExternalResourcesSynchronously(Val Return
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
-// 
+
+
+
 //
 
 // Starts the wizard in operation completion check mode. In this mode, the wizard checks whether the operation whence requests for
@@ -364,8 +364,8 @@ Procedure AfterCheckApplicabilityOfPermissionsToUseExternalResources(Val Validat
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
+
+
 //
 
 // Calls the external resource permissions setup wizard in infobase security profile enabling
@@ -415,40 +415,40 @@ EndProcedure
 // external resource permissions setup wizard state.
 //
 // Returns: 
-//   Structure - 
+//   Structure - for field details, see the function body.
 //
 Function RequestForPermissionsToUseExternalResourcesState()
 	
 	Result = New Structure();
 	
-	// 
+	// IDs of requests to use external resources to be provided.
 	Result.Insert("RequestsIDs", New Array());
 	
-	// 
-	// 
+	
+	
 	Result.Insert("NotifyDescription", Undefined);
 	
-	// 
+	// Address in a temporary storage for storing data passed between forms.
 	Result.Insert("StorageAddress", "");
 	
-	// Form, из которой первоначально было инициализировано применение запросов на использование
-	// 
+	
+	
 	Result.Insert("OwnerForm");
 	
-	// Режим включения - 
+	// Enabling mode - indicates whether security profiles are being enabled.
 	Result.Insert("EnablingMode", False);
 	
-	// Режим отключения - 
+	// Disabling mode - indicates whether security profiles are being disabled.
 	Result.Insert("DisablingMode", False);
 	
-	// Режим восстановления - 
-	// 
-	// 
+	
+	
+	
 	Result.Insert("RecoveryMode", False);
 	
-	// Режим проверки - 
-	// 
-	// 
+	
+	
+	
 	Result.Insert("CheckMode", False);
 	
 	Return Result;
@@ -459,17 +459,17 @@ EndFunction
 // of the operation where the requests for permissions to use external resources were applied.
 //
 // Returns: 
-//   Structure - 
+//   Structure - for field details, see the function body.
 //
 Function PermissionsApplicabilityCheckStateAfterCloseOwnerForm()
 	
 	Result = New Structure();
 	
-	// 
+	// Address in a temporary storage for storing data passed between forms.
 	Result.Insert("StorageAddress", Undefined);
 	
-	// Оригинальное описание оповещения формы-
-	// 
+	
+	
 	Result.Insert("NotifyDescription", Undefined);
 	
 	Return Result;
@@ -480,7 +480,7 @@ EndFunction
 // in server cluster security profile settings to be applied.
 //
 // Returns:
-//   Number - 
+//   Number - duration of waiting for changes to be applied (in seconds).
 //
 Function ChangeApplyingTimeout()
 	

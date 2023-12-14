@@ -35,7 +35,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Interactions.FillChoiceListForReviewAfter(Items.ReviewAfter.ChoiceList);
 	RestrictedExtensions = FilesOperationsInternal.DeniedExtensionsList();
 	
-	// 
+	// Preparing interaction notifications.
 	Interactions.PrepareNotifications(ThisObject,Parameters);
 	
 	// StandardSubsystems.Properties
@@ -498,7 +498,7 @@ Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		FileName = AttachmentsTableRow.FileName;
 		
 		If AttachmentsTableRow.Placement = 4 Then
-			// 
+			// From a temporary storage.
 			
 			AttachmentParameters = New Structure;
 			AttachmentParameters.Insert("FileName", FileName);
@@ -1016,7 +1016,7 @@ Procedure ImportanceLow(Command)
 	
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -1030,7 +1030,7 @@ EndProcedure
 
 // End StandardSubsystems.Properties
 
-// 
+
 
 &AtClient
 Procedure GenerateFromTemplate(Command)
@@ -1087,7 +1087,7 @@ Procedure SetConditionalAppearance()
 
 	Item.Appearance.SetParameterValue("ReadOnly", True);
 	
-	// 
+	// Email send options list.
 	Common.SetChoiceListConditionalAppearance(ThisObject, "RecipientsListSendingOption", "RecipientsList.SendingOption");
 
 EndProcedure
@@ -1851,9 +1851,9 @@ Procedure DetermineEmailEditMethod()
 		
 		MessageFormat = Interactions.DefaultMessageFormat(Users.CurrentUser());
 		
-		// 
-		// 
-		// 
+		
+		
+		
 		If MessageFormat = Enums.EmailEditingMethods.NormalText 
 			And TrimAll(Object.Text) = "" And TrimAll(Object.HTMLText) <> "" Then
 			MessageFormat = Enums.EmailEditingMethods.HTML;
@@ -1911,8 +1911,8 @@ Procedure DetermineEmailEditMethod()
 				HTMLText = "";
 				EmailTextFormattedDocument.GetHTML(HTMLText, AttachmentsStructure);
 				
-				// 
-				// 
+				
+				
 				HTMLTextToCheck = EmailTextFormattedDocument.GetText();
 				If IsBlankString(HTMLTextToCheck) And ValueIsFilled(Object.HTMLText) Then
 					Object.HTMLText = Interactions.ProcessHTMLTextForFormattedDocument(
@@ -1996,7 +1996,7 @@ Procedure ProcessPassedParameters(PassedParameters)
 	
 	If PassedParameters.Property("Recipient") And PassedParameters.Recipient <> Undefined Then
 		
-		// 
+		// If the Recipient parameter is passed, this tabular section is cleared before being filled according to the parameter data.
 		Object.EmailRecipients.Clear();
 		RecipientsList.Clear();
 		
@@ -3026,7 +3026,7 @@ Procedure FillTabularSectionsByRecipientsList()
 	
 EndProcedure
 
-// 
+
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()
@@ -3070,7 +3070,7 @@ EndProcedure
 
 // End StandardSubsystems.Properties
 
-// 
+
 
 &AtClient
 Procedure FillByTemplateAfterTemplateChoice(Result, AdditionalParameters) Export

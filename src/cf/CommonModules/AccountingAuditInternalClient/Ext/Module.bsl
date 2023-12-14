@@ -9,8 +9,8 @@
 
 #Region Internal
 
-// Handler for double click, clicking Enter, or a hyperlink in a report form spreadsheet document.
-// See "Form field extension for a spreadsheet document field.Choice" in Syntax Assistant.
+// 
+// 
 //
 // Parameters:
 //   ReportForm          - ClientApplicationForm - a report form.
@@ -102,13 +102,21 @@ EndProcedure
 // See ReportsClientOverridable.DetailProcessing.
 Procedure OnProcessDetails(ReportForm, Item, Details, StandardProcessing) Export
 	
-	If ReportForm.ReportSettings.FullName = "Report.AccountingCheckResults" Then
-		Details = ReportForm.ReportSpreadsheetDocument.CurrentArea.Details;
-		Result = AccountingAuditServerCall.SelectedCellDetails(ReportForm.ReportDetailsData, ReportForm.ReportSpreadsheetDocument, Details);
-		If Result <> Undefined Then
-			StandardProcessing = False;
-			ShowValue(, Result.ObjectWithIssue);
-		EndIf;
+	If ReportForm.ReportSettings.FullName <> "Report.AccountingCheckResults" Then
+		Return;
+	EndIf;
+
+	CurrentArea = ReportForm.ReportSpreadsheetDocument.CurrentArea;
+	If TypeOf(CurrentArea) <> Type("SpreadsheetDocumentRange") 
+		Or CurrentArea.AreaType <> SpreadsheetDocumentCellAreaType.Rectangle Then
+		Return;
+	EndIf;
+
+	Result = AccountingAuditServerCall.SelectedCellDetails(ReportForm.ReportDetailsData, 
+		ReportForm.ReportSpreadsheetDocument, CurrentArea.Details);
+	If Result <> Undefined Then
+		StandardProcessing = False;
+		ShowValue(, Result.ObjectWithIssue);
 	EndIf;
 	
 EndProcedure
@@ -121,35 +129,45 @@ EndProcedure
 // 
 Procedure OnProcessCommand(ReportForm, Command, Result) Export
 	
-	If ReportForm.ReportSettings.FullName = "Report.AccountingCheckResults" Then
-		UnsuccessfulActionText = NStr("en = 'Select a line with an object with issues.';");
-		Details = ?(ReportForm.ReportSpreadsheetDocument.CurrentArea.AreaType = SpreadsheetDocumentCellAreaType.Rectangle,
-			ReportForm.ReportSpreadsheetDocument.CurrentArea.Details, Undefined);
-		If Command.Name = "AccountingAuditObjectChangeHistory" Then
-			Result = AccountingAuditServerCall.DataForObjectChangeHistory(ReportForm.ReportDetailsData, ReportForm.ReportSpreadsheetDocument, Details);
-			If Result <> Undefined Then
-				If Result.ToVersion Then
-					ModuleObjectsVersioningClient = CommonClient.CommonModule("ObjectsVersioningClient");
-					ModuleObjectsVersioningClient.ShowChangeHistory(Result.Ref, ReportForm);
-				Else
-					Events = New Array;
-					Events.Add("_$Data$_.Delete");
-					Events.Add("_$Data$_.New");
-					Events.Add("_$Data$_.Update");
-					Filter = New Structure;
-					Filter.Insert("Data", Result.Ref);
-					Filter.Insert("EventLogEvent", Events);
-					Filter.Insert("StartDate", BegOfMonth(CurrentDate())); // 
-					EventLogClient.OpenEventLog(Filter);
-				EndIf;
-			Else
-				ShowMessageBox(, UnsuccessfulActionText);
-			EndIf;
-		ElsIf Command.Name = "AccountingAuditIgnoreIssue" Then
-			IssueIgnored = AccountingAuditServerCall.IgnoreIssue(ReportForm.ReportDetailsData, ReportForm.ReportSpreadsheetDocument, Details);
-			If Not IssueIgnored Then
-				ShowMessageBox(, UnsuccessfulActionText);
-			EndIf;
+	If ReportForm.ReportSettings.FullName <> "Report.AccountingCheckResults" Then
+		Return;
+	EndIf;
+
+	UnsuccessfulActionText = NStr("en = 'Select a line with an object with issues.';");
+	CurrentArea = ReportForm.ReportSpreadsheetDocument.CurrentArea;
+	If TypeOf(CurrentArea) <> Type("SpreadsheetDocumentRange") 
+		Or CurrentArea.AreaType <> SpreadsheetDocumentCellAreaType.Rectangle Then
+		ShowMessageBox(, UnsuccessfulActionText);
+		Return;
+	EndIf;
+	
+	If Command.Name = "AccountingAuditObjectChangeHistory" Then
+		Result = AccountingAuditServerCall.DataForObjectChangeHistory(ReportForm.ReportDetailsData, 
+			ReportForm.ReportSpreadsheetDocument, CurrentArea.Details);
+		If Result = Undefined Then
+			ShowMessageBox(, UnsuccessfulActionText);
+			Return;
+		EndIf;
+
+		If Result.ToVersion Then
+			ModuleObjectsVersioningClient = CommonClient.CommonModule("ObjectsVersioningClient");
+			ModuleObjectsVersioningClient.ShowChangeHistory(Result.Ref, ReportForm);
+		Else
+			Events = New Array;
+			Events.Add("_$Data$_.Delete");
+			Events.Add("_$Data$_.New");
+			Events.Add("_$Data$_.Update");
+			Filter = New Structure;
+			Filter.Insert("Data", Result.Ref);
+			Filter.Insert("EventLogEvent", Events);
+			Filter.Insert("StartDate", BegOfMonth(CurrentDate())); 
+			EventLogClient.OpenEventLog(Filter);
+		EndIf;
+	ElsIf Command.Name = "AccountingAuditIgnoreIssue" Then
+		IssueIgnored = AccountingAuditServerCall.IgnoreIssue(ReportForm.ReportDetailsData, 
+			ReportForm.ReportSpreadsheetDocument, CurrentArea.Details);
+		If Not IssueIgnored Then
+			ShowMessageBox(, UnsuccessfulActionText);
 		EndIf;
 	EndIf;
 	
@@ -238,7 +256,7 @@ EndProcedure
 //
 // Parameters:
 //   StructureItem        - DataCompositionSettingsComposer
-//                           - DataCompositionSettings - 
+//                           - DataCompositionSettings - a data composition structure item
 //   FilterParameters         - Structure - contains data composition filter parameters:
 //     * Field                - String - a field name, by which a filter is added.
 //     * Value            - Arbitrary - a filter value of data composition (Undefined by default).
@@ -249,7 +267,7 @@ EndProcedure
 //     * ReplaceCurrent       - Boolean - a flag of complete replacement of existing filter by field (True by default).
 //
 // Returns:
-//   DataCompositionFilterItem - 
+//   DataCompositionFilterItem - an added filter.
 //
 Function AddFilter(StructureItem, FilterParameters, AdditionalParameters = Undefined)
 	

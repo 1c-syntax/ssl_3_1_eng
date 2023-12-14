@@ -72,7 +72,7 @@ Procedure ExternalSystemsErrorLabelDecorationURLProcessing(Item, FormattedString
 		
 		StandardProcessing = False;
 		
-		If CommonClient.SubsystemExists("OnlineUserSupport.ОбменДаннымиСВнешнимиСистемами") Then
+		If CommonClient.SubsystemExists("OnlineUserSupport.DataExchangeWithExternalSystems") Then
 		
 			EventLogEvent = New Array;
 			

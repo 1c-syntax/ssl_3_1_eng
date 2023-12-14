@@ -871,7 +871,7 @@ will speed up viewing lists and generating reports compared to the standard mode
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>View record-level access update progress</v8:content>
+					<v8:content>RLS access update progress</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>

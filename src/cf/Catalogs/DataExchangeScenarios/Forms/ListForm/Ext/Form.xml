@@ -144,6 +144,7 @@
 			</Type>
 			<MainAttribute>true</MainAttribute>
 			<UseAlways>
+				<Field>List.DeletionMark</Field>
 				<Field>List.Ref</Field>
 			</UseAlways>
 			<Settings xsi:type="DynamicList">

@@ -15,7 +15,7 @@
 //
 // Parameters:
 //  Form - ClientApplicationForm
-//        - ManagedFormExtensionForObjects - 
+//        - ManagedFormExtensionForObjects - :
 //    * Object - FormDataStructure
 //             - CatalogObject
 //             - DocumentObject
@@ -25,7 +25,7 @@
 //                            of the lock button in the object form.
 //  LockButtonTitle  - String - The button title. By default, "Allow edit attributes".
 //  Object                  - Undefined - take the object from the Object form attribute.
-//                          - FormDataStructure - 
+//                          - FormDataStructure - by object type.
 //                          - CatalogObject
 //                          - DocumentObject
 //
@@ -110,22 +110,22 @@ EndFunction
 //
 // Returns:
 //  Structure:
-//   * Name - String -
+//   * Name - String - 
 //                    
-//   * FormItems - Array of String -
+//   * FormItems - Array of String - 
 //        
 //        
-//   * Warning - String -
+//   * Warning - String - 
 //                       
-//   * Group - String -
-//                       
-//                       
-//   * GroupPresentation - String -
+//   * Group - String - 
 //                       
 //                       
-//   * WarningForGroup - String -
+//   * GroupPresentation - String - 
 //                       
-//   * Warning - String -
+//                       
+//   * WarningForGroup - String - 
+//                       
+//   * Warning - String - 
 //                       
 //
 Function NewAttributeToLock() Export

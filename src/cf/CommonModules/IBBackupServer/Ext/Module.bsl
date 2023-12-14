@@ -40,7 +40,7 @@ Function CurrentBackupSetting() Export
 			
 			If BackupSettings1.ExecutionOption = "OnExit" Then
 				CurrentSetting = NStr("en = 'Backups are created automatically on exit.';");
-			ElsIf BackupSettings1.ExecutionOption = "Schedule3" Then // 
+			ElsIf BackupSettings1.ExecutionOption = "Schedule3" Then // On schedule.
 				Schedule = CommonClientServer.StructureToSchedule(BackupSettings1.CopyingSchedule);
 				If Not IsBlankString(Schedule) Then
 					CurrentSetting = NStr("en = 'Backups are created on schedule: %1.';");
@@ -69,7 +69,7 @@ EndFunction
 // Link for substitution in a formatted string for opening infobase backup data processor.
 //
 // Returns:
-//   String - navigation links.
+//   String - URL.
 //
 Function BackupDataProcessorURL() Export
 	
@@ -107,8 +107,8 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	NotificationOption = BackupSettings1.NotificationParameter1;
 	
-	// 
-	// 
+	
+	
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.DataProcessors.IBBackupSetup.FullName());
 	
 	For Each Section In Sections Do
@@ -212,7 +212,7 @@ Function NewBackupSettings()
 	
 	Parameters.Insert("CopyingSchedule", CommonClientServer.ScheduleToStructure(New JobSchedule));
 	Parameters.Insert("BackupStorageDirectory", "");
-	Parameters.Insert("ManualBackupsStorageDirectory", ""); // 
+	Parameters.Insert("ManualBackupsStorageDirectory", ""); 
 	Parameters.Insert("BackupCreated1", False);
 	Parameters.Insert("RestorePerformed", False);
 	Parameters.Insert("CopyingResult", Undefined);
@@ -231,7 +231,7 @@ EndFunction
 // Returns saved backup parameters.
 //
 // Returns:
-//   Structure - backup settings.
+//   Structure - backup parameters.
 //
 Function BackupParameters() Export
 	
@@ -278,7 +278,7 @@ Procedure SupplementBackupParameters(BackupParameters)
 EndProcedure
 
 // Returns:
-//   Boolean - 
+//   Boolean - True if it is time for backup.
 //
 Function NecessityOfAutomaticBackup()
 	
@@ -353,7 +353,7 @@ EndProcedure
 //  WorkStart - Boolean - shows that the call is performed on application start.
 //
 // Returns:
-//  Structure - backup settings.
+//  Structure - backup parameters.
 //
 Function BackupSettings1(WorkStart = False) Export
 	
@@ -409,8 +409,8 @@ Function BackupSettings1(WorkStart = False) Export
 	
 EndFunction
 
-// 
-// 
+// Returns a flag indicating that the IBBackup subsystem is selected as the main backup
+// subsystem.
 //
 // Returns:
 //  Boolean
@@ -561,7 +561,7 @@ Function ScriptMessages()
 	
 	Messages = New Map;
 	
-	// 
+	// Messages in templates BackupFileTemplate and LoadIBFileTemplate.
 	Messages["[TheStartOfStartupMessage]"] = NStr("en = 'Starting: {0}; parameters: {1}; window: {2}; waiting: {3}';");
 	Messages["[ExceptionDetailsMessage]"] = NStr("en = 'Exception at the application start: {0}, {1}';");
 	Messages["[MessageLaunchResult]"] = NStr("en = 'Return code: {0}';");
@@ -594,10 +594,10 @@ Function ScriptMessages()
 	Messages["[MessageErrorDeletingTheLockFile]"] = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'The ""%1"" lock file is not deleted: {0}, {1}';"), "1Cv8.CDN");
 	
-	// 
+	// Messages in templates BackupSplash and RecoverySplash.
 	Messages["[SplashScreenMessageStepError]"] = NStr("en = 'An error occurred. Error code: {0}. For more information, see the previous record.';");
 	
-	// 
+	// Messages in template LoadIBFileTemplate.
 	Messages["[TheMessageFailureWhenCallingCompleteRecovery]"] = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Exception when calling %1: {0}, {1}';"), "IBBackupServer.CompleteRestore");
 	Messages["[TheMessageDatabaseRecoveryResult]"] = NStr("en = 'Infobase is restored.';");

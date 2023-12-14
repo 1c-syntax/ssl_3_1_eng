@@ -14,20 +14,20 @@
 //
 // Parameters:
 //  SessionParametersNames - Array
-//                        - Undefined - 
-//                                         
-//                                         
-//                                         
-//                                         
+//                        - Undefined - the session parameter names for initialization.
+//                                         An array of the set IDs of session parameters
+//                                         that should be initialized if the handler is called
+//                                         before using uninitialized session parameters.
+//                                         Undefined if event handler is called by the system on session start.
 //
 // Returns:
-//  Array - 
+//  Array - session parameters names whose values were successfully set.
 //
 Function SessionParametersSetting(SessionParametersNames) Export
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	SpecifiedParameters = New Array;
 	
 #If Not MobileStandaloneServer Then
@@ -47,7 +47,7 @@ Function SessionParametersSetting(SessionParametersNames) Export
 			BlankTheClientSettings = New Map;
 			BlankTheClientSettings.Insert("TheFirstServerCallIsMade",
 				?(CurrentRunMode() = Undefined, Undefined, False));
-			BlankTheClientSettings.Insert("StateBeforeAuthorizeCurrentUserCall", True);
+			BlankTheClientSettings.Insert("StateBeforeCallAuthenticateCurrentUser", True);
 			SessionParameters.ClientParametersAtServer = New FixedMap(BlankTheClientSettings);
 		EndIf;
 		Catalogs.ExtensionsVersions.SessionParametersSetting(SessionParametersNames, SpecifiedParameters);
@@ -112,7 +112,7 @@ EndFunction
 // for example, "TradeManagementBasic".
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True if this is the basic configuration.
 //
 Function IsBaseConfigurationVersion() Export
 	
@@ -138,7 +138,7 @@ Function IsTrainingPlatform() Export
 	Try
 		OSUser = CurrentUser.OSUser;
 	Except
-		// 
+		
 		Return True;
 	EndTry;
 	Return False;
@@ -161,7 +161,7 @@ EndProcedure
 // built in the configuration.
 //
 // Returns:
-//  String - 
+//  String - an SSL version, for example, "1.0.1.1".
 //
 Function LibraryVersion() Export
 	
@@ -179,7 +179,7 @@ EndFunction
 // the same value in each infobase (in DIB node).
 //
 // Returns:
-//  String - 
+//  String - infobase ID.
 //
 Function InfoBaseID() Export
 	
@@ -201,19 +201,19 @@ Function InfoBaseID() Export
 	
 EndFunction
 
-// Returns the administration parameter saved in the infobase.
-// Designed for using in the mechanisms that require
-// the input of infobase and server cluster administration parameters.
-// For example, infobase connection lock.
-// See also: SetAdministrationParameters.
+// 
+// 
+// 
+// 
+// 
 //
 // Returns:
-//  Structure - 
-//               
-//              
-//              
-//              
-//              
+//  Structure - contains the properties of two structures
+//              ClusterAdministrationClientServer.ClusterAdministrationParameters 
+//              and ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters.
+//              In this case, fields containing passwords are returned empty. If administration parameters
+//              were not saved using the SetAdministrationParameters function,
+//              the automatically calculated administration parameters will be returned by default.
 //
 Function AdministrationParameters() Export
 	
@@ -267,7 +267,7 @@ Procedure SetAdministrationParameters(IBAdministrationParameters) Export
 EndProcedure
 
 // Sets presentation of the Date field in the lists containing attribute with the Date and time date content.
-// For more information, see the "The "Date" field in the lists" standard. 
+// For more information, see the "The "Date" field in the lists" standard.
 //
 // Parameters:
 //   Form - ClientApplicationForm - a form with a list.
@@ -291,8 +291,8 @@ Procedure SetDateFieldConditionalAppearance(Form,
 	FullNameParts1 = StrSplit(FullAttributeName, ".");
 	
 	If FullNameParts1.Count() <> 2 Then 
-		// 
-		// 
+		
+		
 		Return;
 	EndIf;
 	
@@ -300,16 +300,16 @@ Procedure SetDateFieldConditionalAppearance(Form,
 	AttributeList = Form[ListName];
 	
 	If TypeOf(AttributeList) = Type("DynamicList") Then 
-		// 
-		// 
-		//  
-		// 
+		
+		
+		 
+		
 		ConditionalAppearance = AttributeList.ConditionalAppearance;
 		AttributePath1 = FullNameParts1[1];
 		FormattedFieldName = AttributePath1;
 	Else 
-		// 
-		// 
+		
+		
 		ConditionalAppearance = Form.ConditionalAppearance;
 		AttributePath1 = FullAttributeName;
 		FormattedFieldName = TagName;
@@ -327,7 +327,7 @@ Procedure SetDateFieldConditionalAppearance(Form,
 	FormattedField = AppearanceItem.Fields.Items.Add();
 	FormattedField.Field = New DataCompositionField(FormattedFieldName);
 	
-	// 
+	// Today presentation of today.
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	AppearanceItem.Use = True;
 	AppearanceItem.Appearance.SetParameterValue("Format", NStr("en = 'DF=hh:mm';"));
@@ -349,11 +349,11 @@ EndProcedure
 
 // Gets the setting to display a confirmation on application exit
 // for the current user. Designed for using in the form of personal user
-// settings. Example of using see in the common form _DemoMySettings. 
+// settings. Example of using see in the common form _DemoMySettings.
 // 
 // Returns:
-//   Boolean - 
-//            
+//   Boolean - if True, show the session closing confirmation
+//            window upon application exit to the user.
 // 
 Function AskConfirmationOnExit() Export
 	
@@ -397,56 +397,56 @@ Function SpreadsheetDocumentSaveFormatsSettings() Export
 	NewFormat.Picture = PictureLib.PDFFormat;
 	NewFormat.Presentation = FileTypeRepresentationOfATabularPDFDocument();
 	
-	// 
+	// Spreadsheet document (.mxl)
 	NewFormat = FormatsTable.Add();
 	NewFormat.SpreadsheetDocumentFileType = SpreadsheetDocumentFileType.MXL;
 	NewFormat.Ref = Enums.ReportSaveFormats.MXL;
 	NewFormat.Extension = "mxl";
 	NewFormat.Picture = PictureLib.MXLFormat;
 	
-	// 
+	// Microsoft Excel 2007 worksheet (.xlsx)
 	NewFormat = FormatsTable.Add();
 	NewFormat.SpreadsheetDocumentFileType = SpreadsheetDocumentFileType.XLSX;
 	NewFormat.Ref = Enums.ReportSaveFormats.XLSX;
 	NewFormat.Extension = "xlsx";
 	NewFormat.Picture = PictureLib.ExcelFormat2007;
 
-	// Лист Microsoft Excel 97-2003 (.xls)
+	// Microsoft Excel 97-2003 worksheet (.xls)
 	NewFormat = FormatsTable.Add();
 	NewFormat.SpreadsheetDocumentFileType = SpreadsheetDocumentFileType.XLS;
 	NewFormat.Ref = Enums.ReportSaveFormats.XLS;
 	NewFormat.Extension = "xls";
 	NewFormat.Picture = PictureLib.ExcelFormat;
 
-	// 
+	// OpenDocument spreadsheet (.ods).
 	NewFormat = FormatsTable.Add();
 	NewFormat.SpreadsheetDocumentFileType = SpreadsheetDocumentFileType.ODS;
 	NewFormat.Ref = Enums.ReportSaveFormats.ODS;
 	NewFormat.Extension = "ods";
 	NewFormat.Picture = PictureLib.OpenOfficeCalcFormat;
 	
-	// 
+	// Word 2007 document (.docx)
 	NewFormat = FormatsTable.Add();
 	NewFormat.SpreadsheetDocumentFileType = SpreadsheetDocumentFileType.DOCX;
 	NewFormat.Ref = Enums.ReportSaveFormats.DOCX;
 	NewFormat.Extension = "docx";
 	NewFormat.Picture = PictureLib.WordFormat2007;
 	
-	// Веб-
+	// Web page (.html).
 	NewFormat = FormatsTable.Add();
 	NewFormat.SpreadsheetDocumentFileType = SpreadsheetDocumentFileType.HTML5;
 	NewFormat.Ref = Enums.ReportSaveFormats.HTML;
 	NewFormat.Extension = "html";
 	NewFormat.Picture = PictureLib.HTMLFormat;
 	
-	// Текстовый документ UTF-8 (.txt).
+	// Text document, UTF-8 (.txt).
 	NewFormat = FormatsTable.Add();
 	NewFormat.SpreadsheetDocumentFileType = SpreadsheetDocumentFileType.TXT;
 	NewFormat.Ref = Enums.ReportSaveFormats.TXT;
 	NewFormat.Extension = "txt";
 	NewFormat.Picture = PictureLib.TXTFormat;
 	
-	// 
+	// Text document, ANSI (.txt).
 	NewFormat = FormatsTable.Add();
 	NewFormat.SpreadsheetDocumentFileType = SpreadsheetDocumentFileType.ANSITXT;
 	NewFormat.Ref = Enums.ReportSaveFormats.ANSITXT;
@@ -466,7 +466,7 @@ EndFunction
 // Returns the compatibility mode version as the numbering of revisions and versions. For example: 8.3.15.0.
 //
 // Returns:
-//   String - 
+//   String - the compatibility mode version as the numbering of revisions and versions.
 //
 Function CompatibilityModeVersion() Export 
 	
@@ -534,7 +534,7 @@ EndProcedure
 // application updates (dynamic update of the application, patches, and extensions) are shown.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - if True, toast notifications are enabled.
 //
 Function ShowInstalledApplicationUpdatesWarning() Export
 	
@@ -551,11 +551,11 @@ EndFunction
 // 
 //
 // Parameters:
-//  NameOfAlert - String -
+//  NameOfAlert - String - 
 //  ParametersVariants - Array of Structure:
-//   * Parameters - Arbitrary -
+//   * Parameters - Arbitrary - 
 //   * SMSMessageRecipients - Map of KeyAndValue:
-//      ** Key - UUID -
+//      ** Key - UUID - 
 //      ** Value - Array of See ServerNotifications.SessionKey
 //
 // Example:
@@ -611,13 +611,13 @@ EndProcedure
 // Additional base functionality for analyzing client parameters on the server.
 
 // Parameters:
-//  RaiseException1 - Boolean -
+//  RaiseException1 - Boolean - 
 //
 // 
 //
 // Returns:
 //  FixedMap of KeyAndValue:
-//   * Key - String -
+//   * Key - String - 
 //   * Value - String
 //
 Function ClientParametersAtServer(RaiseException1 = True) Export
@@ -637,8 +637,8 @@ Function ClientParametersAtServer(RaiseException1 = True) Export
 	EndIf;
 	
 	If CurrentRunMode() <> Undefined Then
-		// 
-		// 
+		
+		
 		RefreshReusableValues();
 	EndIf;
 	
@@ -704,7 +704,7 @@ EndProcedure
 // there is no infobase update mode.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the application version is updated.
 //
 Function ApplicationVersionUpdatedDynamically() Export
 	
@@ -712,13 +712,13 @@ Function ApplicationVersionUpdatedDynamically() Export
 		Return False;
 	EndIf;
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	
 	If Common.DataSeparationEnabled() Then
-		// 
-		// 
+		
+		
 		Return Not InfobaseUpdateInternal.SharedInfobaseDataUpdateRequired();
 	EndIf;
 	
@@ -858,8 +858,8 @@ EndFunction
 //                 StandardSubsystems.ReportsOptions.ReportsWithSettings.
 //
 // Returns:
-//  Arbitrary - 
-//                 
+//  Arbitrary - Undefined is returned when the parameter does not exist
+//                 or when in the new session, the parameter version is not equal to the configuration version.
 //
 Function ApplicationParameter(ParameterName) Export
 	
@@ -911,10 +911,10 @@ EndProcedure
 //                 StandardSubsystems.ReportsOptions.ReportsWithSettings.
 //
 // Returns:
-//  Undefined - 
-//                 
-//  
-//                 
+//  Undefined - means everything changed. Is returned
+//                 in case of initial infobase or data area filling.
+//  Array - contains values of changes. If the array is empty, there are no changes.
+//                 Can contain several changes, for example, when data area has not been updated for a long time.
 //
 Function ApplicationParameterChanges(ParameterName) Export
 	
@@ -1018,10 +1018,10 @@ Function PredefinedDataAttributes() Export
 	Return Result;
 EndFunction
 
-Function ThisIsPredefinedData(Val Item, AttributeName = "", AttributeValue = "") Export // 
+Function ThisIsPredefinedData(Val Item, AttributeName = "", AttributeValue = "") Export 
 	
-	// 
-	// 
+	
+	
 	AttributesValues = PredefinedDataAttributes();
 	FillPropertyValues(AttributesValues, Item);
 	If AttributesValues.PredefinedDataName = ""
@@ -1053,19 +1053,24 @@ EndFunction
 //           
 //  Attributes - Array of String
 //            - FixedArray of String - 
+//            - String - 
 //
 // Returns:
-//  Map of KeyAndValue - 
+//  Map of KeyAndValue - :
 //   * Key - AnyRef - object reference;
 //   * Value - Structure:
-//    ** Key - String - the name of the props;
-//    ** Value - Arbitrary -
+//    ** Key - String - an attribute name;
+//    ** Value - Arbitrary - 
 // 
 Function ObjectAttributeValuesIfExist(References, Val Attributes) Export
 	
 	AttributesValues = New Map;
 	If References.Count() = 0 Then
 		Return AttributesValues;
+	EndIf;
+	
+	If TypeOf(Attributes) = Type("String") Then
+		Attributes = StrSplit(Attributes, ",");
 	EndIf;
 	
 	TypesAttributes = New Map;
@@ -1096,6 +1101,8 @@ Function ObjectAttributeValuesIfExist(References, Val Attributes) Export
 			For Each StandardAttribute In MetadataObject.StandardAttributes Do
 				StandardAttributes[StandardAttribute.Name] = True;	
 			EndDo;
+			StandardAttributes["DataVersion"] = True;
+
 			For Each AttributeName In Attributes Do
 				If StandardAttributes[AttributeName] <> Undefined 
 					Or MetadataObject.Attributes.Find(AttributeName) <> Undefined Then
@@ -1169,15 +1176,15 @@ EndFunction
 //  
 //  IgnoreExtensionsVersion - Boolean
 //  
-//  IsAlreadyModified - Boolean -
+//  IsAlreadyModified - Boolean - 
 //                 
 //                 
 //                 
 //             - Undefined - 
 //
 // Returns:
-//  Arbitrary - 
-//                 
+//  Arbitrary - Undefined is returned if the parameter is not filled
+//                 for current the extension version.
 //
 Function ExtensionParameter(ParameterName, IgnoreExtensionsVersion = False, IsAlreadyModified = Undefined) Export
 	
@@ -1366,8 +1373,8 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Handlers of exchange data sending and receiving in a DIB.
 
-// Procedure handles the event of the same name that occurs during data exchange in a distributed infobase.
-// For parameter description, see OnSendDataToSubordinate in Syntax Assistant.
+// 
+// 
 // 
 // 
 // Parameters:
@@ -1423,8 +1430,8 @@ Procedure OnSendDataToSlave(DataElement, ItemSend, Val InitialImageCreating, Val
 	
 EndProcedure
 
-// Procedure handles the event of the same name that occurs during data exchange in a distributed infobase.
-// For parameter description, see OnReceiveDataFromSlave in Syntax Assistant.
+// 
+// 
 // 
 // 
 // Parameters:
@@ -1447,7 +1454,7 @@ Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Val Sender)
 		Return;
 	EndIf;
 	
-	// 
+	// Calling an overridden handler to execute the applied logic of DIB exchange.
 	CommonOverridable.OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Sender);
 	
 	DataExchangeSubsystemExists1 = Common.SubsystemExists("StandardSubsystems.DataExchange");
@@ -1465,9 +1472,9 @@ Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Val Sender)
 	
 EndProcedure
 
-// Procedure handles the event of the same name that occurs during data exchange in a distributed infobase
-// See the OnReceiveDataFromMaster() event handler details in Syntax Assistant.
-// "Sender" can be empty. For example, when getting the initial image message in SWP.
+// 
+// 
+// 
 // 
 // 
 // Parameters:
@@ -1500,7 +1507,7 @@ Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender = U
 		Return;
 	EndIf;
 	
-	// 
+	// Calling an overridden handler to execute the applied logic of DIB exchange.
 	CommonOverridable.OnReceiveDataFromMaster(Sender, DataElement, ItemReceive, SendBack);
 	
 	// Insertion of data exchange subsystem script should be the last one to affect the receiving logic.
@@ -1642,8 +1649,8 @@ Procedure ResetWindowLocationAndSize(Form) Export
 	
 	If TypeOf(Keys) = Type("Map") Then
 		SettingsNames = New Array;
-		SettingsNames.Add("/SettingsWindowThinClient");
-		SettingsNames.Add("/Taxi/SettingsWindowThinClient");
+		SettingsNames.Add("/ThinClientWindowSettings");
+		SettingsNames.Add("/Taxi/ThinClientWindowSettings");
 		SettingsNames.Add("/WebClientWindowSettings");
 		SettingsNames.Add("/MobileClientWindowSettings");
 		SettingsNames.Add("/Taxi/WebClientWindowSettings");
@@ -1758,9 +1765,9 @@ EndFunction
 //
 Function CurrentUser() Export
 	
-	// 
-	// 
-	// 
+	
+	
+	
 	CurrentUser = InfoBaseUsers.FindByUUID(
 		InfoBaseUsers.CurrentUser().UUID);
 	
@@ -1779,7 +1786,7 @@ EndFunction
 //  String - String - a string to be transformed.
 // 
 // Returns:
-//  String - 
+//  String - a string containing only admissible characters for the description of values table columns.
 //
 Function TransformStringToValidColumnDescription(String) Export
 	
@@ -1804,7 +1811,7 @@ EndFunction
 //  ColumnDescription - String - an adapted description of a column.
 // 
 // Returns:
-//  String - 
+//  String - a converted string.
 //
 Function TransformAdaptedColumnDescriptionToString(ColumnDescription) Export
 	
@@ -1830,9 +1837,9 @@ EndFunction
 // Parameters:
 //   ModifiedObjects - AnyRef
 //                     - Type
-//                     - Array - 
-//                       
-//                       
+//                     - Array - contains info about the changed objects.
+//                       You can pass a reference or an array of references
+//                       or specify a type or an array of types for changed objects.
 //
 // Returns:
 //   Map of KeyAndValue:
@@ -1913,7 +1920,7 @@ EndProcedure
 //  DocumentsList - Array - document for checking.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the user has the right to post at least one document.
 //
 Function HasRightToPost(DocumentsList) Export
 	DocumentTypes = New Array;
@@ -1974,7 +1981,7 @@ Procedure OnDefineCatalogsForDataImport(CatalogsToImport) Export
 		CatalogsToImport.Delete(TableRow);
 	EndIf;
 	
-	// 
+	// Cannot import to the ExtensionObjectIDs catalog.
 	TableRow = CatalogsToImport.Find(Metadata.Catalogs.ExtensionObjectIDs.FullName(), "FullName");
 	If TableRow <> Undefined Then 
 		CatalogsToImport.Delete(TableRow);
@@ -2017,7 +2024,7 @@ Procedure OnAddServerNotifications(Notifications) Export
 	
 	Notifications.Insert(Notification.Name, Notification);
 	
-	// ПовторноИспользуемыеЗначенияУстарели
+	// CachedValuesOutdated
 	Notification = ServerNotifications.NewServerNotification(
 		"StandardSubsystems.Core.CachedValuesOutdated");
 	
@@ -2086,7 +2093,7 @@ Procedure OnFillToDoList(ToDoList) Export
 	ToDoItem.Important        = False;
 	ToDoItem.Presentation = NStr("en = 'Application update is installed';");
 	ToDoItem.Form         = "CommonForm.DynamicUpdateControl";
-	ToDoItem.Owner      = NStr("en = 'Application operation';");
+	ToDoItem.Owner      = NStr("en = 'Application performance';");
 	
 	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
 	If ModuleToDoListServer.UserTaskDisabled("SpeedupRecommendation") Then
@@ -2100,14 +2107,14 @@ Procedure OnFillToDoList(ToDoList) Export
 	ToDoItem.Important        = True;
 	ToDoItem.Presentation = NStr("en = 'Application performance degraded';");
 	ToDoItem.Form         = "DataProcessor.SpeedupRecommendation.Form";
-	ToDoItem.Owner      = NStr("en = 'Application operation';");
+	ToDoItem.Owner      = NStr("en = 'Application performance';");
 	
 EndProcedure
 
 // See UsersOverridable.OnDefineRoleAssignment
 Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	
-	// ТолькоДляАдминистраторовСистемы.
+	// ForSystemAdministratorsOnly.
 	RolesAssignment.ForSystemAdministratorsOnly.Add(
 		Metadata.Roles.SystemAdministrator.Name);
 	
@@ -2117,7 +2124,7 @@ Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	RolesAssignment.ForSystemAdministratorsOnly.Add(
 		Metadata.Roles.UpdateDataBaseConfiguration.Name);
 	
-	// ТолькоДляПользователейСистемы.
+	// ForSystemUsersOnly.
 	RolesAssignment.ForSystemUsersOnly.Add(
 		Metadata.Roles.StartThickClient.Name);
 	
@@ -2133,11 +2140,11 @@ Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	RolesAssignment.ForSystemUsersOnly.Add(
 		Metadata.Roles.InteractiveOpenExtReportsAndDataProcessors.Name);
 	
-	// ТолькоДляВнешнихПользователей.
+	// ForExternalUsersOnly.
 	RolesAssignment.ForExternalUsersOnly.Add(
 		Metadata.Roles.BasicSSLRightsForExternalUsers.Name);
 	
-	// СовместноДляПользователейИВнешнихПользователей.
+	// BothForUsersAndExternalUsers.
 	RolesAssignment.BothForUsersAndExternalUsers.Add(
 		Metadata.Roles.StartThinClient.Name);
 	
@@ -2166,7 +2173,7 @@ EndProcedure
 // See ExportImportDataOverridable.AfterImportData.
 Procedure AfterImportData(Container) Export
 	
-	// 
+	
 	InformationRegisters.ExtensionVersionParameters.EnableFillingExtensionsWorkParameters(False, True);
 	If Common.DataSeparationEnabled() Then
 		InformationRegisters.ExtensionVersionParameters.StartFillingWorkParametersExtensions(
@@ -2287,12 +2294,11 @@ EndProcedure
 // 
 // Parameters:
 //  DynamicConfigurationChanges - See Catalogs.ExtensionsVersions.DynamicallyChangedExtensions
-//  LinkToDetails - String
 //  
 // Returns:
 //  String 
 //
-Function MessageTextOnDynamicUpdate(DynamicConfigurationChanges, LinkToDetails = "") Export
+Function MessageTextOnDynamicUpdate(DynamicConfigurationChanges) Export
 	
 	Messages = New Array;
 	
@@ -2304,11 +2310,11 @@ Function MessageTextOnDynamicUpdate(DynamicConfigurationChanges, LinkToDetails =
 	If DynamicConfigurationChanges.Corrections <> Undefined Then
 		If DynamicConfigurationChanges.Corrections.Added2 > 0
 			And DynamicConfigurationChanges.Corrections.Deleted > 0 Then
-			MessageTextPatches = NStr("en = 'New patches installed: %1, deleted: %2.';") + LinkToDetails;
+			MessageTextPatches = NStr("en = 'New patches: %1, deleted: %2.';");
 		ElsIf DynamicConfigurationChanges.Corrections.Added2 = 1 Then
-			MessageTextPatches = NStr("en = 'A new patch is installed.';") + LinkToDetails;
+			MessageTextPatches = NStr("en = 'New patch.';");
 		ElsIf DynamicConfigurationChanges.Corrections.Added2 > 0 Then
-			MessageTextPatches = NStr("en = 'New patches installed: %1.';") + LinkToDetails;
+			MessageTextPatches = NStr("en = 'New patches: %1.';");
 		ElsIf DynamicConfigurationChanges.Corrections.Deleted > 0 Then
 			MessageTextPatches = NStr("en = 'Patches deleted: %2.';");
 		EndIf;
@@ -2320,7 +2326,7 @@ Function MessageTextOnDynamicUpdate(DynamicConfigurationChanges, LinkToDetails =
 	
 	If DynamicConfigurationChanges.Extensions <> Undefined Then
 		If DynamicConfigurationChanges.Extensions.Added2 > 0 Then
-			MessageTextExtensions = NStr("en = 'New extensions installed: %1.';");
+			MessageTextExtensions = NStr("en = 'New extensions: %1.';");
 			MessageTextExtensions = StringFunctionsClientServer.SubstituteParametersToString(MessageTextExtensions,
 				DynamicConfigurationChanges.Extensions.Added2);
 			Messages.Add(MessageTextExtensions);
@@ -2340,10 +2346,7 @@ Function MessageTextOnDynamicUpdate(DynamicConfigurationChanges, LinkToDetails =
 			Messages.Add(MessageTextExtensions);
 		EndIf;
 	EndIf;
-	
-	Messages.Add(NStr("en = 'To apply, restart the application and continue.';"));
-	Messages.Add(" ");
-	
+		
 	Return StrConcat(Messages, Chars.LF);
 	
 EndFunction
@@ -2401,7 +2404,7 @@ EndFunction
 //  Id - String - an add-in ID.
 //  Location - String - an add-in template location (without the version specified).
 //  AddIn - Undefined
-//                    - Structure - 
+//                    - Structure - :
 //                       * Id - String - an add-in ID in the catalog.
 //                       * Version - String - version.
 //                       * Location - String - location.
@@ -2463,6 +2466,38 @@ Function TheComponentOfTheLatestVersion(Id, Location, AddIn = Undefined) Export
 	
 EndFunction
 
+// Returns:
+//  String -  
+//
+Function TechnicalInformationAboutSubsystemVersionsAndExtensions() Export
+	
+	SubsystemsDetails = Common.SubsystemsDetails();
+	
+	TechnicalInformationAboutSubsystemVersionsAndExtensions = NStr("en = 'Subsystem versions';") + ":" + Chars.LF;
+	For Each SubsystemDetails In SubsystemsDetails Do
+		TechnicalInformationAboutSubsystemVersionsAndExtensions = TechnicalInformationAboutSubsystemVersionsAndExtensions
+			+ SubsystemDetails.Name + " - "
+			+ SubsystemDetails.Version + Chars.LF;
+	EndDo;
+		
+	TechnicalInformationAboutSubsystemVersionsAndExtensions = TechnicalInformationAboutSubsystemVersionsAndExtensions + Chars.LF;
+	
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+	
+	Extensions = ConfigurationExtensions.Get();
+	For Each Extension In Extensions Do
+		
+		TechnicalInformationAboutSubsystemVersionsAndExtensions = TechnicalInformationAboutSubsystemVersionsAndExtensions
+			+ Extension.Name + " - " + Extension.Synonym + " - "
+			+ Format(Extension.Active, NStr("en = 'BF=Disabled; BT=Enabled';")) + Chars.LF;
+		
+	EndDo;
+	
+	Return TechnicalInformationAboutSubsystemVersionsAndExtensions;
+	
+EndFunction
+
 #EndRegion
 
 #Region Private
@@ -2487,7 +2522,7 @@ Procedure OnSendDataToMaster(DataElement, ItemSend, Val Recipient)
 	
 	SSLSubsystemsIntegration.OnSendDataToMaster(DataElement, ItemSend, Recipient);
 	
-	// 
+	// Calling an overridden handler to execute the applied logic of DIB exchange.
 	CommonOverridable.OnSendDataToMaster(DataElement, ItemSend, Recipient);
 	
 	If Common.SubsystemExists("StandardSubsystems.DataExchange") Then
@@ -2510,7 +2545,7 @@ EndProcedure
 //   Parameters   - Structure - a parameter structure.
 //
 // Returns:
-//   Boolean   - 
+//   Boolean   - False if further parameters filling should be aborted.
 //
 Function AddClientParametersOnStart(Parameters) Export
 	
@@ -2523,19 +2558,19 @@ Function AddClientParametersOnStart(Parameters) Export
 		IsSeparatedConfiguration = False;
 	EndIf;
 	
-	// 
+	// Mandatory parameters to continue application running.
 	Parameters.Insert("DataSeparationEnabled", Common.DataSeparationEnabled());
 	Parameters.Insert("SeparatedDataUsageAvailable", 
 		Common.SeparatedDataUsageAvailable());
 	Parameters.Insert("IsSeparatedConfiguration", IsSeparatedConfiguration);
-	// 
+	
 	Parameters.Insert("HasAccessForUpdatingPlatformVersion", Users.IsFullUser(,True));
 	
 	Parameters.Insert("SubsystemsNames", StandardSubsystemsCached.SubsystemsNames());
 	Parameters.Insert("IsBaseConfigurationVersion", IsBaseConfigurationVersion());
 	Parameters.Insert("IsTrainingPlatform", IsTrainingPlatform());
 	Parameters.Insert("UserCurrentName", CurrentUser().Name);
-	// 
+	
 	Parameters.Insert("COMConnectorName", CommonClientServer.COMConnectorName());
 	Parameters.Insert("DefaultLanguageCode", Common.DefaultLanguageCode());
 	
@@ -2544,7 +2579,7 @@ Function AddClientParametersOnStart(Parameters) Export
 	CommonParameters = Common.CommonCoreParameters();
 	Parameters.Insert("MinPlatformVersion",   CommonParameters.MinPlatformVersion);
 	Parameters.Insert("RecommendedPlatformVersion", CommonParameters.RecommendedPlatformVersion);
-	// 
+	
 	Parameters.Insert("MinPlatformVersion1", CommonParameters.MinPlatformVersion1);
 	Parameters.Insert("MustExit",            CommonParameters.MustExit);
 	
@@ -2639,7 +2674,7 @@ Function AddClientParametersOnStart(Parameters) Export
 		ModuleSaaSOperations.OnCheckDataAreaLockOnStart(ErrorDescription);
 		If Not IsBlankString(ErrorDescription) Then
 			Parameters.Insert("DataAreaLocked", ErrorDescription);
-			// 
+			// Application will be closed.
 			Return False;
 		EndIf;
 		
@@ -2651,7 +2686,7 @@ Function AddClientParametersOnStart(Parameters) Export
 		ServerNotifications.OnAddClientParametersOnStart(Parameters);
 	EndIf;
 	
-	If SessionParameters.IBUpdateInProgress <> Undefined // 
+	If SessionParameters.IBUpdateInProgress <> Undefined 
 		And Not Parameters.DataSeparationEnabled
 		And InfobaseUpdate.InfobaseUpdateRequired()
 		And InfobaseUpdateInternal.UncompletedHandlersStatus(True) = "UncompletedStatus" Then
@@ -2682,7 +2717,7 @@ Function AddClientParametersOnStart(Parameters) Export
 		
 		SubordinateDIBNodeSetup = False;
 		If InformationRegisters.ApplicationRuntimeParameters.UpdateRequired1(SubordinateDIBNodeSetup) Then
-			// 
+			// Preliminary update will be executed.
 			Parameters.Insert("ApplicationParametersUpdateRequired");
 			
 			If SubordinateDIBNodeSetup
@@ -2697,7 +2732,7 @@ Function AddClientParametersOnStart(Parameters) Export
 		EndIf;
 	EndIf;
 	
-	// 
+	// Mandatory parameters for all modes.
 	Parameters.Insert("DetailedInformation", Metadata.DetailedInformation);
 	
 	If InfobaseUpdateInternal.SharedInfobaseDataUpdateRequired() Then
@@ -2713,8 +2748,8 @@ Function AddClientParametersOnStart(Parameters) Export
 		Return True;
 	EndIf;
 	
-	// 
-	// 
+	
+	
 	
 	If InfobaseUpdate.InfobaseUpdateRequired() Then
 		Parameters.Insert("InfobaseUpdateRequired");
@@ -2750,8 +2785,8 @@ Function AddClientParametersOnStart(Parameters) Export
 	If IsCallBeforeStart
 	   And (Parameters.Property("InfobaseUpdateRequired")
 	      Or InfobaseUpdate.InfobaseUpdateInProgress()) Then
-		// 
-		// 
+		
+		
 		Return False;
 	EndIf;
 	
@@ -2774,11 +2809,11 @@ Procedure AddClientRunParameters(Parameters)
 		Common.SeparatedDataUsageAvailable());
 	Parameters.Insert("DataSeparationEnabled", Common.DataSeparationEnabled());
 	
-	// 
+	
 	Parameters.Insert("IsBaseConfigurationVersion", IsBaseConfigurationVersion());
-	// 
+	
 	Parameters.Insert("IsTrainingPlatform", IsTrainingPlatform());
-	// 
+	
 	Parameters.Insert("COMConnectorName", CommonClientServer.COMConnectorName());
 	Parameters.Insert("StyleItems", StyleElementsSet());
 	
@@ -2834,7 +2869,7 @@ EndProcedure
 //   InterfaceName - String - an application interface name.
 //
 // Returns:
-//  Array - 
+//  Array - a list of versions of the String type.
 //
 Function SupportedVersions(InterfaceName) Export
 	
@@ -3131,8 +3166,8 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // DIB exchange plan event subscription processing.
 
-// Procedure handles the event of the same name that occurs during data exchange in a distributed infobase.
-// For parameter description, see OnSendDataToSubordinate in Syntax Assistant.
+// 
+// 
 // 
 // 
 // Parameters:
@@ -3146,14 +3181,14 @@ Procedure OnSendDataToSubordinateEvent(Source, DataElement, ItemSend, InitialIma
 	OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating, Source);
 	
 	If ItemSend <> DataItemSend.Ignore Then
-		// 
+		// Calling an overridden handler to execute the applied logic of DIB exchange.
 		CommonOverridable.OnSendDataToSlave(Source, DataElement, ItemSend, InitialImageCreating);
 	EndIf;
 	
 EndProcedure
 
-// Procedure handles the event of the same name that occurs during data exchange in a distributed infobase.
-// For parameter description, see OnSendDataToMaster in Syntax Assistant.
+// 
+// 
 // 
 // 
 // Parameters:
@@ -3166,14 +3201,14 @@ Procedure OnSendDataToMasterEvent(Source, DataElement, ItemSend) Export
 	OnSendDataToMaster(DataElement, ItemSend, Source);
 	
 	If ItemSend <> DataItemSend.Ignore Then
-		// 
+		// Calling an overridden handler to execute the applied logic of DIB exchange.
 		CommonOverridable.OnSendDataToMaster(Source, DataElement, ItemSend);
 	EndIf;
 	
 EndProcedure
 
-// Procedure handles the event of the same name that occurs during data exchange in a distributed infobase.
-// For parameter description, see OnReceiveDataFromSlave in Syntax Assistant.
+// 
+// 
 // 
 // 
 // Parameters:
@@ -3187,14 +3222,14 @@ Procedure OnReceiveDataFromSubordinateEvent(Source, DataElement, ItemReceive, Se
 	OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Source);
 	
 	If ItemReceive <> DataItemReceive.Ignore Then
-		// 
+		// Calling an overridden handler to execute the applied logic of DIB exchange.
 		CommonOverridable.OnReceiveDataFromSlave(Source, DataElement, ItemReceive, SendBack);
 	EndIf;
 	
 EndProcedure
 
-// Procedure handles the event of the same name that occurs during data exchange in a distributed infobase.
-// See the OnReceiveDataFromMaster event handler in Syntax Assistant.
+// 
+// 
 // 
 // 
 // Parameters:
@@ -3208,7 +3243,7 @@ Procedure OnReceiveDataFromMasterEvent(Source, DataElement, ItemReceive, SendBac
 	OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Source);
 	
 	If ItemReceive <> DataItemReceive.Ignore Then
-		// 
+		// Calling an overridden handler to execute the applied logic of DIB exchange.
 		CommonOverridable.OnReceiveDataFromMaster(Source, DataElement, ItemReceive, SendBack);
 	EndIf;
 	
@@ -3333,10 +3368,10 @@ Procedure CreateMissingPredefinedData(MetadataObjects)
 				"ISNULL(SpecifiedTableAlias.Parent.PredefinedDataName, """")", """""");
 		EndIf;
 		
-		// 
-		// 
+		
+		
 		NameTable = Query.Execute().Unload();
-		// ACC:1328-
+		// ACC:1328-on.
 		NameTable.Indexes.Add("Name");
 		Names = MetadataObject.GetPredefinedNames();
 		SaveExistingPredefinedObjectsBeforeCreateMissingOnes(MetadataObject,
@@ -3350,10 +3385,10 @@ Procedure CreateMissingPredefinedData(MetadataObjects)
 		InitializePredefinedData();
 		
 		Query.Text = SavedItemsDescription.QueryText;
-		// ACC:1328-
-		// 
+		
+		
 		NameTable = Query.Execute().Unload();
-		// ACC:1328-
+		// ACC:1328-on.
 		NameTable.Indexes.Add("Name");
 		For Each SavedItemDescription In SavedItemsDescription.NameTable Do
 			If Not SavedItemDescription.ObjectExist Then
@@ -3368,25 +3403,25 @@ Procedure CreateMissingPredefinedData(MetadataObjects)
 					EndIf;
 					AddNewExtraAccountDimensionTypes(SavedItemDescription.Object, NewObject);
 				EndIf;
-				// ACC:1327-
+				// ACC:1327-off - #648.1.1. An exclusive lock is set in the caller procedure.
 				InfobaseUpdate.DeleteData(NewObject);
-				// ACC:1327-
+				// ACC:1327-off.
 				String.Name = "";
 			EndIf;
-			// ACC:1327-
+			// ACC:1327-off - #648.1.1. An exclusive lock is set in the caller procedure.
 			InfobaseUpdate.WriteData(SavedItemDescription.Object);
-			// ACC:1327-
+			
 		EndDo;
 		For Each String In NameTable Do
 			If Not ValueIsFilled(String.Name)
 			 Or Not ValueIsFilled(String.ParentName) Then
 				Continue;
 			EndIf;
-			ParentLevelRow = SavedItemsDescription.NameTable.Find(String.ParentName, "Name"); // 
+			ParentLevelRow = DescriptionOfSavedObject(SavedItemsDescription.NameTable, String.ParentName);
 			If ParentLevelRow <> Undefined Then
 				NewObject = String.Ref.GetObject();
 				NewObject.Parent = ParentLevelRow.Ref;
-				// ACC:1327-
+				// ACC:1327-off - #648.1.1. An exclusive lock is set in the caller procedure.
 				InfobaseUpdate.WriteData(NewObject);
 				// ACC:1327-off.
 			EndIf;
@@ -3401,6 +3436,26 @@ Procedure CreateMissingPredefinedData(MetadataObjects)
 	InitializePredefinedData();
 	
 EndProcedure
+
+// Returns:
+//  ValueTableRow:
+//    * Ref - CatalogRef,
+//             - ChartOfCharacteristicTypesRef
+//             - ChartOfAccountsRef
+//             - ChartOfCalculationTypesRef
+//    * Name - String
+//    * DataVersion- String
+//    * ParentName - String
+//    * Object - CatalogObject
+//             - ChartOfCharacteristicTypesObject
+//             - ChartOfAccountsObject
+//             - ChartOfCalculationTypesObject
+//    * ObjectExist - Boolean
+//  Undefined
+//
+Function DescriptionOfSavedObject(NameTable, ParentName)
+	Return NameTable.Find(ParentName, "Name");
+EndFunction
 
 // Parameters:
 //  OldObject - ChartOfAccountsObject
@@ -3501,7 +3556,7 @@ Procedure SaveExistingPredefinedObjectsBeforeCreateMissingOnes(
 					EndIf;
 				EndDo;
 			EndIf;
-			// ACC:1327-
+			// ACC:1327-off - #648.1.1. An exclusive lock is set in the caller procedure.
 			InfobaseUpdate.WriteData(Object);
 			// ACC:1327-off.
 			If IsChartOfAccounts Then
@@ -3522,7 +3577,7 @@ EndProcedure
 
 Procedure BeforeStartApplication()
 	
-	// 
+	
 	
 	If TimeConsumingOperations.ShouldSkipHandlerBeforeAppStartup() Then
 		Return;
@@ -3540,44 +3595,34 @@ Procedure BeforeStartApplication()
 	
 	// Checking settings of compatibility between the configuration and the platform version.
 	SystemInfo = New SystemInfo;
-	PlatformVersion = CommonClientServer.ConfigurationVersionWithoutBuildNumber(SystemInfo.AppVersion);
-	MinPlatformVersion = ?(PlatformVersion = "8.3.21", "8.3.21.1622", "8.3.22.1704");
-	If CommonClientServer.CompareVersions(SystemInfo.AppVersion, MinPlatformVersion) < 0 Then
-		MinPlatformVersion = "8.3.21.1622, 8.3.22.1704";
+	CurrentPlatformVersion = CommonClientServer.ConfigurationVersionWithoutBuildNumber(SystemInfo.AppVersion);
+	MinPlatformVersion = Common.MinPlatformVersion();
+	
+	AssemblyNumbers = StrSplit(MinPlatformVersion, "; ", False);
+	MinimumBuildNumberForCurrentVersionOfPlatform = AssemblyNumbers[AssemblyNumbers.UBound()];
+	
+	For Each BuildNumber In AssemblyNumbers Do
+		If StrStartsWith(BuildNumber, CurrentPlatformVersion + ".") Then
+			MinimumBuildNumberForCurrentVersionOfPlatform = BuildNumber;
+			Break;
+		EndIf;
+	EndDo;
+	
+	If CommonClientServer.CompareVersions(SystemInfo.AppVersion, MinimumBuildNumberForCurrentVersionOfPlatform) < 0 Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The application requires 1C:Enterprise version %1 or later.';"), MinPlatformVersion);
+			NStr("en = 'The application requires 1C:Enterprise version %1 or later.';"), MinimumBuildNumberForCurrentVersionOfPlatform);
 	EndIf;
 	
-	Modes = Metadata.ObjectProperties.CompatibilityMode;
-	CurrentMode = Metadata.CompatibilityMode;
+	SupportedPlatformVersions = Common.SupportedPlatformVersions();
+	SupportedPlatformVersion = SupportedPlatformVersions[SupportedPlatformVersions.Count() - 1].Value;
+	CompatibilityModeVersion = Common.CompatibilityModeVersion();
 	
-	SupportedPlatformVersion = "8.3.21";
-	
-	If CurrentMode = Modes.DontUse Then
-		SupportedPlatformVersions = StrSplit("8.3.21", ", ", False);
-		
-		If SupportedPlatformVersions.Find(PlatformVersion) <> Undefined Then 
-			NotSupportedPlatformVersion = "";
-		Else
-			NotSupportedPlatformVersion = PlatformVersion;
-		EndIf;
-	Else
-		CurrentModeAsString = String(CurrentMode);
-		
-		If StrEndsWith(CurrentModeAsString, "8_3_21") Then
-			
-			NotSupportedPlatformVersion = "";
-		Else
-			NotSupportedPlatformVersion = CurrentModeAsString;
-		EndIf;
-	EndIf;
-	
-	If ValueIsFilled(NotSupportedPlatformVersion) Then
+	If SupportedPlatformVersions.FindByValue(CompatibilityModeVersion) = Undefined Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Configuration compatibility mode ""Version %1"" is not supported. 
 			           |To start the application, set the compatibility mode to ""None"" (on 1C:Enterprise version %2)
 			           | or to ""Version %2"" (on a later 1C:Enterprise version).';"),
-			NotSupportedPlatformVersion, SupportedPlatformVersion);
+			CompatibilityModeVersion, SupportedPlatformVersion);
 	EndIf;
 	
 	// Checking whether the configuration version is filled.
@@ -3672,7 +3717,7 @@ Procedure CorrectSharedUserHomePage()
 	ElsIf FormCompositionMatches(PreviousFormCompositionInMetadata.LeftColumn,  FormCompositionInMetadata.LeftColumn)
 	        And FormCompositionMatches(PreviousFormCompositionInMetadata.RightColumn, FormCompositionInMetadata.RightColumn) Then
 		
-		// 
+		// Form content in the metadata of the home page is not changed.
 		Return;
 	EndIf;
 	
@@ -3705,8 +3750,8 @@ EndFunction
 // This method is required by CorrectSharedUserHomePage procedure.
 Procedure CompensateChangesOfFormCompositionInHomePageMetadata(PreviousFormCompositionInMetadata)
 	
-	// 
-	// 
+	
+	
 	
 	ObjectKey         = "Common/HomePageSettings";
 	StorageObjectKey = "Common/HomePageSettingsBeforeClear";
@@ -3791,8 +3836,8 @@ EndProcedure
 
 Procedure ExecuteSessionParameterSettingHandlers(SessionParametersNames, Handlers, SpecifiedParameters)
 	
-	// 
-	// 
+	
+	
 	SessionParameterKeys = New Array;
 	
 	For Each Record In Handlers Do
@@ -3976,8 +4021,8 @@ Procedure CheckIfCanStart()
 	
 	If ValueIsFilled(InfobaseProfile) Then
 		
-		// 
-		// 
+		
+		
 		
 		SetSafeMode(InfobaseProfile);
 		If SafeMode() <> InfobaseProfile Then
@@ -4020,8 +4065,8 @@ Procedure CheckIfCanStart()
 		
 	Else
 		
-		// 
-		// 
+		
+		
 		
 		Try
 			PrivilegedModeAvailable = CanExecuteHandlersWithoutSafeMode();
@@ -4046,8 +4091,8 @@ EndProcedure
 //
 Function CanExecuteHandlersWithoutSafeMode()
 	
-	// 
-	// 
+	
+	
 	Return Eval("SwichingToPrivilegedModeAvailable()"); // ACC:488
 		
 EndFunction
@@ -4093,7 +4138,7 @@ Procedure RegisterPredefinedItemChanges(DIBExchangePlansNodes, MetadataCollectio
 		|WHERE
 		|	CurrentTable.Predefined";
 		Query.Text = StrReplace(Query.Text, "&CurrentTable", MetadataObject.FullName());
-		// 
+		// @skip-check query-in-loop - Batch processing of data
 		Selection = Query.Execute().Select();
 		
 		While Selection.Next() Do
@@ -4118,14 +4163,14 @@ Procedure SetFormAssignmentUsageKey(Form, Var_Key, SetSettings)
 	EndIf;
 	
 	SettingsTypes1 = New Array;
-	// 
+	// Translated English variant.
 	SettingsTypes1.Add("/CurrentVariantKey");
 	SettingsTypes1.Add("/CurrentUserSettingsKey");
 	SettingsTypes1.Add("/CurrentUserSettings");
 	SettingsTypes1.Add("/CurrentDataSettingsKey");
 	SettingsTypes1.Add("/CurrentData");
 	SettingsTypes1.Add("/FormSettings");
-	// 
+	// Original English variant.
 	SettingsTypes1.Add("/CurrentVariantKey");
 	SettingsTypes1.Add("/CurrentUserSettingsKey");
 	SettingsTypes1.Add("/CurrentUserSettings");
@@ -4157,12 +4202,12 @@ Procedure SetFormWindowOptionsSaveKey(Form, Var_Key, SetSettings)
 	EndIf;
 	
 	SettingsTypes1 = New Array;
-	// 
+	// Translated English variant.
 	SettingsTypes1.Add("/ThinClientWindowSettings"); // @Non-NLS
 	SettingsTypes1.Add("/Taxi/ThinClientWindowSettings"); // @Non-NLS
 	SettingsTypes1.Add("/WebClientWindowSettings"); // @Non-NLS
-	SettingsTypes1.Add("/Taxi/WebClientWindowSettings"); // @Non-
-	// 
+	SettingsTypes1.Add("/Taxi/WebClientWindowSettings"); 
+	
 	SettingsTypes1.Add("/ThinClientWindowSettings");
 	SettingsTypes1.Add("/Taxi/ThinClientWindowSettings");
 	SettingsTypes1.Add("/WebClientWindowSettings");
@@ -4216,7 +4261,7 @@ Procedure SetSettingsForKey(Var_Key, SettingsTypes1, FormName, CurrentKey)
 	
 EndProcedure
 
-// 
+
 
 // See OnReceiptRecurringClientDataOnServer
 Procedure ConfigurationOrExtensionModifiedDuringRepeatedCheck(UserMessage)
@@ -4252,7 +4297,7 @@ Procedure ConfigurationOrExtensionModifiedDuringRepeatedCheck(UserMessage)
 	If DynamicChanges.Corrections <> Undefined
 		And DynamicChanges.Extensions = Undefined
 		And Not DataBaseConfigurationChangedDynamically
-		// 
+		
 		And DynamicChanges.Corrections.Added2 <> 0
 		And DynamicChanges.Corrections.Deleted = 0 Then
 	
@@ -4272,6 +4317,10 @@ Procedure ConfigurationOrExtensionModifiedDuringRepeatedCheck(UserMessage)
 				Common.SystemSettingsStorageSave("DynamicUpdateControl",
 					"PatchCheckSchedule", NotificationSchedule,, UserName);
 			EndIf;
+		Else 
+			OnceADay = New JobSchedule;
+			OnceADay.DaysRepeatPeriod = 1;
+			Common.SystemSettingsStorageSave("DynamicUpdateControl", "PatchCheckSchedule", OnceADay);
 		EndIf;
 	EndIf;
 	
@@ -4281,8 +4330,11 @@ Procedure ConfigurationOrExtensionModifiedDuringRepeatedCheck(UserMessage)
 	
 	DynamicChanges.Insert("DataBaseConfigurationChangedDynamically",
 		DataBaseConfigurationChangedDynamically);
-	
-	UserMessage = MessageTextOnDynamicUpdate(DynamicChanges);
+		
+	Messages = New Array;
+	Messages.Add(MessageTextOnDynamicUpdate(DynamicChanges));
+	Messages.Add(NStr("en = 'Click here to apply or delay patches.';"));
+	UserMessage = StrConcat(Messages, Chars.LF);
 	
 EndProcedure
 
@@ -4465,8 +4517,8 @@ EndFunction
 //  Structure:
 //   * Key - String - style item name.
 //   * Value - String
-//              - MetadataObjectStyleItem - 
-//                           
+//              - MetadataObjectStyleItem - a style item. For a regular application thick client,
+//                           the style item is converted to the system string presentation of the passed value.
 //
 Function StyleElementsSet()
 	

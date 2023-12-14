@@ -13,7 +13,7 @@
 // Creates details of the message template parameter table.
 //
 // Returns:
-//   ValueTable - 
+//   ValueTable - :
 //    * ParameterName                - String - a parameter name.
 //    * TypeDetails                - TypeDescription - parameter type details.
 //    * IsPredefinedParameter - Boolean - indicates whether the parameter is predefined.

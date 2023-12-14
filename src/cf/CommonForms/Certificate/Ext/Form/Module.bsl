@@ -50,6 +50,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	CertificateProperties = DigitalSignature.CertificateProperties(Certificate);
+	AdditionalCertificateProperties = DigitalSignatureInternalClientServer.AdditionalCertificateProperties(
+		CertificateData);
 	
 	AssignmentSign = Certificate.UseToSign;
 	AssignmentEncryption = Certificate.UseToEncrypt;
@@ -57,16 +59,17 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Thumbprint      = CertificateProperties.Thumbprint;
 	IssuedTo      = CertificateProperties.IssuedTo;
 	IssuedBy       = CertificateProperties.IssuedBy;
-	ValidBefore = CertificateProperties.EndDate;
+	EndDate  = CertificateProperties.EndDate;
+	EndDateOfPrivateKey = CertificateProperties.EndDateOfPrivateKey;
+	Items.EndDateOfPrivateKey.Visible = ValueIsFilled(EndDateOfPrivateKey);
 	
 	SignAlgorithm = DigitalSignatureInternalClientServer.CertificateSignAlgorithm(
 		CertificateData, True);
 	
 	Items.SignAlgorithm.ToolTip =
 		Metadata.Catalogs.DigitalSignatureAndEncryptionApplications.Attributes.SignAlgorithm.Tooltip;
-		
-	Items.GroupLicenseCryptoPro.Visible = DigitalSignatureInternal.ContainsEmbeddedLicenseCryptoPro(
-		CertificateData);
+	
+	Items.GroupLicenseCryptoPro.Visible = AdditionalCertificateProperties.ContainsEmbeddedLicenseCryptoPro;
 	
 	FillCertificatePurposeCodes(CertificateProperties.Purpose, AssignmentCodes);
 	
@@ -89,7 +92,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				CryptoCertificate = New CryptoCertificate(
 					Base64Value(GetFromTempStorage(CurrentCertificate.CertificateData)));
 				NewRow = CertificationPath.Insert(0);
-				NewRow.Presentation = DigitalSignature.CertificatePresentation(CryptoCertificate);
+				CertificateProperties = DigitalSignature.CertificateProperties(CryptoCertificate);
+				NewRow.Presentation = CertificateProperties.Presentation;
 				NewRow.CertificateData = CurrentCertificate.CertificateData;
 			EndDo;
 			Items.GroupErrorGettingCertificatesChain.Visible = False;
@@ -387,6 +391,14 @@ Procedure FillInternalCertificateFields()
 		AddProperty(Certificate, "Version",                    NStr("en = 'Version';"));
 		AddProperty(Certificate, "ValidFrom",                NStr("en = 'Start date';"));
 		AddProperty(Certificate, "ValidTo",             NStr("en = 'End date';"));
+		
+		If ValueIsFilled(AdditionalCertificateProperties.StartDateOfPrivateKey) Then
+			AddProperty(AdditionalCertificateProperties, "StartDateOfPrivateKey",    NStr("en = 'Дата начала закрытого ключа';"));
+		EndIf;
+		If ValueIsFilled(AdditionalCertificateProperties.EndDateOfPrivateKey) Then
+			AddProperty(AdditionalCertificateProperties, "EndDateOfPrivateKey", NStr("en = 'Дата окончания закрытого ключа';"));
+		EndIf;
+		
 		AddProperty(Certificate, "UseToSign",    NStr("en = 'Use for signature';"));
 		AddProperty(Certificate, "UseToEncrypt", NStr("en = 'Use for encryption';"));
 		AddProperty(Certificate, "PublicKey",              NStr("en = 'Public key';"), True);
@@ -477,7 +489,7 @@ EndProcedure
 // Transforms certificate purposes into purpose codes.
 //
 // Parameters:
-//  Purpose    - String - a multiline certificate purpose, for example:
+//  Purpose    - String - Multiline certificate purpose. For example:
 //                           "Microsoft Encrypted File System (1.3.6.1.4.1.311.10.3.4)
 //                           |E-mail Protection (1.3.6.1.5.5.7.3.4)
 //                           |TLS Web Client Authentication (1.3.6.1.5.5.7.3.2)".
@@ -525,10 +537,13 @@ Async Procedure AfterGotCertificatesChain(Result, AdditionalParameters) Export
 	If Not ValueIsFilled(Result.Error) Then
 		For Each CurrentCertificate In Result.Certificates Do
 			CryptoCertificate = New CryptoCertificate();
-			CryptoCertificate.InitializeAsync(
+			Await CryptoCertificate.InitializeAsync(
 				Base64Value(GetFromTempStorage(CurrentCertificate.CertificateData)));
 			NewRow = CertificationPath.Insert(0);
-			NewRow.Presentation = DigitalSignatureClient.CertificatePresentation(CryptoCertificate);
+			
+			CertificateProperties = Await DigitalSignatureInternalClient.CertificateProperties(CryptoCertificate);
+			
+			NewRow.Presentation = CertificateProperties.Presentation;
 			NewRow.CertificateData = CurrentCertificate.CertificateData;
 		EndDo;
 		Items.GroupErrorGettingCertificatesChain.Visible = False;

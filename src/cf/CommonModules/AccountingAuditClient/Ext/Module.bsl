@@ -23,8 +23,8 @@
 //
 Procedure OpenIssuesReport(ChecksKind, ExactMap = True) Export
 	
-	// 
-	// 
+	
+	
 	
 	AccountingAuditInternalClient.OpenIssuesReport(ChecksKind, ExactMap);
 	
@@ -43,8 +43,8 @@ EndProcedure
 //
 Procedure OpenObjectIssuesReport(Form, ObjectWithIssue, StandardProcessing) Export
 	
-	// 
-	// 
+	
+	
 	
 	StandardProcessing = False;
 	
@@ -66,8 +66,8 @@ EndProcedure
 //     StandardProcessing    - Boolean - a flag indicating whether
 //                               the standard (system) event processing is executed is passed to this parameter.
 //     AdditionalParameters - Structure
-//                             - Undefined - 
-//                               
+//                             - Undefined - contains additional properties in case
+//                               you need to use them.
 //
 // Example:
 //    AccountingAuditClient.OpenListedIssuesReport("ThisObject", "List", Field, StandardProcessing);

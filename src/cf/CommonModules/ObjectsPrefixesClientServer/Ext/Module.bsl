@@ -25,7 +25,7 @@
 //                                                By default, it is equal to False.
 //
 // Returns:
-//     String - 
+//     String - an object number without prefixes.
 //
 // Example:
 //    DeletePrefixesFromObjectNumber("0FGL-000001234", True, True) = "000001234"
@@ -89,7 +89,7 @@ EndFunction
 //    ObjectNumber - String - an object number or code from which leading zeroes are to be removed.
 // 
 // Returns:
-//     String - 
+//     String - an object number without leading zeros.
 //
 Function DeleteLeadingZerosFromObjectNumber(Val ObjectNumber) Export
 	
@@ -112,7 +112,7 @@ Function DeleteLeadingZerosFromObjectNumber(Val ObjectNumber) Export
 		
 	EndIf;
 	
-	// 
+	// Removing leading zeros from the number.
 	Number = StringFunctionsClientServer.DeleteDuplicateChars(Number, "0");
 	
 	Return Prefix + CustomPrefix + Number;
@@ -129,7 +129,7 @@ EndFunction
 //     ObjectNumber - String - an object number or code from which leading zeroes are to be removed.
 // 
 // Returns:
-//     String - 
+//     String - an object number without custom prefixes.
 //
 Function DeleteCustomPrefixesFromObjectNumber(Val ObjectNumber) Export
 	
@@ -180,7 +180,7 @@ EndFunction
 //    ObjectNumber - String - an object number or object code from which a custom prefix is to be received.
 // 
 // Returns:
-//     String - 
+//     String - a custom prefix.
 //
 Function CustomPrefix(Val ObjectNumber) Export
 	
@@ -227,7 +227,7 @@ EndFunction
 //    DeleteCustomPrefix - Boolean - shows whether a custom prefix is to be removed.
 //
 // Returns:
-//     String - 
+//     String - a number for printing.
 //
 Function NumberForPrinting(Val ObjectNumber, DeleteInfobasePrefix = False, DeleteCustomPrefix = False) Export
 	
@@ -243,7 +243,7 @@ Function NumberForPrinting(Val ObjectNumber, DeleteInfobasePrefix = False, Delet
 	If StandardProcessing = False Then
 		Return ObjectNumber;
 	EndIf;
-	// {Обработчик: ПриПолученииНомераНаПечать} Окончание
+	// {Handler: OnGetNumberForPrinting} End
 	
 	ObjectNumber = TrimAll(ObjectNumber);
 	
@@ -254,10 +254,10 @@ Function NumberForPrinting(Val ObjectNumber, DeleteInfobasePrefix = False, Delet
 		
 	EndIf;
 	
-	// 
+	// Removing leading zeros from the object number.
 	ObjectNumber = DeleteLeadingZerosFromObjectNumber(ObjectNumber);
 	
-	// 
+	// Removing a company prefix and an infobase prefix from the object number.
 	ObjectNumber = DeletePrefixesFromObjectNumber(ObjectNumber, True, DeleteInfobasePrefix);
 	
 	Return ObjectNumber;

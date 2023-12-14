@@ -1066,13 +1066,13 @@
 											<ContextMenu name="DigitalSignaturesSignatureValidationDateContextMenu" id="152"/>
 											<ExtendedTooltip name="DigitalSignaturesSignatureValidationDateExtendedTooltip" id="153"/>
 										</InputField>
-										<InputField name="DigitalSignaturesMachineReadableAuthorizationLetter" id="315">
-											<DataPath>DigitalSignatures.MachineReadableAuthorizationLetter</DataPath>
+										<InputField name="DigitalSignaturesMachineReadableLetterOfAuthority" id="315">
+											<DataPath>DigitalSignatures.MachineReadableLetterOfAuthority</DataPath>
 											<TitleLocation>None</TitleLocation>
 											<ShowInHeader>false</ShowInHeader>
 											<AutoMaxHeight>false</AutoMaxHeight>
-											<ContextMenu name="DigitalSignaturesMachineReadableAuthorizationLetterContextMenu" id="316"/>
-											<ExtendedTooltip name="DigitalSignaturesMachineReadableAuthorizationLetterExtendedTooltip" id="317"/>
+											<ContextMenu name="DigitalSignaturesMachineReadableLetterOfAuthorityContextMenu" id="316"/>
+											<ExtendedTooltip name="DigitalSignaturesMachineReadableLetterOfAuthorityExtendedTooltip" id="317"/>
 										</InputField>
 									</ChildItems>
 								</ColumnGroup>
@@ -1445,7 +1445,7 @@
 						<v8:Type>xs:boolean</v8:Type>
 					</Type>
 				</Column>
-				<Column name="ResultOfSignatureVerificationByMCHD" id="23">
+				<Column name="ResultOfSignatureVerificationByMRLOA" id="23">
 					<Type>
 						<v8:Type>xs:string</v8:Type>
 						<v8:StringQualifiers>
@@ -1454,7 +1454,7 @@
 						</v8:StringQualifiers>
 					</Type>
 				</Column>
-				<Column name="MachineReadableAuthorizationLetter" id="24">
+				<Column name="MachineReadableLetterOfAuthority" id="24">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>

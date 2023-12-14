@@ -93,7 +93,14 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	While Selection.Next() Do
 		CurState = StateOfOrder.Add();
 		CurState.Ref = Selection.Ref;
-		CurState.Order = Selection.Ref.AddlOrderingAttribute;
+	EndDo;
+	
+	References = StateOfOrder.UnloadColumn("Ref");
+	AttributesOfOrder = Common.ObjectsAttributeValue(References, "AddlOrderingAttribute"); 
+	
+	For Each State In StateOfOrder Do
+		CrntOrder = AttributesOfOrder.Get(State.Ref);
+		State.Order = CrntOrder;
 	EndDo;
 	
 	StateOfOrder.Sort("Order");
@@ -123,7 +130,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			EndIf;
 			
 		Except
-			// 
+			// If procession failed, try again.
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -171,10 +178,10 @@ Procedure FillInTheDetailsOfTheAdditionalOrderingDetails(Selection, Order)
 		
 		TheStateOfTheObject = Selection.Ref.GetObject();
 		
-		// 
+		// Process object.
 		TheStateOfTheObject.AddlOrderingAttribute = Order;
 		
-		// 
+		// Write processed object.
 		InfobaseUpdate.WriteData(TheStateOfTheObject);
 		
 		CommitTransaction();

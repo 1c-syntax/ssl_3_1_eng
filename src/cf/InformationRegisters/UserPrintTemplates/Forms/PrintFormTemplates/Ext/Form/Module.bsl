@@ -88,6 +88,13 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 			IDsOfModifiedRows = UpdateDisplayLayout(Parameter);
 			If Items.Templates.CurrentData <> Undefined And Items.Templates.CurrentData.IsFolder Then
 				Items.Templates.CurrentRow = IDsOfModifiedRows[Items.Templates.CurrentData.GetID()];
+			Else
+				For Each Item In IDsOfModifiedRows Do
+					Items.Templates.CurrentRow = Item.Value;
+					Break;
+				EndDo;
+			EndIf;
+			If Items.Templates.CurrentData <> Undefined Then
 				Items.Templates.CurrentData.MatchesFilter = True;
 			EndIf;
 		EndIf;
@@ -456,7 +463,7 @@ EndProcedure
 
 #EndRegion
 
-// 
+
 
 &AtClient
 Procedure OpenPrintFormTemplate()
@@ -505,16 +512,16 @@ Procedure OpenPrintFormTemplateForEdit()
 	
 	If CurrentData.Changed And Not CurrentData.ChangedTemplateUsed Then
 		NotifyDescription = New NotifyDescription("OpenPrintFormTemplateForEditingFollowUp", ThisObject, CurrentData);
-		QueryText = NStr("en = 'A template modified earlier has been found, which is not currently used.
-		|You can continue editing the modified template or start editing a standard template.
+		QueryText = NStr("en = 'An edited version of this template is available.
+		|You can switch to the edited template or continue with the standard one.
 		|';");
 		
 		Buttons = New ValueList();
-		Buttons.Add(True, NStr("en = 'Modified earlier';"));
-		Buttons.Add(False, NStr("en = 'Standard (current)';"));
+		Buttons.Add(True, NStr("en = 'Edited template';"));
+		Buttons.Add(False, NStr("en = 'Standard template';"));
 		Buttons.Add(Undefined, NStr("en = 'Cancel';"));
 		
-		ShowQueryBox(NotifyDescription, QueryText, Buttons, , , NStr("en = 'Which template do you want to edit?';"));
+		ShowQueryBox(NotifyDescription, QueryText, Buttons, , , NStr("en = 'Which template do you want to proceed with?';"));
 		Return;
 	EndIf;
 	
@@ -560,7 +567,7 @@ Procedure OpenPrintFormTemplateForEditingFollowUp(SwitchUsages, CurrentData) Exp
 	
 EndProcedure
 
-// 
+
 
 &AtServerNoContext
 Function TemplateVersion(Id, TemplateType)
@@ -607,6 +614,7 @@ Procedure DeleteSelectedModifiedTemplates(Command)
 		CurrentData = Items.Templates.RowData(SelectedRow);
 		CurrentData.ChangedTemplateUsed = False;
 		CurrentData.Changed = False;
+		CurrentData.AvailableLanguages = "";
 		SetPictureUsage(CurrentData);
 		TemplatesToDelete.Add(CurrentData.TemplateMetadataObjectName);
 	EndDo;
@@ -791,7 +799,8 @@ EndProcedure
 
 &AtServerNoContext
 Function GetURLToListForm(MetadataObjectID)
-	Return  "e1cib/list/" + MetadataObjectID.FullName;
+	Return  "e1cib/list/" 
+		+ Common.MetadataObjectByID(MetadataObjectID).FullName();
 EndFunction
 
 &AtClient
@@ -865,7 +874,7 @@ Procedure SetConditionalAppearance()
 	
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.FunctionsPanelSectionColor);
 	
-	// 
+	// Color of disabled items
 	
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -879,7 +888,7 @@ Procedure SetConditionalAppearance()
 	
 	AppearanceItem.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	
-	// 
+	// Hide the usage flag for groups
 	
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -893,7 +902,7 @@ Procedure SetConditionalAppearance()
 	
 	AppearanceItem.Appearance.SetParameterValue("Show", False);
 	
-	// 
+	// Hide the usage flag for 1C-supplied templates.
 	
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -927,7 +936,7 @@ Procedure SetConditionalAppearance()
 	AppearanceItem.Appearance.SetParameterValue("Show", False);
 	AppearanceItem.Appearance.SetParameterValue("Visible", False);
 	
-	//  
+	// Mismatches 
 	
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -1245,7 +1254,7 @@ Procedure ApplySelection()
 
 	If Items.Templates.CurrentData <> Undefined Then
 		If MatchesFilter(Items.Templates.CurrentData) Then
-			// 
+			// Move to the next row if it's not visible after the list of visible rows is modified.
 			CurrentRow = Items.Templates.CurrentRow;
 			Items.Templates.CurrentRow = 0;
 			Items.Templates.CurrentRow = CurrentRow;

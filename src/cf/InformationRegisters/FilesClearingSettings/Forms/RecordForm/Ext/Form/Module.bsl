@@ -74,20 +74,17 @@ Procedure InitializeComposer()
 	DataSet.DataSource = DataSource.Name;
 	
 	DCS.TotalFields.Clear();
-	
-	DCS.DataSets[0].Query = GetQueryText();
+	DCS.DataSets[0].Query = QueryText();
 	
 	DataCompositionSchema = PutToTempStorage(DCS, UUID);
-	
 	Rule.Initialize(New DataCompositionAvailableSettingsSource(DataCompositionSchema));
-	
 	Rule.Refresh(); 
 	Rule.Settings.Structure.Clear();
 	
 EndProcedure
 
 &AtServer
-Function GetQueryText()
+Function QueryText()
 	
 	AttributesArrayWithDateType.Clear();
 	If TypeOf(Record.FileOwner) = Type("CatalogRef.MetadataObjectIDs") Then
@@ -102,19 +99,20 @@ Function GetQueryText()
 		"SELECT
 		|	&FileOwnerFields
 		|FROM
-		|	&FullNameFileOwner";
+		|	#FullNameFileOwner";
 	
-	FileOwnerFields = ObjectType.Name + ".Ref";
-	If AllCatalogs.ContainsType(TypeOf(ObjectType.EmptyRefValue)) Then
-		Catalog = Metadata.Catalogs[ObjectType.Name];
+	InformationAboutObjectType = Common.ObjectAttributesValues(ObjectType, "Name,FullName,EmptyRefValue");
+	FileOwnerFields = InformationAboutObjectType.Name + ".Ref";
+	If AllCatalogs.ContainsType(TypeOf(InformationAboutObjectType.EmptyRefValue)) Then
+		Catalog = Metadata.Catalogs[InformationAboutObjectType.Name];
 		For Each Attribute In Catalog.Attributes Do
-			FileOwnerFields = FileOwnerFields + "," + Chars.LF + ObjectType.Name + "." + Attribute.Name;
+			FileOwnerFields = FileOwnerFields + "," + Chars.LF + InformationAboutObjectType.Name + "." + Attribute.Name;
 		EndDo;
 	ElsIf
-		AllDocuments.ContainsType(TypeOf(ObjectType.EmptyRefValue)) Then
-		Document = Metadata.Documents[ObjectType.Name];
+		AllDocuments.ContainsType(TypeOf(InformationAboutObjectType.EmptyRefValue)) Then
+		Document = Metadata.Documents[InformationAboutObjectType.Name];
 		For Each Attribute In Document.Attributes Do
-			FileOwnerFields = FileOwnerFields + "," + Chars.LF + ObjectType.Name + "." + Attribute.Name;
+			FileOwnerFields = FileOwnerFields + "," + Chars.LF + InformationAboutObjectType.Name + "." + Attribute.Name;
 			If Attribute.Type.ContainsType(Type("Date")) Then
 				AttributesArrayWithDateType.Add(Attribute.Name, Attribute.Synonym);
 				FileOwnerFields = FileOwnerFields + "," + Chars.LF 
@@ -125,7 +123,8 @@ Function GetQueryText()
 	EndIf;
 	
 	QueryText = StrReplace(QueryText, "&FileOwnerFields", FileOwnerFields);
-	QueryText = StrReplace(QueryText, "&FullNameFileOwner", ObjectType.FullName + " AS " + ObjectType.Name);
+	QueryText = StrReplace(QueryText, "#FullNameFileOwner", 
+		InformationAboutObjectType.FullName + " AS " + InformationAboutObjectType.Name);
 	Return QueryText;
 	
 EndFunction
@@ -140,7 +139,7 @@ Procedure AddConditionByDate(Command)
 EndProcedure
 
 &AtServer
-Procedure AddToFilterIntervalException(ValueSelected)
+Procedure AddToFilterIntervalException(Val ValueSelected)
 	
 	FilterByInterval = Rule.Settings.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	FilterByInterval.LeftValue = New DataCompositionField("DaysBeforeDeletionFrom" + ValueSelected.DateTypeAttribute);

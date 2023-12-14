@@ -240,8 +240,8 @@ Procedure RefreshTasksListOnServer()
 	
 	BusinessProcessesAndTasksServer.SetMyTasksListParameters(List);
 	Items.List.Refresh();
-	// 
-	// 
+	
+	
 	SetConditionalAppearance();
 	
 EndProcedure

@@ -14,7 +14,7 @@
 // Parameters:
 //   Form - ClientApplicationForm - a form that requires update of commands.
 //   Source - FormDataStructure
-//            - FormTable - 
+//            - FormTable - a context to check conditions (Form.Object or Form.Items.List).
 //
 Procedure UpdateCommands(Form, Val Source = Undefined) Export
 	
@@ -62,7 +62,7 @@ EndProcedure
 //   * Form - ClientApplicationForm - a form the command is called from.
 //   * IsObjectForm - Boolean - True if the command is called from the object form.
 //   * Source - FormTable
-//              - FormDataStructure - 
+//              - FormDataStructure - an object or a form list with the Reference field.
 //
 Function CommandExecuteParameters() Export
 	Result = New Structure;
@@ -256,7 +256,7 @@ Procedure RefreshSourceCommands(Val Form, Val Source, Val SourceName = "")
 				TheExpressionComputingTheValueOfTheNotes = CommandDetails.CheckMarkValue;
 			EndIf;
 			
-			Form.Items[CommandDetails.NameOnForm].Check = Eval(TheExpressionComputingTheValueOfTheNotes); // 
+			Form.Items[CommandDetails.NameOnForm].Check = Eval(TheExpressionComputingTheValueOfTheNotes); // ACC:488 The code being executed is safe.
 		EndIf;
 	EndDo;
 	

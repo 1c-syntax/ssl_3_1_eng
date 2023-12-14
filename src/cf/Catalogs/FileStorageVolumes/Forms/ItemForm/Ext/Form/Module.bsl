@@ -115,7 +115,7 @@ EndProcedure
 &AtClient
 Procedure FullPathWindowsOnChange(Item)
 	
-	// Deleting extra spaces and adding a slash at the end if it is missing.
+	// Delete extra spaces and add a slash at the end (unless it is already there).
 	If Not IsBlankString(Object.FullPathWindows) Then
 		
 		If StrStartsWith(Object.FullPathWindows, " ") Or StrEndsWith(Object.FullPathWindows, " ") Then
@@ -137,7 +137,7 @@ EndProcedure
 &AtClient
 Procedure FullPathLinuxOnChange(Item)
 	
-	// Deleting extra spaces and adding a slash at the end if it is missing.
+	// Delete extra spaces and add a slash at the end (unless it is already there).
 	If Not IsBlankString(Object.FullPathLinux) Then
 		
 		If StrStartsWith(Object.FullPathLinux, " ") Or StrEndsWith(Object.FullPathLinux, " ") Then

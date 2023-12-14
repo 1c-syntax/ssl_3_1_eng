@@ -76,7 +76,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				           |
 				           |%1';"),
 				UnlockText);
-		Else // 
+		Else // If DataSeparationEnabled and DataSeparationChanged
 			WarningLabel = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Scheduled online activities such as data synchronization and emailing are disabled
 				           |to prevent conflicts with the local version.

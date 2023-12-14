@@ -489,7 +489,7 @@ Procedure CheckDeliveryStatuses(Command)
 	
 EndProcedure
 
-// 
+
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -515,7 +515,7 @@ Procedure Attachable_AttachedFilesPanelCommand(Command)
 EndProcedure
 // End StandardSubsystems.FilesOperations
 
-// 
+
 
 &AtClient
 Procedure GenerateFromTemplate(Command)
@@ -553,7 +553,7 @@ Procedure SetConditionalAppearance()
 
 EndProcedure
 
-// 
+
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()
@@ -892,7 +892,7 @@ Procedure Attachable_UpdateCommands()
 EndProcedure
 // End StandardSubsystems.AttachableCommands
 
-// 
+
 
 &AtClient
 Procedure FillByTemplateAfterTemplateChoice(Result, AdditionalParameters) Export

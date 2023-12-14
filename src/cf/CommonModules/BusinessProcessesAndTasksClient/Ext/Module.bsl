@@ -82,7 +82,7 @@ EndProcedure
 //
 // Parameters:
 //  Form - ClientApplicationForm
-//        - ManagedFormExtensionForObjects - 
+//        - ManagedFormExtensionForObjects - :
 //   * Object - DefinedType.BusinessProcessObject - business process. 
 //
 Procedure StopBusinessProcessFromObjectForm(Form) Export
@@ -103,7 +103,7 @@ EndProcedure
 // Parameters:
 //  CommandParameter - Array of DefinedType.BusinessProcess
 //                  - DynamicListGroupRow
-//                  - DefinedType.BusinessProcess - 
+//                  - DefinedType.BusinessProcess - business process.
 //
 Procedure Activate(Val CommandParameter) Export
 	
@@ -157,7 +157,7 @@ EndProcedure
 //
 // Parameters:
 //  Form - ClientApplicationForm
-//        - ManagedFormExtensionForObjects - 
+//        - ManagedFormExtensionForObjects - :
 //   * Object - DefinedType.BusinessProcessObject - business process.
 //
 Procedure ContinueBusinessProcessFromObjectForm(Form) Export
@@ -204,18 +204,18 @@ EndProcedure
 //
 // Parameters:
 //  Form               - ClientApplicationForm
-//                      - ManagedFormExtensionForObjects - problem form, where:
+//                      - ManagedFormExtensionForObjects - :
 //   * Object - TaskObject - task.
 //  CurrentUser - CatalogRef.ExternalUsers
-//                      - CatalogRef.Users - 
-//                                                        
+//                      - CatalogRef.Users - a reference to the current
+//                                                        application user.
 //
 Procedure AcceptTaskForExecution(Form, CurrentUser) Export
 	
 	Form.Object.AcceptedForExecution = True;
 	
-	// ДатаПринятияКИсполнению устанавливается пустой -  
-	// 
+	 
+	
 	Form.Object.AcceptForExecutionDate = Date('00010101');
 	If Not ValueIsFilled(Form.Object.Performer) Then
 		Form.Object.Performer = CurrentUser;
@@ -260,7 +260,7 @@ EndProcedure
 //
 // Parameters:
 //  Form - ClientApplicationForm
-//        - ManagedFormExtensionForObjects - problem form, where:
+//        - ManagedFormExtensionForObjects - :
 //   * Object - TaskObject - task.
 //
 Procedure CancelAcceptTaskForExecution(Form) Export
@@ -369,8 +369,8 @@ EndProcedure
 //  Copy  - Boolean - defines the copy mode. If True, the row is copied. 
 //  Parent     - Undefined
 //               - CatalogRef
-//               - ChartOfAccountsRef - 
-//                                    
+//               - ChartOfAccountsRef - a reference to the item used
+//                                    as a parent on adding.
 //  Group       - Boolean - shows whether a group is added. True - a group is added. 
 //
 Procedure TaskListBeforeAddRow(Form, Item, Cancel, Copy, Parent, Group) Export
@@ -396,7 +396,7 @@ EndProcedure
 //  NotificationParameters - Structure - Additional notification parameters.
 //
 // Returns:
-//   Boolean   - 
+//   Boolean   - True if the task is written.
 //
 Function WriteAndCloseExecute(Form, ExecuteTask = False, NotificationParameters = Undefined) Export
 	
@@ -445,8 +445,8 @@ EndProcedure
 //
 // Parameters:
 //  RedirectedTasks_SSLs - Array of TaskRef.PerformerTask
-//  OwnerForm - ClientApplicationForm - the form that should be the owner of
-//                                               the task redirection form that is being opened.
+//  OwnerForm - ClientApplicationForm - a form that must be the owner for the task forwarding
+//                                               form being opened.
 //
 Procedure ForwardTasks(RedirectedTasks_SSLs, OwnerForm) Export
 	

@@ -11,7 +11,7 @@
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated.Dated.
+// Deprecated.
 // See Users.AuthorizedUser.
 // See UsersClient.AuthorizedUser.
 //
@@ -23,11 +23,11 @@ Function AuthorizedUser() Export
 #Else
 	Return UsersClient.AuthorizedUser();
 #EndIf
-// 
+// ACC:547-on
 	
 EndFunction
 
-// Deprecated.Dated.
+// Deprecated.
 // See Users.CurrentUser.
 // See UsersClient.CurrentUser.
 //
@@ -39,11 +39,11 @@ Function CurrentUser() Export
 #Else
 	Return UsersClient.CurrentUser();
 #EndIf
-// 
+// ACC:547-on
 	
 EndFunction
 
-// Deprecated.Dated.
+// Deprecated.
 // See ExternalUsers.CurrentExternalUser.
 // See ExternalUsersClient.CurrentExternalUser.
 //
@@ -55,11 +55,11 @@ Function CurrentExternalUser() Export
 #Else
 	Return ExternalUsersClient.CurrentExternalUser();
 #EndIf
-// 
+// ACC:547-on
 	
 EndFunction
 
-// Deprecated.Dated.
+// Deprecated.
 // See Users.IsExternalUserSession.
 // See UsersClient.IsExternalUserSession.
 //
@@ -71,7 +71,7 @@ Function IsExternalUserSession() Export
 #Else
 	Return UsersClient.IsExternalUserSession();
 #EndIf
-// 
+// ACC:547-on
 	
 EndFunction
 

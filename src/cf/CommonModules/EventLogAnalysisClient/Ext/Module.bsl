@@ -117,7 +117,7 @@ Procedure ResultDetailProcessingCompletion(SelectedOption, HandlerParameters) Ex
 		For Each GanttChartPoint In PointsList Do
 			
 			DetailsPoint = GanttChartPoint.Details;
-			If GanttChartPoint.Value = NStr("en = 'Background jobs';") Then // 
+			If GanttChartPoint.Value = NStr("en = 'Background jobs';") Then // ACC:1391 Localizable chart point value.
 				Continue;
 			EndIf;
 			

@@ -77,11 +77,11 @@ EndProcedure
 //       * Subsystem              - String - name of a library or a configuration.
 //       * Version                  - String - for example, "2.1.3.39". Library (configuration) version number.
 //       * IsMainConfiguration - Boolean - True if it is a main configuration, not a library.
-//       * Handlers             - ValueTable - all library update handlers;
-//                                   see description of columns in InfobaseUpdate.NewUpdateHandlerTable.
-//       * CompletedHandlers  - ValueTree - completed update handlers, grouped by
-//                                   library and version number.
-//                                   See column details in InfobaseUpdate.NewUpdateHandlerTable.
+//       * Handlers             - ValueTable - 
+//                                   
+//       * CompletedHandlers  - ValueTree - 
+//                                   
+//                                   
 //       * MainServerModuleName - String - name of a library (configuration) module that contains
 //                                        basic information about it: name, version, etc.
 //       * MainServerModule      - CommonModule - library (configuration) common module which contains
@@ -136,11 +136,11 @@ EndProcedure
 //       * Subsystem              - String - name of a library or a configuration.
 //       * Version                  - String - for example, "2.1.3.39". Library (configuration) version number.
 //       * IsMainConfiguration - Boolean - True if it is a main configuration, not a library.
-//       * Handlers             - ValueTable - all library update handlers;
-//                                   see description of columns in InfobaseUpdate.NewUpdateHandlerTable.
-//       * CompletedHandlers  - ValueTree - completed update handlers, grouped by
-//                                   library and version number.
-//                                   See column details in InfobaseUpdate.NewUpdateHandlerTable.
+//       * Handlers             - ValueTable - 
+//                                   
+//       * CompletedHandlers  - ValueTree - 
+//                                   
+//                                   
 //       * MainServerModuleName - String - name of a library (configuration) module that contains
 //                                        basic information about it: name, version, etc.
 //       * MainServerModule      - CommonModule - library (configuration) common module which contains
@@ -187,8 +187,8 @@ EndProcedure
 // Intended for overriding the update order for a metadata object.  
 //
 // Parameters:
-//   PrioritizingMetadataTypes - Map of KeyAndValue - Metadata type update order.
-//                   * Key - 
+//   PrioritizingMetadataTypes - Map of KeyAndValue - Metadata type update order.:
+//                   * Key - Metadata object name in singular form. Or the full name of a metadata type.
 //                   * Value - Number - Update order.
 //
 // Example:
@@ -253,7 +253,7 @@ EndProcedure
 //
 // Parameters:
 //  FullObjectName - String - an object name for which filling is called.
-//  Object                  - the object to fill in.
+//  Object                  - Object to populate.
 //  Data                  - ValueTableRow - object filling data.
 //  AdditionalParameters - Structure:
 //   * PredefinedData - ValueTable - data filled in the OnInitialItemFilling procedure.
